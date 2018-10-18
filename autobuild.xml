@@ -244,9 +244,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>492f182607d6096ebc5620779fa6121d</string>
+              <string>c3b5e8c57bd1c92bc9e0956586908b99</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/26319/207508/bugsplat-1.0.7.520784-darwin64-520784.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/26330/207568/bugsplat-1.0.7.520791-darwin64-520791.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -256,9 +256,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dfbc7f3c1fd88adc8015e9c2c21b2435</string>
+              <string>766dfde65a5b42ea5691d41df79c43e0</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/26321/207522/bugsplat-3.6.0.4.520784-windows-520784.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/26332/207582/bugsplat-3.6.0.4.520791-windows-520791.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -268,16 +268,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>131db9b0775375386023f454cce9b803</string>
+              <string>afd01285e22f27d473fac6f88fac9a3b</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/26320/207516/bugsplat-3.6.0.4.520784-windows64-520784.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/26331/207576/bugsplat-3.6.0.4.520791-windows64-520791.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.7.520784</string>
+        <string>1.0.7.520791</string>
       </map>
       <key>colladadom</key>
       <map>
