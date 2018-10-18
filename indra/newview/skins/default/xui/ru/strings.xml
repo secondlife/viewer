@@ -636,6 +636,15 @@ support@secondlife.com.
 	<string name="BUTTON_HELP">
 		Показать справку
 	</string>
+	<string name="TooltipNotecardNotAllowedTypeDrop">
+		Элементы этого типа не могут быть занесены в 
+карточку для комментариев в этом регионе.
+	</string>
+	<string name="TooltipNotecardOwnerRestrictedDrop">
+		Только элементы с безусловным разрешением 
+‘следующего владельца’ можно внести 
+в карточки для комментариев.
+	</string>
 	<string name="Searching">
 		Поиск...
 	</string>
@@ -784,15 +793,15 @@ support@secondlife.com.
 	<string name="symbolic link">
 		ссылку
 	</string>
+	<string name="settings blob">
+		настройки
+	</string>
 	<string name="symbolic folder link">
 		ссылку на папку
 	</string>
 	<string name="mesh">
 		сетка
 	</string>
-    <string name="settings">
-        настроек
-    </string>
 	<string name="AvatarEditingAppearance">
 		(внешний вид редактируется)
 	</string>
@@ -2489,6 +2498,9 @@ support@secondlife.com.
 	</string>
 	<string name="RegionSettings">
 		Региональные настройки
+	</string>
+	<string name="NoEnvironmentSettings">
+		Этот регион не поддерживает параметры среды.
 	</string>
 	<string name="ClassifiedClicksTxt">
 		Щелчки: телепорт [TELEPORT], карта [MAP], профиль [PROFILE]
@@ -4828,6 +4840,15 @@ support@secondlife.com.
 	</string>
 	<string name="Female - Wow">
 		Женщина – ух ты!
+	</string>
+	<string name="New Daycycle">
+		Новый суточный цикл
+	</string>
+	<string name="New Water">
+		Новая вода
+	</string>
+	<string name="New Sky">
+		Новое небо
 	</string>
 	<string name="/bow">
 		/поклониться

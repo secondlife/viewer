@@ -635,6 +635,15 @@ support@secondlife.com にお問い合わせください。
 	<string name="BUTTON_HELP">
 		ヘルプを表示
 	</string>
+	<string name="TooltipNotecardNotAllowedTypeDrop">
+		このタイプのアイテムは、このリージョンのノートカードに
+添付することができません。
+	</string>
+	<string name="TooltipNotecardOwnerRestrictedDrop">
+		制限のない「次の所有者」の
+許可のみノートカードに
+添付できます。
+	</string>
 	<string name="Searching">
 		検索中...
 	</string>
@@ -786,15 +795,15 @@ support@secondlife.com にお問い合わせください。
 	<string name="symbolic link">
 		リンク
 	</string>
+	<string name="settings blob">
+		設定
+	</string>
 	<string name="symbolic folder link">
 		フォルダのリンク
 	</string>
 	<string name="mesh">
 		メッシュ
 	</string>
-    <string name="settings">
-        設定
-    </string>
 	<string name="AvatarEditingAppearance">
 		（容姿の編集中）
 	</string>
@@ -2490,6 +2499,9 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="RegionSettings">
 		リージョン（地域）の設定
+	</string>
+	<string name="NoEnvironmentSettings">
+		このリージョンは環境設定をサポートしていません。
 	</string>
 	<string name="ClassifiedClicksTxt">
 		クリック数： [TELEPORT] テレポート、 [MAP] 地図、 [PROFILE] プロフィール
@@ -4832,6 +4844,15 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Female - Wow">
 		女性 - Wow
+	</string>
+	<string name="New Daycycle">
+		新しいデイサイクル
+	</string>
+	<string name="New Water">
+		新しい水
+	</string>
+	<string name="New Sky">
+		新しい空
 	</string>
 	<string name="/bow">
 		/おじぎする

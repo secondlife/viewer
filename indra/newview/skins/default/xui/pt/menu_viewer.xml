@@ -77,27 +77,14 @@
 			<menu_item_check label="Propriedades do lote" name="Parcel Properties"/>
 			<menu_item_check label="Menu avançado" name="Show Advanced Menu"/>
 		</menu>
-		<menu label="Sol" name="Sun">
-			<menu_item_check label="Amanhecer" name="Sunrise"/>
+		<menu label="Ambiente" name="Environment">
+			<menu_item_check label="Nascer-do-sol" name="Sunrise"/>
 			<menu_item_check label="Meio-dia" name="Noon"/>
 			<menu_item_check label="Pôr-do-sol" name="Sunset"/>
 			<menu_item_check label="Meia-noite" name="Midnight"/>
-			<menu_item_check label="Usar configurações da região" name="Use Region Settings"/>
-		</menu>
-		<menu label="Editor de ambientes" name="Environment Editor">
-			<menu_item_call label="Configurações do ambiente..." name="Environment Settings"/>
-			<menu label="Predefinições da água" name="Water Presets">
-				<menu_item_call label="Nova predefinição..." name="new_water_preset"/>
-				<menu_item_call label="Editar predefinição..." name="edit_water_preset"/>
-			</menu>
-			<menu label="Predefinições de céu" name="Sky Presets">
-				<menu_item_call label="Nova predefinição..." name="new_sky_preset"/>
-				<menu_item_call label="Editar predefinição..." name="edit_sky_preset"/>
-			</menu>
-			<menu label="Predefinições do dia" name="Day Presets">
-				<menu_item_call label="Nova predefinição..." name="new_day_preset"/>
-				<menu_item_call label="Editar predefinição..." name="edit_day_preset"/>
-			</menu>
+			<menu_item_check label="Use o ambiente compartilhado" name="Use Shared Environment"/>
+			<menu_item_call label="Meu ambiente..." name="my_environs"/>
+			<menu_item_check label="Pausar as nuvens" name="pause_clouds"/>
 		</menu>
 	</menu>
 	<menu label="Construir" name="BuildTools">
@@ -270,7 +257,6 @@
 			<menu_item_check label="Mostrar info da textura" name="Show Texture Info"/>
 			<menu_item_check label="Mostrar cor sob o cursor" name="Show Color Under Cursor"/>
 			<menu_item_check label="Mostrar memória" name="Show Memory"/>
-			<menu_item_check label="Exibir informações de memória privadas" name="Show Private Mem Info"/>
 			<menu_item_check label="Mostrar mudanças a objetos" name="Show Updates"/>
 		</menu>
 		<menu label="Force an Error" name="Force Errors">

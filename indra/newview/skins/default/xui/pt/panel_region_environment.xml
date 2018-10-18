@@ -1,33 +1,77 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Ambiente" name="panel_env_info">
-	<text name="water_settings_title">
-		Selecione as configurações de Água e céu / Ciclo dos dias que todos os visitantes à sua região verão.  Mais informações
-	</text>
-	<radio_group name="region_settings_radio_group">
-		<radio_item label="Usar o padrão do Second Life" name="use_sl_default_settings"/>
-		<radio_item label="Usar as seguintes configurações" name="use_my_settings"/>
-	</radio_group>
-	<panel name="user_environment_settings">
-		<text name="water_settings_title">
-			Configuração de água
-		</text>
-		<combo_box name="water_settings_preset_combo">
-			<combo_box.item label="-Selecione uma pré-configuração-" name="item0"/>
-		</combo_box>
-		<text name="sky_dayc_settings_title">
-			Ciclo céu / dia
-		</text>
-		<radio_group name="sky_dayc_settings_radio_group">
-			<radio_item label="Céu fixo" name="my_sky_settings"/>
-			<radio_item label="Ciclo dia" name="my_dayc_settings"/>
-		</radio_group>
-		<combo_box name="sky_settings_preset_combo">
-			<combo_box.item label="-Selecione uma pré-configuração-" name="item0"/>
-		</combo_box>
-		<combo_box name="dayc_settings_preset_combo">
-			<combo_box.item label="-Selecione uma pré-configuração-" name="item0"/>
-		</combo_box>
-	</panel>
-	<button label="Aplicar" name="apply_btn"/>
-	<button label="Cancelar" name="cancel_btn"/>
+	<string name="str_label_use_default">
+		Usar as configurações padrões
+	</string>
+	<string name="str_label_use_region">
+		Usar as configurações da região
+	</string>
+	<string name="str_unknow_inventory">
+		Desconhecido
+	</string>
+	<string name="str_altitude_desription">
+		Céu [INDEX]([ALTITUDE]m)
+	</string>
+	<string name="str_no_parcel">
+		Nenhum lote está selecionado. As configurações do ambiente estão desativadas.
+	</string>
+	<string name="str_cross_region">
+		As configurações do ambiente não estão disponíveis além das fronteiras da região.
+	</string>
+	<string name="str_legacy">
+		As configurações do ambiente não estão disponíveis nesta região.
+	</string>
+	<layout_stack>
+		<layout_panel name="pnl_environment_disabled">
+			<text name="txt_environment_disabled">
+				...
+			</text>
+		</layout_panel>
+		<layout_panel name="pnl_environment_config">
+			<layout_stack>
+				<layout_panel name="pnl_environment_current">
+					<radio_group name="rdg_environment_select">
+						<radio_item label="[USEDEFAULT]" name="rdo_use_xxx_setting"/>
+						<radio_item label="Configurações de inventário" name="rdo_use_inv_setting"/>
+						<radio_item label="Personalizar o ambiente" name="rdo_use_custom_setting"/>
+					</radio_group>
+					<line_editor name="edt_inventory_name">
+						Desconhecido
+					</line_editor>
+					<button label="Editar o ambiente" name="btn_edit"/>
+				</layout_panel>
+				<layout_panel name="pnl_environment_length">
+					<text name="lbl_apparent_time">
+						[HH]:[MM][AP] ([PRC]%)
+					</text>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="pnl_environment_altitudes">
+			<panel name="cnt_panel">
+				<multi_slider initial_value="100" name="sld_altitudes">
+					<slider name="sld1" value="200"/>
+					<slider name="sld2" value="400"/>
+					<slider name="sld3" value="600"/>
+				</multi_slider>
+				<text name="ground">
+					Chão
+				</text>
+				<text name="alt1">
+					Céu [INDEX]([ALTITUDE]m)
+				</text>
+				<text name="alt2">
+					Céu [INDEX]([ALTITUDE]m)
+				</text>
+				<text name="alt3">
+					Céu [INDEX]([ALTITUDE]m)
+				</text>
+			</panel>
+		</layout_panel>
+		<layout_panel name="pnl_environment_buttons">
+			<check_box label="Os proprietários do lote podem desconsiderar o ambiente" name="chk_allow_override"/>
+			<button label="Aplicar" name="btn_apply"/>
+			<button label="Redefinir" name="btn_cancel"/>
+		</layout_panel>
+	</layout_stack>
 </panel>

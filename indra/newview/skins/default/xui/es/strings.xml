@@ -627,6 +627,15 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="BUTTON_HELP">
 		Ver la Ayuda
 	</string>
+	<string name="TooltipNotecardNotAllowedTypeDrop">
+		Los objetos de este tipo no se pueden adjuntar 
+a las notas de esta región.
+	</string>
+	<string name="TooltipNotecardOwnerRestrictedDrop">
+		Sólo los objetos con permisos 
+«próximo propietario» sin restricciones 
+pueden adjuntarse a las notas.
+	</string>
 	<string name="Searching">
 		Buscando...
 	</string>
@@ -775,15 +784,15 @@ http://secondlife.com/support para obtener ayuda sobre cómo solucionar este pro
 	<string name="symbolic link">
 		el enlace
 	</string>
+	<string name="settings blob">
+		opciones
+	</string>
 	<string name="symbolic folder link">
 		enlace de la carpeta
 	</string>
 	<string name="mesh">
 		red
 	</string>
-    <string name="settings">
-        configuración
-    </string>
 	<string name="AvatarEditingAppearance">
 		(Edición de Apariencia)
 	</string>
@@ -2462,6 +2471,9 @@ Si sigues recibiendo el mismo mensaje, solicita ayuda al personal de asistencia 
 	</string>
 	<string name="RegionSettings">
 		Configuración de la región
+	</string>
+	<string name="NoEnvironmentSettings">
+		Esta región no es compatible con las opciones de entorno.
 	</string>
 	<string name="ClassifiedClicksTxt">
 		Clics: [TELEPORT] teleportes, [MAP] mapa, [PROFILE] perfil
@@ -4744,6 +4756,15 @@ Denuncia de infracción
 	</string>
 	<string name="Female - Wow">
 		Mujer - Admiración
+	</string>
+	<string name="New Daycycle">
+		Nuevo Ciclo del día
+	</string>
+	<string name="New Water">
+		Nueva Agua
+	</string>
+	<string name="New Sky">
+		Nuevo Cielo
 	</string>
 	<string name="/bow">
 		/reverencia

@@ -26,10 +26,10 @@
 	<check_box label="Permetti teleport diretto" name="allow_direct_teleport"/>
 	<button label="Applica" name="apply_btn"/>
 	<text name="estate_manager_label">
-		Manager delle proprietà:
+		Gestori delle proprietà immobiliari:
 	</text>
 	<text name="allow_resident_label">
-		Sempre consentito:
+		Sempre consentiti:
 	</text>
 	<button label="Aggiungi..." name="add_estate_manager_btn"/>
 	<button label="Rimuovi..." name="remove_estate_manager_btn"/>
@@ -39,7 +39,7 @@
 		Gruppi sempre consentiti:
 	</text>
 	<text name="ban_resident_label">
-		Sempre escluso:
+		Sempre espulsi:
 	</text>
 	<button label="Aggiungi..." name="add_allowed_group_btn"/>
 	<button label="Rimuovi..." name="remove_allowed_group_btn"/>

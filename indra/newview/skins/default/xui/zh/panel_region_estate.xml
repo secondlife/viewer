@@ -29,22 +29,22 @@
 		領地管理員：
 	</text>
 	<text name="allow_resident_label">
-		永遠允許：
+		永遠准許：
 	</text>
-	<button label="添加..." name="add_estate_manager_btn"/>
-	<button label="移除..." name="remove_estate_manager_btn"/>
-	<button label="添加..." name="add_allowed_avatar_btn"/>
-	<button label="移除..." name="remove_allowed_avatar_btn"/>
+	<button label="新增…" name="add_estate_manager_btn"/>
+	<button label="移除…" name="remove_estate_manager_btn"/>
+	<button label="新增…" name="add_allowed_avatar_btn"/>
+	<button label="移除…" name="remove_allowed_avatar_btn"/>
 	<text name="allow_group_label">
-		永遠允許的群組：
+		永遠准許的群組：
 	</text>
 	<text name="ban_resident_label">
-		永遠封鎖：
+		永遠禁入：
 	</text>
-	<button label="添加..." name="add_allowed_group_btn"/>
-	<button label="移除..." name="remove_allowed_group_btn"/>
-	<button label="添加..." name="add_banned_avatar_btn"/>
-	<button label="移除..." name="remove_banned_avatar_btn"/>
+	<button label="新增…" name="add_allowed_group_btn"/>
+	<button label="移除…" name="remove_allowed_group_btn"/>
+	<button label="新增…" name="add_banned_avatar_btn"/>
+	<button label="移除…" name="remove_banned_avatar_btn"/>
 	<button label="送出訊息到領地..." name="message_estate_btn"/>
 	<button label="由領地將居民踢出..." name="kick_user_from_estate_btn"/>
 </panel>

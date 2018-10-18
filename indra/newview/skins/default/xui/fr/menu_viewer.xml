@@ -77,27 +77,14 @@
 			<menu_item_check label="Propriétés de la parcelle" name="Parcel Properties"/>
 			<menu_item_check label="Menu Avancé" name="Show Advanced Menu"/>
 		</menu>
-		<menu label="Luminosité" name="Sun">
+		<menu label="Environnement" name="Environment">
 			<menu_item_check label="Aube" name="Sunrise"/>
-			<menu_item_check label="Milieu de journée" name="Noon"/>
+			<menu_item_check label="Midi" name="Noon"/>
 			<menu_item_check label="Coucher de soleil" name="Sunset"/>
 			<menu_item_check label="Minuit" name="Midnight"/>
-			<menu_item_check label="Utiliser les réglages de la région" name="Use Region Settings"/>
-		</menu>
-		<menu label="Éditeur d&apos;environnement" name="Environment Editor">
-			<menu_item_call label="Paramètres d&apos;environnement..." name="Environment Settings"/>
-			<menu label="Préréglages de l&apos;eau" name="Water Presets">
-				<menu_item_call label="Nouveau préréglage..." name="new_water_preset"/>
-				<menu_item_call label="Modifier un préréglage..." name="edit_water_preset"/>
-			</menu>
-			<menu label="Préréglages du ciel" name="Sky Presets">
-				<menu_item_call label="Nouveau préréglage..." name="new_sky_preset"/>
-				<menu_item_call label="Modifier un préréglage..." name="edit_sky_preset"/>
-			</menu>
-			<menu label="Préréglages du jour" name="Day Presets">
-				<menu_item_call label="Nouveau préréglage..." name="new_day_preset"/>
-				<menu_item_call label="Modifier un préréglage..." name="edit_day_preset"/>
-			</menu>
+			<menu_item_check label="Utiliser l&apos;environnement partagé" name="Use Shared Environment"/>
+			<menu_item_call label="Mes environnements..." name="my_environs"/>
+			<menu_item_check label="Pause des nuages" name="pause_clouds"/>
 		</menu>
 	</menu>
 	<menu label="Construire" name="BuildTools">
@@ -275,7 +262,6 @@
 			<menu_item_check label="Afficher les matrices" name="Show Matrices"/>
 			<menu_item_check label="Afficher la couleur sous le curseur" name="Show Color Under Cursor"/>
 			<menu_item_check label="Afficher la mémoire" name="Show Memory"/>
-			<menu_item_check label="Afficher les infos de mémoire privées" name="Show Private Mem Info"/>
 			<menu_item_check label="Afficher les mises à jour des objets" name="Show Updates"/>
 		</menu>
 		<menu label="Forcer une erreur" name="Force Errors">

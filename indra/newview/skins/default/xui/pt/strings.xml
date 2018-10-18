@@ -592,6 +592,15 @@ Aguarde um minuto antes que tentar logar-se novamente.
 	<string name="BUTTON_HELP">
 		Mostrar ajuda
 	</string>
+	<string name="TooltipNotecardNotAllowedTypeDrop">
+		Os itens deste tipo não podem ser anexados 
+às anotações desta região.
+	</string>
+	<string name="TooltipNotecardOwnerRestrictedDrop">
+		Somente itens com permissões irrestritas 
+do &apos;próximo proprietário’ &quot;pode 
+ser anexado às anotações.&quot;
+	</string>
 	<string name="Searching">
 		Buscando...
 	</string>
@@ -739,6 +748,9 @@ http://secondlife.com/support para ajuda ao resolver este problema.
 	</string>
 	<string name="symbolic link">
 		link
+	</string>
+	<string name="settings blob">
+		configurações
 	</string>
 	<string name="symbolic folder link">
 		link da pasta
@@ -2427,6 +2439,9 @@ Se você continuar a receber essa mensagem, entre em contato com o suporte do Se
 	</string>
 	<string name="RegionSettings">
 		Configurações da região
+	</string>
+	<string name="NoEnvironmentSettings">
+		Esta Região não suporta as configurações do ambiente.
 	</string>
 	<string name="ClassifiedClicksTxt">
 		Cliques: [TELEPORT] teletransporte, [MAP] mapa, [PROFILE] perfil
@@ -4705,6 +4720,15 @@ Denunciar abuso
 	</string>
 	<string name="Female - Wow">
 		Wow - feminino
+	</string>
+	<string name="New Daycycle">
+		Novo ciclo de dias
+	</string>
+	<string name="New Water">
+		Nova água
+	</string>
+	<string name="New Sky">
+		Novo céu
 	</string>
 	<string name="/bow">
 		/reverência

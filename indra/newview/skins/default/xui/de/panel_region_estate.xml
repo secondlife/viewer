@@ -26,7 +26,7 @@
 	<check_box label="Direktteleport zulassen" name="allow_direct_teleport"/>
 	<button label="Übernehmen" name="apply_btn"/>
 	<text name="estate_manager_label">
-		Grundbesitzsverwalter:
+		Grundbesitzverwalter:
 	</text>
 	<text name="allow_resident_label">
 		Immer zugelassen:

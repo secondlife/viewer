@@ -632,6 +632,15 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="BUTTON_HELP">
 		Mostra Aiuto
 	</string>
+	<string name="TooltipNotecardNotAllowedTypeDrop">
+		Oggetti di questo tipo non possono essere allegati 
+ai biglietti in questa regione.
+	</string>
+	<string name="TooltipNotecardOwnerRestrictedDrop">
+		Solamente gli oggetti con autorizzazioni illimitate 
+al “proprietario successivo” possono 
+essere allegati ai biglietti.
+	</string>
 	<string name="Searching">
 		Ricerca in corso...
 	</string>
@@ -780,15 +789,15 @@ http://secondlife.com/support per risolvere il problema.
 	<string name="symbolic link">
 		link
 	</string>
+	<string name="settings blob">
+		impostazioni
+	</string>
 	<string name="symbolic folder link">
 		link alla cartella
 	</string>
 	<string name="mesh">
 		reticolo
 	</string>
-    <string name="settings">
-        impostazioni
-    </string>
 	<string name="AvatarEditingAppearance">
 		(Modifica Aspetto)
 	</string>
@@ -2470,6 +2479,9 @@ Se continui a ricevere questo messaggio, contatta l&apos;assistenza Second Life 
 	</string>
 	<string name="RegionSettings">
 		Impostazioni regione
+	</string>
+	<string name="NoEnvironmentSettings">
+		Questa regione non supporta le impostazioni per l’ambiente.
 	</string>
 	<string name="ClassifiedClicksTxt">
 		Clicca: [TELEPORT] teleport, [MAP] mappa, [PROFILE] profilo
@@ -4749,6 +4761,15 @@ Segnala abuso
 	</string>
 	<string name="Female - Wow">
 		Femmina - Accipicchia
+	</string>
+	<string name="New Daycycle">
+		Nuovo ciclo giornata
+	</string>
+	<string name="New Water">
+		Nuova acqua
+	</string>
+	<string name="New Sky">
+		Nuovo cielo
 	</string>
 	<string name="/bow">
 		/inchino
