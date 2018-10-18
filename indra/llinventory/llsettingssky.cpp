@@ -510,9 +510,9 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
                 LLSD(LLSDArray(3.0f)(3.0f)(3.0f)("*")))));
         validation.push_back(Validator(SETTING_DENSITY_MULTIPLIER,  false,  LLSD::TypeReal,  
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(2.0f)))));
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0001f)(2.0f)))));
         validation.push_back(Validator(SETTING_DISTANCE_MULTIPLIER, false,  LLSD::TypeReal,  
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1000.0f)))));
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0001f)(1000.0f)))));
 
 
         validation.push_back(Validator(SETTING_BLOOM_TEXTUREID,     true,  LLSD::TypeUUID));
@@ -870,7 +870,7 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
         // original WL moon dir was diametrically opposed to the sun dir
         LLQuaternion moonquat = convert_azimuth_and_altitude_to_quat(azimuth + F_PI, -altitude);
 
-        newsettings[SETTING_SUN_ROTATION] = sunquat.getValue();
+        newsettings[SETTING_SUN_ROTATION]  = sunquat.getValue();
         newsettings[SETTING_MOON_ROTATION] = moonquat.getValue();
     }
 
@@ -941,6 +941,19 @@ LLVector3 LLSettingsSky::getLightDirection() const
     }
 
     return LLVector3::z_axis;
+}
+
+LLColor3 LLSettingsSky::getAmbientColor() const
+{
+    if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(SETTING_AMBIENT))
+    {
+        return LLColor3(mSettings[SETTING_LEGACY_HAZE][SETTING_AMBIENT]);
+    }
+    if (mSettings.has(SETTING_AMBIENT))
+    {
+        return LLColor3(mSettings[SETTING_AMBIENT]);
+    }
+    return LLColor3(0.25f, 0.25f, 0.25f);
 }
 
 LLColor3 LLSettingsSky::getBlueDensity() const
@@ -1025,17 +1038,23 @@ void LLSettingsSky::setMieAnisotropy(F32 aniso_factor)
 
 void LLSettingsSky::setSkyMoistureLevel(F32 moisture_level)
 {
-    mSettings[SETTING_SKY_MOISTURE_LEVEL] = moisture_level;
+    setValue(SETTING_SKY_MOISTURE_LEVEL, moisture_level);
 }
 
 void LLSettingsSky::setSkyDropletRadius(F32 radius)
 {
-    mSettings[SETTING_SKY_DROPLET_RADIUS] = radius;
+    setValue(SETTING_SKY_DROPLET_RADIUS,radius);
 }
 
 void LLSettingsSky::setSkyIceLevel(F32 ice_level)
 {
-    mSettings[SETTING_SKY_ICE_LEVEL] = ice_level;
+    setValue(SETTING_SKY_ICE_LEVEL, ice_level);
+}
+
+void LLSettingsSky::setAmbientColor(const LLColor3 &val)
+{
+    mSettings[SETTING_LEGACY_HAZE][SETTING_AMBIENT] = val.getValue();
+    setDirtyFlag(true);
 }
 
 void LLSettingsSky::setBlueDensity(const LLColor3 &val)
@@ -1342,16 +1361,6 @@ LLUUID LLSettingsSky::getHaloTextureId() const
 }
 
 //---------------------------------------------------------------------
-LLColor3 LLSettingsSky::getAmbientColor() const
-{
-    return LLColor3(mSettings[SETTING_AMBIENT]);
-}
-
-void LLSettingsSky::setAmbientColor(const LLColor3 &val)
-{
-    setValue(SETTING_AMBIENT, val);
-}
-
 LLColor3 LLSettingsSky::getCloudColor() const
 {
     return LLColor3(mSettings[SETTING_CLOUD_COLOR]);

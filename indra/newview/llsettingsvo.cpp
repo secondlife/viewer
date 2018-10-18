@@ -534,15 +534,32 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildClone() const
 
 void LLSettingsVOSky::convertAtmosphericsToLegacy(LLSD& legacy, LLSD& settings)
 {
-    // These will need to be inferred from new settings' density profiles
+    // These may need to be inferred from new settings' density profiles
+    // if the legacy settings values are not available.
     if (settings.has(SETTING_LEGACY_HAZE))
     {
         LLSD legacyhaze = settings[SETTING_LEGACY_HAZE];
-        legacy[SETTING_AMBIENT]             = ensure_array_4(legacyhaze[SETTING_AMBIENT], 1.0f);
-        legacy[SETTING_BLUE_DENSITY]        = ensure_array_4(legacyhaze[SETTING_BLUE_DENSITY], 1.0);
-        legacy[SETTING_BLUE_HORIZON]        = ensure_array_4(legacyhaze[SETTING_BLUE_HORIZON], 1.0);
-        legacy[SETTING_DENSITY_MULTIPLIER]  = LLSDArray(legacyhaze[SETTING_DENSITY_MULTIPLIER].asReal())(0.0f)(0.0f)(1.0f);
-        legacy[SETTING_DISTANCE_MULTIPLIER] = LLSDArray(legacyhaze[SETTING_DISTANCE_MULTIPLIER].asReal())(0.0f)(0.0f)(1.0f);
+
+        // work-around for setter formerly putting ambient values in wrong loc...
+        if (legacyhaze.has(SETTING_AMBIENT))
+        {
+            legacy[SETTING_AMBIENT] = ensure_array_4(legacyhaze[SETTING_AMBIENT], 1.0f);
+        }
+        else if (settings.has(SETTING_AMBIENT))
+        {
+            legacy[SETTING_AMBIENT] = ensure_array_4(settings[SETTING_AMBIENT], 1.0f);
+        }
+
+        legacy[SETTING_BLUE_DENSITY] = ensure_array_4(legacyhaze[SETTING_BLUE_DENSITY], 1.0);
+        legacy[SETTING_BLUE_HORIZON] = ensure_array_4(legacyhaze[SETTING_BLUE_HORIZON], 1.0);
+
+        F32 density_multiplier = legacyhaze[SETTING_DENSITY_MULTIPLIER].asReal();
+        density_multiplier = (density_multiplier < 0.0001f) ? 0.0001f : density_multiplier;
+        legacy[SETTING_DENSITY_MULTIPLIER] = LLSDArray(density_multiplier)(0.0f)(0.0f)(1.0f);
+
+        F32 distance_multiplier = legacyhaze[SETTING_DISTANCE_MULTIPLIER].asReal();
+        legacy[SETTING_DISTANCE_MULTIPLIER] = LLSDArray(distance_multiplier)(0.0f)(0.0f)(1.0f);
+
         legacy[SETTING_HAZE_DENSITY]        = LLSDArray(legacyhaze[SETTING_HAZE_DENSITY])(0.0f)(0.0f)(1.0f);
         legacy[SETTING_HAZE_HORIZON]        = LLSDArray(legacyhaze[SETTING_HAZE_HORIZON])(0.0f)(0.0f)(1.0f);
     }
@@ -570,19 +587,40 @@ LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky, bool isA
     legacy[SETTING_STAR_BRIGHTNESS] = settings[SETTING_STAR_BRIGHTNESS];
     legacy[SETTING_SUNLIGHT_COLOR] = ensure_array_4(settings[SETTING_SUNLIGHT_COLOR], 1.0f);
     
-    LLQuaternion sunquat = psky->getSunRotation();
+    LLVector3 dir = psky->getLightDirection();
 
-    F32 roll;
-    F32 pitch;
-    F32 yaw;
+    F32 phi     = asin(dir.mV[2]);
+    F32 cos_phi = cosf(phi);
+    F32 theta   = (cos_phi != 0) ? asin(dir.mV[1] / cos_phi) : 0.0f;
 
-    // get euler angles in right-handed X right, Y up, Z at
-    sunquat.getEulerAngles(&roll, &pitch, &yaw);
+    theta = -theta;
+
+    // get angles back into valid ranges for legacy viewer...
+    //
+    while (theta < 0)
+    {
+        theta += F_PI * 2;
+    }
     
-    legacy[SETTING_LEGACY_EAST_ANGLE] = yaw;
-    legacy[SETTING_LEGACY_SUN_ANGLE]  = -pitch;
+    if (theta > 4 * F_PI)
+    {
+        theta = fmod(theta, 2 * F_PI);
+    }
+    
+    while (phi < -F_PI)
+    {
+        phi += 2 * F_PI;
+    }
+    
+    if (phi > 3 * F_PI)
+    {
+        phi = F_PI + fmod(phi - F_PI, 2 * F_PI);
+    }
 
-    return legacy;    
+    legacy[SETTING_LEGACY_EAST_ANGLE] = theta;
+    legacy[SETTING_LEGACY_SUN_ANGLE]  = phi;
+ 
+   return legacy;    
 }
 
 //-------------------------------------------------------------------------
