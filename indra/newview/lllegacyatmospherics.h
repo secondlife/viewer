@@ -193,6 +193,7 @@ public:
     , haze_horizon(0.0f)
     , density_multiplier(0.0f)
     , max_y(0.0f)
+    , gamma(1.0f)
     , sun_norm(0.0f, 1.0f, 0.0f, 1.0f)
     , sunlight()
     , ambient()
@@ -220,6 +221,7 @@ public:
     F32       density_multiplier;
     F32       distance_multiplier;
     F32       max_y;
+    F32       gamma;
     LLVector4 sun_norm;
     LLColor3  sunlight;
     LLColor3  ambient;
