@@ -178,6 +178,7 @@
                     <text
                             follows="left|top"
                             height="16"
+                            width="120"
                             layout="topleft"
                             top_delta="-20"
                             left_delta="175">
