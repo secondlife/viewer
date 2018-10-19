@@ -149,6 +149,7 @@ void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, 
 	//brightness of surface both sunlight and ambient
 	sunlit = vec3(sunlight * .5);
 	amblit = vec3(tmpAmbient * .25);
-	additive *= vec3(1.0 - temp1);
+    additive  = normalize(additive);
+	additive *= vec3(1.0 - exp(-temp2.z * distance_multiplier)) * 0.5;
 }
 

@@ -174,7 +174,7 @@ void main()
 				
 		if (norm.w < 0.5)
 		{
-            vec3 add = additive * spec.a;
+            vec3 add = additive;
 			col = mix(atmosFragLighting(col, add, atten), fullbrightFragAtmosTransport(col, atten, add), diffuse.a);
 			col = mix(scaleFragSoftClip(col), fullbrightScaleSoftClipFrag(col, atten), diffuse.a);
 		}
