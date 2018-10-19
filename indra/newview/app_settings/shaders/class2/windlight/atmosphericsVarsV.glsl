@@ -73,9 +73,6 @@ void setAmblitColor(vec3 v)
 
 void setAdditiveColor(vec3 v)
 {
-    // SL-1491 clamp additive term to something reasonable to prevent
-    // lens flares over non-reflective surfaces
-    v = clamp(v, vec3(0), vec3(0.8));
 	additive_color = v;
 	vary_AdditiveColor = v;
 }

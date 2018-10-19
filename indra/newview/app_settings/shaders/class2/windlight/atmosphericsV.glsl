@@ -124,16 +124,22 @@ void calcAtmospherics(vec3 inPositionEye) {
 	//increase ambient when there are more clouds
 	vec4 tmpAmbient = ambient + (vec4(1.) - ambient) * cloud_shadow * 0.5;
 
-	//haze color
-	setAdditiveColor(
+    vec3 additive =	
 		vec3(blue_horizon * blue_weight * (sunlight*(1.-cloud_shadow) + tmpAmbient)
 	  + (haze_horizon * haze_weight) * (sunlight*(1.-cloud_shadow) * temp2.x
-		  + tmpAmbient)));
+		  + tmpAmbient));
+    additive = normalize(additive);
+
+	//haze color
+	//setAdditiveColor(
+	//	vec3(blue_horizon * blue_weight * (sunlight*(1.-cloud_shadow) + tmpAmbient)
+	//  + (haze_horizon * haze_weight) * (sunlight*(1.-cloud_shadow) * temp2.x
+	//	  + tmpAmbient)));
 	
 	//brightness of surface both sunlight and ambient
 	setSunlitColor(vec3(sunlight * .5));
 	setAmblitColor(vec3(tmpAmbient * .25));
-	setAdditiveColor(getAdditiveColor() * vec3(1.0 - temp1));
+	setAdditiveColor(additive * vec3(1.0 - exp(-temp2.z * distance_multiplier)) * 0.5);
 
 	// vary_SunlitColor = vec3(0);
 	// vary_AmblitColor = vec3(0);
