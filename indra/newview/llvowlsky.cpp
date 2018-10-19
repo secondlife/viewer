@@ -38,7 +38,7 @@
 
 const F32 LLVOWLSky::DISTANCE_TO_STARS = (HORIZON_DIST - 10.f) * 0.8f;
 
-const U32 LLVOWLSky::MIN_SKY_DETAIL = 3;
+const U32 LLVOWLSky::MIN_SKY_DETAIL = 8;
 const U32 LLVOWLSky::MAX_SKY_DETAIL = 180;
 
 inline U32 LLVOWLSky::getNumStacks(void)
@@ -49,16 +49,6 @@ inline U32 LLVOWLSky::getNumStacks(void)
 inline U32 LLVOWLSky::getNumSlices(void)
 {
 	return 2 * llmin(MAX_SKY_DETAIL, llmax(MIN_SKY_DETAIL, gSavedSettings.getU32("WLSkyDetail")));
-}
-
-inline U32 LLVOWLSky::getFanNumVerts(void)
-{
-	return getNumSlices() + 1;
-}
-
-inline U32 LLVOWLSky::getFanNumIndices(void)
-{
-	return getNumSlices() * 3;
 }
 
 inline U32 LLVOWLSky::getStripsNumVerts(void)
@@ -111,23 +101,22 @@ LLDrawable * LLVOWLSky::createDrawable(LLPipeline * pipeline)
 
 inline F32 LLVOWLSky::calcPhi(U32 i)
 {
-	// i should range from [0..SKY_STACKS] so t will range from [0.f .. 1.f]
+    // i should range from [0..SKY_STACKS] so t will range from [0.f .. 1.f]
 	F32 t = float(i) / float(getNumStacks());
 
-	// ^4 the parameter of the tesselation to bias things toward 0 (the dome's apex)
-	t = t*t*t*t;
+	// ^2 the parameter of the tesselation to bias things toward 0 (the dome's apex)
+	t *= t;
 	
 	// invert and square the parameter of the tesselation to bias things toward 1 (the horizon)
 	t = 1.f - t;
 	t = t*t;
 	t = 1.f - t;
 
-	return (F_PI / 8.f) * t;
+	return F_PI_BY_TWO * t;
 }
 
 void LLVOWLSky::resetVertexBuffers()
 {
-	mFanVerts = nullptr;
 	mStripsVerts.clear();
 	mStarsVerts = nullptr;
     mFsSkyVerts = nullptr;
@@ -137,7 +126,6 @@ void LLVOWLSky::resetVertexBuffers()
 	
 void LLVOWLSky::cleanupGL()
 {
-	mFanVerts = nullptr;
 	mStripsVerts.clear();
 	mStarsVerts = nullptr;
     mFsSkyVerts = nullptr;
@@ -197,30 +185,6 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 
         mFsSkyVerts->flush();
     }
-
-    if(mFanVerts.isNull())
-	{
-		mFanVerts = new LLVertexBuffer(LLDrawPoolWLSky::SKY_VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
-		if (!mFanVerts->allocateBuffer(getFanNumVerts(), getFanNumIndices(), TRUE))
-		{
-			LL_WARNS() << "Failed to allocate Vertex Buffer on sky update to "
-				<< getFanNumVerts() << " vertices and "
-				<< getFanNumIndices() << " indices" << LL_ENDL;
-		}
-
-		BOOL success = mFanVerts->getVertexStrider(vertices)
-			&& mFanVerts->getTexCoord0Strider(texCoords)
-			&& mFanVerts->getIndexStrider(indices);
-
-		if(!success) 
-		{
-			LL_ERRS() << "Failed updating WindLight sky geometry." << LL_ENDL;
-		}
-
-		buildFanBuffer(vertices, texCoords, indices);
-
-		mFanVerts->flush();
-	}
 
 	{
 		const U32 max_buffer_bytes = gSavedSettings.getS32("RenderMaxVBOSize")*1024;
@@ -393,66 +357,6 @@ void LLVOWLSky::initStars()
 	}
 }
 
-void LLVOWLSky::buildFanBuffer(LLStrider<LLVector3> & vertices,
-							   LLStrider<LLVector2> & texCoords,
-							   LLStrider<U16> & indices)
-{
-    const F32 RADIUS = LLEnvironment::instance().getCurrentSky()->getDomeRadius();
-
-	U32 i, num_slices;
-	F32 phi0, theta, x0, y0, z0;
-
-	// paranoia checking for SL-55986/SL-55833
-	U32 count_verts = 0;
-	U32 count_indices = 0;
-
-	// apex
-	*vertices++		= LLVector3(0.f, RADIUS, 0.f);
-	*texCoords++	= LLVector2(0.5f, 0.5f);
-	++count_verts;
-
-	num_slices = getNumSlices();
-
-	// and fan in a circle around the apex
-	phi0 = calcPhi(1);
-	for(i = 0; i < num_slices; ++i) {
-		theta = 2.f * F_PI * float(i) / float(num_slices);
-
-		// standard transformation from  spherical to
-		// rectangular coordinates
-		x0 = sin(phi0) * cos(theta);
-		y0 = cos(phi0);
-		z0 = sin(phi0) * sin(theta);
-
-		*vertices++		= LLVector3(x0 * RADIUS, y0 * RADIUS, z0 * RADIUS);
-		// generate planar uv coordinates
-		// note: x and z are transposed in order for things to animate
-		// correctly in the global coordinate system where +x is east and
-		// +y is north
-		*texCoords++	= LLVector2((-z0 + 1.f) / 2.f, (-x0 + 1.f) / 2.f);
-		++count_verts;
-
-		if (i > 0)
-		{
-			*indices++ = 0;
-			*indices++ = i;
-			*indices++ = i+1;
-			count_indices += 3;
-		}
-	}
-
-	// the last vertex of the last triangle should wrap around to 
-	// the beginning
-	*indices++ = 0;
-	*indices++ = num_slices;
-	*indices++ = 1;
-	count_indices += 3;
-
-	// paranoia checking for SL-55986/SL-55833
-	llassert(getFanNumVerts() == count_verts);
-	llassert(getFanNumIndices() == count_indices);
-}
-
 void LLVOWLSky::buildStripsBuffer(U32 begin_stack, U32 end_stack,
 								  LLStrider<LLVector3> & vertices,
 								  LLStrider<LLVector2> & texCoords,
@@ -487,25 +391,15 @@ void LLVOWLSky::buildStripsBuffer(U32 begin_stack, U32 end_stack,
 			y0 = cos(phi0);
 			z0 = sin(phi0) * sin(theta);
 
-			if (i == num_stacks-2)
-			{
-				*vertices++ = LLVector3(x0*RADIUS, y0*RADIUS-1024.f*2.f, z0*RADIUS);
-			}
-			else if (i == num_stacks-1)
-			{
-				*vertices++ = LLVector3(0, y0*RADIUS-1024.f*2.f, 0);
-			}
-			else
-			{
-				*vertices++		= LLVector3(x0 * RADIUS, y0 * RADIUS, z0 * RADIUS);
-			}
+            *vertices++ = LLVector3(x0 * RADIUS, y0 * RADIUS, z0 * RADIUS);
+
 			++count_verts;
 
 			// generate planar uv coordinates
 			// note: x and z are transposed in order for things to animate
 			// correctly in the global coordinate system where +x is east and
 			// +y is north
-			*texCoords++	= LLVector2((-z0 + 1.f) / 2.f, (-x0 + 1.f) / 2.f);
+			*texCoords++ = LLVector2((-z0 + 1.f) / 2.f, (-x0 + 1.f) / 2.f);
 		}
 	}
 

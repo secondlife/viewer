@@ -40,8 +40,6 @@ private:
 
 	inline static U32 getNumStacks(void);
 	inline static U32 getNumSlices(void);
-	inline static U32 getFanNumVerts(void);
-	inline static U32 getFanNumIndices(void);
 	inline static U32 getStripsNumVerts(void);
 	inline static U32 getStripsNumIndices(void);
 	inline static U32 getStarsNumVerts(void);
@@ -70,11 +68,6 @@ private:
 	// helper function for initializing the stars.
 	void initStars();
 
-	// helper function for building the fan vertex buffer.
-	static void buildFanBuffer(LLStrider<LLVector3> & vertices,
-							   LLStrider<LLVector2> & texCoords,
-							   LLStrider<U16> & indices);
-
 	// helper function for building the strips vertex buffer.
 	// note begin_stack and end_stack follow stl iterator conventions,
 	// begin_stack is the first stack to be included, end_stack is the first
@@ -92,8 +85,6 @@ private:
 
 private:
     LLPointer<LLVertexBuffer>					mFsSkyVerts;
-
-	LLPointer<LLVertexBuffer>					mFanVerts;
 	std::vector< LLPointer<LLVertexBuffer> >	mStripsVerts;
 	LLPointer<LLVertexBuffer>					mStarsVerts;
 
