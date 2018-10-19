@@ -184,7 +184,7 @@
                         layout="topleft"
                         name="btn_del"
                         right="-5"
-                        tool_tip="Delete this setting"
+                        tool_tip="Remove selected item"
                         top_delta="0"
                         width="18" />
             </panel>
