@@ -496,7 +496,6 @@ void LLDrawPoolWater::shade()
 	LLColor3 light_diffuse(0,0,0);
 	F32 light_exp = 0.0f;
 	LLVector3 light_dir;
-	LLColor3 light_color;
 
     LLEnvironment& environment = LLEnvironment::instance();
     LLSettingsWater::ptr_t pwater = environment.getCurrentWater();
@@ -510,23 +509,16 @@ void LLDrawPoolWater::shade()
 
     if (sun_up)
     {
-        light_color   =  light_color + psky->getSunAmbient();
-        light_diffuse += psky->getSunDiffuse();         
+        light_diffuse += voskyp->getSun().getColorCached();
+    }
+    // moonlight is several orders of magnitude less bright than sunlight,
+    // so only use this color when the moon alone is showing
+    else if (moon_up)
+    {        
+        light_diffuse += psky->getMoonDiffuse(); 
     }
 
     light_exp = light_dir * LLVector3(light_dir.mV[0], light_dir.mV[1], 0.f);
-
-    if (moon_up)
-    {
-        LLColor3 moon_diffuse_color = psky->getMoonDiffuse();
-        light_color   += moon_diffuse_color;
-        light_diffuse += moon_diffuse_color * 0.5f; 
-
-        if (!sun_up)
-        {
-            light_exp = light_dir * LLVector3(light_dir.mV[0], light_dir.mV[1], 0.f);
-        }
-    }
 
     light_diffuse.normalize();
     light_diffuse *= (light_exp + 0.25f);

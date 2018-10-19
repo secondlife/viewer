@@ -217,6 +217,8 @@ public:
 	void cleanupGL();
 	void restoreGL();
 
+    void calc();
+
 	/*virtual*/ void idleUpdate(LLAgent &agent, const F64 &time);
 	bool updateSky();
 	
@@ -346,6 +348,7 @@ protected:
     LLTimer             mForceUpdateThrottle;
 	bool                mHeavenlyBodyUpdated ;
 
+    AtmosphericsVars    m_atmosphericsVars;
     LLAtmospherics      m_legacyAtmospherics;
 };
 

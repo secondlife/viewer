@@ -450,26 +450,25 @@ void LLVOSky::init()
 
 	updateDirections();
 
-    AtmosphericsVars vars;
-
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
     // invariants across whole sky tex process...
-    vars.blue_density = psky->getBlueDensity();    
-    vars.blue_horizon = psky->getBlueHorizon();
-    vars.haze_density = psky->getHazeDensity();
-    vars.haze_horizon = psky->getHazeHorizon();
-    vars.density_multiplier = psky->getDensityMultiplier();
-    vars.max_y = psky->getMaxY();
-    vars.sun_norm = LLEnvironment::instance().getClampedSunNorm();
-    vars.sunlight = psky->getSunlightColor();
-    vars.ambient = psky->getAmbientColor();    
-    vars.glow = psky->getGlow();
-    vars.cloud_shadow = psky->getCloudShadow();
-    vars.dome_radius = psky->getDomeRadius();
-    vars.dome_offset = psky->getDomeOffset();
-    vars.light_atten = psky->getLightAttenuation(vars.max_y);
-    vars.light_transmittance = psky->getLightTransmittance();
+    m_atmosphericsVars.blue_density = psky->getBlueDensity();    
+    m_atmosphericsVars.blue_horizon = psky->getBlueHorizon();
+    m_atmosphericsVars.haze_density = psky->getHazeDensity();
+    m_atmosphericsVars.haze_horizon = psky->getHazeHorizon();
+    m_atmosphericsVars.density_multiplier = psky->getDensityMultiplier();
+    m_atmosphericsVars.max_y = psky->getMaxY();
+    m_atmosphericsVars.sun_norm = LLEnvironment::instance().getClampedSunNorm();
+    m_atmosphericsVars.sunlight = psky->getSunlightColor();
+    m_atmosphericsVars.ambient = psky->getAmbientColor();    
+    m_atmosphericsVars.glow = psky->getGlow();
+    m_atmosphericsVars.cloud_shadow = psky->getCloudShadow();
+    m_atmosphericsVars.dome_radius = psky->getDomeRadius();
+    m_atmosphericsVars.dome_offset = psky->getDomeOffset();
+    m_atmosphericsVars.light_atten = psky->getLightAttenuation(m_atmosphericsVars.max_y);
+    m_atmosphericsVars.light_transmittance = psky->getLightTransmittance();
+    m_atmosphericsVars.gamma = psky->getGamma();
 
 	// Initialize the cached normalized direction vectors
 	for (S32 side = 0; side < 6; ++side)
@@ -477,7 +476,7 @@ void LLVOSky::init()
 		for (S32 tile = 0; tile < NUM_TILES; ++tile)
 		{
 			initSkyTextureDirs(side, tile);
-			createSkyTexture(vars, side, tile, false);
+			createSkyTexture(m_atmosphericsVars, side, tile, false);
 		}
 	}
 
@@ -495,6 +494,100 @@ void LLVOSky::init()
 
     mRainbowMap = LLViewerTextureManager::getFetchedTexture(psky->getRainbowTextureId(), FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
     mHaloMap    = LLViewerTextureManager::getFetchedTexture(psky->getHaloTextureId(),  FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+}
+
+
+void LLVOSky::calc()
+{
+    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+
+    // invariants across whole sky tex process...
+    m_atmosphericsVars.blue_density = psky->getBlueDensity();    
+    m_atmosphericsVars.blue_horizon = psky->getBlueHorizon();
+    m_atmosphericsVars.haze_density = psky->getHazeDensity();
+    m_atmosphericsVars.haze_horizon = psky->getHazeHorizon();
+    m_atmosphericsVars.density_multiplier = psky->getDensityMultiplier();
+    m_atmosphericsVars.max_y = psky->getMaxY();
+    m_atmosphericsVars.sun_norm = LLEnvironment::instance().getClampedSunNorm();
+    m_atmosphericsVars.sunlight = psky->getSunlightColor();
+    m_atmosphericsVars.ambient = psky->getAmbientColor();    
+    m_atmosphericsVars.glow = psky->getGlow();
+    m_atmosphericsVars.cloud_shadow = psky->getCloudShadow();
+    m_atmosphericsVars.dome_radius = psky->getDomeRadius();
+    m_atmosphericsVars.dome_offset = psky->getDomeOffset();
+    m_atmosphericsVars.light_atten = psky->getLightAttenuation(m_atmosphericsVars.max_y);
+    m_atmosphericsVars.light_transmittance = psky->getLightTransmittance();
+    m_atmosphericsVars.gamma = psky->getGamma();
+
+	LLColor3 vary_HazeColor;
+	LLColor3 vary_SunlightColor;
+	LLColor3 vary_AmbientColor;
+	{
+		// Initialize temp variables
+		LLColor3 sunlight = m_atmosphericsVars.sunlight;
+
+		// Sunlight attenuation effect (hue and brightness) due to atmosphere
+		// this is used later for sunlight modulation at various altitudes
+		LLColor3 light_atten =
+			(m_atmosphericsVars.blue_density * 1.0 + smear(m_atmosphericsVars.haze_density * 0.25f)) * (m_atmosphericsVars.density_multiplier * m_atmosphericsVars.max_y);
+
+		// Calculate relative weights
+		LLColor3 temp2(0.f, 0.f, 0.f);
+		LLColor3 temp1 = m_atmosphericsVars.blue_density + smear(m_atmosphericsVars.haze_density);
+		LLColor3 blue_weight = componentDiv(m_atmosphericsVars.blue_density, temp1);
+		LLColor3 haze_weight = componentDiv(smear(m_atmosphericsVars.haze_density), temp1);
+
+		// Compute sunlight from P & lightnorm (for long rays like sky)
+		/// USE only lightnorm.
+		// temp2[1] = llmax(0.f, llmax(0.f, Pn[1]) * 1.0f + lightnorm[1] );
+		F32 lighty = getSun().getDirection().mV[2];
+		temp2.mV[1] = llmax(0.f, lighty);
+		if(temp2.mV[1] > 0.f)
+		{
+			temp2.mV[1] = 1.f / temp2.mV[1];
+		}
+		componentMultBy(sunlight, componentExp((light_atten * -1.f) * temp2.mV[1]));
+
+		// Distance
+		temp2.mV[2] = m_atmosphericsVars.density_multiplier;
+
+		// Transparency (-> temp1)
+		temp1 = componentExp((temp1 * -1.f) * temp2.mV[2]);
+
+		// vary_AtmosAttenuation = temp1; 
+
+		//increase ambient when there are more clouds
+		LLColor3 tmpAmbient = m_atmosphericsVars.ambient + (smear(1.f) - m_atmosphericsVars.ambient) * m_atmosphericsVars.cloud_shadow * 0.5f;
+
+		//haze color
+		vary_HazeColor =
+			(m_atmosphericsVars.blue_horizon * blue_weight * (sunlight * (1.f - m_atmosphericsVars.cloud_shadow) + tmpAmbient)	
+			+ componentMult(m_atmosphericsVars.haze_horizon * haze_weight, sunlight * (1.f - m_atmosphericsVars.cloud_shadow) * temp2.mV[0] + tmpAmbient)
+				 );	
+
+		//brightness of surface both sunlight and ambient
+		vary_SunlightColor = componentMult(sunlight, temp1) * 1.f;
+		vary_SunlightColor.clamp();
+		vary_SunlightColor = smear(1.0f) - vary_SunlightColor;
+		vary_SunlightColor = componentPow(vary_SunlightColor, m_atmosphericsVars.gamma);
+		vary_SunlightColor = smear(1.0f) - vary_SunlightColor;
+		vary_AmbientColor = componentMult(tmpAmbient, temp1) * 0.5;
+		vary_AmbientColor.clamp();
+		vary_AmbientColor = smear(1.0f) - vary_AmbientColor;
+		vary_AmbientColor = componentPow(vary_AmbientColor, m_atmosphericsVars.gamma);
+		vary_AmbientColor = smear(1.0f) - vary_AmbientColor;
+
+		componentMultBy(vary_HazeColor, LLColor3(1.f, 1.f, 1.f) - temp1);
+
+	}
+
+	mSun.setColor(vary_SunlightColor);
+	mMoon.setColor(LLColor3(1.0f, 1.0f, 1.0f));
+
+	mSun.renewDirection();
+	mSun.renewColor();
+	mMoon.renewDirection();
+	mMoon.renewColor();
 }
 
 void LLVOSky::initCubeMap() 
@@ -711,6 +804,8 @@ bool LLVOSky::updateSky()
 
         bool is_alm_wl_sky = gPipeline.canUseWindLightShaders();
 
+        calc();
+
         if (mForceUpdate && mForceUpdateThrottle.hasExpired())
 		{
             LL_RECORD_BLOCK_TIME(FTM_VOSKY_UPDATEFORCED);
@@ -729,32 +824,11 @@ bool LLVOSky::updateSky()
 				{
 					updateFog(LLViewerCamera::getInstance()->getFar());
 
-                    AtmosphericsVars vars;
-
-                    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
-
-                    // invariants across whole sky tex process...
-                    vars.blue_density = psky->getBlueDensity();    
-                    vars.blue_horizon = psky->getBlueHorizon();
-                    vars.haze_density = psky->getHazeDensity();
-                    vars.haze_horizon = psky->getHazeHorizon();
-                    vars.density_multiplier = psky->getDensityMultiplier();
-                    vars.max_y = psky->getMaxY();
-                    vars.sun_norm = LLEnvironment::instance().getClampedSunNorm();
-                    vars.sunlight = psky->getSunlightColor();
-                    vars.ambient = psky->getAmbientColor();    
-                    vars.glow = psky->getGlow();
-                    vars.cloud_shadow = psky->getCloudShadow();
-                    vars.dome_radius = psky->getDomeRadius();
-                    vars.dome_offset = psky->getDomeOffset();
-                    vars.light_atten = psky->getLightAttenuation(vars.max_y);
-                    vars.light_transmittance = psky->getLightTransmittance();
-
 					for (int side = 0; side < 6; side++) 
 					{
 						for (int tile = 0; tile < NUM_TILES; tile++) 
 						{
-							createSkyTexture(vars, side, tile, is_alm_wl_sky);
+							createSkyTexture(m_atmosphericsVars, side, tile, is_alm_wl_sky);
 						}
 					}
 
