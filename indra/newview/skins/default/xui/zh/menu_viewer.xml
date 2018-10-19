@@ -75,27 +75,14 @@
 			<menu_item_check label="地段屬性" name="Parcel Properties"/>
 			<menu_item_check label="進階選單" name="Show Advanced Menu"/>
 		</menu>
-		<menu label="太陽" name="Sun">
+		<menu label="環境" name="Environment">
 			<menu_item_check label="日出" name="Sunrise"/>
 			<menu_item_check label="中午" name="Noon"/>
 			<menu_item_check label="日落" name="Sunset"/>
 			<menu_item_check label="午夜" name="Midnight"/>
-			<menu_item_check label="使用地區設定" name="Use Region Settings"/>
-		</menu>
-		<menu label="環境編輯器" name="Environment Editor">
-			<menu_item_call label="環境設定…" name="Environment Settings"/>
-			<menu label="水的自訂配置" name="Water Presets">
-				<menu_item_call label="新的自訂配置…" name="new_water_preset"/>
-				<menu_item_call label="編輯自訂配置…" name="edit_water_preset"/>
-			</menu>
-			<menu label="天空自訂配置" name="Sky Presets">
-				<menu_item_call label="新的自訂配置…" name="new_sky_preset"/>
-				<menu_item_call label="編輯自訂配置…" name="edit_sky_preset"/>
-			</menu>
-			<menu label="日的自訂配置" name="Day Presets">
-				<menu_item_call label="新的自訂配置…" name="new_day_preset"/>
-				<menu_item_call label="編輯自訂配置…" name="edit_day_preset"/>
-			</menu>
+			<menu_item_check label="使用共享環境" name="Use Shared Environment"/>
+			<menu_item_call label="我的環境…" name="my_environs"/>
+			<menu_item_check label="暫停雲彩" name="pause_clouds"/>
 		</menu>
 	</menu>
 	<menu label="建造" name="BuildTools">
@@ -273,7 +260,6 @@
 			<menu_item_check label="顯示矩陣" name="Show Matrices"/>
 			<menu_item_check label="游標下顯示顏色" name="Show Color Under Cursor"/>
 			<menu_item_check label="顯示記憶體" name="Show Memory"/>
-			<menu_item_check label="顯示私區記憶體資訊" name="Show Private Mem Info"/>
 			<menu_item_check label="顯示更新到物件" name="Show Updates"/>
 		</menu>
 		<menu label="強制錯誤" name="Force Errors">

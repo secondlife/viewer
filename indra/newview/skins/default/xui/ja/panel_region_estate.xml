@@ -26,25 +26,25 @@
 	<check_box label="直接テレポートを許可" name="allow_direct_teleport"/>
 	<button label="適用" name="apply_btn"/>
 	<text name="estate_manager_label">
-		不動産マネージャー：
+		不動産マネージャー:
 	</text>
 	<text name="allow_resident_label">
 		常に許可：
 	</text>
 	<button label="追加..." name="add_estate_manager_btn"/>
-	<button label="削除..." name="remove_estate_manager_btn"/>
+	<button label="削除…" name="remove_estate_manager_btn"/>
 	<button label="追加..." name="add_allowed_avatar_btn"/>
-	<button label="削除..." name="remove_allowed_avatar_btn"/>
+	<button label="削除…" name="remove_allowed_avatar_btn"/>
 	<text name="allow_group_label">
-		グループを常に許可：
+		常に許可されたグループ：
 	</text>
 	<text name="ban_resident_label">
 		常に禁止：
 	</text>
 	<button label="追加..." name="add_allowed_group_btn"/>
-	<button label="削除..." name="remove_allowed_group_btn"/>
+	<button label="削除…" name="remove_allowed_group_btn"/>
 	<button label="追加..." name="add_banned_avatar_btn"/>
-	<button label="削除..." name="remove_banned_avatar_btn"/>
+	<button label="削除…" name="remove_banned_avatar_btn"/>
 	<button label="メッセージを不動産に送信..." name="message_estate_btn"/>
 	<button label="不動産から住人を追い出す..." name="kick_user_from_estate_btn"/>
 </panel>

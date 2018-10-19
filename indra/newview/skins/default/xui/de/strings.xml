@@ -635,6 +635,15 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="BUTTON_HELP">
 		Hilfe anzeigen
 	</string>
+	<string name="TooltipNotecardNotAllowedTypeDrop">
+		Objekte dieses Typs können nicht an 
+die Region angehängt werden.
+	</string>
+	<string name="TooltipNotecardOwnerRestrictedDrop">
+		An Notizkarten können nur Objekte 
+ohne Einschränkungen für den
+nächsten Eigentümer angehängt werden.
+	</string>
 	<string name="Searching">
 		Suchen...
 	</string>
@@ -786,15 +795,15 @@ besuchen Sie bitte http://secondlife.com/support
 	<string name="symbolic link">
 		Link
 	</string>
+	<string name="settings blob">
+		Einstellungen
+	</string>
 	<string name="symbolic folder link">
 		Link zu Ordner
 	</string>
 	<string name="mesh">
 		mesh
 	</string>
-    <string name="settings">
-        Einstellungen
-    </string> 
 	<string name="AvatarEditingAppearance">
 		(Aussehen wird bearbeitet)
 	</string>
@@ -2491,6 +2500,9 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich unter http://suppo
 	</string>
 	<string name="RegionSettings">
 		Regionseinstellungen
+	</string>
+	<string name="NoEnvironmentSettings">
+		Diese Region unterstützt keine Umgebungseinstellungen.
 	</string>
 	<string name="ClassifiedClicksTxt">
 		Klicks: [TELEPORT] teleportieren, [MAP] Karte, [PROFILE] Profil
@@ -4833,6 +4845,15 @@ Missbrauchsbericht
 	</string>
 	<string name="Female - Wow">
 		Weiblich - Wow
+	</string>
+	<string name="New Daycycle">
+		Neuer Tageszyklus
+	</string>
+	<string name="New Water">
+		Neues Wasser
+	</string>
+	<string name="New Sky">
+		Neuer Himmel
 	</string>
 	<string name="/bow">
 		/verbeugen

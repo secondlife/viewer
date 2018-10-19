@@ -1907,7 +1907,7 @@ http://wiki.secondlife.com/wiki/Setting_your_display_name を参照してくだ�
 		<usetemplate canceltext="取り消し" name="yesnocancelbuttons" notext="すべての不動産" yestext="この不動産"/>
 	</notification>
 	<notification label="不動産を選択" name="EstateBannedAgentRemove">
-		この住人が、この不動産限定、または [ALL_ESTATES] にアクセスできるように、禁止リストから削除しますか？
+		この住人をこの不動産の立入禁止リストからのみ削除しますか？それとも [ALL_ESTATES] の立入禁止リストから削除しますか？
 		<usetemplate canceltext="取り消し" name="yesnocancelbuttons" notext="すべての不動産" yestext="この不動産"/>
 	</notification>
 	<notification label="不動産を選択" name="EstateManagerAdd">
@@ -1952,6 +1952,10 @@ http://wiki.secondlife.com/wiki/Setting_your_display_name を参照してくだ�
 	</notification>
 	<notification name="EstateParcelAccessOverride">
 		このオプションをオフにすると、嫌がらせの防止やプライバシーの維持、18 才以下の住人を Adult コンテンツから守るために区画所有者が加えた制限が解除される可能性があります。必要に応じて区画所有者と相談してください。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="EstateParcelEnvironmentOverride">
+		このオプションをオフにすると、区画所有者がその区画に加えたカスタム環境が削除されることがあります。必要に応じて区画所有者と相談してください。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked">
@@ -4362,5 +4366,41 @@ M キーを押して変更します。
 	<notification name="OutfitPhotoLoadError">
 		[REASON]
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="FailedToFindSettings">
+		データベースから [NAME] の設定の読み込みができませんでした。
+	</notification>
+	<notification name="FailedToLoadSettingsApply">
+		環境にこれらの設定を適用することができません。
+	</notification>
+	<notification name="FailedToBuildSettingsDay">
+		環境にこれらの設定を適用することができません。
+	</notification>
+	<notification name="NoEnvironmentSettings">
+		このリージョンは環境設定をサポートしていません。
+	</notification>
+	<notification name="WLImportFail">
+		[FILE] から過去のウインドライトの設定をインポートできません。
+	</notification>
+	<notification name="WLParcelApplyFail">
+		この区画で環境を設定することはできません。
+変更する権限のある区画を入力または選択してください。
+	</notification>
+	<notification name="SettingsUnsuported">
+		このリージョンでは設定をサポートしていません。
+設定に対応しているリージョンに移動し、アクションを再試行してください。
+	</notification>
+	<notification name="SettingsConfirmLoss">
+		&quot;[NAME]&quot;。と名付けられたこの [TYPE] に加えられた変更が失われます。
+続けますか？
+		<usetemplate ignoretext="変更を失いますがよろしいですか？" name="okcancelignore" notext="いいえ" yestext="はい"/>
+	</notification>
+	<notification name="SettingsMakeNoTrans">
+		このデイサイクルに移行不可の設定をインポートしようとしています。このまま続けると、編集中の設定も移行不可になります。
+
+この変更は元に戻すことができません。
+
+続けますか？
+		<usetemplate ignoretext="設定を移行不可にしますか？" name="okcancelignore" notext="いいえ" yestext="はい"/>
 	</notification>
 </notifications>

@@ -5,9 +5,7 @@
 		<menu_item_call label="Suono ([COST]L$)..." name="Upload Sound"/>
 		<menu_item_call label="Animazione ([COST]L$)..." name="Upload Animation"/>
 		<menu_item_call label="Modella..." name="Upload Model"/>
-		<menu_item_call label="Procedura guidata modellazione..." name="Upload Model Wizard"/>
 		<menu_item_call label="In blocco ([COST]L$ per file)..." name="Bulk Upload"/>
-		<menu_item_call label="Definisci diritti di caricamento predefiniti" name="perm prefs"/>
 	</menu>
 	<menu_item_call label="Nuova cartella" name="New Folder"/>
 	<menu_item_call label="Nuovo script" name="New Script"/>
@@ -32,5 +30,10 @@
 		<menu_item_call label="Nuova pelle" name="New Skin"/>
 		<menu_item_call label="Nuovi capelli" name="New Hair"/>
 		<menu_item_call label="Nuovi occhi" name="New Eyes"/>
+	</menu>
+	<menu label="Nuove impostazioni" name="New Settings">
+		<menu_item_call label="Nuovo cielo" name="New Sky"/>
+		<menu_item_call label="Nuova acqua" name="New Water"/>
+		<menu_item_call label="Nuovo ciclo giornata" name="New Day Cycle"/>
 	</menu>
 </menu>

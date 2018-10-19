@@ -368,7 +368,7 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 	componentMultBy(vars.hazeColor, LLColor3::white - temp1);
 
 	sunlight = vars.sunlight;
-	temp2.mV[1] = llmax(0.f, sun_norm[1] * 2.f);
+	temp2.mV[1] = llmax(F_APPROXIMATELY_ZERO, sun_norm[1] * 2.f);
 	temp2.mV[1] = 1.f / temp2.mV[1];
 	componentMultBy(sunlight, componentExp((light_atten * -1.f) * temp2.mV[1]));
 

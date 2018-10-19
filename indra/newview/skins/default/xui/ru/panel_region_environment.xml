@@ -1,33 +1,77 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Среда" name="panel_env_info">
-	<text name="water_settings_title">
-		Настройки воды и неба/суточного цикла определяют, каким посетители увидят ваш регион.  Дополнительно
-	</text>
-	<radio_group name="region_settings_radio_group">
-		<radio_item label="Использовать настройки Second Life по умолчанию" name="use_sl_default_settings"/>
-		<radio_item label="Использовать следующие настройки" name="use_my_settings"/>
-	</radio_group>
-	<panel name="user_environment_settings">
-		<text name="water_settings_title">
-			Настройка воды
-		</text>
-		<combo_box name="water_settings_preset_combo">
-			<combo_box.item label="-Выбор настройки-" name="item0"/>
-		</combo_box>
-		<text name="sky_dayc_settings_title">
-			Небо/суточный цикл
-		</text>
-		<radio_group name="sky_dayc_settings_radio_group">
-			<radio_item label="Небо не меняется" name="my_sky_settings"/>
-			<radio_item label="Суточный цикл" name="my_dayc_settings"/>
-		</radio_group>
-		<combo_box name="sky_settings_preset_combo">
-			<combo_box.item label="-Выбор настройки-" name="item0"/>
-		</combo_box>
-		<combo_box name="dayc_settings_preset_combo">
-			<combo_box.item label="-Выбор настройки-" name="item0"/>
-		</combo_box>
-	</panel>
-	<button label="Применить" name="apply_btn"/>
-	<button label="Отмена" name="cancel_btn"/>
+	<string name="str_label_use_default">
+		Использовать пользовательские настройки
+	</string>
+	<string name="str_label_use_region">
+		Использовать настройки региона
+	</string>
+	<string name="str_unknow_inventory">
+		Неизвестно
+	</string>
+	<string name="str_altitude_desription">
+		Небо \[INDEX](\[ALTITUDE]m)
+	</string>
+	<string name="str_no_parcel">
+		Не выбрано ни одного участка. Настройки среды отключены.
+	</string>
+	<string name="str_cross_region">
+		Параметры среды недоступны в рамках этого региона.
+	</string>
+	<string name="str_legacy">
+		Параметры среды недоступны в этом регионе.
+	</string>
+	<layout_stack>
+		<layout_panel name="pnl_environment_disabled">
+			<text name="txt_environment_disabled">
+				...
+			</text>
+		</layout_panel>
+		<layout_panel name="pnl_environment_config">
+			<layout_stack>
+				<layout_panel name="pnl_environment_current">
+					<radio_group name="rdg_environment_select">
+						<radio_item label="[USEDEFAULT]" name="rdo_use_xxx_setting"/>
+						<radio_item label="Настройки из инвентарного списка" name="rdo_use_inv_setting"/>
+						<radio_item label="Пользовательская среда" name="rdo_use_custom_setting"/>
+					</radio_group>
+					<line_editor name="edt_inventory_name">
+						Неизвестно
+					</line_editor>
+					<button label="Изменить параметры окружающей среды" name="btn_edit"/>
+				</layout_panel>
+				<layout_panel name="pnl_environment_length">
+					<text name="lbl_apparent_time">
+						[HH]:[MM][AP] ([PRC]%)
+					</text>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="pnl_environment_altitudes">
+			<panel name="cnt_panel">
+				<multi_slider initial_value="100" name="sld_altitudes">
+					<slider name="sld1" value="200"/>
+					<slider name="sld2" value="400"/>
+					<slider name="sld3" value="600"/>
+				</multi_slider>
+				<text name="ground">
+					Земля
+				</text>
+				<text name="alt1">
+					Небо \[INDEX](\[ALTITUDE]m)
+				</text>
+				<text name="alt2">
+					Небо \[INDEX](\[ALTITUDE]m)
+				</text>
+				<text name="alt3">
+					Небо \[INDEX](\[ALTITUDE]m)
+				</text>
+			</panel>
+		</layout_panel>
+		<layout_panel name="pnl_environment_buttons">
+			<check_box label="Владельцы участков могут менять окружающую среду" name="chk_allow_override"/>
+			<button label="Применить" name="btn_apply"/>
+			<button label="Сброс" name="btn_cancel"/>
+		</layout_panel>
+	</layout_stack>
 </panel>

@@ -68,7 +68,7 @@ const std::string LLSettingsWater::SETTING_LEGACY_SCALE_BELOW("scaleBelow");
 const std::string LLSettingsWater::SETTING_LEGACY_WAVE1_DIR("wave1Dir");
 const std::string LLSettingsWater::SETTING_LEGACY_WAVE2_DIR("wave2Dir");
 
-const LLUUID LLSettingsWater::DEFAULT_ASSET_ID("ce4cfe94-700a-292c-7c22-a2d9201bd661");
+const LLUUID LLSettingsWater::DEFAULT_ASSET_ID("59d1a851-47e7-0e5f-1ed7-6b715154f41a");
 
 static const LLUUID DEFAULT_TRANSPARENT_WATER_TEXTURE("2bfd3884-7e27-69b9-ba3a-3e673f680004");
 static const LLUUID DEFAULT_OPAQUE_WATER_TEXTURE("43c32285-d658-1793-c123-bf86315de055");

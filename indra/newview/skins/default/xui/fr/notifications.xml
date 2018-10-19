@@ -1872,7 +1872,7 @@ Cette action modifiera des milliers de régions et sera difficile à digérer po
 		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Tous les domaines" yestext="Ce domaine"/>
 	</notification>
 	<notification label="Choisir le domaine" name="EstateBannedAgentRemove">
-		Supprimer ce résident de la liste des résidents bannis pour ce domaine uniquement ou pour [ALL_ESTATES] ?
+		Supprimer ce résident de la liste des résidents interdits pour ce domaine uniquement ou pour [ALL_ESTATES] ?
 		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Tous les domaines" yestext="Ce domaine"/>
 	</notification>
 	<notification label="Choisir le domaine" name="EstateManagerAdd">
@@ -1917,6 +1917,10 @@ Cette action modifiera des milliers de régions et sera difficile à digérer po
 	</notification>
 	<notification name="EstateParcelAccessOverride">
 		Le fait de décocher cette option est susceptible de lever les restrictions que les propriétaires des parcelles ont ajouté pour éviter tout différend, maintenir la confidentialité ou protéger les jeunes résidents contre tout contenu réservé aux adultes. Veuillez discuter avec les propriétaires du terrain si nécessaire.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="EstateParcelEnvironmentOverride">
+		Le fait de décocher cette option est susceptible de lever les restrictions que les propriétaires des parcelles ont ajouté à leurs parcelles. Veuillez discuter avec les propriétaires du terrain si nécessaire.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked">
@@ -4327,5 +4331,41 @@ Veuillez sélectionner un terrain plus petit.
 	<notification name="OutfitPhotoLoadError">
 		[REASON]
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="FailedToFindSettings">
+		Impossible de charger les paramètres de [NAME] à partir de la base de données.
+	</notification>
+	<notification name="FailedToLoadSettingsApply">
+		Impossible d&apos;appliquer ces paramètres à l&apos;environnement.
+	</notification>
+	<notification name="FailedToBuildSettingsDay">
+		Impossible d&apos;appliquer ces paramètres à l&apos;environnement.
+	</notification>
+	<notification name="NoEnvironmentSettings">
+		Cette région ne prend pas en charge les paramètres environnementaux.
+	</notification>
+	<notification name="WLImportFail">
+		Impossible d&apos;importer les paramètres Windlight hérités depuis [FICHIER].
+	</notification>
+	<notification name="WLParcelApplyFail">
+		Impossible de définir l&apos;environnement pour cette parcelle. 
+Veuillez entrer ou sélectionner une parcelle que vous avez le droit de modifier.
+	</notification>
+	<notification name="SettingsUnsuported">
+		Les paramètres ne sont pas pris en charge dans cette région. 
+Veuillez vous déplacer dans une région où les paramètres sont activés et relancer votre action.
+	</notification>
+	<notification name="SettingsConfirmLoss">
+		Vous êtes sur le point de perdre les modifications que vous avez apportées à ce [TYPE] nommé &quot;[NOM]&quot;. 
+Voulez-vous vraiment continuer ?
+		<usetemplate ignoretext="Voulez-vous vraiment perdre les modifications ?" name="okcancelignore" notext="Non" yestext="Oui"/>
+	</notification>
+	<notification name="SettingsMakeNoTrans">
+		Vous êtes sur le point d&apos;importer des paramètres non transférables dans ce cycle de jour. Si vous continuez, les paramètres que vous modifiez deviennent également non transférables. 
+
+Cette modification ne peut être être annulée. 
+
+Voulez-vous vraiment continuer ?
+		<usetemplate ignoretext="Voulez-vous vraiment que ces paramètres soient non transférables ?" name="okcancelignore" notext="Non" yestext="Oui"/>
 	</notification>
 </notifications>

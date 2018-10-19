@@ -636,6 +636,14 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="BUTTON_HELP">
 		Afficher l&apos;aide
 	</string>
+	<string name="TooltipNotecardNotAllowedTypeDrop">
+		Les éléments de ce type ne peuvent pas être attachés aux notes de cette région.
+	</string>
+	<string name="TooltipNotecardOwnerRestrictedDrop">
+		Seuls des éléments avec des droits 
+illimités pour le prochain propriétaire 
+peuvent être joints aux notes.
+	</string>
 	<string name="Searching">
 		Recherche...
 	</string>
@@ -787,15 +795,15 @@ http://secondlife.com/support pour vous aider à résoudre ce problème.
 	<string name="symbolic link">
 		lien
 	</string>
+	<string name="settings blob">
+		paramètres
+	</string>
 	<string name="symbolic folder link">
 		lien du dossier
 	</string>
 	<string name="mesh">
 		maillage
 	</string>
-    <string name="settings">
-        paramètres
-    </string>
 	<string name="AvatarEditingAppearance">
 		(Apparence en cours de modification)
 	</string>
@@ -2492,6 +2500,9 @@ Si vous continuez de recevoir ce message, contactez l’assistance Second Life �
 	</string>
 	<string name="RegionSettings">
 		Réglages de la région
+	</string>
+	<string name="NoEnvironmentSettings">
+		Cette région ne prend pas en charge les paramètres environnementaux.
 	</string>
 	<string name="ClassifiedClicksTxt">
 		Clics : [TELEPORT] téléportation, [MAP] carte, [PROFILE] profil
@@ -4834,6 +4845,15 @@ du rapport d&apos;infraction
 	</string>
 	<string name="Female - Wow">
 		Femme - Ouah !
+	</string>
+	<string name="New Daycycle">
+		Nouveau cycle du jour
+	</string>
+	<string name="New Water">
+		Nouvelle eau
+	</string>
+	<string name="New Sky">
+		Nouveau ciel
 	</string>
 	<string name="/bow">
 		/s&apos;incliner

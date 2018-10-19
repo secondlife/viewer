@@ -36,7 +36,7 @@
 	<button label="Добавить..." name="add_allowed_avatar_btn"/>
 	<button label="Удалить..." name="remove_allowed_avatar_btn"/>
 	<text name="allow_group_label">
-		Группы всегда разрешены:
+		Допуск групп всегда разрешен:
 	</text>
 	<text name="ban_resident_label">
 		Всегда заблокированы:

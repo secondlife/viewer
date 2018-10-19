@@ -309,6 +309,8 @@ void LLFloaterFixedEnvironment::onAssetLoaded(LLUUID asset_id, LLSettingsBase::p
         return;
     }
 
+    clearDirtyFlag();
+
     if (!settings || status)
     {
         LLSD args;
@@ -434,7 +436,7 @@ void LLFloaterFixedEnvironment::onSaveAsCommit(const LLSD& notification, const L
 void LLFloaterFixedEnvironment::onClickCloseBtn(bool app_quitting)
 {
     if (!app_quitting)
-        checkAndConfirmSettingsLoss([this](){ closeFloater(); });
+        checkAndConfirmSettingsLoss([this](){ closeFloater(); clearDirtyFlag(); });
     else
         closeFloater();
 }
@@ -767,7 +769,7 @@ void LLFloaterFixedEnvironmentSky::loadSkySettingFromFile(const std::vector<std:
 
     loadInventoryItem(LLUUID::null);
 
-    clearDirtyFlag();
+    setDirtyFlag();
     LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, legacysky);
     setEditSettings(legacysky);
     LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_FAST, true);

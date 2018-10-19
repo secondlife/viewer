@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="menu_settings_add">
+	<menu_item_call label="新的天空" name="New Sky"/>
+	<menu_item_call label="新的水文" name="New Water"/>
+	<menu_item_call label="新的日循環" name="New Day Cycle"/>
+</toggleable_menu>

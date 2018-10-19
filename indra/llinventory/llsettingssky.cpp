@@ -137,7 +137,7 @@ const std::string LLSettingsSky::SETTING_SKY_MOISTURE_LEVEL("moisture_level");
 const std::string LLSettingsSky::SETTING_SKY_DROPLET_RADIUS("droplet_radius");
 const std::string LLSettingsSky::SETTING_SKY_ICE_LEVEL("ice_level");
 
-const LLUUID LLSettingsSky::DEFAULT_ASSET_ID("ff64f04e-097f-40bc-9063-d8d48c308739");
+const LLUUID LLSettingsSky::DEFAULT_ASSET_ID("eb3a7080-831f-9f37-10f0-7b1f9ea4043c");
 
 static const LLUUID DEFAULT_SUN_ID("cce0f112-878f-4586-a2e2-a8f104bba271"); // dataserver
 static const LLUUID DEFAULT_MOON_ID("d07f6eed-b96a-47cd-b51d-400ad4a1c428"); // dataserver

@@ -1876,7 +1876,7 @@ Cambierà migliaia di regioni e produrrà seri problemi ai vari server.
 		<usetemplate canceltext="Annulla" name="yesnocancelbuttons" notext="Tutte le proprietà" yestext="Questa proprietà"/>
 	</notification>
 	<notification label="Seleziona la proprietà" name="EstateBannedAgentRemove">
-		Rimuovi questo residente dalla lista dei residenti bloccati nell&apos;accesso solo a questa proprietà oppure per [ALL_ESTATES]?
+		Vuoi rimuovere questo Residente dall’elenco degli espulsi solo per questa proprietà immobiliare oppure per [ALL_ESTATES]?
 		<usetemplate canceltext="Annulla" name="yesnocancelbuttons" notext="Tutte le proprietà" yestext="Questa proprietà"/>
 	</notification>
 	<notification label="Seleziona la proprietà" name="EstateManagerAdd">
@@ -1921,6 +1921,10 @@ Cambierà migliaia di regioni e produrrà seri problemi ai vari server.
 	</notification>
 	<notification name="EstateParcelAccessOverride">
 		Togliendo la spunta a questa opzione potrebbero essere rimosse le restrizioni che i proprietari di lotti hanno aggiunto per tenere lontani disturbatori, mantenere la privacy, o evitare che minorenni abbiano accesso a materiale per adulti. Parla con i proprietari del tuo lotto se ce n’è bisogno.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="EstateParcelEnvironmentOverride">
+		Togliendo la spunta a questa opzione potrebbero essere rimosse le impostazioni personalizzate che i proprietari hanno aggiunto ai loro lotti. Parlane con i proprietari del tuo lotto se ce n’è bisogno.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked">
@@ -4326,5 +4330,41 @@ Prova a selezionare un pezzo di terreno più piccolo.
 	<notification name="OutfitPhotoLoadError">
 		[REASON]
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="FailedToFindSettings">
+		Non abbiamo potuto caricare le impostazioni per [NAME] dal database.
+	</notification>
+	<notification name="FailedToLoadSettingsApply">
+		Impossibile applicare le impostazioni all’ambiente.
+	</notification>
+	<notification name="FailedToBuildSettingsDay">
+		Impossibile applicare le impostazioni all’ambiente.
+	</notification>
+	<notification name="NoEnvironmentSettings">
+		Questa regione non supporta le impostazioni per l’ambiente.
+	</notification>
+	<notification name="WLImportFail">
+		Impossibile importare le impostazioni legacy vento e luce da [FILE].
+	</notification>
+	<notification name="WLParcelApplyFail">
+		Impossibile impostare l’ambiente per questo lotto. 
+Inserisci o seleziona un lotto che hai il diritto di modificare.
+	</notification>
+	<notification name="SettingsUnsuported">
+		Questa regione non supporta le impostazioni ambientali. 
+Spostati in una regione che abbia le impostazioni abilitate e riprova.
+	</notification>
+	<notification name="SettingsConfirmLoss">
+		Stai per perdere le modifiche che hai fatto a questo [TYPE] chiamato “[NAME]”. 
+Vuoi continuare?
+		<usetemplate ignoretext="Sei sicuro di voler perdere le modifiche apportate?" name="okcancelignore" notext="No" yestext="Sì"/>
+	</notification>
+	<notification name="SettingsMakeNoTrans">
+		Stai per importare impostazioni non trasferibili in questo ciclo giornata Continuando, anche le impostazione che stai modificando diventeranno non trasferibili. 
+
+Questo cambiamento non può essere annullato. 
+
+Vuoi continuare?
+		<usetemplate ignoretext="Sei sicuro di voler rendere le impostazioni non trasferibili?" name="okcancelignore" notext="No" yestext="Sì"/>
 	</notification>
 </notifications>

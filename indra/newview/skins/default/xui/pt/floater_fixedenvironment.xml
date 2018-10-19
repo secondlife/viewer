@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Fixed Environment" title="Ambiente consertado">
+	<string name="edit_sky">
+		Editar céu:
+	</string>
+	<string name="edit_water">
+		Editar água:
+	</string>
+	<layout_stack name="floater_stack">
+		<layout_panel name="info_panel">
+			<button label="Carregar" name="btn_load" tool_tip="Carregar as configurações de inventário"/>
+			<button label="Importar" name="btn_import" tool_tip="Importar configurações do legado do disco."/>
+		</layout_panel>
+		<layout_panel name="button_panel">
+			<layout_stack name="button_bar_ls">
+				<layout_panel name="save_btn_lp">
+					<button label="Salvar" name="btn_commit"/>
+				</layout_panel>
+				<layout_panel name="revert_btn_lp">
+					<button label="Cancelar" name="btn_cancel" tool_tip="Voltar à última versão salva"/>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
+</floater>

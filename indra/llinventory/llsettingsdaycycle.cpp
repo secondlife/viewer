@@ -106,7 +106,7 @@ const std::string LLSettingsDay::SETTING_KEYHASH("key_hash");
 const std::string LLSettingsDay::SETTING_TRACKS("tracks");
 const std::string LLSettingsDay::SETTING_FRAMES("frames");
 
-const LLSettingsDay::Seconds LLSettingsDay::MINIMUM_DAYLENGTH(120);    // 2 mins
+const LLSettingsDay::Seconds LLSettingsDay::MINIMUM_DAYLENGTH(14400);  // 4 hours
 const LLSettingsDay::Seconds LLSettingsDay::DEFAULT_DAYLENGTH(14400);  // 4 hours
 const LLSettingsDay::Seconds LLSettingsDay::MAXIMUM_DAYLENGTH(604800); // 7 days
 
@@ -121,7 +121,7 @@ const S32 LLSettingsDay::FRAME_MAX(56);
 
 const F32 LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR(0.02501f);
 
-const LLUUID LLSettingsDay::DEFAULT_ASSET_ID("94d296c2-6e05-963c-6b62-671199121dbb");
+const LLUUID LLSettingsDay::DEFAULT_ASSET_ID("78751d18-6c51-3c43-2887-3654cd427a42");
 
 // Minimum value to prevent multislider in edit floaters from eating up frames that 'encroach' on one another's space
 static const F32 DEFAULT_MULTISLIDER_INCREMENT(0.005f);
@@ -369,7 +369,7 @@ bool LLSettingsDay::initialize(bool validate_frames)
 
                         if (total_frame_shift >= 1)
                         {
-                            LL_WARNS() << "Could not fix frame position, adding as is to position: " << keyframe << LL_ENDL;
+                            LL_WARNS("SETTINGS") << "Could not fix frame position, adding as is to position: " << keyframe << LL_ENDL;
                         }
                         else
                         {

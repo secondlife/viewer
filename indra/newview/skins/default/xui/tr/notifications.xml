@@ -1873,7 +1873,7 @@ Binlerce bölgeyi değiştirecek ve alan sunucusunu kesintiye uğratacaktır.
 		<usetemplate canceltext="İptal" name="yesnocancelbuttons" notext="Tüm Gayrimenkuller" yestext="Bu Gayrimenkul"/>
 	</notification>
 	<notification label="Gayrimenkul seç" name="EstateBannedAgentRemove">
-		Bu Sakin sadece bu gayrimenkul için mi yasaklı listesinden çıkarılsın, yoksa [ALL_ESTATES] için mi?
+		Bu Sakin sadece bu gayrimenkul için mi yoksa [ALL_ESTATES] için mi erişim yasağı listesinden çıkarılsın?
 		<usetemplate canceltext="İptal" name="yesnocancelbuttons" notext="Tüm Gayrimenkuller" yestext="Bu Gayrimenkul"/>
 	</notification>
 	<notification label="Gayrimenkul seç" name="EstateManagerAdd">
@@ -1918,6 +1918,10 @@ Binlerce bölgeyi değiştirecek ve alan sunucusunu kesintiye uğratacaktır.
 	</notification>
 	<notification name="EstateParcelAccessOverride">
 		Bu seçeneğin onay işaretini kaldırmak, parsel sahiplerinin rahatsızlık veren oyuncuları bunu yapmasını engellemek, gizliliği sürdürmek ve yaşı tutmayan sakinleri yetişkin içeriklerden korumak için ekledikleri kısıtlamaları kaldırabilir. Lütfen gerekli olduğunda parsel sahiplerinizle tartışın.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="EstateParcelEnvironmentOverride">
+		Bu seçeneğin onay işaretinin kaldırılması, parsel sahiplerinin kendi parsellerine eklemiş oldukları tüm özel ortamları kaldırabilir. Lütfen gerektiğinde parsel sahiplerinizle tartışın.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked">
@@ -4320,5 +4324,41 @@ Daha küçük bir arazi parçası seçmeyi deneyin.
 	<notification name="OutfitPhotoLoadError">
 		[REASON]
 		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="FailedToFindSettings">
+		[NAME] ile ilgili ayarlar veritabanından yüklenemedi.
+	</notification>
+	<notification name="FailedToLoadSettingsApply">
+		Bu değişiklikler ortama uygulanamıyor.
+	</notification>
+	<notification name="FailedToBuildSettingsDay">
+		Bu değişiklikler ortama uygulanamıyor.
+	</notification>
+	<notification name="NoEnvironmentSettings">
+		Bu Bölge ortam ayarlarını desteklemiyor.
+	</notification>
+	<notification name="WLImportFail">
+		Eski Windlight ayarları [FILE] dosyasından içeri aktarılamıyor.
+	</notification>
+	<notification name="WLParcelApplyFail">
+		Bu parsele ait ortam ayarlanamıyor. 
+Lütfen değişiklik yapma hakkına sahip olduğunuz bir parsel girin veya seçin.
+	</notification>
+	<notification name="SettingsUnsuported">
+		Ayarlar bu bölgede desteklenmiyor. 
+Lütfen ayarların etkin olduğu bir bölgeye gidin ve eyleminizi yeniden deneyin.
+	</notification>
+	<notification name="SettingsConfirmLoss">
+		&quot;[NAME]&quot; adlı bu [TYPE] öğesinde yaptığınız değişiklikleri kaybetmek üzeresiniz. 
+Devam etmek istediğinizden emin misiniz?
+		<usetemplate ignoretext="Değişiklikleri kaybetmek istediğinizden emin misiniz?" name="okcancelignore" notext="Hayır" yestext="Evet"/>
+	</notification>
+	<notification name="SettingsMakeNoTrans">
+		Aktarılamayan ayarları bu gün döngüsüne aktarmak üzeresiniz. Bu işleme devam etmeniz düzenlemekte olduğunuz ayarların da aktarılamaz olmasına neden olacaktır. 
+
+Bu değişiklik geri alınamaz. 
+
+Devam etmek istediğinizden emin misiniz?
+		<usetemplate ignoretext="Ayarları aktarılamaz hale getirmek istediğinizden emin misiniz?" name="okcancelignore" notext="Hayır" yestext="Evet"/>
 	</notification>
 </notifications>

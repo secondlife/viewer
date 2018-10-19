@@ -632,6 +632,15 @@ http://secondlife.com/viewer-access-faq
 	<string name="BUTTON_HELP">
 		顯示幫助
 	</string>
+	<string name="TooltipNotecardNotAllowedTypeDrop">
+		這類物項無法附著
+到本地區的記事卡。
+	</string>
+	<string name="TooltipNotecardOwnerRestrictedDrop">
+		只有帶有不受限制的
+「下一個所有人」權限的物件
+才可附著到記事卡。
+	</string>
 	<string name="Searching">
 		搜尋中...
 	</string>
@@ -780,15 +789,15 @@ http://secondlife.com/support 求助解決問題。
 	<string name="symbolic link">
 		聯結
 	</string>
+	<string name="settings blob">
+		設定
+	</string>
 	<string name="symbolic folder link">
 		資料夾聯結
 	</string>
 	<string name="mesh">
 		網面
 	</string>
-    <string name="settings">
-        的設定
-    </string>
 	<string name="AvatarEditingAppearance">
 		（外觀編輯中）
 	</string>
@@ -2485,6 +2494,9 @@ http://secondlife.com/support 求助解決問題。
 	</string>
 	<string name="RegionSettings">
 		地區設定
+	</string>
+	<string name="NoEnvironmentSettings">
+		這區域不支援環境設定。
 	</string>
 	<string name="ClassifiedClicksTxt">
 		點按：[TELEPORT] 瞬間傳送，[MAP] 地圖，[PROFILE] 檔案
@@ -4827,6 +4839,15 @@ http://secondlife.com/support 求助解決問題。
 	</string>
 	<string name="Female - Wow">
 		女性 - 哇塞
+	</string>
+	<string name="New Daycycle">
+		新的日循環
+	</string>
+	<string name="New Water">
+		新的水文
+	</string>
+	<string name="New Sky">
+		新的天空
 	</string>
 	<string name="/bow">
 		/彎腰點頭

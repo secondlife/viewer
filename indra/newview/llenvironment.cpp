@@ -261,10 +261,10 @@ const F32Seconds LLEnvironment::TRANSITION_DEFAULT(5.0f);
 const F32Seconds LLEnvironment::TRANSITION_SLOW(10.0f);
 const F32Seconds LLEnvironment::TRANSITION_ALTITUDE(5.0f);
 
-const LLUUID LLEnvironment::KNOWN_SKY_SUNRISE("4204c687-f9e4-4893-8c1b-46761c0d2021");
-const LLUUID LLEnvironment::KNOWN_SKY_MIDDAY("07589e0e-8e2e-4864-8e58-07b516efd9c3");
-const LLUUID LLEnvironment::KNOWN_SKY_SUNSET("8113ba47-3223-46ba-bae6-12c875091b32");
-const LLUUID LLEnvironment::KNOWN_SKY_MIDNIGHT("90187088-d7f3-4656-8c27-8ba0e19e21e9");
+const LLUUID LLEnvironment::KNOWN_SKY_SUNRISE("7e1489ce-fdc8-2971-c3a4-f1fe0cd70d20");
+const LLUUID LLEnvironment::KNOWN_SKY_MIDDAY("9db06848-8b1f-501d-eeae-ecf487f40dd6");
+const LLUUID LLEnvironment::KNOWN_SKY_SUNSET("95882e1b-7741-f082-d9d6-3a34ec644c66");
+const LLUUID LLEnvironment::KNOWN_SKY_MIDNIGHT("d8e50d02-a15b-17a7-3425-523bc20f67b8");
 
 const S32 LLEnvironment::NO_TRACK(-1);
 
@@ -888,9 +888,6 @@ void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLS
         bool found_in_settings = psetting->mSettings.has(it.first);
         bool found_in_legacy_settings = !found_in_settings && psetting->mSettings.has(LLSettingsSky::SETTING_LEGACY_HAZE) && psetting->mSettings[LLSettingsSky::SETTING_LEGACY_HAZE].has(it.first);
 
-        if (!found_in_settings && !found_in_legacy_settings)
-            continue;
-
         if (found_in_settings)
         {
             value = psetting->mSettings[it.first];
@@ -898,6 +895,51 @@ void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLS
         else if (found_in_legacy_settings)
         {
             value = psetting->mSettings[LLSettingsSky::SETTING_LEGACY_HAZE][it.first];
+        }
+        else if (psetting->getSettingsType() == "sky")
+        {
+            // Legacy atmospherics is a special case,
+            // these values either have non zero defaults when they are not present
+            // in LLSD or need to be acounted for (reset) even if they are not present
+            // Todo: consider better options, for example make LLSettingsSky init these options
+            // Todo: we should reset shaders for all missing fields, not just these ones
+            LLSettingsSky::ptr_t skyp = std::static_pointer_cast<LLSettingsSky>(psetting);
+            if (it.first == LLSettingsSky::SETTING_BLUE_DENSITY)
+            {
+                value = skyp->getBlueDensity().getValue();
+            }
+            else if (it.first == LLSettingsSky::SETTING_BLUE_HORIZON)
+            {
+                value = skyp->getBlueHorizon().getValue();
+            }
+            else if (it.first == LLSettingsSky::SETTING_DENSITY_MULTIPLIER)
+            {
+                value = skyp->getDensityMultiplier();
+            }
+            else if (it.first == LLSettingsSky::SETTING_DISTANCE_MULTIPLIER)
+            {
+                value = skyp->getDistanceMultiplier();
+            }
+            else if (it.first == LLSettingsSky::SETTING_HAZE_DENSITY)
+            {
+                value = skyp->getHazeDensity();
+            }
+            else if (it.first == LLSettingsSky::SETTING_HAZE_HORIZON)
+            {
+                value = skyp->getHazeHorizon();
+            }
+            else if (it.first == LLSettingsSky::SETTING_AMBIENT)
+            {
+                value = skyp->getAmbientColor().getValue();
+            }
+            else
+            {
+                continue;
+            }
+        }
+        else
+        {
+            continue;
         }
 
         LLSD::Type setting_type = value.type();

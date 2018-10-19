@@ -158,6 +158,14 @@ void LLSettingsVOBase::onInventoryItemCreated(const LLUUID &inventoryId, LLSetti
         if (pitem)
         {
             asset_id = pitem->getAssetUUID();
+
+            LLPermissions perm = pitem->getPermissions();
+            if (perm.getMaskEveryone() != PERM_COPY)
+            {
+                perm.setMaskEveryone(PERM_COPY);
+                pitem->setPermissions(perm);
+                pitem->updateServer(FALSE);
+            }
         }
         if (callback)
             callback(asset_id, inventoryId, LLUUID::null, LLSD());
@@ -262,14 +270,6 @@ void LLSettingsVOBase::onAgentAssetUploadComplete(LLUUID itemId, LLUUID newAsset
     psettings->setAssetId(newAssetId);
     if (callback)
         callback( newAssetId, itemId, LLUUID::null, response );
-
-#if 0
-    std::string exprtFile = gDirUtilp->getTempDir() + gDirUtilp->getDirDelimiter() + newAssetId.asString() + ".llsd";
-
-    LLSettingsVOBase::exportFile(psettings, exprtFile, LLSDSerialize::LLSD_NOTATION);
-
-    LL_WARNS("LAPRAS") << "SETTINGS File written as: '" << exprtFile << "'" << LL_ENDL;
-#endif
 }
 
 void LLSettingsVOBase::onTaskAssetUploadComplete(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response, LLSettingsBase::ptr_t psettings, inventory_result_fn callback)
@@ -316,7 +316,7 @@ void LLSettingsVOBase::onAssetDownloadComplete(LLVFS *vfs, const LLUUID &asset_i
         }
         else
         {
-            LL_WARNS("LAPRAS") << "Setting asset ID to " << asset_id << LL_ENDL;
+            //_WARNS("LAPRAS") << "Setting asset ID to " << asset_id << LL_ENDL;
             settings->setAssetId(asset_id);
         }
     }
@@ -1073,7 +1073,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyMessage(const LLUUID &regio
         ( SETTING_FRAMES, frames )
         ( SETTING_TYPE, "daycycle" );
 
-    LL_WARNS("LAPRAS") << "newsettings=" << newsettings << LL_ENDL;
+    //_WARNS("LAPRAS") << "newsettings=" << newsettings << LL_ENDL;
 
     LLSettingsSky::validation_list_t validations = LLSettingsDay::validationList();
     LLSD results = LLSettingsDay::settingValidation(newsettings, validations);

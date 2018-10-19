@@ -75,27 +75,14 @@
 			<menu_item_check label="Parsel Özellikleri" name="Parcel Properties"/>
 			<menu_item_check label="Gelişmiş Menü" name="Show Advanced Menu"/>
 		</menu>
-		<menu label="Güneş" name="Sun">
-			<menu_item_check label="Gün Doğumu" name="Sunrise"/>
-			<menu_item_check label="Gün Ortası" name="Noon"/>
-			<menu_item_check label="Gün Batımı" name="Sunset"/>
-			<menu_item_check label="Gece Yarısı" name="Midnight"/>
-			<menu_item_check label="Bölge Ayarlarını Kullan" name="Use Region Settings"/>
-		</menu>
-		<menu label="Ortam Düzenleyici" name="Environment Editor">
-			<menu_item_call label="Ortam Ayarları..." name="Environment Settings"/>
-			<menu label="Su Ön Ayarları" name="Water Presets">
-				<menu_item_call label="Yeni ön ayar..." name="new_water_preset"/>
-				<menu_item_call label="Ön ayarı düzenle..." name="edit_water_preset"/>
-			</menu>
-			<menu label="Gökyüzü Ön Ayarları" name="Sky Presets">
-				<menu_item_call label="Yeni ön ayar..." name="new_sky_preset"/>
-				<menu_item_call label="Ön ayarı düzenle..." name="edit_sky_preset"/>
-			</menu>
-			<menu label="Gün Ön Ayarları" name="Day Presets">
-				<menu_item_call label="Yeni ön ayar..." name="new_day_preset"/>
-				<menu_item_call label="Ön ayarı düzenle..." name="edit_day_preset"/>
-			</menu>
+		<menu label="Ortam" name="Environment">
+			<menu_item_check label="Gün doğumu" name="Sunrise"/>
+			<menu_item_check label="Öğle" name="Noon"/>
+			<menu_item_check label="Gün batımı" name="Sunset"/>
+			<menu_item_check label="Gece yarısı" name="Midnight"/>
+			<menu_item_check label="Ortak Ortam Kullan" name="Use Shared Environment"/>
+			<menu_item_call label="Ortamlarım..." name="my_environs"/>
+			<menu_item_check label="Bulutları Duraklat" name="pause_clouds"/>
 		</menu>
 	</menu>
 	<menu label="İnşa Et" name="BuildTools">
@@ -273,7 +260,6 @@
 			<menu_item_check label="Matrisleri Göster" name="Show Matrices"/>
 			<menu_item_check label="İmlecin Altındaki Rengi Göster" name="Show Color Under Cursor"/>
 			<menu_item_check label="Belleği Göster" name="Show Memory"/>
-			<menu_item_check label="Özel Bellek Bilgisini Göster" name="Show Private Mem Info"/>
 			<menu_item_check label="Nesneler İçin Güncelleştirmeleri Göster" name="Show Updates"/>
 		</menu>
 		<menu label="Bir Hatayı Zorla" name="Force Errors">
