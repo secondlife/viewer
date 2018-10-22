@@ -204,15 +204,15 @@ void LLPanelEnvironmentInfo::refresh()
         return;
     }
 
+    S32 rdo_selection = 0;
     if ((!mCurrentEnvironment->mDayCycle) ||
         ((mCurrentEnvironment->mParcelId == INVALID_PARCEL_ID) && (mCurrentEnvironment->mDayCycle->getAssetId() == LLSettingsDay::GetDefaultAssetId() )))
     {
-        getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->setSelectedIndex(0);
         getChild<LLUICtrl>(EDT_INVNAME)->setValue("");
     }
     else if (!mCurrentEnvironment->mDayCycle->getAssetId().isNull())
     {
-        getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->setSelectedIndex(1);
+        rdo_selection = 1;
 
         LLUUID asset_id = mCurrentEnvironment->mDayCycle->getAssetId();
 
@@ -225,9 +225,10 @@ void LLPanelEnvironmentInfo::refresh()
     }
     else
     {   // asset id is null so this is a custom environment
-        getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->setSelectedIndex(2);
+        rdo_selection = 2;
         getChild<LLUICtrl>(EDT_INVNAME)->setValue("");
     }
+    getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->setSelectedIndex(rdo_selection);
 
     F32Hours daylength(mCurrentEnvironment->mDayLength);
     F32Hours dayoffset(mCurrentEnvironment->mDayOffset);
@@ -237,6 +238,8 @@ void LLPanelEnvironmentInfo::refresh()
 
     getChild<LLSliderCtrl>(SLD_DAYLENGTH)->setValue(daylength.value());
     getChild<LLSliderCtrl>(SLD_DAYOFFSET)->setValue(dayoffset.value());
+    getChild<LLSliderCtrl>(SLD_DAYLENGTH)->setEnabled(canEdit() && (rdo_selection != 0) && !mCurrentEnvironment->mIsLegacy);
+    getChild<LLSliderCtrl>(SLD_DAYOFFSET)->setEnabled(canEdit() && (rdo_selection != 0) && !mCurrentEnvironment->mIsLegacy);
    
     udpateApparentTimeOfDay();
 
