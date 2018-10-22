@@ -929,6 +929,9 @@ class DarwinManifest(ViewerManifest):
                 self.path2basename(relpkgdir, CEF_framework)
                 CEF_framework = self.dst_path_of(CEF_framework)
 
+                if self.args.get('bugsplat'):
+                    self.path2basename(relpkgdir, "BugsplatMac.framework")
+
             with self.prefix(dst="MacOS"):
                 # NOTE: the -S argument to strip causes it to keep
                 # enough info for annotated backtraces (i.e. function
