@@ -38,7 +38,13 @@ VARYING vec2 screenpos;
 void main()
 {
 	//transform vertex
-	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
+    vec4 pos = modelview_projection_matrix * vec4(position, 1.0);
+
+// bias z to fix SL-9806 and get stars to depth test against clouds
+    pos.z += 0.001f;
+
+	gl_Position = pos;
+
     float t = mod(time, 1.25f);
     screenpos = position.xy * vec2(t, t);
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;

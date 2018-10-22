@@ -299,7 +299,9 @@ void LLVOWLSky::drawDome(void)
 		updateGeometry(mDrawable);
 	}
 
-	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
+    // This is handled upstream now as we may make different decisions
+    // for some dome users (the sky) than for others (the clouds)
+	//LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 
 	const U32 data_mask = LLDrawPoolWLSky::SKY_VERTEX_DATA_MASK;
 	
