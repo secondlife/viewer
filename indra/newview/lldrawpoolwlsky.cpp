@@ -325,6 +325,8 @@ void LLDrawPoolWLSky::renderStarsDeferred(void) const
 {
 	LLGLSPipelineSkyBox gls_sky;
 	LLGLEnable blend(GL_BLEND);
+    LLGLDepthTest depth_test(GL_TRUE, GL_FALSE, GL_LESS);
+
 	gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
 
     F32 star_alpha = LLEnvironment::instance().getCurrentSky()->getStarBrightness() / 500.0f;
@@ -386,6 +388,7 @@ void LLDrawPoolWLSky::renderSkyClouds(const LLVector3& camPosLocal, F32 camHeigh
 {
 	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && gSky.mVOSkyp->getCloudNoiseTex())
 	{
+        LLGLDepthTest depth(GL_TRUE, GL_TRUE);
 		LLGLEnable blend(GL_BLEND);
 		gGL.setSceneBlendType(LLRender::BT_ALPHA);
 		
@@ -549,22 +552,21 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
     if (gPipeline.canUseWindLightShaders())
     {
         {
+            // Disable depth-writes for sky, but re-enable depth writes for the cloud
+            // rendering below so the cloud shader can write out depth for the stars to test against         
             LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 
             if (gPipeline.useAdvancedAtmospherics())
             {
-                //LLGLSquashToFarClip far_clip(get_current_projection());
 	            renderSkyHazeDeferred(origin, camHeightLocal);
             }
             else
             {
-                // Disable depth-test for sky, but re-enable depth writes for the cloud
-                // rendering below so the cloud shader can write out depth for the stars to test against            
-                renderSkyHaze(origin, camHeightLocal);   
-		    
+                renderSkyHaze(origin, camHeightLocal);
             }
             renderHeavenlyBodies();
         }
+
         renderSkyClouds(origin, camHeightLocal);
     }    
     gGL.setColorMask(true, true);
