@@ -615,6 +615,14 @@ class LLManifest(object):
             # *TODO is this gonna be useful?
             print "Cleaning up " + c
 
+    def process_either(self, src, dst):
+        # If it's a real directory, recurse through it --
+        # but not a symlink! Handle those like files.
+        if os.path.isdir(src) and not os.path.islink(src):
+            return self.process_directory(src, dst)
+        else:
+            return self.process_file(src, dst)
+
     def process_file(self, src, dst):
         if self.includes(src, dst):
             for action in self.actions:
@@ -641,10 +649,7 @@ class LLManifest(object):
         for name in names:
             srcname = os.path.join(src, name)
             dstname = os.path.join(dst, name)
-            if os.path.isdir(srcname):
-                count += self.process_directory(srcname, dstname)
-            else:
-                count += self.process_file(srcname, dstname)
+            count += self.process_either(srcname, dstname)
         return count
 
     def includes(self, src, dst):
@@ -816,11 +821,7 @@ class LLManifest(object):
                 # if we're specifying a single path (not a glob),
                 # we should error out if it doesn't exist
                 self.check_file_exists(src)
-                # if it's a directory, recurse through it
-                if os.path.isdir(src):
-                    count += self.process_directory(src, dst)
-                else:
-                    count += self.process_file(src, dst)
+                count += self.process_either(src, dst)
             return count
 
         try_prefixes = [self.get_src_prefix(), self.get_artwork_prefix(), self.get_build_prefix()]
