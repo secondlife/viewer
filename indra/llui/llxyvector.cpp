@@ -37,6 +37,8 @@
 #include "lluictrlfactory.h"
 #include "llrender.h"
 
+#include "llmath.h"
+
 // Globals
 static LLDefaultChildRegistry::Register<LLXYVector> register_xy_vector("xy_vector");
 
@@ -63,7 +65,8 @@ LLXYVector::Params::Params()
     arrow_color("arrow_color", LLColor4::white),
     ghost_color("ghost_color"),
     area_color("area_color", LLColor4::grey4),
-    grid_color("grid_color", LLColor4::grey % 0.25f)
+    grid_color("grid_color", LLColor4::grey % 0.25f),
+    logarithmic("logarithmic", FALSE)
 {
 }
 
@@ -77,7 +80,8 @@ LLXYVector::LLXYVector(const LLXYVector::Params& p)
     mIncrementX(p.increment_x),
     mMinValueY(p.min_val_y),
     mMaxValueY(p.max_val_y),
-    mIncrementY(p.increment_y)
+    mIncrementY(p.increment_y),
+    mLogarithmic(p.logarithmic)
 {
     mGhostColor = p.ghost_color.isProvided() ? p.ghost_color() % 0.3f : p.arrow_color() % 0.3f;
 
@@ -138,6 +142,9 @@ LLXYVector::~LLXYVector()
 
 BOOL LLXYVector::postBuild()
 {
+    mLogScaleX = (2 * log(mMaxValueX)) / mTouchArea->getRect().getWidth();
+    mLogScaleY = (2 * log(mMaxValueY)) / mTouchArea->getRect().getHeight();
+
     return TRUE;
 }
 
@@ -165,9 +172,24 @@ void LLXYVector::draw()
 {
     S32 centerX = mTouchArea->getRect().getCenterX();
     S32 centerY = mTouchArea->getRect().getCenterY();
+    S32 pointX;
+    S32 pointY;
 
-    S32 pointX = centerX + (mValueX * mTouchArea->getRect().getWidth() / (2 * mMaxValueX));
-    S32 pointY = centerY + (mValueY * mTouchArea->getRect().getHeight() / (2 * mMaxValueY));
+    if (mLogarithmic)
+    {
+        pointX = (log(llabs(mValueX) + 1)) / mLogScaleX;
+        pointX *= (mValueX < 0) ? -1 : 1;
+        pointX += centerX;
+
+        pointY = (log(llabs(mValueY) + 1)) / mLogScaleY;
+        pointY *= (mValueY < 0) ? -1 : 1;
+        pointY += centerY;
+    }
+    else // linear
+    {
+        pointX = centerX + (mValueX * mTouchArea->getRect().getWidth() / (2 * mMaxValueX));
+        pointY = centerY + (mValueY * mTouchArea->getRect().getHeight() / (2 * mMaxValueY));
+    }
 
     // fill
     gl_rect_2d(mTouchArea->getRect(), mAreaColor, true);
@@ -222,22 +244,8 @@ void LLXYVector::setValue(const LLSD& value)
 
 void LLXYVector::setValue(F32 x, F32 y)
 {
-    x = llclamp(x, mMinValueX, mMaxValueX);
-    y = llclamp(y, mMinValueY, mMaxValueY);
-
-    // Round the values to nearest increments
-    x -= mMinValueX;
-    x += mIncrementX / 2.0001f;
-    x -= fmod(x, mIncrementX);
-    x += mMinValueX;
-
-    y -= mMinValueY;
-    y += mIncrementY / 2.0001f;
-    y -= fmod(y, mIncrementY);
-    y += mMinValueY;
-
-    mValueX = x;
-    mValueY = y;
+    mValueX = ll_round(llclamp(x, mMinValueX, mMaxValueX), mIncrementX);
+    mValueY = ll_round(llclamp(y, mMinValueY, mMaxValueY), mIncrementY);
 
     update();
 }
@@ -269,13 +277,23 @@ BOOL LLXYVector::handleHover(S32 x, S32 y, MASK mask)
 {
     if (hasMouseCapture())
     {
-        F32 valueX = F32(x - mTouchArea->getRect().getCenterX()) / mTouchArea->getRect().getWidth();
-        F32 valueY = F32(y - mTouchArea->getRect().getCenterY()) / mTouchArea->getRect().getHeight();
+        if (mLogarithmic)
+        {
+            F32 valueX = llfastpow(F_E, mLogScaleX*(llabs(x - mTouchArea->getRect().getCenterX()))) - 1;
+            valueX *= (x < mTouchArea->getRect().getCenterX()) ? -1 : 1;
 
-        valueX *= 2 * mMaxValueX;
-        valueY *= 2 * mMaxValueY;
+            F32 valueY = llfastpow(F_E, mLogScaleY*(llabs(y - mTouchArea->getRect().getCenterY()))) - 1;
+            valueY *= (y < mTouchArea->getRect().getCenterY()) ? -1 : 1;
 
-        setValueAndCommit(valueX, valueY);
+            setValueAndCommit(valueX, valueY);
+        }
+        else //linear
+        {
+            F32 valueX = 2 * mMaxValueX * F32(x - mTouchArea->getRect().getCenterX()) / mTouchArea->getRect().getWidth();
+            F32 valueY = 2 * mMaxValueY * F32(y - mTouchArea->getRect().getCenterY()) / mTouchArea->getRect().getHeight();
+
+            setValueAndCommit(valueX, valueY);
+        }
     }
 
     return TRUE;
