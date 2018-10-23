@@ -167,6 +167,9 @@ attributedStringInfo getSegments(NSAttributedString *str)
     [[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(windowDidBecomeKey:) name:NSWindowDidBecomeKeyNotification
 											   object:[self window]];
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(windowDidChangeScreen:) name:NSWindowDidChangeScreenNotification
+											   object:[self window]];
 
 
     NSRect wnd_rect = [[self window] frame];
@@ -204,6 +207,11 @@ attributedStringInfo getSegments(NSAttributedString *str)
 - (void)windowDidBecomeKey:(NSNotification *)notification;
 {
     mModifiers = [NSEvent modifierFlags];
+}
+
+-(void)windowDidChangeScreen:(NSNotification *)notification;
+{
+	callWindowDidChangeScreen();
 }
 
 - (void)dealloc

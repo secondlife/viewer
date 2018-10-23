@@ -147,6 +147,7 @@ void callWindowFocus();
 void callWindowUnfocus();
 void callWindowHide();
 void callWindowUnhide();
+void callWindowDidChangeScreen();
 void callDeltaUpdate(float *delta, unsigned int mask);
 void callMiddleMouseDown(float *pos, unsigned int mask);
 void callMiddleMouseUp(float *pos, unsigned int mask);

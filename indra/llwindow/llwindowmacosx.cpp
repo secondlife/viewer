@@ -400,6 +400,14 @@ void callWindowUnhide()
 	}
 }
 
+void callWindowDidChangeScreen()
+{
+	if ( gWindowImplementation && gWindowImplementation->getCallbacks() )
+	{
+		gWindowImplementation->getCallbacks()->handleWindowDidChangeScreen(gWindowImplementation);
+	}
+}
+
 void callDeltaUpdate(float *delta, MASK mask)
 {
 	gWindowImplementation->updateMouseDeltas(delta);
