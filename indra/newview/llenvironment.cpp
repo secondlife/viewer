@@ -507,9 +507,19 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironm
 
     DayInstance::ptr_t environment = getEnvironmentInstance(env, true);
 
+    LLSettingsSky::ptr_t prev_sky = mEnvironments[ENV_DEFAULT]->getSky();
+    LLSettingsWater::ptr_t prev_water = mEnvironments[ENV_DEFAULT]->getWater();
+    if (mCurrentEnvironment && (ENV_EDIT == env))
+    {
+        prev_sky = mCurrentEnvironment->getSky() ? mCurrentEnvironment->getSky() : prev_sky;
+        prev_water = mCurrentEnvironment->getWater() ? mCurrentEnvironment->getWater() : prev_water;
+    }
+
     environment->clear();
-    environment->setSky((fixed.first) ? fixed.first : mEnvironments[ENV_DEFAULT]->getSky());
-    environment->setWater((fixed.second) ? fixed.second : mEnvironments[ENV_DEFAULT]->getWater());
+    environment->setSky((fixed.first) ? fixed.first : prev_sky);
+    environment->setWater((fixed.second) ? fixed.second : prev_water);
+
+
     if (!mSignalEnvChanged.empty())
         mSignalEnvChanged(env);
 
