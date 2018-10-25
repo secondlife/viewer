@@ -31,17 +31,10 @@
 #include <new>
 
 size_t GetMemTotal();
-#if	defined(WIN32)
-void * operator new(std::size_t size) _THROW1(std::bad_alloc);
-void * operator new[](std::size_t size) _THROW1(std::bad_alloc);
-void operator delete(void * p) _THROW0();
-void operator delete[](void * p) _THROW0();
-#else
-void * operator new(std::size_t size) throw (std::bad_alloc);
-void * operator new[](std::size_t size) throw (std::bad_alloc);
+void * operator new(std::size_t size);   //throw (std::bad_alloc);
+void * operator new[](std::size_t size); //throw (std::bad_alloc);
 void operator delete(void * p) throw ();
 void operator delete[](void * p) throw ();
-#endif
 
 #endif // TEST_ALLOCATOR_H
 
