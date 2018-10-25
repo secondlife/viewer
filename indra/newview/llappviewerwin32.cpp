@@ -504,7 +504,7 @@ const S32 MAX_CONSOLE_LINES = 500;
 static bool create_console()
 {
 	int h_con_handle;
-	long l_std_handle;
+	intptr_t l_std_handle;
 
 	CONSOLE_SCREEN_BUFFER_INFO coninfo;
 	FILE *fp;
@@ -518,7 +518,7 @@ static bool create_console()
 	SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coninfo.dwSize);
 
 	// redirect unbuffered STDOUT to the console
-	l_std_handle = (long)GetStdHandle(STD_OUTPUT_HANDLE);
+	l_std_handle = reinterpret_cast<decltype(l_std_handle)>(GetStdHandle(STD_OUTPUT_HANDLE));
 	h_con_handle = _open_osfhandle(l_std_handle, _O_TEXT);
 	if (h_con_handle == -1)
 	{
@@ -532,7 +532,7 @@ static bool create_console()
 	}
 
 	// redirect unbuffered STDIN to the console
-	l_std_handle = (long)GetStdHandle(STD_INPUT_HANDLE);
+	l_std_handle = reinterpret_cast<decltype(l_std_handle)>(GetStdHandle(STD_INPUT_HANDLE));
 	h_con_handle = _open_osfhandle(l_std_handle, _O_TEXT);
 	if (h_con_handle == -1)
 	{
@@ -546,7 +546,7 @@ static bool create_console()
 	}
 
 	// redirect unbuffered STDERR to the console
-	l_std_handle = (long)GetStdHandle(STD_ERROR_HANDLE);
+	l_std_handle = reinterpret_cast<decltype(l_std_handle)>(GetStdHandle(STD_ERROR_HANDLE));
 	h_con_handle = _open_osfhandle(l_std_handle, _O_TEXT);
 	if (h_con_handle == -1)
 	{
