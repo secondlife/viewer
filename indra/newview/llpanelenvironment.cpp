@@ -77,6 +77,7 @@ const std::string LLPanelEnvironmentInfo::PNL_ENVIRONMENT_ALTITUDES("pnl_environ
 const std::string LLPanelEnvironmentInfo::PNL_BUTTONS("pnl_environment_buttons");
 const std::string LLPanelEnvironmentInfo::PNL_DISABLED("pnl_environment_disabled");
 const std::string LLPanelEnvironmentInfo::TXT_DISABLED("txt_environment_disabled");
+const std::string LLPanelEnvironmentInfo::SDT_DROP_TARGET("sdt_drop_target");
 
 const std::string LLPanelEnvironmentInfo::STR_LABEL_USEDEFAULT("str_label_use_default");
 const std::string LLPanelEnvironmentInfo::STR_LABEL_USEREGION("str_label_use_region");
@@ -111,6 +112,9 @@ const std::string alt_labels[] = {
     "alt3",
     "ground",
 };
+
+
+static LLDefaultChildRegistry::Register<LLSettingsDropTarget> r("settings_drop_target");
 
 //=========================================================================
 LLPanelEnvironmentInfo::LLPanelEnvironmentInfo(): 
@@ -147,6 +151,8 @@ BOOL LLPanelEnvironmentInfo::postBuild()
     getChild<LLMultiSliderCtrl>(SLD_ALTITUDES)->setCommitCallback([this](LLUICtrl *cntrl, const LLSD &value) { onAltSliderCallback(cntrl, value); });
 
     mChangeMonitor = LLEnvironment::instance().setEnvironmentChanged([this](LLEnvironment::EnvSelection_t env) { onEnvironmentChanged(env); });
+
+    getChild<LLSettingsDropTarget>(SDT_DROP_TARGET)->setPanel(this);
 
     return TRUE;
 }
@@ -397,6 +403,8 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
     getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setEnabled(enabled && isRegion() && !is_legacy);
     getChild<LLUICtrl>(BTN_APPLY)->setEnabled(enabled && (mDirtyFlag != 0));
     getChild<LLUICtrl>(BTN_CANCEL)->setEnabled(enabled && (mDirtyFlag != 0));
+
+    getChild<LLSettingsDropTarget>(SDT_DROP_TARGET)->setDndEnabled(enabled && !is_legacy);
 
     return true;
 }
@@ -792,4 +800,51 @@ void LLPanelEnvironmentInfo::_onEnvironmentReceived(LLHandle<LLPanel> that_h, S3
     if (!that)
         return;
     that->onEnvironmentReceived(parcel_id, envifo);
+}
+
+LLSettingsDropTarget::LLSettingsDropTarget(const LLSettingsDropTarget::Params& p)
+    : LLView(p), mEnvironmentInfoPanel(NULL), mDndEnabled(false)
+{}
+
+BOOL LLSettingsDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+	EDragAndDropType cargo_type,
+	void* cargo_data,
+	EAcceptance* accept,
+	std::string& tooltip_msg)
+{
+    BOOL handled = FALSE;
+
+    if (getParent() && mDndEnabled)
+    {
+        handled = TRUE;
+
+        switch (cargo_type)
+        {
+        case DAD_SETTINGS:
+        {
+            LLViewerInventoryItem* inv_item = (LLViewerInventoryItem*)cargo_data;
+            if (inv_item && mEnvironmentInfoPanel)
+            {
+                LLUUID item_id = inv_item->getUUID();
+                if (gInventory.getItem(item_id))
+                {
+                    *accept = ACCEPT_YES_COPY_SINGLE;
+                    if (drop)
+                    {
+                        mEnvironmentInfoPanel->onPickerCommitted(item_id);
+                    }
+                }
+            }
+            else
+            {
+                *accept = ACCEPT_NO;
+            }
+            break;
+        }
+        default:
+            *accept = ACCEPT_NO;
+            break;
+        }
+    }
+    return handled;
 }

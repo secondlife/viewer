@@ -41,6 +41,7 @@ class LLViewerRegion;
 
 class LLPanelEnvironmentInfo : public LLPanel
 {
+    friend class LLSettingsDropTarget;
 public:
                                 LLPanelEnvironmentInfo();
     virtual                     ~LLPanelEnvironmentInfo();
@@ -81,6 +82,7 @@ protected:
     static const std::string    PNL_BUTTONS;
     static const std::string    PNL_DISABLED;
     static const std::string    TXT_DISABLED;
+    static const std::string    SDT_DROP_TARGET;
 
     static const std::string    STR_LABEL_USEDEFAULT;
     static const std::string    STR_LABEL_USEREGION;
@@ -177,4 +179,31 @@ private:
     bool                            mNoSelection;
     bool                            mNoEnvironment;
 };
-#endif // LL_LLPANELEXPERIENCES_H
+
+class LLSettingsDropTarget : public LLView
+{
+public:
+    struct Params : public LLInitParam::Block<Params, LLView::Params>
+    {
+        Params()
+        {
+            changeDefault(mouse_opaque, false);
+            changeDefault(follows.flags, FOLLOWS_ALL);
+        }
+    };
+    LLSettingsDropTarget(const Params&);
+    ~LLSettingsDropTarget() {};
+
+    virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+        EDragAndDropType cargo_type,
+        void* cargo_data,
+        EAcceptance* accept,
+        std::string& tooltip_msg);
+    void setPanel(LLPanelEnvironmentInfo* panel) { mEnvironmentInfoPanel = panel; };
+    void setDndEnabled(bool dnd_enabled) { mDndEnabled = dnd_enabled; };
+
+protected:
+    LLPanelEnvironmentInfo* mEnvironmentInfoPanel;
+    bool                    mDndEnabled;
+};
+#endif // LL_LLPANELENVIRONMENT_H

@@ -102,6 +102,14 @@
                             width="200">
                         Unknown
                     </line_editor>
+                    <settings_drop_target
+                     height="20"
+                     top_pad="-20"
+                     follows="top|left"
+                     layout="topleft"
+                     name="sdt_drop_target"
+                     tool_tip="Drag a setting from Inventory onto this target box to select it as current evironment."
+                     width="200" />
                     <button
                             name="btn_select_inventory"
                             follows="top|left"
