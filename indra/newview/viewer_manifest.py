@@ -827,6 +827,7 @@ class WindowsManifest(ViewerManifest):
         # note that the enclosing setup exe is signed later, after the makensis makes it.
         # Unlike the viewer binary, the VMP filenames are invariant with respect to version, os, etc.
         for exe in (
+            self.final_exe(),
             "updater.exe",
             ):
             self.sign(exe)
