@@ -1156,8 +1156,6 @@ bool LLAppViewer::init()
 	updater.args.add(LLVersionInfo::getChannel());
 	// testok
 	updater.args.add(stringize(gSavedSettings.getBOOL("UpdaterWillingToTest")));
-	// UpdaterServiceURL
-	updater.args.add(gSavedSettings.getString("UpdaterServiceURL"));
 	// ForceAddressSize
 	updater.args.add(stringize(gSavedSettings.getU32("ForceAddressSize")));
 

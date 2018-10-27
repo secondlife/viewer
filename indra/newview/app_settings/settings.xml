@@ -13510,7 +13510,7 @@
     <key>UpdaterServiceURL</key>
     <map>
       <key>Comment</key>
-      <string>Default location for the updater service.</string>
+      <string>Obsolete; no longer used.</string>
       <key>Persist</key>
       <integer>0</integer>
       <key>Type</key>
