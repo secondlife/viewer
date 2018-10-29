@@ -104,9 +104,10 @@ inline F32 LLVOWLSky::calcPhi(U32 i)
     // i should range from [0..SKY_STACKS] so t will range from [0.f .. 1.f]
 	F32 t = float(i) / float(getNumStacks());
 
-	// ^2 the parameter of the tesselation to bias things toward 0 (the dome's apex)
+	// ^4 the parameter of the tesselation to bias things toward 0 (the dome's apex)
 	t *= t;
-	
+	t *= t;
+
 	// invert and square the parameter of the tesselation to bias things toward 1 (the horizon)
 	t = 1.f - t;
 	t = t*t;
