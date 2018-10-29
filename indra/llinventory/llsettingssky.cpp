@@ -438,7 +438,14 @@ void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F64 blendf)
     LLSettingsSky::ptr_t other = PTR_NAMESPACE::dynamic_pointer_cast<LLSettingsSky>(end);
     if (other)
     {
-        LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, blendf);
+        if (!mSettings.has(SETTING_LEGACY_HAZE) && !mSettings[SETTING_LEGACY_HAZE].has(SETTING_AMBIENT))
+        {
+            // Special case since SETTING_AMBIENT is both in outer and legacy maps, we prioritize legacy one
+            // see getAmbientColor()
+            setAmbientColor(getAmbientColor());
+        }
+
+        LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, other->getParameterMap(), blendf);
         replaceSettings(blenddata);
         mNextSunTextureId = other->getSunTextureId();
         mNextMoonTextureId = other->getMoonTextureId();
@@ -924,6 +931,7 @@ LLVector3 LLSettingsSky::getLightDirection() const
 
 LLColor3 LLSettingsSky::getAmbientColor() const
 {
+    // Todo: this causes complications, preferably to get rid of this duality
     if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(SETTING_AMBIENT))
     {
         return LLColor3(mSettings[SETTING_LEGACY_HAZE][SETTING_AMBIENT]);

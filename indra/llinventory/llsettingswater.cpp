@@ -178,7 +178,7 @@ void LLSettingsWater::blend(const LLSettingsBase::ptr_t &end, F64 blendf)
     LLSettingsWater::ptr_t other = PTR_NAMESPACE::static_pointer_cast<LLSettingsWater>(end);
     if (other)
     {
-        LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, blendf);
+        LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, other->getParameterMap(), blendf);
         replaceSettings(blenddata);
         mNextNormalMapID = other->getNormalMapID();
         mNextTransparentTextureID = other->getTransparentTextureID();

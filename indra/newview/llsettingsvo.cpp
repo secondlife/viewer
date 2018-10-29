@@ -683,26 +683,31 @@ LLSettingsSky::parammapping_t LLSettingsVOSky::getParameterMap() const
     if (param_map.empty())
     {
 // LEGACY_ATMOSPHERICS
-        param_map[SETTING_AMBIENT] = LLShaderMgr::AMBIENT;
-        param_map[SETTING_BLUE_DENSITY] = LLShaderMgr::BLUE_DENSITY;
-        param_map[SETTING_BLUE_HORIZON] = LLShaderMgr::BLUE_HORIZON;
-        param_map[SETTING_HAZE_DENSITY] = LLShaderMgr::HAZE_DENSITY;
-        param_map[SETTING_HAZE_HORIZON] = LLShaderMgr::HAZE_HORIZON;
-        param_map[SETTING_DENSITY_MULTIPLIER] = LLShaderMgr::DENSITY_MULTIPLIER;
-        param_map[SETTING_DISTANCE_MULTIPLIER] = LLShaderMgr::DISTANCE_MULTIPLIER;
 
-        param_map[SETTING_CLOUD_COLOR] = LLShaderMgr::CLOUD_COLOR;
-        param_map[SETTING_CLOUD_POS_DENSITY2] = LLShaderMgr::CLOUD_POS_DENSITY2;
-        param_map[SETTING_CLOUD_SCALE] = LLShaderMgr::CLOUD_SCALE;
-        param_map[SETTING_CLOUD_SHADOW] = LLShaderMgr::CLOUD_SHADOW;       
-        param_map[SETTING_CLOUD_VARIANCE] = LLShaderMgr::CLOUD_VARIANCE;
-        param_map[SETTING_GLOW] = LLShaderMgr::GLOW;        
-        param_map[SETTING_MAX_Y] = LLShaderMgr::MAX_Y;
-        param_map[SETTING_SUNLIGHT_COLOR] = LLShaderMgr::SUNLIGHT_COLOR;
-        param_map[SETTING_MOON_BRIGHTNESS] = LLShaderMgr::MOON_BRIGHTNESS;
-        param_map[SETTING_SKY_MOISTURE_LEVEL] = LLShaderMgr::MOISTURE_LEVEL;
-        param_map[SETTING_SKY_DROPLET_RADIUS] = LLShaderMgr::DROPLET_RADIUS;
-        param_map[SETTING_SKY_ICE_LEVEL] = LLShaderMgr::ICE_LEVEL;
+        // Todo: default 'legacy' values duplicate the ones from functions like getBlueDensity() find a better home for them
+        // There is LLSettingsSky::defaults(), but it doesn't contain everything since it is geared towards creating new settings.
+        param_map[SETTING_AMBIENT] = DefaultParam(LLShaderMgr::AMBIENT, LLColor3(0.25f, 0.25f, 0.25f).getValue());
+        param_map[SETTING_BLUE_DENSITY] = DefaultParam(LLShaderMgr::BLUE_DENSITY, LLColor3(0.2447f, 0.4487f, 0.7599f).getValue());
+        param_map[SETTING_BLUE_HORIZON] = DefaultParam(LLShaderMgr::BLUE_HORIZON, LLColor3(0.4954f, 0.4954f, 0.6399f).getValue());
+        param_map[SETTING_HAZE_DENSITY] = DefaultParam(LLShaderMgr::HAZE_DENSITY, LLSD(0.7f));
+        param_map[SETTING_HAZE_HORIZON] = DefaultParam(LLShaderMgr::HAZE_HORIZON, LLSD(0.19f));
+        param_map[SETTING_DENSITY_MULTIPLIER] = DefaultParam(LLShaderMgr::DENSITY_MULTIPLIER, LLSD(0.0001f));
+        param_map[SETTING_DISTANCE_MULTIPLIER] = DefaultParam(LLShaderMgr::DISTANCE_MULTIPLIER, LLSD(0.8f));
+
+        // Following values are always present, so we can just zero these ones, but used values from defaults()
+        LLSD& sky_defaults = LLSettingsSky::defaults();
+        param_map[SETTING_CLOUD_COLOR] = DefaultParam(LLShaderMgr::CLOUD_COLOR, sky_defaults[SETTING_CLOUD_COLOR]);
+        param_map[SETTING_CLOUD_POS_DENSITY2] = DefaultParam(LLShaderMgr::CLOUD_POS_DENSITY2, sky_defaults[SETTING_CLOUD_POS_DENSITY2]);
+        param_map[SETTING_CLOUD_SCALE] = DefaultParam(LLShaderMgr::CLOUD_SCALE, sky_defaults[SETTING_CLOUD_SCALE]);
+        param_map[SETTING_CLOUD_SHADOW] = DefaultParam(LLShaderMgr::CLOUD_SHADOW, sky_defaults[SETTING_CLOUD_SHADOW]);
+        param_map[SETTING_CLOUD_VARIANCE] = DefaultParam(LLShaderMgr::CLOUD_VARIANCE, sky_defaults[SETTING_CLOUD_VARIANCE]);
+        param_map[SETTING_GLOW] = DefaultParam(LLShaderMgr::GLOW, sky_defaults[SETTING_GLOW]);
+        param_map[SETTING_MAX_Y] = DefaultParam(LLShaderMgr::MAX_Y, sky_defaults[SETTING_MAX_Y]);
+        param_map[SETTING_SUNLIGHT_COLOR] = DefaultParam(LLShaderMgr::SUNLIGHT_COLOR, sky_defaults[SETTING_SUNLIGHT_COLOR]);
+        param_map[SETTING_MOON_BRIGHTNESS] = DefaultParam(LLShaderMgr::MOON_BRIGHTNESS, sky_defaults[SETTING_MOON_BRIGHTNESS]);
+        param_map[SETTING_SKY_MOISTURE_LEVEL] = DefaultParam(LLShaderMgr::MOISTURE_LEVEL, sky_defaults[SETTING_SKY_MOISTURE_LEVEL]);
+        param_map[SETTING_SKY_DROPLET_RADIUS] = DefaultParam(LLShaderMgr::DROPLET_RADIUS, sky_defaults[SETTING_SKY_DROPLET_RADIUS]);
+        param_map[SETTING_SKY_ICE_LEVEL] = DefaultParam(LLShaderMgr::ICE_LEVEL, sky_defaults[SETTING_SKY_ICE_LEVEL]);
 
 // AdvancedAtmospherics TODO
 // Provide mappings for new shader params here
@@ -911,8 +916,9 @@ LLSettingsWater::parammapping_t LLSettingsVOWater::getParameterMap() const
 
     if (param_map.empty())
     {
-        param_map[SETTING_FOG_COLOR] = LLShaderMgr::WATER_FOGCOLOR;
-        param_map[SETTING_FOG_DENSITY] = LLShaderMgr::WATER_FOGDENSITY;
+        LLSD &water_defaults = LLSettingsWater::defaults();
+        param_map[SETTING_FOG_COLOR] = DefaultParam(LLShaderMgr::WATER_FOGCOLOR, water_defaults[SETTING_FOG_COLOR]);
+        param_map[SETTING_FOG_DENSITY] = DefaultParam(LLShaderMgr::WATER_FOGDENSITY, water_defaults[SETTING_FOG_DENSITY]);
     }
     return param_map;
 }
