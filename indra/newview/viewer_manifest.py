@@ -995,7 +995,7 @@ class DarwinManifest(ViewerManifest):
                     self.path("libndofdev.dylib")
                     self.path("libhunspell-1.3.0.dylib")   
 
-                with self.prefix("cursors_mac"):
+                with self.prefix(src_dst="cursors_mac"):
                     self.path("*.tif")
 
                 self.path("licenses-mac.txt", dst="licenses.txt")
