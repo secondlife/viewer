@@ -399,13 +399,41 @@ void LLDrawPoolWLSky::renderSkyCloudsAdvanced(const LLVector3& camPosLocal, F32 
 	{		
         LLGLSPipelineBlendSkyBox pipeline(true, true);
 
+        LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+
 		cloudshader->bind();
 
-        S32 cloud_channel      = cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, gSky.mVOSkyp->getCloudNoiseTex());
+        LLPointer<LLViewerTexture> cloud_noise      = gSky.mVOSkyp->getCloudNoiseTex();
+        LLPointer<LLViewerTexture> cloud_noise_next = gSky.mVOSkyp->getCloudNoiseTexNext();
+
+        S32 cloud_channel      = cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, cloud_noise);
         S32 cloud_next_channel = cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP_NEXT, gSky.mVOSkyp->getCloudNoiseTexNext());
         (void)cloud_channel, (void)cloud_next_channel;
 
-        LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+
+        F32 blend_factor = 0.;
+        // if we even have sun disc textures to work with...
+        if (cloud_noise || cloud_noise_next)
+        {
+            if (cloud_noise && (!cloud_noise_next || (cloud_noise == cloud_noise_next)))
+            {
+                // Bind current and next sun textures
+                cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, cloud_noise, LLTexUnit::TT_TEXTURE);
+                blend_factor = 0;
+            }
+            else if (cloud_noise_next && !cloud_noise)
+            {
+                cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, cloud_noise_next, LLTexUnit::TT_TEXTURE);
+                blend_factor = 0;
+            }
+            else if (cloud_noise_next != cloud_noise)
+            {
+                cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, cloud_noise, LLTexUnit::TT_TEXTURE);
+                cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP_NEXT, cloud_noise_next, LLTexUnit::TT_TEXTURE);
+            }
+        }
 
         cloudshader->bindTexture(LLShaderMgr::TRANSMITTANCE_TEX, gAtmosphere->getTransmittance());
         cloudshader->bindTexture(LLShaderMgr::SCATTER_TEX, gAtmosphere->getScattering());
