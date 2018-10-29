@@ -885,6 +885,7 @@ void LLEnvironment::updateCloudScroll()
 
 }
 
+// static
 void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLSettingsBase::ptr_t &psetting)
 {
     LL_RECORD_BLOCK_TIME(FTM_SHADER_PARAM_UPDATE);
@@ -894,62 +895,19 @@ void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLS
     for (auto &it: params)
     {
         LLSD value;
-        
-        bool found_in_settings = psetting->mSettings.has(it.first);
-        bool found_in_legacy_settings = !found_in_settings && psetting->mSettings.has(LLSettingsSky::SETTING_LEGACY_HAZE) && psetting->mSettings[LLSettingsSky::SETTING_LEGACY_HAZE].has(it.first);
-
-        if (found_in_settings)
-        {
-            value = psetting->mSettings[it.first];
-        }
-        else if (found_in_legacy_settings)
+        // legacy first since it contains ambient color and we prioritize value from legacy, see getAmbientColor()
+        if (psetting->mSettings.has(LLSettingsSky::SETTING_LEGACY_HAZE) && psetting->mSettings[LLSettingsSky::SETTING_LEGACY_HAZE].has(it.first))
         {
             value = psetting->mSettings[LLSettingsSky::SETTING_LEGACY_HAZE][it.first];
         }
-        else if (psetting->getSettingsType() == "sky")
+        else if (psetting->mSettings.has(it.first))
         {
-            // Legacy atmospherics is a special case,
-            // these values either have non zero defaults when they are not present
-            // in LLSD or need to be acounted for (reset) even if they are not present
-            // Todo: consider better options, for example make LLSettingsSky init these options
-            // Todo: we should reset shaders for all missing fields, not just these ones
-            LLSettingsSky::ptr_t skyp = std::static_pointer_cast<LLSettingsSky>(psetting);
-            if (it.first == LLSettingsSky::SETTING_BLUE_DENSITY)
-            {
-                value = skyp->getBlueDensity().getValue();
-            }
-            else if (it.first == LLSettingsSky::SETTING_BLUE_HORIZON)
-            {
-                value = skyp->getBlueHorizon().getValue();
-            }
-            else if (it.first == LLSettingsSky::SETTING_DENSITY_MULTIPLIER)
-            {
-                value = skyp->getDensityMultiplier();
-            }
-            else if (it.first == LLSettingsSky::SETTING_DISTANCE_MULTIPLIER)
-            {
-                value = skyp->getDistanceMultiplier();
-            }
-            else if (it.first == LLSettingsSky::SETTING_HAZE_DENSITY)
-            {
-                value = skyp->getHazeDensity();
-            }
-            else if (it.first == LLSettingsSky::SETTING_HAZE_HORIZON)
-            {
-                value = skyp->getHazeHorizon();
-            }
-            else if (it.first == LLSettingsSky::SETTING_AMBIENT)
-            {
-                value = skyp->getAmbientColor().getValue();
-            }
-            else
-            {
-                continue;
-            }
+            value = psetting->mSettings[it.first];
         }
         else
         {
-            continue;
+            // We need to reset shaders, use defaults
+            value = it.second.getDefaultValue();
         }
 
         LLSD::Type setting_type = value.type();
@@ -957,16 +915,16 @@ void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLS
         switch (setting_type)
         {
         case LLSD::TypeInteger:
-            shader->uniform1i(it.second, value.asInteger());
+            shader->uniform1i(it.second.getShaderKey(), value.asInteger());
             //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << value << LL_ENDL;
             break;
         case LLSD::TypeReal:
-            shader->uniform1f(it.second, value.asReal());
+            shader->uniform1f(it.second.getShaderKey(), value.asReal());
             //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << value << LL_ENDL;
             break;
 
         case LLSD::TypeBoolean:
-            shader->uniform1i(it.second, value.asBoolean() ? 1 : 0);
+            shader->uniform1i(it.second.getShaderKey(), value.asBoolean() ? 1 : 0);
             //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << value << LL_ENDL;
             break;
 
@@ -974,8 +932,7 @@ void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLS
         {
             LLVector4 vect4(value);
             //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << vect4 << LL_ENDL;
-            shader->uniform4fv(it.second, 1, vect4.mV);
-
+            shader->uniform4fv(it.second.getShaderKey(), 1, vect4.mV);
             break;
         }
 

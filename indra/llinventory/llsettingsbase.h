@@ -76,7 +76,21 @@ public:
     static const U32 FLAG_NOMOD;
     static const U32 FLAG_NOTRANS;
 
-    typedef std::map<std::string, S32>  parammapping_t;
+    class DefaultParam
+    {
+    public:
+        DefaultParam(S32 key, const LLSD& value) : mShaderKey(key), mDefaultValue(value) {}
+        DefaultParam() : mShaderKey(-1) {}
+        S32 getShaderKey() const { return mShaderKey; }
+        const LLSD getDefaultValue() const { return mDefaultValue; }
+
+    private:
+        S32 mShaderKey;
+        LLSD mDefaultValue;
+    };
+    // Contains settings' names (map key), related shader id-key and default
+    // value for revert in case we need to reset shader (no need to search each time)
+    typedef std::map<std::string, DefaultParam>  parammapping_t;
 
     typedef PTR_NAMESPACE::shared_ptr<LLSettingsBase> ptr_t;
 
@@ -312,7 +326,15 @@ protected:
     
     // combining settings objects. Customize for specific setting types
     virtual void lerpSettings(const LLSettingsBase &other, BlendFactor mix);
-    LLSD    interpolateSDMap(const LLSD &settings, const LLSD &other, BlendFactor mix) const;
+
+    // combining settings maps where it can based on mix rate
+    // @settings initial value (mix==0)
+    // @other target value (mix==1)
+    // @defaults list of default values for legacy fields and (re)setting shaders
+    // @mix from 0 to 1, ratio or rate of transition from initial 'settings' to 'other'
+    // return interpolated and combined LLSD map
+    LLSD    interpolateSDMap(const LLSD &settings, const LLSD &other, const parammapping_t& defaults, BlendFactor mix) const;
+    LLSD    interpolateSDValue(const std::string& name, const LLSD &value, const LLSD &other, const parammapping_t& defaults, BlendFactor mix, const stringset_t& slerps) const;
 
     /// when lerping between settings, some may require special handling.  
     /// Get a list of these key to be skipped by the default settings lerp.

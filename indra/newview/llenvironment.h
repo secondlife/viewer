@@ -124,7 +124,7 @@ public:
 
     void                        update(const LLViewerCamera * cam);
 
-    void                        updateGLVariablesForSettings(LLGLSLShader *shader, const LLSettingsBase::ptr_t &psetting);
+    static void                 updateGLVariablesForSettings(LLGLSLShader *shader, const LLSettingsBase::ptr_t &psetting);
     void                        updateShaderUniforms(LLGLSLShader *shader);
 
     void                        setSelectedEnvironment(EnvSelection_t env, LLSettingsBase::Seconds transition = TRANSITION_DEFAULT, bool forced = false);

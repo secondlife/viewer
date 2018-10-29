@@ -80,7 +80,7 @@ LLSettingsBase::LLSettingsBase(const LLSD setting) :
 //=========================================================================
 void LLSettingsBase::lerpSettings(const LLSettingsBase &other, F64 mix) 
 {
-    mSettings = interpolateSDMap(mSettings, other.mSettings, mix);
+    mSettings = interpolateSDMap(mSettings, other.mSettings, other.getParameterMap(), mix);
     setDirtyFlag(true);
 }
 
@@ -158,7 +158,7 @@ LLSD LLSettingsBase::combineSDMaps(const LLSD &settings, const LLSD &other) cons
     return newSettings;
 }
 
-LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, F64 mix) const
+LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, const parammapping_t& defaults, F64 mix) const
 {
     LLSD newSettings;
 
@@ -173,81 +173,33 @@ LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, F
         if (skip.find(key_name) != skip.end())
             continue;
 
-        if (!other.has(key_name))
-        {   // The other does not contain this setting, keep the original value 
-            // TODO: Should I blend this out instead?
-            newSettings[key_name] = value;
-            continue;
-        }
-        LLSD::Type setting_type = value.type();
-        LLSD other_value = other[key_name];
-        
-        if (other_value.type() != setting_type)
-        {   
-            // The data type mismatched between this and other. Hard switch when we pass the break point
-            // but issue a warning.
-            LL_WARNS("SETTINGS") << "Setting lerp between mismatched types for '" << key_name << "'." << LL_ENDL;
-            newSettings[key_name] = (mix > BREAK_POINT) ? other_value : value;
-            continue;
-        }
-
-        switch (setting_type)
+        LLSD other_value;
+        if (other.has(key_name))
         {
-        case LLSD::TypeInteger:
-            // lerp between the two values rounding the result to the nearest integer. 
-            newSettings[key_name] = LLSD::Integer(llroundf(lerp(value.asReal(), other_value.asReal(), mix)));
-            break;
-        case LLSD::TypeReal:
-            // lerp between the two values.
-            newSettings[key_name] = LLSD::Real(lerp(value.asReal(), other_value.asReal(), mix));
-            break;
-        case LLSD::TypeMap:
-            // deep copy.
-            newSettings[key_name] = interpolateSDMap(value, other_value, mix);
-            break;
-
-        case LLSD::TypeArray:
-            {
-                LLSD newvalue(LLSD::emptyArray());
-
-                if (slerps.find(key_name) != slerps.end())
-                {
-                    LLQuaternion a(value);
-                    LLQuaternion b(other_value);
-                    LLQuaternion q = slerp(mix, a, b);
-                    newvalue = q.getValue();
-                }
-                else
-                {   // TODO: We could expand this to inspect the type and do a deep lerp based on type. 
-                    // for now assume a heterogeneous array of reals. 
-                    size_t len = std::max(value.size(), other_value.size());
-
-                    for (size_t i = 0; i < len; ++i)
-                    {
-
-                        newvalue[i] = lerp(value[i].asReal(), other_value[i].asReal(), mix);
-                    }
-                }
-                
-                newSettings[key_name] = newvalue;
-            }
-
-            break;
-
-        case LLSD::TypeUUID:
-            newSettings[key_name] = value.asUUID();
-            break;
-
-//      case LLSD::TypeBoolean:
-//      case LLSD::TypeString:
-//      case LLSD::TypeURI:
-//      case LLSD::TypeBinary:
-//      case LLSD::TypeDate:
-        default:
-            // atomic or unknown data types. Lerping between them does not make sense so switch at the break.
-            newSettings[key_name] = (mix > BREAK_POINT) ? other_value : value;
-            break;
+            other_value = other[key_name];
         }
+        else
+        {
+            parammapping_t::const_iterator def_iter = defaults.find(key_name);
+            if (def_iter != defaults.end())
+            {
+                other_value = def_iter->second.getDefaultValue();
+            }
+            else if (value.type() == LLSD::TypeMap)
+            {
+                // interpolate in case there are defaults inside (part of legacy)
+                other_value = LLSDMap();
+            }
+            else
+            {
+                // The other or defaults does not contain this setting, keep the original value 
+                // TODO: Should I blend this out instead?
+                newSettings[key_name] = value;
+                continue;
+            }
+        }
+
+        newSettings[key_name] = interpolateSDValue(key_name, value, other_value, defaults, mix, slerps);
     }
 
     // Special handling cases
@@ -264,6 +216,27 @@ LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, F
     // Now add anything that is in other but not in the settings
     for (LLSD::map_const_iterator it = other.beginMap(); it != other.endMap(); ++it)
     {
+        std::string key_name = (*it).first;
+
+        if (skip.find(key_name) != skip.end())
+            continue;
+
+        if (settings.has(key_name))
+            continue;
+
+        parammapping_t::const_iterator def_iter = defaults.find(key_name);
+        if (def_iter != defaults.end())
+        {
+            // Blend against default value
+            newSettings[key_name] = interpolateSDValue(key_name, def_iter->second.getDefaultValue(), (*it).second, defaults, mix, slerps);
+        }
+        // else do nothing when no known defaults
+        // TODO: Should I blend this out instead?
+    }
+
+    // Note: writes variables from skip list, bug?
+    for (LLSD::map_const_iterator it = other.beginMap(); it != other.endMap(); ++it)
+    {
         // TODO: Should I blend this in instead?
         if (skip.find((*it).first) == skip.end())
             continue;
@@ -275,6 +248,81 @@ LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, F
     }
 
     return newSettings;
+}
+
+LLSD LLSettingsBase::interpolateSDValue(const std::string& key_name, const LLSD &value, const LLSD &other_value, const parammapping_t& defaults, BlendFactor mix, const stringset_t& slerps) const
+{
+    LLSD new_value;
+
+    LLSD::Type setting_type = value.type();
+
+    if (other_value.type() != setting_type)
+    {
+        // The data type mismatched between this and other. Hard switch when we pass the break point
+        // but issue a warning.
+        LL_WARNS("SETTINGS") << "Setting lerp between mismatched types for '" << key_name << "'." << LL_ENDL;
+        new_value = (mix > BREAK_POINT) ? other_value : value;
+    }
+
+    switch (setting_type)
+    {
+        case LLSD::TypeInteger:
+            // lerp between the two values rounding the result to the nearest integer. 
+            new_value = LLSD::Integer(llroundf(lerp(value.asReal(), other_value.asReal(), mix)));
+            break;
+        case LLSD::TypeReal:
+            // lerp between the two values.
+            new_value = LLSD::Real(lerp(value.asReal(), other_value.asReal(), mix));
+            break;
+        case LLSD::TypeMap:
+            // deep copy.
+            new_value = interpolateSDMap(value, other_value, defaults, mix);
+            break;
+
+        case LLSD::TypeArray:
+        {
+            LLSD new_array(LLSD::emptyArray());
+
+            if (slerps.find(key_name) != slerps.end())
+            {
+                LLQuaternion a(value);
+                LLQuaternion b(other_value);
+                LLQuaternion q = slerp(mix, a, b);
+                new_array = q.getValue();
+            }
+            else
+            {   // TODO: We could expand this to inspect the type and do a deep lerp based on type. 
+                // for now assume a heterogeneous array of reals. 
+                size_t len = std::max(value.size(), other_value.size());
+
+                for (size_t i = 0; i < len; ++i)
+                {
+
+                    new_array[i] = lerp(value[i].asReal(), other_value[i].asReal(), mix);
+                }
+            }
+
+            new_value = new_array;
+        }
+
+        break;
+
+        case LLSD::TypeUUID:
+            new_value = value.asUUID();
+            break;
+
+            //      case LLSD::TypeBoolean:
+            //      case LLSD::TypeString:
+            //      case LLSD::TypeURI:
+            //      case LLSD::TypeBinary:
+            //      case LLSD::TypeDate:
+        default:
+            // atomic or unknown data types. Lerping between them does not make sense so switch at the break.
+            new_value = (mix > BREAK_POINT) ? other_value : value;
+            break;
+    }
+
+    return new_value;
 }
 
 LLSettingsBase::stringset_t LLSettingsBase::getSkipInterpolateKeys() const
