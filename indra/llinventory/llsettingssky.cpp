@@ -156,14 +156,18 @@ LLSettingsSky::validation_list_t legacyHazeValidationList()
     static LLSettingsBase::validation_list_t legacyHazeValidation;
     if (legacyHazeValidation.empty())
     {
+        legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_AMBIENT,             false,  LLSD::TypeArray, 
+            boost::bind(&LLSettingsBase::Validator::verifyVectorMinMax, _1,
+                LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
+                LLSD(LLSDArray(3.0f)(3.0f)(3.0f)("*")))));
         legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_BLUE_DENSITY,        false,  LLSD::TypeArray, 
             boost::bind(&LLSettingsBase::Validator::verifyVectorMinMax, _1,
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
-                LLSD(LLSDArray(2.0f)(2.0f)(2.0f)("*")))));
+                LLSD(LLSDArray(3.0f)(3.0f)(3.0f)("*")))));
         legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_BLUE_HORIZON,        false,  LLSD::TypeArray, 
             boost::bind(&LLSettingsBase::Validator::verifyVectorMinMax, _1,
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
-                LLSD(LLSDArray(2.0f)(2.0f)(2.0f)("*")))));
+                LLSD(LLSDArray(3.0f)(3.0f)(3.0f)("*")))));
         legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_HAZE_DENSITY,        false,  LLSD::TypeReal,  
             boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(4.0f)))));
         legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_HAZE_HORIZON,        false,  LLSD::TypeReal,  
@@ -493,28 +497,6 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
         // copy constructor for LLSDArray.  Directly binding the LLSDArray as 
         // a parameter without first wrapping it in a pure LLSD object will result 
         // in deeply nested arrays like this [[[[[[[[[[v1,v2,v3]]]]]]]]]]
-        validation.push_back(Validator(SETTING_BLUE_DENSITY,        false,  LLSD::TypeArray, 
-            boost::bind(&Validator::verifyVectorMinMax, _1,
-                LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
-                LLSD(LLSDArray(2.0f)(2.0f)(2.0f)("*")))));
-        validation.push_back(Validator(SETTING_BLUE_HORIZON,        false,  LLSD::TypeArray, 
-            boost::bind(&Validator::verifyVectorMinMax, _1,
-                LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
-                LLSD(LLSDArray(2.0f)(2.0f)(2.0f)("*")))));
-        validation.push_back(Validator(SETTING_HAZE_DENSITY,        false,  LLSD::TypeReal,  
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(5.0f)))));
-        validation.push_back(Validator(SETTING_HAZE_HORIZON,        false,  LLSD::TypeReal,  
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(5.0f)))));
-        validation.push_back(Validator(SETTING_AMBIENT, false, LLSD::TypeArray,
-            boost::bind(&Validator::verifyVectorMinMax, _1,
-                LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
-                LLSD(LLSDArray(3.0f)(3.0f)(3.0f)("*")))));
-        validation.push_back(Validator(SETTING_DENSITY_MULTIPLIER,  false,  LLSD::TypeReal,  
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0001f)(2.0f)))));
-        validation.push_back(Validator(SETTING_DISTANCE_MULTIPLIER, false,  LLSD::TypeReal,  
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0001f)(1000.0f)))));
-
-
         validation.push_back(Validator(SETTING_BLOOM_TEXTUREID,     true,  LLSD::TypeUUID));
         validation.push_back(Validator(SETTING_RAINBOW_TEXTUREID,   false,  LLSD::TypeUUID));
         validation.push_back(Validator(SETTING_HALO_TEXTUREID,      false,  LLSD::TypeUUID));
@@ -921,9 +903,6 @@ void LLSettingsSky::calculateHeavenlyBodyPositions()  const
         LL_WARNS("SETTINGS") << "Zero length sun direction. Wailing and gnashing of teeth may follow... or not." << LL_ENDL;
     if (mMoonDirection.lengthSquared() < 0.01f)
         LL_WARNS("SETTINGS") << "Zero length moon direction. Wailing and gnashing of teeth may follow... or not." << LL_ENDL;
-
-    llassert(mSunDirection.lengthSquared() > 0.01f);
-    llassert(mMoonDirection.lengthSquared() > 0.01f);
 }
 
 LLVector3 LLSettingsSky::getLightDirection() const

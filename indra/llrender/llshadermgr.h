@@ -241,9 +241,12 @@ public:
         HALO_MAP,
 
         MOON_BRIGHTNESS,
-        MOON_PHASE,
 
         CLOUD_VARIANCE,
+
+        SH_INPUT_L1R,
+        SH_INPUT_L1G,
+        SH_INPUT_L1B,
 
 		END_RESERVED_UNIFORMS
 	} eGLSLReservedUniforms;
@@ -255,6 +258,7 @@ public:
 
 	BOOL attachShaderFeatures(LLGLSLShader * shader);
 	void dumpObjectLog(GLhandleARB ret, BOOL warns = TRUE, const std::string& filename = "");
+    void dumpShaderSource(U32 shader_code_count, GLcharARB** shader_code_text);
 	BOOL	linkProgramObject(GLhandleARB obj, BOOL suppress_errors = FALSE);
 	BOOL	validateProgramObject(GLhandleARB obj);
 	GLhandleARB loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, boost::unordered_map<std::string, std::string>* defines = NULL, S32 texture_index_channels = -1);

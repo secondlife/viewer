@@ -1270,7 +1270,7 @@ void LLRender::syncMatrices()
 			glh::matrix4f& mat = mMatrix[MM_PROJECTION][mMatIdx[MM_PROJECTION]];
 
             // it would be nice to have this automatically track the state of the proj matrix
-            // but certain render paths require it to be mismatched *sigh*
+            // but certain render paths (deferred lighting) require it to be mismatched *sigh*
             //if (shader->getUniformLocation(LLShaderMgr::INVERSE_PROJECTION_MATRIX))
             //{
 	        //    glh::matrix4f inv_proj = mat.inverse();

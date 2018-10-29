@@ -31,25 +31,26 @@
 
 #include "llfeaturemanager.h"
 #include "llviewershadermgr.h"
+#include "llviewercontrol.h"
+
+#include "llrender.h"
+#include "llenvironment.h"
+#include "llatmosphere.h"
+#include "llworld.h"
+#include "llsky.h"
+#include "llvosky.h"
+
+#include "pipeline.h"
 
 #include "llfile.h"
 #include "llviewerwindow.h"
 #include "llwindow.h"
-#include "llviewercontrol.h"
-#include "pipeline.h"
-#include "llworld.h"
-#include "llsky.h"
-#include "llvosky.h"
-#include "llrender.h"
+
 #include "lljoint.h"
 #include "llskinningutil.h"
-#include "llenvironment.h"
-#include "llatmosphere.h"
 
-#ifdef LL_RELEASE_FOR_DOWNLOAD
-#define UNIFORM_ERRS LL_WARNS_ONCE("Shader")
-#else
-#define UNIFORM_ERRS LL_ERRS("Shader")
+#if LL_WINDOWS
+#pragma optimize("", off)
 #endif
 
 static LLStaticHashedString sTexture0("texture0");
@@ -486,7 +487,7 @@ void LLViewerShaderMgr::setShaders()
 		S32 effect_class = 2;
 		S32 wl_class = 3;
 		S32 water_class = 2;
-		S32 deferred_class = 0;
+		S32 deferred_class = 2;
 		S32 transform_class = gGLManager.mHasTransformFeedback ? 1 : 0;
 
 		static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback", false);
@@ -935,6 +936,7 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 		// Note usage of GL_VERTEX_SHADER_ARB
 		if (loadShaderFile(shaders[i].first, shaders[i].second, GL_VERTEX_SHADER_ARB, &attribs) == 0)
 		{
+            LL_SHADER_LOADING_WARNS() << "Failed to load vertex shader " << shaders[i].first << LL_ENDL;
 			return FALSE;
 		}
 	}
@@ -991,6 +993,7 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 		// Note usage of GL_FRAGMENT_SHADER_ARB
 		if (loadShaderFile(shaders[i].first, shaders[i].second, GL_FRAGMENT_SHADER_ARB, &attribs, index_channels[i]) == 0)
 		{
+            LL_SHADER_LOADING_WARNS() << "Failed to load fragment shader " << shaders[i].first << LL_ENDL;
 			return FALSE;
 		}
 	}
