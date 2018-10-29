@@ -413,7 +413,9 @@ void LLDrawPoolWLSky::renderSkyCloudsAdvanced(const LLVector3& camPosLocal, F32 
         gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
         gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
 
-        F32 blend_factor = 0.;
+        F32 cloud_variance = psky ? psky->getCloudVariance() : 0.0f;
+        F32 blend_factor   = psky ? psky->getBlendFactor() : 0.0f;
+
         // if we even have sun disc textures to work with...
         if (cloud_noise || cloud_noise_next)
         {
@@ -439,9 +441,6 @@ void LLDrawPoolWLSky::renderSkyCloudsAdvanced(const LLVector3& camPosLocal, F32 
         cloudshader->bindTexture(LLShaderMgr::SCATTER_TEX, gAtmosphere->getScattering());
         cloudshader->bindTexture(LLShaderMgr::SINGLE_MIE_SCATTER_TEX, gAtmosphere->getMieScattering());
         cloudshader->bindTexture(LLShaderMgr::ILLUMINANCE_TEX, gAtmosphere->getIlluminance());
-
-        F32 blend_factor   = psky ? psky->getBlendFactor()   : 0.0f;
-        F32 cloud_variance = psky ? psky->getCloudVariance() : 0.0f;
 
         LLVector3 sun_dir  = LLEnvironment::instance().getSunDirection();
         LLVector3 moon_dir = LLEnvironment::instance().getMoonDirection();
