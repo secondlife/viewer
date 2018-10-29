@@ -230,6 +230,11 @@ LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, c
             // Blend against default value
             newSettings[key_name] = interpolateSDValue(key_name, def_iter->second.getDefaultValue(), (*it).second, defaults, mix, slerps);
         }
+        else if ((*it).second.type() == LLSD::TypeMap)
+        {
+            // interpolate in case there are defaults inside (part of legacy)
+            newSettings[key_name] = interpolateSDValue(key_name, LLSDMap(), (*it).second, defaults, mix, slerps);
+        }
         // else do nothing when no known defaults
         // TODO: Should I blend this out instead?
     }
