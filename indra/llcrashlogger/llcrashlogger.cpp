@@ -663,7 +663,7 @@ void LLCrashLogger::ssl_thread_id_callback(CRYPTO_THREADID* pthreadid)
 #if LL_WINDOWS
     CRYPTO_THREADID_set_pointer(pthreadid, GetCurrentThread());
 #else
-    CRYPTO_THREADID_set_numeric(pthreadid, pthread_self());
+    CRYPTO_THREADID_set_pointer(pthreadid, pthread_self());
 #endif
 }
 
