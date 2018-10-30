@@ -631,6 +631,8 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
         }
 	}
 
+    blend_factor = LLEnvironment::instance().getCurrentSky()->getBlendFactor();
+
 	face = gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON];
 
 	if (gSky.mVOSkyp->getMoon().getDraw() && face && face->getTexture(LLRender::DIFFUSE_MAP) && face->getGeomCount() && moon_shader)
@@ -667,7 +669,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 
             moon_shader->uniform1f(LLShaderMgr::MOON_BRIGHTNESS,  moon_brightness);
 
-            moon_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);                
+            moon_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);
             moon_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 
             LLFacePool::LLOverrideFaceColor color_override(this, color);
@@ -738,9 +740,7 @@ void LLDrawPoolWLSky::render(S32 pass)
 
     const F32 camHeightLocal = LLEnvironment::instance().getCamHeight();
     LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
-
-    LLGLSPipelineBlendSkyBox sky(true, false);
-
+    
 	renderSkyHaze(origin, camHeightLocal);    
     renderStars();
     renderHeavenlyBodies();	

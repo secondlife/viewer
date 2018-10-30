@@ -33,9 +33,6 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-vec3 fullbrightAtmosTransport(vec3 light);
-vec3 fullbrightScaleSoftClip(vec3 light);
-
 uniform vec4 color;
 uniform vec4 sunlight_color;
 uniform vec3 lumWeights;
@@ -52,22 +49,14 @@ void main()
 	vec4 moonB = texture2D(altDiffuseMap, vary_texcoord0.xy);
     vec4 c     = mix(moonA, moonB, blend_factor);
 
-    if (c.a < 0.1f)
-    {
-        discard;
-    }
-
-	c.rgb = pow(c.rgb, vec3(0.7f));
-	c.rgb = fullbrightAtmosTransport(c.rgb);
-    c.rgb = fullbrightScaleSoftClip(c.rgb);
-
     // mix factor which blends when sunlight is brighter
     // and shows true moon color at night
     vec3 luma_weights = vec3(0.2, 0.3, 0.2);
     float mix = 1.0f - dot(normalize(sunlight_color.rgb), luma_weights);
 
-    c.rgb = pow(c.rgb, 1.2 - vec3(mix * moon_brightness));
+    vec3 exp = vec3(1.0 - mix * moon_brightness) * 2.0 - 1.0;
+	c.rgb = pow(c.rgb, exp);
 
-	frag_color = vec4(c.rgb, mix * (moon_brightness + (c.a * 0.25)));
+	frag_color = vec4(c.rgb, c.a);
 }
 
