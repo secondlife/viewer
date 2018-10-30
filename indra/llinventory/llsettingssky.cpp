@@ -438,11 +438,25 @@ void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F64 blendf)
     LLSettingsSky::ptr_t other = PTR_NAMESPACE::dynamic_pointer_cast<LLSettingsSky>(end);
     if (other)
     {
-        if (!mSettings.has(SETTING_LEGACY_HAZE) && !mSettings[SETTING_LEGACY_HAZE].has(SETTING_AMBIENT))
+        if (other->mSettings.has(SETTING_LEGACY_HAZE))
         {
-            // Special case since SETTING_AMBIENT is both in outer and legacy maps, we prioritize legacy one
-            // see getAmbientColor()
-            setAmbientColor(getAmbientColor());
+            if (!mSettings.has(SETTING_LEGACY_HAZE) || !mSettings[SETTING_LEGACY_HAZE].has(SETTING_AMBIENT))
+            {
+                // Special case since SETTING_AMBIENT is both in outer and legacy maps, we prioritize legacy one
+                // see getAmbientColor(), we are about to replaceSettings(), so we are free to set it
+                setAmbientColor(getAmbientColor());
+            }
+        }
+        else
+        {
+            if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(SETTING_AMBIENT))
+            {
+                // Special case due to ambient's duality
+                // We need to match 'other's' structure for interpolation.
+                // We are free to change mSettings, since we are about to reset it
+                mSettings[SETTING_AMBIENT] = getAmbientColor().getValue();
+                mSettings[SETTING_LEGACY_HAZE].erase(SETTING_AMBIENT);
+            }
         }
 
         LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, other->getParameterMap(), blendf);
