@@ -29,20 +29,20 @@
 #include "lldrawpoolwlsky.h"
 
 #include "llerror.h"
-#include "llgl.h"
-#include "pipeline.h"
-#include "llviewercamera.h"
+#include "llface.h"
 #include "llimage.h"
-#include "llviewershadermgr.h"
+#include "llrender.h"
+#include "llatmosphere.h"
+#include "llenvironment.h" 
 #include "llglslshader.h"
+#include "llgl.h"
+
+#include "llviewerregion.h"
+#include "llviewershadermgr.h"
+#include "llviewercamera.h"
+#include "pipeline.h"
 #include "llsky.h"
 #include "llvowlsky.h"
-#include "llviewerregion.h"
-#include "llface.h"
-#include "llrender.h"
-
-#include "llenvironment.h" 
-#include "llatmosphere.h"
 
 static LLStaticHashedString sCamPosLocal("camPosLocal");
 static LLStaticHashedString sCustomAlpha("custom_alpha");
@@ -406,10 +406,6 @@ void LLDrawPoolWLSky::renderSkyCloudsAdvanced(const LLVector3& camPosLocal, F32 
         LLPointer<LLViewerTexture> cloud_noise      = gSky.mVOSkyp->getCloudNoiseTex();
         LLPointer<LLViewerTexture> cloud_noise_next = gSky.mVOSkyp->getCloudNoiseTexNext();
 
-        S32 cloud_channel      = cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, cloud_noise);
-        S32 cloud_next_channel = cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP_NEXT, gSky.mVOSkyp->getCloudNoiseTexNext());
-        (void)cloud_channel, (void)cloud_next_channel;
-
         gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
         gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
 
@@ -459,6 +455,9 @@ void LLDrawPoolWLSky::renderSkyCloudsAdvanced(const LLVector3& camPosLocal, F32 
         renderDome(camPosLocal, camHeightLocal, cloudshader);
 
 		cloudshader->unbind();
+
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
 	}
 }
 
@@ -466,17 +465,41 @@ void LLDrawPoolWLSky::renderSkyCloudsDeferred(const LLVector3& camPosLocal, F32 
 {
 	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && gSky.mVOSkyp->getCloudNoiseTex())
 	{
+        LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+
 		LLGLSPipelineBlendSkyBox pipeline(true, true);
 		
 		cloudshader->bind();
 
-        cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, gSky.mVOSkyp->getCloudNoiseTex());
-        cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP_NEXT, gSky.mVOSkyp->getCloudNoiseTexNext());
-        
-        LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+        LLPointer<LLViewerTexture> cloud_noise      = gSky.mVOSkyp->getCloudNoiseTex();
+        LLPointer<LLViewerTexture> cloud_noise_next = gSky.mVOSkyp->getCloudNoiseTexNext();
 
-        F32 blend_factor   = psky ? psky->getBlendFactor()   : 0.0f;
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+
         F32 cloud_variance = psky ? psky->getCloudVariance() : 0.0f;
+        F32 blend_factor   = psky ? psky->getBlendFactor() : 0.0f;
+
+        // if we even have sun disc textures to work with...
+        if (cloud_noise || cloud_noise_next)
+        {
+            if (cloud_noise && (!cloud_noise_next || (cloud_noise == cloud_noise_next)))
+            {
+                // Bind current and next sun textures
+                cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, cloud_noise, LLTexUnit::TT_TEXTURE);
+                blend_factor = 0;
+            }
+            else if (cloud_noise_next && !cloud_noise)
+            {
+                cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, cloud_noise_next, LLTexUnit::TT_TEXTURE);
+                blend_factor = 0;
+            }
+            else if (cloud_noise_next != cloud_noise)
+            {
+                cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, cloud_noise, LLTexUnit::TT_TEXTURE);
+                cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP_NEXT, cloud_noise_next, LLTexUnit::TT_TEXTURE);
+            }
+        }
 
         cloudshader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
         cloudshader->uniform1f(LLShaderMgr::CLOUD_VARIANCE, cloud_variance);
@@ -485,6 +508,9 @@ void LLDrawPoolWLSky::renderSkyCloudsDeferred(const LLVector3& camPosLocal, F32 
         renderDome(camPosLocal, camHeightLocal, cloudshader);
 
 		cloudshader->unbind();
+
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
 	}
 }
 
@@ -492,17 +518,41 @@ void LLDrawPoolWLSky::renderSkyClouds(const LLVector3& camPosLocal, F32 camHeigh
 {
 	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && gSky.mVOSkyp->getCloudNoiseTex())
 	{
+        LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+
         LLGLSPipelineBlendSkyBox pipeline(true, true);
 		
 		cloudshader->bind();
 
-        cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, gSky.mVOSkyp->getCloudNoiseTex());
-        cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP_NEXT, gSky.mVOSkyp->getCloudNoiseTexNext());
+        LLPointer<LLViewerTexture> cloud_noise      = gSky.mVOSkyp->getCloudNoiseTex();
+        LLPointer<LLViewerTexture> cloud_noise_next = gSky.mVOSkyp->getCloudNoiseTexNext();
 
-        LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
 
-        F32 blend_factor   = psky ? psky->getBlendFactor()   : 0.0f;
         F32 cloud_variance = psky ? psky->getCloudVariance() : 0.0f;
+        F32 blend_factor   = psky ? psky->getBlendFactor() : 0.0f;
+
+        // if we even have sun disc textures to work with...
+        if (cloud_noise || cloud_noise_next)
+        {
+            if (cloud_noise && (!cloud_noise_next || (cloud_noise == cloud_noise_next)))
+            {
+                // Bind current and next sun textures
+                cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, cloud_noise, LLTexUnit::TT_TEXTURE);
+                blend_factor = 0;
+            }
+            else if (cloud_noise_next && !cloud_noise)
+            {
+                cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, cloud_noise_next, LLTexUnit::TT_TEXTURE);
+                blend_factor = 0;
+            }
+            else if (cloud_noise_next != cloud_noise)
+            {
+                cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, cloud_noise, LLTexUnit::TT_TEXTURE);
+                cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP_NEXT, cloud_noise_next, LLTexUnit::TT_TEXTURE);
+            }
+        }
 
         cloudshader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
         cloudshader->uniform1f(LLShaderMgr::CLOUD_VARIANCE, cloud_variance);
@@ -511,6 +561,9 @@ void LLDrawPoolWLSky::renderSkyClouds(const LLVector3& camPosLocal, F32 camHeigh
         renderDome(camPosLocal, camHeightLocal, cloudshader);
 
 		cloudshader->unbind();
+
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
 	}
 }
 

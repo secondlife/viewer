@@ -23,16 +23,29 @@
  * $/LicenseInfo$
  */
  
+vec3 atmosFragAmbient(vec3 light, vec3 sunlit)
+{
+   return light;
+}
 
+vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten)
+{
+	/* stub function for fallback compatibility on class1 hardware */
+   return light;
+}
+
+vec3 atmosFragAffectDirectionalLight(float light, vec3 sunlit)
+{
+   return light * sunlit;
+}
 
 vec3 atmosLighting(vec3 light)
 {
-	/* stub function for fallback compatibility on class1 hardware */
-	return light;
+	return atmosFragLighting(light, vec3(0), vec3(1.0));
 }
 
-
-void calcFragAtmospherics(vec3 inPositionEye, float ambFactor) {
+void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive)
+{
 	/* stub function for fallback compatibility on class1 hardware */
 }
 
