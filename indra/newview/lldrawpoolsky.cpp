@@ -98,17 +98,9 @@ void LLDrawPoolSky::render(S32 pass)
 	}
 	
 
-	LLGLSPipelineSkyBox gls_skybox;
-
-	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-
-	LLGLSquashToFarClip far_clip(get_current_projection());
+	LLGLSPipelineDepthTestSkyBox gls_skybox(true, false);
 
 	LLGLEnable fog_enable( (mVertexShaderLevel < 1 && LLViewerCamera::getInstance()->cameraUnderWater()) ? GL_FOG : 0);
-
-	gPipeline.disableLights();
-	
-	LLGLDisable clip(GL_CLIP_PLANE0);
 
 	gGL.pushMatrix();
 	LLVector3 origin = LLViewerCamera::getInstance()->getOrigin();
