@@ -121,8 +121,13 @@ void LLSettingsVOBase::createNewInventoryItem(LLSettingsType::type_e stype, cons
 
 void LLSettingsVOBase::createInventoryItem(const LLSettingsBase::ptr_t &settings, const LLUUID &parent_id, std::string settings_name, inventory_result_fn callback)
 {
+    U32 nextOwnerPerm = LLPermissions::DEFAULT.getMaskNextOwner();
+    createInventoryItem(settings, nextOwnerPerm, parent_id, settings_name, callback);
+}
+
+void LLSettingsVOBase::createInventoryItem(const LLSettingsBase::ptr_t &settings, U32 next_owner_perm, const LLUUID &parent_id, std::string settings_name, inventory_result_fn callback)
+{
     LLTransactionID tid;
-    U32             nextOwnerPerm = LLPermissions::DEFAULT.getMaskNextOwner();
 
     if (!LLEnvironment::instance().isInventoryEnabled())
     {
@@ -144,7 +149,7 @@ void LLSettingsVOBase::createInventoryItem(const LLSettingsBase::ptr_t &settings
     create_inventory_settings(gAgent.getID(), gAgent.getSessionID(),
         parent_id, tid,
         settings_name, "",
-        settings->getSettingsTypeValue(), nextOwnerPerm, cb);
+        settings->getSettingsTypeValue(), next_owner_perm, cb);
 }
 
 void LLSettingsVOBase::onInventoryItemCreated(const LLUUID &inventoryId, LLSettingsBase::ptr_t settings, inventory_result_fn callback)
