@@ -51,6 +51,7 @@
 
 // newview
 #include "llagent.h"
+#include "llappviewer.h" //gDisconected
 #include "llparcel.h"
 #include "llflyoutcombobtn.h" //Todo: make a proper UI element/button/panel instead
 #include "llregioninfomodel.h"
@@ -1523,17 +1524,19 @@ void LLFloaterEditExtDayCycle::stopPlay()
 //static
 void LLFloaterEditExtDayCycle::onIdlePlay(void* user_data)
 {
-    LLFloaterEditExtDayCycle* self = (LLFloaterEditExtDayCycle*)user_data;
+    if (!gDisconnected)
+    {
+        LLFloaterEditExtDayCycle* self = (LLFloaterEditExtDayCycle*)user_data;
 
-    F32 prcnt_played = self->mPlayTimer.getElapsedTimeF32() / DAY_CYCLE_PLAY_TIME_SECONDS;
-    F32 new_frame = fmod(self->mPlayStartFrame + prcnt_played, 1.f);
+        F32 prcnt_played = self->mPlayTimer.getElapsedTimeF32() / DAY_CYCLE_PLAY_TIME_SECONDS;
+        F32 new_frame = fmod(self->mPlayStartFrame + prcnt_played, 1.f);
 
-    self->mTimeSlider->setCurSliderValue(new_frame); // will do the rounding
-    self->mSkyBlender->setPosition(new_frame);
-    self->mWaterBlender->setPosition(new_frame);
-    self->synchronizeTabs();
-    self->updateTimeAndLabel();
-
+        self->mTimeSlider->setCurSliderValue(new_frame); // will do the rounding
+        self->mSkyBlender->setPosition(new_frame);
+        self->mWaterBlender->setPosition(new_frame);
+        self->synchronizeTabs();
+        self->updateTimeAndLabel();
+    }
 }
 
 
