@@ -1001,7 +1001,7 @@ void LLVOSky::setMoonTextures(const LLUUID& moon_texture, const LLUUID& moon_tex
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
     LLUUID moon_tex = moon_texture.isNull() ? psky->GetDefaultMoonTextureId() : moon_texture;
-    LLUUID moon_tex_next = moon_texture_next.isNull() ? (moon_texture.isNull() ? psky->GetDefaultMoonTextureId() : moon_texture) : moon_texture_next;
+    LLUUID moon_tex_next = moon_texture_next.isNull() ? psky->GetDefaultMoonTextureId() : moon_texture_next;
 
     mMoonTexturep[0] = moon_tex.isNull() ? nullptr : LLViewerTextureManager::getFetchedTexture(moon_tex, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
     mMoonTexturep[1] = moon_tex_next.isNull() ? nullptr : LLViewerTextureManager::getFetchedTexture(moon_tex_next, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
@@ -1026,10 +1026,8 @@ void LLVOSky::setCloudNoiseTextures(const LLUUID& cloud_noise_texture, const LLU
 {
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
-    LLUUID cloud_noise_tex_next = cloud_noise_texture_next.isNull() ? (cloud_noise_texture.isNull() ? LLUUID() : cloud_noise_texture) : cloud_noise_texture_next;
-
     mCloudNoiseTexturep[0] = cloud_noise_texture.isNull() ? nullptr : LLViewerTextureManager::getFetchedTexture(cloud_noise_texture, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
-    mCloudNoiseTexturep[1] = cloud_noise_tex_next.isNull() ? nullptr : LLViewerTextureManager::getFetchedTexture(cloud_noise_tex_next, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+    mCloudNoiseTexturep[1] = cloud_noise_texture_next.isNull() ? nullptr : LLViewerTextureManager::getFetchedTexture(cloud_noise_texture_next, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 
     if (mCloudNoiseTexturep[0])
     {

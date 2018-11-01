@@ -438,18 +438,56 @@ void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F64 blendf)
     LLSettingsSky::ptr_t other = PTR_NAMESPACE::dynamic_pointer_cast<LLSettingsSky>(end);
     if (other)
     {
-        if (!mSettings.has(SETTING_LEGACY_HAZE) && !mSettings[SETTING_LEGACY_HAZE].has(SETTING_AMBIENT))
+        if (other->mSettings.has(SETTING_LEGACY_HAZE))
         {
-            // Special case since SETTING_AMBIENT is both in outer and legacy maps, we prioritize legacy one
-            // see getAmbientColor()
-            setAmbientColor(getAmbientColor());
+            if (!mSettings.has(SETTING_LEGACY_HAZE) || !mSettings[SETTING_LEGACY_HAZE].has(SETTING_AMBIENT))
+            {
+                // Special case since SETTING_AMBIENT is both in outer and legacy maps, we prioritize legacy one
+                // see getAmbientColor(), we are about to replaceSettings(), so we are free to set it
+                setAmbientColor(getAmbientColor());
+            }
+        }
+        else
+        {
+            if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(SETTING_AMBIENT))
+            {
+                // Special case due to ambient's duality
+                // We need to match 'other's' structure for interpolation.
+                // We are free to change mSettings, since we are about to reset it
+                mSettings[SETTING_AMBIENT] = getAmbientColor().getValue();
+                mSettings[SETTING_LEGACY_HAZE].erase(SETTING_AMBIENT);
+            }
+        }
+
+        LLUUID cloud_noise_id = getCloudNoiseTextureId();
+        LLUUID cloud_noise_id_next = other->getCloudNoiseTextureId();
+        F64 cloud_shadow = 0;
+        if (!cloud_noise_id.isNull() && cloud_noise_id_next.isNull())
+        {
+            // If there is no cloud texture in destination, reduce coverage to imitate disappearance
+            // See LLDrawPoolWLSky::renderSkyClouds... we don't blend present texture with null
+            // Note: Probably can be done by shader
+            cloud_shadow = lerp(mSettings[SETTING_CLOUD_SHADOW].asReal(), (F64)0.f, blendf);
+            cloud_noise_id_next = cloud_noise_id;
+        }
+        else if (cloud_noise_id.isNull() && !cloud_noise_id_next.isNull())
+        {
+            // Source has no cloud texture, reduce initial coverage to imitate appearance
+            // use same texture as destination
+            cloud_shadow = lerp((F64)0.f, other->mSettings[SETTING_CLOUD_SHADOW].asReal(), blendf);
+            setCloudNoiseTextureId(cloud_noise_id_next);
+        }
+        else
+        {
+            cloud_shadow = lerp(mSettings[SETTING_CLOUD_SHADOW].asReal(), other->mSettings[SETTING_CLOUD_SHADOW].asReal(), blendf);
         }
 
         LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, other->getParameterMap(), blendf);
+        blenddata[SETTING_CLOUD_SHADOW] = LLSD::Real(cloud_shadow);
         replaceSettings(blenddata);
         mNextSunTextureId = other->getSunTextureId();
         mNextMoonTextureId = other->getMoonTextureId();
-        mNextCloudTextureId = other->getCloudNoiseTextureId();
+        mNextCloudTextureId = cloud_noise_id_next;
         mNextBloomTextureId = other->getBloomTextureId();
         mNextRainbowTextureId = other->getRainbowTextureId();
         mNextHaloTextureId = other->getHaloTextureId();
@@ -472,6 +510,7 @@ LLSettingsSky::stringset_t LLSettingsSky::getSkipInterpolateKeys() const
         skipSet.insert(SETTING_RAYLEIGH_CONFIG);
         skipSet.insert(SETTING_MIE_CONFIG);
         skipSet.insert(SETTING_ABSORPTION_CONFIG);
+        skipSet.insert(SETTING_CLOUD_SHADOW);
     }
 
     return skipSet;
