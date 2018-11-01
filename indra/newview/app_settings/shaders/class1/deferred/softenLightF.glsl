@@ -69,13 +69,7 @@ vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cl);
 vec3 decode_normal (vec2 enc);
 
-vec3 atmosFragAmbient(vec3 l, vec3 ambient);
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
-vec3 scaleFragSoftClip(vec3 l);
-vec3 atmosFragAffectDirectionalLight(float intensity, vec3 sunlit);
-vec3 fullbrightFragAtmosTransport(vec3 l, vec3 additive, vec3 atten);
-vec3 fullbrightScaleSoftClipFrag(vec3 l, vec3 atten);
-
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
 
 vec4 getPosition_d(vec2 pos_screen, float depth)
@@ -123,22 +117,20 @@ void main()
 	vec3 col;
 	float bloom = 0.0;
 	{
-                vec3 sunlit;
-                vec3 amblit;
-                vec3 additive;
-                vec3 atten;
+        vec3 sunlit;
+        vec3 amblit;
+        vec3 additive;
+        vec3 atten;
 		calcFragAtmospherics(pos.xyz, 1.0, sunlit, amblit, additive, atten);
 	
-		col = atmosFragAmbient(vec3(0), amblit);
 		float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
 		ambient *= 0.5;
 		ambient *= ambient;
-		ambient = (1.0-ambient);
+		ambient = (1.0 - ambient);
 
-		col.rgb *= ambient;
-
-		col += atmosFragAffectDirectionalLight(final_da, sunlit);
-	
+		col = amblit;
+		col += (final_da * sunlit);
+        col *= ambient;
 		col *= diffuse.rgb;
 	
 		vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
@@ -174,9 +166,7 @@ void main()
 				
 		if (norm.w < 0.5)
 		{
-            vec3 add = additive;
-			col = mix(atmosFragLighting(col, add, atten), fullbrightFragAtmosTransport(col, atten, add), diffuse.a);
-			col = mix(scaleFragSoftClip(col), fullbrightScaleSoftClipFrag(col, atten), diffuse.a);
+			col = atmosFragLighting(col, additive, atten);
 		}
 
 		#ifdef WATER_FOG
@@ -187,7 +177,6 @@ void main()
 
 		col = srgb_to_linear(col);
 
-		//col = vec3(1,0,1);
 		//col.g = envIntensity;
 	}
 

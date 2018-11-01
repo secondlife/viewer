@@ -115,7 +115,6 @@ void main()
 	float light_gamma = 1.0/1.3;
 	da = pow(da, light_gamma);
 
-
 	vec4 diffuse = texture2DRect(diffuseRect, tc);
 
 	//convert to gamma space
@@ -133,14 +132,6 @@ void main()
 
 		float ambocc = scol_ambocc.g;
 
-                vec3 sunlit;
-                vec3 amblit;
-                vec3 additive;
-                vec3 atten;
-	
-		//calcFragAtmospherics(pos.xyz, ambocc, sunlit, amblit, additive, atten);
-		//col += atmosFragAffectDirectionalLight(max(min(da, scol), 0.0), sunlit);
-	
 		col *= diffuse.rgb;
 	
 		vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
@@ -158,8 +149,7 @@ void main()
 			bloom = dot(spec_contrib, spec_contrib) / 6;
 			col += spec_contrib;
 		}
-	
-		
+
 		col = mix(col, diffuse.rgb, diffuse.a);
 
 		if (envIntensity > 0.0)
@@ -169,12 +159,6 @@ void main()
 			col = mix(col.rgb, refcol, envintensity);
 		}
 						
-		if (norm.w < 0.5)
-		{
-			//col = mix(atmosFragLighting(col, additive, atten), fullbrightFragAtmosTransport(col, atten, additive), diffuse.a);
-			//col = mix(scaleFragSoftClip(col), fullbrightScaleSoftClipFrag(col, atten), diffuse.a);
-		}
-
 		#ifdef WATER_FOG
 			vec4 fogged = applyWaterFogView(pos,vec4(col, bloom));
 			col = fogged.rgb;

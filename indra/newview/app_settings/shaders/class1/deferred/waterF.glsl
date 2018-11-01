@@ -73,6 +73,7 @@ VARYING vec4 vary_position;
 
 vec3 srgb_to_linear(vec3 cs);
 vec2 encode_normal(vec3 n);
+vec3 scaleSoftClipFrag(vec3 l);
 
 vec3 BlendNormal(vec3 bump1, vec3 bump2)
 {
@@ -175,7 +176,7 @@ void main()
 	color.rgb += spec * specular;
 	
 	color.rgb = atmosTransport(color.rgb);
-	color.rgb = scaleSoftClip(color.rgb);
+	color.rgb = scaleSoftClipFrag(color.rgb);
 	color.a   = spec * sunAngle2;
 
 	vec3 screenspacewavef = normalize((norm_mat*vec4(wavef, 1.0)).xyz);

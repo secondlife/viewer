@@ -43,17 +43,7 @@ uniform float scene_light_strength;
 uniform mat3 ssao_effect_mat;
 uniform int no_atmo;
 
-vec3 scaleFragSoftClip(vec3 light)
-{
-    if (no_atmo == 1)
-    {
-        return light;
-    }
-	//soft clip effect:
-	light = 1. - clamp(light, vec3(0.), vec3(1.));
-	light = 1. - pow(light, gamma.xxx);
-	return light;
-}
+vec3 scaleSoftClipFrag(vec3 light);
 
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten)
 {
