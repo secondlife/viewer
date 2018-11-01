@@ -255,7 +255,7 @@ LLPanelLandCovenant* LLFloaterLand::getCurrentPanelLandCovenant()
 // static
 void LLFloaterLand::refreshAll()
 {
-	LLFloaterLand* land_instance = LLFloaterReg::getTypedInstance<LLFloaterLand>("about_land");
+	LLFloaterLand* land_instance = LLFloaterReg::findTypedInstance<LLFloaterLand>("about_land");
 	if(land_instance)
 	{
 		land_instance->refresh();
