@@ -695,7 +695,7 @@ LLSettingsSky::parammapping_t LLSettingsVOSky::getParameterMap() const
         param_map[SETTING_DISTANCE_MULTIPLIER] = DefaultParam(LLShaderMgr::DISTANCE_MULTIPLIER, LLSD(0.8f));
 
         // Following values are always present, so we can just zero these ones, but used values from defaults()
-        LLSD& sky_defaults = LLSettingsSky::defaults();
+        LLSD sky_defaults = LLSettingsSky::defaults();
         param_map[SETTING_CLOUD_COLOR] = DefaultParam(LLShaderMgr::CLOUD_COLOR, sky_defaults[SETTING_CLOUD_COLOR]);
         param_map[SETTING_CLOUD_POS_DENSITY2] = DefaultParam(LLShaderMgr::CLOUD_POS_DENSITY2, sky_defaults[SETTING_CLOUD_POS_DENSITY2]);
         param_map[SETTING_CLOUD_SCALE] = DefaultParam(LLShaderMgr::CLOUD_SCALE, sky_defaults[SETTING_CLOUD_SCALE]);
@@ -916,7 +916,7 @@ LLSettingsWater::parammapping_t LLSettingsVOWater::getParameterMap() const
 
     if (param_map.empty())
     {
-        LLSD &water_defaults = LLSettingsWater::defaults();
+        LLSD water_defaults = LLSettingsWater::defaults();
         param_map[SETTING_FOG_COLOR] = DefaultParam(LLShaderMgr::WATER_FOGCOLOR, water_defaults[SETTING_FOG_COLOR]);
         param_map[SETTING_FOG_DENSITY] = DefaultParam(LLShaderMgr::WATER_FOGDENSITY, water_defaults[SETTING_FOG_DENSITY]);
     }

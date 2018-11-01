@@ -42,7 +42,7 @@ vec3 linear_to_srgb(vec3 cl);
 
 vec3 atmosFragAmbient(vec3 l, vec3 ambient);
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
-vec3 scaleFragSoftClip(vec3 l);
+vec3 scaleSoftClipFrag(vec3 l);
 vec3 atmosFragAffectDirectionalLight(float intensity, vec3 sunlit);
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
 
@@ -455,7 +455,7 @@ void main()
 	//col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col),  diffuse.a);
 
 	col = atmosFragLighting(col, additive, atten);
-	col = scaleFragSoftClip(col);
+	col = scaleSoftClipFrag(col);
 
 	//convert to linear space before adding local lights
 	col = srgb_to_linear(col);
