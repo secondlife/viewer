@@ -628,7 +628,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	
 	if (file == NULL)
 	{
-		LL_SHADER_LOADING_WARNS() << "GLSL Shader file not found: " << filename << LL_ENDL;
+		LL_SHADER_LOADING_WARNS() << "GLSL Shader file not found: " << open_file_name << LL_ENDL;
 		return 0;
 	}
 
@@ -958,38 +958,8 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			{
 				//an error occured, print log
 				LL_WARNS("ShaderLoading") << "GLSL Compilation Error:" << LL_ENDL;
-				dumpObjectLog(ret, TRUE, filename);
-#if LL_WINDOWS
-				std::stringstream ostr;
-				//dump shader source for debugging
-				for (GLuint i = 0; i < shader_code_count; i++)
-				{
-					ostr << i << ": " << shader_code_text[i];
-
-					if (i % 128 == 0)
-					{ //dump every 128 lines
-
-						LL_WARNS("ShaderLoading") << "\n" << ostr.str() << LL_ENDL;
-						ostr = std::stringstream();
-					}
-
-				}
-
-				LL_WARNS("ShaderLoading") << "\n" << ostr.str() << LL_ENDL;
-#else
-				std::string str;
-				
-				for (GLuint i = 0; i < shader_code_count; i++) {
-					str.append(shader_code_text[i]);
-					
-					if (i % 128 == 0)
-					{
-						LL_WARNS("ShaderLoading") << str << LL_ENDL;
-						str = "";
-					}
-				}
-#endif
-
+				dumpObjectLog(ret, TRUE, open_file_name);
+                dumpShaderSource(shader_code_count, shader_code_text);
 				ret = 0;
 			}
 		}
@@ -1018,7 +988,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		if (shader_level > 1)
 		{
 			shader_level--;
-			return loadShaderFile(filename,shader_level,type, defines, texture_index_channels);
+			return loadShaderFile(filename, shader_level, type, defines, texture_index_channels);
 		}
 		LL_WARNS("ShaderLoading") << "Failed to load " << filename << LL_ENDL;	
 	}

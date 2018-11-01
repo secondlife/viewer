@@ -487,18 +487,18 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
     return success;
 }
 
-BOOL LLGLSLShader::attachObject(std::string object)
+BOOL LLGLSLShader::attachObject(std::string object_path)
 {
-    if (LLShaderMgr::instance()->mShaderObjects.count(object) > 0)
+    if (LLShaderMgr::instance()->mShaderObjects.count(object_path) > 0)
     {
         stop_glerror();
-        glAttachObjectARB(mProgramObject, LLShaderMgr::instance()->mShaderObjects[object]);
+        glAttachObjectARB(mProgramObject, LLShaderMgr::instance()->mShaderObjects[object_path]);
         stop_glerror();
         return TRUE;
     }
     else
     {
-        LL_SHADER_LOADING_WARNS() << "Attempting to attach shader object that hasn't been compiled: " << object << LL_ENDL;
+        LL_SHADER_LOADING_WARNS() << "Attempting to attach shader object: '" << object_path << "' that hasn't been compiled." << LL_ENDL;
         return FALSE;
     }
 }

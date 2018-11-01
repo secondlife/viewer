@@ -169,13 +169,13 @@ LLSettingsSky::validation_list_t legacyHazeValidationList()
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)("*")),
                 LLSD(LLSDArray(3.0f)(3.0f)(3.0f)("*")))));
         legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_HAZE_DENSITY,        false,  LLSD::TypeReal,  
-            boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(4.0f)))));
+            boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(5.0f)))));
         legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_HAZE_HORIZON,        false,  LLSD::TypeReal,  
-            boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+            boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(5.0f)))));
         legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DENSITY_MULTIPLIER,  false,  LLSD::TypeReal,  
-            boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0001f)(0.9f)))));
+            boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0001f)(2.0f)))));
         legacyHazeValidation.push_back(LLSettingsBase::Validator(LLSettingsSky::SETTING_DISTANCE_MULTIPLIER, false,  LLSD::TypeReal,
-            boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(100.0f)))));
+            boost::bind(&LLSettingsBase::Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0001f)(1000.0f)))));
     }
     return legacyHazeValidation;
 }
@@ -763,6 +763,10 @@ LLSD LLSettingsSky::translateLegacyHazeSettings(const LLSD& legacy)
 // AdvancedAtmospherics TODO
 // These need to be translated into density profile info in the new settings format...
 // LEGACY_ATMOSPHERICS    
+    if (legacy.has(SETTING_AMBIENT))
+    {
+        legacyhazesettings[SETTING_AMBIENT] = LLColor3(legacy[SETTING_AMBIENT]).getValue();
+    }
     if (legacy.has(SETTING_BLUE_DENSITY))
     {
         legacyhazesettings[SETTING_BLUE_DENSITY] = LLColor3(legacy[SETTING_BLUE_DENSITY]).getValue();
@@ -804,10 +808,6 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
         newsettings[SETTING_LEGACY_HAZE] = legacyhazesettings;
     }
 
-    if (legacy.has(SETTING_AMBIENT))
-    {
-        newsettings[SETTING_AMBIENT] = LLColor3(legacy[SETTING_AMBIENT]).getValue();
-    }
     if (legacy.has(SETTING_CLOUD_COLOR))
     {
         newsettings[SETTING_CLOUD_COLOR] = LLColor3(legacy[SETTING_CLOUD_COLOR]).getValue();
