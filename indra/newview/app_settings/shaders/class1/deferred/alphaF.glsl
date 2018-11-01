@@ -88,7 +88,7 @@ vec3 linear_to_srgb(vec3 cl);
 vec2 encode_normal (vec3 n);
 vec3 decode_normal (vec2 enc);
 
-vec3 scaleSoftClipFrag(vec3 l);
+vec3 scaleFragSoftClip(vec3 l);
 vec3 atmosFragAmbient(vec3 light, vec3 sunlit);
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten);
 vec3 atmosFragAffectDirectionalLight(float light, vec3 sunlit);
@@ -312,7 +312,7 @@ void main()
 	//color.rgb = mix(diff.rgb, color.rgb, final_alpha);
 	
 	color.rgb = atmosFragLighting(color.rgb, additive, atten);
-	color.rgb = scaleSoftClipFrag(color.rgb);
+	color.rgb = scaleFragSoftClip(color.rgb);
 
 	vec4 light = vec4(0,0,0,0);
 
