@@ -80,9 +80,12 @@ Name ${INSTNAME}
 
 SubCaption 0 $(LicenseSubTitleSetup)	# Override "license agreement" text
 
+!define MUI_ICON   "%%SOURCE%%\installers\windows\install_icon.ico"
+!define MUI_UNICON "%%SOURCE%%\installers\windows\uninstall_icon.ico"
+
 BrandingText " "						# Bottom of window text
-Icon          %%SOURCE%%\installers\windows\install_icon.ico
-UninstallIcon %%SOURCE%%\installers\windows\uninstall_icon.ico
+Icon          "${MUI_ICON}"
+UninstallIcon "${MUI_UNICON}"
 WindowIcon on							# Show our icon in left corner
 BGGradient off							# No big background window
 CRCCheck on								# Make sure CRC is OK
