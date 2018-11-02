@@ -705,21 +705,10 @@ Function .onInstSuccess
         # updater can detect the problem and adapt accordingly.
         # Once everything is in order, the updater will run the specified
         # viewer with the specified params.
-        # 'Exec updater' causes the viewer to inherit elevated Admin privileges. See
-        # http://mdb-blog.blogspot.com/2013/01/nsis-lunch-program-as-user-from-uac.html
-        # for workaround: running the updater via explorer.exe.
-        # Thing is, you can't pass parameters with the explorer.exe trick, so
-        # you have to create a shortcut or a .bat file. Since we don't want a
-        # permanent shortcut for the user to relaunch the updater like this
-        # first time, create it in a temp location and delete it once we've
-        # used it.
         # Quote the updater executable and the viewer executable because each
         # must be a distinct command-line token, but DO NOT quote the language
         # string because it must decompose into separate command-line tokens.
-        CreateShortCut "$TEMP\SLFirst.lnk" "$INSTDIR\$INSTEXE" \
-                       'precheck "$INSTDIR\$VIEWER_EXE" $SHORTCUT_LANG_PARAM'
-        Exec '"$WINDIR\explorer.exe" "$TEMP\SLFirst.lnk"'
-        Delete "$TEMP\SLFirst.lnk"
+        Exec '"$INSTDIR\$INSTEXE" precheck "$INSTDIR\$VIEWER_EXE" $SHORTCUT_LANG_PARAM'
         Pop $R0
 # 
 FunctionEnd
