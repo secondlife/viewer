@@ -2654,9 +2654,12 @@ void LLPipeline::downsampleDepthBuffer(LLRenderTarget& source, LLRenderTarget& d
 
 	if (scratch_space)
 	{
+        GLint bits = 0;
+        bits |= (source.hasStencil() && dest.hasStencil()) ? GL_STENCIL_BUFFER_BIT : 0;
+        bits |= GL_DEPTH_BUFFER_BIT;
 		scratch_space->copyContents(source, 
 									0, 0, source.getWidth(), source.getHeight(), 
-									0, 0, scratch_space->getWidth(), scratch_space->getHeight(), GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+									0, 0, scratch_space->getWidth(), scratch_space->getHeight(), bits, GL_NEAREST);
 	}
 
 	dest.bindTarget();
