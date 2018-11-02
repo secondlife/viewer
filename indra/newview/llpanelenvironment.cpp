@@ -667,7 +667,8 @@ void LLPanelEnvironmentInfo::doApply()
         else if (rdo_selection == 1)
         {
             LLEnvironment::instance().updateParcel(parcel_id,
-                mCurrentEnvironment->mDayCycle->getAssetId(), mCurrentEnvironment->mDayLength.value(), mCurrentEnvironment->mDayOffset.value(), alts,
+                mCurrentEnvironment->mDayCycle->getAssetId(), std::string(), mCurrentEnvironment->mDayLength.value(), 
+                mCurrentEnvironment->mDayOffset.value(), alts,
                 [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
         }
         else
