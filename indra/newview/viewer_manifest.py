@@ -806,10 +806,10 @@ class WindowsManifest(ViewerManifest):
 
         if(self.address_size == 64):
             engage_registry="SetRegView 64"
-            program_files="$PROGRAMFILES64"
+            program_files="!define MULTIUSER_USE_PROGRAMFILES64"
         else:
             engage_registry="SetRegView 32"
-            program_files="$PROGRAMFILES32"
+            program_files=""
 
         tempfile = "secondlife_setup_tmp.nsi"
         # the following replaces strings in the nsi template
