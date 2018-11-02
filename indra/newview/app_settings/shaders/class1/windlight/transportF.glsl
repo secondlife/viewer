@@ -25,37 +25,19 @@
 
 uniform int no_atmo;
 
-vec3 atmosFragTransport(vec3 light, vec3 atten, vec3 additive)
-{
-	/* stub function for fallback compatibility on class1 hardware */
-	return light;
-}
-
-vec3 fullbrightFragAtmosTransport(vec3 light, vec3 atten, vec3 additive)
-{
-	/* stub function for fallback compatibility on class1 hardware */
-	return light;
-}
-
-vec3 fullbrightFragShinyAtmosTransport(vec3 light, vec3 atten, vec3 additive)
+vec3 atmosTransport(vec3 light)
 {
 	/* stub function for fallback compatibility on class1 hardware */
     return light;
 }
 
-vec3 atmosTransport(vec3 light)
-{
-	/* stub function for fallback compatibility on class1 hardware */
-    return atmosFragTransport(light, vec3(1), vec3(0));
-}
-
 vec3 fullbrightAtmosTransport(vec3 light)
 {
-     return fullbrightFragAtmosTransport(light, vec3(1), vec3(0));
+    return light;
 }
 
 vec3 fullbrightShinyAtmosTransport(vec3 light)
 {
-    return fullbrightFragShinyAtmosTransport(light, vec3(1), vec3(0));
+    return light;
 }
 

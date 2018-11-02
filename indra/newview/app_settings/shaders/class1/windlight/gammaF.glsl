@@ -26,7 +26,7 @@
 uniform int no_atmo;
 uniform vec4 gamma;
 
-vec3 scaleFragSoftClip(vec3 light)
+vec3 scaleSoftClipFrag(vec3 light)
 {
 	// For compatibility with lower cards. Do nothing.
 	return light;
@@ -35,16 +35,19 @@ vec3 scaleFragSoftClip(vec3 light)
 /// Soft clips the light with a gamma correction
 vec3 scaleSoftClip(vec3 light)
 {
-	// For compatibility with lower cards. Do nothing.
-	return scaleFragSoftClip(light);
+	// For compatibility with lower cards. Do nothing
+	return light;
 }
 
-vec3 fullbrightScaleSoftClipFrag(vec3 light, vec3 atten)
+vec3 fullbrightScaleSoftClipFrag(vec3 light)
 {
-	return (no_atmo == 1) ? light : mix(scaleFragSoftClip(light.rgb), light.rgb, atten);
+	// For compatibility with lower cards. Do nothing
+	return light;
 }
 
-vec3 fullbrightScaleSoftClip(vec3 light) {
-    return fullbrightScaleSoftClipFrag(light, vec3(1));
+vec3 fullbrightScaleSoftClip(vec3 light)
+{
+	// For compatibility with lower cards. Do nothing
+    return light;
 }
 

@@ -60,3 +60,7 @@ vec3 linear_to_srgb(vec3 cl)
 
 }
 
+vec3 ColorFromRadiance(vec3 radiance)
+{
+    return vec3(1.0) - exp(-radiance * 0.0001);
+}

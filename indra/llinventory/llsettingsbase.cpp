@@ -688,6 +688,7 @@ F64 LLSettingsBlender::setBlendFactor(const LLSettingsBase::BlendFactor& blendf_
             return blendf;
         }
         mTarget->blend(mFinal, blendf);
+        mTarget->update();
     }
     else
     {
@@ -702,6 +703,7 @@ void LLSettingsBlender::triggerComplete()
     if (mTarget)
         mTarget->replaceSettings(mFinal->getSettings());
     LLSettingsBlender::ptr_t hold = shared_from_this();   // prevents this from deleting too soon
+    mTarget->update();
     mOnFinished(shared_from_this());
 }
 

@@ -59,8 +59,10 @@ void main()
 	vec4 outColor = mix( mix(color3, color2, alpha2), mix(color1, color0, alpha1), alphaFinal );
 	
 	/// Add WL Components
-	outColor.rgb = atmosLighting(outColor.rgb * vertex_color.rgb);
+	//outColor.rgb = atmosLighting(outColor.rgb * vertex_color.rgb);
 	
+	outColor.rgb = atmosLighting(outColor.rgb);
+
 	frag_color = vec4(scaleSoftClip(outColor.rgb), 1.0);
 }
 
