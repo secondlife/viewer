@@ -3024,8 +3024,7 @@ void LLViewerWindow::moveCursorToCenter()
 		S32 x = getWorldViewWidthScaled() / 2;
 		S32 y = getWorldViewHeightScaled() / 2;
 	
-		F32 scale_factor = mWindow->getDeviceScaleFactor();
-		LLUI::setMousePositionScreen(x/scale_factor, y/scale_factor);
+		LLUI::setMousePositionScreen(x, y);
 		
 		//on a forced move, all deltas get zeroed out to prevent jumping
 		mCurrentMousePoint.set(x,y);

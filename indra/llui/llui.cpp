@@ -236,9 +236,10 @@ void LLUI::dirtyRect(LLRect rect)
 //static 
 void LLUI::setMousePositionScreen(S32 x, S32 y)
 {
+	F32 dev_scale_factor = LLView::getWindow()->getDeviceScaleFactor();
 	S32 screen_x, screen_y;
-	screen_x = ll_round((F32)x * getScaleFactor().mV[VX]);
-	screen_y = ll_round((F32)y * getScaleFactor().mV[VY]);
+	screen_x = ll_round(((F32)x * getScaleFactor().mV[VX]) / dev_scale_factor);
+	screen_y = ll_round(((F32)y * getScaleFactor().mV[VY]) / dev_scale_factor);
 	
 	LLView::getWindow()->setCursorPosition(LLCoordGL(screen_x, screen_y).convert());
 }
@@ -247,10 +248,11 @@ void LLUI::setMousePositionScreen(S32 x, S32 y)
 void LLUI::getMousePositionScreen(S32 *x, S32 *y)
 {
 	LLCoordWindow cursor_pos_window;
+	F32 dev_scale_factor = LLView::getWindow()->getDeviceScaleFactor();
 	getWindow()->getCursorPosition(&cursor_pos_window);
 	LLCoordGL cursor_pos_gl(cursor_pos_window.convert());
-	*x = ll_round((F32)cursor_pos_gl.mX / getScaleFactor().mV[VX]);
-	*y = ll_round((F32)cursor_pos_gl.mY / getScaleFactor().mV[VX]);
+	*x = ll_round(((F32)cursor_pos_gl.mX / getScaleFactor().mV[VX]) * dev_scale_factor);
+	*y = ll_round(((F32)cursor_pos_gl.mY / getScaleFactor().mV[VX]) * dev_scale_factor);
 }
 
 //static 
