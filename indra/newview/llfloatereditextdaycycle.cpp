@@ -1363,7 +1363,7 @@ void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where, cons
 
         if (mInventoryItem && !isDirty())
         {
-            LLEnvironment::instance().updateParcel(parcel->getLocalID(), mInventoryItem->getAssetUUID(), -1, -1);
+            LLEnvironment::instance().updateParcel(parcel->getLocalID(), mInventoryItem->getAssetUUID(), mInventoryItem->getName(), -1, -1);
         }
         else
         {
@@ -1374,7 +1374,7 @@ void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where, cons
     {
         if (mInventoryItem && !isDirty())
         {
-            LLEnvironment::instance().updateRegion(mInventoryItem->getAssetUUID(), -1, -1);
+            LLEnvironment::instance().updateRegion(mInventoryItem->getAssetUUID(), mInventoryItem->getName(), -1, -1);
         }
         else
         {

@@ -320,10 +320,11 @@ void LLFloaterMyEnvironment::onDoApply(const std::string &context)
     if (itemp && itemp->getInventoryType() == LLInventoryType::IT_SETTINGS)
     {
         LLUUID asset_id = itemp->getAssetUUID();
+        std::string name = itemp->getName();
 
         if (context == PARAMETER_REGION)
         {
-            LLEnvironment::instance().updateRegion(asset_id, -1, -1);
+            LLEnvironment::instance().updateRegion(asset_id, name, -1, -1);
         }
         else if (context == PARAMETER_PARCEL)
         {
@@ -333,7 +334,7 @@ void LLFloaterMyEnvironment::onDoApply(const std::string &context)
                 LL_WARNS("ENVIRONMENT") << "Unable to determine parcel." << LL_ENDL;
                 return;
             }
-            LLEnvironment::instance().updateParcel(parcel->getLocalID(), asset_id, -1, -1);
+            LLEnvironment::instance().updateParcel(parcel->getLocalID(), asset_id, name, -1, -1);
         }
         else if (context == PARAMETER_LOCAL)
         {

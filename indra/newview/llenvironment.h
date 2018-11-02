@@ -69,7 +69,8 @@ public:
     {
         EnvironmentInfo();
 
-        typedef std::shared_ptr<EnvironmentInfo>  ptr_t;
+        typedef std::shared_ptr<EnvironmentInfo>    ptr_t;
+        typedef std::array<std::string, 5>          namelist_t;
 
         S32                     mParcelId;
         LLUUID                  mRegionId;
@@ -81,6 +82,8 @@ public:
         bool                    mIsDefault;
         LLUUID                  mAssetId;
         bool                    mIsLegacy;
+        std::string             mDayCycleName;
+        namelist_t              mNameList;
 
         static ptr_t            extract(LLSD);
         static ptr_t            extractLegacy(LLSD);
@@ -192,13 +195,13 @@ public:
     connection_t                setEnvironmentChanged(env_changed_fn cb)    { return mSignalEnvChanged.connect(cb); }
 
     void                        requestRegion(environment_apply_fn cb = environment_apply_fn());
-    void                        updateRegion(const LLUUID &asset_id, S32 day_length, S32 day_offset, altitudes_vect_t altitudes = altitudes_vect_t(), environment_apply_fn cb = environment_apply_fn());
+    void                        updateRegion(const LLUUID &asset_id, std::string display_name, S32 day_length, S32 day_offset, altitudes_vect_t altitudes = altitudes_vect_t(), environment_apply_fn cb = environment_apply_fn());
     void                        updateRegion(const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset, altitudes_vect_t altitudes = altitudes_vect_t(), environment_apply_fn cb = environment_apply_fn());
     void                        updateRegion(const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset, altitudes_vect_t altitudes = altitudes_vect_t(), environment_apply_fn cb = environment_apply_fn());
     void                        updateRegion(const LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset, altitudes_vect_t altitudes = altitudes_vect_t(), environment_apply_fn cb = environment_apply_fn());
     void                        resetRegion(environment_apply_fn cb = environment_apply_fn());
     void                        requestParcel(S32 parcel_id, environment_apply_fn cb = environment_apply_fn());
-    void                        updateParcel(S32 parcel_id, const LLUUID &asset_id, S32 day_length, S32 day_offset, altitudes_vect_t altitudes = altitudes_vect_t(), environment_apply_fn cb = environment_apply_fn());
+    void                        updateParcel(S32 parcel_id, const LLUUID &asset_id, std::string display_name, S32 day_length, S32 day_offset, altitudes_vect_t altitudes = altitudes_vect_t(), environment_apply_fn cb = environment_apply_fn());
     void                        updateParcel(S32 parcel_id, const LLSettingsDay::ptr_t &pday, S32 day_length, S32 day_offset, altitudes_vect_t altitudes = altitudes_vect_t(), environment_apply_fn cb = environment_apply_fn());
     void                        updateParcel(S32 parcel_id, const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset, altitudes_vect_t altitudes = altitudes_vect_t(), environment_apply_fn cb = environment_apply_fn());
     void                        updateParcel(S32 parcel_id, const LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset, altitudes_vect_t altitudes = altitudes_vect_t(), environment_apply_fn cb = environment_apply_fn());
@@ -319,13 +322,42 @@ private:
 
     DayInstance::ptr_t          getSelectedEnvironmentInstance();
 
-
     void                        updateCloudScroll();
 
     void                        onParcelChange();
 
+    struct UpdateInfo
+    {
+        typedef std::shared_ptr<UpdateInfo> ptr_t;
+
+        UpdateInfo(LLSettingsDay::ptr_t pday, S32 day_length, S32 day_offset, altitudes_vect_t altitudes):
+            mDayp(pday),
+            mSettingsAsset(),
+            mDayLength(day_length),
+            mDayOffset(day_offset),
+            mAltitudes(altitudes),
+            mDayName()
+        {}
+
+        UpdateInfo(LLUUID settings_asset, std::string name, S32 day_length, S32 day_offset, altitudes_vect_t altitudes) :
+            mDayp(),
+            mSettingsAsset(settings_asset),
+            mDayLength(day_length),
+            mDayOffset(day_offset),
+            mAltitudes(altitudes),
+            mDayName(name)
+        {}
+
+        LLSettingsDay::ptr_t    mDayp; 
+        LLUUID                  mSettingsAsset; 
+        S32                     mDayLength; 
+        S32                     mDayOffset; 
+        altitudes_vect_t        mAltitudes;
+        std::string             mDayName;
+    };
+
     void                        coroRequestEnvironment(S32 parcel_id, environment_apply_fn apply);
-    void                        coroUpdateEnvironment(S32 parcel_id, S32 track_no, LLSettingsDay::ptr_t pday, LLUUID settings_asset, S32 day_length, S32 day_offset, altitudes_vect_t altitudes, environment_apply_fn apply);
+    void                        coroUpdateEnvironment(S32 parcel_id, S32 track_no, UpdateInfo::ptr_t updates, environment_apply_fn apply);
     void                        coroResetEnvironment(S32 parcel_id, S32 track_no, environment_apply_fn apply);
 
     void                        recordEnvironment(S32 parcel_id, EnvironmentInfo::ptr_t environment);
