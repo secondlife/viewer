@@ -1441,7 +1441,7 @@ LLEnvironment::EnvironmentInfo::ptr_t LLEnvironment::EnvironmentInfo::extract(LL
         {
             for (S32 index = 0; index < pinfo->mNameList.size(); ++index)
             {
-                pinfo->mNameList[index] = daynames[index];
+                pinfo->mNameList[index] = daynames[index].asString();
             }
         }
         else if (daynames.isString())
