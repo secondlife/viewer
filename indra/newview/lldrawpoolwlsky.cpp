@@ -704,30 +704,20 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
         if (gPipeline.useAdvancedAtmospherics())
         {
 	        renderSkyHazeAdvanced(origin, camHeightLocal);
+            renderStarsDeferred();
             renderHeavenlyBodies(); 
             renderSkyCloudsAdvanced(origin, camHeightLocal, cloud_shader);     
         }
         else
         {
             renderSkyHazeDeferred(origin, camHeightLocal);
+            renderStarsDeferred();
             renderHeavenlyBodies();
             renderSkyCloudsDeferred(origin, camHeightLocal, cloud_shader);
         }
     }
 
     gGL.setColorMask(true, true);
-}
-
-void LLDrawPoolWLSky::renderPostDeferred(S32 pass)
-{
-    LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
-
-    LLGLSPipelineBlendSkyBox sky(true, false);
-
-	gGL.pushMatrix();
-	gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
-    renderStarsDeferred();
-    gGL.popMatrix();
 }
 
 void LLDrawPoolWLSky::render(S32 pass)

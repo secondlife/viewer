@@ -53,10 +53,10 @@ public:
 	/*virtual*/ void renderDeferred(S32 pass);
 
 
-    /*virtual*/ S32 getNumPostDeferredPasses() { return 1; }
+    /*virtual*/ S32 getNumPostDeferredPasses() { return 0; }
 	/*virtual*/ void beginPostDeferredPass(S32 pass) {}
 	/*virtual*/ void endPostDeferredPass(S32 pass)   {}
-	/*virtual*/ void renderPostDeferred(S32 pass);
+	/*virtual*/ void renderPostDeferred(S32 pass)    {}
 
 	/*virtual*/ LLViewerTexture *getDebugTexture();
 	/*virtual*/ void beginRenderPass( S32 pass );
