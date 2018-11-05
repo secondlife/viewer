@@ -1128,12 +1128,16 @@ void LLInventoryPanel::onSelectionChange(const std::deque<LLFolderViewItem*>& it
 	mCompletionObserver->reset();
 	for (std::deque<LLFolderViewItem*>::const_iterator it = items.begin(); it != items.end(); ++it)
 	{
-		LLUUID id = static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID();
-		LLViewerInventoryItem* inv_item = mInventory->getItem(id);
-
-		if (inv_item && !inv_item->isFinished())
+		LLFolderViewModelItemInventory* view_model = static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem());
+		if (view_model)
 		{
-			mCompletionObserver->watchItem(id);
+			LLUUID id = view_model->getUUID();
+			LLViewerInventoryItem* inv_item = mInventory->getItem(id);
+
+			if (inv_item && !inv_item->isFinished())
+			{
+				mCompletionObserver->watchItem(id);
+			}
 		}
 	}
 
