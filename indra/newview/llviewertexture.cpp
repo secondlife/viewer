@@ -3171,6 +3171,7 @@ void LLViewerLODTexture::processTextureStats()
 		if (mKnownDrawWidth && mKnownDrawHeight)
 		{
 			S32 draw_texels = mKnownDrawWidth * mKnownDrawHeight;
+			draw_texels = llclamp(draw_texels, MIN_IMAGE_AREA, MAX_IMAGE_AREA);
 
 			// Use log_4 because we're in square-pixel space, so an image
 			// with twice the width and twice the height will have mTexelsPerImage
