@@ -622,7 +622,11 @@ class WindowsManifest(ViewerManifest):
             self.path("dullahan_host.exe")
             self.path("natives_blob.bin")
             self.path("snapshot_blob.bin")
-            self.path("widevinecdmadapter.dll")
+            self.path("v8_context_snapshot.bin")
+
+        with self.prefix(src=os.path.join(pkgdir, 'bin', config, 'swiftshader'), dst=os.path.join('llplugin', 'swiftshader')):
+            self.path("libEGL.dll")
+            self.path("libGLESv2.dll")
 
         # MSVC DLLs needed for CEF and have to be in same directory as plugin
         with self.prefix(src=os.path.join(os.pardir, 'sharedlibs', 'Release'), dst="llplugin"):
