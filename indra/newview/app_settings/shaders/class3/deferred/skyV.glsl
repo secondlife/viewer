@@ -1,5 +1,5 @@
 /** 
- * @file advancedAtmoV.glsl
+ * @file class3/deferred/skyV.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -23,12 +23,6 @@
  * $/LicenseInfo$
  */
  
-uniform vec3 cameraPosLocal;
-uniform mat4 modelview_projection_matrix;
-uniform mat4 modelview_matrix;
-uniform mat4 inv_proj;
-uniform mat4 inv_modelview;
-
 ATTRIBUTE vec3 position;
 ATTRIBUTE vec2 texcoord0;
 

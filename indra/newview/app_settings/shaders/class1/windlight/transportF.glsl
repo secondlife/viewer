@@ -1,5 +1,5 @@
 /** 
- * @file transportF.glsl
+ * @file class1/windlight/transportF.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -25,6 +25,24 @@
 
 uniform int no_atmo;
 
+vec3 atmosTransportFrag(vec3 light, vec3 additive, vec3 atten)
+{
+    /* stub function for fallback compatibility on class1 hardware */
+	return light;
+}
+
+vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten)
+{
+    /* stub function for fallback compatibility on class1 hardware */
+    return light;
+}
+
+vec3 fullbrightShinyAtmosTransportFrag(vec3 light, vec3 atten, vec3 additive)
+{
+    /* stub function for fallback compatibility on class1 hardware */
+    return light;
+}
+
 vec3 atmosTransport(vec3 light)
 {
 	/* stub function for fallback compatibility on class1 hardware */
@@ -33,11 +51,12 @@ vec3 atmosTransport(vec3 light)
 
 vec3 fullbrightAtmosTransport(vec3 light)
 {
+    /* stub function for fallback compatibility on class1 hardware */
     return light;
 }
 
 vec3 fullbrightShinyAtmosTransport(vec3 light)
 {
+    /* stub function for fallback compatibility on class1 hardware */
     return light;
 }
-

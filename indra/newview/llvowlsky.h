@@ -88,9 +88,9 @@ private:
 	std::vector< LLPointer<LLVertexBuffer> >	mStripsVerts;
 	LLPointer<LLVertexBuffer>					mStarsVerts;
 
-	std::vector<LLVector3>	mStarVertices;				// Star verticies
-	std::vector<LLColor4>	mStarColors;				// Star colors
-	std::vector<F32>		mStarIntensities;			// Star intensities
+	std::vector<LLVector3>	mStarVertices;    // Star verticies
+	std::vector<LLColor4>	mStarColors;      // Star colors
+	std::vector<F32>		mStarIntensities; // Star intensities
 };
 
 #endif // LL_VOWLSKY_H

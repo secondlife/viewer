@@ -89,9 +89,7 @@ vec2 encode_normal (vec3 n);
 vec3 decode_normal (vec2 enc);
 
 vec3 scaleSoftClipFrag(vec3 l);
-vec3 atmosFragAmbient(vec3 light, vec3 sunlit);
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten);
-vec3 atmosFragAffectDirectionalLight(float light, vec3 sunlit);
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
 
 vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight)
@@ -163,6 +161,8 @@ void main()
 	vec4 pos = vec4(vary_position, 1.0);
 	
 	float shadow = 1.0;
+
+    vec3 norm = vary_norm; 
 
 #if HAS_SHADOW
 	vec4 spos = pos;
@@ -268,13 +268,10 @@ void main()
 	vec4 gamma_diff = diff;	
 	diff.rgb = srgb_to_linear(diff.rgb);
 
-	vec3 norm = vary_norm; 
-
-        vec3 sunlit;
-        vec3 amblit;
-        vec3 additive;
-        vec3 atten;
-
+    vec3 sunlit;
+    vec3 amblit;
+    vec3 additive;
+    vec3 atten;
 	calcFragAtmospherics(pos.xyz, 1.0, sunlit, amblit, additive, atten);
 
 	vec2 abnormal	= encode_normal(norm.xyz);
@@ -290,7 +287,7 @@ void main()
 
 	vec4 color = vec4(0,0,0,0);
 
-	color.rgb = atmosFragAmbient(color.rgb, amblit);
+	color.rgb = (color.rgb * 0.5) + amblit;
 	color.a   = final_alpha;
 
 	float ambient = abs(da);
@@ -299,7 +296,7 @@ void main()
 	ambient = (1.0-ambient);
 
 	color.rgb *= ambient;
-	color.rgb += atmosFragAffectDirectionalLight(final_da, sunlit);
+	color.rgb += (final_da * sunlit);
 	color.rgb *= gamma_diff.rgb;
 
 	//color.rgb = mix(diff.rgb, color.rgb, final_alpha);

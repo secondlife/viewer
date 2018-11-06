@@ -186,15 +186,23 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		}
 	}
 
-    if (features->calculatesLighting || features->calculatesAtmospherics)
+	// NOTE order of shader object attaching is VERY IMPORTANT!!!
+    if (features->isDeferred || features->hasShadows)
 	{
-		if (!shader->attachObject("windlight/atmosphericsHelpersF.glsl"))
+		if (!shader->attachObject("deferred/deferredUtil.glsl"))
 		{
 			return FALSE;
 		}
 	}
 
-	// NOTE order of shader object attaching is VERY IMPORTANT!!!
+    if (features->hasIndirect)
+	{
+		if (!shader->attachObject("deferred/indirect.glsl"))
+		{
+			return FALSE;
+		}
+	}
+
 	if (features->hasGamma)
 	{
 		if (!shader->attachObject("windlight/gammaF.glsl"))

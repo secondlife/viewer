@@ -59,18 +59,7 @@ uniform mat4 inv_proj;
 
 vec3 decode_normal (vec2 enc);
 
-vec4 getPosition(vec2 pos_screen)
-{
-	float depth = texture2DRect(depthMap, pos_screen.xy).r;
-	vec2 sc = pos_screen.xy*2.0;
-	sc /= screen_res;
-	sc -= vec2(1.0,1.0);
-	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
-	vec4 pos = inv_proj * ndc;
-	pos /= pos.w;
-	pos.w = 1.0;
-	return pos;
-}
+vec4 getPosition(vec2 pos_screen);
 
 void main() 
 {
@@ -148,12 +137,4 @@ void main()
 	
 	frag_color.rgb = out_col;
 	frag_color.a = 0.0;
-
-#ifdef IS_AMD_CARD
-	// If it's AMD make sure the GLSL compiler sees the arrays referenced once by static index. Otherwise it seems to optimise the storage awawy which leads to unfun crashes and artifacts.
-	vec4 dummy1 = light[0];
-	vec4 dummy2 = light_col[0];
-	vec4 dummy3 = light[LIGHT_COUNT-1];
-	vec4 dummy4 = light_col[LIGHT_COUNT-1];
-#endif
 }

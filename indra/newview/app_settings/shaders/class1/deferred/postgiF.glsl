@@ -49,18 +49,7 @@ VARYING vec2 vary_fragcoord;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
-vec4 getPosition(vec2 pos_screen)
-{
-	float depth = texture2DRect(depthMap, pos_screen.xy).a;
-	vec2 sc = pos_screen.xy*2.0;
-	sc /= screen_res;
-	sc -= vec2(1.0,1.0);
-	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
-	vec4 pos = inv_proj * ndc;
-	pos /= pos.w;
-	pos.w = 1.0;
-	return pos;
-}
+vec4 getPosition(vec2 pos_screen);
 
 void main() 
 {
@@ -101,10 +90,4 @@ void main()
 	col = col*col*blur_quad.x + col*blur_quad.y + blur_quad.z;
 	
 	frag_color.rgb = col;
-
-#ifdef IS_AMD_CARD
-	// If it's AMD make sure the GLSL compiler sees the arrays referenced once by static index. Otherwise it seems to optimise the storage awawy which leads to unfun crashes and artifacts.
-	vec2 dummy1 = kern[0];
-	vec2 dummy2 = kern[31];
-#endif
 }

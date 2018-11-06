@@ -1,5 +1,5 @@
 /** 
- * @file WLCloudsF.glsl
+ * @file class3/deferred/cloudsF.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,9 +24,9 @@
  */
  
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_color;
+out vec4 frag_data[3];
 #else
-#define frag_color gl_FragColor
+#define frag_data gl_FragData
 #endif
 
 /////////////////////////////////////////////////////////////////////////
@@ -36,20 +36,37 @@ out vec4 frag_color;
 VARYING vec4 vary_CloudColorSun;
 VARYING vec4 vary_CloudColorAmbient;
 VARYING float vary_CloudDensity;
+VARYING vec2 vary_texcoord0;
+VARYING vec2 vary_texcoord1;
+VARYING vec2 vary_texcoord2;
+VARYING vec2 vary_texcoord3;
+VARYING vec3 vary_pos;
 
 uniform sampler2D cloud_noise_texture;
 uniform sampler2D cloud_noise_texture_next;
 uniform float blend_factor;
 uniform vec4 cloud_pos_density1;
 uniform vec4 cloud_pos_density2;
-uniform vec4 gamma;
+uniform vec4 sunlight_color;
+uniform vec4 cloud_color;
+uniform float cloud_shadow;
 uniform float cloud_scale;
 uniform float cloud_variance;
+uniform vec3 ambient;
+uniform vec3 camPosLocal;
+uniform vec3 sun_dir;
+uniform float sun_size;
+uniform float far_z;
 
-VARYING vec2 vary_texcoord0;
-VARYING vec2 vary_texcoord1;
-VARYING vec2 vary_texcoord2;
-VARYING vec2 vary_texcoord3;
+uniform sampler2D transmittance_texture;
+uniform sampler3D scattering_texture;
+uniform sampler3D single_mie_scattering_texture;
+uniform sampler2D irradiance_texture;
+uniform sampler2D sh_input_r;
+uniform sampler2D sh_input_g;
+uniform sampler2D sh_input_b;
+
+vec3 GetSkyLuminance(vec3 camPos, vec3 view_dir, float shadow_length, vec3 dir, out vec3 transmittance);
 
 /// Soft clips the light with a gamma correction
 vec3 scaleSoftClip(vec3 light);
@@ -67,11 +84,9 @@ void main()
 	// Set variables
 	vec2 uv1 = vary_texcoord0.xy;
 	vec2 uv2 = vary_texcoord1.xy;
-
-	vec4 cloudColorSun = vary_CloudColorSun;
-	vec4 cloudColorAmbient = vary_CloudColorAmbient;
-	float cloudDensity = vary_CloudDensity;
 	vec2 uv3 = vary_texcoord2.xy;
+	float cloudDensity = 2.0 * (cloud_shadow - 0.25);
+
 	vec2 uv4 = vary_texcoord3.xy;
 
     vec2 disturbance = vec2(cloudNoise(uv1 / 16.0f).x, cloudNoise((uv3 + uv1) / 16.0f).x) * cloud_variance * (1.0f - cloud_scale * 0.25f);
@@ -82,33 +97,53 @@ void main()
 	uv3 += cloud_pos_density2.xy + disturbance;	//small texture, visible density
 	uv4 += cloud_pos_density2.xy;	//small texture, self shadow
 
+    float density_variance = min(1.0, (disturbance.x* 2.0 + disturbance.y* 2.0));
+
+    cloudDensity *= 1.0 - (density_variance * density_variance);
 
 	// Compute alpha1, the main cloud opacity
-
 	float alpha1 = (cloudNoise(uv1).x - 0.5) + (cloudNoise(uv3).x - 0.5) * cloud_pos_density2.z;
-	alpha1 = min(max(alpha1 + cloudDensity, 0.) * (10. + disturbance.y) * cloud_pos_density1.z, 1.);
+	alpha1 = min(max(alpha1 + cloudDensity, 0.) * 10 * cloud_pos_density1.z, 1.);
 
 	// And smooth
 	alpha1 = 1. - alpha1 * alpha1;
 	alpha1 = 1. - alpha1 * alpha1;	
 
+    if (alpha1 < 0.001f)
+    {
+        discard;
+    }
 
 	// Compute alpha2, for self shadowing effect
 	// (1 - alpha2) will later be used as percentage of incoming sunlight
 	float alpha2 = (cloudNoise(uv2).x - 0.5);
-	alpha2 = min(max(alpha2 + cloudDensity, 0.) * (2.5 + disturbance.x) * cloud_pos_density1.z, 1.);
+	alpha2 = min(max(alpha2 + cloudDensity, 0.) * 2.5 * cloud_pos_density1.z, 1.);
 
 	// And smooth
 	alpha2 = 1. - alpha2;
 	alpha2 = 1. - alpha2 * alpha2;	
 
+    vec3 view_ray = vary_pos.xyz + camPosLocal;
+
+    vec3 view_direction = normalize(view_ray);
+    vec3 sun_direction  = normalize(sun_dir);
+    vec3 earth_center   = vec3(0, 0, -6360.0f);
+    vec3 camPos = (camPosLocal / 1000.0f) - earth_center;
+
+    vec3 transmittance;
+    vec3 radiance_sun  = GetSkyLuminance(camPos, view_direction, 1.0 - alpha1, sun_direction, transmittance);
+
+    vec3 sun_color = vec3(1.0) - exp(-radiance_sun * 0.0001);
+
 	// Combine
 	vec4 color;
-	color = (cloudColorSun*(1.-alpha2) + cloudColorAmbient);
-	color *= 2.;
 
-	/// Gamma correct for WL (soft clip effect).
-	frag_color.rgb = scaleSoftClip(color.rgb);
-	frag_color.a = alpha1;
+    color.rgb = sun_color * cloud_color.rgb * (1. - alpha2);
+    color.rgb = pow(color.rgb, vec3(1.0 / 2.2));
+    color.rgb += ambient;
+
+	frag_data[0] = vec4(color.rgb, alpha1);
+	frag_data[1] = vec4(0);
+	frag_data[2] = vec4(0,1,0,1);
 }
 

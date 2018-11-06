@@ -48,9 +48,12 @@ public:
 	bool hasObjectSkinning;
 	bool hasAtmospherics;
 	bool hasGamma;
+    bool hasShadows;
 	bool hasSrgb;
     bool encodesNormal;
     bool decodesNormal;
+    bool isDeferred;
+    bool hasIndirect;
 	S32 mIndexedTextureChannels;
 	bool disableTextureIndex;
 	bool hasAlphaMask;
@@ -226,6 +229,5 @@ extern LLGLSLShader			gUIProgram;
 extern LLGLSLShader			gSolidColorProgram;
 //Alpha mask shader (declared here so llappearance can access properly)
 extern LLGLSLShader			gAlphaMaskProgram;
-
 
 #endif

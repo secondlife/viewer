@@ -209,6 +209,8 @@ public:
 	U32         addObject(LLViewerObject *obj);
 
 	void		enableShadows(const bool enable_shadows);
+    void        releaseShadowTargets();
+    void        releaseShadowTarget(U32 index);
 
 // 	void		setLocalLighting(const bool local_lighting);
 // 	bool		isLocalLightingEnabled() const;
@@ -283,6 +285,8 @@ public:
 	
 	void generateWaterReflection(LLCamera& camera);
 	void generateSunShadow(LLCamera& camera);
+    LLRenderTarget* getShadowTarget(U32 i);
+
 	void generateHighlight(LLCamera& camera);
 	void renderHighlight(const LLViewerObject* obj, F32 fade);
 	void setHighlightObject(LLDrawable* obj) { mHighlightObject = obj; }

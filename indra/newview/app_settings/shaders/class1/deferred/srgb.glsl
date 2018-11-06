@@ -48,7 +48,6 @@ vec3 srgb_to_linear(vec3 cs)
 
 	bvec3 lte = lessThanEqual(cs,vec3(0.04045));
 	return mix(high_range, low_range, lte);
-
 }
 
 vec3 linear_to_srgb(vec3 cl)
@@ -59,6 +58,4 @@ vec3 linear_to_srgb(vec3 cl)
 
 	bvec3 lt = lessThan(cl,vec3(0.0031308));
 	return mix(high_range, low_range, lt);
-
 }
-

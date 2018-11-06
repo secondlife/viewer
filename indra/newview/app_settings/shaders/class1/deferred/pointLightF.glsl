@@ -57,19 +57,7 @@ uniform mat4 inv_proj;
 uniform vec4 viewport;
 
 vec3 decode_normal (vec2 enc);
-
-vec4 getPosition(vec2 pos_screen)
-{
-	float depth = texture2DRect(depthMap, pos_screen.xy).r;
-	vec2 sc = (pos_screen.xy-viewport.xy)*2.0;
-	sc /= viewport.zw;
-	sc -= vec2(1.0,1.0);
-	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
-	vec4 pos = inv_proj * ndc;
-	pos /= pos.w;
-	pos.w = 1.0;
-	return pos;
-}
+vec4 getPosition(vec2 pos_screen);
 
 void main() 
 {

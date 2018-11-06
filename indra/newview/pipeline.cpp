@@ -853,6 +853,9 @@ LLPipeline::eFBOStatus LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
 	return ret;
 }
 
+ // must be even to avoid a stripe in the horizontal shadow blur
+inline U32 BlurHappySize(U32 x, U32 scale) { return (((x*scale)+1)&~1); }
+
 bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 {
 	refreshCachedSettings();
@@ -921,22 +924,34 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		}
 
 		F32 scale = RenderShadowResolutionScale;
+        U32 sun_shadow_map_width  = BlurHappySize(resX, scale);
+        U32 sun_shadow_map_height = BlurHappySize(resY, scale);
 
 		if (shadow_detail > 0)
 		{ //allocate 4 sun shadow maps
-			U32 sun_shadow_map_width = ((U32(resX*scale)+1)&~1); // must be even to avoid a stripe in the horizontal shadow blur
 			for (U32 i = 0; i < 4; i++)
 			{
-				if (!mShadow[i].allocate(sun_shadow_map_width,U32(resY*scale), 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE)) return false;
-				if (!mShadowOcclusion[i].allocate(mShadow[i].getWidth()/occlusion_divisor, mShadow[i].getHeight()/occlusion_divisor, 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE)) return false;
+		        //allocate VSM sun shadow map(s)
+				if ((shadow_detail > 3) && !mShadow[i].allocate(sun_shadow_map_width, sun_shadow_map_height, GL_RGBA16F_ARB, FALSE, FALSE, LLTexUnit::TT_TEXTURE))
+                {
+                    return false;
+                }
+                else if (!mShadow[i].allocate(sun_shadow_map_width, sun_shadow_map_height, 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE))
+                {
+                    return false;
+                }
+
+				if (!mShadowOcclusion[i].allocate(sun_shadow_map_width/occlusion_divisor, sun_shadow_map_height/occlusion_divisor, 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE))
+                {
+                    return false;
+                }
 			}
 		}
 		else
 		{
 			for (U32 i = 0; i < 4; i++)
 			{
-				mShadow[i].release();
-				mShadowOcclusion[i].release();
+                releaseShadowTarget(i);
 			}
 		}
 
@@ -952,19 +967,29 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 
 		if (shadow_detail > 1)
 		{ //allocate two spot shadow maps
-			U32 spot_shadow_map_width = width;
+			U32 spot_shadow_map_width  = width;
+            U32 spot_shadow_map_height = height;
 			for (U32 i = 4; i < 6; i++)
 			{
-				if (!mShadow[i].allocate(spot_shadow_map_width, height, 0, TRUE, FALSE)) return false;
-				if (!mShadowOcclusion[i].allocate(mShadow[i].getWidth()/occlusion_divisor, mShadow[i].getHeight()/occlusion_divisor, 0, TRUE, FALSE)) return false;
+                if ((shadow_detail > 3) && !mShadow[i].allocate(spot_shadow_map_width, spot_shadow_map_height, GL_RGBA16F_ARB, FALSE, FALSE))
+                {
+                    return false;
+                }
+				else if (!mShadow[i].allocate(spot_shadow_map_width, spot_shadow_map_height, 0, TRUE, FALSE))
+                {
+                    return false;
+                }
+				if (!mShadowOcclusion[i].allocate(spot_shadow_map_width/occlusion_divisor, height/occlusion_divisor, 0, TRUE, FALSE))
+                {
+                    return false;
+                }
 			}
 		}
 		else
 		{
 			for (U32 i = 4; i < 6; i++)
 			{
-				mShadow[i].release();
-				mShadowOcclusion[i].release();
+                releaseShadowTarget(i);
 			}
 		}
 
@@ -978,11 +1003,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 	{
 		mDeferredLight.release();
 				
-		for (U32 i = 0; i < 6; i++)
-		{
-			mShadow[i].release();
-			mShadowOcclusion[i].release();
-		}
+		releaseShadowTargets();
 		mFXAABuffer.release();
 		mScreen.release();
 		mDeferredScreen.release(); //make sure to release any render targets that share a depth buffer with mDeferredScreen first
@@ -1179,15 +1200,25 @@ void LLPipeline::releaseScreenBuffers()
 	mDeferredLight.release();
 	mOcclusionDepth.release();
 		
-	for (U32 i = 0; i < 6; i++)
-	{
-		mShadow[i].release();
-		mShadowOcclusion[i].release();
-	}
+	releaseShadowTargets();
 
 	mInscatter.release();
 }
 
+
+void LLPipeline::releaseShadowTarget(U32 index)
+{
+    mShadow[index].release();
+	mShadowOcclusion[index].release();
+}
+
+void LLPipeline::releaseShadowTargets()
+{
+    for (U32 i = 0; i < 6; i++)
+	{
+        releaseShadowTarget(i);
+	}
+}
 
 void LLPipeline::createGLBuffers()
 {
@@ -8285,20 +8316,24 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 
 	for (U32 i = 0; i < 4; i++)
 	{
-		channel = shader.enableTexture(LLShaderMgr::DEFERRED_SHADOW0+i, LLTexUnit::TT_TEXTURE);
-		stop_glerror();
-		if (channel > -1)
-		{
-			stop_glerror();
-			gGL.getTexUnit(channel)->bind(&mShadow[i], TRUE);
-			gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
-			gGL.getTexUnit(channel)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
-			stop_glerror();
+        LLRenderTarget* shadow_target = getShadowTarget(i);
+        if (shadow_target)
+        {
+		    channel = shader.enableTexture(LLShaderMgr::DEFERRED_SHADOW0+i, LLTexUnit::TT_TEXTURE);
+		    stop_glerror();
+		    if (channel > -1)
+		    {
+			    stop_glerror();
+			    gGL.getTexUnit(channel)->bind(getShadowTarget(i), TRUE);
+			    gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
+			    gGL.getTexUnit(channel)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
+			    stop_glerror();
 			
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
-			stop_glerror();
-		}
+			    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
+			    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
+			    stop_glerror();
+		    }
+        }
 	}
 
 	for (U32 i = 4; i < 6; i++)
@@ -8308,18 +8343,22 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 		if (channel > -1)
 		{
 			stop_glerror();
-			gGL.getTexUnit(channel)->bind(&mShadow[i], TRUE);
-			gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
-			gGL.getTexUnit(channel)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
-			stop_glerror();
+            LLRenderTarget* shadow_target = getShadowTarget(i);
+            if (shadow_target)
+            {
+			    gGL.getTexUnit(channel)->bind(shadow_target, TRUE);
+			    gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
+			    gGL.getTexUnit(channel)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
+			    stop_glerror();
 			
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
-			stop_glerror();
+			    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
+			    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
+			    stop_glerror();
+            }
 		}
 	}
 
-    channel = shader.enableTexture(LLShaderMgr::INSCATTER_RT, LLTexUnit::TT_TEXTURE);
+    /*channel = shader.enableTexture(LLShaderMgr::INSCATTER_RT, LLTexUnit::TT_TEXTURE);
     stop_glerror();
     if (channel > -1)
     {
@@ -8332,7 +8371,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_NONE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_ALWAYS);
         stop_glerror();
-    }
+    }*/
 
 	stop_glerror();
 
@@ -10600,6 +10639,10 @@ void LLPipeline::generateHighlight(LLCamera& camera)
 	}
 }
 
+LLRenderTarget* LLPipeline::getShadowTarget(U32 i)
+{
+    return &mShadow[i];
+}
 
 static LLTrace::BlockTimerStatHandle FTM_GEN_SUN_SHADOW("Gen Sun Shadow");
 
@@ -10819,9 +10862,13 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 		for (S32 j = 0; j < 4; j++)
 		{
-			mShadow[j].bindTarget();
-			mShadow[j].clear();
-			mShadow[j].flush();
+            LLRenderTarget* shadow_target = getShadowTarget(j);
+            if (shadow_target)
+            {
+			    shadow_target->bindTarget();
+			    shadow_target->clear();
+			    shadow_target->flush();
+            }
 		}
 	}
 	else
@@ -10887,12 +10934,16 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 					mShadowCamera[j+4] = shadow_cam;
 				}
 
-				mShadow[j].bindTarget();
-				{
-					LLGLDepthTest depth(GL_TRUE);
-					mShadow[j].clear();
-				}
-				mShadow[j].flush();
+                LLRenderTarget* shadow_target = getShadowTarget(j);
+                if (shadow_target)
+                {
+				    shadow_target->bindTarget();
+				    {
+					    LLGLDepthTest depth(GL_TRUE);
+					    shadow_target->clear();
+				    }
+				    shadow_target->flush();
+                }
 
 				mShadowError.mV[j] = 0.f;
 				mShadowFOV.mV[j] = 0.f;
@@ -11181,20 +11232,24 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		
 			stop_glerror();
 
-			mShadow[j].bindTarget();
-			mShadow[j].getViewport(gGLViewport);
-			mShadow[j].clear();
-		
-			U32 target_width = mShadow[j].getWidth();
+            LLRenderTarget* shadow_target = getShadowTarget(j);
 
-			{
-				static LLCullResult result[4];
+            if (shadow_target)
+            {
+			    shadow_target->bindTarget();
+			    shadow_target->getViewport(gGLViewport);
+			    shadow_target->clear();			
 
-				renderShadow(view[j], proj[j], shadow_cam, result[j], TRUE, TRUE, target_width);
-			}
+			    U32 target_width = shadow_target->getWidth();
 
-			mShadow[j].flush();
- 
+			    {
+				    static LLCullResult result[4];
+				    renderShadow(view[j], proj[j], shadow_cam, result[j], TRUE, TRUE, target_width);
+			    }
+
+			    shadow_target->flush();
+            }
+
 			if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
 			{
 				LLViewerCamera::updateFrustumPlanes(shadow_cam, FALSE, FALSE, TRUE);
@@ -11327,19 +11382,23 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 			stop_glerror();
 
-			mShadow[i+4].bindTarget();
-			mShadow[i+4].getViewport(gGLViewport);
-			mShadow[i+4].clear();
+            LLRenderTarget* shadow_target = getShadowTarget(i + 4);
 
-			U32 target_width = mShadow[i+4].getWidth();
+            if (shadow_target)
+            {
+			    shadow_target->bindTarget();
+			    shadow_target->getViewport(gGLViewport);
+			    shadow_target->clear();
+            
+                U32 target_width = shadow_target->getWidth();
 
-			static LLCullResult result[2];
+			    static LLCullResult result[2];
+			    LLViewerCamera::sCurCameraID = (LLViewerCamera::eCameraID)(LLViewerCamera::CAMERA_SHADOW0 + i + 4);
 
-			LLViewerCamera::sCurCameraID = (LLViewerCamera::eCameraID)(LLViewerCamera::CAMERA_SHADOW0 + i + 4);
+			    renderShadow(view[i+4], proj[i+4], shadow_cam, result[i], FALSE, FALSE, target_width);
 
-			renderShadow(view[i+4], proj[i+4], shadow_cam, result[i], FALSE, FALSE, target_width);
-
-			mShadow[i+4].flush();
+			    shadow_target->flush();
+            }
  		}
 	}
 	else
