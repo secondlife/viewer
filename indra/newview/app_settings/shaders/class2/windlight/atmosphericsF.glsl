@@ -47,12 +47,13 @@ vec3 scaleSoftClipFrag(vec3 light);
 
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten)
 {
-    if (no_atmo == 0)
+    if (no_atmo == 1)
     {
-	   light *= atten.r;
-	   light += additive;
+        return light;
     }
-	return (2.0 * light);
+	light *= atten.r;
+	light += additive;
+	return light;
 }
 
 vec3 atmosLighting(vec3 light)

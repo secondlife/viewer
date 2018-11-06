@@ -83,13 +83,13 @@ vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 fullbrightScaleSoftClipFrag(vec3 l);
 vec3 scaleSoftClipFrag(vec3 l);
 
-vec3 atmosTransportFrag(vec3 light, vec3 additive, vec3 atten) {
-    if (no_atmo == 0)
+vec3 atmosTransportFrag(vec3 light, vec3 additive, vec3 atten)
+{
+    if (no_atmo == 1)
     {
-	    light *= atten.r;
-	    light += additive * 2.0;
+        return light;
     }
-	return light;
+	return (light + additive) * atten.r * 2.0;
 }
 
 vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten) {

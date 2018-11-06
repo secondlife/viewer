@@ -49,8 +49,3 @@ vec3 atmosGetDiffuseSunlightColor()
 	return getSunlitColor();
 }
 
-vec3 scaleDownLight(vec3 light)
-{
-	return (light / scene_light_strength );
-}
-

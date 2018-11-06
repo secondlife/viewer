@@ -94,13 +94,6 @@ vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten);
 vec3 atmosFragAffectDirectionalLight(float light, vec3 sunlit);
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
 
-vec3 calcDirectionalLight(vec3 n, vec3 l)
-{
-	float a = max(dot(n,l),0.0);
-	a = pow(a, 1.0/1.3);
-	return vec3(a,a,a);
-}
-
 vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight)
 {
 	//get light vector

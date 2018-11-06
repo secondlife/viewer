@@ -32,14 +32,13 @@ vec3 getAtmosAttenuation();
 
 uniform int no_atmo;
 
-vec3 atmosTransportFrag(vec3 light, vec3 additive, vec3 atten) {
+vec3 atmosTransportFrag(vec3 light, vec3 additive, vec3 atten)
+{
     if (no_atmo == 1)
 	{
         return light;
     }
-	light *= atten.r;
-	light += additive * 2.0;
-	return light;
+	return (light + additive) * atten * 2.0;
 }
 
 vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten) {

@@ -30,7 +30,6 @@ float calcDirectionalLight(vec3 n, vec3 l);
 
 vec3 atmosAmbient(vec3 light);
 vec3 atmosAffectDirectionalLight(float lightIntensity);
-vec3 scaleDownLight(vec3 light);
 
 vec4 sumLights(vec3 pos, vec3 norm, vec4 color, vec4 baseLight)
 {
@@ -38,7 +37,6 @@ vec4 sumLights(vec3 pos, vec3 norm, vec4 color, vec4 baseLight)
 	col.a = color.a;
 	
 	col.rgb = light_diffuse[1].rgb * calcDirectionalLight(norm, light_position[1].xyz);
-	col.rgb = scaleDownLight(col.rgb);
 	col.rgb += atmosAmbient(baseLight.rgb);
 	col.rgb += atmosAffectDirectionalLight(calcDirectionalLight(norm, light_position[0].xyz));
 	

@@ -110,13 +110,6 @@ uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
 
-vec3 calcDirectionalLight(vec3 n, vec3 l)
-{
-	float a = max(dot(n,l),0.0);
-	return vec3(a,a,a);
-}
-
-
 vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spec, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, inout float glare)
 {
 	//get light vector
