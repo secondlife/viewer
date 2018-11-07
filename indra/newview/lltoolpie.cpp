@@ -112,8 +112,22 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 	mMouseDownX = x;
 	mMouseDownY = y;
 
-	//left mouse down always picks transparent (but see handleMouseUp)
-	mPick = gViewerWindow->pickImmediate(x, y, TRUE, FALSE);
+
+	mPick = gViewerWindow->pickImmediate(x, y, FALSE, FALSE);
+	LLViewerObject *object = mPick.getObject();
+	LLViewerObject *parent = object ? object->getRootEdit() : NULL;
+	if (!object
+		|| object->isAttachment()
+		|| object->getClickAction() == CLICK_ACTION_DISABLED
+		|| (!useClickAction(mask, object, parent) && !object->flagHandleTouch() && !(parent && parent->flagHandleTouch())))
+	{
+		// Unless we are hovering over actionable visible object
+		// left mouse down always picks transparent (but see handleMouseUp).
+		// Also see LLToolPie::handleHover() - priorities are a bit different there.
+		// Todo: we need a more consistent set of rules to work with
+		mPick = gViewerWindow->pickImmediate(x, y, TRUE /*transparent*/, FALSE);
+	}
+
 	mPick.mKeyMask = mask;
 
 	mMouseButtonDown = true;
