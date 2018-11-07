@@ -1140,13 +1140,13 @@ bool LLAppViewer::init()
 	// viewer itself.
 	updater.autokill = false;
 #if LL_WINDOWS
-	updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "updater.exe");
+	updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "SLVersionChecker.exe");
 #elif LL_DARWIN
-	// explicitly run the system Python interpreter on updater.py
+	// explicitly run the system Python interpreter on SLVersionChecker.py
 	updater.executable = "python";
-	updater.args.add(gDirUtilp->add(gDirUtilp->getAppRODataDir(), "updater", "updater.py"));
+	updater.args.add(gDirUtilp->add(gDirUtilp->getAppRODataDir(), "updater", "SLVersionChecker.py"));
 #else
-	updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "updater");
+	updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "SLVersionChecker");
 #endif
 	// add LEAP mode command-line argument to whichever of these we selected
 	updater.args.add("leap");

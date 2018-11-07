@@ -497,9 +497,7 @@ class WindowsManifest(ViewerManifest):
 
             with self.prefix(src=os.path.join(pkgdir, "VMP")):
                 # include the compiled launcher scripts so that it gets included in the file_list
-                self.path('updater.exe')
-                #IUM is not normally executed directly, just imported.  No exe needed.
-                self.path("InstallerUserMessage.py")
+                self.path('SLVersionChecker.exe')
 
             with self.prefix(dst="vmp_icons"):
                 with self.prefix(src=self.icon_path()):
@@ -713,7 +711,7 @@ class WindowsManifest(ViewerManifest):
                 self.path("libvlccore.dll")
                 self.path("plugins/")
 
-        # pull in the crash logger and updater from other projects
+        # pull in the crash logger from other projects
         # tag:"crash-logger" here as a cue to the exporter
         self.path(src='../win_crash_logger/%s/windows-crash-logger.exe' % self.args['configuration'],
                   dst="win_crash_logger.exe")
@@ -783,7 +781,7 @@ class WindowsManifest(ViewerManifest):
         substitution_strings['installer_file'] = installer_file
         
         version_vars = """
-        !define INSTEXE "updater.exe"
+        !define INSTEXE "SLVersionChecker.exe"
         !define VERSION "%(version_short)s"
         !define VERSION_LONG "%(version)s"
         !define VERSION_DASHES "%(version_dashes)s"
@@ -828,7 +826,7 @@ class WindowsManifest(ViewerManifest):
         # Unlike the viewer binary, the VMP filenames are invariant with respect to version, os, etc.
         for exe in (
             self.final_exe(),
-            "updater.exe",
+            "SLVersionChecker.exe",
             ):
             self.sign(exe)
             
