@@ -3260,7 +3260,8 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 	menu->arrangeAndClear();
 
 	LLUI::getMousePositionLocal(menu->getParent(), &mouse_x, &mouse_y);
-	LLMenuHolderGL::sContextMenuSpawnPos.set(mouse_x,mouse_y);
+	F32 dev_scale_factor = LLView::getWindow()->getDeviceScaleFactor();
+	LLMenuHolderGL::sContextMenuSpawnPos.set(mouse_x/dev_scale_factor, mouse_y/dev_scale_factor);
 
 	const LLRect menu_region_rect = LLMenuGL::sMenuContainer->getRect();
 
