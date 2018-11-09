@@ -1,5 +1,5 @@
 /** 
- * @file class3/deferred/softenLightV.glsl
+ * @file softenLightF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -22,17 +22,21 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-ATTRIBUTE vec3 position;
-
-VARYING vec2 vary_fragcoord;
 
 uniform mat4 modelview_projection_matrix;
+
+ATTRIBUTE vec3 position;
+
 uniform vec2 screen_res;
+
+VARYING vec2 vary_fragcoord;
 
 void main()
 {
 	//transform vertex
 	vec4 pos = modelview_projection_matrix * vec4(position.xyz, 1.0);
 	gl_Position = pos; 
+	
+	
 	vary_fragcoord = (pos.xy*0.5+0.5)*screen_res;
 }

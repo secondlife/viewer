@@ -32,9 +32,11 @@ out vec4 frag_data[3];
 #endif
 
 uniform float minimum_alpha;
+
+
 uniform sampler2D diffuseMap;
-uniform sampler2D specularMap;
 uniform sampler2D normalMap;
+uniform sampler2D specularMap;
 
 VARYING vec2 vary_texcoord0;
 

@@ -23,10 +23,21 @@
  * $/LicenseInfo$
  */
  
+vec3 atmosFragAmbient(vec3 light, vec3 sunlit)
+{
+    /* stub function for fallback compatibility on class1 hardware */
+    return light;
+}
+
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten)
 {
-	/* stub function for fallback compatibility on class1 hardware */
-   return light;
+    /* stub function for fallback compatibility on class1 hardware */
+	return light;
+}
+
+vec3 atmosFragAffectDirectionalLight(float light, vec3 sunlit)
+{
+   return light * sunlit;
 }
 
 vec3 atmosLighting(vec3 light)

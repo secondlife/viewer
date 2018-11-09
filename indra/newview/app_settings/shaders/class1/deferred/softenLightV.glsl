@@ -30,7 +30,6 @@ ATTRIBUTE vec3 position;
 uniform vec2 screen_res;
 
 VARYING vec2 vary_fragcoord;
-
 void main()
 {
 	//transform vertex

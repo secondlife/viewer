@@ -73,7 +73,7 @@ void main()
 	vec3 norm;
 	
 	//transform vertex
-#if defined(HAS_SKIN)
+#ifdef HAS_SKIN
 	mat4 trans = getObjectSkinnedTransform();
 	trans = modelview_matrix * trans;
 	
@@ -83,7 +83,9 @@ void main()
 	norm = normalize((trans * vec4(norm, 1.0)).xyz - pos.xyz);
 	vec4 frag_pos = projection_matrix * pos;
 	gl_Position = frag_pos;
-#elif defined(IS_AVATAR_SKIN)
+#else
+
+#ifdef IS_AVATAR_SKIN
 	mat4 trans = getSkinnedTransform();
 	vec4 pos_in = vec4(position.xyz, 1.0);
 	pos.x = dot(trans[0], pos_in);
@@ -105,11 +107,14 @@ void main()
 	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 #endif
 	
+#endif
+
 #ifdef USE_INDEXED_TEX
 	passTextureIndex();
 #endif
 
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
+	
 	vary_norm = norm;
 	vary_position = pos.xyz;
 
@@ -117,14 +122,18 @@ void main()
 	vertex_color = diffuse_color;
 #endif
 	
-#if defined(HAS_SKIN)
+#ifdef HAS_SKIN
 	vary_fragcoord.xyz = frag_pos.xyz + vec3(0,0,near_clip);
-#elif defined(IS_AVATAR_SKIN)
+#else
+
+#ifdef IS_AVATAR_SKIN
 	vary_fragcoord.xyz = pos.xyz + vec3(0,0,near_clip);
 #else
 	pos = modelview_projection_matrix * vert;
 	vary_fragcoord.xyz = pos.xyz + vec3(0,0,near_clip);
 #endif
 	
+#endif
+
 }
 

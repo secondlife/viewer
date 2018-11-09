@@ -68,8 +68,19 @@ uniform float spot_shadow_bias;
 uniform float spot_shadow_offset;
 
 vec3 decode_normal (vec2 enc);
-vec4 getPosition(vec2 pos_screen);
-vec3 getNorm(vec2 pos_screen);
+
+vec4 getPosition(vec2 pos_screen)
+{
+	float depth = texture2DRect(depthMap, pos_screen.xy).r;
+	vec2 sc = pos_screen.xy*2.0;
+	sc /= screen_res;
+	sc -= vec2(1.0,1.0);
+	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
+	vec4 pos = inv_proj * ndc;
+	pos /= pos.w;
+	pos.w = 1.0;
+	return pos;
+}
 
 float pcfShadow(sampler2DShadow shadowMap, vec4 stc, float scl, vec2 pos_screen)
 {
@@ -113,8 +124,13 @@ float pcfSpotShadow(sampler2DShadow shadowMap, vec4 stc, float scl, vec2 pos_scr
 void main() 
 {
 	vec2 pos_screen = vary_fragcoord.xy;
+	
+	//try doing an unproject here
+	
 	vec4 pos = getPosition(pos_screen);
-	vec3 norm = getNorm(pos_screen);
+	
+	vec3 norm = texture2DRect(normalMap, pos_screen).xyz;
+	norm = decode_normal(norm.xy); // unpack norm
 		
 	/*if (pos.z == 0.0) // do nothing for sky *FIX: REMOVE THIS IF/WHEN THE POSITION MAP IS BEING USED AS A STENCIL
 	{

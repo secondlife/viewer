@@ -33,6 +33,7 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
+uniform sampler2DRect depthMap;
 uniform sampler2DRect normalMap;
 uniform sampler2DRect lightMap;
 
@@ -44,7 +45,22 @@ uniform float kern_scale;
 
 VARYING vec2 vary_fragcoord;
 
-vec4 getPosition(vec2 pos_screen);
+uniform mat4 inv_proj;
+uniform vec2 screen_res;
+
+vec4 getPosition(vec2 pos_screen)
+{
+	float depth = texture2DRect(depthMap, pos_screen.xy).r;
+	vec2 sc = pos_screen.xy*2.0;
+	sc /= screen_res;
+	sc -= vec2(1.0,1.0);
+	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
+	vec4 pos = inv_proj * ndc;
+	pos /= pos.w;
+	pos.w = 1.0;
+	return pos;
+}
+
 vec3 decode_normal (vec2 enc);
 
 void main() 
@@ -103,5 +119,11 @@ void main()
 	col.y *= col.y;
 	
 	frag_color = col;
+
+#ifdef IS_AMD_CARD
+	// If it's AMD make sure the GLSL compiler sees the arrays referenced once by static index. Otherwise it seems to optimise the storage awawy which leads to unfun crashes and artifacts.
+	vec3 dummy1 = kern[0];
+	vec3 dummy2 = kern[3];
+#endif
 }
 

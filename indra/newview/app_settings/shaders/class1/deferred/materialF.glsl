@@ -40,6 +40,7 @@ vec4 applyWaterFogView(vec3 pos, vec4 color);
 vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cl);
 
+vec3 atmosFragAmbient(vec3 l, vec3 ambient);
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 scaleSoftClipFrag(vec3 l);
 
@@ -175,6 +176,19 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 
 }
 
+vec4 getPosition_d(vec2 pos_screen, float depth)
+{
+	vec2 sc = pos_screen.xy*2.0;
+	sc /= screen_res;
+	sc -= vec2(1.0,1.0);
+	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
+	vec4 pos = inv_proj * ndc;
+	pos /= pos.w;
+	pos.w = 1.0;
+	return pos;
+}
+
+
 #else
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_data[3];
@@ -219,8 +233,6 @@ vec3 decode_normal (vec2 enc);
 
 void main() 
 {
-    vec2 pos_screen = vary_texcoord0.xy;
-
 	vec4 diffcol = texture2D(diffuseMap, vary_texcoord0.xy);
 	diffcol.rgb *= vertex_color.rgb;
 
@@ -378,7 +390,7 @@ void main()
 		  final_da = min(final_da, 1.0f);
 		  final_da = pow(final_da, 1.0/1.3);
 
-	col.rgb = (col * 0.5) + amblit;
+	col.rgb = atmosFragAmbient(col, amblit);
 	
 	float ambient = min(abs(da), 1.0);
 	ambient *= 0.5;
@@ -431,6 +443,9 @@ void main()
 		cur_glare *= envIntensity*4.0;
 		glare += cur_glare;
 	}
+
+	//col = mix(atmosLighting(col), fullbrightAtmosTransport(col), diffuse.a);
+	//col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col),  diffuse.a);
 
 	col = atmosFragLighting(col, additive, atten);
 	col = scaleSoftClipFrag(col);

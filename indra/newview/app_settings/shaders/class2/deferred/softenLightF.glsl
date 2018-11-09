@@ -83,12 +83,51 @@ vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 fullbrightScaleSoftClipFrag(vec3 l);
 vec3 scaleSoftClipFrag(vec3 l);
 
-vec3 atmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
-vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
-vec3 fullbrightShinyAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
+vec3 atmosTransportFrag(vec3 light, vec3 additive, vec3 atten)
+{
+    if (no_atmo == 1)
+    {
+        return light;
+    }
+	return (light + additive) * atten.r * 2.0;
+}
 
-vec4 getPositionWithDepth(vec2 pos_screen, float depth);
-vec4 getPosition(vec2 pos_screen);
+vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten) {
+    if (no_atmo == 1)
+    {
+        return light;
+    }
+	float brightness = dot(light.rgb, vec3(0.33333));
+	return mix(atmosTransportFrag(light.rgb, additive, atten), light.rgb + additive.rgb, brightness * brightness);
+}
+
+vec3 fullbrightShinyAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten) {
+    if (no_atmo == 1)
+    {
+        return light;
+    }
+	float brightness = dot(light.rgb, vec3(0.33333));
+	return mix(atmosTransportFrag(light.rgb, additive, atten), (light.rgb + additive.rgb) * (2.0 - brightness), brightness * brightness);
+}
+
+vec4 getPosition_d(vec2 pos_screen, float depth)
+{
+	vec2 sc = pos_screen.xy*2.0;
+	sc /= screen_res;
+	sc -= vec2(1.0,1.0);
+	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
+	vec4 pos = inv_proj * ndc;
+	pos /= pos.w;
+	pos.w = 1.0;
+	return pos;
+}
+
+vec4 getPosition(vec2 pos_screen)
+{ //get position in screen space (world units) given window coordinate and depth map
+	float depth = texture2DRect(depthMap, pos_screen.xy).r;
+	return getPosition_d(pos_screen, depth);
+}
+
 
 #ifdef WATER_FOG
 vec4 applyWaterFogView(vec3 pos, vec4 color);
@@ -98,7 +137,7 @@ void main()
 {
 	vec2 tc = vary_fragcoord.xy;
 	float depth = texture2DRect(depthMap, tc.xy).r;
-	vec4 pos = getPositionWithDepth(tc, depth);
+	vec3 pos = getPosition_d(tc, depth).xyz;
 	vec4 norm = texture2DRect(normalMap, tc);
 	float envIntensity = norm.z;
 	norm.xyz = decode_normal(norm.xy); // unpack norm

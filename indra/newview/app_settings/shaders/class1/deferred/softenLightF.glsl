@@ -69,17 +69,33 @@ vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cl);
 vec3 decode_normal (vec2 enc);
 
-vec3 scaleSoftClipFrag(vec3 l);
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
 
-vec4 getPositionWithDepth(vec2 pos_screen, float depth);
+vec4 getPosition_d(vec2 pos_screen, float depth)
+{
+	vec2 sc = pos_screen.xy*2.0;
+	sc /= screen_res;
+	sc -= vec2(1.0,1.0);
+	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
+	vec4 pos = inv_proj * ndc;
+	pos /= pos.w;
+	pos.w = 1.0;
+	return pos;
+}
+
+vec4 getPosition(vec2 pos_screen)
+{ //get position in screen space (world units) given window coordinate and depth map
+	float depth = texture2DRect(depthMap, pos_screen.xy).a;
+	return getPosition_d(pos_screen, depth);
+}
+
 
 void main() 
 {
 	vec2 tc = vary_fragcoord.xy;
 	float depth = texture2DRect(depthMap, tc.xy).r;
-	vec4 pos = getPositionWithDepth(tc, depth);
+	vec3 pos = getPosition_d(tc, depth).xyz;
 	vec4 norm = texture2DRect(normalMap, tc);
 	float envIntensity = norm.z;
 	norm.xyz = decode_normal(norm.xy); // unpack norm
@@ -140,25 +156,27 @@ void main()
 		if (envIntensity > 0.0)
 		{ //add environmentmap
 			vec3 env_vec = env_mat * refnormpersp;
+			
+			
 			vec3 refcol = textureCube(environmentMap, env_vec).rgb;
-			col = mix(col.rgb, refcol, envIntensity);  
+
+			col = mix(col.rgb, refcol, 
+				envIntensity);  
 		}
 				
 		if (norm.w < 0.5)
 		{
 			col = atmosFragLighting(col, additive, atten);
-			col = scaleSoftClipFrag(col);
 		}
 
 		#ifdef WATER_FOG
-			vec4 fogged = applyWaterFogView(pos.xyz,vec4(col, bloom));
+			vec4 fogged = applyWaterFogView(pos,vec4(col, bloom));
 			col = fogged.rgb;
 			bloom = fogged.a;
 		#endif
 
 		col = srgb_to_linear(col);
 
-		//col = vec3(1,0,1);
 		//col.g = envIntensity;
 	}
 
