@@ -38,30 +38,21 @@ uniform sampler2DRect specularRect;
 uniform sampler2DRect normalMap;
 uniform sampler2DRect lightMap;
 uniform sampler2DRect depthMap;
-uniform samplerCube environmentMap;
-uniform sampler2D	  lightFunc;
+uniform sampler2D     lightFunc;
 
 uniform float blur_size;
+uniform samplerCube environmentMap;
+
 uniform float blur_fidelity;
 
 // Inputs
 uniform vec4 morphFactor;
 uniform vec3 camPosLocal;
-//uniform vec4 camPosWorld;
 uniform vec4 gamma;
-uniform vec4 sunlight_color;
-uniform vec4 ambient;
-uniform vec4 blue_horizon;
-uniform vec4 blue_density;
-uniform float haze_horizon;
-uniform float haze_density;
 uniform float cloud_shadow;
-uniform float density_multiplier;
-uniform float distance_multiplier;
 uniform float max_y;
 uniform vec4 glow;
 uniform float global_gamma;
-uniform float scene_light_strength;
 uniform mat3 env_mat;
 uniform vec4 shadow_clip;
 uniform mat3 ssao_effect_mat;
@@ -74,28 +65,29 @@ uniform mat4 inv_modelview;
 
 uniform vec2 screen_res;
 
+uniform sampler2D transmittance_texture;
+uniform sampler3D scattering_texture;
+uniform sampler3D single_mie_scattering_texture;
+uniform sampler2D irradiance_texture;
+
+uniform sampler2D sh_input_r;
+uniform sampler2D sh_input_g;
+uniform sampler2D sh_input_b;
+
+vec3 GetSunAndSkyIrradiance(vec3 camPos, vec3 norm, vec3 dir, out vec3 sky_irradiance);
+vec3 GetSkyLuminance(vec3 camPos, vec3 view_dir, float shadow_length, vec3 dir, out vec3 transmittance);
+vec3 GetSkyLuminanceToPoint(vec3 camPos, vec3 pos, float shadow_length, vec3 dir, out vec3 transmittance);
+
+vec3 scaleSoftClipFrag(vec3 c);
+vec3 fullbrightScaleSoftClipFrag(vec3 c);
 vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cl);
 vec3 decode_normal (vec2 enc);
 
-vec4 getPosition_d(vec2 pos_screen, float depth)
-{
-	vec2 sc = pos_screen.xy*2.0;
-	sc /= screen_res;
-	sc -= vec2(1.0,1.0);
-	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
-	vec4 pos = inv_proj * ndc;
-	pos /= pos.w;
-	pos.w = 1.0;
-	return pos;
-}
-
-vec4 getPosition(vec2 pos_screen)
-{ //get position in screen space (world units) given window coordinate and depth map
-	float depth = texture2DRect(depthMap, pos_screen.xy).r;
-	return getPosition_d(pos_screen, depth);
-}
-
+vec3 ColorFromRadiance(vec3 radiance);
+vec4 getPositionWithDepth(vec2 pos_screen, float depth);
+vec4 getPosition(vec2 pos_screen);
+vec3 getNorm(vec2 pos_screen);
 
 #ifdef WATER_FOG
 vec4 applyWaterFogView(vec3 pos, vec4 color);
@@ -105,24 +97,22 @@ void main()
 {
 	vec2 tc = vary_fragcoord.xy;
 	float depth = texture2DRect(depthMap, tc.xy).r;
-	vec3 pos = getPosition_d(tc, depth).xyz;
+	vec3 pos = getPositionWithDepth(tc, depth).xyz;
 	vec4 norm = texture2DRect(normalMap, tc);
 	float envIntensity = norm.z;
-	norm.xyz = decode_normal(norm.xy); // unpack norm
-		
+    norm.xyz = decode_normal(norm.xy);
+
 	float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
 
 	float light_gamma = 1.0/1.3;
-	da = pow(da, light_gamma);
 
-	vec4 diffuse = texture2DRect(diffuseRect, tc);
+	vec4 diffuse = texture2DRect(diffuseRect, tc); // linear
 
-	//convert to gamma space
-	diffuse.rgb = linear_to_srgb(diffuse.rgb);
-	
 	vec3 col;
 	float bloom = 0.0;
 	{
+        vec3 camPos = (camPosLocal / 1000.0f) + vec3(0, 0, 6360.0f);
+
 		vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
 		
 		vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
@@ -132,17 +122,37 @@ void main()
 
 		float ambocc = scol_ambocc.g;
 
-		col *= diffuse.rgb;
-	
+        vec4 l1tap = vec4(1.0/sqrt(4*3.14159265), sqrt(3)/sqrt(4*3.14159265), sqrt(3)/sqrt(4*3.14159265), sqrt(3)/sqrt(4*3.14159265));
+        vec4 l1r = texture2D(sh_input_r, vec2(0,0));
+        vec4 l1g = texture2D(sh_input_g, vec2(0,0));
+        vec4 l1b = texture2D(sh_input_b, vec2(0,0));
+
+        vec3 indirect = vec3(dot(l1r, l1tap * vec4(1, norm.xyz)),
+                             dot(l1g, l1tap * vec4(1, norm.xyz)),
+                             dot(l1b, l1tap * vec4(1, norm.xyz)));
+
+        indirect = clamp(indirect, vec3(0), vec3(1.0));
+
+        vec3 transmittance;
+        vec3 sky_irradiance;
+        vec3 sun_irradiance = GetSunAndSkyIrradiance(camPos, norm.xyz, sun_dir, sky_irradiance);
+        vec3 inscatter = GetSkyLuminanceToPoint(camPos, (pos / 1000.f) + vec3(0, 0, 6360.0f), scol, sun_dir, transmittance);
+
+        vec3 radiance   = scol * (sun_irradiance + sky_irradiance) + inscatter;
+        vec3 atmo_color = ColorFromRadiance(radiance);
+
+        col = atmo_color + indirect;
+        col *= transmittance;
+        col *= diffuse.rgb;
+
 		vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
 		if (spec.a > 0.0) // specular reflection
 		{
 			// the old infinite-sky shiny reflection
 			//
-			
 			float sa = dot(refnormpersp, sun_dir.xyz);
-			vec3 dumbshiny = sunlit*(texture2D(lightFunc, vec2(sa, spec.a)).r);
+			vec3 dumbshiny = scol * texture2D(lightFunc, vec2(sa, spec.a)).r * atmo_color;
 			
 			// add the two types of shiny together
 			vec3 spec_contrib = dumbshiny * spec.rgb;
@@ -155,17 +165,24 @@ void main()
 		if (envIntensity > 0.0)
 		{ //add environmentmap
 			vec3 env_vec = env_mat * refnormpersp;
-			vec3 refcol = textureCube(environmentMap, env_vec).rgb;
-			col = mix(col.rgb, refcol, envintensity);
+            vec3 sun_direction  = (inv_modelview * vec4(sun_dir, 1.0)).xyz;
+            vec3 radiance_sun  = GetSkyLuminance(camPos, env_vec, 0.0f, sun_direction, transmittance);
+            vec3 refcol = ColorFromRadiance(radiance_sun);
+			col = mix(col.rgb, refcol, envIntensity);
 		}
 						
+		/*if (norm.w < 0.5)
+		{
+			col = scaleSoftClipFrag(col);
+		}*/
+
 		#ifdef WATER_FOG
 			vec4 fogged = applyWaterFogView(pos,vec4(col, bloom));
 			col = fogged.rgb;
 			bloom = fogged.a;
 		#endif
 
-		col = srgb_to_linear(col);
+        col = pow(col, vec3(light_gamma));
 	}
 	
 	frag_color.rgb = col;

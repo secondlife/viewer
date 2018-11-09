@@ -171,6 +171,8 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	// Attach Fragment Shader Features Next
 	///////////////////////////////////////
 
+// NOTE order of shader object attaching is VERY IMPORTANT!!!
+
 	if(features->calculatesAtmospherics)
 	{
 		if (features->hasWaterFog)
@@ -194,7 +196,22 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		}
 	}
 
-	// NOTE order of shader object attaching is VERY IMPORTANT!!!
+    if (features->isDeferred || features->hasShadows)
+	{
+		if (!shader->attachObject("deferred/deferredUtil.glsl"))
+		{
+			return FALSE;
+		}
+	}
+
+    if (features->hasIndirect)
+	{
+		if (!shader->attachObject("deferred/indirect.glsl"))
+		{
+			return FALSE;
+		}
+	}
+
 	if (features->hasGamma)
 	{
 		if (!shader->attachObject("windlight/gammaF.glsl"))

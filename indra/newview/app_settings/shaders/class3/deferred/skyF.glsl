@@ -1,5 +1,5 @@
 /** 
- * @file class3/skyF.glsl
+ * @file class3/deferred/skyF.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -44,6 +44,7 @@ uniform sampler3D single_mie_scattering_texture;
 uniform sampler2D irradiance_texture;
 uniform sampler2D rainbow_map;
 uniform sampler2D halo_map;
+uniform vec4 gamma;
 
 uniform float moisture_level;
 uniform float droplet_radius;
@@ -53,6 +54,7 @@ vec3 GetSolarLuminance();
 vec3 GetSkyLuminance(vec3 camPos, vec3 view_dir, float shadow_length, vec3 dir, out vec3 transmittance);
 vec3 GetSkyLuminanceToPoint(vec3 camPos, vec3 pos, float shadow_length, vec3 dir, out vec3 transmittance);
 
+vec3 ColorFromRadiance(vec3 radiance);
 vec3 rainbow(float d)
 {
    float rad = (droplet_radius - 5.0f) / 1024.0f;
@@ -93,18 +95,15 @@ void main()
     }
     s = smoothstep(0.9, 1.0, s) * 16.0f;
 
-    vec3 color = vec3(1.0) - exp(-radiance_sun * 0.0001);
+    vec3 color = ColorFromRadiance(radiance_sun);
 
     float optic_d = dot(view_direction, sun_direction);
-
     vec3 halo_22 = halo22(optic_d);
 
-    if (optic_d <= 0)
-    color.rgb += rainbow(optic_d);
-
+    color.rgb += rainbow(optic_d) * optic_d;
     color.rgb += halo_22;
 
-    color = pow(color, vec3(1.0 / 2.2));
+    color = pow(color, vec3(1.0/2.2));
 
     frag_data[0] = vec4(color, 1.0 + s);
     frag_data[1] = vec4(0.0);
