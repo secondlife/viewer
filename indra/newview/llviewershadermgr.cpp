@@ -483,6 +483,8 @@ void LLViewerShaderMgr::setShaders()
         S32 shadow_detail            = gSavedSettings.getS32("RenderShadowDetail");
         bool useRenderDeferred       = canRenderDeferred && gSavedSettings.getBOOL("RenderDeferred") && gSavedSettings.getBOOL("RenderAvatarVP");
         bool doingWindLight          = hasWindLightShaders && gSavedSettings.getBOOL("WindLightUseAtmosShaders");
+        bool useAdvancedAtmospherics = doingWindLight && gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics");
+        (void)useAdvancedAtmospherics;
 
 		//using shaders, disable fixed function
 		LLGLSLShader::sNoFixedFunction = true;
