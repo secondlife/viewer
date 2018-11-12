@@ -3325,6 +3325,7 @@ void LLPanelLandEnvironment::refreshFromSource()
 
         LLHandle<LLPanel> that_h = getHandle();
 
+        mCurEnvVersion = INVALID_PARCEL_ENVIRONMENT_VERSION;
         LLEnvironment::instance().requestParcel(parcel->getLocalID(),
             [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) 
             {  
