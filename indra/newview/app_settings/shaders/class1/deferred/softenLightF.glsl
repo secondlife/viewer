@@ -70,7 +70,11 @@ vec3 linear_to_srgb(vec3 cl);
 vec3 decode_normal (vec2 enc);
 
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
+vec3 fullbrightAtmosTransportFrag(vec3 l, vec3 additive, vec3 atten);
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
+
+vec3 scaleSoftClip(vec3 l);
+vec3 fullbrightScaleSoftClip(vec3 l);
 
 vec4 getPosition_d(vec2 pos_screen, float depth)
 {
@@ -129,8 +133,8 @@ void main()
 		ambient = (1.0 - ambient);
 
 		col = amblit;
-		col += (final_da * sunlit);
         col *= ambient;
+		col += (final_da * sunlit);        
 		col *= diffuse.rgb;
 	
 		vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
@@ -141,7 +145,6 @@ void main()
 			//
 			
 			float sa = dot(refnormpersp, sun_dir.xyz);
-
 			vec3 dumbshiny = sunlit*(texture2D(lightFunc, vec2(sa, spec.a)).r);
 			
 			// add the two types of shiny together
@@ -166,17 +169,19 @@ void main()
 				
 		if (norm.w < 0.5)
 		{
-			col = atmosFragLighting(col, additive, atten);
+			col = mix(atmosFragLighting(col, additive, atten), fullbrightAtmosTransportFrag(col, additive, atten), diffuse.a);
+			col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);
 		}
 
 		#ifdef WATER_FOG
-			vec4 fogged = applyWaterFogView(pos,vec4(col, bloom));
+			vec4 fogged = applyWaterFogView(pos.xyz,vec4(col, bloom));
 			col = fogged.rgb;
 			bloom = fogged.a;
 		#endif
 
 		col = srgb_to_linear(col);
 
+		//col = vec3(1,0,1);
 		//col.g = envIntensity;
 	}
 

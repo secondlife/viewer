@@ -39,7 +39,7 @@ vec3 scaleSoftClip(vec3 light)
 	return light;
 }
 
-vec3 fullbrightScaleSoftClipFrag(vec3 light)
+vec3 fullbrightScaleSoftClipFrag(vec3 light, vec3 additive, vec3 atten)
 {
 	// For compatibility with lower cards. Do nothing
 	return light;

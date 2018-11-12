@@ -29,6 +29,7 @@ float calcDirectionalLightSpecular(inout vec4 specular, vec3 view, vec3 n, vec3 
 vec3 atmosAmbient(vec3 light);
 vec3 atmosAffectDirectionalLight(float lightIntensity);
 vec3 atmosGetDiffuseSunlightColor();
+vec3 scaleDownLight(vec3 light);
 
 uniform vec4 light_position[8];
 uniform vec3 light_diffuse[8];
@@ -43,6 +44,7 @@ vec4 sumLightsSpecular(vec3 pos, vec3 norm, vec4 color, inout vec4 specularColor
 	vec4 specularSum = vec4(0.0);
 
 	col.rgb += light_diffuse[1].rgb * calcDirectionalLightSpecular(specularColor, view, norm, light_position[1].xyz,light_diffuse[1].rgb, 1.0);
+	col.rgb = scaleDownLight(col.rgb);
 	col.rgb += atmosAmbient(baseCol.rgb);
 	col.rgb += atmosAffectDirectionalLight(calcDirectionalLightSpecular(specularSum, view, norm, light_position[0].xyz,atmosGetDiffuseSunlightColor()*baseCol.a, 1.0));
 

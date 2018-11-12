@@ -49,6 +49,7 @@ uniform vec4 morphFactor;
 uniform vec3 camPosLocal;
 //uniform vec4 camPosWorld;
 uniform vec4 gamma;
+uniform vec4 lightnorm;
 uniform vec4 sunlight_color;
 uniform vec4 ambient;
 uniform vec4 blue_horizon;
@@ -83,32 +84,9 @@ vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 fullbrightScaleSoftClipFrag(vec3 l);
 vec3 scaleSoftClipFrag(vec3 l);
 
-vec3 atmosTransportFrag(vec3 light, vec3 additive, vec3 atten)
-{
-    if (no_atmo == 1)
-    {
-        return light;
-    }
-	return (light + additive) * atten.r * 2.0;
-}
-
-vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten) {
-    if (no_atmo == 1)
-    {
-        return light;
-    }
-	float brightness = dot(light.rgb, vec3(0.33333));
-	return mix(atmosTransportFrag(light.rgb, additive, atten), light.rgb + additive.rgb, brightness * brightness);
-}
-
-vec3 fullbrightShinyAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten) {
-    if (no_atmo == 1)
-    {
-        return light;
-    }
-	float brightness = dot(light.rgb, vec3(0.33333));
-	return mix(atmosTransportFrag(light.rgb, additive, atten), (light.rgb + additive.rgb) * (2.0 - brightness), brightness * brightness);
-}
+vec3 atmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
+vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
+vec3 fullbrightShinyAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
 
 vec4 getPosition_d(vec2 pos_screen, float depth)
 {
@@ -175,7 +153,7 @@ void main()
 		ambient *= ambient;
 		ambient = (1.0-ambient);
 
-		col.rgb = ambient * amblit;
+		col.rgb = ambient * ((col * 0.5) + amblit);
 
 		col += sunlit * max(min(da, scol), 0.0);
 	
