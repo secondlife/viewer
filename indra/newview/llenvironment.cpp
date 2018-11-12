@@ -973,7 +973,7 @@ void LLEnvironment::updateShaderUniforms(LLGLSLShader *shader)
     }    
 }
 
-void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envinfo)
+void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envinfo, LLSettingsBase::Seconds transition)
 {
     if (envinfo->mParcelId == INVALID_PARCEL_ID)
     {
@@ -1027,8 +1027,8 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
             setEnvironment(ENV_PARCEL, envinfo->mDayCycle, envinfo->mDayLength, envinfo->mDayOffset);
         }
     }
-    
-    updateEnvironment();
+
+    updateEnvironment(transition);
 }
 
 //=========================================================================
@@ -1078,9 +1078,10 @@ void LLEnvironment::requestParcel(S32 parcel_id, environment_apply_fn cb)
         {
             if (!cb)
             {
-                cb = [this](S32 pid, EnvironmentInfo::ptr_t envinfo)
+                LLSettingsBase::Seconds transition = LLViewerParcelMgr::getInstance()->getTeleportInProgress() ? TRANSITION_FAST : TRANSITION_DEFAULT;
+                cb = [this, transition](S32 pid, EnvironmentInfo::ptr_t envinfo)
                 {
-                    recordEnvironment(pid, envinfo);
+                    recordEnvironment(pid, envinfo, transition);
                 };
             }
 
@@ -1093,7 +1094,8 @@ void LLEnvironment::requestParcel(S32 parcel_id, environment_apply_fn cb)
 
     if (!cb)
     {
-        cb = [this](S32 pid, EnvironmentInfo::ptr_t envinfo) { recordEnvironment(pid, envinfo); };
+        LLSettingsBase::Seconds transition = LLViewerParcelMgr::getInstance()->getTeleportInProgress() ? TRANSITION_FAST : TRANSITION_DEFAULT;
+        cb = [this, transition](S32 pid, EnvironmentInfo::ptr_t envinfo) { recordEnvironment(pid, envinfo, transition); };
     }
 
     std::string coroname =

@@ -360,7 +360,7 @@ private:
     void                        coroUpdateEnvironment(S32 parcel_id, S32 track_no, UpdateInfo::ptr_t updates, environment_apply_fn apply);
     void                        coroResetEnvironment(S32 parcel_id, S32 track_no, environment_apply_fn apply);
 
-    void                        recordEnvironment(S32 parcel_id, EnvironmentInfo::ptr_t environment);
+    void                        recordEnvironment(S32 parcel_id, EnvironmentInfo::ptr_t environment, LLSettingsBase::Seconds transition);
 
     void                        onAgentPositionHasChanged(const LLVector3 &localpos);
 
