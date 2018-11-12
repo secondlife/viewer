@@ -160,7 +160,7 @@ protected:
     };
     typedef std::map<std::string, AltitudeData>      altitudes_data_t;
     altitudes_data_t                        mAltitudes;
-
+    S32                                     mCurEnvVersion;
 
 
 private:
