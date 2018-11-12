@@ -268,10 +268,32 @@ LLOSInfo::LLOSInfo() :
 		}
 	}
 
+	S32 ubr = 0; // Windows 10 Update Build Revision, can be retrieved from a registry
+	if (mMajorVer == 10)
+	{
+		DWORD cbData(sizeof(DWORD));
+		DWORD data(0);
+		HKEY key;
+		BOOL ret_code = RegOpenKeyExW(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"), 0, KEY_READ, &key);
+		if (ERROR_SUCCESS == ret_code)
+		{
+			ret_code = RegQueryValueExW(key, L"UBR", 0, NULL, reinterpret_cast<LPBYTE>(&data), &cbData);
+			if (ERROR_SUCCESS == ret_code)
+			{
+				ubr = data;
+			}
+		}
+	}
+
 	mOSString = mOSStringSimple;
 	if (mBuild > 0)
 	{
-		mOSString += llformat("(Build %d)", mBuild);
+		mOSString += llformat("(Build %d", mBuild);
+		if (ubr > 0)
+		{
+			mOSString += llformat(".%d", ubr);
+		}
+		mOSString += ")";
 	}
 
 	LLStringUtil::trim(mOSStringSimple);
