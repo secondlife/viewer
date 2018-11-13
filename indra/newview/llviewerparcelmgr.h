@@ -287,6 +287,7 @@ public:
 	boost::signals2::connection setTeleportFailedCallback(teleport_failed_callback_t cb);
 	void onTeleportFinished(bool local, const LLVector3d& new_pos);
 	void onTeleportFailed();
+	bool getTeleportInProgress();
 
 	static BOOL isParcelOwnedByAgent(const LLParcel* parcelp, U64 group_proxy_power);
 	static BOOL isParcelModifiableByAgent(const LLParcel* parcelp, U64 group_proxy_power);
