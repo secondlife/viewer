@@ -864,7 +864,7 @@ BOOL LLGLSLShader::link(BOOL suppress_errors)
 {
     BOOL success = LLShaderMgr::instance()->linkProgramObject(mProgramObject, suppress_errors);
 
-    if (!suppress_errors)
+    if (!success && !suppress_errors)
     {
         LLShaderMgr::instance()->dumpObjectLog(mProgramObject, !success, mName);
     }

@@ -52,13 +52,13 @@ vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten)
         return light;
     }
 	light *= atten.r;
-	light += additive;
+	light += additive * 2.0;
 	return light;
 }
 
 vec3 atmosLighting(vec3 light)
 {
-    return (no_atmo == 1) ? light : atmosFragLighting(light, getAdditiveColor(), getAtmosAttenuation());
+    return atmosFragLighting(light, getAdditiveColor(), getAtmosAttenuation());
 }
 
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten) {

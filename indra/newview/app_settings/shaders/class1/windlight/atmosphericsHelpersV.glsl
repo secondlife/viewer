@@ -41,3 +41,15 @@ vec3 atmosGetDiffuseSunlightColor()
 	return sunlight_color.rgb;
 }
 
+vec3 scaleDownLight(vec3 light)
+{
+	/* stub function for fallback compatibility on class1 hardware */
+	return light;
+}
+
+vec3 scaleUpLight(vec3 light)
+{
+	/* stub function for fallback compatibility on class1 hardware */
+	return light;
+}
+

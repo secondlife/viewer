@@ -38,7 +38,9 @@ vec3 atmosTransportFrag(vec3 light, vec3 additive, vec3 atten)
     {
 	    return light;
     }
-    return (light + additive) * atten * 2.0;
+    light *= atten.r;
+	light += additive * 2.0;
+	return light;
 }
 
 vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten)

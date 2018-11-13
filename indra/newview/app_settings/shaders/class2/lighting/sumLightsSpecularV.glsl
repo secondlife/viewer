@@ -31,6 +31,7 @@ vec3 calcPointLightSpecular(inout vec4 specular, vec3 view, vec3 v, vec3 n, vec3
 vec3 atmosAmbient(vec3 light);
 vec3 atmosAffectDirectionalLight(float lightIntensity);
 vec3 atmosGetDiffuseSunlightColor();
+vec3 scaleDownLight(vec3 light);
 
 uniform vec4 light_position[8];
 uniform vec3 light_attenuation[8]; 
@@ -49,6 +50,7 @@ vec4 sumLightsSpecular(vec3 pos, vec3 norm, vec4 color, inout vec4 specularColor
 	col.rgb += light_diffuse[1].rgb * calcDirectionalLightSpecular(specularColor, view, norm, light_position[1].xyz,light_diffuse[1].rgb, 1.0);
 	col.rgb += calcPointLightSpecular(specularSum, view, pos, norm, light_position[2].xyz, light_attenuation[2].x, light_attenuation[2].y, light_diffuse[2].rgb); 
 	col.rgb += calcPointLightSpecular(specularSum, view, pos, norm, light_position[3].xyz, light_attenuation[3].x, light_attenuation[3].y, light_diffuse[3].rgb); 
+	col.rgb = scaleDownLight(col.rgb);
 						
 	// Add windlight lights
 	col.rgb += atmosAmbient(baseCol.rgb);

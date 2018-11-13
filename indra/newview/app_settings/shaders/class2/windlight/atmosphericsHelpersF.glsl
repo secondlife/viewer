@@ -37,3 +37,8 @@ vec3 atmosFragAffectDirectionalLight(float lightIntensity, vec3 sunlit)
 	return sunlit * lightIntensity;
 }
 
+vec3 scaleDownLightFrag(vec3 light)
+{
+	return (light / scene_light_strength );
+}
+

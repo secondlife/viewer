@@ -36,10 +36,10 @@ vec3 scaleSoftClipFrag(vec3 light)
     {
         return light;
     }
-	//soft clip effect:
-	light = 1. - clamp(light, vec3(0.), vec3(1.));
-	light = 1. - pow(light, gamma.xxx);
-	return light;
+    //soft clip effect:
+    light = 1. - clamp(light, vec3(0.), vec3(1.));
+    light = 1. - pow(light, gamma.xxx);
+    return light;
 }
 
 vec3 scaleSoftClip(vec3 light)
@@ -47,13 +47,12 @@ vec3 scaleSoftClip(vec3 light)
     return scaleSoftClipFrag(light);
 }
 
-vec3 fullbrightScaleSoftClipFrag(vec3 light)
-{
-	return scaleSoftClipFrag(light.rgb);
+vec3 fullbrightScaleSoftClipFrag(vec3 light) {
+    return mix(scaleSoftClip(light.rgb), light.rgb, getAtmosAttenuation()); 
 }
 
 vec3 fullbrightScaleSoftClip(vec3 light)
 {
-	return fullbrightScaleSoftClipFrag(light.rgb);
+    return fullbrightScaleSoftClipFrag(light);
 }
 

@@ -1973,6 +1973,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredSoftenProgram.mFeatures.calculatesAtmospherics = true;
         gDeferredSoftenProgram.mFeatures.hasAtmospherics = true;
         gDeferredSoftenProgram.mFeatures.hasGamma = true;
+        gDeferredSoftenProgram.mFeatures.hasTransport = true;
 
 		gDeferredSoftenProgram.mShaderFiles.push_back(make_pair("deferred/softenLightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredSoftenProgram.mShaderFiles.push_back(make_pair("deferred/softenLightF.glsl", GL_FRAGMENT_SHADER_ARB));
@@ -2004,6 +2005,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredSoftenWaterProgram.mFeatures.calculatesAtmospherics = true;
         gDeferredSoftenWaterProgram.mFeatures.hasAtmospherics = true;
         gDeferredSoftenWaterProgram.mFeatures.hasGamma = true;
+        gDeferredSoftenWaterProgram.mFeatures.hasTransport = true;
 
 		if (gSavedSettings.getBOOL("RenderDeferredSSAO"))
 		{ //if using SSAO, take screen space light map into account as if shadows are enabled
