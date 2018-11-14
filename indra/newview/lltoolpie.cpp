@@ -111,7 +111,7 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
     mMouseOutsideSlop = FALSE;
 	mMouseDownX = x;
 	mMouseDownY = y;
-	LLTimer pick_timer;.
+	LLTimer pick_timer;
 	BOOL pick_rigged = false; //gSavedSettings.getBOOL("AnimatedObjectsAllowLeftClick");
 	mPick = gViewerWindow->pickImmediate(x, y, FALSE, pick_rigged);
 	LLViewerObject *object = mPick.getObject();
