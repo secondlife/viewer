@@ -236,6 +236,14 @@
 					<boolean>false</boolean>
 				</map>
 
+				<key>ObjectAnimation</key>
+				<map>
+					<key>flavor</key>
+					<string>template</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
+
 				<key>AvatarAppearance</key>
 				<map>
 					<key>flavor</key>

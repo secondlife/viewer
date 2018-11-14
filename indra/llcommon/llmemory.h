@@ -60,6 +60,12 @@ class LLMutex ;
 LL_COMMON_API void ll_assert_aligned_func(uintptr_t ptr,U32 alignment);
 
 #ifdef SHOW_ASSERT
+// This is incredibly expensive - in profiling Windows RWD builds, 30%
+// of CPU time was in aligment checks.
+//#define ASSERT_ALIGNMENT
+#endif
+
+#ifdef ASSERT_ALIGNMENT
 #define ll_assert_aligned(ptr,alignment) ll_assert_aligned_func(uintptr_t(ptr),((U32)alignment))
 #else
 #define ll_assert_aligned(ptr,alignment)

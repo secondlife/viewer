@@ -646,6 +646,11 @@ bool LLAppViewerWin32::initParseCommandLine(LLCommandLineParser& clp)
 	return true;
 }
 
+bool LLAppViewerWin32::beingDebugged()
+{
+    return IsDebuggerPresent();
+}
+
 bool LLAppViewerWin32::restoreErrorTrap()
 {	
 	return true;

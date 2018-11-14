@@ -78,3 +78,10 @@ struct LLContextStatus
 };
 
 LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLContextStatus& context_status);
+
+#define dumpStack(tag) \
+    if (debugLoggingEnabled(tag)) \
+    { \
+        LLCallStack cs; \
+        LL_DEBUGS(tag) << "STACK:\n" << "====================\n" << cs << "====================" << LL_ENDL; \
+    }

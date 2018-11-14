@@ -70,6 +70,16 @@ private:
 	map_type m_map;
 };
 
+inline bool operator==(const LLVector3OverrideMap& a, const LLVector3OverrideMap& b)
+{
+    return a.getMap() == b.getMap();
+}
+
+inline bool operator!=(const LLVector3OverrideMap& a, const LLVector3OverrideMap& b)
+{
+    return !(a == b);
+}
+
 //-----------------------------------------------------------------------------
 // class LLJoint
 //-----------------------------------------------------------------------------

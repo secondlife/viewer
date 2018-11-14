@@ -2182,6 +2182,94 @@
       <key>Value</key>
       <string />
     </map>
+  <key>DebugAnimatedObjects</key>
+  <map>
+    <key>Comment</key>
+    <string>Show info related to animated objects</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>DebugObjectLODs</key>
+  <map>
+    <key>Comment</key>
+    <string>Show info related to lod calculations for attached or animated objects</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>AnimatedObjectsIgnoreLimits</key>
+  <map>
+    <key>Comment</key>
+    <string>Ignore server-enforced limits on animated objects. This is only useful for server testing.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>AnimatedObjectsAllowLeftClick</key>
+  <map>
+    <key>Comment</key>
+    <string>Allow left-click interaction with animated objects. Uncertain how much performance impact this will have.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>AnimatedObjectsGlobalScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Temporary testing: allow an extra scale factor to be forced on animated objects.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.00</real>
+  </map>
+  <key>AnimatedObjectsMaxLegalOffset</key>
+  <map>
+    <key>Comment</key>
+    <string>Max visual offset between object position and rendered position</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>3.0</real>
+  </map>
+  <key>AnimatedObjectsMaxLegalSize</key>
+  <map>
+    <key>Comment</key>
+    <string>Max bounding box size for animated object's rendered position</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>64.0</real>
+  </map>
+  <key>AvatarBoundingBoxComplexity</key>
+  <map>
+    <key>Comment</key>
+    <string>How many aspects to consider for avatar bounding box</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>3</integer>
+  </map>
   <key>DebugAvatarAppearanceMessage</key>
   <map>
     <key>Comment</key>

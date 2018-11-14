@@ -49,6 +49,7 @@ protected:
 	virtual bool initHardwareTest(); // Win32 uses DX9 to test hardware.
 	virtual bool initParseCommandLine(LLCommandLineParser& clp);
 
+	virtual bool beingDebugged();
 	virtual bool restoreErrorTrap();
 	virtual void initCrashReporting(bool reportFreeze); 
 

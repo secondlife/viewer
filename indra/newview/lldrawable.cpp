@@ -32,6 +32,7 @@
 #include "material_codes.h"
 
 // viewer includes
+#include "llagent.h"
 #include "llcriticaldamp.h"
 #include "llface.h"
 #include "lllightconstants.h"
@@ -50,6 +51,7 @@
 #include "llviewerobjectlist.h"
 #include "llviewerwindow.h"
 #include "llvocache.h"
+#include "llcontrolavatar.h"
 #include "lldrawpoolavatar.h"
 
 const F32 MIN_INTERPOLATE_DISTANCE_SQUARED = 0.001f * 0.001f;
@@ -573,7 +575,8 @@ void LLDrawable::makeStatic(BOOL warning_enabled)
 	if (isState(ACTIVE) && 
 		!isState(ACTIVE_CHILD) && 
 		!mVObjp->isAttachment() && 
-		!mVObjp->isFlexible())
+		!mVObjp->isFlexible() &&
+        !mVObjp->isAnimatedObject())
 	{
 		clearState(ACTIVE | ANIMATED_CHILD);
 
@@ -726,6 +729,10 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	mXform.setRotation(target_rot);
 	mXform.setScale(LLVector3(1,1,1)); //no scale in drawable transforms (IT'S A RULE!)
 	mXform.updateMatrix();
+    if (isRoot() && mVObjp->isAnimatedObject() && mVObjp->getControlAvatar())
+    {
+        mVObjp->getControlAvatar()->matchVolumeTransform();
+    }
 
 	if (mSpatialBridge)
 	{
@@ -897,6 +904,30 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 					}
 				}
 			}	
+
+
+            // MAINT-7926 Handle volumes in an animated object as a special case
+            // SL-937: add dynamic box handling for rigged mesh on regular avatars.
+            //if (volume->getAvatar() && volume->getAvatar()->isControlAvatar())
+            if (volume->getAvatar())
+            {
+                const LLVector3* av_box = volume->getAvatar()->getLastAnimExtents();
+                LLVector3d cam_pos = gAgent.getPosGlobalFromAgent(LLViewerCamera::getInstance()->getOrigin());
+                LLVector3 cam_region_pos = LLVector3(cam_pos - volume->getRegion()->getOriginGlobal());
+                
+                LLVector3 cam_to_box_offset = point_to_box_offset(cam_region_pos, av_box);
+                mDistanceWRTCamera = llmax(0.01f, ll_round(cam_to_box_offset.magVec(), 0.01f));
+                LL_DEBUGS("DynamicBox") << volume->getAvatar()->getFullname() 
+                                        << " pos (ignored) " << pos
+                                        << " cam pos " << cam_pos
+                                        << " cam region pos " << cam_region_pos
+                                        << " box " << av_box[0] << "," << av_box[1] 
+                                        << " -> dist " << mDistanceWRTCamera
+                                        << LL_ENDL;
+                mVObjp->updateLOD();
+                return;
+            }
+            
 		}
 		else
 		{
@@ -1113,7 +1144,8 @@ void LLDrawable::setGroup(LLViewerOctreeGroup *groupp)
 	llassert(!groupp || (LLSpatialGroup*)groupp->hasElement(this));
 
 	if (cur_groupp != groupp && getVOVolume())
-	{ //NULL out vertex buffer references for volumes on spatial group change to maintain
+	{
+		//NULL out vertex buffer references for volumes on spatial group change to maintain
 		//requirement that every face vertex buffer is either NULL or points to a vertex buffer
 		//contained by its drawable's spatial group
 		for (S32 i = 0; i < getNumFaces(); ++i)

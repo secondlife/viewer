@@ -46,6 +46,7 @@
 #include "llundo.h"
 #include "lluuid.h"
 #include "llvolume.h"
+#include "llcontrolavatar.h"
 #include "message.h"
 #include "object_flags.h"
 #include "llquaternion.h"
@@ -645,6 +646,10 @@ void LLSelectMgr::confirmUnlinkObjects(const LLSD& notification, const LLSD& res
 // otherwise. this allows the handle_link method to more finely check
 // the selection and give an error message when the uer has a
 // reasonable expectation for the link to work, but it will fail.
+//
+// For animated objects, there's additional check that if the
+// selection includes at least one animated object, the total mesh
+// triangle count cannot exceed the designated limit.
 bool LLSelectMgr::enableLinkObjects()
 {
 	bool new_value = false;
@@ -669,6 +674,10 @@ bool LLSelectMgr::enableLinkObjects()
 			new_value = LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func, firstonly);
 		}
 	}
+    if (!LLSelectMgr::getInstance()->getSelection()->checkAnimatedObjectLinkable())
+    {
+        new_value = false;
+    }
 	return new_value;
 }
 
@@ -6659,7 +6668,10 @@ S32 get_family_count(LLViewerObject *parent)
 
 //-----------------------------------------------------------------------------
 // updateSelectionCenter
-//-----------------------------------------------------------------------------
+//
+// FIXME this is a grab bag of functionality only some of which has to do
+// with the selection center
+// -----------------------------------------------------------------------------
 void LLSelectMgr::updateSelectionCenter()
 {
 	const F32 MOVE_SELECTION_THRESHOLD = 1.f;		//  Movement threshold in meters for updating selection
@@ -6677,22 +6689,11 @@ void LLSelectMgr::updateSelectionCenter()
 		mSelectionCenterGlobal.clearVec();
 		mShowSelection = FALSE;
 		mSelectionBBox = LLBBox(); 
-		mPauseRequest = NULL;
 		resetAgentHUDZoom();
-
 	}
 	else
 	{
 		mSelectedObjects->mSelectType = getSelectTypeForObject(object);
-
-		if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT && isAgentAvatarValid() && object->getParent() != NULL)
-		{
-			mPauseRequest = gAgentAvatarp->requestPause();
-		}
-		else
-		{
-			mPauseRequest = NULL;
-		}
 
 		if (mSelectedObjects->mSelectType != SELECT_TYPE_HUD && isAgentAvatarValid())
 		{
@@ -6770,6 +6771,59 @@ void LLSelectMgr::updateSelectionCenter()
 	{
 		gEditMenuHandler = NULL;
 	}
+
+    pauseAssociatedAvatars();
+}
+
+//-----------------------------------------------------------------------------
+// pauseAssociatedAvatars
+//
+// If the selection includes an attachment or an animated object, the
+// associated avatars should pause their animations until they are no
+// longer selected.
+//-----------------------------------------------------------------------------
+void LLSelectMgr::pauseAssociatedAvatars()
+{
+    mPauseRequests.clear();
+
+    for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
+         iter != mSelectedObjects->end(); iter++)
+    {
+        LLSelectNode* node = *iter;
+        LLViewerObject* object = node->getObject();
+        if (!object)
+            continue;
+			
+        mSelectedObjects->mSelectType = getSelectTypeForObject(object);
+
+        if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT && 
+            isAgentAvatarValid() && object->getParent() != NULL)
+        {
+            if (object->isAnimatedObject())
+            {
+                // Is an animated object attachment.
+                // Pause both the control avatar and the avatar it's attached to.
+                if (object->getControlAvatar())
+                {
+                    mPauseRequests.push_back(object->getControlAvatar()->requestPause());
+                }
+                mPauseRequests.push_back(gAgentAvatarp->requestPause());
+            }
+            else
+            {
+                // Is a regular attachment. Pause the avatar it's attached to.
+                mPauseRequests.push_back(gAgentAvatarp->requestPause());
+            }
+        }
+        else
+        {
+            if (object && object->isAnimatedObject() && object->getControlAvatar())
+            {
+                // Is a non-attached animated object. Pause the control avatar.
+                mPauseRequests.push_back(object->getControlAvatar()->requestPause());
+            }
+        }
+    }
 }
 
 void LLSelectMgr::updatePointAt()
@@ -7246,10 +7300,16 @@ F32 LLObjectSelection::getSelectedObjectStreamingCost(S32* total_bytes, S32* vis
 		
 		if (object)
 		{
-			S32 bytes = 0;
-			S32 visible = 0;
-			cost += object->getStreamingCost(&bytes, &visible);
+			cost += object->getStreamingCost();
 
+            S32 bytes = 0;
+            S32 visible = 0;
+            LLMeshCostData costs;
+            if (object->getCostData(costs))
+            {
+                bytes = costs.getSizeTotal();
+                visible = costs.getSizeByLOD(object->getLOD());
+            }
 			if (total_bytes)
 			{
 				*total_bytes += bytes;
@@ -7404,6 +7464,31 @@ bool LLObjectSelection::applyToObjects(LLSelectedObjectFunctor* func)
 		result = result && r;
 	}
 	return result;
+}
+
+bool LLObjectSelection::checkAnimatedObjectEstTris()
+{
+    F32 est_tris = 0;
+    F32 max_tris = 0;
+    S32 anim_count = 0;
+	for (root_iterator iter = root_begin(); iter != root_end(); ++iter)
+	{
+		LLViewerObject* object = (*iter)->getObject();
+		if (!object)
+			continue;
+        if (object->isAnimatedObject())
+        {
+            anim_count++;
+        }
+        est_tris += object->recursiveGetEstTrianglesMax();
+        max_tris = llmax((F32)max_tris,(F32)object->getAnimatedObjectMaxTris());
+	}
+	return anim_count==0 || est_tris <= max_tris;
+}
+
+bool LLObjectSelection::checkAnimatedObjectLinkable()
+{
+    return checkAnimatedObjectEstTris();
 }
 
 bool LLObjectSelection::applyToRootObjects(LLSelectedObjectFunctor* func, bool firstonly)

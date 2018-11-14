@@ -276,6 +276,7 @@ void LLModel::normalizeVolumeFaces()
 			// We shrink the extents so
 			// that they fall within
 			// the unit cube.
+			// VFExtents change
 			face.mExtents[0].add(trans);
 			face.mExtents[0].mul(scale);
 
@@ -398,40 +399,6 @@ void LLModel::setVolumeFaceData(
 
 	U32 size = (num_indices*2+0xF)&~0xF;
 	LLVector4a::memcpyNonAliased16((F32*) face.mIndices, (F32*) ind.get(), size);
-}
-
-void LLModel::appendFaces(LLModel *model, LLMatrix4 &transform, LLMatrix4& norm_mat)
-{
-	if (mVolumeFaces.empty())
-	{
-		setNumVolumeFaces(1);
-	}
-
-	LLVolumeFace& face = mVolumeFaces[mVolumeFaces.size()-1];
-
-
-	for (S32 i = 0; i < model->getNumFaces(); ++i)
-	{
-		face.appendFace(model->getVolumeFace(i), transform, norm_mat);
-	}
-
-}
-
-void LLModel::appendFace(const LLVolumeFace& src_face, std::string src_material, LLMatrix4& mat, LLMatrix4& norm_mat)
-{
-	S32 rindex = getNumVolumeFaces()-1; 
-	if (rindex == -1 || 
-		mVolumeFaces[rindex].mNumVertices + src_face.mNumVertices >= 65536)
-	{ //empty or overflow will occur, append new face
-		LLVolumeFace cur_face;
-		cur_face.appendFace(src_face, mat, norm_mat);
-		addFace(cur_face);
-		mMaterialList.push_back(src_material);
-	}
-	else
-	{ //append to existing end face
-		mVolumeFaces.rbegin()->appendFace(src_face, mat, norm_mat);
-	}
 }
 
 void LLModel::addFace(const LLVolumeFace& face)
@@ -1391,14 +1358,16 @@ bool LLModel::loadDecomposition(LLSD& header, std::istream& is)
 LLMeshSkinInfo::LLMeshSkinInfo():
     mPelvisOffset(0.0),
     mLockScaleIfJointPosition(false),
-    mInvalidJointsScrubbed(false)
+    mInvalidJointsScrubbed(false),
+    mJointNumsInitialized(false)
 {
 }
 
 LLMeshSkinInfo::LLMeshSkinInfo(LLSD& skin):
     mPelvisOffset(0.0),
     mLockScaleIfJointPosition(false),
-    mInvalidJointsScrubbed(false)
+    mInvalidJointsScrubbed(false),
+    mJointNumsInitialized(false)
 {
 	fromLLSD(skin);
 }

@@ -1609,6 +1609,8 @@ BOOL LLNetworkData::isValid(U16 param_type, U32 size)
 		return (size == 17);
 	case PARAMS_LIGHT_IMAGE:
 		return (size == 28);
+    case PARAMS_EXTENDED_MESH:
+        return (size == 4);
 	}
 	
 	return FALSE;
@@ -2031,6 +2033,70 @@ bool LLLightImageParams::fromLLSD(LLSD& sd)
 	{
 		setLightTexture( sd["texture"] );
 		setParams( LLVector3( sd["params"] ) );
+		return true;
+	} 
+	
+	return false;
+}
+
+//============================================================================
+
+LLExtendedMeshParams::LLExtendedMeshParams()
+{
+    mType = PARAMS_EXTENDED_MESH;
+	mFlags = 0;
+}
+
+BOOL LLExtendedMeshParams::pack(LLDataPacker &dp) const
+{
+	dp.packU32(mFlags, "flags");
+
+	return TRUE;
+}
+
+BOOL LLExtendedMeshParams::unpack(LLDataPacker &dp)
+{
+	dp.unpackU32(mFlags, "flags");
+	
+	return TRUE;
+}
+
+bool LLExtendedMeshParams::operator==(const LLNetworkData& data) const
+{
+	if (data.mType != PARAMS_EXTENDED_MESH)
+	{
+		return false;
+	}
+	
+	const LLExtendedMeshParams *param = (const LLExtendedMeshParams*)&data;
+	if ( (param->mFlags != mFlags) )
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void LLExtendedMeshParams::copy(const LLNetworkData& data)
+{
+	const LLExtendedMeshParams *param = (LLExtendedMeshParams*)&data;
+	mFlags = param->mFlags;
+}
+
+LLSD LLExtendedMeshParams::asLLSD() const
+{
+	LLSD sd;
+	
+	sd["flags"] = LLSD::Integer(mFlags);
+		
+	return sd;
+}
+
+bool LLExtendedMeshParams::fromLLSD(LLSD& sd)
+{
+	if (sd.has("flags"))
+	{
+		setFlags( sd["flags"].asInteger());
 		return true;
 	} 
 	

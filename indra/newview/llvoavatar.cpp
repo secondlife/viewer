@@ -44,6 +44,7 @@
 #include "llavatarnamecache.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llavatarrendernotifier.h"
+#include "llcontrolavatar.h"
 #include "llexperiencecache.h"
 #include "llphysicsmotion.h"
 #include "llviewercontrol.h"
@@ -109,6 +110,8 @@
 #include "llcallstack.h"
 #include "llrendersphere.h"
 
+#include <boost/lexical_cast.hpp>
+
 extern F32 SPEED_ADJUST_MAX;
 extern F32 SPEED_ADJUST_MAX_SEC;
 extern F32 ANIM_SPEED_MAX;
@@ -142,7 +145,7 @@ const LLUUID ANIM_AGENT_PHYSICS_MOTION = LLUUID("7360e029-3cb8-ebc4-863e-212df44
 //-----------------------------------------------------------------------------
 // Constants
 //-----------------------------------------------------------------------------
-const F32 DELTA_TIME_MIN = 0.01f;	// we clamp measured deltaTime to this
+const F32 DELTA_TIME_MIN = 0.01f;	// we clamp measured delta_time to this
 const F32 DELTA_TIME_MAX = 0.2f;	// range to insure stability of computations.
 
 const F32 PELVIS_LAG_FLYING		= 0.22f;// pelvis follow half life while flying
@@ -617,6 +620,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	LLViewerObject(id, pcode, regionp),
 	mSpecialRenderMode(0),
 	mAttachmentSurfaceArea(0.f),
+	mAttachmentVisibleTriangleCount(0),
+	mAttachmentEstTriangleCount(0.f),
 	mReportedVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
 	mTurning(FALSE),
 	mLastSkeletonSerialNum( 0 ),
@@ -625,6 +630,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mTyping(FALSE),
 	mMeshValid(FALSE),
 	mVisible(FALSE),
+	mLastImpostorUpdateFrameTime(0.f),
 	mWindFreq(0.f),
 	mRipplePhase( 0.f ),
 	mBelowWater(FALSE),
@@ -663,7 +669,10 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mLastUpdateRequestCOFVersion(-1),
 	mLastUpdateReceivedCOFVersion(-1),
 	mCachedMuteListUpdateTime(0),
-	mCachedInMuteList(false)
+	mCachedInMuteList(false),
+    mIsControlAvatar(false),
+    mIsUIAvatar(false),
+    mEnableDefaultMotions(true)
 {
 	LL_DEBUGS("AvatarRender") << "LLVOAvatar Constructor (0x" << this << ") id:" << mID << LL_ENDL;
 
@@ -688,6 +697,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 
 	mNeedsImpostorUpdate = TRUE;
 	mNeedsAnimUpdate = TRUE;
+
+	mNeedsExtentUpdate = true;
 
 	mImpostorDistance = 0;
 	mImpostorPixelArea = 0;
@@ -718,6 +729,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 
 	mCurrentGesticulationLevel = 0;
 
+    
 	mRuthTimer.reset();
 	mRuthDebugTimer.reset();
 	mDebugExistenceTimer.reset();
@@ -733,8 +745,15 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 
 std::string LLVOAvatar::avString() const
 {
-	std::string viz_string = LLVOAvatar::rezStatusToString(getRezzedStatus());
-	return " Avatar '" + getFullname() + "' " + viz_string + " ";
+    if (isControlAvatar())
+    {
+        return getFullname();
+    }
+    else
+    {
+        std::string viz_string = LLVOAvatar::rezStatusToString(getRezzedStatus());
+        return " Avatar '" + getFullname() + "' " + viz_string + " ";
+    }
 }
 
 void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string comment)
@@ -1091,6 +1110,8 @@ void LLVOAvatar::initClass()
 
     // Where should this be set initially?
     LLJoint::setDebugJointNames(gSavedSettings.getString("DebugAvatarJoints"));
+
+	LLControlAvatar::sRegionChangedSlot = gAgent.addRegionChangedCallback(&LLControlAvatar::onRegionChanged);
 }
 
 
@@ -1099,7 +1120,7 @@ void LLVOAvatar::cleanupClass()
 }
 
 // virtual
-void LLVOAvatar::initInstance(void)
+void LLVOAvatar::initInstance()
 {
 	//-------------------------------------------------------------------------
 	// register motions
@@ -1170,6 +1191,8 @@ void LLVOAvatar::initInstance(void)
 	//VTPause();  // VTune
 	
 	mVoiceVisualizer->setVoiceEnabled( LLVoiceClient::getInstance()->getVoiceEnabled( mID ) );
+
+    mInitFlags |= 1<<1;
 }
 
 // virtual
@@ -1222,8 +1245,6 @@ const LLVector3 LLVOAvatar::getRenderPosition() const
 	{
 		return getPosition() * mDrawable->getParent()->getRenderMatrix();
 	}
-	
-	
 }
 
 void LLVOAvatar::updateDrawable(BOOL force_damped)
@@ -1240,6 +1261,29 @@ void LLVOAvatar::onShift(const LLVector4a& shift_vector)
 
 void LLVOAvatar::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 {
+    if (mDrawable.isNull())
+    {
+        return;
+    }
+
+    if (mNeedsExtentUpdate)
+    {
+        calculateSpatialExtents(newMin,newMax);
+        mLastAnimExtents[0].set(newMin.getF32ptr());
+        mLastAnimExtents[1].set(newMax.getF32ptr());
+		mLastAnimBasePos = mPelvisp->getWorldPosition();
+        mNeedsExtentUpdate = false;
+    }
+	else
+	{
+		LLVector3 new_base_pos = mPelvisp->getWorldPosition();
+		LLVector3 shift = new_base_pos-mLastAnimBasePos;
+		mLastAnimExtents[0] += shift;
+		mLastAnimExtents[1] += shift;
+		mLastAnimBasePos = new_base_pos;
+
+	}
+          
 	if (isImpostor() && !needsImpostorUpdate())
 	{
 		LLVector3 delta = getRenderPosition() -
@@ -1250,98 +1294,185 @@ void LLVOAvatar::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 	}
 	else
 	{
-		getSpatialExtents(newMin,newMax);
-		mLastAnimExtents[0].set(newMin.getF32ptr());
-		mLastAnimExtents[1].set(newMax.getF32ptr());
+        newMin.load3(mLastAnimExtents[0].mV);
+        newMax.load3(mLastAnimExtents[1].mV);
 		LLVector4a pos_group;
 		pos_group.setAdd(newMin,newMax);
 		pos_group.mul(0.5f);
 		mImpostorOffset = LLVector3(pos_group.getF32ptr())-getRenderPosition();
 		mDrawable->setPositionGroup(pos_group);
 	}
-	
-	
 }
 
-void LLVOAvatar::getSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
+
+static LLTrace::BlockTimerStatHandle FTM_AVATAR_EXTENT_UPDATE("Av Upd Extent");
+
+void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 {
-	LLVector4a buffer(0.25f);
+    LL_RECORD_BLOCK_TIME(FTM_AVATAR_EXTENT_UPDATE);
+
+    S32 box_detail = gSavedSettings.getS32("AvatarBoundingBoxComplexity");
+
+    // FIXME the update_min_max function used below assumes there is a
+    // known starting point, but in general there isn't. Ideally the
+    // box update logic should be modified to handle the no-point-yet
+    // case. For most models, starting with the pelvis is safe though.
+    LLVector3 zero_pos;
 	LLVector4a pos;
-	pos.load3(getRenderPosition().mV);
-	newMin.setSub(pos, buffer);
-	newMax.setAdd(pos, buffer);
+    if (dist_vec(zero_pos, mPelvisp->getWorldPosition())<0.001)
+    {
+        // Don't use pelvis until av initialized
+        pos.load3(getRenderPosition().mV);
+    }
+    else
+    {
+        pos.load3(mPelvisp->getWorldPosition().mV);
+    }
+	newMin = pos;
+	newMax = pos;
 
-	float max_attachment_span = get_default_max_prim_scale() * 5.0f;
+	//stretch bounding box by joint positions. Doing this for
+	//control avs, where the polymeshes aren't maintained or
+	//displayed, can give inaccurate boxes due to joints stuck at (0,0,0).
+    if ((box_detail>=1) && !isControlAvatar())
+    {
+        for (polymesh_map_t::iterator i = mPolyMeshes.begin(); i != mPolyMeshes.end(); ++i)
+        {
+            LLPolyMesh* mesh = i->second;
+            for (S32 joint_num = 0; joint_num < mesh->mJointRenderData.size(); joint_num++)
+            {
+                LLVector4a trans;
+                trans.load3( mesh->mJointRenderData[joint_num]->mWorldMatrix->getTranslation().mV);
+                update_min_max(newMin, newMax, trans);
+            }
+        }
+
+    }
+
+	// Pad bounding box for starting joint, plus polymesh if
+	// applicable. Subsequent calcs should be accurate enough to not
+	// need padding.
+	LLVector4a padding(0.25);
+	newMin.sub(padding);
+	newMax.add(padding);
+
+
+	//stretch bounding box by static attachments
+    if (box_detail >= 2)
+    {
+        float max_attachment_span = get_default_max_prim_scale() * 5.0f;
 	
-	//stretch bounding box by joint positions
-	for (polymesh_map_t::iterator i = mPolyMeshes.begin(); i != mPolyMeshes.end(); ++i)
-	{
-		LLPolyMesh* mesh = i->second;
-		for (S32 joint_num = 0; joint_num < mesh->mJointRenderData.size(); joint_num++)
-		{
-			LLVector4a trans;
-			trans.load3( mesh->mJointRenderData[joint_num]->mWorldMatrix->getTranslation().mV);
-			update_min_max(newMin, newMax, trans);
-		}
-	}
+        for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+             iter != mAttachmentPoints.end();
+             ++iter)
+        {
+            LLViewerJointAttachment* attachment = iter->second;
 
-	LLVector4a center, size;
-	center.setAdd(newMin, newMax);
-	center.mul(0.5f);
+            if (attachment->getValid())
+            {
+                for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+                     attachment_iter != attachment->mAttachedObjects.end();
+                     ++attachment_iter)
+                {
+                    // Don't we need to look at children of attached_object as well?
+                    const LLViewerObject* attached_object = (*attachment_iter);
+                    if (attached_object && !attached_object->isHUDAttachment())
+                    {
+                        const LLVOVolume *vol = dynamic_cast<const LLVOVolume*>(attached_object);
+                        if (vol && vol->isAnimatedObject())
+                        {
+                            // Animated objects already have a bounding box in their control av, use that. 
+                            // Could lag by a frame if there's no guarantee on order of processing for avatars.
+                            LLControlAvatar *cav = vol->getControlAvatar();
+                            if (cav)
+                            {
+                                LLVector4a cav_min;
+                                cav_min.load3(cav->mLastAnimExtents[0].mV);
+                                LLVector4a cav_max;
+                                cav_max.load3(cav->mLastAnimExtents[1].mV);
+                                update_min_max(newMin,newMax,cav_min);
+                                update_min_max(newMin,newMax,cav_max);
+                                continue;
+                            }
+                        }
+                        if (vol && vol->isRiggedMesh())
+                        {
+                            continue;
+                        }
+                        LLDrawable* drawable = attached_object->mDrawable;
+                        if (drawable && !drawable->isState(LLDrawable::RIGGED))
+                        {
+                            LLSpatialBridge* bridge = drawable->getSpatialBridge();
+                            if (bridge)
+                            {
+                                const LLVector4a* ext = bridge->getSpatialExtents();
+                                LLVector4a distance;
+                                distance.setSub(ext[1], ext[0]);
+                                LLVector4a max_span(max_attachment_span);
 
-	size.setSub(newMax,newMin);
-	size.mul(0.5f);
-
-	mPixelArea = LLPipeline::calcPixelArea(center, size, *LLViewerCamera::getInstance());
-
-	//stretch bounding box by attachments
-	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
-		 iter != mAttachmentPoints.end();
-		 ++iter)
-	{
-		LLViewerJointAttachment* attachment = iter->second;
-
-		if (attachment->getValid())
-		{
-			for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-				 attachment_iter != attachment->mAttachedObjects.end();
-				 ++attachment_iter)
-			{
-				const LLViewerObject* attached_object = (*attachment_iter);
-				if (attached_object && !attached_object->isHUDAttachment())
-				{
-					LLDrawable* drawable = attached_object->mDrawable;
-					if (drawable && !drawable->isState(LLDrawable::RIGGED))
-					{
-						LLSpatialBridge* bridge = drawable->getSpatialBridge();
-						if (bridge)
-						{
-							const LLVector4a* ext = bridge->getSpatialExtents();
-							LLVector4a distance;
-							distance.setSub(ext[1], ext[0]);
-							LLVector4a max_span(max_attachment_span);
-
-							S32 lt = distance.lessThan(max_span).getGatheredBits() & 0x7;
+                                S32 lt = distance.lessThan(max_span).getGatheredBits() & 0x7;
 						
-							// Only add the prim to spatial extents calculations if it isn't a megaprim.
-							// max_attachment_span calculated at the start of the function 
-							// (currently 5 times our max prim size) 
-							if (lt == 0x7)
-							{
-								update_min_max(newMin,newMax,ext[0]);
-								update_min_max(newMin,newMax,ext[1]);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+                                // Only add the prim to spatial extents calculations if it isn't a megaprim.
+                                // max_attachment_span calculated at the start of the function 
+                                // (currently 5 times our max prim size) 
+                                if (lt == 0x7)
+                                {
+                                    update_min_max(newMin,newMax,ext[0]);
+                                    update_min_max(newMin,newMax,ext[1]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-	//pad bounding box	
+    // Stretch bounding box by rigged mesh joint boxes
+    if (box_detail>=3)
+    {
+		updateRiggingInfo();
+        for (S32 joint_num = 0; joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS; joint_num++)
+        {
+            LLJoint *joint = getJoint(joint_num);
+            LLJointRiggingInfo *rig_info = NULL;
+            if (joint_num < mJointRiggingInfoTab.size())
+            {
+                rig_info = &mJointRiggingInfoTab[joint_num];
+            }
 
-	newMin.sub(buffer);
-	newMax.add(buffer);
+            if (joint && rig_info && rig_info->isRiggedTo())
+            {
+                LLViewerJointAttachment *as_joint_attach = dynamic_cast<LLViewerJointAttachment*>(joint);
+                if (as_joint_attach && as_joint_attach->getIsHUDAttachment())
+                {
+                    // Ignore bounding box of HUD joints
+                    continue;
+                }
+                LLMatrix4a mat;
+                LLVector4a new_extents[2];
+                mat.loadu(joint->getWorldMatrix());
+                matMulBoundBox(mat, rig_info->getRiggedExtents(), new_extents);
+                update_min_max(newMin, newMax, new_extents[0]);
+                update_min_max(newMin, newMax, new_extents[1]);
+                //if (isSelf())
+                //{
+                //    LL_INFOS() << joint->getName() << " extents " << new_extents[0] << "," << new_extents[1] << LL_ENDL;
+                //    LL_INFOS() << joint->getName() << " av box is " << newMin << "," << newMax << LL_ENDL;
+                //}
+            }
+        }
+    }
+
+    // Update pixel area
+    LLVector4a center, size;
+    center.setAdd(newMin, newMax);
+    center.mul(0.5f);
+    
+    size.setSub(newMax,newMin);
+    size.mul(0.5f);
+    
+    mPixelArea = LLPipeline::calcPixelArea(center, size, *LLViewerCamera::getInstance());
 }
 
 void render_sphere_and_line(const LLVector3& begin_pos, const LLVector3& end_pos, F32 sphere_scale, const LLVector3& occ_color, const LLVector3& visible_color)
@@ -1404,13 +1535,29 @@ void LLVOAvatar::renderCollisionVolumes()
         static F32 sphere_scale = 1.0f;
         static F32 center_dot_scale = 0.05f;
 
-        static LLVector3 CV_COLOR_OCCLUDED(0.0f, 0.0f, 1.0f);
-        static LLVector3 CV_COLOR_VISIBLE(0.5f, 0.5f, 1.0f);
-        static LLVector3 DOT_COLOR_OCCLUDED(1.0f, 1.0f, 1.0f);
-        static LLVector3 DOT_COLOR_VISIBLE(1.0f, 1.0f, 1.0f);
+        static LLVector3 BLUE(0.0f, 0.0f, 1.0f);
+        static LLVector3 PASTEL_BLUE(0.5f, 0.5f, 1.0f);
+        static LLVector3 RED(1.0f, 0.0f, 0.0f);
+        static LLVector3 PASTEL_RED(1.0f, 0.5f, 0.5f);
+        static LLVector3 WHITE(1.0f, 1.0f, 1.0f);
+        
 
-        render_sphere_and_line(begin_pos, end_pos, sphere_scale, CV_COLOR_OCCLUDED, CV_COLOR_VISIBLE);
-        render_sphere_and_line(begin_pos, end_pos, center_dot_scale, DOT_COLOR_OCCLUDED, DOT_COLOR_VISIBLE);
+        LLVector3 cv_color_occluded;
+        LLVector3 cv_color_visible;
+        LLVector3 dot_color_occluded(WHITE);
+        LLVector3 dot_color_visible(WHITE);
+        if (isControlAvatar())
+        {
+            cv_color_occluded = RED;
+            cv_color_visible = PASTEL_RED;
+        }
+        else
+        {
+            cv_color_occluded = BLUE;
+            cv_color_visible = PASTEL_BLUE;
+        }
+        render_sphere_and_line(begin_pos, end_pos, sphere_scale, cv_color_occluded, cv_color_visible);
+        render_sphere_and_line(begin_pos, end_pos, center_dot_scale, dot_color_occluded, dot_color_visible);
 
         gGL.popMatrix();
     }
@@ -1422,9 +1569,6 @@ void LLVOAvatar::renderCollisionVolumes()
 	
 		mNameText->lineSegmentIntersect(unused, unused, unused, TRUE);
 	}
-
-	mDebugText.clear();
-	addDebugText(ostr.str());
 }
 
 void LLVOAvatar::renderBones()
@@ -1467,7 +1611,7 @@ void LLVOAvatar::renderBones()
         }
         else
         {
-            if (jointIsRiggedTo(jointp->getName()))
+            if (jointIsRiggedTo(jointp))
             {
                 occ_color = RIGGED_COLOR_OCCLUDED;
                 visible_color = RIGGED_COLOR_VISIBLE;
@@ -1595,6 +1739,11 @@ BOOL LLVOAvatar::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 		return FALSE;
 	}
 
+    if (isControlAvatar())
+    {
+        return FALSE;
+    }
+    
 	if (lineSegmentBoundingBox(start, end))
 	{
 		for (S32 i = 0; i < mNumCollisionVolumes; ++i)
@@ -1680,6 +1829,7 @@ BOOL LLVOAvatar::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 	return FALSE;
 }
 
+// virtual
 LLViewerObject* LLVOAvatar::lineSegmentIntersectRiggedAttachments(const LLVector4a& start, const LLVector4a& end,
 									  S32 face,
 									  BOOL pick_transparent,
@@ -1796,7 +1946,11 @@ void LLVOAvatar::buildCharacter()
 		mAahMorph = getVisualParam( "Express_Open_Mouth" );
 	}
 
-	startDefaultMotions();
+    // Currently disabled for control avatars (animated objects), enabled for all others.
+    if (mEnableDefaultMotions)
+    {
+        startDefaultMotions();
+    }
 
 	//-------------------------------------------------------------------------
 	// restart any currently active motions
@@ -1856,7 +2010,7 @@ void LLVOAvatar::resetVisualParams()
 void LLVOAvatar::resetSkeleton(bool reset_animations)
 {
     LL_DEBUGS("Avatar") << avString() << " reset starts" << LL_ENDL;
-    if (!mLastProcessedAppearance)
+    if (!isControlAvatar() && !mLastProcessedAppearance)
     {
         LL_WARNS() << "Can't reset avatar; no appearance message has been received yet." << LL_ENDL;
         return;
@@ -1910,12 +2064,15 @@ void LLVOAvatar::resetSkeleton(bool reset_animations)
     }
 
     // Reset tweakable params to preserved state
-    bool slam_params = true;
-    applyParsedAppearanceMessage(*mLastProcessedAppearance, slam_params);
+    if (mLastProcessedAppearance)
+    {
+        bool slam_params = true;
+        applyParsedAppearanceMessage(*mLastProcessedAppearance, slam_params);
+    }
     updateVisualParams();
 
     // Restore attachment pos overrides
-    rebuildAttachmentOverrides();
+    updateAttachmentOverrides();
 
     // Animations
     if (reset_animations)
@@ -1942,7 +2099,7 @@ void LLVOAvatar::resetSkeleton(bool reset_animations)
 //-----------------------------------------------------------------------------
 void LLVOAvatar::releaseMeshData()
 {
-	if (sInstances.size() < AVATAR_RELEASE_THRESHOLD || mIsDummy)
+	if (sInstances.size() < AVATAR_RELEASE_THRESHOLD || isUIAvatar())
 	{
 		return;
 	}
@@ -1962,15 +2119,15 @@ void LLVOAvatar::releaseMeshData()
 		LLFace* facep = mDrawable->getFace(0);
 		if (facep)
 		{
-		facep->setSize(0, 0);
-		for(S32 i = mNumInitFaces ; i < mDrawable->getNumFaces(); i++)
-		{
-			facep = mDrawable->getFace(i);
+            facep->setSize(0, 0);
+            for(S32 i = mNumInitFaces ; i < mDrawable->getNumFaces(); i++)
+            {
+                facep = mDrawable->getFace(i);
 				if (facep)
 				{
-			facep->setSize(0, 0);
-		}
-	}
+                    facep->setSize(0, 0);
+                }
+            }
 		}
 	}
 	
@@ -1994,6 +2151,10 @@ void LLVOAvatar::releaseMeshData()
 void LLVOAvatar::restoreMeshData()
 {
 	llassert(!isSelf());
+    if (mDrawable.isNull())
+    {
+        return;
+    }
 	
 	//LL_INFOS() << "Restoring" << LL_ENDL;
 	mMeshValid = TRUE;
@@ -2291,6 +2452,18 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 		return;
 	}
 
+    // Update should be happening max once per frame.
+	const S32 upd_freq = 4; // force update every upd_freq frames.
+	if ((mLastAnimExtents[0]==LLVector3())||
+		(mLastAnimExtents[1])==LLVector3())
+	{
+		mNeedsExtentUpdate = true;
+	}
+	else
+	{
+		mNeedsExtentUpdate = ((LLDrawable::getCurrentFrame()+mID.mData[0])%upd_freq==0);
+	}
+    
     LLScopedContextString str("avatar_idle_update " + getFullname());
     
 	checkTextureLoading() ;
@@ -2303,7 +2476,7 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 	{	
 		LL_RECORD_BLOCK_TIME(FTM_JOINT_UPDATE);
 	
-		if (mIsSitting && getParent())
+		if (isSitting() && getParent())
 		{
 			LLViewerObject *root_object = (LLViewerObject*)getRoot();
 			LLDrawable* drawablep = root_object->mDrawable;
@@ -2469,7 +2642,7 @@ void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 		// (the following version uses a tweak of "mHeadOffset" which handle sitting vs. standing)
 		//--------------------------------------------------------------------------------------------
 		
-		if ( mIsSitting )
+		if ( isSitting() )
 		{
 			LLVector3 headOffset = LLVector3( 0.0f, 0.0f, mHeadOffset.mV[2] );
 			mVoiceVisualizer->setVoiceSourceWorldPosition( mRoot->getWorldPosition() + headOffset );
@@ -2573,8 +2746,10 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 			}
 			else
 			{
-				//VECTORIZE THIS
-				getSpatialExtents(ext[0], ext[1]);
+				ext[0].load3(mLastAnimExtents[0].mV);
+                ext[1].load3(mLastAnimExtents[1].mV);
+                // Expensive. Just call this once per frame, in updateSpatialExtents();
+                //calculateSpatialExtents(ext[0], ext[1]);
 				LLVector4a diff;
 				diff.setSub(ext[1], mImpostorExtents[1]);
 				if (diff.getLength3().getF32() > 0.05f)
@@ -2593,13 +2768,16 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 		}
 	}
 
-	mDrawable->movePartition();
-	
-	//force a move if sitting on an active object
-	if (getParent() && ((LLViewerObject*) getParent())->mDrawable->isActive())
-	{
-		gPipeline.markMoved(mDrawable, TRUE);
-	}
+    if (mDrawable.notNull())
+    {
+        mDrawable->movePartition();
+        
+        //force a move if sitting on an active object
+        if (getParent() && ((LLViewerObject*) getParent())->mDrawable->isActive())
+        {
+            gPipeline.markMoved(mDrawable, TRUE);
+        }
+    }
 }
 
 void LLVOAvatar::idleUpdateAppearanceAnimation()
@@ -2760,7 +2938,8 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 																 LLPartData::LL_PART_EMISSIVE_MASK | // LLPartData::LL_PART_FOLLOW_SRC_MASK |
 																 LLPartData::LL_PART_TARGET_POS_MASK );
 			
-			if (!isTooComplex()) // do not generate particles for overly-complex avatars
+			// do not generate particles for dummy or overly-complex avatars
+			if (!mIsDummy && !isTooComplex())
 			{
 				setParticleSource(particle_parameters, getID());
 			}
@@ -3358,154 +3537,218 @@ bool LLVOAvatar::isInMuteList()
 	return muted;
 }
 
+void LLVOAvatar::updateAppearanceMessageDebugText()
+{
+    S32 central_bake_version = -1;
+    if (getRegion())
+    {
+        central_bake_version = getRegion()->getCentralBakeVersion();
+    }
+    bool all_baked_downloaded = allBakedTexturesCompletelyDownloaded();
+    bool all_local_downloaded = allLocalTexturesCompletelyDownloaded();
+    std::string debug_line = llformat("%s%s - mLocal: %d, mEdit: %d, mUSB: %d, CBV: %d",
+                                      isSelf() ? (all_local_downloaded ? "L" : "l") : "-",
+                                      all_baked_downloaded ? "B" : "b",
+                                      mUseLocalAppearance, mIsEditingAppearance,
+                                      1, central_bake_version);
+    std::string origin_string = bakedTextureOriginInfo();
+    debug_line += " [" + origin_string + "]";
+    S32 curr_cof_version = LLAppearanceMgr::instance().getCOFVersion();
+    S32 last_request_cof_version = mLastUpdateRequestCOFVersion;
+    S32 last_received_cof_version = mLastUpdateReceivedCOFVersion;
+    if (isSelf())
+    {
+        debug_line += llformat(" - cof: %d req: %d rcv:%d",
+                               curr_cof_version, last_request_cof_version, last_received_cof_version);
+        if (gSavedSettings.getBOOL("DebugForceAppearanceRequestFailure"))
+        {
+            debug_line += " FORCING ERRS";
+        }
+    }
+    else
+    {
+        debug_line += llformat(" - cof rcv:%d", last_received_cof_version);
+    }
+    debug_line += llformat(" bsz-z: %.3f", mBodySize[2]);
+    if (mAvatarOffset[2] != 0.0f)
+    {
+        debug_line += llformat("avofs-z: %.3f", mAvatarOffset[2]);
+    }
+    bool hover_enabled = getRegion() && getRegion()->avatarHoverHeightEnabled();
+    debug_line += hover_enabled ? " H" : " h";
+    const LLVector3& hover_offset = getHoverOffset();
+    if (hover_offset[2] != 0.0)
+    {
+        debug_line += llformat(" hov_z: %.3f", hover_offset[2]);
+        debug_line += llformat(" %s", (isSitting() ? "S" : "T"));
+        debug_line += llformat("%s", (isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED) ? "G" : "-"));
+    }
+    LLVector3 ankle_right_pos_agent = mFootRightp->getWorldPosition();
+    LLVector3 normal;
+    LLVector3 ankle_right_ground_agent = ankle_right_pos_agent;
+    resolveHeightAgent(ankle_right_pos_agent, ankle_right_ground_agent, normal);
+    F32 rightElev = llmax(-0.2f, ankle_right_pos_agent.mV[VZ] - ankle_right_ground_agent.mV[VZ]);
+    debug_line += llformat(" relev %.3f", rightElev);
+
+    LLVector3 root_pos = mRoot->getPosition();
+    LLVector3 pelvis_pos = mPelvisp->getPosition();
+    debug_line += llformat(" rp %.3f pp %.3f", root_pos[2], pelvis_pos[2]);
+
+    S32 is_visible = (S32) isVisible();
+    S32 is_m_visible = (S32) mVisible;
+    debug_line += llformat(" v %d/%d", is_visible, is_m_visible);
+
+    addDebugText(debug_line);
+}
+
+LLViewerInventoryItem* getObjectInventoryItem(LLViewerObject *vobj, LLUUID asset_id)
+{
+    LLViewerInventoryItem *item = NULL;
+
+    if (vobj)
+    {
+        if (vobj->getInventorySerial()<=0)
+        {
+            vobj->requestInventory(); 
+        }
+        item = vobj->getInventoryItemByAsset(asset_id);
+    }
+    return item;
+}
+
+LLViewerInventoryItem* recursiveGetObjectInventoryItem(LLViewerObject *vobj, LLUUID asset_id)
+{
+    LLViewerInventoryItem *item = getObjectInventoryItem(vobj, asset_id);
+    if (!item)
+    {
+        LLViewerObject::const_child_list_t& children = vobj->getChildren();
+        for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
+             it != children.end(); ++it)
+        {
+            LLViewerObject *childp = *it;
+            item = getObjectInventoryItem(childp, asset_id);
+            if (item)
+            {
+                break;
+            }
+        }
+    }
+    return item;
+}
+
+void LLVOAvatar::updateAnimationDebugText()
+{
+    for (LLMotionController::motion_list_t::iterator iter = mMotionController.getActiveMotions().begin();
+         iter != mMotionController.getActiveMotions().end(); ++iter)
+    {
+        LLMotion* motionp = *iter;
+        if (motionp->getMinPixelArea() < getPixelArea())
+        {
+            std::string output;
+            std::string motion_name = motionp->getName();
+            if (motion_name.empty())
+            {
+                if (isControlAvatar())
+                {
+                    LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(this);
+                    // Try to get name from inventory of associated object
+                    LLVOVolume *volp = control_av->mRootVolp;
+                    LLViewerInventoryItem *item = recursiveGetObjectInventoryItem(volp,motionp->getID());
+                    if (item)
+                    {
+                        motion_name = item->getName();
+                    }
+                }
+            }
+            if (motion_name.empty())
+            {
+                std::string name;
+                if (gAgent.isGodlikeWithoutAdminMenuFakery() || isSelf())
+                {
+                    name = motionp->getID().asString();
+                    LLVOAvatar::AnimSourceIterator anim_it = mAnimationSources.begin();
+                    for (; anim_it != mAnimationSources.end(); ++anim_it)
+                    {
+                        if (anim_it->second == motionp->getID())
+                        {
+                            LLViewerObject* object = gObjectList.findObject(anim_it->first);
+                            if (!object)
+                            {
+                                break;
+                            }
+                            if (object->isAvatar())
+                            {
+                                if (mMotionController.mIsSelf)
+                                {
+                                    // Searching inventory by asset id is really long
+                                    // so just mark as inventory
+                                    // Also item is likely to be named by LLPreviewAnim
+                                    name += "(inventory)";
+                                }
+                            }
+                            else
+                            {
+                                LLViewerInventoryItem* item = NULL;
+                                if (!object->isInventoryDirty())
+                                {
+                                    item = object->getInventoryItemByAsset(motionp->getID());
+                                }
+                                if (item)
+                                {
+                                    name = item->getName();
+                                }
+                                else if (object->isAttachment())
+                                {
+                                    name += "(" + getAttachmentItemName() + ")";
+                                }
+                                else
+                                {
+                                    // in-world object, name or content unknown
+                                    name += "(in-world)";
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    name = LLUUID::null.asString();
+                }
+                output = llformat("%s - %d",
+                                  name.c_str(),
+                                  (U32)motionp->getPriority());
+            }
+            else
+            {
+                output = llformat("%s - %d",
+                                  motion_name.c_str(),
+                                  (U32)motionp->getPriority());
+            }
+            addDebugText(output);
+        }
+    }
+}
+
 void LLVOAvatar::updateDebugText()
 {
-	// clear debug text
-	mDebugText.clear();
+    // Leave mDebugText uncleared here, in case a derived class has added some state first
 
 	if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
 	{
-		S32 central_bake_version = -1;
-		if (getRegion())
-		{
-			central_bake_version = getRegion()->getCentralBakeVersion();
-		}
-		bool all_baked_downloaded = allBakedTexturesCompletelyDownloaded();
-		bool all_local_downloaded = allLocalTexturesCompletelyDownloaded();
-		std::string debug_line = llformat("%s%s - mLocal: %d, mEdit: %d, mUSB: %d, CBV: %d",
-										  isSelf() ? (all_local_downloaded ? "L" : "l") : "-",
-										  all_baked_downloaded ? "B" : "b",
-										  mUseLocalAppearance, mIsEditingAppearance,
-										  1, central_bake_version);
-		std::string origin_string = bakedTextureOriginInfo();
-		debug_line += " [" + origin_string + "]";
-		S32 curr_cof_version = LLAppearanceMgr::instance().getCOFVersion();
-		S32 last_request_cof_version = mLastUpdateRequestCOFVersion;
-		S32 last_received_cof_version = mLastUpdateReceivedCOFVersion;
-		if (isSelf())
-		{
-			debug_line += llformat(" - cof: %d req: %d rcv:%d",
-								   curr_cof_version, last_request_cof_version, last_received_cof_version);
-			if (gSavedSettings.getBOOL("DebugForceAppearanceRequestFailure"))
-			{
-				debug_line += " FORCING ERRS";
-			}
-		}
-		else
-		{
-			debug_line += llformat(" - cof rcv:%d", last_received_cof_version);
-		}
-		debug_line += llformat(" bsz-z: %.3f", mBodySize[2]);
-        if (mAvatarOffset[2] != 0.0f)
-        {
-            debug_line += llformat("avofs-z: %.3f", mAvatarOffset[2]);
-        }
-		bool hover_enabled = getRegion() && getRegion()->avatarHoverHeightEnabled();
-		debug_line += hover_enabled ? " H" : " h";
-		const LLVector3& hover_offset = getHoverOffset();
-		if (hover_offset[2] != 0.0)
-		{
-			debug_line += llformat(" hov_z: %.3f", hover_offset[2]);
-			debug_line += llformat(" %s", (mIsSitting ? "S" : "T"));
-			debug_line += llformat("%s", (isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED) ? "G" : "-"));
-		}
-        LLVector3 ankle_right_pos_agent = mFootRightp->getWorldPosition();
-		LLVector3 normal;
-        LLVector3 ankle_right_ground_agent = ankle_right_pos_agent;
-        resolveHeightAgent(ankle_right_pos_agent, ankle_right_ground_agent, normal);
-        F32 rightElev = llmax(-0.2f, ankle_right_pos_agent.mV[VZ] - ankle_right_ground_agent.mV[VZ]);
-        debug_line += llformat(" relev %.3f", rightElev);
-
-        LLVector3 root_pos = mRoot->getPosition();
-        LLVector3 pelvis_pos = mPelvisp->getPosition();
-        debug_line += llformat(" rp %.3f pp %.3f", root_pos[2], pelvis_pos[2]);
-
-		addDebugText(debug_line);
+        updateAppearanceMessageDebugText();
 	}
+
 	if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
 	{
 		if (!mBakedTextureDebugText.empty())
 			addDebugText(mBakedTextureDebugText);
 	}
 
+    // Develop -> Avatar -> Animation Info
 	if (LLVOAvatar::sShowAnimationDebug)
 	{
-		for (LLMotionController::motion_list_t::iterator iter = mMotionController.getActiveMotions().begin();
-			 iter != mMotionController.getActiveMotions().end(); ++iter)
-		{
-			LLMotion* motionp = *iter;
-			if (motionp->getMinPixelArea() < getPixelArea())
-			{
-				std::string output;
-				if (motionp->getName().empty())
-				{
-					std::string name;
-					if (gAgent.isGodlikeWithoutAdminMenuFakery() || isSelf())
-					{
-						name = motionp->getID().asString();
-						LLVOAvatar::AnimSourceIterator anim_it = mAnimationSources.begin();
-						for (; anim_it != mAnimationSources.end(); ++anim_it)
-						{
-							if (anim_it->second == motionp->getID())
-							{
-								LLViewerObject* object = gObjectList.findObject(anim_it->first);
-								if (!object)
-								{
-									break;
-								}
-								if (object->isAvatar())
-								{
-									if (mMotionController.mIsSelf)
-									{
-										// Searching inventory by asset id is really long
-										// so just mark as inventory
-										// Also item is likely to be named by LLPreviewAnim
-										name += "(inventory)";
-									}
-								}
-								else
-								{
-									LLViewerInventoryItem* item = NULL;
-									if (!object->isInventoryDirty())
-									{
-										item = object->getInventoryItemByAsset(motionp->getID());
-									}
-									if (item)
-									{
-										name = item->getName();
-									}
-									else if (object->isAttachment())
-									{
-										name += "(" + getAttachmentItemName() + ")";
-									}
-									else
-									{
-										// in-world object, name or content unknown
-										name += "(in-world)";
-									}
-								}
-								break;
-							}
-						}
-					}
-					else
-					{
-						name = LLUUID::null.asString();
-					}
-
-					output = llformat("%s - %d",
-							  name.c_str(),
-							  (U32)motionp->getPriority());
-				}
-				else
-				{
-					output = llformat("%s - %d",
-							  motionp->getName().c_str(),
-							  (U32)motionp->getPriority());
-				}
-				addDebugText(output);
-			}
-		}
+        updateAnimationDebugText();
 	}
 
 	if (!mDebugText.size() && mText.notNull())
@@ -3517,410 +3760,21 @@ void LLVOAvatar::updateDebugText()
 	{
 		setDebugText(mDebugText);
 	}
-	mDebugText.clear();
-
+    mDebugText.clear();
 }
 
 //------------------------------------------------------------------------
-// updateCharacter()
-// called on both your avatar and other avatars
+// updateFootstepSounds
+// Factored out from updateCharacter()
+// Generate footstep sounds when feet hit the ground
 //------------------------------------------------------------------------
-BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
-{	
-	updateDebugText();
-	
-	if (!mIsBuilt)
-	{
-		return FALSE;
-	}
-
-	BOOL visible = isVisible();
-
-	// For fading out the names above heads, only let the timer
-	// run if we're visible.
-	if (mDrawable.notNull() && !visible)
-	{
-		mTimeVisible.reset();
-	}
-
-	//--------------------------------------------------------------------
-	// the rest should only be done occasionally for far away avatars
-	//--------------------------------------------------------------------
-
-	bool visually_muted = isVisuallyMuted();
-	if (visible && (!isSelf() || visually_muted) && !mIsDummy && sUseImpostors && !mNeedsAnimUpdate && !sFreezeCounter)
-	{
-		const LLVector4a* ext = mDrawable->getSpatialExtents();
-		LLVector4a size;
-		size.setSub(ext[1],ext[0]);
-		F32 mag = size.getLength3().getF32()*0.5f;
-
-		
-		F32 impostor_area = 256.f*512.f*(8.125f - LLVOAvatar::sLODFactor*8.f);
-		if (visually_muted)
-		{ // visually muted avatars update at 16 hz
-			mUpdatePeriod = 16;
-		}
-		else if (   ! shouldImpostor()
-				 || mDrawable->mDistanceWRTCamera < 1.f + mag)
-		{   // first 25% of max visible avatars are not impostored
-			// also, don't impostor avatars whose bounding box may be penetrating the 
-			// impostor camera near clip plane
-			mUpdatePeriod = 1;
-		}
-		else if ( shouldImpostor(4) )
-		{ //background avatars are REALLY slow updating impostors
-			mUpdatePeriod = 16;
-		}
-		else if ( shouldImpostor(3) )
-		{ //back 25% of max visible avatars are slow updating impostors
-			mUpdatePeriod = 8;
-		}
-		else if (mImpostorPixelArea <= impostor_area)
-		{  // stuff in between gets an update period based on pixel area
-			mUpdatePeriod = llclamp((S32) sqrtf(impostor_area*4.f/mImpostorPixelArea), 2, 8);
-		}
-		else
-		{
-			//nearby avatars, update the impostors more frequently.
-			mUpdatePeriod = 4;
-		}
-
-		visible = (LLDrawable::getCurrentFrame()+mID.mData[0])%mUpdatePeriod == 0 ? TRUE : FALSE;
-	}
-	else
-	{
-		mUpdatePeriod = 1;
-	}
-
-
-	// don't early out for your own avatar, as we rely on your animations playing reliably
-	// for example, the "turn around" animation when entering customize avatar needs to trigger
-	// even when your avatar is offscreen
-	if (!visible && !isSelf())
-	{
-		updateMotions(LLCharacter::HIDDEN_UPDATE);
-		return FALSE;
-	}
-
-	// change animation time quanta based on avatar render load
-	if (!isSelf() && !mIsDummy)
-	{
-		F32 time_quantum = clamp_rescale((F32)sInstances.size(), 10.f, 35.f, 0.f, 0.25f);
-		F32 pixel_area_scale = clamp_rescale(mPixelArea, 100, 5000, 1.f, 0.f);
-		F32 time_step = time_quantum * pixel_area_scale;
-		if (time_step != 0.f)
-		{
-			// disable walk motion servo controller as it doesn't work with motion timesteps
-			stopMotion(ANIM_AGENT_WALK_ADJUST);
-			removeAnimationData("Walk Speed");
-		}
-		mMotionController.setTimeStep(time_step);
-		//		LL_INFOS() << "Setting timestep to " << time_quantum * pixel_area_scale << LL_ENDL;
-	}
-
-	if (getParent() && !mIsSitting)
-	{
-		sitOnObject((LLViewerObject*)getParent());
-	}
-	else if (!getParent() && mIsSitting && !isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED))
-	{
-		getOffObject();
-	}
-
-	//--------------------------------------------------------------------
-	// create local variables in world coords for region position values
-	//--------------------------------------------------------------------
-	F32 speed;
-	LLVector3 normal;
-
-	LLVector3 xyVel = getVelocity();
-	xyVel.mV[VZ] = 0.0f;
-	speed = xyVel.length();
-	// remembering the value here prevents a display glitch if the
-	// animation gets toggled during this update.
-	bool was_sit_ground_constrained = isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED);
-	
-	if (!(mIsSitting && getParent()))
-	{
-		// This case includes all configurations except sitting on an
-		// object, so does include ground sit.
-
-		//--------------------------------------------------------------------
-		// get timing info
-		// handle initial condition case
-		//--------------------------------------------------------------------
-		F32 animation_time = mAnimTimer.getElapsedTimeF32();
-		if (mTimeLast == 0.0f)
-		{
-			mTimeLast = animation_time;
-
-			// put the pelvis at slaved position/mRotation
-			// SL-315
-			mRoot->setWorldPosition( getPositionAgent() ); // first frame
-			mRoot->setWorldRotation( getRotation() );
-		}
-	
-		//--------------------------------------------------------------------
-		// dont' let dT get larger than 1/5th of a second
-		//--------------------------------------------------------------------
-		F32 deltaTime = animation_time - mTimeLast;
-
-		deltaTime = llclamp( deltaTime, DELTA_TIME_MIN, DELTA_TIME_MAX );
-		mTimeLast = animation_time;
-
-		mSpeedAccum = (mSpeedAccum * 0.95f) + (speed * 0.05f);
-
-		//--------------------------------------------------------------------
-		// compute the position of the avatar's root
-		//--------------------------------------------------------------------
-		LLVector3d root_pos;
-		LLVector3d ground_under_pelvis;
-
-		if (isSelf())
-		{
-			gAgent.setPositionAgent(getRenderPosition());
-		}
-
-		root_pos = gAgent.getPosGlobalFromAgent(getRenderPosition());
-		root_pos.mdV[VZ] += getVisualParamWeight(AVATAR_HOVER);
-
-
-		resolveHeightGlobal(root_pos, ground_under_pelvis, normal);
-		F32 foot_to_ground = (F32) (root_pos.mdV[VZ] - mPelvisToFoot - ground_under_pelvis.mdV[VZ]);				
-		BOOL in_air = ((!LLWorld::getInstance()->getRegionFromPosGlobal(ground_under_pelvis)) || 
-						foot_to_ground > FOOT_GROUND_COLLISION_TOLERANCE);
-
-		if (in_air && !mInAir)
-		{
-			mTimeInAir.reset();
-		}
-		mInAir = in_air;
-
-        // SL-402: with the ability to animate the position of joints
-        // that affect the body size calculation, computed body size
-        // can get stale much more easily. Simplest fix is to update
-        // it frequently.
-        // SL-427: this appears to be too frequent, moving to only do on animation state change.
-        //computeBodySize();
+void LLVOAvatar::updateFootstepSounds()
+{
+    if (mIsDummy)
+    {
+        return;
+    }
     
-		// correct for the fact that the pelvis is not necessarily the center 
-		// of the agent's physical representation
-		root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
-		if (!mIsSitting && !was_sit_ground_constrained)
-		{
-			root_pos += LLVector3d(getHoverOffset());
-		}
-		
-		LLVector3 newPosition = gAgent.getPosAgentFromGlobal(root_pos);
-
-
-		if (newPosition != mRoot->getXform()->getWorldPosition())
-		{		
-			mRoot->touch();
-			// SL-315
-			mRoot->setWorldPosition( newPosition ); // regular update				
-		}
-
-
-		//--------------------------------------------------------------------
-		// Propagate viewer object rotation to root of avatar
-		//--------------------------------------------------------------------
-		if (!isAnyAnimationSignaled(AGENT_NO_ROTATE_ANIMS, NUM_AGENT_NO_ROTATE_ANIMS))
-		{
-			LLQuaternion iQ;
-			LLVector3 upDir( 0.0f, 0.0f, 1.0f );
-			
-			// Compute a forward direction vector derived from the primitive rotation
-			// and the velocity vector.  When walking or jumping, don't let body deviate
-			// more than 90 from the view, if necessary, flip the velocity vector.
-
-			LLVector3 primDir;
-			if (isSelf())
-			{
-				primDir = agent.getAtAxis() - projected_vec(agent.getAtAxis(), agent.getReferenceUpVector());
-				primDir.normalize();
-			}
-			else
-			{
-				primDir = getRotation().getMatrix3().getFwdRow();
-			}
-			LLVector3 velDir = getVelocity();
-			velDir.normalize();
-			if ( mSignaledAnimations.find(ANIM_AGENT_WALK) != mSignaledAnimations.end())
-			{
-				F32 vpD = velDir * primDir;
-				if (vpD < -0.5f)
-				{
-					velDir *= -1.0f;
-				}
-			}
-			LLVector3 fwdDir = lerp(primDir, velDir, clamp_rescale(speed, 0.5f, 2.0f, 0.0f, 1.0f));
-			if (isSelf() && gAgentCamera.cameraMouselook())
-			{
-				// make sure fwdDir stays in same general direction as primdir
-				if (gAgent.getFlying())
-				{
-					fwdDir = LLViewerCamera::getInstance()->getAtAxis();
-				}
-				else
-				{
-					LLVector3 at_axis = LLViewerCamera::getInstance()->getAtAxis();
-					LLVector3 up_vector = gAgent.getReferenceUpVector();
-					at_axis -= up_vector * (at_axis * up_vector);
-					at_axis.normalize();
-					
-					F32 dot = fwdDir * at_axis;
-					if (dot < 0.f)
-					{
-						fwdDir -= 2.f * at_axis * dot;
-						fwdDir.normalize();
-					}
-				}
-			}
-
-			LLQuaternion root_rotation = mRoot->getWorldMatrix().quaternion();
-			F32 root_roll, root_pitch, root_yaw;
-			root_rotation.getEulerAngles(&root_roll, &root_pitch, &root_yaw);
-
-			// When moving very slow, the pelvis is allowed to deviate from the
-			// forward direction to allow it to hold it's position while the torso
-			// and head turn.  Once in motion, it must conform however.
-			BOOL self_in_mouselook = isSelf() && gAgentCamera.cameraMouselook();
-
-			LLVector3 pelvisDir( mRoot->getWorldMatrix().getFwdRow4().mV );
-
-			static LLCachedControl<F32> s_pelvis_rot_threshold_slow(gSavedSettings, "AvatarRotateThresholdSlow", 60.0);
-			static LLCachedControl<F32> s_pelvis_rot_threshold_fast(gSavedSettings, "AvatarRotateThresholdFast", 2.0);
-
-			F32 pelvis_rot_threshold = clamp_rescale(speed, 0.1f, 1.0f, s_pelvis_rot_threshold_slow, s_pelvis_rot_threshold_fast);
-						
-			if (self_in_mouselook)
-			{
-				pelvis_rot_threshold *= MOUSELOOK_PELVIS_FOLLOW_FACTOR;
-			}
-			pelvis_rot_threshold *= DEG_TO_RAD;
-
-			F32 angle = angle_between( pelvisDir, fwdDir );
-
-			// The avatar's root is allowed to have a yaw that deviates widely
-			// from the forward direction, but if roll or pitch are off even
-			// a little bit we need to correct the rotation.
-			if(root_roll < 1.f * DEG_TO_RAD
-			   && root_pitch < 5.f * DEG_TO_RAD)
-			{
-				// smaller correction vector means pelvis follows prim direction more closely
-				if (!mTurning && angle > pelvis_rot_threshold*0.75f)
-				{
-					mTurning = TRUE;
-				}
-
-				// use tighter threshold when turning
-				if (mTurning)
-				{
-					pelvis_rot_threshold *= 0.4f;
-				}
-
-				// am I done turning?
-				if (angle < pelvis_rot_threshold)
-				{
-					mTurning = FALSE;
-				}
-
-				LLVector3 correction_vector = (pelvisDir - fwdDir) * clamp_rescale(angle, pelvis_rot_threshold*0.75f, pelvis_rot_threshold, 1.0f, 0.0f);
-				fwdDir += correction_vector;
-			}
-			else
-			{
-				mTurning = FALSE;
-			}
-
-			// Now compute the full world space rotation for the whole body (wQv)
-			LLVector3 leftDir = upDir % fwdDir;
-			leftDir.normalize();
-			fwdDir = leftDir % upDir;
-			LLQuaternion wQv( fwdDir, leftDir, upDir );
-
-			if (isSelf() && mTurning)
-			{
-				if ((fwdDir % pelvisDir) * upDir > 0.f)
-				{
-					gAgent.setControlFlags(AGENT_CONTROL_TURN_RIGHT);
-				}
-				else
-				{
-					gAgent.setControlFlags(AGENT_CONTROL_TURN_LEFT);
-				}
-			}
-
-			// Set the root rotation, but do so incrementally so that it
-			// lags in time by some fixed amount.
-			//F32 u = LLSmoothInterpolation::getInterpolant(PELVIS_LAG);
-			F32 pelvis_lag_time = 0.f;
-			if (self_in_mouselook)
-			{
-				pelvis_lag_time = PELVIS_LAG_MOUSELOOK;
-			}
-			else if (mInAir)
-			{
-				pelvis_lag_time = PELVIS_LAG_FLYING;
-				// increase pelvis lag time when moving slowly
-				pelvis_lag_time *= clamp_rescale(mSpeedAccum, 0.f, 15.f, 3.f, 1.f);
-			}
-			else
-			{
-				pelvis_lag_time = PELVIS_LAG_WALKING;
-			}
-
-			F32 u = llclamp((deltaTime / pelvis_lag_time), 0.0f, 1.0f);	
-
-			mRoot->setWorldRotation( slerp(u, mRoot->getWorldRotation(), wQv) );
-			
-		}
-	}
-	else if (mDrawable.notNull())
-	{
-		LLVector3 pos = mDrawable->getPosition();
-		pos += getHoverOffset() * mDrawable->getRotation();
-		// SL-315
-		mRoot->setPosition(pos);
-		mRoot->setRotation(mDrawable->getRotation());
-	}
-	
-	//-------------------------------------------------------------------------
-	// Update character motions
-	//-------------------------------------------------------------------------
-	// store data relevant to motions
-	mSpeed = speed;
-
-	// update animations
-	if (mSpecialRenderMode == 1) // Animation Preview
-	{
-		updateMotions(LLCharacter::FORCE_UPDATE);
-	}
-	else
-	{
-		updateMotions(LLCharacter::NORMAL_UPDATE);
-	}
-
-	// Special handling for sitting on ground.
-	if (!getParent() && (mIsSitting || was_sit_ground_constrained))
-	{
-		
-		F32 off_z = LLVector3d(getHoverOffset()).mdV[VZ];
-		if (off_z != 0.0)
-		{
-			LLVector3 pos = mRoot->getWorldPosition();
-			pos.mV[VZ] += off_z;
-			mRoot->touch();
-			// SL-315
-			mRoot->setWorldPosition(pos);
-		}
-	}
-
-	// update head position
-	updateHeadOffset();
-
 	//-------------------------------------------------------------------------
 	// Find the ground under each foot, these are used for a variety
 	// of things that follow
@@ -3930,13 +3784,14 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 	LLVector3 ankle_left_ground_agent = ankle_left_pos_agent;
 	LLVector3 ankle_right_ground_agent = ankle_right_pos_agent;
+    LLVector3 normal;
 	resolveHeightAgent(ankle_left_pos_agent, ankle_left_ground_agent, normal);
 	resolveHeightAgent(ankle_right_pos_agent, ankle_right_ground_agent, normal);
 
 	F32 leftElev = llmax(-0.2f, ankle_left_pos_agent.mV[VZ] - ankle_left_ground_agent.mV[VZ]);
 	F32 rightElev = llmax(-0.2f, ankle_right_pos_agent.mV[VZ] - ankle_right_ground_agent.mV[VZ]);
 
-	if (!mIsSitting)
+	if (!isSitting())
 	{
 		//-------------------------------------------------------------------------
 		// Figure out which foot is on ground
@@ -3953,9 +3808,6 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		}
 	}
 	
-	//-------------------------------------------------------------------------
-	// Generate footstep sounds when feet hit the ground
-	//-------------------------------------------------------------------------
 	const LLUUID AGENT_FOOTSTEP_ANIMS[] = {ANIM_AGENT_WALK, ANIM_AGENT_RUN, ANIM_AGENT_LAND};
 	const S32 NUM_AGENT_FOOTSTEP_ANIMS = LL_ARRAY_SIZE(AGENT_FOOTSTEP_ANIMS);
 
@@ -3998,13 +3850,527 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 			}
 		}
 	}
+}
 
+//------------------------------------------------------------------------
+// computeUpdatePeriod()
+// Factored out from updateCharacter()
+// Set new value for mUpdatePeriod based on distance and various other factors.
+//------------------------------------------------------------------------
+void LLVOAvatar::computeUpdatePeriod()
+{
+	bool visually_muted = isVisuallyMuted();
+	if (mDrawable.notNull()
+        && isVisible() 
+        && (!isSelf() || visually_muted)
+        && !isUIAvatar()
+        && sUseImpostors
+        && !mNeedsAnimUpdate 
+        && !sFreezeCounter)
+	{
+		const LLVector4a* ext = mDrawable->getSpatialExtents();
+		LLVector4a size;
+		size.setSub(ext[1],ext[0]);
+		F32 mag = size.getLength3().getF32()*0.5f;
+		
+		F32 impostor_area = 256.f*512.f*(8.125f - LLVOAvatar::sLODFactor*8.f);
+		if (visually_muted)
+		{ // visually muted avatars update at 16 hz
+			mUpdatePeriod = 16;
+		}
+		else if (! shouldImpostor()
+				 || mDrawable->mDistanceWRTCamera < 1.f + mag)
+		{   // first 25% of max visible avatars are not impostored
+			// also, don't impostor avatars whose bounding box may be penetrating the 
+			// impostor camera near clip plane
+			mUpdatePeriod = 1;
+		}
+		else if ( shouldImpostor(4) )
+		{ //background avatars are REALLY slow updating impostors
+			mUpdatePeriod = 16;
+		}
+		else if ( shouldImpostor(3) )
+		{ //back 25% of max visible avatars are slow updating impostors
+			mUpdatePeriod = 8;
+		}
+		else if (mImpostorPixelArea <= impostor_area)
+		{  // stuff in between gets an update period based on pixel area
+			mUpdatePeriod = llclamp((S32) sqrtf(impostor_area*4.f/mImpostorPixelArea), 2, 8);
+		}
+		else
+		{
+			//nearby avatars, update the impostors more frequently.
+			mUpdatePeriod = 4;
+		}
+	}
+	else
+	{
+		mUpdatePeriod = 1;
+	}
+
+}
+
+//------------------------------------------------------------------------
+// updateOrientation()
+// Factored out from updateCharacter()
+// This is used by updateCharacter() to update the avatar's orientation:
+// - updates mTurning state
+// - updates rotation of the mRoot joint in the skeleton
+// - for self, calls setControlFlags() to notify the simulator about any turns
+//------------------------------------------------------------------------
+void LLVOAvatar::updateOrientation(LLAgent& agent, F32 speed, F32 delta_time)
+{
+    LLQuaternion iQ;
+    LLVector3 upDir( 0.0f, 0.0f, 1.0f );
+			
+    // Compute a forward direction vector derived from the primitive rotation
+    // and the velocity vector.  When walking or jumping, don't let body deviate
+    // more than 90 from the view, if necessary, flip the velocity vector.
+
+    LLVector3 primDir;
+    if (isSelf())
+    {
+        primDir = agent.getAtAxis() - projected_vec(agent.getAtAxis(), agent.getReferenceUpVector());
+        primDir.normalize();
+    }
+    else
+    {
+        primDir = getRotation().getMatrix3().getFwdRow();
+    }
+    LLVector3 velDir = getVelocity();
+    velDir.normalize();
+    if ( mSignaledAnimations.find(ANIM_AGENT_WALK) != mSignaledAnimations.end())
+    {
+        F32 vpD = velDir * primDir;
+        if (vpD < -0.5f)
+        {
+            velDir *= -1.0f;
+        }
+    }
+    LLVector3 fwdDir = lerp(primDir, velDir, clamp_rescale(speed, 0.5f, 2.0f, 0.0f, 1.0f));
+    if (isSelf() && gAgentCamera.cameraMouselook())
+    {
+        // make sure fwdDir stays in same general direction as primdir
+        if (gAgent.getFlying())
+        {
+            fwdDir = LLViewerCamera::getInstance()->getAtAxis();
+        }
+        else
+        {
+            LLVector3 at_axis = LLViewerCamera::getInstance()->getAtAxis();
+            LLVector3 up_vector = gAgent.getReferenceUpVector();
+            at_axis -= up_vector * (at_axis * up_vector);
+            at_axis.normalize();
+					
+            F32 dot = fwdDir * at_axis;
+            if (dot < 0.f)
+            {
+                fwdDir -= 2.f * at_axis * dot;
+                fwdDir.normalize();
+            }
+        }
+    }
+
+    LLQuaternion root_rotation = mRoot->getWorldMatrix().quaternion();
+    F32 root_roll, root_pitch, root_yaw;
+    root_rotation.getEulerAngles(&root_roll, &root_pitch, &root_yaw);
+
+    // When moving very slow, the pelvis is allowed to deviate from the
+    // forward direction to allow it to hold its position while the torso
+    // and head turn.  Once in motion, it must conform however.
+    BOOL self_in_mouselook = isSelf() && gAgentCamera.cameraMouselook();
+
+    LLVector3 pelvisDir( mRoot->getWorldMatrix().getFwdRow4().mV );
+
+    static LLCachedControl<F32> s_pelvis_rot_threshold_slow(gSavedSettings, "AvatarRotateThresholdSlow", 60.0);
+    static LLCachedControl<F32> s_pelvis_rot_threshold_fast(gSavedSettings, "AvatarRotateThresholdFast", 2.0);
+
+    F32 pelvis_rot_threshold = clamp_rescale(speed, 0.1f, 1.0f, s_pelvis_rot_threshold_slow, s_pelvis_rot_threshold_fast);
+						
+    if (self_in_mouselook)
+    {
+        pelvis_rot_threshold *= MOUSELOOK_PELVIS_FOLLOW_FACTOR;
+    }
+    pelvis_rot_threshold *= DEG_TO_RAD;
+
+    F32 angle = angle_between( pelvisDir, fwdDir );
+
+    // The avatar's root is allowed to have a yaw that deviates widely
+    // from the forward direction, but if roll or pitch are off even
+    // a little bit we need to correct the rotation.
+    if(root_roll < 1.f * DEG_TO_RAD
+       && root_pitch < 5.f * DEG_TO_RAD)
+    {
+        // smaller correction vector means pelvis follows prim direction more closely
+        if (!mTurning && angle > pelvis_rot_threshold*0.75f)
+        {
+            mTurning = TRUE;
+        }
+
+        // use tighter threshold when turning
+        if (mTurning)
+        {
+            pelvis_rot_threshold *= 0.4f;
+        }
+
+        // am I done turning?
+        if (angle < pelvis_rot_threshold)
+        {
+            mTurning = FALSE;
+        }
+
+        LLVector3 correction_vector = (pelvisDir - fwdDir) * clamp_rescale(angle, pelvis_rot_threshold*0.75f, pelvis_rot_threshold, 1.0f, 0.0f);
+        fwdDir += correction_vector;
+    }
+    else
+    {
+        mTurning = FALSE;
+    }
+
+    // Now compute the full world space rotation for the whole body (wQv)
+    LLVector3 leftDir = upDir % fwdDir;
+    leftDir.normalize();
+    fwdDir = leftDir % upDir;
+    LLQuaternion wQv( fwdDir, leftDir, upDir );
+
+    if (isSelf() && mTurning)
+    {
+        if ((fwdDir % pelvisDir) * upDir > 0.f)
+        {
+            gAgent.setControlFlags(AGENT_CONTROL_TURN_RIGHT);
+        }
+        else
+        {
+            gAgent.setControlFlags(AGENT_CONTROL_TURN_LEFT);
+        }
+    }
+
+    // Set the root rotation, but do so incrementally so that it
+    // lags in time by some fixed amount.
+    //F32 u = LLSmoothInterpolation::getInterpolant(PELVIS_LAG);
+    F32 pelvis_lag_time = 0.f;
+    if (self_in_mouselook)
+    {
+        pelvis_lag_time = PELVIS_LAG_MOUSELOOK;
+    }
+    else if (mInAir)
+    {
+        pelvis_lag_time = PELVIS_LAG_FLYING;
+        // increase pelvis lag time when moving slowly
+        pelvis_lag_time *= clamp_rescale(mSpeedAccum, 0.f, 15.f, 3.f, 1.f);
+    }
+    else
+    {
+        pelvis_lag_time = PELVIS_LAG_WALKING;
+    }
+
+    F32 u = llclamp((delta_time / pelvis_lag_time), 0.0f, 1.0f);	
+
+    mRoot->setWorldRotation( slerp(u, mRoot->getWorldRotation(), wQv) );
+}
+
+//------------------------------------------------------------------------
+// updateTimeStep()
+// Factored out from updateCharacter().
+//
+// Updates the time step used by the motion controller, based on area
+// and avatar count criteria.  This will also stop the
+// ANIM_AGENT_WALK_ADJUST animation under some circumstances.
+// ------------------------------------------------------------------------
+void LLVOAvatar::updateTimeStep()
+{
+	if (!isSelf() && !isUIAvatar()) // ie, non-self avatars, and animated objects will be affected.
+	{
+        // Note that sInstances counts animated objects and
+        // standard avatars in the same bucket. Is this desirable?
+		F32 time_quantum = clamp_rescale((F32)sInstances.size(), 10.f, 35.f, 0.f, 0.25f);
+		F32 pixel_area_scale = clamp_rescale(mPixelArea, 100, 5000, 1.f, 0.f);
+		F32 time_step = time_quantum * pixel_area_scale;
+        // Extrema:
+        //   If number of avs is 10 or less, time_step is unmodified (flagged with 0.0).
+        //   If area of av is 5000 or greater, time_step is unmodified (flagged with 0.0).
+        //   If number of avs is 35 or greater, and area of av is 100 or less,
+        //   time_step takes the maximum possible value of 0.25.
+        //   Other situations will give values within the (0, 0.25) range.
+		if (time_step != 0.f)
+		{
+			// disable walk motion servo controller as it doesn't work with motion timesteps
+			stopMotion(ANIM_AGENT_WALK_ADJUST);
+			removeAnimationData("Walk Speed");
+		}
+        // See SL-763 - playback with altered time step does not
+        // appear to work correctly, odd behavior for distant avatars.
+        // As of 11-2017, LLMotionController::updateMotions() will
+        // ignore the value here. Need to re-enable if it's every
+        // fixed.
+		mMotionController.setTimeStep(time_step);
+	}
+}
+
+void LLVOAvatar::updateRootPositionAndRotation(LLAgent& agent, F32 speed, bool was_sit_ground_constrained) 
+{
+	if (!(isSitting() && getParent()))
+	{
+		// This case includes all configurations except sitting on an
+		// object, so does include ground sit.
+
+		//--------------------------------------------------------------------
+		// get timing info
+		// handle initial condition case
+		//--------------------------------------------------------------------
+		F32 animation_time = mAnimTimer.getElapsedTimeF32();
+		if (mTimeLast == 0.0f)
+		{
+			mTimeLast = animation_time;
+
+			// Initially put the pelvis at slaved position/mRotation
+			// SL-315
+			mRoot->setWorldPosition( getPositionAgent() ); // first frame
+			mRoot->setWorldRotation( getRotation() );
+		}
+	
+		//--------------------------------------------------------------------
+		// dont' let dT get larger than 1/5th of a second
+		//--------------------------------------------------------------------
+		F32 delta_time = animation_time - mTimeLast;
+
+		delta_time = llclamp( delta_time, DELTA_TIME_MIN, DELTA_TIME_MAX );
+		mTimeLast = animation_time;
+
+		mSpeedAccum = (mSpeedAccum * 0.95f) + (speed * 0.05f);
+
+		//--------------------------------------------------------------------
+		// compute the position of the avatar's root
+		//--------------------------------------------------------------------
+		LLVector3d root_pos;
+		LLVector3d ground_under_pelvis;
+
+		if (isSelf())
+		{
+			gAgent.setPositionAgent(getRenderPosition());
+		}
+
+		root_pos = gAgent.getPosGlobalFromAgent(getRenderPosition());
+		root_pos.mdV[VZ] += getVisualParamWeight(AVATAR_HOVER);
+
+        LLVector3 normal;
+		resolveHeightGlobal(root_pos, ground_under_pelvis, normal);
+		F32 foot_to_ground = (F32) (root_pos.mdV[VZ] - mPelvisToFoot - ground_under_pelvis.mdV[VZ]);				
+		BOOL in_air = ((!LLWorld::getInstance()->getRegionFromPosGlobal(ground_under_pelvis)) || 
+						foot_to_ground > FOOT_GROUND_COLLISION_TOLERANCE);
+
+		if (in_air && !mInAir)
+		{
+			mTimeInAir.reset();
+		}
+		mInAir = in_air;
+
+        // SL-402: with the ability to animate the position of joints
+        // that affect the body size calculation, computed body size
+        // can get stale much more easily. Simplest fix is to update
+        // it frequently.
+        // SL-427: this appears to be too frequent, moving to only do on animation state change.
+        //computeBodySize();
+    
+		// correct for the fact that the pelvis is not necessarily the center 
+		// of the agent's physical representation
+		root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
+		if (!isSitting() && !was_sit_ground_constrained)
+		{
+			root_pos += LLVector3d(getHoverOffset());
+		}
+
+        LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(this);
+        if (cav)
+        {
+            // SL-1350: Moved to LLDrawable::updateXform()
+            cav->matchVolumeTransform();
+        }
+        else
+        {
+            LLVector3 newPosition = gAgent.getPosAgentFromGlobal(root_pos);
+            if (newPosition != mRoot->getXform()->getWorldPosition())
+            {		
+                mRoot->touch();
+                // SL-315
+                mRoot->setWorldPosition( newPosition ); // regular update				
+            }
+        }
+
+		//--------------------------------------------------------------------
+		// Propagate viewer object rotation to root of avatar
+		//--------------------------------------------------------------------
+		if (!isControlAvatar() && !isAnyAnimationSignaled(AGENT_NO_ROTATE_ANIMS, NUM_AGENT_NO_ROTATE_ANIMS))
+		{
+            // Rotation fixups for avatars in motion.
+            // Skip for animated objects.
+            updateOrientation(agent, speed, delta_time);
+		}
+	}
+	else if (mDrawable.notNull())
+	{
+        // Sitting on an object - mRoot is slaved to mDrawable orientation.
+		LLVector3 pos = mDrawable->getPosition();
+		pos += getHoverOffset() * mDrawable->getRotation();
+		// SL-315
+		mRoot->setPosition(pos);
+		mRoot->setRotation(mDrawable->getRotation());
+	}
+}
+
+//------------------------------------------------------------------------
+// updateCharacter()
+//
+// This is called for all avatars, so there are 4 possible situations:
+//
+// 1) Avatar is your own. In this case the class is LLVOAvatarSelf,
+// isSelf() is true, and agent specifies the corresponding agent
+// information for you. In all the other cases, agent is irrelevant
+// and it would be less confusing if it were null or something.
+//
+// 2) Avatar is controlled by another resident. Class is LLVOAvatar,
+// and isSelf() is false.
+//
+// 3) Avatar is the controller for an animated object. Class is
+// LLControlAvatar and mIsDummy is true. Avatar is a purely
+// viewer-side entity with no representation on the simulator.
+//
+// 4) Avatar is a UI avatar used in some areas of the UI, such as when
+// previewing uploaded animations. Class is LLUIAvatar, and mIsDummy
+// is true. Avatar is purely viewer-side with no representation on the
+// simulator.
+//
+//------------------------------------------------------------------------
+BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
+{	
+	updateDebugText();
+	
+	if (!mIsBuilt)
+	{
+		return FALSE;
+	}
+
+	BOOL visible = isVisible();
+    bool is_control_avatar = isControlAvatar(); // capture state to simplify tracing
+	bool is_attachment = false;
+	if (is_control_avatar)
+	{
+        LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(this);
+		is_attachment = cav && cav->mRootVolp && cav->mRootVolp->isAttachment(); // For attached animated objects
+	}
+
+    LLScopedContextString str("updateCharacter " + getFullname() + " is_control_avatar "
+                              + boost::lexical_cast<std::string>(is_control_avatar) 
+                              + " is_attachment " + boost::lexical_cast<std::string>(is_attachment));
+
+	// For fading out the names above heads, only let the timer
+	// run if we're visible.
+	if (mDrawable.notNull() && !visible)
+	{
+		mTimeVisible.reset();
+	}
+
+	//--------------------------------------------------------------------
+	// The rest should only be done occasionally for far away avatars.
+    // Set mUpdatePeriod and visible based on distance and other criteria.
+	//--------------------------------------------------------------------
+    computeUpdatePeriod();
+    visible = (LLDrawable::getCurrentFrame()+mID.mData[0])%mUpdatePeriod == 0 ? TRUE : FALSE;
+
+	//--------------------------------------------------------------------
+    // Early out if not visible and not self
+	// don't early out for your own avatar, as we rely on your animations playing reliably
+	// for example, the "turn around" animation when entering customize avatar needs to trigger
+	// even when your avatar is offscreen
+	//--------------------------------------------------------------------
+	if (!visible && !isSelf())
+	{
+		updateMotions(LLCharacter::HIDDEN_UPDATE);
+		return FALSE;
+	}
+
+	//--------------------------------------------------------------------
+	// change animation time quanta based on avatar render load
+	//--------------------------------------------------------------------
+    // SL-763 the time step quantization does not currently work.
+    //updateTimeStep();
+    
+	//--------------------------------------------------------------------
+    // Update sitting state based on parent and active animation info.
+	//--------------------------------------------------------------------
+	if (getParent() && !isSitting())
+	{
+		sitOnObject((LLViewerObject*)getParent());
+	}
+	else if (!getParent() && isSitting() && !isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED))
+	{
+		getOffObject();
+	}
+
+	//--------------------------------------------------------------------
+	// create local variables in world coords for region position values
+	//--------------------------------------------------------------------
+	LLVector3 xyVel = getVelocity();
+	xyVel.mV[VZ] = 0.0f;
+	F32 speed = xyVel.length();
+	// remembering the value here prevents a display glitch if the
+	// animation gets toggled during this update.
+	bool was_sit_ground_constrained = isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED);
+
+	//--------------------------------------------------------------------
+    // This does a bunch of state updating, including figuring out
+    // whether av is in the air, setting mRoot position and rotation
+    // In some cases, calls updateOrientation() for a lot of the
+    // work
+    // --------------------------------------------------------------------
+    updateRootPositionAndRotation(agent, speed, was_sit_ground_constrained);
+	
+	//-------------------------------------------------------------------------
+	// Update character motions
+	//-------------------------------------------------------------------------
+	// store data relevant to motions
+	mSpeed = speed;
+
+	// update animations
+	if (mSpecialRenderMode == 1) // Animation Preview
+	{
+		updateMotions(LLCharacter::FORCE_UPDATE);
+	}
+	else
+	{
+		updateMotions(LLCharacter::NORMAL_UPDATE);
+	}
+
+	// Special handling for sitting on ground.
+	if (!getParent() && (isSitting() || was_sit_ground_constrained))
+	{
+		
+		F32 off_z = LLVector3d(getHoverOffset()).mdV[VZ];
+		if (off_z != 0.0)
+		{
+			LLVector3 pos = mRoot->getWorldPosition();
+			pos.mV[VZ] += off_z;
+			mRoot->touch();
+			// SL-315
+			mRoot->setWorldPosition(pos);
+		}
+	}
+
+	// update head position
+	updateHeadOffset();
+
+	// Generate footstep sounds when feet hit the ground
+    updateFootstepSounds();
+
+	// Update child joints as needed.
 	mRoot->updateWorldMatrixChildren();
 
-	//mesh vertices need to be reskinned
-	mNeedsSkin = TRUE;
+	// System avatar mesh vertices need to be reskinned.
+    mNeedsSkin = TRUE;
+
 	return TRUE;
 }
+
 //-----------------------------------------------------------------------------
 // updateHeadOffset()
 //-----------------------------------------------------------------------------
@@ -4019,7 +4385,7 @@ void LLVOAvatar::updateHeadOffset()
 	{
 		midEyePt = midEyePt * ~mDrawable->getWorldRotation();
 	}
-	if (mIsSitting)
+	if (isSitting())
 	{
 		mHeadOffset = midEyePt;	
 	}
@@ -4115,7 +4481,7 @@ void LLVOAvatar::updateVisibility()
 
 	if (mIsDummy)
 	{
-		visible = TRUE;
+		visible = FALSE;
 	}
 	else if (mDrawable.isNull())
 	{
@@ -4229,7 +4595,8 @@ void LLVOAvatar::updateVisibility()
 	}
 	else
 	{
-		if (mMeshValid && mMeshInvisibleTime.getElapsedTimeF32() > TIME_BEFORE_MESH_CLEANUP)
+		if (mMeshValid &&
+            (isControlAvatar() || mMeshInvisibleTime.getElapsedTimeF32() > TIME_BEFORE_MESH_CLEANUP))
 		{
 			releaseMeshData();
 		}
@@ -4263,6 +4630,11 @@ U32 LLVOAvatar::renderSkinned()
 	{
 		return num_indices;
 	}
+
+    if (mDrawable.isNull())
+    {
+		return num_indices;
+    }
 
 	LLFace* face = mDrawable->getFace(0);
 
@@ -4430,7 +4802,7 @@ U32 LLVOAvatar::renderSkinned()
 		{
 			if (!isSelf() || gAgent.needsRenderHead() || LLPipeline::sShadowRender)
 			{
-				if (isTextureVisible(TEX_HEAD_BAKED) || mIsDummy)
+				if (isTextureVisible(TEX_HEAD_BAKED) || isUIAvatar())
 				{
 					LLViewerJoint* head_mesh = getViewerJoint(MESH_ID_HEAD);
 					if (head_mesh)
@@ -4440,7 +4812,7 @@ U32 LLVOAvatar::renderSkinned()
 					first_pass = FALSE;
 				}
 			}
-			if (isTextureVisible(TEX_UPPER_BAKED) || mIsDummy)
+			if (isTextureVisible(TEX_UPPER_BAKED) || isUIAvatar())
 			{
 				LLViewerJoint* upper_mesh = getViewerJoint(MESH_ID_UPPER_BODY);
 				if (upper_mesh)
@@ -4450,7 +4822,7 @@ U32 LLVOAvatar::renderSkinned()
 				first_pass = FALSE;
 			}
 			
-			if (isTextureVisible(TEX_LOWER_BAKED) || mIsDummy)
+			if (isTextureVisible(TEX_LOWER_BAKED) || isUIAvatar())
 			{
 				LLViewerJoint* lower_mesh = getViewerJoint(MESH_ID_LOWER_BODY);
 				if (lower_mesh)
@@ -4479,7 +4851,7 @@ U32 LLVOAvatar::renderSkinned()
 U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 {
 	U32 num_indices = 0;
-	if( isWearingWearableType( LLWearableType::WT_SKIRT ) && (mIsDummy || isTextureVisible(TEX_SKIRT_BAKED)) )
+	if( isWearingWearableType( LLWearableType::WT_SKIRT ) && (isUIAvatar() || isTextureVisible(TEX_SKIRT_BAKED)) )
 	{
 		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.25f);
 		LLViewerJoint* skirt_mesh = getViewerJoint(MESH_ID_SKIRT);
@@ -4507,18 +4879,15 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 			}
 			first_pass = FALSE;
 		}
-		// Can't test for baked hair being defined, since that won't always be the case (not all viewers send baked hair)
-		// TODO: 1.25 will be able to switch this logic back to calling isTextureVisible();
-		if ( (getImage(TEX_HAIR_BAKED, 0) && getImage(TEX_HAIR_BAKED, 0)->getID() != IMG_INVISIBLE)
-			|| LLDrawPoolAlpha::sShowDebugAlpha)		
-		{
-			LLViewerJoint* hair_mesh = getViewerJoint(MESH_ID_HAIR);
-			if (hair_mesh)
-			{
-				num_indices += hair_mesh->render(mAdjustedPixelArea, first_pass, mIsDummy);
-			}
-			first_pass = FALSE;
-		}
+		if (isTextureVisible(TEX_HAIR_BAKED))
+        {
+            LLViewerJoint* hair_mesh = getViewerJoint(MESH_ID_HAIR);
+            if (hair_mesh)
+            {
+                num_indices += hair_mesh->render(mAdjustedPixelArea, first_pass, mIsDummy);
+            }
+            first_pass = FALSE;
+        }
 		if (LLPipeline::sImpostorRender)
 		{
 			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
@@ -4558,7 +4927,7 @@ U32 LLVOAvatar::renderRigid()
 		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
 	}
 
-	if (isTextureVisible(TEX_EYES_BAKED)  || mIsDummy)
+	if (isTextureVisible(TEX_EYES_BAKED)  || isUIAvatar())
 	{
 		LLViewerJoint* eyeball_left = getViewerJoint(MESH_ID_EYEBALL_LEFT);
 		LLViewerJoint* eyeball_right = getViewerJoint(MESH_ID_EYEBALL_RIGHT);
@@ -4596,22 +4965,53 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color, S32 diffuse_channel)
 	left *= mImpostorDim.mV[0];
 	up *= mImpostorDim.mV[1];
 
-	LLGLEnable test(GL_ALPHA_TEST);
-	gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.f);
+	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_IMPOSTORS))
+	{
+		LLGLEnable blend(GL_BLEND);
+		gGL.setSceneBlendType(LLRender::BT_ADD);
+		gGL.getTexUnit(diffuse_channel)->unbind(LLTexUnit::TT_TEXTURE);
 
-	gGL.color4ubv(color.mV);
-	gGL.getTexUnit(diffuse_channel)->bind(&mImpostor);
-	gGL.begin(LLRender::QUADS);
-	gGL.texCoord2f(0,0);
-	gGL.vertex3fv((pos+left-up).mV);
-	gGL.texCoord2f(1,0);
-	gGL.vertex3fv((pos-left-up).mV);
-	gGL.texCoord2f(1,1);
-	gGL.vertex3fv((pos-left+up).mV);
-	gGL.texCoord2f(0,1);
-	gGL.vertex3fv((pos+left+up).mV);
-	gGL.end();
-	gGL.flush();
+		// gGL.begin(LLRender::QUADS);
+		// gGL.vertex3fv((pos+left-up).mV);
+		// gGL.vertex3fv((pos-left-up).mV);
+		// gGL.vertex3fv((pos-left+up).mV);
+		// gGL.vertex3fv((pos+left+up).mV);
+		// gGL.end();
+
+
+		gGL.begin(LLRender::LINES); 
+		gGL.color4f(1.f,1.f,1.f,1.f);
+		F32 thickness = llmax(F32(5.0f-5.0f*(gFrameTimeSeconds-mLastImpostorUpdateFrameTime)),1.0f);
+		glLineWidth(thickness);
+		gGL.vertex3fv((pos+left-up).mV);
+		gGL.vertex3fv((pos-left-up).mV);
+		gGL.vertex3fv((pos-left-up).mV);
+		gGL.vertex3fv((pos-left+up).mV);
+		gGL.vertex3fv((pos-left+up).mV);
+		gGL.vertex3fv((pos+left+up).mV);
+		gGL.vertex3fv((pos+left+up).mV);
+		gGL.vertex3fv((pos+left-up).mV);
+		gGL.end();
+		gGL.flush();
+	}
+	{
+		LLGLEnable test(GL_ALPHA_TEST);
+		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.f);
+
+		gGL.color4ubv(color.mV);
+		gGL.getTexUnit(diffuse_channel)->bind(&mImpostor);
+		gGL.begin(LLRender::QUADS);
+		gGL.texCoord2f(0,0);
+		gGL.vertex3fv((pos+left-up).mV);
+		gGL.texCoord2f(1,0);
+		gGL.vertex3fv((pos-left-up).mV);
+		gGL.texCoord2f(1,1);
+		gGL.vertex3fv((pos-left+up).mV);
+		gGL.texCoord2f(0,1);
+		gGL.vertex3fv((pos+left+up).mV);
+		gGL.end();
+		gGL.flush();
+	}
 
 	return 6;
 }
@@ -5105,10 +5505,13 @@ void LLVOAvatar::processAnimationStateChanges()
 		startMotion(ANIM_AGENT_WALK_ADJUST);
 		stopMotion(ANIM_AGENT_FLY_ADJUST);
 	}
-	else if (mInAir && !mIsSitting)
+	else if (mInAir && !isSitting())
 	{
 		stopMotion(ANIM_AGENT_WALK_ADJUST);
-		startMotion(ANIM_AGENT_FLY_ADJUST);
+        if (mEnableDefaultMotions)
+        {
+            startMotion(ANIM_AGENT_FLY_ADJUST);
+        }
 	}
 	else
 	{
@@ -5118,13 +5521,19 @@ void LLVOAvatar::processAnimationStateChanges()
 
 	if ( isAnyAnimationSignaled(AGENT_GUN_AIM_ANIMS, NUM_AGENT_GUN_AIM_ANIMS) )
 	{
-		startMotion(ANIM_AGENT_TARGET);
+        if (mEnableDefaultMotions)
+        {
+            startMotion(ANIM_AGENT_TARGET);
+        }
 		stopMotion(ANIM_AGENT_BODY_NOISE);
 	}
 	else
 	{
 		stopMotion(ANIM_AGENT_TARGET);
-		startMotion(ANIM_AGENT_BODY_NOISE);
+        if (mEnableDefaultMotions)
+        {
+            startMotion(ANIM_AGENT_BODY_NOISE);
+        }
 	}
 	
 	// clear all current animations
@@ -5488,72 +5897,30 @@ bool LLVOAvatar::getRiggedMeshID(LLViewerObject* pVO, LLUUID& mesh_id)
 		LLVOVolume* pVObj = pVO->mDrawable->getVOVolume();
 		if ( pVObj )
 		{
-			const LLMeshSkinInfo* pSkinData = gMeshRepo.getSkinInfo( pVObj->getVolume()->getParams().getSculptID(), pVObj );
+			const LLMeshSkinInfo* pSkinData = pVObj->getSkinInfo();
 			if (pSkinData 
 				&& pSkinData->mJointNames.size() > JOINT_COUNT_REQUIRED_FOR_FULLRIG	// full rig
 				&& pSkinData->mAlternateBindMatrix.size() > 0 )
-					{				
-						mesh_id = pSkinData->mMeshID;
-						return true;
-					}
+            {				
+                mesh_id = pSkinData->mMeshID;
+                return true;
+            }
 		}
 	}
 	return false;
 }
 
-bool LLVOAvatar::jointIsRiggedTo(const std::string& joint_name)
+bool LLVOAvatar::jointIsRiggedTo(const LLJoint *joint) const
 {
-	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
-		 iter != mAttachmentPoints.end();
-		 ++iter)
-	{
-		LLViewerJointAttachment* attachment = iter->second;
-        for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-             attachment_iter != attachment->mAttachedObjects.end();
-             ++attachment_iter)
-        {
-            const LLViewerObject* attached_object = (*attachment_iter);
-            if (attached_object && jointIsRiggedTo(joint_name, attached_object))
-            {
-                return true;
-            }
-        }
-	}
-    return false;
-}
-
-bool LLVOAvatar::jointIsRiggedTo(const std::string& joint_name, const LLViewerObject *vo)
-{
-	// Process all children
-	LLViewerObject::const_child_list_t& children = vo->getChildren();
-	for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
-		 it != children.end(); ++it)
-	{
-		LLViewerObject *childp = *it;
-        if (jointIsRiggedTo(joint_name,childp))
-        {
-            return true;
-        }
-	}
-
-	const LLVOVolume *vobj = dynamic_cast<const LLVOVolume*>(vo);
-	if (!vobj)
-	{
-		return false;
-	}
-
-	LLUUID currentId = vobj->getVolume()->getParams().getSculptID();						
-	const LLMeshSkinInfo*  pSkinData = gMeshRepo.getSkinInfo( currentId, vobj );
-
-	if ( vobj && vobj->isAttachment() && vobj->isMesh() && pSkinData )
-	{
-        if (std::find(pSkinData->mJointNames.begin(), pSkinData->mJointNames.end(), joint_name) !=
-            pSkinData->mJointNames.end())
+    if (joint)
+    {
+        const LLJointRiggingInfoTab& tab = mJointRiggingInfoTab;
+        S32 joint_num = joint->getJointNum();
+        if (joint_num < tab.size() && tab[joint_num].isRiggedTo())
         {
             return true;
         }
     }
-
     return false;
 }
 
@@ -5570,6 +5937,20 @@ void LLVOAvatar::clearAttachmentOverrides()
 			pJoint->clearAttachmentScaleOverrides();
         }
     }
+
+    if (mPelvisFixups.count()>0)
+    {
+        mPelvisFixups.clear();
+        LLJoint* pJointPelvis = getJoint("mPelvis");
+        if (pJointPelvis)
+        {
+			pJointPelvis->setPosition( LLVector3( 0.0f, 0.0f, 0.0f) );
+        }
+        postPelvisSetRecalc();	
+    }
+
+    mActiveOverrideMeshes.clear();
+    onActiveOverrideMeshesChanged();
 }
 
 //-----------------------------------------------------------------------------
@@ -5579,7 +5960,25 @@ void LLVOAvatar::rebuildAttachmentOverrides()
 {
     LLScopedContextString str("rebuildAttachmentOverrides " + getFullname());
 
-    // Attachment points
+    LL_DEBUGS("AnimatedObjects") << "rebuilding" << LL_ENDL;
+    dumpStack("AnimatedObjectsStack");
+    
+    clearAttachmentOverrides();
+
+    // Handle the case that we're resetting the skeleton of an animated object.
+    LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(this);
+    if (control_av)
+    {
+        LLVOVolume *volp = control_av->mRootVolp;
+        if (volp)
+        {
+            LL_DEBUGS("Avatar") << volp->getID() << " adding attachment overrides for root vol, prim count " 
+                                << (S32) (1+volp->numChildren()) << LL_ENDL;
+            addAttachmentOverridesForObject(volp);
+        }
+    }
+
+    // Attached objects
 	for (attachment_map_t::iterator iter = mAttachmentPoints.begin();
 		 iter != mAttachmentPoints.end();
 		 ++iter)
@@ -5590,33 +5989,164 @@ void LLVOAvatar::rebuildAttachmentOverrides()
             for (LLViewerJointAttachment::attachedobjs_vec_t::iterator at_it = attachment_pt->mAttachedObjects.begin();
 				 at_it != attachment_pt->mAttachedObjects.end(); ++at_it)
             {
-                addAttachmentOverridesForObject(*at_it);
+                LLViewerObject *vo = *at_it;
+                // Attached animated objects affect joints in their control
+                // avs, not the avs to which they are attached.
+                if (!vo->isAnimatedObject())
+                {
+                    addAttachmentOverridesForObject(vo);
+                }
             }
         }
     }
 }
+
 //-----------------------------------------------------------------------------
-// addAttachmentPosOverridesForObject
-//-----------------------------------------------------------------------------
-void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
+// updateAttachmentOverrides
+//
+// This is intended to give the same results as
+// rebuildAttachmentOverrides(), while avoiding redundant work.
+// -----------------------------------------------------------------------------
+void LLVOAvatar::updateAttachmentOverrides()
 {
-	LLVOAvatar *av = vo->getAvatarAncestor();
-	if (!av || (av != this))
+    LLScopedContextString str("updateAttachmentOverrides " + getFullname());
+
+    LL_DEBUGS("AnimatedObjects") << "updating" << LL_ENDL;
+    dumpStack("AnimatedObjectsStack");
+
+    std::set<LLUUID> meshes_seen;
+    
+    // Handle the case that we're updating the skeleton of an animated object.
+    LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(this);
+    if (control_av)
+    {
+        LLVOVolume *volp = control_av->mRootVolp;
+        if (volp)
+        {
+            LL_DEBUGS("Avatar") << volp->getID() << " adding attachment overrides for root vol, prim count " 
+                                << (S32) (1+volp->numChildren()) << LL_ENDL;
+            addAttachmentOverridesForObject(volp, &meshes_seen);
+        }
+    }
+
+    // Attached objects
+	for (attachment_map_t::iterator iter = mAttachmentPoints.begin();
+		 iter != mAttachmentPoints.end();
+		 ++iter)
 	{
+		LLViewerJointAttachment *attachment_pt = (*iter).second;
+        if (attachment_pt)
+        {
+            for (LLViewerJointAttachment::attachedobjs_vec_t::iterator at_it = attachment_pt->mAttachedObjects.begin();
+				 at_it != attachment_pt->mAttachedObjects.end(); ++at_it)
+            {
+                LLViewerObject *vo = *at_it;
+                // Attached animated objects affect joints in their control
+                // avs, not the avs to which they are attached.
+                if (!vo->isAnimatedObject())
+                {
+                    addAttachmentOverridesForObject(vo, &meshes_seen);
+                }
+            }
+        }
+    }
+    // Remove meshes that are no longer present on the skeleton
+
+	// have to work with a copy because removeAttachmentOverrides() will change mActiveOverrideMeshes.
+    std::set<LLUUID> active_override_meshes = mActiveOverrideMeshes; 
+    for (std::set<LLUUID>::iterator it = active_override_meshes.begin(); it != active_override_meshes.end(); ++it)
+    {
+        if (meshes_seen.find(*it) == meshes_seen.end())
+        {
+            removeAttachmentOverridesForObject(*it);
+        }
+    }
+
+
+#ifdef ATTACHMENT_OVERRIDE_VALIDATION
+    {
+        std::vector<LLVector3OverrideMap> pos_overrides_by_joint;
+        std::vector<LLVector3OverrideMap> scale_overrides_by_joint;
+        LLVector3OverrideMap pelvis_fixups;
+
+        // Capture snapshot of override state after update
+        for (S32 joint_num = 0; joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS; joint_num++)
+        {
+            LLVector3OverrideMap pos_overrides;
+            LLJoint *joint = getJoint(joint_num);
+            if (joint)
+            {
+                pos_overrides_by_joint.push_back(joint->m_attachmentPosOverrides);
+                scale_overrides_by_joint.push_back(joint->m_attachmentScaleOverrides);
+            }
+            else
+            {
+                // No joint, use default constructed empty maps
+                pos_overrides_by_joint.push_back(LLVector3OverrideMap());
+                scale_overrides_by_joint.push_back(LLVector3OverrideMap());
+            }
+        }
+        pelvis_fixups = mPelvisFixups;
+        //dumpArchetypeXML(getFullname() + "_paranoid_updated");
+
+        // Rebuild and compare
+        rebuildAttachmentOverrides();
+        //dumpArchetypeXML(getFullname() + "_paranoid_rebuilt");
+        bool mismatched = false;
+        for (S32 joint_num = 0; joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS; joint_num++)
+        {
+            LLJoint *joint = getJoint(joint_num);
+            if (joint)
+            {
+                if (pos_overrides_by_joint[joint_num] != joint->m_attachmentPosOverrides)
+                {
+                    mismatched = true;
+                }
+                if (scale_overrides_by_joint[joint_num] != joint->m_attachmentScaleOverrides)
+                {
+                    mismatched = true;
+                }
+            }
+        }
+        if (pelvis_fixups != mPelvisFixups)
+        {
+            mismatched = true;
+        }
+        if (mismatched)
+        {
+            LL_WARNS() << "MISMATCHED ATTACHMENT OVERRIDES" << LL_ENDL;
+        }
+    }
+#endif
+}
+
+//-----------------------------------------------------------------------------
+// addAttachmentOverridesForObject
+//-----------------------------------------------------------------------------
+void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LLUUID>* meshes_seen, bool recursive)
+{
+    if (vo->getAvatar() != this && vo->getAvatarAncestor() != this)
+    {
 		LL_WARNS("Avatar") << "called with invalid avatar" << LL_ENDL;
         return;
-	}
+    }
 
-    LLScopedContextString str("addAttachmentOverridesForObject " + av->getFullname());
+    LLScopedContextString str("addAttachmentOverridesForObject " + getFullname());
+    
+    LL_DEBUGS("AnimatedObjects") << "adding" << LL_ENDL;
+    dumpStack("AnimatedObjectsStack");
     
 	// Process all children
-	LLViewerObject::const_child_list_t& children = vo->getChildren();
-	for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
-		 it != children.end(); ++it)
-	{
-		LLViewerObject *childp = *it;
-		addAttachmentOverridesForObject(childp);
-	}
+    if (recursive)
+    {
+        LLViewerObject::const_child_list_t& children = vo->getChildren();
+        for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
+             it != children.end(); ++it)
+        {
+            LLViewerObject *childp = *it;
+            addAttachmentOverridesForObject(childp, meshes_seen, true);
+        }
+    }
 
 	LLVOVolume *vobj = dynamic_cast<LLVOVolume*>(vo);
 	bool pelvisGotSet = false;
@@ -5625,15 +6155,18 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
 	{
 		return;
 	}
+
+	LLViewerObject *root_object = (LLViewerObject*)vobj->getRoot();
+    LL_DEBUGS("AnimatedObjects") << "trying to add attachment overrides for root object " << root_object->getID() << " prim is " << vobj << LL_ENDL;
 	if (vobj->isMesh() &&
 		((vobj->getVolume() && !vobj->getVolume()->isMeshAssetLoaded()) || !gMeshRepo.meshRezEnabled()))
 	{
+        LL_DEBUGS("AnimatedObjects") << "failed to add attachment overrides for root object " << root_object->getID() << " mesh asset not loaded" << LL_ENDL;
 		return;
 	}
-	LLUUID currentId = vobj->getVolume()->getParams().getSculptID();						
-	const LLMeshSkinInfo*  pSkinData = gMeshRepo.getSkinInfo( currentId, vobj );
+	const LLMeshSkinInfo*  pSkinData = vobj->getSkinInfo();
 
-	if ( vobj && vobj->isAttachment() && vobj->isMesh() && pSkinData )
+	if ( vobj && vobj->isMesh() && pSkinData )
 	{
 		const int bindCnt = pSkinData->mAlternateBindMatrix.size();								
         const int jointCnt = pSkinData->mJointNames.size();
@@ -5645,8 +6178,26 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
 		{					
 			const F32 pelvisZOffset = pSkinData->mPelvisOffset;
 			const LLUUID& mesh_id = pSkinData->mMeshID;
+
+            if (meshes_seen)
+            {
+                meshes_seen->insert(mesh_id);
+            }
+            bool mesh_overrides_loaded = (mActiveOverrideMeshes.find(mesh_id) != mActiveOverrideMeshes.end());
+            if (mesh_overrides_loaded)
+            {
+                LL_DEBUGS("AnimatedObjects") << "skipping add attachment overrides for " << mesh_id 
+                                             << " to root object " << root_object->getID()
+                                             << ", already loaded"
+                                             << LL_ENDL;
+            }
+            else
+            {
+                LL_DEBUGS("AnimatedObjects") << "adding attachment overrides for " << mesh_id 
+                                             << " to root object " << root_object->getID() << LL_ENDL;
+            }
 			bool fullRig = (jointCnt>=JOINT_COUNT_REQUIRED_FOR_FULLRIG) ? true : false;								
-			if ( fullRig )
+			if ( fullRig && !mesh_overrides_loaded )
 			{								
 				for ( int i=0; i<jointCnt; ++i )
 				{
@@ -5690,9 +6241,15 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
                     }
                     
 				}
+                mActiveOverrideMeshes.insert(mesh_id);
+                onActiveOverrideMeshesChanged();
 			}							
 		}
 	}
+    else
+    {
+        LL_DEBUGS("AnimatedObjects") << "failed to add attachment overrides for root object " << root_object->getID() << " not mesh or no pSkinData" << LL_ENDL;
+    }
 					
 	//Rebuild body data if we altered joints/pelvis
 	if ( pelvisGotSet ) 
@@ -5815,14 +6372,14 @@ void LLVOAvatar::showAttachmentOverrides(bool verbose) const
 }
 
 //-----------------------------------------------------------------------------
-// resetJointsOnDetach
+// removeAttachmentOverridesForObject
 //-----------------------------------------------------------------------------
-void LLVOAvatar::resetJointsOnDetach(LLViewerObject *vo)
+void LLVOAvatar::removeAttachmentOverridesForObject(LLViewerObject *vo)
 {
-	LLVOAvatar *av = vo->getAvatarAncestor();
-	if (!av || (av != this))
+    if (vo->getAvatar() != this && vo->getAvatarAncestor() != this)
 	{
 		LL_WARNS("Avatar") << "called with invalid avatar" << LL_ENDL;
+        return;
 	}
 		
 	// Process all children
@@ -5831,37 +6388,32 @@ void LLVOAvatar::resetJointsOnDetach(LLViewerObject *vo)
 		 it != children.end(); ++it)
 	{
 		LLViewerObject *childp = *it;
-		resetJointsOnDetach(childp);
+		removeAttachmentOverridesForObject(childp);
 	}
 
 	// Process self.
 	LLUUID mesh_id;
 	if (getRiggedMeshID(vo,mesh_id))
 	{
-		resetJointsOnDetach(mesh_id);
+		removeAttachmentOverridesForObject(mesh_id);
 	}
 }
 
 //-----------------------------------------------------------------------------
-// resetJointsOnDetach
+// removeAttachmentOverridesForObject
 //-----------------------------------------------------------------------------
-void LLVOAvatar::resetJointsOnDetach(const LLUUID& mesh_id)
+void LLVOAvatar::removeAttachmentOverridesForObject(const LLUUID& mesh_id)
 {	
-	//Subsequent joints are relative to pelvis
-	avatar_joint_list_t::iterator iter = mSkeleton.begin();
-	avatar_joint_list_t::iterator end  = mSkeleton.end();
-
 	LLJoint* pJointPelvis = getJoint("mPelvis");
-	
-	for (; iter != end; ++iter)
-	{
-		LLJoint* pJoint = (*iter);
-		//Reset joints except for pelvis
+    const std::string av_string = avString();
+    for (S32 joint_num = 0; joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS; joint_num++)
+    {
+        LLJoint *pJoint = getJoint(joint_num);
 		if ( pJoint )
 		{			
             bool dummy; // unused
-			pJoint->removeAttachmentPosOverride(mesh_id, avString(),dummy);
-			pJoint->removeAttachmentScaleOverride(mesh_id, avString());
+			pJoint->removeAttachmentPosOverride(mesh_id, av_string, dummy);
+			pJoint->removeAttachmentScaleOverride(mesh_id, av_string);
 		}		
 		if ( pJoint && pJoint == pJointPelvis)
 		{
@@ -5872,6 +6424,9 @@ void LLVOAvatar::resetJointsOnDetach(const LLUUID& mesh_id)
 	}	
 		
 	postPelvisSetRecalc();	
+
+    mActiveOverrideMeshes.erase(mesh_id);
+    onActiveOverrideMeshesChanged();
 }
 //-----------------------------------------------------------------------------
 // getCharacterPosition()
@@ -5923,7 +6478,7 @@ void LLVOAvatar::getGround(const LLVector3 &in_pos_agent, LLVector3 &out_pos_age
 	LLVector3d z_vec(0.0f, 0.0f, 1.0f);
 	LLVector3d p0_global, p1_global;
 
-	if (mIsDummy)
+	if (isUIAvatar())
 	{
 		outNorm.setVec(z_vec);
 		out_pos_agent = in_pos_agent;
@@ -5952,7 +6507,7 @@ F32 LLVOAvatar::getTimeDilation()
 //-----------------------------------------------------------------------------
 F32 LLVOAvatar::getPixelArea() const
 {
-	if (mIsDummy)
+	if (isUIAvatar())
 	{
 		return 100000.f;
 	}
@@ -6386,7 +6941,7 @@ void LLVOAvatar::removeChild(LLViewerObject *childp)
 
 LLViewerJointAttachment* LLVOAvatar::getTargetAttachmentPoint(LLViewerObject* viewer_object)
 {
-	S32 attachmentID = ATTACHMENT_ID_FROM_STATE(viewer_object->getState());
+	S32 attachmentID = ATTACHMENT_ID_FROM_STATE(viewer_object->getAttachmentState());
 
 	// This should never happen unless the server didn't process the attachment point
 	// correctly, but putting this check in here to be safe.
@@ -6449,6 +7004,11 @@ const LLViewerJointAttachment *LLVOAvatar::attachObject(LLViewerObject *viewer_o
 		return 0;
 	}
 
+    if (!viewer_object->isAnimatedObject())
+    {
+        updateAttachmentOverrides();
+    }
+
 	updateVisualComplexity();
 
 	if (viewer_object->isSelected())
@@ -6478,19 +7038,62 @@ U32 LLVOAvatar::getNumAttachments() const
 
 //-----------------------------------------------------------------------------
 // canAttachMoreObjects()
-//-----------------------------------------------------------------------------
-BOOL LLVOAvatar::canAttachMoreObjects() const
-{
-	return (getNumAttachments() < MAX_AGENT_ATTACHMENTS);
-}
-
-//-----------------------------------------------------------------------------
-// canAttachMoreObjects()
 // Returns true if we can attach <n> more objects.
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatar::canAttachMoreObjects(U32 n) const
 {
 	return (getNumAttachments() + n) <= MAX_AGENT_ATTACHMENTS;
+}
+
+//-----------------------------------------------------------------------------
+// getNumAnimatedObjectAttachments()
+//-----------------------------------------------------------------------------
+U32 LLVOAvatar::getNumAnimatedObjectAttachments() const
+{
+	U32 num_attachments = 0;
+	for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin();
+		 iter != mAttachmentPoints.end();
+		 ++iter)
+	{
+		const LLViewerJointAttachment *attachment_pt = (*iter).second;
+		num_attachments += attachment_pt->getNumAnimatedObjects();
+	}
+	return num_attachments;
+}
+
+//-----------------------------------------------------------------------------
+// getMaxAnimatedObjectAttachments()
+// Gets from simulator feature if available, otherwise 0.
+//-----------------------------------------------------------------------------
+S32 LLVOAvatar::getMaxAnimatedObjectAttachments() const
+{
+    S32 max_attach = 0;
+    if (gSavedSettings.getBOOL("AnimatedObjectsIgnoreLimits"))
+    {
+        max_attach = MAX_AGENT_ATTACHMENTS;
+    }
+    else
+    {
+        if (gAgent.getRegion())
+        {
+            LLSD features;
+            gAgent.getRegion()->getSimulatorFeatures(features);
+            if (features.has("AnimatedObjects"))
+            {
+                max_attach = features["AnimatedObjects"]["MaxAgentAnimatedObjectAttachments"].asInteger();
+            }
+        }
+    }
+    return max_attach;
+}
+
+//-----------------------------------------------------------------------------
+// canAttachMoreAnimatedObjects()
+// Returns true if we can attach <n> more animated objects.
+//-----------------------------------------------------------------------------
+BOOL LLVOAvatar::canAttachMoreAnimatedObjects(U32 n) const
+{
+	return (getNumAnimatedObjectAttachments() + n) <= getMaxAnimatedObjectAttachments();
 }
 
 //-----------------------------------------------------------------------------
@@ -6581,7 +7184,7 @@ void LLVOAvatar::cleanupAttachedMesh( LLViewerObject* pVO )
 	LLUUID mesh_id;
 	if (getRiggedMeshID(pVO, mesh_id))
 	{
-		resetJointsOnDetach(mesh_id);
+        // FIXME this seems like an odd place for this code.
 		if ( gAgentCamera.cameraCustomizeAvatar() )
 		{
 			gAgent.unpauseAnimation();
@@ -6606,9 +7209,13 @@ BOOL LLVOAvatar::detachObject(LLViewerObject *viewer_object)
 		if (attachment->isObjectAttached(viewer_object))
 		{
             updateVisualComplexity();
+            bool is_animated_object = viewer_object->isAnimatedObject();
 			cleanupAttachedMesh( viewer_object );
-		
 			attachment->removeObject(viewer_object);
+            if (!is_animated_object)
+            {
+                updateAttachmentOverrides();
+            }
 			LL_DEBUGS() << "Detaching object " << viewer_object->mID << " from " << attachment->getName() << LL_ENDL;
 			return TRUE;
 		}
@@ -6742,7 +7349,10 @@ void LLVOAvatar::getOffObject()
 	mRoot->setRotation(cur_rotation_world);
 	mRoot->getXform()->update();
 
-	startMotion(ANIM_AGENT_BODY_NOISE);
+    if (mEnableDefaultMotions)
+    {
+        startMotion(ANIM_AGENT_BODY_NOISE);
+    }
 
 	if (isSelf())
 	{
@@ -6900,6 +7510,18 @@ void LLVOAvatar::onGlobalColorChanged(const LLTexGlobalColor* global_color)
 	updateMeshTextures();
 }
 
+// virtual
+bool LLVOAvatar::shouldRenderRigged() const
+{
+    return true;
+}
+
+// FIXME: We have an mVisible member, set in updateVisibility(), but this
+// function doesn't return it! isVisible() and mVisible are used
+// different places for different purposes. mVisible seems to be more
+// related to whether the actual avatar mesh is shown, and isVisible()
+// to whether anything about the avatar is displayed in the scene.
+// Maybe better naming could make this clearer?
 BOOL LLVOAvatar::isVisible() const
 {
 	return mDrawable.notNull()
@@ -6910,6 +7532,11 @@ BOOL LLVOAvatar::isVisible() const
 // Determine if we have enough avatar data to render
 bool LLVOAvatar::getIsCloud() const
 {
+	if (mIsDummy)
+	{
+		return false;
+	}
+
 	return (   ((const_cast<LLVOAvatar*>(this))->visualParamWeightsAreDefault())// Do we have a shape?
 			|| (   !isTextureDefined(TEX_LOWER_BAKED)
 				|| !isTextureDefined(TEX_UPPER_BAKED)
@@ -7189,9 +7816,9 @@ bool LLVOAvatar::isTooComplex() const
         // so that unlimited will completely disable the overly complex impostor rendering
         // yes, this leaves them vulnerable to griefing objects... their choice
         too_complex = (   max_render_cost > 0
-                       && (   mVisualComplexity > max_render_cost
-                           || (max_attachment_area > 0.0f && mAttachmentSurfaceArea > max_attachment_area)
-                           ));
+                          && (mVisualComplexity > max_render_cost
+                                 || (max_attachment_area > 0.0f && mAttachmentSurfaceArea > max_attachment_area)
+                              ));
 	}
 
 	return too_complex;
@@ -8696,8 +9323,43 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 							 pelvis_fixup, mesh_id.asString().c_str());
 		}
 
-		apr_file_printf( file, "\t</archetype>\n" );
-		apr_file_printf( file, "\n</linden_genepool>\n" );
+        LLVector3 rp = getRootJoint()->getWorldPosition();
+        LLVector4a rpv;
+        rpv.load3(rp.mV);
+        
+        for (S32 joint_num = 0; joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS; joint_num++)
+        {
+            LLJoint *joint = getJoint(joint_num);
+            if (joint_num < mJointRiggingInfoTab.size())
+            {
+                LLJointRiggingInfo& rig_info = mJointRiggingInfoTab[joint_num];
+                if (rig_info.isRiggedTo())
+                {
+                    LLMatrix4a mat;
+                    LLVector4a new_extents[2];
+                    mat.loadu(joint->getWorldMatrix());
+                    matMulBoundBox(mat, rig_info.getRiggedExtents(), new_extents);
+                    LLVector4a rrp[2];
+                    rrp[0].setSub(new_extents[0],rpv);
+                    rrp[1].setSub(new_extents[1],rpv);
+                    apr_file_printf( file, "\t\t<joint_rig_info num=\"%d\" name=\"%s\" min=\"%f %f %f\" max=\"%f %f %f\" tmin=\"%f %f %f\" tmax=\"%f %f %f\"/>\n", 
+                                     joint_num,
+                                     joint->getName().c_str(),
+                                     rig_info.getRiggedExtents()[0][0],
+                                     rig_info.getRiggedExtents()[0][1],
+                                     rig_info.getRiggedExtents()[0][2],
+                                     rig_info.getRiggedExtents()[1][0],
+                                     rig_info.getRiggedExtents()[1][1],
+                                     rig_info.getRiggedExtents()[1][2],
+                                     rrp[0][0],
+                                     rrp[0][1],
+                                     rrp[0][2],
+                                     rrp[1][0],
+                                     rrp[1][1],
+                                     rrp[1][2] );
+                }
+            }
+        }
 
 		bool ultra_verbose = false;
 		if (isSelf() && ultra_verbose)
@@ -8705,6 +9367,10 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 			// show the cloned params inside the wearables as well.
 			gAgentAvatarp->dumpWearableInfo(outfile);
 		}
+
+		apr_file_printf( file, "\t</archetype>\n" );
+		apr_file_printf( file, "\n</linden_genepool>\n" );
+
 		LLSD args;
 		args["PATH"] = fullpath;
 		LLNotificationsUtil::add("AppearanceToXMLSaved", args);
@@ -8836,6 +9502,7 @@ void LLVOAvatar::updateRegion(LLViewerRegion *regionp)
 	LLViewerObject::updateRegion(regionp);
 }
 
+// virtual
 std::string LLVOAvatar::getFullname() const
 {
 	std::string name;
@@ -8882,6 +9549,11 @@ void LLVOAvatar::updateFreezeCounter(S32 counter)
 
 BOOL LLVOAvatar::updateLOD()
 {
+    if (mDrawable.isNull())
+    {
+        return FALSE;
+    }
+    
 	if (isImpostor() && 0 != mDrawable->getNumFaces() && mDrawable->getFace(0)->hasGeometry())
 	{
 		return TRUE;
@@ -8907,11 +9579,156 @@ BOOL LLVOAvatar::updateLOD()
 	return res;
 }
 
-void LLVOAvatar::updateLODRiggedAttachments( void )
+void LLVOAvatar::updateLODRiggedAttachments()
 {
 	updateLOD();
 	rebuildRiggedAttachments();
 }
+
+void showRigInfoTabExtents(LLVOAvatar *avatar, LLJointRiggingInfoTab& tab, S32& count_rigged, S32& count_box)
+{
+    count_rigged = count_box = 0;
+    LLVector4a zero_vec;
+    zero_vec.clear();
+    for (S32 i=0; i<tab.size(); i++)
+    {
+        if (tab[i].isRiggedTo())
+        {
+            count_rigged++;
+            LLJoint *joint = avatar->getJoint(i);
+            LL_DEBUGS("RigSpam") << "joint " << i << " name " << joint->getName() << " box " 
+                                 << tab[i].getRiggedExtents()[0] << ", " << tab[i].getRiggedExtents()[1] << LL_ENDL;
+            if ((!tab[i].getRiggedExtents()[0].equals3(zero_vec)) ||
+                (!tab[i].getRiggedExtents()[1].equals3(zero_vec)))
+            {
+                count_box++;
+            }
+       }
+    }
+}
+
+void LLVOAvatar::getAssociatedVolumes(std::vector<LLVOVolume*>& volumes)
+{
+	for ( LLVOAvatar::attachment_map_t::iterator iter = mAttachmentPoints.begin(); iter != mAttachmentPoints.end(); ++iter )
+	{
+		LLViewerJointAttachment* attachment = iter->second;
+		LLViewerJointAttachment::attachedobjs_vec_t::iterator attach_end = attachment->mAttachedObjects.end();
+		
+		for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attach_iter = attachment->mAttachedObjects.begin();
+			 attach_iter != attach_end; ++attach_iter)
+		{
+			LLViewerObject* attached_object =  *attach_iter;
+            LLVOVolume *volume = dynamic_cast<LLVOVolume*>(attached_object);
+            if (volume)
+            {
+                volumes.push_back(volume);
+                if (volume->isAnimatedObject())
+                {
+                    // For animated object attachment, don't need
+                    // the children. Will just get bounding box
+                    // from the control avatar.
+                    continue;
+                }
+            }
+            LLViewerObject::const_child_list_t& children = attached_object->getChildren();
+            for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
+                 it != children.end(); ++it)
+            {
+                LLViewerObject *childp = *it;
+                LLVOVolume *volume = dynamic_cast<LLVOVolume*>(childp);
+                if (volume)
+                {
+                    volumes.push_back(volume);
+                }
+            }
+        }
+    }
+
+    LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(this);
+    if (control_av)
+    {
+        LLVOVolume *volp = control_av->mRootVolp;
+        if (volp)
+        {
+            volumes.push_back(volp);
+            LLViewerObject::const_child_list_t& children = volp->getChildren();
+            for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
+                 it != children.end(); ++it)
+            {
+                LLViewerObject *childp = *it;
+                LLVOVolume *volume = dynamic_cast<LLVOVolume*>(childp);
+                if (volume)
+                {
+                    volumes.push_back(volume);
+                }
+            }
+        }
+    }
+}
+
+static LLTrace::BlockTimerStatHandle FTM_AVATAR_RIGGING_INFO_UPDATE("Av Upd Rig Info");
+static LLTrace::BlockTimerStatHandle FTM_AVATAR_RIGGING_KEY_UPDATE("Av Upd Rig Key");
+static LLTrace::BlockTimerStatHandle FTM_AVATAR_RIGGING_AVOL_UPDATE("Av Upd Avol");
+
+// virtual
+void LLVOAvatar::updateRiggingInfo()
+{
+    LL_RECORD_BLOCK_TIME(FTM_AVATAR_RIGGING_INFO_UPDATE);
+
+    LL_DEBUGS("RigSpammish") << getFullname() << " updating rig tab" << LL_ENDL;
+
+    std::vector<LLVOVolume*> volumes;
+
+	{
+		LL_RECORD_BLOCK_TIME(FTM_AVATAR_RIGGING_AVOL_UPDATE);
+		getAssociatedVolumes(volumes);
+	}
+
+	std::map<LLUUID,S32> curr_rigging_info_key;
+	{
+		LL_RECORD_BLOCK_TIME(FTM_AVATAR_RIGGING_KEY_UPDATE);
+		// Get current rigging info key
+		for (std::vector<LLVOVolume*>::iterator it = volumes.begin(); it != volumes.end(); ++it)
+		{
+			LLVOVolume *vol = *it;
+			if (vol->isMesh() && vol->getVolume())
+			{
+				const LLUUID& mesh_id = vol->getVolume()->getParams().getSculptID();
+				S32 max_lod = llmax(vol->getLOD(), vol->mLastRiggingInfoLOD);
+				curr_rigging_info_key[mesh_id] = max_lod;
+			}
+		}
+		
+		// Check for key change, which indicates some change in volume composition or LOD.
+		if (curr_rigging_info_key == mLastRiggingInfoKey)
+		{
+			return;
+		}
+	}
+
+	// Something changed. Update.
+	mLastRiggingInfoKey = curr_rigging_info_key;
+    mJointRiggingInfoTab.clear();
+    for (std::vector<LLVOVolume*>::iterator it = volumes.begin(); it != volumes.end(); ++it)
+    {
+        LLVOVolume *vol = *it;
+        vol->updateRiggingInfo();
+        mJointRiggingInfoTab.merge(vol->mJointRiggingInfoTab);
+    }
+
+    //LL_INFOS() << "done update rig count is " << countRigInfoTab(mJointRiggingInfoTab) << LL_ENDL;
+    LL_DEBUGS("RigSpammish") << getFullname() << " after update rig tab:" << LL_ENDL;
+    S32 joint_count, box_count;
+    showRigInfoTabExtents(this, mJointRiggingInfoTab, joint_count, box_count);
+    LL_DEBUGS("RigSpammish") << "uses " << joint_count << " joints " << " nonzero boxes: " << box_count << LL_ENDL;
+}
+
+// virtual
+void LLVOAvatar::onActiveOverrideMeshesChanged()
+{
+    mJointRiggingInfoTab.setNeedsUpdate(true);
+}
+
 U32 LLVOAvatar::getPartitionType() const
 { 
 	// Avatars merely exist as drawables in the bridge partition
@@ -8922,10 +9739,10 @@ U32 LLVOAvatar::getPartitionType() const
 void LLVOAvatar::updateImpostors()
 {
 	LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
-	LLCharacter::sAllowInstancesChange = FALSE;
 
-	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
-		iter != LLCharacter::sInstances.end(); ++iter)
+    std::vector<LLCharacter*> instances_copy = LLCharacter::sInstances;
+	for (std::vector<LLCharacter*>::iterator iter = instances_copy.begin();
+		iter != instances_copy.end(); ++iter)
 	{
 		LLVOAvatar* avatar = (LLVOAvatar*) *iter;
 		if (!avatar->isDead() && avatar->isVisible()
@@ -8941,6 +9758,7 @@ void LLVOAvatar::updateImpostors()
 	LLCharacter::sAllowInstancesChange = TRUE;
 }
 
+// virtual
 BOOL LLVOAvatar::isImpostor()
 {
 	return sUseImpostors && (isVisuallyMuted() || (mUpdatePeriod >= IMPOSTOR_PERIOD)) ? TRUE : FALSE;
@@ -9022,6 +9840,17 @@ void LLVOAvatar::updateImpostorRendering(U32 newMaxNonImpostorsValue)
 
 void LLVOAvatar::idleUpdateRenderComplexity()
 {
+    if (isControlAvatar())
+    {
+        LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(this);
+        bool is_attachment = cav && cav->mRootVolp && cav->mRootVolp->isAttachment(); // For attached animated objects
+        if (is_attachment)
+        {
+            // ARC for animated object attachments is accounted with the avatar they're attached to.
+            return;
+        }
+    }
+
     // Render Complexity
     calculateUpdateRenderComplexity(); // Update mVisualComplexity if needed	
 
@@ -9069,9 +9898,15 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 		// Visual rank
 		info_line = llformat("%d rank", mVisibilityRank);
 		// Use grey for imposters, white for normal rendering or no impostors
-		info_color.set(isImpostor() ? LLColor4::grey : LLColor4::white);
+		info_color.set(isImpostor() ? LLColor4::grey : (isControlAvatar() ? LLColor4::yellow : LLColor4::white));
 		info_style = LLFontGL::NORMAL;
 		mText->addLine(info_line, info_color, info_style);
+
+        // Triangle count
+        mText->addLine(std::string("VisTris ") + LLStringOps::getReadableNumber(mAttachmentVisibleTriangleCount), 
+                       info_color, info_style);
+        mText->addLine(std::string("EstMaxTris ") + LLStringOps::getReadableNumber(mAttachmentEstTriangleCount), 
+                       info_color, info_style);
 
 		// Attachment Surface Area
 		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 1000.0f);
@@ -9091,20 +9926,11 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 			info_color.set(LLColor4::grey);
 			info_style = LLFontGL::NORMAL;
 		}
+
 		mText->addLine(info_line, info_color, info_style);
 
 		updateText(); // corrects position
 	}
-}
-
-void LLVOAvatar::addAttachmentArea(F32 delta_area)
-{
-    mAttachmentSurfaceArea   += delta_area;
-}
-
-void LLVOAvatar::subtractAttachmentArea(F32 delta_area)
-{
-    mAttachmentSurfaceArea   = delta_area > mAttachmentSurfaceArea ? 0.0 : mAttachmentSurfaceArea - delta_area;
 }
 
 void LLVOAvatar::updateVisualComplexity()
@@ -9112,6 +9938,135 @@ void LLVOAvatar::updateVisualComplexity()
 	LL_DEBUGS("AvatarRender") << "avatar " << getID() << " appearance changed" << LL_ENDL;
 	// Set the cache time to in the past so it's updated ASAP
 	mVisualComplexityStale = true;
+}
+
+// Account for the complexity of a single top-level object associated
+// with an avatar. This will be either an attached object or an animated
+// object.
+void LLVOAvatar::accountRenderComplexityForObject(
+    const LLViewerObject *attached_object,
+    const F32 max_attachment_complexity,
+    LLVOVolume::texture_cost_t& textures,
+    U32& cost,
+    hud_complexity_list_t& hud_complexity_list)
+{
+    if (attached_object && !attached_object->isHUDAttachment())
+    {
+        mAttachmentVisibleTriangleCount += attached_object->recursiveGetTriangleCount();
+        mAttachmentEstTriangleCount += attached_object->recursiveGetEstTrianglesMax();
+        mAttachmentSurfaceArea += attached_object->recursiveGetScaledSurfaceArea();
+
+        textures.clear();
+        const LLDrawable* drawable = attached_object->mDrawable;
+        if (drawable)
+        {
+            const LLVOVolume* volume = drawable->getVOVolume();
+            if (volume)
+            {
+                F32 attachment_total_cost = 0;
+                F32 attachment_volume_cost = 0;
+                F32 attachment_texture_cost = 0;
+                F32 attachment_children_cost = 0;
+                const F32 animated_object_attachment_surcharge = 1000;
+
+                if (attached_object->isAnimatedObject())
+                {
+                    attachment_volume_cost += animated_object_attachment_surcharge;
+                }
+                attachment_volume_cost += volume->getRenderCost(textures);
+
+                const_child_list_t children = volume->getChildren();
+                for (const_child_list_t::const_iterator child_iter = children.begin();
+                     child_iter != children.end();
+                     ++child_iter)
+                {
+                    LLViewerObject* child_obj = *child_iter;
+                    LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
+                    if (child)
+                    {
+                        attachment_children_cost += child->getRenderCost(textures);
+                    }
+                }
+
+                for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
+                     volume_texture != textures.end();
+                     ++volume_texture)
+                {
+                    // add the cost of each individual texture in the linkset
+                    attachment_texture_cost += volume_texture->second;
+                }
+                attachment_total_cost = attachment_volume_cost + attachment_texture_cost + attachment_children_cost;
+                LL_DEBUGS("ARCdetail") << "Attachment costs " << attached_object->getAttachmentItemID()
+                                       << " total: " << attachment_total_cost
+                                       << ", volume: " << attachment_volume_cost
+                                       << ", textures: " << attachment_texture_cost
+                                       << ", " << volume->numChildren()
+                                       << " children: " << attachment_children_cost
+                                       << LL_ENDL;
+                // Limit attachment complexity to avoid signed integer flipping of the wearer's ACI
+                cost += (U32)llclamp(attachment_total_cost, MIN_ATTACHMENT_COMPLEXITY, max_attachment_complexity);
+            }
+        }
+    }
+    if (isSelf()
+        && attached_object
+        && attached_object->isHUDAttachment()
+        && !attached_object->isTempAttachment()
+        && attached_object->mDrawable)
+    {
+        textures.clear();
+
+        mAttachmentSurfaceArea += attached_object->recursiveGetScaledSurfaceArea();
+
+        const LLVOVolume* volume = attached_object->mDrawable->getVOVolume();
+        if (volume)
+        {
+            LLHUDComplexity hud_object_complexity;
+            hud_object_complexity.objectName = attached_object->getAttachmentItemName();
+            hud_object_complexity.objectId = attached_object->getAttachmentItemID();
+            std::string joint_name;
+            gAgentAvatarp->getAttachedPointName(attached_object->getAttachmentItemID(), joint_name);
+            hud_object_complexity.jointName = joint_name;
+            // get cost and individual textures
+            hud_object_complexity.objectsCost += volume->getRenderCost(textures);
+            hud_object_complexity.objectsCount++;
+
+            LLViewerObject::const_child_list_t& child_list = attached_object->getChildren();
+            for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+                 iter != child_list.end(); ++iter)
+            {
+                LLViewerObject* childp = *iter;
+                const LLVOVolume* chld_volume = dynamic_cast<LLVOVolume*>(childp);
+                if (chld_volume)
+                {
+                    // get cost and individual textures
+                    hud_object_complexity.objectsCost += chld_volume->getRenderCost(textures);
+                    hud_object_complexity.objectsCount++;
+                }
+            }
+
+            hud_object_complexity.texturesCount += textures.size();
+
+            for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
+                 volume_texture != textures.end();
+                 ++volume_texture)
+            {
+                // add the cost of each individual texture (ignores duplicates)
+                hud_object_complexity.texturesCost += volume_texture->second;
+                LLViewerFetchedTexture *tex = LLViewerTextureManager::getFetchedTexture(volume_texture->first);
+                if (tex)
+                {
+                    // Note: Texture memory might be incorect since texture might be still loading.
+                    hud_object_complexity.texturesMemoryTotal += tex->getTextureMemory();
+                    if (tex->getOriginalHeight() * tex->getOriginalWidth() >= HUD_OVERSIZED_TEXTURE_DATA_SIZE)
+                    {
+                        hud_object_complexity.largeTexturesCount++;
+                    }
+                }
+            }
+            hud_complexity_list.push_back(hud_object_complexity);
+        }
+    }
 }
 
 // Calculations for mVisualComplexity value
@@ -9152,7 +10107,25 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 		}
         LL_DEBUGS("ARCdetail") << "Avatar body parts complexity: " << cost << LL_ENDL;
 
+        mAttachmentVisibleTriangleCount = 0;
+        mAttachmentEstTriangleCount = 0.f;
+        mAttachmentSurfaceArea = 0.f;
+        
+        // A standalone animated object needs to be accounted for
+        // using its associated volume. Attached animated objects
+        // will be covered by the subsequent loop over attachments.
+        LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(this);
+        if (control_av)
+        {
+            LLVOVolume *volp = control_av->mRootVolp;
+            if (volp && !volp->isAttachment())
+            {
+                accountRenderComplexityForObject(volp, max_attachment_complexity,
+                                                 textures, cost, hud_complexity_list);
+            }
+        }
 
+        // Account for complexity of all attachments.
 		for (attachment_map_t::const_iterator attachment_point = mAttachmentPoints.begin(); 
 			 attachment_point != mAttachmentPoints.end();
 			 ++attachment_point)
@@ -9163,112 +10136,8 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 				 ++attachment_iter)
 			{
 				const LLViewerObject* attached_object = (*attachment_iter);
-				if (attached_object && !attached_object->isHUDAttachment())
-				{
-					textures.clear();
-					const LLDrawable* drawable = attached_object->mDrawable;
-					if (drawable)
-					{
-						const LLVOVolume* volume = drawable->getVOVolume();
-						if (volume)
-						{
-                            F32 attachment_total_cost = 0;
-                            F32 attachment_volume_cost = 0;
-                            F32 attachment_texture_cost = 0;
-                            F32 attachment_children_cost = 0;
-
-							attachment_volume_cost += volume->getRenderCost(textures);
-
-							const_child_list_t children = volume->getChildren();
-							for (const_child_list_t::const_iterator child_iter = children.begin();
-								  child_iter != children.end();
-								  ++child_iter)
-							{
-								LLViewerObject* child_obj = *child_iter;
-								LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
-								if (child)
-								{
-									attachment_children_cost += child->getRenderCost(textures);
-								}
-							}
-
-							for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
-								 volume_texture != textures.end();
-								 ++volume_texture)
-							{
-								// add the cost of each individual texture in the linkset
-								attachment_texture_cost += volume_texture->second;
-							}
-                            attachment_total_cost = attachment_volume_cost + attachment_texture_cost + attachment_children_cost;
-                            LL_DEBUGS("ARCdetail") << "Attachment costs " << attached_object->getAttachmentItemID()
-                                                   << " total: " << attachment_total_cost
-                                                   << ", volume: " << attachment_volume_cost
-                                                   << ", textures: " << attachment_texture_cost
-                                                   << ", " << volume->numChildren()
-                                                   << " children: " << attachment_children_cost
-                                                   << LL_ENDL;
-                            // Limit attachment complexity to avoid signed integer flipping of the wearer's ACI
-                            cost += (U32)llclamp(attachment_total_cost, MIN_ATTACHMENT_COMPLEXITY, max_attachment_complexity);
-						}
-					}
-				}
-                if (isSelf()
-                    && attached_object
-                    && attached_object->isHUDAttachment()
-                    && !attached_object->isTempAttachment()
-                    && attached_object->mDrawable)
-                {
-                    textures.clear();
-
-                    const LLVOVolume* volume = attached_object->mDrawable->getVOVolume();
-                    if (volume)
-                    {
-                        LLHUDComplexity hud_object_complexity;
-                        hud_object_complexity.objectName = attached_object->getAttachmentItemName();
-                        hud_object_complexity.objectId = attached_object->getAttachmentItemID();
-                        std::string joint_name;
-                        gAgentAvatarp->getAttachedPointName(attached_object->getAttachmentItemID(), joint_name);
-                        hud_object_complexity.jointName = joint_name;
-                        // get cost and individual textures
-                        hud_object_complexity.objectsCost += volume->getRenderCost(textures);
-                        hud_object_complexity.objectsCount++;
-
-                        LLViewerObject::const_child_list_t& child_list = attached_object->getChildren();
-                        for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-                            iter != child_list.end(); ++iter)
-                        {
-                            LLViewerObject* childp = *iter;
-                            const LLVOVolume* chld_volume = dynamic_cast<LLVOVolume*>(childp);
-                            if (chld_volume)
-                            {
-                                // get cost and individual textures
-                                hud_object_complexity.objectsCost += chld_volume->getRenderCost(textures);
-                                hud_object_complexity.objectsCount++;
-                            }
-                        }
-
-                        hud_object_complexity.texturesCount += textures.size();
-
-                        for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
-                            volume_texture != textures.end();
-                            ++volume_texture)
-                        {
-                            // add the cost of each individual texture (ignores duplicates)
-                            hud_object_complexity.texturesCost += volume_texture->second;
-                            LLViewerFetchedTexture *tex = LLViewerTextureManager::getFetchedTexture(volume_texture->first);
-                            if (tex)
-                            {
-                                // Note: Texture memory might be incorect since texture might be still loading.
-                                hud_object_complexity.texturesMemoryTotal += tex->getTextureMemory();
-                                if (tex->getOriginalHeight() * tex->getOriginalWidth() >= HUD_OVERSIZED_TEXTURE_DATA_SIZE)
-                                {
-                                    hud_object_complexity.largeTexturesCount++;
-                                }
-                            }
-                        }
-                        hud_complexity_list.push_back(hud_object_complexity);
-                    }
-                }
+                accountRenderComplexityForObject(attached_object, max_attachment_complexity,
+                                                 textures, cost, hud_complexity_list);
 			}
 		}
 

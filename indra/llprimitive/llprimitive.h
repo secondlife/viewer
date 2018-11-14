@@ -106,6 +106,7 @@ public:
 		PARAMS_LIGHT_IMAGE = 0x40,
 		PARAMS_RESERVED = 0x50, // Used on server-side
 		PARAMS_MESH     = 0x60,
+        PARAMS_EXTENDED_MESH = 0x70,
 	};
 	
 public:
@@ -288,6 +289,27 @@ public:
 	
 };
 
+class LLExtendedMeshParams : public LLNetworkData
+{
+protected:
+	U32 mFlags;
+	
+public:
+	static const U32 ANIMATED_MESH_ENABLED_FLAG = 0x1 << 0;
+
+	LLExtendedMeshParams();
+	/*virtual*/ BOOL pack(LLDataPacker &dp) const;
+	/*virtual*/ BOOL unpack(LLDataPacker &dp);
+	/*virtual*/ bool operator==(const LLNetworkData& data) const;
+	/*virtual*/ void copy(const LLNetworkData& data);
+	LLSD asLLSD() const;
+	operator LLSD() const { return asLLSD(); }
+	bool fromLLSD(LLSD& sd);
+
+	void setFlags(const U32& flags) { mFlags = flags; }
+    U32 getFlags() const { return mFlags; }
+	
+};
 
 // This code is not naming-standards compliant. Leaving it like this for
 // now to make the connection to code in

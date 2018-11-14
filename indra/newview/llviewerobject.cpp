@@ -60,6 +60,7 @@
 #include "llbbox.h"
 #include "llbox.h"
 #include "llcylinder.h"
+#include "llcontrolavatar.h"
 #include "lldrawable.h"
 #include "llface.h"
 #include "llfloaterproperties.h"
@@ -69,6 +70,7 @@
 #include "llselectmgr.h"
 #include "llrendersphere.h"
 #include "lltooldraganddrop.h"
+#include "lluiavatar.h"
 #include "llviewercamera.h"
 #include "llviewertexturelist.h"
 #include "llviewerinventory.h"
@@ -103,6 +105,8 @@
 #include "llfloaterperms.h"
 #include "llvocache.h"
 #include "llcleanup.h"
+#include "llcallstack.h"
+#include "llmeshrepository.h"
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -140,8 +144,11 @@ const S32 MAX_OBJECT_BINARY_DATA_SIZE = 60 + 16;
 static LLTrace::BlockTimerStatHandle FTM_CREATE_OBJECT("Create Object");
 
 // static
-LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
+LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp, S32 flags)
 {
+    LL_DEBUGS("ObjectUpdate") << "creating " << id << LL_ENDL;
+    dumpStack("ObjectUpdateStack");
+    
 	LLViewerObject *res = NULL;
 	LL_RECORD_BLOCK_TIME(FTM_CREATE_OBJECT);
 	
@@ -168,6 +175,18 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 			}
 			res = gAgentAvatarp;
 		}
+		else if (flags & CO_FLAG_CONTROL_AVATAR)
+		{
+            LLControlAvatar *control_avatar = new LLControlAvatar(id, pcode, regionp);
+			control_avatar->initInstance();
+			res = control_avatar;
+		}
+        else if (flags & CO_FLAG_UI_AVATAR)
+        {
+            LLUIAvatar *ui_avatar = new LLUIAvatar(id, pcode, regionp);
+            ui_avatar->initInstance();
+            res = ui_avatar;
+        }
 		else
 		{
 			LLVOAvatar *avatar = new LLVOAvatar(id, pcode, regionp); 
@@ -237,6 +256,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mText(),
 	mHudText(""),
 	mHudTextColor(LLColor4::white),
+    mControlAvatar(NULL),
 	mLastInterpUpdateSecs(0.f),
 	mLastMessageUpdateSecs(0.f),
 	mLatestRecvPacketID(0),
@@ -261,7 +281,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mRotTime(0.f),
 	mAngularVelocityRot(),
 	mPreviousRotation(),
-	mState(0),
+	mAttachmentState(0),
 	mMedia(NULL),
 	mClickAction(0),
 	mObjectCost(0),
@@ -367,17 +387,23 @@ void LLViewerObject::markDead()
 		//LL_INFOS() << "Marking self " << mLocalID << " as dead." << LL_ENDL;
 		
 		// Root object of this hierarchy unlinks itself.
-		LLVOAvatar *av = getAvatarAncestor();
 		if (getParent())
 		{
 			((LLViewerObject *)getParent())->removeChild(this);
 		}
 		LLUUID mesh_id;
-		if (av && LLVOAvatar::getRiggedMeshID(this,mesh_id))
-		{
-			// This case is needed for indirectly attached mesh objects.
-			av->resetJointsOnDetach(mesh_id);
-		}
+        {
+            LLVOAvatar *av = getAvatar();
+            if (av && LLVOAvatar::getRiggedMeshID(this,mesh_id))
+            {
+                // This case is needed for indirectly attached mesh objects.
+                av->updateAttachmentOverrides();
+            }
+        }
+        if (getControlAvatar())
+        {
+            unlinkControlAvatar();
+        }
 
 		// Mark itself as dead
 		mDead = TRUE;
@@ -678,6 +704,18 @@ void LLViewerObject::setNameValueList(const std::string& name_value_list)
 	}
 }
 
+BOOL LLViewerObject::isAnySelected() const
+{
+    bool any_selected = isSelected();
+    for (child_list_t::const_iterator iter = mChildList.begin();
+         iter != mChildList.end(); iter++)
+    {
+        const LLViewerObject* child = *iter;
+        any_selected = any_selected || child->isSelected();
+    }
+    return any_selected;
+}
+
 void LLViewerObject::setSelected(BOOL sel)
 {
 	mUserSelected = sel;
@@ -850,7 +888,16 @@ void LLViewerObject::addChild(LLViewerObject *childp)
 	if(childp->setParent(this))
 	{
 		mChildList.push_back(childp);
+        childp->afterReparent();
 	}
+}
+
+void LLViewerObject::onReparent(LLViewerObject *old_parent, LLViewerObject *new_parent)
+{
+}
+
+void LLViewerObject::afterReparent()
+{
 }
 
 void LLViewerObject::removeChild(LLViewerObject *childp)
@@ -1069,6 +1116,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 {
 	LL_DEBUGS_ONCE("SceneLoadTiming") << "Received viewer object data" << LL_ENDL;
 
+    LL_DEBUGS("ObjectUpdate") << " mesgsys " << mesgsys << " dp " << dp << " id " << getID() << " update_type " << (S32) update_type << LL_ENDL;
+    dumpStack("ObjectUpdateStack");
+
 	U32 retval = 0x0;
 	
 	// If region is removed from the list it is also deleted.
@@ -1123,10 +1173,10 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 	F32 time_dilation = 1.f;
 	if(mesgsys != NULL)
 	{
-	U16 time_dilation16;
-	mesgsys->getU16Fast(_PREHASH_RegionData, _PREHASH_TimeDilation, time_dilation16);
-	time_dilation = ((F32) time_dilation16) / 65535.f;
-	mRegionp->setTimeDilation(time_dilation);
+        U16 time_dilation16;
+        mesgsys->getU16Fast(_PREHASH_RegionData, _PREHASH_TimeDilation, time_dilation16);
+        time_dilation = ((F32) time_dilation16) / 65535.f;
+        mRegionp->setTimeDilation(time_dilation);
 	}
 
 	// this will be used to determine if we've really changed position
@@ -1384,7 +1434,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 				U8 state;
 				mesgsys->getU8Fast(_PREHASH_ObjectData, _PREHASH_State, state, block_num );
-				mState = state;
+				mAttachmentState = state;
 
 				// ...new objects that should come in selected need to be added to the selected list
 				mCreateSelected = ((flags & FLAGS_CREATE_SELECTED) != 0);
@@ -1654,7 +1704,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 				U8 state;
 				mesgsys->getU8Fast(_PREHASH_ObjectData, _PREHASH_State, state, block_num );
-				mState = state;
+				mAttachmentState = state;
 				break;
 			}
 
@@ -1677,7 +1727,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 		U8		state;
 
 		dp->unpackU8(state, "State");
-		mState = state;
+		mAttachmentState = state;
 
 		switch(update_type)
 		{
@@ -2910,6 +2960,131 @@ void LLViewerObject::fetchInventoryFromServer()
 	}
 }
 
+LLControlAvatar *LLViewerObject::getControlAvatar()
+{
+    return getRootEdit()->mControlAvatar.get();
+}
+
+LLControlAvatar *LLViewerObject::getControlAvatar() const
+{
+    return getRootEdit()->mControlAvatar.get();
+}
+
+// Manage the control avatar state of a given object.
+// Any object can be flagged as animated, but for performance reasons
+// we don't want to incur the overhead of managing a control avatar
+// unless this would have some user-visible consequence. That is,
+// there should be at least one rigged mesh in the linkset. Operations
+// that change the state of a linkset, such as linking or unlinking
+// prims, can also mean that a control avatar needs to be added or
+// removed. At the end, if there is a control avatar, we make sure
+// that its animation state is current.
+void LLViewerObject::updateControlAvatar()
+{
+    LLViewerObject *root = getRootEdit();
+    bool is_animated_object = root->isAnimatedObject();
+    bool has_control_avatar = getControlAvatar();
+    if (!is_animated_object && !has_control_avatar)
+    {
+        return;
+    }
+
+    bool should_have_control_avatar = false;
+    if (is_animated_object)
+    {
+        bool any_rigged_mesh = root->isRiggedMesh();
+        LLViewerObject::const_child_list_t& child_list = root->getChildren();
+        for (LLViewerObject::const_child_list_t::const_iterator iter = child_list.begin();
+             iter != child_list.end(); ++iter)
+        {
+            const LLViewerObject* child = *iter;
+            any_rigged_mesh = any_rigged_mesh || child->isRiggedMesh();
+        }
+        should_have_control_avatar = is_animated_object && any_rigged_mesh;
+    }
+
+    if (should_have_control_avatar && !has_control_avatar)
+    {
+        std::string vobj_name = llformat("Vol%p", root);
+        LL_DEBUGS("AnimatedObjects") << vobj_name << " calling linkControlAvatar()" << LL_ENDL;
+        root->linkControlAvatar();
+    }
+    if (!should_have_control_avatar && has_control_avatar)
+    {
+        std::string vobj_name = llformat("Vol%p", root);
+        LL_DEBUGS("AnimatedObjects") << vobj_name << " calling unlinkControlAvatar()" << LL_ENDL;
+        root->unlinkControlAvatar();
+    }
+    if (getControlAvatar())
+    {
+        getControlAvatar()->updateAnimations();
+        if (isSelected())
+        {
+            LLSelectMgr::getInstance()->pauseAssociatedAvatars();
+        }
+    }
+}
+
+void LLViewerObject::linkControlAvatar()
+{
+    if (!getControlAvatar() && isRootEdit())
+    {
+        LLVOVolume *volp = dynamic_cast<LLVOVolume*>(this);
+        if (!volp)
+        {
+            LL_WARNS() << "called with null or non-volume object" << LL_ENDL;
+            return;
+        }
+        mControlAvatar = LLControlAvatar::createControlAvatar(volp);
+        LL_DEBUGS("AnimatedObjects") << volp->getID() 
+                                     << " created control av for " 
+                                     << (S32) (1+volp->numChildren()) << " prims" << LL_ENDL;
+    }
+    LLControlAvatar *cav = getControlAvatar();
+    if (cav)
+    {
+        cav->updateAttachmentOverrides();
+        if (!cav->mPlaying)
+        {
+            cav->mPlaying = true;
+            //if (!cav->mRootVolp->isAnySelected())
+            {
+                cav->updateVolumeGeom();
+                cav->mRootVolp->recursiveMarkForUpdate(TRUE);
+            }
+        }
+    }
+    else
+    {
+        LL_WARNS() << "no control avatar found!" << LL_ENDL;
+    }
+}
+
+void LLViewerObject::unlinkControlAvatar()
+{
+    if (getControlAvatar())
+    {
+        getControlAvatar()->updateAttachmentOverrides();
+    }
+    if (isRootEdit())
+    {
+        // This will remove the entire linkset from the control avatar
+        if (mControlAvatar)
+        {
+            mControlAvatar->markForDeath();
+            mControlAvatar = NULL;
+        }
+    }
+    // For non-root prims, removing from the linkset will
+    // automatically remove the control avatar connection.
+}
+
+// virtual
+bool LLViewerObject::isAnimatedObject() const
+{
+    return false;
+}
+
 struct LLFilenameAndTask
 {
 	LLUUID mTaskID;
@@ -3534,9 +3709,64 @@ F32 LLViewerObject::getLinksetPhysicsCost()
 	return mLinksetPhysicsCost;
 }
 
-F32 LLViewerObject::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value) const
+F32 LLViewerObject::recursiveGetEstTrianglesMax() const
+{
+    F32 est_tris = getEstTrianglesMax();
+    for (child_list_t::const_iterator iter = mChildList.begin();
+         iter != mChildList.end(); iter++)
+    {
+        const LLViewerObject* child = *iter;
+        if (!child->isAvatar())
+        {
+            est_tris += child->recursiveGetEstTrianglesMax();
+        }
+    }
+    return est_tris;
+}
+
+S32 LLViewerObject::getAnimatedObjectMaxTris() const
+{
+    S32 max_tris = 0;
+    if (gSavedSettings.getBOOL("AnimatedObjectsIgnoreLimits")) 
+    {
+        max_tris = S32_MAX;
+    }
+    else
+    {
+        if (gAgent.getRegion())
+        {
+            LLSD features;
+            gAgent.getRegion()->getSimulatorFeatures(features);
+            if (features.has("AnimatedObjects"))
+            {
+                max_tris = features["AnimatedObjects"]["AnimatedObjectMaxTris"].asInteger();
+            }
+        }
+    }
+    return max_tris;
+}
+
+F32 LLViewerObject::getEstTrianglesMax() const
+{
+    return 0.f;
+}
+
+F32 LLViewerObject::getEstTrianglesStreamingCost() const
+{
+    return 0.f;
+}
+
+// virtual
+F32 LLViewerObject::getStreamingCost() const
 {
 	return 0.f;
+}
+
+// virtual
+bool LLViewerObject::getCostData(LLMeshCostData& costs) const
+{
+    costs = LLMeshCostData();
+    return false;
 }
 
 U32 LLViewerObject::getTriangleCount(S32* vcount) const
@@ -3547,6 +3777,58 @@ U32 LLViewerObject::getTriangleCount(S32* vcount) const
 U32 LLViewerObject::getHighLODTriangleCount()
 {
 	return 0;
+}
+
+U32 LLViewerObject::recursiveGetTriangleCount(S32* vcount) const
+{
+    S32 total_tris = getTriangleCount(vcount);
+    LLViewerObject::const_child_list_t& child_list = getChildren();
+    for (LLViewerObject::const_child_list_t::const_iterator iter = child_list.begin();
+         iter != child_list.end(); ++iter)
+    {
+        LLViewerObject* childp = *iter;
+        if (childp)
+        {
+            total_tris += childp->getTriangleCount(vcount);
+        }
+    }
+    return total_tris;
+}
+
+// This is using the stored surface area for each volume (which
+// defaults to 1.0 for the case of everything except a sculpt) and
+// then scaling it linearly based on the largest dimension in the
+// prim's scale. Should revisit at some point.
+F32 LLViewerObject::recursiveGetScaledSurfaceArea() const
+{
+    F32 area = 0.f;
+    const LLDrawable* drawable = mDrawable;
+    if (drawable)
+    {
+        const LLVOVolume* volume = drawable->getVOVolume();
+        if (volume)
+        {
+            if (volume->getVolume())
+            {
+				const LLVector3& scale = volume->getScale();
+                area += volume->getVolume()->getSurfaceArea() * llmax(llmax(scale.mV[0], scale.mV[1]), scale.mV[2]);
+            }
+            LLViewerObject::const_child_list_t children = volume->getChildren();
+            for (LLViewerObject::const_child_list_t::const_iterator child_iter = children.begin();
+                 child_iter != children.end();
+                 ++child_iter)
+            {
+                LLViewerObject* child_obj = *child_iter;
+                LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
+                if (child && child->getVolume())
+                {
+                    const LLVector3& scale = child->getScale();
+                    area += child->getVolume()->getSurfaceArea() * llmax(llmax(scale.mV[0], scale.mV[1]), scale.mV[2]);
+                }
+            }
+        }
+    }
+    return area;
 }
 
 void LLViewerObject::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
@@ -3651,7 +3933,6 @@ void LLViewerObject::boostTexturePriority(BOOL boost_children /* = TRUE */)
 		}
 	}
 }
-
 
 void LLViewerObject::setLineWidthForWindowSize(S32 window_width)
 {
@@ -3879,8 +4160,20 @@ const LLVector3 LLViewerObject::getRenderPosition() const
 {
 	if (mDrawable.notNull() && mDrawable->isState(LLDrawable::RIGGED))
 	{
+        LLControlAvatar *cav = getControlAvatar();
+        if (isRoot() && cav)
+        {
+            F32 fixup;
+            if ( cav->hasPelvisFixup( fixup) )
+            {
+                //Apply a pelvis fixup (as defined by the avs skin)
+                LLVector3 pos = mDrawable->getPositionAgent();
+                pos[VZ] += fixup;
+                return pos;
+            }
+        }
 		LLVOAvatar* avatar = getAvatar();
-		if (avatar)
+		if ((avatar) && !getControlAvatar())
 		{
 			return avatar->getPositionAgent();
 		}
@@ -3904,7 +4197,7 @@ const LLVector3 LLViewerObject::getPivotPositionAgent() const
 const LLQuaternion LLViewerObject::getRenderRotation() const
 {
 	LLQuaternion ret;
-	if (mDrawable.notNull() && mDrawable->isState(LLDrawable::RIGGED))
+	if (mDrawable.notNull() && mDrawable->isState(LLDrawable::RIGGED) && !isAnimatedObject())
 	{
 		return ret;
 	}
@@ -5166,7 +5459,13 @@ LLVOAvatar* LLViewerObject::asAvatar()
 	return NULL;
 }
 
-// If this object is directly or indirectly parented by an avatar, return it.
+// If this object is directly or indirectly parented by an avatar,
+// return it.  Normally getAvatar() is the correct function to call;
+// it will give the avatar used for skinning.  The exception is with
+// animated objects that are also attachments; in that case,
+// getAvatar() will return the control avatar, used for skinning, and
+// getAvatarAncestor will return the avatar to which the object is
+// attached.
 LLVOAvatar* LLViewerObject::getAvatarAncestor()
 {
 	LLViewerObject *pobj = (LLViewerObject*) getParent();
@@ -5505,6 +5804,11 @@ LLViewerObject::ExtraParameter* LLViewerObject::createNewParameterEntry(U16 para
 		  new_block = new LLLightImageParams();
 		  break;
 	  }
+      case LLNetworkData::PARAMS_EXTENDED_MESH:
+      {
+		  new_block = new LLExtendedMeshParams();
+		  break;
+      }
 	  default:
 	  {
 		  LL_INFOS() << "Unknown param type." << LL_ENDL;
@@ -5904,6 +6208,17 @@ void LLViewerObject::updateVolume(const LLVolumeParams& volume_params)
 	}
 }
 
+void LLViewerObject::recursiveMarkForUpdate(BOOL priority)
+{
+    for (LLViewerObject::child_list_t::iterator iter = mChildList.begin();
+         iter != mChildList.end(); iter++)
+    {
+        LLViewerObject* child = *iter;
+        child->markForUpdate(priority);
+    }
+    markForUpdate(priority);
+}
+
 void LLViewerObject::markForUpdate(BOOL priority)
 {
 	if (mDrawable.notNull())
@@ -5962,6 +6277,11 @@ void LLViewerObject::setRegion(LLViewerRegion *regionp)
 		LLViewerObject* child = *i;
 		child->setRegion(regionp);
 	}
+
+    if (mControlAvatar)
+    {
+        mControlAvatar->setRegion(regionp);
+    }
 
 	setChanged(MOVED | SILHOUETTE);
 	updateDrawable(FALSE);
@@ -6411,6 +6731,10 @@ const std::string& LLViewerObject::getAttachmentItemName() const
 //virtual
 LLVOAvatar* LLViewerObject::getAvatar() const
 {
+    if (getControlAvatar())
+    {
+        return getControlAvatar();
+    }
 	if (isAttachment())
 	{
 		LLViewerObject* vobj = (LLViewerObject*) getParent();

@@ -135,7 +135,7 @@ LLMotionController::LLMotionController()
 	  mLastTime(0.0f),
 	  mHasRunOnce(FALSE),
 	  mPaused(FALSE),
-	  mPauseTime(0.f),
+	  mPausedFrame(0),
 	  mTimeStep(0.f),
 	  mTimeStepCount(0),
 	  mLastInterp(0.f),
@@ -441,7 +441,8 @@ BOOL LLMotionController::stopMotionLocally(const LLUUID &id, BOOL stop_immediate
 {
 	// if already inactive, return false
 	LLMotion *motion = findMotion(id);
-	return stopMotionInstance(motion, stop_immediate);
+    // SL-1290: always stop immediate if paused 
+	return stopMotionInstance(motion, stop_immediate||mPaused);
 }
 
 BOOL LLMotionController::stopMotionInstance(LLMotion* motion, BOOL stop_immediate)
@@ -814,6 +815,10 @@ void LLMotionController::updateLoadingMotions()
 //-----------------------------------------------------------------------------
 void LLMotionController::updateMotions(bool force_update)
 {
+    // SL-763: "Distant animated objects run at super fast speed"
+    // The use_quantum optimization or possibly the associated code in setTimeStamp()
+    // does not work as implemented.
+    // Currently setting mTimeStep to nonzero is disabled elsewhere.
 	BOOL use_quantum = (mTimeStep != 0.f);
 
 	// Always update mPrevTimerElapsed
@@ -1125,6 +1130,7 @@ void LLMotionController::pauseAllMotions()
 	{
 		//LL_INFOS() << "Pausing animations..." << LL_ENDL;
 		mPaused = TRUE;
+        mPausedFrame = LLFrameTimer::getFrameCount();
 	}
 	
 }

@@ -881,6 +881,16 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 			{
 				gSky.mVOGroundp->setRegion(regionp);
 			}
+
+            if (regionp->capabilitiesReceived())
+            {
+                regionp->requestSimulatorFeatures();
+            }
+            else
+            {
+                regionp->setCapabilitiesReceivedCallback(boost::bind(&LLViewerRegion::requestSimulatorFeatures, regionp));
+            }
+
 		}
 		else
 		{

@@ -330,10 +330,10 @@ public:
 	void addTrianglesDrawn(S32 index_count, U32 render_type = LLRender::TRIANGLES);
 
 	bool hasRenderDebugFeatureMask(const U32 mask) const	{ return bool(mRenderDebugFeatureMask & mask); }
-	bool hasRenderDebugMask(const U32 mask) const			{ return bool(mRenderDebugMask & mask); }
+	bool hasRenderDebugMask(const U64 mask) const			{ return bool(mRenderDebugMask & mask); }
 	void setAllRenderDebugFeatures() { mRenderDebugFeatureMask = 0xffffffff; }
 	void clearAllRenderDebugFeatures() { mRenderDebugFeatureMask = 0x0; }
-	void setAllRenderDebugDisplays() { mRenderDebugMask = 0xffffffff; }
+	void setAllRenderDebugDisplays() { mRenderDebugMask = 0xffffffffffffffff; }
 	void clearAllRenderDebugDisplays() { mRenderDebugMask = 0x0; }
 
 	bool hasRenderType(const U32 type) const;
@@ -357,11 +357,11 @@ public:
 
 	// For UI control of render features
 	static bool hasRenderTypeControl(U32 data);
-	static void toggleRenderDebug(U32 data);
+	static void toggleRenderDebug(U64 data);
 	static void toggleRenderDebugFeature(U32 data);
 	static void toggleRenderTypeControl(U32 data);
 	static bool toggleRenderTypeControlNegated(S32 data);
-	static bool toggleRenderDebugControl(U32 data);
+	static bool toggleRenderDebugControl(U64 data);
 	static bool toggleRenderDebugFeatureControl(U32 data);
 	static void setRenderDebugFeatureControl(U32 bit, bool value);
 
@@ -500,39 +500,41 @@ public:
 		RENDER_DEBUG_FEATURE_FOOT_SHADOWS		= 0x0100,
 	};
 
-	enum LLRenderDebugMask
+	enum LLRenderDebugMask: U64
 	{
-		RENDER_DEBUG_COMPOSITION		= 0x00000001,
-		RENDER_DEBUG_VERIFY				= 0x00000002,
-		RENDER_DEBUG_BBOXES				= 0x00000004,
-		RENDER_DEBUG_OCTREE				= 0x00000008,
-		RENDER_DEBUG_WIND_VECTORS		= 0x00000010,
-		RENDER_DEBUG_OCCLUSION			= 0x00000020,
-		RENDER_DEBUG_POINTS				= 0x00000040,
-		RENDER_DEBUG_TEXTURE_PRIORITY	= 0x00000080,
-		RENDER_DEBUG_TEXTURE_AREA		= 0x00000100,
-		RENDER_DEBUG_FACE_AREA			= 0x00000200,
-		RENDER_DEBUG_PARTICLES			= 0x00000400,
-		RENDER_DEBUG_GLOW				= 0x00000800,
-		RENDER_DEBUG_TEXTURE_ANIM		= 0x00001000,
-		RENDER_DEBUG_LIGHTS				= 0x00002000,
-		RENDER_DEBUG_BATCH_SIZE			= 0x00004000,
-		RENDER_DEBUG_ALPHA_BINS			= 0x00008000,
-		RENDER_DEBUG_RAYCAST            = 0x00010000,
-		RENDER_DEBUG_AVATAR_DRAW_INFO	= 0x00020000,
-		RENDER_DEBUG_SHADOW_FRUSTA		= 0x00040000,
-		RENDER_DEBUG_SCULPTED           = 0x00080000,
-		RENDER_DEBUG_AVATAR_VOLUME      = 0x00100000,
-		RENDER_DEBUG_AVATAR_JOINTS      = 0x00200000,
-		RENDER_DEBUG_BUILD_QUEUE		= 0x00400000,
-		RENDER_DEBUG_AGENT_TARGET       = 0x00800000,
-		RENDER_DEBUG_UPDATE_TYPE		= 0x01000000,
-		RENDER_DEBUG_PHYSICS_SHAPES     = 0x02000000,
-		RENDER_DEBUG_NORMALS	        = 0x04000000,
-		RENDER_DEBUG_LOD_INFO	        = 0x08000000,
-		RENDER_DEBUG_RENDER_COMPLEXITY  = 0x10000000,
-		RENDER_DEBUG_ATTACHMENT_BYTES	= 0x20000000,
-		RENDER_DEBUG_TEXEL_DENSITY		= 0x40000000
+		RENDER_DEBUG_COMPOSITION		=  0x00000001,
+		RENDER_DEBUG_VERIFY				=  0x00000002,
+		RENDER_DEBUG_BBOXES				=  0x00000004,
+		RENDER_DEBUG_OCTREE				=  0x00000008,
+		RENDER_DEBUG_WIND_VECTORS		=  0x00000010,
+		RENDER_DEBUG_OCCLUSION			=  0x00000020,
+		RENDER_DEBUG_POINTS				=  0x00000040,
+		RENDER_DEBUG_TEXTURE_PRIORITY	=  0x00000080,
+		RENDER_DEBUG_TEXTURE_AREA		=  0x00000100,
+		RENDER_DEBUG_FACE_AREA			=  0x00000200,
+		RENDER_DEBUG_PARTICLES			=  0x00000400,
+		RENDER_DEBUG_GLOW				=  0x00000800, // not used
+		RENDER_DEBUG_TEXTURE_ANIM		=  0x00001000,
+		RENDER_DEBUG_LIGHTS				=  0x00002000,
+		RENDER_DEBUG_BATCH_SIZE			=  0x00004000,
+		RENDER_DEBUG_ALPHA_BINS			=  0x00008000, // not used
+		RENDER_DEBUG_RAYCAST            =  0x00010000,
+		RENDER_DEBUG_AVATAR_DRAW_INFO	=  0x00020000,
+		RENDER_DEBUG_SHADOW_FRUSTA		=  0x00040000,
+		RENDER_DEBUG_SCULPTED           =  0x00080000,
+		RENDER_DEBUG_AVATAR_VOLUME      =  0x00100000,
+		RENDER_DEBUG_AVATAR_JOINTS      =  0x00200000,
+		RENDER_DEBUG_BUILD_QUEUE		=  0x00400000,
+		RENDER_DEBUG_AGENT_TARGET       =  0x00800000,
+		RENDER_DEBUG_UPDATE_TYPE		=  0x01000000,
+		RENDER_DEBUG_PHYSICS_SHAPES     =  0x02000000,
+		RENDER_DEBUG_NORMALS	        =  0x04000000,
+		RENDER_DEBUG_LOD_INFO	        =  0x08000000,
+		RENDER_DEBUG_RENDER_COMPLEXITY  =  0x10000000,
+		RENDER_DEBUG_ATTACHMENT_BYTES	=  0x20000000, // not used
+		RENDER_DEBUG_TEXEL_DENSITY		=  0x40000000,
+		RENDER_DEBUG_TRIANGLE_COUNT		=  0x80000000,
+		RENDER_DEBUG_IMPOSTORS			= 0x100000000
 	};
 
 public:
@@ -669,10 +671,10 @@ protected:
 	std::stack<std::string> mRenderTypeEnableStack;
 
 	U32						mRenderDebugFeatureMask;
-	U32						mRenderDebugMask;
+	U64						mRenderDebugMask;
+	U64						mOldRenderDebugMask;
 	std::stack<U32>			mRenderDebugFeatureStack;
 
-	U32						mOldRenderDebugMask;
 	
 	/////////////////////////////////////////////
 	//

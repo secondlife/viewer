@@ -1,5 +1,4 @@
 /** 
-
  * @file llvolume.cpp
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
@@ -2639,6 +2638,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			}
 
 			//calculate bounding box
+			// VFExtents change
 			LLVector4a& min = face.mExtents[0];
 			LLVector4a& max = face.mExtents[1];
 
@@ -4768,6 +4768,7 @@ LLVolumeFace::~LLVolumeFace()
 {
 	ll_aligned_free_16(mExtents);
 	mExtents = NULL;
+	mCenter = NULL;
 
 	freeData();
 }
@@ -4949,7 +4950,7 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
 	//
 	if (new_face.mNumVertices <= mNumVertices)
 	{
-	llassert(new_face.mNumIndices == mNumIndices);
+        llassert(new_face.mNumIndices == mNumIndices);
 		swapData(new_face);
 	}
 
@@ -5570,7 +5571,7 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 
 	// S32 i;
 	S32	grid_size = (profile.size()-1)/4;
-
+	// VFExtents change
 	LLVector4a& min = mExtents[0];
 	LLVector4a& max = mExtents[1];
 
@@ -5847,7 +5848,7 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	
 	LLVector2 cuv;
 	LLVector2 min_uv, max_uv;
-
+	// VFExtents change
 	LLVector4a& min = mExtents[0];
 	LLVector4a& max = mExtents[1];
 
@@ -6286,6 +6287,9 @@ void LLVolumeFace::resizeVertices(S32 num_verts)
 
 	mNumVertices = num_verts;
 	mNumAllocatedVertices = num_verts;
+
+    // Force update
+    mJointRiggingInfoTab.clear();
 }
 
 void LLVolumeFace::pushVertex(const LLVolumeFace::VertexData& cv)
@@ -6404,96 +6408,6 @@ void LLVolumeFace::fillFromLegacyData(std::vector<LLVolumeFace::VertexData>& v, 
 	for (U32 i = 0; i < idx.size(); ++i)
 	{
 		mIndices[i] = idx[i];
-	}
-}
-
-void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMatrix4& norm_mat_in)
-{
-	U16 offset = mNumVertices;
-
-	S32 new_count = face.mNumVertices + mNumVertices;
-
-	if (new_count > 65536)
-	{
-		LL_ERRS() << "Cannot append face -- 16-bit overflow will occur." << LL_ENDL;
-	}
-	
-	if (face.mNumVertices == 0)
-	{
-		LL_ERRS() << "Cannot append empty face." << LL_ENDL;
-	}
-
-	U32 old_vsize = mNumVertices*16;
-	U32 new_vsize = new_count * 16;
-	U32 old_tcsize = (mNumVertices*sizeof(LLVector2)+0xF) & ~0xF;
-	U32 new_tcsize = (new_count*sizeof(LLVector2)+0xF) & ~0xF;
-	U32 new_size = new_vsize * 2 + new_tcsize;
-
-	//allocate new buffer space
-	LLVector4a* old_buf = mPositions;
-	mPositions = (LLVector4a*) ll_aligned_malloc<64>(new_size);
-	mNormals = mPositions + new_count;
-	mTexCoords = (LLVector2*) (mNormals+new_count);
-
-	mNumAllocatedVertices = new_count;
-
-	LLVector4a::memcpyNonAliased16((F32*) mPositions, (F32*) old_buf, old_vsize);
-	LLVector4a::memcpyNonAliased16((F32*) mNormals, (F32*) (old_buf+mNumVertices), old_vsize);
-	LLVector4a::memcpyNonAliased16((F32*) mTexCoords, (F32*) (old_buf+mNumVertices*2), old_tcsize);
-	
-	mNumVertices = new_count;
-
-	//get destination address of appended face
-	LLVector4a* dst_pos = mPositions+offset;
-	LLVector2* dst_tc = mTexCoords+offset;
-	LLVector4a* dst_norm = mNormals+offset;
-
-	//get source addresses of appended face
-	const LLVector4a* src_pos = face.mPositions;
-	const LLVector2* src_tc = face.mTexCoords;
-	const LLVector4a* src_norm = face.mNormals;
-
-	//load aligned matrices
-	LLMatrix4a mat, norm_mat;
-	mat.loadu(mat_in);
-	norm_mat.loadu(norm_mat_in);
-
-	for (U32 i = 0; i < face.mNumVertices; ++i)
-	{
-		//transform appended face position and store
-		mat.affineTransform(src_pos[i], dst_pos[i]);
-
-		//transform appended face normal and store
-		norm_mat.rotate(src_norm[i], dst_norm[i]);
-		dst_norm[i].normalize3fast();
-
-		//copy appended face texture coordinate
-		dst_tc[i] = src_tc[i];
-
-		if (offset == 0 && i == 0)
-		{ //initialize bounding box
-			mExtents[0] = mExtents[1] = dst_pos[i];
-		}
-		else
-		{
-			//stretch bounding box
-			update_min_max(mExtents[0], mExtents[1], dst_pos[i]);
-		}
-	}
-
-
-	new_count = mNumIndices + face.mNumIndices;
-
-	//allocate new index buffer
-	mIndices = (U16*) ll_aligned_realloc_16(mIndices, (new_count*sizeof(U16)+0xF) & ~0xF, (mNumIndices*sizeof(U16)+0xF) & ~0xF);
-	
-	//get destination address into new index buffer
-	U16* dst_idx = mIndices+mNumIndices;
-	mNumIndices = new_count;
-
-	for (U32 i = 0; i < face.mNumIndices; ++i)
-	{ //copy indices, offsetting by old vertex count
-		dst_idx[i] = face.mIndices[i]+offset;
 	}
 }
 
@@ -6642,7 +6556,7 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 	{
 		update_min_max(face_min, face_max, *cur_pos++);
 	}
-
+	// VFExtents change
 	mExtents[0] = face_min;
 	mExtents[1] = face_max;
 
