@@ -10225,6 +10225,14 @@ You have been teleported by the object '[OBJECT_NAME]' owned by an unknown user.
 Unable to create requested object. The region is full.
   </notification>
 
+   <notification
+    icon="alertmodal.tga"
+   name="CantCreateAnimatedObjectTooLarge"
+   type="notify">
+   <tag>fail</tag>
+Unable to create requested animated object because it exceeds the rigged triangle limit.
+  </notification>
+
   <notification
    icon="alertmodal.tga"
    name="CantAttackMultipleObjOneSpot"
@@ -10351,6 +10359,46 @@ Your access privileges don't allow you to duplicate objects here.
    type="notify">
    <tag>fail</tag>
 You are not allowed to change this shape.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoPermsTooManyAttachedAnimatedObjects"
+   type="notify">
+   <tag>fail</tag>
+Operation would cause the number of attached animated objects to exceed the limit.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoPermsLinkAnimatedObjectTooLarge"
+   type="notify">
+   <tag>fail</tag>
+Can't link these objects because the resulting animated object would exceed the rigged triangle limit.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoPermsSetFlagAnimatedObjectTooLarge"
+   type="notify">
+   <tag>fail</tag>
+Can't make this object into an animated object because it would exceed the rigged triangle limit.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantChangeAnimatedObjectStateInsufficientLand"
+   type="notify">
+   <tag>fail</tag>
+Can't change animated object state for this object because it would cause parcel limit to be exceeded.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ErrorNoMeshData"
+   type="notify">
+   <tag>fail</tag>
+Server error: cannot complete this operation because mesh data is not loaded.
   </notification>
 
   <notification

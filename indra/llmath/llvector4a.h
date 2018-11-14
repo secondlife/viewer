@@ -320,7 +320,7 @@ public:
 	inline const LLVector4a& operator= ( const LLQuad& rhs );
 
 	inline operator LLQuad() const;	
-
+    
 private:
 	LLQuad mQ;
 } LL_ALIGN_POSTFIX(16);
@@ -331,4 +331,9 @@ inline void update_min_max(LLVector4a& min, LLVector4a& max, const LLVector4a& p
 	max.setMax(max, p);
 }
 
+inline std::ostream& operator<<(std::ostream& s, const LLVector4a& v)
+{
+    s << "(" << v[0] << ", " << v[1] << ", " << v[2] << ", " << v[3] << ")";
+    return s;
+}
 #endif
