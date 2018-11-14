@@ -534,7 +534,6 @@ int main(int argc, char **argv)
 		LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
 	}	
 	LLError::setFatalFunction(wouldHaveCrashed);
-	LLError::setPrintLocation(true);
 	std::string test_app_name(argv[0]);
 	std::string test_log = test_app_name + ".log";
 	LLFile::remove(test_log);

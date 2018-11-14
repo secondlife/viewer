@@ -770,14 +770,13 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
     {
 #ifndef VIVOXDAEMON_REMOTEHOST
         // Launch the voice daemon
-        std::string exe_path = gDirUtilp->getExecutableDir();
-        exe_path += gDirUtilp->getDirDelimiter();
+        std::string exe_path = gDirUtilp->getAppRODataDir();
 #if LL_WINDOWS
-        exe_path += "SLVoice.exe";
+        gDirUtilp->append(exe_path, "SLVoice.exe");
 #elif LL_DARWIN
-        exe_path += "../Resources/SLVoice";
+        gDirUtilp->append(exe_path, "SLVoice");
 #else
-        exe_path += "SLVoice";
+        gDirUtilp->append(exe_path, "SLVoice");
 #endif
         // See if the vivox executable exists
         llstat s;
