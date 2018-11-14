@@ -78,6 +78,7 @@
 #include "llcoros.h"
 #include "lleventcoro.h"
 #include "llcorehttputil.h"
+#include "llcallstack.h"
 #include "llsettingsdaycycle.h"
 
 #ifdef LL_WINDOWS
@@ -242,6 +243,8 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
             LL_WARNS("AppInit", "Capabilities") << "Attempting to get capabilities for region that no longer exists!" << LL_ENDL;
             return; // this error condition is not recoverable.
         }
+        LL_DEBUGS("AppInit", "Capabilities") << "requesting seed caps for handle " << regionHandle 
+                                             << " name " << regionp->getName() << LL_ENDL;
 
         std::string url = regionp->getCapability("Seed");
         if (url.empty())
@@ -270,7 +273,8 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
         buildCapabilityNames(capabilityNames);
 
         LL_INFOS("AppInit", "Capabilities") << "Requesting seed from " << url 
-            << " (attempt #" << mSeedCapAttempts + 1 << ")" << LL_ENDL;
+                                            << " region name " << regionp->getName()
+                                            << " (attempt #" << mSeedCapAttempts + 1 << ")" << LL_ENDL;
 
         regionp = NULL;
         result = httpAdapter->postAndSuspend(httpRequest, url, capabilityNames);
@@ -324,6 +328,8 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
 #endif
 
         regionp->setCapabilitiesReceived(true);
+        LL_DEBUGS("AppInit", "Capabilities") << "received caps for handle " << regionHandle 
+                                             << " region name " << regionp->getName() << LL_ENDL;
 
         if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
         {
@@ -1260,7 +1266,7 @@ void LLViewerRegion::updateVisibleEntries(F32 max_time)
 		LLPointer<LLViewerOctreeGroup> group = *group_iter;
 		if(group->getNumRefs() < 3 || //group to be deleted
 			!group->getOctreeNode() || group->isEmpty()) //group empty
-{
+        {
 			continue;
 		}
 
@@ -2144,6 +2150,26 @@ void LLViewerRegion::getInfo(LLSD& info)
 	info["Region"]["Handle"]["y"] = (LLSD::Integer)y;
 }
 
+void LLViewerRegion::requestSimulatorFeatures()
+{
+    LL_DEBUGS("SimulatorFeatures") << "region " << getName() << " ptr " << this
+                                   << " trying to request SimulatorFeatures" << LL_ENDL;
+    // kick off a request for simulator features
+    std::string url = getCapability("SimulatorFeatures");
+    if (!url.empty())
+    {
+        std::string coroname =
+            LLCoros::instance().launch("LLViewerRegionImpl::requestSimulatorFeatureCoro",
+                                       boost::bind(&LLViewerRegionImpl::requestSimulatorFeatureCoro, mImpl, url, getHandle()));
+        
+        LL_INFOS("AppInit", "SimulatorFeatures") << "Launching " << coroname << " requesting simulator features from " << url << LL_ENDL;
+    }
+    else
+    {
+        LL_WARNS("AppInit", "SimulatorFeatures") << "SimulatorFeatures cap not set" << LL_ENDL;
+    }
+}
+
 boost::signals2::connection LLViewerRegion::setSimulatorFeaturesReceivedCallback(const caps_received_signal_t::slot_type& cb)
 {
 	return mSimulatorFeaturesReceivedSignal.connect(cb);
@@ -2175,7 +2201,7 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
 	std::stringstream str;
 	
 	LLSDSerialize::toPrettyXML(sim_features, str);
-	LL_INFOS() << str.str() << LL_ENDL;
+	LL_INFOS() << "region " << getName() << " "  << str.str() << LL_ENDL;
 	mSimulatorFeatures = sim_features;
 
 	setSimulatorFeaturesReceived(true);
@@ -2221,7 +2247,7 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
 	{
 		LLViewerRegion* old_regionp = ((LLDrawable*)entry->getEntry()->getDrawable())->getRegion();
 		if(old_regionp != this && old_regionp)
-{
+        {
 			LLViewerObject* obj = ((LLDrawable*)entry->getEntry()->getDrawable())->getVObj();
 			if(obj)
 			{
@@ -2384,12 +2410,18 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerB
 		// we've seen this object before
 		if (entry->getCRC() == crc)
 		{
+            LL_DEBUGS("AnimatedObjects") << " got dupe for local_id " << local_id << LL_ENDL;
+            dumpStack("AnimatedObjectsStack");
+
 			// Record a hit
 			entry->recordDupe();
 			result = CACHE_UPDATE_DUPE;
 		}
 		else //CRC changed
 		{
+            LL_DEBUGS("AnimatedObjects") << " got update for local_id " << local_id << LL_ENDL;
+            dumpStack("AnimatedObjectsStack");
+
 			// Update the cache entry
 			entry->updateEntry(crc, dp);
 
@@ -2400,6 +2432,9 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerB
 	}
 	else
 	{
+        LL_DEBUGS("AnimatedObjects") << " got first notification for local_id " << local_id << LL_ENDL;
+        dumpStack("AnimatedObjectsStack");
+
 		// we haven't seen this object before
 		// Create new entry and add to map
 		result = CACHE_UPDATE_ADDED;
@@ -2504,7 +2539,7 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 			// Record a hit
 			mRegionCacheHitCount++;
 			entry->recordHit();
-		cache_miss_type = CACHE_MISS_TYPE_NONE;
+            cache_miss_type = CACHE_MISS_TYPE_NONE;
 			entry->setUpdateFlags(flags);
 			
 			if(entry->isState(LLVOCacheEntry::ACTIVE))
@@ -2527,12 +2562,14 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 			// LL_INFOS() << "CRC miss for " << local_id << LL_ENDL;
 
 			addCacheMiss(local_id, CACHE_MISS_TYPE_CRC);
+            cache_miss_type = CACHE_MISS_TYPE_CRC;
 		}
 	}
 	else
 	{
 		// LL_INFOS() << "Cache miss for " << local_id << LL_ENDL;
 		addCacheMiss(local_id, CACHE_MISS_TYPE_FULL);
+        cache_miss_type = CACHE_MISS_TYPE_FULL;
 	}
 
 	return false;
@@ -2569,6 +2606,9 @@ void LLViewerRegion::requestCacheMisses()
 		msg->nextBlockFast(_PREHASH_ObjectData);
 		msg->addU8Fast(_PREHASH_CacheMissType, (*iter).mType);
 		msg->addU32Fast(_PREHASH_ID, (*iter).mID);
+
+        LL_DEBUGS("AnimatedObjects") << "Requesting cache missed object " << (*iter).mID << LL_ENDL;
+        
 		blocks++;
 
 		if (blocks >= 255)
@@ -2875,6 +2915,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("MeshUploadFlag");	
 	capabilityNames.append("NavMeshGenerationStatus");
 	capabilityNames.append("NewFileAgentInventory");
+	capabilityNames.append("ObjectAnimation");
 	capabilityNames.append("ObjectMedia");
 	capabilityNames.append("ObjectMediaNavigate");
 	capabilityNames.append("ObjectNavMeshProperties");
@@ -2971,12 +3012,8 @@ void LLViewerRegion::setCapability(const std::string& name, const std::string& u
 	}
 	else if (name == "SimulatorFeatures")
 	{
-		// kick off a request for simulator features
-        std::string coroname =
-            LLCoros::instance().launch("LLViewerRegionImpl::requestSimulatorFeatureCoro",
-            boost::bind(&LLViewerRegionImpl::requestSimulatorFeatureCoro, mImpl, url, getHandle()));
-
-        LL_INFOS("AppInit", "SimulatorFeatures") << "Launching " << coroname << " requesting simulator features from " << url << LL_ENDL;
+        mImpl->mCapabilities["SimulatorFeatures"] = url;
+        requestSimulatorFeatures();
 	}
 	else
 	{

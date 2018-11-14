@@ -818,6 +818,7 @@ char const* const _PREHASH_StateSave = LLMessageStringTable::getInstance()->getS
 char const* const _PREHASH_RoleData = LLMessageStringTable::getInstance()->getString("RoleData");
 char const* const _PREHASH_AgentAnimation = LLMessageStringTable::getInstance()->getString("AgentAnimation");
 char const* const _PREHASH_AvatarAnimation = LLMessageStringTable::getInstance()->getString("AvatarAnimation");
+char const* const _PREHASH_ObjectAnimation = LLMessageStringTable::getInstance()->getString("ObjectAnimation");
 char const* const _PREHASH_LogDwellTime = LLMessageStringTable::getInstance()->getString("LogDwellTime");
 char const* const _PREHASH_ParcelGodMarkAsContent = LLMessageStringTable::getInstance()->getString("ParcelGodMarkAsContent");
 char const* const _PREHASH_UsePhysics = LLMessageStringTable::getInstance()->getString("UsePhysics");
