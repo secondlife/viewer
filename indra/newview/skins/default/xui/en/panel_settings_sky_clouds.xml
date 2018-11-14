@@ -260,7 +260,7 @@
                     layout="topleft"
                     left_delta="0"
                     min_val="0"
-                    max_val="2"
+                    max_val="1"
                     name="cloud_detail_d"
                     top_delta="20"
                     width="200"
