@@ -38,7 +38,6 @@ class domMesh;
 
 #define MAX_MODEL_FACES 8
 
-
 class LLMeshSkinInfo 
 {
 public:
@@ -57,6 +56,7 @@ public:
 	float mPelvisOffset;
     bool mLockScaleIfJointPosition;
     bool mInvalidJointsScrubbed;
+    bool mJointNumsInitialized;
 };
 
 class LLModel : public LLVolume
@@ -157,9 +157,6 @@ public:
 	std::string getMetric() const {return mMetric;}
 	EModelStatus getStatus() const {return mStatus;}
 	static std::string getStatusString(U32 status) ;
-
-	void appendFaces(LLModel* model, LLMatrix4& transform, LLMatrix4& normal_transform);
-	void appendFace(const LLVolumeFace& src_face, std::string src_material, LLMatrix4& mat, LLMatrix4& norm_mat);
 
 	void setNumVolumeFaces(S32 count);
 	void setVolumeFaceData(

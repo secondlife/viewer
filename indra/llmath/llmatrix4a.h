@@ -121,7 +121,7 @@ public:
 		res.add(z);
 	}
 
-	inline void affineTransformSSE(const LLVector4a& v, LLVector4a& res)
+	inline void affineTransformSSE(const LLVector4a& v, LLVector4a& res) const
 	{
 		LLVector4a x,y,z;
 
@@ -138,7 +138,7 @@ public:
 		res.setAdd(x,z);
 	}
 
-    inline void affineTransformNonSSE(const LLVector4a& v, LLVector4a& res)
+    inline void affineTransformNonSSE(const LLVector4a& v, LLVector4a& res) const
     {
         F32 x = v[0] * mMatrix[0][0] + v[1] * mMatrix[1][0] + v[2] * mMatrix[2][0] + mMatrix[3][0];
         F32 y = v[0] * mMatrix[0][1] + v[1] * mMatrix[1][1] + v[2] * mMatrix[2][1] + mMatrix[3][1];
@@ -147,7 +147,7 @@ public:
         res.set(x,y,z,w);
     }
 
-	inline void affineTransform(const LLVector4a& v, LLVector4a& res)
+	inline void affineTransform(const LLVector4a& v, LLVector4a& res) const
     {
         affineTransformSSE(v,res);
     }
@@ -175,5 +175,13 @@ inline void matMul(const LLMatrix4a &a, const LLMatrix4a &b, LLMatrix4a &res)
     res.mMatrix[2] = row2;
     res.mMatrix[3] = row3;
 }
+
+inline std::ostream& operator<<(std::ostream& s, const LLMatrix4a& m)
+{
+    s << "[" << m.mMatrix[0] << ", " << m.mMatrix[1] << ", " << m.mMatrix[2] << ", " << m.mMatrix[3] << "]";
+    return s;
+} 
+
+void matMulBoundBox(const LLMatrix4a &a, const LLVector4a *in_extents, LLVector4a *out_extents);
 
 #endif
