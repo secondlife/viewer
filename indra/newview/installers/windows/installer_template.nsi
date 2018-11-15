@@ -18,8 +18,7 @@
 ;;
 ;; Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 ;;
-;; NSIS Unicode 2.46.5 or higher required
-;; http://www.scratchpaper.com/
+;; NSIS 3 or higher required for Unicode support
 ;;
 ;; Author: James Cook, TankMaster Finesmith, Don Kjer, Callum Prentice
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -27,6 +26,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Compiler flags
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Unicode true
 SetOverwrite on				# Overwrite files
 SetCompress auto			# Compress if saves space
 SetCompressor /solid lzma	# Compress whole installer as one block
@@ -112,22 +112,8 @@ AutoCloseWindow true					# After all files install, close window
 !define MULTIUSER_INSTALLMODE_COMMANDLINE
 # appended to $PROGRAMFILES, as affected by MULTIUSER_USE_PROGRAMFILES64
 !define MULTIUSER_INSTALLMODE_INSTDIR "${INSTNAME}"
-
 # expands to !define MULTIUSER_USE_PROGRAMFILES64 or nothing
 %%PROGRAMFILES%%
-# Bug in MultiUser.nsh?! This reference:
-# http://nsis.sourceforge.net/Docs/MultiUser/Readme.html
-# says:
-# MULTIUSER_USE_PROGRAMFILES64 	Use $PROGRAMFILES64 instead of $PROGRAMFILES as the default all users directory.
-# Yet as far as I can tell from:
-# https://sourceforge.net/p/nsis/mailman/message/22246769/
-# (which contains a patch), that functionality has never been released with
-# NSIS. Instead of applying a patch to each developer machine and each
-# TeamCity build host, try overwriting $PROGRAMFILES with $PROGRAMFILES64?!
-!ifdef MULTIUSER_USE_PROGRAMFILES64
-  StrCpy $PROGRAMFILES $PROGRAMFILES64
-!endif
-
 # should make MultiUser.nsh initialization read existing INSTDIR from registry
 !define MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_KEY "${INSTNAME_KEY}"
 !define MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME ""

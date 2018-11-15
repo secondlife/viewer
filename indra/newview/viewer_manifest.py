@@ -830,12 +830,10 @@ class WindowsManifest(ViewerManifest):
             ):
             self.sign(exe)
             
-        # We use the Unicode version of NSIS, available from
-        # http://www.scratchpaper.com/
         # Check two paths, one for Program Files, and one for Program Files (x86).
         # Yay 64bit windows.
         for ProgramFiles in 'ProgramFiles', 'ProgramFiles(x86)':
-            NSIS_path = os.path.expandvars(r'${%s}\NSIS\Unicode\makensis.exe' % ProgramFiles)
+            NSIS_path = os.path.expandvars(r'${%s}\NSIS\makensis.exe' % ProgramFiles)
             if os.path.exists(NSIS_path):
                 break
         installer_created=False
