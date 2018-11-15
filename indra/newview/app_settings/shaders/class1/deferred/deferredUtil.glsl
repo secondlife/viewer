@@ -86,6 +86,8 @@ vec4 getPosition(vec2 pos_screen)
 	return pos;
 }
 
+#if USE_DEFERRED_SHADER_API
+
 vec4 getPositionWithDepth(vec2 pos_screen, float depth)
 {
 	vec2 sc = getScreenCoordinate(pos_screen);
@@ -284,4 +286,6 @@ float calcAmbientOcclusion(vec4 pos, vec3 norm, vec2 pos_screen)
 	ret = max(ret, 0.0);
 	return min(ret, 1.0);
 }
+
+#endif
 
