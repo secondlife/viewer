@@ -46,9 +46,13 @@ RequestExecutionLevel highest           # match MULTIUSER_EXECUTIONLEVEL
 ;; (these files are in the same place as the nsi template but the python script generates a new nsi file in the 
 ;; application directory so we have to add a path to these include files)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Ansariel notes: "Under certain circumstances the installer will fall back
+;; to the first defined (aka default) language version. So you want to include
+;; en-us as first language file."
+!include "%%SOURCE%%\installers\windows\lang_en-us.nsi"
+
 !include "%%SOURCE%%\installers\windows\lang_da.nsi"
 !include "%%SOURCE%%\installers\windows\lang_de.nsi"
-!include "%%SOURCE%%\installers\windows\lang_en-us.nsi"
 !include "%%SOURCE%%\installers\windows\lang_es.nsi"
 !include "%%SOURCE%%\installers\windows\lang_fr.nsi"
 !include "%%SOURCE%%\installers\windows\lang_ja.nsi"
@@ -108,8 +112,22 @@ AutoCloseWindow true					# After all files install, close window
 !define MULTIUSER_INSTALLMODE_COMMANDLINE
 # appended to $PROGRAMFILES, as affected by MULTIUSER_USE_PROGRAMFILES64
 !define MULTIUSER_INSTALLMODE_INSTDIR "${INSTNAME}"
+
 # expands to !define MULTIUSER_USE_PROGRAMFILES64 or nothing
 %%PROGRAMFILES%%
+# Bug in MultiUser.nsh?! This reference:
+# http://nsis.sourceforge.net/Docs/MultiUser/Readme.html
+# says:
+# MULTIUSER_USE_PROGRAMFILES64 	Use $PROGRAMFILES64 instead of $PROGRAMFILES as the default all users directory.
+# Yet as far as I can tell from:
+# https://sourceforge.net/p/nsis/mailman/message/22246769/
+# (which contains a patch), that functionality has never been released with
+# NSIS. Instead of applying a patch to each developer machine and each
+# TeamCity build host, try overwriting $PROGRAMFILES with $PROGRAMFILES64?!
+!ifdef MULTIUSER_USE_PROGRAMFILES64
+  StrCpy $PROGRAMFILES $PROGRAMFILES64
+!endif
+
 # should make MultiUser.nsh initialization read existing INSTDIR from registry
 !define MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_KEY "${INSTNAME_KEY}"
 !define MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME ""
@@ -118,6 +136,8 @@ AutoCloseWindow true					# After all files install, close window
 !define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME "InstallMode"
 !include MultiUser.nsh
 !include MUI2.nsh
+!define MUI_BGCOLOR FFFFFF
+!insertmacro MUI_FUNCTION_GUIINIT
 
 UninstallText $(UninstallTextMsg)
 DirText $(DirectoryChooseTitle) $(DirectoryChooseSetup)
