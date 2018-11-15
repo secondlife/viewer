@@ -357,6 +357,25 @@ void LLViewerJointAttachment::setOriginalPosition(LLVector3& position)
 }
 
 //-----------------------------------------------------------------------------
+// getNumAnimatedObjects()
+//-----------------------------------------------------------------------------
+S32 LLViewerJointAttachment::getNumAnimatedObjects() const
+{
+    S32 count = 0;
+	for (attachedobjs_vec_t::const_iterator iter = mAttachedObjects.begin();
+		 iter != mAttachedObjects.end();
+		 ++iter)
+	{
+        const LLViewerObject *attached_object = *iter;
+        if (attached_object->isAnimatedObject())
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
+//-----------------------------------------------------------------------------
 // clampObjectPosition()
 //-----------------------------------------------------------------------------
 void LLViewerJointAttachment::clampObjectPosition()

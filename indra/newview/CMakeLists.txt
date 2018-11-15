@@ -151,6 +151,7 @@ set(viewer_SOURCE_FILES
     llcommunicationchannel.cpp
     llcompilequeue.cpp
     llconfirmationmanager.cpp
+    llcontrolavatar.cpp
     llconversationlog.cpp
     llconversationloglist.cpp
     llconversationloglistitem.cpp
@@ -606,6 +607,7 @@ set(viewer_SOURCE_FILES
     lltransientfloatermgr.cpp
     lltranslate.cpp
     lltwitterconnect.cpp
+    lluiavatar.cpp
     lluilistener.cpp
     lluploaddialog.cpp
     llurl.cpp
@@ -775,6 +777,7 @@ set(viewer_HEADER_FILES
     llcommunicationchannel.h
     llcompilequeue.h
     llconfirmationmanager.h
+    llcontrolavatar.h
     llconversationlog.h
     llconversationloglist.h
     llconversationloglistitem.h
@@ -1224,6 +1227,7 @@ set(viewer_HEADER_FILES
     lltranslate.h
     lltwitterconnect.h
     lluiconstants.h
+    lluiavatar.h
     lluilistener.h
     lluploaddialog.h
     lluploadfloaterobservers.h
