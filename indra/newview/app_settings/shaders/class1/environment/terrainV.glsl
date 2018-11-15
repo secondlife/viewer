@@ -71,7 +71,7 @@ void main()
 	/// Potentially better without it for water.
 	pos /= pos.w;
 
-	vec4 color = calcLighting(pos.xyz, norm, vec4(1,1,1,1), vec4(0));
+	vec4 color = calcLighting(pos.xyz, norm, vec4(1), vec4(0));
 	
 	vertex_color = color;
 
