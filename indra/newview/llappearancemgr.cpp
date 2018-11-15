@@ -880,7 +880,10 @@ void LLWearableHoldingPattern::onAllComplete()
 			 ++it)
 		{
 			LLViewerObject *objectp = *it;
-			gAgentAvatarp->addAttachmentOverridesForObject(objectp);
+            if (!objectp->isAnimatedObject())
+            {
+                gAgentAvatarp->addAttachmentOverridesForObject(objectp);
+            }
 		}
 		
 		// Add new attachments to match those requested.

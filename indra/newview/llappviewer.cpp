@@ -95,6 +95,7 @@
 #include "llvocache.h"
 #include "llvopartgroup.h"
 #include "llweb.h"
+#include "llfloatertexturefetchdebugger.h"
 #include "llspellcheck.h"
 #include "llscenemonitor.h"
 #include "llavatarrenderinfoaccountant.h"
@@ -1083,7 +1084,7 @@ bool LLAppViewer::init()
 // don't nag developers who need to run the executable directly
 #if LL_RELEASE_FOR_DOWNLOAD
 	// MAINT-8305: If we're processing a SLURL, skip the launcher check.
-	if (gSavedSettings.getString("CmdLineLoginLocation").empty())
+	if (gSavedSettings.getString("CmdLineLoginLocation").empty() && !beingDebugged())
 	{
 		const char* PARENT = getenv("PARENT");
 		if (! (PARENT && std::string(PARENT) == "SL_Launcher"))
@@ -1614,7 +1615,7 @@ bool LLAppViewer::cleanup()
 	//dump scene loading monitor results
 	if (LLSceneMonitor::instanceExists())
 	{
-	LLSceneMonitor::instance().dumpToFile(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "scene_monitor_results.csv"));
+		LLSceneMonitor::instance().dumpToFile(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "scene_monitor_results.csv"));
 	}
 
 	// There used to be an 'if (LLFastTimerView::sAnalyzePerformance)' block
@@ -1897,13 +1898,13 @@ bool LLAppViewer::cleanup()
 	// save mute list. gMuteList used to also be deleted here too.
 	if (gAgent.isInitialized() && LLMuteList::instanceExists())
 	{
-	LLMuteList::getInstance()->cache(gAgent.getID());
+		LLMuteList::getInstance()->cache(gAgent.getID());
 	}
 
 	//save call log list
 	if (LLConversationLog::instanceExists())
 	{
-	LLConversationLog::instance().cache();
+		LLConversationLog::instance().cache();
 	}
 
 	if (mPurgeOnExit)
@@ -3871,12 +3872,6 @@ void LLAppViewer::requestQuit()
 
 	// Try to send metrics back to the grid
 	metricsSend(!gDisconnected);
-
-	// Try to send last batch of avatar rez metrics.
-	if (!gDisconnected && isAgentAvatarValid())
-	{
-		gAgentAvatarp->updateAvatarRezMetrics(true); // force a last packet to be sent.
-	}
 
 	// Try to send last batch of avatar rez metrics.
 	if (!gDisconnected && isAgentAvatarValid())

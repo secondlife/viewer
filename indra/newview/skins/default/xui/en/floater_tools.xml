@@ -2,7 +2,7 @@
 <floater
  positioning="cascading"
  legacy_header_height="18"
- height="590"
+ height="600"
  layout="topleft"
  bg_opaque_image="Window_NoTitle_Foreground"
  bg_alpha_image="Window_NoTitle_Background"
@@ -2135,7 +2135,7 @@ even though the user gets a free copy.
         <panel
          border="false"
          follows="all"
-         height="367"
+         height="387"
          label="Features"
          layout="topleft"
          left_delta="0"
@@ -2173,13 +2173,23 @@ even though the user gets a free copy.
                 Edit object features:
             </text>
             <check_box
-             height="19"
+             height="15"
+             label="Animated Mesh"
+             layout="topleft"
+             left="10"
+             name="Animated Mesh Checkbox Ctrl"
+             tool_tip="Allows rigged mesh objects to be animated independently"
+             top_pad="10"
+             width="121" />
+            <check_box
+             height="10"
              label="Flexible Path"
+             follows="left|top"
              layout="topleft"
              left="10"
              name="Flexible1D Checkbox Ctrl"
              tool_tip="Allows object to flex about the Z axis (Client-side only)"
-             top_pad="20"
+             top_pad="15"
              width="121" />
             <spinner
              follows="left|top"

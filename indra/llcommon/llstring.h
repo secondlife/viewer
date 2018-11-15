@@ -211,6 +211,9 @@ public:
 	static bool getPacificDaylightTime(void) { return sPacificDaylightTime;}
 
 	static std::string getDatetimeCode (std::string key);
+
+    // Express a value like 1234567 as "1.23M" 
+    static std::string getReadableNumber(F64 num);
 };
 
 /**

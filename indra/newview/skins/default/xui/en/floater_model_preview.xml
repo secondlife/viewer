@@ -14,6 +14,7 @@
 
   <string name="status_idle"></string>
   <string name="status_parse_error">Error: Dae parsing issue - see log for details.</string>
+  <string name="status_bind_shape_orientation">Warning: bind shape matrix is not in standard X-forward orientation.</string>
   <string name="status_material_mismatch">Error: Material of model is not a subset of reference model.</string>
   <string name="status_reading_file">Loading...</string>
   <string name="status_generating_meshes">Generating Meshes...</string>

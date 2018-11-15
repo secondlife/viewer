@@ -48,6 +48,10 @@
 #include "llviewershadermgr.h"
 #include "llwaterparammanager.h"
 
+#if LL_WINDOWS
+#pragma optimize("", off)
+#endif
+
 const LLUUID TRANSPARENT_WATER_TEXTURE("2bfd3884-7e27-69b9-ba3a-3e673f680004");
 const LLUUID OPAQUE_WATER_TEXTURE("43c32285-d658-1793-c123-bf86315de055");
 

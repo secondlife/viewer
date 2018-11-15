@@ -87,7 +87,7 @@ namespace {
 			U32 render_feature = feature_from_string( iter->asString() );
 			if ( render_feature != 0 )
 			{
-				LLPipeline::toggleRenderDebugControl( render_feature );
+				LLPipeline::toggleRenderDebugFeatureControl( render_feature );
 			}
 		}
 	}
@@ -123,7 +123,7 @@ namespace {
 			iter != request["displays"].endArray();
 			++iter)
 		{
-			U32 info_display = info_display_from_string( iter->asString() );
+			U64 info_display = info_display_from_string( iter->asString() );
 			if ( info_display != 0 )
 			{
 				LLPipeline::toggleRenderDebug( info_display );
@@ -134,7 +134,7 @@ namespace {
 	void has_info_display_wrapper(LLSD const& request)
 	{
 		LLEventAPI::Response response(LLSD(), request);
-		U32 info_display = info_display_from_string( request["display"].asString() );
+		U64 info_display = info_display_from_string( request["display"].asString() );
 		if ( info_display != 0 )
 		{
 			response["value"] = gPipeline.hasRenderDebugMask(info_display);

@@ -543,6 +543,13 @@ public:
 								S32 bytes = 0;	
 								S32 visible = 0;
 								cost += object->getStreamingCost(&bytes, &visible);
+                                LLMeshCostData costs;
+                                if (object->getCostData(costs))
+                                {
+                                    bytes = costs.getSizeTotal();
+                                    visible = costs.getSizeByLOD(object->getLOD());
+                                }
+
 								S32 vt = 0;
 								count += object->getTriangleCount(&vt);
 								vcount += vt;
@@ -1145,7 +1152,9 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 
 				if (prim_media_dnd_enabled)
 				{
-					LLPickInfo pick_info = pickImmediate( pos.mX, pos.mY,  TRUE /*BOOL pick_transparent*/, FALSE );
+					LLPickInfo pick_info = pickImmediate( pos.mX, pos.mY,
+                                                          TRUE /* pick_transparent */, 
+                                                          FALSE /* pick_rigged */);
 
 					LLUUID object_id = pick_info.getObjectID();
 					S32 object_face = pick_info.mObjectFace;

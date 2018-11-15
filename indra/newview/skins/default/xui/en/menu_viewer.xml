@@ -92,8 +92,7 @@
          shortcut="alt|shift|S"
          name="Sit Down Here">
           <menu_item_call.on_click
-           function="Self.SitDown"
-/>
+           function="Self.SitDown"/>
           <menu_item_call.on_visible
            function="Self.ShowSitDown"/>
           <menu_item_call.on_enable
@@ -1501,7 +1500,8 @@
         </menu_item_call>
         <menu_item_call
            label="Set UI Size to Default"
-           name="Set UI Size to Default"           shortcut="control|alt|shift|R">
+           name="Set UI Size to Default"
+           shortcut="control|alt|shift|R">
           <menu_item_call.on_click
              function="View.DefaultUISize" />
         </menu_item_call>
@@ -2220,6 +2220,20 @@
                function="Advanced.ToggleConsole"
                parameter="scene monitor" />
             </menu_item_check>
+            <menu_item_call
+              enabled="false"
+              visible="false"
+              label="Texture Fetch Debug Console"
+              name="Texture Fetch Debug Console">
+              <menu_item_call.on_click
+                function="Floater.Show"
+                parameter="tex_fetch_debugger" />
+              <on_enable
+                function="Develop.SetTexFetchDebugger" />
+              <on_visible
+                function="Develop.SetTexFetchDebugger" />
+            </menu_item_call>
+          
             <menu_item_separator/>
 
             <menu_item_call
@@ -2636,6 +2650,16 @@
           <menu_item_check.on_click
            function="Advanced.ToggleInfoDisplay"
            parameter="lod info" />
+        </menu_item_check>
+        <menu_item_check
+         label="Triangle Count"
+         name="Triangle Count">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="triangle count" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="triangle count" />
         </menu_item_check>
         <menu_item_check
          label="Build Queue"
@@ -3545,6 +3569,16 @@
                 <menu_item_check.on_click
                  function="Advanced.ToggleInfoDisplay"
                  parameter="agent target" />
+            </menu_item_check>
+            <menu_item_check
+             label="Show Impostor Extents"
+             name="Show Impostor Extents">
+                <menu_item_check.on_check
+                 function="Advanced.CheckInfoDisplay"
+                 parameter="impostors" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleInfoDisplay"
+                 parameter="impostors" />
             </menu_item_check>
             <!-- Appears not to exist anymore
             <menu_item_check

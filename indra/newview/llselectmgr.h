@@ -340,6 +340,9 @@ public:
 	// returns TRUE is any node is currenly worn as an attachment
 	BOOL isAttachment();
 
+    bool checkAnimatedObjectEstTris();
+    bool checkAnimatedObjectLinkable();
+    
 	// Apply functors to various subsets of the selected objects
 	// If firstonly is FALSE, returns the AND of all apply() calls.
 	// Else returns TRUE immediately if any apply() call succeeds (i.e. OR with early exit)
@@ -748,6 +751,8 @@ public:
 	LLVector3d		getSelectionCenterGlobal() const	{ return mSelectionCenterGlobal; }
 	void			updateSelectionCenter();
 
+    void pauseAssociatedAvatars();
+
 	void resetAgentHUDZoom();
 	void setAgentHUDZoom(F32 target_zoom, F32 current_zoom);
 	void getAgentHUDZoom(F32 &target_zoom, F32 &current_zoom) const;
@@ -849,7 +854,7 @@ private:
 	LLFrameTimer			mEffectsTimer;
 	BOOL					mForceSelection;
 
-	LLAnimPauseRequest		mPauseRequest;
+    std::vector<LLAnimPauseRequest>	mPauseRequests;
 };
 
 // *DEPRECATED: For callbacks or observers, use
