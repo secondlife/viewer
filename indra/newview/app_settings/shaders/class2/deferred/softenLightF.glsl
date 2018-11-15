@@ -153,10 +153,9 @@ void main()
 		ambient *= ambient;
 		ambient = (1.0-ambient);
 
-		col.rgb = ambient * ((col * 0.5) + amblit);
-
-		col += sunlit * max(min(da, scol), 0.0);
-	
+		col.rgb = amblit;
+		col.rgb *= ambient;
+		col += sunlit * min(da, scol);
 		col *= diffuse.rgb;
 	
 		vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));

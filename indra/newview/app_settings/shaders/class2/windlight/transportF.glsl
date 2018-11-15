@@ -53,7 +53,7 @@ vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten)
 	return mix(atmosTransportFrag(light.rgb, additive, atten), light.rgb + additive.rgb, brightness * brightness);
 }
 
-vec3 fullbrightShinyAtmosTransportFrag(vec3 light, vec3 atten, vec3 additive) {
+vec3 fullbrightShinyAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten) {
     if (no_atmo == 1)
     {
         return light;
