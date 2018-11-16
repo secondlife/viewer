@@ -322,6 +322,10 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) mouseDown:(NSEvent *)theEvent
 {
+    NSPoint mPoint = [theEvent locationInWindow];
+    mMousePos[0] = mPoint.x;
+    mMousePos[1] = mPoint.y;
+
     // Apparently people still use this?
     if ([theEvent modifierFlags] & NSCommandKeyMask &&
         !([theEvent modifierFlags] & NSControlKeyMask) &&
