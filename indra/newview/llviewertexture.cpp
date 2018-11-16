@@ -474,6 +474,7 @@ void LLViewerTexture::initClass()
 // tuning params
 const F32 discard_bias_delta = .25f;
 const F32 discard_delta_time = 0.5f;
+const F32 GPU_MEMORY_CHECK_WAIT_TIME = 1.0f;
 // non-const (used externally
 F32 texmem_lower_bound_scale = 0.85f;
 F32 texmem_middle_bound_scale = 0.925f;
@@ -483,12 +484,12 @@ static LLTrace::BlockTimerStatHandle FTM_TEXTURE_MEMORY_CHECK("Memory Check");
 //static 
 bool LLViewerTexture::isMemoryForTextureLow()
 {
-	const F32 WAIT_TIME = 1.0f; //second
 	static LLFrameTimer timer;
+	static bool low_mem = false;
 
-	if(timer.getElapsedTimeF32() < WAIT_TIME) //call this once per second.
+	if(timer.getElapsedTimeF32() < GPU_MEMORY_CHECK_WAIT_TIME) //call this once per second.
 	{
-		return false;
+		return low_mem;
 	}
 	timer.reset();
 
@@ -497,7 +498,7 @@ bool LLViewerTexture::isMemoryForTextureLow()
 	const S32Megabytes MIN_FREE_TEXTURE_MEMORY(20); //MB Changed to 20 MB per MAINT-6882
 	const S32Megabytes MIN_FREE_MAIN_MEMORY(100); //MB	
 
-	bool low_mem = false;
+	low_mem = false;
 	if (gGLManager.mHasATIMemInfo)
 	{
 		S32 meminfo[4];
@@ -572,10 +573,14 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 			sEvaluationTimer.reset();
 		}
 	}
-	else if(sEvaluationTimer.getElapsedTimeF32() > discard_delta_time && isMemoryForTextureLow())
+	else if(isMemoryForTextureLow())
 	{
-		sDesiredDiscardBias += discard_bias_delta;
-		sEvaluationTimer.reset();
+		// Note: isMemoryForTextureLow() uses 1s delay, make sure we waited enough for it to restore
+		if (sEvaluationTimer.getElapsedTimeF32() > GPU_MEMORY_CHECK_WAIT_TIME)
+		{
+			sDesiredDiscardBias += discard_bias_delta;
+			sEvaluationTimer.reset();
+		}
 	}
 	else if (sDesiredDiscardBias > 0.0f &&
 			 sBoundTextureMemory < sMaxBoundTextureMemory * texmem_lower_bound_scale &&
