@@ -25,25 +25,27 @@
  
 uniform vec4 sunlight_color;
 uniform vec4 light_ambient;
+uniform int no_atmo;
 
 vec3 atmosAmbient(vec3 light)
 {
-	return light + light_ambient.rgb;
+    if (no_atmo == 1) return light + vec3(0.66);
+    return light + light_ambient.rgb;
 }
 
 vec3 atmosAffectDirectionalLight(float lightIntensity)
 {
-	return sunlight_color.rgb * lightIntensity;
+    return sunlight_color.rgb * lightIntensity;
 }
 
 vec3 atmosGetDiffuseSunlightColor()
 {
-	return sunlight_color.rgb;
+    return sunlight_color.rgb;
 }
 
 vec3 scaleDownLight(vec3 light)
 {
-	/* stub function for fallback compatibility on class1 hardware */
-	return light;
+    /* stub function for fallback compatibility on class1 hardware */
+    return light;
 }
 
