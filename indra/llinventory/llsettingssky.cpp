@@ -37,8 +37,8 @@ namespace {
     const F32 NIGHTTIME_ELEVATION = -8.0f; // degrees
     const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION * DEG_TO_RAD);
     const LLUUID IMG_BLOOM1("3c59f7fe-9dc8-47f9-8aaf-a9dd1fbc3bef");
-    const LLUUID IMG_RAINBOW("12149143-f599-91a7-77ac-b52a3c0f59cd");
-    const LLUUID IMG_HALO("11b4c57c-56b3-04ed-1f82-2004363882e4");
+    const LLUUID IMG_RAINBOW("11b4c57c-56b3-04ed-1f82-2004363882e4");
+    const LLUUID IMG_HALO("12149143-f599-91a7-77ac-b52a3c0f59cd");
 }
 
 namespace {

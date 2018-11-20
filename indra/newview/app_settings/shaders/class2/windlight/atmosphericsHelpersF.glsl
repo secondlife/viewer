@@ -26,19 +26,21 @@
 // Output variables
 
 uniform float scene_light_strength;
+uniform int no_atmo;
 
 vec3 atmosFragAmbient(vec3 light, vec3 amblit)
 {
-	return amblit + light / 2.0;
+    if (no_atmo == 1) return light;
+    return amblit + light / 2.0;
 }
 
 vec3 atmosFragAffectDirectionalLight(float lightIntensity, vec3 sunlit)
 {
-	return sunlit * lightIntensity;
+    return sunlit * lightIntensity;
 }
 
 vec3 scaleDownLightFrag(vec3 light)
 {
-	return (light / scene_light_strength );
+    return (light / scene_light_strength );
 }
 

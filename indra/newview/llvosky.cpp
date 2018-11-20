@@ -1000,11 +1000,8 @@ void LLVOSky::setMoonTextures(const LLUUID& moon_texture, const LLUUID& moon_tex
 {
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
-    LLUUID moon_tex = moon_texture.isNull() ? psky->GetDefaultMoonTextureId() : moon_texture;
-    LLUUID moon_tex_next = moon_texture_next.isNull() ? psky->GetDefaultMoonTextureId() : moon_texture_next;
-
-    mMoonTexturep[0] = moon_tex.isNull() ? nullptr : LLViewerTextureManager::getFetchedTexture(moon_tex, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
-    mMoonTexturep[1] = moon_tex_next.isNull() ? nullptr : LLViewerTextureManager::getFetchedTexture(moon_tex_next, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+    mMoonTexturep[0] = moon_texture.isNull()      ? nullptr : LLViewerTextureManager::getFetchedTexture(moon_texture, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+    mMoonTexturep[1] = moon_texture_next.isNull() ? nullptr : LLViewerTextureManager::getFetchedTexture(moon_texture_next, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 
     if (mFace[FACE_MOON])
     {

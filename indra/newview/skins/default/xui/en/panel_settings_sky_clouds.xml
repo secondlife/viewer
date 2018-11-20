@@ -128,10 +128,11 @@
                     visible="true"
                     left_delta="0"
                     top_delta="21"
-                    min_val_x="-10"
-                    max_val_x="10"
-                    min_val_y="-10"
-                    max_val_y="10" />
+                    min_val_x="-30"
+                    max_val_x="30"
+                    min_val_y="-30"
+                    max_val_y="30" 
+                    logarithmic="1"/>
 
             <text
                     follows="left|top"

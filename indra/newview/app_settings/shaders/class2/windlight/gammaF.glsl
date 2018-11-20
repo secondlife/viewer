@@ -48,11 +48,11 @@ vec3 scaleSoftClip(vec3 light)
 }
 
 vec3 fullbrightScaleSoftClipFrag(vec3 light) {
-    return mix(scaleSoftClip(light.rgb), light.rgb, getAtmosAttenuation()); 
+    return scaleSoftClipFrag(light.rgb); 
 }
 
 vec3 fullbrightScaleSoftClip(vec3 light)
 {
-    return fullbrightScaleSoftClipFrag(light);
+    return scaleSoftClipFrag(light);
 }
 

@@ -991,8 +991,10 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
     index_channels.push_back(-1);	 shaders.push_back( make_pair( "environment/encodeNormF.glsl",				    mVertexShaderLevel[SHADER_ENVIRONMENT] ) );
     index_channels.push_back(-1);	 shaders.push_back( make_pair( "environment/decodeNormF.glsl",				    mVertexShaderLevel[SHADER_ENVIRONMENT] ) );
     index_channels.push_back(-1);	 shaders.push_back( make_pair( "environment/srgbF.glsl",				    mVertexShaderLevel[SHADER_ENVIRONMENT] ) );
+#if USE_DEFERRED_SHADER_API
     index_channels.push_back(-1);	 shaders.push_back( make_pair( "deferred/deferredUtil.glsl",				    mVertexShaderLevel[SHADER_DEFERRED] ) );
     index_channels.push_back(-1);	 shaders.push_back( make_pair( "deferred/indirect.glsl",				    mVertexShaderLevel[SHADER_DEFERRED] ) );
+#endif
 	index_channels.push_back(-1);	 shaders.push_back( make_pair( "lighting/lightNonIndexedF.glsl",					mVertexShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(-1);	 shaders.push_back( make_pair( "lighting/lightAlphaMaskNonIndexedF.glsl",					mVertexShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(-1);	 shaders.push_back( make_pair( "lighting/lightFullbrightNonIndexedF.glsl",			mVertexShaderLevel[SHADER_LIGHTING] ) );

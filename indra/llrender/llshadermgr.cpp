@@ -196,6 +196,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		}
 	}
 
+#if USE_DEFERRED_SHADER_API
     if (features->isDeferred || features->hasShadows)
 	{
 		if (!shader->attachObject("deferred/deferredUtil.glsl"))
@@ -211,6 +212,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 			return FALSE;
 		}
 	}
+#endif
 
 	if (features->hasGamma)
 	{
