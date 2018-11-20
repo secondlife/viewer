@@ -4100,6 +4100,41 @@ F32 LLVOVolume::getEstTrianglesStreamingCost() const
     return 0.f;
 }
 
+F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value) const
+{    
+    LLMeshCostData costs;
+    if (getCostData(costs))
+    {
+        if (bytes)
+        {
+            *bytes = costs.getSizeTotal();
+        }
+
+        if (visible_bytes)
+        {
+            *visible_bytes = costs.getSizeByLOD(mLOD);
+        }
+
+        F32 radius = getScale().length() * 0.5f;
+        bool animated_object = isAnimatedObject();
+
+        // Root object of an animated object has this to account for skeleton overhead.
+        F32 value = animated_object && isRootEdit() ? ANIMATED_OBJECT_BASE_COST : 0.0f;
+           value += animated_object && isRiggedMesh() ? costs.getTriangleBasedStreamingCost() : costs.getRadiusBasedStreamingCost(radius);            
+
+        if (unscaled_value)
+        {
+            *unscaled_value = value;
+        }
+
+        return value;
+    }
+    else
+    {
+        return -1.f;
+    }
+}
+
 F32 LLVOVolume::getStreamingCost() const
 {
 	F32 radius = getScale().length()*0.5f;
@@ -4131,7 +4166,7 @@ F32 LLVOVolume::getStreamingCost() const
     }
     else
     {
-        return 0.f;
+        return -1.f;
     }
 }
 
