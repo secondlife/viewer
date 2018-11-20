@@ -93,6 +93,7 @@ public:
     {
         ENV_EDIT = 0,
         ENV_LOCAL,
+        ENV_PUSH,
         ENV_PARCEL,
         ENV_REGION,
         ENV_DEFAULT,
@@ -213,6 +214,8 @@ public:
 
     const altitude_list_t &     getRegionAltitudes() const { return mTrackAltitudes; }
 
+    void                        handleEnvironmentPush(LLSD &message);
+
 protected:
     virtual void                initSingleton();
 
@@ -278,6 +281,17 @@ private:
     };
     typedef std::array<DayInstance::ptr_t, ENV_END> InstanceArray_t;
 
+    struct ExpEnvironmentEntry
+    {
+        typedef std::shared_ptr<ExpEnvironmentEntry> ptr_t;
+
+        S32Seconds  mTime;
+        LLUUID      mExperienceId;
+        LLSD        mEnvironmentOverrides;
+    };
+    typedef std::deque<ExpEnvironmentEntry::ptr_t>  mPushOverrides;
+
+    LLUUID                      mPushEnvironmentExpId;
 
     class DayTransition : public DayInstance
     {
@@ -324,6 +338,7 @@ private:
 
     void                        updateCloudScroll();
 
+    void                        onRegionChange();
     void                        onParcelChange();
 
     struct UpdateInfo
@@ -364,9 +379,16 @@ private:
 
     void                        onAgentPositionHasChanged(const LLVector3 &localpos);
 
-    void                        onSetEnvAssetLoaded(EnvSelection_t env, LLUUID asset_id, LLSettingsBase::ptr_t settings, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset, S32 status);
+    void                        onSetEnvAssetLoaded(EnvSelection_t env, LLUUID asset_id, LLSettingsBase::ptr_t settings, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset, LLSettingsBase::Seconds transition, S32 status);
     void                        onUpdateParcelAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, S32 parcel_id, S32 day_length, S32 day_offset, altitudes_vect_t altitudes);
 
+    void                        handleEnvironmentPushClear(LLUUID experience_id, LLSD &message, F32 transition);
+    void                        handleEnvironmentPushFull(LLUUID experience_id, LLSD &message, F32 transition);
+    void                        handleEnvironmentPushPartial(LLUUID experience_id, LLSD &message, F32 transition);
+
+    void                        clearExperienceEnvironment(LLUUID experience_id, F32 transition_time);
+    void                        setExperienceEnvironment(LLUUID experience_id, LLUUID asset_id, F32 transition_time);
+    void                        setExperienceEnvironment(LLUUID experience_id, LLSD environment, F32 transition_time);
 };
 
 class LLTrackBlenderLoopingManual : public LLSettingsBlender

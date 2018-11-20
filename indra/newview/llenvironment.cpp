@@ -61,6 +61,10 @@
 #include "roles_constants.h"
 #include "llestateinfomodel.h"
 
+#include "lldispatcher.h"
+#include "llviewergenericmessage.h"
+#include "llexperiencelog.h"
+
 //=========================================================================
 namespace
 {
@@ -76,6 +80,21 @@ namespace
     const std::string KEY_PARCELID("parcel_id");
     const std::string KEY_REGIONID("region_id");
     const std::string KEY_TRACKALTS("track_altitudes");
+
+    const std::string MESSAGE_PUSHENVIRONMENT("PushExpEnvironment");
+
+    const std::string ACTION_CLEARENVIRONMENT("ClearEnvironment");
+    const std::string ACTION_PUSHFULLENVIRONMENT("PushFullEnvironment");
+    const std::string ACTION_PUSHPARTIALENVIRONMENT("PushPartialEnvironment");
+
+    const std::string KEY_ASSETID("asset_id");
+    const std::string KEY_TRANSITIONTIME("transition_time");
+    const std::string KEY_ACTION("action");
+    const std::string KEY_ACTIONDATA("action_data");
+    const std::string KEY_EXPERIENCEID("public_id");
+    const std::string KEY_OBJECTNAME("ObjectName");     // some of these do not conform to the '_' format.  
+    const std::string KEY_PARCELNAME("ParcelName");     // But changing these would also alter the Experience Log requirements.
+    const std::string KEY_COUNT("Count");
 
     //---------------------------------------------------------------------
     LLTrace::BlockTimerStatHandle   FTM_ENVIRONMENT_UPDATE("Update Environment Tick");
@@ -254,6 +273,47 @@ namespace
         }
     };
 
+
+    class LLEnvironmentPushDispatchHandler : public LLDispatchHandler
+    {
+    public:
+        virtual bool operator()(const LLDispatcher *, const std::string& key, const LLUUID& invoice, const sparam_t& strings) override
+        {
+            LLSD message;
+
+            sparam_t::const_iterator it = strings.begin();
+
+            if (it != strings.end())
+            {
+                const std::string& llsdRaw = *it++;
+                std::istringstream llsdData(llsdRaw);
+                if (!LLSDSerialize::deserialize(message, llsdData, llsdRaw.length()))
+                {
+                    LL_WARNS() << "LLExperienceLogDispatchHandler: Attempted to read parameter data into LLSD but failed:" << llsdRaw << LL_ENDL;
+                }
+            }
+            message[KEY_EXPERIENCEID] = invoice;
+
+            // Object Name
+            if (it != strings.end())
+            {
+                message[KEY_OBJECTNAME] = *it++;
+            }
+
+            // parcel Name
+            if (it != strings.end())
+            {
+                message[KEY_PARCELNAME] = *it++;
+            }
+            message[KEY_COUNT] = 1;
+
+            LLEnvironment::instance().handleEnvironmentPush(message);
+            return true;
+        }
+    };
+
+    LLEnvironmentPushDispatchHandler environment_push_dispatch_handler;
+
 }
 
 //=========================================================================
@@ -301,9 +361,15 @@ void LLEnvironment::initSingleton()
 
     //TODO: This frequently results in one more request than we need.  It isn't breaking, but should be nicer.
     LLRegionInfoModel::instance().setUpdateCallback([this]() { requestRegion(); });
-    gAgent.addRegionChangedCallback([this]() { requestRegion(); });
+    gAgent.addRegionChangedCallback([this]() { onRegionChange(); });
 
     gAgent.whenPositionChanged([this](const LLVector3 &localpos, const LLVector3d &) { onAgentPositionHasChanged(localpos); });
+
+    if (!gGenericDispatcher.isHandlerPresent(MESSAGE_PUSHENVIRONMENT))
+    {
+        gGenericDispatcher.addHandler(MESSAGE_PUSHENVIRONMENT, &environment_push_dispatch_handler);
+    }
+
 }
 
 LLEnvironment::~LLEnvironment()
@@ -408,6 +474,12 @@ bool LLEnvironment::isInventoryEnabled() const
 {
     return (!gAgent.getRegionCapability("UpdateSettingsAgentInventory").empty() &&
         !gAgent.getRegionCapability("UpdateSettingsTaskInventory").empty());
+}
+
+void LLEnvironment::onRegionChange()
+{
+    clearEnvironment(ENV_PUSH);
+    requestRegion();
 }
 
 void LLEnvironment::onParcelChange()
@@ -584,10 +656,13 @@ void LLEnvironment::setEnvironment(EnvSelection_t env, const LLUUID &assetId)
 void LLEnvironment::setEnvironment(EnvSelection_t env, const LLUUID &assetId, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset)
 {
     LLSettingsVOBase::getSettingsAsset(assetId,
-        [this, env, daylength, dayoffset](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onSetEnvAssetLoaded(env, asset_id, settings, daylength, dayoffset, status); });
+        [this, env, daylength, dayoffset](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) 
+        {
+            onSetEnvAssetLoaded(env, asset_id, settings, daylength, dayoffset, TRANSITION_DEFAULT, status); 
+        });
 }
 
-void LLEnvironment::onSetEnvAssetLoaded(EnvSelection_t env, LLUUID asset_id, LLSettingsBase::ptr_t settings, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset, S32 status)
+void LLEnvironment::onSetEnvAssetLoaded(EnvSelection_t env, LLUUID asset_id, LLSettingsBase::ptr_t settings, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset, LLSettingsBase::Seconds transition, S32 status)
 {
     if (!settings || status)
     {
@@ -598,7 +673,7 @@ void LLEnvironment::onSetEnvAssetLoaded(EnvSelection_t env, LLUUID asset_id, LLS
     }
 
     setEnvironment(env, settings);
-    updateEnvironment();
+    updateEnvironment(transition);
 }
 
 void LLEnvironment::clearEnvironment(LLEnvironment::EnvSelection_t env)
@@ -718,7 +793,6 @@ LLEnvironment::DayInstance::ptr_t LLEnvironment::getSelectedEnvironmentInstance(
 
     return mEnvironments[ENV_DEFAULT];
 }
-
 
 void LLEnvironment::updateEnvironment(LLSettingsBase::Seconds transition, bool forced)
 {
@@ -1562,8 +1636,6 @@ void LLEnvironment::onAgentPositionHasChanged(const LLVector3 &localpos)
     if (trackno == mCurrentTrack)
         return;
 
-    LL_WARNS("LAPRAS") << "Wants to switch to track #" << trackno << LL_ENDL;
-
     mCurrentTrack = trackno;
     for (S32 env = ENV_LOCAL; env < ENV_DEFAULT; ++env)
     {
@@ -1584,6 +1656,98 @@ S32 LLEnvironment::calculateSkyTrackForAltitude(F64 altitude)
     return std::min(static_cast<S32>(std::distance(mTrackAltitudes.begin(), it)), 4);
 }
 
+//-------------------------------------------------------------------------
+void LLEnvironment::handleEnvironmentPush(LLSD &message)
+{
+    // Log the experience message
+    LLExperienceLog::instance().handleExperienceMessage(message);
+
+    std::string action = message[KEY_ACTION].asString();
+    LLUUID experience_id = message[KEY_EXPERIENCEID].asUUID();
+    LLSD action_data = message[KEY_ACTIONDATA];
+    F32 transition_time = action_data[KEY_TRANSITIONTIME].asReal();
+
+    //TODO: Check here that the viewer thinks the experience is still valid.
+
+
+    if (action == ACTION_CLEARENVIRONMENT)
+    { 
+        handleEnvironmentPushClear(experience_id, action_data, transition_time);
+    }
+    else if (action == ACTION_PUSHFULLENVIRONMENT)
+    { 
+        handleEnvironmentPushFull(experience_id, action_data, transition_time);
+    }
+    else if (action == ACTION_PUSHPARTIALENVIRONMENT)
+    { 
+        handleEnvironmentPushPartial(experience_id, action_data, transition_time);
+    }
+    else
+    { 
+        LL_WARNS("ENVIRONMENT", "GENERICMESSAGES") << "Unknown environment push action '" << action << "'" << LL_ENDL;
+    }
+}
+
+
+void LLEnvironment::handleEnvironmentPushClear(LLUUID experience_id, LLSD &message, F32 transition)
+{
+    clearExperienceEnvironment(experience_id, transition);
+}
+
+void LLEnvironment::handleEnvironmentPushFull(LLUUID experience_id, LLSD &message, F32 transition)
+{
+    LLUUID asset_id(message[KEY_ASSETID].asUUID());
+
+    setExperienceEnvironment(experience_id, asset_id, LLSettingsBase::Seconds(transition));
+}
+
+void LLEnvironment::handleEnvironmentPushPartial(LLUUID experience_id, LLSD &message, F32 transition)
+{
+
+}
+
+void LLEnvironment::clearExperienceEnvironment(LLUUID experience_id, F32 transition_time)
+{
+    bool update_env(false);
+
+    if (mPushEnvironmentExpId == experience_id)
+    {
+        mPushEnvironmentExpId.setNull();
+
+        if (hasEnvironment(ENV_PUSH))
+        {
+            update_env |= true;
+            clearEnvironment(ENV_PUSH);
+            updateEnvironment(LLSettingsBase::Seconds(transition_time));
+        }
+
+    }
+
+    // clear the override queue too.
+    // update |= true;
+
+
+    if (update_env)
+        updateEnvironment(LLSettingsBase::Seconds(transition_time));
+}
+
+void LLEnvironment::setExperienceEnvironment(LLUUID experience_id, LLUUID asset_id, F32 transition_time)
+{
+    LLSettingsVOBase::getSettingsAsset(asset_id,
+        [this, experience_id, transition_time](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat)
+    {
+        mPushEnvironmentExpId = experience_id;
+        onSetEnvAssetLoaded(ENV_PUSH, asset_id, settings, 
+            LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET, 
+            LLSettingsBase::Seconds(transition_time), status);
+    });
+
+
+}
+
+void LLEnvironment::setExperienceEnvironment(LLUUID experience_id, LLSD data, F32 transition_time)
+{
+}
 
 //=========================================================================
 LLEnvironment::DayInstance::DayInstance() :
