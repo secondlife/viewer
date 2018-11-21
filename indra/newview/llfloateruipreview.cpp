@@ -60,6 +60,7 @@
 #include "llfloaterreg.h"
 #include "llscrollcontainer.h"	// scroll container for overlapping elements
 #include "lllivefile.h"					// live file poll/stat/reload
+#include "llviewermenufile.h" // LLFilePickerReplyThread
 
 // Boost (for linux/unix command-line execv)
 #include <boost/tokenizer.hpp>
@@ -206,7 +207,9 @@ private:
 	void onClickSaveAll(S32 id);
 	void onClickEditFloater();
 	void onClickBrowseForEditor();
+	void getExecutablePath(const std::vector<std::string>& filenames);
 	void onClickBrowseForDiffs();
+	void getDiffsFilePath(const std::vector<std::string>& filenames);
 	void onClickToggleDiffHighlighting();
 	void onClickToggleOverlapping();
 	void onClickCloseDisplayedFloater(S32 id);
@@ -1019,15 +1022,14 @@ void LLFloaterUIPreview::onClickEditFloater()
 // Respond to button click to browse for an executable with which to edit XML files
 void LLFloaterUIPreview::onClickBrowseForEditor()
 {
-	// Let the user choose an executable through the file picker dialog box
-	LLFilePicker& picker = LLFilePicker::instance();
-    if (!picker.getOpenFile(LLFilePicker::FFLOAD_EXE))
-	{
-		return; // user cancelled -- do nothing
-	}
+    // Let the user choose an executable through the file picker dialog box
+    (new LLFilePickerReplyThread(boost::bind(&LLFloaterUIPreview::getExecutablePath, this, _1), LLFilePicker::FFLOAD_EXE, false))->getFile();
+}
 
+void LLFloaterUIPreview::getExecutablePath(const std::vector<std::string>& filenames)
+{
 	// put the selected path into text field
-	const std::string chosen_path = picker.getFirstFile();
+	const std::string chosen_path = filenames[0];
 	std::string executable_path = chosen_path;
 #if LL_DARWIN
 	// on Mac, if it's an application bundle, figure out the actual path from the Info.plist file
@@ -1075,15 +1077,13 @@ void LLFloaterUIPreview::onClickBrowseForEditor()
 void LLFloaterUIPreview::onClickBrowseForDiffs()
 {
 	// create load dialog box
-	LLFilePicker::ELoadFilter type = (LLFilePicker::ELoadFilter)((intptr_t)((void*)LLFilePicker::FFLOAD_XML));	// nothing for *.exe so just use all
-	LLFilePicker& picker = LLFilePicker::instance();
-	if (!picker.getOpenFile(type))	// user cancelled -- do nothing
-	{
-		return;
-	}
+    (new LLFilePickerReplyThread(boost::bind(&LLFloaterUIPreview::getDiffsFilePath, this, _1), LLFilePicker::FFLOAD_XML, false))->getFile();
+}
 
+void LLFloaterUIPreview::getDiffsFilePath(const std::vector<std::string>& filenames)
+{
 	// put the selected path into text field
-	const std::string chosen_path = picker.getFirstFile();
+	const std::string chosen_path = filenames[0];
 	mDiffPathTextBox->setText(std::string(chosen_path));	// copy the path to the executable to the textfield for display and later fetching
 	if(LLView::sHighlightingDiffs)								// if we're already highlighting, toggle off and then on so we get the data from the new file
 	{
