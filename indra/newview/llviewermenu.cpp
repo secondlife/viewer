@@ -6096,7 +6096,12 @@ class LLAvatarResetSkeleton: public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
+		LLVOAvatar* avatar = NULL;
+        LLViewerObject *obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+        if (obj)
+        {
+            avatar = obj->getAvatar();
+        }
 		if(avatar)
         {
             avatar->resetSkeleton(false);
@@ -9159,6 +9164,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse");
 	view_listener_t::addMenu(new LLAvatarToggleMyProfile(), "Avatar.ToggleMyProfile");
 	view_listener_t::addMenu(new LLAvatarResetSkeleton(), "Avatar.ResetSkeleton");
+	view_listener_t::addMenu(new LLAvatarEnableResetSkeleton(), "Avatar.EnableResetSkeleton");
 	view_listener_t::addMenu(new LLAvatarResetSkeletonAndAnimations(), "Avatar.ResetSkeletonAndAnimations");
 	enable.add("Avatar.IsMyProfileOpen", boost::bind(&my_profile_visible));
 

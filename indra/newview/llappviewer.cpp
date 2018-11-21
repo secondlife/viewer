@@ -95,7 +95,6 @@
 #include "llvocache.h"
 #include "llvopartgroup.h"
 #include "llweb.h"
-#include "llfloatertexturefetchdebugger.h"
 #include "llspellcheck.h"
 #include "llscenemonitor.h"
 #include "llavatarrenderinfoaccountant.h"
@@ -1615,7 +1614,7 @@ bool LLAppViewer::cleanup()
 	//dump scene loading monitor results
 	if (LLSceneMonitor::instanceExists())
 	{
-		LLSceneMonitor::instance().dumpToFile(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "scene_monitor_results.csv"));
+	LLSceneMonitor::instance().dumpToFile(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "scene_monitor_results.csv"));
 	}
 
 	// There used to be an 'if (LLFastTimerView::sAnalyzePerformance)' block
@@ -1898,13 +1897,13 @@ bool LLAppViewer::cleanup()
 	// save mute list. gMuteList used to also be deleted here too.
 	if (gAgent.isInitialized() && LLMuteList::instanceExists())
 	{
-		LLMuteList::getInstance()->cache(gAgent.getID());
+	LLMuteList::getInstance()->cache(gAgent.getID());
 	}
 
 	//save call log list
 	if (LLConversationLog::instanceExists())
 	{
-		LLConversationLog::instance().cache();
+	LLConversationLog::instance().cache();
 	}
 
 	if (mPurgeOnExit)

@@ -542,8 +542,7 @@ public:
 								object_count++;
 								S32 bytes = 0;	
 								S32 visible = 0;
-                                F32 unscaled_value = 0.0f;
-								cost += object->getStreamingCost(&bytes, &visible, &unscaled_value);
+								cost += object->getStreamingCost();
                                 LLMeshCostData costs;
                                 if (object->getCostData(costs))
                                 {

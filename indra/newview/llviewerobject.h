@@ -370,7 +370,6 @@ public:
     virtual F32 getEstTrianglesMax() const;
     virtual F32 getEstTrianglesStreamingCost() const;
 	virtual F32 getStreamingCost() const;
-    virtual F32 getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value) const;
     virtual bool getCostData(LLMeshCostData& costs) const;
 	virtual U32 getTriangleCount(S32* vcount = NULL) const;
 	virtual U32 getHighLODTriangleCount();

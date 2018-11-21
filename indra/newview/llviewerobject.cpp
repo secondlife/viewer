@@ -3706,26 +3706,6 @@ F32 LLViewerObject::getLinksetPhysicsCost()
 	return mLinksetPhysicsCost;
 }
 
-F32 LLViewerObject::getStreamingCost() const
-{
-	return 0.f;
-}
-
-F32 LLViewerObject::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value) const
-{
-	return 0.f;
-}
-
-U32 LLViewerObject::getTriangleCount(S32* vcount) const
-{
-	return 0;
-}
-
-U32 LLViewerObject::getHighLODTriangleCount()
-{
-	return 0;
-}
-
 F32 LLViewerObject::recursiveGetEstTrianglesMax() const
 {
     F32 est_tris = getEstTrianglesMax();
@@ -3774,10 +3754,26 @@ F32 LLViewerObject::getEstTrianglesStreamingCost() const
 }
 
 // virtual
+F32 LLViewerObject::getStreamingCost() const
+{
+	return 0.f;
+}
+
+// virtual
 bool LLViewerObject::getCostData(LLMeshCostData& costs) const
 {
     costs = LLMeshCostData();
     return false;
+}
+
+U32 LLViewerObject::getTriangleCount(S32* vcount) const
+{
+	return 0;
+}
+
+U32 LLViewerObject::getHighLODTriangleCount()
+{
+	return 0;
 }
 
 U32 LLViewerObject::recursiveGetTriangleCount(S32* vcount) const

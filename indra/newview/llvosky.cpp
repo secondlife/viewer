@@ -54,10 +54,6 @@
 #undef min
 #undef max
 
-#if LL_WINDOWS
-#pragma optimize("", off)
-#endif
-
 static const S32 NUM_TILES_X = 8;
 static const S32 NUM_TILES_Y = 4;
 static const S32 NUM_TILES = NUM_TILES_X * NUM_TILES_Y;
