@@ -531,6 +531,7 @@ http://secondlife.com/support for help fixing this problem.
 	<string name="ManageEstateSilently">Manage your estates silently</string>
 	<string name="ChangeYourDefaultAnimations">Change your default animations</string>
 	<string name="ForceSitAvatar">Force your avatar to sit</string>
+    <string name="ChangeEnvSettings">Change your environment settings</string>
 	
 	<string name="NotConnected">Not Connected</string>
 	<string name="AgentNameSubst">(You)</string> <!-- Substitution for agent name -->

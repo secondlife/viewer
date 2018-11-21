@@ -5769,6 +5769,7 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
                 if (script_perm.question == "JoinAnExperience")
                 { // Some experience only permissions do not have an explicit permission bit.  Add them here.
                     script_question += "    " + LLTrans::getString("ForceSitAvatar") + "\n";
+                    script_question += "    " + LLTrans::getString("ChangeEnvSettings") + "\n";
                 }
 
 				script_question += "    " + LLTrans::getString(script_perm.question) + "\n";
