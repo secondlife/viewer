@@ -216,7 +216,6 @@ lbl_configure_default_lang:
     Goto lbl_return
     StrCmp $SKIP_DIALOGS "true" lbl_return
   
-lbl_build_menu:
 	Push ""
 # Use separate file so labels can be UTF-16 but we can still merge changes into this ASCII file. JC
     !include "%%SOURCE%%\installers\windows\language_menu.nsi"
