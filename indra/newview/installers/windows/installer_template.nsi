@@ -117,9 +117,12 @@ AutoCloseWindow true					# After all files install, close window
 # should make MultiUser.nsh initialization read existing INSTDIR from registry
 !define MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_KEY "${INSTNAME_KEY}"
 !define MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME ""
-# should make MultiUser.nsh initialization write $MultiUser.InstallMode to registry
-!define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_KEY "${INSTNAME_KEY}"
-!define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME "InstallMode"
+# Don't set MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_KEY and
+# MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME to cause the installer to
+# write $MultiUser.InstallMode to the registry, because when the user installs
+# multiple viewers with the same channel (same ${INSTNAME}, hence same
+# ${INSTNAME_KEY}), the registry entry is overwritten. Instead we'll write a
+# little file into the install directory -- see .onInstSuccess and un.onInit.
 !include MultiUser.nsh
 !include MUI2.nsh
 !define MUI_BGCOLOR FFFFFF
@@ -239,7 +242,21 @@ FunctionEnd
 ;; Prep Uninstaller Section
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function un.onInit
-!insertmacro MULTIUSER_UNINIT
+    # Save $INSTDIR -- it appears to have the correct value before
+    # MULTIUSER_UNINIT, but then gets munged by MULTIUSER_UNINIT?!
+    Push $INSTDIR
+    !insertmacro MULTIUSER_UNINIT
+    Pop $INSTDIR
+
+    # Now read InstallMode.txt from $INSTDIR
+    Push $0
+    ClearErrors
+    FileOpen $0 "$INSTDIR\InstallMode.txt" r
+    IfErrors skipread
+    FileRead $0 $MultiUser.InstallMode
+    FileClose $0
+skipread:
+    Pop $0
 
 %%ENGAGEREGISTRY%%
 
@@ -248,10 +265,10 @@ Function un.onInit
     IfErrors lbl_end
 	StrCpy $LANGUAGE $0
 lbl_end:
-    Return
 
-    # Does MultiUser.nsh init read back
-    # MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_KEY into $MultiUser.InstallMode?
+##  MessageBox MB_OK "After restoring:$\n$$INSTDIR = '$INSTDIR'$\n$$MultiUser.InstallMode = '$MultiUser.InstallMode'$\n$$LANGUAGE = '$LANGUAGE'"
+
+    Return
 
 FunctionEnd
 
@@ -417,8 +434,10 @@ StrCpy $INSTSHORTCUT "${SHORTCUT}"
 # MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME
 # Couln't get NSIS to expand $MultiUser.InstallMode into the function name at Call time
 ${If} $MultiUser.InstallMode == 'AllUsers'
+##MessageBox MB_OK "Uninstalling for all users"
   Call un.MultiUser.InstallMode.AllUsers
 ${Else}
+##MessageBox MB_OK "Uninstalling for current user"
   Call un.MultiUser.InstallMode.CurrentUser
 ${EndIf}
 
@@ -626,6 +645,9 @@ Function un.ProgramFiles
 # This placeholder is replaced by the complete list of files to uninstall by viewer_manifest.py
 %%DELETE_FILES%%
 
+# our InstallMode.txt
+Delete "$INSTDIR\InstallMode.txt"
+
 # Optional/obsolete files.  Delete won't fail if they don't exist.
 Delete "$INSTDIR\autorun.bat"
 Delete "$INSTDIR\dronesettings.ini"
@@ -675,7 +697,13 @@ FunctionEnd
 ;; After install completes, launch app
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function .onInstSuccess
-        Call CheckWindowsServPack		# Warn if not on the latest SP before asking to launch.
+        Push $0
+        FileOpen $0 "$INSTDIR\InstallMode.txt" w
+        # No newline -- this is for our use, not for users to read.
+        FileWrite $0 "$MultiUser.InstallMode"
+        FileClose $0
+        Pop $0
+
         Push $R0
         Push $0
         ;; MAINT-7812: Only write nsis.winstall file with /marker switch
@@ -694,7 +722,8 @@ Function .onInstSuccess
         ClearErrors
         Pop $0
         Pop $R0
-        Push $R0					# Option value, unused# 
+
+        Call CheckWindowsServPack		# Warn if not on the latest SP before asking to launch.
         StrCmp $SKIP_AUTORUN "true" +2;
         # Assumes SetOutPath $INSTDIR
         # Run INSTEXE (our updater), passing VIEWER_EXE plus the command-line
@@ -711,7 +740,6 @@ Function .onInstSuccess
         # must be a distinct command-line token, but DO NOT quote the language
         # string because it must decompose into separate command-line tokens.
         Exec '"$INSTDIR\$INSTEXE" precheck "$INSTDIR\$VIEWER_EXE" $SHORTCUT_LANG_PARAM'
-        Pop $R0
 # 
 FunctionEnd
 
