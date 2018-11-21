@@ -797,16 +797,21 @@ void LLPanelEnvironmentInfo::onEnvironmentChanged(LLEnvironment::EnvSelection_t 
         // Panel receives environment from different sources, from environment update callbacks,
         // from hovers (causes callbacks on version change) and from personal requests
         // filter out dupplicates and out of order packets by checking parcel environment version.
-        LL_DEBUGS("ENVPANEL") << "Received environment update " << mCurEnvVersion << " " << (getParcel() ? getParcel()->getParcelEnvironmentVersion() : (S32)-1) << LL_ENDL;
         LLParcel *parcel = getParcel();
-        if (parcel && mCurEnvVersion < parcel->getParcelEnvironmentVersion())
+        if (parcel)
         {
-            mCurrentEnvironment.reset();
-            refreshFromSource();
-        }
-        else
-        {
-            refresh();
+            S32 new_version = parcel->getParcelEnvironmentVersion();
+            LL_DEBUGS("ENVPANEL") << "Received environment update " << mCurEnvVersion << " " << new_version << LL_ENDL;
+            if (mCurEnvVersion < new_version
+                || (mCurEnvVersion != new_version && new_version == UNSET_PARCEL_ENVIRONMENT_VERSION))
+            {
+                mCurrentEnvironment.reset();
+                refreshFromSource();
+            }
+            else
+            {
+                refresh();
+            }
         }
     }
 }
@@ -837,15 +842,23 @@ void LLPanelEnvironmentInfo::onEnvironmentReceived(S32 parcel_id, LLEnvironment:
     if (parcel_id == INVALID_PARCEL_ID)
     {
         // region, no version
-        mCurEnvVersion = 1;
+        // -2 for invalid version viewer -1 for invalid version from server
+        mCurEnvVersion = UNSET_PARCEL_ENVIRONMENT_VERSION;
     }
     else
     {
         LLParcel* parcel = getParcel();
-        if (parcel)
+        if (parcel
+            && mCurrentEnvironment->mDayCycle
+            && mCurrentEnvironment->mDayCycle->getAssetId() != LLSettingsDay::GetDefaultAssetId())
         {
             // not always up to date, we will get onEnvironmentChanged() update in such case.
             mCurEnvVersion = parcel->getParcelEnvironmentVersion();
+        }
+        else
+        {
+            // When using 'region' as parcel environment
+            mCurEnvVersion = UNSET_PARCEL_ENVIRONMENT_VERSION;
         }
         LL_DEBUGS("ENVPANEL") << " Setting environment version: " << mCurEnvVersion << LL_ENDL;
     }
