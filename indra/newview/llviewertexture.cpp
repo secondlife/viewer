@@ -111,9 +111,9 @@ const F32 desired_discard_bias_max = (F32)MAX_DISCARD_LEVEL; // max number of le
 const F64 log_2 = log(2.0);
 
 #if ADDRESS_SIZE == 32
-const U32 DESIRED_NORMAL_FETCHED_TEXTURE_SIZE = (U32)LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT / 2;
+const U32 DESIRED_NORMAL_TEXTURE_SIZE = (U32)LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT / 2;
 #else
-const U32 DESIRED_NORMAL_FETCHED_TEXTURE_SIZE = (U32)LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT;
+const U32 DESIRED_NORMAL_TEXTURE_SIZE = (U32)LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT;
 #endif
 
 //----------------------------------------------------------------------------------------------
@@ -1601,10 +1601,6 @@ void LLViewerFetchedTexture::processTextureStats()
 		else
 		{
 			U32 desired_size = MAX_IMAGE_SIZE_DEFAULT; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
-			if (mBoostLevel <= LLGLTexture::BOOST_SCULPTED)
-			{
-				desired_size = DESIRED_NORMAL_FETCHED_TEXTURE_SIZE;
-			}
 			if(!mKnownDrawWidth || !mKnownDrawHeight || mFullWidth <= mKnownDrawWidth || mFullHeight <= mKnownDrawHeight)
 			{
 				if (mFullWidth > desired_size || mFullHeight > desired_size)
@@ -3227,7 +3223,7 @@ void LLViewerLODTexture::processTextureStats()
 		U32 desired_size = MAX_IMAGE_SIZE_DEFAULT; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
 		if (mBoostLevel <= LLGLTexture::BOOST_SCULPTED)
 		{
-			desired_size = DESIRED_NORMAL_FETCHED_TEXTURE_SIZE;
+			desired_size = DESIRED_NORMAL_TEXTURE_SIZE;
 		}
 		if (mFullWidth > desired_size || mFullHeight > desired_size)
 			min_discard = 1.f;
