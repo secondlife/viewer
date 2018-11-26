@@ -3029,7 +3029,7 @@ void LLViewerWindow::moveCursorToCenter()
 		//on a forced move, all deltas get zeroed out to prevent jumping
 		mCurrentMousePoint.set(x,y);
 		mLastMousePoint.set(x,y);
-		mCurrentMouseDelta.set(0,0);
+		mCurrentMouseDelta.set(0,0);	
 	}
 }
 
