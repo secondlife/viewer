@@ -682,8 +682,8 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 
 	std::vector<LLViewerMediaImpl*> proximity_order;
 
-	bool inworld_media_enabled = gSavedSettings.getBOOL("AudioStreamingMedia");
-	bool inworld_audio_enabled = gSavedSettings.getBOOL("AudioStreamingMusic");
+	static LLCachedControl<bool> inworld_media_enabled(gSavedSettings, "AudioStreamingMedia", true);
+	static LLCachedControl<bool> inworld_audio_enabled(gSavedSettings, "AudioStreamingMusic", true);
 	U32 max_instances = gSavedSettings.getU32("PluginInstancesTotal");
 	U32 max_normal = gSavedSettings.getU32("PluginInstancesNormal");
 	U32 max_low = gSavedSettings.getU32("PluginInstancesLow");
@@ -941,7 +941,8 @@ void LLViewerMedia::setAllMediaEnabled(bool val)
 			LLViewerParcelMedia::play(LLViewerParcelMgr::getInstance()->getAgentParcel());
 		}
 
-		if (gSavedSettings.getBOOL("AudioStreamingMusic") &&
+		static LLCachedControl<bool> audio_streaming_music(gSavedSettings, "AudioStreamingMusic", true);
+		if (audio_streaming_music &&
 			!LLViewerMedia::isParcelAudioPlaying() &&
 			gAudiop &&
 			LLViewerMedia::hasParcelAudio())
@@ -1012,7 +1013,8 @@ void LLViewerMedia::setAllMediaPaused(bool val)
             LLViewerParcelMedia::play(LLViewerParcelMgr::getInstance()->getAgentParcel());
         }
 
-        if (gSavedSettings.getBOOL("AudioStreamingMusic") &&
+        static LLCachedControl<bool> audio_streaming_music(gSavedSettings, "AudioStreamingMusic", true);
+        if (audio_streaming_music &&
             !LLViewerMedia::isParcelAudioPlaying() &&
             gAudiop &&
             LLViewerMedia::hasParcelAudio())
