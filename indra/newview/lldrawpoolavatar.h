@@ -55,6 +55,8 @@ public:
 							LLVertexBuffer::MAP_CLOTHWEIGHT
 	};
 
+    ~LLDrawPoolAvatar();
+    /*virtual*/ BOOL isDead();
     typedef enum
 	{
 		RIGGED_MATERIAL=0,
