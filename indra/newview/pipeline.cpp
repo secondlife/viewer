@@ -2433,8 +2433,8 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 
-	glh::matrix4f modelview = get_last_modelview();
-	glh::matrix4f proj = get_last_projection();
+// 	glh::matrix4f modelview = get_last_modelview();
+// 	glh::matrix4f proj = get_last_projection();
 
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 
