@@ -1331,21 +1331,17 @@ void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel, bool use_ag
 void LLViewerParcelMgr::setHoverParcel(const LLVector3d& pos)
 {
 	static U32 last_west, last_south;
-
+	static LLUUID last_region;
 
 	// only request parcel info if position has changed outside of the
 	// last parcel grid step
-	U32 west_parcel_step = (U32) floor( pos.mdV[VX] / PARCEL_GRID_STEP_METERS );
-	U32 south_parcel_step = (U32) floor( pos.mdV[VY] / PARCEL_GRID_STEP_METERS );
-	
+	const U32 west_parcel_step = (U32) floor( pos.mdV[VX] / PARCEL_GRID_STEP_METERS );
+	const U32 south_parcel_step = (U32) floor( pos.mdV[VY] / PARCEL_GRID_STEP_METERS );
+
 	if ((west_parcel_step == last_west) && (south_parcel_step == last_south))
 	{
+		// We are staying in same segment
 		return;
-	}
-	else 
-	{
-		last_west = west_parcel_step;
-		last_south = south_parcel_step;
 	}
 
 	LLViewerRegion* region = LLWorld::getInstance()->getRegionFromPosGlobal( pos );
@@ -1354,36 +1350,95 @@ void LLViewerParcelMgr::setHoverParcel(const LLVector3d& pos)
 		return;
 	}
 
-	LL_DEBUGS("ParcelMgr") << "Requesting parcel properties on hover, for " << pos << LL_ENDL;
+	LLUUID region_id = region->getRegionID();
+	LLVector3 pos_in_region = region->getPosRegionFromGlobal(pos);
+
+	bool request_properties = false;
+	if (region_id != last_region)
+	{
+		request_properties = true;
+	}
+	else
+	{
+		// Check if new position is in same parcel.
+		// This check is not ideal, since it checks by way of straight lines.
+		// So sometimes (small parcel in the middle of large one) it can
+		// decide that parcel actually changed, but it still allows to 
+		// reduce amount of requests significantly
+
+		S32 west_parcel_local = (S32)(pos_in_region.mV[VX] / PARCEL_GRID_STEP_METERS);
+		S32 south_parcel_local = (S32)(pos_in_region.mV[VY] / PARCEL_GRID_STEP_METERS);
+
+		LLViewerParcelOverlay* overlay = region->getParcelOverlay();
+		if (!overlay)
+		{
+			 request_properties = true;
+		}
+		while (!request_properties && west_parcel_step < last_west)
+		{
+			S32 segment_shift = last_west - west_parcel_step;
+			request_properties = overlay->parcelLineFlags(south_parcel_local, west_parcel_local + segment_shift) & PARCEL_WEST_LINE;
+			last_west--;
+		}
+		while (!request_properties && south_parcel_step < last_south)
+		{
+			S32 segment_shift = last_south - south_parcel_step;
+			request_properties = overlay->parcelLineFlags(south_parcel_local + segment_shift, west_parcel_local) & PARCEL_SOUTH_LINE;
+			last_south--;
+		}
+		// Note: could have just swapped values, reused first two 'while' and set last_south, last_west separately,
+		// but this looks to be easier to understand/straightforward/less bulky
+		while (!request_properties && west_parcel_step > last_west)
+		{
+			S32 segment_shift = west_parcel_step - last_west;
+			request_properties = overlay->parcelLineFlags(south_parcel_local, west_parcel_local - segment_shift + 1) & PARCEL_WEST_LINE;
+			last_west++;
+		}
+		while (!request_properties && south_parcel_step > last_south)
+		{
+			S32 segment_shift = south_parcel_step - last_south;
+			request_properties = overlay->parcelLineFlags(south_parcel_local - segment_shift + 1, west_parcel_local) & PARCEL_SOUTH_LINE;
+			last_south++;
+		}
+
+		// if (!request_properties) last_south and last_west will be equal to new values
+	}
+
+	if (request_properties)
+	{
+		last_west = west_parcel_step;
+		last_south = south_parcel_step;
+		last_region = region_id;
+
+		LL_DEBUGS("ParcelMgr") << "Requesting parcel properties on hover, for " << pos << LL_ENDL;
 
 
-	// Send a rectangle around the point.
-	// This means the parcel sent back is at least a rectangle around the point,
-	// which is more efficient for public land.  Fewer requests are sent.  JC
-	LLVector3 wsb_region = region->getPosRegionFromGlobal( pos );
+		// Send a rectangle around the point.
+		// This means the parcel sent back is at least a rectangle around the point,
+		// which is more efficient for public land.  Fewer requests are sent.  JC
+		F32 west = PARCEL_GRID_STEP_METERS * floor(pos_in_region.mV[VX] / PARCEL_GRID_STEP_METERS);
+		F32 south = PARCEL_GRID_STEP_METERS * floor(pos_in_region.mV[VY] / PARCEL_GRID_STEP_METERS);
 
-	F32 west  = PARCEL_GRID_STEP_METERS * floor( wsb_region.mV[VX] / PARCEL_GRID_STEP_METERS );
-	F32 south = PARCEL_GRID_STEP_METERS * floor( wsb_region.mV[VY] / PARCEL_GRID_STEP_METERS );
+		F32 east = west + PARCEL_GRID_STEP_METERS;
+		F32 north = south + PARCEL_GRID_STEP_METERS;
 
-	F32 east  = west  + PARCEL_GRID_STEP_METERS;
-	F32 north = south + PARCEL_GRID_STEP_METERS;
+		// Send request message
+		LLMessageSystem *msg = gMessageSystem;
+		msg->newMessageFast(_PREHASH_ParcelPropertiesRequest);
+		msg->nextBlockFast(_PREHASH_AgentData);
+		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+		msg->nextBlockFast(_PREHASH_ParcelData);
+		msg->addS32Fast(_PREHASH_SequenceID, HOVERED_PARCEL_SEQ_ID);
+		msg->addF32Fast(_PREHASH_West, west);
+		msg->addF32Fast(_PREHASH_South, south);
+		msg->addF32Fast(_PREHASH_East, east);
+		msg->addF32Fast(_PREHASH_North, north);
+		msg->addBOOL("SnapSelection", FALSE);
+		msg->sendReliable(region->getHost());
 
-	// Send request message
-	LLMessageSystem *msg = gMessageSystem;
-	msg->newMessageFast(_PREHASH_ParcelPropertiesRequest);
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID() );
-	msg->nextBlockFast(_PREHASH_ParcelData);
-	msg->addS32Fast(_PREHASH_SequenceID,	HOVERED_PARCEL_SEQ_ID );
-	msg->addF32Fast(_PREHASH_West,			west );
-	msg->addF32Fast(_PREHASH_South,			south );
-	msg->addF32Fast(_PREHASH_East,			east );
-	msg->addF32Fast(_PREHASH_North,			north );
-	msg->addBOOL("SnapSelection",			FALSE );
-	msg->sendReliable( region->getHost() );
-
-	mHoverRequestResult = PARCEL_RESULT_NO_DATA;
+		mHoverRequestResult = PARCEL_RESULT_NO_DATA;
+	}
 }
 
 
