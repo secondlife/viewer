@@ -498,6 +498,7 @@ class WindowsManifest(ViewerManifest):
             with self.prefix(src=os.path.join(pkgdir, "VMP")):
                 # include the compiled launcher scripts so that it gets included in the file_list
                 self.path('SLVersionChecker.exe')
+                self.path('nextviewer.bat')
 
             with self.prefix(dst="vmp_icons"):
                 with self.prefix(src=self.icon_path()):
