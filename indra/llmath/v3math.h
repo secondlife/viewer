@@ -163,6 +163,8 @@ LLVector3 inverse_projected_vec(const LLVector3 &a, const LLVector3 &b); // Retu
 LLVector3 parallel_component(const LLVector3 &a, const LLVector3 &b); // Returns vector a projected on vector b (same as projected_vec)
 LLVector3 orthogonal_component(const LLVector3 &a, const LLVector3 &b); // Returns component of vector a not parallel to vector b (same as projected_vec)
 LLVector3 lerp(const LLVector3 &a, const LLVector3 &b, F32 u); // Returns a vector that is a linear interpolation between a and b
+LLVector3 point_to_box_offset(LLVector3& pos, const LLVector3* box); // Displacement from query point to nearest point on bounding box.
+bool box_valid_and_non_zero(const LLVector3* box);
 
 inline LLVector3::LLVector3(void)
 {

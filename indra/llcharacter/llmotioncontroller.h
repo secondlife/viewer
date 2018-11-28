@@ -148,12 +148,16 @@ public:
 	void pauseAllMotions();
 	void unpauseAllMotions();
 	BOOL isPaused() const { return mPaused; }
+    S32 getPausedFrame() const { return mPausedFrame; }
 
 	void setTimeStep(F32 step);
+    F32 getTimeStep() const { return mTimeStep; }
 
 	void setTimeFactor(F32 time_factor);
 	F32 getTimeFactor() const { return mTimeFactor; }
 
+    F32 getAnimTime() const { return mAnimTime; }
+    
 	motion_list_t& getActiveMotions() { return mActiveMotions; }
 
 	void incMotionCounts(S32& num_motions, S32& num_loading_motions, S32& num_loaded_motions, S32& num_active_motions, S32& num_deprecated_motions);
@@ -218,7 +222,7 @@ protected:
 	F32					mLastTime;
 	BOOL				mHasRunOnce;
 	BOOL				mPaused;
-	F32					mPauseTime;
+	S32					mPausedFrame;
 	F32					mTimeStep;
 	S32					mTimeStepCount;
 	F32					mLastInterp;

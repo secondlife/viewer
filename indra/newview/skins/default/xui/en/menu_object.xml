@@ -214,4 +214,20 @@
     <menu_item_call.on_enable
      function="EnableMuteParticle" />
   </menu_item_call>
+    <menu_item_call
+		 label="Dump XML"
+         name="Dump XML">
+            <menu_item_call.on_click
+             function="Advanced.AppearanceToXML" />
+            <menu_item_call.on_visible
+             function="Advanced.EnableAppearanceToXML"/>
+    </menu_item_call>
+    <menu_item_call
+		 label="Reset Skeleton"
+         name="Reset Skeleton">
+            <menu_item_call.on_click
+                function="Avatar.ResetSkeleton" />
+            <menu_item_call.on_visible
+             function="Avatar.EnableResetSkeleton"/>
+    </menu_item_call>
 </context_menu>

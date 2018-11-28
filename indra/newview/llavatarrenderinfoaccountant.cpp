@@ -112,8 +112,13 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro(std::string url, U64 
                  )
             {
                 LLUUID target_agent_id = LLUUID(agent_iter->first);
-                LLViewerObject* avatarp = gObjectList.findObject(target_agent_id);
-                if (avatarp && avatarp->isAvatar())
+                LLViewerObject* vobjp = gObjectList.findObject(target_agent_id);
+                LLVOAvatar *avatarp = NULL;
+                if (vobjp)
+                {
+                    avatarp = vobjp->asAvatar();
+                }
+                if (avatarp && !avatarp->isControlAvatar())
                 {
                     const LLSD & agent_info_map = agent_iter->second;
                     if (agent_info_map.isMap())
@@ -123,7 +128,7 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro(std::string url, U64 
 
                         if (agent_info_map.has(KEY_WEIGHT))
                         {
-                            ((LLVOAvatar *) avatarp)->setReportedVisualComplexity(agent_info_map[KEY_WEIGHT].asInteger());
+                            avatarp->setReportedVisualComplexity(agent_info_map[KEY_WEIGHT].asInteger());
                         }
                     }
                     else
@@ -201,6 +206,7 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro(std::string url, U
         if (avatar &&
             avatar->getRezzedStatus() >= 2 &&					// Mostly rezzed (maybe without baked textures downloaded)
             !avatar->isDead() &&								// Not dead yet
+            !avatar->isControlAvatar() &&						// Not part of an animated object
             avatar->getObjectHost() == regionp->getHost())		// Ensure it's on the same region
         {
             avatar->calculateUpdateRenderComplexity();			// Make sure the numbers are up-to-date

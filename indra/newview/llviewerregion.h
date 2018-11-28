@@ -307,6 +307,7 @@ public:
 	bool bakesOnMeshEnabled() const;
 
 	// has region received its simulator features list? Requires an additional query after caps received.
+    void requestSimulatorFeatures();
 	void setSimulatorFeaturesReceived(bool);
 	bool simulatorFeaturesReceived() const;
 	boost::signals2::connection setSimulatorFeaturesReceivedCallback(const caps_received_signal_t::slot_type& cb);
