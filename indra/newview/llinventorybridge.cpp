@@ -6946,19 +6946,6 @@ void LLSettingsBridge::performAction(LLInventoryModel* model, std::string action
         LL_WARNS("LAPRAS") << "Applying asset ID " << asset_id << " to parcel " << parcel_id << LL_ENDL;
         LLEnvironment::instance().updateParcel(parcel_id, asset_id, name, -1, -1);
     }
-    else if ("apply_settings_region" == action)
-    {
-        // Single item only
-        LLViewerInventoryItem* item = static_cast<LLViewerInventoryItem*>(getItem());
-        if (!item)
-            return;
-        LLUUID asset_id = item->getAssetUUID();
-        std::string name = item->getName();
-
-        LL_WARNS("LAPRAS") << "Applyng asset id " << asset_id << " to region." << LL_ENDL;
-
-        LLEnvironment::instance().updateRegion(asset_id, name, -1, -1);
-    }
     else
         LLItemBridge::performAction(model, action);
 }
