@@ -382,15 +382,22 @@ namespace
 
 		{
 			llifstream file(filename().c_str());
-			if (file.is_open())
+			if (!file.is_open())
 			{
-				LLSDSerialize::fromXML(configuration, file);
+				LL_WARNS() << filename() << " failed to open file; not changing configuration" << LL_ENDL;
+				return false;
 			}
 
-			if (configuration.isUndefined())
+			if (LLSDSerialize::fromXML(configuration, file) == LLSDParser::PARSE_FAILURE)
 			{
-				LL_WARNS() << filename() << " missing, ill-formed,"
-							" or simply undefined; not changing configuration"
+				LL_WARNS() << filename() << " parcing error; not changing configuration" << LL_ENDL;
+				return false;
+			}
+
+			if (configuration.isUndefined() || !configuration.isMap() || configuration.emptyMap())
+			{
+				LL_WARNS() << filename() << " missing, ill-formed, or simply undefined"
+							" content; not changing configuration"
 						<< LL_ENDL;
 				return false;
 			}
@@ -856,19 +863,24 @@ namespace LLError
             setEnabledLogTypesMask(config["enabled-log-types-mask"].asInteger());
         }
         
-		LLSD sets = config["settings"];
-		LLSD::array_const_iterator a, end;
-		for (a = sets.beginArray(), end = sets.endArray(); a != end; ++a)
-		{
-			const LLSD& entry = *a;
-			
-			ELevel level = decodeLevel(entry["level"]);
-			
-			setLevels(s->mFunctionLevelMap,	entry["functions"],	level);
-			setLevels(s->mClassLevelMap,	entry["classes"],	level);
-			setLevels(s->mFileLevelMap,		entry["files"],		level);
-			setLevels(s->mTagLevelMap,		entry["tags"],		level);
-		}
+        if (config.has("settings") && config["settings"].isArray())
+        {
+            LLSD sets = config["settings"];
+            LLSD::array_const_iterator a, end;
+            for (a = sets.beginArray(), end = sets.endArray(); a != end; ++a)
+            {
+                const LLSD& entry = *a;
+                if (entry.isMap() && !entry.emptyMap())
+                {
+                    ELevel level = decodeLevel(entry["level"]);
+
+                    setLevels(s->mFunctionLevelMap, entry["functions"], level);
+                    setLevels(s->mClassLevelMap, entry["classes"], level);
+                    setLevels(s->mFileLevelMap, entry["files"], level);
+                    setLevels(s->mTagLevelMap, entry["tags"], level);
+                }
+            }
+        }
 	}
 }
 
