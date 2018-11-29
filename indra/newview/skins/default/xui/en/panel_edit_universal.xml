@@ -11,13 +11,13 @@
   <scroll_container
      color="DkGray2"
      follows="all"
-     height="400"
+     height="380"
      layout="topleft"
      left="9"
      name="avatar_universal_scroll"
      opaque="true"
      top_pad="10"
-     width="314">
+     width="323">
     <panel
      border="false"
        bg_alpha_color="DkGray2"
