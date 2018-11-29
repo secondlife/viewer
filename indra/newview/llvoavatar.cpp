@@ -9032,12 +9032,12 @@ LLViewerTexture* LLVOAvatar::getBakedTexture(const U8 te)
 	layerset = getTexLayerSet(te);
 	
 
-	if (!isUsingLocalAppearance() && is_layer_baked)
+	if (!isEditingAppearance() && is_layer_baked)
 	{
 		LLViewerFetchedTexture* baked_img = LLViewerTextureManager::staticCastToFetchedTexture(getImage(mBakedTextureDatas[te].mTextureIndex, 0), TRUE);
 		return baked_img;
 	}
-	else if (layerset && isUsingLocalAppearance())
+	else if (layerset && isEditingAppearance())
 	{
 		layerset->createComposite();
 		layerset->setUpdatesEnabled(TRUE);
