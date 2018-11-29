@@ -1,4 +1,4 @@
-/** 
+is_a/** 
  * @file llviewerobject.cpp
  * @brief Base class for viewer objects
  *
@@ -4680,6 +4680,12 @@ LLViewerTexture* LLViewerObject::getBakedTextureForMagicId(const LLUUID& id)
 	if (!LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(id))
 	{
 		return NULL;
+	}
+
+	LLViewerObject *root = getRootEdit();
+	if (root && root->isAnimatedObject())
+	{
+		return LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 	}
 
 	LLVOAvatar* avatar = getAvatar();
