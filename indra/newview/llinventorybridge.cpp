@@ -6945,6 +6945,7 @@ void LLSettingsBridge::performAction(LLInventoryModel* model, std::string action
 
         LL_WARNS("LAPRAS") << "Applying asset ID " << asset_id << " to parcel " << parcel_id << LL_ENDL;
         LLEnvironment::instance().updateParcel(parcel_id, asset_id, name, -1, -1);
+        LLEnvironment::instance().setSharedEnvironment();
     }
     else
         LLItemBridge::performAction(model, action);

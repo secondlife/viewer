@@ -880,7 +880,6 @@
                 function="Inventory.DoToSelected"
                 parameter="apply_settings_parcel" />
     </menu_item_call>
-    </menu_item_call>
 	<menu_item_separator
 	 layout="topleft"
 	 name="Marketplace Separator" />
