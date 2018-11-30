@@ -144,6 +144,8 @@ public:
     void                        setEnvironment(EnvSelection_t env, const LLUUID &assetId, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset);
     void                        setEnvironment(EnvSelection_t env, const LLUUID &assetId);
 
+    void                        setSharedEnvironment();
+
     void                        clearEnvironment(EnvSelection_t env);
     LLSettingsDay::ptr_t        getEnvironmentDay(EnvSelection_t env);
     LLSettingsDay::Seconds      getEnvironmentDayLength(EnvSelection_t env);

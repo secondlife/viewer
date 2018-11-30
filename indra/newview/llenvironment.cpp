@@ -1731,6 +1731,13 @@ void LLEnvironment::clearExperienceEnvironment(LLUUID experience_id, F32 transit
         updateEnvironment(LLSettingsBase::Seconds(transition_time));
 }
 
+void LLEnvironment::setSharedEnvironment()
+{
+    clearEnvironment(LLEnvironment::ENV_LOCAL);
+    setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+    updateEnvironment();
+}
+
 void LLEnvironment::setExperienceEnvironment(LLUUID experience_id, LLUUID asset_id, F32 transition_time)
 {
     LLSettingsVOBase::getSettingsAsset(asset_id,

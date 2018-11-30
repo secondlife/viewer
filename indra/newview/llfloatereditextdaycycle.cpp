@@ -208,7 +208,7 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
     // Must be before operation on all tabs below
     if (gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics"))
     {
-        panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->getChildView("panel_settings_sky_density"));
+        panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->findChildView("panel_settings_sky_density"));
         if (!panel)
         {
             panel = new LLPanelSettingsSkyDensityTab;
@@ -218,7 +218,7 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
     }
     else
     {
-        panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->getChildView("panel_settings_sky_density"));
+        panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->findChildView("panel_settings_sky_density"));
         if (panel)
         {
             tab_container->removeTabPanel(panel);
@@ -958,7 +958,7 @@ void LLFloaterEditExtDayCycle::updateTabs()
 void LLFloaterEditExtDayCycle::updateWaterTabs(const LLSettingsWaterPtr_t &p_water)
 {
     LLView* tab_container = mWaterTabLayoutContainer->getChild<LLView>(TABS_WATER); //can't extract panels directly, since it is in 'tuple'
-    LLPanelSettingsWaterMainTab* panel = dynamic_cast<LLPanelSettingsWaterMainTab*>(tab_container->getChildView("water_panel"));
+    LLPanelSettingsWaterMainTab* panel = dynamic_cast<LLPanelSettingsWaterMainTab*>(tab_container->findChildView("water_panel"));
     if (panel)
     {
         panel->setWater(p_water);
@@ -970,17 +970,17 @@ void LLFloaterEditExtDayCycle::updateSkyTabs(const LLSettingsSkyPtr_t &p_sky)
     LLTabContainer* tab_container = mSkyTabLayoutContainer->getChild<LLTabContainer>(TABS_SKYS); //can't extract panels directly, since they are in 'tuple'
 
     LLPanelSettingsSky* panel;
-    panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->getChildView("atmosphere_panel"));
+    panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->findChildView("atmosphere_panel"));
     if (panel)
     {
         panel->setSky(p_sky);
     }
-    panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->getChildView("clouds_panel"));
+    panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->findChildView("clouds_panel"));
     if (panel)
     {
         panel->setSky(p_sky);
     }
-    panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->getChildView("moon_panel"));
+    panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->findChildView("moon_panel"));
     if (panel)
     {
         panel->setSky(p_sky);
@@ -988,7 +988,7 @@ void LLFloaterEditExtDayCycle::updateSkyTabs(const LLSettingsSkyPtr_t &p_sky)
 
     if (gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics"))
     {
-        panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->getChildView("panel_settings_sky_density"));
+        panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->findChildView("panel_settings_sky_density"));
         if (!panel)
         {
             panel = new LLPanelSettingsSkyDensityTab;
@@ -1000,12 +1000,12 @@ void LLFloaterEditExtDayCycle::updateSkyTabs(const LLSettingsSkyPtr_t &p_sky)
     }
     else
     {
-        panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->getChildView("panel_settings_sky_density"));
+        panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->findChildView("panel_settings_sky_density"));
         if (panel)
         {
             tab_container->removeTabPanel(panel);
+            delete panel;
         }
-        delete panel;
     }
 
 }

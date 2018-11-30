@@ -252,6 +252,7 @@
                     width="17"
                     orientation="vertical"
                     increment="10"
+                    overlap_threshold="100"
                     min_val="100"
                     max_val="4000"
                     layout="topleft"

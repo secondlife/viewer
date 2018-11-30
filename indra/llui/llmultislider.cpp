@@ -113,9 +113,9 @@ LLMultiSlider::LLMultiSlider(const LLMultiSlider::Params& p)
 		setMouseUpCallback(initCommitCallback(p.mouse_up_callback));
 	}
 
-    if (p.overlap_threshold.isProvided())
+	if (p.overlap_threshold.isProvided() && p.overlap_threshold > mIncrement)
     {
-        mOverlapThreshold = p.overlap_threshold;
+        mOverlapThreshold = p.overlap_threshold - mIncrement;
     }
     else
     {

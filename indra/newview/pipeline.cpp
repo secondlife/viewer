@@ -2432,6 +2432,10 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 	LLGLDisable test(GL_ALPHA_TEST);
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
+
+// 	glh::matrix4f modelview = get_last_modelview();
+// 	glh::matrix4f proj = get_last_projection();
+
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 
 	bool bound_shader = false;

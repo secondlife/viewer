@@ -110,13 +110,15 @@ bool LLPreviewNotecard::saveItem()
 
 void LLPreviewNotecard::setEnabled( BOOL enabled )
 {
-
-	LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("Notecard Editor");
-
-	getChildView("Notecard Editor")->setEnabled(enabled);
-	getChildView("lock")->setVisible( !enabled);
-	getChildView("desc")->setEnabled(enabled);
-	getChildView("Save")->setEnabled(enabled && editor && (!editor->isPristine()));
+	LLViewerTextEditor* editor = findChild<LLViewerTextEditor>("Notecard Editor");
+	// editor is part of xml, if it doesn't exists, nothing else does
+	if (editor)
+	{
+		editor->setEnabled(enabled);
+		getChildView("lock")->setVisible( !enabled);
+		getChildView("desc")->setEnabled(enabled);
+		getChildView("Save")->setEnabled(enabled && (!editor->isPristine()));
+	}
 }
 
 
