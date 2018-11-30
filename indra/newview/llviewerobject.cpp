@@ -1,4 +1,4 @@
-is_a/** 
+/** 
  * @file llviewerobject.cpp
  * @brief Base class for viewer objects
  *
