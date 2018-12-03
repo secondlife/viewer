@@ -2600,6 +2600,10 @@ void LLPanelPreferenceGraphics::onPresetsListChange()
 	{
 		instance->saveSettings(); //make cancel work correctly after changing the preset
 	}
+	else
+	{
+		instance->saveGraphicsPreset(std::string());
+	}
 }
 
 void LLPanelPreferenceGraphics::setPresetText()
