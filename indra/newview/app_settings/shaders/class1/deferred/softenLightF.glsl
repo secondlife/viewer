@@ -56,6 +56,7 @@ uniform mat3 env_mat;
 uniform mat3 ssao_effect_mat;
 
 uniform vec3 sun_dir;
+uniform vec3 moon_dir;
 VARYING vec2 vary_fragcoord;
 
 uniform mat4 inv_proj;
@@ -104,15 +105,17 @@ void main()
     float envIntensity = norm.z;
     norm.xyz = decode_normal(norm.xy); // unpack norm
         
-    float da = dot(norm.xyz, sun_dir.xyz);
+    float da_sun  = dot(norm.xyz, normalize(sun_dir.xyz));
+    float da_moon = dot(norm.xyz, normalize(moon_dir.xyz));
+    float da = max(da_sun, da_moon);
 
     float final_da = clamp(da, 0.0, 1.0);
-          final_da = pow(final_da, 1.0/1.3);
+          final_da = pow(final_da, global_gamma);
 
     vec4 diffuse = texture2DRect(diffuseRect, tc);
 
     //convert to gamma space
-    diffuse.rgb = linear_to_srgb(diffuse.rgb);
+    //diffuse.rgb = linear_to_srgb(diffuse.rgb);
 
     vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
     vec3 col;
@@ -171,8 +174,7 @@ void main()
             bloom = fogged.a;
         #endif
 
-        col = srgb_to_linear(col);
-
+        //col = srgb_to_linear(col);
         //col = vec3(1,0,1);
         //col.g = envIntensity;
     }

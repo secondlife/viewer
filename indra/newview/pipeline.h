@@ -663,6 +663,7 @@ public:
 	U32					mLightFunc;
 
 	LLColor4			mSunDiffuse;
+    LLColor4			mMoonDiffuse;
 	LLVector4			mSunDir;
     LLVector4			mMoonDir;
 

@@ -732,8 +732,14 @@ void LLVOSky::updateDirections(void)
 {
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
+    mLastSunLightingDirection  = mSun.getDirection();
+    mLastMoonLightingDirection = mMoon.getDirection();
+
+    mSun.setDirection(psky->getSunDirection());
+	mMoon.setDirection(psky->getMoonDirection());
+
     mSun.setColor(psky->getSunlightColor());
-	mMoon.setColor(LLColor3(1.0f, 1.0f, 1.0f));
+	mMoon.setColor(psky->getMoonDiffuse());
 
 	mSun.renewDirection();
 	mSun.renewColor();
@@ -788,17 +794,20 @@ bool LLVOSky::updateSky()
 
         LLVector3 direction = mSun.getDirection();
 		direction.normalize();
-		const F32 dot_lighting = direction * mLastLightingDirection;
+		const F32 dot_sun  = direction * mLastSunLightingDirection;
+        const F32 dot_moon = direction * mLastMoonLightingDirection;
 
 		LLColor3 delta_color;
 		delta_color.setVec(mLastTotalAmbient.mV[0] - total_ambient.mV[0],
 							mLastTotalAmbient.mV[1] - total_ambient.mV[1],
                             mLastTotalAmbient.mV[2] - total_ambient.mV[2]);
 
-        bool light_direction_changed = (dot_lighting < LIGHT_DIRECTION_THRESHOLD);
-        bool color_changed = (delta_color.length() >= COLOR_CHANGE_THRESHOLD);
+        bool sun_direction_changed  = (dot_sun < LIGHT_DIRECTION_THRESHOLD);
+        bool moon_direction_changed = (dot_moon < LIGHT_DIRECTION_THRESHOLD);
+        bool color_changed          = (delta_color.length() >= COLOR_CHANGE_THRESHOLD);
 
-        mForceUpdate = mForceUpdate || light_direction_changed;
+        mForceUpdate = mForceUpdate || sun_direction_changed;
+        mForceUpdate = mForceUpdate || moon_direction_changed;
         mForceUpdate = mForceUpdate || color_changed;
         mForceUpdate = mForceUpdate || !mInitialized;
 
@@ -816,7 +825,6 @@ bool LLVOSky::updateSky()
 		
 			if (!direction.isExactlyZero())
 			{
-				mLastLightingDirection = direction;
                 mLastTotalAmbient = total_ambient;
 				mInitialized = TRUE;
 
@@ -1623,8 +1631,6 @@ void LLVOSky::setSunAndMoonDirectionsCFR(const LLVector3 &sun_dir_cfr, const LLV
     mSun.setDirection(sun_dir_cfr);	
 	mMoon.setDirection(moon_dir_cfr);
 
-	mLastLightingDirection = mSun.getDirection();
-
 	// Push the sun "South" as it approaches directly overhead so that we can always see bump mapping
 	// on the upward facing faces of cubes.
     {
@@ -1649,8 +1655,6 @@ void LLVOSky::setSunAndMoonDirectionsCFR(const LLVector3 &sun_dir_cfr, const LLV
 void LLVOSky::setSunDirectionCFR(const LLVector3 &sun_dir_cfr)
 {
     mSun.setDirection(sun_dir_cfr);	
-
-	mLastLightingDirection = mSun.getDirection();
 
 	// Push the sun "South" as it approaches directly overhead so that we can always see bump mapping
 	// on the upward facing faces of cubes.

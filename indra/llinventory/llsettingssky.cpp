@@ -968,6 +968,23 @@ LLVector3 LLSettingsSky::getLightDirection() const
     return LLVector3::z_axis;
 }
 
+LLColor3 LLSettingsSky::getLightDiffuse() const
+{
+    update();
+
+    // is the normal from the sun or the moon
+    if (getIsSunUp())
+    {
+        return getSunDiffuse();
+    }
+    else if (getIsMoonUp())
+    {
+        return getMoonDiffuse();
+    }
+
+    return LLColor3::white;
+}
+
 LLColor3 LLSettingsSky::getAmbientColor() const
 {
     // Todo: this causes complications, preferably to get rid of this duality
