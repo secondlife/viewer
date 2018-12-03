@@ -75,6 +75,8 @@ class LLTexGlobalColor;
 struct LLAppearanceMessageContents;
 class LLViewerJointMesh;
 
+const F32 MAX_AVATAR_LOD_FACTOR = 1.0f;
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLVOAvatar
