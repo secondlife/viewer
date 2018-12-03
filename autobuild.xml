@@ -3138,9 +3138,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2040ddeb5dd2040f9d57bdc1865af520</string>
+              <string>3504fe5c13ff8ca3bae9de2bfda5d1a5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/28232/230664/viewer_manager-2.0.522096-darwin64-522096.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/28374/232934/viewer_manager-2.0.522199-darwin64-522199.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3162,9 +3162,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a3c4980f31e3437910b72bd45efb0e6d</string>
+              <string>d035a93c4d8554241fd43ac91033a838</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/28233/230672/viewer_manager-2.0.522096-windows-522096.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/28375/232940/viewer_manager-2.0.522199-windows-522199.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3175,7 +3175,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>source_type</key>
         <string>hg</string>
         <key>version</key>
-        <string>2.0.522096</string>
+        <string>2.0.522199</string>
       </map>
       <key>vlc-bin</key>
       <map>
