@@ -3217,6 +3217,9 @@ Para sua segurança, os SLurls serão bloqueados por alguns instantes.
 	<notification name="PresetNotSaved">
 		Erro ao salvar predefinição [NAME].
 	</notification>
+	<notification name="DefaultPresetNotSaved">
+		Não é possível sobrescrever o padrão definido.
+	</notification>
 	<notification name="PresetNotDeleted">
 		Erro ao excluir a predefinição [NAME].
 	</notification>
@@ -3980,6 +3983,9 @@ Tente novamente em instantes.
 	<notification name="CantCreateObjectRegionFull">
 		Não foi possível criar o objeto solicitado. A região está cheia.
 	</notification>
+	<notification name="CantCreateAnimatedObjectTooLarge">
+		Não é possível criar o objeto animado solicitado porque excede o limite triangular manipulado.
+	</notification>
 	<notification name="CantAttackMultipleObjOneSpot">
 		Não é possível anexar vários objetos a um local.
 	</notification>
@@ -4027,6 +4033,21 @@ Tente novamente em instantes.
 	</notification>
 	<notification name="CantChangeShape">
 		Você não está autorizado a alterar essa forma.
+	</notification>
+	<notification name="NoPermsTooManyAttachedAnimatedObjects">
+		A operação faria com que o número de objetos animados anexados excedesse o limite.
+	</notification>
+	<notification name="NoPermsLinkAnimatedObjectTooLarge">
+		Não é possível vincular esses objetos porque o objeto animado resultante excederia o limite triangular manipulado.
+	</notification>
+	<notification name="NoPermsSetFlagAnimatedObjectTooLarge">
+		Não é possível tornar este objeto em animado porque excederia o limite triangular manipulado.
+	</notification>
+	<notification name="CantChangeAnimatedObjectStateInsufficientLand">
+		Não é possível mudar o estado do objeto animado para este objeto, porque faria o limite do lote ser excedido.
+	</notification>
+	<notification name="ErrorNoMeshData">
+		Erro do servidor: não foi possível completar esta operação porque os dados mesh não está carregado.
 	</notification>
 	<notification name="NoAccessToClaimObjects">
 		Seus privilégios de acesso não permitem que você reivindique objetos aqui.

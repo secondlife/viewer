@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Environment Editor Floater" title="UMGEBUNGSEINSTELLUNGEN">
 	<text name="note">
-		Anhand der Optionen unten können Sie die Umgebungseinstellungen für Ihren Viewer anpassen.
+		Anhand der nachstehenden Optionen können Sie die Umgebungseinstellungen für Ihren Viewer anpassen.
 	</text>
 	<radio_group name="region_settings_radio_group">
 		<radio_item label="Regionseinstellungen verwenden" name="use_region_settings"/>
@@ -18,7 +18,7 @@
 			<combo_box.item label="-Voreinstellung auswählen-" name="item0"/>
 		</combo_box>
 		<text name="sky_dayc_settings_title">
-			Himmel / Tageszyklus
+			Himmel/Tageszyklus
 		</text>
 		<radio_group name="sky_dayc_settings_radio_group">
 			<radio_item label="Fester Himmel" name="my_sky_settings"/>

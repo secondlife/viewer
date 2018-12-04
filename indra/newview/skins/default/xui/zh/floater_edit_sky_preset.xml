@@ -53,7 +53,7 @@
 				日／月 顏色
 			</text>
 			<text name="WLAmbientText">
-				環境
+				環境光
 			</text>
 			<text name="SunGlowText">
 				太陽光輝
@@ -67,7 +67,7 @@
 				場景 Gamma 值
 			</text>
 			<text name="TODText">
-				日／月 位置
+				日／月位置
 			</text>
 			<multi_slider initial_value="0" name="WLSunPos"/>
 			<text name="WL12amHash">
@@ -110,7 +110,7 @@
 				雲彩顏色
 			</text>
 			<text name="WLCloudColorText2">
-				雲彩 XY 軸 / 密度
+				雲彩 XY 軸／密度
 			</text>
 			<slider label="X" name="WLCloudX"/>
 			<slider label="Y" name="WLCloudY"/>
@@ -122,7 +122,7 @@
 				雲彩規模
 			</text>
 			<text name="WLCloudDetailText">
-				雲彩細節（XY 軸 / 密度）
+				雲彩細節（XY 軸／密度）
 			</text>
 			<slider label="X" name="WLCloudDetailX"/>
 			<slider label="Y" name="WLCloudDetailY"/>
