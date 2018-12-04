@@ -92,6 +92,8 @@ public:
 	// LLCheckBoxCtrl interface
 	virtual BOOL		toggle()				{ return mButton->toggleState(); }		// returns new state
 
+	void				setBtnFocus() { mButton->setFocus(TRUE); }
+
 	void				setEnabledColor( const LLColor4 &color ) { mTextEnabledColor = color; }
 	void				setDisabledColor( const LLColor4 &color ) { mTextDisabledColor = color; }
 

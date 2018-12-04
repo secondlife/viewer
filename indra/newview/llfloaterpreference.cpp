@@ -2329,6 +2329,7 @@ BOOL LLPanelPreference::postBuild()
 	if (hasChild("mute_chb_label", TRUE))
 	{
 		getChild<LLTextBox>("mute_chb_label")->setShowCursorHand(false);
+		getChild<LLTextBox>("mute_chb_label")->setSoundFlags(LLView::MOUSE_UP);
 		getChild<LLTextBox>("mute_chb_label")->setClickedCallback(boost::bind(&toggleMuteWhenMinimized));
 	}
 
@@ -2452,6 +2453,11 @@ void LLPanelPreference::toggleMuteWhenMinimized()
 {
 	std::string mute("MuteWhenMinimized");
 	gSavedSettings.setBOOL(mute, !gSavedSettings.getBOOL(mute));
+	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+	if (instance)
+	{
+		instance->getChild<LLCheckBoxCtrl>("mute_when_minimized")->setBtnFocus();
+	}
 }
 
 void LLPanelPreference::cancel()
