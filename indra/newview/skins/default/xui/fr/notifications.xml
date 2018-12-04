@@ -3229,6 +3229,9 @@ Elles vont être bloquées pendant quelques secondes pour votre sécurité.
 	<notification name="PresetNotSaved">
 		Erreur d’enregistrement du préréglage [NAME].
 	</notification>
+	<notification name="DefaultPresetNotSaved">
+		Impossible de remplacer le préréglage par défaut.
+	</notification>
 	<notification name="PresetNotDeleted">
 		Erreur de suppression du préréglage [NAME].
 	</notification>
@@ -3993,6 +3996,9 @@ Veuillez réessayer dans une minute.
 	<notification name="CantCreateObjectRegionFull">
 		Création de l&apos;objet demandé impossible. La région est pleine.
 	</notification>
+	<notification name="CantCreateAnimatedObjectTooLarge">
+		Impossible de créer l&apos;objet animé demandé car il dépasserait la limite de triangle calé.
+	</notification>
 	<notification name="CantAttackMultipleObjOneSpot">
 		Vous ne pouvez pas attacher plusieurs objets au même endroit.
 	</notification>
@@ -4040,6 +4046,21 @@ Veuillez réessayer dans une minute.
 	</notification>
 	<notification name="CantChangeShape">
 		Vous n’êtes pas autorisé à modifier cette forme.
+	</notification>
+	<notification name="NoPermsTooManyAttachedAnimatedObjects">
+		Une opération entraînerait le dépassement du nombre d&apos;objets animés attachés.
+	</notification>
+	<notification name="NoPermsLinkAnimatedObjectTooLarge">
+		Impossible de lier ces objets car l&apos;objet animé résultant dépasserait la limite de triangle calé.
+	</notification>
+	<notification name="NoPermsSetFlagAnimatedObjectTooLarge">
+		Impossible de transformer cet objet en objet animé car il dépasserait la limite de triangle calé.
+	</notification>
+	<notification name="CantChangeAnimatedObjectStateInsufficientLand">
+		Impossible de modifier l&apos;état de l&apos;objet animé pour cet objet, car cela entraînerait un dépassement de la limite de parcelles.
+	</notification>
+	<notification name="ErrorNoMeshData">
+		Erreur de serveur : impossible d&apos;effectuer cette opération car les données de maillage ne sont pas chargées.
 	</notification>
 	<notification name="NoAccessToClaimObjects">
 		Vos privilèges d&apos;accès ne vous autorisent pas à revendiquer des objets ici.

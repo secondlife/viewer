@@ -22,7 +22,7 @@
 		Имя настройки:
 	</text>
 	<text name="note">
-		Примечание. Если изменить имя настройки, будет создана новая настройка, а изменения в существующей не будут сохранены.
+		Примечание: если изменить имя настройки, будет создана новая настройка, а существующая настройка останется без изменения.
 	</text>
 	<tab_container name="WindLight Tabs">
 		<panel label="АТМОСФЕРА" name="Atmosphere">
@@ -53,7 +53,7 @@
 				Цвет солнца/луны
 			</text>
 			<text name="WLAmbientText">
-				Рассеянное
+				Окружающая среда
 			</text>
 			<text name="SunGlowText">
 				Сияние солнца
@@ -86,55 +86,55 @@
 				|
 			</text>
 			<text name="WL12am">
-				12 ночи
+				12 часов ночи
 			</text>
 			<text name="WL6am">
-				6 утра
+				6 часов утра
 			</text>
 			<text name="WL12pmHash">
-				12 дня
+				12 часов пополудни
 			</text>
 			<text name="WL6pm">
-				6 вечера
+				6 часов вечера
 			</text>
 			<text name="WL12am2">
-				12 ночи
+				12 часов ночи
 			</text>
-			<time name="WLDayTime" value="6:00"/>
+			<time name="WLDayTime" value="6:00 часов утра"/>
 			<text name="WLEastAngleText">
-				Смещение отн. востока
+				Смещение относительно востока
 			</text>
 		</panel>
 		<panel label="ОБЛАКА" name="Clouds">
 			<text name="WLCloudColorText">
-				Цвет
+				Цвет облака
 			</text>
 			<text name="WLCloudColorText2">
-				Положение и плотность
+				Координаты XY/плотность облака
 			</text>
-			<slider label="X" name="WLCloudX"/>
+			<slider label="Х" name="WLCloudX"/>
 			<slider label="Y" name="WLCloudY"/>
-			<slider label="П" name="WLCloudDensity"/>
+			<slider label="D" name="WLCloudDensity"/>
 			<text name="WLCloudCoverageText">
 				Облачность
 			</text>
 			<text name="WLCloudScaleText">
-				Размеры
+				Шкала облачности
 			</text>
 			<text name="WLCloudDetailText">
-				Детали (положение/плотность)
+				Детализация облака (координаты XY/плотность)
 			</text>
-			<slider label="X" name="WLCloudDetailX"/>
+			<slider label="Х" name="WLCloudDetailX"/>
 			<slider label="Y" name="WLCloudDetailY"/>
-			<slider label="П" name="WLCloudDetailDensity"/>
+			<slider label="D" name="WLCloudDetailDensity"/>
 			<text name="WLCloudScrollXText">
-				Скорость по X
+				Перемещение облака по координате X
 			</text>
-			<check_box label="На месте" name="WLCloudLockX"/>
+			<check_box label="Фиксация" name="WLCloudLockX"/>
 			<text name="WLCloudScrollYText">
-				Скорость по Y
+				Перемещение облака по координате Y
 			</text>
-			<check_box label="На месте" name="WLCloudLockY"/>
+			<check_box label="Фиксация" name="WLCloudLockY"/>
 		</panel>
 	</tab_container>
 	<check_box label="Применить эту настройку неба" name="make_default_cb"/>
