@@ -2608,7 +2608,8 @@ void LLPanelPreferenceGraphics::onPresetsListChange()
 	}
 	else
 	{
-		instance->saveGraphicsPreset(std::string());
+		std::string dummy;
+		instance->saveGraphicsPreset(dummy);
 	}
 }
 
