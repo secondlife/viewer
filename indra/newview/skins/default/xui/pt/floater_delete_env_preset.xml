@@ -1,34 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<floater name="Delete Env Preset" title="EXCLUIR CONF AMBIENTE">
+<floater name="Delete Env Preset" title="EXCLUIR PREDEFINIÇÃO ENV">
 	<string name="title_water">
-		Excluir pré-configuração da água
+		Excluir predefinição da água
 	</string>
 	<string name="title_sky">
-		Excluir pré-configuração de céu
+		Excluir predefinição de céu
 	</string>
 	<string name="title_day_cycle">
-		Excluir pré-configuração dos dias
+		Excluir ciclo de dias
 	</string>
 	<string name="label_water">
-		Pré-configuração:
+		Predefinição:
 	</string>
 	<string name="label_sky">
-		Pré-configuração:
+		Predefinição:
 	</string>
 	<string name="label_day_cycle">
-		Ciclo dia:
+		Ciclos de dias:
 	</string>
 	<string name="msg_confirm_deletion">
-		Tem certeza de que quer excluir esta pré-configuração?
+		Tem certeza de que quer excluir a predefinição selecionada?
 	</string>
 	<string name="msg_sky_is_referenced">
-		Impossível excluir pré-configuração utilizada por um ou mais ciclos de dia .
+		Não é possível remover uma predefinição que está referenciada por algum(ns) ciclo(s) de dias.
 	</string>
 	<string name="combo_label">
-		-Selecione uma pré-configuração-
+		-Selecionar uma prefefinição-
 	</string>
 	<text name="label">
-		Pré-configuração:
+		Predefinição:
 	</text>
 	<button label="Excluir" name="delete"/>
 	<button label="Cancelar" name="cancel"/>

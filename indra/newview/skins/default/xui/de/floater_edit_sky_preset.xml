@@ -22,7 +22,7 @@
 		Name der Voreinstellung:
 	</text>
 	<text name="note">
-		Hinweis: Wenn Sie den Namen Ihrer Voreinstellung ändern, entsteht eine neue Voreinstellung; die vorhandene Voreinstellung wird nicht geändert.
+		Hinweis: Wenn Sie den Namen Ihrer Voreinstellung ändern, erstellen Sie eine neue Voreinstellung. Die vorhandene Voreinstellung wird nicht geändert.
 	</text>
 	<tab_container name="WindLight Tabs">
 		<panel label="ATMOSPHÄRE" name="Atmosphere">
@@ -89,7 +89,7 @@
 				0:00
 			</text>
 			<text name="WL6am">
-				3:00
+				6:00
 			</text>
 			<text name="WL12pmHash">
 				12:00

@@ -276,7 +276,6 @@
 			<menu_item_check label="顯示矩陣" name="Show Matrices"/>
 			<menu_item_check label="游標下顯示顏色" name="Show Color Under Cursor"/>
 			<menu_item_check label="顯示記憶體" name="Show Memory"/>
-			<menu_item_check label="顯示私區記憶體資訊" name="Show Private Mem Info"/>
 			<menu_item_check label="顯示更新到物件" name="Show Updates"/>
 		</menu>
 		<menu label="強制錯誤" name="Force Errors">
@@ -311,6 +310,7 @@
 			<menu_item_check label="材質區域" name="Texture Area"/>
 			<menu_item_check label="臉區域" name="Face Area"/>
 			<menu_item_check label="細節層次資訊" name="LOD Info"/>
+			<menu_item_check label="三角數量" name="Triangle Count"/>
 			<menu_item_check label="建製佇列" name="Build Queue"/>
 			<menu_item_check label="燈光" name="Lights"/>
 			<menu_item_check label="粒子效果" name="Particles"/>
@@ -423,6 +423,7 @@
 			<menu_item_check label="顯示碰撞骨架" name="Show Collision Skeleton"/>
 			<menu_item_check label="顯示骨頭" name="Show Bones"/>
 			<menu_item_check label="顯示用戶目標" name="Display Agent Target"/>
+			<menu_item_check label="顯示假冒者的範圍" name="Show Impostor Extents"/>
 			<menu_item_call label="傾印附件" name="Dump Attachments"/>
 			<menu_item_call label="除錯化身材質" name="Debug Avatar Textures"/>
 			<menu_item_call label="傾印本地材質" name="Dump Local Textures"/>
