@@ -611,6 +611,7 @@ def main(*argv):
     parser = argparse.ArgumentParser(description="process SL animations")
     parser.add_argument("--verbose", help="verbose flag", action="store_true")
     parser.add_argument("--dump", help="dump to stdout", action="store_true")
+    parser.add_argument("--use_aliases", help="use alias names for bones", action="store_true")
     parser.add_argument("--rot", help="specify sequence of rotations", type=float_triple, nargs="+")
     parser.add_argument("--rand_pos", help="request NUM random positions (default %(default)s)",
                         metavar="NUM", type=int, default=2)
