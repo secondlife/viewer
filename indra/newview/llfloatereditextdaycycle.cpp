@@ -1337,11 +1337,20 @@ void LLFloaterEditExtDayCycle::reblendSettings()
 
 void LLFloaterEditExtDayCycle::doApplyCreateNewInventory(const LLSettingsDay::ptr_t &day, std::string settings_name)
 {
-    // This method knows what sort of settings object to create.
-    LLUUID parent_id = mInventoryItem ? mInventoryItem->getParentUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
-
-    LLSettingsVOBase::createInventoryItem(day, parent_id, settings_name,
+    if (mInventoryItem)
+    {
+        LLUUID parent_id = mInventoryItem->getParentUUID();
+        U32 next_owner_perm = mInventoryItem->getPermissions().getMaskNextOwner();
+        LLSettingsVOBase::createInventoryItem(day, next_owner_perm, parent_id, settings_name,
             [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
+    }
+    else
+    {
+        LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
+        // This method knows what sort of settings object to create.
+        LLSettingsVOBase::createInventoryItem(day, parent_id, settings_name,
+            [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
+    }
 }
 
 void LLFloaterEditExtDayCycle::doApplyUpdateInventory(const LLSettingsDay::ptr_t &day)

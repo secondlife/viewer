@@ -448,10 +448,20 @@ void LLFloaterFixedEnvironment::onButtonLoad()
 
 void LLFloaterFixedEnvironment::doApplyCreateNewInventory(std::string settings_name)
 {
-    LLUUID parent_id = mInventoryItem ? mInventoryItem->getParentUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
-    // This method knows what sort of settings object to create.
-    LLSettingsVOBase::createInventoryItem(mSettings, parent_id, settings_name,
+    if (mInventoryItem)
+    {
+        LLUUID parent_id = mInventoryItem->getParentUUID();
+        U32 next_owner_perm = mInventoryItem->getPermissions().getMaskNextOwner();
+        LLSettingsVOBase::createInventoryItem(mSettings, next_owner_perm, parent_id, settings_name,
             [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
+    }
+    else
+    {
+        LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
+        // This method knows what sort of settings object to create.
+        LLSettingsVOBase::createInventoryItem(mSettings, parent_id, settings_name,
+            [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
+    }
 }
 
 void LLFloaterFixedEnvironment::doApplyUpdateInventory()
