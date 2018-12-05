@@ -3281,16 +3281,18 @@ void LLPanelLandEnvironment::refresh()
         setCrossRegion(true);
         mCurrentEnvironment.reset();
         mLastParcelId = INVALID_PARCEL_ID;
+        mCurEnvVersion = INVALID_PARCEL_ENVIRONMENT_VERSION;
         setControlsEnabled(false);
         return;
     }
 
     if (mLastParcelId != getParcelId())
     {
+        mCurEnvVersion = INVALID_PARCEL_ENVIRONMENT_VERSION;
         mCurrentEnvironment.reset();
     }
 
-    if (!mCurrentEnvironment)
+    if (!mCurrentEnvironment && mCurEnvVersion <= INVALID_PARCEL_ENVIRONMENT_VERSION)
     {
         refreshFromSource();
         return;
@@ -3307,6 +3309,7 @@ void LLPanelLandEnvironment::refreshFromSource()
     {
         setNoEnvironmentSupport(true);
         setControlsEnabled(false);
+        mCurEnvVersion = INVALID_PARCEL_ENVIRONMENT_VERSION;
         return;
     }
     setNoEnvironmentSupport(false);
@@ -3315,17 +3318,25 @@ void LLPanelLandEnvironment::refreshFromSource()
     {
         setNoSelection(true);
         setControlsEnabled(false);
+        mCurEnvVersion = INVALID_PARCEL_ENVIRONMENT_VERSION;
         return;
     }
 
     setNoSelection(false);
     if (isSameRegion())
     {
+        LL_DEBUGS("ENVIRONMENT") << "Requesting environment for parcel " << parcel->getLocalID() << ", known version " << mCurEnvVersion << LL_ENDL;
         setCrossRegion(false);
 
         LLHandle<LLPanel> that_h = getHandle();
 
-        mCurEnvVersion = INVALID_PARCEL_ENVIRONMENT_VERSION;
+        if (mCurEnvVersion < UNSET_PARCEL_ENVIRONMENT_VERSION)
+        {
+            // to mark as requesting
+            mCurEnvVersion = parcel->getParcelEnvironmentVersion();
+        }
+        mLastParcelId = parcel->getLocalID();
+
         LLEnvironment::instance().requestParcel(parcel->getLocalID(),
             [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) 
             {  
@@ -3340,6 +3351,7 @@ void LLPanelLandEnvironment::refreshFromSource()
         setCrossRegion(true);
         mCurrentEnvironment.reset();
         mLastParcelId = INVALID_PARCEL_ID;
+        mCurEnvVersion = INVALID_PARCEL_ENVIRONMENT_VERSION;
     }
     setControlsEnabled(false);
 }

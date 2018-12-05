@@ -300,8 +300,7 @@ void LLFloaterRegionInfo::onOpen(const LLSD& key)
 		disableTabCtrls();
 		return;
 	}
-	refreshFromRegion(gAgent.getRegion());
-	requestRegionInfo();
+	requestRegionInfo(); // will cause refreshFromRegion()
 	requestMeshRezInfo();
 }
 
@@ -484,6 +483,8 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 
 	panel->setCtrlsEnabled(allow_modify);
 
+	// Note: region info also causes LLRegionInfoModel::instance().update(msg); -> requestRegion(); -> changed message
+	// we need to know env version here and in update(msg) to know when to request and when not to, when to filter 'changed'
 	floater->refreshFromRegion( gAgent.getRegion() );
 }
 
@@ -3410,7 +3411,10 @@ void LLPanelRegionEnvironment::refresh()
 {
     if (!mCurrentEnvironment)
     {
-        refreshFromSource();
+        if (mCurEnvVersion <= INVALID_PARCEL_ENVIRONMENT_VERSION)
+        {
+            refreshFromSource(); // will immediately set mCurEnvVersion
+        } // else - already requesting
         return;
     }
 
@@ -3426,15 +3430,17 @@ bool LLPanelRegionEnvironment::refreshFromRegion(LLViewerRegion* region)
     {
         setNoSelection(true);
         setControlsEnabled(false);
+        mCurEnvVersion = INVALID_PARCEL_ENVIRONMENT_VERSION;
     }
     setNoSelection(false);
 
     if (gAgent.getRegion()->getRegionID() != region->getRegionID())
     {
         setCrossRegion(true);
+        mCurEnvVersion = INVALID_PARCEL_ENVIRONMENT_VERSION;
     }
     setCrossRegion(false);
-        
+
     refreshFromSource();
     return true;
 }
@@ -3448,9 +3454,15 @@ void LLPanelRegionEnvironment::refreshFromEstate()
 
 void LLPanelRegionEnvironment::refreshFromSource()
 {
+    LL_DEBUGS("ENVIRONMENT") << "Requesting environment for region, known version " << mCurEnvVersion << LL_ENDL;
     LLHandle<LLPanel> that_h = getHandle();
 
-    mCurEnvVersion = INVALID_PARCEL_ENVIRONMENT_VERSION;
+    if (mCurEnvVersion < UNSET_PARCEL_ENVIRONMENT_VERSION)
+    {
+        // to mark as requesting
+        mCurEnvVersion = UNSET_PARCEL_ENVIRONMENT_VERSION;
+    }
+
     LLEnvironment::instance().requestRegion(
         [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
 

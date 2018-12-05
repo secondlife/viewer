@@ -142,7 +142,7 @@ protected:
 
     LLEnvironment::EnvironmentInfo::ptr_t   mCurrentEnvironment;
 
-    void                        onEnvironmentChanged(LLEnvironment::EnvSelection_t env);
+    void                        onEnvironmentChanged(LLEnvironment::EnvSelection_t env, S32 version);
 
     class AltitudeData
     {
@@ -160,7 +160,7 @@ protected:
     };
     typedef std::map<std::string, AltitudeData>      altitudes_data_t;
     altitudes_data_t                        mAltitudes;
-    S32                                     mCurEnvVersion;
+    S32                                     mCurEnvVersion; // used to filter duplicate callbacks/refreshes
 
 
 private:
