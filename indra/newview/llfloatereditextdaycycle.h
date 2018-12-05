@@ -173,6 +173,7 @@ private:
     virtual void                clearDirtyFlag();
 
     bool                        isRemovingFrameAllowed();
+    bool                        isAddingFrameAllowed();
 
     LLSettingsDay::ptr_t        mEditDay; // edited copy
     LLSettingsDay::Seconds      mDayLength;

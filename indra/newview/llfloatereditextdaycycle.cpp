@@ -1020,7 +1020,7 @@ void LLFloaterEditExtDayCycle::updateButtons()
     //bool can_add = static_cast<bool>(settings);
     //mAddFrameButton->setEnabled(can_add);
     //mDeleteFrameButton->setEnabled(!can_add);
-    mAddFrameButton->setEnabled(mCanMod && mFramesSlider->canAddSliders());
+    mAddFrameButton->setEnabled(isAddingFrameAllowed() && mCanMod);
     mDeleteFrameButton->setEnabled(isRemovingFrameAllowed() && mCanMod);
 }
 
@@ -1401,6 +1401,8 @@ void LLFloaterEditExtDayCycle::doApplyCommit(LLSettingsDay::ptr_t day)
 
 bool LLFloaterEditExtDayCycle::isRemovingFrameAllowed()
 {
+    if (mFramesSlider->getCurSlider().empty()) return false;
+
     if (mCurrentTrack <= LLSettingsDay::TRACK_GROUND_LEVEL)
     {
         return (mSliderKeyMap.size() > 1);
@@ -1409,6 +1411,18 @@ bool LLFloaterEditExtDayCycle::isRemovingFrameAllowed()
     {
         return (mSliderKeyMap.size() > 0);
     }
+}
+
+bool LLFloaterEditExtDayCycle::isAddingFrameAllowed()
+{
+    if (!mFramesSlider->getCurSlider().empty()) return false;
+
+    LLSettingsBase::Seconds frame(mTimeSlider->getCurSliderValue());
+    if ((mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
+    {
+        return false;
+    }
+    return mFramesSlider->canAddSliders();
 }
 
 void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results)
@@ -1536,6 +1550,7 @@ void LLFloaterEditExtDayCycle::onIdlePlay(void* user_data)
         self->mWaterBlender->setPosition(new_frame);
         self->synchronizeTabs();
         self->updateTimeAndLabel();
+        self->updateButtons();
     }
 }
 
