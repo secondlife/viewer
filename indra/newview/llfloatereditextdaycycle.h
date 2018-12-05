@@ -131,6 +131,7 @@ private:
 	void                        updateWaterTabs(const LLSettingsWaterPtr_t &p_water);
 	void                        updateSkyTabs(const LLSettingsSkyPtr_t &p_sky);
 	void                        updateButtons();
+	void                        updateLabels();
 	void                        updateSlider(); //generate sliders from current track
 	void                        updateTimeAndLabel();
 	void                        addSliderFrame(const F32 frame, const LLSettingsBase::ptr_t &setting, bool update_ui = true);

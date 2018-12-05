@@ -903,6 +903,7 @@ void LLFloaterEditExtDayCycle::selectTrack(U32 track_index, bool force )
     mSkyTabLayoutContainer->setVisible(!show_water);
     mWaterTabLayoutContainer->setVisible(show_water);
     updateSlider();
+    updateLabels();
 }
 
 void LLFloaterEditExtDayCycle::selectFrame(F32 frame, F32 slop_factor)
@@ -1008,6 +1009,15 @@ void LLFloaterEditExtDayCycle::updateSkyTabs(const LLSettingsSkyPtr_t &p_sky)
         }
     }
 
+}
+
+void LLFloaterEditExtDayCycle::updateLabels()
+{
+    std::string label_arg = (mCurrentTrack == LLSettingsDay::TRACK_WATER) ? "water_label" : "sky_label";
+
+    mAddFrameButton->setLabelArg("[FRAME]", getString(label_arg));
+    mDeleteFrameButton->setLabelArg("[FRAME]", getString(label_arg));
+    mLoadFrame->setLabelArg("[FRAME]", getString(label_arg));
 }
 
 void LLFloaterEditExtDayCycle::updateButtons()
