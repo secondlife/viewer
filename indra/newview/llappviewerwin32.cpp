@@ -600,7 +600,9 @@ bool LLAppViewerWin32::init()
 
 	std::string build_data_fname(
 		gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "build_data.json"));
-	std::ifstream inf(build_data_fname.c_str());
+	// Use llifstream instead of std::ifstream because LL_PATH_EXECUTABLE
+	// could contain non-ASCII characters, which std::ifstream doesn't handle.
+	llifstream inf(build_data_fname.c_str());
 	if (! inf.is_open())
 	{
 		LL_WARNS() << "Can't initialize BugSplat, can't read '" << build_data_fname
