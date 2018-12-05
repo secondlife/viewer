@@ -48,10 +48,38 @@ LLDir_Win32::LLDir_Win32()
 	// set this first: used by append() and add() methods
 	mDirDelimiter = "\\";
 
+	WCHAR w_str[MAX_PATH];
 	// Application Data is where user settings go. We rely on $APPDATA being
 	// correct; in fact the VMP makes a point of setting it properly, since
 	// Windows itself botches the job for non-ASCII usernames (MAINT-8087).
 	mOSUserDir = ll_safe_string(getenv("APPDATA"));
+	// On Windows, it's a Bad Thing if a pathname contains ASCII question
+	// marks. In our experience, it means that the original pathname contained
+	// non-ASCII characters that were munged to '?' somewhere along the way.
+	// Convert to LLWString first, though, in case one of the bytes in a
+	// non-ASCII UTF-8 string accidentally resembles '?'.
+	if (utf8string_to_wstring(mOSUserDir).find(llwchar('?')) != LLWString::npos)
+	{
+		// It is really unclear what we should do if the following call fails.
+		// We use it, among other things, to find where to put our log file!
+		if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, w_str)))
+		{
+			// But of course, only update mOSUserDir if SHGetFolderPathW() works.
+			mOSUserDir = utf16str_to_utf8str(llutf16string(w_str));
+			// Not only that: update our environment so that child processes
+			// will see a reasonable value as well. Use _putenv_s() rather
+			// than _wputenv_s() because WE want to control the encoding with
+			// which APPDATA is passed to child processes, instead of letting
+			// somebody else pick it.
+			_putenv_s("APPDATA", mOSUserDir.c_str());
+			// SL-10153: It is really tempting to make the above _putenv_s()
+			// call unconditional, since we've observed cases in which the
+			// parent viewer receives a valid non-ASCII APPDATA value while
+			// the child SLVersionChecker process receives one containing
+			// question marks. But if what we see is already valid, what do we
+			// gain by storing it again?
+		}
+	}
 
 	// We want cache files to go on the local disk, even if the
 	// user is on a network with a "roaming profile".
@@ -63,7 +91,6 @@ LLDir_Win32::LLDir_Win32()
 	// cleans up that version on upgrade.  JC
 	mOSCacheDir = ll_safe_string(getenv("LOCALAPPDATA"));
 
-	WCHAR w_str[MAX_PATH];
 	if (GetTempPath(MAX_PATH, w_str))
 	{
 		if (wcslen(w_str))	/* Flawfinder: ignore */ 
