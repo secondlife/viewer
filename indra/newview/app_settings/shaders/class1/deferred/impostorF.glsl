@@ -40,8 +40,6 @@ uniform sampler2D specularMap;
 
 VARYING vec2 vary_texcoord0;
 
-vec3 linear_to_srgb(vec3 cl);
-
 void main() 
 {
 	vec4 col = texture2D(diffuseMap, vary_texcoord0.xy);
@@ -53,8 +51,6 @@ void main()
 
 	vec4 norm = texture2D(normalMap,   vary_texcoord0.xy);
 	vec4 spec = texture2D(specularMap, vary_texcoord0.xy);
-
-	col.rgb = linear_to_srgb(col.rgb);
 
 	frag_data[0] = vec4(col.rgb, 0.0);
 	frag_data[1] = spec;

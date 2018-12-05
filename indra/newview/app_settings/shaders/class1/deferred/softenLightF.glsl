@@ -66,10 +66,7 @@ uniform vec2 screen_res;
 vec4 applyWaterFogView(vec3 pos, vec4 color);
 #endif
 
-vec3 srgb_to_linear(vec3 cs);
-vec3 linear_to_srgb(vec3 cl);
 vec3 decode_normal (vec2 enc);
-
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 fullbrightAtmosTransportFrag(vec3 l, vec3 additive, vec3 atten);
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
@@ -114,13 +111,10 @@ void main()
 
     vec4 diffuse = texture2DRect(diffuseRect, tc);
 
-    //convert to gamma space
-    //diffuse.rgb = linear_to_srgb(diffuse.rgb);
-
-    vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
-    vec3 col;
-    float bloom = 0.0;
-    {
+	vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
+	vec3 col;
+	float bloom = 0.0;
+	{
         vec3 sunlit;
         vec3 amblit;
         vec3 additive;
@@ -168,18 +162,14 @@ void main()
             col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);
         }
 
-        #ifdef WATER_FOG
-            vec4 fogged = applyWaterFogView(pos.xyz,vec4(col, bloom));
-            col = fogged.rgb;
-            bloom = fogged.a;
-        #endif
+		#ifdef WATER_FOG
+			vec4 fogged = applyWaterFogView(pos.xyz,vec4(col, bloom));
+			col = fogged.rgb;
+			bloom = fogged.a;
+		#endif
+	}
 
-        //col = srgb_to_linear(col);
-        //col = vec3(1,0,1);
-        //col.g = envIntensity;
-    }
-
-    frag_color.rgb = col.rgb;
-    frag_color.a = bloom;
+	frag_color.rgb = col.rgb;
+	frag_color.a = bloom;
 }
 

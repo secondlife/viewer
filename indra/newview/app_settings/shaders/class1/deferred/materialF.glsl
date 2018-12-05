@@ -37,10 +37,6 @@ uniform float display_gamma;
 vec4 applyWaterFogView(vec3 pos, vec4 color);
 #endif
 
-vec3 srgb_to_linear(vec3 cs);
-vec3 linear_to_srgb(vec3 cl);
-
-vec3 atmosFragAmbient(vec3 l, vec3 ambient);
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 scaleSoftClipFrag(vec3 l);
 
@@ -234,6 +230,8 @@ vec3 decode_normal (vec2 enc);
 
 void main() 
 {
+    vec2 pos_screen = vary_texcoord0.xy;
+
 	vec4 diffcol = texture2D(diffuseMap, vary_texcoord0.xy);
 	diffcol.rgb *= vertex_color.rgb;
 
@@ -246,7 +244,6 @@ void main()
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 	vec3 gamma_diff = diffcol.rgb;
-	diffcol.rgb = srgb_to_linear(diffcol.rgb);
 #endif
 
 #if HAS_SPECULAR_MAP
@@ -390,9 +387,9 @@ void main()
           //final_da = max(final_da, diffuse.a);
           final_da = max(final_da, 0.0f);
 		  final_da = min(final_da, 1.0f);
-		  final_da = pow(final_da, 1.0/1.3);
+		  final_da = pow(final_da, display_gamma);
 
-	col.rgb = atmosFragAmbient(col, amblit);
+	col.rgb = (col * 0.5) + amblit;
 	
 	float ambient = min(abs(final_da), 1.0);
 	ambient *= 0.5;
@@ -446,14 +443,7 @@ void main()
 		glare += cur_glare;
 	}
 
-	//col = mix(atmosLighting(col), fullbrightAtmosTransport(col), diffuse.a);
-	//col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col),  diffuse.a);
-
 	col = atmosFragLighting(col, additive, atten);
-	col = scaleSoftClipFrag(col);
-
-	//convert to linear space before adding local lights
-	col = srgb_to_linear(col);
 
 	vec3 npos = normalize(-pos.xyz);
 			
@@ -474,8 +464,7 @@ void main()
 	glare = min(glare, 1.0);
 	float al = max(diffcol.a,glare)*vertex_color.a;
 
-	//convert to gamma space for display on screen
-	col.rgb = linear_to_srgb(col.rgb);
+	col = scaleSoftClipFrag(col);
 
 #ifdef WATER_FOG
 	vec4 temp = applyWaterFogView(pos, vec4(col.rgb, al));

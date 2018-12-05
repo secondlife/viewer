@@ -74,8 +74,6 @@ VARYING vec2 vary_fragcoord;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
-vec3 srgb_to_linear(vec3 cs);
-vec3 linear_to_srgb(vec3 cl);
 vec3 decode_normal (vec2 enc);
 
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
@@ -124,13 +122,10 @@ void main()
     float da = max(da_sun, da_moon);
           da = clamp(da, 0.0, 1.0);
 
-    da = pow(da, global_gamma);
+	da = pow(da, global_gamma);
 
-    vec4 diffuse = texture2DRect(diffuseRect, tc);
-
-    //convert to gamma space
-	//diffuse.rgb = linear_to_srgb(diffuse.rgb);
-
+	vec4 diffuse = texture2DRect(diffuseRect, tc);
+	
     vec3 col;
     float bloom = 0.0;
     {
@@ -195,9 +190,6 @@ void main()
             col = fogged.rgb;
             bloom = fogged.a;
         #endif
-
-        //col = srgb_to_linear(col);
-
     }
     frag_color.rgb = col;
     frag_color.a = bloom;

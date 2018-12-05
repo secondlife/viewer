@@ -84,11 +84,8 @@ uniform vec3 light_diffuse[8];
 vec4 applyWaterFogView(vec3 pos, vec4 color);
 #endif
 
-vec3 srgb_to_linear(vec3 cs);
-vec3 linear_to_srgb(vec3 cl);
 vec2 encode_normal (vec3 n);
 vec3 decode_normal (vec2 enc);
-
 vec3 scaleSoftClip(vec3 l);
 vec3 atmosFragAmbient(vec3 light, vec3 sunlit);
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten);
@@ -162,7 +159,8 @@ void main()
 	frag *= screen_res;
 	
 	vec4 pos = vec4(vary_position, 1.0);
-	
+	vec3 norm = vary_norm;
+
 	float shadow = 1.0;
 
 #if HAS_SHADOW
@@ -265,17 +263,10 @@ void main()
 	float final_alpha = diff.a;
 #endif
 
-
-	vec4 gamma_diff = diff;	
-	diff.rgb = srgb_to_linear(diff.rgb);
-
-	vec3 norm = vary_norm; 
-
-        vec3 sunlit;
-        vec3 amblit;
-        vec3 additive;
-        vec3 atten;
-
+    vec3 sunlit;
+    vec3 amblit;
+    vec3 additive;
+    vec3 atten;
 	calcFragAtmospherics(pos.xyz, 1.0, sunlit, amblit, additive, atten);
 
 	vec2 abnormal	= encode_normal(norm.xyz);
@@ -287,7 +278,7 @@ void main()
     float final_da = max(sun_da, moon_da);
           final_da = min(final_da, shadow);
           final_da = clamp(final_da, 0.0f, 1.0f);
-	  final_da = pow(final_da, 1.0/1.3);
+	  final_da = pow(final_da, display_gamma);
 
 	vec4 color = vec4(0,0,0,0);
 
@@ -300,8 +291,8 @@ void main()
 	ambient = (1.0-ambient);
 
 	color.rgb *= ambient;
-	color.rgb += atmosFragAffectDirectionalLight(final_da, sunlit);
-	color.rgb *= gamma_diff.rgb;
+	color.rgb += (final_da * sunlit);
+	color.rgb *= diff.rgb;
 
 	//color.rgb = mix(diff.rgb, color.rgb, final_alpha);
 	
@@ -310,8 +301,6 @@ void main()
 
 	vec4 light = vec4(0,0,0,0);
 
-	color.rgb = srgb_to_linear(color.rgb);
-	
    #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diff.rgb, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z);
 
 	LIGHT_LOOP(1)
@@ -325,10 +314,6 @@ void main()
 	// keep it linear
 	//
 	color.rgb += light.rgb;
-
-	// straight to display gamma, we're post-deferred
-	//
-	color.rgb = linear_to_srgb(color.rgb);
 
 #ifdef WATER_FOG
 	color = applyWaterFogView(pos.xyz, color);
