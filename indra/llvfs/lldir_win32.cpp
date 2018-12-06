@@ -90,6 +90,19 @@ LLDir_Win32::LLDir_Win32()
 	// We used to store the cache in AppData\Roaming, and the installer
 	// cleans up that version on upgrade.  JC
 	mOSCacheDir = ll_safe_string(getenv("LOCALAPPDATA"));
+	// Windows really does not deal well with pathnames containing non-ASCII
+	// characters. See above remarks about APPDATA.
+	if (utf8string_to_wstring(mOSCacheDir).find(llwchar('?')) != LLWString::npos)
+	{
+		if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, w_str)))
+		{
+			// But of course, only update mOSCacheDir if SHGetFolderPathW() works.
+			mOSCacheDir = utf16str_to_utf8str(llutf16string(w_str));
+			// Update our environment so that child processes will see a
+			// reasonable value as well.
+			_putenv_s("LOCALAPPDATA", mOSCacheDir.c_str());
+		}
+	}
 
 	if (GetTempPath(MAX_PATH, w_str))
 	{
