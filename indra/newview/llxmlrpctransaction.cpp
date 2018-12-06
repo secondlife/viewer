@@ -507,6 +507,8 @@ void LLXMLRPCTransaction::Impl::setHttpStatus(const LLCore::HttpStatus &status)
 
 	case CURLE_SSL_CACERT:
 	case CURLE_SSL_CONNECT_ERROR:
+		{
+		std::string uri_base = "https://community.secondlife.com/knowledgebase/english/error-messages-r520/#Section__3";
 		message =
 			"Often this means that your computer\'s clock is set incorrectly.\n"
 			"Please go to Control Panels and make sure the time and date\n"
@@ -514,8 +516,9 @@ void LLXMLRPCTransaction::Impl::setHttpStatus(const LLCore::HttpStatus &status)
 			"Also check that your network and firewall are set up correctly.\n"
 			"If you continue to receive this error, please go\n"
 			"to the Support section of the SecondLife.com web site\n"
-			"and report the problem.";
+			"and report the problem.\n\n[" + uri_base + " Knowledge Base]";
 		break;
+		}
 
 	default:
 		break;
