@@ -158,7 +158,7 @@ public:
 	BOOL	serialize(LLDataPacker& dp) const;
 	BOOL	deserialize(LLDataPacker& dp, const LLUUID& asset_id, bool allow_invalid_joints = true);
 	BOOL	isLoaded() { return mJointMotionList != NULL; }
-    void	dumpToFile(const std::string& name);
+    bool	dumpToFile(const std::string& name);
 
 
 	// setters for modifying a keyframe animation
@@ -432,6 +432,9 @@ protected:
 	F32								mLastUpdateTime;
 	F32								mLastLoopedTime;
 	AssetStatus						mAssetStatus;
+
+public:
+	void setCharacter(LLCharacter* character) { mCharacter = character; }
 };
 
 class LLKeyframeDataCache

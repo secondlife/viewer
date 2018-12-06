@@ -1453,6 +1453,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 		if (joint)
 		{
             S32 joint_num = joint->getJointNum();
+			joint_name = joint->getName(); // canonical name in case this is an alias.
 //			LL_INFOS() << "  joint: " << joint_name << LL_ENDL;
             if ((joint_num >= (S32)LL_CHARACTER_MAX_ANIMATED_JOINTS) || (joint_num < 0))
             {
@@ -2109,8 +2110,9 @@ U32	LLKeyframeMotion::getFileSize()
 //-----------------------------------------------------------------------------
 // dumpToFile()
 //-----------------------------------------------------------------------------
-void LLKeyframeMotion::dumpToFile(const std::string& name)
+bool LLKeyframeMotion::dumpToFile(const std::string& name)
 {
+	bool succ = false;
     if (isLoaded())
     {
         std::string outfile_base;
@@ -2127,10 +2129,24 @@ void LLKeyframeMotion::dumpToFile(const std::string& name)
             const LLUUID& id = getID();
             outfile_base = id.asString();
         }
-        std::string outfilename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfile_base + ".anim");
+
+		if (gDirUtilp->getExtension(outfile_base).empty())
+		{
+			outfile_base += ".anim";
+		}
+		std::string outfilename;
+		if (gDirUtilp->getDirName(outfile_base).empty())
+		{
+			outfilename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfile_base);
+		}
+		else
+		{
+			outfilename = outfile_base;
+		}
         if (LLFile::isfile(outfilename))
         {
-            return;
+			LL_WARNS() << outfilename << " already exists, write failed" << LL_ENDL;
+            return false;
         }
 
         S32 file_size = getFileSize();
@@ -2144,11 +2160,13 @@ void LLKeyframeMotion::dumpToFile(const std::string& name)
             outfile.open(outfilename, LL_APR_WPB);
             if (outfile.getFileHandle())
             {
-                outfile.write(buffer, file_size);
+                S32 wrote_bytes = outfile.write(buffer, file_size);
+				succ = (wrote_bytes == file_size);
             }
         }
         delete [] buffer;
     }
+	return succ;
 }
 
 //-----------------------------------------------------------------------------

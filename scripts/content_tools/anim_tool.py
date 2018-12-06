@@ -637,6 +637,7 @@ def main(*argv):
     parser.add_argument("--no_hud", help="omit hud joints from list of attachments", action="store_true")
     parser.add_argument("--base_priority", help="set base priority", type=int)
     parser.add_argument("--joint_priority", help="set joint priority for all joints", type=int)
+    parser.add_argument("--force_joints", help="don't check validity of joint names", action="store_true")
     parser.add_argument("infilename", help="name of a .anim file to input")
     parser.add_argument("outfilename", nargs="?", help="name of a .anim file to output")
     args = parser.parse_args(argv)
@@ -661,7 +662,12 @@ def main(*argv):
         if lad_tree is None:
             raise Error("failed to parse " + args.lad)
     if args.joints:
-        joints = resolve_joints(args.joints, skel_tree, lad_tree, args.no_hud)
+        if args.force_joints:
+            joints = args.joints
+        else:
+            joints = resolve_joints(args.joints, skel_tree, lad_tree, args.no_hud)
+        if args.use_aliases:
+            joints = map(lambda name: "avatar_" + name, joints)
         if args.verbose:
             print("joints resolved to",joints)
         for name in joints:

@@ -50,6 +50,10 @@
 #include "llpreviewnotecard.h"
 #include "llpreviewgesture.h"
 #include "llcoproceduremanager.h"
+#include "llthread.h"
+#include "llkeyframemotion.h"
+#include "lldatapacker.h"
+#include "llvoavatarself.h"
 
 void dialog_refresh_all();
 
