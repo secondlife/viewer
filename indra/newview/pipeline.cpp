@@ -1422,7 +1422,7 @@ bool LLPipeline::canUseVertexShaders()
 
 bool LLPipeline::canUseWindLightShaders() const
 {
-    bool usingWindlight = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1;
+    bool usingWindlight = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1;
     bool haveShaders    = ((gWLSkyProgram.mProgramObject != 0) || (gDeferredWLSkyProgram.mProgramObject != 0));
 	return (!LLPipeline::sDisableShaders && haveShaders && usingWindlight);
 }
@@ -1430,7 +1430,7 @@ bool LLPipeline::canUseWindLightShaders() const
 bool LLPipeline::canUseWindLightShadersOnObjects() const
 {
 	return (canUseWindLightShaders() 
-		&& LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 0);
+		&& LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 0);
 }
 
 bool LLPipeline::canUseAntiAliasing() const
@@ -4244,7 +4244,7 @@ void LLPipeline::renderHighlights()
 		//gGL.setSceneBlendType(LLRender::BT_ALPHA);
 	}
 
-	if ((LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
+	if ((LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
 	{
 		gHighlightProgram.bind();
 		gGL.diffuseColor4f(1,1,1,0.5f);
@@ -4291,7 +4291,7 @@ void LLPipeline::renderHighlights()
 	// have touch-handlers.
 	mHighlightFaces.clear();
 
-	if (LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0)
+	if (LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0)
 	{
 		gHighlightProgram.unbind();
 	}
@@ -4300,7 +4300,7 @@ void LLPipeline::renderHighlights()
 	if (hasRenderDebugFeatureMask(RENDER_DEBUG_FEATURE_SELECTED) && (sRenderHighlightTextureChannel == LLRender::NORMAL_MAP))
 	{
 		color.setVec(1.0f, 0.5f, 0.5f, 0.5f);
-		if ((LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
+		if ((LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
 		{
 			gHighlightNormalProgram.bind();
 			gGL.diffuseColor4f(1,1,1,0.5f);
@@ -4321,7 +4321,7 @@ void LLPipeline::renderHighlights()
 			facep->renderSelected(mFaceSelectImagep, color);
 		}
 
-		if ((LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
+		if ((LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
 		{
 			gHighlightNormalProgram.unbind();
 		}
@@ -4330,7 +4330,7 @@ void LLPipeline::renderHighlights()
 	if (hasRenderDebugFeatureMask(RENDER_DEBUG_FEATURE_SELECTED) && (sRenderHighlightTextureChannel == LLRender::SPECULAR_MAP))
 	{
 		color.setVec(0.0f, 0.3f, 1.0f, 0.8f);
-		if ((LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
+		if ((LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
 		{
 			gHighlightSpecularProgram.bind();
 			gGL.diffuseColor4f(1,1,1,0.5f);
@@ -4351,7 +4351,7 @@ void LLPipeline::renderHighlights()
 			facep->renderSelected(mFaceSelectImagep, color);
 		}
 
-		if ((LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
+		if ((LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
 		{
 			gHighlightSpecularProgram.unbind();
 		}

@@ -57,7 +57,7 @@ public:
 
 	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
 
-	virtual S32 getVertexShaderLevel() const;
+	virtual S32 getShaderLevel() const;
 
 	LLDrawPoolAvatar();
     ~LLDrawPoolAvatar();

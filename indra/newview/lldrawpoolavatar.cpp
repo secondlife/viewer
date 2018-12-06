@@ -144,16 +144,16 @@ LLDrawPool *LLDrawPoolAvatar::instancePool()
 }
 
 
-S32 LLDrawPoolAvatar::getVertexShaderLevel() const
+S32 LLDrawPoolAvatar::getShaderLevel() const
 {
-	return (S32) LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR);
+	return (S32) LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_AVATAR);
 }
 
 void LLDrawPoolAvatar::prerender()
 {
-	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR);
+	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_AVATAR);
 	
-	sShaderLevel = mVertexShaderLevel;
+	sShaderLevel = mShaderLevel;
 	
 	if (sShaderLevel > 0)
 	{
@@ -304,7 +304,7 @@ void LLDrawPoolAvatar::beginPostDeferredPass(S32 pass)
 void LLDrawPoolAvatar::beginPostDeferredAlpha()
 {
 	sSkipOpaque = TRUE;
-	sShaderLevel = mVertexShaderLevel;
+	sShaderLevel = mShaderLevel;
 	sVertexProgram = &gDeferredAvatarAlphaProgram;
 	sRenderingSkinned = TRUE;
 
@@ -395,7 +395,7 @@ void LLDrawPoolAvatar::endPostDeferredAlpha()
 		
 	gPipeline.unbindDeferredShader(*sVertexProgram);
 	sDiffuseChannel = 0;
-	sShaderLevel = mVertexShaderLevel;
+	sShaderLevel = mShaderLevel;
 }
 
 void LLDrawPoolAvatar::renderPostDeferred(S32 pass)
@@ -493,7 +493,7 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	}
 	LLVOAvatar *avatarp = (LLVOAvatar *)facep->getDrawable()->getVObj().get();
 
-	if (avatarp->isDead() || avatarp->isUIAvatar() || avatarp->mDrawable.isNull())
+	if (avatarp->isDead() || avatarp->mIsDummy || avatarp->mDrawable.isNull())
 	{
 		return;
 	}
@@ -714,7 +714,7 @@ void LLDrawPoolAvatar::beginRigid()
 
 void LLDrawPoolAvatar::endRigid()
 {
-	sShaderLevel = mVertexShaderLevel;
+	sShaderLevel = mShaderLevel;
 	if (sVertexProgram != NULL)
 	{
 		sVertexProgram->unbind();
@@ -739,7 +739,7 @@ void LLDrawPoolAvatar::beginDeferredImpostor()
 
 void LLDrawPoolAvatar::endDeferredImpostor()
 {
-	sShaderLevel = mVertexShaderLevel;
+	sShaderLevel = mShaderLevel;
 	sVertexProgram->disableTexture(LLViewerShaderMgr::DEFERRED_NORMAL);
 	sVertexProgram->disableTexture(LLViewerShaderMgr::SPECULAR_MAP);
 	sVertexProgram->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
@@ -766,7 +766,7 @@ void LLDrawPoolAvatar::beginDeferredRigid()
 
 void LLDrawPoolAvatar::endDeferredRigid()
 {
-	sShaderLevel = mVertexShaderLevel;
+	sShaderLevel = mShaderLevel;
 	sVertexProgram->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	sVertexProgram->unbind();
 	gGL.getTexUnit(0)->activate();
@@ -848,7 +848,7 @@ void LLDrawPoolAvatar::endSkinned()
 		sVertexProgram->disableTexture(LLViewerShaderMgr::BUMP_MAP);
 		gGL.getTexUnit(0)->activate();
 		sVertexProgram->unbind();
-		sShaderLevel = mVertexShaderLevel;
+		sShaderLevel = mShaderLevel;
 	}
 	else
 	{
@@ -1281,7 +1281,7 @@ void LLDrawPoolAvatar::endDeferredRiggedMaterial(S32 pass)
 
 void LLDrawPoolAvatar::beginDeferredSkinned()
 {
-	sShaderLevel = mVertexShaderLevel;
+	sShaderLevel = mShaderLevel;
 	sVertexProgram = &gDeferredAvatarProgram;
 	sRenderingSkinned = TRUE;
 
@@ -1308,7 +1308,7 @@ void LLDrawPoolAvatar::endDeferredSkinned()
 
 	sVertexProgram->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 
-	sShaderLevel = mVertexShaderLevel;
+	sShaderLevel = mShaderLevel;
 
 	gGL.getTexUnit(0)->activate();
 }
@@ -1820,7 +1820,7 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
 
 void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 {
-	if (!avatar->shouldRenderRigged())
+	if (avatar->isSelf() && !gAgent.needsRenderAvatar())
 	{
 		return;
 	}
@@ -2196,6 +2196,7 @@ void LLDrawPoolAvatar::addRiggedFace(LLFace* facep, U32 type)
 	{
 		LL_ERRS() << "Invalid rigged face type." << LL_ENDL;
 	}
+
 	if (facep->getRiggedIndex(type) != -1)
 	{
 		LL_ERRS() << "Tried to add a rigged face that's referenced elsewhere." << LL_ENDL;

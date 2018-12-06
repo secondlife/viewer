@@ -2274,8 +2274,8 @@ class LLAdvancedEnableRenderDeferred: public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = gGLManager.mHasFramebufferObject && LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1 &&
-			LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) > 0;
+		bool new_value = gGLManager.mHasFramebufferObject && LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1 &&
+			LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) > 0;
 		return new_value;
 	}
 };
@@ -2287,8 +2287,8 @@ class LLAdvancedEnableRenderDeferredOptions: public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = gGLManager.mHasFramebufferObject && LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1 &&
-			LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) > 0 && gSavedSettings.getBOOL("RenderDeferred");
+		bool new_value = gGLManager.mHasFramebufferObject && LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1 &&
+			LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) > 0 && gSavedSettings.getBOOL("RenderDeferred");
 		return new_value;
 	}
 };

@@ -69,7 +69,7 @@ LLDrawPoolAlpha::~LLDrawPoolAlpha()
 
 void LLDrawPoolAlpha::prerender()
 {
-	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
+	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
 }
 
 S32 LLDrawPoolAlpha::getNumPostDeferredPasses() 
@@ -160,7 +160,7 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
     }
 
 	deferred_render = TRUE;
-	if (mVertexShaderLevel > 0)
+	if (mShaderLevel > 0)
 	{
 		// Start out with no shaders.
 		current_shader = target_shader = NULL;
@@ -209,7 +209,7 @@ void LLDrawPoolAlpha::beginRenderPass(S32 pass)
 		emissive_shader = &gObjectEmissiveProgram;
 	}
 
-	if (mVertexShaderLevel > 0)
+	if (mShaderLevel > 0)
 	{
 		// Start out with no shaders.
 		current_shader = target_shader = NULL;
@@ -264,7 +264,7 @@ void LLDrawPoolAlpha::render(S32 pass)
 		mAlphaDFactor = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;       // }
 		gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
 
-		if (mVertexShaderLevel > 0)
+		if (mShaderLevel > 0)
 		{
 			if (LLPipeline::sImpostorRender)
 			{
@@ -326,7 +326,7 @@ void LLDrawPoolAlpha::render(S32 pass)
 		}
 	}
 
-	if (mVertexShaderLevel > 0)
+	if (mShaderLevel > 0)
 	{
 		renderAlpha(getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2, pass);
 	}
@@ -432,7 +432,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 			bool is_particle_or_hud_particle = group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_PARTICLE
 													  || group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_HUD_PARTICLE;
 
-			bool draw_glow_for_this_partition = mVertexShaderLevel > 0; // no shaders = no glow.
+			bool draw_glow_for_this_partition = mShaderLevel > 0; // no shaders = no glow.
 
 			
 			LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_GROUP_LOOP);

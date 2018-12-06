@@ -5859,7 +5859,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		spec_mask = spec_mask | LLVertexBuffer::MAP_EMISSIVE;
 	}
 
-	BOOL batch_textures = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 1;
+	BOOL batch_textures = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 1;
 
 	if (batch_textures)
 	{

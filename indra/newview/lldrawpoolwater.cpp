@@ -113,7 +113,7 @@ LLDrawPool *LLDrawPoolWater::instancePool()
 
 void LLDrawPoolWater::prerender()
 {
-	mVertexShaderLevel = (gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps) ? LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_WATER) : 0;
+	mShaderLevel = (gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps) ? LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WATER) : 0;
 }
 
 S32 LLDrawPoolWater::getNumPasses()
@@ -179,7 +179,7 @@ void LLDrawPoolWater::render(S32 pass)
 
 	LLGLEnable blend(GL_BLEND);
 
-	if ((mVertexShaderLevel > 0) && !sSkipScreenCopy)
+	if ((mShaderLevel > 0) && !sSkipScreenCopy)
 	{
 		shade();
 		return;
@@ -618,7 +618,7 @@ void LLDrawPoolWater::shade()
 	S32 screentex = shader->enableTexture(LLShaderMgr::WATER_SCREENTEX);
 	gGL.getTexUnit(screentex)->bind(&gPipeline.mWaterDis);	
 
-	if (mVertexShaderLevel == 1)
+	if (mShaderLevel == 1)
 	{
         LLColor4 fog_color(pwater->getWaterFogColor(), 0.f);
         fog_color[3] = pwater->getWaterFogDensity();

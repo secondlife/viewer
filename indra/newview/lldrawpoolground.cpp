@@ -53,7 +53,7 @@ LLDrawPool *LLDrawPoolGround::instancePool()
 
 void LLDrawPoolGround::prerender()
 {
-	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT);
+	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT);
 }
 
 void LLDrawPoolGround::render(S32 pass)

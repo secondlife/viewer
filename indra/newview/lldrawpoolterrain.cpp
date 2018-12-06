@@ -110,7 +110,7 @@ U32 LLDrawPoolTerrain::getVertexDataMask()
 
 void LLDrawPoolTerrain::prerender()
 {
-	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT);
+	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT);
 	sDetailMode = gSavedSettings.getS32("RenderTerrainDetail");
 }
 
@@ -123,7 +123,7 @@ void LLDrawPoolTerrain::beginRenderPass( S32 pass )
 					&gTerrainWaterProgram :
 					&gTerrainProgram;	
 
-	if (mVertexShaderLevel > 1 && sShader->mShaderLevel > 0)
+	if (mShaderLevel > 1 && sShader->mShaderLevel > 0)
 	{
 		sShader->bind();
 	}
@@ -134,7 +134,7 @@ void LLDrawPoolTerrain::endRenderPass( S32 pass )
 	LL_RECORD_BLOCK_TIME(FTM_RENDER_TERRAIN);
 	//LLFacePool::endRenderPass(pass);
 
-	if (mVertexShaderLevel > 1 && sShader->mShaderLevel > 0) {
+	if (mShaderLevel > 1 && sShader->mShaderLevel > 0) {
 		sShader->unbind();
 	}
 }
@@ -180,7 +180,7 @@ void LLDrawPoolTerrain::render(S32 pass)
 
 	LLGLSPipeline gls;
 	
-	if (mVertexShaderLevel > 1 && sShader->mShaderLevel > 0)
+	if (mShaderLevel > 1 && sShader->mShaderLevel > 0)
 	{
 		gPipeline.enableLightsDynamic();
 
@@ -434,7 +434,7 @@ void LLDrawPoolTerrain::renderFullShader()
 
 void LLDrawPoolTerrain::hilightParcelOwners()
 {
-	if (mVertexShaderLevel > 1)
+	if (mShaderLevel > 1)
 	{ //use fullbright shader for highlighting
 		LLGLSLShader* old_shader = sShader;
 		sShader->unbind();

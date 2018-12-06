@@ -86,18 +86,14 @@ vec4 getPosition_d(vec2 pos_screen, float depth)
     return pos;
 }
 
-vec4 getPosition(vec2 pos_screen)
-{ //get position in screen space (world units) given window coordinate and depth map
-    float depth = texture2DRect(depthMap, pos_screen.xy).a;
-    return getPosition_d(pos_screen, depth);
-}
-
+vec4 getPositionWithDepth(vec2 pos_screen, float depth);
+vec4 getPosition(vec2 pos_screen);
 
 void main() 
 {
     vec2 tc = vary_fragcoord.xy;
     float depth = texture2DRect(depthMap, tc.xy).r;
-    vec3 pos = getPosition_d(tc, depth).xyz;
+    vec3 pos = getPositionWithDepth(tc, depth).xyz;
     vec4 norm = texture2DRect(normalMap, tc);
     float envIntensity = norm.z;
     norm.xyz = decode_normal(norm.xy); // unpack norm
@@ -107,14 +103,14 @@ void main()
     float da = max(da_sun, da_moon);
 
     float final_da = clamp(da, 0.0, 1.0);
-          final_da = pow(final_da, global_gamma);
+          final_da = pow(final_da, global_gamma + 0.3);
 
     vec4 diffuse = texture2DRect(diffuseRect, tc);
 
-	vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
-	vec3 col;
-	float bloom = 0.0;
-	{
+    vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
+    vec3 col;
+    float bloom = 0.0;
+    {
         vec3 sunlit;
         vec3 amblit;
         vec3 additive;
@@ -162,14 +158,14 @@ void main()
             col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);
         }
 
-		#ifdef WATER_FOG
-			vec4 fogged = applyWaterFogView(pos.xyz,vec4(col, bloom));
-			col = fogged.rgb;
-			bloom = fogged.a;
-		#endif
-	}
+        #ifdef WATER_FOG
+            vec4 fogged = applyWaterFogView(pos.xyz,vec4(col, bloom));
+            col = fogged.rgb;
+            bloom = fogged.a;
+        #endif
+    }
 
-	frag_color.rgb = col.rgb;
-	frag_color.a = bloom;
+    frag_color.rgb = col.rgb;
+    frag_color.a = bloom;
 }
 

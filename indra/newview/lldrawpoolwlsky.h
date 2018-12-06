@@ -66,7 +66,7 @@ public:
 	/*virtual*/ void prerender();
 	/*virtual*/ U32 getVertexDataMask() { return SKY_VERTEX_DATA_MASK; }
 	/*virtual*/ BOOL verify() const { return TRUE; }		// Verify that all data in the draw pool is correct!
-	/*virtual*/ S32 getVertexShaderLevel() const { return mVertexShaderLevel; }
+	/*virtual*/ S32 getShaderLevel() const { return mShaderLevel; }
 	
 	//static LLDrawPool* createPool(const U32 type, LLViewerTexture *tex0 = NULL);
 

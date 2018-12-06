@@ -48,7 +48,7 @@ public:
 	void initAttribsAndUniforms(void);
 	void setShaders();
 	void unloadShaders();
-	S32 getVertexShaderLevel(S32 type);
+    S32  getShaderLevel(S32 type);
 	BOOL loadBasicShaders();
 	BOOL loadShadersEffects();
 	BOOL loadShadersDeferred();
@@ -60,7 +60,7 @@ public:
 	BOOL loadShadersWindLight();
 	BOOL loadTransformShaders();
 
-	std::vector<S32> mVertexShaderLevel;
+	std::vector<S32> mShaderLevel;
 	S32	mMaxAvatarShaderLevel;
 
 	enum EShaderClass
