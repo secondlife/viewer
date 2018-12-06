@@ -430,7 +430,6 @@ void LLFloaterEditExtDayCycle::refresh()
     mFlyoutControl->setMenuItemEnabled(ACTION_APPLY_REGION, canApplyRegion() && show_apply);
 
     mImportButton->setEnabled(mCanMod);
-    mLoadFrame->setEnabled(mCanMod);
 
     LLFloater::refresh();
 }
@@ -1032,6 +1031,7 @@ void LLFloaterEditExtDayCycle::updateButtons()
     //mDeleteFrameButton->setEnabled(!can_add);
     mAddFrameButton->setEnabled(isAddingFrameAllowed() && mCanMod);
     mDeleteFrameButton->setEnabled(isRemovingFrameAllowed() && mCanMod);
+    mLoadFrame->setEnabled(!mIsPlaying && mCanMod);
 }
 
 void LLFloaterEditExtDayCycle::updateSlider()
@@ -1648,20 +1648,35 @@ void LLFloaterEditExtDayCycle::onAssetLoadedForFrame(LLUUID item_id, LLUUID asse
 {
     std::function<void()> cb = [this, settings, frame, track]()
     {
-        if ((mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
+        if (mFramesSlider->getCurSlider().empty())
         {
-            LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame too close to existing frame." << LL_ENDL;
-            return;
+            if ((mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
+            {
+                LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame too close to existing frame." << LL_ENDL;
+                return;
+            }
+            if (!mFramesSlider->canAddSliders())
+            {
+                LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame when slider is full." << LL_ENDL;
+                return;
+            }
+            mEditDay->setSettingsAtKeyframe(settings, frame, track);
+            addSliderFrame(frame, settings, false);
+            reblendSettings();
+            synchronizeTabs();
         }
-        if (!mFramesSlider->canAddSliders())
+        else
         {
-            LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame when slider is full." << LL_ENDL;
-            return;
+            if (mCurrentTrack == LLSettingsDay::TRACK_WATER)
+            {
+                mEditDay->setWaterAtKeyframe(std::static_pointer_cast<LLSettingsWater>(settings), frame);
+            }
+            else
+            {
+                mEditDay->setSkyAtKeyframe(std::static_pointer_cast<LLSettingsSky>(settings), frame, track);
+            }
+            updateTabs();
         }
-        mEditDay->setSettingsAtKeyframe(settings, frame, track);
-        addSliderFrame(frame, settings, false);
-        reblendSettings();
-        synchronizeTabs();
     };
 
     if (!settings || status)
