@@ -51,6 +51,10 @@
 #include "llpreviewnotecard.h"
 #include "llpreviewgesture.h"
 #include "llcoproceduremanager.h"
+#include "llthread.h"
+#include "llkeyframemotion.h"
+#include "lldatapacker.h"
+#include "llvoavatarself.h"
 
 void dialog_refresh_all();
 
@@ -425,8 +429,45 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
     }
     else if (exten == "anim")
     {
-        assetType = LLAssetType::AT_ANIMATION;
-        filename = getFileName();
+		// Default unless everything succeeds
+		errorLabel = "ProblemWithFile";
+		error = true;
+
+        // read from getFileName()
+		LLAPRFile infile;
+		infile.open(getFileName(),LL_APR_RB);
+		if (!infile.getFileHandle())
+		{
+			LL_WARNS() << "Couldn't open file for reading: " << getFileName() << LL_ENDL;
+			errorMessage = llformat("Failed to open animation file %s\n", getFileName().c_str());
+		}
+		else
+		{
+			S32 size = LLAPRFile::size(getFileName());
+			U8* buffer = new U8[size];
+			S32 size_read = infile.read(buffer,size);
+			if (size_read != size)
+			{
+				errorMessage = llformat("Failed to read animation file %s: wanted %d bytes, got %d\n", getFileName().c_str(), size, size_read);
+			}
+			else
+			{
+				LLDataPackerBinaryBuffer dp(buffer, size);
+				LLKeyframeMotion *motionp = new LLKeyframeMotion(getAssetId());
+				motionp->setCharacter(gAgentAvatarp);
+				if (motionp->deserialize(dp, getAssetId()))
+				{
+					// write to temp file
+					bool succ = motionp->dumpToFile(filename);
+					if (succ)
+					{
+						assetType = LLAssetType::AT_ANIMATION;
+						errorLabel = "";
+						error = false;
+					}
+				}
+			}
+		}
     }
     else
     {
