@@ -21,6 +21,8 @@
     <!-- Substitutions -->
     <string name="time_label"> ([HH]:[MM])</string>
     <string name="sky_track_label">Sky [ALT]</string>
+    <string name="sky_label">Sky</string>
+    <string name="water_label">Water</string>
 
     <!-- Layout -->
     <layout_stack name="outer_stack"
@@ -400,7 +402,7 @@
                                 follows="top|left"
                                 height="23"
                                 width="90"
-                                label="Add Frame"
+                                label="Add [FRAME]"
                                 left_pad="175"
                                 top_delta="-20"
                                 name="add_frame" />
@@ -408,7 +410,7 @@
                                 follows="top|left"
                                 height="23"
                                 width="90"
-                                label="Load Frame"
+                                label="Load [FRAME]"
                                 top_pad="0"
                                 left_delta="0"
                                 name="btn_load_frame" />
@@ -416,7 +418,7 @@
                                 follows="left|top"
                                 height="23"
                                 width="90"
-                                label="Delete Frame"
+                                label="Delete [FRAME]"
                                 top_pad="0"
                                 left_delta="0"
                                 name="delete_frame" />

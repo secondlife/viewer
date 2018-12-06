@@ -64,6 +64,8 @@ public:
     static const LLUUID         KNOWN_SKY_MIDNIGHT;
 
     static const S32            NO_TRACK;
+    static const S32            NO_VERSION;
+    static const S32            VERSION_CLEANUP;
 
     struct EnvironmentInfo
     {
@@ -84,6 +86,7 @@ public:
         bool                    mIsLegacy;
         std::string             mDayCycleName;
         namelist_t              mNameList;
+        S32                     mEnvVersion;
 
         static ptr_t            extract(LLSD);
         static ptr_t            extractLegacy(LLSD);
@@ -106,7 +109,7 @@ public:
 
     typedef std::pair<LLSettingsSky::ptr_t, LLSettingsWater::ptr_t> fixedEnvironment_t;
     typedef std::function<void(S32, EnvironmentInfo::ptr_t)>        environment_apply_fn;
-    typedef boost::signals2::signal<void(EnvSelection_t)>           env_changed_signal_t;
+    typedef boost::signals2::signal<void(EnvSelection_t, S32)>           env_changed_signal_t;
     typedef env_changed_signal_t::slot_type                         env_changed_fn;
     typedef std::array<F32, 4>                                      altitude_list_t;
     typedef std::vector<F32>                                        altitudes_vect_t;
@@ -135,14 +138,14 @@ public:
     EnvSelection_t              getSelectedEnvironment() const                  { return mSelectedEnvironment; }
 
     bool                        hasEnvironment(EnvSelection_t env);
-    void                        setEnvironment(EnvSelection_t env, const LLSettingsDay::ptr_t &pday, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset);
-    void                        setEnvironment(EnvSelection_t env, fixedEnvironment_t fixed);
-    void                        setEnvironment(EnvSelection_t env, const LLSettingsBase::ptr_t &fixed); 
-    void                        setEnvironment(EnvSelection_t env, const LLSettingsSky::ptr_t & fixed) { setEnvironment(env, fixedEnvironment_t(fixed, LLSettingsWater::ptr_t())); }
-    void                        setEnvironment(EnvSelection_t env, const LLSettingsWater::ptr_t & fixed) { setEnvironment(env, fixedEnvironment_t(LLSettingsSky::ptr_t(), fixed)); }
-    void                        setEnvironment(EnvSelection_t env, const LLSettingsSky::ptr_t & fixeds, const LLSettingsWater::ptr_t & fixedw) { setEnvironment(env, fixedEnvironment_t(fixeds, fixedw)); }
-    void                        setEnvironment(EnvSelection_t env, const LLUUID &assetId, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset);
-    void                        setEnvironment(EnvSelection_t env, const LLUUID &assetId);
+    void                        setEnvironment(EnvSelection_t env, const LLSettingsDay::ptr_t &pday, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset, S32 env_version = NO_VERSION);
+    void                        setEnvironment(EnvSelection_t env, fixedEnvironment_t fixed, S32 env_version = NO_VERSION);
+    void                        setEnvironment(EnvSelection_t env, const LLSettingsBase::ptr_t &fixed, S32 env_version = NO_VERSION);
+    void                        setEnvironment(EnvSelection_t env, const LLSettingsSky::ptr_t & fixed, S32 env_version = NO_VERSION) { setEnvironment(env, fixedEnvironment_t(fixed, LLSettingsWater::ptr_t()), env_version); }
+    void                        setEnvironment(EnvSelection_t env, const LLSettingsWater::ptr_t & fixed, S32 env_version = NO_VERSION) { setEnvironment(env, fixedEnvironment_t(LLSettingsSky::ptr_t(), fixed), env_version); }
+    void                        setEnvironment(EnvSelection_t env, const LLSettingsSky::ptr_t & fixeds, const LLSettingsWater::ptr_t & fixedw, S32 env_version = NO_VERSION) { setEnvironment(env, fixedEnvironment_t(fixeds, fixedw), env_version); }
+    void                        setEnvironment(EnvSelection_t env, const LLUUID &assetId, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset, S32 env_version = NO_VERSION);
+    void                        setEnvironment(EnvSelection_t env, const LLUUID &assetId, S32 env_version = NO_VERSION);
 
     void                        setSharedEnvironment();
 
@@ -381,7 +384,7 @@ private:
 
     void                        onAgentPositionHasChanged(const LLVector3 &localpos);
 
-    void                        onSetEnvAssetLoaded(EnvSelection_t env, LLUUID asset_id, LLSettingsBase::ptr_t settings, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset, LLSettingsBase::Seconds transition, S32 status);
+    void                        onSetEnvAssetLoaded(EnvSelection_t env, LLUUID asset_id, LLSettingsBase::ptr_t settings, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset, LLSettingsBase::Seconds transition, S32 status, S32 env_version);
     void                        onUpdateParcelAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, S32 parcel_id, S32 day_length, S32 day_offset, altitudes_vect_t altitudes);
 
     void                        handleEnvironmentPushClear(LLUUID experience_id, LLSD &message, F32 transition);

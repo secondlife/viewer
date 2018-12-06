@@ -395,8 +395,11 @@ void LLDrawPoolWLSky::renderStarsDeferred(void) const
 
 void LLDrawPoolWLSky::renderSkyCloudsAdvanced(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader* cloudshader) const
 {    
-	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && gSky.mVOSkyp->getCloudNoiseTex())
-	{		
+	if (gPipeline.canUseWindLightShaders()
+		&& gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS)
+		&& gSky.mVOSkyp->getCloudNoiseTex()
+		&& gAtmosphere)
+	{
         LLGLSPipelineBlendSkyBox pipeline(true, true);
 
         LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
