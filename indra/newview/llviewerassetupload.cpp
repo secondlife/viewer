@@ -455,7 +455,7 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
 				LLDataPackerBinaryBuffer dp(buffer, size);
 				LLKeyframeMotion *motionp = new LLKeyframeMotion(getAssetId());
 				motionp->setCharacter(gAgentAvatarp);
-				if (motionp->deserialize(dp, getAssetId()))
+				if (motionp->deserialize(dp, getAssetId(), false))
 				{
 					// write to temp file
 					bool succ = motionp->dumpToFile(filename);
