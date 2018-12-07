@@ -6145,8 +6145,17 @@ LLJoint *LLVOAvatar::getJoint( const std::string &name )
 	LLJoint* jointp = NULL;
 
 	if (iter == mJointMap.end() || iter->second == NULL)
-	{   //search for joint and cache found joint in lookup table
-		jointp = mRoot->findJoint(name);
+		joint_alias_map_t::const_iterator alias_iter = mJointAliasMap.find(name);
+		std::string canonical_name;
+		if (alias_iter != mJointAliasMap.end())
+		{
+			canonical_name = alias_iter->second;
+		}
+		else
+		{
+			canonical_name = name;
+		}
+		jointp = mRoot->findJoint(canonical_name);
 		mJointMap[name] = jointp;
 	}
 	else

@@ -1221,8 +1221,11 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 
 //-----------------------------------------------------------------------------
 // deserialize()
+//
+// allow_invalid_joints should be true when handling existing content, to avoid breakage.
+// During upload, we should be more restrictive and reject such animations.
 //-----------------------------------------------------------------------------
-BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id)
+BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, bool allow_invalid_joints)
 {
 	BOOL old_version = FALSE;
 	mJointMotionList = new LLKeyframeMotion::JointMotionList;
@@ -1464,7 +1467,10 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id)
 		{
 			LL_WARNS() << "invalid joint name: " << joint_name
                        << " for animation " << asset_id << LL_ENDL;
-			//return FALSE;
+			if (!allow_invalid_joints)
+			{
+				return FALSE;
+			}
 		}
 
 		joint_motion->mJointName = joint_name;
