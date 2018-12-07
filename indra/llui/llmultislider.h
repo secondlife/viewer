@@ -96,7 +96,7 @@ public:
 	bool				findUnusedValue(F32& initVal);
 	const std::string&	addSlider();
 	const std::string&	addSlider(F32 val);
-	void				addSlider(F32 val, const std::string& name);
+	bool				addSlider(F32 val, const std::string& name);
 	void				deleteSlider(const std::string& name);
 	void				deleteCurSlider()			{ deleteSlider(mCurSlider); }
 	void				clear();
@@ -109,6 +109,7 @@ public:
 
 	S32				getMaxNumSliders() { return mMaxNumSliders; }
 	S32				getCurNumSliders() { return mValue.size(); }
+	F32				getOverlapThreshold() { return mOverlapThreshold; }
 	bool			canAddSliders() { return mValue.size() < mMaxNumSliders; }
 
 protected:
