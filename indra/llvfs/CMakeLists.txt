@@ -98,6 +98,9 @@ if (LL_TESTS)
 
     # INTEGRATION TESTS
     set(test_libs llmath llcommon llvfs ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
+    if (WINDOWS)
+      list(APPEND test_libs ole32)
+    endif (WINDOWS)
 
     # TODO: Some of these need refactoring to be proper Unit tests rather than Integration tests.
     LL_ADD_INTEGRATION_TEST(lldir "" "${test_libs}")
