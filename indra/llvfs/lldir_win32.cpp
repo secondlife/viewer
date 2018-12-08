@@ -31,6 +31,8 @@
 #include "lldir_win32.h"
 #include "llerror.h"
 #include "llrand.h"		// for gLindenLabRandomNumber
+#include "stringize.h"
+#include "llfile.h"
 #include <shlobj.h>
 #include <fstream>
 
@@ -43,6 +45,48 @@
 #define PACKVERSION(major,minor) MAKELONG(minor,major)
 DWORD GetDllVersion(LPCTSTR lpszDllName);
 
+namespace
+{ // anonymous
+    enum class prst { INIT, OPEN, SKIP } state;
+    llofstream prelogf;
+
+    void prelog(const std::string& message)
+    {
+        switch (state)
+        {
+        case prst::INIT:
+            // assume we failed, until we succeed
+            state = prst::SKIP;
+
+            // can't initialize within one case of a switch statement
+            const char* prelog_name;
+            prelog_name = getenv("PRELOG");
+            if (! prelog_name)
+                // no PRELOG variable set, carry on
+                return;
+            prelogf.open(prelog_name, std::ios_base::app);
+            if (! prelogf.is_open())
+                // can't complain to anybody; how?
+                return;
+            // got the log file open, cool!
+            state = prst::OPEN;
+            prelogf << "========================================================================"
+                    << std::endl;
+            // fall through, don't break
+
+        case prst::OPEN:
+            prelogf << message << std::endl;
+            break;
+
+        case prst::SKIP:
+            // either PRELOG isn't set, or we failed to open that pathname
+            break;
+        }
+    }
+} // anonymous namespace
+
+#define PRELOG(expression) prelog(STRINGIZE(expression))
+
 LLDir_Win32::LLDir_Win32()
 {
 	// set this first: used by append() and add() methods
@@ -52,32 +96,38 @@ LLDir_Win32::LLDir_Win32()
 	// Application Data is where user settings go. We rely on $APPDATA being
 	// correct; in fact the VMP makes a point of setting it properly, since
 	// Windows itself botches the job for non-ASCII usernames (MAINT-8087).
-	mOSUserDir = ll_safe_string(getenv("APPDATA"));
+	// Try using wide-character getenv()??
+	wchar_t *APPDATA = _wgetenv(L"APPDATA");
+	if (APPDATA)
+	{
+		mOSUserDir = ll_convert_wide_to_string(APPDATA, CP_UTF8);
+	}
+	PRELOG("APPDATA='" << mOSUserDir << "'");
 	// On Windows, it's a Bad Thing if a pathname contains ASCII question
 	// marks. In our experience, it means that the original pathname contained
 	// non-ASCII characters that were munged to '?' somewhere along the way.
 	// Convert to LLWString first, though, in case one of the bytes in a
 	// non-ASCII UTF-8 string accidentally resembles '?'.
-	if (utf8string_to_wstring(mOSUserDir).find(llwchar('?')) != LLWString::npos)
+	// Bear in mind that llwchar is not necessarily wchar_t, therefore L'?' is
+	// not necessarily the right type.
+	if (mOSUserDir.empty() ||
+		utf8string_to_wstring(mOSUserDir).find(llwchar('?')) != LLWString::npos)
 	{
-		// It is really unclear what we should do if the following call fails.
-		// We use it, among other things, to find where to put our log file!
-		if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, w_str)))
+		PRELOG("APPDATA empty or contains ASCII '?'");
+		//HRESULT okay = SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, w_str);
+		wchar_t *pwstr = NULL;
+		HRESULT okay = SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &pwstr);
+		PRELOG("SHGetKnownFolderPath(FOLDERID_RoamingAppData) returned " << okay);
+		if (SUCCEEDED(okay) && pwstr)
 		{
-			// But of course, only update mOSUserDir if SHGetFolderPathW() works.
-			mOSUserDir = utf16str_to_utf8str(llutf16string(w_str));
+			// But of course, only update mOSUserDir if SHGetKnownFolderPath() works.
+			mOSUserDir = ll_convert_wide_to_string(pwstr, CP_UTF8);
 			// Not only that: update our environment so that child processes
-			// will see a reasonable value as well. Use _putenv_s() rather
-			// than _wputenv_s() because WE want to control the encoding with
-			// which APPDATA is passed to child processes, instead of letting
-			// somebody else pick it.
-			_putenv_s("APPDATA", mOSUserDir.c_str());
-			// SL-10153: It is really tempting to make the above _putenv_s()
-			// call unconditional, since we've observed cases in which the
-			// parent viewer receives a valid non-ASCII APPDATA value while
-			// the child SLVersionChecker process receives one containing
-			// question marks. But if what we see is already valid, what do we
-			// gain by storing it again?
+			// will see a reasonable value as well.
+			_wputenv_s(L"APPDATA", pwstr);
+			// SHGetKnownFolderPath() contract requires us to free pwstr
+			CoTaskMemFree(pwstr);
+			PRELOG("mOSUserDir='" << mOSUserDir << "'");
 		}
 	}
 
@@ -89,18 +139,33 @@ LLDir_Win32::LLDir_Win32()
 	//
 	// We used to store the cache in AppData\Roaming, and the installer
 	// cleans up that version on upgrade.  JC
-	mOSCacheDir = ll_safe_string(getenv("LOCALAPPDATA"));
+	// Again, try using wide-character getenv().
+	wchar_t *LOCALAPPDATA = _wgetenv(L"LOCALAPPDATA");
+	if (LOCALAPPDATA)
+	{
+		mOSCacheDir = ll_convert_wide_to_string(LOCALAPPDATA, CP_UTF8);
+	}
+	PRELOG("LOCALAPPDATA='" << mOSCacheDir << "'");
 	// Windows really does not deal well with pathnames containing non-ASCII
 	// characters. See above remarks about APPDATA.
-	if (utf8string_to_wstring(mOSCacheDir).find(llwchar('?')) != LLWString::npos)
+	if (mOSCacheDir.empty() ||
+		utf8string_to_wstring(mOSCacheDir).find(llwchar('?')) != LLWString::npos)
 	{
-		if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, w_str)))
+		PRELOG("LOCALAPPDATA empty or contains ASCII '?'");
+		//HRESULT okay = SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, w_str);
+		wchar_t *pwstr = NULL;
+		HRESULT okay = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &pwstr);
+		PRELOG("SHGetKnownFolderPath(FOLDERID_LocalAppData) returned " << okay);
+		if (SUCCEEDED(okay) && pwstr)
 		{
-			// But of course, only update mOSCacheDir if SHGetFolderPathW() works.
-			mOSCacheDir = utf16str_to_utf8str(llutf16string(w_str));
+			// But of course, only update mOSCacheDir if SHGetKnownFolderPath() works.
+			mOSCacheDir = ll_convert_wide_to_string(pwstr, CP_UTF8);
 			// Update our environment so that child processes will see a
 			// reasonable value as well.
-			_putenv_s("LOCALAPPDATA", mOSCacheDir.c_str());
+			_wputenv_s(L"LOCALAPPDATA", pwstr);
+			// SHGetKnownFolderPath() contract requires us to free pwstr
+			CoTaskMemFree(pwstr);
+			PRELOG("mOSCacheDir='" << mOSCacheDir << "'");
 		}
 	}
 
