@@ -1585,7 +1585,6 @@ if (WINDOWS)
         kernel32
         odbc32
         odbccp32
-        ole32
         oleaut32
         shell32
         Vfw32
