@@ -441,14 +441,13 @@ void LLManip::renderXYZ(const LLVector3 &vec)
 		LLUIImagePtr imagep = LLUI::getUIImage("Rounded_Square");
 		gViewerWindow->setup2DRender();
 		const LLVector2& display_scale = gViewerWindow->getDisplayScale();
-		gGL.scalef(display_scale.mV[VX], display_scale.mV[VY], 1.f);
 		gGL.color4f(0.f, 0.f, 0.f, 0.7f);
 
 		imagep->draw(
-			window_center_x - 115, 
-			window_center_y + vertical_offset - PAD, 
-			235,
-			PAD * 2 + 10, 
+			(window_center_x - 115) * display_scale.mV[VX],
+			(window_center_y + vertical_offset - PAD) * display_scale.mV[VY],
+			235 * display_scale.mV[VX],
+			(PAD * 2 + 10) * display_scale.mV[VY],
 			LLColor4(0.f, 0.f, 0.f, 0.7f) );
 
         LLFontGL* font = LLFontGL::getFontSansSerif();
