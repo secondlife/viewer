@@ -112,6 +112,7 @@ public:
 	/// for adding and deleting sliders
 	const std::string&	addSlider();
 	const std::string&	addSlider(F32 val);
+	bool				addSlider(F32 val, const std::string& name);
 	void			deleteSlider(const std::string& name);
 	void			deleteCurSlider()			{ deleteSlider(mMultiSlider->getCurSlider()); }
 
@@ -120,6 +121,7 @@ public:
 
 	S32				getMaxNumSliders() { return mMultiSlider->getMaxNumSliders(); }
 	S32				getCurNumSliders() { return mMultiSlider->getCurNumSliders(); }
+	F32				getOverlapThreshold() { return mMultiSlider->getOverlapThreshold(); }
 	bool			canAddSliders() { return mMultiSlider->canAddSliders(); }
 
 	void			setLabel(const std::string& label)				{ if (mLabelBox) mLabelBox->setText(label); }

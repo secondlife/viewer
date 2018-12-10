@@ -354,17 +354,17 @@ const std::string& LLMultiSlider::addSlider(F32 val)
 	return mCurSlider;
 }
 
-void LLMultiSlider::addSlider(F32 val, const std::string& name)
+bool LLMultiSlider::addSlider(F32 val, const std::string& name)
 {
 	F32 initVal = val;
 
 	if(mValue.size() >= mMaxNumSliders) {
-		return;
+		return false;
 	}
 
 	bool foundOne = findUnusedValue(initVal);
 	if(!foundOne) {
-		return;
+		return false;
 	}
 
 	// add a new thumb rect
@@ -383,6 +383,8 @@ void LLMultiSlider::addSlider(F32 val, const std::string& name)
 
 	// move the slider
 	setSliderValue(mCurSlider, initVal, TRUE);
+
+	return true;
 }
 
 bool LLMultiSlider::findUnusedValue(F32& initVal)
