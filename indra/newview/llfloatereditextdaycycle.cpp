@@ -126,6 +126,31 @@ const std::string LLFloaterEditExtDayCycle::VALUE_CONTEXT_PARCEL("parcel");
 const std::string LLFloaterEditExtDayCycle::VALUE_CONTEXT_REGION("region");
 
 //=========================================================================
+
+class LLDaySettingCopiedCallback : public LLInventoryCallback
+{
+public:
+    LLDaySettingCopiedCallback(LLHandle<LLFloater> handle) : mHandle(handle) {}
+
+    virtual void fire(const LLUUID& inv_item_id)
+    {
+        if (!mHandle.isDead())
+        {
+            LLViewerInventoryItem* item = gInventory.getItem(inv_item_id);
+            if (item)
+            {
+                LLFloaterEditExtDayCycle* floater = (LLFloaterEditExtDayCycle*)mHandle.get();
+                floater->onInventoryCreated(item->getAssetUUID(), inv_item_id);
+            }
+        }
+    }
+
+private:
+    LLHandle<LLFloater> mHandle;
+};
+
+//=========================================================================
+
 LLFloaterEditExtDayCycle::LLFloaterEditExtDayCycle(const LLSD &key) :
     LLFloater(key),
     mFlyoutControl(nullptr),
@@ -622,7 +647,32 @@ void LLFloaterEditExtDayCycle::onSaveAsCommit(const LLSD& notification, const LL
     {
         std::string settings_name = response["message"].asString();
         LLStringUtil::trim(settings_name);
-        doApplyCreateNewInventory(day, settings_name);
+        if (mCanMod)
+        {
+            doApplyCreateNewInventory(day, settings_name);
+        }
+        else if (mInventoryItem)
+        {
+            const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+            LLUUID parent_id = mInventoryItem->getParentUUID();
+            if (marketplacelistings_id == parent_id)
+            {
+                parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
+            }
+
+            LLPointer<LLInventoryCallback> cb = new LLDaySettingCopiedCallback(getHandle());
+            copy_inventory_item(
+                gAgent.getID(),
+                mInventoryItem->getPermissions().getOwner(),
+                mInventoryItem->getUUID(),
+                parent_id,
+                settings_name,
+                cb);
+        }
+        else
+        {
+            LL_WARNS() << "Failed to copy day setting" << LL_ENDL;
+        }
     }
 }
 
@@ -1453,6 +1503,11 @@ void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID invent
         LLNotificationsUtil::add("CantCreateInventory");
         return;
     }
+    onInventoryCreated(asset_id, inventory_id);
+}
+
+void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID inventory_id)
+{
 
     if (mInventoryItem)
     {
