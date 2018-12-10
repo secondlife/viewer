@@ -4094,6 +4094,8 @@ Try enclosing path to the editor with double quotes.
   <string name="BeaconScriptedTouch">Viewing scripted object with touch function beacons (red)</string>
   <string name="BeaconSound">Viewing sound beacons (yellow)</string>
   <string name="BeaconMedia">Viewing media beacons (white)</string>
+  <string name="BeaconSun">Viewing sun direction beacon (orange)</string>
+  <string name="BeaconMoon">Viewing moon direction beacon (purple)</string>
   <string name="ParticleHiding">Hiding Particles</string>
 
   <!-- commands -->

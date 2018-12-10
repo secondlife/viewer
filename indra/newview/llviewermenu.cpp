@@ -8258,6 +8258,14 @@ class LLViewToggleBeacon : public view_listener_t
 				gSavedSettings.setBOOL( "scriptsbeacon", LLPipeline::getRenderScriptedBeacons() );
 			}
 		}
+		else if (beacon == "sunbeacon")
+		{
+			gSavedSettings.setBOOL("sunbeacon", !gSavedSettings.getBOOL("sunbeacon"));
+		}
+		else if (beacon == "moonbeacon")
+		{
+			gSavedSettings.setBOOL("moonbeacon", !gSavedSettings.getBOOL("moonbeacon"));
+		}
 		else if (beacon == "renderbeacons")
 		{
 			LLPipeline::toggleRenderBeacons();

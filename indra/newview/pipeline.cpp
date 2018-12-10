@@ -4578,6 +4578,7 @@ void LLPipeline::renderGeom(LLCamera& camera, bool forceVBOUpdate)
 				// Render debugging beacons.
 				gObjectList.renderObjectBeacons();
 				gObjectList.resetObjectBeacons();
+				gSky.addSunMoonBeacons();
 			}
 			else
 			{
@@ -9078,6 +9079,7 @@ void LLPipeline::renderDeferredLighting()
 			// Render debugging beacons.
 			gObjectList.renderObjectBeacons();
 			gObjectList.resetObjectBeacons();
+			gSky.addSunMoonBeacons();
 		}
 	}
 
