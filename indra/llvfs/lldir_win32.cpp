@@ -30,7 +30,6 @@
 
 #include "lldir_win32.h"
 #include "llerror.h"
-#include "llrand.h"		// for gLindenLabRandomNumber
 #include "stringize.h"
 #include "llfile.h"
 #include <shlobj.h>
@@ -47,8 +46,10 @@ DWORD GetDllVersion(LPCTSTR lpszDllName);
 
 namespace
 { // anonymous
-    enum class prst { INIT, OPEN, SKIP } state;
-    llofstream prelogf;
+    enum class prst { INIT, OPEN, SKIP } state = prst::INIT;
+    // This is called so early that we can't count on static objects being
+    // properly constructed yet, so declare a pointer instead of an instance.
+    std::ofstream* prelogf = nullptr;
 
     void prelog(const std::string& message)
     {
@@ -64,18 +65,18 @@ namespace
             if (! prelog_name)
                 // no PRELOG variable set, carry on
                 return;
-            prelogf.open(prelog_name, std::ios_base::app);
-            if (! prelogf.is_open())
+            prelogf = new std::ofstream(prelog_name, std::ios_base::app);
+            if (! (prelogf && prelogf->is_open()))
                 // can't complain to anybody; how?
                 return;
             // got the log file open, cool!
             state = prst::OPEN;
-            prelogf << "========================================================================"
-                    << std::endl;
+            (*prelogf) << "========================================================================"
+                       << std::endl;
             // fall through, don't break
 
         case prst::OPEN:
-            prelogf << message << std::endl;
+            (*prelogf) << message << std::endl;
             break;
 
         case prst::SKIP:
