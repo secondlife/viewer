@@ -488,6 +488,14 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
 						errorLabel = "";
 						error = false;
 					}
+					else
+					{
+						errorMessage = "Failed saving temporary animation file";
+					}
+				}
+				else
+				{
+					errorMessage = "Failed reading animation file";
 				}
 			}
 		}
@@ -908,6 +916,7 @@ void LLViewerAssetUpload::HandleUploadError(LLCore::HttpStatus status, LLSD &res
     {
         args["FILE"] = uploadInfo->getDisplayName();
         args["REASON"] = reason;
+        args["ERROR"] = reason;
     }
 
     LLNotificationsUtil::add(label, args);
