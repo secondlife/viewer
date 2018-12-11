@@ -104,17 +104,13 @@ LLDir_Win32::LLDir_Win32()
 		mOSUserDir = ll_convert_wide_to_string(APPDATA, CP_UTF8);
 	}
 	PRELOG("APPDATA='" << mOSUserDir << "'");
-	// On Windows, it's a Bad Thing if a pathname contains ASCII question
-	// marks. In our experience, it means that the original pathname contained
-	// non-ASCII characters that were munged to '?' somewhere along the way.
-	// Convert to LLWString first, though, in case one of the bytes in a
-	// non-ASCII UTF-8 string accidentally resembles '?'.
-	// Bear in mind that llwchar is not necessarily wchar_t, therefore L'?' is
-	// not necessarily the right type.
-	if (mOSUserDir.empty() ||
-		utf8string_to_wstring(mOSUserDir).find(llwchar('?')) != LLWString::npos)
+	// On Windows, we could have received a plain-ASCII pathname in which
+	// non-ASCII characters have been munged to '?', or the pathname could
+	// have been badly encoded and decoded such that we now have garbage
+	// instead of a valid path. Check that mOSUserDir actually exists.
+	if (mOSUserDir.empty() || ! fileExists(mOSUserDir))
 	{
-		PRELOG("APPDATA empty or contains ASCII '?'");
+		PRELOG("APPDATA does not exist");
 		//HRESULT okay = SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, w_str);
 		wchar_t *pwstr = NULL;
 		HRESULT okay = SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &pwstr);
@@ -149,10 +145,9 @@ LLDir_Win32::LLDir_Win32()
 	PRELOG("LOCALAPPDATA='" << mOSCacheDir << "'");
 	// Windows really does not deal well with pathnames containing non-ASCII
 	// characters. See above remarks about APPDATA.
-	if (mOSCacheDir.empty() ||
-		utf8string_to_wstring(mOSCacheDir).find(llwchar('?')) != LLWString::npos)
+	if (mOSCacheDir.empty() || ! fileExists(mOSCacheDir))
 	{
-		PRELOG("LOCALAPPDATA empty or contains ASCII '?'");
+		PRELOG("LOCALAPPDATA does not exist");
 		//HRESULT okay = SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, w_str);
 		wchar_t *pwstr = NULL;
 		HRESULT okay = SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &pwstr);
