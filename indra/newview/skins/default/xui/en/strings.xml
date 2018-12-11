@@ -4233,4 +4233,29 @@ Try enclosing path to the editor with double quotes.
       The physics shape does not have correct version. Set the correct version for the physics model.
   </string>
 
+  <!-- CURL error messages -->
+  <string name="couldnt_resolve_host">
+DNS could not resolve the host name([HOSTNAME]).
+Please verify that you can connect to the www.secondlife.com
+web site.  If you can, but continue to receive this error,
+please go to the support section and report this problem.
+  </string>
+  <string name="ssl_peer_certificate">
+The login server couldn't verify itself via SSL.
+If you continue to receive this error, please go
+to the Support section of the SecondLife.com web site
+and report the problem.
+  </string>
+  <string name="ssl_connect_error">
+Often this means that your computer's clock is set incorrectly.
+Please go to Control Panels and make sure the time and date
+are set correctly.
+Also check that your network and firewall are set up correctly.
+If you continue to receive this error, please go
+to the Support section of the SecondLife.com web site
+and report the problem.
+
+[https://community.secondlife.com/knowledgebase/english/error-messages-r520/#Section__3 Knowledge Base]
+  </string>
+
 </strings>
