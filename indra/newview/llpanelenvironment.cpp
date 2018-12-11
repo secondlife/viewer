@@ -557,7 +557,7 @@ void LLPanelEnvironmentInfo::onSldDayOffsetChanged(F32 value)
 {
     F32Hours dayoffset(value);
 
-    if (dayoffset.value() < 0.0f)
+    if (dayoffset.value() <= 0.0f)
         dayoffset += F32Hours(24.0);
 
     mCurrentEnvironment->mDayOffset = dayoffset;
