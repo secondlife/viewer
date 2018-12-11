@@ -293,6 +293,17 @@ const std::string& LLMultiSliderCtrl::addSlider(F32 val)
 	return name;
 }
 
+bool LLMultiSliderCtrl::addSlider(F32 val, const std::string& name)
+{
+	bool res = mMultiSlider->addSlider(val, name);
+	if (res)
+	{
+		mCurValue = mMultiSlider->getCurSliderValue();
+		updateText();
+	}
+	return res;
+}
+
 void LLMultiSliderCtrl::deleteSlider(const std::string& name)
 {
 	mMultiSlider->deleteSlider(name);

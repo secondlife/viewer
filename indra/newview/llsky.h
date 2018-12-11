@@ -84,6 +84,9 @@ public:
 	void restoreGL();
 	void resetVertexBuffers();
 
+	void addSunMoonBeacons();
+	void renderSunMoonBeacons(const LLVector3& pos_agent, const LLVector3& direction, LLColor4 color);
+
 public:
 	LLPointer<LLVOSky>		mVOSkyp;	// Pointer to the LLVOSky object (only one, ever!)
 	LLPointer<LLVOGround>	mVOGroundp;

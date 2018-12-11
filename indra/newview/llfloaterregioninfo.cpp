@@ -226,7 +226,8 @@ LLUUID LLFloaterRegionInfo::sRequestInvoice;
 
 LLFloaterRegionInfo::LLFloaterRegionInfo(const LLSD& seed)
 	: LLFloater(seed),
-    mEnvironmentPanel(NULL)
+    mEnvironmentPanel(NULL),
+    mRegionChangedCallback()
 {}
 
 BOOL LLFloaterRegionInfo::postBuild()
@@ -285,13 +286,18 @@ BOOL LLFloaterRegionInfo::postBuild()
 		&processEstateOwnerRequest);
 
 	// Request region info when agent region changes.
-	gAgent.addRegionChangedCallback(boost::bind(&LLFloaterRegionInfo::requestRegionInfo, this));
+	mRegionChangedCallback = gAgent.addRegionChangedCallback(boost::bind(&LLFloaterRegionInfo::onRegionChanged, this));
 
 	return TRUE;
 }
 
 LLFloaterRegionInfo::~LLFloaterRegionInfo()
-{}
+{
+    if (mRegionChangedCallback.connected())
+    {
+        mRegionChangedCallback.disconnect();
+    }
+}
 
 void LLFloaterRegionInfo::onOpen(const LLSD& key)
 {
@@ -304,15 +310,24 @@ void LLFloaterRegionInfo::onOpen(const LLSD& key)
 	requestMeshRezInfo();
 }
 
-// static
+void LLFloaterRegionInfo::onRegionChanged()
+{
+    if (getVisible()) //otherwise onOpen will do request
+    {
+        requestRegionInfo();
+    }
+}
+
 void LLFloaterRegionInfo::requestRegionInfo()
 {
-	LLTabContainer* tab = getChild<LLTabContainer>("region_panels");
-
-	tab->getChild<LLPanel>("General")->setCtrlsEnabled(FALSE);
-	tab->getChild<LLPanel>("Debug")->setCtrlsEnabled(FALSE);
-	tab->getChild<LLPanel>("Terrain")->setCtrlsEnabled(FALSE);
-	tab->getChild<LLPanel>("Estate")->setCtrlsEnabled(FALSE);
+	LLTabContainer* tab = findChild<LLTabContainer>("region_panels");
+	if (tab)
+	{
+		tab->getChild<LLPanel>("General")->setCtrlsEnabled(FALSE);
+		tab->getChild<LLPanel>("Debug")->setCtrlsEnabled(FALSE);
+		tab->getChild<LLPanel>("Terrain")->setCtrlsEnabled(FALSE);
+		tab->getChild<LLPanel>("Estate")->setCtrlsEnabled(FALSE);
+	}
 
 	// Must allow anyone to request the RegionInfo data
 	// so non-owners/non-gods can see the values. 
@@ -483,9 +498,12 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 
 	panel->setCtrlsEnabled(allow_modify);
 
-	// Note: region info also causes LLRegionInfoModel::instance().update(msg); -> requestRegion(); -> changed message
-	// we need to know env version here and in update(msg) to know when to request and when not to, when to filter 'changed'
-	floater->refreshFromRegion( gAgent.getRegion() );
+	if (floater->getVisible())
+	{
+		// Note: region info also causes LLRegionInfoModel::instance().update(msg); -> requestRegion(); -> changed message
+		// we need to know env version here and in update(msg) to know when to request and when not to, when to filter 'changed'
+		floater->refreshFromRegion(gAgent.getRegion());
+	} // else will rerequest on onOpen either way
 }
 
 // static

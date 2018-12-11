@@ -43,6 +43,7 @@ class LLTimeCtrl;
 class LLTabContainer;
 
 class LLInventoryItem;
+class LLDaySettingCopiedCallback;
 
 typedef std::shared_ptr<LLSettingsBase> LLSettingsBasePtr_t;
 
@@ -52,6 +53,8 @@ typedef std::shared_ptr<LLSettingsBase> LLSettingsBasePtr_t;
 class LLFloaterEditExtDayCycle : public LLFloater
 {
 	LOG_CLASS(LLFloaterEditExtDayCycle);
+
+    friend class LLDaySettingCopiedCallback;
 
 public:
     static const std::string    KEY_INVENTORY_ID;
@@ -146,6 +149,7 @@ private:
     void doApplyUpdateInventory(const LLSettingsDay::ptr_t &day);
     void doApplyEnvironment(const std::string &where, const LLSettingsDay::ptr_t &day);
     void doApplyCommit(LLSettingsDay::ptr_t day);
+    void                        onInventoryCreated(LLUUID asset_id, LLUUID inventory_id);
     void                        onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
     void                        onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
 

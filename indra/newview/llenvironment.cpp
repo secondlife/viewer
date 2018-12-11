@@ -364,6 +364,7 @@ void LLEnvironment::initSingleton()
 
     //TODO: This frequently results in one more request than we need.  It isn't breaking, but should be nicer.
     // We need to know new env version to fix this, without it we can only do full re-request
+    // Happens: on updates, on opening LLFloaterRegionInfo, on region crossing if info floater is open
     LLRegionInfoModel::instance().setUpdateCallback([this]() { requestRegion(); });
     gAgent.addRegionChangedCallback([this]() { onRegionChange(); });
 

@@ -38,6 +38,7 @@ class LLTabContainer;
 class LLButton;
 class LLLineEditor;
 class LLFloaterSettingsPicker;
+class LLFixedSettingCopiedCallback;
 
 /**
  * Floater container for creating and editing fixed environment settings.
@@ -45,6 +46,8 @@ class LLFloaterSettingsPicker;
 class LLFloaterFixedEnvironment : public LLFloater
 {
     LOG_CLASS(LLFloaterFixedEnvironment);
+
+    friend class LLFixedSettingCopiedCallback;
 
 public:
     static const std::string    KEY_INVENTORY_ID;
@@ -100,6 +103,7 @@ protected:
     bool                    mCanCopy;
     bool                    mCanMod;
 
+    void                    onInventoryCreated(LLUUID asset_id, LLUUID inventory_id);
     void                    onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
     void                    onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
 

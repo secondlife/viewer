@@ -255,12 +255,18 @@ void LLPanelEnvironmentInfo::refresh()
     LLEnvironment::altitude_list_t altitudes = LLEnvironment::instance().getRegionAltitudes();
     if (altitudes.size() > 0)
     {
+        LLMultiSliderCtrl *sld = getChild<LLMultiSliderCtrl>(SLD_ALTITUDES);
+        sld->clear();
+
         for (S32 idx = 0; idx < ALTITUDE_SLIDER_COUNT; ++idx)
         {
-            LLMultiSliderCtrl *sld = getChild<LLMultiSliderCtrl>(SLD_ALTITUDES);
-            sld->setSliderValue(alt_sliders[idx], altitudes[idx+1], FALSE);
+            sld->addSlider(altitudes[idx + 1], alt_sliders[idx]);
             updateAltLabel(alt_labels[idx], idx + 2, altitudes[idx+1]);
             mAltitudes[alt_sliders[idx]] = AltitudeData(idx+1, idx, altitudes[idx+1]);
+        }
+        if (sld->getCurNumSliders() != ALTITUDE_SLIDER_COUNT)
+        {
+            LL_WARNS("ENVPANEL") << "Failed to add altitude sliders!" << LL_ENDL;
         }
         readjustAltLabels();
     }
