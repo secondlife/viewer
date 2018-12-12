@@ -1079,8 +1079,8 @@ void LLFloaterEditExtDayCycle::updateButtons()
     //bool can_add = static_cast<bool>(settings);
     //mAddFrameButton->setEnabled(can_add);
     //mDeleteFrameButton->setEnabled(!can_add);
-    mAddFrameButton->setEnabled(isAddingFrameAllowed() && mCanMod);
-    mDeleteFrameButton->setEnabled(isRemovingFrameAllowed() && mCanMod);
+    mAddFrameButton->setEnabled(!mIsPlaying && isAddingFrameAllowed() && mCanMod);
+    mDeleteFrameButton->setEnabled(!mIsPlaying && isRemovingFrameAllowed() && mCanMod);
     mLoadFrame->setEnabled(!mIsPlaying && mCanMod);
 }
 
