@@ -431,6 +431,18 @@ void LLSettingsSky::replaceSettings(LLSD settings)
     mNextHaloTextureId.setNull();
 }
 
+void LLSettingsSky::replaceWithSky(LLSettingsSky::ptr_t pother)
+{
+    replaceWith(pother);
+
+    mNextSunTextureId = pother->mNextSunTextureId;
+    mNextMoonTextureId = pother->mNextMoonTextureId;
+    mNextCloudTextureId = pother->mNextCloudTextureId;
+    mNextBloomTextureId = pother->mNextBloomTextureId;
+    mNextRainbowTextureId = pother->mNextRainbowTextureId;
+    mNextHaloTextureId = pother->mNextHaloTextureId;
+}
+
 void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F64 blendf) 
 {
     llassert(getSettingsType() == end->getSettingsType());

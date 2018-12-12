@@ -60,6 +60,8 @@ const U32 LLSettingsBase::FLAG_NOCOPY(0x01 << 0);
 const U32 LLSettingsBase::FLAG_NOMOD(0x01 << 1);
 const U32 LLSettingsBase::FLAG_NOTRANS(0x01 << 2);
 
+const U32 LLSettingsBase::Validator::VALIDATION_PARTIAL(0x01 << 0);
+
 //=========================================================================
 LLSettingsBase::LLSettingsBase():
     mSettings(LLSD::emptyMap()),
@@ -385,7 +387,7 @@ bool LLSettingsBase::validate()
     return result["success"].asBoolean();
 }
 
-LLSD LLSettingsBase::settingValidation(LLSD &settings, validation_list_t &validations)
+LLSD LLSettingsBase::settingValidation(LLSD &settings, validation_list_t &validations, bool partial)
 {
     static Validator  validateName(SETTING_NAME, false, LLSD::TypeString, boost::bind(&Validator::verifyStringLength, _1, 32));
     static Validator  validateId(SETTING_ID, false, LLSD::TypeUUID);
@@ -398,44 +400,48 @@ LLSD LLSettingsBase::settingValidation(LLSD &settings, validation_list_t &valida
     bool              isValid(true);
     LLSD              errors(LLSD::emptyArray());
     LLSD              warnings(LLSD::emptyArray());
+    U32               flags(0);
+    
+    if (partial)
+        flags |= Validator::VALIDATION_PARTIAL;
 
     // Fields common to all settings.
-    if (!validateName.verify(settings))
+    if (!validateName.verify(settings, flags))
     {
         errors.append( LLSD::String("Unable to validate 'name'.") );
         isValid = false;
     }
     validated.insert(validateName.getName());
 
-    if (!validateId.verify(settings))
+    if (!validateId.verify(settings, flags))
     {
         errors.append( LLSD::String("Unable to validate 'id'.") );
         isValid = false;
     }
     validated.insert(validateId.getName());
 
-    if (!validateHash.verify(settings))
+    if (!validateHash.verify(settings, flags))
     {
         errors.append( LLSD::String("Unable to validate 'hash'.") );
         isValid = false;
     }
     validated.insert(validateHash.getName());
 
-    if (!validateAssetId.verify(settings))
+    if (!validateAssetId.verify(settings, flags))
     {
         errors.append(LLSD::String("Invalid asset Id"));
         isValid = false;
     }
     validated.insert(validateAssetId.getName());
 
-    if (!validateType.verify(settings))
+    if (!validateType.verify(settings, flags))
     {
         errors.append( LLSD::String("Unable to validate 'type'.") );
         isValid = false;
     }
     validated.insert(validateType.getName());
 
-    if (!validateFlags.verify(settings))
+    if (!validateFlags.verify(settings, flags))
     {
         errors.append(LLSD::String("Unable to validate 'flags'."));
         isValid = false;
@@ -453,7 +459,7 @@ LLSD LLSettingsBase::settingValidation(LLSD &settings, validation_list_t &valida
         }
 #endif
 
-        if (!(*itv).verify(settings))
+        if (!(*itv).verify(settings, flags))
         {
             std::stringstream errtext;
 
@@ -498,10 +504,14 @@ LLSD LLSettingsBase::settingValidation(LLSD &settings, validation_list_t &valida
 }
 
 //=========================================================================
-bool LLSettingsBase::Validator::verify(LLSD &data)
+
+bool LLSettingsBase::Validator::verify(LLSD &data, U32 flags)
 {
     if (!data.has(mName) || (data.has(mName) && data[mName].isUndefined()))
     {
+        if ((flags & VALIDATION_PARTIAL) != 0) // we are doing a partial validation.  Do no attempt to set a default if missing (or fail even if required)
+            return true;    
+        
         if (!mDefault.isUndefined())
         {
             data[mName] = mDefault;
@@ -667,7 +677,10 @@ bool LLSettingsBase::Validator::verifyStringLength(LLSD &value, S32 length)
 //=========================================================================
 void LLSettingsBlender::update(const LLSettingsBase::BlendFactor& blendf)
 {
-    setBlendFactor(blendf);
+    F64 res = setBlendFactor(blendf);
+
+    if ((res >= 0.0001) && (res < 1.0))
+        mTarget->update();
 }
 
 F64 LLSettingsBlender::setBlendFactor(const LLSettingsBase::BlendFactor& blendf_in)
@@ -688,7 +701,6 @@ F64 LLSettingsBlender::setBlendFactor(const LLSettingsBase::BlendFactor& blendf_
             return blendf;
         }
         mTarget->blend(mFinal, blendf);
-        mTarget->update();
     }
     else
     {
@@ -715,7 +727,7 @@ LLSettingsBase::BlendFactor LLSettingsBlenderTimeDelta::calculateBlend(const LLS
     return LLSettingsBase::BlendFactor(fmod((F64)spanpos, (F64)spanlen) / (F64)spanlen);
 }
 
-void LLSettingsBlenderTimeDelta::applyTimeDelta(const LLSettingsBase::Seconds& timedelta)
+bool LLSettingsBlenderTimeDelta::applyTimeDelta(const LLSettingsBase::Seconds& timedelta)
 {
     mTimeSpent += timedelta;
     mTimeDeltaPassed += timedelta;
@@ -724,12 +736,12 @@ void LLSettingsBlenderTimeDelta::applyTimeDelta(const LLSettingsBase::Seconds& t
     {
         mIgnoreTimeDelta = false;
         triggerComplete();
-        return;
+        return false;
     }
 
     if ((mTimeDeltaPassed < mTimeDeltaThreshold) && (!mIgnoreTimeDelta))
     {
-        return;
+        return false;
     }
 
     LLSettingsBase::BlendFactor blendf = calculateBlend(mTimeSpent, mBlendSpan);
@@ -737,10 +749,10 @@ void LLSettingsBlenderTimeDelta::applyTimeDelta(const LLSettingsBase::Seconds& t
 
     if (fabs(mLastBlendF - blendf) < mBlendFMinDelta)
     {
-        return;
+        return false;
     }
 
     mLastBlendF = blendf;
-
     update(blendf);
+    return true;
 }

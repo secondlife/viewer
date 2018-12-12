@@ -266,6 +266,8 @@ public:
     class Validator
     {
     public:
+        static const U32 VALIDATION_PARTIAL;
+        
         typedef boost::function<bool(LLSD &)> verify_pr;
 
         Validator(std::string name, bool required, LLSD::Type type, verify_pr verify = verify_pr(), LLSD defval = LLSD())  :
@@ -280,7 +282,7 @@ public:
         bool        isRequired() const { return mRequired; }
         LLSD::Type  getType() const { return mType; }
 
-        bool        verify(LLSD &data);
+        bool        verify(LLSD &data, U32 flags);
 
         // Some basic verifications
         static bool verifyColor(LLSD &value);
@@ -302,7 +304,7 @@ public:
     };
     typedef std::vector<Validator> validation_list_t;
 
-    static LLSD settingValidation(LLSD &settings, validation_list_t &validations);
+    static LLSD settingValidation(LLSD &settings, validation_list_t &validations, bool partial = false);
 
     inline void setAssetId(LLUUID value)
     {   // note that this skips setLLSD
@@ -346,7 +348,7 @@ protected:
     virtual stringset_t getSlerpKeys() const { return stringset_t(); }
 
     // Calculate any custom settings that may need to be cached.
-    virtual void updateSettings() { mDirty = false; mReplaced = false; };
+    virtual void updateSettings() { mDirty = false; mReplaced = false; }
 
     virtual validation_list_t getValidationList() const = 0;
 
@@ -364,6 +366,12 @@ protected:
     inline void setBlendFactor(BlendFactor blendfactor) 
     {
         mBlendedFactor = blendfactor;
+    }
+
+    void replaceWith(LLSettingsBase::ptr_t other)
+    {
+        replaceSettings(other->cloneSettings());
+        setBlendFactor(other->getBlendFactor());
     }
 
 private:
@@ -437,10 +445,11 @@ public:
     }
 
     virtual void            update(const LLSettingsBase::BlendFactor& blendf);
-    virtual void            applyTimeDelta(const LLSettingsBase::Seconds& delta)
+    virtual bool            applyTimeDelta(const LLSettingsBase::Seconds& timedelta)
     {
         llassert(false);
         // your derived class needs to implement an override of this func
+        return false;
     }
 
     virtual F64             setBlendFactor(const LLSettingsBase::BlendFactor& position);
@@ -495,7 +504,7 @@ public:
         mLastBlendF = LLSettingsBase::BlendFactor(-1.0f);
     }
 
-    virtual void applyTimeDelta(const LLSettingsBase::Seconds& timedelta) SETTINGS_OVERRIDE;
+    virtual bool applyTimeDelta(const LLSettingsBase::Seconds& timedelta) SETTINGS_OVERRIDE;
 
     inline void setTimeDeltaThreshold(const LLSettingsBase::Seconds time)
     {

@@ -197,6 +197,14 @@ void LLSettingsWater::replaceSettings(LLSD settings)
     mNextTransparentTextureID.setNull();
 }
 
+void LLSettingsWater::replaceWithWater(LLSettingsWater::ptr_t other)
+{
+    replaceWith(other);
+
+    mNextNormalMapID = other->mNextNormalMapID;
+    mNextTransparentTextureID = other->mNextTransparentTextureID;
+}
+
 LLSettingsWater::validation_list_t LLSettingsWater::getValidationList() const
 {
     return LLSettingsWater::validationList();

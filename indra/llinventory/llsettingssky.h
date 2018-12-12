@@ -118,6 +118,7 @@ public:
     
     virtual void replaceSettings(LLSD settings) SETTINGS_OVERRIDE;
 
+    void replaceWithSky(LLSettingsSky::ptr_t pother);
     static LLSD defaults(const LLSettingsBase::TrackPosition& position = 0.0f);
 
     F32 getPlanetRadius() const;

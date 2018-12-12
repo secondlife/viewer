@@ -203,7 +203,6 @@ bool LLSettingsDay::initialize(bool validate_frames)
     if (mSettings.has(SETTING_ASSETID))
     {
         assetid = mSettings[SETTING_ASSETID].asUUID();
-        LL_WARNS("LAPRAS") << "initializing daycycle with asset id " << assetid << LL_ENDL;
     }
 
     std::map<std::string, LLSettingsBase::ptr_t> used;

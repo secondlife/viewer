@@ -280,7 +280,6 @@ namespace
         virtual bool operator()(const LLDispatcher *, const std::string& key, const LLUUID& invoice, const sparam_t& strings) override
         {
             LLSD message;
-
             sparam_t::const_iterator it = strings.begin();
 
             if (it != strings.end())
@@ -292,8 +291,8 @@ namespace
                     LL_WARNS() << "LLExperienceLogDispatchHandler: Attempted to read parameter data into LLSD but failed:" << llsdRaw << LL_ENDL;
                 }
             }
-            message[KEY_EXPERIENCEID] = invoice;
 
+            message[KEY_EXPERIENCEID] = invoice;
             // Object Name
             if (it != strings.end())
             {
@@ -349,7 +348,7 @@ void LLEnvironment::initSingleton()
     LLSettingsSky::ptr_t p_default_sky = LLSettingsVOSky::buildDefaultSky();
     LLSettingsWater::ptr_t p_default_water = LLSettingsVOWater::buildDefaultWater();
 
-    mCurrentEnvironment = std::make_shared<DayInstance>();
+    mCurrentEnvironment = std::make_shared<DayInstance>(ENV_DEFAULT);
     mCurrentEnvironment->setSky(p_default_sky);
     mCurrentEnvironment->setWater(p_default_water);
 
@@ -380,6 +379,43 @@ bool LLEnvironment::canEdit() const
 {
     return true;
 }
+
+LLSettingsSky::ptr_t LLEnvironment::getCurrentSky() const 
+{ 
+    LLSettingsSky::ptr_t psky = mCurrentEnvironment->getSky(); 
+
+    if (!psky && mCurrentEnvironment->getEnvironmentSelection() >= ENV_EDIT)
+    {
+        for (int idx = 0; idx < ENV_END; ++idx)
+        {
+            if (mEnvironments[idx]->getSky())
+            {
+                psky = mEnvironments[idx]->getSky();
+                break;
+            }
+        }
+    }
+    return psky;
+}
+
+LLSettingsWater::ptr_t LLEnvironment::getCurrentWater() const 
+{
+    LLSettingsWater::ptr_t pwater = mCurrentEnvironment->getWater(); 
+
+    if (!pwater && mCurrentEnvironment->getEnvironmentSelection() >= ENV_EDIT)
+    {
+        for (int idx = 0; idx < ENV_END; ++idx)
+        {
+            if (mEnvironments[idx]->getWater())
+            {
+                pwater = mEnvironments[idx]->getWater();
+                break;
+            }
+        }
+    }
+    return pwater;
+}
+
 
 void LLEnvironment::getAtmosphericModelSettings(AtmosphericModelSettings& settingsOut, const LLSettingsSky::ptr_t &psky)
 {
@@ -478,7 +514,7 @@ bool LLEnvironment::isInventoryEnabled() const
 
 void LLEnvironment::onRegionChange()
 {
-    clearEnvironment(ENV_PUSH);
+    clearExperienceEnvironment(LLUUID::null, TRANSITION_DEFAULT);
     requestRegion();
 }
 
@@ -540,10 +576,16 @@ bool LLEnvironment::hasEnvironment(LLEnvironment::EnvSelection_t env)
 LLEnvironment::DayInstance::ptr_t LLEnvironment::getEnvironmentInstance(LLEnvironment::EnvSelection_t env, bool create /*= false*/)
 {
     DayInstance::ptr_t environment = mEnvironments[env];
-//    if (!environment && create)
     if (create)
     {
-        environment = std::make_shared<DayInstance>();
+        if (environment)
+            environment = environment->clone();
+        else
+        {
+            environment = std::make_shared<DayInstance>(env);
+            if (mMakeBackups && env > ENV_PUSH)
+                environment->setBackup(true);
+        }
         mEnvironments[env] = environment;
     }
 
@@ -581,17 +623,27 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironm
 
     DayInstance::ptr_t environment = getEnvironmentInstance(env, true);
 
-    LLSettingsSky::ptr_t prev_sky = mEnvironments[ENV_DEFAULT]->getSky();
-    LLSettingsWater::ptr_t prev_water = mEnvironments[ENV_DEFAULT]->getWater();
-    if (mCurrentEnvironment && (ENV_EDIT == env))
-    {
-        prev_sky = mCurrentEnvironment->getSky() ? mCurrentEnvironment->getSky() : prev_sky;
-        prev_water = mCurrentEnvironment->getWater() ? mCurrentEnvironment->getWater() : prev_water;
-    }
+//     LLSettingsSky::ptr_t prev_sky = mEnvironments[ENV_DEFAULT]->getSky();
+//     LLSettingsWater::ptr_t prev_water = mEnvironments[ENV_DEFAULT]->getWater();
+//     if (mCurrentEnvironment && (ENV_EDIT == env))
+//     {
+//         prev_sky = mCurrentEnvironment->getSky() ? mCurrentEnvironment->getSky() : prev_sky;
+//         prev_water = mCurrentEnvironment->getWater() ? mCurrentEnvironment->getWater() : prev_water;
+//     }
 
-    environment->clear();
-    environment->setSky((fixed.first) ? fixed.first : prev_sky);
-    environment->setWater((fixed.second) ? fixed.second : prev_water);
+//     environment->clear();
+//     environment->setSky((fixed.first) ? fixed.first : prev_sky);
+//     environment->setWater((fixed.second) ? fixed.second : prev_water);
+    if (fixed.first)
+        environment->setSky(fixed.first);
+    else if (!environment->getSky())
+        environment->setSky(mCurrentEnvironment->getSky());
+        
+    if (fixed.second)
+        environment->setWater(fixed.second);
+    else if (!environment->getWater())
+        environment->setWater(mCurrentEnvironment->getWater());
+        
 
 
     if (!mSignalEnvChanged.empty())
@@ -630,19 +682,19 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSe
     else if (settings->getSettingsType() == "sky")
     {
         fixedEnvironment_t fixedenv(std::static_pointer_cast<LLSettingsSky>(settings), LLSettingsWater::ptr_t());
-        if (environment)
-        {
-            fixedenv.second = environment->getWater();
-        }
+//         if (environment)
+//         {
+//             fixedenv.second = environment->getWater();
+//         }
         setEnvironment(env, fixedenv);
     }
     else if (settings->getSettingsType() == "water")
     {
         fixedEnvironment_t fixedenv(LLSettingsSky::ptr_t(), std::static_pointer_cast<LLSettingsWater>(settings));
-        if (environment)
-        {
-            fixedenv.first = environment->getSky();
-        }
+//         if (environment)
+//         {
+//             fixedenv.first = environment->getSky();
+//         }
         setEnvironment(env, fixedenv);
     }
 }
@@ -794,6 +846,17 @@ LLEnvironment::DayInstance::ptr_t LLEnvironment::getSelectedEnvironmentInstance(
     return mEnvironments[ENV_DEFAULT];
 }
 
+LLEnvironment::DayInstance::ptr_t LLEnvironment::getSharedEnvironmentInstance()
+{
+    for (S32 idx = ENV_PARCEL; idx < ENV_DEFAULT; ++idx)
+    {
+        if (mEnvironments[idx])
+            return mEnvironments[idx];
+    }
+
+    return mEnvironments[ENV_DEFAULT];
+}
+
 void LLEnvironment::updateEnvironment(LLSettingsBase::Seconds transition, bool forced)
 {
     DayInstance::ptr_t pinstance = getSelectedEnvironmentInstance();
@@ -919,6 +982,11 @@ void LLEnvironment::update(const LLViewerCamera * cam)
     F32Seconds delta(timer.getElapsedTimeAndResetF32());
 
     mCurrentEnvironment->applyTimeDelta(delta);
+
+    if (mCurrentEnvironment->getEnvironmentSelection() != ENV_LOCAL)
+    {
+        applyInjectedSettings(mCurrentEnvironment, delta);
+    }
 
     // update clouds, sun, and general
     updateCloudScroll();
@@ -1703,32 +1771,37 @@ void LLEnvironment::handleEnvironmentPushFull(LLUUID experience_id, LLSD &messag
 
 void LLEnvironment::handleEnvironmentPushPartial(LLUUID experience_id, LLSD &message, F32 transition)
 {
+    LLSD settings(message["settings"]);
 
+    if (settings.isUndefined())
+        return;
+
+    setExperienceEnvironment(experience_id, settings, LLSettingsBase::Seconds(transition));
 }
 
 void LLEnvironment::clearExperienceEnvironment(LLUUID experience_id, F32 transition_time)
 {
     bool update_env(false);
 
-    if (mPushEnvironmentExpId == experience_id)
+    if (hasEnvironment(ENV_PUSH))
     {
-        mPushEnvironmentExpId.setNull();
-
-        if (hasEnvironment(ENV_PUSH))
-        {
-            update_env |= true;
-            clearEnvironment(ENV_PUSH);
-            updateEnvironment(LLSettingsBase::Seconds(transition_time));
-        }
-
+        update_env |= true;
+        clearEnvironment(ENV_PUSH);
+        updateEnvironment(LLSettingsBase::Seconds(transition_time));
     }
 
-    // clear the override queue too.
-    // update |= true;
+    setInstanceBackup(false);
 
+    /*TODO blend these back out*/
+    mSkyExperienceBlends.clear();
+    mWaterExperienceBlends.clear();
+    mCurrentEnvironment->getSky();
 
-    if (update_env)
-        updateEnvironment(LLSettingsBase::Seconds(transition_time));
+    injectSettings(experience_id, mSkyExperienceBlends, mSkyOverrides, LLSettingsBase::Seconds(transition_time), false);
+    injectSettings(experience_id, mWaterExperienceBlends, mWaterOverrides, LLSettingsBase::Seconds(transition_time), false);
+
+    mSkyOverrides = LLSD::emptyMap();
+    mWaterOverrides = LLSD::emptyMap();
 }
 
 void LLEnvironment::setSharedEnvironment()
@@ -1754,10 +1827,110 @@ void LLEnvironment::setExperienceEnvironment(LLUUID experience_id, LLUUID asset_
 
 void LLEnvironment::setExperienceEnvironment(LLUUID experience_id, LLSD data, F32 transition_time)
 {
+    LLSD sky(data["sky"]);
+    LLSD water(data["water"]);
+
+    if (sky.isUndefined() && water.isUndefined())
+    {
+        clearExperienceEnvironment(experience_id, transition_time);
+        return;
+    }
+
+    setInstanceBackup(true);
+
+    if (!sky.isUndefined())
+        injectSettings(experience_id, mSkyExperienceBlends, sky, LLSettingsBase::Seconds(transition_time), true);
+    if (!water.isUndefined())
+        injectSettings(experience_id, mWaterExperienceBlends, water, LLSettingsBase::Seconds(transition_time), true);
+
+}
+
+
+void LLEnvironment::setInstanceBackup(bool dobackup)
+{
+    mMakeBackups = dobackup;
+    for (S32 idx = ENV_PARCEL; idx < ENV_DEFAULT; ++idx)
+    {
+        if (mEnvironments[idx])
+            mEnvironments[idx]->setBackup(dobackup);
+    }
+}
+
+void LLEnvironment::injectSettings(LLUUID experience_id, exerienceBlendValues_t &blends, LLSD injections, LLSettingsBase::Seconds transition, bool blendin)
+{
+    for (LLSD::map_iterator it = injections.beginMap(); it != injections.endMap(); ++it)
+    {
+        blends.push_back(ExpBlendValue(transition, (*it).first, (*it).second, blendin, -1));
+    }
+
+    std::stable_sort(blends.begin(), blends.end(), [](const ExpBlendValue &a, const ExpBlendValue &b) { return a.mTimeRemaining < b.mTimeRemaining; });
+}
+
+void LLEnvironment::applyInjectedSettings(DayInstance::ptr_t environment, F32Seconds delta)
+{
+    if ((mSkyOverrides.size() > 0) || (mSkyExperienceBlends.size() > 0))
+    {
+        LLSettingsSky::ptr_t psky = environment->getSky();
+        applyInjectedValues(psky, mSkyOverrides);
+        blendInjectedValues(psky, mSkyExperienceBlends, mSkyOverrides, delta);
+    }
+    if ((mWaterOverrides.size() > 0) || (mWaterExperienceBlends.size() > 0))
+    {
+        LLSettingsWater::ptr_t pwater = environment->getWater();
+        applyInjectedValues(pwater, mWaterOverrides);
+        blendInjectedValues(pwater, mWaterExperienceBlends, mWaterOverrides, delta);
+    }
+}
+
+
+void LLEnvironment::applyInjectedValues(LLSettingsBase::ptr_t psetting, LLSD injection)
+{
+    for (LLSD::map_iterator it = injection.beginMap(); it != injection.endMap(); ++it)
+    {
+        psetting->setValue((*it).first, (*it).second);
+    }
+}
+
+void LLEnvironment::blendInjectedValues(LLSettingsBase::ptr_t psetting, exerienceBlendValues_t &blends, LLSD &overrides, F32Seconds delta)
+{
+    LLSD settings = psetting->getSettings();
+    LLSettingsBase::parammapping_t mappings = psetting->getParameterMap();
+    LLSettingsBase::stringset_t    slerps = psetting->getSlerpKeys();
+
+    if (blends.empty())
+        return;
+
+    for (auto &blend : blends)
+    {
+        blend.mTimeRemaining -= delta;
+        LLSettingsBase::BlendFactor mix = std::max(blend.mTimeRemaining / blend.mTransition, 0.0f);
+        if (blend.mBlendIn)
+            mix = 1.0 - mix;
+        mix = std::max(0.0, std::min(mix, 1.0));
+
+        if (blend.mValueInitial.isUndefined())
+            blend.mValueInitial = psetting->getValue(blend.mKeyName);
+        LLSD newvalue = psetting->interpolateSDValue(blend.mKeyName, blend.mValueInitial, blend.mValue, mappings, mix, slerps);
+
+        psetting->setValue(blend.mKeyName, newvalue);
+    }
+    
+    auto it = blends.begin();
+    for (; it != blends.end(); ++it)
+    {
+        if ((*it).mTimeRemaining > F32Seconds(0.0f))
+            break;
+        if ((*it).mBlendIn)
+            overrides[(*it).mKeyName] = (*it).mValue;
+    }
+    if (it != blends.begin())
+    {
+        blends.erase(blends.begin(), it);
+    }
 }
 
 //=========================================================================
-LLEnvironment::DayInstance::DayInstance() :
+LLEnvironment::DayInstance::DayInstance(EnvSelection_t env) :
     mDayCycle(),
     mSky(),
     mWater(),
@@ -1767,18 +1940,42 @@ LLEnvironment::DayInstance::DayInstance() :
     mBlenderWater(),
     mInitialized(false),
     mType(TYPE_INVALID),
-    mSkyTrack(1)
+    mSkyTrack(1),
+    mEnv(env),
+    mBackup(false)
 { }
+
+
+LLEnvironment::DayInstance::ptr_t LLEnvironment::DayInstance::clone() const
+{
+    ptr_t environment = std::make_shared<DayInstance>(mEnv);
+
+    environment->mDayCycle = mDayCycle;
+    environment->mSky = mSky;
+    environment->mWater = mWater;
+    environment->mDayLength = mDayLength;
+    environment->mDayOffset = mDayOffset;
+    environment->mBlenderSky = mBlenderSky;
+    environment->mBlenderWater = mBlenderWater;
+    environment->mInitialized = mInitialized;
+    environment->mType = mType;
+    environment->mSkyTrack = mSkyTrack;
+
+    return environment;
+}
 
 void LLEnvironment::DayInstance::applyTimeDelta(const LLSettingsBase::Seconds& delta)
 {
+    bool changed(false);
     if (!mInitialized)
         initialize();
 
     if (mBlenderSky)
-        mBlenderSky->applyTimeDelta(delta);
+        changed |= mBlenderSky->applyTimeDelta(delta);
     if (mBlenderWater)
-        mBlenderWater->applyTimeDelta(delta);
+        changed |= mBlenderWater->applyTimeDelta(delta);
+    if (mBackup && changed)
+        backup();
 }
 
 void LLEnvironment::DayInstance::setDay(const LLSettingsDay::ptr_t &pday, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset)
@@ -1815,6 +2012,8 @@ void LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)
     mSky->mReplaced |= different_sky;
     mSky->update();
     mBlenderSky.reset();
+    if (mBackup)
+        backup();
 
     if (gAtmosphere)
     {
@@ -1834,6 +2033,8 @@ void LLEnvironment::DayInstance::setWater(const LLSettingsWater::ptr_t &pwater)
     mWater = pwater;
     mWater->update();
     mBlenderWater.reset();
+    if (mBackup)
+        backup();
 }
 
 void LLEnvironment::DayInstance::initialize()
@@ -1873,6 +2074,53 @@ void LLEnvironment::DayInstance::setBlenders(const LLSettingsBlender::ptr_t &sky
 {
     mBlenderSky = skyblend;
     mBlenderWater = waterblend;
+}
+
+
+void LLEnvironment::DayInstance::setBackup(bool backupval)
+{
+    if (backupval == mBackup)
+        return;
+
+    mBackup = backupval;
+    LLSettingsSky::ptr_t psky = getSky();
+    if (mBackup)
+    {
+        backup();
+    }
+    else
+    {
+        restore();
+        mBackupSky = LLSD();
+        mBackupWater = LLSD();
+    }
+}
+
+void LLEnvironment::DayInstance::backup()
+{
+    if (!mBackup)
+        return;
+
+    if (mSky)
+    {
+        mBackupSky = mSky->cloneSettings();
+    }
+    if (mWater)
+    {
+        mBackupWater = mWater->cloneSettings();
+    }
+}
+
+void LLEnvironment::DayInstance::restore()
+{
+    if (!mBackupSky.isUndefined() && mSky)
+    {
+        mSky->replaceSettings(mBackupSky);
+    }
+    if (!mBackupWater.isUndefined() && mWater)
+    {
+        mWater->replaceSettings(mBackupWater);
+    }
 }
 
 LLSettingsBase::TrackPosition LLEnvironment::DayInstance::secondsToKeyframe(LLSettingsDay::Seconds seconds)
@@ -1923,7 +2171,7 @@ void LLEnvironment::DayInstance::animate()
 //-------------------------------------------------------------------------
 LLEnvironment::DayTransition::DayTransition(const LLSettingsSky::ptr_t &skystart,
     const LLSettingsWater::ptr_t &waterstart, LLEnvironment::DayInstance::ptr_t &end, LLSettingsDay::Seconds time) :
-    DayInstance(),
+    DayInstance(ENV_NONE),
     mStartSky(skystart),
     mStartWater(waterstart),
     mNextInstance(end),
@@ -2038,3 +2286,5 @@ F64 LLTrackBlenderLoopingManual::getSpanLength(const LLSettingsDay::TrackBound_t
 {
     return get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
 }
+
+//=========================================================================
