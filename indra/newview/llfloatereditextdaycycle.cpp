@@ -126,6 +126,31 @@ const std::string LLFloaterEditExtDayCycle::VALUE_CONTEXT_PARCEL("parcel");
 const std::string LLFloaterEditExtDayCycle::VALUE_CONTEXT_REGION("region");
 
 //=========================================================================
+
+class LLDaySettingCopiedCallback : public LLInventoryCallback
+{
+public:
+    LLDaySettingCopiedCallback(LLHandle<LLFloater> handle) : mHandle(handle) {}
+
+    virtual void fire(const LLUUID& inv_item_id)
+    {
+        if (!mHandle.isDead())
+        {
+            LLViewerInventoryItem* item = gInventory.getItem(inv_item_id);
+            if (item)
+            {
+                LLFloaterEditExtDayCycle* floater = (LLFloaterEditExtDayCycle*)mHandle.get();
+                floater->onInventoryCreated(item->getAssetUUID(), inv_item_id);
+            }
+        }
+    }
+
+private:
+    LLHandle<LLFloater> mHandle;
+};
+
+//=========================================================================
+
 LLFloaterEditExtDayCycle::LLFloaterEditExtDayCycle(const LLSD &key) :
     LLFloater(key),
     mFlyoutControl(nullptr),
@@ -430,7 +455,6 @@ void LLFloaterEditExtDayCycle::refresh()
     mFlyoutControl->setMenuItemEnabled(ACTION_APPLY_REGION, canApplyRegion() && show_apply);
 
     mImportButton->setEnabled(mCanMod);
-    mLoadFrame->setEnabled(mCanMod);
 
     LLFloater::refresh();
 }
@@ -623,7 +647,32 @@ void LLFloaterEditExtDayCycle::onSaveAsCommit(const LLSD& notification, const LL
     {
         std::string settings_name = response["message"].asString();
         LLStringUtil::trim(settings_name);
-        doApplyCreateNewInventory(day, settings_name);
+        if (mCanMod)
+        {
+            doApplyCreateNewInventory(day, settings_name);
+        }
+        else if (mInventoryItem)
+        {
+            const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+            LLUUID parent_id = mInventoryItem->getParentUUID();
+            if (marketplacelistings_id == parent_id)
+            {
+                parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
+            }
+
+            LLPointer<LLInventoryCallback> cb = new LLDaySettingCopiedCallback(getHandle());
+            copy_inventory_item(
+                gAgent.getID(),
+                mInventoryItem->getPermissions().getOwner(),
+                mInventoryItem->getUUID(),
+                parent_id,
+                settings_name,
+                cb);
+        }
+        else
+        {
+            LL_WARNS() << "Failed to copy day setting" << LL_ENDL;
+        }
     }
 }
 
@@ -903,6 +952,7 @@ void LLFloaterEditExtDayCycle::selectTrack(U32 track_index, bool force )
     mSkyTabLayoutContainer->setVisible(!show_water);
     mWaterTabLayoutContainer->setVisible(show_water);
     updateSlider();
+    updateLabels();
 }
 
 void LLFloaterEditExtDayCycle::selectFrame(F32 frame, F32 slop_factor)
@@ -1010,6 +1060,15 @@ void LLFloaterEditExtDayCycle::updateSkyTabs(const LLSettingsSkyPtr_t &p_sky)
 
 }
 
+void LLFloaterEditExtDayCycle::updateLabels()
+{
+    std::string label_arg = (mCurrentTrack == LLSettingsDay::TRACK_WATER) ? "water_label" : "sky_label";
+
+    mAddFrameButton->setLabelArg("[FRAME]", getString(label_arg));
+    mDeleteFrameButton->setLabelArg("[FRAME]", getString(label_arg));
+    mLoadFrame->setLabelArg("[FRAME]", getString(label_arg));
+}
+
 void LLFloaterEditExtDayCycle::updateButtons()
 {
     // This logic appears to work in reverse, the add frame button
@@ -1020,8 +1079,9 @@ void LLFloaterEditExtDayCycle::updateButtons()
     //bool can_add = static_cast<bool>(settings);
     //mAddFrameButton->setEnabled(can_add);
     //mDeleteFrameButton->setEnabled(!can_add);
-    mAddFrameButton->setEnabled(mCanMod && mFramesSlider->canAddSliders());
-    mDeleteFrameButton->setEnabled(isRemovingFrameAllowed() && mCanMod);
+    mAddFrameButton->setEnabled(!mIsPlaying && isAddingFrameAllowed() && mCanMod);
+    mDeleteFrameButton->setEnabled(!mIsPlaying && isRemovingFrameAllowed() && mCanMod);
+    mLoadFrame->setEnabled(!mIsPlaying && mCanMod);
 }
 
 void LLFloaterEditExtDayCycle::updateSlider()
@@ -1327,11 +1387,20 @@ void LLFloaterEditExtDayCycle::reblendSettings()
 
 void LLFloaterEditExtDayCycle::doApplyCreateNewInventory(const LLSettingsDay::ptr_t &day, std::string settings_name)
 {
-    // This method knows what sort of settings object to create.
-    LLUUID parent_id = mInventoryItem ? mInventoryItem->getParentUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
-
-    LLSettingsVOBase::createInventoryItem(day, parent_id, settings_name,
+    if (mInventoryItem)
+    {
+        LLUUID parent_id = mInventoryItem->getParentUUID();
+        U32 next_owner_perm = mInventoryItem->getPermissions().getMaskNextOwner();
+        LLSettingsVOBase::createInventoryItem(day, next_owner_perm, parent_id, settings_name,
             [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
+    }
+    else
+    {
+        LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
+        // This method knows what sort of settings object to create.
+        LLSettingsVOBase::createInventoryItem(day, parent_id, settings_name,
+            [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
+    }
 }
 
 void LLFloaterEditExtDayCycle::doApplyUpdateInventory(const LLSettingsDay::ptr_t &day)
@@ -1401,6 +1470,8 @@ void LLFloaterEditExtDayCycle::doApplyCommit(LLSettingsDay::ptr_t day)
 
 bool LLFloaterEditExtDayCycle::isRemovingFrameAllowed()
 {
+    if (mFramesSlider->getCurSlider().empty()) return false;
+
     if (mCurrentTrack <= LLSettingsDay::TRACK_GROUND_LEVEL)
     {
         return (mSliderKeyMap.size() > 1);
@@ -1409,6 +1480,18 @@ bool LLFloaterEditExtDayCycle::isRemovingFrameAllowed()
     {
         return (mSliderKeyMap.size() > 0);
     }
+}
+
+bool LLFloaterEditExtDayCycle::isAddingFrameAllowed()
+{
+    if (!mFramesSlider->getCurSlider().empty()) return false;
+
+    LLSettingsBase::Seconds frame(mTimeSlider->getCurSliderValue());
+    if ((mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
+    {
+        return false;
+    }
+    return mFramesSlider->canAddSliders();
 }
 
 void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results)
@@ -1420,6 +1503,11 @@ void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID invent
         LLNotificationsUtil::add("CantCreateInventory");
         return;
     }
+    onInventoryCreated(asset_id, inventory_id);
+}
+
+void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID inventory_id)
+{
 
     if (mInventoryItem)
     {
@@ -1536,6 +1624,7 @@ void LLFloaterEditExtDayCycle::onIdlePlay(void* user_data)
         self->mWaterBlender->setPosition(new_frame);
         self->synchronizeTabs();
         self->updateTimeAndLabel();
+        self->updateButtons();
     }
 }
 
@@ -1614,20 +1703,35 @@ void LLFloaterEditExtDayCycle::onAssetLoadedForFrame(LLUUID item_id, LLUUID asse
 {
     std::function<void()> cb = [this, settings, frame, track]()
     {
-        if ((mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
+        if (mFramesSlider->getCurSlider().empty())
         {
-            LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame too close to existing frame." << LL_ENDL;
-            return;
+            if ((mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
+            {
+                LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame too close to existing frame." << LL_ENDL;
+                return;
+            }
+            if (!mFramesSlider->canAddSliders())
+            {
+                LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame when slider is full." << LL_ENDL;
+                return;
+            }
+            mEditDay->setSettingsAtKeyframe(settings, frame, track);
+            addSliderFrame(frame, settings, false);
+            reblendSettings();
+            synchronizeTabs();
         }
-        if (!mFramesSlider->canAddSliders())
+        else
         {
-            LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame when slider is full." << LL_ENDL;
-            return;
+            if (mCurrentTrack == LLSettingsDay::TRACK_WATER)
+            {
+                mEditDay->setWaterAtKeyframe(std::static_pointer_cast<LLSettingsWater>(settings), frame);
+            }
+            else
+            {
+                mEditDay->setSkyAtKeyframe(std::static_pointer_cast<LLSettingsSky>(settings), frame, track);
+            }
+            updateTabs();
         }
-        mEditDay->setSettingsAtKeyframe(settings, frame, track);
-        addSliderFrame(frame, settings, false);
-        reblendSettings();
-        synchronizeTabs();
     };
 
     if (!settings || status)

@@ -273,6 +273,8 @@ public:
     bool getIsMoonUp() const;
 
     LLVector3 getLightDirection() const;
+    LLColor3  getLightDiffuse() const;
+
     LLVector3 getSunDirection() const;
     LLVector3 getMoonDirection() const;
     LLColor4U getFadeColor() const;

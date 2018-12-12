@@ -43,6 +43,7 @@ class LLTimeCtrl;
 class LLTabContainer;
 
 class LLInventoryItem;
+class LLDaySettingCopiedCallback;
 
 typedef std::shared_ptr<LLSettingsBase> LLSettingsBasePtr_t;
 
@@ -52,6 +53,8 @@ typedef std::shared_ptr<LLSettingsBase> LLSettingsBasePtr_t;
 class LLFloaterEditExtDayCycle : public LLFloater
 {
 	LOG_CLASS(LLFloaterEditExtDayCycle);
+
+    friend class LLDaySettingCopiedCallback;
 
 public:
     static const std::string    KEY_INVENTORY_ID;
@@ -131,6 +134,7 @@ private:
 	void                        updateWaterTabs(const LLSettingsWaterPtr_t &p_water);
 	void                        updateSkyTabs(const LLSettingsSkyPtr_t &p_sky);
 	void                        updateButtons();
+	void                        updateLabels();
 	void                        updateSlider(); //generate sliders from current track
 	void                        updateTimeAndLabel();
 	void                        addSliderFrame(const F32 frame, const LLSettingsBase::ptr_t &setting, bool update_ui = true);
@@ -145,6 +149,7 @@ private:
     void doApplyUpdateInventory(const LLSettingsDay::ptr_t &day);
     void doApplyEnvironment(const std::string &where, const LLSettingsDay::ptr_t &day);
     void doApplyCommit(LLSettingsDay::ptr_t day);
+    void                        onInventoryCreated(LLUUID asset_id, LLUUID inventory_id);
     void                        onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
     void                        onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
 
@@ -173,6 +178,7 @@ private:
     virtual void                clearDirtyFlag();
 
     bool                        isRemovingFrameAllowed();
+    bool                        isAddingFrameAllowed();
 
     LLSettingsDay::ptr_t        mEditDay; // edited copy
     LLSettingsDay::Seconds      mDayLength;

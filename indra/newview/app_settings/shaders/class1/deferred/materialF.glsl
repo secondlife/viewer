@@ -98,6 +98,7 @@ uniform mat3 env_mat;
 uniform mat3 ssao_effect_mat;
 
 uniform vec3 sun_dir;
+uniform vec3 moon_dir;
 VARYING vec2 vary_fragcoord;
 
 VARYING vec3 vary_position;
@@ -381,9 +382,10 @@ void main()
 	
 	vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
-	float da =dot(norm.xyz, sun_dir.xyz);
+	float sun_da  = dot(norm.xyz, sun_dir.xyz);
+	float moon_da = dot(norm.xyz, moon_dir.xyz);
 
-    float final_da = da;
+    float final_da = max(sun_da,moon_da);
           final_da = min(final_da, shadow);
           //final_da = max(final_da, diffuse.a);
           final_da = max(final_da, 0.0f);
@@ -392,7 +394,7 @@ void main()
 
 	col.rgb = atmosFragAmbient(col, amblit);
 	
-	float ambient = min(abs(da), 1.0);
+	float ambient = min(abs(final_da), 1.0);
 	ambient *= 0.5;
 	ambient *= ambient;
 	ambient = (1.0-ambient);

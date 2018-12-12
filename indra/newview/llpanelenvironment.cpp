@@ -151,7 +151,7 @@ BOOL LLPanelEnvironmentInfo::postBuild()
 
     getChild<LLMultiSliderCtrl>(SLD_ALTITUDES)->setCommitCallback([this](LLUICtrl *cntrl, const LLSD &value) { onAltSliderCallback(cntrl, value); });
 
-    mChangeMonitor = LLEnvironment::instance().setEnvironmentChanged([this](LLEnvironment::EnvSelection_t env) { onEnvironmentChanged(env); });
+    mChangeMonitor = LLEnvironment::instance().setEnvironmentChanged([this](LLEnvironment::EnvSelection_t env, S32 version) { onEnvironmentChanged(env, version); });
 
     getChild<LLSettingsDropTarget>(SDT_DROP_TARGET)->setPanel(this);
 
@@ -255,12 +255,18 @@ void LLPanelEnvironmentInfo::refresh()
     LLEnvironment::altitude_list_t altitudes = LLEnvironment::instance().getRegionAltitudes();
     if (altitudes.size() > 0)
     {
+        LLMultiSliderCtrl *sld = getChild<LLMultiSliderCtrl>(SLD_ALTITUDES);
+        sld->clear();
+
         for (S32 idx = 0; idx < ALTITUDE_SLIDER_COUNT; ++idx)
         {
-            LLMultiSliderCtrl *sld = getChild<LLMultiSliderCtrl>(SLD_ALTITUDES);
-            sld->setSliderValue(alt_sliders[idx], altitudes[idx+1], FALSE);
+            sld->addSlider(altitudes[idx + 1], alt_sliders[idx]);
             updateAltLabel(alt_labels[idx], idx + 2, altitudes[idx+1]);
             mAltitudes[alt_sliders[idx]] = AltitudeData(idx+1, idx, altitudes[idx+1]);
+        }
+        if (sld->getCurNumSliders() != ALTITUDE_SLIDER_COUNT)
+        {
+            LL_WARNS("ENVPANEL") << "Failed to add altitude sliders!" << LL_ENDL;
         }
         readjustAltLabels();
     }
@@ -389,7 +395,7 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
 
     S32 rdo_selection = getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->getSelectedIndex();
 
-    bool can_enable = enabled && mCurEnvVersion != INVALID_PARCEL_ENVIRONMENT_VERSION;
+    bool can_enable = enabled && mCurrentEnvironment && mCurEnvVersion != INVALID_PARCEL_ENVIRONMENT_VERSION;
     getChild<LLUICtrl>(RDG_ENVIRONMENT_SELECT)->setEnabled(can_enable);
     getChild<LLUICtrl>(RDO_USEDEFAULT)->setEnabled(can_enable && !is_legacy);
     getChild<LLUICtrl>(RDO_USEINV)->setEnabled(false);      // these two are selected automatically based on 
@@ -431,16 +437,16 @@ void LLPanelEnvironmentInfo::setDirtyFlag(U32 flag)
 {
     bool can_edit = canEdit();
     mDirtyFlag |= flag;
-    getChildView(BTN_APPLY)->setEnabled((mDirtyFlag != 0) && mCurEnvVersion != INVALID_PARCEL_ENVIRONMENT_VERSION && can_edit);
-    getChildView(BTN_CANCEL)->setEnabled((mDirtyFlag != 0) && can_edit);
+    getChildView(BTN_APPLY)->setEnabled((mDirtyFlag != 0) && mCurrentEnvironment && mCurEnvVersion != INVALID_PARCEL_ENVIRONMENT_VERSION && can_edit);
+    getChildView(BTN_CANCEL)->setEnabled((mDirtyFlag != 0) && mCurrentEnvironment && can_edit);
 }
 
 void LLPanelEnvironmentInfo::clearDirtyFlag(U32 flag)
 {
     bool can_edit = canEdit();
     mDirtyFlag &= ~flag;
-    getChildView(BTN_APPLY)->setEnabled((mDirtyFlag != 0) && mCurEnvVersion != INVALID_PARCEL_ENVIRONMENT_VERSION && can_edit);
-    getChildView(BTN_CANCEL)->setEnabled((mDirtyFlag != 0) && can_edit);
+    getChildView(BTN_APPLY)->setEnabled((mDirtyFlag != 0) && mCurrentEnvironment && mCurEnvVersion != INVALID_PARCEL_ENVIRONMENT_VERSION && can_edit);
+    getChildView(BTN_CANCEL)->setEnabled((mDirtyFlag != 0) && mCurrentEnvironment && can_edit);
 }
 
 void LLPanelEnvironmentInfo::updateAltLabel(const std::string &alt_name, U32 sky_index, F32 alt_value)
@@ -551,7 +557,7 @@ void LLPanelEnvironmentInfo::onSldDayOffsetChanged(F32 value)
 {
     F32Hours dayoffset(value);
 
-    if (dayoffset.value() < 0.0f)
+    if (dayoffset.value() <= 0.0f)
         dayoffset += F32Hours(24.0);
 
     mCurrentEnvironment->mDayOffset = dayoffset;
@@ -663,7 +669,6 @@ void LLPanelEnvironmentInfo::doApply()
 
         if (rdo_selection == 0)
         {
-            mCurEnvVersion = INVALID_PARCEL_ENVIRONMENT_VERSION;
             LLEnvironment::instance().resetParcel(parcel_id,
                 [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
         }
@@ -675,7 +680,6 @@ void LLPanelEnvironmentInfo::doApply()
                 LL_WARNS("ENVPANEL") << "Failed to apply changes from editor! Dirty state: " << mDirtyFlag << " update state: " << mCurEnvVersion << LL_ENDL;
                 return;
             }
-            mCurEnvVersion = INVALID_PARCEL_ENVIRONMENT_VERSION;
             LLEnvironment::instance().updateParcel(parcel_id,
                 mCurrentEnvironment->mDayCycle->getAssetId(), std::string(), mCurrentEnvironment->mDayLength.value(), 
                 mCurrentEnvironment->mDayOffset.value(), alts,
@@ -689,7 +693,6 @@ void LLPanelEnvironmentInfo::doApply()
                 LL_WARNS("ENVPANEL") << "Failed to apply changes from editor! Dirty state: " << mDirtyFlag << " update state: " << mCurEnvVersion << LL_ENDL;
                 return;
             }
-            mCurEnvVersion = INVALID_PARCEL_ENVIRONMENT_VERSION;
             LLEnvironment::instance().updateParcel(parcel_id,
                 mCurrentEnvironment->mDayCycle, mCurrentEnvironment->mDayLength.value(), mCurrentEnvironment->mDayOffset.value(), alts,
                 [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
@@ -780,36 +783,55 @@ void LLPanelEnvironmentInfo::onEditCommitted(LLSettingsDay::ptr_t newday)
     }
 }
 
-void LLPanelEnvironmentInfo::onEnvironmentChanged(LLEnvironment::EnvSelection_t env)
+void LLPanelEnvironmentInfo::onEnvironmentChanged(LLEnvironment::EnvSelection_t env, S32 new_version)
 {
+    if (new_version < INVALID_PARCEL_ENVIRONMENT_VERSION)
+    {
+        // cleanups and local changes, we are only interested in changes sent by server
+        return;
+    }
+
+    LL_DEBUGS("ENVPANEL") << "Received environment update " << mCurEnvVersion << " " << new_version << LL_ENDL;
+
+    // Environment comes from different sources, from environment update callbacks,
+    // from hovers (causes callbacks on version change) and from personal requests
+    // filter out duplicates and out of order packets by checking parcel environment version.
+
     if (isRegion())
     {
-        // Note: at the moment mCurEnvVersion is only applyable to parcels, we might need separate version control for regions
-        // but mCurEnvVersion still acts like indicator that update is pending
-        if (env == LLEnvironment::ENV_REGION)
+        // Note: region uses same init versions as parcel
+        if (env == LLEnvironment::ENV_REGION
+            // version should be always growing, UNSET_PARCEL_ENVIRONMENT_VERSION is backup case
+            && (mCurEnvVersion < new_version || mCurEnvVersion <= UNSET_PARCEL_ENVIRONMENT_VERSION))
         {
+            if (new_version >= UNSET_PARCEL_ENVIRONMENT_VERSION)
+            {
+                // 'pending state' to prevent re-request on following onEnvironmentChanged if there will be any
+                mCurEnvVersion = new_version;
+            }
             mCurrentEnvironment.reset();
             refreshFromSource();
         }
     }
-    else if ((env == LLEnvironment::ENV_PARCEL) && (getParcelId() == LLViewerParcelMgr::instance().getAgentParcelId()))
+    else if ((env == LLEnvironment::ENV_PARCEL)
+             && (getParcelId() == LLViewerParcelMgr::instance().getAgentParcelId()))
     {
-        // Panel receives environment from different sources, from environment update callbacks,
-        // from hovers (causes callbacks on version change) and from personal requests
-        // filter out dupplicates and out of order packets by checking parcel environment version.
         LLParcel *parcel = getParcel();
         if (parcel)
         {
-            S32 new_version = parcel->getParcelEnvironmentVersion();
-            LL_DEBUGS("ENVPANEL") << "Received environment update " << mCurEnvVersion << " " << new_version << LL_ENDL;
+            // first for parcel own settings, second is for case when parcel uses region settings
             if (mCurEnvVersion < new_version
                 || (mCurEnvVersion != new_version && new_version == UNSET_PARCEL_ENVIRONMENT_VERSION))
             {
+                // 'pending state' to prevent re-request on following onEnvironmentChanged if there will be any
+                mCurEnvVersion = new_version;
                 mCurrentEnvironment.reset();
+
                 refreshFromSource();
             }
-            else
+            else if (mCurrentEnvironment)
             {
+                // update controls
                 refresh();
             }
         }
@@ -839,30 +861,21 @@ void LLPanelEnvironmentInfo::onEnvironmentReceived(S32 parcel_id, LLEnvironment:
     }
     mCurrentEnvironment = envifo;
     clearDirtyFlag(DIRTY_FLAG_MASK);
-    if (parcel_id == INVALID_PARCEL_ID)
+    if (mCurrentEnvironment->mEnvVersion > INVALID_PARCEL_ENVIRONMENT_VERSION)
     {
-        // region, no version
-        // -2 for invalid version viewer -1 for invalid version from server
-        mCurEnvVersion = UNSET_PARCEL_ENVIRONMENT_VERSION;
+        // Server provided version, use it
+        mCurEnvVersion = mCurrentEnvironment->mEnvVersion;
+        LL_DEBUGS("ENVPANEL") << " Setting environment version: " << mCurEnvVersion << " for parcel id: " << parcel_id << LL_ENDL;
     }
+    // Backup: Version was not provided for some reason
     else
     {
-        LLParcel* parcel = getParcel();
-        if (parcel
-            && mCurrentEnvironment->mDayCycle
-            && mCurrentEnvironment->mDayCycle->getAssetId() != LLSettingsDay::GetDefaultAssetId())
-        {
-            // not always up to date, we will get onEnvironmentChanged() update in such case.
-            mCurEnvVersion = parcel->getParcelEnvironmentVersion();
-        }
-        else
-        {
-            // When using 'region' as parcel environment
-            mCurEnvVersion = UNSET_PARCEL_ENVIRONMENT_VERSION;
-        }
-        LL_DEBUGS("ENVPANEL") << " Setting environment version: " << mCurEnvVersion << LL_ENDL;
+        LL_WARNS("ENVPANEL") << " Environment version was not provided for " << parcel_id << ", old env version: " << mCurEnvVersion << LL_ENDL;
     }
+
     refresh();
+
+    // todo: we have envifo and parcel env version, should we just setEnvironment() and parcel's property to prevent dupplicate requests?
 }
 
 void LLPanelEnvironmentInfo::_onEnvironmentReceived(LLHandle<LLPanel> that_h, S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo)

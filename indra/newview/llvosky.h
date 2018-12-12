@@ -334,7 +334,8 @@ protected:
 	
 	bool				mInitialized;
 	bool				mForceUpdate;				//flag to force instantaneous update of cubemap
-	LLVector3			mLastLightingDirection;
+	LLVector3			mLastSunLightingDirection;
+    LLVector3			mLastMoonLightingDirection;
 	LLColor3			mLastTotalAmbient;
 	F32					mAmbientScale;
 	LLColor3			mNightColorShift;

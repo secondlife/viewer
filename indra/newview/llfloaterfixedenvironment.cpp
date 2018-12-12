@@ -86,6 +86,30 @@ const std::string LLFloaterFixedEnvironment::KEY_INVENTORY_ID("inventory_id");
 
 
 //=========================================================================
+
+class LLFixedSettingCopiedCallback : public LLInventoryCallback
+{
+public:
+    LLFixedSettingCopiedCallback(LLHandle<LLFloater> handle) : mHandle(handle) {}
+
+    virtual void fire(const LLUUID& inv_item_id)
+    {
+        if (!mHandle.isDead())
+        {
+            LLViewerInventoryItem* item = gInventory.getItem(inv_item_id);
+            if (item)
+            {
+                LLFloaterFixedEnvironment* floater = (LLFloaterFixedEnvironment*)mHandle.get();
+                floater->onInventoryCreated(item->getAssetUUID(), inv_item_id);
+            }
+        }
+    }
+
+private:
+    LLHandle<LLFloater> mHandle;
+};
+
+//=========================================================================
 LLFloaterFixedEnvironment::LLFloaterFixedEnvironment(const LLSD &key) :
     LLFloater(key),
     mFlyoutControl(nullptr),
@@ -429,7 +453,32 @@ void LLFloaterFixedEnvironment::onSaveAsCommit(const LLSD& notification, const L
     {
         std::string settings_name = response["message"].asString();
         LLStringUtil::trim(settings_name);
-        doApplyCreateNewInventory(settings_name);
+        if (mCanMod)
+        {
+            doApplyCreateNewInventory(settings_name);
+        }
+        else if (mInventoryItem)
+        {
+            const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+            LLUUID parent_id = mInventoryItem->getParentUUID();
+            if (marketplacelistings_id == parent_id)
+            {
+                parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
+            }
+
+            LLPointer<LLInventoryCallback> cb = new LLFixedSettingCopiedCallback(getHandle());
+            copy_inventory_item(
+                gAgent.getID(),
+                mInventoryItem->getPermissions().getOwner(),
+                mInventoryItem->getUUID(),
+                parent_id,
+                settings_name,
+                cb);
+        }
+        else
+        {
+            LL_WARNS() << "Failed to copy fixed env setting" << LL_ENDL;
+        }
     }
 }
 
@@ -448,10 +497,20 @@ void LLFloaterFixedEnvironment::onButtonLoad()
 
 void LLFloaterFixedEnvironment::doApplyCreateNewInventory(std::string settings_name)
 {
-    LLUUID parent_id = mInventoryItem ? mInventoryItem->getParentUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
-    // This method knows what sort of settings object to create.
-    LLSettingsVOBase::createInventoryItem(mSettings, parent_id, settings_name,
+    if (mInventoryItem)
+    {
+        LLUUID parent_id = mInventoryItem->getParentUUID();
+        U32 next_owner_perm = mInventoryItem->getPermissions().getMaskNextOwner();
+        LLSettingsVOBase::createInventoryItem(mSettings, next_owner_perm, parent_id, settings_name,
             [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
+    }
+    else
+    {
+        LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
+        // This method knows what sort of settings object to create.
+        LLSettingsVOBase::createInventoryItem(mSettings, parent_id, settings_name,
+            [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
+    }
 }
 
 void LLFloaterFixedEnvironment::doApplyUpdateInventory()
@@ -537,13 +596,17 @@ void LLFloaterFixedEnvironment::doCloseInventoryFloater(bool quitting)
 void LLFloaterFixedEnvironment::onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results)
 {
     LL_WARNS("ENVIRONMENT") << "Inventory item " << inventory_id << " has been created with asset " << asset_id << " results are:" << results << LL_ENDL;
-    
+
     if (inventory_id.isNull() || !results["success"].asBoolean())
     {
         LLNotificationsUtil::add("CantCreateInventory");
         return;
     }
+    onInventoryCreated(asset_id, inventory_id);
+}
 
+void LLFloaterFixedEnvironment::onInventoryCreated(LLUUID asset_id, LLUUID inventory_id)
+{
     if (mInventoryItem)
     {
         LLPermissions perms = mInventoryItem->getPermissions();

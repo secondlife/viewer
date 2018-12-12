@@ -76,6 +76,7 @@ namespace
     const std::string KEY_DAYNAME("day_name");
     const std::string KEY_DAYNAMES("day_names");
     const std::string KEY_DAYOFFSET("day_offset");
+    const std::string KEY_ENVVERSION("env_version");
     const std::string KEY_ISDEFAULT("is_default");
     const std::string KEY_PARCELID("parcel_id");
     const std::string KEY_REGIONID("region_id");
@@ -328,6 +329,8 @@ const LLUUID LLEnvironment::KNOWN_SKY_SUNSET("95882e1b-7741-f082-d9d6-3a34ec644c
 const LLUUID LLEnvironment::KNOWN_SKY_MIDNIGHT("d8e50d02-a15b-17a7-3425-523bc20f67b8");
 
 const S32 LLEnvironment::NO_TRACK(-1);
+const S32 LLEnvironment::NO_VERSION(-3); // For viewer sided change, like ENV_LOCAL. -3 since -1 and -2 are taken by parcel initial server/viewer version
+const S32 LLEnvironment::VERSION_CLEANUP(-4); // for cleanups
 
 const F32 LLEnvironment::SUN_DELTA_YAW(F_PI);   // 180deg 
 
@@ -359,6 +362,8 @@ void LLEnvironment::initSingleton()
     gAgent.addParcelChangedCallback([this]() { onParcelChange(); });
 
     //TODO: This frequently results in one more request than we need.  It isn't breaking, but should be nicer.
+    // We need to know new env version to fix this, without it we can only do full re-request
+    // Happens: on updates, on opening LLFloaterRegionInfo, on region crossing if info floater is open
     LLRegionInfoModel::instance().setUpdateCallback([this]() { requestRegion(); });
     gAgent.addRegionChangedCallback([this]() { onRegionChange(); });
 
@@ -593,7 +598,7 @@ LLEnvironment::DayInstance::ptr_t LLEnvironment::getEnvironmentInstance(LLEnviro
 }
 
 
-void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSettingsDay::ptr_t &pday, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset)
+void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSettingsDay::ptr_t &pday, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset, S32 env_version)
 {
     if ((env < ENV_EDIT) || (env >= ENV_DEFAULT))
     {   
@@ -609,11 +614,11 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSe
     environment->animate();
 
     if (!mSignalEnvChanged.empty())
-        mSignalEnvChanged(env);
+        mSignalEnvChanged(env, env_version);
 }
 
 
-void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironment::fixedEnvironment_t fixed)
+void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironment::fixedEnvironment_t fixed, S32 env_version)
 {
     if ((env < ENV_EDIT) || (env >= ENV_DEFAULT))
     {
@@ -647,12 +652,12 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironm
 
 
     if (!mSignalEnvChanged.empty())
-        mSignalEnvChanged(env);
+        mSignalEnvChanged(env, env_version);
 
     /*TODO: readjust environment*/
 }
 
-void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSettingsBase::ptr_t &settings)
+void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSettingsBase::ptr_t &settings, S32 env_version)
 {
     DayInstance::ptr_t environment = getEnvironmentInstance(env);
 
@@ -699,22 +704,33 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSe
     }
 }
 
-void LLEnvironment::setEnvironment(EnvSelection_t env, const LLUUID &assetId)
+void LLEnvironment::setEnvironment(EnvSelection_t env, const LLUUID &assetId, S32 env_version)
 {
     setEnvironment(env, assetId, LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET);
 }
 
 
-void LLEnvironment::setEnvironment(EnvSelection_t env, const LLUUID &assetId, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset)
+void LLEnvironment::setEnvironment(EnvSelection_t env,
+                                   const LLUUID &assetId,
+                                   LLSettingsDay::Seconds daylength,
+                                   LLSettingsDay::Seconds dayoffset,
+                                   S32 env_version)
 {
     LLSettingsVOBase::getSettingsAsset(assetId,
-        [this, env, daylength, dayoffset](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) 
+        [this, env, daylength, dayoffset, env_version](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat)
         {
-            onSetEnvAssetLoaded(env, asset_id, settings, daylength, dayoffset, TRANSITION_DEFAULT, status); 
+            onSetEnvAssetLoaded(env, asset_id, settings, daylength, dayoffset, TRANSITION_DEFAULT, status, env_version);
         });
 }
 
-void LLEnvironment::onSetEnvAssetLoaded(EnvSelection_t env, LLUUID asset_id, LLSettingsBase::ptr_t settings, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset, LLSettingsBase::Seconds transition, S32 status)
+void LLEnvironment::onSetEnvAssetLoaded(EnvSelection_t env,
+                                        LLUUID asset_id,
+                                        LLSettingsBase::ptr_t settings,
+                                        LLSettingsDay::Seconds daylength,
+                                        LLSettingsDay::Seconds dayoffset,
+                                        LLSettingsBase::Seconds transition,
+                                        S32 status,
+                                        S32 env_version)
 {
     if (!settings || status)
     {
@@ -739,7 +755,7 @@ void LLEnvironment::clearEnvironment(LLEnvironment::EnvSelection_t env)
     mEnvironments[env].reset();
 
     if (!mSignalEnvChanged.empty())
-        mSignalEnvChanged(env);
+        mSignalEnvChanged(env, VERSION_CLEANUP);
 
     /*TODO: readjust environment*/
 }
@@ -1123,7 +1139,7 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
         if (!envinfo->mDayCycle)
         {
             clearEnvironment(ENV_PARCEL);
-            setEnvironment(ENV_REGION, LLSettingsDay::GetDefaultAssetId(), LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET);
+            setEnvironment(ENV_REGION, LLSettingsDay::GetDefaultAssetId(), LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET, envinfo->mEnvVersion);
             updateEnvironment();
         }
         else if (envinfo->mDayCycle->isTrackEmpty(LLSettingsDay::TRACK_WATER)
@@ -1131,13 +1147,13 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
         {
             LL_WARNS("LAPRAS") << "Invalid day cycle for region" << LL_ENDL;
             clearEnvironment(ENV_PARCEL);
-            setEnvironment(ENV_REGION, LLSettingsDay::GetDefaultAssetId(), LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET);
+            setEnvironment(ENV_REGION, LLSettingsDay::GetDefaultAssetId(), LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET, envinfo->mEnvVersion);
             updateEnvironment();
         }
         else
         {
             LL_INFOS("LAPRAS") << "Setting Region environment" << LL_ENDL;
-            setEnvironment(ENV_REGION, envinfo->mDayCycle, envinfo->mDayLength, envinfo->mDayOffset);
+            setEnvironment(ENV_REGION, envinfo->mDayCycle, envinfo->mDayLength, envinfo->mDayOffset, envinfo->mEnvVersion);
             mTrackAltitudes = envinfo->mAltitudes;
         }
 
@@ -1166,7 +1182,7 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
         }
         else
         {
-            setEnvironment(ENV_PARCEL, envinfo->mDayCycle, envinfo->mDayLength, envinfo->mDayOffset);
+            setEnvironment(ENV_PARCEL, envinfo->mDayCycle, envinfo->mDayLength, envinfo->mDayOffset, envinfo->mEnvVersion);
         }
     }
 
@@ -1538,7 +1554,8 @@ LLEnvironment::EnvironmentInfo::EnvironmentInfo():
     mIsDefault(false),
     mIsLegacy(false),
     mDayCycleName(),
-    mNameList()
+    mNameList(),
+    mEnvVersion(INVALID_PARCEL_ENVIRONMENT_VERSION)
 {
 }
 
@@ -1592,6 +1609,17 @@ LLEnvironment::EnvironmentInfo::ptr_t LLEnvironment::EnvironmentInfo::extract(LL
         {
             pinfo->mDayCycleName = daynames.asString();
         }
+    }
+
+    if (environment.has(KEY_ENVVERSION))
+    {
+        LLSD version = environment[KEY_ENVVERSION];
+        pinfo->mEnvVersion = version.asInteger();
+    }
+    else
+    {
+        // can be used for region, but versions should be same
+        pinfo->mEnvVersion = pinfo->mIsDefault ? UNSET_PARCEL_ENVIRONMENT_VERSION : INVALID_PARCEL_ENVIRONMENT_VERSION;
     }
 
     return pinfo;
@@ -1819,7 +1847,7 @@ void LLEnvironment::setExperienceEnvironment(LLUUID experience_id, LLUUID asset_
         mPushEnvironmentExpId = experience_id;
         onSetEnvAssetLoaded(ENV_PUSH, asset_id, settings, 
             LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET, 
-            LLSettingsBase::Seconds(transition_time), status);
+            LLSettingsBase::Seconds(transition_time), status, NO_VERSION);
     });
 
 

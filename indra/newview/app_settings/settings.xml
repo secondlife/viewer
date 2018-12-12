@@ -14805,6 +14805,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>sunbeacon</key>
+    <map>
+      <key>Comment</key>
+      <string>Show direction to the Sun</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>moonbeacon</key>
+    <map>
+      <key>Comment</key>
+      <string>Show direction to the Moon</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>ShowDeviceSettings</key>
     <map>
       <key>Comment</key>

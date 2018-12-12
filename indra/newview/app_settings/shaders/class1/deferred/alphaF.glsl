@@ -43,6 +43,7 @@ uniform mat3 env_mat;
 uniform mat3 ssao_effect_mat;
 
 uniform vec3 sun_dir;
+uniform vec3 moon_dir;
 
 #if HAS_SHADOW
 uniform sampler2DShadow shadowMap0;
@@ -280,20 +281,20 @@ void main()
 	vec2 abnormal	= encode_normal(norm.xyz);
 		 norm.xyz   = decode_normal(abnormal.xy);
 
-	float da = dot(norm.xyz, sun_dir.xyz);
+	float sun_da  = dot(norm.xyz, sun_dir.xyz);
+	float moon_da = dot(norm.xyz, moon_dir.xyz);
 
-    float final_da = da;
+    float final_da = max(sun_da, moon_da);
           final_da = min(final_da, shadow);
-          final_da = max(final_da, 0.0f);
-		  final_da = min(final_da, 1.0f);
-		  final_da = pow(final_da, 1.0/1.3);
+          final_da = clamp(final_da, 0.0f, 1.0f);
+	  final_da = pow(final_da, 1.0/1.3);
 
 	vec4 color = vec4(0,0,0,0);
 
 	color.rgb = atmosFragAmbient(color.rgb, amblit);
 	color.a   = final_alpha;
 
-	float ambient = abs(da);
+	float ambient = abs(final_da);
 	ambient *= 0.5;
 	ambient *= ambient;
 	ambient = (1.0-ambient);

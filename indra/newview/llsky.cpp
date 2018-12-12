@@ -52,7 +52,7 @@
 #include "llcubemap.h"
 #include "llviewercontrol.h"
 #include "llenvironment.h"
-
+#include "llvoavatarself.h"
 #include "llvowlsky.h"
 
 F32 azimuth_from_vector(const LLVector3 &v);
@@ -231,6 +231,23 @@ void LLSky::setWind(const LLVector3& average_wind)
 	if (mVOSkyp)
 	{
 		mVOSkyp->setWind(average_wind);
+	}
+}
+
+void LLSky::addSunMoonBeacons()
+{	
+	if (!gAgentAvatarp || !mVOSkyp) return;
+
+	static LLUICachedControl<bool> show_sun_beacon("sunbeacon", false);
+	static LLUICachedControl<bool> show_moon_beacon("moonbeacon", false);
+
+	if (show_sun_beacon)
+	{
+		renderSunMoonBeacons(gAgentAvatarp->getPositionAgent(), mVOSkyp->getSun().getDirection(), LLColor4(1.f, 0.5f, 0.f, 0.5f));
+	}
+	if (show_moon_beacon)
+	{
+		renderSunMoonBeacons(gAgentAvatarp->getPositionAgent(), mVOSkyp->getMoon().getDirection(), LLColor4(1.f, 0.f, 0.8f, 0.5f));
 	}
 }
 
