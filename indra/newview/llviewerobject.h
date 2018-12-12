@@ -772,6 +772,7 @@ protected:
 	F64Seconds		mLastInterpUpdateSecs;			// Last update for purposes of interpolation
 	F64Seconds		mLastMessageUpdateSecs;			// Last update from a message from the simulator
 	TPACKETID		mLatestRecvPacketID;			// Latest time stamp on message from simulator
+	F64SecondsImplicit mRegionCrossExpire;		// frame time we detected region crossing in + wait time
 
 	// extra data sent from the sim...currently only used for tree species info
 	U8* mData;

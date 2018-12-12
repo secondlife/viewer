@@ -261,6 +261,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mLastInterpUpdateSecs(0.f),
 	mLastMessageUpdateSecs(0.f),
 	mLatestRecvPacketID(0),
+	mRegionCrossExpire(0),
 	mData(NULL),
 	mAudioSourcep(NULL),
 	mAudioGain(1.f),
@@ -2636,8 +2637,7 @@ void LLViewerObject::interpolateLinearMotion(const F64SecondsImplicit& frame_tim
 		new_pos.mV[VZ] = llmax(min_height, new_pos.mV[VZ]);
 
 		// Check to see if it's going off the region
-		LLVector3 temp(new_pos);
-		static F64SecondsImplicit region_cross_expire = 0; // frame time we detected region crossing in + wait time
+		LLVector3 temp(new_pos.mV[VX], new_pos.mV[VY], 0.f);
 		if (temp.clamp(0.f, mRegionp->getWidth()))
 		{	// Going off this region, so see if we might end up on another region
 			LLVector3d old_pos_global = mRegionp->getPosGlobalFromRegion(getPositionRegion());
@@ -2664,28 +2664,28 @@ void LLViewerObject::interpolateLinearMotion(const F64SecondsImplicit& frame_tim
 				// Note: theoretically we can find time from velocity, acceleration and
 				// distance from border to new position, but it is not going to work
 				// if 'phase_out' activates
-				if (region_cross_expire == 0)
+				if (mRegionCrossExpire == 0)
 				{
 					// Workaround: we can't accurately figure out time when we cross border
 					// so just write down time 'after the fact', it is far from optimal in
 					// case of lags, but for lags sMaxUpdateInterpolationTime will kick in first
 					LL_DEBUGS("Interpolate") << "Predicted region crossing, new position " << new_pos << LL_ENDL;
-					region_cross_expire = frame_time + sMaxRegionCrossingInterpolationTime;
+					mRegionCrossExpire = frame_time + sMaxRegionCrossingInterpolationTime;
 				}
-				else if (frame_time > region_cross_expire)
+				else if (frame_time > mRegionCrossExpire)
 				{
 					// Predicting crossing over 1s, stop motion
 					// Stop motion
 					LL_DEBUGS("Interpolate") << "Predicting region crossing for too long, stopping at " << new_pos << LL_ENDL;
 					new_v.clear();
 					setAcceleration(LLVector3::zero);
-					region_cross_expire = 0;
+					mRegionCrossExpire = 0;
 				}
 			}
 		}
 		else
 		{
-			region_cross_expire = 0;
+			mRegionCrossExpire = 0;
 		}
 
 		// Set new position and velocity
