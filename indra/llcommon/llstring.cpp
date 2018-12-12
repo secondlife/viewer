@@ -30,6 +30,7 @@
 #include "llerror.h"
 #include "llfasttimer.h"
 #include "llsd.h"
+#include <vector>
 
 #if LL_WINDOWS
 #include "llwin32headerslean.h"
@@ -672,6 +673,11 @@ namespace snprintf_hack
 	}
 }
 
+std::string ll_convert_wide_to_string(const wchar_t* in)
+{
+	return ll_convert_wide_to_string(in, CP_UTF8);
+}
+
 std::string ll_convert_wide_to_string(const wchar_t* in, unsigned int code_page)
 {
 	std::string out;
@@ -709,7 +715,12 @@ std::string ll_convert_wide_to_string(const wchar_t* in, unsigned int code_page)
 	return out;
 }
 
-wchar_t* ll_convert_string_to_wide(const std::string& in, unsigned int code_page)
+std::basic_string<wchar_t> ll_convert_string_to_wide(const std::string& in)
+{
+	return ll_convert_string_to_wide(in, CP_UTF8);
+}
+
+std::basic_string<wchar_t> ll_convert_string_to_wide(const std::string& in, unsigned int code_page)
 {
 	// From review:
 	// We can preallocate a wide char buffer that is the same length (in wchar_t elements) as the utf8 input,
@@ -719,24 +730,25 @@ wchar_t* ll_convert_string_to_wide(const std::string& in, unsigned int code_page
 	// but we *are* seeing string operations taking a bunch of time, especially when constructing widgets.
 //	int output_str_len = MultiByteToWideChar(code_page, 0, in.c_str(), in.length(), NULL, 0);
 
-	// reserve place to NULL terminator
-	int output_str_len = in.length();
-	wchar_t* w_out = new wchar_t[output_str_len + 1];
+	// reserve an output buffer that will be destroyed on exit, with a place
+	// to put NULL terminator
+	std::vector<wchar_t> w_out(in.length() + 1);
 
-	memset(w_out, 0, output_str_len + 1);
-	int real_output_str_len = MultiByteToWideChar (code_page, 0, in.c_str(), in.length(), w_out, output_str_len);
+	memset(&w_out[0], 0, w_out.size());
+	int real_output_str_len = MultiByteToWideChar(code_page, 0, in.c_str(), in.length(),
+												  &w_out[0], w_out.size() - 1);
 
 	//looks like MultiByteToWideChar didn't add null terminator to converted string, see EXT-4858.
 	w_out[real_output_str_len] = 0;
 
-	return w_out;
+	// construct string<wchar_t> from our temporary output buffer
+	return {&w_out[0]};
 }
 
 std::string ll_convert_string_to_utf8_string(const std::string& in)
 {
-	wchar_t* w_mesg = ll_convert_string_to_wide(in, CP_ACP);
-	std::string out_utf8(ll_convert_wide_to_string(w_mesg, CP_UTF8));
-	delete[] w_mesg;
+	auto w_mesg = ll_convert_string_to_wide(in, CP_ACP);
+	std::string out_utf8(ll_convert_wide_to_string(w_mesg.c_str(), CP_UTF8));
 
 	return out_utf8;
 }
