@@ -1,38 +1,38 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Edit Water Preset" title="Su Ön Ayarını Düzenle">
 	<string name="title_new">
-		Yeni Bir Su Ön Ayarı Oluştur
+		Yeni bir Su Ön Ayarı Oluştur
 	</string>
 	<string name="title_edit">
 		Bir Su Ön Ayarını Düzenle
 	</string>
 	<string name="hint_new">
-		Ön ayarınızı adlandırın, bunu oluşturmak için denetimleri ayarlayın ve &quot;Kaydet&quot; üzerine tıklayın.
+		Ön ayarınızı adlandırın, bunu oluşturmak için denetimleri ayarlayın ve &quot;Kaydet&quot; düğmesine tıklayın.
 	</string>
 	<string name="hint_edit">
-		Su ön ayarınızı düzenlemek için denetimleri ayarlayın ve &quot;Kaydet&quot; üzerine tıklayın.
+		Su ön ayarınızı düzenlemek için, denetimleri ayarlayın ve &quot;Kaydet&quot; düğmesine tıklayın.
 	</string>
 	<string name="combo_label">
 		-Bir ön ayar seçin-
 	</string>
 	<text name="hint">
-		Ön ayarınızı düzenlemek için denetimleri ayarlayın, sonra &quot;Kaydet&quot; üzerine tıklayın.
+		Ön ayarınızı düzenlemek için, denetimleri ayarlayın, sonra &quot;Kaydet» düğmesine tıklayın.
 	</text>
 	<text name="label">
 		Ön Ayar Adı:
 	</text>
 	<text name="note">
-		Not: Ön ayarınızın adını değiştirirseniz, yeni bir ön ayar oluşturursunuz ve mevcut ön ayar değişmez.
+		Not: ön ayarınızın adını değiştirirseniz, yeni bir ön ayar oluşturursunuz ve mevcut ön ayar değişmez.
 	</text>
 	<panel name="panel_water_preset">
 		<text name="water_color_label">
-			Su Pus Rengi
+			Su Sisi Rengi
 		</text>
 		<text name="water_fog_density_label">
-			Pus Yoğunluk Üssü
+			Sis Yoğunluğu Üssü
 		</text>
 		<text name="underwater_fog_modifier_label">
-			Sualtı Pus Değiştiricisi
+			Sualtı Sis Değiştiricisi
 		</text>
 		<text name="BHText">
 			Büyük Dalga Yönü
@@ -46,7 +46,7 @@
 			Fresnel Ölçeği
 		</text>
 		<text name="FresnelOffsetText">
-			Fresnel Dengeleyicisi
+			Fresnel Dengeleme
 		</text>
 		<text name="BHText2">
 			Küçük Dalga Yönü
@@ -68,5 +68,5 @@
 	</panel>
 	<check_box label="Bu ön ayarı yeni su ayarım yap" name="make_default_cb"/>
 	<button label="Kaydet" name="save"/>
-	<button label="İptal" name="cancel"/>
+	<button label="İptal Et" name="cancel"/>
 </floater>

@@ -65,16 +65,16 @@ Carte graphique : [GRAPHICS_CARD]
 		Version OpenGL : [OPENGL_VERSION]
 	</string>
 	<string name="AboutSettings">
-		Taille de la fenêtre : [WINDOW_WIDTH]x[WINDOW_HEIGHT]
-Ajustement de la taille de la police : [FONT_SIZE_ADJUSTMENT] pts
+		Taille de la fenêtre: [WINDOW_WIDTH]x[WINDOW_HEIGHT]
+Ajustement de la taille de la police : [FONT_SIZE_ADJUSTMENT]pt
 Échelle de l’interface : [UI_SCALE]
-Limite d’affichage : [DRAW_DISTANCE] m
+Distance de dessin : [DRAW_DISTANCE]m
 Bande passante : [NET_BANDWITH] kbit/s
 Facteur LOD (niveau de détail) : [LOD_FACTOR]
 Qualité de rendu : [RENDER_QUALITY]
 Modèle d’éclairage avancé : [GPU_SHADERS]
 Mémoire textures : [TEXTURE_MEMORY] Mo
-Durée de création VFS (cache) : [VFS_TIME]
+Heure de création VFS (cache) : [VFS_TIME]
 	</string>
 	<string name="AboutLibs">
 		J2C Decoder Version: [J2C_VERSION] 

@@ -73,9 +73,6 @@
 	<button label="Link" name="link_btn" width="30"/>
 	<button label="Verknüpfung auflösen" name="unlink_btn" width="126"/>
 	<check_box label="Beide Seiten dehnen" name="checkbox uniform"/>
-	<text label="Beide Seiten dehnen" name="checkbox uniform label">
-		Beide Seiten dehnen
-	</text>
 	<check_box initial_value="true" label="Texturen dehnen" name="checkbox stretch textures" top_pad="-5"/>
 	<check_box initial_value="true" label="Einrasten" name="checkbox snap to grid" top_pad="15"/>
 	<combo_box name="combobox grid mode" tool_tip="Wählen Sie das gewünschte Rasterlineal zum Positionieren des Objekts aus.">
@@ -375,6 +372,7 @@
 			<text name="edit_object">
 				Objekteigenschaften bearbeiten:
 			</text>
+			<check_box label="Animiertes Netz:" name="Animated Mesh Checkbox Ctrl" tool_tip="Ermöglicht die unabhängige Animation geriggter Netzobjekte"/>
 			<check_box label="Flexibler Pfad" name="Flexible1D Checkbox Ctrl" tool_tip="Bewirkt, dass sich das Objekt um die Z-Achse biegen kann. (Nur Client-Seite)"/>
 			<spinner label="Weichheit" name="FlexNumSections"/>
 			<spinner label="Schwerkraft" name="FlexGravity"/>
@@ -411,82 +409,7 @@
 			<spinner label="Dichte in 100 kg/m^3" name="Physics Density"/>
 			<spinner label="Restitution" name="Physics Restitution"/>
 		</panel>
-		<panel label="Textur" name="Texture">
-			<panel.string name="string repeats per meter">
-				Kacheln pro Meter
-			</panel.string>
-			<panel.string name="string repeats per face">
-				Wiederholungen pro Fläche
-			</panel.string>
-			<texture_picker label="Textur" name="texture control" tool_tip="Klicken, um ein Bild zu wählen"/>
-			<color_swatch label="Farbe" name="colorswatch" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen"/>
-			<text name="color trans">
-				Transparenz %
-			</text>
-			<text name="glow label">
-				Leuchten
-			</text>
-			<check_box label="Ganz hell" name="checkbox fullbright"/>
-			<text name="tex gen">
-				Zuordnung
-			</text>
-			<combo_box name="combobox texgen">
-				<combo_box.item label="Standard" name="Default"/>
-				<combo_box.item label="Eben" name="Planar"/>
-			</combo_box>
-			<text name="label shininess">
-				Glanz
-			</text>
-			<combo_box name="combobox shininess">
-				<combo_box.item label="Kein" name="None"/>
-				<combo_box.item label="Niedrig" name="Low"/>
-				<combo_box.item label="Mittel" name="Medium"/>
-				<combo_box.item label="Hoch" name="High"/>
-			</combo_box>
-			<text name="label bumpiness">
-				Holprigkeit
-			</text>
-			<combo_box name="combobox bumpiness">
-				<combo_box.item label="Keine" name="None"/>
-				<combo_box.item label="Helligkeit" name="Brightness"/>
-				<combo_box.item label="Dunkelheit" name="Darkness"/>
-				<combo_box.item label="Holzmaserung" name="woodgrain"/>
-				<combo_box.item label="Rinde" name="bark"/>
-				<combo_box.item label="Ziegel" name="bricks"/>
-				<combo_box.item label="Karo" name="checker"/>
-				<combo_box.item label="Beton" name="concrete"/>
-				<combo_box.item label="verkrustete Fliesen" name="crustytile"/>
-				<combo_box.item label="Steinplatten" name="cutstone"/>
-				<combo_box.item label="Scheiben" name="discs"/>
-				<combo_box.item label="Kies" name="gravel"/>
-				<combo_box.item label="Petrischale" name="petridish"/>
-				<combo_box.item label="Verkleidung" name="siding"/>
-				<combo_box.item label="Steinfliesen" name="stonetile"/>
-				<combo_box.item label="Stuck" name="stucco"/>
-				<combo_box.item label="Saugen" name="suction"/>
-				<combo_box.item label="gewoben" name="weave"/>
-			</combo_box>
-			<spinner label="Horizontal (U)" name="TexScaleU"/>
-			<check_box label="Umkehren" name="checkbox flip s"/>
-			<spinner label="Vertikal (V)" name="TexScaleV"/>
-			<check_box label="Umkehren" name="checkbox flip t"/>
-			<spinner label="Rotation˚" name="TexRot"/>
-			<button label="Übernehmen" label_selected="Übernehmen" name="button apply"/>
-			<text name="tex offset">
-				Texture-Versatz
-			</text>
-			<spinner label="Horizontal (U)" name="TexOffsetU"/>
-			<spinner label="Vertikal (V)" name="TexOffsetV"/>
-			<panel name="Add_Media">
-				<text name="media_tex">
-					Medien
-				</text>
-				<button name="add_media" tool_tip="Medien hinzufügen"/>
-				<button name="delete_media" tool_tip="Diese Medien-Textur löschen"/>
-				<button name="edit_media" tool_tip="Diese Medien bearbeiten"/>
-				<button label="Ausrichten" label_selected="Medien angleichen" name="button align" tool_tip="Medientexturen angleichen (müssen zunächst geladen werden)"/>
-			</panel>
-		</panel>
+		<panel label="Textur" name="Texture"/>
 		<panel label="Inhalt" name="Contents">
 			<button label="Neues Skript" label_selected="Neues Skript" name="button new script"/>
 			<button label="Berechtigungen" name="button permissions"/>
