@@ -9,7 +9,7 @@
 	</radio_group>
 	<panel name="user_environment_settings">
 		<text name="note">
-			注意：カスタム設定は他のユーザーには見えません。
+			注記： カスタム設定は他のユーザーには見えません。
 		</text>
 		<text name="water_settings_title">
 			水の設定
@@ -32,5 +32,5 @@
 		</combo_box>
 	</panel>
 	<button label="OK" name="ok_btn"/>
-	<button label="取り消し" name="cancel_btn"/>
+	<button label="キャンセル" name="cancel_btn"/>
 </floater>

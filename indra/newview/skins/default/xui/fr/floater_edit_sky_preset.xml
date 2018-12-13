@@ -7,36 +7,36 @@
 		Modifier un préréglage du ciel
 	</string>
 	<string name="hint_new">
-		Donnez un nom à votre préréglage, ajustez les contrôles afin de le créer, puis cliquez sur Enregistrer.
+		Donnez un nom à votre préréglage, ajustez les contrôles afin de le créer, puis cliquez sur &quot;Enregistrer&quot;.
 	</string>
 	<string name="hint_edit">
-		Pour modifier le préréglage du ciel, ajustez les contrôles, puis cliquez sur Enregistrer.
+		Pour modifier le préréglage du ciel, ajustez les contrôles, puis cliquez sur &quot;Enregistrer&quot;.
 	</string>
 	<string name="combo_label">
-		-Effectuer une sélection-
+		-Sélectionner un préréglage-
 	</string>
 	<text name="hint">
-		Pour modifier le préréglage, ajustez les contrôles, puis cliquez sur Enregistrer.
+		Pour modifier le préréglage, ajustez les contrôles, puis cliquez sur &quot;Enregistrer&quot;.
 	</text>
 	<text name="label">
 		Nom du préréglage :
 	</text>
 	<text name="note">
-		Remarque : si vous changez votre préréglage de nom, un nouveau préréglage sera créé et celui existant restera tel quel.
+		Remarque : Si vous changez votre préréglage de nom, un nouveau préréglage sera créé et celui existant restera tel quel.
 	</text>
 	<tab_container name="WindLight Tabs">
 		<panel label="ATMOSPHÈRE" name="Atmosphere">
 			<text name="BHText">
-				Bleu de l&apos;horizon
+				Horizon bleu
 			</text>
 			<text name="BDensText">
-				Quantité de brume
+				Horizon brumeux
 			</text>
 			<text name="BDensText2">
-				Densité du bleu
+				Densité bleue
 			</text>
 			<text name="HDText">
-				Densité de la brume
+				Densité brumeuse
 			</text>
 			<text name="DensMultText">
 				Multiplicateur de densité
@@ -53,7 +53,7 @@
 				Couleur soleil/lune
 			</text>
 			<text name="WLAmbientText">
-				Éclairage ambiant
+				Ambiante
 			</text>
 			<text name="SunGlowText">
 				Rayonnement du soleil
@@ -122,19 +122,19 @@
 				Altitude des nuages
 			</text>
 			<text name="WLCloudDetailText">
-				Détails des nuages - XY/Densité
+				Détails des nuages (XY/Densité)
 			</text>
 			<slider label="X" name="WLCloudDetailX"/>
 			<slider label="Y" name="WLCloudDetailY"/>
 			<slider label="D" name="WLCloudDetailDensity"/>
 			<text name="WLCloudScrollXText">
-				Direction et vitesse X
+				Défilement des nuages X
 			</text>
-			<check_box label="Verrouiller" name="WLCloudLockX"/>
+			<check_box label="Verrouillage" name="WLCloudLockX"/>
 			<text name="WLCloudScrollYText">
-				Direction et vitesse Y
+				Défilement des nuages Y
 			</text>
-			<check_box label="Verrouiller" name="WLCloudLockY"/>
+			<check_box label="Verrouillage" name="WLCloudLockY"/>
 		</panel>
 	</tab_container>
 	<check_box label="Appliquer ce nouveau préréglage pour le ciel" name="make_default_cb"/>

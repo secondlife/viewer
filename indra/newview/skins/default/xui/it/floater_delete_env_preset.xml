@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<floater name="Delete Env Preset" title="CANCELLA PREDEFINITO AMB">
+<floater name="Delete Env Preset" title="CANCELLA VALORE PREDEFINITO AMB">
 	<string name="title_water">
 		Cancella valore predefinito acqua
 	</string>
@@ -10,10 +10,10 @@
 		Cancella ciclo giornata
 	</string>
 	<string name="label_water">
-		Valori predefiniti:
+		Valore predefinito:
 	</string>
 	<string name="label_sky">
-		Valori predefiniti:
+		Valore predefinito:
 	</string>
 	<string name="label_day_cycle">
 		Ciclo giornata:
@@ -28,7 +28,7 @@
 		-Seleziona un valore predefinito-
 	</string>
 	<text name="label">
-		Valori predefiniti:
+		Valore predefinito:
 	</text>
 	<button label="Elimina" name="delete"/>
 	<button label="Annulla" name="cancel"/>

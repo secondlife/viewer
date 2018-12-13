@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Ambiente" name="panel_env_info">
 	<text name="water_settings_title">
-		Seleziona le impostazioni del ciclo dell&apos;acqua e del cielo/giornata che vuoi che vedano tutti coloro che visitano la tua regione.  Maggiori informazioni
+		Seleziona le impostazioni del ciclo dell&apos;acqua e del cielo/giornata che vuoi che vedano tutti coloro che visitano la tua regione. Maggiori informazioni
 	</text>
 	<radio_group name="region_settings_radio_group">
 		<radio_item label="Usa valori predefiniti di Second Life" name="use_sl_default_settings"/>
