@@ -7344,7 +7344,10 @@ void LLFolderViewGroupedItemBridge::groupFilterContextMenu(folder_view_item_dequ
     {
 		if (!LLAppearanceMgr::instance().canAddWearables(ids) && canWearSelected(ids))
         {
-			disabled_items.push_back(std::string("Wearable Add"));
+            disabled_items.push_back(std::string("Wearable And Object Wear"));
+            disabled_items.push_back(std::string("Wearable Add"));
+            disabled_items.push_back(std::string("Attach To"));
+            disabled_items.push_back(std::string("Attach To HUD"));
         }
     }
 	disable_context_entries_if_present(menu, disabled_items);

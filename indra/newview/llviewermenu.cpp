@@ -7068,6 +7068,10 @@ BOOL object_selected_and_point_valid()
 
 BOOL object_is_wearable()
 {
+	if (!isAgentAvatarValid())
+	{
+		return FALSE;
+	}
 	if (!object_selected_and_point_valid())
 	{
 		return FALSE;
@@ -7076,17 +7080,7 @@ BOOL object_is_wearable()
 	{
 		return FALSE;
 	}
-	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
-	for (LLObjectSelection::valid_root_iterator iter = LLSelectMgr::getInstance()->getSelection()->valid_root_begin();
-		 iter != LLSelectMgr::getInstance()->getSelection()->valid_root_end(); iter++)
-	{
-		LLSelectNode* node = *iter;		
-		if (node->mPermissions->getOwner() == gAgent.getID())
-		{
-			return TRUE;
-		}
-	}
-	return FALSE;
+	return gAgentAvatarp->canAttachMoreObjects();
 }
 
 
@@ -9207,7 +9201,7 @@ void initialize_menus()
 	enable.add("Object.EnableOpen", boost::bind(&enable_object_open));
 	enable.add("Object.EnableTouch", boost::bind(&enable_object_touch, _1));
 	enable.add("Object.EnableDelete", boost::bind(&enable_object_delete));
-	enable.add("Object.EnableWear", boost::bind(&object_selected_and_point_valid));
+	enable.add("Object.EnableWear", boost::bind(&object_is_wearable));
 
 	enable.add("Object.EnableStandUp", boost::bind(&enable_object_stand_up));
 	enable.add("Object.EnableSit", boost::bind(&enable_object_sit, _1));
