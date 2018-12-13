@@ -100,7 +100,7 @@
 			<text name="WL12am2">
 				12 AM
 			</text>
-			<time name="WLDayTime" value="6:00 AM"/>
+			<time name="WLDayTime" value="6 AM"/>
 			<text name="WLEastAngleText">
 				Ángulo de elevación
 			</text>
@@ -130,11 +130,11 @@
 			<text name="WLCloudScrollXText">
 				Velocidad de las nubes: X
 			</text>
-			<check_box label="Lock" name="WLCloudLockX"/>
+			<check_box label="Bloquear" name="WLCloudLockX"/>
 			<text name="WLCloudScrollYText">
 				Velocidad de las nubes: Y
 			</text>
-			<check_box label="Lock" name="WLCloudLockY"/>
+			<check_box label="Bloquear" name="WLCloudLockY"/>
 		</panel>
 	</tab_container>
 	<check_box label="Convertir este valor predefinido en mi nueva configuración de cielo" name="make_default_cb"/>

@@ -1,72 +1,72 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Edit Water Preset" title="Editar pré-configuração da água">
+<floater name="Edit Water Preset" title="Editar predefinição da água">
 	<string name="title_new">
-		Criar nova pré-configuração de água
+		Criar uma nova predefinição da água
 	</string>
 	<string name="title_edit">
-		Editar pré-configuração da água
+		Editar uma predefinição da água
 	</string>
 	<string name="hint_new">
-		Dê um nome à sua pré-configuração, ajuste os controles para criá-la e clique em &quot;Salvar&quot;.
+		Nomeie sua predefinição, ajuste os controles para criá-la e clique em “Salvar”.
 	</string>
 	<string name="hint_edit">
-		Para editar sua pré-configuração de água, ajuste os controles e clique em &quot;Salvar&quot;.
+		Para editar a sua predefinição da água, ajuste os controles e clique em “Salvar”.
 	</string>
 	<string name="combo_label">
-		-Selecione uma pré-configuração-
+		-Selecionar uma prefefinição-
 	</string>
 	<text name="hint">
-		Para editar sua pré-configuração, ajuste os controles e clique em &quot;Salvar&quot;.
+		Para editar a sua predefinição, ajuste os controles e clique em “Salvar”.
 	</text>
 	<text name="label">
-		Nome da pré-configuração:
+		Nome predefinido:
 	</text>
 	<text name="note">
-		Observação: trocar o nome de uma pré-configuração criará uma nova sem modificar a configuração atual.
+		Note: se você alterar o nome da sua predefinição, você criará uma nova predefinição e a predefinição existente não será alterada.
 	</text>
 	<panel name="panel_water_preset">
 		<text name="water_color_label">
 			Cor da névoa da água
 		</text>
 		<text name="water_fog_density_label">
-			Expoente da densidade da névoa
+			Exponente de densidade da névoa
 		</text>
 		<text name="underwater_fog_modifier_label">
-			Modificador de névoa submerso
+			Modificador da névoa embaixo da água
 		</text>
 		<text name="BHText">
-			Direção de onda grande
+			Direção da grande onda
 		</text>
 		<slider label="X" name="WaterWave1DirX"/>
 		<slider label="Y" name="WaterWave1DirY"/>
 		<text name="BDensText">
-			Escala de ondas de reflexo
+			Escala da reflexão da onda
 		</text>
 		<text name="HDText">
-			Escala de Fresnel
+			Escala fresnel
 		</text>
 		<text name="FresnelOffsetText">
-			Recuo de Fresnel
+			Offset fresnel
 		</text>
 		<text name="BHText2">
-			Direção de onda pequena
+			Direção da pequena onda
 		</text>
 		<slider label="X" name="WaterWave2DirX"/>
 		<slider label="Y" name="WaterWave2DirY"/>
 		<text name="DensMultText">
-			Escala de refração acima
+			Escala de Refratar Acima
 		</text>
 		<text name="WaterScaleBelowText">
-			Escala de refração abaixo
+			Escala de Refratar Abaixo
 		</text>
 		<text name="MaxAltText">
-			Multiplicador de distorção
+			Múltiplo desfoque
 		</text>
 		<text name="BHText3">
 			Mapa normal
 		</text>
 	</panel>
-	<check_box label="Usar esta pré-configuração na minha água" name="make_default_cb"/>
+	<check_box label="Tornar esta predefinição minha nova configuração da água" name="make_default_cb"/>
 	<button label="Salvar" name="save"/>
 	<button label="Cancelar" name="cancel"/>
 </floater>

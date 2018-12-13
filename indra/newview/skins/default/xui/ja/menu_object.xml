@@ -30,4 +30,6 @@
 	<menu_item_call label="買う" name="Buy..."/>
 	<menu_item_call label="削除" name="Delete"/>
 	<menu_item_call label="パーティクル所有者をブロック" name="Mute Particle"/>
+	<menu_item_call label="ダンプ XML" name="Dump XML"/>
+	<menu_item_call label="スケルトンをリセット" name="Reset Skeleton"/>
 </context_menu>

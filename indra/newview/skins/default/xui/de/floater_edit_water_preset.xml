@@ -22,7 +22,7 @@
 		Name der Voreinstellung:
 	</text>
 	<text name="note">
-		Hinweis: Wenn Sie den Namen Ihrer Voreinstellung ändern, entsteht eine neue Voreinstellung; die vorhandene Voreinstellung wird nicht geändert.
+		Hinweis: Wenn Sie den Namen Ihrer Voreinstellung ändern, erstellen Sie eine neue Voreinstellung. Die vorhandene Voreinstellung wird nicht geändert.
 	</text>
 	<panel name="panel_water_preset">
 		<text name="water_color_label">

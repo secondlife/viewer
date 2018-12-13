@@ -4726,6 +4726,11 @@ void LLVivoxVoiceClient::declineInvite(std::string &sessionHandle)
 	}
 }
 
+bool LLVivoxVoiceClient::singletoneInstanceExists()
+{
+	return LLVivoxVoiceClient::instanceExists();
+}
+
 void LLVivoxVoiceClient::leaveNonSpatialChannel()
 {
     LL_DEBUGS("Voice") << "Request to leave spacial channel." << LL_ENDL;

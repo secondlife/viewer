@@ -31,5 +31,5 @@
 		事前設定：
 	</text>
 	<button label="削除" name="delete"/>
-	<button label="取り消し" name="cancel"/>
+	<button label="キャンセル" name="cancel"/>
 </floater>
