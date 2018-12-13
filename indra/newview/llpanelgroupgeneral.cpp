@@ -461,11 +461,12 @@ bool LLPanelGroupGeneral::createGroupCallback(const LLSD& notification, const LL
 			// Yay!  We are making a new group!
 			U32 enrollment_fee = (mCtrlEnrollmentFee->get() ? 
 									(U32) mSpinEnrollmentFee->get() : 0);
-		
+			LLUUID insignia_id = mInsignia->getImageItemID().isNull() ? LLUUID::null : mInsignia->getImageAssetID();
+
 			LLGroupMgr::getInstance()->sendCreateGroupRequest(mGroupNameEditor->getText(),
 												mEditCharter->getText(),
 												mCtrlShowInGroupList->get(),
-												mInsignia->getImageAssetID(),
+												insignia_id,
 												enrollment_fee,
 												mCtrlOpenEnrollment->get(),
 												false,
