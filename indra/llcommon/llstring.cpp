@@ -53,40 +53,6 @@ std::string ll_safe_string(const char* in, S32 maxlen)
 	return std::string();
 }
 
-boost::optional<std::wstring> llstring_getoptenv(const std::string& key)
-{
-    auto wkey = ll_convert_string_to_wide(key);
-    // Take a wild guess as to how big the buffer should be.
-    std::vector<wchar_t> buffer(1024);
-    auto n = GetEnvironmentVariableW(wkey.c_str(), &buffer[0], buffer.size());
-    // If our initial guess was too short, n will indicate the size (in
-    // wchar_t's) that buffer should have been, including the terminating nul.
-    if (n > (buffer.size() - 1))
-    {
-        // make it big enough
-        buffer.resize(n);
-        // and try again
-        n = GetEnvironmentVariableW(wkey.c_str(), &buffer[0], buffer.size());
-    }
-    // did that (ultimately) succeed?
-    if (n)
-    {
-        // great, return populated boost::optional
-        return { &buffer[0] };
-    }
-
-    // not successful
-    auto last_error = GetLastError();
-    // Don't bother warning for NOT_FOUND; that's an expected case
-    if (last_error != ERROR_ENVVAR_NOT_FOUND)
-    {
-        LL_WARNS() << "GetEnvironmentVariableW('" << key << "') failed: "
-                   << windows_message<std::string>(last_error) << LL_ENDL;
-    }
-    // return empty boost::optional
-    return {};
-}
-
 bool is_char_hex(char hex)
 {
 	if((hex >= '0') && (hex <= '9'))
@@ -854,6 +820,40 @@ std::wstring windows_message<std::wstring>(DWORD error)
     return out.str();
 }
 
+boost::optional<std::wstring> llstring_getoptenv(const std::string& key)
+{
+    auto wkey = ll_convert_string_to_wide(key);
+    // Take a wild guess as to how big the buffer should be.
+    std::vector<wchar_t> buffer(1024);
+    auto n = GetEnvironmentVariableW(wkey.c_str(), &buffer[0], buffer.size());
+    // If our initial guess was too short, n will indicate the size (in
+    // wchar_t's) that buffer should have been, including the terminating nul.
+    if (n > (buffer.size() - 1))
+    {
+        // make it big enough
+        buffer.resize(n);
+        // and try again
+        n = GetEnvironmentVariableW(wkey.c_str(), &buffer[0], buffer.size());
+    }
+    // did that (ultimately) succeed?
+    if (n)
+    {
+        // great, return populated boost::optional
+        return boost::optional<std::wstring>(&buffer[0]);
+    }
+
+    // not successful
+    auto last_error = GetLastError();
+    // Don't bother warning for NOT_FOUND; that's an expected case
+    if (last_error != ERROR_ENVVAR_NOT_FOUND)
+    {
+        LL_WARNS() << "GetEnvironmentVariableW('" << key << "') failed: "
+                   << windows_message<std::string>(last_error) << LL_ENDL;
+    }
+    // return empty boost::optional
+    return {};
+}
+
 #else  // ! LL_WINDOWS
 
 boost::optional<std::string> llstring_getoptenv(const std::string& key)
@@ -862,7 +862,7 @@ boost::optional<std::string> llstring_getoptenv(const std::string& key)
     if (found)
     {
         // return populated boost::optional
-        return { found };
+        return boost::optional<std::string>(found);
     }
     else
     {

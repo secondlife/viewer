@@ -583,19 +583,24 @@ typedef std::basic_string<U16> llutf16string;
 // comparable preferred alias involving std::wstring. (In this scenario, if
 // you pass llutf16string, it will engage the std::wstring specialization.)
 #define ll_convert_u16_alias(TO, FROM, EXPR) // nothing
-#else
+#else  // defined(LL_WCHAR_T_NATIVE)
 // wchar_t is a distinct native type, so llutf16string is also a distinct
 // type, and there IS a point to converting separately to/from llutf16string.
 // (But why? Windows APIs are still defined in terms of wchar_t, and
 // in this scenario llutf16string won't work for them!)
 #define ll_convert_u16_alias(TO, FROM, EXPR) ll_convert_alias(TO, FROM, EXPR)
 
-// converting between std::wstring and llutf16string involves copying chars
-// enclose the brace-initialization expression in parens to protect the comma
-// from macro-argument parsing
-ll_convert_alias(llutf16string, std::wstring, ({ in.begin(), in.end() }));
-ll_convert_alias(std::wstring, llutf16string, ({ in.begin(), in.end() }));
-#endif
+#if LL_WINDOWS
+// LL_WCHAR_T_NATIVE is defined on non-Windows systems because, in fact,
+// wchar_t is native. Everywhere but Windows, we use it for llwchar (see
+// stdtypes.h). That makes LLWString identical to std::wstring, so these
+// aliases for std::wstring would collide with those for LLWString. Only
+// define on Windows, where converting between std::wstring and llutf16string
+// means copying chars.
+ll_convert_alias(llutf16string, std::wstring, llutf16string(in.begin(), in.end()));
+ll_convert_alias(std::wstring, llutf16string,  std::wstring(in.begin(), in.end()));
+#endif // LL_WINDOWS
+#endif // defined(LL_WCHAR_T_NATIVE)
 
 LL_COMMON_API LLWString utf16str_to_wstring(const llutf16string &utf16str, S32 len);
 LL_COMMON_API LLWString utf16str_to_wstring(const llutf16string &utf16str);
@@ -1751,7 +1756,16 @@ template<class T>
 auto LLStringUtilBase<T>::getoptenv(const std::string& key) -> boost::optional<string_type>
 {
     auto found{llstring_getoptenv(key)};
-    return found? { ll_convert<string_type>(*found) } : {};
+    if (found)
+    {
+        // return populated boost::optional
+        return { ll_convert<string_type>(*found) };
+    }
+    else
+    {
+        // empty boost::optional
+        return {};
+    }
 }
 
 // static
