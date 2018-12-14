@@ -131,7 +131,7 @@ LLFloaterTexturePicker::~LLFloaterTexturePicker()
 
 void LLFloaterTexturePicker::setImageID(const LLUUID& image_id, bool set_selection /*=true*/)
 {
-	if( mImageAssetID != image_id && mActive)
+	if( ((mImageAssetID != image_id) || mTentative) && mActive)
 	{
 		mNoCopyTextureSelected = FALSE;
 		mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
