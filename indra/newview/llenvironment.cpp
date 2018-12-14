@@ -495,7 +495,7 @@ bool LLEnvironment::canAgentUpdateParcelEnvironment(LLParcel *parcel) const
     if (!parcel->getRegionAllowEnvironmentOverride())
         return false;
 
-    return LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_OPTIONS);
+    return LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_ALLOW_ENVIRONMENT);
 }
 
 bool LLEnvironment::canAgentUpdateRegionEnvironment() const
