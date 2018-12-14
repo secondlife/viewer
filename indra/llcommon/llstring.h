@@ -1773,7 +1773,14 @@ template<class T>
 auto LLStringUtilBase<T>::getenv(const std::string& key, const string_type& dflt) -> string_type
 {
     auto found{getoptenv(key)};
-    return found? *found : dflt;
+    if (found)
+    {
+        return *found;
+    }
+    else
+    {
+        return dflt;
+    }
 }
 
 template<class T> 
