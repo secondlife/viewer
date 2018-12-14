@@ -30,6 +30,7 @@
 
 #include "lldir_win32.h"
 #include "llerror.h"
+#include "llstring.h"
 #include "stringize.h"
 #include "llfile.h"
 #include <shlobj.h>
@@ -55,17 +56,17 @@ namespace
     {
         switch (state)
         {
+            boost::optional<std::string> prelog_name;
+
         case prst::INIT:
             // assume we failed, until we succeed
             state = prst::SKIP;
 
-            // can't initialize within one case of a switch statement
-            const char* prelog_name;
-            prelog_name = getenv("PRELOG");
+            prelog_name = LLDirUtil::getoptenv("PRELOG");
             if (! prelog_name)
                 // no PRELOG variable set, carry on
                 return;
-            prelogf = new std::ofstream(prelog_name, std::ios_base::app);
+            prelogf = new llofstream(*prelog_name, std::ios_base::app);
             if (! (prelogf && prelogf->is_open()))
                 // can't complain to anybody; how?
                 return;
@@ -95,13 +96,11 @@ LLDir_Win32::LLDir_Win32()
 
 	WCHAR w_str[MAX_PATH];
 	// Application Data is where user settings go. We rely on $APPDATA being
-	// correct; in fact the VMP makes a point of setting it properly, since
-	// Windows itself botches the job for non-ASCII usernames (MAINT-8087).
-	// Try using wide-character getenv()??
-	wchar_t *APPDATA = _wgetenv(L"APPDATA");
+	// correct.
+	auto APPDATA = LLStringUtil::getoptenv("APPDATA");
 	if (APPDATA)
 	{
-		mOSUserDir = ll_convert_wide_to_string(APPDATA, CP_UTF8);
+		mOSUserDir = *APPDATA;
 	}
 	PRELOG("APPDATA='" << mOSUserDir << "'");
 	// On Windows, we could have received a plain-ASCII pathname in which
@@ -118,7 +117,7 @@ LLDir_Win32::LLDir_Win32()
 		if (SUCCEEDED(okay) && pwstr)
 		{
 			// But of course, only update mOSUserDir if SHGetKnownFolderPath() works.
-			mOSUserDir = ll_convert_wide_to_string(pwstr, CP_UTF8);
+			mOSUserDir = ll_convert_wide_to_string(pwstr);
 			// Not only that: update our environment so that child processes
 			// will see a reasonable value as well.
 			_wputenv_s(L"APPDATA", pwstr);
@@ -136,11 +135,10 @@ LLDir_Win32::LLDir_Win32()
 	//
 	// We used to store the cache in AppData\Roaming, and the installer
 	// cleans up that version on upgrade.  JC
-	// Again, try using wide-character getenv().
-	wchar_t *LOCALAPPDATA = _wgetenv(L"LOCALAPPDATA");
+	auto LOCALAPPDATA = LLStringUtil::getoptenv("LOCALAPPDATA");
 	if (LOCALAPPDATA)
 	{
-		mOSCacheDir = ll_convert_wide_to_string(LOCALAPPDATA, CP_UTF8);
+		mOSCacheDir = *LOCALAPPDATA;
 	}
 	PRELOG("LOCALAPPDATA='" << mOSCacheDir << "'");
 	// Windows really does not deal well with pathnames containing non-ASCII
@@ -155,7 +153,7 @@ LLDir_Win32::LLDir_Win32()
 		if (SUCCEEDED(okay) && pwstr)
 		{
 			// But of course, only update mOSCacheDir if SHGetKnownFolderPath() works.
-			mOSCacheDir = ll_convert_wide_to_string(pwstr, CP_UTF8);
+			mOSCacheDir = ll_convert_wide_to_string(pwstr);
 			// Update our environment so that child processes will see a
 			// reasonable value as well.
 			_wputenv_s(L"LOCALAPPDATA", pwstr);

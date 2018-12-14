@@ -34,6 +34,7 @@
 #include "llsd.h"
 #include "llhost.h"
 #include "llexception.h"
+#include "llstring.h"
 #include "stringize.h"
 #include <map>
 #include <string>
@@ -46,12 +47,7 @@ struct CommtestError: public LLException
 
 static bool query_verbose()
 {
-    const char* cbose = getenv("INTEGRATION_TEST_VERBOSE");
-    if (! cbose)
-    {
-        cbose = "1";
-    }
-    std::string strbose(cbose);
+    std::string strbose(LLStringUtil::getenv("INTEGRATION_TEST_VERBOSE", "1"));
     return (! (strbose == "0" || strbose == "off" ||
                strbose == "false" || strbose == "quiet"));
 }

@@ -1063,33 +1063,24 @@ LLFontGL* LLFontGL::getFontDefault()
 // static 
 std::string LLFontGL::getFontPathSystem()
 {
-	std::string system_path;
+#if LL_DARWIN
+    // HACK for Mac OS X
+    return "/System/Library/Fonts/";
 
-	// Try to figure out where the system's font files are stored.
-	char *system_root = NULL;
-#if LL_WINDOWS
-	system_root = getenv("SystemRoot");	/* Flawfinder: ignore */
-	if (!system_root)
-	{
-		LL_WARNS() << "SystemRoot not found, attempting to load fonts from default path." << LL_ENDL;
-	}
+#elif LL_WINDOWS
+    wchar_t *pwstr = NULL;
+    HRESULT okay = SHGetKnownFolderPath(FOLDERID_Fonts, 0, NULL, &pwstr);
+    if (SUCCEEDED(okay) && pwstr)
+    {
+        std::string fontpath(ll_convert_wide_to_string(pwstr));
+        // SHGetKnownFolderPath() contract requires us to free pwstr
+        CoTaskMemFree(pwstr);
+        return fontpath;
+    }
 #endif
 
-	if (system_root)
-	{
-		system_path = llformat("%s/fonts/", system_root);
-	}
-	else
-	{
-#if LL_WINDOWS
-		// HACK for windows 98/Me
-		system_path = "/WINDOWS/FONTS/";
-#elif LL_DARWIN
-		// HACK for Mac OS X
-		system_path = "/System/Library/Fonts/";
-#endif
-	}
-	return system_path;
+    LL_WARNS() << "Could not determine system fonts path" << LL_ENDL;
+    return {};
 }
 
 
