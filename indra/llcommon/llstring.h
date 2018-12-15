@@ -1755,7 +1755,7 @@ bool LLStringUtilBase<T>::endsWith(
 template<class T>
 auto LLStringUtilBase<T>::getoptenv(const std::string& key) -> boost::optional<string_type>
 {
-    auto found{llstring_getoptenv(key)};
+    auto found(llstring_getoptenv(key));
     if (found)
     {
         // return populated boost::optional
@@ -1772,7 +1772,7 @@ auto LLStringUtilBase<T>::getoptenv(const std::string& key) -> boost::optional<s
 template<class T>
 auto LLStringUtilBase<T>::getenv(const std::string& key, const string_type& dflt) -> string_type
 {
-    auto found{getoptenv(key)};
+    auto found(getoptenv(key));
     if (found)
     {
         return *found;

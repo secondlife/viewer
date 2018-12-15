@@ -44,6 +44,12 @@
 // Third party library includes
 #include <boost/tokenizer.hpp>
 
+#if LL_WINDOWS
+#include <Shlobj.h>
+#include <Knownfolders.h>
+#include <Objbase.h>
+#endif // LL_WINDOWS
+
 const S32 BOLD_OFFSET = 1;
 
 // static class members

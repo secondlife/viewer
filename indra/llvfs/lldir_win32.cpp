@@ -54,15 +54,15 @@ namespace
 
     void prelog(const std::string& message)
     {
+        boost::optional<std::string> prelog_name;
+
         switch (state)
         {
-            boost::optional<std::string> prelog_name;
-
         case prst::INIT:
             // assume we failed, until we succeed
             state = prst::SKIP;
 
-            prelog_name = LLDirUtil::getoptenv("PRELOG");
+            prelog_name = LLStringUtil::getoptenv("PRELOG");
             if (! prelog_name)
                 // no PRELOG variable set, carry on
                 return;
