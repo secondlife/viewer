@@ -57,15 +57,15 @@ Placa gráfica: [GRAPHICS_CARD]
 	</string>
 	<string name="AboutSettings">
 		Tamanho da janela: [WINDOW_WIDTH]x[WINDOW_HEIGHT]
-Ajuste do tamanho de fonte: [FONT_SIZE_ADJUSTMENT]pt
-Escala de interface: [UI_SCALE]
-Dist. máxima: [DRAW_DISTANCE]m
-Largura de banda: [NET_BANDWITH]kbit/s
-Fator LOD: [LOD_FACTOR]
+Ajuste do tamanho da fonte: [FONT_SIZE_ADJUSTMENT]pt
+UI Escala: [UI_SCALE]
+Estabelecer a distância: [DRAW_DISTANCE]m
+Largura da banda: [NET_BANDWITH]kbit/s
+LOD fator: [LOD_FACTOR]
 Qualidade de renderização: [RENDER_QUALITY]
-Modelo de iluminação avançado: [GPU_SHADERS]
+Modelo avançado de luzes: [GPU_SHADERS]
 Memória de textura: [TEXTURE_MEMORY]MB
-Tempo de criação de VFS (cache): [VFS_TIME]
+VFS (cache) tempo de criação: [VFS_TIME]
 	</string>
 	<string name="AboutLibs">
 		Versão do J2C Decoder: [J2C_VERSION] 

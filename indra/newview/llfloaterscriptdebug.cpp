@@ -138,7 +138,10 @@ void LLFloaterScriptDebug::addScriptLine(const std::string &utf8mesg, const std:
 	{
 		if(objectp->isHUDAttachment())
 		{
-			((LLViewerObject*)gAgentAvatarp)->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI));
+			if (isAgentAvatarValid())
+			{
+				((LLViewerObject*)gAgentAvatarp)->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI));
+			}
 		}
 		else
 		{

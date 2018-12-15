@@ -376,6 +376,7 @@
 			<text name="edit_object">
 				オブジェクトの特徴を編集：
 			</text>
+			<check_box label="アニメーションメッシュ" name="Animated Mesh Checkbox Ctrl" tool_tip="リグ入りメッシュオブジェクトをそれぞれアニメーションさせることができるようになります"/>
 			<check_box label="フレキシブルパス" name="Flexible1D Checkbox Ctrl" tool_tip="Z 軸を中心にオブジェクトの屈曲を有効にします（クライアント側のみ）"/>
 			<spinner label="柔軟性" name="FlexNumSections"/>
 			<spinner label="重力" name="FlexGravity"/>

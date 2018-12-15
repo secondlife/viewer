@@ -65,16 +65,16 @@ OS バージョン：[OS_VERSION]
 		OpenGL バージョン：[OPENGL_VERSION]
 	</string>
 	<string name="AboutSettings">
-		ウィンドウサイズ： [WINDOW_WIDTH]x[WINDOW_HEIGHT]
-フォントサイズの調整： [FONT_SIZE_ADJUSTMENT]pt
-UI スケーリング： [UI_SCALE]
-描画距離：[DRAW_DISTANCE]m
-帯域幅：[NET_BANDWITH]kbit/s
-LOD 係数： [LOD_FACTOR]
-表示品質： [RENDER_QUALITY]
-高度なライティングモデル： [GPU_SHADERS]
-テクスチャメモリ： [TEXTURE_MEMORY]MB
-VFS（キャッシュ）作成時間： [VFS_TIME]
+		ウィンドウサイズ: [WINDOW_WIDTH]x[WINDOW_HEIGHT]
+フォントサイズ調整: [FONT_SIZE_ADJUSTMENT]pt
+UI スケーリング: [UI_SCALE]
+描画距離: [DRAW_DISTANCE]m
+帯域幅: [NET_BANDWITH]kbit/s
+LOD 係数: [LOD_FACTOR]
+描画の質: [RENDER_QUALITY]
+高度なライティングモデル: [GPU_SHADERS]
+テクスチャメモリ: [TEXTURE_MEMORY]MB
+VFS（キャッシュ）作成時間: [VFS_TIME]
 	</string>
 	<string name="AboutLibs">
 		J2C デコーダバージョン： [J2C_VERSION] 

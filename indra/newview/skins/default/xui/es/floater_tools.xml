@@ -350,6 +350,7 @@
 			<text name="edit_object">
 				Editar las características del objeto:
 			</text>
+			<check_box label="Malla animada" name="Animated Mesh Checkbox Ctrl" tool_tip="Permite que los objetos de malla aparejados estén animados de manera independiente"/>
 			<check_box label="Flexibilidad" name="Flexible1D Checkbox Ctrl" tool_tip="Permite que el objeto flexione en el eje Z (sólo del lado del cliente)"/>
 			<spinner label="Blandura" name="FlexNumSections"/>
 			<spinner label="Gravedad" name="FlexGravity"/>

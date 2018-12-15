@@ -3,6 +3,7 @@
 	<menu_item_check label="Ordina in base a intervenuti recenti" name="sort_by_recent_speakers"/>
 	<menu_item_check label="Ordina in base al nome" name="sort_name"/>
 	<menu_item_check label="Ordina in base alla distanza" name="sort_distance"/>
+	<menu_item_check label="Ordina in base all’arrivo" name="sort_arrival"/>
 	<menu_item_check label="Mostra le icone delle persone" name="view_icons"/>
 	<menu_item_check label="Mostra mappa" name="view_map"/>
 	<menu_item_check label="Nascondi nomi utenti" name="view_usernames"/>

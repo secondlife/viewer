@@ -16,6 +16,6 @@
 	<text name="agree_list">
 		Я прочитал и согласен с Условиями и положениями по конфиденциальности Пользовательского соглашения, включая требования по разрешению разногласий Second Life.
 	</text>
-	<button label="Продолжить" label_selected="Продолжить" name="Continue" top_delta="45"/>
+	<button label="Продолжить" label_selected="Продолжить" name="Continue"/>
 	<button label="Отмена" label_selected="Отмена" name="Cancel"/>
 </floater>

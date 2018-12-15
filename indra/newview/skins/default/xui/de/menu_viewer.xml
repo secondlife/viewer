@@ -313,6 +313,7 @@
 			<menu_item_check label="Texturbereich" name="Texture Area"/>
 			<menu_item_check label="Oberflächenbereich" name="Face Area"/>
 			<menu_item_check label="Detailstufeninfos" name="LOD Info"/>
+			<menu_item_check label="Dreieckszähler" name="Triangle Count"/>
 			<menu_item_check label="Konstruktionswarteschlange" name="Build Queue"/>
 			<menu_item_check label="Lichter" name="Lights"/>
 			<menu_item_check label="Partikel" name="Particles"/>
@@ -419,6 +420,7 @@
 			<menu_item_check label="Gelenkpunkte anzeigen" name="Show Collision Skeleton"/>
 			<menu_item_check label="Knochen anzeigen" name="Show Bones"/>
 			<menu_item_check label="Agent-Ziel anzeigen" name="Display Agent Target"/>
+			<menu_item_check label="Umfang der vereinfachten Darstellung anzeigen" name="Show Impostor Extents"/>
 			<menu_item_call label="Anhänge ausgeben" name="Dump Attachments"/>
 			<menu_item_call label="Fehler in Avatar-Texturen beseitigen" name="Debug Avatar Textures"/>
 			<menu_item_call label="Lokale Texturen ausgeben" name="Dump Local Textures"/>

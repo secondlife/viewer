@@ -65,7 +65,7 @@ Grafikkarte: [GRAPHICS_CARD]
 	</string>
 	<string name="AboutSettings">
 		Fenstergröße: [WINDOW_WIDTH]x[WINDOW_HEIGHT]
-Schriftgrößenanpassung [FONT_SIZE_ADJUSTMENT] Pt
+Schriftgrößenanpassung: [FONT_SIZE_ADJUSTMENT] pt
 UI-Skalierung: [UI_SCALE]
 Sichtweite: [DRAW_DISTANCE] m
 Bandbreite: [NET_BANDWITH] kbit/s

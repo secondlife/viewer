@@ -4,6 +4,9 @@
 	<string name="status_parse_error">
 		Error: Problema de análisis de DAE - consulta los datos en el registro.
 	</string>
+	<string name="status_bind_shape_orientation">
+		Atención: la matriz de forma unida no está en orientación X-forward estándar.
+	</string>
 	<string name="status_material_mismatch">
 		Error: el material del modelo no es un subconjunto del modelo de referencia.
 	</string>

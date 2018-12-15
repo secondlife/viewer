@@ -370,6 +370,7 @@
 			<text name="edit_object">
 				Modifier les attributs de l&apos;objet :
 			</text>
+			<check_box label="Maillage animé" name="Animated Mesh Checkbox Ctrl" tool_tip="Permet aux objets maillés calés d&apos;être animés indépendamment"/>
 			<check_box label="Flexibilité" name="Flexible1D Checkbox Ctrl" tool_tip="Permet à l&apos;objet de se plier le long de l&apos;axe Z (côté client uniquement)"/>
 			<spinner label="Souplesse" name="FlexNumSections"/>
 			<spinner label="Gravité" name="FlexGravity"/>

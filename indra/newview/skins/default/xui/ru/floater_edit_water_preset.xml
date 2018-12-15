@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Edit Water Preset" title="Изменить настройку воды">
 	<string name="title_new">
-		Создать настройку воды
+		Создать новую настройку воды
 	</string>
 	<string name="title_edit">
 		Изменение настройки воды
@@ -22,28 +22,28 @@
 		Имя настройки:
 	</text>
 	<text name="note">
-		Примечание. Если изменить имя настройки, будет создана новая настройка, а изменения в существующей не будут сохранены.
+		Примечание: если изменить имя настройки, будет создана новая настройка, а существующая настройка останется без изменения.
 	</text>
 	<panel name="panel_water_preset">
 		<text name="water_color_label">
-			Оттенок
+			Цвет водяного тумана
 		</text>
 		<text name="water_fog_density_label">
-			Прозрачность
+			Показатель плотности тумана
 		</text>
 		<text name="underwater_fog_modifier_label">
-			Изменение прозрачности
+			Модификатор тумана подземных вод
 		</text>
 		<text name="BHText">
 			Направление больших волн
 		</text>
-		<slider label="X" name="WaterWave1DirX"/>
+		<slider label="Х" name="WaterWave1DirX"/>
 		<slider label="Y" name="WaterWave1DirY"/>
 		<text name="BDensText">
-			Степень отражения зыби
+			Масштаб отражённого импульса
 		</text>
 		<text name="HDText">
-			Отражение
+			Френелевский масштаб
 		</text>
 		<text name="FresnelOffsetText">
 			Угловая зависимость
@@ -51,7 +51,7 @@
 		<text name="BHText2">
 			Направление ряби
 		</text>
-		<slider label="X" name="WaterWave2DirX"/>
+		<slider label="Х" name="WaterWave2DirX"/>
 		<slider label="Y" name="WaterWave2DirY"/>
 		<text name="DensMultText">
 			Преломление (над водой)
@@ -60,13 +60,13 @@
 			Преломление (под водой)
 		</text>
 		<text name="MaxAltText">
-			Размытие
+			Коэффициент размытия
 		</text>
 		<text name="BHText3">
-			Карта поверхности
+			Карта нормалей
 		</text>
 	</panel>
-	<check_box label="Применить эту настройку воды" name="make_default_cb"/>
+	<check_box label="Применить эту новую настройку воды" name="make_default_cb"/>
 	<button label="Сохранить" name="save"/>
 	<button label="Отмена" name="cancel"/>
 </floater>
