@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Среда" name="panel_env_info">
 	<text name="water_settings_title">
-		Настройки воды и неба/суточного цикла определяют, каким посетители увидят ваш регион.  Дополнительно
+		Настройки воды и неба/суточного цикла определяют, каким посетители увидят ваш регион. Дополнительная информация
 	</text>
 	<radio_group name="region_settings_radio_group">
 		<radio_item label="Использовать настройки Second Life по умолчанию" name="use_sl_default_settings"/>
@@ -18,7 +18,7 @@
 			Небо/суточный цикл
 		</text>
 		<radio_group name="sky_dayc_settings_radio_group">
-			<radio_item label="Небо не меняется" name="my_sky_settings"/>
+			<radio_item label="Зафиксированное небо" name="my_sky_settings"/>
 			<radio_item label="Суточный цикл" name="my_dayc_settings"/>
 		</radio_group>
 		<combo_box name="sky_settings_preset_combo">

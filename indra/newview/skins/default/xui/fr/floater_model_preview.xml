@@ -4,6 +4,9 @@
 	<string name="status_parse_error">
 		Erreur : Problème d&apos;analyse de fichier .dae ; reportez-vous au journal pour plus de détails.
 	</string>
+	<string name="status_bind_shape_orientation">
+		Avertissement : la matrice de formes de reliure n&apos;est pas dans l&apos;orientation standard X-avant.
+	</string>
 	<string name="status_material_mismatch">
 		Erreur : le matériau du modèle ne correspond pas à un sous-ensemble du modèle de référence.
 	</string>

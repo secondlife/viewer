@@ -342,6 +342,8 @@ Celierra Darling
 Chantal Harvey
 Charles Courtois
 Charlie Sazaland
+Chaser Zaks
+    BUG-225599
 Cherry Cheevers
 ChickyBabes Zuzu
 Christopher  Organiser
@@ -366,6 +368,7 @@ Cinder Roxley
     STORM-2037
     STORM-2053
     STORM-2113
+    STORM-2116
     STORM-2127
     STORM-2144
 Clara Young

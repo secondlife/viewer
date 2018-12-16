@@ -372,6 +372,7 @@
 			<text name="edit_object">
 				Изменение особенностей объекта:
 			</text>
+			<check_box label="Анимированная сетка" name="Animated Mesh Checkbox Ctrl" tool_tip="Позволяет анимировать риг-структурированные объекты с форматом сетки независимо друг от друга"/>
 			<check_box label="Гибкость" name="Flexible1D Checkbox Ctrl" tool_tip="Объект может изгибаться по оси Z (настройки на стороне клиента)"/>
 			<spinner label="Мягкость" name="FlexNumSections"/>
 			<spinner label="Гравитация" name="FlexGravity"/>

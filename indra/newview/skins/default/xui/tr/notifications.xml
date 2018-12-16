@@ -3228,6 +3228,9 @@ Güvenliğiniz için birkaç saniye engellenecek.
 	<notification name="PresetNotSaved">
 		Ön ayar ([NAME]) kaydedilirken hata oluştu.
 	</notification>
+	<notification name="DefaultPresetNotSaved">
+		Varsayılan ön ayarın üzerine yazılamıyor.
+	</notification>
 	<notification name="PresetNotDeleted">
 		Ön ayar ([NAME]) silinirken hata oluştu.
 	</notification>
@@ -3986,6 +3989,9 @@ Lütfen bir dakika sonra tekrar deneyin.
 	<notification name="CantCreateObjectRegionFull">
 		Talep edilen nesne oluşturulamıyor. Bölge dolu.
 	</notification>
+	<notification name="CantCreateAnimatedObjectTooLarge">
+		Giydirilmiş üçgen limitini aştığından dolayı istenen animasyonlu nesne oluşturulamıyor.
+	</notification>
 	<notification name="CantAttackMultipleObjOneSpot">
 		Tek bir noktaya birden fazla nesne iliştiremezsiniz.
 	</notification>
@@ -4033,6 +4039,21 @@ Lütfen bir dakika sonra tekrar deneyin.
 	</notification>
 	<notification name="CantChangeShape">
 		Bu şekli değiştirmenize izin verilmiyor.
+	</notification>
+	<notification name="NoPermsTooManyAttachedAnimatedObjects">
+		İşlem, ekli animasyonlu nesne sayısının limiti aşmasına neden olabilir.
+	</notification>
+	<notification name="NoPermsLinkAnimatedObjectTooLarge">
+		Elde edilen animasyonlu nesne giydirilmiş üçgen limitini aşacağından dolayı bu nesneler birleştirilemez.
+	</notification>
+	<notification name="NoPermsSetFlagAnimatedObjectTooLarge">
+		Giydirilmiş üçgen limitini aşacağından dolayı bu nesne bir animasyonlu nesneye dönüştürülemez.
+	</notification>
+	<notification name="CantChangeAnimatedObjectStateInsufficientLand">
+		Parsel limitinin aşılmasına neden olacağından dolayı bu nesnenin animasyonlu nesne durumu değiştirilemez.
+	</notification>
+	<notification name="ErrorNoMeshData">
+		Sunucu hatası: ağ verileri yüklenmediğinden dolayı bu işlem tamamlanamıyor.
 	</notification>
 	<notification name="NoAccessToClaimObjects">
 		Erişim ayrıcalıklarınız burada nesneler üzerinde hak talebinde bulunmanıza izin vermiyor.
