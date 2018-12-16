@@ -309,9 +309,6 @@ private:
     std::string generateDistinctName(const std::string& prefix) const;
     void toplevel(std::string name, callable_t callable);
     struct CoroData;
-#if LL_WINDOWS
-    static void winlevel(const callable_t& callable);
-#endif
     static CoroData& get_CoroData(const std::string& caller);
     void saveException(const std::string& name, std::exception_ptr exc);
 

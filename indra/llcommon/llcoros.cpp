@@ -277,6 +277,9 @@ std::string LLCoros::launch(const std::string& prefix, const callable_t& callabl
     return name;
 }
 
+namespace
+{
+
 #if LL_WINDOWS
 
 static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
@@ -295,7 +298,7 @@ U32 exception_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop)
     }
 }
 
-void LLCoros::winlevel(const callable_t& callable)
+void sehandle(const LLCoros::callable_t& callable)
 {
     __try
     {
@@ -312,7 +315,16 @@ void LLCoros::winlevel(const callable_t& callable)
     }
 }
 
-#endif
+#else  // ! LL_WINDOWS
+
+inline void sehandle(const LLCoros::callable_t& callable)
+{
+    callable();
+}
+
+#endif // ! LL_WINDOWS
+
+} // anonymous namespace
 
 // Top-level wrapper around caller's coroutine callable.
 // Normally we like to pass strings and such by const reference -- but in this
@@ -327,11 +339,7 @@ void LLCoros::toplevel(std::string name, callable_t callable)
     // run the code the caller actually wants in the coroutine
     try
     {
-#if LL_WINDOWS && LL_RELEASE_FOR_DOWNLOAD
-        winlevel(callable);
-#else
-        callable();
-#endif
+        sehandle(callable);
     }
     catch (const Stop& exc)
     {
