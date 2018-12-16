@@ -19,10 +19,10 @@
 		Gün döngüsü:
 	</string>
 	<string name="msg_confirm_deletion">
-		Seçili ön ayarı silmek istediğinize emin misiniz?
+		Seçili ön ayarı silmek istediğinizden emin misiniz?
 	</string>
 	<string name="msg_sky_is_referenced">
-		Bazı gün döngüleri tarafından başvurulan bir ön ayar kaldırılamaz.
+		Bazı gün döngüleri tarafından referans alınan bir ön ayar kaldırılamaz.
 	</string>
 	<string name="combo_label">
 		-Bir ön ayar seçin-
@@ -31,5 +31,5 @@
 		Ön Ayar:
 	</text>
 	<button label="Sil" name="delete"/>
-	<button label="İptal" name="cancel"/>
+	<button label="İptal Et" name="cancel"/>
 </floater>

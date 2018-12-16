@@ -839,7 +839,7 @@ void LLVoiceClient::addObserver(LLVoiceClientStatusObserver* observer)
 
 void LLVoiceClient::removeObserver(LLVoiceClientStatusObserver* observer)
 {
-	if (mVoiceModule) mVoiceModule->removeObserver(observer);
+	if (mVoiceModule && mVoiceModule->singletoneInstanceExists()) mVoiceModule->removeObserver(observer);
 }
 
 void LLVoiceClient::addObserver(LLFriendObserver* observer)
@@ -849,7 +849,7 @@ void LLVoiceClient::addObserver(LLFriendObserver* observer)
 
 void LLVoiceClient::removeObserver(LLFriendObserver* observer)
 {
-	if (mVoiceModule) mVoiceModule->removeObserver(observer);
+	if (mVoiceModule && mVoiceModule->singletoneInstanceExists()) mVoiceModule->removeObserver(observer);
 }
 
 void LLVoiceClient::addObserver(LLVoiceClientParticipantObserver* observer)
@@ -859,7 +859,7 @@ void LLVoiceClient::addObserver(LLVoiceClientParticipantObserver* observer)
 
 void LLVoiceClient::removeObserver(LLVoiceClientParticipantObserver* observer)
 {
-	if (mVoiceModule) mVoiceModule->removeObserver(observer);
+	if (mVoiceModule && mVoiceModule->singletoneInstanceExists()) mVoiceModule->removeObserver(observer);
 }
 
 std::string LLVoiceClient::sipURIFromID(const LLUUID &id)

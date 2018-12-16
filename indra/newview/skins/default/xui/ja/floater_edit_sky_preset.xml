@@ -22,7 +22,7 @@
 		事前設定の名前：
 	</text>
 	<text name="note">
-		注意：自分で作成した事前設定の名前を変更すると、新しい事前設定が別に作成されるだけで、元の事前設定は変更されません。
+		注記： 自分で作成した事前設定の名前を変更すると、新しい事前設定が別に作成されるだけで、元の事前設定は変更されません。
 	</text>
 	<tab_container name="WindLight Tabs">
 		<panel label="大気" name="Atmosphere">
@@ -53,7 +53,7 @@
 				太陽/月の色
 			</text>
 			<text name="WLAmbientText">
-				風
+				アンビエント
 			</text>
 			<text name="SunGlowText">
 				太陽の輝き
@@ -132,12 +132,12 @@
 			</text>
 			<check_box label="ロック" name="WLCloudLockX"/>
 			<text name="WLCloudScrollYText">
-				雲の移動速度（Y 方向）
+				雲の移動速度（Y方向）
 			</text>
 			<check_box label="ロック" name="WLCloudLockY"/>
 		</panel>
 	</tab_container>
 	<check_box label="この事前設定を新しい空の設定にする" name="make_default_cb"/>
 	<button label="保存" name="save"/>
-	<button label="取り消し" name="cancel"/>
+	<button label="キャンセル" name="cancel"/>
 </floater>

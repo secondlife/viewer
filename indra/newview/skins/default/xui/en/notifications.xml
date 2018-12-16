@@ -616,6 +616,16 @@ Save all changes to clothing/body parts?
 
   <notification
    icon="alertmodal.tga"
+   name="AllowMultipleViewers"
+   type="alertmodal">
+    Running multiple Second Life viewers is not supported. It can lead to texture cache collisions, corruption and degraded visuals and performance.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="GrantModifyRights"
    type="alertmodal">
 Granting modify rights to another Resident allows them to change, delete or take ANY objects you may have in-world. Be VERY careful when handing out this permission.

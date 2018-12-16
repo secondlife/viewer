@@ -65,16 +65,16 @@ Grafik Kartı: [GRAPHICS_CARD]
 		OpenGL Sürümü: [OPENGL_VERSION]
 	</string>
 	<string name="AboutSettings">
-		Pencere büyüklüğü: [WINDOW_WIDTH]x[WINDOW_HEIGHT]
-Font Büyüklüğü Ayarı: [FONT_SIZE_ADJUSTMENT] pt
-Kullanıcı Arayüzü Ölçekleme: [UI_SCALE]
-Çizme mesafesi: [DRAW_DISTANCE] m
-Bant genişliği: [NET_BANDWITH] kbit/sn
-Ayrıntı seviyesi faktörü: [LOD_FACTOR]
+		Pencere boyutu: [WINDOW_WIDTH]x[WINDOW_HEIGHT]
+Yazı Tipi Boyutu Ayarı: [FONT_SIZE_ADJUSTMENT]pt
+UI Ölçeklendirme: [UI_SCALE]
+Çizim mesafesi: [DRAW_DISTANCE]m
+Bant genişliği: [NET_BANDWITH]kbit/s
+LOD faktörü: [LOD_FACTOR]
 İşleme kalitesi: [RENDER_QUALITY]
 Gelişmiş Aydınlatma Modeli: [GPU_SHADERS]
 Doku belleği: [TEXTURE_MEMORY]MB
-VFS (önbellek) oluşturma zamanı: [VFS_TIME]
+VFS (önbellek) oluşturma saati: [VFS_TIME]
 	</string>
 	<string name="AboutLibs">
 		J2C Kod Çözücü Sürümü: [J2C_VERSION] 

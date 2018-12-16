@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<floater name="Delete Env Preset" title="UMGEB.VOREINST. LÖSCHEN">
+<floater name="Delete Env Preset" title="UMGEB.-VOREINST. LÖSCHEN">
 	<string name="title_water">
 		Wasser-Voreinstellung löschen
 	</string>

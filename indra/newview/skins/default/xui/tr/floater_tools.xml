@@ -372,6 +372,7 @@
 			<text name="edit_object">
 				Nesne özelliklerini düzenleyin:
 			</text>
+			<check_box label="Animasyonlu Ağ" name="Animated Mesh Checkbox Ctrl" tool_tip="Ağ stili giydirilmiş nesnelere bağımsız olarak animasyon eklenmesine olanak sağlar."/>
 			<check_box label="Esnek Yol" name="Flexible1D Checkbox Ctrl" tool_tip="Nesnelerin Z ekseni etrafında esnemesine imkan tanır (sadece istemci tarafında)"/>
 			<spinner label="Yumuşaklık" name="FlexNumSections"/>
 			<spinner label="Yerçekimi" name="FlexGravity"/>
