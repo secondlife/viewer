@@ -1471,6 +1471,8 @@ bool LLAppViewer::doFrame()
 		mainloop.post(newFrame);
 		// give listeners a chance to run
 		llcoro::suspend();
+		// if one of our coroutines threw an uncaught exception, rethrow it now
+		LLCoros::instance().rethrow();
 
 		if (!LLApp::isExiting())
 		{
