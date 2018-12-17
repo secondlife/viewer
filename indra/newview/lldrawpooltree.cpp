@@ -57,7 +57,7 @@ LLDrawPool *LLDrawPoolTree::instancePool()
 
 void LLDrawPoolTree::prerender()
 {
-	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
+	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
 }
 
 void LLDrawPoolTree::beginRenderPass(S32 pass)
@@ -138,7 +138,7 @@ void LLDrawPoolTree::endRenderPass(S32 pass)
 		shader->unbind();
 	}
 	
-	if (mVertexShaderLevel <= 0)
+	if (mShaderLevel <= 0)
 	{
 		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 	}

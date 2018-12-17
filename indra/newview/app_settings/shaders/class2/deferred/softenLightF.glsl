@@ -74,8 +74,6 @@ VARYING vec2 vary_fragcoord;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
-vec3 srgb_to_linear(vec3 cs);
-vec3 linear_to_srgb(vec3 cl);
 vec3 decode_normal (vec2 enc);
 
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
@@ -87,24 +85,8 @@ vec3 atmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
 vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
 vec3 fullbrightShinyAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
 
-vec4 getPosition_d(vec2 pos_screen, float depth)
-{
-    vec2 sc = pos_screen.xy*2.0;
-    sc /= screen_res;
-    sc -= vec2(1.0,1.0);
-    vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
-    vec4 pos = inv_proj * ndc;
-    pos /= pos.w;
-    pos.w = 1.0;
-    return pos;
-}
-
-vec4 getPosition(vec2 pos_screen)
-{ //get position in screen space (world units) given window coordinate and depth map
-    float depth = texture2DRect(depthMap, pos_screen.xy).r;
-    return getPosition_d(pos_screen, depth);
-}
-
+vec4 getPositionWithDepth(vec2 pos_screen, float depth);
+vec4 getPosition(vec2 pos_screen);
 
 #ifdef WATER_FOG
 vec4 applyWaterFogView(vec3 pos, vec4 color);
@@ -112,32 +94,29 @@ vec4 applyWaterFogView(vec3 pos, vec4 color);
 
 void main() 
 {
-    vec2 tc = vary_fragcoord.xy;
-    float depth = texture2DRect(depthMap, tc.xy).r;
-    vec3 pos = getPosition_d(tc, depth).xyz;
-    vec4 norm = texture2DRect(normalMap, tc);
-    float envIntensity = norm.z;
-    norm.xyz = decode_normal(norm.xy); // unpack norm
-        
-    float da_sun  = dot(norm.xyz, normalize(sun_dir.xyz));
+	vec2 tc = vary_fragcoord.xy;
+	float depth = texture2DRect(depthMap, tc.xy).r;
+	vec4 pos = getPositionWithDepth(tc, depth);
+	vec4 norm = texture2DRect(normalMap, tc);
+	float envIntensity = norm.z;
+	norm.xyz = decode_normal(norm.xy); // unpack norm
+		
+	float da_sun  = dot(norm.xyz, normalize(sun_dir.xyz));
     float da_moon = dot(norm.xyz, normalize(moon_dir.xyz));
     float da = max(da_sun, da_moon);
           da = clamp(da, 0.0, 1.0);
 
-    da = pow(da, global_gamma);
+	da = pow(da, global_gamma + 0.3);
 
-    vec4 diffuse = texture2DRect(diffuseRect, tc);
-
-    //convert to gamma space
-	//diffuse.rgb = linear_to_srgb(diffuse.rgb);
-
+	vec4 diffuse = texture2DRect(diffuseRect, tc);
+	
     vec3 col;
     float bloom = 0.0;
     {
         vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
         
         vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
-        scol_ambocc = pow(scol_ambocc, vec2(global_gamma));
+        scol_ambocc = pow(scol_ambocc, vec2(global_gamma + 0.3));
 
         float scol = max(scol_ambocc.r, diffuse.a); 
         float ambocc = scol_ambocc.g;
@@ -195,9 +174,6 @@ void main()
             col = fogged.rgb;
             bloom = fogged.a;
         #endif
-
-        //col = srgb_to_linear(col);
-
     }
     frag_color.rgb = col;
     frag_color.a = bloom;

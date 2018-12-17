@@ -49,6 +49,7 @@ public:
 	bool hasAtmospherics;
 	bool hasGamma;
     bool hasShadows;
+    bool hasAmbientOcclusion;
 	bool hasSrgb;
     bool encodesNormal;
     bool decodesNormal;

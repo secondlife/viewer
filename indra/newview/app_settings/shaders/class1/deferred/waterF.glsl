@@ -62,7 +62,6 @@ VARYING vec4 littleWave;
 VARYING vec4 view;
 VARYING vec4 vary_position;
 
-vec3 srgb_to_linear(vec3 cs);
 vec2 encode_normal(vec3 n);
 vec3 scaleSoftClipFrag(vec3 l);
 

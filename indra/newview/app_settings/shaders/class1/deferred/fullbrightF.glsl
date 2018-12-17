@@ -45,9 +45,6 @@ VARYING vec2 vary_texcoord0;
 vec4 applyWaterFogView(vec3 pos, vec4 color);
 #endif
 
-vec3 srgb_to_linear(vec3 cs);
-vec3 linear_to_srgb(vec3 cl);
-
 vec3 fullbrightAtmosTransportDeferred(vec3 light)
 {
 	return light;
@@ -81,12 +78,9 @@ void main()
 #endif
 
 	color.rgb *= vertex_color.rgb;
-	color.rgb = srgb_to_linear(color.rgb);
 	color.rgb = fullbrightAtmosTransportDeferred(color.rgb);
 	color.rgb = fullbrightScaleSoftClipDeferred(color.rgb);
 	
-	color.rgb = linear_to_srgb(color.rgb);
-
 #ifdef WATER_FOG
 	vec3 pos = vary_position;
 	vec4 fogged = applyWaterFogView(pos, vec4(color.rgb, final_alpha));

@@ -90,7 +90,7 @@ void LLDrawPoolGlow::endPostDeferredPass(S32 pass)
 
 S32 LLDrawPoolGlow::getNumPasses()
 {
-	if (LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 0)
+	if (LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 0)
 	{
 		return 1;
 	}
@@ -111,7 +111,7 @@ void LLDrawPoolGlow::render(S32 pass)
 	glPolygonOffset(-1.0f, -1.0f);
 	gGL.setSceneBlendType(LLRender::BT_ADD);
 	
-	U32 shader_level = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
+	U32 shader_level = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
 
 	//should never get here without basic shaders enabled
 	llassert(shader_level > 0);
@@ -164,7 +164,7 @@ LLDrawPoolSimple::LLDrawPoolSimple() :
 
 void LLDrawPoolSimple::prerender()
 {
-	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
+	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
 }
 
 void LLDrawPoolSimple::beginRenderPass(S32 pass)
@@ -184,7 +184,7 @@ void LLDrawPoolSimple::beginRenderPass(S32 pass)
 		simple_shader = &gObjectSimpleProgram;
 	}
 
-	if (mVertexShaderLevel > 0)
+	if (mShaderLevel > 0)
 	{
 		simple_shader->bind();
 
@@ -213,7 +213,7 @@ void LLDrawPoolSimple::endRenderPass(S32 pass)
 	stop_glerror();
 	LLRenderPass::endRenderPass(pass);
 	stop_glerror();
-	if (mVertexShaderLevel > 0)
+	if (mShaderLevel > 0)
 	{
 		simple_shader->unbind();
 	}
@@ -227,7 +227,7 @@ void LLDrawPoolSimple::render(S32 pass)
 		LL_RECORD_BLOCK_TIME(FTM_RENDER_SIMPLE);
 		gPipeline.enableLightsDynamic();
 
-		if (mVertexShaderLevel > 0)
+		if (mShaderLevel > 0)
 		{
 			U32 mask = getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX;
 
@@ -270,7 +270,7 @@ LLDrawPoolAlphaMask::LLDrawPoolAlphaMask() :
 
 void LLDrawPoolAlphaMask::prerender()
 {
-	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
+	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
 }
 
 void LLDrawPoolAlphaMask::beginRenderPass(S32 pass)
@@ -286,7 +286,7 @@ void LLDrawPoolAlphaMask::beginRenderPass(S32 pass)
 		simple_shader = &gObjectSimpleAlphaMaskProgram;
 	}
 
-	if (mVertexShaderLevel > 0)
+	if (mShaderLevel > 0)
 	{
 		simple_shader->bind();
 
@@ -315,7 +315,7 @@ void LLDrawPoolAlphaMask::endRenderPass(S32 pass)
 	stop_glerror();
 	LLRenderPass::endRenderPass(pass);
 	stop_glerror();
-	if (mVertexShaderLevel > 0)
+	if (mShaderLevel > 0)
 	{
 		simple_shader->unbind();
 	}
@@ -326,7 +326,7 @@ void LLDrawPoolAlphaMask::render(S32 pass)
 	LLGLDisable blend(GL_BLEND);
 	LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_MASK);
 	
-	if (mVertexShaderLevel > 0)
+	if (mShaderLevel > 0)
 	{
 		simple_shader->bind();
 		simple_shader->setMinimumAlpha(0.33f);
@@ -361,7 +361,7 @@ LLDrawPoolFullbrightAlphaMask::LLDrawPoolFullbrightAlphaMask() :
 
 void LLDrawPoolFullbrightAlphaMask::prerender()
 {
-	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
+	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
 }
 
 void LLDrawPoolFullbrightAlphaMask::beginRenderPass(S32 pass)
@@ -377,7 +377,7 @@ void LLDrawPoolFullbrightAlphaMask::beginRenderPass(S32 pass)
 		simple_shader = &gObjectFullbrightAlphaMaskProgram;
 	}
 
-	if (mVertexShaderLevel > 0)
+	if (mShaderLevel > 0)
 	{
 		simple_shader->bind();
 
@@ -406,7 +406,7 @@ void LLDrawPoolFullbrightAlphaMask::endRenderPass(S32 pass)
 	stop_glerror();
 	LLRenderPass::endRenderPass(pass);
 	stop_glerror();
-	if (mVertexShaderLevel > 0)
+	if (mShaderLevel > 0)
 	{
 		simple_shader->unbind();
 	}
@@ -416,7 +416,7 @@ void LLDrawPoolFullbrightAlphaMask::render(S32 pass)
 {
 	LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_MASK);
 
-	if (mVertexShaderLevel > 0)
+	if (mShaderLevel > 0)
 	{
 		if (simple_shader)
 		{
@@ -533,7 +533,7 @@ LLDrawPoolGrass::LLDrawPoolGrass() :
 
 void LLDrawPoolGrass::prerender()
 {
-	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
+	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
 }
 
 
@@ -551,7 +551,7 @@ void LLDrawPoolGrass::beginRenderPass(S32 pass)
 		simple_shader = &gObjectAlphaMaskNonIndexedProgram;
 	}
 
-	if (mVertexShaderLevel > 0)
+	if (mShaderLevel > 0)
 	{
 		simple_shader->bind();
 		simple_shader->setMinimumAlpha(0.5f);
@@ -580,7 +580,7 @@ void LLDrawPoolGrass::endRenderPass(S32 pass)
 	LL_RECORD_BLOCK_TIME(FTM_RENDER_GRASS);
 	LLRenderPass::endRenderPass(pass);
 
-	if (mVertexShaderLevel > 0)
+	if (mShaderLevel > 0)
 	{
 		simple_shader->unbind();
 	}
@@ -643,7 +643,7 @@ LLDrawPoolFullbright::LLDrawPoolFullbright() :
 
 void LLDrawPoolFullbright::prerender()
 {
-	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
+	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
 }
 
 void LLDrawPoolFullbright::beginPostDeferredPass(S32 pass)
@@ -711,7 +711,7 @@ void LLDrawPoolFullbright::endRenderPass(S32 pass)
 
 	stop_glerror();
 
-	if (mVertexShaderLevel > 0)
+	if (mShaderLevel > 0)
 	{
 		fullbright_shader->unbind();
 	}
@@ -726,7 +726,7 @@ void LLDrawPoolFullbright::render(S32 pass)
 
 	stop_glerror();
 
-	if (mVertexShaderLevel > 0)
+	if (mShaderLevel > 0)
 	{
 		fullbright_shader->bind();
 		fullbright_shader->uniform1f(LLViewerShaderMgr::FULLBRIGHT, 1.f);

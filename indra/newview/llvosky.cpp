@@ -1074,7 +1074,7 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 	if (mFace[FACE_REFLECTION] == NULL)
 	{
 		LLDrawPoolWater *poolp = (LLDrawPoolWater*) gPipeline.getPool(LLDrawPool::POOL_WATER);
-		if (gPipeline.getPool(LLDrawPool::POOL_WATER)->getVertexShaderLevel() != 0)
+		if (gPipeline.getPool(LLDrawPool::POOL_WATER)->getShaderLevel() != 0)
 		{
 			mFace[FACE_REFLECTION] = drawable->addFace(poolp, NULL);
 		}
@@ -1177,7 +1177,7 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 	}
 	
     bool above_water = (height_above_water > 0);
-    bool render_ref  = above_water && gPipeline.getPool(LLDrawPool::POOL_WATER)->getVertexShaderLevel() == 0;
+    bool render_ref  = above_water && gPipeline.getPool(LLDrawPool::POOL_WATER)->getShaderLevel() == 0;
     setDrawRefl(above_water ? (sun_flag ? 0 : 1) : -1);
     if (render_ref)
 	{        

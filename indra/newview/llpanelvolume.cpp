@@ -560,7 +560,7 @@ void LLPanelVolume::refresh()
 		mRootObject = NULL;
 	}
 
-	BOOL visible = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_DEFERRED) > 0 ? TRUE : FALSE;
+	BOOL visible = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_DEFERRED) > 0 ? TRUE : FALSE;
 
 	getChildView("Light FOV")->setVisible( visible);
 	getChildView("Light Focus")->setVisible( visible);

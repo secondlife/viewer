@@ -68,22 +68,13 @@ uniform float shadow_offset;
 uniform float spot_shadow_bias;
 uniform float spot_shadow_offset;
 
-vec3 decode_normal (vec2 enc);
+vec3 getNorm(vec2 pos_screen);
+vec4 getPosition(vec2 pos_screen);
 
-vec4 getPosition(vec2 pos_screen)
-{
-	float depth = texture2DRect(depthMap, pos_screen.xy).r;
-	vec2 sc = pos_screen.xy*2.0;
-	sc /= screen_res;
-	sc -= vec2(1.0,1.0);
-	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
-	vec4 pos = inv_proj * ndc;
-	pos /= pos.w;
-	pos.w = 1.0;
-	return pos;
-}
+float pcfShadow(sampler2DShadow shadowMap, vec4 stc, float scl, vec2 pos_screen);
+float pcfSpotShadow(sampler2DShadow shadowMap, vec4 stc, float scl, vec2 pos_screen);
 
-float pcfShadow(sampler2DShadow shadowMap, vec4 stc, float scl, vec2 pos_screen)
+float pcfShadowLegacy(sampler2DShadow shadowMap, vec4 stc, float scl, vec2 pos_screen)
 {
 	stc.xyz /= stc.w;
 	stc.z += shadow_bias;
@@ -102,7 +93,7 @@ float pcfShadow(sampler2DShadow shadowMap, vec4 stc, float scl, vec2 pos_screen)
     return shadow*0.2;
 }
 
-float pcfSpotShadow(sampler2DShadow shadowMap, vec4 stc, float scl, vec2 pos_screen)
+float pcfSpotShadowLegacy(sampler2DShadow shadowMap, vec4 stc, float scl, vec2 pos_screen)
 {
 	stc.xyz /= stc.w;
 	stc.z += spot_shadow_bias*scl;
@@ -128,10 +119,8 @@ void main()
 	
 	//try doing an unproject here
 	
-	vec4 pos = getPosition(pos_screen);
-	
-	vec3 norm = texture2DRect(normalMap, pos_screen).xyz;
-	norm = decode_normal(norm.xy); // unpack norm
+	vec4 pos  = getPosition(pos_screen);	
+	vec3 norm = getNorm(pos_screen);
 		
 	/*if (pos.z == 0.0) // do nothing for sky *FIX: REMOVE THIS IF/WHEN THE POSITION MAP IS BEING USED AS A STENCIL
 	{
@@ -174,7 +163,7 @@ void main()
 				
 				float w = 1.0;
 				w -= max(spos.z-far_split.z, 0.0)/transition_domain.z;
-				shadow += pcfShadow(shadowMap3, lpos, 0.25, pos_screen)*w;
+				shadow += pcfShadowLegacy(shadowMap3, lpos, 0.25, pos_screen)*w;
 				weight += w;
 				shadow += max((pos.z+shadow_clip.z)/(shadow_clip.z-shadow_clip.w)*2.0-1.0, 0.0);
 			}
@@ -186,7 +175,7 @@ void main()
 				float w = 1.0;
 				w -= max(spos.z-far_split.y, 0.0)/transition_domain.y;
 				w -= max(near_split.z-spos.z, 0.0)/transition_domain.z;
-				shadow += pcfShadow(shadowMap2, lpos, 0.5, pos_screen)*w;
+				shadow += pcfShadowLegacy(shadowMap2, lpos, 0.5, pos_screen)*w;
 				weight += w;
 			}
 
@@ -197,7 +186,7 @@ void main()
 				float w = 1.0;
 				w -= max(spos.z-far_split.x, 0.0)/transition_domain.x;
 				w -= max(near_split.y-spos.z, 0.0)/transition_domain.y;
-				shadow += pcfShadow(shadowMap1, lpos, 0.75, pos_screen)*w;
+				shadow += pcfShadowLegacy(shadowMap1, lpos, 0.75, pos_screen)*w;
 				weight += w;
 			}
 
@@ -208,7 +197,7 @@ void main()
 				float w = 1.0;
 				w -= max(near_split.x-spos.z, 0.0)/transition_domain.x;
 				
-				shadow += pcfShadow(shadowMap0, lpos, 1.0, pos_screen)*w;
+				shadow += pcfShadowLegacy(shadowMap0, lpos, 1.0, pos_screen)*w;
 				weight += w;
 			}
 		
@@ -242,11 +231,11 @@ void main()
 	
 	//spotlight shadow 1
 	vec4 lpos = shadow_matrix[4]*spos;
-	frag_color[2] = pcfSpotShadow(shadowMap4, lpos, 0.8, pos_screen); 
+	frag_color[2] = pcfSpotShadowLegacy(shadowMap4, lpos, 0.8, pos_screen); 
 	
 	//spotlight shadow 2
 	lpos = shadow_matrix[5]*spos;
-	frag_color[3] = pcfSpotShadow(shadowMap5, lpos, 0.8, pos_screen); 
+	frag_color[3] = pcfSpotShadowLegacy(shadowMap5, lpos, 0.8, pos_screen); 
 
 	//frag_color.rgb = pos.xyz;
 	//frag_color.b = shadow;

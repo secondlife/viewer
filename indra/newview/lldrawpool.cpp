@@ -127,7 +127,7 @@ LLDrawPool::LLDrawPool(const U32 type)
 	mType = type;
 	sNumDrawPools++;
 	mId = sNumDrawPools;
-	mVertexShaderLevel = 0;
+	mShaderLevel = 0;
 	mSkipRender = false;
 }
 
@@ -141,7 +141,7 @@ LLViewerTexture *LLDrawPool::getDebugTexture()
 	return NULL;
 }
 
-//virtuals
+//virtual
 void LLDrawPool::beginRenderPass( S32 pass )
 {
 }

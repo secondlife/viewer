@@ -66,10 +66,7 @@ uniform vec2 screen_res;
 vec4 applyWaterFogView(vec3 pos, vec4 color);
 #endif
 
-vec3 srgb_to_linear(vec3 cs);
-vec3 linear_to_srgb(vec3 cl);
 vec3 decode_normal (vec2 enc);
-
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 fullbrightAtmosTransportFrag(vec3 l, vec3 additive, vec3 atten);
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
@@ -89,18 +86,14 @@ vec4 getPosition_d(vec2 pos_screen, float depth)
     return pos;
 }
 
-vec4 getPosition(vec2 pos_screen)
-{ //get position in screen space (world units) given window coordinate and depth map
-    float depth = texture2DRect(depthMap, pos_screen.xy).a;
-    return getPosition_d(pos_screen, depth);
-}
-
+vec4 getPositionWithDepth(vec2 pos_screen, float depth);
+vec4 getPosition(vec2 pos_screen);
 
 void main() 
 {
     vec2 tc = vary_fragcoord.xy;
     float depth = texture2DRect(depthMap, tc.xy).r;
-    vec3 pos = getPosition_d(tc, depth).xyz;
+    vec3 pos = getPositionWithDepth(tc, depth).xyz;
     vec4 norm = texture2DRect(normalMap, tc);
     float envIntensity = norm.z;
     norm.xyz = decode_normal(norm.xy); // unpack norm
@@ -110,12 +103,9 @@ void main()
     float da = max(da_sun, da_moon);
 
     float final_da = clamp(da, 0.0, 1.0);
-          final_da = pow(final_da, global_gamma);
+          final_da = pow(final_da, global_gamma + 0.3);
 
     vec4 diffuse = texture2DRect(diffuseRect, tc);
-
-    //convert to gamma space
-    //diffuse.rgb = linear_to_srgb(diffuse.rgb);
 
     vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
     vec3 col;
@@ -173,10 +163,6 @@ void main()
             col = fogged.rgb;
             bloom = fogged.a;
         #endif
-
-        //col = srgb_to_linear(col);
-        //col = vec3(1,0,1);
-        //col.g = envIntensity;
     }
 
     frag_color.rgb = col.rgb;

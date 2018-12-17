@@ -276,12 +276,11 @@ public:
 	void renderGeomDeferred(LLCamera& camera);
 	void renderGeomPostDeferred(LLCamera& camera, bool do_occlusion=true);
 	void renderGeomShadow(LLCamera& camera);
-	void bindDeferredShader(LLGLSLShader& shader, U32 light_index = 0, U32 noise_map = 0xFFFFFFFF);
+	void bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_target = nullptr);
 	void setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep);
 
 	void unbindDeferredShader(LLGLSLShader& shader);
-	void renderDeferredLighting();
-	void renderDeferredLightingToRT(LLRenderTarget* target);
+	void renderDeferredLighting(LLRenderTarget* light_target);
 	
 	void generateWaterReflection(LLCamera& camera);
 	void generateSunShadow(LLCamera& camera);
@@ -588,7 +587,6 @@ public:
 	static bool				sRenderAttachedLights;
 	static bool				sRenderAttachedParticles;
 	static bool				sRenderDeferred;
-    static bool				sRenderingWaterReflection;
 	static bool             sMemAllocationThrottled;
 	static S32				sVisibleLightCount;
 	static F32				sMinRenderSize;
@@ -620,37 +618,32 @@ public:
 	//sun shadow map
 	LLRenderTarget			mShadow[6];
 	LLRenderTarget			mShadowOcclusion[6];
-	LLRenderTarget			mInscatter;
-	std::vector<LLVector3>		mShadowFrustPoints[4];
-	LLVector4			mShadowError;
-	LLVector4			mShadowFOV;
-	LLVector3			mShadowFrustOrigin[4];
-	LLCamera			mShadowCamera[8];
-	LLVector3			mShadowExtents[4][2];
+
+	std::vector<LLVector3>  mShadowFrustPoints[4];
+	LLVector4			    mShadowError;
+	LLVector4			    mShadowFOV;
+	LLVector3			    mShadowFrustOrigin[4];
+	LLCamera			    mShadowCamera[8];
+	LLVector3			    mShadowExtents[4][2];
 	glh::matrix4f			mSunShadowMatrix[6];
 	glh::matrix4f			mShadowModelview[6];
 	glh::matrix4f			mShadowProjection[6];
-	glh::matrix4f			mGIMatrix;
-	glh::matrix4f			mGIMatrixProj;
-	glh::matrix4f			mGIModelview;
-	glh::matrix4f			mGIProjection;
-	glh::matrix4f			mGINormalMatrix;
-	glh::matrix4f			mGIInvProj;
-	LLVector2				mGIRange;
-	F32						mGILightRadius;
-	
-	LLPointer<LLDrawable>				mShadowSpotLight[2];
-	F32									mSpotLightFade[2];
-	LLPointer<LLDrawable>				mTargetShadowSpotLight[2];
+    glh::matrix4f           mReflectionModelView;
+
+	LLPointer<LLDrawable>	mShadowSpotLight[2];
+	F32						mSpotLightFade[2];
+	LLPointer<LLDrawable>	mTargetShadowSpotLight[2];
 
 	LLVector4				mSunClipPlanes;
 	LLVector4				mSunOrthoClipPlanes;
-
 	LLVector2				mScreenScale;
 
 	//water reflection texture
 	LLRenderTarget				mWaterRef;
-
+    LLRenderTarget				mWaterDeferredScreen;
+    LLRenderTarget				mWaterDeferredDepth;
+    LLRenderTarget				mWaterOcclusionDepth;
+    LLRenderTarget			    mWaterDeferredLight;
 	//water distortion texture (refraction)
 	LLRenderTarget				mWaterDis;
 
