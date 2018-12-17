@@ -40,6 +40,7 @@
 #include "v4color.h"
 #include "lltexture.h"
 #include "lldir.h"
+#include "llstring.h"
 
 // Third party library includes
 #include <boost/tokenizer.hpp>
@@ -1074,6 +1075,14 @@ std::string LLFontGL::getFontPathSystem()
     return "/System/Library/Fonts/";
 
 #elif LL_WINDOWS
+    auto system_root = LLStringUtil::getenv("SystemRoot");
+    if (! system_root.empty())
+    {
+        std::string fontpath(gDirUtilp->add(system_root, "fonts") + gDirUtilp->getDirDelimiter());
+        LL_INFOS() << "from SystemRoot: " << fontpath << LL_ENDL;
+        return fontpath;
+    }
+
     wchar_t *pwstr = NULL;
     HRESULT okay = SHGetKnownFolderPath(FOLDERID_Fonts, 0, NULL, &pwstr);
     if (SUCCEEDED(okay) && pwstr)
@@ -1081,6 +1090,7 @@ std::string LLFontGL::getFontPathSystem()
         std::string fontpath(ll_convert_wide_to_string(pwstr));
         // SHGetKnownFolderPath() contract requires us to free pwstr
         CoTaskMemFree(pwstr);
+        LL_INFOS() << "from SHGetKnownFolderPath(): " << fontpath << LL_ENDL;
         return fontpath;
     }
 #endif
