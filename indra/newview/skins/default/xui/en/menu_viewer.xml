@@ -2650,6 +2650,12 @@ function="World.EnvPreset"
                  function="Advanced.ForceErrorBadMemoryAccess" />
             </menu_item_call>
             <menu_item_call
+             label="Force Bad Memory Access in Coroutine"
+             name="Force Bad Memory Access in Coroutine">
+                <menu_item_call.on_click
+                 function="Advanced.ForceErrorBadMemoryAccessCoro" />
+            </menu_item_call>
+            <menu_item_call
              label="Force Infinite Loop"
              name="Force Infinite Loop">
                 <menu_item_call.on_click
@@ -2668,10 +2674,10 @@ function="World.EnvPreset"
                  function="Advanced.ForceErrorSoftwareException" />
             </menu_item_call>
             <menu_item_call
-             label="Force a Crash in a Coroutine"
-             name="Force a Crash in a Coroutine">
+             label="Force Software Exception in Coroutine"
+             name="Force Software Exception in Coroutine">
                 <menu_item_call.on_click
-                 function="Advanced.ForceErrorCoroutineCrash" />
+                 function="Advanced.ForceErrorSoftwareExceptionCoro" />
             </menu_item_call>
             <menu_item_call
              label="Force a Crash in a Thread"

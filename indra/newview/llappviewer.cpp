@@ -5566,12 +5566,6 @@ void LLAppViewer::forceErrorDriverCrash()
 	glDeleteTextures(1, NULL);
 }
 
-void LLAppViewer::forceErrorCoroutineCrash()
-{
-    LL_WARNS() << "Forcing a crash in LLCoros" << LL_ENDL;
-    LLCoros::instance().launch("LLAppViewer::crashyCoro", [] {throw LLException("A deliberate crash from LLCoros"); });
-}
-
 void LLAppViewer::forceErrorThreadCrash()
 {
     class LLCrashTestThread : public LLThread
