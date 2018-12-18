@@ -2699,26 +2699,14 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <string>openjpeg</string>
         <key>platforms</key>
         <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>2adb5b8bd2493d576c5d02b992d8f819</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/openjpeg_3p-update-openjpeg/rev/297018/arch/Darwin/installer/openjpeg-1.4.297018-darwin-297018.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
           <key>darwin64</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e971c5a2abec137b5acba215f0795f00</string>
+              <string>2cbec24a9c0a6f63fb7de8714d844dc2</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/13637/84630/openjpeg-2.3.0.230-darwin64-512617.tar.bz2</string>              
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/29113/243338/openjpeg-2.3.0.522661-darwin64-522661.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2752,9 +2740,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a4b7ac72338ba1909818fec6cd9cb1ce</string>
+              <string>65bc27385f99f58a0151bb4dc9d6543c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/13639/84642/openjpeg-2.3.0.230-windows-512617.tar.bz2</string>              
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/29114/243345/openjpeg-2.3.0.522661-windows-522661.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2764,16 +2752,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a4723ccb896009d8e8e8f0eb7aca9728</string>
+              <string>62044d31c9cf7801c8150a56d302ec71</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/13868/86169/openjpeg-2.3.0.230-windows64-512746.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/29115/243350/openjpeg-2.3.0.522661-windows64-522661.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.5.1.501102</string>
+        <string>2.3.0.522661</string>
       </map>
       <key>openssl</key>
       <map>
@@ -4036,7 +4024,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
-                  <string>-DUSE_OPENJPEG=TRUE</string>
                 </array>
               </map>
               <key>name</key>
