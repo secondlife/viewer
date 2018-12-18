@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Ambiente" name="panel_env_info">
 	<text name="water_settings_title">
-		Selecione as configurações de Água e céu / Ciclo dos dias que todos os visitantes à sua região verão.  Mais informações
+		Selecionar a Água e o Céu/Configurações de Ciclo de Dias que você gostaria que todos os visitantes da sua região visse. Mais informações
 	</text>
 	<radio_group name="region_settings_radio_group">
-		<radio_item label="Usar o padrão do Second Life" name="use_sl_default_settings"/>
-		<radio_item label="Usar as seguintes configurações" name="use_my_settings"/>
+		<radio_item label="Use o padrão Second Life" name="use_sl_default_settings"/>
+		<radio_item label="Use as seguintes configurações" name="use_my_settings"/>
 	</radio_group>
 	<panel name="user_environment_settings">
 		<text name="water_settings_title">
-			Configuração de água
+			Configurações da água
 		</text>
 		<combo_box name="water_settings_preset_combo">
-			<combo_box.item label="-Selecione uma pré-configuração-" name="item0"/>
+			<combo_box.item label="-Selecionar uma prefefinição-" name="item0"/>
 		</combo_box>
 		<text name="sky_dayc_settings_title">
-			Ciclo céu / dia
+			Céu / Ciclo de dias
 		</text>
 		<radio_group name="sky_dayc_settings_radio_group">
 			<radio_item label="Céu fixo" name="my_sky_settings"/>
-			<radio_item label="Ciclo dia" name="my_dayc_settings"/>
+			<radio_item label="Ciclos de dias" name="my_dayc_settings"/>
 		</radio_group>
 		<combo_box name="sky_settings_preset_combo">
-			<combo_box.item label="-Selecione uma pré-configuração-" name="item0"/>
+			<combo_box.item label="-Selecionar uma prefefinição-" name="item0"/>
 		</combo_box>
 		<combo_box name="dayc_settings_preset_combo">
-			<combo_box.item label="-Selecione uma pré-configuração-" name="item0"/>
+			<combo_box.item label="-Selecionar uma prefefinição-" name="item0"/>
 		</combo_box>
 	</panel>
 	<button label="Aplicar" name="apply_btn"/>

@@ -372,6 +372,7 @@
 			<text name="edit_object">
 				編輯物件特性：
 			</text>
+			<check_box label="動作網面" name="Animated Mesh Checkbox Ctrl" tool_tip="允許架設網面物件獨立動作"/>
 			<check_box label="彈性路徑" name="Flexible1D Checkbox Ctrl" tool_tip="允許物件繞 Z 軸伸展（僅限客戶端）"/>
 			<spinner label="柔軟" name="FlexNumSections"/>
 			<spinner label="重力" name="FlexGravity"/>

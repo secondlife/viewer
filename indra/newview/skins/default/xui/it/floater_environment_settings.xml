@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Environment Editor Floater" title="IMPOSTAZIONI AMBIENTE">
 	<text name="note">
-		Usa le opzioni seguenti per personalizzare le impostazioni dell&apos;ambiente per il tuo  viewer.
+		Usa le opzioni seguenti per personalizzare le impostazioni dell&apos;ambiente per il tuo viewer.
 	</text>
 	<radio_group name="region_settings_radio_group">
 		<radio_item label="Usa impostazioni regione" name="use_region_settings"/>
@@ -18,7 +18,7 @@
 			<combo_box.item label="-Seleziona un valore predefinito-" name="item0"/>
 		</combo_box>
 		<text name="sky_dayc_settings_title">
-			Ciclo giornata / cielo
+			Ciclo cielo / giornata
 		</text>
 		<radio_group name="sky_dayc_settings_radio_group">
 			<radio_item label="Cielo fisso" name="my_sky_settings"/>

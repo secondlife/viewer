@@ -7,32 +7,32 @@
 		Modifier un préréglage de l&apos;eau
 	</string>
 	<string name="hint_new">
-		Donnez un nom à votre préréglage, ajustez les contrôles afin de le créer, puis cliquez sur Enregistrer.
+		Donnez un nom à votre préréglage, ajustez les contrôles afin de le créer, puis cliquez sur &quot;Enregistrer&quot;.
 	</string>
 	<string name="hint_edit">
-		Pour modifier le préréglage de l&apos;eau, ajustez les contrôles, puis cliquez sur Enregistrer.
+		Pour modifier le préréglage de l&apos;eau, ajustez les contrôles, puis cliquez sur &quot;Enregistrer&quot;.
 	</string>
 	<string name="combo_label">
-		-Effectuer une sélection-
+		-Sélectionner un préréglage-
 	</string>
 	<text name="hint">
-		Pour modifier le préréglage, ajustez les contrôles, puis cliquez sur Enregistrer.
+		Pour modifier le préréglage, ajustez les contrôles, puis cliquez sur &quot;Enregistrer&quot;.
 	</text>
 	<text name="label">
 		Nom du préréglage :
 	</text>
 	<text name="note">
-		Remarque : si vous changez votre préréglage de nom, un nouveau préréglage sera créé et celui existant restera tel quel.
+		Remarque : Si vous changez votre préréglage de nom, un nouveau préréglage sera créé et celui existant restera tel quel.
 	</text>
 	<panel name="panel_water_preset">
 		<text name="water_color_label">
 			Couleur du brouillard dans l&apos;eau
 		</text>
 		<text name="water_fog_density_label">
-			Densité du brouillard
+			Exposant densité de brouillard
 		</text>
 		<text name="underwater_fog_modifier_label">
-			Brouillard sous-marin
+			Modificateurs de brouillard sous-marin
 		</text>
 		<text name="BHText">
 			Direction grande vague
@@ -40,7 +40,7 @@
 		<slider label="X" name="WaterWave1DirX"/>
 		<slider label="Y" name="WaterWave1DirY"/>
 		<text name="BDensText">
-			Échelle des vaguelettes
+			Échelle d&apos;ondelettes à réflexion
 		</text>
 		<text name="HDText">
 			Échelle Fresnel
@@ -54,16 +54,16 @@
 		<slider label="X" name="WaterWave2DirX"/>
 		<slider label="Y" name="WaterWave2DirY"/>
 		<text name="DensMultText">
-			Réfraction au-dessus
+			Échelle de réfraction au-dessus
 		</text>
 		<text name="WaterScaleBelowText">
-			Réfraction en dessous
+			Échelle de réfraction en-dessous
 		</text>
 		<text name="MaxAltText">
 			Multiplicateur de flou
 		</text>
 		<text name="BHText3">
-			Normal Map
+			Carte normale
 		</text>
 	</panel>
 	<check_box label="Appliquer ce nouveau préréglage pour l&apos;eau" name="make_default_cb"/>
