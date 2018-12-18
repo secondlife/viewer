@@ -58,9 +58,6 @@
 	<button label="Enlazar" name="link_btn"/>
 	<button label="Desenlazar" name="unlink_btn" width="95"/>
 	<check_box label="Estirar ambos lados" name="checkbox uniform"/>
-	<text label="Estirar ambos lados" name="checkbox uniform label">
-		Estirar ambos lados
-	</text>
 	<check_box initial_value="true" label="Estirar las texturas" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Intervalo" name="checkbox snap to grid"/>
 	<button label="Opciones..." label_selected="Opciones..." name="Options..." tool_tip="Ver más opciones de la cuadrícula"/>
@@ -352,6 +349,7 @@
 			<text name="edit_object">
 				Editar las características del objeto:
 			</text>
+			<check_box label="Malla animada" name="Animated Mesh Checkbox Ctrl" tool_tip="Permite que los objetos de malla aparejados estén animados de manera independiente"/>
 			<check_box label="Flexibilidad" name="Flexible1D Checkbox Ctrl" tool_tip="Permite que el objeto flexione en el eje Z (sólo del lado del cliente)"/>
 			<spinner label="Blandura" name="FlexNumSections"/>
 			<spinner label="Gravedad" name="FlexGravity"/>
@@ -388,82 +386,7 @@
 			<spinner label="Densidad en 100 kg/m^3" name="Physics Density"/>
 			<spinner label="Reemplazo" name="Physics Restitution"/>
 		</panel>
-		<panel label="Textura" name="Texture">
-			<panel.string name="string repeats per meter">
-				Repeticiones por m.
-			</panel.string>
-			<panel.string name="string repeats per face">
-				Repeticiones por cara
-			</panel.string>
-			<texture_picker label="Textura" name="texture control" tool_tip="Pulse para elegir una imagen"/>
-			<color_swatch label="Color" name="colorswatch" tool_tip="Pulsa para abrir el selector de color"/>
-			<text name="color trans">
-				Transparencia %
-			</text>
-			<text name="glow label">
-				Resplandor
-			</text>
-			<check_box bottom_delta="-21" label="Brillo al  máximo" name="checkbox fullbright"/>
-			<text name="tex gen">
-				Detallado
-			</text>
-			<combo_box name="combobox texgen">
-				<combo_box.item label="Por defecto" name="Default"/>
-				<combo_box.item label="Plano" name="Planar"/>
-			</combo_box>
-			<text name="label shininess">
-				Brillantez
-			</text>
-			<combo_box name="combobox shininess">
-				<combo_box.item label="Ninguna" name="None"/>
-				<combo_box.item label="Baja" name="Low"/>
-				<combo_box.item label="Media" name="Medium"/>
-				<combo_box.item label="Alta" name="High"/>
-			</combo_box>
-			<text name="label bumpiness">
-				Relieve
-			</text>
-			<combo_box name="combobox bumpiness">
-				<combo_box.item label="Ninguno" name="None"/>
-				<combo_box.item label="Brillo" name="Brightness"/>
-				<combo_box.item label="Oscuro" name="Darkness"/>
-				<combo_box.item label="grano de madera" name="woodgrain"/>
-				<combo_box.item label="corteza" name="bark"/>
-				<combo_box.item label="ladrillos" name="bricks"/>
-				<combo_box.item label="cajero" name="checker"/>
-				<combo_box.item label="cemento" name="concrete"/>
-				<combo_box.item label="azulejería" name="crustytile"/>
-				<combo_box.item label="piedra cortada" name="cutstone"/>
-				<combo_box.item label="discos" name="discs"/>
-				<combo_box.item label="grava" name="gravel"/>
-				<combo_box.item label="placa de Petri" name="petridish"/>
-				<combo_box.item label="revestimiento" name="siding"/>
-				<combo_box.item label="baldosa de piedra" name="stonetile"/>
-				<combo_box.item label="estuco" name="stucco"/>
-				<combo_box.item label="succión" name="suction"/>
-				<combo_box.item label="tejido" name="weave"/>
-			</combo_box>
-			<spinner label="Horizontal (U)" name="TexScaleU"/>
-			<check_box label="Voltear" name="checkbox flip s"/>
-			<spinner label="Vertical (V)" name="TexScaleV"/>
-			<check_box label="Voltear" name="checkbox flip t"/>
-			<spinner label="Rotación" name="TexRot"/>
-			<button label="Aplicar" label_selected="Aplicar" name="button apply"/>
-			<text name="tex offset">
-				Desplazar
-			</text>
-			<spinner label="Horizontal (U)" name="TexOffsetU"/>
-			<spinner label="Vertical (V)" name="TexOffsetV"/>
-			<panel name="Add_Media">
-				<text name="media_tex">
-					Media
-				</text>
-				<button name="add_media" tool_tip="Añadir un media"/>
-				<button name="delete_media" tool_tip="Borrar esta textura para media"/>
-				<button name="edit_media" tool_tip="Editar este media"/>
-				<button label="Centrar" label_selected="Centrar los media" name="button align" tool_tip="Centrar esta textura para media (primero debe cargarse)"/>
-			</panel>
-		</panel>
+		<panel label="Textura" name="Texture"/>
 		<panel label="Contenido " name="Contents">
 			<button label="Script nuevo" label_selected="Script nuevo" name="button new script"/>
 			<button label="Permisos" name="button permissions"/>

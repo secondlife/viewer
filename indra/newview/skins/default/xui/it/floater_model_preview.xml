@@ -4,6 +4,9 @@
 	<string name="status_parse_error">
 		Errore: Errore elaborazione Dae - vedere il registro per informazioni dettagliate.
 	</string>
+	<string name="status_bind_shape_orientation">
+		Attenzione: la matrice bind shape non ha un’orientazione standard X in avanti.
+	</string>
 	<string name="status_material_mismatch">
 		Errore: il materiale del modello non è un sottoinsieme del modello di riferimento.
 	</string>

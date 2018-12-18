@@ -109,9 +109,9 @@ const F32 desired_discard_bias_max = (F32)MAX_DISCARD_LEVEL; // max number of le
 const F64 log_2 = log(2.0);
 
 #if ADDRESS_SIZE == 32
-const U32 DESIRED_NORMAL_FETCHED_TEXTURE_SIZE = (U32)LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT / 2;
+const U32 DESIRED_NORMAL_TEXTURE_SIZE = (U32)LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT / 2;
 #else
-const U32 DESIRED_NORMAL_FETCHED_TEXTURE_SIZE = (U32)LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT;
+const U32 DESIRED_NORMAL_TEXTURE_SIZE = (U32)LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT;
 #endif
 
 //----------------------------------------------------------------------------------------------
@@ -706,7 +706,7 @@ void LLViewerTexture::dump()
 {
 	LLGLTexture::dump();
 
-	LL_INFOS() << "LLViewerTexture" << " mID " << mID << LL_ENDL;
+	LL_INFOS() << "LLViewerTexture mID " << mID << LL_ENDL;
 }
 
 void LLViewerTexture::setBoostLevel(S32 level)

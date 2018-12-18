@@ -86,7 +86,7 @@
      layout="topleft"
      left="484"
      name="Continue"
-     top_delta="35"
+     top_delta="55"
      width="100" />
     <button
      height="20"

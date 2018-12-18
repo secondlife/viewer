@@ -3228,6 +3228,9 @@ Por tu seguridad, serán bloqueadas durante unos segundos.
 	<notification name="PresetNotSaved">
 		Error al guardar el valor predefinido [NAME].
 	</notification>
+	<notification name="DefaultPresetNotSaved">
+		No se puede sobrescribir el valor predefinido.
+	</notification>
 	<notification name="PresetNotDeleted">
 		Error al eliminar el valor predefinido [NAME].
 	</notification>
@@ -3990,6 +3993,9 @@ Prueba otra vez dentro de un minuto.
 	<notification name="CantCreateObjectRegionFull">
 		No se puede crear el objeto solicitado. La región está llena.
 	</notification>
+	<notification name="CantCreateAnimatedObjectTooLarge">
+		No se puede crear el objeto animado solicitado ya que supera el límite de triángulo aparejado.
+	</notification>
 	<notification name="CantAttackMultipleObjOneSpot">
 		No puedes anexar varios objetos a un solo lugar.
 	</notification>
@@ -4037,6 +4043,21 @@ Prueba otra vez dentro de un minuto.
 	</notification>
 	<notification name="CantChangeShape">
 		No tienes permiso para cambiar esta forma.
+	</notification>
+	<notification name="NoPermsTooManyAttachedAnimatedObjects">
+		Esta operación provocaría que la cantidad de objetos animados adjuntos supere el límite.
+	</notification>
+	<notification name="NoPermsLinkAnimatedObjectTooLarge">
+		No se puede establecer un enlace entre estos objetos porque el objeto animado resultante superaría el límite de triángulo aparejado.
+	</notification>
+	<notification name="NoPermsSetFlagAnimatedObjectTooLarge">
+		No se puede transformar este objeto en un objeto animado ya que superaría el límite de triángulo aparejado.
+	</notification>
+	<notification name="CantChangeAnimatedObjectStateInsufficientLand">
+		No se puede cambiar el estado de objeto animado para este objeto porque provocaría que se exceda el límite de parcela.
+	</notification>
+	<notification name="ErrorNoMeshData">
+		Error del servidor: no se puede completar esta operación ya que los datos de malla no han sido cargados.
 	</notification>
 	<notification name="NoAccessToClaimObjects">
 		Tus privilegios de acceso no te permiten reclamar objetos aquí.

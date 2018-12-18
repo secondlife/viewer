@@ -3270,6 +3270,9 @@ M キーを押して変更します。
 	<notification name="PresetNotSaved">
 		プリセット [NAME] の保存エラー。
 	</notification>
+	<notification name="DefaultPresetNotSaved">
+		デフォルトの事前設定を上書きすることはできません。
+	</notification>
 	<notification name="PresetNotDeleted">
 		プリセット [NAME] の削除エラー。
 	</notification>
@@ -4028,6 +4031,9 @@ M キーを押して変更します。
 	<notification name="CantCreateObjectRegionFull">
 		リクエストされたオブジェクトを作成できません。リージョンが埋まっています。
 	</notification>
+	<notification name="CantCreateAnimatedObjectTooLarge">
+		リグ入三角形の限度数を超えるため、リクエストされたアニメーションオブジェクトを作成することができません。
+	</notification>
 	<notification name="CantAttackMultipleObjOneSpot">
 		1 つの場所に複数のオブジェクトを着用することはできません。
 	</notification>
@@ -4075,6 +4081,21 @@ M キーを押して変更します。
 	</notification>
 	<notification name="CantChangeShape">
 		あなたにはこのシェイプを変更する許可がありません。
+	</notification>
+	<notification name="NoPermsTooManyAttachedAnimatedObjects">
+		この操作を行うと、装着されたアニメーションオブジェクトが限度数を超えます。
+	</notification>
+	<notification name="NoPermsLinkAnimatedObjectTooLarge">
+		結果として、アニメーションオブジェクトがリグ入り三角形の限度数を超えるため、これらのオブジェクトを結合できません。
+	</notification>
+	<notification name="NoPermsSetFlagAnimatedObjectTooLarge">
+		リグ入り三角形の限度数を超えるため、このオブジェクトをアニメーションオブジェクトにすることはできません。
+	</notification>
+	<notification name="CantChangeAnimatedObjectStateInsufficientLand">
+		このオブジェクトをアニメーションオブジェクトの状態に変えると、区画の限度数を超えるため変更できません。
+	</notification>
+	<notification name="ErrorNoMeshData">
+		サーバーエラー： メッシュデータが読み込まれていないため、この操作を完了できません。
 	</notification>
 	<notification name="NoAccessToClaimObjects">
 		現在のアクセス権限では、ここにオブジェクトを取得できません。
