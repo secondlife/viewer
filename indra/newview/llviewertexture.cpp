@@ -108,12 +108,6 @@ const F32 desired_discard_bias_min = -2.0f; // -max number of levels to improve 
 const F32 desired_discard_bias_max = (F32)MAX_DISCARD_LEVEL; // max number of levels to reduce image quality by
 const F64 log_2 = log(2.0);
 
-#if ADDRESS_SIZE == 32
-const U32 DESIRED_NORMAL_TEXTURE_SIZE = (U32)LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT / 2;
-#else
-const U32 DESIRED_NORMAL_TEXTURE_SIZE = (U32)LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT;
-#endif
-
 //----------------------------------------------------------------------------------------------
 //namespace: LLViewerTextureAccess
 //----------------------------------------------------------------------------------------------
