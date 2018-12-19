@@ -2460,6 +2460,10 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 	
     camera.disableUserClipPlane();
 
+    bool use_far_clip = LLPipeline::sUseFarClip;
+
+    LLPipeline::sUseFarClip = false;
+
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
@@ -2485,6 +2489,8 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 			vo_part->cull(camera, do_occlusion_cull);
 		}
 	}
+
+    LLPipeline::sUseFarClip = use_far_clip;
 
 	if (bound_shader)
 	{
@@ -2522,9 +2528,11 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 		sCull->pushDrawable(gSky.mVOWLSkyp->mDrawable);
 	}
 	
-    if (hasRenderType(LLPipeline::RENDER_TYPE_WATER))
+    bool render_water = !sReflectionRender && (hasRenderType(LLPipeline::RENDER_TYPE_WATER) || hasRenderType(LLPipeline::RENDER_TYPE_VOIDWATER));
+
+    if (render_water)
     {
-        LLWorld::getInstance()->precullWaterObjects(camera, sCull, hasRenderType(LLPipeline::RENDER_TYPE_VOIDWATER));
+        LLWorld::getInstance()->precullWaterObjects(camera, sCull, render_water);
     }
 
 	gGL.matrixMode(LLRender::MM_PROJECTION);
@@ -8256,10 +8264,10 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
 								    (F32) gGLViewport[3]);
     }
 
-    /*if (sReflectionRender && shader.getUniformLocation(LLShaderMgr::MODELVIEW_MATRIX))
+    if (sReflectionRender && shader.getUniformLocation(LLShaderMgr::MODELVIEW_MATRIX))
     {
         shader.uniformMatrix4fv(LLShaderMgr::MODELVIEW_MATRIX, 1, FALSE, mReflectionModelView.m);            
-    }*/
+    }
 
 	channel = shader.enableTexture(LLShaderMgr::DEFERRED_NOISE);
 	if (channel > -1)
@@ -9383,8 +9391,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 			glCullFace(GL_FRONT);
 
-			static LLCullResult ref_result;
-
 			if (LLDrawPoolWater::sNeedsReflectionUpdate)
 			{
 				//initial sky pass (no user clip plane)
@@ -9395,24 +9401,21 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 						LLPipeline::RENDER_TYPE_CLOUDS,
 						LLPipeline::END_RENDER_TYPES);
 
-                    mWaterRef.flush();
-
                     gGL.setColorMask(true, true);
 					glClearColor(0,0,0,0);
 
-                    gPipeline.mWaterDeferredDepth.bindTarget();
-                    gPipeline.mWaterDeferredDepth.clear();
-					gPipeline.mWaterDeferredScreen.bindTarget();
-					gPipeline.mWaterDeferredScreen.clear();
-
-					static LLCullResult result;
-					updateCull(camera, result);
-					stateSort(camera, result);
-                    gPipeline.grabReferences(result);
+					static LLCullResult sky_and_clouds;
+					updateCull(camera, sky_and_clouds);
+					stateSort(camera, sky_and_clouds);
+                    gPipeline.grabReferences(sky_and_clouds);
 
                     if (LLPipeline::sRenderDeferred)
 					{
-						renderGeomDeferred(camera);						
+                        gPipeline.mWaterDeferredDepth.bindTarget();
+                        gPipeline.mWaterDeferredDepth.clear();
+					    gPipeline.mWaterDeferredScreen.bindTarget();
+					    gPipeline.mWaterDeferredScreen.clear();
+						renderGeomDeferred(camera);
 					}
 					else
 					{
@@ -9449,21 +9452,28 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 						}
 					}
 
-					LLGLDisable cull(GL_CULL_FACE);
-					updateCull(camera, ref_result);
-					stateSort(camera, ref_result);
-                    gPipeline.grabReferences(ref_result);
+					
 				}	
 
 				if (LLDrawPoolWater::sNeedsDistortionUpdate)
 				{
-					if (RenderReflectionDetail > 0)
+					if (detail > 0)
 					{
-						LLGLUserClipPlane clip_plane(plane, mat, projection);
+                        static LLCullResult reflected_objects;
+                        LLGLDisable cull(GL_CULL_FACE);
+					    updateCull(camera, reflected_objects);
+					    stateSort(camera, reflected_objects);
 
+						gPipeline.grabReferences(reflected_objects);
+
+						LLGLUserClipPlane clip_plane(plane, mat, projection);
 						if (LLPipeline::sRenderDeferred)
 						{							
 							renderGeomDeferred(camera);
+                            gPipeline.mWaterDeferredScreen.flush();
+                            gPipeline.mWaterDeferredDepth.flush();
+                            mWaterRef.copyContents(gPipeline.mWaterDeferredScreen, 0, 0, gPipeline.mWaterDeferredScreen.getWidth(), gPipeline.mWaterDeferredScreen.getHeight(),
+							    0, 0, gPipeline.mWaterRef.getWidth(), gPipeline.mWaterRef.getHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);	
 						}
 						else
 						{
@@ -9471,14 +9481,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 					    }
 				    }	
 				}	
-
-				if (LLPipeline::sRenderDeferred)
-				{
-					gPipeline.mWaterDeferredScreen.flush();
-                    gPipeline.mWaterDeferredDepth.flush();
-                    mWaterRef.copyContents(gPipeline.mWaterDeferredScreen, 0, 0, gPipeline.mWaterDeferredScreen.getWidth(), gPipeline.mWaterDeferredScreen.getHeight(),
-							0, 0, gPipeline.mWaterRef.getWidth(), gPipeline.mWaterRef.getHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);	
-				}
 
 				gPipeline.popRenderTypeMask();
 			}	
@@ -10102,7 +10104,6 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	bool skip_avatar_update = false;
 	if (!isAgentAvatarValid() || gAgentCamera.getCameraAnimating() || gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK || !LLVOAvatar::sVisibleInFirstPerson)
 	{
-
 		skip_avatar_update = true;
 	}
 
