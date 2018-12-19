@@ -286,6 +286,7 @@ public:
 	void generateSunShadow(LLCamera& camera);
     LLRenderTarget* getShadowTarget(U32 i);
 
+    void generateSkyIndirect();
 	void generateHighlight(LLCamera& camera);
 	void renderHighlight(const LLViewerObject* obj, F32 fade);
 	void setHighlightObject(LLDrawable* obj) { mHighlightObject = obj; }
@@ -533,7 +534,8 @@ public:
 		RENDER_DEBUG_ATTACHMENT_BYTES	=  0x20000000, // not used
 		RENDER_DEBUG_TEXEL_DENSITY		=  0x40000000,
 		RENDER_DEBUG_TRIANGLE_COUNT		=  0x80000000,
-		RENDER_DEBUG_IMPOSTORS			= 0x100000000
+		RENDER_DEBUG_IMPOSTORS			= 0x100000000,
+        RENDER_DEBUG_SH                  = 0x200000000,
 	};
 
 public:
@@ -649,6 +651,9 @@ public:
 
 	//texture for making the glow
 	LLRenderTarget				mGlow[3];
+
+    // texture for SH indirect sky contribution
+	LLRenderTarget				mSkySH;
 
 	//noise map
 	U32					mNoiseMap;

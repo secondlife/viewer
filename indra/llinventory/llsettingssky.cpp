@@ -999,7 +999,6 @@ LLColor3 LLSettingsSky::getLightDiffuse() const
 
 LLColor3 LLSettingsSky::getAmbientColor() const
 {
-    // Todo: this causes complications, preferably to get rid of this duality
     if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(SETTING_AMBIENT))
     {
         return LLColor3(mSettings[SETTING_LEGACY_HAZE][SETTING_AMBIENT]);

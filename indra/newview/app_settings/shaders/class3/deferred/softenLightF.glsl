@@ -40,15 +40,13 @@ uniform sampler2DRect lightMap;
 uniform sampler2DRect depthMap;
 uniform sampler2D     lightFunc;
 
-uniform float blur_size;
 uniform samplerCube environmentMap;
-
+uniform float blur_size;
 uniform float blur_fidelity;
 
 // Inputs
 uniform vec4 morphFactor;
 uniform vec3 camPosLocal;
-uniform vec4 gamma;
 uniform float cloud_shadow;
 uniform float max_y;
 uniform vec4 glow;

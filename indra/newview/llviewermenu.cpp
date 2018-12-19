@@ -1211,6 +1211,20 @@ class LLAdvancedSelectedTextureInfo : public view_listener_t
 	}
 };
 
+////////////////////////////
+// TOGGLE SH LIGHTING VIS //
+////////////////////////////
+
+class LLAdvancedToggleDebugSH : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+        gPipeline.toggleRenderDebug(LLPipeline::RENDER_DEBUG_SH);
+        gSavedSettings.setBOOL("RenderDebugSH", gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SH));
+		return true;
+	}
+};
+
 //////////////////////
 // TOGGLE WIREFRAME //
 //////////////////////
@@ -6101,12 +6115,7 @@ class LLAvatarResetSkeleton: public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-		LLVOAvatar* avatar = NULL;
-        LLViewerObject *obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
-        if (obj)
-        {
-            avatar = obj->getAvatar();
-        }
+		LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
 		if(avatar)
         {
             avatar->resetSkeleton(false);
@@ -8650,7 +8659,6 @@ class LLWorldEnableEnvPreset : public view_listener_t
 	}
 };
 
-
 /// Post-Process callbacks
 class LLWorldPostProcess : public view_listener_t
 {
@@ -8991,6 +8999,7 @@ void initialize_menus()
 	commit.add("Advanced.SelectedMaterialInfo", boost::bind(&handle_selected_material_info));
 	view_listener_t::addMenu(new LLAdvancedToggleWireframe(), "Advanced.ToggleWireframe");
 	view_listener_t::addMenu(new LLAdvancedCheckWireframe(), "Advanced.CheckWireframe");
+    view_listener_t::addMenu(new LLAdvancedToggleDebugSH(), "Advanced.ToggleDebugSH");
 	// Develop > Render
 	view_listener_t::addMenu(new LLAdvancedEnableObjectObjectOcclusion(), "Advanced.EnableObjectObjectOcclusion");
 	view_listener_t::addMenu(new LLAdvancedEnableRenderFBO(), "Advanced.EnableRenderFBO");

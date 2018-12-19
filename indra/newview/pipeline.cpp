@@ -885,7 +885,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		S32 shadow_detail = RenderShadowDetail;
 		bool ssao = RenderDeferredSSAO;
 		
-		const U32 occlusion_divisor = 3;
+		const U32 occlusion_divisor = 4;
 
 		//allocate deferred rendering color buffers
 		if (!mDeferredScreen.allocate(resX, resY, GL_SRGB8_ALPHA8, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
@@ -966,6 +966,18 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			}
 		}
 
+        // for EEP atmospherics
+        bool allocated_sh0 = mSkySH.allocate(64, 64, GL_RGBA16F_ARB, FALSE, FALSE, LLTexUnit::TT_TEXTURE);
+        if (!allocated_sh0)
+        {
+        	return false;
+        }
+        else
+        {
+            mSkySH.addColorAttachment(GL_RGBA16F_ARB);
+			mSkySH.addColorAttachment(GL_RGBA16F_ARB);
+        }
+
 		U32 width = (U32) (resX*scale);
 		U32 height = width;
 
@@ -1009,6 +1021,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
         mWaterDeferredLight.release();
 
 		releaseShadowTargets();
+
 		mFXAABuffer.release();
 		mScreen.release();
 		mDeferredScreen.release(); //make sure to release any render targets that share a depth buffer with mDeferredScreen first
@@ -2637,7 +2650,7 @@ void LLPipeline::downsampleMinMaxDepthBuffer(LLRenderTarget& source, LLRenderTar
 	{
 		scratch_space->copyContents(source,
 			0, 0, source.getWidth(), source.getHeight(),
-			0, 0, scratch_space->getWidth(), scratch_space->getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+			0, 0, scratch_space->getWidth(), scratch_space->getHeight(), source.hasStencil() ? GL_DEPTH_BUFFER_BIT : GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	}
 
 	dest.bindTarget();
@@ -2696,7 +2709,7 @@ void LLPipeline::downsampleDepthBuffer(LLRenderTarget& source, LLRenderTarget& d
 	{
 		scratch_space->copyContents(source, 
 									0, 0, source.getWidth(), source.getHeight(), 
-									0, 0, scratch_space->getWidth(), scratch_space->getHeight(), GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+									0, 0, scratch_space->getWidth(), scratch_space->getHeight(), source.hasStencil() ? (GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT) : GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	}
 
 	dest.bindTarget();
@@ -5368,6 +5381,55 @@ void LLPipeline::renderDebug()
 	}
 
 	visible_selected_groups.clear();
+
+    if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SH) && gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics") && LLPipeline::sRenderDeferred)
+    {
+        bindDeferredShader(gDeferredShVisProgram);
+
+        S32 l1r_channel = gDeferredShVisProgram.enableTexture(LLShaderMgr::SH_INPUT_L1R, gPipeline.mSkySH.getUsage());
+	    if (l1r_channel > -1)
+	    {
+		    gPipeline.mSkySH.bindTexture(0,l1r_channel);
+		    gGL.getTexUnit(l1r_channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+	    }
+		
+        S32 l1b_channel = gDeferredShVisProgram.enableTexture(LLShaderMgr::SH_INPUT_L1G, gPipeline.mSkySH.getUsage());
+	    if (l1b_channel > -1)
+	    {
+		    gPipeline.mSkySH.bindTexture(1,l1b_channel);
+		    gGL.getTexUnit(l1b_channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+	    }
+
+        S32 l1g_channel = gDeferredShVisProgram.enableTexture(LLShaderMgr::SH_INPUT_L1B, gPipeline.mSkySH.getUsage());
+	    if (l1g_channel > -1)
+	    {
+		    gPipeline.mSkySH.bindTexture(2,l1g_channel);
+		    gGL.getTexUnit(l1g_channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+	    }
+        
+        LLGLDisable   blend(GL_BLEND);
+		LLGLDepthTest depth(GL_FALSE, GL_FALSE, GL_ALWAYS);
+
+        LLVector3 pos = LLViewerCamera::instance().getOrigin();
+        pos += LLViewerCamera::instance().getAtAxis() * 10.0f;
+
+        gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
+
+        gGL.begin(LLRender::TRIANGLES);
+		gGL.texCoord2f(0.0f, 0.0f);
+		gGL.vertex2f(-1,-1);
+		
+		gGL.texCoord2f(0.0f, 1.0f);
+		gGL.vertex2f(-1,3);
+		
+		gGL.texCoord2f(1.0f, 0.0f);
+		gGL.vertex2f(3,-1);
+		
+		gGL.end();
+		gGL.flush();
+
+        unbindDeferredShader(gDeferredShVisProgram);
+    }
 
 	if (LLGLSLShader::sNoFixedFunction)
 	{
@@ -8377,6 +8439,34 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
 		}
 	}
 
+    if (gAtmosphere)
+    {
+        // bind precomputed textures necessary for calculating sun and sky luminance
+        channel = shader.enableTexture(LLShaderMgr::TRANSMITTANCE_TEX, LLTexUnit::TT_TEXTURE);
+	    if (channel > -1)
+        {
+            shader.bindTexture(LLShaderMgr::TRANSMITTANCE_TEX, gAtmosphere->getTransmittance());
+        }
+
+        channel = shader.enableTexture(LLShaderMgr::SCATTER_TEX, LLTexUnit::TT_TEXTURE_3D);
+	    if (channel > -1)
+        {
+            shader.bindTexture(LLShaderMgr::SCATTER_TEX, gAtmosphere->getScattering());
+        }
+
+        channel = shader.enableTexture(LLShaderMgr::SINGLE_MIE_SCATTER_TEX, LLTexUnit::TT_TEXTURE_3D);
+	    if (channel > -1)
+        {
+            shader.bindTexture(LLShaderMgr::SINGLE_MIE_SCATTER_TEX, gAtmosphere->getMieScattering());
+        }
+
+        channel = shader.enableTexture(LLShaderMgr::ILLUMINANCE_TEX, LLTexUnit::TT_TEXTURE);
+	    if (channel > -1)
+        {
+            shader.bindTexture(LLShaderMgr::ILLUMINANCE_TEX, gAtmosphere->getIlluminance());
+        }
+    }
+
 	shader.uniform4fv(LLShaderMgr::DEFERRED_SHADOW_CLIP, 1, mSunClipPlanes.mV);
 	shader.uniform1f(LLShaderMgr::DEFERRED_SUN_WASH, RenderDeferredSunWash);
 	shader.uniform1f(LLShaderMgr::DEFERRED_SHADOW_NOISE, RenderShadowNoise);
@@ -8667,6 +8757,27 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
 				LLGLDepthTest depth(GL_FALSE);
 				LLGLDisable blend(GL_BLEND);
 				LLGLDisable test(GL_ALPHA_TEST);
+                
+                S32 l1r_channel = soften_shader.enableTexture(LLShaderMgr::SH_INPUT_L1R, mSkySH.getUsage());
+	            if (l1r_channel > -1)
+	            {
+		            mSkySH.bindTexture(0,l1r_channel);
+		            gGL.getTexUnit(l1r_channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+	            }
+		
+                S32 l1b_channel = soften_shader.enableTexture(LLShaderMgr::SH_INPUT_L1G, mSkySH.getUsage());
+	            if (l1b_channel > -1)
+	            {
+		            mSkySH.bindTexture(1,l1b_channel);
+		            gGL.getTexUnit(l1b_channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+	            }
+
+                S32 l1g_channel = soften_shader.enableTexture(LLShaderMgr::SH_INPUT_L1B, mSkySH.getUsage());
+	            if (l1g_channel > -1)
+	            {
+		            mSkySH.bindTexture(2,l1g_channel);
+		            gGL.getTexUnit(l1g_channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+	            }
 
 				//full screen blit
 				gGL.pushMatrix();
@@ -9753,8 +9864,15 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		}
 
 		gGL.diffuseColor4f(1,1,1,1);
-		gGL.setColorMask(false, false);
-	
+
+        S32 shadow_detail = gSavedSettings.getS32("RenderShadowDetail");
+
+        // if not using VSM, disable color writes
+        if (shadow_detail <= 2)
+        {
+		    gGL.setColorMask(false, false);
+	    }
+
 		LL_RECORD_BLOCK_TIME(FTM_SHADOW_SIMPLE);
 		
 		gGL.getTexUnit(0)->disable();
@@ -10090,6 +10208,183 @@ LLRenderTarget* LLPipeline::getShadowTarget(U32 i)
     return &mShadow[i];
 }
 
+static LLTrace::BlockTimerStatHandle FTM_GEN_SKY_INDIRECT("Gen Sky Indirect");
+
+void LLPipeline::generateSkyIndirect()
+{
+	if (!sRenderDeferred || !gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics"))
+	{
+		return;
+	}
+
+	LL_RECORD_BLOCK_TIME(FTM_GEN_SKY_INDIRECT);
+
+	gGL.setColorMask(true, true);
+
+	LLVertexBuffer::unbind();
+
+	gGL.pushMatrix();
+	gGL.loadIdentity();
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.pushMatrix();
+	gGL.loadIdentity();
+
+    mSkySH.bindTarget();
+
+	bindDeferredShader(gDeferredGenSkyShProgram, &mSkySH);
+
+	gDeferredGenSkyShProgram.bind();
+
+    llassert(gAtmosphere);
+
+    int channel = -1;
+
+    if (gAtmosphere)
+    {
+        // bind precomputed textures necessary for calculating sun and sky luminance
+        channel = gDeferredGenSkyShProgram.enableTexture(LLShaderMgr::TRANSMITTANCE_TEX, LLTexUnit::TT_TEXTURE);
+	    if (channel > -1)
+        {
+            gDeferredGenSkyShProgram.bindTexture(LLShaderMgr::TRANSMITTANCE_TEX, gAtmosphere->getTransmittance());
+        }
+
+        channel = gDeferredGenSkyShProgram.enableTexture(LLShaderMgr::SCATTER_TEX, LLTexUnit::TT_TEXTURE_3D);
+	    if (channel > -1)
+        {
+            gDeferredGenSkyShProgram.bindTexture(LLShaderMgr::SCATTER_TEX, gAtmosphere->getScattering());
+        }
+
+        channel = gDeferredGenSkyShProgram.enableTexture(LLShaderMgr::SINGLE_MIE_SCATTER_TEX, LLTexUnit::TT_TEXTURE_3D);
+	    if (channel > -1)
+        {
+            gDeferredGenSkyShProgram.bindTexture(LLShaderMgr::SINGLE_MIE_SCATTER_TEX, gAtmosphere->getMieScattering());
+        }
+
+        channel = gDeferredGenSkyShProgram.enableTexture(LLShaderMgr::ILLUMINANCE_TEX, LLTexUnit::TT_TEXTURE);
+	    if (channel > -1)
+        {
+            gDeferredGenSkyShProgram.bindTexture(LLShaderMgr::ILLUMINANCE_TEX, gAtmosphere->getIlluminance());
+        }
+    }
+
+	gDeferredGenSkyShProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mSkySH.getWidth(), mSkySH.getHeight());
+
+    LLStrider<LLVector3>	vertices;
+	LLStrider<LLVector2>	texCoords;
+	LLStrider<U16>			indices;
+
+    if (!mDeferredVB->allocateBuffer(4, 6, TRUE))
+	{
+		LL_WARNS() << "Failed to allocate Vertex Buffer on full screen sky update" << LL_ENDL;
+	}
+
+	BOOL success = mDeferredVB->getVertexStrider(vertices)
+			    && mDeferredVB->getTexCoord0Strider(texCoords)
+			    && mDeferredVB->getIndexStrider(indices);
+
+	if(!success) 
+	{
+		LL_ERRS() << "Failed updating WindLight fullscreen sky geometry." << LL_ENDL;
+	}
+
+    *vertices++ = LLVector3(-1.0f, -1.0f, 0.0f);
+    *vertices++ = LLVector3( 1.0f, -1.0f, 0.0f);
+    *vertices++ = LLVector3(-1.0f,  1.0f, 0.0f);
+    *vertices++ = LLVector3( 1.0f,  1.0f, 0.0f);
+
+	*texCoords++ = LLVector2(0.0f, 0.0f);
+    *texCoords++ = LLVector2(1.0f, 0.0f);
+    *texCoords++ = LLVector2(0.0f, 1.0f);
+    *texCoords++ = LLVector2(1.0f, 1.0f);
+
+	*indices++ = 0;
+	*indices++ = 1;
+	*indices++ = 2;
+    *indices++ = 1;
+	*indices++ = 3;
+	*indices++ = 2;
+
+    mDeferredVB->flush();
+
+	glClearColor(0,0,0,0);
+	mSkySH.clear(GL_COLOR_BUFFER_BIT);
+
+    LLGLDisable blend(GL_BLEND);
+    LLGLDepthTest depth(GL_FALSE, GL_FALSE, GL_ALWAYS);
+
+    mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
+	mDeferredVB->drawRange(LLRender::TRIANGLES, 0, mDeferredVB->getNumVerts() - 1, mDeferredVB->getNumIndices(), 0);
+	stop_glerror();
+
+	gDeferredGenSkyShProgram.disableTexture(LLShaderMgr::TRANSMITTANCE_TEX);
+	gDeferredGenSkyShProgram.disableTexture(LLShaderMgr::SCATTER_TEX);
+    gDeferredGenSkyShProgram.disableTexture(LLShaderMgr::SINGLE_MIE_SCATTER_TEX);
+    gDeferredGenSkyShProgram.disableTexture(LLShaderMgr::ILLUMINANCE_TEX);
+    gDeferredGenSkyShProgram.uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, mTransformedSunDir.mV);
+
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+	gGL.getTexUnit(0)->activate();
+	gDeferredGenSkyShProgram.unbind();
+
+    mSkySH.flush();
+
+#if GATHER_SKY_SH
+	gDeferredGatherSkyShProgram.bind();
+
+    S32 res = mSkySH[0].getWidth();
+    S32 ping = 0;
+
+    while (res > 1)
+    {
+        S32 pong = 1 - ping;
+	    S32 l1r_channel = gDeferredGatherSkyShProgram.enableTexture(LLShaderMgr::SH_INPUT_L1R, mSkySH[ping].getUsage());
+	    if (l1r_channel > -1)
+	    {
+		    mSkySH[ping].bindTexture(0,l1r_channel);
+		    gGL.getTexUnit(l1r_channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+	    }
+		
+        S32 l1b_channel = gDeferredGatherSkyShProgram.enableTexture(LLShaderMgr::SH_INPUT_L1G, mSkySH[ping].getUsage());
+	    if (l1b_channel > -1)
+	    {
+		    mSkySH[ping].bindTexture(1,l1b_channel);
+		    gGL.getTexUnit(l1b_channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+	    }
+
+        S32 l1g_channel = gDeferredGatherSkyShProgram.enableTexture(LLShaderMgr::SH_INPUT_L1B, mSkySH[ping].getUsage());
+	    if (l1g_channel > -1)
+	    {
+		    mSkySH[ping].bindTexture(2,l1g_channel);
+		    gGL.getTexUnit(l1g_channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+	    }
+
+        gDeferredGatherSkyShProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, res >> 1, res >> 1);
+
+        glViewport(0, 0, res >> 1, res >> 1);
+
+        mSkySH[pong].bindTarget();
+
+        mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
+        mDeferredVB->drawRange(LLRender::TRIANGLES, 0, mDeferredVB->getNumVerts() - 1, mDeferredVB->getNumIndices(), 0);
+	    stop_glerror();
+		
+        mSkySH[pong].flush();
+
+	    gGL.getTexUnit(l1r_channel)->unbind(mSkySH[ping].getUsage());
+        gGL.getTexUnit(l1b_channel)->unbind(mSkySH[ping].getUsage());
+        gGL.getTexUnit(l1g_channel)->unbind(mSkySH[ping].getUsage());
+
+        ping ^= 1;
+        res >>= 1;
+    }
+#endif
+
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.popMatrix();
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.popMatrix();	
+}
+
 static LLTrace::BlockTimerStatHandle FTM_GEN_SUN_SHADOW("Gen Sun Shadow");
 
 void LLPipeline::generateSunShadow(LLCamera& camera)
@@ -10159,7 +10454,13 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 					LLPipeline::RENDER_TYPE_PASS_NORMSPEC_EMISSIVE,
 					END_RENDER_TYPES);
 
-	gGL.setColorMask(false, false);
+    S32 shadow_detail = gSavedSettings.getS32("RenderShadowDetail");
+
+    // if not using VSM, disable color writes
+    if (shadow_detail <= 2)
+    {
+		gGL.setColorMask(false, false);
+	}
 
 	//get sun view matrix
 	

@@ -242,6 +242,10 @@ LLGLSLShader			gDeferredSkinnedFullbrightShinyProgram;
 LLGLSLShader			gDeferredSkinnedFullbrightProgram;
 LLGLSLShader			gNormalMapGenProgram;
 
+LLGLSLShader			gDeferredGenSkyShProgram;
+LLGLSLShader			gDeferredGatherSkyShProgram;
+LLGLSLShader			gDeferredShVisProgram;
+
 // Deferred materials shaders
 LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];
 LLGLSLShader			gDeferredMaterialWaterProgram[LLMaterial::SHADER_COUNT*2];
@@ -350,6 +354,9 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gDeferredWLCloudProgram);
     mShaderList.push_back(&gDeferredWLMoonProgram);
     mShaderList.push_back(&gDeferredWLSunProgram);
+    mShaderList.push_back(&gDeferredGenSkyShProgram);
+    mShaderList.push_back(&gDeferredGatherSkyShProgram);
+    mShaderList.push_back(&gDeferredShVisProgram);
 }
 
 LLViewerShaderMgr::~LLViewerShaderMgr()
@@ -1276,6 +1283,10 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 			gDeferredMaterialProgram[i].unload();
 			gDeferredMaterialWaterProgram[i].unload();
 		}
+
+        gDeferredGenSkyShProgram.unload();
+        gDeferredGatherSkyShProgram.unload();
+        gDeferredShVisProgram.unload();
 		return TRUE;
 	}
 
@@ -2287,6 +2298,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		gDeferredCoFProgram.mName = "Deferred CoF Shader";
 		gDeferredCoFProgram.mShaderFiles.clear();
+        gDeferredCoFProgram.mFeatures.isDeferred = true;
 		gDeferredCoFProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredCoFProgram.mShaderFiles.push_back(make_pair("deferred/cofF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredCoFProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
@@ -2360,6 +2372,42 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             gDeferredWLCloudProgram.mExtraLinkObject = gAtmosphere->getAtmosphericShaderForLink();
         }
 		success = gDeferredWLCloudProgram.createShader(NULL, NULL);
+        llassert(success);
+	}
+
+    if (success && gAtmosphere && (mShaderLevel[SHADER_WINDLIGHT] > 2))
+	{
+		gDeferredGenSkyShProgram.mName = "Deferred Generate Sky Indirect SH Program";
+        gDeferredGenSkyShProgram.mFeatures.decodesNormal = true;
+
+		gDeferredGenSkyShProgram.mShaderFiles.clear();
+		gDeferredGenSkyShProgram.mShaderFiles.push_back(make_pair("deferred/genSkyShV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredGenSkyShProgram.mShaderFiles.push_back(make_pair("deferred/genSkyShF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredGenSkyShProgram.mShaderLevel = mShaderLevel[SHADER_WINDLIGHT];
+        gDeferredGenSkyShProgram.mExtraLinkObject = gAtmosphere->getAtmosphericShaderForLink();
+		success = gDeferredGenSkyShProgram.createShader(NULL, NULL);
+        llassert(success);
+	}
+
+    if (success && gAtmosphere && (mShaderLevel[SHADER_WINDLIGHT] > 2))
+	{
+		gDeferredGatherSkyShProgram.mName = "Deferred Gather Sky Indirect SH Program";
+		gDeferredGatherSkyShProgram.mShaderFiles.clear();
+		gDeferredGatherSkyShProgram.mShaderFiles.push_back(make_pair("deferred/gatherSkyShV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredGatherSkyShProgram.mShaderFiles.push_back(make_pair("deferred/gatherSkyShF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredGatherSkyShProgram.mShaderLevel = 3;
+		success = gDeferredGatherSkyShProgram.createShader(NULL, NULL);
+        llassert(success);
+	}
+
+    if (success)
+	{
+		gDeferredShVisProgram.mName = "Deferred SH Vis Program";
+		gDeferredShVisProgram.mShaderFiles.clear();
+		gDeferredShVisProgram.mShaderFiles.push_back(make_pair("deferred/shVisV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredShVisProgram.mShaderFiles.push_back(make_pair("deferred/shVisF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredShVisProgram.mShaderLevel = 3;
+		success = gDeferredShVisProgram.createShader(NULL, NULL);
         llassert(success);
 	}
 
@@ -3745,7 +3793,7 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 
 #if USE_ADVANCED_ATMOSPHERICS
 // disabled until we can determine why low-end machines crash during this init...
-    if (mVertexShaderLevel[SHADER_WINDLIGHT] > 1)
+    if (gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics") && mShaderLevel[SHADER_WINDLIGHT] > 2)
     {
         // Prepare precomputed atmospherics textures using libatmosphere
         LLAtmosphere::initClass();

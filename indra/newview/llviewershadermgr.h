@@ -325,6 +325,10 @@ extern LLGLSLShader			gDeferredSkinnedFullbrightShinyProgram;
 extern LLGLSLShader			gDeferredSkinnedFullbrightProgram;
 extern LLGLSLShader			gNormalMapGenProgram;
 
+extern LLGLSLShader			gDeferredGenSkyShProgram;
+extern LLGLSLShader			gDeferredGatherSkyShProgram;
+extern LLGLSLShader			gDeferredShVisProgram;
+
 // Deferred materials shaders
 extern LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];
 extern LLGLSLShader			gDeferredMaterialWaterProgram[LLMaterial::SHADER_COUNT*2];
