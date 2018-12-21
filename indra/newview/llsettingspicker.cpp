@@ -105,6 +105,7 @@ BOOL LLFloaterSettingsPicker::postBuild()
 
         mInventoryPanel->setSelectCallback([this](const LLFloaterSettingsPicker::itemlist_t &items, bool useraction){ onSelectionChange(items, useraction); });
         mInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
+        mInventoryPanel->setSuppressOpenItemAction(true);
 
         // Disable auto selecting first filtered item because it takes away
         // selection from the item set by LLTextureCtrl owning this floater.
@@ -334,6 +335,24 @@ BOOL LLFloaterSettingsPicker::handleDoubleClick(S32 x, S32 y, MASK mask)
         result = LLFloater::handleDoubleClick(x, y, mask);
     }
     return result;
+}
+
+BOOL LLFloaterSettingsPicker::handleKeyHere(KEY key, MASK mask)
+{
+    if ((key == KEY_RETURN) && (mask == MASK_NONE))
+    {
+        LLFolderViewItem* item_viewp = mInventoryPanel->getItemByID(mSettingItemID);
+        if (item_viewp && item_viewp->getIsCurSelection())
+        {
+            // Quick-apply
+            if (mCommitSignal)
+                (*mCommitSignal)(this, LLSD(mSettingItemID));
+            closeFloater();
+            return TRUE;
+        }
+    }
+
+    return LLFloater::handleKeyHere(key, mask);
 }
 
 //=========================================================================
