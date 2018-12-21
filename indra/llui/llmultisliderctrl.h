@@ -107,7 +107,8 @@ public:
 	void			setMaxValue(F32 max_value) {mMultiSlider->setMaxValue(max_value);}
 	void			setIncrement(F32 increment) {mMultiSlider->setIncrement(increment);}
 
-	F32			getSliderValueFromPos(S32 x, S32 y) const { return mMultiSlider->getSliderValueFromPos(x, y); }
+	F32			    getSliderValueFromPos(S32 x, S32 y) const { return mMultiSlider->getSliderValueFromPos(x, y); }
+    LLRect          getSliderThumbRect(const std::string &name) const { return mMultiSlider->getSliderThumbRect(name); }
 
 	/// for adding and deleting sliders
 	const std::string&	addSlider();

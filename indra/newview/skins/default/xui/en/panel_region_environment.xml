@@ -16,6 +16,7 @@
     <string name="str_no_parcel">No parcel is selected. Environmental settings are disabled.</string>
     <string name="str_cross_region">Environmental settings are not available across region boundries.</string>
     <string name="str_legacy">Environmental settings are not available on this region.</string>
+    <string name="str_empty">(empty)</string>
     <layout_stack 
             width="530"
             height="367"
@@ -29,14 +30,438 @@
                 name="pnl_environment_disabled"
                 visible="false">
             <text follows="top|left|bottom|right"
-                            halign="center"
-                            valign="top"
-                            top_pad="40"
-                            name="txt_environment_disabled"
-                            text_color="white">
-            ...
+                    halign="center"
+                    valign="top"
+                    top_pad="40"
+                    name="txt_environment_disabled"
+                    text_color="white">
+                ...
             </text>
         </layout_panel>
+        <layout_panel
+                auto_resize="true"
+                user_resize="false"
+                min_height="0"
+                name="pnl_environment_config"
+                visible="true">
+            <layout_stack 
+                    xxxwidth="530"
+                    xxxheight="367"
+                    follows="all"
+                    layout="topleft"
+                    animate="false"
+                    orientation="horizontal">
+                <layout_panel
+                        auto_resize="true"
+                        user_resize="false"
+                        min_height="0"
+                        top="5"
+                        name="pnl_environment_altitudes"
+                        visible="true">
+                        <text follows="top|left"
+                                font="SansSerif"
+                                halign="left"
+                                text_color="white"
+                                left="5"
+                                top="2">Sky Altitudes</text>
+                        <multi_slider
+                                height="270"
+                                follows="top|left"
+                                orientation="vertical"
+                                increment="25"
+                                min_val="100"
+                                max_val="4000"
+                                thumb_image="Inv_SettingsSky"
+                                thumb_width="17"
+                                thumb_highlight_color="white"
+                                decimal_digits="0"
+                                draw_track="true"
+                                overlap_threshold="100"
+                                initial_value="0"
+                                layout="topleft"
+                                left="10"
+                                max_sliders="3"
+                                name="sld_altitudes"
+                                show_text="false"
+                                top_pad="20"
+                                use_triangle="false"
+                                width="17">
+                            <slider name="sld1"
+                                    value="1000"/>
+                            <slider name="sld2"
+                                    value="2000"/>
+                            <slider name="sld3"
+                                    value="3000"/>
+                        </multi_slider>
+                        <icon
+                                follows="top|left"
+                                height="17"
+                                width="17"
+                                image_name="Inv_SettingsSky"
+                                layout="topleft"
+                                name="icon_ground"
+                                mouse_opaque="false"
+                                visible="true"
+                                left="10"
+                                xxxleft_delta="0"
+                                top_pad="10"/>
+                        <text
+                                type="string"
+                                length="1"
+                                follows="left|top"
+                                height="12"
+                                layout="topleft"
+                                left_pad="8"
+                                top_delta="2"
+                                width="50"
+                                name="ground_name">
+                            Ground
+                        </text>
+                    <line_editor
+                            follows="top|right"
+                            enabled="false"
+                            top_delta="-3"
+                            right="-5"
+                            xxxleft="-160"
+                            height="20"
+                            layout="topleft"
+                            name="edt_invname_ground"
+                            width="155">
+                        Unknown
+                    </line_editor>
+                    <settings_drop_target
+                            height="20"
+                            top_delta="0"
+                            left_delta="0"
+                            follows="top|left"
+                            layout="topleft"
+                            name="sdt_ground"
+                            tool_tip="Drag a setting from Inventory onto this target box to select it as the ground level sky."
+                            width="155" />
+                        
+                        <icon
+                                follows="left|top"
+                                height="17"
+                                width="17"
+                                image_name="Inv_SettingsWater"
+                                layout="topleft"
+                                name="icon_water"
+                                mouse_opaque="false"
+                                visible="true"
+                                left="10"
+                                top_pad="10"/>
+                        <text
+                                type="string"
+                                length="1"
+                                follows="left|top"
+                                height="12"
+                                layout="topleft"
+                                left_pad="8"
+                                top_delta="2"
+                                width="200"
+                                name="water_name">
+                            Water
+                        </text>
+                    <line_editor
+                            follows="top|right"
+                            enabled="false"
+                            top_delta="-3"
+                            right="-5"
+                            xxxleft="-160"
+                            height="20"
+                            layout="topleft"
+                            name="edt_invname_water"
+                            width="155">
+                        Unknown
+                    </line_editor>
+                    <settings_drop_target
+                            height="20"
+                            top_delta="0"
+                            left_delta="0"
+                            follows="top|left"
+                            layout="topleft"
+                            name="sdt_water"
+                            tool_tip="Drag a setting from Inventory onto this target box to select it as current water."
+                            width="155" />
+                        
+                        <text
+                                type="string"
+                                length="1"
+                                follows="left"
+                                height="12"
+                                layout="topleft"
+                                left="35"
+                                top="30"
+                                width="200"
+                                name="alt1">
+                            Sky [INDEX]([ALTITUDE]m)
+                        </text>
+                    <line_editor
+                            follows="top|right"
+                            enabled="false"
+                            top_delta="-3"
+                            right="-5"
+                            xxxleft="-160"
+                            height="20"
+                            layout="topleft"
+                            name="edt_invname_alt1"
+                            width="155">
+                        Unknown
+                    </line_editor>
+                    <settings_drop_target
+                            height="20"
+                            top_delta="0"
+                            left_delta="0"
+                            follows="top|left"
+                            layout="topleft"
+                            name="sdt_alt2"
+                            tool_tip="Drag a setting from Inventory onto this target box to select it as current water."
+                            width="155" />
+                        
+                        <text
+                                type="string"
+                                length="1"
+                                follows="left|top"
+                                height="12"
+                                layout="topleft"
+                                left="35"
+                                top="40"
+                                width="200"
+                                name="alt2">
+                            Sky [INDEX]([ALTITUDE]m)
+                        </text>
+                    <line_editor
+                            follows="top|right"
+                            enabled="false"
+                            top_delta="-3"
+                            right="-5"
+                            xxxleft="-160"
+                            height="20"
+                            layout="topleft"
+                            name="edt_invname_alt2"
+                            width="155">
+                        Unknown
+                    </line_editor>
+                    <settings_drop_target
+                            height="20"
+                            top_delta="0"
+                            left_delta="0"
+                            follows="top|left"
+                            layout="topleft"
+                            name="sdt_alt2"
+                            tool_tip="Drag a setting from Inventory onto this target box to select it as current water."
+                            width="155" />
+                        
+                        <text
+                                type="string"
+                                length="1"
+                                follows="left|top"
+                                height="12"
+                                layout="topleft"
+                                left="35"
+                                top="50"
+                                width="200"
+                                name="alt3">
+                            Sky [INDEX]([ALTITUDE]m)
+                        </text>
+                    <line_editor
+                            follows="top|right"
+                            enabled="false"
+                            top_delta="-3"
+                            right="-5"
+                            xxxleft="-160"
+                            height="20"
+                            layout="topleft"
+                            name="edt_invname_alt3"
+                            width="155">
+                        Unknown
+                    </line_editor>
+                    <settings_drop_target
+                            height="20"
+                            top_delta="0"
+                            left_delta="0"
+                            follows="top|left"
+                            layout="topleft"
+                            name="sdt_alt3"
+                            tool_tip="Drag a setting from Inventory onto this target box to select it as current water."
+                            width="155" />
+                        
+                </layout_panel>                    
+                <layout_panel
+                        auto_resize="true"
+                        user_resize="false"
+                        min_height="0"
+                        top="5"
+                        name="pnl_environment_config"
+                        visible="true">
+                    <layout_stack
+                            follows="all"
+                            layout="topleft"
+                            animate="false"
+                            orientation="vertical">
+                        <layout_panel
+                                min_height="140"
+                                follows="all"
+                                border="true"
+                                bevel_style="in"
+                                name="pnl_environment_current">
+                            <text follows="top|left"
+                                    font="SansSerif"
+                                    halign="left"
+                                    text_color="white"
+                                    top="2">Select Environment</text>
+                            <button
+                                    follows="top|left"
+                                    top_pad="20"
+                                    left_delta="10"
+                                    layout="topleft"
+                                    height="23"
+                                    label="[USEDEFAULT]"
+                                    width="120"
+                                    name="btn_usedefault"/>
+                            <button
+                                    follows="top|left"
+                                    top_pad="5"
+                                    left_delta="0"
+                                    layout="topleft"
+                                    height="23"
+                                    label="Use Inventory"
+                                    width="120"
+                                    name="btn_select_inventory"/>
+                            <button
+                                    follows="top|left"
+                                    top_pad="5"
+                                    left_delta="0"
+                                    layout="topleft"
+                                    height="23"
+                                    label="Customize"
+                                    width="120"
+                                    name="btn_edit"/>
+                            <check_box
+                                    height="20"
+                                    label="Parcel Owners May Override Environment"
+                                    layout="topleft"
+                                    left_delta="0"
+                                    top_pad="10"
+                                    name="chk_allow_override"
+                                    width="200" />
+                        </layout_panel>
+                        <layout_panel
+                                min_height="130"
+                                follows="all"
+                                border="true"
+                                bevel_style="in"
+                                name="pnl_environment_length">
+                            <text 
+                                    font="SansSerif"
+                                    follows="top|left|right"
+                                    halign="left"
+                                    text_color="white"
+                                    top="2">Day Settings</text>
+                            <text
+                                    type="string"
+                                    length="1"
+                                    follows="left|top"
+                                    height="12"
+                                    layout="topleft"
+                                    left_delta="10"
+                                    top_pad="16"
+                                    width="200">
+                                Day Length (hours)
+                            </text>
+                            <slider
+                                    can_edit_text="true"
+                                    decimal_digits="1"
+                                    follows="left|top"
+                                    height="20"
+                                    increment="0.5"
+                                    initial_value="4"
+                                    layout="topleft"
+                                    left_delta="0"
+                                    xxxright="-10"
+                                    top_pad="0"
+                                    name="sld_day_length"
+                                    min_val="4"
+                                    max_val="168"
+                                    width="240" />
+                            <text
+                                    type="string"
+                                    length="1"
+                                    follows="left|top"
+                                    height="12"
+                                    layout="topleft"
+                                    left_delta="0"
+                                    top_pad="5"
+                                    width="200">
+                                Day Offset (hours)
+                            </text>
+                            <slider
+                                    can_edit_text="true"
+                                    decimal_digits="1"
+                                    follows="left|top"
+                                    height="20"
+                                    increment="0.5"
+                                    initial_value="-8"
+                                    layout="topleft"
+                                    left_delta="0"
+                                    top_pad="0"
+                                    name="sld_day_offset"
+                                    min_val="-11.5"
+                                    max_val="12"
+                                    width="240" />
+                            <text
+                                    type="string"
+                                    length="1"
+                                    follows="left|top"
+                                    height="12"
+                                    layout="topleft"
+                                    left_delta="0"
+                                    top_pad="5"
+                                    width="200">
+                                Apparent Time of Day:
+                            </text>
+                            <text
+                                    name="lbl_apparent_time"
+                                    type="string"
+                                    length="1"
+                                    follows="left|top"
+                                    height="12"
+                                    layout="topleft"
+                                    left_delta="10"
+                                    top_pad="5"
+                                    width="200">
+                                [HH]:[MM][AP] ([PRC]%)
+                            </text>
+
+                        </layout_panel>
+                        <layout_panel
+                                follows="bottom"
+                                border="true"
+                                bevel_style="in"
+                                name="pnl_environment_buttons">
+                            <button
+                                    follows="bottom|right"
+                                    height="23"
+                                    label="Apply"
+                                    top="-60"
+                                    left="-220"
+                                    name="btn_apply"
+                                    width="100" />
+                            <button
+                                    follows="bottom|right"
+                                    height="23"
+                                    label="Reset"
+                                    layout="topleft"
+                                    left_pad="10"
+                                    top_delta="0"
+                                    name="btn_cancel"
+                                    width="100" /> 
+                        </layout_panel>
+                    </layout_stack>
+                </layout_panel>
+            </layout_stack>        
+        </layout_panel>
+        <!--
         <layout_panel 
                 auto_resize="false"
                 user_resize="false"
@@ -103,13 +528,13 @@
                         Unknown
                     </line_editor>
                     <settings_drop_target
-                     height="20"
-                     top_pad="-20"
-                     follows="top|left"
-                     layout="topleft"
-                     name="sdt_drop_target"
-                     tool_tip="Drag a setting from Inventory onto this target box to select it as current evironment."
-                     width="200" />
+                            height="20"
+                            top_pad="-20"
+                            follows="top|left"
+                            layout="topleft"
+                            name="sdt_drop_target"
+                            tool_tip="Drag a setting from Inventory onto this target box to select it as current evironment."
+                            width="200" />
                     <button
                             name="btn_select_inventory"
                             follows="top|left"
@@ -231,54 +656,57 @@
                 name="pnl_environment_altitudes"
                 visible="true">
             <panel
-                left="5"
-                top="0"
-                bottom="-1"
-                width="260"
-                follows="left|top|bottom"
-                background_visible="true"
-                border="true"
-                bevel_style="in"
-                name="cnt_panel">
+                    left="5"
+                    top="0"
+                    bottom="-1"
+                    width="260"
+                    follows="left|top|bottom"
+                    background_visible="true"
+                    border="true"
+                    bevel_style="in"
+                    name="cnt_panel">
                 <text follows="top|left"
-                    font="SansSerif"
-                    halign="left"
-                    text_color="white"
-                    top="2">Sky Altitudes</text>
+                        font="SansSerif"
+                        halign="left"
+                        text_color="white"
+                        top="2">Sky Altitudes</text>
                 <multi_slider
-                    decimal_digits="0"
-                    follows="bottom"
-                    height="123"
-                    width="17"
-                    orientation="vertical"
-                    increment="10"
-                    overlap_threshold="100"
-                    min_val="100"
-                    max_val="4000"
-                    layout="topleft"
-                    left="15"
-                    top="20"
-                    max_sliders="20"
-                    name="sld_altitudes"
-                    show_text="false"
-                    thumb_image="Inv_SettingsSky"
-                    thumb_width="17"
-                    thumb_highlight_color="white">
-                    <slider name="sld1" value="200"/>
-                    <slider name="sld2" value="400"/>
-                    <slider name="sld3" value="600"/>
+                        decimal_digits="0"
+                        follows="bottom"
+                        height="123"
+                        width="17"
+                        orientation="vertical"
+                        increment="10"
+                        overlap_threshold="100"
+                        min_val="100"
+                        max_val="4000"
+                        layout="topleft"
+                        left="15"
+                        top="20"
+                        max_sliders="20"
+                        name="sld_altitudes"
+                        show_text="false"
+                        thumb_image="Inv_SettingsSky"
+                        thumb_width="17"
+                        thumb_highlight_color="white">
+                    <slider name="sld1"
+                            value="200"/>
+                    <slider name="sld2"
+                            value="400"/>
+                    <slider name="sld3"
+                            value="600"/>
                 </multi_slider>
                 <icon
-                    follows="left|top"
-                    height="17"
-                    width="17"
-                    image_name="Inv_SettingsSky"
-                    layout="topleft"
-                    name="icon_ground"
-                    mouse_opaque="false"
-                    visible="true"
-                    left_delta="0"
-                    top_pad="-9"/>
+                        follows="left|top"
+                        height="17"
+                        width="17"
+                        image_name="Inv_SettingsSky"
+                        layout="topleft"
+                        name="icon_ground"
+                        mouse_opaque="false"
+                        visible="true"
+                        left_delta="0"
+                        top_pad="-9"/>
                 <text
                         type="string"
                         length="1"
@@ -368,5 +796,6 @@
                     width="100" /> 
 
         </layout_panel>
+-->
     </layout_stack>
 </panel>

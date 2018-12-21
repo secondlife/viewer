@@ -62,13 +62,9 @@ public:
 protected:
     LOG_CLASS(LLPanelEnvironmentInfo);
 
-    static const std::string    RDG_ENVIRONMENT_SELECT;
-    static const std::string    RDO_USEDEFAULT;
-    static const std::string    RDO_USEINV;
-    static const std::string    RDO_USECUSTOM;
-    static const std::string    EDT_INVNAME;
     static const std::string    BTN_SELECTINV;
     static const std::string    BTN_EDIT;
+    static const std::string    BTN_USEDEFAULT;
     static const std::string    SLD_DAYLENGTH;
     static const std::string    SLD_DAYOFFSET;
     static const std::string    SLD_ALTITUDES;
@@ -106,17 +102,19 @@ protected:
     bool                        getIsDirty() const                  { return (mDirtyFlag != 0); }
     bool                        getIsDirtyFlag(U32 flag) const      { return ((mDirtyFlag & flag) != 0); }
     U32                         getDirtyFlag() const                { return mDirtyFlag; }
-    void                        updateAltLabel(const std::string &alt_name, U32 sky_index, F32 alt_value);
+    void updateAltLabel(const std::string &alt_name, U32 sky_index, F32 alt_value);
     void                        readjustAltLabels();
 
-    void                        onSwitchDefaultSelection();
     void                        onSldDayLengthChanged(F32 value);
     void                        onSldDayOffsetChanged(F32 value);
     void                        onAltSliderCallback(LLUICtrl *cntrl, const LLSD &data);
+    void                        onAltSliderMouseUp();
+
     void                        onBtnApply();
     void                        onBtnReset();
     void                        onBtnEdit();
     void                        onBtnSelect();
+    void                        onBtnDefault();
 
     virtual void                doApply();
 
@@ -124,13 +122,18 @@ protected:
 
     void                        onPickerCommitted(LLUUID item_id);
     void                        onEditCommitted(LLSettingsDay::ptr_t newday);
+    void                        onDayLenOffsetMouseUp();
+
     void                        onPickerAssetDownloaded(LLSettingsBase::ptr_t settings);
     void                        onEnvironmentReceived(S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo);
     static void                 _onEnvironmentReceived(LLHandle<LLPanel> that_h, S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo);
 
+
     virtual void                refreshFromSource() = 0;
 
     std::string                 getInventoryNameForAssetId(LLUUID asset_id);
+
+    std::string                 getNameForTrackIndex(S32 index);
 
     LLFloaterSettingsPicker *   getSettingsPicker(bool create = true);
     LLFloaterEditExtDayCycle *  getEditFloater(bool create = true);

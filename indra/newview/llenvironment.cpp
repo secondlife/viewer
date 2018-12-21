@@ -1600,6 +1600,7 @@ LLEnvironment::EnvironmentInfo::ptr_t LLEnvironment::EnvironmentInfo::extract(LL
         LLSD daynames = environment[KEY_DAYNAMES];
         if (daynames.isArray())
         {
+            pinfo->mDayCycleName.clear();
             for (S32 index = 0; index < pinfo->mNameList.size(); ++index)
             {
                 pinfo->mNameList[index] = daynames[index].asString();
@@ -1607,9 +1608,19 @@ LLEnvironment::EnvironmentInfo::ptr_t LLEnvironment::EnvironmentInfo::extract(LL
         }
         else if (daynames.isString())
         {
+            for (std::string &name: pinfo->mNameList)
+            {
+                name.clear();
+            }
+
             pinfo->mDayCycleName = daynames.asString();
         }
     }
+    else if (pinfo->mDayCycle)
+    {
+        pinfo->mDayCycleName = pinfo->mDayCycle->getName();
+    }
+
 
     if (environment.has(KEY_ENVVERSION))
     {

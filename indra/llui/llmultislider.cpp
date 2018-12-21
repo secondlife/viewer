@@ -306,6 +306,15 @@ F32 LLMultiSlider::getSliderValueFromPos(S32 xpos, S32 ypos) const
     return((t * (mMaxValue - mMinValue)) + mMinValue);
 }
 
+
+LLRect LLMultiSlider::getSliderThumbRect(const std::string& name) const
+{
+    auto it = mThumbRects.find(name);
+    if (it != mThumbRects.end())
+        return (*it).second;
+    return LLRect();
+}
+
 void LLMultiSlider::resetCurSlider()
 {
 	mCurSlider = LLStringUtil::null;

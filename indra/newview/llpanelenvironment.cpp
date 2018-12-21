@@ -54,16 +54,20 @@
 namespace 
 {
     const std::string FLOATER_DAY_CYCLE_EDIT("env_edit_extdaycycle");
+
+    inline bool ends_with(std::string const & value, std::string const & ending)
+    {
+        if (ending.size() > value.size())
+            return false;
+        return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+    }
+
 }
 
 //=========================================================================
-const std::string LLPanelEnvironmentInfo::RDG_ENVIRONMENT_SELECT("rdg_environment_select");
-const std::string LLPanelEnvironmentInfo::RDO_USEDEFAULT("rdo_use_xxx_setting");
-const std::string LLPanelEnvironmentInfo::RDO_USEINV("rdo_use_inv_setting");
-const std::string LLPanelEnvironmentInfo::RDO_USECUSTOM("rdo_use_custom_setting");
-const std::string LLPanelEnvironmentInfo::EDT_INVNAME("edt_inventory_name");
 const std::string LLPanelEnvironmentInfo::BTN_SELECTINV("btn_select_inventory");
 const std::string LLPanelEnvironmentInfo::BTN_EDIT("btn_edit");
+const std::string LLPanelEnvironmentInfo::BTN_USEDEFAULT("btn_usedefault");
 const std::string LLPanelEnvironmentInfo::SLD_DAYLENGTH("sld_day_length");
 const std::string LLPanelEnvironmentInfo::SLD_DAYOFFSET("sld_day_offset");
 const std::string LLPanelEnvironmentInfo::SLD_ALTITUDES("sld_altitudes");
@@ -111,8 +115,8 @@ const std::string alt_labels[] = {
     "alt2",
     "alt3",
     "ground",
+    "water",
 };
-
 
 static LLDefaultChildRegistry::Register<LLSettingsDropTarget> r("settings_drop_target");
 
@@ -140,16 +144,19 @@ LLPanelEnvironmentInfo::~LLPanelEnvironmentInfo()
 
 BOOL LLPanelEnvironmentInfo::postBuild()
 {
-    getChild<LLUICtrl>(RDG_ENVIRONMENT_SELECT)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onSwitchDefaultSelection(); });
+    getChild<LLUICtrl>(BTN_USEDEFAULT)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnDefault(); });
     getChild<LLUICtrl>(BTN_SELECTINV)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnSelect(); });
     getChild<LLUICtrl>(BTN_EDIT)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnEdit(); });
     getChild<LLUICtrl>(BTN_APPLY)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnApply(); });
     getChild<LLUICtrl>(BTN_CANCEL)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnReset(); });
 
     getChild<LLUICtrl>(SLD_DAYLENGTH)->setCommitCallback([this](LLUICtrl *, const LLSD &value) { onSldDayLengthChanged(value.asReal()); });
+    getChild<LLSliderCtrl>(SLD_DAYLENGTH)->setSliderMouseUpCallback([this](LLUICtrl *, const LLSD &) { onDayLenOffsetMouseUp(); });
     getChild<LLUICtrl>(SLD_DAYOFFSET)->setCommitCallback([this](LLUICtrl *, const LLSD &value) { onSldDayOffsetChanged(value.asReal()); });
+    getChild<LLSliderCtrl>(SLD_DAYOFFSET)->setSliderMouseUpCallback([this](LLUICtrl *, const LLSD &) { onDayLenOffsetMouseUp(); });
 
     getChild<LLMultiSliderCtrl>(SLD_ALTITUDES)->setCommitCallback([this](LLUICtrl *cntrl, const LLSD &value) { onAltSliderCallback(cntrl, value); });
+    getChild<LLMultiSliderCtrl>(SLD_ALTITUDES)->setSliderMouseUpCallback([this](LLUICtrl *, const LLSD &) { onAltSliderMouseUp(); });
 
     mChangeMonitor = LLEnvironment::instance().setEnvironmentChanged([this](LLEnvironment::EnvSelection_t env, S32 version) { onEnvironmentChanged(env, version); });
 
@@ -211,31 +218,31 @@ void LLPanelEnvironmentInfo::refresh()
         return;
     }
 
-    S32 rdo_selection = 0;
-    if ((!mCurrentEnvironment->mDayCycle) ||
-        ((mCurrentEnvironment->mParcelId == INVALID_PARCEL_ID) && (mCurrentEnvironment->mDayCycle->getAssetId() == LLSettingsDay::GetDefaultAssetId() )))
-    {
-        getChild<LLUICtrl>(EDT_INVNAME)->setValue("");
-    }
-    else if (!mCurrentEnvironment->mDayCycle->getAssetId().isNull())
-    {
-        rdo_selection = 1;
-
-        LLUUID asset_id = mCurrentEnvironment->mDayCycle->getAssetId();
-
-        std::string inventoryname = getInventoryNameForAssetId(asset_id);
-
-        if (inventoryname.empty())
-            inventoryname = "(" + mCurrentEnvironment->mDayCycle->getName() + ")";
-
-        getChild<LLUICtrl>(EDT_INVNAME)->setValue(inventoryname);
-    }
-    else
-    {   // asset id is null so this is a custom environment
-        rdo_selection = 2;
-        getChild<LLUICtrl>(EDT_INVNAME)->setValue("");
-    }
-    getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->setSelectedIndex(rdo_selection);
+//     S32 rdo_selection = 0;
+//     if ((!mCurrentEnvironment->mDayCycle) ||
+//         ((mCurrentEnvironment->mParcelId == INVALID_PARCEL_ID) && (mCurrentEnvironment->mDayCycle->getAssetId() == LLSettingsDay::GetDefaultAssetId() )))
+//     {
+//         getChild<LLUICtrl>(EDT_INVNAME)->setValue("");
+//     }
+//     else if (!mCurrentEnvironment->mDayCycle->getAssetId().isNull())
+//     {
+//         rdo_selection = 1;
+// 
+//         LLUUID asset_id = mCurrentEnvironment->mDayCycle->getAssetId();
+// 
+//         std::string inventoryname = getInventoryNameForAssetId(asset_id);
+// 
+//         if (inventoryname.empty())
+//             inventoryname = "(" + mCurrentEnvironment->mDayCycle->getName() + ")";
+// 
+//         getChild<LLUICtrl>(EDT_INVNAME)->setValue(inventoryname);
+//     }
+//     else
+//     {   // asset id is null so this is a custom environment
+//         rdo_selection = 2;
+//         getChild<LLUICtrl>(EDT_INVNAME)->setValue("");
+//     }
+//     getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->setSelectedIndex(rdo_selection);
 
     F32Hours daylength(mCurrentEnvironment->mDayLength);
     F32Hours dayoffset(mCurrentEnvironment->mDayOffset);
@@ -245,8 +252,8 @@ void LLPanelEnvironmentInfo::refresh()
 
     getChild<LLSliderCtrl>(SLD_DAYLENGTH)->setValue(daylength.value());
     getChild<LLSliderCtrl>(SLD_DAYOFFSET)->setValue(dayoffset.value());
-    getChild<LLSliderCtrl>(SLD_DAYLENGTH)->setEnabled(canEdit() && (rdo_selection != 0) && !mCurrentEnvironment->mIsLegacy);
-    getChild<LLSliderCtrl>(SLD_DAYOFFSET)->setEnabled(canEdit() && (rdo_selection != 0) && !mCurrentEnvironment->mIsLegacy);
+//     getChild<LLSliderCtrl>(SLD_DAYLENGTH)->setEnabled(canEdit() && (rdo_selection != 0) && !mCurrentEnvironment->mIsLegacy);
+//     getChild<LLSliderCtrl>(SLD_DAYOFFSET)->setEnabled(canEdit() && (rdo_selection != 0) && !mCurrentEnvironment->mIsLegacy);
    
     udpateApparentTimeOfDay();
 
@@ -271,6 +278,9 @@ void LLPanelEnvironmentInfo::refresh()
         readjustAltLabels();
     }
 
+    updateAltLabel(alt_labels[3], 1, 0); // ground
+    updateAltLabel(alt_labels[4], 0, 0); // water
+
 }
 
 std::string LLPanelEnvironmentInfo::getInventoryNameForAssetId(LLUUID asset_id) 
@@ -280,6 +290,27 @@ std::string LLPanelEnvironmentInfo::getInventoryNameForAssetId(LLUUID asset_id)
     if (name.empty())
         return getString(STR_LABEL_UNKNOWNINV);
     return name;
+}
+
+
+std::string LLPanelEnvironmentInfo::getNameForTrackIndex(S32 index)
+{
+    std::string invname;
+
+    LL_WARNS("LAPRAS") << "mDayCycleName='" << mCurrentEnvironment->mDayCycleName << "'" << LL_ENDL;
+    if (mCurrentEnvironment->mDayCycleName.empty())
+    {
+        invname = mCurrentEnvironment->mNameList[index];
+    }
+    else if (!mCurrentEnvironment->mDayCycle->isTrackEmpty(index))
+    {
+        invname = mCurrentEnvironment->mDayCycleName;
+    }
+
+    if (invname.empty())
+        invname = getString("str_empty");
+
+    return invname;
 }
 
 LLFloaterSettingsPicker * LLPanelEnvironmentInfo::getSettingsPicker(bool create)
@@ -391,20 +422,13 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
     getChild<LLUICtrl>(PNL_BUTTONS)->setVisible(true);
     getChild<LLUICtrl>(PNL_DISABLED)->setVisible(false);
 
-    getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(isRegion() && LLEnvironment::instance().isExtendedEnvironmentEnabled());
+    getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(LLEnvironment::instance().isExtendedEnvironmentEnabled());
 
-    S32 rdo_selection = getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->getSelectedIndex();
-
-    bool can_enable = enabled && mCurrentEnvironment && mCurEnvVersion != INVALID_PARCEL_ENVIRONMENT_VERSION;
-    getChild<LLUICtrl>(RDG_ENVIRONMENT_SELECT)->setEnabled(can_enable);
-    getChild<LLUICtrl>(RDO_USEDEFAULT)->setEnabled(can_enable && !is_legacy);
-    getChild<LLUICtrl>(RDO_USEINV)->setEnabled(false);      // these two are selected automatically based on 
-    getChild<LLUICtrl>(RDO_USECUSTOM)->setEnabled(false);
-    getChild<LLUICtrl>(EDT_INVNAME)->setEnabled(FALSE);
+    bool can_enable = enabled && mCurrentEnvironment && (mCurEnvVersion != INVALID_PARCEL_ENVIRONMENT_VERSION);
     getChild<LLUICtrl>(BTN_SELECTINV)->setEnabled(can_enable && !is_legacy);
     getChild<LLUICtrl>(BTN_EDIT)->setEnabled(can_enable);
-    getChild<LLUICtrl>(SLD_DAYLENGTH)->setEnabled(can_enable && (rdo_selection != 0) && !is_legacy);
-    getChild<LLUICtrl>(SLD_DAYOFFSET)->setEnabled(can_enable && (rdo_selection != 0) && !is_legacy);
+    getChild<LLUICtrl>(SLD_DAYLENGTH)->setEnabled(can_enable && !is_legacy);
+    getChild<LLUICtrl>(SLD_DAYOFFSET)->setEnabled(can_enable && !is_legacy);
     getChild<LLUICtrl>(SLD_ALTITUDES)->setEnabled(can_enable && isRegion() && !is_legacy);
     getChild<LLUICtrl>(ICN_GROUND)->setColor((can_enable && isRegion() && !is_legacy) ? LLColor4::white : LLColor4::grey % 0.8f);
     getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setEnabled(can_enable && isRegion() && !is_legacy);
@@ -460,7 +484,10 @@ void LLPanelEnvironmentInfo::updateAltLabel(const std::string &alt_name, U32 sky
 
     // get related text box
     LLTextBox* text = getChild<LLTextBox>(alt_name);
-    if (text)
+    LLLineEditor *field = getChild<LLLineEditor>("edt_invname_" + alt_name);
+    LLSettingsDropTarget *dt = getChild<LLSettingsDropTarget>("sdt_" + alt_name);
+
+    if (text && (sky_index > 1))
     {
         // move related text box
         LLRect rect = text->getRect();
@@ -468,7 +495,6 @@ void LLPanelEnvironmentInfo::updateAltLabel(const std::string &alt_name, U32 sky
         rect.mBottom = sld_bottom + (sld_offset / 2 + 1) + pos - (height / 2);
         rect.mTop = rect.mBottom + height;
         text->setRect(rect);
-
         // update text
         std::ostringstream convert;
         convert << alt_value;
@@ -477,7 +503,26 @@ void LLPanelEnvironmentInfo::updateAltLabel(const std::string &alt_name, U32 sky
         convert.clear();
         convert << sky_index;
         text->setTextArg("[INDEX]", convert.str());
+
+        if (field)
+        {
+            LLRect rect_name = field->getRect();
+            S32 name_height = rect_name.getHeight();
+            S32 center = rect.mBottom + (height / 2);
+            rect_name.mBottom = center - (name_height / 2);
+            rect_name.mTop = rect_name.mBottom + name_height;
+
+            field->setRect(rect_name);
+            if (dt)
+                dt->setRect(rect_name);
+        }
     }
+
+    if (field)
+    {
+        field->setText(getNameForTrackIndex(sky_index));
+    }
+
 }
 
 void LLPanelEnvironmentInfo::readjustAltLabels()
@@ -492,10 +537,22 @@ void LLPanelEnvironmentInfo::readjustAltLabels()
     ground_text_rect.mTop = ground_text_rect.mBottom + height;
     text->setRect(ground_text_rect);
 
+//     LLMultiSliderCtrl *sld = getChild<LLMultiSliderCtrl>(SLD_ALTITUDES);
+//     for (U32 idx = 0; idx < ALTITUDE_SLIDER_COUNT; ++idx)
+//     {
+//         LLRect rect_sld = sld->getSliderThumbRect(alt_sliders[idx]);
+//         LLTextBox* text_cmp = getChild<LLTextBox>(alt_labels[i]);
+// 
+//         LLRect rect_text = text_cmp->getRect();
+// 
+//         LL_WARNS("LAPRAS") << "slider[" << alt_sliders[idx] << "] -> " << rect_sld << " value=" << sld->getSliderValue(alt_sliders[idx]) LL_ENDL;
+//     }
+
+
+#if 0
     // Re-adjust all labels
     // Very simple "adjust after the fact" method
     // Note: labels are unordered, labels are 1 above sliders due to 'ground'
-
     for (U32 i = 0; i < ALTITUDE_SLIDER_COUNT; i++)
     {
         LLTextBox* text_cmp = getChild<LLTextBox>(alt_labels[i]);
@@ -531,17 +588,20 @@ void LLPanelEnvironmentInfo::readjustAltLabels()
             }
         }
     }
+#endif
 }
 
+#if 0
 void LLPanelEnvironmentInfo::onSwitchDefaultSelection()
 {
-    bool can_edit = canEdit();
+//     bool can_edit = canEdit();
     setDirtyFlag(DIRTY_FLAG_DAYCYCLE);
 
-    S32 rdo_selection = getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->getSelectedIndex();
-    getChild<LLUICtrl>(SLD_DAYLENGTH)->setEnabled(can_edit && (rdo_selection != 0));
-    getChild<LLUICtrl>(SLD_DAYOFFSET)->setEnabled(can_edit && (rdo_selection != 0));
+//     S32 rdo_selection = getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->getSelectedIndex();
+//     getChild<LLUICtrl>(SLD_DAYLENGTH)->setEnabled(can_edit && (rdo_selection != 0));
+//     getChild<LLUICtrl>(SLD_DAYOFFSET)->setEnabled(can_edit && (rdo_selection != 0));
 }
+#endif
 
 void LLPanelEnvironmentInfo::onSldDayLengthChanged(F32 value)
 {
@@ -564,6 +624,22 @@ void LLPanelEnvironmentInfo::onSldDayOffsetChanged(F32 value)
     setDirtyFlag(DIRTY_FLAG_DAYOFFSET);
 
     udpateApparentTimeOfDay();
+}
+
+void LLPanelEnvironmentInfo::onDayLenOffsetMouseUp()
+{
+    if (getDirtyFlag() & (DIRTY_FLAG_DAYLENGTH | DIRTY_FLAG_DAYOFFSET))
+    {
+        clearDirtyFlag(DIRTY_FLAG_DAYOFFSET);
+        clearDirtyFlag(DIRTY_FLAG_DAYLENGTH);
+
+        LLHandle<LLPanel> that_h = getHandle();
+
+        LLEnvironment::instance().updateParcel(getParcelId(), LLSettingsDay::ptr_t(),
+            mCurrentEnvironment->mDayLength.value(), mCurrentEnvironment->mDayOffset.value(), LLEnvironment::altitudes_vect_t(),
+            [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
+
+    }
 }
 
 void LLPanelEnvironmentInfo::onAltSliderCallback(LLUICtrl *cntrl, const LLSD &data)
@@ -593,12 +669,34 @@ void LLPanelEnvironmentInfo::onAltSliderCallback(LLUICtrl *cntrl, const LLSD &da
             iter2++;
         }
         iter->second.mAltitudeIndex = new_index;
+
         updateAltLabel(alt_labels[iter->second.mLabelIndex], iter->second.mAltitudeIndex + 1, iter->second.mAltitude);
         iter++;
     }
 
     readjustAltLabels();
     setDirtyFlag(DIRTY_FLAG_ALTITUDES);
+}
+
+void LLPanelEnvironmentInfo::onAltSliderMouseUp()
+{
+    if (isRegion() && (getDirtyFlag() & DIRTY_FLAG_ALTITUDES))
+    {
+        clearDirtyFlag(DIRTY_FLAG_ALTITUDES);
+
+        LLHandle<LLPanel> that_h = getHandle();
+        LLEnvironment::altitudes_vect_t alts;
+
+        for (auto alt : mAltitudes)
+        {
+            alts.push_back(alt.second.mAltitude);
+        }
+
+        LLEnvironment::instance().updateParcel(getParcelId(), LLSettingsDay::ptr_t(),
+            -1, -1, alts,
+            [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
+
+    }
 }
 
 void LLPanelEnvironmentInfo::onBtnApply()
@@ -610,6 +708,14 @@ void LLPanelEnvironmentInfo::onBtnReset()
 {
     mCurrentEnvironment.reset();
     refreshFromSource();
+}
+
+void LLPanelEnvironmentInfo::onBtnDefault()
+{
+    LLHandle<LLPanel> that_h = getHandle();
+
+    LLEnvironment::instance().resetParcel(getParcelId(),
+        [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
 }
 
 void LLPanelEnvironmentInfo::onBtnEdit()
@@ -624,7 +730,13 @@ void LLPanelEnvironmentInfo::onBtnEdit()
 
     dayeditor->openFloater(params);
     if (mCurrentEnvironment && mCurrentEnvironment->mDayCycle)
+    {
         dayeditor->setEditDayCycle(mCurrentEnvironment->mDayCycle);
+        if (!ends_with(mCurrentEnvironment->mDayCycle->getName(), "(customized)"))
+        {
+            dayeditor->setEditName(mCurrentEnvironment->mDayCycle->getName() + "(customized)");
+        }
+    }
     else
         dayeditor->setEditDefaultDayCycle();
 }
@@ -649,57 +761,57 @@ void LLPanelEnvironmentInfo::onBtnSelect()
 
 void LLPanelEnvironmentInfo::doApply()
 {
-    S32 parcel_id = getParcelId();
+//  S32 parcel_id = getParcelId();
 
-    if (getIsDirtyFlag(DIRTY_FLAG_MASK))
-    {
-        LLHandle<LLPanel> that_h = getHandle();
-        LLEnvironment::altitudes_vect_t alts;
+//     if (getIsDirtyFlag(DIRTY_FLAG_MASK))
+//     {
+//         LLHandle<LLPanel> that_h = getHandle();
+//         LLEnvironment::altitudes_vect_t alts;
+// 
+// //         S32 rdo_selection = getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->getSelectedIndex();
+// 
+//         if (isRegion() && getIsDirtyFlag(DIRTY_FLAG_ALTITUDES))
+//         {
+//             altitudes_data_t::iterator it;
+//             for (auto alt : mAltitudes)
+//             {
+//                 alts.push_back(alt.second.mAltitude);
+//             }
+//         }
 
-        S32 rdo_selection = getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->getSelectedIndex();
+//         if (rdo_selection == 0)
+//         {
+//             LLEnvironment::instance().resetParcel(parcel_id,
+//                 [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
+//         }
+//         else if (rdo_selection == 1)
+//         {
+//             if (!mCurrentEnvironment)
+//             {
+//                 // Attempting to save mid update?
+//                 LL_WARNS("ENVPANEL") << "Failed to apply changes from editor! Dirty state: " << mDirtyFlag << " update state: " << mCurEnvVersion << LL_ENDL;
+//                 return;
+//             }
+//             LLEnvironment::instance().updateParcel(parcel_id,
+//                 mCurrentEnvironment->mDayCycle->getAssetId(), std::string(), mCurrentEnvironment->mDayLength.value(), 
+//                 mCurrentEnvironment->mDayOffset.value(), alts,
+//                 [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
+//         }
+//         else
+//         {
+//             if (!mCurrentEnvironment)
+//             {
+//                 // Attempting to save mid update?
+//                 LL_WARNS("ENVPANEL") << "Failed to apply changes from editor! Dirty state: " << mDirtyFlag << " update state: " << mCurEnvVersion << LL_ENDL;
+//                 return;
+//             }
+//             LLEnvironment::instance().updateParcel(parcel_id,
+//                 mCurrentEnvironment->mDayCycle, mCurrentEnvironment->mDayLength.value(), mCurrentEnvironment->mDayOffset.value(), alts,
+//                 [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
+//         }
 
-        if (isRegion() && getIsDirtyFlag(DIRTY_FLAG_ALTITUDES))
-        {
-            altitudes_data_t::iterator it;
-            for (auto alt : mAltitudes)
-            {
-                alts.push_back(alt.second.mAltitude);
-            }
-        }
-
-        if (rdo_selection == 0)
-        {
-            LLEnvironment::instance().resetParcel(parcel_id,
-                [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
-        }
-        else if (rdo_selection == 1)
-        {
-            if (!mCurrentEnvironment)
-            {
-                // Attempting to save mid update?
-                LL_WARNS("ENVPANEL") << "Failed to apply changes from editor! Dirty state: " << mDirtyFlag << " update state: " << mCurEnvVersion << LL_ENDL;
-                return;
-            }
-            LLEnvironment::instance().updateParcel(parcel_id,
-                mCurrentEnvironment->mDayCycle->getAssetId(), std::string(), mCurrentEnvironment->mDayLength.value(), 
-                mCurrentEnvironment->mDayOffset.value(), alts,
-                [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
-        }
-        else
-        {
-            if (!mCurrentEnvironment)
-            {
-                // Attempting to save mid update?
-                LL_WARNS("ENVPANEL") << "Failed to apply changes from editor! Dirty state: " << mDirtyFlag << " update state: " << mCurEnvVersion << LL_ENDL;
-                return;
-            }
-            LLEnvironment::instance().updateParcel(parcel_id,
-                mCurrentEnvironment->mDayCycle, mCurrentEnvironment->mDayLength.value(), mCurrentEnvironment->mDayOffset.value(), alts,
-                [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
-        }
-
-        setControlsEnabled(false);
-    }
+//        setControlsEnabled(false);
+//    }
 }
 
 
@@ -751,16 +863,19 @@ void LLPanelEnvironmentInfo::onPickerCommitted(LLUUID item_id)
     LLInventoryItem *itemp = gInventory.getItem(item_id);
     if (itemp)
     {
-        LLSettingsVOBase::getSettingsAsset(itemp->getAssetUUID(), [this](LLUUID, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) {
-            if (status)
-                return;
-            onPickerAssetDownloaded(settings);
-        });
+        LLHandle<LLPanel> that_h = getHandle();
+
+        LLEnvironment::instance().updateParcel(getParcelId(), itemp->getAssetUUID(),
+            itemp->getName(), 
+            -1, -1, LLEnvironment::altitudes_vect_t(),
+            [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
     }
 }
 
 void LLPanelEnvironmentInfo::onEditCommitted(LLSettingsDay::ptr_t newday)
 {
+    LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_EDIT);
+    LLEnvironment::instance().updateEnvironment();
     if (!newday)
     {
         LL_WARNS("ENVPANEL") << "Editor committed an empty day. Do nothing." << LL_ENDL;
@@ -777,9 +892,11 @@ void LLPanelEnvironmentInfo::onEditCommitted(LLSettingsDay::ptr_t newday)
 
     if (newhash != oldhash)
     {
-        mCurrentEnvironment->mDayCycle = newday;
-        setDirtyFlag(DIRTY_FLAG_DAYCYCLE);
-        refresh();
+        LLHandle<LLPanel> that_h = getHandle();
+
+        LLEnvironment::instance().updateParcel(getParcelId(), newday,
+            -1, -1, LLEnvironment::altitudes_vect_t(),
+            [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
     }
 }
 
