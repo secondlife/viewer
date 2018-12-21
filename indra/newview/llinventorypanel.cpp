@@ -152,6 +152,7 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	mShowItemLinkOverlays(p.show_item_link_overlays),
 	mShowEmptyMessage(p.show_empty_message),
 	mSuppressFolderMenu(p.suppress_folder_menu),
+	mSuppressOpenItemAction(false),
 	mViewsInitialized(false),
 	mInvFVBridgeBuilder(NULL),
 	mInventoryViewModel(p.name),
@@ -1658,21 +1659,18 @@ BOOL LLInventoryPanel::handleKeyHere( KEY key, MASK mask )
 		// Open selected items if enter key hit on the inventory panel
 		if (mask == MASK_NONE)
 		{
-
-// @TODO$: Rider: This code is dead with Outbox, however should something similar be 
-//  done for VMM?
-//  
-// 			//Don't allow attaching or opening items from Merchant Outbox
-// 			LLFolderViewItem* folder_item = mFolderRoot.get()->getCurSelectedItem();
-// 			if(folder_item)
-// 			{
-// 				LLInvFVBridge* bridge = (LLInvFVBridge*)folder_item->getViewModelItem();
-// 				if(bridge && bridge->is() && (bridge->getInventoryType() != LLInventoryType::IT_CATEGORY))
-// 				{
-// 					return handled;
-// 				}
-// 			}
-
+			if (mSuppressOpenItemAction)
+			{
+				LLFolderViewItem* folder_item = mFolderRoot.get()->getCurSelectedItem();
+				if(folder_item)
+				{
+					LLInvFVBridge* bridge = (LLInvFVBridge*)folder_item->getViewModelItem();
+					if(bridge && (bridge->getInventoryType() != LLInventoryType::IT_CATEGORY))
+					{
+						return handled;
+					}
+				}
+			}
 			LLInventoryAction::doToSelected(mInventory, mFolderRoot.get(), "open");
 			handled = TRUE;
 		}
