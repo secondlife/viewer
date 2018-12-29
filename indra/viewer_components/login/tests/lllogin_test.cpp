@@ -164,11 +164,15 @@ namespace tut
 {
     struct llviewerlogin_data
     {
-		llviewerlogin_data() :
+        llviewerlogin_data() :
             pumps(LLEventPumps::instance())
-		{}
-		LLEventPumps& pumps;
-	};
+        {}
+        ~llviewerlogin_data()
+        {
+            pumps.clear();
+        }
+        LLEventPumps& pumps;
+    };
 
     typedef test_group<llviewerlogin_data> llviewerlogin_group;
     typedef llviewerlogin_group::object llviewerlogin_object;
@@ -241,6 +245,7 @@ namespace tut
 		data["responses"]["login"] = "false";
 		dummyXMLRPC.setResponse(data);
 		dummyXMLRPC.sendReply();
+		llcoro::suspend();
 
 		ensure_equals("Failed to offline", listener.lastEvent()["state"].asString(), "offline");
 	}
@@ -280,41 +285,8 @@ namespace tut
 		data["transfer_rate"] = 0;
 		dummyXMLRPC.setResponse(data);
 		dummyXMLRPC.sendReply();
-
-		ensure_equals("Failed to offline", listener.lastEvent()["state"].asString(), "offline");
-	}
-
-	template<> template<>
-    void llviewerlogin_object::test<4>()
-    {
-        DEBUG;
-		// Test SRV request timeout.
-		set_test_name("LLLogin SRV timeout testing");
-
-		// Testing normal login procedure.
-
-		LLLogin login;
-		LoginListener listener("test_ear");
-		listener.listenTo(login.getEventPump());
-
-		LLSD credentials;
-		credentials["first"] = "these";
-		credentials["last"] = "don't";
-		credentials["passwd"] = "matter";
-		credentials["cfg_srv_timeout"] = 0.0f;
-
-		login.connect("login.bar.com", credentials);
 		llcoro::suspend();
 
-		// Get the mainloop eventpump, which needs a pinging in order to drive the 
-		// SRV timeout.
-		LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
-		LLSD frame_event;
-		mainloop.post(frame_event);
-
-		ensure_equals("Auth state", listener.lastEvent()["change"].asString(), "authenticating"); 
-		ensure_equals("Attempt", listener.lastEvent()["data"]["attempt"].asInteger(), 1); 
-		ensure_equals("URI", listener.lastEvent()["data"]["request"]["uri"].asString(), "login.bar.com");
-
+		ensure_equals("Failed to offline", listener.lastEvent()["state"].asString(), "offline");
 	}
 }

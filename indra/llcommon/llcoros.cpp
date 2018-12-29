@@ -241,9 +241,7 @@ void LLCoros::winlevel(const callable_t& callable)
 
 #endif
 
-// Top-level wrapper around caller's coroutine callable. This function accepts
-// the coroutine library's implicit coro::self& parameter and saves it, but
-// does not pass it down to the caller's callable.
+// Top-level wrapper around caller's coroutine callable.
 void LLCoros::toplevel(const std::string& name, const callable_t& callable)
 {
     CoroData* corodata = new CoroData(name);
