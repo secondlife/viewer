@@ -64,7 +64,7 @@ private:
 
 // It's often convenient to use the name of the enclosing function as the name
 // of the Debug block.
-#define DEBUG Debug debug(__FUNCTION__)
+#define DEBUG Debug debug(LL_PRETTY_FUNCTION)
 
 // These BEGIN/END macros are specifically for debugging output -- please
 // don't assume you must use such for coroutines in general! They only help to
