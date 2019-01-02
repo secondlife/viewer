@@ -427,8 +427,11 @@ void LLFloaterModelPreview::initModelPreview()
 	{
 		delete mModelPreview;
 	}
-
-	mModelPreview = new LLModelPreview(512, 512, this );
+	// <FS:Beq> mesh uploader changes to allow higher resolution render
+	//	mModelPreview = new LLModelPreview(512, 512, this);
+	auto size = gSavedSettings.getS32("PreviewRenderSize");
+	mModelPreview = new LLModelPreview(size, size, this );
+	// </FS:Beq>
 	mModelPreview->setPreviewTarget(16.f);
 	mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelPreview::setDetails, this, _1, _2, _3, _4, _5));
 	mModelPreview->setModelUpdatedCallback(boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this, _1));
@@ -438,8 +441,16 @@ void LLFloaterModelPreview::onViewOptionChecked(LLUICtrl* ctrl)
 {
 	if (mModelPreview)
 	{
-		mModelPreview->mViewOption[ctrl->getName()] = !mModelPreview->mViewOption[ctrl->getName()];
-		
+		// <FS:Beq> only show explode when phsyics is on
+		//		mModelPreview->mViewOption[ctrl->getName()] = !mModelPreview->mViewOption[ctrl->getName()];
+		auto name = ctrl->getName();
+		mModelPreview->mViewOption[name] = !mModelPreview->mViewOption[name];
+		if (name == "show_physics")
+		{
+			auto enabled = mModelPreview->mViewOption[name];
+			childSetEnabled("physics_explode", enabled);
+			childSetVisible("physics_explode", enabled);
+		}
 		mModelPreview->refresh();
 	}
 }
@@ -653,6 +664,43 @@ void LLFloaterModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
 	}
 }
 
+// <FS:Beq> extracted method to simplify changes in layout
+void LLFloaterModelPreview::draw3dPreview()
+{
+	gGL.color3f(1.f, 1.f, 1.f);
+
+	gGL.getTexUnit(0)->bind(mModelPreview);
+
+
+	LLView* preview_panel = getChild<LLView>("preview_panel");
+
+	if (!preview_panel)
+	{
+		LL_WARNS() << "preview_panel not found in floater definition" << LL_ENDL;
+	}
+	LLRect rect = preview_panel->getRect();
+
+	if (rect != mPreviewRect)
+	{
+		mModelPreview->refresh();
+		mPreviewRect = preview_panel->getRect();
+	}
+
+	gGL.begin( LLRender::QUADS );
+	{
+		gGL.texCoord2f(0.f, 1.f);
+		gGL.vertex2i(mPreviewRect.mLeft, mPreviewRect.mTop-1);
+		gGL.texCoord2f(0.f, 0.f);
+		gGL.vertex2i(mPreviewRect.mLeft, mPreviewRect.mBottom);
+		gGL.texCoord2f(1.f, 0.f);
+		gGL.vertex2i(mPreviewRect.mRight-1, mPreviewRect.mBottom);
+		gGL.texCoord2f(1.f, 1.f);
+		gGL.vertex2i(mPreviewRect.mRight-1, mPreviewRect.mTop-1);
+	}
+	gGL.end();
+
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+}
 
 //-----------------------------------------------------------------------------
 // draw()
@@ -1218,6 +1266,7 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 , mResetJoints( false )
 , mModelNoErrors( true )
 , mLastJointUpdate( false )
+, mHasDegenerate( false ) // <FS:Beq>
 {
 	mNeedsUpdate = TRUE;
 	mCameraDistance = 0.f;
@@ -2707,8 +2756,20 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 
 void LLModelPreview::updateStatusMessages()
 {
+// <FS:Beq> bit mask values for physics errors. used to prevent overwrite of single line status
+// TODO: use this to provied multiline status
+	enum PhysicsError
+	{
+		NONE=0,
+		NOHAVOK=1,
+		DEGENERATE=2,
+		TOOMANYHULLS=4,
+		TOOMANYVERTSINHULL=8
+	};
+// </FS:Beq>
 	assert_main_thread();
 
+	U32 has_physics_error{ PhysicsError::NONE }; // <FS:Beq> physics error bitmap
 	//triangle/vertex/submesh count for each mesh asset for each lod
 	std::vector<S32> tris[LLModel::NUM_LODS];
 	std::vector<S32> verts[LLModel::NUM_LODS];
@@ -2797,43 +2858,71 @@ void LLModelPreview::updateStatusMessages()
 	{
 		mMaxTriangleLimit = total_tris[LLModel::LOD_HIGH];
 	}
-
-	bool has_degenerate = false;
-
+	// <FS:Beq> make has_degenerate a member so that we can use it in the render method
+	// has_degenerate = false
+	mHasDegenerate = false;
 	{//check for degenerate triangles in physics mesh
 		U32 lod = LLModel::LOD_PHYSICS;
 		const LLVector4a scale(0.5f);
-		for (U32 i = 0; i < mModel[lod].size() && !has_degenerate; ++i)
+		for (U32 i = 0; i < mModel[lod].size() && !mHasDegenerate; ++i)// <FS:Beq> make has_degenerate a member 
 		{ //for each model in the lod
 			if (mModel[lod][i] && mModel[lod][i]->mPhysics.mHull.empty())
 			{ //no decomp exists
 				S32 cur_submeshes = mModel[lod][i]->getNumVolumeFaces();
-				for (S32 j = 0; j < cur_submeshes && !has_degenerate; ++j)
+				for (S32 j = 0; j < cur_submeshes && !mHasDegenerate; ++j)// <FS:Beq> make has_degenerate a member 
 				{ //for each submesh (face), add triangles and vertices to current total
 					LLVolumeFace& face = mModel[lod][i]->getVolumeFace(j);
-					for (S32 k = 0; (k < face.mNumIndices) && !has_degenerate; )
+					for (S32 k = 0; (k < face.mNumIndices) && !mHasDegenerate; )// <FS:Beq> make has_degenerate a member 
 					{
-						U16 index_a = face.mIndices[k+0];
-						U16 index_b = face.mIndices[k+1];
-						U16 index_c = face.mIndices[k+2];
+						U16 index_a = face.mIndices[k + 0];
+						U16 index_b = face.mIndices[k + 1];
+						U16 index_c = face.mIndices[k + 2];
+						// <FS:Beq> FIRE-23367/23387 - Allow forced empty triangle placeholders created by the LOD processing.
+						//	LLVector4a v1; v1.setMul(face.mPositions[index_a], scale);
+						//	LLVector4a v2; v2.setMul(face.mPositions[index_b], scale);
+						//	LLVector4a v3; v3.setMul(face.mPositions[index_c], scale);
 
-						LLVector4a v1; v1.setMul(face.mPositions[index_a], scale);
-						LLVector4a v2; v2.setMul(face.mPositions[index_b], scale);
-						LLVector4a v3; v3.setMul(face.mPositions[index_c], scale);
-
-						if (ll_is_degenerate(v1,v2,v3))
+						//	if (ll_is_degenerate(v1, v2, v3))
+						//	{
+						//		mHasDegenerate = true;// <FS:Beq> make has_degenerate a member 
+						//	}
+						//	else
+						//	{
+						//		k += 3;
+						//	}
+						if (index_c == 0 && index_b == 0 && index_a == 0) // test in reverse as 3rd index is less likely to be 0 in a normal case
 						{
-							has_degenerate = true;
+							LL_DEBUGS("MeshValidation") << "Empty placeholder triangle (3 identical index 0 verts) ignored" << LL_ENDL;
 						}
 						else
 						{
-							k += 3;
+							LLVector4a v1; v1.setMul(face.mPositions[index_a], scale);
+							LLVector4a v2; v2.setMul(face.mPositions[index_b], scale);
+							LLVector4a v3; v3.setMul(face.mPositions[index_c], scale);
+							if (ll_is_degenerate(v1, v2, v3))
+							{
+								mHasDegenerate = true;// <FS:Beq> make has_degenerate a member 
+							}
 						}
+						k += 3;
 					}
 				}
 			}
 		}
 	}
+
+	// <FS:Beq> flag degenerates here rather than deferring to a MAV error later
+	mFMP->childSetVisible("physics_status_message_text", mHasDegenerate); //display or clear
+	auto degenerateIcon = mFMP->getChild<LLIconCtrl>("physics_status_message_icon");
+	degenerateIcon->setVisible(mHasDegenerate);
+	if (mHasDegenerate)
+	{
+		has_physics_error |= PhysicsError::DEGENERATE;
+		mFMP->childSetValue("physics_status_message_text", mFMP->getString("phys_status_degenerate_triangles"));
+		LLUIImagePtr img = LLUI::getUIImage("ModelImport_Status_Error");
+		degenerateIcon->setImage(img);
+	}
+	// </FS:Beq>
 
 	mFMP->childSetTextArg("submeshes_info", "[SUBMESHES]", llformat("%d", total_submeshes[LLModel::LOD_HIGH]));
 
@@ -2959,14 +3048,22 @@ void LLModelPreview::updateStatusMessages()
 			}
 		}
 	}
-	mFMP->childSetVisible("physics_status_message_text", physExceededVertexLimit);
-	LLIconCtrl* physStatusIcon = mFMP->getChild<LLIconCtrl>("physics_status_message_icon");
-	physStatusIcon->setVisible(physExceededVertexLimit);
+
 	if (physExceededVertexLimit)
 	{
-		mFMP->childSetValue("physics_status_message_text", mFMP->getString("phys_status_vertex_limit_exceeded"));
-		LLUIImagePtr img = LLUI::getUIImage("ModelImport_Status_Warning");
-		physStatusIcon->setImage(img);
+		has_physics_error |= PhysicsError::TOOMANYVERTSINHULL;
+	}
+
+	if (!(has_physics_error & PhysicsError::DEGENERATE)){ // only update this field (incluides clearing it) if it is not already in use.
+		mFMP->childSetVisible("physics_status_message_text", physExceededVertexLimit);
+		LLIconCtrl* physStatusIcon = mFMP->getChild<LLIconCtrl>("physics_status_message_icon");
+		physStatusIcon->setVisible(physExceededVertexLimit);
+		if (physExceededVertexLimit)
+		{
+			mFMP->childSetValue("physics_status_message_text", mFMP->getString("phys_status_vertex_limit_exceeded"));
+			LLUIImagePtr img = LLUI::getUIImage("ModelImport_Status_Warning");
+			physStatusIcon->setImage(img);
+		}
 	}
 
 	if (getLoadState() >= LLModelLoader::ERROR_PARSING)
@@ -2995,12 +3092,21 @@ void LLModelPreview::updateStatusMessages()
 			mModelNoErrors = false;
 		}
 	}
-
-	// Todo: investigate use of has_degenerate and include into mModelNoErrors upload blocking mechanics
-	// current use of has_degenerate won't block upload permanently - later checks will restore the button
-	if (!mModelNoErrors || has_degenerate)
+	// <FS:Beq> Improve the error checking the TO DO here is no longer applicable but not an FS comment so edited to stop it being picked up
+	//// To do investigate use of has_degenerate and include into mModelNoErrors upload blocking mechanics
+	//// current use of has_degenerate won't block upload permanently - later checks will restore the button
+	//if (!mModelNoErrors || mHasDegenerate)
+	//{
+	//	mFMP->childDisable("ok_btn");
+	if (!mModelNoErrors || mHasDegenerate)
 	{
 		mFMP->childDisable("ok_btn");
+		mFMP->childDisable("calculate_btn");
+	}
+	else
+	{
+		mFMP->childEnable("ok_btn");
+		mFMP->childEnable("calculate_btn");
 	}
 	
 	//add up physics triangles etc
@@ -3616,11 +3722,30 @@ BOOL LLModelPreview::render()
 	bool textures = mViewOption["show_textures"];
 	bool physics = mViewOption["show_physics"];
 
+	// <FS:Beq> Extra configurability, to be exposed later as controls?
+	static LLCachedControl<LLColor4> canvas_col(gSavedSettings, "MeshPreviewCanvasColor");
+	static LLCachedControl<LLColor4> edge_col(gSavedSettings, "MeshPreviewEdgeColor");
+	static LLCachedControl<LLColor4> base_col(gSavedSettings, "MeshPreviewBaseColor");
+	static LLCachedControl<LLColor3> brightness(gSavedSettings, "MeshPreviewBrightnessColor");
+	static LLCachedControl<F32> edge_width(gSavedSettings, "MeshPreviewEdgeWidth");
+	static LLCachedControl<LLColor4> phys_edge_col(gSavedSettings, "MeshPreviewPhysicsEdgeColor");
+	static LLCachedControl<LLColor4> phys_fill_col(gSavedSettings, "MeshPreviewPhysicsFillColor");
+	static LLCachedControl<F32> phys_edge_width(gSavedSettings, "MeshPreviewPhysicsEdgeWidth");
+	static LLCachedControl<LLColor4> deg_edge_col(gSavedSettings, "MeshPreviewDegenerateEdgeColor");
+	static LLCachedControl<LLColor4> deg_fill_col(gSavedSettings, "MeshPreviewDegenerateFillColor");	
+	static LLCachedControl<F32> deg_edge_width(gSavedSettings, "MeshPreviewDegenerateEdgeWidth");
+	static LLCachedControl<F32> deg_point_size(gSavedSettings, "MeshPreviewDegeneratePointSize");
+	// </FS:Beq>
 	S32 width = getWidth();
 	S32 height = getHeight();
 
 	LLGLSUIDefault def;
 	LLGLDisable no_blend(GL_BLEND);
+// <FS:Beq> Clean up render of mesh preview
+//	LLGLEnable blend(GL_BLEND);
+//	gGL.blendFunc(LLRender::BF_SOURCE_ALPHA, LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
+// </FS:Beq> 
+
 	LLGLEnable cull(GL_CULL_FACE);
 	LLGLDepthTest depth(GL_TRUE);
 	LLGLDisable fog(GL_FOG);
@@ -3639,9 +3764,9 @@ BOOL LLModelPreview::render()
 		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		gGL.pushMatrix();
 		gGL.loadIdentity();
-
-		gGL.color4f(0.169f, 0.169f, 0.169f, 1.f);
-
+		// <FS:Beq> uploader improvements
+		//gGL.color4f(0.169f, 0.169f, 0.169f, 1.f);
+		gGL.color4fv(static_cast<LLColor4>(canvas_col).mV);
 		gl_rect_2d_simple( width, height );
 
 		gGL.matrixMode(LLRender::MM_PROJECTION);
@@ -3789,8 +3914,11 @@ BOOL LLModelPreview::render()
 	stop_glerror();
 
 	gGL.pushMatrix();
-	const F32 BRIGHTNESS = 0.9f;
-	gGL.color3f(BRIGHTNESS, BRIGHTNESS, BRIGHTNESS);
+	// <FS:Beq> mesh uploader improvements configurable brightness
+	//const F32 BRIGHTNESS = 0.9f;
+	//gGL.color3f(BRIGHTNESS, BRIGHTNESS, BRIGHTNESS);
+	gGL.color4fv(edge_col().mV);
+	// </FS:Beq>
 
 	const U32 type_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0;
 
@@ -3875,16 +4003,22 @@ BOOL LLModelPreview::render()
 						}
 						else
 						{
-							gGL.diffuseColor4f(1,1,1,1);
+						// <FS:Beq> improved mesh uploader
+						//	gGL.diffuseColor4f(1,1,1,1);
+							gGL.diffuseColor4fv(static_cast<LLColor4>(base_col).mV);
+						// </FS:Beq>
+
 						}
 
 						buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts()-1, buffer->getNumIndices(), 0);
 						gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-						gGL.diffuseColor3f(0.4f, 0.4f, 0.4f);
-
+						// <FS:Beq> improved mesh uploader
+						//gGL.diffuseColor3f(0.4f, 0.4f, 0.4f);
+						gGL.diffuseColor4fv(static_cast<LLColor4>(edge_col).mV);
+						// </FS:Beq> 
 						if (edges)
 						{
-							glLineWidth(3.f);
+							glLineWidth(edge_width);
 							glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 							buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts()-1, buffer->getNumIndices(), 0);
 							glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -3896,11 +4030,25 @@ BOOL LLModelPreview::render()
 
 			if (physics)
 			{
+				// <FS:Beq> model upload improvements - use the settings
+				////Vector4a physicsFillColour(0.4, 0.4, 0.4, 0.4);
+				//const LLColor4 physicsFillColour(0.0, 0.5, 1.0, 0.5);
+				////LLVector4a physicsEdgeColour(1.0, 1.0, 0.0, 1.0);
+				//const LLColor4 physicsEdgeColour=physicsFillColour*0.5;
+				//const LLColor4 degenerateFill(1.0, 0.0, 0.0, 0.5);
+				//const LLColor4 degenerateEdge(1.0,0.0,0.0,1.0);
+				// </FS:Beq> 
+
 				glClear(GL_DEPTH_BUFFER_BIT);
-				
-				for (U32 i = 0; i < 2; i++)
+				//<FS:Beq> refactor to remove silly variable names
+				//				for (U32 i = 0; i < 2; i++)
+				for (U32 pass = 0; pass < 2; pass++)
+				//</FS:Beq>
 				{
-					if (i == 0)
+					//<FS:Beq> refactor to remove silly variable names
+					//if (i == 0)
+					if (pass == 0)
+					//</FS:Beq>
 					{ //depth only pass
 						gGL.setColorMask(false, false);
 					}
@@ -3910,118 +4058,12 @@ BOOL LLModelPreview::render()
 					}
 
 					//enable alpha blending on second pass but not first pass
-					LLGLState blend(GL_BLEND, i); 
-					
+					//<FS:Beq> refactor to remove silly variable names
+					//LLGLState blend(GL_BLEND, i);
+					LLGLState blend(GL_BLEND, pass);
+					//</FS:Beq>
+
 					gGL.blendFunc(LLRender::BF_SOURCE_ALPHA, LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
-
-					for (LLMeshUploadThread::instance_list::iterator iter = mUploadData.begin(); iter != mUploadData.end(); ++iter)
-					{
-						LLModelInstance& instance = *iter;
-
-						LLModel* model = instance.mLOD[LLModel::LOD_PHYSICS];
-
-							if (!model)
-							{
-								continue;
-							}
-
-							gGL.pushMatrix();
-							LLMatrix4 mat = instance.mTransform;
-
-						gGL.multMatrix((GLfloat*) mat.mMatrix);
-
-
-							bool render_mesh = true;
-
-							LLPhysicsDecomp* decomp = gMeshRepo.mDecompThread;
-							if (decomp)
-							{
-								LLMutexLock(decomp->mMutex);
-
-								LLModel::Decomposition& physics = model->mPhysics;
-
-								if (!physics.mHull.empty())
-								{
-									render_mesh = false;
-
-									if (physics.mMesh.empty())
-									{ //build vertex buffer for physics mesh
-										gMeshRepo.buildPhysicsMesh(physics);
-									}
-						
-									if (!physics.mMesh.empty())
-									{ //render hull instead of mesh
-										for (U32 i = 0; i < physics.mMesh.size(); ++i)
-										{
-											if (explode > 0.f)
-											{
-												gGL.pushMatrix();
-
-												LLVector3 offset = model->mHullCenter[i]-model->mCenterOfHullCenters;
-												offset *= explode;
-
-												gGL.translatef(offset.mV[0], offset.mV[1], offset.mV[2]);
-											}
-
-											static std::vector<LLColor4U> hull_colors;
-
-											if (i+1 >= hull_colors.size())
-											{
-												hull_colors.push_back(LLColor4U(rand()%128+127, rand()%128+127, rand()%128+127, 128));
-											}
-
-											gGL.diffuseColor4ubv(hull_colors[i].mV);
-											LLVertexBuffer::drawArrays(LLRender::TRIANGLES, physics.mMesh[i].mPositions, physics.mMesh[i].mNormals);
-
-											if (explode > 0.f)
-											{
-												gGL.popMatrix();
-											}
-										}
-									}
-								}
-							}
-						
-							if (render_mesh)
-							{
-								if (mVertexBuffer[LLModel::LOD_PHYSICS].empty())
-								{
-									genBuffers(LLModel::LOD_PHYSICS, false);
-								}
-
-								U32 num_models = mVertexBuffer[LLModel::LOD_PHYSICS][model].size();
-								for (U32 i = 0; i < num_models; ++i)
-								{
-									LLVertexBuffer* buffer = mVertexBuffer[LLModel::LOD_PHYSICS][model][i];
-
-									gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-									gGL.diffuseColor4f(0.4f, 0.4f, 0.0f, 0.4f);
-
-									buffer->setBuffer(type_mask & buffer->getTypeMask());
-									buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts()-1, buffer->getNumIndices(), 0);
-
-									gGL.diffuseColor3f(1.f, 1.f, 0.f);
-
-									glLineWidth(2.f);
-									glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-									buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts()-1, buffer->getNumIndices(), 0);
-
-									glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-									glLineWidth(1.f);
-								}
-							}
-
-							gGL.popMatrix();
-						}
-
-					glLineWidth(3.f);
-					glPointSize(8.f);
-					gPipeline.enableLightsFullbright(LLColor4::white);
-					//show degenerate triangles
-					LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
-					LLGLDisable cull(GL_CULL_FACE);
-					gGL.diffuseColor4f(1.f,0.f,0.f,1.f);
-					const LLVector4a scale(0.5f);
 
 					for (LLMeshUploadThread::instance_list::iterator iter = mUploadData.begin(); iter != mUploadData.end(); ++iter)
 					{
@@ -4037,9 +4079,10 @@ BOOL LLModelPreview::render()
 						gGL.pushMatrix();
 						LLMatrix4 mat = instance.mTransform;
 
-						gGL.multMatrix((GLfloat*) mat.mMatrix);
+						gGL.multMatrix((GLfloat*)mat.mMatrix);
 
 
+						bool render_mesh = true;
 						LLPhysicsDecomp* decomp = gMeshRepo.mDecompThread;
 						if (decomp)
 						{
@@ -4047,48 +4090,177 @@ BOOL LLModelPreview::render()
 
 							LLModel::Decomposition& physics = model->mPhysics;
 
-							if (physics.mHull.empty())
+							if (!physics.mHull.empty())
 							{
-								if (mVertexBuffer[LLModel::LOD_PHYSICS].empty())
-								{
-									genBuffers(LLModel::LOD_PHYSICS, false);
+								render_mesh = false;
+
+								if (physics.mMesh.empty())
+								{ //build vertex buffer for physics mesh
+									gMeshRepo.buildPhysicsMesh(physics);
 								}
-							
-								for (U32 i = 0; i < mVertexBuffer[LLModel::LOD_PHYSICS][model].size(); ++i)
-								{
-									LLVertexBuffer* buffer = mVertexBuffer[LLModel::LOD_PHYSICS][model][i];
 
-									buffer->setBuffer(type_mask & buffer->getTypeMask());
-
-									LLStrider<LLVector3> pos_strider; 
-									buffer->getVertexStrider(pos_strider, 0);
-									LLVector4a* pos = (LLVector4a*) pos_strider.get();
-							
-									LLStrider<U16> idx;
-									buffer->getIndexStrider(idx, 0);
-
-									for (U32 i = 0; i < buffer->getNumIndices(); i += 3)
+								if (!physics.mMesh.empty())
+								{ //render hull instead of mesh
+									for (U32 i = 0; i < physics.mMesh.size(); ++i)
 									{
-										LLVector4a v1; v1.setMul(pos[*idx++], scale);
-										LLVector4a v2; v2.setMul(pos[*idx++], scale);
-										LLVector4a v3; v3.setMul(pos[*idx++], scale);
-
-										if (ll_is_degenerate(v1,v2,v3))
+										if (explode > 0.f)
 										{
-											buffer->draw(LLRender::LINE_LOOP, 3, i);
-											buffer->draw(LLRender::POINTS, 3, i);
+											gGL.pushMatrix();
+
+											LLVector3 offset = model->mHullCenter[i] - model->mCenterOfHullCenters;
+											offset *= explode;
+
+											gGL.translatef(offset.mV[0], offset.mV[1], offset.mV[2]);
+										}
+
+										static std::vector<LLColor4U> hull_colors;
+
+										if (i + 1 >= hull_colors.size())
+										{
+											hull_colors.push_back(LLColor4U(rand() % 128 + 127, rand() % 128 + 127, rand() % 128 + 127, 128));
+										}
+
+										gGL.diffuseColor4ubv(hull_colors[i].mV);
+										LLVertexBuffer::drawArrays(LLRender::TRIANGLES, physics.mMesh[i].mPositions, physics.mMesh[i].mNormals);
+
+										if (explode > 0.f)
+										{
+											gGL.popMatrix();
 										}
 									}
 								}
 							}
 						}
 
+						if (render_mesh)
+						{
+							if (mVertexBuffer[LLModel::LOD_PHYSICS].empty())
+							{
+								genBuffers(LLModel::LOD_PHYSICS, false);
+							}
+
+							U32 num_models = mVertexBuffer[LLModel::LOD_PHYSICS][model].size();
+							if (pass > 0){
+								for (U32 i = 0; i < num_models; ++i)
+								{
+									LLVertexBuffer* buffer = mVertexBuffer[LLModel::LOD_PHYSICS][model][i];
+
+									gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+									gGL.diffuseColor4fv(phys_fill_col().mV);
+
+									buffer->setBuffer(type_mask & buffer->getTypeMask());
+									buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts() - 1, buffer->getNumIndices(), 0);
+
+									gGL.diffuseColor4fv(phys_edge_col().mV);
+									glLineWidth(phys_edge_width);
+									glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+									buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts() - 1, buffer->getNumIndices(), 0);
+
+									glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+									glLineWidth(1.f);
+								}
+							}
+						}
+
 						gGL.popMatrix();
 					}
-					glLineWidth(1.f);
-					glPointSize(1.f);
-					gPipeline.enableLightsPreview();
-					gGL.setSceneBlendType(LLRender::BT_ALPHA);
+
+					//<FS:Beq> refactor to remove silly variable names
+					// also only do this if mDegenerate was set in the preceding mesh checks [Check this if the ordering ever breaks]
+					//if (i > 0)
+					if (pass > 0 && mHasDegenerate)
+					//</FS:Beq>
+					{
+						glLineWidth(deg_edge_width);
+						glPointSize(deg_point_size);
+// <FS:Beq> This single line is why the degenerate triangles display has been crap forever. 
+// 						gPipeline.enableLightsFullbright(LLColor4::white);
+						//show degenerate triangles
+						LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
+						LLGLDisable cull(GL_CULL_FACE);
+						const LLVector4a scale(0.5f);
+
+						for (LLMeshUploadThread::instance_list::iterator iter = mUploadData.begin(); iter != mUploadData.end(); ++iter)
+						{
+							LLModelInstance& instance = *iter;
+
+							LLModel* model = instance.mLOD[LLModel::LOD_PHYSICS];
+
+							if (!model)
+							{
+								continue;
+							}
+
+							gGL.pushMatrix();
+							LLMatrix4 mat = instance.mTransform;
+
+							gGL.multMatrix((GLfloat*)mat.mMatrix);
+
+
+							LLPhysicsDecomp* decomp = gMeshRepo.mDecompThread;
+							if (decomp)
+							{
+								LLMutexLock(decomp->mMutex);
+
+								LLModel::Decomposition& physics = model->mPhysics;
+
+								if (physics.mHull.empty())
+								{
+									if (mVertexBuffer[LLModel::LOD_PHYSICS].empty())
+									{
+										genBuffers(LLModel::LOD_PHYSICS, false);
+									}
+
+									auto num_degenerate = 0;
+									//<FS:Beq> More nested i variable silliness
+									//									for (U32 i = 0; i < mVertexBuffer[LLModel::LOD_PHYSICS][model].size(); ++i)
+									auto num_models = mVertexBuffer[LLModel::LOD_PHYSICS][model].size();
+									for (U32 v = 0; v < num_models; ++v)
+									{
+										LLVertexBuffer* buffer = mVertexBuffer[LLModel::LOD_PHYSICS][model][v];
+									//</FS:Beq>
+										if(buffer->getNumVerts() < 3)continue;
+
+										buffer->setBuffer(type_mask & buffer->getTypeMask());
+
+										LLStrider<LLVector3> pos_strider;
+										buffer->getVertexStrider(pos_strider, 0);
+										LLVector4a* pos = (LLVector4a*)pos_strider.get();
+
+										LLStrider<U16> idx;
+										buffer->getIndexStrider(idx, 0);
+
+										LLVector4a v1, v2, v3;
+										//<FS:Beq> rename inner most i to avoid merge confusion
+										for (U32 indices_offset = 0; indices_offset < buffer->getNumIndices(); indices_offset += 3)
+										{
+											v1.setMul(pos[*idx++], scale);
+											v2.setMul(pos[*idx++], scale);
+											v3.setMul(pos[*idx++], scale);
+
+											if (ll_is_degenerate(v1, v2, v3))
+											{
+												num_degenerate++;
+												glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+												gGL.diffuseColor3fv(deg_edge_col().mV);
+												buffer->drawRange(LLRender::TRIANGLES, 0, 2, 3, indices_offset);
+												buffer->drawRange(LLRender::POINTS, 0, 2, 3, indices_offset);
+												glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+												gGL.diffuseColor3fv(deg_fill_col().mV);
+												buffer->drawRange(LLRender::TRIANGLES, 0, 2, 3, indices_offset);
+											}
+										}
+									}
+								}
+							}
+
+							gGL.popMatrix();
+						}
+						glLineWidth(1.f);
+						glPointSize(1.f);
+						gPipeline.enableLightsPreview();
+						gGL.setSceneBlendType(LLRender::BT_ALPHA);
+					}
 				}
 			}
 		}
@@ -4170,16 +4342,19 @@ BOOL LLModelPreview::render()
 							}
 						
 							buffer->draw(LLRender::TRIANGLES, buffer->getNumIndices(), 0);
-							gGL.diffuseColor3f(0.4f, 0.4f, 0.4f);
+							// <FS:Beq> configurable colour and width
+							//gGL.diffuseColor3f(0.4f, 0.4f, 0.4f);
 
 							if (edges)
 							{
-								glLineWidth(3.f);
+								gGL.diffuseColor4fv(edge_col().mV);
+								glLineWidth(edge_width);
 								glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 								buffer->draw(LLRender::TRIANGLES, buffer->getNumIndices(), 0);
 								glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 								glLineWidth(1.f);
 							}
+							// </FS:Beq>
 						}
 					}
 				}
@@ -4237,8 +4412,11 @@ void LLModelPreview::rotate(F32 yaw_radians, F32 pitch_radians)
 void LLModelPreview::zoom(F32 zoom_amt)
 {
 	F32 new_zoom = mCameraZoom+zoom_amt;
-
-	mCameraZoom	= llclamp(new_zoom, 1.f, 10.f);
+	// <FS:Beq> add configurable zoom TODO: stop clamping in render
+	// mCameraZoom = llclamp(new_zoom, 1.f, 10.f);
+	static LLCachedControl<F32> zoom_limit(gSavedSettings, "MeshPreviewZoomLimit");
+	mCameraZoom	= llclamp(new_zoom, 1.f, zoom_limit());
+	// </FS:Beq>
 }
 
 void LLModelPreview::pan(F32 right, F32 up)
@@ -4444,11 +4622,22 @@ void LLFloaterModelPreview::toggleCalculateButton(bool visible)
 		childSetTextArg("server_weight", "[SIM]", tbd);
 		childSetTextArg("physics_weight", "[PH]", tbd);
 		childSetTextArg("upload_fee", "[FEE]", tbd);
-		childSetTextArg("price_breakdown", "[STREAMING]", tbd);
-		childSetTextArg("price_breakdown", "[PHYSICS]", tbd);
-		childSetTextArg("price_breakdown", "[INSTANCES]", tbd);
-		childSetTextArg("price_breakdown", "[TEXTURES]", tbd);
-		childSetTextArg("price_breakdown", "[MODEL]", tbd);
+		// <FS:Beq> add extended info fields
+		//childSetTextArg("price_breakdown", "[STREAMING]", dashes);
+		//childSetTextArg("price_breakdown", "[PHYSICS]", dashes);
+		//childSetTextArg("price_breakdown", "[INSTANCES]", dashes);
+		//childSetTextArg("price_breakdown", "[TEXTURES]", dashes);
+		//childSetTextArg("price_breakdown", "[MODEL]", dashes);
+		std::string dashes = hasString("--") ? getString("--") : "--";
+		childSetTextArg("price_breakdown", "[STREAMING]", dashes);
+		childSetTextArg("price_breakdown", "[PHYSICS]", dashes);
+		childSetTextArg("price_breakdown", "[INSTANCES]", dashes);
+		childSetTextArg("price_breakdown", "[TEXTURES]", dashes);
+		childSetTextArg("price_breakdown", "[MODEL]", dashes);
+		childSetTextArg("physics_breakdown", "[PCH]", dashes);
+		childSetTextArg("physics_breakdown", "[PM]", dashes);
+		childSetTextArg("physics_breakdown", "[PHU]", dashes);
+		// </FS:Beq>
 	}
 }
 
@@ -4498,6 +4687,16 @@ void LLFloaterModelPreview::handleModelPhysicsFeeReceived()
 	childSetTextArg("price_breakdown", "[INSTANCES]", llformat("%d", result["upload_price_breakdown"]["mesh_instance"].asInteger()));
 	childSetTextArg("price_breakdown", "[TEXTURES]", llformat("%d", result["upload_price_breakdown"]["texture"].asInteger()));
 	childSetTextArg("price_breakdown", "[MODEL]", llformat("%d", result["upload_price_breakdown"]["model"].asInteger()));
+//<FS:Beq> Updates for enhanced Mesh feedback at upload
+	childSetTextArg("physics_breakdown", "[PCH]", llformat("%0.3f", result["model_physics_cost"]["hull"].asReal()));
+	childSetTextArg("physics_breakdown", "[PM]", llformat("%0.3f", result["model_physics_cost"]["mesh"].asReal()));
+	childSetTextArg("physics_breakdown", "[PHU]", llformat("%0.3f", result["model_physics_cost"]["decomposition"].asReal()));
+	childSetTextArg("streaming_breakdown", "[STR_TOTAL]", llformat("%d", result["streaming_cost"].asInteger()));
+	childSetTextArg("streaming_breakdown", "[STR_HIGH]", llformat("%d", result["streaming_params"]["high_lod"].asInteger()));
+	childSetTextArg("streaming_breakdown", "[STR_MED]", llformat("%d", result["streaming_params"]["medium_lod"].asInteger()));
+	childSetTextArg("streaming_breakdown", "[STR_LOW]", llformat("%d", result["streaming_params"]["low_lod"].asInteger()));
+	childSetTextArg("streaming_breakdown", "[STR_LOWEST]", llformat("%d", result["streaming_params"]["lowest_lod"].asInteger()));
+//</FS:Beq>
 	childSetVisible("upload_fee", true);
 	childSetVisible("price_breakdown", true);
 	mUploadBtn->setEnabled(isModelUploadAllowed());
