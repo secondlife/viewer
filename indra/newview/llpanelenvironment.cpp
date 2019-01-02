@@ -73,8 +73,6 @@ const std::string LLPanelEnvironmentInfo::SLD_DAYOFFSET("sld_day_offset");
 const std::string LLPanelEnvironmentInfo::SLD_ALTITUDES("sld_altitudes");
 const std::string LLPanelEnvironmentInfo::ICN_GROUND("icon_ground");
 const std::string LLPanelEnvironmentInfo::CHK_ALLOWOVERRIDE("chk_allow_override");
-const std::string LLPanelEnvironmentInfo::BTN_APPLY("btn_apply");
-const std::string LLPanelEnvironmentInfo::BTN_CANCEL("btn_cancel");
 const std::string LLPanelEnvironmentInfo::LBL_TIMEOFDAY("lbl_apparent_time");
 const std::string LLPanelEnvironmentInfo::PNL_SETTINGS("pnl_environment_config");
 const std::string LLPanelEnvironmentInfo::PNL_ENVIRONMENT_ALTITUDES("pnl_environment_altitudes");
@@ -90,6 +88,7 @@ const std::string LLPanelEnvironmentInfo::STR_ALTITUDE_DESCRIPTION("str_altitude
 const std::string LLPanelEnvironmentInfo::STR_NO_PARCEL("str_no_parcel");
 const std::string LLPanelEnvironmentInfo::STR_CROSS_REGION("str_cross_region");
 const std::string LLPanelEnvironmentInfo::STR_LEGACY("str_legacy");
+const std::string LLPanelEnvironmentInfo::STR_DISALLOWED("str_disallowed");
 
 const U32 LLPanelEnvironmentInfo::DIRTY_FLAG_DAYCYCLE(0x01 << 0);
 const U32 LLPanelEnvironmentInfo::DIRTY_FLAG_DAYLENGTH(0x01 << 1);
@@ -130,7 +129,8 @@ LLPanelEnvironmentInfo::LLPanelEnvironmentInfo():
     mNoEnvironment(false),
     mCurEnvVersion(INVALID_PARCEL_ENVIRONMENT_VERSION),
     mSettingsFloater(),
-    mEditFloater()
+    mEditFloater(),
+    mAllowOverride(false)
 {
 }
 
@@ -147,8 +147,6 @@ BOOL LLPanelEnvironmentInfo::postBuild()
     getChild<LLUICtrl>(BTN_USEDEFAULT)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnDefault(); });
     getChild<LLUICtrl>(BTN_SELECTINV)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnSelect(); });
     getChild<LLUICtrl>(BTN_EDIT)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnEdit(); });
-    getChild<LLUICtrl>(BTN_APPLY)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnApply(); });
-    getChild<LLUICtrl>(BTN_CANCEL)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnReset(); });
 
     getChild<LLUICtrl>(SLD_DAYLENGTH)->setCommitCallback([this](LLUICtrl *, const LLSD &value) { onSldDayLengthChanged(value.asReal()); });
     getChild<LLSliderCtrl>(SLD_DAYLENGTH)->setSliderMouseUpCallback([this](LLUICtrl *, const LLSD &) { onDayLenOffsetMouseUp(); });
@@ -283,6 +281,13 @@ void LLPanelEnvironmentInfo::refresh()
 
 }
 
+void LLPanelEnvironmentInfo::refreshFromEstate()
+{
+    const LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
+
+    mAllowOverride = estate_info.getAllowEnvironmentOverride();
+}
+
 std::string LLPanelEnvironmentInfo::getInventoryNameForAssetId(LLUUID asset_id) 
 {
     std::string name(LLFloaterSettingsPicker::findItemName(asset_id, false, false));
@@ -406,6 +411,11 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
         is_unavailable = true;
         getChild<LLTextBox>(TXT_DISABLED)->setText(getString(STR_CROSS_REGION));
     }
+    else if (!isRegion() && !mAllowOverride)
+    {
+        is_unavailable = true;
+        getChild<LLTextBox>(TXT_DISABLED)->setText(getString(STR_DISALLOWED));
+    }
 
     if (is_unavailable)
     {
@@ -426,6 +436,7 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
 
     bool can_enable = enabled && mCurrentEnvironment && (mCurEnvVersion != INVALID_PARCEL_ENVIRONMENT_VERSION);
     getChild<LLUICtrl>(BTN_SELECTINV)->setEnabled(can_enable && !is_legacy);
+    getChild<LLUICtrl>(BTN_USEDEFAULT)->setEnabled(can_enable && !is_legacy);
     getChild<LLUICtrl>(BTN_EDIT)->setEnabled(can_enable);
     getChild<LLUICtrl>(SLD_DAYLENGTH)->setEnabled(can_enable && !is_legacy);
     getChild<LLUICtrl>(SLD_DAYOFFSET)->setEnabled(can_enable && !is_legacy);
@@ -433,8 +444,6 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
     getChild<LLUICtrl>(ICN_GROUND)->setColor((can_enable && isRegion() && !is_legacy) ? LLColor4::white : LLColor4::grey % 0.8f);
     getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setEnabled(can_enable && isRegion() && !is_legacy);
     getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setEnabled(can_enable && isRegion() && !is_legacy);
-    getChild<LLUICtrl>(BTN_APPLY)->setEnabled(can_enable && (mDirtyFlag != 0));
-    getChild<LLUICtrl>(BTN_CANCEL)->setEnabled(enabled && (mDirtyFlag != 0));
 
     getChild<LLSettingsDropTarget>(SDT_DROP_TARGET)->setDndEnabled(enabled && !is_legacy);
 
@@ -459,18 +468,12 @@ void LLPanelEnvironmentInfo::setApplyProgress(bool started)
 
 void LLPanelEnvironmentInfo::setDirtyFlag(U32 flag)
 {
-    bool can_edit = canEdit();
     mDirtyFlag |= flag;
-    getChildView(BTN_APPLY)->setEnabled((mDirtyFlag != 0) && mCurrentEnvironment && mCurEnvVersion != INVALID_PARCEL_ENVIRONMENT_VERSION && can_edit);
-    getChildView(BTN_CANCEL)->setEnabled((mDirtyFlag != 0) && mCurrentEnvironment && can_edit);
 }
 
 void LLPanelEnvironmentInfo::clearDirtyFlag(U32 flag)
 {
-    bool can_edit = canEdit();
     mDirtyFlag &= ~flag;
-    getChildView(BTN_APPLY)->setEnabled((mDirtyFlag != 0) && mCurrentEnvironment && mCurEnvVersion != INVALID_PARCEL_ENVIRONMENT_VERSION && can_edit);
-    getChildView(BTN_CANCEL)->setEnabled((mDirtyFlag != 0) && mCurrentEnvironment && can_edit);
 }
 
 void LLPanelEnvironmentInfo::updateAltLabel(const std::string &alt_name, U32 sky_index, F32 alt_value)
@@ -591,18 +594,6 @@ void LLPanelEnvironmentInfo::readjustAltLabels()
 #endif
 }
 
-#if 0
-void LLPanelEnvironmentInfo::onSwitchDefaultSelection()
-{
-//     bool can_edit = canEdit();
-    setDirtyFlag(DIRTY_FLAG_DAYCYCLE);
-
-//     S32 rdo_selection = getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->getSelectedIndex();
-//     getChild<LLUICtrl>(SLD_DAYLENGTH)->setEnabled(can_edit && (rdo_selection != 0));
-//     getChild<LLUICtrl>(SLD_DAYOFFSET)->setEnabled(can_edit && (rdo_selection != 0));
-}
-#endif
-
 void LLPanelEnvironmentInfo::onSldDayLengthChanged(F32 value)
 {
     F32Hours daylength(value);
@@ -699,17 +690,6 @@ void LLPanelEnvironmentInfo::onAltSliderMouseUp()
     }
 }
 
-void LLPanelEnvironmentInfo::onBtnApply()
-{
-    doApply();
-}
-
-void LLPanelEnvironmentInfo::onBtnReset()
-{
-    mCurrentEnvironment.reset();
-    refreshFromSource();
-}
-
 void LLPanelEnvironmentInfo::onBtnDefault()
 {
     LLHandle<LLPanel> that_h = getHandle();
@@ -756,62 +736,6 @@ void LLPanelEnvironmentInfo::onBtnSelect()
         picker->openFloater();
         picker->setFocus(TRUE);
     }
-}
-
-
-void LLPanelEnvironmentInfo::doApply()
-{
-//  S32 parcel_id = getParcelId();
-
-//     if (getIsDirtyFlag(DIRTY_FLAG_MASK))
-//     {
-//         LLHandle<LLPanel> that_h = getHandle();
-//         LLEnvironment::altitudes_vect_t alts;
-// 
-// //         S32 rdo_selection = getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->getSelectedIndex();
-// 
-//         if (isRegion() && getIsDirtyFlag(DIRTY_FLAG_ALTITUDES))
-//         {
-//             altitudes_data_t::iterator it;
-//             for (auto alt : mAltitudes)
-//             {
-//                 alts.push_back(alt.second.mAltitude);
-//             }
-//         }
-
-//         if (rdo_selection == 0)
-//         {
-//             LLEnvironment::instance().resetParcel(parcel_id,
-//                 [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
-//         }
-//         else if (rdo_selection == 1)
-//         {
-//             if (!mCurrentEnvironment)
-//             {
-//                 // Attempting to save mid update?
-//                 LL_WARNS("ENVPANEL") << "Failed to apply changes from editor! Dirty state: " << mDirtyFlag << " update state: " << mCurEnvVersion << LL_ENDL;
-//                 return;
-//             }
-//             LLEnvironment::instance().updateParcel(parcel_id,
-//                 mCurrentEnvironment->mDayCycle->getAssetId(), std::string(), mCurrentEnvironment->mDayLength.value(), 
-//                 mCurrentEnvironment->mDayOffset.value(), alts,
-//                 [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
-//         }
-//         else
-//         {
-//             if (!mCurrentEnvironment)
-//             {
-//                 // Attempting to save mid update?
-//                 LL_WARNS("ENVPANEL") << "Failed to apply changes from editor! Dirty state: " << mDirtyFlag << " update state: " << mCurEnvVersion << LL_ENDL;
-//                 return;
-//             }
-//             LLEnvironment::instance().updateParcel(parcel_id,
-//                 mCurrentEnvironment->mDayCycle, mCurrentEnvironment->mDayLength.value(), mCurrentEnvironment->mDayOffset.value(), alts,
-//                 [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
-//         }
-
-//        setControlsEnabled(false);
-//    }
 }
 
 
@@ -990,6 +914,7 @@ void LLPanelEnvironmentInfo::onEnvironmentReceived(S32 parcel_id, LLEnvironment:
         LL_WARNS("ENVPANEL") << " Environment version was not provided for " << parcel_id << ", old env version: " << mCurEnvVersion << LL_ENDL;
     }
 
+    refreshFromEstate();
     refresh();
 
     // todo: we have envifo and parcel env version, should we just setEnvironment() and parcel's property to prevent dupplicate requests?

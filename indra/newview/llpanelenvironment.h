@@ -36,6 +36,7 @@
 #include "llparcel.h"
 #include "llsettingspicker.h"
 #include "llfloatereditextdaycycle.h"
+#include "llestateinfomodel.h"
 
 class LLViewerRegion;
 
@@ -87,6 +88,7 @@ protected:
     static const std::string    STR_NO_PARCEL;
     static const std::string    STR_CROSS_REGION;
     static const std::string    STR_LEGACY;
+    static const std::string    STR_DISALLOWED;
 
     static const U32            DIRTY_FLAG_DAYCYCLE;
     static const U32            DIRTY_FLAG_DAYLENGTH;
@@ -110,13 +112,9 @@ protected:
     void                        onAltSliderCallback(LLUICtrl *cntrl, const LLSD &data);
     void                        onAltSliderMouseUp();
 
-    void                        onBtnApply();
-    void                        onBtnReset();
     void                        onBtnEdit();
     void                        onBtnSelect();
     void                        onBtnDefault();
-
-    virtual void                doApply();
 
     void                        udpateApparentTimeOfDay();
 
@@ -162,12 +160,15 @@ protected:
         F32 mAltitude;
     };
     typedef std::map<std::string, AltitudeData>      altitudes_data_t;
-    altitudes_data_t                        mAltitudes;
-    S32                                     mCurEnvVersion; // used to filter duplicate callbacks/refreshes
+    altitudes_data_t                mAltitudes;
+    S32                             mCurEnvVersion; // used to filter duplicate callbacks/refreshes
 
+protected:
+    void                            refreshFromEstate();
+    bool                            mAllowOverride;
 
 private:
-    static void                 onIdlePlay(void *);
+    static void                     onIdlePlay(void *);
 
     typedef boost::signals2::connection connection_t;
 
@@ -181,6 +182,7 @@ private:
     bool                            mCrossRegion;
     bool                            mNoSelection;
     bool                            mNoEnvironment;
+
 };
 
 class LLSettingsDropTarget : public LLView

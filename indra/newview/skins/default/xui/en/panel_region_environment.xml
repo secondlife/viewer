@@ -16,6 +16,7 @@
     <string name="str_no_parcel">No parcel is selected. Environmental settings are disabled.</string>
     <string name="str_cross_region">Environmental settings are not available across region boundries.</string>
     <string name="str_legacy">Environmental settings are not available on this region.</string>
+    <string name="str_disallowed">The estate manager does not allow changing parcel environments in this region.</string>
     <string name="str_empty">(empty)</string>
     <layout_stack 
             width="530"
@@ -383,7 +384,7 @@
                                     name="sld_day_length"
                                     min_val="4"
                                     max_val="168"
-                                    width="240" />
+                                    width="237" />
                             <text
                                     type="string"
                                     length="1"
@@ -408,7 +409,7 @@
                                     name="sld_day_offset"
                                     min_val="-11.5"
                                     max_val="12"
-                                    width="240" />
+                                    width="237" />
                             <text
                                     type="string"
                                     length="1"
@@ -432,30 +433,14 @@
                                     width="200">
                                 [HH]:[MM][AP] ([PRC]%)
                             </text>
-
                         </layout_panel>
                         <layout_panel
                                 follows="bottom"
                                 border="true"
                                 bevel_style="in"
                                 name="pnl_environment_buttons">
-                            <button
-                                    follows="bottom|right"
-                                    height="23"
-                                    label="Apply"
-                                    top="-60"
-                                    left="-220"
-                                    name="btn_apply"
-                                    width="100" />
-                            <button
-                                    follows="bottom|right"
-                                    height="23"
-                                    label="Reset"
-                                    layout="topleft"
-                                    left_pad="10"
-                                    top_delta="0"
-                                    name="btn_cancel"
-                                    width="100" /> 
+<!-- used to be buttons, but now spacer.
+-->
                         </layout_panel>
                     </layout_stack>
                 </layout_panel>

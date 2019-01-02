@@ -188,7 +188,6 @@ public:
     virtual bool        canEdit() override { return LLEnvironment::instance().canAgentUpdateRegionEnvironment(); }
 
     bool                refreshFromRegion(LLViewerRegion* region);
-    void                refreshFromEstate();
 
     virtual BOOL        postBuild() override;
     virtual void        onOpen(const LLSD& key) override {};
@@ -198,16 +197,14 @@ public:
 protected:
     static const U32    DIRTY_FLAG_OVERRIDE;
 
-    virtual void        doApply() override;
-
     virtual void        refreshFromSource() override;
 
-    bool                doUpdateEstate(const LLSD& notification, const LLSD& response);
+    bool                confirmUpdateEstateEnvironment(const LLSD& notification, const LLSD& response);
 
     void                onChkAllowOverride(bool value);
 
 private:
-    bool                mAllowOverride;
+    bool                mAllowOverrideRestore;
 
 };
 
@@ -3403,7 +3400,7 @@ const U32 LLPanelRegionEnvironment::DIRTY_FLAG_OVERRIDE(0x01 << 4);
 
 LLPanelRegionEnvironment::LLPanelRegionEnvironment():
     LLPanelEnvironmentInfo(),
-    mAllowOverride(false)
+    mAllowOverrideRestore(false)
 {
     LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
     estate_info.setCommitCallback(boost::bind(&LLPanelRegionEnvironment::refreshFromEstate, this));
@@ -3436,7 +3433,6 @@ void LLPanelRegionEnvironment::refresh()
         return;
     }
 
-    refreshFromEstate();
     LLPanelEnvironmentInfo::refresh();
 
     getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setValue(mAllowOverride);
@@ -3463,13 +3459,6 @@ bool LLPanelRegionEnvironment::refreshFromRegion(LLViewerRegion* region)
     return true;
 }
 
-void LLPanelRegionEnvironment::refreshFromEstate()
-{
-    const LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
-
-    mAllowOverride = estate_info.getAllowEnvironmentOverride();
-}
-
 void LLPanelRegionEnvironment::refreshFromSource()
 {
     LL_DEBUGS("ENVIRONMENT") << "Requesting environment for region, known version " << mCurEnvVersion << LL_ENDL;
@@ -3487,31 +3476,7 @@ void LLPanelRegionEnvironment::refreshFromSource()
     setControlsEnabled(false);
 }
 
-void LLPanelRegionEnvironment::doApply()
-{
-    LLPanelEnvironmentInfo::doApply();
-
-    if (getIsDirtyFlag(DIRTY_FLAG_OVERRIDE))
-    {
-        LLNotification::Params params("ChangeLindenEstate");
-        //params.functor.function(boost::bind(&LLPanelEstateInfo::doUpdateEstate, this, _1, _2));
-        params.functor.function([this](const LLSD& notification, const LLSD& response) { doUpdateEstate(notification, response); });
-
-        if (LLPanelEstateInfo::isLindenEstate())
-        {
-            // trying to change reserved estate, warn
-            LLNotifications::instance().add(params);
-        }
-        else
-        {
-            // for normal estates, just make the change
-            LLNotifications::instance().forceResponse(params, 0);
-        }
-
-    }
-}
-
-bool LLPanelRegionEnvironment::doUpdateEstate(const LLSD& notification, const LLSD& response)
+bool LLPanelRegionEnvironment::confirmUpdateEstateEnvironment(const LLSD& notification, const LLSD& response)
 {
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 
@@ -3530,6 +3495,9 @@ bool LLPanelRegionEnvironment::doUpdateEstate(const LLSD& notification, const LL
     break;
 
     case 1:
+        mAllowOverride = mAllowOverrideRestore;
+        getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setValue(mAllowOverride);
+        break;
     default:
         break;
     }
@@ -3538,11 +3506,24 @@ bool LLPanelRegionEnvironment::doUpdateEstate(const LLSD& notification, const LL
 
 void LLPanelRegionEnvironment::onChkAllowOverride(bool value)
 {
-    if (!value)
+    setDirtyFlag(DIRTY_FLAG_OVERRIDE);
+    mAllowOverrideRestore = mAllowOverride;
+    mAllowOverride = value;
+
+    LLNotification::Params params("ChangeLindenEstate");
+    params.functor.function([this](const LLSD& notification, const LLSD& response) { confirmUpdateEstateEnvironment(notification, response); });
+
+    std::string notification("EstateParcelEnvironmentOverride");
+    if (LLPanelEstateInfo::isLindenEstate())
+        notification = "ChangeLindenEstate";
+
+    if (!value || LLPanelEstateInfo::isLindenEstate())
+    {   // warn if turning off or a Linden Estate
+        LLNotifications::instance().add(params);
+    }
+    else
     {
-        LLNotificationsUtil::add("EstateParcelEnvironmentOverride");
+        LLNotifications::instance().forceResponse(params, 0);
     }
 
-    setDirtyFlag(DIRTY_FLAG_OVERRIDE);
-    mAllowOverride = value;
 }

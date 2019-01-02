@@ -3376,7 +3376,8 @@ bool LLPanelLandEnvironment::canEdit()
     LLParcel *parcel = getParcel();
     if (!parcel)
         return false;
-    return LLEnvironment::instance().canAgentUpdateParcelEnvironment(parcel);
+    
+    return LLEnvironment::instance().canAgentUpdateParcelEnvironment(parcel) && mAllowOverride;
 }
 
 S32 LLPanelLandEnvironment::getParcelId() 
