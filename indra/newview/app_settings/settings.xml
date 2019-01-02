@@ -6810,6 +6810,7 @@
     <key>Value</key>
     <real>10.0</real>
   </map>
+  <key>MigrateCacheDirectory</key>
   <map>
       <key>Comment</key>
       <string>Check for old version of disk cache to migrate to current location</string>
@@ -16468,4 +16469,5 @@
     </map>
 </map>
 </llsd>
+
 
