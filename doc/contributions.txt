@@ -256,6 +256,8 @@ Benja Kepler
 	VWR-746
 Benjamin Bigdipper
 Beth Walcher
+Beq Janus
+	SL-10288
 Bezilon Kasei
 Biancaluce Robbiani
 	CT-225
