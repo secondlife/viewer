@@ -380,7 +380,10 @@ private:
             mDayOffset(day_offset),
             mAltitudes(altitudes),
             mDayName()
-        {}
+        {
+            if (mDayp)
+                mDayName = mDayp->getName();
+        }
 
         UpdateInfo(LLUUID settings_asset, std::string name, S32 day_length, S32 day_offset, altitudes_vect_t altitudes) :
             mDayp(),

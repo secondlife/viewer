@@ -92,6 +92,8 @@ public:
 
     void                        setEditDayCycle(const LLSettingsDay::ptr_t &pday);
     void                        setEditDefaultDayCycle();
+    std::string                 getEditName() const;
+    void                        setEditName(const std::string &name);
     LLUUID                      getEditingAssetId() { return mEditDay ? mEditDay->getAssetId() : LLUUID::null; }
     LLUUID                      getEditingInventoryId() { return mInventoryId; }
 

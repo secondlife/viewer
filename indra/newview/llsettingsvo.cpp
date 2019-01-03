@@ -154,23 +154,24 @@ void LLSettingsVOBase::createInventoryItem(const LLSettingsBase::ptr_t &settings
 
 void LLSettingsVOBase::onInventoryItemCreated(const LLUUID &inventoryId, LLSettingsBase::ptr_t settings, inventory_result_fn callback)
 {
+    LLViewerInventoryItem *pitem = gInventory.getItem(inventoryId);
+    if (pitem)
+    {
+        LLPermissions perm = pitem->getPermissions();
+        if (perm.getMaskEveryone() != PERM_COPY)
+        {
+            perm.setMaskEveryone(PERM_COPY);
+            pitem->setPermissions(perm);
+            pitem->updateServer(FALSE);
+        }
+    }
     if (!settings)
     {   // The item was created as new with no settings passed in.  Simulator should have given it the default for the type... check ID, 
         // no need to upload asset.
         LLUUID asset_id;
-        LLViewerInventoryItem *pitem = gInventory.getItem(inventoryId);
-
         if (pitem)
         {
             asset_id = pitem->getAssetUUID();
-
-            LLPermissions perm = pitem->getPermissions();
-            if (perm.getMaskEveryone() != PERM_COPY)
-            {
-                perm.setMaskEveryone(PERM_COPY);
-                pitem->setPermissions(perm);
-                pitem->updateServer(FALSE);
-            }
         }
         if (callback)
             callback(asset_id, inventoryId, LLUUID::null, LLSD());

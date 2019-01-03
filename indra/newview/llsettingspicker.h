@@ -94,6 +94,7 @@ private:
     void                    onButtonCancel();
     void                    onButtonSelect();
     virtual BOOL            handleDoubleClick(S32 x, S32 y, MASK mask) override;
+    BOOL                    handleKeyHere(KEY key, MASK mask) override;
 
 
     LLHandle<LLView>        mOwnerHandle;

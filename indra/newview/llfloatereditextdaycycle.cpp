@@ -495,6 +495,20 @@ void LLFloaterEditExtDayCycle::setEditDefaultDayCycle()
         [this](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoaded(asset_id, settings, status); });
 }
 
+std::string LLFloaterEditExtDayCycle::getEditName() const
+{
+    if (mEditDay)
+        return mEditDay->getName();
+    return "new";
+}
+
+void LLFloaterEditExtDayCycle::setEditName(const std::string &name)
+{
+    if (mEditDay)
+        mEditDay->setName(name);
+    getChild<LLLineEditor>(TXT_DAY_NAME)->setText(name);
+}
+
 /* virtual */
 BOOL LLFloaterEditExtDayCycle::handleKeyUp(KEY key, MASK mask, BOOL called_from_parent)
 {
@@ -951,6 +965,11 @@ void LLFloaterEditExtDayCycle::selectTrack(U32 track_index, bool force )
     bool show_water = (mCurrentTrack == LLSettingsDay::TRACK_WATER);
     mSkyTabLayoutContainer->setVisible(!show_water);
     mWaterTabLayoutContainer->setVisible(show_water);
+
+    std::string iconname = (show_water) ? "Inv_SettingsWater" : "Inv_SettingsSky";
+
+    mFramesSlider->setSliderThumbImage(iconname);
+
     updateSlider();
     updateLabels();
 }

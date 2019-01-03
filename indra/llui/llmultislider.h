@@ -80,6 +80,11 @@ public:
 	void				setSliderValue(const std::string& name, F32 value, BOOL from_event = FALSE);
 	F32					getSliderValue(const std::string& name) const;
 	F32					getSliderValueFromPos(S32 xpos, S32 ypos) const;
+    LLRect              getSliderThumbRect(const std::string& name) const;
+
+    void                setSliderThumbImage(const std::string &name);
+    void                clearSliderThumbImage();
+
 
 	const std::string&	getCurSlider() const					{ return mCurSlider; }
 	F32					getCurSliderValue() const				{ return getSliderValue(mCurSlider); }
@@ -111,6 +116,7 @@ public:
 	S32				getCurNumSliders() { return mValue.size(); }
 	F32				getOverlapThreshold() { return mOverlapThreshold; }
 	bool			canAddSliders() { return mValue.size() < mMaxNumSliders; }
+
 
 protected:
 	LLSD			mValue;

@@ -306,6 +306,30 @@ F32 LLMultiSlider::getSliderValueFromPos(S32 xpos, S32 ypos) const
     return((t * (mMaxValue - mMinValue)) + mMinValue);
 }
 
+
+LLRect LLMultiSlider::getSliderThumbRect(const std::string& name) const
+{
+    auto it = mThumbRects.find(name);
+    if (it != mThumbRects.end())
+        return (*it).second;
+    return LLRect();
+}
+
+void LLMultiSlider::setSliderThumbImage(const std::string &name)
+{
+    if (!name.empty())
+    {
+        mThumbImagep = LLUI::getUIImage(name);
+    }
+    else
+        clearSliderThumbImage();
+}
+
+void LLMultiSlider::clearSliderThumbImage()
+{
+    mThumbImagep = NULL;
+}
+
 void LLMultiSlider::resetCurSlider()
 {
 	mCurSlider = LLStringUtil::null;
