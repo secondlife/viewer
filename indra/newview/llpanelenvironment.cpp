@@ -130,7 +130,7 @@ LLPanelEnvironmentInfo::LLPanelEnvironmentInfo():
     mCurEnvVersion(INVALID_PARCEL_ENVIRONMENT_VERSION),
     mSettingsFloater(),
     mEditFloater(),
-    mAllowOverride(false)
+    mAllowOverride(true)
 {
 }
 
@@ -283,9 +283,21 @@ void LLPanelEnvironmentInfo::refresh()
 
 void LLPanelEnvironmentInfo::refreshFromEstate()
 {
+    /*TODO: Bug!!  estate_info seems stale if regain floater has not been opened.*/
     const LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
 
-    mAllowOverride = estate_info.getAllowEnvironmentOverride();
+    if (isRegion())
+    { // this should always work... but estate_info gives back false when it shouldn't for parcels
+        bool oldAO = mAllowOverride;
+        mAllowOverride = estate_info.getAllowEnvironmentOverride();
+        if (oldAO != mAllowOverride)
+            refresh();
+    }
+    else
+    {
+        // Get rid of this when I solve the above.
+        mAllowOverride = true;
+    }
 }
 
 std::string LLPanelEnvironmentInfo::getInventoryNameForAssetId(LLUUID asset_id) 

@@ -965,6 +965,11 @@ void LLFloaterEditExtDayCycle::selectTrack(U32 track_index, bool force )
     bool show_water = (mCurrentTrack == LLSettingsDay::TRACK_WATER);
     mSkyTabLayoutContainer->setVisible(!show_water);
     mWaterTabLayoutContainer->setVisible(show_water);
+
+    std::string iconname = (show_water) ? "Inv_SettingsWater" : "Inv_SettingsSky";
+
+    mFramesSlider->setSliderThumbImage(iconname);
+
     updateSlider();
     updateLabels();
 }

@@ -110,6 +110,9 @@ public:
 	F32			    getSliderValueFromPos(S32 x, S32 y) const { return mMultiSlider->getSliderValueFromPos(x, y); }
     LLRect          getSliderThumbRect(const std::string &name) const { return mMultiSlider->getSliderThumbRect(name); }
 
+    void            setSliderThumbImage(const std::string &name) { mMultiSlider->setSliderThumbImage(name); }
+    void            clearSliderThumbImage() { mMultiSlider->clearSliderThumbImage(); }
+
 	/// for adding and deleting sliders
 	const std::string&	addSlider();
 	const std::string&	addSlider(F32 val);

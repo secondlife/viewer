@@ -315,6 +315,21 @@ LLRect LLMultiSlider::getSliderThumbRect(const std::string& name) const
     return LLRect();
 }
 
+void LLMultiSlider::setSliderThumbImage(const std::string &name)
+{
+    if (!name.empty())
+    {
+        mThumbImagep = LLUI::getUIImage(name);
+    }
+    else
+        clearSliderThumbImage();
+}
+
+void LLMultiSlider::clearSliderThumbImage()
+{
+    mThumbImagep = NULL;
+}
+
 void LLMultiSlider::resetCurSlider()
 {
 	mCurSlider = LLStringUtil::null;
