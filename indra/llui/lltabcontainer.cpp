@@ -76,7 +76,8 @@ public:
 		mButton(b),
 		mOldState(FALSE),
 		mPlaceholderText(placeholder),
-		mPadding(0)
+		mPadding(0),
+		mVisible(true)
 	{}
 
 	LLTabContainer*  mTabContainer;
@@ -85,6 +86,8 @@ public:
 	BOOL			 mOldState;
 	LLTextBox*		 mPlaceholderText;
 	S32				 mPadding;
+
+	mutable bool mVisible;
 };
 
 //----------------------------------------------------------------------------
@@ -398,7 +401,10 @@ void LLTabContainer::draw()
 				{
 					break;
 				}
-				target_pixel_scroll += (*iter)->mButton->getRect().getWidth();
+
+				if( (*iter)->mVisible )
+					target_pixel_scroll += (*iter)->mButton->getRect().getWidth();
+
 				cur_scroll_pos--;
 			}
 
@@ -466,6 +472,12 @@ void LLTabContainer::draw()
 		for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
 		{
 			LLTabTuple* tuple = *iter;
+
+			if( !tuple->mVisible )
+			{
+				tuple->mButton->setVisible( false );
+				continue;
+			}
 
 			tuple->mButton->translate( left ? left - tuple->mButton->getRect().mLeft : 0,
 									   top ? top - tuple->mButton->getRect().mTop : 0 );
@@ -1505,7 +1517,7 @@ BOOL LLTabContainer::setTab(S32 which)
 	}
 
 	BOOL is_visible = FALSE;
-	if (selected_tuple->mButton->getEnabled())
+	if( selected_tuple->mButton->getEnabled() && selected_tuple->mVisible )
 	{
 		setCurrentPanelIndex(which);
 
@@ -2120,4 +2132,36 @@ void LLTabContainer::commitHoveredButton(S32 x, S32 y)
 S32 LLTabContainer::getTotalTabWidth() const
 {
     return mTotalTabWidth;
+}
+
+void LLTabContainer::setTabVisibility( LLPanel const *aPanel, bool aVisible )
+{
+	for( tuple_list_t::const_iterator itr = mTabList.begin(); itr != mTabList.end(); ++itr )
+	{
+		LLTabTuple const *pTT = *itr;
+		if( pTT->mTabPanel == aPanel )
+		{
+			pTT->mVisible = aVisible;
+			break;
+		}
+	}
+
+	bool foundTab( false );
+	for( tuple_list_t::const_iterator itr = mTabList.begin(); itr != mTabList.end(); ++itr )
+	{
+		LLTabTuple const *pTT = *itr;
+		if( pTT->mVisible )
+		{
+			this->selectTab( itr - mTabList.begin() );
+			foundTab = true;
+			break;
+		}
+	}
+
+	if( foundTab )
+		this->setVisible( TRUE );
+	else
+		this->setVisible( FALSE );
+
+	updateMaxScrollPos();
 }

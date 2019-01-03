@@ -36,6 +36,7 @@
 #include "llfloater.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llconversationlog.h"
+#include "llsearcheditor.h"
 
 class LLConversationLogObserver;
 class LLPanelPreference;
@@ -46,6 +47,14 @@ class LLScrollListCtrl;
 class LLSliderCtrl;
 class LLSD;
 class LLTextBox;
+
+namespace ll
+{
+	namespace prefs
+	{
+		struct SearchData;
+	}
+}
 
 typedef std::map<std::string, std::string> notifications_map;
 
@@ -205,6 +214,12 @@ private:
 	LLAvatarData mAvatarProperties;
 	std::string mSavedGraphicsPreset;
 	LOG_CLASS(LLFloaterPreference);
+
+	LLSearchEditor *mFilterEdit;
+	std::unique_ptr< ll::prefs::SearchData > mSearchData;
+
+	void onUpdateFilterTerm( bool force = false );
+	void collectSearchableItems();
 };
 
 class LLPanelPreference : public LLPanel
