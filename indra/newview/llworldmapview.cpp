@@ -465,7 +465,11 @@ void LLWorldMapView::draw()
 					mesg, 0,
 					llfloor(left + 3), llfloor(bottom + 2),
 					LLColor4::white,
-					LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW);
+					LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW,
+					S32_MAX, //max_chars
+					sMapScale, //max_pixels
+					NULL,
+					TRUE); //use ellipses
 			}
 		}
 	}
