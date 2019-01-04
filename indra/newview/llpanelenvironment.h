@@ -97,7 +97,7 @@ protected:
 
     static const U32            DIRTY_FLAG_MASK;
 
-    bool setControlsEnabled(bool enabled);
+    bool                        setControlsEnabled(bool enabled);
     void                        setApplyProgress(bool started);
     void                        setDirtyFlag(U32 flag);
     void                        clearDirtyFlag(U32 flag);
@@ -164,16 +164,18 @@ protected:
     S32                             mCurEnvVersion; // used to filter duplicate callbacks/refreshes
 
 protected:
+    typedef boost::signals2::connection connection_t;
+
     void                            refreshFromEstate();
     bool                            mAllowOverride;
 
 private:
     static void                     onIdlePlay(void *);
 
-    typedef boost::signals2::connection connection_t;
-
     connection_t                    mCommitConnection;
     connection_t                    mChangeMonitor;
+    connection_t                    mUpdateConnection;
+
     LLHandle<LLFloater>             mSettingsFloater;
     LLHandle<LLFloater>             mEditFloater;
     S32                             mDirtyFlag;

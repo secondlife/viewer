@@ -148,10 +148,13 @@ LLPanelEnvironmentInfo::~LLPanelEnvironmentInfo()
         mChangeMonitor.disconnect();
     if (mCommitConnection.connected())
         mCommitConnection.disconnect();
+    if (mUpdateConnection.connected())
+        mUpdateConnection.disconnect();
 }
 
 BOOL LLPanelEnvironmentInfo::postBuild()
 {
+
     getChild<LLUICtrl>(BTN_USEDEFAULT)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnDefault(); });
     getChild<LLUICtrl>(BTN_SELECTINV)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnSelect(); });
     getChild<LLUICtrl>(BTN_EDIT)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnEdit(); });
@@ -165,6 +168,9 @@ BOOL LLPanelEnvironmentInfo::postBuild()
     getChild<LLMultiSliderCtrl>(SLD_ALTITUDES)->setSliderMouseUpCallback([this](LLUICtrl *, const LLSD &) { onAltSliderMouseUp(); });
 
     mChangeMonitor = LLEnvironment::instance().setEnvironmentChanged([this](LLEnvironment::EnvSelection_t env, S32 version) { onEnvironmentChanged(env, version); });
+
+    // if we ever allow LLEstateInfoModel to work for non-EMs, uncomment this line.
+    // mUpdateConnection = LLEstateInfoModel::instance().setUpdateCallback(boost::bind(&LLPanelEnvironmentInfo::refreshFromEstate, this));
 
     getChild<LLSettingsDropTarget>(SDT_DROP_TARGET)->setPanel(this);
 
@@ -291,21 +297,13 @@ void LLPanelEnvironmentInfo::refresh()
 
 void LLPanelEnvironmentInfo::refreshFromEstate()
 {
-    /*TODO: Bug!!  estate_info seems stale if regain floater has not been opened.*/
-    const LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
+    /*TODO: Unfortunately only estate manager may get information from the LLEstateInfoModel.  
+     * The proletariat is not allowed to know what options are set for an estate. We should fix this.*/
 
-    if (isRegion())
-    { // this should always work... but estate_info gives back false when it shouldn't for parcels
-        bool oldAO = mAllowOverride;
-        mAllowOverride = estate_info.getAllowEnvironmentOverride();
-        if (oldAO != mAllowOverride)
-            refresh();
-    }
-    else
-    {
-        // Get rid of this when I solve the above.
-        mAllowOverride = true;
-    }
+    bool oldAO = mAllowOverride;
+    mAllowOverride = (!isRegion()) || LLEstateInfoModel::instance().getAllowEnvironmentOverride();
+    if (oldAO != mAllowOverride)
+        refresh();
 }
 
 std::string LLPanelEnvironmentInfo::getInventoryNameForAssetId(LLUUID asset_id) 

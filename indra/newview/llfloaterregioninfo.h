@@ -77,13 +77,9 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ BOOL postBuild();
 
-	static void processEstateOwnerRequest(LLMessageSystem* msg, void**);
-
 	// get and process region info if necessary.
 	static void processRegionInfo(LLMessageSystem* msg);
 
-	static const LLUUID& getLastInvoice() { return sRequestInvoice; }
-	static void nextInvoice() { sRequestInvoice.generate(); }
 	//static S32 getSerial() { return sRequestSerial; }
 	//static void incrementSerial() { sRequestSerial++; }
 
@@ -119,8 +115,7 @@ protected:
 	typedef std::vector<LLPanelRegionInfo*> info_panels_t;
 	info_panels_t mInfoPanels;
     LLPanelRegionEnvironment *mEnvironmentPanel;
-	//static S32 sRequestSerial;	// serial # of last EstateOwnerRequest
-	static LLUUID sRequestInvoice;
+
 private:
     boost::signals2::connection mRegionChangedCallback;
 };
@@ -157,14 +152,6 @@ protected:
 	
 	typedef std::vector<std::string> strings_t;
 	//typedef std::vector<U32> integers_t;
-	void sendEstateOwnerMessage(
-					 LLMessageSystem* msg,
-					 const std::string& request,
-					 const LLUUID& invoice,
-					 const strings_t& strings);
-	
-	// member data
-	LLHost mHost;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -266,12 +253,9 @@ private:
 };
 
 /////////////////////////////////////////////////////////////////////////////
-
 class LLPanelEstateInfo : public LLPanelRegionInfo
 {
 public:
-	static void initDispatch(LLDispatcher& dispatch);
-	
 	void onChangeFixedSun();
 	void onChangeUseGlobalTime();
 	void onChangeAccessOverride();
@@ -331,6 +315,7 @@ public:
 	virtual void refresh();
 
 	void refreshFromEstate();
+    void refreshAccessFromEstate(U32 flags);
 	
 	static bool isLindenEstate();
 	
@@ -433,7 +418,7 @@ public:
 	void sendPurchaseRequest()const;
 	void processResponse( const LLSD& content );
 private:
-	void refreshRegionExperiences();
+    void refreshExperiencesFromEstate();
 
     static std::string regionCapabilityQuery(LLViewerRegion* region, const std::string &cap);
 
