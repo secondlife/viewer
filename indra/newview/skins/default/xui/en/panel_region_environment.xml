@@ -65,229 +65,273 @@
                                 text_color="white"
                                 left="5"
                                 top="2">Sky Altitudes</text>
-                        <multi_slider
-                                height="270"
-                                follows="top|left"
-                                orientation="vertical"
-                                increment="25"
-                                min_val="100"
-                                max_val="4000"
-                                thumb_image="Inv_SettingsSky"
-                                thumb_width="17"
-                                thumb_highlight_color="white"
-                                decimal_digits="0"
-                                draw_track="true"
-                                overlap_threshold="100"
-                                initial_value="0"
-                                layout="topleft"
-                                left="10"
-                                max_sliders="3"
-                                name="sld_altitudes"
-                                show_text="false"
-                                top_pad="20"
-                                use_triangle="false"
-                                width="17">
-                            <slider name="sld1"
-                                    value="1000"/>
-                            <slider name="sld2"
-                                    value="2000"/>
-                            <slider name="sld3"
-                                    value="3000"/>
-                        </multi_slider>
+                    <multi_slider
+                            height="270"
+                            follows="top|left"
+                            orientation="vertical"
+                            increment="25"
+                            min_val="100"
+                            max_val="4000"
+                            thumb_image="Inv_SettingsSky"
+                            thumb_width="17"
+                            thumb_highlight_color="white"
+                            decimal_digits="0"
+                            draw_track="true"
+                            overlap_threshold="100"
+                            initial_value="0"
+                            layout="topleft"
+                            left="10"
+                            max_sliders="3"
+                            name="sld_altitudes"
+                            show_text="false"
+                            top_pad="20"
+                            use_triangle="false"
+                            width="17">
+                        <slider name="sld1"
+                                value="1000"/>
+                        <slider name="sld2"
+                                value="2000"/>
+                        <slider name="sld3"
+                                value="3000"/>
+                    </multi_slider>
+                    <panel
+                        follows="top|left"
+                        height="21"
+                        width="222"
+                        layout="topleft"
+                        visible="true"
+                        left="10"
+                        top_pad="10"
+                        name="pnl_ground">
                         <icon
-                                follows="top|left"
-                                height="17"
-                                width="17"
-                                image_name="Inv_SettingsSky"
-                                layout="topleft"
-                                name="icon_ground"
-                                mouse_opaque="false"
-                                visible="true"
-                                left="10"
-                                xxxleft_delta="0"
-                                top_pad="10"/>
+                            follows="top|left"
+                            height="17"
+                            width="17"
+                            image_name="Inv_SettingsSky"
+                            layout="topleft"
+                            name="icon_ground"
+                            mouse_opaque="false"
+                            visible="true"
+                            top_pad="2"
+                            left_delta="0"/>
                         <text
-                                type="string"
-                                length="1"
-                                follows="left|top"
-                                height="12"
-                                layout="topleft"
-                                left_pad="8"
-                                top_delta="2"
-                                width="50"
-                                name="ground_name">
+                           type="string"
+                           length="1"
+                           follows="left|top"
+                           height="12"
+                           layout="topleft"
+                           left_pad="8"
+                           top_delta="2"
+                           width="50"
+                           name="txt_ground">
                             Ground
                         </text>
-                    <line_editor
-                            follows="top|right"
-                            enabled="false"
-                            top_delta="-3"
-                            right="-5"
-                            xxxleft="-160"
-                            height="20"
-                            layout="topleft"
-                            name="edt_invname_ground"
-                            width="155">
-                        Unknown
-                    </line_editor>
-                    <settings_drop_target
-                            height="20"
-                            top_delta="0"
-                            left_delta="0"
-                            follows="top|left"
-                            layout="topleft"
-                            name="sdt_ground"
-                            tool_tip="Drag a setting from Inventory onto this target box to select it as the ground level sky."
-                            width="155" />
-                        
+                        <line_editor
+                           follows="top|right"
+                           enabled="false"
+                           top_delta="-3"
+                           right="-5"
+                           xxxleft="-160"
+                           height="20"
+                           layout="topleft"
+                           name="edt_invname_ground"
+                           width="155">
+                            Unknown
+                        </line_editor>
+                        <settings_drop_target
+                           height="20"
+                           top_delta="0"
+                           left_delta="0"
+                           follows="top|left"
+                           layout="topleft"
+                           name="sdt_ground"
+                           tool_tip="Drag a setting from Inventory onto this target box to select it as the ground level sky."
+                           width="155" />
+                    </panel>
+                    <panel
+                         follows="top|left"
+                         height="21"
+                         width="222"
+                         layout="topleft"
+                         visible="true"
+                         left="10"
+                         top_pad="10"
+                         name="pnl_water">
                         <icon
-                                follows="left|top"
-                                height="17"
-                                width="17"
-                                image_name="Inv_SettingsWater"
-                                layout="topleft"
-                                name="icon_water"
-                                mouse_opaque="false"
-                                visible="true"
-                                left="10"
-                                top_pad="10"/>
+                           follows="left|top"
+                           height="17"
+                           width="17"
+                           image_name="Inv_SettingsWater"
+                           layout="topleft"
+                           name="icon_water"
+                           mouse_opaque="false"
+                           visible="true"
+                           top_pad="2"
+                           left_delta="0"/>
                         <text
-                                type="string"
-                                length="1"
-                                follows="left|top"
-                                height="12"
-                                layout="topleft"
-                                left_pad="8"
-                                top_delta="2"
-                                width="200"
-                                name="water_name">
+                           type="string"
+                           length="1"
+                           follows="left|top"
+                           height="12"
+                           layout="topleft"
+                           left_pad="8"
+                           top_delta="2"
+                           width="200"
+                           name="txt_water">
                             Water
                         </text>
-                    <line_editor
-                            follows="top|right"
-                            enabled="false"
-                            top_delta="-3"
-                            right="-5"
-                            xxxleft="-160"
-                            height="20"
-                            layout="topleft"
-                            name="edt_invname_water"
-                            width="155">
-                        Unknown
-                    </line_editor>
-                    <settings_drop_target
-                            height="20"
-                            top_delta="0"
-                            left_delta="0"
-                            follows="top|left"
-                            layout="topleft"
-                            name="sdt_water"
-                            tool_tip="Drag a setting from Inventory onto this target box to select it as current water."
-                            width="155" />
-                        
+                        <line_editor
+                                follows="top|right"
+                                enabled="false"
+                                top_delta="-3"
+                                right="-5"
+                                xxxleft="-160"
+                                height="20"
+                                layout="topleft"
+                                name="edt_invname_water"
+                                width="155">
+                            Unknown
+                        </line_editor>
+                        <settings_drop_target
+                                height="20"
+                                top_delta="0"
+                                left_delta="0"
+                                follows="top|left"
+                                layout="topleft"
+                                name="sdt_water"
+                                tool_tip="Drag a setting from Inventory onto this target box to select it as current water."
+                                width="155" />
+                    </panel>
+                    <panel
+                         follows="top|left"
+                         height="21"
+                         width="205"
+                         layout="topleft"
+                         visible="true"
+                         left="35"
+                         top="30"
+                         name="pnl_alt1">
                         <text
                                 type="string"
                                 length="1"
                                 follows="left"
                                 height="12"
                                 layout="topleft"
-                                left="35"
-                                top="30"
+                                top_pad="5"
+                                left_delta="0"
                                 width="200"
-                                name="alt1">
+                                name="txt_alt1">
                             Sky [INDEX]([ALTITUDE]m)
                         </text>
-                    <line_editor
-                            follows="top|right"
-                            enabled="false"
-                            top_delta="-3"
-                            right="-5"
-                            xxxleft="-160"
-                            height="20"
-                            layout="topleft"
-                            name="edt_invname_alt1"
-                            width="155">
-                        Unknown
-                    </line_editor>
-                    <settings_drop_target
-                            height="20"
-                            top_delta="0"
-                            left_delta="0"
-                            follows="top|left"
-                            layout="topleft"
-                            name="sdt_alt2"
-                            tool_tip="Drag a setting from Inventory onto this target box to select it as current water."
-                            width="155" />
-                        
+                        <line_editor
+                                follows="top|right"
+                                enabled="false"
+                                top_delta="-3"
+                                right="-5"
+                                xxxleft="-160"
+                                height="20"
+                                layout="topleft"
+                                name="edt_invname_alt1"
+                                width="155">
+                            Unknown
+                        </line_editor>
+                        <settings_drop_target
+                                height="20"
+                                top_delta="0"
+                                left_delta="0"
+                                follows="top|left"
+                                layout="topleft"
+                                name="sdt_alt2"
+                                tool_tip="Drag a setting from Inventory onto this target box to select it as current water."
+                                width="155" />
+                    </panel>
+                    <panel
+                         follows="top|left"
+                         height="21"
+                         width="205"
+                         layout="topleft"
+                         visible="true"
+                         left="35"
+                         top="50"
+                         name="pnl_alt2">
                         <text
                                 type="string"
                                 length="1"
                                 follows="left|top"
                                 height="12"
                                 layout="topleft"
-                                left="35"
-                                top="40"
+                                top_pad="5"
+                                left_delta="0"
                                 width="200"
-                                name="alt2">
+                                name="txt_alt2">
                             Sky [INDEX]([ALTITUDE]m)
                         </text>
-                    <line_editor
-                            follows="top|right"
-                            enabled="false"
-                            top_delta="-3"
-                            right="-5"
-                            xxxleft="-160"
-                            height="20"
-                            layout="topleft"
-                            name="edt_invname_alt2"
-                            width="155">
-                        Unknown
-                    </line_editor>
-                    <settings_drop_target
-                            height="20"
-                            top_delta="0"
-                            left_delta="0"
-                            follows="top|left"
-                            layout="topleft"
-                            name="sdt_alt2"
-                            tool_tip="Drag a setting from Inventory onto this target box to select it as current water."
-                            width="155" />
-                        
+                        <line_editor
+                                follows="top|right"
+                                enabled="false"
+                                top_delta="-3"
+                                right="-5"
+                                xxxleft="-160"
+                                height="20"
+                                layout="topleft"
+                                name="edt_invname_alt2"
+                                width="155">
+                            Unknown
+                        </line_editor>
+                        <settings_drop_target
+                                height="20"
+                                top_delta="0"
+                                left_delta="0"
+                                follows="top|left"
+                                layout="topleft"
+                                name="sdt_alt2"
+                                tool_tip="Drag a setting from Inventory onto this target box to select it as current water."
+                                width="155" />
+                    </panel>
+                    <panel
+                         follows="top|left"
+                         height="21"
+                         width="205"
+                         layout="topleft"
+                         visible="true"
+                         left="35"
+                         top="70"
+                         name="pnl_alt3">
                         <text
                                 type="string"
                                 length="1"
                                 follows="left|top"
                                 height="12"
                                 layout="topleft"
-                                left="35"
-                                top="50"
+                                top_pad="5"
+                                left_delta="0"
                                 width="200"
-                                name="alt3">
+                                name="txt_alt3">
                             Sky [INDEX]([ALTITUDE]m)
                         </text>
-                    <line_editor
-                            follows="top|right"
-                            enabled="false"
-                            top_delta="-3"
-                            right="-5"
-                            xxxleft="-160"
-                            height="20"
-                            layout="topleft"
-                            name="edt_invname_alt3"
-                            width="155">
-                        Unknown
-                    </line_editor>
-                    <settings_drop_target
-                            height="20"
-                            top_delta="0"
-                            left_delta="0"
-                            follows="top|left"
-                            layout="topleft"
-                            name="sdt_alt3"
-                            tool_tip="Drag a setting from Inventory onto this target box to select it as current water."
-                            width="155" />
-                        
-                </layout_panel>                    
+                        <line_editor
+                                follows="top|right"
+                                enabled="false"
+                                top_delta="-3"
+                                right="-5"
+                                xxxleft="-160"
+                                height="20"
+                                layout="topleft"
+                                name="edt_invname_alt3"
+                                width="155">
+                            Unknown
+                        </line_editor>
+                        <settings_drop_target
+                                height="20"
+                                top_delta="0"
+                                left_delta="0"
+                                follows="top|left"
+                                layout="topleft"
+                                name="sdt_alt3"
+                                tool_tip="Drag a setting from Inventory onto this target box to select it as current water."
+                                width="155" />
+                    </panel>
+                </layout_panel>
                 <layout_panel
                         auto_resize="true"
                         user_resize="false"
