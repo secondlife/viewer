@@ -1,9 +1,9 @@
 /** 
- * @file class3\deferred\sunLightF.glsl
+ * @file treeShadowF.glsl
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2005, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,8 +23,6 @@
  * $/LicenseInfo$
  */
 
-#extension GL_ARB_texture_rectangle : enable
-
 /*[EXTRA_CODE_HERE]*/
 
 #ifdef DEFINE_GL_FRAGCOLOR
@@ -33,26 +31,29 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-//class 2, shadows, no SSAO
+uniform float minimum_alpha;
 
-// Inputs
-VARYING vec2 vary_fragcoord;
+uniform sampler2D diffuseMap;
 
-vec3 decode_normal (vec2 enc);
-vec4 getPosition(vec2 pos_screen);
-vec3 getNorm(vec2 pos_screen);
+VARYING vec4 pos;
+VARYING vec2 vary_texcoord0;
 
-float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen); 
-float sampleSpotShadow(vec3 pos, vec3 norm, int index, vec2 pos_screen); 
+vec4 computeMoments(float d, float a);
 
 void main() 
 {
-	vec2 pos_screen = vary_fragcoord.xy;
-	vec4 pos = getPosition(pos_screen);
-	vec3 norm = getNorm(pos_screen);
+	float alpha = texture2D(diffuseMap, vary_texcoord0.xy).a;
 
-	frag_color.r = sampleDirectionalShadow(pos.xyz, norm, pos_screen);
-	frag_color.g = 1.0f;
-    frag_color.b = sampleSpotShadow(pos.xyz, norm, 0, pos_screen);
-    frag_color.a = sampleSpotShadow(pos.xyz, norm, 1, pos_screen);
+	if (alpha < minimum_alpha)
+	{
+		discard;
+	}
+
+    frag_color = computeMoments(length(pos), 1.0);
+
+#if !DEPTH_CLAMP
+	gl_FragDepth = max(pos.z/pos.w*0.5+0.5, 0.0);
+#endif
+
 }
+

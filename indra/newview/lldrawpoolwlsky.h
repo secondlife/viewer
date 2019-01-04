@@ -62,6 +62,12 @@ public:
 	/*virtual*/ void beginRenderPass( S32 pass );
 	/*virtual*/ void endRenderPass( S32 pass );
 	/*virtual*/ S32	 getNumPasses() { return 1; }
+
+    /*virtual*/ S32 getNumShadowPasses();
+	/*virtual*/ void beginShadowPass(S32 pass);
+	/*virtual*/ void endShadowPass(S32 pass);
+	/*virtual*/ void renderShadow(S32 pass);
+
 	/*virtual*/ void render(S32 pass = 0);
 	/*virtual*/ void prerender();
 	/*virtual*/ U32 getVertexDataMask() { return SKY_VERTEX_DATA_MASK; }

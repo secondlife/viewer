@@ -1,5 +1,5 @@
 /** 
- * @file class3\deferred\sunLightF.glsl
+ * @file avatarShadowV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -22,37 +22,47 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
+ 
+uniform mat4 projection_matrix;
 
-#extension GL_ARB_texture_rectangle : enable
+mat4 getSkinnedTransform();
 
-/*[EXTRA_CODE_HERE]*/
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec3 normal;
+ATTRIBUTE vec2 texcoord0;
 
-#ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
+#if !DEPTH_CLAMP
+VARYING vec4 post_pos;
 #endif
 
-//class 2, shadows, no SSAO
+VARYING vec4 pos;
 
-// Inputs
-VARYING vec2 vary_fragcoord;
-
-vec3 decode_normal (vec2 enc);
-vec4 getPosition(vec2 pos_screen);
-vec3 getNorm(vec2 pos_screen);
-
-float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen); 
-float sampleSpotShadow(vec3 pos, vec3 norm, int index, vec2 pos_screen); 
-
-void main() 
+void main()
 {
-	vec2 pos_screen = vary_fragcoord.xy;
-	vec4 pos = getPosition(pos_screen);
-	vec3 norm = getNorm(pos_screen);
+	vec3 norm;
+	
+	vec4 pos_in = vec4(position.xyz, 1.0);
+	mat4 trans = getSkinnedTransform();
 
-	frag_color.r = sampleDirectionalShadow(pos.xyz, norm, pos_screen);
-	frag_color.g = 1.0f;
-    frag_color.b = sampleSpotShadow(pos.xyz, norm, 0, pos_screen);
-    frag_color.a = sampleSpotShadow(pos.xyz, norm, 1, pos_screen);
+	pos.x = dot(trans[0], pos_in);
+	pos.y = dot(trans[1], pos_in);
+	pos.z = dot(trans[2], pos_in);
+	pos.w = 1.0;
+	
+	norm.x = dot(trans[0].xyz, normal);
+	norm.y = dot(trans[1].xyz, normal);
+	norm.z = dot(trans[2].xyz, normal);
+	norm = normalize(norm);
+	
+	pos = projection_matrix * pos;
+
+#if !DEPTH_CLAMP
+	post_pos = pos;
+	gl_Position = vec4(pos.x, pos.y, pos.w*0.5, pos.w);
+#else
+	gl_Position = pos;
+#endif
+
 }
+
+

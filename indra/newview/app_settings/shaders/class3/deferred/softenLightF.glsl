@@ -76,11 +76,7 @@ vec3 GetSunAndSkyIrradiance(vec3 camPos, vec3 norm, vec3 dir, out vec3 sky_irrad
 vec3 GetSkyLuminance(vec3 camPos, vec3 view_dir, float shadow_length, vec3 dir, out vec3 transmittance);
 vec3 GetSkyLuminanceToPoint(vec3 camPos, vec3 pos, float shadow_length, vec3 dir, out vec3 transmittance);
 
-vec3 scaleSoftClipFrag(vec3 c);
-vec3 srgb_to_linear(vec3 cs);
-vec3 linear_to_srgb(vec3 cl);
-vec3 decode_normal (vec2 enc);
-
+vec3 decode_normal(vec2 xy);
 vec3 ColorFromRadiance(vec3 radiance);
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 vec4 getPosition(vec2 pos_screen);
@@ -92,32 +88,31 @@ vec4 applyWaterFogView(vec3 pos, vec4 color);
 
 void main() 
 {
-	vec2 tc = vary_fragcoord.xy;
-	float depth = texture2DRect(depthMap, tc.xy).r;
-	vec3 pos = getPositionWithDepth(tc, depth).xyz;
-	vec4 norm = texture2DRect(normalMap, tc);
-	float envIntensity = norm.z;
+    vec2 tc = vary_fragcoord.xy;
+    float depth = texture2DRect(depthMap, tc.xy).r;
+    vec3 pos = getPositionWithDepth(tc, depth).xyz;
+    vec4 norm = texture2DRect(normalMap, tc);
+    float envIntensity = norm.z;
     norm.xyz = decode_normal(norm.xy);
 
-	float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
+    float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
+              da = pow(da, global_gamma + 0.3);
 
-	float light_gamma = 1.0/1.3;
+    vec4 diffuse = texture2DRect(diffuseRect, tc); // linear
 
-	vec4 diffuse = texture2DRect(diffuseRect, tc); // linear
-
-	vec3 col;
-	float bloom = 0.0;
-	{
+    vec3 col;
+    float bloom = 0.0;
+    {
         vec3 camPos = (camPosLocal / 1000.0f) + vec3(0, 0, 6360.0f);
 
-		vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
-		
-		vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
-		scol_ambocc = pow(scol_ambocc, vec2(light_gamma));
+        vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
+        
+        vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
+//        scol_ambocc = pow(scol_ambocc, vec3(global_gamma + 0.3));
 
-		float scol = max(scol_ambocc.r, diffuse.a); 
+        float scol = max(scol_ambocc.r, diffuse.a); 
 
-		float ambocc = scol_ambocc.g;
+        float ambocc = scol_ambocc.g;
 
         vec4 l1tap = vec4(1.0/sqrt(4*3.14159265), sqrt(3)/sqrt(4*3.14159265), sqrt(3)/sqrt(4*3.14159265), sqrt(3)/sqrt(4*3.14159265));
         vec4 l1r = texture2D(sh_input_r, vec2(0,0));
@@ -142,46 +137,44 @@ void main()
         col *= transmittance;
         col *= diffuse.rgb;
 
-		vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
+        vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
-		if (spec.a > 0.0) // specular reflection
-		{
-			// the old infinite-sky shiny reflection
-			//
-			float sa = dot(refnormpersp, sun_dir.xyz);
-			vec3 dumbshiny = scol * texture2D(lightFunc, vec2(sa, spec.a)).r * atmo_color;
-			
-			// add the two types of shiny together
-			vec3 spec_contrib = dumbshiny * spec.rgb;
-			bloom = dot(spec_contrib, spec_contrib) / 6;
-			col += spec_contrib;
-		}
+        if (spec.a > 0.0) // specular reflection
+        {
+            // the old infinite-sky shiny reflection
+            //
+            float sa = dot(refnormpersp, sun_dir.xyz);
+            vec3 dumbshiny = scol * texture2D(lightFunc, vec2(sa, spec.a)).r * atmo_color;
+            
+            // add the two types of shiny together
+            vec3 spec_contrib = dumbshiny * spec.rgb;
+            bloom = dot(spec_contrib, spec_contrib) / 6;
+            col += spec_contrib;
+        }
 
-		col = mix(col, diffuse.rgb, diffuse.a);
+        col = mix(col, diffuse.rgb, diffuse.a);
 
-		if (envIntensity > 0.0)
-		{ //add environmentmap
-			vec3 env_vec = env_mat * refnormpersp;
+        if (envIntensity > 0.0)
+        { //add environmentmap
+            vec3 env_vec = env_mat * refnormpersp;
             vec3 sun_direction  = (inv_modelview * vec4(sun_dir, 1.0)).xyz;
             vec3 radiance_sun  = GetSkyLuminance(camPos, env_vec, 0.0f, sun_direction, transmittance);
             vec3 refcol = ColorFromRadiance(radiance_sun);
-			col = mix(col.rgb, refcol, envIntensity);
-		}
-						
-		/*if (norm.w < 0.5)
-		{
-			col = scaleSoftClipFrag(col);
-		}*/
+            col = mix(col.rgb, refcol, envIntensity);
+        }
+                        
+        /*if (norm.w < 0.5)
+        {
+            col = scaleSoftClipFrag(col);
+        }*/
 
-		#ifdef WATER_FOG
-			vec4 fogged = applyWaterFogView(pos,vec4(col, bloom));
-			col = fogged.rgb;
-			bloom = fogged.a;
-		#endif
-
-        col = pow(col, vec3(light_gamma));
-	}
-	
-	frag_color.rgb = col;
-	frag_color.a = bloom;
+        #ifdef WATER_FOG
+            vec4 fogged = applyWaterFogView(pos,vec4(col, bloom));
+            col = fogged.rgb;
+            bloom = fogged.a;
+        #endif
+    }
+    
+    frag_color.rgb = col;
+    frag_color.a = bloom;
 }

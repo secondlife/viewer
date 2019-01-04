@@ -117,6 +117,10 @@
 
 #include "llenvironment.h"
 
+#if LL_WINDOWS
+#pragma optimize("", off)
+#endif
+
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
 //#define DEBUG_INDICES
@@ -9842,7 +9846,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 	gGL.loadMatrix(proj.m);
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.pushMatrix();
-	gGL.loadMatrix(gGLModelView);
+	gGL.loadMatrix(view.m);
 
 	stop_glerror();
 	gGLLastMatrix = NULL;

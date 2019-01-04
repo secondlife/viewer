@@ -177,6 +177,7 @@ LLGLSLShader		gImpostorProgram;
 // WindLight shader handles
 LLGLSLShader			gWLSkyProgram;
 LLGLSLShader			gWLCloudProgram;
+LLGLSLShader			gWLCloudShadowProgram;
 LLGLSLShader			gWLSunProgram;
 LLGLSLShader			gWLMoonProgram;
 
@@ -234,6 +235,7 @@ LLGLSLShader			gFXAAProgram;
 LLGLSLShader			gDeferredPostNoDoFProgram;
 LLGLSLShader			gDeferredWLSkyProgram;
 LLGLSLShader			gDeferredWLCloudProgram;
+LLGLSLShader			gDeferredWLCloudShadowProgram;
 LLGLSLShader			gDeferredWLSunProgram;
 LLGLSLShader			gDeferredWLMoonProgram;
 LLGLSLShader			gDeferredStarProgram;
@@ -258,6 +260,7 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	//ONLY shaders that need WL Param management should be added here
 	mShaderList.push_back(&gWLSkyProgram);
 	mShaderList.push_back(&gWLCloudProgram);
+    mShaderList.push_back(&gWLCloudShadowProgram);
     mShaderList.push_back(&gWLSunProgram);
     mShaderList.push_back(&gWLMoonProgram);
 	mShaderList.push_back(&gAvatarProgram);
@@ -352,6 +355,7 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gDeferredAvatarAlphaProgram);
 	mShaderList.push_back(&gDeferredWLSkyProgram);
 	mShaderList.push_back(&gDeferredWLCloudProgram);
+    mShaderList.push_back(&gDeferredWLCloudShadowProgram);
     mShaderList.push_back(&gDeferredWLMoonProgram);
     mShaderList.push_back(&gDeferredWLSunProgram);
     mShaderList.push_back(&gDeferredGenSkyShProgram);
@@ -491,7 +495,6 @@ void LLViewerShaderMgr::setShaders()
         bool useRenderDeferred       = canRenderDeferred && gSavedSettings.getBOOL("RenderDeferred") && gSavedSettings.getBOOL("RenderAvatarVP");
         bool doingWindLight          = hasWindLightShaders && gSavedSettings.getBOOL("WindLightUseAtmosShaders");
         bool useAdvancedAtmospherics = doingWindLight && gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics");
-        (void)useAdvancedAtmospherics;
 
 		//using shaders, disable fixed function
 		LLGLSLShader::sNoFixedFunction = true;
@@ -510,6 +513,12 @@ void LLViewerShaderMgr::setShaders()
 		{
 			transform_class = 0;
 		}
+
+        if (useAdvancedAtmospherics)
+        {
+            deferred_class = 3;
+            wl_class       = 3;
+        }
 
 		if (useRenderDeferred && doingWindLight)
 		{
@@ -872,6 +881,7 @@ void LLViewerShaderMgr::unloadShaders()
 
 	gWLSkyProgram.unload();
 	gWLCloudProgram.unload();
+    gWLCloudShadowProgram.unload();
     gWLSunProgram.unload();
     gWLMoonProgram.unload();
 
@@ -1270,6 +1280,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredUnderWaterProgram.unload();
 		gDeferredWLSkyProgram.unload();
 		gDeferredWLCloudProgram.unload();
+        gDeferredWLCloudShadowProgram.unload();
         gDeferredWLSunProgram.unload();
         gDeferredWLMoonProgram.unload();
 		gDeferredStarProgram.unload();
@@ -1572,6 +1583,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredTreeShadowProgram.mName = "Deferred Tree Shadow Shader";
 		gDeferredTreeShadowProgram.mShaderFiles.clear();
         gDeferredTreeShadowProgram.mFeatures.isDeferred = true;
+        gDeferredTreeShadowProgram.mFeatures.hasShadows = true;
 		gDeferredTreeShadowProgram.mShaderFiles.push_back(make_pair("deferred/treeShadowV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredTreeShadowProgram.mShaderFiles.push_back(make_pair("deferred/treeShadowF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredTreeShadowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
@@ -2129,6 +2141,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		gDeferredShadowProgram.mName = "Deferred Shadow Shader";
         gDeferredShadowProgram.mFeatures.isDeferred = true;
+        gDeferredShadowProgram.mFeatures.hasShadows = true;
 		gDeferredShadowProgram.mShaderFiles.clear();
 		gDeferredShadowProgram.mShaderFiles.push_back(make_pair("deferred/shadowV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredShadowProgram.mShaderFiles.push_back(make_pair("deferred/shadowF.glsl", GL_FRAGMENT_SHADER_ARB));
@@ -2142,6 +2155,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		gDeferredShadowCubeProgram.mName = "Deferred Shadow Cube Shader";
         gDeferredShadowCubeProgram.mFeatures.isDeferred = true;
+        gDeferredShadowCubeProgram.mFeatures.hasShadows = true;
 		gDeferredShadowCubeProgram.mShaderFiles.clear();
 		gDeferredShadowCubeProgram.mShaderFiles.push_back(make_pair("deferred/shadowCubeV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredShadowCubeProgram.mShaderFiles.push_back(make_pair("deferred/shadowF.glsl", GL_FRAGMENT_SHADER_ARB));
@@ -2156,6 +2170,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredShadowAlphaMaskProgram.mName = "Deferred Shadow Alpha Mask Shader";
 		gDeferredShadowAlphaMaskProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
         gDeferredShadowAlphaMaskProgram.mFeatures.isDeferred = true;
+        gDeferredShadowAlphaMaskProgram.mFeatures.hasShadows = true;
 		gDeferredShadowAlphaMaskProgram.mShaderFiles.clear();
 		gDeferredShadowAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/shadowAlphaMaskV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredShadowAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/shadowAlphaMaskF.glsl", GL_FRAGMENT_SHADER_ARB));
@@ -2170,6 +2185,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarShadowProgram.mName = "Deferred Avatar Shadow Shader";
 		gDeferredAvatarShadowProgram.mFeatures.hasSkinning = true;
         gDeferredAvatarShadowProgram.mFeatures.isDeferred = true;
+        gDeferredAvatarShadowProgram.mFeatures.hasShadows = true;
 		gDeferredAvatarShadowProgram.mShaderFiles.clear();
 		gDeferredAvatarShadowProgram.mShaderFiles.push_back(make_pair("deferred/avatarShadowV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredAvatarShadowProgram.mShaderFiles.push_back(make_pair("deferred/avatarShadowF.glsl", GL_FRAGMENT_SHADER_ARB));
@@ -2184,6 +2200,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAttachmentShadowProgram.mName = "Deferred Attachment Shadow Shader";
 		gDeferredAttachmentShadowProgram.mFeatures.hasObjectSkinning = true;
         gDeferredAttachmentShadowProgram.mFeatures.isDeferred = true;
+        gDeferredAttachmentShadowProgram.mFeatures.hasShadows = true;
 		gDeferredAttachmentShadowProgram.mShaderFiles.clear();
 		gDeferredAttachmentShadowProgram.mShaderFiles.push_back(make_pair("deferred/attachmentShadowV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredAttachmentShadowProgram.mShaderFiles.push_back(make_pair("deferred/attachmentShadowF.glsl", GL_FRAGMENT_SHADER_ARB));
@@ -2372,6 +2389,24 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             gDeferredWLCloudProgram.mExtraLinkObject = gAtmosphere->getAtmosphericShaderForLink();
         }
 		success = gDeferredWLCloudProgram.createShader(NULL, NULL);
+        llassert(success);
+	}
+
+    if (success && (mShaderLevel[SHADER_DEFERRED] > 2))
+	{
+		gDeferredWLCloudShadowProgram.mName = "Deferred Cloud Shadow Program";
+		gDeferredWLCloudShadowProgram.mShaderFiles.clear();
+        gDeferredWLCloudShadowProgram.mFeatures.calculatesAtmospherics = true;
+		gDeferredWLCloudShadowProgram.mFeatures.hasTransport = true;
+        gDeferredWLCloudShadowProgram.mFeatures.hasGamma = true;
+        gDeferredWLCloudShadowProgram.mFeatures.hasSrgb = true;
+        gDeferredWLCloudShadowProgram.mFeatures.isDeferred = true;
+        gDeferredWLCloudShadowProgram.mFeatures.hasShadows = true;
+		gDeferredWLCloudShadowProgram.mShaderFiles.push_back(make_pair("deferred/cloudShadowV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredWLCloudShadowProgram.mShaderFiles.push_back(make_pair("deferred/cloudShadowF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredWLCloudShadowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+		gDeferredWLCloudShadowProgram.mShaderGroup = LLGLSLShader::SG_SKY;
+		success = gDeferredWLCloudShadowProgram.createShader(NULL, NULL);
         llassert(success);
 	}
 
@@ -3784,6 +3819,7 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 	{
 		gWLSkyProgram.unload();
 		gWLCloudProgram.unload();
+        gWLCloudShadowProgram.unload();
         gWLSunProgram.unload();
         gWLMoonProgram.unload();
 		gDownsampleMinMaxDepthRectProgram.unload();
@@ -3828,6 +3864,20 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 		gWLCloudProgram.mShaderLevel = mShaderLevel[SHADER_WINDLIGHT];
 		gWLCloudProgram.mShaderGroup = LLGLSLShader::SG_SKY;
 		success = gWLCloudProgram.createShader(NULL, NULL);
+	}
+
+    if (success)
+	{
+		gWLCloudShadowProgram.mName = "Windlight Cloud Shadow Program";
+		gWLCloudShadowProgram.mShaderFiles.clear();
+        gWLCloudShadowProgram.mFeatures.hasGamma = true;
+        gWLCloudShadowProgram.mFeatures.hasShadows = true;
+        gWLCloudShadowProgram.mFeatures.isDeferred = true;
+		gWLCloudShadowProgram.mShaderFiles.push_back(make_pair("windlight/cloudShadowV.glsl", GL_VERTEX_SHADER_ARB));
+		gWLCloudShadowProgram.mShaderFiles.push_back(make_pair("windlight/cloudShadowF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gWLCloudShadowProgram.mShaderLevel = mShaderLevel[SHADER_WINDLIGHT];
+		gWLCloudShadowProgram.mShaderGroup = LLGLSLShader::SG_SKY;
+		success = gWLCloudShadowProgram.createShader(NULL, NULL);
 	}
 
     if (success)

@@ -1,5 +1,5 @@
 /** 
- * @file class3\deferred\sunLightSSAOF.glsl
+ * @file avatarShadowF.glsl
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2007, Linden Research, Inc.
@@ -21,8 +21,6 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
-#extension GL_ARB_texture_rectangle : enable
 
 /*[EXTRA_CODE_HERE]*/
 
@@ -32,30 +30,15 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-//class 2 -- shadows and SSAO
+uniform sampler2D diffuseMap;
 
-// Inputs
-VARYING vec2 vary_fragcoord;
+VARYING vec4 pos;
+VARYING vec2 vary_texcoord0;
 
-uniform vec3 sun_dir;
-
-vec4 getPosition(vec2 pos_screen);
-vec3 getNorm(vec2 pos_screen);
-
-float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
-float sampleSpotShadow(vec3 pos, vec3 norm, int index, vec2 pos_screen);
-
-//calculate decreases in ambient lighting when crowded out (SSAO)
-float calcAmbientOcclusion(vec4 pos, vec3 norm, vec2 pos_screen);
+vec4 computeMoments(float depth, float a);
 
 void main() 
 {
-	vec2 pos_screen = vary_fragcoord.xy;
-	vec4 pos        = getPosition(pos_screen);
-	vec3 norm       = getNorm(pos_screen);
-
-	frag_color.r = sampleDirectionalShadow(pos.xyz, norm, pos_screen);
-    frag_color.b = calcAmbientOcclusion(pos, norm, pos_screen);
-    frag_color.b = sampleSpotShadow(pos.xyz, norm, 0, pos_screen);
-    frag_color.a = sampleSpotShadow(pos.xyz, norm, 1, pos_screen);
+    frag_color = computeMoments(length(pos), 1.0);
 }
+

@@ -1,6 +1,5 @@
 /** 
- * @file class3\deferred\sunLightF.glsl
- *
+ * @file attachmentShadowV.glsl
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2007, Linden Research, Inc.
@@ -23,36 +22,30 @@
  * $/LicenseInfo$
  */
 
-#extension GL_ARB_texture_rectangle : enable
+uniform mat4 projection_matrix;
+uniform mat4 modelview_matrix;
+uniform mat4 texture_matrix0;
 
-/*[EXTRA_CODE_HERE]*/
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec2 texcoord0;
 
-#ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
+mat4 getObjectSkinnedTransform();
 
-//class 2, shadows, no SSAO
+VARYING vec4 pos;
 
-// Inputs
-VARYING vec2 vary_fragcoord;
-
-vec3 decode_normal (vec2 enc);
-vec4 getPosition(vec2 pos_screen);
-vec3 getNorm(vec2 pos_screen);
-
-float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen); 
-float sampleSpotShadow(vec3 pos, vec3 norm, int index, vec2 pos_screen); 
-
-void main() 
+void main()
 {
-	vec2 pos_screen = vary_fragcoord.xy;
-	vec4 pos = getPosition(pos_screen);
-	vec3 norm = getNorm(pos_screen);
+	//transform vertex
+	mat4 mat = getObjectSkinnedTransform();
+	
+	mat = modelview_matrix * mat;
+	pos = (mat*vec4(position.xyz, 1.0));
+	pos = projection_matrix * vec4(pos.xyz, 1.0);
 
-	frag_color.r = sampleDirectionalShadow(pos.xyz, norm, pos_screen);
-	frag_color.g = 1.0f;
-    frag_color.b = sampleSpotShadow(pos.xyz, norm, 0, pos_screen);
-    frag_color.a = sampleSpotShadow(pos.xyz, norm, 1, pos_screen);
+#if !DEPTH_CLAMP
+	pos.z = max(pos.z, -pos.w+0.01);
+	gl_Position = pos;
+#else
+	gl_Position = pos;
+#endif
 }

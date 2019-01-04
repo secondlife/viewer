@@ -1,7 +1,7 @@
 /** 
- * @file gammaF.glsl
+ * @file treeShadowV.glsl
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2007, Linden Research, Inc.
  * 
@@ -22,33 +22,22 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
+
+uniform mat4 texture_matrix0;
+uniform mat4 modelview_projection_matrix;
  
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec2 texcoord0;
 
+VARYING vec4 pos;
+VARYING vec2 vary_texcoord0;
 
-uniform vec4 gamma;
-uniform int no_atmo;
-
-vec3 scaleSoftClipFrag(vec3 light) {
-    if (no_atmo == 1)
-    {
-        return light;
-    }
-	light = 1. - clamp(light, vec3(0.), vec3(1.));
-	light = 1. - pow(light, gamma.xxx);
-	return light;
-}
-
-/// Soft clips the light with a gamma correction
-vec3 scaleSoftClip(vec3 light) {
-	return scaleSoftClipFrag(light);
-}
-
-vec3 fullbrightScaleSoftClipFrag(vec3 light, vec3 add, vec3 atten)
+void main()
 {
-	return scaleSoftClipFrag(light.rgb);
-}
+	//transform vertex
+	pos = modelview_projection_matrix*vec4(position.xyz, 1.0);
 
-vec3 fullbrightScaleSoftClip(vec3 light) {
-	return fullbrightScaleSoftClipFrag(light.rgb);
+	gl_Position = vec4(pos.x, pos.y, pos.w*0.5, pos.w);
+	
+	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 }
-
