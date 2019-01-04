@@ -78,7 +78,7 @@ vec3 decode_normal (vec2 enc);
 
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
-vec3 fullbrightScaleSoftClipFrag(vec3 l);
+vec3 fullbrightScaleSoftClipFrag(vec3 l, vec3 add, vec3 atten);
 vec3 scaleSoftClipFrag(vec3 l);
 
 vec3 atmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
@@ -166,7 +166,7 @@ void main()
         if (norm.w < 0.5)
         {
             col = mix(atmosFragLighting(col, additive, atten), fullbrightAtmosTransportFrag(col, additive, atten), diffuse.a);
-            col = mix(scaleSoftClipFrag(col), fullbrightScaleSoftClipFrag(col), diffuse.a);
+            col = mix(scaleSoftClipFrag(col), fullbrightScaleSoftClipFrag(col, additive, atten), diffuse.a);
         }
 
         #ifdef WATER_FOG

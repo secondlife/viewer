@@ -77,7 +77,6 @@ vec3 GetSkyLuminance(vec3 camPos, vec3 view_dir, float shadow_length, vec3 dir, 
 vec3 GetSkyLuminanceToPoint(vec3 camPos, vec3 pos, float shadow_length, vec3 dir, out vec3 transmittance);
 
 vec3 scaleSoftClipFrag(vec3 c);
-vec3 fullbrightScaleSoftClipFrag(vec3 c);
 vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cl);
 vec3 decode_normal (vec2 enc);

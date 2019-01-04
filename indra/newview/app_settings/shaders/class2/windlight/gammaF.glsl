@@ -47,7 +47,7 @@ vec3 scaleSoftClip(vec3 light)
     return scaleSoftClipFrag(light);
 }
 
-vec3 fullbrightScaleSoftClipFrag(vec3 light) {
+vec3 fullbrightScaleSoftClipFrag(vec3 light, vec3 add, vec3 atten) {
     return scaleSoftClipFrag(light.rgb); 
 }
 
