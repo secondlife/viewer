@@ -74,31 +74,18 @@ void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, 
 vec3 scaleSoftClip(vec3 l);
 vec3 fullbrightScaleSoftClip(vec3 l);
 
-vec4 getPosition_d(vec2 pos_screen, float depth)
-{
-    vec2 sc = pos_screen.xy*2.0;
-    sc /= screen_res;
-    sc -= vec2(1.0,1.0);
-    vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
-    vec4 pos = inv_proj * ndc;
-    pos /= pos.w;
-    pos.w = 1.0;
-    return pos;
-}
-
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
-vec4 getPosition(vec2 pos_screen);
 
 void main() 
 {
-    vec2 tc = vary_fragcoord.xy;
-    float depth = texture2DRect(depthMap, tc.xy).r;
-    vec3 pos = getPositionWithDepth(tc, depth).xyz;
-    vec4 norm = texture2DRect(normalMap, tc);
-    float envIntensity = norm.z;
-    norm.xyz = decode_normal(norm.xy); // unpack norm
-        
-    float da_sun  = dot(norm.xyz, normalize(sun_dir.xyz));
+	vec2 tc = vary_fragcoord.xy;
+	float depth = texture2DRect(depthMap, tc.xy).r;
+	vec4 pos = getPositionWithDepth(tc, depth);
+	vec4 norm = texture2DRect(normalMap, tc);
+	float envIntensity = norm.z;
+	norm.xyz = decode_normal(norm.xy); // unpack norm
+		
+	float da_sun  = dot(norm.xyz, normalize(sun_dir.xyz));
     float da_moon = dot(norm.xyz, normalize(moon_dir.xyz));
     float da = max(da_sun, da_moon);
 

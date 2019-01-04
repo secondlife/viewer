@@ -92,6 +92,8 @@ vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten);
 vec3 atmosFragAffectDirectionalLight(float light, vec3 sunlit);
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
 
+float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
+
 vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight)
 {
     //get light vector
@@ -132,28 +134,6 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
     return max(col, vec3(0.0,0.0,0.0));
 }
 
-#if HAS_SHADOW
-float pcfShadowLegacy(sampler2DShadow shadowMap, vec4 stc)
-{
-	stc.xyz /= stc.w;
-	stc.z += shadow_bias;
-		
-	stc.x = floor(stc.x*shadow_res.x + fract(stc.y*shadow_res.y*12345))/shadow_res.x; // add some chaotic jitter to X sample pos according to Y to disguise the snapping going on here
-	
-	float cs = shadow2D(shadowMap, stc.xyz).x;
-	float shadow = cs;
-	
-    shadow += shadow2D(shadowMap, stc.xyz+vec3(2.0/shadow_res.x, 1.5/shadow_res.y, 0.0)).x;
-    shadow += shadow2D(shadowMap, stc.xyz+vec3(1.0/shadow_res.x, -1.5/shadow_res.y, 0.0)).x;
-    shadow += shadow2D(shadowMap, stc.xyz+vec3(-1.0/shadow_res.x, 1.5/shadow_res.y, 0.0)).x;
-    shadow += shadow2D(shadowMap, stc.xyz+vec3(-2.0/shadow_res.x, -1.5/shadow_res.y, 0.0)).x;
-                       
-    return shadow*0.2;
-}
-#endif
-
-float pcfShadow(sampler2DShadow shadowMap, vec4 stc, float bias_scale, vec2 pos_screen);
-
 void main() 
 {
     vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
@@ -162,74 +142,7 @@ void main()
     vec4 pos = vec4(vary_position, 1.0);
     vec3 norm = vary_norm;
 
-    float shadow = 1.0;
-
-#if HAS_SHADOW
-    vec4 spos = pos;
-        
-    if (spos.z > -shadow_clip.w)
-    {   
-        shadow = 0.0;
-
-        vec4 lpos;
-        
-        vec4 near_split = shadow_clip*-0.75;
-        vec4 far_split = shadow_clip*-1.25;
-        vec4 transition_domain = near_split-far_split;
-        float weight = 0.0;
-
-        if (spos.z < near_split.z)
-        {
-            lpos = shadow_matrix[3]*spos;
-            
-            float w = 1.0;
-            w -= max(spos.z-far_split.z, 0.0)/transition_domain.z;
-            shadow += pcfShadowLegacy(shadowMap3, lpos)*w;
-            weight += w;
-            shadow += max((pos.z+shadow_clip.z)/(shadow_clip.z-shadow_clip.w)*2.0-1.0, 0.0);
-        }
-
-        if (spos.z < near_split.y && spos.z > far_split.z)
-        {
-            lpos = shadow_matrix[2]*spos;
-            
-            float w = 1.0;
-            w -= max(spos.z-far_split.y, 0.0)/transition_domain.y;
-            w -= max(near_split.z-spos.z, 0.0)/transition_domain.z;
-            shadow += pcfShadowLegacy(shadowMap2, lpos)*w;
-            weight += w;
-        }
-
-        if (spos.z < near_split.x && spos.z > far_split.y)
-        {
-            lpos = shadow_matrix[1]*spos;
-            
-            float w = 1.0;
-            w -= max(spos.z-far_split.x, 0.0)/transition_domain.x;
-            w -= max(near_split.y-spos.z, 0.0)/transition_domain.y;
-            shadow += pcfShadowLegacy(shadowMap1, lpos)*w;
-            weight += w;
-        }
-
-        if (spos.z > far_split.x)
-        {
-            lpos = shadow_matrix[0]*spos;
-                            
-            float w = 1.0;
-            w -= max(near_split.x-spos.z, 0.0)/transition_domain.x;
-                
-            shadow += pcfShadowLegacy(shadowMap0, lpos)*w;
-            weight += w;
-        }
-        
-
-        shadow /= weight;
-    }
-    else
-    {
-        shadow = 1.0;
-    }
-#endif
+    float shadow = sampleDirectionalShadow(pos.xyz, norm.xyz, frag);
 
 #ifdef USE_INDEXED_TEX
     vec4 diff = diffuseLookup(vary_texcoord0.xy);

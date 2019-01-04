@@ -33,7 +33,6 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-uniform sampler2DRect depthMap;
 uniform sampler2DRect normalMap;
 uniform sampler2DRect lightMap;
 
@@ -44,9 +43,6 @@ uniform vec3 kern[4];
 uniform float kern_scale;
 
 VARYING vec2 vary_fragcoord;
-
-uniform mat4 inv_proj;
-uniform vec2 screen_res;
 
 vec4 getPosition(vec2 pos_screen);
 vec3 getNorm(vec2 pos_screen);

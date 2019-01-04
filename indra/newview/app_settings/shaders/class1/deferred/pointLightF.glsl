@@ -57,7 +57,6 @@ uniform mat4 inv_proj;
 uniform vec4 viewport;
 
 vec3 decode_normal (vec2 enc);
-
 vec4 getPosition(vec2 pos_screen);
 
 void main() 
