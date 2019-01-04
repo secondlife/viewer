@@ -97,14 +97,14 @@ protected:
 
     static const U32            DIRTY_FLAG_MASK;
 
-    bool setControlsEnabled(bool enabled);
+    bool                        setControlsEnabled(bool enabled);
     void                        setApplyProgress(bool started);
     void                        setDirtyFlag(U32 flag);
     void                        clearDirtyFlag(U32 flag);
     bool                        getIsDirty() const                  { return (mDirtyFlag != 0); }
     bool                        getIsDirtyFlag(U32 flag) const      { return ((mDirtyFlag & flag) != 0); }
     U32                         getDirtyFlag() const                { return mDirtyFlag; }
-    void updateAltLabel(const std::string &alt_name, U32 sky_index, F32 alt_value);
+    void                        updateAltLabel(const std::string &alt_name, U32 sky_index, F32 alt_value);
     void                        readjustAltLabels();
 
     void                        onSldDayLengthChanged(F32 value);
@@ -164,16 +164,18 @@ protected:
     S32                             mCurEnvVersion; // used to filter duplicate callbacks/refreshes
 
 protected:
+    typedef boost::signals2::connection connection_t;
+
     void                            refreshFromEstate();
     bool                            mAllowOverride;
 
 private:
     static void                     onIdlePlay(void *);
 
-    typedef boost::signals2::connection connection_t;
-
     connection_t                    mCommitConnection;
     connection_t                    mChangeMonitor;
+    connection_t                    mUpdateConnection;
+
     LLHandle<LLFloater>             mSettingsFloater;
     LLHandle<LLFloater>             mEditFloater;
     S32                             mDirtyFlag;
