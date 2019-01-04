@@ -41,7 +41,7 @@ class LLViewerRegion;
  */
 class LLEstateInfoModel : public LLSingleton<LLEstateInfoModel>
 {
-	LLSINGLETON(LLEstateInfoModel);
+    LLSINGLETON_C11(LLEstateInfoModel);
 	LOG_CLASS(LLEstateInfoModel);
 
 public:
