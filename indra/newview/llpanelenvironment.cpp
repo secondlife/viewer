@@ -109,12 +109,20 @@ const std::string alt_sliders[] = {
     "sld3",
 };
 
-const std::string alt_labels[] = {
+const std::string alt_prefixes[] = {
     "alt1",
     "alt2",
     "alt3",
     "ground",
     "water",
+};
+
+const std::string alt_panels[] = {
+    "pnl_alt1",
+    "pnl_alt2",
+    "pnl_alt3",
+    "pnl_ground",
+    "pnl_water",
 };
 
 static LLDefaultChildRegistry::Register<LLSettingsDropTarget> r("settings_drop_target");
@@ -266,7 +274,7 @@ void LLPanelEnvironmentInfo::refresh()
         for (S32 idx = 0; idx < ALTITUDE_SLIDER_COUNT; ++idx)
         {
             sld->addSlider(altitudes[idx + 1], alt_sliders[idx]);
-            updateAltLabel(alt_labels[idx], idx + 2, altitudes[idx+1]);
+            updateAltLabel(alt_prefixes[idx], idx + 2, altitudes[idx + 1]);
             mAltitudes[alt_sliders[idx]] = AltitudeData(idx+1, idx, altitudes[idx+1]);
         }
         if (sld->getCurNumSliders() != ALTITUDE_SLIDER_COUNT)
@@ -276,8 +284,8 @@ void LLPanelEnvironmentInfo::refresh()
         readjustAltLabels();
     }
 
-    updateAltLabel(alt_labels[3], 1, 0); // ground
-    updateAltLabel(alt_labels[4], 0, 0); // water
+    updateAltLabel(alt_prefixes[3], 1, 0); // ground
+    updateAltLabel(alt_prefixes[4], 0, 0); // water
 
 }
 
@@ -488,28 +496,27 @@ void LLPanelEnvironmentInfo::clearDirtyFlag(U32 flag)
     mDirtyFlag &= ~flag;
 }
 
-void LLPanelEnvironmentInfo::updateAltLabel(const std::string &alt_name, U32 sky_index, F32 alt_value)
+void LLPanelEnvironmentInfo::updateAltLabel(const std::string &alt_prefix, U32 sky_index, F32 alt_value)
 {
-    LLMultiSliderCtrl *sld = getChild<LLMultiSliderCtrl>(SLD_ALTITUDES);
+    LLMultiSliderCtrl *sld = findChild<LLMultiSliderCtrl>(SLD_ALTITUDES);
+    if (!sld)
+    {
+        LL_WARNS() << "Failed to find slider " << SLD_ALTITUDES << LL_ENDL;
+        return;
+    }
     LLRect sld_rect = sld->getRect();
     S32 sld_range = sld_rect.getHeight();
     S32 sld_bottom = sld_rect.mBottom;
     S32 sld_offset = sld_rect.getWidth(); // Roughly identical to thumb's width in slider.
     S32 pos = (sld_range - sld_offset) * ((alt_value - 100) / (4000 - 100));
 
-    // get related text box
-    LLTextBox* text = getChild<LLTextBox>(alt_name);
-    LLLineEditor *field = getChild<LLLineEditor>("edt_invname_" + alt_name);
-    LLSettingsDropTarget *dt = getChild<LLSettingsDropTarget>("sdt_" + alt_name);
+    // get related views
+    LLTextBox* text = findChild<LLTextBox>("txt_" + alt_prefix);
+    LLLineEditor *field = findChild<LLLineEditor>("edt_invname_" + alt_prefix);
+    LLView *alt_panel = findChild<LLView>("pnl_" + alt_prefix);
 
     if (text && (sky_index > 1))
     {
-        // move related text box
-        LLRect rect = text->getRect();
-        S32 height = rect.getHeight();
-        rect.mBottom = sld_bottom + (sld_offset / 2 + 1) + pos - (height / 2);
-        rect.mTop = rect.mBottom + height;
-        text->setRect(rect);
         // update text
         std::ostringstream convert;
         convert << alt_value;
@@ -518,19 +525,6 @@ void LLPanelEnvironmentInfo::updateAltLabel(const std::string &alt_name, U32 sky
         convert.clear();
         convert << sky_index;
         text->setTextArg("[INDEX]", convert.str());
-
-        if (field)
-        {
-            LLRect rect_name = field->getRect();
-            S32 name_height = rect_name.getHeight();
-            S32 center = rect.mBottom + (height / 2);
-            rect_name.mBottom = center - (name_height / 2);
-            rect_name.mTop = rect_name.mBottom + name_height;
-
-            field->setRect(rect_name);
-            if (dt)
-                dt->setRect(rect_name);
-        }
     }
 
     if (field)
@@ -538,72 +532,58 @@ void LLPanelEnvironmentInfo::updateAltLabel(const std::string &alt_name, U32 sky
         field->setText(getNameForTrackIndex(sky_index));
     }
 
+    if (alt_panel && (sky_index > 1))
+    {
+        // move containing panel
+        LLRect rect = alt_panel->getRect();
+        S32 height = rect.getHeight();
+        rect.mBottom = sld_bottom + (sld_offset / 2 + 1) + pos - (height / 2);
+        rect.mTop = rect.mBottom + height;
+        alt_panel->setRect(rect);
+    }
+
 }
 
 void LLPanelEnvironmentInfo::readjustAltLabels()
 {
-    // Restore ground label position
-    LLView* icon = getChild<LLView>(ICN_GROUND);
-    LLTextBox* text = getChild<LLTextBox>(alt_labels[ALTITUDE_SLIDER_COUNT]); // one more field then sliders
-    LLRect ground_text_rect = text->getRect();
-    LLRect icon_rect = icon->getRect();
-    S32 height = ground_text_rect.getHeight();
-    ground_text_rect.mBottom = icon_rect.mBottom + (icon_rect.getHeight()/2) - (height/2);
-    ground_text_rect.mTop = ground_text_rect.mBottom + height;
-    text->setRect(ground_text_rect);
-
-//     LLMultiSliderCtrl *sld = getChild<LLMultiSliderCtrl>(SLD_ALTITUDES);
-//     for (U32 idx = 0; idx < ALTITUDE_SLIDER_COUNT; ++idx)
-//     {
-//         LLRect rect_sld = sld->getSliderThumbRect(alt_sliders[idx]);
-//         LLTextBox* text_cmp = getChild<LLTextBox>(alt_labels[i]);
-// 
-//         LLRect rect_text = text_cmp->getRect();
-// 
-//         LL_WARNS("LAPRAS") << "slider[" << alt_sliders[idx] << "] -> " << rect_sld << " value=" << sld->getSliderValue(alt_sliders[idx]) LL_ENDL;
-//     }
-
-
-#if 0
     // Re-adjust all labels
     // Very simple "adjust after the fact" method
-    // Note: labels are unordered, labels are 1 above sliders due to 'ground'
-    for (U32 i = 0; i < ALTITUDE_SLIDER_COUNT; i++)
+    // Note: labels can be in any ordered
+    for (U32 i = 0; i < ALTITUDE_SLIDER_COUNT - 1; i++)
     {
-        LLTextBox* text_cmp = getChild<LLTextBox>(alt_labels[i]);
+        LLView* view_cmp = findChild<LLView>(alt_panels[i]);
 
-        for (U32 j = i + 1; j <= ALTITUDE_SLIDER_COUNT; j++)
+        for (U32 j = i + 1; j < ALTITUDE_SLIDER_COUNT; j++)
         {
-            LLTextBox* text_intr = getChild<LLTextBox>(alt_labels[j]);
-            if (text_cmp && text_intr)
+            LLView* view_intr = findChild<LLView>(alt_panels[j]);
+            if (view_cmp && view_intr)
             {
-                LLRect cmp_rect = text_cmp->getRect();
-                LLRect intr_rect = text_intr->getRect();
+                LLRect cmp_rect = view_cmp->getRect();
+                LLRect intr_rect = view_intr->getRect();
                 S32 shift = 0;
                 if (cmp_rect.mBottom <= intr_rect.mTop && cmp_rect.mBottom >= intr_rect.mBottom)
                 {
-                    // Aproximate shift
+                    // Approximate shift
                     // We probably will need more cycle runs over all labels to get accurate one
                     // At the moment single cycle should do since we have too little elements to do something complicated
                     shift = (cmp_rect.mBottom - intr_rect.mTop) / 2;
                 }
                 else if (cmp_rect.mTop >= intr_rect.mBottom && cmp_rect.mTop <= intr_rect.mTop)
                 {
-                    // Aproximate shift
+                    // Approximate shift
                     shift = (cmp_rect.mTop - intr_rect.mBottom) / 2;
                 }
                 if (shift != 0)
                 {
                     cmp_rect.translate(0, -shift);
-                    text_cmp->setRect(cmp_rect);
+                    view_cmp->setRect(cmp_rect);
 
                     intr_rect.translate(0, shift);
-                    text_intr->setRect(intr_rect);
+                    view_intr->setRect(intr_rect);
                 }
             }
         }
     }
-#endif
 }
 
 void LLPanelEnvironmentInfo::onSldDayLengthChanged(F32 value)
@@ -673,7 +653,7 @@ void LLPanelEnvironmentInfo::onAltSliderCallback(LLUICtrl *cntrl, const LLSD &da
         }
         iter->second.mAltitudeIndex = new_index;
 
-        updateAltLabel(alt_labels[iter->second.mLabelIndex], iter->second.mAltitudeIndex + 1, iter->second.mAltitude);
+        updateAltLabel(alt_prefixes[iter->second.mLabelIndex], iter->second.mAltitudeIndex + 1, iter->second.mAltitude);
         iter++;
     }
 
