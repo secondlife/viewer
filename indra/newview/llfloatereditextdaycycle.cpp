@@ -113,6 +113,9 @@ namespace {
     const std::string ACTION_APPLY_REGION("apply_region");
 
     const F32 DAY_CYCLE_PLAY_TIME_SECONDS = 60;
+
+    const std::string STR_COMMIT_PARCEL("commit_parcel");
+    const std::string STR_COMMIT_REGION("commit_region");
 }
 
 //=========================================================================
@@ -439,6 +442,17 @@ void LLFloaterEditExtDayCycle::refresh()
 
     bool show_commit = ((mEditContext == CONTEXT_PARCEL) || (mEditContext == CONTEXT_REGION));
     bool show_apply = (mEditContext == CONTEXT_INVENTORY);
+
+    if (show_commit)
+    {
+        std::string commit_text;
+        if (mEditContext == CONTEXT_PARCEL)
+            commit_text = getString(STR_COMMIT_PARCEL);
+        else
+            commit_text = getString(STR_COMMIT_REGION);
+
+        mFlyoutControl->setMenuItemLabel(ACTION_COMMIT, commit_text);
+    }
 
     mFlyoutControl->setMenuItemVisible(ACTION_COMMIT, show_commit);
     mFlyoutControl->setMenuItemVisible(ACTION_SAVE, is_inventory_avail);

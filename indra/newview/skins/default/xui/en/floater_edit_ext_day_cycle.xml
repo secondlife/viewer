@@ -24,6 +24,9 @@
     <string name="sky_label">Sky</string>
     <string name="water_label">Water</string>
 
+    <string name="commit_parcel">Apply To Parcel</string>
+    <string name="commit_region">Apply To Region</string>
+    
     <!-- Layout -->
     <layout_stack name="outer_stack"
             width="705"
