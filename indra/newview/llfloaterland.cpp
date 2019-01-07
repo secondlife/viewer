@@ -148,6 +148,11 @@ public:
                         LLPanelLandEnvironment(LLSafeHandle<LLParcelSelection>& parcelp);
     
     virtual bool        isRegion() const override { return false; }
+    virtual bool        isLargeEnough() override 
+    { 
+        LLParcel *parcelp = mParcel->getParcel();
+        return ((parcelp) ? (parcelp->getArea() >= MINIMUM_PARCEL_SIZE) : false);
+    }   
 
     virtual BOOL        postBuild() override;
     virtual void        refresh() override;
@@ -3376,7 +3381,7 @@ bool LLPanelLandEnvironment::canEdit()
     LLParcel *parcel = getParcel();
     if (!parcel)
         return false;
-    
+
     return LLEnvironment::instance().canAgentUpdateParcelEnvironment(parcel) && mAllowOverride;
 }
 

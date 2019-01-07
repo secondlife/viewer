@@ -89,6 +89,9 @@ const std::string LLPanelEnvironmentInfo::STR_NO_PARCEL("str_no_parcel");
 const std::string LLPanelEnvironmentInfo::STR_CROSS_REGION("str_cross_region");
 const std::string LLPanelEnvironmentInfo::STR_LEGACY("str_legacy");
 const std::string LLPanelEnvironmentInfo::STR_DISALLOWED("str_disallowed");
+const std::string LLPanelEnvironmentInfo::STR_TOO_SMALL("str_too_small");
+
+const S32 LLPanelEnvironmentInfo::MINIMUM_PARCEL_SIZE(128);
 
 const U32 LLPanelEnvironmentInfo::DIRTY_FLAG_DAYCYCLE(0x01 << 0);
 const U32 LLPanelEnvironmentInfo::DIRTY_FLAG_DAYLENGTH(0x01 << 1);
@@ -169,9 +172,6 @@ BOOL LLPanelEnvironmentInfo::postBuild()
 
     mChangeMonitor = LLEnvironment::instance().setEnvironmentChanged([this](LLEnvironment::EnvSelection_t env, S32 version) { onEnvironmentChanged(env, version); });
 
-    // if we ever allow LLEstateInfoModel to work for non-EMs, uncomment this line.
-    // mUpdateConnection = LLEstateInfoModel::instance().setUpdateCallback(boost::bind(&LLPanelEnvironmentInfo::refreshFromEstate, this));
-
     getChild<LLSettingsDropTarget>(SDT_DROP_TARGET)->setPanel(this);
 
     return TRUE;
@@ -230,32 +230,6 @@ void LLPanelEnvironmentInfo::refresh()
         return;
     }
 
-//     S32 rdo_selection = 0;
-//     if ((!mCurrentEnvironment->mDayCycle) ||
-//         ((mCurrentEnvironment->mParcelId == INVALID_PARCEL_ID) && (mCurrentEnvironment->mDayCycle->getAssetId() == LLSettingsDay::GetDefaultAssetId() )))
-//     {
-//         getChild<LLUICtrl>(EDT_INVNAME)->setValue("");
-//     }
-//     else if (!mCurrentEnvironment->mDayCycle->getAssetId().isNull())
-//     {
-//         rdo_selection = 1;
-// 
-//         LLUUID asset_id = mCurrentEnvironment->mDayCycle->getAssetId();
-// 
-//         std::string inventoryname = getInventoryNameForAssetId(asset_id);
-// 
-//         if (inventoryname.empty())
-//             inventoryname = "(" + mCurrentEnvironment->mDayCycle->getName() + ")";
-// 
-//         getChild<LLUICtrl>(EDT_INVNAME)->setValue(inventoryname);
-//     }
-//     else
-//     {   // asset id is null so this is a custom environment
-//         rdo_selection = 2;
-//         getChild<LLUICtrl>(EDT_INVNAME)->setValue("");
-//     }
-//     getChild<LLRadioGroup>(RDG_ENVIRONMENT_SELECT)->setSelectedIndex(rdo_selection);
-
     F32Hours daylength(mCurrentEnvironment->mDayLength);
     F32Hours dayoffset(mCurrentEnvironment->mDayOffset);
 
@@ -264,8 +238,6 @@ void LLPanelEnvironmentInfo::refresh()
 
     getChild<LLSliderCtrl>(SLD_DAYLENGTH)->setValue(daylength.value());
     getChild<LLSliderCtrl>(SLD_DAYOFFSET)->setValue(dayoffset.value());
-//     getChild<LLSliderCtrl>(SLD_DAYLENGTH)->setEnabled(canEdit() && (rdo_selection != 0) && !mCurrentEnvironment->mIsLegacy);
-//     getChild<LLSliderCtrl>(SLD_DAYOFFSET)->setEnabled(canEdit() && (rdo_selection != 0) && !mCurrentEnvironment->mIsLegacy);
    
     udpateApparentTimeOfDay();
 
@@ -297,12 +269,9 @@ void LLPanelEnvironmentInfo::refresh()
 
 void LLPanelEnvironmentInfo::refreshFromEstate()
 {
-    /*TODO: Unfortunately only estate manager may get information from the LLEstateInfoModel.  
-     * The proletariat is not allowed to know what options are set for an estate. We should fix this.*/
     LLViewerRegion *pRegion = gAgent.getRegion();
 
     bool oldAO = mAllowOverride;
-    //mAllowOverride = (!isRegion()) || LLEstateInfoModel::instance().getAllowEnvironmentOverride();
     mAllowOverride = (isRegion() && LLEstateInfoModel::instance().getAllowEnvironmentOverride()) || pRegion->getAllowEnvironmentOverride();
     if (oldAO != mAllowOverride)
         refresh();
@@ -415,6 +384,7 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
 {
     bool is_unavailable(false);
     bool is_legacy = (mCurrentEnvironment) ? mCurrentEnvironment->mIsLegacy : true;
+    bool is_bigenough = isLargeEnough();
 
     if (mNoEnvironment || (!LLEnvironment::instance().isExtendedEnvironmentEnabled() && !isRegion()))
     {
@@ -436,13 +406,18 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
         is_unavailable = true;
         getChild<LLTextBox>(TXT_DISABLED)->setText(getString(STR_DISALLOWED));
     }
+    else if (!is_bigenough)
+    {
+        is_unavailable = true;
+        getChild<LLTextBox>(TXT_DISABLED)->setText(getString(STR_TOO_SMALL));
+    }
 
     if (is_unavailable)
     {
         getChild<LLUICtrl>(PNL_SETTINGS)->setVisible(false);
         getChild<LLUICtrl>(PNL_BUTTONS)->setVisible(false);
         getChild<LLUICtrl>(PNL_DISABLED)->setVisible(true);
-        getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(FALSE);
+        getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(false);
 
         updateEditFloater(mCurrentEnvironment, false);
 
@@ -468,22 +443,6 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
     getChild<LLSettingsDropTarget>(SDT_DROP_TARGET)->setDndEnabled(enabled && !is_legacy);
 
     return true;
-}
-
-void LLPanelEnvironmentInfo::setApplyProgress(bool started)
-{
-//     LLLoadingIndicator* indicator = getChild<LLLoadingIndicator>("progress_indicator");
-// 
-//     indicator->setVisible(started);
-// 
-//     if (started)
-//     {
-//         indicator->start();
-//     }
-//     else
-//     {
-//         indicator->stop();
-//     }
 }
 
 void LLPanelEnvironmentInfo::setDirtyFlag(U32 flag)

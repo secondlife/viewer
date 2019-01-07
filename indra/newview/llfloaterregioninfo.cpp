@@ -150,6 +150,7 @@ public:
     virtual bool        isRegion() const override { return true; }
     virtual LLParcel *  getParcel() override { return nullptr; }
     virtual bool        canEdit() override { return LLEnvironment::instance().canAgentUpdateRegionEnvironment(); }
+    virtual bool        isLargeEnough() override { return true; }   // regions are always large enough.
 
     bool                refreshFromRegion(LLViewerRegion* region);
 
