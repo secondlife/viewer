@@ -46,6 +46,7 @@ public:
 	void setMenuItemEnabled(const std::string &item, bool enabled);
 	void setShownBtnEnabled(bool enabled);
     void setMenuItemVisible(const std::string &item, bool visible);
+    void setMenuItemLabel(const std::string &item, const std::string &label);
 
     U32 getItemCount();
     void setSelectedItem(S32 itemno);

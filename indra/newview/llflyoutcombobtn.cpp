@@ -112,6 +112,12 @@ void LLFlyoutComboBtnCtrl::setMenuItemVisible(const std::string &item, bool visi
     mFlyoutMenu->setItemVisible(item, visible);
 }
 
+
+void LLFlyoutComboBtnCtrl::setMenuItemLabel(const std::string &item, const std::string &label)
+{
+    mFlyoutMenu->setItemLabel(item, label);
+}
+
 void LLFlyoutComboBtnCtrl::onFlyoutButton(LLUICtrl *ctrl, const LLSD &data)
 {
 	S32 x, y;

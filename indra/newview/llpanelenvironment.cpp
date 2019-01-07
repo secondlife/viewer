@@ -299,9 +299,11 @@ void LLPanelEnvironmentInfo::refreshFromEstate()
 {
     /*TODO: Unfortunately only estate manager may get information from the LLEstateInfoModel.  
      * The proletariat is not allowed to know what options are set for an estate. We should fix this.*/
+    LLViewerRegion *pRegion = gAgent.getRegion();
 
     bool oldAO = mAllowOverride;
-    mAllowOverride = (!isRegion()) || LLEstateInfoModel::instance().getAllowEnvironmentOverride();
+    //mAllowOverride = (!isRegion()) || LLEstateInfoModel::instance().getAllowEnvironmentOverride();
+    mAllowOverride = (isRegion() && LLEstateInfoModel::instance().getAllowEnvironmentOverride()) || pRegion->getAllowEnvironmentOverride();
     if (oldAO != mAllowOverride)
         refresh();
 }
