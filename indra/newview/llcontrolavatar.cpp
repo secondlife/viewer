@@ -58,6 +58,8 @@ LLControlAvatar::LLControlAvatar(const LLUUID& id, const LLPCode pcode, LLViewer
 // virtual
 LLControlAvatar::~LLControlAvatar()
 {
+	// Should already have been unlinked before destruction
+	llassert(!mRootVolp);
 }
 
 // virtual
