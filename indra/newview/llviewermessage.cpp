@@ -5763,19 +5763,16 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 				// check whether permission question should cause special caution dialog
 				caution |= (script_perm.caution);
 
-				if (("ScriptTakeMoney" == script_perm.question) && has_not_only_debit)
+				if ((("ScriptTakeMoney" == script_perm.question) && has_not_only_debit) ||
+                        (script_perm.question == "JoinAnExperience"))
 					continue;
-
-                if (script_perm.question == "JoinAnExperience")
-                { // Some experience only permissions do not have an explicit permission bit.  Add them here.
-                    script_question += "    " + LLTrans::getString("ForceSitAvatar") + "\n";
-                    script_question += "    " + LLTrans::getString("ChangeEnvSettings") + "\n";
-                }
 
 				script_question += "    " + LLTrans::getString(script_perm.question) + "\n";
 			}
 		}
 	
+        script_question += "\n";
+
 		args["QUESTIONS"] = script_question;
 
 		if (known_questions != questions)

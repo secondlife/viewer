@@ -4219,6 +4219,8 @@ Try enclosing path to the editor with double quotes.
   <string name="ExperiencePermission10">control your camera</string>
   <string name="ExperiencePermission11">teleport you</string>
   <string name="ExperiencePermission12">automatically accept experience permissions</string>
+  <string name="ExperiencePermission16">force your avatar to sit</string>
+  <string name="ExperiencePermission17">change your environment settings</string>
   <string name="ExperiencePermissionShortUnknown">perform an unknown operation: [Permission]</string>
   <string name="ExperiencePermissionShort1">Take Controls</string>
   <string name="ExperiencePermissionShort3">Trigger Animations</string>
@@ -4227,6 +4229,8 @@ Try enclosing path to the editor with double quotes.
   <string name="ExperiencePermissionShort10">Control Camera</string>
   <string name="ExperiencePermissionShort11">Teleport</string>
   <string name="ExperiencePermissionShort12">Permission</string>
+  <string name="ExperiencePermissionShort16">Sit</string>
+  <string name="ExperiencePermissionShort17">Environment</string>
 
   <!-- Conversation log messages -->
   <string name="logging_calls_disabled_log_empty">
