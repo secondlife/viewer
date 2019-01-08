@@ -354,6 +354,17 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
         mCurrentTimeLabel->setTextArg("[DSC]", std::string());
     }
 
+    // Adjust Time&Percentage labels' location according to length
+    LLRect label_rect = getChild<LLTextBox>("p0", true)->getRect();
+    F32 slider_width = mFramesSlider->getRect().getWidth();
+    for (int i = 1; i < max_elm; i++)
+    {
+        LLTextBox *pcnt_label = getChild<LLTextBox>("p" + llformat("%d", i), true);
+        LLRect new_rect = pcnt_label->getRect();
+        new_rect.mLeft = label_rect.mLeft + (S32)(slider_width * (F32)i / (F32)(max_elm - 1)) - (S32)(pcnt_label->getTextPixelWidth() / 2);
+        pcnt_label->setRect(new_rect);
+    }
+
     // Altitudes&Track labels
     LLUIString formatted_label = getString("sky_track_label");
     const LLEnvironment::altitude_list_t &altitudes = LLEnvironment::instance().getRegionAltitudes();
