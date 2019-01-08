@@ -579,12 +579,34 @@ void LLDrawPoolWater::shade()
 	}	
 
 	//bind normal map
-	S32 bumpTex = shader->enableTexture(LLViewerShaderMgr::BUMP_MAP);
+	S32 bumpTex  = shader->enableTexture(LLViewerShaderMgr::BUMP_MAP);
+    S32 bumpTex2 = shader->enableTexture(LLViewerShaderMgr::BUMP_MAP2);
+
+    LLViewerTexture* tex_a = mWaterNormp[0];
+    LLViewerTexture* tex_b = mWaterNormp[1];
+
+    F32 blend_factor = LLEnvironment::instance().getCurrentWater()->getBlendFactor();
+	
+    if (tex_a && (!tex_b || (tex_a == tex_b)))
+    {
+		gGL.getTexUnit(bumpTex)->bind(tex_a);
+        gGL.getTexUnit(bumpTex2)->unbind(LLTexUnit::TT_TEXTURE);
+        blend_factor = 0; // only one tex provided, no blending
+    }
+    else if (tex_b && !tex_a)
+    {
+        gGL.getTexUnit(bumpTex)->bind(tex_b);
+        gGL.getTexUnit(bumpTex2)->unbind(LLTexUnit::TT_TEXTURE);
+        blend_factor = 0; // only one tex provided, no blending
+    }
+    else if (tex_b != tex_a)
+    {
+        gGL.getTexUnit(bumpTex)->bind(tex_a);
+        gGL.getTexUnit(bumpTex2)->bind(tex_b);
+    }
 
     if (mWaterNormp[0])
     {
-	    gGL.getTexUnit(bumpTex)->bind(mWaterNormp[0]) ;
-
 	    if (gSavedSettings.getBOOL("RenderWaterMipNormal"))
 	    {
 		    mWaterNormp[0]->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
@@ -597,10 +619,6 @@ void LLDrawPoolWater::shade()
 
     if (mWaterNormp[1])
     {
-        bumpTex = shader->enableTexture(LLViewerShaderMgr::BUMP_MAP2);
-
-        gGL.getTexUnit(bumpTex)->bind(mWaterNormp[1]) ;
-
 	    if (gSavedSettings.getBOOL("RenderWaterMipNormal"))
 	    {
             mWaterNormp[1]->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
@@ -610,6 +628,8 @@ void LLDrawPoolWater::shade()
             mWaterNormp[1]->setFilteringOption(LLTexUnit::TFO_POINT);
 	    }
 	}
+
+    shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 
     shader->uniform3fv(LLShaderMgr::WATER_FOGCOLOR, 1, pwater->getWaterFogColor().mV);
     shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, pwater->getWaterFogDensity());
