@@ -66,6 +66,7 @@ protected:
     static const std::string    BTN_SELECTINV;
     static const std::string    BTN_EDIT;
     static const std::string    BTN_USEDEFAULT;
+    static const std::string    BTN_RST_ALTITUDES;
     static const std::string    SLD_DAYLENGTH;
     static const std::string    SLD_DAYOFFSET;
     static const std::string    SLD_ALTITUDES;
@@ -117,6 +118,7 @@ protected:
     void                        onBtnEdit();
     void                        onBtnSelect();
     void                        onBtnDefault();
+    void                        onBtnRstAltitudes();
 
     void                        udpateApparentTimeOfDay();
 

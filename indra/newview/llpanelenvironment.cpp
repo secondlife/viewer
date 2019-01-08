@@ -68,6 +68,7 @@ namespace
 const std::string LLPanelEnvironmentInfo::BTN_SELECTINV("btn_select_inventory");
 const std::string LLPanelEnvironmentInfo::BTN_EDIT("btn_edit");
 const std::string LLPanelEnvironmentInfo::BTN_USEDEFAULT("btn_usedefault");
+const std::string LLPanelEnvironmentInfo::BTN_RST_ALTITUDES("btn_rst_altitudes");
 const std::string LLPanelEnvironmentInfo::SLD_DAYLENGTH("sld_day_length");
 const std::string LLPanelEnvironmentInfo::SLD_DAYOFFSET("sld_day_offset");
 const std::string LLPanelEnvironmentInfo::SLD_ALTITUDES("sld_altitudes");
@@ -105,6 +106,7 @@ const U32 LLPanelEnvironmentInfo::DIRTY_FLAG_MASK(
         LLPanelEnvironmentInfo::DIRTY_FLAG_ALTITUDES);
 
 const U32 ALTITUDE_SLIDER_COUNT = 3;
+const F32 ALTITUDE_DEFAULT_HEIGHT_STEP = 1000;
 
 const std::string alt_sliders[] = {
     "sld1",
@@ -161,6 +163,7 @@ BOOL LLPanelEnvironmentInfo::postBuild()
     getChild<LLUICtrl>(BTN_USEDEFAULT)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnDefault(); });
     getChild<LLUICtrl>(BTN_SELECTINV)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnSelect(); });
     getChild<LLUICtrl>(BTN_EDIT)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnEdit(); });
+    getChild<LLUICtrl>(BTN_RST_ALTITUDES)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnRstAltitudes(); });
 
     getChild<LLUICtrl>(SLD_DAYLENGTH)->setCommitCallback([this](LLUICtrl *, const LLSD &value) { onSldDayLengthChanged(value.asReal()); });
     getChild<LLSliderCtrl>(SLD_DAYLENGTH)->setSliderMouseUpCallback([this](LLUICtrl *, const LLSD &) { onDayLenOffsetMouseUp(); });
@@ -428,6 +431,7 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
     getChild<LLUICtrl>(PNL_DISABLED)->setVisible(false);
 
     getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(LLEnvironment::instance().isExtendedEnvironmentEnabled());
+    getChild<LLUICtrl>(BTN_RST_ALTITUDES)->setVisible(isRegion());
 
     bool can_enable = enabled && mCurrentEnvironment && (mCurEnvVersion != INVALID_PARCEL_ENVIRONMENT_VERSION);
     getChild<LLUICtrl>(BTN_SELECTINV)->setEnabled(can_enable && !is_legacy);
@@ -437,6 +441,7 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
     getChild<LLUICtrl>(SLD_DAYOFFSET)->setEnabled(can_enable && !is_legacy);
     getChild<LLUICtrl>(SLD_ALTITUDES)->setEnabled(can_enable && isRegion() && !is_legacy);
     getChild<LLUICtrl>(ICN_GROUND)->setColor((can_enable && isRegion() && !is_legacy) ? LLColor4::white : LLColor4::grey % 0.8f);
+    getChild<LLUICtrl>(BTN_RST_ALTITUDES)->setEnabled(can_enable && isRegion() && !is_legacy);
     getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setEnabled(can_enable && isRegion() && !is_legacy);
     getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setEnabled(can_enable && isRegion() && !is_legacy);
 
@@ -689,6 +694,24 @@ void LLPanelEnvironmentInfo::onBtnSelect()
     }
 }
 
+void LLPanelEnvironmentInfo::onBtnRstAltitudes()
+{
+    if (isRegion())
+    {
+        LLHandle<LLPanel> that_h = getHandle();
+        LLEnvironment::altitudes_vect_t alts;
+
+        for (S32 idx = 1; idx <= ALTITUDE_SLIDER_COUNT; ++idx)
+        {
+            F32 new_height = idx * ALTITUDE_DEFAULT_HEIGHT_STEP;
+            alts.push_back(new_height);
+        }
+
+        LLEnvironment::instance().updateParcel(getParcelId(), LLSettingsDay::ptr_t(),
+            -1, -1, alts,
+            [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
+    }
+}
 
 void LLPanelEnvironmentInfo::udpateApparentTimeOfDay()
 {

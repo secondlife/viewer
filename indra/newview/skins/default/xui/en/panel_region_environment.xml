@@ -203,6 +203,16 @@
                                 tool_tip="Drag a setting from Inventory onto this target box to select it as current water."
                                 width="155" />
                     </panel>
+                    <button
+                            follows="top|left"
+                            layout="topleft"
+                            height="23"
+                            width="100"
+                            label="Reset"
+                            left_pad="-90"
+                            top_pad="4"
+                            tool_tip="Reset to default altitudes"
+                            name="btn_rst_altitudes" />
                     <panel
                          follows="top|left"
                          height="21"

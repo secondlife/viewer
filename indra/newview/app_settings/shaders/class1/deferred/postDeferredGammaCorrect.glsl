@@ -40,10 +40,12 @@ VARYING vec2 vary_fragcoord;
 
 uniform float display_gamma;
 
+vec3 linear_to_srgb(vec3 cl);
+
 void main() 
 {
-    vec4 diff = texture2DRect(diffuseRect, vary_fragcoord);
-    diff.rgb = pow(diff.rgb, vec3(display_gamma));
-    frag_color = diff;
+	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord);
+	diff.rgb = linear_to_srgb(diff.rgb);
+	frag_color = diff;
 }
 
