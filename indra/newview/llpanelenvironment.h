@@ -89,6 +89,9 @@ protected:
     static const std::string    STR_CROSS_REGION;
     static const std::string    STR_LEGACY;
     static const std::string    STR_DISALLOWED;
+    static const std::string    STR_TOO_SMALL;
+
+    static const S32            MINIMUM_PARCEL_SIZE;
 
     static const U32            DIRTY_FLAG_DAYCYCLE;
     static const U32            DIRTY_FLAG_DAYLENGTH;
@@ -98,7 +101,6 @@ protected:
     static const U32            DIRTY_FLAG_MASK;
 
     bool                        setControlsEnabled(bool enabled);
-    void                        setApplyProgress(bool started);
     void                        setDirtyFlag(U32 flag);
     void                        clearDirtyFlag(U32 flag);
     bool                        getIsDirty() const                  { return (mDirtyFlag != 0); }
@@ -126,7 +128,7 @@ protected:
     void                        onEnvironmentReceived(S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo);
     static void                 _onEnvironmentReceived(LLHandle<LLPanel> that_h, S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo);
 
-
+    virtual bool                isLargeEnough() = 0;
     virtual void                refreshFromSource() = 0;
 
     std::string                 getInventoryNameForAssetId(LLUUID asset_id);

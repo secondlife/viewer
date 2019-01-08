@@ -447,7 +447,7 @@ private:
     void                        setExperienceEnvironment(LLUUID experience_id, LLSD environment, F32 transition_time);
     void                        setInstanceBackup(bool dobackup);
 
-    void injectSettings(LLUUID experience_id, exerienceBlendValues_t &blends, LLSD injections, LLSettingsBase::Seconds transition, bool blendin);
+    void                        injectSettings(LLUUID experience_id, exerienceBlendValues_t &blends, LLSD injections, LLSettingsBase::Seconds transition, bool blendin);
 
     void                        applyInjectedSettings(DayInstance::ptr_t environment, F32Seconds delta);
     void                        applyInjectedValues(LLSettingsBase::ptr_t psetting, LLSD injection);

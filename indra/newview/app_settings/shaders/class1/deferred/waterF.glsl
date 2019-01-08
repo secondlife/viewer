@@ -67,10 +67,7 @@ vec3 scaleSoftClipFrag(vec3 l);
 
 vec3 BlendNormal(vec3 bump1, vec3 bump2)
 {
-    //vec3 normal   = bump1.xyz * vec3( 2.0,  2.0, 2.0) - vec3(1.0, 1.0,  0.0);
-    //vec3 normal2  = bump2.xyz * vec3(-2.0, -2.0, 2.0) + vec3(1.0, 1.0, -1.0);
-    //vec3 n        = normalize(normal * dot(normal, normal2) - (normal2 * normal.z));
-    vec3 n = normalize(mix(bump1, bump2, blend_factor));
+    vec3 n = mix(bump1, bump2, blend_factor);
     return n;
 }
 

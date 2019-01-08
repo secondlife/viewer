@@ -139,8 +139,8 @@ const std::string LLSettingsSky::SETTING_SKY_ICE_LEVEL("ice_level");
 
 const LLUUID LLSettingsSky::DEFAULT_ASSET_ID("eb3a7080-831f-9f37-10f0-7b1f9ea4043c");
 
-static const LLUUID DEFAULT_SUN_ID("cce0f112-878f-4586-a2e2-a8f104bba271"); // dataserver
-static const LLUUID DEFAULT_MOON_ID("d07f6eed-b96a-47cd-b51d-400ad4a1c428"); // dataserver
+static const LLUUID DEFAULT_SUN_ID("0ed03550-9096-3c5a-27d8-c6496bff1064"); // dataserver
+static const LLUUID DEFAULT_MOON_ID("db13b827-7e6a-7ace-bed4-4419ee00984d"); // dataserver
 static const LLUUID DEFAULT_CLOUD_ID("1dc1368f-e8fe-f02d-a08d-9d9f11c1af6b");
 
 const std::string LLSettingsSky::SETTING_LEGACY_HAZE("legacy_haze");

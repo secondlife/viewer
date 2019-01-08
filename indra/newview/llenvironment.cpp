@@ -323,10 +323,10 @@ const F32Seconds LLEnvironment::TRANSITION_DEFAULT(5.0f);
 const F32Seconds LLEnvironment::TRANSITION_SLOW(10.0f);
 const F32Seconds LLEnvironment::TRANSITION_ALTITUDE(5.0f);
 
-const LLUUID LLEnvironment::KNOWN_SKY_SUNRISE("7e1489ce-fdc8-2971-c3a4-f1fe0cd70d20");
-const LLUUID LLEnvironment::KNOWN_SKY_MIDDAY("9db06848-8b1f-501d-eeae-ecf487f40dd6");
-const LLUUID LLEnvironment::KNOWN_SKY_SUNSET("95882e1b-7741-f082-d9d6-3a34ec644c66");
-const LLUUID LLEnvironment::KNOWN_SKY_MIDNIGHT("d8e50d02-a15b-17a7-3425-523bc20f67b8");
+const LLUUID LLEnvironment::KNOWN_SKY_SUNRISE("01e41537-ff51-2f1f-8ef7-17e4df760bfb");
+const LLUUID LLEnvironment::KNOWN_SKY_MIDDAY("6c83e853-e7f8-cad7-8ee6-5f31c453721c");
+const LLUUID LLEnvironment::KNOWN_SKY_SUNSET("084e26cd-a900-28e8-08d0-64a9de5c15e2");
+const LLUUID LLEnvironment::KNOWN_SKY_MIDNIGHT("8a01b97a-cb20-c1ea-ac63-f7ea84ad0090");
 
 const S32 LLEnvironment::NO_TRACK(-1);
 const S32 LLEnvironment::NO_VERSION(-3); // For viewer sided change, like ENV_LOCAL. -3 since -1 and -2 are taken by parcel initial server/viewer version
