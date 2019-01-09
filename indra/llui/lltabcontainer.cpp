@@ -736,11 +736,11 @@ BOOL LLTabContainer::handleToolTip( S32 x, S32 y, MASK mask)
 		{
 			for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
 			{
-				LLTabTuple* tuple = *iter;
-				tuple->mButton->setVisible( TRUE );
-				S32 local_x = x - tuple->mButton->getRect().mLeft;
-				S32 local_y = y - tuple->mButton->getRect().mBottom;
-				handled = tuple->mButton->handleToolTip( local_x, local_y, mask);
+				LLButton* tab_button = (*iter)->mButton;
+				if (!tab_button->getVisible()) continue;
+				S32 local_x = x - tab_button->getRect().mLeft;
+				S32 local_y = y - tab_button->getRect().mBottom;
+				handled = tab_button->handleToolTip(local_x, local_y, mask);
 				if( handled )
 				{
 					break;
