@@ -71,6 +71,7 @@ protected:
     static const std::string    SLD_DAYOFFSET;
     static const std::string    SLD_ALTITUDES;
     static const std::string    ICN_GROUND;
+    static const std::string    ICN_WATER;
     static const std::string    CHK_ALLOWOVERRIDE;
     static const std::string    BTN_APPLY;
     static const std::string    BTN_CANCEL;

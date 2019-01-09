@@ -73,6 +73,7 @@ const std::string LLPanelEnvironmentInfo::SLD_DAYLENGTH("sld_day_length");
 const std::string LLPanelEnvironmentInfo::SLD_DAYOFFSET("sld_day_offset");
 const std::string LLPanelEnvironmentInfo::SLD_ALTITUDES("sld_altitudes");
 const std::string LLPanelEnvironmentInfo::ICN_GROUND("icon_ground");
+const std::string LLPanelEnvironmentInfo::ICN_WATER("icon_water");
 const std::string LLPanelEnvironmentInfo::CHK_ALLOWOVERRIDE("chk_allow_override");
 const std::string LLPanelEnvironmentInfo::LBL_TIMEOFDAY("lbl_apparent_time");
 const std::string LLPanelEnvironmentInfo::PNL_SETTINGS("pnl_environment_config");
@@ -107,6 +108,9 @@ const U32 LLPanelEnvironmentInfo::DIRTY_FLAG_MASK(
 
 const U32 ALTITUDE_SLIDER_COUNT = 3;
 const F32 ALTITUDE_DEFAULT_HEIGHT_STEP = 1000;
+const U32 ALTITUDE_MARKERS_COUNT = 3;
+
+const std::string slider_marker_base = "mark";
 
 const std::string alt_sliders[] = {
     "sld1",
@@ -441,9 +445,20 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
     getChild<LLUICtrl>(SLD_DAYOFFSET)->setEnabled(can_enable && !is_legacy);
     getChild<LLUICtrl>(SLD_ALTITUDES)->setEnabled(can_enable && isRegion() && !is_legacy);
     getChild<LLUICtrl>(ICN_GROUND)->setColor((can_enable && isRegion() && !is_legacy) ? LLColor4::white : LLColor4::grey % 0.8f);
+    getChild<LLUICtrl>(ICN_WATER)->setColor((can_enable && isRegion() && !is_legacy) ? LLColor4::white : LLColor4::grey % 0.8f);
     getChild<LLUICtrl>(BTN_RST_ALTITUDES)->setEnabled(can_enable && isRegion() && !is_legacy);
     getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setEnabled(can_enable && isRegion() && !is_legacy);
     getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setEnabled(can_enable && isRegion() && !is_legacy);
+
+    for (U32 idx = 0; idx < ALTITUDE_MARKERS_COUNT; idx++)
+    {
+        LLUICtrl* marker = findChild<LLUICtrl>(slider_marker_base + llformat("%u", idx));
+        if (marker)
+        {
+            static LLColor4 marker_color(0.75f, 0.75f, 0.75f, 1.f);
+            marker->setColor((can_enable && isRegion() && !is_legacy) ? marker_color : marker_color % 0.3f);
+        }
+    }
 
     getChild<LLSettingsDropTarget>(SDT_DROP_TARGET)->setDndEnabled(enabled && !is_legacy);
 
