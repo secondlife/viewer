@@ -109,6 +109,7 @@ const U32 LLPanelEnvironmentInfo::DIRTY_FLAG_MASK(
 const U32 ALTITUDE_SLIDER_COUNT = 3;
 const F32 ALTITUDE_DEFAULT_HEIGHT_STEP = 1000;
 const U32 ALTITUDE_MARKERS_COUNT = 3;
+const U32 ALTITUDE_PREFIXERS_COUNT = 5;
 
 const std::string slider_marker_base = "mark";
 
@@ -179,7 +180,16 @@ BOOL LLPanelEnvironmentInfo::postBuild()
 
     mChangeMonitor = LLEnvironment::instance().setEnvironmentChanged([this](LLEnvironment::EnvSelection_t env, S32 version) { onEnvironmentChanged(env, version); });
 
-    getChild<LLSettingsDropTarget>(SDT_DROP_TARGET)->setPanel(this);
+    for (U32 idx = 0; idx < ALTITUDE_SLIDER_COUNT; idx++)
+    {
+        LLSettingsDropTarget* drop_target = findChild<LLSettingsDropTarget>("sdt_" + alt_prefixes[idx]);
+        if (drop_target)
+        {
+            drop_target->setPanel(this, alt_sliders[idx]);
+        }
+    }
+    getChild<LLSettingsDropTarget>("sdt_" + alt_prefixes[3])->setPanel(this, alt_prefixes[3]);
+    getChild<LLSettingsDropTarget>("sdt_" + alt_prefixes[4])->setPanel(this, alt_prefixes[4]);
 
     return TRUE;
 }
@@ -260,7 +270,7 @@ void LLPanelEnvironmentInfo::refresh()
         {
             sld->addSlider(altitudes[idx + 1], alt_sliders[idx]);
             updateAltLabel(alt_prefixes[idx], idx + 2, altitudes[idx + 1]);
-            mAltitudes[alt_sliders[idx]] = AltitudeData(idx+1, idx, altitudes[idx+1]);
+            mAltitudes[alt_sliders[idx]] = AltitudeData(idx+2, idx, altitudes[idx+1]);
         }
         if (sld->getCurNumSliders() != ALTITUDE_SLIDER_COUNT)
         {
@@ -460,7 +470,14 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
         }
     }
 
-    getChild<LLSettingsDropTarget>(SDT_DROP_TARGET)->setDndEnabled(enabled && !is_legacy);
+    for (U32 idx = 0; idx < ALTITUDE_PREFIXERS_COUNT; idx++)
+    {
+        LLSettingsDropTarget* drop_target = findChild<LLSettingsDropTarget>("sdt_" + alt_prefixes[idx]);
+        if (drop_target)
+        {
+            drop_target->setDndEnabled(enabled && !is_legacy);
+        }
+    }
 
     return true;
 }
@@ -621,7 +638,7 @@ void LLPanelEnvironmentInfo::onAltSliderCallback(LLUICtrl *cntrl, const LLSD &da
     while (iter != end)
     {
         iter2 = mAltitudes.begin();
-        new_index = 1;
+        new_index = 2;
         while (iter2 != end)
         {
             if (iter->second.mAltitude > iter2->second.mAltitude)
@@ -630,9 +647,9 @@ void LLPanelEnvironmentInfo::onAltSliderCallback(LLUICtrl *cntrl, const LLSD &da
             }
             iter2++;
         }
-        iter->second.mAltitudeIndex = new_index;
+        iter->second.mTrackIndex = new_index;
 
-        updateAltLabel(alt_prefixes[iter->second.mLabelIndex], iter->second.mAltitudeIndex + 1, iter->second.mAltitude);
+        updateAltLabel(alt_prefixes[iter->second.mLabelIndex], iter->second.mTrackIndex, iter->second.mAltitude);
         iter++;
     }
 
@@ -771,7 +788,24 @@ void LLPanelEnvironmentInfo::onIdlePlay(void *data)
     ((LLPanelEnvironmentInfo *)data)->udpateApparentTimeOfDay();
 }
 
-void LLPanelEnvironmentInfo::onPickerCommitted(LLUUID item_id)
+
+void LLPanelEnvironmentInfo::onPickerCommitted(LLUUID item_id, std::string source)
+{
+    if (source == alt_prefixes[4])
+    {
+        onPickerCommitted(item_id, 0);
+    }
+    else if (source == alt_prefixes[3])
+    {
+        onPickerCommitted(item_id, 1);
+    }
+    else
+    {
+        onPickerCommitted(item_id, mAltitudes[source].mTrackIndex);
+    }
+}
+
+void LLPanelEnvironmentInfo::onPickerCommitted(LLUUID item_id, S32 track_num)
 {
     LLInventoryItem *itemp = gInventory.getItem(item_id);
     if (itemp)
@@ -779,7 +813,8 @@ void LLPanelEnvironmentInfo::onPickerCommitted(LLUUID item_id)
         LLHandle<LLPanel> that_h = getHandle();
 
         LLEnvironment::instance().updateParcel(getParcelId(), itemp->getAssetUUID(),
-            itemp->getName(), 
+            itemp->getName(),
+            track_num,
             -1, -1, LLEnvironment::altitudes_vect_t(),
             [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
     }
@@ -946,7 +981,8 @@ BOOL LLSettingsDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
                     *accept = ACCEPT_YES_COPY_SINGLE;
                     if (drop)
                     {
-                        mEnvironmentInfoPanel->onPickerCommitted(item_id);
+                        // might be better to use name of the element
+                        mEnvironmentInfoPanel->onPickerCommitted(item_id, mTrack);
                     }
                 }
             }

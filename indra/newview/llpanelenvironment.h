@@ -123,7 +123,8 @@ protected:
 
     void                        udpateApparentTimeOfDay();
 
-    void                        onPickerCommitted(LLUUID item_id);
+    void                        onPickerCommitted(LLUUID item_id, std::string source);
+    void                        onPickerCommitted(LLUUID item_id, S32 track_num = LLEnvironment::NO_TRACK);
     void                        onEditCommitted(LLSettingsDay::ptr_t newday);
     void                        onDayLenOffsetMouseUp();
 
@@ -154,13 +155,13 @@ protected:
     {
     public:
         AltitudeData() :
-            mAltitudeIndex(0), mLabelIndex(0), mAltitude(0)
+            mTrackIndex(0), mLabelIndex(0), mAltitude(0)
         {}
-        AltitudeData(U32 altitude_index, U32 label_index, F32 altitude) :
-            mAltitudeIndex(altitude_index), mLabelIndex(label_index), mAltitude(altitude)
+        AltitudeData(U32 track_index, U32 label_index, F32 altitude) :
+            mTrackIndex(track_index), mLabelIndex(label_index), mAltitude(altitude)
         {}
 
-        U32 mAltitudeIndex;
+        U32 mTrackIndex;
         U32 mLabelIndex;
         F32 mAltitude;
     };
@@ -211,11 +212,12 @@ public:
         void* cargo_data,
         EAcceptance* accept,
         std::string& tooltip_msg);
-    void setPanel(LLPanelEnvironmentInfo* panel) { mEnvironmentInfoPanel = panel; };
+    void setPanel(LLPanelEnvironmentInfo* panel, std::string track) { mEnvironmentInfoPanel = panel;  mTrack = track; };
     void setDndEnabled(bool dnd_enabled) { mDndEnabled = dnd_enabled; };
 
 protected:
     LLPanelEnvironmentInfo* mEnvironmentInfoPanel;
+    std::string mTrack;
     bool                    mDndEnabled;
 };
 #endif // LL_LLPANELENVIRONMENT_H

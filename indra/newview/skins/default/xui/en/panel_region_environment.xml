@@ -263,7 +263,7 @@
                                 left_delta="0"
                                 follows="top|left"
                                 layout="topleft"
-                                name="sdt_alt2"
+                                name="sdt_alt1"
                                 tool_tip="Drag a setting from Inventory onto this target box to select it as current sky."
                                 width="155" />
                     </panel>

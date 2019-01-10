@@ -324,7 +324,7 @@ void LLFloaterMyEnvironment::onDoApply(const std::string &context)
 
         if (context == PARAMETER_REGION)
         {
-            LLEnvironment::instance().updateRegion(asset_id, name, -1, -1);
+            LLEnvironment::instance().updateRegion(asset_id, name, LLEnvironment::NO_TRACK, -1, -1);
             LLEnvironment::instance().setSharedEnvironment();
         }
         else if (context == PARAMETER_PARCEL)
@@ -335,7 +335,7 @@ void LLFloaterMyEnvironment::onDoApply(const std::string &context)
                 LL_WARNS("ENVIRONMENT") << "Unable to determine parcel." << LL_ENDL;
                 return;
             }
-            LLEnvironment::instance().updateParcel(parcel->getLocalID(), asset_id, name, -1, -1);
+            LLEnvironment::instance().updateParcel(parcel->getLocalID(), asset_id, name, LLEnvironment::NO_TRACK, -1, -1);
             LLEnvironment::instance().setSharedEnvironment();
         }
         else if (context == PARAMETER_LOCAL)
