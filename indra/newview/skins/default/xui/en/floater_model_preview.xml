@@ -34,7 +34,6 @@
   <string name="mesh_status_invalid_material_list">LOD materials are not a subset of reference model.</string>
   <string name="phys_status_vertex_limit_exceeded">Some physical hulls exceed vertex limitations.</string>
   <string name="phys_status_degenerate_triangles">The physics mesh too dense remove the small thin triangles (see preview)</string>
-  <string name="phys_status_no_havok">The Firestorm OpenSim build is not supported for physics upload in SL.</string>
   <string name="layer_all">All</string> <!-- Text to display in physics layer combo box for "all layers" -->
   <string name="decomposing">Analyzing...</string>
   <string name="simplifying">Simplifying...</string>
@@ -1252,7 +1251,7 @@
     <panel
      follows="top|left|bottom"
      layout="topleft"
-     height="184"
+     height="197"
      left="4"
      border="true"
      name="weights_and_warning_panel"
@@ -1441,7 +1440,7 @@ Lowest:
         border="true"
         layout="topleft"
         left_pad="265"
-        name="price_breakdown_panel"
+        name="physics_costs_panel"
         width="120"
         height="100">
         <text
@@ -1509,7 +1508,7 @@ Analysed:
          visible="false">
          You dont have rights to upload mesh models. [[VURL] Find out how] to get certified.
        </text>
-       <text text_color="Yellow" layout="topleft" top_delta="5" left="6" name="status">
+       <text text_color="Yellow" layout="topleft" top_pad="-1" left="6" name="status">
 [STATUS]
        </text>
     </panel>
