@@ -427,8 +427,23 @@ void LLFloaterModelPreview::initModelPreview()
 	{
 		delete mModelPreview;
 	}
-	auto size = gSavedSettings.getS32("PreviewRenderSize");
-	mModelPreview = new LLModelPreview(size, size, this );
+
+	S32 tex_width = 512;
+	S32 tex_height = 512;
+
+	S32 max_width = llmin(gSavedSettings.getS32("PreviewRenderSize"), (S32)gPipeline.mScreenWidth);
+	S32 max_height = llmin(gSavedSettings.getS32("PreviewRenderSize"), (S32)gPipeline.mScreenHeight);
+	
+	while ((tex_width << 1) <= max_width)
+	{
+		tex_width <<= 1;
+	}
+	while ((tex_height << 1) <= max_height)
+	{
+		tex_height <<= 1;
+	}
+
+	mModelPreview = new LLModelPreview(tex_width, tex_height, this);
 	mModelPreview->setPreviewTarget(16.f);
 	mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelPreview::setDetails, this, _1, _2, _3, _4, _5));
 	mModelPreview->setModelUpdatedCallback(boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this, _1));

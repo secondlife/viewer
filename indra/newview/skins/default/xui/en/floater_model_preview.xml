@@ -1520,7 +1520,6 @@ Analysed:
     name="right_panel"
     top="0"
     left="640"
-    background_visible="true"
     width="375">
     <text
       follows="left|top"
@@ -1540,7 +1539,6 @@ Analysed:
       name="right_upper_panel"
       top="8"
       left="60"
-      background_visible="true"
       width="315">
       <combo_box
         top_pad="3"
@@ -1616,7 +1614,7 @@ Analysed:
       layout="topleft"
       left="2"
       name="physics_explode_label"
-      top="85"
+      bottom_pad="2"
       width="150">
       Preview Spread:
     </text>
@@ -1624,8 +1622,8 @@ Analysed:
       name="physics_explode"
       follows="right|bottom"
       valign="center"
-      top="15"
-      left="80"
+      left="105"
+      top_delta="-3"
       min_val="0.0"
       max_val="3.0"
       height="20"
