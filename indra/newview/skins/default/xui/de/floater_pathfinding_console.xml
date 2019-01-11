@@ -96,7 +96,7 @@
 			</combo_box>
 			<check_box label="Begehbare Objekte" name="show_walkables"/>
 			<check_box label="Materialvolumen" name="show_material_volumes"/>
-			<check_box label="Statische Hinternisse" name="show_static_obstacles"/>
+			<check_box label="Statische Hindernisse" name="show_static_obstacles"/>
 			<check_box label="Ausschlussvolumen" name="show_exclusion_volumes"/>
 			<check_box label="Wasserebene" name="show_water_plane"/>
 			<check_box label="Mit Röntgenblick" name="show_xray"/>

@@ -5741,4 +5741,25 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
 		La forme physique n’a pas la version correcte. Configurez la version correcte pour le modèle physique.
 	</string>
+	<string name="couldnt_resolve_host">
+		DNS n&apos;a pas pu résoudre le nom d&apos;hôte([HOSTNAME]). 
+Veuillez vérifier que vous parvenez à vous connecter au site www.secondlife.com. 
+Si c&apos;est le cas, et que vous continuez à recevoir ce message d&apos;erreur, veuillez vous 
+rendre à la section Support et signaler ce problème
+	</string>
+	<string name="ssl_peer_certificate">
+		Le serveur d&apos;identification a rencontré une erreur de connexion SSL. 
+Si vous continuez à recevoir ce message d&apos;erreur, 
+veuillez vous rendre à la section Support du site web 
+SecondLife.com et signaler ce problème
+	</string>
+	<string name="ssl_connect_error">
+		Ceci est souvent dû à un mauvais réglage de l&apos;horloge de votre ordinateur. 
+Veuillez aller à Tableaux de bord et assurez-vous que l&apos;heure et la date sont réglés 
+correctement. Vérifiez également que votre réseau et votre pare-feu sont configurés 
+correctement. Si vous continuez à recevoir ce message d&apos;erreur, veuillez vous rendre 
+à la section Support du site web SecondLife.com et signaler ce problème. 
+
+[https://community.secondlife.com/knowledgebase/english/error-messages-r520/#Section__3 Base de connaissances]
+	</string>
 </strings>
