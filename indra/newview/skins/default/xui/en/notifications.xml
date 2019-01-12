@@ -11322,4 +11322,14 @@ Are you sure you want to continue?
      yestext="Yes"/>
   </notification>
   
+  <notification
+   icon="notify.tga"
+   name="NoEditFromLibrary"
+   persist="true"
+   type="alertmodal">
+You may not edit settings directly from the libary.  
+Please copy to your own inventory and try again.
+  <tag>fail</tag>
+  </notification>
+
 </notifications>

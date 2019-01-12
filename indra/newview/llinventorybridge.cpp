@@ -6971,7 +6971,10 @@ void LLSettingsBridge::openItem()
     LLViewerInventoryItem* item = getItem();
     if (item)
     {
-        LLInvFVBridgeAction::doAction(item->getType(), mUUID, getInventoryModel());
+        if (item->getPermissions().getOwner() != gAgent.getID())
+            LLNotificationsUtil::add("NoEditFromLibrary");
+        else
+            LLInvFVBridgeAction::doAction(item->getType(), mUUID, getInventoryModel());
     }
 }
 
