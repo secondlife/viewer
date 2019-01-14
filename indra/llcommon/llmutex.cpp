@@ -30,41 +30,19 @@
 
 #include "llmutex.h"
 #include "llthread.h"
+#include "lltimer.h"
 
 //============================================================================
 
-LLMutex::LLMutex(apr_pool_t *poolp) :
-	mAPRMutexp(NULL), mCount(0), mLockingThread(NO_THREAD)
+LLMutex::LLMutex() :
+ mCount(0),
+ mLockingThread(NO_THREAD)
 {
-	//if (poolp)
-	//{
-	//	mIsLocalPool = FALSE;
-	//	mAPRPoolp = poolp;
-	//}
-	//else
-	{
-		mIsLocalPool = TRUE;
-		apr_pool_create(&mAPRPoolp, NULL); // Create a subpool for this thread
-	}
-	apr_thread_mutex_create(&mAPRMutexp, APR_THREAD_MUTEX_UNNESTED, mAPRPoolp);
 }
 
 
 LLMutex::~LLMutex()
 {
-#if MUTEX_DEBUG
-	//bad assertion, the subclass LLSignal might be "locked", and that's OK
-	//llassert_always(!isLocked()); // better not be locked!
-#endif
-	if (ll_apr_is_initialized())
-	{
-		apr_thread_mutex_destroy(mAPRMutexp);
-		if (mIsLocalPool)
-		{
-			apr_pool_destroy(mAPRPoolp);
-		}
-	}
-	mAPRMutexp = NULL;
 }
 
 
@@ -76,7 +54,7 @@ void LLMutex::lock()
 		return;
 	}
 	
-	apr_thread_mutex_lock(mAPRMutexp);
+	mMutex.lock();
 	
 #if MUTEX_DEBUG
 	// Have to have the lock before we can access the debug info
@@ -106,19 +84,18 @@ void LLMutex::unlock()
 #endif
 
 	mLockingThread = NO_THREAD;
-	apr_thread_mutex_unlock(mAPRMutexp);
+	mMutex.unlock();
 }
 
 bool LLMutex::isLocked()
 {
-	apr_status_t status = apr_thread_mutex_trylock(mAPRMutexp);
-	if (APR_STATUS_IS_EBUSY(status))
+	if (!mMutex.try_lock())
 	{
 		return true;
 	}
 	else
 	{
-		apr_thread_mutex_unlock(mAPRMutexp);
+		mMutex.unlock();
 		return false;
 	}
 }
@@ -141,8 +118,7 @@ bool LLMutex::trylock()
 		return true;
 	}
 	
-	apr_status_t status(apr_thread_mutex_trylock(mAPRMutexp));
-	if (APR_STATUS_IS_EBUSY(status))
+	if (!mMutex.try_lock())
 	{
 		return false;
 	}
@@ -161,45 +137,95 @@ bool LLMutex::trylock()
 
 //============================================================================
 
-LLCondition::LLCondition(apr_pool_t *poolp) :
-	LLMutex(poolp)
+LLCondition::LLCondition() :
+	LLMutex()
 {
-	// base class (LLMutex) has already ensured that mAPRPoolp is set up.
-
-	apr_thread_cond_create(&mAPRCondp, mAPRPoolp);
 }
 
 
 LLCondition::~LLCondition()
 {
-	apr_thread_cond_destroy(mAPRCondp);
-	mAPRCondp = NULL;
 }
 
 
 void LLCondition::wait()
 {
-	if (!isLocked())
-	{ //mAPRMutexp MUST be locked before calling apr_thread_cond_wait
-		apr_thread_mutex_lock(mAPRMutexp);
-#if MUTEX_DEBUG
-		// avoid asserts on destruction in non-release builds
-		U32 id = LLThread::currentID();
-		mIsLocked[id] = TRUE;
-#endif
-	}
-	apr_thread_cond_wait(mAPRCondp, mAPRMutexp);
+	std::unique_lock< std::mutex > lock(mMutex);
+	mCond.wait(lock);
 }
 
 void LLCondition::signal()
 {
-	apr_thread_cond_signal(mAPRCondp);
+	mCond.notify_one();
 }
 
 void LLCondition::broadcast()
 {
-	apr_thread_cond_broadcast(mAPRCondp);
+	mCond.notify_all();
 }
 
+
+
+LLMutexTrylock::LLMutexTrylock(LLMutex* mutex)
+    : mMutex(mutex),
+    mLocked(false)
+{
+    if (mMutex)
+        mLocked = mMutex->trylock();
+}
+
+LLMutexTrylock::LLMutexTrylock(LLMutex* mutex, U32 aTries, U32 delay_ms)
+    : mMutex(mutex),
+    mLocked(false)
+{
+    if (!mMutex)
+        return;
+
+    for (U32 i = 0; i < aTries; ++i)
+    {
+        mLocked = mMutex->trylock();
+        if (mLocked)
+            break;
+        ms_sleep(delay_ms);
+    }
+}
+
+LLMutexTrylock::~LLMutexTrylock()
+{
+    if (mMutex && mLocked)
+        mMutex->unlock();
+}
+
+
+//---------------------------------------------------------------------
+//
+// LLScopedLock
+//
+LLScopedLock::LLScopedLock(std::mutex* mutex) : mMutex(mutex)
+{
+	if(mutex)
+	{
+		mutex->lock();
+		mLocked = true;
+	}
+	else
+	{
+		mLocked = false;
+	}
+}
+
+LLScopedLock::~LLScopedLock()
+{
+	unlock();
+}
+
+void LLScopedLock::unlock()
+{
+	if(mLocked)
+	{
+		mMutex->unlock();
+		mLocked = false;
+	}
+}
 
 //============================================================================

@@ -738,7 +738,7 @@ void LLUUID::getCurrentTime(uuid_time_t *timestamp)
       getSystemTime(&time_last);
       uuids_this_tick = uuids_per_tick;
       init = TRUE;
-	  mMutex = new LLMutex(NULL);
+	  mMutex = new LLMutex();
    }
 
    uuid_time_t time_now = {0,0};

@@ -830,9 +830,9 @@ LLMeshRepoThread::LLMeshRepoThread()
 {
 	LLAppCoreHttp & app_core_http(LLAppViewer::instance()->getAppCoreHttp());
 
-	mMutex = new LLMutex(NULL);
-	mHeaderMutex = new LLMutex(NULL);
-	mSignal = new LLCondition(NULL);
+	mMutex = new LLMutex();
+	mHeaderMutex = new LLMutex();
+	mSignal = new LLCondition();
 	mHttpRequest = new LLCore::HttpRequest;
 	mHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
 	mHttpOptions->setTransferTimeout(SMALL_MESH_XFER_TIMEOUT);
@@ -2039,7 +2039,7 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
 	mUploadSkin = upload_skin;
 	mUploadJoints = upload_joints;
     mLockScaleIfJointPosition = lock_scale_if_joint_position;
-	mMutex = new LLMutex(NULL);
+	mMutex = new LLMutex();
 	mPendingUploads = 0;
 	mFinished = false;
 	mOrigin = gAgent.getPositionAgent();
@@ -3446,7 +3446,7 @@ LLMeshRepository::LLMeshRepository()
 
 void LLMeshRepository::init()
 {
-	mMeshMutex = new LLMutex(NULL);
+	mMeshMutex = new LLMutex();
 	
 	LLConvexDecomposition::getInstance()->initSystem();
 
@@ -4588,8 +4588,8 @@ LLPhysicsDecomp::LLPhysicsDecomp()
 	mQuitting = false;
 	mDone = false;
 
-	mSignal = new LLCondition(NULL);
-	mMutex = new LLMutex(NULL);
+	mSignal = new LLCondition();
+	mMutex = new LLMutex();
 }
 
 LLPhysicsDecomp::~LLPhysicsDecomp()
