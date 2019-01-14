@@ -447,6 +447,9 @@ then
           # nat 2016-12-22: without RELEASE_CRASH_REPORTING, we have no symbol file.
           if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
           then
+              # This next upload is a frequent failure; see if giving the last one some time helps
+              # JJ is making changes to Codeticket that we hope will eliminate this failure soon
+              sleep 30
               # Upload crash reporter file
               python_cmd "$helpers/codeticket.py" addoutput "Symbolfile" "$VIEWER_SYMBOL_FILE" \
                   || fatal "Upload of symbolfile failed"
