@@ -1102,7 +1102,7 @@ BOOL LLWindowMacOSX::setCursorPosition(const LLCoordWindow position)
 	// trigger mouse move callback
 	LLCoordGL gl_pos;
 	convertCoords(position, &gl_pos);
-	float scale = getDeviceScaleFactor();
+	float scale = getSystemUISize();
 	gl_pos.mX *= scale;
 	gl_pos.mY *= scale;
 	mCallbacks->handleMouseMove(this, gl_pos, (MASK)0);
@@ -1135,7 +1135,7 @@ BOOL LLWindowMacOSX::getCursorPosition(LLCoordWindow *position)
 		cursor_point[1] += mCursorLastEventDeltaY;
 	}
 
-	float scale = getDeviceScaleFactor();
+	float scale = getSystemUISize();
 	position->mX = cursor_point[0] * scale;
 	position->mY = cursor_point[1] * scale;
 
@@ -1904,9 +1904,9 @@ MASK LLWindowMacOSX::modifiersToMask(S16 modifiers)
 	return mask;
 }
 
-F32 LLWindowMacOSX::getDeviceScaleFactor()
+F32 LLWindowMacOSX::getSystemUISize()
 {
-	return gHiDPISupport ? ::getDeviceUnitSize(mGLView) : LLWindow::getDeviceScaleFactor();
+	return gHiDPISupport ? ::getDeviceUnitSize(mGLView) : LLWindow::getSystemUISize();
 }
 
 #if LL_OS_DRAGDROP_ENABLED

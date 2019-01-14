@@ -1770,13 +1770,17 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 		gSavedSettings.setS32("FullScreenHeight",scr.mY);
     }
 
-
+#if LL_DARWIN
+	F32 system_scale_factor = 1.f;
+#else
 	F32 system_scale_factor = mWindow->getSystemUISize();
 	if (system_scale_factor < MIN_UI_SCALE || system_scale_factor > MAX_UI_SCALE)
 	{
 		// reset to default;
 		system_scale_factor = 1.f;
 	}
+#endif
+
 	if (p.first_run || gSavedSettings.getF32("LastSystemUIScaleFactor") != system_scale_factor)
 	{
 		mSystemUIScaleFactorChanged = !p.first_run;
@@ -1787,7 +1791,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 
 	// Get the real window rect the window was created with (since there are various OS-dependent reasons why
 	// the size of a window or fullscreen context may have been adjusted slightly...)
-	F32 ui_scale_factor = llclamp(gSavedSettings.getF32("UIScaleFactor"), MIN_UI_SCALE, MAX_UI_SCALE) * mWindow->getDeviceScaleFactor();
+	F32 ui_scale_factor = llclamp(gSavedSettings.getF32("UIScaleFactor"), MIN_UI_SCALE, MAX_UI_SCALE) * mWindow->getSystemUISize();
 	
 	mDisplayScale.setVec(llmax(1.f / mWindow->getPixelAspectRatio(), 1.f), llmax(mWindow->getPixelAspectRatio(), 1.f));
 	mDisplayScale *= ui_scale_factor;
@@ -5382,7 +5386,7 @@ F32	LLViewerWindow::getWorldViewAspectRatio() const
 
 void LLViewerWindow::calcDisplayScale()
 {
-	F32 ui_scale_factor = llclamp(gSavedSettings.getF32("UIScaleFactor"), MIN_UI_SCALE, MAX_UI_SCALE) * mWindow->getDeviceScaleFactor();
+	F32 ui_scale_factor = llclamp(gSavedSettings.getF32("UIScaleFactor"), MIN_UI_SCALE, MAX_UI_SCALE) * mWindow->getSystemUISize();
 	LLVector2 display_scale;
 	display_scale.setVec(llmax(1.f / mWindow->getPixelAspectRatio(), 1.f), llmax(mWindow->getPixelAspectRatio(), 1.f));
 	display_scale *= ui_scale_factor;
