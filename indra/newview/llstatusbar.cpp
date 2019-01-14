@@ -247,11 +247,11 @@ BOOL LLStatusBar::postBuild()
 	mFilterEdit = getChild<LLSearchEditor>( "search_menu_edit" );
 	mSearchPanel = getChild<LLPanel>( "menu_search_panel" );
 
-	//mSearchPanel->setVisible(gSavedSettings.getBOOL("MenuSearch"));
+	mSearchPanel->setVisible(gSavedSettings.getBOOL("MenuSearch"));
 	mFilterEdit->setKeystrokeCallback(boost::bind(&LLStatusBar::onUpdateFilterTerm, this));
 	mFilterEdit->setCommitCallback(boost::bind(&LLStatusBar::onUpdateFilterTerm, this));
 	collectSearchableItems();
-	//gSavedSettings.getControl("MenuSearch")->getCommitSignal()->connect(boost::bind(&LLStatusBar::updateMenuSearchVisibility, this, _2));
+	gSavedSettings.getControl("MenuSearch")->getCommitSignal()->connect(boost::bind(&LLStatusBar::updateMenuSearchVisibility, this, _2));
 
 	return TRUE;
 }
