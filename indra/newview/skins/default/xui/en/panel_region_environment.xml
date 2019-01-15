@@ -17,7 +17,7 @@
     <string name="str_cross_region">Environmental settings are not available across region boundries.</string>
     <string name="str_legacy">Environmental settings are not available on this region.</string>
     <string name="str_disallowed">The estate manager does not allow changing parcel environments in this region.</string>
-    <string name="str_too_small">The parcel must be at least 128 square meeters to support an environment.</string>
+    <string name="str_too_small">The parcel must be at least 128 square meters to support an environment.</string>
     <string name="str_empty">(empty)</string>
     <layout_stack 
             width="530"

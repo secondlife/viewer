@@ -457,7 +457,7 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
     getChild<LLUICtrl>(ICN_GROUND)->setColor((can_enable && isRegion() && !is_legacy) ? LLColor4::white : LLColor4::grey % 0.8f);
     getChild<LLUICtrl>(ICN_WATER)->setColor((can_enable && isRegion() && !is_legacy) ? LLColor4::white : LLColor4::grey % 0.8f);
     getChild<LLUICtrl>(BTN_RST_ALTITUDES)->setEnabled(can_enable && isRegion() && !is_legacy);
-    getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setEnabled(can_enable && isRegion() && !is_legacy);
+    getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setEnabled(can_enable && !is_legacy);
     getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setEnabled(can_enable && isRegion() && !is_legacy);
 
     for (U32 idx = 0; idx < ALTITUDE_MARKERS_COUNT; idx++)
@@ -475,7 +475,7 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
         LLSettingsDropTarget* drop_target = findChild<LLSettingsDropTarget>("sdt_" + alt_prefixes[idx]);
         if (drop_target)
         {
-            drop_target->setDndEnabled(enabled && !is_legacy);
+            drop_target->setDndEnabled(can_enable && !is_legacy);
         }
     }
 
