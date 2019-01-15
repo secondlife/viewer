@@ -1,9 +1,9 @@
-/**
- * @file   lllinstancetracker.cpp
- * 
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+/** 
+ * @file llatomic.cpp
+ *
+ * $LicenseInfo:firstyear=2018&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2018, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,29 +23,6 @@
  * $/LicenseInfo$
  */
 
-// Precompiled header
-#include "linden_common.h"
-// associated header
-#include "llinstancetracker.h"
-#include "llapr.h"
+#include "llatomic.h"
 
-// STL headers
-// std headers
-// external library headers
-// other Linden headers
-
-void LLInstanceTrackerBase::StaticBase::incrementDepth()
-{
-	++sIterationNestDepth;
-}
-
-void LLInstanceTrackerBase::StaticBase::decrementDepth()
-{
-	llassert(sIterationNestDepth);
-	--sIterationNestDepth;
-}
-
-U32 LLInstanceTrackerBase::StaticBase::getDepth()
-{
-	return sIterationNestDepth;
-}
+//============================================================================

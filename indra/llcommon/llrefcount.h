@@ -29,7 +29,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/intrusive_ptr.hpp>
 #include "llmutex.h"
-#include "llapr.h"
+#include "llatomic.h"
 
 //----------------------------------------------------------------------------
 // RefCount objects should generally only be accessed by way of LLPointer<>'s
@@ -107,8 +107,8 @@ public:
 	void unref()
 	{
 		llassert(mRef >= 1);
-		if ((--mRef) == 0)		// See note in llapr.h on atomic decrement operator return value.  
-		{	
+		if ((--mRef) == 0)
+		{
 			// If we hit zero, the caller should be the only smart pointer owning the object and we can delete it.
 			// It is technically possible for a vanilla pointer to mess this up, or another thread to
 			// jump in, find this object, create another smart pointer and end up dangling, but if
@@ -124,7 +124,7 @@ public:
 	}
 
 private: 
-	LLAtomic32< S32	> mRef; 
+	LLAtomicS32 mRef; 
 };
 
 /**

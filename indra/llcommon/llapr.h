@@ -38,7 +38,6 @@
 #include "apr_thread_proc.h"
 #include "apr_getopt.h"
 #include "apr_signal.h"
-#include "apr_atomic.h"
 
 #include "llstring.h"
 
@@ -130,33 +129,6 @@ private:
 
 	std::unique_ptr<std::mutex> mMutexp;
 } ;
-
-template <typename Type> class LLAtomic32
-{
-public:
-	LLAtomic32<Type>() {};
-	LLAtomic32<Type>(Type x) {apr_atomic_set32(&mData, apr_uint32_t(x)); };
-	~LLAtomic32<Type>() {};
-
-	operator const Type() { apr_uint32_t data = apr_atomic_read32(&mData); return Type(data); }
-	
-	Type	CurrentValue() const { apr_uint32_t data = apr_atomic_read32(const_cast< volatile apr_uint32_t* >(&mData)); return Type(data); }
-
-	Type operator =(const Type& x) { apr_atomic_set32(&mData, apr_uint32_t(x)); return Type(mData); }
-	void operator -=(Type x) { apr_atomic_sub32(&mData, apr_uint32_t(x)); }
-	void operator +=(Type x) { apr_atomic_add32(&mData, apr_uint32_t(x)); }
-	Type operator ++(int) { return apr_atomic_inc32(&mData); } // Type++
-	Type operator --(int) { return apr_atomic_dec32(&mData); } // approximately --Type (0 if final is 0, non-zero otherwise)
-
-	Type operator ++() { return apr_atomic_inc32(&mData); } // Type++
-	Type operator --() { return apr_atomic_dec32(&mData); } // approximately --Type (0 if final is 0, non-zero otherwise)
-	
-private:
-	volatile apr_uint32_t mData;
-};
-
-typedef LLAtomic32<U32> LLAtomicU32;
-typedef LLAtomic32<S32> LLAtomicS32;
 
 // File IO convenience functions.
 // Returns NULL if the file fails to open, sets *sizep to file size if not NULL
