@@ -54,17 +54,15 @@ struct WrapLLErrs
         // Resetting Settings discards the default Recorder that writes to
         // stderr. Otherwise, expected llerrs (LL_ERRS) messages clutter the
         // console output of successful tests, potentially confusing things.
-        mPriorErrorSettings(LLError::saveAndResetSettings()),
-        // Save shutdown function called by LL_ERRS
-        mPriorFatal(LLError::getFatalFunction())
+        mPriorErrorSettings(LLError::saveAndResetSettings())
     {
         // Make LL_ERRS call our own operator() method
-        LLError::setFatalFunction(boost::bind(&WrapLLErrs::operator(), this, _1));
+        LLError::overrideCrashOnError(boost::bind(&WrapLLErrs::operator(), this, _1));
     }
 
     ~WrapLLErrs()
     {
-        LLError::setFatalFunction(mPriorFatal);
+        LLError::restoreCrashOnError();
         LLError::restoreSettings(mPriorErrorSettings);
     }
 
@@ -203,7 +201,7 @@ public:
         mOldSettings(LLError::saveAndResetSettings()),
 		mRecorder(new CaptureLogRecorder())
     {
-        LLError::setFatalFunction(wouldHaveCrashed);
+        LLError::overrideCrashOnError(wouldHaveCrashed);
         LLError::setDefaultLevel(level);
         LLError::addRecorder(mRecorder);
     }

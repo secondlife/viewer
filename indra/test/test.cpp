@@ -146,7 +146,7 @@ public:
 		mOldSettings(LLError::saveAndResetSettings()),
 		mRecorder(new RecordToTempFile(pool))
 	{
-		LLError::setFatalFunction(wouldHaveCrashed);
+		LLError::overrideCrashOnError(wouldHaveCrashed);
 		LLError::setDefaultLevel(level);
 		LLError::addRecorder(mRecorder);
 	}
@@ -508,7 +508,7 @@ void stream_groups(std::ostream& s, const char* app)
 
 void wouldHaveCrashed(const std::string& message)
 {
-	tut::fail("llerrs message: " + message);
+	tut::fail("fatal error message: " + message);
 }
 
 static LLTrace::ThreadRecorder* sMasterThreadRecorder = NULL;
@@ -532,7 +532,7 @@ int main(int argc, char **argv)
 		LLError::initForApplication(".", ".", false /* do not log to stderr */);
 		LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
 	}	
-	LLError::setFatalFunction(wouldHaveCrashed);
+	LLError::overrideCrashOnError(wouldHaveCrashed);
 	std::string test_app_name(argv[0]);
 	std::string test_log = test_app_name + ".log";
 	LLFile::remove(test_log);

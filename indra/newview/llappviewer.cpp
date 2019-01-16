@@ -751,17 +751,6 @@ public:
 	}
 };
 
-namespace {
-// With Xcode 6, _exit() is too magical to use with boost::bind(), so provide
-// this little helper function.
-void fast_exit(int rc)
-{
-	_exit(rc);
-}
-
-
-}
-
 
 bool LLAppViewer::init()
 {
@@ -800,19 +789,6 @@ bool LLAppViewer::init()
 	//set the max heap size.
 	initMaxHeapSize() ;
 	LLCoros::instance().setStackSize(gSavedSettings.getS32("CoroutineStackSize"));
-
-
-	// Although initLoggingAndGetLastDuration() is the right place to mess with
-	// setFatalFunction(), we can't query gSavedSettings until after
-	// initConfiguration().
-	S32 rc(gSavedSettings.getS32("QAModeTermCode"));
-	if (rc >= 0)
-	{
-		// QAModeTermCode set, terminate with that rc on LL_ERRS. Use
-		// fast_exit() rather than exit() because normal cleanup depends too
-		// much on successful startup!
-		LLError::setFatalFunction(boost::bind(fast_exit, rc));
-	}
 
     mAlloc.setProfilingEnabled(gSavedSettings.getBOOL("MemProfiling"));
 
@@ -2120,27 +2096,8 @@ bool LLAppViewer::cleanup()
 	return true;
 }
 
-// A callback for LL_ERRS() to call during the watchdog error.
-void watchdog_llerrs_callback(const std::string &error_string)
-{
-	gLLErrorActivated = true;
-
 	gDebugInfo["FatalMessage"] = error_string;
 	LLAppViewer::instance()->writeDebugInfo();
-
-#ifdef LL_WINDOWS
-	RaiseException(0,0,0,0);
-#else
-	raise(SIGQUIT);
-#endif
-}
-
-// A callback for the watchdog to call.
-void watchdog_killer_callback()
-{
-	LLError::setFatalFunction(watchdog_llerrs_callback);
-	LL_ERRS() << "Watchdog killer event" << LL_ENDL;
-}
 
 bool LLAppViewer::initThreads()
 {
@@ -2176,24 +2133,6 @@ bool LLAppViewer::initThreads()
 	return true;
 }
 
-void errorCallback(const std::string &error_string)
-{
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-	OSMessageBox(error_string, LLTrans::getString("MBFatalError"), OSMB_OK);
-#endif
-
-	//Set the ErrorActivated global so we know to create a marker file
-	gLLErrorActivated = true;
-
-	gDebugInfo["FatalMessage"] = error_string;
-	// We're not already crashing -- we simply *intend* to crash. Since we
-	// haven't actually trashed anything yet, we can afford to write the whole
-	// static info file.
-	LLAppViewer::instance()->writeDebugInfo();
-
-	LLError::crashAndLoop(error_string);
-}
-
 void LLAppViewer::initLoggingAndGetLastDuration()
 {
 	//
@@ -2202,8 +2141,6 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 	LLError::initForApplication( gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "")
                                 ,gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "")
                                 );
-	LLError::setFatalFunction(errorCallback);
-	//LLError::setTimeFunction(getRuntime);
 
 	// Remove the last ".old" log file.
 	std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
@@ -2952,6 +2889,7 @@ bool LLAppViewer::initWindow()
 	// Need to load feature table before cheking to start watchdog.
 	bool use_watchdog = false;
 	int watchdog_enabled_setting = gSavedSettings.getS32("WatchdogEnabled");
+
 	if (watchdog_enabled_setting == -1)
 	{
 		use_watchdog = !LLFeatureManager::getInstance()->isFeatureAvailable("WatchdogDisabled");
@@ -2962,11 +2900,16 @@ bool LLAppViewer::initWindow()
 		use_watchdog = bool(watchdog_enabled_setting);
 	}
 
+    LL_INFOS("AppInit") << "watchdog"
+                        << (use_watchdog ? " " : " NOT ")
+                        << "enabled"
+                        << " (setting = " << watchdog_enabled_setting << ")"
+                        << LL_ENDL;
+
 	if (use_watchdog)
 	{
-		LLWatchdog::getInstance()->init(watchdog_killer_callback);
+		LLWatchdog::getInstance()->init();
 	}
-	LL_INFOS("AppInit") << "watchdog setting is done." << LL_ENDL;
 
 	LLNotificationsUI::LLNotificationManager::getInstance();
 
@@ -3409,12 +3352,10 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["MainloopThreadID"] = (S32)thread_id;
 #endif
 
-	// "CrashNotHandled" is set here, while things are running well,
-	// in case of a freeze. If there is a freeze, the crash logger will be launched
-	// and can read this value from the debug_info.log.
-	// If the crash is handled by LLAppViewer::handleViewerCrash, ie not a freeze,
-	// then the value of "CrashNotHandled" will be set to true.
-	gDebugInfo["CrashNotHandled"] = (LLSD::Boolean)true;
+	// "CrashNotHandled" is obsolete; it used (not very successsfully)
+    // to try to distinguish crashes from freezes
+	gDebugInfo["CrashNotHandled"] = (LLSD::Boolean)false;
+    gDebugInfo["FatalMessage"] = LLError::getFatalMessage();
 
 	// Insert crash host url (url to post crash log to) if configured. This insures
 	// that the crash report will go to the proper location in the case of a
@@ -3567,10 +3508,6 @@ void LLAppViewer::handleViewerCrash()
 		gDebugInfo["Dynamic"]["MainloopTimeoutState"] = LLAppViewer::instance()->mMainloopTimeout->getState();
 	}
 
-	// The crash is being handled here so set this value to false.
-	// Otherwise the crash logger will think this crash was a freeze.
-	gDebugInfo["Dynamic"]["CrashNotHandled"] = (LLSD::Boolean)false;
-
 	//Write out the crash status file
 	//Use marker file style setup, as that's the simplest, especially since
 	//we're already in a crash situation
@@ -3641,6 +3578,8 @@ void LLAppViewer::handleViewerCrash()
 	}
 
 	if (LLWorld::instanceExists()) LLWorld::getInstance()->getInfo(gDebugInfo["Dynamic"]);
+
+	gDebugInfo["Dynamic"]["FatalMessage"] = LLError::getFatalMessage();
 
 	// Close the debug file
 	pApp->writeDebugInfo(false);  //false answers the isStatic question with the least overhead.

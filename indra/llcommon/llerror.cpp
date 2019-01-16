@@ -683,7 +683,6 @@ namespace
 		LLError::setDefaultLevel(LLError::LEVEL_INFO);
         LLError::setAlwaysFlush(true);
         LLError::setEnabledLogTypesMask(0xFFFFFFFF);
-		LLError::setFatalFunction(LLError::crashAndLoop);
 		LLError::setTimeFunction(LLError::utcTime);
 
 		// log_to_stderr is only false in the unit and integration tests to keep builds quieter
@@ -719,16 +718,16 @@ namespace LLError
 		commonInit(user_dir, app_dir, log_to_stderr);
 	}
 
-	void setFatalFunction(const FatalFunction& f)
+	void overrideCrashOnError(const FatalFunction& fatal_function)
 	{
 		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
-		s->mCrashFunction = f;
+		s->mCrashFunction = fatal_function;
 	}
 
-	FatalFunction getFatalFunction()
+	void restoreCrashOnError()
 	{
 		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
-		return s->mCrashFunction;
+		s->mCrashFunction = NULL;
 	}
 
 	std::string getFatalMessage()
@@ -1306,12 +1305,12 @@ namespace LLError
 		return ;
 	}
 
-	void Log::flush(std::ostringstream* out, const CallSite& site)
+	bool Log::flush(std::ostringstream* out, const CallSite& site)
 	{
 		LLMutexTrylock lock(&gLogMutex,5);
 		if (!lock.isLocked())
 		{
-			return;
+			return true;
 		}
 
 		// If we hit a logging request very late during shutdown processing,
@@ -1319,7 +1318,7 @@ namespace LLError
 		// DO NOT resurrect them.
 		if (Settings::wasDeleted() || Globals::wasDeleted())
 		{
-			return;
+			return true;
 		}
 
 		Globals* g = Globals::getInstance();
@@ -1353,7 +1352,7 @@ namespace LLError
 				} 
 				else
 				{
-					return;
+					return true;
 				}
 			}
 			else 
@@ -1370,11 +1369,14 @@ namespace LLError
 		if (site.mLevel == LEVEL_ERROR)
 		{
 			g->mFatalMessage = message;
-			if (s->mCrashFunction)
-			{
-				s->mCrashFunction(message);
-			}
+            if (s->mCrashFunction)
+            {
+                s->mCrashFunction(message);
+                return false;
+            }
 		}
+
+        return true;
 	}
 }
 
@@ -1436,29 +1438,6 @@ namespace LLError
 		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
 		return s->mShouldLogCallCounter;
 	}
-
-#if LL_WINDOWS
-		// VC80 was optimizing the error away.
-		#pragma optimize("", off)
-#endif
-	void crashAndLoop(const std::string& message)
-	{
-		// Now, we go kaboom!
-		int* make_me_crash = NULL;
-
-		*make_me_crash = 0;
-
-		while(true)
-		{
-			// Loop forever, in case the crash didn't work?
-		}
-		
-		// this is an attempt to let Coverity and other semantic scanners know that this function won't be returning ever.
-		exit(EXIT_FAILURE);
-	}
-#if LL_WINDOWS
-		#pragma optimize("", on)
-#endif
 
 	std::string utcTime()
 	{

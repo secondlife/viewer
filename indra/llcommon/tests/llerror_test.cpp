@@ -120,7 +120,7 @@ namespace tut
 
 			mPriorErrorSettings = LLError::saveAndResetSettings();
 			LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
-			LLError::setFatalFunction(fatalCall);
+			LLError::overrideCrashOnError(fatalCall);
 			LLError::addRecorder(mRecorder);
 		}
 

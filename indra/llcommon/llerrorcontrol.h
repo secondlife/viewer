@@ -92,41 +92,13 @@ namespace LLError
 	/*
 		Control functions.
 	*/
-
 	typedef boost::function<void(const std::string&)> FatalFunction;
-	LL_COMMON_API void crashAndLoop(const std::string& message);
-		// Default fatal function: access null pointer and loops forever
 
-	LL_COMMON_API void setFatalFunction(const FatalFunction&);
-		// The fatal function will be called when an message of LEVEL_ERROR
-		// is logged.  Note: supressing a LEVEL_ERROR message from being logged
-		// (by, for example, setting a class level to LEVEL_NONE), will keep
-		// the that message from causing the fatal funciton to be invoked.
-
-	LL_COMMON_API FatalFunction getFatalFunction();
-		// Retrieve the previously-set FatalFunction
-
+    LL_COMMON_API void overrideCrashOnError(const FatalFunction&);
+    LL_COMMON_API void restoreCrashOnError();
+    
 	LL_COMMON_API std::string getFatalMessage();
-		// Retrieve the message last passed to FatalFunction, if any
-
-	/// temporarily override the FatalFunction for the duration of a
-	/// particular scope, e.g. for unit tests
-	class LL_COMMON_API OverrideFatalFunction
-	{
-	public:
-		OverrideFatalFunction(const FatalFunction& func):
-			mPrev(getFatalFunction())
-		{
-			setFatalFunction(func);
-		}
-		~OverrideFatalFunction()
-		{
-			setFatalFunction(mPrev);
-		}
-
-	private:
-		FatalFunction mPrev;
-	};
+		// Retrieve the message last passed to LL_ERRS, if any
 
 	typedef std::string (*TimeFunction)();
 	LL_COMMON_API std::string utcTime();

@@ -59,7 +59,6 @@ public:
         // pump name -- so it should NOT need tweaking for uniqueness.
         mReplyPump(LLUUID::generateNewID().asString()),
         mExpect(0),
-        mPrevFatalFunction(LLError::getFatalFunction()),
         // Instantiate a distinct LLLeapListener for this plugin. (Every
         // plugin will want its own collection of managed listeners, etc.)
         // Pass it a callback to our connect() method, so it can send events
@@ -146,7 +145,7 @@ public:
             .listen("LLLeap", boost::bind(&LLLeapImpl::rstderr, this, _1));
 
         // For our lifespan, intercept any LL_ERRS so we can notify plugin
-        LLError::setFatalFunction(boost::bind(&LLLeapImpl::fatalFunction, this, _1));
+        LLError::overrideCrashOnError(boost::bind(&LLLeapImpl::fatalFunction, this, _1));
 
         // Send child a preliminary event reporting our own reply-pump name --
         // which would otherwise be pretty tricky to guess!
@@ -162,8 +161,8 @@ public:
     virtual ~LLLeapImpl()
     {
         LL_DEBUGS("LLLeap") << "destroying LLLeap(\"" << mDesc << "\")" << LL_ENDL;
-        // Restore original FatalFunction
-        LLError::setFatalFunction(mPrevFatalFunction);
+        // Restore original fatal crash behavior for LL_ERRS
+        LLError::restoreCrashOnError();
     }
 
     // Listener for failed launch attempt
@@ -397,8 +396,8 @@ public:
             mainloop.post(nop);
         }
 
-        // forward the call to the previous FatalFunction
-        mPrevFatalFunction(error);
+        // go ahead and do the crash that LLError would have done
+        LLERROR_CRASH
     }
 
 private:
@@ -421,7 +420,6 @@ private:
         mStdinConnection, mStdoutConnection, mStdoutDataConnection, mStderrConnection;
     boost::scoped_ptr<LLEventPump::Blocker> mBlocker;
     LLProcess::ReadPipe::size_type mExpect;
-    LLError::FatalFunction mPrevFatalFunction;
     boost::scoped_ptr<LLLeapListener> mListener;
 };
 
