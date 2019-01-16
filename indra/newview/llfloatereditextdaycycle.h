@@ -111,8 +111,11 @@ private:
     virtual void                onClickCloseBtn(bool app_quitting = false) override;
     void                        onButtonImport();
     void                        onButtonLoadFrame();
-    void                        onAddTrack();
-	void                        onRemoveTrack();
+    void                        onAddFrame();
+	void                        onRemoveFrame();
+    void                        onCloneTrack();
+    void                        onLoadTrack();
+    void                        onClearTrack();
 	void                        onCommitName(class LLLineEditor* caller, void* user_data);
 	void                        onTrackSelectionCallback(const LLSD& user_data);
 	void                        onPlayActionCallback(const LLSD& user_data);
@@ -147,10 +150,10 @@ private:
 
     void                        doImportFromDisk();
     void                        loadSettingFromFile(const std::vector<std::string>& filenames);
-    void doApplyCreateNewInventory(const LLSettingsDay::ptr_t &day, std::string settings_name);
-    void doApplyUpdateInventory(const LLSettingsDay::ptr_t &day);
-    void doApplyEnvironment(const std::string &where, const LLSettingsDay::ptr_t &day);
-    void doApplyCommit(LLSettingsDay::ptr_t day);
+    void                        doApplyCreateNewInventory(const LLSettingsDay::ptr_t &day, std::string settings_name);
+    void                        doApplyUpdateInventory(const LLSettingsDay::ptr_t &day);
+    void                        doApplyEnvironment(const std::string &where, const LLSettingsDay::ptr_t &day);
+    void                        doApplyCommit(LLSettingsDay::ptr_t day);
     void                        onInventoryCreated(LLUUID asset_id, LLUUID inventory_id);
     void                        onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
     void                        onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
@@ -194,6 +197,9 @@ private:
     LLButton*                   mDeleteFrameButton;
     LLButton*                   mImportButton;
     LLButton*                   mLoadFrame;
+    LLButton *                  mCloneTrack;
+    LLButton *                  mLoadTrack;
+    LLButton *                  mClearTrack;
     LLMultiSliderCtrl*	        mTimeSlider;
     LLMultiSliderCtrl*          mFramesSlider;
     LLView*                     mSkyTabLayoutContainer;

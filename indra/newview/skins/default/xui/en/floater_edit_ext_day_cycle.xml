@@ -26,7 +26,7 @@
 
     <string name="commit_parcel">Apply To Parcel</string>
     <string name="commit_region">Apply To Region</string>
-    
+
     <!-- Layout -->
     <layout_stack name="outer_stack"
             width="705"
@@ -270,162 +270,225 @@
                                 width="70" />
 
                         <layout_stack
-                                name="progress_control"
-                                follows="top|left"
-                                height="25"
-                                width="83"
-                                layout="topleft"
+                                follows="all"
+                                height="200"
                                 animate="false"
-                                left="225"
-                                top_pad="40"
+                                top_pad="5"
+                                left="0"
                                 orientation="horizontal">
-
                             <layout_panel
-                                    name="skip_back"
-                                    mouse_opaque="false"
+                                    border="false"
+                                    bevel_style="in"
                                     auto_resize="false"
-                                    layout="topleft"
-                                    top="0"
-                                    height="25"
-                                    min_width="25"
-                                    width="25">
+                                    user_resize="false"
+                                    height="150"
+                                    width="200"
+                                    min_height="0"
+                                    visible="true">
                                 <button
-                                        name="skip_back_btn"
-                                        follows="top"
-                                        image_overlay="SkipBackward_Off"
-                                        image_disabled="PushButton_Disabled"
-                                        image_disabled_selected="PushButton_Disabled"
-                                        image_selected="PushButton_Selected"
-                                        image_unselected="PushButton_Off"
-                                        hover_glow_amount="0.15"
-                                        auto_resize="false"
-                                        width="25"
-                                        height="25"
-                                        layout="topleft"
-                                        tool_tip="Step back"
-                                        top="0"
-                                        left="0">
-                                    <button.commit_callback
-                                            function="DayCycle.PlayActions"
-                                            parameter="back" />
-                                </button>
+                                        follows="top|left"
+                                        height="23"
+                                        width="90"
+                                        label="Clone From"
+                                        left="10"
+                                        top_pad="10"
+                                        name="copy_track" />
+                                <button
+                                        follows="top|left"
+                                        height="23"
+                                        width="90"
+                                        label="Load From"
+                                        top_pad="0"
+                                        left_delta="0"
+                                        name="load_track" />
+                                <button
+                                        follows="top|left"
+                                        height="23"
+                                        width="90"
+                                        label="Clear"
+                                        top_pad="0"
+                                        left_delta="0"
+                                        name="clear_track" />
+                                    
                             </layout_panel>
-
                             <layout_panel
-                                    name="play_layout"
-                                    mouse_opaque="false"
+                                    border="false"
+                                    bevel_style="in"
                                     auto_resize="false"
-                                    layout="topleft"
-                                    top="0"
-                                    height="25"
-                                    min_width="25"
-                                    width="25">
-                                <button
-                                        name="play_btn"
-                                        follows="top"
-                                        image_overlay="Play_Off"
-                                        image_disabled="PushButton_Disabled"
-                                        image_disabled_selected="PushButton_Disabled"
-                                        image_selected="PushButton_Selected"
-                                        image_unselected="PushButton_Off"
-                                        hover_glow_amount="0.15"
-                                        auto_resize="false"
-                                        layout="topleft"
+                                    user_resize="false"
+                                    height="150"
+                                    width="200"
+                                    min_height="0"
+                                    visible="true">
+                                <layout_stack
+                                        name="progress_control"
+                                        follows="top|left"
                                         height="25"
-                                        width="25"
-                                        left="0"
-                                        top="0">
-                                    <button.commit_callback
-                                            function="DayCycle.PlayActions"
-                                            parameter="play" />
-                                </button>
+                                        width="83"
+                                        layout="topleft"
+                                        animate="false"
+                                        left="31"
+                                        top="40"
+                                        orientation="horizontal">
+
+                                    <layout_panel
+                                            name="skip_back"
+                                            mouse_opaque="false"
+                                            auto_resize="false"
+                                            layout="topleft"
+                                            top="0"
+                                            height="25"
+                                            min_width="25"
+                                            width="25">
+                                        <button
+                                                name="skip_back_btn"
+                                                follows="top"
+                                                image_overlay="SkipBackward_Off"
+                                                image_disabled="PushButton_Disabled"
+                                                image_disabled_selected="PushButton_Disabled"
+                                                image_selected="PushButton_Selected"
+                                                image_unselected="PushButton_Off"
+                                                hover_glow_amount="0.15"
+                                                auto_resize="false"
+                                                width="25"
+                                                height="25"
+                                                layout="topleft"
+                                                tool_tip="Step back"
+                                                top="0"
+                                                left="0">
+                                            <button.commit_callback
+                                                    function="DayCycle.PlayActions"
+                                                    parameter="back" />
+                                        </button>
+                                    </layout_panel>
+
+                                    <layout_panel
+                                            name="play_layout"
+                                            mouse_opaque="false"
+                                            auto_resize="false"
+                                            layout="topleft"
+                                            top="0"
+                                            height="25"
+                                            min_width="25"
+                                            width="25">
+                                        <button
+                                                name="play_btn"
+                                                follows="top"
+                                                image_overlay="Play_Off"
+                                                image_disabled="PushButton_Disabled"
+                                                image_disabled_selected="PushButton_Disabled"
+                                                image_selected="PushButton_Selected"
+                                                image_unselected="PushButton_Off"
+                                                hover_glow_amount="0.15"
+                                                auto_resize="false"
+                                                layout="topleft"
+                                                height="25"
+                                                width="25"
+                                                left="0"
+                                                top="0">
+                                            <button.commit_callback
+                                                    function="DayCycle.PlayActions"
+                                                    parameter="play" />
+                                        </button>
+                                    </layout_panel>
+
+                                    <layout_panel
+                                            name="pause_layout"
+                                            mouse_opaque="false"
+                                            auto_resize="false"
+                                            layout="topleft"
+                                            top="0"
+                                            height="25"
+                                            min_width="25"
+                                            width="25"
+                                            visible="false">
+                                        <button
+                                                name="pause_btn"
+                                                follows="top"
+                                                image_overlay="Pause_Off"
+                                                image_disabled="PushButton_Disabled"
+                                                image_disabled_selected="PushButton_Disabled"
+                                                image_selected="PushButton_Selected"
+                                                image_unselected="PushButton_Off"
+                                                hover_glow_amount="0.15"
+                                                auto_resize="false"
+                                                layout="topleft"
+                                                height="25"
+                                                width="25"
+                                                left="0"
+                                                top="0">
+                                            <button.commit_callback
+                                                    function="DayCycle.PlayActions"
+                                                    parameter="pause" />
+                                        </button>
+                                    </layout_panel>
+
+                                    <layout_panel
+                                            name="skip_forward"
+                                            mouse_opaque="false"
+                                            auto_resize="false"
+                                            layout="topleft"
+                                            top="0"
+                                            height="25"
+                                            min_width="25"
+                                            width="25">
+                                        <button
+                                                name="skip_forward_btn"
+                                                follows="top"
+                                                image_overlay="SkipForward_Off"
+                                                image_disabled="PushButton_Disabled"
+                                                image_disabled_selected="PushButton_Disabled"
+                                                image_selected="PushButton_Selected"
+                                                image_unselected="PushButton_Off"
+                                                hover_glow_amount="0.15"
+                                                width="25"
+                                                height="25"
+                                                layout="topleft"
+                                                tool_tip="Step forward"
+                                                top="0">
+                                            <button.commit_callback
+                                                    function="DayCycle.PlayActions"
+                                                    parameter="forward" />
+                                        </button>
+                                    </layout_panel>
+                                </layout_stack>
                             </layout_panel>
-
                             <layout_panel
-                                    name="pause_layout"
-                                    mouse_opaque="false"
+                                    border="false"
+                                    bevel_style="in"
                                     auto_resize="false"
-                                    layout="topleft"
-                                    top="0"
-                                    height="25"
-                                    min_width="25"
-                                    width="25"
-                                    visible="false">
+                                    user_resize="false"
+                                    width="190"
+                                    height="150"
+                                    min_height="0"
+                                    visible="true">
                                 <button
-                                        name="pause_btn"
-                                        follows="top"
-                                        image_overlay="Pause_Off"
-                                        image_disabled="PushButton_Disabled"
-                                        image_disabled_selected="PushButton_Disabled"
-                                        image_selected="PushButton_Selected"
-                                        image_unselected="PushButton_Off"
-                                        hover_glow_amount="0.15"
-                                        auto_resize="false"
-                                        layout="topleft"
-                                        height="25"
-                                        width="25"
-                                        left="0"
-                                        top="0">
-                                    <button.commit_callback
-                                            function="DayCycle.PlayActions"
-                                            parameter="pause" />
-                                </button>
-                            </layout_panel>
 
-                            <layout_panel
-                                    name="skip_forward"
-                                    mouse_opaque="false"
-                                    auto_resize="false"
-                                    layout="topleft"
-                                    top="0"
-                                    height="25"
-                                    min_width="25"
-                                    width="25">
+                                        follows="top|right"
+                                        height="23"
+                                        width="90"
+                                        right="-10"
+                                        top_pad="10"
+                                        label="Add [FRAME]"
+                                        name="add_frame" />
                                 <button
-                                        name="skip_forward_btn"
-                                        follows="top"
-                                        image_overlay="SkipForward_Off"
-                                        image_disabled="PushButton_Disabled"
-                                        image_disabled_selected="PushButton_Disabled"
-                                        image_selected="PushButton_Selected"
-                                        image_unselected="PushButton_Off"
-                                        hover_glow_amount="0.15"
-                                        width="25"
-                                        height="25"
-                                        layout="topleft"
-                                        tool_tip="Step forward"
-                                        top="0">
-                                    <button.commit_callback
-                                            function="DayCycle.PlayActions"
-                                            parameter="forward" />
-                                </button>
+                                        follows="top|left"
+                                        height="23"
+                                        width="90"
+                                        label="Load [FRAME]"
+                                        top_pad="0"
+                                        left_delta="0"
+                                        name="btn_load_frame" />
+                                <button
+                                        follows="left|top"
+                                        height="23"
+                                        width="90"
+                                        label="Delete [FRAME]"
+                                        top_pad="0"
+                                        left_delta="0"
+                                        name="delete_frame" />
                             </layout_panel>
                         </layout_stack>
-
-                        <button
-                                follows="top|left"
-                                height="23"
-                                width="90"
-                                label="Add [FRAME]"
-                                left_pad="175"
-                                top_delta="-20"
-                                name="add_frame" />
-                        <button
-                                follows="top|left"
-                                height="23"
-                                width="90"
-                                label="Load [FRAME]"
-                                top_pad="0"
-                                left_delta="0"
-                                name="btn_load_frame" />
-                        <button
-                                follows="left|top"
-                                height="23"
-                                width="90"
-                                label="Delete [FRAME]"
-                                top_pad="0"
-                                left_delta="0"
-                                name="delete_frame" />
                     </panel>
                 </layout_panel>
                 <layout_panel name="frame_edit_controls"
@@ -447,7 +510,7 @@
                             font="SansSerif"
                             text_color="Yellow"
                             width="500">
-Select a key frame from the timeline above to edit settings.
+                        Select a key frame from the timeline above to edit settings.
                     </text>
                 </layout_panel>
                 <layout_panel name="frame_settings_water"
