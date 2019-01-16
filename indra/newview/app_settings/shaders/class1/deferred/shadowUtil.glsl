@@ -120,6 +120,13 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
 
     float shadow = 0.0f;
     vec4 spos = vec4(shadow_pos,1.0);
+
+    // if we know this point is facing away from the sun then we know it's in shadow without having to do a squirrelly shadow-map lookup
+    if (dp_directional_light <= 0.0)
+    {
+        return 0.0;
+    }
+
     if (spos.z > -shadow_clip.w)
     {   
         vec4 lpos;
@@ -174,7 +181,8 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
 
         shadow /= weight;
     }
-    return shadow;
+
+    return min(dp_directional_light, shadow);
 }
 
 float sampleSpotShadow(vec3 pos, vec3 norm, int index, vec2 pos_screen)
