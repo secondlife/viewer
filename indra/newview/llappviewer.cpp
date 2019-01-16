@@ -3508,6 +3508,10 @@ void LLAppViewer::handleViewerCrash()
 		gDebugInfo["Dynamic"]["MainloopTimeoutState"] = LLAppViewer::instance()->mMainloopTimeout->getState();
 	}
 
+	// The crash is being handled here so set this value to false.
+	// Otherwise the crash logger will think this crash was a freeze.
+	gDebugInfo["Dynamic"]["CrashNotHandled"] = (LLSD::Boolean)false;
+
 	//Write out the crash status file
 	//Use marker file style setup, as that's the simplest, especially since
 	//we're already in a crash situation
@@ -3680,8 +3684,11 @@ void LLAppViewer::processMarkerFiles()
 		{
 			// the file existed, is ours, and matched our version, so we can report on what it says
 			LL_INFOS("MarkerFile") << "Exec marker '"<< mMarkerFileName << "' found; last exec FROZE" << LL_ENDL;
+#           if LL_BUGSPLAT            
+			gLastExecEvent = LAST_EXEC_OTHER_CRASH;
+#           else
 			gLastExecEvent = LAST_EXEC_FROZE;
-
+#           endif
 		}
 		else
 		{
