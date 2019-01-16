@@ -260,6 +260,7 @@ void LLFloaterRegionInfo::onOpen(const LLSD& key)
 		disableTabCtrls();
 		return;
 	}
+	LLEstateInfoModel::instance().clearRegion();
 	requestRegionInfo(); // will cause refreshFromRegion()
 	requestMeshRezInfo();
 }
