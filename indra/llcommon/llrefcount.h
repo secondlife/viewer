@@ -31,11 +31,6 @@
 #include "llmutex.h"
 #include "llapr.h"
 
-#define LL_REF_COUNT_DEBUG 0
-#if LL_REF_COUNT_DEBUG
-class LLMutex ;
-#endif
-
 //----------------------------------------------------------------------------
 // RefCount objects should generally only be accessed by way of LLPointer<>'s
 // see llthread.h for LLThreadSafeRefCount
@@ -51,10 +46,6 @@ protected:
 public:
 	LLRefCount();
 
-#if LL_REF_COUNT_DEBUG
-	void ref() const ;
-	S32 unref() const ;
-#else
 	inline void ref() const
 	{ 
 		mRef++; 
@@ -69,8 +60,7 @@ public:
 			return 0;
 		}
 		return mRef;
-	}	
-#endif
+	}
 
 	//NOTE: when passing around a const LLRefCount object, this can return different results
 	// at different types, since mRef is mutable
@@ -81,12 +71,6 @@ public:
 
 private: 
 	mutable S32	mRef; 
-
-#if LL_REF_COUNT_DEBUG
-	LLMutex*  mMutexp ;
-	mutable U32  mLockedThreadID ;
-	mutable BOOL mCrashAtUnlock ; 
-#endif
 };
 
 
