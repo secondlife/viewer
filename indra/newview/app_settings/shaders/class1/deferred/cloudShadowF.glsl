@@ -55,7 +55,7 @@ uniform vec3 sun_dir;
 uniform float sun_size;
 uniform float far_z;
 
-#if !DEPTH_CLAMP
+#if !defined(DEPTH_CLAMP)
 VARYING vec4 post_pos;
 #endif
 
@@ -114,7 +114,7 @@ void main()
 
     frag_color = vec4(alpha1, alpha1, alpha1, 1);
 
-#if !DEPTH_CLAMP
+#if !defined(DEPTH_CLAMP)
 	gl_FragDepth = max(post_pos.z/post_pos.w*0.5+0.5, 0.0);
 #endif
 

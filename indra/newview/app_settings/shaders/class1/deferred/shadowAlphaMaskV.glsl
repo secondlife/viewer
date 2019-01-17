@@ -31,7 +31,7 @@ ATTRIBUTE vec3 position;
 ATTRIBUTE vec4 diffuse_color;
 ATTRIBUTE vec2 texcoord0;
 
-#if !DEPTH_CLAMP
+#if !defined(DEPTH_CLAMP)
 VARYING float pos_zd2;
 #endif
 
@@ -52,7 +52,7 @@ void main()
 
 	pos_w = pos.w;
 
-#if !DEPTH_CLAMP
+#if !defined(DEPTH_CLAMP)
 	pos_zd2 = pos.z * 0.5;
 	
 	gl_Position = vec4(pos.x, pos.y, pos.w*0.5, pos.w);
