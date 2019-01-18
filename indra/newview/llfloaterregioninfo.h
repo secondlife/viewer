@@ -532,7 +532,7 @@ private:
 	// Core methods for all above add/remove button clicks
 	static void accessAddCore(U32 operation_flag, const std::string& dialog_name);
 	static bool accessAddCore2(const LLSD& notification, const LLSD& response);
-	static void accessAddCore3(const uuid_vec_t& ids, void* data);
+	static void accessAddCore3(const uuid_vec_t& ids, std::vector<LLAvatarName> names, void* data);
 
 	static void accessRemoveCore(U32 operation_flag, const std::string& dialog_name, const std::string& list_ctrl_name);
 	static bool accessRemoveCore2(const LLSD& notification, const LLSD& response);
