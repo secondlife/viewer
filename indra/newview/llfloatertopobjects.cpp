@@ -78,8 +78,6 @@ LLFloaterTopObjects::LLFloaterTopObjects(const LLSD& key)
 	mCommitCallbackRegistrar.add("TopObjects.ShowBeacon",		boost::bind(&LLFloaterTopObjects::onClickShowBeacon, this));
 	mCommitCallbackRegistrar.add("TopObjects.ReturnSelected",	boost::bind(&LLFloaterTopObjects::onReturnSelected, this));
 	mCommitCallbackRegistrar.add("TopObjects.ReturnAll",		boost::bind(&LLFloaterTopObjects::onReturnAll, this));
-	mCommitCallbackRegistrar.add("TopObjects.DisableSelected",	boost::bind(&LLFloaterTopObjects::onDisableSelected, this));
-	mCommitCallbackRegistrar.add("TopObjects.DisableAll",		boost::bind(&LLFloaterTopObjects::onDisableAll, this));
 	mCommitCallbackRegistrar.add("TopObjects.Refresh",			boost::bind(&LLFloaterTopObjects::onRefresh, this));
 	mCommitCallbackRegistrar.add("TopObjects.GetByObjectName",	boost::bind(&LLFloaterTopObjects::onGetByObjectName, this));
 	mCommitCallbackRegistrar.add("TopObjects.GetByOwnerName",	boost::bind(&LLFloaterTopObjects::onGetByOwnerName, this));
@@ -332,7 +330,7 @@ void LLFloaterTopObjects::onClickShowBeacon()
 	showBeacon();
 }
 
-void LLFloaterTopObjects::doToObjects(int action, bool all)
+void LLFloaterTopObjects::returnObjects(bool all)
 {
 	LLMessageSystem *msg = gMessageSystem;
 
@@ -356,14 +354,7 @@ void LLFloaterTopObjects::doToObjects(int action, bool all)
 		}
 		if (start_message)
 		{
-			if (action == ACTION_RETURN)
-			{
-				msg->newMessageFast(_PREHASH_ParcelReturnObjects);
-			}
-			else
-			{
-				msg->newMessageFast(_PREHASH_ParcelDisableObjects);
-			}
+			msg->newMessageFast(_PREHASH_ParcelReturnObjects);
 			msg->nextBlockFast(_PREHASH_AgentData);
 			msg->addUUIDFast(_PREHASH_AgentID,	gAgent.getID());
 			msg->addUUIDFast(_PREHASH_SessionID,gAgent.getSessionID());
@@ -397,7 +388,7 @@ bool LLFloaterTopObjects::callbackReturnAll(const LLSD& notification, const LLSD
 	if(!instance) return false;
 	if (option == 0)
 	{
-		instance->doToObjects(ACTION_RETURN, true);
+		instance->returnObjects(true);
 	}
 	return false;
 }
@@ -410,31 +401,7 @@ void LLFloaterTopObjects::onReturnAll()
 
 void LLFloaterTopObjects::onReturnSelected()
 {
-	doToObjects(ACTION_RETURN, false);
-}
-
-
-//static
-bool LLFloaterTopObjects::callbackDisableAll(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	LLFloaterTopObjects* instance = LLFloaterReg::getTypedInstance<LLFloaterTopObjects>("top_objects");
-	if(!instance) return false;
-	if (option == 0)
-	{
-		instance->doToObjects(ACTION_DISABLE, true);
-	}
-	return false;
-}
-
-void LLFloaterTopObjects::onDisableAll()
-{
-	LLNotificationsUtil::add("DisableAllTopObjects", LLSD(), LLSD(), callbackDisableAll);
-}
-
-void LLFloaterTopObjects::onDisableSelected()
-{
-	doToObjects(ACTION_DISABLE, false);
+	returnObjects(false);
 }
 
 
