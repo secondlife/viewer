@@ -28,6 +28,7 @@
 
 #include "llsettingspicker.h"
 
+#include "llcombobox.h"
 #include "llfiltereditor.h"
 #include "llfolderviewmodel.h"
 #include "llinventory.h"
@@ -47,7 +48,9 @@ namespace
     const std::string FLOATER_DEFINITION_XML("floater_settings_picker.xml");
 
     const std::string FLT_INVENTORY_SEARCH("flt_inventory_search");
+    const std::string CMB_TRACK_SELECTION("track_selection");
     const std::string PNL_INVENTORY("pnl_inventory");
+    const std::string PNL_COMBO("pnl_combo");
     const std::string BTN_SELECT("btn_select");
     const std::string BTN_CANCEL("btn_cancel");
 
@@ -162,6 +165,8 @@ void LLFloaterSettingsPicker::setSettingsFilter(LLSettingsType::type_e type)
         filter = static_cast<S64>(0x1) << static_cast<S64>(type);
     }
 
+    getChild<LLPanel>(PNL_COMBO)->setVisible(type != LLSettingsType::ST_WATER && type != LLSettingsType::ST_SKY);
+
     mInventoryPanel->setFilterSettingsTypes(filter);
 }
 
@@ -263,6 +268,7 @@ void LLFloaterSettingsPicker::onFilterEdit(const std::string& search_string)
 
 void LLFloaterSettingsPicker::onSelectionChange(const LLFloaterSettingsPicker::itemlist_t &items, bool user_action)
 {
+    bool track_picker_enabled = false;
     if (items.size())
     {
         LLFolderViewItem* first_item = items.front();
@@ -284,9 +290,16 @@ void LLFloaterSettingsPicker::onSelectionChange(const LLFloaterSettingsPicker::i
                 {
                     mChangeIDSignal(mSettingItemID);
                 }
+
+                if (bridge_model->getSettingsType() == LLSettingsType::ST_DAYCYCLE
+                    && !mNoCopySettingsSelected)
+                {
+                    track_picker_enabled = true;
+                }
             }
         }
     }
+    getChild<LLView>(CMB_TRACK_SELECTION)->setEnabled(track_picker_enabled);
 }
 
 void LLFloaterSettingsPicker::onButtonCancel()
@@ -297,7 +310,12 @@ void LLFloaterSettingsPicker::onButtonCancel()
 void LLFloaterSettingsPicker::onButtonSelect()
 {
     if (mCommitSignal)
-        (*mCommitSignal)(this, LLSD(mSettingItemID));
+    {
+        LLSD res;
+        res["ItemId"] = mSettingItemID;
+        res["Track"] = getChild<LLComboBox>(CMB_TRACK_SELECTION)->getValue();
+        (*mCommitSignal)(this, res);
+    }
     closeFloater();
 }
 
@@ -321,7 +339,12 @@ BOOL LLFloaterSettingsPicker::handleDoubleClick(S32 x, S32 y, MASK mask)
                 {
                     // Quick-apply
                     if (mCommitSignal)
-                        (*mCommitSignal)(this, LLSD(mSettingItemID));
+                    {
+                        LLSD res;
+                        res["ItemId"] = mSettingItemID;
+                        res["Track"] = getChild<LLComboBox>(CMB_TRACK_SELECTION)->getValue();
+                        (*mCommitSignal)(this, res);
+                    }
                     closeFloater();
                 }
             }
@@ -346,7 +369,12 @@ BOOL LLFloaterSettingsPicker::handleKeyHere(KEY key, MASK mask)
         {
             // Quick-apply
             if (mCommitSignal)
-                (*mCommitSignal)(this, LLSD(mSettingItemID));
+            {
+                LLSD res;
+                res["ItemId"] = mSettingItemID;
+                res["Track"] = getChild<LLComboBox>(CMB_TRACK_SELECTION)->getValue();
+                (*mCommitSignal)(this, res);
+            }
             closeFloater();
             return TRUE;
         }

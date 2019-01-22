@@ -287,8 +287,6 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
             panel->setOnDirtyFlagChanged([this](LLPanel *, bool val) { onPanelDirtyFlagChanged(val); });
     }
 
-    //getChild<LLButton>("sky1_track", true)->setToggleState(true);
-
 	return TRUE;
 }
 
@@ -751,7 +749,7 @@ void LLFloaterEditExtDayCycle::onButtonLoadFrame()
     { 
         curitemId = LLFloaterSettingsPicker::findItemID(mCurrentEdit->getAssetId(), false, false);
     }
-    
+
     doOpenInventoryFloater((mCurrentTrack == LLSettingsDay::TRACK_WATER) ? LLSettingsType::ST_WATER : LLSettingsType::ST_SKY, curitemId);
 }
 
@@ -810,7 +808,14 @@ void LLFloaterEditExtDayCycle::onCloneTrack()
 
 void LLFloaterEditExtDayCycle::onLoadTrack()
 {
+    LLUUID curitemId = mInventoryId;
 
+    if (mCurrentEdit && curitemId.notNull())
+    {
+        curitemId = LLFloaterSettingsPicker::findItemID(mCurrentEdit->getAssetId(), false, false);
+    }
+
+    doOpenInventoryFloater(LLSettingsType::ST_DAYCYCLE, curitemId);
 }
 
 
@@ -1021,6 +1026,34 @@ void LLFloaterEditExtDayCycle::onTimeSliderCallback()
     selectFrame(mTimeSlider->getCurSliderValue(), LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR);
 }
 
+void LLFloaterEditExtDayCycle::cloneTrack(U32 source_index, U32 dest_index)
+{
+    cloneTrack(mEditDay, source_index, dest_index);
+}
+
+void LLFloaterEditExtDayCycle::cloneTrack(const LLSettingsDay::ptr_t &source_day, U32 source_index, U32 dest_index)
+{
+    if (source_index == LLSettingsDay::TRACK_WATER || dest_index == LLSettingsDay::TRACK_WATER)
+    {
+        LL_WARNS() << "water track can't be source or destination for copying" << LL_ENDL;
+        return;
+    }
+
+    // don't use replaceCycleTrack because we will end up with references, but we need to clone
+    mEditDay->clearCycleTrack(dest_index); // because source can be empty
+    LLSettingsDay::CycleTrack_t source_track = source_day->getCycleTrack(source_index);
+
+    for (auto &track_frame : source_track)
+    {
+        LLSettingsSky::ptr_t psky = std::static_pointer_cast<LLSettingsSky>(track_frame.second);
+        mEditDay->setSettingsAtKeyframe(psky->buildDerivedClone(), track_frame.first, dest_index);
+    }
+
+    updateSlider();
+    updateTabs();
+    updateButtons();
+}
+
 void LLFloaterEditExtDayCycle::selectTrack(U32 track_index, bool force )
 {
     if (track_index < LLSettingsDay::TRACK_MAX)
@@ -1180,8 +1213,6 @@ void LLFloaterEditExtDayCycle::updateButtons()
     bool can_load(true);
     bool can_clear(true);
 
-    can_clear = (mCurrentTrack > 1) ? (!mEditDay->getCycleTrack(mCurrentTrack).empty()) : (mEditDay->getCycleTrack(mCurrentTrack).size() > 1);
-
     if (mCurrentTrack == 0)
     {
         can_clone = false;
@@ -1196,12 +1227,20 @@ void LLFloaterEditExtDayCycle::updateButtons()
         }
     }
 
+    can_clear = (mCurrentTrack > 1) ? (!mEditDay->getCycleTrack(mCurrentTrack).empty()) : (mEditDay->getCycleTrack(mCurrentTrack).size() > 1);
     mCloneTrack->setEnabled(can_clone && false);
     mCloneTrack->setVisible(false);
-    mLoadTrack->setEnabled(can_load && false);
-    mLoadTrack->setVisible(false);
+    mLoadTrack->setEnabled(can_load);
     mClearTrack->setEnabled(can_clear);
 
+    // update track buttons
+    bool extended_env = LLEnvironment::instance().isExtendedEnvironmentEnabled();
+    for (S32 track = 0; track < LLSettingsDay::TRACK_MAX; ++track)
+    {
+        LLButton* button = getChild<LLButton>(track_tabs[track], true);
+        button->setEnabled(extended_env);
+        button->setToggleState(track == mCurrentTrack);
+    }
 }
 
 void LLFloaterEditExtDayCycle::updateSlider()
@@ -1788,7 +1827,7 @@ void LLFloaterEditExtDayCycle::doOpenInventoryFloater(LLSettingsType::type_e typ
 
         mInventoryFloater = picker->getHandle();
 
-        picker->setCommitCallback([this](LLUICtrl *, const LLSD &data){ onPickerCommitSetting(data.asUUID()); });
+        picker->setCommitCallback([this](LLUICtrl *, const LLSD &data){ onPickerCommitSetting(data["ItemId"].asUUID(), data["Track"].asInteger()); });
     }
 
     picker->setSettingsFilter(type);
@@ -1807,25 +1846,39 @@ void LLFloaterEditExtDayCycle::doCloseInventoryFloater(bool quitting)
     }
 }
 
-void LLFloaterEditExtDayCycle::onPickerCommitSetting(LLUUID item_id)
+void LLFloaterEditExtDayCycle::onPickerCommitSetting(LLUUID item_id, S32 track)
 {
     LLSettingsBase::TrackPosition frame(mTimeSlider->getCurSliderValue());
-    S32 track = mCurrentTrack;
     LLViewerInventoryItem *itemp = gInventory.getItem(item_id);
     if (itemp)
     {
         LLSettingsVOBase::getSettingsAsset(itemp->getAssetUUID(),
-            [this, track, frame, item_id](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoadedForFrame(item_id, asset_id, settings, status, track, frame); });
+            [this, track, frame, item_id](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoadedForInsertion(item_id, asset_id, settings, status, track, mCurrentTrack, frame); });
     }
 }
 
-void LLFloaterEditExtDayCycle::onAssetLoadedForFrame(LLUUID item_id, LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, S32 track, LLSettingsBase::TrackPosition frame)
+void LLFloaterEditExtDayCycle::onAssetLoadedForInsertion(LLUUID item_id, LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, S32 source_track, S32 dest_track, LLSettingsBase::TrackPosition frame)
 {
-    std::function<void()> cb = [this, settings, frame, track]()
+    std::function<void()> cb = [this, settings, frame, source_track, dest_track]()
     {
-        if (mFramesSlider->getCurSlider().empty())
+        if (settings->getSettingsType() == "daycycle")
         {
-            if ((mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
+            // Load full track
+            LLSettingsDay::ptr_t pday = std::dynamic_pointer_cast<LLSettingsDay>(settings);
+            if (dest_track == LLSettingsDay::TRACK_WATER)
+            {
+                cloneTrack(pday, LLSettingsDay::TRACK_WATER, LLSettingsDay::TRACK_WATER);
+            }
+            else
+            {
+                cloneTrack(pday, source_track, dest_track);
+            }
+        }
+        else
+        {
+            // load single frame
+
+            if ((mEditDay->getSettingsNearKeyframe(frame, dest_track, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
             {
                 LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame too close to existing frame." << LL_ENDL;
                 return;
@@ -1835,23 +1888,36 @@ void LLFloaterEditExtDayCycle::onAssetLoadedForFrame(LLUUID item_id, LLUUID asse
                 LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame when slider is full." << LL_ENDL;
                 return;
             }
-            mEditDay->setSettingsAtKeyframe(settings, frame, track);
-            addSliderFrame(frame, settings, false);
-            reblendSettings();
-            synchronizeTabs();
-        }
-        else
-        {
-            if (mCurrentTrack == LLSettingsDay::TRACK_WATER)
+            // Don't forget to clone (we might reuse/load it couple times)
+            if (settings->getSettingsType() == "sky")
             {
-                mEditDay->setWaterAtKeyframe(std::static_pointer_cast<LLSettingsWater>(settings), frame);
+                // Load sky to frame
+                if (dest_track != LLSettingsDay::TRACK_WATER)
+                {
+                    mEditDay->setSettingsAtKeyframe(settings->buildDerivedClone(), frame, dest_track);
+                    addSliderFrame(frame, settings, false);
+                }
+                else
+                {
+                    LL_WARNS("ENVDAYEDIT") << "Trying to load day settings as sky" << LL_ENDL;
+                }
             }
-            else
+            else if (settings->getSettingsType() == "water")
             {
-                mEditDay->setSkyAtKeyframe(std::static_pointer_cast<LLSettingsSky>(settings), frame, track);
+                // Load water to frame
+                if (dest_track == LLSettingsDay::TRACK_WATER)
+                {
+                    mEditDay->setSettingsAtKeyframe(settings->buildDerivedClone(), frame, dest_track);
+                    addSliderFrame(frame, settings, false);
+                }
+                else
+                {
+                    LL_WARNS("ENVDAYEDIT") << "Trying to load water settings as sky" << LL_ENDL;
+                }
             }
-            updateTabs();
         }
+        reblendSettings();
+        synchronizeTabs();
     };
 
     if (!settings || status)

@@ -14,10 +14,6 @@
 
     <!--  top static -->
     <floater.string
-            name="choose_picture">
-        Click to choose a picture
-    </floater.string>
-    <floater.string
             name="pick title">
         Pick:
     </floater.string>
@@ -30,10 +26,10 @@
             right="-6"
             bottom="-10"
             orientation="vertical">
-        <layout_panel name="temp"
+        <layout_panel name="inv_list"
                 border="false"
                 auto_resize="true"
-                user_resize="true"
+                user_resize="false"
                 height="29"
                 min_height="29"
                 bg_alpha_color="blue"
@@ -72,14 +68,48 @@
                     filter_asset_type="settings" />
             </panel>
         </layout_panel>
+        <layout_panel name="pnl_combo"
+                border="false"
+                auto_resize="false"
+                user_resize="false"
+                visible="true"
+                height="29"
+                bg_alpha_color="blue"
+                background_visible="false">
+            <combo_box
+             allow_text_entry="false"
+             follows="left|top"
+             height="23"
+             left="10"
+             max_chars="100"
+             mouse_opaque="true"
+             name="track_selection"
+             top="1"
+             width="190">
+                <combo_box.item
+                 label="Sky4"
+                 name="Sky4"
+                 value="4" />
+                <combo_box.item
+                 label="Sky3"
+                 name="Sky3"
+                 value="3" />
+                <combo_box.item
+                 label="Sky2"
+                 name="Sky2"
+                 value="2" />
+                <combo_box.item
+                 label="Ground"
+                 name="Ground"
+                 value="1" />
+            </combo_box>
+        </layout_panel>
         <layout_panel name="temp"
                 border="false"
                 auto_resize="false"
                 user_resize="false"
                 height="29"
                 min_height="29">
-            <!--                bg_alpha_color="red"
-                background_visible="true" -->
             <button
                     follows="top|left"
                     height="20"
