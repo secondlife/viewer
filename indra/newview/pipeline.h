@@ -594,6 +594,7 @@ public:
 	static S32				sVisibleLightCount;
 	static F32				sMinRenderSize;
 	static bool				sRenderingHUDs;
+    static F32              sDistortionWaterClipPlaneMargin;
 
 	static LLTrace::EventStatHandle<S64> sStatBatchSize;
 

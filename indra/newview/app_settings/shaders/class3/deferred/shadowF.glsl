@@ -33,7 +33,7 @@ out vec4 frag_color;
 
 uniform sampler2D diffuseMap;
 
-#if !DEPTH_CLAMP
+#if !defined(DEPTH_CLAMP)
 VARYING float pos_zd2;
 #endif
 

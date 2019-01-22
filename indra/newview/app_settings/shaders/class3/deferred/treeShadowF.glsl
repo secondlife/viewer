@@ -51,7 +51,7 @@ void main()
 
     frag_color = computeMoments(length(pos), 1.0);
 
-#if !DEPTH_CLAMP
+#if !defined(DEPTH_CLAMP)
 	gl_FragDepth = max(pos.z/pos.w*0.5+0.5, 0.0);
 #endif
 

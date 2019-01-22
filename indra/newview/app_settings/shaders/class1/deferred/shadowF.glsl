@@ -31,7 +31,7 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-#if !DEPTH_CLAMP
+#if !defined(DEPTH_CLAMP)
 VARYING vec4 post_pos;
 #endif
 
@@ -39,7 +39,7 @@ void main()
 {
 	frag_color = vec4(1,1,1,1);
 	
-#if !DEPTH_CLAMP
+#if !defined(DEPTH_CLAMP)
 	gl_FragDepth = max(post_pos.z/post_pos.w*0.5+0.5, 0.0);
 #endif
 
