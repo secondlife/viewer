@@ -97,6 +97,9 @@ namespace
     const std::string KEY_PARCELNAME("ParcelName");     // But changing these would also alter the Experience Log requirements.
     const std::string KEY_COUNT("Count");
 
+    const std::string LISTENER_NAME("LLEnvironmentSingleton");
+    const std::string PUMP_EXPERIENCE("experience_permission");
+
     //---------------------------------------------------------------------
     LLTrace::BlockTimerStatHandle   FTM_ENVIRONMENT_UPDATE("Update Environment Tick");
     LLTrace::BlockTimerStatHandle   FTM_SHADER_PARAM_UPDATE("Update Shader Parameters");
@@ -274,7 +277,6 @@ namespace
         }
     };
 
-
     class LLEnvironmentPushDispatchHandler : public LLDispatchHandler
     {
     public:
@@ -314,6 +316,187 @@ namespace
 
     LLEnvironmentPushDispatchHandler environment_push_dispatch_handler;
 
+    template<class SETTINGT>
+    class LLSettingsInjected : public SETTINGT
+    {
+    public:
+        typedef std::shared_ptr<LLSettingsInjected<SETTINGT> >  ptr_t;
+
+        LLSettingsInjected(typename SETTINGT::ptr_t source) :
+            SETTINGT(),
+            mSource(source)
+        {}
+
+        virtual ~LLSettingsInjected() {};
+
+        typename SETTINGT::ptr_t buildClone() const override;
+
+        typename SETTINGT::ptr_t getSource() const                               { return mSource; }
+        void setSource(const typename SETTINGT::ptr_t &source)        { mSource = source; setDirtyFlag(true); }
+
+        void injectSetting(const std::string keyname, LLSD value, LLUUID experience_id, F32Seconds transition)
+        {
+            Injection::ptr_t injection = std::make_shared<Injection>(transition, keyname, value, true, experience_id);
+
+            mInjections.push_back(injection);
+            std::stable_sort(mInjections.begin(), mInjections.end(), [](const Injection::ptr_t &a, const Injection::ptr_t &b) { return a->mTimeRemaining < b->mTimeRemaining; });
+        }
+
+        void removeInjection(const std::string keyname, LLUUID experience)
+        {
+            auto it = mInjections.begin();
+            while (it != mInjections.end())
+            {
+                if (((*it)->mKeyName == keyname) &&
+                    (experience.isNull() || (experience == (*it)->mExperience)))
+                {
+                    mInjections.erase(it++);
+                }
+                else
+                {
+                    ++it;
+                }
+            }
+
+            for (auto itexp = mOverrideExps.begin(); itexp != mOverrideExps.end();)
+            {
+                if (experience.isNull() || ((*itexp).second == experience))
+                {
+                    mOverrideValues.erase((*itexp).first);
+                    mOverrideExps.erase(itexp++);
+                }
+                else
+                    ++itexp;
+            }
+        }
+
+        void injectExperienceValues(LLSD values, LLUUID experience_id, F32Seconds transition)
+        {
+            for (auto it = values.beginMap(); it != values.endMap(); ++it)
+            {
+                injectSetting((*it).first, (*it).second, experience_id, transition);
+            }
+            setDirtyFlag(true);
+        }
+
+    protected:
+        struct Injection
+        {
+            struct Injection(F32Seconds transition, const std::string &keyname, LLSD value, bool blendin, LLUUID experince, S32 index = -1) :
+                mTransition(transition),
+                mTimeRemaining(transition),
+                mKeyName(keyname),
+                mValue(value),
+                mExperience(experince),
+                mIndex(index),
+                mBlendIn(blendin)
+            {}
+
+            F32Seconds      mTransition;
+            F32Seconds      mTimeRemaining;
+            std::string     mKeyName;
+            LLSD            mValue;
+            LLUUID          mExperience;
+            S32             mIndex;
+            bool            mBlendIn;
+
+            typedef std::shared_ptr<Injection>  ptr_t;
+        };
+
+
+        virtual void            updateSettings() override
+        {
+            static LLFrameTimer timer;
+
+            /**TODO: Add texture code
+             */
+
+            F32Seconds delta(timer.getElapsedTimeAndResetF32());
+
+            if (mSource && mSource->isDirty())
+            {
+                mSource->updateSettings();
+            }
+
+            mSettings = mSource->getSettings();
+
+            for (auto ito = mOverrideValues.beginMap(); ito != mOverrideValues.endMap(); ++ito)
+            {
+                mSettings[(*ito).first] = mOverrideValues[(*ito).first];
+            }
+
+            const stringset_t &slerps = getSlerpKeys();
+            const stringset_t &skips = getSkipInterpolateKeys();
+
+            injections_t::iterator it;
+            for (it = mInjections.begin(); it != mInjections.end(); ++it)
+            {
+                std::string key_name = (*it)->mKeyName;
+                if (skips.find(key_name) != skips.end())
+                    continue;
+                LLSD value = mSettings[key_name];
+                LLSD target = (*it)->mValue;
+
+                (*it)->mTimeRemaining -= delta;
+
+                BlendFactor mix = 1.0f - (((*it)->mTransition.value() - (*it)->mTimeRemaining.value()) / (*it)->mTransition.value());
+
+                if (mix >= 1.0)
+                {
+                    if ((*it)->mBlendIn)
+                    {
+                        mOverrideValues[key_name] = target;
+                        mOverrideExps[key_name] = (*it)->mExperience;
+                    }
+                    mSettings[key_name] = target;
+                }
+                else
+                {
+                    mSettings[key_name] = interpolateSDValue(key_name, value, target, getParameterMap(), mix, slerps);
+                }
+            }
+
+            it = mInjections.begin();
+            it = std::find_if(mInjections.begin(), mInjections.end(), [](const Injection::ptr_t &a) { return a->mTimeRemaining > 0.0f; });
+
+            if (it != mInjections.begin())
+            {
+
+                mInjections.erase(mInjections.begin(), mInjections.end());
+            }
+
+            SETTINGT::updateSettings();
+
+            if (!mInjections.empty())
+                setDirtyFlag(true);
+        }
+
+
+    private:
+        typedef std::map<std::string, LLUUID>   key_to_expid_t;
+        typedef std::deque<typename Injection::ptr_t>    injections_t;
+
+        typename SETTINGT::ptr_t    mSource;
+        injections_t                mInjections;
+        LLSD                        mOverrideValues;
+        key_to_expid_t              mOverrideExps;
+    };
+
+    template<>
+    LLSettingsSky::ptr_t LLSettingsInjected<LLSettingsSky>::buildClone() const
+    {
+        return LLSettingsVOSky::buildSky(getSettings());
+    }
+
+    template<>
+    LLSettingsWater::ptr_t LLSettingsInjected<LLSettingsWater>::buildClone() const
+    {
+        return LLSettingsVOWater::buildWater(getSettings());
+    }
+
+
+    typedef LLSettingsInjected<LLSettingsSky>   LLSettingsInjectedSky;
+    typedef LLSettingsInjected<LLSettingsWater> LLSettingsInjectedWater;
 }
 
 //=========================================================================
@@ -374,6 +557,12 @@ void LLEnvironment::initSingleton()
         gGenericDispatcher.addHandler(MESSAGE_PUSHENVIRONMENT, &environment_push_dispatch_handler);
     }
 
+    LLEventPumps::instance().obtain(PUMP_EXPERIENCE).listen(LISTENER_NAME, [this](LLSD message) { listenExperiencePump(message); return false; });
+}
+
+void LLEnvironment::cleanupSingleton()
+{
+    LLEventPumps::instance().obtain(PUMP_EXPERIENCE).stopListening(LISTENER_NAME);
 }
 
 LLEnvironment::~LLEnvironment()
@@ -808,12 +997,12 @@ LLSettingsDay::Seconds LLEnvironment::getEnvironmentDayOffset(EnvSelection_t env
 }
 
 
-LLEnvironment::fixedEnvironment_t LLEnvironment::getEnvironmentFixed(LLEnvironment::EnvSelection_t env)
+LLEnvironment::fixedEnvironment_t LLEnvironment::getEnvironmentFixed(LLEnvironment::EnvSelection_t env, bool resolve)
 {
-    if (env == ENV_CURRENT)
+    if ((env == ENV_CURRENT) || resolve)
     {
         fixedEnvironment_t fixed;
-        for (S32 idx = mSelectedEnvironment; idx < ENV_END; ++idx)
+        for (S32 idx = ((resolve) ? env : mSelectedEnvironment); idx < ENV_END; ++idx)
         {
             if (fixed.first && fixed.second)
                 break;
@@ -1800,7 +1989,6 @@ void LLEnvironment::handleEnvironmentPush(LLSD &message)
     }
 }
 
-
 void LLEnvironment::handleEnvironmentPushClear(LLUUID experience_id, LLSD &message, F32 transition)
 {
     clearExperienceEnvironment(experience_id, transition);
@@ -1837,15 +2025,15 @@ void LLEnvironment::clearExperienceEnvironment(LLUUID experience_id, F32 transit
     setInstanceBackup(false);
 
     /*TODO blend these back out*/
-    mSkyExperienceBlends.clear();
-    mWaterExperienceBlends.clear();
-    mCurrentEnvironment->getSky();
-
-    injectSettings(experience_id, mSkyExperienceBlends, mSkyOverrides, LLSettingsBase::Seconds(transition_time), false);
-    injectSettings(experience_id, mWaterExperienceBlends, mWaterOverrides, LLSettingsBase::Seconds(transition_time), false);
-
-    mSkyOverrides = LLSD::emptyMap();
-    mWaterOverrides = LLSD::emptyMap();
+//     mSkyExperienceBlends.clear();
+//     mWaterExperienceBlends.clear();
+//     mCurrentEnvironment->getSky();
+// 
+//     injectSettings(experience_id, mSkyExperienceBlends, mSkyOverrides, LLSettingsBase::Seconds(transition_time), false);
+//     injectSettings(experience_id, mWaterExperienceBlends, mWaterOverrides, LLSettingsBase::Seconds(transition_time), false);
+// 
+//     mSkyOverrides = LLSD::emptyMap();
+//     mWaterOverrides = LLSD::emptyMap();
 }
 
 void LLEnvironment::setSharedEnvironment()
@@ -1860,8 +2048,10 @@ void LLEnvironment::setExperienceEnvironment(LLUUID experience_id, LLUUID asset_
     LLSettingsVOBase::getSettingsAsset(asset_id,
         [this, experience_id, transition_time](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat)
     {
-        mPushEnvironmentExpId = experience_id;
-        onSetEnvAssetLoaded(ENV_PUSH, asset_id, settings, 
+//         mPushEnvironmentExpId = experience_id;
+//         removeExperinceInjections(experience_id); 
+        // individual settings will be overridden by the settings.  No need to keep injections.
+        onSetEnvAssetLoaded(ENV_PUSH, asset_id, settings,
             LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET, 
             LLSettingsBase::Seconds(transition_time), status, NO_VERSION);
     });
@@ -1880,15 +2070,63 @@ void LLEnvironment::setExperienceEnvironment(LLUUID experience_id, LLSD data, F3
         return;
     }
 
-    setInstanceBackup(true);
+    LLSettingsInjectedSky::ptr_t pinjectedsky;
+    LLSettingsInjectedWater::ptr_t pinjectedwater;
+
+    fixedEnvironment_t pushenv = getEnvironmentFixed(ENV_PUSH, true);
 
     if (!sky.isUndefined())
-        injectSettings(experience_id, mSkyExperienceBlends, sky, LLSettingsBase::Seconds(transition_time), true);
+    {
+        bool newsky(false);
+
+        if (pushenv.first)
+        {
+            pinjectedsky = std::dynamic_pointer_cast<LLSettingsInjectedSky>(pushenv.first);
+        }
+        if (!pinjectedsky)
+        {
+            pinjectedsky = std::make_shared<LLSettingsInjectedSky>(pushenv.first);
+            newsky = true;
+        }
+
+        pinjectedsky->injectExperienceValues(sky, experience_id, F32Seconds(transition_time));
+        if (!newsky)
+            pinjectedsky.reset();
+    }
+
     if (!water.isUndefined())
-        injectSettings(experience_id, mWaterExperienceBlends, water, LLSettingsBase::Seconds(transition_time), true);
+    {
+        bool newwater(false);
+        if (pushenv.second)
+        {
+            pinjectedwater = std::dynamic_pointer_cast<LLSettingsInjectedWater>(pushenv.second);
+        }
+        if (!pinjectedwater)
+        {
+            pinjectedwater = std::make_shared<LLSettingsInjectedWater>(pushenv.second);
+            newwater = true;
+        }
+
+        pinjectedwater->injectExperienceValues(water, experience_id, F32Seconds(transition_time));
+        if (!newwater)
+            pinjectedwater.reset();
+    }
+
+    if (pinjectedsky || pinjectedwater)
+    {
+        setEnvironment(ENV_PUSH, pinjectedsky, pinjectedwater);
+        updateEnvironment(TRANSITION_INSTANT);
+    }
+
+
+//     setInstanceBackup(true);
+// 
+//     if (!sky.isUndefined())
+//         injectSettings(experience_id, mSkyExperienceBlends, sky, LLSettingsBase::Seconds(transition_time), true);
+//     if (!water.isUndefined())
+//         injectSettings(experience_id, mWaterExperienceBlends, water, LLSettingsBase::Seconds(transition_time), true);
 
 }
-
 
 void LLEnvironment::setInstanceBackup(bool dobackup)
 {
@@ -1905,6 +2143,8 @@ void LLEnvironment::injectSettings(LLUUID experience_id, exerienceBlendValues_t 
     for (LLSD::map_iterator it = injections.beginMap(); it != injections.endMap(); ++it)
     {
         blends.push_back(ExpBlendValue(transition, (*it).first, (*it).second, blendin, -1));
+        if (blendin)
+            mExperienceOverrides[(*it).first] = experience_id;
     }
 
     std::stable_sort(blends.begin(), blends.end(), [](const ExpBlendValue &a, const ExpBlendValue &b) { return a.mTimeRemaining < b.mTimeRemaining; });
@@ -1925,7 +2165,6 @@ void LLEnvironment::applyInjectedSettings(DayInstance::ptr_t environment, F32Sec
         blendInjectedValues(pwater, mWaterExperienceBlends, mWaterOverrides, delta);
     }
 }
-
 
 void LLEnvironment::applyInjectedValues(LLSettingsBase::ptr_t psetting, LLSD injection)
 {
@@ -1971,6 +2210,53 @@ void LLEnvironment::blendInjectedValues(LLSettingsBase::ptr_t psetting, exerienc
     {
         blends.erase(blends.begin(), it);
     }
+}
+
+void LLEnvironment::removeExperinceInjections(const LLUUID &experience_id)
+{
+    auto it = mExperienceOverrides.begin();
+    while (it != mExperienceOverrides.end())
+    {
+        if ((*it).second == experience_id)
+        {
+            std::string override_key((*it).first);
+            mExperienceOverrides.erase(it++);
+
+            if (mSkyOverrides.has(override_key))
+                mSkyOverrides.erase(override_key);
+            if (mWaterOverrides.has(override_key))
+                mWaterOverrides.erase(override_key);
+            auto itBlend = std::find_if(mSkyExperienceBlends.begin(), mSkyExperienceBlends.end(), [override_key](const ExpBlendValue &a) { return a.mKeyName == override_key; });
+            if (itBlend != mSkyExperienceBlends.end())
+                mSkyExperienceBlends.erase(itBlend);
+            itBlend = std::find_if(mWaterExperienceBlends.begin(), mWaterExperienceBlends.end(), [override_key](const ExpBlendValue &a) { return a.mKeyName == override_key; });
+            if (itBlend != mWaterExperienceBlends.end())
+                mWaterExperienceBlends.erase(itBlend);
+        }
+        else
+            ++it;
+    }
+}
+
+void LLEnvironment::removeExperinceSetting(const LLUUID &experience_id)
+{
+    clearExperienceEnvironment(experience_id, TRANSITION_INSTANT);
+}
+
+void LLEnvironment::listenExperiencePump(const LLSD &message)
+{
+    LL_WARNS("LAPRAS") << "Have experience event: " << message << LL_ENDL;
+
+    LLUUID experience_id = message["experience"];
+    LLSD data = message[experience_id.asString()];
+    std::string permission(data["permission"].asString());
+
+    if ((permission == "Forget") || (permission == "Block"))
+    {
+        removeExperinceSetting(experience_id);
+    }
+
+
 }
 
 //=========================================================================

@@ -48,7 +48,7 @@ class LLParcel;
 //-------------------------------------------------------------------------
 class LLEnvironment : public LLSingleton<LLEnvironment>
 {
-    LLSINGLETON(LLEnvironment);
+    LLSINGLETON_C11(LLEnvironment);
     LOG_CLASS(LLEnvironment);
 
 public:
@@ -153,9 +153,9 @@ public:
     LLSettingsDay::ptr_t        getEnvironmentDay(EnvSelection_t env);
     LLSettingsDay::Seconds      getEnvironmentDayLength(EnvSelection_t env);
     LLSettingsDay::Seconds      getEnvironmentDayOffset(EnvSelection_t env);
-    fixedEnvironment_t          getEnvironmentFixed(EnvSelection_t env);
-    LLSettingsSky::ptr_t        getEnvironmentFixedSky(EnvSelection_t env)      { return getEnvironmentFixed(env).first; };
-    LLSettingsWater::ptr_t      getEnvironmentFixedWater(EnvSelection_t env)    { return getEnvironmentFixed(env).second; };
+    fixedEnvironment_t          getEnvironmentFixed(EnvSelection_t env, bool resolve = false);
+    LLSettingsSky::ptr_t        getEnvironmentFixedSky(EnvSelection_t env, bool resolve = false)      { return getEnvironmentFixed(env, resolve).first; };
+    LLSettingsWater::ptr_t      getEnvironmentFixedWater(EnvSelection_t env, bool resolve = false)    { return getEnvironmentFixed(env, resolve).second; };
 
     void                        updateEnvironment(LLSettingsBase::Seconds transition = TRANSITION_DEFAULT, bool forced = false);
 
@@ -299,7 +299,9 @@ public:
     DayInstance::ptr_t          getSharedEnvironmentInstance();
 
 protected:
-    virtual void                initSingleton();
+    virtual void                initSingleton() override;
+    virtual void                cleanupSingleton() override;
+
 
 private:
     LLVector4 toCFR(const LLVector3 vec) const;
@@ -360,8 +362,8 @@ private:
 
     LLSD                        mSkyOverrides;
     LLSD                        mWaterOverrides;
-    LLSD                        mSkyOverrideBlends;
-    LLSD                        mWaterOverrideBlends;
+    typedef std::map<std::string, LLUUID> experience_overrides_t;
+    experience_overrides_t      mExperienceOverrides;
 
     DayInstance::ptr_t          getEnvironmentInstance(EnvSelection_t env, bool create = false);
 
@@ -453,6 +455,9 @@ private:
     void                        applyInjectedSettings(DayInstance::ptr_t environment, F32Seconds delta);
     void                        applyInjectedValues(LLSettingsBase::ptr_t psetting, LLSD injection);
     void                        blendInjectedValues(LLSettingsBase::ptr_t psetting, exerienceBlendValues_t &blends, LLSD &overrides, F32Seconds delta);
+    void                        removeExperinceInjections(const LLUUID &experience_id);
+    void                        removeExperinceSetting(const LLUUID &experience_id);
+    void                        listenExperiencePump(const LLSD &message);
 
     exerienceBlendValues_t      mSkyExperienceBlends;
     exerienceBlendValues_t      mWaterExperienceBlends;

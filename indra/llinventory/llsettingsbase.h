@@ -317,6 +317,8 @@ public:
             mSettings.erase(SETTING_ASSETID);
     }
 
+    // Calculate any custom settings that may need to be cached.
+    virtual void updateSettings() { mDirty = false; mReplaced = false; }
 protected:
 
     LLSettingsBase();
@@ -346,9 +348,6 @@ protected:
     // A list of settings that represent quaternions and should be slerped 
     // rather than lerped.
     virtual stringset_t getSlerpKeys() const { return stringset_t(); }
-
-    // Calculate any custom settings that may need to be cached.
-    virtual void updateSettings() { mDirty = false; mReplaced = false; }
 
     virtual validation_list_t getValidationList() const = 0;
 

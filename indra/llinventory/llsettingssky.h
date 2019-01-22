@@ -311,6 +311,7 @@ public:
                     F32 constant_term,
                     F32 aniso_factor = 0.0f);
 
+    virtual void        updateSettings() SETTINGS_OVERRIDE;
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;
     static const std::string SETTING_LEGACY_ENABLE_CLOUD_SCROLL;
@@ -320,7 +321,6 @@ protected:
 
     virtual stringset_t getSlerpKeys() const SETTINGS_OVERRIDE;
     virtual stringset_t getSkipInterpolateKeys() const SETTINGS_OVERRIDE;
-    virtual void    updateSettings() SETTINGS_OVERRIDE;
 
 private:
     static LLSD rayleighConfigDefault();
