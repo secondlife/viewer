@@ -331,23 +331,23 @@ namespace
 
 //         typename SETTINGT::ptr_t buildClone() const override;
 
-        typename SETTINGT::ptr_t getSource() const                    { return mSource; }
-        void setSource(const typename SETTINGT::ptr_t &source)        { mSource = source; setDirtyFlag(true); }
+        typename SETTINGT::ptr_t getSource() const                    { return this->mSource; }
+        void setSource(const typename SETTINGT::ptr_t &source)        { this->mSource = source; this->setDirtyFlag(true); }
 
         void injectSetting(const std::string keyname, LLSD value, LLUUID experience_id, F32Seconds transition)
         {
             if (transition > 0.1)
             {
-                Injection::ptr_t injection = std::make_shared<Injection>(transition, keyname, value, true, experience_id);
+                typename Injection::ptr_t injection = std::make_shared<Injection>(transition, keyname, value, true, experience_id);
 
                 mInjections.push_back(injection);
-                std::stable_sort(mInjections.begin(), mInjections.end(), [](const Injection::ptr_t &a, const Injection::ptr_t &b) { return a->mTimeRemaining < b->mTimeRemaining; });
+                std::stable_sort(mInjections.begin(), mInjections.end(), [](const typename Injection::ptr_t &a, const typename Injection::ptr_t &b) { return a->mTimeRemaining < b->mTimeRemaining; });
             }
             else
             {
                 mOverrideValues[keyname] = value;
                 mOverrideExps[keyname] = experience_id;
-                setDirtyFlag(true);
+                this->setDirtyFlag(true);
             }
         }
 
@@ -419,7 +419,7 @@ namespace
         {
             static LLFrameTimer timer;
 
-            LLSettingsBase::Seconds delta(timer.getElapsedTimeAndResetF32());
+            typename LLSettingsBase::Seconds delta(timer.getElapsedTimeAndResetF32());
 
             resetSpecial();
 
@@ -435,9 +435,9 @@ namespace
                 this->mSettings[(*ito).first] = (*ito).second;
             }
 
-            const stringset_t &slerps = getSlerpKeys();
-            const stringset_t &skips = getSkipInterpolateKeys();
-            const stringset_t &specials = getSpecialKeys();
+            const LLSettingsBase::stringset_t &slerps = getSlerpKeys();
+            const LLSettingsBase::stringset_t &skips = getSkipInterpolateKeys();
+            const LLSettingsBase::stringset_t &specials = getSpecialKeys();
 
             typename injections_t::iterator it;
             for (it = mInjections.begin(); it != mInjections.end(); ++it)
@@ -480,7 +480,7 @@ namespace
             }
 
             it = mInjections.begin();
-            it = std::find_if(mInjections.begin(), mInjections.end(), [](const Injection::ptr_t &a) { return a->mTimeRemaining > 0.0f; });
+            it = std::find_if(mInjections.begin(), mInjections.end(), [](const typename Injection::ptr_t &a) { return a->mTimeRemaining > 0.0f; });
 
             if (it != mInjections.begin())
             {
@@ -496,7 +496,7 @@ namespace
 
         LLSettingsBase::stringset_t getSpecialKeys() const;
         void                        resetSpecial();
-        void                        updateSpecial(typename const Injection::ptr_t &injection, LLSettingsBase::BlendFactor mix);
+        void                        updateSpecial(const typename Injection::ptr_t &injection, typename LLSettingsBase::BlendFactor mix);
 
     private:
         typedef std::map<std::string, LLUUID>   key_to_expid_t;
@@ -511,7 +511,7 @@ namespace
     template<>
     LLSettingsBase::stringset_t LLSettingsInjected<LLSettingsVOSky>::getSpecialKeys() const
     {
-        static stringset_t specialSet;
+        static LLSettingsBase::stringset_t specialSet;
 
         if (specialSet.empty())
         {
@@ -559,7 +559,7 @@ namespace
     }
 
     template<>
-    void LLSettingsInjected<LLSettingsVOSky>::updateSpecial(const LLSettingsInjected<LLSettingsVOSky>::Injection::ptr_t &injection, LLSettingsBase::BlendFactor mix)
+    void LLSettingsInjected<LLSettingsVOSky>::updateSpecial(const typename LLSettingsInjected<LLSettingsVOSky>::Injection::ptr_t &injection, typename LLSettingsBase::BlendFactor mix)
     {
         if (injection->mKeyName == SETTING_SUN_TEXTUREID)
         {
@@ -594,7 +594,7 @@ namespace
     }
 
     template<>
-    void LLSettingsInjected<LLSettingsVOWater>::updateSpecial(const LLSettingsInjected<LLSettingsVOWater>::Injection::ptr_t &injection, LLSettingsBase::BlendFactor mix)
+    void LLSettingsInjected<LLSettingsVOWater>::updateSpecial(const typename LLSettingsInjected<LLSettingsVOWater>::Injection::ptr_t &injection, typename LLSettingsBase::BlendFactor mix)
     {
         if (injection->mKeyName == SETTING_NORMAL_MAP)
         {
