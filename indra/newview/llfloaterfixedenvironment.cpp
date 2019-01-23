@@ -239,11 +239,11 @@ LLFloaterSettingsPicker * LLFloaterFixedEnvironment::getSettingsPicker()
     if (!picker)
     {
         picker = new LLFloaterSettingsPicker(this,
-            LLUUID::null, "SELECT SETTINGS");
+            LLUUID::null);
 
         mInventoryFloater = picker->getHandle();
 
-        picker->setCommitCallback([this](LLUICtrl *, const LLSD &data){ onPickerCommitSetting(data.asUUID()); });
+        picker->setCommitCallback([this](LLUICtrl *, const LLSD &data){ onPickerCommitSetting(data["ItemId"].asUUID() /*data["Track"]*/); });
     }
 
     return picker;

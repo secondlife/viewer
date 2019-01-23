@@ -28,6 +28,7 @@
 
 #include "llsettingspicker.h"
 
+#include "llcombobox.h"
 #include "llfiltereditor.h"
 #include "llfolderviewmodel.h"
 #include "llinventory.h"
@@ -36,6 +37,7 @@
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
+#include "llsettingsvo.h"
 
 #include "lldraghandle.h"
 #include "llviewercontrol.h"
@@ -47,23 +49,34 @@ namespace
     const std::string FLOATER_DEFINITION_XML("floater_settings_picker.xml");
 
     const std::string FLT_INVENTORY_SEARCH("flt_inventory_search");
+    const std::string CMB_TRACK_SELECTION("track_selection");
     const std::string PNL_INVENTORY("pnl_inventory");
+    const std::string PNL_COMBO("pnl_combo");
     const std::string BTN_SELECT("btn_select");
     const std::string BTN_CANCEL("btn_cancel");
 
     const F32 CONTEXT_CONE_IN_ALPHA(0.0f);
     const F32 CONTEXT_CONE_OUT_ALPHA(1.0f);
     const F32 CONTEXT_FADE_TIME(0.08f);
+
+    // strings in xml
+
+    const std::string STR_TITLE_PREFIX = "pick title";
+    const std::string STR_TITLE_TRACK = "pick_track";
+    const std::string STR_TITLE_SETTINGS = "pick_settings";
+    const std::string STR_TRACK_WATER = "track_water";
+    const std::string STR_TRACK_GROUND = "track_ground";
+    const std::string STR_TRACK_SKY = "track_sky";
 }
 //=========================================================================
 
-LLFloaterSettingsPicker::LLFloaterSettingsPicker(LLView * owner, LLUUID initial_item_id, const std::string &label, const LLSD &params):
+LLFloaterSettingsPicker::LLFloaterSettingsPicker(LLView * owner, LLUUID initial_item_id, const LLSD &params):
     LLFloater(params),
     mOwnerHandle(),
-    mLabel(label),
     mActive(true),
     mContextConeOpacity(0.0f),
     mSettingItemID(initial_item_id),
+    mTrackWater(true),
     mImmediateFilterPermMask(PERM_NONE)
 {
     mOwnerHandle = owner->getHandle();
@@ -84,12 +97,9 @@ BOOL LLFloaterSettingsPicker::postBuild()
     if (!LLFloater::postBuild())
         return FALSE;
 
-    if (!mLabel.empty())
-    {
-        std::string pick = getString("pick title");
-
-        setTitle(pick + mLabel);
-    }
+    std::string prefix = getString(STR_TITLE_PREFIX);
+    std::string label = getString(STR_TITLE_SETTINGS);
+    setTitle(prefix + " " + label);
 
     mFilterEdit = getChild<LLFilterEditor>(FLT_INVENTORY_SEARCH);
     mFilterEdit->setCommitCallback([this](LLUICtrl*, const LLSD& param){ onFilterEdit(param.asString()); });
@@ -161,6 +171,21 @@ void LLFloaterSettingsPicker::setSettingsFilter(LLSettingsType::type_e type)
     {
         filter = static_cast<S64>(0x1) << static_cast<S64>(type);
     }
+
+    bool day_cycle = (type != LLSettingsType::ST_WATER) && (type != LLSettingsType::ST_SKY);
+    getChild<LLPanel>(PNL_COMBO)->setVisible(day_cycle);
+    std::string prefix = getString(STR_TITLE_PREFIX);
+    std::string label;
+    if (day_cycle)
+    {
+
+        label = getString(STR_TITLE_TRACK);
+    }
+    else
+    {
+        label = getString(STR_TITLE_SETTINGS);
+    }
+    setTitle(prefix + " " + label);
 
     mInventoryPanel->setFilterSettingsTypes(filter);
 }
@@ -263,6 +288,8 @@ void LLFloaterSettingsPicker::onFilterEdit(const std::string& search_string)
 
 void LLFloaterSettingsPicker::onSelectionChange(const LLFloaterSettingsPicker::itemlist_t &items, bool user_action)
 {
+    bool track_picker_enabled = false;
+    LLUUID asset_id;
     if (items.size())
     {
         LLFolderViewItem* first_item = items.front();
@@ -278,15 +305,77 @@ void LLFloaterSettingsPicker::onSelectionChange(const LLFloaterSettingsPicker::i
                     mNoCopySettingsSelected = true;
                 }
                 setSettingsItemId(bridge_model->getItem()->getUUID(), false);
+                asset_id = bridge_model->getItem()->getAssetUUID();
                 mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
 
                 if (user_action)
                 {
                     mChangeIDSignal(mSettingItemID);
                 }
+
+                if (bridge_model->getSettingsType() == LLSettingsType::ST_DAYCYCLE
+                    && !mNoCopySettingsSelected)
+                {
+                    track_picker_enabled = true;
+                }
             }
         }
     }
+    getChild<LLView>(CMB_TRACK_SELECTION)->setEnabled(track_picker_enabled && mSettingAssetID == asset_id);
+    if (track_picker_enabled && asset_id.notNull() && mSettingAssetID != asset_id)
+    {
+        LLUUID item_id = mSettingItemID;
+        LLHandle<LLFloater> handle = getHandle();
+        LLSettingsVOBase::getSettingsAsset(asset_id,
+            [item_id, handle](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { LLFloaterSettingsPicker::onAssetLoadedCb(handle, item_id, asset_id, settings, status); });
+    }
+}
+
+void LLFloaterSettingsPicker::onAssetLoadedCb(LLHandle<LLFloater> handle, LLUUID item_id, LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status)
+{
+    if (handle.isDead() || status)
+    {
+        return;
+    }
+
+    LLFloaterSettingsPicker *picker = static_cast<LLFloaterSettingsPicker *>(handle.get());
+
+    if (picker->mSettingItemID != item_id)
+    {
+        return;
+    }
+
+    picker->onAssetLoaded(asset_id, settings);
+}
+
+void LLFloaterSettingsPicker::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings)
+{
+    LLComboBox* track_selection = getChild<LLComboBox>(CMB_TRACK_SELECTION);
+    track_selection->clear();
+    track_selection->removeall();
+    LLSettingsDay::ptr_t pday = std::dynamic_pointer_cast<LLSettingsDay>(settings);
+
+    if (mTrackWater)
+    {
+        track_selection->add(getString(STR_TRACK_WATER), LLSD::Integer(LLSettingsDay::TRACK_WATER), ADD_TOP, true);
+    }
+    else
+    {
+        // track 1 always present
+        track_selection->add(getString(STR_TRACK_GROUND), LLSD::Integer(LLSettingsDay::TRACK_GROUND_LEVEL), ADD_TOP, true);
+        LLUIString formatted_label = getString(STR_TRACK_SKY);
+        for (int i = 2; i < LLSettingsDay::TRACK_MAX; i++)
+        {
+            if (!pday->isTrackEmpty(i))
+            {
+                formatted_label.setArg("[NUM]", llformat("%d", i));
+                track_selection->add(formatted_label.getString(), LLSD::Integer(i), ADD_TOP, true);
+            }
+        }
+    }
+    
+    mSettingAssetID = asset_id;
+    track_selection->setEnabled(true);
 }
 
 void LLFloaterSettingsPicker::onButtonCancel()
@@ -297,7 +386,12 @@ void LLFloaterSettingsPicker::onButtonCancel()
 void LLFloaterSettingsPicker::onButtonSelect()
 {
     if (mCommitSignal)
-        (*mCommitSignal)(this, LLSD(mSettingItemID));
+    {
+        LLSD res;
+        res["ItemId"] = mSettingItemID;
+        res["Track"] = getChild<LLComboBox>(CMB_TRACK_SELECTION)->getValue();
+        (*mCommitSignal)(this, res);
+    }
     closeFloater();
 }
 
@@ -321,7 +415,12 @@ BOOL LLFloaterSettingsPicker::handleDoubleClick(S32 x, S32 y, MASK mask)
                 {
                     // Quick-apply
                     if (mCommitSignal)
-                        (*mCommitSignal)(this, LLSD(mSettingItemID));
+                    {
+                        LLSD res;
+                        res["ItemId"] = mSettingItemID;
+                        res["Track"] = getChild<LLComboBox>(CMB_TRACK_SELECTION)->getValue();
+                        (*mCommitSignal)(this, res);
+                    }
                     closeFloater();
                 }
             }
@@ -346,7 +445,12 @@ BOOL LLFloaterSettingsPicker::handleKeyHere(KEY key, MASK mask)
         {
             // Quick-apply
             if (mCommitSignal)
-                (*mCommitSignal)(this, LLSD(mSettingItemID));
+            {
+                LLSD res;
+                res["ItemId"] = mSettingItemID;
+                res["Track"] = getChild<LLComboBox>(CMB_TRACK_SELECTION)->getValue();
+                (*mCommitSignal)(this, res);
+            }
             closeFloater();
             return TRUE;
         }

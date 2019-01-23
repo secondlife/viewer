@@ -132,6 +132,8 @@ private:
 
     void                        checkAndConfirmSettingsLoss(on_confirm_fn cb);
 
+    void                        cloneTrack(U32 source_index, U32 dest_index);
+    void                        cloneTrack(const LLSettingsDay::ptr_t &source_day, U32 source_index, U32 dest_index);
 	void                        selectTrack(U32 track_index, bool force = false);
 	void                        selectFrame(F32 frame, F32 slop_factor);
 	void                        clearTabs();
@@ -160,8 +162,14 @@ private:
 
     void                        doOpenInventoryFloater(LLSettingsType::type_e type, LLUUID curritem);
     void                        doCloseInventoryFloater(bool quitting = false);
-    void                        onPickerCommitSetting(LLUUID item_id);
-    void                        onAssetLoadedForFrame(LLUUID item_id, LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, S32 track, LLSettingsBase::TrackPosition frame);
+    void                        onPickerCommitSetting(LLUUID item_id, S32 track);
+    void                        onAssetLoadedForInsertion(LLUUID item_id,
+                                                          LLUUID asset_id,
+                                                          LLSettingsBase::ptr_t settings,
+                                                          S32 status,
+                                                          S32 source_track,
+                                                          S32 dest_track,
+                                                          LLSettingsBase::TrackPosition dest_frame);
 
     bool                        canUseInventory() const;
     bool                        canApplyRegion() const;

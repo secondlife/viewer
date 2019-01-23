@@ -334,7 +334,7 @@ LLFloaterSettingsPicker * LLPanelEnvironmentInfo::getSettingsPicker(bool create)
     if (!picker && create)
     {
         picker = new LLFloaterSettingsPicker(this,
-            LLUUID::null, "SELECT SETTINGS");
+            LLUUID::null);
 
         mSettingsFloater = picker->getHandle();
 
