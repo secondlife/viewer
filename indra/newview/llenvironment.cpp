@@ -435,9 +435,9 @@ namespace
                 this->mSettings[(*ito).first] = (*ito).second;
             }
 
-            const LLSettingsBase::stringset_t &slerps = getSlerpKeys();
-            const LLSettingsBase::stringset_t &skips = getSkipInterpolateKeys();
-            const LLSettingsBase::stringset_t &specials = getSpecialKeys();
+            const LLSettingsBase::stringset_t &slerps = this->getSlerpKeys();
+            const LLSettingsBase::stringset_t &skips = this->getSkipInterpolateKeys();
+            const LLSettingsBase::stringset_t &specials = this->getSpecialKeys();
 
             typename injections_t::iterator it;
             for (it = mInjections.begin(); it != mInjections.end(); ++it)
@@ -474,7 +474,7 @@ namespace
                 }
                 else if (skips.find(key_name) == skips.end())
                 {
-                    this->mSettings[key_name] = interpolateSDValue(key_name, value, target, getParameterMap(), mix, slerps);
+                    this->mSettings[key_name] = this->interpolateSDValue(key_name, value, target, this->getParameterMap(), mix, slerps);
 //                     LL_WARNS("LAPRAS") << "...blending '" << key_name << "' by " << mix << "% now=" << mSettings[key_name] << LL_ENDL;
                 }
             }
@@ -491,7 +491,7 @@ namespace
             SETTINGT::updateSettings();
 
             if (!mInjections.empty())
-                setDirtyFlag(true);
+                this->setDirtyFlag(true);
         }
 
         LLSettingsBase::stringset_t getSpecialKeys() const;
