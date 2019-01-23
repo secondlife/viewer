@@ -428,23 +428,23 @@ namespace
                 mSource->updateSettings();
             }
 
-            mSettings = mSource->getSettings();
+            this->mSettings = mSource->getSettings();
 
             for (auto ito = mOverrideValues.beginMap(); ito != mOverrideValues.endMap(); ++ito)
             {
-                mSettings[(*ito).first] = (*ito).second;
+                this->mSettings[(*ito).first] = (*ito).second;
             }
 
             const stringset_t &slerps = getSlerpKeys();
             const stringset_t &skips = getSkipInterpolateKeys();
             const stringset_t &specials = getSpecialKeys();
 
-            injections_t::iterator it;
+            typename injections_t::iterator it;
             for (it = mInjections.begin(); it != mInjections.end(); ++it)
             {
                 std::string key_name = (*it)->mKeyName;
 
-                LLSD value = mSettings[key_name];
+                LLSD value = this->mSettings[key_name];
                 LLSD target = (*it)->mValue;
 
                 if ((*it)->mFirstTime)
@@ -452,7 +452,7 @@ namespace
                 else
                     (*it)->mTimeRemaining -= delta;
 
-                BlendFactor mix = 1.0f - ((*it)->mTimeRemaining.value() / (*it)->mTransition.value());
+                typename LLSettingsBase::BlendFactor mix = 1.0f - ((*it)->mTimeRemaining.value() / (*it)->mTransition.value());
 
                 if (mix >= 1.0)
                 {
@@ -461,11 +461,11 @@ namespace
                         LL_WARNS("LAPRAS") << "Done blending '" << key_name << "' after " << (*it)->mTransition.value() - (*it)->mTimeRemaining.value() << " value now=" << target << LL_ENDL;
                         mOverrideValues[key_name] = target;
                         mOverrideExps[key_name] = (*it)->mExperience;
-                        mSettings[key_name] = target;
+                        this->mSettings[key_name] = target;
                     }
                     else
                     {
-                        mSettings.erase(key_name);
+                        this->mSettings.erase(key_name);
                     }
                 }
                 else if (specials.find(key_name) != specials.end())
@@ -474,7 +474,7 @@ namespace
                 }
                 else if (skips.find(key_name) == skips.end())
                 {
-                    mSettings[key_name] = interpolateSDValue(key_name, value, target, getParameterMap(), mix, slerps);
+                    this->mSettings[key_name] = interpolateSDValue(key_name, value, target, getParameterMap(), mix, slerps);
 //                     LL_WARNS("LAPRAS") << "...blending '" << key_name << "' by " << mix << "% now=" << mSettings[key_name] << LL_ENDL;
                 }
             }
