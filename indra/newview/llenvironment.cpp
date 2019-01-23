@@ -391,7 +391,7 @@ namespace
     protected:
         struct Injection
         {
-            struct Injection(typename LLSettingsBase::Seconds transition, const std::string &keyname, LLSD value, bool blendin, LLUUID experince, S32 index = -1) :
+            Injection(typename LLSettingsBase::Seconds transition, const std::string &keyname, LLSD value, bool blendin, LLUUID experince, S32 index = -1) :
                 mTransition(transition),
                 mTimeRemaining(transition),
                 mKeyName(keyname),
