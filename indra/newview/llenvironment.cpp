@@ -379,7 +379,7 @@ namespace
             }
         }
 
-        void injectExperienceValues(LLSD values, LLUUID experience_id, F32Seconds transition)
+        void injectExperienceValues(LLSD values, LLUUID experience_id, typename LLSettingsBase::Seconds transition)
         {
             for (auto it = values.beginMap(); it != values.endMap(); ++it)
             {
@@ -391,7 +391,7 @@ namespace
     protected:
         struct Injection
         {
-            struct Injection(F32Seconds transition, const std::string &keyname, LLSD value, bool blendin, LLUUID experince, S32 index = -1) :
+            struct Injection(typename LLSettingsBase::Seconds transition, const std::string &keyname, LLSD value, bool blendin, LLUUID experince, S32 index = -1) :
                 mTransition(transition),
                 mTimeRemaining(transition),
                 mKeyName(keyname),
@@ -402,14 +402,14 @@ namespace
                 mFirstTime(true)
             {}
 
-            F32Seconds      mTransition;
-            F32Seconds      mTimeRemaining;
-            std::string     mKeyName;
-            LLSD            mValue;
-            LLUUID          mExperience;
-            S32             mIndex;
-            bool            mBlendIn;
-            bool            mFirstTime;
+            typename LLSettingsBase::Seconds    mTransition;
+            typename LLSettingsBase::Seconds    mTimeRemaining;
+            std::string                         mKeyName;
+            LLSD                                mValue;
+            LLUUID                              mExperience;
+            S32                                 mIndex;
+            bool                                mBlendIn;
+            bool                                mFirstTime;
 
             typedef std::shared_ptr<Injection>  ptr_t;
         };
@@ -419,7 +419,7 @@ namespace
         {
             static LLFrameTimer timer;
 
-            F32Seconds delta(timer.getElapsedTimeAndResetF32());
+            LLSettingsBase::Seconds delta(timer.getElapsedTimeAndResetF32());
 
             resetSpecial();
 
@@ -507,18 +507,6 @@ namespace
         LLSD                        mOverrideValues;
         key_to_expid_t              mOverrideExps;
     };
-
-//     template<>
-//     LLSettingsSky::ptr_t LLSettingsInjected<LLSettingsSky>::buildClone() const
-//     {
-//         return LLSettingsVOSky::buildSky(getSettings());
-//     }
-// 
-//     template<>
-//     LLSettingsWater::ptr_t LLSettingsInjected<LLSettingsWater>::buildClone() const
-//     {
-//         return LLSettingsVOWater::buildWater(getSettings());
-//     }
 
     template<>
     LLSettingsBase::stringset_t LLSettingsInjected<LLSettingsVOSky>::getSpecialKeys() const
