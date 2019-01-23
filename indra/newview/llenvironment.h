@@ -405,31 +405,6 @@ private:
         std::string             mDayName;
     };
 
-    struct ExpBlendValue
-    {
-        ExpBlendValue(F32Seconds transition, const std::string &keyname, LLSD value, bool blendin, S32 index = -1) :
-            mTransition(transition),
-            mTimeRemaining(transition),
-            mKeyName(keyname),
-            mValue(value),
-            mValueInitial(),
-            mIndex(index),
-            mBlendIn(blendin)
-        {}
-
-        F32Seconds      mTransition;
-        F32Seconds      mTimeRemaining;
-        std::string     mKeyName;
-        LLSD            mValue;
-        LLSD            mValueInitial;
-        S32             mIndex;
-        bool            mBlendIn;
-
-        typedef std::shared_ptr<ExpBlendValue>  ptr_t;
-    };
-
-    typedef std::deque<ExpBlendValue>   exerienceBlendValues_t;
-
     void                        coroRequestEnvironment(S32 parcel_id, environment_apply_fn apply);
     void                        coroUpdateEnvironment(S32 parcel_id, S32 track_no, UpdateInfo::ptr_t updates, environment_apply_fn apply);
     void                        coroResetEnvironment(S32 parcel_id, S32 track_no, environment_apply_fn apply);
@@ -448,20 +423,9 @@ private:
     void                        clearExperienceEnvironment(LLUUID experience_id, F32 transition_time);
     void                        setExperienceEnvironment(LLUUID experience_id, LLUUID asset_id, F32 transition_time);
     void                        setExperienceEnvironment(LLUUID experience_id, LLSD environment, F32 transition_time);
-    void                        setInstanceBackup(bool dobackup);
 
-    void                        injectSettings(LLUUID experience_id, exerienceBlendValues_t &blends, LLSD injections, LLSettingsBase::Seconds transition, bool blendin);
-
-    void                        applyInjectedSettings(DayInstance::ptr_t environment, F32Seconds delta);
-    void                        applyInjectedValues(LLSettingsBase::ptr_t psetting, LLSD injection);
-    void                        blendInjectedValues(LLSettingsBase::ptr_t psetting, exerienceBlendValues_t &blends, LLSD &overrides, F32Seconds delta);
-    void                        removeExperinceInjections(const LLUUID &experience_id);
-    void                        removeExperinceSetting(const LLUUID &experience_id);
     void                        listenExperiencePump(const LLSD &message);
 
-    exerienceBlendValues_t      mSkyExperienceBlends;
-    exerienceBlendValues_t      mWaterExperienceBlends;
-    bool                        mMakeBackups;
 };
 
 class LLTrackBlenderLoopingManual : public LLSettingsBlender

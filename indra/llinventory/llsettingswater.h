@@ -239,9 +239,9 @@ protected:
 
     LLSettingsWater();
 
-private:
     LLUUID    mNextTransparentTextureID;
     LLUUID    mNextNormalMapID;
+
 };
 
 #endif

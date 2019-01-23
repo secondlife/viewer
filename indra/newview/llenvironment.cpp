@@ -174,8 +174,8 @@ namespace
     class LLTrackBlenderLoopingTime : public LLSettingsBlenderTimeDelta
     {
     public:
-        LLTrackBlenderLoopingTime(const LLSettingsBase::ptr_t &target, const LLSettingsDay::ptr_t &day, S32 trackno, 
-                LLSettingsBase::Seconds cyclelength, LLSettingsBase::Seconds cycleoffset, LLSettingsBase::Seconds updateThreshold) :
+        LLTrackBlenderLoopingTime(const LLSettingsBase::ptr_t &target, const LLSettingsDay::ptr_t &day, S32 trackno,
+            LLSettingsBase::Seconds cyclelength, LLSettingsBase::Seconds cycleoffset, LLSettingsBase::Seconds updateThreshold) :
             LLSettingsBlenderTimeDelta(target, LLSettingsBase::ptr_t(), LLSettingsBase::ptr_t(), LLSettingsBase::Seconds(1.0)),
             mDay(day),
             mTrackNo(0),
@@ -210,8 +210,8 @@ namespace
             LLSettingsBase::Seconds now = getAdjustedNow() + LLEnvironment::TRANSITION_ALTITUDE;
             LLSettingsDay::TrackBound_t bounds = getBoundingEntries(now);
 
-            LLSettingsBase::ptr_t pendsetting  = (*bounds.first).second->buildDerivedClone();
-            LLSettingsBase::TrackPosition targetpos  = convert_time_to_position(now, mCycleLength) - (*bounds.first).first;
+            LLSettingsBase::ptr_t pendsetting = (*bounds.first).second->buildDerivedClone();
+            LLSettingsBase::TrackPosition targetpos = convert_time_to_position(now, mCycleLength) - (*bounds.first).first;
             LLSettingsBase::TrackPosition targetspan = get_wrapping_distance((*bounds.first).first, (*bounds.second).first);
 
             LLSettingsBase::BlendFactor blendf = calculateBlend(targetpos, targetspan);
@@ -329,17 +329,26 @@ namespace
 
         virtual ~LLSettingsInjected() {};
 
-        typename SETTINGT::ptr_t buildClone() const override;
+//         typename SETTINGT::ptr_t buildClone() const override;
 
-        typename SETTINGT::ptr_t getSource() const                               { return mSource; }
+        typename SETTINGT::ptr_t getSource() const                    { return mSource; }
         void setSource(const typename SETTINGT::ptr_t &source)        { mSource = source; setDirtyFlag(true); }
 
         void injectSetting(const std::string keyname, LLSD value, LLUUID experience_id, F32Seconds transition)
         {
-            Injection::ptr_t injection = std::make_shared<Injection>(transition, keyname, value, true, experience_id);
+            if (transition > 0.1)
+            {
+                Injection::ptr_t injection = std::make_shared<Injection>(transition, keyname, value, true, experience_id);
 
-            mInjections.push_back(injection);
-            std::stable_sort(mInjections.begin(), mInjections.end(), [](const Injection::ptr_t &a, const Injection::ptr_t &b) { return a->mTimeRemaining < b->mTimeRemaining; });
+                mInjections.push_back(injection);
+                std::stable_sort(mInjections.begin(), mInjections.end(), [](const Injection::ptr_t &a, const Injection::ptr_t &b) { return a->mTimeRemaining < b->mTimeRemaining; });
+            }
+            else
+            {
+                mOverrideValues[keyname] = value;
+                mOverrideExps[keyname] = experience_id;
+                setDirtyFlag(true);
+            }
         }
 
         void removeInjection(const std::string keyname, LLUUID experience)
@@ -389,7 +398,8 @@ namespace
                 mValue(value),
                 mExperience(experince),
                 mIndex(index),
-                mBlendIn(blendin)
+                mBlendIn(blendin),
+                mFirstTime(true)
             {}
 
             F32Seconds      mTransition;
@@ -399,19 +409,19 @@ namespace
             LLUUID          mExperience;
             S32             mIndex;
             bool            mBlendIn;
+            bool            mFirstTime;
 
             typedef std::shared_ptr<Injection>  ptr_t;
         };
 
 
-        virtual void            updateSettings() override
+        virtual void updateSettings() override
         {
             static LLFrameTimer timer;
 
-            /**TODO: Add texture code
-             */
-
             F32Seconds delta(timer.getElapsedTimeAndResetF32());
+
+            resetSpecial();
 
             if (mSource && mSource->isDirty())
             {
@@ -422,37 +432,50 @@ namespace
 
             for (auto ito = mOverrideValues.beginMap(); ito != mOverrideValues.endMap(); ++ito)
             {
-                mSettings[(*ito).first] = mOverrideValues[(*ito).first];
+                mSettings[(*ito).first] = (*ito).second;
             }
 
             const stringset_t &slerps = getSlerpKeys();
             const stringset_t &skips = getSkipInterpolateKeys();
+            const stringset_t &specials = getSpecialKeys();
 
             injections_t::iterator it;
             for (it = mInjections.begin(); it != mInjections.end(); ++it)
             {
                 std::string key_name = (*it)->mKeyName;
-                if (skips.find(key_name) != skips.end())
-                    continue;
+
                 LLSD value = mSettings[key_name];
                 LLSD target = (*it)->mValue;
 
-                (*it)->mTimeRemaining -= delta;
+                if ((*it)->mFirstTime)
+                    (*it)->mFirstTime = false;
+                else
+                    (*it)->mTimeRemaining -= delta;
 
-                BlendFactor mix = 1.0f - (((*it)->mTransition.value() - (*it)->mTimeRemaining.value()) / (*it)->mTransition.value());
+                BlendFactor mix = 1.0f - ((*it)->mTimeRemaining.value() / (*it)->mTransition.value());
 
                 if (mix >= 1.0)
                 {
                     if ((*it)->mBlendIn)
                     {
+                        LL_WARNS("LAPRAS") << "Done blending '" << key_name << "' after " << (*it)->mTransition.value() - (*it)->mTimeRemaining.value() << " value now=" << target << LL_ENDL;
                         mOverrideValues[key_name] = target;
                         mOverrideExps[key_name] = (*it)->mExperience;
+                        mSettings[key_name] = target;
                     }
-                    mSettings[key_name] = target;
+                    else
+                    {
+                        mSettings.erase(key_name);
+                    }
                 }
-                else
+                else if (specials.find(key_name) != specials.end())
+                {
+                    updateSpecial(*it, mix);
+                }
+                else if (skips.find(key_name) == skips.end())
                 {
                     mSettings[key_name] = interpolateSDValue(key_name, value, target, getParameterMap(), mix, slerps);
+//                     LL_WARNS("LAPRAS") << "...blending '" << key_name << "' by " << mix << "% now=" << mSettings[key_name] << LL_ENDL;
                 }
             }
 
@@ -471,6 +494,9 @@ namespace
                 setDirtyFlag(true);
         }
 
+        LLSettingsBase::stringset_t getSpecialKeys() const;
+        void                        resetSpecial();
+        void                        updateSpecial(typename const Injection::ptr_t &injection, LLSettingsBase::BlendFactor mix);
 
     private:
         typedef std::map<std::string, LLUUID>   key_to_expid_t;
@@ -482,21 +508,125 @@ namespace
         key_to_expid_t              mOverrideExps;
     };
 
+//     template<>
+//     LLSettingsSky::ptr_t LLSettingsInjected<LLSettingsSky>::buildClone() const
+//     {
+//         return LLSettingsVOSky::buildSky(getSettings());
+//     }
+// 
+//     template<>
+//     LLSettingsWater::ptr_t LLSettingsInjected<LLSettingsWater>::buildClone() const
+//     {
+//         return LLSettingsVOWater::buildWater(getSettings());
+//     }
+
     template<>
-    LLSettingsSky::ptr_t LLSettingsInjected<LLSettingsSky>::buildClone() const
+    LLSettingsBase::stringset_t LLSettingsInjected<LLSettingsVOSky>::getSpecialKeys() const
     {
-        return LLSettingsVOSky::buildSky(getSettings());
+        static stringset_t specialSet;
+
+        if (specialSet.empty())
+        {
+            specialSet.insert(SETTING_BLOOM_TEXTUREID);
+            specialSet.insert(SETTING_RAINBOW_TEXTUREID);
+            specialSet.insert(SETTING_HALO_TEXTUREID);
+            specialSet.insert(SETTING_CLOUD_TEXTUREID);
+            specialSet.insert(SETTING_MOON_TEXTUREID);
+            specialSet.insert(SETTING_SUN_TEXTUREID);
+        }
+        return specialSet;
     }
 
     template<>
-    LLSettingsWater::ptr_t LLSettingsInjected<LLSettingsWater>::buildClone() const
+    LLSettingsBase::stringset_t LLSettingsInjected<LLSettingsVOWater>::getSpecialKeys() const
     {
-        return LLSettingsVOWater::buildWater(getSettings());
+        static stringset_t specialSet;
+
+        if (specialSet.empty())
+        {
+            specialSet.insert(SETTING_TRANSPARENT_TEXTURE);
+            specialSet.insert(SETTING_NORMAL_MAP);
+        }
+        return specialSet;
     }
 
+    template<>
+    void LLSettingsInjected<LLSettingsVOSky>::resetSpecial()
+    {
+        mNextSunTextureId.setNull();
+        mNextMoonTextureId.setNull();
+        mNextCloudTextureId.setNull();
+        mNextBloomTextureId.setNull();
+        mNextRainbowTextureId.setNull();
+        mNextHaloTextureId.setNull();
+        setBlendFactor(0.0f);
+    }
 
-    typedef LLSettingsInjected<LLSettingsSky>   LLSettingsInjectedSky;
-    typedef LLSettingsInjected<LLSettingsWater> LLSettingsInjectedWater;
+    template<>
+    void LLSettingsInjected<LLSettingsVOWater>::resetSpecial()
+    {
+        mNextNormalMapID.setNull();
+        mNextTransparentTextureID.setNull();
+        setBlendFactor(0.0f);
+    }
+
+    template<>
+    void LLSettingsInjected<LLSettingsVOSky>::updateSpecial(const LLSettingsInjected<LLSettingsVOSky>::Injection::ptr_t &injection, LLSettingsBase::BlendFactor mix)
+    {
+        if (injection->mKeyName == SETTING_SUN_TEXTUREID)
+        {
+            mNextSunTextureId = injection->mValue.asUUID();
+        }
+        else if (injection->mKeyName == SETTING_MOON_TEXTUREID)
+        {
+            mNextMoonTextureId = injection->mValue.asUUID();
+        }
+        else if (injection->mKeyName == SETTING_CLOUD_TEXTUREID)
+        {
+            mNextCloudTextureId = injection->mValue.asUUID();
+        }
+        else if (injection->mKeyName == SETTING_BLOOM_TEXTUREID)
+        {
+            mNextBloomTextureId = injection->mValue.asUUID();
+        }
+        else if (injection->mKeyName == SETTING_RAINBOW_TEXTUREID)
+        {
+            mNextRainbowTextureId = injection->mValue.asUUID();
+        }
+        else if (injection->mKeyName == SETTING_HALO_TEXTUREID)
+        {
+            mNextHaloTextureId = injection->mValue.asUUID();
+        }
+
+        // Unfortunately I don't have a per texture blend factor.  We'll just pick the one that is furthest along.
+        if (getBlendFactor() < mix)
+        {
+            setBlendFactor(mix);
+        }
+    }
+
+    template<>
+    void LLSettingsInjected<LLSettingsVOWater>::updateSpecial(const LLSettingsInjected<LLSettingsVOWater>::Injection::ptr_t &injection, LLSettingsBase::BlendFactor mix)
+    {
+        if (injection->mKeyName == SETTING_NORMAL_MAP)
+        {
+            mNextNormalMapID = injection->mValue.asUUID();
+        }
+        else if (injection->mKeyName == SETTING_TRANSPARENT_TEXTURE)
+        {
+            mNextTransparentTextureID = injection->mValue.asUUID();
+        }
+
+        // Unfortunately I don't have a per texture blend factor.  We'll just pick the one that is furthest along.
+        if (getBlendFactor() < mix)
+        {
+            setBlendFactor(mix);
+        }
+
+    }
+
+    typedef LLSettingsInjected<LLSettingsVOSky>   LLSettingsInjectedSky;
+    typedef LLSettingsInjected<LLSettingsVOWater> LLSettingsInjectedWater;
 }
 
 //=========================================================================
@@ -777,8 +907,6 @@ LLEnvironment::DayInstance::ptr_t LLEnvironment::getEnvironmentInstance(LLEnviro
         else
         {
             environment = std::make_shared<DayInstance>(env);
-            if (mMakeBackups && env > ENV_PUSH)
-                environment->setBackup(true);
         }
         mEnvironments[env] = environment;
     }
@@ -1187,11 +1315,6 @@ void LLEnvironment::update(const LLViewerCamera * cam)
     F32Seconds delta(timer.getElapsedTimeAndResetF32());
 
     mCurrentEnvironment->applyTimeDelta(delta);
-
-    if (mCurrentEnvironment->getEnvironmentSelection() != ENV_LOCAL)
-    {
-        applyInjectedSettings(mCurrentEnvironment, delta);
-    }
 
     // update clouds, sun, and general
     updateCloudScroll();
@@ -2013,27 +2136,12 @@ void LLEnvironment::handleEnvironmentPushPartial(LLUUID experience_id, LLSD &mes
 
 void LLEnvironment::clearExperienceEnvironment(LLUUID experience_id, F32 transition_time)
 {
-    bool update_env(false);
-
     if (hasEnvironment(ENV_PUSH))
     {
-        update_env |= true;
         clearEnvironment(ENV_PUSH);
         updateEnvironment(LLSettingsBase::Seconds(transition_time));
     }
 
-    setInstanceBackup(false);
-
-    /*TODO blend these back out*/
-//     mSkyExperienceBlends.clear();
-//     mWaterExperienceBlends.clear();
-//     mCurrentEnvironment->getSky();
-// 
-//     injectSettings(experience_id, mSkyExperienceBlends, mSkyOverrides, LLSettingsBase::Seconds(transition_time), false);
-//     injectSettings(experience_id, mWaterExperienceBlends, mWaterOverrides, LLSettingsBase::Seconds(transition_time), false);
-// 
-//     mSkyOverrides = LLSD::emptyMap();
-//     mWaterOverrides = LLSD::emptyMap();
 }
 
 void LLEnvironment::setSharedEnvironment()
@@ -2048,8 +2156,6 @@ void LLEnvironment::setExperienceEnvironment(LLUUID experience_id, LLUUID asset_
     LLSettingsVOBase::getSettingsAsset(asset_id,
         [this, experience_id, transition_time](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat)
     {
-//         mPushEnvironmentExpId = experience_id;
-//         removeExperinceInjections(experience_id); 
         // individual settings will be overridden by the settings.  No need to keep injections.
         onSetEnvAssetLoaded(ENV_PUSH, asset_id, settings,
             LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET, 
@@ -2118,129 +2224,6 @@ void LLEnvironment::setExperienceEnvironment(LLUUID experience_id, LLSD data, F3
         updateEnvironment(TRANSITION_INSTANT);
     }
 
-
-//     setInstanceBackup(true);
-// 
-//     if (!sky.isUndefined())
-//         injectSettings(experience_id, mSkyExperienceBlends, sky, LLSettingsBase::Seconds(transition_time), true);
-//     if (!water.isUndefined())
-//         injectSettings(experience_id, mWaterExperienceBlends, water, LLSettingsBase::Seconds(transition_time), true);
-
-}
-
-void LLEnvironment::setInstanceBackup(bool dobackup)
-{
-    mMakeBackups = dobackup;
-    for (S32 idx = ENV_PARCEL; idx < ENV_DEFAULT; ++idx)
-    {
-        if (mEnvironments[idx])
-            mEnvironments[idx]->setBackup(dobackup);
-    }
-}
-
-void LLEnvironment::injectSettings(LLUUID experience_id, exerienceBlendValues_t &blends, LLSD injections, LLSettingsBase::Seconds transition, bool blendin)
-{
-    for (LLSD::map_iterator it = injections.beginMap(); it != injections.endMap(); ++it)
-    {
-        blends.push_back(ExpBlendValue(transition, (*it).first, (*it).second, blendin, -1));
-        if (blendin)
-            mExperienceOverrides[(*it).first] = experience_id;
-    }
-
-    std::stable_sort(blends.begin(), blends.end(), [](const ExpBlendValue &a, const ExpBlendValue &b) { return a.mTimeRemaining < b.mTimeRemaining; });
-}
-
-void LLEnvironment::applyInjectedSettings(DayInstance::ptr_t environment, F32Seconds delta)
-{
-    if ((mSkyOverrides.size() > 0) || (mSkyExperienceBlends.size() > 0))
-    {
-        LLSettingsSky::ptr_t psky = environment->getSky();
-        applyInjectedValues(psky, mSkyOverrides);
-        blendInjectedValues(psky, mSkyExperienceBlends, mSkyOverrides, delta);
-    }
-    if ((mWaterOverrides.size() > 0) || (mWaterExperienceBlends.size() > 0))
-    {
-        LLSettingsWater::ptr_t pwater = environment->getWater();
-        applyInjectedValues(pwater, mWaterOverrides);
-        blendInjectedValues(pwater, mWaterExperienceBlends, mWaterOverrides, delta);
-    }
-}
-
-void LLEnvironment::applyInjectedValues(LLSettingsBase::ptr_t psetting, LLSD injection)
-{
-    for (LLSD::map_iterator it = injection.beginMap(); it != injection.endMap(); ++it)
-    {
-        psetting->setValue((*it).first, (*it).second);
-    }
-}
-
-void LLEnvironment::blendInjectedValues(LLSettingsBase::ptr_t psetting, exerienceBlendValues_t &blends, LLSD &overrides, F32Seconds delta)
-{
-    LLSD settings = psetting->getSettings();
-    LLSettingsBase::parammapping_t mappings = psetting->getParameterMap();
-    LLSettingsBase::stringset_t    slerps = psetting->getSlerpKeys();
-
-    if (blends.empty())
-        return;
-
-    for (auto &blend : blends)
-    {
-        blend.mTimeRemaining -= delta;
-        LLSettingsBase::BlendFactor mix = std::max(blend.mTimeRemaining / blend.mTransition, 0.0f);
-        if (blend.mBlendIn)
-            mix = 1.0 - mix;
-        mix = std::max(0.0, std::min(mix, 1.0));
-
-        if (blend.mValueInitial.isUndefined())
-            blend.mValueInitial = psetting->getValue(blend.mKeyName);
-        LLSD newvalue = psetting->interpolateSDValue(blend.mKeyName, blend.mValueInitial, blend.mValue, mappings, mix, slerps);
-
-        psetting->setValue(blend.mKeyName, newvalue);
-    }
-    
-    auto it = blends.begin();
-    for (; it != blends.end(); ++it)
-    {
-        if ((*it).mTimeRemaining > F32Seconds(0.0f))
-            break;
-        if ((*it).mBlendIn)
-            overrides[(*it).mKeyName] = (*it).mValue;
-    }
-    if (it != blends.begin())
-    {
-        blends.erase(blends.begin(), it);
-    }
-}
-
-void LLEnvironment::removeExperinceInjections(const LLUUID &experience_id)
-{
-    auto it = mExperienceOverrides.begin();
-    while (it != mExperienceOverrides.end())
-    {
-        if ((*it).second == experience_id)
-        {
-            std::string override_key((*it).first);
-            mExperienceOverrides.erase(it++);
-
-            if (mSkyOverrides.has(override_key))
-                mSkyOverrides.erase(override_key);
-            if (mWaterOverrides.has(override_key))
-                mWaterOverrides.erase(override_key);
-            auto itBlend = std::find_if(mSkyExperienceBlends.begin(), mSkyExperienceBlends.end(), [override_key](const ExpBlendValue &a) { return a.mKeyName == override_key; });
-            if (itBlend != mSkyExperienceBlends.end())
-                mSkyExperienceBlends.erase(itBlend);
-            itBlend = std::find_if(mWaterExperienceBlends.begin(), mWaterExperienceBlends.end(), [override_key](const ExpBlendValue &a) { return a.mKeyName == override_key; });
-            if (itBlend != mWaterExperienceBlends.end())
-                mWaterExperienceBlends.erase(itBlend);
-        }
-        else
-            ++it;
-    }
-}
-
-void LLEnvironment::removeExperinceSetting(const LLUUID &experience_id)
-{
-    clearExperienceEnvironment(experience_id, TRANSITION_INSTANT);
 }
 
 void LLEnvironment::listenExperiencePump(const LLSD &message)
@@ -2253,10 +2236,8 @@ void LLEnvironment::listenExperiencePump(const LLSD &message)
 
     if ((permission == "Forget") || (permission == "Block"))
     {
-        removeExperinceSetting(experience_id);
+        clearExperienceEnvironment(experience_id, (permission == "Block") ? TRANSITION_INSTANT : TRANSITION_FAST);
     }
-
-
 }
 
 //=========================================================================

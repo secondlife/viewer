@@ -115,7 +115,7 @@ public:
 
     // Settings status 
     virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf) SETTINGS_OVERRIDE;
-    
+
     virtual void replaceSettings(LLSD settings) SETTINGS_OVERRIDE;
 
     void replaceWithSky(LLSettingsSky::ptr_t pother);
@@ -322,6 +322,13 @@ protected:
     virtual stringset_t getSlerpKeys() const SETTINGS_OVERRIDE;
     virtual stringset_t getSkipInterpolateKeys() const SETTINGS_OVERRIDE;
 
+    LLUUID      mNextSunTextureId;
+    LLUUID      mNextMoonTextureId;
+    LLUUID      mNextCloudTextureId;
+    LLUUID      mNextBloomTextureId;
+    LLUUID      mNextRainbowTextureId;
+    LLUUID      mNextHaloTextureId;
+
 private:
     static LLSD rayleighConfigDefault();
     static LLSD absorptionConfigDefault();
@@ -343,13 +350,6 @@ private:
     mutable LLColor4    mSunAmbient;
     mutable LLColor3    mSunDiffuse;
     mutable LLColor4    mTotalAmbient;
-
-    LLUUID      mNextSunTextureId;
-    LLUUID      mNextMoonTextureId;
-    LLUUID      mNextCloudTextureId;
-    LLUUID      mNextBloomTextureId;
-    LLUUID      mNextRainbowTextureId;
-    LLUUID      mNextHaloTextureId;
 
     typedef std::map<std::string, S32> mapNameToUniformId_t;
 
