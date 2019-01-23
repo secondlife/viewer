@@ -239,7 +239,7 @@ LLFloaterSettingsPicker * LLFloaterFixedEnvironment::getSettingsPicker()
     if (!picker)
     {
         picker = new LLFloaterSettingsPicker(this,
-            LLUUID::null, "SELECT SETTINGS");
+            LLUUID::null);
 
         mInventoryFloater = picker->getHandle();
 

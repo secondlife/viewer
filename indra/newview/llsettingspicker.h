@@ -33,6 +33,7 @@
 #include "llpermissionsflags.h"
 #include "llfolderview.h"
 #include "llinventory.h"
+#include "llsettingsdaycycle.h"
 
 #include <boost/signals2.hpp>
 
@@ -48,7 +49,7 @@ public:
     typedef std::function<void()>                           close_callback_t;
     typedef std::function<void(const LLUUID& item_id)>     id_changed_callback_t;
 
-    LLFloaterSettingsPicker(LLView * owner, LLUUID setting_item_id, const std::string &label, const LLSD &params = LLSD());
+    LLFloaterSettingsPicker(LLView * owner, LLUUID setting_item_id, const LLSD &params = LLSD());
 
     virtual                 ~LLFloaterSettingsPicker() override;
 
@@ -63,6 +64,10 @@ public:
 
     void                    setSettingsFilter(LLSettingsType::type_e type);
     LLSettingsType::type_e  getSettingsFilter() const { return mSettingsType; }
+
+    // Only for day cycle
+    void                    setTrackWater(bool use_water) { mTrackWater = use_water; }
+    void                    setTrackSky(bool use_sky) { mTrackWater = !use_sky; }
 
     // Takes a UUID, wraps get/setImageAssetID
     virtual void            setValue(const LLSD& value) override;
@@ -86,11 +91,14 @@ public:
 
     static LLInventoryItem *     findItem(const LLUUID& asset_id, bool copyable_only, bool ignore_library);
 
+
 private:
     typedef std::deque<LLFolderViewItem *>  itemlist_t;
 
     void                    onFilterEdit(const std::string& search_string);
     void                    onSelectionChange(const itemlist_t &items, bool user_action);
+    static void             onAssetLoadedCb(LLHandle<LLFloater> handle, LLUUID item_id, LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status);
+    void                    onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings);
     void                    onButtonCancel();
     void                    onButtonSelect();
     virtual BOOL            handleDoubleClick(S32 x, S32 y, MASK mask) override;
@@ -98,8 +106,9 @@ private:
 
 
     LLHandle<LLView>        mOwnerHandle;
-    std::string             mLabel;
-    LLUUID				    mSettingItemID; 
+    LLUUID                  mSettingItemID;
+    LLUUID                  mSettingAssetID;
+    bool                    mTrackWater;
 
     LLFilterEditor *        mFilterEdit;
     LLInventoryPanel *      mInventoryPanel;

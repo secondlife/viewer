@@ -17,6 +17,27 @@
             name="pick title">
         Pick:
     </floater.string>
+    <floater.string
+            name="pick_track">
+        SELECT TRACK
+    </floater.string>
+    <floater.string
+            name="pick_settings">
+        SELECT SETTINGS
+    </floater.string>
+
+    <floater.string
+            name="track_water">
+        Water
+    </floater.string>
+    <floater.string
+            name="track_ground">
+        Ground
+    </floater.string>
+    <floater.string
+            name="track_sky">
+        Sky[NUM]
+    </floater.string>
 
     <layout_stack name="test_stack"
             follows="all"
@@ -85,24 +106,7 @@
              mouse_opaque="true"
              name="track_selection"
              top="1"
-             width="190">
-                <combo_box.item
-                 label="Sky4"
-                 name="Sky4"
-                 value="4" />
-                <combo_box.item
-                 label="Sky3"
-                 name="Sky3"
-                 value="3" />
-                <combo_box.item
-                 label="Sky2"
-                 name="Sky2"
-                 value="2" />
-                <combo_box.item
-                 label="Ground"
-                 name="Ground"
-                 value="1" />
-            </combo_box>
+             width="190"/>
         </layout_panel>
         <layout_panel name="temp"
                 border="false"

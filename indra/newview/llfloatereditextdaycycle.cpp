@@ -1823,7 +1823,7 @@ void LLFloaterEditExtDayCycle::doOpenInventoryFloater(LLSettingsType::type_e typ
     if (!picker)
     {
         picker = new LLFloaterSettingsPicker(this,
-            LLUUID::null, "SELECT SETTINGS");
+            LLUUID::null);
 
         mInventoryFloater = picker->getHandle();
 
@@ -1834,6 +1834,7 @@ void LLFloaterEditExtDayCycle::doOpenInventoryFloater(LLSettingsType::type_e typ
     picker->setSettingsItemId(curritem);
     picker->openFloater();
     picker->setFocus(TRUE);
+    picker->setTrackWater(mCurrentTrack == LLSettingsDay::TRACK_WATER);
 }
 
 void LLFloaterEditExtDayCycle::doCloseInventoryFloater(bool quitting)
