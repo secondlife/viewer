@@ -385,7 +385,7 @@ namespace
             {
                 injectSetting((*it).first, (*it).second, experience_id, transition);
             }
-            setDirtyFlag(true);
+            this->setDirtyFlag(true);
         }
 
     protected:
