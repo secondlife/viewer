@@ -36,13 +36,13 @@ void calcAtmospherics(vec3 eye_pos);
 
 void main()
 {
-	//transform vertex
-	vec4 vert = vec4(position.xyz, 1.0);
-	vec4 pos = (modelview_matrix * vert);
+    //transform vertex
+    vec4 vert = vec4(position.xyz, 1.0);
+    vec4 pos = (modelview_matrix * vert);
 
-	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
+    gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 
     calcAtmospherics(pos.xyz);
-	
-	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
+    
+    vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 }

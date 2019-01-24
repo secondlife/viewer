@@ -66,60 +66,65 @@ vec4 cloudNoise(vec2 uv)
 
 void main()
 {
-	// Set variables
-	vec2 uv1 = vary_texcoord0.xy;
-	vec2 uv2 = vary_texcoord1.xy;
+    // Set variables
+    vec2 uv1 = vary_texcoord0.xy;
+    vec2 uv2 = vary_texcoord1.xy;
 
-	vec4 cloudColorSun = vary_CloudColorSun;
-	vec4 cloudColorAmbient = vary_CloudColorAmbient;
-	float cloudDensity = vary_CloudDensity;
-	vec2 uv3 = vary_texcoord2.xy;
-	vec2 uv4 = vary_texcoord3.xy;
+    vec4 cloudColorSun = vary_CloudColorSun;
+    vec4 cloudColorAmbient = vary_CloudColorAmbient;
+    float cloudDensity = vary_CloudDensity;
+    vec2 uv3 = vary_texcoord2.xy;
+    vec2 uv4 = vary_texcoord3.xy;
+
+    if (cloud_scale < 0.001)
+    {
+        discard;
+    }
 
     vec2 disturbance  = vec2(cloudNoise(uv1 / 8.0f).x, cloudNoise((uv3 + uv1) / 16.0f).x) * cloud_variance * (1.0f - cloud_scale * 0.25f);
     vec2 disturbance2 = vec2(cloudNoise((uv1 + uv3) / 4.0f).x, cloudNoise((uv4 + uv2) / 8.0f).x) * cloud_variance * (1.0f - cloud_scale * 0.25f);
 
-	// Offset texture coords
-	uv1 += cloud_pos_density1.xy + (disturbance * 0.02);	//large texture, visible density
-	uv2 += cloud_pos_density1.xy;	//large texture, self shadow
-	uv3 += cloud_pos_density2.xy;	//small texture, visible density
-	uv4 += cloud_pos_density2.xy;	//small texture, self shadow
+    // Offset texture coords
+    uv1 += cloud_pos_density1.xy + (disturbance * 0.02);    //large texture, visible density
+    uv2 += cloud_pos_density1.xy;   //large texture, self shadow
+    uv3 += cloud_pos_density2.xy;   //small texture, visible density
+    uv4 += cloud_pos_density2.xy;   //small texture, self shadow
 
     float density_variance = min(1.0, (disturbance.x* 2.0 + disturbance.y* 2.0 + disturbance2.x + disturbance2.y));
 
     cloudDensity *= 1.0 - (density_variance * density_variance);
 
-	// Compute alpha1, the main cloud opacity
+    // Compute alpha1, the main cloud opacity
 
-	float alpha1 = (cloudNoise(uv1).x - 0.5) + (cloudNoise(uv3).x - 0.5) * cloud_pos_density2.z;
-	alpha1 = min(max(alpha1 + cloudDensity, 0.) * 10 * cloud_pos_density1.z, 1.);
+    float alpha1 = (cloudNoise(uv1).x - 0.5) + (cloudNoise(uv3).x - 0.5) * cloud_pos_density2.z;
+    alpha1 = min(max(alpha1 + cloudDensity, 0.) * 10 * cloud_pos_density1.z, 1.);
 
-	// And smooth
-	alpha1 = 1. - alpha1 * alpha1;
-	alpha1 = 1. - alpha1 * alpha1;	
+    // And smooth
+    alpha1 = 1. - alpha1 * alpha1;
+    alpha1 = 1. - alpha1 * alpha1;  
 
     if (alpha1 < 0.001f)
     {
         discard;
     }
 
-	// Compute alpha2, for self shadowing effect
-	// (1 - alpha2) will later be used as percentage of incoming sunlight
-	float alpha2 = (cloudNoise(uv2).x - 0.5);
-	alpha2 = min(max(alpha2 + cloudDensity, 0.) * 2.5 * cloud_pos_density1.z, 1.);
+    // Compute alpha2, for self shadowing effect
+    // (1 - alpha2) will later be used as percentage of incoming sunlight
+    float alpha2 = (cloudNoise(uv2).x - 0.5);
+    alpha2 = min(max(alpha2 + cloudDensity, 0.) * 2.5 * cloud_pos_density1.z, 1.);
 
-	// And smooth
-	alpha2 = 1. - alpha2;
-	alpha2 = 1. - alpha2 * alpha2;	
+    // And smooth
+    alpha2 = 1. - alpha2;
+    alpha2 = 1. - alpha2 * alpha2;  
 
-	// Combine
-	vec4 color;
-	color = (cloudColorSun*(1.-alpha2) + cloudColorAmbient);
-	color *= 2.;
+    // Combine
+    vec4 color;
+    color = (cloudColorSun*(1.-alpha2) + cloudColorAmbient);
+    color *= 2.;
 
-	/// Gamma correct for WL (soft clip effect).
-	frag_data[0] = vec4(scaleSoftClip(color.rgb), alpha1);
-	frag_data[1] = vec4(0.0,0.0,0.0,0.0);
-	frag_data[2] = vec4(0,0,1,0);
+    /// Gamma correct for WL (soft clip effect).
+    frag_data[0] = vec4(scaleSoftClip(color.rgb), alpha1);
+    frag_data[1] = vec4(0.0,0.0,0.0,0.0);
+    frag_data[2] = vec4(0,0,1,0);
 }
 

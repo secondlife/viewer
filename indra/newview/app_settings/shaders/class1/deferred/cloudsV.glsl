@@ -58,6 +58,7 @@ uniform float density_multiplier;
 uniform float max_y;
 
 uniform vec4 glow;
+uniform float sun_up_factor;
 
 uniform vec4 cloud_color;
 
@@ -131,6 +132,8 @@ void main()
 	temp2.x = pow(temp2.x, glow.z);
 		// glow.z should be negative, so we're doing a sort of (1 / "angle") function
 
+        temp2.x *= sun_up_factor;
+
 	// Add "minimum anti-solar illumination"
 	temp2.x += .25;
 
@@ -170,7 +173,7 @@ void main()
 	// Texture coords
 	vary_texcoord0 = texcoord0;
 	vary_texcoord0.xy -= 0.5;
-	vary_texcoord0.xy /= cloud_scale;
+	vary_texcoord0.xy /= max(0.001, cloud_scale);
 	vary_texcoord0.xy += 0.5;
 
 	vary_texcoord1 = vary_texcoord0;

@@ -45,8 +45,8 @@ VARYING vec2 vary_texcoord0;
 
 void main() 
 {
-	vec4 moonA = texture2D(diffuseMap, vary_texcoord0.xy);
-	vec4 moonB = texture2D(altDiffuseMap, vary_texcoord0.xy);
+    vec4 moonA = texture2D(diffuseMap, vary_texcoord0.xy);
+    vec4 moonB = texture2D(altDiffuseMap, vary_texcoord0.xy);
     vec4 c     = mix(moonA, moonB, blend_factor);
 
     // mix factor which blends when sunlight is brighter
@@ -58,8 +58,8 @@ void main()
     vec3 exp = vec3(1.0 - mix * moon_brightness) * 2.0  - 1.0;
     c.rgb = pow(c.rgb, exp);
 
-	frag_data[0] = vec4(c.rgb, c.a);
-	frag_data[1] = vec4(0.0);
-	frag_data[2] = vec4(0.0f);
+    frag_data[0] = vec4(c.rgb, c.a);
+    frag_data[1] = vec4(0.0);
+    frag_data[2] = vec4(0.0f);
 }
 

@@ -248,6 +248,7 @@ public:
         SH_INPUT_L1G,
         SH_INPUT_L1B,
 
+        SUN_UP_FACTOR,
 		END_RESERVED_UNIFORMS
 	} eGLSLReservedUniforms;
 

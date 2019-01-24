@@ -49,22 +49,22 @@ void main()
 {
     vary_pos = position;
 
-	// World / view / projection
-	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
+    // World / view / projection
+    gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
 
-	// Texture coords
-	vary_texcoord0 = texcoord0;
-	vary_texcoord0.xy -= 0.5;
-    vary_texcoord0.xy /= cloud_scale;
+    // Texture coords
+    vary_texcoord0 = texcoord0;
+    vary_texcoord0.xy -= 0.5;
+    vary_texcoord0.xy /= max(0.001, cloud_scale);
     vary_texcoord0.xy += 0.5;
 
-	vary_texcoord1 = vary_texcoord0;
-	vary_texcoord1.x += lightnorm.x * 0.0125;
+    vary_texcoord1 = vary_texcoord0;
+    vary_texcoord1.x += lightnorm.x * 0.0125;
     vary_texcoord1.y += lightnorm.z * 0.0125;
 
-	vary_texcoord2 = vary_texcoord0 * 16.;
-	vary_texcoord3 = vary_texcoord1 * 16.;
+    vary_texcoord2 = vary_texcoord0 * 16.;
+    vary_texcoord3 = vary_texcoord1 * 16.;
 
-	// END CLOUDS
+    // END CLOUDS
 }
 

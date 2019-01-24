@@ -30,6 +30,7 @@
 #include "stdtypes.h"
 #include "v3color.h"
 #include "v4coloru.h"
+#include "llquaternion.h"
 #include "llviewertexture.h"
 #include "llviewerobject.h"
 #include "llframetimer.h"
@@ -38,7 +39,7 @@
 #include "lllegacyatmospherics.h"
 
 const F32 SKY_BOX_MULT			= 16.0f;
-const F32 HEAVENLY_BODY_DIST	= HORIZON_DIST - 10.f;
+const F32 HEAVENLY_BODY_DIST	= HORIZON_DIST - 20.f;
 const F32 HEAVENLY_BODY_FACTOR	= 0.1f;
 const F32 HEAVENLY_BODY_SCALE	= HEAVENLY_BODY_DIST * HEAVENLY_BODY_FACTOR;
 
@@ -132,6 +133,7 @@ protected:
 	LLColor3		mColorCached;
 	F32				mIntensity;
 	LLVector3		mDirection;				// direction of the local heavenly body
+    LLQuaternion    mRotation;
 	LLVector3		mAngularVelocity;		// velocity of the local heavenly body
 
 	F32				mDiskRadius;
@@ -146,6 +148,9 @@ protected:
 public:
 	LLHeavenBody(const F32 rad);
 	~LLHeavenBody() {}
+
+    const LLQuaternion& getRotation() const;
+    void                setRotation(const LLQuaternion& rot);
 
 	const LLVector3& getDirection()	const;
 	void setDirection(const LLVector3 &direction);

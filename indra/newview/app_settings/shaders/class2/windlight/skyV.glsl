@@ -50,7 +50,7 @@ uniform float density_multiplier;
 uniform float max_y;
 
 uniform vec4 glow;
-
+uniform float sun_up_factor;
 uniform vec4 cloud_color;
 
 void main()
@@ -118,6 +118,8 @@ void main()
 		// Higher glow.x gives dimmer glow (because next step is 1 / "angle")
 	temp2.x = pow(temp2.x, glow.z);
 		// glow.z should be negative, so we're doing a sort of (1 / "angle") function
+
+        temp2.x *= sun_up_factor;
 
 	// Add "minimum anti-solar illumination"
 	temp2.x += .25;

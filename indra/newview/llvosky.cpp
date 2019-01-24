@@ -243,6 +243,16 @@ LLHeavenBody::LLHeavenBody(const F32 rad)
 	mColorCached.setToBlack();
 }
 
+const LLQuaternion& LLHeavenBody::getRotation() const
+{
+    return mRotation;
+}
+
+void LLHeavenBody::setRotation(const LLQuaternion& rot)
+{
+    mRotation = rot;
+}
+
 const LLVector3& LLHeavenBody::getDirection() const
 {
     return mDirection;
@@ -738,6 +748,9 @@ void LLVOSky::updateDirections(void)
     mSun.setDirection(psky->getSunDirection());
 	mMoon.setDirection(psky->getMoonDirection());
 
+    mSun.setRotation(psky->getSunRotation());
+	mMoon.setRotation(psky->getMoonRotation());
+
     mSun.setColor(psky->getSunlightColor());
 	mMoon.setColor(psky->getMoonDiffuse());
 
@@ -1199,11 +1212,13 @@ bool LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, F32 scale, const 
 	S32 index_offset;
 	LLFace *facep;
 
-	LLVector3 to_dir   = hb.getDirection();
+    LLQuaternion rot    = hb.getRotation();
+	LLVector3 to_dir    = LLVector3::x_axis * rot;
+    LLVector3 hb_right  = LLVector3::y_axis * rot;
+	LLVector3 hb_up     = LLVector3::z_axis * rot;
+
 	LLVector3 draw_pos = to_dir * HEAVENLY_BODY_DIST;
 
-	LLVector3 hb_right = to_dir % LLVector3::z_axis;
-	LLVector3 hb_up = hb_right % to_dir;
 	hb_right.normalize();
 	hb_up.normalize();
 
