@@ -56,7 +56,7 @@ public:
     void                    setActive(bool active);
 
     virtual BOOL            postBuild() override;
-    virtual void	        onClose(bool app_quitting) override;
+    virtual void            onClose(bool app_quitting) override;
     virtual void            draw() override;
 
     void                    setSettingsItemId(const LLUUID &settings_id, bool set_selection = true);
@@ -103,6 +103,7 @@ private:
     void                    onButtonSelect();
     virtual BOOL            handleDoubleClick(S32 x, S32 y, MASK mask) override;
     BOOL                    handleKeyHere(KEY key, MASK mask) override;
+    void                    onFocusLost() override;
 
 
     LLHandle<LLView>        mOwnerHandle;

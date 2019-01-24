@@ -128,6 +128,7 @@ BOOL LLFloaterSettingsPicker::postBuild()
             //todo: this is bad idea
             mInventoryPanel->setSelection(mSettingItemID, TAKE_FOCUS_NO);
         }
+        getChild<LLView>(BTN_SELECT)->setEnabled(mSettingItemID.notNull());
     }
 
     mNoCopySettingsSelected = FALSE;
@@ -289,6 +290,7 @@ void LLFloaterSettingsPicker::onFilterEdit(const std::string& search_string)
 void LLFloaterSettingsPicker::onSelectionChange(const LLFloaterSettingsPicker::itemlist_t &items, bool user_action)
 {
     bool track_picker_enabled = false;
+    bool is_item = false;
     LLUUID asset_id;
     if (items.size())
     {
@@ -307,6 +309,7 @@ void LLFloaterSettingsPicker::onSelectionChange(const LLFloaterSettingsPicker::i
                 setSettingsItemId(bridge_model->getItem()->getUUID(), false);
                 asset_id = bridge_model->getItem()->getAssetUUID();
                 mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
+                is_item = true;
 
                 if (user_action)
                 {
@@ -322,6 +325,7 @@ void LLFloaterSettingsPicker::onSelectionChange(const LLFloaterSettingsPicker::i
         }
     }
     getChild<LLView>(CMB_TRACK_SELECTION)->setEnabled(track_picker_enabled && mSettingAssetID == asset_id);
+    getChild<LLView>(BTN_SELECT)->setEnabled(is_item && (!track_picker_enabled || mSettingAssetID == asset_id));
     if (track_picker_enabled && asset_id.notNull() && mSettingAssetID != asset_id)
     {
         LLUUID item_id = mSettingItemID;
@@ -376,6 +380,8 @@ void LLFloaterSettingsPicker::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr
     
     mSettingAssetID = asset_id;
     track_selection->setEnabled(true);
+    track_selection->selectFirstItem();
+    getChild<LLView>(BTN_SELECT)->setEnabled(true);
 }
 
 void LLFloaterSettingsPicker::onButtonCancel()
@@ -457,6 +463,14 @@ BOOL LLFloaterSettingsPicker::handleKeyHere(KEY key, MASK mask)
     }
 
     return LLFloater::handleKeyHere(key, mask);
+}
+
+void LLFloaterSettingsPicker::onFocusLost()
+{
+    if (isInVisibleChain())
+    {
+        closeFloater();
+    }
 }
 
 //=========================================================================
