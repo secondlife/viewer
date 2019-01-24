@@ -70,14 +70,15 @@ uniform float ice_level;
 
 vec3 rainbow(float d)
 {
-   d = clamp(d, -1, 0);
+   d = clamp(d, -1.0, 0.0);
    float rad = (droplet_radius - 5.0f) / 1024.0f;
    return pow(texture2D(rainbow_map, vec2(rad, d)).rgb, vec3(1.8)) * moisture_level;
 }
 
 vec3 halo22(float d)
 {
-   float v = sqrt(max(0, 1 - (d*d)));
+   d = clamp(d, 0.1, 1.0);
+   float v = sqrt(clamp(1 - (d * d), 0, 1));
    return texture2D(halo_map, vec2(0, v)).rgb * ice_level;
 }
 
