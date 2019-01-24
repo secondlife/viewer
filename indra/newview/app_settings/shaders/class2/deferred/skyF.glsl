@@ -70,6 +70,7 @@ uniform float ice_level;
 
 vec3 rainbow(float d)
 {
+   d = clamp(d, -1, 0);
    float rad = (droplet_radius - 5.0f) / 1024.0f;
    return pow(texture2D(rainbow_map, vec2(rad, d)).rgb, vec3(1.8)) * moisture_level;
 }
@@ -182,8 +183,7 @@ void main()
 
     vec3 halo_22 = halo22(optic_d);
 
-    if (optic_d <= 0)
-    color.rgb += rainbow(optic_d);
+   color.rgb += rainbow(optic_d);
 
     color.rgb += halo_22;
 

@@ -490,7 +490,7 @@ void LLViewerShaderMgr::setShaders()
         S32 shadow_detail            = gSavedSettings.getS32("RenderShadowDetail");
         bool useRenderDeferred       = canRenderDeferred && gSavedSettings.getBOOL("RenderDeferred") && gSavedSettings.getBOOL("RenderAvatarVP");
         bool doingWindLight          = hasWindLightShaders && gSavedSettings.getBOOL("WindLightUseAtmosShaders");
-        bool useAdvancedAtmospherics = doingWindLight && gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics");
+        
 
 		//using shaders, disable fixed function
 		LLGLSLShader::sNoFixedFunction = true;
@@ -510,11 +510,14 @@ void LLViewerShaderMgr::setShaders()
 			transform_class = 0;
 		}
 
+    #if USE_ADVANCED_ATMOSPHERICS
+        bool useAdvancedAtmospherics = doingWindLight && gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics");
         if (useAdvancedAtmospherics)
         {
             deferred_class = 3;
             wl_class       = 3;
         }
+    #endif
 
 		if (useRenderDeferred && doingWindLight)
 		{
