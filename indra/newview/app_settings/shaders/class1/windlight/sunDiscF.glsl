@@ -40,15 +40,18 @@ uniform sampler2D diffuseMap;
 uniform sampler2D altDiffuseMap;
 uniform float blend_factor; // interp factor between sun A/B
 VARYING vec2 vary_texcoord0;
+VARYING float sun_fade;
 
 void main() 
 {
-	vec4 sunA = texture2D(diffuseMap, vary_texcoord0.xy);
-	vec4 sunB = texture2D(altDiffuseMap, vary_texcoord0.xy);
+    vec4 sunA = texture2D(diffuseMap, vary_texcoord0.xy);
+    vec4 sunB = texture2D(altDiffuseMap, vary_texcoord0.xy);
     vec4 c     = mix(sunA, sunB, blend_factor);
+    c.a *= sun_fade;
+
     c.rgb = pow(c.rgb, vec3(0.7f));
-	c.rgb = fullbrightAtmosTransport(c.rgb);
+    c.rgb = fullbrightAtmosTransport(c.rgb);
     c.rgb = fullbrightScaleSoftClip(c.rgb);
-	frag_color = c;
+    frag_color = c;
 }
 
