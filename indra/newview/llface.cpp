@@ -634,7 +634,7 @@ void renderFace(LLDrawable* drawable, LLFace *face)
     }
 }
 
-void LLFace::renderOneWireframe(const LLColor4 &color, F32 fogCfx, bool bSelected, bool wireframe_selection, bool bRenderHiddenSelections)
+void LLFace::renderOneWireframe(const LLColor4 &color, F32 fogCfx, bool wireframe_selection, bool bRenderHiddenSelections)
 {
     //Need to because crash on ATI 3800 (and similar cards) MAINT-5018 
     LLGLDisable multisample(LLPipeline::RenderFSAASamples > 0 ? GL_MULTISAMPLE_ARB : 0);

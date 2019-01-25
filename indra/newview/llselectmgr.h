@@ -173,13 +173,14 @@ public:
 
 	void selectAllTEs(BOOL b);
 	void selectTE(S32 te_index, BOOL selected);
-	BOOL isTESelected(S32 te_index);
-	S32 getLastSelectedTE();
-	S32 getLastOperatedTE();
+	BOOL isTESelected(S32 te_index) const;
+	bool hasSelectedTE() const { return TE_SELECT_MASK_ALL & mTESelectMask; }
+	S32 getLastSelectedTE() const;
+	S32 getLastOperatedTE() const { return mLastTESelected; }
 	S32 getTESelectMask() { return mTESelectMask; }
 	void renderOneSilhouette(const LLColor4 &color);
 	void setTransient(BOOL transient) { mTransient = transient; }
-	BOOL isTransient() { return mTransient; }
+	BOOL isTransient() const { return mTransient; }
 	LLViewerObject* getObject();
 	void setObject(LLViewerObject* object);
 	// *NOTE: invalidate stored textures and colors when # faces change
@@ -539,10 +540,10 @@ public:
 	EGridMode		getGridMode() { return mGridMode; }
 	void			getGrid(LLVector3& origin, LLQuaternion& rotation, LLVector3 &scale, bool for_snap_guides = false);
 
-	BOOL getTEMode()		{ return mTEMode; }
-	void setTEMode(BOOL b)	{ mTEMode = b; }
+	BOOL getTEMode() const { return mTEMode; }
+	void setTEMode(BOOL b) { mTEMode = b; }
 
-	BOOL shouldShowSelection()	{ return mShowSelection; }
+	BOOL shouldShowSelection() const { return mShowSelection; }
 
 	LLBBox getBBoxOfSelection() const;
 	LLBBox getSavedBBoxOfSelection() const { return mSavedSelectionBBox; }
