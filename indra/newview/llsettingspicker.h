@@ -45,7 +45,6 @@ class LLInventoryPanel;
 class LLFloaterSettingsPicker : public LLFloater
 {
 public:
-    typedef std::function<void (LLUUID id)>                 commit_callback_t;
     typedef std::function<void()>                           close_callback_t;
     typedef std::function<void(const LLUUID& item_id)>     id_changed_callback_t;
 
@@ -117,8 +116,6 @@ private:
 
     F32                     mContextConeOpacity;
     PermissionMask          mImmediateFilterPermMask;
-//     PermissionMask          mDnDFilterPermMask;
-//     PermissionMask          mNonImmediateFilterPermMask;
 
     bool                    mActive;
     bool				    mNoCopySettingsSelected;
