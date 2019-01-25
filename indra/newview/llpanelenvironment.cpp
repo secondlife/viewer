@@ -373,7 +373,7 @@ void LLPanelEnvironmentInfo::updateEditFloater(const LLEnvironment::EnvironmentI
 {
     LLFloaterEditExtDayCycle *dayeditor(getEditFloater(false));
 
-    if (!dayeditor)
+    if (!dayeditor || !dayeditor->isInVisibleChain())
         return;
 
     if (!nextenv || !nextenv->mDayCycle || !enable)
