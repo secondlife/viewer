@@ -36,13 +36,14 @@ VARYING vec2 vary_texcoord0;
 
 void main()
 {
-	//transform vertex
-	vec4 vert = vec4(position.xyz, 1.0);
-	vec4 pos = (modelview_matrix * vert);
+    //transform vertex
+    vec3 offset = vec3(0, 0, 50);
+    vec4 vert = vec4(position.xyz - offset, 1.0);
+    vec4 pos = (modelview_matrix * vert);
 
-	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
-	
-	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
-	
-	calcAtmospherics(pos.xyz);
+    gl_Position = modelview_projection_matrix*vert;
+    
+    vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
+    
+    calcAtmospherics(pos.xyz);
 }
