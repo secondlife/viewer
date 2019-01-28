@@ -3584,6 +3584,7 @@ void LLVOAvatar::updateAppearanceMessageDebugText()
         debug_line += llformat(" %s", (isSitting() ? "S" : "T"));
 			debug_line += llformat("%s", (isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED) ? "G" : "-"));
 		}
+
         LLVector3 ankle_right_pos_agent = mFootRightp->getWorldPosition();
 		LLVector3 normal;
         LLVector3 ankle_right_ground_agent = ankle_right_pos_agent;
@@ -7463,7 +7464,16 @@ BOOL LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
 			if (texture_dict->mIsUsedByBakedTexture)
 			{
 				const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
-				return isTextureDefined(LLAvatarAppearanceDictionary::getInstance()->getBakedTexture(baked_index)->mTextureIndex);
+
+				if (type == LLWearableType::WT_SKIRT)
+				{
+					return (LLAvatarAppearance::isWearingWearableType(type) && isTextureDefined(LLAvatarAppearanceDictionary::getInstance()->getBakedTexture(baked_index)->mTextureIndex));
+				}
+				else
+				{
+					return isTextureDefined(LLAvatarAppearanceDictionary::getInstance()->getBakedTexture(baked_index)->mTextureIndex);
+				}
+				
 			}
 			return FALSE;
 		}
