@@ -2007,26 +2007,37 @@ void LLFloaterEditExtDayCycle::onAssetLoadedForInsertion(LLUUID item_id, LLUUID 
 
     LLInventoryItem *inv_item = gInventory.getItem(item_id);
 
-    if (inv_item
-        && mInventoryItem
-        && mInventoryItem->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID())
-        && !inv_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+    if (inv_item && !inv_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
     {
-        LLSD args;
-
-        // create and show confirmation textbox
-        LLNotificationsUtil::add("SettingsMakeNoTrans", args, LLSD(),
-            [this, cb](const LLSD&notif, const LLSD&resp)
+        // Need to check if item is already no-transfer, otherwise make it no-transfer
+        bool no_transfer = false;
+        if (mInventoryItem)
         {
-            S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
-            if (opt == 0)
+            no_transfer = mInventoryItem->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
+        }
+        else
+        {
+            no_transfer = mEditDay->getFlag(LLSettingsBase::FLAG_NOTRANS);
+        }
+
+        if (!no_transfer)
+        {
+            LLSD args;
+
+            // create and show confirmation textbox
+            LLNotificationsUtil::add("SettingsMakeNoTrans", args, LLSD(),
+                [this, cb](const LLSD&notif, const LLSD&resp)
             {
-                mMakeNoTrans = true;
-                mEditDay->setFlag(LLSettingsBase::FLAG_NOTRANS);
-                cb();
-            }
-        });
-        return;
+                S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
+                if (opt == 0)
+                {
+                    mMakeNoTrans = true;
+                    mEditDay->setFlag(LLSettingsBase::FLAG_NOTRANS);
+                    cb();
+                }
+            });
+            return;
+        }
     }
     
     cb();
