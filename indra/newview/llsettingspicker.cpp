@@ -72,7 +72,7 @@ LLFloaterSettingsPicker::LLFloaterSettingsPicker(LLView * owner, LLUUID initial_
     mActive(true),
     mContextConeOpacity(0.0f),
     mSettingItemID(initial_item_id),
-    mTrackWater(true),
+    mTrackMode(TRACK_NONE),
     mImmediateFilterPermMask(PERM_NONE)
 {
     mOwnerHandle = owner->getHandle();
@@ -132,6 +132,8 @@ BOOL LLFloaterSettingsPicker::postBuild()
     childSetAction(BTN_CANCEL, [this](LLUICtrl*, const LLSD& param){ onButtonCancel(); });
     childSetAction(BTN_SELECT, [this](LLUICtrl*, const LLSD& param){ onButtonSelect(); });
 
+    getChild<LLPanel>(PNL_COMBO)->setVisible(mTrackMode != TRACK_NONE);
+
     // update permission filter once UI is fully initialized
     mSavedFolderState.setApply(FALSE);
 
@@ -169,13 +171,18 @@ void LLFloaterSettingsPicker::setSettingsFilter(LLSettingsType::type_e type)
         filter = static_cast<S64>(0x1) << static_cast<S64>(type);
     }
 
-    bool day_cycle = (type != LLSettingsType::ST_WATER) && (type != LLSettingsType::ST_SKY);
-    getChild<LLPanel>(PNL_COMBO)->setVisible(day_cycle);
+    mInventoryPanel->setFilterSettingsTypes(filter);
+}
+
+void LLFloaterSettingsPicker::setTrackMode(ETrackMode mode)
+{
+    mTrackMode = mode;
+    getChild<LLPanel>(PNL_COMBO)->setVisible(mode != TRACK_NONE);
+
     std::string prefix = getString(STR_TITLE_PREFIX);
     std::string label;
-    if (day_cycle)
+    if (mode != TRACK_NONE)
     {
-
         label = getString(STR_TITLE_TRACK);
     }
     else
@@ -183,8 +190,6 @@ void LLFloaterSettingsPicker::setSettingsFilter(LLSettingsType::type_e type)
         label = getString(STR_TITLE_SETTINGS);
     }
     setTitle(prefix + " " + label);
-
-    mInventoryPanel->setFilterSettingsTypes(filter);
 }
 
 void LLFloaterSettingsPicker::draw()
@@ -234,7 +239,6 @@ void LLFloaterSettingsPicker::onFilterEdit(const std::string& search_string)
 
 void LLFloaterSettingsPicker::onSelectionChange(const LLFloaterSettingsPicker::itemlist_t &items, bool user_action)
 {
-    bool track_picker_enabled = false;
     bool is_item = false;
     LLUUID asset_id;
     if (items.size())
@@ -260,15 +264,11 @@ void LLFloaterSettingsPicker::onSelectionChange(const LLFloaterSettingsPicker::i
                 {
                     mChangeIDSignal(mSettingItemID);
                 }
-
-                if (bridge_model->getSettingsType() == LLSettingsType::ST_DAYCYCLE
-                    && !mNoCopySettingsSelected)
-                {
-                    track_picker_enabled = true;
-                }
             }
         }
     }
+    bool track_picker_enabled = mTrackMode != TRACK_NONE;
+
     getChild<LLView>(CMB_TRACK_SELECTION)->setEnabled(track_picker_enabled && mSettingAssetID == asset_id);
     getChild<LLView>(BTN_SELECT)->setEnabled(is_item && (!track_picker_enabled || mSettingAssetID == asset_id));
     if (track_picker_enabled && asset_id.notNull() && mSettingAssetID != asset_id)
@@ -304,11 +304,11 @@ void LLFloaterSettingsPicker::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr
     track_selection->removeall();
     LLSettingsDay::ptr_t pday = std::dynamic_pointer_cast<LLSettingsDay>(settings);
 
-    if (mTrackWater)
+    if (mTrackMode == TRACK_WATER)
     {
         track_selection->add(getString(STR_TRACK_WATER), LLSD::Integer(LLSettingsDay::TRACK_WATER), ADD_TOP, true);
     }
-    else
+    else if (mTrackMode == TRACK_SKY)
     {
         // track 1 always present
         track_selection->add(getString(STR_TRACK_GROUND), LLSD::Integer(LLSettingsDay::TRACK_GROUND_LEVEL), ADD_TOP, true);

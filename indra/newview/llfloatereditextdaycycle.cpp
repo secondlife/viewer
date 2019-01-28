@@ -1910,7 +1910,14 @@ void LLFloaterEditExtDayCycle::doOpenInventoryFloater(LLSettingsType::type_e typ
 
     picker->setSettingsFilter(type);
     picker->setSettingsItemId(curritem);
-    picker->setTrackWater(mCurrentTrack == LLSettingsDay::TRACK_WATER);
+    if (type == LLSettingsType::ST_DAYCYCLE)
+    {
+        picker->setTrackMode((mCurrentTrack == LLSettingsDay::TRACK_WATER) ? LLFloaterSettingsPicker::TRACK_WATER : LLFloaterSettingsPicker::TRACK_SKY);
+    }
+    else
+    {
+        picker->setTrackMode(LLFloaterSettingsPicker::TRACK_NONE);
+    }
     picker->openFloater();
     picker->setFocus(TRUE);
 }

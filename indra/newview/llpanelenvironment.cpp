@@ -338,7 +338,7 @@ LLFloaterSettingsPicker * LLPanelEnvironmentInfo::getSettingsPicker(bool create)
 
         mSettingsFloater = picker->getHandle();
 
-        picker->setCommitCallback([this](LLUICtrl *, const LLSD &data){ onPickerCommitted(data.asUUID()); });
+        picker->setCommitCallback([this](LLUICtrl *, const LLSD &data){ onPickerCommitted(data["ItemId"].asUUID()); });
     }
 
     return picker;

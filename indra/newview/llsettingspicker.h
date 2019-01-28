@@ -45,6 +45,12 @@ class LLInventoryPanel;
 class LLFloaterSettingsPicker : public LLFloater
 {
 public:
+    enum ETrackMode
+    {
+        TRACK_NONE,
+        TRACK_WATER,
+        TRACK_SKY
+    };
     typedef std::function<void()>                           close_callback_t;
     typedef std::function<void(const LLUUID& item_id)>     id_changed_callback_t;
 
@@ -65,8 +71,9 @@ public:
     LLSettingsType::type_e  getSettingsFilter() const { return mSettingsType; }
 
     // Only for day cycle
-    void                    setTrackWater(bool use_water) { mTrackWater = use_water; }
-    void                    setTrackSky(bool use_sky) { mTrackWater = !use_sky; }
+    void                    setTrackMode(ETrackMode mode);
+    void                    setTrackWater() { mTrackMode = TRACK_WATER; }
+    void                    setTrackSky() { mTrackMode = TRACK_SKY; }
 
     // Takes a UUID, wraps get/setImageAssetID
     virtual void            setValue(const LLSD& value) override;
@@ -108,7 +115,7 @@ private:
     LLHandle<LLView>        mOwnerHandle;
     LLUUID                  mSettingItemID;
     LLUUID                  mSettingAssetID;
-    bool                    mTrackWater;
+    ETrackMode              mTrackMode;
 
     LLFilterEditor *        mFilterEdit;
     LLInventoryPanel *      mInventoryPanel;
