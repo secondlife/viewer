@@ -48,6 +48,7 @@
 #include "llviewerparcelmgr.h"
 
 #include "llsettingspicker.h"
+#include "lltrackpicker.h"
 
 // newview
 #include "llagent.h"
@@ -425,6 +426,7 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
 void LLFloaterEditExtDayCycle::onClose(bool app_quitting)
 {
     doCloseInventoryFloater(app_quitting);
+    doCloseTrackFloater(app_quitting);
     // there's no point to change environment if we're quitting
     // or if we already restored environment
     stopPlay();
@@ -802,7 +804,48 @@ void LLFloaterEditExtDayCycle::onRemoveFrame()
 
 void LLFloaterEditExtDayCycle::onCloneTrack()
 {
+    const LLEnvironment::altitude_list_t &altitudes = LLEnvironment::instance().getRegionAltitudes();
+    bool use_altitudes = altitudes.size() > 0 && ((mEditContext == CONTEXT_PARCEL) || (mEditContext == CONTEXT_REGION));
 
+    LLSD args = LLSD::emptyArray();
+
+    S32 populated_counter = 0;
+    for (U32 i = 1; i < LLSettingsDay::TRACK_MAX; i++)
+    {
+        LLSD track;
+        track["id"] = LLSD::Integer(i);
+        bool populated = (!mEditDay->isTrackEmpty(i)) && (i != mCurrentTrack);
+        track["enabled"] = populated;
+        if (populated)
+        {
+            populated_counter++;
+        }
+        if (use_altitudes)
+        {
+            track["altitude"] = altitudes[i - 1];
+        }
+        args.append(track);
+    }
+
+    if (populated_counter > 1)
+    {
+        doOpenTrackFloater(args);
+    }
+    else if (populated_counter > 0)
+    {
+        for (U32 i = 1; i < LLSettingsDay::TRACK_MAX; i++)
+        {
+            if ((!mEditDay->isTrackEmpty(i)) && (i != mCurrentTrack))
+            {
+                onPickerCommitTrackId(i);
+            }
+        }
+    }
+    else
+    {
+        // Should not happen
+        LL_WARNS("ENVDAYEDIT") << "Tried to copy tracks, but there are no available sources" << LL_ENDL;
+    }
 }
 
 
@@ -1049,6 +1092,8 @@ void LLFloaterEditExtDayCycle::cloneTrack(const LLSettingsDay::ptr_t &source_day
         mEditDay->setSettingsAtKeyframe(psky->buildDerivedClone(), track_frame.first, dest_index);
     }
 
+    setDirtyFlag();
+
     updateSlider();
     updateTabs();
     updateButtons();
@@ -1228,8 +1273,7 @@ void LLFloaterEditExtDayCycle::updateButtons()
     }
 
     can_clear = (mCurrentTrack > 1) ? (!mEditDay->getCycleTrack(mCurrentTrack).empty()) : (mEditDay->getCycleTrack(mCurrentTrack).size() > 1);
-    mCloneTrack->setEnabled(can_clone && false);
-    mCloneTrack->setVisible(false);
+    mCloneTrack->setEnabled(can_clone);
     mLoadTrack->setEnabled(can_load);
     mClearTrack->setEnabled(can_clear);
 
@@ -1509,6 +1553,7 @@ void LLFloaterEditExtDayCycle::synchronizeTabs()
     mEditSky = psettingS;
 
     doCloseInventoryFloater();
+    doCloseTrackFloater();
 
     setTabsData(tabs, psettingS, canedit);
     LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, mEditSky, mEditWater);
@@ -1741,6 +1786,7 @@ bool LLFloaterEditExtDayCycle::canApplyParcel() const
 void LLFloaterEditExtDayCycle::startPlay()
 {
     doCloseInventoryFloater();
+    doCloseTrackFloater();
 
     mIsPlaying = true;
     mFramesSlider->resetCurSlider();
@@ -1814,6 +1860,38 @@ void LLFloaterEditExtDayCycle::clearDirtyFlag()
 
 }
 
+void LLFloaterEditExtDayCycle::doOpenTrackFloater(const LLSD &args)
+{
+    LLFloaterTrackPicker *picker = static_cast<LLFloaterTrackPicker *>(mTrackFloater.get());
+
+    // Show the dialog
+    if (!picker)
+    {
+        picker = new LLFloaterTrackPicker(this);
+
+        mTrackFloater = picker->getHandle();
+
+        picker->setCommitCallback([this](LLUICtrl *, const LLSD &data){ onPickerCommitTrackId(data.asInteger()); });
+    }
+
+    picker->showPicker(args);
+}
+
+void LLFloaterEditExtDayCycle::doCloseTrackFloater(bool quitting)
+{
+    LLFloater* floaterp = mTrackFloater.get();
+
+    if (floaterp)
+    {
+        floaterp->closeFloater(quitting);
+    }
+}
+
+void LLFloaterEditExtDayCycle::onPickerCommitTrackId(U32 track_id)
+{
+    cloneTrack(track_id, mCurrentTrack);
+}
+
 void LLFloaterEditExtDayCycle::doOpenInventoryFloater(LLSettingsType::type_e type, LLUUID curritem)
 {
 //  LLUI::sWindow->setCursor(UI_CURSOR_WAIT);
@@ -1832,9 +1910,9 @@ void LLFloaterEditExtDayCycle::doOpenInventoryFloater(LLSettingsType::type_e typ
 
     picker->setSettingsFilter(type);
     picker->setSettingsItemId(curritem);
+    picker->setTrackWater(mCurrentTrack == LLSettingsDay::TRACK_WATER);
     picker->openFloater();
     picker->setFocus(TRUE);
-    picker->setTrackWater(mCurrentTrack == LLSettingsDay::TRACK_WATER);
 }
 
 void LLFloaterEditExtDayCycle::doCloseInventoryFloater(bool quitting)
