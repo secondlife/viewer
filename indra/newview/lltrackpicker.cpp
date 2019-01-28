@@ -76,7 +76,7 @@ void LLFloaterTrackPicker::onClose(bool app_quitting)
     }
 }
 
-void LLFloaterTrackPicker::showPicker(LLSD &args)
+void LLFloaterTrackPicker::showPicker(const LLSD &args)
 {
     LLSD::array_const_iterator iter;
     LLSD::array_const_iterator end = args.endArray();

@@ -160,7 +160,7 @@ private:
     void                        onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
     void                        onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
 
-    void                        doOpenTrackFloater();
+    void                        doOpenTrackFloater(const LLSD &args);
     void                        doCloseTrackFloater(bool quitting = false);
     void                        onPickerCommitTrackId(U32 track_id);
 

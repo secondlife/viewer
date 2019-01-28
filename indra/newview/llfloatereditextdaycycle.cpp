@@ -804,7 +804,48 @@ void LLFloaterEditExtDayCycle::onRemoveFrame()
 
 void LLFloaterEditExtDayCycle::onCloneTrack()
 {
-    doOpenTrackFloater();
+    const LLEnvironment::altitude_list_t &altitudes = LLEnvironment::instance().getRegionAltitudes();
+    bool use_altitudes = altitudes.size() > 0 && ((mEditContext == CONTEXT_PARCEL) || (mEditContext == CONTEXT_REGION));
+
+    LLSD args = LLSD::emptyArray();
+
+    S32 populated_counter = 0;
+    for (U32 i = 1; i < LLSettingsDay::TRACK_MAX; i++)
+    {
+        LLSD track;
+        track["id"] = LLSD::Integer(i);
+        bool populated = (!mEditDay->isTrackEmpty(i)) && (i != mCurrentTrack);
+        track["enabled"] = populated;
+        if (populated)
+        {
+            populated_counter++;
+        }
+        if (use_altitudes)
+        {
+            track["altitude"] = altitudes[i - 1];
+        }
+        args.append(track);
+    }
+
+    if (populated_counter > 1)
+    {
+        doOpenTrackFloater(args);
+    }
+    else if (populated_counter > 0)
+    {
+        for (U32 i = 1; i < LLSettingsDay::TRACK_MAX; i++)
+        {
+            if ((!mEditDay->isTrackEmpty(i)) && (i != mCurrentTrack))
+            {
+                onPickerCommitTrackId(i);
+            }
+        }
+    }
+    else
+    {
+        // Should not happen
+        LL_WARNS("ENVDAYEDIT") << "Tried to copy tracks, but there are no available sources" << LL_ENDL;
+    }
 }
 
 
@@ -1050,6 +1091,8 @@ void LLFloaterEditExtDayCycle::cloneTrack(const LLSettingsDay::ptr_t &source_day
         LLSettingsSky::ptr_t psky = std::static_pointer_cast<LLSettingsSky>(track_frame.second);
         mEditDay->setSettingsAtKeyframe(psky->buildDerivedClone(), track_frame.first, dest_index);
     }
+
+    setDirtyFlag();
 
     updateSlider();
     updateTabs();
@@ -1817,7 +1860,7 @@ void LLFloaterEditExtDayCycle::clearDirtyFlag()
 
 }
 
-void LLFloaterEditExtDayCycle::doOpenTrackFloater()
+void LLFloaterEditExtDayCycle::doOpenTrackFloater(const LLSD &args)
 {
     LLFloaterTrackPicker *picker = static_cast<LLFloaterTrackPicker *>(mTrackFloater.get());
 
@@ -1829,23 +1872,6 @@ void LLFloaterEditExtDayCycle::doOpenTrackFloater()
         mTrackFloater = picker->getHandle();
 
         picker->setCommitCallback([this](LLUICtrl *, const LLSD &data){ onPickerCommitTrackId(data.asInteger()); });
-    }
-
-    const LLEnvironment::altitude_list_t &altitudes = LLEnvironment::instance().getRegionAltitudes();
-    bool use_altitudes = altitudes.size() > 0 && ((mEditContext == CONTEXT_PARCEL) || (mEditContext == CONTEXT_REGION));
-
-    LLSD args = LLSD::emptyArray();
-
-    for (U32 i = 1; i < LLSettingsDay::TRACK_MAX; i++)
-    {
-        LLSD track;
-        track["id"] = LLSD::Integer(i);
-        track["enabled"] = !mEditDay->isTrackEmpty(i);
-        if (use_altitudes)
-        {
-            track["altitude"] = altitudes[i - 1];
-        }
-        args.append(track);
     }
 
     picker->showPicker(args);

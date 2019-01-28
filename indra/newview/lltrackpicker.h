@@ -41,7 +41,7 @@ public:
 
     virtual BOOL postBuild() override;
     virtual void onClose(bool app_quitting) override;
-    void         showPicker(LLSD &args);
+    void         showPicker(const LLSD &args);
 
     virtual void            draw() override;
 
