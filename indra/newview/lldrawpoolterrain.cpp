@@ -145,6 +145,18 @@ S32 LLDrawPoolTerrain::getDetailMode()
 	return sDetailMode;
 }
 
+void LLDrawPoolTerrain::boostTerrainDetailTextures()
+{
+    // Hack! Get the region that this draw pool is rendering from!
+	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
+	LLVLComposition *compp = regionp->getComposition();
+	for (S32 i = 0; i < 4; i++)
+	{
+		compp->mDetailTextures[i]->setBoostLevel(LLGLTexture::BOOST_TERRAIN);
+		compp->mDetailTextures[i]->addTextureStats(1024.f*1024.f); // assume large pixel area
+	}
+}
+
 void LLDrawPoolTerrain::render(S32 pass)
 {
 	LL_RECORD_BLOCK_TIME(FTM_RENDER_TERRAIN);
@@ -154,14 +166,7 @@ void LLDrawPoolTerrain::render(S32 pass)
 		return;
 	}
 
-	// Hack! Get the region that this draw pool is rendering from!
-	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
-	LLVLComposition *compp = regionp->getComposition();
-	for (S32 i = 0; i < 4; i++)
-	{
-		compp->mDetailTextures[i]->setBoostLevel(LLGLTexture::BOOST_TERRAIN);
-		compp->mDetailTextures[i]->addTextureStats(1024.f*1024.f); // assume large pixel area
-	}
+	boostTerrainDetailTextures();
 
 	LLOverrideFaceColor override(this, 1.f, 1.f, 1.f, 1.f);
 
@@ -235,6 +240,8 @@ void LLDrawPoolTerrain::renderDeferred(S32 pass)
 	{
 		return;
 	}
+
+    boostTerrainDetailTextures();
 
 	renderFullShader();
 
