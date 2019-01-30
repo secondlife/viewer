@@ -19,6 +19,7 @@
     <string name="str_disallowed">The estate manager does not allow changing parcel environments in this region.</string>
     <string name="str_too_small">The parcel must be at least 128 square meters to support an environment.</string>
     <string name="str_empty">(empty)</string>
+    <string name="str_region_env">(region environment)</string>
     <layout_stack 
             width="530"
             height="367"

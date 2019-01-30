@@ -314,6 +314,9 @@ std::string LLPanelEnvironmentInfo::getNameForTrackIndex(S32 index)
     if (mCurrentEnvironment->mDayCycleName.empty())
     {
         invname = mCurrentEnvironment->mNameList[index];
+
+        if (!isRegion() && invname.empty())
+            invname = getString("str_region_env");
     }
     else if (!mCurrentEnvironment->mDayCycle->isTrackEmpty(index))
     {
