@@ -3228,6 +3228,9 @@
 	<notification name="PresetNotSaved">
 		Ошибка при сохранении пресета [NAME].
 	</notification>
+	<notification name="DefaultPresetNotSaved">
+		Невозможно изменить настройку по умолчанию.
+	</notification>
 	<notification name="PresetNotDeleted">
 		Ошибка при удалении пресета [NAME].
 	</notification>
@@ -3993,6 +3996,9 @@
 	<notification name="CantCreateObjectRegionFull">
 		Невозможно создать запрошенный объект. Регион уже заполнен.
 	</notification>
+	<notification name="CantCreateAnimatedObjectTooLarge">
+		Невозможно создать необходимый анимированный объект, так как он превышает предел риг-структурированных треугольников.
+	</notification>
 	<notification name="CantAttackMultipleObjOneSpot">
 		Нельзя присоединить несколько объектов к одной точке.
 	</notification>
@@ -4040,6 +4046,21 @@
 	</notification>
 	<notification name="CantChangeShape">
 		Вам не разрешено изменять эту фигуру.
+	</notification>
+	<notification name="NoPermsTooManyAttachedAnimatedObjects">
+		Действие приведёт к превышению лимита по количеству добавленных анимированных объектов.
+	</notification>
+	<notification name="NoPermsLinkAnimatedObjectTooLarge">
+		Невозможно связать эти объекты, поскольку полученный анимированный объект превысит предел риг-структурированных треугольников.
+	</notification>
+	<notification name="NoPermsSetFlagAnimatedObjectTooLarge">
+		Невозможно преобразовать этот объект в анимированный объект, потому что будет превышен лимит риг-структурированных треугольников.
+	</notification>
+	<notification name="CantChangeAnimatedObjectStateInsufficientLand">
+		Невозможно изменить состояние анимированного объекта для этого объекта, так как это приведет к превышению лимита участка.
+	</notification>
+	<notification name="ErrorNoMeshData">
+		Ошибка сервера: не удается завершить действие, так как данные сетки не загружается.
 	</notification>
 	<notification name="NoAccessToClaimObjects">
 		Ваши привилегии доступа не разрешают претендовать на объекты на этом месте.

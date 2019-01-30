@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Ortam" name="panel_env_info">
 	<text name="water_settings_title">
-		Bölgenize gelen tüm ziyaretçilerin görmesini istediğiniz Su ve Gökyüzü/Gündüz Döngüsü Ayarlarını seçin.  Ek bilgi
+		Bölgenize gelen tüm ziyaretçilerin görmesini istediğiniz Su ve Gökyüzü/Gündüz Döngüsü Ayarlarını seçin. Ek bilgi
 	</text>
 	<radio_group name="region_settings_radio_group">
 		<radio_item label="Second Life varsayılanını kullan" name="use_sl_default_settings"/>
@@ -15,7 +15,7 @@
 			<combo_box.item label="-Bir ön ayar seçin-" name="item0"/>
 		</combo_box>
 		<text name="sky_dayc_settings_title">
-			Gökyüzü/Gün Dön.
+			Gökyüzü / Gün Döngüsü
 		</text>
 		<radio_group name="sky_dayc_settings_radio_group">
 			<radio_item label="Sabit gökyüzü" name="my_sky_settings"/>
@@ -29,5 +29,5 @@
 		</combo_box>
 	</panel>
 	<button label="Uygula" name="apply_btn"/>
-	<button label="İptal" name="cancel_btn"/>
+	<button label="İptal Et" name="cancel_btn"/>
 </panel>

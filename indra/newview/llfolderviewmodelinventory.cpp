@@ -181,24 +181,26 @@ bool LLFolderViewModelItemInventory::filterChildItem( LLFolderViewModelItem* ite
 	S32 filter_generation = filter.getCurrentGeneration();
 
 	bool continue_filtering = true;
-	if (item->getLastFilterGeneration() < filter_generation)
+	if (item)
 	{
-		// Recursive application of the filter for child items (CHUI-849)
-		continue_filtering = item->filter( filter );
-	}
-
-	// Update latest generation to pass filter in parent and propagate up to root
-	if (item->passedFilter())
-	{
-		LLFolderViewModelItemInventory* view_model = this;
-		
-		while(view_model && view_model->mMostFilteredDescendantGeneration < filter_generation)
+		if (item->getLastFilterGeneration() < filter_generation)
 		{
-			view_model->mMostFilteredDescendantGeneration = filter_generation;
-			view_model = static_cast<LLFolderViewModelItemInventory*>(view_model->mParent);
+			// Recursive application of the filter for child items (CHUI-849)
+			continue_filtering = item->filter(filter);
+		}
+
+		// Update latest generation to pass filter in parent and propagate up to root
+		if (item->passedFilter())
+		{
+			LLFolderViewModelItemInventory* view_model = this;
+
+			while (view_model && view_model->mMostFilteredDescendantGeneration < filter_generation)
+			{
+				view_model->mMostFilteredDescendantGeneration = filter_generation;
+				view_model = static_cast<LLFolderViewModelItemInventory*>(view_model->mParent);
+			}
 		}
 	}
-
 	return continue_filtering;
 }
 

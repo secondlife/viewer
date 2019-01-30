@@ -22,7 +22,7 @@
 		事前設定の名前：
 	</text>
 	<text name="note">
-		注意：自分で作成した事前設定の名前を変更すると、新しい事前設定が別に作成されるだけで、元の事前設定は変更されません。
+		注記： 自分で作成した事前設定の名前を変更すると、新しい事前設定が別に作成されるだけで、元の事前設定は変更されません。
 	</text>
 	<panel name="panel_water_preset">
 		<text name="water_color_label">
@@ -68,5 +68,5 @@
 	</panel>
 	<check_box label="この事前設定を新しい水の設定にする" name="make_default_cb"/>
 	<button label="保存" name="save"/>
-	<button label="取り消し" name="cancel"/>
+	<button label="キャンセル" name="cancel"/>
 </floater>

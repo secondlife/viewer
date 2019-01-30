@@ -1028,7 +1028,7 @@ namespace
         }
     }
 
-	void writeToRecorders(const LLError::CallSite& site, const std::string& escaped_message, bool show_location = true, bool show_time = true, bool show_tags = true, bool show_level = true, bool show_function = true)
+	void writeToRecorders(const LLError::CallSite& site, const std::string& escaped_message)
 	{
 		LLError::ELevel level = site.mLevel;
 		LLError::SettingsConfigPtr s = LLError::Settings::getInstance()->getSettingsConfig();
@@ -1052,7 +1052,7 @@ namespace
 			}
             message_stream << " ";
             
-			if (show_level && r->wantsLevel())
+			if (r->wantsLevel())
             {
 				message_stream << site.mLevelString;
             }
@@ -1070,7 +1070,7 @@ namespace
             }
             message_stream << " ";
 
-			if (show_function && r->wantsFunctionName())
+			if (r->wantsFunctionName())
 			{
 				message_stream << site.mFunctionString;
 			}

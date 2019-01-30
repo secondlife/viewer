@@ -73,6 +73,8 @@ public:
 
 	// Returns true if vivox has successfully logged in and is not in error state	
 	virtual bool isVoiceWorking() const;
+	
+	virtual bool singletoneInstanceExists();
 
 	/////////////////////
 	/// @name Tuning

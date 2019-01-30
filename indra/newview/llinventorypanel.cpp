@@ -1128,12 +1128,16 @@ void LLInventoryPanel::onSelectionChange(const std::deque<LLFolderViewItem*>& it
 	mCompletionObserver->reset();
 	for (std::deque<LLFolderViewItem*>::const_iterator it = items.begin(); it != items.end(); ++it)
 	{
-		LLUUID id = static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID();
-		LLViewerInventoryItem* inv_item = mInventory->getItem(id);
-
-		if (inv_item && !inv_item->isFinished())
+		LLFolderViewModelItemInventory* view_model = static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem());
+		if (view_model)
 		{
-			mCompletionObserver->watchItem(id);
+			LLUUID id = view_model->getUUID();
+			LLViewerInventoryItem* inv_item = mInventory->getItem(id);
+
+			if (inv_item && !inv_item->isFinished())
+			{
+				mCompletionObserver->watchItem(id);
+			}
 		}
 	}
 
@@ -1159,6 +1163,11 @@ void LLInventoryPanel::onSelectionChange(const std::deque<LLFolderViewItem*>& it
 			LLFolderViewModelItemInventory* fve_listener = static_cast<LLFolderViewModelItemInventory*>(folder_item->getViewModelItem());
 			if (fve_listener && (fve_listener->getInventoryType() == LLInventoryType::IT_CATEGORY))
 			{
+				if (fve_listener->getInventoryObject() && fve_listener->getInventoryObject()->getIsLinkType())
+				{
+					return;
+				}
+
 				if(prev_folder_item)
 				{
 					LLFolderBridge* prev_bridge = (LLFolderBridge*)prev_folder_item->getViewModelItem();

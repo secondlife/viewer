@@ -30,6 +30,6 @@
 	<text name="label">
 		Predefinido:
 	</text>
-	<button label="Borrar" name="delete"/>
+	<button label="Eliminar" name="delete"/>
 	<button label="Cancelar" name="cancel"/>
 </floater>
