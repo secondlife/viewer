@@ -40,7 +40,7 @@ uniform sampler2DRect normalMap;
 // Inputs
 VARYING vec2 vary_fragcoord;
 
-vec3 decode_normal (vec2 enc);
+vec3 getNorm(vec2 pos_screen);
 vec4 getPosition(vec2 pos_screen);
 
 //calculate decreases in ambient lighting when crowded out (SSAO)
@@ -53,7 +53,7 @@ void main()
 	//try doing an unproject here
 	
 	vec4 pos  = getPosition(pos_screen);
-	vec3 norm = decode_normal(texture2DRect(normalMap, pos_screen).xy);
+	vec3 norm = getNorm(pos_screen);
 
 	frag_color[0] = 1.0;
 	frag_color[1] = calcAmbientOcclusion(pos, norm, pos_screen);

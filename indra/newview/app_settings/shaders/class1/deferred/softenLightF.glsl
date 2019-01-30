@@ -66,7 +66,7 @@ uniform vec2 screen_res;
 vec4 applyWaterFogView(vec3 pos, vec4 color);
 #endif
 
-vec3 decode_normal (vec2 enc);
+vec3 getNorm(vec2 pos_screen);
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 fullbrightAtmosTransportFrag(vec3 l, vec3 additive, vec3 atten);
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
@@ -78,14 +78,14 @@ vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 
 void main() 
 {
-	vec2 tc = vary_fragcoord.xy;
-	float depth = texture2DRect(depthMap, tc.xy).r;
-	vec4 pos = getPositionWithDepth(tc, depth);
-	vec4 norm = texture2DRect(normalMap, tc);
-	float envIntensity = norm.z;
-	norm.xyz = decode_normal(norm.xy); // unpack norm
-		
-	float da_sun  = dot(norm.xyz, normalize(sun_dir.xyz));
+    vec2 tc = vary_fragcoord.xy;
+    float depth = texture2DRect(depthMap, tc.xy).r;
+    vec4 pos = getPositionWithDepth(tc, depth);
+    vec4 norm = texture2DRect(normalMap, tc);
+    float envIntensity = norm.z;
+    norm.xyz = getNorm(tc);
+        
+    float da_sun  = dot(norm.xyz, normalize(sun_dir.xyz));
     float da_moon = dot(norm.xyz, normalize(moon_dir.xyz));
     float da = max(da_sun, da_moon);
 

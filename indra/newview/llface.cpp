@@ -389,16 +389,20 @@ void LLFace::switchTexture(U32 ch, LLViewerTexture* new_texture)
 		return;
 	}
 
-	llassert(mTexture[ch].notNull());
-
-	new_texture->addTextureStats(mTexture[ch]->getMaxVirtualSize()) ;
+	if (mTexture[ch].notNull())
+    {
+	    new_texture->addTextureStats(mTexture[ch]->getMaxVirtualSize()) ;
+    }
 
 	if (ch == LLRender::DIFFUSE_MAP)
 	{
-	getViewerObject()->changeTEImage(mTEOffset, new_texture) ;
+        if (getViewerObject())
+        {
+	        getViewerObject()->changeTEImage(mTEOffset, new_texture);
+        }
 	}
 
-	setTexture(ch, new_texture) ;	
+	setTexture(ch, new_texture);
 	dirtyTexture();
 }
 

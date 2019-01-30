@@ -36,7 +36,6 @@ out vec4 frag_color;
 uniform sampler2DRect depthMap;
 uniform sampler2DRect diffuseRect;
 uniform sampler2DRect specularRect;
-uniform sampler2DRect normalMap;
 uniform samplerCube environmentMap;
 uniform sampler2D noiseMap;
 uniform sampler2D lightFunc;
@@ -57,9 +56,8 @@ uniform float far_z;
 
 uniform mat4 inv_proj;
 
-vec3 decode_normal (vec2 enc);
-
 vec4 getPosition(vec2 pos_screen);
+vec3 getNorm(vec2 pos_screen);
 
 void main() 
 {
@@ -70,9 +68,8 @@ void main()
 		discard;
 	}
 	
-	vec3 norm = texture2DRect(normalMap, frag.xy).xyz;
-	norm = decode_normal(norm.xy); // unpack norm
-	norm = normalize(norm);
+	vec3 norm = getNorm(frag.xy);
+
 	vec4 spec = texture2DRect(specularRect, frag.xy);
 	vec3 diff = texture2DRect(diffuseRect, frag.xy).rgb;
 	

@@ -62,7 +62,7 @@ VARYING vec2 vary_fragcoord;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
-vec3 decode_normal (vec2 enc);
+vec3 getNorm(vec2 pos_screen);
 
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
@@ -82,22 +82,22 @@ vec4 applyWaterFogView(vec3 pos, vec4 color);
 
 void main() 
 {
-	vec2 tc = vary_fragcoord.xy;
-	float depth = texture2DRect(depthMap, tc.xy).r;
-	vec4 pos = getPositionWithDepth(tc, depth);
-	vec4 norm = texture2DRect(normalMap, tc);
-	float envIntensity = norm.z;
-	norm.xyz = decode_normal(norm.xy); // unpack norm
-		
-	float da_sun  = dot(norm.xyz, normalize(sun_dir.xyz));
+    vec2 tc = vary_fragcoord.xy;
+    float depth = texture2DRect(depthMap, tc.xy).r;
+    vec4 pos = getPositionWithDepth(tc, depth);
+    vec4 norm = texture2DRect(normalMap, tc);
+    float envIntensity = norm.z;
+    norm.xyz = getNorm(tc); // unpack norm
+        
+    float da_sun  = dot(norm.xyz, normalize(sun_dir.xyz));
     float da_moon = dot(norm.xyz, normalize(moon_dir.xyz));
     float da = max(da_sun, da_moon);
           da = clamp(da, 0.0, 1.0);
 
-	da = pow(da, global_gamma + 0.3);
+    da = pow(da, global_gamma + 0.3);
 
-	vec4 diffuse = texture2DRect(diffuseRect, tc);
-	
+    vec4 diffuse = texture2DRect(diffuseRect, tc);
+    
     vec3 col;
     float bloom = 0.0;
     {

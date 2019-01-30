@@ -36,10 +36,8 @@
 #include "llenvironment.h"
 #include "llsettingssky.h"
 
-const F32 LLVOWLSky::DISTANCE_TO_STARS = (HORIZON_DIST - 10.f) * 0.8f;
-
-const U32 LLVOWLSky::MIN_SKY_DETAIL = 8;
-const U32 LLVOWLSky::MAX_SKY_DETAIL = 180;
+static const U32 MIN_SKY_DETAIL = 8;
+static const U32 MAX_SKY_DETAIL = 180;
 
 inline U32 LLVOWLSky::getNumStacks(void)
 {
@@ -326,6 +324,8 @@ void LLVOWLSky::drawDome(void)
 
 void LLVOWLSky::initStars()
 {
+    const F32 DISTANCE_TO_STARS = LLEnvironment::instance().getCurrentSky()->getDomeRadius();
+
 	// Initialize star map
 	mStarVertices.resize(getStarsNumVerts());
 	mStarColors.resize(getStarsNumVerts());
@@ -528,7 +528,7 @@ BOOL LLVOWLSky::updateStarGeometry(LLDrawable *drawable)
 		LLVector3 left = at%LLVector3(0,0,1);
 		LLVector3 up = at%left;
 
-		F32 sc = 0.8f + ll_frand()*2.5f;
+		F32 sc = 16.0f + (ll_frand() * 20.0f);
 		left *= sc;
 		up *= sc;
 

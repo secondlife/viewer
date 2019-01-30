@@ -29,8 +29,6 @@ uniform sampler2DRect   depthMap;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
-vec3 decode_normal(vec2 enc);
-
 vec2 getScreenCoordinate(vec2 screenpos)
 {
     vec2 sc = screenpos.xy * 2.0;
@@ -43,8 +41,14 @@ vec2 getScreenCoordinate(vec2 screenpos)
 
 vec3 getNorm(vec2 screenpos)
 {
-   vec2 enc_norm = texture2DRect(normalMap, screenpos.xy).xy;
-   return decode_normal(enc_norm);
+   vec2 enc = texture2DRect(normalMap, screenpos.xy).xy;
+   vec2 fenc = enc*4-2;
+   float f = dot(fenc,fenc);
+   float g = sqrt(1-f/4);
+   vec3 n;
+   n.xy = fenc*g;
+   n.z = 1-f/2;
+   return n;
 }
 
 float getDepth(vec2 pos_screen)
