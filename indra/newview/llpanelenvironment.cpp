@@ -270,9 +270,43 @@ void LLPanelEnvironmentInfo::refresh()
 
         for (S32 idx = 0; idx < ALTITUDE_SLIDER_COUNT; ++idx)
         {
-            sld->addSlider(altitudes[idx + 1], alt_sliders[idx]);
-            updateAltLabel(alt_prefixes[idx], idx + 2, altitudes[idx + 1]);
-            mAltitudes[alt_sliders[idx]] = AltitudeData(idx+2, idx, altitudes[idx+1]);
+            // make sure values are in range, server is supposed to validate them,
+            // but issues happen, try to fix values in such case
+            F32 altitude = llclamp(altitudes[idx + 1], sld->getMinValue(), sld->getMaxValue());
+            bool res = sld->addSlider(altitude, alt_sliders[idx]);
+            if (!res)
+            {
+                LL_WARNS_ONCE("ENVPANEL") << "Failed to validate altitude from server for parcel id" << getParcelId() << LL_ENDL;
+                // Find a spot to insert altitude.
+                // Assuming everything alright with slider, we should find new place in 11 steps top (step 25m, no overlap 100m)
+                F32 alt_step = (altitude > (sld->getMaxValue() / 2)) ? -sld->getIncrement() : sld->getIncrement();
+                for (U32 i = 0; i < 30; i++)
+                {
+                    altitude += alt_step;
+                    if (altitude > sld->getMaxValue())
+                    {
+                        altitude = sld->getMinValue();
+                    }
+                    else if (altitude < sld->getMinValue())
+                    {
+                        altitude = sld->getMaxValue();
+                    }
+                    res = sld->addSlider(altitude, alt_sliders[idx]);
+                    if (res) break;
+                }
+                if (!res)
+                {
+                    // Something is very very wrong
+                    LL_WARNS_ONCE("ENVPANEL") << "Failed to set up altitudes for parcel id " << getParcelId() << LL_ENDL;
+                }
+                else
+                {
+                    // slider has some auto correction that might have kicked in
+                    altitude = sld->getSliderValue(alt_sliders[idx]);
+                }
+            }
+            updateAltLabel(alt_prefixes[idx], idx + 2, altitude);
+            mAltitudes[alt_sliders[idx]] = AltitudeData(idx + 2, idx, altitude);
         }
         if (sld->getCurNumSliders() != ALTITUDE_SLIDER_COUNT)
         {
@@ -310,7 +344,7 @@ std::string LLPanelEnvironmentInfo::getNameForTrackIndex(S32 index)
 {
     std::string invname;
 
-    LL_WARNS("LAPRAS") << "mDayCycleName='" << mCurrentEnvironment->mDayCycleName << "'" << LL_ENDL;
+    LL_WARNS("ENVPANEL") << "mDayCycleName='" << mCurrentEnvironment->mDayCycleName << "'" << LL_ENDL;
     if (mCurrentEnvironment->mDayCycleName.empty())
     {
         invname = mCurrentEnvironment->mNameList[index];
@@ -565,7 +599,7 @@ void LLPanelEnvironmentInfo::readjustAltLabels()
                 if (cmp_rect.mBottom <= intr_rect.mTop && cmp_rect.mBottom >= intr_rect.mBottom)
                 {
                     // Approximate shift
-                    // We probably will need more cycle runs over all labels to get accurate one
+                    // We probably will need more runs over all labels to get accurate shift
                     // At the moment single cycle should do since we have too little elements to do something complicated
                     shift = (cmp_rect.mBottom - intr_rect.mTop) / 2;
                 }
