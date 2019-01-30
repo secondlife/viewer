@@ -71,7 +71,6 @@ vec4 applyWaterFogView(vec3 pos, vec4 color);
 #endif
 
 vec2 encode_normal (vec3 n);
-vec3 decode_normal (vec2 enc);
 vec3 scaleSoftClip(vec3 l);
 vec3 atmosFragAmbient(vec3 light, vec3 sunlit);
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten);
@@ -170,7 +169,6 @@ void main()
     calcFragAtmospherics(pos.xyz, 1.0, sunlit, amblit, additive, atten);
 
     vec2 abnormal   = encode_normal(norm.xyz);
-         norm.xyz   = decode_normal(abnormal.xy);
 
     float sun_da  = dot(norm.xyz, sun_dir.xyz);
     float moon_da = dot(norm.xyz, moon_dir.xyz);

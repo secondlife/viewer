@@ -73,7 +73,7 @@ uniform mat4 inv_proj;
 
 vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cl);
-vec3 decode_normal (vec2 enc);
+vec3 getNorm(vec2 pos_screen);
 
 vec4 correctWithGamma(vec4 col)
 {
@@ -166,7 +166,7 @@ void main()
 	
 	float envIntensity = norm.z;
 
-	norm = decode_normal(norm.xy);
+	norm = getNorm(frag.xy);
 	
 	norm = normalize(norm);
 	float l_dist = -dot(lv, proj_n);

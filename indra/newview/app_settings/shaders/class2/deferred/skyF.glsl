@@ -153,7 +153,7 @@ void main()
     // Add "minimum anti-solar illumination"
     temp2.x += .25;
 
-    temp2.x *= sun_up_factor;
+    //temp2.x *= sun_up_factor;
 
     // Haze color above cloud
     vec4 color = (    blue_horizon * blue_weight * (sunlight + ambient)

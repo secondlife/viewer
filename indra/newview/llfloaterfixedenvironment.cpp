@@ -351,6 +351,7 @@ void LLFloaterFixedEnvironment::onAssetLoaded(LLUUID asset_id, LLSettingsBase::p
     updateEditEnvironment();
     syncronizeTabs();
     refresh();
+    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_FAST);
 }
 
 void LLFloaterFixedEnvironment::onNameChanged(const std::string &name)

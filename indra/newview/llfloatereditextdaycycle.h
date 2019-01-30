@@ -160,6 +160,10 @@ private:
     void                        onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
     void                        onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
 
+    void                        doOpenTrackFloater(const LLSD &args);
+    void                        doCloseTrackFloater(bool quitting = false);
+    void                        onPickerCommitTrackId(U32 track_id);
+
     void                        doOpenInventoryFloater(LLSettingsType::type_e type, LLUUID curritem);
     void                        doCloseInventoryFloater(bool quitting = false);
     void                        onPickerCommitSetting(LLUUID item_id, S32 track);
@@ -218,6 +222,7 @@ private:
     LLFlyoutComboBtnCtrl *      mFlyoutControl;
 
     LLHandle<LLFloater>         mInventoryFloater;
+    LLHandle<LLFloater>         mTrackFloater;
 
     LLTrackBlenderLoopingManual::ptr_t  mSkyBlender;
     LLTrackBlenderLoopingManual::ptr_t  mWaterBlender;

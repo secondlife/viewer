@@ -132,7 +132,7 @@ void main()
 	temp2.x = pow(temp2.x, glow.z);
 		// glow.z should be negative, so we're doing a sort of (1 / "angle") function
 
-        temp2.x *= sun_up_factor;
+        //temp2.x *= sun_up_factor;
 
 	// Add "minimum anti-solar illumination"
 	temp2.x += .25;

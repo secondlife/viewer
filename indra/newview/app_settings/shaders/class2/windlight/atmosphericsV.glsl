@@ -62,8 +62,8 @@ void calcAtmospherics(vec3 inPositionEye) {
     setPositionEye(P);
     
     //(TERRAIN) limit altitude
-    if (P.y > max_y) P *= (max_y / P.y);
-    if (P.y < -max_y) P *= (-max_y / P.y);
+    //if (P.y > max_y) P *= (max_y / P.y);
+    //if (P.y < -max_y) P *= (-max_y / P.y);
 
     vec3 tmpLightnorm = lightnorm.xyz;
 

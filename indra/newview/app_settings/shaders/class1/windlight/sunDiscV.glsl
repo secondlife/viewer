@@ -31,18 +31,21 @@ ATTRIBUTE vec3 position;
 ATTRIBUTE vec2 texcoord0;
 
 VARYING vec2 vary_texcoord0;
+VARYING float sun_fade;
 
 void calcAtmospherics(vec3 eye_pos);
 
 void main()
 {
-	//transform vertex
-	vec4 vert = vec4(position.xyz - vec3(0, 0, 50), 1.0);
-	vec4 pos = modelview_projection_matrix*vert;
+    //transform vertex
+    vec3 offset = vec3(0, 0, 50);
+    vec4 vert = vec4(position.xyz - offset, 1.0);
+    vec4 pos = modelview_projection_matrix*vert;
 
-	gl_Position = pos;
-	
+    sun_fade = smoothstep(0.3, 1.0, (position.z + 50) / 512.0f);
+    gl_Position = pos;
+    
     calcAtmospherics(pos.xyz);
 
-	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
+    vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 }
