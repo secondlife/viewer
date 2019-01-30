@@ -716,11 +716,18 @@ void LLDrawPoolWater::shade()
         for (std::vector<LLFace*>::iterator iter = mDrawFace.begin(); iter != mDrawFace.end(); iter++)
 		{
 			LLFace *face = *iter;
-			gGL.getTexUnit(diffTex)->bind(face->getTexture());
-            face->renderIndexed();
+            if (face)
+            {
+                LLVOWater* water = (LLVOWater*) face->getViewerObject();
+			    gGL.getTexUnit(diffTex)->bind(face->getTexture());
+
+                bool edge = water && water->getIsEdgePatch();
+                shader->uniform1i(LLShaderMgr::WATER_EDGE_FACTOR, edge ? 1 : 0);
+                face->renderIndexed();
+            }
 		}
     }
-	
+
 	shader->disableTexture(LLShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
 	shader->disableTexture(LLShaderMgr::WATER_SCREENTEX);	
 	shader->disableTexture(LLShaderMgr::BUMP_MAP);

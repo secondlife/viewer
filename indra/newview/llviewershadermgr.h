@@ -239,6 +239,7 @@ extern LLGLSLShader			gSkinnedObjectShinySimpleWaterProgram;
 extern LLGLSLShader			gTerrainProgram;
 extern LLGLSLShader			gTerrainWaterProgram;
 extern LLGLSLShader			gWaterProgram;
+extern LLGLSLShader			gWaterEdgeProgram;
 extern LLGLSLShader			gUnderWaterProgram;
 extern LLGLSLShader			gGlowProgram;
 extern LLGLSLShader			gGlowExtractProgram;
@@ -273,6 +274,7 @@ extern LLGLSLShader			gPostNightVisionProgram;
 // Deferred rendering shaders
 extern LLGLSLShader			gDeferredImpostorProgram;
 extern LLGLSLShader			gDeferredWaterProgram;
+extern LLGLSLShader			gDeferredWaterEdgeProgram;
 extern LLGLSLShader			gDeferredUnderWaterProgram;
 extern LLGLSLShader			gDeferredDiffuseProgram;
 extern LLGLSLShader			gDeferredDiffuseAlphaMaskProgram;
