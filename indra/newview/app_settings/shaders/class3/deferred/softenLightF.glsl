@@ -76,7 +76,6 @@ vec3 GetSunAndSkyIrradiance(vec3 camPos, vec3 norm, vec3 dir, out vec3 sky_irrad
 vec3 GetSkyLuminance(vec3 camPos, vec3 view_dir, float shadow_length, vec3 dir, out vec3 transmittance);
 vec3 GetSkyLuminanceToPoint(vec3 camPos, vec3 pos, float shadow_length, vec3 dir, out vec3 transmittance);
 
-vec3 decode_normal(vec2 xy);
 vec3 ColorFromRadiance(vec3 radiance);
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 vec4 getPosition(vec2 pos_screen);
@@ -93,7 +92,7 @@ void main()
     vec3 pos = getPositionWithDepth(tc, depth).xyz;
     vec4 norm = texture2DRect(normalMap, tc);
     float envIntensity = norm.z;
-    norm.xyz = decode_normal(norm.xy);
+    norm.xyz = getNorm(tc);
 
     float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
               da = pow(da, global_gamma + 0.3);

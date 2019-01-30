@@ -183,7 +183,6 @@ VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
 vec2 encode_normal(vec3 n);
-vec3 decode_normal (vec2 enc);
 
 void main() 
 {
@@ -227,7 +226,6 @@ void main()
     norm.xyz = normalize(norm.xyz);
 
     vec2 abnormal   = encode_normal(norm.xyz);
-         norm.xyz   = decode_normal(abnormal.xy);
 
     vec4 final_color = diffcol;
     

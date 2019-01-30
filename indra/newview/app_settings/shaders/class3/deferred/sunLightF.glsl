@@ -38,7 +38,6 @@ out vec4 frag_color;
 // Inputs
 VARYING vec2 vary_fragcoord;
 
-vec3 decode_normal (vec2 enc);
 vec4 getPosition(vec2 pos_screen);
 vec3 getNorm(vec2 pos_screen);
 

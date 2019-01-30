@@ -52,7 +52,6 @@ public:
     bool hasAmbientOcclusion;
 	bool hasSrgb;
     bool encodesNormal;
-    bool decodesNormal;
     bool isDeferred;
     bool hasIndirect;
 	S32 mIndexedTextureChannels;

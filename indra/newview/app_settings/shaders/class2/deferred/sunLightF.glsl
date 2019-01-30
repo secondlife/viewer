@@ -42,7 +42,6 @@ uniform vec3 sun_dir;
 uniform float shadow_bias;
 
 vec3 getNorm(vec2 pos_screen);
-vec3 decode_normal (vec2 enc);
 vec4 getPosition(vec2 pos_screen);
 
 float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);

@@ -71,8 +71,7 @@ VARYING vec4 vary_fragcoord;
 uniform vec2 screen_res;
 
 uniform mat4 inv_proj;
-
-vec3 decode_normal (vec2 enc);
+vec3 getNorm(vec2 pos_screen);
 
 vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 {
@@ -141,12 +140,9 @@ void main()
 		discard;
 	}
 		
-	vec3 norm = texture2DRect(normalMap, frag.xy).xyz;
-	float envIntensity = norm.z;
+	float envIntensity = texture2DRect(normalMap. frag.xy).z;
+	vec3 norm = getNorm(frag.xy);
 
-	norm = decode_normal(norm.xy);
-	
-	norm = normalize(norm);
 	float l_dist = -dot(lv, proj_n);
 	
 	vec4 proj_tc = (proj_mat * vec4(pos.xyz, 1.0));

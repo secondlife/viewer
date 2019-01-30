@@ -46,7 +46,6 @@ VARYING vec2 vary_fragcoord;
 
 vec4 getPosition(vec2 pos_screen);
 vec3 getNorm(vec2 pos_screen);
-vec3 decode_normal (vec2 enc);
 
 void main() 
 {
