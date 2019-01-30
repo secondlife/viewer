@@ -1704,15 +1704,15 @@ void LLFloaterEditExtDayCycle::doImportFromDisk()
 
 void LLFloaterEditExtDayCycle::loadSettingFromFile(const std::vector<std::string>& filenames)
 {
+    LLSD messages;
     if (filenames.size() < 1) return;
     std::string filename = filenames[0];
     LL_WARNS("LAPRAS") << "Selected file: " << filename << LL_ENDL;
-    LLSettingsDay::ptr_t legacyday = LLEnvironment::createDayCycleFromLegacyPreset(filename);
+    LLSettingsDay::ptr_t legacyday = LLEnvironment::createDayCycleFromLegacyPreset(filename, messages);
 
     if (!legacyday)
     {   
-        LLSD args(LLSDMap("FILE", filename));
-        LLNotificationsUtil::add("WLImportFail", args);
+        LLNotificationsUtil::add("WLImportFail", messages);
         return;
     }
 

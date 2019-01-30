@@ -64,13 +64,15 @@
 #include "llinventoryobserver.h"
 #include "llinventorydefines.h"
 
+#include "lltrans.h"
+
 #undef  VERIFY_LEGACY_CONVERSION
 
 //=========================================================================
 namespace 
 {
     LLSD ensure_array_4(LLSD in, F32 fill);
-    LLSD read_legacy_preset_data(const std::string &name, const std::string& path);
+    LLSD read_legacy_preset_data(const std::string &name, const std::string& path, LLSD  &messages);
 
     //-------------------------------------------------------------------------
     class LLSettingsInventoryCB : public LLInventoryCallback
@@ -453,10 +455,15 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildSky(LLSD settings)
 }
 
 
-LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPreset(const std::string &name, const LLSD &legacy)
+LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings, LLSD &messages)
 {
 
-    LLSD newsettings = LLSettingsSky::translateLegacySettings(legacy);
+    LLSD newsettings = LLSettingsSky::translateLegacySettings(oldsettings);
+    if (newsettings.isUndefined())
+    {
+        messages["REASONS"] = LLTrans::getString("SettingTranslateError", LLSDMap("NAME", name));
+        return LLSettingsSky::ptr_t();
+    }
 
     newsettings[SETTING_NAME] = name;
 
@@ -464,6 +471,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPreset(const std::string &n
     LLSD results = LLSettingsBase::settingValidation(newsettings, validations);
     if (!results["success"].asBoolean())
     {
+        messages["REASONS"] = LLTrans::getString("SettingValidationError", LLSDMap("NAME", name));
         LL_WARNS("SETTINGS") << "Sky setting validation failed!\n" << results << LL_ENDL;
         LLSettingsSky::ptr_t();
     }
@@ -473,10 +481,10 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPreset(const std::string &n
 #ifdef VERIFY_LEGACY_CONVERSION
     LLSD oldsettings = LLSettingsVOSky::convertToLegacy(skyp, isAdvanced());
 
-    if (!llsd_equals(legacy, oldsettings))
+    if (!llsd_equals(oldsettings, oldsettings))
     {
         LL_WARNS("SKY") << "Conversion to/from legacy does not match!\n" 
-            << "Old: " << legacy
+            << "Old: " << oldsettings
             << "new: " << oldsettings << LL_ENDL;
     }
 
@@ -485,17 +493,17 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPreset(const std::string &n
     return skyp;
 }
 
-LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPresetFile(const std::string &name, const std::string &path)
+LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPresetFile(const std::string &name, const std::string &path, LLSD &messages)
 {
-    LLSD legacy_data = read_legacy_preset_data(name, path);
+    LLSD legacy_data = read_legacy_preset_data(name, path, messages);
 
     if (!legacy_data)
-    {
+    {   // messages filled in by read_legacy_preset_data
         LL_WARNS("SETTINGS") << "Could not load legacy Windlight \"" << name << "\" from " << path << LL_ENDL;
         return ptr_t();
     }
 
-    return buildFromLegacyPreset(name, legacy_data);
+    return buildFromLegacyPreset(name, legacy_data, messages);
 }
 
 
@@ -755,15 +763,21 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildWater(LLSD settings)
 }
 
 //-------------------------------------------------------------------------
-LLSettingsWater::ptr_t LLSettingsVOWater::buildFromLegacyPreset(const std::string &name, const LLSD &legacy)
+LLSettingsWater::ptr_t LLSettingsVOWater::buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings, LLSD &messages)
 {
-    LLSD newsettings(LLSettingsWater::translateLegacySettings(legacy));
+    LLSD newsettings(LLSettingsWater::translateLegacySettings(oldsettings));
+    if (newsettings.isUndefined())
+    {
+        messages["REASONS"] = LLTrans::getString("SettingTranslateError", LLSDMap("NAME", name));
+        return LLSettingsWater::ptr_t();
+    }
 
     newsettings[SETTING_NAME] = name; 
     LLSettingsWater::validation_list_t validations = LLSettingsWater::validationList();
     LLSD results = LLSettingsWater::settingValidation(newsettings, validations);
     if (!results["success"].asBoolean())
     {
+        messages["REASONS"] = LLTrans::getString("SettingValidationError", name);
         LL_WARNS("SETTINGS") << "Water setting validation failed!: " << results << LL_ENDL;
         return LLSettingsWater::ptr_t();
     }
@@ -773,10 +787,10 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildFromLegacyPreset(const std::strin
 #ifdef VERIFY_LEGACY_CONVERSION
     LLSD oldsettings = LLSettingsVOWater::convertToLegacy(waterp);
 
-    if (!llsd_equals(legacy, oldsettings))
+    if (!llsd_equals(oldsettings, oldsettings))
     {
         LL_WARNS("WATER") << "Conversion to/from legacy does not match!\n"
-            << "Old: " << legacy
+            << "Old: " << oldsettings
             << "new: " << oldsettings << LL_ENDL;
     }
 
@@ -784,17 +798,17 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildFromLegacyPreset(const std::strin
     return waterp;
 }
 
-LLSettingsWater::ptr_t LLSettingsVOWater::buildFromLegacyPresetFile(const std::string &name, const std::string &path)
+LLSettingsWater::ptr_t LLSettingsVOWater::buildFromLegacyPresetFile(const std::string &name, const std::string &path, LLSD &messages)
 {
-    LLSD legacy_data = read_legacy_preset_data(name, path);
+    LLSD legacy_data = read_legacy_preset_data(name, path, messages);
 
     if (!legacy_data)
-    {
+    {   // messages filled in by read_legacy_preset_data
         LL_WARNS("SETTINGS") << "Could not load legacy Windlight \"" << name << "\" from " << path << LL_ENDL;
         return ptr_t();
     }
 
-    return buildFromLegacyPreset(name, legacy_data);
+    return buildFromLegacyPreset(name, legacy_data, messages);
 }
 
 
@@ -959,7 +973,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildDay(LLSD settings)
 }
 
 //-------------------------------------------------------------------------
-LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPreset(const std::string &name, const std::string &path, const LLSD &oldsettings)
+LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPreset(const std::string &name, const std::string &path, const LLSD &oldsettings, LLSD &messages)
 {
     LLSD newsettings(defaults());
     std::set<std::string> framenames;
@@ -994,16 +1008,22 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPreset(const std::string &n
     LLSD frames(LLSD::emptyMap());
 
     {
-        LLSettingsWater::ptr_t pwater = LLSettingsVOWater::buildFromLegacyPresetFile("Default", water_path);
-        if (pwater)
-            frames["water:Default"] = pwater->getSettings();
+        LLSettingsWater::ptr_t pwater = LLSettingsVOWater::buildFromLegacyPresetFile("Default", water_path, messages);
+        if (!pwater)
+        {   // messages filled in by buildFromLegacyPresetFile
+            return LLSettingsDay::ptr_t();
+        }
+        frames["water:Default"] = pwater->getSettings();
     }
 
     for (std::set<std::string>::iterator itn = framenames.begin(); itn != framenames.end(); ++itn)
     {
-        LLSettingsSky::ptr_t psky = LLSettingsVOSky::buildFromLegacyPresetFile((*itn), sky_path);
-        if (psky)
-            frames["sky:" + (*itn)] = psky->getSettings();
+        LLSettingsSky::ptr_t psky = LLSettingsVOSky::buildFromLegacyPresetFile((*itn), sky_path, messages);
+        if (!psky)
+        {   // messages filled in by buildFromLegacyPresetFile
+            return LLSettingsDay::ptr_t();
+        }
+        frames["sky:" + (*itn)] = psky->getSettings();
     }
 
     newsettings[SETTING_FRAMES] = frames;
@@ -1012,6 +1032,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPreset(const std::string &n
     LLSD results = LLSettingsDay::settingValidation(newsettings, validations);
     if (!results["success"].asBoolean())
     {
+        messages["REASONS"] = LLTrans::getString("SettingValidationError", LLSDMap("NAME", name));
         LL_WARNS("SETTINGS") << "Day setting validation failed!: " << results << LL_ENDL;
         return LLSettingsDay::ptr_t();
     }
@@ -1035,17 +1056,17 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPreset(const std::string &n
     return dayp;
 }
 
-LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPresetFile(const std::string &name, const std::string &path)
+LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPresetFile(const std::string &name, const std::string &path, LLSD &messages)
 {
-    LLSD legacy_data = read_legacy_preset_data(name, path);
+    LLSD legacy_data = read_legacy_preset_data(name, path, messages);
 
     if (!legacy_data)
-    {
+    {   // messages filled in by read_legacy_preset_data
         LL_WARNS("SETTINGS") << "Could not load legacy Windlight \"" << name << "\" from " << path << LL_ENDL;
         return ptr_t();
     }
 
-    return buildFromLegacyPreset(name, path, legacy_data);
+    return buildFromLegacyPreset(name, path, legacy_data, messages);
 }
 
 
@@ -1348,7 +1369,7 @@ namespace
     }
 
     //---------------------------------------------------------------------
-    LLSD read_legacy_preset_data(const std::string &name, const std::string& path)
+    LLSD read_legacy_preset_data(const std::string &name, const std::string& path, LLSD &messages)
     {
         llifstream xml_file;
 
@@ -1380,6 +1401,7 @@ namespace
                 xml_file.open(full_path.c_str());
                 if (!xml_file)
                 {
+                    messages["REASONS"] = LLTrans::getString("SettingImportFileError", LLSDMap("FILE", bad_path));
                     LL_WARNS("LEGACYSETTING") << "Unable to open legacy windlight \"" << name << "\" from " << path << LL_ENDL;
                     return LLSD();
                 }
@@ -1388,7 +1410,12 @@ namespace
 
         LLSD params_data;
         LLPointer<LLSDParser> parser = new LLSDXMLParser();
-        parser->parse(xml_file, params_data, LLSDSerialize::SIZE_UNLIMITED);
+        if (parser->parse(xml_file, params_data, LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
+        {
+            xml_file.close();
+            messages["REASONS"] = LLTrans::getString("SettingParseFileError", LLSDMap("FILE", full_path));
+            return LLSD();
+        }
         xml_file.close();
 
         return params_data;

@@ -615,6 +615,25 @@ namespace
 
     typedef LLSettingsInjected<LLSettingsVOSky>   LLSettingsInjectedSky;
     typedef LLSettingsInjected<LLSettingsVOWater> LLSettingsInjectedWater;
+
+#if 0
+    //=====================================================================
+    class DayInjection : public LLEnvironment::DayInstance
+    {
+    public:
+        typedef std::shared_ptr<DayInjection> ptr_t;
+
+        DayInjection(LLEnvironment::EnvSelection_t env) :
+            LLEnvironment::DayInstance(env)
+        {
+        }
+
+        virtual     ~DayInjection() { };
+
+    protected:
+    private:
+    };
+#endif
 }
 
 //=========================================================================
@@ -1972,31 +1991,46 @@ LLEnvironment::EnvironmentInfo::ptr_t LLEnvironment::EnvironmentInfo::extractLeg
 }
 
 //=========================================================================
-LLSettingsWater::ptr_t LLEnvironment::createWaterFromLegacyPreset(const std::string filename)
+LLSettingsWater::ptr_t LLEnvironment::createWaterFromLegacyPreset(const std::string filename, LLSD &messages)
 {
     std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(filename), true));
     std::string path(gDirUtilp->getDirName(filename));
 
-    LLSettingsWater::ptr_t water = LLSettingsVOWater::buildFromLegacyPresetFile(name, path);
+    LLSettingsWater::ptr_t water = LLSettingsVOWater::buildFromLegacyPresetFile(name, path, messages);
+
+    if (!water)
+    {
+        messages["NAME"] = name;
+        messages["FILE"] = filename;
+    }
     return water;
 }
 
-LLSettingsSky::ptr_t LLEnvironment::createSkyFromLegacyPreset(const std::string filename)
+LLSettingsSky::ptr_t LLEnvironment::createSkyFromLegacyPreset(const std::string filename, LLSD &messages)
 {
     std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(filename), true));
     std::string path(gDirUtilp->getDirName(filename));
 
-    LLSettingsSky::ptr_t sky = LLSettingsVOSky::buildFromLegacyPresetFile(name, path);
+    LLSettingsSky::ptr_t sky = LLSettingsVOSky::buildFromLegacyPresetFile(name, path, messages);
+    if (!sky)
+    {
+        messages["NAME"] = name;
+        messages["FILE"] = filename;
+    }
     return sky;
-
 }
 
-LLSettingsDay::ptr_t LLEnvironment::createDayCycleFromLegacyPreset(const std::string filename)
+LLSettingsDay::ptr_t LLEnvironment::createDayCycleFromLegacyPreset(const std::string filename, LLSD &messages)
 {
     std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(filename), true));
     std::string path(gDirUtilp->getDirName(filename));
 
-    LLSettingsDay::ptr_t day = LLSettingsVODay::buildFromLegacyPresetFile(name, path);
+    LLSettingsDay::ptr_t day = LLSettingsVODay::buildFromLegacyPresetFile(name, path, messages);
+    if (!day)
+    {
+        messages["NAME"] = name;
+        messages["FILE"] = filename;
+    }
     return day;
 }
 

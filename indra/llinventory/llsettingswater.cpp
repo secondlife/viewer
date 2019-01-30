@@ -119,57 +119,72 @@ LLSD LLSettingsWater::defaults(const LLSettingsBase::TrackPosition& position)
 
 LLSD LLSettingsWater::translateLegacySettings(LLSD legacy)
 {
+    bool converted_something(false);
     LLSD newsettings(defaults());
 
     if (legacy.has(SETTING_LEGACY_BLUR_MULTIPLIER))
     {
         newsettings[SETTING_BLUR_MULTIPLIER] = LLSD::Real(legacy[SETTING_LEGACY_BLUR_MULTIPLIER].asReal());
+        converted_something |= true;
     }
     if (legacy.has(SETTING_LEGACY_FOG_COLOR))
     {
         newsettings[SETTING_FOG_COLOR] = LLColor3(legacy[SETTING_LEGACY_FOG_COLOR]).getValue();
+        converted_something |= true;
     }
     if (legacy.has(SETTING_LEGACY_FOG_DENSITY))
     {
         newsettings[SETTING_FOG_DENSITY] = LLSD::Real(legacy[SETTING_LEGACY_FOG_DENSITY]);
+        converted_something |= true;
     }
     if (legacy.has(SETTING_LEGACY_FOG_MOD))
     {
         newsettings[SETTING_FOG_MOD] = LLSD::Real(legacy[SETTING_LEGACY_FOG_MOD].asReal());
+        converted_something |= true;
     }
     if (legacy.has(SETTING_LEGACY_FRESNEL_OFFSET))
     {
         newsettings[SETTING_FRESNEL_OFFSET] = LLSD::Real(legacy[SETTING_LEGACY_FRESNEL_OFFSET].asReal());
+        converted_something |= true;
     }
     if (legacy.has(SETTING_LEGACY_FRESNEL_SCALE))
     {
         newsettings[SETTING_FRESNEL_SCALE] = LLSD::Real(legacy[SETTING_LEGACY_FRESNEL_SCALE].asReal());
+        converted_something |= true;
     }
     if (legacy.has(SETTING_LEGACY_NORMAL_MAP))
     {
         newsettings[SETTING_NORMAL_MAP] = LLSD::UUID(legacy[SETTING_LEGACY_NORMAL_MAP].asUUID());
+        converted_something |= true;
     }
     if (legacy.has(SETTING_LEGACY_NORMAL_SCALE))
     {
         newsettings[SETTING_NORMAL_SCALE] = LLVector3(legacy[SETTING_LEGACY_NORMAL_SCALE]).getValue();
+        converted_something |= true;
     }
     if (legacy.has(SETTING_LEGACY_SCALE_ABOVE))
     {
         newsettings[SETTING_SCALE_ABOVE] = LLSD::Real(legacy[SETTING_LEGACY_SCALE_ABOVE].asReal());
+        converted_something |= true;
     }
     if (legacy.has(SETTING_LEGACY_SCALE_BELOW))
     {
         newsettings[SETTING_SCALE_BELOW] = LLSD::Real(legacy[SETTING_LEGACY_SCALE_BELOW].asReal());
+        converted_something |= true;
     }
     if (legacy.has(SETTING_LEGACY_WAVE1_DIR))
     {
         newsettings[SETTING_WAVE1_DIR] = LLVector2(legacy[SETTING_LEGACY_WAVE1_DIR]).getValue();
+        converted_something |= true;
     }
     if (legacy.has(SETTING_LEGACY_WAVE2_DIR))
     {
         newsettings[SETTING_WAVE2_DIR] = LLVector2(legacy[SETTING_LEGACY_WAVE2_DIR]).getValue();
+        converted_something |= true;
     }
 
+    if (!converted_something)
+        return LLSD();
     return newsettings;
 }
 

@@ -11267,7 +11267,10 @@ This Region does not support environmental settings.
    name="WLImportFail"
    persist="true"
    type="alertmodal">
-Unable to import legacy Windlight settings from [FILE].
+Unable to import legacy Windlight settings [NAME] from 
+[FILE].
+
+[REASONS]
   <tag>fail</tag>
   </notification>
 
@@ -11331,5 +11334,5 @@ You may not edit settings directly from the libary.
 Please copy to your own inventory and try again.
   <tag>fail</tag>
   </notification>
-
+  
 </notifications>
