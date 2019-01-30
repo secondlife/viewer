@@ -33,6 +33,7 @@
 class LLFace;
 class LLHeavenBody;
 class LLWaterSurface;
+class LLGLSLShader;
 
 class LLDrawPoolWater: public LLFacePool
 {
@@ -81,6 +82,7 @@ public:
 
 	void renderReflection(LLFace* face);
 	void shade();
+    void shade2(bool edge, LLGLSLShader* shader, const LLColor3& light_diffuse, const LLVector3& light_dir, F32 light_exp);
 
     void setTransparentTextures(const LLUUID& transparentTextureId, const LLUUID& nextTransparentTextureId);
     void setOpaqueTexture(const LLUUID& opaqueTextureId);

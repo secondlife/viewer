@@ -25,18 +25,12 @@
 
 uniform sampler2DRect   normalMap;
 uniform sampler2DRect   depthMap;
-uniform sampler2D       noiseMap;
 uniform sampler2DShadow shadowMap0;
 uniform sampler2DShadow shadowMap1;
 uniform sampler2DShadow shadowMap2;
 uniform sampler2DShadow shadowMap3;
 uniform sampler2DShadow shadowMap4;
 uniform sampler2DShadow shadowMap5;
-
-uniform float ssao_radius;
-uniform float ssao_max_radius;
-uniform float ssao_factor;
-uniform float ssao_factor_inv;
 
 uniform vec3 sun_dir;
 uniform vec3 moon_dir;
@@ -51,8 +45,6 @@ uniform float spot_shadow_offset;
 uniform float sun_up_factor;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
-
-vec3 decode_normal(vec2 enc);
 
 float pcfShadow(sampler2DShadow shadowMap, vec4 stc, float bias_mul, vec2 pos_screen, vec3 light_dir)
 {
