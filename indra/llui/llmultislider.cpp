@@ -497,14 +497,6 @@ BOOL LLMultiSlider::handleHover(S32 x, S32 y, MASK mask)
 {
 	if( gFocusMgr.getMouseCapture() == this )
 	{
-// 		S32 left_edge = mThumbWidth/2;
-// 		S32 right_edge = getRect().getWidth() - (mThumbWidth/2);
-// 
-// 		x += mMouseOffset;
-// 		x = llclamp( x, left_edge, right_edge );
-// 
-// 		F32 t = F32(x - left_edge) / (right_edge - left_edge);
-// 		setCurSliderValue(t * (mMaxValue - mMinValue) + mMinValue );
 		setCurSliderValue(getSliderValueFromPos(x, y));
 		onCommit();
 
@@ -513,6 +505,27 @@ BOOL LLMultiSlider::handleHover(S32 x, S32 y, MASK mask)
 	}
 	else
 	{
+        if (getEnabled())
+        {
+            if (mHoverSlider.empty() || !getSliderThumbRect(mHoverSlider).pointInRect(x, y))
+            {
+                mHoverSlider.clear();
+                std::map<std::string, LLRect>::iterator  mIt = mThumbRects.begin();
+                for (; mIt != mThumbRects.end(); mIt++)
+                {
+                    if (mIt->second.pointInRect(x, y))
+                    {
+                        mHoverSlider = mIt->first;
+                        break;
+                    }
+                }
+            }
+        }
+        else
+        {
+            mHoverSlider.clear();
+        }
+
 		getWindow()->setCursor(UI_CURSOR_ARROW);
 		LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (inactive)" << LL_ENDL;		
 	}
@@ -625,6 +638,13 @@ BOOL	LLMultiSlider::handleKeyHere(KEY key, MASK mask)
 	return handled;
 }
 
+/*virtual*/
+void LLMultiSlider::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+    mHoverSlider.clear();
+    LLF32UICtrl::onMouseLeave(x, y, mask);
+}
+
 void LLMultiSlider::draw()
 {
 	static LLUICachedControl<S32> extra_triangle_height ("UIExtraTriangleHeight", 0);
@@ -633,6 +653,7 @@ void LLMultiSlider::draw()
 
 	std::map<std::string, LLRect>::iterator mIt;
 	std::map<std::string, LLRect>::iterator curSldrIt;
+	std::map<std::string, LLRect>::iterator hoverSldrIt;
 
 	// Draw background and thumb.
 
@@ -686,6 +707,7 @@ void LLMultiSlider::draw()
 	{
 		// draw all the thumbs
 		curSldrIt = mThumbRects.end();
+		hoverSldrIt = mThumbRects.end();
 		for(mIt = mThumbRects.begin(); mIt != mThumbRects.end(); mIt++) {
 			
 			// choose the color
@@ -694,15 +716,21 @@ void LLMultiSlider::draw()
 				
 				curSldrIt = mIt;
 				continue;
-				//curThumbColor = mThumbCenterSelectedColor;
+			}
+			if (mIt->first == mHoverSlider && getEnabled() && gFocusMgr.getMouseCapture() != this)
+			{
+				// draw last, after current one
+				hoverSldrIt = mIt;
+				continue;
 			}
 
 			// the draw command
 			gl_rect_2d(mIt->second, curThumbColor, TRUE);
 		}
 
-		// now draw the current slider
-		if(curSldrIt != mThumbRects.end()) {
+		// now draw the current and hover sliders
+		if(curSldrIt != mThumbRects.end())
+		{
 			gl_rect_2d(curSldrIt->second, mThumbCenterSelectedColor.get(), TRUE);
 		}
 
@@ -710,6 +738,10 @@ void LLMultiSlider::draw()
 		if (gFocusMgr.getMouseCapture() == this)
 		{
 			gl_rect_2d(mDragStartThumbRect, mThumbCenterColor.get() % opacity, FALSE);
+		}
+		else if (hoverSldrIt != mThumbRects.end())
+		{
+			gl_rect_2d(hoverSldrIt->second, mThumbCenterSelectedColor.get(), TRUE);
 		}
 	}
 	else
@@ -729,20 +761,35 @@ void LLMultiSlider::draw()
 		}
 
 		// draw the highlight
-		if (hasFocus() && !mCurSlider.empty())
+		if (hasFocus())
 		{
-			if (mThumbImagep)
+			if (!mCurSlider.empty())
 			{
-				mThumbImagep->drawBorder(mThumbRects[mCurSlider], mThumbHighlightColor, gFocusMgr.getFocusFlashWidth());
-			}
-			else
-			{
-				thumb_imagep->drawBorder(mThumbRects[mCurSlider], gFocusMgr.getFocusColor(), gFocusMgr.getFocusFlashWidth());
+				if (mThumbImagep)
+				{
+					mThumbImagep->drawBorder(mThumbRects[mCurSlider], mThumbHighlightColor, gFocusMgr.getFocusFlashWidth());
+				}
+				else
+				{
+					thumb_imagep->drawBorder(mThumbRects[mCurSlider], gFocusMgr.getFocusColor(), gFocusMgr.getFocusFlashWidth());
+				}
 			}
 		}
+        if (!mHoverSlider.empty())
+        {
+            if (mThumbImagep)
+            {
+                mThumbImagep->drawBorder(mThumbRects[mHoverSlider], mThumbHighlightColor, gFocusMgr.getFocusFlashWidth());
+            }
+            else
+            {
+                thumb_imagep->drawBorder(mThumbRects[mHoverSlider], gFocusMgr.getFocusColor(), gFocusMgr.getFocusFlashWidth());
+            }
+        }
 
 		// draw the thumbs
 		curSldrIt = mThumbRects.end();
+		hoverSldrIt = mThumbRects.end();
 		for(mIt = mThumbRects.begin(); mIt != mThumbRects.end(); mIt++) 
 		{
 			// choose the color
@@ -752,6 +799,12 @@ void LLMultiSlider::draw()
 				// don't draw now, draw last
 				curSldrIt = mIt;
 				continue;				
+			}
+			if (mIt->first == mHoverSlider && getEnabled() && gFocusMgr.getMouseCapture() != this) 
+			{
+				// don't draw now, draw last, after current one
+				hoverSldrIt = mIt;
+				continue;
 			}
 			
 			// the draw command
@@ -776,7 +829,7 @@ void LLMultiSlider::draw()
 			}
 		}
 		
-		// draw cur slider last
+		// draw cur and hover slider last
 		if(curSldrIt != mThumbRects.end()) 
 		{
 			if (mThumbImagep)
@@ -797,6 +850,17 @@ void LLMultiSlider::draw()
 			else
 			{
 				thumb_imagep->drawSolid(curSldrIt->second, mThumbCenterSelectedColor.get() % opacity);
+			}
+		}
+		if(hoverSldrIt != mThumbRects.end()) 
+		{
+			if (mThumbImagep)
+			{
+				mThumbImagep->draw(hoverSldrIt->second);
+			}
+			else
+			{
+				thumb_imagep->drawSolid(hoverSldrIt->second, mThumbCenterSelectedColor.get());
 			}
 		}
 	}

@@ -110,6 +110,7 @@ public:
 	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask);
+	/*virtual*/ void	onMouseLeave(S32 x, S32 y, MASK mask) override;
 	/*virtual*/ void	draw();
 
 	S32				getMaxNumSliders() { return mMaxNumSliders; }
@@ -121,6 +122,7 @@ public:
 protected:
 	LLSD			mValue;
 	std::string		mCurSlider;
+	std::string		mHoverSlider;
 	static S32		mNameCounter;
 
 	S32				mMaxNumSliders;
