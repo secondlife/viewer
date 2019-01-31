@@ -300,6 +300,10 @@ void LLSliderCtrl::updateSliderRect()
 
         right -= editor_width + sliderctrl_spacing;
     }
+    if (mTextBox)
+    {
+        right -= mTextBox->getRect().getWidth() + sliderctrl_spacing;
+    }
     if (mLabelBox)
     {
         left += mLabelBox->getRect().getWidth() + sliderctrl_spacing;

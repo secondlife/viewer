@@ -378,6 +378,11 @@ Error in upload request.  Please visit
 http://secondlife.com/support for help fixing this problem.
 </string>
 
+    <!-- Settings errors -->
+    <string name="SettingValidationError">Validation failed for importing settings [NAME]</string>
+    <string name="SettingImportFileError">Could not open file [FILE]</string>
+    <string name="SettingParseFileError">Could not open file [FILE]</string>
+    <string name="SettingTranslateError">Could not translate legacy windlight [NAME]</string>
 	<!-- Asset Type human readable names:  these will replace variable [TYPE] in notification FailedToFindWearable* -->
 	<!-- Will also replace [OBJECTTYPE] in notifications: UserGiveItem, ObjectGiveItem -->
 	<string name="texture">texture</string>

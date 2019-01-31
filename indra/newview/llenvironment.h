@@ -190,9 +190,9 @@ public:
     // and rotated by last cam yaw needed by water rendering shaders
     LLVector4                   getRotatedLightNorm() const;
 
-    static LLSettingsWater::ptr_t   createWaterFromLegacyPreset(const std::string filename);
-    static LLSettingsSky::ptr_t createSkyFromLegacyPreset(const std::string filename);
-    static LLSettingsDay::ptr_t createDayCycleFromLegacyPreset(const std::string filename);
+    static LLSettingsWater::ptr_t createWaterFromLegacyPreset(const std::string filename, LLSD &messages);
+    static LLSettingsSky::ptr_t createSkyFromLegacyPreset(const std::string filename, LLSD &messages);
+    static LLSettingsDay::ptr_t createDayCycleFromLegacyPreset(const std::string filename, LLSD &messages);
 
     // Construct a new day cycle based on the environment.  Replacing either the water or the sky tracks.
     LLSettingsDay::ptr_t        createDayCycleFromEnvironment(EnvSelection_t env, LLSettingsBase::ptr_t settings);
@@ -327,8 +327,8 @@ private:
                                     DayTransition(const LLSettingsSky::ptr_t &skystart, const LLSettingsWater::ptr_t &waterstart, DayInstance::ptr_t &end, LLSettingsDay::Seconds time);
         virtual                     ~DayTransition() { };
 
-        virtual void                applyTimeDelta(const LLSettingsBase::Seconds& delta);
-        virtual void                animate();
+        virtual void                applyTimeDelta(const LLSettingsBase::Seconds& delta) override;
+        virtual void                animate() override;
 
     protected:
         LLSettingsSky::ptr_t        mStartSky;

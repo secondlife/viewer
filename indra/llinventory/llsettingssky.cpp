@@ -809,6 +809,7 @@ LLSD LLSettingsSky::translateLegacyHazeSettings(const LLSD& legacy)
 
 LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
 {
+    bool converted_something(false);
     LLSD newsettings(defaults());
 
     // Move legacy haze parameters to an inner map
@@ -818,23 +819,28 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
     if (legacyhazesettings.size() > 0)
     {
         newsettings[SETTING_LEGACY_HAZE] = legacyhazesettings;
+        converted_something |= true;
     }
 
     if (legacy.has(SETTING_CLOUD_COLOR))
     {
         newsettings[SETTING_CLOUD_COLOR] = LLColor3(legacy[SETTING_CLOUD_COLOR]).getValue();
+        converted_something |= true;
     }
     if (legacy.has(SETTING_CLOUD_POS_DENSITY1))
     {
         newsettings[SETTING_CLOUD_POS_DENSITY1] = LLColor3(legacy[SETTING_CLOUD_POS_DENSITY1]).getValue();
+        converted_something |= true;
     }
     if (legacy.has(SETTING_CLOUD_POS_DENSITY2))
     {
         newsettings[SETTING_CLOUD_POS_DENSITY2] = LLColor3(legacy[SETTING_CLOUD_POS_DENSITY2]).getValue();
+        converted_something |= true;
     }
     if (legacy.has(SETTING_CLOUD_SCALE))
     {
         newsettings[SETTING_CLOUD_SCALE] = LLSD::Real(legacy[SETTING_CLOUD_SCALE][0].asReal());
+        converted_something |= true;
     }
     if (legacy.has(SETTING_CLOUD_SCROLL_RATE))
     {
@@ -851,53 +857,64 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
         }
 
         newsettings[SETTING_CLOUD_SCROLL_RATE] = cloud_scroll.getValue();
+        converted_something |= true;
     }
     if (legacy.has(SETTING_CLOUD_SHADOW))
     {
         newsettings[SETTING_CLOUD_SHADOW] = LLSD::Real(legacy[SETTING_CLOUD_SHADOW][0].asReal());
+        converted_something |= true;
     }
     
 
     if (legacy.has(SETTING_GAMMA))
     {
         newsettings[SETTING_GAMMA] = legacy[SETTING_GAMMA][0].asReal();
+        converted_something |= true;
     }
     if (legacy.has(SETTING_GLOW))
     {
         newsettings[SETTING_GLOW] = LLColor3(legacy[SETTING_GLOW]).getValue();
+        converted_something |= true;
     }
 
     if (legacy.has(SETTING_MAX_Y))
     {
         newsettings[SETTING_MAX_Y] = LLSD::Real(legacy[SETTING_MAX_Y][0].asReal());
+        converted_something |= true;
     }
     if (legacy.has(SETTING_STAR_BRIGHTNESS))
     {
         newsettings[SETTING_STAR_BRIGHTNESS] = LLSD::Real(legacy[SETTING_STAR_BRIGHTNESS].asReal() * 250.0f);
+        converted_something |= true;
     }
     if (legacy.has(SETTING_SUNLIGHT_COLOR))
     {
         newsettings[SETTING_SUNLIGHT_COLOR] = LLColor4(legacy[SETTING_SUNLIGHT_COLOR]).getValue();
+        converted_something |= true;
     }
 
     if (legacy.has(SETTING_PLANET_RADIUS))
     {
         newsettings[SETTING_PLANET_RADIUS] = LLSD::Real(legacy[SETTING_PLANET_RADIUS].asReal());
+        converted_something |= true;
     }
 
     if (legacy.has(SETTING_SKY_BOTTOM_RADIUS))
     {
         newsettings[SETTING_SKY_BOTTOM_RADIUS] = LLSD::Real(legacy[SETTING_SKY_BOTTOM_RADIUS].asReal());
+        converted_something |= true;
     }
 
     if (legacy.has(SETTING_SKY_TOP_RADIUS))
     {
         newsettings[SETTING_SKY_TOP_RADIUS] = LLSD::Real(legacy[SETTING_SKY_TOP_RADIUS].asReal());
+        converted_something |= true;
     }
 
     if (legacy.has(SETTING_SUN_ARC_RADIANS))
     {
         newsettings[SETTING_SUN_ARC_RADIANS] = LLSD::Real(legacy[SETTING_SUN_ARC_RADIANS].asReal());
+        converted_something |= true;
     }
 
     if (legacy.has(SETTING_LEGACY_EAST_ANGLE) && legacy.has(SETTING_LEGACY_SUN_ANGLE))
@@ -912,7 +929,11 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
 
         newsettings[SETTING_SUN_ROTATION]  = sunquat.getValue();
         newsettings[SETTING_MOON_ROTATION] = moonquat.getValue();
+        converted_something |= true;
     }
+
+    if (!converted_something)
+        return LLSD();
 
     return newsettings;
 }

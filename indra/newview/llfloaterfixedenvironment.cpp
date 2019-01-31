@@ -351,6 +351,7 @@ void LLFloaterFixedEnvironment::onAssetLoaded(LLUUID asset_id, LLSettingsBase::p
     updateEditEnvironment();
     syncronizeTabs();
     refresh();
+    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_FAST);
 }
 
 void LLFloaterFixedEnvironment::onNameChanged(const std::string &name)
@@ -729,15 +730,15 @@ void LLFloaterFixedEnvironmentWater::doImportFromDisk()
 
 void LLFloaterFixedEnvironmentWater::loadWaterSettingFromFile(const std::vector<std::string>& filenames)
 {
+    LLSD messages;
     if (filenames.size() < 1) return;
     std::string filename = filenames[0];
     LL_WARNS("LAPRAS") << "Selected file: " << filename << LL_ENDL;
-    LLSettingsWater::ptr_t legacywater = LLEnvironment::createWaterFromLegacyPreset(filename);
+    LLSettingsWater::ptr_t legacywater = LLEnvironment::createWaterFromLegacyPreset(filename, messages);
 
     if (!legacywater)
     {   
-        LLSD args(LLSDMap("FILE", filename));
-        LLNotificationsUtil::add("WLImportFail", args);
+        LLNotificationsUtil::add("WLImportFail", messages);
         return;
     }
 
@@ -818,14 +819,14 @@ void LLFloaterFixedEnvironmentSky::loadSkySettingFromFile(const std::vector<std:
 {
     if (filenames.size() < 1) return;
     std::string filename = filenames[0];
+    LLSD messages;
 
     LL_WARNS("LAPRAS") << "Selected file: " << filename << LL_ENDL;
-    LLSettingsSky::ptr_t legacysky = LLEnvironment::createSkyFromLegacyPreset(filename);
+    LLSettingsSky::ptr_t legacysky = LLEnvironment::createSkyFromLegacyPreset(filename, messages);
 
     if (!legacysky)
     {   
-        LLSD args(LLSDMap("FILE", filename));
-        LLNotificationsUtil::add("WLImportFail", args);
+        LLNotificationsUtil::add("WLImportFail", messages);
 
         return;
     }

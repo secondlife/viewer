@@ -91,11 +91,11 @@ public:
 
     static ptr_t    buildSky(LLSD settings);
 
-    static ptr_t    buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings);
+    static ptr_t buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings, LLSD &messages);
     static ptr_t    buildDefaultSky();
     virtual ptr_t   buildClone() const SETTINGS_OVERRIDE;
 
-    static ptr_t    buildFromLegacyPresetFile(const std::string &name, const std::string &path);
+    static ptr_t buildFromLegacyPresetFile(const std::string &name, const std::string &path, LLSD &messages);
 
     static LLSD     convertToLegacy(const ptr_t &, bool isAdvanced);
 
@@ -125,11 +125,11 @@ public:
 
     static ptr_t    buildWater(LLSD settings);
 
-    static ptr_t    buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings);
+    static ptr_t buildFromLegacyPreset(const std::string &name, const LLSD &oldsettings, LLSD &messages);
     static ptr_t    buildDefaultWater();
     virtual ptr_t   buildClone() const SETTINGS_OVERRIDE;
 
-    static ptr_t    buildFromLegacyPresetFile(const std::string &name, const std::string &path);
+    static ptr_t buildFromLegacyPresetFile(const std::string &name, const std::string &path, LLSD &messages);
 
     static LLSD     convertToLegacy(const ptr_t &);
 protected:
@@ -156,8 +156,8 @@ public:
 
     static ptr_t    buildDay(LLSD settings);
 
-    static ptr_t    buildFromLegacyPreset(const std::string &name, const std::string &path, const LLSD &oldsettings);
-    static ptr_t    buildFromLegacyPresetFile(const std::string &name, const std::string &path);
+    static ptr_t buildFromLegacyPreset(const std::string &name, const std::string &path, const LLSD &oldsettings, LLSD &messages);
+    static ptr_t buildFromLegacyPresetFile(const std::string &name, const std::string &path, LLSD &messages);
     static ptr_t    buildFromLegacyMessage(const LLUUID &regionId, LLSD daycycle, LLSD skys, LLSD water);
     static ptr_t    buildDefaultDayCycle();
     static ptr_t    buildFromEnvironmentMessage(LLSD settings);

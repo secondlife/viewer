@@ -270,9 +270,43 @@ void LLPanelEnvironmentInfo::refresh()
 
         for (S32 idx = 0; idx < ALTITUDE_SLIDER_COUNT; ++idx)
         {
-            sld->addSlider(altitudes[idx + 1], alt_sliders[idx]);
-            updateAltLabel(alt_prefixes[idx], idx + 2, altitudes[idx + 1]);
-            mAltitudes[alt_sliders[idx]] = AltitudeData(idx+2, idx, altitudes[idx+1]);
+            // make sure values are in range, server is supposed to validate them,
+            // but issues happen, try to fix values in such case
+            F32 altitude = llclamp(altitudes[idx + 1], sld->getMinValue(), sld->getMaxValue());
+            bool res = sld->addSlider(altitude, alt_sliders[idx]);
+            if (!res)
+            {
+                LL_WARNS_ONCE("ENVPANEL") << "Failed to validate altitude from server for parcel id" << getParcelId() << LL_ENDL;
+                // Find a spot to insert altitude.
+                // Assuming everything alright with slider, we should find new place in 11 steps top (step 25m, no overlap 100m)
+                F32 alt_step = (altitude > (sld->getMaxValue() / 2)) ? -sld->getIncrement() : sld->getIncrement();
+                for (U32 i = 0; i < 30; i++)
+                {
+                    altitude += alt_step;
+                    if (altitude > sld->getMaxValue())
+                    {
+                        altitude = sld->getMinValue();
+                    }
+                    else if (altitude < sld->getMinValue())
+                    {
+                        altitude = sld->getMaxValue();
+                    }
+                    res = sld->addSlider(altitude, alt_sliders[idx]);
+                    if (res) break;
+                }
+                if (!res)
+                {
+                    // Something is very very wrong
+                    LL_WARNS_ONCE("ENVPANEL") << "Failed to set up altitudes for parcel id " << getParcelId() << LL_ENDL;
+                }
+                else
+                {
+                    // slider has some auto correction that might have kicked in
+                    altitude = sld->getSliderValue(alt_sliders[idx]);
+                }
+            }
+            updateAltLabel(alt_prefixes[idx], idx + 2, altitude);
+            mAltitudes[alt_sliders[idx]] = AltitudeData(idx + 2, idx, altitude);
         }
         if (sld->getCurNumSliders() != ALTITUDE_SLIDER_COUNT)
         {
@@ -309,11 +343,12 @@ std::string LLPanelEnvironmentInfo::getInventoryNameForAssetId(LLUUID asset_id)
 std::string LLPanelEnvironmentInfo::getNameForTrackIndex(S32 index)
 {
     std::string invname;
-
-    LL_WARNS("LAPRAS") << "mDayCycleName='" << mCurrentEnvironment->mDayCycleName << "'" << LL_ENDL;
     if (mCurrentEnvironment->mDayCycleName.empty())
     {
         invname = mCurrentEnvironment->mNameList[index];
+
+        if (!isRegion() && invname.empty())
+            invname = getString("str_region_env");
     }
     else if (!mCurrentEnvironment->mDayCycle->isTrackEmpty(index))
     {
@@ -338,7 +373,7 @@ LLFloaterSettingsPicker * LLPanelEnvironmentInfo::getSettingsPicker(bool create)
 
         mSettingsFloater = picker->getHandle();
 
-        picker->setCommitCallback([this](LLUICtrl *, const LLSD &data){ onPickerCommitted(data.asUUID()); });
+        picker->setCommitCallback([this](LLUICtrl *, const LLSD &data){ onPickerCommitted(data["ItemId"].asUUID()); });
     }
 
     return picker;
@@ -546,41 +581,101 @@ void LLPanelEnvironmentInfo::readjustAltLabels()
 {
     // Re-adjust all labels
     // Very simple "adjust after the fact" method
-    // Note: labels can be in any ordered
-    for (U32 i = 0; i < ALTITUDE_SLIDER_COUNT - 1; i++)
+    // Note: labels can be in any order
+
+    LLMultiSliderCtrl *sld = findChild<LLMultiSliderCtrl>(SLD_ALTITUDES);
+    if (!sld) return;
+
+    LLView* view_midle = NULL;
+    U32 midle_ind = 0;
+    S32 shift_up = 0;
+    S32 shift_down = 0;
+    LLRect sld_rect = sld->getRect();
+
+    // Find the middle one
+    for (U32 i = 0; i < ALTITUDE_SLIDER_COUNT; i++)
     {
-        LLView* view_cmp = findChild<LLView>(alt_panels[i]);
+        LLView* cmp_view = findChild<LLView>(alt_panels[i], true);
+        if (!cmp_view) return;
+        LLRect cmp_rect = cmp_view->getRect();
+        S32 pos = 0;
+        shift_up = 0;
+        shift_down = 0;
 
-        for (U32 j = i + 1; j < ALTITUDE_SLIDER_COUNT; j++)
+        for (U32 j = 0; j < ALTITUDE_SLIDER_COUNT; j++)
         {
-            LLView* view_intr = findChild<LLView>(alt_panels[j]);
-            if (view_cmp && view_intr)
+            if (i != j)
             {
-                LLRect cmp_rect = view_cmp->getRect();
-                LLRect intr_rect = view_intr->getRect();
-                S32 shift = 0;
-                if (cmp_rect.mBottom <= intr_rect.mTop && cmp_rect.mBottom >= intr_rect.mBottom)
+                LLView* intr_view = findChild<LLView>(alt_panels[j], true);
+                if (!intr_view) return;
+                LLRect intr_rect = intr_view->getRect();
+                if (cmp_rect.mBottom >= intr_rect.mBottom)
                 {
-                    // Approximate shift
-                    // We probably will need more cycle runs over all labels to get accurate one
-                    // At the moment single cycle should do since we have too little elements to do something complicated
-                    shift = (cmp_rect.mBottom - intr_rect.mTop) / 2;
+                    pos++;
                 }
-                else if (cmp_rect.mTop >= intr_rect.mBottom && cmp_rect.mTop <= intr_rect.mTop)
+                if (intr_rect.mBottom <= cmp_rect.mTop && intr_rect.mBottom >= cmp_rect.mBottom)
                 {
-                    // Approximate shift
-                    shift = (cmp_rect.mTop - intr_rect.mBottom) / 2;
+                    shift_up = cmp_rect.mTop - intr_rect.mBottom;
                 }
-                if (shift != 0)
+                else if (intr_rect.mTop >= cmp_rect.mBottom && intr_rect.mBottom <= cmp_rect.mBottom)
                 {
-                    cmp_rect.translate(0, -shift);
-                    view_cmp->setRect(cmp_rect);
-
-                    intr_rect.translate(0, shift);
-                    view_intr->setRect(intr_rect);
+                    shift_down = cmp_rect.mBottom - intr_rect.mTop;
                 }
             }
         }
+        if (pos == 1) //  middle
+        {
+            view_midle = cmp_view;
+            midle_ind = i;
+            break;
+        }
+    }
+
+    // Account for edges
+    LLRect midle_rect = view_midle->getRect();
+    F32 factor = 0.5f;
+    S32 edge_zone_height = midle_rect.getHeight() * 1.5f;
+
+    if (midle_rect.mBottom - sld_rect.mBottom < edge_zone_height)
+    {
+        factor = 1 - ((midle_rect.mBottom - sld_rect.mBottom) / (edge_zone_height * 2));
+    }
+    else if (sld_rect.mTop - midle_rect.mTop < edge_zone_height )
+    {
+        factor = ((sld_rect.mTop - midle_rect.mTop) / (edge_zone_height * 2));
+    }
+
+    S32 shift_middle = (S32)(((F32)shift_down * factor) + ((F32)shift_up * (1.f - factor)));
+    shift_down = shift_down - shift_middle;
+    shift_up = shift_up - shift_middle;
+
+    // fix crossings
+    for (U32 i = 0; i < ALTITUDE_SLIDER_COUNT; i++)
+    {
+        if (i != midle_ind)
+        {
+            LLView* trn_view = findChild<LLView>(alt_panels[i], true);
+            LLRect trn_rect = trn_view->getRect();
+
+            if (trn_rect.mBottom <= midle_rect.mTop && trn_rect.mBottom >= midle_rect.mBottom)
+            {
+                // Approximate shift
+                trn_rect.translate(0, shift_up);
+                trn_view->setRect(trn_rect);
+            }
+            else if (trn_rect.mTop >= midle_rect.mBottom && trn_rect.mBottom <= midle_rect.mBottom)
+            {
+                // Approximate shift
+                trn_rect.translate(0, shift_down);
+                trn_view->setRect(trn_rect);
+            }
+        }
+    }
+
+    if (shift_middle != 0)
+    {
+        midle_rect.translate(0, -shift_middle); //reversed relative to others
+        view_midle->setRect(midle_rect);
     }
 }
 
