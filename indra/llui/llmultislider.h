@@ -92,8 +92,8 @@ public:
 	void				resetCurSlider();
 	void				setCurSliderValue(F32 val, BOOL from_event = false) { setSliderValue(mCurSlider, val, from_event); }
 
-	/*virtual*/ void	setValue(const LLSD& value);
-	/*virtual*/ LLSD	getValue() const		{ return mValue; }
+	/*virtual*/ void	setValue(const LLSD& value) override;
+	/*virtual*/ LLSD	getValue() const override { return mValue; }
 
 	boost::signals2::connection setMouseDownCallback( const commit_signal_t::slot_type& cb );
 	boost::signals2::connection setMouseUpCallback(	const commit_signal_t::slot_type& cb );
@@ -104,14 +104,14 @@ public:
 	bool				addSlider(F32 val, const std::string& name);
 	void				deleteSlider(const std::string& name);
 	void				deleteCurSlider()			{ deleteSlider(mCurSlider); }
-	void				clear();
+	/*virtual*/ void	clear() override;
 
-	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask);
+	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask) override;
 	/*virtual*/ void	onMouseLeave(S32 x, S32 y, MASK mask) override;
-	/*virtual*/ void	draw();
+	/*virtual*/ void	draw() override;
 
 	S32				getMaxNumSliders() { return mMaxNumSliders; }
 	S32				getCurNumSliders() { return mValue.size(); }
