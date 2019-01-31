@@ -534,30 +534,6 @@ void LLDrawPoolWater::shade2(bool edge, LLGLSLShader* shader, const LLColor3& li
         gGL.getTexUnit(bumpTex2)->bind(tex_b);
     }
 
-    if (mWaterNormp[0])
-    {
-	    if (gSavedSettings.getBOOL("RenderWaterMipNormal"))
-	    {
-		    mWaterNormp[0]->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
-	    }
-	    else 
-	    {
-		    mWaterNormp[0]->setFilteringOption(LLTexUnit::TFO_POINT);
-	    }
-	}
-
-    if (mWaterNormp[1])
-    {
-	    if (gSavedSettings.getBOOL("RenderWaterMipNormal"))
-	    {
-            mWaterNormp[1]->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
-	    }
-	    else 
-	    {
-            mWaterNormp[1]->setFilteringOption(LLTexUnit::TFO_POINT);
-	    }
-	}
-
     shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 
     shader->uniform3fv(LLShaderMgr::WATER_FOGCOLOR, 1, pwater->getWaterFogColor().mV);
@@ -642,21 +618,42 @@ void LLDrawPoolWater::shade2(bool edge, LLGLSLShader* shader, const LLColor3& li
         sNeedsReflectionUpdate = TRUE;			
         sNeedsDistortionUpdate = TRUE;
 
-        for (std::vector<LLFace*>::iterator iter = mDrawFace.begin(); iter != mDrawFace.end(); iter++)
-		{
-			LLFace *face = *iter;
-            if (face)
-            {
-                LLVOWater* water = (LLVOWater*) face->getViewerObject();
-			    gGL.getTexUnit(diffTex)->bind(face->getTexture());
-
-                bool edge_patch = water && water->getIsEdgePatch();
-                if (edge_patch == edge)
+        if (edge)
+        {
+            for (std::vector<LLFace*>::iterator iter = mDrawFace.begin(); iter != mDrawFace.end(); iter++)
+		    {
+			    LLFace *face = *iter;
+                if (face)
                 {
-                    face->renderIndexed();
+                    LLVOWater* water = (LLVOWater*) face->getViewerObject();
+			        gGL.getTexUnit(diffTex)->bind(face->getTexture());
+
+                    bool edge_patch = water && water->getIsEdgePatch();
+                    if (edge_patch)
+                    {
+                        face->renderIndexed();
+                    }
                 }
-            }
-		}
+		    }
+        }
+        else
+        {
+            for (std::vector<LLFace*>::iterator iter = mDrawFace.begin(); iter != mDrawFace.end(); iter++)
+		    {
+			    LLFace *face = *iter;
+                if (face)
+                {
+                    LLVOWater* water = (LLVOWater*) face->getViewerObject();
+			        gGL.getTexUnit(diffTex)->bind(face->getTexture());
+
+                    bool edge_patch = water && water->getIsEdgePatch();
+                    if (!edge_patch)
+                    {
+                        face->renderIndexed();
+                    }
+                }
+		    }
+        }
     }
 
 	shader->disableTexture(LLShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
@@ -743,12 +740,36 @@ void LLDrawPoolWater::shade()
 	else if (deferred_render)
 	{
 		shader = &gDeferredWaterProgram;
-        //edge_shader = &gDeferredWaterEdgeProgram;
+        edge_shader = nullptr;
 	}
 	else
 	{
 		shader = &gWaterProgram;
-        //edge_shader = &gWaterEdgeProgram;
+        edge_shader = &gWaterEdgeProgram;
+	}
+
+    if (mWaterNormp[0])
+    {
+	    if (gSavedSettings.getBOOL("RenderWaterMipNormal"))
+	    {
+		    mWaterNormp[0]->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
+	    }
+	    else 
+	    {
+		    mWaterNormp[0]->setFilteringOption(LLTexUnit::TFO_POINT);
+	    }
+	}
+
+    if (mWaterNormp[1])
+    {
+	    if (gSavedSettings.getBOOL("RenderWaterMipNormal"))
+	    {
+            mWaterNormp[1]->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
+	    }
+	    else 
+	    {
+            mWaterNormp[1]->setFilteringOption(LLTexUnit::TFO_POINT);
+	    }
 	}
 
     shade2(false, shader, light_diffuse, light_dir, light_exp);

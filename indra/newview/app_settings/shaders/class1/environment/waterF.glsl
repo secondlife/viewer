@@ -157,9 +157,8 @@ void main()
     color.rgb = scaleSoftClip(color.rgb);
     color.a = spec * sunAngle2;
 
-#if defined(WATER_EDGE)
-    // force frag depth to fix z-fighting at back edge of water edge pieces
-    gl_FragDepth = 0.99999;
+#if WATER_EDGE
+    gl_FragDepth = 0.9999847f;
 #endif
 
     frag_color = color;

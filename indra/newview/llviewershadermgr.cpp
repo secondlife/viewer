@@ -187,7 +187,6 @@ LLGLSLShader			gPostNightVisionProgram;
 // Deferred rendering shaders
 LLGLSLShader			gDeferredImpostorProgram;
 LLGLSLShader			gDeferredWaterProgram;
-LLGLSLShader			gDeferredWaterEdgeProgram;
 LLGLSLShader			gDeferredUnderWaterProgram;
 LLGLSLShader			gDeferredDiffuseProgram;
 LLGLSLShader			gDeferredDiffuseAlphaMaskProgram;
@@ -350,7 +349,6 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gDeferredEmissiveProgram);
 	mShaderList.push_back(&gDeferredAvatarEyesProgram);
 	mShaderList.push_back(&gDeferredWaterProgram);
-    mShaderList.push_back(&gDeferredWaterEdgeProgram);
 	mShaderList.push_back(&gDeferredUnderWaterProgram);	
 	mShaderList.push_back(&gDeferredAvatarAlphaProgram);
 	mShaderList.push_back(&gDeferredWLSkyProgram);
@@ -1138,7 +1136,7 @@ BOOL LLViewerShaderMgr::loadShadersWater()
         gWaterEdgeProgram.addPermutation("WATER_EDGE", "1");
         gWaterEdgeProgram.mShaderGroup = LLGLSLShader::SG_WATER;
 		gWaterEdgeProgram.mShaderLevel = mShaderLevel[SHADER_WATER];
-		success = gWaterProgram.createShader(NULL, NULL);
+		success = gWaterEdgeProgram.createShader(NULL, NULL);
         llassert(success);
 	}
 
@@ -1298,7 +1296,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredPostGammaCorrectProgram.unload();
 		gFXAAProgram.unload();
 		gDeferredWaterProgram.unload();
-        gDeferredWaterEdgeProgram.unload();
 		gDeferredUnderWaterProgram.unload();
 		gDeferredWLSkyProgram.unload();
 		gDeferredWLCloudProgram.unload();
@@ -2016,26 +2013,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredWaterProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         gDeferredWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
 		success = gDeferredWaterProgram.createShader(NULL, NULL);
-        llassert(success);
-	}
-
-    if (success)
-	{
-		// load water shader
-		gDeferredWaterEdgeProgram.mName = "Deferred Water Shader";
-		gDeferredWaterEdgeProgram.mFeatures.calculatesAtmospherics = true;
-		gDeferredWaterEdgeProgram.mFeatures.hasGamma = true;
-		gDeferredWaterEdgeProgram.mFeatures.hasTransport = true;
-        gDeferredWaterEdgeProgram.mFeatures.encodesNormal = true;
-        gDeferredWaterEdgeProgram.mFeatures.hasShadows = true;
-
-		gDeferredWaterEdgeProgram.mShaderFiles.clear();
-		gDeferredWaterEdgeProgram.mShaderFiles.push_back(make_pair("deferred/waterV.glsl", GL_VERTEX_SHADER_ARB));
-		gDeferredWaterEdgeProgram.mShaderFiles.push_back(make_pair("deferred/waterF.glsl", GL_FRAGMENT_SHADER_ARB));
-        gDeferredWaterEdgeProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-        gDeferredWaterEdgeProgram.mShaderGroup = LLGLSLShader::SG_WATER;
-        gDeferredWaterEdgeProgram.addPermutation("WATER_EDGE", "1");
-		success = gDeferredWaterEdgeProgram.createShader(NULL, NULL);
         llassert(success);
 	}
 
