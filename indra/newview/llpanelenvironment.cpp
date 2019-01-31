@@ -263,6 +263,7 @@ void LLPanelEnvironmentInfo::refresh()
     updateEditFloater(mCurrentEnvironment, canEdit());
 
     LLEnvironment::altitude_list_t altitudes = LLEnvironment::instance().getRegionAltitudes();
+
     if (altitudes.size() > 0)
     {
         LLMultiSliderCtrl *sld = getChild<LLMultiSliderCtrl>(SLD_ALTITUDES);
@@ -294,16 +295,16 @@ void LLPanelEnvironmentInfo::refresh()
                     res = sld->addSlider(altitude, alt_sliders[idx]);
                     if (res) break;
                 }
-                if (!res)
-                {
-                    // Something is very very wrong
-                    LL_WARNS_ONCE("ENVPANEL") << "Failed to set up altitudes for parcel id " << getParcelId() << LL_ENDL;
-                }
-                else
-                {
-                    // slider has some auto correction that might have kicked in
-                    altitude = sld->getSliderValue(alt_sliders[idx]);
-                }
+            }
+            if (res)
+            {
+                // slider has some auto correction that might have kicked in
+                altitude = sld->getSliderValue(alt_sliders[idx]);
+            }
+            else
+            {
+                // Something is very very wrong
+                LL_WARNS_ONCE("ENVPANEL") << "Failed to set up altitudes for parcel id " << getParcelId() << LL_ENDL;
             }
             updateAltLabel(alt_prefixes[idx], idx + 2, altitude);
             mAltitudes[alt_sliders[idx]] = AltitudeData(idx + 2, idx, altitude);
