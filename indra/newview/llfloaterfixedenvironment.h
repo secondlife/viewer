@@ -102,6 +102,7 @@ protected:
     LLHandle<LLFloater>     mInventoryFloater;
     bool                    mCanCopy;
     bool                    mCanMod;
+    bool                    mCanTrans;
 
     void                    onInventoryCreated(LLUUID asset_id, LLUUID inventory_id);
     void                    onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results);

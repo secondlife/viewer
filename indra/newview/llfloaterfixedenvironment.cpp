@@ -117,7 +117,8 @@ LLFloaterFixedEnvironment::LLFloaterFixedEnvironment(const LLSD &key) :
     mInventoryItem(nullptr),
     mIsDirty(false),
     mCanCopy(false),
-    mCanMod(false)
+    mCanMod(false),
+    mCanTrans(false)
 {
 }
 
@@ -257,6 +258,7 @@ void LLFloaterFixedEnvironment::loadInventoryItem(const LLUUID  &inventoryId)
         mInventoryId.setNull();
         mCanMod = true;
         mCanCopy = true;
+        mCanTrans = true;
         return;
     }
 
@@ -288,6 +290,7 @@ void LLFloaterFixedEnvironment::loadInventoryItem(const LLUUID  &inventoryId)
 
     mCanCopy = mInventoryItem->getPermissions().allowCopyBy(gAgent.getID());
     mCanMod = mInventoryItem->getPermissions().allowModifyBy(gAgent.getID());
+    mCanTrans = mInventoryItem->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
 
     LLSettingsVOBase::getSettingsAsset(mInventoryItem->getAssetUUID(),
         [this](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoaded(asset_id, settings, status); });
@@ -347,6 +350,21 @@ void LLFloaterFixedEnvironment::onAssetLoaded(LLUUID asset_id, LLSettingsBase::p
     mSettings = settings;
     if (mInventoryItem)
         mSettings->setName(mInventoryItem->getName());
+
+    if (mCanCopy)
+        settings->clearFlag(LLSettingsBase::FLAG_NOCOPY);
+    else
+        settings->setFlag(LLSettingsBase::FLAG_NOCOPY);
+
+    if (mCanMod)
+        settings->clearFlag(LLSettingsBase::FLAG_NOMOD);
+    else
+        settings->setFlag(LLSettingsBase::FLAG_NOMOD);
+
+    if (mCanTrans)
+        settings->clearFlag(LLSettingsBase::FLAG_NOTRANS);
+    else
+        settings->setFlag(LLSettingsBase::FLAG_NOTRANS);
 
     updateEditEnvironment();
     syncronizeTabs();

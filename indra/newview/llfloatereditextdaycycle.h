@@ -238,7 +238,7 @@ private:
     bool                        mIsDirty;
     bool                        mCanCopy;
     bool                        mCanMod;
-    bool                        mMakeNoTrans;
+    bool                        mCanTrans;
 
     edit_commit_signal_t        mCommitSignal;
 

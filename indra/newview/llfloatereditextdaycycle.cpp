@@ -181,7 +181,7 @@ LLFloaterEditExtDayCycle::LLFloaterEditExtDayCycle(const LLSD &key) :
     mIsDirty(false),
     mCanCopy(false),
     mCanMod(false),
-    mMakeNoTrans(false),
+    mCanTrans(false),
     mCloneTrack(nullptr),
     mLoadTrack(nullptr),
     mClearTrack(nullptr)
@@ -325,7 +325,7 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
     {
         mCanCopy = true;
         mCanMod = true;
-        mMakeNoTrans = false;
+        mCanTrans = true;
         setEditDefaultDayCycle();
     }
 
@@ -1394,7 +1394,7 @@ void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId)
         mInventoryId.setNull();
         mCanCopy = true;
         mCanMod = true;
-        mMakeNoTrans = false;
+        mCanTrans = true;
         return;
     }
 
@@ -1427,6 +1427,7 @@ void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId)
 
     mCanCopy = mInventoryItem->getPermissions().allowCopyBy(gAgent.getID());
     mCanMod = mInventoryItem->getPermissions().allowModifyBy(gAgent.getID());
+    mCanTrans = mInventoryItem->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
 
     mExpectingAssetId = mInventoryItem->getAssetUUID();
     LLSettingsVOBase::getSettingsAsset(mInventoryItem->getAssetUUID(),
@@ -1461,6 +1462,11 @@ void LLFloaterEditExtDayCycle::onAssetLoaded(LLUUID asset_id, LLSettingsBase::pt
         settings->clearFlag(LLSettingsBase::FLAG_NOMOD);
     else
         settings->setFlag(LLSettingsBase::FLAG_NOMOD);
+
+    if (mCanTrans)
+        settings->clearFlag(LLSettingsBase::FLAG_NOTRANS);
+    else
+        settings->setFlag(LLSettingsBase::FLAG_NOTRANS);
 
     if (mInventoryItem)
         settings->setName(mInventoryItem->getName());
@@ -2038,7 +2044,7 @@ void LLFloaterEditExtDayCycle::onAssetLoadedForInsertion(LLUUID item_id, LLUUID 
                 S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
                 if (opt == 0)
                 {
-                    mMakeNoTrans = true;
+                    mCanTrans = false;
                     mEditDay->setFlag(LLSettingsBase::FLAG_NOTRANS);
                     cb();
                 }
