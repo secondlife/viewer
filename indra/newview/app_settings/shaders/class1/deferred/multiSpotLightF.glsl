@@ -140,7 +140,7 @@ void main()
 		discard;
 	}
 		
-	float envIntensity = texture2DRect(normalMap. frag.xy).z;
+	float envIntensity = texture2DRect(normalMap, frag.xy).z;
 	vec3 norm = getNorm(frag.xy);
 
 	float l_dist = -dot(lv, proj_n);

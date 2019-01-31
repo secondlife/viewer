@@ -1836,11 +1836,6 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 		LLFeatureManager::getInstance()->applyRecommendedSettings();
 		gSavedSettings.setBOOL("ProbeHardwareOnStartup", FALSE);
 	}
-
-	if (!gGLManager.mHasDepthClamp)
-	{
-		LL_INFOS("RenderInit") << "Missing feature GL_ARB_depth_clamp. Void water might disappear in rare cases." << LL_ENDL;
-	}
 	
 	// If we crashed while initializng GL stuff last time, disable certain features
 	if (gSavedSettings.getBOOL("RenderInitError"))

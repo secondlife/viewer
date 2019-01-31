@@ -197,7 +197,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	}
 
     // we want this BEFORE shadows and AO because those facilities use pos/norm access
-    if (features->isDeferred || features->hasShadows || features->hasAmbientOcclusion)
+    if (features->isDeferred)
 	{
 		if (!shader->attachObject("deferred/deferredUtil.glsl"))
 		{
@@ -1351,6 +1351,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("sh_input_b");
 
     mReservedUniforms.push_back("sun_up_factor");
+    mReservedUniforms.push_back("water_edge");
 
 	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 

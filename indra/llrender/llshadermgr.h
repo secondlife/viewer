@@ -249,6 +249,7 @@ public:
         SH_INPUT_L1B,
 
         SUN_UP_FACTOR,
+        WATER_EDGE_FACTOR,
 		END_RESERVED_UNIFORMS
 	} eGLSLReservedUniforms;
 

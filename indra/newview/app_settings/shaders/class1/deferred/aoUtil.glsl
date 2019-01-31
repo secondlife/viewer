@@ -24,13 +24,43 @@
  */
 
 uniform sampler2D       noiseMap;
+uniform sampler2DRect   normalMap;
+uniform sampler2DRect   depthMap;
 
 uniform float ssao_radius;
 uniform float ssao_max_radius;
 uniform float ssao_factor;
 uniform float ssao_factor_inv;
 
-vec4 getPosition(vec2 pos_screen);
+uniform mat4 inv_proj;
+uniform vec2 screen_res;
+
+vec2 getScreenCoordinateAo(vec2 screenpos)
+{
+    vec2 sc = screenpos.xy * 2.0;
+    if (screen_res.x > 0 && screen_res.y > 0)
+    {
+       sc /= screen_res;
+    }
+    return sc - vec2(1.0, 1.0);
+}
+
+float getDepthAo(vec2 pos_screen)
+{
+    float depth = texture2DRect(depthMap, pos_screen).r;
+    return depth;
+}
+
+vec4 getPositionAo(vec2 pos_screen)
+{
+    float depth = getDepthAo(pos_screen);
+    vec2 sc = getScreenCoordinateAo(pos_screen);
+    vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
+    vec4 pos = inv_proj * ndc;
+    pos /= pos.w;
+    pos.w = 1.0;
+    return pos;
+}
 
 vec2 getKern(int i)
 {
@@ -64,7 +94,7 @@ float calcAmbientOcclusion(vec4 pos, vec3 norm, vec2 pos_screen)
     for (int i = 0; i < 8; i++)
     {
         vec2 samppos_screen = pos_screen + scale * reflect(getKern(i), noise_reflect);
-        vec3 samppos_world = getPosition(samppos_screen).xyz; 
+        vec3 samppos_world = getPositionAo(samppos_screen).xyz; 
         
         vec3 diff = pos_world - samppos_world;
         float dist2 = dot(diff, diff);
