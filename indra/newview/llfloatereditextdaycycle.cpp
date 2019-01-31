@@ -2020,7 +2020,7 @@ void LLFloaterEditExtDayCycle::onAssetLoadedForInsertion(LLUUID item_id, LLUUID 
         bool no_transfer = false;
         if (mInventoryItem)
         {
-            no_transfer = mInventoryItem->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
+            no_transfer = !mInventoryItem->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
         }
         else
         {
