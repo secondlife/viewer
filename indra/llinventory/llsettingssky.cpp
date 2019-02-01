@@ -32,10 +32,6 @@
 #include "llfasttimer.h"
 #include "v3colorutil.h"
 
-#if LL_WINDOWS
-#pragma optimize("", off)
-#endif
-
 //=========================================================================
 namespace {
     const F32 NIGHTTIME_ELEVATION = 8.0f; // degrees
