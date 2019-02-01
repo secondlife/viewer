@@ -248,7 +248,7 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
 
 	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY))
 	{
-        LLGLSPipelineDepthTestSkyBox sky(true, true);
+        LLGLSPipelineDepthTestSkyBox sky(true, false);
 
         sky_shader->bind();
 
