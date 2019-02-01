@@ -157,7 +157,7 @@ void main()
     color.rgb = scaleSoftClip(color.rgb);
     color.a = spec * sunAngle2;
 
-#if WATER_EDGE
+#if defined(WATER_EDGE)
     gl_FragDepth = 0.9999847f;
 #endif
 

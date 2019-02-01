@@ -286,7 +286,7 @@ bool LLRenderTarget::allocateDepth()
 		U32 internal_type = LLTexUnit::getInternalType(mUsage);
 		stop_glerror();
 		clear_glerror();
-		LLImageGL::setManualImage(internal_type, 0, GL_DEPTH_COMPONENT24, mResX, mResY, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL, false);
+		LLImageGL::setManualImage(internal_type, 0, GL_DEPTH_COMPONENT32F, mResX, mResY, GL_DEPTH_COMPONENT, GL_FLOAT, NULL, false);
 		gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 	}
 
@@ -465,6 +465,7 @@ void LLRenderTarget::clear(U32 mask_in)
 	U32 mask = GL_COLOR_BUFFER_BIT;
 	if (mUseDepth)
 	{
+        glClearDepth(1.25f);
 		mask |= GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
 	}
 	if (mFBO)

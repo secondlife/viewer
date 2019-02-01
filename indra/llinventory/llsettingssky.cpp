@@ -955,13 +955,13 @@ void LLSettingsSky::updateSettings()
 bool LLSettingsSky::getIsSunUp() const
 {
     LLVector3 sunDir = getSunDirection();
-    return sunDir.mV[2] > NIGHTTIME_ELEVATION_SIN;
+    return sunDir.mV[2] > 0;//NIGHTTIME_ELEVATION_SIN;
 }
 
 bool LLSettingsSky::getIsMoonUp() const
 {
     LLVector3 moonDir = getMoonDirection();
-    return moonDir.mV[2] > NIGHTTIME_ELEVATION_SIN;
+    return moonDir.mV[2] > 0;//NIGHTTIME_ELEVATION_SIN;
 }
 
 void LLSettingsSky::calculateHeavenlyBodyPositions()  const
