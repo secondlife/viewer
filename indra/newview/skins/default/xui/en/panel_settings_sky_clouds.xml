@@ -82,7 +82,7 @@
                     initial_value="0"
                     layout="topleft"
                     left_delta="5"
-                    min_val="0"
+                    min_val="0.01"
                     max_val="3"
                     name="cloud_scale"
                     top_delta="20"
