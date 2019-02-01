@@ -151,7 +151,7 @@ void LLPanelSettingsWaterMainTab::refresh()
     getChild<LLUICtrl>(FIELD_WATER_NORMAL_SCALE_X)->setValue(vect3[0]);
     getChild<LLUICtrl>(FIELD_WATER_NORMAL_SCALE_Y)->setValue(vect3[1]);
     getChild<LLUICtrl>(FIELD_WATER_NORMAL_SCALE_Z)->setValue(vect3[2]);
-    getChild<LLUICtrl>(FIELD_WATER_FRESNEL_SCALE)->setValue(mWaterSettings->getFresnelOffset());
+    getChild<LLUICtrl>(FIELD_WATER_FRESNEL_SCALE)->setValue(mWaterSettings->getFresnelScale());
     getChild<LLUICtrl>(FIELD_WATER_FRESNEL_OFFSET)->setValue(mWaterSettings->getFresnelOffset());
     getChild<LLUICtrl>(FIELD_WATER_SCALE_ABOVE)->setValue(mWaterSettings->getScaleAbove());
     getChild<LLUICtrl>(FIELD_WATER_SCALE_BELOW)->setValue(mWaterSettings->getScaleBelow());
