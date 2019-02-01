@@ -507,17 +507,14 @@ BOOL LLMultiSlider::handleHover(S32 x, S32 y, MASK mask)
 	{
         if (getEnabled())
         {
-            if (mHoverSlider.empty() || !getSliderThumbRect(mHoverSlider).pointInRect(x, y))
+            mHoverSlider.clear();
+            std::map<std::string, LLRect>::iterator  mIt = mThumbRects.begin();
+            for (; mIt != mThumbRects.end(); mIt++)
             {
-                mHoverSlider.clear();
-                std::map<std::string, LLRect>::iterator  mIt = mThumbRects.begin();
-                for (; mIt != mThumbRects.end(); mIt++)
+                if (mIt->second.pointInRect(x, y))
                 {
-                    if (mIt->second.pointInRect(x, y))
-                    {
-                        mHoverSlider = mIt->first;
-                        break;
-                    }
+                    mHoverSlider = mIt->first;
+                    break;
                 }
             }
         }
