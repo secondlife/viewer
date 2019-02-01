@@ -42,7 +42,7 @@ uniform vec4 glow;
 uniform float scene_light_strength;
 uniform mat3 ssao_effect_mat;
 uniform int no_atmo;
-uniform float sun_up_factor;
+uniform float sun_moon_glow_factor;
 
 vec3 scaleSoftClipFrag(vec3 light);
 
@@ -119,7 +119,7 @@ void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, 
     //add "minimum anti-solar illumination"
     temp2.x += .25;
 
-    //temp2.x *= sun_up_factor;
+    temp2.x *= sun_moon_glow_factor;
     
     //increase ambient when there are more clouds
     vec4 tmpAmbient = ambient + (vec4(1.) - ambient) * cloud_shadow * 0.5;

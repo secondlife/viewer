@@ -32,9 +32,13 @@
 #include "llfasttimer.h"
 #include "v3colorutil.h"
 
+#if LL_WINDOWS
+#pragma optimize("", off)
+#endif
+
 //=========================================================================
 namespace {
-    const F32 NIGHTTIME_ELEVATION = -8.0f; // degrees
+    const F32 NIGHTTIME_ELEVATION = 8.0f; // degrees
     const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION * DEG_TO_RAD);
     const LLUUID IMG_BLOOM1("3c59f7fe-9dc8-47f9-8aaf-a9dd1fbc3bef");
     const LLUUID IMG_RAINBOW("11b4c57c-56b3-04ed-1f82-2004363882e4");
@@ -952,16 +956,38 @@ void LLSettingsSky::updateSettings()
     calculateLightSettings();
 }
 
+F32 LLSettingsSky::getSunMoonGlowFactor() const
+{
+    LLVector3 sunDir = getSunDirection();
+    LLVector3 moonDir = getMoonDirection();
+
+    // sun glow at full iff moon is not up
+    if (sunDir.mV[VZ] > -NIGHTTIME_ELEVATION_SIN)
+    {
+        if (moonDir.mV[2] <= 0.0f)
+        {
+            return 1.0f;
+        }
+    }
+
+    if (moonDir.mV[2] > 0.0f)
+    {
+        return moonDir.mV[VZ] / 3.0f; // ramp moon glow at moonset
+    }
+
+    return 0.0f;
+}
+
 bool LLSettingsSky::getIsSunUp() const
 {
     LLVector3 sunDir = getSunDirection();
-    return sunDir.mV[2] > NIGHTTIME_ELEVATION_SIN;
+    return (sunDir.mV[2] >= 0.0f) || ((sunDir.mV[2] > -NIGHTTIME_ELEVATION_SIN) && !getIsMoonUp());
 }
 
 bool LLSettingsSky::getIsMoonUp() const
 {
     LLVector3 moonDir = getMoonDirection();
-    return moonDir.mV[2] > NIGHTTIME_ELEVATION_SIN;
+    return moonDir.mV[2] > 0.0f;
 }
 
 void LLSettingsSky::calculateHeavenlyBodyPositions()  const

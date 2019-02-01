@@ -1350,7 +1350,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("sh_input_g");
     mReservedUniforms.push_back("sh_input_b");
 
-    mReservedUniforms.push_back("sun_up_factor");
+    mReservedUniforms.push_back("sun_moon_glow_factor");
     mReservedUniforms.push_back("water_edge");
 
 	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);

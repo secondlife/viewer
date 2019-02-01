@@ -232,7 +232,7 @@ void LLDrawPoolWLSky::renderSkyHazeAdvanced(const LLVector3& camPosLocal, F32 ca
 
 	    sky_shader->uniformMatrix4fv(LLShaderMgr::INVERSE_PROJECTION_MATRIX, 1, FALSE, inv_proj.m);
 
-        sky_shader->uniform1f(LLShaderMgr::SUN_UP_FACTOR, psky->getIsSunUp() ? 1.0f : 0.0f);
+        sky_shader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, psky->getSunMoonGlowFactor());
 
         sky_shader->uniform3f(sCamPosLocal, camPosLocal.mV[0], camPosLocal.mV[1], camPosLocal.mV[2]);
 
@@ -248,7 +248,7 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
 
 	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY))
 	{
-        LLGLSPipelineDepthTestSkyBox sky(true, false);
+        LLGLSPipelineDepthTestSkyBox sky(true, true);
 
         sky_shader->bind();
 
@@ -268,7 +268,7 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
         sky_shader->uniform1f(LLShaderMgr::DROPLET_RADIUS, droplet_radius);
         sky_shader->uniform1f(LLShaderMgr::ICE_LEVEL, ice_level);
 
-        sky_shader->uniform1f(LLShaderMgr::SUN_UP_FACTOR, psky->getIsSunUp() ? 1.0f : 0.0f);
+        sky_shader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, psky->getSunMoonGlowFactor());
 
         /// Render the skydome
         renderDome(origin, camHeightLocal, sky_shader);	
@@ -479,7 +479,8 @@ void LLDrawPoolWLSky::renderSkyCloudsAdvanced(const LLVector3& camPosLocal, F32 
 
         cloudshader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
         cloudshader->uniform1f(LLShaderMgr::CLOUD_VARIANCE, cloud_variance);
-        cloudshader->uniform1f(LLShaderMgr::SUN_UP_FACTOR, psky->getIsSunUp() ? 1.0f : 0.0f);
+        cloudshader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, psky->getSunMoonGlowFactor());
+
         cloudshader->uniform3f(sCamPosLocal, camPosLocal.mV[0], camPosLocal.mV[1], camPosLocal.mV[2]);
 
 		/// Render the skydome
@@ -534,7 +535,7 @@ void LLDrawPoolWLSky::renderSkyCloudsDeferred(const LLVector3& camPosLocal, F32 
 
         cloudshader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
         cloudshader->uniform1f(LLShaderMgr::CLOUD_VARIANCE, cloud_variance);
-        cloudshader->uniform1f(LLShaderMgr::SUN_UP_FACTOR, psky->getIsSunUp() ? 1.0f : 0.0f);
+        cloudshader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, psky->getSunMoonGlowFactor());
 
 		/// Render the skydome
         renderDome(camPosLocal, camHeightLocal, cloudshader);

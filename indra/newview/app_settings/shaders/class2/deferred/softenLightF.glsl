@@ -91,7 +91,7 @@ void main()
         
     float da_sun  = dot(norm.xyz, normalize(sun_dir.xyz));
     float da_moon = dot(norm.xyz, normalize(moon_dir.xyz));
-    float da = max(da_sun, da_moon);
+    float da = (da_sun > 0.0) ? da_sun : da_moon;
           da = clamp(da, 0.0, 1.0);
 
     da = pow(da, global_gamma + 0.3);
