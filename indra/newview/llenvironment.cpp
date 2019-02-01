@@ -846,6 +846,17 @@ bool LLEnvironment::isInventoryEnabled() const
 void LLEnvironment::onRegionChange()
 {
     clearExperienceEnvironment(LLUUID::null, TRANSITION_DEFAULT);
+
+    LLViewerRegion* cur_region = gAgent.getRegion();
+    if (!cur_region)
+    {
+        return;
+    }
+    if (!cur_region->capabilitiesReceived())
+    {
+        cur_region->setCapabilitiesReceivedCallback([](LLUUID region_id) {  LLEnvironment::instance().requestRegion(); });
+        return;
+    }
     requestRegion();
 }
 
