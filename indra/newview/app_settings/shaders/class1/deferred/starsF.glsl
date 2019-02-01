@@ -49,8 +49,8 @@ float twinkle(){
 
 void main() 
 {
-	vec4 col_a = texture2D(diffuseMap, vary_texcoord0.xy);
-	vec4 col_b = texture2D(diffuseMap, vary_texcoord0.xy);
+    vec4 col_a = texture2D(diffuseMap, vary_texcoord0.xy);
+    vec4 col_b = texture2D(diffuseMap, vary_texcoord0.xy);
     vec4 col = mix(col_b, col_a, blend_factor);
     col.rgb *= vertex_color.rgb;
  
@@ -59,8 +59,10 @@ void main()
     col.a = (col.a * factor) * 32.0f;
     col.a *= twinkle();
 
-	frag_data[0] = col;
+    frag_data[0] = col;
     frag_data[1] = vec4(0.0f);
     frag_data[2] = vec4(0.0, 1.0, 0.0, 1.0);
+
+    gl_FragDepth = 0.9998;
 }
 

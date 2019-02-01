@@ -44,18 +44,20 @@ vec3 scaleSoftClip(vec3 light);
 
 void main()
 {
-	// Potential Fill-rate optimization.  Add cloud calculation 
-	// back in and output alpha of 0 (so that alpha culling kills 
-	// the fragment) if the sky wouldn't show up because the clouds 
-	// are fully opaque.
+    // Potential Fill-rate optimization.  Add cloud calculation 
+    // back in and output alpha of 0 (so that alpha culling kills 
+    // the fragment) if the sky wouldn't show up because the clouds 
+    // are fully opaque.
 
-	vec4 color;
-	color = vary_HazeColor;
-	color *= 2.;
+    vec4 color;
+    color = vary_HazeColor;
+    color *= 2.;
 
-	/// Gamma correct for WL (soft clip effect).
-	frag_data[0] = vec4(scaleSoftClip(color.rgb), 1.0);
-	frag_data[1] = vec4(0.0,0.0,0.0,0.0);
-	frag_data[2] = vec4(0.5,0.5,0.0,1.0); //1.0 in norm.w masks off fog
+    /// Gamma correct for WL (soft clip effect).
+    frag_data[0] = vec4(scaleSoftClip(color.rgb), 1.0);
+    frag_data[1] = vec4(0.0,0.0,0.0,0.0);
+    frag_data[2] = vec4(0.5,0.5,0.0,1.0); //1.0 in norm.w masks off fog
+
+    gl_FragDepth = 0.999f;
 }
 

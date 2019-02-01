@@ -592,6 +592,7 @@ void LLDrawPoolWater::shade2(bool edge, LLGLSLShader* shader, const LLColor3& li
 	shader->uniform1f(LLShaderMgr::WATER_SUN_ANGLE, sunAngle);
 	shader->uniform1f(LLShaderMgr::WATER_SCALED_ANGLE, scaledAngle);
 	shader->uniform1f(LLShaderMgr::WATER_SUN_ANGLE2, 0.1f + 0.2f*sunAngle);
+    shader->uniform1i(LLShaderMgr::WATER_EDGE_FACTOR, edge ? 1 : 0);
 
 	LLColor4 water_color;
 	LLVector3 camera_up = LLViewerCamera::getInstance()->getUpAxis();

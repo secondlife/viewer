@@ -272,6 +272,9 @@ public:
     bool getIsSunUp() const;
     bool getIsMoonUp() const;
 
+    // determines how much the haze glow effect occurs in rendering
+    F32 getSunMoonGlowFactor() const;
+
     LLVector3 getLightDirection() const;
     LLColor3  getLightDiffuse() const;
 

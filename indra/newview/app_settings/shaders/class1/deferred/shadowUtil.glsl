@@ -42,7 +42,6 @@ uniform float shadow_bias;
 
 uniform float spot_shadow_bias;
 uniform float spot_shadow_offset;
-uniform float sun_up_factor;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
