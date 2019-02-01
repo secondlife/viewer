@@ -465,7 +465,6 @@ void LLRenderTarget::clear(U32 mask_in)
 	U32 mask = GL_COLOR_BUFFER_BIT;
 	if (mUseDepth)
 	{
-        glClearDepth(1.25f);
 		mask |= GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
 	}
 	if (mFBO)
