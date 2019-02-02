@@ -32,7 +32,7 @@ SetCompress auto			# Compress if saves space
 SetCompressor /solid lzma	# Compress whole installer as one block
 SetDatablockOptimize off	# Only saves us 0.1%, not worth it
 XPStyle on                  # Add an XP manifest to the installer
-RequestExecutionLevel highest           # match MULTIUSER_EXECUTIONLEVEL
+RequestExecutionLevel admin	# For when we write to Program Files
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Project flags
@@ -106,11 +106,12 @@ AutoCloseWindow true					# After all files install, close window
 !define MSUNINSTALL_KEY "${MSCURRVER_KEY}\Uninstall\${INSTNAME}"
 
 # from http://nsis.sourceforge.net/Docs/MultiUser/Readme.html
-# Highest level permitted for user: Admin for Admin, Standard for Standard
-!define MULTIUSER_EXECUTIONLEVEL Highest
+### Highest level permitted for user: Admin for Admin, Standard for Standard
+##!define MULTIUSER_EXECUTIONLEVEL Highest
+!define MULTIUSER_EXECUTIONLEVEL Admin
 !define MULTIUSER_MUI
-# Look for /AllUsers or /CurrentUser switches
-!define MULTIUSER_INSTALLMODE_COMMANDLINE
+### Look for /AllUsers or /CurrentUser switches
+##!define MULTIUSER_INSTALLMODE_COMMANDLINE
 # appended to $PROGRAMFILES, as affected by MULTIUSER_USE_PROGRAMFILES64
 !define MULTIUSER_INSTALLMODE_INSTDIR "${INSTNAME}"
 # expands to !define MULTIUSER_USE_PROGRAMFILES64 or nothing
@@ -131,7 +132,7 @@ AutoCloseWindow true					# After all files install, close window
 
 UninstallText $(UninstallTextMsg)
 DirText $(DirectoryChooseTitle) $(DirectoryChooseSetup)
-!insertmacro MULTIUSER_PAGE_INSTALLMODE
+##!insertmacro MULTIUSER_PAGE_INSTALLMODE
 !define MUI_PAGE_CUSTOMFUNCTION_PRE dirPre
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
@@ -326,6 +327,7 @@ StrCpy $INSTEXE "${INSTEXE}"
 StrCpy $VIEWER_EXE "${VIEWER_EXE}"
 StrCpy $INSTSHORTCUT "${SHORTCUT}"
 
+Call CheckIfAdministrator		# Make sure the user can install/uninstall
 Call CloseSecondLife			# Make sure Second Life not currently running
 Call CheckWillUninstallV2		# Check if Second Life is already installed
 
@@ -433,7 +435,7 @@ StrCpy $INSTSHORTCUT "${SHORTCUT}"
 # SetShellVarContext per the mode saved at install time in registry at
 # MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_KEY
 # MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME
-# Couln't get NSIS to expand $MultiUser.InstallMode into the function name at Call time
+# Couldn't get NSIS to expand $MultiUser.InstallMode into the function name at Call time
 ${If} $MultiUser.InstallMode == 'AllUsers'
 ##MessageBox MB_OK "Uninstalling for all users"
   Call un.MultiUser.InstallMode.AllUsers
@@ -468,6 +470,36 @@ Call un.ProgramFiles
 Call un.UserSettingsFiles
 
 SectionEnd
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Make sure the user can install
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Function CheckIfAdministrator
+    DetailPrint $(CheckAdministratorInstDP)
+    UserInfo::GetAccountType
+    Pop $R0
+    StrCmp $R0 "Admin" lbl_is_admin
+        MessageBox MB_OK $(CheckAdministratorInstMB)
+        Quit
+lbl_is_admin:
+    Return
+
+FunctionEnd
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Make sure the user can uninstall
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Function un.CheckIfAdministrator
+    DetailPrint $(CheckAdministratorUnInstDP)
+    UserInfo::GetAccountType
+    Pop $R0
+    StrCmp $R0 "Admin" lbl_is_admin
+        MessageBox MB_OK $(CheckAdministratorUnInstMB)
+        Quit
+lbl_is_admin:
+    Return
+
+FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Function CheckWillUninstallV2               
