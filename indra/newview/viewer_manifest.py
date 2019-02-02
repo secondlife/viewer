@@ -431,7 +431,8 @@ class WindowsManifest(ViewerManifest):
 
     def finish_build_data_dict(self, build_data_dict):
         #MAINT-7294: Windows exe names depend on channel name, so write that in also
-        build_data_dict.update({'Executable':self.final_exe()})
+        build_data_dict['Executable'] = self.final_exe()
+        build_data_dict['AppName']    = self.app_name()
         return build_data_dict
 
     def test_msvcrt_and_copy_action(self, src, dst):
