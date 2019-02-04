@@ -1151,7 +1151,7 @@ void LLRender::syncLightState()
 
 		LLVector4 position[8];
 		LLVector3 direction[8];
-		LLVector3 attenuation[8];
+		LLVector4 attenuation[8];
 		LLVector3 diffuse[8];
 
 		for (U32 i = 0; i < 8; i++)
@@ -1160,13 +1160,13 @@ void LLRender::syncLightState()
 
 			position[i] = light->mPosition;
 			direction[i] = light->mSpotDirection;
-			attenuation[i].set(light->mLinearAtten, light->mQuadraticAtten, light->mSpecular.mV[3]);
+            attenuation[i].set(light->mLinearAtten, light->mQuadraticAtten, light->mSpecular.mV[2], light->mSpecular.mV[3]);
 			diffuse[i].set(light->mDiffuse.mV);
 		}
 
 		shader->uniform4fv(LLShaderMgr::LIGHT_POSITION, 8, position[0].mV);
 		shader->uniform3fv(LLShaderMgr::LIGHT_DIRECTION, 8, direction[0].mV);
-		shader->uniform3fv(LLShaderMgr::LIGHT_ATTENUATION, 8, attenuation[0].mV);
+		shader->uniform4fv(LLShaderMgr::LIGHT_ATTENUATION, 8, attenuation[0].mV);
 		shader->uniform3fv(LLShaderMgr::LIGHT_DIFFUSE, 8, diffuse[0].mV);
 		shader->uniform4fv(LLShaderMgr::LIGHT_AMBIENT, 1, mAmbientLightColor.mV);
 		//HACK -- duplicate sunlight color for compatibility with drivers that can't deal with multiple shader objects referencing the same uniform
