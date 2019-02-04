@@ -444,14 +444,17 @@ struct LLPanelFaceSetTEFunctor : public LLSelectedTEFunctor
 		LLSpinCtrl*	ctrlTexOffsetS = mPanel->getChild<LLSpinCtrl>("TexOffsetU");
 		LLSpinCtrl*	ctrlTexOffsetT = mPanel->getChild<LLSpinCtrl>("TexOffsetV");
 		LLSpinCtrl*	ctrlTexRotation = mPanel->getChild<LLSpinCtrl>("TexRot");
-		LLComboBox*		comboTexGen = mPanel->getChild<LLComboBox>("combobox texgen");
+		LLComboBox*	comboTexGen = mPanel->getChild<LLComboBox>("combobox texgen");
+		LLCheckBoxCtrl*	cb_planar_align = mPanel->getChild<LLCheckBoxCtrl>("checkbox planar align");
+		bool align_planar = (cb_planar_align && cb_planar_align->get());
+
 		llassert(comboTexGen);
 		llassert(object);
 
 		if (ctrlTexScaleS)
 		{
 			valid = !ctrlTexScaleS->getTentative(); // || !checkFlipScaleS->getTentative();
-			if (valid)
+			if (valid || align_planar)
 			{
 				value = ctrlTexScaleS->get();
 				if (comboTexGen &&
@@ -460,13 +463,19 @@ struct LLPanelFaceSetTEFunctor : public LLSelectedTEFunctor
 					value *= 0.5f;
 				}
 				object->setTEScaleS( te, value );
+
+				if (align_planar) 
+				{
+					LLPanelFace::LLSelectedTEMaterial::setNormalRepeatX(mPanel, value, te);
+					LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatX(mPanel, value, te);
+				}
 			}
 		}
 
 		if (ctrlTexScaleT)
 		{
 			valid = !ctrlTexScaleT->getTentative(); // || !checkFlipScaleT->getTentative();
-			if (valid)
+			if (valid || align_planar)
 			{
 				value = ctrlTexScaleT->get();
 				//if( checkFlipScaleT->get() )
@@ -479,36 +488,60 @@ struct LLPanelFaceSetTEFunctor : public LLSelectedTEFunctor
 					value *= 0.5f;
 				}
 				object->setTEScaleT( te, value );
+
+				if (align_planar) 
+				{
+					LLPanelFace::LLSelectedTEMaterial::setNormalRepeatY(mPanel, value, te);
+					LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatY(mPanel, value, te);
+				}
 			}
 		}
 
 		if (ctrlTexOffsetS)
 		{
 			valid = !ctrlTexOffsetS->getTentative();
-			if (valid)
+			if (valid || align_planar)
 			{
 				value = ctrlTexOffsetS->get();
 				object->setTEOffsetS( te, value );
+
+				if (align_planar) 
+				{
+					LLPanelFace::LLSelectedTEMaterial::setNormalOffsetX(mPanel, value, te);
+					LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetX(mPanel, value, te);
+				}
 			}
 		}
 
 		if (ctrlTexOffsetT)
 		{
 			valid = !ctrlTexOffsetT->getTentative();
-			if (valid)
+			if (valid || align_planar)
 			{
 				value = ctrlTexOffsetT->get();
 				object->setTEOffsetT( te, value );
+
+				if (align_planar) 
+				{
+					LLPanelFace::LLSelectedTEMaterial::setNormalOffsetY(mPanel, value, te);
+					LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetY(mPanel, value, te);
+				}
 			}
 		}
 
 		if (ctrlTexRotation)
 		{
 			valid = !ctrlTexRotation->getTentative();
-			if (valid)
+			if (valid || align_planar)
 			{
 				value = ctrlTexRotation->get() * DEG_TO_RAD;
 				object->setTERotation( te, value );
+
+				if (align_planar) 
+				{
+					LLPanelFace::LLSelectedTEMaterial::setNormalRotation(mPanel, value, te);
+					LLPanelFace::LLSelectedTEMaterial::setSpecularRotation(mPanel, value, te);
+				}
 			}
 		}
 		return true;
@@ -550,14 +583,21 @@ struct LLPanelFaceSetAlignedTEFunctor : public LLSelectedTEFunctor
 			if (set_aligned)
 			{
 				object->setTEOffset(te, uv_offset.mV[VX], uv_offset.mV[VY]);
-                object->setTEScale(te, uv_scale.mV[VX], uv_scale.mV[VY]);
+				object->setTEScale(te, uv_scale.mV[VX], uv_scale.mV[VY]);
 				object->setTERotation(te, uv_rot);
-                LLPanelFace::LLSelectedTEMaterial::setNormalOffsetX(mPanel, uv_offset.mV[VX], te);
-                LLPanelFace::LLSelectedTEMaterial::setNormalOffsetY(mPanel, uv_offset.mV[VY], te);
-                LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetX(mPanel, uv_offset.mV[VX], te);
-                LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetY(mPanel, uv_offset.mV[VY], te);
-				LLPanelFace::LLSelectedTEMaterial::setNormalRotation(mPanel, uv_rot, te);
-                LLPanelFace::LLSelectedTEMaterial::setSpecularRotation(mPanel, uv_rot, te);
+
+				LLPanelFace::LLSelectedTEMaterial::setNormalRotation(mPanel, uv_rot, te, object->getID());
+				LLPanelFace::LLSelectedTEMaterial::setSpecularRotation(mPanel, uv_rot, te, object->getID());
+
+				LLPanelFace::LLSelectedTEMaterial::setNormalOffsetX(mPanel, uv_offset.mV[VX], te, object->getID());
+				LLPanelFace::LLSelectedTEMaterial::setNormalOffsetY(mPanel, uv_offset.mV[VY], te, object->getID());
+				LLPanelFace::LLSelectedTEMaterial::setNormalRepeatX(mPanel, uv_scale.mV[VX], te, object->getID());
+				LLPanelFace::LLSelectedTEMaterial::setNormalRepeatY(mPanel, uv_scale.mV[VY], te, object->getID());
+
+				LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetX(mPanel, uv_offset.mV[VX], te, object->getID());
+				LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetY(mPanel, uv_offset.mV[VY], te, object->getID());
+				LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatX(mPanel, uv_scale.mV[VX], te, object->getID());
+				LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatY(mPanel, uv_scale.mV[VY], te, object->getID());
 			}
 		}
 		if (!set_aligned)

@@ -252,16 +252,16 @@ private:
 		typename DataType,
 		typename SetValueType,
 		void (LLMaterial::*MaterialEditFunc)(SetValueType data) >
-	static void edit(LLPanelFace* p, DataType data, int te = -1)
+	static void edit(LLPanelFace* p, DataType data, int te = -1, const LLUUID &only_for_object_id = LLUUID())
 	{
 		LLMaterialEditFunctor< DataType, SetValueType, MaterialEditFunc > edit(data);
 		struct LLSelectedTEEditMaterial : public LLSelectedTEMaterialFunctor
 		{
-			LLSelectedTEEditMaterial(LLPanelFace* panel, LLMaterialEditFunctor< DataType, SetValueType, MaterialEditFunc >* editp) : _panel(panel), _edit(editp) {}
+			LLSelectedTEEditMaterial(LLPanelFace* panel, LLMaterialEditFunctor< DataType, SetValueType, MaterialEditFunc >* editp, const LLUUID &only_for_object_id) : _panel(panel), _edit(editp), _only_for_object_id(only_for_object_id) {}
 			virtual ~LLSelectedTEEditMaterial() {};
 			virtual LLMaterialPtr apply(LLViewerObject* object, S32 face, LLTextureEntry* tep, LLMaterialPtr& current_material)
 			{
-				if (_edit)
+				if (_edit && (_only_for_object_id.isNull() || _only_for_object_id == object->getID()))
 				{
 					LLMaterialPtr new_material = _panel->createDefaultMaterial(current_material);
 					llassert_always(new_material);
@@ -325,14 +325,15 @@ private:
 				return NULL;
 			}
 			LLMaterialEditFunctor< DataType, SetValueType, MaterialEditFunc >*	_edit;
-			LLPanelFace*																			_panel;
-		} editor(p, &edit);
-        LLSelectMgr::getInstance()->selectionSetMaterialParams(&editor, te);
+			LLPanelFace *_panel;
+			const LLUUID & _only_for_object_id;
+		} editor(p, &edit, only_for_object_id);
+		LLSelectMgr::getInstance()->selectionSetMaterialParams(&editor, te);
 	}
 
 	template<
 		typename DataType,
-		typename ReturnType,        
+		typename ReturnType,
 		ReturnType (LLMaterial::* const MaterialGetFunc)() const  >
 	static void getTEMaterialValue(DataType& data_to_return, bool& identical,DataType default_value, bool has_tolerance = false, DataType tolerance = DataType())
 	{
@@ -437,10 +438,10 @@ public:
 
     // Mutators for selected TE material
     //
-    #define DEF_EDIT_MAT_STATE(DataType,ReturnType,MaterialMemberFunc)                                                  \
-        static void MaterialMemberFunc(LLPanelFace* p, DataType data, int te = -1)                                      \
-        {                                                                                                               \
-            edit< DataType, ReturnType, &LLMaterial::MaterialMemberFunc >(p, data, te);                                 \
+    #define DEF_EDIT_MAT_STATE(DataType,ReturnType,MaterialMemberFunc)                                                              \
+        static void MaterialMemberFunc(LLPanelFace* p, DataType data, int te = -1, const LLUUID &only_for_object_id = LLUUID())     \
+        {                                                                                                                           \
+            edit< DataType, ReturnType, &LLMaterial::MaterialMemberFunc >(p, data, te, only_for_object_id);                         \
         }
 
     // Accessors for selected TE state proper (legacy settings etc)
