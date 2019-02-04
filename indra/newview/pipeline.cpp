@@ -6482,7 +6482,9 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 				light_state->setSpotCutoff(90.f);
 				light_state->setSpotExponent(2.f);
 	
-				const LLColor4 specular(0.f, 0.f, 0.f, 0.f);
+                LLVector3 spotParams = light->getSpotLightParams();
+
+				const LLColor4 specular(0.f, 0.f, 0.f, spotParams[2]);
 				light_state->setSpecular(specular);
 			}
 			else // omnidirectional (point) light
@@ -6491,8 +6493,8 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 				light_state->setSpotCutoff(180.f);
 				
 				// we use specular.w = 1.0 as a cheap hack for the shaders to know that this is omnidirectional rather than a spotlight
-				const LLColor4 specular(0.f, 0.f, 0.f, 1.f);
-				light_state->setSpecular(specular);				
+				const LLColor4 specular(0.f, 0.f, 1.f, 0.f);
+				light_state->setSpecular(specular);
 			}
 			cur_light++;
 			if (cur_light >= 8)
