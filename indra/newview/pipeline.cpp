@@ -9197,6 +9197,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
 			// Render debugging beacons.
 			gObjectList.renderObjectBeacons();
 			gObjectList.resetObjectBeacons();
+			gSky.addSunMoonBeacons();
 		}
 	}
 
