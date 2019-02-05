@@ -262,7 +262,7 @@ void LLPanelEnvironmentInfo::refresh()
 
     updateEditFloater(mCurrentEnvironment, canEdit());
 
-    LLEnvironment::altitude_list_t altitudes = LLEnvironment::instance().getRegionAltitudes();
+    LLEnvironment::altitude_list_t altitudes = mCurrentEnvironment->mAltitudes;
 
     if (altitudes.size() > 0)
     {
