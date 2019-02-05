@@ -602,6 +602,24 @@ RMDir /r "$INSTDIR\skins"
 Delete "$SMPROGRAMS\$INSTSHORTCUT\SL Release Notes.lnk"
 Delete "$INSTDIR\releasenotes.txt"
 
+# SL-10469: During the brief period when the BugSplat RC supported "current
+# user" installs, we might have put a shortcut with this same $INSTSHORTCUT
+# name in the Start menu folder for "current user" programs. Even though we're
+# about to write our new shortcut to the Start menu folder for "all users,"
+# apparently Windows 7 only shows one of them. (Windows 10 reportedly shows
+# both.) Try temporarily setting "current user," just long enough to delete
+# any such old shortcuts.
+SetShellVarContext current
+
+# This stanza should match the $SMPROGRAMS and $DESKTOP deletions in the
+# "clean up shortcuts" passage in Section Uninstall. Don't bother with the
+# shortcuts in $INSTDIR because we're just about to (over)write those.
+Delete "$SMPROGRAMS\$INSTSHORTCUT\*.*"
+RMDir  "$SMPROGRAMS\$INSTSHORTCUT"
+Delete "$DESKTOP\$INSTSHORTCUT.lnk"
+
+SetShellVarContext all
+
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
