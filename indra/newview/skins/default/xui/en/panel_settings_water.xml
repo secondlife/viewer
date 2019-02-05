@@ -82,7 +82,7 @@
                     width="150">
                 Underwater Modifier:</text>
             <slider
-                    decimal_digits="1"
+                    decimal_digits="2"
                     follows="left|top"
                     height="16"
                     increment="0.01"
@@ -194,10 +194,10 @@
                         top_delta="21"
                         min_val_x="-20"
                         max_val_x="20"
-                        increment_x="0.5f"
+                        increment_x="0.01f"
                         min_val_y="-20"
                         max_val_y="20"
-                        increment_y="0.5f"
+                        increment_y="0.01f"
                         arrow_color="white"/>
                     
                     <text
@@ -220,6 +220,8 @@
                         max_val_x="20"
                         min_val_y="-20"
                         max_val_y="20" 
+                        increment_x="0.01f"
+                        increment_y="0.01f"
                         arrow_color="white"/>
 
                     <text
