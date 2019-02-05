@@ -1212,10 +1212,19 @@ bool LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, F32 scale, const 
 	S32 index_offset;
 	LLFace *facep;
 
+    
     LLQuaternion rot    = hb.getRotation();
-	LLVector3 to_dir    = LLVector3::x_axis     * rot;
-    LLVector3 hb_right  = LLVector3::y_axis_neg * rot;
-	LLVector3 hb_up     = LLVector3::z_axis     * rot;
+	LLVector3 to_dir    = LLVector3::x_axis * rot;
+
+    LLVector3 hb_right = to_dir % LLVector3::z_axis;
+	LLVector3 hb_up    = hb_right % to_dir;
+
+    // at zenith so math below fails spectacularly
+    if ((to_dir * LLVector3::z_axis) > 0.99f)
+    {
+        hb_right  = LLVector3::y_axis_neg * rot;
+	    hb_up     = LLVector3::z_axis     * rot;
+    }
 
 	LLVector3 draw_pos = to_dir * HEAVENLY_BODY_DIST;
 
