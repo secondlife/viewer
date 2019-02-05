@@ -519,6 +519,7 @@ public:
     inline void setIgnoreTimeDeltaThreshold(bool val) { mIgnoreTimeDelta = val; }
     inline bool getIgnoreTimeDeltaThreshold() const { return mIgnoreTimeDelta; }
 
+    inline void setTimeSpent(LLSettingsBase::Seconds time) { mTimeSpent = time; }
 protected:
     LLSettingsBase::BlendFactor calculateBlend(const LLSettingsBase::TrackPosition& spanpos, const LLSettingsBase::TrackPosition& spanlen) const;
 
