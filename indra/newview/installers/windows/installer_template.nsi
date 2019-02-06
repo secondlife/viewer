@@ -602,50 +602,6 @@ RMDir /r "$INSTDIR\skins"
 Delete "$SMPROGRAMS\$INSTSHORTCUT\SL Release Notes.lnk"
 Delete "$INSTDIR\releasenotes.txt"
 
-# SL-10469: During the brief period when the BugSplat RC supported "current
-# user" installs, we might have put a shortcut with this same $INSTSHORTCUT
-# name in the Start menu folder for "current user" programs. Even though we're
-# about to write our new shortcut to the Start menu folder for "all users,"
-# apparently Windows 7 only shows one of them. (Windows 10 reportedly shows
-# both.) Try temporarily setting "current user," just long enough to delete
-# any such old shortcuts.
-SetShellVarContext current
-
-Push $0 # FindFirst context
-Push $1 # FindFirst/FindNext filename
-Push $2 # cumulative filenames
-
-StrCpy $2 "Checking $SMPROGRAMS\$INSTSHORTCUT$\nAbout to delete:"
-
-ClearErrors
-FindFirst $0 $1 "$SMPROGRAMS\$INSTSHORTCUT\*.*"
-loop:
-IfErrors done
-  StrCpy $2 "$2$\n$SMPROGRAMS\$INSTSHORTCUT\$1"
-  FindNext $0 $1
-  Goto loop
-done:
-FindClose $0
-
-StrCpy $2 "$2$\n$\nChecking $DESKTOP\$INSTSHORTCUT.lnk"
-IfFileExists   "$DESKTOP\$INSTSHORTCUT.lnk" 0 +2
-StrCpy $2 "$2$\n$DESKTOP\$INSTSHORTCUT.lnk"
-
-MessageBox MB_OK "$2"
-
-Pop $2
-Pop $1
-Pop $0
-
-# This stanza should match the $SMPROGRAMS and $DESKTOP deletions in the
-# "clean up shortcuts" passage in Section Uninstall. Don't bother with the
-# shortcuts in $INSTDIR because we're just about to (over)write those.
-Delete "$SMPROGRAMS\$INSTSHORTCUT\*.*"
-RMDir  "$SMPROGRAMS\$INSTSHORTCUT"
-Delete "$DESKTOP\$INSTSHORTCUT.lnk"
-
-SetShellVarContext all
-
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
