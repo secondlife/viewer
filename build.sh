@@ -95,23 +95,54 @@ pre_build()
     && [ -r "$master_message_template_checkout/message_template.msg" ] \
     && template_verifier_master_url="-DTEMPLATE_VERIFIER_MASTER_URL=file://$master_message_template_checkout/message_template.msg"
 
-    # nat 2016-12-20: disable HAVOK on Mac until we get a 64-bit Mac build.
     RELEASE_CRASH_REPORTING=ON
     HAVOK=ON
     SIGNING=()
-    if [ "$arch" == "Darwin" ]
+    if [ "$arch" == "Darwin" -a "$variant" == "Release" ]
+    then SIGNING=("-DENABLE_SIGNING:BOOL=YES" \
+                  "-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.")
+    fi
+
+    if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
     then
-         if [ "$variant" == "Release" ]
-         then SIGNING=("-DENABLE_SIGNING:BOOL=YES" \
-                       "-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.")
+        case "$arch" in
+            CYGWIN)
+                symplat="windows"
+                ;;
+            Darwin)
+                symplat="darwin"
+                ;;
+            Linux)
+                symplat="linux"
+                ;;
+        esac
+        # This name is consumed by indra/newview/CMakeLists.txt. Make it
+        # absolute because we've had troubles with relative pathnames.
+        abs_build_dir="$(cd "$build_dir"; pwd)"
+        VIEWER_SYMBOL_FILE="$(native_path "$abs_build_dir/newview/$variant/secondlife-symbols-$symplat-${AUTOBUILD_ADDRSIZE}.tar.bz2")"
+    fi
+
+    # don't spew credentials into build log
+    bugsplat_sh="$build_secrets_checkout/bugsplat/bugsplat.sh"
+    set +x
+    if [ -r "$bugsplat_sh" ]
+    then # show that we're doing this, just not the contents
+         echo source "$bugsplat_sh"
+         source "$bugsplat_sh"
+         # important: we test this and use its value in [grand-]child processes
+         if [ -n "${BUGSPLAT_DB:-}" ]
+         then echo export BUGSPLAT_DB
+              export BUGSPLAT_DB
          fi
     fi
+    set -x
 
     "$autobuild" configure --quiet -c $variant -- \
      -DPACKAGE:BOOL=ON \
-     -DUNATTENDED:BOOL=ON \
      -DHAVOK:BOOL="$HAVOK" \
      -DRELEASE_CRASH_REPORTING:BOOL="$RELEASE_CRASH_REPORTING" \
+     -DVIEWER_SYMBOL_FILE:STRING="${VIEWER_SYMBOL_FILE:-}" \
+     -DBUGSPLAT_DB:STRING="${BUGSPLAT_DB:-}" \
      -DVIEWER_CHANNEL:STRING="${viewer_channel}" \
      -DGRID:STRING="\"$viewer_grid\"" \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url \
@@ -193,6 +224,8 @@ then
     exit 1
 fi
 
+shopt -s nullglob # if nothing matches a glob, expand to nothing
+
 initialize_build # provided by master buildscripts build.sh
 
 begin_section "autobuild initialize"
@@ -232,7 +265,6 @@ initialize_version # provided by buildscripts build.sh; sets version id
 
 # Now run the build
 succeeded=true
-build_processes=
 last_built_variant=
 for variant in $variants
 do
@@ -240,7 +272,6 @@ do
   last_built_variant="$variant"
 
   build_dir=`build_dir_$arch $variant`
-  build_dir_stubs="$build_dir/win_setup/$variant"
 
   begin_section "Initialize $variant Build Directory"
   rm -rf "$build_dir"
@@ -417,19 +448,7 @@ then
           if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
           then
               # Upload crash reporter file
-              # These names must match the set of VIEWER_SYMBOL_FILE in indra/newview/CMakeLists.txt
-              case "$arch" in
-                  CYGWIN)
-                      symbolfile="$build_dir/newview/Release/secondlife-symbols-windows-${AUTOBUILD_ADDRSIZE}.tar.bz2"
-                      ;;
-                  Darwin)
-                      symbolfile="$build_dir/newview/Release/secondlife-symbols-darwin-${AUTOBUILD_ADDRSIZE}.tar.bz2"
-                      ;;
-                  Linux)
-                      symbolfile="$build_dir/newview/Release/secondlife-symbols-linux-${AUTOBUILD_ADDRSIZE}.tar.bz2"
-                      ;;
-              esac
-              python_cmd "$helpers/codeticket.py" addoutput "Symbolfile" "$symbolfile" \
+              python_cmd "$helpers/codeticket.py" addoutput "Symbolfile" "$VIEWER_SYMBOL_FILE" \
                   || fatal "Upload of symbolfile failed"
           fi
 
