@@ -611,6 +611,32 @@ Delete "$INSTDIR\releasenotes.txt"
 # any such old shortcuts.
 SetShellVarContext current
 
+Push $0 # FindFirst context
+Push $1 # FindFirst/FindNext filename
+Push $2 # cumulative filenames
+
+StrCpy $2 "Checking $SMPROGRAMS\$INSTSHORTCUT$\nAbout to delete:"
+
+ClearErrors
+FindFirst $0 $1 "$SMPROGRAMS\$INSTSHORTCUT\*.*"
+loop:
+IfErrors done
+  StrCpy $2 "$2$\n$SMPROGRAMS\$INSTSHORTCUT\$1"
+  FindNext $0 $1
+  Goto loop
+done:
+FindClose $0
+
+StrCpy $2 "$2$\n$\nChecking $DESKTOP\$INSTSHORTCUT.lnk"
+IfFileExists   "$DESKTOP\$INSTSHORTCUT.lnk" 0 +2
+StrCpy $2 "$2$\n$DESKTOP\$INSTSHORTCUT.lnk"
+
+MessageBox MB_OK "$2"
+
+Pop $2
+Pop $1
+Pop $0
+
 # This stanza should match the $SMPROGRAMS and $DESKTOP deletions in the
 # "clean up shortcuts" passage in Section Uninstall. Don't bother with the
 # shortcuts in $INSTDIR because we're just about to (over)write those.
