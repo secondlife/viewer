@@ -746,6 +746,7 @@ void LLFloaterTexturePicker::onBtnSelect(void* userdata)
 			local_id = LLLocalBitmapMgr::getWorldID(temp_id);
 		}
 	}
+	self->mViewModel->setDirty();
 	if (self->mOnFloaterCommitCallback)
 	{
 		self->mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_SELECT, local_id);
