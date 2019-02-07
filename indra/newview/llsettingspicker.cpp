@@ -356,9 +356,9 @@ BOOL LLFloaterSettingsPicker::handleDoubleClick(S32 x, S32 y, MASK mask)
         S32 inventory_y = y - mInventoryPanel->getRect().mBottom;
         if (mInventoryPanel->parentPointInView(inventory_x, inventory_y))
         {
-            // make sure item (not folder) is selected
+            // make sure item is selected and visible
             LLFolderViewItem* item_viewp = mInventoryPanel->getItemByID(mSettingItemID);
-            if (item_viewp && item_viewp->getIsCurSelection())
+            if (item_viewp && item_viewp->getIsCurSelection() && item_viewp->getVisible())
             {
                 LLRect target_rect;
                 item_viewp->localRectToOtherView(item_viewp->getLocalRect(), &target_rect, this);
@@ -373,10 +373,10 @@ BOOL LLFloaterSettingsPicker::handleDoubleClick(S32 x, S32 y, MASK mask)
                         (*mCommitSignal)(this, res);
                     }
                     closeFloater();
+                    // hit inside panel on selected item, double click should do nothing
+                    result = TRUE;
                 }
             }
-            // hit inside panel on free place or (de)unselected item, double click should do nothing
-            result = TRUE;
         }
     }
 
@@ -392,7 +392,7 @@ BOOL LLFloaterSettingsPicker::handleKeyHere(KEY key, MASK mask)
     if ((key == KEY_RETURN) && (mask == MASK_NONE))
     {
         LLFolderViewItem* item_viewp = mInventoryPanel->getItemByID(mSettingItemID);
-        if (item_viewp && item_viewp->getIsCurSelection())
+        if (item_viewp && item_viewp->getIsCurSelection() && item_viewp->getVisible())
         {
             // Quick-apply
             if (mCommitSignal)

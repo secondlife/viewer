@@ -170,6 +170,20 @@ namespace
         return llclamp(position, 0.0f, 1.0f);
     }
 
+    inline LLSettingsBase::BlendFactor convert_time_to_blend_factor(const LLSettingsBase::Seconds& time, const LLSettingsBase::Seconds& len, LLSettingsDay::CycleTrack_t &track)
+    {
+        LLSettingsBase::TrackPosition position = convert_time_to_position(time, len);
+        LLSettingsDay::TrackBound_t bounds(get_bounding_entries(track, position));
+
+        LLSettingsBase::TrackPosition spanlength(get_wrapping_distance((*bounds.first).first, (*bounds.second).first));
+        if (position < (*bounds.first).first)
+            position += 1.0;
+
+        LLSettingsBase::TrackPosition start = position - (*bounds.first).first;
+
+        return static_cast<LLSettingsBase::BlendFactor>(start / spanlength);
+    }
+
     //---------------------------------------------------------------------
     class LLTrackBlenderLoopingTime : public LLSettingsBlenderTimeDelta
     {
@@ -186,12 +200,14 @@ namespace
             // must happen prior to getBoundingEntries call...
             mTrackNo = selectTrackNumber(trackno);
 
-            LLSettingsDay::TrackBound_t initial = getBoundingEntries(getAdjustedNow());
+            LLSettingsBase::Seconds now(getAdjustedNow());
+            LLSettingsDay::TrackBound_t initial = getBoundingEntries(now);
 
             mInitial = (*initial.first).second;
             mFinal = (*initial.second).second;
             mBlendSpan = getSpanTime(initial);
 
+            initializeTarget(now);
             setOnFinished([this](const LLSettingsBlender::ptr_t &){ onFinishedSpan(); });
         }
 
@@ -246,6 +262,16 @@ namespace
             LLSettingsBase::TrackPosition position = convert_time_to_position(time, mCycleLength);
             LLSettingsDay::TrackBound_t bounds = get_bounding_entries(wtrack, position);
             return bounds;
+        }
+
+        void initializeTarget(LLSettingsBase::Seconds time)
+        {
+            LLSettingsBase::BlendFactor blendf(convert_time_to_blend_factor(time, mCycleLength, mDay->getCycleTrack(mTrackNo)));
+
+            blendf = llclamp(blendf, 0.0, 0.999);
+            setTimeSpent(LLSettingsBase::Seconds(blendf * mBlendSpan));
+
+            setBlendFactor(blendf);
         }
 
         LLSettingsBase::Seconds getAdjustedNow() const
