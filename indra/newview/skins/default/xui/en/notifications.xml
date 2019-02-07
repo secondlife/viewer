@@ -11310,6 +11310,19 @@ Are you sure you want to continue?
 
   <notification
    icon="alertmodal.tga"
+   name="SettingsConfirmReset"
+   type="alertmodal">
+You are about to remove all applied settings.
+Are you sure you want to continue?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
    name="SettingsMakeNoTrans"
    type="alertmodal">
 You are about to import non-transferable settings into this daycycle. Continuing will cause the settings you are editing to become non-transferable also. 

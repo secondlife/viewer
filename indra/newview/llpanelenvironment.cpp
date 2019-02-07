@@ -42,6 +42,7 @@
 #include "llfloaterreg.h"
 #include "llfloatereditextdaycycle.h"
 #include "llmultisliderctrl.h"
+#include "llnotificationsutil.h"
 #include "llsettingsvo.h"
 
 #include "llappviewer.h"
@@ -779,9 +780,17 @@ void LLPanelEnvironmentInfo::onAltSliderMouseUp()
 void LLPanelEnvironmentInfo::onBtnDefault()
 {
     LLHandle<LLPanel> that_h = getHandle();
-
-    LLEnvironment::instance().resetParcel(getParcelId(),
-        [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
+    S32 parcel_id = getParcelId();
+    LLNotificationsUtil::add("SettingsConfirmReset", LLSD(), LLSD(),
+        [that_h, parcel_id](const LLSD&notif, const LLSD&resp)
+    {
+        S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
+        if (opt == 0)
+        {
+            LLEnvironment::instance().resetParcel(parcel_id,
+                [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
+        }
+    });
 }
 
 void LLPanelEnvironmentInfo::onBtnEdit()
