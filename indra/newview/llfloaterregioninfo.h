@@ -549,6 +549,7 @@ private:
 	void copyListToClipboard(std::string list_name);
 
 	bool mPendingUpdate;
+	BOOL mCtrlsEnabled;
 };
 
 #endif

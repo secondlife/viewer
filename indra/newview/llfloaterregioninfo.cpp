@@ -3339,34 +3339,41 @@ void LLPanelEstateAccess::updateControls(LLViewerRegion* region)
 	BOOL god = gAgent.isGodlike();
 	BOOL owner = (region && (region->getOwner() == gAgent.getID()));
 	BOOL manager = (region && region->isEstateManager());
-	setCtrlsEnabled(god || owner || manager);
+	BOOL enable_cotrols = god || owner || manager;	
+	setCtrlsEnabled(enable_cotrols);
 	
 	BOOL has_allowed_avatar = getChild<LLNameListCtrl>("allowed_avatar_name_list")->getFirstSelected() ? TRUE : FALSE;
 	BOOL has_allowed_group = getChild<LLNameListCtrl>("allowed_group_name_list")->getFirstSelected() ? TRUE : FALSE;
 	BOOL has_banned_agent = getChild<LLNameListCtrl>("banned_avatar_name_list")->getFirstSelected() ? TRUE : FALSE;
 	BOOL has_estate_manager = getChild<LLNameListCtrl>("estate_manager_name_list")->getFirstSelected() ? TRUE : FALSE;
 
-	getChildView("add_allowed_avatar_btn")->setEnabled(god || owner || manager);
-	getChildView("remove_allowed_avatar_btn")->setEnabled(has_allowed_avatar && (god || owner || manager));
-	getChildView("allowed_avatar_name_list")->setEnabled(god || owner || manager);
+	getChildView("add_allowed_avatar_btn")->setEnabled(enable_cotrols);
+	getChildView("remove_allowed_avatar_btn")->setEnabled(has_allowed_avatar && enable_cotrols);
+	getChildView("allowed_avatar_name_list")->setEnabled(enable_cotrols);
 
-	getChildView("add_allowed_group_btn")->setEnabled(god || owner || manager);
-	getChildView("remove_allowed_group_btn")->setEnabled(has_allowed_group && (god || owner || manager));
-	getChildView("allowed_group_name_list")->setEnabled(god || owner || manager);
+	getChildView("add_allowed_group_btn")->setEnabled(enable_cotrols);
+	getChildView("remove_allowed_group_btn")->setEnabled(has_allowed_group && enable_cotrols);
+	getChildView("allowed_group_name_list")->setEnabled(enable_cotrols);
 
 	// Can't ban people from mainland, orientation islands, etc. because this
 	// creates much network traffic and server load.
 	// Disable their accounts in CSR tool instead.
 	bool linden_estate = LLPanelEstateInfo::isLindenEstate();
-	bool enable_ban = (god || owner || manager) && !linden_estate;
+	bool enable_ban = enable_cotrols && !linden_estate;
 	getChildView("add_banned_avatar_btn")->setEnabled(enable_ban);
 	getChildView("remove_banned_avatar_btn")->setEnabled(has_banned_agent && enable_ban);
-	getChildView("banned_avatar_name_list")->setEnabled(god || owner || manager);
+	getChildView("banned_avatar_name_list")->setEnabled(enable_cotrols);
 
 	// estate managers can't add estate managers
 	getChildView("add_estate_manager_btn")->setEnabled(god || owner);
 	getChildView("remove_estate_manager_btn")->setEnabled(has_estate_manager && (god || owner));
 	getChildView("estate_manager_name_list")->setEnabled(god || owner);
+
+	if (enable_cotrols != mCtrlsEnabled)
+	{
+		mCtrlsEnabled = enable_cotrols;
+		updateLists(); // update the lists on the agent's access level change
+	}
 }
 
 //---------------------------------------------------------------------------
