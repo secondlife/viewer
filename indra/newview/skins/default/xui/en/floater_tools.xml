@@ -1219,6 +1219,7 @@ even though the user gets a free copy.
              label="Move"
              layout="topleft"
              name="checkbox allow everyone move"
+             tool_tip="Anyone can move the object."
              left="10"
              width="85" />
             <check_box
@@ -1227,6 +1228,7 @@ even though the user gets a free copy.
              layout="topleft"
              left_pad="0"
              name="checkbox allow everyone copy"
+             tool_tip="Anyone can take a copy of the object. Object and all of its contents must be copy and transfer permissive."
              width="90" />
             <text
                type="string"
@@ -1244,6 +1246,7 @@ even though the user gets a free copy.
              left="10"
              height="10"
              name="checkbox next owner can modify"
+             tool_tip="Next owner can edit properties like item name or scale of this object."
              width="85" />
             <check_box
              follows="left|top|right"
@@ -1252,6 +1255,7 @@ even though the user gets a free copy.
              layout="topleft"
              left_pad="0"
              name="checkbox next owner can copy"
+             tool_tip="Next owner can make unlimited copies of this object. Copies maintain creator information, and can never be more permissive than the item being copied."
              width="80" />
             <check_box
              follows="left|top|right"
@@ -1261,7 +1265,7 @@ even though the user gets a free copy.
              name="checkbox next owner can transfer"
              left_pad="0"
              top_delta="0"
-             tool_tip="Next owner can give away or resell this object"
+             tool_tip="Next owner can give away or resell this object."
              width="100" />
 <!-- *NOTE: These "B/O/G/E/N/F fields may overlap "perm_modify" above, 
      but that's OK, this is used only for debugging. -->

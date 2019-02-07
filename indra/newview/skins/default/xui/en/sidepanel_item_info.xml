@@ -351,6 +351,7 @@
           layout="topleft"
           left_pad="0"
           name="CheckEveryoneCopy"
+          tool_tip="Anyone can take a copy of the object . Object and all of its contents must be copy and transfer permissive."
           top_delta="-2"
           width="150" />
         <text
@@ -394,6 +395,7 @@
           left="20"
           top_pad="0"
           name="CheckNextOwnerModify"
+          tool_tip="Next owner can edit properties like item name or scale of this object."
           width="90" />
         <check_box
           height="18"
@@ -401,6 +403,7 @@
           layout="topleft"
           left_pad="0"
           name="CheckNextOwnerCopy"
+          tool_tip="Next owner can make unlimited copies of this object. Copies maintain creator information, and can never be more permissive than the item being copied."
           width="90" />
         <check_box
           height="18"
@@ -408,7 +411,7 @@
           layout="topleft"
           left_pad="0"
           name="CheckNextOwnerTransfer"
-          tool_tip="Next owner can give away or resell this object"
+          tool_tip="Next owner can give away or resell this object."
           width="106" />
       </panel>
       <check_box
