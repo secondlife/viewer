@@ -35,6 +35,7 @@ out vec4 frag_color;
 
 uniform vec4 color;
 uniform vec4 sunlight_color;
+uniform vec4 moonlight_color;
 uniform vec3 lumWeights;
 uniform float moon_brightness;
 uniform float minLuminance;
@@ -45,8 +46,8 @@ VARYING vec2 vary_texcoord0;
 
 void main() 
 {
-	vec4 moonA = texture2D(diffuseMap, vary_texcoord0.xy);
-	vec4 moonB = texture2D(altDiffuseMap, vary_texcoord0.xy);
+    vec4 moonA = texture2D(diffuseMap, vary_texcoord0.xy);
+    vec4 moonB = texture2D(altDiffuseMap, vary_texcoord0.xy);
     vec4 c     = mix(moonA, moonB, blend_factor);
 
     // mix factor which blends when sunlight is brighter
@@ -55,8 +56,9 @@ void main()
     float mix = 1.0f - dot(normalize(sunlight_color.rgb), luma_weights);
 
     vec3 exp = vec3(1.0 - mix * moon_brightness) * 2.0 - 1.0;
-	c.rgb = pow(c.rgb, exp);
+    c.rgb = pow(c.rgb, exp);
+    //c.rgb *= moonlight_color.rgb;
 
-	frag_color = vec4(c.rgb, c.a);
+    frag_color = vec4(c.rgb, c.a);
 }
 

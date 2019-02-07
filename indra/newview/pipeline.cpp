@@ -6351,9 +6351,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 		gGL.setAmbientLightColor(ambient);
 	}
 
-    bool sun_up         = environment.getIsSunUp();
-    bool moon_up        = environment.getIsMoonUp();
-    bool sun_is_primary = sun_up || !moon_up;
+    bool sun_up = environment.getIsSunUp();
 
 	// Light 0 = Sun or Moon (All objects)
 	{
@@ -6379,15 +6377,15 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 		}
 		mMoonDiffuse.clamp();
 
-		LLColor4  light_diffuse = sun_is_primary ? mSunDiffuse : mMoonDiffuse;
-        LLVector4 light_dir     = sun_is_primary ? mSunDir     : mMoonDir;
+        LLVector4 light_dir = sun_up ? mSunDir     : mMoonDir;
 
-		mHWLightColors[0] = light_diffuse;
+		mHWLightColors[0] = mSunDiffuse;
 
 		LLLightState* light = gGL.getLight(0);
         light->setPosition(light_dir);
 
-		light->setDiffuse(light_diffuse);
+		light->setDiffuse(mSunDiffuse);
+        light->setDiffuseB(mMoonDiffuse);
 		light->setAmbient(LLColor4::black);
 		light->setSpecular(LLColor4::black);
 		light->setConstantAttenuation(1.f);
@@ -8757,6 +8755,10 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
 
 			LL_RECORD_BLOCK_TIME(FTM_ATMOSPHERICS);
 			bindDeferredShader(soften_shader);	
+
+            LLEnvironment& environment = LLEnvironment::instance();
+            soften_shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
+
 			{
 				LLGLDepthTest depth(GL_FALSE);
 				LLGLDisable blend(GL_BLEND);
@@ -9870,6 +9872,8 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 	
 	stop_glerror();
 	
+    LLEnvironment& environment = LLEnvironment::instance();
+
 	LLVertexBuffer::unbind();
 
 	{
@@ -9880,6 +9884,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		else
 		{
 			gDeferredShadowProgram.bind();
+            gDeferredShadowProgram.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
 		}
 
 		gGL.diffuseColor4f(1,1,1,1);
@@ -9911,6 +9916,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		gDeferredShadowProgram.unbind();
 		renderGeomShadow(shadow_cam);
 		gDeferredShadowProgram.bind();
+        gDeferredShadowProgram.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
 	}
 	else
 	{
@@ -9921,6 +9927,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		LL_RECORD_BLOCK_TIME(FTM_SHADOW_ALPHA);
 		gDeferredShadowAlphaMaskProgram.bind();
 		gDeferredShadowAlphaMaskProgram.uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
+        gDeferredShadowAlphaMaskProgram.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
 
 		U32 mask =	LLVertexBuffer::MAP_VERTEX | 
 					LLVertexBuffer::MAP_TEXCOORD0 | 
@@ -9935,6 +9942,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		mask = mask & ~LLVertexBuffer::MAP_TEXTURE_INDEX;
 
 		gDeferredTreeShadowProgram.bind();
+        gDeferredTreeShadowProgram.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
 		renderMaskedObjects(LLRenderPass::PASS_NORMSPEC_MASK, mask);
 		renderMaskedObjects(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, mask);
 		renderMaskedObjects(LLRenderPass::PASS_SPECMAP_MASK, mask);

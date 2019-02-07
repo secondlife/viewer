@@ -1238,12 +1238,6 @@ LLVector3 LLSettingsSky::getMoonDirection() const
     return mMoonDirection;
 }
 
-LLColor4U LLSettingsSky::getFadeColor() const
-{
-    update();
-    return mFadeColor;
-}
-
 LLColor4 LLSettingsSky::getMoonAmbient() const
 {
     update();
@@ -1305,12 +1299,9 @@ void LLSettingsSky::calculateLightSettings() const
     mSunDiffuse = gammaCorrect(componentMult(sunlight, light_transmittance));       
     mSunAmbient = gammaCorrect(componentMult(tmpAmbient, light_transmittance) * 0.5);
 
-    mMoonDiffuse  = gammaCorrect(componentMult(LLColor3::white, light_transmittance));
-    mMoonAmbient  = gammaCorrect(componentMult(LLColor3::white, light_transmittance) * 0.5f);
+    mMoonDiffuse  = gammaCorrect(componentMult(LLColor3::white, light_transmittance) * 0.5f);
+    mMoonAmbient  = gammaCorrect(componentMult(LLColor3::white, light_transmittance) * 0.25f);
     mTotalAmbient = mSunAmbient;
-
-    mFadeColor = mTotalAmbient + (mSunDiffuse + mMoonDiffuse) * 0.5f;
-    mFadeColor.setAlpha(0);
 }
 
 LLUUID LLSettingsSky::GetDefaultAssetId()

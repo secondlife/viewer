@@ -229,6 +229,7 @@ public:
 	void enable();
 	void disable();
 	void setDiffuse(const LLColor4& diffuse);
+    void setDiffuseB(const LLColor4& diffuse);
 	void setAmbient(const LLColor4& ambient);
 	void setSpecular(const LLColor4& specular);
 	void setPosition(const LLVector4& position);
@@ -245,6 +246,7 @@ protected:
 	S32 mIndex;
 	bool mEnabled;
 	LLColor4 mDiffuse;
+    LLColor4 mDiffuseB;
 	LLColor4 mAmbient;
 	LLColor4 mSpecular;
 	LLVector4 mPosition;

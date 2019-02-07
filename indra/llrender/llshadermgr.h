@@ -250,6 +250,8 @@ public:
 
         SUN_MOON_GLOW_FACTOR,
         WATER_EDGE_FACTOR,
+        SUN_UP_FACTOR,
+        MOONLIGHT_COLOR,
 		END_RESERVED_UNIFORMS
 	} eGLSLReservedUniforms;
 

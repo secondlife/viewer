@@ -1352,6 +1352,8 @@ void LLShaderMgr::initAttribsAndUniforms()
 
     mReservedUniforms.push_back("sun_moon_glow_factor");
     mReservedUniforms.push_back("water_edge");
+    mReservedUniforms.push_back("sun_up_factor");
+    mReservedUniforms.push_back("moonlight_color");
 
 	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 

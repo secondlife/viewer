@@ -57,6 +57,8 @@ uniform mat3 ssao_effect_mat;
 
 uniform vec3 sun_dir;
 uniform vec3 moon_dir;
+uniform int sun_up_factor;
+
 VARYING vec2 vary_fragcoord;
 
 uniform mat4 inv_proj;
@@ -91,7 +93,8 @@ void main()
         
     float da_sun  = dot(norm.xyz, normalize(sun_dir.xyz));
     float da_moon = dot(norm.xyz, normalize(moon_dir.xyz));
-    float da = (da_sun > 0.0) ? da_sun : da_moon;
+    float da = (sun_up_factor == 1) ? da_sun : da_moon;
+    //float da = (da_sun > 0.0) ? da_sun : da_moon;
           da = clamp(da, 0.0, 1.0);
 
     da = pow(da, global_gamma + 0.3);
