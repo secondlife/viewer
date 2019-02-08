@@ -1999,16 +1999,24 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 
 			if (face->mTextureMatrix && vobj->mTexAnimMode)
 			{
-                // we don't support tex matrix ops on anything but texture_matrix0 and texture_matrix1
-                // if you hit this assert, you most likely need to fix your content
-                llassert(gGL.getCurrentTexUnitIndex() <= 1);
+                U32 tex_index = gGL.getCurrentTexUnitIndex();
+                if (tex_index <= 1)
+                {
+                    gGL.matrixMode(LLRender::MM_TEXTURE);
+				    gGL.loadMatrix((F32*) face->mTextureMatrix->mMatrix);
+                }
+                else
+                {
+                    LL_WARNS_ONCE("render") << "Cannot use tex anim of tex index " << tex_index << " ignoring!" << LL_ENDL;
+                }
 
-				gGL.matrixMode(LLRender::MM_TEXTURE);
-				gGL.loadMatrix((F32*) face->mTextureMatrix->mMatrix);
 				buff->setBuffer(data_mask);
 				buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
-				gGL.loadIdentity();
-				
+
+                if (tex_index <= 1)
+                {
+				    gGL.loadIdentity();
+                }				
 			}
 			else
 			{
