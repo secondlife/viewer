@@ -280,7 +280,7 @@ public:
 
     LLVector3 getSunDirection() const;
     LLVector3 getMoonDirection() const;
-    LLColor4U getFadeColor() const;
+
     LLColor4  getMoonAmbient() const;
     LLColor3  getMoonDiffuse() const;
     LLColor4  getSunAmbient() const;
@@ -347,7 +347,6 @@ private:
     static const F32 DOME_RADIUS;
     static const F32 DOME_OFFSET;
 
-    mutable LLColor4U   mFadeColor;
     mutable LLColor4    mMoonAmbient;
     mutable LLColor3    mMoonDiffuse;
     mutable LLColor4    mSunAmbient;

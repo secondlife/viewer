@@ -1477,6 +1477,13 @@ void LLRender::matrixMode(U32 mode)
 {
 	if (mode == MM_TEXTURE)
 	{
+        U32 tex_index = gGL.getCurrentTexUnitIndex();
+        // the shaders don't actually reference anything beyond texture_matrix0/1
+        if (tex_index > 3)
+        {
+            LL_WARNS_ONCE("render") << "Cannot use texture matrix with texture unit " << tex_index << " forcing texture matrix 3!" << LL_ENDL;
+            tex_index = 3;
+        }
 		mode = MM_TEXTURE0 + gGL.getCurrentTexUnitIndex();
 	}
 
