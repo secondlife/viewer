@@ -91,10 +91,9 @@ void main()
     float envIntensity = norm.z;
     norm.xyz = getNorm(tc); // unpack norm
         
-    float da_sun  = dot(norm.xyz, normalize(sun_dir.xyz));
-    float da_moon = dot(norm.xyz, normalize(moon_dir.xyz));
+    float da_sun  = dot(norm.xyz, sun_dir.xyz);
+    float da_moon = dot(norm.xyz, moon_dir.xyz);
     float da = (sun_up_factor == 1) ? da_sun : da_moon;
-    //float da = (da_sun > 0.0) ? da_sun : da_moon;
           da = clamp(da, 0.0, 1.0);
 
     da = pow(da, global_gamma + 0.3);
@@ -109,7 +108,7 @@ void main()
         vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
         scol_ambocc = pow(scol_ambocc, vec2(global_gamma + 0.3));
 
-        float scol = max(scol_ambocc.r, diffuse.a); 
+        float scol = max(scol_ambocc.r, diffuse.a);
         float ambocc = scol_ambocc.g;
 
         vec3 sunlit;
@@ -119,7 +118,8 @@ void main()
     
         calcFragAtmospherics(pos.xyz, ambocc, sunlit, amblit, additive, atten);
 
-        float ambient = dot(norm.xyz, sun_dir.xyz);
+        float ambient = da;
+
         ambient *= 0.5;
         ambient *= ambient;
         ambient = (1.0-ambient);
@@ -127,7 +127,7 @@ void main()
         col.rgb = amblit;
         col.rgb *= min(ambient, max(scol, 0.5));
 
-        col += (sunlit * da) * scol;
+        col += sunlit * da * scol;
 
         col *= diffuse.rgb;
 
@@ -165,6 +165,9 @@ void main()
             col = fogged.rgb;
             bloom = fogged.a;
         #endif
+
+//col.rgb = vec3(scol);
+//col.rgb = vec3(da * scol);
     }
     frag_color.rgb = col;
     frag_color.a = bloom;
