@@ -2903,6 +2903,9 @@ void HttpRequestTestObjectType::test<22>()
 	
 	set_test_name("BUG-2295");
 
+#if LL_WINDOWS && ADDRESS_SIZE == 64
+	skip("BUG-2295 - partial load on W64 causes freeze");
+#endif
 	// Handler can be stack-allocated *if* there are no dangling
 	// references to it after completion of this method.
 	// Create before memory record as the string copy will bump numbers.
@@ -2921,6 +2924,7 @@ void HttpRequestTestObjectType::test<22>()
         // options set
         options = HttpOptions::ptr_t(new HttpOptions());
 		options->setRetries(1);			// Partial_File is retryable and can timeout in here
+		options->setDNSCacheTimeout(30);
 
 		// Get singletons created
 		HttpRequest::createService();
