@@ -47,7 +47,6 @@ uniform sampler2D cloud_noise_texture_next;
 uniform float blend_factor;
 uniform vec4 cloud_pos_density1;
 uniform vec4 cloud_pos_density2;
-uniform vec4 sunlight_color;
 uniform vec4 cloud_color;
 uniform float cloud_shadow;
 uniform float cloud_scale;

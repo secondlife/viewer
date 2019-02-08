@@ -46,6 +46,8 @@ uniform vec3 camPosLocal;
 
 uniform vec4 lightnorm;
 uniform vec4 sunlight_color;
+uniform vec4 moonlight_color;
+uniform int sun_up_factor;
 uniform vec4 ambient;
 uniform vec4 blue_horizon;
 uniform vec4 blue_density;
@@ -93,7 +95,7 @@ void main()
     vec4 temp2 = vec4(0.);
     vec4 blue_weight;
     vec4 haze_weight;
-    vec4 sunlight = sunlight_color;
+    vec4 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
     vec4 light_atten;
 
 

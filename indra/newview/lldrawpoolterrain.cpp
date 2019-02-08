@@ -48,6 +48,7 @@
 #include "pipeline.h"
 #include "llviewershadermgr.h"
 #include "llrender.h"
+#include "llenvironment.h"
 
 const F32 DETAIL_SCALE = 1.f/16.f;
 int DebugDetailMap = 0;
@@ -259,6 +260,9 @@ void LLDrawPoolTerrain::beginShadowPass(S32 pass)
 	LLFacePool::beginRenderPass(pass);
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	gDeferredShadowProgram.bind();
+
+    LLEnvironment& environment = LLEnvironment::instance();
+    gDeferredShadowProgram.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
 }
 
 void LLDrawPoolTerrain::endShadowPass(S32 pass)

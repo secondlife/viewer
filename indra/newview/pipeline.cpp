@@ -6075,9 +6075,7 @@ void LLPipeline::setupAvatarLights(bool for_edit)
     LLEnvironment& environment = LLEnvironment::instance();
     LLSettingsSky::ptr_t psky = environment.getCurrentSky();
 
-    bool sun_up         = environment.getIsSunUp();
-    bool moon_up        = environment.getIsMoonUp();
-    bool sun_is_primary = sun_up || !moon_up;
+    bool sun_up = environment.getIsSunUp();
 
 	if (for_edit)
 	{
@@ -6113,13 +6111,13 @@ void LLPipeline::setupAvatarLights(bool for_edit)
 	}
 	else if (gAvatarBacklight) // Always true (unless overridden in a devs .ini)
 	{
-        LLVector3 light_dir = sun_is_primary ? LLVector3(mSunDir) : LLVector3(mMoonDir);
+        LLVector3 light_dir = sun_up ? LLVector3(mSunDir) : LLVector3(mMoonDir);
 		LLVector3 opposite_pos = -light_dir;
 		LLVector3 orthog_light_pos = light_dir % LLVector3::z_axis;
 		LLVector4 backlight_pos = LLVector4(lerp(opposite_pos, orthog_light_pos, 0.3f), 0.0f);
 		backlight_pos.normalize();
 
-		LLColor4 light_diffuse = sun_is_primary ? mSunDiffuse : mMoonDiffuse;
+		LLColor4 light_diffuse = sun_up ? mSunDiffuse : mMoonDiffuse;
 
 		LLColor4 backlight_diffuse(1.f - light_diffuse.mV[VRED], 1.f - light_diffuse.mV[VGREEN], 1.f - light_diffuse.mV[VBLUE], 1.f);
 		F32 max_component = 0.001f;
@@ -6351,9 +6349,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 		gGL.setAmbientLightColor(ambient);
 	}
 
-    bool sun_up         = environment.getIsSunUp();
-    bool moon_up        = environment.getIsMoonUp();
-    bool sun_is_primary = sun_up || !moon_up;
+    bool sun_up = environment.getIsSunUp();
 
 	// Light 0 = Sun or Moon (All objects)
 	{
@@ -6379,15 +6375,15 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 		}
 		mMoonDiffuse.clamp();
 
-		LLColor4  light_diffuse = sun_is_primary ? mSunDiffuse : mMoonDiffuse;
-        LLVector4 light_dir     = sun_is_primary ? mSunDir     : mMoonDir;
+        LLVector4 light_dir = sun_up ? mSunDir : mMoonDir;
 
-		mHWLightColors[0] = light_diffuse;
+		mHWLightColors[0] = mSunDiffuse;
 
 		LLLightState* light = gGL.getLight(0);
         light->setPosition(light_dir);
 
-		light->setDiffuse(light_diffuse);
+		light->setDiffuse(mSunDiffuse);
+        light->setDiffuseB(mMoonDiffuse);
 		light->setAmbient(LLColor4::black);
 		light->setSpecular(LLColor4::black);
 		light->setConstantAttenuation(1.f);
@@ -8596,32 +8592,14 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
 		vert[1].set(-1,-3,0);
 		vert[2].set(3,1,0);
 
-        const LLEnvironment& environment = LLEnvironment::instance();
+		setupHWLights(NULL); //to set mSun/MoonDir;
 
-        bool sun_up  = environment.getIsSunUp();
-        bool moon_up = environment.getIsMoonUp();
-		
-		{
-			setupHWLights(NULL); //to set mSun/MoonDir;
-			glh::vec4f tc(mSunDir.mV);
-			mat.mult_matrix_vec(tc);
+		glh::vec4f tc(mSunDir.mV);
+		mat.mult_matrix_vec(tc);
+        mTransformedSunDir.set(tc.v);
 
-            glh::vec4f tc_moon(mMoonDir.mV);
-            mTransformedMoonDir.set(tc_moon.v);
-            mTransformedMoonDir.normalize();
-
-            bool sun_is_primary = sun_up || !moon_up;            
-            if (sun_is_primary)
-            {
-                mTransformedSunDir.set(tc.v);
-                mTransformedSunDir.normalize();
-            }
-            else
-            {
-                mTransformedSunDir.set(tc_moon.v);
-                mTransformedSunDir.normalize();
-            }            
-		}
+        glh::vec4f tc_moon(mMoonDir.mV);
+        mTransformedMoonDir.set(tc_moon.v);
 
 		gGL.pushMatrix();
 		gGL.loadIdentity();
@@ -8757,6 +8735,10 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
 
 			LL_RECORD_BLOCK_TIME(FTM_ATMOSPHERICS);
 			bindDeferredShader(soften_shader);	
+
+            LLEnvironment& environment = LLEnvironment::instance();
+            soften_shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
+
 			{
 				LLGLDepthTest depth(GL_FALSE);
 				LLGLDisable blend(GL_BLEND);
@@ -9870,6 +9852,8 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 	
 	stop_glerror();
 	
+    LLEnvironment& environment = LLEnvironment::instance();
+
 	LLVertexBuffer::unbind();
 
 	{
@@ -9880,6 +9864,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		else
 		{
 			gDeferredShadowProgram.bind();
+            gDeferredShadowProgram.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
 		}
 
 		gGL.diffuseColor4f(1,1,1,1);
@@ -9911,6 +9896,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		gDeferredShadowProgram.unbind();
 		renderGeomShadow(shadow_cam);
 		gDeferredShadowProgram.bind();
+        gDeferredShadowProgram.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
 	}
 	else
 	{
@@ -9921,6 +9907,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		LL_RECORD_BLOCK_TIME(FTM_SHADOW_ALPHA);
 		gDeferredShadowAlphaMaskProgram.bind();
 		gDeferredShadowAlphaMaskProgram.uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
+        gDeferredShadowAlphaMaskProgram.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
 
 		U32 mask =	LLVertexBuffer::MAP_VERTEX | 
 					LLVertexBuffer::MAP_TEXCOORD0 | 
@@ -9935,6 +9922,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		mask = mask & ~LLVertexBuffer::MAP_TEXTURE_INDEX;
 
 		gDeferredTreeShadowProgram.bind();
+        gDeferredTreeShadowProgram.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
 		renderMaskedObjects(LLRenderPass::PASS_NORMSPEC_MASK, mask);
 		renderMaskedObjects(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, mask);
 		renderMaskedObjects(LLRenderPass::PASS_SPECMAP_MASK, mask);
@@ -10625,9 +10613,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
     bool sun_up         = environment.getIsSunUp();
     bool moon_up        = environment.getIsMoonUp();
-    bool sun_is_primary = sun_up || !moon_up;
-    bool ignore_shadows = (sun_is_primary && (mSunDiffuse == LLColor4::black))
-                       || (moon_up        && (mMoonDiffuse == LLColor4::black))
+    bool ignore_shadows = (sun_up  && (mSunDiffuse == LLColor4::black))
+                       || (moon_up && (mMoonDiffuse == LLColor4::black))
                        || !(sun_up || moon_up);
 
 	if (ignore_shadows)
