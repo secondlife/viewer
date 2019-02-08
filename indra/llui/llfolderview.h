@@ -90,6 +90,7 @@ public:
 		Optional<std::string>   title;
 		Optional<bool>			use_label_suffix,
 								allow_multiselect,
+								allow_drag,
 								show_empty_message,
 								use_ellipses,
 								show_item_link_overlays,
@@ -124,6 +125,7 @@ public:
 	void setReshapeCallback(const signal_t::slot_type& cb) { mReshapeSignal.connect(cb); }
 	
 	bool getAllowMultiSelect() { return mAllowMultiSelect; }
+	bool getAllowDrag() { return mAllowDrag; }
 
 	// Close all folders in the view
 	void closeAllFolders();
@@ -274,6 +276,7 @@ protected:
 	selected_items_t				mSelectedItems;
 	bool							mKeyboardSelection,
 									mAllowMultiSelect,
+									mAllowDrag,
 									mShowEmptyMessage,
 									mShowFolderHierarchy,
 									mNeedsScroll,

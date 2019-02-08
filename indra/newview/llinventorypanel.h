@@ -92,6 +92,7 @@ public:
 		Optional<std::string>				sort_order_setting;
 		Optional<LLInventoryModel*>			inventory;
 		Optional<bool>						allow_multi_select;
+		Optional<bool>						allow_drag;
 		Optional<bool>						show_item_link_overlays;
 		Optional<Filter>					filter;
 		Optional<StartFolder>               start_folder;
@@ -111,6 +112,7 @@ public:
 		:	sort_order_setting("sort_order_setting"),
 			inventory("", &gInventory),
 			allow_multi_select("allow_multi_select", true),
+			allow_drag("allow_drag", true),
 			show_item_link_overlays("show_item_link_overlays", false),
 			suppress_folder_menu("suppress_folder_menu", false),
 			filter("filter"),
@@ -263,6 +265,7 @@ protected:
 	LLInvPanelComplObserver*	mCompletionObserver;
 	bool						mAcceptsDragAndDrop;
 	bool 						mAllowMultiSelect;
+	bool 						mAllowDrag;
 	bool 						mShowItemLinkOverlays; // Shows link graphic over inventory item icons
 	bool						mShowEmptyMessage;
 	bool						mSuppressFolderMenu;

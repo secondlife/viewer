@@ -149,6 +149,7 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	mInventory(p.inventory),
 	mAcceptsDragAndDrop(p.accepts_drag_and_drop),
 	mAllowMultiSelect(p.allow_multi_select),
+	mAllowDrag(p.allow_drag),
 	mShowItemLinkOverlays(p.show_item_link_overlays),
 	mShowEmptyMessage(p.show_empty_message),
 	mSuppressFolderMenu(p.suppress_folder_menu),
@@ -199,6 +200,7 @@ LLFolderView * LLInventoryPanel::createFolderRoot(LLUUID root_id )
 	p.grouped_item_model = mGroupedItemBridge;
     p.use_label_suffix = mParams.use_label_suffix;
     p.allow_multiselect = mAllowMultiSelect;
+    p.allow_drag = mAllowDrag;
     p.show_empty_message = mShowEmptyMessage;
     p.suppress_folder_menu = mSuppressFolderMenu;
     p.show_item_link_overlays = mShowItemLinkOverlays;
