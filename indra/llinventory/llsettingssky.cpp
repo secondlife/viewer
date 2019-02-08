@@ -954,7 +954,7 @@ void LLSettingsSky::updateSettings()
 
 F32 LLSettingsSky::getSunMoonGlowFactor() const
 {
-    LLVector3 sunDir = getSunDirection();
+    LLVector3 sunDir  = getSunDirection();
     LLVector3 moonDir = getMoonDirection();
 
     // sun glow at full iff moon is not up
@@ -968,7 +968,7 @@ F32 LLSettingsSky::getSunMoonGlowFactor() const
 
     if (moonDir.mV[2] > 0.0f)
     {
-        return moonDir.mV[VZ] / 3.0f; // ramp moon glow at moonset
+        return 0.25f;
     }
 
     return 0.0f;
