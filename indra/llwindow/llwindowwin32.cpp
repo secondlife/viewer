@@ -425,6 +425,9 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	mKeyVirtualKey = 0;
 	mhDC = NULL;
 	mhRC = NULL;
+	memset(mCurrentGammaRamp, 0, sizeof(mCurrentGammaRamp));
+	memset(mPrevGammaRamp, 0, sizeof(mPrevGammaRamp));
+	mCustomGammaSet = FALSE;
 	
 	if (!SystemParametersInfo(SPI_GETMOUSEVANISH, 0, &mMouseVanish, 0))
 	{
@@ -2989,12 +2992,25 @@ F32 LLWindowWin32::getGamma()
 
 BOOL LLWindowWin32::restoreGamma()
 {
-	return SetDeviceGammaRamp(mhDC, mPrevGammaRamp);
+	if (mCustomGammaSet != FALSE)
+	{
+		mCustomGammaSet = FALSE;
+		return SetDeviceGammaRamp(mhDC, mPrevGammaRamp);
+	}
+	return TRUE;
 }
 
 BOOL LLWindowWin32::setGamma(const F32 gamma)
 {
 	mCurrentGamma = gamma;
+
+	//Get the previous gamma ramp to restore later.
+	if (mCustomGammaSet == FALSE)
+	{
+		if (GetDeviceGammaRamp(mhDC, mPrevGammaRamp) == FALSE)
+			return FALSE;
+		mCustomGammaSet = TRUE;
+	}
 
 	LL_DEBUGS("Window") << "Setting gamma to " << gamma << LL_ENDL;
 
@@ -3007,9 +3023,9 @@ BOOL LLWindowWin32::setGamma(const F32 gamma)
 		if ( value > 0xffff )
 			value = 0xffff;
 
-		mCurrentGammaRamp [ 0 * 256 + i ] = 
-			mCurrentGammaRamp [ 1 * 256 + i ] = 
-				mCurrentGammaRamp [ 2 * 256 + i ] = ( WORD )value;
+		mCurrentGammaRamp[0][i] =
+			mCurrentGammaRamp[1][i] =
+			mCurrentGammaRamp[2][i] = (WORD) value;
 	};
 
 	return SetDeviceGammaRamp ( mhDC, mCurrentGammaRamp );
