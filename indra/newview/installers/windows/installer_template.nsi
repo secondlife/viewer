@@ -117,8 +117,9 @@ AutoCloseWindow true					# After all files install, close window
 # expands to !define MULTIUSER_USE_PROGRAMFILES64 or nothing
 %%PROGRAMFILES%%
 # should make MultiUser.nsh initialization read existing INSTDIR from registry
-!define MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_KEY "${INSTNAME_KEY}"
-!define MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME ""
+## SL-10506: don't
+##!define MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_KEY "${INSTNAME_KEY}"
+##!define MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME ""
 # Don't set MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_KEY and
 # MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME to cause the installer to
 # write $MultiUser.InstallMode to the registry, because when the user installs
