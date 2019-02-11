@@ -184,9 +184,20 @@ Function .onInit
 
 %%ENGAGEREGISTRY%%
 
-# Setting MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_KEY and
+# SL-10506: Setting MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_KEY and
 # MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME should
 # read the current location of the install for this version into INSTDIR.
+# However, SL-10506 complains about the resulting behavior, so the logic below
+# is adapted from before we introduced MultiUser.nsh.
+
+# if $0 is empty, this is the first time for this viewer name
+ReadRegStr $0 SHELL_CONTEXT "${INSTNAME_KEY}" ""
+
+# viewer with this name was installed before
+${If} $0 != ""
+	# use the value we got from registry as install location
+    StrCpy $INSTDIR $0
+${EndIf}
 
 Call CheckCPUFlags							# Make sure we have SSE2 support
 Call CheckWindowsVersion					# Don't install On unsupported systems
