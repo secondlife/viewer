@@ -67,7 +67,11 @@ vec3 atmosLighting(vec3 light)
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten) {
 
     vec3 P = inPositionEye;
-    
+   
+    //(TERRAIN) limit altitude
+    if (P.y > max_y) P *= (max_y / P.y);
+    if (P.y < -max_y) P *= (-max_y / P.y); 
+
     vec3 tmpLightnorm = lightnorm.xyz;
 
     vec3 Pn = normalize(P);
@@ -93,7 +97,7 @@ void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, 
     //(TERRAIN) compute sunlight from lightnorm only (for short rays like terrain)
     temp2.y = max(0.0, tmpLightnorm.y);
     temp2.y = 1. / temp2.y;
-    sunlight *= exp( - light_atten * temp2.y);
+    sunlight *= exp(-light_atten * temp2.y);
 
     // main atmospheric scattering line integral
     temp2.z = Plen * density_multiplier;
