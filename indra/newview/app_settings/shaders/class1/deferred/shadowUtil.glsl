@@ -151,13 +151,16 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
 
         shadow /= weight;
     }
-
+    else
+    {
+        return 1.0f; // lit beyond the far split...
+    }
     return shadow;
 }
 
 float sampleSpotShadow(vec3 pos, vec3 norm, int index, vec2 pos_screen)
 {
-    float shadow = 0.0f;
+    float shadow = 1.0f;
     pos += norm * spot_shadow_offset;
 
     vec4 spos = vec4(pos,1.0);
