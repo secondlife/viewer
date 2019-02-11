@@ -605,16 +605,16 @@ void LLConversationItemParticipant::muteVoice(bool mute_voice)
 	LLAvatarName av_name;
 	LLAvatarNameCache::get(mUUID, &av_name);
 	LLMuteList * mute_listp = LLMuteList::getInstance();
-	bool voice_already_muted = mute_listp->isMuted(mUUID, av_name.getUserName());
+	bool voice_already_muted = mute_listp->isMuted(mUUID, av_name.getUserName(), LLMute::flagVoiceChat);
 
 	LLMute mute(mUUID, av_name.getUserName(), LLMute::AGENT);
 	if (voice_already_muted && !mute_voice)
 	{
-		mute_listp->remove(mute);
+		mute_listp->remove(mute, LLMute::flagVoiceChat);
 	}
 	else if (!voice_already_muted && mute_voice)
 	{
-		mute_listp->add(mute);
+		mute_listp->add(mute, LLMute::flagVoiceChat);
 	}
 }
 
