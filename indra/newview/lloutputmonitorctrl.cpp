@@ -72,6 +72,7 @@ LLOutputMonitorCtrl::LLOutputMonitorCtrl(const LLOutputMonitorCtrl::Params& p)
 	mImageLevel3(p.image_level_3),
 	mAutoUpdate(p.auto_update),
 	mSpeakerId(p.speaker_id),
+	mIsModeratorMuted(false),
 	mIsAgentControl(false),
 	mIndicatorToggled(false),
 	mShowParticipantsSpeaking(false)
@@ -124,7 +125,7 @@ void LLOutputMonitorCtrl::draw()
 	const F32 LEVEL_1 = LLVoiceClient::OVERDRIVEN_POWER_LEVEL * 2.f / 3.f;
 	const F32 LEVEL_2 = LLVoiceClient::OVERDRIVEN_POWER_LEVEL;
 
-	if (getVisible() && mAutoUpdate && !mIsMuted && mSpeakerId.notNull())
+	if (getVisible() && mAutoUpdate && !getIsMuted() && mSpeakerId.notNull())
 	{
 		setPower(LLVoiceClient::getInstance()->getCurrentPower(mSpeakerId));
 		if(mIsAgentControl)
@@ -156,7 +157,7 @@ void LLOutputMonitorCtrl::draw()
 	}
 
 	LLPointer<LLUIImage> icon;
-	if (mIsMuted)
+	if (getIsMuted())
 	{
 		icon = mImageMute;
 	}

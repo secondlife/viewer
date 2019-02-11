@@ -351,7 +351,7 @@ void LLConversationItemSession::setParticipantIsMuted(const LLUUID& participant_
 	LLConversationItemParticipant* participant = findParticipant(participant_id);
 	if (participant)
 	{
-		participant->muteVoice(is_muted);
+		participant->moderateVoice(is_muted);
 	}
 }
 
@@ -498,6 +498,7 @@ void LLConversationItemSession::onAvatarNameCache(const LLAvatarName& av_name)
 
 LLConversationItemParticipant::LLConversationItemParticipant(std::string display_name, const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
 	LLConversationItem(display_name,uuid,root_view_model),
+	mIsModeratorMuted(false),
 	mIsModerator(false),
 	mDisplayModeratorLabel(false),
 	mDistToAgent(-1.0)
@@ -508,6 +509,7 @@ LLConversationItemParticipant::LLConversationItemParticipant(std::string display
 
 LLConversationItemParticipant::LLConversationItemParticipant(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
 	LLConversationItem(uuid,root_view_model),
+	mIsModeratorMuted(false),
 	mIsModerator(false),
 	mDisplayModeratorLabel(false),
 	mDistToAgent(-1.0)
@@ -597,7 +599,7 @@ void LLConversationItemParticipant::setDisplayModeratorRole(bool displayRole)
 
 bool LLConversationItemParticipant::isVoiceMuted()
 {
-	return LLMuteList::getInstance()->isMuted(mUUID, LLMute::flagVoiceChat);
+	return mIsModeratorMuted || LLMuteList::getInstance()->isMuted(mUUID, LLMute::flagVoiceChat);
 }
 
 void LLConversationItemParticipant::muteVoice(bool mute_voice)

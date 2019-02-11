@@ -72,7 +72,10 @@ public:
 
 	void			setPower(F32 val);
 	F32				getPower(F32 val) const { return mPower; }
-	
+
+	bool			getIsMuted() const { return (mIsMuted || mIsModeratorMuted); }
+	void			setIsModeratorMuted(bool val) { mIsModeratorMuted = val; }
+
 	// For the current user, need to know the PTT state to show
 	// correct button image.
 	void			setIsAgentControl(bool val) { mIsAgentControl = val; }
@@ -131,6 +134,7 @@ private:
 
 	F32				mPower;
 	bool			mIsAgentControl;
+	bool			mIsModeratorMuted;
 	bool			mIsMuted;
 	bool			mIsTalking;
 	bool			mShowParticipantsSpeaking;

@@ -194,8 +194,10 @@ public:
 	virtual const std::string& getDisplayName() const { return mDisplayName; }
 
 	bool isVoiceMuted();
+	bool isModeratorMuted() { return mIsModeratorMuted; }
 	bool isModerator() const { return mIsModerator; }
 	void muteVoice(bool mute_voice);
+	void moderateVoice(bool mute_voice) { mIsModeratorMuted = mute_voice; }
 	void setIsModerator(bool is_moderator) { mIsModerator = is_moderator; mNeedsRefresh = true; }
 	void setTimeNow() { mLastActiveTime = LLFrameTimer::getElapsedSeconds(); mNeedsRefresh = true; }
 	void setDistance(F64 dist) { mDistToAgent = dist; mNeedsRefresh = true; }
@@ -216,6 +218,7 @@ private:
 	void onAvatarNameCache(const LLAvatarName& av_name);	// callback used by fetchAvatarName
 	void updateName(const LLAvatarName& av_name);
 
+	bool mIsModeratorMuted;	         // default is false
 	bool mIsModerator;	         // default is false
 	bool mDisplayModeratorLabel; // default is false
 	std::string mDisplayName;
