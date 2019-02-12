@@ -38,6 +38,7 @@
 #include "llrender.h"
 #include "llviewercontrol.h"
 #include "llviewerregion.h"
+#include "llenvironment.h"
 
 S32 LLDrawPoolTree::sDiffTex = 0;
 static LLGLSLShader* shader = NULL;
@@ -178,7 +179,10 @@ void LLDrawPoolTree::beginShadowPass(S32 pass)
 	glPolygonOffset(gSavedSettings.getF32("RenderDeferredTreeShadowOffset"),
 					gSavedSettings.getF32("RenderDeferredTreeShadowBias"));
 
+    LLEnvironment& environment = LLEnvironment::instance();
+
 	gDeferredTreeShadowProgram.bind();
+    gDeferredTreeShadowProgram.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
 	gDeferredTreeShadowProgram.setMinimumAlpha(0.5f);
 }
 

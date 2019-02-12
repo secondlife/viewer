@@ -39,7 +39,6 @@ uniform sampler2D diffuseMap;
 uniform sampler2D altDiffuseMap;
 uniform float blend_factor;
 uniform float custom_alpha;
-uniform vec4 sunlight_color;
 uniform float time;
 
 float twinkle(){

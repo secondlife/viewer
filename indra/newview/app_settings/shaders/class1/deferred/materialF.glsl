@@ -42,6 +42,9 @@ vec3 scaleSoftClipFrag(vec3 l);
 
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
 
+vec3 srgb_to_linear(vec3 cs);
+vec3 linear_to_srgb(vec3 cs);
+
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 
 #ifdef DEFINE_GL_FRAGCOLOR
@@ -199,7 +202,7 @@ void main()
 #endif
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
-    vec3 gamma_diff = diffcol.rgb;
+    vec3 gamma_diff = linear_to_srgb(diffcol.rgb);
 #endif
 
 #if HAS_SPECULAR_MAP
@@ -332,6 +335,7 @@ void main()
     }
 
     col = atmosFragLighting(col, additive, atten);
+    col = scaleSoftClipFrag(col);
 
     vec3 npos = normalize(-pos.xyz);
             
@@ -352,7 +356,8 @@ void main()
     glare = min(glare, 1.0);
     float al = max(diffcol.a,glare)*vertex_color.a;
 
-    col = scaleSoftClipFrag(col);
+    //convert to gamma space for display on screen
+    col.rgb = linear_to_srgb(col.rgb);
 
 #ifdef WATER_FOG
     vec4 temp = applyWaterFogView(pos, vec4(col.rgb, al));

@@ -35,6 +35,7 @@ out vec4 frag_data[3];
 
 uniform vec4 color;
 uniform vec4 sunlight_color;
+uniform vec4 moonlight_color;
 uniform vec3 lumWeights;
 uniform float moon_brightness;
 uniform float minLuminance;
@@ -57,6 +58,7 @@ void main()
 
     vec3 exp = vec3(1.0 - mix * moon_brightness) * 2.0  - 1.0;
     c.rgb = pow(c.rgb, exp);
+    //c.rgb *= moonlight_color.rgb;
 
     frag_data[0] = vec4(c.rgb, c.a);
     frag_data[1] = vec4(0.0);

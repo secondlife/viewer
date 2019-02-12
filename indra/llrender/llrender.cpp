@@ -895,6 +895,15 @@ void LLLightState::setDiffuse(const LLColor4& diffuse)
 	}
 }
 
+void LLLightState::setDiffuseB(const LLColor4& diffuse)
+{
+    if (mDiffuseB != diffuse)
+	{
+		++gGL.mLightHash;
+		mDiffuseB = diffuse;
+	}
+}
+
 void LLLightState::setAmbient(const LLColor4& ambient)
 {
 	if (mAmbient != ambient)
@@ -1153,6 +1162,7 @@ void LLRender::syncLightState()
 		LLVector3 direction[8];
 		LLVector4 attenuation[8];
 		LLVector3 diffuse[8];
+        LLVector3 diffuseB[8];
 
 		for (U32 i = 0; i < 8; i++)
 		{
@@ -1162,6 +1172,7 @@ void LLRender::syncLightState()
 			direction[i] = light->mSpotDirection;
             attenuation[i].set(light->mLinearAtten, light->mQuadraticAtten, light->mSpecular.mV[2], light->mSpecular.mV[3]);
 			diffuse[i].set(light->mDiffuse.mV);
+            diffuseB[i].set(light->mDiffuseB.mV);
 		}
 
 		shader->uniform4fv(LLShaderMgr::LIGHT_POSITION, 8, position[0].mV);
@@ -1169,8 +1180,8 @@ void LLRender::syncLightState()
 		shader->uniform4fv(LLShaderMgr::LIGHT_ATTENUATION, 8, attenuation[0].mV);
 		shader->uniform3fv(LLShaderMgr::LIGHT_DIFFUSE, 8, diffuse[0].mV);
 		shader->uniform4fv(LLShaderMgr::LIGHT_AMBIENT, 1, mAmbientLightColor.mV);
-		//HACK -- duplicate sunlight color for compatibility with drivers that can't deal with multiple shader objects referencing the same uniform
 		shader->uniform4fv(LLShaderMgr::SUNLIGHT_COLOR, 1, diffuse[0].mV);
+        shader->uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, diffuseB[0].mV);
 	}
 }
 
@@ -1477,6 +1488,13 @@ void LLRender::matrixMode(U32 mode)
 {
 	if (mode == MM_TEXTURE)
 	{
+        U32 tex_index = gGL.getCurrentTexUnitIndex();
+        // the shaders don't actually reference anything beyond texture_matrix0/1
+        if (tex_index > 3)
+        {
+            LL_WARNS_ONCE("render") << "Cannot use texture matrix with texture unit " << tex_index << " forcing texture matrix 3!" << LL_ENDL;
+            tex_index = 3;
+        }
 		mode = MM_TEXTURE0 + gGL.getCurrentTexUnitIndex();
 	}
 

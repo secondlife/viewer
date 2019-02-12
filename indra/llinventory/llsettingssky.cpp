@@ -140,7 +140,7 @@ const std::string LLSettingsSky::SETTING_SKY_ICE_LEVEL("ice_level");
 const LLUUID LLSettingsSky::DEFAULT_ASSET_ID("eb3a7080-831f-9f37-10f0-7b1f9ea4043c");
 
 static const LLUUID DEFAULT_SUN_ID("32bfbcea-24b1-fb9d-1ef9-48a28a63730f"); // dataserver
-static const LLUUID DEFAULT_MOON_ID("db13b827-7e6a-7ace-bed4-4419ee00984d"); // dataserver
+static const LLUUID DEFAULT_MOON_ID("d07f6eed-b96a-47cd-b51d-400ad4a1c428"); // dataserver
 static const LLUUID DEFAULT_CLOUD_ID("1dc1368f-e8fe-f02d-a08d-9d9f11c1af6b");
 
 const std::string LLSettingsSky::SETTING_LEGACY_HAZE("legacy_haze");
@@ -954,7 +954,7 @@ void LLSettingsSky::updateSettings()
 
 F32 LLSettingsSky::getSunMoonGlowFactor() const
 {
-    LLVector3 sunDir = getSunDirection();
+    LLVector3 sunDir  = getSunDirection();
     LLVector3 moonDir = getMoonDirection();
 
     // sun glow at full iff moon is not up
@@ -968,7 +968,7 @@ F32 LLSettingsSky::getSunMoonGlowFactor() const
 
     if (moonDir.mV[2] > 0.0f)
     {
-        return moonDir.mV[VZ] / 3.0f; // ramp moon glow at moonset
+        return 0.25f;
     }
 
     return 0.0f;
@@ -1238,12 +1238,6 @@ LLVector3 LLSettingsSky::getMoonDirection() const
     return mMoonDirection;
 }
 
-LLColor4U LLSettingsSky::getFadeColor() const
-{
-    update();
-    return mFadeColor;
-}
-
 LLColor4 LLSettingsSky::getMoonAmbient() const
 {
     update();
@@ -1305,12 +1299,9 @@ void LLSettingsSky::calculateLightSettings() const
     mSunDiffuse = gammaCorrect(componentMult(sunlight, light_transmittance));       
     mSunAmbient = gammaCorrect(componentMult(tmpAmbient, light_transmittance) * 0.5);
 
-    mMoonDiffuse  = gammaCorrect(componentMult(LLColor3::white, light_transmittance));
-    mMoonAmbient  = gammaCorrect(componentMult(LLColor3::white, light_transmittance) * 0.5f);
+    mMoonDiffuse  = gammaCorrect(componentMult(LLColor3::white, light_transmittance) * 0.5f);
+    mMoonAmbient  = gammaCorrect(componentMult(LLColor3::white, light_transmittance) * 0.25f);
     mTotalAmbient = mSunAmbient;
-
-    mFadeColor = mTotalAmbient + (mSunDiffuse + mMoonDiffuse) * 0.5f;
-    mFadeColor.setAlpha(0);
 }
 
 LLUUID LLSettingsSky::GetDefaultAssetId()

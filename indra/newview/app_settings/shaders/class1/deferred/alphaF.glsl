@@ -86,9 +86,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
     
     //get distance
     float d = length(lv);
-    
     float da = 1.0;
-
     vec3 col = vec3(0);
 
     if (d > 0.0 && fa > 0.0)
@@ -100,7 +98,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
         da = max(0.0, dot(norm, lv));
  
         //distance attenuation
-        float dist = d;
+        float dist = d/la;
         float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
         dist_atten *= dist_atten;
         dist_atten *= 2.0;
@@ -109,9 +107,11 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
         float spot = max(dot(-ln, lv), is_pointlight);
         da *= spot*spot; // GL_SPOT_EXPONENT=2
 
+        // to match spotLight (but not multiSpotLight) *sigh*
         float lit = max(da * dist_atten,0.0);
+        col = lit * light_col * diffuse;
 
-        float amb_da = (da*da*0.5 + 0.5) * ambiance;
+        float amb_da = (da*da*0.5 + 0.25) * ambiance;
         amb_da *= dist_atten;
         amb_da = min(amb_da, 1.0f - lit);
 

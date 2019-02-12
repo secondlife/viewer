@@ -59,65 +59,6 @@ BOOL LLDrawPoolWater::sNeedsReflectionUpdate = TRUE;
 BOOL LLDrawPoolWater::sNeedsDistortionUpdate = TRUE;
 F32 LLDrawPoolWater::sWaterFogEnd = 0.f;
 
-
-class LLFastLn
-{
-public:
-    LLFastLn()
-    {
-        mTable[0] = 0;
-        for (S32 i = 1; i < 257; i++)
-        {
-            mTable[i] = log((F32)i);
-        }
-    }
-
-    F32 ln(F32 x)
-    {
-        const F32 OO_255 = 0.003921568627450980392156862745098f;
-        const F32 LN_255 = 5.5412635451584261462455391880218f;
-
-        if (x < OO_255)
-        {
-            return log(x);
-        }
-        else
-            if (x < 1)
-            {
-                x *= 255.f;
-                S32 index = llfloor(x);
-                F32 t = x - index;
-                F32 low = mTable[index];
-                F32 high = mTable[index + 1];
-                return low + t * (high - low) - LN_255;
-            }
-            else
-                if (x <= 255)
-                {
-                    S32 index = llfloor(x);
-                    F32 t = x - index;
-                    F32 low = mTable[index];
-                    F32 high = mTable[index + 1];
-                    return low + t * (high - low);
-                }
-                else
-                {
-                    return log(x);
-                }
-    }
-
-    F32 pow(F32 x, F32 y)
-    {
-        return (F32)LL_FAST_EXP(y * ln(x));
-    }
-
-
-private:
-    F32 mTable[257]; // index 0 is unused
-};
-
-static LLFastLn gFastLn;
-
 LLDrawPoolWater::LLDrawPoolWater() : LLFacePool(POOL_WATER)
 {
 }
@@ -595,23 +536,17 @@ void LLDrawPoolWater::shade2(bool edge, LLGLSLShader* shader, const LLColor3& li
 
     shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 
-    F32 density = pwater->getWaterFogDensity();
-    F32 density_2 = gFastLn.pow(2.f, density);
     shader->uniform3fv(LLShaderMgr::WATER_FOGCOLOR, 1, pwater->getWaterFogColor().mV);
-    shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, density_2);
+    shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, pwater->getWaterFogDensity());
 	
     // bind reflection texture from RenderTarget
 	S32 screentex = shader->enableTexture(LLShaderMgr::WATER_SCREENTEX);
 	gGL.getTexUnit(screentex)->bind(&gPipeline.mWaterDis);	
 
 	if (mShaderLevel == 1)
-    {
-        density = llclamp(density, 0.f, 10.f);
-        density /= 10.0f;
-        density = 1.0f - density;
-        density *= density * density;
+	{
         LLColor4 fog_color(pwater->getWaterFogColor(), 0.f);
-        fog_color[3] = density;
+        fog_color[3] = pwater->getWaterFogDensity();
         shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, 1, fog_color.mV);
 	}
 

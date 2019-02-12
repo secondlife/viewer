@@ -1675,6 +1675,7 @@ void LLEnvironment::requestParcel(S32 parcel_id, environment_apply_fn cb)
                 LLSettingsBase::Seconds transition = LLViewerParcelMgr::getInstance()->getTeleportInProgress() ? TRANSITION_FAST : TRANSITION_DEFAULT;
                 cb = [this, transition](S32 pid, EnvironmentInfo::ptr_t envinfo)
                 {
+                    clearEnvironment(ENV_PARCEL);
                     recordEnvironment(pid, envinfo, transition);
                 };
             }
