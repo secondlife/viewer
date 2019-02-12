@@ -35,6 +35,7 @@
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "llavatarnamecache.h"
+#include "llcallstack.h"
 #include "llclipboard.h"
 #include "llinventorypanel.h"
 #include "llinventorybridge.h"
@@ -596,7 +597,9 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 	std::string url;
 	if ( viewer_region )
 		url = viewer_region->getCapability("CreateInventoryCategory");
-	
+
+	LL_DEBUGS("CatCreate") << "requesting category creation, name " << name << " type " << preferred_type << " parent " << parent_id << LL_ENDL;
+
 	if (!url.empty() && callback)
 	{
 		//Let's use the new capability.
@@ -642,6 +645,7 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 	cat->packMessage(msg);
 	gAgent.sendReliableMessage();
 
+	LL_DEBUGS("CatCreate") << "category created locally and sent to server, name " << pname << " type " << preferred_type << " parent " << parent_id << LL_ENDL;
 	// return the folder id of the newly created folder
 	return id;
 }
@@ -678,6 +682,9 @@ void LLInventoryModel::createNewCategoryCoro(std::string url, LLSD postData, inv
 
     LLUUID categoryId = result["folder_id"].asUUID();
 
+	LL_DEBUGS("CatCreate") << "category creation coro done, name " << result["name"].asString() 
+			   << " type " << result["type"].asInteger() 
+			   << " parent " << result["parent_id"].asUUID() << LL_ENDL;
     // Add the category to the internal representation
     LLPointer<LLViewerInventoryCategory> cat = new LLViewerInventoryCategory(categoryId,
         result["parent_id"].asUUID(), (LLFolderType::EType)result["type"].asInteger(),
@@ -2018,6 +2025,8 @@ bool LLInventoryModel::loadSkeleton(
             cat->setPreferredType(preferred_type);
 			cat->setVersion(version.asInteger());
             temp_cats.insert(cat);
+
+			LL_DEBUGS("CatCreate") << "temp cat from initial login info " << name << " type " << preferred_type << LL_ENDL;
 		}
 		else
 		{

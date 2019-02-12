@@ -2102,6 +2102,11 @@ BOOL LLItemBridge::isItemCopyable() const
 	if (item)
 	{
 		// Can't copy worn objects. DEV-15183
+
+		// FIXME - the motivation seems to be odd behavior with
+		// attachments. We could certainly remove the check for
+		// regular wearables, and even for attachments the benefit of
+		// the restriction is debatable.
 		if(get_is_item_worn(mUUID))
 		{
 			return FALSE;

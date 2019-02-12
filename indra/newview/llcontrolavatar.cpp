@@ -34,6 +34,10 @@
 #include "llmeshrepository.h"
 #include "llviewerregion.h"
 #include "llskinningutil.h"
+#include "llviewerinventory.h"
+#include "llviewerwearable.h"
+#include "llwearablelist.h"
+#include "llvoavatarself.h"
 
 //#pragma optimize("", off)
 
@@ -50,7 +54,8 @@ LLControlAvatar::LLControlAvatar(const LLUUID& id, const LLPCode pcode, LLViewer
     mMarkedForDeath(false),
     mRootVolp(NULL),
     mScaleConstraintFixup(1.0),
-	mRegionChanged(false)
+	mRegionChanged(false),
+	mObjectInventoryObserver(NULL)
 {
     mIsDummy = TRUE;
     mIsControlAvatar = true;
@@ -321,11 +326,81 @@ void LLControlAvatar::updateVolumeGeom()
     //setGlobalScale(obj_scale_z/2.0f); // roughly fit avatar height range (2m) into object height
 }
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLAnimatedObjectInventoryObserver
+//
+// Helper class to watch for changes in an animated object inventory.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLAnimatedObjectInventoryObserver : public LLVOInventoryListener
+{
+public:
+	LLAnimatedObjectInventoryObserver(LLViewerObject* object)
+	{
+		registerVOInventoryListener(object, NULL);
+	}
+	virtual ~LLAnimatedObjectInventoryObserver()
+	{
+		removeVOInventoryListener();
+	}
+	/*virtual*/ void inventoryChanged(LLViewerObject* object,
+									  LLInventoryObject::object_list_t* inventory,
+									  S32 serial_num,
+									  void* user_data);
+};
+
+// This is a prototype implementation of applying body parts to
+// animated object skeletons. It wouldn't work as a real solution,
+// because animated object inventories are only available to the owner
+// of the animated object.
+static void on_cav_wearable_fetched(LLViewerWearable* wearable, void* data)
+{
+	LLViewerObject *root = (LLViewerObject*) data;
+	LL_INFOS() << "Got wearable " << wearable->getName() << LL_ENDL;
+	if (root && root->getControlAvatar())
+	{
+		wearable->writeToAvatar(root->getControlAvatar());
+		root->getControlAvatar()->updateVisualParams();
+	}
+}
+
+/*virtual*/
+void LLAnimatedObjectInventoryObserver::inventoryChanged(LLViewerObject* object,
+														 LLInventoryObject::object_list_t* inventory,
+														 S32 serial_num,
+														 void* user_data)
+{
+	if (inventory)
+	{
+		LL_INFOS() << "object " << object << " inventory size " << inventory->size() << LL_ENDL;
+		for (auto it = inventory->begin(); it!= inventory->end(); ++it)
+		{
+			LLViewerInventoryItem *inv_item = dynamic_cast<LLViewerInventoryItem*>(it->get());
+			if (inv_item && inv_item->getType()==LLAssetType::AT_BODYPART)
+			{
+				LL_INFOS() << "Process body part: " << inv_item->getName() << LL_ENDL;
+				LLWearableList::instance().getAsset(inv_item->getAssetUUID(),
+													inv_item->getName(),
+													gAgentAvatarp,
+													inv_item->getType(),
+													on_cav_wearable_fetched,
+													(void*)object);
+
+			}
+		}
+	}
+	else
+	{
+		LL_INFOS() << "object " << object << " no inventory" << LL_ENDL;
+	}
+}
+
 LLControlAvatar *LLControlAvatar::createControlAvatar(LLVOVolume *obj)
 {
 	LLControlAvatar *cav = (LLControlAvatar*)gObjectList.createObjectViewer(LL_PCODE_LEGACY_AVATAR, gAgent.getRegion(), CO_FLAG_CONTROL_AVATAR);
 
     cav->mRootVolp = obj;
+	cav->mObjectInventoryObserver = new LLAnimatedObjectInventoryObserver(obj);
+	obj->requestInventory();
 
     // Sync up position/rotation with object
     cav->matchVolumeTransform();
@@ -336,6 +411,9 @@ LLControlAvatar *LLControlAvatar::createControlAvatar(LLVOVolume *obj)
 void LLControlAvatar::markForDeath()
 {
     mMarkedForDeath = true;
+
+	delete mObjectInventoryObserver;
+	mObjectInventoryObserver = NULL;
 }
 
 void LLControlAvatar::idleUpdate(LLAgent &agent, const F64 &time)

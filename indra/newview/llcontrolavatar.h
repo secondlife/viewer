@@ -30,6 +30,8 @@
 #include "llvoavatar.h"
 #include "llvovolume.h"
 
+class LLAnimatedObjectInventoryObserver;
+
 class LLControlAvatar:
     public LLVOAvatar
 {
@@ -94,6 +96,8 @@ public:
 	static void onRegionChanged();
 	bool mRegionChanged;
 	static boost::signals2::connection sRegionChangedSlot;
+
+	LLAnimatedObjectInventoryObserver *mObjectInventoryObserver;
 };
 
 typedef std::map<LLUUID, S32> signaled_animation_map_t;
