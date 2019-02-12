@@ -109,7 +109,7 @@ public:
 
     typedef std::pair<LLSettingsSky::ptr_t, LLSettingsWater::ptr_t> fixedEnvironment_t;
     typedef std::function<void(S32, EnvironmentInfo::ptr_t)>        environment_apply_fn;
-    typedef boost::signals2::signal<void(EnvSelection_t, S32)>           env_changed_signal_t;
+    typedef boost::signals2::signal<void(EnvSelection_t, S32)>      env_changed_signal_t;
     typedef env_changed_signal_t::slot_type                         env_changed_fn;
     typedef std::array<F32, 4>                                      altitude_list_t;
     typedef std::vector<F32>                                        altitudes_vect_t;
@@ -222,7 +222,7 @@ public:
 
     void                        handleEnvironmentPush(LLSD &message);
 
-    class DayInstance
+    class DayInstance: public std::enable_shared_from_this<DayInstance>
     {
     public:
         enum InstanceType_t
@@ -236,9 +236,9 @@ public:
                                     DayInstance(EnvSelection_t env);
         virtual                     ~DayInstance() { };
 
-        ptr_t                       clone() const;
+        virtual ptr_t               clone() const;
 
-        virtual void                applyTimeDelta(const LLSettingsBase::Seconds& delta);
+        virtual bool                applyTimeDelta(const LLSettingsBase::Seconds& delta);
 
         virtual void                setDay(const LLSettingsDay::ptr_t &pday, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset);
         virtual void                setSky(const LLSettingsSky::ptr_t &psky);
@@ -263,22 +263,12 @@ public:
         void                        setBlenders(const LLSettingsBlender::ptr_t &skyblend, const LLSettingsBlender::ptr_t &waterblend);
 
         EnvSelection_t              getEnvironmentSelection() const { return mEnv; }
-
-        void                        setBackup(bool backup);
-        bool                        getBackup() const       { return mBackup; }
-        bool                        hasBackupSky() const    { return !mBackupSky.isUndefined() || !mBackupWater.isUndefined(); }
-        void                        backup();
-        void                        restore();
-
+        void                        setEnvironmentSelection(EnvSelection_t env) { mEnv = env; }
     protected:
         LLSettingsDay::ptr_t        mDayCycle;
         LLSettingsSky::ptr_t        mSky;
         LLSettingsWater::ptr_t      mWater;
         S32                         mSkyTrack;
-
-        bool                        mBackup;
-        LLSD                        mBackupSky;
-        LLSD                        mBackupWater;
 
         InstanceType_t              mType;
         bool                        mInitialized;
@@ -293,6 +283,22 @@ public:
         EnvSelection_t              mEnv;
 
         LLSettingsBase::TrackPosition secondsToKeyframe(LLSettingsDay::Seconds seconds);
+    };
+
+    class DayTransition : public DayInstance
+    {
+    public:
+                                    DayTransition(const LLSettingsSky::ptr_t &skystart, const LLSettingsWater::ptr_t &waterstart, DayInstance::ptr_t &end, LLSettingsDay::Seconds time);
+        virtual                     ~DayTransition() { };
+
+        virtual bool                applyTimeDelta(const LLSettingsBase::Seconds& delta) override;
+        virtual void                animate() override;
+
+    protected:
+        LLSettingsSky::ptr_t        mStartSky;
+        LLSettingsWater::ptr_t      mStartWater;
+        DayInstance::ptr_t          mNextInstance;
+        LLSettingsDay::Seconds      mTransitionTime;
     };
 
     DayInstance::ptr_t          getSelectedEnvironmentInstance();
@@ -320,22 +326,6 @@ private:
     typedef std::deque<ExpEnvironmentEntry::ptr_t>  mPushOverrides;
 
     LLUUID                      mPushEnvironmentExpId;
-
-    class DayTransition : public DayInstance
-    {
-    public:
-                                    DayTransition(const LLSettingsSky::ptr_t &skystart, const LLSettingsWater::ptr_t &waterstart, DayInstance::ptr_t &end, LLSettingsDay::Seconds time);
-        virtual                     ~DayTransition() { };
-
-        virtual void                applyTimeDelta(const LLSettingsBase::Seconds& delta) override;
-        virtual void                animate() override;
-
-    protected:
-        LLSettingsSky::ptr_t        mStartSky;
-        LLSettingsWater::ptr_t      mStartWater;
-        DayInstance::ptr_t          mNextInstance;
-        LLSettingsDay::Seconds      mTransitionTime;
-    };
 
     static const F32            SUN_DELTA_YAW;
     F32                         mLastCamYaw = 0.0f;
@@ -423,6 +413,7 @@ private:
     void                        clearExperienceEnvironment(LLUUID experience_id, F32 transition_time);
     void                        setExperienceEnvironment(LLUUID experience_id, LLUUID asset_id, F32 transition_time);
     void                        setExperienceEnvironment(LLUUID experience_id, LLSD environment, F32 transition_time);
+    void                        onSetExperienceEnvAssetLoaded(LLUUID experience_id, LLSettingsBase::ptr_t setting, F32 transition_time, S32 status);
 
     void                        listenExperiencePump(const LLSD &message);
 

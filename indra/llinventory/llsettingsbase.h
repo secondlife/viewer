@@ -104,8 +104,8 @@ public:
     //---------------------------------------------------------------------
     // Settings status 
     inline bool hasSetting(const std::string &param) const { return mSettings.has(param); }
-    inline bool isDirty() const { return mDirty; }
-    inline bool isVeryDirty() const { return mReplaced; }
+    virtual bool isDirty() const { return mDirty; }
+    virtual bool isVeryDirty() const { return mReplaced; }
     inline void setDirtyFlag(bool dirty) { mDirty = dirty; clearAssetId(); }
 
     size_t getHash() const; // Hash will not include Name, ID or a previously stored Hash
