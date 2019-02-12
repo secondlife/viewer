@@ -410,7 +410,7 @@ private:
     void                        handleEnvironmentPushFull(LLUUID experience_id, LLSD &message, F32 transition);
     void                        handleEnvironmentPushPartial(LLUUID experience_id, LLSD &message, F32 transition);
 
-    void                        clearExperienceEnvironment(LLUUID experience_id, F32 transition_time);
+    void clearExperienceEnvironment(LLUUID experience_id, LLSettingsBase::Seconds transition_time);
     void                        setExperienceEnvironment(LLUUID experience_id, LLUUID asset_id, F32 transition_time);
     void                        setExperienceEnvironment(LLUUID experience_id, LLSD environment, F32 transition_time);
     void                        onSetExperienceEnvAssetLoaded(LLUUID experience_id, LLSettingsBase::ptr_t setting, F32 transition_time, S32 status);
