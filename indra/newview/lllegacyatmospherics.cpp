@@ -585,9 +585,10 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
 		F32 depth = water_height - camera_height;
 		
 		// get the water param manager variables
-        float water_fog_density = pwater->getWaterFogDensity();
+        float water_fog_density = pwater->getModifiedWaterFogDensity(depth <= 0.0f);
+
 		LLColor4 water_fog_color(pwater->getWaterFogColor());
-		
+
 		// adjust the color based on depth.  We're doing linear approximations
 		float depth_scale = gSavedSettings.getF32("WaterGLFogDepthScale");
 		float depth_modifier = 1.0f - llmin(llmax(depth / depth_scale, 0.01f), 

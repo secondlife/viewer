@@ -244,7 +244,7 @@ LLSettingsWater::validation_list_t LLSettingsWater::validationList()
         validation.push_back(Validator(SETTING_FOG_DENSITY, true, LLSD::TypeReal,
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(-10.0f)(10.0f)))));
         validation.push_back(Validator(SETTING_FOG_MOD, true, LLSD::TypeReal,
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(1.0f)(1024.0f)))));
+            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(20.0f)))));
         validation.push_back(Validator(SETTING_FRESNEL_OFFSET, true, LLSD::TypeReal,
             boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
         validation.push_back(Validator(SETTING_FRESNEL_SCALE, true, LLSD::TypeReal,
@@ -289,4 +289,16 @@ LLUUID LLSettingsWater::GetDefaultTransparentTextureAssetId()
 LLUUID LLSettingsWater::GetDefaultOpaqueTextureAssetId()
 {
     return DEFAULT_OPAQUE_WATER_TEXTURE;
+}
+
+F32 LLSettingsWater::getModifiedWaterFogDensity(bool underwater) const
+{
+    F32 fog_density = getWaterFogDensity();
+    F32 underwater_fog_mod = getFogMod();
+    if (underwater && underwater_fog_mod > 0.0f)
+    {        
+        underwater_fog_mod = llclamp(underwater_fog_mod, 0.0f, 10.0f);
+        fog_density = pow(fog_density, underwater_fog_mod);
+    }
+    return fog_density;
 }

@@ -285,6 +285,7 @@ extern LLGLSLShader			gDeferredSkinnedBumpProgram;
 extern LLGLSLShader			gDeferredSkinnedAlphaProgram;
 extern LLGLSLShader			gDeferredBumpProgram;
 extern LLGLSLShader			gDeferredTerrainProgram;
+extern LLGLSLShader			gDeferredTerrainWaterProgram;
 extern LLGLSLShader			gDeferredTreeProgram;
 extern LLGLSLShader			gDeferredTreeShadowProgram;
 extern LLGLSLShader			gDeferredLightProgram;

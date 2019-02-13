@@ -2268,6 +2268,17 @@ LLGLUserClipPlane::LLGLUserClipPlane(const LLPlane& p, const glh::matrix4f& mode
 	}
 }
 
+void LLGLUserClipPlane::disable()
+{
+    if (mApply)
+	{
+		gGL.matrixMode(LLRender::MM_PROJECTION);
+		gGL.popMatrix();
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
+	}
+    mApply = false;
+}
+
 void LLGLUserClipPlane::setPlane(F32 a, F32 b, F32 c, F32 d)
 {
 	glh::matrix4f& P = mProjection;
@@ -2296,12 +2307,7 @@ void LLGLUserClipPlane::setPlane(F32 a, F32 b, F32 c, F32 d)
 
 LLGLUserClipPlane::~LLGLUserClipPlane()
 {
-	if (mApply)
-	{
-		gGL.matrixMode(LLRender::MM_PROJECTION);
-		gGL.popMatrix();
-		gGL.matrixMode(LLRender::MM_MODELVIEW);
-	}
+	disable();
 }
 
 LLGLNamePool::LLGLNamePool()

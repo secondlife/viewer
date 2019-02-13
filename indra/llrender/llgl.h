@@ -348,6 +348,7 @@ public:
 	~LLGLUserClipPlane();
 
 	void setPlane(F32 a, F32 b, F32 c, F32 d);
+    void disable();
 
 private:
 	bool mApply;

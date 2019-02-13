@@ -222,7 +222,7 @@ void LLDrawPoolTerrain::beginDeferredPass(S32 pass)
 	LL_RECORD_BLOCK_TIME(FTM_RENDER_TERRAIN);
 	LLFacePool::beginRenderPass(pass);
 
-	sShader = &gDeferredTerrainProgram;
+	sShader = LLPipeline::sUnderWaterRender ? &gDeferredTerrainWaterProgram : &gDeferredTerrainProgram;
 
 	sShader->bind();
 }

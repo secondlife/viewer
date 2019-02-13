@@ -156,7 +156,6 @@ void main()
     
     //mix with reflection
     // Note we actually want to use just df1, but multiplying by 0.999999 gets around an nvidia compiler bug
-    refcol.rgb = pow(refcol.rgb, vec3(0.45)); // boost the reflect color a little to get stars to show up SL-1475
     color.rgb = mix(fb.rgb, refcol.rgb, df1 * 0.99999);
     
     vec4 pos = vary_position;

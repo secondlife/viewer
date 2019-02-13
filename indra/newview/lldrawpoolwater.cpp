@@ -537,7 +537,10 @@ void LLDrawPoolWater::shade2(bool edge, LLGLSLShader* shader, const LLColor3& li
     shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 
     shader->uniform3fv(LLShaderMgr::WATER_FOGCOLOR, 1, pwater->getWaterFogColor().mV);
-    shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, pwater->getWaterFogDensity());
+
+    F32 fog_density = pwater->getModifiedWaterFogDensity(LLPipeline::sUnderWaterRender || (eyedepth <= 0.0f));
+
+    shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, fog_density);
 	
     // bind reflection texture from RenderTarget
 	S32 screentex = shader->enableTexture(LLShaderMgr::WATER_SCREENTEX);
@@ -546,7 +549,7 @@ void LLDrawPoolWater::shade2(bool edge, LLGLSLShader* shader, const LLColor3& li
 	if (mShaderLevel == 1)
 	{
         LLColor4 fog_color(pwater->getWaterFogColor(), 0.f);
-        fog_color[3] = pwater->getWaterFogDensity();
+        fog_color[3] = fog_density;
         shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, 1, fog_color.mV);
 	}
 
@@ -615,6 +618,8 @@ void LLDrawPoolWater::shade2(bool edge, LLGLSLShader* shader, const LLColor3& li
 
 	{		
 		LLGLDisable cullface(GL_CULL_FACE);
+
+        
 
         sNeedsReflectionUpdate = TRUE;			
         sNeedsDistortionUpdate = TRUE;
