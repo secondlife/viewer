@@ -304,10 +304,10 @@ BOOL LLFloaterModelPreview::postBuild()
 		getChild<LLSpinCtrl>("lod_triangle_limit_" + lod_name[lod])->setCommitCallback(boost::bind(&LLFloaterModelPreview::onLODParamCommit, this, lod, true));
 	}
 
-	childSetCommitCallback("upload_skin", boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this), NULL);
-	childSetCommitCallback("upload_joints", boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this), NULL);
-	childSetCommitCallback("lock_scale_if_joint_position", boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this), NULL);
-	childSetCommitCallback("upload_textures", boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this), NULL);
+	childSetCommitCallback("upload_skin", boost::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), NULL);
+	childSetCommitCallback("upload_joints", boost::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), NULL);
+	childSetCommitCallback("lock_scale_if_joint_position", boost::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), NULL);
+	childSetCommitCallback("upload_textures", boost::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), NULL);
 
 	childSetTextArg("status", "[STATUS]", getString("status_idle"));
 
@@ -447,6 +447,16 @@ void LLFloaterModelPreview::initModelPreview()
 	mModelPreview->setPreviewTarget(16.f);
 	mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelPreview::setDetails, this, _1, _2, _3, _4, _5));
 	mModelPreview->setModelUpdatedCallback(boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this, _1));
+}
+
+void LLFloaterModelPreview::onUploadOptionChecked(LLUICtrl* ctrl)
+{
+	if (mModelPreview)
+	{
+		auto name = ctrl->getName();
+		mModelPreview->mViewOption[name] = !mModelPreview->mViewOption[name];
+	}
+	toggleCalculateButton(true);
 }
 
 void LLFloaterModelPreview::onViewOptionChecked(LLUICtrl* ctrl)
@@ -631,6 +641,7 @@ void LLFloaterModelPreview::onGenerateNormalsCommit(LLUICtrl* ctrl, void* userda
 void LLFloaterModelPreview::toggleGenarateNormals()
 {
 	bool enabled = childGetValue("gen_normals").asBoolean();
+	mModelPreview->mViewOption["gen_normals"] = enabled;
 	childSetEnabled("crease_angle", enabled);
 	if(enabled) {
 		mModelPreview->generateNormals();
@@ -1156,10 +1167,8 @@ void LLFloaterModelPreview::initDecompControls()
 							std::string label = llformat("%.1f", value);
 							combo_box->add(label, value, ADD_BOTTOM, true);
 						}
-						combo_box->setValue(param[i].mDefault.mFloat);
-
 					}
-
+					combo_box->setValue(param[i].mDefault.mFloat);
 					combo_box->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
 				}
 			}
@@ -1231,7 +1240,7 @@ void LLFloaterModelPreview::initDecompControls()
 			//LL_INFOS() << "-----------------------------" << LL_ENDL;
 		}
 	}
-
+	mDefaultDecompParams = mDecompParams;
 	childSetCommitCallback("physics_explode", LLFloaterModelPreview::onExplodeCommit, this);
 }
 
@@ -4420,6 +4429,7 @@ void LLFloaterModelPreview::onReset(void* user_data)
 	std::string filename = mp->mLODFile[LLModel::LOD_HIGH]; 
 
 	fmp->resetDisplayOptions();
+	fmp->resetUploadOptions();
 	//reset model preview
 	fmp->initModelPreview();
 
@@ -4533,11 +4543,6 @@ void LLFloaterModelPreview::setStatusMessage(const std::string& msg)
 	mStatusMessage = msg;
 }
 
-void LLFloaterModelPreview::toggleCalculateButton()
-{
-	toggleCalculateButton(true);
-}
-
 void LLFloaterModelPreview::toggleCalculateButton(bool visible)
 {
 	mCalculateBtn->setVisible(visible);
@@ -4596,6 +4601,37 @@ void LLFloaterModelPreview::resetDisplayOptions()
 	{
 		LLUICtrl* ctrl = getChild<LLUICtrl>(option_it->first);
 		ctrl->setValue(false);
+	}
+}
+
+void LLFloaterModelPreview::resetUploadOptions()
+{
+	childSetValue("import_scale", 1);
+	childSetValue("pelvis_offset", 0);
+	childSetValue("physics_explode", 0);
+	childSetValue("physics_file", "");
+	childSetVisible("Retain%", false);
+	childSetVisible("Retain%_label", false);
+	childSetVisible("Detail Scale", true);
+	childSetVisible("Detail Scale label", true);
+
+	getChild<LLComboBox>("lod_source_" + lod_name[NUM_LOD - 1])->setCurrentByIndex(LLModelPreview::LOD_FROM_FILE);
+	for (S32 lod = 0; lod < NUM_LOD - 1; ++lod)
+	{
+		getChild<LLComboBox>("lod_source_" + lod_name[lod])->setCurrentByIndex(LLModelPreview::GENERATE);
+		childSetValue("lod_file_" + lod_name[lod], "");
+	}
+
+	getChild<LLComboBox>("physics_lod_combo")->setCurrentByIndex(0);
+
+	for(auto& p : mDefaultDecompParams)
+	{
+		std::string ctrl_name(p.first);
+		LLUICtrl* ctrl = getChild<LLUICtrl>(ctrl_name);
+		if (ctrl)
+		{
+			ctrl->setValue(p.second);
+		}
 	}
 }
 
