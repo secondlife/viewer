@@ -95,6 +95,8 @@ public:
         return mSettings[SETTING_FOG_DENSITY].asReal();
     }
 
+    F32 getModifiedWaterFogDensity(bool underwater) const;
+
     void setWaterFogDensity(F32 val)
     {
         setValue(SETTING_FOG_DENSITY, val);

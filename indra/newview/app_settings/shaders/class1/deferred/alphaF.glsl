@@ -215,10 +215,10 @@ void main()
     // keep it linear
     //
     color.rgb += light.rgb;
+#endif
 
 #ifdef WATER_FOG
     color = applyWaterFogView(pos.xyz, color);
-#endif
 #endif
 
     frag_color = color;

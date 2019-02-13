@@ -879,11 +879,15 @@ void LLSettingsVOWater::applySpecial(void *ptarget)
 {
     LLGLSLShader *shader = (LLGLSLShader *)ptarget;
 
+    LLEnvironment& env = LLEnvironment::instance();
+
     if (shader->mShaderGroup == LLGLSLShader::SG_WATER)
 	{
+        F32 water_height = env.getWaterHeight();
+
         //transform water plane to eye space
         glh::vec3f norm(0.f, 0.f, 1.f);
-        glh::vec3f p(0.f, 0.f, LLEnvironment::instance().getWaterHeight() + 0.1f);
+        glh::vec3f p(0.f, 0.f, water_height + 0.1f);
 
         F32 modelView[16];
         for (U32 i = 0; i < 16; i++)
@@ -903,13 +907,18 @@ void LLSettingsVOWater::applySpecial(void *ptarget)
 
         shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, waterPlane.mV);
 
-        LLVector4 light_direction = LLEnvironment::instance().getClampedLightNorm();
+        LLVector4 light_direction = env.getClampedLightNorm();
 
         F32 waterFogKS = 1.f / llmax(light_direction.mV[2], WATER_FOG_LIGHT_CLAMP);
 
         shader->uniform1f(LLShaderMgr::WATER_FOGKS, waterFogKS);
 
-        F32 blend_factor = LLEnvironment::instance().getCurrentWater()->getBlendFactor();
+        F32 eyedepth = LLViewerCamera::getInstance()->getOrigin().mV[2] - water_height;
+
+        F32 waterFogDensity = env.getCurrentWater()->getModifiedWaterFogDensity(LLPipeline::sUnderWaterRender || (eyedepth <= 0.0f));
+        shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, waterFogDensity);
+
+        F32 blend_factor = env.getCurrentWater()->getBlendFactor();
         shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 
         LLVector4 rotated_light_direction = LLEnvironment::instance().getRotatedLightNorm();
@@ -941,7 +950,9 @@ LLSettingsWater::parammapping_t LLSettingsVOWater::getParameterMap() const
     {
         LLSD water_defaults = LLSettingsWater::defaults();
         param_map[SETTING_FOG_COLOR] = DefaultParam(LLShaderMgr::WATER_FOGCOLOR, water_defaults[SETTING_FOG_COLOR]);
-        param_map[SETTING_FOG_DENSITY] = DefaultParam(LLShaderMgr::WATER_FOGDENSITY, water_defaults[SETTING_FOG_DENSITY]);
+
+        // let this get set by LLSettingsVOWater::applySpecial so that it can properly reflect the underwater modifier
+        //param_map[SETTING_FOG_DENSITY] = DefaultParam(LLShaderMgr::WATER_FOGDENSITY, water_defaults[SETTING_FOG_DENSITY]);
     }
     return param_map;
 }

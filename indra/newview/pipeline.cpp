@@ -893,7 +893,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
         if (!mDeferredScreen.allocate(resX, resY, GL_SRGB8_ALPHA8, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
         if (!mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 
-        if (!mWaterDeferredScreen.allocate(water_buffer_res, water_buffer_res, GL_SRGB8_ALPHA8, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
+        if (!mWaterDeferredScreen.allocate(water_buffer_res, water_buffer_res, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
         if (!mWaterDeferredDepth.allocate(water_buffer_res,  water_buffer_res, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
         if (!mWaterOcclusionDepth.allocate(water_buffer_res >> 1, water_buffer_res >> 1, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 
@@ -1255,20 +1255,9 @@ void LLPipeline::createGLBuffers()
     { //water reflection texture
         U32 res = (U32) llmax(gSavedSettings.getS32("RenderWaterRefResolution"), 512);
 
-        // Set up SRGB targets if we're doing deferred-path reflection rendering
-        //
-        if (LLPipeline::sRenderDeferred)
-        {
-            mWaterRef.allocate(res,res,GL_SRGB8_ALPHA8,TRUE,FALSE);
-            //always use FBO for mWaterDis so it can be used for avatar texture bakes
-            mWaterDis.allocate(res,res,GL_SRGB8_ALPHA8,TRUE,FALSE,LLTexUnit::TT_TEXTURE, true);
-        }
-        else
-        {
-            mWaterRef.allocate(res,res,GL_RGBA,TRUE,FALSE);
-            //always use FBO for mWaterDis so it can be used for avatar texture bakes
-            mWaterDis.allocate(res,res,GL_RGBA,TRUE,FALSE,LLTexUnit::TT_TEXTURE, true);
-        }
+        mWaterRef.allocate(res,res,GL_RGBA,TRUE,FALSE);
+        //always use FBO for mWaterDis so it can be used for avatar texture bakes
+        mWaterDis.allocate(res,res,GL_RGBA,TRUE,FALSE,LLTexUnit::TT_TEXTURE, true);
     }
 
     mHighlight.allocate(256,256,GL_RGBA, FALSE, FALSE);
@@ -9453,8 +9442,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
         if (!LLViewerCamera::getInstance()->cameraUnderWater())
         {   //generate planar reflection map
             //disable occlusion culling for reflection map for now
-            
-
             gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
             glClearColor(0,0,0,0);
 
@@ -9518,6 +9505,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                         gPipeline.mWaterDeferredScreen.bindTarget();
                         gPipeline.mWaterDeferredScreen.clear();
                         renderGeomDeferred(camera);
+                        renderGeomPostDeferred(camera);
                     }
                     else
                     {
@@ -9573,6 +9561,8 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                         if (LLPipeline::sRenderDeferred)
                         {                           
                             renderGeomDeferred(camera);
+                            renderGeomPostDeferred(camera);
+
                             gPipeline.mWaterDeferredScreen.flush();
                             gPipeline.mWaterDeferredDepth.flush();
                             mWaterRef.copyContents(gPipeline.mWaterDeferredScreen, 0, 0, gPipeline.mWaterDeferredScreen.getWidth(), gPipeline.mWaterDeferredScreen.getHeight(),
@@ -9609,12 +9599,16 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                                 END_RENDER_TYPES);  
             stop_glerror();
 
-            LLPipeline::sUnderWaterRender = LLViewerCamera::getInstance()->cameraUnderWater();
+            
+            bool camera_is_underwater = LLViewerCamera::getInstance()->cameraUnderWater();
 
-            if (!LLPipeline::sUnderWaterRender)
+            // intentionally inverted so that distortion map contents (objects under the water when we're above it)
+            // will properly include water fog effects
+            LLPipeline::sUnderWaterRender = !camera_is_underwater;
+
+            if (LLPipeline::sUnderWaterRender)
             {
-                clearRenderTypeMask(LLPipeline::RENDER_TYPE_GROUND,
-                                    LLPipeline::RENDER_TYPE_SKY,
+                clearRenderTypeMask(LLPipeline::RENDER_TYPE_SKY,
                                     LLPipeline::RENDER_TYPE_CLOUDS,
                                     LLPipeline::RENDER_TYPE_WL_SKY,
                                     END_RENDER_TYPES);      
@@ -9640,27 +9634,34 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                 LLPlane plane(pnorm, -water_height * LLPipeline::sDistortionWaterClipPlaneMargin);
                 LLGLUserClipPlane clip_plane(plane, mReflectionModelView, projection);
 
-                static LLCullResult result;
-                updateCull(camera, result, water_clip, &plane);
-                stateSort(camera, result);
+                static LLCullResult refracted_objects;
+                updateCull(camera, refracted_objects, water_clip, &plane);
+                stateSort(camera, refracted_objects);
 
                 gGL.setColorMask(true, true);
                 mWaterDis.clear();
                 gGL.setColorMask(true, false);
 
+                // ignore clip plane if we're underwater and viewing distortion  map of objects above waterline
+                if (camera_is_underwater)
+                {
+                    clip_plane.disable();
+                }
+
                 if (LLPipeline::sRenderDeferred)
                 {                                       
                     mWaterDis.flush();
                     gGL.setColorMask(true, true);
-                    glClearColor(0,0,0,0);
+                    glClearColor(col.mV[0], col.mV[1], col.mV[2], 0.f);
                     gPipeline.mWaterDeferredDepth.bindTarget();
                     gPipeline.mWaterDeferredDepth.clear();
                     gPipeline.mWaterDeferredScreen.bindTarget();
                     gPipeline.mWaterDeferredScreen.clear();
-                    gPipeline.grabReferences(result);
+                    gPipeline.grabReferences(refracted_objects);
                     gGL.setColorMask(true, false);
 
                     renderGeomDeferred(camera);
+                    renderGeomPostDeferred(camera);
                 }
                 else
                 {
@@ -9684,7 +9685,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                     gPipeline.mWaterDeferredScreen.flush();
                     gPipeline.mWaterDeferredDepth.flush();
                     mWaterDis.copyContents(gPipeline.mWaterDeferredScreen, 0, 0, gPipeline.mWaterDeferredScreen.getWidth(), gPipeline.mWaterDeferredScreen.getHeight(),
-                            0, 0, gPipeline.mWaterDeferredDepth.getWidth(), gPipeline.mWaterDeferredDepth.getHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);    
+                            0, 0, gPipeline.mWaterDis.getWidth(), gPipeline.mWaterDis.getHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);    
                 }
             }
 
