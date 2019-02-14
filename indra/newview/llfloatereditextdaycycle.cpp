@@ -414,6 +414,8 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
     }
     else if ((mEditContext == CONTEXT_REGION) || (mEditContext == CONTEXT_PARCEL))
     {
+        std::string commit_str = (mEditContext == CONTEXT_PARCEL) ? STR_COMMIT_PARCEL : STR_COMMIT_REGION;
+        mFlyoutControl->setMenuItemLabel(ACTION_COMMIT, getString(commit_str));
         mFlyoutControl->setShownBtnEnabled(true);
         mFlyoutControl->setSelectedItem(ACTION_COMMIT);
     }
