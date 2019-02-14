@@ -694,6 +694,7 @@ namespace
 
     public:
         typedef std::shared_ptr<DayInjection> ptr_t;
+        typedef std::weak_ptr<DayInjection> wptr_t;
 
                                             DayInjection(LLEnvironment::EnvSelection_t env);
         virtual                             ~DayInjection();
@@ -720,7 +721,11 @@ namespace
         bool                                isOverriddenWater() const { return !mWaterExperience.isNull(); }
 
         bool                                hasInjections() const;
+
+        void                                testExperiencesOnParcel(S32 parcel_id);
     private:
+        static void                         testExperiencesOnParcelCoro(wptr_t that, S32 parcel_id);
+
 
         void                                animateSkyChange(LLSettingsSky::ptr_t psky, LLSettingsBase::Seconds transition);
         void                                animateWaterChange(LLSettingsWater::ptr_t pwater, LLSettingsBase::Seconds transition);
@@ -2305,8 +2310,6 @@ void LLEnvironment::clearExperienceEnvironment(LLUUID experience_id, LLSettingsB
     if (injection)
     {
         injection->clearInjections(experience_id, transition_time);
-//         clearEnvironment(ENV_PUSH);
-//         updateEnvironment(transition_time);
     }
 
 }
@@ -2796,6 +2799,14 @@ namespace
             mBlenderSky || mBlenderWater || mInjectedSky->hasInjections() || mInjectedWater->hasInjections());
     }
 
+
+    void DayInjection::testExperiencesOnParcel(S32 parcel_id)
+    {
+        LLCoros::instance().launch("DayInjection::testExperiencesOnParcel",
+            [this, parcel_id]() { DayInjection::testExperiencesOnParcelCoro(std::static_pointer_cast<DayInjection>(this->shared_from_this()), parcel_id); });
+
+    }
+
     void DayInjection::setInjectedDay(const LLSettingsDay::ptr_t &pday, LLUUID experience_id, LLSettingsBase::Seconds transition)
     {
         mSkyExperience = experience_id;
@@ -2830,11 +2841,13 @@ namespace
     void DayInjection::injectSkySettings(LLSD settings, LLUUID experience_id, LLSettingsBase::Seconds transition)
     {
         mInjectedSky->injectExperienceValues(settings, experience_id, transition);
+        mActiveExperiences.insert(experience_id);
     }
 
     void DayInjection::injectWaterSettings(LLSD settings, LLUUID experience_id, LLSettingsBase::Seconds transition)
     {
         mInjectedWater->injectExperienceValues(settings, experience_id, transition);
+        mActiveExperiences.insert(experience_id);
     }
 
     void DayInjection::clearInjections(LLUUID experience_id, LLSettingsBase::Seconds transition_time)
@@ -2879,6 +2892,80 @@ namespace
             // (otherwise will be handled after transition)
             LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_PUSH);
             LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
+        }
+    }
+
+
+    void DayInjection::testExperiencesOnParcelCoro(wptr_t that, S32 parcel_id)
+    {
+        LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+        LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+            httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("testExperiencesOnParcelCoro", httpPolicy));
+        LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+        std::string url = gAgent.getRegionCapability("ExperienceQuery");
+
+        if (url.empty())
+        {
+            LL_WARNS("ENVIRONMENT") << "No experience query cap." << LL_ENDL;
+            return; // no checking in this region.
+        }
+
+        {
+            ptr_t thatlock(that);
+            std::stringstream fullurl;
+
+            if (!thatlock)
+                return;
+
+            fullurl << url << "?";
+            fullurl << "parcelid=" << parcel_id;
+
+            for (auto it = thatlock->mActiveExperiences.begin(); it != thatlock->mActiveExperiences.end(); ++it)
+            {
+                if (it != thatlock->mActiveExperiences.begin())
+                    fullurl << ",";
+                else
+                    fullurl << "&experiences=";
+                fullurl << (*it).asString();
+            }
+            url = fullurl.str();
+        }
+
+        LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
+        LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+        if (!status)
+        {
+            LL_WARNS() << "Unable to retrieve experience status for parcel." << LL_ENDL;
+            return;
+        }
+
+        {
+            LLParcel* parcel = LLViewerParcelMgr::instance().getAgentParcel();
+            if (!parcel)
+                return;
+
+            if (parcel_id != parcel->getLocalID())
+            {
+                // Agent no longer on queried parcel.
+                return;
+            }
+        }
+
+
+        LLSD experiences = result["experiences"];
+        {
+            ptr_t thatlock(that);
+            if (!thatlock)
+                return;
+
+            for (LLSD::map_iterator itr = experiences.beginMap(); itr != experiences.endMap(); ++itr)
+            {
+                if (!((*itr).second.asBoolean()))
+                    thatlock->clearInjections(LLUUID((*itr).first), LLEnvironment::TRANSITION_FAST);
+
+            }
         }
     }
 
@@ -2973,11 +3060,7 @@ namespace
 
         parcel_id = parcel->getLocalID();
 
-        // TODO: 
-        // 1) Get the parcel experiences, 
-        // 2) check against injected experiences
-        // 3) if not allowed remove them.
-
+        testExperiencesOnParcel(parcel_id);
     }
 
     void DayInjection::checkExperience()
@@ -2985,9 +3068,6 @@ namespace
         if ((!mDayExperience.isNull()) && (mSkyExperience != mDayExperience) && (mWaterExperience != mDayExperience))
         {   // There was a day experience but we've replaced it with a water and a sky experience. 
             mDayExperience.setNull();
-
-            // TODO test sky and water for injections before removing experience id
-
             mBaseDayInstance = LLEnvironment::instance().getSharedEnvironmentInstance();
         }
     }
