@@ -143,6 +143,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 {
     U32 request_flags;
 	U32 total_count;
+	U64 total_memory = 0;
 
 	msg->getU32Fast(_PREHASH_RequestData, _PREHASH_RequestFlags, request_flags);
 	msg->getU32Fast(_PREHASH_RequestData, _PREHASH_TotalObjectCount, total_count);
@@ -190,6 +191,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 			{
 				parcel_buf = parcel_name;
 				script_memory = script_size;
+				total_memory += script_size;
 			}
 		}
 
@@ -263,8 +265,10 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 	{
 		setTitle(getString("top_scripts_title"));
 		list->setColumnLabel("score", getString("scripts_score_label"));
-		
+
 		LLUIString format = getString("top_scripts_text");
+		total_memory /= 1024;
+		format.setArg("[MEMORY]", llformat("%ld", total_memory));
 		format.setArg("[COUNT]", llformat("%d", total_count));
 		format.setArg("[TIME]", llformat("%0.3f", mtotalScore));
 		getChild<LLUICtrl>("title_text")->setValue(LLSD(format));
