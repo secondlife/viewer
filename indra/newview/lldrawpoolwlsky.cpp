@@ -216,6 +216,7 @@ void LLDrawPoolWLSky::renderSkyHazeAdvanced(const LLVector3& camPosLocal, F32 ca
         sky_shader->uniform1f(LLShaderMgr::SUN_SIZE, sunSize);
         sky_shader->uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, sun_dir.mV);
         sky_shader->uniform3fv(LLShaderMgr::DEFERRED_MOON_DIR, 1, moon_dir.mV);
+        
 
         F32 moisture_level  = (float)psky->getSkyMoistureLevel();
         F32 droplet_radius  = (float)psky->getSkyDropletRadius();
@@ -233,6 +234,7 @@ void LLDrawPoolWLSky::renderSkyHazeAdvanced(const LLVector3& camPosLocal, F32 ca
 	    sky_shader->uniformMatrix4fv(LLShaderMgr::INVERSE_PROJECTION_MATRIX, 1, FALSE, inv_proj.m);
 
         sky_shader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, psky->getSunMoonGlowFactor());
+        sky_shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, psky->getIsSunUp() ? 1 : 0);
 
         sky_shader->uniform3f(sCamPosLocal, camPosLocal.mV[0], camPosLocal.mV[1], camPosLocal.mV[2]);
 
@@ -270,6 +272,8 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
 
         sky_shader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, psky->getSunMoonGlowFactor());
 
+        sky_shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, psky->getIsSunUp() ? 1 : 0);
+
         /// Render the skydome
         renderDome(origin, camHeightLocal, sky_shader);	
 
@@ -285,6 +289,8 @@ void LLDrawPoolWLSky::renderSkyHaze(const LLVector3& camPosLocal, F32 camHeightL
 	{
         LLGLSPipelineDepthTestSkyBox sky(true, false);
         sky_shader->bind();
+        sky_shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, 1);
+        sky_shader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, 1.0f);
         renderDome(origin, camHeightLocal, sky_shader);	
 		sky_shader->unbind();
     }
