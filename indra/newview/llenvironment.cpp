@@ -358,7 +358,14 @@ namespace
         virtual ~LLSettingsInjected() {};
 
         typename SETTINGT::ptr_t getSource() const                    { return this->mSource; }
-        void setSource(const typename SETTINGT::ptr_t &source)        { this->mSource = source; this->setDirtyFlag(true); this->mLastSourceHash = 0; }
+        void setSource(const typename SETTINGT::ptr_t &source)        
+        {
+            if (source.get() == this) // do not set a source to itself.
+                return;
+            this->mSource = source; 
+            this->setDirtyFlag(true); 
+            this->mLastSourceHash = 0; 
+        }
 
         virtual bool isDirty() const override { return SETTINGT::isDirty() || (this->mSource->isDirty()); }
         virtual bool isVeryDirty() const override { return SETTINGT::isVeryDirty() || (this->mSource->isVeryDirty()); }
@@ -974,8 +981,11 @@ bool LLEnvironment::isInventoryEnabled() const
 
 void LLEnvironment::onRegionChange()
 {
-    // TODO: Use test experiences rather than full clear.
+//     if (gAgent.getRegionCapability("ExperienceQuery").empty())
+//     {
+//     // for now environmental experiences do not survive region crossings
     clearExperienceEnvironment(LLUUID::null, TRANSITION_DEFAULT);
+//     }
 
     LLViewerRegion* cur_region = gAgent.getRegion();
     if (!cur_region)
@@ -2971,6 +2981,10 @@ namespace
 
     void DayInjection::animateSkyChange(LLSettingsSky::ptr_t psky, LLSettingsBase::Seconds transition)
     {
+        if (mInjectedSky.get() == psky.get())
+        {   // An attempt to animate to itself... don't do it.
+            return;
+        }
         if (transition == LLEnvironment::TRANSITION_INSTANT)
         {
             mBlenderSky.reset();
@@ -3000,6 +3014,10 @@ namespace
 
     void DayInjection::animateWaterChange(LLSettingsWater::ptr_t pwater, LLSettingsBase::Seconds transition)
     {
+        if (mInjectedWater.get() == pwater.get())
+        {   // An attempt to animate to itself. Bad idea.
+            return;
+        }
         if (transition == LLEnvironment::TRANSITION_INSTANT)
         { 
             mBlenderWater.reset();
