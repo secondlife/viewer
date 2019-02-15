@@ -81,20 +81,18 @@ float pcfSpotShadow(sampler2DShadow shadowMap, vec4 stc, float bias_scale, vec2 
     shadow += shadow2D(shadowMap, stc.xyz+vec3(-off.x*2.0, -off.y, 0.0)).x;
     return shadow*0.2;
 }
-
 float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
 {
     float shadow = 0.0f;
-    vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;
+    vec3 light_dir = normalize((sun_up_factor == 1) ? sun_dir : moon_dir);
 
-    float dp_sun = max(0.0, dot(sun_dir.xyz, norm));
-    float dp_moon = max(0.0, dot(moon_dir.xyz, norm));
-    float dp_directional_light = (sun_up_factor == 1) ? dp_sun : dp_moon;
+    float dp_directional_light = max(0.0, dot(norm.xyz, light_dir));
           dp_directional_light = clamp(dp_directional_light, 0.0, 1.0);
 
     vec3 shadow_pos = pos.xyz;
     vec3 offset = abs(light_dir.xyz) * (1.0 - dp_directional_light* 0.8);
-    shadow_pos += offset;
+    shadow_pos += offset * shadow_offset;
+
     vec4 spos = vec4(shadow_pos.xyz, 1.0);
 
     if (spos.z > -shadow_clip.w)
