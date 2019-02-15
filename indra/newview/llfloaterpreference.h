@@ -198,6 +198,7 @@ private:
 	void onDeleteTranscriptsResponse(const LLSD& notification, const LLSD& response);
 	void updateDeleteTranscriptsButton();
 	void updateMaxComplexity();
+	static bool loadFromFilename(const std::string& filename, std::map<std::string, std::string> &label_map);
 
 	static std::string sSkin;
 	notifications_map mNotificationOptions;
