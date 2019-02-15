@@ -2904,7 +2904,11 @@ void HttpRequestTestObjectType::test<22>()
 	set_test_name("BUG-2295");
 
 #if LL_WINDOWS && ADDRESS_SIZE == 64
-	skip("BUG-2295 - partial load on W64 causes freeze");
+	// teamcity win64 builds freeze on this test, if you figure out the cause, please fix it
+	if (getenv("TEAMCITY_PROJECT_NAME"))
+	{
+		skip("BUG-2295 - partial load on W64 causes freeze");
+	}
 #endif
 	// Handler can be stack-allocated *if* there are no dangling
 	// references to it after completion of this method.
@@ -3095,7 +3099,11 @@ void HttpRequestTestObjectType::test<23>()
 	set_test_name("HttpRequest GET 503s with 'Retry-After'");
 
 #if LL_WINDOWS && ADDRESS_SIZE == 64
-	skip("llcorehttp 503-with-retry test hangs on Windows 64");
+	// teamcity win64 builds freeze on this test, if you figure out the cause, please fix it
+	if (getenv("TEAMCITY_PROJECT_NAME"))
+	{
+		skip("llcorehttp 503-with-retry test hangs on Windows 64");
+	}
 #endif
 
 	// This tests mainly that the code doesn't fall over if
