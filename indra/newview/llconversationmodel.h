@@ -196,7 +196,6 @@ public:
 	bool isVoiceMuted();
 	bool isModeratorMuted() { return mIsModeratorMuted; }
 	bool isModerator() const { return mIsModerator; }
-	void muteVoice(bool mute_voice);
 	void moderateVoice(bool mute_voice) { mIsModeratorMuted = mute_voice; }
 	void setIsModerator(bool is_moderator) { mIsModerator = is_moderator; mNeedsRefresh = true; }
 	void setTimeNow() { mLastActiveTime = LLFrameTimer::getElapsedSeconds(); mNeedsRefresh = true; }
