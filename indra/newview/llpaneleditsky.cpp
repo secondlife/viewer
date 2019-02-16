@@ -103,6 +103,7 @@ namespace
     const F32 SLIDER_SCALE_BLUE_HORIZON_DENSITY(2.0f);
     const F32 SLIDER_SCALE_GLOW_R(20.0f);
     const F32 SLIDER_SCALE_GLOW_B(-5.0f);
+    const F32 SLIDER_SCALE_DENSITY_MULTIPLIER(0.001f);
 }
 
 static LLPanelInjector<LLPanelSettingsSkyAtmosTab> t_settings_atmos("panel_settings_atmos");
@@ -184,7 +185,9 @@ void LLPanelSettingsSkyAtmosTab::refresh()
     getChild<LLUICtrl>(FIELD_SKY_HAZE_HORIZON)->setValue(mSkySettings->getHazeHorizon());
     getChild<LLUICtrl>(FIELD_SKY_HAZE_DENSITY)->setValue(mSkySettings->getHazeDensity());
     getChild<LLUICtrl>(FIELD_SKY_SCENE_GAMMA)->setValue(mSkySettings->getGamma());
-    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MULTIP)->setValue(mSkySettings->getDensityMultiplier());
+    F32 density_mult = mSkySettings->getDensityMultiplier();
+    density_mult /= SLIDER_SCALE_DENSITY_MULTIPLIER;
+    getChild<LLUICtrl>(FIELD_SKY_DENSITY_MULTIP)->setValue(density_mult);
     getChild<LLUICtrl>(FIELD_SKY_DISTANCE_MULTIP)->setValue(mSkySettings->getDistanceMultiplier());
     getChild<LLUICtrl>(FIELD_SKY_MAX_ALT)->setValue(mSkySettings->getMaxY());
 
@@ -242,7 +245,9 @@ void LLPanelSettingsSkyAtmosTab::onSceneGammaChanged()
 
 void LLPanelSettingsSkyAtmosTab::onDensityMultipChanged()
 {
-    mSkySettings->setDensityMultiplier(getChild<LLUICtrl>(FIELD_SKY_DENSITY_MULTIP)->getValue().asReal());
+    F32 density_mult = getChild<LLUICtrl>(FIELD_SKY_DENSITY_MULTIP)->getValue().asReal();
+    density_mult *= SLIDER_SCALE_DENSITY_MULTIPLIER;
+    mSkySettings->setDensityMultiplier(density_mult);
     mSkySettings->update();
     setIsDirty();
 }
