@@ -863,8 +863,6 @@ LLSettingsDay::CycleTrack_t::value_type LLSettingsDay::getSettingsNearKeyframe(c
 
     F32 dist = get_wrapping_distance(startframe, (*it).first);
 
-    //LL_DEBUGS("LAPRAS") << "[" << startframe << " ... " << keyframe << " -> " << (*it).first << "@" << dist << LL_ENDL;
-
     if (dist <= (fudge * 2.0f))
         return (*it);
 

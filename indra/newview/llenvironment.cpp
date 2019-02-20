@@ -470,7 +470,6 @@ namespace
                 {
                     if ((*it)->mBlendIn)
                     {
-                        //_WARNS("LAPRAS") << "Done blending '" << key_name << "' after " << (*it)->mTransition.value() - (*it)->mTimeRemaining.value() << " value now=" << target << LL_ENDL;
                         mOverrideValues[key_name] = target;
                         mOverrideExps[key_name] = (*it)->mExperience;
                         this->mSettings[key_name] = target;
@@ -1621,39 +1620,38 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
         else if (envinfo->mDayCycle->isTrackEmpty(LLSettingsDay::TRACK_WATER)
                  || envinfo->mDayCycle->isTrackEmpty(LLSettingsDay::TRACK_GROUND_LEVEL))
         {
-            LL_WARNS("LAPRAS") << "Invalid day cycle for region" << LL_ENDL;
+            LL_WARNS("ENVIRONMENT") << "Invalid day cycle for region" << LL_ENDL;
             clearEnvironment(ENV_PARCEL);
             setEnvironment(ENV_REGION, LLSettingsDay::GetDefaultAssetId(), LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET, envinfo->mEnvVersion);
             updateEnvironment();
         }
         else
         {
-            LL_INFOS("LAPRAS") << "Setting Region environment" << LL_ENDL;
             setEnvironment(ENV_REGION, envinfo->mDayCycle, envinfo->mDayLength, envinfo->mDayOffset, envinfo->mEnvVersion);
             mTrackAltitudes = envinfo->mAltitudes;
         }
 
-        LL_WARNS("LAPRAS") << "Altitudes set to {" << mTrackAltitudes[0] << ", "<< mTrackAltitudes[1] << ", " << mTrackAltitudes[2] << ", " << mTrackAltitudes[3] << LL_ENDL;
+        LL_DEBUGS("ENVIRONMENT") << "Altitudes set to {" << mTrackAltitudes[0] << ", "<< mTrackAltitudes[1] << ", " << mTrackAltitudes[2] << ", " << mTrackAltitudes[3] << LL_ENDL;
     }
     else
     {
         LLParcel *parcel = LLViewerParcelMgr::instance().getAgentParcel();
-        LL_WARNS("LAPRAS") << "Have parcel environment #" << envinfo->mParcelId << LL_ENDL;
+        LL_DEBUGS("ENVIRONMENT") << "Have parcel environment #" << envinfo->mParcelId << LL_ENDL;
         if (parcel && (parcel->getLocalID() != parcel_id))
         {
-            LL_WARNS("ENVIRONMENT") << "Requested parcel #" << parcel_id << " agent is on " << parcel->getLocalID() << LL_ENDL;
+            LL_DEBUGS("ENVIRONMENT") << "Requested parcel #" << parcel_id << " agent is on " << parcel->getLocalID() << LL_ENDL;
             return;
         }
 
         if (!envinfo->mDayCycle)
         {
-            LL_WARNS("LAPRAS") << "Clearing environment on parcel #" << parcel_id << LL_ENDL;
+            LL_DEBUGS("ENVIRONMENT") << "Clearing environment on parcel #" << parcel_id << LL_ENDL;
             clearEnvironment(ENV_PARCEL);
         }
         else if (envinfo->mDayCycle->isTrackEmpty(LLSettingsDay::TRACK_WATER)
                  || envinfo->mDayCycle->isTrackEmpty(LLSettingsDay::TRACK_GROUND_LEVEL))
         {
-            LL_WARNS("LAPRAS") << "Invalid day cycle for parcel #" << parcel_id << LL_ENDL;
+            LL_WARNS("ENVIRONMENT") << "Invalid day cycle for parcel #" << parcel_id << LL_ENDL;
             clearEnvironment(ENV_PARCEL);
         }
         else
@@ -1663,6 +1661,27 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
     }
 
     updateEnvironment(transition);
+}
+
+void LLEnvironment::adjustRegionOffset(F32 adjust)
+{
+    if (isExtendedEnvironmentEnabled())
+    {
+        LL_WARNS("ENVIRONMENT") << "Attempt to adjust region offset on EEP region.  Legacy regions only." << LL_ENDL;
+    }
+
+    if (mEnvironments[ENV_REGION])
+    {
+        F32 day_length = mEnvironments[ENV_REGION]->getDayLength();
+        F32 day_offset = mEnvironments[ENV_REGION]->getDayOffset();
+
+        F32 day_adjustment = adjust * day_length;
+
+        day_offset += day_adjustment;
+        if (day_offset < 0.0f)
+            day_offset = day_length + day_offset;
+        mEnvironments[ENV_REGION]->setDayOffset(LLSettingsBase::Seconds(day_offset));
+    }
 }
 
 //=========================================================================
@@ -1820,7 +1839,7 @@ void LLEnvironment::coroRequestEnvironment(S32 parcel_id, LLEnvironment::environ
     if (url.empty())
         return;
 
-    LL_WARNS("LAPRAS") << "Requesting for parcel_id=" << parcel_id << LL_ENDL;
+    LL_DEBUGS("ENVIRONMENT") << "Requesting for parcel_id=" << parcel_id << LL_ENDL;
 
     if (parcel_id != INVALID_PARCEL_ID)
     {
@@ -1830,24 +1849,14 @@ void LLEnvironment::coroRequestEnvironment(S32 parcel_id, LLEnvironment::environ
         url += query.str();
     }
 
-    LL_WARNS("LAPRAS") << "url=" << url << LL_ENDL;
-
     LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
     // results that come back may contain the new settings
-
-//     LLSD notify;
 
     LLSD httpResults = result["http_result"];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
     if (!status)
     {
-        LL_WARNS("WindlightCaps") << "Couldn't retrieve environment settings for " << ((parcel_id == INVALID_PARCEL_ID) ? ("region!") : ("parcel!")) << LL_ENDL;
-
-//         std::stringstream msg;
-//         msg << status.toString() << " (Code " << status.toTerseString() << ")";
-//         notify = LLSD::emptyMap();
-//         notify["FAIL_REASON"] = msg.str();
-
+        LL_WARNS("ENVIRONMENT") << "Couldn't retrieve environment settings for " << ((parcel_id == INVALID_PARCEL_ID) ? ("region!") : ("parcel!")) << LL_ENDL;
     }
     else
     {
@@ -1859,11 +1868,6 @@ void LLEnvironment::coroRequestEnvironment(S32 parcel_id, LLEnvironment::environ
         }
     }
 
-//     if (!notify.isUndefined())
-//     {
-//         LLNotificationsUtil::add("WLRegionApplyFail", notify);
-//         //LLEnvManagerNew::instance().onRegionSettingsApplyResponse(false);
-//     }
 }
 
 void LLEnvironment::coroUpdateEnvironment(S32 parcel_id, S32 track_no, UpdateInfo::ptr_t updates, environment_apply_fn apply)
@@ -1906,7 +1910,7 @@ void LLEnvironment::coroUpdateEnvironment(S32 parcel_id, S32 track_no, UpdateInf
             body[KEY_ENVIRONMENT][KEY_DAYNAME] = updates->mDayName;
     }
 
-    LL_WARNS("LAPRAS") << "Body = " << body << LL_ENDL;
+    //_WARNS("ENVIRONMENT") << "Body = " << body << LL_ENDL;
 
     if ((parcel_id != INVALID_PARCEL_ID) || (track_no != NO_TRACK))
     {
@@ -1934,10 +1938,10 @@ void LLEnvironment::coroUpdateEnvironment(S32 parcel_id, S32 track_no, UpdateInf
 
     LLSD httpResults = result["http_result"];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-    LL_WARNS("LAPRAS") << "success=" << result["success"] << LL_ENDL;
+
     if ((!status) || !result["success"].asBoolean())
     {
-        LL_WARNS("WindlightCaps") << "Couldn't update Windlight settings for " << ((parcel_id == INVALID_PARCEL_ID) ? ("region!") : ("parcel!")) << LL_ENDL;
+        LL_WARNS("ENVIRONMENT") << "Couldn't update Windlight settings for " << ((parcel_id == INVALID_PARCEL_ID) ? ("region!") : ("parcel!")) << LL_ENDL;
 
         notify = LLSD::emptyMap();
         notify["FAIL_REASON"] = result["message"].asString();
@@ -1996,10 +2000,10 @@ void LLEnvironment::coroResetEnvironment(S32 parcel_id, S32 track_no, environmen
 
     LLSD httpResults = result["http_result"];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-    LL_WARNS("LAPRAS") << "success=" << result["success"] << LL_ENDL;
+
     if ((!status) || !result["success"].asBoolean())
     {
-        LL_WARNS("WindlightCaps") << "Couldn't reset Windlight settings in " << ((parcel_id == INVALID_PARCEL_ID) ? ("region!") : ("parcel!")) << LL_ENDL;
+        LL_WARNS("ENVIRONMENT") << "Couldn't reset Windlight settings in " << ((parcel_id == INVALID_PARCEL_ID) ? ("region!") : ("parcel!")) << LL_ENDL;
 
         notify = LLSD::emptyMap();
         notify["FAIL_REASON"] = result["message"].asString();
@@ -2416,8 +2420,6 @@ void LLEnvironment::setExperienceEnvironment(LLUUID experience_id, LLSD data, F3
 
 void LLEnvironment::listenExperiencePump(const LLSD &message)
 {
-    LL_WARNS("LAPRAS") << "Have experience event: " << message << LL_ENDL;
-
     LLUUID experience_id = message["experience"];
     LLSD data = message[experience_id.asString()];
     std::string permission(data["permission"].asString());
@@ -2564,6 +2566,16 @@ void LLEnvironment::DayInstance::setBlenders(const LLSettingsBlender::ptr_t &sky
     mBlenderWater = waterblend;
 }
 
+LLSettingsBase::TrackPosition LLEnvironment::DayInstance::getProgress() const
+{
+    LLSettingsBase::Seconds now(LLDate::now().secondsSinceEpoch());
+    now += mDayOffset;
+
+    if ((mDayLength <= 0) || !mDayCycle)
+        return -1.0f;   // no actual day cycle.
+
+    return convert_time_to_position(now, mDayLength);
+}
 
 LLSettingsBase::TrackPosition LLEnvironment::DayInstance::secondsToKeyframe(LLSettingsDay::Seconds seconds)
 {

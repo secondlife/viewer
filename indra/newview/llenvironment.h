@@ -197,6 +197,10 @@ public:
     // Construct a new day cycle based on the environment.  Replacing either the water or the sky tracks.
     LLSettingsDay::ptr_t        createDayCycleFromEnvironment(EnvSelection_t env, LLSettingsBase::ptr_t settings);
 
+    F32                         getProgress() const                         { return (mCurrentEnvironment) ? mCurrentEnvironment->getProgress() : -1.0f; }
+    F32                         getRegionProgress() const                   { return (mEnvironments[ENV_REGION]) ? mEnvironments[ENV_REGION]->getProgress() : -1.0f; }
+    void                        adjustRegionOffset(F32 adjust);     // only used on legacy regions, to better sync the viewer with other agents
+
     //-------------------------------------------
     connection_t                setEnvironmentChanged(env_changed_fn cb)    { return mSignalEnvChanged.connect(cb); }
 
@@ -233,37 +237,42 @@ public:
         };
         typedef std::shared_ptr<DayInstance> ptr_t;
 
-                                    DayInstance(EnvSelection_t env);
-        virtual                     ~DayInstance() { };
+                                        DayInstance(EnvSelection_t env);
+        virtual                         ~DayInstance() { };
 
-        virtual ptr_t               clone() const;
+        virtual ptr_t                   clone() const;
 
-        virtual bool                applyTimeDelta(const LLSettingsBase::Seconds& delta);
+        virtual bool                    applyTimeDelta(const LLSettingsBase::Seconds& delta);
 
-        virtual void                setDay(const LLSettingsDay::ptr_t &pday, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset);
-        virtual void                setSky(const LLSettingsSky::ptr_t &psky);
-        virtual void                setWater(const LLSettingsWater::ptr_t &pwater);
+        virtual void                    setDay(const LLSettingsDay::ptr_t &pday, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset);
+        virtual void                    setSky(const LLSettingsSky::ptr_t &psky);
+        virtual void                    setWater(const LLSettingsWater::ptr_t &pwater);
 
-        void                        initialize();
-        bool                        isInitialized();
+        void                            initialize();
+        bool                            isInitialized();
 
-        void                        clear();
+        void                            clear();
 
-        void                        setSkyTrack(S32 trackno);
+        void                            setSkyTrack(S32 trackno);
 
-        LLSettingsDay::ptr_t        getDayCycle() const     { return mDayCycle; }
-        LLSettingsSky::ptr_t        getSky() const          { return mSky; }
-        LLSettingsWater::ptr_t      getWater() const        { return mWater; }
-        LLSettingsDay::Seconds      getDayLength() const    { return mDayLength; }
-        LLSettingsDay::Seconds      getDayOffset() const    { return mDayOffset; }
-        S32                         getSkyTrack() const     { return mSkyTrack; }
+        LLSettingsDay::ptr_t            getDayCycle() const     { return mDayCycle; }
+        LLSettingsSky::ptr_t            getSky() const          { return mSky; }
+        LLSettingsWater::ptr_t          getWater() const        { return mWater; }
+        LLSettingsDay::Seconds          getDayLength() const    { return mDayLength; }
+        LLSettingsDay::Seconds          getDayOffset() const    { return mDayOffset; }
+        S32                             getSkyTrack() const     { return mSkyTrack; }
 
-        virtual void                animate();
+        void                            setDayOffset(LLSettingsBase::Seconds offset) { mDayOffset = offset; animate(); }
 
-        void                        setBlenders(const LLSettingsBlender::ptr_t &skyblend, const LLSettingsBlender::ptr_t &waterblend);
+        virtual void                    animate();
 
-        EnvSelection_t              getEnvironmentSelection() const { return mEnv; }
-        void                        setEnvironmentSelection(EnvSelection_t env) { mEnv = env; }
+        void                            setBlenders(const LLSettingsBlender::ptr_t &skyblend, const LLSettingsBlender::ptr_t &waterblend);
+
+        EnvSelection_t                  getEnvironmentSelection() const { return mEnv; }
+        void                            setEnvironmentSelection(EnvSelection_t env) { mEnv = env; }
+
+        LLSettingsBase::TrackPosition   getProgress() const;
+
     protected:
         LLSettingsDay::ptr_t        mDayCycle;
         LLSettingsSky::ptr_t        mSky;

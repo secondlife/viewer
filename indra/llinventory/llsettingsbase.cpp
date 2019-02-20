@@ -381,7 +381,7 @@ bool LLSettingsBase::validate()
     }
     if (result["warnings"].size() > 0)
     {
-        LL_WARNS("SETTINGS") << "Validation warnings: " << result["warnings"] << LL_ENDL;
+        LL_DEBUGS("SETTINGS") << "Validation warnings: " << result["warnings"] << LL_ENDL;
     }
 
     return result["success"].asBoolean();

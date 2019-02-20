@@ -189,7 +189,6 @@ void LLPanelSettingsWaterMainTab::onLargeWaveChanged()
 {
     LLVector2 vect(getChild<LLUICtrl>(FIELD_WATER_WAVE1_XY)->getValue());
     vect *= -1.0; // Flip so that north and east are -
-    LL_WARNS("LAPRAS") << "Changing Large Wave from " << mWaterSettings->getWave1Dir() << " -> " << vect << LL_ENDL;
     mWaterSettings->setWave1Dir(vect);
     setIsDirty();
 }
@@ -198,7 +197,6 @@ void LLPanelSettingsWaterMainTab::onSmallWaveChanged()
 {
     LLVector2 vect(getChild<LLUICtrl>(FIELD_WATER_WAVE2_XY)->getValue());
     vect *= -1.0; // Flip so that north and east are -
-    LL_WARNS("LAPRAS") << "Changing Small Wave from " << mWaterSettings->getWave2Dir() << " -> " << vect << LL_ENDL;
     mWaterSettings->setWave2Dir(vect);
     setIsDirty();
 }
@@ -207,7 +205,6 @@ void LLPanelSettingsWaterMainTab::onSmallWaveChanged()
 void LLPanelSettingsWaterMainTab::onNormalScaleChanged()
 {
     LLVector3 vect(getChild<LLUICtrl>(FIELD_WATER_NORMAL_SCALE_X)->getValue().asReal(), getChild<LLUICtrl>(FIELD_WATER_NORMAL_SCALE_Y)->getValue().asReal(), getChild<LLUICtrl>(FIELD_WATER_NORMAL_SCALE_Z)->getValue().asReal());
-    LL_WARNS("LAPRAS") << "Changing normal scale from " << mWaterSettings->getNormalScale() << " -> " << vect << LL_ENDL;
     mWaterSettings->setNormalScale(vect);
     setIsDirty();
 }

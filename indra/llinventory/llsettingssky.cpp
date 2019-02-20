@@ -997,9 +997,6 @@ void LLSettingsSky::calculateHeavenlyBodyPositions()  const
     mSunDirection.normalize();
     mMoonDirection.normalize();
 
-    //LL_WARNS("LAPRAS") << "Sun info:  Rotation=" << sunq  << " Vector=" << mSunDirection  << LL_ENDL;
-    //LL_WARNS("LAPRAS") << "Moon info: Rotation=" << moonq << " Vector=" << mMoonDirection << LL_ENDL;
-
     if (mSunDirection.lengthSquared() < 0.01f)
         LL_WARNS("SETTINGS") << "Zero length sun direction. Wailing and gnashing of teeth may follow... or not." << LL_ENDL;
     if (mMoonDirection.lengthSquared() < 0.01f)

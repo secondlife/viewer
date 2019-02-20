@@ -533,10 +533,6 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
     LLVFile file(mVFS, uuid, type);
     U32 size = exists ? file.getSize() : 0;
 
-// LAPRAS TESTING
-//     if (type == LLAssetType::AT_SETTINGS)
-//         size = 0;
-
     if (size > 0)
     {
         // we've already got the file

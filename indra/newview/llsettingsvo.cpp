@@ -324,7 +324,6 @@ void LLSettingsVOBase::onAssetDownloadComplete(LLVFS *vfs, const LLUUID &asset_i
         }
         else
         {
-            //_WARNS("LAPRAS") << "Setting asset ID to " << asset_id << LL_ENDL;
             settings->setAssetId(asset_id);
         }
     }
@@ -870,7 +869,6 @@ LLSD LLSettingsVOWater::convertToLegacy(const LLSettingsWater::ptr_t &pwater)
     legacy[SETTING_LEGACY_WAVE1_DIR] = settings[SETTING_WAVE1_DIR];
     legacy[SETTING_LEGACY_WAVE2_DIR] = settings[SETTING_WAVE2_DIR];
     
-    //_WARNS("LAPRAS") << "Legacy water: " << legacy << LL_ENDL;
     return legacy;
 }
 //-------------------------------------------------------------------------
@@ -1120,8 +1118,6 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyMessage(const LLUUID &regio
         ( SETTING_FRAMES, frames )
         ( SETTING_TYPE, "daycycle" );
 
-    //_WARNS("LAPRAS") << "newsettings=" << newsettings << LL_ENDL;
-
     LLSettingsSky::validation_list_t validations = LLSettingsDay::validationList();
     LLSD results = LLSettingsDay::settingValidation(newsettings, validations);
     if (!results["success"].asBoolean())
@@ -1299,7 +1295,6 @@ LLSD LLSettingsVODay::convertToLegacy(const LLSettingsVODay::ptr_t &pday)
         F32 frame = ((tracksky.size() == 1) && (it == tracksky.begin())) ? -1.0f : (*it).first;
         llsdcycle.append( LLSDArray(LLSD::Real(frame))(name.str()) );
     }
-    //_WARNS("LAPRAS") << "Cycle created with " << llsdcycle.size() << "entries: " << llsdcycle << LL_ENDL;
 
     LLSD llsdskylist(LLSD::emptyMap());
     
@@ -1311,8 +1306,6 @@ LLSD LLSettingsVODay::convertToLegacy(const LLSettingsVODay::ptr_t &pday)
         llsdskylist[(*its).first] = llsdsky;
     }
 
-    //_WARNS("LAPRAS") << "Sky map with " << llsdskylist.size() << " entries created: " << llsdskylist << LL_ENDL;
-    
     return LLSDArray(LLSD::emptyMap())(llsdcycle)(llsdskylist)(llsdwater);
 }
 

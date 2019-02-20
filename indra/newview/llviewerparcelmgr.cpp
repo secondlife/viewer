@@ -1670,7 +1670,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 				}
 			}
             parcel->setParcelEnvironmentVersion(parcel_environment_version);
-            LL_WARNS("LAPRAS") << "Parcel environment version is " << parcel->getParcelEnvironmentVersion() << LL_ENDL;
+            LL_DEBUGS("ENVIRONMENT") << "Parcel environment version is " << parcel->getParcelEnvironmentVersion() << LL_ENDL;
             // Notify anything that wants to know when the agent changes parcels
             gAgent.changeParcels();
             instance->mTeleportInProgress = FALSE;
@@ -1682,7 +1682,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
             parcel_mgr.mAgentParcel->unpackMessage(msg);
             if ((LLEnvironment::instance().isExtendedEnvironmentEnabled() && environment_changed))
             {
-                LL_WARNS("LAPRAS") << "Parcel environment version is " << parcel->getParcelEnvironmentVersion() << LL_ENDL;
+                LL_DEBUGS("ENVIRONMENT") << "Parcel environment version is " << parcel->getParcelEnvironmentVersion() << LL_ENDL;
                 LLEnvironment::instance().requestParcel(local_id);
             }
         }

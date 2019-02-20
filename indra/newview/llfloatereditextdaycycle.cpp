@@ -1797,7 +1797,7 @@ void LLFloaterEditExtDayCycle::loadSettingFromFile(const std::vector<std::string
     LLSD messages;
     if (filenames.size() < 1) return;
     std::string filename = filenames[0];
-    LL_WARNS("LAPRAS") << "Selected file: " << filename << LL_ENDL;
+    LL_DEBUGS("ENVDAYEDIT") << "Selected file: " << filename << LL_ENDL;
     LLSettingsDay::ptr_t legacyday = LLEnvironment::createDayCycleFromLegacyPreset(filename, messages);
 
     if (!legacyday)
