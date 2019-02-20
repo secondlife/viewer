@@ -234,6 +234,8 @@ void LLConversationViewSession::draw()
 	// Draw children if root folder, or any other folder that is open. Do not draw children when animating to closed state or you get rendering overlap.
 	bool draw_children = getRoot() == static_cast<LLFolderViewFolder*>(this) || isOpen();
 
+	// Todo/fix this: arrange hides children 'out of bonds', session 'slowly' adjusts container size, unhides children
+	// this process repeats until children fit
 	for (folders_t::iterator iter = mFolders.begin();
 		iter != mFolders.end();)
 	{
@@ -254,9 +256,6 @@ void LLConversationViewSession::draw()
 		updateLabelRotation();
 		drawOpenFolderArrow(default_params, sFgColor);
 	}
-
-	refresh();        
-
 	LLView::draw();
 }
 
@@ -568,6 +567,7 @@ void LLConversationViewParticipant::draw()
     F32 text_left = (F32)getLabelXPos();
 	
 	LLColor4 color;
+
 	LLLocalSpeakerMgr *speakerMgr = LLLocalSpeakerMgr::getInstance();
 
 	if (speakerMgr && speakerMgr->isSpeakerToBeRemoved(mUUID))
@@ -579,9 +579,14 @@ void LLConversationViewParticipant::draw()
 		color = mIsSelected ? sHighlightFgColor : sFgColor;
 	}
 
+	LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(getViewModelItem());
+	if (participant_model)
+	{
+		mSpeakingIndicator->setIsModeratorMuted(participant_model->isModeratorMuted());
+	}
+
     drawHighlight(show_context, mIsSelected, sHighlightBgColor, sFlashBgColor, sFocusOutlineColor, sMouseOverColor);
     drawLabel(font, text_left, y, color, right_x);
-	refresh();
 
     LLView::draw();
 }
