@@ -11347,5 +11347,32 @@ You may not edit settings directly from the libary.
 Please copy to your own inventory and try again.
   <tag>fail</tag>
   </notification>
+
+    <notification
+   icon="notify.tga"
+   name="EnvironmentApplyFailed"
+   persist="true"
+   type="alertmodal">
+We have encountered an issue with these settings.  They can not be saved or applied at this time.
+  <tag>fail</tag>
+  </notification>
+
+    <notification
+   icon="notify.tga"
+   name="TrackLoadFailed"
+   persist="true"
+   type="alertmodal">
+Unable to load the track into [TRACK].
+  <tag>fail</tag>
+  </notification>
+
+    <notification
+   icon="notify.tga"
+   name="TrackLoadMismatch"
+   persist="true"
+   type="alertmodal">
+Unable to load the track from [TRACK1] into [TRACK2].
+  <tag>fail</tag>
+  </notification>
   
 </notifications>

@@ -587,6 +587,15 @@ BOOL LLFloaterEditExtDayCycle::handleKeyUp(KEY key, MASK mask, BOOL called_from_
 void LLFloaterEditExtDayCycle::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
 {
     std::string ctrl_action = ctrl->getName();
+
+    if (!mEditDay)
+    {
+        LL_WARNS("ENVDAYEDIT") << "mEditDay is null! This should never happen! Something is very very wrong" << LL_ENDL;
+        LLNotificationsUtil::add("EnvironmentApplyFailed");
+        closeFloater();
+        return;
+    }
+
     LLSettingsDay::ptr_t dayclone = mEditDay->buildClone(); // create a compressed copy
 
     if (!dayclone)
@@ -1078,22 +1087,50 @@ void LLFloaterEditExtDayCycle::cloneTrack(U32 source_index, U32 dest_index)
 
 void LLFloaterEditExtDayCycle::cloneTrack(const LLSettingsDay::ptr_t &source_day, U32 source_index, U32 dest_index)
 {
-    if (source_index == LLSettingsDay::TRACK_WATER || dest_index == LLSettingsDay::TRACK_WATER)
-    {
-        LL_WARNS() << "water track can't be source or destination for copying" << LL_ENDL;
+    if ((source_index == LLSettingsDay::TRACK_WATER || dest_index == LLSettingsDay::TRACK_WATER) && (source_index != dest_index))
+    {   // one of the tracks is a water track, the other is not
+        LLSD args;
+
+        LL_WARNS() << "Can not import water track into sky track or vice versa" << LL_ENDL;
+
+        LLButton* button = getChild<LLButton>(track_tabs[source_index], true);
+        args["TRACK1"] = button->getCurrentLabel();
+        button = getChild<LLButton>(track_tabs[dest_index], true);
+        args["TRACK2"] = button->getCurrentLabel();
+
+        LLNotificationsUtil::add("TrackLoadMismatch", args);
         return;
     }
 
     // don't use replaceCycleTrack because we will end up with references, but we need to clone
+
+    // hold on to a backup of the 
+    LLSettingsDay::CycleTrack_t backup_track = mEditDay->getCycleTrack(dest_index);
+
     mEditDay->clearCycleTrack(dest_index); // because source can be empty
     LLSettingsDay::CycleTrack_t source_track = source_day->getCycleTrack(source_index);
-
+    S32 addcount(0);
     for (auto &track_frame : source_track)
     {
-        LLSettingsSky::ptr_t psky = std::static_pointer_cast<LLSettingsSky>(track_frame.second);
-        mEditDay->setSettingsAtKeyframe(psky->buildDerivedClone(), track_frame.first, dest_index);
+        LLSettingsBase::ptr_t pframe = track_frame.second;
+        LLSettingsBase::ptr_t pframeclone = pframe->buildDerivedClone();
+        if (pframeclone)
+        {
+            ++addcount;
+            mEditDay->setSettingsAtKeyframe(pframeclone, track_frame.first, dest_index);
+        }
     }
 
+    if (!addcount)
+    {   // nothing was actually added.  Restore the old track and issue a warning.
+        mEditDay->replaceCycleTrack(dest_index, backup_track);
+
+        LLSD args;
+        LLButton* button = getChild<LLButton>(track_tabs[dest_index], true);
+        args["TRACK"] = button->getCurrentLabel();
+
+        LLNotificationsUtil::add("TrackLoadFailed", args);
+    }
     setDirtyFlag();
 
     updateSlider();
@@ -1760,7 +1797,7 @@ void LLFloaterEditExtDayCycle::loadSettingFromFile(const std::vector<std::string
     LLSD messages;
     if (filenames.size() < 1) return;
     std::string filename = filenames[0];
-    LL_WARNS("LAPRAS") << "Selected file: " << filename << LL_ENDL;
+    LL_DEBUGS("ENVDAYEDIT") << "Selected file: " << filename << LL_ENDL;
     LLSettingsDay::ptr_t legacyday = LLEnvironment::createDayCycleFromLegacyPreset(filename, messages);
 
     if (!legacyday)

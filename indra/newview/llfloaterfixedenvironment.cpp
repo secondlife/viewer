@@ -534,16 +534,14 @@ void LLFloaterFixedEnvironment::doApplyCreateNewInventory(std::string settings_n
 
 void LLFloaterFixedEnvironment::doApplyUpdateInventory()
 {
-    LL_WARNS("LAPRAS") << "Update inventory for " << mInventoryId << LL_ENDL;
+    LL_DEBUGS("ENVEDIT") << "Update inventory for " << mInventoryId << LL_ENDL;
     if (mInventoryId.isNull())
     {
-        LL_WARNS("LAPRAS") << "Inventory ID is NULL. Creating New!!!" << LL_ENDL;
         LLSettingsVOBase::createInventoryItem(mSettings, gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS), std::string(),
             [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
     }
     else
     {
-        LL_WARNS("LAPRAS") << "Updating inventory ID " << mInventoryId << LL_ENDL;
         LLSettingsVOBase::updateInventoryItem(mSettings, mInventoryId,
             [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryUpdated(asset_id, inventory_id, results); });
     }
@@ -751,7 +749,7 @@ void LLFloaterFixedEnvironmentWater::loadWaterSettingFromFile(const std::vector<
     LLSD messages;
     if (filenames.size() < 1) return;
     std::string filename = filenames[0];
-    LL_WARNS("LAPRAS") << "Selected file: " << filename << LL_ENDL;
+    LL_DEBUGS("ENVEDIT") << "Selected file: " << filename << LL_ENDL;
     LLSettingsWater::ptr_t legacywater = LLEnvironment::createWaterFromLegacyPreset(filename, messages);
 
     if (!legacywater)
@@ -839,7 +837,7 @@ void LLFloaterFixedEnvironmentSky::loadSkySettingFromFile(const std::vector<std:
     std::string filename = filenames[0];
     LLSD messages;
 
-    LL_WARNS("LAPRAS") << "Selected file: " << filename << LL_ENDL;
+    LL_DEBUGS("ENVEDIT") << "Selected file: " << filename << LL_ENDL;
     LLSettingsSky::ptr_t legacysky = LLEnvironment::createSkyFromLegacyPreset(filename, messages);
 
     if (!legacysky)
