@@ -838,19 +838,9 @@ void LLFloaterEditExtDayCycle::onCloneTrack()
         args.append(track);
     }
 
-    if (populated_counter > 1)
+    if (populated_counter > 0)
     {
         doOpenTrackFloater(args);
-    }
-    else if (populated_counter > 0)
-    {
-        for (U32 i = 1; i < LLSettingsDay::TRACK_MAX; i++)
-        {
-            if ((!mEditDay->isTrackEmpty(i)) && (i != mCurrentTrack))
-            {
-                onPickerCommitTrackId(i);
-            }
-        }
     }
     else
     {

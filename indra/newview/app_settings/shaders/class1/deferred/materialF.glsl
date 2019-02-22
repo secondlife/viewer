@@ -202,7 +202,8 @@ void main()
 #endif
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
-    vec3 gamma_diff = linear_to_srgb(diffcol.rgb);
+    vec3 gamma_diff = diffcol.rgb;
+    diffcol.rgb = srgb_to_linear(diffcol.rgb);
 #endif
 
 #if HAS_SPECULAR_MAP
@@ -280,20 +281,17 @@ void main()
           final_da = min(final_da, 1.0f);
           final_da = pow(final_da, display_gamma);
 
-    col.rgb = (col * 0.5) + amblit;
+    col.rgb = amblit;
     
     float ambient = min(abs(final_da), 1.0);
     ambient *= 0.5;
     ambient *= ambient;
     ambient = (1.0-ambient);
 
-    col.rgb *= ambient;
-
-    col.rgb = col.rgb + (final_da * sunlit);
-
+    col.rgb *= min(ambient, max(shadow,0.3));
+    col.rgb += (final_da * sunlit);
     col.rgb *= gamma_diff.rgb;
     
-
     float glare = 0.0;
 
     if (spec.a > 0.0) // specular reflection
@@ -315,6 +313,7 @@ void main()
         col += spec_contrib;
     }
 
+vec3 post_spec = col.rgb;
 
     col = mix(col.rgb, diffcol.rgb, diffuse.a);
 
@@ -337,6 +336,8 @@ void main()
     col = atmosFragLighting(col, additive, atten);
     col = scaleSoftClipFrag(col);
 
+vec3 post_atmo= col.rgb;
+
     vec3 npos = normalize(-pos.xyz);
             
     vec3 light = vec3(0,0,0);
@@ -353,17 +354,23 @@ void main()
 
     col.rgb += light.rgb;
 
+vec3 post_lighting = col.rgb;
+
     glare = min(glare, 1.0);
     float al = max(diffcol.a,glare)*vertex_color.a;
 
     //convert to gamma space for display on screen
     col.rgb = linear_to_srgb(col.rgb);
 
+vec3 post_srgb = col.rgb;
+
 #ifdef WATER_FOG
     vec4 temp = applyWaterFogView(pos, vec4(col.rgb, al));
     col.rgb = temp.rgb;
     al = temp.a;
 #endif
+
+//col.rgb = post_lighting;
 
     frag_color.rgb = col.rgb;
     frag_color.a   = al;

@@ -90,17 +90,16 @@ void main()
     vec4 norm = texture2DRect(normalMap, tc);
     float envIntensity = norm.z;
     norm.xyz = getNorm(tc); // unpack norm
-        
-    float da_sun  = dot(norm.xyz, sun_dir.xyz);
-    float da_moon = dot(norm.xyz, moon_dir.xyz);
-    float da = (sun_up_factor == 1) ? da_sun : da_moon;
-          da = clamp(da, 0.0, 1.0);
 
-    da = pow(da, global_gamma + 0.3);
+    vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;        
+
+    float da  = dot(norm.xyz, light_dir.xyz);
+          da = clamp(da, 0.0, 1.0);
 
     vec4 diffuse = texture2DRect(diffuseRect, tc);
     
     vec3 col;
+    float scol = 1.0;
     float bloom = 0.0;
     {
         vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
@@ -108,8 +107,12 @@ void main()
         vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
         scol_ambocc = pow(scol_ambocc, vec2(global_gamma + 0.3));
 
-        float scol = max(scol_ambocc.r, diffuse.a);
+        scol = max(scol_ambocc.r, diffuse.a);
         float ambocc = scol_ambocc.g;
+
+        float final_da = da;
+              final_da = min(final_da, scol);
+              final_da = pow(final_da, global_gamma + 0.3);
 
         vec3 sunlit;
         vec3 amblit;
@@ -118,18 +121,17 @@ void main()
     
         calcFragAtmospherics(pos.xyz, ambocc, sunlit, amblit, additive, atten);
 
-        float ambient = da;
-
+        float ambient = min(da, 1.0);
         ambient *= 0.5;
         ambient *= ambient;
-        ambient = (1.0-ambient);
+        ambient = min(1.0 - ambient,max(scol,0.3));
+
+        vec3 sun_contrib = sunlit * final_da;
 
         col.rgb = amblit;
-        col.rgb *= min(ambient, max(scol, 0.5));
-
-        col += sunlit * da * scol;
-
-        col *= diffuse.rgb;
+        col.rgb *= ambient;
+        col.rgb += sun_contrib;
+        col.rgb *= diffuse.rgb;
 
         vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
@@ -165,9 +167,6 @@ void main()
             col = fogged.rgb;
             bloom = fogged.a;
         #endif
-
-//col.rgb = vec3(scol);
-//col.rgb = vec3(da * scol);
     }
     frag_color.rgb = col;
     frag_color.a = bloom;
