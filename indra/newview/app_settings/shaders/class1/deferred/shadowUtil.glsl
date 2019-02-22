@@ -49,8 +49,8 @@ uniform int sun_up_factor;
 float pcfShadow(sampler2DShadow shadowMap, vec3 norm, vec4 stc, float bias_mul, vec2 pos_screen, vec3 light_dir)
 {
     stc.xyz /= stc.w;
-    stc.z += shadow_bias * bias_mul* 2.0;
-    stc.x = floor(stc.x*shadow_res.x + fract(stc.y*pos_screen.y*pos_screen.x))/shadow_res.x; // add some chaotic jitter to X sample pos according to Y to disguise the snapping going on here
+    stc.z += shadow_bias * bias_mul * 2.0;
+    stc.x = floor(stc.x*shadow_res.x + fract(stc.y*shadow_res.y))/shadow_res.x; // add some chaotic jitter to X sample pos according to Y to disguise the snapping going on here
     
     float cs = shadow2D(shadowMap, stc.xyz).x;
     float shadow = cs * 4.0;
@@ -90,7 +90,9 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
           dp_directional_light = clamp(dp_directional_light, 0.0, 1.0);
 
     vec3 shadow_pos = pos.xyz;
-    vec3 offset = abs(light_dir.xyz) * (1.0 - dp_directional_light* 0.8);
+
+    vec3 offset = light_dir.xyz * (1.0 - dp_directional_light);
+
     shadow_pos += offset * shadow_offset;
 
     vec4 spos = vec4(shadow_pos.xyz, 1.0);
@@ -109,7 +111,7 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
             
             float w = 1.0;
             w -= max(spos.z-far_split.z, 0.0)/transition_domain.z;
-            shadow += pcfShadow(shadowMap3, norm, lpos, 4.0, pos_screen, light_dir)*w;
+            shadow += pcfShadow(shadowMap3, norm, lpos, 1.0, pos_screen, light_dir)*w;
             weight += w;
             shadow += max((pos.z+shadow_clip.z)/(shadow_clip.z-shadow_clip.w)*2.0-1.0, 0.0);
         }
@@ -121,7 +123,7 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
             float w = 1.0;
             w -= max(spos.z-far_split.y, 0.0)/transition_domain.y;
             w -= max(near_split.z-spos.z, 0.0)/transition_domain.z;
-            shadow += pcfShadow(shadowMap2, norm, lpos, 2.0, pos_screen, light_dir)*w;
+            shadow += pcfShadow(shadowMap2, norm, lpos, 1.0, pos_screen, light_dir)*w;
             weight += w;
         }
 
@@ -153,6 +155,7 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
     {
         return 1.0f; // lit beyond the far split...
     }
+    shadow = min(dp_directional_light,shadow);
     return shadow;
 }
 

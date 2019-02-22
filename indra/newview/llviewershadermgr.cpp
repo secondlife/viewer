@@ -2196,6 +2196,17 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
     {
         gDeferredTerrainProgram.mName = "Deferred Terrain Shader";
         gDeferredTerrainProgram.mFeatures.encodesNormal = true;
+        gDeferredTerrainProgram.mFeatures.hasSrgb = true;
+        gDeferredTerrainProgram.mFeatures.calculatesLighting = false;
+        gDeferredTerrainProgram.mFeatures.hasLighting = false;
+        gDeferredTerrainProgram.mFeatures.isAlphaLighting = true;
+        gDeferredTerrainProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
+        gDeferredTerrainProgram.mFeatures.hasWaterFog = true;
+        gDeferredTerrainProgram.mFeatures.calculatesAtmospherics = true;
+        gDeferredTerrainProgram.mFeatures.hasAtmospherics = true;
+        gDeferredTerrainProgram.mFeatures.hasGamma = true;
+        gDeferredTerrainProgram.mFeatures.hasTransport = true;
+
         gDeferredTerrainProgram.mShaderFiles.clear();
         gDeferredTerrainProgram.mShaderFiles.push_back(make_pair("deferred/terrainV.glsl", GL_VERTEX_SHADER_ARB));
         gDeferredTerrainProgram.mShaderFiles.push_back(make_pair("deferred/terrainF.glsl", GL_FRAGMENT_SHADER_ARB));
@@ -2208,8 +2219,17 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
     {
         gDeferredTerrainWaterProgram.mName = "Deferred Terrain Underwater Shader";
         gDeferredTerrainWaterProgram.mFeatures.encodesNormal = true;
-        gDeferredTerrainWaterProgram.mFeatures.hasWaterFog = true;
         gDeferredTerrainWaterProgram.mFeatures.hasSrgb = true;
+        gDeferredTerrainWaterProgram.mFeatures.calculatesLighting = false;
+        gDeferredTerrainWaterProgram.mFeatures.hasLighting = false;
+        gDeferredTerrainWaterProgram.mFeatures.isAlphaLighting = true;
+        gDeferredTerrainWaterProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
+        gDeferredTerrainWaterProgram.mFeatures.hasWaterFog = true;
+        gDeferredTerrainWaterProgram.mFeatures.calculatesAtmospherics = true;
+        gDeferredTerrainWaterProgram.mFeatures.hasAtmospherics = true;
+        gDeferredTerrainWaterProgram.mFeatures.hasGamma = true;
+        gDeferredTerrainWaterProgram.mFeatures.hasTransport = true;
+
         gDeferredTerrainWaterProgram.mShaderFiles.clear();
         gDeferredTerrainWaterProgram.mShaderFiles.push_back(make_pair("deferred/terrainV.glsl", GL_VERTEX_SHADER_ARB));
         gDeferredTerrainWaterProgram.mShaderFiles.push_back(make_pair("deferred/terrainF.glsl", GL_FRAGMENT_SHADER_ARB));
@@ -3400,9 +3420,9 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 
 BOOL LLViewerShaderMgr::loadShadersAvatar()
 {
-      BOOL success = TRUE;
+    BOOL success = TRUE;
 
-     if (mShaderLevel[SHADER_AVATAR] == 0)
+    if (mShaderLevel[SHADER_AVATAR] == 0)
     {
         gAvatarProgram.unload();
         gAvatarWaterProgram.unload();
@@ -3411,7 +3431,7 @@ BOOL LLViewerShaderMgr::loadShadersAvatar()
         return TRUE;
     }
 
-     if (success)
+    if (success)
     {
         gAvatarProgram.mName = "Avatar Shader";
         gAvatarProgram.mFeatures.hasSkinning = true;
@@ -3455,7 +3475,7 @@ BOOL LLViewerShaderMgr::loadShadersAvatar()
         }
     }
 
-     if (success)
+    if (success)
     {
         gAvatarPickProgram.mName = "Avatar Pick Shader";
         gAvatarPickProgram.mFeatures.hasSkinning = true;

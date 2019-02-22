@@ -8497,8 +8497,12 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     shader.uniform1f(LLShaderMgr::DEFERRED_DEPTH_CUTOFF, RenderEdgeDepthCutoff);
     shader.uniform1f(LLShaderMgr::DEFERRED_NORM_CUTOFF, RenderEdgeNormCutoff);
     
+    shader.uniform4fv(LLShaderMgr::SUNLIGHT_COLOR, 1, mSunDiffuse.mV);
+    shader.uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, mMoonDiffuse.mV);
+
     LLEnvironment& environment = LLEnvironment::instance();
     shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
+    shader.uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, environment.getCurrentSky()->getSunMoonGlowFactor());
 
     if (shader.getUniformLocation(LLShaderMgr::DEFERRED_NORM_MATRIX) >= 0)
     {
@@ -8591,6 +8595,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
         mTransformedSunDir.set(tc.v);
 
         glh::vec4f tc_moon(mMoonDir.mV);
+        mat.mult_matrix_vec(tc_moon);
         mTransformedMoonDir.set(tc_moon.v);
 
         gGL.pushMatrix();
