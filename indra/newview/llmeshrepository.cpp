@@ -1823,7 +1823,17 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 			return false;
 		}
 
-		header_size += stream.tellg();
+		if (!header.isMap() || !header.has("version"))
+		{
+			LL_WARNS(LOG_MESH) << "Mesh header is invalid for ID: " << mesh_id << LL_ENDL;
+			return false;
+		}
+
+		// make sure there is at least one lod, function returns -1 and marks as 404 otherwise
+		if (LLMeshRepository::getActualMeshLOD(header, 0) >= 0)
+		{
+			header_size += stream.tellg();
+		}
 	}
 	else
 	{
@@ -2908,9 +2918,14 @@ S32 LLMeshRepository::getActualMeshLOD(LLSD& header, S32 lod)
 {
 	lod = llclamp(lod, 0, 3);
 
+	if (header.has("404"))
+	{
+		return -1;
+	}
+
 	S32 version = header["version"];
 
-	if (header.has("404") || version > MAX_MESH_VERSION)
+	if (version > MAX_MESH_VERSION)
 	{
 		return -1;
 	}
