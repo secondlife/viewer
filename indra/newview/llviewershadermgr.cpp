@@ -3400,9 +3400,9 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 
 BOOL LLViewerShaderMgr::loadShadersAvatar()
 {
-    BOOL success = TRUE;
+      BOOL success = TRUE;
 
-    if (mShaderLevel[SHADER_AVATAR] == 0)
+     if (mShaderLevel[SHADER_AVATAR] == 0)
     {
         gAvatarProgram.unload();
         gAvatarWaterProgram.unload();
@@ -3411,7 +3411,7 @@ BOOL LLViewerShaderMgr::loadShadersAvatar()
         return TRUE;
     }
 
-    if (success)
+     if (success)
     {
         gAvatarProgram.mName = "Avatar Shader";
         gAvatarProgram.mFeatures.hasSkinning = true;
@@ -3455,7 +3455,7 @@ BOOL LLViewerShaderMgr::loadShadersAvatar()
         }
     }
 
-    if (success)
+     if (success)
     {
         gAvatarPickProgram.mName = "Avatar Pick Shader";
         gAvatarPickProgram.mFeatures.hasSkinning = true;
