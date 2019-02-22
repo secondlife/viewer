@@ -1338,7 +1338,7 @@ void LLRender::syncMatrices()
 			GL_TEXTURE,
 		};
 
-		for (U32 i = 0; i < 2; ++i)
+		for (U32 i = 0; i < MM_TEXTURE0; ++i)
 		{
 			if (mMatHash[i] != mCurMatHash[i])
 			{
@@ -1348,11 +1348,11 @@ void LLRender::syncMatrices()
 			}
 		}
 
-		for (U32 i = 2; i < NUM_MATRIX_MODES; ++i)
+		for (U32 i = MM_TEXTURE0; i < NUM_MATRIX_MODES; ++i)
 		{
 			if (mMatHash[i] != mCurMatHash[i])
 			{
-				gGL.getTexUnit(i-2)->activate();
+				gGL.getTexUnit(i-MM_TEXTURE0)->activate();
 				glMatrixMode(mode[i]);
 				glLoadMatrixf(mMatrix[i][mMatIdx[i]].m);
 				mCurMatHash[i] = mMatHash[i];
@@ -1484,25 +1484,21 @@ void LLRender::multMatrix(const GLfloat* m)
 	}
 }
 
-void LLRender::matrixMode(U32 mode)
+void LLRender::matrixMode(eMatrixMode mode)
 {
 	if (mode == MM_TEXTURE)
 	{
         U32 tex_index = gGL.getCurrentTexUnitIndex();
-        // the shaders don't actually reference anything beyond texture_matrix0/1
-        if (tex_index > 3)
-        {
-            LL_WARNS_ONCE("render") << "Cannot use texture matrix with texture unit " << tex_index << " forcing texture matrix 3!" << LL_ENDL;
-            tex_index = 3;
-        }
-		mode = MM_TEXTURE0 + gGL.getCurrentTexUnitIndex();
+        // the shaders don't actually reference anything beyond texture_matrix0/1 outside of terrain rendering
+        llassert_always(tex_index <= 3);
+		mode = eMatrixMode(MM_TEXTURE0 + gGL.getCurrentTexUnitIndex());
 	}
 
 	llassert(mode < NUM_MATRIX_MODES);
 	mMatrixMode = mode;
 }
 
-U32 LLRender::getMatrixMode()
+LLRender::eMatrixMode LLRender::getMatrixMode()
 {
 	if (mMatrixMode >= MM_TEXTURE0 && mMatrixMode <= MM_TEXTURE3)
 	{ //always return MM_TEXTURE if current matrix mode points at any texture matrix

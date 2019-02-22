@@ -2194,7 +2194,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
     if (success)
     {
-        gTerrainProgram.mName = "Deferred Terrain Shader";
+        gDeferredTerrainProgram.mName = "Deferred Terrain Shader";
         gDeferredTerrainProgram.mFeatures.encodesNormal = true;
         gDeferredTerrainProgram.mShaderFiles.clear();
         gDeferredTerrainProgram.mShaderFiles.push_back(make_pair("deferred/terrainV.glsl", GL_VERTEX_SHADER_ARB));

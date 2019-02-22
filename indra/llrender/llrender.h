@@ -364,8 +364,8 @@ public:
 	void loadMatrix(const GLfloat* m);
 	void loadIdentity();
 	void multMatrix(const GLfloat* m);
-	void matrixMode(U32 mode);	
-	U32 getMatrixMode();
+	void matrixMode(eMatrixMode mode);	
+	eMatrixMode getMatrixMode();
 
 	const glh::matrix4f& getModelviewMatrix();
 	const glh::matrix4f& getProjectionMatrix();
@@ -454,7 +454,7 @@ public:
 private:
 	friend class LLLightState;
 
-	U32 mMatrixMode;
+	eMatrixMode mMatrixMode;
 	U32 mMatIdx[NUM_MATRIX_MODES];
 	U32 mMatHash[NUM_MATRIX_MODES];
 	glh::matrix4f mMatrix[NUM_MATRIX_MODES][LL_MATRIX_STACK_DEPTH];

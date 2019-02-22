@@ -515,6 +515,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL ba
 
 	if (tex_setup)
 	{
+        gGL.matrixMode(LLRender::MM_TEXTURE0);
 		gGL.loadIdentity();
 		gGL.matrixMode(LLRender::MM_MODELVIEW);
 	}

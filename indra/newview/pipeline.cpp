@@ -4746,6 +4746,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
             LL_RECORD_BLOCK_TIME(FTM_POST_DEFERRED_POOLRENDER);
 
             gGLLastMatrix = NULL;
+            gGL.matrixMode(LLRender::MM_MODELVIEW);
             gGL.loadMatrix(gGLModelView);
         
             for( S32 i = 0; i < poolp->getNumPostDeferredPasses(); i++ )

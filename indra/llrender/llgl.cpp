@@ -2507,7 +2507,7 @@ void LLGLSquashToFarClip::setProjectionMatrix(glh::matrix4f& projection, U32 lay
 		projection.element(2, i) = projection.element(3, i) * depth;
 	}
 
-    U32 last_matrix_mode = gGL.getMatrixMode();
+    LLRender::eMatrixMode last_matrix_mode = gGL.getMatrixMode();
 
 	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.pushMatrix();
@@ -2518,7 +2518,7 @@ void LLGLSquashToFarClip::setProjectionMatrix(glh::matrix4f& projection, U32 lay
 
 LLGLSquashToFarClip::~LLGLSquashToFarClip()
 {
-    U32 last_matrix_mode = gGL.getMatrixMode();
+    LLRender::eMatrixMode last_matrix_mode = gGL.getMatrixMode();
 
 	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.popMatrix();
