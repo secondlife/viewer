@@ -8053,7 +8053,7 @@
   <key>PreviewRenderSize</key>  
   <map>
     <key>Comment</key>
-    <string>Resolution of the image rendered for the mesh upload preview (must be a power of 2)</string>
+    <string>Resolution of the image rendered for the mesh upload preview</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
