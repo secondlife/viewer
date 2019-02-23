@@ -60,7 +60,7 @@ VARYING vec4 vertex_color;
 
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
-
+uniform int sun_up_factor;
 uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
 uniform vec4 light_attenuation[8]; 
@@ -173,13 +173,13 @@ void main()
 
     vec2 abnormal   = encode_normal(norm.xyz);
 
-    float sun_da  = dot(norm.xyz, sun_dir.xyz);
-    float moon_da = dot(norm.xyz, moon_dir.xyz);
+    vec3 light_dir = (sun_up_factor == 1) ? sun_dir: moon_dir;
+    float da = dot(norm.xyz, light_dir.xyz);
 
-    float final_da = max(sun_da, moon_da);
+    float final_da = da;
           final_da = min(final_da, shadow);
           final_da = clamp(final_da, 0.0f, 1.0f);
-      final_da = pow(final_da, display_gamma);
+          final_da = pow(final_da, 1.0/display_gamma);
 
     vec4 color = vec4(0,0,0,0);
 

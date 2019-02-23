@@ -32,6 +32,7 @@
 
 uniform float emissive_brightness;
 uniform float display_gamma;
+uniform int sun_up_factor;
 
 #ifdef WATER_FOG
 vec4 applyWaterFogView(vec3 pos, vec4 color);
@@ -77,10 +78,10 @@ uniform vec2 screen_res;
 
 uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
-uniform vec3 light_attenuation[8]; 
+uniform vec4 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
 
-vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spec, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, inout float glare)
+vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spec, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, inout float glare, float ambiance)
 {
     //get light vector
     vec3 lv = lp.xyz-v;
@@ -113,6 +114,12 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
         float lit = max(da * dist_atten, 0.0);
 
         col = light_col*lit*diffuse;
+
+        float amb_da = (da*da*0.5 + 0.25) * ambiance;
+        amb_da *= dist_atten;
+        amb_da = min(amb_da, 1.0f - lit);
+
+        col.rgb += amb_da * light_col * diffuse;
 
         if (spec.a > 0.0)
         {
@@ -203,7 +210,6 @@ void main()
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
     vec3 gamma_diff = diffcol.rgb;
-    diffcol.rgb = srgb_to_linear(diffcol.rgb);
 #endif
 
 #if HAS_SPECULAR_MAP
@@ -271,15 +277,14 @@ void main()
     
     vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
-    float sun_da  = dot(norm.xyz, sun_dir.xyz);
-    float moon_da = dot(norm.xyz, moon_dir.xyz);
+    vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;
+    float da = dot(norm.xyz, light_dir.xyz);
 
-    float final_da = max(sun_da,moon_da);
+    float final_da = da;
           final_da = min(final_da, shadow);
           //final_da = max(final_da, diffuse.a);
           final_da = max(final_da, 0.0f);
           final_da = min(final_da, 1.0f);
-          final_da = pow(final_da, display_gamma);
 
     col.rgb = amblit;
     
@@ -289,8 +294,9 @@ void main()
     ambient = (1.0-ambient);
 
     col.rgb *= min(ambient, max(shadow,0.3));
+
     col.rgb += (final_da * sunlit);
-    col.rgb *= gamma_diff.rgb;
+    col.rgb *= diffuse.rgb;
     
     float glare = 0.0;
 
@@ -315,7 +321,7 @@ void main()
 
 vec3 post_spec = col.rgb;
 
-    col = mix(col.rgb, diffcol.rgb, diffuse.a);
+    col = mix(col.rgb, diffuse.rgb, diffuse.a);
 
     if (envIntensity > 0.0)
     {
@@ -333,8 +339,8 @@ vec3 post_spec = col.rgb;
         glare += cur_glare;
     }
 
-    col = atmosFragLighting(col, additive, atten);
-    col = scaleSoftClipFrag(col);
+    //col = atmosFragLighting(col, additive, atten);
+    //col = scaleSoftClipFrag(col);
 
 vec3 post_atmo= col.rgb;
 
@@ -342,7 +348,7 @@ vec3 post_atmo= col.rgb;
             
     vec3 light = vec3(0,0,0);
 
- #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare);
+ #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w);
 
         LIGHT_LOOP(1)
         LIGHT_LOOP(2)
@@ -359,18 +365,11 @@ vec3 post_lighting = col.rgb;
     glare = min(glare, 1.0);
     float al = max(diffcol.a,glare)*vertex_color.a;
 
-    //convert to gamma space for display on screen
-    col.rgb = linear_to_srgb(col.rgb);
-
-vec3 post_srgb = col.rgb;
-
 #ifdef WATER_FOG
     vec4 temp = applyWaterFogView(pos, vec4(col.rgb, al));
     col.rgb = temp.rgb;
     al = temp.a;
 #endif
-
-//col.rgb = post_lighting;
 
     frag_color.rgb = col.rgb;
     frag_color.a   = al;
