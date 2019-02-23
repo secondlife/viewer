@@ -125,11 +125,17 @@ BOOL LLViewerDynamicTexture::render()
 //-----------------------------------------------------------------------------
 void LLViewerDynamicTexture::preRender(BOOL clear_depth)
 {
+	// <FS:Beq> changes to support higher resolution rendering in the preview
+	////only images up to 512x512 are supported
+	//llassert(mFullHeight <= 512);
+	//llassert(mFullWidth <= 512);
 	gPipeline.allocatePhysicsBuffer();
 	llassert(mFullWidth <= static_cast<S32>(gPipeline.mPhysicsDisplay.getWidth()));
 	llassert(mFullHeight <= static_cast<S32>(gPipeline.mPhysicsDisplay.getHeight()));
 
+//	if (gGLManager.mHasFramebufferObject && gPipeline.mWaterDis.isComplete() && !gGLManager.mIsATI)
 	if (gGLManager.mHasFramebufferObject && gPipeline.mPhysicsDisplay.isComplete() && !gGLManager.mIsATI)
+// </FS:Beq>
 	{ //using offscreen render target, just use the bottom left corner
 		mOrigin.set(0, 0);
 	}
@@ -215,13 +221,15 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 	{
 		return TRUE;
 	}
-
+	// <FS:Beq> changes to support higher resolution rendering in the preview
+	//	bool use_fbo = gGLManager.mHasFramebufferObject && gPipeline.mWaterDis.isComplete() && !gGLManager.mIsATI;
 	bool use_fbo = gGLManager.mHasFramebufferObject && gPipeline.mPhysicsDisplay.isComplete() && !gGLManager.mIsATI;
 	if (use_fbo)
 	{
+//		gPipeline.mWaterDis.bindTarget();
 		gPipeline.mPhysicsDisplay.bindTarget();
 	}
-
+	// </FS:Beq>
 	LLGLSLShader::bindNoShader();
 	LLVertexBuffer::unbind();
 	
@@ -257,7 +265,10 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 
 	if (use_fbo)
 	{
+		// <FS:Beq> changes to support higher resolution rendering in the preview
+		// gPipeline.mWaterDis.flush();
 		gPipeline.mPhysicsDisplay.flush();
+		// </FS:Beq>
 	}
 
 	return ret;
