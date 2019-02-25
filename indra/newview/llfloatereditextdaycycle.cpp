@@ -1322,6 +1322,11 @@ void LLFloaterEditExtDayCycle::updateSlider()
     mFramesSlider->clear();
     mSliderKeyMap.clear();
 
+    if (!mEditDay)
+    {
+        return;
+    }
+
     LLSettingsDay::CycleTrack_t track = mEditDay->getCycleTrack(mCurrentTrack);
     for (auto &track_frame : track)
     {
@@ -1736,7 +1741,7 @@ bool LLFloaterEditExtDayCycle::isRemovingFrameAllowed()
 
 bool LLFloaterEditExtDayCycle::isAddingFrameAllowed()
 {
-    if (!mFramesSlider->getCurSlider().empty()) return false;
+    if (!mFramesSlider->getCurSlider().empty() || !mEditDay) return false;
 
     LLSettingsBase::Seconds frame(mTimeSlider->getCurSliderValue());
     if ((mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)

@@ -47,7 +47,9 @@ void main()
     vec4 sunA = texture2D(diffuseMap, vary_texcoord0.xy);
     vec4 sunB = texture2D(altDiffuseMap, vary_texcoord0.xy);
     vec4 c     = mix(sunA, sunB, blend_factor);
-    c.a *= sun_fade;
+
+// SL-9806 stars poke through
+//    c.a *= sun_fade;
 
     c.rgb = pow(c.rgb, vec3(0.7f));
     c.rgb = fullbrightAtmosTransport(c.rgb);
