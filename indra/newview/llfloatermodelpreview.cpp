@@ -4625,8 +4625,6 @@ void LLFloaterModelPreview::resetUploadOptions()
 		childSetValue("lod_file_" + lod_name[lod], "");
 	}
 
-	getChild<LLComboBox>("physics_lod_combo")->setCurrentByIndex(0);
-
 	for(auto& p : mDefaultDecompParams)
 	{
 		std::string ctrl_name(p.first);
@@ -4636,6 +4634,8 @@ void LLFloaterModelPreview::resetUploadOptions()
 			ctrl->setValue(p.second);
 		}
 	}
+	getChild<LLComboBox>("physics_lod_combo")->setCurrentByIndex(0);
+	getChild<LLComboBox>("Cosine%")->setCurrentByIndex(0);
 }
 
 void LLFloaterModelPreview::onModelPhysicsFeeReceived(const LLSD& result, std::string upload_url)
