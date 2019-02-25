@@ -127,7 +127,7 @@ void ll::statusbar::SearchableItem::setNotHighlighted( )
 
 bool ll::statusbar::SearchableItem::hightlightAndHide( LLWString const &aFilter )
 {
-	if( mMenu && !mMenu->getVisible() && !mWasHiddenBySearch )
+	if ((mMenu && !mMenu->getVisible() && !mWasHiddenBySearch) || dynamic_cast<LLMenuItemTearOffGL*>(mMenu))
 		return false;
 
 	setNotHighlighted( );
