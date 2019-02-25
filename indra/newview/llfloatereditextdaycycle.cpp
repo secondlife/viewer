@@ -1368,7 +1368,7 @@ void LLFloaterEditExtDayCycle::updateTimeAndLabel()
     // Update blender here:
 }
 
-void LLFloaterEditExtDayCycle::addSliderFrame(const F32 frame, const LLSettingsBase::ptr_t &setting, bool update_ui)
+void LLFloaterEditExtDayCycle::addSliderFrame(F32 frame, const LLSettingsBase::ptr_t &setting, bool update_ui)
 {
     // multi slider distinguishes elements by key/name in string format
     // store names to map to be able to recall dependencies
@@ -1406,6 +1406,19 @@ void LLFloaterEditExtDayCycle::removeCurrentSliderFrame()
     mLastFrameSlider = mFramesSlider->getCurSlider();
     mTimeSlider->setCurSliderValue(mFramesSlider->getCurSliderValue());
     updateTabs();
+}
+
+void LLFloaterEditExtDayCycle::removeSliderFrame(F32 frame)
+{
+    keymap_t::iterator it = std::find_if(mSliderKeyMap.begin(), mSliderKeyMap.end(), 
+        [frame](const keymap_t::value_type &value) { return fabs(value.second.mFrame - frame) < LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR; });
+
+    if (it != mSliderKeyMap.end())
+    {
+        mFramesSlider->deleteSlider((*it).first);
+        mSliderKeyMap.erase(it);
+    }
+
 }
 
 //-------------------------------------------------------------------------
@@ -1997,18 +2010,20 @@ void LLFloaterEditExtDayCycle::onAssetLoadedForInsertion(LLUUID item_id, LLUUID 
         }
         else
         {
-            // load single frame
-
-            if ((mEditDay->getSettingsNearKeyframe(frame, dest_track, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
-            {
-                LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame too close to existing frame." << LL_ENDL;
-                return;
-            }
             if (!mFramesSlider->canAddSliders())
             {
                 LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame when slider is full." << LL_ENDL;
                 return;
             }
+
+            // load or replace single frame
+            LLSettingsDay::CycleTrack_t::value_type nearest = mEditDay->getSettingsNearKeyframe(frame, dest_track, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR);
+            if (nearest.first != LLSettingsDay::INVALID_TRACKPOS)
+            {   // There is already a frame near the target location. Remove it so we can put the new one in its place.
+                mEditDay->removeTrackKeyframe(dest_track, nearest.first);
+                removeSliderFrame(nearest.first);
+            }
+
             // Don't forget to clone (we might reuse/load it couple times)
             if (settings->getSettingsType() == "sky")
             {
