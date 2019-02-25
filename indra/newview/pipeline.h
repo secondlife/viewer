@@ -281,7 +281,8 @@ public:
 
 	void unbindDeferredShader(LLGLSLShader& shader);
 	void renderDeferredLighting(LLRenderTarget* light_target);
-	
+	void postDeferredGammaCorrect(LLRenderTarget* screen_target);
+
 	void generateWaterReflection(LLCamera& camera);
 	void generateSunShadow(LLCamera& camera);
     LLRenderTarget* getShadowTarget(U32 i);

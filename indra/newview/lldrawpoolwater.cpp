@@ -619,8 +619,6 @@ void LLDrawPoolWater::shade2(bool edge, LLGLSLShader* shader, const LLColor3& li
 	{		
 		LLGLDisable cullface(GL_CULL_FACE);
 
-        
-
         sNeedsReflectionUpdate = TRUE;			
         sNeedsDistortionUpdate = TRUE;
 
