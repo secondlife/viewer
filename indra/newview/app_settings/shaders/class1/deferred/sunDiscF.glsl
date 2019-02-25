@@ -52,7 +52,7 @@ void main()
     c.rgb = fullbrightAtmosTransport(c.rgb);
     c.rgb = fullbrightScaleSoftClip(c.rgb);
 
-    c.a *= sun_fade;
+    //c.a *= sun_fade;
 
     frag_data[0] = c;
     frag_data[1] = vec4(0.0f);
