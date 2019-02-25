@@ -255,6 +255,7 @@
                                 max_val="1"
                                 name="WLDayCycleFrames"
                                 show_text="false"
+                                thumb_highlight_color="white"
                                 thumb_width="12"
                                 top_pad="15"
                                 width="525" />
