@@ -57,6 +57,7 @@ uniform mat3 ssao_effect_mat;
 
 uniform vec3 sun_dir;
 uniform vec3 moon_dir;
+uniform int sun_up_factor;
 VARYING vec2 vary_fragcoord;
 
 uniform mat4 inv_proj;
@@ -69,7 +70,16 @@ vec4 applyWaterFogView(vec3 pos, vec4 color);
 vec3 getNorm(vec2 pos_screen);
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 fullbrightAtmosTransportFrag(vec3 l, vec3 additive, vec3 atten);
+
+#if defined(VERT_ATMOSPHERICS)
+vec3 getPositionEye();
+vec3 getSunlitColor();
+vec3 getAmblitColor();
+vec3 getAdditiveColor();
+vec3 getAtmosAttenuation();
+#else
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
+#endif
 
 vec3 scaleSoftClip(vec3 l);
 vec3 fullbrightScaleSoftClip(vec3 l);
@@ -84,13 +94,14 @@ void main()
     vec4 norm = texture2DRect(normalMap, tc);
     float envIntensity = norm.z;
     norm.xyz = getNorm(tc);
-        
-    float da_sun  = dot(norm.xyz, normalize(sun_dir.xyz));
-    float da_moon = dot(norm.xyz, normalize(moon_dir.xyz));
-    float da = max(da_sun, da_moon);
+    
+    vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;
+    
+    float da = dot(normalize(norm.xyz), light_dir.xyz);
+          da = clamp(da, 0.0, 1.0);
 
-    float final_da = clamp(da, 0.0, 1.0);
-          final_da = pow(final_da, global_gamma + 0.3);
+    float light_gamma = 1.0/1.3;
+	      da = pow(da, light_gamma);
 
     vec4 diffuse = texture2DRect(diffuseRect, tc);
 
@@ -102,25 +113,33 @@ void main()
         vec3 amblit;
         vec3 additive;
         vec3 atten;
+
+#if defined(VERT_ATMOSPHERICS)
+        sunlit   = getSunlitColor();
+        amblit   = getAmblitColor();
+        additive = getAdditiveColor();
+        atten    = getAtmosAttenuation();
+#else
         calcFragAtmospherics(pos.xyz, 1.0, sunlit, amblit, additive, atten);
-    
-        float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
+#endif
+
+        float ambient = min(abs(da), 1.0);
         ambient *= 0.5;
         ambient *= ambient;
-        ambient = (1.0 - ambient);
+        ambient = 1.0 - ambient;
 
-        col = amblit;
-        col *= ambient;
-        col += (final_da * sunlit);        
-        col *= diffuse.rgb;
-    
+        vec3 sun_contrib = da * sunlit;
+
+        col.rgb = amblit;
+        col.rgb *= ambient;
+        col.rgb += sun_contrib;
+        col.rgb *= diffuse.rgb;
+
         vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
         if (spec.a > 0.0) // specular reflection
         {
             // the old infinite-sky shiny reflection
-            //
-            
             float sa = dot(refnormpersp, sun_dir.xyz);
             vec3 dumbshiny = sunlit*(texture2D(lightFunc, vec2(sa, spec.a)).r);
             
@@ -131,12 +150,12 @@ void main()
         }
         
         col = mix(col.rgb, diffuse.rgb, diffuse.a);
-                
+
         if (envIntensity > 0.0)
         { //add environmentmap
             vec3 env_vec = env_mat * refnormpersp;
             vec3 refcol = textureCube(environmentMap, env_vec).rgb;
-            col = mix(col.rgb, refcol, envIntensity);  
+            col = mix(col.rgb, refcol, envIntensity); 
         }
                 
         if (norm.w < 0.5)
@@ -155,4 +174,3 @@ void main()
     frag_color.rgb = col.rgb;
     frag_color.a = bloom;
 }
-

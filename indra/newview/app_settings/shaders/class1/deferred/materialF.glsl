@@ -41,7 +41,14 @@ vec4 applyWaterFogView(vec3 pos, vec4 color);
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 scaleSoftClipFrag(vec3 l);
 
+#if defined(VERT_ATMOSPHERICS)
+vec3 getSunlitColor();
+vec3 getAmblitColor();
+vec3 getAdditiveColor();
+vec3 getAtmosAttenuation();
+#else
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
+#endif
 
 vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cs);
@@ -278,8 +285,15 @@ void main()
     vec3 additive;
     vec3 atten;
 
+#if VERT_ATMOSPHERICS
+    sunlit   = getSunlitColor();
+    amblit   = getAmblitColor();
+    additive = getAdditiveColor();
+    atten    = getAtmosAttenuation();
+#else
     calcFragAtmospherics(pos.xyz, 1.0, sunlit, amblit, additive, atten);
- 
+#endif
+
     vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
     vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;

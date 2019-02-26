@@ -76,7 +76,16 @@ vec3 linear_to_srgb(vec3 c);
 vec2 encode_normal (vec3 n);
 vec3 scaleSoftClipFrag(vec3 l);
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten);
+
+#if defined(VERT_ATMOSPHERICS)
+vec3 getSunlitColor();
+vec3 getAmblitColor();
+vec3 getAdditiveColor();
+vec3 getAtmosAttenuation();
+void calcAtmospherics(vec3 inPositionEye, float ambFactor);
+#else
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
+#endif
 
 float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 
@@ -174,7 +183,15 @@ void main()
     vec3 amblit;
     vec3 additive;
     vec3 atten;
+
+#if VERT_ATMOSPHERICS
+    sunlit = getSunlitColor();
+    amblit = getAmblitColor();
+    additive = getAdditiveColor();
+    atten = getAtmosAttenuation();
+#else
     calcFragAtmospherics(pos.xyz, 1.0, sunlit, amblit, additive, atten);
+#endif
 
     vec2 abnormal   = encode_normal(norm.xyz);
 

@@ -101,17 +101,16 @@ void main()
           da = clamp(da, 0.0, 1.0);
 
     float light_gamma = 1.0/1.3;
-	  da = pow(da, light_gamma);
+	      da = pow(da, light_gamma);
 
     vec4 diffuse = texture2DRect(diffuseRect, tc);
    
     scol = max(scol_ambocc.r, diffuse.a);
 
+    vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
     vec3 col;
     float bloom = 0.0;
     {
-        vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
-
         float ambocc = scol_ambocc.g;
 
         vec3 sunlit;
@@ -147,7 +146,7 @@ void main()
             col += spec_contrib;
         }
         
-        col = mix(col, diffuse.rgb, diffuse.a);
+        col = mix(col.rgb, diffuse.rgb, diffuse.a);
 
         if (envIntensity > 0.0)
         { //add environmentmap
@@ -155,7 +154,7 @@ void main()
             vec3 refcol = textureCube(environmentMap, env_vec).rgb;
             col = mix(col.rgb, refcol, envIntensity); 
         }
-                        
+                
         if (norm.w < 0.5)
         {
             col = mix(atmosFragLighting(col, additive, atten), fullbrightAtmosTransportFrag(col, additive, atten), diffuse.a);
@@ -168,6 +167,7 @@ void main()
             bloom = fogged.a;
         #endif
     }
-    frag_color.rgb = col;
+
+    frag_color.rgb = col.rgb;
     frag_color.a = bloom;
 }

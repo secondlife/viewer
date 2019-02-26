@@ -9413,6 +9413,10 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
         stop_glerror();
         LLPlane plane;
 
+        S32 detail = RenderReflectionDetail;
+
+        bool materials_in_water = LLPipeline::sRenderDeferred && gSavedSettings.getS32("RenderWaterMaterials");
+
         F32 water_height      = gAgent.getRegion()->getWaterHeight(); 
         F32 camera_height     = camera_in.getOrigin().mV[2];
         F32 distance_to_water = (water_height < camera_height) ? (camera_height - water_height) : (water_height - camera_height);
@@ -9504,7 +9508,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                     stateSort(camera, sky_and_clouds);
                     gPipeline.grabReferences(sky_and_clouds);
 
-                    if (LLPipeline::sRenderDeferred)
+                    if (materials_in_water)
                     {
                         gPipeline.mWaterDeferredDepth.bindTarget();
                         gPipeline.mWaterDeferredDepth.clear();
@@ -9532,7 +9536,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                     LLPipeline::RENDER_TYPE_CLOUDS,
                     LLPipeline::END_RENDER_TYPES);  
 
-                S32 detail = RenderReflectionDetail;
                 if (detail > 0)
                 { //mask out selected geometry based on reflection detail
                     if (detail < 4)
@@ -9564,11 +9567,10 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
                         gPipeline.grabReferences(reflected_objects);
 
-                        if (LLPipeline::sRenderDeferred)
+                        if (materials_in_water)
                         {                           
                             renderGeomDeferred(camera);
                             renderGeomPostDeferred(camera);
-
                             gPipeline.mWaterDeferredScreen.flush();
                             gPipeline.mWaterDeferredDepth.flush();
                             mWaterRef.copyContents(gPipeline.mWaterDeferredScreen, 0, 0, gPipeline.mWaterDeferredScreen.getWidth(), gPipeline.mWaterDeferredScreen.getHeight(),
@@ -9648,13 +9650,13 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                 mWaterDis.clear();
                 gGL.setColorMask(true, false);
 
-                // ignore clip plane if we're underwater and viewing distortion  map of objects above waterline
-                if (camera_is_underwater)
+                // ignore clip plane if we're underwater and viewing distortion map of objects above waterline
+                if (camera_is_underwater && materials_in_water)
                 {
                     clip_plane.disable();
                 }
 
-                if (LLPipeline::sRenderDeferred)
+                if (materials_in_water)
                 {                                       
                     mWaterDis.flush();
                     gGL.setColorMask(true, true);
@@ -9665,7 +9667,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                     gPipeline.mWaterDeferredScreen.clear();
                     gPipeline.grabReferences(refracted_objects);
                     gGL.setColorMask(true, false);
-
                     renderGeomDeferred(camera);
                     renderGeomPostDeferred(camera);
                 }
@@ -9686,7 +9687,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                     }
                 }
 
-                if (LLPipeline::sRenderDeferred)
+                if (materials_in_water)
                 {
                     gPipeline.mWaterDeferredScreen.flush();
                     gPipeline.mWaterDeferredDepth.flush();
