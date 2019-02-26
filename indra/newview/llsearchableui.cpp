@@ -125,16 +125,12 @@ void ll::statusbar::SearchableItem::setNotHighlighted( )
 	}
 }
 
-bool ll::statusbar::SearchableItem::hightlightAndHide( LLWString const &aFilter )
+bool ll::statusbar::SearchableItem::hightlightAndHide(LLWString const &aFilter, bool hide)
 {
 	if ((mMenu && !mMenu->getVisible() && !mWasHiddenBySearch) || dynamic_cast<LLMenuItemTearOffGL*>(mMenu))
 		return false;
 
 	setNotHighlighted( );
-
-	bool bVisible(false);
-	for( tSearchableItemList::iterator itr = mChildren.begin(); itr  != mChildren.end(); ++itr )
-		bVisible |= (*itr)->hightlightAndHide( aFilter );
 
 	if( aFilter.empty() )
 	{
@@ -143,17 +139,22 @@ bool ll::statusbar::SearchableItem::hightlightAndHide( LLWString const &aFilter 
 		return true;
 	}
 
+	bool bHighlighted(!hide);
 	if( mLabel.find( aFilter ) != LLWString::npos )
 	{
 		if( mCtrl )
 			mCtrl->setHighlighted( true );
-		return true;
+		bHighlighted = true;
 	}
 
-	if( mCtrl && !bVisible )
+	bool bVisible(false);
+	for (tSearchableItemList::iterator itr = mChildren.begin(); itr != mChildren.end(); ++itr)
+		bVisible |= (*itr)->hightlightAndHide(aFilter, !bHighlighted);
+
+	if (mCtrl && !bVisible && !bHighlighted)
 	{
 		mWasHiddenBySearch = true;
 		mMenu->setVisible(FALSE);
 	}
-	return bVisible;
+	return bVisible || bHighlighted;
 }
