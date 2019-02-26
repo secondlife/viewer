@@ -81,13 +81,21 @@ void LLFloaterTrackPicker::showPicker(const LLSD &args)
     LLSD::array_const_iterator iter;
     LLSD::array_const_iterator end = args.endArray();
 
+    bool select_item = true;
     for (iter = args.beginArray(); iter != end; ++iter)
     {
         S32 track_id = (*iter)["id"].asInteger();
         bool can_enable = (*iter)["enabled"].asBoolean();
-        LLView *view = getChild<LLCheckBoxCtrl>(RDO_TRACK_PREFIX + llformat("%d", track_id), true);
+        LLCheckBoxCtrl *view = getChild<LLCheckBoxCtrl>(RDO_TRACK_PREFIX + llformat("%d", track_id), true);
         view->setEnabled(can_enable);
         view->setLabelArg("[ALT]", (*iter).has("altitude") ? ((*iter)["altitude"].asString() + "m") : " ");
+
+        // Mark first avaliable item as selected
+        if (can_enable && select_item)
+        {
+            select_item = false;
+            getChild<LLRadioGroup>(RDO_TRACK_SELECTION, true)->setSelectedByValue(LLSD(track_id), TRUE);
+        }
     }
 
     openFloater(getKey());

@@ -144,8 +144,9 @@ private:
 	void                        updateLabels();
 	void                        updateSlider(); //generate sliders from current track
 	void                        updateTimeAndLabel();
-	void                        addSliderFrame(const F32 frame, const LLSettingsBase::ptr_t &setting, bool update_ui = true);
-	void                        removeCurrentSliderFrame();
+	void                        addSliderFrame(F32 frame, const LLSettingsBase::ptr_t &setting, bool update_ui = true);
+    void                        removeCurrentSliderFrame();
+    void                        removeSliderFrame(F32 frame);
 
     void                        loadInventoryItem(const LLUUID  &inventoryId);
     void                        onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status);
