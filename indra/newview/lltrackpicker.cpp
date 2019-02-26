@@ -94,7 +94,7 @@ void LLFloaterTrackPicker::showPicker(const LLSD &args)
         if (can_enable && select_item)
         {
             select_item = false;
-            view->set(TRUE);
+            getChild<LLRadioGroup>(RDO_TRACK_SELECTION, true)->setSelectedByValue(LLSD(track_id), TRUE);
         }
     }
 
