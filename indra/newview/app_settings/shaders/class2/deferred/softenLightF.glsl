@@ -51,6 +51,7 @@ uniform vec3 camPosLocal;
 uniform float cloud_shadow;
 uniform float max_y;
 uniform float global_gamma;
+uniform float display_gamma;
 uniform mat3 env_mat;
 uniform vec4 shadow_clip;
 uniform mat3 ssao_effect_mat;
@@ -93,26 +94,25 @@ void main()
 
     vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;        
 
-    float da  = dot(norm.xyz, light_dir.xyz);
+    float scol = 1.0;
+    vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
+
+    float da = dot(normalize(norm.xyz), light_dir.xyz);
           da = clamp(da, 0.0, 1.0);
 
+    float light_gamma = 1.0/1.3;
+	  da = pow(da, light_gamma);
+
     vec4 diffuse = texture2DRect(diffuseRect, tc);
-    
+   
+    scol = max(scol_ambocc.r, diffuse.a);
+
     vec3 col;
-    float scol = 1.0;
     float bloom = 0.0;
     {
         vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
-        
-        vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
-        scol_ambocc = pow(scol_ambocc, vec2(global_gamma + 0.3));
 
-        scol = max(scol_ambocc.r, diffuse.a);
         float ambocc = scol_ambocc.g;
-
-        float final_da = da;
-              final_da = min(final_da, scol);
-              final_da = pow(final_da, global_gamma + 0.3);
 
         vec3 sunlit;
         vec3 amblit;
@@ -121,12 +121,12 @@ void main()
     
         calcFragAtmospherics(pos.xyz, ambocc, sunlit, amblit, additive, atten);
 
-        float ambient = min(da, 1.0);
+        float ambient = min(abs(da), 1.0);
         ambient *= 0.5;
         ambient *= ambient;
-        ambient = min(1.0 - ambient,max(scol,0.3));
+        ambient = 1.0 - ambient * smoothstep(0.0, 0.3, scol);
 
-        vec3 sun_contrib = sunlit * final_da;
+        vec3 sun_contrib = min(da,scol) * sunlit;
 
         col.rgb = amblit;
         col.rgb *= ambient;

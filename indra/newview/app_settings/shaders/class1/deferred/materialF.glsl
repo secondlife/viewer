@@ -81,7 +81,7 @@ uniform vec3 light_direction[8];
 uniform vec4 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
 
-vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spec, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, inout float glare, float ambiance)
+vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spec, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, inout float glare, float ambiance, float shadow)
 {
     //get light vector
     vec3 lv = lp.xyz-v;
@@ -102,21 +102,24 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
         float dist = d/la;
         float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
         dist_atten *= dist_atten;
-        dist_atten *= 2.0;
-
+        
         // spotlight coefficient.
         float spot = max(dot(-ln, lv), is_pointlight);
         da *= spot*spot; // GL_SPOT_EXPONENT=2
 
         //angular attenuation
-        da *= max(dot(n, lv), 0.0);     
+        da = dot(n, lv);
+        da *= clamp(da, 0.0, 1.0);
+        da *= pow(da, 1.0 / 1.3);
         
-        float lit = max(da * dist_atten, 0.0);
+        float lit = max(min(da,shadow) * dist_atten, 0.0);
 
         col = light_col*lit*diffuse;
 
-        float amb_da = (da*da*0.5 + 0.25) * ambiance;
+        float amb_da = ambiance;
         amb_da *= dist_atten;
+        amb_da += (da*0.5) * ambiance;
+        amb_da += (da*da*0.5 + 0.25) * ambiance;
         amb_da = min(amb_da, 1.0f - lit);
 
         col.rgb += amb_da * light_col * diffuse;
@@ -144,7 +147,6 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
                 cur_glare = max(cur_glare, speccol.b);
                 glare = max(glare, speccol.r);
                 glare += max(cur_glare, 0.0);
-                //col += spec.rgb;
             }
         }
     }
@@ -263,41 +265,42 @@ void main()
 
     spec = final_specular;
     vec4 diffuse = final_color;
+
+    diffuse.rgb = srgb_to_linear(diffuse.rgb);
+
     float envIntensity = final_normal.z;
 
     vec3 col = vec3(0.0f,0.0f,0.0f);
 
     float bloom = 0.0;
-        vec3 sunlit;
-        vec3 amblit;
-        vec3 additive;
-        vec3 atten;
+    vec3 sunlit;
+    vec3 amblit;
+    vec3 additive;
+    vec3 atten;
 
     calcFragAtmospherics(pos.xyz, 1.0, sunlit, amblit, additive, atten);
-    
+ 
     vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
     vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;
-    float da = dot(norm.xyz, light_dir.xyz);
 
-    float final_da = da;
-          final_da = min(final_da, shadow);
-          //final_da = max(final_da, diffuse.a);
-          final_da = max(final_da, 0.0f);
-          final_da = min(final_da, 1.0f);
+    float da = dot(norm.xyz, light_dir.xyz);
+    da = clamp(da, 0.0, 1.0);
+    da = pow(da, 1.0 / 1.3);
 
     col.rgb = amblit;
     
-    float ambient = min(abs(final_da), 1.0);
+    float ambient = abs(da);
     ambient *= 0.5;
     ambient *= ambient;
-    ambient = (1.0-ambient);
+    ambient = 1.0 - ambient * smoothstep(0.0, 0.3, shadow);
 
-    col.rgb *= min(ambient, max(shadow,0.3));
-
-    col.rgb += (final_da * sunlit);
+    vec3 sun_contrib = min(da, shadow) * sunlit;
+   
+    col.rgb *= ambient;
+    col.rgb += sun_contrib;
     col.rgb *= diffuse.rgb;
-    
+ 
     float glare = 0.0;
 
     if (spec.a > 0.0) // specular reflection
@@ -339,8 +342,8 @@ vec3 post_spec = col.rgb;
         glare += cur_glare;
     }
 
-    //col = atmosFragLighting(col, additive, atten);
-    //col = scaleSoftClipFrag(col);
+    col = atmosFragLighting(col, additive, atten);
+    col = scaleSoftClipFrag(col);
 
 vec3 post_atmo= col.rgb;
 
@@ -348,7 +351,7 @@ vec3 post_atmo= col.rgb;
             
     vec3 light = vec3(0,0,0);
 
- #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w);
+ #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w, shadow);
 
         LIGHT_LOOP(1)
         LIGHT_LOOP(2)
@@ -370,6 +373,8 @@ vec3 post_lighting = col.rgb;
     col.rgb = temp.rgb;
     al = temp.a;
 #endif
+
+    col.rgb = linear_to_srgb(col.rgb);
 
     frag_color.rgb = col.rgb;
     frag_color.a   = al;

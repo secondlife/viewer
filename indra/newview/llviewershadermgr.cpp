@@ -320,22 +320,6 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
     mShaderList.push_back(&gDeferredSunProgram);
     mShaderList.push_back(&gDeferredSoftenProgram);
     mShaderList.push_back(&gDeferredSoftenWaterProgram);
-    mShaderList.push_back(&gDeferredMaterialProgram[1]);
-    mShaderList.push_back(&gDeferredMaterialProgram[5]);
-    mShaderList.push_back(&gDeferredMaterialProgram[9]);
-    mShaderList.push_back(&gDeferredMaterialProgram[13]);
-    mShaderList.push_back(&gDeferredMaterialProgram[1+LLMaterial::SHADER_COUNT]);
-    mShaderList.push_back(&gDeferredMaterialProgram[5+LLMaterial::SHADER_COUNT]);
-    mShaderList.push_back(&gDeferredMaterialProgram[9+LLMaterial::SHADER_COUNT]);
-    mShaderList.push_back(&gDeferredMaterialProgram[13+LLMaterial::SHADER_COUNT]);  
-    mShaderList.push_back(&gDeferredMaterialWaterProgram[1]);
-    mShaderList.push_back(&gDeferredMaterialWaterProgram[5]);
-    mShaderList.push_back(&gDeferredMaterialWaterProgram[9]);
-    mShaderList.push_back(&gDeferredMaterialWaterProgram[13]);
-    mShaderList.push_back(&gDeferredMaterialWaterProgram[1+LLMaterial::SHADER_COUNT]);
-    mShaderList.push_back(&gDeferredMaterialWaterProgram[5+LLMaterial::SHADER_COUNT]);
-    mShaderList.push_back(&gDeferredMaterialWaterProgram[9+LLMaterial::SHADER_COUNT]);
-    mShaderList.push_back(&gDeferredMaterialWaterProgram[13+LLMaterial::SHADER_COUNT]); 
     mShaderList.push_back(&gDeferredAlphaProgram);
     mShaderList.push_back(&gDeferredAlphaImpostorProgram);
     mShaderList.push_back(&gDeferredAlphaWaterProgram);
@@ -1479,6 +1463,8 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
     {
         if (success)
         {
+            mShaderList.push_back(&gDeferredMaterialProgram[i]);
+
             gDeferredMaterialProgram[i].mName = llformat("Deferred Material Shader %d", i);
             
             U32 alpha_mode = i & 0x3;
@@ -1513,6 +1499,8 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
         if (success)
         {
+            mShaderList.push_back(&gDeferredMaterialWaterProgram[i]);
+
             gDeferredMaterialWaterProgram[i].mName = llformat("Deferred Underwater Material Shader %d", i);
 
             U32 alpha_mode = i & 0x3;

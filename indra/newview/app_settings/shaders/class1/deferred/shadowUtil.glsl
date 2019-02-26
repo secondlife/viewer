@@ -155,7 +155,7 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
     {
         return 1.0f; // lit beyond the far split...
     }
-    shadow = min(dp_directional_light,shadow);
+    //shadow = min(dp_directional_light,shadow);
     return shadow;
 }
 
