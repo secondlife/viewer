@@ -285,7 +285,7 @@ void main()
     vec3 additive;
     vec3 atten;
 
-#if VERT_ATMOSPHERICS
+#if defined(VERT_ATMOSPHERICS)
     sunlit   = getSunlitColor();
     amblit   = getAmblitColor();
     additive = getAdditiveColor();
