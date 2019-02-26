@@ -555,7 +555,11 @@ void LLFloaterEditExtDayCycle::setEditName(const std::string &name)
 /* virtual */
 BOOL LLFloaterEditExtDayCycle::handleKeyUp(KEY key, MASK mask, BOOL called_from_parent)
 {
-    if (mask == MASK_SHIFT && mShiftCopyEnabled)
+    if (!mEditDay)
+    {
+        mShiftCopyEnabled = false;
+    }
+    else if (mask == MASK_SHIFT && mShiftCopyEnabled)
     {
         mShiftCopyEnabled = false;
         std::string curslider = mFramesSlider->getCurSlider();
@@ -770,6 +774,11 @@ void LLFloaterEditExtDayCycle::onAddFrame()
 {
     LLSettingsBase::Seconds frame(mTimeSlider->getCurSliderValue());
     LLSettingsBase::ptr_t setting;
+    if (!mEditDay)
+    {
+        LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame while waiting for day(asset) to load." << LL_ENDL;
+        return;
+    }
     if ((mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
     {
         LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame too close to existing frame." << LL_ENDL;
@@ -815,6 +824,11 @@ void LLFloaterEditExtDayCycle::onRemoveFrame()
 
 void LLFloaterEditExtDayCycle::onCloneTrack()
 {
+    if (!mEditDay)
+    {
+        LL_WARNS("ENVDAYEDIT") << "Attempt to copy track while waiting for day(asset) to load." << LL_ENDL;
+        return;
+    }
     const LLEnvironment::altitude_list_t &altitudes = LLEnvironment::instance().getRegionAltitudes();
     bool use_altitudes = altitudes.size() > 0 && ((mEditContext == CONTEXT_PARCEL) || (mEditContext == CONTEXT_REGION));
 
@@ -865,6 +879,12 @@ void LLFloaterEditExtDayCycle::onLoadTrack()
 
 void LLFloaterEditExtDayCycle::onClearTrack()
 {
+    if (!mEditDay)
+    {
+        LL_WARNS("ENVDAYEDIT") << "Attempt to clear track while waiting for day(asset) to load." << LL_ENDL;
+        return;
+    }
+
     if (mCurrentTrack > 1)
         mEditDay->getCycleTrack(mCurrentTrack).clear();
     else
@@ -887,6 +907,12 @@ void LLFloaterEditExtDayCycle::onClearTrack()
 
 void LLFloaterEditExtDayCycle::onCommitName(class LLLineEditor* caller, void* user_data)
 {
+    if (!mEditDay)
+    {
+        LL_WARNS("ENVDAYEDIT") << "Attempt to rename day while waiting for day(asset) to load." << LL_ENDL;
+        return;
+    }
+
     mEditDay->setName(caller->getText());
 }
 
@@ -1274,37 +1300,36 @@ void LLFloaterEditExtDayCycle::updateButtons()
     // This logic appears to work in reverse, the add frame button
     // is only enabled when you're on an existing frame and disabled
     // in all the interim positions where you'd want to add a frame...
-    //LLSettingsBase::Seconds frame(mTimeSlider->getCurSliderValue());
-    //LLSettingsBase::ptr_t settings = mEditDay->getSettingsAtKeyframe(frame, mCurrentTrack);
-    //bool can_add = static_cast<bool>(settings);
-    //mAddFrameButton->setEnabled(can_add);
-    //mDeleteFrameButton->setEnabled(!can_add);
-    mAddFrameButton->setEnabled(!mIsPlaying && isAddingFrameAllowed() && mCanMod);
-    mDeleteFrameButton->setEnabled(!mIsPlaying && isRemovingFrameAllowed() && mCanMod);
-    mLoadFrame->setEnabled(!mIsPlaying && mCanMod);
 
+    bool can_manipulate = mEditDay && !mIsPlaying && mCanMod;
     bool can_clone(false);
-    bool can_load(true);
-    bool can_clear(true);
+    bool can_clear(false);
 
-    if (mCurrentTrack == 0)
+    if (can_manipulate)
     {
-        can_clone = false;
-    }
-    else
-    {
-        for (S32 track = 1; track < LLSettingsDay::TRACK_MAX; ++track)
+        if (mCurrentTrack == 0)
         {
-            if (track == mCurrentTrack)
-                continue;
-            can_clone |= !mEditDay->getCycleTrack(track).empty();
+            can_clone = false;
         }
+        else
+        {
+            for (S32 track = 1; track < LLSettingsDay::TRACK_MAX; ++track)
+            {
+                if (track == mCurrentTrack)
+                    continue;
+                can_clone |= !mEditDay->getCycleTrack(track).empty();
+            }
+        }
+
+        can_clear = (mCurrentTrack > 1) ? (!mEditDay->getCycleTrack(mCurrentTrack).empty()) : (mEditDay->getCycleTrack(mCurrentTrack).size() > 1);
     }
 
-    can_clear = (mCurrentTrack > 1) ? (!mEditDay->getCycleTrack(mCurrentTrack).empty()) : (mEditDay->getCycleTrack(mCurrentTrack).size() > 1);
     mCloneTrack->setEnabled(can_clone);
-    mLoadTrack->setEnabled(can_load);
+    mLoadTrack->setEnabled(can_manipulate);
     mClearTrack->setEnabled(can_clear);
+    mAddFrameButton->setEnabled(can_manipulate && isAddingFrameAllowed());
+    mDeleteFrameButton->setEnabled(can_manipulate && isRemovingFrameAllowed());
+    mLoadFrame->setEnabled(can_manipulate);
 
     // update track buttons
     bool extended_env = LLEnvironment::instance().isExtendedEnvironmentEnabled();
@@ -1324,6 +1349,7 @@ void LLFloaterEditExtDayCycle::updateSlider()
 
     if (!mEditDay)
     {
+        // floater is waiting for asset
         return;
     }
 
@@ -2064,6 +2090,12 @@ void LLFloaterEditExtDayCycle::onAssetLoadedForInsertion(LLUUID item_id, LLUUID 
     if (!settings || status)
     {
         LL_WARNS("ENVDAYEDIT") << "Could not load asset " << asset_id << " into frame. status=" << status << LL_ENDL;
+        return;
+    }
+
+    if (!mEditDay)
+    {
+        // day got reset while we were waiting for response
         return;
     }
 
