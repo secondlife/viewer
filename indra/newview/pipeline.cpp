@@ -9593,6 +9593,10 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
             set_current_modelview(current);         
         }
 
+        // SL-10566 re-enable occlusion for refracted object set
+        // this bloated the scene by 3k calls when disabled
+        LLPipeline::sUseOcclusion = occlusion;
+
         camera.setOrigin(camera_in.getOrigin());
         //render distortion map
         static bool last_update = true;
