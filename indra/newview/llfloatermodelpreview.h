@@ -115,6 +115,7 @@ public:
 	void setViewOptionEnabled(const std::string& option, bool enabled);
 	void enableViewOption(const std::string& option);
 	void disableViewOption(const std::string& option);
+	void onShowSkinWeightChecked(LLUICtrl* ctrl);
 
 	bool isModelLoading();
 
