@@ -619,9 +619,6 @@ void LLDrawPoolWater::shade2(bool edge, LLGLSLShader* shader, const LLColor3& li
 	{		
 		LLGLDisable cullface(GL_CULL_FACE);
 
-        sNeedsReflectionUpdate = TRUE;			
-        sNeedsDistortionUpdate = TRUE;
-
         if (edge)
         {
             for (std::vector<LLFace*>::iterator iter = mDrawFace.begin(); iter != mDrawFace.end(); iter++)
@@ -632,10 +629,14 @@ void LLDrawPoolWater::shade2(bool edge, LLGLSLShader* shader, const LLColor3& li
                     LLVOWater* water = (LLVOWater*) face->getViewerObject();
 			        gGL.getTexUnit(diffTex)->bind(face->getTexture());
 
-                    bool edge_patch = water && water->getIsEdgePatch();
-                    if (edge_patch)
+                    if (water)
                     {
-                        face->renderIndexed();
+                        bool edge_patch = water->getIsEdgePatch();
+                        if (edge_patch)
+                        {
+                            sNeedsReflectionUpdate = TRUE;
+                            face->renderIndexed();
+                        }
                     }
                 }
 		    }
@@ -650,10 +651,15 @@ void LLDrawPoolWater::shade2(bool edge, LLGLSLShader* shader, const LLColor3& li
                     LLVOWater* water = (LLVOWater*) face->getViewerObject();
 			        gGL.getTexUnit(diffTex)->bind(face->getTexture());
 
-                    bool edge_patch = water && water->getIsEdgePatch();
-                    if (!edge_patch)
+                    if (water)
                     {
-                        face->renderIndexed();
+                        bool edge_patch = water->getIsEdgePatch();
+                        if (!edge_patch)
+                        {
+                            sNeedsReflectionUpdate = TRUE;
+                            sNeedsDistortionUpdate = TRUE;
+                            face->renderIndexed();
+                        }
                     }
                 }
 		    }

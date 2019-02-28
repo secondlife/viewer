@@ -498,15 +498,6 @@ void LLViewerShaderMgr::setShaders()
             transform_class = 0;
         }
 
-    #if USE_ADVANCED_ATMOSPHERICS
-        bool useAdvancedAtmospherics = doingWindLight && gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics");
-        if (useAdvancedAtmospherics)
-        {
-            deferred_class = 3;
-            wl_class       = 3;
-        }
-    #endif
-
         if (useRenderDeferred && doingWindLight)
         {
             //shadows
@@ -515,7 +506,6 @@ void LLViewerShaderMgr::setShaders()
                 case 0: deferred_class = 1; break; // no shadows
                 case 1: deferred_class = 2; break; // PCF shadows
                 case 2: deferred_class = 2; break; // PCF shadows
-                case 3: deferred_class = 3; break; // VSM shadows
                 default:
                     break;
             }
@@ -3819,15 +3809,6 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
         gInscatterRectProgram.unload();
         return TRUE;
     }
-
-#if USE_ADVANCED_ATMOSPHERICS
-// disabled until we can determine why low-end machines crash during this init...
-    if (gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics") && mShaderLevel[SHADER_WINDLIGHT] > 2)
-    {
-        // Prepare precomputed atmospherics textures using libatmosphere
-        LLAtmosphere::initClass();
-    }
-#endif
 
     if (success)
     {
