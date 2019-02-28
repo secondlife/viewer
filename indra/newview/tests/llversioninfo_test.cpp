@@ -33,10 +33,8 @@
 
 // LL_VIEWER_CHANNEL is a macro defined on the compiler command line. The
 // macro expands to the string name of the channel, but without quotes. We
-// need to turn it into a quoted string. This macro trick does that.
-#define stringize_inner(x) #x
-#define stringize_outer(x) stringize_inner(x)
-#define ll_viewer_channel stringize_outer(LL_VIEWER_CHANNEL)
+// need to turn it into a quoted string. LL_TO_STRING() does that.
+#define ll_viewer_channel LL_TO_STRING(LL_VIEWER_CHANNEL)
 
 namespace tut
 {

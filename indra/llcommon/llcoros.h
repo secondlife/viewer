@@ -170,6 +170,26 @@ public:
     static bool get_consuming();
 
     /**
+     * RAII control of the consuming flag
+     */
+    class OverrideConsuming
+    {
+    public:
+        OverrideConsuming(bool consuming):
+            mPrevConsuming(get_consuming())
+        {
+            set_consuming(consuming);
+        }
+        ~OverrideConsuming()
+        {
+            set_consuming(mPrevConsuming);
+        }
+
+    private:
+        bool mPrevConsuming;
+    };
+
+    /**
      * Please do NOT directly use boost::dcoroutines::future! It is essential
      * to maintain the "current" coroutine at every context switch. This
      * Future wraps the essential boost::dcoroutines::future functionality

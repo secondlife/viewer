@@ -90,9 +90,12 @@ void LLNotificationsListener::requestAdd(const LLSD& event_data) const
 {
 	if(event_data.has("reply"))
 	{
+		LLSD payload(event_data["payload"]);
+		// copy reqid, if provided, to link response with request
+		payload["reqid"] = event_data["reqid"];
 		mNotifications.add(event_data["name"], 
 						   event_data["substitutions"], 
-						   event_data["payload"],
+						   payload,
 						   boost::bind(&LLNotificationsListener::NotificationResponder, 
 									   this, 
 									   event_data["reply"].asString(), 
@@ -112,10 +115,12 @@ void LLNotificationsListener::NotificationResponder(const std::string& reply_pum
 										const LLSD& notification, 
 										const LLSD& response) const
 {
-	LLSD reponse_event;
-	reponse_event["notification"] = notification;
-	reponse_event["response"] = response;
-	LLEventPumps::getInstance()->obtain(reply_pump).post(reponse_event);
+	LLSD response_event;
+	response_event["notification"] = notification;
+	response_event["response"] = response;
+	// surface reqid at top level of response for request/response protocol
+	response_event["reqid"] = notification["payload"]["reqid"];
+	LLEventPumps::getInstance()->obtain(reply_pump).post(response_event);
 }
 
 void LLNotificationsListener::listChannels(const LLSD& params) const

@@ -34,6 +34,7 @@
 #include "stringize.h"
 #include "llsdutil.h"
 #include "llevents.h"
+#include "llstring.h"
 #include "wrapllerrs.h"
 
 #if defined(LL_WINDOWS)
@@ -142,8 +143,8 @@ struct PythonProcessLauncher
         mDesc(desc),
         mScript("py", script)
     {
-        const char* PYTHON(getenv("PYTHON"));
-        tut::ensure("Set $PYTHON to the Python interpreter", PYTHON);
+        auto PYTHON(LLStringUtil::getenv("PYTHON"));
+        tut::ensure("Set $PYTHON to the Python interpreter", !PYTHON.empty());
 
         mParams.desc = desc + " script";
         mParams.executable = PYTHON;
