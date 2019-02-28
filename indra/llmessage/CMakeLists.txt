@@ -244,6 +244,7 @@ endif(LINUX)
 # tests
 if (LL_TESTS)
   SET(llmessage_TEST_SOURCE_FILES
+    llcoproceduremanager.cpp
     llnamevalue.cpp
     lltrustedmessageservice.cpp
     lltemplatemessagedispatcher.cpp
