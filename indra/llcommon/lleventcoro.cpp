@@ -138,9 +138,17 @@ LLBoundListener postAndSuspendSetup(const std::string& callerName,
     // the specified LLEventPump with that callback
     LLBoundListener connection(
         replyPump.getPump().listen(listenerName,
-                                   [&promise, consuming](const LLSD& result)
+                                   [&promise, consuming, listenerName](const LLSD& result)
                                    {
-                                       promise.set_value(result);
+                                       try
+                                       {
+                                           promise.set_value(result);
+                                       }
+                                       catch(boost::fibers::promise_already_satisfied & ex)
+                                       {
+                                           LL_ERRS("lleventcoro") << "promise already satisfied in '"
+                                               << listenerName << "' "  << ex.what() << LL_ENDL;
+                                       }
                                        return consuming;
                                    }));
     // skip the "post" part if requestPump is default-constructed
