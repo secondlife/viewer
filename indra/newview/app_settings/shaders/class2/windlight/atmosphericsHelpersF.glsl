@@ -26,11 +26,9 @@
 // Output variables
 
 uniform float scene_light_strength;
-uniform int no_atmo;
 
 vec3 atmosFragAmbient(vec3 light, vec3 amblit)
 {
-    if (no_atmo == 1) return light;
     return amblit + light / 2.0;
 }
 

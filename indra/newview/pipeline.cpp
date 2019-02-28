@@ -235,7 +235,6 @@ LLTrace::BlockTimerStatHandle FTM_RENDER_UI("UI");
 LLTrace::BlockTimerStatHandle FTM_RENDER_WATER("Water");
 LLTrace::BlockTimerStatHandle FTM_RENDER_WL_SKY("Windlight Sky");
 LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA("Alpha Objects");
-LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_DEFERRED("Alpha Deferred Objects");
 LLTrace::BlockTimerStatHandle FTM_RENDER_CHARACTERS("Avatars");
 LLTrace::BlockTimerStatHandle FTM_RENDER_BUMP("Bump");
 LLTrace::BlockTimerStatHandle FTM_RENDER_MATERIALS("Render Materials");
@@ -893,14 +892,18 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
         //allocate deferred rendering color buffers
         if (!mDeferredScreen.allocate(resX, resY, GL_SRGB8_ALPHA8, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
         if (!mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
-
-        if (!mWaterDeferredScreen.allocate(water_buffer_res, water_buffer_res, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
-        if (!mWaterDeferredDepth.allocate(water_buffer_res,  water_buffer_res, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
-        if (!mWaterOcclusionDepth.allocate(water_buffer_res >> 1, water_buffer_res >> 1, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
-
         if (!mOcclusionDepth.allocate(resX/occlusion_divisor, resY/occlusion_divisor, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
         if (!addDeferredAttachments(mDeferredScreen)) return false;
-        if (!addDeferredAttachments(mWaterDeferredScreen)) return false;
+
+        bool materials_in_water = gSavedSettings.getS32("RenderWaterMaterials");
+
+        if(materials_in_water)
+        {
+            if (!mWaterDeferredScreen.allocate(water_buffer_res, water_buffer_res, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
+            if (!mWaterDeferredDepth.allocate(water_buffer_res,  water_buffer_res, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
+            if (!mWaterOcclusionDepth.allocate(water_buffer_res >> 1, water_buffer_res >> 1, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
+            if (!addDeferredAttachments(mWaterDeferredScreen)) return false;
+        }
 
         GLuint screenFormat = GL_RGBA16;
         if (gGLManager.mIsATI)
@@ -9434,10 +9437,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
         LLVector3 reflect_origin         = camera_in.getOrigin() - reflection_offset;
         LLVector3 reflect_interest_point = reflect_origin + (reflection_look_at * 5.0f);
 
-        U32 reflected_objects_size = 0;
-        U32 sky_and_clouds_size    = 0;
-        U32 refracted_objects_size = 0;
-
         camera.setOriginAndLookAt(reflect_origin, LLVector3::z_axis, reflect_interest_point);
 
         //plane params
@@ -9514,13 +9513,9 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                     gGL.setColorMask(true, true);
                     glClearColor(0,0,0,0);
 
-                    static LLCullResult sky_and_clouds;
-                    updateCull(camera, sky_and_clouds);
-                    stateSort(camera, sky_and_clouds);
-
-                    sky_and_clouds_size = sky_and_clouds.getVisibleListSize();
-
-                    gPipeline.grabReferences(sky_and_clouds);
+                    updateCull(camera, mSky);
+                    stateSort(camera, mSky);
+                    gPipeline.grabReferences(mSky);
 
                     if (materials_in_water)
                     {
@@ -9572,16 +9567,12 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                 {
                     if (detail > 0)
                     {
-                        static LLCullResult reflected_objects;
                         LLGLDisable cull(GL_CULL_FACE);
-
                         LLGLUserClipPlane clip_plane(plane, mat, projection);
-                        updateCull(camera, reflected_objects);
-                        stateSort(camera, reflected_objects);
 
-                        reflected_objects_size = reflected_objects.getVisibleListSize();
-
-                        gPipeline.grabReferences(reflected_objects);
+                        updateCull(camera, mReflectedObjects);
+                        stateSort(camera, mReflectedObjects);
+                        gPipeline.grabReferences(mReflectedObjects);
 
                         if (materials_in_water)
                         {                           
@@ -9670,14 +9661,12 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                     clip_plane.disable();
                 }
 
-                if (materials_in_water)
-                {                                    
-                    static LLCullResult refracted_objects;
-                    updateCull(camera, refracted_objects, water_clip, &plane);
-                    stateSort(camera, refracted_objects);
-                    refracted_objects_size = refracted_objects.getVisibleListSize();
-                    gPipeline.grabReferences(refracted_objects);
+                updateCull(camera, mRefractedObjects, water_clip, &plane);
+                stateSort(camera, mRefractedObjects);
+                gPipeline.grabReferences(mRefractedObjects);
 
+                if (materials_in_water)
+                {
                     mWaterDis.flush();
                     gGL.setColorMask(true, true);
                     glClearColor(col.mV[0], col.mV[1], col.mV[2], 0.f);

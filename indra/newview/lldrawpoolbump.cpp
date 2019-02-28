@@ -351,14 +351,6 @@ void LLDrawPoolBump::beginShiny(bool invisible)
 			shader = &gObjectShinyProgram;
 		}
 		shader->bind();
-        if (LLPipeline::sRenderingHUDs)
-        {
-            shader->uniform1i(LLShaderMgr::NO_ATMO, 1);
-        }
-        else
-        {
-            shader->uniform1i(LLShaderMgr::NO_ATMO, 0);
-        }
 	}
 	else
 	{
@@ -542,14 +534,6 @@ void LLDrawPoolBump::beginFullbrightShiny()
 					 LLVector4(gGLModelView+8),
 					 LLVector4(gGLModelView+12));
 		shader->bind();
-        if (LLPipeline::sRenderingHUDs)
-        {
-            shader->uniform1i(LLShaderMgr::NO_ATMO, 1);
-        }
-        else
-        {
-            shader->uniform1i(LLShaderMgr::NO_ATMO, 0);
-        }
 
 		LLVector3 vec = LLVector3(gShinyOrigin) * mat;
 		LLVector4 vec4(vec, gShinyOrigin.mV[3]);

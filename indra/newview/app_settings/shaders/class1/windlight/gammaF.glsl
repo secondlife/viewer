@@ -23,7 +23,6 @@
  * $/LicenseInfo$
  */
  
-uniform int no_atmo;
 uniform vec4 gamma;
 
 vec3 scaleSoftClipFrag(vec3 light)

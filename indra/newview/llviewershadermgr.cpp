@@ -478,7 +478,6 @@ void LLViewerShaderMgr::setShaders()
         S32 shadow_detail            = gSavedSettings.getS32("RenderShadowDetail");
         bool useRenderDeferred       = canRenderDeferred && gSavedSettings.getBOOL("RenderDeferred") && gSavedSettings.getBOOL("RenderAvatarVP");
         bool doingWindLight          = hasWindLightShaders && gSavedSettings.getBOOL("WindLightUseAtmosShaders");
-        
 
         //using shaders, disable fixed function
         LLGLSLShader::sNoFixedFunction = true;
@@ -487,9 +486,9 @@ void LLViewerShaderMgr::setShaders()
         S32 env_class = 2;
         S32 obj_class = 2;
         S32 effect_class = 2;
-        S32 wl_class = 2;
+        S32 wl_class = 1;
         S32 water_class = 2;
-        S32 deferred_class = 2;
+        S32 deferred_class = 0;
         S32 transform_class = gGLManager.mHasTransformFeedback ? 1 : 0;
 
         static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback", false);
@@ -498,24 +497,31 @@ void LLViewerShaderMgr::setShaders()
             transform_class = 0;
         }
 
-        if (useRenderDeferred && doingWindLight)
+        if (useRenderDeferred)
         {
             //shadows
             switch (shadow_detail)
-            {
-                case 0: deferred_class = 1; break; // no shadows
-                case 1: deferred_class = 2; break; // PCF shadows
-                case 2: deferred_class = 2; break; // PCF shadows
+            {                
+                case 1:
+                    deferred_class = 2; // PCF shadows
+                break; 
+
+                case 2:
+                    deferred_class = 2; // PCF shadows
+                break; 
+
+                case 0: 
                 default:
-                    break;
+                    deferred_class = 1; // no shadows
+                break; 
             }
         }
         
-        if (!doingWindLight)
+        if (doingWindLight)
         {
             // user has disabled WindLight in their settings, downgrade
             // windlight shaders to stub versions.
-            wl_class = 1;
+            wl_class = 2;
         }
 
         // Trigger a full rebuild of the fallback skybox / cubemap if we've toggled windlight shaders
@@ -524,7 +530,6 @@ void LLViewerShaderMgr::setShaders()
             gSky.mVOSkyp->forceSkyUpdate();
         }
 
-        
         // Load lighting shaders
         mShaderLevel[SHADER_LIGHTING] = light_class;
         mShaderLevel[SHADER_INTERFACE] = light_class;
@@ -986,10 +991,9 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
     index_channels.push_back(-1);    shaders.push_back( make_pair( "environment/waterFogF.glsl",                mShaderLevel[SHADER_WATER] ) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "environment/encodeNormF.glsl",                  mShaderLevel[SHADER_ENVIRONMENT] ) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "environment/srgbF.glsl",                    mShaderLevel[SHADER_ENVIRONMENT] ) );
-    index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/deferredUtil.glsl",                    mShaderLevel[SHADER_DEFERRED] ) );
-    index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/shadowUtil.glsl",                  mShaderLevel[SHADER_DEFERRED] ) );
-    index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/aoUtil.glsl",                  mShaderLevel[SHADER_DEFERRED] ) );
-    index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/indirect.glsl",                    mShaderLevel[SHADER_DEFERRED] ) );
+    index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/deferredUtil.glsl",                    1) );
+    index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/shadowUtil.glsl",                      1) );
+    index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/aoUtil.glsl",                          1) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightNonIndexedF.glsl",                    mShaderLevel[SHADER_LIGHTING] ) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightAlphaMaskNonIndexedF.glsl",                   mShaderLevel[SHADER_LIGHTING] ) );
     index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightFullbrightNonIndexedF.glsl",          mShaderLevel[SHADER_LIGHTING] ) );

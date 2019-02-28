@@ -26,16 +26,12 @@
 
 
 uniform vec4 gamma;
-uniform int no_atmo;
 
 vec3 getAtmosAttenuation();
+vec3 getAdditiveColor();
 
 vec3 scaleSoftClipFrag(vec3 light)
 {
-    if (no_atmo == 1)
-    {
-        return light;
-    }
     //soft clip effect:
     light = 1. - clamp(light, vec3(0.), vec3(1.));
     light = 1. - pow(light, gamma.xxx);
@@ -47,12 +43,13 @@ vec3 scaleSoftClip(vec3 light)
     return scaleSoftClipFrag(light);
 }
 
-vec3 fullbrightScaleSoftClipFrag(vec3 light, vec3 add, vec3 atten) {
-    return scaleSoftClipFrag(light.rgb); 
+vec3 fullbrightScaleSoftClipFrag(vec3 light, vec3 add, vec3 atten)
+{
+    return mix(scaleSoftClipFrag(light.rgb), add, atten);
 }
 
 vec3 fullbrightScaleSoftClip(vec3 light)
 {
-    return scaleSoftClipFrag(light);
+    return fullbrightScaleSoftClipFrag(light, getAdditiveColor(), getAtmosAttenuation());
 }
 

@@ -212,6 +212,7 @@ void main()
 			
 			col = dlit*lit*diff_tex*shadow;
 			amb_da += (da*0.5)*(1.0-shadow)*proj_ambiance;
+			amb_da = min(amb_da,shadow);
 		}
 		
 		//float diff = clamp((proj_range-proj_focus)/proj_range, 0.0, 1.0);

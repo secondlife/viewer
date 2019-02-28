@@ -47,14 +47,6 @@ void LLDrawPoolGlow::beginPostDeferredPass(S32 pass)
 {
 	gDeferredEmissiveProgram.bind();
 	gDeferredEmissiveProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
-    if (LLPipeline::sRenderingHUDs)
-	{
-		gDeferredEmissiveProgram.uniform1i(LLShaderMgr::NO_ATMO, 1);
-	}
-	else
-	{
-		gDeferredEmissiveProgram.uniform1i(LLShaderMgr::NO_ATMO, 0);
-	}
 }
 
 static LLTrace::BlockTimerStatHandle FTM_RENDER_GLOW_PUSH("Glow Push");
@@ -127,15 +119,6 @@ void LLDrawPoolGlow::render(S32 pass)
 		shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 1.f);
 	}	
 
-    if (LLPipeline::sRenderingHUDs)
-	{
-		shader->uniform1i(LLShaderMgr::NO_ATMO, 1);
-	}
-	else
-	{
-		shader->uniform1i(LLShaderMgr::NO_ATMO, 0);
-	}
-
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 	gGL.setColorMask(false, true);
 
@@ -187,15 +170,6 @@ void LLDrawPoolSimple::beginRenderPass(S32 pass)
 	if (mShaderLevel > 0)
 	{
 		simple_shader->bind();
-
-        if (LLPipeline::sRenderingHUDs)
-	    {
-		    simple_shader->uniform1i(LLShaderMgr::NO_ATMO, 1);
-	    }
-	    else
-	    {
-		    simple_shader->uniform1i(LLShaderMgr::NO_ATMO, 0);
-	    }
 	}
 	else 
 	{
@@ -289,15 +263,6 @@ void LLDrawPoolAlphaMask::beginRenderPass(S32 pass)
 	if (mShaderLevel > 0)
 	{
 		simple_shader->bind();
-
-        if (LLPipeline::sRenderingHUDs)
-	    {
-		    simple_shader->uniform1i(LLShaderMgr::NO_ATMO, 1);
-	    }
-	    else
-	    {
-		    simple_shader->uniform1i(LLShaderMgr::NO_ATMO, 0);
-	    }
 	}
 	else 
 	{
@@ -330,15 +295,6 @@ void LLDrawPoolAlphaMask::render(S32 pass)
 	{
 		simple_shader->bind();
 		simple_shader->setMinimumAlpha(0.33f);
-
-        if (LLPipeline::sRenderingHUDs)
-	    {
-		    simple_shader->uniform1i(LLShaderMgr::NO_ATMO, 1);
-	    }
-	    else
-	    {
-		    simple_shader->uniform1i(LLShaderMgr::NO_ATMO, 0);
-	    }
 
 		pushMaskBatches(LLRenderPass::PASS_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
 		pushMaskBatches(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
@@ -380,15 +336,6 @@ void LLDrawPoolFullbrightAlphaMask::beginRenderPass(S32 pass)
 	if (mShaderLevel > 0)
 	{
 		simple_shader->bind();
-
-        if (LLPipeline::sRenderingHUDs)
-	    {
-		    simple_shader->uniform1i(LLShaderMgr::NO_ATMO, 1);
-	    }
-	    else
-	    {
-		    simple_shader->uniform1i(LLShaderMgr::NO_ATMO, 0);
-	    }
 	}
 	else 
 	{
@@ -425,12 +372,10 @@ void LLDrawPoolFullbrightAlphaMask::render(S32 pass)
 
             if (LLPipeline::sRenderingHUDs)
 	        {
-		        simple_shader->uniform1i(LLShaderMgr::NO_ATMO, 1);
                 simple_shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 1.0f);
 	        }
 	        else
 	        {
-		        simple_shader->uniform1i(LLShaderMgr::NO_ATMO, 0);
                 if (LLPipeline::sRenderDeferred)
 			    {
                     simple_shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);				    
@@ -462,15 +407,6 @@ void LLDrawPoolSimple::beginDeferredPass(S32 pass)
 {
 	LL_RECORD_BLOCK_TIME(FTM_RENDER_SIMPLE_DEFERRED);
 	gDeferredDiffuseProgram.bind();
-
-    if (LLPipeline::sRenderingHUDs)
-	{
-		gDeferredDiffuseProgram.uniform1i(LLShaderMgr::NO_ATMO, 1);
-	}
-	else
-	{
-		gDeferredDiffuseProgram.uniform1i(LLShaderMgr::NO_ATMO, 0);
-	}
 }
 
 void LLDrawPoolSimple::endDeferredPass(S32 pass)
@@ -509,16 +445,6 @@ void LLDrawPoolAlphaMask::renderDeferred(S32 pass)
 	LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_MASK_DEFERRED);
 	gDeferredDiffuseAlphaMaskProgram.bind();
 	gDeferredDiffuseAlphaMaskProgram.setMinimumAlpha(0.33f);
-
-    if (LLPipeline::sRenderingHUDs)
-	{
-		gDeferredDiffuseAlphaMaskProgram.uniform1i(LLShaderMgr::NO_ATMO, 1);
-	}
-	else
-	{
-		gDeferredDiffuseAlphaMaskProgram.uniform1i(LLShaderMgr::NO_ATMO, 0);
-	}
-
 	pushMaskBatches(LLRenderPass::PASS_ALPHA_MASK, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
 	gDeferredDiffuseAlphaMaskProgram.unbind();			
 }
@@ -555,14 +481,6 @@ void LLDrawPoolGrass::beginRenderPass(S32 pass)
 	{
 		simple_shader->bind();
 		simple_shader->setMinimumAlpha(0.5f);
-        if (LLPipeline::sRenderingHUDs)
-	    {
-		    simple_shader->uniform1i(LLShaderMgr::NO_ATMO, 1);
-	    }
-	    else
-	    {
-		    simple_shader->uniform1i(LLShaderMgr::NO_ATMO, 0);
-	    }
 	}
 	else 
 	{
@@ -619,16 +537,7 @@ void LLDrawPoolGrass::renderDeferred(S32 pass)
 		LL_RECORD_BLOCK_TIME(FTM_RENDER_GRASS_DEFERRED);
 		gDeferredNonIndexedDiffuseAlphaMaskProgram.bind();
 		gDeferredNonIndexedDiffuseAlphaMaskProgram.setMinimumAlpha(0.5f);
-
-        if (LLPipeline::sRenderingHUDs)
-	    {
-		    gDeferredNonIndexedDiffuseAlphaMaskProgram.uniform1i(LLShaderMgr::NO_ATMO, 1);
-	    }
-	    else
-	    {
-		    gDeferredNonIndexedDiffuseAlphaMaskProgram.uniform1i(LLShaderMgr::NO_ATMO, 0);
-	    }
-
+        gDeferredNonIndexedDiffuseAlphaMaskProgram.uniform1i(LLShaderMgr::NO_ATMO, 0);
 		//render grass
 		LLRenderPass::renderTexture(LLRenderPass::PASS_GRASS, getVertexDataMask());
 	}			
@@ -655,15 +564,6 @@ void LLDrawPoolFullbright::beginPostDeferredPass(S32 pass)
 	else
 	{
 		gDeferredFullbrightProgram.bind();
-
-        if (LLPipeline::sRenderingHUDs)
-	    {
-		    gDeferredFullbrightProgram.uniform1i(LLShaderMgr::NO_ATMO, 1);
-	    }
-	    else
-	    {
-		    gDeferredFullbrightProgram.uniform1i(LLShaderMgr::NO_ATMO, 0);
-	    }
 	}
 	
 }
@@ -732,15 +632,6 @@ void LLDrawPoolFullbright::render(S32 pass)
 		fullbright_shader->uniform1f(LLViewerShaderMgr::FULLBRIGHT, 1.f);
 		fullbright_shader->uniform1f(LLViewerShaderMgr::TEXTURE_GAMMA, 1.f);
 
-        if (LLPipeline::sRenderingHUDs)
-	    {
-		    fullbright_shader->uniform1i(LLShaderMgr::NO_ATMO, 1);
-	    }
-	    else
-	    {
-		    fullbright_shader->uniform1i(LLShaderMgr::NO_ATMO, 0);
-	    }
-
 		U32 fullbright_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_TEXTURE_INDEX;
 		pushBatches(LLRenderPass::PASS_FULLBRIGHT, fullbright_mask, TRUE, TRUE);
 		pushBatches(LLRenderPass::PASS_MATERIAL_ALPHA_EMISSIVE, fullbright_mask, TRUE, TRUE);
@@ -775,7 +666,6 @@ void LLDrawPoolFullbrightAlphaMask::beginPostDeferredPass(S32 pass)
     {
         gObjectFullbrightAlphaMaskProgram.bind();
 		gObjectFullbrightAlphaMaskProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, 1.0f);
-        gObjectFullbrightAlphaMaskProgram.uniform1i(LLShaderMgr::NO_ATMO, 1);
     }
 	else if (LLPipeline::sRenderDeferred)
 	{
@@ -783,20 +673,17 @@ void LLDrawPoolFullbrightAlphaMask::beginPostDeferredPass(S32 pass)
 		{
 			gDeferredFullbrightAlphaMaskWaterProgram.bind();
 			gDeferredFullbrightAlphaMaskWaterProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
-            gDeferredFullbrightAlphaMaskProgram.uniform1i(LLShaderMgr::NO_ATMO, 1);
 		}
 		else
 		{
 			gDeferredFullbrightAlphaMaskProgram.bind();
 			gDeferredFullbrightAlphaMaskProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
-            gDeferredFullbrightAlphaMaskProgram.uniform1i(LLShaderMgr::NO_ATMO, 0);
 		}
     }
     else
     {
 		gObjectFullbrightAlphaMaskProgram.bind();
 		gObjectFullbrightAlphaMaskProgram.uniform1f(LLShaderMgr::TEXTURE_GAMMA, 1.0f);
-        gObjectFullbrightAlphaMaskProgram.uniform1i(LLShaderMgr::NO_ATMO, 0);
 	}
 }
 
