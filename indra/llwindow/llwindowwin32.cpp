@@ -3275,8 +3275,10 @@ S32 OSMessageBoxWin32(const std::string& text, const std::string& caption, U32 t
 		break;
 	}
 
-	// HACK! Doesn't properly handle wide strings!
-	int retval_win = MessageBoxA(NULL, text.c_str(), caption.c_str(), uType);
+	int retval_win = MessageBoxW(NULL, // HWND
+								 ll_convert_string_to_wide(text).c_str(),
+								 ll_convert_string_to_wide(caption).c_str(),
+								 uType);
 	S32 retval;
 
 	switch(retval_win)

@@ -3777,7 +3777,18 @@
       <key>Value</key>
       <string>http://events.secondlife.com/viewer/embed/event/</string>
     </map>
-    <key>FeatureManagerHTTPTable</key>
+    <key>FastCacheFetchEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable texture fast cache fetching if set</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <string>1</string>
+    </map>
+	<key>FeatureManagerHTTPTable</key>
       <map>
         <key>Comment</key>
         <string>Deprecated</string>
@@ -4392,6 +4403,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>96.0</real>
+    </map>
+    <key>ForceAddressSize</key>
+    <map>
+      <key>Comment</key>
+      <string>Force Windows update to 32-bit or 64-bit viewer.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>ForceAssetFail</key>
     <map>
@@ -12368,8 +12390,6 @@
       <key>Comment</key>
       <string>If TRUE, always load textures at full resolution (discard = 0)</string>
       <key>Persist</key>
-      <!-- we don't want this to be persistent as people who enable it with low GPU mem cards
-	    can get into a situation where login becomes impossible -->
       <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
@@ -13589,7 +13609,7 @@
     <key>UpdaterServiceURL</key>
     <map>
       <key>Comment</key>
-      <string>Default location for the updater service.</string>
+      <string>Obsolete; no longer used.</string>
       <key>Persist</key>
       <integer>0</integer>
       <key>Type</key>
@@ -16262,7 +16282,7 @@
       <string>if true, disables running the GPU benchmark at startup
       (default to class 1)</string>
       <key>Persist</key>
-      <integer>0</integer>
+      <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>

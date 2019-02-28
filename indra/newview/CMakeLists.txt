@@ -3,7 +3,14 @@
 project(viewer)
 
 include(00-Common)
+# DON'T move Linking.cmake to its place in the alphabetized list below: it
+# sets variables on which the 3p .cmake files depend.
+include(Linking)
+
 include(Boost)
+if (BUGSPLAT_DB)
+  include(bugsplat)
+endif (BUGSPLAT_DB)
 include(BuildPackagesInfo)
 include(BuildVersion)
 include(CMakeCopyIfDifferent)
@@ -16,7 +23,6 @@ include(GLOD)
 include(Hunspell)
 include(JsonCpp)
 include(LLAppearance)
-include(LLBase)
 include(LLAudio)
 include(LLCA)
 include(LLCharacter)
@@ -37,14 +43,12 @@ include(LLUI)
 include(LLVFS)
 include(LLWindow)
 include(LLXML)
-include(Linking)
 include(NDOF)
 include(NVAPI)
 include(OPENAL)
 include(OpenGL)
 include(OpenSSL)
 include(PNG)
-include(Requests)
 include(TemplateCheck)
 include(UI)
 include(UnixInstall)
@@ -92,6 +96,12 @@ include_directories(
     ${LLAPPEARANCE_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
     )
+
+if (BUGSPLAT_DB)
+  include_directories(
+    ${BUGSPLAT_INCLUDE_DIR}
+    )
+endif (BUGSPLAT_DB)
 
 include_directories(SYSTEM
     ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
@@ -1358,6 +1368,14 @@ if (DARWIN)
 
   # This should be compiled with the viewer.
   LIST(APPEND viewer_SOURCE_FILES llappdelegate-objc.mm)
+  set_source_files_properties(
+    llappdelegate-objc.mm
+    PROPERTIES
+    COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
+    # BugsplatMac is a module, imported with @import. That language feature
+    # demands these switches.
+    COMPILE_FLAGS "-fmodules -fcxx-modules"
+    )
 
   find_library(AGL_LIBRARY AGL)
   find_library(APPKIT_LIBRARY AppKit)
@@ -1371,6 +1389,12 @@ if (DARWIN)
     ${IOKIT_LIBRARY}
     ${COREAUDIO_LIBRARY}
     )
+
+  if (BUGSPLAT_DB)
+    list(APPEND viewer_LIBRARIES
+      ${BUGSPLAT_LIBRARIES}
+      )
+  endif (BUGSPLAT_DB)
 
   # Add resource files to the project.
   set(viewer_RESOURCE_FILES
@@ -1397,6 +1421,11 @@ endif (DARWIN)
 
 if (LINUX)
     LIST(APPEND viewer_SOURCE_FILES llappviewerlinux.cpp)
+    set_source_files_properties(
+      llappviewerlinux.cpp
+      PROPERTIES
+      COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
+      )
     LIST(APPEND viewer_SOURCE_FILES llappviewerlinux_api_dbus.cpp)
     SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed")
 
@@ -1413,6 +1442,11 @@ if (WINDOWS)
          llappviewerwin32.cpp
          llwindebug.cpp
          )
+    set_source_files_properties(
+      llappviewerwin32.cpp
+      PROPERTIES
+      COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
+      )
 
     list(APPEND viewer_HEADER_FILES
          llappviewerwin32.h
@@ -1549,7 +1583,6 @@ if (WINDOWS)
         kernel32
         odbc32
         odbccp32
-        ole32
         oleaut32
         shell32
         Vfw32
@@ -1694,6 +1727,11 @@ if (SDL_FOUND)
     PROPERTY COMPILE_DEFINITIONS LL_SDL=1
     )
 endif (SDL_FOUND)
+
+if (BUGSPLAT_DB)
+  set_property(TARGET ${VIEWER_BINARY_NAME}
+    PROPERTY COMPILE_DEFINITIONS "LL_BUGSPLAT")
+endif (BUGSPLAT_DB)
 
 # add package files
 file(GLOB EVENT_HOST_SCRIPT_GLOB_LIST

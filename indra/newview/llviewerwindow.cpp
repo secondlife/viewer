@@ -305,6 +305,9 @@ private:
 RecordToChatConsole::RecordToChatConsole():
 	mRecorder(new RecordToChatConsoleRecorder())
 {
+    mRecorder->showTags(false);
+    mRecorder->showLocation(false);
+    mRecorder->showMultiline(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////

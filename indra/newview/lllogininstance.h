@@ -28,8 +28,10 @@
 #define LL_LLLOGININSTANCE_H
 
 #include "lleventdispatcher.h"
+#include "lleventapi.h"
 #include <boost/scoped_ptr.hpp>
 #include <boost/function.hpp>
+#include <memory>                   // std::shared_ptr
 #include "llsecapi.h"
 class LLLogin;
 class LLEventStream;
@@ -68,6 +70,7 @@ public:
 	LLNotificationsInterface& getNotificationsInterface() const { return *mNotifications; }
 
 private:
+	typedef std::shared_ptr<LLEventAPI::Response> ResponsePtr;
 	void constructAuthParams(LLPointer<LLCredential> user_credentials);
 	void updateApp(bool mandatory, const std::string& message);
 	bool updateDialogCallback(const LLSD& notification, const LLSD& response);
@@ -77,7 +80,8 @@ private:
 	void handleLoginSuccess(const LLSD& event);
 	void handleDisconnect(const LLSD& event);
 	void handleIndeterminate(const LLSD& event);
-    void handleLoginDisallowed(const LLSD& notification, const LLSD& response);
+	void handleLoginDisallowed(const LLSD& notification, const LLSD& response);
+	void syncWithUpdater(ResponsePtr resp, const LLSD& notification, const LLSD& response);
 
 	bool handleTOSResponse(bool v, const std::string& key);
 

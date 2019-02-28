@@ -37,7 +37,12 @@ typedef signed int			S32;
 typedef unsigned int			U32;
 
 #if LL_WINDOWS
-// Windows wchar_t is 16-bit
+// https://docs.microsoft.com/en-us/cpp/build/reference/zc-wchar-t-wchar-t-is-native-type
+// https://docs.microsoft.com/en-us/cpp/cpp/fundamental-types-cpp
+// Windows wchar_t is 16-bit, whichever way /Zc:wchar_t is set. In effect,
+// Windows wchar_t is always a typedef, either for unsigned short or __wchar_t.
+// (__wchar_t, available either way, is Microsoft's native 2-byte wchar_t type.)
+// In any case, llwchar should be a UTF-32 type.
 typedef U32				llwchar;
 #else
 typedef wchar_t				llwchar;
