@@ -177,7 +177,7 @@ public:
 
 	virtual LLVector3 getVolumePos(S32 joint_index, LLVector3& volume_offset) { return LLVector3::zero; }
 	
-	virtual LLJoint* findCollisionVolume(U32 volume_id) { return NULL; }
+	virtual LLJoint* findCollisionVolume(S32 volume_id) { return NULL; }
 
 	virtual S32 getCollisionVolumeID(std::string &name) { return -1; }
 
