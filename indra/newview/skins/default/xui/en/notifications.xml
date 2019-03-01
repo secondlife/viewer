@@ -3851,12 +3851,49 @@ Finished download of raw terrain file to:
    name="RequiredUpdate"
    type="alertmodal">
 Version [VERSION] is required for login.
-This should have been updated for you but apparently was not.
 Please download from https://secondlife.com/support/downloads/
     <tag>confirm</tag>
     <usetemplate
      name="okbutton"
      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PauseForUpdate"
+   type="alertmodal">
+Version [VERSION] is required for login.
+Click OK to download and install.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="OptionalUpdateReady"
+   type="alertmodal">
+Version [VERSION] has been downloaded and is ready to install.
+Click OK to install.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PromptOptionalUpdate"
+   type="alertmodal">
+Version [VERSION] has been downloaded and is ready to install.
+Proceed?
+    <tag>confirm</tag>
+    <usetemplate
+     canceltext="Not Now"
+     name="yesnocancelbuttons"
+     notext="Skip"
+     yestext="Install"/>
   </notification>
 
   <notification
