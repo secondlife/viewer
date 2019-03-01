@@ -5651,4 +5651,25 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
 		La versión de la forma física no es correcta. Configura la versión correcta del modelo físico.
 	</string>
+	<string name="couldnt_resolve_host">
+		Error de DNS al resolver el nombre del host([HOSTNAME]). 
+Por favor verifica si puedes conectarte al sitio web www.secondlife.com. 
+Si puedes conectarte, pero aún recibes este error, por favor accede a 
+la sección Soporte y genera un informe del problema.
+	</string>
+	<string name="ssl_peer_certificate">
+		El servidor de inicio de sesión no pudo verificarse vía SSL. 
+Si aún recibes este error, por favor accede a 
+la sección Soporte del sitio web Secondlife.com 
+y genera un informe del problema.
+	</string>
+	<string name="ssl_connect_error">
+		En general esto significa que el horario de tu computadora no está bien configurado. 
+Por favor accede al Panel de control y asegúrate de que la hora y la fecha estén 
+bien configurados. Verifica también que tu red y tu cortafuegos estén bien 
+configurados. Si aún recibes este error, por favor accede a la sección Soporte 
+del sitio web Secondlife.com y genera un informe del problema. 
+
+[https://community.secondlife.com/knowledgebase/english/error-messages-r520/#Section__3 Base de conocimientos]
+	</string>
 </strings>

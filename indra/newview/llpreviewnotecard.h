@@ -47,18 +47,18 @@ public:
 	virtual ~LLPreviewNotecard();
 	
 	bool saveItem();
-	void setObjectID(const LLUUID& object_id);
+	void setObjectID(const LLUUID& object_id) override;
 
 	// llview
-	virtual void draw();
-	virtual BOOL handleKeyHere(KEY key, MASK mask);
-	virtual void setEnabled( BOOL enabled );
+	void draw() override;
+	BOOL handleKeyHere(KEY key, MASK mask) override;
+	void setEnabled( BOOL enabled ) override;
 
 	// llfloater
-	virtual BOOL canClose();
+	BOOL canClose() override;
 
 	// llpanel
-	virtual BOOL postBuild();
+	BOOL postBuild() override;
 
 	// reach into the text editor, and grab the drag item
 	const LLInventoryItem* getDragItem();
@@ -74,8 +74,8 @@ public:
 
 protected:
 
-	void updateTitleButtons();
-	virtual void loadAsset();
+	void updateTitleButtons() override;
+	void loadAsset() override;
 	bool saveIfNeeded(LLInventoryItem* copyitem = NULL);
 
 	void deleteNotecard();

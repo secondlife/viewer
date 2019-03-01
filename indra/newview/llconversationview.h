@@ -136,6 +136,7 @@ public:
     virtual ~LLConversationViewParticipant( void );
 
     bool hasSameValue(const LLUUID& uuid) { return (uuid == mUUID); }
+    /*virtual*/ void refresh();
     void addToFolder(LLFolderViewFolder* folder);
 	void addToSession(const LLUUID& session_id);
 

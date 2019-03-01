@@ -5748,4 +5748,25 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
 		Fiziksel şekil doğru sürüme sahip değil. Fiziksel model için doğru sürümü ayarlayın.
 	</string>
+	<string name="couldnt_resolve_host">
+		DNS sunucusu ana bilgisayar adını çözümleyemedi ([HOSTNAME]). 
+Lütfen www.secondlife.com web sitesine bağlanabildiğinizi doğrulayın. 
+Bağlanabiliyor, ancak bu hatayı almaya devam ediyorsanız, lütfen 
+destek bölümüne gidin ve bu sorunu bildirin.
+	</string>
+	<string name="ssl_peer_certificate">
+		Oturum açma sunucusu SSL aracılığıyla kendini doğrulayamadı. 
+Bu hatayı almaya devam ederseniz, lütfen 
+SecondLife.com web sitesinin Destek 
+bölümüne gidin ve sorunu bildirin.
+	</string>
+	<string name="ssl_connect_error">
+		Çoğunlukla, bu durum, bilgisayarınızın saatinin yanlış ayarlandığı anlamına gelir. 
+Lütfen Denetim Masası&apos;na gidin ve tarih ve saat ayarlarının doğru yapıldığından emin olun. 
+Ayrıca, ağınızın ve güvenlik duvarınızın doğru şekilde ayarlanıp ayarlanmadığını kontrol edin. 
+Bu hatayı almaya devam ederseniz, lütfen SecondLife.com web sitesinin Destek bölümüne 
+gidin ve sorunu bildirin. 
+
+[https://community.secondlife.com/knowledgebase/english/error-messages-r520/#Section__3 Bilgi Bankası]
+	</string>
 </strings>

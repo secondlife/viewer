@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_snapshot_options">
 	<button label="ディスクに保存" name="save_to_computer_btn"/>
-	<button label="持ち物に保存（L$[Amount]）" name="save_to_inventory_btn"/>
+	<button label="持ち物に保存（L$[AMOUNT]）" name="save_to_inventory_btn"/>
 	<button label="プロフィールフィードで共有する" name="save_to_profile_btn"/>
 	<button label="Facebook で共有する" name="send_to_facebook_btn"/>
 	<button label="Twitter で共有する" name="send_to_twitter_btn"/>
