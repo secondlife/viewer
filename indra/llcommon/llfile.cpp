@@ -465,8 +465,6 @@ void llofstream::open(const std::string& _Filename, ios_base::openmode _Mode)
                         _Mode | ios_base::out);
 }
 
-#endif  // LL_WINDOWS
-
 /************** helper functions ********************************/
 
 std::streamsize llifstream_size(llifstream& ifstr)
