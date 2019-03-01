@@ -1772,6 +1772,13 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id)
 			bin_data[BIN_DATA_LENGTH] = 0; // Ensure null termination
 			str = (char*)bin_data;
 			constraintp->mSourceConstraintVolume = mCharacter->getCollisionVolumeID(str);
+			if (constraintp->mSourceConstraintVolume == -1)
+			{
+				LL_WARNS() << "not a valid source constraint volume " << str
+						   << " for animation " << asset_id << LL_ENDL;
+				delete constraintp;
+				return FALSE;
+			}
 
 			if (!dp.unpackVector3(constraintp->mSourceConstraintOffset, "source_offset"))
 			{
@@ -1808,6 +1815,13 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id)
 			{
 				constraintp->mConstraintTargetType = CONSTRAINT_TARGET_TYPE_BODY;
 				constraintp->mTargetConstraintVolume = mCharacter->getCollisionVolumeID(str);
+				if (constraintp->mTargetConstraintVolume == -1)
+				{
+					LL_WARNS() << "not a valid target constraint volume " << str
+							   << " for animation " << asset_id << LL_ENDL;
+					delete constraintp;
+					return FALSE;
+				}
 			}
 
 			if (!dp.unpackVector3(constraintp->mTargetConstraintOffset, "target_offset"))

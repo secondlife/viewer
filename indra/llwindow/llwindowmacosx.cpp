@@ -1429,12 +1429,10 @@ static CursorRef gCursors[UI_CURSOR_COUNT];
 static void initPixmapCursor(int cursorid, int hotspotX, int hotspotY)
 {
 	// cursors are in <Application Bundle>/Contents/Resources/cursors_mac/UI_CURSOR_FOO.tif
-	std::string fullpath = gDirUtilp->getAppRODataDir();
-	fullpath += gDirUtilp->getDirDelimiter();
-	fullpath += "cursors_mac";
-	fullpath += gDirUtilp->getDirDelimiter();
-	fullpath += cursorIDToName(cursorid);
-	fullpath += ".tif";
+	std::string fullpath = gDirUtilp->add(
+		gDirUtilp->getAppRODataDir(),
+		"cursors_mac",
+		cursorIDToName(cursorid) + std::string(".tif"));
 
 	gCursors[cursorid] = createImageCursor(fullpath.c_str(), hotspotX, hotspotY);
 }

@@ -78,8 +78,12 @@ namespace tut
 	class TestRecorder : public LLError::Recorder
 	{
 	public:
-		TestRecorder() { mWantsTime = false; mWantsTags = true; }
-		virtual ~TestRecorder() {  }
+		TestRecorder()
+            {
+                showTime(false);
+            }
+		virtual ~TestRecorder()
+            {}
 
 		virtual void recordMessage(LLError::ELevel level,
 						   const std::string& message)
@@ -89,8 +93,6 @@ namespace tut
 
 		int countMessages()			{ return (int) mMessages.size(); }
 		void clearMessages()		{ mMessages.clear(); }
-
-		void setWantsTime(bool t)	{ mWantsTime = t; }
 
 		std::string message(int n)
 		{
@@ -139,9 +141,14 @@ namespace tut
 		}
 
 		void setWantsTime(bool t)
-		{
-			boost::dynamic_pointer_cast<TestRecorder>(mRecorder)->setWantsTime(t);
-		}
+            {
+                boost::dynamic_pointer_cast<TestRecorder>(mRecorder)->showTime(t);
+            }
+
+		void setWantsMultiline(bool t)
+            {
+                boost::dynamic_pointer_cast<TestRecorder>(mRecorder)->showMultiline(t);
+            }
 
 		std::string message(int n)
 		{
@@ -378,27 +385,6 @@ namespace
 	}
 }
 
-namespace tut
-{
-	template<> template<>
-	void ErrorTestObject::test<5>()
-		// file and line information in log messages
-	{
-		std::string location = writeReturningLocation();
-			// expecting default to not print location information
-
-		LLError::setPrintLocation(true);
-		writeReturningLocation();
-
-		LLError::setPrintLocation(false);
-		writeReturningLocation();
-
-		ensure_message_does_not_contain(0, location);
-		ensure_message_field_equals(1, LOCATION_FIELD, location);
-		ensure_message_does_not_contain(2, location);
-	}
-}
-
 /* The following helper functions and class members all log a simple message
 	from some particular function scope.  Each function takes a bool argument
 	that indicates if it should log its own name or not (in the manner that
@@ -512,6 +498,39 @@ namespace
 	}
 }
 
+namespace
+{
+    void writeMsgNeedsEscaping()
+    {
+        LL_DEBUGS("WriteTag") << "backslash\\" << LL_ENDL;
+        LL_INFOS("WriteTag") << "newline\nafternewline" << LL_ENDL;
+        LL_WARNS("WriteTag") << "return\rafterreturn" << LL_ENDL;
+
+        LL_DEBUGS("WriteTag") << "backslash\\backslash\\" << LL_ENDL;
+        LL_INFOS("WriteTag") << "backslash\\newline\nanothernewline\nafternewline" << LL_ENDL;
+        LL_WARNS("WriteTag") << "backslash\\returnnewline\r\n\\afterbackslash" << LL_ENDL;
+    }
+};
+
+namespace tut
+{
+    template<> template<>
+    void ErrorTestObject::test<5>()
+        // backslash, return, and newline are not escaped with backslashes
+    {
+        LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
+        setWantsMultiline(true); 
+        writeMsgNeedsEscaping(); // but should not be now
+        ensure_message_field_equals(0, MSG_FIELD, "backslash\\");
+        ensure_message_field_equals(1, MSG_FIELD, "newline\nafternewline");
+        ensure_message_field_equals(2, MSG_FIELD, "return\rafterreturn");
+        ensure_message_field_equals(3, MSG_FIELD, "backslash\\backslash\\");
+        ensure_message_field_equals(4, MSG_FIELD, "backslash\\newline\nanothernewline\nafternewline");
+        ensure_message_field_equals(5, MSG_FIELD, "backslash\\returnnewline\r\n\\afterbackslash");
+        ensure_message_count(6);
+    }
+}
+
 namespace tut
 {
 	template<> template<>
@@ -583,7 +602,6 @@ namespace tut
 		// special handling of LL_ERRS() calls
 	void ErrorTestObject::test<8>()
 	{
-		LLError::setPrintLocation(false);
 		std::string location = errorReturningLocation();
 
 		ensure_message_field_equals(0, LOCATION_FIELD, location);
@@ -630,15 +648,15 @@ namespace tut
 		// output order
 	void ErrorTestObject::test<10>()
 	{
-		LLError::setPrintLocation(true);
 		LLError::setTimeFunction(roswell);
 		setWantsTime(true);
+
 		std::string location,
 					function;
 		writeReturningLocationAndFunction(location, function);
 
 		ensure_equals("order is time level tags location function message",
-			message(0),
+                      message(0),
                       roswell() + " INFO " + "# " /* no tag */ + location + " " + function + " : " + "apple");
 	}
 
@@ -658,7 +676,7 @@ namespace tut
 		LLError::setTimeFunction(roswell);
 
 		LLError::RecorderPtr anotherRecorder(new TestRecorder());
-		boost::dynamic_pointer_cast<TestRecorder>(anotherRecorder)->setWantsTime(true);
+		boost::dynamic_pointer_cast<TestRecorder>(anotherRecorder)->showTime(true);
 		LLError::addRecorder(anotherRecorder);
 
 		LL_INFOS() << "baz" << LL_ENDL;
@@ -834,20 +852,6 @@ namespace tut
 		ensure_message_count(7);
 	}
 }
-
-namespace
-{
-    void writeMsgNeedsEscaping()
-    {
-        LL_DEBUGS("WriteTag") << "backslash\\" << LL_ENDL;
-        LL_INFOS("WriteTag") << "newline\nafternewline" << LL_ENDL;
-        LL_WARNS("WriteTag") << "return\rafterreturn" << LL_ENDL;
-
-        LL_DEBUGS("WriteTag") << "backslash\\backslash\\" << LL_ENDL;
-        LL_INFOS("WriteTag") << "backslash\\newline\nanothernewline\nafternewline" << LL_ENDL;
-        LL_WARNS("WriteTag") << "backslash\\returnnewline\r\n\\afterbackslash" << LL_ENDL;
-    }
-};
 
 namespace tut
 {
