@@ -530,7 +530,12 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				}
 
 				// now we can set page zoom factor
-				mCEFLib->setPageZoom(message_in.getValueReal("factor"));
+				F32 factor = (F32)message_in.getValueReal("factor");
+#if LL_DARWIN
+				//temporary fix for SL-10473: issue with displaying checkboxes on Mojave
+				factor*=1.001;
+#endif
+				mCEFLib->setPageZoom(factor);
 
 				// Plugin gets to decide the texture parameters to use.
 				mDepth = 4;
@@ -735,6 +740,10 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			if (message_name == "set_page_zoom_factor")
 			{
 				F32 factor = (F32)message_in.getValueReal("factor");
+#if LL_DARWIN
+				//temporary fix for SL-10473: issue with displaying checkboxes on Mojave
+				factor*=1.001;
+#endif
 				mCEFLib->setPageZoom(factor);
 			}
 			if (message_name == "browse_stop")
