@@ -14,6 +14,7 @@
 
 #include "llinstancetracker.h"
 #include "llexception.h"
+#include "llprocess.h"
 #include <string>
 #include <vector>
 
@@ -60,6 +61,19 @@ public:
      */
     static LLLeap* create(const std::string& desc, const std::string& plugin,
                           bool exc=true);
+
+    /**
+     * Pass an LLProcess::Params instance to specify desc, executable, args et al.
+     *
+     * Note that files and postend are set implicitly; any values you set in
+     * those fields will be disregarded.
+     *
+     * Pass exc=false to suppress LLLeap::Error exception. Obviously in that
+     * case the caller cannot discover the nature of the error, merely that an
+     * error of some kind occurred (because create() returned NULL). Either
+     * way, the error is logged.
+     */
+    static LLLeap* create(const LLProcess::Params& params, bool exc=true);
 
     /**
      * Exception thrown for invalid create() arguments, e.g. no plugin

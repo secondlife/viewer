@@ -101,6 +101,9 @@
 
 #endif
 
+// Although thread_local is now a standard storage class, we can't just
+// #define LL_THREAD_LOCAL as thread_local because the *usage* is different.
+// We'll have to take the time to change LL_THREAD_LOCAL declarations by hand.
 #if LL_WINDOWS
 # define LL_THREAD_LOCAL __declspec(thread)
 #else
@@ -177,6 +180,24 @@
 #define LL_DLLIMPORT
 #endif // LL_WINDOWS
 
+#if ! defined(LL_WINDOWS)
+#define LL_WCHAR_T_NATIVE 1
+#else  // LL_WINDOWS
+// https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros
+// _WCHAR_T_DEFINED is defined if wchar_t is provided at all.
+// Specifically, it has value 1 if wchar_t is an intrinsic type, else empty.
+// _NATIVE_WCHAR_T_DEFINED has value 1 if wchar_t is intrinsic, else undefined.
+// For years we have compiled with /Zc:wchar_t-, meaning that wchar_t is a
+// typedef for unsigned short (in stddef.h). Lore has it that one of our
+// proprietary binary-only libraries has traditionally been built that way and
+// therefore EVERYTHING ELSE requires it. Therefore, in a typical Linden
+// Windows build, _WCHAR_T_DEFINED is defined but empty, while
+// _NATIVE_WCHAR_T_DEFINED is undefined.
+# if defined(_NATIVE_WCHAR_T_DEFINED)
+#  define LL_WCHAR_T_NATIVE 1
+# endif // _NATIVE_WCHAR_T_DEFINED
+#endif // LL_WINDOWS
+
 #if LL_COMMON_LINK_SHARED
 // CMake automagically defines llcommon_EXPORTS only when building llcommon
 // sources, and only when llcommon is a shared library (i.e. when
@@ -198,6 +219,8 @@
 
 #define LL_TO_STRING_HELPER(x) #x
 #define LL_TO_STRING(x) LL_TO_STRING_HELPER(x)
+#define LL_TO_WSTRING_HELPER(x) L#x
+#define LL_TO_WSTRING(x) LL_TO_WSTRING_HELPER(x)
 #define LL_FILE_LINENO_MSG(msg) __FILE__ "(" LL_TO_STRING(__LINE__) ") : " msg
 #define LL_GLUE_IMPL(x, y) x##y
 #define LL_GLUE_TOKENS(x, y) LL_GLUE_IMPL(x, y)
