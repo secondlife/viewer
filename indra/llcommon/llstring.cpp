@@ -30,6 +30,7 @@
 #include "llerror.h"
 #include "llfasttimer.h"
 #include "llsd.h"
+#include <vector>
 
 #if LL_WINDOWS
 #include "llwin32headerslean.h"
@@ -672,6 +673,11 @@ namespace snprintf_hack
 	}
 }
 
+std::string ll_convert_wide_to_string(const wchar_t* in)
+{
+	return ll_convert_wide_to_string(in, CP_UTF8);
+}
+
 std::string ll_convert_wide_to_string(const wchar_t* in, unsigned int code_page)
 {
 	std::string out;
@@ -709,7 +715,12 @@ std::string ll_convert_wide_to_string(const wchar_t* in, unsigned int code_page)
 	return out;
 }
 
-wchar_t* ll_convert_string_to_wide(const std::string& in, unsigned int code_page)
+std::wstring ll_convert_string_to_wide(const std::string& in)
+{
+	return ll_convert_string_to_wide(in, CP_UTF8);
+}
+
+std::wstring ll_convert_string_to_wide(const std::string& in, unsigned int code_page)
 {
 	// From review:
 	// We can preallocate a wide char buffer that is the same length (in wchar_t elements) as the utf8 input,
@@ -719,28 +730,148 @@ wchar_t* ll_convert_string_to_wide(const std::string& in, unsigned int code_page
 	// but we *are* seeing string operations taking a bunch of time, especially when constructing widgets.
 //	int output_str_len = MultiByteToWideChar(code_page, 0, in.c_str(), in.length(), NULL, 0);
 
-	// reserve place to NULL terminator
-	int output_str_len = in.length();
-	wchar_t* w_out = new wchar_t[output_str_len + 1];
+	// reserve an output buffer that will be destroyed on exit, with a place
+	// to put NULL terminator
+	std::vector<wchar_t> w_out(in.length() + 1);
 
-	memset(w_out, 0, output_str_len + 1);
-	int real_output_str_len = MultiByteToWideChar (code_page, 0, in.c_str(), in.length(), w_out, output_str_len);
+	memset(&w_out[0], 0, w_out.size());
+	int real_output_str_len = MultiByteToWideChar(code_page, 0, in.c_str(), in.length(),
+												  &w_out[0], w_out.size() - 1);
 
 	//looks like MultiByteToWideChar didn't add null terminator to converted string, see EXT-4858.
 	w_out[real_output_str_len] = 0;
 
-	return w_out;
+	// construct string<wchar_t> from our temporary output buffer
+	return {&w_out[0]};
+}
+
+LLWString ll_convert_wide_to_wstring(const std::wstring& in)
+{
+    // This function, like its converse, is a placeholder, encapsulating a
+    // guilty little hack: the only "official" way nat has found to convert
+    // between std::wstring (16 bits on Windows) and LLWString (UTF-32) is
+    // by using iconv, which we've avoided so far. It kinda sorta works to
+    // just copy individual characters...
+    // The point is that if/when we DO introduce some more official way to
+    // perform such conversions, we should only have to call it here.
+    return { in.begin(), in.end() };
+}
+
+std::wstring ll_convert_wstring_to_wide(const LLWString& in)
+{
+    // See comments in ll_convert_wide_to_wstring()
+    return { in.begin(), in.end() };
 }
 
 std::string ll_convert_string_to_utf8_string(const std::string& in)
 {
-	wchar_t* w_mesg = ll_convert_string_to_wide(in, CP_ACP);
-	std::string out_utf8(ll_convert_wide_to_string(w_mesg, CP_UTF8));
-	delete[] w_mesg;
+	auto w_mesg = ll_convert_string_to_wide(in, CP_ACP);
+	std::string out_utf8(ll_convert_wide_to_string(w_mesg.c_str(), CP_UTF8));
 
 	return out_utf8;
 }
-#endif // LL_WINDOWS
+
+namespace
+{
+
+void HeapFree_deleter(void* ptr)
+{
+    // instead of LocalFree(), per https://stackoverflow.com/a/31541205
+    HeapFree(GetProcessHeap(), NULL, ptr);
+}
+
+} // anonymous namespace
+
+template<>
+std::wstring windows_message<std::wstring>(DWORD error)
+{
+    // derived from https://stackoverflow.com/a/455533
+    wchar_t* rawptr = nullptr;
+    auto okay = FormatMessageW(
+        // use system message tables for GetLastError() codes
+        FORMAT_MESSAGE_FROM_SYSTEM |
+        // internally allocate buffer and return its pointer
+        FORMAT_MESSAGE_ALLOCATE_BUFFER |
+        // you cannot pass insertion parameters (thanks Gandalf)
+        FORMAT_MESSAGE_IGNORE_INSERTS |
+        // ignore line breaks in message definition text
+        FORMAT_MESSAGE_MAX_WIDTH_MASK,
+        NULL,                       // lpSource, unused with FORMAT_MESSAGE_FROM_SYSTEM
+        error,                      // dwMessageId
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // dwLanguageId
+        (LPWSTR)&rawptr,         // lpBuffer: force-cast wchar_t** to wchar_t*
+        0,                // nSize, unused with FORMAT_MESSAGE_ALLOCATE_BUFFER
+        NULL);            // Arguments, unused
+
+    // make a unique_ptr from rawptr so it gets cleaned up properly
+    std::unique_ptr<wchar_t, void(*)(void*)> bufferptr(rawptr, HeapFree_deleter);
+
+    if (okay && bufferptr)
+    {
+        // got the message, return it ('okay' is length in characters)
+        return { bufferptr.get(), okay };
+    }
+
+    // did not get the message, synthesize one
+    auto format_message_error = GetLastError();
+    std::wostringstream out;
+    out << L"GetLastError() " << error << L" (FormatMessageW() failed with "
+        << format_message_error << L")";
+    return out.str();
+}
+
+boost::optional<std::wstring> llstring_getoptenv(const std::string& key)
+{
+    auto wkey = ll_convert_string_to_wide(key);
+    // Take a wild guess as to how big the buffer should be.
+    std::vector<wchar_t> buffer(1024);
+    auto n = GetEnvironmentVariableW(wkey.c_str(), &buffer[0], buffer.size());
+    // If our initial guess was too short, n will indicate the size (in
+    // wchar_t's) that buffer should have been, including the terminating nul.
+    if (n > (buffer.size() - 1))
+    {
+        // make it big enough
+        buffer.resize(n);
+        // and try again
+        n = GetEnvironmentVariableW(wkey.c_str(), &buffer[0], buffer.size());
+    }
+    // did that (ultimately) succeed?
+    if (n)
+    {
+        // great, return populated boost::optional
+        return boost::optional<std::wstring>(&buffer[0]);
+    }
+
+    // not successful
+    auto last_error = GetLastError();
+    // Don't bother warning for NOT_FOUND; that's an expected case
+    if (last_error != ERROR_ENVVAR_NOT_FOUND)
+    {
+        LL_WARNS() << "GetEnvironmentVariableW('" << key << "') failed: "
+                   << windows_message<std::string>(last_error) << LL_ENDL;
+    }
+    // return empty boost::optional
+    return {};
+}
+
+#else  // ! LL_WINDOWS
+
+boost::optional<std::string> llstring_getoptenv(const std::string& key)
+{
+    auto found = getenv(key.c_str());
+    if (found)
+    {
+        // return populated boost::optional
+        return boost::optional<std::string>(found);
+    }
+    else
+    {
+        // return empty boost::optional
+        return {};
+    }
+}
+
+#endif // ! LL_WINDOWS
 
 long LLStringOps::sPacificTimeOffset = 0;
 long LLStringOps::sLocalTimeOffset = 0;
