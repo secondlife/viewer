@@ -26,6 +26,7 @@
 #include "wrapllerrs.h"
 #include "llevents.h"
 #include "llprocess.h"
+#include "llstring.h"
 #include "stringize.h"
 #include "StringVec.h"
 #include <functional>
@@ -198,14 +199,12 @@ namespace tut
             // basename.
             reader_module(LLProcess::basename(
                               reader.getName().substr(0, reader.getName().length()-3))),
-            pPYTHON(getenv("PYTHON")),
-            PYTHON(pPYTHON? pPYTHON : "")
+            PYTHON(LLStringUtil::getenv("PYTHON"))
         {
-            ensure("Set PYTHON to interpreter pathname", pPYTHON);
+            ensure("Set PYTHON to interpreter pathname", !PYTHON.empty());
         }
         NamedExtTempFile reader;
         const std::string reader_module;
-        const char* pPYTHON;
         const std::string PYTHON;
     };
     typedef test_group<llleap_data> llleap_group;
