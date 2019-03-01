@@ -25,7 +25,16 @@
  */
 
 #import "llappdelegate-objc.h"
+#if defined(LL_BUGSPLAT)
+#include <boost/filesystem.hpp>
+#include <vector>
+@import BugsplatMac;
+// derived from BugsplatMac's BugsplatTester/AppDelegate.m
+@interface LLAppDelegate () <BugsplatStartupManagerDelegate>
+@end
+#endif
 #include "llwindowmacosx-objc.h"
+#include "llappviewermacosx-for-objc.h"
 #include <Carbon/Carbon.h> // Used for Text Input Services ("Safe" API - it's supported)
 
 @implementation LLAppDelegate
@@ -47,6 +56,25 @@
 
 - (void) applicationDidFinishLaunching:(NSNotification *)notification
 {
+	// Call constructViewer() first so our logging subsystem is in place. This
+	// risks missing crashes in the LLAppViewerMacOSX constructor, but for
+	// present purposes it's more important to get the startup sequence
+	// properly logged.
+	// Someday I would like to modify the logging system so that calls before
+	// it's initialized are cached in a std::ostringstream and then, once it's
+	// initialized, "played back" into whatever handlers have been set up.
+	constructViewer();
+
+#if defined(LL_BUGSPLAT)
+	// Engage BugsplatStartupManager *before* calling initViewer() to handle
+	// any crashes during initialization.
+	// https://www.bugsplat.com/docs/platforms/os-x#initialization
+	[BugsplatStartupManager sharedManager].autoSubmitCrashReport = YES;
+	[BugsplatStartupManager sharedManager].askUserDetails = NO;
+	[BugsplatStartupManager sharedManager].delegate = self;
+	[[BugsplatStartupManager sharedManager] start];
+#endif
+
 	frameTimer = nil;
 
 	[self languageUpdated];
@@ -178,5 +206,139 @@
     
     return true;
 }
+
+#if defined(LL_BUGSPLAT)
+
+- (NSString *)applicationLogForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager
+{
+    CrashMetadata& meta(CrashMetadata_instance());
+    // As of BugsplatMac 1.0.6, userName and userEmail properties are now
+    // exposed by the BugsplatStartupManager. Set them here, since the
+    // defaultUserNameForBugsplatStartupManager and
+    // defaultUserEmailForBugsplatStartupManager methods are called later, for
+    // the *current* run, rather than for the previous crashed run whose crash
+    // report we are about to send.
+    infos("applicationLogForBugsplatStartupManager setting userName = '" +
+          meta.agentFullname + '"');
+    bugsplatStartupManager.userName =
+        [NSString stringWithCString:meta.agentFullname.c_str()
+                           encoding:NSUTF8StringEncoding];
+    // Use the email field for OS version, just as we do on Windows, until
+    // BugSplat provides more metadata fields.
+    infos("applicationLogForBugsplatStartupManager setting userEmail = '" +
+          meta.OSInfo + '"');
+    bugsplatStartupManager.userEmail =
+        [NSString stringWithCString:meta.OSInfo.c_str()
+                           encoding:NSUTF8StringEncoding];
+    // This strangely-named override method's return value contributes the
+    // User Description metadata field.
+    infos("applicationLogForBugsplatStartupManager -> '" + meta.fatalMessage + "'");
+    return [NSString stringWithCString:meta.fatalMessage.c_str()
+                              encoding:NSUTF8StringEncoding];
+}
+
+- (NSString *)applicationKeyForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager signal:(NSString *)signal exceptionName:(NSString *)exceptionName exceptionReason:(NSString *)exceptionReason {
+    // TODO: exceptionName, exceptionReason
+
+    // Windows sends location within region as well, but that's because
+    // BugSplat for Windows intercepts crashes during the same run, and that
+    // information can be queried once. On the Mac, any metadata we have is
+    // written (and rewritten) to the static_debug_info.log file that we read
+    // at the start of the next viewer run. It seems ridiculously expensive to
+    // rewrite that file on every frame in which the avatar moves.
+    std::string regionName(CrashMetadata_instance().regionName);
+    infos("applicationKeyForBugsplatStartupManager -> '" + regionName + "'");
+    return [NSString stringWithCString:regionName.c_str()
+                              encoding:NSUTF8StringEncoding];
+}
+
+- (NSString *)defaultUserNameForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager {
+    std::string agentFullname(CrashMetadata_instance().agentFullname);
+    infos("defaultUserNameForBugsplatStartupManager -> '" + agentFullname + "'");
+    return [NSString stringWithCString:agentFullname.c_str()
+                              encoding:NSUTF8StringEncoding];
+}
+
+- (NSString *)defaultUserEmailForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager {
+    // Use the email field for OS version, just as we do on Windows, until
+    // BugSplat provides more metadata fields.
+    std::string OSInfo(CrashMetadata_instance().OSInfo);
+    infos("defaultUserEmailForBugsplatStartupManager -> '" + OSInfo + "'");
+    return [NSString stringWithCString:OSInfo.c_str()
+                              encoding:NSUTF8StringEncoding];
+}
+
+- (void)bugsplatStartupManagerWillSendCrashReport:(BugsplatStartupManager *)bugsplatStartupManager
+{
+    infos("bugsplatStartupManagerWillSendCrashReport");
+}
+
+struct AttachmentInfo
+{
+    AttachmentInfo(const std::string& path, const std::string& type):
+        pathname(path),
+        basename(boost::filesystem::path(path).filename().string()),
+        mimetype(type)
+    {}
+
+    std::string pathname, basename, mimetype;
+};
+
+- (NSArray<BugsplatAttachment *> *)attachmentsForBugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager
+{
+    const CrashMetadata& metadata(CrashMetadata_instance());
+
+    // Since we must do very similar processing for each of several file
+    // pathnames, start by collecting them into a vector so we can iterate
+    // instead of spelling out the logic for each.
+    std::vector<AttachmentInfo> info{
+        AttachmentInfo(metadata.logFilePathname,      "text/plain"),
+        AttachmentInfo(metadata.userSettingsPathname, "text/xml"),
+        AttachmentInfo(metadata.staticDebugPathname,  "text/xml")
+    };
+
+    // We "happen to know" that info[0].basename is "SecondLife.old" -- due to
+    // the fact that BugsplatMac only notices a crash during the viewer run
+    // following the crash. Replace .old with .log to reduce confusion.
+    info[0].basename = 
+        boost::filesystem::path(info[0].pathname).stem().string() + ".log";
+
+    NSMutableArray *attachments = [[NSMutableArray alloc] init];
+
+    // Iterate over each AttachmentInfo in info vector
+    for (const AttachmentInfo& attach : info)
+    {
+        NSString *nspathname = [NSString stringWithCString:attach.pathname.c_str()
+                                                  encoding:NSUTF8StringEncoding];
+        NSString *nsbasename = [NSString stringWithCString:attach.basename.c_str()
+                                                  encoding:NSUTF8StringEncoding];
+        NSString *nsmimetype = [NSString stringWithCString:attach.mimetype.c_str()
+                                                  encoding:NSUTF8StringEncoding];
+        NSData *nsdata = [NSData dataWithContentsOfFile:nspathname];
+
+        BugsplatAttachment *attachment =
+            [[BugsplatAttachment alloc] initWithFilename:nsbasename
+                                          attachmentData:nsdata
+                                             contentType:nsmimetype];
+
+        [attachments addObject:attachment];
+        infos("attachmentsForBugsplatStartupManager attaching " + attach.pathname);
+    }
+
+    return attachments;
+}
+
+- (void)bugsplatStartupManagerDidFinishSendingCrashReport:(BugsplatStartupManager *)bugsplatStartupManager
+{
+    infos("Sent crash report to BugSplat");
+}
+
+- (void)bugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager didFailWithError:(NSError *)error
+{
+    // TODO: message string from NSError
+    infos("Could not send crash report to BugSplat");
+}
+
+#endif // LL_BUGSPLAT
 
 @end

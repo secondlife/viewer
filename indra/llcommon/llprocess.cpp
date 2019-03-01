@@ -1205,30 +1205,9 @@ static LLProcess::Status interpret_status(int status)
 /// GetLastError()/FormatMessage() boilerplate
 static std::string WindowsErrorString(const std::string& operation)
 {
-	int result = GetLastError();
-
-	LPTSTR error_str = 0;
-	if (FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-					   NULL,
-					   result,
-					   0,
-					   (LPTSTR)&error_str,
-					   0,
-					   NULL)
-		!= 0) 
-	{
-		// convert from wide-char string to multi-byte string
-		char message[256];
-		wcstombs(message, error_str, sizeof(message));
-		message[sizeof(message)-1] = 0;
-		LocalFree(error_str);
-		// convert to std::string to trim trailing whitespace
-		std::string mbsstr(message);
-		mbsstr.erase(mbsstr.find_last_not_of(" \t\r\n"));
-		return STRINGIZE(operation << " failed (" << result << "): " << mbsstr);
-	}
-	return STRINGIZE(operation << " failed (" << result
-					 << "), but FormatMessage() did not explain");
+	auto result = GetLastError();
+	return STRINGIZE(operation << " failed (" << result << "): "
+					 << windows_message<std::string>(result));
 }
 
 /*****************************************************************************
