@@ -2115,6 +2115,9 @@ namespace LLInitParam
 			typedef typename super_t::iterator										iterator;
 			typedef typename super_t::const_iterator								const_iterator;
 
+			using super_t::operator();
+			using super_t::operator const container_t&;
+
 			explicit Multiple(const char* name = "")
 			:	super_t(DERIVED_BLOCK::getBlockDescriptor(), name, container_t(), &validate, RANGE::minCount, RANGE::maxCount)
 			{}

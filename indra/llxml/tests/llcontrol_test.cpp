@@ -27,43 +27,31 @@
 
 #include "linden_common.h"
 #include "llsdserialize.h"
+#include "llfile.h"
+#include "stringize.h"
 
 #include "../llcontrol.h"
 
 #include "../test/lltut.h"
+#include <memory>
+#include <vector>
 
 namespace tut
 {
-
 	struct control_group
 	{
-		LLControlGroup* mCG;
+		std::unique_ptr<LLControlGroup> mCG;
 		std::string mTestConfigDir;
 		std::string mTestConfigFile;
+		std::vector<std::string> mCleanups;
 		static bool mListenerFired;
 		control_group()
 		{
-			mCG = new LLControlGroup("foo");
+			mCG.reset(new LLControlGroup("foo"));
 			LLUUID random;
 			random.generate();
 			// generate temp dir
-			std::ostringstream oStr;
-
-#ifdef LL_WINDOWS
-			char* tmp_dir = getenv("TMP");
-			if(tmp_dir)
-			{
-				oStr << tmp_dir << "/llcontrol-test-" << random << "/";
-			}
-			else
-			{
-				oStr << "c:/tmp/llcontrol-test-" << random << "/";
-			}
-#else
-			oStr << "/tmp/llcontrol-test-" << random << "/";
-#endif
-
-			mTestConfigDir = oStr.str();
+			mTestConfigDir = STRINGIZE(LLFile::tmpdir() << "llcontrol-test-" << random << "/");
 			mTestConfigFile = mTestConfigDir + "settings.xml";
 			LLFile::mkdir(mTestConfigDir);
 			LLSD config;
@@ -76,7 +64,12 @@ namespace tut
 		~control_group()
 		{
 			//Remove test files
-			delete mCG;
+			for (auto filename : mCleanups)
+			{
+				LLFile::remove(filename);
+			}
+			LLFile::remove(mTestConfigFile);
+			LLFile::rmdir(mTestConfigDir);
 		}
 		void writeSettingsFile(const LLSD& config)
 		{
@@ -118,6 +111,7 @@ namespace tut
 		ensure_equals("value of changed setting", mCG->getU32("TestSetting"), 13);
 		LLControlGroup test_cg("foo2");
 		std::string temp_test_file = (mTestConfigDir + "setting_llsd_temp.xml");
+		mCleanups.push_back(temp_test_file);
 		mCG->saveToFile(temp_test_file.c_str(), TRUE);
 		results = test_cg.loadFromFile(temp_test_file.c_str());
 		ensure("number of changed settings loaded", (results == 1));
@@ -139,6 +133,7 @@ namespace tut
 		ensure_equals("value of changed setting", mCG->getU32("TestSetting"), 13);
 		LLControlGroup test_cg("foo3");
 		std::string temp_test_file = (mTestConfigDir + "setting_llsd_persist_temp.xml");
+		mCleanups.push_back(temp_test_file);
 		mCG->saveToFile(temp_test_file.c_str(), TRUE);
 		results = test_cg.loadFromFile(temp_test_file.c_str());
 		//If we haven't changed any settings, then we shouldn't have any settings to load
@@ -153,7 +148,7 @@ namespace tut
 		ensure("number of settings", (results == 1));
 		mCG->getControl("TestSetting")->getSignal()->connect(boost::bind(&this->handleListenerTest));
 		mCG->setU32("TestSetting", 13);
-		ensure("listener fired on changed setting", mListenerFired);	   
+		ensure("listener fired on changed setting", mListenerFired);
 	}
 
 }

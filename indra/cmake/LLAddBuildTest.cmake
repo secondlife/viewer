@@ -1,4 +1,5 @@
 # -*- cmake -*-
+include(00-Common)
 include(LLTestCommand)
 include(GoogleMock)
 include(Tut)
