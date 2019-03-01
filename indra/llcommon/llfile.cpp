@@ -425,10 +425,6 @@ LLFILE *	LLFile::_Fiopen(const std::string& filename,
 	return (0);
 }
 
-#endif /* LL_WINDOWS */
-
-
-#if LL_WINDOWS
 /************** input file stream ********************************/
 
 llifstream::llifstream() {}
@@ -465,7 +461,9 @@ void llofstream::open(const std::string& _Filename, ios_base::openmode _Mode)
                         _Mode | ios_base::out);
 }
 
-/************** helper functions ********************************/
+#endif  // LL_WINDOWS
+
+/************** OS agnostic helper functions ********************************/
 
 std::streamsize llifstream_size(llifstream& ifstr)
 {
@@ -490,5 +488,3 @@ std::streamsize llofstream_size(llofstream& ofstr)
 	ofstr.seekp(pos_old, ios_base::beg);
 	return pos_end - pos_beg;
 }
-
-#endif  // LL_WINDOWS
