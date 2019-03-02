@@ -1135,33 +1135,40 @@ bool LLAppViewer::init()
 
 	gGLActive = FALSE;
 
-	LLProcess::Params updater;
-	updater.desc = "updater process";
-	// Because it's the updater, it MUST persist beyond the lifespan of the
-	// viewer itself.
-	updater.autokill = false;
+    if (!gSavedSettings.getBOOL("CmdLineSkipUpdater"))
+    {
+        LLProcess::Params updater;
+        updater.desc = "updater process";
+        // Because it's the updater, it MUST persist beyond the lifespan of the
+        // viewer itself.
+        updater.autokill = false;
 #if LL_WINDOWS
-	updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "SLVersionChecker.exe");
+        updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "SLVersionChecker.exe");
 #elif LL_DARWIN
-	// explicitly run the system Python interpreter on SLVersionChecker.py
-	updater.executable = "python";
-	updater.args.add(gDirUtilp->add(gDirUtilp->getAppRODataDir(), "updater", "SLVersionChecker.py"));
+        // explicitly run the system Python interpreter on SLVersionChecker.py
+        updater.executable = "python";
+        updater.args.add(gDirUtilp->add(gDirUtilp->getAppRODataDir(), "updater", "SLVersionChecker.py"));
 #else
-	updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "SLVersionChecker");
+        updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "SLVersionChecker");
 #endif
-	// add LEAP mode command-line argument to whichever of these we selected
-	updater.args.add("leap");
-	// UpdaterServiceSettings
-	updater.args.add(stringize(gSavedSettings.getU32("UpdaterServiceSetting")));
-	// channel
-	updater.args.add(LLVersionInfo::getChannel());
-	// testok
-	updater.args.add(stringize(gSavedSettings.getBOOL("UpdaterWillingToTest")));
-	// ForceAddressSize
-	updater.args.add(stringize(gSavedSettings.getU32("ForceAddressSize")));
+        // add LEAP mode command-line argument to whichever of these we selected
+        updater.args.add("leap");
+        // UpdaterServiceSettings
+        updater.args.add(stringize(gSavedSettings.getU32("UpdaterServiceSetting")));
+        // channel
+        updater.args.add(LLVersionInfo::getChannel());
+        // testok
+        updater.args.add(stringize(gSavedSettings.getBOOL("UpdaterWillingToTest")));
+        // ForceAddressSize
+        updater.args.add(stringize(gSavedSettings.getU32("ForceAddressSize")));
 
-	// Run the updater. An exception from launching the updater should bother us.
-	LLLeap::create(updater, true);
+        // Run the updater. An exception from launching the updater should bother us.
+        LLLeap::create(updater, true);
+    }
+    else
+    {
+        LL_WARNS("InitInfo") << "Skipping updater check." << LL_ENDL;
+    }
 
 	// Iterate over --leap command-line options. But this is a bit tricky: if
 	// there's only one, it won't be an array at all.
