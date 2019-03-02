@@ -88,8 +88,8 @@ AtmosphericModelSettings::AtmosphericModelSettings()
     , m_sunArcRadians(0.00045f)
     , m_mieAnisotropy(0.8f)
 {
-    atmosphere::DensityProfileLayer rayleigh_density(0.0, 1.0, -1.0 / kRayleighScaleHeight, 0.0, 0.0);
-    atmosphere::DensityProfileLayer mie_density(0.0, 1.0, -1.0 / kMieScaleHeight, 0.0, 0.0);
+    DensityLayer rayleigh_density(0.0, 1.0, -1.0 / kRayleighScaleHeight, 0.0, 0.0);
+    DensityLayer mie_density(0.0, 1.0, -1.0 / kMieScaleHeight, 0.0, 0.0);
 
     m_rayleighProfile.push_back(rayleigh_density);
     m_mieProfile.push_back(mie_density);
@@ -98,8 +98,8 @@ AtmosphericModelSettings::AtmosphericModelSettings()
     // decreasing linearly from 1 to 0 between 25 and 40km. This is an approximate
     // profile from http://www.kln.ac.lk/science/Chemistry/Teaching_Resources/
     // Documents/Introduction%20to%20atmospheric%20chemistry.pdf (page 10).
-    m_absorptionProfile.push_back(atmosphere::DensityProfileLayer(25000.0, 0.0, 0.0, 1.0 / 15000.0, -2.0 / 3.0));
-    m_absorptionProfile.push_back(atmosphere::DensityProfileLayer(0.0, 0.0, 0.0, -1.0 / 15000.0, 8.0 / 3.0));
+    m_absorptionProfile.push_back(DensityLayer(25000.0, 0.0, 0.0, 1.0 / 15000.0, -2.0 / 3.0));
+    m_absorptionProfile.push_back(DensityLayer(0.0, 0.0, 0.0, -1.0 / 15000.0, 8.0 / 3.0));
 }
 
 AtmosphericModelSettings::AtmosphericModelSettings(
@@ -227,64 +227,12 @@ LLAtmosphere::~LLAtmosphere()
     {
         m_mie_scatter_texture->setTexName(0);
     }
-
-    delete m_model;
-    m_model = nullptr;
 }
 
 bool LLAtmosphere::configureAtmosphericModel(AtmosphericModelSettings& settings)
 {
-    if ((m_model != nullptr) && (settings == m_settings))
-    {
-        return true;
-    }
-
-    if (m_model)
-    {
-        delete m_model;
-    }
-    m_model = nullptr;
-
-    getTransmittance()->setTexName(0);
-    getScattering()->setTexName(0);
-    getMieScattering()->setTexName(0);
-    getIlluminance()->setTexName(0);
-
-    // Init libatmosphere model
-    m_model = new atmosphere::Model(
-                                m_config,
-                                m_wavelengths,
-                                m_solar_irradiance,
-                                settings.m_sunArcRadians,
-                                settings.m_skyBottomRadius * 1000.0f,
-                                settings.m_skyTopRadius * 1000.0f,
-                                settings.m_rayleighProfile,
-                                m_rayleigh_scattering,
-                                settings.m_mieProfile,
-                                m_mie_scattering,
-                                m_mie_extinction,
-                                settings.m_mieAnisotropy,
-                                settings.m_absorptionProfile,
-                                m_absorption_extinction,
-                                m_ground_albedo,
-                                max_sun_zenith_angle,
-                                1000.0,   
-                                3,
-                                false, // do not combine_scattering...we want indep textures
-                                false, // use 32F for 2d textures to avoid artifacts
-                                true); // use 16F for 3d textures to reduce footprint
-
-    if (m_model)
-    {
-        m_model->Init(m_config, m_textures);
-        getTransmittance()->setTexName(m_textures.transmittance_texture);
-        getScattering()->setTexName(m_textures.scattering_texture);   
-        getMieScattering()->setTexName(m_textures.single_mie_scattering_texture);
-        getIlluminance()->setTexName(m_textures.illuminance_texture);
-        m_settings = settings;
-    }
-
-    return m_model != nullptr;
+    // TBD
+    return true;
 }
 
 LLGLTexture* LLAtmosphere::getTransmittance()
@@ -341,9 +289,4 @@ LLGLTexture* LLAtmosphere::getIlluminance()
         m_illuminance->setTarget(GL_TEXTURE_2D, LLTexUnit::TT_TEXTURE);
     }
     return m_illuminance;
-}
-
-GLhandleARB LLAtmosphere::getAtmosphericShaderForLink() const
-{
-    return m_model ? m_model->GetShader() : 0;
 }

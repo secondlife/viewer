@@ -1,6 +1,6 @@
 /** 
  * @file llatmosphere.h
- * @brief LLAtmosphere class for integration with libatmosphere
+ * @brief LLAtmosphere class
  *
  * $LicenseInfo:firstyear=2018&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -29,9 +29,70 @@
 
 #include "llglheaders.h"
 #include "llgltexture.h"
-#include "libatmosphere/model.h"
 
-typedef std::vector<atmosphere::DensityProfileLayer> DensityProfile;
+// An atmosphere layer of width 'width' (in m), and whose density is defined as
+//   'exp_term' * exp('exp_scale' * h) + 'linear_term' * h + 'constant_term',
+// clamped to [0,1], and where h is the altitude (in m). 'exp_term' and
+// 'constant_term' are unitless, while 'exp_scale' and 'linear_term' are in
+// m^-1.
+class DensityLayer {
+ public:
+  DensityLayer()
+    : width(0.0f)
+    , exp_term(0.0f)
+    , exp_scale(0.0f)
+    , linear_term(0.0f)
+    , constant_term(0.0f)
+  {
+  }
+
+  DensityLayer(float width, float exp_term, float exp_scale, float linear_term, float constant_term)
+    : width(width)
+    , exp_term(exp_term)
+    , exp_scale(exp_scale)
+    , linear_term(linear_term)
+    , constant_term(constant_term)
+  {
+  }
+
+  bool operator==(const DensityLayer& rhs) const
+  {
+      if (width != rhs.width)
+      {
+         return false;
+      }
+
+      if (exp_term != rhs.exp_term)
+      {
+         return false;
+      }
+
+      if (exp_scale != rhs.exp_scale)
+      {
+         return false;
+      }
+
+      if (linear_term != rhs.linear_term)
+      {
+         return false;
+      }
+
+      if (constant_term != rhs.constant_term)
+      {
+         return false;
+      }
+
+      return true;
+  }
+
+  float width         = 1024.0f;
+  float exp_term      = 1.0f;
+  float exp_scale     = 1.0f;
+  float linear_term   = 1.0f;
+  float constant_term = 0.0f;
+};
+
+typedef std::vector<DensityLayer> DensityProfile;
 
 class AtmosphericModelSettings
 {
@@ -83,8 +144,6 @@ public:
     LLGLTexture* getMieScattering();
     LLGLTexture* getIlluminance();
 
-    GLhandleARB getAtmosphericShaderForLink() const;
-
     bool configureAtmosphericModel(AtmosphericModelSettings& settings);
 
 protected:    
@@ -92,10 +151,6 @@ protected:
     {
         *this = rhs;
     }
-
-    atmosphere::ModelConfig         m_config;    
-    atmosphere::PrecomputedTextures m_textures;
-    atmosphere::Model*              m_model = nullptr;
 
     LLPointer<LLGLTexture> m_transmittance;
     LLPointer<LLGLTexture> m_scattering;

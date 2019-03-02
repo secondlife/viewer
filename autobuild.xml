@@ -44,73 +44,7 @@
         </map>
         <key>version</key>
         <string>1.2.15</string>
-      </map>
-      <key>libatmosphere</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright © 2017 Eric Bruneton.</string>
-        <key>description</key>
-        <string>Precomputed multiple atmospheric scattering library.</string>
-        <key>license</key>
-        <string>BSD</string>
-        <key>license_file</key>
-        <string>LICENSES/libatmosphere.txt</string>
-        <key>name</key>
-        <string>libatmosphere</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-          <key>archive</key>
-          <map>
-            <key>hash</key>
-            <string>bca20bcdf1a2c26b16e71fb2c1316cbe</string>
-            <key>url</key>
-            <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/24187/188163/libatmosphere-1.0.0.100-darwin-519422.tar.bz2</string>
-          </map>
-          <key>name</key>
-          <string>darwin</string>
-        </map>
-          <key>darwin64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>9ce4c97f1eda8caa556573abd6e1ebd0</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/24188/188166/libatmosphere-1.0.0.100-darwin64-519422.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin64</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>6a61502ab1cca316f85310ded8bf9b9a</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/24190/188181/libatmosphere-1.0.0.100-windows-519422.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-	            <string>496410cb43e03ddf1777cd295c2d5dba</string>
-              <key>url</key>
-	            <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/24189/188175/libatmosphere-1.0.0.100-windows64-519422.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>1.0.0.513060</string>
-      </map>
+      </map>      
       <key>apr_suite</key>
       <map>
         <key>copyright</key>

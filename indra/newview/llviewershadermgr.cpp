@@ -242,10 +242,6 @@ LLGLSLShader            gDeferredSkinnedFullbrightShinyProgram;
 LLGLSLShader            gDeferredSkinnedFullbrightProgram;
 LLGLSLShader            gNormalMapGenProgram;
 
-LLGLSLShader            gDeferredGenSkyShProgram;
-LLGLSLShader            gDeferredGatherSkyShProgram;
-LLGLSLShader            gDeferredShVisProgram;
-
 // Deferred materials shaders
 LLGLSLShader            gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];
 LLGLSLShader            gDeferredMaterialWaterProgram[LLMaterial::SHADER_COUNT*2];
@@ -341,10 +337,7 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
     mShaderList.push_back(&gDeferredWLCloudProgram);
     mShaderList.push_back(&gDeferredWLCloudShadowProgram);
     mShaderList.push_back(&gDeferredWLMoonProgram);
-    mShaderList.push_back(&gDeferredWLSunProgram);
-    mShaderList.push_back(&gDeferredGenSkyShProgram);
-    mShaderList.push_back(&gDeferredGatherSkyShProgram);
-    mShaderList.push_back(&gDeferredShVisProgram);
+    mShaderList.push_back(&gDeferredWLSunProgram);    
 }
 
 LLViewerShaderMgr::~LLViewerShaderMgr()
@@ -1294,10 +1287,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             gDeferredMaterialProgram[i].unload();
             gDeferredMaterialWaterProgram[i].unload();
         }
-
-        gDeferredGenSkyShProgram.unload();
-        gDeferredGatherSkyShProgram.unload();
-        gDeferredShVisProgram.unload();
         return TRUE;
     }
 
@@ -2042,14 +2031,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         { //if using SSAO, take screen space light map into account as if shadows are enabled
             gDeferredSoftenProgram.mShaderLevel = llmax(gDeferredSoftenProgram.mShaderLevel, 2);
         }
-
-        // insure we use class3/deferred version of softenLight for advanced atmo..
-        gDeferredSoftenProgram.mShaderLevel = gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics") ? 3 : gDeferredSoftenProgram.mShaderLevel;
-        
-        if (gAtmosphere && gDeferredSoftenProgram.mShaderLevel > 2)
-        {
-            gDeferredSoftenProgram.mExtraLinkObject = gAtmosphere->getAtmosphericShaderForLink();
-        }
                 
         success = gDeferredSoftenProgram.createShader(NULL, NULL);
         llassert(success);
@@ -2074,11 +2055,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredSoftenWaterProgram.mFeatures.hasGamma = true;
         gDeferredSoftenWaterProgram.mFeatures.isDeferred = true;
         gDeferredSoftenWaterProgram.mFeatures.hasShadows = true;
-
-        if (gAtmosphere && gDeferredSoftenWaterProgram.mShaderLevel > 2)
-        {
-            gDeferredSoftenWaterProgram.mExtraLinkObject = gAtmosphere->getAtmosphericShaderForLink();
-        }
 
         if (gSavedSettings.getBOOL("RenderDeferredSSAO"))
         { //if using SSAO, take screen space light map into account as if shadows are enabled
@@ -2355,10 +2331,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredWLSkyProgram.mShaderFiles.push_back(make_pair("deferred/skyF.glsl", GL_FRAGMENT_SHADER_ARB));
         gDeferredWLSkyProgram.mShaderLevel = mShaderLevel[SHADER_WINDLIGHT];
         gDeferredWLSkyProgram.mShaderGroup = LLGLSLShader::SG_SKY;
-        if (gAtmosphere && gDeferredWLSkyProgram.mShaderLevel > 2)
-        {
-            gDeferredWLSkyProgram.mExtraLinkObject = gAtmosphere->getAtmosphericShaderForLink();
-        }
+
         success = gDeferredWLSkyProgram.createShader(NULL, NULL);
         llassert(success);
     }
@@ -2376,10 +2349,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredWLCloudProgram.mShaderFiles.push_back(make_pair("deferred/cloudsF.glsl", GL_FRAGMENT_SHADER_ARB));
         gDeferredWLCloudProgram.mShaderLevel = mShaderLevel[SHADER_WINDLIGHT];
         gDeferredWLCloudProgram.mShaderGroup = LLGLSLShader::SG_SKY;
-        if (gAtmosphere && gDeferredWLCloudProgram.mShaderLevel > 2)
-        {
-            gDeferredWLCloudProgram.mExtraLinkObject = gAtmosphere->getAtmosphericShaderForLink();
-        }
+
         success = gDeferredWLCloudProgram.createShader(NULL, NULL);
         llassert(success);
     }
@@ -2399,40 +2369,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredWLCloudShadowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         gDeferredWLCloudShadowProgram.mShaderGroup = LLGLSLShader::SG_SKY;
         success = gDeferredWLCloudShadowProgram.createShader(NULL, NULL);
-        llassert(success);
-    }
-
-    if (success && gAtmosphere && (mShaderLevel[SHADER_WINDLIGHT] > 2))
-    {
-        gDeferredGenSkyShProgram.mName = "Deferred Generate Sky Indirect SH Program";
-        gDeferredGenSkyShProgram.mShaderFiles.clear();
-        gDeferredGenSkyShProgram.mShaderFiles.push_back(make_pair("deferred/genSkyShV.glsl", GL_VERTEX_SHADER_ARB));
-        gDeferredGenSkyShProgram.mShaderFiles.push_back(make_pair("deferred/genSkyShF.glsl", GL_FRAGMENT_SHADER_ARB));
-        gDeferredGenSkyShProgram.mShaderLevel = mShaderLevel[SHADER_WINDLIGHT];
-        gDeferredGenSkyShProgram.mExtraLinkObject = gAtmosphere->getAtmosphericShaderForLink();
-        success = gDeferredGenSkyShProgram.createShader(NULL, NULL);
-        llassert(success);
-    }
-
-    if (success && gAtmosphere && (mShaderLevel[SHADER_WINDLIGHT] > 2))
-    {
-        gDeferredGatherSkyShProgram.mName = "Deferred Gather Sky Indirect SH Program";
-        gDeferredGatherSkyShProgram.mShaderFiles.clear();
-        gDeferredGatherSkyShProgram.mShaderFiles.push_back(make_pair("deferred/gatherSkyShV.glsl", GL_VERTEX_SHADER_ARB));
-        gDeferredGatherSkyShProgram.mShaderFiles.push_back(make_pair("deferred/gatherSkyShF.glsl", GL_FRAGMENT_SHADER_ARB));
-        gDeferredGatherSkyShProgram.mShaderLevel = 3;
-        success = gDeferredGatherSkyShProgram.createShader(NULL, NULL);
-        llassert(success);
-    }
-
-    if (success)
-    {
-        gDeferredShVisProgram.mName = "Deferred SH Vis Program";
-        gDeferredShVisProgram.mShaderFiles.clear();
-        gDeferredShVisProgram.mShaderFiles.push_back(make_pair("deferred/shVisV.glsl", GL_VERTEX_SHADER_ARB));
-        gDeferredShVisProgram.mShaderFiles.push_back(make_pair("deferred/shVisF.glsl", GL_FRAGMENT_SHADER_ARB));
-        gDeferredShVisProgram.mShaderLevel = 3;
-        success = gDeferredShVisProgram.createShader(NULL, NULL);
         llassert(success);
     }
 

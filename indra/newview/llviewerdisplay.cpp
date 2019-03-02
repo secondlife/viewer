@@ -1021,11 +1021,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			}
 		}
 
-        if (LLPipeline::sRenderDeferred && gAtmosphere && gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics"))
-        {
-            gPipeline.generateSkyIndirect();
-        }
-
 		if (LLPipeline::sRenderDeferred)
 		{
 			gPipeline.renderDeferredLighting(&gPipeline.mScreen);

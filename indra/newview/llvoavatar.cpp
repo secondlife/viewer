@@ -9745,7 +9745,7 @@ void LLVOAvatar::updateImpostors()
 		iter != instances_copy.end(); ++iter)
 	{
 		LLVOAvatar* avatar = (LLVOAvatar*) *iter;
-		if (!avatar->isDead() && avatar->isVisible()
+		if (avatar && !avatar->isDead() && avatar->isVisible()
 			&& (
                 (avatar->isImpostor() || LLVOAvatar::AV_DO_NOT_RENDER == avatar->getVisualMuteSettings()) && avatar->needsImpostorUpdate())
             )

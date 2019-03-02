@@ -287,7 +287,6 @@ public:
 	void generateSunShadow(LLCamera& camera);
     LLRenderTarget* getShadowTarget(U32 i);
 
-    void generateSkyIndirect();
 	void generateHighlight(LLCamera& camera);
 	void renderHighlight(const LLViewerObject* obj, F32 fade);
 	void setHighlightObject(LLDrawable* obj) { mHighlightObject = obj; }
@@ -545,8 +544,6 @@ public:
 
 	void updateCamera(bool reset = false);
 	
-	bool useAdvancedAtmospherics() const;
-
 	LLVector3				mFlyCamPosition;
 	LLQuaternion			mFlyCamRotation;
 
@@ -574,7 +571,6 @@ public:
 	static bool				sBakeSunlight;
 	static bool				sNoAlpha;
 	static bool				sUseTriStrips;
-	static bool				sUseAdvancedAtmospherics;
 	static bool				sUseFarClip;
 	static bool				sShadowRender;
 	static bool				sWaterReflections;
@@ -658,9 +654,6 @@ public:
 
 	//texture for making the glow
 	LLRenderTarget				mGlow[3];
-
-    // texture for SH indirect sky contribution
-	LLRenderTarget				mSkySH;
 
 	//noise map
 	U32					mNoiseMap;

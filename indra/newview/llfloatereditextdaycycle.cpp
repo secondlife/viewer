@@ -248,28 +248,6 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
     S32 tab_count = tab_container->getTabCount();
 
     LLSettingsEditPanel *panel = nullptr;
-
-    // Add or remove density tab as necessary
-    // Must be before operation on all tabs below
-    if (gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics"))
-    {
-        panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->findChildView("panel_settings_sky_density"));
-        if (!panel)
-        {
-            panel = new LLPanelSettingsSkyDensityTab;
-            panel->buildFromFile("panel_settings_sky_density.xml");
-            tab_container->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(false));
-        }
-    }
-    else
-    {
-        panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->findChildView("panel_settings_sky_density"));
-        if (panel)
-        {
-            tab_container->removeTabPanel(panel);
-        }
-        delete panel;
-    }
     
     for (S32 idx = 0; idx < tab_count; ++idx)
     {
@@ -1261,29 +1239,6 @@ void LLFloaterEditExtDayCycle::updateSkyTabs(const LLSettingsSkyPtr_t &p_sky)
     {
         panel->setSky(p_sky);
     }
-
-    if (gSavedSettings.getBOOL("RenderUseAdvancedAtmospherics"))
-    {
-        panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->findChildView("panel_settings_sky_density"));
-        if (!panel)
-        {
-            panel = new LLPanelSettingsSkyDensityTab;
-            panel->buildFromFile("panel_settings_sky_density.xml");
-            panel->setOnDirtyFlagChanged([this](LLPanel *, bool value) { onPanelDirtyFlagChanged(value); });
-            tab_container->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(false));
-        }
-        panel->setSky(std::static_pointer_cast<LLSettingsSky>(p_sky));
-    }
-    else
-    {
-        panel = dynamic_cast<LLPanelSettingsSky*>(tab_container->findChildView("panel_settings_sky_density"));
-        if (panel)
-        {
-            tab_container->removeTabPanel(panel);
-            delete panel;
-        }
-    }
-
 }
 
 void LLFloaterEditExtDayCycle::updateLabels()
