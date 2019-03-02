@@ -25,6 +25,7 @@
  * $/LicenseInfo$
  */
 
+#define _LLERROR_CPP_
 #include "linden_common.h"
 
 #include "llerror.h"
@@ -724,7 +725,7 @@ namespace LLError
 		s->mCrashFunction = fatal_function;
 	}
 
-	void restoreCrashOnError()
+    void restoreCrashOnError()
 	{
 		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
 		s->mCrashFunction = NULL;
@@ -1310,7 +1311,7 @@ namespace LLError
 		LLMutexTrylock lock(&gLogMutex,5);
 		if (!lock.isLocked())
 		{
-			return true;
+			return false; // because this wasn't logged, it cannot be fatal
 		}
 
 		// If we hit a logging request very late during shutdown processing,
@@ -1318,7 +1319,7 @@ namespace LLError
 		// DO NOT resurrect them.
 		if (Settings::wasDeleted() || Globals::wasDeleted())
 		{
-			return true;
+            return false; // because this wasn't logged, it cannot be fatal
 		}
 
 		Globals* g = Globals::getInstance();
@@ -1352,7 +1353,7 @@ namespace LLError
 				} 
 				else
 				{
-					return true;
+					return false; // because this wasn't logged, it cannot be fatal
 				}
 			}
 			else 
@@ -1372,11 +1373,17 @@ namespace LLError
             if (s->mCrashFunction)
             {
                 s->mCrashFunction(message);
-                return false;
+                return false; // because an override is in effect
+            }
+            else
+            {
+                return true; // calling macro should crash
             }
 		}
-
-        return true;
+        else
+        {
+            return false; // not ERROR, so do not crash
+        }
 	}
 }
 

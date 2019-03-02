@@ -50,11 +50,11 @@ extern void wouldHaveCrashed(const std::string& message);
 
 struct WrapLLErrs
 {
-    WrapLLErrs():
+    WrapLLErrs()
         // Resetting Settings discards the default Recorder that writes to
         // stderr. Otherwise, expected llerrs (LL_ERRS) messages clutter the
         // console output of successful tests, potentially confusing things.
-        mPriorErrorSettings(LLError::saveAndResetSettings())
+    :mPriorErrorSettings(LLError::saveAndResetSettings())
     {
         // Make LL_ERRS call our own operator() method
         LLError::overrideCrashOnError(boost::bind(&WrapLLErrs::operator(), this, _1));
@@ -210,6 +210,7 @@ public:
     {
         LLError::removeRecorder(mRecorder);
         LLError::restoreSettings(mOldSettings);
+        LLError::restoreCrashOnError();
     }
 
     /// Don't assume the message we want is necessarily the LAST log message

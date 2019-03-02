@@ -202,7 +202,7 @@ namespace LLError
 
 		static void flush(std::ostringstream* out, char* message);
 
-        // returns false iff there is a fatal crash override in effect
+        // returns false iff the calling macro should crash
 		static bool flush(std::ostringstream*, const CallSite&);
 
 		static std::string demangle(const char* mangled);
@@ -371,18 +371,22 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 
 #define LL_NEWLINE '\n'
 
+#ifdef _LLERROR_CPP_
+volatile int* gCauseCrash = NULL;
+#else
+volatile extern int* gCauseCrash;
+#endif // _LLERROR_CPP_
+
 // Use this only in LL_ERRS or in a place that LL_ERRS may not be used
-#define LLERROR_CRASH         \
-{                             \
-    int* make_me_crash = NULL;\
-    *make_me_crash = 0;       \
-    exit(*make_me_crash);     \
+#define LLERROR_CRASH       \
+{                           \
+    *gCauseCrash = 0;       \
+    exit(*gCauseCrash);     \
 }
 
 #define LL_ENDL                                          \
 			LLError::End();                              \
-            if (LLError::Log::flush(_out, _site)         \
-                && _site.mLevel == LLError::LEVEL_ERROR) \
+            if (LLError::Log::flush(_out, _site))        \
                 LLERROR_CRASH                            \
         }                                                \
 	} while(0)

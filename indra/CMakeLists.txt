@@ -13,6 +13,7 @@ project(${ROOT_PROJECT_NAME})
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 include(Variables)
+include(bugsplat)
 include(BuildVersion)
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -89,6 +90,15 @@ set_property(
     PROPERTY VS_STARTUP_PROJECT secondlife-bin
     )
 
+if (USE_BUGSPLAT)
+    if (BUGSPLAT_DB)
+        message(STATUS "Building with BugSplat; database '${BUGSPLAT_DB}'")
+    else (BUGSPLAT_DB)
+        message(WARNING "Building with BugSplat, but no database name set (BUGSPLAT_DB)")
+    endif (BUGSPLAT_DB)
+else (USE_BUGSPLAT)
+    message(STATUS "Not building with BugSplat")
+endif (USE_BUGSPLAT)
 if (LL_TESTS)
   # Define after the custom targets are created so
   # individual apps can add themselves as dependencies

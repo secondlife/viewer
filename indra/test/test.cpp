@@ -75,7 +75,10 @@
 
 #include <fstream>
 
-void wouldHaveCrashed(const std::string& message);
+void wouldHaveCrashed(const std::string& message)
+{
+	tut::fail("fatal error message: " + message);
+}
 
 namespace tut
 {
@@ -504,11 +507,6 @@ void stream_groups(std::ostream& s, const char* app)
 	{
 		s << "  " << *(it) << std::endl;
 	}
-}
-
-void wouldHaveCrashed(const std::string& message)
-{
-	tut::fail("fatal error message: " + message);
 }
 
 static LLTrace::ThreadRecorder* sMasterThreadRecorder = NULL;
