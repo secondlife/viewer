@@ -1823,14 +1823,19 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 			return false;
 		}
 
-		if (!header.isMap() || !header.has("version"))
+		if (!header.isMap())
 		{
 			LL_WARNS(LOG_MESH) << "Mesh header is invalid for ID: " << mesh_id << LL_ENDL;
 			return false;
 		}
 
+		if (header.has("version") && header["version"].asInteger() > MAX_MESH_VERSION)
+		{
+			LL_INFOS(LOG_MESH) << "Wrong version in header for " << mesh_id << LL_ENDL;
+			header["404"] = 1;
+		}
 		// make sure there is at least one lod, function returns -1 and marks as 404 otherwise
-		if (LLMeshRepository::getActualMeshLOD(header, 0) >= 0)
+		else if (LLMeshRepository::getActualMeshLOD(header, 0) >= 0)
 		{
 			header_size += stream.tellg();
 		}
@@ -3172,8 +3177,7 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* b
 
 		if (header_bytes > 0
 			&& !header.has("404")
-			&& header.has("version")
-			&& header["version"].asInteger() <= MAX_MESH_VERSION)
+			&& (!header.has("version") || header["version"].asInteger() <= MAX_MESH_VERSION))
 		{
 			std::stringstream str;
 
