@@ -81,6 +81,15 @@ void LLDrawPoolMaterials::beginDeferredPass(S32 pass)
 
 	mShader->bind();
 
+    if (LLPipeline::sRenderingHUDs)
+    {
+        mShader->uniform1i(LLShaderMgr::NO_ATMO, 1);
+    }
+    else
+    {
+        mShader->uniform1i(LLShaderMgr::NO_ATMO, 0);
+    }
+
 	diffuse_channel = mShader->enableTexture(LLShaderMgr::DIFFUSE_MAP);
 		
 	LL_RECORD_BLOCK_TIME(FTM_RENDER_MATERIALS);

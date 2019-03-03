@@ -634,7 +634,7 @@ void LLDrawPoolWater::shade2(bool edge, LLGLSLShader* shader, const LLColor3& li
                         bool edge_patch = water->getIsEdgePatch();
                         if (edge_patch)
                         {
-                            //sNeedsReflectionUpdate = TRUE;
+                            sNeedsReflectionUpdate = TRUE;
                             face->renderIndexed();
                         }
                     }

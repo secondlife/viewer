@@ -23,6 +23,8 @@
  * $/LicenseInfo$
  */
 
+uniform int no_atmo;
+
 vec3 atmosTransportFrag(vec3 light, vec3 additive, vec3 atten)
 {
     /* stub function for fallback compatibility on class1 hardware */

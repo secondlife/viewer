@@ -118,7 +118,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
         da *= spot*spot; // GL_SPOT_EXPONENT=2
 
         // to match spotLight (but not multiSpotLight) *sigh*
-        float lit = max(min(da, shadow) * dist_atten,0.0);
+        float lit = max(da * dist_atten,0.0);
         col = lit * light_col * diffuse;
 
         float amb_da = ambiance;

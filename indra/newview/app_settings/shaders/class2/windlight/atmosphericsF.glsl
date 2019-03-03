@@ -43,12 +43,17 @@ uniform float max_y;
 uniform vec4 glow;
 uniform float scene_light_strength;
 uniform mat3 ssao_effect_mat;
+uniform int no_atmo;
 uniform float sun_moon_glow_factor;
 
 vec3 scaleSoftClipFrag(vec3 light);
 
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten)
 {
+    if (no_atmo == 1)
+    {
+        return light;
+    }
     light *= atten.r;
     light += additive;
     return light * 2.0;

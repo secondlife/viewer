@@ -1979,7 +1979,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredWaterProgram.mFeatures.hasGamma = true;
         gDeferredWaterProgram.mFeatures.hasTransport = true;
         gDeferredWaterProgram.mFeatures.encodesNormal = true;
-        gDeferredWaterProgram.mFeatures.hasShadows = true;
+        //gDeferredWaterProgram.mFeatures.hasShadows = true;
 
         gDeferredWaterProgram.mShaderFiles.clear();
         gDeferredWaterProgram.mShaderFiles.push_back(make_pair("deferred/waterV.glsl", GL_VERTEX_SHADER_ARB));
@@ -2000,7 +2000,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredUnderWaterProgram.mFeatures.hasTransport = true;
         gDeferredUnderWaterProgram.mFeatures.hasSrgb = true;
         gDeferredUnderWaterProgram.mFeatures.encodesNormal = true;
-        gDeferredUnderWaterProgram.mFeatures.hasShadows = true;
+        //gDeferredUnderWaterProgram.mFeatures.hasShadows = true;
 
         gDeferredUnderWaterProgram.mShaderFiles.clear();
         gDeferredUnderWaterProgram.mShaderFiles.push_back(make_pair("deferred/waterV.glsl", GL_VERTEX_SHADER_ARB));

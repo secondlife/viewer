@@ -33,9 +33,11 @@ vec3 getAtmosAttenuation();
 vec3 getPositionEye();
 
 uniform float scene_light_strength;
+uniform int no_atmo;
 
 vec3 atmosAmbient(vec3 light)
 {
+    if (no_atmo == 1) return light + vec3(0.66);
     return getAmblitColor() + light / 2.0;
 }
 

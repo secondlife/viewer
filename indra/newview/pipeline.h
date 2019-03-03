@@ -645,10 +645,7 @@ public:
 
 	//water reflection texture
 	LLRenderTarget				mWaterRef;
-    LLRenderTarget				mWaterDeferredScreen;
-    LLRenderTarget				mWaterDeferredDepth;
-    LLRenderTarget				mWaterOcclusionDepth;
-    LLRenderTarget			    mWaterDeferredLight;
+
 	//water distortion texture (refraction)
 	LLRenderTarget				mWaterDis;
 

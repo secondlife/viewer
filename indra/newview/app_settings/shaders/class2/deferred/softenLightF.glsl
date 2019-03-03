@@ -120,7 +120,7 @@ void main()
     
         calcFragAtmospherics(pos.xyz, ambocc, sunlit, amblit, additive, atten);
 
-        float ambient = min(abs(da), 1.0);
+        float ambient = abs(da);
         ambient *= 0.5;
         ambient *= ambient;
         ambient = 1.0 - ambient * smoothstep(0.0, 0.3, scol);
@@ -155,6 +155,8 @@ void main()
             col = mix(col.rgb, refcol, envIntensity); 
         }
                 
+
+vec3 a = col.rgb;
         if (norm.w < 0.5)
         {
             col = mix(atmosFragLighting(col, additive, atten), fullbrightAtmosTransportFrag(col, additive, atten), diffuse.a);
@@ -166,8 +168,9 @@ void main()
             col = fogged.rgb;
             bloom = fogged.a;
         #endif
-    }
 
+//col.rgb = a;
+    }
     frag_color.rgb = col.rgb;
     frag_color.a = bloom;
 }
