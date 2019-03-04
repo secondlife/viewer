@@ -6521,6 +6521,15 @@ class LLShowAgentProfile : public view_listener_t
 	}
 };
 
+class LLShowAgentProfilePicks : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        LLAvatarActions::showPicks(gAgent.getID());
+        return true;
+    }
+};
+
 class LLToggleAgentProfile : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -9251,6 +9260,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLToggleSpeak(), "ToggleSpeak");
 	view_listener_t::addMenu(new LLPromptShowURL(), "PromptShowURL");
 	view_listener_t::addMenu(new LLShowAgentProfile(), "ShowAgentProfile");
+    view_listener_t::addMenu(new LLShowAgentProfilePicks(), "ShowAgentProfilePicks");
 	view_listener_t::addMenu(new LLToggleAgentProfile(), "ToggleAgentProfile");
 	view_listener_t::addMenu(new LLToggleControl(), "ToggleControl");
 	view_listener_t::addMenu(new LLCheckControl(), "CheckControl");

@@ -47,7 +47,7 @@
 #include "llmutelist.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
-#include "llpanelprofile.h"
+#include "llavataractions.h"
 #include "llparcel.h"
 #include "llpluginclassmedia.h"
 #include "llurldispatcher.h"
