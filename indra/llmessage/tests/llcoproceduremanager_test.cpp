@@ -4,7 +4,7 @@
  * @date 2019-02
  * @brief LLCoprocedureManager unit test
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2019&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
