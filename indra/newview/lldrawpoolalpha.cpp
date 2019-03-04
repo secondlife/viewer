@@ -49,6 +49,8 @@
 #include "llspatialpartition.h"
 #include "llglcommonfunc.h"
 
+#define RENDER_EMISSIVE_OUT_OF_ORDER 1 // faster, but technically different draw order than prev revisions
+
 BOOL LLDrawPoolAlpha::sShowDebugAlpha = FALSE;
 
 static BOOL deferred_render = FALSE;
@@ -66,6 +68,7 @@ static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_SHADER_BINDS("Alpha Shader
 static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_DEFERRED_SHADER_BINDS("Alpha Def Binds");
 static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_DEFERRED_TEX_BINDS("Alpha Def Tex Binds");
 static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_MESH_REBUILD("Alpha Mesh Rebuild");
+static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_EMISSIVE("Alpha Emissive");
 
 LLDrawPoolAlpha::LLDrawPoolAlpha(U32 type) :
 		LLRenderPass(type), current_shader(NULL), target_shader(NULL),
@@ -531,7 +534,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 	BOOL light_enabled = TRUE;
 	
 	BOOL use_shaders = gPipeline.canUseVertexShaders();
-		
+
 	for (LLCullResult::sg_iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
 	{
 		LLSpatialGroup* group = *i;
@@ -541,6 +544,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 		if (group->getSpatialPartition()->mRenderByGroup &&
 		    !group->isDead())
 		{
+            std::vector<LLDrawInfo*> emissives;
+
 			bool is_particle_or_hud_particle = group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_PARTICLE
 													  || group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_HUD_PARTICLE;
 
@@ -638,6 +643,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 
 					if (current_shader != target_shader)
 					{
+                        LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_DEFERRED_SHADER_BINDS);
 						gPipeline.bindDeferredShader(*target_shader);
 					}
 				}
@@ -653,6 +659,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 				if(use_shaders && (current_shader != target_shader))
 				{// If we need shaders, and we're not ALREADY using the proper shader, then bind it
 				// (this way we won't rebind shaders unnecessarily).
+                    LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_SHADER_BINDS);
 					current_shader = target_shader;
 					current_shader->bind();
 				}
@@ -673,12 +680,14 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 
 						if (params.mNormalMap)
 						{
+                            LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_DEFERRED_TEX_BINDS);
 							params.mNormalMap->addTextureStats(params.mVSize);
 							current_shader->bindTexture(LLShaderMgr::BUMP_MAP, params.mNormalMap);
 						} 
 						
 						if (params.mSpecularMap)
 						{
+                            LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_DEFERRED_TEX_BINDS);
 							params.mSpecularMap->addTextureStats(params.mVSize);
 							current_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, params.mSpecularMap);
 						} 
@@ -703,6 +712,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 
 				if (use_shaders && params.mTextureList.size() > 1)
 				{
+                    LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_TEX_BINDS);
+
 					for (U32 i = 0; i < params.mTextureList.size(); ++i)
 					{
 						if (params.mTextureList[i].notNull())
@@ -715,6 +726,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 				{ //not batching textures or batch has only 1 texture -- might need a texture matrix
 					if (params.mTexture.notNull())
 					{
+                        LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_TEX_BINDS);
+
 						params.mTexture->addTextureStats(params.mVSize);
 						if (use_shaders && mat)
 						{
@@ -748,48 +761,72 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 					gGL.blendFunc((LLRender::eBlendFactor) params.mBlendFuncSrc, (LLRender::eBlendFactor) params.mBlendFuncDst, mAlphaSFactor, mAlphaDFactor);
 					params.mVertexBuffer->setBuffer(mask & ~(params.mFullbright ? (LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2) : 0));
 
-					params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
-					gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
+                    {
+                        LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_DRAW);
+					    params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
+					    gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
+                    }
 				}
-				
+
 				// If this alpha mesh has glow, then draw it a second time to add the destination-alpha (=glow).  Interleaving these state-changing calls could be expensive, but glow must be drawn Z-sorted with alpha.
 				if (current_shader && 
 					draw_glow_for_this_partition &&
 					params.mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_EMISSIVE))
 				{
+                    LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_EMISSIVE);
+                    
+                #if RENDER_EMISSIVE_OUT_OF_ORDER
+                    emissives.push_back(&params);
+                #else
 					// install glow-accumulating blend mode
 					gGL.blendFunc(LLRender::BF_ZERO, LLRender::BF_ONE, // don't touch color
 					LLRender::BF_ONE, LLRender::BF_ONE); // add to alpha (glow)
 
-					emissive_shader->bind();
-					if (LLPipeline::sRenderingHUDs)
-	                {
-		                emissive_shader->uniform1i(LLShaderMgr::NO_ATMO, 1);
-	                }
-	                else
-	                {
-		                emissive_shader->uniform1i(LLShaderMgr::NO_ATMO, 0);
-	                }
-					params.mVertexBuffer->setBuffer((mask & ~LLVertexBuffer::MAP_COLOR) | LLVertexBuffer::MAP_EMISSIVE);
-					
-					// do the actual drawing, again
-					params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
-					gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
+                    {
+                        LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_GLOW);
+					    emissive_shader->bind();
+					    if (LLPipeline::sRenderingHUDs)
+	                    {
+		                    emissive_shader->uniform1i(LLShaderMgr::NO_ATMO, 1);
+	                    }
+	                    else
+	                    {
+		                    emissive_shader->uniform1i(LLShaderMgr::NO_ATMO, 0);
+	                    }
+
+					    params.mVertexBuffer->setBuffer((mask & ~LLVertexBuffer::MAP_COLOR) | LLVertexBuffer::MAP_EMISSIVE);
+					}
+
+                    {
+                        LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_DRAW);
+					    // do the actual drawing, again
+					    params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
+					    gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
+                    }
 
 					// restore our alpha blend mode
 					gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
 
 					current_shader->bind();
+                #endif
+
 				}
 			
 				if (tex_setup)
 				{
 					gGL.getTexUnit(0)->activate();
+                    gGL.matrixMode(LLRender::MM_TEXTURE);
 					gGL.loadIdentity();
 					gGL.matrixMode(LLRender::MM_MODELVIEW);
 				}
 			}
-		}
+
+        #if RENDER_EMISSIVE_OUT_OF_ORDER
+            renderEmissives(mask, emissives);
+        #endif
+
+            current_shader->bind();
+		}        
 	}
 
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
