@@ -1,6 +1,5 @@
 /** 
- * @file llpanelme.cpp
- * @brief Side tray "Me" (My Profile) panel
+ * @file llfloaterdisplayname.h
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,44 +23,16 @@
  * $/LicenseInfo$
  */
 
-#include "llviewerprecompiledheaders.h"
+#ifndef LLFLOATERDISPLAYNAME_H
+#define LLFLOATERDISPLAYNAME_H
 
-#include "llpanelme.h"
 
-// Viewer includes
-#include "llpanelprofile.h"
-#include "llagent.h"
-#include "llagentcamera.h"
-#include "llagentwearables.h"
-#include "llfirstuse.h"
-#include "llfloaterreg.h"
-#include "llhints.h"
-#include "llviewercontrol.h"
-
-// Linden libraries
-#include "llavatarnamecache.h"		// IDEVO
-#include "lliconctrl.h"
-#include "llnotifications.h"
-#include "llnotificationsutil.h"	// IDEVO
-#include "lltabcontainer.h"
-#include "lltexturectrl.h"
-
-static LLPanelInjector<LLPanelMe> t_panel_me_profile("panel_me");
-
-LLPanelMe::LLPanelMe(void) 
- : LLPanelProfile()
+namespace LLFloaterDisplayNameUtil
 {
-	setAvatarId(gAgent.getID());
+	// Register with LLFloaterReg
+	void registerFloater();
 }
 
-BOOL LLPanelMe::postBuild()
-{
-	LLPanelProfile::postBuild();
 
-	return TRUE;
-}
 
-void LLPanelMe::onOpen(const LLSD& key)
-{
-	LLPanelProfile::onOpen(key);
-}
+#endif

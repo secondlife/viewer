@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Mi perfil" name="panel_me">
-	<panel label="MIS DESTACADOS" name="panel_picks"/>
-</panel>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ name="panel_notes"
+ label="Notes &amp; Privacy"
+ top="0"
+ left="0"
+ height="480"
+ width="420"
+ follows="all"
+ layout="topleft"
+>
+    <loading_indicator
+     name="progress_indicator"
+     top="3"
+     right="-10"
+     height="23"
+     width="23"
+     follows="top|right"
+     layout="topleft"
+     visible="false"
+    />
+    <text
+     name="status_message"
+     value="Private notes on this avatar:"
+     top="6"
+     left="6"
+     right="-6"
+     height="16"
+     follows="left|top|right"
+     layout="topleft"
+     font.style="BOLD"
+    />
+    <text_editor
+     name="notes_edit"
+     enabled="false"
+     top_pad="4"
+     left="6"
+     right="-6"
+     height="335"
+     follows="all"
+     layout="topleft"
+     max_length="1000"
+     word_wrap="true"
+    />
+    <text
+     name="status_message2"
+     value="Allow this avatar to:"
+     top_pad="8"
+     left="6"
+     right="-6"
+     height="16"
+     follows="left|bottom|right"
+     layout="topleft"
+     font.style="BOLD"
+    />
+    <check_box
+     name="status_check"
+     label="See when I am online"
+     enabled="false"
+     left="10"
+     height="16"
+     width="293"
+     follows="left|bottom|right"
+     layout="topleft"
+    />
+    <check_box
+     name="map_check"
+     label="Find me on the world map"
+     enabled="false"
+     left="10"
+     height="16"
+     width="293"
+     follows="left|bottom|right"
+     layout="topleft"
+    />
+    <check_box
+     name="objects_check"
+     label="Edit, delete or take my objects"
+     enabled="false"
+     left="10"
+     height="16"
+     width="293"
+     follows="left|bottom|right"
+     layout="topleft"
+    />
+</panel>

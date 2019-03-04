@@ -299,6 +299,21 @@ void LLAvatarPropertiesProcessor::processAvatarInterestsReply(LLMessageSystem* m
 	That will suppress the warnings and be compatible with old server versions.
 	WARNING: LLTemplateMessageReader::decodeData: Message from 216.82.37.237:13000 with no handler function received: AvatarInterestsReply
 */
+
+    LLInterestsData interests_data;
+    
+    msg->getUUIDFast(   _PREHASH_AgentData,         _PREHASH_AgentID,       interests_data.agent_id );
+    msg->getUUIDFast(   _PREHASH_AgentData,         _PREHASH_AvatarID,      interests_data.avatar_id );
+    msg->getU32Fast(    _PREHASH_PropertiesData,	_PREHASH_WantToMask,    interests_data.want_to_mask );
+    msg->getStringFast( _PREHASH_PropertiesData,    _PREHASH_WantToText,    interests_data.want_to_text );
+    msg->getU32Fast(    _PREHASH_PropertiesData,	_PREHASH_SkillsMask,    interests_data.skills_mask );
+    msg->getStringFast( _PREHASH_PropertiesData,    _PREHASH_SkillsText,    interests_data.skills_text );
+    msg->getString(     _PREHASH_PropertiesData,    _PREHASH_LanguagesText, interests_data.languages_text );
+    
+    LLAvatarPropertiesProcessor* self = getInstance();
+    // Request processed, no longer pending
+    self->removePendingRequest(interests_data.avatar_id, APT_INTERESTS_INFO);
+    self->notifyObservers(interests_data.avatar_id, &interests_data, APT_INTERESTS_INFO);
 }
 
 void LLAvatarPropertiesProcessor::processAvatarClassifiedsReply(LLMessageSystem* msg, void**)
@@ -536,6 +551,29 @@ void LLAvatarPropertiesProcessor::sendClassifiedDelete(const LLUUID& classified_
 	msg->addUUID(_PREHASH_ClassifiedID, classified_id);
 
 	gAgent.sendReliableMessage();
+}
+
+void LLAvatarPropertiesProcessor::sendInterestsInfoUpdate(const LLInterestsData* interests_data)
+{
+    if(!interests_data)
+    {
+        return;
+    }
+
+    LLMessageSystem* msg = gMessageSystem;
+
+    msg->newMessage(_PREHASH_AvatarInterestsUpdate);
+    msg->nextBlockFast( _PREHASH_AgentData);
+    msg->addUUIDFast(	_PREHASH_AgentID,       gAgent.getID() );
+    msg->addUUIDFast(   _PREHASH_SessionID,     gAgent.getSessionID() );
+    msg->nextBlockFast( _PREHASH_PropertiesData);
+    msg->addU32Fast(	_PREHASH_WantToMask,    interests_data->want_to_mask);
+    msg->addStringFast(	_PREHASH_WantToText,    interests_data->want_to_text);
+    msg->addU32Fast(	_PREHASH_SkillsMask,    interests_data->skills_mask);
+    msg->addStringFast(	_PREHASH_SkillsText,    interests_data->skills_text);
+    msg->addString(     _PREHASH_LanguagesText, interests_data->languages_text);
+    
+    gAgent.sendReliableMessage();
 }
 
 void LLAvatarPropertiesProcessor::sendPickInfoUpdate(const LLPickData* new_pick)

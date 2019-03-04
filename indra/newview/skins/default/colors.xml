@@ -877,6 +877,22 @@
       name="PanelNotificationListItem"
       value="0.3 0.3 0.3 .3" />
 
+	<!-- profiles -->
+    <color
+        name="StatusUserOnline"
+        reference="White" />
+    <color
+        name="StatusUserOffline"
+        reference="LtGray_35" />
+    <!-- Groups visible in own profiles -->
+    <color
+        name="GroupVisibleInProfile"
+        reference="TextBgFocusColor" />
+    <color
+        name="GroupHiddenInProfile"
+        reference="Gray" />
+    
+
   <!-- Generic color names (legacy) -->
   <color
     name="white"

@@ -50,11 +50,14 @@ class LLGroupList: public LLFlatListViewEx, public LLOldEvents::LLSimpleListener
 public:
 	struct Params : public LLInitParam::Block<Params, LLFlatListViewEx::Params>
 	{
-		Params(){};
+        Optional<bool> for_agent;
+        Params();
 	};
 
 	LLGroupList(const Params& p);
 	virtual ~LLGroupList();
+
+    void enableForAgent(bool show_icons);
 
 	virtual void draw(); // from LLView
 	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask); // from LLView
@@ -63,13 +66,16 @@ public:
 	void setNameFilter(const std::string& filter);
 	void toggleIcons();
 	bool getIconsVisible() const { return mShowIcons; }
+    void setIconsVisible(bool show_icons) { mShowIcons = show_icons; }
+    void setShowNone(bool show_none) { mShowNone = show_none; }
+    void setGroups(const std::map< std::string,LLUUID> group_list);
 
 	LLToggleableMenu* getContextMenu() const { return mContextMenuHandle.get(); }
 
 private:
 	void setDirty(bool val = true)		{ mDirty = val; }
 	void refresh();
-	void addNewItem(const LLUUID& id, const std::string& name, const LLUUID& icon_id, EAddPosition pos = ADD_BOTTOM);
+	void addNewItem(const LLUUID& id, const std::string& name, const LLUUID& icon_id, EAddPosition pos = ADD_BOTTOM, bool visible_in_profile = true);
 	bool handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata); // called on agent group list changes
 
 	bool onContextMenuItemClick(const LLSD& userdata);
@@ -80,6 +86,11 @@ private:
 	bool mShowIcons;
 	bool mDirty;
 	std::string mNameFilter;
+
+    bool mForAgent;
+    bool mShowNone;
+    typedef std::map< std::string,LLUUID>	group_map_t;
+    group_map_t 			mGroups;
 };
 
 class LLButton;
@@ -90,7 +101,7 @@ class LLGroupListItem : public LLPanel
 	, public LLGroupMgrObserver
 {
 public:
-	LLGroupListItem();
+    LLGroupListItem(bool for_agent);
 	~LLGroupListItem();
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void setValue(const LLSD& value);
@@ -106,6 +117,8 @@ public:
 	void setGroupIconVisible(bool visible);
 
 	virtual void changed(LLGroupChange gc);
+
+    void setVisibleInProfile(bool visible);
 private:
 	void setActive(bool active);
 	void onInfoBtnClick();
