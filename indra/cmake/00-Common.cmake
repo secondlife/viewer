@@ -45,6 +45,8 @@ endif()
 # Don't bother with a MinSizeRel build.
 set(CMAKE_CONFIGURATION_TYPES "RelWithDebInfo;Release;Debug" CACHE STRING
     "Supported build types." FORCE)
+	
+set(UNATTENDED ON CACHE BOOL ”On Windows, turn this OFF to implicitly run VSTool.exe after configure.”)
 
 
 # Platform-specific compilation flags.
