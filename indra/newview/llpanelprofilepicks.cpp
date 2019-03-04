@@ -772,3 +772,4 @@ void LLPanelProfilePick::updateTabLabel(const std::string& title)
         parent->setCurrentTabName(title);
     }
 }
+
