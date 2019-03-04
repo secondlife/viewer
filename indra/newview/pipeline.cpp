@@ -9962,6 +9962,16 @@ bool LLPipeline::getVisiblePointCloud(LLCamera& camera, LLVector3& min, LLVector
 
 void LLPipeline::renderHighlight(const LLViewerObject* obj, F32 fade)
 {
+    BOOL shaders = canUseVertexShaders();
+	if(shaders) 
+	{
+		gHighlightProgram.bind();
+	}
+	else
+	{
+		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+	}
+
     if (obj && obj->getVolume())
     {
         for (LLViewerObject::child_list_t::const_iterator iter = obj->getChildren().begin(); iter != obj->getChildren().end(); ++iter)

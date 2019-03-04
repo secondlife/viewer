@@ -545,10 +545,10 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
         LLSpatialPartition* partition = group->getSpatialPartition();
 		llassert(partition);
 
-		if (group->getSpatialPartition()->mRenderByGroup && !group->isDead())
+		if (partition->mRenderByGroup && !group->isDead())
 		{
-			bool is_particle_or_hud_particle = group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_PARTICLE
-											|| group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_HUD_PARTICLE;
+			bool is_particle_or_hud_particle = partition->mPartitionType == LLViewerRegion::PARTITION_PARTICLE
+											|| partition->mPartitionType == LLViewerRegion::PARTITION_HUD_PARTICLE;
 
             std::vector<LLDrawInfo*>* fullbrights = is_particle_or_hud_particle ? &fullbrights_hud : &fullbrights_3d;
             std::vector<LLDrawInfo*>* materials   = is_particle_or_hud_particle ? &materials_hud   : &materials_3d;
@@ -590,9 +590,9 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
     renderFullbrights(mask, fullbrights_hud);
     renderMaterials(mask, materials_hud);
     renderEmissives(mask, emissives_hud);
-
-    LLGLSLShader::bindNoShader();
-    current_shader = NULL;
+    
+    simple_shader->bind();
+    current_shader = simple_shader;
 
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
