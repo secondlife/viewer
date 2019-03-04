@@ -9284,19 +9284,10 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
         {
             skip_avatar_update = true;
         }
-        
-        if (!skip_avatar_update)
-        {
-            gAgentAvatarp->updateAttachmentVisibility(CAMERA_MODE_THIRD_PERSON);
-        }
-        LLVertexBuffer::unbind();
-
-        LLGLState::checkStates();
-        LLGLState::checkTextureChannels();
-        LLGLState::checkClientArrays();
 
         LLCamera camera = camera_in;
-        camera.setFar(camera.getFar()*0.87654321f);
+
+        camera.setFar(camera_in.getFar() * 0.75f);
 
         bool camera_is_underwater = LLViewerCamera::getInstance()->cameraUnderWater();
 
@@ -9443,7 +9434,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
             set_current_modelview(current);         
         }
 
-        //LLPipeline::sUseOcclusion = occlusion;
+        LLPipeline::sUseOcclusion = occlusion;
 
         camera.setOrigin(camera_in.getOrigin());
         //render distortion map

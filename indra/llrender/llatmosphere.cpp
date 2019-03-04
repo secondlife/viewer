@@ -80,8 +80,6 @@ const double kMieAngstromBeta = 5.328e-3;
 const double kMieSingleScatteringAlbedo = 0.9;
 const double kGroundAlbedo = 0.1;
 
-const double max_sun_zenith_angle = F_PI * 2.0 / 3.0;
-
 AtmosphericModelSettings::AtmosphericModelSettings()
     : m_skyBottomRadius(6360.0f)
     , m_skyTopRadius(6420.0f)

@@ -1026,6 +1026,11 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gPipeline.renderDeferredLighting(&gPipeline.mScreen);
 		}
 
+		if (to_texture)
+		{
+			gPipeline.renderBloom(gSnapshot, zoom_factor, subfield);
+		}
+
 		LLPipeline::sUnderWaterRender = FALSE;
 
 		{
@@ -1285,14 +1290,6 @@ void render_ui(F32 zoom_factor, int subfield)
 	}
 
 	{
-		BOOL to_texture = gPipeline.canUseVertexShaders() &&
-							LLPipeline::sRenderGlow;
-
-		if (to_texture)
-		{
-			gPipeline.renderBloom(gSnapshot, zoom_factor, subfield);
-		}
-		
 		render_hud_elements();
 		render_hud_attachments();
 	}
