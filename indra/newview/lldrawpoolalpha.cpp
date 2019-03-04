@@ -572,11 +572,11 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 			for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)	
 			{
 				LLDrawInfo& params = **k;
-
-				if ((params.mVertexBuffer->getTypeMask() & mask) != mask)
+                U32 have_mask = params.mVertexBuffer->getTypeMask() & mask;
+				if (have_mask != mask)
 				{ //FIXME!
 					LL_WARNS_ONCE() << "Missing required components, expected mask: " << mask
-									<< " present: " << (params.mVertexBuffer->getTypeMask() & mask)
+									<< " present: " << have_mask
 									<< ". Skipping render batch." << LL_ENDL;
 					continue;
 				}

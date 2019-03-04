@@ -717,11 +717,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 			if (!for_snapshot)
 			{
-				if (gFrameCount > 1)
-				{ //for some reason, ATI 4800 series will error out if you 
-				  //try to generate a shadow before the first frame is through
-					gPipeline.generateSunShadow(*LLViewerCamera::getInstance());
-				}
+                gPipeline.generateSunShadow(*LLViewerCamera::getInstance());
 
 				LLVertexBuffer::unbind();
 

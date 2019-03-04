@@ -128,7 +128,7 @@ S32 LLDrawPoolWLSky::getNumShadowPasses() { return 0; }
 
 void LLDrawPoolWLSky::beginShadowPass(S32 pass)
 {
-    cloud_shadow_shader = LLPipeline::sRenderDeferred ? &gDeferredWLCloudShadowProgram : &gWLCloudShadowProgram;
+    //cloud_shadow_shader = LLPipeline::sRenderDeferred ? &gDeferredWLCloudShadowProgram : &gWLCloudShadowProgram;
 }
 
 void LLDrawPoolWLSky::endShadowPass(S32 pass)
