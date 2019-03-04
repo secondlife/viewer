@@ -49,8 +49,6 @@
 #include "llspatialpartition.h"
 #include "llglcommonfunc.h"
 
-#define RENDER_EMISSIVE_OUT_OF_ORDER 1 // faster, but technically different draw order than prev revisions
-
 BOOL LLDrawPoolAlpha::sShowDebugAlpha = FALSE;
 
 static BOOL deferred_render = FALSE;
@@ -432,6 +430,10 @@ void LLDrawPoolAlpha::renderSimples(U32 mask, std::vector<LLDrawInfo*>& simples)
     for (LLDrawInfo* draw : simples)
     {
         bool tex_setup = TexSetup(draw);
+
+        LLGLEnableFunc stencil_test(GL_STENCIL_TEST, draw->mSelected, &LLGLCommonFunc::selected_stencil_test);
+		gGL.blendFunc((LLRender::eBlendFactor) draw->mBlendFuncSrc, (LLRender::eBlendFactor) draw->mBlendFuncDst, mAlphaSFactor, mAlphaDFactor);
+
 	    Draw(draw, mask);
         RestoreTexSetup(tex_setup);
     }
@@ -442,10 +444,14 @@ void LLDrawPoolAlpha::renderFullbrights(U32 mask, std::vector<LLDrawInfo*>& full
 {
     gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
     fullbright_shader->bind();
-    fullbright_shader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, 0.0f);
+    fullbright_shader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, 1.0f);
     for (LLDrawInfo* draw : fullbrights)
     {
         bool tex_setup = TexSetup(draw);
+
+        LLGLEnableFunc stencil_test(GL_STENCIL_TEST, draw->mSelected, &LLGLCommonFunc::selected_stencil_test);
+		gGL.blendFunc((LLRender::eBlendFactor) draw->mBlendFuncSrc, (LLRender::eBlendFactor) draw->mBlendFuncDst, mAlphaSFactor, mAlphaDFactor);
+
         Draw(draw, mask & ~(LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2));
         RestoreTexSetup(tex_setup);
     }
@@ -501,6 +507,9 @@ void LLDrawPoolAlpha::renderMaterials(U32 mask, std::vector<LLDrawInfo*>& materi
 			}
         }
 
+        LLGLEnableFunc stencil_test(GL_STENCIL_TEST, draw->mSelected, &LLGLCommonFunc::selected_stencil_test);
+		gGL.blendFunc((LLRender::eBlendFactor) draw->mBlendFuncSrc, (LLRender::eBlendFactor) draw->mBlendFuncDst, mAlphaSFactor, mAlphaDFactor);
+
         Draw(draw, mask);
         RestoreTexSetup(tex_setup);
     }
@@ -530,10 +539,10 @@ void LLDrawPoolAlpha::renderEmissives(U32 mask, std::vector<LLDrawInfo*>& emissi
 
 void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 {
-	BOOL initialized_lighting = FALSE;
-	BOOL light_enabled = TRUE;
-	
-	BOOL use_shaders = gPipeline.canUseVertexShaders();
+
+    BOOL use_shaders = gPipeline.canUseVertexShaders();
+
+    gPipeline.enableLightsDynamic();
 
 	for (LLCullResult::sg_iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
 	{
@@ -545,6 +554,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 		    !group->isDead())
 		{
             std::vector<LLDrawInfo*> emissives;
+            std::vector<LLDrawInfo*> fullbrights;
 
 			bool is_particle_or_hud_particle = group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_PARTICLE
 													  || group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_HUD_PARTICLE;
@@ -588,48 +598,22 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 					}
 				}
 
+                if (params.mFullbright)
+				{
+                    fullbrights.push_back(&params);
+                    continue;
+				}
+
 				LLRenderPass::applyModelMatrix(params);
 
 				LLMaterial* mat = NULL;
 
-				if (deferred_render)
+				if (deferred_render && use_shaders)
 				{
 					mat = params.mMaterial;
 				}
-				
-				if (params.mFullbright)
-				{
-					// Turn off lighting if it hasn't already been so.
-					if (light_enabled || !initialized_lighting)
-					{
-						initialized_lighting = TRUE;
-						if (use_shaders) 
-						{
-							target_shader = fullbright_shader;
-						}
-						else
-						{
-							gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
-						}
-						light_enabled = FALSE;
-					}
-				}
-				// Turn on lighting if it isn't already.
-				else if (!light_enabled || !initialized_lighting)
-				{
-					initialized_lighting = TRUE;
-					if (use_shaders) 
-					{
-						target_shader = simple_shader;
-					}
-					else
-					{
-						gPipeline.enableLightsDynamic();
-					}
-					light_enabled = TRUE;
-				}
-
-				if (deferred_render && mat)
+	
+				if (mat)
 				{
 					U32 mask = params.mShaderMask;
 
@@ -645,15 +629,30 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 					{
                         LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_DEFERRED_SHADER_BINDS);
 						gPipeline.bindDeferredShader(*target_shader);
+                        current_shader = target_shader;
 					}
-				}
-				else if (!params.mFullbright)
-				{
-					target_shader = simple_shader;
+
+                    current_shader->uniform4f(LLShaderMgr::SPECULAR_COLOR, params.mSpecColor.mV[0], params.mSpecColor.mV[1], params.mSpecColor.mV[2], params.mSpecColor.mV[3]);						
+					current_shader->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, params.mEnvIntensity);
+					current_shader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, params.mFullbright ? 1.f : 0.f);
+
+					if (params.mNormalMap)
+					{
+                        LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_DEFERRED_TEX_BINDS);
+						params.mNormalMap->addTextureStats(params.mVSize);
+						current_shader->bindTexture(LLShaderMgr::BUMP_MAP, params.mNormalMap);
+					} 
+						
+					if (params.mSpecularMap)
+					{
+                        LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_DEFERRED_TEX_BINDS);
+						params.mSpecularMap->addTextureStats(params.mVSize);
+						current_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, params.mSpecularMap);
+					}
 				}
 				else
 				{
-					target_shader = fullbright_shader;
+					target_shader = simple_shader;
 				}
 				
 				if(use_shaders && (current_shader != target_shader))
@@ -667,40 +666,6 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 				{
 					LLGLSLShader::bindNoShader();
 					current_shader = NULL;
-				}
-
-				if (use_shaders && mat)
-				{
-					// We have a material.  Supply the appropriate data here.
-					if (LLPipeline::sRenderDeferred)
-					{
-						current_shader->uniform4f(LLShaderMgr::SPECULAR_COLOR, params.mSpecColor.mV[0], params.mSpecColor.mV[1], params.mSpecColor.mV[2], params.mSpecColor.mV[3]);						
-						current_shader->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, params.mEnvIntensity);
-						current_shader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, params.mFullbright ? 1.f : 0.f);
-
-						if (params.mNormalMap)
-						{
-                            LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_DEFERRED_TEX_BINDS);
-							params.mNormalMap->addTextureStats(params.mVSize);
-							current_shader->bindTexture(LLShaderMgr::BUMP_MAP, params.mNormalMap);
-						} 
-						
-						if (params.mSpecularMap)
-						{
-                            LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_DEFERRED_TEX_BINDS);
-							params.mSpecularMap->addTextureStats(params.mVSize);
-							current_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, params.mSpecularMap);
-						} 
-					}
-
-				} else if (LLPipeline::sRenderDeferred && current_shader && (current_shader == simple_shader))
-				{
-					current_shader->uniform4f(LLShaderMgr::SPECULAR_COLOR, 1.0f, 1.0f, 1.0f, 1.0f);						
-					current_shader->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, 0.0f);			
-					LLViewerFetchedTexture::sFlatNormalImagep->addTextureStats(params.mVSize);
-					current_shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);						
-					LLViewerFetchedTexture::sWhiteImagep->addTextureStats(params.mVSize);
-					current_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
 				}
 
 				if (params.mGroup)
@@ -735,7 +700,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 						}
 						else
 						{
-						gGL.getTexUnit(0)->bind(params.mTexture, TRUE) ;
+						    gGL.getTexUnit(0)->bind(params.mTexture, TRUE) ;
 						}
 						
 						if (params.mTextureMatrix)
@@ -774,42 +739,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 					params.mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_EMISSIVE))
 				{
                     LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_EMISSIVE);
-                    
-                #if RENDER_EMISSIVE_OUT_OF_ORDER
                     emissives.push_back(&params);
-                #else
-					// install glow-accumulating blend mode
-					gGL.blendFunc(LLRender::BF_ZERO, LLRender::BF_ONE, // don't touch color
-					LLRender::BF_ONE, LLRender::BF_ONE); // add to alpha (glow)
-
-                    {
-                        LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_GLOW);
-					    emissive_shader->bind();
-					    if (LLPipeline::sRenderingHUDs)
-	                    {
-		                    emissive_shader->uniform1i(LLShaderMgr::NO_ATMO, 1);
-	                    }
-	                    else
-	                    {
-		                    emissive_shader->uniform1i(LLShaderMgr::NO_ATMO, 0);
-	                    }
-
-					    params.mVertexBuffer->setBuffer((mask & ~LLVertexBuffer::MAP_COLOR) | LLVertexBuffer::MAP_EMISSIVE);
-					}
-
-                    {
-                        LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_DRAW);
-					    // do the actual drawing, again
-					    params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
-					    gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
-                    }
-
-					// restore our alpha blend mode
-					gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
-
-					current_shader->bind();
-                #endif
-
 				}
 			
 				if (tex_setup)
@@ -821,20 +751,19 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 				}
 			}
 
-        #if RENDER_EMISSIVE_OUT_OF_ORDER
+            renderFullbrights(mask, fullbrights);
             renderEmissives(mask, emissives);
-        #endif
 
-            current_shader->bind();
+            if (current_shader)
+            {
+                current_shader->bind();
+            }
 		}        
 	}
+
+    gPipeline.enableLightsDynamic();
 
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
 	LLVertexBuffer::unbind();	
-		
-	if (!light_enabled)
-	{
-		gPipeline.enableLightsDynamic();
-	}
 }
