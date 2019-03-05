@@ -488,7 +488,7 @@ void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
 
 void LLPanelProfileSecondLife::fillPartnerData(const LLAvatarData* avatar_data)
 {
-    LLTextBox* partner_text = getChild<LLTextBox>("partner_text");
+    LLTextEditor* partner_text = getChild<LLTextEditor>("partner_text");
     if (avatar_data->partner_id.notNull())
     {
         partner_text->setText(LLSLURL("agent", avatar_data->partner_id, "inspect").getSLURLString());

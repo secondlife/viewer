@@ -78,11 +78,6 @@
      name="FSGW"
      value=" Gateway"
     />
-    <!--
-
-KC: Use view_border's around text_editor's due to text render issues with border_visible
-
--->
     <loading_indicator
      name="progress_indicator"
      top="4"
@@ -117,28 +112,19 @@ KC: Use view_border's around text_editor's due to text render issues with border
      layout="topleft"
      visible="false"
     />
-    <view_border
-     name="info_border"
-     left_pad="4"
-     right="-6"
-     height="20"
-     follows="left|top|right"
-     layout="topleft"
-     bevel_style="in"
-    />
     <text_editor
      name="complete_name"
      value="(loading...)"
      enabled="false"
      top_delta="0"
-     left_delta="3"
+     left_pad="4"
      right="-6"
      height="20"
      follows="left|top|right"
      layout="topleft"
      allow_scroll="false"
      bg_visible="false"
-     border_visible="false"
+     border_visible="true"
      h_pad="1"
      v_pad="2"
      max_length="254"
@@ -177,19 +163,10 @@ KC: Use view_border's around text_editor's due to text render issues with border
      follows="top|left"
      layout="topleft"
     />
-    <view_border
-     name="info_border3"
-     top_pad="0"
-     right="-6"
-     height="16"
-     follows="top|left|right"
-     layout="topleft"
-     bevel_style="in"
-    />
     <text_editor
      name="register_date"
      value="(loading...)"
-     top_delta="0"
+     top_pad="0"
      left_delta="2"
      right="-6"
      height="16"
@@ -197,7 +174,7 @@ KC: Use view_border's around text_editor's due to text render issues with border
      layout="topleft"
      allow_scroll="false"
      bg_visible="false"
-     border_visible="false"
+     border_visible="true"
      h_pad="2"
      max_length="254"
      read_only="true"
@@ -208,26 +185,16 @@ KC: Use view_border's around text_editor's due to text render issues with border
     <text
      name="label2"
      value="Account:"
-     top_pad="6"
+     top_pad="5"
      left_delta="-2"
      right="-6"
      height="16"
      follows="top|left"
      layout="topleft"
     />
-    <view_border
-     name="acct_border"
-     top_pad="1"
-     left_delta="0"
-     right="-6"
-     height="48"
-     follows="top|left|right"
-     layout="topleft"
-     bevel_style="in"
-    />
     <text_editor
      name="acc_status_text"
-     top_delta="0"
+     top_pad="0"
      left_delta="2"
      right="-6"
      height="44"
@@ -235,7 +202,7 @@ KC: Use view_border's around text_editor's due to text render issues with border
      layout="topleft"
      allow_scroll="false"
      bg_visible="false"
-     border_visible="false"
+     border_visible="true"
      h_pad="2"
      read_only="true"
      translate="false"
@@ -245,31 +212,29 @@ KC: Use view_border's around text_editor's due to text render issues with border
     <text
      name="partner_label"
      value="Partner:"
-     top_pad="6"
+     top_pad="5"
      left_delta="-2"
      right="-6"
      height="16"
      follows="top|left"
      layout="topleft"
     />
-    <view_border
-     name="info_border4"
+    <text_editor
+     name="partner_text"
      top_pad="0"
      left_delta="0"
      right="-6"
-     height="18"
+     height="20"
      follows="top|left|right"
      layout="topleft"
-     bevel_style="in"
-    />
-    <text
-     name="partner_text"
-     top_delta="2"
-     left_delta="2"
-     right="-6"
-     height="16"
-     follows="top|left|right"
-     layout="topleft"
+     allow_scroll="false"
+     bg_visible="false"
+     border_visible="true"
+     parse_urls="true"
+     h_pad="0"
+     read_only="true"
+     translate="false"
+     v_pad="2"
      max_length="254"
     />
     <text
@@ -318,27 +283,17 @@ KC: Use view_border's around text_editor's due to text render issues with border
      layout="topleft"
      halign="right"
     />
-    <view_border
-     name="info_border5"
-     top_delta="0"
-     left="66"
-     right="-6"
-     height="102"
-     follows="all"
-     layout="topleft"
-     bevel_style="in"
-    />
     <text_editor
      name="sl_description_edit"
      enabled="false"
-     top_delta="1"
-     left_delta="1"
+     top_delta="0"
+     left="66"
      right="-7"
      height="100"
      follows="all"
      layout="topleft"
      bg_readonly_color="Transparent"
-     border_visible="false"
+     border_visible="true"
      font="SansSerifSmall"
      h_pad="2"
      max_length="510"
