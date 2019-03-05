@@ -22,6 +22,8 @@
     <string
      name="CaptionTextAcctInfo"
     >
+       [ACCTTYPE]
+[PAYMENTINFO]
     </string>
     <string
      name="payment_update_link_url"
@@ -200,7 +202,7 @@ KC: Use view_border's around text_editor's due to text render issues with border
      max_length="254"
      read_only="true"
      translate="false"
-     v_pad="0"
+     v_pad="2"
      word_wrap="true"
     />
     <text
@@ -215,7 +217,7 @@ KC: Use view_border's around text_editor's due to text render issues with border
     />
     <view_border
      name="acct_border"
-     top_pad="0"
+     top_pad="1"
      left_delta="0"
      right="-6"
      height="48"
@@ -237,7 +239,7 @@ KC: Use view_border's around text_editor's due to text render issues with border
      h_pad="2"
      read_only="true"
      translate="false"
-     v_pad="0"
+     v_pad="2"
      word_wrap="true"
     />
     <text
