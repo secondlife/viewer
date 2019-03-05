@@ -440,28 +440,23 @@ void LLConversationViewSession::refresh()
 	LLSpeakingIndicatorManager::updateSpeakingIndicators();
 
 	// we should show indicator for specified voice session only if this is current channel. EXT-5562.
-	if (!mIsInActiveVoiceChannel)
+	if (mSpeakingIndicator)
 	{
-		if (mSpeakingIndicator)
+		mSpeakingIndicator->setIsActiveChannel(mIsInActiveVoiceChannel);
+		mSpeakingIndicator->setShowParticipantsSpeaking(mIsInActiveVoiceChannel);
+	}
+
+	LLConversationViewParticipant* participant = NULL;
+	items_t::const_iterator iter;
+	for (iter = getItemsBegin(); iter != getItemsEnd(); iter++)
+	{
+		participant = dynamic_cast<LLConversationViewParticipant*>(*iter);
+		if (participant)
 		{
-			mSpeakingIndicator->setVisible(false);
-		}
-		LLConversationViewParticipant* participant = NULL;
-		items_t::const_iterator iter;
-		for (iter = getItemsBegin(); iter != getItemsEnd(); iter++)
-		{
-			participant = dynamic_cast<LLConversationViewParticipant*>(*iter);
-			if (participant)
-			{
-				participant->hideSpeakingIndicator();
-			}
+			participant->allowSpeakingIndicator(mIsInActiveVoiceChannel);
 		}
 	}
-    
-    if (mSpeakingIndicator)
-    {
-        mSpeakingIndicator->setShowParticipantsSpeaking(mIsInActiveVoiceChannel);
-    }
+
 	requestArrange();
 	// Do the regular upstream refresh
 	LLFolderViewFolder::refresh();
@@ -473,8 +468,13 @@ void LLConversationViewSession::onCurrentVoiceSessionChanged(const LLUUID& sessi
 
 	if (vmi)
 	{
+		bool old_value = mIsInActiveVoiceChannel;
 		mIsInActiveVoiceChannel = vmi->getUUID() == session_id;
 		mCallIconLayoutPanel->setVisible(mIsInActiveVoiceChannel);
+		if (old_value != mIsInActiveVoiceChannel)
+		{
+			refresh();
+		}
 	}
 }
 
@@ -630,10 +630,19 @@ void LLConversationViewParticipant::addToFolder(LLFolderViewFolder* folder)
     LLFolderViewItem::addToFolder(folder);
 	
     // Retrieve the folder (conversation) UUID, which is also the speaker session UUID
-    LLConversationItem* vmi = getParentFolder() ? dynamic_cast<LLConversationItem*>(getParentFolder()->getViewModelItem()) : NULL;
-    if (vmi)
+    LLFolderViewFolder *prnt = getParentFolder();
+    if (prnt)
     {
-		addToSession(vmi->getUUID());
+        LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(prnt->getViewModelItem());
+        if (vmi)
+        {
+            addToSession(vmi->getUUID());
+        }
+        LLConversationViewSession* session = dynamic_cast<LLConversationViewSession*>(prnt);
+        if (session)
+        {
+            allowSpeakingIndicator(session->isInActiveVoiceChannel());
+        }
     }
 }
 
@@ -763,9 +772,9 @@ LLView* LLConversationViewParticipant::getItemChildView(EAvatarListItemChildInde
     return child_view;
 }
 
-void LLConversationViewParticipant::hideSpeakingIndicator()
+void LLConversationViewParticipant::allowSpeakingIndicator(bool val)
 {
-	mSpeakingIndicator->setVisible(false);
+	mSpeakingIndicator->setIsActiveChannel(val);
 }
 
 // EOF

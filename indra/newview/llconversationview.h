@@ -90,6 +90,7 @@ public:
 	void setHighlightState(bool hihglight_state);
 
 	LLFloater* getSessionFloater();
+	bool isInActiveVoiceChannel() { return mIsInActiveVoiceChannel; }
 
 private:
 
@@ -145,7 +146,7 @@ public:
 
     /*virtual*/ S32 getLabelXPos();
     /*virtual*/ BOOL handleMouseDown( S32 x, S32 y, MASK mask );
-	void hideSpeakingIndicator();
+	void allowSpeakingIndicator(bool val);
 
 protected:
 	friend class LLUICtrlFactory;
