@@ -80,6 +80,9 @@ private:
     void renderMaterials(U32 mask, std::vector<LLDrawInfo*>& fullbrights);
     void renderEmissives(U32 mask, std::vector<LLDrawInfo*>& emissives);
 
+    bool TexSetup(LLDrawInfo* draw, bool use_shaders, bool use_material, LLGLSLShader* current_shader);
+    void RestoreTexSetup(bool tex_setup);
+
 	// our 'normal' alpha blend function for this pass
 	LLRender::eBlendFactor mColorSFactor;
 	LLRender::eBlendFactor mColorDFactor;	

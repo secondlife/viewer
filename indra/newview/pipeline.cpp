@@ -9334,6 +9334,8 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
         //disable occlusion culling for reflection map for now
         LLPipeline::sUseOcclusion = 0;
 
+        glh::matrix4f current = get_current_modelview();
+
         if (!LLViewerCamera::getInstance()->cameraUnderWater())
         {   //generate planar reflection map
             
@@ -9341,8 +9343,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
             gGL.matrixMode(LLRender::MM_MODELVIEW);
             gGL.pushMatrix();
-
-            glh::matrix4f current = get_current_modelview();
 
             glh::matrix4f mat;
             camera.getOpenGLTransform(mat.m);
@@ -9415,7 +9415,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                         }
                     }
 
-                    LLGLUserClipPlane clip_plane(plane, mat, projection);
+                    LLGLUserClipPlane clip_plane(plane, mReflectionModelView, projection);
                     LLGLDisable cull(GL_CULL_FACE);
                     updateCull(camera, mReflectedObjects, -water_clip, &plane);
                     stateSort(camera, mReflectedObjects);
@@ -9481,7 +9481,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                 //clip out geometry on the same side of water as the camera w/ enough margin to not include the water geo itself,
                 // but not so much as to clip out parts of avatars that should be seen under the water in the distortion map
                 LLPlane plane(pnorm, -water_height * LLPipeline::sDistortionWaterClipPlaneMargin);
-                LLGLUserClipPlane clip_plane(plane, mReflectionModelView, projection);
+                LLGLUserClipPlane clip_plane(plane, current, projection);
 
                 gGL.setColorMask(true, true);
                 mWaterDis.clear();
