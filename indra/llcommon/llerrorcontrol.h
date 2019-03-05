@@ -93,16 +93,21 @@ namespace LLError
 		Control functions.
 	*/
 
-	typedef boost::function<void(const std::string&)> FatalFunction;
+    // A FatalFunction is called if set using setFatalHandler; its return controls
+    // whether or not the calling error logging code should crash.
+    // ERR_DO_NOT_CRASH should be used only in test code.
+	typedef boost::function<LLError::ErrCrashHandlerResult(const std::string&)> FatalFunction;
+    
 
 	/// Override the default behavior of crashing on LL_ERRS; this should NEVER be used except in test code
-	LL_COMMON_API void overrideCrashOnError(const FatalFunction&);
+	LL_COMMON_API void setFatalHandler(const FatalFunction&);
 		// The fatal function will be called when an message of LEVEL_ERROR
 		// is logged.  Note: supressing a LEVEL_ERROR message from being logged
 		// (by, for example, setting a class level to LEVEL_NONE), will keep
 		// the that message from causing the fatal funciton to be invoked.
+        // The 
 
-    /// Undo the effect of the overrideCrashOnError above
+    /// Undo the effect of the setFatalHandler above
 	LL_COMMON_API void restoreCrashOnError();
 
 	LL_COMMON_API std::string getFatalMessage();

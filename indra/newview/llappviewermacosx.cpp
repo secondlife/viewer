@@ -188,17 +188,17 @@ CrashMetadataSingleton::CrashMetadataSingleton()
     LLSD info;
     if (! static_file.is_open())
     {
-        LL_INFOS() << "Can't open '" << staticDebugPathname
+        LL_WARNS() << "Can't open '" << staticDebugPathname
                    << "'; no metadata about previous run" << LL_ENDL;
     }
     else if (! LLSDSerialize::deserialize(info, static_file, LLSDSerialize::SIZE_UNLIMITED))
     {
-        LL_INFOS() << "Can't parse '" << staticDebugPathname
+        LL_WARNS() << "Can't parse '" << staticDebugPathname
                    << "'; no metadata about previous run" << LL_ENDL;
     }
     else
     {
-        LL_INFOS() << "Metadata from '" << staticDebugPathname << "':" << LL_ENDL;
+        LL_INFOS() << "Previous run metadata from '" << staticDebugPathname << "':" << LL_ENDL;
         logFilePathname      = get_metadata(info, "SLLog");
         userSettingsPathname = get_metadata(info, "SettingsFilename");
         OSInfo               = get_metadata(info, "OSInfo");

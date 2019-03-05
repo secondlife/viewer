@@ -194,6 +194,8 @@ namespace LLError
 	
 	struct CallSite;
 	
+    enum ErrCrashHandlerResult { ERR_DO_NOT_CRASH, ERR_CRASH };
+
 	class LL_COMMON_API Log
 	{
 	public:
@@ -203,7 +205,7 @@ namespace LLError
 		static void flush(std::ostringstream* out, char* message);
 
         // returns false iff the calling macro should crash
-		static bool flush(std::ostringstream*, const CallSite&);
+		static ErrCrashHandlerResult flush(std::ostringstream*, const CallSite&);
 
 		static std::string demangle(const char* mangled);
 	};
@@ -386,7 +388,7 @@ volatile extern int* gCauseCrash;
 
 #define LL_ENDL                                          \
 			LLError::End();                              \
-            if (LLError::Log::flush(_out, _site))        \
+            if (LLError::ERR_CRASH == LLError::Log::flush(_out, _site)) \
                 LLERROR_CRASH                            \
         }                                                \
 	} while(0)

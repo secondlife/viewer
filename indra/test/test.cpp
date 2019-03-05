@@ -75,9 +75,10 @@
 
 #include <fstream>
 
-void wouldHaveCrashed(const std::string& message)
+LLError::ErrCrashHandlerResult wouldHaveCrashed(const std::string& message)
 {
 	tut::fail("fatal error message: " + message);
+    return LLError::ERR_DO_NOT_CRASH;
 }
 
 namespace tut
@@ -149,7 +150,7 @@ public:
 		mOldSettings(LLError::saveAndResetSettings()),
 		mRecorder(new RecordToTempFile(pool))
 	{
-		LLError::overrideCrashOnError(wouldHaveCrashed);
+		LLError::setFatalHandler(wouldHaveCrashed);
 		LLError::setDefaultLevel(level);
 		LLError::addRecorder(mRecorder);
 	}
@@ -530,7 +531,7 @@ int main(int argc, char **argv)
 		LLError::initForApplication(".", ".", false /* do not log to stderr */);
 		LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
 	}	
-	LLError::overrideCrashOnError(wouldHaveCrashed);
+	LLError::setFatalHandler(wouldHaveCrashed);
 	std::string test_app_name(argv[0]);
 	std::string test_log = test_app_name + ".log";
 	LLFile::remove(test_log);

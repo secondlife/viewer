@@ -719,7 +719,7 @@ namespace LLError
 		commonInit(user_dir, app_dir, log_to_stderr);
 	}
 
-	void overrideCrashOnError(const FatalFunction& fatal_function)
+	void setFatalHandler(const FatalFunction& fatal_function)
 	{
 		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
 		s->mCrashFunction = fatal_function;
@@ -1306,12 +1306,12 @@ namespace LLError
 		return ;
 	}
 
-	bool Log::flush(std::ostringstream* out, const CallSite& site)
+	ErrCrashHandlerResult Log::flush(std::ostringstream* out, const CallSite& site)
 	{
 		LLMutexTrylock lock(&gLogMutex,5);
 		if (!lock.isLocked())
 		{
-			return false; // because this wasn't logged, it cannot be fatal
+			return ERR_DO_NOT_CRASH; // because this wasn't logged, it cannot be fatal
 		}
 
 		// If we hit a logging request very late during shutdown processing,
@@ -1319,7 +1319,7 @@ namespace LLError
 		// DO NOT resurrect them.
 		if (Settings::wasDeleted() || Globals::wasDeleted())
 		{
-            return false; // because this wasn't logged, it cannot be fatal
+            return ERR_DO_NOT_CRASH; // because this wasn't logged, it cannot be fatal
 		}
 
 		Globals* g = Globals::getInstance();
@@ -1353,7 +1353,7 @@ namespace LLError
 				} 
 				else
 				{
-					return false; // because this wasn't logged, it cannot be fatal
+					return ERR_DO_NOT_CRASH; // because this wasn't logged, it cannot be fatal
 				}
 			}
 			else 
@@ -1369,20 +1369,18 @@ namespace LLError
 
 		if (site.mLevel == LEVEL_ERROR)
 		{
-			g->mFatalMessage = message;
             if (s->mCrashFunction)
             {
-                s->mCrashFunction(message);
-                return false; // because an override is in effect
+                return s->mCrashFunction(message);
             }
             else
             {
-                return true; // calling macro should crash
+                return ERR_CRASH; // calling macro should crash
             }
 		}
         else
         {
-            return false; // not ERROR, so do not crash
+            return ERR_DO_NOT_CRASH; // not ERROR, so do not crash
         }
 	}
 }

@@ -46,7 +46,7 @@
 
 // statically reference the function in test.cpp... it's short, we could
 // replicate, but better to reuse
-extern void wouldHaveCrashed(const std::string& message);
+extern LLError::ErrCrashHandlerResult wouldHaveCrashed(const std::string& message);
 
 struct WrapLLErrs
 {
@@ -57,7 +57,7 @@ struct WrapLLErrs
     :mPriorErrorSettings(LLError::saveAndResetSettings())
     {
         // Make LL_ERRS call our own operator() method
-        LLError::overrideCrashOnError(boost::bind(&WrapLLErrs::operator(), this, _1));
+        LLError::setFatalHandler(boost::bind(&WrapLLErrs::operator(), this, _1));
     }
 
     ~WrapLLErrs()
@@ -71,7 +71,7 @@ struct WrapLLErrs
         FatalException(const std::string& what): LLException(what) {}
     };
 
-    void operator()(const std::string& message)
+    LLError::ErrCrashHandlerResult operator()(const std::string& message)
     {
         // Save message for later in case consumer wants to sense the result directly
         error = message;
@@ -201,7 +201,7 @@ public:
         mOldSettings(LLError::saveAndResetSettings()),
 		mRecorder(new CaptureLogRecorder())
     {
-        LLError::overrideCrashOnError(wouldHaveCrashed);
+        LLError::setFatalHandler(wouldHaveCrashed);
         LLError::setDefaultLevel(level);
         LLError::addRecorder(mRecorder);
     }

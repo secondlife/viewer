@@ -751,16 +751,7 @@ public:
 	}
 };
 
-namespace {
-// With Xcode 6, _exit() is too magical to use with boost::bind(), so provide
-// this little helper function.
-void fast_exit(int rc)
-{
-	_exit(rc);
-}
-
-
-}
+static S32 sQAModeTermCode = 0; // set from QAModeTermCode to specify exit code for LL_ERRS
 
 bool LLAppViewer::init()
 {
@@ -800,17 +791,8 @@ bool LLAppViewer::init()
 	initMaxHeapSize() ;
 	LLCoros::instance().setStackSize(gSavedSettings.getS32("CoroutineStackSize"));
 
-	// Although initLoggingAndGetLastDuration() is the right place to mess with
-	// overrideCrashOnError(), we can't query gSavedSettings until after
-	// initConfiguration().
-	S32 rc(gSavedSettings.getS32("QAModeTermCode"));
-	if (rc >= 0)
-	{
-		// QAModeTermCode set, terminate with that rc on LL_ERRS. Use
-		// fast_exit() rather than exit() because normal cleanup depends too
-		// much on successful startup!
-		LLError::overrideCrashOnError(boost::bind(fast_exit, rc));
-	}
+    // if a return code is set for error exit, save it here for use in fatalErrorHandler
+    sQAModeTermCode = gSavedSettings.getS32("QAModeTermCode");
 
     mAlloc.setProfilingEnabled(gSavedSettings.getBOOL("MemProfiling"));
 
@@ -2152,8 +2134,7 @@ bool LLAppViewer::initThreads()
 	return true;
 }
 
-#ifndef LL_BUGSPLAT
-void errorCallback(const std::string &error_string)
+LLError::ErrCrashHandlerResult fatalErrorHandler(const std::string &error_string)
 {
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	OSMessageBox(error_string, LLTrans::getString("MBFatalError"), OSMB_OK);
@@ -2167,8 +2148,15 @@ void errorCallback(const std::string &error_string)
 	// haven't actually trashed anything yet, we can afford to write the whole
 	// static info file.
 	LLAppViewer::instance()->writeDebugInfo();
+
+    if (sQAModeTermCode)
+    {
+        _exit(sQAModeTermCode);
+        return LLError::ERR_DO_NOT_CRASH; // notreached
+    }
+
+    return LLError::ERR_CRASH;
 }
-#endif // ! LL_BUGSPLAT
 
 void LLAppViewer::initLoggingAndGetLastDuration()
 {
@@ -2178,6 +2166,7 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 	LLError::initForApplication( gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "")
                                 ,gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "")
                                 );
+	LLError::setFatalHandler(fatalErrorHandler);
 
 	// Remove the last ".old" log file.
 	std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
@@ -3728,12 +3717,8 @@ void LLAppViewer::processMarkerFiles()
 		else if (marker_is_same_version)
 		{
 			// the file existed, is ours, and matched our version, so we can report on what it says
-			LL_INFOS("MarkerFile") << "Exec marker '"<< mMarkerFileName << "' found; last exec FROZE" << LL_ENDL;
-#           if LL_BUGSPLAT            
+			LL_INFOS("MarkerFile") << "Exec marker '"<< mMarkerFileName << "' found; last exec crashed" << LL_ENDL;
 			gLastExecEvent = LAST_EXEC_OTHER_CRASH;
-#           else
-			gLastExecEvent = LAST_EXEC_FROZE;
-#           endif
 		}
 		else
 		{
