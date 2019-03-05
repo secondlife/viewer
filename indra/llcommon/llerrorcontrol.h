@@ -93,22 +93,24 @@ namespace LLError
 		Control functions.
 	*/
 
-    // A FatalFunction is called if set using setFatalHandler; its return controls
+    // A FatalHook is called if set using setFatalHook; its return controls
     // whether or not the calling error logging code should crash.
     // ERR_DO_NOT_CRASH should be used only in test code.
-	typedef boost::function<LLError::ErrCrashHandlerResult(const std::string&)> FatalFunction;
-    
+	typedef boost::function<LLError::ErrFatalHookResult(const std::string&)> FatalHook;
 
-	/// Override the default behavior of crashing on LL_ERRS; this should NEVER be used except in test code
-	LL_COMMON_API void setFatalHandler(const FatalFunction&);
-		// The fatal function will be called when an message of LEVEL_ERROR
+	/// Supplement and control the default behavior of crashing on LL_ERRS
+    /// This may be used to suppress crashes only in test code;
+    /// otherwise, the FatalHook should always either return 
+    /// the result from the previous hook (see getFatalHook below),
+    /// or return LLError::ERR_CRASH
+	LL_COMMON_API void setFatalHook(const FatalHook& fatal_hook);
+		// The fatal_hook function will be called when an message of LEVEL_ERROR
 		// is logged.  Note: supressing a LEVEL_ERROR message from being logged
-		// (by, for example, setting a class level to LEVEL_NONE), will keep
-		// the that message from causing the fatal funciton to be invoked.
-        // The 
+		// (by, for example, setting a class level to LEVEL_NONE), will also
+		// prevent the fatal_hook being called and the resulting deliberate crash
 
-    /// Undo the effect of the setFatalHandler above
-	LL_COMMON_API void restoreCrashOnError();
+    /// Retrieve the previously-set FatalHook
+	LL_COMMON_API FatalHook getFatalHook();
 
 	LL_COMMON_API std::string getFatalMessage();
 		// Retrieve the message last passed to LL_ERRS, if any

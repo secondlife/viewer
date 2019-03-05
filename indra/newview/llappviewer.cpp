@@ -2134,7 +2134,7 @@ bool LLAppViewer::initThreads()
 	return true;
 }
 
-LLError::ErrCrashHandlerResult fatalErrorHandler(const std::string &error_string)
+LLError::ErrFatalHookResult fatalErrorHook(const std::string &error_string)
 {
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	OSMessageBox(error_string, LLTrans::getString("MBFatalError"), OSMB_OK);
@@ -2166,7 +2166,7 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 	LLError::initForApplication( gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "")
                                 ,gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "")
                                 );
-	LLError::setFatalHandler(fatalErrorHandler);
+	LLError::setFatalHook(fatalErrorHook);
 
 	// Remove the last ".old" log file.
 	std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,

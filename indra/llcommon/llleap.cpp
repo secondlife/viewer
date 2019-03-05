@@ -59,7 +59,7 @@ public:
         // pump name -- so it should NOT need tweaking for uniqueness.
         mReplyPump(LLUUID::generateNewID().asString()),
         mExpect(0),
-
+        mPrevFatalHook(LLError::getFatalHook()),
         // Instantiate a distinct LLLeapListener for this plugin. (Every
         // plugin will want its own collection of managed listeners, etc.)
         // Pass it a callback to our connect() method, so it can send events
@@ -145,6 +145,9 @@ public:
         mStderrConnection = childerr.getPump()
             .listen("LLLeap", boost::bind(&LLLeapImpl::rstderr, this, _1));
 
+        // For our lifespan, intercept any LL_ERRS so we can notify plugin
+        LLError::setFatalHook(boost::bind(&LLLeapImpl::fatalHook, this, _1));
+
         // Send child a preliminary event reporting our own reply-pump name --
         // which would otherwise be pretty tricky to guess!
         wstdin(mReplyPump.getName(),
@@ -159,6 +162,8 @@ public:
     virtual ~LLLeapImpl()
     {
         LL_DEBUGS("LLLeap") << "destroying LLLeap(\"" << mDesc << "\")" << LL_ENDL;
+        // Restore original FatalHook
+        LLError::setFatalHook(mPrevFatalHook);
     }
 
     // Listener for failed launch attempt
@@ -372,6 +377,30 @@ public:
         return false;
     }
 
+    LLError::ErrFatalHookResult fatalHook(const std::string& error)
+    {
+        // Notify plugin
+        LLSD event;
+        event["type"] = "error";
+        event["error"] = error;
+        mReplyPump.post(event);
+
+        // All the above really accomplished was to buffer the serialized
+        // event in our WritePipe. Have to pump mainloop a couple times to
+        // really write it out there... but time out in case we can't write.
+        LLProcess::WritePipe& childin(mChild->getWritePipe(LLProcess::STDIN));
+        LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
+        LLSD nop;
+        F64 until = (LLTimer::getElapsedSeconds() + 2).value();
+        while (childin.size() && LLTimer::getElapsedSeconds() < until)
+        {
+            mainloop.post(nop);
+        }
+
+        // forward the call to the previous FatalHook, default to crashing if there isn't one
+        return mPrevFatalHook ? mPrevFatalHook(error) : LLError::ERR_CRASH;
+    }
+
 private:
     /// We always want to listen on mReplyPump with wstdin(); under some
     /// circumstances we'll also echo other LLEventPumps to the plugin.
@@ -392,6 +421,7 @@ private:
         mStdinConnection, mStdoutConnection, mStdoutDataConnection, mStderrConnection;
     boost::scoped_ptr<LLEventPump::Blocker> mBlocker;
     LLProcess::ReadPipe::size_type mExpect;
+    LLError::FatalHook mPrevFatalHook;
     boost::scoped_ptr<LLLeapListener> mListener;
 };
 

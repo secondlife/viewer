@@ -483,7 +483,7 @@ namespace LLError
 		LevelMap                            mTagLevelMap;
 		std::map<std::string, unsigned int> mUniqueLogMessages;
 		
-		LLError::FatalFunction              mCrashFunction;
+		LLError::FatalHook                  mFatalHook;
 		LLError::TimeFunction               mTimeFunction;
 		
 		Recorders                           mRecorders;
@@ -523,7 +523,7 @@ namespace LLError
 		mFileLevelMap(),
 		mTagLevelMap(),
 		mUniqueLogMessages(),
-		mCrashFunction(NULL),
+		mFatalHook(NULL),
 		mTimeFunction(NULL),
 		mRecorders(),
 		mFileRecorder(),
@@ -719,16 +719,16 @@ namespace LLError
 		commonInit(user_dir, app_dir, log_to_stderr);
 	}
 
-	void setFatalHandler(const FatalFunction& fatal_function)
+	void setFatalHook(const FatalHook& fatal_hook)
 	{
 		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
-		s->mCrashFunction = fatal_function;
+		s->mFatalHook = fatal_hook;
 	}
 
-    void restoreCrashOnError()
+	FatalHook getFatalHook()
 	{
 		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
-		s->mCrashFunction = NULL;
+		return s->mFatalHook;
 	}
 
 	std::string getFatalMessage()
@@ -1306,7 +1306,7 @@ namespace LLError
 		return ;
 	}
 
-	ErrCrashHandlerResult Log::flush(std::ostringstream* out, const CallSite& site)
+	ErrFatalHookResult Log::flush(std::ostringstream* out, const CallSite& site)
 	{
 		LLMutexTrylock lock(&gLogMutex,5);
 		if (!lock.isLocked())
@@ -1369,9 +1369,9 @@ namespace LLError
 
 		if (site.mLevel == LEVEL_ERROR)
 		{
-            if (s->mCrashFunction)
+            if (s->mFatalHook)
             {
-                return s->mCrashFunction(message);
+                return s->mFatalHook(message);
             }
             else
             {

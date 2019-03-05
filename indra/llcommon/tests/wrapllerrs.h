@@ -46,7 +46,7 @@
 
 // statically reference the function in test.cpp... it's short, we could
 // replicate, but better to reuse
-extern LLError::ErrCrashHandlerResult wouldHaveCrashed(const std::string& message);
+extern LLError::ErrFatalHookResult wouldHaveCrashed(const std::string& message);
 
 struct WrapLLErrs
 {
@@ -55,14 +55,15 @@ struct WrapLLErrs
         // stderr. Otherwise, expected llerrs (LL_ERRS) messages clutter the
         // console output of successful tests, potentially confusing things.
     :mPriorErrorSettings(LLError::saveAndResetSettings())
+    ,mPriorFatalHook(LLError::getFatalHook())
     {
         // Make LL_ERRS call our own operator() method
-        LLError::setFatalHandler(boost::bind(&WrapLLErrs::operator(), this, _1));
+        LLError::setFatalHook(boost::bind(&WrapLLErrs::operator(), this, _1));
     }
 
     ~WrapLLErrs()
     {
-        LLError::restoreCrashOnError();
+        LLError::setFatalHook(mPriorFatalHook);
         LLError::restoreSettings(mPriorErrorSettings);
     }
 
@@ -71,7 +72,7 @@ struct WrapLLErrs
         FatalException(const std::string& what): LLException(what) {}
     };
 
-    LLError::ErrCrashHandlerResult operator()(const std::string& message)
+    LLError::ErrFatalHookResult operator()(const std::string& message)
     {
         // Save message for later in case consumer wants to sense the result directly
         error = message;
@@ -107,7 +108,7 @@ struct WrapLLErrs
 
     std::string error;
     LLError::SettingsStoragePtr mPriorErrorSettings;
-    LLError::FatalFunction mPriorFatal;
+    LLError::FatalHook mPriorFatalHook;
 };
 
 /**
@@ -197,11 +198,12 @@ public:
         // with that output. If it turns out that saveAndResetSettings() has
         // some bad effect, give up and just let the DEBUG level log messages
         // display.
-		: boost::noncopyable(),
-        mOldSettings(LLError::saveAndResetSettings()),
-		mRecorder(new CaptureLogRecorder())
+		: boost::noncopyable()
+        , mOldSettings(LLError::saveAndResetSettings())
+		, mPriorFatalHook(LLError::getFatalHook())
+		, mRecorder(new CaptureLogRecorder())
     {
-        LLError::setFatalHandler(wouldHaveCrashed);
+        LLError::setFatalHook(wouldHaveCrashed);
         LLError::setDefaultLevel(level);
         LLError::addRecorder(mRecorder);
     }
@@ -210,7 +212,7 @@ public:
     {
         LLError::removeRecorder(mRecorder);
         LLError::restoreSettings(mOldSettings);
-        LLError::restoreCrashOnError();
+        LLError::setFatalHook(mPriorFatalHook);
     }
 
     /// Don't assume the message we want is necessarily the LAST log message
@@ -228,6 +230,7 @@ public:
 
 private:
     LLError::SettingsStoragePtr mOldSettings;
+    LLError::FatalHook   mPriorFatalHook;
 	LLError::RecorderPtr mRecorder;
 };
 

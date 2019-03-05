@@ -75,7 +75,7 @@
 
 #include <fstream>
 
-LLError::ErrCrashHandlerResult wouldHaveCrashed(const std::string& message)
+LLError::ErrFatalHookResult wouldHaveCrashed(const std::string& message)
 {
 	tut::fail("fatal error message: " + message);
     return LLError::ERR_DO_NOT_CRASH;
@@ -150,7 +150,7 @@ public:
 		mOldSettings(LLError::saveAndResetSettings()),
 		mRecorder(new RecordToTempFile(pool))
 	{
-		LLError::setFatalHandler(wouldHaveCrashed);
+		LLError::setFatalHook(wouldHaveCrashed);
 		LLError::setDefaultLevel(level);
 		LLError::addRecorder(mRecorder);
 	}
@@ -531,7 +531,7 @@ int main(int argc, char **argv)
 		LLError::initForApplication(".", ".", false /* do not log to stderr */);
 		LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
 	}	
-	LLError::setFatalHandler(wouldHaveCrashed);
+	LLError::setFatalHook(wouldHaveCrashed);
 	std::string test_app_name(argv[0]);
 	std::string test_log = test_app_name + ".log";
 	LLFile::remove(test_log);

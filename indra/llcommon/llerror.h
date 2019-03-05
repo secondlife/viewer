@@ -194,7 +194,7 @@ namespace LLError
 	
 	struct CallSite;
 	
-    enum ErrCrashHandlerResult { ERR_DO_NOT_CRASH, ERR_CRASH };
+    enum ErrFatalHookResult { ERR_DO_NOT_CRASH, ERR_CRASH };
 
 	class LL_COMMON_API Log
 	{
@@ -205,7 +205,7 @@ namespace LLError
 		static void flush(std::ostringstream* out, char* message);
 
         // returns false iff the calling macro should crash
-		static ErrCrashHandlerResult flush(std::ostringstream*, const CallSite&);
+		static ErrFatalHookResult flush(std::ostringstream*, const CallSite&);
 
 		static std::string demangle(const char* mangled);
 	};
@@ -272,7 +272,7 @@ namespace LLError
    //when LLAppViewer::handleViewerCrash() is triggered.
    //
    //Note: to be simple, efficient and necessary to keep track of correct call stacks, 
-	//LLCallStacks is designed not to be thread-safe.
+   //LLCallStacks is designed not to be thread-safe.
    //so try not to use it in multiple parallel threads at same time.
    //Used in a single thread at a time is fine.
    class LL_COMMON_API LLCallStacks

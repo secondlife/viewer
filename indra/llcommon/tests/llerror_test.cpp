@@ -70,7 +70,7 @@ namespace
 namespace
 {
 	static bool fatalWasCalled;
-    LLError::ErrCrashHandlerResult fatalCall(const std::string&)
+    LLError::ErrFatalHookResult fatalHook(const std::string&)
     {
         fatalWasCalled = true;
         return LLError::ERR_DO_NOT_CRASH;
@@ -124,7 +124,7 @@ namespace tut
 
 			mPriorErrorSettings = LLError::saveAndResetSettings();
 			LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
-			LLError::setFatalHandler(fatalCall);
+			LLError::setFatalHook(fatalHook);
 			LLError::addRecorder(mRecorder);
 		}
 
