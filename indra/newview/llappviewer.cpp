@@ -1161,8 +1161,8 @@ bool LLAppViewer::init()
 
 	// Run the updater. An exception from launching the updater should bother us.
 	if (gDirUtilp->isDevBuildLayout()) 
-	{
-		LL_INFOS() << "Development build, skipping LLLeap updater construction");
+	{ 
+		LL_INFOS() << "Development build, skipping LLLeap updater construction") << LL_ENDL;
 	}
 	else
 	{
