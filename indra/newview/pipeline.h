@@ -84,6 +84,11 @@ extern LLTrace::BlockTimerStatHandle FTM_STATESORT;
 extern LLTrace::BlockTimerStatHandle FTM_PIPELINE;
 extern LLTrace::BlockTimerStatHandle FTM_CLIENT_COPY;
 
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_UI_HUD;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_UI_3D;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_UI_2D;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_UI_DEBUG_TEXT;
+extern LLTrace::BlockTimerStatHandle FTM_RENDER_UI_SCENE_MON;
 
 class LLPipeline
 {

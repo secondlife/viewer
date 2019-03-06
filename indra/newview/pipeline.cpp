@@ -254,6 +254,11 @@ LLTrace::BlockTimerStatHandle FTM_PIPELINE("Pipeline");
 LLTrace::BlockTimerStatHandle FTM_CLIENT_COPY("Client Copy");
 LLTrace::BlockTimerStatHandle FTM_RENDER_DEFERRED("Deferred Shading");
 
+LLTrace::BlockTimerStatHandle FTM_RENDER_UI_HUD("HUD");
+LLTrace::BlockTimerStatHandle FTM_RENDER_UI_3D("3D");
+LLTrace::BlockTimerStatHandle FTM_RENDER_UI_2D("2D");
+LLTrace::BlockTimerStatHandle FTM_RENDER_UI_DEBUG_TEXT("Debug Text");
+LLTrace::BlockTimerStatHandle FTM_RENDER_UI_SCENE_MON("Scene Mon");
 
 static LLTrace::BlockTimerStatHandle FTM_STATESORT_DRAWABLE("Sort Drawables");
 static LLTrace::BlockTimerStatHandle FTM_STATESORT_POSTSORT("Post Sort");
@@ -4068,7 +4073,6 @@ void LLPipeline::postSort(LLCamera& camera)
 
 void render_hud_elements()
 {
-    LL_RECORD_BLOCK_TIME(FTM_RENDER_UI);
     gPipeline.disableLights();      
     
     LLGLDisable fog(GL_FOG);
@@ -9434,7 +9438,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
             set_current_modelview(current);         
         }
 
-        LLPipeline::sUseOcclusion = occlusion;
+        //LLPipeline::sUseOcclusion = occlusion;
 
         camera.setOrigin(camera_in.getOrigin());
         //render distortion map
@@ -9499,7 +9503,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
                 renderGeom(camera);
 
-                if (LLGLSLShader::sNoFixedFunction)
+                /*if (LLGLSLShader::sNoFixedFunction)
                 {
                     gUIProgram.bind();
                 }
@@ -9509,7 +9513,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                 if (LLGLSLShader::sNoFixedFunction)
                 {
                     gUIProgram.unbind();
-                }
+                }*/
 
                 mWaterDis.flush();
             }
@@ -10077,6 +10081,10 @@ LLRenderTarget* LLPipeline::getShadowTarget(U32 i)
 }
 
 static LLTrace::BlockTimerStatHandle FTM_GEN_SUN_SHADOW("Gen Sun Shadow");
+static LLTrace::BlockTimerStatHandle FTM_GEN_SUN_SHADOW_SETUP("Sun Shadow Setup");
+static LLTrace::BlockTimerStatHandle FTM_GEN_SUN_SHADOW_RENDER_DIRECTIONAL("Render Dir");
+static LLTrace::BlockTimerStatHandle FTM_GEN_SUN_SHADOW_SPOT_SETUP("Spot Shadow Setup");
+static LLTrace::BlockTimerStatHandle FTM_GEN_SUN_SHADOW_SPOT_RENDER("Spot Shadow Render");
 
 void LLPipeline::generateSunShadow(LLCamera& camera)
 {
@@ -10091,11 +10099,6 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
     if (!isAgentAvatarValid() || gAgentCamera.getCameraAnimating() || gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK || !LLVOAvatar::sVisibleInFirstPerson)
     {
         skip_avatar_update = true;
-    }
-
-    if (!skip_avatar_update)
-    {
-        gAgentAvatarp->updateAttachmentVisibility(CAMERA_MODE_THIRD_PERSON);
     }
 
     F64 last_modelview[16];
@@ -10320,6 +10323,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
     {
         for (S32 j = 0; j < 4; j++)
         {
+            LL_RECORD_BLOCK_TIME(FTM_GEN_SUN_SHADOW_SETUP);
+
             if (!hasRenderDebugMask(RENDER_DEBUG_SHADOW_FRUSTA))
             {
                 mShadowFrustPoints[j].clear();
@@ -10688,6 +10693,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                 U32 target_width = shadow_target->getWidth();
 
                 {
+                    LL_RECORD_BLOCK_TIME(FTM_GEN_SUN_SHADOW_RENDER_DIRECTIONAL);
+
                     static LLCullResult result[4];
                     renderShadow(view[j], proj[j], shadow_cam, result[j], TRUE, TRUE, target_width);
                 }
@@ -10709,6 +10716,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
     if (gen_shadow)
     {
+        LL_RECORD_BLOCK_TIME(FTM_GEN_SUN_SHADOW_SPOT_SETUP);
+
         LLTrace::CountStatHandle<>* velocity_stat = LLViewerCamera::getVelocityStat();
         F32 fade_amt = gFrameIntervalSeconds.value() 
             * llmax(LLTrace::get_frame_recording().getLastRecording().getSum(*velocity_stat) / LLTrace::get_frame_recording().getLastRecording().getDuration().value(), 1.0);
@@ -10831,6 +10840,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
             if (shadow_target)
             {
+                LL_RECORD_BLOCK_TIME(FTM_GEN_SUN_SHADOW_SPOT_RENDER);
+
                 shadow_target->bindTarget();
                 shadow_target->getViewport(gGLViewport);
                 shadow_target->clear();

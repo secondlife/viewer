@@ -1110,16 +1110,13 @@ void LLOcclusionCullingGroup::checkOcclusion()
 
 				static LLCachedControl<bool> wait_for_query(gSavedSettings, "RenderSynchronousOcclusion", true);
 
-				if (wait_for_query && mOcclusionIssued[LLViewerCamera::sCurCameraID] < gFrameCount)
+                U32 target_read_frame = (gFrameCount > 2) ? (gFrameCount - 2) : 0;
+				if (wait_for_query && (mOcclusionIssued[LLViewerCamera::sCurCameraID] < target_read_frame))
 				{ //query was issued last frame, wait until it's available
-					S32 max_loop = 1024;
+					S32 max_loop = 64;
 					LL_RECORD_BLOCK_TIME(FTM_OCCLUSION_WAIT);
 					while (!available && max_loop-- > 0)
 					{
-						//do some usefu work while we wait
-						F32 max_time = llmin(gFrameIntervalSeconds.value()*10.f, 1.f);
-						LLAppViewer::instance()->updateTextureThreads(max_time);
-						
 						glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
 					}
 				}
