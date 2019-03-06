@@ -66,8 +66,101 @@
 #endif
 
 #include "stringize.h"
+#include "lldir.h"
+#include "llerrorcontrol.h"
 
+#include <fstream>
 #include <exception>
+
+// Bugsplat (http://bugsplat.com) crash reporting tool
+#ifdef LL_BUGSPLAT
+#include "BugSplat.h"
+#include "reader.h"                 // JsonCpp
+#include "llagent.h"                // for agent location
+#include "llviewerregion.h"
+#include "llvoavatarself.h"         // for agent name
+
+namespace
+{
+    // MiniDmpSender's constructor is defined to accept __wchar_t* instead of
+    // plain wchar_t*. That said, wunder() returns std::basic_string<__wchar_t>,
+    // NOT plain __wchar_t*, despite the apparent convenience. Calling
+    // wunder(something).c_str() as an argument expression is fine: that
+    // std::basic_string instance will survive until the function returns.
+    // Calling c_str() on a std::basic_string local to wunder() would be
+    // Undefined Behavior: we'd be left with a pointer into a destroyed
+    // std::basic_string instance. But we can do that with a macro...
+    #define WCSTR(string) wunder(string).c_str()
+
+    // It would be nice if, when wchar_t is the same as __wchar_t, this whole
+    // function would optimize away. However, we use it only for the arguments
+    // to the BugSplat API -- a handful of calls.
+    inline std::basic_string<__wchar_t> wunder(const std::wstring& str)
+    {
+        return { str.begin(), str.end() };
+    }
+
+    // when what we have in hand is a std::string, convert from UTF-8 using
+    // specific wstringize() overload
+    inline std::basic_string<__wchar_t> wunder(const std::string& str)
+    {
+        return wunder(wstringize(str));
+    }
+
+    // Irritatingly, MiniDmpSender::setCallback() is defined to accept a
+    // classic-C function pointer instead of an arbitrary C++ callable. If it
+    // did accept a modern callable, we could pass a lambda that binds our
+    // MiniDmpSender pointer. As things stand, though, we must define an
+    // actual function and store the pointer statically.
+    static MiniDmpSender *sBugSplatSender = nullptr;
+
+    bool bugsplatSendLog(UINT nCode, LPVOID lpVal1, LPVOID lpVal2)
+    {
+        if (nCode == MDSCB_EXCEPTIONCODE)
+        {
+            // send the main viewer log file
+            // widen to wstring, convert to __wchar_t, then pass c_str()
+            sBugSplatSender->sendAdditionalFile(
+                WCSTR(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log")));
+
+            sBugSplatSender->sendAdditionalFile(
+                WCSTR(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "settings.xml")));
+
+            sBugSplatSender->sendAdditionalFile(
+                WCSTR(*LLAppViewer::instance()->getStaticDebugFile()));
+
+            // We don't have an email address for any user. Hijack this
+            // metadata field for the platform identifier.
+            sBugSplatSender->setDefaultUserEmail(
+                WCSTR(STRINGIZE(LLOSInfo::instance().getOSStringSimple() << " ("
+                                << ADDRESS_SIZE << "-bit)")));
+
+            if (gAgentAvatarp)
+            {
+                // user name, when we have it
+                sBugSplatSender->setDefaultUserName(WCSTR(gAgentAvatarp->getFullname()));
+            }
+
+            // LL_ERRS message, when there is one
+            sBugSplatSender->setDefaultUserDescription(WCSTR(LLError::getFatalMessage()));
+
+            if (gAgent.getRegion())
+            {
+                // region location, when we have it
+                LLVector3 loc = gAgent.getPositionAgent();
+                sBugSplatSender->resetAppIdentifier(
+                    WCSTR(STRINGIZE(gAgent.getRegion()->getName()
+                                    << '/' << loc.mV[0]
+                                    << '/' << loc.mV[1]
+                                    << '/' << loc.mV[2])));
+            }
+        } // MDSCB_EXCEPTIONCODE
+
+        return false;
+    }
+}
+#endif // LL_BUGSPLAT
+
 namespace
 {
     void (*gOldTerminateHandler)() = NULL;
@@ -495,15 +588,71 @@ bool LLAppViewerWin32::init()
 	LLWinDebug::instance();
 #endif
 
-#if LL_WINDOWS
 #if LL_SEND_CRASH_REPORTS
-
+#if ! defined(LL_BUGSPLAT)
+#pragma message("Building without BugSplat")
 
 	LLAppViewer* pApp = LLAppViewer::instance();
 	pApp->initCrashReporting();
 
-#endif
-#endif
+#else // LL_BUGSPLAT
+#pragma message("Building with BugSplat")
+
+	std::string build_data_fname(
+		gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "build_data.json"));
+	// Use llifstream instead of std::ifstream because LL_PATH_EXECUTABLE
+	// could contain non-ASCII characters, which std::ifstream doesn't handle.
+	llifstream inf(build_data_fname.c_str());
+	if (! inf.is_open())
+	{
+		LL_WARNS() << "Can't initialize BugSplat, can't read '" << build_data_fname
+				   << "'" << LL_ENDL;
+	}
+	else
+	{
+		Json::Reader reader;
+		Json::Value build_data;
+		if (! reader.parse(inf, build_data, false)) // don't collect comments
+		{
+			// gah, the typo is baked into Json::Reader API
+			LL_WARNS() << "Can't initialize BugSplat, can't parse '" << build_data_fname
+					   << "': " << reader.getFormatedErrorMessages() << LL_ENDL;
+		}
+		else
+		{
+			Json::Value BugSplat_DB = build_data["BugSplat DB"];
+			if (! BugSplat_DB)
+			{
+				LL_WARNS() << "Can't initialize BugSplat, no 'BugSplat DB' entry in '"
+						   << build_data_fname << "'" << LL_ENDL;
+			}
+			else
+			{
+				// Got BugSplat_DB, onward!
+				std::wstring version_string(WSTRINGIZE(LL_VIEWER_VERSION_MAJOR << '.' <<
+													   LL_VIEWER_VERSION_MINOR << '.' <<
+													   LL_VIEWER_VERSION_PATCH << '.' <<
+													   LL_VIEWER_VERSION_BUILD));
+
+				// have to convert normal wide strings to strings of __wchar_t
+				sBugSplatSender = new MiniDmpSender(
+					WCSTR(BugSplat_DB.asString()),
+					WCSTR(LL_TO_WSTRING(LL_VIEWER_CHANNEL)),
+					WCSTR(version_string),
+					nullptr,              // szAppIdentifier -- set later
+					MDSF_NONINTERACTIVE | // automatically submit report without prompting
+					MDSF_PREVENTHIJACKING); // disallow swiping Exception filter
+				sBugSplatSender->setCallback(bugsplatSendLog);
+
+				// engage stringize() overload that converts from wstring
+				LL_INFOS() << "Engaged BugSplat(" << LL_TO_STRING(LL_VIEWER_CHANNEL)
+						   << ' ' << stringize(version_string) << ')' << LL_ENDL;
+			} // got BugSplat_DB
+		} // parsed build_data.json
+	} // opened build_data.json
+
+#endif // LL_BUGSPLAT
+#endif // LL_SEND_CRASH_REPORTS
 
 	bool success = LLAppViewer::init();
 

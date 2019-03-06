@@ -47,7 +47,7 @@ set(media_plugin_example_SOURCE_FILES
 add_library(media_plugin_example
     SHARED
     ${media_plugin_example_SOURCE_FILES}
-)
+    )
 
 target_link_libraries(media_plugin_example
   ${LLPLUGIN_LIBRARIES}

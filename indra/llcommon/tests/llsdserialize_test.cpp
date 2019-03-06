@@ -41,6 +41,7 @@ typedef U32 uint32_t;
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include "llprocess.h"
+#include "llstring.h"
 #endif
 
 #include "boost/range.hpp"
@@ -1705,8 +1706,8 @@ namespace tut
         template <typename CONTENT>
         void python(const std::string& desc, const CONTENT& script, int expect=0)
         {
-            const char* PYTHON(getenv("PYTHON"));
-            ensure("Set $PYTHON to the Python interpreter", PYTHON);
+            auto PYTHON(LLStringUtil::getenv("PYTHON"));
+            ensure("Set $PYTHON to the Python interpreter", !PYTHON.empty());
 
             NamedTempFile scriptfile("py", script);
 
@@ -1714,7 +1715,7 @@ namespace tut
             std::string q("\"");
             std::string qPYTHON(q + PYTHON + q);
             std::string qscript(q + scriptfile.getName() + q);
-            int rc = _spawnl(_P_WAIT, PYTHON, qPYTHON.c_str(), qscript.c_str(), NULL);
+            int rc = _spawnl(_P_WAIT, PYTHON.c_str(), qPYTHON.c_str(), qscript.c_str(), NULL);
             if (rc == -1)
             {
                 char buffer[256];

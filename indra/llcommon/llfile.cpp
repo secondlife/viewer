@@ -30,6 +30,7 @@
 #if LL_WINDOWS
 #include "llwin32headerslean.h"
 #include <stdlib.h>                 // Windows errno
+#include <vector>
 #else
 #include <errno.h>
 #endif
@@ -134,8 +135,10 @@ int warnif(const std::string& desc, const std::string& filename, int rc, int acc
 		{
 			// Only do any of this stuff (before LL_ENDL) if it will be logged.
 			LL_DEBUGS("LLFile") << empty;
-			const char* TEMP = getenv("TEMP");
-			if (! TEMP)
+			// would be nice to use LLDir for this, but dependency goes the
+			// wrong way
+			const char* TEMP = LLFile::tmpdir();
+			if (! (TEMP && *TEMP))
 			{
 				LL_CONT << "No $TEMP, not running 'handle'";
 			}
@@ -341,17 +344,13 @@ const char *LLFile::tmpdir()
 #if LL_WINDOWS
 		sep = '\\';
 
-		DWORD len = GetTempPathW(0, L"");
-		llutf16string utf16path;
-		utf16path.resize(len + 1);
-		len = GetTempPathW(static_cast<DWORD>(utf16path.size()), &utf16path[0]);
-		utf8path = utf16str_to_utf8str(utf16path);
+		std::vector<wchar_t> utf16path(MAX_PATH + 1);
+		GetTempPathW(utf16path.size(), &utf16path[0]);
+		utf8path = ll_convert_wide_to_string(&utf16path[0]);
 #else
 		sep = '/';
 
-		char *env = getenv("TMPDIR");
-
-		utf8path = env ? env : "/tmp/";
+		utf8path = LLStringUtil::getenv("TMPDIR", "/tmp/");
 #endif
 		if (utf8path[utf8path.size() - 1] != sep)
 		{
