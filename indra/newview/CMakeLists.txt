@@ -1878,19 +1878,13 @@ if (WINDOWS)
     )
 
     # sets the 'working directory' for debugging from visual studio.
-    if ((NOT UNATTENDED) AND (NOT DEFINED ENV{TEAMCITY_PROJECT_NAME}))
-        add_custom_command(
-            TARGET ${VIEWER_BINARY_NAME} POST_BUILD
-            COMMAND ${CMAKE_SOURCE_DIR}/tools/vstool/vstool.exe
-            ARGS
-              --solution
-              ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.sln
-              --workingdir
-              ${VIEWER_BINARY_NAME}
-              "${CMAKE_CURRENT_SOURCE_DIR}"
-            COMMENT "Setting the ${VIEWER_BINARY_NAME} working directory for debugging."
-            )
-    endif ((NOT UNATTENDED) AND (NOT DEFINED ENV{TEAMCITY_PROJECT_NAME}))
+    # Condition for version can be moved to requirements once build agents will be updated (see TOOL-3865)
+    if ((NOT UNATTENDED) AND (${CMAKE_VERSION} VERSION_GREATER "3.7.2"))
+        set_property(
+          TARGET ${VIEWER_BINARY_NAME}
+          PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+          )
+    endif ((NOT UNATTENDED) AND (${CMAKE_VERSION} VERSION_GREATER "3.7.2"))
 
     if (PACKAGE)
       add_custom_command(
