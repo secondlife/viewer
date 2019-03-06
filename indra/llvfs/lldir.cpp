@@ -94,7 +94,8 @@ LLDir::LLDir()
 	mTempDir(""),
 	mDirDelimiter("/"), // fallback to forward slash if not overridden
 	mLanguage("en"),
-	mUserName("undefined")
+	mUserName("undefined"),
+	mIsDevBuildLayout(false)
 {
 }
 

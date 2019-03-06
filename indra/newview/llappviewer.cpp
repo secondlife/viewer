@@ -1160,7 +1160,11 @@ bool LLAppViewer::init()
 	updater.args.add(stringize(gSavedSettings.getU32("ForceAddressSize")));
 
 	// Run the updater. An exception from launching the updater should bother us.
-	if (!beingDebugged())
+	if (gDirUtilp->isDevBuildLayout()) 
+	{
+		LL_INFOS() << "Development build, skipping LLLeap updater construction");
+	}
+	else
 	{
 		LLLeap::create(updater, true);
 	}

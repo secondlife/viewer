@@ -267,10 +267,20 @@ LLDir_Win32::LLDir_Win32()
 	{
 		// What? No skins in the working dir?
 		// Try the executable's directory.
+
+		// Standard installed layout
 		mAppRODataDir = mExecutableDir;
 	}
 
-//	LL_INFOS() << "mAppRODataDir = " << mAppRODataDir << LL_ENDL;
+	if (mExecutableDir != mWorkingDir)
+	{
+		mIsDevBuildLayout = true;
+	}
+
+	LL_DEBUGS("Dir") << "mAppRODataDir = " << mAppRODataDir << LL_ENDL;
+	LL_DEBUGS("Dir") << "mExecutableDir = " << mExecutableDir << LL_ENDL;
+	LL_DEBUGS("Dir") << "mWorkingDir = " << mWorkingDir << LL_ENDL;
+	LL_DEBUGS("Dir") << "mIsDevBuildLayout = " << mIsDevBuildLayout << LL_ENDL;
 
 	mSkinBaseDir = add(mAppRODataDir, "skins");
 
