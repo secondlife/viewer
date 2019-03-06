@@ -41,50 +41,45 @@
 
 LLCoreHttpUtil::HttpCoroutineAdapter::HttpCoroutineAdapter(std::string const&, unsigned int, unsigned int)
 {
-    
 }
 
 void LLCoreHttpUtil::HttpCoroutineAdapter::cancelSuspendedOperation()
 {
-
 }
 
 LLCoreHttpUtil::HttpCoroutineAdapter::~HttpCoroutineAdapter()
 {
-
 }
 
 LLCore::HttpRequest::HttpRequest()
 {
-
 }
 
 LLCore::HttpRequest::~HttpRequest()
 {
-    
 }
 
 namespace tut
 {
-	struct coproceduremanager_test
-	{
-		coproceduremanager_test() 
-		{			
-		}
- 	};
-	typedef test_group<coproceduremanager_test> coproceduremanager_t;
-	typedef coproceduremanager_t::object coproceduremanager_object_t;
-	tut::coproceduremanager_t tut_coproceduremanager("LLCoprocedureManager");
+    struct coproceduremanager_test
+    {
+        coproceduremanager_test()
+        {
+        }
+    };
+    typedef test_group<coproceduremanager_test> coproceduremanager_t;
+    typedef coproceduremanager_t::object coproceduremanager_object_t;
+    tut::coproceduremanager_t tut_coproceduremanager("LLCoprocedureManager");
 
-	
-	template<> template<>
-	void coproceduremanager_object_t::test<1>()
-	{
+
+    template<> template<>
+    void coproceduremanager_object_t::test<1>()
+    {
         int foo = 0;
-		LLUUID queueId = LLCoprocedureManager::instance().enqueueCoprocedure( "PoolName", "ProcName",
-			[&foo] (LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t & ptr, const LLUUID & id) {
+        LLUUID queueId = LLCoprocedureManager::instance().enqueueCoprocedure("PoolName", "ProcName",
+            [&foo] (LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t & ptr, const LLUUID & id) {
                 foo = 1;
-			});
-		ensure_equals("coprocedure failed to update foo", foo, 1);
-	}
-}
+            });
+        ensure_equals("coprocedure failed to update foo", foo, 1);
+    }
+}  // namespace tut
