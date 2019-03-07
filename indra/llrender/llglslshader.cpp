@@ -695,6 +695,11 @@ void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString> * 
     }
 }
 
+void LLGLSLShader::clearPermutations()
+{
+    mDefines.clear();
+}
+
 void LLGLSLShader::addPermutation(std::string name, std::string value)
 {
     mDefines[name] = value;

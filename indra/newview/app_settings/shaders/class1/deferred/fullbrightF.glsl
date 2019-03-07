@@ -33,7 +33,7 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-#if !HAS_DIFFUSE_LOOKUP
+#if !defined(HAS_DIFFUSE_LOOKUP)
 uniform sampler2D diffuseMap;
 #endif
 
@@ -62,7 +62,7 @@ uniform float minimum_alpha;
 
 void main() 
 {
-#if HAS_DIFFUSE_LOOKUP
+#ifdef HAS_DIFFUSE_LOOKUP
 	vec4 color = diffuseLookup(vary_texcoord0.xy);
 #else
 	vec4 color = texture2D(diffuseMap, vary_texcoord0.xy);

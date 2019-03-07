@@ -403,7 +403,8 @@ LLPipeline::LLPipeline() :
     mLightMovingMask(0),
     mLightingDetail(0),
     mScreenWidth(0),
-    mScreenHeight(0)
+    mScreenHeight(0),
+    mNeedsShadowTargetClear(true)
 {
     mNoiseMap = 0;
     mTrueNoiseMap = 0;
@@ -9336,7 +9337,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
         S32 occlusion = LLPipeline::sUseOcclusion;
 
         //disable occlusion culling for reflection map for now
-        LLPipeline::sUseOcclusion = 0;
+        //LLPipeline::sUseOcclusion = 0;
 
         glh::matrix4f current = get_current_modelview();
 
@@ -9484,7 +9485,8 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
                 //clip out geometry on the same side of water as the camera w/ enough margin to not include the water geo itself,
                 // but not so much as to clip out parts of avatars that should be seen under the water in the distortion map
-                LLPlane plane(pnorm, -water_height * LLPipeline::sDistortionWaterClipPlaneMargin);
+                LLPlane plane(-pnorm, water_height * LLPipeline::sDistortionWaterClipPlaneMargin);
+
                 LLGLUserClipPlane clip_plane(plane, current, projection);
 
                 gGL.setColorMask(true, true);
@@ -9503,7 +9505,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
                 renderGeom(camera);
 
-                /*if (LLGLSLShader::sNoFixedFunction)
+                if (LLGLSLShader::sNoFixedFunction)
                 {
                     gUIProgram.bind();
                 }
@@ -9513,7 +9515,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                 if (LLGLSLShader::sNoFixedFunction)
                 {
                     gUIProgram.unbind();
-                }*/
+                }
 
                 mWaterDis.flush();
             }
@@ -10090,10 +10092,32 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 {
     if (!sRenderDeferred || RenderShadowDetail <= 0)
     {
+        if (mNeedsShadowTargetClear)
+        {
+            LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
+
+            for (S32 j = 0; j < 6; j++)
+            {
+                LLRenderTarget* shadow_target = getShadowTarget(j);
+                if (shadow_target)
+                {
+                    shadow_target->bindTarget();
+                    shadow_target->clear();
+                    shadow_target->flush();
+                }
+            }
+            mNeedsShadowTargetClear = false;
+        }
+
         return;
     }
 
+    mNeedsShadowTargetClear = true;
+
     LL_RECORD_BLOCK_TIME(FTM_GEN_SUN_SHADOW);
+
+    LLEnvironment& environment = LLEnvironment::instance();
+    LLSettingsSky::ptr_t psky = environment.getCurrentSky();
 
     bool skip_avatar_update = false;
     if (!isAgentAvatarValid() || gAgentCamera.getCameraAnimating() || gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK || !LLVOAvatar::sVisibleInFirstPerson)
@@ -10156,6 +10180,43 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
         gGL.setColorMask(false, false);
     }
 
+    bool sun_up         = environment.getIsSunUp();
+    bool moon_up        = environment.getIsMoonUp();
+    bool ignore_shadows = (shadow_detail == 0) 
+                       || (sun_up  && (mSunDiffuse == LLColor4::black))
+                       || (moon_up && (mMoonDiffuse == LLColor4::black))
+                       || !(sun_up || moon_up);
+
+    if (ignore_shadows)
+    { //sun diffuse is totally black, shadows don't matter
+        LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
+
+        for (S32 j = 0; j < 4; j++)
+        {
+            LLRenderTarget* shadow_target = getShadowTarget(j);
+            if (shadow_target)
+            {
+                shadow_target->bindTarget();
+                shadow_target->clear();
+                shadow_target->flush();
+            }
+        }
+
+        if (shadow_detail == 0) 
+        {
+            for (S32 j = 4; j < 6; j++)
+            {
+                LLRenderTarget* shadow_target = getShadowTarget(j);
+                if (shadow_target)
+                {
+                    shadow_target->bindTarget();
+                    shadow_target->clear();
+                    shadow_target->flush();
+                }
+            }
+        }
+    }
+
     //get sun view matrix
     
     //store current projection/modelview matrix
@@ -10180,9 +10241,6 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
     //currently used for amount to extrude frusta corners for constructing shadow frusta
     //LLVector3 n = RenderShadowNearDist;
     //F32 nearDist[] = { n.mV[0], n.mV[1], n.mV[2], n.mV[2] };
-
-    LLEnvironment& environment = LLEnvironment::instance();
-    LLSettingsSky::ptr_t psky = environment.getCurrentSky();
 
     LLVector3 caster_dir(environment.getIsSunUp() ? mSunDir : mMoonDir);
 
@@ -10215,7 +10273,6 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
     up.normVec();
     at.normVec();
-    
     
     LLCamera main_camera = camera;
     
@@ -10298,28 +10355,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
     // convenience array of 4 near clip plane distances
     F32 dist[] = { near_clip, mSunClipPlanes.mV[0], mSunClipPlanes.mV[1], mSunClipPlanes.mV[2], mSunClipPlanes.mV[3] };
 
-    bool sun_up         = environment.getIsSunUp();
-    bool moon_up        = environment.getIsMoonUp();
-    bool ignore_shadows = (sun_up  && (mSunDiffuse == LLColor4::black))
-                       || (moon_up && (mMoonDiffuse == LLColor4::black))
-                       || !(sun_up || moon_up);
-
-    if (ignore_shadows)
-    { //sun diffuse is totally black, shadows don't matter
-        LLGLDepthTest depth(GL_TRUE);
-
-        for (S32 j = 0; j < 4; j++)
-        {
-            LLRenderTarget* shadow_target = getShadowTarget(j);
-            if (shadow_target)
-            {
-                shadow_target->bindTarget();
-                shadow_target->clear();
-                shadow_target->flush();
-            }
-        }
-    }
-    else
+    if (!ignore_shadows)
     {
         for (S32 j = 0; j < 4; j++)
         {

@@ -77,17 +77,11 @@ vec2 encode_normal (vec3 n);
 vec3 scaleSoftClipFrag(vec3 l);
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten);
 
-#if defined(VERT_ATMOSPHERICS)
-vec3 getSunlitColor();
-vec3 getAmblitColor();
-vec3 getAdditiveColor();
-vec3 getAtmosAttenuation();
-void calcAtmospherics(vec3 inPositionEye, float ambFactor);
-#else
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
-#endif
 
+#ifdef HAS_SHADOW
 float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
+#endif
 
 vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, float ambiance ,float shadow)
 {
@@ -142,7 +136,11 @@ void main()
     vec4 pos = vec4(vary_position, 1.0);
     vec3 norm = vary_norm;
 
-    float shadow = sampleDirectionalShadow(pos.xyz, norm.xyz, frag);
+    float shadow = 1.0f;
+
+#ifdef HAS_SHADOW
+    shadow = sampleDirectionalShadow(pos.xyz, norm.xyz, frag);
+#endif
 
 #ifdef USE_INDEXED_TEX
     vec4 diff = diffuseLookup(vary_texcoord0.xy);
@@ -184,14 +182,7 @@ void main()
     vec3 additive;
     vec3 atten;
 
-#if defined(VERT_ATMOSPHERICS)
-    sunlit = getSunlitColor();
-    amblit = getAmblitColor();
-    additive = getAdditiveColor();
-    atten = getAtmosAttenuation();
-#else
     calcFragAtmospherics(pos.xyz, 1.0, sunlit, amblit, additive, atten);
-#endif
 
     vec2 abnormal   = encode_normal(norm.xyz);
 
