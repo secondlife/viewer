@@ -666,6 +666,7 @@ public:
     LLColor4			mMoonDiffuse;
 	LLVector4			mSunDir;
     LLVector4			mMoonDir;
+    bool                mNeedsShadowTargetClear;
 
 	LLVector4			mTransformedSunDir;
     LLVector4			mTransformedMoonDir;
