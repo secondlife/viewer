@@ -71,15 +71,7 @@ vec3 getNorm(vec2 pos_screen);
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 fullbrightAtmosTransportFrag(vec3 l, vec3 additive, vec3 atten);
 
-#if defined(VERT_ATMOSPHERICS)
-vec3 getPositionEye();
-vec3 getSunlitColor();
-vec3 getAmblitColor();
-vec3 getAdditiveColor();
-vec3 getAtmosAttenuation();
-#else
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
-#endif
 
 vec3 scaleSoftClip(vec3 l);
 vec3 fullbrightScaleSoftClip(vec3 l);
@@ -114,14 +106,7 @@ void main()
         vec3 additive;
         vec3 atten;
 
-#if defined(VERT_ATMOSPHERICS)
-        sunlit   = getSunlitColor();
-        amblit   = getAmblitColor();
-        additive = getAdditiveColor();
-        atten    = getAtmosAttenuation();
-#else
         calcFragAtmospherics(pos.xyz, 1.0, sunlit, amblit, additive, atten);
-#endif
 
         float ambient = min(abs(da), 1.0);
         ambient *= 0.5;
