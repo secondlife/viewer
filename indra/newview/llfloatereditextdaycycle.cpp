@@ -266,7 +266,7 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
             panel->setOnDirtyFlagChanged([this](LLPanel *, bool val) { onPanelDirtyFlagChanged(val); });
     }
 
-	return TRUE;
+    return TRUE;
 }
 
 void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
