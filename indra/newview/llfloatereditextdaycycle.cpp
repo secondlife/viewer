@@ -738,14 +738,7 @@ void LLFloaterEditExtDayCycle::onButtonImport()
 
 void LLFloaterEditExtDayCycle::onButtonLoadFrame()
 {
-    LLUUID curitemId = mInventoryId;
-
-    if (mCurrentEdit && curitemId.notNull())
-    { 
-        curitemId = LLFloaterSettingsPicker::findItemID(mCurrentEdit->getAssetId(), false, false);
-    }
-
-    doOpenInventoryFloater((mCurrentTrack == LLSettingsDay::TRACK_WATER) ? LLSettingsType::ST_WATER : LLSettingsType::ST_SKY, curitemId);
+    doOpenInventoryFloater((mCurrentTrack == LLSettingsDay::TRACK_WATER) ? LLSettingsType::ST_WATER : LLSettingsType::ST_SKY, LLUUID::null);
 }
 
 void LLFloaterEditExtDayCycle::onAddFrame()

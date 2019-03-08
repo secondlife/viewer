@@ -55,6 +55,8 @@
 namespace 
 {
     const std::string FLOATER_DAY_CYCLE_EDIT("env_edit_extdaycycle");
+    const std::string STRING_REGION_ENV("str_region_env");
+    const std::string STRING_EMPTY_NAME("str_empty");
 
     inline bool ends_with(std::string const & value, std::string const & ending)
     {
@@ -86,7 +88,6 @@ const std::string LLPanelEnvironmentInfo::SDT_DROP_TARGET("sdt_drop_target");
 
 const std::string LLPanelEnvironmentInfo::STR_LABEL_USEDEFAULT("str_label_use_default");
 const std::string LLPanelEnvironmentInfo::STR_LABEL_USEREGION("str_label_use_region");
-const std::string LLPanelEnvironmentInfo::STR_LABEL_UNKNOWNINV("str_unknow_inventory");
 const std::string LLPanelEnvironmentInfo::STR_ALTITUDE_DESCRIPTION("str_altitude_desription");
 const std::string LLPanelEnvironmentInfo::STR_NO_PARCEL("str_no_parcel");
 const std::string LLPanelEnvironmentInfo::STR_CROSS_REGION("str_cross_region");
@@ -332,33 +333,32 @@ void LLPanelEnvironmentInfo::refreshFromEstate()
         refresh();
 }
 
-std::string LLPanelEnvironmentInfo::getInventoryNameForAssetId(LLUUID asset_id) 
-{
-    std::string name(LLFloaterSettingsPicker::findItemName(asset_id, false, false));
-
-    if (name.empty())
-        return getString(STR_LABEL_UNKNOWNINV);
-    return name;
-}
-
-
 std::string LLPanelEnvironmentInfo::getNameForTrackIndex(S32 index)
 {
+
     std::string invname;
     if (mCurrentEnvironment->mDayCycleName.empty())
     {
         invname = mCurrentEnvironment->mNameList[index];
 
-        if (!isRegion() && invname.empty())
-            invname = getString("str_region_env");
+        if (invname.empty())
+        {
+            if (index <= LLSettingsDay::TRACK_GROUND_LEVEL)
+                invname = getString(isRegion() ? STRING_EMPTY_NAME : STRING_REGION_ENV);
+        }
     }
     else if (!mCurrentEnvironment->mDayCycle->isTrackEmpty(index))
     {
         invname = mCurrentEnvironment->mDayCycleName;
     }
 
+
     if (invname.empty())
-        invname = getString("str_empty");
+    {
+        invname = getNameForTrackIndex(index - 1);
+        if (invname[0] != '(')
+            invname = "(" + invname + ")";
+    }
 
     return invname;
 }

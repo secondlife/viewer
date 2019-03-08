@@ -151,6 +151,8 @@ void LLFloaterSettingsPicker::onClose(bool app_quitting)
     {
         owner->setFocus(TRUE);
     }
+    mSettingItemID.setNull();
+    mInventoryPanel->getRootFolder()->clearSelection();
 }
 
 void LLFloaterSettingsPicker::setValue(const LLSD& value)
@@ -302,7 +304,18 @@ void LLFloaterSettingsPicker::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr
     LLComboBox* track_selection = getChild<LLComboBox>(CMB_TRACK_SELECTION);
     track_selection->clear();
     track_selection->removeall();
+    if (!settings)
+    {
+        LL_WARNS() << "Failed to load asset " << asset_id << LL_ENDL;
+        return;
+    }
     LLSettingsDay::ptr_t pday = std::dynamic_pointer_cast<LLSettingsDay>(settings);
+
+    if (!pday)
+    {
+        LL_WARNS() << "Wrong asset type received by id " << asset_id << LL_ENDL;
+        return;
+    }
 
     if (mTrackMode == TRACK_WATER)
     {

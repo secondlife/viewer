@@ -11,7 +11,6 @@
         width="530"> 
     <string name="str_label_use_default">Use Default Settings</string>
     <string name="str_label_use_region">Use Region Settings</string>
-    <string name="str_unknow_inventory">Unknown</string>
     <string name="str_altitude_desription">Sky [INDEX]([ALTITUDE]m)</string>
     <string name="str_no_parcel">No parcel is selected. Environmental settings are disabled.</string>
     <string name="str_cross_region">Environmental settings are not available across region boundries.</string>

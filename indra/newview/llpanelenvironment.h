@@ -85,7 +85,6 @@ protected:
 
     static const std::string    STR_LABEL_USEDEFAULT;
     static const std::string    STR_LABEL_USEREGION;
-    static const std::string    STR_LABEL_UNKNOWNINV;
     static const std::string    STR_ALTITUDE_DESCRIPTION;
     static const std::string    STR_NO_PARCEL;
     static const std::string    STR_CROSS_REGION;
@@ -134,8 +133,6 @@ protected:
 
     virtual bool                isLargeEnough() = 0;
     virtual void                refreshFromSource() = 0;
-
-    std::string                 getInventoryNameForAssetId(LLUUID asset_id);
 
     std::string                 getNameForTrackIndex(S32 index);
 
