@@ -381,8 +381,13 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 #define LL_WARNS(...)	lllog(LLError::LEVEL_WARN, false, ##__VA_ARGS__)
 #define LL_ERRS(...)	lllog(LLError::LEVEL_ERROR, false, ##__VA_ARGS__)
 // alternative to llassert_always that prints explanatory message
-#define LL_WARNS_IF(exp, ...)	if (exp) LL_WARNS(##__VA_ARGS__) << "(" #exp ")"
-#define LL_ERRS_IF(exp, ...)	if (exp) LL_ERRS(##__VA_ARGS__) << "(" #exp ")"
+// note ## token paste operator hack used above will only work in gcc following
+// a comma and is completely unnecessary in VS since the comma is automatically
+// suppressed
+// https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
+// https://docs.microsoft.com/en-us/cpp/preprocessor/variadic-macros?view=vs-2015
+#define LL_WARNS_IF(exp, ...)	if (exp) LL_WARNS(__VA_ARGS__) << "(" #exp ")"
+#define LL_ERRS_IF(exp, ...)	if (exp) LL_ERRS(__VA_ARGS__) << "(" #exp ")"
 
 // Only print the log message once (good for warnings or infos that would otherwise
 // spam the log file over and over, such as tighter loops).

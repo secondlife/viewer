@@ -657,10 +657,10 @@ namespace
 		// console log.  It's generally considered bad form to spam too much
 		// there.
 		
-		// If stdin is a tty, assume the user launched from the command line and
-		// therefore wants to see stderr.  Otherwise, assume we've been launched
-		// from the finder and shouldn't spam stderr.
-		return isatty(0);
+		// If stderr is a tty, assume the user launched from the command line or
+		// debugger and therefore wants to see stderr.  Otherwise, assume we've
+		// been launched from the finder and shouldn't spam stderr.
+		return isatty(STDERR_FILENO);
 #else
 		return true;
 #endif
