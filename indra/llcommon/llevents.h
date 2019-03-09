@@ -683,7 +683,7 @@ public:
 protected:
     virtual LLBoundListener listen_impl(const std::string& name, const LLEventListener&,
                                         const NameList& after,
-                                        const NameList& before);
+                                        const NameList& before) override;
 
 private:
     typedef std::list<LLSD> EventList;
