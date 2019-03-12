@@ -161,7 +161,7 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
 
 float sampleSpotShadow(vec3 pos, vec3 norm, int index, vec2 pos_screen)
 {
-    float shadow = 1.0f;
+    float shadow = 0.0f;
     pos += norm * spot_shadow_offset;
 
     vec4 spos = vec4(pos,1.0);
@@ -193,6 +193,10 @@ float sampleSpotShadow(vec3 pos, vec3 norm, int index, vec2 pos_screen)
         }
 
         shadow /= weight;
+    }
+    else
+    {
+        shadow = 1.0f;
     }
     return shadow;
 }
