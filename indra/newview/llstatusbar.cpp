@@ -63,7 +63,7 @@
 #include "llworld.h"
 #include "llstatgraph.h"
 #include "llviewermedia.h"
-#include "llviewermenu.h"   // for gMenuBarView
+#include "llviewermenu.h"	// for gMenuBarView
 #include "llviewerparcelmgr.h"
 #include "llviewerthrottle.h"
 #include "lluictrlfactory.h"
@@ -100,42 +100,42 @@ const S32 SIM_STAT_WIDTH = 8;
 const LLColor4 SIM_OK_COLOR(0.f, 1.f, 0.f, 1.f);
 const LLColor4 SIM_WARN_COLOR(1.f, 1.f, 0.f, 1.f);
 const LLColor4 SIM_FULL_COLOR(1.f, 0.f, 0.f, 1.f);
-const F32 ICON_TIMER_EXPIRY     = 3.f; // How long the balance and health icons should flash after a change.
+const F32 ICON_TIMER_EXPIRY		= 3.f; // How long the balance and health icons should flash after a change.
 
 static void onClickVolume(void*);
 
 LLStatusBar::LLStatusBar(const LLRect& rect)
-:   LLPanel(),
-    mTextTime(NULL),
-    mSGBandwidth(NULL),
-    mSGPacketLoss(NULL),
-    mBtnVolume(NULL),
-    mBoxBalance(NULL),
-    mBalance(0),
-    mHealth(100),
-    mSquareMetersCredit(0),
-    mSquareMetersCommitted(0)
+:	LLPanel(),
+	mTextTime(NULL),
+	mSGBandwidth(NULL),
+	mSGPacketLoss(NULL),
+	mBtnVolume(NULL),
+	mBoxBalance(NULL),
+	mBalance(0),
+	mHealth(100),
+	mSquareMetersCredit(0),
+	mSquareMetersCommitted(0)
 {
-    setRect(rect);
-    
-    // status bar can possible overlay menus?
-    setMouseOpaque(FALSE);
+	setRect(rect);
+	
+	// status bar can possible overlay menus?
+	setMouseOpaque(FALSE);
 
-    mBalanceTimer = new LLFrameTimer();
-    mHealthTimer = new LLFrameTimer();
+	mBalanceTimer = new LLFrameTimer();
+	mHealthTimer = new LLFrameTimer();
 
-    buildFromFile("panel_status_bar.xml");
+	buildFromFile("panel_status_bar.xml");
 }
 
 LLStatusBar::~LLStatusBar()
 {
-    delete mBalanceTimer;
-    mBalanceTimer = NULL;
+	delete mBalanceTimer;
+	mBalanceTimer = NULL;
 
-    delete mHealthTimer;
-    mHealthTimer = NULL;
+	delete mHealthTimer;
+	mHealthTimer = NULL;
 
-    // LLView destructor cleans up children
+	// LLView destructor cleans up children
 }
 
 //-----------------------------------------------------------------------
@@ -145,465 +145,465 @@ LLStatusBar::~LLStatusBar()
 // virtual
 void LLStatusBar::draw()
 {
-    refresh();
-    LLPanel::draw();
+	refresh();
+	LLPanel::draw();
 }
 
 BOOL LLStatusBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-    show_navbar_context_menu(this,x,y);
-    return TRUE;
+	show_navbar_context_menu(this,x,y);
+	return TRUE;
 }
 
 BOOL LLStatusBar::postBuild()
 {
-    gMenuBarView->setRightMouseDownCallback(boost::bind(&show_navbar_context_menu, _1, _2, _3));
+	gMenuBarView->setRightMouseDownCallback(boost::bind(&show_navbar_context_menu, _1, _2, _3));
 
-    mTextTime = getChild<LLTextBox>("TimeText" );
-    
-    getChild<LLUICtrl>("buyL")->setCommitCallback(
-        boost::bind(&LLStatusBar::onClickBuyCurrency, this));
+	mTextTime = getChild<LLTextBox>("TimeText" );
+	
+	getChild<LLUICtrl>("buyL")->setCommitCallback(
+		boost::bind(&LLStatusBar::onClickBuyCurrency, this));
 
     getChild<LLUICtrl>("goShop")->setCommitCallback(boost::bind(&LLWeb::loadURL, gSavedSettings.getString("MarketplaceURL"), LLStringUtil::null, LLStringUtil::null));
 
-    mBoxBalance = getChild<LLTextBox>("balance");
-    mBoxBalance->setClickedCallback( &LLStatusBar::onClickBalance, this );
+	mBoxBalance = getChild<LLTextBox>("balance");
+	mBoxBalance->setClickedCallback( &LLStatusBar::onClickBalance, this );
 
-    mIconPresetsCamera = getChild<LLIconCtrl>( "presets_icon_camera" );
-    mIconPresetsCamera->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterPresetsCamera, this));
+	mIconPresetsCamera = getChild<LLIconCtrl>( "presets_icon_camera" );
+	mIconPresetsCamera->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterPresetsCamera, this));
 
-    mIconPresetsGraphic = getChild<LLIconCtrl>( "presets_icon_graphic" );
-    mIconPresetsGraphic->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterPresets, this));
+	mIconPresetsGraphic = getChild<LLIconCtrl>( "presets_icon_graphic" );
+	mIconPresetsGraphic->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterPresets, this));
 
-    mBtnVolume = getChild<LLButton>( "volume_btn" );
-    mBtnVolume->setClickedCallback( onClickVolume, this );
-    mBtnVolume->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterVolume, this));
+	mBtnVolume = getChild<LLButton>( "volume_btn" );
+	mBtnVolume->setClickedCallback( onClickVolume, this );
+	mBtnVolume->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterVolume, this));
 
-    mMediaToggle = getChild<LLButton>("media_toggle_btn");
-    mMediaToggle->setClickedCallback( &LLStatusBar::onClickMediaToggle, this );
-    mMediaToggle->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterNearbyMedia, this));
+	mMediaToggle = getChild<LLButton>("media_toggle_btn");
+	mMediaToggle->setClickedCallback( &LLStatusBar::onClickMediaToggle, this );
+	mMediaToggle->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterNearbyMedia, this));
 
-    LLHints::registerHintTarget("linden_balance", getChild<LLView>("balance_bg")->getHandle());
+	LLHints::registerHintTarget("linden_balance", getChild<LLView>("balance_bg")->getHandle());
 
-    gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&LLStatusBar::onVolumeChanged, this, _2));
+	gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&LLStatusBar::onVolumeChanged, this, _2));
 
-    // Adding Net Stat Graph
-    S32 x = getRect().getWidth() - 2;
-    S32 y = 0;
-    LLRect r;
-    r.set( x-SIM_STAT_WIDTH, y+MENU_BAR_HEIGHT-1, x, y+1);
-    LLStatGraph::Params sgp;
-    sgp.name("BandwidthGraph");
-    sgp.rect(r);
-    sgp.follows.flags(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
-    sgp.mouse_opaque(false);
-    sgp.stat.count_stat_float(&LLStatViewer::ACTIVE_MESSAGE_DATA_RECEIVED);
-    sgp.units("Kbps");
-    sgp.precision(0);
-    sgp.per_sec(true);
-    mSGBandwidth = LLUICtrlFactory::create<LLStatGraph>(sgp);
-    addChild(mSGBandwidth);
-    x -= SIM_STAT_WIDTH + 2;
+	// Adding Net Stat Graph
+	S32 x = getRect().getWidth() - 2;
+	S32 y = 0;
+	LLRect r;
+	r.set( x-SIM_STAT_WIDTH, y+MENU_BAR_HEIGHT-1, x, y+1);
+	LLStatGraph::Params sgp;
+	sgp.name("BandwidthGraph");
+	sgp.rect(r);
+	sgp.follows.flags(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
+	sgp.mouse_opaque(false);
+	sgp.stat.count_stat_float(&LLStatViewer::ACTIVE_MESSAGE_DATA_RECEIVED);
+	sgp.units("Kbps");
+	sgp.precision(0);
+	sgp.per_sec(true);
+	mSGBandwidth = LLUICtrlFactory::create<LLStatGraph>(sgp);
+	addChild(mSGBandwidth);
+	x -= SIM_STAT_WIDTH + 2;
 
-    r.set( x-SIM_STAT_WIDTH, y+MENU_BAR_HEIGHT-1, x, y+1);
-    //these don't seem to like being reused
-    LLStatGraph::Params pgp;
-    pgp.name("PacketLossPercent");
-    pgp.rect(r);
-    pgp.follows.flags(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
-    pgp.mouse_opaque(false);
-    pgp.stat.sample_stat_float(&LLStatViewer::PACKETS_LOST_PERCENT);
-    pgp.units("%");
-    pgp.min(0.f);
-    pgp.max(5.f);
-    pgp.precision(1);
-    pgp.per_sec(false);
-    LLStatGraph::Thresholds thresholds;
-    thresholds.threshold.add(LLStatGraph::ThresholdParams().value(0.1).color(LLColor4::green))
-                        .add(LLStatGraph::ThresholdParams().value(0.25f).color(LLColor4::yellow))
-                        .add(LLStatGraph::ThresholdParams().value(0.6f).color(LLColor4::red));
+	r.set( x-SIM_STAT_WIDTH, y+MENU_BAR_HEIGHT-1, x, y+1);
+	//these don't seem to like being reused
+	LLStatGraph::Params pgp;
+	pgp.name("PacketLossPercent");
+	pgp.rect(r);
+	pgp.follows.flags(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
+	pgp.mouse_opaque(false);
+	pgp.stat.sample_stat_float(&LLStatViewer::PACKETS_LOST_PERCENT);
+	pgp.units("%");
+	pgp.min(0.f);
+	pgp.max(5.f);
+	pgp.precision(1);
+	pgp.per_sec(false);
+	LLStatGraph::Thresholds thresholds;
+	thresholds.threshold.add(LLStatGraph::ThresholdParams().value(0.1).color(LLColor4::green))
+						.add(LLStatGraph::ThresholdParams().value(0.25f).color(LLColor4::yellow))
+						.add(LLStatGraph::ThresholdParams().value(0.6f).color(LLColor4::red));
 
-    pgp.thresholds(thresholds);
+	pgp.thresholds(thresholds);
 
-    mSGPacketLoss = LLUICtrlFactory::create<LLStatGraph>(pgp);
-    addChild(mSGPacketLoss);
+	mSGPacketLoss = LLUICtrlFactory::create<LLStatGraph>(pgp);
+	addChild(mSGPacketLoss);
 
-    mPanelPresetsCameraPulldown = new LLPanelPresetsCameraPulldown();
-    addChild(mPanelPresetsCameraPulldown);
-    mPanelPresetsCameraPulldown->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
-    mPanelPresetsCameraPulldown->setVisible(FALSE);
+	mPanelPresetsCameraPulldown = new LLPanelPresetsCameraPulldown();
+	addChild(mPanelPresetsCameraPulldown);
+	mPanelPresetsCameraPulldown->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
+	mPanelPresetsCameraPulldown->setVisible(FALSE);
 
-    mPanelPresetsPulldown = new LLPanelPresetsPulldown();
-    addChild(mPanelPresetsPulldown);
-    mPanelPresetsPulldown->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
-    mPanelPresetsPulldown->setVisible(FALSE);
+	mPanelPresetsPulldown = new LLPanelPresetsPulldown();
+	addChild(mPanelPresetsPulldown);
+	mPanelPresetsPulldown->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
+	mPanelPresetsPulldown->setVisible(FALSE);
 
-    mPanelVolumePulldown = new LLPanelVolumePulldown();
-    addChild(mPanelVolumePulldown);
-    mPanelVolumePulldown->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
-    mPanelVolumePulldown->setVisible(FALSE);
+	mPanelVolumePulldown = new LLPanelVolumePulldown();
+	addChild(mPanelVolumePulldown);
+	mPanelVolumePulldown->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
+	mPanelVolumePulldown->setVisible(FALSE);
 
-    mPanelNearByMedia = new LLPanelNearByMedia();
-    addChild(mPanelNearByMedia);
-    mPanelNearByMedia->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
-    mPanelNearByMedia->setVisible(FALSE);
+	mPanelNearByMedia = new LLPanelNearByMedia();
+	addChild(mPanelNearByMedia);
+	mPanelNearByMedia->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
+	mPanelNearByMedia->setVisible(FALSE);
 
-    return TRUE;
+	return TRUE;
 }
 
 // Per-frame updates of visibility
 void LLStatusBar::refresh()
 {
-    static LLCachedControl<bool> show_net_stats(gSavedSettings, "ShowNetStats", false);
-    bool net_stats_visible = show_net_stats;
+	static LLCachedControl<bool> show_net_stats(gSavedSettings, "ShowNetStats", false);
+	bool net_stats_visible = show_net_stats;
 
-    if (net_stats_visible)
-    {
-        // Adding Net Stat Meter back in
-        F32 bwtotal = gViewerThrottle.getMaxBandwidth() / 1000.f;
-        mSGBandwidth->setMin(0.f);
-        mSGBandwidth->setMax(bwtotal*1.25f);
-        //mSGBandwidth->setThreshold(0, bwtotal*0.75f);
-        //mSGBandwidth->setThreshold(1, bwtotal);
-        //mSGBandwidth->setThreshold(2, bwtotal);
-    }
-    
-    // update clock every 10 seconds
-    if(mClockUpdateTimer.getElapsedTimeF32() > 10.f)
-    {
-        mClockUpdateTimer.reset();
+	if (net_stats_visible)
+	{
+		// Adding Net Stat Meter back in
+		F32 bwtotal = gViewerThrottle.getMaxBandwidth() / 1000.f;
+		mSGBandwidth->setMin(0.f);
+		mSGBandwidth->setMax(bwtotal*1.25f);
+		//mSGBandwidth->setThreshold(0, bwtotal*0.75f);
+		//mSGBandwidth->setThreshold(1, bwtotal);
+		//mSGBandwidth->setThreshold(2, bwtotal);
+	}
+	
+	// update clock every 10 seconds
+	if(mClockUpdateTimer.getElapsedTimeF32() > 10.f)
+	{
+		mClockUpdateTimer.reset();
 
-        // Get current UTC time, adjusted for the user's clock
-        // being off.
-        time_t utc_time;
-        utc_time = time_corrected();
+		// Get current UTC time, adjusted for the user's clock
+		// being off.
+		time_t utc_time;
+		utc_time = time_corrected();
 
-        std::string timeStr = getString("time");
-        LLSD substitution;
-        substitution["datetime"] = (S32) utc_time;
-        LLStringUtil::format (timeStr, substitution);
-        mTextTime->setText(timeStr);
+		std::string timeStr = getString("time");
+		LLSD substitution;
+		substitution["datetime"] = (S32) utc_time;
+		LLStringUtil::format (timeStr, substitution);
+		mTextTime->setText(timeStr);
 
-        // set the tooltip to have the date
-        std::string dtStr = getString("timeTooltip");
-        LLStringUtil::format (dtStr, substitution);
-        mTextTime->setToolTip (dtStr);
-    }
+		// set the tooltip to have the date
+		std::string dtStr = getString("timeTooltip");
+		LLStringUtil::format (dtStr, substitution);
+		mTextTime->setToolTip (dtStr);
+	}
 
-    LLRect r;
-    const S32 MENU_RIGHT = gMenuBarView->getRightmostMenuEdge();
+	LLRect r;
+	const S32 MENU_RIGHT = gMenuBarView->getRightmostMenuEdge();
 
-    // reshape menu bar to its content's width
-    if (MENU_RIGHT != gMenuBarView->getRect().getWidth())
-    {
-        gMenuBarView->reshape(MENU_RIGHT, gMenuBarView->getRect().getHeight());
-    }
+	// reshape menu bar to its content's width
+	if (MENU_RIGHT != gMenuBarView->getRect().getWidth())
+	{
+		gMenuBarView->reshape(MENU_RIGHT, gMenuBarView->getRect().getHeight());
+	}
 
-    mSGBandwidth->setVisible(net_stats_visible);
-    mSGPacketLoss->setVisible(net_stats_visible);
+	mSGBandwidth->setVisible(net_stats_visible);
+	mSGPacketLoss->setVisible(net_stats_visible);
 
-    // update the master volume button state
-    bool mute_audio = LLAppViewer::instance()->getMasterSystemAudioMute();
-    mBtnVolume->setToggleState(mute_audio);
-    
-    // Disable media toggle if there's no media, parcel media, and no parcel audio
-    // (or if media is disabled)
-    bool button_enabled = (gSavedSettings.getBOOL("AudioStreamingMusic")||gSavedSettings.getBOOL("AudioStreamingMedia")) && 
-                          (LLViewerMedia::hasInWorldMedia() || LLViewerMedia::hasParcelMedia() || LLViewerMedia::hasParcelAudio());
-    mMediaToggle->setEnabled(button_enabled);
-    // Note the "sense" of the toggle is opposite whether media is playing or not
-    bool any_media_playing = (LLViewerMedia::isAnyMediaPlaying() || 
-                              LLViewerMedia::isParcelMediaPlaying() ||
-                              LLViewerMedia::isParcelAudioPlaying());
-    mMediaToggle->setValue(!any_media_playing);
+	// update the master volume button state
+	bool mute_audio = LLAppViewer::instance()->getMasterSystemAudioMute();
+	mBtnVolume->setToggleState(mute_audio);
+	
+	// Disable media toggle if there's no media, parcel media, and no parcel audio
+	// (or if media is disabled)
+	bool button_enabled = (gSavedSettings.getBOOL("AudioStreamingMusic")||gSavedSettings.getBOOL("AudioStreamingMedia")) && 
+						  (LLViewerMedia::hasInWorldMedia() || LLViewerMedia::hasParcelMedia() || LLViewerMedia::hasParcelAudio());
+	mMediaToggle->setEnabled(button_enabled);
+	// Note the "sense" of the toggle is opposite whether media is playing or not
+	bool any_media_playing = (LLViewerMedia::isAnyMediaPlaying() || 
+							  LLViewerMedia::isParcelMediaPlaying() ||
+							  LLViewerMedia::isParcelAudioPlaying());
+	mMediaToggle->setValue(!any_media_playing);
 }
 
 void LLStatusBar::setVisibleForMouselook(bool visible)
 {
-    mTextTime->setVisible(visible);
-    getChild<LLUICtrl>("balance_bg")->setVisible(visible);
-    mBoxBalance->setVisible(visible);
-    mBtnVolume->setVisible(visible);
-    mMediaToggle->setVisible(visible);
-    mSGBandwidth->setVisible(visible);
-    mSGPacketLoss->setVisible(visible);
-    setBackgroundVisible(visible);
-    mIconPresetsCamera->setVisible(visible);
-    mIconPresetsGraphic->setVisible(visible);
+	mTextTime->setVisible(visible);
+	getChild<LLUICtrl>("balance_bg")->setVisible(visible);
+	mBoxBalance->setVisible(visible);
+	mBtnVolume->setVisible(visible);
+	mMediaToggle->setVisible(visible);
+	mSGBandwidth->setVisible(visible);
+	mSGPacketLoss->setVisible(visible);
+	setBackgroundVisible(visible);
+	mIconPresetsCamera->setVisible(visible);
+	mIconPresetsGraphic->setVisible(visible);
 }
 
 void LLStatusBar::debitBalance(S32 debit)
 {
-    setBalance(getBalance() - debit);
+	setBalance(getBalance() - debit);
 }
 
 void LLStatusBar::creditBalance(S32 credit)
 {
-    setBalance(getBalance() + credit);
+	setBalance(getBalance() + credit);
 }
 
 void LLStatusBar::setBalance(S32 balance)
 {
-    if (balance > getBalance() && getBalance() != 0)
-    {
-        LLFirstUse::receiveLindens();
-    }
+	if (balance > getBalance() && getBalance() != 0)
+	{
+		LLFirstUse::receiveLindens();
+	}
 
-    std::string money_str = LLResMgr::getInstance()->getMonetaryString( balance );
+	std::string money_str = LLResMgr::getInstance()->getMonetaryString( balance );
 
-    LLStringUtil::format_map_t string_args;
-    string_args["[AMT]"] = llformat("%s", money_str.c_str());
-    std::string label_str = getString("buycurrencylabel", string_args);
-    mBoxBalance->setValue(label_str);
+	LLStringUtil::format_map_t string_args;
+	string_args["[AMT]"] = llformat("%s", money_str.c_str());
+	std::string label_str = getString("buycurrencylabel", string_args);
+	mBoxBalance->setValue(label_str);
 
-    // Resize the L$ balance background to be wide enough for your balance plus the buy button
-    {
-        const S32 HPAD = 24;
-        LLRect balance_rect = mBoxBalance->getTextBoundingRect();
-        LLRect buy_rect = getChildView("buyL")->getRect();
-        LLRect shop_rect = getChildView("goShop")->getRect();
-        LLView* balance_bg_view = getChildView("balance_bg");
-        LLRect balance_bg_rect = balance_bg_view->getRect();
-        balance_bg_rect.mLeft = balance_bg_rect.mRight - (buy_rect.getWidth() + shop_rect.getWidth() + balance_rect.getWidth() + HPAD);
-        balance_bg_view->setShape(balance_bg_rect);
-    }
+	// Resize the L$ balance background to be wide enough for your balance plus the buy button
+	{
+		const S32 HPAD = 24;
+		LLRect balance_rect = mBoxBalance->getTextBoundingRect();
+		LLRect buy_rect = getChildView("buyL")->getRect();
+		LLRect shop_rect = getChildView("goShop")->getRect();
+		LLView* balance_bg_view = getChildView("balance_bg");
+		LLRect balance_bg_rect = balance_bg_view->getRect();
+		balance_bg_rect.mLeft = balance_bg_rect.mRight - (buy_rect.getWidth() + shop_rect.getWidth() + balance_rect.getWidth() + HPAD);
+		balance_bg_view->setShape(balance_bg_rect);
+	}
 
-    if (mBalance && (fabs((F32)(mBalance - balance)) > gSavedSettings.getF32("UISndMoneyChangeThreshold")))
-    {
-        if (mBalance > balance)
-            make_ui_sound("UISndMoneyChangeDown");
-        else
-            make_ui_sound("UISndMoneyChangeUp");
-    }
+	if (mBalance && (fabs((F32)(mBalance - balance)) > gSavedSettings.getF32("UISndMoneyChangeThreshold")))
+	{
+		if (mBalance > balance)
+			make_ui_sound("UISndMoneyChangeDown");
+		else
+			make_ui_sound("UISndMoneyChangeUp");
+	}
 
-    if( balance != mBalance )
-    {
-        mBalanceTimer->reset();
-        mBalanceTimer->setTimerExpirySec( ICON_TIMER_EXPIRY );
-        mBalance = balance;
-    }
+	if( balance != mBalance )
+	{
+		mBalanceTimer->reset();
+		mBalanceTimer->setTimerExpirySec( ICON_TIMER_EXPIRY );
+		mBalance = balance;
+	}
 }
 
 
 // static
 void LLStatusBar::sendMoneyBalanceRequest()
 {
-    LLMessageSystem* msg = gMessageSystem;
-    msg->newMessageFast(_PREHASH_MoneyBalanceRequest);
-    msg->nextBlockFast(_PREHASH_AgentData);
-    msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-    msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-    msg->nextBlockFast(_PREHASH_MoneyData);
-    msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null );
-    gAgent.sendReliableMessage();
+	LLMessageSystem* msg = gMessageSystem;
+	msg->newMessageFast(_PREHASH_MoneyBalanceRequest);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	msg->nextBlockFast(_PREHASH_MoneyData);
+	msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null );
+	gAgent.sendReliableMessage();
 }
 
 
 void LLStatusBar::setHealth(S32 health)
 {
-    //LL_INFOS() << "Setting health to: " << buffer << LL_ENDL;
-    if( mHealth > health )
-    {
-        if (mHealth > (health + gSavedSettings.getF32("UISndHealthReductionThreshold")))
-        {
-            if (isAgentAvatarValid())
-            {
-                if (gAgentAvatarp->getSex() == SEX_FEMALE)
-                {
-                    make_ui_sound("UISndHealthReductionF");
-                }
-                else
-                {
-                    make_ui_sound("UISndHealthReductionM");
-                }
-            }
-        }
+	//LL_INFOS() << "Setting health to: " << buffer << LL_ENDL;
+	if( mHealth > health )
+	{
+		if (mHealth > (health + gSavedSettings.getF32("UISndHealthReductionThreshold")))
+		{
+			if (isAgentAvatarValid())
+			{
+				if (gAgentAvatarp->getSex() == SEX_FEMALE)
+				{
+					make_ui_sound("UISndHealthReductionF");
+				}
+				else
+				{
+					make_ui_sound("UISndHealthReductionM");
+				}
+			}
+		}
 
-        mHealthTimer->reset();
-        mHealthTimer->setTimerExpirySec( ICON_TIMER_EXPIRY );
-    }
+		mHealthTimer->reset();
+		mHealthTimer->setTimerExpirySec( ICON_TIMER_EXPIRY );
+	}
 
-    mHealth = health;
+	mHealth = health;
 }
 
 S32 LLStatusBar::getBalance() const
 {
-    return mBalance;
+	return mBalance;
 }
 
 
 S32 LLStatusBar::getHealth() const
 {
-    return mHealth;
+	return mHealth;
 }
 
 void LLStatusBar::setLandCredit(S32 credit)
 {
-    mSquareMetersCredit = credit;
+	mSquareMetersCredit = credit;
 }
 void LLStatusBar::setLandCommitted(S32 committed)
 {
-    mSquareMetersCommitted = committed;
+	mSquareMetersCommitted = committed;
 }
 
 BOOL LLStatusBar::isUserTiered() const
 {
-    return (mSquareMetersCredit > 0);
+	return (mSquareMetersCredit > 0);
 }
 
 S32 LLStatusBar::getSquareMetersCredit() const
 {
-    return mSquareMetersCredit;
+	return mSquareMetersCredit;
 }
 
 S32 LLStatusBar::getSquareMetersCommitted() const
 {
-    return mSquareMetersCommitted;
+	return mSquareMetersCommitted;
 }
 
 S32 LLStatusBar::getSquareMetersLeft() const
 {
-    return mSquareMetersCredit - mSquareMetersCommitted;
+	return mSquareMetersCredit - mSquareMetersCommitted;
 }
 
 void LLStatusBar::onClickBuyCurrency()
 {
-    // open a currency floater - actual one open depends on 
-    // value specified in settings.xml
-    LLBuyCurrencyHTML::openCurrencyFloater();
-    LLFirstUse::receiveLindens(false);
+	// open a currency floater - actual one open depends on 
+	// value specified in settings.xml
+	LLBuyCurrencyHTML::openCurrencyFloater();
+	LLFirstUse::receiveLindens(false);
 }
 
 void LLStatusBar::onMouseEnterPresetsCamera()
 {
-    LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
-    LLIconCtrl* icon =  getChild<LLIconCtrl>( "presets_icon_camera" );
-    LLRect icon_rect = icon->getRect();
-    LLRect pulldown_rect = mPanelPresetsCameraPulldown->getRect();
-    pulldown_rect.setLeftTopAndSize(icon_rect.mLeft -
-         (pulldown_rect.getWidth() - icon_rect.getWidth()),
-                   icon_rect.mBottom,
-                   pulldown_rect.getWidth(),
-                   pulldown_rect.getHeight());
+	LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
+	LLIconCtrl* icon =  getChild<LLIconCtrl>( "presets_icon_camera" );
+	LLRect icon_rect = icon->getRect();
+	LLRect pulldown_rect = mPanelPresetsCameraPulldown->getRect();
+	pulldown_rect.setLeftTopAndSize(icon_rect.mLeft -
+	     (pulldown_rect.getWidth() - icon_rect.getWidth()),
+			       icon_rect.mBottom,
+			       pulldown_rect.getWidth(),
+			       pulldown_rect.getHeight());
 
-    pulldown_rect.translate(popup_holder->getRect().getWidth() - pulldown_rect.mRight, 0);
-    mPanelPresetsCameraPulldown->setShape(pulldown_rect);
+	pulldown_rect.translate(popup_holder->getRect().getWidth() - pulldown_rect.mRight, 0);
+	mPanelPresetsCameraPulldown->setShape(pulldown_rect);
 
-    // show the master presets pull-down
-    LLUI::clearPopups();
-    LLUI::addPopup(mPanelPresetsCameraPulldown);
-    mPanelNearByMedia->setVisible(FALSE);
-    mPanelVolumePulldown->setVisible(FALSE);
-    mPanelPresetsPulldown->setVisible(FALSE);
-    mPanelPresetsCameraPulldown->setVisible(TRUE);
+	// show the master presets pull-down
+	LLUI::clearPopups();
+	LLUI::addPopup(mPanelPresetsCameraPulldown);
+	mPanelNearByMedia->setVisible(FALSE);
+	mPanelVolumePulldown->setVisible(FALSE);
+	mPanelPresetsPulldown->setVisible(FALSE);
+	mPanelPresetsCameraPulldown->setVisible(TRUE);
 }
 
 void LLStatusBar::onMouseEnterPresets()
 {
-    LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
-    LLIconCtrl* icon =  getChild<LLIconCtrl>( "presets_icon_graphic" );
-    LLRect icon_rect = icon->getRect();
-    LLRect pulldown_rect = mPanelPresetsPulldown->getRect();
-    pulldown_rect.setLeftTopAndSize(icon_rect.mLeft -
-         (pulldown_rect.getWidth() - icon_rect.getWidth()),
-                   icon_rect.mBottom,
-                   pulldown_rect.getWidth(),
-                   pulldown_rect.getHeight());
+	LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
+	LLIconCtrl* icon =  getChild<LLIconCtrl>( "presets_icon_graphic" );
+	LLRect icon_rect = icon->getRect();
+	LLRect pulldown_rect = mPanelPresetsPulldown->getRect();
+	pulldown_rect.setLeftTopAndSize(icon_rect.mLeft -
+	     (pulldown_rect.getWidth() - icon_rect.getWidth()),
+			       icon_rect.mBottom,
+			       pulldown_rect.getWidth(),
+			       pulldown_rect.getHeight());
 
-    pulldown_rect.translate(popup_holder->getRect().getWidth() - pulldown_rect.mRight, 0);
-    mPanelPresetsPulldown->setShape(pulldown_rect);
+	pulldown_rect.translate(popup_holder->getRect().getWidth() - pulldown_rect.mRight, 0);
+	mPanelPresetsPulldown->setShape(pulldown_rect);
 
-    // show the master presets pull-down
-    LLUI::clearPopups();
-    LLUI::addPopup(mPanelPresetsPulldown);
-    mPanelNearByMedia->setVisible(FALSE);
-    mPanelVolumePulldown->setVisible(FALSE);
-    mPanelPresetsPulldown->setVisible(TRUE);
+	// show the master presets pull-down
+	LLUI::clearPopups();
+	LLUI::addPopup(mPanelPresetsPulldown);
+	mPanelNearByMedia->setVisible(FALSE);
+	mPanelVolumePulldown->setVisible(FALSE);
+	mPanelPresetsPulldown->setVisible(TRUE);
 }
 
 void LLStatusBar::onMouseEnterVolume()
 {
-    LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
-    LLButton* volbtn =  getChild<LLButton>( "volume_btn" );
-    LLRect vol_btn_rect = volbtn->getRect();
-    LLRect volume_pulldown_rect = mPanelVolumePulldown->getRect();
-    volume_pulldown_rect.setLeftTopAndSize(vol_btn_rect.mLeft -
-         (volume_pulldown_rect.getWidth() - vol_btn_rect.getWidth()),
-                   vol_btn_rect.mBottom,
-                   volume_pulldown_rect.getWidth(),
-                   volume_pulldown_rect.getHeight());
+	LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
+	LLButton* volbtn =  getChild<LLButton>( "volume_btn" );
+	LLRect vol_btn_rect = volbtn->getRect();
+	LLRect volume_pulldown_rect = mPanelVolumePulldown->getRect();
+	volume_pulldown_rect.setLeftTopAndSize(vol_btn_rect.mLeft -
+	     (volume_pulldown_rect.getWidth() - vol_btn_rect.getWidth()),
+			       vol_btn_rect.mBottom,
+			       volume_pulldown_rect.getWidth(),
+			       volume_pulldown_rect.getHeight());
 
-    volume_pulldown_rect.translate(popup_holder->getRect().getWidth() - volume_pulldown_rect.mRight, 0);
-    mPanelVolumePulldown->setShape(volume_pulldown_rect);
+	volume_pulldown_rect.translate(popup_holder->getRect().getWidth() - volume_pulldown_rect.mRight, 0);
+	mPanelVolumePulldown->setShape(volume_pulldown_rect);
 
 
-    // show the master volume pull-down
-    LLUI::clearPopups();
-    LLUI::addPopup(mPanelVolumePulldown);
-    mPanelPresetsCameraPulldown->setVisible(FALSE);
-    mPanelPresetsPulldown->setVisible(FALSE);
-    mPanelNearByMedia->setVisible(FALSE);
-    mPanelVolumePulldown->setVisible(TRUE);
+	// show the master volume pull-down
+	LLUI::clearPopups();
+	LLUI::addPopup(mPanelVolumePulldown);
+	mPanelPresetsCameraPulldown->setVisible(FALSE);
+	mPanelPresetsPulldown->setVisible(FALSE);
+	mPanelNearByMedia->setVisible(FALSE);
+	mPanelVolumePulldown->setVisible(TRUE);
 }
 
 void LLStatusBar::onMouseEnterNearbyMedia()
 {
-    LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
-    LLRect nearby_media_rect = mPanelNearByMedia->getRect();
-    LLButton* nearby_media_btn =  getChild<LLButton>( "media_toggle_btn" );
-    LLRect nearby_media_btn_rect = nearby_media_btn->getRect();
-    nearby_media_rect.setLeftTopAndSize(nearby_media_btn_rect.mLeft - 
-                                        (nearby_media_rect.getWidth() - nearby_media_btn_rect.getWidth())/2,
-                                        nearby_media_btn_rect.mBottom,
-                                        nearby_media_rect.getWidth(),
-                                        nearby_media_rect.getHeight());
-    // force onscreen
-    nearby_media_rect.translate(popup_holder->getRect().getWidth() - nearby_media_rect.mRight, 0);
-    
-    // show the master volume pull-down
-    mPanelNearByMedia->setShape(nearby_media_rect);
-    LLUI::clearPopups();
-    LLUI::addPopup(mPanelNearByMedia);
+	LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
+	LLRect nearby_media_rect = mPanelNearByMedia->getRect();
+	LLButton* nearby_media_btn =  getChild<LLButton>( "media_toggle_btn" );
+	LLRect nearby_media_btn_rect = nearby_media_btn->getRect();
+	nearby_media_rect.setLeftTopAndSize(nearby_media_btn_rect.mLeft - 
+										(nearby_media_rect.getWidth() - nearby_media_btn_rect.getWidth())/2,
+										nearby_media_btn_rect.mBottom,
+										nearby_media_rect.getWidth(),
+										nearby_media_rect.getHeight());
+	// force onscreen
+	nearby_media_rect.translate(popup_holder->getRect().getWidth() - nearby_media_rect.mRight, 0);
+	
+	// show the master volume pull-down
+	mPanelNearByMedia->setShape(nearby_media_rect);
+	LLUI::clearPopups();
+	LLUI::addPopup(mPanelNearByMedia);
 
-    mPanelPresetsCameraPulldown->setVisible(FALSE);
-    mPanelPresetsPulldown->setVisible(FALSE);
-    mPanelVolumePulldown->setVisible(FALSE);
-    mPanelNearByMedia->setVisible(TRUE);
+	mPanelPresetsCameraPulldown->setVisible(FALSE);
+	mPanelPresetsPulldown->setVisible(FALSE);
+	mPanelVolumePulldown->setVisible(FALSE);
+	mPanelNearByMedia->setVisible(TRUE);
 }
 
 
 static void onClickVolume(void* data)
 {
-    // toggle the master mute setting
-    bool mute_audio = LLAppViewer::instance()->getMasterSystemAudioMute();
-    LLAppViewer::instance()->setMasterSystemAudioMute(!mute_audio); 
+	// toggle the master mute setting
+	bool mute_audio = LLAppViewer::instance()->getMasterSystemAudioMute();
+	LLAppViewer::instance()->setMasterSystemAudioMute(!mute_audio);	
 }
 
 //static 
 void LLStatusBar::onClickBalance(void* )
 {
-    // Force a balance request message:
-    LLStatusBar::sendMoneyBalanceRequest();
-    // The refresh of the display (call to setBalance()) will be done by process_money_balance_reply()
+	// Force a balance request message:
+	LLStatusBar::sendMoneyBalanceRequest();
+	// The refresh of the display (call to setBalance()) will be done by process_money_balance_reply()
 }
 
 //static 
 void LLStatusBar::onClickMediaToggle(void* data)
 {
-    LLStatusBar *status_bar = (LLStatusBar*)data;
-    // "Selected" means it was showing the "play" icon (so media was playing), and now it shows "pause", so turn off media
-    bool pause = status_bar->mMediaToggle->getValue();
-    LLViewerMedia::setAllMediaPaused(pause);
+	LLStatusBar *status_bar = (LLStatusBar*)data;
+	// "Selected" means it was showing the "play" icon (so media was playing), and now it shows "pause", so turn off media
+	bool pause = status_bar->mMediaToggle->getValue();
+	LLViewerMedia::setAllMediaPaused(pause);
 }
 
 BOOL can_afford_transaction(S32 cost)
 {
-    return((cost <= 0)||((gStatusBar) && (gStatusBar->getBalance() >=cost)));
+	return((cost <= 0)||((gStatusBar) && (gStatusBar->getBalance() >=cost)));
 }
 
 void LLStatusBar::onVolumeChanged(const LLSD& newvalue)
 {
-    refresh();
+	refresh();
 }
 
 // Implements secondlife:///app/balance/request to request a L$ balance
@@ -611,18 +611,18 @@ void LLStatusBar::onVolumeChanged(const LLSD& newvalue)
 class LLBalanceHandler : public LLCommandHandler
 {
 public:
-    // Requires "trusted" browser/URL source
-    LLBalanceHandler() : LLCommandHandler("balance", UNTRUSTED_BLOCK) { }
-    bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web)
-    {
-        if (tokens.size() == 1
-            && tokens[0].asString() == "request")
-        {
-            LLStatusBar::sendMoneyBalanceRequest();
-            return true;
-        }
-        return false;
-    }
+	// Requires "trusted" browser/URL source
+	LLBalanceHandler() : LLCommandHandler("balance", UNTRUSTED_BLOCK) { }
+	bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web)
+	{
+		if (tokens.size() == 1
+			&& tokens[0].asString() == "request")
+		{
+			LLStatusBar::sendMoneyBalanceRequest();
+			return true;
+		}
+		return false;
+	}
 };
 // register with command dispatch system
 LLBalanceHandler gBalanceHandler;

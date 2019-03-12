@@ -36,26 +36,26 @@ class LLFrameTimer;
 class LLPanelPresetsCameraPulldown : public LLPanel
 {
  public:
-    LLPanelPresetsCameraPulldown();
-    /*virtual*/ void draw();
-    /*virtual*/ void onMouseEnter(S32 x, S32 y, MASK mask);
-    /*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
+	LLPanelPresetsCameraPulldown();
+	/*virtual*/ void draw();
+	/*virtual*/ void onMouseEnter(S32 x, S32 y, MASK mask);
+	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
     /*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
     /*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
     /*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
-    /*virtual*/ void onTopLost();
-    /*virtual*/ void onVisibilityChange ( BOOL new_visibility );
-    /*virtual*/ BOOL postBuild();
-    void populatePanel();
-    
+	/*virtual*/ void onTopLost();
+	/*virtual*/ void onVisibilityChange ( BOOL new_visibility );
+	/*virtual*/ BOOL postBuild();
+	void populatePanel();
+	
  private:
-    void onViewButtonClick(const LLSD& user_data);
-    void onRowClick(const LLSD& user_data);
+	void onViewButtonClick(const LLSD& user_data);
+	void onRowClick(const LLSD& user_data);
 
-    std::list<std::string> mPresetNames;
-    LLFrameTimer mHoverTimer;
-    static const F32 sAutoCloseFadeStartTimeSec;
-    static const F32 sAutoCloseTotalTimeSec;
+	std::list<std::string> mPresetNames;
+	LLFrameTimer mHoverTimer;
+	static const F32 sAutoCloseFadeStartTimeSec;
+	static const F32 sAutoCloseTotalTimeSec;
     LOG_CLASS(LLPanelPresetsCameraPulldown);
 };
 

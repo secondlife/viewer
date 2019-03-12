@@ -34,7 +34,7 @@
 #include "m3math.h"
 #include "llrender.h"
 
-#include "llagent.h"        // for gAgent for getRegion for getWaterHeight
+#include "llagent.h"		// for gAgent for getRegion for getWaterHeight
 #include "llcubemap.h"
 #include "lldrawable.h"
 #include "llface.h"
@@ -64,26 +64,26 @@ F32 LLDrawPoolWater::sWaterFogEnd = 0.f;
 LLVector3 LLDrawPoolWater::sLightDir;
 
 LLDrawPoolWater::LLDrawPoolWater() :
-    LLFacePool(POOL_WATER)
+	LLFacePool(POOL_WATER)
 {
-    mHBTex[0] = LLViewerTextureManager::getFetchedTexture(gSunTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
-    gGL.getTexUnit(0)->bind(mHBTex[0]) ;
-    mHBTex[0]->setAddressMode(LLTexUnit::TAM_CLAMP);
+	mHBTex[0] = LLViewerTextureManager::getFetchedTexture(gSunTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+	gGL.getTexUnit(0)->bind(mHBTex[0]) ;
+	mHBTex[0]->setAddressMode(LLTexUnit::TAM_CLAMP);
 
-    mHBTex[1] = LLViewerTextureManager::getFetchedTexture(gMoonTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
-    gGL.getTexUnit(0)->bind(mHBTex[1]);
-    mHBTex[1]->setAddressMode(LLTexUnit::TAM_CLAMP);
+	mHBTex[1] = LLViewerTextureManager::getFetchedTexture(gMoonTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+	gGL.getTexUnit(0)->bind(mHBTex[1]);
+	mHBTex[1]->setAddressMode(LLTexUnit::TAM_CLAMP);
 
 
-    mWaterImagep = LLViewerTextureManager::getFetchedTexture(TRANSPARENT_WATER_TEXTURE);
-    llassert(mWaterImagep);
-    mWaterImagep->setNoDelete();
-    mOpaqueWaterImagep = LLViewerTextureManager::getFetchedTexture(OPAQUE_WATER_TEXTURE);
-    llassert(mOpaqueWaterImagep);
-    mWaterNormp = LLViewerTextureManager::getFetchedTexture(DEFAULT_WATER_NORMAL);
-    mWaterNormp->setNoDelete();
+	mWaterImagep = LLViewerTextureManager::getFetchedTexture(TRANSPARENT_WATER_TEXTURE);
+	llassert(mWaterImagep);
+	mWaterImagep->setNoDelete();
+	mOpaqueWaterImagep = LLViewerTextureManager::getFetchedTexture(OPAQUE_WATER_TEXTURE);
+	llassert(mOpaqueWaterImagep);
+	mWaterNormp = LLViewerTextureManager::getFetchedTexture(DEFAULT_WATER_NORMAL);
+	mWaterNormp->setNoDelete();
 
-    restoreGL();
+	restoreGL();
 }
 
 LLDrawPoolWater::~LLDrawPoolWater()
@@ -93,48 +93,48 @@ LLDrawPoolWater::~LLDrawPoolWater()
 //static
 void LLDrawPoolWater::restoreGL()
 {
-    
+	
 }
 
 LLDrawPool *LLDrawPoolWater::instancePool()
 {
-    LL_ERRS() << "Should never be calling instancePool on a water pool!" << LL_ENDL;
-    return NULL;
+	LL_ERRS() << "Should never be calling instancePool on a water pool!" << LL_ENDL;
+	return NULL;
 }
 
 
 void LLDrawPoolWater::prerender()
 {
-    mVertexShaderLevel = (gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps) ?
-        LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_WATER) : 0;
+	mVertexShaderLevel = (gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps) ?
+		LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_WATER) : 0;
 
-    // got rid of modulation by light color since it got a little too
-    // green at sunset and sl-57047 (underwater turns black at 8:00)
-    sWaterFogColor = LLWaterParamManager::instance().getFogColor();
-    sWaterFogColor.mV[3] = 0;
+	// got rid of modulation by light color since it got a little too
+	// green at sunset and sl-57047 (underwater turns black at 8:00)
+	sWaterFogColor = LLWaterParamManager::instance().getFogColor();
+	sWaterFogColor.mV[3] = 0;
 
 }
 
 S32 LLDrawPoolWater::getNumPasses()
 {
-    if (LLViewerCamera::getInstance()->getOrigin().mV[2] < 1024.f)
-    {
-        return 1;
-    }
+	if (LLViewerCamera::getInstance()->getOrigin().mV[2] < 1024.f)
+	{
+		return 1;
+	}
 
-    return 0;
+	return 0;
 }
 
 void LLDrawPoolWater::beginPostDeferredPass(S32 pass)
 {
-    beginRenderPass(pass);
-    deferred_render = TRUE;
+	beginRenderPass(pass);
+	deferred_render = TRUE;
 }
 
 void LLDrawPoolWater::endPostDeferredPass(S32 pass)
 {
-    endRenderPass(pass);
-    deferred_render = FALSE;
+	endRenderPass(pass);
+	deferred_render = FALSE;
 }
 
 //===============================
@@ -142,591 +142,591 @@ void LLDrawPoolWater::endPostDeferredPass(S32 pass)
 //===============================
 void LLDrawPoolWater::renderDeferred(S32 pass)
 {
-    LL_RECORD_BLOCK_TIME(FTM_RENDER_WATER);
-    deferred_render = TRUE;
-    shade();
-    deferred_render = FALSE;
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_WATER);
+	deferred_render = TRUE;
+	shade();
+	deferred_render = FALSE;
 }
 
 //=========================================
 
 void LLDrawPoolWater::render(S32 pass)
 {
-    LL_RECORD_BLOCK_TIME(FTM_RENDER_WATER);
-    if (mDrawFace.empty() || LLDrawable::getCurrentFrame() <= 1)
-    {
-        return;
-    }
+	LL_RECORD_BLOCK_TIME(FTM_RENDER_WATER);
+	if (mDrawFace.empty() || LLDrawable::getCurrentFrame() <= 1)
+	{
+		return;
+	}
 
-    //do a quick 'n dirty depth sort
-    for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-             iter != mDrawFace.end(); iter++)
-    {
-        LLFace* facep = *iter;
-        facep->mDistance = -facep->mCenterLocal.mV[2];
-    }
+	//do a quick 'n dirty depth sort
+	for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
+			 iter != mDrawFace.end(); iter++)
+	{
+		LLFace* facep = *iter;
+		facep->mDistance = -facep->mCenterLocal.mV[2];
+	}
 
-    std::sort(mDrawFace.begin(), mDrawFace.end(), LLFace::CompareDistanceGreater());
+	std::sort(mDrawFace.begin(), mDrawFace.end(), LLFace::CompareDistanceGreater());
 
-    // See if we are rendering water as opaque or not
-    if (!gSavedSettings.getBOOL("RenderTransparentWater"))
-    {
-        // render water for low end hardware
-        renderOpaqueLegacyWater();
-        return;
-    }
+	// See if we are rendering water as opaque or not
+	if (!gSavedSettings.getBOOL("RenderTransparentWater"))
+	{
+		// render water for low end hardware
+		renderOpaqueLegacyWater();
+		return;
+	}
 
-    LLGLEnable blend(GL_BLEND);
+	LLGLEnable blend(GL_BLEND);
 
-    if ((mVertexShaderLevel > 0) && !sSkipScreenCopy)
-    {
-        shade();
-        return;
-    }
+	if ((mVertexShaderLevel > 0) && !sSkipScreenCopy)
+	{
+		shade();
+		return;
+	}
 
-    LLVOSky *voskyp = gSky.mVOSkyp;
+	LLVOSky *voskyp = gSky.mVOSkyp;
 
-    stop_glerror();
+	stop_glerror();
 
-    if (!gGLManager.mHasMultitexture)
-    {
-        // Ack!  No multitexture!  Bail!
-        return;
-    }
+	if (!gGLManager.mHasMultitexture)
+	{
+		// Ack!  No multitexture!  Bail!
+		return;
+	}
 
-    LLFace* refl_face = voskyp->getReflFace();
+	LLFace* refl_face = voskyp->getReflFace();
 
-    gPipeline.disableLights();
-    
-    LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
+	gPipeline.disableLights();
+	
+	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 
-    LLGLDisable cullFace(GL_CULL_FACE);
-    
-    // Set up second pass first
-    mWaterImagep->addTextureStats(1024.f*1024.f);
-    gGL.getTexUnit(1)->activate();
-    gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);
-    gGL.getTexUnit(1)->bind(mWaterImagep) ;
+	LLGLDisable cullFace(GL_CULL_FACE);
+	
+	// Set up second pass first
+	mWaterImagep->addTextureStats(1024.f*1024.f);
+	gGL.getTexUnit(1)->activate();
+	gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);
+	gGL.getTexUnit(1)->bind(mWaterImagep) ;
 
-    LLVector3 camera_up = LLViewerCamera::getInstance()->getUpAxis();
-    F32 up_dot = camera_up * LLVector3::z_axis;
+	LLVector3 camera_up = LLViewerCamera::getInstance()->getUpAxis();
+	F32 up_dot = camera_up * LLVector3::z_axis;
 
-    LLColor4 water_color;
-    if (LLViewerCamera::getInstance()->cameraUnderWater())
-    {
-        water_color.setVec(1.f, 1.f, 1.f, 0.4f);
-    }
-    else
-    {
-        water_color.setVec(1.f, 1.f, 1.f, 0.5f*(1.f + up_dot));
-    }
+	LLColor4 water_color;
+	if (LLViewerCamera::getInstance()->cameraUnderWater())
+	{
+		water_color.setVec(1.f, 1.f, 1.f, 0.4f);
+	}
+	else
+	{
+		water_color.setVec(1.f, 1.f, 1.f, 0.5f*(1.f + up_dot));
+	}
 
-    gGL.diffuseColor4fv(water_color.mV);
+	gGL.diffuseColor4fv(water_color.mV);
 
-    // Automatically generate texture coords for detail map
-    glEnable(GL_TEXTURE_GEN_S); //texture unit 1
-    glEnable(GL_TEXTURE_GEN_T); //texture unit 1
-    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+	// Automatically generate texture coords for detail map
+	glEnable(GL_TEXTURE_GEN_S); //texture unit 1
+	glEnable(GL_TEXTURE_GEN_T); //texture unit 1
+	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
 
-    // Slowly move over time.
-    F32 offset = fmod(gFrameTimeSeconds*2.f, 100.f);
-    F32 tp0[4] = {16.f/256.f, 0.0f, 0.0f, offset*0.01f};
-    F32 tp1[4] = {0.0f, 16.f/256.f, 0.0f, offset*0.01f};
-    glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0);
-    glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1);
+	// Slowly move over time.
+	F32 offset = fmod(gFrameTimeSeconds*2.f, 100.f);
+	F32 tp0[4] = {16.f/256.f, 0.0f, 0.0f, offset*0.01f};
+	F32 tp1[4] = {0.0f, 16.f/256.f, 0.0f, offset*0.01f};
+	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0);
+	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1);
 
-    gGL.getTexUnit(1)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_PREV_COLOR);
-    gGL.getTexUnit(1)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_ALPHA);
+	gGL.getTexUnit(1)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_PREV_COLOR);
+	gGL.getTexUnit(1)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_ALPHA);
 
-    gGL.getTexUnit(0)->activate();
-    
-    glClearStencil(1);
-    glClear(GL_STENCIL_BUFFER_BIT);
-    LLGLEnable gls_stencil(GL_STENCIL_TEST);
-    glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);
-    glStencilFunc(GL_ALWAYS, 0, 0xFFFFFFFF);
+	gGL.getTexUnit(0)->activate();
+	
+	glClearStencil(1);
+	glClear(GL_STENCIL_BUFFER_BIT);
+	LLGLEnable gls_stencil(GL_STENCIL_TEST);
+	glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);
+	glStencilFunc(GL_ALWAYS, 0, 0xFFFFFFFF);
 
-    for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-         iter != mDrawFace.end(); iter++)
-    {
-        LLFace *face = *iter;
-        if (voskyp->isReflFace(face))
-        {
-            continue;
-        }
-        gGL.getTexUnit(0)->bind(face->getTexture());
-        face->renderIndexed();
-    }
+	for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
+		 iter != mDrawFace.end(); iter++)
+	{
+		LLFace *face = *iter;
+		if (voskyp->isReflFace(face))
+		{
+			continue;
+		}
+		gGL.getTexUnit(0)->bind(face->getTexture());
+		face->renderIndexed();
+	}
 
-    // Now, disable texture coord generation on texture state 1
-    gGL.getTexUnit(1)->activate();
-    gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
-    gGL.getTexUnit(1)->disable();
-    glDisable(GL_TEXTURE_GEN_S); //texture unit 1
-    glDisable(GL_TEXTURE_GEN_T); //texture unit 1
+	// Now, disable texture coord generation on texture state 1
+	gGL.getTexUnit(1)->activate();
+	gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+	gGL.getTexUnit(1)->disable();
+	glDisable(GL_TEXTURE_GEN_S); //texture unit 1
+	glDisable(GL_TEXTURE_GEN_T); //texture unit 1
 
-    // Disable texture coordinate and color arrays
-    gGL.getTexUnit(0)->activate();
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+	// Disable texture coordinate and color arrays
+	gGL.getTexUnit(0)->activate();
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-    stop_glerror();
-    
-    if (gSky.mVOSkyp->getCubeMap())
-    {
-        gSky.mVOSkyp->getCubeMap()->enable(0);
-        gSky.mVOSkyp->getCubeMap()->bind();
+	stop_glerror();
+	
+	if (gSky.mVOSkyp->getCubeMap())
+	{
+		gSky.mVOSkyp->getCubeMap()->enable(0);
+		gSky.mVOSkyp->getCubeMap()->bind();
 
-        gGL.matrixMode(LLRender::MM_TEXTURE);
-        gGL.loadIdentity();
-        LLMatrix4 camera_mat = LLViewerCamera::getInstance()->getModelview();
-        LLMatrix4 camera_rot(camera_mat.getMat3());
-        camera_rot.invert();
+		gGL.matrixMode(LLRender::MM_TEXTURE);
+		gGL.loadIdentity();
+		LLMatrix4 camera_mat = LLViewerCamera::getInstance()->getModelview();
+		LLMatrix4 camera_rot(camera_mat.getMat3());
+		camera_rot.invert();
 
-        gGL.loadMatrix((F32 *)camera_rot.mMatrix);
+		gGL.loadMatrix((F32 *)camera_rot.mMatrix);
 
-        gGL.matrixMode(LLRender::MM_MODELVIEW);
-        LLOverrideFaceColor overrid(this, 1.f, 1.f, 1.f,  0.5f*up_dot);
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
+		LLOverrideFaceColor overrid(this, 1.f, 1.f, 1.f,  0.5f*up_dot);
 
-        gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 
-        for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-             iter != mDrawFace.end(); iter++)
-        {
-            LLFace *face = *iter;
-            if (voskyp->isReflFace(face))
-            {
-                //refl_face = face;
-                continue;
-            }
+		for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
+			 iter != mDrawFace.end(); iter++)
+		{
+			LLFace *face = *iter;
+			if (voskyp->isReflFace(face))
+			{
+				//refl_face = face;
+				continue;
+			}
 
-            if (face->getGeomCount() > 0)
-            {                   
-                face->renderIndexed();
-            }
-        }
+			if (face->getGeomCount() > 0)
+			{					
+				face->renderIndexed();
+			}
+		}
 
-        gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 
-        gSky.mVOSkyp->getCubeMap()->disable();
-        
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-        gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
-        gGL.matrixMode(LLRender::MM_TEXTURE);
-        gGL.loadIdentity();
-        gGL.matrixMode(LLRender::MM_MODELVIEW);
-        
-    }
+		gSky.mVOSkyp->getCubeMap()->disable();
+		
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+		gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+		gGL.matrixMode(LLRender::MM_TEXTURE);
+		gGL.loadIdentity();
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
+		
+	}
 
-    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
     if (refl_face)
-    {
-        glStencilFunc(GL_NOTEQUAL, 0, 0xFFFFFFFF);
-        renderReflection(refl_face);
-    }
+	{
+		glStencilFunc(GL_NOTEQUAL, 0, 0xFFFFFFFF);
+		renderReflection(refl_face);
+	}
 
-    gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 }
 
 // for low end hardware
 void LLDrawPoolWater::renderOpaqueLegacyWater()
 {
-    LLVOSky *voskyp = gSky.mVOSkyp;
+	LLVOSky *voskyp = gSky.mVOSkyp;
 
-    LLGLSLShader* shader = NULL;
-    if (LLGLSLShader::sNoFixedFunction)
-    {
-        if (LLPipeline::sUnderWaterRender)
-        {
-            shader = &gObjectSimpleNonIndexedTexGenWaterProgram;
-        }
-        else
-        {
-            shader = &gObjectSimpleNonIndexedTexGenProgram;
-        }
+	LLGLSLShader* shader = NULL;
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		if (LLPipeline::sUnderWaterRender)
+		{
+			shader = &gObjectSimpleNonIndexedTexGenWaterProgram;
+		}
+		else
+		{
+			shader = &gObjectSimpleNonIndexedTexGenProgram;
+		}
 
-        shader->bind();
-    }
+		shader->bind();
+	}
 
-    stop_glerror();
+	stop_glerror();
 
-    // Depth sorting and write to depth buffer
-    // since this is opaque, we should see nothing
-    // behind the water.  No blending because
-    // of no transparency.  And no face culling so
-    // that the underside of the water is also opaque.
-    LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE);
-    LLGLDisable no_cull(GL_CULL_FACE);
-    LLGLDisable no_blend(GL_BLEND);
+	// Depth sorting and write to depth buffer
+	// since this is opaque, we should see nothing
+	// behind the water.  No blending because
+	// of no transparency.  And no face culling so
+	// that the underside of the water is also opaque.
+	LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE);
+	LLGLDisable no_cull(GL_CULL_FACE);
+	LLGLDisable no_blend(GL_BLEND);
 
-    gPipeline.disableLights();
+	gPipeline.disableLights();
 
-    mOpaqueWaterImagep->addTextureStats(1024.f*1024.f);
+	mOpaqueWaterImagep->addTextureStats(1024.f*1024.f);
 
-    // Activate the texture binding and bind one
-    // texture since all images will have the same texture
-    gGL.getTexUnit(0)->activate();
-    gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
-    gGL.getTexUnit(0)->bind(mOpaqueWaterImagep);
+	// Activate the texture binding and bind one
+	// texture since all images will have the same texture
+	gGL.getTexUnit(0)->activate();
+	gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+	gGL.getTexUnit(0)->bind(mOpaqueWaterImagep);
 
-    // Automatically generate texture coords for water texture
-    if (!shader)
-    {
-        glEnable(GL_TEXTURE_GEN_S); //texture unit 0
-        glEnable(GL_TEXTURE_GEN_T); //texture unit 0
-        glTexGenf(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-        glTexGenf(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-    }
+	// Automatically generate texture coords for water texture
+	if (!shader)
+	{
+		glEnable(GL_TEXTURE_GEN_S); //texture unit 0
+		glEnable(GL_TEXTURE_GEN_T); //texture unit 0
+		glTexGenf(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+		glTexGenf(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+	}
 
-    // Use the fact that we know all water faces are the same size
-    // to save some computation
+	// Use the fact that we know all water faces are the same size
+	// to save some computation
 
-    // Slowly move texture coordinates over time so the watter appears
-    // to be moving.
-    F32 movement_period_secs = 50.f;
+	// Slowly move texture coordinates over time so the watter appears
+	// to be moving.
+	F32 movement_period_secs = 50.f;
 
-    F32 offset = fmod(gFrameTimeSeconds, movement_period_secs);
+	F32 offset = fmod(gFrameTimeSeconds, movement_period_secs);
 
-    if (movement_period_secs != 0)
-    {
-        offset /= movement_period_secs;
-    }
-    else
-    {
-        offset = 0;
-    }
+	if (movement_period_secs != 0)
+	{
+	 	offset /= movement_period_secs;
+	}
+	else
+	{
+		offset = 0;
+	}
 
-    F32 tp0[4] = { 16.f / 256.f, 0.0f, 0.0f, offset };
-    F32 tp1[4] = { 0.0f, 16.f / 256.f, 0.0f, offset };
+	F32 tp0[4] = { 16.f / 256.f, 0.0f, 0.0f, offset };
+	F32 tp1[4] = { 0.0f, 16.f / 256.f, 0.0f, offset };
 
-    if (!shader)
-    {
-        glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0);
-        glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1);
-    }
-    else
-    {
-        shader->uniform4fv(LLShaderMgr::OBJECT_PLANE_S, 1, tp0);
-        shader->uniform4fv(LLShaderMgr::OBJECT_PLANE_T, 1, tp1);
-    }
+	if (!shader)
+	{
+		glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0);
+		glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1);
+	}
+	else
+	{
+		shader->uniform4fv(LLShaderMgr::OBJECT_PLANE_S, 1, tp0);
+		shader->uniform4fv(LLShaderMgr::OBJECT_PLANE_T, 1, tp1);
+	}
 
-    gGL.diffuseColor3f(1.f, 1.f, 1.f);
+	gGL.diffuseColor3f(1.f, 1.f, 1.f);
 
-    for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-         iter != mDrawFace.end(); iter++)
-    {
-        LLFace *face = *iter;
-        if (voskyp->isReflFace(face))
-        {
-            continue;
-        }
+	for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
+		 iter != mDrawFace.end(); iter++)
+	{
+		LLFace *face = *iter;
+		if (voskyp->isReflFace(face))
+		{
+			continue;
+		}
 
-        face->renderIndexed();
-    }
+		face->renderIndexed();
+	}
 
-    stop_glerror();
+	stop_glerror();
 
-    if (!shader)
-    {
-        // Reset the settings back to expected values
-        glDisable(GL_TEXTURE_GEN_S); //texture unit 0
-        glDisable(GL_TEXTURE_GEN_T); //texture unit 0
-    }
+	if (!shader)
+	{
+		// Reset the settings back to expected values
+		glDisable(GL_TEXTURE_GEN_S); //texture unit 0
+		glDisable(GL_TEXTURE_GEN_T); //texture unit 0
+	}
 
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-    gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 }
 
 
 void LLDrawPoolWater::renderReflection(LLFace* face)
 {
-    LLVOSky *voskyp = gSky.mVOSkyp;
+	LLVOSky *voskyp = gSky.mVOSkyp;
 
-    if (!voskyp)
-    {
-        return;
-    }
+	if (!voskyp)
+	{
+		return;
+	}
 
-    if (!face->getGeomCount())
-    {
-        return;
-    }
-    
-    S8 dr = voskyp->getDrawRefl();
-    if (dr < 0)
-    {
-        return;
-    }
+	if (!face->getGeomCount())
+	{
+		return;
+	}
+	
+	S8 dr = voskyp->getDrawRefl();
+	if (dr < 0)
+	{
+		return;
+	}
 
-    LLGLSNoFog noFog;
+	LLGLSNoFog noFog;
 
-    gGL.getTexUnit(0)->bind(mHBTex[dr]);
+	gGL.getTexUnit(0)->bind(mHBTex[dr]);
 
-    LLOverrideFaceColor override(this, LLColor4(face->getFaceColor().mV));
-    face->renderIndexed();
+	LLOverrideFaceColor override(this, LLColor4(face->getFaceColor().mV));
+	face->renderIndexed();
 }
 
 void LLDrawPoolWater::shade()
 {
-    if (!deferred_render)
-    {
-        gGL.setColorMask(true, true);
+	if (!deferred_render)
+	{
+		gGL.setColorMask(true, true);
+	}
+
+	LLVOSky *voskyp = gSky.mVOSkyp;
+
+	if(voskyp == NULL) 
+	{
+		return;
+	}
+
+	LLGLDisable blend(GL_BLEND);
+
+	LLColor3 light_diffuse(0,0,0);
+	F32 light_exp = 0.0f;
+	LLVector3 light_dir;
+	LLColor3 light_color;
+
+	if (gSky.getSunDirection().mV[2] > LLSky::NIGHTTIME_ELEVATION_COS) 	 
+    { 	 
+        light_dir  = gSky.getSunDirection(); 	 
+        light_dir.normVec(); 	
+		light_color = gSky.getSunDiffuseColor();
+		if(gSky.mVOSkyp) {
+	        light_diffuse = gSky.mVOSkyp->getSun().getColorCached(); 	 
+			light_diffuse.normVec(); 	 
+		}
+        light_exp = light_dir * LLVector3(light_dir.mV[0], light_dir.mV[1], 0); 	 
+        light_diffuse *= light_exp + 0.25f; 	 
+    } 	 
+    else  	 
+    { 	 
+        light_dir       = gSky.getMoonDirection(); 	 
+        light_dir.normVec(); 	 
+		light_color = gSky.getMoonDiffuseColor();
+        light_diffuse   = gSky.mVOSkyp->getMoon().getColorCached(); 	 
+        light_diffuse.normVec(); 	 
+        light_diffuse *= 0.5f; 	 
+        light_exp = light_dir * LLVector3(light_dir.mV[0], light_dir.mV[1], 0); 	 
     }
 
-    LLVOSky *voskyp = gSky.mVOSkyp;
+	light_exp *= light_exp;
+	light_exp *= light_exp;
+	light_exp *= light_exp;
+	light_exp *= light_exp;
+	light_exp *= 256.f;
+	light_exp = light_exp > 32.f ? light_exp : 32.f;
 
-    if(voskyp == NULL) 
-    {
-        return;
-    }
+	LLGLSLShader* shader;
 
-    LLGLDisable blend(GL_BLEND);
+	F32 eyedepth = LLViewerCamera::getInstance()->getOrigin().mV[2] - gAgent.getRegion()->getWaterHeight();
+	
+	if (eyedepth < 0.f && LLPipeline::sWaterReflections)
+	{
+	if (deferred_render)
+	{
+			shader = &gDeferredUnderWaterProgram;
+	}
+		else
+	{
+		shader = &gUnderWaterProgram;
+	}
+	}
+	else if (deferred_render)
+	{
+		shader = &gDeferredWaterProgram;
+	}
+	else
+	{
+		shader = &gWaterProgram;
+	}
 
-    LLColor3 light_diffuse(0,0,0);
-    F32 light_exp = 0.0f;
-    LLVector3 light_dir;
-    LLColor3 light_color;
+	if (deferred_render)
+	{
+		gPipeline.bindDeferredShader(*shader);
+	}
+	else
+	{
+		shader->bind();
+	}
 
-    if (gSky.getSunDirection().mV[2] > LLSky::NIGHTTIME_ELEVATION_COS)   
-    {    
-        light_dir  = gSky.getSunDirection();     
-        light_dir.normVec();    
-        light_color = gSky.getSunDiffuseColor();
-        if(gSky.mVOSkyp) {
-            light_diffuse = gSky.mVOSkyp->getSun().getColorCached();     
-            light_diffuse.normVec();     
-        }
-        light_exp = light_dir * LLVector3(light_dir.mV[0], light_dir.mV[1], 0);      
-        light_diffuse *= light_exp + 0.25f;      
-    }    
-    else     
-    {    
-        light_dir       = gSky.getMoonDirection();   
-        light_dir.normVec();     
-        light_color = gSky.getMoonDiffuseColor();
-        light_diffuse   = gSky.mVOSkyp->getMoon().getColorCached();      
-        light_diffuse.normVec();     
-        light_diffuse *= 0.5f;   
-        light_exp = light_dir * LLVector3(light_dir.mV[0], light_dir.mV[1], 0);      
-    }
+	sTime = (F32)LLFrameTimer::getElapsedSeconds()*0.5f;
+	
+	S32 reftex = shader->enableTexture(LLShaderMgr::WATER_REFTEX);
+		
+	if (reftex > -1)
+	{
+		gGL.getTexUnit(reftex)->activate();
+		gGL.getTexUnit(reftex)->bind(&gPipeline.mWaterRef);
+		gGL.getTexUnit(0)->activate();
+	}	
 
-    light_exp *= light_exp;
-    light_exp *= light_exp;
-    light_exp *= light_exp;
-    light_exp *= light_exp;
-    light_exp *= 256.f;
-    light_exp = light_exp > 32.f ? light_exp : 32.f;
+	//bind normal map
+	S32 bumpTex = shader->enableTexture(LLViewerShaderMgr::BUMP_MAP);
 
-    LLGLSLShader* shader;
+	LLWaterParamManager * param_mgr = &LLWaterParamManager::instance();
 
-    F32 eyedepth = LLViewerCamera::getInstance()->getOrigin().mV[2] - gAgent.getRegion()->getWaterHeight();
-    
-    if (eyedepth < 0.f && LLPipeline::sWaterReflections)
-    {
-    if (deferred_render)
-    {
-            shader = &gDeferredUnderWaterProgram;
-    }
-        else
-    {
-        shader = &gUnderWaterProgram;
-    }
-    }
-    else if (deferred_render)
-    {
-        shader = &gDeferredWaterProgram;
-    }
-    else
-    {
-        shader = &gWaterProgram;
-    }
+	// change mWaterNormp if needed
+	if (mWaterNormp->getID() != param_mgr->getNormalMapID())
+	{
+		mWaterNormp = LLViewerTextureManager::getFetchedTexture(param_mgr->getNormalMapID());
+	}
 
-    if (deferred_render)
-    {
-        gPipeline.bindDeferredShader(*shader);
-    }
-    else
-    {
-        shader->bind();
-    }
+	mWaterNormp->addTextureStats(1024.f*1024.f);
+	gGL.getTexUnit(bumpTex)->bind(mWaterNormp) ;
+	if (gSavedSettings.getBOOL("RenderWaterMipNormal"))
+	{
+		mWaterNormp->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
+	}
+	else 
+	{
+		mWaterNormp->setFilteringOption(LLTexUnit::TFO_POINT);
+	}
+	
+	S32 screentex = shader->enableTexture(LLShaderMgr::WATER_SCREENTEX);	
+		
+	if (screentex > -1)
+	{
+		shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, 1, sWaterFogColor.mV);
+		shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, 
+			param_mgr->getFogDensity());
+		gPipeline.mWaterDis.bindTexture(0, screentex);
+	}
+	
+	stop_glerror();
+	
+	gGL.getTexUnit(screentex)->bind(&gPipeline.mWaterDis);	
 
-    sTime = (F32)LLFrameTimer::getElapsedSeconds()*0.5f;
-    
-    S32 reftex = shader->enableTexture(LLShaderMgr::WATER_REFTEX);
-        
-    if (reftex > -1)
-    {
-        gGL.getTexUnit(reftex)->activate();
-        gGL.getTexUnit(reftex)->bind(&gPipeline.mWaterRef);
-        gGL.getTexUnit(0)->activate();
-    }   
+	if (mVertexShaderLevel == 1)
+	{
+		sWaterFogColor.mV[3] = param_mgr->mDensitySliderValue;
+		shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, 1, sWaterFogColor.mV);
+	}
 
-    //bind normal map
-    S32 bumpTex = shader->enableTexture(LLViewerShaderMgr::BUMP_MAP);
+	F32 screenRes[] = 
+	{
+		1.f/gGLViewport[2],
+		1.f/gGLViewport[3]
+	};
+	shader->uniform2fv(LLShaderMgr::DEFERRED_SCREEN_RES, 1, screenRes);
+	stop_glerror();
+	
+	S32 diffTex = shader->enableTexture(LLShaderMgr::DIFFUSE_MAP);
+	stop_glerror();
+	
+	light_dir.normVec();
+	sLightDir = light_dir;
+	
+	light_diffuse *= 6.f;
 
-    LLWaterParamManager * param_mgr = &LLWaterParamManager::instance();
+	//shader->uniformMatrix4fv("inverse_ref", 1, GL_FALSE, (GLfloat*) gGLObliqueProjectionInverse.mMatrix);
+	shader->uniform1f(LLShaderMgr::WATER_WATERHEIGHT, eyedepth);
+	shader->uniform1f(LLShaderMgr::WATER_TIME, sTime);
+	shader->uniform3fv(LLShaderMgr::WATER_EYEVEC, 1, LLViewerCamera::getInstance()->getOrigin().mV);
+	shader->uniform3fv(LLShaderMgr::WATER_SPECULAR, 1, light_diffuse.mV);
+	shader->uniform1f(LLShaderMgr::WATER_SPECULAR_EXP, light_exp);
+	shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR1, 1, param_mgr->getWave1Dir().mV);
+	shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR2, 1, param_mgr->getWave2Dir().mV);
+	shader->uniform3fv(LLShaderMgr::WATER_LIGHT_DIR, 1, light_dir.mV);
 
-    // change mWaterNormp if needed
-    if (mWaterNormp->getID() != param_mgr->getNormalMapID())
-    {
-        mWaterNormp = LLViewerTextureManager::getFetchedTexture(param_mgr->getNormalMapID());
-    }
+	shader->uniform3fv(LLShaderMgr::WATER_NORM_SCALE, 1, param_mgr->getNormalScale().mV);
+	shader->uniform1f(LLShaderMgr::WATER_FRESNEL_SCALE, param_mgr->getFresnelScale());
+	shader->uniform1f(LLShaderMgr::WATER_FRESNEL_OFFSET, param_mgr->getFresnelOffset());
+	shader->uniform1f(LLShaderMgr::WATER_BLUR_MULTIPLIER, param_mgr->getBlurMultiplier());
 
-    mWaterNormp->addTextureStats(1024.f*1024.f);
-    gGL.getTexUnit(bumpTex)->bind(mWaterNormp) ;
-    if (gSavedSettings.getBOOL("RenderWaterMipNormal"))
-    {
-        mWaterNormp->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
-    }
-    else 
-    {
-        mWaterNormp->setFilteringOption(LLTexUnit::TFO_POINT);
-    }
-    
-    S32 screentex = shader->enableTexture(LLShaderMgr::WATER_SCREENTEX);    
-        
-    if (screentex > -1)
-    {
-        shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, 1, sWaterFogColor.mV);
-        shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, 
-            param_mgr->getFogDensity());
-        gPipeline.mWaterDis.bindTexture(0, screentex);
-    }
-    
-    stop_glerror();
-    
-    gGL.getTexUnit(screentex)->bind(&gPipeline.mWaterDis);  
+	F32 sunAngle = llmax(0.f, light_dir.mV[2]);
+	F32 scaledAngle = 1.f - sunAngle;
 
-    if (mVertexShaderLevel == 1)
-    {
-        sWaterFogColor.mV[3] = param_mgr->mDensitySliderValue;
-        shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, 1, sWaterFogColor.mV);
-    }
+	shader->uniform1f(LLShaderMgr::WATER_SUN_ANGLE, sunAngle);
+	shader->uniform1f(LLShaderMgr::WATER_SCALED_ANGLE, scaledAngle);
+	shader->uniform1f(LLShaderMgr::WATER_SUN_ANGLE2, 0.1f + 0.2f*sunAngle);
 
-    F32 screenRes[] = 
-    {
-        1.f/gGLViewport[2],
-        1.f/gGLViewport[3]
-    };
-    shader->uniform2fv(LLShaderMgr::DEFERRED_SCREEN_RES, 1, screenRes);
-    stop_glerror();
-    
-    S32 diffTex = shader->enableTexture(LLShaderMgr::DIFFUSE_MAP);
-    stop_glerror();
-    
-    light_dir.normVec();
-    sLightDir = light_dir;
-    
-    light_diffuse *= 6.f;
+	LLColor4 water_color;
+	LLVector3 camera_up = LLViewerCamera::getInstance()->getUpAxis();
+	F32 up_dot = camera_up * LLVector3::z_axis;
+	if (LLViewerCamera::getInstance()->cameraUnderWater())
+	{
+		water_color.setVec(1.f, 1.f, 1.f, 0.4f);
+		shader->uniform1f(LLShaderMgr::WATER_REFSCALE, param_mgr->getScaleBelow());
+	}
+	else
+	{
+		water_color.setVec(1.f, 1.f, 1.f, 0.5f*(1.f + up_dot));
+		shader->uniform1f(LLShaderMgr::WATER_REFSCALE, param_mgr->getScaleAbove());
+	}
 
-    //shader->uniformMatrix4fv("inverse_ref", 1, GL_FALSE, (GLfloat*) gGLObliqueProjectionInverse.mMatrix);
-    shader->uniform1f(LLShaderMgr::WATER_WATERHEIGHT, eyedepth);
-    shader->uniform1f(LLShaderMgr::WATER_TIME, sTime);
-    shader->uniform3fv(LLShaderMgr::WATER_EYEVEC, 1, LLViewerCamera::getInstance()->getOrigin().mV);
-    shader->uniform3fv(LLShaderMgr::WATER_SPECULAR, 1, light_diffuse.mV);
-    shader->uniform1f(LLShaderMgr::WATER_SPECULAR_EXP, light_exp);
-    shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR1, 1, param_mgr->getWave1Dir().mV);
-    shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR2, 1, param_mgr->getWave2Dir().mV);
-    shader->uniform3fv(LLShaderMgr::WATER_LIGHT_DIR, 1, light_dir.mV);
+	if (water_color.mV[3] > 0.9f)
+	{
+		water_color.mV[3] = 0.9f;
+	}
 
-    shader->uniform3fv(LLShaderMgr::WATER_NORM_SCALE, 1, param_mgr->getNormalScale().mV);
-    shader->uniform1f(LLShaderMgr::WATER_FRESNEL_SCALE, param_mgr->getFresnelScale());
-    shader->uniform1f(LLShaderMgr::WATER_FRESNEL_OFFSET, param_mgr->getFresnelOffset());
-    shader->uniform1f(LLShaderMgr::WATER_BLUR_MULTIPLIER, param_mgr->getBlurMultiplier());
+	{
+		LLGLEnable depth_clamp(gGLManager.mHasDepthClamp ? GL_DEPTH_CLAMP : 0);
+		LLGLDisable cullface(GL_CULL_FACE);
+		for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
+			iter != mDrawFace.end(); iter++)
+		{
+			LLFace *face = *iter;
 
-    F32 sunAngle = llmax(0.f, light_dir.mV[2]);
-    F32 scaledAngle = 1.f - sunAngle;
+			if (voskyp->isReflFace(face))
+			{
+				continue;
+			}
 
-    shader->uniform1f(LLShaderMgr::WATER_SUN_ANGLE, sunAngle);
-    shader->uniform1f(LLShaderMgr::WATER_SCALED_ANGLE, scaledAngle);
-    shader->uniform1f(LLShaderMgr::WATER_SUN_ANGLE2, 0.1f + 0.2f*sunAngle);
+			LLVOWater* water = (LLVOWater*) face->getViewerObject();
+			gGL.getTexUnit(diffTex)->bind(face->getTexture());
 
-    LLColor4 water_color;
-    LLVector3 camera_up = LLViewerCamera::getInstance()->getUpAxis();
-    F32 up_dot = camera_up * LLVector3::z_axis;
-    if (LLViewerCamera::getInstance()->cameraUnderWater())
-    {
-        water_color.setVec(1.f, 1.f, 1.f, 0.4f);
-        shader->uniform1f(LLShaderMgr::WATER_REFSCALE, param_mgr->getScaleBelow());
-    }
-    else
-    {
-        water_color.setVec(1.f, 1.f, 1.f, 0.5f*(1.f + up_dot));
-        shader->uniform1f(LLShaderMgr::WATER_REFSCALE, param_mgr->getScaleAbove());
-    }
+			sNeedsReflectionUpdate = TRUE;
+			
+			if (water->getUseTexture() || !water->getIsEdgePatch())
+			{
+				sNeedsDistortionUpdate = TRUE;
+				face->renderIndexed();
+			}
+			else if (gGLManager.mHasDepthClamp || deferred_render)
+			{
+				face->renderIndexed();
+			}
+			else
+			{
+				LLGLSquashToFarClip far_clip(glh_get_current_projection());
+				face->renderIndexed();
+			}
+		}
+	}
+	
+	shader->disableTexture(LLShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
+	shader->disableTexture(LLShaderMgr::WATER_SCREENTEX);	
+	shader->disableTexture(LLShaderMgr::BUMP_MAP);
+	shader->disableTexture(LLShaderMgr::DIFFUSE_MAP);
+	shader->disableTexture(LLShaderMgr::WATER_REFTEX);
+	shader->disableTexture(LLShaderMgr::WATER_SCREENDEPTH);
 
-    if (water_color.mV[3] > 0.9f)
-    {
-        water_color.mV[3] = 0.9f;
-    }
+	if (deferred_render)
+	{
+		gPipeline.unbindDeferredShader(*shader);
+	}
+	else
+	{
+		shader->unbind();
+	}
 
-    {
-        LLGLEnable depth_clamp(gGLManager.mHasDepthClamp ? GL_DEPTH_CLAMP : 0);
-        LLGLDisable cullface(GL_CULL_FACE);
-        for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-            iter != mDrawFace.end(); iter++)
-        {
-            LLFace *face = *iter;
-
-            if (voskyp->isReflFace(face))
-            {
-                continue;
-            }
-
-            LLVOWater* water = (LLVOWater*) face->getViewerObject();
-            gGL.getTexUnit(diffTex)->bind(face->getTexture());
-
-            sNeedsReflectionUpdate = TRUE;
-            
-            if (water->getUseTexture() || !water->getIsEdgePatch())
-            {
-                sNeedsDistortionUpdate = TRUE;
-                face->renderIndexed();
-            }
-            else if (gGLManager.mHasDepthClamp || deferred_render)
-            {
-                face->renderIndexed();
-            }
-            else
-            {
-                LLGLSquashToFarClip far_clip(glh_get_current_projection());
-                face->renderIndexed();
-            }
-        }
-    }
-    
-    shader->disableTexture(LLShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
-    shader->disableTexture(LLShaderMgr::WATER_SCREENTEX);   
-    shader->disableTexture(LLShaderMgr::BUMP_MAP);
-    shader->disableTexture(LLShaderMgr::DIFFUSE_MAP);
-    shader->disableTexture(LLShaderMgr::WATER_REFTEX);
-    shader->disableTexture(LLShaderMgr::WATER_SCREENDEPTH);
-
-    if (deferred_render)
-    {
-        gPipeline.unbindDeferredShader(*shader);
-    }
-    else
-    {
-        shader->unbind();
-    }
-
-    gGL.getTexUnit(0)->activate();
-    gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
-    if (!deferred_render)
-    {
-        gGL.setColorMask(true, false);
-    }
+	gGL.getTexUnit(0)->activate();
+	gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+	if (!deferred_render)
+	{
+		gGL.setColorMask(true, false);
+	}
 
 }
 
 LLViewerTexture *LLDrawPoolWater::getDebugTexture()
 {
-    return LLViewerFetchedTexture::sSmokeImagep;
+	return LLViewerFetchedTexture::sSmokeImagep;
 }
 
 LLColor3 LLDrawPoolWater::getDebugColor() const
 {
-    return LLColor3(0.f, 1.f, 1.f);
+	return LLColor3(0.f, 1.f, 1.f);
 }
