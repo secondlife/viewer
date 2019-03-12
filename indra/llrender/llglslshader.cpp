@@ -724,144 +724,144 @@ GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type)
 
 BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 {
-    BOOL res = TRUE;
+	BOOL res = TRUE;
 
-    mTotalUniformSize = 0;
-    mActiveTextureChannels = 0;
-    mUniform.clear();
-    mUniformMap.clear();
-    mUniformNameMap.clear();
-    mTexture.clear();
-    mValue.clear();
-    //initialize arrays
-    U32 numUniforms = (uniforms == NULL) ? 0 : uniforms->size();
-    mUniform.resize(numUniforms + LLShaderMgr::instance()->mReservedUniforms.size(), -1);
-    mTexture.resize(numUniforms + LLShaderMgr::instance()->mReservedUniforms.size(), -1);
+	mTotalUniformSize = 0;
+	mActiveTextureChannels = 0;
+	mUniform.clear();
+	mUniformMap.clear();
+	mUniformNameMap.clear();
+	mTexture.clear();
+	mValue.clear();
+	//initialize arrays
+	U32 numUniforms = (uniforms == NULL) ? 0 : uniforms->size();
+	mUniform.resize(numUniforms + LLShaderMgr::instance()->mReservedUniforms.size(), -1);
+	mTexture.resize(numUniforms + LLShaderMgr::instance()->mReservedUniforms.size(), -1);
 
-    bind();
+	bind();
 
-    //get the number of active uniforms
-    GLint activeCount;
-    glGetObjectParameterivARB(mProgramObject, GL_OBJECT_ACTIVE_UNIFORMS_ARB, &activeCount);
+	//get the number of active uniforms
+	GLint activeCount;
+	glGetObjectParameterivARB(mProgramObject, GL_OBJECT_ACTIVE_UNIFORMS_ARB, &activeCount);
 
-    //........................................................................................................................................
-    //........................................................................................
+	//........................................................................................................................................
+	//........................................................................................
 
-    /*
-    EXPLANATION:
-    This is part of code is temporary because as the final result the mapUniform() should be rewrited.
-    But it's a huge a volume of work which is need to be a more carefully performed for avoid possible
-    regression's (i.e. it should be formalized a separate ticket in JIRA).
+	/*
+	EXPLANATION:
+	This is part of code is temporary because as the final result the mapUniform() should be rewrited.
+	But it's a huge a volume of work which is need to be a more carefully performed for avoid possible
+	regression's (i.e. it should be formalized a separate ticket in JIRA).
 
-    RESON:
-    The reason of this code is that SL engine is very sensitive to fact that "diffuseMap" should be appear
-    first as uniform parameter which is should get 0-"texture channel" index (see mapUniformTextureChannel() and mActiveTextureChannels)
-    it influence to which is texture matrix will be updated during rendering.
+	RESON:
+	The reason of this code is that SL engine is very sensitive to fact that "diffuseMap" should be appear
+	first as uniform parameter which is should get 0-"texture channel" index (see mapUniformTextureChannel() and mActiveTextureChannels)
+	it influence to which is texture matrix will be updated during rendering.
 
-    But, order of indexe's of uniform variables is not defined and GLSL compiler can change it as want
-    , even if the "diffuseMap" will be appear and use first in shader code.
+	But, order of indexe's of uniform variables is not defined and GLSL compiler can change it as want
+	, even if the "diffuseMap" will be appear and use first in shader code.
 
-    As example where this situation appear see: "Deferred Material Shader 28/29/30/31"
-    And tickets: MAINT-4165, MAINT-4839, MAINT-3568, MAINT-6437
-    */
+	As example where this situation appear see: "Deferred Material Shader 28/29/30/31"
+	And tickets: MAINT-4165, MAINT-4839, MAINT-3568, MAINT-6437
+	*/
 
 
-    S32 diffuseMap = glGetUniformLocationARB(mProgramObject, "diffuseMap");
-    S32 specularMap = glGetUniformLocationARB(mProgramObject, "specularMap");
-    S32 bumpMap = glGetUniformLocationARB(mProgramObject, "bumpMap");
+	S32 diffuseMap = glGetUniformLocationARB(mProgramObject, "diffuseMap");
+	S32 specularMap = glGetUniformLocationARB(mProgramObject, "specularMap");
+	S32 bumpMap = glGetUniformLocationARB(mProgramObject, "bumpMap");
     S32 altDiffuseMap = glGetUniformLocationARB(mProgramObject, "altDiffuseMap");
-    S32 environmentMap = glGetUniformLocationARB(mProgramObject, "environmentMap");
+	S32 environmentMap = glGetUniformLocationARB(mProgramObject, "environmentMap");
 
-    std::set<S32> skip_index;
+	std::set<S32> skip_index;
 
-    if (-1 != diffuseMap && (-1 != specularMap || -1 != bumpMap || -1 != environmentMap || -1 != altDiffuseMap))
-    {
-        GLenum type;
-        GLsizei length;
-        GLint size = -1;
-        char name[1024];
+	if (-1 != diffuseMap && (-1 != specularMap || -1 != bumpMap || -1 != environmentMap || -1 != altDiffuseMap))
+	{
+		GLenum type;
+		GLsizei length;
+		GLint size = -1;
+		char name[1024];
 
-        diffuseMap = altDiffuseMap = specularMap = bumpMap = environmentMap = -1;
+		diffuseMap = altDiffuseMap = specularMap = bumpMap = environmentMap = -1;
 
-        for (S32 i = 0; i < activeCount; i++)
-        {
-            name[0] = '\0';
+		for (S32 i = 0; i < activeCount; i++)
+		{
+			name[0] = '\0';
 
-            glGetActiveUniformARB(mProgramObject, i, 1024, &length, &size, &type, (GLcharARB *)name);
+			glGetActiveUniformARB(mProgramObject, i, 1024, &length, &size, &type, (GLcharARB *)name);
 
-            if (-1 == diffuseMap && std::string(name) == "diffuseMap")
-            {
-                diffuseMap = i;
-                continue;
-            }
+			if (-1 == diffuseMap && std::string(name) == "diffuseMap")
+			{
+				diffuseMap = i;
+				continue;
+			}
 
-            if (-1 == specularMap && std::string(name) == "specularMap")
-            {
-                specularMap = i;
-                continue;
-            }
+			if (-1 == specularMap && std::string(name) == "specularMap")
+			{
+				specularMap = i;
+				continue;
+			}
 
-            if (-1 == bumpMap && std::string(name) == "bumpMap")
-            {
-                bumpMap = i;
-                continue;
-            }
+			if (-1 == bumpMap && std::string(name) == "bumpMap")
+			{
+				bumpMap = i;
+				continue;
+			}
 
-            if (-1 == environmentMap && std::string(name) == "environmentMap")
-            {
-                environmentMap = i;
-                continue;
-            }
+			if (-1 == environmentMap && std::string(name) == "environmentMap")
+			{
+				environmentMap = i;
+				continue;
+			}
 
             if (-1 == altDiffuseMap && std::string(name) == "altDiffuseMap")
-            {
-                altDiffuseMap = i;
-                continue;
-            }
-        }
+			{
+				altDiffuseMap = i;
+				continue;
+			}
+		}
 
-        bool specularDiff = specularMap < diffuseMap && -1 != specularMap;
-        bool bumpLessDiff = bumpMap < diffuseMap && -1 != bumpMap;
-        bool envLessDiff = environmentMap < diffuseMap && -1 != environmentMap;
+		bool specularDiff = specularMap < diffuseMap && -1 != specularMap;
+		bool bumpLessDiff = bumpMap < diffuseMap && -1 != bumpMap;
+		bool envLessDiff = environmentMap < diffuseMap && -1 != environmentMap;
 
-        if (specularDiff || bumpLessDiff || envLessDiff)
-        {
-            mapUniform(diffuseMap, uniforms);
-            skip_index.insert(diffuseMap);
+		if (specularDiff || bumpLessDiff || envLessDiff)
+		{
+			mapUniform(diffuseMap, uniforms);
+			skip_index.insert(diffuseMap);
 
-            if (-1 != specularMap) {
-                mapUniform(specularMap, uniforms);
-                skip_index.insert(specularMap);
-            }
+			if (-1 != specularMap) {
+				mapUniform(specularMap, uniforms);
+				skip_index.insert(specularMap);
+			}
 
-            if (-1 != bumpMap) {
-                mapUniform(bumpMap, uniforms);
-                skip_index.insert(bumpMap);
-            }
+			if (-1 != bumpMap) {
+				mapUniform(bumpMap, uniforms);
+				skip_index.insert(bumpMap);
+			}
 
-            if (-1 != environmentMap) {
-                mapUniform(environmentMap, uniforms);
-                skip_index.insert(environmentMap);
-            }
-        }
-    }
+			if (-1 != environmentMap) {
+				mapUniform(environmentMap, uniforms);
+				skip_index.insert(environmentMap);
+			}
+		}
+	}
 
-    //........................................................................................
+	//........................................................................................
 
-    for (S32 i = 0; i < activeCount; i++)
-    {
-        //........................................................................................
-        if (skip_index.end() != skip_index.find(i)) continue;
-        //........................................................................................
+	for (S32 i = 0; i < activeCount; i++)
+	{
+		//........................................................................................
+		if (skip_index.end() != skip_index.find(i)) continue;
+		//........................................................................................
 
-        mapUniform(i, uniforms);
-    }
-    //........................................................................................................................................
+		mapUniform(i, uniforms);
+	}
+	//........................................................................................................................................
 
-    unbind();
+	unbind();
 
-    LL_DEBUGS("ShaderUniform") << "Total Uniform Size: " << mTotalUniformSize << LL_ENDL;
-    return res;
+	LL_DEBUGS("ShaderUniform") << "Total Uniform Size: " << mTotalUniformSize << LL_ENDL;
+	return res;
 }
 
 
@@ -1286,19 +1286,19 @@ void LLGLSLShader::uniformMatrix3fv(U32 index, U32 count, GLboolean transpose, c
 
 void LLGLSLShader::uniformMatrix3x4fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v)
 {
-    if (mProgramObject)
-    {   
-        if (mUniform.size() <= index)
-        {
-            LL_SHADER_UNIFORM_ERRS() << "Uniform index out of bounds." << LL_ENDL;
-            return;
-        }
+	if (mProgramObject)
+	{	
+		if (mUniform.size() <= index)
+		{
+			LL_SHADER_UNIFORM_ERRS() << "Uniform index out of bounds." << LL_ENDL;
+			return;
+		}
 
-        if (mUniform[index] >= 0)
-        {
-            glUniformMatrix3x4fv(mUniform[index], count, transpose, v);
-        }
-    }
+		if (mUniform[index] >= 0)
+		{
+			glUniformMatrix3x4fv(mUniform[index], count, transpose, v);
+		}
+	}
 }
 
 void LLGLSLShader::uniformMatrix4fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v)

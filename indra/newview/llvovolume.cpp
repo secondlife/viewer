@@ -94,7 +94,7 @@ BOOL gAnimateTextures = TRUE;
 //extern BOOL gHideSelectedObjects;
 
 F32 LLVOVolume::sLODFactor = 1.f;
-F32 LLVOVolume::sLODSlopDistanceFactor = 0.5f; //Changing this to zero, effectively disables the LOD transition slop 
+F32	LLVOVolume::sLODSlopDistanceFactor = 0.5f; //Changing this to zero, effectively disables the LOD transition slop 
 F32 LLVOVolume::sDistanceFactor = 1.0f;
 S32 LLVOVolume::sNumLODChanges = 0;
 S32 LLVOVolume::mRenderComplexity_last = 0;
@@ -112,200 +112,200 @@ extern BOOL gGLDebugLoggingEnabled;
 class LLMediaDataClientObjectImpl : public LLMediaDataClientObject
 {
 public:
-    LLMediaDataClientObjectImpl(LLVOVolume *obj, bool isNew) : mObject(obj), mNew(isNew) 
-    {
-        mObject->addMDCImpl();
-    }
-    ~LLMediaDataClientObjectImpl()
-    {
-        mObject->removeMDCImpl();
-    }
-    
-    virtual U8 getMediaDataCount() const 
-        { return mObject->getNumTEs(); }
+	LLMediaDataClientObjectImpl(LLVOVolume *obj, bool isNew) : mObject(obj), mNew(isNew) 
+	{
+		mObject->addMDCImpl();
+	}
+	~LLMediaDataClientObjectImpl()
+	{
+		mObject->removeMDCImpl();
+	}
+	
+	virtual U8 getMediaDataCount() const 
+		{ return mObject->getNumTEs(); }
 
-    virtual LLSD getMediaDataLLSD(U8 index) const 
-        {
-            LLSD result;
-            LLTextureEntry *te = mObject->getTE(index); 
-            if (NULL != te)
-            {
-                llassert((te->getMediaData() != NULL) == te->hasMedia());
-                if (te->getMediaData() != NULL)
-                {
-                    result = te->getMediaData()->asLLSD();
-                    // XXX HACK: workaround bug in asLLSD() where whitelist is not set properly
-                    // See DEV-41949
-                    if (!result.has(LLMediaEntry::WHITELIST_KEY))
-                    {
-                        result[LLMediaEntry::WHITELIST_KEY] = LLSD::emptyArray();
-                    }
-                }
-            }
-            return result;
-        }
-    virtual bool isCurrentMediaUrl(U8 index, const std::string &url) const
-        {
-            LLTextureEntry *te = mObject->getTE(index); 
-            if (te)
-            {
-                if (te->getMediaData())
-                {
-                    return (te->getMediaData()->getCurrentURL() == url);
-                }
-            }
-            return url.empty();
-        }
+	virtual LLSD getMediaDataLLSD(U8 index) const 
+		{
+			LLSD result;
+			LLTextureEntry *te = mObject->getTE(index); 
+			if (NULL != te)
+			{
+				llassert((te->getMediaData() != NULL) == te->hasMedia());
+				if (te->getMediaData() != NULL)
+				{
+					result = te->getMediaData()->asLLSD();
+					// XXX HACK: workaround bug in asLLSD() where whitelist is not set properly
+					// See DEV-41949
+					if (!result.has(LLMediaEntry::WHITELIST_KEY))
+					{
+						result[LLMediaEntry::WHITELIST_KEY] = LLSD::emptyArray();
+					}
+				}
+			}
+			return result;
+		}
+	virtual bool isCurrentMediaUrl(U8 index, const std::string &url) const
+		{
+			LLTextureEntry *te = mObject->getTE(index); 
+			if (te)
+			{
+				if (te->getMediaData())
+				{
+					return (te->getMediaData()->getCurrentURL() == url);
+				}
+			}
+			return url.empty();
+		}
 
-    virtual LLUUID getID() const
-        { return mObject->getID(); }
+	virtual LLUUID getID() const
+		{ return mObject->getID(); }
 
-    virtual void mediaNavigateBounceBack(U8 index)
-        { mObject->mediaNavigateBounceBack(index); }
-    
-    virtual bool hasMedia() const
-        { return mObject->hasMedia(); }
-    
-    virtual void updateObjectMediaData(LLSD const &data, const std::string &version_string) 
-        { mObject->updateObjectMediaData(data, version_string); }
-    
-    virtual F64 getMediaInterest() const 
-        { 
-            F64 interest = mObject->getTotalMediaInterest();
-            if (interest < (F64)0.0)
-            {
-                // media interest not valid yet, try pixel area
-                interest = mObject->getPixelArea();
-                // HACK: force recalculation of pixel area if interest is the "magic default" of 1024.
-                if (interest == 1024.f)
-                {
-                    const_cast<LLVOVolume*>(static_cast<LLVOVolume*>(mObject))->setPixelAreaAndAngle(gAgent);
-                    interest = mObject->getPixelArea();
-                }
-            }
-            return interest; 
-        }
-    
-    virtual bool isInterestingEnough() const
-        {
-            return LLViewerMedia::isInterestingEnough(mObject, getMediaInterest());
-        }
+	virtual void mediaNavigateBounceBack(U8 index)
+		{ mObject->mediaNavigateBounceBack(index); }
+	
+	virtual bool hasMedia() const
+		{ return mObject->hasMedia(); }
+	
+	virtual void updateObjectMediaData(LLSD const &data, const std::string &version_string) 
+		{ mObject->updateObjectMediaData(data, version_string); }
+	
+	virtual F64 getMediaInterest() const 
+		{ 
+			F64 interest = mObject->getTotalMediaInterest();
+			if (interest < (F64)0.0)
+			{
+				// media interest not valid yet, try pixel area
+				interest = mObject->getPixelArea();
+				// HACK: force recalculation of pixel area if interest is the "magic default" of 1024.
+				if (interest == 1024.f)
+				{
+					const_cast<LLVOVolume*>(static_cast<LLVOVolume*>(mObject))->setPixelAreaAndAngle(gAgent);
+					interest = mObject->getPixelArea();
+				}
+			}
+			return interest; 
+		}
+	
+	virtual bool isInterestingEnough() const
+		{
+			return LLViewerMedia::isInterestingEnough(mObject, getMediaInterest());
+		}
 
-    virtual std::string getCapabilityUrl(const std::string &name) const
-        { return mObject->getRegion()->getCapability(name); }
-    
-    virtual bool isDead() const
-        { return mObject->isDead(); }
-    
-    virtual U32 getMediaVersion() const
-        { return LLTextureEntry::getVersionFromMediaVersionString(mObject->getMediaURL()); }
-    
-    virtual bool isNew() const
-        { return mNew; }
+	virtual std::string getCapabilityUrl(const std::string &name) const
+		{ return mObject->getRegion()->getCapability(name); }
+	
+	virtual bool isDead() const
+		{ return mObject->isDead(); }
+	
+	virtual U32 getMediaVersion() const
+		{ return LLTextureEntry::getVersionFromMediaVersionString(mObject->getMediaURL()); }
+	
+	virtual bool isNew() const
+		{ return mNew; }
 
 private:
-    LLPointer<LLVOVolume> mObject;
-    bool mNew;
+	LLPointer<LLVOVolume> mObject;
+	bool mNew;
 };
 
 
 LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
-    : LLViewerObject(id, pcode, regionp),
-      mVolumeImpl(NULL)
+	: LLViewerObject(id, pcode, regionp),
+	  mVolumeImpl(NULL)
 {
-    mTexAnimMode = 0;
-    mRelativeXform.setIdentity();
-    mRelativeXformInvTrans.setIdentity();
+	mTexAnimMode = 0;
+	mRelativeXform.setIdentity();
+	mRelativeXformInvTrans.setIdentity();
 
-    mFaceMappingChanged = FALSE;
-    mLOD = MIN_LOD;
+	mFaceMappingChanged = FALSE;
+	mLOD = MIN_LOD;
     mLODDistance = 0.0f;
     mLODAdjustedDistance = 0.0f;
     mLODRadius = 0.0f;
-    mTextureAnimp = NULL;
-    mVolumeChanged = FALSE;
-    mVObjRadius = LLVector3(1,1,0.5f).length();
-    mNumFaces = 0;
-    mLODChanged = FALSE;
-    mSculptChanged = FALSE;
-    mSpotLightPriority = 0.f;
+	mTextureAnimp = NULL;
+	mVolumeChanged = FALSE;
+	mVObjRadius = LLVector3(1,1,0.5f).length();
+	mNumFaces = 0;
+	mLODChanged = FALSE;
+	mSculptChanged = FALSE;
+	mSpotLightPriority = 0.f;
 
-    mMediaImplList.resize(getNumTEs());
-    mLastFetchedMediaVersion = -1;
-    memset(&mIndexInTex, 0, sizeof(S32) * LLRender::NUM_VOLUME_TEXTURE_CHANNELS);
-    mMDCImplCount = 0;
+	mMediaImplList.resize(getNumTEs());
+	mLastFetchedMediaVersion = -1;
+	memset(&mIndexInTex, 0, sizeof(S32) * LLRender::NUM_VOLUME_TEXTURE_CHANNELS);
+	mMDCImplCount = 0;
     mLastRiggingInfoLOD = -1;
 }
 
 LLVOVolume::~LLVOVolume()
 {
-    delete mTextureAnimp;
-    mTextureAnimp = NULL;
-    delete mVolumeImpl;
-    mVolumeImpl = NULL;
+	delete mTextureAnimp;
+	mTextureAnimp = NULL;
+	delete mVolumeImpl;
+	mVolumeImpl = NULL;
 
-    if(!mMediaImplList.empty())
-    {
-        for(U32 i = 0 ; i < mMediaImplList.size() ; i++)
-        {
-            if(mMediaImplList[i].notNull())
-            {
-                mMediaImplList[i]->removeObject(this) ;
-            }
-        }
-    }
+	if(!mMediaImplList.empty())
+	{
+		for(U32 i = 0 ; i < mMediaImplList.size() ; i++)
+		{
+			if(mMediaImplList[i].notNull())
+			{
+				mMediaImplList[i]->removeObject(this) ;
+			}
+		}
+	}
 }
 
 void LLVOVolume::markDead()
 {
-    if (!mDead)
-    {
-        LLSculptIDSize::instance().rem(getVolume()->getParams().getSculptID());
+	if (!mDead)
+	{
+		LLSculptIDSize::instance().rem(getVolume()->getParams().getSculptID());
 
-        if(getMDCImplCount() > 0)
-        {
-            LLMediaDataClientObject::ptr_t obj = new LLMediaDataClientObjectImpl(const_cast<LLVOVolume*>(this), false);
-            if (sObjectMediaClient) sObjectMediaClient->removeFromQueue(obj);
-            if (sObjectMediaNavigateClient) sObjectMediaNavigateClient->removeFromQueue(obj);
-        }
-        
-        // Detach all media impls from this object
-        for(U32 i = 0 ; i < mMediaImplList.size() ; i++)
-        {
-            removeMediaImpl(i);
-        }
+		if(getMDCImplCount() > 0)
+		{
+			LLMediaDataClientObject::ptr_t obj = new LLMediaDataClientObjectImpl(const_cast<LLVOVolume*>(this), false);
+			if (sObjectMediaClient) sObjectMediaClient->removeFromQueue(obj);
+			if (sObjectMediaNavigateClient) sObjectMediaNavigateClient->removeFromQueue(obj);
+		}
+		
+		// Detach all media impls from this object
+		for(U32 i = 0 ; i < mMediaImplList.size() ; i++)
+		{
+			removeMediaImpl(i);
+		}
 
-        if (mSculptTexture.notNull())
-        {
-            mSculptTexture->removeVolume(LLRender::SCULPT_TEX, this);
-        }
+		if (mSculptTexture.notNull())
+		{
+			mSculptTexture->removeVolume(LLRender::SCULPT_TEX, this);
+		}
 
-        if (mLightTexture.notNull())
-        {
-            mLightTexture->removeVolume(LLRender::LIGHT_TEX, this);
-        }
-    }
-    
-    LLViewerObject::markDead();
+		if (mLightTexture.notNull())
+		{
+			mLightTexture->removeVolume(LLRender::LIGHT_TEX, this);
+		}
+	}
+	
+	LLViewerObject::markDead();
 }
 
 
 // static
 void LLVOVolume::initClass()
 {
-    // gSavedSettings better be around
-    if (gSavedSettings.getBOOL("PrimMediaMasterEnabled"))
-    {
-        const F32 queue_timer_delay = gSavedSettings.getF32("PrimMediaRequestQueueDelay");
-        const F32 retry_timer_delay = gSavedSettings.getF32("PrimMediaRetryTimerDelay");
-        const U32 max_retries = gSavedSettings.getU32("PrimMediaMaxRetries");
-        const U32 max_sorted_queue_size = gSavedSettings.getU32("PrimMediaMaxSortedQueueSize");
-        const U32 max_round_robin_queue_size = gSavedSettings.getU32("PrimMediaMaxRoundRobinQueueSize");
-        sObjectMediaClient = new LLObjectMediaDataClient(queue_timer_delay, retry_timer_delay, max_retries, 
-                                                         max_sorted_queue_size, max_round_robin_queue_size);
-        sObjectMediaNavigateClient = new LLObjectMediaNavigateClient(queue_timer_delay, retry_timer_delay, 
-                                                                     max_retries, max_sorted_queue_size, max_round_robin_queue_size);
-    }
+	// gSavedSettings better be around
+	if (gSavedSettings.getBOOL("PrimMediaMasterEnabled"))
+	{
+		const F32 queue_timer_delay = gSavedSettings.getF32("PrimMediaRequestQueueDelay");
+		const F32 retry_timer_delay = gSavedSettings.getF32("PrimMediaRetryTimerDelay");
+		const U32 max_retries = gSavedSettings.getU32("PrimMediaMaxRetries");
+		const U32 max_sorted_queue_size = gSavedSettings.getU32("PrimMediaMaxSortedQueueSize");
+		const U32 max_round_robin_queue_size = gSavedSettings.getU32("PrimMediaMaxRoundRobinQueueSize");
+		sObjectMediaClient = new LLObjectMediaDataClient(queue_timer_delay, retry_timer_delay, max_retries, 
+														 max_sorted_queue_size, max_round_robin_queue_size);
+		sObjectMediaNavigateClient = new LLObjectMediaNavigateClient(queue_timer_delay, retry_timer_delay, 
+																	 max_retries, max_sorted_queue_size, max_round_robin_queue_size);
+	}
 }
 
 // static
@@ -316,201 +316,201 @@ void LLVOVolume::cleanupClass()
 }
 
 U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
-                                          void **user_data,
-                                          U32 block_num, EObjectUpdateType update_type,
-                                          LLDataPacker *dp)
+										  void **user_data,
+										  U32 block_num, EObjectUpdateType update_type,
+										  LLDataPacker *dp)
 {
-        
-    LLColor4U color;
-    const S32 teDirtyBits = (TEM_CHANGE_TEXTURE|TEM_CHANGE_COLOR|TEM_CHANGE_MEDIA);
+	 	
+	LLColor4U color;
+	const S32 teDirtyBits = (TEM_CHANGE_TEXTURE|TEM_CHANGE_COLOR|TEM_CHANGE_MEDIA);
 
-    // Do base class updates...
-    U32 retval = LLViewerObject::processUpdateMessage(mesgsys, user_data, block_num, update_type, dp);
+	// Do base class updates...
+	U32 retval = LLViewerObject::processUpdateMessage(mesgsys, user_data, block_num, update_type, dp);
 
-    LLUUID sculpt_id;
-    U8 sculpt_type = 0;
-    if (isSculpted())
-    {
-        LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-        sculpt_id = sculpt_params->getSculptTexture();
-        sculpt_type = sculpt_params->getSculptType();
+	LLUUID sculpt_id;
+	U8 sculpt_type = 0;
+	if (isSculpted())
+	{
+		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+		sculpt_id = sculpt_params->getSculptTexture();
+		sculpt_type = sculpt_params->getSculptType();
 
         LL_DEBUGS("ObjectUpdate") << "uuid " << mID << " set sculpt_id " << sculpt_id << LL_ENDL;
         dumpStack("ObjectUpdateStack");
-    }
+	}
 
-    if (!dp)
-    {
-        if (update_type == OUT_FULL)
-        {
-            ////////////////////////////////
-            //
-            // Unpack texture animation data
-            //
-            //
+	if (!dp)
+	{
+		if (update_type == OUT_FULL)
+		{
+			////////////////////////////////
+			//
+			// Unpack texture animation data
+			//
+			//
 
-            if (mesgsys->getSizeFast(_PREHASH_ObjectData, block_num, _PREHASH_TextureAnim))
-            {
-                if (!mTextureAnimp)
-                {
-                    mTextureAnimp = new LLViewerTextureAnim(this);
-                }
-                else
-                {
-                    if (!(mTextureAnimp->mMode & LLTextureAnim::SMOOTH))
-                    {
-                        mTextureAnimp->reset();
-                    }
-                }
-                mTexAnimMode = 0;
-                
-                mTextureAnimp->unpackTAMessage(mesgsys, block_num);
-            }
-            else
-            {
-                if (mTextureAnimp)
-                {
-                    delete mTextureAnimp;
-                    mTextureAnimp = NULL;
-                    gPipeline.markTextured(mDrawable);
-                    mFaceMappingChanged = TRUE;
-                    mTexAnimMode = 0;
-                }
-            }
+			if (mesgsys->getSizeFast(_PREHASH_ObjectData, block_num, _PREHASH_TextureAnim))
+			{
+				if (!mTextureAnimp)
+				{
+					mTextureAnimp = new LLViewerTextureAnim(this);
+				}
+				else
+				{
+					if (!(mTextureAnimp->mMode & LLTextureAnim::SMOOTH))
+					{
+						mTextureAnimp->reset();
+					}
+				}
+				mTexAnimMode = 0;
+				
+				mTextureAnimp->unpackTAMessage(mesgsys, block_num);
+			}
+			else
+			{
+				if (mTextureAnimp)
+				{
+					delete mTextureAnimp;
+					mTextureAnimp = NULL;
+					gPipeline.markTextured(mDrawable);
+					mFaceMappingChanged = TRUE;
+					mTexAnimMode = 0;
+				}
+			}
 
-            // Unpack volume data
-            LLVolumeParams volume_params;
-            LLVolumeMessage::unpackVolumeParams(&volume_params, mesgsys, _PREHASH_ObjectData, block_num);
-            volume_params.setSculptID(sculpt_id, sculpt_type);
+			// Unpack volume data
+			LLVolumeParams volume_params;
+			LLVolumeMessage::unpackVolumeParams(&volume_params, mesgsys, _PREHASH_ObjectData, block_num);
+			volume_params.setSculptID(sculpt_id, sculpt_type);
 
-            if (setVolume(volume_params, 0))
-            {
-                markForUpdate(TRUE);
-            }
-        }
+			if (setVolume(volume_params, 0))
+			{
+				markForUpdate(TRUE);
+			}
+		}
 
-        // Sigh, this needs to be done AFTER the volume is set as well, otherwise bad stuff happens...
-        ////////////////////////////
-        //
-        // Unpack texture entry data
-        //
+		// Sigh, this needs to be done AFTER the volume is set as well, otherwise bad stuff happens...
+		////////////////////////////
+		//
+		// Unpack texture entry data
+		//
 
-        S32 result = unpackTEMessage(mesgsys, _PREHASH_ObjectData, (S32) block_num);
-        if (result & teDirtyBits)
-        {
-            updateTEData();
-        }
-        if (result & TEM_CHANGE_MEDIA)
-        {
-            retval |= MEDIA_FLAGS_CHANGED;
-        }
-    }
-    else
-    {
-        if (update_type != OUT_TERSE_IMPROVED)
-        {
-            LLVolumeParams volume_params;
-            BOOL res = LLVolumeMessage::unpackVolumeParams(&volume_params, *dp);
-            if (!res)
-            {
-                LL_WARNS() << "Bogus volume parameters in object " << getID() << LL_ENDL;
-                LL_WARNS() << getRegion()->getOriginGlobal() << LL_ENDL;
-            }
+		S32 result = unpackTEMessage(mesgsys, _PREHASH_ObjectData, (S32) block_num);
+		if (result & teDirtyBits)
+		{
+			updateTEData();
+		}
+		if (result & TEM_CHANGE_MEDIA)
+		{
+			retval |= MEDIA_FLAGS_CHANGED;
+		}
+	}
+	else
+	{
+		if (update_type != OUT_TERSE_IMPROVED)
+		{
+			LLVolumeParams volume_params;
+			BOOL res = LLVolumeMessage::unpackVolumeParams(&volume_params, *dp);
+			if (!res)
+			{
+				LL_WARNS() << "Bogus volume parameters in object " << getID() << LL_ENDL;
+				LL_WARNS() << getRegion()->getOriginGlobal() << LL_ENDL;
+			}
 
-            volume_params.setSculptID(sculpt_id, sculpt_type);
+			volume_params.setSculptID(sculpt_id, sculpt_type);
 
-            if (setVolume(volume_params, 0))
-            {
-                markForUpdate(TRUE);
-            }
-            S32 res2 = unpackTEMessage(*dp);
-            if (TEM_INVALID == res2)
-            {
-                // There's something bogus in the data that we're unpacking.
-                dp->dumpBufferToLog();
-                LL_WARNS() << "Flushing cache files" << LL_ENDL;
+			if (setVolume(volume_params, 0))
+			{
+				markForUpdate(TRUE);
+			}
+			S32 res2 = unpackTEMessage(*dp);
+			if (TEM_INVALID == res2)
+			{
+				// There's something bogus in the data that we're unpacking.
+				dp->dumpBufferToLog();
+				LL_WARNS() << "Flushing cache files" << LL_ENDL;
 
-                if(LLVOCache::instanceExists() && getRegion())
-                {
-                    LLVOCache::getInstance()->removeEntry(getRegion()->getHandle()) ;
-                }
-                
-                LL_WARNS() << "Bogus TE data in " << getID() << LL_ENDL;
-            }
-            else 
-            {
-                if (res2 & teDirtyBits) 
-                {
-                    updateTEData();
-                }
-                if (res2 & TEM_CHANGE_MEDIA)
-                {
-                    retval |= MEDIA_FLAGS_CHANGED;
-                }
-            }
+				if(LLVOCache::instanceExists() && getRegion())
+				{
+					LLVOCache::getInstance()->removeEntry(getRegion()->getHandle()) ;
+				}
+				
+				LL_WARNS() << "Bogus TE data in " << getID() << LL_ENDL;
+			}
+			else 
+			{
+				if (res2 & teDirtyBits) 
+				{
+					updateTEData();
+				}
+				if (res2 & TEM_CHANGE_MEDIA)
+				{
+					retval |= MEDIA_FLAGS_CHANGED;
+				}
+			}
 
-            U32 value = dp->getPassFlags();
+			U32 value = dp->getPassFlags();
 
-            if (value & 0x40)
-            {
-                if (!mTextureAnimp)
-                {
-                    mTextureAnimp = new LLViewerTextureAnim(this);
-                }
-                else
-                {
-                    if (!(mTextureAnimp->mMode & LLTextureAnim::SMOOTH))
-                    {
-                        mTextureAnimp->reset();
-                    }
-                }
-                mTexAnimMode = 0;
-                mTextureAnimp->unpackTAMessage(*dp);
-            }
-            else if (mTextureAnimp)
-            {
-                delete mTextureAnimp;
-                mTextureAnimp = NULL;
-                gPipeline.markTextured(mDrawable);
-                mFaceMappingChanged = TRUE;
-                mTexAnimMode = 0;
-            }
+			if (value & 0x40)
+			{
+				if (!mTextureAnimp)
+				{
+					mTextureAnimp = new LLViewerTextureAnim(this);
+				}
+				else
+				{
+					if (!(mTextureAnimp->mMode & LLTextureAnim::SMOOTH))
+					{
+						mTextureAnimp->reset();
+					}
+				}
+				mTexAnimMode = 0;
+				mTextureAnimp->unpackTAMessage(*dp);
+			}
+			else if (mTextureAnimp)
+			{
+				delete mTextureAnimp;
+				mTextureAnimp = NULL;
+				gPipeline.markTextured(mDrawable);
+				mFaceMappingChanged = TRUE;
+				mTexAnimMode = 0;
+			}
 
-            if (value & 0x400)
-            { //particle system (new)
-                unpackParticleSource(*dp, mOwnerID, false);
-            }
-        }
-        else
-        {
-            S32 texture_length = mesgsys->getSizeFast(_PREHASH_ObjectData, block_num, _PREHASH_TextureEntry);
-            if (texture_length)
-            {
-                U8                          tdpbuffer[1024];
-                LLDataPackerBinaryBuffer    tdp(tdpbuffer, 1024);
-                mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_TextureEntry, tdpbuffer, 0, block_num, 1024);
-                S32 result = unpackTEMessage(tdp);
-                if (result & teDirtyBits)
-                {
-                    updateTEData();
-                }
-                if (result & TEM_CHANGE_MEDIA)
-                {
-                    retval |= MEDIA_FLAGS_CHANGED;
-                }
-            }
-        }
-    }
-    if (retval & (MEDIA_URL_REMOVED | MEDIA_URL_ADDED | MEDIA_URL_UPDATED | MEDIA_FLAGS_CHANGED)) 
-    {
-        // If only the media URL changed, and it isn't a media version URL,
-        // ignore it
-        if ( ! ( retval & (MEDIA_URL_ADDED | MEDIA_URL_UPDATED) &&
-                 mMedia && ! mMedia->mMediaURL.empty() &&
-                 ! LLTextureEntry::isMediaVersionString(mMedia->mMediaURL) ) )
-        {
-            // If the media changed at all, request new media data
-            LL_DEBUGS("MediaOnAPrim") << "Media update: " << getID() << ": retval=" << retval << " Media URL: " <<
+			if (value & 0x400)
+			{ //particle system (new)
+				unpackParticleSource(*dp, mOwnerID, false);
+			}
+		}
+		else
+		{
+			S32 texture_length = mesgsys->getSizeFast(_PREHASH_ObjectData, block_num, _PREHASH_TextureEntry);
+			if (texture_length)
+			{
+				U8							tdpbuffer[1024];
+				LLDataPackerBinaryBuffer	tdp(tdpbuffer, 1024);
+				mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_TextureEntry, tdpbuffer, 0, block_num, 1024);
+				S32 result = unpackTEMessage(tdp);
+				if (result & teDirtyBits)
+				{
+					updateTEData();
+				}
+				if (result & TEM_CHANGE_MEDIA)
+				{
+					retval |= MEDIA_FLAGS_CHANGED;
+				}
+			}
+		}
+	}
+	if (retval & (MEDIA_URL_REMOVED | MEDIA_URL_ADDED | MEDIA_URL_UPDATED | MEDIA_FLAGS_CHANGED)) 
+	{
+		// If only the media URL changed, and it isn't a media version URL,
+		// ignore it
+		if ( ! ( retval & (MEDIA_URL_ADDED | MEDIA_URL_UPDATED) &&
+				 mMedia && ! mMedia->mMediaURL.empty() &&
+				 ! LLTextureEntry::isMediaVersionString(mMedia->mMediaURL) ) )
+		{
+			// If the media changed at all, request new media data
+			LL_DEBUGS("MediaOnAPrim") << "Media update: " << getID() << ": retval=" << retval << " Media URL: " <<
                 ((mMedia) ?  mMedia->mMediaURL : std::string("")) << LL_ENDL;
             requestMediaDataUpdate(retval & MEDIA_FLAGS_CHANGED);
         }
