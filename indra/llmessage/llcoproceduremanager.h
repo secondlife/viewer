@@ -57,7 +57,7 @@ public:
     /// Cancel a coprocedure. If the coprocedure is already being actively executed 
     /// this method calls cancelYieldingOperation() on the associated HttpAdapter
     /// If it has not yet been dequeued it is simply removed from the queue.
-    void cancelCoprocedure(const LLUUID &id);
+    //void cancelCoprocedure(const LLUUID &id);
 
 /*==========================================================================*|
     /// Requests a shutdown of the upload manager. Passing 'true' will perform 
@@ -82,6 +82,8 @@ public:
     size_t count() const;
     size_t count(const std::string &pool) const;
 
+    void close(const std::string &pool);
+    
 private:
 
     typedef boost::shared_ptr<LLCoprocedurePool> poolPtr_t;
