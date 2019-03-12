@@ -401,11 +401,6 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
     // work-around missing mix(vec3,vec3,bvec3)
     mDefines["OLD_SELECT"] = "1";
 #endif
-    
-    if (mExtraLinkObject)
-    {
-        attachObject(mExtraLinkObject);
-    }
 
     //compile new source
     vector< pair<string,GLenum> >::iterator fileIter = mShaderFiles.begin();
