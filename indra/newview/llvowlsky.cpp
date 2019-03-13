@@ -99,7 +99,7 @@ LLDrawable * LLVOWLSky::createDrawable(LLPipeline * pipeline)
 
 inline F32 LLVOWLSky::calcPhi(U32 i)
 {
-    // i should range from [0..SKY_STACKS] so t will range from [0.f .. 1.f]
+	// i should range from [0..SKY_STACKS] so t will range from [0.f .. 1.f]
 	F32 t = float(i) / float(getNumStacks());
 
 	// ^4 the parameter of the tesselation to bias things toward 0 (the dome's apex)

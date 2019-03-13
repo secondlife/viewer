@@ -229,4 +229,5 @@ extern LLGLSLShader			gSolidColorProgram;
 //Alpha mask shader (declared here so llappearance can access properly)
 extern LLGLSLShader			gAlphaMaskProgram;
 
+
 #endif

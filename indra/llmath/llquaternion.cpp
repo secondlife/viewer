@@ -103,6 +103,7 @@ LLQuaternion::LLQuaternion(const LLVector3 &x_axis,
 	*this = mat.quaternion();
 	normalize();
 }
+
 LLQuaternion::LLQuaternion(const LLSD &sd)
 {
     setValue(sd);

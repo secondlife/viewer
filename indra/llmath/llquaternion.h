@@ -191,7 +191,6 @@ inline void LLQuaternion::setValue(const LLSD& sd)
     mQ[3] = sd[3].asReal();
 }
 
-
 // checker
 inline BOOL	LLQuaternion::isFinite() const
 {

@@ -1193,12 +1193,12 @@ void LLViewerFetchedTexture::loadFromFastCache()
 	{
 		return; //no need to access the fast cache.
 	}
-    mInFastCacheList = FALSE;
+	mInFastCacheList = FALSE;
 
 	mRawImage = LLAppViewer::getTextureCache()->readFromFastCache(getID(), mRawDiscardLevel);
 	if(mRawImage.notNull())
 	{
-		mFullWidth  = mRawImage->getWidth()  << mRawDiscardLevel;
+		mFullWidth = mRawImage->getWidth() << mRawDiscardLevel;
 		mFullHeight = mRawImage->getHeight() << mRawDiscardLevel;
 		setTexelsPerImage();
 
@@ -1213,20 +1213,20 @@ void LLViewerFetchedTexture::loadFromFastCache()
 		else
 		{
             if (mBoostLevel == LLGLTexture::BOOST_ICON)
-        {
-            S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENTIONS;
-            S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENTIONS;
-            if (mRawImage && (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height))
             {
-                // scale oversized icon, no need to give more work to gl
-                mRawImage->scale(expected_width, expected_height);
-            }
+                S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENTIONS;
+                S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENTIONS;
+                if (mRawImage && (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height))
+                {
+                    // scale oversized icon, no need to give more work to gl
+                    mRawImage->scale(expected_width, expected_height);
+                }
             }
 
-		mRequestedDiscardLevel = mDesiredDiscardLevel + 1;
-		mIsRawImageValid = TRUE;			
-		addToCreateTexture();
-	}
+			mRequestedDiscardLevel = mDesiredDiscardLevel + 1;
+			mIsRawImageValid = TRUE;			
+			addToCreateTexture();
+		}
 	}
 }
 
@@ -1989,7 +1989,7 @@ bool LLViewerFetchedTexture::updateFetch()
 				mIsFetched = TRUE;
 				tester->updateTextureLoadingStats(this, mRawImage, LLAppViewer::getTextureFetch()->isFromLocalCache(mID));
 			}
-            mRawDiscardLevel = fetch_discard;
+			mRawDiscardLevel = fetch_discard;
 			if ((mRawImage->getDataSize() > 0 && mRawDiscardLevel >= 0) &&
 				(current_discard < 0 || mRawDiscardLevel < current_discard))
 			{

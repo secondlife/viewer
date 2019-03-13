@@ -493,7 +493,7 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	}
 	LLVOAvatar *avatarp = (LLVOAvatar *)facep->getDrawable()->getVObj().get();
 
-	if (avatarp->isDead() || avatarp->mIsDummy || avatarp->mDrawable.isNull())
+	if (avatarp->isDead() || avatarp->isUIAvatar() || avatarp->mDrawable.isNull())
 	{
 		return;
 	}
@@ -1820,7 +1820,7 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
 
 void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 {
-	if (avatar->isSelf() && !gAgent.needsRenderAvatar())
+	if (!avatar->shouldRenderRigged())
 	{
 		return;
 	}
@@ -2208,7 +2208,6 @@ void LLDrawPoolAvatar::addRiggedFace(LLFace* facep, U32 type)
 	{
 		LL_ERRS() << "Invalid rigged face type." << LL_ENDL;
 	}
-
 	if (facep->getRiggedIndex(type) != -1)
 	{
 		LL_ERRS() << "Tried to add a rigged face that's referenced elsewhere." << LL_ENDL;

@@ -2345,7 +2345,7 @@ bool LLVOVolume::notifyAboutMissingAsset(LLViewerTexture *texture)
 
 		switch(range_it->second.map)
 		{
-		    case LLRender::DIFFUSE_MAP:
+		case LLRender::DIFFUSE_MAP:
 			{
 				if(LLMaterial::DIFFUSE_ALPHA_MODE_NONE != cur_material->getDiffuseAlphaMode())
 				{ //missing texture + !LLMaterial::DIFFUSE_ALPHA_MODE_NONE => LLMaterial::DIFFUSE_ALPHA_MODE_NONE

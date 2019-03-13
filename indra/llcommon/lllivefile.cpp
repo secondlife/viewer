@@ -150,7 +150,6 @@ bool LLLiveFile::checkAndReload()
 		}
 		else
 		{
-            LL_WARNS() << "Failed to load live file " << filename() << LL_ENDL;
 			changed = false;
 		}
 	}

@@ -34,14 +34,12 @@ class LLGLSLShader;
 class LLDrawPoolWLSky : public LLDrawPool {
 public:
 
-	static const U32 SKY_VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX
-                                          | LLVertexBuffer::MAP_TEXCOORD0;
-	static const U32 STAR_VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX
-                                              | LLVertexBuffer::MAP_COLOR
-                                              | LLVertexBuffer::MAP_TEXCOORD0;
+	static const U32 SKY_VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
+							LLVertexBuffer::MAP_TEXCOORD0;
+	static const U32 STAR_VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
+		LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_TEXCOORD0;
     static const U32 ADV_ATMO_SKY_VERTEX_DATA_MASK = LLVertexBuffer::MAP_VERTEX
                                                    | LLVertexBuffer::MAP_TEXCOORD0;
-
 	LLDrawPoolWLSky(void);
 	/*virtual*/ ~LLDrawPoolWLSky();
 
@@ -52,22 +50,10 @@ public:
 	/*virtual*/ void endDeferredPass(S32 pass);
 	/*virtual*/ void renderDeferred(S32 pass);
 
-
-    /*virtual*/ S32 getNumPostDeferredPasses() { return 0; }
-	/*virtual*/ void beginPostDeferredPass(S32 pass) {}
-	/*virtual*/ void endPostDeferredPass(S32 pass)   {}
-	/*virtual*/ void renderPostDeferred(S32 pass)    {}
-
 	/*virtual*/ LLViewerTexture *getDebugTexture();
 	/*virtual*/ void beginRenderPass( S32 pass );
 	/*virtual*/ void endRenderPass( S32 pass );
 	/*virtual*/ S32	 getNumPasses() { return 1; }
-
-    /*virtual*/ S32 getNumShadowPasses();
-	/*virtual*/ void beginShadowPass(S32 pass);
-	/*virtual*/ void endShadowPass(S32 pass);
-	/*virtual*/ void renderShadow(S32 pass);
-
 	/*virtual*/ void render(S32 pass = 0);
 	/*virtual*/ void prerender();
 	/*virtual*/ U32 getVertexDataMask() { return SKY_VERTEX_DATA_MASK; }

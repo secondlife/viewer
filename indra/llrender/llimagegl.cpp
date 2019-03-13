@@ -352,6 +352,7 @@ BOOL LLImageGL::create(LLPointer<LLImageGL>& dest, const LLImageRaw* imageraw, B
 }
 
 //----------------------------------------------------------------------------
+
 LLImageGL::LLImageGL(BOOL usemipmaps)
 :	LLTrace::MemTrackable<LLImageGL>("LLImageGL"),
     mSaveData(0), mExternalTexture(FALSE)

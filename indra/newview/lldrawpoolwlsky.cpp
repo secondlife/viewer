@@ -124,29 +124,6 @@ void LLDrawPoolWLSky::endDeferredPass(S32 pass)
     moon_shader  = nullptr;
 }
 
-S32 LLDrawPoolWLSky::getNumShadowPasses() { return 0; }
-
-void LLDrawPoolWLSky::beginShadowPass(S32 pass)
-{
-    //cloud_shadow_shader = LLPipeline::sRenderDeferred ? &gDeferredWLCloudShadowProgram : &gWLCloudShadowProgram;
-}
-
-void LLDrawPoolWLSky::endShadowPass(S32 pass)
-{
-    cloud_shadow_shader = nullptr;
-}
-
-void LLDrawPoolWLSky::renderShadow(S32 pass)
-{
-    if (cloud_shadow_shader)
-    {
-        const F32 camHeightLocal = LLEnvironment::instance().getCamHeight();
-        LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
-
-        renderSkyClouds(origin, camHeightLocal, cloud_shadow_shader);
-    }
-}
-
 void LLDrawPoolWLSky::renderFsSky(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader * shader) const
 {
     gSky.mVOWLSkyp->drawFsSky();
