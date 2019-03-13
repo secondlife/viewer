@@ -929,22 +929,14 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		}
 
         F32 scale = RenderShadowResolutionScale;
-        U32 sun_shadow_map_width  = BlurHappySize(resX, scale);
-        U32 sun_shadow_map_height = BlurHappySize(resY, scale);
+		U32 sun_shadow_map_width  = BlurHappySize(resX, scale);
+		U32 sun_shadow_map_height = BlurHappySize(resY, scale);
 
-        if (shadow_detail > 0)
+		if (shadow_detail > 0)
         { //allocate 4 sun shadow maps
-            for (U32 i = 0; i < 4; i++)
-            {               
-                if (shadow_detail > 3)
-                {
-                    //allocate VSM sun shadow map(s)
-                    if (!mShadow[i].allocate(sun_shadow_map_width, sun_shadow_map_height, GL_RGBA16F_ARB, TRUE, FALSE, LLTexUnit::TT_TEXTURE))
-                    {
-                        return false;
-                    }
-                }
-                else if (!mShadow[i].allocate(sun_shadow_map_width, sun_shadow_map_height, 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE))
+			for (U32 i = 0; i < 4; i++)
+		{               
+				if (!mShadow[i].allocate(sun_shadow_map_width, sun_shadow_map_height, 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE))
                 {
                     return false;
                 }
@@ -972,11 +964,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
             U32 spot_shadow_map_height = height;
             for (U32 i = 4; i < 6; i++)
             {
-                if ((shadow_detail > 3) && !mShadow[i].allocate(spot_shadow_map_width, spot_shadow_map_height, GL_RGBA16F_ARB, FALSE, FALSE))
-                {
-                    return false;
-                }
-                else if (!mShadow[i].allocate(spot_shadow_map_width, spot_shadow_map_height, 0, TRUE, FALSE))
+                if (!mShadow[i].allocate(spot_shadow_map_width, spot_shadow_map_height, 0, TRUE, FALSE))
                 {
                     return false;
                 }
@@ -1006,25 +994,25 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 
         releaseShadowTargets();
 
-        mFXAABuffer.release();
-        mScreen.release();
-        mDeferredScreen.release(); //make sure to release any render targets that share a depth buffer with mDeferredScreen first
-        mDeferredDepth.release();
-        mOcclusionDepth.release();
-                        
-        if (!mScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;        
-    }
-    
-    if (LLPipeline::sRenderDeferred)
-    { //share depth buffer between deferred targets
-        mDeferredScreen.shareDepthBuffer(mScreen);
-    }
+		mFXAABuffer.release();
+		mScreen.release();
+		mDeferredScreen.release(); //make sure to release any render targets that share a depth buffer with mDeferredScreen first
+		mDeferredDepth.release();
+		mOcclusionDepth.release();
+						
+		if (!mScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;		
+	}
+	
+	if (LLPipeline::sRenderDeferred)
+	{ //share depth buffer between deferred targets
+		mDeferredScreen.shareDepthBuffer(mScreen);
+	}
 
-    gGL.getTexUnit(0)->disable();
+	gGL.getTexUnit(0)->disable();
 
-    stop_glerror();
+	stop_glerror();
 
-    return true;
+	return true;
 }
 
 //static
@@ -4723,6 +4711,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 	}
 
 	gGLLastMatrix = NULL;
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.loadMatrix(gGLModelView);
 
 	if (occlude)
@@ -4731,6 +4720,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 		LLGLSLShader::bindNoShader();
 		doOcclusion(camera);
 		gGLLastMatrix = NULL;
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		gGL.loadMatrix(gGLModelView);
 	}
 }
@@ -5966,15 +5956,6 @@ void LLPipeline::setupAvatarLights(bool for_edit)
 
 		mHWLightColors[1] = diffuse;
 
-        if (LLPipeline::sRenderDeferred)
-        {
-            /*diffuse.mV[0] = powf(diffuse.mV[0], 2.2f);
-            diffuse.mV[1] = powf(diffuse.mV[1], 2.2f);
-            diffuse.mV[2] = powf(diffuse.mV[2], 2.2f);*/
-        }
-
-        mHWLightColors[1] = diffuse;
-
 		light->setDiffuse(diffuse);
 		light->setAmbient(LLColor4::black);
 		light->setSpecular(LLColor4::black);
@@ -5988,64 +5969,57 @@ void LLPipeline::setupAvatarLights(bool for_edit)
     else if (gAvatarBacklight) // Always true (unless overridden in a devs .ini)
 	{
         LLVector3 light_dir = sun_up ? LLVector3(mSunDir) : LLVector3(mMoonDir);
-        LLVector3 opposite_pos = -light_dir;
-        LLVector3 orthog_light_pos = light_dir % LLVector3::z_axis;
-        LLVector4 backlight_pos = LLVector4(lerp(opposite_pos, orthog_light_pos, 0.3f), 0.0f);
-        backlight_pos.normalize();
+		LLVector3 opposite_pos = -light_dir;
+		LLVector3 orthog_light_pos = light_dir % LLVector3::z_axis;
+		LLVector4 backlight_pos = LLVector4(lerp(opposite_pos, orthog_light_pos, 0.3f), 0.0f);
+		backlight_pos.normalize();
 
-        LLColor4 light_diffuse = sun_up ? mSunDiffuse : mMoonDiffuse;
+		LLColor4 light_diffuse = sun_up ? mSunDiffuse : mMoonDiffuse;
 
-        LLColor4 backlight_diffuse(1.f - light_diffuse.mV[VRED], 1.f - light_diffuse.mV[VGREEN], 1.f - light_diffuse.mV[VBLUE], 1.f);
-        F32 max_component = 0.001f;
-        for (S32 i = 0; i < 3; i++)
-        {
-            if (backlight_diffuse.mV[i] > max_component)
-            {
-                max_component = backlight_diffuse.mV[i];
-            }
-        }
-        F32 backlight_mag;
-        if (LLEnvironment::instance().getIsSunUp())
-        {
-            backlight_mag = BACKLIGHT_DAY_MAGNITUDE_OBJECT;
-        }
-        else
-        {
-            backlight_mag = BACKLIGHT_NIGHT_MAGNITUDE_OBJECT;
-        }
-        backlight_diffuse *= backlight_mag / max_component;
+		LLColor4 backlight_diffuse(1.f - light_diffuse.mV[VRED], 1.f - light_diffuse.mV[VGREEN], 1.f - light_diffuse.mV[VBLUE], 1.f);
+		F32 max_component = 0.001f;
+		for (S32 i = 0; i < 3; i++)
+		{
+			if (backlight_diffuse.mV[i] > max_component)
+			{
+				max_component = backlight_diffuse.mV[i];
+			}
+		}
+		F32 backlight_mag;
+		if (LLEnvironment::instance().getIsSunUp())
+		{
+			backlight_mag = BACKLIGHT_DAY_MAGNITUDE_OBJECT;
+		}
+		else
+		{
+			backlight_mag = BACKLIGHT_NIGHT_MAGNITUDE_OBJECT;
+		}
+		backlight_diffuse *= backlight_mag / max_component;
 
-        if (LLPipeline::sRenderDeferred)
-        {
-            /*backlight_diffuse.mV[0] = powf(backlight_diffuse.mV[0], 2.2f);
-            backlight_diffuse.mV[1] = powf(backlight_diffuse.mV[1], 2.2f);
-            backlight_diffuse.mV[2] = powf(backlight_diffuse.mV[2], 2.2f);*/
-        }
+		mHWLightColors[1] = backlight_diffuse;
 
-        mHWLightColors[1] = backlight_diffuse;
+		LLLightState* light = gGL.getLight(1);
 
-        LLLightState* light = gGL.getLight(1);
+		light->setPosition(backlight_pos);
+		light->setDiffuse(backlight_diffuse);
+		light->setAmbient(LLColor4::black);
+		light->setSpecular(LLColor4::black);
+		light->setConstantAttenuation(1.f);
+		light->setLinearAttenuation(0.f);
+		light->setQuadraticAttenuation(0.f);
+		light->setSpotExponent(0.f);
+		light->setSpotCutoff(180.f);
+	}
+	else
+	{
+		LLLightState* light = gGL.getLight(1);
 
-        light->setPosition(backlight_pos);
-        light->setDiffuse(backlight_diffuse);
-        light->setAmbient(LLColor4::black);
-        light->setSpecular(LLColor4::black);
-        light->setConstantAttenuation(1.f);
-        light->setLinearAttenuation(0.f);
-        light->setQuadraticAttenuation(0.f);
-        light->setSpotExponent(0.f);
-        light->setSpotCutoff(180.f);
-    }
-    else
-    {
-        LLLightState* light = gGL.getLight(1);
+		mHWLightColors[1] = LLColor4::black;
 
-        mHWLightColors[1] = LLColor4::black;
-
-        light->setDiffuse(LLColor4::black);
-        light->setAmbient(LLColor4::black);
-        light->setSpecular(LLColor4::black);
-    }
+		light->setDiffuse(LLColor4::black);
+		light->setAmbient(LLColor4::black);
+		light->setSpecular(LLColor4::black);
+	}
 }
 
 static F32 calc_light_dist(LLVOVolume* light, const LLVector3& cam_pos, F32 max_dist)
@@ -6362,9 +6336,9 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 				light_state->setSpotCutoff(90.f);
 				light_state->setSpotExponent(2.f);
 	
-                LLVector3 spotParams = light->getSpotLightParams();
+				LLVector3 spotParams = light->getSpotLightParams();
 
-                const LLColor4 specular(0.f, 0.f, 0.f, spotParams[2]);
+				const LLColor4 specular(0.f, 0.f, 0.f, spotParams[2]);
 				light_state->setSpecular(specular);
 			}
 			else // omnidirectional (point) light
@@ -6374,8 +6348,8 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 				
 				// we use specular.w = 1.0 as a cheap hack for the shaders to know that this is omnidirectional rather than a spotlight
 				const LLColor4 specular(0.f, 0.f, 1.f, 0.f);
-				light_state->setSpecular(specular);
-            }
+				light_state->setSpecular(specular);				
+			}
 			cur_light++;
 			if (cur_light >= 8)
 			{
@@ -8267,27 +8241,29 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
         }
     }
 
-    for (U32 i = 4; i < 6; i++)
-    {
-        channel = shader.enableTexture(LLShaderMgr::DEFERRED_SHADOW0+i);
-        stop_glerror();
-        if (channel > -1)
-        {
-            stop_glerror();
-            LLRenderTarget* shadow_target = getShadowTarget(i);
-            if (shadow_target)
-            {
-                gGL.getTexUnit(channel)->bind(shadow_target, TRUE);
-                gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
-                gGL.getTexUnit(channel)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
-                stop_glerror();
-            
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
-                stop_glerror();
-            }
-        }
-    }
+	for (U32 i = 4; i < 6; i++)
+	{
+		channel = shader.enableTexture(LLShaderMgr::DEFERRED_SHADOW0+i);
+		stop_glerror();
+		if (channel > -1)
+		{
+			stop_glerror();
+			LLRenderTarget* shadow_target = getShadowTarget(i);
+			if (shadow_target)
+			{
+				gGL.getTexUnit(channel)->bind(shadow_target, TRUE);
+				gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
+				gGL.getTexUnit(channel)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
+				stop_glerror();
+			
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
+				stop_glerror();
+			}
+		}
+	}
+
+	stop_glerror();
 
 	F32 mat[16*6];
 	for (U32 i = 0; i < 16; i++)
@@ -9054,8 +9030,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
         }
     }
 
-    screen_target->flush();
-                        
+	screen_target->flush();                        
 }
 
 void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
