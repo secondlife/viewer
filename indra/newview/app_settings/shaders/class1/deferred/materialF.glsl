@@ -294,16 +294,15 @@ void main()
     da = clamp(da, 0.0, 1.0);
     da = pow(da, 1.0 / 1.3);
 
-    col.rgb = amblit;
-    
     float ambient = abs(da);
     ambient *= 0.5;
     ambient *= ambient;
-    ambient = 1.0 - ambient * smoothstep(0.0, 0.3, shadow);
+    ambient = 1.0 - ambient;
 
     float final_da = min(da, shadow);
     vec3 sun_contrib = final_da * sunlit;
    
+    col.rgb = amblit;
     col.rgb *= ambient;
     col.rgb += sun_contrib;
     col.rgb *= diffuse.rgb;

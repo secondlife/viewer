@@ -123,7 +123,7 @@ void main()
         float ambient = abs(da);
         ambient *= 0.5;
         ambient *= ambient;
-        ambient = 1.0 - ambient * smoothstep(0.0, 0.3, scol);
+        ambient = 1.0 - ambient;
 
         vec3 sun_contrib = min(da,scol) * sunlit;
 
