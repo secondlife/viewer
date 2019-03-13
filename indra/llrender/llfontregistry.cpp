@@ -44,6 +44,8 @@ using std::map;
 bool font_desc_init_from_xml(LLXMLNodePtr node, LLFontDescriptor& desc);
 bool init_from_xml(LLFontRegistry* registry, LLXMLNodePtr node);
 
+const std::string MACOSX_FONT_PATH_LIBRARY = "/Library/Fonts/";
+
 LLFontDescriptor::LLFontDescriptor():
 	mStyle(0)
 {
@@ -434,23 +436,34 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 		++file_name_it)
 	{
 		LLFontGL *fontp = new LLFontGL;
-		std::string font_path = local_path + *file_name_it;
+		string_vec_t font_paths;
+		font_paths.push_back(local_path + *file_name_it);
+		font_paths.push_back(sys_path + *file_name_it);
+#if LL_DARWIN
+		font_paths.push_back(MACOSX_FONT_PATH_LIBRARY + *file_name_it);
+#endif
 		// *HACK: Fallback fonts don't render, so we can use that to suppress
 		// creation of OpenGL textures for test apps. JC
 		BOOL is_fallback = !is_first_found || !mCreateGLTextures;
 		F32 extra_scale = (is_fallback)?fallback_scale:1.0;
-		if (!fontp->loadFace(font_path, extra_scale * point_size,
-							 LLFontGL::sVertDPI, LLFontGL::sHorizDPI, 2, is_fallback))
+		F32 point_size_scale = extra_scale * point_size;
+		bool is_font_loaded = false;
+		for(string_vec_t::iterator font_paths_it = font_paths.begin();
+			font_paths_it != font_paths.end();
+			++font_paths_it)
 		{
-			font_path = sys_path + *file_name_it;
-
-			if (!fontp->loadFace(font_path, extra_scale * point_size,
+			if (fontp->loadFace(*font_paths_it, point_size_scale,
 								 LLFontGL::sVertDPI, LLFontGL::sHorizDPI, 2, is_fallback))
 			{
-				LL_INFOS_ONCE("LLFontRegistry") << "Couldn't load font " << *file_name_it << " from path " << local_path << LL_ENDL;
-				delete fontp;
-				fontp = NULL;
+				is_font_loaded = true;
+				break;
 			}
+		}
+		if(!is_font_loaded)
+		{
+			LL_INFOS_ONCE("LLFontRegistry") << "Couldn't load font " << *file_name_it <<  LL_ENDL;
+			delete fontp;
+			fontp = NULL;
 		}
 		
 		if(fontp)
