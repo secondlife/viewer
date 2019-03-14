@@ -137,8 +137,8 @@ void main()
         if (spec.a > 0.0) // specular reflection
         {
             // the old infinite-sky shiny reflection
-            float sa = dot(refnormpersp, sun_dir.xyz);
-            vec3 dumbshiny = sunlit*scol_ambocc.r*(texture2D(lightFunc, vec2(sa, spec.a)).r);
+            float sa = dot(refnormpersp, light_dir.xyz);
+            vec3 dumbshiny = sunlit*scol*(texture2D(lightFunc, vec2(sa, spec.a)).r);
             
             // add the two types of shiny together
             vec3 spec_contrib = dumbshiny * spec.rgb;

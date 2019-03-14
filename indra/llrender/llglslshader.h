@@ -218,8 +218,6 @@ public:
 	std::vector<U32> mTextureMagFilter;
 	std::vector<U32> mTextureMinFilter;
 
-    GLhandleARB mExtraLinkObject = 0;
-
 private:
 	void unloadInternal();
 };

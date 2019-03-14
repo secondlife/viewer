@@ -301,7 +301,8 @@ void main()
     ambient *= ambient;
     ambient = 1.0 - ambient * smoothstep(0.0, 0.3, shadow);
 
-    vec3 sun_contrib = min(da, shadow) * sunlit;
+    float final_da = min(da, shadow);
+    vec3 sun_contrib = final_da * sunlit;
    
     col.rgb *= ambient;
     col.rgb += sun_contrib;
@@ -314,7 +315,7 @@ void main()
         // the old infinite-sky shiny reflection
         //
                 
-        float sa = dot(refnormpersp, sun_dir.xyz);
+        float sa = dot(refnormpersp, light_dir.xyz);
 
         vec3 dumbshiny = sunlit*shadow*(texture2D(lightFunc, vec2(sa, spec.a)).r);
                             
@@ -351,8 +352,6 @@ vec3 post_spec = col.rgb;
     col = atmosFragLighting(col, additive, atten);
     col = scaleSoftClipFrag(col);
 
-vec3 post_atmo= col.rgb;
-
     vec3 npos = normalize(-pos.xyz);
             
     vec3 light = vec3(0,0,0);
@@ -368,8 +367,6 @@ vec3 post_atmo= col.rgb;
         LIGHT_LOOP(7)
 
     col.rgb += light.rgb;
-
-vec3 post_lighting = col.rgb;
 
     glare = min(glare, 1.0);
     float al = max(diffcol.a,glare)*vertex_color.a;
