@@ -48,7 +48,6 @@ static LLStaticHashedString sCamPosLocal("camPosLocal");
 static LLStaticHashedString sCustomAlpha("custom_alpha");
 
 static LLGLSLShader* cloud_shader = NULL;
-static LLGLSLShader* cloud_shadow_shader = NULL;
 static LLGLSLShader* sky_shader   = NULL;
 static LLGLSLShader* sun_shader   = NULL;
 static LLGLSLShader* moon_shader  = NULL;
