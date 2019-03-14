@@ -26,11 +26,16 @@
 */
 
 #include "linden_common.h"
+
 #include "llcoproceduremanager.h"
-#include "llexception.h"
-#include "stringize.h"
+
+#include <chrono>
+
 #include <boost/assign.hpp>
 #include <boost/fiber/unbuffered_channel.hpp>
+
+#include "llexception.h"
+#include "stringize.h"
 
 //=========================================================================
 // Map of pool sizes for known pools
@@ -64,10 +69,6 @@ public:
     /// this method calls cancelSuspendedOperation() on the associated HttpAdapter
     /// If it has not yet been dequeued it is simply removed from the queue.
     //bool cancelCoprocedure(const LLUUID &id);
-
-    /// Requests a shutdown of the upload manager. Passing 'true' will perform 
-    /// an immediate kill on the upload coroutine.
-    //void shutdown(bool hardShutdown = false);
 
 //    /// Returns the number of coprocedures in the queue awaiting processing.
 //    ///
@@ -136,7 +137,10 @@ LLCoprocedureManager::LLCoprocedureManager()
 
 LLCoprocedureManager::~LLCoprocedureManager()
 {
-
+    for(auto & poolEntry : mPoolMap)
+    {
+        poolEntry.second->close();
+    }
 }
 
 LLCoprocedureManager::poolPtr_t LLCoprocedureManager::initializePool(const std::string &poolName)
@@ -199,17 +203,6 @@ LLUUID LLCoprocedureManager::enqueueCoprocedure(const std::string &pool, const s
 //    }
 //    LL_INFOS() << "Coprocedure not found." << LL_ENDL;
 //}
-
-/*==========================================================================*|
-void LLCoprocedureManager::shutdown(bool hardShutdown)
-{
-    for (poolMap_t::const_iterator it = mPoolMap.begin(); it != mPoolMap.end(); ++it)
-    {
-        (*it).second->shutdown(hardShutdown);
-    }
-    mPoolMap.clear();
-}
-|*==========================================================================*/
 
 void LLCoprocedureManager::setPropertyMethods(SettingQuery_t queryfn, SettingUpdate_t updatefn)
 {
@@ -310,34 +303,7 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
 
 LLCoprocedurePool::~LLCoprocedurePool() 
 {
-/*==========================================================================*|
-    shutdown();
-|*==========================================================================*/
 }
-
-//-------------------------------------------------------------------------
-/*==========================================================================*|
-void LLCoprocedurePool::shutdown(bool hardShutdown)
-{
-    CoroAdapterMap_t::iterator it;
-
-    for (it = mCoroMapping.begin(); it != mCoroMapping.end(); ++it)
-    {
-        if (hardShutdown)
-        {
-            LLCoros::instance().kill((*it).first);
-        }
-        if ((*it).second)
-        {
-            (*it).second->cancelSuspendedOperation();
-        }
-    }
-
-    mShutdown = true;
-    mCoroMapping.clear();
-    mPendingCoprocs.clear();
-}
-|*==========================================================================*/
 
 //-------------------------------------------------------------------------
 LLUUID LLCoprocedurePool::enqueueCoprocedure(const std::string &name, LLCoprocedurePool::CoProcedure_t proc)
@@ -379,11 +345,17 @@ LLUUID LLCoprocedurePool::enqueueCoprocedure(const std::string &name, LLCoproced
 //-------------------------------------------------------------------------
 void LLCoprocedurePool::coprocedureInvokerCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter)
 {
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-
     QueuedCoproc::ptr_t coproc;
-    while (mPendingCoprocs.pop(coproc) != boost::fibers::channel_op_status::closed)
+    boost::fibers::channel_op_status status;
+    using namespace std::chrono_literals;
+    while ((status = mPendingCoprocs.pop_wait_for(coproc, 10s)) != boost::fibers::channel_op_status::closed)
     {
+        if(status == boost::fibers::channel_op_status::timeout)
+        {
+            LL_INFOS() << "pool '" << mPoolName << "' stalled." << LL_ENDL;
+            continue;
+        }
+
         ActiveCoproc_t::iterator itActive = mActiveCoprocs.insert(ActiveCoproc_t::value_type(coproc->mId, httpAdapter)).first;
 
         LL_INFOS() << "Dequeued and invoking coprocedure(" << coproc->mName << ") with id=" << coproc->mId.asString() << " in pool \"" << mPoolName << "\"" << LL_ENDL;
