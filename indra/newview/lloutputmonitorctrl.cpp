@@ -74,6 +74,7 @@ LLOutputMonitorCtrl::LLOutputMonitorCtrl(const LLOutputMonitorCtrl::Params& p)
 	mSpeakerId(p.speaker_id),
 	mIsModeratorMuted(false),
 	mIsAgentControl(false),
+	mIsActiveChannel(false),
 	mIndicatorToggled(false),
 	mShowParticipantsSpeaking(false)
 {
@@ -256,6 +257,16 @@ BOOL LLOutputMonitorCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 	return TRUE;
 }
 
+void LLOutputMonitorCtrl::setIsActiveChannel(bool val)
+{
+    mIsActiveChannel = val;
+    if (!val)
+    {
+        // switchIndicator will set it to TRUE when channel becomes active
+        setVisible(FALSE);
+    }
+}
+
 void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id, const LLUUID& session_id/* = LLUUID::null*/, bool show_other_participants_speaking /* = false */)
 {
 	if (speaker_id.isNull() && mSpeakerId.notNull())
@@ -305,8 +316,7 @@ void LLOutputMonitorCtrl::onChange()
 // virtual
 void LLOutputMonitorCtrl::switchIndicator(bool switch_on)
 {
-
-    if(getVisible() != (BOOL)switch_on)
+    if (mIsActiveChannel && getVisible() != (BOOL)switch_on)
     {
         setVisible(switch_on);
         
