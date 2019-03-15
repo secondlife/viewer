@@ -297,9 +297,18 @@ namespace
 
         void onFinishedSpan()
         {
-            LLSettingsDay::TrackBound_t next = getBoundingEntries(getAdjustedNow());
+            LLSettingsBase::Seconds adjusted_now = getAdjustedNow();
+            LLSettingsDay::TrackBound_t next = getBoundingEntries(adjusted_now);
             LLSettingsBase::Seconds nextspan = getSpanTime(next);
+
             reset((*next.first).second, (*next.second).second, nextspan);
+
+            // Recalculate (reinitialize) position. Because:
+            // - 'delta' from applyTimeDelta accumulates errors (probably should be fixed/changed to absolute time)
+            // - freezes and lag can result in reset being called too late, so we need to add missed time
+            // - occasional time corrections can happen
+            // - some transition switches can happen outside applyTimeDelta thus causing 'desync' from 'delta' (can be fixed by getting rid of delta)
+            initializeTarget(adjusted_now);
         }
     };
 
