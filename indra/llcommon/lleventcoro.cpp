@@ -149,7 +149,7 @@ LLBoundListener postAndSuspendSetup(const std::string& callerName,
                                        }
                                        catch(boost::fibers::promise_already_satisfied & ex)
                                        {
-                                           LL_ERRS("lleventcoro") << "promise already satisfied in '"
+                                           LL_WARNS("lleventcoro") << "promise already satisfied in '"
                                                << listenerName << "' "  << ex.what() << LL_ENDL;
                                        }
                                        return consuming;
