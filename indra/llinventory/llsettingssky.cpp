@@ -1281,19 +1281,18 @@ void LLSettingsSky::calculateLightSettings() const
 
     // and vary_sunlight will work properly with moon light
     F32 lighty = lightnorm[1];
-
-    lighty = llmax(0.f, lighty);
-    if(lighty > 0.f)
+    if(fabs(lighty) > 0.001f)
     {
         lighty = 1.f / lighty;
     }
+    lighty = llmax(0.001f, lighty);
     componentMultBy(sunlight, componentExp((light_atten * -1.f) * lighty));
 
     //increase ambient when there are more clouds
     LLColor3 tmpAmbient = ambient + (smear(1.f) - ambient) * cloud_shadow * 0.5f;
 
     //brightness of surface both sunlight and ambient
-    mSunDiffuse = gammaCorrect(componentMult(sunlight, light_transmittance));       
+    mSunDiffuse = gammaCorrect(componentMult(sunlight, light_transmittance));
     mSunAmbient = gammaCorrect(componentMult(tmpAmbient, light_transmittance) * 0.5);
 
     mMoonDiffuse  = gammaCorrect(componentMult(LLColor3::white, light_transmittance) * 0.5f);

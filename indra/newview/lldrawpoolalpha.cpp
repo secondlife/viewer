@@ -67,6 +67,7 @@ static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_DEFERRED_SHADER_BINDS("Alp
 static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_DEFERRED_TEX_BINDS("Alpha Def Tex Binds");
 static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_MESH_REBUILD("Alpha Mesh Rebuild");
 static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_EMISSIVE("Alpha Emissive");
+static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_LIGHT_SETUP("Alpha Light Setup");
 
 LLDrawPoolAlpha::LLDrawPoolAlpha(U32 type) :
 		LLRenderPass(type), current_shader(NULL), target_shader(NULL),
@@ -640,11 +641,13 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 					}
 				}
 
+#if BATCH_FULLBRIGHTS
                 if (params.mFullbright)
 				{
                     fullbrights.push_back(&params);
                     continue;
 				}
+#endif
 
 				LLRenderPass::applyModelMatrix(params);
 
@@ -654,10 +657,31 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 				{
 					mat = params.mMaterial;
 				}
-								
-				// Turn on lighting if it isn't already.
-				if (!light_enabled || !initialized_lighting)
+				
+				if (params.mFullbright)
 				{
+					// Turn off lighting if it hasn't already been so.
+					if (light_enabled || !initialized_lighting)
+					{
+                        LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_LIGHT_SETUP);
+
+						initialized_lighting = TRUE;
+						if (use_shaders) 
+						{
+							target_shader = fullbright_shader;
+						}
+						else
+						{
+							gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+						}
+						light_enabled = FALSE;
+					}
+				}
+				// Turn on lighting if it isn't already.
+				else if (!light_enabled || !initialized_lighting)
+				{
+                    LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_LIGHT_SETUP);
+
 					initialized_lighting = TRUE;
 					if (use_shaders) 
 					{
@@ -689,9 +713,13 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
                         current_shader = target_shader;
 					}
 				}
-				else
+				else if (!params.mFullbright)
 				{
 					target_shader = simple_shader;
+				}
+				else
+				{
+					target_shader = fullbright_shader;
 				}
 				
 				if(use_shaders && (current_shader != target_shader))
@@ -754,7 +782,26 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 					params.mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_EMISSIVE))
 				{
                     LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_EMISSIVE);
+#if BATCH_EMISSIVES
                     emissives.push_back(&params);
+#else
+// install glow-accumulating blend mode
+					gGL.blendFunc(LLRender::BF_ZERO, LLRender::BF_ONE, // don't touch color
+					LLRender::BF_ONE, LLRender::BF_ONE); // add to alpha (glow)
+
+					emissive_shader->bind();
+					
+					params.mVertexBuffer->setBuffer((mask & ~LLVertexBuffer::MAP_COLOR) | LLVertexBuffer::MAP_EMISSIVE);
+					
+					// do the actual drawing, again
+					params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
+					gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
+
+					// restore our alpha blend mode
+					gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
+
+					current_shader->bind();
+#endif
 				}
 			
 				if (tex_setup)
@@ -766,9 +813,13 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 				}
 			}
 
+#if BATCH_FULLBRIGHTS
             renderFullbrights(mask, fullbrights);
-            renderEmissives(mask, emissives);
+#endif
 
+#if BATCH_EMISSIVES
+            renderEmissives(mask, emissives);
+#endif
             if (current_shader)
             {
                 current_shader->bind();

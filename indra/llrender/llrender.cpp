@@ -1180,8 +1180,6 @@ void LLRender::syncLightState()
 		shader->uniform4fv(LLShaderMgr::LIGHT_ATTENUATION, 8, attenuation[0].mV);
 		shader->uniform3fv(LLShaderMgr::LIGHT_DIFFUSE, 8, diffuse[0].mV);
 		shader->uniform4fv(LLShaderMgr::LIGHT_AMBIENT, 1, mAmbientLightColor.mV);
-		shader->uniform4fv(LLShaderMgr::SUNLIGHT_COLOR, 1, diffuse[0].mV);
-        shader->uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, diffuseB[0].mV);
 	}
 }
 

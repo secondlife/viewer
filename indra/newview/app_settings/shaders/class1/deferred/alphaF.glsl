@@ -118,7 +118,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
         float amb_da = ambiance;
         amb_da *= dist_atten;
         amb_da += (da*0.5) * ambiance;
-        amb_da += (da*da*0.5 + 0.5) * ambiance;
+        amb_da += (da*da*0.5 + 0.25) * ambiance;
         amb_da = min(amb_da, 1.0f - lit);
 
         col.rgb += amb_da * light_col * diffuse;
@@ -228,7 +228,6 @@ void main()
     color.rgb += light.rgb;
 
     color.rgb = linear_to_srgb(color.rgb);
-
 #endif
 
 #ifdef WATER_FOG

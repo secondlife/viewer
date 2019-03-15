@@ -112,7 +112,6 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
         //angular attenuation
         da = dot(n, lv);
         da *= clamp(da, 0.0, 1.0);
-        da *= pow(da, 1.0 / 1.3);
         
         float lit = max(da * dist_atten, 0.0);
 

@@ -91,7 +91,11 @@ void calcAtmospherics(vec3 inPositionEye) {
 
     //(TERRAIN) compute sunlight from lightnorm only (for short rays like terrain)
     temp2.y = max(0.0, tmpLightnorm.y);
-    temp2.y = 1. / temp2.y;
+    if (temp2.y > 0.001f)
+    {
+        temp2.y = 1. / temp2.y;
+    }
+    temp2.y = max(0.001f, temp2.y);
     sunlight *= exp( - light_atten * temp2.y);
 
     // main atmospheric scattering line integral
