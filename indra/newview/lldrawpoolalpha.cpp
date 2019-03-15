@@ -49,6 +49,10 @@
 #include "llspatialpartition.h"
 #include "llglcommonfunc.h"
 
+// These optimizations may induce lighting, texturing, and/or GL state bugs
+#define BATCH_FULLBRIGHTS 1
+#define BATCH_EMISSIVES   1
+
 BOOL LLDrawPoolAlpha::sShowDebugAlpha = FALSE;
 
 static BOOL deferred_render = FALSE;
@@ -558,10 +562,36 @@ void LLDrawPoolAlpha::renderMaterials(U32 mask, std::vector<LLDrawInfo*>& materi
     }
 }
 
+void LLDrawPoolAlpha::drawEmissive(U32 mask, LLDrawInfo* draw)
+{
+    draw->mVertexBuffer->setBuffer((mask & ~LLVertexBuffer::MAP_COLOR) | LLVertexBuffer::MAP_EMISSIVE);
+	draw->mVertexBuffer->drawRange(draw->mDrawMode, draw->mStart, draw->mEnd, draw->mCount, draw->mOffset);
+	gPipeline.addTrianglesDrawn(draw->mCount, draw->mDrawMode);
+}
+
+void LLDrawPoolAlpha::drawEmissiveInline(U32 mask, LLDrawInfo* draw)
+{
+    // install glow-accumulating blend mode
+    gGL.blendFunc(
+            LLRender::BF_ZERO, LLRender::BF_ONE, // don't touch color
+			LLRender::BF_ONE, LLRender::BF_ONE); // add to alpha (glow)
+
+	emissive_shader->bind();
+					
+	drawEmissive(mask, draw);
+
+	// restore our alpha blend mode
+	gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
+
+    current_shader->bind();
+}
+
 void LLDrawPoolAlpha::renderEmissives(U32 mask, std::vector<LLDrawInfo*>& emissives)
 {
     emissive_shader->bind();
     emissive_shader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, 1.f);
+
+    gPipeline.enableLightsDynamic();
 
     // install glow-accumulating blend mode
     // don't touch color, add to alpha (glow)
@@ -570,7 +600,7 @@ void LLDrawPoolAlpha::renderEmissives(U32 mask, std::vector<LLDrawInfo*>& emissi
     for (LLDrawInfo* draw : emissives)
     {
         bool tex_setup = TexSetup(draw, use_shaders, false, emissive_shader);
-        Draw(draw, (mask & ~LLVertexBuffer::MAP_COLOR) | LLVertexBuffer::MAP_EMISSIVE);
+        drawEmissive(mask, draw);
         RestoreTexSetup(tex_setup);
     }
 
@@ -641,13 +671,13 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 					}
 				}
 
-#if BATCH_FULLBRIGHTS
+            #if BATCH_FULLBRIGHTS
                 if (params.mFullbright)
 				{
                     fullbrights.push_back(&params);
                     continue;
 				}
-#endif
+            #endif
 
 				LLRenderPass::applyModelMatrix(params);
 
@@ -782,26 +812,11 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 					params.mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_EMISSIVE))
 				{
                     LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_EMISSIVE);
-#if BATCH_EMISSIVES
+                #if BATCH_EMISSIVES
                     emissives.push_back(&params);
-#else
-// install glow-accumulating blend mode
-					gGL.blendFunc(LLRender::BF_ZERO, LLRender::BF_ONE, // don't touch color
-					LLRender::BF_ONE, LLRender::BF_ONE); // add to alpha (glow)
-
-					emissive_shader->bind();
-					
-					params.mVertexBuffer->setBuffer((mask & ~LLVertexBuffer::MAP_COLOR) | LLVertexBuffer::MAP_EMISSIVE);
-					
-					// do the actual drawing, again
-					params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
-					gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
-
-					// restore our alpha blend mode
-					gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
-
-					current_shader->bind();
-#endif
+                #else
+                    drawEmissiveInline(mask, &params);
+                #endif
 				}
 			
 				if (tex_setup)
@@ -813,13 +828,16 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 				}
 			}
 
-#if BATCH_FULLBRIGHTS
-            renderFullbrights(mask, fullbrights);
-#endif
+            #if BATCH_FULLBRIGHTS
+                light_enabled = false;
+                renderFullbrights(mask, fullbrights);
+            #endif
 
-#if BATCH_EMISSIVES
-            renderEmissives(mask, emissives);
-#endif
+            #if BATCH_EMISSIVES
+                light_enabled = true;
+                renderEmissives(mask, emissives);
+            #endif
+
             if (current_shader)
             {
                 current_shader->bind();

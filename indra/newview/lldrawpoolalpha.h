@@ -80,6 +80,9 @@ private:
     void renderMaterials(U32 mask, std::vector<LLDrawInfo*>& fullbrights);
     void renderEmissives(U32 mask, std::vector<LLDrawInfo*>& emissives);
 
+    void drawEmissive(U32 mask, LLDrawInfo* draw);
+    void drawEmissiveInline(U32 mask, LLDrawInfo* draw);
+
     bool TexSetup(LLDrawInfo* draw, bool use_shaders, bool use_material, LLGLSLShader* current_shader);
     void RestoreTexSetup(bool tex_setup);
 
