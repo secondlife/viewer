@@ -49,9 +49,9 @@
 #include "llspatialpartition.h"
 #include "llglcommonfunc.h"
 
-// These optimizations may induce lighting, texturing, and/or GL state bugs
-#define BATCH_FULLBRIGHTS 1
-#define BATCH_EMISSIVES   1
+// These optimizations can and will induce lighting, texturing, and/or GL state bugs
+#define BATCH_FULLBRIGHTS 0
+#define BATCH_EMISSIVES   0
 
 BOOL LLDrawPoolAlpha::sShowDebugAlpha = FALSE;
 
