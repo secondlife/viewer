@@ -927,19 +927,9 @@ void LLFloaterEditExtDayCycle::onFrameSliderCallback(const LLSD &data)
 {
     std::string curslider = mFramesSlider->getCurSlider();
 
-    F32 sliderpos(0.0);
-
-
-    if (curslider.empty())
+    if (!curslider.empty() && mEditDay)
     {
-        S32 x(0), y(0);
-        LLUI::getMousePositionLocal(mFramesSlider, &x, &y);
-
-        sliderpos = mFramesSlider->getSliderValueFromPos(x, y);
-    }
-    else
-    {
-        sliderpos = mFramesSlider->getCurSliderValue();
+        F32 sliderpos = mFramesSlider->getCurSliderValue();
 
         keymap_t::iterator it = mSliderKeyMap.find(curslider);
         if (it != mSliderKeyMap.end())
@@ -1528,7 +1518,11 @@ void LLFloaterEditExtDayCycle::synchronizeTabs()
     LLTabContainer * tabs = mWaterTabLayoutContainer->getChild<LLTabContainer>(TABS_WATER);
     if (mCurrentTrack == LLSettingsDay::TRACK_WATER)
     {
-        if (!mFramesSlider->getCurSlider().empty())
+        if (!mEditDay)
+        {
+            canedit = false;
+        }
+        else if (!mFramesSlider->getCurSlider().empty())
         {
             canedit = !mIsPlaying;
             // either search mEditDay or retrieve from mSliderKeyMap
@@ -1557,7 +1551,11 @@ void LLFloaterEditExtDayCycle::synchronizeTabs()
     tabs = mSkyTabLayoutContainer->getChild<LLTabContainer>(TABS_SKYS);
     if (mCurrentTrack != LLSettingsDay::TRACK_WATER)
     {
-        if (!mFramesSlider->getCurSlider().empty())
+        if (!mEditDay)
+        {
+            canedit = false;
+        }
+        else if (!mFramesSlider->getCurSlider().empty())
         {
             canedit = !mIsPlaying;
             // either search mEditDay or retrieve from mSliderKeyMap
