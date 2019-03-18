@@ -337,7 +337,7 @@
 			  height="23"
 			  layout="bottomleft"
 			  left_pad="3"
-			  name="show_on_map_btn_lp"
+			  name="cancel_btn_lp"
 		      auto_resize="true"
 			  width="157">
 			  <button

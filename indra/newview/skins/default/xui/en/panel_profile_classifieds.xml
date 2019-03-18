@@ -49,7 +49,7 @@
     <tab_container
      name="tab_classifieds"
      top="50"
-     bottom="-5"
+     bottom="-21"
      left="4"
      right="-4"
      follows="all"

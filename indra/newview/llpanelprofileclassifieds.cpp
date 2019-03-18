@@ -468,6 +468,12 @@ BOOL LLPanelProfileClassified::postBuild()
     mSetLocationButton  = getChild<LLButton>("set_to_curr_location_btn");
     mCancelButton       = getChild<LLButton>("cancel_btn");
 
+    mTeleportBtnCnt = getChild<LLPanel>("teleport_btn_lp");
+    mMapBtnCnt = getChild<LLPanel>("map_btn_lp");
+    mEditBtnCnt = getChild<LLPanel>("edit_btn_lp");
+    mCancelBtnCnt = getChild<LLPanel>("cancel_btn_lp");
+    mSaveBtnCnt = getChild<LLPanel>("save_btn_lp");
+
     mSnapshotCtrl->setOnSelectCallback(boost::bind(&LLPanelProfileClassified::onTextureSelected, this));
     mSnapshotCtrl->setMouseEnterCallback(boost::bind(&LLPanelProfileClassified::onTexturePickerMouseEnter, this));
     mSnapshotCtrl->setMouseLeaveCallback(boost::bind(&LLPanelProfileClassified::onTexturePickerMouseLeave, this));
@@ -682,11 +688,12 @@ void LLPanelProfileClassified::setEditMode(BOOL edit_mode)
 
 void LLPanelProfileClassified::updateButtons()
 {
-    bool edit_mode  = getEditMode();
-    mMapButton->setVisible(!edit_mode);
-    mTeleportButton->setVisible(!edit_mode);
-    mSaveButton->setVisible(edit_mode);
-    mCancelButton->setVisible(edit_mode);
+    bool edit_mode = getEditMode();
+    mTeleportBtnCnt->setVisible(!edit_mode);
+    mMapBtnCnt->setVisible(!edit_mode);
+    mEditBtnCnt->setVisible(!edit_mode);
+    mCancelBtnCnt->setVisible(edit_mode);
+    mSaveBtnCnt->setVisible(edit_mode);
     mEditButton->setVisible(!edit_mode && getSelfProfile());
 }
 
