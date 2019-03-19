@@ -727,8 +727,22 @@ void LLPanelProfileClassified::onEditClick()
 
 void LLPanelProfileClassified::onCancelClick()
 {
-    // Reload data to undo changes to forms
-    LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoRequest(getClassifiedId());
+    if (isNew())
+    {
+        mClassifiedNameEdit->setValue(mClassifiedNameText->getValue());
+        mClassifiedDescEdit->setValue(mClassifiedDescText->getValue());
+        mLocationEdit->setValue(mLocationText->getValue());
+        mCategoryCombo->setCurrentByIndex(0);
+        mContentTypeCombo->setCurrentByIndex(0);
+        mAutoRenewEdit->setValue(false);
+        mPriceEdit->setValue(MINIMUM_PRICE_FOR_LISTING);
+        mPriceEdit->setEnabled(TRUE);
+    }
+    else
+    {
+        // Reload data to undo changes to forms
+        LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoRequest(getClassifiedId());
+    }
 
     setInfoLoaded(false);
 
