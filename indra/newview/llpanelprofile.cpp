@@ -1166,7 +1166,6 @@ BOOL LLPanelProfileNotes::postBuild()
     mEditObjectRights->setCommitCallback(boost::bind(&LLPanelProfileNotes::onCommitRights, this));
 
     mNotesEditor->setCommitCallback(boost::bind(&LLPanelProfileNotes::onCommitNotes,this));
-    mNotesEditor->setCommitOnFocusLost(TRUE);
 
     return TRUE;
 }
