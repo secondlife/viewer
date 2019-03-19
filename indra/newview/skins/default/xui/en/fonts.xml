@@ -10,6 +10,7 @@
       <file>simhei.ttf</file>
       <file>ArialUni.ttf</file>
       <file>msyh.ttc</file>
+      <file load_collection="true">Cambria.ttc</file>
     </os>
     <os name="Mac">
       <file>ヒラギノ角ゴシック W3.ttc</file>  

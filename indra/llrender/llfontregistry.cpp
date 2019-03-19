@@ -63,6 +63,16 @@ LLFontDescriptor::LLFontDescriptor(const std::string& name,
 }
 
 LLFontDescriptor::LLFontDescriptor(const std::string& name,
+	const std::string& size,
+	const U8 style,
+	const string_vec_t& file_names,
+	const string_vec_t& ft_collection_listections) :
+	LLFontDescriptor(name, size, style, file_names)
+{
+	mFontCollectionsList = ft_collection_listections;
+}
+
+LLFontDescriptor::LLFontDescriptor(const std::string& name,
 								   const std::string& size, 
 								   const U8 style):
 	mName(name),
@@ -164,7 +174,7 @@ LLFontDescriptor LLFontDescriptor::normalize() const
 	if (removeSubString(new_name,"Italic"))
 		new_style |= LLFontGL::ITALIC;
 
-	return LLFontDescriptor(new_name,new_size,new_style,getFileNames());
+	return LLFontDescriptor(new_name,new_size,new_style,getFileNames(),getFontCollectionsList());
 }
 
 LLFontRegistry::LLFontRegistry(bool create_gl_textures)
@@ -215,6 +225,7 @@ bool LLFontRegistry::parseFontInfo(const std::string& xml_filename)
 			success = success || init_succ;
 		}
 	}
+
 	//if (success)
 	//	dump();
 
@@ -262,6 +273,16 @@ bool font_desc_init_from_xml(LLXMLNodePtr node, LLFontDescriptor& desc)
 		{
 			std::string font_file_name = child->getTextContents();
 			desc.getFileNames().push_back(font_file_name);
+			
+			if (child->hasAttribute("load_collection"))
+			{
+				BOOL col = FALSE;
+				child->getAttributeBOOL("load_collection", col);
+				if (col)
+				{
+					desc.getFontCollectionsList().push_back(font_file_name);
+				}
+			}
 		}
 		else if (child->hasName("os"))
 		{
@@ -308,8 +329,15 @@ bool init_from_xml(LLFontRegistry* registry, LLXMLNodePtr node)
 					match_file_names.insert(match_file_names.begin(),
 											desc.getFileNames().begin(),
 											desc.getFileNames().end());
+
+					string_vec_t collections_list = match_desc->getFontCollectionsList();
+					collections_list.insert(collections_list.begin(),
+						desc.getFontCollectionsList().begin(),
+						desc.getFontCollectionsList().end());
+
 					LLFontDescriptor new_desc = *match_desc;
 					new_desc.getFileNames() = match_file_names;
+					new_desc.getFontCollectionsList() = collections_list;
 					registry->mFontMap.erase(*match_desc);
 					registry->mFontMap[new_desc] = NULL;
 				}
@@ -395,6 +423,7 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 	// Build list of font names to look for.
 	// Files specified for this font come first, followed by those from the default descriptor.
 	string_vec_t file_names = match_desc->getFileNames();
+	string_vec_t ft_collection_list = match_desc->getFontCollectionsList();
 	string_vec_t default_file_names;
 	LLFontDescriptor default_desc("default",s_template_string,0);
 	const LLFontDescriptor *match_default_desc = getMatchingFontDesc(default_desc);
@@ -403,6 +432,9 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 		file_names.insert(file_names.end(),
 						  match_default_desc->getFileNames().begin(),
 						  match_default_desc->getFileNames().end());
+		ft_collection_list.insert(ft_collection_list.end(),
+			match_default_desc->getFontCollectionsList().begin(),
+			match_default_desc->getFontCollectionsList().end());
 	}
 
 	// Add ultimate fallback list - generated dynamically on linux,
@@ -435,13 +467,15 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 		file_name_it != file_names.end(); 
 		++file_name_it)
 	{
-		LLFontGL *fontp = new LLFontGL;
+		LLFontGL *fontp = NULL;
 		string_vec_t font_paths;
 		font_paths.push_back(local_path + *file_name_it);
 		font_paths.push_back(sys_path + *file_name_it);
 #if LL_DARWIN
 		font_paths.push_back(MACOSX_FONT_PATH_LIBRARY + *file_name_it);
 #endif
+		
+		bool is_ft_collection = (std::find(ft_collection_list.begin(), ft_collection_list.end(), *file_name_it) != ft_collection_list.end());
 		// *HACK: Fallback fonts don't render, so we can use that to suppress
 		// creation of OpenGL textures for test apps. JC
 		BOOL is_fallback = !is_first_found || !mCreateGLTextures;
@@ -452,33 +486,43 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 			font_paths_it != font_paths.end();
 			++font_paths_it)
 		{
-			if (fontp->loadFace(*font_paths_it, point_size_scale,
-								 LLFontGL::sVertDPI, LLFontGL::sHorizDPI, 2, is_fallback))
+			fontp = new LLFontGL;
+			S32 num_faces = is_ft_collection ? fontp->getNumFaces(*font_paths_it) : 1;
+			for (S32 i = 0; i < num_faces; i++)
 			{
-				is_font_loaded = true;
-				break;
+				if (fontp == NULL)
+				{
+					fontp = new LLFontGL;
+				}
+				if (fontp->loadFace(*font_paths_it, point_size_scale,
+								 LLFontGL::sVertDPI, LLFontGL::sHorizDPI, 2, is_fallback, i))
+				{
+					is_font_loaded = true;
+					if (is_first_found)
+					{
+						result = fontp;
+						is_first_found = false;
+					}
+					else
+					{
+						fontlist.push_back(fontp->mFontFreetype);
+						delete fontp;
+						fontp = NULL;
+					}
+				}
+				else
+				{
+					delete fontp;
+					fontp = NULL;
+				}
 			}
+			if (is_font_loaded) break;
 		}
 		if(!is_font_loaded)
 		{
 			LL_INFOS_ONCE("LLFontRegistry") << "Couldn't load font " << *file_name_it <<  LL_ENDL;
 			delete fontp;
 			fontp = NULL;
-		}
-		
-		if(fontp)
-		{
-			if (is_first_found)
-			{
-				result = fontp;
-				is_first_found = false;
-			}
-			else
-			{
-				fontlist.push_back(fontp->mFontFreetype);
-				delete fontp;
-				fontp = NULL;
-			}
 		}
 	}
 
