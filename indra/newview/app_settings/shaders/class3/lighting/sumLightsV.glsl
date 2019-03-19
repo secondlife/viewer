@@ -32,7 +32,7 @@ vec3 atmosAffectDirectionalLight(float lightIntensity);
 
 uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
-uniform vec3 light_attenuation[8]; 
+uniform vec4 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
 
 vec4 sumLights(vec3 pos, vec3 norm, vec4 color, vec4 baseLight)

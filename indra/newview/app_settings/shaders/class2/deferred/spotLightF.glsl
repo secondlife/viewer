@@ -71,11 +71,18 @@ uniform vec2 screen_res;
 
 uniform mat4 inv_proj;
 
+vec3 srgb_to_linear(vec3 cs);
 vec3 getNorm(vec2 pos_screen);
+
+vec4 correctWithGamma(vec4 col)
+{
+	return vec4(srgb_to_linear(col.rgb), col.a);
+}
 
 vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
+	ret = correctWithGamma(ret);
 	
 	vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
 	
@@ -95,6 +102,7 @@ vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
+	ret = correctWithGamma(ret);
 	
 	vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
 	
@@ -112,6 +120,7 @@ vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
 vec4 texture2DLodAmbient(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
+	ret = correctWithGamma(ret);
 	
 	vec2 dist = tc-vec2(0.5);
 	
@@ -216,7 +225,7 @@ void main()
 		//float diff = clamp((proj_range-proj_focus)/proj_range, 0.0, 1.0);
 		vec4 amb_plcol = texture2DLodAmbient(projectionMap, proj_tc.xy, proj_lod);
 							
-		amb_da += (da*da*0.5+0.5)*proj_ambiance;
+		amb_da += (da*da*0.5+0.5)*(1.0-shadow)*proj_ambiance;
 				
 		amb_da *= dist_atten * noise;
 			
