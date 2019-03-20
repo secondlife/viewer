@@ -2514,8 +2514,8 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 			LLSpatialPartition* part = region->getSpatialPartition(i);
 			if (part)
 			{
-				if (LLViewerRegion::PARTITION_BRIDGE == i || hasRenderType(part->mDrawableType))
-				{ //pass PARTITION BRIDGE because LLDrawable can be moved to this partition
+				if (hasRenderType(part->mDrawableType))
+				{
 					part->cull(camera);
 				}
 			}
