@@ -29,7 +29,7 @@ ATTRIBUTE vec3 position;
 
 uniform vec2 screen_res;
 
-void setAttenuation(vec3 c);
+void setAtmosAttenuation(vec3 c);
 void setAdditiveColor(vec3 c);
 
 VARYING vec2 vary_fragcoord;
@@ -39,7 +39,7 @@ void main()
     vec4 pos = modelview_projection_matrix * vec4(position.xyz, 1.0);
     gl_Position = pos; 
     // appease OSX GLSL compiler/linker by touching all the varyings we said we would
-    setAttenuation(vec3(1));
+    setAtmosAttenuation(vec3(1));
     setAdditiveColor(vec3(0));
     vary_fragcoord = (pos.xy*0.5+0.5)*screen_res;
 }

@@ -48,10 +48,10 @@ vec4 sumLights(vec3 pos, vec3 norm, vec4 color, vec4 baseLight)
 	col.rgb += light_diffuse[5].rgb*calcPointLightOrSpotLight(pos.xyz, norm, light_position[5], light_direction[5], light_attenuation[5].x, light_attenuation[5].z);
 	col.rgb += light_diffuse[6].rgb*calcPointLightOrSpotLight(pos.xyz, norm, light_position[6], light_direction[6], light_attenuation[6].x, light_attenuation[6].z);
 	col.rgb += light_diffuse[7].rgb*calcPointLightOrSpotLight(pos.xyz, norm, light_position[7], light_direction[7], light_attenuation[7].x, light_attenuation[7].z);
-	col.rgb += light_diffuse[1].rgb*calcDirectionalLight(norm, light_position[1].xyz);
+	col.rgb += light_diffuse[1].rgb*calcDirectionalLight(norm, light_direction[1].xyz);
 
 	// Add windlight lights
-	col.rgb += atmosAffectDirectionalLight(calcDirectionalLight(norm, light_position[0].xyz));
+	col.rgb += atmosAffectDirectionalLight(calcDirectionalLight(norm, light_direction[0].xyz));
 	col.rgb += atmosAmbient(baseLight.rgb);
 
 	col.rgb = min(col.rgb*color.rgb, 1.0);
