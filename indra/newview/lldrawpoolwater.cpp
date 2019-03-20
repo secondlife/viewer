@@ -271,9 +271,9 @@ void LLDrawPoolWater::render(S32 pass)
     glDisable(GL_TEXTURE_GEN_S); //texture unit 1
 	glDisable(GL_TEXTURE_GEN_T); //texture unit 1
 
-    gGL.getTexUnit(1)->activate();
-	gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(1)->disable();
+    gGL.getTexUnit(2)->activate();
+	gGL.getTexUnit(2)->unbind(LLTexUnit::TT_TEXTURE);
+	gGL.getTexUnit(2)->disable();
 
 	glDisable(GL_TEXTURE_GEN_S); //texture unit 1
 	glDisable(GL_TEXTURE_GEN_T); //texture unit 1

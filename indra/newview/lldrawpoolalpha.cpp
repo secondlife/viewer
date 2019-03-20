@@ -388,7 +388,7 @@ bool LLDrawPoolAlpha::TexSetup(LLDrawInfo* draw, bool use_shaders, bool use_mate
 
     bool tex_setup = false;
 
-    if (use_shaders && use_material && current_shader)
+    if (deferred_render && use_material && current_shader)
     {
         LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_DEFERRED_TEX_BINDS);
         if (draw->mNormalMap)
@@ -766,7 +766,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
                 F32 brightness = 1.0f;
 
                 // We have a material.  Supply the appropriate data here.
-				if (use_shaders && mat && LLPipeline::sRenderDeferred)
+				if (use_shaders && mat && deferred_render)
 				{
 					spec_color    = params.mSpecColor;
                     env_intensity = params.mEnvIntensity;
@@ -785,7 +785,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 					params.mGroup->rebuildMesh();
 				}
 
-                bool tex_setup = TexSetup(&params, use_shaders, mat != nullptr, current_shader);
+                bool tex_setup = TexSetup(&params, use_shaders, use_shaders && (mat != nullptr), current_shader);
 
 				{
 					LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_PUSH);
@@ -802,7 +802,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
                     }
 				}
 
-				// If this alpha mesh has glow, then draw it a second time to add the destination-alpha (=glow).  Interleaving these state-changing calls could be expensive, but glow must be drawn Z-sorted with alpha.
+				// If this alpha mesh has glow, then draw it a second time to add the destination-alpha (=glow).  Interleaving these state-changing calls is expensive, but glow must be drawn Z-sorted with alpha.
 				if (current_shader && 
 					draw_glow_for_this_partition &&
 					params.mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_EMISSIVE))
