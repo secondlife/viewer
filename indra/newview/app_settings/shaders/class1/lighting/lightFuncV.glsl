@@ -52,7 +52,7 @@ float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, floa
 	da *= spot*spot; // GL_SPOT_EXPONENT=2
 
 	//angular attenuation
-	da *= calcDirectionalLight(n, lv);
+	da *= calcDirectionalLight(n, -lv);
 
 	return da;	
 }

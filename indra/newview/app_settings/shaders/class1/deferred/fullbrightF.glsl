@@ -45,17 +45,6 @@ VARYING vec2 vary_texcoord0;
 vec4 applyWaterFogView(vec3 pos, vec4 color);
 #endif
 
-vec3 fullbrightAtmosTransportDeferred(vec3 light)
-{
-	return light;
-}
-
-vec3 fullbrightScaleSoftClipDeferred(vec3 light)
-{
-	//soft clip effect:
-	return light;
-}
-
 #ifdef HAS_ALPHA_MASK
 uniform float minimum_alpha;
 #endif
@@ -78,8 +67,6 @@ void main()
 #endif
 
 	color.rgb *= vertex_color.rgb;
-	color.rgb = fullbrightAtmosTransportDeferred(color.rgb);
-	color.rgb = fullbrightScaleSoftClipDeferred(color.rgb);
 	
 #ifdef WATER_FOG
 	vec3 pos = vary_position;

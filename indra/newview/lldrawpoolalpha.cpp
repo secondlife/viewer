@@ -49,10 +49,6 @@
 #include "llspatialpartition.h"
 #include "llglcommonfunc.h"
 
-// These optimizations can and will induce lighting, texturing, and/or GL state bugs
-#define BATCH_FULLBRIGHTS 0
-#define BATCH_EMISSIVES   0
-
 BOOL LLDrawPoolAlpha::sShowDebugAlpha = FALSE;
 
 static BOOL deferred_render = FALSE;
@@ -392,7 +388,7 @@ bool LLDrawPoolAlpha::TexSetup(LLDrawInfo* draw, bool use_shaders, bool use_mate
 
     bool tex_setup = false;
 
-    if (use_shaders && use_material && current_shader)
+    if (deferred_render && use_material && current_shader)
     {
         LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_DEFERRED_TEX_BINDS);
         if (draw->mNormalMap)
@@ -612,6 +608,8 @@ void LLDrawPoolAlpha::renderEmissives(U32 mask, std::vector<LLDrawInfo*>& emissi
 
 void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 {
+    BOOL batch_fullbrights = gSavedSettings.getBOOL("RenderAlphaBatchFullbrights");
+    BOOL batch_emissives   = gSavedSettings.getBOOL("RenderAlphaBatchEmissives");
 	BOOL initialized_lighting = FALSE;
 	BOOL light_enabled = TRUE;
 	
@@ -671,13 +669,11 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 					}
 				}
 
-            #if BATCH_FULLBRIGHTS
-                if (params.mFullbright)
+                if (params.mFullbright && batch_fullbrights)
 				{
                     fullbrights.push_back(&params);
                     continue;
 				}
-            #endif
 
 				LLRenderPass::applyModelMatrix(params);
 
@@ -770,7 +766,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
                 F32 brightness = 1.0f;
 
                 // We have a material.  Supply the appropriate data here.
-				if (use_shaders && mat && LLPipeline::sRenderDeferred)
+				if (use_shaders && mat && deferred_render)
 				{
 					spec_color    = params.mSpecColor;
                     env_intensity = params.mEnvIntensity;
@@ -789,7 +785,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 					params.mGroup->rebuildMesh();
 				}
 
-                bool tex_setup = TexSetup(&params, use_shaders, mat != nullptr, current_shader);
+                bool tex_setup = TexSetup(&params, use_shaders, use_shaders && (mat != nullptr), current_shader);
 
 				{
 					LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_PUSH);
@@ -806,17 +802,21 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
                     }
 				}
 
-				// If this alpha mesh has glow, then draw it a second time to add the destination-alpha (=glow).  Interleaving these state-changing calls could be expensive, but glow must be drawn Z-sorted with alpha.
+				// If this alpha mesh has glow, then draw it a second time to add the destination-alpha (=glow).  Interleaving these state-changing calls is expensive, but glow must be drawn Z-sorted with alpha.
 				if (current_shader && 
 					draw_glow_for_this_partition &&
 					params.mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_EMISSIVE))
 				{
                     LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_EMISSIVE);
-                #if BATCH_EMISSIVES
-                    emissives.push_back(&params);
-                #else
-                    drawEmissiveInline(mask, &params);
-                #endif
+
+                    if (batch_emissives)
+                    {
+                        emissives.push_back(&params);
+                    }
+                    else
+                    {
+                        drawEmissiveInline(mask, &params);
+                    } 
 				}
 			
 				if (tex_setup)
@@ -828,15 +828,17 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 				}
 			}
 
-            #if BATCH_FULLBRIGHTS
+            if (batch_fullbrights)
+            {
                 light_enabled = false;
                 renderFullbrights(mask, fullbrights);
-            #endif
+            }
 
-            #if BATCH_EMISSIVES
+            if (batch_emissives)
+            {
                 light_enabled = true;
                 renderEmissives(mask, emissives);
-            #endif
+            }
 
             if (current_shader)
             {

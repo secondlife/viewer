@@ -6346,7 +6346,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 				light_state->setSpotExponent(0.f);
 				light_state->setSpotCutoff(180.f);
 				
-				// we use specular.w = 1.0 as a cheap hack for the shaders to know that this is omnidirectional rather than a spotlight
+				// we use specular.z = 1.0 as a cheap hack for the shaders to know that this is omnidirectional rather than a spotlight
 				const LLColor4 specular(0.f, 0.f, 1.f, 0.f);
 				light_state->setSpecular(specular);				
 			}
