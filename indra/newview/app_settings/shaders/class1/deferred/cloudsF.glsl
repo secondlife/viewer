@@ -51,6 +51,7 @@ VARYING vec2 vary_texcoord0;
 VARYING vec2 vary_texcoord1;
 VARYING vec2 vary_texcoord2;
 VARYING vec2 vary_texcoord3;
+VARYING float altitude_blend_factor;
 
 /// Soft clips the light with a gamma correction
 vec3 scaleSoftClip(vec3 light);
@@ -102,10 +103,8 @@ void main()
     alpha1 = 1. - alpha1 * alpha1;
     alpha1 = 1. - alpha1 * alpha1;  
 
-    if (alpha1 < 0.001f)
-    {
-        discard;
-    }
+    alpha1 *= altitude_blend_factor;
+    alpha1 = clamp(alpha1, 0.0, 1.0);
 
     // Compute alpha2, for self shadowing effect
     // (1 - alpha2) will later be used as percentage of incoming sunlight
@@ -119,6 +118,7 @@ void main()
     // Combine
     vec4 color;
     color = (cloudColorSun*(1.-alpha2) + cloudColorAmbient);
+    color.rgb= max(vec3(0), color.rgb);
     color *= 2.;
 
     /// Gamma correct for WL (soft clip effect).

@@ -40,6 +40,7 @@ VARYING vec2 vary_texcoord0;
 VARYING vec2 vary_texcoord1;
 VARYING vec2 vary_texcoord2;
 VARYING vec2 vary_texcoord3;
+VARYING float altitude_blend_factor;
 
 // Inputs
 uniform vec3 camPosLocal;
@@ -76,6 +77,9 @@ void main()
     // Get relative position
     vec3 P = position.xyz - camPosLocal.xyz + vec3(0,50,0);
 
+    // fade clouds beyond a certain point so the bottom of the sky dome doesn't look silly at high altitude
+    altitude_blend_factor = (P.y > -4096.0) ? 1.0 : 1.0 - clamp(abs(P.y) / max_y, 0.0, 1.0);
+
     // Set altitude
     if (P.y > 0.)
     {
@@ -85,6 +89,7 @@ void main()
     {
         P *= (-32000. / P.y);
     }
+
 
     // Can normalize then
     vec3 Pn = normalize(P);

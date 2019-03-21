@@ -111,7 +111,7 @@ inline F32 LLVOWLSky::calcPhi(U32 i)
 	t = t*t;
 	t = 1.f - t;
 
-	return F_PI_BY_TWO * t;
+	return F_PI * t;
 }
 
 void LLVOWLSky::resetVertexBuffers()
@@ -248,8 +248,11 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 				LL_ERRS() << "Failed updating WindLight sky geometry." << LL_ENDL;
 			}
 
+            U32 vertex_count = 0;
+            U32 index_count  = 0;
+
 			// fill it
-			buildStripsBuffer(begin_stack, end_stack,  vertices, texCoords, indices);
+			buildStripsBuffer(begin_stack, end_stack, vertex_count, index_count, vertices, texCoords, indices);
 
 			// and unlock the buffer
 			segment->flush();
@@ -360,7 +363,10 @@ void LLVOWLSky::initStars()
 	}
 }
 
-void LLVOWLSky::buildStripsBuffer(U32 begin_stack, U32 end_stack,
+void LLVOWLSky::buildStripsBuffer(U32 begin_stack,
+                                  U32 end_stack,
+                                  U32& vertex_count,
+                                  U32& index_count,
 								  LLStrider<LLVector3> & vertices,
 								  LLStrider<LLVector2> & texCoords,
 								  LLStrider<U16> & indices)
@@ -380,7 +386,7 @@ void LLVOWLSky::buildStripsBuffer(U32 begin_stack, U32 end_stack,
 	llassert(end_stack <= num_stacks);
 
 	// stacks are iterated one-indexed since phi(0) was handled by the fan above
-	for(i = begin_stack + 1; i <= end_stack+1; ++i) 
+	for(i = begin_stack; i <= end_stack; ++i) 
 	{
 		phi0 = calcPhi(i);
 
@@ -434,6 +440,9 @@ void LLVOWLSky::buildStripsBuffer(U32 begin_stack, U32 end_stack,
 		*indices++ = i * num_slices + k ;
 		count_indices++ ;
 	}
+
+    vertex_count = count_verts;
+    index_count = count_indices;
 }
 
 void LLVOWLSky::updateStarColors()

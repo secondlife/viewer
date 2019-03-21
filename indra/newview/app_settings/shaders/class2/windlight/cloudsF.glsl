@@ -52,6 +52,7 @@ VARYING vec2 vary_texcoord0;
 VARYING vec2 vary_texcoord1;
 VARYING vec2 vary_texcoord2;
 VARYING vec2 vary_texcoord3;
+VARYING float altitude_blend_factor;
 
 /// Soft clips the light with a gamma correction
 vec3 scaleSoftClip(vec3 light);
@@ -102,6 +103,8 @@ void main()
     // And smooth
     alpha1 = 1. - alpha1 * alpha1;
     alpha1 = 1. - alpha1 * alpha1;  
+
+    alpha1 *= altitude_blend_factor;
 
     if (alpha1 < 0.001f)
     {

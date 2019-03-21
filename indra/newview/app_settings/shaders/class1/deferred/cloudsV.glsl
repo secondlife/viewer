@@ -41,6 +41,7 @@ VARYING vec2 vary_texcoord0;
 VARYING vec2 vary_texcoord1;
 VARYING vec2 vary_texcoord2;
 VARYING vec2 vary_texcoord3;
+VARYING float altitude_blend_factor;
 
 // Inputs
 uniform vec3 camPosLocal;
@@ -77,12 +78,15 @@ void main()
 	// Get relative position
 	vec3 P = position.xyz - camPosLocal.xyz + vec3(0,50,0);
 
+        altitude_blend_factor = (P.y > -4096.0) ? 1.0 : 1.0 - clamp(abs(P.y) / max_y, 0.0, 1.0);
+
 	// Set altitude
 	if (P.y > 0.)
 	{
 		P *= (max_y / P.y);
 	}
 	else
+        if (P.y <= 0.0)
 	{
 		P *= (-32000. / P.y);
 	}
@@ -121,7 +125,6 @@ void main()
 	// ATI Bugfix -- can't store temp1*temp2.z in a variable because the ati
 	// compiler gets confused.
 	temp1 = exp(-temp1 * temp2.z);
-
 
 	// Compute haze glow
 	temp2.x = dot(Pn, lightnorm.xyz);

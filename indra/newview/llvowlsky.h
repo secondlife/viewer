@@ -66,6 +66,8 @@ private:
 	// begin_stack is the first stack to be included, end_stack is the first
 	// stack not to be included.
 	static void buildStripsBuffer(U32 begin_stack, U32 end_stack,
+                                  U32& vertex_count,
+                                  U32& index_count,
 								  LLStrider<LLVector3> & vertices,
 								  LLStrider<LLVector2> & texCoords,
 								  LLStrider<U16> & indices);
