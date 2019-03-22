@@ -2,13 +2,13 @@
 <floater
  name="avatarinfo"
  height="510"
- width="430"
+ width="450"
  layout="topleft"
  can_close="true"
  can_resize="true"
  help_topic="panel_my_profile_tab"
  min_height="510"
- min_width="430"
+ min_width="450"
  positioning="centered"
  save_rect="true"
  title="Profile"
@@ -18,7 +18,7 @@
      top="0"
      left="0"
      height="500"
-     width="420"
+     width="445"
      follows="all"
      class="panel_profile"
     >
@@ -27,7 +27,7 @@
          top_pad="5"
          left="0"
          height="500"
-         width="420"
+         width="445"
          follows="all"
          layout="topleft"
          halign="center"
@@ -36,7 +36,7 @@
         >
             <panel
              name="panel_profile_secondlife"
-             label="2nd Life"
+             label="Second Life"
              layout="topleft"
              class="panel_profile_secondlife"
              filename="panel_profile_secondlife.xml"
@@ -76,7 +76,7 @@
             />
             <panel
              name="panel_profile_firstlife"
-             label="1st Life"
+             label="Real Life"
              layout="topleft"
              class="panel_profile_firstlife"
              filename="panel_profile_firstlife.xml"
