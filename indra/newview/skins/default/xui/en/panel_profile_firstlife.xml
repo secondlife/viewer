@@ -25,7 +25,7 @@
      top="10"
      left="6"
      height="225"
-     width="275"
+     width="225"
      follows="top|left"
      layout="topleft"
      allow_no_texture="true"

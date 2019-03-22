@@ -135,7 +135,7 @@
      top_pad="6"
      left_delta="0"
      height="180"
-     width="220"
+     width="180"
      follows="top|left"
      layout="topleft"
      allow_no_texture="true"
