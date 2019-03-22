@@ -74,9 +74,9 @@ LLOutputMonitorCtrl::LLOutputMonitorCtrl(const LLOutputMonitorCtrl::Params& p)
 	mSpeakerId(p.speaker_id),
 	mIsModeratorMuted(false),
 	mIsAgentControl(false),
-	mIsActiveChannel(false),
 	mIndicatorToggled(false),
-	mShowParticipantsSpeaking(false)
+	mShowParticipantsSpeaking(false),
+	mChannelState(INACTIVE_CHANNEL)
 {
 	//static LLUIColor output_monitor_muted_color = LLUIColorTable::instance().getColor("OutputMonitorMutedColor", LLColor4::orange);
 	//static LLUIColor output_monitor_overdriven_color = LLUIColorTable::instance().getColor("OutputMonitorOverdrivenColor", LLColor4::red);
@@ -259,8 +259,13 @@ BOOL LLOutputMonitorCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 
 void LLOutputMonitorCtrl::setIsActiveChannel(bool val)
 {
-    mIsActiveChannel = val;
-    if (!val)
+    setChannelState(val ? ACTIVE_CHANNEL : INACTIVE_CHANNEL);
+}
+
+void LLOutputMonitorCtrl::setChannelState(EChannelState state)
+{
+    mChannelState = state;
+    if (state == INACTIVE_CHANNEL)
     {
         // switchIndicator will set it to TRUE when channel becomes active
         setVisible(FALSE);
@@ -316,7 +321,7 @@ void LLOutputMonitorCtrl::onChange()
 // virtual
 void LLOutputMonitorCtrl::switchIndicator(bool switch_on)
 {
-    if (mIsActiveChannel && getVisible() != (BOOL)switch_on)
+    if ((mChannelState != INACTIVE_CHANNEL) && (getVisible() != (BOOL)switch_on))
     {
         setVisible(switch_on);
         
