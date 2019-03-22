@@ -81,8 +81,16 @@ public:
 	void			setIsAgentControl(bool val) { mIsAgentControl = val; }
 	void			setIsTalking(bool val) { mIsTalking = val; }
 
+	enum EChannelState
+	{
+		ACTIVE_CHANNEL,
+		INACTIVE_CHANNEL,
+		UNDEFINED_CHANNEL
+	};
+
 	// switchIndicator controls visibility, 'active channel' governs if we are allowed to show indicator
 	void			setIsActiveChannel(bool val);
+	void			setChannelState(EChannelState state);
 
 	void			setShowParticipantsSpeaking(bool show) { mShowParticipantsSpeaking = show; }
 
@@ -139,7 +147,6 @@ private:
 	bool			mIsModeratorMuted;
 	bool			mIsMuted;
 	bool			mIsTalking;
-	bool			mIsActiveChannel;
 	bool			mShowParticipantsSpeaking;
 	LLPointer<LLUIImage> mImageMute;
 	LLPointer<LLUIImage> mImageOff;
@@ -155,6 +162,8 @@ private:
 	LLUUID			mSpeakerId;
 
     bool mIndicatorToggled;
+
+    EChannelState	mChannelState;
 };
 
 #endif
