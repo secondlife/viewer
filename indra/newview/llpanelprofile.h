@@ -58,7 +58,7 @@ class LLLineEditor;
 class LLTextEditor;
 class LLPanelProfileClassifieds;
 class LLPanelProfilePicks;
-
+class LLViewerFetchedTexture;
 
 /**
 * Panel for displaying Avatar's second life related info.
@@ -148,6 +148,15 @@ protected:
 
 	void onGroupInvite();
 
+    void onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep);
+    static void onImageLoaded(BOOL success,
+                              LLViewerFetchedTexture *src_vi,
+                              LLImageRaw* src,
+                              LLImageRaw* aux_src,
+                              S32 discard_level,
+                              BOOL final,
+                              void* userdata);
+
 	bool isGrantedToSeeOnlineStatus();
 
 	/**
@@ -179,6 +188,7 @@ private:
 	LLGroupList*		mGroupList;
 	LLCheckBoxCtrl*		mShowInSearchCheckbox;
 	LLTextureCtrl*		mSecondLifePic;
+	LLPanel*			mSecondLifePicLayout;
 	LLTextBase*			mDescriptionEdit;
 	LLButton*			mTeleportButton;
 	LLButton*			mShowOnMapButton;

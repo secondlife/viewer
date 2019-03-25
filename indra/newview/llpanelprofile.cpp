@@ -257,6 +257,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mGroupList              = getChild<LLGroupList>("group_list");
     mShowInSearchCheckbox   = getChild<LLCheckBoxCtrl>("show_in_search_checkbox");
     mSecondLifePic          = getChild<LLTextureCtrl>("2nd_life_pic");
+    mSecondLifePicLayout    = getChild<LLPanel>("image_stack");
     mDescriptionEdit        = getChild<LLTextBase>("sl_description_edit");
     mTeleportButton         = getChild<LLButton>("teleport");
     mShowOnMapButton        = getChild<LLButton>("show_on_map_btn");
@@ -397,7 +398,12 @@ void LLPanelProfileSecondLife::resetData()
     getChild<LLUICtrl>("register_date")->setValue(LLStringUtil::null);
     getChild<LLUICtrl>("acc_status_text")->setValue(LLStringUtil::null);
     getChild<LLUICtrl>("partner_text")->setValue(LLStringUtil::null);
+
+    // Set default image and 1:1 dimensions for it
     mSecondLifePic->setValue(mSecondLifePic->getDefaultImageAssetID());
+    LLRect imageRect = mSecondLifePicLayout->getRect();
+    mSecondLifePicLayout->reshape(imageRect.getHeight(), imageRect.getHeight());
+
     mDescriptionEdit->setValue(LLStringUtil::null);
     mStatusText->setVisible(FALSE);
     mGroups.clear();
@@ -480,6 +486,23 @@ void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
     mDescriptionEdit->setValue(avatar_data->about_text);
     mSecondLifePic->setValue(avatar_data->image_id);
 
+    //Don't bother about boost level, picker will set it
+    LLViewerFetchedTexture* imagep = LLViewerTextureManager::getFetchedTexture(avatar_data->image_id);
+    if (imagep->getHeight())
+    {
+        onImageLoaded(true, imagep);
+    }
+    else
+    {
+        imagep->setLoadedCallback(onImageLoaded,
+                                  MAX_DISCARD_LEVEL,
+                                  FALSE,
+                                  FALSE,
+                                  new LLHandle<LLPanel>(getHandle()),
+                                  NULL,
+                                  FALSE);
+    }
+
     if (getSelfProfile())
     {
         mShowInSearchCheckbox->setValue((BOOL)(avatar_data->flags & AVATAR_ALLOW_PUBLISH));
@@ -553,6 +576,48 @@ void LLPanelProfileSecondLife::onTeleportButtonClick()
 void LLPanelProfileSecondLife::onGroupInvite()
 {
     LLAvatarActions::inviteToGroup(getAvatarId());
+}
+
+void LLPanelProfileSecondLife::onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep)
+{
+    LLRect imageRect = mSecondLifePicLayout->getRect();
+    if (!success || imagep->getWidth() == imagep->getHeight())
+    {
+        mSecondLifePicLayout->reshape(imageRect.getHeight(), imageRect.getHeight());
+    }
+    else
+    {
+        // assume 3:4, for sake of firestorm
+        mSecondLifePicLayout->reshape(imageRect.getHeight() * 4 / 3, imageRect.getHeight());
+    }
+}
+
+//static
+void LLPanelProfileSecondLife::onImageLoaded(BOOL success,
+                                             LLViewerFetchedTexture *src_vi,
+                                             LLImageRaw* src,
+                                             LLImageRaw* aux_src,
+                                             S32 discard_level,
+                                             BOOL final,
+                                             void* userdata)
+{
+    if (!userdata) return;
+
+    LLHandle<LLPanel>* handle = (LLHandle<LLPanel>*)userdata;
+
+    if (!handle->isDead())
+    {
+        LLPanelProfileSecondLife* panel = static_cast<LLPanelProfileSecondLife*>(handle->get());
+        if (panel)
+        {
+            panel->onImageLoaded(success, src_vi);
+        }
+    }
+
+    if (final || !success)
+    {
+        delete handle;
+    }
 }
 
 // virtual, called by LLAvatarTracker
