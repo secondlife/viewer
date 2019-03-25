@@ -20,7 +20,7 @@
      left="10"
      height="180"
      width="290"
-     follows="left|right|top"
+     follows="left|top"
      layout="topleft"
      fallback_image="default_land_picture.j2c"
     />
