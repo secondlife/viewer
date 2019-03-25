@@ -382,6 +382,20 @@ void LLAvatarActions::showPick(const LLUUID& avatar_id, const LLUUID& pick_id)
 }
 
 // static
+bool LLAvatarActions::isPickTabSelected(const LLUUID& avatar_id)
+{
+    if (avatar_id.notNull())
+    {
+        LLFloaterProfile* profilefloater = LLFloaterReg::findTypedInstance<LLFloaterProfile>("profile", LLSD().with("id", avatar_id));
+        if (profilefloater)
+        {
+            return profilefloater->isPickTabSelected();
+        }
+    }
+    return false;
+}
+
+// static
 void LLAvatarActions::showClassifieds(const LLUUID& avatar_id)
 {
 	if (avatar_id.notNull())

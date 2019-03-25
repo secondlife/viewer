@@ -393,6 +393,7 @@ public:
     void apply();
 
     void showPick(const LLUUID& pick_id = LLUUID::null);
+    bool isPickTabSelected();
 
     void showClassified(const LLUUID& classified_id = LLUUID::null, bool edit = false);
 

@@ -79,6 +79,11 @@ void LLFloaterProfile::showPick(const LLUUID& pick_id)
     mPanelProfile->showPick(pick_id);
 }
 
+bool LLFloaterProfile::isPickTabSelected()
+{
+    return mPanelProfile->isPickTabSelected();
+}
+
 void LLFloaterProfile::showClassified(const LLUUID& classified_id, bool edit)
 {
     mPanelProfile->showClassified(classified_id, edit);

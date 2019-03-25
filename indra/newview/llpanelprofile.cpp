@@ -1476,6 +1476,12 @@ void LLPanelProfile::showPick(const LLUUID& pick_id)
     mTabContainer->selectTabPanel(mPanelPicks);
 }
 
+bool LLPanelProfile::isPickTabSelected()
+{
+	return (mTabContainer->getCurrentPanel() == mPanelPicks);
+}
+
+
 void LLPanelProfile::showClassified(const LLUUID& classified_id, bool edit)
 {
     if (classified_id.notNull())

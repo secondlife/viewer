@@ -3476,6 +3476,11 @@ bool my_profile_visible()
 	return floaterp && floaterp->isInVisibleChain();
 }
 
+bool picks_tab_visible()
+{
+    return my_profile_visible() && LLAvatarActions::isPickTabSelected(gAgentID);
+}
+
 bool enable_freeze_eject(const LLSD& avatar_id)
 {
 	// Use avatar_id if available, otherwise default to right-click avatar
@@ -6098,6 +6103,29 @@ class LLAvatarToggleMyProfile : public view_listener_t
 		}
 		return true;
 	}
+};
+
+class LLAvatarTogglePicks : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        LLFloater* instance = LLAvatarActions::getProfileFloater(gAgent.getID());
+        if (LLFloater::isMinimized(instance) || (instance && !instance->hasFocus() && !instance->getIsChrome()))
+        {
+            instance->setMinimized(FALSE);
+            instance->setFocus(TRUE);
+            LLAvatarActions::showPicks(gAgent.getID());
+        }
+        else if (picks_tab_visible())
+        {
+            instance->closeFloater();
+        }
+        else
+        {
+            LLAvatarActions::showPicks(gAgent.getID());
+        }
+        return true;
+    }
 };
 
 class LLAvatarResetSkeleton: public view_listener_t
@@ -9182,10 +9210,12 @@ void initialize_menus()
 	enable.add("Avatar.EnableCall", boost::bind(&LLAvatarActions::canCall));
 	view_listener_t::addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse");
 	view_listener_t::addMenu(new LLAvatarToggleMyProfile(), "Avatar.ToggleMyProfile");
+	view_listener_t::addMenu(new LLAvatarTogglePicks(), "Avatar.TogglePicks");
 	view_listener_t::addMenu(new LLAvatarResetSkeleton(), "Avatar.ResetSkeleton");
 	view_listener_t::addMenu(new LLAvatarEnableResetSkeleton(), "Avatar.EnableResetSkeleton");
 	view_listener_t::addMenu(new LLAvatarResetSkeletonAndAnimations(), "Avatar.ResetSkeletonAndAnimations");
 	enable.add("Avatar.IsMyProfileOpen", boost::bind(&my_profile_visible));
+    enable.add("Avatar.IsPicksTabOpen", boost::bind(&picks_tab_visible));
 
 	commit.add("Avatar.OpenMarketplace", boost::bind(&LLWeb::loadURLExternal, gSavedSettings.getString("MarketplaceURL")));
 	

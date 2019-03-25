@@ -103,6 +103,7 @@ public:
     static void showClassified(const LLUUID& avatar_id, const LLUUID& classified_id, bool edit = false);
     static void hideProfile(const LLUUID& avatar_id);
     static bool profileVisible(const LLUUID& avatar_id);
+    static bool isPickTabSelected(const LLUUID& avatar_id);
     static LLFloater* getProfileFloater(const LLUUID& avatar_id);
     static void showProfileWeb(const LLUUID& avatar_id);
 
