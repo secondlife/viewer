@@ -154,10 +154,8 @@ void main()
 	if (proj_shadow_idx >= 0)
 	{
 		vec4 shd = texture2DRect(lightMap, frag.xy);
-		float sh[2];
-		sh[0] = shd.b;
-		sh[1] = shd.a;
-		shadow = min(sh[proj_shadow_idx]+shadow_fade, 1.0);
+                shadow = max(shd.b, shd.a) + shadow_fade;
+		shadow = min(shadow, 1.0);
 	}
 	
 	vec3 norm = texture2DRect(normalMap, frag.xy).xyz;
@@ -254,8 +252,9 @@ void main()
 		if (nh > 0.0)
 		{
 			float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
-			col += dlit*scol*spec.rgb*shadow;
-			//col += spec.rgb;
+			vec3 speccol = dlit*scol*spec.rgb*shadow;
+            speccol = max(speccol, vec3(0));
+			col += speccol;
 		}
 	}	
 	
