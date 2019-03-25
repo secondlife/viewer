@@ -276,8 +276,8 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mTeleportButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onTeleportButtonClick, this));
     mShowOnMapButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onMapButtonClick, this));
     mPayButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::pay, this));
-    mBlockButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::toggleBlock,this));
-    mUnblockButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::toggleBlock,this));
+    mBlockButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onClickToggleBlock, this));
+    mUnblockButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onClickToggleBlock, this));
     mGroupInviteButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onGroupInvite,this));
     mDisplayNameButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onClickSetName, this));
 
@@ -519,11 +519,20 @@ void LLPanelProfileSecondLife::pay()
     LLAvatarActions::pay(getAvatarId());
 }
 
-void LLPanelProfileSecondLife::toggleBlock()
+void LLPanelProfileSecondLife::onClickToggleBlock()
 {
-    LLAvatarActions::toggleBlock(getAvatarId());
+    bool blocked = LLAvatarActions::toggleBlock(getAvatarId());
 
     updateButtons();
+    // we are hiding one button and showing another, set focus
+    if (blocked)
+    {
+        mUnblockButton->setFocus(true);
+    }
+    else
+    {
+        mBlockButton->setFocus(true);
+    }
 }
 
 void LLPanelProfileSecondLife::onAddFriendButtonClick()

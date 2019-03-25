@@ -1076,7 +1076,7 @@ bool LLAvatarActions::canShareSelectedItems(LLInventoryPanel* inv_panel /* = NUL
 }
 
 // static
-void LLAvatarActions::toggleBlock(const LLUUID& id)
+bool LLAvatarActions::toggleBlock(const LLUUID& id)
 {
 	LLAvatarName av_name;
 	LLAvatarNameCache::get(id, &av_name);
@@ -1086,10 +1086,12 @@ void LLAvatarActions::toggleBlock(const LLUUID& id)
 	if (LLMuteList::getInstance()->isMuted(mute.mID, mute.mName))
 	{
 		LLMuteList::getInstance()->remove(mute);
+		return false;
 	}
 	else
 	{
 		LLMuteList::getInstance()->add(mute);
+		return true;
 	}
 }
 

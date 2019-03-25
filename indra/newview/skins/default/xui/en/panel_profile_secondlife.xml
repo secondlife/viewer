@@ -438,7 +438,7 @@
              label="Unblock"
              tool_tip="Unblock this Resident"
              top_delta="0"
-             right="-40"
+             height="20"
              follows="left|top|right"
              layout="topleft"
             />

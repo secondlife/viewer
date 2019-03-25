@@ -138,8 +138,9 @@ protected:
 
 	/**
 	 * Add/remove resident to/from your block list.
+	 * Updates button focus
 	 */
-	void toggleBlock();
+	void onClickToggleBlock();
 
 	void onAddFriendButtonClick();
 	void onIMButtonClick();

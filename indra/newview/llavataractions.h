@@ -134,9 +134,10 @@ public:
 	static void shareWithAvatars(LLView * panel);
 
 	/**
-	 * Block/unblock the avatar.
+	 * Block/unblock the avatar by id.
+	 * Returns true if blocked, returns false if unblocked
 	 */
-	static void toggleBlock(const LLUUID& id);
+	static bool toggleBlock(const LLUUID& id);
 
 	/**
 	 * Mute/unmute avatar.
