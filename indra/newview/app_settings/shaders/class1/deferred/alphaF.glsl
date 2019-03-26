@@ -100,12 +100,14 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
         vec3 norm = normalize(n);
 
         da = max(0.0, dot(norm, lv));
+        //da = min(da, shadow);
         da = clamp(da, 0.0, 1.0);
  
         //distance attenuation
         float dist = d/la;
         float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
         dist_atten *= dist_atten;
+        dist_atten *= 2.0f;
 
         // spotlight coefficient.
         float spot = max(dot(-ln, lv), is_pointlight);
@@ -113,12 +115,16 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
 
         // to match spotLight (but not multiSpotLight) *sigh*
         float lit = max(da * dist_atten,0.0);
+
+        // the shadowmap is wrong for alpha objects
+        // since we only have 2 maps but N spots
+        //col = lit * light_col * diffuse * shadow;
         col = lit * light_col * diffuse;
 
         float amb_da = ambiance;
+        amb_da += (da*0.5) * (1.0 - shadow) * ambiance;
+        amb_da += (da*da*0.5 + 0.5) * (1.0 - shadow) * ambiance;
         amb_da *= dist_atten;
-        amb_da += (da*0.5) * ambiance;
-        amb_da += (da*da*0.5 + 0.25) * ambiance;
         amb_da = min(amb_da, 1.0f - lit);
 
         col.rgb += amb_da * light_col * diffuse;
@@ -189,6 +195,7 @@ void main()
     vec3 light_dir = (sun_up_factor == 1) ? sun_dir: moon_dir;
     float da = dot(norm.xyz, light_dir.xyz);
           da = clamp(da, 0.0, 1.0);
+          da = pow(da, 1.0 / 1.3);
 
     vec4 color = vec4(0,0,0,0);
 

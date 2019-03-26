@@ -104,23 +104,28 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
         float dist = d/la;
         float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
         dist_atten *= dist_atten;
-        
+        dist_atten *= 2.0f;
+
         // spotlight coefficient.
         float spot = max(dot(-ln, lv), is_pointlight);
         da *= spot*spot; // GL_SPOT_EXPONENT=2
 
         //angular attenuation
         da = dot(n, lv);
+        //da = min(da, shadow);
         da *= clamp(da, 0.0, 1.0);
-        
+
         float lit = max(da * dist_atten, 0.0);
 
+        // shadowmap is wrong for alpha-blended objs
+        // since we created shadowmaps for 2 but render N
+        //col = light_col*lit*diffuse*shadow;
         col = light_col*lit*diffuse;
-
+        
         float amb_da = ambiance;
+        amb_da += (da*0.5) * (1.0 - shadow) * ambiance;
+        amb_da += (da*da*0.5 + 0.5) * (1.0 - shadow) * ambiance;
         amb_da *= dist_atten;
-        amb_da += (da*0.5) * ambiance;
-        amb_da += (da*da*0.5 + 0.25) * ambiance;
         amb_da = min(amb_da, 1.0f - lit);
 
         col.rgb += amb_da * light_col * diffuse;
@@ -135,10 +140,10 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
             float sa = nh;
             float fres = pow(1 - dot(h, npos), 5)*0.4+0.5;
 
-            float gtdenom = abs(2 * nh);
+            float gtdenom = 2 * nh;
             float gt = max(0, min(gtdenom * nv / vh, gtdenom * da / vh));
                                 
-            if (gtdenom > 0.0)
+            if (nh > 0.0)
             {
                 float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
                 vec3 speccol = lit*scol*light_col.rgb*spec.rgb;

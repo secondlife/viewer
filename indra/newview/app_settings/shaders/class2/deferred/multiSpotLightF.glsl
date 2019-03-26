@@ -143,11 +143,11 @@ void main()
 	vec3 pos = getPosition(frag.xy).xyz;
 	vec3 lv = center.xyz-pos.xyz;
 	float dist = length(lv);
-	dist /= size;
-	if (dist > 1.0)
-	{
-		discard;
-	}
+
+    if ((size > 0) && ((dist / size) > 1.0))
+    {
+        discard;
+    }
 	
 	float shadow = 1.0;
 	
@@ -225,11 +225,8 @@ void main()
 		vec4 amb_plcol = texture2DLodAmbient(projectionMap, proj_tc.xy, proj_lod);
 							
 		amb_da += (da*da*0.5+0.5)*(1.0-shadow)*proj_ambiance;
-				
 		amb_da *= dist_atten * noise;
-			
 		amb_da = min(amb_da, 1.0-lit);
-			
 		col += amb_da*color.rgb*diff_tex.rgb*amb_plcol.rgb*amb_plcol.a;
 	}
 	

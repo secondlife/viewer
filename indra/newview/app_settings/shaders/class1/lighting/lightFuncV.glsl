@@ -28,7 +28,7 @@
 
 float calcDirectionalLight(vec3 n, vec3 l)
 {
-	float a = max(dot(n,l),0.0);
+	float a = max(dot(n,normalize(l)),0.0);
 	return a;
 }
 
