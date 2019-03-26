@@ -8703,7 +8703,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
                     LLVector4a center;
                     center.load3(drawablep->getPositionAgent().mV);
                     const F32* c = center.getF32ptr();
-                    F32 s = volume->getLightRadius()*1.5f;
+                    F32 s = volume->getLightRadius();
 
                     LLColor3 col = volume->getLightColor();
                     
@@ -8770,7 +8770,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
                         mat.mult_matrix_vec(tc);
                     
                         fullscreen_lights.push_back(LLVector4(tc.v[0], tc.v[1], tc.v[2], s));
-                        light_colors.push_back(LLVector4(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f));
+                        light_colors.push_back(LLVector4(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()));
                     }
                 }
                 unbindDeferredShader(gDeferredLightProgram);
@@ -8795,7 +8795,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
                     LLVector4a center;
                     center.load3(drawablep->getPositionAgent().mV);
                     const F32* c = center.getF32ptr();
-                    F32 s = volume->getLightRadius()*1.5f;
+                    F32 s = volume->getLightRadius();
 
                     sVisibleLightCount++;
 
@@ -8888,7 +8888,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
 
                     LLVector3 center = drawablep->getPositionAgent();
                     F32* c = center.mV;
-                    F32 s = volume->getLightRadius()*1.5f;
+                    F32 s = volume->getLightRadius();
 
                     sVisibleLightCount++;
 
