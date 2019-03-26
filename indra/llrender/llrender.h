@@ -239,6 +239,7 @@ public:
 	void setSpotExponent(const F32& exponent);
 	void setSpotCutoff(const F32& cutoff);
 	void setSpotDirection(const LLVector3& direction);
+    void setSunPrimary(bool v);
 
 protected:
 	friend class LLRender;
@@ -247,6 +248,7 @@ protected:
 	bool mEnabled;
 	LLColor4 mDiffuse;
     LLColor4 mDiffuseB;
+    bool     mSunIsPrimary;
 	LLColor4 mAmbient;
 	LLColor4 mSpecular;
 	LLVector4 mPosition;

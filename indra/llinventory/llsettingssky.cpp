@@ -1281,7 +1281,7 @@ void LLSettingsSky::calculateLightSettings() const
 
     // and vary_sunlight will work properly with moon light
     F32 lighty = lightnorm[1];
-    if(fabs(lighty) > 0.001f)
+    if(lighty > 0.001f)
     {
         lighty = 1.f / lighty;
     }

@@ -6240,6 +6240,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
         LLLightState* light = gGL.getLight(0);
         light->setPosition(light_dir);
 
+        light->setSunPrimary(sun_up);
         light->setDiffuse(mSunDiffuse);
         light->setDiffuseB(mMoonDiffuse);
         light->setAmbient(LLColor4::black);
@@ -6361,7 +6362,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 	{
 		mHWLightColors[cur_light] = LLColor4::black;
 		LLLightState* light = gGL.getLight(cur_light);
-
+        light->setSunPrimary(true);
 		light->setDiffuse(LLColor4::black);
 		light->setAmbient(LLColor4::black);
 		light->setSpecular(LLColor4::black);

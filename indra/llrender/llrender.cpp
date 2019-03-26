@@ -850,8 +850,11 @@ LLLightState::LLLightState(S32 index)
 	if (mIndex == 0)
 	{
 		mDiffuse.set(1,1,1,1);
+        mDiffuseB.set(0,0,0,0);
 		mSpecular.set(1,1,1,1);
 	}
+
+    mSunIsPrimary = true;
 
 	mAmbient.set(0,0,0,1);
 	mPosition.set(0,0,1,0);
@@ -902,6 +905,15 @@ void LLLightState::setDiffuseB(const LLColor4& diffuse)
 		++gGL.mLightHash;
 		mDiffuseB = diffuse;
 	}
+}
+
+void LLLightState::setSunPrimary(bool v)
+{
+    if (mSunIsPrimary != v)
+    {
+        ++gGL.mLightHash;
+		mSunIsPrimary = v;
+    }
 }
 
 void LLLightState::setAmbient(const LLColor4& ambient)
@@ -1162,7 +1174,8 @@ void LLRender::syncLightState()
 		LLVector3 direction[8];
 		LLVector4 attenuation[8];
 		LLVector3 diffuse[8];
-        LLVector3 diffuseB[8];
+        LLVector3 diffuse_b[8];
+        bool      sun_primary[8];
 
 		for (U32 i = 0; i < 8; i++)
 		{
@@ -1172,7 +1185,8 @@ void LLRender::syncLightState()
 			direction[i] = light->mSpotDirection;
             attenuation[i].set(light->mLinearAtten, light->mQuadraticAtten, light->mSpecular.mV[2], light->mSpecular.mV[3]);
 			diffuse[i].set(light->mDiffuse.mV);
-            diffuseB[i].set(light->mDiffuseB.mV);
+            diffuse_b[i].set(light->mDiffuseB.mV);
+            sun_primary[i] = light->mSunIsPrimary;
 		}
 
 		shader->uniform4fv(LLShaderMgr::LIGHT_POSITION, 8, position[0].mV);
@@ -1180,6 +1194,8 @@ void LLRender::syncLightState()
 		shader->uniform4fv(LLShaderMgr::LIGHT_ATTENUATION, 8, attenuation[0].mV);
 		shader->uniform3fv(LLShaderMgr::LIGHT_DIFFUSE, 8, diffuse[0].mV);
 		shader->uniform4fv(LLShaderMgr::LIGHT_AMBIENT, 1, mAmbientLightColor.mV);
+        shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_primary[0] ? 1 : 0);
+        shader->uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, diffuse_b[0].mV);
 	}
 }
 
