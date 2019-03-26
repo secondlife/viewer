@@ -1131,6 +1131,7 @@ bool LLAppViewer::init()
 
 	gGLActive = FALSE;
 
+#if LL_RELEASE_FOR_DOWNLOAD
 	LLProcess::Params updater;
 	updater.desc = "updater process";
 	// Because it's the updater, it MUST persist beyond the lifespan of the
@@ -1189,6 +1190,7 @@ bool LLAppViewer::init()
 							 << "lleventhost no longer supported as a dynamic library"
 							 << LL_ENDL;
 	}
+#endif
 
 	LLViewerMedia::initClass();
 	LL_INFOS("InitInfo") << "Viewer media initialized." << LL_ENDL ;

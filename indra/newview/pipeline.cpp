@@ -4137,6 +4137,12 @@ void LLPipeline::renderHighlights()
 		glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
 				
 		gGL.setColorMask(false, false);
+
+        if (LLGLSLShader::sNoFixedFunction)
+        {
+            gHighlightProgram.bind();
+        }
+
 		for (std::set<HighlightItem>::iterator iter = mHighlightSet.begin(); iter != mHighlightSet.end(); ++iter)
 		{
 			renderHighlight(iter->mItem->getVObj(), 1.f);
@@ -10500,6 +10506,11 @@ void LLPipeline::generateHighlight(LLCamera& camera)
 		disableLights();
 		gGL.setColorMask(true, true);
 		mHighlight.clear();
+
+        if (!LLGLSLShader::sNoFixedFunction)
+        {
+            gHighlightProgram.bind();
+        }
 
 		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
 		for (std::set<HighlightItem>::iterator iter = mHighlightSet.begin(); iter != mHighlightSet.end(); )

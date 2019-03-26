@@ -1812,12 +1812,15 @@ void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 	{
 		if (item->getType() <= LLAssetType::AT_NONE)
 		{
+#if VERBOSE_ASSET_TYPE_WARNINGS
 			LL_WARNS(LOG_INV) << "Got bad asset type for item [ name: " << item->getName()
 							  << " type: " << item->getType()
 							  << " inv-type: " << item->getInventoryType() << " ], ignoring." << LL_ENDL;
+#endif
 			return;
 		}
 
+#if VERBOSE_ASSET_TYPE_WARNINGS
 		if (LLAssetType::lookup(item->getType()) == LLAssetType::badLookup())
 		{
 			LL_WARNS(LOG_INV) << "Got unknown asset type for item [ name: " << item->getName()
@@ -1833,6 +1836,8 @@ void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 							  << " itemID: " << item->getUUID()
 							  << " assetID: " << item->getAssetUUID() << " )  parent: " << item->getParentUUID() << LL_ENDL;
 		}
+#endif
+
 		if (item->getIsLinkType())
 		{
 			// Add back-link from linked-to UUID.
