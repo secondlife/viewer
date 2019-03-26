@@ -471,8 +471,9 @@ void LLPanelProfileSecondLife::onAvatarNameCache(const LLUUID& agent_id, const L
 
 void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
 {
-    //remove avatar id from cache to get fresh info
-    LLAvatarIconIDCache::getInstance()->remove(avatar_data->avatar_id);
+    // Refresh avatar id in cache with new info to prevent re-requests
+    // and to make sure icons in text will be up to date
+    LLAvatarIconIDCache::getInstance()->add(avatar_data->avatar_id, avatar_data->image_id);
 
     LLStringUtil::format_map_t args;
     {
