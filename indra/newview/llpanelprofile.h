@@ -177,6 +177,7 @@ protected:
 private:
     /*virtual*/ void updateButtons();
 	void onClickSetName();
+	void onCommitTexture();
 	void onAvatarNameCacheSetName(const LLUUID& id, const LLAvatarName& av_name);
 
 private:

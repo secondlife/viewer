@@ -281,6 +281,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mUnblockButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onClickToggleBlock, this));
     mGroupInviteButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onGroupInvite,this));
     mDisplayNameButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onClickSetName, this));
+    mSecondLifePic->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onCommitTexture, this));
 
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable;
     enable.add("Profile.EnableCall",                [this](LLUICtrl*, const LLSD&) { return mVoiceStatus; });
@@ -488,7 +489,7 @@ void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
 
     //Don't bother about boost level, picker will set it
     LLViewerFetchedTexture* imagep = LLViewerTextureManager::getFetchedTexture(avatar_data->image_id);
-    if (imagep->getHeight())
+    if (imagep->getFullHeight())
     {
         onImageLoaded(true, imagep);
     }
@@ -581,7 +582,7 @@ void LLPanelProfileSecondLife::onGroupInvite()
 void LLPanelProfileSecondLife::onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep)
 {
     LLRect imageRect = mSecondLifePicLayout->getRect();
-    if (!success || imagep->getWidth() == imagep->getHeight())
+    if (!success || imagep->getFullWidth() == imagep->getFullHeight())
     {
         mSecondLifePicLayout->reshape(imageRect.getHeight(), imageRect.getHeight());
     }
@@ -740,6 +741,25 @@ void LLPanelProfileSecondLife::onClickSetName()
     LLAvatarNameCache::get(getAvatarId(), boost::bind(&LLPanelProfileSecondLife::onAvatarNameCacheSetName, this, _1, _2));
 
     LLFirstUse::setDisplayName(false);
+}
+
+void LLPanelProfileSecondLife::onCommitTexture()
+{
+    LLViewerFetchedTexture* imagep = LLViewerTextureManager::getFetchedTexture(mSecondLifePic->getImageAssetID());
+    if (imagep->getFullHeight())
+    {
+        onImageLoaded(true, imagep);
+    }
+    else
+    {
+        imagep->setLoadedCallback(onImageLoaded,
+            MAX_DISCARD_LEVEL,
+            FALSE,
+            FALSE,
+            new LLHandle<LLPanel>(getHandle()),
+            NULL,
+            FALSE);
+    }
 }
 
 void LLPanelProfileSecondLife::onAvatarNameCacheSetName(const LLUUID& agent_id, const LLAvatarName& av_name)
