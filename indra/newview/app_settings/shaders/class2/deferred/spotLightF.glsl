@@ -144,18 +144,20 @@ void main()
 	vec3 lv = trans_center.xyz-pos.xyz;
 	float dist = length(lv);
 
-    if ((size > 0) && ((dist / size) > 1.0))
+    if (dist >= size)
     {
         discard;
     }
-	
+	dist /= size;
+
 	float shadow = 1.0;
 	
 	if (proj_shadow_idx >= 0)
 	{
 		vec4 shd = texture2DRect(lightMap, frag.xy);
-                shadow = max(shd.b, shd.a) + shadow_fade;
-		shadow = min(shadow, 1.0);
+        shadow = (proj_shadow_idx == 0) ? shd.b : shd.a;
+		shadow = clamp(shadow, 0.0, 1.0);
+        shadow += shadow_fade;
 	}
 	
 	vec3 norm = texture2DRect(normalMap, frag.xy).xyz;
@@ -173,7 +175,7 @@ void main()
 	
 	proj_tc.xyz /= proj_tc.w;
 	
-	float fa = falloff + 1.0;
+	float fa = (falloff * 0.5) + 1.0;
 	float dist_atten = min(1.0 - (dist - 1.0 * (1.0 - fa)) / fa, 1.0);
 	dist_atten *= dist_atten;
 	dist_atten *= 2.0;
