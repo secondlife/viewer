@@ -859,11 +859,15 @@ LLSettingsDay::CycleTrack_t::value_type LLSettingsDay::getSettingsNearKeyframe(c
     if (startframe < 0.0f)
         startframe = 1.0f + startframe;
 
-    CycleTrack_t::iterator it = get_wrapping_atafter(const_cast<CycleTrack_t &>(mDayTracks[track]), startframe);
+    LLSettingsDay::CycleTrack_t collection = const_cast<CycleTrack_t &>(mDayTracks[track]);
+    CycleTrack_t::iterator it = get_wrapping_atafter(collection, startframe);
 
     F32 dist = get_wrapping_distance(startframe, (*it).first);
 
-    if (dist <= (fudge * 2.0f))
+    CycleTrack_t::iterator next_it = std::next(it);
+    if ((dist <= DEFAULT_MULTISLIDER_INCREMENT) && next_it != collection.end())
+        return (*next_it);
+    else if (dist <= (fudge * 2.0f))
         return (*it);
 
     return CycleTrack_t::value_type(TrackPosition(INVALID_TRACKPOS), LLSettingsBase::ptr_t());
