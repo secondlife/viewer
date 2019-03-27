@@ -210,6 +210,7 @@ protected:
     void resetControls();
 
     /*virtual*/ void updateButtons();
+    void updateInfoRect();
 
     static std::string createLocationText(
         const std::string& original_name,
@@ -303,7 +304,7 @@ private:
     LLTextureCtrl*      mSnapshotCtrl;
     LLUICtrl*           mEditIcon;
     LLUICtrl*           mClassifiedNameText;
-    LLUICtrl*           mClassifiedDescText;
+    LLTextEditor*       mClassifiedDescText;
     LLLineEditor*       mClassifiedNameEdit;
     LLTextEditor*       mClassifiedDescEdit;
     LLUICtrl*           mLocationText;
@@ -334,7 +335,8 @@ private:
     LLPanel*            mCancelBtnCnt;
 
     LLScrollContainer*  mScrollContainer;
-    LLPanel*            mInfoPanel;
+    LLView*             mInfoPanel;
+    LLPanel*            mInfoScroll;
     LLPanel*            mEditPanel;
 
 

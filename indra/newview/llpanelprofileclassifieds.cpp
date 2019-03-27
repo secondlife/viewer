@@ -62,6 +62,7 @@
 const S32 MAX_AVATAR_CLASSIFIEDS = 100;
 
 const S32 MINIMUM_PRICE_FOR_LISTING = 50; // L$
+const S32 DEFAULT_EDIT_CLASSIFIED_SCROLL_HEIGHT = 530;
 
 //static
 LLPanelProfileClassified::panel_list_t LLPanelProfileClassified::sAllPanels;
@@ -433,7 +434,8 @@ LLPanelProfileClassified* LLPanelProfileClassified::create()
 BOOL LLPanelProfileClassified::postBuild()
 {
     mScrollContainer    = getChild<LLScrollContainer>("profile_scroll");
-    mInfoPanel          = getChild<LLPanel>("info_panel");
+    mInfoPanel          = getChild<LLView>("info_panel");
+    mInfoScroll         = getChild<LLPanel>("info_scroll_content_panel");
     mEditPanel          = getChild<LLPanel>("edit_panel");
 
     mSnapshotCtrl       = getChild<LLTextureCtrl>("classified_snapshot");
@@ -441,7 +443,7 @@ BOOL LLPanelProfileClassified::postBuild()
 
     //info
     mClassifiedNameText = getChild<LLUICtrl>("classified_name");
-    mClassifiedDescText = getChild<LLUICtrl>("classified_desc");
+    mClassifiedDescText = getChild<LLTextEditor>("classified_desc");
     mLocationText       = getChild<LLUICtrl>("classified_location");
     mCategoryText       = getChild<LLUICtrl>("category");
     mContentTypeText    = getChild<LLUICtrl>("content_type");
@@ -684,6 +686,7 @@ void LLPanelProfileClassified::setEditMode(BOOL edit_mode)
 
     scrollToTop();
     updateButtons();
+    updateInfoRect();
 }
 
 void LLPanelProfileClassified::updateButtons()
@@ -695,6 +698,27 @@ void LLPanelProfileClassified::updateButtons()
     mCancelBtnCnt->setVisible(edit_mode);
     mSaveBtnCnt->setVisible(edit_mode);
     mEditButton->setVisible(!edit_mode && getSelfProfile());
+}
+
+void LLPanelProfileClassified::updateInfoRect()
+{
+    if (getEditMode())
+    {
+        // info_scroll_content_panel contains both info and edit panel
+        // info panel can be very large and scroll bar will carry over.
+        // Resize info panel to prevent scroll carry over when in edit mode.
+        mInfoScroll->reshape(mInfoScroll->getRect().getWidth(), DEFAULT_EDIT_CLASSIFIED_SCROLL_HEIGHT, FALSE);
+    }
+    else
+    {
+        // Adjust text height to make description scrollable.
+        S32 new_height = mClassifiedDescText->getTextBoundingRect().getHeight();
+        LLRect visible_rect = mClassifiedDescText->getVisibleDocumentRect();
+        S32 delta_height = new_height - visible_rect.getHeight() + 5;
+
+        LLRect rect = mInfoScroll->getRect();
+        mInfoScroll->reshape(rect.getWidth(), rect.getHeight() + delta_height, FALSE);
+    }
 }
 
 void LLPanelProfileClassified::enableEditing(bool enable)
@@ -851,6 +875,8 @@ void LLPanelProfileClassified::setDescription(const std::string& desc)
 {
     mClassifiedDescText->setValue(desc);
     mClassifiedDescEdit->setValue(desc);
+
+    updateInfoRect();
 }
 
 std::string LLPanelProfileClassified::getDescription()
