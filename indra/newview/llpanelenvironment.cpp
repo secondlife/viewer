@@ -686,30 +686,36 @@ void LLPanelEnvironmentInfo::readjustAltLabels()
 
 void LLPanelEnvironmentInfo::onSldDayLengthChanged(F32 value)
 {
-    F32Hours daylength(value);
+    if (mCurrentEnvironment)
+    {
+        F32Hours daylength(value);
 
-    mCurrentEnvironment->mDayLength = daylength;
-    setDirtyFlag(DIRTY_FLAG_DAYLENGTH);
+        mCurrentEnvironment->mDayLength = daylength;
+        setDirtyFlag(DIRTY_FLAG_DAYLENGTH);
 
-    udpateApparentTimeOfDay();
+        udpateApparentTimeOfDay();
+    }
 }
 
 void LLPanelEnvironmentInfo::onSldDayOffsetChanged(F32 value)
 {
-    F32Hours dayoffset(value);
+    if (mCurrentEnvironment)
+    {
+        F32Hours dayoffset(value);
 
-    if (dayoffset.value() <= 0.0f)
-        dayoffset += F32Hours(24.0);
+        if (dayoffset.value() <= 0.0f)
+            dayoffset += F32Hours(24.0);
 
-    mCurrentEnvironment->mDayOffset = dayoffset;
-    setDirtyFlag(DIRTY_FLAG_DAYOFFSET);
+        mCurrentEnvironment->mDayOffset = dayoffset;
+        setDirtyFlag(DIRTY_FLAG_DAYOFFSET);
 
-    udpateApparentTimeOfDay();
+        udpateApparentTimeOfDay();
+    }
 }
 
 void LLPanelEnvironmentInfo::onDayLenOffsetMouseUp()
 {
-    if (getDirtyFlag() & (DIRTY_FLAG_DAYLENGTH | DIRTY_FLAG_DAYOFFSET))
+    if (mCurrentEnvironment && (getDirtyFlag() & (DIRTY_FLAG_DAYLENGTH | DIRTY_FLAG_DAYOFFSET)))
     {
         clearDirtyFlag(DIRTY_FLAG_DAYOFFSET);
         clearDirtyFlag(DIRTY_FLAG_DAYLENGTH);
