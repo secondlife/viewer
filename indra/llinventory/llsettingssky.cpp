@@ -1295,9 +1295,15 @@ void LLSettingsSky::calculateLightSettings() const
     mSunDiffuse = gammaCorrect(componentMult(sunlight, light_transmittance));
     mSunAmbient = gammaCorrect(componentMult(tmpAmbient, light_transmittance) * 0.5);
 
-    LLColor3 moonlight(0.75, 0.75, 0.92);
-    mMoonDiffuse  = gammaCorrect(componentMult(moonlight, light_transmittance) * 0.25f);
-    mMoonAmbient  = gammaCorrect(componentMult(moonlight, light_transmittance) * 0.125f);
+    F32 moon_brightness = getMoonBrightness();
+
+    LLColor3 moonlight_a(0.66, 0.66, 0.66);
+    LLColor3 moonlight_b(0.66, 0.66, 1.0);
+
+    LLColor3 moonlight = lerp(moonlight_b, moonlight_a, moon_brightness);
+    
+    mMoonDiffuse  = gammaCorrect(componentMult(moonlight, light_transmittance) * moon_brightness * 0.25f);
+    mMoonAmbient  = gammaCorrect(componentMult(moonlight_b, light_transmittance) * 0.0125f);
     mTotalAmbient = mSunAmbient;
 }
 
