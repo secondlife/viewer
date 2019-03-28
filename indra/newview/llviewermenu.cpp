@@ -4066,10 +4066,8 @@ void near_sit_down_point(BOOL success, void *)
 	if (success)
 	{
 		gAgent.setFlying(FALSE);
+		gAgent.clearControlFlags(AGENT_CONTROL_STAND_UP); // might have been set by autopilot
 		gAgent.setControlFlags(AGENT_CONTROL_SIT_ON_GROUND);
-
-		// Might be first sit
-		//LLFirstUse::useSit();
 	}
 }
 
