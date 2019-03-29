@@ -8368,7 +8368,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     shader.uniform1f(LLShaderMgr::DEFERRED_NORM_CUTOFF, RenderEdgeNormCutoff);
     
     shader.uniform4fv(LLShaderMgr::SUNLIGHT_COLOR, 1, mSunDiffuse.mV);
-    shader.uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, mMoonDiffuse.mV);
+    shader.uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, srgbColor4(mMoonDiffuse).mV);
 
     LLEnvironment& environment = LLEnvironment::instance();
     shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
@@ -8705,7 +8705,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
                     const F32* c = center.getF32ptr();
                     F32 s = volume->getLightRadius();
 
-                    LLColor3 col = volume->getLightColor();
+                    LLColor3 col = volume->getLightsRGBColor();
                     
                     if (col.magVecSquared() < 0.001f)
                     {
@@ -8741,10 +8741,6 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
                                 spot_lights.push_back(drawablep);
                                 continue;
                             }
-                            
-                            /*col.mV[0] = powf(col.mV[0], 2.2f);
-                            col.mV[1] = powf(col.mV[1], 2.2f);
-                            col.mV[2] = powf(col.mV[2], 2.2f);*/
                             
                             LL_RECORD_BLOCK_TIME(FTM_LOCAL_LIGHTS);
                             gDeferredLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
@@ -8801,7 +8797,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
 
                     setupSpotLight(gDeferredSpotLightProgram, drawablep);
                     
-                    LLColor3 col = volume->getLightColor();
+                    LLColor3 col = volume->getLightsRGBColor();
                     /*col.mV[0] = powf(col.mV[0], 2.2f);
                     col.mV[1] = powf(col.mV[1], 2.2f);
                     col.mV[2] = powf(col.mV[2], 2.2f);*/
@@ -8850,12 +8846,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
                     col[count] = light_colors.front();
                     light_colors.pop_front();
 
-                    /*col[count].mV[0] = powf(col[count].mV[0], 2.2f);
-                    col[count].mV[1] = powf(col[count].mV[1], 2.2f);
-                    col[count].mV[2] = powf(col[count].mV[2], 2.2f);*/
-                    
                     far_z = llmin(light[count].mV[2]-light[count].mV[3], far_z);
-                    //col[count] = pow4fsrgb(col[count], 2.2f);
                     count++;
                     if (count == max_count || fullscreen_lights.empty())
                     {
@@ -8897,11 +8888,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
                     
                     setupSpotLight(gDeferredMultiSpotLightProgram, drawablep);
 
-                    LLColor3 col = volume->getLightColor();
-                    
-                    /*col.mV[0] = powf(col.mV[0], 2.2f);
-                    col.mV[1] = powf(col.mV[1], 2.2f);
-                    col.mV[2] = powf(col.mV[2], 2.2f);*/
+                    LLColor3 col = volume->getLightsRGBColor();
                     
                     gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, tc.v);
                     gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);

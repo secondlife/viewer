@@ -475,5 +475,13 @@ inline LLColor3 lerp(const LLColor3 &a, const LLColor3 &b, F32 u)
 		a.mV[VZ] + (b.mV[VZ] - a.mV[VZ]) * u);
 }
 
+inline const LLColor3 srgbColor3(const LLColor3 &a) {
+	LLColor3 srgbColor;
+	srgbColor.mV[0] = linearTosRGB(a.mV[0]);
+	srgbColor.mV[1] = linearTosRGB(a.mV[1]);
+	srgbColor.mV[2] = linearTosRGB(a.mV[2]);
+
+	return srgbColor;
+}
 
 #endif

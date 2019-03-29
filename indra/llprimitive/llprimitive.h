@@ -133,6 +133,7 @@ class LLLightParams : public LLNetworkData
 {
 protected:
 	LLColor4 mColor; // alpha = intensity
+	LLColor4 msRGBColor; // Only used in deferred (for now?)
 	F32 mRadius;
 	F32 mFalloff;
 	F32 mCutoff;
@@ -150,12 +151,13 @@ public:
 	bool fromLLSD(LLSD& sd);
 
 	
-	void setColor(const LLColor4& color)	{ mColor = color; mColor.clamp(); }
+	void setColor(const LLColor4& color)	{ mColor = color; mColor.clamp(); msRGBColor = srgbColor4(mColor); }
 	void setRadius(F32 radius)				{ mRadius = llclamp(radius, LIGHT_MIN_RADIUS, LIGHT_MAX_RADIUS); }
 	void setFalloff(F32 falloff)			{ mFalloff = llclamp(falloff, LIGHT_MIN_FALLOFF, LIGHT_MAX_FALLOFF); }
 	void setCutoff(F32 cutoff)				{ mCutoff = llclamp(cutoff, LIGHT_MIN_CUTOFF, LIGHT_MAX_CUTOFF); }
 
 	LLColor4 getColor() const				{ return mColor; }
+	LLColor4 getsRGBColor() const			{ return msRGBColor; }
 	F32 getRadius() const					{ return mRadius; }
 	F32 getFalloff() const					{ return mFalloff; }
 	F32 getCutoff() const					{ return mCutoff; }

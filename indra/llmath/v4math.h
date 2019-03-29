@@ -534,6 +534,18 @@ inline F32		LLVector4::normVec(void)
 	return (mag);
 }
 
+// Because apparently some parts of the viewer use this for color info.
+inline const LLVector4 srgbVector4(const LLVector4 &a) {
+	LLVector4 srgbColor;
+
+	srgbColor.mV[0] = linearTosRGB(a.mV[0]);
+	srgbColor.mV[1] = linearTosRGB(a.mV[1]);
+	srgbColor.mV[2] = linearTosRGB(a.mV[2]);
+	srgbColor.mV[3] = a.mV[3];
+
+	return srgbColor;
+}
+
 
 #endif
 
