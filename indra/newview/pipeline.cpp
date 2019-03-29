@@ -8703,7 +8703,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
                     LLVector4a center;
                     center.load3(drawablep->getPositionAgent().mV);
                     const F32* c = center.getF32ptr();
-                    F32 s = volume->getLightRadius();
+                    F32 s = volume->getLightRadius()*1.5f;
 
                     LLColor3 col = volume->getLightsRGBColor();
                     
@@ -8746,7 +8746,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
                             gDeferredLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
                             gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
                             gDeferredLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
-                            gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff());
+                            gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
                             gGL.syncMatrices();
                             
                             mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, center));
@@ -8766,7 +8766,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
                         mat.mult_matrix_vec(tc);
                     
                         fullscreen_lights.push_back(LLVector4(tc.v[0], tc.v[1], tc.v[2], s));
-                        light_colors.push_back(LLVector4(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()));
+                        light_colors.push_back(LLVector4(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f));
                     }
                 }
                 unbindDeferredShader(gDeferredLightProgram);
@@ -8791,7 +8791,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
                     LLVector4a center;
                     center.load3(drawablep->getPositionAgent().mV);
                     const F32* c = center.getF32ptr();
-                    F32 s = volume->getLightRadius();
+                    F32 s = volume->getLightRadius()*1.5f;
 
                     sVisibleLightCount++;
 
@@ -8805,7 +8805,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
                     gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
                     gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
                     gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
-                    gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff());
+                    gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
                     gGL.syncMatrices();
                                         
                     mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, center));
@@ -8879,7 +8879,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
 
                     LLVector3 center = drawablep->getPositionAgent();
                     F32* c = center.mV;
-                    F32 s = volume->getLightRadius();
+                    F32 s = volume->getLightRadius()*1.5f;
 
                     sVisibleLightCount++;
 
@@ -8893,7 +8893,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
                     gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, tc.v);
                     gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
                     gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
-                    gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff());
+                    gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
                     mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
                 }
 

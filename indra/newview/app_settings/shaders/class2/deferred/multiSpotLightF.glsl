@@ -156,8 +156,8 @@ void main()
     {
         vec4 shd = texture2DRect(lightMap, frag.xy);
         shadow = (proj_shadow_idx==0)?shd.b:shd.a;
-        shadow = clamp(shadow, 0.0, 1.0);
         shadow += shadow_fade;
+        shadow = clamp(shadow, 0.0, 1.0);        
     }
     
     vec3 norm = texture2DRect(normalMap, frag.xy).xyz;
@@ -177,7 +177,7 @@ void main()
     
     proj_tc.xyz /= proj_tc.w;
     
-    float fa = (falloff * 0.5)+1.0;
+    float fa = falloff+1.0;
     float dist_atten = min(1.0-(dist-1.0*(1.0-fa))/fa, 1.0);
     dist_atten *= dist_atten;
     dist_atten *= 2.0;

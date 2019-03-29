@@ -253,6 +253,8 @@
                                 height="20"
                                 layout="topleft"
                                 name="edt_invname_alt1"
+                                use_bg_color="true"
+                                bg_color="TextBgReadOnlyColor"
                                 width="155">
                             Unknown
                         </line_editor>
@@ -297,6 +299,8 @@
                                 height="20"
                                 layout="topleft"
                                 name="edt_invname_alt2"
+                                use_bg_color="true"
+                                bg_color="TextBgReadOnlyColor"
                                 width="155">
                             Unknown
                         </line_editor>
@@ -342,6 +346,8 @@
                                 height="20"
                                 layout="topleft"
                                 name="edt_invname_alt3"
+                                use_bg_color="true"
+                                bg_color="TextBgReadOnlyColor"
                                 width="155">
                             Unknown
                         </line_editor>
@@ -460,6 +466,8 @@
                            height="20"
                            layout="topleft"
                            name="edt_invname_ground"
+                           use_bg_color="true"
+                           bg_color="TextBgReadOnlyColor"
                            width="155">
                             Unknown
                         </line_editor>
@@ -514,6 +522,8 @@
                                 height="20"
                                 layout="topleft"
                                 name="edt_invname_water"
+                                use_bg_color="true"
+                                bg_color="TextBgReadOnlyColor"
                                 width="155">
                             Unknown
                         </line_editor>

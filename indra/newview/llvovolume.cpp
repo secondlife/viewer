@@ -3291,18 +3291,14 @@ void LLVOVolume::updateSpotLightPriority()
     F32 r = getLightRadius();
 	LLVector3 pos = mDrawable->getPositionAgent();
 
-#if OLD_SPOT_PRIO_CALC
 	LLVector3 at(0,0,-1);
 	at *= getRenderRotation();
 	pos += at * r;
 
 	at = LLViewerCamera::getInstance()->getAtAxis();
 	pos -= at * r;
-	
+
 	mSpotLightPriority = gPipeline.calcPixelArea(pos, LLVector3(r,r,r), *LLViewerCamera::getInstance());
-#else
-    mSpotLightPriority = (gAgent.getPositionAgent() - pos).length() + r;
-#endif
 
 	if (mLightTexture.notNull())
 	{

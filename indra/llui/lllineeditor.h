@@ -91,10 +91,12 @@ public:
 										commit_on_focus_lost,
 										ignore_tab,
 										bg_image_always_focused,
-										is_password;
+										is_password,
+										use_bg_color;
 
 		// colors
 		Optional<LLUIColor>				cursor_color,
+										bg_color,
 										text_color,
 										text_readonly_color,
 										text_tentative_color,
@@ -365,6 +367,7 @@ protected:
 	LLTimer		mTripleClickTimer;
 
 	LLUIColor	mCursorColor;
+	LLUIColor	mBgColor;
 	LLUIColor	mFgColor;
 	LLUIColor	mReadOnlyFgColor;
 	LLUIColor	mTentativeFgColor;
@@ -384,6 +387,8 @@ protected:
 	BOOL		mReadOnly;
 
 	BOOL 		mShowImageFocused;
+
+	bool		mUseBgColor;
 
 	LLWString	mPreeditWString;
 	LLWString	mPreeditOverwrittenWString;
