@@ -503,12 +503,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 
                 LLColor4 color(gSky.mVOSkyp->getSun().getInterpColor());
 
-				if (LLPipeline::RenderDeferred) {
-					sun_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, srgbColor4(color).mV);
-				}
-				else {
-					sun_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);
-				}
+				sun_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);
                 sun_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 
                 LLFacePool::LLOverrideFaceColor color_override(this, color);
@@ -559,15 +554,8 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
             F32 moon_brightness = (float)psky->getMoonBrightness();
 
             moon_shader->uniform1f(LLShaderMgr::MOON_BRIGHTNESS,  moon_brightness);
-
-			if (LLPipeline::RenderDeferred) {
-				moon_shader->uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, srgbColor4(gSky.mVOSkyp->getMoon().getColor()).mV);
-				moon_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, srgbColor4(color).mV);
-			}
-			else {
-				moon_shader->uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, gSky.mVOSkyp->getMoon().getColor().mV);
-				moon_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);
-			}
+			moon_shader->uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, gSky.mVOSkyp->getMoon().getColor().mV);
+			moon_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);
             moon_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 
             LLFacePool::LLOverrideFaceColor color_override(this, color);
