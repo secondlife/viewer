@@ -43,14 +43,6 @@
 const F32 epsilon = 1e-7f;
 const U16 RESOLUTION = 64;
 
-#if LL_DARWIN
-// mipmap generation on cubemap textures seems to be broken on the Mac for at least some cards.
-// Since the cubemap is small (64x64 per face) and doesn't have any fine detail, turning off mipmaps is a usable workaround.
-const BOOL use_cube_mipmaps = FALSE;
-#else
-const BOOL use_cube_mipmaps = FALSE;  //current build works best without cube mipmaps
-#endif
-
 bool LLCubeMap::sUseCubeMaps = true;
 
 LLCubeMap::LLCubeMap(bool init_as_srgb)
