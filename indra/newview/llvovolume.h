@@ -251,7 +251,7 @@ public:
 	BOOL getIsLight() const;
 	LLColor3 getLightBaseColor() const; // not scaled by intensity
 	LLColor3 getLightColor() const; // scaled by intensity
-	LLColor3 getLightsRGBColor() const; // Used to get the (cached) light color in sRGB color space.  Also scaled by intensity.
+    LLColor3 getLightSRGBColor() const; // Used to get the (cached) light color in sRGB color space.  Also scaled by intensity.
 	LLUUID	getLightTextureID() const;
 	bool isLightSpotlight() const;
 	LLVector3 getSpotLightParams() const;

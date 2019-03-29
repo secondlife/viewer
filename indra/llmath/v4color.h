@@ -657,14 +657,14 @@ void LLColor4::clamp()
 }
 
 inline const LLColor4 srgbColor4(const LLColor4 &a) {
-	LLColor4 srgbColor;
+    LLColor4 srgbColor;
 
-	srgbColor.mV[0] = linearTosRGB(a.mV[0]);
-	srgbColor.mV[1] = linearTosRGB(a.mV[1]);
-	srgbColor.mV[2] = linearTosRGB(a.mV[2]);
-	srgbColor.mV[3] = a.mV[3];
+    srgbColor.mV[0] = linearTosRGB(a.mV[0]);
+    srgbColor.mV[1] = linearTosRGB(a.mV[1]);
+    srgbColor.mV[2] = linearTosRGB(a.mV[2]);
+    srgbColor.mV[3] = a.mV[3];
 
-	return srgbColor;
+    return srgbColor;
 }
 
 #endif

@@ -8368,7 +8368,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     shader.uniform1f(LLShaderMgr::DEFERRED_NORM_CUTOFF, RenderEdgeNormCutoff);
     
     shader.uniform4fv(LLShaderMgr::SUNLIGHT_COLOR, 1, mSunDiffuse.mV);
-    shader.uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, srgbColor4(mMoonDiffuse).mV);
+    shader.uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, mMoonDiffuse.mV);
 
     LLEnvironment& environment = LLEnvironment::instance();
     shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
@@ -8705,7 +8705,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
                     const F32* c = center.getF32ptr();
                     F32 s = volume->getLightRadius()*1.5f;
 
-                    LLColor3 col = volume->getLightsRGBColor();
+                    LLColor3 col = volume->getLightSRGBColor();
                     
                     if (col.magVecSquared() < 0.001f)
                     {
@@ -8797,10 +8797,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
 
                     setupSpotLight(gDeferredSpotLightProgram, drawablep);
                     
-                    LLColor3 col = volume->getLightsRGBColor();
-                    /*col.mV[0] = powf(col.mV[0], 2.2f);
-                    col.mV[1] = powf(col.mV[1], 2.2f);
-                    col.mV[2] = powf(col.mV[2], 2.2f);*/
+                    LLColor3 col = volume->getLightSRGBColor();
                     
                     gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
                     gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
@@ -8888,7 +8885,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
                     
                     setupSpotLight(gDeferredMultiSpotLightProgram, drawablep);
 
-                    LLColor3 col = volume->getLightsRGBColor();
+                    LLColor3 col = volume->getLightSRGBColor();
                     
                     gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, tc.v);
                     gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
