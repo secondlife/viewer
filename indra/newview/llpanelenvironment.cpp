@@ -191,6 +191,8 @@ BOOL LLPanelEnvironmentInfo::postBuild()
         {
             drop_target->setPanel(this, alt_sliders[idx]);
         }
+        // set initial values to prevent [ALTITUDE] from displaying
+        updateAltLabel(alt_prefixes[idx], idx + 2, idx * 1000);
     }
     getChild<LLSettingsDropTarget>("sdt_" + alt_prefixes[3])->setPanel(this, alt_prefixes[3]);
     getChild<LLSettingsDropTarget>("sdt_" + alt_prefixes[4])->setPanel(this, alt_prefixes[4]);
@@ -686,30 +688,36 @@ void LLPanelEnvironmentInfo::readjustAltLabels()
 
 void LLPanelEnvironmentInfo::onSldDayLengthChanged(F32 value)
 {
-    F32Hours daylength(value);
+    if (mCurrentEnvironment)
+    {
+        F32Hours daylength(value);
 
-    mCurrentEnvironment->mDayLength = daylength;
-    setDirtyFlag(DIRTY_FLAG_DAYLENGTH);
+        mCurrentEnvironment->mDayLength = daylength;
+        setDirtyFlag(DIRTY_FLAG_DAYLENGTH);
 
-    udpateApparentTimeOfDay();
+        udpateApparentTimeOfDay();
+    }
 }
 
 void LLPanelEnvironmentInfo::onSldDayOffsetChanged(F32 value)
 {
-    F32Hours dayoffset(value);
+    if (mCurrentEnvironment)
+    {
+        F32Hours dayoffset(value);
 
-    if (dayoffset.value() <= 0.0f)
-        dayoffset += F32Hours(24.0);
+        if (dayoffset.value() <= 0.0f)
+            dayoffset += F32Hours(24.0);
 
-    mCurrentEnvironment->mDayOffset = dayoffset;
-    setDirtyFlag(DIRTY_FLAG_DAYOFFSET);
+        mCurrentEnvironment->mDayOffset = dayoffset;
+        setDirtyFlag(DIRTY_FLAG_DAYOFFSET);
 
-    udpateApparentTimeOfDay();
+        udpateApparentTimeOfDay();
+    }
 }
 
 void LLPanelEnvironmentInfo::onDayLenOffsetMouseUp()
 {
-    if (getDirtyFlag() & (DIRTY_FLAG_DAYLENGTH | DIRTY_FLAG_DAYOFFSET))
+    if (mCurrentEnvironment && (getDirtyFlag() & (DIRTY_FLAG_DAYLENGTH | DIRTY_FLAG_DAYOFFSET)))
     {
         clearDirtyFlag(DIRTY_FLAG_DAYOFFSET);
         clearDirtyFlag(DIRTY_FLAG_DAYLENGTH);
