@@ -187,15 +187,20 @@ S32 LLImageGL::dataFormatBits(S32 dataformat)
 	switch (dataformat)
 	{
 	  case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:	return 4;
+	  case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT: return 4;
 	  case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:	return 8;
+	  case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT: return 8;
 	  case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:	return 8;
+	  case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT: return 8;
 	  case GL_LUMINANCE:						return 8;
 	  case GL_ALPHA:							return 8;
 	  case GL_COLOR_INDEX:						return 8;
 	  case GL_LUMINANCE_ALPHA:					return 16;
 	  case GL_RGB:								return 24;
+	  case GL_SRGB:								return 24;
 	  case GL_RGB8:								return 24;
 	  case GL_RGBA:								return 32;
+	  case GL_SRGB_ALPHA:						return 32;
 	  case GL_BGRA:								return 32;		// Used for QuickTime media textures on the Mac
 	  default:
 		LL_ERRS() << "LLImageGL::Unknown format: " << dataformat << LL_ENDL;
@@ -206,11 +211,19 @@ S32 LLImageGL::dataFormatBits(S32 dataformat)
 //static
 S32 LLImageGL::dataFormatBytes(S32 dataformat, S32 width, S32 height)
 {
-	if (dataformat >= GL_COMPRESSED_RGB_S3TC_DXT1_EXT &&
-		dataformat <= GL_COMPRESSED_RGBA_S3TC_DXT5_EXT)
+	switch (dataformat)
 	{
+	case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+	case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT:
+	case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:
+	case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT:
+	case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
+	case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT:
 		if (width < 4) width = 4;
 		if (height < 4) height = 4;
+		break;
+	default:
+		break;
 	}
 	S32 bytes ((width*height*dataFormatBits(dataformat)+7)>>3);
 	S32 aligned = (bytes+3)&~3;
@@ -223,14 +236,19 @@ S32 LLImageGL::dataFormatComponents(S32 dataformat)
 	switch (dataformat)
 	{
 	  case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:	return 3;
+	  case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT: return 3;
 	  case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:	return 4;
+	  case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT: return 4;
 	  case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:	return 4;
+	  case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT: return 4;
 	  case GL_LUMINANCE:						return 1;
 	  case GL_ALPHA:							return 1;
 	  case GL_COLOR_INDEX:						return 1;
 	  case GL_LUMINANCE_ALPHA:					return 2;
 	  case GL_RGB:								return 3;
+	  case GL_SRGB:								return 3;
 	  case GL_RGBA:								return 4;
+	  case GL_SRGB_ALPHA:						return 4;
 	  case GL_BGRA:								return 4;		// Used for QuickTime media textures on the Mac
 	  default:
 		LL_ERRS() << "LLImageGL::Unknown format: " << dataformat << LL_ENDL;
@@ -650,9 +668,19 @@ BOOL LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 {
 	LL_RECORD_BLOCK_TIME(FTM_SET_IMAGE);
 	bool is_compressed = false;
-	if (mFormatPrimary >= GL_COMPRESSED_RGBA_S3TC_DXT1_EXT && mFormatPrimary <= GL_COMPRESSED_RGBA_S3TC_DXT5_EXT)
+
+	switch (mFormatPrimary)
 	{
+	case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+	case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT:
+	case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:
+	case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT:
+	case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
+	case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT:
 		is_compressed = true;
+		break;
+	default:
+		break;
 	}
 	
 	
@@ -1227,9 +1255,17 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
 			case GL_RGB8:
 				intformat = GL_COMPRESSED_RGB; 
 				break;
+			case GL_SRGB:
+			case GL_SRGB8:
+				intformat = GL_COMPRESSED_SRGB;
+				break;
 			case GL_RGBA:
 			case GL_RGBA8:
 				intformat = GL_COMPRESSED_RGBA; 
+				break;
+			case GL_SRGB_ALPHA:
+			case GL_SRGB8_ALPHA8:
+				intformat = GL_COMPRESSED_SRGB_ALPHA;
 				break;
 			case GL_LUMINANCE:
 			case GL_LUMINANCE8:
@@ -1798,10 +1834,12 @@ void LLImageGL::calcAlphaChannelOffsetAndStride()
 		mAlphaStride = 2;
 		break;
 	case GL_RGB:
+	case GL_SRGB:
 		mNeedsAlphaAndPickMask = FALSE ;
 		mIsMask = FALSE;
 		return ; //no alpha channel.
 	case GL_RGBA:
+	case GL_SRGB_ALPHA:
 		mAlphaStride = 4;
 		break;
 	case GL_BGRA_EXT:
@@ -1993,7 +2031,8 @@ void LLImageGL::updatePickMask(S32 width, S32 height, const U8* data_in)
 	freePickMask();
 
 	if (mFormatType != GL_UNSIGNED_BYTE ||
-	    mFormatPrimary != GL_RGBA)
+	    mFormatPrimary != GL_RGBA ||
+		mFormatPrimary != GL_SRGB_ALPHA)
 	{
 		//cannot generate a pick mask for this texture
 		return;

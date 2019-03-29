@@ -207,6 +207,9 @@ void LLSkyTex::create(const F32 brightness)
 
 void LLSkyTex::createGLImage(S32 which)
 {	
+	if (LLPipeline::RenderDeferred) {
+		mTexture[which]->setExplicitFormat(GL_SRGB8_ALPHA8, GL_RGBA);
+	}
 	mTexture[which]->createGLTexture(0, mImageRaw[which], 0, TRUE, LLGLTexture::LOCAL);
 	mTexture[which]->setAddressMode(LLTexUnit::TAM_CLAMP);
 }
@@ -613,7 +616,9 @@ void LLVOSky::initCubeMap()
 	}
 	else if (gSavedSettings.getBOOL("RenderWater") && gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps)
 	{
-		mCubeMap = new LLCubeMap();
+		bool wantsRGB = LLPipeline::RenderDeferred;
+
+		mCubeMap = new LLCubeMap(wantsRGB);
 		mCubeMap->init(images);
 	}
 	gGL.getTexUnit(0)->disable();
