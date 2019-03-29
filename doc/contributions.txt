@@ -481,6 +481,9 @@ Geenz Spad
 	STORM-1900
 	STORM-1905
 	NORSPEC-229
+        SL-10842
+        SL-10843
+        SL-10844
 Gene Frostbite
 GeneJ Composer
 Geneko Nemeth
