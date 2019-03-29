@@ -191,6 +191,8 @@ BOOL LLPanelEnvironmentInfo::postBuild()
         {
             drop_target->setPanel(this, alt_sliders[idx]);
         }
+        // set initial values to prevent [ALTITUDE] from displaying
+        updateAltLabel(alt_prefixes[idx], idx + 2, idx * 1000);
     }
     getChild<LLSettingsDropTarget>("sdt_" + alt_prefixes[3])->setPanel(this, alt_prefixes[3]);
     getChild<LLSettingsDropTarget>("sdt_" + alt_prefixes[4])->setPanel(this, alt_prefixes[4]);
