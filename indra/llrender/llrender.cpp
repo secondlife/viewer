@@ -838,6 +838,20 @@ void LLTexUnit::debugTextureUnit(void)
 	}
 }
 
+void LLTexUnit::setTextureColorSpace(eTextureColorSpace space) {
+    mTexColorSpace = space;
+    if (space == TCS_SRGB) {
+        glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_SRGB_DECODE_EXT, GL_DECODE_EXT);
+    }
+    else {
+        glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_SRGB_DECODE_EXT, GL_SKIP_DECODE_EXT);
+    }
+
+    if (gDebugGL) {
+        assert_glerror();
+    }
+}
+
 LLLightState::LLLightState(S32 index)
 : mIndex(index),
   mEnabled(false),
