@@ -999,6 +999,12 @@ void LLGLManager::initExtensions()
 	mHassRGBFramebuffer = ExtensionExists("GL_EXT_framebuffer_sRGB", gGLHExts.mSysExts);
 #endif
 	
+#ifdef GL_EXT_texture_sRGB_decode
+    mHasTexturesRGBDecode = ExtensionExists("GL_EXT_texture_sRGB_decode", gGLHExts.mSysExts);
+#else
+    mHasTexturesRGBDecode = ExtensionExists("GL_ARB_texture_sRGB_decode", gGLHExts.mSysExts);
+#endif
+
 	mHasMipMapGeneration = mHasFramebufferObject || mGLVersion >= 1.4f;
 
 	mHasDrawBuffers = ExtensionExists("GL_ARB_draw_buffers", gGLHExts.mSysExts);
