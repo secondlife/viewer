@@ -185,6 +185,9 @@ public:
 		return name != NULL && mJointMap.find(name) != mJointMap.end();
 	}
 
+	std::string logOut() { return mWarningStream.str(); }
+	void clearLog() { mWarningStream.clear(); }
+
 protected:
 
 	LLModelLoader::load_callback_t		mLoadCallback;
@@ -200,6 +203,8 @@ protected:
 	bool		mNoOptimize;
 
 	JointTransformMap	mJointTransformMap;
+
+	std::ostringstream mWarningStream; // preview floater will pull logs from here
 
 	static std::list<LLModelLoader*> sActiveLoaderList;
 	static bool isAlive(LLModelLoader* loader) ;

@@ -57,7 +57,9 @@ class domController;
 class domSkin;
 class domMesh;
 class LLMenuButton;
+class LLTabContainer;
 class LLToggleableMenu;
+class LLViewerTextEditor;
 
 class LLFloaterModelPreview : public LLFloaterModelUploadBase
 {
@@ -93,6 +95,8 @@ public:
 
 	static void onMouseCaptureLostModelPreview(LLMouseHandler*);
 	static void setUploadAmount(S32 amount) { sUploadAmount = amount; }
+	static void addStringToLog(const std::string& str, bool flash);
+	static void addStringToLog(const std::ostringstream& strm, bool flash);
 
 	void setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost);
 	void setPreviewLOD(S32 lod);
@@ -176,7 +180,8 @@ protected:
     // FIXME - this function and mStatusMessage have no visible effect, and the
     // actual status messages are managed by directly manipulation of
     // the UI element.
-	void setStatusMessage(const std::string& msg);
+    void setStatusMessage(const std::string& msg);
+    void addStringToLogTab(const std::string& str, bool flash);
 
 	LLModelPreview*	mModelPreview;
 	
@@ -221,6 +226,8 @@ private:
 
 	LLButton* mUploadBtn;
 	LLButton* mCalculateBtn;
+	LLViewerTextEditor* mUploadLogText;
+	LLTabContainer* mTabContainer;
 };
 
 class LLMeshFilePicker : public LLFilePickerThread

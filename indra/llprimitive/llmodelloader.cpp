@@ -146,6 +146,7 @@ LLModelLoader::~LLModelLoader()
 
 void LLModelLoader::run()
 {
+	mWarningStream.clear();
 	doLoadModel();
 	doOnIdleOneTime(boost::bind(&LLModelLoader::loadModelCallback,this));
 }
@@ -426,6 +427,7 @@ bool LLModelLoader::isRigLegacy( const std::vector<std::string> &jointListFromAs
     {
         LL_WARNS() << "Rigged to " << jointListFromAsset.size() << " joints, max is " << mMaxJointsPerMesh << LL_ENDL;
         LL_WARNS() << "Skinning disabled due to too many joints" << LL_ENDL;
+        mWarningStream << "Skinning disabled due to too many joints, maximum amount per mesh: " << mMaxJointsPerMesh << "\n";
         return false;
     }
 
@@ -437,12 +439,14 @@ bool LLModelLoader::isRigLegacy( const std::vector<std::string> &jointListFromAs
         if (mJointMap.find(*it)==mJointMap.end())
         {
             LL_WARNS() << "Rigged to unrecognized joint name " << *it << LL_ENDL;
+            mWarningStream << "Rigged to unrecognized joint name " << *it << "\n";
             unknown_joint_count++;
         }
     }
     if (unknown_joint_count>0)
     {
         LL_WARNS() << "Skinning disabled due to unknown joints" << LL_ENDL;
+        mWarningStream << "Skinning disabled due to unknown joints\n";
         return false;
     }
 

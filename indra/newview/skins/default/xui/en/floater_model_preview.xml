@@ -82,7 +82,8 @@
       height="300"
       width="635"
       name="import_tab"
-      tab_position="top">
+      tab_position="top"
+      enable_tabs_flashing="true">
       <!-- LOD PANEL -->
         <panel
          help_topic="upload_model_lod"
@@ -98,7 +99,7 @@
              left="3"
              name="lod_tab_border"
              top_pad="0"
-             width="629" />
+             width="619" />
           <text
            follows="left|top"
            height="18"
@@ -1218,6 +1219,40 @@
              value="0.0"
              width="80"/>
      </panel>
+      <panel
+       label="Log"
+       layout="topleft"
+       name="logs_panel"
+       title="Log">
+        <view_border
+         bevel_style="none"
+         follows="top|left"
+         height="275"
+         layout="topleft"
+         left="3"
+         name="log_tab_border"
+         top_pad="0"
+         width="619" />
+        <text_editor
+         type="string"
+         length="1"
+         embedded_items="false"
+         follows="top|left"
+         font="SansSerif"
+         ignore_tab="false"
+         layout="topleft"
+         height="275"
+         left="4"
+         top="0"
+         right="-11"
+         max_length="65536"
+         name="log_text"
+         parse_urls="true"
+         spellcheck="false"
+         read_only="true"
+         word_wrap="true">
+        </text_editor>
+      </panel>
     </tab_container>
     <panel
      follows="top|left|bottom"

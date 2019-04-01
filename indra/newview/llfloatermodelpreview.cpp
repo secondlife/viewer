@@ -76,6 +76,7 @@
 #include "llsdserialize.h"
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
+#include "lltabcontainer.h"
 #include "lltoggleablemenu.h"
 #include "lltrans.h"
 #include "llvfile.h"
@@ -83,6 +84,7 @@
 #include "llcallbacklist.h"
 #include "llviewerobjectlist.h"
 #include "llanimationstates.h"
+#include "llviewertexteditor.h"
 #include "llviewernetwork.h"
 #include "llviewershadermgr.h"
 
@@ -263,7 +265,9 @@ void FindModel(LLModelLoader::scene& scene, const std::string& name_to_match, LL
 LLFloaterModelPreview::LLFloaterModelPreview(const LLSD& key) :
 LLFloaterModelUploadBase(key),
 mUploadBtn(NULL),
-mCalculateBtn(NULL)
+mCalculateBtn(NULL),
+mUploadLogText(NULL),
+mTabContainer(NULL)
 {
 	sInstance = this;
 	mLastMouseX = 0;
@@ -392,6 +396,13 @@ BOOL LLFloaterModelPreview::postBuild()
 
 	mUploadBtn = getChild<LLButton>("ok_btn");
 	mCalculateBtn = getChild<LLButton>("calculate_btn");
+	mUploadLogText = getChild<LLViewerTextEditor>("log_text");
+	mTabContainer = getChild<LLTabContainer>("import_tab");
+
+	// Disable Logs tab untill it has something to show
+	LLPanel* panel = mTabContainer->getPanelByName("logs_panel");
+	S32 index = mTabContainer->getIndexForPanel(panel);
+	mTabContainer->enableTabButton(index, false);
 
 	if (LLConvexDecomposition::getInstance() != NULL)
 	{
@@ -1281,6 +1292,64 @@ void LLFloaterModelPreview::onMouseCaptureLostModelPreview(LLMouseHandler* handl
 }
 
 //-----------------------------------------------------------------------------
+// addStringToLog()
+//-----------------------------------------------------------------------------
+// static
+void LLFloaterModelPreview::addStringToLog(const std::string& str, bool flash)
+{
+    if (sInstance)
+    {
+        sInstance->addStringToLogTab(str, flash);
+    }
+}
+
+// static
+void LLFloaterModelPreview::addStringToLog(const std::ostringstream& strm, bool flash)
+{
+    if (sInstance)
+    {
+        sInstance->addStringToLogTab(strm.str(), flash);
+    }
+}
+
+//-----------------------------------------------------------------------------
+// addStringToLogTab()
+//-----------------------------------------------------------------------------
+void LLFloaterModelPreview::addStringToLogTab(const std::string& str, bool flash)
+{
+    if (str.empty())
+    {
+        return;
+    }
+
+    LLWString text = utf8str_to_wstring(str);
+    S32 add_text_len = text.length() + 1; // newline
+    S32 editor_max_len = mUploadLogText->getMaxTextLength();
+    if (add_text_len > editor_max_len)
+    {
+        return;
+    }
+
+    LLPanel* panel = mTabContainer->getPanelByName("logs_panel");
+    S32 index = mTabContainer->getIndexForPanel(panel);
+    mTabContainer->enableTabButton(index, true);
+
+    // Make sure we have space for new string
+    S32 editor_text_len = mUploadLogText->getLength();
+    while (editor_max_len < (editor_text_len + add_text_len))
+    {
+        editor_text_len -= mUploadLogText->removeFirstLine();
+    }
+
+    mUploadLogText->appendText(str, true);
+
+    if (flash && mTabContainer->getCurrentPanel() != panel)
+    {
+        mTabContainer->setTabPanelFlashing(panel, true);
+    }
+}
+
+//-----------------------------------------------------------------------------
 // LLModelPreview
 //-----------------------------------------------------------------------------
 
@@ -1710,8 +1779,14 @@ void LLModelPreview::rebuildUploadData()
                     LLQuaternion identity;
                     if (!bind_rot.isEqualEps(identity,0.01))
                     {
-                        LL_WARNS() << "non-identity bind shape rot. mat is " << high_lod_model->mSkinInfo.mBindShapeMatrix 
-                                   << " bind_rot " << bind_rot << LL_ENDL;
+                        std::ostringstream out;
+                        out << "non-identity bind shape rot. mat is ";
+                        out << high_lod_model->mSkinInfo.mBindShapeMatrix;
+                        out << " bind_rot ";
+                        out << bind_rot;
+                        LL_WARNS() << out.str() << LL_ENDL;
+
+                        LLFloaterModelPreview::addStringToLog(out, false);
                         setLoadState( LLModelLoader::WARNING_BIND_SHAPE_ORIENTATION );
                     }
                 }
@@ -1882,7 +1957,11 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 
 	if (lod < LLModel::LOD_IMPOSTOR || lod > LLModel::NUM_LODS - 1)
 	{
-		LL_WARNS() << "Invalid level of detail: " << lod << LL_ENDL;
+		std::ostringstream out;
+		out << "Invalid level of detail: ";
+		out << lod;
+		LL_WARNS() << out.str() << LL_ENDL;
+		LLFloaterModelPreview::addStringToLog(out, true);
 		assert(lod >= LLModel::LOD_IMPOSTOR && lod < LLModel::NUM_LODS);
 		return;
 	}
@@ -2259,7 +2338,12 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 
 								if (importerDebug)
 								{
-									LL_WARNS() << "Loded model name " << mModel[loaded_lod][idx]->mLabel << " for LOD " << loaded_lod << " doesn't match the base model. Renaming to " << name << LL_ENDL;
+									std::ostringstream out;
+									out << "Loded model name " << mModel[loaded_lod][idx]->mLabel;
+									out << " for LOD " << loaded_lod;
+									out << " doesn't match the base model. Renaming to " << name;
+									LL_WARNS() << out.str() << LL_ENDL;
+									LLFloaterModelPreview::addStringToLog(out, false);
 								}
 
 								mModel[loaded_lod][idx]->mLabel = name;
@@ -2417,7 +2501,10 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 	// Allow LoD from -1 to LLModel::LOD_PHYSICS
 	if (which_lod < -1 || which_lod > LLModel::NUM_LODS - 1)
 	{
-		LL_WARNS() << "Invalid level of detail: " << which_lod << LL_ENDL;
+		std::ostringstream out;
+		out << "Invalid level of detail: " << which_lod;
+		LL_WARNS() << out.str() << LL_ENDL;
+		LLFloaterModelPreview::addStringToLog(out, false);
 		assert(which_lod >= -1 && which_lod < LLModel::NUM_LODS);
 		return;
 	}
@@ -3288,7 +3375,10 @@ void LLModelPreview::updateLodControls(S32 lod)
 {
 	if (lod < LLModel::LOD_IMPOSTOR || lod > LLModel::LOD_HIGH)
 	{
-		LL_WARNS() << "Invalid level of detail: " << lod << LL_ENDL;
+		std::ostringstream out;
+		out << "Invalid level of detail: " << lod;
+		LL_WARNS() << out.str() << LL_ENDL;
+		LLFloaterModelPreview::addStringToLog(out, false);
 		assert(lod >= LLModel::LOD_IMPOSTOR && lod <= LLModel::LOD_HIGH);
 		return;
 	}
@@ -3484,9 +3574,12 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 			if (!vb->allocateBuffer(num_vertices, num_indices, TRUE))
 			{
 				// We are likely to crash due this failure, if this happens, find a way to gracefully stop preview
-				LL_WARNS() << "Failed to allocate Vertex Buffer for model preview "
-					<< num_vertices << " vertices and "
-					<< num_indices << " indices" << LL_ENDL;
+									std::ostringstream out;
+									out << "Failed to allocate Vertex Buffer for model preview ";
+									out << num_vertices << " vertices and ";
+									out << num_indices << " indices";
+									LL_WARNS() << out.str() << LL_ENDL;
+									LLFloaterModelPreview::addStringToLog(out, true);
 			}
 
 			LLStrider<LLVector3> vertex_strider;
@@ -3634,8 +3727,11 @@ void LLModelPreview::loadedCallback(
 	LLModelPreview* pPreview = static_cast< LLModelPreview* >(opaque);
 	if (pPreview && !LLModelPreview::sIgnoreLoadedCallback)
 	{
-		pPreview->loadModelCallback(lod);
-	}	
+		LLFloaterModelPreview::addStringToLog(pPreview->mModelLoader->logOut(), true);
+		pPreview->mModelLoader->clearLog();
+		pPreview->loadModelCallback(lod); // removes mModelLoader in some cases
+	}
+
 }
 
 void LLModelPreview::stateChangedCallback(U32 state,void* opaque)
@@ -4688,7 +4784,11 @@ void LLFloaterModelPreview::handleModelPhysicsFeeReceived()
 
 void LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(S32 status, const std::string& reason)
 {
-	LL_WARNS() << "LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(" << status << " : " << reason << ")" << LL_ENDL;
+	std::ostringstream out;
+	out << "LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(" << status;
+	out << " : " << reason << ")";
+	LL_WARNS() << out.str() << LL_ENDL;
+	LLFloaterModelPreview::addStringToLog(out, false);
 	doOnIdleOneTime(boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this, true));
 }
 

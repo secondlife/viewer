@@ -217,6 +217,7 @@ LLTabContainer::Params::Params()
 	last_tab("last_tab"),
 	use_custom_icon_ctrl("use_custom_icon_ctrl", false),
 	open_tabs_on_drag_and_drop("open_tabs_on_drag_and_drop", false),
+	enable_tabs_flashing("enable_tabs_flashing", false),
 	tab_icon_ctrl_pad("tab_icon_ctrl_pad", 0),
 	use_ellipses("use_ellipses"),
 	font_halign("halign")
@@ -1090,6 +1091,9 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 		    p.pad_left( mLabelPadLeft );
 		    p.pad_right(2);
 		}
+
+		// inits flash timer
+		p.button_flash_enable = mEnableTabsFlashing;
 		
 		// *TODO : It seems wrong not to use p in both cases considering the way p is initialized
 		if (mCustomIconCtrlUsed)
