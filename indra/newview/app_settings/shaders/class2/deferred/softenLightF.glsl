@@ -157,8 +157,10 @@ void main()
         
         if (norm.w < 0.5)
         {
-            col = mix(atmosFragLighting(col, additive, atten), fullbrightAtmosTransportFrag(col, additive, atten), diffuse.a);
-            col = mix(scaleSoftClipFrag(col), fullbrightScaleSoftClipFrag(col, additive, atten), diffuse.a);
+            //col = mix(atmosFragLighting(col, additive, atten), fullbrightAtmosTransportFrag(col, additive, atten), diffuse.a);
+            //col = mix(scaleSoftClipFrag(col), fullbrightScaleSoftClipFrag(col, additive, atten), diffuse.a);
+            col = atmosFragLighting(col, additive, atten);
+            col = scaleSoftClipFrag(col);
         }
 
         #ifdef WATER_FOG
