@@ -481,7 +481,7 @@ void LLViewerShaderMgr::setShaders()
 		S32 env_class = 2;
 		S32 obj_class = 2;
 		S32 effect_class = 2;
-		S32 wl_class = 2;
+		S32 wl_class = 1;
 		S32 water_class = 2;
 		S32 deferred_class = 0;
 		S32 transform_class = gGLManager.mHasTransformFeedback ? 1 : 0;
@@ -511,7 +511,7 @@ void LLViewerShaderMgr::setShaders()
                 break; 
             }
         }
-        
+
         if (doingWindLight)
         {
             // user has disabled WindLight in their settings, downgrade
