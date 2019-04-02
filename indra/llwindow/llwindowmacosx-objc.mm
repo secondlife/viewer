@@ -253,12 +253,24 @@ unsigned long getVramSize(GLViewRef view)
 	return [(LLOpenGLView *)view getVramSize];
 }
 
-void getContentViewBounds(NSWindowRef window, float* bounds)
+float getDeviceUnitSize(GLViewRef view)
 {
-	bounds[0] = [[(LLNSWindow*)window contentView] bounds].origin.x;
-	bounds[1] = [[(LLNSWindow*)window contentView] bounds].origin.y;
-	bounds[2] = [[(LLNSWindow*)window contentView] bounds].size.width;
-	bounds[3] = [[(LLNSWindow*)window contentView] bounds].size.height;
+	return [(LLOpenGLView*)view convertSizeToBacking:NSMakeSize(1, 1)].width;
+}
+
+const CGPoint & getContentViewBoundsPosition(NSWindowRef window)
+{
+	return [[(LLNSWindow*)window contentView] bounds].origin;
+}
+
+const CGSize & getContentViewBoundsSize(NSWindowRef window)
+{
+	return [[(LLNSWindow*)window contentView] bounds].size;
+}
+
+const CGSize & getDeviceContentViewSize(NSWindowRef window, GLViewRef view)
+{
+    return [(NSOpenGLView*)view convertRectToBacking:[[(LLNSWindow*)window contentView] bounds]].size;
 }
 
 void getWindowSize(NSWindowRef window, float* size)
@@ -368,8 +380,8 @@ void closeWindow(NSWindowRef window)
 
 void removeGLView(GLViewRef view)
 {
+	[(LLOpenGLView*)view clearGLContext];
 	[(LLOpenGLView*)view removeFromSuperview];
-	[(LLOpenGLView*)view release];
 }
 
 void setupInputWindow(NSWindowRef window, GLViewRef glview)

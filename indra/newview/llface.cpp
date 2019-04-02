@@ -36,6 +36,8 @@
 #include "llmatrix4a.h"
 #include "v3color.h"
 
+#include "lldefs.h"
+
 #include "lldrawpoolavatar.h"
 #include "lldrawpoolbump.h"
 #include "llgl.h"
@@ -600,6 +602,129 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 	}
 }
 
+
+void renderFace(LLDrawable* drawable, LLFace *face)
+{
+    LLVOVolume* vobj = drawable->getVOVolume();
+    if (vobj)
+    {
+        LLVertexBuffer::unbind();
+        gGL.pushMatrix();
+        gGL.multMatrix((F32*)vobj->getRelativeXform().mMatrix);
+
+        LLVolume* volume = NULL;
+
+        if (drawable->isState(LLDrawable::RIGGED))
+        {
+            vobj->updateRiggedVolume();
+            volume = vobj->getRiggedVolume();
+        }
+        else
+        {
+            volume = vobj->getVolume();
+        }
+
+        if (volume)
+        {
+            const LLVolumeFace& vol_face = volume->getVolumeFace(face->getTEOffset());
+            LLVertexBuffer::drawElements(LLRender::TRIANGLES, vol_face.mPositions, NULL, vol_face.mNumIndices, vol_face.mIndices);
+        }
+
+        gGL.popMatrix();
+    }
+}
+
+void LLFace::renderOneWireframe(const LLColor4 &color, F32 fogCfx, bool wireframe_selection, bool bRenderHiddenSelections)
+{
+    //Need to because crash on ATI 3800 (and similar cards) MAINT-5018 
+    LLGLDisable multisample(LLPipeline::RenderFSAASamples > 0 ? GL_MULTISAMPLE_ARB : 0);
+
+    LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
+    if (shader)
+    {
+        gDebugProgram.bind();
+    }
+
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+    gGL.pushMatrix();
+
+    BOOL is_hud_object = mVObjp->isHUDAttachment();
+
+    if (mDrawablep->isActive())
+    {
+        gGL.loadMatrix(gGLModelView);
+        gGL.multMatrix((F32*)mVObjp->getRenderMatrix().mMatrix);
+    }
+    else if (!is_hud_object)
+    {
+        gGL.loadIdentity();
+        gGL.multMatrix(gGLModelView);
+        LLVector3 trans = mVObjp->getRegion()->getOriginAgent();
+        gGL.translatef(trans.mV[0], trans.mV[1], trans.mV[2]);
+    }
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+
+    if (bRenderHiddenSelections)
+    {
+        gGL.blendFunc(LLRender::BF_SOURCE_COLOR, LLRender::BF_ONE);
+        LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_GEQUAL);
+        if (shader)
+        {
+            gGL.diffuseColor4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.4f);
+            renderFace(mDrawablep, this);
+        }
+        else
+        {
+            LLGLEnable fog(GL_FOG);
+            glFogi(GL_FOG_MODE, GL_LINEAR);
+            float d = (LLViewerCamera::getInstance()->getPointOfInterest() - LLViewerCamera::getInstance()->getOrigin()).magVec();
+            LLColor4 fogCol = color * fogCfx;
+            glFogf(GL_FOG_START, d);
+            glFogf(GL_FOG_END, d*(1 + (LLViewerCamera::getInstance()->getView() / LLViewerCamera::getInstance()->getDefaultFOV())));
+            glFogfv(GL_FOG_COLOR, fogCol.mV);
+
+            gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+            {
+                gGL.diffuseColor4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.4f);
+                renderFace(mDrawablep, this);
+            }
+        }
+    }
+
+    gGL.flush();
+    gGL.setSceneBlendType(LLRender::BT_ALPHA);
+
+    gGL.diffuseColor4f(color.mV[VRED] * 2, color.mV[VGREEN] * 2, color.mV[VBLUE] * 2, color.mV[VALPHA]);
+
+    {
+        LLGLDisable depth(wireframe_selection ? 0 : GL_BLEND);
+        LLGLEnable stencil(wireframe_selection ? 0 : GL_STENCIL_TEST);
+
+        if (!wireframe_selection)
+        { //modify wireframe into outline selection mode
+            glStencilFunc(GL_NOTEQUAL, 2, 0xffff);
+            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        }
+
+        LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
+        glPolygonOffset(3.f, 3.f);
+        glLineWidth(5.f);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        renderFace(mDrawablep, this);
+    }
+
+    glLineWidth(1.f);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    gGL.popMatrix();
+
+    if (shader)
+    {
+        shader->bind();
+    }
+}
 
 /* removed in lieu of raycast uv detection
 void LLFace::renderSelectedUV()
