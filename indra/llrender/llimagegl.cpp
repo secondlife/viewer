@@ -1370,33 +1370,44 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 
 	if( !mHasExplicitFormat )
 	{
-		switch (mComponents)
-		{
-			case 1:
-			// Use luminance alpha (for fonts)
-			mFormatInternal = GL_LUMINANCE8;
-			mFormatPrimary = GL_LUMINANCE;
-			mFormatType = GL_UNSIGNED_BYTE;
-			break;
-			case 2:
-			// Use luminance alpha (for fonts)
-			mFormatInternal = GL_LUMINANCE8_ALPHA8;
-			mFormatPrimary = GL_LUMINANCE_ALPHA;
-			mFormatType = GL_UNSIGNED_BYTE;
-			break;
-			case 3:
-			mFormatInternal = GL_SRGB8;
-			mFormatPrimary = GL_RGB;
-			mFormatType = GL_UNSIGNED_BYTE;
-			break;
-			case 4:
-			mFormatInternal = GL_SRGB8_ALPHA8;
-			mFormatPrimary = GL_RGBA;
-			mFormatType = GL_UNSIGNED_BYTE;
-			break;
-			default:
-			LL_ERRS() << "Bad number of components for texture: " << (U32)getComponents() << LL_ENDL;
-		}
+        switch (mComponents)
+        {
+        case 1:
+            // Use luminance alpha (for fonts)
+            mFormatInternal = GL_LUMINANCE8;
+            mFormatPrimary = GL_LUMINANCE;
+            mFormatType = GL_UNSIGNED_BYTE;
+            break;
+        case 2:
+            // Use luminance alpha (for fonts)
+            mFormatInternal = GL_LUMINANCE8_ALPHA8;
+            mFormatPrimary = GL_LUMINANCE_ALPHA;
+            mFormatType = GL_UNSIGNED_BYTE;
+            break;
+        case 3:
+            if (gGLManager.mHasTexturesRGBDecode)
+            {
+                mFormatInternal = GL_SRGB8;
+            }
+            else {
+                mFormatInternal = GL_RGB8;
+            }
+            mFormatPrimary = GL_RGB;
+            mFormatType = GL_UNSIGNED_BYTE;
+            break;
+        case 4:
+            if (gGLManager.mHasTexturesRGBDecode)
+            {
+                mFormatInternal = GL_SRGB8_ALPHA8;
+            }
+            else {
+                mFormatInternal = GL_RGBA8;
+            }
+            mFormatType = GL_UNSIGNED_BYTE;
+            break;
+        default:
+            LL_ERRS() << "Bad number of components for texture: " << (U32)getComponents() << LL_ENDL;
+        }
 
 		calcAlphaChannelOffsetAndStride() ;
 	}
