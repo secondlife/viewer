@@ -55,107 +55,9 @@ public:
 							LLVertexBuffer::MAP_CLOTHWEIGHT
 	};
 
-	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
-
-	virtual S32 getVertexShaderLevel() const;
-
-	LLDrawPoolAvatar();
     ~LLDrawPoolAvatar();
     /*virtual*/ BOOL isDead();
-
-	static LLMatrix4& getModelView();
-
-	/*virtual*/ LLDrawPool *instancePool();
-
-	/*virtual*/ S32  getNumPasses();
-	/*virtual*/ void beginRenderPass(S32 pass);
-	/*virtual*/ void endRenderPass(S32 pass);
-	/*virtual*/ void prerender();
-	/*virtual*/ void render(S32 pass = 0);
-
-	/*virtual*/ S32 getNumDeferredPasses();
-	/*virtual*/ void beginDeferredPass(S32 pass);
-	/*virtual*/ void endDeferredPass(S32 pass);
-	/*virtual*/ void renderDeferred(S32 pass);
-	
-	/*virtual*/ S32 getNumPostDeferredPasses();
-	/*virtual*/ void beginPostDeferredPass(S32 pass);
-	/*virtual*/ void endPostDeferredPass(S32 pass);
-	/*virtual*/ void renderPostDeferred(S32 pass);
-
-	/*virtual*/ S32 getNumShadowPasses();
-	/*virtual*/ void beginShadowPass(S32 pass);
-	/*virtual*/ void endShadowPass(S32 pass);
-	/*virtual*/ void renderShadow(S32 pass);
-
-	void beginRigid();
-	void beginImpostor();
-	void beginSkinned();
-	
-	void endRigid();
-	void endImpostor();
-	void endSkinned();
-
-	void beginDeferredImpostor();
-	void beginDeferredRigid();
-	void beginDeferredSkinned();
-	
-	void endDeferredImpostor();
-	void endDeferredRigid();
-	void endDeferredSkinned();
-	
-	void beginPostDeferredAlpha();
-	void endPostDeferredAlpha();
-
-	void beginRiggedSimple();
-	void beginRiggedFullbright();
-	void beginRiggedFullbrightShiny();
-	void beginRiggedShinySimple();
-	void beginRiggedAlpha();
-	void beginRiggedFullbrightAlpha();
-	void beginRiggedGlow();
-	void beginDeferredRiggedAlpha();
-	void beginDeferredRiggedMaterial(S32 pass);
-	void beginDeferredRiggedMaterialAlpha(S32 pass);
-
-	void endRiggedSimple();
-	void endRiggedFullbright();
-	void endRiggedFullbrightShiny();
-	void endRiggedShinySimple();
-	void endRiggedAlpha();
-	void endRiggedFullbrightAlpha();
-	void endRiggedGlow();
-	void endDeferredRiggedAlpha();
-	void endDeferredRiggedMaterial(S32 pass);
-	void endDeferredRiggedMaterialAlpha(S32 pass);
-
-	void beginDeferredRiggedSimple();
-	void beginDeferredRiggedBump();
-	
-	void endDeferredRiggedSimple();
-	void endDeferredRiggedBump();
-		
-	void getRiggedGeometry(LLFace* face, LLPointer<LLVertexBuffer>& buffer, U32 data_mask, const LLMeshSkinInfo* skin, LLVolume* volume, const LLVolumeFace& vol_face);
-	void updateRiggedFaceVertexBuffer(LLVOAvatar* avatar,
-									  LLFace* facep, 
-									  const LLMeshSkinInfo* skin, 
-									  LLVolume* volume,
-									  const LLVolumeFace& vol_face);
-	void updateRiggedVertexBuffers(LLVOAvatar* avatar);
-
-	void renderRigged(LLVOAvatar* avatar, U32 type, bool glow = false);
-	void renderRiggedSimple(LLVOAvatar* avatar);
-	void renderRiggedAlpha(LLVOAvatar* avatar);
-	void renderRiggedFullbrightAlpha(LLVOAvatar* avatar);
-	void renderRiggedFullbright(LLVOAvatar* avatar);
-	void renderRiggedShinySimple(LLVOAvatar* avatar);
-	void renderRiggedFullbrightShiny(LLVOAvatar* avatar);
-	void renderRiggedGlow(LLVOAvatar* avatar);
-	void renderDeferredRiggedSimple(LLVOAvatar* avatar);
-	void renderDeferredRiggedBump(LLVOAvatar* avatar);
-	void renderDeferredRiggedMaterial(LLVOAvatar* avatar, S32 pass);
-	
-	typedef enum
+    typedef enum
 	{
 		RIGGED_MATERIAL=0,
 		RIGGED_MATERIAL_ALPHA,
@@ -260,6 +162,117 @@ public:
 							 LLVertexBuffer::MAP_WEIGHT4,
 	} eRiggedDataMask;
 
+typedef enum
+	{
+		SHADOW_PASS_AVATAR_OPAQUE,
+        SHADOW_PASS_AVATAR_ALPHA_BLEND,
+        SHADOW_PASS_AVATAR_ALPHA_MASK,
+        SHADOW_PASS_ATTACHMENT_ALPHA_BLEND,
+        SHADOW_PASS_ATTACHMENT_ALPHA_MASK,
+        SHADOW_PASS_ATTACHMENT_OPAQUE,
+        NUM_SHADOW_PASSES
+	} eShadowPass;
+
+	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+
+	virtual S32 getVertexShaderLevel() const;
+
+	LLDrawPoolAvatar();
+
+	static LLMatrix4& getModelView();
+
+	/*virtual*/ LLDrawPool *instancePool();
+
+	/*virtual*/ S32  getNumPasses();
+	/*virtual*/ void beginRenderPass(S32 pass);
+	/*virtual*/ void endRenderPass(S32 pass);
+	/*virtual*/ void prerender();
+	/*virtual*/ void render(S32 pass = 0);
+
+	/*virtual*/ S32 getNumDeferredPasses();
+	/*virtual*/ void beginDeferredPass(S32 pass);
+	/*virtual*/ void endDeferredPass(S32 pass);
+	/*virtual*/ void renderDeferred(S32 pass);
+	
+	/*virtual*/ S32 getNumPostDeferredPasses();
+	/*virtual*/ void beginPostDeferredPass(S32 pass);
+	/*virtual*/ void endPostDeferredPass(S32 pass);
+	/*virtual*/ void renderPostDeferred(S32 pass);
+
+	/*virtual*/ S32 getNumShadowPasses();
+	/*virtual*/ void beginShadowPass(S32 pass);
+	/*virtual*/ void endShadowPass(S32 pass);
+	/*virtual*/ void renderShadow(S32 pass);
+
+	void beginRigid();
+	void beginImpostor();
+	void beginSkinned();
+	
+	void endRigid();
+	void endImpostor();
+	void endSkinned();
+
+	void beginDeferredImpostor();
+	void beginDeferredRigid();
+	void beginDeferredSkinned();
+	
+	void endDeferredImpostor();
+	void endDeferredRigid();
+	void endDeferredSkinned();
+	
+	void beginPostDeferredAlpha();
+	void endPostDeferredAlpha();
+
+	void beginRiggedSimple();
+	void beginRiggedFullbright();
+	void beginRiggedFullbrightShiny();
+	void beginRiggedShinySimple();
+	void beginRiggedAlpha();
+	void beginRiggedFullbrightAlpha();
+	void beginRiggedGlow();
+	void beginDeferredRiggedAlpha();
+	void beginDeferredRiggedMaterial(S32 pass);
+	void beginDeferredRiggedMaterialAlpha(S32 pass);
+
+	void endRiggedSimple();
+	void endRiggedFullbright();
+	void endRiggedFullbrightShiny();
+	void endRiggedShinySimple();
+	void endRiggedAlpha();
+	void endRiggedFullbrightAlpha();
+	void endRiggedGlow();
+	void endDeferredRiggedAlpha();
+	void endDeferredRiggedMaterial(S32 pass);
+	void endDeferredRiggedMaterialAlpha(S32 pass);
+
+	void beginDeferredRiggedSimple();
+	void beginDeferredRiggedBump();
+	
+	void endDeferredRiggedSimple();
+	void endDeferredRiggedBump();
+		
+	void getRiggedGeometry(LLFace* face, LLPointer<LLVertexBuffer>& buffer, U32 data_mask, const LLMeshSkinInfo* skin, LLVolume* volume, const LLVolumeFace& vol_face);
+	void updateRiggedFaceVertexBuffer(LLVOAvatar* avatar,
+									  LLFace* facep, 
+									  const LLMeshSkinInfo* skin, 
+									  LLVolume* volume,
+									  const LLVolumeFace& vol_face);
+	void updateRiggedVertexBuffers(LLVOAvatar* avatar);
+
+	void renderRigged(LLVOAvatar* avatar, U32 type, bool glow = false);
+	void renderRiggedSimple(LLVOAvatar* avatar);
+	void renderRiggedAlpha(LLVOAvatar* avatar);
+	void renderRiggedFullbrightAlpha(LLVOAvatar* avatar);
+	void renderRiggedFullbright(LLVOAvatar* avatar);
+	void renderRiggedShinySimple(LLVOAvatar* avatar);
+	void renderRiggedFullbrightShiny(LLVOAvatar* avatar);
+	void renderRiggedGlow(LLVOAvatar* avatar);
+	void renderDeferredRiggedSimple(LLVOAvatar* avatar);
+	void renderDeferredRiggedBump(LLVOAvatar* avatar);
+	void renderDeferredRiggedMaterial(LLVOAvatar* avatar, S32 pass);
+	
+	
+
 	void addRiggedFace(LLFace* facep, U32 type);
 	void removeRiggedFace(LLFace* facep); 
 
@@ -273,6 +286,7 @@ public:
 
 	static BOOL sSkipOpaque;
 	static BOOL sSkipTransparent;
+    static S32  sShadowPass;
 	static S32 sDiffuseChannel;
 	static F32 sMinimumAlpha;
 

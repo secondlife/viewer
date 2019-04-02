@@ -1630,10 +1630,6 @@ SHA1 フィンガープリント： [MD5_DIGEST]
 		Web ブラウザを開いてこのコンテンツを表示しますか？
 		<usetemplate ignoretext="ブラウザを起動して Web ページを見るとき" name="okcancelignore" notext="キャンセル" yestext="OK"/>
 	</notification>
-	<notification name="SystemUIScaleFactorChanged">
-		前回実行時からシステム UI サイズ係数が変更されています。UI サイズ調整設定ページを開きますか?
-		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
-	</notification>
 	<notification name="WebLaunchJoinNow">
 		[http://jp.secondlife.com/account/ マイアカウント] ページに移動してアカウントを管理しますか？
 		<usetemplate ignoretext="ブラウザを起動してアカウントを管理するとき" name="okcancelignore" notext="取り消し" yestext="OK"/>

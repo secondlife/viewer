@@ -1,5 +1,4 @@
 /** 
-
  * @file llvolume.cpp
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
@@ -2192,9 +2191,10 @@ BOOL LLVolume::generate()
 			LLVector4a* end_profile = profile+sizeT;
 			LLVector4a offset = mPathp->mPath[s].mPos;
 
+            // hack to work around MAINT-5660 for debug until we can suss out
+            // what is wrong with the path generated that inserts NaNs...
             if (!offset.isFinite3())
             {
-                LL_WARNS("LLVolume") << "Non-finite offset in path. Ignoring." << LL_ENDL;
                 offset.clear();
             }
 

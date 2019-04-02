@@ -59,6 +59,7 @@
 #include "llfloatergridstatus.h"
 #include "llfloaterimsession.h"
 #include "lllocationhistory.h"
+#include "llimageworker.h"
 
 #include "llloginflags.h"
 #include "llmd5.h"
@@ -297,8 +298,10 @@ void callback_cache_name(const LLUUID& id, const std::string& full_name, bool is
 
 void update_texture_fetch()
 {
-	LLAppViewer::getTextureFetch()->update(4); // unpauses the texture fetch thread
-	gTextureList.updateImages(0.004f);
+	LLAppViewer::getTextureCache()->update(1); // unpauses the texture cache thread
+	LLAppViewer::getImageDecodeThread()->update(1); // unpauses the image thread
+	LLAppViewer::getTextureFetch()->update(1); // unpauses the texture fetch thread
+	gTextureList.updateImages(0.10f);
 }
 
 void set_flags_and_update_appearance()
@@ -357,7 +360,10 @@ bool idle_startup()
 	system = osString.substr (begIdx, endIdx - begIdx);
 	system += "Locale";
 
-	LLStringUtil::setLocale (LLTrans::getString(system));	
+	LLStringUtil::setLocale (LLTrans::getString(system));
+
+	//note: Removing this line will cause incorrect button size in the login screen. -- bao.
+	gTextureList.updateImages(0.01f) ;
 
 	if ( STATE_FIRST == LLStartUp::getStartupState() )
 	{
@@ -372,9 +378,6 @@ bool idle_startup()
 
 		gViewerWindow->showCursor(); 
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_WAIT);
-
-        //note: Removing this line will cause incorrect button size in the login screen. -- bao.
-	    gTextureList.updateImages(0.01f) ;
 
 		/////////////////////////////////////////////////
 		//
@@ -789,10 +792,6 @@ bool idle_startup()
 				}
 			}
 			display_startup();
-			if (gViewerWindow->getSystemUIScaleFactorChanged())
-			{
-				LLViewerWindow::showSystemUIScaleFactorChanged();
-			}
 			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
 		}
 		else
