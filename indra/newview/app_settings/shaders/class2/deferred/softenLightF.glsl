@@ -146,7 +146,7 @@ void main()
             col += spec_contrib;
         }
         
-        col = mix(col.rgb, diffuse.rgb, diffuse.a);
+        col.rgb += diffuse.a * diffuse.rgb;
 
         if (envIntensity > 0.0)
         { //add environmentmap
@@ -154,13 +154,13 @@ void main()
             vec3 refcol = textureCube(environmentMap, env_vec).rgb;
             col = mix(col.rgb, refcol, envIntensity); 
         }
-                
-
-vec3 a = col.rgb;
+        
         if (norm.w < 0.5)
         {
-            col = mix(atmosFragLighting(col, additive, atten), fullbrightAtmosTransportFrag(col, additive, atten), diffuse.a);
-            col = mix(scaleSoftClipFrag(col), fullbrightScaleSoftClipFrag(col, additive, atten), diffuse.a);
+            //col = mix(atmosFragLighting(col, additive, atten), fullbrightAtmosTransportFrag(col, additive, atten), diffuse.a);
+            //col = mix(scaleSoftClipFrag(col), fullbrightScaleSoftClipFrag(col, additive, atten), diffuse.a);
+            col = atmosFragLighting(col, additive, atten);
+            col = scaleSoftClipFrag(col);
         }
 
         #ifdef WATER_FOG
