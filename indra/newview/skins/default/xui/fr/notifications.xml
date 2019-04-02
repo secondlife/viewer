@@ -1598,10 +1598,6 @@ Veuillez choisir un objet à vendre et réessayer.
 		Voulez-vous ouvrir votre navigateur web système pour afficher ce contenu ?
 		<usetemplate ignoretext="Ouvrir mon navigateur pour consulter une page web" name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
-	<notification name="SystemUIScaleFactorChanged">
-		Le facteur de taille de l’interface système a changé depuis la dernière exécution. Voulez-vous ouvrir la page des paramètres d’ajustement de la taille de l’interface ?
-		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
-	</notification>
 	<notification name="WebLaunchJoinNow">
 		Accéder à votre [http://secondlife.com/account/ Page d&apos;accueil] pour gérer votre compte ?
 		<usetemplate ignoretext="Lancer mon navigateur pour gérer mon compte" name="okcancelignore" notext="Annuler" yestext="OK"/>

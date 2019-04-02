@@ -159,6 +159,10 @@ LLGLSLShader		gHighlightProgram;
 LLGLSLShader		gHighlightNormalProgram;
 LLGLSLShader		gHighlightSpecularProgram;
 
+LLGLSLShader		gDeferredHighlightProgram;
+LLGLSLShader		gDeferredHighlightNormalProgram;
+LLGLSLShader		gDeferredHighlightSpecularProgram;
+
 LLGLSLShader		gPathfindingProgram;
 LLGLSLShader		gPathfindingNoNormalsProgram;
 
@@ -212,7 +216,11 @@ LLGLSLShader			gDeferredShadowProgram;
 LLGLSLShader			gDeferredShadowCubeProgram;
 LLGLSLShader			gDeferredShadowAlphaMaskProgram;
 LLGLSLShader			gDeferredAvatarShadowProgram;
+LLGLSLShader			gDeferredAvatarAlphaShadowProgram;
+LLGLSLShader			gDeferredAvatarAlphaMaskShadowProgram;
 LLGLSLShader			gDeferredAttachmentShadowProgram;
+LLGLSLShader			gDeferredAttachmentAlphaShadowProgram;
+LLGLSLShader			gDeferredAttachmentAlphaMaskShadowProgram;
 LLGLSLShader			gDeferredAlphaProgram;
 LLGLSLShader			gDeferredAlphaImpostorProgram;
 LLGLSLShader			gDeferredAlphaWaterProgram;
@@ -1271,6 +1279,10 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSkinnedFullbrightShinyProgram.unload();
 		gDeferredSkinnedFullbrightProgram.unload();
 
+        gDeferredHighlightProgram.unload();
+        gDeferredHighlightNormalProgram.unload();
+        gDeferredHighlightSpecularProgram.unload();
+
 		gNormalMapGenProgram.unload();
 		for (U32 i = 0; i < LLMaterial::SHADER_COUNT*2; ++i)
 		{
@@ -1281,6 +1293,36 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	}
 
 	BOOL success = TRUE;
+
+    if (success)
+	{
+		gDeferredHighlightProgram.mName = "Deferred Highlight Shader";
+		gDeferredHighlightProgram.mShaderFiles.clear();
+		gDeferredHighlightProgram.mShaderFiles.push_back(make_pair("interface/highlightV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredHighlightProgram.mShaderFiles.push_back(make_pair("deferred/highlightF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredHighlightProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];		
+		success = gDeferredHighlightProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gDeferredHighlightNormalProgram.mName = "Deferred Highlight Normals Shader";
+		gDeferredHighlightNormalProgram.mShaderFiles.clear();
+		gDeferredHighlightNormalProgram.mShaderFiles.push_back(make_pair("interface/highlightNormV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredHighlightNormalProgram.mShaderFiles.push_back(make_pair("deferred/highlightF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredHighlightNormalProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];		
+		success = gHighlightNormalProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gDeferredHighlightSpecularProgram.mName = "Deferred Highlight Spec Shader";
+		gDeferredHighlightSpecularProgram.mShaderFiles.clear();
+		gDeferredHighlightSpecularProgram.mShaderFiles.push_back(make_pair("interface/highlightSpecV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredHighlightSpecularProgram.mShaderFiles.push_back(make_pair("deferred/highlightF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredHighlightSpecularProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];		
+		success = gDeferredHighlightSpecularProgram.createShader(NULL, NULL);
+	}
 
 	if (success)
 	{
@@ -2024,7 +2066,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredWaterProgram.mFeatures.hasGamma = true;
 		gDeferredWaterProgram.mFeatures.hasTransport = true;
 		gDeferredWaterProgram.mFeatures.encodesNormal = true;
-		//gDeferredWaterProgram.mFeatures.hasShadows = true;
 
 		gDeferredWaterProgram.mShaderFiles.clear();
 		gDeferredWaterProgram.mShaderFiles.push_back(make_pair("deferred/waterV.glsl", GL_VERTEX_SHADER_ARB));

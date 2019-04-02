@@ -2781,6 +2781,9 @@ BOOL LLFloaterPreferenceGraphicsAdvanced::postBuild()
         combo->remove("8x");
         combo->remove("16x");
     }
+	
+	LLCheckBoxCtrl *use_HiDPI = getChild<LLCheckBoxCtrl>("use HiDPI");
+	use_HiDPI->setVisible(FALSE);
 #endif
 
     return TRUE;

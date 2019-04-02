@@ -34,6 +34,7 @@
 #include "lltrans.h"
 #include "llweb.h"
 
+
 /// key used to store the grid, and the name attribute in the grid data
 const std::string  GRID_VALUE = "keyname";
 /// the value displayed in the grid selector menu, and other human-oriented text
@@ -87,13 +88,6 @@ LLGridManager::LLGridManager()
 	// an attacker.  Don't want someone snagging a password.
 	std::string grid_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
 														   "grids.xml");
-
-    // fall back to app_settings/grids.xml if it's provided
-    if (!LLFile::isfile(grid_file))
-    {
-        grid_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,
-														   "grids.xml");
-    }
 	LL_DEBUGS("GridManager")<<LL_ENDL;
 
 	initialize(grid_file);
@@ -138,13 +132,6 @@ void LLGridManager::initialize(const std::string& grid_file)
 				  SL_UPDATE_QUERY_URL,
 				  "https://my.aditi.lindenlab.com/",
 				  "Aditi");
-
-    // dump example grid file...
-    //llofstream out_llsd_xml;
-    //std::string default_grid_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "default_grids.xml");
-    //out_llsd_xml.open(default_grid_file.c_str());
-    //LLSDSerialize::toPrettyXML(mGridList, out_llsd_xml);
-    //out_llsd_xml.close();
 
 	LLSD other_grids;
 	llifstream llsd_xml;

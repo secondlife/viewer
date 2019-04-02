@@ -2191,9 +2191,10 @@ BOOL LLVolume::generate()
 			LLVector4a* end_profile = profile+sizeT;
 			LLVector4a offset = mPathp->mPath[s].mPos;
 
+            // hack to work around MAINT-5660 for debug until we can suss out
+            // what is wrong with the path generated that inserts NaNs...
             if (!offset.isFinite3())
-            { // MAINT-5660; don't know why this happens, does not affect Release builds
-                LL_WARNS() << "LLVolume using path with non-finite points. Resetting them to 0,0,0" << LL_ENDL;
+            {
                 offset.clear();
             }
 

@@ -80,6 +80,7 @@ void LLHUDIcon::renderIcon(BOOL for_select)
 {
 	LLGLSUIDefault texture_state;
 	LLGLDepthTest gls_depth(GL_TRUE);
+	LLGLDisable gls_stencil(GL_STENCIL_TEST);
 	if (for_select)
 	{
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);

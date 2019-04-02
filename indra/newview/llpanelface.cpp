@@ -444,14 +444,17 @@ struct LLPanelFaceSetTEFunctor : public LLSelectedTEFunctor
 		LLSpinCtrl*	ctrlTexOffsetS = mPanel->getChild<LLSpinCtrl>("TexOffsetU");
 		LLSpinCtrl*	ctrlTexOffsetT = mPanel->getChild<LLSpinCtrl>("TexOffsetV");
 		LLSpinCtrl*	ctrlTexRotation = mPanel->getChild<LLSpinCtrl>("TexRot");
-		LLComboBox*		comboTexGen = mPanel->getChild<LLComboBox>("combobox texgen");
+		LLComboBox*	comboTexGen = mPanel->getChild<LLComboBox>("combobox texgen");
+		LLCheckBoxCtrl*	cb_planar_align = mPanel->getChild<LLCheckBoxCtrl>("checkbox planar align");
+		bool align_planar = (cb_planar_align && cb_planar_align->get());
+
 		llassert(comboTexGen);
 		llassert(object);
 
 		if (ctrlTexScaleS)
 		{
 			valid = !ctrlTexScaleS->getTentative(); // || !checkFlipScaleS->getTentative();
-			if (valid)
+			if (valid || align_planar)
 			{
 				value = ctrlTexScaleS->get();
 				if (comboTexGen &&
@@ -460,13 +463,19 @@ struct LLPanelFaceSetTEFunctor : public LLSelectedTEFunctor
 					value *= 0.5f;
 				}
 				object->setTEScaleS( te, value );
+
+				if (align_planar) 
+				{
+					LLPanelFace::LLSelectedTEMaterial::setNormalRepeatX(mPanel, value, te);
+					LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatX(mPanel, value, te);
+				}
 			}
 		}
 
 		if (ctrlTexScaleT)
 		{
 			valid = !ctrlTexScaleT->getTentative(); // || !checkFlipScaleT->getTentative();
-			if (valid)
+			if (valid || align_planar)
 			{
 				value = ctrlTexScaleT->get();
 				//if( checkFlipScaleT->get() )
@@ -479,36 +488,60 @@ struct LLPanelFaceSetTEFunctor : public LLSelectedTEFunctor
 					value *= 0.5f;
 				}
 				object->setTEScaleT( te, value );
+
+				if (align_planar) 
+				{
+					LLPanelFace::LLSelectedTEMaterial::setNormalRepeatY(mPanel, value, te);
+					LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatY(mPanel, value, te);
+				}
 			}
 		}
 
 		if (ctrlTexOffsetS)
 		{
 			valid = !ctrlTexOffsetS->getTentative();
-			if (valid)
+			if (valid || align_planar)
 			{
 				value = ctrlTexOffsetS->get();
 				object->setTEOffsetS( te, value );
+
+				if (align_planar) 
+				{
+					LLPanelFace::LLSelectedTEMaterial::setNormalOffsetX(mPanel, value, te);
+					LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetX(mPanel, value, te);
+				}
 			}
 		}
 
 		if (ctrlTexOffsetT)
 		{
 			valid = !ctrlTexOffsetT->getTentative();
-			if (valid)
+			if (valid || align_planar)
 			{
 				value = ctrlTexOffsetT->get();
 				object->setTEOffsetT( te, value );
+
+				if (align_planar) 
+				{
+					LLPanelFace::LLSelectedTEMaterial::setNormalOffsetY(mPanel, value, te);
+					LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetY(mPanel, value, te);
+				}
 			}
 		}
 
 		if (ctrlTexRotation)
 		{
 			valid = !ctrlTexRotation->getTentative();
-			if (valid)
+			if (valid || align_planar)
 			{
 				value = ctrlTexRotation->get() * DEG_TO_RAD;
 				object->setTERotation( te, value );
+
+				if (align_planar) 
+				{
+					LLPanelFace::LLSelectedTEMaterial::setNormalRotation(mPanel, value, te);
+					LLPanelFace::LLSelectedTEMaterial::setSpecularRotation(mPanel, value, te);
+				}
 			}
 		}
 		return true;
@@ -552,6 +585,19 @@ struct LLPanelFaceSetAlignedTEFunctor : public LLSelectedTEFunctor
 				object->setTEOffset(te, uv_offset.mV[VX], uv_offset.mV[VY]);
 				object->setTEScale(te, uv_scale.mV[VX], uv_scale.mV[VY]);
 				object->setTERotation(te, uv_rot);
+
+				LLPanelFace::LLSelectedTEMaterial::setNormalRotation(mPanel, uv_rot, te, object->getID());
+				LLPanelFace::LLSelectedTEMaterial::setSpecularRotation(mPanel, uv_rot, te, object->getID());
+
+				LLPanelFace::LLSelectedTEMaterial::setNormalOffsetX(mPanel, uv_offset.mV[VX], te, object->getID());
+				LLPanelFace::LLSelectedTEMaterial::setNormalOffsetY(mPanel, uv_offset.mV[VY], te, object->getID());
+				LLPanelFace::LLSelectedTEMaterial::setNormalRepeatX(mPanel, uv_scale.mV[VX], te, object->getID());
+				LLPanelFace::LLSelectedTEMaterial::setNormalRepeatY(mPanel, uv_scale.mV[VY], te, object->getID());
+
+				LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetX(mPanel, uv_offset.mV[VX], te, object->getID());
+				LLPanelFace::LLSelectedTEMaterial::setSpecularOffsetY(mPanel, uv_offset.mV[VY], te, object->getID());
+				LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatX(mPanel, uv_scale.mV[VX], te, object->getID());
+				LLPanelFace::LLSelectedTEMaterial::setSpecularRepeatY(mPanel, uv_scale.mV[VY], te, object->getID());
 			}
 		}
 		if (!set_aligned)
@@ -599,12 +645,19 @@ struct LLPanelFaceGetIsAlignedTEFunctor : public LLSelectedTEFunctor
 			tep->getOffset(&st_offset.mV[VX], &st_offset.mV[VY]);
 			tep->getScale(&st_scale.mV[VX], &st_scale.mV[VY]);
 			F32 st_rot = tep->getRotation();
+
+            bool eq_offset_x = is_approx_equal_fraction(st_offset.mV[VX], aligned_st_offset.mV[VX], 12);
+            bool eq_offset_y = is_approx_equal_fraction(st_offset.mV[VY], aligned_st_offset.mV[VY], 12);
+            bool eq_scale_x  = is_approx_equal_fraction(st_scale.mV[VX], aligned_st_scale.mV[VX], 12);
+            bool eq_scale_y  = is_approx_equal_fraction(st_scale.mV[VY], aligned_st_scale.mV[VY], 12);
+            bool eq_rot      = is_approx_equal_fraction(st_rot, aligned_st_rot, 6);
+
 			// needs a fuzzy comparison, because of fp errors
-			if (is_approx_equal_fraction(st_offset.mV[VX], aligned_st_offset.mV[VX], 12) && 
-				is_approx_equal_fraction(st_offset.mV[VY], aligned_st_offset.mV[VY], 12) && 
-				is_approx_equal_fraction(st_scale.mV[VX], aligned_st_scale.mV[VX], 12) &&
-				is_approx_equal_fraction(st_scale.mV[VY], aligned_st_scale.mV[VY], 12) &&
-				is_approx_equal_fraction(st_rot, aligned_st_rot, 14))
+			if (eq_offset_x && 
+				eq_offset_y && 
+				eq_scale_x &&
+				eq_scale_y &&
+				eq_rot)
 			{
 				return true;
 			}
@@ -968,9 +1021,9 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			F32 spec_scale_s = 1.f;
 			F32 norm_scale_s = 1.f;
 
-			LLSelectedTE::getScaleS(						diff_scale_s, identical_diff_scale_s);			
-			LLSelectedTEMaterial::getSpecularRepeatX( spec_scale_s, identical_spec_scale_s);
-			LLSelectedTEMaterial::getNormalRepeatX(	norm_scale_s, identical_norm_scale_s);
+			LLSelectedTE::getScaleS(diff_scale_s, identical_diff_scale_s);			
+			LLSelectedTEMaterial::getSpecularRepeatX(spec_scale_s, identical_spec_scale_s);
+			LLSelectedTEMaterial::getNormalRepeatX(norm_scale_s, identical_norm_scale_s);
 
 			diff_scale_s = editable ? diff_scale_s : 1.0f;
 			diff_scale_s *= identical_planar_texgen ? 2.0f : 1.0f;
@@ -2056,10 +2109,10 @@ void LLPanelFace::onCommitMaterialShinyScaleY(LLUICtrl* ctrl, void* userdata)
 }
 
 //static
-void LLPanelFace::syncMaterialRot(LLPanelFace* self, F32 rot)
+void LLPanelFace::syncMaterialRot(LLPanelFace* self, F32 rot, int te)
 {
-	LLSelectedTEMaterial::setNormalRotation(self,rot * DEG_TO_RAD);
-	LLSelectedTEMaterial::setSpecularRotation(self,rot * DEG_TO_RAD);
+	LLSelectedTEMaterial::setNormalRotation(self,rot * DEG_TO_RAD, te);
+	LLSelectedTEMaterial::setSpecularRotation(self,rot * DEG_TO_RAD, te);
 	self->sendTextureInfo();
 }
 
@@ -2437,7 +2490,7 @@ void LLPanelFace::LLSelectedTE::getFace(LLFace*& face_to_return, bool& identical
 			return (object->mDrawable) ? object->mDrawable->getFace(te): NULL;
 		}
 	} get_te_face_func;
-	identical_face = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&get_te_face_func, face_to_return);
+	identical_face = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&get_te_face_func, face_to_return, false, (LLFace*)nullptr);
 }
 
 void LLPanelFace::LLSelectedTE::getImageFormat(LLGLenum& image_format_to_return, bool& identical_face)

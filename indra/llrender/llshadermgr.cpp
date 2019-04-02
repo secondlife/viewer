@@ -606,8 +606,6 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		}
 	}
 	
-	//LL_SHADER_LOADING_WARNS() << "Loading shader file: " << filename << " class " << shader_level << LL_ENDL;
-
 	if (filename.empty()) 
 	{
 		return 0;

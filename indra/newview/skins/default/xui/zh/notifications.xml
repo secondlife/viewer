@@ -1597,10 +1597,6 @@ SHA1 指紋：[MD5_DIGEST]
 		你確定要開啟網頁瀏覽器去察看這個內容？
 		<usetemplate ignoretext="啟動我的網頁瀏覽器去察看網頁" name="okcancelignore" notext="取消" yestext="確定"/>
 	</notification>
-	<notification name="SystemUIScaleFactorChanged">
-		系統使用者介面的尺寸倍數自從上次執行後已經改變。 你想要開啟使用者介面尺寸調整的設定頁嗎？
-		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
-	</notification>
 	<notification name="WebLaunchJoinNow">
 		前往你的[http://secondlife.com/account/ 塗鴉牆]以進行管理你的帳戶？
 		<usetemplate ignoretext="啟動我的瀏覽器以管理我的帳戶" name="okcancelignore" notext="取消" yestext="確定"/>
