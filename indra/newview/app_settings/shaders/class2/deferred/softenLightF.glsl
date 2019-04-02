@@ -142,11 +142,11 @@ void main()
             
             // add the two types of shiny together
             vec3 spec_contrib = dumbshiny * spec.rgb;
-            bloom = dot(spec_contrib, spec_contrib) / 6;
+            bloom = dot(spec_contrib, spec_contrib) / 64;
             col += spec_contrib;
         }
         
-        col = mix(col.rgb, diffuse.rgb, diffuse.a);
+        col.rgb += diffuse.a * diffuse.rgb;
 
         if (envIntensity > 0.0)
         { //add environmentmap
@@ -154,9 +154,7 @@ void main()
             vec3 refcol = textureCube(environmentMap, env_vec).rgb;
             col = mix(col.rgb, refcol, envIntensity); 
         }
-                
-
-vec3 a = col.rgb;
+        
         if (norm.w < 0.5)
         {
             col = mix(atmosFragLighting(col, additive, atten), fullbrightAtmosTransportFrag(col, additive, atten), diffuse.a);

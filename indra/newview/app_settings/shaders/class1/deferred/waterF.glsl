@@ -153,21 +153,18 @@ void main()
     vec2 distort2 = distort+wavef.xy*refScale * 0.33/max(dmod*df1, 1.0);
         
     vec4 fb = texture2D(screenTex, distort2);
-    
     //mix with reflection
     // Note we actually want to use just df1, but multiplying by 0.999999 gets around an nvidia compiler bug
     color.rgb = mix(fb.rgb, refcol.rgb, df1 * 0.99999);
     
     vec4 pos = vary_position;
     
-    color.rgb += spec * specular;
-    
-    color.rgb = atmosTransport(color.rgb);
-    color.rgb = scaleSoftClipFrag(color.rgb);
+    //color.rgb = atmosTransport(color.rgb);
+    //color.rgb = scaleSoftClipFrag(color.rgb) * 0;
 
     vec3 screenspacewavef = normalize((norm_mat*vec4(wavef, 1.0)).xyz);
 
     frag_data[0] = vec4(color.rgb, 1); // diffuse
-    frag_data[1] = vec4(0);     // speccolor, spec
-    frag_data[2] = vec4(encode_normal(screenspacewavef.xyz*0.5+0.5), 0.05, 0);// normalxy, 0, 0
+    frag_data[1] = vec4(specular, 0.75);     // speccolor, spec
+    frag_data[2] = vec4(encode_normal(screenspacewavef.xyz), 0.05, 0);// normalxy, 0, 0
 }
