@@ -1300,7 +1300,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredHighlightProgram.mShaderFiles.clear();
 		gDeferredHighlightProgram.mShaderFiles.push_back(make_pair("interface/highlightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredHighlightProgram.mShaderFiles.push_back(make_pair("deferred/highlightF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gDeferredHighlightProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];		
+		gDeferredHighlightProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];		
 		success = gDeferredHighlightProgram.createShader(NULL, NULL);
 	}
 
@@ -1310,7 +1310,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredHighlightNormalProgram.mShaderFiles.clear();
 		gDeferredHighlightNormalProgram.mShaderFiles.push_back(make_pair("interface/highlightNormV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredHighlightNormalProgram.mShaderFiles.push_back(make_pair("deferred/highlightF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gDeferredHighlightNormalProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];		
+		gDeferredHighlightNormalProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];		
 		success = gHighlightNormalProgram.createShader(NULL, NULL);
 	}
 
@@ -1320,7 +1320,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredHighlightSpecularProgram.mShaderFiles.clear();
 		gDeferredHighlightSpecularProgram.mShaderFiles.push_back(make_pair("interface/highlightSpecV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredHighlightSpecularProgram.mShaderFiles.push_back(make_pair("deferred/highlightF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gDeferredHighlightSpecularProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];		
+		gDeferredHighlightSpecularProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];		
 		success = gDeferredHighlightSpecularProgram.createShader(NULL, NULL);
 	}
 

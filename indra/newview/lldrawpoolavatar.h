@@ -58,8 +58,6 @@ public:
     ~LLDrawPoolAvatar();
     /*virtual*/ BOOL isDead();
 
-    virtual S32 getShaderLevel() const;
-
     typedef enum
 	{
 		RIGGED_MATERIAL=0,
@@ -178,7 +176,7 @@ typedef enum
 
 	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
 
-	virtual S32 getVertexShaderLevel() const;
+	virtual S32 getShaderLevel() const;
 
 	LLDrawPoolAvatar();
 

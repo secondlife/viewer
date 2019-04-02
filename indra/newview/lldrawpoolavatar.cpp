@@ -455,8 +455,13 @@ void LLDrawPoolAvatar::beginShadowPass(S32 pass)
 		sVertexProgram = &gDeferredAvatarAlphaShadowProgram;
 
         // bind diffuse tex so we can reference the alpha channel...
-        sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
-		
+        S32 loc = sVertexProgram->getUniformLocation(LLViewerShaderMgr::DIFFUSE_MAP);
+        sDiffuseChannel = 0;
+        if (loc != -1)
+        {
+            sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+		}
+
 		if ((sShaderLevel > 0))  // for hardware blending
 		{
 			sRenderingSkinned = TRUE;
@@ -470,8 +475,13 @@ void LLDrawPoolAvatar::beginShadowPass(S32 pass)
 		sVertexProgram = &gDeferredAvatarAlphaMaskShadowProgram;
 
         // bind diffuse tex so we can reference the alpha channel...
-        sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
-		
+        S32 loc = sVertexProgram->getUniformLocation(LLViewerShaderMgr::DIFFUSE_MAP);
+        sDiffuseChannel = 0;
+        if (loc != -1)
+        {
+            sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+		}
+
 		if ((sShaderLevel > 0))  // for hardware blending
 		{
 			sRenderingSkinned = TRUE;
@@ -485,7 +495,12 @@ void LLDrawPoolAvatar::beginShadowPass(S32 pass)
 		sVertexProgram = &gDeferredAttachmentAlphaShadowProgram;
 
         // bind diffuse tex so we can reference the alpha channel...
-        sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+        S32 loc = sVertexProgram->getUniformLocation(LLViewerShaderMgr::DIFFUSE_MAP);
+        sDiffuseChannel = 0;
+        if (loc != -1)
+        {
+            sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+		}
 		
 		if ((sShaderLevel > 0))  // for hardware blending
 		{
@@ -500,7 +515,12 @@ void LLDrawPoolAvatar::beginShadowPass(S32 pass)
 		sVertexProgram = &gDeferredAttachmentAlphaMaskShadowProgram;
 
         // bind diffuse tex so we can reference the alpha channel...
-		sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+		S32 loc = sVertexProgram->getUniformLocation(LLViewerShaderMgr::DIFFUSE_MAP);
+        sDiffuseChannel = 0;
+        if (loc != -1)
+        {
+            sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+		}
 
 		if ((sShaderLevel > 0))  // for hardware blending
 		{
@@ -513,7 +533,12 @@ void LLDrawPoolAvatar::beginShadowPass(S32 pass)
 	else // SHADOW_PASS_ATTACHMENT_OPAQUE
 	{
 		sVertexProgram = &gDeferredAttachmentShadowProgram;
-		sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+		S32 loc = sVertexProgram->getUniformLocation(LLViewerShaderMgr::DIFFUSE_MAP);
+        sDiffuseChannel = 0;
+        if (loc != -1)
+        {
+            sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+		}
 		sVertexProgram->bind();
 	}
 }

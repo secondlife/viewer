@@ -249,7 +249,7 @@ void LLDrawPoolTerrain::renderDeferred(S32 pass)
 	// Special-case for land ownership feedback
 	if (gSavedSettings.getBOOL("ShowParcelOwners"))
 	{
-		hilightParcelOwners();
+		hilightParcelOwners(true);
 	}
 
 }
