@@ -1605,10 +1605,6 @@ Nesneyi satılık olarak ayarlayıp tekrar deneyin.
 		Bu içeriği görüntülemek için Web tarayıcınızı açmak istiyor musunuz?
 		<usetemplate ignoretext="Bir web sayfasını görüntülemek için tarayıcımı başlat" name="okcancelignore" notext="İptal" yestext="Tamam"/>
 	</notification>
-	<notification name="SystemUIScaleFactorChanged">
-		Sistem kullanıcı arayüzü faktörü son çalıştırmadan bu yana değişti. Kullanıcı arayüzü büyüklük değiştirme ayarları sayfasını açmak istiyor musunuz?
-		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
-	</notification>
 	<notification name="WebLaunchJoinNow">
 		Hesabınızı yönetmek için [http://secondlife.com/account/ Kontrol Paneli] adresine gidilsin mi?
 		<usetemplate ignoretext="Hesabımı yönetmek için tarayıcımı başlat" name="okcancelignore" notext="İptal" yestext="Tamam"/>

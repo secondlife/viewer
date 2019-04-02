@@ -124,6 +124,11 @@ template <typename T> struct LLSelectedTEGetFunctor
 	virtual T get(LLViewerObject* object, S32 te) = 0;
 };
 
+template <typename T> struct LLCheckIdenticalFunctor
+{
+	static bool same(const T& a, const T& b, const T& tolerance);
+};
+
 typedef enum e_send_type
 {
 	SEND_ONLY_ROOTS,
@@ -168,14 +173,14 @@ public:
 
 	void selectAllTEs(BOOL b);
 	void selectTE(S32 te_index, BOOL selected);
-	BOOL isTESelected(S32 te_index);
-	S32 getLastSelectedTE();
-	S32 getLastOperatedTE();
+	BOOL isTESelected(S32 te_index) const;
+	bool hasSelectedTE() const { return TE_SELECT_MASK_ALL & mTESelectMask; }
+	S32 getLastSelectedTE() const;
+	S32 getLastOperatedTE() const { return mLastTESelected; }
 	S32 getTESelectMask() { return mTESelectMask; }
-	void renderOneWireframe(const LLColor4& color);
 	void renderOneSilhouette(const LLColor4 &color);
 	void setTransient(BOOL transient) { mTransient = transient; }
-	BOOL isTransient() { return mTransient; }
+	BOOL isTransient() const { return mTransient; }
 	LLViewerObject* getObject();
 	void setObject(LLViewerObject* object);
 	// *NOTE: invalidate stored textures and colors when # faces change
@@ -313,7 +318,7 @@ public:
 	LLViewerObject* getPrimaryObject() { return mPrimaryObject; }
 
 	// iterate through texture entries
-	template <typename T> bool getSelectedTEValue(LLSelectedTEGetFunctor<T>* func, T& res);
+	template <typename T> bool getSelectedTEValue(LLSelectedTEGetFunctor<T>* func, T& res, bool has_tolerance = false, T tolerance = T());
 	template <typename T> bool isMultipleTEValue(LLSelectedTEGetFunctor<T>* func, const T& ignore_value);
 	
 	S32 getNumNodes();
@@ -535,10 +540,10 @@ public:
 	EGridMode		getGridMode() { return mGridMode; }
 	void			getGrid(LLVector3& origin, LLQuaternion& rotation, LLVector3 &scale, bool for_snap_guides = false);
 
-	BOOL getTEMode()		{ return mTEMode; }
-	void setTEMode(BOOL b)	{ mTEMode = b; }
+	BOOL getTEMode() const { return mTEMode; }
+	void setTEMode(BOOL b) { mTEMode = b; }
 
-	BOOL shouldShowSelection()	{ return mShowSelection; }
+	BOOL shouldShowSelection() const { return mShowSelection; }
 
 	LLBBox getBBoxOfSelection() const;
 	LLBBox getSavedBBoxOfSelection() const { return mSavedSelectionBBox; }
@@ -594,7 +599,7 @@ public:
 	void selectionSetClickAction(U8 action);
 	void selectionSetIncludeInSearch(bool include_in_search);
 	void selectionSetGlow(const F32 glow);
-	void selectionSetMaterialParams(LLSelectedTEMaterialFunctor* material_func);
+	void selectionSetMaterialParams(LLSelectedTEMaterialFunctor* material_func, int specific_te = -1);
 	void selectionRemoveMaterial();
 
 	void selectionSetObjectPermissions(U8 perm_field, BOOL set, U32 perm_mask, BOOL override = FALSE);
@@ -866,7 +871,7 @@ void dialog_refresh_all();
 //-----------------------------------------------------------------------------
 // getSelectedTEValue
 //-----------------------------------------------------------------------------
-template <typename T> bool LLObjectSelection::getSelectedTEValue(LLSelectedTEGetFunctor<T>* func, T& res)
+template <typename T> bool LLObjectSelection::getSelectedTEValue(LLSelectedTEGetFunctor<T>* func, T& res, bool has_tolerance, T tolerance)
 {
 	bool have_first = false;
 	bool have_selected = false;
@@ -902,7 +907,14 @@ template <typename T> bool LLObjectSelection::getSelectedTEValue(LLSelectedTEGet
 			{
 				if ( value != selected_value )
 				{
-					identical = false;
+                    if (!has_tolerance)
+                    {
+					    identical = false;
+                    }
+                    else if (!LLCheckIdenticalFunctor<T>::same(value, selected_value, tolerance))
+                    {
+                        identical = false;
+                    }
 				}
 				if (te == selected_te)
 				{
