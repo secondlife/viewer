@@ -1403,6 +1403,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
             else {
                 mFormatInternal = GL_RGBA8;
             }
+            mFormatPrimary = GL_RGBA;
             mFormatType = GL_UNSIGNED_BYTE;
             break;
         default:
