@@ -142,13 +142,7 @@ void main()
     vec4 baseCol = texture2D(refTex, refvec4);
 
     refcol = mix(baseCol*df2, refcol, dweight);
-
-    //get specular component
-    float spec = clamp(dot(lightDir, (reflect(viewVec,wavef))),0.0,1.0);
-        
-    //harden specular
-    spec = pow(spec, 128.0);
-
+    
     //figure out distortion vector (ripply)   
     vec2 distort2 = distort+wavef.xy*refScale * 0.33/max(dmod*df1, 1.0);
         
@@ -165,6 +159,6 @@ void main()
     vec3 screenspacewavef = normalize((norm_mat*vec4(wavef, 1.0)).xyz);
 
     frag_data[0] = vec4(color.rgb, 1); // diffuse
-    frag_data[1] = vec4(specular, 0.75);     // speccolor, spec
+    frag_data[1] = vec4(specular * 0.4, 0.75);     // speccolor, spec
     frag_data[2] = vec4(encode_normal(screenspacewavef.xyz), 0.05, 0);// normalxy, 0, 0
 }
