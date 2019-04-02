@@ -1600,10 +1600,6 @@
 		Открыть браузер для просмотра этого контента?
 		<usetemplate ignoretext="Запустить браузер для просмотра веб-страницы" name="okcancelignore" notext="Отмена" yestext="OK"/>
 	</notification>
-	<notification name="SystemUIScaleFactorChanged">
-		Со времени последнего запуска изменился системный коэффициент размера интерфейса. Открыть страницу настроек размера интерфейса?
-		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
-	</notification>
 	<notification name="WebLaunchJoinNow">
 		Перейти на [http://secondlife.com/account/ информационную панель] для управления вашим аккаунтом?
 		<usetemplate ignoretext="Запустить браузер для управления аккаунтом" name="okcancelignore" notext="Отмена" yestext="OK"/>
