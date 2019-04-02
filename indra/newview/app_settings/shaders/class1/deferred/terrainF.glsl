@@ -66,8 +66,8 @@ void main()
     outColor = applyWaterFogView(pos.xyz, outColor);
 #endif
 
-    frag_data[0] = vec4(outColor.rgb, 0.0);
-    frag_data[1] = vec4(0,0,0,0);
+    frag_data[0] = vec4(outColor.rgb, 1.0);
+    frag_data[1] = vec4(0.66,0.86,0.66,0.05f);
     vec3 nvn = normalize(vary_normal);
     frag_data[2] = vec4(encode_normal(nvn.xyz), 0.0, 0.0);
 }

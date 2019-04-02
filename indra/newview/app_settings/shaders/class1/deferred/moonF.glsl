@@ -64,6 +64,6 @@ void main()
     frag_data[1] = vec4(0.0);
     frag_data[2] = vec4(0.0f);
 
-    gl_FragDepth = 0.9996f;
+    gl_FragDepth = 0.99985f;
 }
 
