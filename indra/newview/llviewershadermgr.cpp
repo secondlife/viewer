@@ -49,6 +49,10 @@
 #include "lljoint.h"
 #include "llskinningutil.h"
 
+#if LL_WINDOWS
+#pragma optimize("", off)
+#endif
+
 static LLStaticHashedString sTexture0("texture0");
 static LLStaticHashedString sTexture1("texture1");
 static LLStaticHashedString sTex0("tex0");
