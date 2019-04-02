@@ -8727,6 +8727,17 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+   <key>RenderHiDPI</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable support for HiDPI displays, like Retina (MacOS X ONLY, requires restart)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
     <key>RenderPerformanceTest</key>
     <map>
       <key>Comment</key>
@@ -13125,7 +13136,7 @@
     <key>LastSystemUIScaleFactor</key>
     <map>
       <key>Comment</key>
-      <string>Size of system UI during last run. On Windows 100% (96 DPI) system setting is 1.0 UI size</string>
+      <string>OBSOLETE: System UI scale factor is now automatically and independently from UIScaleFactor applied</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
