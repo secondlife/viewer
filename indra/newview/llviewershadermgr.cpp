@@ -1250,9 +1250,13 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSoftenWaterProgram.unload();
 		gDeferredShadowProgram.unload();
 		gDeferredShadowCubeProgram.unload();
-		gDeferredShadowAlphaMaskProgram.unload();
+        gDeferredShadowAlphaMaskProgram.unload();
 		gDeferredAvatarShadowProgram.unload();
+        gDeferredAvatarAlphaShadowProgram.unload();
+        gDeferredAvatarAlphaMaskShadowProgram.unload();
 		gDeferredAttachmentShadowProgram.unload();
+        gDeferredAttachmentAlphaShadowProgram.unload();
+        gDeferredAttachmentAlphaMaskShadowProgram.unload();
 		gDeferredAvatarProgram.unload();
 		gDeferredAvatarAlphaProgram.unload();
 		gDeferredAlphaProgram.unload();
