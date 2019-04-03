@@ -58,6 +58,7 @@
 #include "llfloaterdeleteprefpreset.h"
 #include "llfloaterdestinations.h"
 #include "llfloatereditextdaycycle.h"
+#include "llfloaterenvironmentadjust.h"
 #include "llfloaterexperienceprofile.h"
 #include "llfloaterexperiences.h"
 #include "llfloaterexperiencepicker.h"
@@ -222,7 +223,8 @@ void LLViewerFloaterReg::registerFloaters()
 
     LLFloaterReg::add("env_fixed_environmentent_water", "floater_fixedenvironment.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFixedEnvironmentWater>);
     LLFloaterReg::add("env_fixed_environmentent_sky", "floater_fixedenvironment.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFixedEnvironmentSky>);
-    //LLFloaterReg::add("env_fixed_environmentent", "floater_fixedenvironment.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFixedEnvironment>);
+
+    LLFloaterReg::add("env_adjust_snapshot", "floater_adjust_environment.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEnvironmentAdjust>);
 
     LLFloaterReg::add("env_edit_extdaycycle", "floater_edit_ext_day_cycle.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEditExtDayCycle>);
     LLFloaterReg::add("my_environments", "floater_my_environments.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMyEnvironment>);

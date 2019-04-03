@@ -798,6 +798,11 @@ const S32 LLEnvironment::VERSION_CLEANUP(-4); // for cleanups
 
 const F32 LLEnvironment::SUN_DELTA_YAW(F_PI);   // 180deg 
 
+
+const U32 LLEnvironment::DayInstance::NO_ANIMATE_SKY(0x01);
+const U32 LLEnvironment::DayInstance::NO_ANIMATE_WATER(0x02);
+
+
 //-------------------------------------------------------------------------
 LLEnvironment::LLEnvironment():
     mCloudScrollDelta(),
@@ -1110,28 +1115,28 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironm
 
     DayInstance::ptr_t environment = getEnvironmentInstance(env, true);
 
-//     LLSettingsSky::ptr_t prev_sky = mEnvironments[ENV_DEFAULT]->getSky();
-//     LLSettingsWater::ptr_t prev_water = mEnvironments[ENV_DEFAULT]->getWater();
-//     if (mCurrentEnvironment && (ENV_EDIT == env))
-//     {
-//         prev_sky = mCurrentEnvironment->getSky() ? mCurrentEnvironment->getSky() : prev_sky;
-//         prev_water = mCurrentEnvironment->getWater() ? mCurrentEnvironment->getWater() : prev_water;
-//     }
 
-//     environment->clear();
-//     environment->setSky((fixed.first) ? fixed.first : prev_sky);
-//     environment->setWater((fixed.second) ? fixed.second : prev_water);
     if (fixed.first)
+    {
         environment->setSky(fixed.first);
+        environment->setFlags(DayInstance::NO_ANIMATE_SKY);
+    }
     else if (!environment->getSky())
+    {
         environment->setSky(mCurrentEnvironment->getSky());
+        environment->setFlags(DayInstance::NO_ANIMATE_SKY);
+    }
         
     if (fixed.second)
+    {
         environment->setWater(fixed.second);
+        environment->setFlags(DayInstance::NO_ANIMATE_WATER);
+    }
     else if (!environment->getWater())
+    {
         environment->setWater(mCurrentEnvironment->getWater());
-        
-
+        environment->setFlags(DayInstance::NO_ANIMATE_WATER);
+    }
 
     if (!mSignalEnvChanged.empty())
         mSignalEnvChanged(env, env_version);
@@ -2447,7 +2452,8 @@ LLEnvironment::DayInstance::DayInstance(EnvSelection_t env) :
     mInitialized(false),
     mType(TYPE_INVALID),
     mSkyTrack(1),
-    mEnv(env)
+    mEnv(env),
+    mAnimateFlags(0)
 { }
 
 
@@ -2465,6 +2471,7 @@ LLEnvironment::DayInstance::ptr_t LLEnvironment::DayInstance::clone() const
     environment->mInitialized = mInitialized;
     environment->mType = mType;
     environment->mSkyTrack = mSkyTrack;
+    environment->mAnimateFlags = mAnimateFlags;
 
     return environment;
 }
@@ -2488,6 +2495,8 @@ void LLEnvironment::DayInstance::setDay(const LLSettingsDay::ptr_t &pday, LLSett
 {
     mType = TYPE_CYCLED;
     mInitialized = false;
+
+    mAnimateFlags = 0;
 
     mDayCycle = pday;
     mDayLength = daylength;
@@ -2596,34 +2605,40 @@ void LLEnvironment::DayInstance::animate()
     if (!mDayCycle)
         return;
 
-    LLSettingsDay::CycleTrack_t &wtrack = mDayCycle->getCycleTrack(0);
+    if (!(mAnimateFlags & NO_ANIMATE_WATER))
+    {
+        LLSettingsDay::CycleTrack_t &wtrack = mDayCycle->getCycleTrack(0);
 
-    if (wtrack.empty())
-    {
-        mWater.reset();
-        mBlenderWater.reset();
-    }
-    else
-    {
-        mWater = LLSettingsVOWater::buildDefaultWater();
-        mBlenderWater = std::make_shared<LLTrackBlenderLoopingTime>(mWater, mDayCycle, 0, 
-            mDayLength, mDayOffset, DEFAULT_UPDATE_THRESHOLD);
+        if (wtrack.empty())
+        {
+            mWater.reset();
+            mBlenderWater.reset();
+        }
+        else
+        {
+            mWater = LLSettingsVOWater::buildDefaultWater();
+            mBlenderWater = std::make_shared<LLTrackBlenderLoopingTime>(mWater, mDayCycle, 0,
+                mDayLength, mDayOffset, DEFAULT_UPDATE_THRESHOLD);
+        }
     }
 
-    // sky, initialize to track 1
-    LLSettingsDay::CycleTrack_t &track = mDayCycle->getCycleTrack(1);
+    if (!(mAnimateFlags & NO_ANIMATE_SKY))
+    {
+        // sky, initialize to track 1
+        LLSettingsDay::CycleTrack_t &track = mDayCycle->getCycleTrack(1);
 
-    if (track.empty())
-    {
-        mSky.reset();
-        mBlenderSky.reset();
-    }
-    else
-    {
-        mSky = LLSettingsVOSky::buildDefaultSky();
-        mBlenderSky = std::make_shared<LLTrackBlenderLoopingTime>(mSky, mDayCycle, 1, 
-            mDayLength, mDayOffset, DEFAULT_UPDATE_THRESHOLD);
-        mBlenderSky->switchTrack(mSkyTrack, 0.0);
+        if (track.empty())
+        {
+            mSky.reset();
+            mBlenderSky.reset();
+        }
+        else
+        {
+            mSky = LLSettingsVOSky::buildDefaultSky();
+            mBlenderSky = std::make_shared<LLTrackBlenderLoopingTime>(mSky, mDayCycle, 1,
+                mDayLength, mDayOffset, DEFAULT_UPDATE_THRESHOLD);
+            mBlenderSky->switchTrack(mSkyTrack, 0.0);
+        }
     }
 }
 

@@ -715,6 +715,13 @@
                  function="World.EnvSettings"
                  parameter="my_environs" />
             </menu_item_call>
+            <menu_item_call
+             label="Personal Lighting..."
+             name="adjustment_tool">
+                <menu_item_call.on_click
+                 function="World.EnvSettings"
+                 parameter="adjust_tool" />
+            </menu_item_call>
             <menu_item_separator/>
             <menu_item_check
              label="Pause Clouds"

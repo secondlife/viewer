@@ -235,7 +235,11 @@ public:
             TYPE_FIXED,
             TYPE_CYCLED
         };
+
         typedef std::shared_ptr<DayInstance> ptr_t;
+
+        static const U32                NO_ANIMATE_SKY;
+        static const U32                NO_ANIMATE_WATER;
 
                                         DayInstance(EnvSelection_t env);
         virtual                         ~DayInstance() { };
@@ -273,7 +277,12 @@ public:
 
         LLSettingsBase::TrackPosition   getProgress() const;
 
+        void                            setFlags(U32 flag) { mAnimateFlags |= flag; }
+        void                            clearFlags(U32 flag) { mAnimateFlags &= ~flag; }
+
     protected:
+
+
         LLSettingsDay::ptr_t        mDayCycle;
         LLSettingsSky::ptr_t        mSky;
         LLSettingsWater::ptr_t      mWater;
@@ -290,6 +299,8 @@ public:
         LLSettingsBlender::ptr_t    mBlenderWater;
 
         EnvSelection_t              mEnv;
+
+        U32                         mAnimateFlags;
 
         LLSettingsBase::TrackPosition secondsToKeyframe(LLSettingsDay::Seconds seconds);
     };

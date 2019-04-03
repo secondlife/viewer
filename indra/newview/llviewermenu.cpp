@@ -8542,6 +8542,10 @@ class LLWorldEnvSettings : public view_listener_t
             else
                 LLEnvironment::instance().pauseCloudScroll();
         }
+        else if (event_name == "adjust_tool")
+        {
+            LLFloaterReg::showInstance("env_adjust_snapshot");
+        }
         else if (event_name == "my_environs")
         {
             LLFloaterReg::showInstance("my_environments");
