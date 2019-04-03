@@ -10113,10 +10113,29 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
     bool sun_up         = environment.getIsSunUp();
     bool moon_up        = environment.getIsMoonUp();
-    bool ignore_shadows = (shadow_detail == 0) 
-                       || (sun_up  && (mSunDiffuse == LLColor4::black))
-                       || (moon_up && (mMoonDiffuse == LLColor4::black))
-                       || !(sun_up || moon_up);
+
+    bool ignore_shadows = (shadow_detail == 0); // explicitly disabled shadows
+
+    // no sun or moon, no shadows
+    if (!sun_up && !moon_up)
+    {
+        ignore_shadows |= true;
+    }
+    // only moon and moon is black
+    else if (!sun_up && moon_up & (mMoonDiffuse == LLColor4::black))
+    {
+        ignore_shadows |= true;
+    }
+    // only sun and sun is black
+    else if (!moon_up && sun_up && (mSunDiffuse == LLColor4::black))
+    {
+        ignore_shadows |= true;
+    }
+    // both up, but both black
+    else if ((mSunDiffuse == LLColor4::black) && (mMoonDiffuse == LLColor4::black))
+    {
+        ignore_shadows |= true;
+    }
 
     if (ignore_shadows)
     { //sun diffuse is totally black, shadows don't matter
