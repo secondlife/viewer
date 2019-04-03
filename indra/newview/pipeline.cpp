@@ -2599,9 +2599,12 @@ void LLPipeline::downsampleDepthBuffer(LLRenderTarget& source, LLRenderTarget& d
 
 	if (scratch_space)
 	{
+        GLint bits = 0;
+        bits |= (source.hasStencil() && dest.hasStencil()) ? GL_STENCIL_BUFFER_BIT : 0;
+        bits |= GL_DEPTH_BUFFER_BIT;
 		scratch_space->copyContents(source, 
 									0, 0, source.getWidth(), source.getHeight(), 
-									0, 0, scratch_space->getWidth(), scratch_space->getHeight(), source.hasStencil() ? (GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT) : GL_COLOR_BUFFER_BIT, GL_NEAREST);
+									0, 0, scratch_space->getWidth(), scratch_space->getHeight(), bits, GL_NEAREST);
 	}
 
 	dest.bindTarget();
@@ -8145,6 +8148,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     {
         deferred_target->bindTexture(0,channel);
         gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+        gGL.getTexUnit(channel)->setTextureColorSpace(LLTexUnit::TCS_SRGB);
     }
 
     channel = shader.enableTexture(LLShaderMgr::DEFERRED_SPECULAR, deferred_target->getUsage());
@@ -8152,6 +8156,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     {
         deferred_target->bindTexture(1, channel);
         gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+        gGL.getTexUnit(channel)->setTextureColorSpace(LLTexUnit::TCS_SRGB);
     }
 
     channel = shader.enableTexture(LLShaderMgr::DEFERRED_NORMAL, deferred_target->getUsage());
@@ -8159,6 +8164,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     {
         deferred_target->bindTexture(2, channel);
         gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+        gGL.getTexUnit(channel)->setTextureColorSpace(LLTexUnit::TCS_LINEAR);
     }
 
     channel = shader.enableTexture(LLShaderMgr::DEFERRED_DEPTH, deferred_depth_target->getUsage());
@@ -8281,7 +8287,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
 
 	stop_glerror();
 
-	channel = shader.enableTexture(LLShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
+	channel = shader.enableTexture(LLShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP, LLTexUnit::TCS_SRGB);
 	if (channel > -1)
 	{
 		LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
@@ -8779,7 +8785,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
 
                 mCubeVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 
-                gDeferredSpotLightProgram.enableTexture(LLShaderMgr::DEFERRED_PROJECTION);
+                gDeferredSpotLightProgram.enableTexture(LLShaderMgr::DEFERRED_PROJECTION, LLTexUnit::TT_TEXTURE, LLTexUnit::TCS_SRGB);
 
                 for (LLDrawable::drawable_list_t::iterator iter = spot_lights.begin(); iter != spot_lights.end(); ++iter)
                 {
@@ -8807,7 +8813,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
                                         
                     mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, center));
                 }
-                gDeferredSpotLightProgram.disableTexture(LLShaderMgr::DEFERRED_PROJECTION);
+                gDeferredSpotLightProgram.disableTexture(LLShaderMgr::DEFERRED_PROJECTION, LLTexUnit::TT_TEXTURE, LLTexUnit::TCS_SRGB);
                 unbindDeferredShader(gDeferredSpotLightProgram);
             }
 
@@ -8863,7 +8869,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
                 
                 bindDeferredShader(gDeferredMultiSpotLightProgram);
 
-                gDeferredMultiSpotLightProgram.enableTexture(LLShaderMgr::DEFERRED_PROJECTION);
+                gDeferredMultiSpotLightProgram.enableTexture(LLShaderMgr::DEFERRED_PROJECTION, LLTexUnit::TT_TEXTURE, LLTexUnit::TCS_SRGB);
 
                 mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 
@@ -8894,7 +8900,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
                     mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
                 }
 
-                gDeferredMultiSpotLightProgram.disableTexture(LLShaderMgr::DEFERRED_PROJECTION);
+                gDeferredMultiSpotLightProgram.disableTexture(LLShaderMgr::DEFERRED_PROJECTION, LLTexUnit::TT_TEXTURE, LLTexUnit::TCS_SRGB);
                 unbindDeferredShader(gDeferredMultiSpotLightProgram);
 
                 gGL.popMatrix();
@@ -9139,7 +9145,7 @@ void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
 		img = LLViewerFetchedTexture::sWhiteImagep;
 	}
 
-	S32 channel = shader.enableTexture(LLShaderMgr::DEFERRED_PROJECTION);
+	S32 channel = shader.enableTexture(LLShaderMgr::DEFERRED_PROJECTION, LLTexUnit::TT_TEXTURE, LLTexUnit::TCS_SRGB);
 
 	if (channel > -1)
 	{
@@ -9191,7 +9197,7 @@ void LLPipeline::unbindDeferredShader(LLGLSLShader &shader)
     shader.disableTexture(LLShaderMgr::DEFERRED_NOISE);
     shader.disableTexture(LLShaderMgr::DEFERRED_LIGHTFUNC);
 
-    S32 channel = shader.disableTexture(LLShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
+    S32 channel = shader.disableTexture(LLShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP, LLTexUnit::TCS_SRGB);
     if (channel > -1)
     {
         LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
@@ -10107,10 +10113,29 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
     bool sun_up         = environment.getIsSunUp();
     bool moon_up        = environment.getIsMoonUp();
-    bool ignore_shadows = (shadow_detail == 0) 
-                       || (sun_up  && (mSunDiffuse == LLColor4::black))
-                       || (moon_up && (mMoonDiffuse == LLColor4::black))
-                       || !(sun_up || moon_up);
+
+    bool ignore_shadows = (shadow_detail == 0); // explicitly disabled shadows
+
+    // no sun or moon, no shadows
+    if (!sun_up && !moon_up)
+    {
+        ignore_shadows |= true;
+    }
+    // only moon and moon is black
+    else if (!sun_up && moon_up & (mMoonDiffuse == LLColor4::black))
+    {
+        ignore_shadows |= true;
+    }
+    // only sun and sun is black
+    else if (!moon_up && sun_up && (mSunDiffuse == LLColor4::black))
+    {
+        ignore_shadows |= true;
+    }
+    // both up, but both black
+    else if ((mSunDiffuse == LLColor4::black) && (mMoonDiffuse == LLColor4::black))
+    {
+        ignore_shadows |= true;
+    }
 
     if (ignore_shadows)
     { //sun diffuse is totally black, shadows don't matter

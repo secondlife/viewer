@@ -1622,8 +1622,6 @@ BOOL LLViewerWindow::handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32
 {
     if (ui_scale_factor >= MIN_UI_SCALE && ui_scale_factor <= MAX_UI_SCALE)
     {
-        gSavedSettings.setF32("LastSystemUIScaleFactor", ui_scale_factor);
-        gSavedSettings.setF32("UIScaleFactor", ui_scale_factor);
         LLViewerWindow::reshape(window_width, window_height);
         mResDirty = true;
         return TRUE;
@@ -1633,6 +1631,14 @@ BOOL LLViewerWindow::handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32
         LL_WARNS() << "DPI change caused UI scale to go out of bounds: " << ui_scale_factor << LL_ENDL;
         return FALSE;
     }
+}
+
+BOOL LLViewerWindow::handleWindowDidChangeScreen(LLWindow *window)
+{
+	LLCoordScreen window_rect;
+	mWindow->getSize(&window_rect);
+	reshape(window_rect.mX, window_rect.mY);
+	return TRUE;
 }
 
 void LLViewerWindow::handlePingWatchdog(LLWindow *window, const char * msg)
@@ -1697,8 +1703,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	mResDirty(false),
 	mStatesDirty(false),
 	mCurrResolutionIndex(0),
-	mProgressView(NULL),
-	mSystemUIScaleFactorChanged(false)
+	mProgressView(NULL)
 {
 	// gKeyboard is still NULL, so it doesn't do LLWindowListener any good to
 	// pass its value right now. Instead, pass it a nullary function that
@@ -1730,7 +1735,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	U32 fsaa_samples)
 	*/
 	// create window
-    mWindow = LLWindowManager::createWindow(this,
+	mWindow = LLWindowManager::createWindow(this,
 		p.title, p.name, p.x, p.y, p.width, p.height, 0,
 		p.fullscreen, 
 		gHeadlessClient,
@@ -1774,31 +1779,9 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	LLCoordScreen scr;
     mWindow->getSize(&scr);
 
-    if(p.fullscreen && ( scr.mX!=p.width || scr.mY!=p.height))
-    {
-		LL_WARNS() << "Fullscreen has forced us in to a different resolution now using "<<scr.mX<<" x "<<scr.mY<<LL_ENDL;
-		gSavedSettings.setS32("FullScreenWidth",scr.mX);
-		gSavedSettings.setS32("FullScreenHeight",scr.mY);
-    }
-
-
-	F32 system_scale_factor = mWindow->getSystemUISize();
-	if (system_scale_factor < MIN_UI_SCALE || system_scale_factor > MAX_UI_SCALE)
-	{
-		// reset to default;
-		system_scale_factor = 1.f;
-	}
-	if (p.first_run || gSavedSettings.getF32("LastSystemUIScaleFactor") != system_scale_factor)
-	{
-		mSystemUIScaleFactorChanged = !p.first_run;
-		gSavedSettings.setF32("LastSystemUIScaleFactor", system_scale_factor);
-		gSavedSettings.setF32("UIScaleFactor", system_scale_factor);
-	}
-
-
 	// Get the real window rect the window was created with (since there are various OS-dependent reasons why
 	// the size of a window or fullscreen context may have been adjusted slightly...)
-	F32 ui_scale_factor = llclamp(gSavedSettings.getF32("UIScaleFactor"), MIN_UI_SCALE, MAX_UI_SCALE);
+	F32 ui_scale_factor = llclamp(gSavedSettings.getF32("UIScaleFactor"), MIN_UI_SCALE, MAX_UI_SCALE) * mWindow->getSystemUISize();
 	
 	mDisplayScale.setVec(llmax(1.f / mWindow->getPixelAspectRatio(), 1.f), llmax(mWindow->getPixelAspectRatio(), 1.f));
 	mDisplayScale *= ui_scale_factor;
@@ -1838,6 +1821,11 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	{
 		LLFeatureManager::getInstance()->applyRecommendedSettings();
 		gSavedSettings.setBOOL("ProbeHardwareOnStartup", FALSE);
+	}
+
+	if (!gGLManager.mHasDepthClamp)
+	{
+		LL_INFOS("RenderInit") << "Missing feature GL_ARB_depth_clamp. Void water might disappear in rare cases." << LL_ENDL;
 	}
 	
 	// If we crashed while initializng GL stuff last time, disable certain features
@@ -1886,32 +1874,10 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	mWorldViewRectScaled = calcScaledRect(mWorldViewRectRaw, mDisplayScale);
 }
 
-//static
-void LLViewerWindow::showSystemUIScaleFactorChanged()
-{
-	LLNotificationsUtil::add("SystemUIScaleFactorChanged", LLSD(), LLSD(), onSystemUIScaleFactorChanged);
-}
-
 std::string LLViewerWindow::getLastSnapshotDir()
 {
     return sSnapshotDir;
 }
-
-//static
-bool LLViewerWindow::onSystemUIScaleFactorChanged(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if(option == 0)
-	{
-		LLFloaterReg::toggleInstanceOrBringToFront("preferences");
-		LLFloater* pref_floater = LLFloaterReg::getInstance("preferences");
-		LLTabContainer* tab_container = pref_floater->getChild<LLTabContainer>("pref core");
-		tab_container->selectTabByName("advanced1");
-
-	}
-	return false; 
-}
-
 
 void LLViewerWindow::initGLDefaults()
 {
@@ -3039,12 +3005,12 @@ void LLViewerWindow::moveCursorToCenter()
 		S32 x = getWorldViewWidthScaled() / 2;
 		S32 y = getWorldViewHeightScaled() / 2;
 	
+		LLUI::setMousePositionScreen(x, y);
+		
 		//on a forced move, all deltas get zeroed out to prevent jumping
 		mCurrentMousePoint.set(x,y);
 		mLastMousePoint.set(x,y);
 		mCurrentMouseDelta.set(0,0);	
-
-		LLUI::setMousePositionScreen(x, y);	
 	}
 }
 
@@ -5388,7 +5354,7 @@ F32	LLViewerWindow::getWorldViewAspectRatio() const
 
 void LLViewerWindow::calcDisplayScale()
 {
-	F32 ui_scale_factor = llclamp(gSavedSettings.getF32("UIScaleFactor"), MIN_UI_SCALE, MAX_UI_SCALE);
+	F32 ui_scale_factor = llclamp(gSavedSettings.getF32("UIScaleFactor"), MIN_UI_SCALE, MAX_UI_SCALE) * mWindow->getSystemUISize();
 	LLVector2 display_scale;
 	display_scale.setVec(llmax(1.f / mWindow->getPixelAspectRatio(), 1.f), llmax(mWindow->getPixelAspectRatio(), 1.f));
 	display_scale *= ui_scale_factor;

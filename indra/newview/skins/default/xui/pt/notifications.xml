@@ -1592,10 +1592,6 @@ Por favor, ponha o objeto à venda e tente novamente.
 		Abrir uma janela do navegador para ver essas informações?
 		<usetemplate ignoretext="Abrir o navegador para acessar uma página na web" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
-	<notification name="SystemUIScaleFactorChanged">
-		O fator de tamanho da interface do sistema foi alterado desde a última execução. Deseja abrir a página de configurações de ajuste de tamanho da interface?
-		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
-	</notification>
 	<notification name="WebLaunchJoinNow">
 		Deseja abrir o [http://secondlife.com/account/ Painel] para gerenciar sua conta?
 		<usetemplate ignoretext="Abrir o navegador para acessar minha conta" name="okcancelignore" notext="Cancelar" yestext="OK"/>

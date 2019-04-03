@@ -220,6 +220,8 @@ Ansariel Hiller
 	STORM-2151
 	MAINT-6917
 	MAINT-8085
+	MAINT-8723
+	SL-10385
 Aralara Rajal
 Arare Chantilly
 	CHUIBUG-191
@@ -484,6 +486,9 @@ Geenz Spad
     BUG-226611
     BUG-226617
     BUG-226618
+    BUG-226646
+    BUG-226647
+    BUG-226648
 Gene Frostbite
 GeneJ Composer
 Geneko Nemeth

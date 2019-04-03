@@ -131,6 +131,12 @@ public:
 		TBS_ONE_MINUS_CONST_ALPHA
 	} eTextureBlendSrc;
 
+    typedef enum
+    {
+        TCS_LINEAR = 0,
+        TCS_SRGB
+    } eTextureColorSpace;
+
 	LLTexUnit(S32 index);
 
 	// Refreshes renderer state of the texture unit to the cached values
@@ -153,7 +159,7 @@ public:
 	// Binds the LLImageGL to this texture unit 
 	// (automatically enables the unit for the LLImageGL's texture type)
 	bool bind(LLImageGL* texture, bool for_rendering = false, bool forceBind = false);
-	bool bind(LLTexture* texture, bool for_rendering = false, bool forceBind = false);
+    bool bind(LLTexture* texture, bool for_rendering = false, bool forceBind = false);
 
 	// Binds a cubemap to this texture unit 
 	// (automatically enables the texture unit for cubemaps)
@@ -198,6 +204,10 @@ public:
 
 	void setHasMipMaps(bool hasMips) { mHasMipMaps = hasMips; }
 
+    void setTextureColorSpace(eTextureColorSpace space);
+
+    eTextureColorSpace getCurrColorSpace() { return mTexColorSpace; }
+
 protected:
 	const S32			mIndex;
 	U32					mCurrTexture;
@@ -209,6 +219,7 @@ protected:
 	eTextureBlendOp		mCurrAlphaOp;
 	eTextureBlendSrc	mCurrAlphaSrc1;
 	eTextureBlendSrc	mCurrAlphaSrc2;
+    eTextureColorSpace  mTexColorSpace;
 	S32					mCurrColorScale;
 	S32					mCurrAlphaScale;
 	bool				mHasMipMaps;

@@ -1,5 +1,5 @@
 /** 
- * @file class1/deferred/skyF.glsl
+ * @file avatarAlphaShadowF.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -22,42 +22,47 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
-/*[EXTRA_CODE_HERE]*/
 
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_data[3];
+out vec4 frag_color;
 #else
-#define frag_data gl_FragData
+#define frag_color gl_FragColor
 #endif
 
-/////////////////////////////////////////////////////////////////////////
-// The fragment shader for the sky
-/////////////////////////////////////////////////////////////////////////
+uniform float minimum_alpha;
 
-VARYING vec4 vary_HazeColor;
+uniform sampler2D diffuseMap;
 
-uniform vec4 gamma;
+#if !DEPTH_CLAMP
+VARYING vec4 post_pos;
+#endif
 
-/// Soft clips the light with a gamma correction
-vec3 scaleSoftClip(vec3 light);
+VARYING float pos_w;
+VARYING float target_pos_x;
+VARYING vec2 vary_texcoord0;
+VARYING vec4 vertex_color;
 
-void main()
+void main() 
 {
-    // Potential Fill-rate optimization.  Add cloud calculation 
-    // back in and output alpha of 0 (so that alpha culling kills 
-    // the fragment) if the sky wouldn't show up because the clouds 
-    // are fully opaque.
+	float alpha = texture2D(diffuseMap, vary_texcoord0.xy).a * vertex_color.a;
 
-    vec4 color;
-    color = vary_HazeColor;
-    color *= 2.;
+	if (alpha < 0.05) // treat as totally transparent
+	{
+		discard;
+	}
 
-    /// Gamma correct for WL (soft clip effect).
-    frag_data[0] = vec4(scaleSoftClip(color.rgb), 1.0);
-    frag_data[1] = vec4(0.0,0.0,0.0,0.0);
-    frag_data[2] = vec4(0.5,0.5,0.0,1.0); //1.0 in norm.w masks off fog
+	if (alpha < minimum_alpha) // treat as semi-transparent
+	{
+	  if (fract(0.5*floor(target_pos_x / pos_w )) < 0.25)
+	  {
+	    discard;
+	  }
+	}
 
-    gl_FragDepth = 0.99999f;
+	frag_color = vec4(1,1,1,1);
+	
+#if !DEPTH_CLAMP
+	gl_FragDepth = max(post_pos.z/post_pos.w*0.5+0.5, 0.0);
+#endif
+
 }
-

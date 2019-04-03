@@ -46,6 +46,7 @@ uniform mat3 ssao_effect_mat;
 uniform int no_atmo;
 uniform float sun_moon_glow_factor;
 
+vec3 srgb_to_linear(vec3 c);
 vec3 scaleSoftClipFrag(vec3 light);
 
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten)
@@ -151,7 +152,7 @@ void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, 
           + tmpAmbient));
 
     //brightness of surface both sunlight and ambient
-    sunlit = vec3(sunlight * .5);
+    sunlit = srgb_to_linear(sunlight.rgb);
     amblit = vec3(tmpAmbient * .25);
     additive  = normalize(additive);
     additive *= vec3(1.0 - exp(-temp2.z * distance_multiplier)) * 0.5;

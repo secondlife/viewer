@@ -73,8 +73,7 @@ vec3 fullbrightAtmosTransportFrag(vec3 l, vec3 additive, vec3 atten);
 
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
 
-vec3 scaleSoftClip(vec3 l);
-vec3 fullbrightScaleSoftClip(vec3 l);
+vec3 scaleSoftClipFrag(vec3 l);
 
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 
@@ -134,7 +133,7 @@ void main()
             col += spec_contrib;
         }
         
-        col = mix(col.rgb, diffuse.rgb, diffuse.a);
+        col.rgb += diffuse.a * diffuse.rgb;
 
         if (envIntensity > 0.0)
         { //add environmentmap
@@ -145,8 +144,8 @@ void main()
                 
         if (norm.w < 0.5)
         {
-            col = mix(atmosFragLighting(col, additive, atten), fullbrightAtmosTransportFrag(col, additive, atten), diffuse.a);
-            col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);
+            col = atmosFragLighting(col, additive, atten);
+            col = scaleSoftClipFrag(col);
         }
 
         #ifdef WATER_FOG

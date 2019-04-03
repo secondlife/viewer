@@ -1,6 +1,5 @@
 /** 
- * @file starsF.glsl
- *
+ * @file attachmentShadowV.glsl
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2007, Linden Research, Inc.
@@ -23,45 +22,53 @@
  * $/LicenseInfo$
  */
 
-/*[EXTRA_CODE_HERE]*/
+uniform mat4 projection_matrix;
+uniform mat4 modelview_matrix;
+uniform mat4 texture_matrix0;
+uniform float shadow_target_width;
 
-#ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_data[3];
+ATTRIBUTE vec4 diffuse_color;
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec3 normal;
+ATTRIBUTE vec2 texcoord0;
+
+mat4 getObjectSkinnedTransform();
+void passTextureIndex();
+
+#if !DEPTH_CLAMP
+VARYING vec4 post_pos;
+#endif
+VARYING vec2 vary_texcoord0;
+VARYING float pos_w;
+VARYING float target_pos_x;
+VARYING vec4 vertex_color;
+
+void main()
+{
+	//transform vertex
+	mat4 mat = getObjectSkinnedTransform();
+	
+	mat = modelview_matrix * mat;
+	vec3 pos = (mat*vec4(position.xyz, 1.0)).xyz;
+
+	vec4 p = projection_matrix * vec4(pos, 1.0);
+
+	pos_w = p.w;
+
+	target_pos_x = 0.5 * (shadow_target_width - 1.0) * pos.x;
+
+	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
+
+	vertex_color = diffuse_color;
+
+#if !DEPTH_CLAMP
+	p.z = max(p.z, -p.w+0.01);
+    post_pos = p;
+	gl_Position = p;
 #else
-#define frag_data gl_FragData
+	gl_Position = p;
 #endif
 
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
-VARYING vec2 screenpos;
-
-uniform sampler2D diffuseMap;
-uniform sampler2D altDiffuseMap;
-uniform float blend_factor;
-uniform float custom_alpha;
-uniform float time;
-
-float twinkle(){
-    float d = fract(screenpos.x + screenpos.y);
-    return abs(d);
-}
-
-void main() 
-{
-    vec4 col_a = texture2D(diffuseMap, vary_texcoord0.xy);
-    vec4 col_b = texture2D(diffuseMap, vary_texcoord0.xy);
-    vec4 col = mix(col_b, col_a, blend_factor);
-    col.rgb *= vertex_color.rgb;
- 
-    float factor = smoothstep(0.0f, 0.9f, custom_alpha);
-
-    col.a = (col.a * factor) * 32.0f;
-    col.a *= twinkle();
-
-    frag_data[0] = col;
-    frag_data[1] = vec4(0.0f);
-    frag_data[2] = vec4(0.0, 1.0, 0.0, 1.0);
-
-    gl_FragDepth = 0.99995f;
+	passTextureIndex();
 }
 

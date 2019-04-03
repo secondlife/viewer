@@ -1601,10 +1601,6 @@ Imposta l&apos;oggetto per la vendita e riprova.
 		Vuoi aprire il browser per vedere questi contenuti?
 		<usetemplate ignoretext="Lancia il browser per consultare una pagina web" name="okcancelignore" notext="Annulla" yestext="OK"/>
 	</notification>
-	<notification name="SystemUIScaleFactorChanged">
-		Il fattore dimensioni UI del sistema è cambiato rispetto all&apos;ultima sessione. Vuoi aprire la pagina delle impostazioni di regolazione delle dimensioni UI?
-		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
-	</notification>
 	<notification name="WebLaunchJoinNow">
 		Vuoi andare su [http://secondlife.com/account/ Dashboard] per gestire il tuo account?
 		<usetemplate ignoretext="Lancia il browser per gestire il mio account" name="okcancelignore" notext="Annulla" yestext="OK"/>
