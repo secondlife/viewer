@@ -168,8 +168,6 @@ void main()
             col = fogged.rgb;
             bloom = fogged.a;
         #endif
-
-//col.rgb = a;
     }
     frag_color.rgb = col.rgb;
     frag_color.a = bloom;
