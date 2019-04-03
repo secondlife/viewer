@@ -2220,6 +2220,32 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 	if (success)
 	{
+		gDeferredAvatarAlphaShadowProgram.mName = "Deferred Avatar Alpha Shadow Shader";
+		gDeferredAvatarAlphaShadowProgram.mFeatures.hasSkinning = true;
+		gDeferredAvatarAlphaShadowProgram.mShaderFiles.clear();
+		gDeferredAvatarAlphaShadowProgram.mShaderFiles.push_back(make_pair("deferred/avatarAlphaShadowV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredAvatarAlphaShadowProgram.mShaderFiles.push_back(make_pair("deferred/avatarAlphaShadowF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredAvatarAlphaShadowProgram.addPermutation("DEPTH_CLAMP", gGLManager.mHasDepthClamp ? "1" : "0");
+		gDeferredAvatarAlphaShadowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+		success = gDeferredAvatarAlphaShadowProgram.createShader(NULL, NULL);
+        llassert(success);
+	}
+
+    if (success)
+	{
+		gDeferredAvatarAlphaMaskShadowProgram.mName = "Deferred Avatar Alpha Mask Shadow Shader";
+		gDeferredAvatarAlphaMaskShadowProgram.mFeatures.hasSkinning  = true;
+		gDeferredAvatarAlphaMaskShadowProgram.mShaderFiles.clear();
+		gDeferredAvatarAlphaMaskShadowProgram.mShaderFiles.push_back(make_pair("deferred/avatarAlphaShadowV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredAvatarAlphaMaskShadowProgram.mShaderFiles.push_back(make_pair("deferred/avatarAlphaMaskShadowF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredAvatarAlphaMaskShadowProgram.addPermutation("DEPTH_CLAMP", gGLManager.mHasDepthClamp ? "1" : "0");
+		gDeferredAvatarAlphaMaskShadowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+		success = gDeferredAvatarAlphaMaskShadowProgram.createShader(NULL, NULL);
+        llassert(success);
+	}
+
+	if (success)
+	{
 		gDeferredAttachmentShadowProgram.mName = "Deferred Attachment Shadow Shader";
 		gDeferredAttachmentShadowProgram.mFeatures.hasObjectSkinning = true;
 
@@ -2233,6 +2259,32 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAttachmentShadowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 		success = gDeferredAttachmentShadowProgram.createShader(NULL, NULL);
 		llassert(success);
+	}
+
+	if (success)
+	{
+		gDeferredAttachmentAlphaShadowProgram.mName = "Deferred Attachment Alpha Shadow Shader";
+		gDeferredAttachmentAlphaShadowProgram.mFeatures.hasObjectSkinning = true;
+		gDeferredAttachmentAlphaShadowProgram.mShaderFiles.clear();
+		gDeferredAttachmentAlphaShadowProgram.mShaderFiles.push_back(make_pair("deferred/attachmentAlphaShadowV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredAttachmentAlphaShadowProgram.mShaderFiles.push_back(make_pair("deferred/attachmentAlphaShadowF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredAttachmentAlphaShadowProgram.addPermutation("DEPTH_CLAMP", gGLManager.mHasDepthClamp ? "1" : "0");
+		gDeferredAttachmentAlphaShadowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+		success = gDeferredAttachmentAlphaShadowProgram.createShader(NULL, NULL);
+        llassert(success);
+	}
+
+    if (success)
+	{
+		gDeferredAttachmentAlphaMaskShadowProgram.mName = "Deferred Attachment Alpha Mask Shadow Shader";
+		gDeferredAttachmentAlphaMaskShadowProgram.mFeatures.hasObjectSkinning = true;
+		gDeferredAttachmentAlphaMaskShadowProgram.mShaderFiles.clear();
+		gDeferredAttachmentAlphaMaskShadowProgram.mShaderFiles.push_back(make_pair("deferred/attachmentAlphaShadowV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredAttachmentAlphaMaskShadowProgram.mShaderFiles.push_back(make_pair("deferred/attachmentAlphaMaskShadowF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredAttachmentAlphaMaskShadowProgram.addPermutation("DEPTH_CLAMP", gGLManager.mHasDepthClamp ? "1" : "0");
+		gDeferredAttachmentAlphaMaskShadowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+		success = gDeferredAttachmentAlphaMaskShadowProgram.createShader(NULL, NULL);
+        llassert(success);
 	}
 
 	if (success)
@@ -2280,6 +2332,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredTerrainWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
 		gDeferredTerrainWaterProgram.addPermutation("WATER_FOG", "1");
 		success = gDeferredTerrainWaterProgram.createShader(NULL, NULL);
+        llassert(success);
 	}
 
 	if (success)
