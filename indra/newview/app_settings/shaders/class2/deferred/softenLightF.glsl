@@ -154,6 +154,7 @@ void main()
                 float scontrib = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
                 vec3 speccol = sun_contrib*scontrib*spec.rgb;
                 speccol = max(speccol, vec3(0));
+                bloom += dot (speccol, speccol) / 2;
                 col += speccol;
             }
         }
