@@ -2101,6 +2101,14 @@ BOOL LLItemBridge::isItemCopyable() const
 	LLViewerInventoryItem* item = getItem();
 	if (item)
 	{
+		// Can't copy worn objects.
+		// Worn objects are tied to their inworld conterparts
+		// Copy of modified worn object will return object with obsolete asset and inventory
+		if(get_is_item_worn(mUUID))
+		{
+			return FALSE;
+		}
+
 		return item->getPermissions().allowCopyBy(gAgent.getID()) || gSavedSettings.getBOOL("InventoryLinking");
 	}
 	return FALSE;
