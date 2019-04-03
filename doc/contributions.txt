@@ -486,6 +486,9 @@ Geenz Spad
     BUG-226611
     BUG-226617
     BUG-226618
+    BUG-226646
+    BUG-226647
+    BUG-226648
 Gene Frostbite
 GeneJ Composer
 Geneko Nemeth
