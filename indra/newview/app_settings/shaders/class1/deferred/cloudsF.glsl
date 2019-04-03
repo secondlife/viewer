@@ -55,6 +55,7 @@ VARYING float altitude_blend_factor;
 
 /// Soft clips the light with a gamma correction
 vec3 scaleSoftClip(vec3 light);
+vec3 linear_to_srgb(vec3 c);
 
 vec4 cloudNoise(vec2 uv)
 {
@@ -119,7 +120,7 @@ void main()
     vec4 color;
     color = (cloudColorSun*(1.-alpha2) + cloudColorAmbient);
     color.rgb= max(vec3(0), color.rgb);
-    color *= 2.;
+    color.rgb = linear_to_srgb(color.rgb);
 
     /// Gamma correct for WL (soft clip effect).
     frag_data[0] = vec4(scaleSoftClip(color.rgb), alpha1);
