@@ -58,6 +58,9 @@ Advanced Lighting Model: [GPU_SHADERS]
 Texture memory: [TEXTURE_MEMORY]MB
 VFS (cache) creation time: [VFS_TIME]
 	</string>
+	<string name="AboutOSXHiDPI">
+HiDPI display mode: [HIDPI]
+	</string>
 	<string name="AboutLibs">
 J2C Decoder Version: [J2C_VERSION]
 Audio Driver Version: [AUDIO_DRIVER_VERSION]

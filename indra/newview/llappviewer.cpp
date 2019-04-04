@@ -3173,6 +3173,10 @@ LLSD LLAppViewer::getViewerInfo() const
     substitution["datetime"] = (S32)(gVFS ? gVFS->creationTime() : 0);
     info["VFS_TIME"] = LLTrans::getString("AboutTime", substitution);
 
+#if LL_DARWIN
+    info["HIDPI"] = gHiDPISupport;
+#endif
+
 	// Libraries
 
 	info["J2C_VERSION"] = LLImageJ2C::getEngineInfo();
@@ -3315,6 +3319,9 @@ std::string LLAppViewer::getViewerInfoString(bool default_string) const
 	}
 	support << "\n" << LLTrans::getString("AboutOGL", args, default_string);
 	support << "\n\n" << LLTrans::getString("AboutSettings", args, default_string);
+#if LL_DARWIN
+	support << "\n" << LLTrans::getString("AboutOSXHiDPI", args, default_string);
+#endif
 	support << "\n\n" << LLTrans::getString("AboutLibs", args, default_string);
 	if (info.has("COMPILER"))
 	{
