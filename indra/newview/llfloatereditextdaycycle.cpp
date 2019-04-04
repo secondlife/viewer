@@ -1151,8 +1151,19 @@ void LLFloaterEditExtDayCycle::selectFrame(F32 frame, F32 slop_factor)
     while (iter != end_iter)
     {
         F32 keyframe = iter->second.mFrame;
-        if (fabs(keyframe - frame) <= slop_factor)
+        F32 frame_dif = fabs(keyframe - frame);
+        if (frame_dif <= slop_factor)
         {
+            keymap_t::iterator next_iter = std::next(iter);
+            if ((frame_dif != 0) && (next_iter != end_iter))
+            {
+                if (fabs(next_iter->second.mFrame - frame) < frame_dif)
+                {
+                    mFramesSlider->setCurSlider(next_iter->first);
+                    frame = next_iter->second.mFrame;
+                    break;
+                }
+            }
             mFramesSlider->setCurSlider(iter->first);
             frame = iter->second.mFrame;  
             break;
@@ -1301,7 +1312,6 @@ void LLFloaterEditExtDayCycle::updateSlider()
     {
         // update positions
         mLastFrameSlider = mFramesSlider->getCurSlider();
-        updateTabs();
     }
     else
     {
