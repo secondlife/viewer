@@ -3257,12 +3257,13 @@ void LLPanelRegionEnvironment::onChkAllowOverride(bool value)
     mAllowOverrideRestore = mAllowOverride;
     mAllowOverride = value;
 
-    LLNotification::Params params("ChangeLindenEstate");
-    params.functor.function([this](const LLSD& notification, const LLSD& response) { confirmUpdateEstateEnvironment(notification, response); });
 
     std::string notification("EstateParcelEnvironmentOverride");
     if (LLPanelEstateInfo::isLindenEstate())
         notification = "ChangeLindenEstate";
+
+    LLNotification::Params params(notification);
+    params.functor.function([this](const LLSD& notification, const LLSD& response) { confirmUpdateEstateEnvironment(notification, response); });
 
     if (!value || LLPanelEstateInfo::isLindenEstate())
     {   // warn if turning off or a Linden Estate
