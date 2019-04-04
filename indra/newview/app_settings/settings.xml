@@ -46,6 +46,17 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
+    <key>ImpostorScaleFactor</key>
+    <map>
+      <key>Comment</key>
+      <string>Additional factor to shrink/expand impostor extents.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
     <key>IMShowTime</key>
     <map>
       <key>Comment</key>

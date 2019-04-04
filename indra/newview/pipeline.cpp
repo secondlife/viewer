@@ -11344,6 +11344,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	LLGLState::checkTextureChannels();
 	LLGLState::checkClientArrays();
 
+	static LLCachedControl<F32> impostor_scale_factor(gSavedSettings,"ImpostorScaleFactor");
 	static LLCullResult result;
 	result.clear();
 	grabReferences(result);
@@ -11449,7 +11450,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	
 		LLVector4a half_height;
 		half_height.setSub(ext[1], ext[0]);
-		half_height.mul(0.5f);
+		half_height.mul(0.5f * impostor_scale_factor);
 
 		LLVector4a left;
 		left.load3(camera.getLeftAxis().mV);
