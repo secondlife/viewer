@@ -2446,7 +2446,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
         LLVOCachePartition* vo_part = region->getVOCachePartition();
         if(vo_part)
         {
-            bool do_occlusion_cull = can_use_occlusion && use_occlusion && !gUseWireframe/* && !gViewerWindow->getProgressView()->getVisible()*/;
+            bool do_occlusion_cull = can_use_occlusion && use_occlusion && !gUseWireframe && 0 > water_clip /* && !gViewerWindow->getProgressView()->getVisible()*/;
             vo_part->cull(camera, do_occlusion_cull);
         }
     }
@@ -9276,7 +9276,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
         S32 occlusion = LLPipeline::sUseOcclusion;
 
         //disable occlusion culling for reflection map for now
-        //LLPipeline::sUseOcclusion = 0;
+        LLPipeline::sUseOcclusion = 0;
 
         glh::matrix4f current = get_current_modelview();
 
