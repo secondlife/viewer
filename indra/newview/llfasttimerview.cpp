@@ -43,6 +43,7 @@
 #include "llsdserialize.h"
 #include "lltooltip.h"
 #include "llbutton.h"
+#include "llscrollbar.h"
 
 #include "llappviewer.h"
 #include "llviewertexturelist.h"
@@ -128,7 +129,8 @@ void LLFastTimerView::setPauseState(bool pause_state)
 BOOL LLFastTimerView::postBuild()
 {
 	LLButton& pause_btn = getChildRef<LLButton>("pause_btn");
-	
+	mScrollBar = getChild<LLScrollbar>("scroll_vert");
+
 	pause_btn.setCommitCallback(boost::bind(&LLFastTimerView::onPause, this));
 	return TRUE;
 }
@@ -183,7 +185,7 @@ BOOL LLFastTimerView::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 BOOL LLFastTimerView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (x < mBarRect.mLeft) 
+	if (x < mScrollBar->getRect().mLeft)
 	{
 		BlockTimerStatHandle* idp = getLegendID(y);
 		if (idp)
@@ -284,7 +286,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 			}
 		}
 	}
-	else if (x < mBarRect.mLeft) 
+	else if (x < mScrollBar->getRect().mLeft) 
 	{
 		BlockTimerStatHandle* timer_id = getLegendID(y);
 		if (timer_id)
@@ -335,7 +337,7 @@ BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, MASK mask)
 	else
 	{
 		// tooltips for timer legend
-		if (x < mBarRect.mLeft) 
+		if (x < mScrollBar->getRect().mLeft) 
 		{
 			BlockTimerStatHandle* idp = getLegendID(y);
 			if (idp)
@@ -1197,6 +1199,7 @@ void LLFastTimerView::drawLegend()
 	{
 		LLLocalClipRect clip(mLegendRect);
 		S32 cur_line = 0;
+		S32 scroll_offset = 0; // element's y offset from top of the inner scroll's rect
 		ft_display_idx.clear();
 		std::map<BlockTimerStatHandle*, S32> display_line;
 		for (block_timer_tree_df_iterator_t it = LLTrace::begin_block_timer_tree_df(FTM_FRAME);
@@ -1204,10 +1207,24 @@ void LLFastTimerView::drawLegend()
 			++it)
 		{
 			BlockTimerStatHandle* idp = (*it);
+			// Needed to figure out offsets and parenting
 			display_line[idp] = cur_line;
-			ft_display_idx.push_back(idp);
 			cur_line++;
+			if (scroll_offset < mScrollBar->getDocPos())
+			{
+				// only offset for visible items
+				scroll_offset += TEXT_HEIGHT + 2;
+				if (idp->getTreeNode().mCollapsed)
+				{
+					it.skipDescendants();
+				}
+				continue;
+			}
 
+			// used for mouse clicks
+			ft_display_idx.push_back(idp);
+
+			// Actual draw, first bar (square), then text
 			x = MARGIN;
 
 			LLRect bar_rect(x, y, x + TEXT_HEIGHT, y - TEXT_HEIGHT);
@@ -1281,11 +1298,14 @@ void LLFastTimerView::drawLegend()
 
 			y -= (TEXT_HEIGHT + 2);
 
+			scroll_offset += TEXT_HEIGHT + 2;
 			if (idp->getTreeNode().mCollapsed) 
 			{
 				it.skipDescendants();
 			}
 		}
+		// Recalculate scroll size
+		mScrollBar->setDocSize(scroll_offset - mLegendRect.getHeight());
 	}
 }
 
