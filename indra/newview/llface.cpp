@@ -1106,7 +1106,7 @@ void LLFace::getPlanarProjectedParams(LLQuaternion* face_rot, LLVector3* face_po
 
 // Returns the necessary texture transform to align this face's TE to align_to's TE
 bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offset, 
-								 LLVector2* res_st_scale, F32* res_st_rot) const
+								 LLVector2* res_st_scale, F32* res_st_rot, LLRender::eTexIndex map) const
 {
 	if (!align_to)
 	{
@@ -1119,6 +1119,43 @@ bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offs
 		return false;
 	}
 
+    F32 map_rot = 0.f, map_scaleS = 0.f, map_scaleT = 0.f, map_offsS = 0.f, map_offsT = 0.f;
+
+    switch (map)
+    {
+    case LLRender::DIFFUSE_MAP:
+        map_rot = orig_tep->getRotation();
+        map_scaleS = orig_tep->mScaleS;
+        map_scaleT = orig_tep->mScaleT;
+        map_offsS = orig_tep->mOffsetS;
+        map_offsT = orig_tep->mOffsetT;
+        break;
+    case LLRender::NORMAL_MAP:
+        if (orig_tep->getMaterialParams()->getNormalID().isNull())
+        {
+            return false;
+        }
+        map_rot = orig_tep->getMaterialParams()->getNormalRotation();
+        map_scaleS = orig_tep->getMaterialParams()->getNormalRepeatX();
+        map_scaleT = orig_tep->getMaterialParams()->getNormalRepeatY();
+        map_offsS = orig_tep->getMaterialParams()->getNormalOffsetX();
+        map_offsT = orig_tep->getMaterialParams()->getNormalOffsetY();
+        break;
+    case LLRender::SPECULAR_MAP:
+        if (orig_tep->getMaterialParams()->getSpecularID().isNull())
+        {
+            return false;
+        }
+        map_rot = orig_tep->getMaterialParams()->getSpecularRotation();
+        map_scaleS = orig_tep->getMaterialParams()->getSpecularRepeatX();
+        map_scaleT = orig_tep->getMaterialParams()->getSpecularRepeatY();
+        map_offsS = orig_tep->getMaterialParams()->getSpecularOffsetX();
+        map_offsT = orig_tep->getMaterialParams()->getSpecularOffsetY();
+        break;
+    default: /*make compiler happy*/
+        break;
+    }
+
 	LLVector3 orig_pos, this_pos;
 	LLQuaternion orig_face_rot, this_face_rot;
 	F32 orig_proj_scale, this_proj_scale;
@@ -1126,7 +1163,7 @@ bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offs
 	getPlanarProjectedParams(&this_face_rot, &this_pos, &this_proj_scale);
 
 	// The rotation of "this face's" texture:
-	LLQuaternion orig_st_rot = LLQuaternion(orig_tep->getRotation(), LLVector3::z_axis) * orig_face_rot;
+	LLQuaternion orig_st_rot = LLQuaternion(map_rot, LLVector3::z_axis) * orig_face_rot;
 	LLQuaternion this_st_rot = orig_st_rot * ~this_face_rot;
 	F32 x_ang, y_ang, z_ang;
 	this_st_rot.getEulerAngles(&x_ang, &y_ang, &z_ang);
@@ -1134,10 +1171,10 @@ bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offs
 
 	// Offset and scale of "this face's" texture:
 	LLVector3 centers_dist = (this_pos - orig_pos) * ~orig_st_rot;
-	LLVector3 st_scale(orig_tep->mScaleS, orig_tep->mScaleT, 1.f);
+	LLVector3 st_scale(map_scaleS, map_scaleT, 1.f);
 	st_scale *= orig_proj_scale;
 	centers_dist.scaleVec(st_scale);
-	LLVector2 orig_st_offset(orig_tep->mOffsetS, orig_tep->mOffsetT);
+	LLVector2 orig_st_offset(map_offsS, map_offsT);
 
 	*res_st_offset = orig_st_offset + (LLVector2)centers_dist;
 	res_st_offset->mV[VX] -= (S32)res_st_offset->mV[VX];
