@@ -94,6 +94,7 @@ void main()
 
     vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;        
 
+    float light_gamma = 1.0/1.3;
     float scol = 1.0;
     vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
 
@@ -102,12 +103,10 @@ void main()
     vec4 diffuse = texture2DRect(diffuseRect, tc);
    
     scol = max(scol_ambocc.r, diffuse.a);
+	//scol = pow(scol, light_gamma);
 
     float final_da = da;
-          final_da = min(final_da, scol);
           final_da = clamp(final_da, 0.0, 1.0);
-
-    float light_gamma = 1.0/1.3;
 	      final_da = pow(final_da, light_gamma);
 
     vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
@@ -126,9 +125,10 @@ void main()
         float ambient = abs(da);
         ambient *= 0.5;
         ambient *= ambient;
-        ambient = 1.0 - max(0.9, ambient);
+        ambient = max(0.9, ambient);
+        ambient = 1.0 - ambient;
 
-        vec3 sun_contrib = final_da * sunlit;
+        vec3 sun_contrib = min(scol, final_da) * sunlit;
 
         col.rgb = amblit;
         col.rgb *= ambient;
