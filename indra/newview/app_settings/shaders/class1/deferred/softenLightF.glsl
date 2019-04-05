@@ -86,13 +86,15 @@ void main()
     float envIntensity = norm.z;
     norm.xyz = getNorm(tc);
     
+    float light_gamma = 1.0/1.3;
     vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;
     
     float da = dot(normalize(norm.xyz), light_dir.xyz);
-          da = clamp(da, 0.0, 1.0);
+          da = clamp(da, -1.0, 1.0);
 
-    float light_gamma = 1.0/1.3;
-	      da = pow(da, light_gamma);
+    float final_da = da;
+          final_da = clamp(final_da, 0.0, 1.0);
+	      final_da = pow(final_da, light_gamma);
 
     vec4 diffuse = texture2DRect(diffuseRect, tc);
 
@@ -107,12 +109,12 @@ void main()
 
         calcFragAtmospherics(pos.xyz, 1.0, sunlit, amblit, additive, atten);
 
-        float ambient = min(abs(da), 1.0);
+        float ambient = da;
         ambient *= 0.5;
         ambient *= ambient;
         ambient = 1.0 - ambient;
 
-        vec3 sun_contrib = da * sunlit;
+        vec3 sun_contrib = final_da * sunlit;
 
         col.rgb = amblit;
         col.rgb *= ambient;

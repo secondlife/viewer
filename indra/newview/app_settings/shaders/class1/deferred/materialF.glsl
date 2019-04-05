@@ -296,18 +296,19 @@ void main()
     vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;
 
     float da = dot(norm.xyz, light_dir.xyz);
+          da = clamp(da, -1.0, 1.0);
 
     float final_da = da;
           final_da = clamp(final_da, 0.0, 1.0);
           final_da = pow(final_da, 1.0 / 1.3);
 
-    float ambient = abs(da);
+    float ambient = da;
     ambient *= 0.5;
     ambient *= ambient;
     ambient = max(0.9, ambient);
     ambient = 1.0 - ambient;
 
-    vec3 sun_contrib = min(final_da, shadow) * sunlit;
+    vec3 sun_contrib = mix(final_da, min(final_da, shadow), 0.1) * sunlit;
    
     col.rgb = amblit;
     col.rgb *= ambient;

@@ -99,6 +99,7 @@ void main()
     vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
 
     float da = dot(normalize(norm.xyz), light_dir.xyz);
+          da = clamp(da, -1.0, 1.0);
 
     vec4 diffuse = texture2DRect(diffuseRect, tc);
    
@@ -122,13 +123,13 @@ void main()
     
         calcFragAtmospherics(pos.xyz, ambocc, sunlit, amblit, additive, atten);
 
-        float ambient = abs(da);
+        float ambient = da;
         ambient *= 0.5;
         ambient *= ambient;
         ambient = max(0.9, ambient);
         ambient = 1.0 - ambient;
 
-        vec3 sun_contrib = min(scol, final_da) * sunlit;
+        vec3 sun_contrib = mix(final_da, min(scol, final_da), 0.1) * sunlit;
 
         col.rgb = amblit;
         col.rgb *= ambient;
