@@ -129,7 +129,7 @@ void main()
         ambient = max(0.9, ambient);
         ambient = 1.0 - ambient;
 
-        vec3 sun_contrib = mix(final_da, min(scol, final_da), 0.1) * sunlit;
+        vec3 sun_contrib = min(scol, final_da) * sunlit;
 
         col.rgb = amblit;
         col.rgb *= ambient;
