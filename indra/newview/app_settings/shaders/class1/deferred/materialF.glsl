@@ -302,7 +302,7 @@ void main()
     float ambient = abs(da);
     ambient *= 0.5;
     ambient *= ambient;
-    ambient = 1.0 - ambient;
+    ambient = 1.0 - max(0.9, ambient);
 
     float final_da = min(da, shadow);
     vec3 sun_contrib = final_da * sunlit;

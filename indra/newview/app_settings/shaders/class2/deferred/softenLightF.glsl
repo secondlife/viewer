@@ -98,14 +98,17 @@ void main()
     vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
 
     float da = dot(normalize(norm.xyz), light_dir.xyz);
-          da = clamp(da, 0.0, 1.0);
-
-    float light_gamma = 1.0/1.3;
-	      da = pow(da, light_gamma);
 
     vec4 diffuse = texture2DRect(diffuseRect, tc);
    
     scol = max(scol_ambocc.r, diffuse.a);
+
+    float final_da = da;
+          final_da = min(final_da, scol);
+          final_da = clamp(final_da, 0.0, 1.0);
+
+    float light_gamma = 1.0/1.3;
+	      final_da = pow(final_da, light_gamma);
 
     vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
     vec3 col;
@@ -123,9 +126,9 @@ void main()
         float ambient = abs(da);
         ambient *= 0.5;
         ambient *= ambient;
-        ambient = 1.0 - ambient;
+        ambient = 1.0 - max(0.9, ambient);
 
-        vec3 sun_contrib = min(da,scol) * sunlit;
+        vec3 sun_contrib = final_da * sunlit;
 
         col.rgb = amblit;
         col.rgb *= ambient;
