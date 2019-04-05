@@ -51,15 +51,12 @@ float pcfShadow(sampler2DShadow shadowMap, vec3 norm, vec4 stc, float bias_mul, 
     stc.xyz /= stc.w;
     stc.z += shadow_bias * bias_mul * 2.0;
     stc.x = floor(stc.x*shadow_res.x + fract(stc.y*shadow_res.y))/shadow_res.x; // add some chaotic jitter to X sample pos according to Y to disguise the snapping going on here
-    
     float cs = shadow2D(shadowMap, stc.xyz).x;
     float shadow = cs * 4.0;
-    
     shadow += shadow2D(shadowMap, stc.xyz+vec3(2.0/shadow_res.x, 1.5/shadow_res.y, 0.0)).x;
     shadow += shadow2D(shadowMap, stc.xyz+vec3(1.0/shadow_res.x, -1.5/shadow_res.y, 0.0)).x;
     shadow += shadow2D(shadowMap, stc.xyz+vec3(-1.0/shadow_res.x, 1.5/shadow_res.y, 0.0)).x;
     shadow += shadow2D(shadowMap, stc.xyz+vec3(-2.0/shadow_res.x, -1.5/shadow_res.y, 0.0)).x;
-                       
     return shadow * 0.125;
 }
 
