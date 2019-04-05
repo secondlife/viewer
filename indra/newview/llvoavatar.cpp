@@ -9806,9 +9806,10 @@ void LLVOAvatar::cacheImpostorValues()
 
 void LLVOAvatar::getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& distance) const
 {
+	static LLCachedControl<F32> impostor_scale_factor(gSavedSettings,"ImpostorScaleFactor");
+
 	const LLVector4a* ext = mDrawable->getSpatialExtents();
-	extents[0] = ext[0];
-	extents[1] = ext[1];
+	scaleBoundBox(impostor_scale_factor, ext, extents);
 
 	LLVector3 at = LLViewerCamera::getInstance()->getOrigin()-(getRenderPosition()+mImpostorOffset);
 	distance = at.normalize();

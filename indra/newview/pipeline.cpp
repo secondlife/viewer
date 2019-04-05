@@ -11376,29 +11376,29 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	else
 	{
 		andRenderTypeMask(LLPipeline::RENDER_TYPE_ALPHA,
-			LLPipeline::RENDER_TYPE_FULLBRIGHT,
-			LLPipeline::RENDER_TYPE_VOLUME,
-			LLPipeline::RENDER_TYPE_GLOW,
-						LLPipeline::RENDER_TYPE_BUMP,
-						LLPipeline::RENDER_TYPE_PASS_SIMPLE,
-						LLPipeline::RENDER_TYPE_PASS_ALPHA,
-						LLPipeline::RENDER_TYPE_PASS_ALPHA_MASK,
-			LLPipeline::RENDER_TYPE_PASS_BUMP,
-			LLPipeline::RENDER_TYPE_PASS_POST_BUMP,
-						LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT,
-						LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT_ALPHA_MASK,
-						LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT_SHINY,
-			LLPipeline::RENDER_TYPE_PASS_GLOW,
-			LLPipeline::RENDER_TYPE_PASS_GRASS,
-						LLPipeline::RENDER_TYPE_PASS_SHINY,
-						LLPipeline::RENDER_TYPE_PASS_INVISIBLE,
-						LLPipeline::RENDER_TYPE_PASS_INVISI_SHINY,
-			LLPipeline::RENDER_TYPE_AVATAR,
-			LLPipeline::RENDER_TYPE_ALPHA_MASK,
-			LLPipeline::RENDER_TYPE_FULLBRIGHT_ALPHA_MASK,
-			LLPipeline::RENDER_TYPE_INVISIBLE,
-			LLPipeline::RENDER_TYPE_SIMPLE,
-						END_RENDER_TYPES);
+						  LLPipeline::RENDER_TYPE_FULLBRIGHT,
+						  LLPipeline::RENDER_TYPE_VOLUME,
+						  LLPipeline::RENDER_TYPE_GLOW,
+						  LLPipeline::RENDER_TYPE_BUMP,
+						  LLPipeline::RENDER_TYPE_PASS_SIMPLE,
+						  LLPipeline::RENDER_TYPE_PASS_ALPHA,
+						  LLPipeline::RENDER_TYPE_PASS_ALPHA_MASK,
+						  LLPipeline::RENDER_TYPE_PASS_BUMP,
+						  LLPipeline::RENDER_TYPE_PASS_POST_BUMP,
+						  LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT,
+						  LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT_ALPHA_MASK,
+						  LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT_SHINY,
+						  LLPipeline::RENDER_TYPE_PASS_GLOW,
+						  LLPipeline::RENDER_TYPE_PASS_GRASS,
+						  LLPipeline::RENDER_TYPE_PASS_SHINY,
+						  LLPipeline::RENDER_TYPE_PASS_INVISIBLE,
+						  LLPipeline::RENDER_TYPE_PASS_INVISI_SHINY,
+						  LLPipeline::RENDER_TYPE_AVATAR,
+						  LLPipeline::RENDER_TYPE_ALPHA_MASK,
+						  LLPipeline::RENDER_TYPE_FULLBRIGHT_ALPHA_MASK,
+						  LLPipeline::RENDER_TYPE_INVISIBLE,
+						  LLPipeline::RENDER_TYPE_SIMPLE,
+						  END_RENDER_TYPES);
 	}
 	
 	S32 occlusion = sUseOcclusion;
@@ -11444,13 +11444,15 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_IMPOSTOR_SETUP);
 		const LLVector4a* ext = avatar->mDrawable->getSpatialExtents();
+		LLVector4a scaled_extents[2];
+		scaleBoundBox(impostor_scale_factor, ext, scaled_extents);
 		LLVector3 pos(avatar->getRenderPosition()+avatar->getImpostorOffset());
 
 		camera.lookAt(viewer_camera->getOrigin(), pos, viewer_camera->getUpAxis());
 	
 		LLVector4a half_height;
-		half_height.setSub(ext[1], ext[0]);
-		half_height.mul(0.5f * impostor_scale_factor);
+		half_height.setSub(scaled_extents[0], scaled_extents[1]);
+		half_height.mul(0.5f);
 
 		LLVector4a left;
 		left.load3(camera.getLeftAxis().mV);
@@ -11519,6 +11521,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		else if(resX != avatar->mImpostor.getWidth() || resY != avatar->mImpostor.getHeight())
 		{
 			LL_RECORD_BLOCK_TIME(FTM_IMPOSTOR_RESIZE);
+			LL_DEBUGS("Avatar") << "Impostor resize " << resX << ", " << resY << " av " << avatar->getFullname() << LL_ENDL;
 			avatar->mImpostor.resize(resX,resY);
 		}
 
