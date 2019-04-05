@@ -153,12 +153,9 @@ void main()
     
     vec4 pos = vary_position;
     
-    //color.rgb = atmosTransport(color.rgb);
-    //color.rgb = scaleSoftClipFrag(color.rgb) * 0;
-
     vec3 screenspacewavef = normalize((norm_mat*vec4(wavef, 1.0)).xyz);
 
-    frag_data[0] = vec4(color.rgb, 1); // diffuse
-    frag_data[1] = vec4(specular * 0.4, 0.75);     // speccolor, spec
+    frag_data[0] = vec4(color.rgb, 0.25); // diffuse
+    frag_data[1] = vec4(specular * 0.15, 0.5);     // speccolor, spec
     frag_data[2] = vec4(encode_normal(screenspacewavef.xyz), 0.05, 0);// normalxy, 0, 0
 }

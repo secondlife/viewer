@@ -8612,6 +8612,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
 
             LLEnvironment& environment = LLEnvironment::instance();
             soften_shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
+            soften_shader.uniform4fv(LLShaderMgr::LIGHTNORM, 1, environment.getClampedLightNorm().mV);
 
             {
                 LLGLDepthTest depth(GL_FALSE);
