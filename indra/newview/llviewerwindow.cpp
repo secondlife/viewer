@@ -1764,7 +1764,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
     mWindow->getSize(&scr);
 
     // Reset UI scale factor on first run if OS's display scaling is not 100%
-    if (gSavedSettings.getBOOL("FSResetUIScaleOnFirstRun"))
+    if (gSavedSettings.getBOOL("ResetUIScaleOnFirstRun"))
     {
         if (mWindow->getSystemUISize() != 1.f)
         {
