@@ -305,16 +305,24 @@ void main()
     float ambient = da;
     ambient *= 0.5;
     ambient *= ambient;
-    ambient = max(0.9, ambient);
+    ambient = max(0.66, ambient);
     ambient = 1.0 - ambient;
 
     vec3 sun_contrib = min(final_da, shadow) * sunlit;
    
     col.rgb = amblit;
     col.rgb *= ambient;
+
+vec3 post_ambient = col.rgb;
+
     col.rgb += sun_contrib;
+
+vec3 post_sunlight = col.rgb;
+
     col.rgb *= diffuse.rgb;
  
+vec3 post_diffuse = col.rgb;
+
     float glare = 0.0;
 
     if (spec.a > 0.0) // specular reflection
@@ -363,6 +371,8 @@ vec3 post_spec = col.rgb;
             
     vec3 light = vec3(0,0,0);
 
+    vec3 prelight_linearish_maybe = col.rgb;
+
  #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w, shadow);
 
         LIGHT_LOOP(1)
@@ -375,6 +385,8 @@ vec3 post_spec = col.rgb;
 
     col.rgb += light.rgb;
 
+vec3 postlight_linear = col.rgb;
+
     glare = min(glare, 1.0);
     float al = max(diffcol.a,glare)*vertex_color.a;
 
@@ -383,6 +395,8 @@ vec3 post_spec = col.rgb;
     col.rgb = temp.rgb;
     al = temp.a;
 #endif
+
+//col.rgb = prelight_linearish_maybe;
 
     col.rgb = linear_to_srgb(col.rgb);
 

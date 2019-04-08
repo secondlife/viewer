@@ -190,7 +190,7 @@ void main()
 
     calcFragAtmospherics(pos.xyz, 1.0, sunlit, amblit, additive, atten);
 
-    vec2 abnormal   = encode_normal(norm.xyz);
+    vec2 abnormal = encode_normal(norm.xyz);
 
     vec3 light_dir = (sun_up_factor == 1) ? sun_dir: moon_dir;
     float da = dot(norm.xyz, light_dir.xyz);
@@ -208,14 +208,22 @@ void main()
     float ambient = da;
     ambient *= 0.5;
     ambient *= ambient;
-    ambient = max(0.9, ambient); // keeps shadows dark
+    ambient = max(0.66, ambient); // keeps shadows dark
     ambient = 1.0 - ambient;
 
     vec3 sun_contrib = min(final_da, shadow) * sunlit;
 
     color.rgb *= ambient;
+
+vec3 post_ambient = color.rgb;
+
     color.rgb += sun_contrib;
+
+vec3 post_sunlight = color.rgb;
+
     color.rgb *= diff.rgb;
+
+vec3 post_diffuse = color.rgb;
 
     //color.rgb = mix(diff.rgb, color.rgb, final_alpha);
     
@@ -223,6 +231,8 @@ void main()
     color.rgb = scaleSoftClipFrag(color.rgb);
 
     vec4 light = vec4(0,0,0,0);
+
+vec3 prelight_linearish_maybe = color.rgb;
 
    #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diff.rgb, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w, shadow);
 
@@ -238,12 +248,18 @@ void main()
     //
     color.rgb += light.rgb;
 
+vec3 postlight_linear = color.rgb;
+
+color.rgb = prelight_linearish_maybe;
+
     color.rgb = linear_to_srgb(color.rgb);
+
 #endif
 
 #ifdef WATER_FOG
     color = applyWaterFogView(pos.xyz, color);
 #endif
+
 
     frag_color = color;
 }

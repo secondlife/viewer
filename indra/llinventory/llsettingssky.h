@@ -337,6 +337,9 @@ private:
     static LLSD absorptionConfigDefault();
     static LLSD mieConfigDefault();
 
+    LLColor3 getColor(const std::string& key, const LLColor3& default_value) const;
+    F32      getFloat(const std::string& key, F32 default_value) const;
+
     void        calculateHeavenlyBodyPositions() const;
     void        calculateLightSettings() const;
 

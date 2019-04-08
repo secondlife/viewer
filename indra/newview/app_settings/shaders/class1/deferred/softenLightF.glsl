@@ -112,14 +112,23 @@ void main()
         float ambient = da;
         ambient *= 0.5;
         ambient *= ambient;
+        ambient = max(0.66, ambient);
         ambient = 1.0 - ambient;
 
         vec3 sun_contrib = final_da * sunlit;
 
         col.rgb = amblit;
         col.rgb *= ambient;
+
+vec3 post_ambient = col.rgb;
+
         col.rgb += sun_contrib;
+
+vec3 post_sunlight = col.rgb;
+
         col.rgb *= diffuse.rgb;
+
+vec3 post_diffuse = col.rgb;
 
         vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
@@ -168,6 +177,8 @@ void main()
             col = fogged.rgb;
             bloom = fogged.a;
         #endif
+
+//col.rgb = post_diffuse;
     }
 
     frag_color.rgb = col.rgb;
