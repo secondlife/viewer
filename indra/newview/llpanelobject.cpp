@@ -150,6 +150,24 @@ BOOL	LLPanelObject::postBuild()
 	mCtrlRotZ = getChild<LLSpinCtrl>("Rot Z");
 	childSetCommitCallback("Rot Z",onCommitRotation,this);
 
+    // Copy/paste pos
+    mBtnCopyPos = getChild<LLButton>("copy_pos_btn");
+    mBtnCopyPos->setCommitCallback( boost::bind(&LLPanelObject::onCopyPos, this, _2 ));
+    mBtnPastePos = getChild<LLButton>("paste_pos_btn");
+    mBtnPastePos->setCommitCallback( boost::bind(&LLPanelObject::onPastePos, this, _2 ));
+	
+    // Copy/paste size
+    mBtnCopySize = getChild<LLButton>("copy_size_btn");
+    mBtnCopySize->setCommitCallback( boost::bind(&LLPanelObject::onCopySize, this, _2 ));
+    mBtnPasteSize = getChild<LLButton>("paste_size_btn");
+    mBtnPasteSize->setCommitCallback( boost::bind(&LLPanelObject::onPasteSize, this, _2 ));
+	
+    // Copy/paste rot
+    mBtnCopyRot = getChild<LLButton>("copy_rot_btn");
+    mBtnCopyRot->setCommitCallback( boost::bind(&LLPanelObject::onCopyRot, this, _2 ));
+    mBtnPasteRot = getChild<LLButton>("paste_rot_btn");
+    mBtnPasteRot->setCommitCallback( boost::bind(&LLPanelObject::onPasteRot, this, _2 ));;
+
 	//--------------------------------------------------------
 		
 	// Base Type
@@ -286,7 +304,10 @@ LLPanelObject::LLPanelObject()
 	mSelectedType(MI_BOX),
 	mSculptTextureRevert(LLUUID::null),
 	mSculptTypeRevert(0),
-	mSizeChanged(FALSE)
+	mSizeChanged(FALSE),
+    mHasPosClipboard(FALSE),
+    mHasSizeClipboard(FALSE),
+    mHasRotClipboard(FALSE)
 {
 }
 
@@ -379,6 +400,8 @@ void LLPanelObject::getState( )
 	mCtrlPosX->setEnabled(enable_move);
 	mCtrlPosY->setEnabled(enable_move);
 	mCtrlPosZ->setEnabled(enable_move);
+    mBtnCopyPos->setEnabled(enable_move);
+    mBtnPastePos->setEnabled(enable_move && mHasPosClipboard);
 
 	if (enable_scale)
 	{
@@ -404,6 +427,8 @@ void LLPanelObject::getState( )
 	mCtrlScaleX->setEnabled( enable_scale );
 	mCtrlScaleY->setEnabled( enable_scale );
 	mCtrlScaleZ->setEnabled( enable_scale );
+    mBtnCopySize->setEnabled( enable_scale );
+    mBtnPasteSize->setEnabled( enable_scale && mHasSizeClipboard );
 
 	LLQuaternion object_rot = objectp->getRotationEdit();
 	object_rot.getEulerAngles(&(mCurEulerDegrees.mV[VX]), &(mCurEulerDegrees.mV[VY]), &(mCurEulerDegrees.mV[VZ]));
@@ -435,6 +460,8 @@ void LLPanelObject::getState( )
 	mCtrlRotX->setEnabled( enable_rotate );
 	mCtrlRotY->setEnabled( enable_rotate );
 	mCtrlRotZ->setEnabled( enable_rotate );
+    mBtnCopyRot->setEnabled( enable_rotate );
+    mBtnPasteRot->setEnabled( enable_rotate && mHasRotClipboard );
 
 	LLUUID owner_id;
 	std::string owner_name;
@@ -2000,4 +2027,91 @@ void LLPanelObject::onCommitSculptType(LLUICtrl *ctrl, void* userdata)
 	LLPanelObject* self = (LLPanelObject*) userdata;
 
 	self->sendSculpt();
+}
+
+void copy_vector_to_clipboard(const LLVector3& vec)
+{
+    std::string stringVec = llformat("<%g, %g, %g>", vec.mV[VX], vec.mV[VY], vec.mV[VZ]);
+	LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(stringVec));
+}
+
+void LLPanelObject::onCopyPos(const LLSD& data)
+{
+	mClipboardPos = LLVector3(mCtrlPosX->get(), mCtrlPosY->get(), mCtrlPosZ->get());
+
+    copy_vector_to_clipboard(mClipboardPos);
+
+    mBtnPastePos->setToolTip(llformat("Paste Position\n<%g, %g, %g>", mClipboardPos.mV[VX], mClipboardPos.mV[VY], mClipboardPos.mV[VZ]));
+    mBtnPastePos->setEnabled(TRUE);
+
+    mHasPosClipboard = TRUE;
+}
+
+void LLPanelObject::onCopySize(const LLSD& data)
+{
+	mClipboardSize = LLVector3(mCtrlScaleX->get(), mCtrlScaleY->get(), mCtrlScaleZ->get());
+
+    copy_vector_to_clipboard(mClipboardSize);
+
+    mBtnPasteSize->setToolTip(llformat("Paste Size\n<%g, %g, %g>", mClipboardSize.mV[VX], mClipboardSize.mV[VY], mClipboardSize.mV[VZ]));
+    mBtnPasteSize->setEnabled(TRUE);
+
+    mHasSizeClipboard = TRUE;
+}
+
+void LLPanelObject::onCopyRot(const LLSD& data)
+{
+	mClipboardRot = LLVector3(mCtrlRotX->get(), mCtrlRotY->get(), mCtrlRotZ->get());
+
+    copy_vector_to_clipboard(mClipboardRot);
+
+    mBtnPasteRot->setToolTip(llformat("Paste Rotation\n<%g, %g, %g>", mClipboardRot.mV[VX], mClipboardRot.mV[VY], mClipboardRot.mV[VZ]));
+    mBtnPasteSize->setEnabled(TRUE);
+
+    mHasRotClipboard = TRUE;
+}
+
+void LLPanelObject::onPastePos(const LLSD& data)
+{
+    if(!mHasPosClipboard) return;
+
+    // Clamp pos on non-attachments, just keep the prims within the region
+    if (!mObject->isAttachment())
+    {
+        mClipboardPos.mV[VX] = llclamp( mClipboardPos.mV[VX], 0.f, 256.f);
+        mClipboardPos.mV[VY] = llclamp( mClipboardPos.mV[VY], 0.f, 256.f);
+        //height will get properly clammed by sendPosition
+    }
+
+    mCtrlPosX->set( mClipboardPos.mV[VX] );
+    mCtrlPosY->set( mClipboardPos.mV[VY] );
+    mCtrlPosZ->set( mClipboardPos.mV[VZ] );
+
+    sendPosition(FALSE);
+}
+
+void LLPanelObject::onPasteSize(const LLSD& data)
+{
+    if(!mHasSizeClipboard) return;
+
+    mClipboardSize.mV[VX] = llclamp(mClipboardSize.mV[VX], MIN_PRIM_SCALE, DEFAULT_MAX_PRIM_SCALE);
+    mClipboardSize.mV[VY] = llclamp(mClipboardSize.mV[VY], MIN_PRIM_SCALE, DEFAULT_MAX_PRIM_SCALE);
+    mClipboardSize.mV[VZ] = llclamp(mClipboardSize.mV[VZ], MIN_PRIM_SCALE, DEFAULT_MAX_PRIM_SCALE);
+
+    mCtrlScaleX->set( mClipboardSize.mV[VX] );
+    mCtrlScaleY->set( mClipboardSize.mV[VY] );
+    mCtrlScaleZ->set( mClipboardSize.mV[VZ] );
+
+    sendScale(FALSE);
+}
+
+void LLPanelObject::onPasteRot(const LLSD& data)
+{
+    if(!mHasRotClipboard) return;
+
+    mCtrlRotX->set( mClipboardRot.mV[VX] );
+    mCtrlRotY->set( mClipboardRot.mV[VY] );
+    mCtrlRotZ->set( mClipboardRot.mV[VZ] );
+
+    sendRotation(FALSE);
 }

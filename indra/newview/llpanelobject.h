@@ -66,6 +66,13 @@ public:
 	static void 	onCommitPhantom(		LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitPhysics(		LLUICtrl* ctrl, void* userdata);
 
+    void            onCopyPos(const LLSD& data);
+    void            onPastePos(const LLSD& data);
+    void            onCopySize(const LLSD& data);
+    void            onPasteSize(const LLSD& data);
+    void            onCopyRot(const LLSD& data);
+    void            onPasteRot(const LLSD& data);
+
 	static void 	onCommitParametric(LLUICtrl* ctrl, void* userdata);
 
 
@@ -157,7 +164,18 @@ protected:
 	LLComboBox      *mCtrlSculptType;
 	LLCheckBoxCtrl  *mCtrlSculptMirror;
 	LLCheckBoxCtrl  *mCtrlSculptInvert;
-	
+
+    LLButton        *mBtnCopyPos;
+    LLButton        *mBtnPastePos;
+    LLButton        *mBtnCopySize;
+    LLButton        *mBtnPasteSize;
+    LLButton        *mBtnCopyRot;
+    LLButton        *mBtnPasteRot;
+
+    LLVector3       mClipboardPos;
+    LLVector3       mClipboardSize;
+    LLVector3       mClipboardRot;
+
 	LLVector3		mCurEulerDegrees;		// to avoid sending rotation when not changed
 	BOOL			mIsPhysical;			// to avoid sending "physical" when not changed
 	BOOL			mIsTemporary;			// to avoid sending "temporary" when not changed
@@ -166,6 +184,10 @@ protected:
 
 	LLUUID          mSculptTextureRevert;   // so we can revert the sculpt texture on cancel
 	U8              mSculptTypeRevert;      // so we can revert the sculpt type on cancel
+
+    BOOL            mHasPosClipboard;
+    BOOL            mHasSizeClipboard;
+    BOOL            mHasRotClipboard;
 
 	LLPointer<LLViewerObject> mObject;
 	LLPointer<LLViewerObject> mRootObject;
