@@ -737,7 +737,7 @@ LLSD LLSettingsSky::defaults(const LLSettingsBase::TrackPosition& position)
         dfltsetting[SETTING_MOON_ROTATION]      = moonquat.getValue();
         dfltsetting[SETTING_MOON_BRIGHTNESS]    = LLSD::Real(0.5f);
 
-        dfltsetting[SETTING_STAR_BRIGHTNESS]    = LLSD::Real(256.0000);
+        dfltsetting[SETTING_STAR_BRIGHTNESS]    = LLSD::Real(250.0000);
         dfltsetting[SETTING_SUNLIGHT_COLOR]     = LLColor4(0.7342, 0.7815, 0.8999, 0.0).getValue();
         dfltsetting[SETTING_SUN_ROTATION]       = sunquat.getValue();
 
@@ -1037,72 +1037,65 @@ LLColor3 LLSettingsSky::getLightDiffuse() const
     return LLColor3::white;
 }
 
+LLColor3 LLSettingsSky::getColor(const std::string& key, const LLColor3& default_value) const
+{
+    if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(key))
+    {
+        return LLColor3(mSettings[SETTING_LEGACY_HAZE][key]);
+    }
+    if (mSettings.has(key))
+    {
+        return LLColor3(mSettings[key]);
+    }
+    return default_value;
+}
+
+F32 LLSettingsSky::getFloat(const std::string& key, F32 default_value) const
+{
+    if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(key))
+    {
+        return mSettings[SETTING_LEGACY_HAZE][key].asReal();
+    }
+    if (mSettings.has(key))
+    {
+        return mSettings[key].asReal();
+    }
+    return default_value;
+}
+
 LLColor3 LLSettingsSky::getAmbientColor() const
 {
-    if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(SETTING_AMBIENT))
-    {
-        return LLColor3(mSettings[SETTING_LEGACY_HAZE][SETTING_AMBIENT]);
-    }
-    if (mSettings.has(SETTING_AMBIENT))
-    {
-        return LLColor3(mSettings[SETTING_AMBIENT]);
-    }
-    return LLColor3(0.25f, 0.25f, 0.25f);
+    return getColor(SETTING_AMBIENT, LLColor3(0.25f, 0.25f, 0.25f));
 }
 
 LLColor3 LLSettingsSky::getBlueDensity() const
 {
-    if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(SETTING_BLUE_DENSITY))
-    {
-        return LLColor3(mSettings[SETTING_LEGACY_HAZE][SETTING_BLUE_DENSITY]);
-    }
-    return LLColor3(0.2447f, 0.4487f, 0.7599f);
+    return getColor(SETTING_BLUE_DENSITY, LLColor3(0.2447f, 0.4487f, 0.7599f));
 }
 
 LLColor3 LLSettingsSky::getBlueHorizon() const
 {
-    if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(SETTING_BLUE_HORIZON))
-    {
-        return LLColor3(mSettings[SETTING_LEGACY_HAZE][SETTING_BLUE_HORIZON]);
-    }
-    return LLColor3(0.4954f, 0.4954f, 0.6399f);
+    return getColor(SETTING_BLUE_HORIZON, LLColor3(0.4954f, 0.4954f, 0.6399f));
 }
 
 F32 LLSettingsSky::getHazeDensity() const
 {
-    if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(SETTING_HAZE_DENSITY))
-    {
-        return mSettings[SETTING_LEGACY_HAZE][SETTING_HAZE_DENSITY].asReal();
-    }
-    return 0.7f;
+    return getFloat(SETTING_HAZE_DENSITY, 0.7f);
 }
 
 F32 LLSettingsSky::getHazeHorizon() const
 {
-    if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(SETTING_HAZE_HORIZON))
-    {
-        return mSettings[SETTING_LEGACY_HAZE][SETTING_HAZE_HORIZON].asReal();
-    }
-    return 0.19f;
+    return getFloat(SETTING_HAZE_HORIZON, 0.19f);
 }
 
 F32 LLSettingsSky::getDensityMultiplier() const
 {
-    F32 density_multiplier = 0.0001f;
-    if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(SETTING_DENSITY_MULTIPLIER))
-    {
-        density_multiplier = mSettings[SETTING_LEGACY_HAZE][SETTING_DENSITY_MULTIPLIER].asReal();
-    }
-    return density_multiplier;
+    return getFloat(SETTING_DENSITY_MULTIPLIER, 0.0001f);
 }
 
 F32 LLSettingsSky::getDistanceMultiplier() const
 {
-    if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(SETTING_DISTANCE_MULTIPLIER))
-    {
-        return mSettings[SETTING_LEGACY_HAZE][SETTING_DISTANCE_MULTIPLIER].asReal();
-    }
-    return 0.8f;
+    return getFloat(SETTING_DISTANCE_MULTIPLIER, 0.8f);
 }
 
 void LLSettingsSky::setPlanetRadius(F32 radius)
