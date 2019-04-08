@@ -218,15 +218,19 @@ void main()
             dlit = color.rgb * plcol.rgb * plcol.a;
             
             col = dlit*lit*diff_tex*shadow;
-            amb_da += (da*0.5)*(1.0-shadow)*proj_ambiance;
+
+            // unshadowed for consistency between forward and deferred?
+            amb_da += (da*0.5+0.5)/* *(1.0-shadow) */ *proj_ambiance;
         }
         
         //float diff = clamp((proj_range-proj_focus)/proj_range, 0.0, 1.0);
         vec4 amb_plcol = texture2DLodAmbient(projectionMap, proj_tc.xy, proj_lod);
-                            
-        amb_da += (da*da*0.5+0.5)*(1.0-shadow)*proj_ambiance;
+
+        // unshadowed for consistency between forward and deferred?
+        amb_da += (da*da*0.5+0.5) /* *(1.0-shadow) */ * proj_ambiance;
         amb_da *= dist_atten * noise;
         amb_da = min(amb_da, 1.0-lit);
+
         col += amb_da*color.rgb*diff_tex.rgb*amb_plcol.rgb*amb_plcol.a;
     }
     
@@ -251,7 +255,7 @@ void main()
         {
             float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
             vec3 speccol = dlit*scol*spec.rgb*shadow;
-            speccol = max(speccol, vec3(0));
+            speccol = clamp(speccol, vec3(0), vec3(1));
             col += speccol;
         }
     }   

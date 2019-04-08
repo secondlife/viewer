@@ -112,23 +112,20 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 
         //angular attenuation
         da = dot(n, lv);
-        //da = min(da, shadow);
-        da *= clamp(da, 0.0, 1.0);
+        da = clamp(da, 0.0, 1.0);
 
         float lit = max(da * dist_atten, 0.0);
 
         // shadowmap is wrong for alpha-blended objs
         // since we created shadowmaps for 2 but render N
-        //col = light_col*lit*diffuse*shadow;
-        col = light_col*lit*diffuse;
+        col = light_col*lit*diffuse*shadow;
         
         float amb_da = ambiance;
-        amb_da += (da*0.5) * (1.0 - shadow) * ambiance;
+        amb_da += (da*0.5+0.5) * (1.0 - shadow) * ambiance;
         amb_da += (da*da*0.5 + 0.5) * (1.0 - shadow) * ambiance;
-        amb_da *= dist_atten;
         amb_da = min(amb_da, 1.0f - lit);
 
-        col.rgb += amb_da * light_col * diffuse;
+        col.rgb += amb_da * 0.5 * light_col * diffuse;
 
         if (spec.a > 0.0)
         {
@@ -373,7 +370,7 @@ vec3 post_spec = col.rgb;
 
     vec3 prelight_linearish_maybe = col.rgb;
 
- #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w, shadow);
+ #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w, 1.0);
 
         LIGHT_LOOP(1)
         LIGHT_LOOP(2)
@@ -382,6 +379,8 @@ vec3 post_spec = col.rgb;
         LIGHT_LOOP(5)
         LIGHT_LOOP(6)
         LIGHT_LOOP(7)
+
+vec3 light_linear = light.rgb;
 
     col.rgb += light.rgb;
 
@@ -396,7 +395,7 @@ vec3 postlight_linear = col.rgb;
     al = temp.a;
 #endif
 
-//col.rgb = prelight_linearish_maybe;
+//col.rgb = light_linear;
 
     col.rgb = linear_to_srgb(col.rgb);
 

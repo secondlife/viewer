@@ -99,8 +99,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
         lv = normalize(lv);
         vec3 norm = normalize(n);
 
-        da = max(0.0, dot(norm, lv));
-        //da = min(da, shadow);
+        da = dot(norm, lv);
         da = clamp(da, 0.0, 1.0);
  
         //distance attenuation
@@ -116,18 +115,15 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
         // to match spotLight (but not multiSpotLight) *sigh*
         float lit = max(da * dist_atten,0.0);
 
-        // the shadowmap is wrong for alpha objects
-        // since we only have 2 maps but N spots
-        //col = lit * light_col * diffuse * shadow;
-        col = lit * light_col * diffuse;
+        col = lit * light_col * diffuse * shadow;
 
         float amb_da = ambiance;
-        amb_da += (da*0.5) * (1.0 - shadow) * ambiance;
+        amb_da += (da*0.5+0.5) * (1.0 - shadow) * ambiance;
         amb_da += (da*da*0.5 + 0.5) * (1.0 - shadow) * ambiance;
         amb_da *= dist_atten;
         amb_da = min(amb_da, 1.0f - lit);
 
-        col.rgb += amb_da * light_col * diffuse;
+        col.rgb += amb_da * 0.5 * light_col * diffuse;
         // no spec for alpha shader...
     }
     col = max(col, vec3(0));
@@ -234,7 +230,7 @@ vec3 post_diffuse = color.rgb;
 
 vec3 prelight_linearish_maybe = color.rgb;
 
-   #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diff.rgb, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w, shadow);
+   #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diff.rgb, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w, 1.0);
 
     LIGHT_LOOP(1)
     LIGHT_LOOP(2)
@@ -244,16 +240,17 @@ vec3 prelight_linearish_maybe = color.rgb;
     LIGHT_LOOP(6)
     LIGHT_LOOP(7)
 
+vec3 light_linear = light.rgb;
+
     // keep it linear
     //
     color.rgb += light.rgb;
 
 vec3 postlight_linear = color.rgb;
 
-color.rgb = prelight_linearish_maybe;
+//color.rgb = light_linear;
 
     color.rgb = linear_to_srgb(color.rgb);
-
 #endif
 
 #ifdef WATER_FOG

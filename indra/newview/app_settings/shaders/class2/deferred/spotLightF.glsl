@@ -185,7 +185,8 @@ void main()
 	lv = proj_origin-pos.xyz;
 	lv = normalize(lv);
 	float da = dot(norm, lv);
-		
+	      da = clamp(da, 0.0, 1.0);
+	
 	vec3 col = vec3(0,0,0);
 		
 	vec3 diff_tex = texture2DRect(diffuseRect, frag.xy).rgb;
@@ -214,9 +215,10 @@ void main()
 			vec4 plcol = texture2DLodDiffuse(projectionMap, proj_tc.xy, lod);
 		
 			dlit = color.rgb * plcol.rgb * plcol.a;
-			
+		
 			col = dlit*lit*diff_tex*shadow;
-			amb_da += (da*0.5)*(1.0-shadow)*proj_ambiance;
+
+			amb_da += (da*0.5+0.5) /* * (1.0-shadow) */ * proj_ambiance;
 		}
 		
 		//float diff = clamp((proj_range-proj_focus)/proj_range, 0.0, 1.0);
@@ -250,7 +252,7 @@ void main()
 		{
 			float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
 			vec3 speccol = dlit*scol*spec.rgb*shadow;
-            speccol = max(speccol, vec3(0));
+            speccol = clamp(speccol, vec3(0), vec3(1));
 			col += speccol;
 		}
 	}	
