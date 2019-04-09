@@ -776,7 +776,7 @@ void LLFloaterEditExtDayCycle::onAddFrame()
         setting = sky;
         mEditDay->setSkyAtKeyframe(sky, frame, mCurrentTrack);
     }
-
+    setDirtyFlag();
     addSliderFrame(frame, setting);
     updateTabs();
 }
@@ -788,6 +788,7 @@ void LLFloaterEditExtDayCycle::onRemoveFrame()
     {
         return;
     }
+    setDirtyFlag();
     removeCurrentSliderFrame();
     updateTabs();
 }
@@ -964,6 +965,7 @@ void LLFloaterEditExtDayCycle::onFrameSliderCallback(const LLSD &data)
                     // reselect new frame
                     mFramesSlider->setCurSlider(it->first);
                     mShiftCopyEnabled = false;
+                    setDirtyFlag();
                 }
             }
             else
@@ -971,6 +973,7 @@ void LLFloaterEditExtDayCycle::onFrameSliderCallback(const LLSD &data)
                 if (mEditDay->moveTrackKeyframe(mCurrentTrack, (*it).second.mFrame, sliderpos) && mCanMod)
                 {
                     (*it).second.mFrame = sliderpos;
+                    setDirtyFlag();
                 }
                 else
                 {

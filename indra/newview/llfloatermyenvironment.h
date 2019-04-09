@@ -61,10 +61,8 @@ public:
 private:
     LLInventoryPanel *              mInventoryList;
     U64                             mTypeFilter;
-    LLInventoryFilter::EFolderShow  mShowFolders;
     LLUUID                          mSelectedAsset;
 
-    void                            onShowFoldersChange();
     void                            onFilterCheckChange();
     void                            onSelectionChange();
     void                            onDeleteSelected();

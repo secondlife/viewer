@@ -116,22 +116,6 @@
         </layout_panel>
         <layout_panel
                 auto_resize="false"
-                user_resize="false"
-                tab_group="1"
-                height="14">
-            <check_box
-                    follows="left|bottom"
-                    height="14"
-                    initial_value="false"
-                    label="Show Empty Folders"
-                    layout="topleft"
-                    name="chk_showfolders"
-                    top="2"
-                    left_delta="-1"
-                    width="200" />
-        </layout_panel>
-        <layout_panel
-                auto_resize="false"
                 user_resize="true"
                 tab_group="1"
                 height="31"
