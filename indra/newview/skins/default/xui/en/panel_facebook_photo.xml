@@ -138,6 +138,7 @@
              length="1"
              max_length="700"
              name="photo_caption"
+             spellcheck="true"
              type="string"
              word_wrap="true">
             </text_editor>
