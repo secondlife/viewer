@@ -1694,11 +1694,32 @@ even though the user gets a free copy.
              width="150">
                 Prim Type
             </text>-->
+    		<button
+    		 follows="top|right"
+    		 height="16"
+    		 label="Copy"
+    		 layout="topleft"
+    		 left="135"
+    		 name="copy_params_btn"
+    		 tool_tip="Copy Parameters to Clipboard"
+             top="6"
+    		 width="65">
+    		</button>
+    		<button
+    		 follows="top|right"
+    		 height="16"
+    		 label="Paste"
+    		 layout="topleft"
+    		 left_pad="10"
+    		 name="paste_params_btn"
+    		 tool_tip="Paste Parameters from Clipboard"
+    		 width="65">
+    		</button>
             <combo_box
              height="19"
              layout="topleft"
              name="comboBaseType"
-             top="6"
+             top_pad="5"
              left="135"
              width="150">
                 <combo_box.item

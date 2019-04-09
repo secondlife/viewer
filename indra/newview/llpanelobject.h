@@ -72,6 +72,8 @@ public:
     void            onPasteSize(const LLSD& data);
     void            onCopyRot(const LLSD& data);
     void            onPasteRot(const LLSD& data);
+    void            onCopyParams(const LLSD& data);
+    void            onPasteParams(const LLSD& data);
 
 	static void 	onCommitParametric(LLUICtrl* ctrl, void* userdata);
 
@@ -154,6 +156,15 @@ protected:
 	LLSpinCtrl*		mCtrlRotY;
 	LLSpinCtrl*		mCtrlRotZ;
 
+    LLButton        *mBtnCopyPos;
+    LLButton        *mBtnPastePos;
+    LLButton        *mBtnCopySize;
+    LLButton        *mBtnPasteSize;
+    LLButton        *mBtnCopyRot;
+    LLButton        *mBtnPasteRot;
+    LLButton        *mBtnCopyParams;
+    LLButton        *mBtnPasteParams;
+
 	LLCheckBoxCtrl	*mCheckLock;
 	LLCheckBoxCtrl	*mCheckPhysics;
 	LLCheckBoxCtrl	*mCheckTemporary;
@@ -165,17 +176,6 @@ protected:
 	LLCheckBoxCtrl  *mCtrlSculptMirror;
 	LLCheckBoxCtrl  *mCtrlSculptInvert;
 
-    LLButton        *mBtnCopyPos;
-    LLButton        *mBtnPastePos;
-    LLButton        *mBtnCopySize;
-    LLButton        *mBtnPasteSize;
-    LLButton        *mBtnCopyRot;
-    LLButton        *mBtnPasteRot;
-
-    LLVector3       mClipboardPos;
-    LLVector3       mClipboardSize;
-    LLVector3       mClipboardRot;
-
 	LLVector3		mCurEulerDegrees;		// to avoid sending rotation when not changed
 	BOOL			mIsPhysical;			// to avoid sending "physical" when not changed
 	BOOL			mIsTemporary;			// to avoid sending "temporary" when not changed
@@ -185,9 +185,20 @@ protected:
 	LLUUID          mSculptTextureRevert;   // so we can revert the sculpt texture on cancel
 	U8              mSculptTypeRevert;      // so we can revert the sculpt type on cancel
 
+    LLVector3       mClipboardPos;
+    LLVector3       mClipboardSize;
+    LLVector3       mClipboardRot;
+
     BOOL            mHasPosClipboard;
     BOOL            mHasSizeClipboard;
     BOOL            mHasRotClipboard;
+
+    LLSD            mParamsClipboard;
+    LLVolumeParams  mClipboardVolumeParams;
+    BOOL            mHasParamsClipboard;
+    BOOL            mHasFlexiParam;
+    BOOL            mHasSculptParam;
+    BOOL            mHasLightParam;
 
 	LLPointer<LLViewerObject> mObject;
 	LLPointer<LLViewerObject> mRootObject;

@@ -46,6 +46,8 @@
 #include "llcolorswatch.h"
 #include "llcombobox.h"
 #include "llfocusmgr.h"
+#include "llinventoryfunctions.h"
+#include "llinventorymodel.h"
 #include "llmanipscale.h"
 #include "llpreviewscript.h"
 #include "llresmgr.h"
@@ -167,6 +169,12 @@ BOOL	LLPanelObject::postBuild()
     mBtnCopyRot->setCommitCallback( boost::bind(&LLPanelObject::onCopyRot, this, _2 ));
     mBtnPasteRot = getChild<LLButton>("paste_rot_btn");
     mBtnPasteRot->setCommitCallback( boost::bind(&LLPanelObject::onPasteRot, this, _2 ));;
+
+    // Copy/paste obj prams
+    mBtnCopyParams = getChild<LLButton>("copy_params_btn");
+    mBtnCopyParams->setCommitCallback( boost::bind(&LLPanelObject::onCopyParams, this, _2 ));
+    mBtnPasteParams = getChild<LLButton>("paste_params_btn");
+    mBtnPasteParams->setCommitCallback( boost::bind(&LLPanelObject::onPasteParams, this, _2 ));
 
 	//--------------------------------------------------------
 		
@@ -462,6 +470,9 @@ void LLPanelObject::getState( )
 	mCtrlRotZ->setEnabled( enable_rotate );
     mBtnCopyRot->setEnabled( enable_rotate );
     mBtnPasteRot->setEnabled( enable_rotate && mHasRotClipboard );
+
+    mBtnCopyParams->setEnabled( single_volume && enable_modify );
+    mBtnPasteParams->setEnabled( single_volume && enable_modify );
 
 	LLUUID owner_id;
 	std::string owner_name;
@@ -2066,7 +2077,7 @@ void LLPanelObject::onCopyRot(const LLSD& data)
     copy_vector_to_clipboard(mClipboardRot);
 
     mBtnPasteRot->setToolTip(llformat("Paste Rotation\n<%g, %g, %g>", mClipboardRot.mV[VX], mClipboardRot.mV[VY], mClipboardRot.mV[VZ]));
-    mBtnPasteSize->setEnabled(TRUE);
+    mBtnPasteRot->setEnabled(TRUE);
 
     mHasRotClipboard = TRUE;
 }
@@ -2114,4 +2125,224 @@ void LLPanelObject::onPasteRot(const LLSD& data)
     mCtrlRotZ->set( mClipboardRot.mV[VZ] );
 
     sendRotation(FALSE);
+}
+
+void LLPanelObject::onCopyParams(const LLSD& data)
+{
+    LLViewerObject* objectp = mObject;
+    if (!objectp)
+    {
+        return;
+    }
+
+    // Parametrics
+    getVolumeParams(mClipboardVolumeParams);
+    mHasParamsClipboard = TRUE;
+
+    LLVOVolume *volobjp = NULL;
+    if (objectp && (objectp->getPCode() == LL_PCODE_VOLUME))
+    {
+        volobjp = (LLVOVolume *)objectp;
+    }
+    
+    // Flexi Prim
+    if (volobjp && volobjp->isFlexible())
+    {
+        LLFlexibleObjectData *attributes = (LLFlexibleObjectData *)objectp->getParameterEntry(LLNetworkData::PARAMS_FLEXIBLE);
+        if (attributes)
+        {
+            mParamsClipboard["lod"] = attributes->getSimulateLOD();
+            mParamsClipboard["gav"] = attributes->getGravity();
+            mParamsClipboard["ten"] = attributes->getTension();
+            mParamsClipboard["fri"] = attributes->getAirFriction();
+            mParamsClipboard["sen"] = attributes->getWindSensitivity();
+            LLVector3 force = attributes->getUserForce();
+            mParamsClipboard["forx"] = force.mV[0];
+            mParamsClipboard["fory"] = force.mV[1];
+            mParamsClipboard["forz"] = force.mV[2];
+            mHasFlexiParam = TRUE;
+        }
+    }
+    else
+    {
+        mHasFlexiParam = FALSE;
+    }
+
+    // Sculpted Prim
+    // User is allowed to copy if they could otherwise recreate it manually
+    // ie. User has full perm copy of the sculpted texture in their inventory,
+    // or is a default texture or library asset.
+    if (objectp->getParameterEntryInUse(LLNetworkData::PARAMS_SCULPT))
+    {
+        LLSculptParams *sculpt_params = (LLSculptParams *)objectp->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+
+        LLUUID image_id = sculpt_params->getSculptTexture();
+        BOOL allow_texture = FALSE;
+        if (gInventory.isObjectDescendentOf(image_id, gInventory.getLibraryRootFolderID())
+            || image_id == LLUUID(gSavedSettings.getString( "DefaultObjectTexture" ))
+            || image_id == LLUUID(gSavedSettings.getString( "UIImgWhiteUUID" ))
+            || image_id == LLUUID(gSavedSettings.getString( "UIImgInvisibleUUID" ))
+            || image_id == LLUUID(SCULPT_DEFAULT_TEXTURE))
+        {
+            allow_texture = TRUE;
+        }
+        else
+        {
+            LLUUID inventory_item_id;
+            LLViewerInventoryCategory::cat_array_t cats;
+            LLViewerInventoryItem::item_array_t items;
+            LLAssetIDMatches asset_id_matches(image_id);
+            gInventory.collectDescendentsIf(LLUUID::null,
+                                    cats,
+                                    items,
+                                    LLInventoryModel::INCLUDE_TRASH,
+                                    asset_id_matches);
+
+            if (items.size())
+            {
+                // search for copyable version first
+                for (S32 i = 0; i < items.size(); i++)
+                {
+                    LLInventoryItem* itemp = items[i];
+                    LLPermissions item_permissions = itemp->getPermissions();
+                    if (item_permissions.allowCopyBy(gAgent.getID(), gAgent.getGroupID()))
+                    {
+                        inventory_item_id = itemp->getUUID();
+                        break;
+                    }
+                }
+            }
+            if (inventory_item_id.notNull())
+            {
+                LLInventoryItem* itemp = gInventory.getItem(inventory_item_id);
+                if (itemp)
+                {
+                    LLPermissions perm = itemp->getPermissions();
+                    if ((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED)
+                    {
+                        allow_texture = TRUE;
+                    }
+                }
+            }
+        }
+        if (allow_texture)
+        {
+            mParamsClipboard["sculptid"] = image_id;
+        }
+        else
+        {
+            mParamsClipboard["sculptid"] = LLUUID(SCULPT_DEFAULT_TEXTURE);
+        }
+
+        mParamsClipboard["sculpt_type"] = sculpt_params->getSculptType();
+        mHasSculptParam = TRUE;
+    }
+    else
+    {
+        mHasSculptParam = FALSE;
+    }
+
+    // Light Source
+    // only captures basic settings
+    if (volobjp && volobjp->getIsLight())
+    {
+        mParamsClipboard["Light Intensity"] = volobjp->getLightIntensity();
+        mParamsClipboard["Light Radius"] = volobjp->getLightRadius();
+        mParamsClipboard["Light Falloff"] = volobjp->getLightFalloff();
+        LLColor3 color = volobjp->getLightColor();
+        mParamsClipboard["r"] = color.mV[0];
+        mParamsClipboard["g"] = color.mV[1];
+        mParamsClipboard["b"] = color.mV[2];
+        mHasLightParam = TRUE;
+    }
+    else
+    {
+        mHasLightParam = FALSE;
+    }
+
+    // Physics
+    mParamsClipboard["physics_shape"] = objectp->getPhysicsShapeType();
+}
+
+void LLPanelObject::onPasteParams(const LLSD& data)
+{
+    LLViewerObject* objectp = mObject;
+    if (!objectp)
+    {
+        return;
+    }
+
+    // Flexi Prim
+    if (mHasFlexiParam && (objectp->getPCode() == LL_PCODE_VOLUME))
+    {
+        LLFlexibleObjectData *attributes = (LLFlexibleObjectData *)objectp->getParameterEntry(LLNetworkData::PARAMS_FLEXIBLE);
+        if (attributes)
+        {
+            LLFlexibleObjectData new_attributes;
+            new_attributes = *attributes;
+
+            new_attributes.setSimulateLOD(mParamsClipboard["lod"].asInteger());
+            new_attributes.setGravity(mParamsClipboard["gav"].asReal());
+            new_attributes.setTension(mParamsClipboard["ten"].asReal());
+            new_attributes.setAirFriction(mParamsClipboard["fri"].asReal());
+            new_attributes.setWindSensitivity(mParamsClipboard["sen"].asReal());
+            F32 fx = (F32)mParamsClipboard["forx"].asReal();
+            F32 fy = (F32)mParamsClipboard["fory"].asReal();
+            F32 fz = (F32)mParamsClipboard["forz"].asReal();
+            LLVector3 force(fx,fy,fz);
+            new_attributes.setUserForce(force);
+            objectp->setParameterEntry(LLNetworkData::PARAMS_FLEXIBLE, new_attributes, true);
+        }
+    }
+
+    // Sculpted Prim
+    if (mHasSculptParam)
+    {
+        LLSculptParams sculpt_params;
+
+        if (mParamsClipboard.has("sculptid"))
+        {
+            sculpt_params.setSculptTexture(mParamsClipboard["sculptid"].asUUID(), (U8)mParamsClipboard["sculpt_type"].asInteger());
+        }
+
+        objectp->setParameterEntry(LLNetworkData::PARAMS_SCULPT, sculpt_params, TRUE);
+    }
+    else
+    {
+        LLSculptParams *sculpt_params = (LLSculptParams *)objectp->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+        if (sculpt_params)
+        {
+            objectp->setParameterEntryInUse(LLNetworkData::PARAMS_SCULPT, FALSE, TRUE);
+        }
+    }
+
+    // Light Source
+    if (objectp && (objectp->getPCode() == LL_PCODE_VOLUME))
+    {
+        LLVOVolume *volobjp = (LLVOVolume *)objectp;
+
+        if (volobjp && mHasLightParam)
+        {
+            volobjp->setIsLight(TRUE);
+            volobjp->setLightIntensity((F32)mParamsClipboard["Light Intensity"].asReal());
+            volobjp->setLightRadius((F32)mParamsClipboard["Light Radius"].asReal());
+            volobjp->setLightFalloff((F32)mParamsClipboard["Light Falloff"].asReal());
+            F32 r = (F32)mParamsClipboard["r"].asReal();
+            F32 g = (F32)mParamsClipboard["g"].asReal();
+            F32 b = (F32)mParamsClipboard["b"].asReal();
+            volobjp->setLightColor(LLColor3(r,g,b));
+        }
+    }
+
+    // Physics
+    if (mParamsClipboard.has("physics_shape"))
+    {
+        objectp->setPhysicsShapeType((U8)mParamsClipboard["physics_shape"].asInteger());
+    }
+
+    // Parametrics
+    if(mHasParamsClipboard)
+    {
+        objectp->updateVolume(mClipboardVolumeParams);
+    }
 }
