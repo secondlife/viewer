@@ -92,8 +92,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
     float d = length(lv);
     float da = 1.0;
     vec3 col = vec3(0);
-
-    if (d > 0.0 && fa > 0.0)
+    if (d > 0.0)
     {
         //normalize light vector
         lv = normalize(lv);
@@ -103,8 +102,9 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
         da = clamp(da, 0.0, 1.0);
  
         //distance attenuation
-        float dist = d/la;
-        float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
+        float dist = (la > 0) ? d/la : 1.0f;
+        fa += 1.0f;
+        float dist_atten = (fa > 0) ? clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0) : 1.0f;
         dist_atten *= dist_atten;
         dist_atten *= 2.0f;
 
@@ -230,7 +230,7 @@ vec3 post_diffuse = color.rgb;
 
 vec3 prelight_linearish_maybe = color.rgb;
 
-   #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diff.rgb, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w, 1.0);
+   #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diff.rgb, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w * 0.5, 1.0);
 
     LIGHT_LOOP(1)
     LIGHT_LOOP(2)
