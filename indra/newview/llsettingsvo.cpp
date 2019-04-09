@@ -721,7 +721,7 @@ LLSettingsSky::parammapping_t LLSettingsVOSky::getParameterMap() const
         param_map[SETTING_CLOUD_VARIANCE] = DefaultParam(LLShaderMgr::CLOUD_VARIANCE, sky_defaults[SETTING_CLOUD_VARIANCE]);
         param_map[SETTING_GLOW] = DefaultParam(LLShaderMgr::GLOW, sky_defaults[SETTING_GLOW]);
         param_map[SETTING_MAX_Y] = DefaultParam(LLShaderMgr::MAX_Y, sky_defaults[SETTING_MAX_Y]);
-        //param_map[SETTING_SUNLIGHT_COLOR] = DefaultParam(LLShaderMgr::SUNLIGHT_COLOR, sky_defaults[SETTING_SUNLIGHT_COLOR]);
+        param_map[SETTING_SUNLIGHT_COLOR] = DefaultParam(LLShaderMgr::SUNLIGHT_COLOR, sky_defaults[SETTING_SUNLIGHT_COLOR]);
         param_map[SETTING_MOON_BRIGHTNESS] = DefaultParam(LLShaderMgr::MOON_BRIGHTNESS, sky_defaults[SETTING_MOON_BRIGHTNESS]);
         param_map[SETTING_SKY_MOISTURE_LEVEL] = DefaultParam(LLShaderMgr::MOISTURE_LEVEL, sky_defaults[SETTING_SKY_MOISTURE_LEVEL]);
         param_map[SETTING_SKY_DROPLET_RADIUS] = DefaultParam(LLShaderMgr::DROPLET_RADIUS, sky_defaults[SETTING_SKY_DROPLET_RADIUS]);
