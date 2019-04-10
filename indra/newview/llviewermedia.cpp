@@ -70,6 +70,7 @@
 #include "llwebprofile.h"
 #include "llwindow.h"
 #include "llvieweraudio.h"
+#include "llviewerhelputil.h"
 #include "llcorehttputil.h"
 
 #include "llfloaterwebcontent.h"	// for handling window close requests and geometry change requests in media browser windows.
@@ -2484,8 +2485,10 @@ void LLViewerMediaImpl::unload()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-void LLViewerMediaImpl::navigateTo(const std::string& url, const std::string& mime_type,  bool rediscover_type, bool server_request, bool clean_browser)
+void LLViewerMediaImpl::navigateTo(const std::string& input_url, const std::string& mime_type,  bool rediscover_type, bool server_request, bool clean_browser)
 {
+	std::string url = LLViewerHelpUtil::helpDataEncode(input_url);
+
 	cancelMimeTypeProbe();
 
 	if(mMediaURL != url)
