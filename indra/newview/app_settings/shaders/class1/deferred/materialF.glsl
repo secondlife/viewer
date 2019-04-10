@@ -83,7 +83,7 @@ uniform vec3 light_direction[8];
 uniform vec4 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
 
-vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spec, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, inout float glare, float ambiance, float shadow)
+vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spec, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, inout float glare, float ambiance)
 {
     //get light vector
     vec3 lv = lp.xyz-v;
@@ -109,17 +109,16 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 
         // spotlight coefficient.
         float spot = max(dot(-ln, lv), is_pointlight);
-        da *= spot*spot; // GL_SPOT_EXPONENT=2
 
         //angular attenuation
         da = dot(n, lv);
         da = clamp(da, 0.0, 1.0);
 
+        da *= spot*spot; // GL_SPOT_EXPONENT=2
+
         float lit = max(da * dist_atten, 0.0);
 
-        // shadowmap is wrong for alpha-blended objs
-        // since we created shadowmaps for 2 but render N
-        col = light_col*lit*diffuse*shadow;
+        col = light_col*lit*diffuse;
         
         float amb_da = ambiance;
         if (da > 0)
@@ -148,7 +147,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
             {
                 float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
                 vec3 speccol = lit*scol*light_col.rgb*spec.rgb;
-                speccol = max(speccol, vec3(0));
+                speccol = clamp(speccol, vec3(0), vec3(1));
                 col += speccol;
 
                 float cur_glare = max(speccol.r, speccol.g);
@@ -372,9 +371,9 @@ vec3 post_spec = col.rgb;
             
     vec3 light = vec3(0,0,0);
 
-    vec3 prelight_linearish_maybe = col.rgb;
+    vec3 prelight_linearish_maybe = srgb_to_linear(col.rgb);
 
- #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w * 0.5, 1.0);
+ #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w * 0.5);
 
         LIGHT_LOOP(1)
         LIGHT_LOOP(2)

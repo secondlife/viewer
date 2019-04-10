@@ -83,7 +83,7 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
 float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 #endif
 
-vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, float ambiance ,float shadow)
+vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, float ambiance)
 {
     //get light vector
     vec3 lv = lp.xyz-v;
@@ -115,15 +115,19 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
         // to match spotLight (but not multiSpotLight) *sigh*
         float lit = max(da * dist_atten,0.0);
 
-        col = lit * light_col * diffuse * shadow;
+        col = lit * light_col * diffuse;
 
         float amb_da = ambiance;
-        amb_da += (da*0.5+0.5) * (1.0 - shadow) * ambiance;
-        amb_da += (da*da*0.5 + 0.5) * (1.0 - shadow) * ambiance;
+        if (da > 0)
+        {
+            amb_da += (da*0.5+0.5) * ambiance;
+        }
+        amb_da += (da*da*0.5 + 0.5) * ambiance;
         amb_da *= dist_atten;
         amb_da = min(amb_da, 1.0f - lit);
 
         col.rgb += amb_da * 0.5 * light_col * diffuse;
+
         // no spec for alpha shader...
     }
     col = max(col, vec3(0));
@@ -185,6 +189,7 @@ void main()
     vec3 atten;
 
     calcAtmosphericVars(pos.xyz, 1.0, sunlit, amblit, additive, atten);
+    sunlit *= 0.5;
 
     vec2 abnormal = encode_normal(norm.xyz);
 
@@ -228,9 +233,9 @@ vec3 post_diffuse = color.rgb;
 
     vec4 light = vec4(0,0,0,0);
 
-vec3 prelight_linearish_maybe = color.rgb;
+vec3 prelight_linearish_maybe = srgb_to_linear(color.rgb);
 
-   #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diff.rgb, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w * 0.5, 1.0);
+   #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diff.rgb, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w * 0.5);
 
     LIGHT_LOOP(1)
     LIGHT_LOOP(2)

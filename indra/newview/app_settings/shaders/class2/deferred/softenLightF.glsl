@@ -68,7 +68,6 @@ uniform vec2 screen_res;
 vec3 getNorm(vec2 pos_screen);
 
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
-vec3 fullbrightScaleSoftClipFrag(vec3 l, vec3 add, vec3 atten);
 vec3 scaleSoftClipFrag(vec3 l);
 
 void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
@@ -79,8 +78,6 @@ vec3 fullbrightShinyAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
 
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 vec4 getPosition(vec2 pos_screen);
-
-vec3 nothing();
 
 #ifdef WATER_FOG
 vec4 applyWaterFogView(vec3 pos, vec4 color);
@@ -132,7 +129,7 @@ void main()
         ambient = max(0.66, ambient);
         ambient = 1.0 - ambient;
 
-        vec3 sun_contrib = min(scol, final_da) * sunlit;
+        vec3 sun_contrib = scol * final_da * sunlit;
 
         col.rgb = amblit;
         col.rgb *= ambient;
@@ -168,7 +165,7 @@ vec3 post_diffuse = col.rgb;
             {
                 float scontrib = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
                 vec3 speccol = sun_contrib*scontrib*spec.rgb;
-                speccol = max(speccol, vec3(0));
+                speccol = clamp(speccol, vec3(0), vec3(1));
                 bloom += dot (speccol, speccol) / 2;
                 col += speccol;
             }
@@ -185,8 +182,6 @@ vec3 post_diffuse = col.rgb;
         
         if (norm.w < 1)
         {
-            //col = mix(atmosFragLighting(col, additive, atten), fullbrightAtmosTransportFrag(col, additive, atten), diffuse.a);
-            //col = mix(scaleSoftClipFrag(col), fullbrightScaleSoftClipFrag(col, additive, atten), diffuse.a);
             col = atmosFragLighting(col, additive, atten);
             col = scaleSoftClipFrag(col);
         }
