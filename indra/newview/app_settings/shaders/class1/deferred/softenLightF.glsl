@@ -71,8 +71,6 @@ vec3 getNorm(vec2 pos_screen);
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 fullbrightAtmosTransportFrag(vec3 l, vec3 additive, vec3 atten);
 
-void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
-
 void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
 
 vec3 scaleSoftClipFrag(vec3 l);
@@ -168,7 +166,7 @@ vec3 post_diffuse = col.rgb;
             col = mix(col.rgb, refcol, envIntensity); 
         }
                 
-        if (norm.w < 0.5)
+        //if (norm.w < 0.5)
         {
             col = atmosFragLighting(col, additive, atten);
             col = scaleSoftClipFrag(col);

@@ -77,7 +77,7 @@ vec2 encode_normal (vec3 n);
 vec3 scaleSoftClipFrag(vec3 l);
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten);
 
-void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
+void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
 
 #ifdef HAS_SHADOW
 float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
@@ -184,7 +184,7 @@ void main()
     vec3 additive;
     vec3 atten;
 
-    calcFragAtmospherics(pos.xyz, 1.0, sunlit, amblit, additive, atten);
+    calcAtmosphericVars(pos.xyz, 1.0, sunlit, amblit, additive, atten);
 
     vec2 abnormal = encode_normal(norm.xyz);
 
