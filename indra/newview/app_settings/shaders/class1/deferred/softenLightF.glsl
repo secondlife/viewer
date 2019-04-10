@@ -73,6 +73,8 @@ vec3 fullbrightAtmosTransportFrag(vec3 l, vec3 additive, vec3 atten);
 
 void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
 
+void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
+
 vec3 scaleSoftClipFrag(vec3 l);
 
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
@@ -107,8 +109,8 @@ void main()
         vec3 additive;
         vec3 atten;
 
-        calcFragAtmospherics(pos.xyz, 1.0, sunlit, amblit, additive, atten);
-
+        calcAtmosphericVars(pos.xyz, 1.0, sunlit, amblit, additive, atten);
+        sunlit *= 0.5;
         float ambient = da;
         ambient *= 0.5;
         ambient *= ambient;

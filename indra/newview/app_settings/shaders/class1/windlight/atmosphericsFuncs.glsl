@@ -77,7 +77,7 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
     temp2.x = dot(Pn, tmpLightnorm.xyz);
     temp2.x = 1. - temp2.x;
         //temp2.x is 0 at the sun and increases away from sun
-    temp2.x = max(temp2.x, .03);    //was glow.y
+    temp2.x = max(temp2.x, .001);    //was glow.y
         //set a minimum "angle" (smaller glow.y allows tighter, brighter hotspot)
     temp2.x *= glow.x;
         //higher glow.x gives dimmer glow (because next step is 1 / "angle")
@@ -109,8 +109,8 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
           + tmpAmbient));
 
     //brightness of surface both sunlight and ambient
-    sunlit = vec3(sunlight.rgb);
-    amblit = vec3(tmpAmbient * .25);
+    sunlit = sunlight.rgb;
+    amblit = tmpAmbient.rgb * .25;
     additive  = normalize(additive);
     additive *= vec3(1.0 - exp(-temp2.z * distance_multiplier)) * 0.5;
 }

@@ -424,7 +424,8 @@ void LLViewerShaderMgr::setShaders()
 	LLShaderMgr::instance()->mDefinitions["NUM_TEX_UNITS"] = llformat("%d", gGLManager.mNumTextureImageUnits);
 	
 	// Make sure the compiled shader map is cleared before we recompile shaders.
-	mShaderObjects.clear();
+    mVertexShaderObjects.clear();
+    mFragmentShaderObjects.clear();
 	
 	initAttribsAndUniforms();
 	gPipeline.releaseGLBuffers();
@@ -932,13 +933,13 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	shaders.push_back( make_pair( "windlight/atmosphericsVarsV.glsl",       mShaderLevel[SHADER_WINDLIGHT] ) );
 	shaders.push_back( make_pair( "windlight/atmosphericsVarsWaterV.glsl",  mShaderLevel[SHADER_WINDLIGHT] ) );
 	shaders.push_back( make_pair( "windlight/atmosphericsHelpersV.glsl",    mShaderLevel[SHADER_WINDLIGHT] ) );
-    shaders.push_back( make_pair( "windlight/atmosphericsFuncs.glsl",       mShaderLevel[SHADER_WINDLIGHT] ) );
 	shaders.push_back( make_pair( "lighting/lightFuncV.glsl",               mShaderLevel[SHADER_LIGHTING] ) );
 	shaders.push_back( make_pair( "lighting/sumLightsV.glsl",               sum_lights_class ) );
 	shaders.push_back( make_pair( "lighting/lightV.glsl",                   mShaderLevel[SHADER_LIGHTING] ) );
 	shaders.push_back( make_pair( "lighting/lightFuncSpecularV.glsl",       mShaderLevel[SHADER_LIGHTING] ) );
 	shaders.push_back( make_pair( "lighting/sumLightsSpecularV.glsl",       sum_lights_class ) );
 	shaders.push_back( make_pair( "lighting/lightSpecularV.glsl",           mShaderLevel[SHADER_LIGHTING] ) );
+    shaders.push_back( make_pair( "windlight/atmosphericsFuncs.glsl",       mShaderLevel[SHADER_WINDLIGHT] ) );
 	shaders.push_back( make_pair( "windlight/atmosphericsV.glsl",           mShaderLevel[SHADER_WINDLIGHT] ) );
 	shaders.push_back( make_pair( "avatar/avatarSkinV.glsl",                1 ) );
 	shaders.push_back( make_pair( "avatar/objectSkinV.glsl",                1 ) );
@@ -978,8 +979,8 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "windlight/atmosphericsVarsF.glsl",      mShaderLevel[SHADER_WINDLIGHT] ) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "windlight/atmosphericsVarsWaterF.glsl",     mShaderLevel[SHADER_WINDLIGHT] ) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "windlight/atmosphericsHelpersF.glsl",       mShaderLevel[SHADER_WINDLIGHT] ) );
-    index_channels.push_back(-1);    shaders.push_back( make_pair( "windlight/atmosphericsFuncs.glsl",       mShaderLevel[SHADER_WINDLIGHT] ) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "windlight/gammaF.glsl",                 mShaderLevel[SHADER_WINDLIGHT]) );
+    index_channels.push_back(-1);    shaders.push_back( make_pair( "windlight/atmosphericsFuncs.glsl",       mShaderLevel[SHADER_WINDLIGHT] ) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "windlight/atmosphericsF.glsl",          mShaderLevel[SHADER_WINDLIGHT] ) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "windlight/transportF.glsl",             mShaderLevel[SHADER_WINDLIGHT] ) ); 
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "environment/waterFogF.glsl",                mShaderLevel[SHADER_WATER] ) );
