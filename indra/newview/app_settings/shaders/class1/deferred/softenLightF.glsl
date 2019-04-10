@@ -166,7 +166,7 @@ vec3 post_diffuse = col.rgb;
             col = mix(col.rgb, refcol, envIntensity); 
         }
                 
-        //if (norm.w < 0.5)
+        if (norm.w < 1)
         {
             col = atmosFragLighting(col, additive, atten);
             col = scaleSoftClipFrag(col);

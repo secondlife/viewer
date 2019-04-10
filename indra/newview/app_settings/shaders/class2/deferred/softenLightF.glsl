@@ -183,7 +183,7 @@ vec3 post_diffuse = col.rgb;
             col = mix(col.rgb, refcol, envIntensity); 
         }
         
-        //if (norm.w < 0.5)
+        if (norm.w < 1)
         {
             //col = mix(atmosFragLighting(col, additive, atten), fullbrightAtmosTransportFrag(col, additive, atten), diffuse.a);
             //col = mix(scaleSoftClipFrag(col), fullbrightScaleSoftClipFrag(col, additive, atten), diffuse.a);
