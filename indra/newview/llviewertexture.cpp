@@ -1195,9 +1195,17 @@ void LLViewerFetchedTexture::loadFromFastCache()
 	}
 	mInFastCacheList = FALSE;
 
+    add(LLTextureFetch::sCacheAttempt, 1.0);
+
+    LLTimer fastCacheTimer;
 	mRawImage = LLAppViewer::getTextureCache()->readFromFastCache(getID(), mRawDiscardLevel);
 	if(mRawImage.notNull())
 	{
+        F32 cachReadTime = fastCacheTimer.getElapsedTimeF32();
+
+        add(LLTextureFetch::sCacheHit, 1.0);
+        sample(LLTextureFetch::sCacheReadLatency, cachReadTime);
+
 		mFullWidth = mRawImage->getWidth() << mRawDiscardLevel;
 		mFullHeight = mRawImage->getHeight() << mRawDiscardLevel;
 		setTexelsPerImage();

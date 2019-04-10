@@ -1605,10 +1605,6 @@ Por favor, pon en venta el objeto y vuelve a intentarlo.
 		¿Quieres abrir tu navegador para ver este contenido?
 		<usetemplate ignoretext="Abrir mi navegador para ver una página web" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
-	<notification name="SystemUIScaleFactorChanged">
-		El factor de tamaño de IU del sistema ha cambiado desde la última ejecución. ¿Deseas abrir la página de ajustes de tamaño de la IU?
-		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Aceptar"/>
-	</notification>
 	<notification name="WebLaunchJoinNow">
 		¿Ir al [http://secondlife.com/account/ Panel de Control] para administrar tu cuenta?
 		<usetemplate ignoretext="Abrir mi navegador para administrar mi cuenta" name="okcancelignore" notext="Cancelar" yestext="OK"/>
