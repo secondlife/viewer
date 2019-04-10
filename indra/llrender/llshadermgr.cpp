@@ -96,6 +96,10 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		{
 			return FALSE;
 		}
+
+        if (!shader->attachObject("windlight/atmosphericsFuncs.glsl")) {
+            return FALSE;
+        }
 	}
 		
 	if (features->calculatesLighting)
@@ -194,6 +198,10 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		{
 			return FALSE;
 		}
+
+        if (!shader->attachObject("windlight/atmosphericsFuncs.glsl")) {
+            return FALSE;
+        }
 	}
 
     // we want this BEFORE shadows and AO because those facilities use pos/norm access

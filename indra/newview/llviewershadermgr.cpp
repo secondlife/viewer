@@ -932,6 +932,7 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	shaders.push_back( make_pair( "windlight/atmosphericsVarsV.glsl",       mShaderLevel[SHADER_WINDLIGHT] ) );
 	shaders.push_back( make_pair( "windlight/atmosphericsVarsWaterV.glsl",  mShaderLevel[SHADER_WINDLIGHT] ) );
 	shaders.push_back( make_pair( "windlight/atmosphericsHelpersV.glsl",    mShaderLevel[SHADER_WINDLIGHT] ) );
+    shaders.push_back( make_pair( "windlight/atmosphericsFuncs.glsl",       mShaderLevel[SHADER_WINDLIGHT] ) );
 	shaders.push_back( make_pair( "lighting/lightFuncV.glsl",               mShaderLevel[SHADER_LIGHTING] ) );
 	shaders.push_back( make_pair( "lighting/sumLightsV.glsl",               sum_lights_class ) );
 	shaders.push_back( make_pair( "lighting/lightV.glsl",                   mShaderLevel[SHADER_LIGHTING] ) );
@@ -977,6 +978,7 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "windlight/atmosphericsVarsF.glsl",      mShaderLevel[SHADER_WINDLIGHT] ) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "windlight/atmosphericsVarsWaterF.glsl",     mShaderLevel[SHADER_WINDLIGHT] ) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "windlight/atmosphericsHelpersF.glsl",       mShaderLevel[SHADER_WINDLIGHT] ) );
+    index_channels.push_back(-1);    shaders.push_back( make_pair( "windlight/atmosphericsFuncs.glsl",       mShaderLevel[SHADER_WINDLIGHT] ) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "windlight/gammaF.glsl",                 mShaderLevel[SHADER_WINDLIGHT]) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "windlight/atmosphericsF.glsl",          mShaderLevel[SHADER_WINDLIGHT] ) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "windlight/transportF.glsl",             mShaderLevel[SHADER_WINDLIGHT] ) ); 
@@ -1006,7 +1008,7 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	index_channels.push_back(ch);    shaders.push_back( make_pair( "lighting/lightWaterAlphaMaskF.glsl",    mShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(ch);    shaders.push_back( make_pair( "lighting/lightFullbrightWaterF.glsl",   mShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(ch);    shaders.push_back( make_pair( "lighting/lightFullbrightWaterAlphaMaskF.glsl",  mShaderLevel[SHADER_LIGHTING] ) );
-	index_channels.push_back(ch);    shaders.push_back( make_pair( "lighting/lightShinyF.glsl",             mShaderLevel[SHADER_LIGHTING] ) );
+	index_channels.push_back(ch);    shaders.push_back( make_pair( "lighting/lightShinyF.glsl",             mShaderLevel[SHADER_LIGHTING] ) ); 
 	index_channels.push_back(ch);    shaders.push_back( make_pair( "lighting/lightFullbrightShinyF.glsl",   mShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(ch);    shaders.push_back( make_pair( "lighting/lightShinyWaterF.glsl",            mShaderLevel[SHADER_LIGHTING] ) );
     index_channels.push_back(ch);    shaders.push_back( make_pair( "lighting/lightFullbrightShinyWaterF.glsl", mShaderLevel[SHADER_LIGHTING] ) );
