@@ -41,7 +41,7 @@ vec4 applyWaterFogView(vec3 pos, vec4 color);
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 scaleSoftClipFrag(vec3 l);
 
-void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
+void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
 
 vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cs);
@@ -290,7 +290,7 @@ void main()
     vec3 additive;
     vec3 atten;
 
-    calcFragAtmospherics(pos.xyz, 1.0, sunlit, amblit, additive, atten);
+    calcAtmosphericVars(pos.xyz, 1.0, sunlit, amblit, additive, atten);
 
     vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 

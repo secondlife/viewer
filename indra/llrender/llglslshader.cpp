@@ -485,12 +485,27 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
     return success;
 }
 
-BOOL LLGLSLShader::attachObject(std::string object_path)
-{
-    if (LLShaderMgr::instance()->mShaderObjects.count(object_path) > 0)
+BOOL LLGLSLShader::attachVertexObject(std::string object_path) {
+    if (LLShaderMgr::instance()->mVertexShaderObjects.count(object_path) > 0)
     {
         stop_glerror();
-        glAttachObjectARB(mProgramObject, LLShaderMgr::instance()->mShaderObjects[object_path]);
+        glAttachObjectARB(mProgramObject, LLShaderMgr::instance()->mVertexShaderObjects[object_path]);
+        stop_glerror();
+        return TRUE;
+    }
+    else
+    {
+        LL_SHADER_LOADING_WARNS() << "Attempting to attach shader object: '" << object_path << "' that hasn't been compiled." << LL_ENDL;
+        return FALSE;
+    }
+}
+
+BOOL LLGLSLShader::attachFragmentObject(std::string object_path)
+{
+    if (LLShaderMgr::instance()->mFragmentShaderObjects.count(object_path) > 0)
+    {
+        stop_glerror();
+        glAttachObjectARB(mProgramObject, LLShaderMgr::instance()->mFragmentShaderObjects[object_path]);
         stop_glerror();
         return TRUE;
     }

@@ -275,7 +275,8 @@ public:
 
 public:
 	// Map of shader names to compiled
-	std::map<std::string, GLhandleARB> mShaderObjects;
+    std::map<std::string, GLhandleARB> mVertexShaderObjects;
+    std::map<std::string, GLhandleARB> mFragmentShaderObjects;
 
 	//global (reserved slot) shader parameters
 	std::vector<std::string> mReservedAttribs;

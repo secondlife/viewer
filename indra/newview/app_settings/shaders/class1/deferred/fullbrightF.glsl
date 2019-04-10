@@ -45,6 +45,9 @@ VARYING vec2 vary_texcoord0;
 vec4 applyWaterFogView(vec3 pos, vec4 color);
 #endif
 
+vec3 fullbrightAtmosTransport(vec3 light);
+vec3 fullbrightScaleSoftClip(vec3 light);
+
 #ifdef HAS_ALPHA_MASK
 uniform float minimum_alpha;
 #endif
@@ -74,6 +77,8 @@ void main()
 	color.rgb = fogged.rgb;
 	color.a   = fogged.a;
 #else
+	color.rgb = fullbrightAtmosTransport(color.rgb);
+	color.rgb = fullbrightScaleSoftClip(color.rgb);
 	color.a   = final_alpha;
 #endif
 
