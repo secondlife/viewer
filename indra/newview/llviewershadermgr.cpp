@@ -2522,6 +2522,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredWLMoonProgram.mFeatures.hasTransport = true;
         gDeferredWLMoonProgram.mFeatures.hasGamma = true;
         gDeferredWLMoonProgram.mFeatures.hasAtmospherics = true;
+        gDeferredWLMoonProgram.mFeatures.hasSrgb = true;
         gDeferredWLMoonProgram.mFeatures.isFullbright = true;
         gDeferredWLMoonProgram.mFeatures.disableTextureIndex = true;
         

@@ -685,6 +685,28 @@ void LLSettingsVOSky::applySpecial(void *ptarget)
         LLVector4 vect_c_p_d1(mSettings[SETTING_CLOUD_POS_DENSITY1]);
         vect_c_p_d1 += LLVector4(LLEnvironment::instance().getCloudScrollDelta());
         shader->uniform4fv(LLShaderMgr::CLOUD_POS_DENSITY1, 1, vect_c_p_d1.mV);
+
+        LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+
+        LLColor4 sunDiffuse = psky->getSunDiffuse();
+        LLColor4 moonDiffuse = psky->getMoonDiffuse();
+
+        F32 max_color = llmax(sunDiffuse.mV[0], sunDiffuse.mV[1], sunDiffuse.mV[2]);
+        if (max_color > 1.f)
+        {
+            sunDiffuse *= 1.f/max_color;
+        }
+        sunDiffuse.clamp();
+
+        max_color = llmax(moonDiffuse.mV[0], moonDiffuse.mV[1], moonDiffuse.mV[2]);
+        if (max_color > 1.f)
+        {
+            moonDiffuse *= 1.f/max_color;
+        }
+        moonDiffuse.clamp();
+
+        shader->uniform4fv(LLShaderMgr::SUNLIGHT_COLOR, 1, sunDiffuse.mV);
+        shader->uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, moonDiffuse.mV);
 	}
 
     F32 g = getGamma();
@@ -721,7 +743,7 @@ LLSettingsSky::parammapping_t LLSettingsVOSky::getParameterMap() const
         param_map[SETTING_CLOUD_VARIANCE] = DefaultParam(LLShaderMgr::CLOUD_VARIANCE, sky_defaults[SETTING_CLOUD_VARIANCE]);
         param_map[SETTING_GLOW] = DefaultParam(LLShaderMgr::GLOW, sky_defaults[SETTING_GLOW]);
         param_map[SETTING_MAX_Y] = DefaultParam(LLShaderMgr::MAX_Y, sky_defaults[SETTING_MAX_Y]);
-        param_map[SETTING_SUNLIGHT_COLOR] = DefaultParam(LLShaderMgr::SUNLIGHT_COLOR, sky_defaults[SETTING_SUNLIGHT_COLOR]);
+        //param_map[SETTING_SUNLIGHT_COLOR] = DefaultParam(LLShaderMgr::SUNLIGHT_COLOR, sky_defaults[SETTING_SUNLIGHT_COLOR]);
         param_map[SETTING_MOON_BRIGHTNESS] = DefaultParam(LLShaderMgr::MOON_BRIGHTNESS, sky_defaults[SETTING_MOON_BRIGHTNESS]);
         param_map[SETTING_SKY_MOISTURE_LEVEL] = DefaultParam(LLShaderMgr::MOISTURE_LEVEL, sky_defaults[SETTING_SKY_MOISTURE_LEVEL]);
         param_map[SETTING_SKY_DROPLET_RADIUS] = DefaultParam(LLShaderMgr::DROPLET_RADIUS, sky_defaults[SETTING_SKY_DROPLET_RADIUS]);
