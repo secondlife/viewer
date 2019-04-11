@@ -33,6 +33,7 @@
 #include "lleconomy.h"
 #include "llerror.h"
 #include "llfontgl.h"
+#include "material_codes.h" // LL_MCODE_MASK
 #include "llpermissionsflags.h"
 #include "llstring.h"
 #include "llvolume.h"
@@ -2261,7 +2262,29 @@ void LLPanelObject::onCopyParams(const LLSD& data)
     }
 
     // Physics
-    mParamsClipboard["physics_shape"] = objectp->getPhysicsShapeType();
+    {
+        mParamsClipboard["physics_shape"] = objectp->getPhysicsShapeType();
+        mParamsClipboard["physics_gravity"] = objectp->getPhysicsGravity();
+        mParamsClipboard["physics_friction"] = objectp->getPhysicsFriction();
+        mParamsClipboard["physics_density"] = objectp->getPhysicsDensity();
+        mParamsClipboard["physics_restitution"] = objectp->getPhysicsRestitution();
+        
+        U8 material_code = 0;
+        struct f : public LLSelectedTEGetFunctor<U8>
+        {
+            U8 get(LLViewerObject* object, S32 te)
+            {
+                return object->getMaterial();
+            }
+        } func;
+        bool material_same = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &func, material_code );
+        // This should always be true since material should be per object.
+        if (material_same)
+        {
+            mParamsClipboard["physics_material"] = material_code;
+        }
+    }
+    
 }
 
 void LLPanelObject::onPasteParams(const LLSD& data)
@@ -2335,9 +2358,43 @@ void LLPanelObject::onPasteParams(const LLSD& data)
     }
 
     // Physics
-    if (mParamsClipboard.has("physics_shape"))
     {
-        objectp->setPhysicsShapeType((U8)mParamsClipboard["physics_shape"].asInteger());
+        if (mParamsClipboard.has("physics_shape"))
+        {
+            objectp->setPhysicsShapeType((U8)mParamsClipboard["physics_shape"].asInteger());
+        }
+        if (mParamsClipboard.has("physics_material"))
+        {
+            U8 cur_material = objectp->getMaterial();
+            U8 material = (U8)mParamsClipboard["physics_material"].asInteger() | (cur_material & ~LL_MCODE_MASK);
+            objectp->setMaterial(material);
+            objectp->sendMaterialUpdate();
+        }
+        bool phys_update_flags = false;
+        if (mParamsClipboard.has("physics_gravity"))
+        {
+            objectp->setPhysicsGravity(mParamsClipboard["physics_gravity"].asReal());
+            phys_update_flags = true;
+        }
+        if (mParamsClipboard.has("physics_friction"))
+        {
+            objectp->setPhysicsFriction(mParamsClipboard["physics_friction"].asReal());
+            phys_update_flags = true;
+        }
+        if (mParamsClipboard.has("physics_density"))
+        {
+            objectp->setPhysicsDensity(mParamsClipboard["physics_density"].asReal());
+            phys_update_flags = true;
+        }
+        if (mParamsClipboard.has("physics_restitution"))
+        {
+            objectp->setPhysicsRestitution(mParamsClipboard["physics_restitution"].asReal());
+            phys_update_flags = true;
+        }
+        if (phys_update_flags)
+        {
+            objectp->updateFlags(TRUE);
+        }
     }
 
     // Parametrics
