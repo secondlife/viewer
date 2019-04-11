@@ -1901,21 +1901,8 @@ void LLViewerMediaImpl::loadURI()
 		// trim whitespace from front and back of URL - fixes EXT-5363
 		LLStringUtil::trim( mMediaURL );
 
-		// *HACK: we don't know if the URI coming in is properly escaped
-		// (the contract doesn't specify whether it is escaped or not.
-		// but LLQtWebKit expects it to be, so we do our best to encode
-		// special characters)
-		// The strings below were taken right from http://www.ietf.org/rfc/rfc1738.txt
-		// Note especially that '%' and '/' are there.
-		std::string uri = LLURI::escape(mMediaURL,
-										"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-										"0123456789"
-										"$-_.+"
-										"!*'(),"
-										"{}|\\^~[]`"
-										"<>#%"
-										";/?:@&=",
-										false);
+		// URI often comes unescaped
+		std::string uri = LLURI::escapePathAndData(mMediaURL);
         {
             // Do not log the query parts
             LLURI u(uri);

@@ -173,6 +173,19 @@ namespace
 			"-._~";
 		return s;
 	}
+	const std::string path()
+	{
+		static const std::string s =
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+			"abcdefghijklmnopqrstuvwxyz"
+			"0123456789"
+			"$-_.+"
+			"!*'(),"
+			"{}|\\^~[]`"
+			"<>#%"
+			";/?:@&=";
+		return s;
+	}
 	const std::string sub_delims()
 	{
 		static const std::string s = "!$&'()*+,;=";
@@ -187,6 +200,12 @@ namespace
 		{ return LLURI::escape(s, unreserved() + ":@!$'()*+,"); }	 // sub_delims - "&;=" + ":@"
 	std::string escapeQueryValue(const std::string& s)
 		{ return LLURI::escape(s, unreserved() + ":@!$'()*+,="); }	// sub_delims - "&;" + ":@"
+	std::string escapeUriQuery(const std::string& s)
+		{ return LLURI::escape(s, unreserved() + ":@?&$;*+=%/"); }
+	std::string escapeUriData(const std::string& s)
+		{ return LLURI::escape(s, unreserved()); }
+	std::string escapeUriPath(const std::string& s)
+		{ return LLURI::escape(s, path()); }
 }
 
 //static
@@ -200,6 +219,84 @@ std::string LLURI::escape(const std::string& str)
 		initialized = true;
 	}
 	return escape(str, default_allowed, true);
+}
+
+//static
+std::string LLURI::escapePathAndData(const std::string &str)
+{
+    std::string result;
+
+    const std::string data_marker = "data:";
+    if (str.compare(0, data_marker.length(), data_marker) == 0)
+    {
+        // This is not url, but data, data part needs to be properly escaped
+        // data part is separated by ',' from header. Minimal data uri is "data:,"
+        // See "data URI scheme"
+        size_t separator = str.find(',');
+        if (separator != std::string::npos)
+        {
+            size_t header_size = separator + 1;
+            std::string header = str.substr(0, header_size);
+            // base64 is url-safe
+            if (header.find("base64") != std::string::npos)
+            {
+                // assume url-safe data
+                result = str;
+            }
+            else
+            {
+                std::string data = str.substr(header_size, str.length() - header_size);
+
+                // Notes: File can be partially pre-escaped, that's why escaping ignores '%'
+                // It somewhat limits user from displaying strings like "%20" in text
+                // but that's how viewer worked for a while and user can double-encode it
+
+                // Header doesn't need escaping
+                result = header + escapeUriData(data);
+            }
+        }
+    }
+    else
+    {
+        // try processing it as path with query separator
+        // The query component is indicated by the first question
+        // mark("?") character and terminated by a number sign("#")
+        size_t delim_pos = str.find('?');
+        if (delim_pos == std::string::npos)
+        {
+            // alternate separator
+            delim_pos = str.find(';');
+        }
+
+        if (delim_pos != std::string::npos)
+        {
+            size_t path_size = delim_pos + 1;
+            std::string query;
+            std::string fragment;
+
+            size_t fragment_pos = str.find('#');
+            if (fragment_pos != std::string::npos)
+            {
+                query = str.substr(path_size, fragment_pos - path_size);
+                fragment = str.substr(fragment_pos);
+            }
+            else
+            {
+                query = str.substr(path_size);
+            }
+
+            std::string path = str.substr(0, path_size);
+
+            result = escapeUriPath(path) + escapeUriQuery(query) + escapeUriPath(fragment);
+        }
+    }
+
+    if (result.empty())
+    {
+        // Not a known scheme or no data part, try just escaping as Uri path
+        result = escapeUriPath(str);
+    }
+    return result;
 }
 
 LLURI::LLURI()
