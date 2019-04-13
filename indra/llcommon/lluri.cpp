@@ -203,7 +203,7 @@ namespace
 	std::string escapeUriQuery(const std::string& s)
 		{ return LLURI::escape(s, unreserved() + ":@?&$;*+=%/"); }
 	std::string escapeUriData(const std::string& s)
-		{ return LLURI::escape(s, unreserved()); }
+		{ return LLURI::escape(s, unreserved() + "%"); }
 	std::string escapeUriPath(const std::string& s)
 		{ return LLURI::escape(s, path()); }
 }
@@ -249,7 +249,8 @@ std::string LLURI::escapePathAndData(const std::string &str)
 
                 // Notes: File can be partially pre-escaped, that's why escaping ignores '%'
                 // It somewhat limits user from displaying strings like "%20" in text
-                // but that's how viewer worked for a while and user can double-encode it
+                // but that's how viewer worked for a while and user can double-escape it
+
 
                 // Header doesn't need escaping
                 result = header + escapeUriData(data);
