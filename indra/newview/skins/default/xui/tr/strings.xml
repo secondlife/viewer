@@ -2269,7 +2269,7 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 		Göğüs
 	</string>
 	<string name="ATTACH_HEAD">
-		Baş
+		Kafatası
 	</string>
 	<string name="ATTACH_LSHOULDER">
 		Sol Omuz
@@ -2290,7 +2290,7 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 		Sağ Ayak
 	</string>
 	<string name="ATTACH_BACK">
-		Geri
+		Omurga
 	</string>
 	<string name="ATTACH_PELVIS">
 		Leğen Kemiği
@@ -2320,13 +2320,13 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 		Sol Üst Kol
 	</string>
 	<string name="ATTACH_RLARM">
-		Sağ Alt Kol
+		Sağ Ön Kol
 	</string>
 	<string name="ATTACH_LUARM">
 		Sol Üst Kol
 	</string>
 	<string name="ATTACH_LLARM">
-		Sol Alt Kol
+		Sol Ön Kol
 	</string>
 	<string name="ATTACH_RHIP">
 		Sağ Kalça
@@ -2347,7 +2347,7 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 		Sol Alt Bacak
 	</string>
 	<string name="ATTACH_BELLY">
-		Göbek
+		Karın
 	</string>
 	<string name="ATTACH_LEFT_PEC">
 		Sol Göğüs

@@ -4,7 +4,7 @@
 		排行最高的腳本
 	</floater.string>
 	<floater.string name="top_scripts_text">
-		[COUNT] 個腳本共需時 [TIME] 毫秒
+		[COUNT]個腳本共需時[TIME]毫秒，耗用[MEMORY]KB
 	</floater.string>
 	<floater.string name="scripts_score_label">
 		時間

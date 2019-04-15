@@ -9,6 +9,7 @@
 		<menu_item_call label="地點…" name="Places"/>
 		<menu_item_call label="精選地點…" name="Picks"/>
 		<menu_item_call label="體驗…" name="Experiences"/>
+		<menu_item_call label="我的腳本…" name="MyScripts"/>
 		<menu_item_call label="攝影機控制…" name="Camera Controls"/>
 		<menu label="動作" name="Movement">
 			<menu_item_call label="坐下" name="Sit Down Here"/>

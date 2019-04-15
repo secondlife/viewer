@@ -1603,8 +1603,24 @@ Geben Sie das Objekt zum Verkauf frei und versuchen Sie es erneut.
 [DOWNLOAD_PATH].
 	</notification>
 	<notification name="RequiredUpdate">
-		Für die Anmeldung ist Version [VERSION] erforderlich. Diese sollte für Sie aktualisiert worden sein, was offenbar nicht geschehen ist. Bitte laden Sie die Datei unter https://secondlife.com/support/downloads/ herunter.
+		Für die Anmeldung ist Version [VERSION] erforderlich. 
+Bitte laden Sie die Datei unter https://secondlife.com/support/downloads/ herunter.
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PauseForUpdate">
+		Für die Anmeldung ist Version [VERSION] erforderlich. 
+Klicken Sie zum Herunterladen und Installieren auf OK.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OptionalUpdateReady">
+		Version [VERSION] wurde heruntergeladen und ist bereit zur Installation. 
+Klicken Sie zur Installation auf OK.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PromptOptionalUpdate">
+		Version [VERSION] wurde heruntergeladen und ist bereit zur Installation. 
+Fortfahren?
+		<usetemplate canceltext="Nicht jetzt" name="yesnocancelbuttons" notext="Überspringen" yestext="Installieren"/>
 	</notification>
 	<notification name="LoginFailedUnknown">
 		Die Anmeldung ist aus nicht bekannten Gründen leider fehlgeschlagen. Falls diese Meldung weiterhin angezeigt wird, besuchen Sie bitte die [SUPPORT_SITE].
@@ -3065,15 +3081,6 @@ Gewähren Sie dem Objekt nur dann Zugriff, wenn Sie genau verstehen, wieso ein s
 		<form name="form">
 			<button name="Grant" text="Uneingeschränkten Zugriff gewähren"/>
 			<button name="Deny" text="Verweigern"/>
-		</form>
-	</notification>
-	<notification name="UnknownScriptQuestion">
-		Die Runtime-Skript-Berechtigung, die von „&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;“ (Besitzer: „[NAME]“) angefordert wurde, wird vom Viewer nicht erkannt und kann nicht gewährt werden.
-
-Um diese Berechtigung zu gewähren, laden Sie die neueste Version des Viewers von [DOWNLOADURL] herunter.
-		<form name="form">
-			<button name="Deny" text="OK"/>
-			<button name="Mute" text="Blockieren"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">

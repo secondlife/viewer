@@ -4,7 +4,7 @@
 		Scripts les plus consommateurs
 	</floater.string>
 	<floater.string name="top_scripts_text">
-		[COUNT] scripts prenant un total de [TIME] ms
+		Scripts [COUNT] prenant un total de [TIME] ms et utilisant [MEMORY] KB
 	</floater.string>
 	<floater.string name="scripts_score_label">
 		Temps

@@ -1586,8 +1586,24 @@ Veuillez choisir un objet à vendre et réessayer.
 [DOWNLOAD_PATH].
 	</notification>
 	<notification name="RequiredUpdate">
-		La version [VERSION] est nécessaire pour vous connecter. Cette version aurait dû être mise à jour, mais visiblement, elle ne l&apos;a pas été. Veuillez télécharger la dernière version sur https://secondlife.com/support/downloads/
+		La version [VERSION] est nécessaire pour vous connecter. 
+Veuillez télécharger la dernière version sur https://secondlife.com/support/downloads/
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PauseForUpdate">
+		La version [VERSION] est nécessaire pour vous connecter. 
+Cliquez sur OK pour télécharger et installer.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OptionalUpdateReady">
+		La version [VERSION] a été téléchargée et est prête à être installée. 
+Cliquez sur OK pour installer.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PromptOptionalUpdate">
+		La version [VERSION] a été téléchargée et est prête à être installée. 
+Continuer ?
+		<usetemplate canceltext="Pas maintenant" name="yesnocancelbuttons" notext="Ignorer" yestext="Installer"/>
 	</notification>
 	<notification name="LoginFailedUnknown">
 		Désolé, la connexion a échoué pour un raison non reconnue. Si ce message persiste, veuillez consulter la page [SUPPORT_SITE].
@@ -3050,15 +3066,6 @@ N&apos;autorisez pas cet accès si vous ne comprenez pas entièrement pourquoi l
 		<form name="form">
 			<button name="Grant" text="Permettre un accès total"/>
 			<button name="Deny" text="Refuser"/>
-		</form>
-	</notification>
-	<notification name="UnknownScriptQuestion">
-		Le client ne reconnaît pas le droit de script à l&apos;exécution demandé par &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, objet appartenant à [NAME], et ne peut donc pas l&apos;accorder.
-
-Pour accorder ce droit, mettez votre client à jour pour passer à la version la plus récente, à partir de [DOWNLOADURL].
-		<form name="form">
-			<button name="Deny" text="OK"/>
-			<button name="Mute" text="Ignorer"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">

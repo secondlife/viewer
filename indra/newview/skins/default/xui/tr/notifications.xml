@@ -1589,8 +1589,24 @@ Nesneyi satılık olarak ayarlayıp tekrar deneyin.
 [DOWNLOAD_PATH].
 	</notification>
 	<notification name="RequiredUpdate">
-		Oturum açma için [VERSION] sürümü gerekli. Bu sizin için güncellenmiş olmalıydı ancak görünüşe göre güncellenmemiş. Lütfen www.secondlife.com adresinden indirin.
+		Oturum açmak için [VERSION] sürümü gerekli. 
+Lütfen https://secondlife.com/support/downloads/ adresinden indirin
 		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="PauseForUpdate">
+		Oturum açmak için [VERSION] sürümü gerekli. 
+İndirmek ve yüklemek için Tamam&apos;a tıklayın.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="OptionalUpdateReady">
+		[VERSION] sürümü indirildi ve yüklenmeye hazır. 
+Yüklemek için Tamam&apos;a tıklayın.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="PromptOptionalUpdate">
+		[VERSION] sürümü indirildi ve yüklenmeye hazır. 
+Devam edilsin mi?
+		<usetemplate canceltext="Şimdi Değil" name="yesnocancelbuttons" notext="Atla" yestext="Yükle"/>
 	</notification>
 	<notification name="LoginFailedUnknown">
 		Üzgünüz, oturum açma bilinmeyen bir nedenden dolayı başarısız oldu. Bu mesajı almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
@@ -3049,15 +3065,6 @@ Eğer hesabınıza neden erişmek istediğini tam olarak anlamıyorsanız, eriş
 		<form name="form">
 			<button name="Grant" text="Tam erişime izin ver"/>
 			<button name="Deny" text="Reddet"/>
-		</form>
-	</notification>
-	<notification name="UnknownScriptQuestion">
-		&apos;[NAME]&apos; tarafından sahip olunan bir nesne olan &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; tarafından istenen çalışma zamanı komut dosyası izni görüntüleyici tarafından tanınmadı ve verilemez.
-
-Bu izni vermek için lütfen [DOWNLOADURL] adresinden görüntüleyicinizi en son sürüme güncelleyin.
-		<form name="form">
-			<button name="Deny" text="Tamam"/>
-			<button name="Mute" text="Engelle"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">

@@ -1620,8 +1620,24 @@ SHA1 フィンガープリント： [MD5_DIGEST]
 [DOWNLOAD_PATH]
 	</notification>
 	<notification name="RequiredUpdate">
-		ログインするには、バージョン [VERSION] が必要です。このアップデートは自動的に行われるものですが、まだ実行されてないようです。https://secondlife.com/support/downloads/ からダウンロードしてください。
+		ログインするには、バージョン [VERSION] が必要です。
+https://secondlife.com/support/downloads/ からダウンロードしてください。
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PauseForUpdate">
+		ログインするには、バージョン [VERSION] が必要です。
+[OK] をクリックして、ダウンロードとインストールを開始します。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OptionalUpdateReady">
+		バージョン [VERSION] のダウンロードが完了し、インストールの準備ができました。
+[OK] をクリックして、インストールを開始します。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PromptOptionalUpdate">
+		バージョン [VERSION] のダウンロードが完了し、インストールの準備ができました。
+続けますか？
+		<usetemplate canceltext="あとで" name="yesnocancelbuttons" notext="スキップ" yestext="インストール"/>
 	</notification>
 	<notification name="LoginFailedUnknown">
 		申し訳ありませんが、不明な理由によってログインに失敗しました。このメッセージが何度も出る場合は、[SUPPORT_SITE] をご確認ください。
@@ -3096,15 +3112,6 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		<form name="form">
 			<button name="Grant" text="トータルアクセスを許可"/>
 			<button name="Deny" text="拒否"/>
-		</form>
-	</notification>
-	<notification name="UnknownScriptQuestion">
-		&apos;[NAME]&apos; が所有する &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; によってリクエストされたランタイムスクリプト権限がビューアによって認識されないため、許可できません。
-
-この権限を許可するには、ビューアを [DOWNLOADURL] からの最新バージョンにアップデートしてください。
-		<form name="form">
-			<button name="Deny" text="Ok"/>
-			<button name="Mute" text="ブロック"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
