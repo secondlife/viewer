@@ -563,11 +563,8 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 			mSaleToText->setText(getString("anyone"));
 		}
 
-		const U8* sign = (U8*)getString("price_text").c_str();
-		const U8* sqm = (U8*)getString("area_text").c_str();
-
-		mSalesPriceText->setText(llformat("%s%d ", sign, parcel->getSalePrice()));
-		mAreaText->setText(llformat("%d %s", area, sqm));
+		mSalesPriceText->setText(llformat("%s%d ", getString("price_text"), parcel->getSalePrice()));
+		mAreaText->setText(llformat("%d %s", area, getString("area_text")));
 		mTrafficText->setText(llformat("%.0f", dwell));
 
 		// Can't have more than region max tasks, regardless of parcel
@@ -575,10 +572,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 		S32 primitives = llmin(ll_round(parcel->getMaxPrimCapacity() * parcel->getParcelPrimBonus()),
 							   (S32)region->getMaxTasks());
 
-		const U8* available = (U8*)getString("available").c_str();
-		const U8* allocated = (U8*)getString("allocated").c_str();
-
-		mPrimitivesText->setText(llformat("%d %s, %d %s", primitives, available, parcel->getPrimCount(), allocated));
+		mPrimitivesText->setText(llformat("%d %s, %d %s", primitives, getString("available"), parcel->getPrimCount(), getString("allocated")));
 
 		if (parcel->getAllowOtherScripts())
 		{
