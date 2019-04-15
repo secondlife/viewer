@@ -2302,6 +2302,9 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="MarketplaceURL_Dashboard">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard</string>
 	<string name="MarketplaceURL_Imports">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/imports</string>
 	<string name="MarketplaceURL_LearnMore">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more</string>
+	<string name="InventoryPlayAnimationTooltip">Open window with Play options.</string>
+	<string name="InventoryPlayGestureTooltip">Execute selected gesture in-world.</string>
+	<string name="InventoryPlaySoundTooltip">Open window with Play options.</string>
 	<string name="InventoryOutboxNotMerchantTitle">Anyone can sell items on the Marketplace.</string>
 	<string name="InventoryOutboxNotMerchantTooltip"></string>
 	<string name="InventoryOutboxNotMerchant">
