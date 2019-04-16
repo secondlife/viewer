@@ -1260,9 +1260,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>50dd3c9ed64bd3d104781c6c3f46a40a</string>
+              <string>35ad3685c4fee012ace4cfb198875adf</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/34787/290908/googlemock-1.7.0.525801-darwin64-525801.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/35767/299620/googlemock-1.7.0.526338-darwin64-526338.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1296,9 +1296,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>73e48c0e6040b95be7c159185e837262</string>
+              <string>8ad470a6d6da799a00d8c1ef42b7be07</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/34790/290920/googlemock-1.7.0.525801-windows-525801.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/35768/299627/googlemock-1.7.0.526338-windows-526338.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1308,9 +1308,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ce53dc4d60dd1acd0055573d65ca9f20</string>
+              <string>81c24b9c59cc2ab3cdd531110710dc62</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/34788/290913/googlemock-1.7.0.525801-windows64-525801.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/35766/299614/googlemock-1.7.0.526338-windows64-526338.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
