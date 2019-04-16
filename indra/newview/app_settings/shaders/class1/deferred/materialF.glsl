@@ -327,21 +327,27 @@ vec3 post_diffuse = col.rgb;
 
     if (spec.a > 0.0) // specular reflection
     {
-        // the old infinite-sky shiny reflection
-        //
-                
-        float sa = dot(refnormpersp, light_dir.xyz);
+        vec3 npos = -normalize(pos.xyz);
 
-        vec3 dumbshiny = sunlit*shadow*(texture2D(lightFunc, vec2(sa, spec.a)).r);
-                            
-        // add the two types of shiny together
-        vec3 spec_contrib = dumbshiny * spec.rgb;
-        bloom = dot(spec_contrib, spec_contrib) / 6;
+        //vec3 ref = dot(pos+lv, norm);
+        vec3 h = normalize(light_dir.xyz+npos);
+        float nh = dot(norm.xyz, h);
+        float nv = dot(norm.xyz, npos);
+        float vh = dot(npos, h);
+        float sa = nh;
+        float fres = pow(1 - dot(h, npos), 5)*0.4+0.5;
 
-        glare = max(spec_contrib.r, spec_contrib.g);
-        glare = max(glare, spec_contrib.b);
-
-        col += spec_contrib;
+        float gtdenom = 2 * nh;
+        float gt = max(0, min(gtdenom * nv / vh, gtdenom * da / vh));
+                                
+        if (nh > 0.0)
+        {
+            float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
+            vec3 speccol = sun_contrib*scol*spec.rgb;
+            speccol = clamp(speccol, vec3(0), vec3(1));
+            bloom = dot(speccol, speccol) / 6;
+            col += speccol;
+        }
     }
 
 vec3 post_spec = col.rgb;
