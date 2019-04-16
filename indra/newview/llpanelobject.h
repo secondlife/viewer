@@ -37,6 +37,7 @@ class LLCheckBoxCtrl;
 class LLTextBox;
 class LLUICtrl;
 class LLButton;
+class LLMenuButton;
 class LLViewerObject;
 class LLComboBox;
 class LLColorSwatchCtrl;
@@ -84,6 +85,10 @@ public:
 	BOOL     		onDropSculpt(LLInventoryItem* item);
 	static void     onCommitSculptType(    LLUICtrl *ctrl, void* userdata);
 
+    bool            pasteCheckMenuItem(const LLSD& userdata);
+    void            pasteDoMenuItem(const LLSD& userdata);
+    bool            pasteEnabletMenuItem(const LLSD& userdata);
+
 protected:
 	void			getState();
 
@@ -97,6 +102,8 @@ protected:
 	void            sendSculpt();
 	
 	void 			getVolumeParams(LLVolumeParams& volume_params);
+
+    bool            canCopyTexture(LLUUID image_id);
 	
 protected:
 	// Per-object options
@@ -164,6 +171,7 @@ protected:
     LLButton        *mBtnPasteRot;
     LLButton        *mBtnCopyParams;
     LLButton        *mBtnPasteParams;
+    LLMenuButton    *mBtnPasteMenu;
 
 	LLCheckBoxCtrl	*mCheckLock;
 	LLCheckBoxCtrl	*mCheckPhysics;
@@ -196,9 +204,10 @@ protected:
     LLSD            mParamsClipboard;
     LLVolumeParams  mClipboardVolumeParams;
     BOOL            mHasParamsClipboard;
-    BOOL            mHasFlexiParam;
-    BOOL            mHasSculptParam;
-    BOOL            mHasLightParam;
+    
+    BOOL            mPasteParametric;
+    BOOL            mPastePhysics;
+    BOOL            mPasteLight;
 
 	LLPointer<LLViewerObject> mObject;
 	LLPointer<LLViewerObject> mRootObject;

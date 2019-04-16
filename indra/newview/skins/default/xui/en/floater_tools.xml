@@ -1696,25 +1696,38 @@ even though the user gets a free copy.
             </text>-->
     		<button
     		 follows="top|right"
-    		 height="16"
+    		 height="23"
     		 label="Copy"
     		 layout="topleft"
     		 left="135"
     		 name="copy_params_btn"
     		 tool_tip="Copy Parameters to Clipboard"
              top="6"
-    		 width="65">
+    		 width="53">
     		</button>
     		<button
     		 follows="top|right"
-    		 height="16"
+    		 height="23"
     		 label="Paste"
     		 layout="topleft"
-    		 left_pad="10"
+    		 left_pad="5"
     		 name="paste_params_btn"
     		 tool_tip="Paste Parameters from Clipboard"
-    		 width="65">
+    		 width="53">
     		</button>
+            <menu_button
+             menu_filename="menu_build_paste.xml"
+             follows="top|left"
+             height="23"
+             image_hover_unselected="Toolbar_Middle_Over"
+             image_overlay="OptionsMenu_Off"
+             image_selected="Toolbar_Middle_Selected"
+             image_unselected="Toolbar_Middle_Off"
+             layout="topleft"
+             left_pad="5"
+             name="patse_gear_btn"
+             tool_tip="Paste options"
+             width="31"/>
             <combo_box
              height="19"
              layout="topleft"
