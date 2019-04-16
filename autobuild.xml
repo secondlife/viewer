@@ -398,9 +398,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e84e74d155b6ae150a272f9968de635b</string>
+              <string>49828584ccd0f9be7e83a0b3aee1bad6</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/34681/289621/curl-7.54.1.525741-darwin64-525741.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/35736/299512/curl-7.54.1.526327-darwin64-526327.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -434,11 +434,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>972288a13ca35ad5d30c077f5950edd7</string>
+              <string>332d247307d457439628fa3fd881d9d9</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/34684/289628/curl-7.54.1.525741-windows-525741.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/35738/299518/curl-7.54.1.526327-windows-526327.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -448,9 +448,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a5cd32b4bb78ac510a5fcee8b3cc7ede</string>
+              <string>da2a7da2db30c5b73b75c51e7d139479</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/34686/289635/curl-7.54.1.525741-windows64-525741.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/35735/299505/curl-7.54.1.526327-windows64-526327.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
