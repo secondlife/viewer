@@ -290,7 +290,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 				{
 					mDetailTextures[i]->destroyRawImage() ;
 				}
-				LL_DEBUGS() << "cached raw data for terrain detail texture is not ready yet: " << mDetailTextures[i]->getID() << LL_ENDL;
+				LL_DEBUGS("Terrain") << "cached raw data for terrain detail texture is not ready yet: " << mDetailTextures[i]->getID() << " Discard: " << ddiscard << LL_ENDL;
 				return FALSE;
 			}
 
@@ -326,12 +326,12 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 
 	if (x_end > mWidth)
 	{
-		LL_WARNS() << "x end > width" << LL_ENDL;
+		LL_WARNS("Terrain") << "x end > width" << LL_ENDL;
 		x_end = mWidth;
 	}
 	if (y_end > mWidth)
 	{
-		LL_WARNS() << "y end > width" << LL_ENDL;
+		LL_WARNS("Terrain") << "y end > width" << LL_ENDL;
 		y_end = mWidth;
 	}
 
@@ -361,7 +361,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 	
 	if (tex_comps != st_comps)
 	{
-		LL_WARNS() << "Base texture comps != input texture comps" << LL_ENDL;
+		LL_WARNS("Terrain") << "Base texture comps != input texture comps" << LL_ENDL;
 		return FALSE;
 	}
 
