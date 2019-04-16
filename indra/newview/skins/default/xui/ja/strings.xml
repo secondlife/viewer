@@ -2270,7 +2270,7 @@ support@secondlife.com にお問い合わせください。
 		胸部
 	</string>
 	<string name="ATTACH_HEAD">
-		頭
+		頭蓋
 	</string>
 	<string name="ATTACH_LSHOULDER">
 		左肩
@@ -2291,7 +2291,7 @@ support@secondlife.com にお問い合わせください。
 		右足
 	</string>
 	<string name="ATTACH_BACK">
-		背中
+		背骨
 	</string>
 	<string name="ATTACH_PELVIS">
 		骨盤
@@ -2321,13 +2321,13 @@ support@secondlife.com にお問い合わせください。
 		右腕（上）
 	</string>
 	<string name="ATTACH_RLARM">
-		右腕（下）
+		右前腕
 	</string>
 	<string name="ATTACH_LUARM">
 		左腕（上）
 	</string>
 	<string name="ATTACH_LLARM">
-		左腕（下）
+		左前腕
 	</string>
 	<string name="ATTACH_RHIP">
 		右腰
@@ -2348,7 +2348,7 @@ support@secondlife.com にお問い合わせください。
 		左脚（下）
 	</string>
 	<string name="ATTACH_BELLY">
-		お腹
+		腹
 	</string>
 	<string name="ATTACH_LEFT_PEC">
 		左胸筋

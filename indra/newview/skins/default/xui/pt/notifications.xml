@@ -1580,8 +1580,24 @@ Por favor, ponha o objeto à venda e tente novamente.
 [DOWNLOAD_PATH]
 	</notification>
 	<notification name="RequiredUpdate">
-		Versão [VERSION] é obrigatório para efetuar login. Isto deveria ter sido atualizado por você, mas aparentemente não foi. Baixe a versão mais recente em https://secondlife.com/support/downloads/
+		Versão [VERSION] é obrigatório para efetuar login. 
+Baixe a versão mais recente em https://secondlife.com/support/downloads/
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PauseForUpdate">
+		Versão [VERSION] é obrigatório para efetuar login. 
+Clique em OK para baixar e instalar
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OptionalUpdateReady">
+		A versão [VERSION] foi baixada e está pronta para ser instalada. 
+Clique em OK para instalar
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PromptOptionalUpdate">
+		A versão [VERSION] foi baixada e está pronta para ser instalada. 
+Deseja prosseguir?
+		<usetemplate canceltext="Ainda não" name="yesnocancelbuttons" notext="Ignorar" yestext="Instalar"/>
 	</notification>
 	<notification name="LoginFailedUnknown">
 		Desculpe, motivo de falha de login desconhecido. Se você continuar a receber esta mensagem, por favor consulte o [SUPPORT_SITE].
@@ -3038,15 +3054,6 @@ Não conceda acesso se você não entender completamente por que ele deseja aces
 		<form name="form">
 			<button name="Grant" text="Permitir acesso total"/>
 			<button name="Deny" text="Negar"/>
-		</form>
-	</notification>
-	<notification name="UnknownScriptQuestion">
-		A permissão de script de tempo de execução solicitada por &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, um objeto de &apos;[NAME]&apos;, não é reconhecida pelo visualizador e não pode ser concedida.
-
-Para conceder essa permissão, atualize seu visualizador para a versão mais recente em [DOWNLOADURL].
-		<form name="form">
-			<button name="Deny" text="Ok"/>
-			<button name="Mute" text="Bloquear"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">

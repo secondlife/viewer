@@ -1,32 +1,74 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="object properties" title="オブジェクトのプロフィール">
-	<panel.string name="text deed continued">譲渡</panel.string>
-	<panel.string name="text deed">譲渡</panel.string>
-	<panel.string name="text modify info 1">このオブジェクトを修正できます</panel.string>
-	<panel.string name="text modify info 2">これらのオブジェクトを修正できます</panel.string>
-	<panel.string name="text modify info 3">このオブジェクトを修正できません</panel.string>
-	<panel.string name="text modify info 4">これらのオブジェクトを修正できません</panel.string>
-	<panel.string name="text modify info 5">地域（リージョン）の境界を越えてこのオブジェクトを修正できません</panel.string>
-	<panel.string name="text modify info 6">地域（リージョン）の境界を越えてこれらのオブジェクトを修正できません</panel.string>
-	<panel.string name="text modify warning">このオブジェクトには、パーツがリンクされています</panel.string>
-	<panel.string name="Cost Default">価格： L$</panel.string>
-	<panel.string name="Cost Total">合計価格: L$</panel.string>
-	<panel.string name="Cost Per Unit">Price Per: L$</panel.string>
-	<panel.string name="Cost Mixed">Mixed Price</panel.string>
-	<panel.string name="Sale Mixed">Mixed Sale</panel.string>
+	<panel.string name="text deed continued">
+		譲渡
+	</panel.string>
+	<panel.string name="text deed">
+		譲渡
+	</panel.string>
+	<panel.string name="text modify info 1">
+		このオブジェクトを修正できます
+	</panel.string>
+	<panel.string name="text modify info 2">
+		これらのオブジェクトを修正できます
+	</panel.string>
+	<panel.string name="text modify info 3">
+		このオブジェクトを修正できません
+	</panel.string>
+	<panel.string name="text modify info 4">
+		これらのオブジェクトを修正できません
+	</panel.string>
+	<panel.string name="text modify info 5">
+		地域（リージョン）の境界を越えてこのオブジェクトを修正できません
+	</panel.string>
+	<panel.string name="text modify info 6">
+		地域（リージョン）の境界を越えてこれらのオブジェクトを修正できません
+	</panel.string>
+	<panel.string name="text modify warning">
+		このオブジェクトには、パーツがリンクされています
+	</panel.string>
+	<panel.string name="Cost Default">
+		価格： L$
+	</panel.string>
+	<panel.string name="Cost Total">
+		合計価格: L$
+	</panel.string>
+	<panel.string name="Cost Per Unit">
+		Price Per: L$
+	</panel.string>
+	<panel.string name="Cost Mixed">
+		Mixed Price
+	</panel.string>
+	<panel.string name="Sale Mixed">
+		Mixed Sale
+	</panel.string>
 	<text name="title" value="オブジェクトのプロフィール"/>
 	<text name="where" value="（インワールド）"/>
 	<panel label="" name="properties_panel">
-		<text name="Name:">名前：</text>
-		<text name="Description:">説明：</text>
-		<text name="CreatorNameLabel">制作者：</text>
-		<text name="Owner:">所有者：</text>
-		<text name="Group_label">グループ：</text>
+		<text name="Name:">
+			名前：
+		</text>
+		<line_editor name="Object Name" tool_tip="使用できる名前の文字数は最大 63 文字までです。長いプリム名は短縮されます。名前に使用できる文字は ASCII-7 （非拡張）に含まれる印字可能な文字のみです（縦線「|」は例外）。"/>
+		<text name="Description:">
+			説明：
+		</text>
+		<line_editor name="Object Description" tool_tip="ビューワの設定で [すべてのオブジェクト上でヒントを表示] が選択されている場合、オブジェクトにマウスのポインタをかざすとそのオブジェクトの説明がポップアップ表示されます。プリムの説明は最大 127 バイトまでに制限されているため、それよりも長い文字列は切り捨てられます。"/>
+		<text name="CreatorNameLabel">
+			制作者：
+		</text>
+		<text name="Owner:">
+			所有者：
+		</text>
+		<text name="Group_label">
+			グループ：
+		</text>
 		<button name="button set group" tool_tip="このオブジェクト権限を共有するグループを選択します"/>
 		<name_box initial_value="ローディング..." name="Group Name Proxy"/>
 		<button label="譲渡" label_selected="譲渡" name="button deed" tool_tip="このアイテムを譲渡すると「次の所有者」の権限が適用されます。 グループ共有オブジェクトは、グループのオフィサーが譲渡できます。"/>
-		<text name="label click action">クリックで：</text>
-		<combo_box name="clickaction">
+		<text name="label click action">
+			クリックで：
+		</text>
+		<combo_box name="clickaction" tool_tip="マウスを 1 回左クリックすると、オブジェクトに対してアクションを起こせるようになります。各クリックアクションには、何ができるかを示す特別なカーソルがあります。クリックアクションによっては、動作要件が必要なものもあります。たとえば、[タッチ] や [支払い] にはスクリプトが必要になるなどです">
 			<combo_box.item label="触る（デフォルト）" name="Touch/grab(default)"/>
 			<combo_box.item label="オブジェクトに座る" name="Sitonobject"/>
 			<combo_box.item label="オブジェクトを買う" name="Buyobject"/>
@@ -35,37 +77,59 @@
 			<combo_box.item label="ズーム" name="Zoom"/>
 		</combo_box>
 		<panel name="perms_inv">
-			<text name="perm_modify">このオブジェクトを修正できます</text>
-			<text name="Anyone can:">全員：</text>
-			<check_box label="コピー" name="checkbox allow everyone copy"/>
-			<check_box label="移動" name="checkbox allow everyone move"/>
-			<text name="GroupLabel">グループ：</text>
+			<text name="perm_modify">
+				このオブジェクトを修正できます
+			</text>
+			<text name="Anyone can:">
+				全員：
+			</text>
+			<check_box label="コピー" name="checkbox allow everyone copy" tool_tip="オブジェクトのコピーは誰でも受け取ることができます。オブジェクトとそのオブジェクトの中身はすべて、コピーまたは譲渡できるように設定する必要があります。"/>
+			<check_box label="移動" name="checkbox allow everyone move" tool_tip="オブジェクトは誰でも動かすことができます。"/>
+			<text name="GroupLabel">
+				グループ：
+			</text>
 			<check_box label="共有" name="checkbox share with group" tool_tip="設定したグループのメンバー全員にこのオブジェクトの修正権限を与えます。 譲渡しない限り、役割制限を有効にはできません。"/>
-			<text name="NextOwnerLabel">次の所有者：</text>
-			<check_box label="修正" name="checkbox next owner can modify"/>
-			<check_box label="コピー" name="checkbox next owner can copy"/>
+			<text name="NextOwnerLabel">
+				次の所有者：
+			</text>
+			<check_box label="修正" name="checkbox next owner can modify" tool_tip="次の所有者は、アイテム名などのプロパティ内容を編集したり、このオブジェクトのサイズを変更することができます。"/>
+			<check_box label="コピー" name="checkbox next owner can copy" tool_tip="次の所有者は、このオブジェクトを無制限にコピーできます。コピーには制作者の情報が含まれ、コピー元のアイテムと違って許可などに関し制限があります。"/>
 			<check_box label="再販・プレゼント" name="checkbox next owner can transfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販できます"/>
 		</panel>
-		<check_box label="販売中" name="checkbox for sale"/>
-		<combo_box name="sale type">
+		<check_box label="販売中" name="checkbox for sale" tool_tip="このオブジェクトやオブジェクトの中身が購入できるようになるか、指定価格でインワールドにコピーできるようになります。"/>
+		<combo_box name="sale type" tool_tip="購入者がコピーを受け取るのか、コピーの中身を受け取るのか、またはアイテム自体を受け取るのかを選択してください。">
 			<combo_box.item label="コピー" name="Copy"/>
 			<combo_box.item label="中身" name="Contents"/>
 			<combo_box.item label="オリジナル" name="Original"/>
 		</combo_box>
-		<spinner label="価格： L$" name="Edit Cost"/>
+		<spinner label="価格： L$" name="Edit Cost" tool_tip="オブジェクトの価格。"/>
 		<check_box label="検索に表示" name="search_check" tool_tip="このオブジェクトを検索結果に表示します"/>
-		<text name="pathfinding_attributes_label">パスファインディング属性:</text>
-		<text name="B:">B.</text>
-		<text name="O:">O:</text>
-		<text name="G:">G:</text>
-		<text name="E:">E:</text>
-		<text name="N:">N:</text>
-		<text name="F:">F:</text>
+		<text name="pathfinding_attributes_label">
+			パスファインディング属性:
+		</text>
+		<text name="B:">
+			B.
+		</text>
+		<text name="O:">
+			O:
+		</text>
+		<text name="G:">
+			G:
+		</text>
+		<text name="E:">
+			E:
+		</text>
+		<text name="N:">
+			N:
+		</text>
+		<text name="F:">
+			F:
+		</text>
 	</panel>
 	<panel name="button_panel">
-		<button label="開く" name="open_btn"/>
-		<button label="支払う" name="pay_btn"/>
-		<button label="買う" name="buy_btn"/>
-		<button label="詳細" name="details_btn"/>
+		<button label="開く" name="open_btn" tool_tip="[オブジェクトの中身] を開いて確認します。"/>
+		<button label="支払う" name="pay_btn" tool_tip="[支払い] ウィンドウを開きます。オブジェクトでこの動作を実行するには、支払い用のスクリプトが必要です。"/>
+		<button label="買う" name="buy_btn" tool_tip="[購入] ウィンドウを開きます。オブジェクトは販売用に設定する必要があります。"/>
+		<button label="詳細" name="details_btn" tool_tip="[オブジェクトを調べる] ウィンドウを開きます。"/>
 	</panel>
 </panel>

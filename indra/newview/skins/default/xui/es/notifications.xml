@@ -1594,8 +1594,24 @@ Por favor, pon en venta el objeto y vuelve a intentarlo.
 [DOWNLOAD_PATH].
 	</notification>
 	<notification name="RequiredUpdate">
-		La versión [VERSION] es necesaria para iniciar sesión. Esto debería haber sido actualizado, pero parece que no fue así. Por favor, descarga desde https://secondlife.com/support/downloads/
+		La versión [VERSION] es necesaria para iniciar sesión. 
+Por favor, realiza la descarga desde https://secondlife.com/support/downloads/
 		<usetemplate name="okbutton" yestext="Aceptar"/>
+	</notification>
+	<notification name="PauseForUpdate">
+		La versión [VERSION] es necesaria para iniciar sesión. 
+Haz clic en OK para descargar e instalar.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OptionalUpdateReady">
+		La versión [VERSION] ha sido descargada y está lista para instalar. 
+Haz clic en OK para instalar.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PromptOptionalUpdate">
+		La versión [VERSION] ha sido descargada y está lista para instalar. 
+¿Deseas continuar?
+		<usetemplate canceltext="Ahora no" name="yesnocancelbuttons" notext="Saltear" yestext="Instalar"/>
 	</notification>
 	<notification name="LoginFailedUnknown">
 		Lo sentimos, error en el inicio de sesión, motivo desconocido. Si sigues recibiendo este mensaje, por favor, acude al [SUPPORT_SITE].
@@ -3057,15 +3073,6 @@ No autorices el acceso a tu cuenta si no conoces cuál es la razón exacta.
 		<form name="form">
 			<button name="Grant" text="Permitir acceso total"/>
 			<button name="Deny" text="Denegar"/>
-		</form>
-	</notification>
-	<notification name="UnknownScriptQuestion">
-		&apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, un objeto propiedad de &apos;[NAME]&apos;, ha solicitado un permiso de script en tiempo de ejecución que el visor no reconoce ni puede conceder.
-
-Para obtener el permiso, descárgate aquí la última versión: [DOWNLOADURL].
-		<form name="form">
-			<button name="Deny" text="Aceptar"/>
-			<button name="Mute" text="Ignorar"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">

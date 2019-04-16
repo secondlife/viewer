@@ -1583,9 +1583,23 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="RequiredUpdate">
 		必須用[VERSION]版本登入。
-本來應該已經完成更新，但看來你的尚未更新。
 請到 http://secondlife.com/support/ 下載更新版
 		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="PauseForUpdate">
+		必須用[VERSION]版本登入。
+點按「確定」開始下載並安裝。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="OptionalUpdateReady">
+		版本[VERSION]已下載，可以開始安裝。
+點按「確定」開始安裝。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="PromptOptionalUpdate">
+		版本[VERSION]已下載，可以開始安裝。
+繼續？
+		<usetemplate canceltext="暫時不要" name="yesnocancelbuttons" notext="略過" yestext="安裝"/>
 	</notification>
 	<notification name="LoginFailedUnknown">
 		抱歉，登入失敗，原因不明。
@@ -3045,15 +3059,6 @@ SHA1 指紋：[MD5_DIGEST]
 		<form name="form">
 			<button name="Grant" text="允許全權存取"/>
 			<button name="Deny" text="拒絕"/>
-		</form>
-	</notification>
-	<notification name="UnknownScriptQuestion">
-		由 &apos;[NAME]&apos; 所擁有的物件 &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; 正請求某項執行時期腳本權限，但本瀏覽器無法辨識該權限，故不允准。
-
-欲准許此權限，請從 [DOWNLOADURL] 下載並更新為最新版瀏覽器。
-		<form name="form">
-			<button name="Deny" text="確定"/>
-			<button name="Mute" text="封鎖"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">

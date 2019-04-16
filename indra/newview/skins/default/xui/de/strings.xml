@@ -2271,7 +2271,7 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich unter http://suppo
 		Brust
 	</string>
 	<string name="ATTACH_HEAD">
-		Kopf
+		Schädel
 	</string>
 	<string name="ATTACH_LSHOULDER">
 		Linke Schulter
@@ -2292,7 +2292,7 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich unter http://suppo
 		Rechter Fuß
 	</string>
 	<string name="ATTACH_BACK">
-		Hinten
+		Wirbelsäule
 	</string>
 	<string name="ATTACH_PELVIS">
 		Becken

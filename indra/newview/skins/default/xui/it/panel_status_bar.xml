@@ -1,16 +1,31 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="status">
-	<panel.string name="packet_loss_tooltip">Perdita di pacchetti</panel.string>
-	<panel.string name="bandwidth_tooltip">Larghezza di banda</panel.string>
-	<panel.string name="time">[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]</panel.string>
-	<panel.string name="timeTooltip">[weekday, datetime, slt], [day, datetime, slt] [month, datetime, slt] [year, datetime, slt]</panel.string>
-	<panel.string name="buycurrencylabel">L$ [AMT]</panel.string>
+	<panel.string name="packet_loss_tooltip">
+		Perdita di pacchetti
+	</panel.string>
+	<panel.string name="bandwidth_tooltip">
+		Larghezza di banda
+	</panel.string>
+	<panel.string name="time">
+		[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
+	</panel.string>
+	<panel.string name="timeTooltip">
+		[weekday, datetime, slt], [day, datetime, slt] [month, datetime, slt] [year, datetime, slt]
+	</panel.string>
+	<panel.string name="buycurrencylabel">
+		L$ [AMT]
+	</panel.string>
+	<panel name="menu_search_panel">
+		<search_editor label="Ricerca Menu" name="search_menu_edit" tool_tip="Digita qui il termine della tua ricerca. I risultati verranno mostrati secondo la concordanza parziale o totale con il menú."/>
+	</panel>
 	<panel left="-426" name="balance_bg" width="195">
 		<text name="balance" tool_tip="Clicca per aggiornare il tuo saldo in L$" value="L$ ??"/>
 		<button label="Acquista L$" name="buyL" tool_tip="Clicca per acquistare più L$"/>
 		<button label="Acquisti" name="goShop" tool_tip="Apri Mercato Second Life" width="75"/>
 	</panel>
-	<text name="TimeText" tool_tip="Orario attuale (Pacifico)">24:00, ora del Pacifico</text>
+	<text name="TimeText" tool_tip="Orario attuale (Pacifico)">
+		24:00, ora del Pacifico
+	</text>
 	<button name="media_toggle_btn" tool_tip="Attiva/ferma tutti i media (musica, video, pagine Web)"/>
 	<button name="volume_btn" tool_tip="Regolazione del volume globale"/>
 </panel>

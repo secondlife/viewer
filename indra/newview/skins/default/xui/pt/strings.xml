@@ -2216,7 +2216,7 @@ Se você continuar a receber essa mensagem, entre em contato com o suporte do Se
 		Peito
 	</string>
 	<string name="ATTACH_HEAD">
-		Cabeça
+		Crânio
 	</string>
 	<string name="ATTACH_LSHOULDER">
 		Ombro esquerdo
@@ -2237,7 +2237,7 @@ Se você continuar a receber essa mensagem, entre em contato com o suporte do Se
 		Pé direito
 	</string>
 	<string name="ATTACH_BACK">
-		Atrás
+		Coluna
 	</string>
 	<string name="ATTACH_PELVIS">
 		Pélvis
@@ -2294,7 +2294,7 @@ Se você continuar a receber essa mensagem, entre em contato com o suporte do Se
 		Perna esquerda
 	</string>
 	<string name="ATTACH_BELLY">
-		Barriga
+		Estômago
 	</string>
 	<string name="ATTACH_LEFT_PEC">
 		Peitorais E

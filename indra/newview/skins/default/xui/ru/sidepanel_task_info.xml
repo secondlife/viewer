@@ -1,32 +1,74 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="object properties" title="Профиль объекта">
-	<panel.string name="text deed continued">Сделка</panel.string>
-	<panel.string name="text deed">Сделка</panel.string>
-	<panel.string name="text modify info 1">Этот объект можно изменять</panel.string>
-	<panel.string name="text modify info 2">Эти объекты можно изменять</panel.string>
-	<panel.string name="text modify info 3">Этот объект нельзя изменять</panel.string>
-	<panel.string name="text modify info 4">Эти объекты нельзя изменять</panel.string>
-	<panel.string name="text modify info 5">Этот объект нельзя изменять через границу региона</panel.string>
-	<panel.string name="text modify info 6">Эти объекты нельзя изменять через границу региона</panel.string>
-	<panel.string name="text modify warning">Этот объект содержит объединенные части</panel.string>
-	<panel.string name="Cost Default">Цена: L$</panel.string>
-	<panel.string name="Cost Total">Итоговая цена: L$</panel.string>
-	<panel.string name="Cost Per Unit">Цена за: L$</panel.string>
-	<panel.string name="Cost Mixed">Смешанная цена</panel.string>
-	<panel.string name="Sale Mixed">Смешанная продажа</panel.string>
+	<panel.string name="text deed continued">
+		Сделка
+	</panel.string>
+	<panel.string name="text deed">
+		Сделка
+	</panel.string>
+	<panel.string name="text modify info 1">
+		Этот объект можно изменять
+	</panel.string>
+	<panel.string name="text modify info 2">
+		Эти объекты можно изменять
+	</panel.string>
+	<panel.string name="text modify info 3">
+		Этот объект нельзя изменять
+	</panel.string>
+	<panel.string name="text modify info 4">
+		Эти объекты нельзя изменять
+	</panel.string>
+	<panel.string name="text modify info 5">
+		Этот объект нельзя изменять через границу региона
+	</panel.string>
+	<panel.string name="text modify info 6">
+		Эти объекты нельзя изменять через границу региона
+	</panel.string>
+	<panel.string name="text modify warning">
+		Этот объект содержит объединенные части
+	</panel.string>
+	<panel.string name="Cost Default">
+		Цена: L$
+	</panel.string>
+	<panel.string name="Cost Total">
+		Итоговая цена: L$
+	</panel.string>
+	<panel.string name="Cost Per Unit">
+		Цена за: L$
+	</panel.string>
+	<panel.string name="Cost Mixed">
+		Смешанная цена
+	</panel.string>
+	<panel.string name="Sale Mixed">
+		Смешанная продажа
+	</panel.string>
 	<text name="title" value="Профиль объекта"/>
 	<text name="where" value="(в мире)"/>
 	<panel label="" name="properties_panel">
-		<text name="Name:">Название:</text>
-		<text name="Description:">Описание:</text>
-		<text name="CreatorNameLabel">Создатель:</text>
-		<text name="Owner:">Владелец:</text>
-		<text name="Group_label">Группа:</text>
+		<text name="Name:">
+			Название:
+		</text>
+		<line_editor name="Object Name" tool_tip="Название ограничено 63 символами. Более длинные имена примитива сокращаются. Имена могут состоять только из печатаемых символов, содержащихся в ASCII-7 (нерасширенном) наборе символов, за исключением вертикальной черты/линии &quot;|&quot;."/>
+		<text name="Description:">
+			Описание:
+		</text>
+		<line_editor name="Object Description" tool_tip="Когда в настройках окна просмотра выбрано &apos;Всплывающие подсказки на всех объектах&apos;, у игроков появляется всплывающее окошко с описанием объекта при наведении мыши на любой объект. Описание примитива ограничивается 127 байтами и строка со значением, превышающим этот размер, усекается."/>
+		<text name="CreatorNameLabel">
+			Создатель:
+		</text>
+		<text name="Owner:">
+			Владелец:
+		</text>
+		<text name="Group_label">
+			Группа:
+		</text>
 		<button name="button set group" tool_tip="Выберите группу для передачи ей прав доступа к объекту"/>
 		<name_box initial_value="Загрузка..." name="Group Name Proxy"/>
 		<button label="Сделка" label_selected="Сделка" name="button deed" tool_tip="В результате сделки объект передается группе, при этом права на него будут соответствовать правам следующего владельца. Переданный группе объект может передаваться должностным лицом группы."/>
-		<text name="label click action">Действие по щелчку:</text>
-		<combo_box name="clickaction">
+		<text name="label click action">
+			Действие по щелчку:
+		</text>
+		<combo_box name="clickaction" tool_tip="Взаимодействие с объектом производиться нажатием на левую кнопку мыши. При каждом клике появляется специальный курсор, указывающий на производимое действие. Некоторые клики имеют функциональные требования. Например, для Touch and Pay требуются скрипты">
 			<combo_box.item label="Коснуться (по умолчанию)" name="Touch/grab(default)"/>
 			<combo_box.item label="Сесть на объект" name="Sitonobject"/>
 			<combo_box.item label="Купить объект" name="Buyobject"/>
@@ -35,37 +77,59 @@
 			<combo_box.item label="Приблизить" name="Zoom"/>
 		</combo_box>
 		<panel name="perms_inv">
-			<text name="perm_modify">Этот объект можно изменять</text>
-			<text name="Anyone can:">Все:</text>
-			<check_box label="Копировать" name="checkbox allow everyone copy"/>
-			<check_box label="Переместить" name="checkbox allow everyone move"/>
-			<text name="GroupLabel">Группа:</text>
+			<text name="perm_modify">
+				Этот объект можно изменять
+			</text>
+			<text name="Anyone can:">
+				Все:
+			</text>
+			<check_box label="Копировать" name="checkbox allow everyone copy" tool_tip="Копию объекта может взять любой желающий. Объект и все его содержимое должны копироваться и передаваться."/>
+			<check_box label="Переместить" name="checkbox allow everyone move" tool_tip="Любой игрок может переместить объект."/>
+			<text name="GroupLabel">
+				Группа:
+			</text>
 			<check_box label="Поделиться" name="checkbox share with group" tool_tip="Позволить всем участникам выбранной группы получить установленные вам права на этот объект. Для включения ролевых ограничений необходимо произвести сделку."/>
-			<text name="NextOwnerLabel">Следующий владелец:</text>
-			<check_box label="Изменять" name="checkbox next owner can modify"/>
-			<check_box label="Копировать" name="checkbox next owner can copy"/>
+			<text name="NextOwnerLabel">
+				Следующий владелец:
+			</text>
+			<check_box label="Изменять" name="checkbox next owner can modify" tool_tip="Следующий владелец может отредактировать свойства, такие как имя отдельного предмета или масштаб этого объекта."/>
+			<check_box label="Копировать" name="checkbox next owner can copy" tool_tip="Следующий владелец может сделать неограниченное количество копий этого объекта. Копии содержат информацию о создателе и никогда не могут быть более разрешительными, чем копируемый предмет."/>
 			<check_box label="Передать" name="checkbox next owner can transfer" tool_tip="Следующий владелец может отдать или перепродать объект"/>
 		</panel>
-		<check_box label="Для продажи" name="checkbox for sale"/>
-		<combo_box name="sale type">
+		<check_box label="Для продажи" name="checkbox for sale" tool_tip="Позволяет игрокам покупать этот объект, его содержимое или копировать его в игровом мире по указанной цене."/>
+		<combo_box name="sale type" tool_tip="Выберите, получит ли покупатель копию, копию содержимого или сам предмет.">
 			<combo_box.item label="Копировать" name="Copy"/>
 			<combo_box.item label="Контент" name="Contents"/>
 			<combo_box.item label="Оригинал" name="Original"/>
 		</combo_box>
-		<spinner label="Цена: L$" name="Edit Cost"/>
+		<spinner label="Цена: L$" name="Edit Cost" tool_tip="Стоимость объекта."/>
 		<check_box label="Показать в результатах поиска" name="search_check" tool_tip="Показывать объект в результатах поиска"/>
-		<text name="pathfinding_attributes_label">Атрибуты поиска пути:</text>
-		<text name="B:">Н:</text>
-		<text name="O:">O:</text>
-		<text name="G:">G:</text>
-		<text name="E:">В:</text>
-		<text name="N:">С:</text>
-		<text name="F:">F:</text>
+		<text name="pathfinding_attributes_label">
+			Атрибуты поиска пути:
+		</text>
+		<text name="B:">
+			Н:
+		</text>
+		<text name="O:">
+			O:
+		</text>
+		<text name="G:">
+			G:
+		</text>
+		<text name="E:">
+			В:
+		</text>
+		<text name="N:">
+			С:
+		</text>
+		<text name="F:">
+			F:
+		</text>
 	</panel>
 	<panel name="button_panel">
-		<button label="Открыть" name="open_btn"/>
-		<button label="Заплатить" name="pay_btn"/>
-		<button label="Купить" name="buy_btn"/>
-		<button label="Подробности" name="details_btn"/>
+		<button label="Открыть" name="open_btn" tool_tip="Откройте для просмотра содержимого объекта."/>
+		<button label="Заплатить" name="pay_btn" tool_tip="Откройте окно Оплатить. Чтобы оплатить за объект, он должен иметь скрипт для оплаты."/>
+		<button label="Купить" name="buy_btn" tool_tip="Откройте окно Купить. Требуется, чтобы объект был выставлен на продажу."/>
+		<button label="Подробности" name="details_btn" tool_tip="Откройте окно осмотра объекта."/>
 	</panel>
 </panel>

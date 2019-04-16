@@ -1589,8 +1589,24 @@ Imposta l&apos;oggetto per la vendita e riprova.
 [DOWNLOAD_PATH].
 	</notification>
 	<notification name="RequiredUpdate">
-		É richiesta la versione [VERSION] per l’accesso. Sembra che dovresti avere la versione aggiornata, ma cosí non é. Scaricala da https://secondlife.com/support/downloads/
+		Per effettuare l&apos;accesso è richiesta la versione [VERSION]. 
+Scaricala dal sito https://secondlife.com/support/downloads/
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PauseForUpdate">
+		Per effettuare l&apos;accesso è richiesta la versione [VERSION]. 
+Fai clic su OK per scaricarla e installarla.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OptionalUpdateReady">
+		La versione [VERSION] è stata scaricata ed è pronta per essere installata. 
+Fai clic su OK per installarla.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PromptOptionalUpdate">
+		La versione [VERSION] è stata scaricata ed è pronta per essere installata. 
+Vuoi procedere?
+		<usetemplate canceltext="Non adesso" name="yesnocancelbuttons" notext="Salta" yestext="Installa"/>
 	</notification>
 	<notification name="LoginFailedUnknown">
 		Spiacenti, accesso non riuscito per ragioni sconosciute. Se continui a visualizzare questo messaggio, visita il [SUPPORT_SITE].
@@ -3053,15 +3069,6 @@ Non consentire l&apos;accesso se non comprendi perfettamente il motivo per cui d
 		<form name="form">
 			<button name="Grant" text="Consenti accesso totale"/>
 			<button name="Deny" text="Nega"/>
-		</form>
-	</notification>
-	<notification name="UnknownScriptQuestion">
-		L&apos;autorizzazione per script runtime richiesta da &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, un oggetto di proprietà di &apos;[NAME]&apos;, non è stata riconosciuta nel viewer e non può essere concessa.
-
-Per concedere questa autorizzazione è necessario che il viewer venga aggiornato alla versione più recente da [DOWNLOADURL].
-		<form name="form">
-			<button name="Deny" text="Ok"/>
-			<button name="Mute" text="Blocca"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">

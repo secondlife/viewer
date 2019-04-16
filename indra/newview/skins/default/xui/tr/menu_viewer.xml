@@ -9,6 +9,7 @@
 		<menu_item_call label="Yerler..." name="Places"/>
 		<menu_item_call label="Favoriler..." name="Picks"/>
 		<menu_item_call label="Deneyimler..." name="Experiences"/>
+		<menu_item_call label="Komut Dosyalarım..." name="MyScripts"/>
 		<menu_item_call label="Kamera Denetimleri..." name="Camera Controls"/>
 		<menu label="Hareket" name="Movement">
 			<menu_item_call label="Otur" name="Sit Down Here"/>
