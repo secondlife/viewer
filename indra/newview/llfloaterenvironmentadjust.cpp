@@ -28,6 +28,7 @@
 
 #include "llfloaterenvironmentadjust.h"
 
+#include "llnotificationsutil.h"
 #include "llslider.h"
 #include "llsliderctrl.h"
 #include "llcolorswatch.h"
@@ -53,6 +54,7 @@ namespace
     const std::string FIELD_SKY_GLOW_SIZE("glow_size");
     const std::string FIELD_SKY_STAR_BRIGHTNESS("star_brightness");
     const std::string FIELD_SKY_MOON_ROTATION("moon_rotation");
+    const std::string BTN_RESET("btn_reset");
 
     const F32 SLIDER_SCALE_SUN_AMBIENT(3.0f);
     const F32 SLIDER_SCALE_BLUE_HORIZON_DENSITY(2.0f);
@@ -93,6 +95,7 @@ BOOL LLFloaterEnvironmentAdjust::postBuild()
     getChild<LLUICtrl>(FIELD_SKY_SUN_SCALE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onSunScaleChanged(); });
 
     getChild<LLUICtrl>(FIELD_SKY_MOON_ROTATION)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoonRotationChanged(); });
+    getChild<LLUICtrl>(BTN_RESET)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onButtonReset(); });
 
     refresh();
     return TRUE;
@@ -184,6 +187,22 @@ void LLFloaterEnvironmentAdjust::captureCurrentEnvironment()
 
 }
 
+void LLFloaterEnvironmentAdjust::onButtonReset()
+{
+    LLNotificationsUtil::add("PersonalSettingsConfirmReset", LLSD(), LLSD(),
+        [this](const LLSD&notif, const LLSD&resp)
+    {
+        S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
+        if (opt == 0)
+        {
+            this->closeFloater();
+            LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_LOCAL);
+            LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+            LLEnvironment::instance().updateEnvironment();
+        }
+    }); 
+
+}
 //-------------------------------------------------------------------------
 void LLFloaterEnvironmentAdjust::onAmbientLightChanged()
 {

@@ -5,14 +5,14 @@
          save_rect="false"
          title="Personal Lighting"
          width="845"
-         height="225"
+         height="230"
          min_width="500"
          min_height="225"
          single_instance="true"
          can_resize="false">
     <layout_stack name="outer_stack"
                   width="845"
-                  height="212"
+                  height="220"
                   follows="all"
                   animate="false"
                   top="0"
@@ -84,6 +84,16 @@
                                   name="blue_density"
                                   top_pad="5"
                                   width="60"/>
+                    <button
+                      follows="left|top"
+                      height="23"
+                      label="Reset"
+                      tool_tip="Close and reset to Shared Environment"
+                      layout="topleft"
+                      name="btn_reset"
+                      left_delta="-2"
+                      top_pad="10"
+                      width="100"/>
                     <text follows="right|top"
                           height="10"
                           layout="topleft"
