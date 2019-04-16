@@ -563,8 +563,8 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 			mSaleToText->setText(getString("anyone"));
 		}
 
-		mSalesPriceText->setText(llformat("%s%d ", getString("price_text"), parcel->getSalePrice()));
-		mAreaText->setText(llformat("%d %s", area, getString("area_text")));
+		mSalesPriceText->setText(llformat("%s%d ", getString("price_text").c_str(), parcel->getSalePrice()));
+		mAreaText->setText(llformat("%d %s", area, getString("area_text").c_str()));
 		mTrafficText->setText(llformat("%.0f", dwell));
 
 		// Can't have more than region max tasks, regardless of parcel
@@ -572,7 +572,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 		S32 primitives = llmin(ll_round(parcel->getMaxPrimCapacity() * parcel->getParcelPrimBonus()),
 							   (S32)region->getMaxTasks());
 
-		mPrimitivesText->setText(llformat("%d %s, %d %s", primitives, getString("available"), parcel->getPrimCount(), getString("allocated")));
+		mPrimitivesText->setText(llformat("%d %s, %d %s", primitives, getString("available").c_str(), parcel->getPrimCount(), getString("allocated").c_str()));
 
 		if (parcel->getAllowOtherScripts())
 		{
