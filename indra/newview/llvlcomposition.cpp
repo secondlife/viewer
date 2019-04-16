@@ -99,6 +99,8 @@ void LLVLComposition::setDetailTextureID(S32 corner, const LLUUID& id)
 	{
 		return;
 	}
+	// This is terrain texture, but we are not setting it as BOOST_TERRAIN
+	// since we will be manipulating it later as needed.
 	mDetailTextures[corner] = LLViewerTextureManager::getFetchedTexture(id);
 	mDetailTextures[corner]->setNoDelete() ;
 	mRawImages[corner] = NULL;
@@ -241,6 +243,7 @@ BOOL LLVLComposition::generateComposition()
 			}
 			mDetailTextures[i]->setBoostLevel(LLGLTexture::BOOST_TERRAIN); // in case we are at low detail
 			mDetailTextures[i]->setMinDiscardLevel(ddiscard);
+			mDetailTextures[i]->addTextureStats(BASE_SIZE*BASE_SIZE); // priority
 			return FALSE;
 		}
 	}
