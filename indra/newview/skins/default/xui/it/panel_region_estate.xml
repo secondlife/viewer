@@ -16,7 +16,7 @@
 		(sconosciuto)
 	</text>
 	<radio_group name="externally_visible_radio">
-		<radio_item label="Consenti solo residenti e gruppi elencati qui sotto" name="estate_restricted_access"/>
+		<radio_item label="Consenti accesso solo ai residenti e ai gruppi elencati nella scheda di Accesso" name="estate_restricted_access"/>
 		<radio_item label="Chiunque può visitare" name="estate_public_access"/>
 	</radio_group>
 	<check_box label="È necessario avere più di 18 anni" name="limit_age_verified" tool_tip="Per poter visitare questa proprietà immobiliare i Residenti devono avere almeno 18 anni. Vedi [SUPPORT_SITE] per maggiori informazioni."/>
