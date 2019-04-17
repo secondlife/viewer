@@ -201,6 +201,7 @@
 				<combo_box.item label="支付物件" name="Payobject"/>
 				<combo_box.item label="打開" name="Open"/>
 				<combo_box.item label="縮放" name="Zoom"/>
+				<combo_box.item label="無" name="None"/>
 			</combo_box>
 			<check_box label="出售中：" name="checkbox for sale"/>
 			<spinner label="L$" name="Edit Cost"/>

@@ -16288,6 +16288,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>ResetUIScaleOnFirstRun</key>
+    <map>
+      <key>Comment</key>
+      <string>Resets the UI scale factor on first run due to changed display scaling behavior</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>        
+    </map>
 </map>
 </llsd>
 

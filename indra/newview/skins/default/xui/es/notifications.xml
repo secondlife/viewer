@@ -1574,6 +1574,30 @@ Se superan en [NUM_EXCESS] los [MAX_AGENTS] permitidos en [LIST_TYPE].
 	<notification name="ProblemAddingEstateManagerBanned">
 		No se puede añadir un residente expulsado a la lista de administradores de estado.
 	</notification>
+	<notification name="ProblemBanningEstateManager">
+		No fue posible agregar al administrador de estado [AGENT] a la lista de prohibidos.
+	</notification>
+	<notification name="GroupIsAlreadyInList">
+		&lt;nolink&gt;[GROUP]&lt;/nolink&gt; ya está en la lista de Grupos autorizados.
+	</notification>
+	<notification name="AgentIsAlreadyInList">
+		[AGENT] ya está en tu lista [LIST_TYPE].
+	</notification>
+	<notification name="AgentsAreAlreadyInList">
+		[AGENT] ya está en tu lista [LIST_TYPE].
+	</notification>
+	<notification name="AgentWasAddedToList">
+		[AGENT] fue añadido a la lista [LIST_TYPE] de [ESTATE].
+	</notification>
+	<notification name="AgentsWereAddedToList">
+		[AGENT] fueron añadidos a la lista [LIST_TYPE] de [ESTATE].
+	</notification>
+	<notification name="AgentWasRemovedFromList">
+		[AGENT] fue eliminado de la lista [LIST_TYPE] de [ESTATE].
+	</notification>
+	<notification name="AgentsWereRemovedFromList">
+		[AGENT] fueron eliminados de la lista [LIST_TYPE] de [ESTATE].
+	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		No puedes cambiar la apariencia hasta que no se carguen la ropa y la forma.
 	</notification>
@@ -1876,7 +1900,7 @@ Se cambiarán miles de regiones, y se provocará un colapso en el espacio del se
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Todos los estados" yestext="Este estado"/>
 	</notification>
 	<notification label="Seleccionar el estado" name="EstateBannedAgentRemove">
-		¿Quitar de la lista de prohibición de acceso a este residente para que acceda sólo a este estado o a [ALL_ESTATES]?
+		¿Quitar a este Residente de la lista de acceso prohibido para este estado únicamente o para [ALL_ESTATES]?
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Todos los estados" yestext="Este estado"/>
 	</notification>
 	<notification label="Seleccionar el estado" name="EstateManagerAdd">
@@ -3160,16 +3184,22 @@ Pulsa Aceptar o Rehusar para coger o no la llamada. Pulsa Ignorar para ignorar a
 		Fallo al conectar a [VOICE_CHANNEL_NAME]; por favor, inténtalo más tarde.  Vas a ser reconectado al chat de voz.
 	</notification>
 	<notification name="VoiceEffectsExpired">
-		Una o más de las transformaciones de voz a las que estás suscrito han caducado.
-[Pulsa aquí [URL]] para renovar la suscripción.
+		Una o más de las transformaciones de voz a las que estás suscrito han caducado. 
+[[URL] Pulsa aquí] para renovar la suscripción. 
+
+Si eres un miembro Premium [[PREMIUM_URL] pulsa aquí] para recibir tu beneficio de transformación de voz.
 	</notification>
 	<notification name="VoiceEffectsExpiredInUse">
-		La transformación de voz activa ha caducado y se ha aplicado tu configuración de voz normal.
-[Pulsa aquí [URL]] para renovar la suscripción.
+		La transformación de voz activa ha caducado y se ha aplicado tu configuración de voz normal. 
+[[URL] Pulsa aquí] para renovar la suscripción. 
+
+Si eres un miembro Premium [[PREMIUM_URL] pulsa aquí] para recibir tu beneficio de transformación de voz.
 	</notification>
 	<notification name="VoiceEffectsWillExpire">
-		Una o más de tus transformaciones de voz caducarán en menos de [INTERVAL] días.
-[Pulsa aquí [URL]] para renovar la suscripción.
+		Una o más de tus transformaciones de voz caducarán en menos de [INTERVAL] días. 
+[[URL] Pulsa aquí] para renovar la suscripción 
+
+Si eres un miembro Premium [[PREMIUM_URL] pulsa aquí] para recibir tu beneficio de transformación de voz.
 	</notification>
 	<notification name="VoiceEffectsNew">
 		Están disponibles nuevas transformaciones de voz.
@@ -3220,6 +3250,9 @@ Por tu seguridad, serán bloqueadas durante unos segundos.
 	</notification>
 	<notification name="SnapshotToComputerFailed">
 		Error al guardar la foto en [PATH]: Disco lleno. Se requieren [NEED_MEMORY]KB pero solo hay [FREE_MEMORY]KB libres.
+	</notification>
+	<notification name="SnapshotToLocalDirNotExist">
+		Error al guardar la foto en [PATH]: El directorio no existe.
 	</notification>
 	<notification name="PresetNotSaved">
 		Error al guardar el valor predefinido [NAME].
