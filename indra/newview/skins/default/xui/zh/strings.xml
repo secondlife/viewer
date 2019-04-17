@@ -2222,6 +2222,18 @@ http://secondlife.com/support 求助解決問題。
 	<string name="RegionInfoListTypeBannedAgents">
 		永遠封鎖
 	</string>
+	<string name="RegionInfoAllEstates">
+		全部領地
+	</string>
+	<string name="RegionInfoManagedEstates">
+		受管領地
+	</string>
+	<string name="RegionInfoThisEstate">
+		這個領地
+	</string>
+	<string name="AndNMore">
+		及其他[EXTRA_COUNT]個
+	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		地段腳本記憶體
 	</string>

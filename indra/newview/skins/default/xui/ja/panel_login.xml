@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <panel name="panel_login">
-	<panel.string name="forgot_password_url">http://secondlife.com/account/request.php?lang=ja</panel.string>
+	<panel.string name="forgot_password_url">
+		http://secondlife.com/account/request.php?lang=ja
+	</panel.string>
+	<panel.string name="sign_up_url">
+		https://join.secondlife.com/
+	</panel.string>
 	<layout_stack name="ui_stack">
 		<layout_panel name="ui_container">
 			<combo_box label="ユーザー名" name="username_combo" tool_tip="登録時に自分で選んだユーザー名（例：bobsmith12、Steller Sunshineなど）"/>
@@ -11,8 +16,13 @@
 			</combo_box>
 			<button label="ログイン" name="connect_btn"/>
 			<check_box label="記憶する" name="remember_check"/>
-			<text name="forgot_password_text">パスワードを忘れた場合</text>
+			<text name="forgot_password_text">
+				パスワードを忘れた場合
+			</text>
 			<combo_box label="グリッドを選択" name="server_combo"/>
+			<text name="sign_up_text">
+				登録
+			</text>
 		</layout_panel>
 	</layout_stack>
 </panel>
