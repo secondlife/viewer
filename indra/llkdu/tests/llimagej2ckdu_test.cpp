@@ -142,7 +142,11 @@ void kdu_resolution::get_dims(kdu_dims& ) { }
 int kdu_resolution::which() { return 0; }
 int kdu_resolution::get_valid_band_indices(int &) { return 1; }
 kdu_synthesis::kdu_synthesis(kdu_resolution, kdu_sample_allocator*, bool, float, kdu_thread_env*, kdu_thread_queue*) { }
-kdu_params::kdu_params(const char*, bool, bool, bool, bool, bool) { }
+kdu_params::kdu_params(const char *, bool,
+                 bool,
+                 bool,
+                 bool,
+                 bool) {}
 kdu_params::~kdu_params() { }
 void kdu_params::set(const char* , int , int , bool ) { }
 void kdu_params::set(const char* , int , int , int ) { }
@@ -154,7 +158,6 @@ bool kdu_params::get(const char*, int, int, bool&, bool, bool, bool) { return fa
 bool kdu_params::get(const char*, int, int, float&, bool, bool, bool) { return false; }
 bool kdu_params::get(const char*, int, int, int&, bool, bool, bool) { return false; }
 void kdu_params::destroy() {}
-siz_params::siz_params() : kdu_params("",false, false, false, false, false){}
 kdu_params* kdu_params::access_relation(int, int, int, bool) { return NULL; }
 kdu_params* kdu_params::access_cluster(const char*) { return NULL; }
 void kdu_codestream::set_fast() { }
@@ -209,7 +212,7 @@ kdu_long kdu_multi_analysis::create(
     const kdu_push_pull_params*,
     kdu_membroker*) { return kdu_long(0); }
 void kdu_multi_analysis::destroy(kdu_thread_env *) {}
-siz_params::siz_params(kd_core_local::kd_coremem*) : kdu_params(NULL, false, false, false, false, false) { }
+siz_params::siz_params() : kdu_params(NULL, false, false, false, false, false) { }
 siz_params::~siz_params() {}
 void siz_params::finalize(bool ) { }
 void siz_params::copy_with_xforms(kdu_params*, int, int, bool, bool, bool) { }
