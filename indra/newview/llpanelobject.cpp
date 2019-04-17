@@ -2050,19 +2050,17 @@ void LLPanelObject::onCommitSculptType(LLUICtrl *ctrl, void* userdata)
 	self->sendSculpt();
 }
 
-void copy_vector_to_clipboard(const LLVector3& vec)
-{
-    std::string stringVec = llformat("<%g, %g, %g>", vec.mV[VX], vec.mV[VY], vec.mV[VZ]);
-	LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(stringVec));
-}
-
 void LLPanelObject::onCopyPos(const LLSD& data)
 {
-	mClipboardPos = LLVector3(mCtrlPosX->get(), mCtrlPosY->get(), mCtrlPosZ->get());
+    mClipboardPos = LLVector3(mCtrlPosX->get(), mCtrlPosY->get(), mCtrlPosZ->get());
 
-    copy_vector_to_clipboard(mClipboardPos);
+    std::string stringVec = llformat("<%g, %g, %g>", mClipboardPos.mV[VX], mClipboardPos.mV[VY], mClipboardPos.mV[VZ]);
+    LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(stringVec));
 
-    mBtnPastePos->setToolTip(llformat("Paste Position\n<%g, %g, %g>", mClipboardPos.mV[VX], mClipboardPos.mV[VY], mClipboardPos.mV[VZ]));
+    LLStringUtil::format_map_t args;
+    args["VALUE"] = stringVec;
+    mBtnPastePos->setToolTip(getString("paste_position", args));
+
     mBtnPastePos->setEnabled(TRUE);
 
     mHasPosClipboard = TRUE;
@@ -2070,11 +2068,15 @@ void LLPanelObject::onCopyPos(const LLSD& data)
 
 void LLPanelObject::onCopySize(const LLSD& data)
 {
-	mClipboardSize = LLVector3(mCtrlScaleX->get(), mCtrlScaleY->get(), mCtrlScaleZ->get());
+    mClipboardSize = LLVector3(mCtrlScaleX->get(), mCtrlScaleY->get(), mCtrlScaleZ->get());
 
-    copy_vector_to_clipboard(mClipboardSize);
+    std::string stringVec = llformat("<%g, %g, %g>", mClipboardSize.mV[VX], mClipboardSize.mV[VY], mClipboardSize.mV[VZ]);
+    LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(stringVec));
 
-    mBtnPasteSize->setToolTip(llformat("Paste Size\n<%g, %g, %g>", mClipboardSize.mV[VX], mClipboardSize.mV[VY], mClipboardSize.mV[VZ]));
+    LLStringUtil::format_map_t args;
+    args["VALUE"] = stringVec;
+    mBtnPasteSize->setToolTip(getString("paste_size", args));
+
     mBtnPasteSize->setEnabled(TRUE);
 
     mHasSizeClipboard = TRUE;
@@ -2082,11 +2084,15 @@ void LLPanelObject::onCopySize(const LLSD& data)
 
 void LLPanelObject::onCopyRot(const LLSD& data)
 {
-	mClipboardRot = LLVector3(mCtrlRotX->get(), mCtrlRotY->get(), mCtrlRotZ->get());
+    mClipboardRot = LLVector3(mCtrlRotX->get(), mCtrlRotY->get(), mCtrlRotZ->get());
 
-    copy_vector_to_clipboard(mClipboardRot);
+    std::string stringVec = llformat("<%g, %g, %g>", mClipboardRot.mV[VX], mClipboardRot.mV[VY], mClipboardRot.mV[VZ]);
+    LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(stringVec));
 
-    mBtnPasteRot->setToolTip(llformat("Paste Rotation\n<%g, %g, %g>", mClipboardRot.mV[VX], mClipboardRot.mV[VY], mClipboardRot.mV[VZ]));
+    LLStringUtil::format_map_t args;
+    args["VALUE"] = stringVec;
+    mBtnPasteRot->setToolTip(getString("paste_rotation", args));
+
     mBtnPasteRot->setEnabled(TRUE);
 
     mHasRotClipboard = TRUE;
@@ -2221,8 +2227,6 @@ void LLPanelObject::onCopyParams(const LLSD& data)
             }
         }
     }
-    
-    
 
     // Physics
     {
@@ -2373,7 +2377,7 @@ void LLPanelObject::onPasteParams(const LLSD& data)
 
 bool LLPanelObject::pasteCheckMenuItem(const LLSD& userdata)
 {
-	std::string command = userdata.asString();
+    std::string command = userdata.asString();
 
     if ("Parametric" == command)
     {
@@ -2388,12 +2392,12 @@ bool LLPanelObject::pasteCheckMenuItem(const LLSD& userdata)
         return mPasteLight;
     }
 
-	return false;
+    return false;
 }
 
 void LLPanelObject::pasteDoMenuItem(const LLSD& userdata)
 {
-	std::string command = userdata.asString();
+    std::string command = userdata.asString();
 
     if ("Parametric" == command)
     {
@@ -2411,7 +2415,7 @@ void LLPanelObject::pasteDoMenuItem(const LLSD& userdata)
 
 bool LLPanelObject::pasteEnabletMenuItem(const LLSD& userdata)
 {
-	std::string command = userdata.asString();
+    std::string command = userdata.asString();
 
     // Keep at least one option enabled
     if (mPasteParametric + mPastePhysics + mPasteLight == 1)
@@ -2457,7 +2461,6 @@ bool LLPanelObject::canCopyTexture(LLUUID image_id)
                                     items,
                                     LLInventoryModel::INCLUDE_TRASH,
                                     asset_id_matches);
-
     if (items.size())
     {
         // search for copyable version first
@@ -2465,30 +2468,12 @@ bool LLPanelObject::canCopyTexture(LLUUID image_id)
         {
             LLInventoryItem* itemp = items[i];
             LLPermissions item_permissions = itemp->getPermissions();
-            // if (item_permissions.allowCopyBy(gAgent.getID(), gAgent.getGroupID()))
             if (item_permissions.allowCopyBy(gAgent.getID()))
             {
-                // inventory_item_id = itemp->getUUID();
-                // break;
                 return true;
             }
         }
     }
-
-    // if (inventory_item_id.notNull())
-    // {
-        // LLInventoryItem* itemp = gInventory.getItem(inventory_item_id);
-        // if (itemp)
-        // {
-            // if (itemp && !itemp->getPermissions().allowCopyBy(gAgent.getID()))
-            // // LLPermissions perm = itemp->getPermissions();
-            // // if ((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED)
-            // {
-                // // User has full perm copy of texture
-                // return true;
-            // }
-        // }
-    // }
 
     return false;
 }
