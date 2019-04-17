@@ -2664,6 +2664,10 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="RegionInfoBannedResidents">Always banned: ([BANNEDAGENTS], max [MAXBANNED])</string>
 	<string name="RegionInfoListTypeAllowedAgents">Always allowed</string>
 	<string name="RegionInfoListTypeBannedAgents">Always banned</string>
+	<string name="RegionInfoAllEstates">all estates</string>
+	<string name="RegionInfoManagedEstates">managed estates</string>
+	<string name="RegionInfoThisEstate">this estate</string>
+	<string name="AndNMore">and [EXTRA_COUNT] more</string>
 
 	<!-- script limits floater -->
 	<string name="ScriptLimitsParcelScriptMemory">Parcel Script Memory</string>

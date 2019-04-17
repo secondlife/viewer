@@ -206,6 +206,7 @@
 				<combo_box.item label="オブジェクトに支払う" name="Payobject"/>
 				<combo_box.item label="開く" name="Open"/>
 				<combo_box.item label="ズームする" name="Zoom"/>
+				<combo_box.item label="なし" name="None"/>
 			</combo_box>
 			<check_box label="販売対象：" name="checkbox for sale" tool_tip="このオブジェクトやオブジェクトの中身が購入できるようになるか、指定価格でインワールドにコピーできるようになります。"/>
 			<spinner label="L$" name="Edit Cost" tool_tip="オブジェクトの価格。"/>

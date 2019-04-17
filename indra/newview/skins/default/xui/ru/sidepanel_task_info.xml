@@ -75,6 +75,7 @@
 			<combo_box.item label="Заплатить за объект" name="Payobject"/>
 			<combo_box.item label="Открыть" name="Open"/>
 			<combo_box.item label="Приблизить" name="Zoom"/>
+			<combo_box.item label="Нет" name="None"/>
 		</combo_box>
 		<panel name="perms_inv">
 			<text name="perm_modify">

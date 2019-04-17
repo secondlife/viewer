@@ -203,6 +203,7 @@
 				<combo_box.item label="支付物件" name="Payobject"/>
 				<combo_box.item label="打開" name="Open"/>
 				<combo_box.item label="縮放" name="Zoom"/>
+				<combo_box.item label="無" name="None"/>
 			</combo_box>
 			<check_box label="出售中：" name="checkbox for sale" tool_tip="允許別人在虛擬世界裡以特定的價格購買此物件、其內容或其複本。"/>
 			<spinner label="L$" name="Edit Cost" tool_tip="物件成本。"/>
