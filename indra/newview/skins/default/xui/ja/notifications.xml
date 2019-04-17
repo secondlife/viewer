@@ -1599,6 +1599,30 @@ SHA1 フィンガープリント： [MD5_DIGEST]
 	<notification name="ProblemAddingEstateManagerBanned">
 		追放された住人を不動産管理者リストに追加できません。
 	</notification>
+	<notification name="ProblemBanningEstateManager">
+		禁止リストに不動産マネージャー [AGENT] を追加できません。
+	</notification>
+	<notification name="GroupIsAlreadyInList">
+		&lt;nolink&gt;[GROUP]&lt;/nolink&gt; はすでに許可されたグループのリストに追加されています。
+	</notification>
+	<notification name="AgentIsAlreadyInList">
+		[AGENT] はすでにあなたの [LIST_TYPE] リストに追加されています。
+	</notification>
+	<notification name="AgentsAreAlreadyInList">
+		[AGENT] はすでにあなたの [LIST_TYPE] リストに追加されています。
+	</notification>
+	<notification name="AgentWasAddedToList">
+		[AGENT] が [ESTATE] の [LIST_TYPE] リストに追加されました。
+	</notification>
+	<notification name="AgentsWereAddedToList">
+		[AGENT] が [ESTATE] の [LIST_TYPE] リストに追加されました。
+	</notification>
+	<notification name="AgentWasRemovedFromList">
+		[AGENT] が [ESTATE] の [LIST_TYPE] リストから削除されました。
+	</notification>
+	<notification name="AgentsWereRemovedFromList">
+		[AGENT] が [ESTATE] の [LIST_TYPE] リストから削除されました。
+	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		衣類およびシェイプが読み込まれるまでは、容姿の変更はできません。
 	</notification>
@@ -1903,7 +1927,7 @@ http://wiki.secondlife.com/wiki/Setting_your_display_name を参照してくだ�
 		<usetemplate canceltext="取り消し" name="yesnocancelbuttons" notext="すべての不動産" yestext="この不動産"/>
 	</notification>
 	<notification label="不動産を選択" name="EstateBannedAgentRemove">
-		この住人が、この不動産限定、または [ALL_ESTATES] にアクセスできるように、禁止リストから削除しますか？
+		この住人をこの不動産の立入禁止リストからのみ削除しますか？それとも [ALL_ESTATES] の立入禁止リストから削除しますか？
 		<usetemplate canceltext="取り消し" name="yesnocancelbuttons" notext="すべての不動産" yestext="この不動産"/>
 	</notification>
 	<notification label="不動産を選択" name="EstateManagerAdd">
@@ -3205,13 +3229,22 @@ M キーを押して変更します。
 		[VOICE_CHANNEL_NAME] への接続に失敗しました。あとで再度お試しください。  「近くのボイスチャット」に再接続されます。
 	</notification>
 	<notification name="VoiceEffectsExpired">
-		ボイスモーフィング効果の1つまたは複数の有効期限が終了しました。期限を延長・更新するには[[URL]こちらをクリック]してください。
+		ボイスモーフィング効果の1つまたは複数の有効期限が終了しました。
+期限を延長・更新するには [[URL] Click here] をクリックしてください。
+
+プレミアム会員の方は、 [[PREMIUM_URL] click here] をクリックしてボイスモーフィング特典をお受け取りください。
 	</notification>
 	<notification name="VoiceEffectsExpiredInUse">
-		ボイスモーフィング効果の有効期限が終了したため、あなたの通常のボイス設定が適用されました。期限を延長・更新するには[[URL]こちらをクリック]してください。
+		ボイスモーフィング効果の有効期限が終了したため、あなたの通常のボイス設定が適用されました。
+期限を延長・更新するには [[URL] Click here] をクリックしてください。
+
+プレミアム会員の方は、 [[PREMIUM_URL] click here] をクリックしてボイスモーフィング特典をお受け取りください。
 	</notification>
 	<notification name="VoiceEffectsWillExpire">
-		ボイスモーフィング効果の1つまたは複数の有効期限が[INTERVAL]日以内に終了します。期限を延長・更新するには[[URL]こちらをクリック]してください。
+		ボイスモーフィング効果の1つまたは複数の有効期限が [INTERVAL] 日以内に終了します。
+期限を延長・更新するには [[URL] Click here] をクリックしてください。
+
+プレミアム会員の方は、 [[PREMIUM_URL] click here] をクリックしてボイスモーフィング特典をお受け取りください。
 	</notification>
 	<notification name="VoiceEffectsNew">
 		新しいボイスモーフィング効果が登場！
@@ -3262,6 +3295,9 @@ M キーを押して変更します。
 	</notification>
 	<notification name="SnapshotToComputerFailed">
 		スナップショットを [PATH] に保存できませんでした:ディスクの空き容量が不足しています。[NEED_MEMORY]KB が必要ですが、[FREE_MEMORY]KB しかありません。
+	</notification>
+	<notification name="SnapshotToLocalDirNotExist">
+		スナップショットを [PATH] に保存できませんでした:ディレクトリは存在しません。
 	</notification>
 	<notification name="PresetNotSaved">
 		プリセット [NAME] の保存エラー。

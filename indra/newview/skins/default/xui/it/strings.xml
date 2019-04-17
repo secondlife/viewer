@@ -2213,6 +2213,18 @@ Se continui a ricevere questo messaggio, contatta l&apos;assistenza Second Life 
 	<string name="RegionInfoListTypeBannedAgents">
 		Sempre esclusi:
 	</string>
+	<string name="RegionInfoAllEstates">
+		tutte le proprietà immobiliari
+	</string>
+	<string name="RegionInfoManagedEstates">
+		proprietà immobiliari che gestisci
+	</string>
+	<string name="RegionInfoThisEstate">
+		questa proprietà immobiliare
+	</string>
+	<string name="AndNMore">
+		e [EXTRA_COUNT] ancora
+	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Memoria dello script del lotto
 	</string>
