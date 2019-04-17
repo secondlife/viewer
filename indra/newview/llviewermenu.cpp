@@ -9205,7 +9205,6 @@ void initialize_menus()
 	enable.add("Object.EnableSit", boost::bind(&enable_object_sit, _1));
 
 	view_listener_t::addMenu(new LLObjectEnableReturn(), "Object.EnableReturn");
-	enable.add("Object.EnableDuplicate", boost::bind(&LLSelectMgr::canDuplicate, LLSelectMgr::getInstance()));
 	view_listener_t::addMenu(new LLObjectEnableReportAbuse(), "Object.EnableReportAbuse");
 
 	enable.add("Avatar.EnableMute", boost::bind(&enable_object_mute));

@@ -3891,6 +3891,17 @@ void LLSelectMgr::selectDuplicate(const LLVector3& offset, BOOL select_copy)
 		make_ui_sound("UISndInvalidOp");
 		return;
 	}
+	if (!canDuplicate())
+	{
+		LLSelectNode* node = getSelection()->getFirstRootNode(NULL, true);
+		if (node)
+		{
+			LLSD args;
+			args["OBJ_NAME"] = node->mName;
+			LLNotificationsUtil::add("NoCopyPermsNoObject", args);
+			return;
+		}
+	}
 	LLDuplicateData	data;
 
 	data.offset = offset;
