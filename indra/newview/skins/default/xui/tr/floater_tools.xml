@@ -203,6 +203,7 @@
 				<combo_box.item label="Nesneye ödeme yap" name="Payobject"/>
 				<combo_box.item label="Aç" name="Open"/>
 				<combo_box.item label="Yakınlaştır" name="Zoom"/>
+				<combo_box.item label="Yok" name="None"/>
 			</combo_box>
 			<check_box label="Satılık:" name="checkbox for sale" tool_tip="İnsanların bu nesneyi, içeriğini veya SL dünyasındaki kopyasını satın almasına izin verin."/>
 			<spinner label="L$" name="Edit Cost" tool_tip="Nesne maliyeti."/>

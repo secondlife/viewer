@@ -200,6 +200,7 @@
 				<combo_box.item label="Payer l&apos;objet" name="Payobject"/>
 				<combo_box.item label="Ouvrir" name="Open"/>
 				<combo_box.item label="Zoomer" name="Zoom"/>
+				<combo_box.item label="Aucun" name="None"/>
 			</combo_box>
 			<check_box label="À vendre :" name="checkbox for sale" tool_tip="Permet aux gens d&apos;acheter cet objet, son contenu ou de le copier dans Second Life à un prix donné."/>
 			<spinner label="L$" name="Edit Cost" tool_tip="Coût de l&apos;objet."/>

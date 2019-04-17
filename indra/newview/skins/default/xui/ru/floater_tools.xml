@@ -203,6 +203,7 @@
 				<combo_box.item label="Заплатить за объект" name="Payobject"/>
 				<combo_box.item label="Открыть" name="Open"/>
 				<combo_box.item label="Увеличение" name="Zoom"/>
+				<combo_box.item label="Нет" name="None"/>
 			</combo_box>
 			<check_box label="Для продажи:" name="checkbox for sale" tool_tip="Позволяет игрокам покупать этот объект, его содержимое или копировать его в игровом мире по указанной цене."/>
 			<spinner label="L$" name="Edit Cost" tool_tip="Стоимость объекта."/>
