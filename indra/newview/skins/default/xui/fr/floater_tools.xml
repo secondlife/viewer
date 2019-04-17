@@ -198,6 +198,7 @@
 				<combo_box.item label="Payer l&apos;objet" name="Payobject"/>
 				<combo_box.item label="Ouvrir" name="Open"/>
 				<combo_box.item label="Zoomer" name="Zoom"/>
+				<combo_box.item label="Aucun" name="None"/>
 			</combo_box>
 			<check_box label="À vendre :" name="checkbox for sale"/>
 			<spinner label="L$" name="Edit Cost"/>

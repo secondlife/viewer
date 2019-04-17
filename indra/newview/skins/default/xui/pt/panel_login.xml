@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <panel name="panel_login">
-	<panel.string name="forgot_password_url">http://secondlife.com/account/request.php?lang=pt</panel.string>
+	<panel.string name="forgot_password_url">
+		http://secondlife.com/account/request.php?lang=pt
+	</panel.string>
+	<panel.string name="sign_up_url">
+		https://join.secondlife.com/
+	</panel.string>
 	<layout_stack name="ui_stack">
 		<layout_panel name="ui_container">
 			<combo_box label="Nome de usuário" name="username_combo" tool_tip="O nome de usuário que você escolheu ao fazer seu cadastro, como zecazc12 ou Magia Solar"/>
@@ -11,8 +16,13 @@
 			</combo_box>
 			<button label="Login" name="connect_btn"/>
 			<check_box label="Lembrar-me" name="remember_check"/>
-			<text name="forgot_password_text">Senha esquecida</text>
+			<text name="forgot_password_text">
+				Senha esquecida
+			</text>
 			<combo_box label="Selecionar grade" name="server_combo"/>
+			<text name="sign_up_text">
+				Cadastre-se
+			</text>
 		</layout_panel>
 	</layout_stack>
 </panel>

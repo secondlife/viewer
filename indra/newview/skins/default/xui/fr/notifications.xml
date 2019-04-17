@@ -1567,6 +1567,30 @@ Dépasse la limite fixée à [MAX_AGENTS] [LIST_TYPE] de [NUM_EXCESS].
 	<notification name="ProblemAddingEstateManagerBanned">
 		Impossible d’ajouter un résident banni à la liste des gérants de domaine.
 	</notification>
+	<notification name="ProblemBanningEstateManager">
+		Impossible d&apos;ajouter le gérant de domaine à la liste interdite.
+	</notification>
+	<notification name="GroupIsAlreadyInList">
+		&lt;nolink&gt;[GROUP]&lt;/nolink&gt; est déjà dans la liste des groupes autorisés.
+	</notification>
+	<notification name="AgentIsAlreadyInList">
+		[AGENT] est déjà dans votre liste [LIST_TYPE].
+	</notification>
+	<notification name="AgentsAreAlreadyInList">
+		[AGENT] sont déjà dans votre liste [LIST_TYPE].
+	</notification>
+	<notification name="AgentWasAddedToList">
+		[AGENT] a été ajouté à la liste [LIST_TYPE] de [ESTATE].
+	</notification>
+	<notification name="AgentsWereAddedToList">
+		[AGENT] ont été ajoutéq à la liste [LIST_TYPE] de [ESTATE].
+	</notification>
+	<notification name="AgentWasRemovedFromList">
+		[AGENT] a été supprimé de la liste [LIST_TYPE] de [ESTATE].
+	</notification>
+	<notification name="AgentsWereRemovedFromList">
+		[AGENT] ont été supprimés de la liste [LIST_TYPE] de [ESTATE].
+	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		Impossible de changer d&apos;apparence jusqu&apos;à ce que les habits et la silhouette soient chargés.
 	</notification>
@@ -1868,7 +1892,7 @@ Cette action modifiera des milliers de régions et sera difficile à digérer po
 		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Tous les domaines" yestext="Ce domaine"/>
 	</notification>
 	<notification label="Choisir le domaine" name="EstateBannedAgentRemove">
-		Supprimer ce résident de la liste des résidents bannis pour ce domaine uniquement ou pour [ALL_ESTATES] ?
+		Supprimer ce résident de la liste des résidents interdits pour ce domaine uniquement ou pour [ALL_ESTATES] ?
 		<usetemplate canceltext="Annuler" name="yesnocancelbuttons" notext="Tous les domaines" yestext="Ce domaine"/>
 	</notification>
 	<notification label="Choisir le domaine" name="EstateManagerAdd">
@@ -3161,16 +3185,22 @@ Pour y participer, cliquez sur Accepter. Sinon, cliquez sur Refuser. Pour ignore
 		Échec de la connexion avec [VOICE_CHANNEL_NAME], veuillez réessayer ultérieurement.  Vous allez maintenant être reconnecté(e) au chat vocal près de vous.
 	</notification>
 	<notification name="VoiceEffectsExpired">
-		Au moins l&apos;un des effets de voix auxquels vous êtes abonné a expiré.
-[[URL] Cliquez ici] pour renouveler votre abonnement.
+		Au moins l&apos;un des effets de voix auxquels vous êtes abonné a expiré. 
+[[URL] Cliquez ici] pour renouveler votre abonnement. 
+
+Si vous êtes un membre Premium,  [[PREMIUM_URL] cliquez ici] pour recevoir votre effet de voix.
 	</notification>
 	<notification name="VoiceEffectsExpiredInUse">
 		L&apos;effet de voix actif a expiré. Vos paramètres de voix normaux ont été rétablis.
-[[URL] Cliquez ici] pour renouveler votre abonnement.
+[[URL] Cliquez ici] pour renouveler votre abonnement. 
+
+Si vous êtes un membre Premium, [[PREMIUM_URL] cliquez ici] pour recevoir votre effet de voix.
 	</notification>
 	<notification name="VoiceEffectsWillExpire">
-		Au moins l&apos;un de vos effets de voix expirera dans moins de [INTERVAL] jours.
-[[URL] Cliquez ici] pour renouveler votre abonnement.
+		Au moins l&apos;un de vos effets de voix expirera dans moins de [INTERVAL] jours.  
+[[URL] Cliquez ici] pour renouveler votre abonnement. 
+
+Si vous êtes un membre Premium,  [[PREMIUM_URL] cliquez ici] pour recevoir votre effet de voix.
 	</notification>
 	<notification name="VoiceEffectsNew">
 		De nouveaux effets de voix sont disponibles !
@@ -3221,6 +3251,9 @@ Elles vont être bloquées pendant quelques secondes pour votre sécurité.
 	</notification>
 	<notification name="SnapshotToComputerFailed">
 		Échec d’enregistrement de la photo dans [PATH] : Le disque est plein. [NEED_MEMORY]KB est nécessaire mais l&apos;espace libre est de seulement [FREE_MEMORY]KB.
+	</notification>
+	<notification name="SnapshotToLocalDirNotExist">
+		Échec d’enregistrement de la photo dans [PATH] : Le répertoire n&apos;existe pas.
 	</notification>
 	<notification name="PresetNotSaved">
 		Erreur d’enregistrement du préréglage [NAME].

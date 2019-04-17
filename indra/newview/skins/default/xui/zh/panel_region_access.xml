@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="出入許可" name="Access">
+	<tab_container name="tabs">
+		<panel label="領地管理員" name="estate_managers_panel">
+			<text name="estate_manager_label">
+				領地管理員：
+			</text>
+			<name_list name="estate_manager_name_list">
+				<columns label="名稱" name="name"/>
+			</name_list>
+			<button label="新增…" name="add_estate_manager_btn"/>
+			<button label="移除…" name="remove_estate_manager_btn"/>
+		</panel>
+		<panel label="獲准" name="allowed_panel">
+			<panel label="top_panel" name="allowed_search_panel">
+				<filter_editor label="搜尋獲准的用戶" name="allowed_search_input"/>
+			</panel>
+			<text name="allow_resident_label">
+				永遠准許：
+			</text>
+			<name_list name="allowed_avatar_name_list">
+				<columns label="名稱" name="name"/>
+			</name_list>
+			<button label="新增…" name="add_allowed_avatar_btn"/>
+			<button label="移除…" name="remove_allowed_avatar_btn"/>
+		</panel>
+		<panel label="准許的群組" name="allowed_groups_panel">
+			<panel label="top_panel" name="allowed_group_search_panel">
+				<filter_editor label="搜尋獲准的群組" name="allowed_group_search_input"/>
+			</panel>
+			<text name="allow_group_label">
+				永遠准許的群組：
+			</text>
+			<name_list name="allowed_group_name_list">
+				<columns label="名稱" name="name"/>
+			</name_list>
+			<button label="新增…" name="add_allowed_group_btn"/>
+			<button label="移除…" name="remove_allowed_group_btn"/>
+		</panel>
+		<panel label="禁入的" name="banned_panel">
+			<panel label="top_panel" name="banned_search_panel">
+				<filter_editor label="搜尋禁入的用戶" name="banned_search_input"/>
+			</panel>
+			<text name="ban_resident_label">
+				永遠禁入：
+			</text>
+			<name_list name="banned_avatar_name_list">
+				<columns label="名稱" name="name"/>
+				<columns label="上次登入日期" name="last_login_date"/>
+				<columns label="遭禁日期" name="ban_date"/>
+				<columns label="封鎖者：" name="bannedby"/>
+			</name_list>
+			<button label="新增…" name="add_banned_avatar_btn"/>
+			<button label="移除…" name="remove_banned_avatar_btn"/>
+		</panel>
+	</tab_container>
+</panel>
