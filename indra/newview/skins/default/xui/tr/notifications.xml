@@ -1570,6 +1570,30 @@ Lütfen sadece bir nesne seçin ve tekrar deneyin.
 	<notification name="ProblemAddingEstateManagerBanned">
 		Engellenmiş sakin, gayrimenkul yöneticisi listesine eklenemez.
 	</notification>
+	<notification name="ProblemBanningEstateManager">
+		Gayrimenkul yöneticisi [AGENT] engellenen listesine eklenemiyor.
+	</notification>
+	<notification name="GroupIsAlreadyInList">
+		&lt;nolink&gt;[GROUP]&lt;/nolink&gt; zaten İzin Verilen Gruplar listesinde yer alıyor.
+	</notification>
+	<notification name="AgentIsAlreadyInList">
+		[AGENT] zaten [LIST_TYPE] listenizde yer alıyor.
+	</notification>
+	<notification name="AgentsAreAlreadyInList">
+		[AGENT] zaten [LIST_TYPE] listenizde yer alıyor.
+	</notification>
+	<notification name="AgentWasAddedToList">
+		[AGENT], [ESTATE] [LIST_TYPE] listesine eklendi.
+	</notification>
+	<notification name="AgentsWereAddedToList">
+		[AGENT], [ESTATE] [LIST_TYPE] listesine eklendi.
+	</notification>
+	<notification name="AgentWasRemovedFromList">
+		[AGENT], [ESTATE] [LIST_TYPE] listesinden kaldırıldı.
+	</notification>
+	<notification name="AgentsWereRemovedFromList">
+		[AGENT], [ESTATE] [LIST_TYPE] listesinden kaldırıldı.
+	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		Giysi ve şekil yüklenene kadar görünüm değiştirilemez.
 	</notification>
@@ -1869,7 +1893,7 @@ Binlerce bölgeyi değiştirecek ve alan sunucusunu kesintiye uğratacaktır.
 		<usetemplate canceltext="İptal" name="yesnocancelbuttons" notext="Tüm Gayrimenkuller" yestext="Bu Gayrimenkul"/>
 	</notification>
 	<notification label="Gayrimenkul seç" name="EstateBannedAgentRemove">
-		Bu Sakin sadece bu gayrimenkul için mi yasaklı listesinden çıkarılsın, yoksa [ALL_ESTATES] için mi?
+		Bu Sakin sadece bu gayrimenkul için mi yoksa [ALL_ESTATES] için mi erişim yasağı listesinden çıkarılsın?
 		<usetemplate canceltext="İptal" name="yesnocancelbuttons" notext="Tüm Gayrimenkuller" yestext="Bu Gayrimenkul"/>
 	</notification>
 	<notification label="Gayrimenkul seç" name="EstateManagerAdd">
@@ -3160,16 +3184,22 @@ Sohbete katılmak için Kabul Et&apos;i, daveti geri çevirmek için ise Reddet&
 		[VOICE_CHANNEL_NAME] ile bağlantı kurulamadı, lütfen daha sonra tekrar deneyin. Şimdi Yakındaki bir Sesli Sohbete yeniden bağlanılacaksınız.
 	</notification>
 	<notification name="VoiceEffectsExpired">
-		Abone olduğunuz Ses Şekillerinden birinin ya da daha fazlasının süresi dolmuş.
-Aboneliğinizi yenilemek için [[URL] burayı tıklatın].
+		Abone olduğunuz Ses Dönüşümlerinden birinin ya da daha fazlasının süresi dolmuş. 
+Aboneliğinizi yenilemek için [[URL] buraya tıklayın]. 
+
+Özel Üye iseniz, ses dönüştürme özelliğini almak için [[PREMIUM_URL] buraya tıklayın].
 	</notification>
 	<notification name="VoiceEffectsExpiredInUse">
-		Etkin Ses Şeklinin süresi dolmuş, normal ses ayarlarınız uygulandı.
-Aboneliğinizi yenilemek için [[URL] burayı tıklatın].
+		Etkin Ses Dönüşümünün süresi dolmuş, normal ses ayarlarınız uygulandı. 
+Aboneliğinizi yenilemek için [[URL] buraya tıklayın]. 
+
+Özel Üye iseniz, ses dönüştürme özelliğini almak için [[PREMIUM_URL] buraya tıklayın].
 	</notification>
 	<notification name="VoiceEffectsWillExpire">
-		Abone olduğunuz Ses Şekillerinden birinin ya da daha fazlasının süresi [INTERVAL] gün içinde dolacak.
-Aboneliğinizi yenilemek için [[URL] burayı tıklatın].
+		Ses Dönüşümlerinizden birinin ya da daha fazlasının süresi [INTERVAL] günden daha az bir zamanda dolacak. 
+Aboneliğinizi yenilemek için [[URL] buraya tıklayın]. 
+
+Özel Üye iseniz, ses dönüştürme özelliğini almak için [[PREMIUM_URL] buraya tıklayın].
 	</notification>
 	<notification name="VoiceEffectsNew">
 		Yeni Ses Şekilleri kullanılabilir!
@@ -3220,6 +3250,9 @@ Güvenliğiniz için birkaç saniye engellenecek.
 	</notification>
 	<notification name="SnapshotToComputerFailed">
 		Anlık görüntü [PATH] yoluna kaydedilemedi: Disk dolu. [NEED_MEMORY]KB gerekli ancak yalnızca [FREE_MEMORY]KB boş.
+	</notification>
+	<notification name="SnapshotToLocalDirNotExist">
+		Anlık görüntü [PATH] yoluna kaydedilemedi: Dizin mevcut değil.
 	</notification>
 	<notification name="PresetNotSaved">
 		Ön ayar ([NAME]) kaydedilirken hata oluştu.

@@ -204,6 +204,7 @@
 				<combo_box.item label="オブジェクトに支払う" name="Payobject"/>
 				<combo_box.item label="開く" name="Open"/>
 				<combo_box.item label="ズームする" name="Zoom"/>
+				<combo_box.item label="なし" name="None"/>
 			</combo_box>
 			<check_box label="販売対象：" name="checkbox for sale"/>
 			<spinner label="L$" name="Edit Cost"/>

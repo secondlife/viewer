@@ -2226,6 +2226,18 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 	<string name="RegionInfoListTypeBannedAgents">
 		Her zaman engellenen
 	</string>
+	<string name="RegionInfoAllEstates">
+		tüm gayrimenkuller
+	</string>
+	<string name="RegionInfoManagedEstates">
+		yönetilen gayrimenkuller
+	</string>
+	<string name="RegionInfoThisEstate">
+		bu gayrimenkul
+	</string>
+	<string name="AndNMore">
+		ve [EXTRA_COUNT] tane daha
+	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Parsel Komut Dosyası Belleği
 	</string>

@@ -1569,6 +1569,30 @@
 	<notification name="ProblemAddingEstateManagerBanned">
 		Невозможно добавить заблокированного жителя в список менеджеров землевладения.
 	</notification>
+	<notification name="ProblemBanningEstateManager">
+		Невозможно добавить заблокированного жителя в список менеджеров землевладения [AGENT].
+	</notification>
+	<notification name="GroupIsAlreadyInList">
+		&lt;nolink&gt;\[GROUP]&lt;/nolink&gt; уже находится в списке допущенных групп.
+	</notification>
+	<notification name="AgentIsAlreadyInList">
+		[AGENT] уже находится на вашем [LIST_TYPE] листе.
+	</notification>
+	<notification name="AgentsAreAlreadyInList">
+		[AGENT] уже находится на вашем [LIST_TYPE] листе.
+	</notification>
+	<notification name="AgentWasAddedToList">
+		[AGENT] был добавлен в [LIST_TYPE] лист [ESTATE].
+	</notification>
+	<notification name="AgentsWereAddedToList">
+		[AGENT] был добавлен в [LIST_TYPE] лист [ESTATE].
+	</notification>
+	<notification name="AgentWasRemovedFromList">
+		[AGENT] был удален из [LIST_TYPE] листа [ESTATE].
+	</notification>
+	<notification name="AgentsWereRemovedFromList">
+		[AGENT] был удален из [LIST_TYPE] листа [ESTATE].
+	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		Нельзя изменять внешность, пока загружаются одежда и фигура.
 	</notification>
@@ -1868,7 +1892,7 @@
 		<usetemplate canceltext="Отмена" name="yesnocancelbuttons" notext="Для всех землевладений" yestext="Для этого землевладения"/>
 	</notification>
 	<notification label="Выбрать землевладение" name="EstateBannedAgentRemove">
-		Удалить этого жителя из списка запрета доступа только для этого землевладения или для [ALL_ESTATES]?
+		Удалить этого жителя из списка заблокированного доступа только для этого землевладения или для [ALL_ESTATES]?
 		<usetemplate canceltext="Отмена" name="yesnocancelbuttons" notext="Для всех землевладений" yestext="Для этого землевладения"/>
 	</notification>
 	<notification label="Выбрать землевладение" name="EstateManagerAdd">
@@ -3160,16 +3184,22 @@
 		Не удалось подключиться к [VOICE_CHANNEL_NAME], повторите попытку позже.  Будет установлено подключение к локальному голосовому чату.
 	</notification>
 	<notification name="VoiceEffectsExpired">
-		Истек срок действия одного или нескольких типов изменения голоса, на которые вы подписаны.
-[[URL] Щелкните здесь], чтобы обновить подписку.
+		Истек срок действия подписки на один или несколько типов анимационного изменения голоса. 
+[[URL] Щелкните здесь], чтобы обновить подписку. 
+
+Если вы - владелец премиум-аккаунта, [[PREMIUM_URL] щелкните здесь], чтобы получить право на анимационное изменение голоса.
 	</notification>
 	<notification name="VoiceEffectsExpiredInUse">
-		Истек срок действия активного типа изменения голоса, применены настройки вашего обычного голоса.
-[[URL] Щелкните здесь], чтобы обновить подписку.
+		Истек срок действия анимационного изменения голоса, действуют настройки вашего обычного голоса. 
+[[URL] Щелкните здесь], чтобы обновить подписку. 
+
+Если вы - владелец премиум-аккаунта, [[PREMIUM_URL] щелкните здесь], чтобы получить право на анимационное изменение голоса.
 	</notification>
 	<notification name="VoiceEffectsWillExpire">
-		Срок действия одного или нескольких ваших типов изменения голоса истекает через [INTERVAL] дней или раньше.
-[[URL] Щелкните здесь], чтобы обновить подписку.
+		Срок действия одного или нескольких ваших типов анимационного изменения голоса истекает через [INTERVAL] дней или раньше. 
+[[URL] Щелкните здесь], чтобы обновить подписку. 
+
+Если вы - владелец премиум-аккаунта, [[PREMIUM_URL] щелкните здесь], чтобы получить право на анимационное изменение голоса.
 	</notification>
 	<notification name="VoiceEffectsNew">
 		Появились новые типы изменения голоса!
@@ -3220,6 +3250,9 @@
 	</notification>
 	<notification name="SnapshotToComputerFailed">
 		Не удалось сохранить моментальный снимок на [PATH]: Диск переполнен. Необходимо [NEED_MEMORY] Кбайт, но доступно только  [FREE_MEMORY] Кбайт.
+	</notification>
+	<notification name="SnapshotToLocalDirNotExist">
+		Не удалось сохранить моментальный снимок на [PATH]: Каталог не существует.
 	</notification>
 	<notification name="PresetNotSaved">
 		Ошибка при сохранении пресета [NAME].

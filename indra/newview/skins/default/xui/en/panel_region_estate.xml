@@ -82,7 +82,7 @@
     <view_border
      bevel_style="none"
      follows="top|left"
-     height="105"
+     height="185"
      layout="topleft"
      left="10"
      top_pad="5"
@@ -96,7 +96,7 @@
      width="200">
         <radio_item
          height="16"
-         label="Allow only residents and groups listed below"
+         label="Allow only residents and groups listed on the Access tab"
          layout="topleft"
          name="estate_restricted_access" />
         <radio_item
@@ -137,10 +137,10 @@
      height="18"
      label="Allow Voice Chat"
      layout="topleft"
-     left="290"
+     left="20"
      name="voice_chat_check"
-     top_delta="-78"
-     width="200" />
+     top_pad="2"
+     width="240" />
     <check_box
      height="18"
      label="Allow Direct Teleport"
@@ -148,7 +148,7 @@
      left_delta="0"
      name="allow_direct_teleport"
      top_pad="2"
-     width="80" />
+     width="240" />
     <button
      enabled="false"
      follows="left|top"
@@ -156,215 +156,9 @@
      label="Apply"
      layout="topleft"
      name="apply_btn"
-     top_pad="30"
+     top_pad="10"
      left_delta="0"
      width="97" />
-    
-    <text
-     type="string"
-     length="1"
-     bottom="34"
-     follows="left|top"
-     height="20"
-     layout="topleft"
-     name="estate_manager_label"
-     top_pad="25"
-     left="10"
-     width="200">
-        Estate Managers:
-    </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="20"
-     layout="topleft"
-     left="280"
-     name="allow_resident_label"
-     top_delta="0"
-     width="200">
-        Always allowed:
-    </text>
-
-    <!-- Estate Managers box -->
-    <view_border
-     bevel_style="none"
-     follows="top|left"
-     height="71"
-     layout="topleft"
-     left="10"
-     top_pad="-5"
-     width="235" />
-    <name_list
-     follows="left|top"
-     height="71"
-     layout="topleft"
-     left_delta="0"
-     multi_select="true"
-     name="estate_manager_name_list"
-     top_delta="0"
-     width="235" />
-
-    <!-- Always allowed box -->
-    <view_border
-     bevel_style="none"
-     follows="top|left"
-     height="71"
-     layout="topleft"
-     left="280"
-     top_delta="0"
-     width="235" />
-    <name_list
-     follows="left|top"
-     height="71"
-     layout="topleft"
-     left_delta="0"
-     multi_select="true"
-     name="allowed_avatar_name_list"
-     top_delta="0"
-     width="235" />
-
-    <!-- Estate Managers buttons -->
-    <button
-     follows="left|top"
-     height="23"
-     label="Add..."
-     layout="topleft"
-     left="10"
-     name="add_estate_manager_btn"
-     top_pad="6"
-     width="114" />
-    <button
-     follows="left|top"
-     height="23"
-     label="Remove..."
-     layout="topleft"
-     name="remove_estate_manager_btn"
-     left_pad="6"
-     width="114" />
-
-    <!-- Always allowed buttons -->
-    <button
-     follows="left|top"
-     height="23"
-     left="280"
-     label="Add..."
-     layout="topleft"
-     name="add_allowed_avatar_btn"
-     top_delta="0"
-     width="114" />
-    <button
-     follows="left|top"
-     height="23"
-     label="Remove..."
-     layout="topleft"
-     name="remove_allowed_avatar_btn"
-     left_pad="6"
-     top_delta="0"
-     width="114" />
-
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="20"
-     layout="topleft"
-     left="10"
-     name="allow_group_label"
-     top_pad="10"
-     width="200">
-        Groups always allowed:
-    </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="20"
-     layout="topleft"
-     left="280"
-     name="ban_resident_label"
-     top_delta="0"
-     width="200">
-        Always banned:
-    </text>
-
-    <!-- Groups always allowed box -->
-    <view_border
-     bevel_style="none"
-     follows="top|left"
-     height="71"
-     layout="topleft"
-     left="10"
-     top_pad="-5"
-     width="235" />
-    <name_list
-     follows="left|top"
-     height="71"
-     layout="topleft"
-     left_delta="0"
-     multi_select="true"
-     name="allowed_group_name_list"
-     top_delta="0"
-     width="235" />
-
-    <!-- Always banned box -->
-    <view_border
-     bevel_style="none"
-     follows="top|left"
-     height="71"
-     layout="topleft"
-     left="280"
-     top_delta="0"
-     width="235" />
-    <name_list
-     follows="left|top"
-     height="71"
-     layout="topleft"
-     left_delta="0"
-     multi_select="true"
-     name="banned_avatar_name_list"
-     top_delta="0"
-     width="235" />
-
-    <!-- Groups always allowed buttons -->
-    <button
-     follows="left|top"
-     height="23"
-     label="Add..."
-     layout="topleft"
-     left="10"
-     name="add_allowed_group_btn"
-     top_pad="6"
-     width="114" />
-    <button
-     follows="left|top"
-     height="23"
-     label="Remove..."
-     layout="topleft"
-     name="remove_allowed_group_btn"
-     left_pad="6"
-     top_delta="0"
-     width="114" />
-
-    <!-- Always banned buttons -->
-    <button
-     follows="left|top"
-     height="23"
-     label="Add..."
-     layout="topleft"
-     left="280"
-     name="add_banned_avatar_btn"
-     top_delta="0"
-     width="114" />
-    <button
-     follows="left|top"
-     height="23"
-     label="Remove..."
-     layout="topleft"
-     name="remove_banned_avatar_btn"
-     top_delta="0"
-     left_pad="6"
-     width="114" />
 
     <button
      follows="left|top"
