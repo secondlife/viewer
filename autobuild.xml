@@ -308,9 +308,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fa93a9a10fa379091e3e7b85665690d9</string>
+              <string>c7d274e114f39550b58962f797b320ff</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/34867/291378/colladadom-2.3.525830-darwin64-525830.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/35818/299831/colladadom-2.3.526352-darwin64-526352.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -344,9 +344,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a7a1b7cfde65b161608294c9bcda28a7</string>
+              <string>e5dbab6b10d98bd908483986bf7a8088</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/34869/291391/colladadom-2.3.525830-windows-525830.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/35819/299837/colladadom-2.3.526352-windows-526352.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -356,9 +356,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4b1a413170064e4d60c84b780db25c57</string>
+              <string>2d8326491f4a802a419d2c79dd5a6288</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/34866/291384/colladadom-2.3.525830-windows64-525830.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/35821/299844/colladadom-2.3.526352-windows64-526352.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
