@@ -1561,6 +1561,30 @@ Ultrapassa o limite de [MAX_AGENTS] [LIST_TYPE] de [NUM_EXCESS].
 	<notification name="ProblemAddingEstateManagerBanned">
 		Não foi possível adicionar residentes banidos à lista de gerentes de propriedades.
 	</notification>
+	<notification name="ProblemBanningEstateManager">
+		Não foi possível adicionar o gerente [AGENT] à lista de banimento.
+	</notification>
+	<notification name="GroupIsAlreadyInList">
+		&lt;nolink&gt;[GROUP]&lt;/nolink&gt; já está na lista de Grupos permitidos.
+	</notification>
+	<notification name="AgentIsAlreadyInList">
+		[AGENT] já está na sua [LIST_TYPE] lista.
+	</notification>
+	<notification name="AgentsAreAlreadyInList">
+		[AGENT] já está na sua [LIST_TYPE] lista.
+	</notification>
+	<notification name="AgentWasAddedToList">
+		[AGENT] foi adicionado na [LIST_TYPE] lista de [ESTATE].
+	</notification>
+	<notification name="AgentsWereAddedToList">
+		[AGENT] foi adicionado na [LIST_TYPE] lista de [ESTATE].
+	</notification>
+	<notification name="AgentWasRemovedFromList">
+		[AGENT] foi removido da [LIST_TYPE] lista de [ESTATE].
+	</notification>
+	<notification name="AgentsWereRemovedFromList">
+		[AGENT] foi removido da [LIST_TYPE] lista de [ESTATE].
+	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		Não é possível alterar a aparência até que as roupas e formas estejam carregadas.
 	</notification>
@@ -1860,7 +1884,7 @@ Isto mudará milhares de regiões e fará o spaceserver soluçar.
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Todas as Propriedades" yestext="Esta Propriedade"/>
 	</notification>
 	<notification label="Selecione a propriedade" name="EstateBannedAgentRemove">
-		Remover este residente da lista de banidos para acesso a esta propriedade apenas ou para [ALL_ESTATES]?
+		Remover este Residente da lista de banimento para acessar este estado somente ou para [ALL_ESTATES]?
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Todas as Propriedades" yestext="Esta Propriedade"/>
 	</notification>
 	<notification label="Selecione a propriedade" name="EstateManagerAdd">
@@ -3149,16 +3173,22 @@ Clique em Aceitar para atender ou em Recusar para recusar este convite.  Clique 
 		Falha de conexão com [VOICE_CHANNEL_NAME]. Tente novamente mais tarde.   Agora você será reconectado ao bate-papo local.
 	</notification>
 	<notification name="VoiceEffectsExpired">
-		Um ou mais serviços de distorção de voz que você assinou veceu.
-[[URL] Clique aqui] para renovar o serviço.
+		Um ou mais serviços de distorção de voz que você assinou venceu. 
+[[URL] Clique aqui] para renovar o serviço. 
+
+Se você é um Membro Premium, [[PREMIUM_URL] clique aqui] para receber o seu app de distorção de voz.
 	</notification>
 	<notification name="VoiceEffectsExpiredInUse">
-		A Distorção de voz ativa expirou. Suas configurações de voz padrão foram ativadas.
-[[URL] Clique aqui] para renovar o serviço.
+		A Distorção de voz ativa expirou. Suas configurações de voz padrão foram ativadas. 
+[[URL] Clique aqui] para renovar o serviço. 
+
+Se você é um Membro Premium, [[PREMIUM_URL] clique aqui] para receber o seu app de distorção de voz.
 	</notification>
 	<notification name="VoiceEffectsWillExpire">
-		Uma ou mais das suas distorções de voz tem vencimento em menos de [INTERVAL] dias.
-[[URL] Clique aqui] para renovar o serviço.
+		Uma ou mais das suas distorções de voz tem vencimento em menos de [INTERVAL] dias. 
+[[URL] Clique aqui] para renovar o serviço. 
+
+Se você é um Membro Premium, [[PREMIUM_URL] clique aqui] para receber o seu app de distorção de voz.
 	</notification>
 	<notification name="VoiceEffectsNew">
 		Novas Distorções de voz!
@@ -3209,6 +3239,9 @@ Para sua segurança, os SLurls serão bloqueados por alguns instantes.
 	</notification>
 	<notification name="SnapshotToComputerFailed">
 		Falha ao salvar fotografia em [PATH]: Disco cheio. [NEED_MEMORY]KB é necessário, mas somente [FREE_MEMORY]KB está livre.
+	</notification>
+	<notification name="SnapshotToLocalDirNotExist">
+		Falha ao salvar fotografia em [PATH]: O diretório não existe.
 	</notification>
 	<notification name="PresetNotSaved">
 		Erro ao salvar predefinição [NAME].

@@ -1584,6 +1584,30 @@ Ersetzen Sie die Textur [TEXTURE_NUM] mit einer Bilddatei von maximal 512x512 un
 	<notification name="ProblemAddingEstateManagerBanned">
 		Verbannter Einwohner kann nicht zur Grundbesitzverwalterliste hinzugefügt werden.
 	</notification>
+	<notification name="ProblemBanningEstateManager">
+		Grundbesitzverwalter [AGENT] kann nicht zur Bannliste hinzugefügt werden.
+	</notification>
+	<notification name="GroupIsAlreadyInList">
+		&lt;nolink&gt;[GROUP]&lt;/nolink&gt; befindet sich bereits auf der Liste der zulässigen Gruppen.
+	</notification>
+	<notification name="AgentIsAlreadyInList">
+		[AGENT] befindet sich bereits auf Ihrer [LIST_TYPE]-Liste.
+	</notification>
+	<notification name="AgentsAreAlreadyInList">
+		[AGENT] befinden sich bereits auf Ihrer [LIST_TYPE]-Liste.
+	</notification>
+	<notification name="AgentWasAddedToList">
+		[AGENT] wurde der [LIST_TYPE]-Liste von [ESTATE] hinzugefügt.
+	</notification>
+	<notification name="AgentsWereAddedToList">
+		[AGENT] wurden zur [LIST_TYPE]-Liste von [ESTATE] hinzugefügt.
+	</notification>
+	<notification name="AgentWasRemovedFromList">
+		[AGENT] wurden von der [LIST_TYPE]-Liste von [ESTATE] entfernt.
+	</notification>
+	<notification name="AgentsWereRemovedFromList">
+		[AGENT] wurden von der [LIST_TYPE]-Liste von [ESTATE] entfernt.
+	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		Das Aussehen lässt sich erst ändern, wenn Kleider und Form/Gestalt geladen sind.
 	</notification>
@@ -1885,7 +1909,7 @@ Tausende Regionen werden verändert und der Spaceserver wird dadurch stark belas
 		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Alle Grundbesitze" yestext="Diesen Grundbesitz"/>
 	</notification>
 	<notification label="Grundbesitz wählen" name="EstateBannedAgentRemove">
-		Einwohner nur für diesen Grundbesitz oder für alle [ALL_ESTATES] von der Bannliste entfernen?
+		Den Einwohner nur für diesen Grundbesitz oder für [ALL_ESTATES] von der Bannliste entfernen?
 		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Alle Grundbesitze" yestext="Diesen Grundbesitz"/>
 	</notification>
 	<notification label="Grundbesitz wählen" name="EstateManagerAdd">
@@ -3177,16 +3201,22 @@ Klicken Sie auf  &apos;Akzeptieren &apos;, um dem Chat beizutreten, oder auf  &a
 		Verbindung zu [VOICE_CHANNEL_NAME] nicht möglich. Bitte versuchen Sie es später.  Sie werden nun wieder mit dem Chat in Ihrer Nähe verbunden.
 	</notification>
 	<notification name="VoiceEffectsExpired">
-		Ein oder mehrere Ihrer Voice-Morph-Abos ist/sind abgelaufen.
-[[URL] Hier klicken], um Ihr Abo zu erneuern.
+		Ein oder mehrere Ihrer Voice-Morph-Abos sind abgelaufen. 
+[[URL] Klicken Sie hier], um Ihr Abo zu erneuern. 
+
+Wenn Sie Premium-Mitglied sind, [[PREMIUM_URL] klicken Sie hier], um Ihren Voice-Morphing-Vorteil zu nutzen.
 	</notification>
 	<notification name="VoiceEffectsExpiredInUse">
-		Das aktive Voice-Morph-Abo ist abgelaufen. Ihre normalen Voice-Einstellungen werden angewendet.
-[[URL] Hier klicken], um Ihr Abo zu erneuern.
+		Das aktive Voice-Morph-Abo ist abgelaufen. Ihre normalen Voice-Einstellungen werden angewendet. 
+[[URL] Klicken Sie hier], um Ihr Abo zu erneuern. 
+
+Wenn Sie Premium-Mitglied sind, [[PREMIUM_URL] klicken Sie hier], um Ihren Voice-Morphing-Vorteil zu nutzen.
 	</notification>
 	<notification name="VoiceEffectsWillExpire">
-		Ein oder mehrere Ihrer Voice-Morph-Abos werden in weniger als [INTERVAL] Tagen ablaufen.
-[[URL] Hier klicken], um Ihr Abo zu erneuern.
+		Ein oder mehrere Ihrer Voice-Morph-Abos laufen in weniger als [INTERVAL] Tagen ab. 
+[[URL] Klicken Sie hier], um Ihr Abo zu erneuern. 
+
+Wenn Sie Premium-Mitglied sind, [[PREMIUM_URL] klicken Sie hier], um Ihren Voice-Morphing-Vorteil zu nutzen.
 	</notification>
 	<notification name="VoiceEffectsNew">
 		Neue Voice-Morph-Effekte sind erhältlich!
@@ -3237,6 +3267,9 @@ Diese werden für ein paar Sekunden sicherheitshalber gesperrt.
 	</notification>
 	<notification name="SnapshotToComputerFailed">
 		Fehler beim Speichern des Bildes unter [PATH]: Zu wenig Speicherplatz auf dem Medium. [NEED_MEMORY]KB werden benötigt, es stehen jedoch nur [FREE_MEMORY]KB zur Verfügung.
+	</notification>
+	<notification name="SnapshotToLocalDirNotExist">
+		Fehler beim Speichern des Bildes unter [PATH]: Verzeichnis nicht vorhanden.
 	</notification>
 	<notification name="PresetNotSaved">
 		Fehler beim Speichern der Voreinstellung [NAME].

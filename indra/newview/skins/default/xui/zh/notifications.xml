@@ -1563,6 +1563,30 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="ProblemAddingEstateManagerBanned">
 		無法把被封鎖的居民加入領地的管理人名單。
 	</notification>
+	<notification name="ProblemBanningEstateManager">
+		無法將領地管理人[AGENT]加入封鎖名單。
+	</notification>
+	<notification name="GroupIsAlreadyInList">
+		&lt;nolink&gt;[GROUP]&lt;/nolink&gt;已在獲准群組名單中。
+	</notification>
+	<notification name="AgentIsAlreadyInList">
+		[AGENT]已在你的[LIST_TYPE]名單。
+	</notification>
+	<notification name="AgentsAreAlreadyInList">
+		[AGENT]已在你的[LIST_TYPE]名單。
+	</notification>
+	<notification name="AgentWasAddedToList">
+		[AGENT]已新增到[ESTATE]的[LIST_TYPE]名單。
+	</notification>
+	<notification name="AgentsWereAddedToList">
+		[AGENT]已新增到[ESTATE]的[LIST_TYPE]名單。
+	</notification>
+	<notification name="AgentWasRemovedFromList">
+		[AGENT]已從[ESTATE]的[LIST_TYPE]名單中被移除。
+	</notification>
+	<notification name="AgentsWereRemovedFromList">
+		[AGENT]已從[ESTATE]的[LIST_TYPE]名單中被移除。
+	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		無法變更外觀，直到服裝與體形下載完畢。
 	</notification>
@@ -3158,14 +3182,20 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="VoiceEffectsExpired">
 		至少一個你訂用的變聲效果已經過期。
 [[URL] 點按這裡] 繼續訂用。
+
+付費用戶請[[PREMIUM_URL] 點按這裡]領取免費變聲工具。
 	</notification>
 	<notification name="VoiceEffectsExpiredInUse">
 		使用中的變聲效果已經過期，已用你平時的聲音設定取代。
-[[URL] 點按這裡] 繼續訂用。
+[[URL] 點按這裡]繼續訂用。
+
+付費用戶請[[PREMIUM_URL] 點按這裡]領取免費變聲工具。
 	</notification>
 	<notification name="VoiceEffectsWillExpire">
 		至少一個你訂用的變聲效果將在 [INTERVAL] 天後到期。
-[[URL] 點按這裡] 繼續訂用。
+[[URL] 點按這裡]繼續訂用。
+
+付費用戶請[[PREMIUM_URL] 點按這裡]領取免費變聲工具。
 	</notification>
 	<notification name="VoiceEffectsNew">
 		新的變聲效果上市了！
@@ -3216,6 +3246,9 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="SnapshotToComputerFailed">
 		將快照儲存於[PATH]時失敗：磁碟已滿。 需要[NEED_MEMORY]KB的空間，但只剩[FREE_MEMORY]KB空間。
+	</notification>
+	<notification name="SnapshotToLocalDirNotExist">
+		將快照儲存於[PATH]時失敗：目錄不存在。
 	</notification>
 	<notification name="PresetNotSaved">
 		儲存預設名稱[NAME]時出錯。

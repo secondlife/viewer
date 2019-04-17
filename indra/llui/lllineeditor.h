@@ -208,6 +208,9 @@ public:
 	void			setCursor( S32 pos );
 	void			setCursorToEnd();
 
+	// set scroll to earliest position it can reasonable set
+	void			resetScrollPosition();
+
 	// Selects characters 'start' to 'end'.
 	void			setSelection(S32 start, S32 end);
 	virtual void	getSelectionRange(S32 *position, S32 *length) const;

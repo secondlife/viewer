@@ -16,7 +16,7 @@
 		（未知）
 	</text>
 	<radio_group name="externally_visible_radio">
-		<radio_item label="只允許下列的居民和群組" name="estate_restricted_access"/>
+		<radio_item label="只允許名列於「准入」頁籤的居民和群組" name="estate_restricted_access"/>
 		<radio_item label="任何人都可造訪" name="estate_public_access"/>
 	</radio_group>
 	<check_box label="必須滿18歲" name="limit_age_verified" tool_tip="居民必須年滿 18 歲才能進入這領地。 參閱 [SUPPORT_SITE] 獲取進一步資訊。"/>
