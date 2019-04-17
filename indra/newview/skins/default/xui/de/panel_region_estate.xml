@@ -16,7 +16,7 @@
 		(unbekannt)
 	</text>
 	<radio_group name="externally_visible_radio">
-		<radio_item label="Nur nachstehend aufgelistete Einwohner und Gruppen zulassen" name="estate_restricted_access"/>
+		<radio_item label="Nur Einwohner und Gruppen zulassen, die im Reiter &quot;Zugang&quot; aufgelistet sind." name="estate_restricted_access"/>
 		<radio_item label="Alle Besucher zugelassen" name="estate_public_access"/>
 	</radio_group>
 	<check_box label="Muss 18+ sein" name="limit_age_verified" tool_tip="Nur Einwohner, die mindestens 18 Jahre alt sind, können diesen Grundbesitz betreten. Weitere Informationen finden Sie unter [SUPPORT_SITE]."/>
@@ -26,7 +26,7 @@
 	<check_box label="Direktteleport zulassen" name="allow_direct_teleport"/>
 	<button label="Übernehmen" name="apply_btn"/>
 	<text name="estate_manager_label">
-		Grundbesitzverwalter:
+		Grundbesitzsverwalter:
 	</text>
 	<text name="allow_resident_label">
 		Immer zugelassen:

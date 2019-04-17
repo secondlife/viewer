@@ -12,6 +12,7 @@
 		<menu_item_call label="Controlli fotocamera..." name="Camera Controls"/>
 		<menu label="Spostamento" name="Movement">
 			<menu_item_call label="Siedi" name="Sit Down Here"/>
+			<menu_item_call label="Alzati" name="Stand up"/>
 			<menu_item_check label="Vola" name="Fly"/>
 			<menu_item_check label="Corri sempre" name="Always Run"/>
 			<menu_item_call label="Ferma animazione" name="Stop Animating My Avatar"/>
@@ -281,6 +282,7 @@
 			<menu_item_check label="Forme fisica" name="Physics Shapes"/>
 			<menu_item_check label="Aggiorna tipo" name="Update Type"/>
 			<menu_item_check label="Info livello dettaglio" name="LOD Info"/>
+			<menu_item_check label="Conteggio triangolo" name="Triangle Count"/>
 			<menu_item_check label="Crea coda" name="Build Queue"/>
 			<menu_item_check label="Particelle" name="Particles"/>
 			<menu_item_check label="Giunti" name="Joints"/>
@@ -355,6 +357,7 @@
 			<menu_item_check label="Mostra schemi collisione" name="Show Collision Skeleton"/>
 			<menu_item_check label="Mostra ossa" name="Show Bones"/>
 			<menu_item_check label="Mostra bersaglio" name="Display Agent Target"/>
+			<menu_item_check label="Mostra Impostor Extents" name="Show Impostor Extents"/>
 			<menu_item_call label="Debug texture dell&apos;avatar" name="Debug Avatar Textures"/>
 		</menu>
 		<menu_item_check label="Texture HTTP" name="HTTP Textures"/>

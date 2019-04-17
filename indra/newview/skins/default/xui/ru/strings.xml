@@ -636,15 +636,6 @@ support@secondlife.com.
 	<string name="BUTTON_HELP">
 		Показать справку
 	</string>
-	<string name="TooltipNotecardNotAllowedTypeDrop">
-		Элементы этого типа не могут быть занесены в 
-карточку для комментариев в этом регионе.
-	</string>
-	<string name="TooltipNotecardOwnerRestrictedDrop">
-		Только элементы с безусловным разрешением 
-‘следующего владельца’ можно внести 
-в карточки для комментариев.
-	</string>
 	<string name="Searching">
 		Поиск...
 	</string>
@@ -792,9 +783,6 @@ support@secondlife.com.
 	</string>
 	<string name="symbolic link">
 		ссылку
-	</string>
-	<string name="settings blob">
-		настройки
 	</string>
 	<string name="symbolic folder link">
 		ссылку на папку
@@ -2237,6 +2225,18 @@ support@secondlife.com.
 	</string>
 	<string name="RegionInfoListTypeBannedAgents">
 		Всегда заблокированы
+	</string>
+	<string name="RegionInfoAllEstates">
+		все землевладения
+	</string>
+	<string name="RegionInfoManagedEstates">
+		управляемые землевладения
+	</string>
+	<string name="RegionInfoThisEstate">
+		это землевладение
+	</string>
+	<string name="AndNMore">
+		и \[EXTRA_COUNT] более
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Память под скрипты на участке

@@ -12,6 +12,7 @@
 		<menu_item_call label="Управление камерой..." name="Camera Controls"/>
 		<menu label="Движение" name="Movement">
 			<menu_item_call label="Сесть" name="Sit Down Here"/>
+			<menu_item_call label="Встать" name="Stand up"/>
 			<menu_item_check label="Полет" name="Fly"/>
 			<menu_item_check label="Всегда бегать" name="Always Run"/>
 			<menu_item_call label="Остановить анимацию" name="Stop Animating My Avatar"/>
@@ -293,6 +294,7 @@
 			<menu_item_check label="Площадь текстуры" name="Texture Area"/>
 			<menu_item_check label="Площадь грани" name="Face Area"/>
 			<menu_item_check label="Данные об уровнях детализации" name="LOD Info"/>
+			<menu_item_check label="Количество треугольников" name="Triangle Count"/>
 			<menu_item_check label="Очередь построителя" name="Build Queue"/>
 			<menu_item_check label="Освещение" name="Lights"/>
 			<menu_item_check label="Частицы" name="Particles"/>
@@ -405,6 +407,7 @@
 			<menu_item_check label="Показать скелет" name="Show Collision Skeleton"/>
 			<menu_item_check label="Показать кости" name="Show Bones"/>
 			<menu_item_check label="Отобразить действие агента" name="Display Agent Target"/>
+			<menu_item_check label="Показать пределы импостера" name="Show Impostor Extents"/>
 			<menu_item_call label="Вывод присоединений" name="Dump Attachments"/>
 			<menu_item_call label="Отладка текстур аватара" name="Debug Avatar Textures"/>
 			<menu_item_call label="Вывод локальных текстур" name="Dump Local Textures"/>

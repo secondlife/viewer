@@ -22,6 +22,14 @@
       "Parcel_R_Dark"
     </floater.string>
     <floater.string
+     name="Hours">
+        [HOURS] hrs.
+    </floater.string>
+    <floater.string
+     name="Hour">
+        hr.
+    </floater.string>
+    <floater.string
      name="Minutes">
         [MINUTES] min.
     </floater.string>
@@ -36,6 +44,10 @@
     <floater.string
      name="Remaining">
         remaining
+    </floater.string>
+    <floater.string
+     name="Always">
+        Always
     </floater.string>
     <tab_container
      follows="all"
@@ -2063,19 +2075,29 @@ Only large parcels can be listed in search.
              name="BanCheck"
              top="0"
              width="200">
-                Always banned ([COUNT], max [MAX])
+                Banned ([COUNT], max [MAX])
             </text>
             <name_list
              column_padding="0"
              follows="top|bottom"
-             heading_height="14"
+             heading_height="16"
              height="125"
              layout="topleft"
              left="0"
              multi_select="true"
+             draw_heading="true"
              name="BannedList"
              tool_tip="([LISTED] listed, [MAX] max)"
-             width="230" />
+             width="230">
+             <columns
+              label="Name"
+              name="name"
+              width="155" />
+             <columns
+              label="Duration"
+              name="duration"
+              width="75" />
+            </name_list>
             <button
              follows="bottom"
              height="23"

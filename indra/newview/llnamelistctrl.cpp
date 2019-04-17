@@ -32,6 +32,7 @@
 
 #include "llavatarnamecache.h"
 #include "llcachename.h"
+#include "llfloater.h"
 #include "llfloaterreg.h"
 #include "llinventory.h"
 #include "llscrolllistitem.h"
@@ -212,7 +213,10 @@ BOOL LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 	BOOL handled = FALSE;
 	S32 column_index = getColumnIndexFromOffset(x);
 	LLNameListItem* hit_item = dynamic_cast<LLNameListItem*>(hitItem(x, y));
-	if (hit_item
+	LLFloater* floater = gFloaterView->getParentFloater(this);
+	if (floater 
+		&& floater->isFrontmost()
+		&& hit_item
 		&& column_index == mNameColumnIndex)
 	{
 		// ...this is the column with the avatar name
@@ -313,8 +317,19 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 	switch(name_item.target)
 	{
 	case GROUP:
-		gCacheName->getGroupName(id, fullname);
-		// fullname will be "nobody" if group not found
+		if (!gCacheName->getGroupName(id, fullname))
+		{
+			avatar_name_cache_connection_map_t::iterator it = mGroupNameCacheConnections.find(id);
+			if (it != mGroupNameCacheConnections.end())
+			{
+				if (it->second.connected())
+				{
+					it->second.disconnect();
+				}
+				mGroupNameCacheConnections.erase(it);
+			}
+			mGroupNameCacheConnections[id] = gCacheName->getGroup(id, boost::bind(&LLNameListCtrl::onGroupNameCache, this, _1, _2, item->getHandle()));
+		}
 		break;
 	case SPECIAL:
 		// just use supplied name
@@ -415,6 +430,20 @@ void LLNameListCtrl::removeNameItem(const LLUUID& agent_id)
 	}
 }
 
+// public
+LLScrollListItem* LLNameListCtrl::getNameItemByAgentId(const LLUUID& agent_id)
+{
+	for (item_list::iterator it = getItemList().begin(); it != getItemList().end(); it++)
+	{
+		LLScrollListItem* item = *it;
+		if (item && item->getUUID() == agent_id)
+		{
+			return item;
+		}
+	}
+	return NULL;
+}
+
 void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 									   const LLAvatarName& av_name,
 									   std::string suffix,
@@ -479,6 +508,31 @@ void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 	dirtyColumns();
 }
 
+void LLNameListCtrl::onGroupNameCache(const LLUUID& group_id, const std::string name, LLHandle<LLNameListItem> item)
+{
+	avatar_name_cache_connection_map_t::iterator it = mGroupNameCacheConnections.find(group_id);
+	if (it != mGroupNameCacheConnections.end())
+	{
+		if (it->second.connected())
+		{
+			it->second.disconnect();
+		}
+		mGroupNameCacheConnections.erase(it);
+	}
+
+	LLNameListItem* list_item = item.get();
+	if (list_item && list_item->getUUID() == group_id)
+	{
+		LLScrollListCell* cell = list_item->getColumn(mNameColumnIndex);
+		if (cell)
+		{
+			cell->setValue(name);
+			setNeedsSort();
+		}
+	}
+
+	dirtyColumns();
+}
 
 void LLNameListCtrl::updateColumns(bool force_update)
 {
