@@ -28,7 +28,7 @@
 #include "llimagej2coj.h"
 
 // this is defined so that we get static linking.
-#include "openjpeg.h"
+#include "opj_includes.h"
 
 #include "lltimer.h"
 //#include "llmemory.h"
