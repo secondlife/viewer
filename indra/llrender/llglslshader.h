@@ -48,6 +48,12 @@ public:
 	bool hasObjectSkinning;
 	bool hasAtmospherics;
 	bool hasGamma;
+    bool hasShadows;
+    bool hasAmbientOcclusion;
+	bool hasSrgb;
+    bool encodesNormal;
+    bool isDeferred;
+    bool hasIndirect;
 	S32 mIndexedTextureChannels;
 	bool disableTextureIndex;
 	bool hasAlphaMask;
@@ -96,7 +102,8 @@ public:
 						std::vector<LLStaticHashedString> * uniforms,
 						U32 varying_count = 0,
 						const char** varyings = NULL);
-	BOOL attachObject(std::string object);
+    BOOL attachFragmentObject(std::string object);
+    BOOL attachVertexObject(std::string object);
 	void attachObject(GLhandleARB object);
 	void attachObjects(GLhandleARB* objects = NULL, S32 count = 0);
 	BOOL mapAttributes(const std::vector<LLStaticHashedString> * attributes);
@@ -139,6 +146,7 @@ public:
 	GLint getAttribLocation(U32 attrib);
 	GLint mapUniformTextureChannel(GLint location, GLenum type);
 	
+    void clearPermutations();
 	void addPermutation(std::string name, std::string value);
 	void removePermutation(std::string name);
 	
@@ -146,8 +154,8 @@ public:
 	//if given texture uniform is active in the shader, 
 	//the corresponding channel will be active upon return
 	//returns channel texture is enabled in from [0-MAX)
-	S32 enableTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
-	S32 disableTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
+	S32 enableTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE, LLTexUnit::eTextureColorSpace space = LLTexUnit::TCS_LINEAR);
+    S32 disableTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE, LLTexUnit::eTextureColorSpace space = LLTexUnit::TCS_LINEAR);
 	
 	// bindTexture returns the texture unit we've bound the texture to.
 	// You can reuse the return value to unbind a texture when required.

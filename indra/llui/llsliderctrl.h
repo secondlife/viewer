@@ -125,6 +125,9 @@ public:
 		mSlider->setControlName(control_name, context);
 	}
 
+	/*virtual*/ void	setRect(const LLRect& rect);
+	/*virtual*/ void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+
 	static void		onSliderCommit(LLUICtrl* caller, const LLSD& userdata);
 	
 	static void		onEditorCommit(LLUICtrl* ctrl, const LLSD& userdata);
@@ -133,6 +136,7 @@ public:
 
 private:
 	void			updateText();
+	void			updateSliderRect();
 	void			reportInvalidData();
 
 	const LLFontGL*	mFont;

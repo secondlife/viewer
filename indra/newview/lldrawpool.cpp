@@ -127,7 +127,7 @@ LLDrawPool::LLDrawPool(const U32 type)
 	mType = type;
 	sNumDrawPools++;
 	mId = sNumDrawPools;
-	mVertexShaderLevel = 0;
+	mShaderLevel = 0;
 	mSkipRender = false;
 }
 
@@ -141,7 +141,7 @@ LLViewerTexture *LLDrawPool::getDebugTexture()
 	return NULL;
 }
 
-//virtuals
+//virtual
 void LLDrawPool::beginRenderPass( S32 pass )
 {
 }
@@ -449,10 +449,10 @@ void LLRenderPass::applyModelMatrix(const LLDrawInfo& params)
 	if (params.mModelMatrix != gGLLastMatrix)
 	{
 		gGLLastMatrix = params.mModelMatrix;
+        gGL.matrixMode(LLRender::MM_MODELVIEW);
 		gGL.loadMatrix(gGLModelView);
 		if (params.mModelMatrix)
 		{
-			llassert(gGL.getMatrixMode() == LLRender::MM_MODELVIEW);
 			gGL.multMatrix((GLfloat*) params.mModelMatrix->mMatrix);
 		}
 		gPipeline.mMatrixOpCount++;
@@ -515,6 +515,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL ba
 
 	if (tex_setup)
 	{
+        gGL.matrixMode(LLRender::MM_TEXTURE0);
 		gGL.loadIdentity();
 		gGL.matrixMode(LLRender::MM_MODELVIEW);
 	}

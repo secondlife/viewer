@@ -39,8 +39,6 @@
 #include "llwearablelist.h"
 #include "llvoavatarself.h"
 
-//#pragma optimize("", off)
-
 const F32 LLControlAvatar::MAX_LEGAL_OFFSET = 3.0f;
 const F32 LLControlAvatar::MAX_LEGAL_SIZE = 64.0f;
 

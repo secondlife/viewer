@@ -23,6 +23,8 @@
  * $/LicenseInfo$
  */
 
+/*[EXTRA_CODE_HERE]*/
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
@@ -31,7 +33,7 @@ out vec4 frag_color;
 
 uniform sampler2D diffuseMap;
 
-#if !DEPTH_CLAMP
+#if !defined(DEPTH_CLAMP)
 VARYING float pos_zd2;
 #endif
 
@@ -60,7 +62,7 @@ void main()
 
 	frag_color = vec4(1,1,1,1);
 	
-#if !DEPTH_CLAMP
+#if !defined(DEPTH_CLAMP)
 	gl_FragDepth = max(pos_zd2/pos_w+0.5, 0.0);
 #endif
 }

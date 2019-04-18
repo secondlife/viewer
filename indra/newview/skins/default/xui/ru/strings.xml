@@ -2499,6 +2499,9 @@ support@secondlife.com.
 	<string name="RegionSettings">
 		Региональные настройки
 	</string>
+	<string name="NoEnvironmentSettings">
+		Этот регион не поддерживает параметры среды.
+	</string>
 	<string name="ClassifiedClicksTxt">
 		Щелчки: телепорт [TELEPORT], карта [MAP], профиль [PROFILE]
 	</string>
@@ -4837,6 +4840,15 @@ support@secondlife.com.
 	</string>
 	<string name="Female - Wow">
 		Женщина – ух ты!
+	</string>
+	<string name="New Daycycle">
+		Новый суточный цикл
+	</string>
+	<string name="New Water">
+		Новая вода
+	</string>
+	<string name="New Sky">
+		Новое небо
 	</string>
 	<string name="/bow">
 		/поклониться

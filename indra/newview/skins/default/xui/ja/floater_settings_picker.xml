@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="settings picker" title="選択：設定">
+	<floater.string name="choose_picture">
+		クリックして写真を選択する
+	</floater.string>
+	<floater.string name="pick title">
+		選択：
+	</floater.string>
+	<layout_stack name="test_stack">
+		<layout_panel name="temp">
+			<filter_editor label="テクスチャをフィルター" name="flt_inventory_search"/>
+			<check_box initial_value="false" label="フォルダを表示" name="chk_showfolders"/>
+		</layout_panel>
+		<layout_panel name="temp">
+			<button label="OK" label_selected="OK" name="btn_select"/>
+			<button label="キャンセル" label_selected="キャンセル" name="btn_cancel"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

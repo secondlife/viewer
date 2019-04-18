@@ -5,9 +5,7 @@
 		<menu_item_call label="Ses (L$[COST])..." name="Upload Sound"/>
 		<menu_item_call label="Animasyon (L$[COST])..." name="Upload Animation"/>
 		<menu_item_call label="Model..." name="Upload Model"/>
-		<menu_item_call label="Model Sihirbazı..." name="Upload Model Wizard"/>
 		<menu_item_call label="Toplu (dosya başına L$[COST])..." name="Bulk Upload"/>
-		<menu_item_call label="Varsayılan Karşıya Yükleme İzinlerini Ayarla" name="perm prefs"/>
 	</menu>
 	<menu_item_call label="Yeni Klasör" name="New Folder"/>
 	<menu_item_call label="Yeni Komut Dosyası" name="New Script"/>
@@ -32,5 +30,10 @@
 		<menu_item_call label="Yeni Dış Katman" name="New Skin"/>
 		<menu_item_call label="Yeni Saç" name="New Hair"/>
 		<menu_item_call label="Yeni Gözler" name="New Eyes"/>
+	</menu>
+	<menu label="Yeni Ayarlar" name="New Settings">
+		<menu_item_call label="Yeni Gökyüzü" name="New Sky"/>
+		<menu_item_call label="Yeni Su" name="New Water"/>
+		<menu_item_call label="Yeni Gün Döngüsü" name="New Day Cycle"/>
 	</menu>
 </menu>

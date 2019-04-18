@@ -652,8 +652,8 @@
 
         <menu
          create_jump_keys="true"
-         label="Sun"
-         name="Sun"
+         label="Environment"
+         name="Environment"
          tear_off="true">
             <menu_item_check
              label="Sunrise"
@@ -697,10 +697,9 @@
                  function="World.EnableEnvSettings" 
                  parameter="midnight" />
             </menu_item_check>
-            <menu_item_separator/>
             <menu_item_check
-             label="Use Region Settings"
-             name="Use Region Settings">
+             label="Use Shared Environment"
+             name="Use Shared Environment">
                 <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="region" />
@@ -708,9 +707,36 @@
                  function="World.EnableEnvSettings" 
                  parameter="region" />
             </menu_item_check>
+            <menu_item_separator/>
+            <menu_item_call
+             label="My Environments..."
+             name="my_environs">
+                <menu_item_call.on_click
+                 function="World.EnvSettings"
+                 parameter="my_environs" />
+            </menu_item_call>
+            <menu_item_call
+             label="Personal Lighting..."
+             name="adjustment_tool">
+                <menu_item_call.on_click
+                 function="World.EnvSettings"
+                 parameter="adjust_tool" />
+            </menu_item_call>
+            <menu_item_separator/>
+            <menu_item_check
+             label="Pause Clouds"
+             name="pause_clouds">
+                <menu_item_check.on_click
+                 function="World.EnvSettings"
+                 parameter="pause_clouds" />
+                <menu_item_check.on_check
+                 function="World.EnableEnvSettings" 
+                 parameter="pause_clouds" />
+            </menu_item_check>
+            
         </menu>
 	    
-   
+<!--   
 	    <menu
 	     create_jump_keys="true"
 	     label="Environment Editor"
@@ -726,7 +752,7 @@
 	     	</menu_item_call>
 	     	
 	     	<menu_item_separator/>
-	     	
+
 	     	<menu
 	     	 name="Water Presets"
 	     	 label="Water Presets">
@@ -744,18 +770,8 @@
 	     	 	 	function="World.EnvPreset"
 	     	 	 	parameter="edit_water"/>
 	     	 	</menu_item_call>
-	     	 	<menu_item_call
-	     	 	 label="Delete preset..."
-	     	 	 name="delete_water_preset">
-	     	 	 	<menu_item_call.on_click
-	     	 	 	function="World.EnvPreset"
-	     	 	 	parameter="delete_water"/>
-	     	 	 	<menu_item_call.on_enable
-	     	 	 	function="World.EnableEnvPreset"
-	     	 	 	parameter="delete_water"/>
-	     	 	</menu_item_call>
 	     	</menu>
-	     	
+
 	     	<menu
 	     	 name="Sky Presets"
 	     	 label="Sky Presets">
@@ -772,16 +788,6 @@
 	     	 	 	<menu_item_call.on_click
 	     	 	 	function="World.EnvPreset"
 	     	 	 	parameter="edit_sky"/>
-	     	 	</menu_item_call>
-	     	 	<menu_item_call
-	     	 	 label="Delete preset..."
-	     	 	 name="delete_sky_preset">
-	     	 	 	<menu_item_call.on_click
-	     	 	 	function="World.EnvPreset"
-	     	 	 	parameter="delete_sky"/>
-	     	 	 	<menu_item_call.on_enable
-	     	 	 	function="World.EnableEnvPreset"
-	     	 	 	parameter="delete_sky"/>
 	     	 	</menu_item_call>
 	     	</menu>
 	     	
@@ -802,19 +808,9 @@
 	     	 	 	function="World.EnvPreset"
 	     	 	 	parameter="edit_day_cycle"/>
 	     	 	</menu_item_call>
-	     	 	<menu_item_call
-	     	 	 label="Delete preset..."
-	     	 	 name="delete_day_preset">
-	     	 	 	<menu_item_call.on_click
-	     	 	 	function="World.EnvPreset"
-	     	 	 	parameter="delete_day_cycle"/>
-	     	 	 	<menu_item_call.on_enable
-	     	 	 	function="World.EnableEnvPreset"
-	     	 	 	parameter="delete_day_cycle"/>
-	     	 	</menu_item_call>
 	     	</menu>
 	    </menu>
-    
+-->    
     
     </menu>
     <menu

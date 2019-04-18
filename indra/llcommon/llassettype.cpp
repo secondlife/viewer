@@ -95,10 +95,13 @@ LLAssetDictionary::LLAssetDictionary()
 	addEntry(LLAssetType::AT_MESH,              new AssetEntry("MESH",              "mesh",     "mesh",             false,      false,      false));
 	addEntry(LLAssetType::AT_WIDGET,            new AssetEntry("WIDGET",            "widget",   "widget",           false,      false,      false));
 	addEntry(LLAssetType::AT_PERSON,            new AssetEntry("PERSON",            "person",   "person",           false,      false,      false));
+	addEntry(LLAssetType::AT_SETTINGS,          new AssetEntry("SETTINGS",          "settings", "settings blob",    true,       true,       true));
 	addEntry(LLAssetType::AT_UNKNOWN,           new AssetEntry("UNKNOWN",           "invalid",  NULL,               false,      false,      false));
-	addEntry(LLAssetType::AT_NONE, 				new AssetEntry("NONE",				"-1",		NULL,		  		FALSE,		FALSE,		FALSE));
+    addEntry(LLAssetType::AT_NONE,              new AssetEntry("NONE",              "-1",		NULL,		  		FALSE,		FALSE,		FALSE));
 
 };
+
+const std::string LLAssetType::BADLOOKUP("llassettype_bad_lookup");
 
 // static
 LLAssetType::EType LLAssetType::getType(const std::string& desc_name)
@@ -118,7 +121,7 @@ const std::string &LLAssetType::getDesc(LLAssetType::EType asset_type)
 	}
 	else
 	{
-		return badLookup();
+		return BADLOOKUP;
 	}
 }
 
@@ -133,7 +136,7 @@ const char *LLAssetType::lookup(LLAssetType::EType asset_type)
 	}
 	else
 	{
-		return badLookup().c_str();
+		return BADLOOKUP.c_str();
 	}
 }
 
@@ -171,7 +174,7 @@ const char *LLAssetType::lookupHumanReadable(LLAssetType::EType asset_type)
 	}
 	else
 	{
-		return badLookup().c_str();
+		return BADLOOKUP.c_str();
 	}
 }
 
@@ -219,14 +222,6 @@ bool LLAssetType::lookupIsLinkType(EType asset_type)
 		return true;
 	}
 	return false;
-}
-
-// static
-const std::string &LLAssetType::badLookup()
-{
-	static const std::string sBadLookup = "llassettype_bad_lookup";
-	return sBadLookup;
-
 }
 
 // static

@@ -804,6 +804,17 @@ void LLFloaterPreferenceGraphicsAdvanced::onVertexShaderEnable()
 	refreshEnabledGraphics();
 }
 
+void LLFloaterPreferenceGraphicsAdvanced::onAdvancedAtmosphericsEnable()
+{
+	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+	if (instance)
+	{
+		instance->refresh();
+	}
+
+	refreshEnabledGraphics();
+}
+
 void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledGraphics()
 {
 	refreshEnabledState();
@@ -2740,7 +2751,7 @@ void LLPanelPreferenceGraphics::setHardwareDefaults()
 LLFloaterPreferenceGraphicsAdvanced::LLFloaterPreferenceGraphicsAdvanced(const LLSD& key)
 	: LLFloater(key)
 {
-	mCommitCallbackRegistrar.add("Pref.VertexShaderEnable",		boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onVertexShaderEnable, this));
+	mCommitCallbackRegistrar.add("Pref.VertexShaderEnable",		       boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onVertexShaderEnable, this));
 	mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxNonImpostors", boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateMaxNonImpostors,this));
 	mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxComplexity",   boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity,this));
 }

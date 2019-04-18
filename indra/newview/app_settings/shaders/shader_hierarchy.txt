@@ -7,7 +7,6 @@ avatar/avatarV.glsl - gAvatarProgram, gAvatarWaterProgram
 			sumLights() - lighting/sumLightsV.glsl
 				calcDirectionalLight() - lighting/lightFuncV.glsl
 				calcPointLight() - lighting/lightFuncV.glsl
-				scaleDownLight() - windlight/atmosphericsHelpersV.glsl
 				atmosAmbient() - windlight/atmosphericsHelpersV.glsl
 				atmosAffectDirectionalLight() - windlight/atmosphericsHelpersV.glsl
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -28,7 +27,6 @@ avatar/eyeballV.glsl - gAvatarEyeballProgram
 				atmosAmbient() - windlight/atmosphericsHelpersV.glsl
 				atmosAffectDirectionalLight() - windlight/atmosphericsHelpersV.glsl
 				atmosGetDiffuseSunlightColor() - windlight/atmosphericsHelpersV.glsl
-				scaleDownLight() - windlight/atmosphericsHelpersV.glsl
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 avatar/eyeballF.glsl - gAvatarEyeballProgram
 	main() - avatar/eyeballF.glsl
@@ -53,7 +51,6 @@ environment/terrainV.glsl - gTerrainProgram, gTerrainWaterProgram
 			sumLights() - lighting/sumLightsV.glsl
 				calcDirectionalLight() - lighting/lightFuncV.glsl
 				calcPointLight() - lighting/lightFuncV.glsl
-				scaleDownLight() - windlight/atmosphericsHelpersV.glsl
 				atmosAmbient() - windlight/atmosphericsHelpersV.glsl
 				atmosAffectDirectionalLight() - windlight/atmosphericsHelpersV.glsl
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -120,7 +117,6 @@ objects/shinyV.glsl - gObjectShinyProgram, gObjectShinyWaterProgram
 				sumLights() - lighting/sumLightsV.glsl
 					calcDirectionalLight() - lighting/lightFuncV.glsl
 					calcPointLight() - lighting/lightFuncV.glsl
-					scaleDownLight() - windlight/atmosphericsHelpersV.glsl
 					atmosAmbient() - windlight/atmosphericsHelpersV.glsl
 					atmosAffectDirectionalLight() - windlight/atmosphericsHelpersV.glsl
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -143,7 +139,6 @@ objects/simpleV.glsl - gObjectSimpleProgram, gObjectSimpleWaterProgram
 			sumLights() - lighting/sumLightsV.glsl
 				calcDirectionalLight() - lighting/lightFuncV.glsl
 				calcPointLight() - lighting/lightFuncV.glsl
-				scaleDownLight() - windlight/atmosphericsHelpersV.glsl
 				atmosAmbient() - windlight/atmosphericsHelpersV.glsl
 				atmosAffectDirectionalLight() - windlight/atmosphericsHelpersV.glsl
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

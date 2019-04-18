@@ -49,7 +49,7 @@ vec4 sumLights(vec3 pos, vec3 norm, vec4 color, vec4 baseLight)
 
 	// Add windlight lights
 	col.rgb += atmosAmbient(baseLight.rgb);
-	col.rgb += atmosAffectDirectionalLight(calcDirectionalLight(norm, light_position[0].xyz));
+	col.rgb += light_diffuse[0].rgb * calcDirectionalLight(norm, light_position[0].xyz));
 				
 	col.rgb = min(col.rgb*color.rgb, 1.0);
 	

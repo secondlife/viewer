@@ -31,16 +31,7 @@
 #include "lldictionary.h"
 #include "llinventorytype.h"
 #include "llsingleton.h"
-
-class LLTranslationBridge
-{
-public:
-	// clang needs this to be happy
-	virtual ~LLTranslationBridge() {}
-
-	virtual std::string getString(const std::string &xml_desc) = 0;
-};
-
+#include "llinvtranslationbrdg.h"
 
 class LLWearableType
 {
@@ -69,7 +60,7 @@ public:
 		WT_NONE		  = -1,
 	};
 
-	static void			initClass(LLTranslationBridge* trans); // initializes static members
+	static void			initClass(LLTranslationBridge::ptr_t &trans); // initializes static members
 	static void			cleanupClass(); // initializes static members
 
 	static const std::string& 			getTypeName(EType type);

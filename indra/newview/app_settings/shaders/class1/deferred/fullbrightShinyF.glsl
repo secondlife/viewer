@@ -23,7 +23,7 @@
  * $/LicenseInfo$
  */
  
-
+/*[EXTRA_CODE_HERE]*/
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -31,7 +31,7 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-#ifndef diffuseLookup
+#ifndef HAS_DIFFUSE_LOOKUP
 uniform sampler2D diffuseMap;
 #endif
 
@@ -46,7 +46,7 @@ vec3 fullbrightScaleSoftClip(vec3 light);
 
 void main()
 {
-#if HAS_DIFFUSE_LOOKUP
+#ifdef HAS_DIFFUSE_LOOKUP
 	vec4 color = diffuseLookup(vary_texcoord0.xy);
 #else
 	vec4 color = texture2D(diffuseMap, vary_texcoord0.xy);

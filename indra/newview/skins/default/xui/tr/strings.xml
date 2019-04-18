@@ -636,6 +636,15 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="BUTTON_HELP">
 		Yardımı Göster
 	</string>
+	<string name="TooltipNotecardNotAllowedTypeDrop">
+		Bu türe ait öğeler bu bölgedeki 
+not kartlarına eklenemez.
+	</string>
+	<string name="TooltipNotecardOwnerRestrictedDrop">
+		Sadece kısıtlamasız &apos;sonraki sahip&apos; 
+izinlerini içeren öğeler not 
+kartlarına eklenebilir.
+	</string>
 	<string name="Searching">
 		Arıyor...
 	</string>
@@ -783,6 +792,9 @@ http://secondlife.com/support adresini ziyaret edin.
 	</string>
 	<string name="symbolic link">
 		bağlantı
+	</string>
+	<string name="settings blob">
+		ayarlar
 	</string>
 	<string name="symbolic folder link">
 		klasör bağlantısı
@@ -2498,6 +2510,9 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 	</string>
 	<string name="RegionSettings">
 		Bölge Ayarları
+	</string>
+	<string name="NoEnvironmentSettings">
+		Bu Bölge ortam ayarlarını desteklemiyor.
 	</string>
 	<string name="ClassifiedClicksTxt">
 		Tıklamalar: [TELEPORT] ışınlama, [MAP] harita, [PROFILE] profil
@@ -4838,6 +4853,15 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	</string>
 	<string name="Female - Wow">
 		Kadın - Vay be
+	</string>
+	<string name="New Daycycle">
+		Yeni Gün döngüsü
+	</string>
+	<string name="New Water">
+		Yeni Su
+	</string>
+	<string name="New Sky">
+		Yeni Gökyüzü
 	</string>
 	<string name="/bow">
 		/selamlama

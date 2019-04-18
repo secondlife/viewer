@@ -31,6 +31,7 @@
 #include "llframetimer.h"
 #include "llwearable.h"
 #include "llinitdestroyclass.h" //for LLDestroyClass
+#include "llinventorysettings.h"
 
 #include <boost/signals2.hpp>	// boost::signals2::trackable
 
@@ -74,6 +75,9 @@ public:
 	virtual LLInventoryType::EType getInventoryType() const;
 	virtual bool isWearableType() const;
 	virtual LLWearableType::EType getWearableType() const;
+    virtual bool isSettingsType() const;
+    virtual LLSettingsType::type_e getSettingsType() const;
+
 	virtual U32 getFlags() const;
 	virtual time_t getCreationDate() const;
 	virtual U32 getCRC32() const; // really more of a checksum.
@@ -295,7 +299,7 @@ public:
 
 	// virtual
 	void fire(const LLUUID& item_id)
-{
+    {
 		mFireFunc(item_id);
 	}
 
@@ -336,16 +340,31 @@ public:
 extern LLInventoryCallbackManager gInventoryCallbacks;
 
 
-#define NOT_WEARABLE (LLWearableType::EType)0
+const U8 NO_INV_SUBTYPE{ 0 };
 
 // *TODO: Find a home for these
 void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 						   const LLUUID& parent, const LLTransactionID& transaction_id,
 						   const std::string& name,
 						   const std::string& desc, LLAssetType::EType asset_type,
-						   LLInventoryType::EType inv_type, LLWearableType::EType wtype,
+						   LLInventoryType::EType inv_type, U8 subtype,
 						   U32 next_owner_perm,
 						   LLPointer<LLInventoryCallback> cb);
+
+void create_inventory_wearable(const LLUUID& agent_id, const LLUUID& session_id,
+    const LLUUID& parent, const LLTransactionID& transaction_id,
+    const std::string& name,
+    const std::string& desc, LLAssetType::EType asset_type,
+    LLWearableType::EType wtype,
+    U32 next_owner_perm,
+    LLPointer<LLInventoryCallback> cb);
+
+void create_inventory_settings(const LLUUID& agent_id, const LLUUID& session_id,
+    const LLUUID& parent, const LLTransactionID& transaction_id,
+    const std::string& name, const std::string& desc, 
+    LLSettingsType::type_e settype, 
+    U32 next_owner_perm, LLPointer<LLInventoryCallback> cb);
+
 
 void create_inventory_callingcard(const LLUUID& avatar_id, const LLUUID& parent = LLUUID::null, LLPointer<LLInventoryCallback> cb=NULL);
 

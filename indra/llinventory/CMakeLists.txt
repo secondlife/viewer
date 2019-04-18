@@ -23,12 +23,17 @@ set(llinventory_SOURCE_FILES
     llfoldertype.cpp
     llinventory.cpp
     llinventorydefines.cpp
+    llinventorysettings.cpp
     llinventorytype.cpp
     lllandmark.cpp
     llnotecard.cpp
     llparcel.cpp
     llpermissions.cpp
     llsaleinfo.cpp
+    llsettingsbase.cpp
+    llsettingsdaycycle.cpp
+    llsettingssky.cpp
+    llsettingswater.cpp
     lltransactionflags.cpp
     lluserrelations.cpp
     )
@@ -41,7 +46,9 @@ set(llinventory_HEADER_FILES
     llfoldertype.h
     llinventory.h
     llinventorydefines.h
+    llinventorysettings.h
     llinventorytype.h
+    llinvtranslationbrdg.h
     lllandmark.h
     llnotecard.h
     llparcel.h
@@ -49,6 +56,10 @@ set(llinventory_HEADER_FILES
     llpermissions.h
     llpermissionsflags.h
     llsaleinfo.h
+    llsettingsbase.h
+    llsettingsdaycycle.h
+    llsettingssky.h
+    llsettingswater.h
     lltransactionflags.h
     lltransactiontypes.h
     lluserrelations.h

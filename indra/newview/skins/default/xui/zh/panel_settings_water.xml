@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="水文" name="panel_settings_water">
+	<layout_stack name="water_stack1">
+		<layout_panel>
+			<text name="FresnelOffsetText">
+				菲涅耳偏距：
+			</text>
+		</layout_panel>
+		<layout_panel>
+			<layout_stack name="water_stack2">
+				<layout_panel>
+					<slider label="X:" name="water_normal_scale_x"/>
+					<slider label="Y:" name="water_normal_scale_y"/>
+					<slider label="Z:" name="water_normal_scale_z"/>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
+</panel>

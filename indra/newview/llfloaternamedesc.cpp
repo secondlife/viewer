@@ -161,7 +161,7 @@ void LLFloaterNameDesc::onBtnOK( )
 {
 	getChildView("ok_btn")->setEnabled(FALSE); // don't allow inadvertent extra uploads
 	
-	LLAssetStorage::LLStoreAssetCallback callback = NULL;
+	LLAssetStorage::LLStoreAssetCallback callback;
 	S32 expected_upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload(); // kinda hack - assumes that unsubclassed LLFloaterNameDesc is only used for uploading chargeable assets, which it is right now (it's only used unsubclassed for the sound upload dialog, and THAT should be a subclass).
 
     if (can_afford_transaction(expected_upload_cost))
@@ -169,7 +169,7 @@ void LLFloaterNameDesc::onBtnOK( )
         void *nruserdata = NULL;
         std::string display_name = LLStringUtil::null;
 
-        LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
+        LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLNewFileResourceUploadInfo>(
             mFilenameAndPath,
             getChild<LLUICtrl>("name_form")->getValue().asString(),
             getChild<LLUICtrl>("description_form")->getValue().asString(), 0,

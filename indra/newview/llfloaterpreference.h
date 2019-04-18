@@ -298,6 +298,7 @@ class LLFloaterPreferenceGraphicsAdvanced : public LLFloater
 	void refresh();
 	// callback for when client turns on shaders
 	void onVertexShaderEnable();
+    void onAdvancedAtmosphericsEnable();
 	LOG_CLASS(LLFloaterPreferenceGraphicsAdvanced);
 };
 

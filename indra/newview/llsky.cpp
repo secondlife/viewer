@@ -51,19 +51,16 @@
 #include "llvosky.h"
 #include "llcubemap.h"
 #include "llviewercontrol.h"
-#include "llenvmanager.h"
-
+#include "llenvironment.h"
+#include "llvoavatarself.h"
 #include "llvowlsky.h"
 
 F32 azimuth_from_vector(const LLVector3 &v);
 F32 elevation_from_vector(const LLVector3 &v);
 
-LLSky				gSky;
+LLSky gSky;
+
 // ---------------- LLSky ----------------
-
-const F32 LLSky::NIGHTTIME_ELEVATION = -8.0f; // degrees
-const F32 LLSky::NIGHTTIME_ELEVATION_COS = (F32)sin(NIGHTTIME_ELEVATION*DEG_TO_RAD);
-
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -77,8 +74,6 @@ LLSky::LLSky()
 
 	mLightingGeneration = 0;
 	mUpdatedThisFrame = TRUE;
-	mOverrideSimSunPosition = FALSE;
-	mSunPhase = 0.f;
 }
 
 
@@ -134,211 +129,89 @@ void LLSky::resetVertexBuffers()
 	}
 }
 
-void LLSky::setOverrideSun(BOOL override)
+void LLSky::setSunScale(F32 sun_scale)
 {
-	if (!mOverrideSimSunPosition && override)
-	{
-		mLastSunDirection = getSunDirection();
-	}
-	else if (mOverrideSimSunPosition && !override)
-	{
-		setSunDirection(mLastSunDirection, LLVector3::zero);
-	}
-	mOverrideSimSunPosition = override;
-}
-
-void LLSky::setSunDirection(const LLVector3 &sun_direction, const LLVector3 &sun_ang_velocity)
-{
-	if(mVOSkyp.notNull()) {
-		mVOSkyp->setSunDirection(sun_direction, sun_ang_velocity);
+    if(mVOSkyp.notNull())
+    {
+        mVOSkyp->setSunScale(sun_scale);
 	}
 }
 
-
-void LLSky::setSunTargetDirection(const LLVector3 &sun_direction, const LLVector3 &sun_ang_velocity)
+void LLSky::setMoonScale(F32 moon_scale)
 {
-	mSunTargDir = sun_direction;
-}
-
-
-LLVector3 LLSky::getSunDirection() const
-{
-	if (mVOSkyp)
-	{
-		return mVOSkyp->getToSun();
-	}
-	else
-	{
-		return LLVector3::z_axis;
+    if(mVOSkyp.notNull())
+    {
+        mVOSkyp->setMoonScale(moon_scale);
 	}
 }
 
-
-LLVector3 LLSky::getMoonDirection() const
+void LLSky::setSunTextures(const LLUUID& sun_texture, const LLUUID& sun_texture_next)
 {
-	if (mVOSkyp)
-	{
-		return mVOSkyp->getToMoon();
-	}
-	else
-	{
-		return LLVector3::z_axis;
+    if(mVOSkyp.notNull()) {
+        mVOSkyp->setSunTextures(sun_texture, sun_texture_next);
 	}
 }
 
-
-LLColor4 LLSky::getSunDiffuseColor() const
+void LLSky::setMoonTextures(const LLUUID& moon_texture, const LLUUID& moon_texture_next)
 {
-	if (mVOSkyp)
-	{
-		return LLColor4(mVOSkyp->getSunDiffuseColor());
-	}
-	else
-	{
-		return LLColor4(1.f, 1.f, 1.f, 1.f);
+    if(mVOSkyp.notNull()) {
+        mVOSkyp->setMoonTextures(moon_texture, moon_texture_next);
 	}
 }
 
-LLColor4 LLSky::getSunAmbientColor() const
+void LLSky::setCloudNoiseTextures(const LLUUID& cloud_noise_texture, const LLUUID& cloud_noise_texture_next)
 {
-	if (mVOSkyp)
-	{
-		return LLColor4(mVOSkyp->getSunAmbientColor());
-	}
-	else
-	{
-		return LLColor4(0.f, 0.f, 0.f, 1.f);
+    if(mVOSkyp.notNull()) {
+        mVOSkyp->setCloudNoiseTextures(cloud_noise_texture, cloud_noise_texture_next);
 	}
 }
 
-
-LLColor4 LLSky::getMoonDiffuseColor() const
+void LLSky::setBloomTextures(const LLUUID& bloom_texture, const LLUUID& bloom_texture_next)
 {
-	if (mVOSkyp)
-	{
-		return LLColor4(mVOSkyp->getMoonDiffuseColor());
-	}
-	else
-	{
-		return LLColor4(1.f, 1.f, 1.f, 1.f);
+    if(mVOSkyp.notNull()) {
+        mVOSkyp->setBloomTextures(bloom_texture, bloom_texture_next);
 	}
 }
 
-LLColor4 LLSky::getMoonAmbientColor() const
+void LLSky::setSunAndMoonDirectionsCFR(const LLVector3 &sun_direction, const LLVector3 &moon_direction)
 {
-	if (mVOSkyp)
-	{
-		return LLColor4(mVOSkyp->getMoonAmbientColor());
-	}
-	else
-	{
-		return LLColor4(0.f, 0.f, 0.f, 0.f);
+    if(mVOSkyp.notNull()) {
+        mVOSkyp->setSunAndMoonDirectionsCFR(sun_direction, moon_direction);
 	}
 }
 
-
-LLColor4 LLSky::getTotalAmbientColor() const
+void LLSky::setSunDirectionCFR(const LLVector3 &sun_direction)
 {
-	if (mVOSkyp)
-	{
-		return mVOSkyp->getTotalAmbientColor();
-	}
-	else
-	{
-		return LLColor4(1.f, 1.f, 1.f, 1.f);
+    if(mVOSkyp.notNull()) {
+        mVOSkyp->setSunDirectionCFR(sun_direction);
 	}
 }
 
-
-BOOL LLSky::sunUp() const
+void LLSky::setMoonDirectionCFR(const LLVector3 &moon_direction)
 {
-	if (mVOSkyp)
-	{
-		return mVOSkyp->isSunUp();
-	}
-	else
-	{
-		return TRUE;
+    if(mVOSkyp.notNull()) {
+        mVOSkyp->setMoonDirectionCFR(moon_direction);
 	}
 }
-
-
-LLColor4U LLSky::getFadeColor() const
-{
-	if (mVOSkyp)
-	{
-		return mVOSkyp->getFadeColor();
-	}
-	else
-	{
-		return LLColor4(1.f, 1.f, 1.f, 1.f);
-	}
-}
-
 
 //////////////////////////////////////////////////////////////////////
 // Public Methods
 //////////////////////////////////////////////////////////////////////
 
-void LLSky::init(const LLVector3 &sun_direction)
+void LLSky::init()
 {
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-
 	mVOWLSkyp = static_cast<LLVOWLSky*>(gObjectList.createObjectViewer(LLViewerObject::LL_VO_WL_SKY, NULL));
-	mVOWLSkyp->initSunDirection(sun_direction, LLVector3::zero);
+    mVOWLSkyp->init();
 	gPipeline.createObject(mVOWLSkyp.get());
 
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-
 	mVOSkyp = (LLVOSky *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_SKY, NULL);
-
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-
-	mVOSkyp->initSunDirection(sun_direction, LLVector3());
-
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-
-	gPipeline.createObject((LLViewerObject *)mVOSkyp);
-
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
+    mVOSkyp->init();
+	gPipeline.createObject(mVOSkyp.get());
 
 	mVOGroundp = (LLVOGround*)gObjectList.createObjectViewer(LLViewerObject::LL_VO_GROUND, NULL);
-	LLVOGround *groundp = mVOGroundp;
-	gPipeline.createObject((LLViewerObject *)groundp);
+	gPipeline.createObject(mVOGroundp.get());
 
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-
-	gSky.setFogRatio(gSavedSettings.getF32("RenderFogRatio"));	
-
-	////////////////////////////
-	//
-	// Legacy code, ignore
-	//
-	//
-
-	// Get the parameters.
-	mSunDefaultPosition = gSavedSettings.getVector3("SkySunDefaultPosition");
-
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-
-	if (gSavedSettings.getBOOL("SkyOverrideSimSunPosition") || mOverrideSimSunPosition)
-	{
-		setSunDirection(mSunDefaultPosition, LLVector3(0.f, 0.f, 0.f));
-	}
-	else
-	{
-		setSunDirection(sun_direction, LLVector3(0.f, 0.f, 0.f));
-	}
-
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
+	gSky.setFogRatio(gSavedSettings.getF32("RenderFogRatio"));
 
 	mUpdatedThisFrame = TRUE;
 }
@@ -361,37 +234,21 @@ void LLSky::setWind(const LLVector3& average_wind)
 	}
 }
 
+void LLSky::addSunMoonBeacons()
+{	
+	if (!gAgentAvatarp || !mVOSkyp) return;
 
-void LLSky::propagateHeavenlyBodies(F32 dt)
-{
-	if (!mOverrideSimSunPosition)
+	static LLUICachedControl<bool> show_sun_beacon("sunbeacon", false);
+	static LLUICachedControl<bool> show_moon_beacon("moonbeacon", false);
+
+	if (show_sun_beacon)
 	{
-		LLVector3 curr_dir = getSunDirection();
-		LLVector3 diff = mSunTargDir - curr_dir;
-		const F32 dist = diff.normVec();
-		if (dist > 0)
-		{
-			const F32 step = llmin (dist, 0.00005f);
-			//const F32 step = min (dist, 0.0001);
-			diff *= step;
-			curr_dir += diff;
-			curr_dir.normVec();
-			if (mVOSkyp)
-			{
-				mVOSkyp->setSunDirection(curr_dir, LLVector3());
-			}
-		}
+		renderSunMoonBeacons(gAgentAvatarp->getPositionAgent(), mVOSkyp->getSun().getDirection(), LLColor4(1.f, 0.5f, 0.f, 0.5f));
 	}
-}
-
-F32 LLSky::getSunPhase() const
-{
-	return mSunPhase;
-}
-
-void LLSky::setSunPhase(const F32 phase)
-{
-	mSunPhase = phase;
+	if (show_moon_beacon)
+	{
+		renderSunMoonBeacons(gAgentAvatarp->getPositionAgent(), mVOSkyp->getMoon().getDirection(), LLColor4(1.f, 0.f, 0.8f, 0.5f));
+	}
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -399,11 +256,11 @@ void LLSky::setSunPhase(const F32 phase)
 //////////////////////////////////////////////////////////////////////
 
 
-LLColor4 LLSky::getFogColor() const
+LLColor4 LLSky::getSkyFogColor() const
 {
 	if (mVOSkyp)
 	{
-		return mVOSkyp->getFogColor();
+		return mVOSkyp->getSkyFogColor();
 	}
 
 	return LLColor4(1.f, 1.f, 1.f, 1.f);

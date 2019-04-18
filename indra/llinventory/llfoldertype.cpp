@@ -100,6 +100,8 @@ LLFolderDictionary::LLFolderDictionary()
 	addEntry(LLFolderType::FT_MARKETPLACE_STOCK,    new FolderEntry("stock",    FALSE));
 	addEntry(LLFolderType::FT_MARKETPLACE_VERSION,  new FolderEntry("version",    FALSE));
 		 
+    addEntry(LLFolderType::FT_SETTINGS,             new FolderEntry("settings", TRUE));
+
 	addEntry(LLFolderType::FT_NONE, 				new FolderEntry("-1",		FALSE));
 };
 
@@ -147,7 +149,7 @@ bool LLFolderType::lookupIsEnsembleType(EType folder_type)
 // static
 LLAssetType::EType LLFolderType::folderTypeToAssetType(LLFolderType::EType folder_type)
 {
-	if (LLAssetType::lookup(LLAssetType::EType(folder_type)) == LLAssetType::badLookup())
+	if (LLAssetType::lookup(LLAssetType::EType(folder_type)) == LLAssetType::BADLOOKUP)
 	{
 		LL_WARNS() << "Converting to unknown asset type " << folder_type << LL_ENDL;
 	}

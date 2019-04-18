@@ -537,6 +537,26 @@ inline void ll_remove_outliers(std::vector<VEC_TYPE>& data, F32 k)
 	}
 }
 
+// This converts from a non-linear sRGB floating point value (0..1) to a linear value.
+// Useful for gamma correction and such.  Note: any values passed through this should not be serialized.  You should also ideally cache the output of this.
+inline float sRGBtoLinear(const float val) {
+    if (val < 0.0031308f) {
+        return val * 12.92f;
+    }
+    else {
+        return 1.055f * pow(val, 1.0f / 2.4f) - 0.055f;
+    }
+}
+
+inline float linearTosRGB(const float val) {
+    if (val < 0.04045f) {
+        return val / 12.92f;
+    }
+    else {
+        return pow((val + 0.055f) / 1.055f, 2.4f);
+    }
+}
+
 // Include simd math header
 #include "llsimdmath.h"
 

@@ -706,7 +706,7 @@ class LL_COMMON_API LLSDSerialize
 public:
 	enum ELLSD_Serialize
 	{
-		LLSD_BINARY, LLSD_XML
+        LLSD_BINARY, LLSD_XML, LLSD_NOTATION
 	};
 
 	/**

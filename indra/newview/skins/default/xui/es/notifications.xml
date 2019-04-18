@@ -1947,6 +1947,10 @@ Se cambiarán miles de regiones, y se provocará un colapso en el espacio del se
 		Si esta opción no está seleccionada, se anularán las restricciones establecidas por los dueños de parcelas para evitar provocaciones, mantener la privacidad o proteger a los residentes menores de material para adultos. Por favor, consulte con los dueños de parcelas según sea necesario.
 		<usetemplate name="okbutton" yestext="Aceptar"/>
 	</notification>
+	<notification name="EstateParcelEnvironmentOverride">
+		Si esta opción no está seleccionada, se anularán los entornos personalizados añadidos por los dueños a sus parcelas. Por favor, consulta con los dueños de parcelas según sea necesario.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="RegionEntryAccessBlocked">
 		Tus preferencias de contenido actuales te impiden visitar la región que has seleccionado.  Puedes cambiar las preferencias en Yo &gt; Preferencias &gt; General.
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -4374,5 +4378,41 @@ Prueba a seleccionar un terreno más pequeño.
 	<notification name="OutfitPhotoLoadError">
 		[REASON]
 		<usetemplate name="okbutton" yestext="Aceptar"/>
+	</notification>
+	<notification name="FailedToFindSettings">
+		No se pudo cargar la configuración para [NAME] a partir de la base de datos.
+	</notification>
+	<notification name="FailedToLoadSettingsApply">
+		No se pudo aplicar esa configuración al entorno.
+	</notification>
+	<notification name="FailedToBuildSettingsDay">
+		No se pudo aplicar esa configuración al entorno.
+	</notification>
+	<notification name="NoEnvironmentSettings">
+		Esta región no es compatible con las opciones de entorno.
+	</notification>
+	<notification name="WLImportFail">
+		No se pudo importar la configuración de Viento de luz legado de [FILE].
+	</notification>
+	<notification name="WLParcelApplyFail">
+		No se pudo configurar el entorno para esta parcela. 
+Por favor ingresa o selecciona una parcela cuyos derechos puedes modificar.
+	</notification>
+	<notification name="SettingsUnsuported">
+		La configuración de entorno no está disponible en esta región. 
+Por favor accede a una región cuya configuración esté disponible y vuelve a intentar.
+	</notification>
+	<notification name="SettingsConfirmLoss">
+		Estás a punto de perder los cambios que realizaste en este [TYPE] llamado &quot;[NAME]&quot;. 
+¿Estás seguro de que deseas continuar?
+		<usetemplate ignoretext="¿Estás seguro de que quieres perder los cambios?" name="okcancelignore" notext="No" yestext="Sí"/>
+	</notification>
+	<notification name="SettingsMakeNoTrans">
+		Estás a punto de importar parámetros no transferibles a este ciclo del día. Si continúas, las opciones que estás editando pasarán a ser no transferibles también. 
+
+Este cambio no se puede deshacer. 
+
+¿Estás seguro de que deseas continuar?
+		<usetemplate ignoretext="¿Estás seguro de que quieres que esta opción sea no transferible?" name="okcancelignore" notext="No" yestext="Sí"/>
 	</notification>
 </notifications>

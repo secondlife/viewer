@@ -34,7 +34,7 @@ vec3 atmosGetDiffuseSunlightColor();
 vec3 scaleDownLight(vec3 light);
 
 uniform vec4 light_position[8];
-uniform vec3 light_attenuation[8]; 
+uniform vec4 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
 
 vec4 sumLightsSpecular(vec3 pos, vec3 norm, vec4 color, inout vec4 specularColor, vec4 baseCol)

@@ -465,5 +465,6 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			</panel>
 		</panel>
 		<panel label="ERLEBNISSE" name="land_experiences_panel"/>
+		<panel label="UMGEBUNG" name="land_environment_panel"/>
 	</tab_container>
 </floater>

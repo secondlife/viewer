@@ -193,7 +193,7 @@ LLDrawPoolBump::LLDrawPoolBump()
 
 void LLDrawPoolBump::prerender()
 {
-	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
+	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
 }
 
 // static
@@ -201,7 +201,7 @@ S32 LLDrawPoolBump::numBumpPasses()
 {
 	if (gSavedSettings.getBOOL("RenderObjectBump"))
 	{
-		if (mVertexShaderLevel > 1)
+		if (mShaderLevel > 1)
 		{
 			if (LLPipeline::sImpostorRender)
 			{
@@ -241,7 +241,7 @@ void LLDrawPoolBump::beginRenderPass(S32 pass)
 			beginShiny();
 			break;
 		case 1:
-			if (mVertexShaderLevel > 1)
+			if (mShaderLevel > 1)
 			{
 				beginFullbrightShiny();
 			}
@@ -274,7 +274,7 @@ void LLDrawPoolBump::render(S32 pass)
 			renderShiny();
 			break;
 		case 1:
-			if (mVertexShaderLevel > 1)
+			if (mShaderLevel > 1)
 			{
 				renderFullbrightShiny();
 			}
@@ -301,7 +301,7 @@ void LLDrawPoolBump::endRenderPass(S32 pass)
 			endShiny();
 			break;
 		case 1:
-			if (mVertexShaderLevel > 1)
+			if (mShaderLevel > 1)
 			{
 				endFullbrightShiny();
 			}
@@ -335,12 +335,12 @@ void LLDrawPoolBump::beginShiny(bool invisible)
 	mShiny = TRUE;
 	sVertexMask = VERTEX_MASK_SHINY;
 	// Second pass: environment map
-	if (!invisible && mVertexShaderLevel > 1)
+	if (!invisible && mShaderLevel > 1)
 	{
 		sVertexMask = VERTEX_MASK_SHINY | LLVertexBuffer::MAP_TEXCOORD0;
 	}
 	
-	if (getVertexShaderLevel() > 0)
+	if (getShaderLevel() > 0)
 	{
 		if (LLPipeline::sUnderWaterRender)
 		{
@@ -351,15 +351,23 @@ void LLDrawPoolBump::beginShiny(bool invisible)
 			shader = &gObjectShinyProgram;
 		}
 		shader->bind();
+        if (LLPipeline::sRenderingHUDs)
+        {
+            shader->uniform1i(LLShaderMgr::NO_ATMO, 1);
+        }
+        else
+        {
+            shader->uniform1i(LLShaderMgr::NO_ATMO, 0);
+        }
 	}
 	else
 	{
 		shader = NULL;
 	}
 
-	bindCubeMap(shader, mVertexShaderLevel, diffuse_channel, cube_channel, invisible);
+	bindCubeMap(shader, mShaderLevel, diffuse_channel, cube_channel, invisible);
 
-	if (mVertexShaderLevel > 1)
+	if (mShaderLevel > 1)
 	{ //indexed texture rendering, channel 0 is always diffuse
 		diffuse_channel = 0;
 	}
@@ -428,7 +436,7 @@ void LLDrawPoolBump::renderShiny(bool invisible)
 	if( gSky.mVOSkyp->getCubeMap() )
 	{
 		LLGLEnable blend_enable(GL_BLEND);
-		if (!invisible && mVertexShaderLevel > 1)
+		if (!invisible && mShaderLevel > 1)
 		{
 			LLRenderPass::pushBatches(LLRenderPass::PASS_SHINY, sVertexMask | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
 		}
@@ -453,7 +461,7 @@ void LLDrawPoolBump::unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& 
 		{
 			shader->disableTexture(LLViewerShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
 					
-			if (LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 0)
+			if (LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 0)
 			{
 				if (diffuse_channel != 0)
 				{
@@ -486,7 +494,7 @@ void LLDrawPoolBump::endShiny(bool invisible)
 		return;
 	}
 
-	unbindCubeMap(shader, mVertexShaderLevel, diffuse_channel, cube_channel, invisible);
+	unbindCubeMap(shader, mShaderLevel, diffuse_channel, cube_channel, invisible);
 	if (shader)
 	{
 		shader->unbind();
@@ -534,6 +542,15 @@ void LLDrawPoolBump::beginFullbrightShiny()
 					 LLVector4(gGLModelView+8),
 					 LLVector4(gGLModelView+12));
 		shader->bind();
+        if (LLPipeline::sRenderingHUDs)
+        {
+            shader->uniform1i(LLShaderMgr::NO_ATMO, 1);
+        }
+        else
+        {
+            shader->uniform1i(LLShaderMgr::NO_ATMO, 0);
+        }
+
 		LLVector3 vec = LLVector3(gShinyOrigin) * mat;
 		LLVector4 vec4(vec, gShinyOrigin.mV[3]);
 		shader->uniform4fv(LLViewerShaderMgr::SHINY_ORIGIN, 1, vec4.mV);			
@@ -551,7 +568,7 @@ void LLDrawPoolBump::beginFullbrightShiny()
 		gGL.getTexUnit(0)->activate();
 	}
 
-	if (mVertexShaderLevel > 1)
+	if (mShaderLevel > 1)
 	{ //indexed texture rendering, channel 0 is always diffuse
 		diffuse_channel = 0;
 	}
@@ -571,7 +588,7 @@ void LLDrawPoolBump::renderFullbrightShiny()
 	{
 		LLGLEnable blend_enable(GL_BLEND);
 
-		if (mVertexShaderLevel > 1)
+		if (mShaderLevel > 1)
 		{
 			LLRenderPass::pushBatches(LLRenderPass::PASS_FULLBRIGHT_SHINY, sVertexMask | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
 		}
@@ -1524,7 +1541,7 @@ void LLDrawPoolBump::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL 
 			tex_setup = true;
 		}
 
-		if (mShiny && mVertexShaderLevel > 1 && texture)
+		if (mShiny && mShaderLevel > 1 && texture)
 		{
 			if (params.mTexture.notNull())
 			{

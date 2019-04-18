@@ -55,7 +55,7 @@ LLDrawPool *LLDrawPoolSky::instancePool()
 
 void LLDrawPoolSky::prerender()
 {
-	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT); 
+	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT); 
 	gSky.mVOSkyp->updateGeometry(gSky.mVOSkyp->mDrawable);
 }
 
@@ -75,7 +75,7 @@ void LLDrawPoolSky::render(S32 pass)
 	}
 	
 	// don't render sky under water (background just gets cleared to fog color)
-	if(mVertexShaderLevel > 0 && LLPipeline::sUnderWaterRender)
+	if(mShaderLevel > 0 && LLPipeline::sUnderWaterRender)
 	{
 		return;
 	}
@@ -98,18 +98,10 @@ void LLDrawPoolSky::render(S32 pass)
 	}
 	
 
-	LLGLSPipelineSkyBox gls_skybox;
+	LLGLSPipelineDepthTestSkyBox gls_skybox(true, false);
 
-	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-
-	LLGLSquashToFarClip far_clip(glh_get_current_projection());
-
-	LLGLEnable fog_enable( (mVertexShaderLevel < 1 && LLViewerCamera::getInstance()->cameraUnderWater()) ? GL_FOG : 0);
-
-	gPipeline.disableLights();
+	LLGLEnable fog_enable( (mShaderLevel < 1 && LLViewerCamera::getInstance()->cameraUnderWater()) ? GL_FOG : 0);
 	
-	LLGLDisable clip(GL_CLIP_PLANE0);
-
 	gGL.pushMatrix();
 	LLVector3 origin = LLViewerCamera::getInstance()->getOrigin();
 	gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);

@@ -34,6 +34,7 @@
 #include "llui.h"
 #include "lluiimage.h"
 #include "llwearabletype.h"
+#include "llinventorysettings.h"
 
 struct IconEntry : public LLDictionaryEntry
 {
@@ -91,6 +92,11 @@ LLIconDictionary::LLIconDictionary()
 	addEntry(LLInventoryType::ICONNAME_LINKITEM, 				new IconEntry("Inv_LinkItem"));
 	addEntry(LLInventoryType::ICONNAME_LINKFOLDER, 				new IconEntry("Inv_LinkFolder"));
 	addEntry(LLInventoryType::ICONNAME_MESH,	 				new IconEntry("Inv_Mesh"));
+
+    addEntry(LLInventoryType::ICONNAME_SETTINGS_SKY,            new IconEntry("Inv_SettingsSky"));
+    addEntry(LLInventoryType::ICONNAME_SETTINGS_WATER,          new IconEntry("Inv_SettingsWater"));
+    addEntry(LLInventoryType::ICONNAME_SETTINGS_DAY,            new IconEntry("Inv_SettingsDay"));
+    addEntry(LLInventoryType::ICONNAME_SETTINGS,                new IconEntry("Inv_Settings"));
 
 	addEntry(LLInventoryType::ICONNAME_INVALID, 				new IconEntry("Inv_Invalid"));
 	addEntry(LLInventoryType::ICONNAME_UNKNOWN, 				new IconEntry("Inv_Unknown"));
@@ -167,8 +173,14 @@ const std::string& LLInventoryIcon::getIconName(LLAssetType::EType asset_type,
 			break;
 		case LLAssetType::AT_MESH:
 			idx = LLInventoryType::ICONNAME_MESH;
+            break;
+        case LLAssetType::AT_SETTINGS:
+            // TODO: distinguish between Sky and Water settings.
+            idx = assignSettingsIcon(misc_flag);
+            break;
 		case LLAssetType::AT_UNKNOWN:
 			idx = LLInventoryType::ICONNAME_UNKNOWN;
+			break;
 		default:
 			break;
 	}
@@ -187,4 +199,10 @@ LLInventoryType::EIconName LLInventoryIcon::assignWearableIcon(U32 misc_flag)
 {
 	const LLWearableType::EType wearable_type = LLWearableType::inventoryFlagsToWearableType(misc_flag);
 	return LLWearableType::getIconName(wearable_type);
+}
+
+LLInventoryType::EIconName LLInventoryIcon::assignSettingsIcon(U32 misc_flag)
+{
+    LLSettingsType::type_e settings_type = LLSettingsType::fromInventoryFlags(misc_flag);
+    return LLSettingsType::getIconName(settings_type);
 }

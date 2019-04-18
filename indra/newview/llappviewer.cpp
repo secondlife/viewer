@@ -172,8 +172,6 @@
 #include "llviewerparcelmgr.h"
 #include "llworldmapview.h"
 #include "llpostprocess.h"
-#include "llwlparammanager.h"
-#include "llwaterparammanager.h"
 
 #include "lldebugview.h"
 #include "llconsole.h"
@@ -209,6 +207,7 @@
 #include "llfloateroutfitsnapshot.h"
 #include "llfloatersnapshot.h"
 #include "llsidepanelinventory.h"
+#include "llatmosphere.h"
 
 // includes for idle() idleShutdown()
 #include "llviewercontrol.h"
@@ -774,7 +773,9 @@ bool LLAppViewer::init()
 
 	// initialize LLWearableType translation bridge.
 	// Memory will be cleaned up in ::cleanupClass()
-	LLWearableType::initClass(new LLUITranslationBridge());
+    LLTranslationBridge::ptr_t trans = std::make_shared<LLUITranslationBridge>();
+	LLWearableType::initClass(trans);
+    LLSettingsType::initClass(trans);
 
 	// initialize SSE options
 	LLVector4a::initClass();
@@ -1142,20 +1143,23 @@ bool LLAppViewer::init()
 
 	gGLActive = FALSE;
 
-	LLProcess::Params updater;
-	updater.desc = "updater process";
-	// Because it's the updater, it MUST persist beyond the lifespan of the
-	// viewer itself.
-	updater.autokill = false;
+    if (!gSavedSettings.getBOOL("CmdLineSkipUpdater"))
+    {
+		LLProcess::Params updater;
+		updater.desc = "updater process";
+		// Because it's the updater, it MUST persist beyond the lifespan of the
+		// viewer itself.
+		updater.autokill = false;
 #if LL_WINDOWS
-	updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "SLVersionChecker.exe");
+		updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "SLVersionChecker.exe");
 #elif LL_DARWIN
-	// explicitly run the system Python interpreter on SLVersionChecker.py
-	updater.executable = "python";
-	updater.args.add(gDirUtilp->add(gDirUtilp->getAppRODataDir(), "updater", "SLVersionChecker.py"));
+		// explicitly run the system Python interpreter on SLVersionChecker.py
+		updater.executable = "python";
+		updater.args.add(gDirUtilp->add(gDirUtilp->getAppRODataDir(), "updater", "SLVersionChecker.py"));
 #else
-	updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "SLVersionChecker");
+		updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "SLVersionChecker");
 #endif
+
 	// add LEAP mode command-line argument to whichever of these we selected
 	updater.args.add("leap");
 	// UpdaterServiceSettings
@@ -1321,6 +1325,8 @@ static LLTrace::BlockTimerStatHandle FTM_YIELD("Yield");
 
 static LLTrace::BlockTimerStatHandle FTM_TEXTURE_CACHE("Texture Cache");
 static LLTrace::BlockTimerStatHandle FTM_DECODE("Image Decode");
+static LLTrace::BlockTimerStatHandle FTM_FETCH("Image Fetch");
+
 static LLTrace::BlockTimerStatHandle FTM_VFS("VFS Thread");
 static LLTrace::BlockTimerStatHandle FTM_LFS("LFS Thread");
 static LLTrace::BlockTimerStatHandle FTM_PAUSE_THREADS("Pause Threads");
@@ -1635,7 +1641,7 @@ S32 LLAppViewer::updateTextureThreads(F32 max_time)
 	 	work_pending += LLAppViewer::getImageDecodeThread()->update(max_time); // unpauses the image thread
 	}
 	{
-		LL_RECORD_BLOCK_TIME(FTM_DECODE);
+		LL_RECORD_BLOCK_TIME(FTM_FETCH);
 	 	work_pending += LLAppViewer::getTextureFetch()->update(max_time); // unpauses the texture fetch thread
 	}
 	return work_pending;
@@ -1658,6 +1664,8 @@ void LLAppViewer::flushVFSIO()
 
 bool LLAppViewer::cleanup()
 {
+    LLAtmosphere::cleanupClass();
+
 	//ditch LLVOAvatarSelf instance
 	gAgentAvatarp = NULL;
 
@@ -4907,7 +4915,6 @@ void LLAppViewer::idle()
 	//
 	// Update weather effects
 	//
-	gSky.propagateHeavenlyBodies(gFrameDTClamped);				// moves sun, moon, and planets
 
 	// Update wind vector
 	LLVector3 wind_position_region;

@@ -2205,7 +2205,6 @@ BOOL LLVolume::generate()
 			{
 				rot_mat.rotate(*profile++, tmp);
 				dst->setAdd(tmp,offset);
-				llassert(dst->isFinite3()); // MAINT-5660; don't know why this happens, does not affect Release builds
 				++dst;
 			}
 		}
