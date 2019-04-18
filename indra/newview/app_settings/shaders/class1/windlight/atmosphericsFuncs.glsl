@@ -89,7 +89,7 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
     sunlight *= exp(-light_atten * temp2.y);
 
     // main atmospheric scattering line integral
-    temp2.z = Plen * dens_mul / 2.0f; // 2.0 to get range back to what it was pre-EEP...
+    temp2.z = Plen * dens_mul;
 
     // Transparency (-> temp1)
     // ATI Bugfix -- can't store temp1*temp2.z*dist_mul in a variable because the ati
