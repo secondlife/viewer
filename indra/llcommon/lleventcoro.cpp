@@ -134,15 +134,12 @@ LLBoundListener postAndSuspendSetup(const std::string& callerName,
     // return the consuming attribute for some other coroutine, most likely
     // the main routine.
     bool consuming(LLCoros::get_consuming());
-
-    std::shared_ptr<LLBoundListener> connection_ptr = std::make_shared<LLBoundListener>();
-
     // make a callback that will assign a value to the future, and listen on
     // the specified LLEventPump with that callback
-    *connection_ptr = replyPump.getPump().listen(listenerName,
-                                   [&promise, consuming, listenerName, connection_ptr](const LLSD& result)
+    LLBoundListener connection(
+        replyPump.getPump().listen(listenerName,
+                                   [&promise, consuming, listenerName](const LLSD& result)
                                    {
-                                       connection_ptr->disconnect();
                                        try
                                        {
                                            promise.set_value(result);
@@ -153,7 +150,7 @@ LLBoundListener postAndSuspendSetup(const std::string& callerName,
                                                << listenerName << "' "  << ex.what() << LL_ENDL;
                                        }
                                        return consuming;
-                                   });
+                                   }));
     // skip the "post" part if requestPump is default-constructed
     if (requestPump)
     {
@@ -172,7 +169,7 @@ LLBoundListener postAndSuspendSetup(const std::string& callerName,
     LL_DEBUGS("lleventcoro") << callerName << ": coroutine " << listenerName
                              << " about to wait on LLEventPump " << replyPump.getPump().getName()
                              << LL_ENDL;
-    return *connection_ptr;
+    return connection;
 }
 
 } // anonymous
