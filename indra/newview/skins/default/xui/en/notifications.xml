@@ -11405,7 +11405,20 @@ Are you sure you want to continue?
      notext="No"
      yestext="Yes"/>
   </notification>
-  
+
+  <notification
+ icon="alertmodal.tga"
+ name="PersonalSettingsConfirmReset"
+ type="alertmodal">
+    You are about to remove all applied Personal lighting settings.
+    Are you sure you want to continue?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
+
   <notification
    icon="alertmodal.tga"
    name="SettingsMakeNoTrans"

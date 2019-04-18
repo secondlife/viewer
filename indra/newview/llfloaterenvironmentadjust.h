@@ -77,6 +77,8 @@ private:
 
     void                        onMoonRotationChanged();
 
+    void                        onButtonReset();
+
     void                        onEnvironmentUpdated(LLEnvironment::EnvSelection_t env, S32 version);
 
     LLSettingsSky::ptr_t        mLiveSky;
