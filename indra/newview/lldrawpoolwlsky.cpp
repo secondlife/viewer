@@ -528,7 +528,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 
 		LLColor4 color(gSky.mVOSkyp->getMoon().getInterpColor());
 		
-        if (can_use_vertex_shaders && can_use_windlight_shaders)
+        if (can_use_vertex_shaders && can_use_windlight_shaders && (tex_a || tex_b))
         {
             moon_shader->bind();
 
