@@ -28,9 +28,8 @@
                 border="true"
                 bevel_style="in"
                 auto_resize="false"
-                user_resize="true"
                 tab_group="1"
-                height="24"
+                height="54"
                 name="filter_panel"
                 label="Filters"
                 font="SansSerifBold">
@@ -82,6 +81,15 @@
                     name="chk_water"
                     top_delta="0"
                     width="60" />
+          <filter_editor
+                  follows="left|top|right"
+                  height="23"
+                  label="Filter Environments"
+                  layout="topleft"
+                  left="4"
+                  name="flt_search"
+                  top_pad="6"
+                  right="-4" />
         </layout_panel>
         <layout_panel
                 auto_resize="true"
@@ -116,7 +124,6 @@
         </layout_panel>
         <layout_panel
                 auto_resize="false"
-                user_resize="true"
                 tab_group="1"
                 height="31"
                 name="pnl_control"
