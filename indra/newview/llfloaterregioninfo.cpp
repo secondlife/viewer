@@ -350,6 +350,7 @@ void LLFloaterRegionInfo::requestRegionInfo()
 		tab->getChild<LLPanel>("Debug")->setCtrlsEnabled(FALSE);
 		tab->getChild<LLPanel>("Terrain")->setCtrlsEnabled(FALSE);
 		tab->getChild<LLPanel>("Estate")->setCtrlsEnabled(FALSE);
+        tab->getChild<LLPanel>("Access")->setCtrlsEnabled(FALSE);
 	}
 
 	// Must allow anyone to request the RegionInfo data
