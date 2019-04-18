@@ -12,8 +12,8 @@ else (USESYSTEMLIBS)
   if(WINDOWS)
     # Windows has differently named release and debug openjpeg(d) libs.
     set(OPENJPEG_LIBRARIES 
-        debug openjp2d
-        optimized openjp2)
+        debug openjpegd
+        optimized openjpeg)
   else(WINDOWS)
     set(OPENJPEG_LIBRARIES openjpeg)
   endif(WINDOWS)

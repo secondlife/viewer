@@ -2652,9 +2652,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8f0d541312c0b7a55a0f6295be42a395</string>
+              <string>49f2a20ecd50c29a66a162d8bbc5cbe6</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/31394/263395/openjpeg-2.3.0.523914-darwin64-523914.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/36010/301207/openjpeg-1.5.1.526451-darwin64-526451.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2688,9 +2688,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6bb7c289ab7ca9d973f29115c574e54a</string>
+              <string>7ce7dd714c6899ffc4a7473fd578bee0</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/31433/263554/openjpeg-2.3.0.523914-windows-523914.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/36015/301223/openjpeg-1.5.1.526451-windows-526451.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2700,9 +2700,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>891c7e483024f6827d1ed26c91b0b868</string>
+              <string>f024340804396106687fe7a863d5952f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/31432/263547/openjpeg-2.3.0.523914-windows64-523914.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/36012/301214/openjpeg-1.5.1.526451-windows64-526451.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
