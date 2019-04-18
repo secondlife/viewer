@@ -66,9 +66,12 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
     vec4 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
     vec4 light_atten;
 
+    float dens_mul = density_multiplier * 0.5; // get back to original pre-EEP range...
+    float dist_mul = distance_multiplier * 0.1; // get back to original pre-EEP range...
+
     //sunlight attenuation effect (hue and brightness) due to atmosphere
     //this is used later for sunlight modulation at various altitudes
-    light_atten = (blue_density + vec4(haze_density * 0.25)) * (density_multiplier * max_y);
+    light_atten = (blue_density + vec4(haze_density * 0.25)) * (dens_mul * max_y);
         //I had thought blue_density and haze_density should have equal weighting,
         //but attenuation due to haze_density tends to seem too strong
 
@@ -86,12 +89,12 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
     sunlight *= exp(-light_atten * temp2.y);
 
     // main atmospheric scattering line integral
-    temp2.z = Plen * density_multiplier;
+    temp2.z = Plen * dens_mul / 2.0f; // 2.0 to get range back to what it was pre-EEP...
 
     // Transparency (-> temp1)
-    // ATI Bugfix -- can't store temp1*temp2.z*distance_multiplier in a variable because the ati
+    // ATI Bugfix -- can't store temp1*temp2.z*dist_mul in a variable because the ati
     // compiler gets confused.
-    temp1 = exp(-temp1 * temp2.z * distance_multiplier);
+    temp1 = exp(-temp1 * temp2.z * dist_mul);
 
     //final atmosphere attenuation factor
     atten = temp1.rgb;
@@ -135,6 +138,5 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
     //brightness of surface both sunlight and ambient
     sunlit = sunlight.rgb;
     amblit = tmpAmbient.rgb * .25;
-    additive  = normalize(additive);
-    additive *= vec3(1.0 - exp(-temp2.z * distance_multiplier)) * 0.5;
+    additive *= vec3(1.0 - temp1);
 }
