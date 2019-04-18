@@ -37,7 +37,7 @@ if(WINDOWS)
 
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
-        openjpeg.dll
+        openjp2.dll
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
