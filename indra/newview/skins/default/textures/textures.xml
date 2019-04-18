@@ -187,6 +187,7 @@ with the same filename but different name
   <texture name="Conv_log_inbox" file_name="icons/Conv_log_inbox.png" preload="false" />
 
   <texture name="Copy" file_name="icons/Copy.png" preload="false" />
+  <texture name="CopyBright" file_name="icons/CopyBright.png" preload="false" />
   
   <texture name="DisclosureArrow_Opened_Off" file_name="widgets/DisclosureArrow_Opened_Off.png" preload="true" />
 

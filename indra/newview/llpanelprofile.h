@@ -178,6 +178,7 @@ private:
     /*virtual*/ void updateButtons();
 	void onClickSetName();
 	void onCommitTexture();
+	void onCommitMenu(const LLSD& userdata);
 	void onAvatarNameCacheSetName(const LLUUID& id, const LLAvatarName& av_name);
 
 private:
@@ -201,6 +202,7 @@ private:
 	LLButton*			mGroupInviteButton;
 	LLButton*			mPayButton;
 	LLButton*			mIMButton;
+	LLMenuButton*		mCopyMenuButton;
 
 	bool				mVoiceStatus;
 

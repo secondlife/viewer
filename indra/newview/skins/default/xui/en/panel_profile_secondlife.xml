@@ -112,23 +112,51 @@
      layout="topleft"
      visible="false"
     />
-    <text_editor
-     name="complete_name"
-     value="(loading...)"
-     enabled="false"
+    <panel
+     name="name_holder"
      top_delta="0"
      left_pad="4"
-     right="-6"
+     right="-5"
      height="20"
      follows="left|top|right"
      layout="topleft"
      allow_scroll="false"
      bg_visible="false"
-     border_visible="true"
-     h_pad="1"
-     v_pad="2"
-     max_length="254"
-    />
+     border_visible="false">
+      <text_editor
+       name="complete_name"
+       value="(loading...)"
+       enabled="false"
+       top="0"
+       left="0"
+       right="-1"
+       height="20"
+       follows="left|top|right"
+       layout="topleft"
+       allow_scroll="false"
+       bg_visible="false"
+       border_visible="true"
+       h_pad="1"
+       v_pad="2"
+       max_length="254"
+      />
+      <!--mouse_opaque="true"-->
+      <menu_button
+       name="copy_btn"
+       height="16"
+       right="-2"
+       top="2"
+       width="16"
+       image_selected="Copy"
+       image_unselected="Copy"
+       image_hover_selected="CopyBright"
+       image_hover_unselected="CopyBright"
+       hover_glow_amount="0.33"
+       chrome="true"
+       tab_stop="false"
+       follows="top|right"
+       layout="topleft" />
+    </panel>
     <layout_stack
      name="imagepositioner"
      top_pad="6"

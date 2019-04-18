@@ -34,7 +34,7 @@
 
 // UI
 #include "llavatariconctrl.h"
-// #include "llclipboard.h" //gClipboard
+#include "llclipboard.h"
 #include "llcheckboxctrl.h"
 #include "lllineeditor.h"
 #include "llloadingindicator.h"
@@ -269,8 +269,10 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mGroupInviteButton      = getChild<LLButton>("group_invite");
     mPayButton              = getChild<LLButton>("pay");
     mIMButton               = getChild<LLButton>("im");
+    mCopyMenuButton         = getChild<LLMenuButton>("copy_btn");
 
     mStatusText->setVisible(FALSE);
+    mCopyMenuButton->setVisible(FALSE);
 
     mAddFriendButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onAddFriendButtonClick, this));
     mIMButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onIMButtonClick, this));
@@ -283,6 +285,9 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mDisplayNameButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onClickSetName, this));
     mSecondLifePic->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onCommitTexture, this));
 
+    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar commit;
+    commit.add("Profile.CopyName", [this](LLUICtrl*, const LLSD& userdata) { onCommitMenu(userdata); });
+
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable;
     enable.add("Profile.EnableCall",                [this](LLUICtrl*, const LLSD&) { return mVoiceStatus; });
     enable.add("Profile.EnableGod",                 [](LLUICtrl*, const LLSD&) { return gAgent.isGodlike(); });
@@ -291,6 +296,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mGroupList->setReturnCallback(boost::bind(&LLPanelProfileSecondLife::openGroupProfile, this));
 
     LLVoiceClient::getInstance()->addObserver((LLVoiceClientStatusObserver*)this);
+    mCopyMenuButton->setMenu("menu_name_field.xml", LLMenuButton::MP_BOTTOM_RIGHT);
 
     return TRUE;
 }
@@ -407,6 +413,7 @@ void LLPanelProfileSecondLife::resetData()
 
     mDescriptionEdit->setValue(LLStringUtil::null);
     mStatusText->setVisible(FALSE);
+    mCopyMenuButton->setVisible(FALSE);
     mGroups.clear();
     mGroupList->setGroups(mGroups);
 }
@@ -467,6 +474,7 @@ void LLPanelProfileSecondLife::onAvatarNameCache(const LLUUID& agent_id, const L
     mAvatarNameCacheConnection.disconnect();
 
     getChild<LLUICtrl>("complete_name")->setValue( av_name.getCompleteName() );
+    mCopyMenuButton->setVisible(TRUE);
 }
 
 void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
@@ -761,6 +769,33 @@ void LLPanelProfileSecondLife::onCommitTexture()
             NULL,
             FALSE);
     }
+}
+
+void LLPanelProfileSecondLife::onCommitMenu(const LLSD& userdata)
+{
+    LLAvatarName av_name;
+    if (!LLAvatarNameCache::get(getAvatarId(), &av_name))
+    {
+        // shouldn't happen, button(menu) is supposed to be invisible while name is fetching
+        LL_WARNS() << "Failed to get agent data" << LL_ENDL;
+        return;
+    }
+
+    const std::string item_name = userdata.asString();
+    LLWString wstr;
+    if (item_name == "display")
+    {
+        wstr = utf8str_to_wstring(av_name.getDisplayName());
+    }
+    else if (item_name == "name")
+    {
+        wstr = utf8str_to_wstring(av_name.getAccountName());
+    }
+    else if (item_name == "id")
+    {
+        wstr = utf8str_to_wstring(getAvatarId().asString());
+    }
+    LLClipboard::instance().copyToClipboard(wstr, 0, wstr.size());
 }
 
 void LLPanelProfileSecondLife::onAvatarNameCacheSetName(const LLUUID& agent_id, const LLAvatarName& av_name)

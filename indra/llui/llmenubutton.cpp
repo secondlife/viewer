@@ -40,6 +40,7 @@ void LLMenuButton::MenuPositions::declareValues()
 	declare("topleft", MP_TOP_LEFT);
 	declare("topright", MP_TOP_RIGHT);
 	declare("bottomleft", MP_BOTTOM_LEFT);
+	declare("bottomright", MP_BOTTOM_RIGHT);
 }
 
 LLMenuButton::Params::Params()
@@ -209,6 +210,13 @@ void LLMenuButton::updateMenuOrigin()
 		case MP_BOTTOM_LEFT:
 		{
 			mX = rect.mLeft;
+			mY = rect.mBottom;
+			break;
+		}
+		case MP_BOTTOM_RIGHT:
+		{
+			const LLRect& menu_rect = menu->getRect();
+			mX = rect.mRight - menu_rect.getWidth();
 			mY = rect.mBottom;
 			break;
 		}

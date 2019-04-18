@@ -41,7 +41,8 @@ public:
 	{
 		MP_TOP_LEFT,
 		MP_TOP_RIGHT,
-		MP_BOTTOM_LEFT
+		MP_BOTTOM_LEFT,
+		MP_BOTTOM_RIGHT
 	} EMenuPosition;
 
 	struct MenuPositions
