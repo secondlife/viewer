@@ -1,10 +1,10 @@
 /** 
  * @file llfloatergesture.cpp
- * @brief Read-only list of gestures from your inventory.
+ * @brief LLFloaterMyEnvironment class implementation
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2019, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -32,21 +32,11 @@
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
-#include "llclipboard.h"
 
 #include "llagent.h"
 #include "llclipboard.h"
-#include "llkeyboard.h"
-#include "llmenugl.h"
-#include "llmultigesture.h"
-#include "llscrolllistctrl.h"
 #include "llcheckboxctrl.h"
-#include "lltrans.h"
-#include "llviewergesture.h"
-#include "llviewermenu.h" 
 #include "llviewerinventory.h"
-#include "llviewercontrol.h"
-#include "llfloaterperms.h"
 #include "llenvironment.h"
 #include "llparcel.h"
 #include "llviewerparcelmgr.h"
@@ -57,6 +47,7 @@ namespace
     const std::string CHECK_DAYS("chk_days");
     const std::string CHECK_SKIES("chk_skies");
     const std::string CHECK_WATER("chk_water");
+    const std::string FLT_SEARCH("flt_search");
     const std::string PANEL_SETTINGS("pnl_settings");
     const std::string BUTTON_NEWSETTINGS("btn_gear");
     const std::string BUTTON_GEAR("btn_newsettings");
@@ -82,72 +73,6 @@ namespace
 }
 
 //=========================================================================
-#if 0
-BOOL item_name_precedes( LLInventoryItem* a, LLInventoryItem* b )
-{
-	return LLStringUtil::precedesDict( a->getName(), b->getName() );
-}
-
-class LLFloaterGestureObserver : public LLGestureManagerObserver
-{
-public:
-	LLFloaterGestureObserver(LLFloaterGesture* floater) : mFloater(floater) {}
-	virtual ~LLFloaterGestureObserver() {}
-	virtual void changed() { mFloater->refreshAll(); }
-
-private:
-	LLFloaterGesture* mFloater;
-};
-//-----------------------------
-// GestureCallback
-//-----------------------------
-
-class GestureShowCallback : public LLInventoryCallback
-{
-public:
-	void fire(const LLUUID &inv_item)
-	{
-		LLPreviewGesture::show(inv_item, LLUUID::null);
-		
-		LLInventoryItem* item = gInventory.getItem(inv_item);
-		if (item)
-		{
-			LLPermissions perm = item->getPermissions();
-			perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Gestures"));
-			perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Gestures"));
-			perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Gestures"));
-			item->setPermissions(perm);
-			item->updateServer(FALSE);
-		}
-	}
-};
-
-class GestureCopiedCallback : public LLInventoryCallback
-{
-private:
-	LLFloaterGesture* mFloater;
-	
-public:
-	GestureCopiedCallback(LLFloaterGesture* floater): mFloater(floater)
-	{}
-	void fire(const LLUUID &inv_item)
-	{
-		if(mFloater)
-		{
-			mFloater->addGesture(inv_item,NULL,mFloater->getChild<LLScrollListCtrl>("gesture_list"));
-
-			// EXP-1909 (Pasted gesture displayed twice)
-			// The problem is that addGesture is called here for the second time for the same item (which is copied)
-			// First time addGesture is called from LLFloaterGestureObserver::changed(), which is a callback for inventory
-			// change. So we need to refresh the gesture list to avoid duplicates.
-			mFloater->refreshAll();
-		}
-	}
-};
-
-#endif
-
-//=========================================================================
 LLFloaterMyEnvironment::LLFloaterMyEnvironment(const LLSD& key) :
     LLFloater(key),
     mInventoryList(nullptr),
@@ -167,10 +92,6 @@ LLFloaterMyEnvironment::LLFloaterMyEnvironment(const LLSD& key) :
 
 LLFloaterMyEnvironment::~LLFloaterMyEnvironment()
 {
-    // 	LLGestureMgr::instance().removeObserver(mObserver);
-    // 	delete mObserver;
-    // 	mObserver = NULL;
-    // 	gInventory.removeObserver(this);
 }
 
 
@@ -193,8 +114,11 @@ BOOL LLFloaterMyEnvironment::postBuild()
     childSetCommitCallback(CHECK_SKIES, [this](LLUICtrl*, void*) { onFilterCheckChange(); }, nullptr);
     childSetCommitCallback(CHECK_WATER, [this](LLUICtrl*, void*) { onFilterCheckChange(); }, nullptr);
 
-    childSetCommitCallback(BUTTON_DELETE, [this](LLUICtrl *, void*) { onDeleteSelected(); }, nullptr);
+    mFilterEdit = getChild<LLFilterEditor>(FLT_SEARCH);
+    mFilterEdit->setCommitCallback([this](LLUICtrl*, const LLSD& param){ onFilterEdit(param.asString()); });
 
+    childSetCommitCallback(BUTTON_DELETE, [this](LLUICtrl *, void*) { onDeleteSelected(); }, nullptr);
+    mSavedFolderState.setApply(FALSE);
     return TRUE;
 }
 
@@ -250,6 +174,37 @@ void LLFloaterMyEnvironment::onFilterCheckChange()
 void LLFloaterMyEnvironment::onSelectionChange()
 {
     refreshButtonStates();
+}
+
+void LLFloaterMyEnvironment::onFilterEdit(const std::string& search_string)
+{
+    std::string upper_case_search_string = search_string;
+    LLStringUtil::toUpper(upper_case_search_string);
+
+    if (upper_case_search_string.empty())
+    {
+        if (mInventoryList->getFilterSubString().empty())
+        {
+            // current filter and new filter empty, do nothing
+            return;
+        }
+
+        mSavedFolderState.setApply(TRUE);
+        mInventoryList->getRootFolder()->applyFunctorRecursively(mSavedFolderState);
+        // add folder with current item to list of previously opened folders
+        LLOpenFoldersWithSelection opener;
+        mInventoryList->getRootFolder()->applyFunctorRecursively(opener);
+        mInventoryList->getRootFolder()->scrollToShowSelection();
+
+    }
+    else if (mInventoryList->getFilterSubString().empty())
+    {
+        // first letter in search term, save existing folder open state
+        mSavedFolderState.setApply(FALSE);
+        mInventoryList->getRootFolder()->applyFunctorRecursively(mSavedFolderState);
+    }
+
+    mInventoryList->setFilterSubString(search_string);
 }
 
 void LLFloaterMyEnvironment::onDeleteSelected()
