@@ -1,5 +1,5 @@
 /** 
- * @file moonV.glsl
+ * @file class1\wl\moonV.glsl
  *
   * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code

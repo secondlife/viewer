@@ -1,5 +1,5 @@
 /** 
- * @file WLCloudsV.glsl
+ * @file class2\wl\cloudsV.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code

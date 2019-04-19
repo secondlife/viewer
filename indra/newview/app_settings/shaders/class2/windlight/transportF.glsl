@@ -1,5 +1,5 @@
 /** 
- * @file transportF.glsl
+ * @file class2\wl\transportF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code

@@ -1,5 +1,5 @@
 /** 
- * @file WLSkyV.glsl
+ * @file class2\wl\skyV.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code

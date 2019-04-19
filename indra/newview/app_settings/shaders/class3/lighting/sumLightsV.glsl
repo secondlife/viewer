@@ -1,5 +1,5 @@
 /**
- * @file sumLightsV.glsl
+ * @file class3\lighing\sumLightsV.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code

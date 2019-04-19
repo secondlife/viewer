@@ -1,5 +1,5 @@
 /** 
- * @file gammaF.glsl
+ * @file class2\wl\gammaF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
