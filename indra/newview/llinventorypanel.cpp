@@ -871,7 +871,9 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
 			
 			if (objectp->getType() >= LLAssetType::AT_COUNT)
   			{
-  				LL_WARNS() << "LLInventoryPanel::buildNewViews called with unknown objectp->mType : "
+                LL_WARNS_ONCE() << "LLInventoryPanel::buildNewViews called with unknown objectp->mType : "
+                    << ((S32)objectp->getType()) << LL_ENDL;
+  				LL_DEBUGS_ONCE() << "LLInventoryPanel::buildNewViews called with unknown objectp->mType : "
 				<< ((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID()
 				<< LL_ENDL;
 

@@ -1820,7 +1820,8 @@ void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 
 		if (LLAssetType::lookup(item->getType()) == LLAssetType::badLookup())
 		{
-			LL_WARNS(LOG_INV) << "Got unknown asset type for item [ name: " << item->getName()
+            LL_WARNS_ONCE(LOG_INV) << "got unknown asset type " << item->getType() << LL_ENDL;
+			LL_DEBUGS(LOG_INV) << "Got unknown asset type for item [ name: " << item->getName()
 				<< " type: " << item->getType()
 				<< " inv-type: " << item->getInventoryType() << " ]." << LL_ENDL;
 		}
