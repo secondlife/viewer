@@ -1269,6 +1269,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="2"
              name="edit objects check"
+             tool_tip="If checked, Residents can create and rez objects on your land."
              width="130" />
             <check_box
              height="16"
@@ -1276,6 +1277,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="2"
              name="edit group objects check"
+             tool_tip="If checked, parcel group members can create and rez objects on your land."
              width="70" />
             <text
              type="string"
@@ -1294,6 +1296,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="2"
              name="all object entry check"
+             tool_tip="If checked, Residents can move existing objects from other parcels onto this parcel."
              top_delta="0"
              width="130" />
             <check_box
@@ -1302,6 +1305,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="2"
              name="group object entry check"
+             tool_tip="If checked, parcel group members can move existing objects from other parcels onto this parcel."
              top_delta="0"
              width="70" />
             <text
@@ -1321,6 +1325,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="2"
              name="check other scripts"
+             tool_tip="If checked, Residents can run scripts on your parcel, including attachments."
              top_delta="0"
              width="130" />
             <check_box
@@ -1329,6 +1334,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="2"
              name="check group scripts"
+             tool_tip="If checked, parcel group members can run scripts on your parcel, including attachments."
              top_delta="0"
              width="70" />
           <panel
