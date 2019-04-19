@@ -1477,7 +1477,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="274"
              top="150"
-             name="allow_label5"
+             name="allow_see_label"
              width="205"
              word_wrap="true">
               Avatars on other parcels can see and chat with avatars on this parcel
