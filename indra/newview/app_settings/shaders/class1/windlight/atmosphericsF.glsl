@@ -46,8 +46,3 @@ vec3 atmosLighting(vec3 light)
     return light;
 }
 
-void calcFragAtmospherics(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive)
-{
-    /* stub function for fallback compatibility on class1 hardware */
-}
-
