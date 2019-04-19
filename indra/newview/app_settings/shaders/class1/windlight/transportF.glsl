@@ -31,18 +31,6 @@ vec3 atmosTransportFrag(vec3 light, vec3 additive, vec3 atten)
 	return light;
 }
 
-vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten)
-{
-    /* stub function for fallback compatibility on class1 hardware */
-    return light;
-}
-
-vec3 fullbrightShinyAtmosTransportFrag(vec3 light, vec3 atten, vec3 additive)
-{
-    /* stub function for fallback compatibility on class1 hardware */
-    return light;
-}
-
 vec3 atmosTransport(vec3 light)
 {
 	/* stub function for fallback compatibility on class1 hardware */

@@ -69,7 +69,6 @@ vec4 applyWaterFogView(vec3 pos, vec4 color);
 
 vec3 getNorm(vec2 pos_screen);
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
-vec3 fullbrightAtmosTransportFrag(vec3 l, vec3 additive, vec3 atten);
 
 void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
 
