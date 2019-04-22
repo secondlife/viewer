@@ -608,15 +608,10 @@ void renderFace(LLDrawable* drawable, LLFace *face)
     LLVOVolume* vobj = drawable->getVOVolume();
     if (vobj)
     {
-        LLVertexBuffer::unbind();
-        gGL.pushMatrix();
-        gGL.multMatrix((F32*)vobj->getRelativeXform().mMatrix);
-
         LLVolume* volume = NULL;
 
         if (drawable->isState(LLDrawable::RIGGED))
         {
-            vobj->updateRiggedVolume();
             volume = vobj->getRiggedVolume();
         }
         else
@@ -629,44 +624,11 @@ void renderFace(LLDrawable* drawable, LLFace *face)
             const LLVolumeFace& vol_face = volume->getVolumeFace(face->getTEOffset());
             LLVertexBuffer::drawElements(LLRender::TRIANGLES, vol_face.mPositions, NULL, vol_face.mNumIndices, vol_face.mIndices);
         }
-
-        gGL.popMatrix();
     }
 }
 
-void LLFace::renderOneWireframe(const LLColor4 &color, F32 fogCfx, bool wireframe_selection, bool bRenderHiddenSelections)
+void LLFace::renderOneWireframe(const LLColor4 &color, F32 fogCfx, bool wireframe_selection, bool bRenderHiddenSelections, bool shader)
 {
-    //Need to because crash on ATI 3800 (and similar cards) MAINT-5018 
-    LLGLDisable multisample(LLPipeline::RenderFSAASamples > 0 ? GL_MULTISAMPLE_ARB : 0);
-
-    LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
-
-    if (shader)
-    {
-        gDebugProgram.bind();
-    }
-
-    gGL.matrixMode(LLRender::MM_MODELVIEW);
-    gGL.pushMatrix();
-
-    BOOL is_hud_object = mVObjp->isHUDAttachment();
-
-    if (mDrawablep->isActive())
-    {
-        gGL.loadMatrix(gGLModelView);
-        gGL.multMatrix((F32*)mVObjp->getRenderMatrix().mMatrix);
-    }
-    else if (!is_hud_object)
-    {
-        gGL.loadIdentity();
-        gGL.multMatrix(gGLModelView);
-        LLVector3 trans = mVObjp->getRegion()->getOriginAgent();
-        gGL.translatef(trans.mV[0], trans.mV[1], trans.mV[2]);
-    }
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-
     if (bRenderHiddenSelections)
     {
         gGL.blendFunc(LLRender::BF_SOURCE_COLOR, LLRender::BF_ONE);
@@ -714,15 +676,6 @@ void LLFace::renderOneWireframe(const LLColor4 &color, F32 fogCfx, bool wirefram
         glLineWidth(5.f);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         renderFace(mDrawablep, this);
-    }
-
-    glLineWidth(1.f);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    gGL.popMatrix();
-
-    if (shader)
-    {
-        shader->bind();
     }
 }
 
