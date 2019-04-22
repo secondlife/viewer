@@ -1160,25 +1160,26 @@ bool LLAppViewer::init()
 		updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "SLVersionChecker");
 #endif
 
-	// add LEAP mode command-line argument to whichever of these we selected
-	updater.args.add("leap");
-	// UpdaterServiceSettings
-	updater.args.add(stringize(gSavedSettings.getU32("UpdaterServiceSetting")));
-	// channel
-	updater.args.add(LLVersionInfo::getChannel());
-	// testok
-	updater.args.add(stringize(gSavedSettings.getBOOL("UpdaterWillingToTest")));
-	// ForceAddressSize
-	updater.args.add(stringize(gSavedSettings.getU32("ForceAddressSize")));
+		// add LEAP mode command-line argument to whichever of these we selected
+		updater.args.add("leap");
+		// UpdaterServiceSettings
+		updater.args.add(stringize(gSavedSettings.getU32("UpdaterServiceSetting")));
+		// channel
+		updater.args.add(LLVersionInfo::getChannel());
+		// testok
+		updater.args.add(stringize(gSavedSettings.getBOOL("UpdaterWillingToTest")));
+		// ForceAddressSize
+		updater.args.add(stringize(gSavedSettings.getU32("ForceAddressSize")));
 
-	// Run the updater. An exception from launching the updater should bother us.
-	if (gDirUtilp->isDevBuildLayout()) 
-	{ 
-		LL_INFOS() << "Development build, skipping LLLeap updater construction" << LL_ENDL;
-	}
-	else
-	{
-		LLLeap::create(updater, true);
+		// Run the updater. An exception from launching the updater should bother us.
+		if (gDirUtilp->isDevBuildLayout()) 
+		{ 
+			LL_INFOS() << "Development build, skipping LLLeap updater construction" << LL_ENDL;
+		}
+		else
+		{
+			LLLeap::create(updater, true);
+		}
 	}
 
 	// Iterate over --leap command-line options. But this is a bit tricky: if
