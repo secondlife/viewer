@@ -252,6 +252,7 @@ public:
 
     LLColor3 getLightAttenuation(F32 distance) const;
     LLColor3 getLightTransmittance() const;
+    LLColor3 getTotalDensity() const;
     LLColor3 gammaCorrect(const LLColor3& in) const;
 
     LLColor3 getBlueDensity() const;

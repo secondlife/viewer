@@ -62,8 +62,8 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
     vec4 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
     vec4 light_atten;
 
-    float dens_mul = density_multiplier * 0.5; // get back to original pre-EEP range...
-    float dist_mul = distance_multiplier * 0.1; // get back to original pre-EEP range...
+    float dens_mul = density_multiplier;
+    float dist_mul = distance_multiplier * 0.1;
 
     //sunlight attenuation effect (hue and brightness) due to atmosphere
     //this is used later for sunlight modulation at various altitudes
@@ -76,7 +76,7 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
     haze_weight = vec4(haze_density) / temp1;
 
     //(TERRAIN) compute sunlight from lightnorm only (for short rays like terrain)
-    temp2.y = max(0.0, tmpLightnorm.y);
+    temp2.y = max(0.0, tmpLightnorm.z);
     if (temp2.y > 0.001f)
     {
         temp2.y = 1. / temp2.y;
