@@ -32,8 +32,10 @@
 #include "llslider.h"
 #include "llsliderctrl.h"
 #include "llcolorswatch.h"
+#include "lltexturectrl.h"
 #include "llvirtualtrackball.h"
 #include "llenvironment.h"
+#include "llviewercontrol.h"
 
 //=========================================================================
 namespace
@@ -46,6 +48,8 @@ namespace
     const std::string FIELD_SKY_HAZE_HORIZON("haze_horizon");
     const std::string FIELD_SKY_HAZE_DENSITY("haze_density");
     const std::string FIELD_SKY_CLOUD_COVERAGE("cloud_coverage");
+    const std::string FIELD_SKY_CLOUD_MAP("cloud_map");
+    const std::string FIELD_WATER_NORMAL_MAP("water_normal_map");
     const std::string FIELD_SKY_CLOUD_SCALE("cloud_scale");
     const std::string FIELD_SKY_SCENE_GAMMA("scene_gamma");
     const std::string FIELD_SKY_SUN_ROTATION("sun_rotation");
@@ -97,6 +101,14 @@ BOOL LLFloaterEnvironmentAdjust::postBuild()
     getChild<LLUICtrl>(FIELD_SKY_MOON_ROTATION)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoonRotationChanged(); });
     getChild<LLUICtrl>(BTN_RESET)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onButtonReset(); });
 
+    getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onCloudMapChanged(); });
+    getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setDefaultImageAssetID(LLSettingsSky::GetDefaultCloudNoiseTextureId());
+    getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setAllowNoTexture(TRUE);
+
+    getChild<LLTextureCtrl>(FIELD_WATER_NORMAL_MAP)->setDefaultImageAssetID(LLSettingsWater::GetDefaultWaterNormalAssetId());
+    getChild<LLTextureCtrl>(FIELD_WATER_NORMAL_MAP)->setBlankImageAssetID(LLUUID(gSavedSettings.getString("DefaultBlankNormalTexture")));
+    getChild<LLTextureCtrl>(FIELD_WATER_NORMAL_MAP)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onWaterMapChanged(); });
+
     refresh();
     return TRUE;
 }
@@ -115,6 +127,7 @@ void LLFloaterEnvironmentAdjust::onClose(bool app_quitting)
 {
     mEventConnection.disconnect();
     mLiveSky.reset();
+    mLiveWater.reset();
     LLFloater::onClose(app_quitting);
 }
 
@@ -122,7 +135,7 @@ void LLFloaterEnvironmentAdjust::onClose(bool app_quitting)
 //-------------------------------------------------------------------------
 void LLFloaterEnvironmentAdjust::refresh()
 {
-    if (!mLiveSky)
+    if (!mLiveSky || !mLiveWater)
     {
         setAllChildrenEnabled(FALSE);
         return;
@@ -141,6 +154,9 @@ void LLFloaterEnvironmentAdjust::refresh()
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_COVERAGE)->setValue(mLiveSky->getCloudShadow());
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCALE)->setValue(mLiveSky->getCloudScale());
     getChild<LLColorSwatchCtrl>(FIELD_SKY_SUN_COLOR)->set(mLiveSky->getSunlightColor() / SLIDER_SCALE_SUN_AMBIENT);
+
+    getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setValue(mLiveSky->getCloudNoiseTextureId());
+    getChild<LLTextureCtrl>(FIELD_WATER_NORMAL_MAP)->setValue(mLiveWater->getNormalMapID());
 
     LLColor3 glow(mLiveSky->getGlow());
 
@@ -165,22 +181,26 @@ void LLFloaterEnvironmentAdjust::captureCurrentEnvironment()
         if (environment.getEnvironmentDay(LLEnvironment::ENV_LOCAL))
         {   // We have a full day cycle in the local environment.  Freeze the sky
             mLiveSky = environment.getEnvironmentFixedSky(LLEnvironment::ENV_LOCAL)->buildClone();
+            mLiveWater = environment.getEnvironmentFixedWater(LLEnvironment::ENV_LOCAL)->buildClone();
             updatelocal = true;
         }
         else
         {   // otherwise we can just use the sky.
             mLiveSky = environment.getEnvironmentFixedSky(LLEnvironment::ENV_LOCAL);
+            mLiveWater = environment.getEnvironmentFixedWater(LLEnvironment::ENV_LOCAL);
         }
     }
     else
     {
         mLiveSky = environment.getEnvironmentFixedSky(LLEnvironment::ENV_PARCEL, true)->buildClone();
+        mLiveWater = environment.getEnvironmentFixedWater(LLEnvironment::ENV_PARCEL, true)->buildClone();
         updatelocal = true;
     }
 
     if (updatelocal)
     {
         environment.setEnvironment(LLEnvironment::ENV_LOCAL, mLiveSky, FLOATER_ENVIRONMENT_UPDATE);
+        environment.setEnvironment(LLEnvironment::ENV_LOCAL, mLiveWater, FLOATER_ENVIRONMENT_UPDATE);
     }
     environment.setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
     environment.updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
@@ -320,6 +340,22 @@ void LLFloaterEnvironmentAdjust::onMoonRotationChanged()
         return;
     mLiveSky->setMoonRotation(getChild<LLVirtualTrackball>(FIELD_SKY_MOON_ROTATION)->getRotation());
     mLiveSky->update();
+}
+
+void LLFloaterEnvironmentAdjust::onCloudMapChanged()
+{
+    if (!mLiveSky)
+        return;
+    mLiveSky->setCloudNoiseTextureId(getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->getValue().asUUID());
+    mLiveSky->update();
+}
+
+void LLFloaterEnvironmentAdjust::onWaterMapChanged()
+{
+    if (!mLiveWater)
+        return;
+    mLiveWater->setNormalMapID(getChild<LLTextureCtrl>(FIELD_WATER_NORMAL_MAP)->getValue().asUUID());
+    mLiveWater->update();
 }
 
 void LLFloaterEnvironmentAdjust::onSunColorChanged()

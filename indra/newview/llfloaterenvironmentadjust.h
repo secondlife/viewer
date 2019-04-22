@@ -77,11 +77,15 @@ private:
 
     void                        onMoonRotationChanged();
 
+    void                        onCloudMapChanged();
+    void                        onWaterMapChanged();
+
     void                        onButtonReset();
 
     void                        onEnvironmentUpdated(LLEnvironment::EnvSelection_t env, S32 version);
 
     LLSettingsSky::ptr_t        mLiveSky;
+    LLSettingsWater::ptr_t      mLiveWater;
     LLEnvironment::connection_t mEventConnection;
 };
 
