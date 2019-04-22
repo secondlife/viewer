@@ -1,5 +1,5 @@
 /** 
- * @file cloudShadowV.glsl
+ * @file class1\windlight\cloudShadowV.glsl
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code

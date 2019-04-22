@@ -1,5 +1,5 @@
 /** 
- * @file advancedAtmoF.glsl
+ * @file class3\wl\advancedAtmoF.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
