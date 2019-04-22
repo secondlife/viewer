@@ -1,9 +1,9 @@
-/**
- * @file class1\lighting\sumLightsV.glsl
+/** 
+ * @file class3\lighting\lightV.glsl
  *
- * $LicenseInfo:firstyear=2005&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2005, Linden Research, Inc.
+ * Copyright (C) 2007, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,27 +23,15 @@
  * $/LicenseInfo$
  */
  
-uniform vec4 light_position[8];
-uniform vec3 light_diffuse[8];
 
-float calcDirectionalLight(vec3 n, vec3 l);
 
-vec3 atmosAmbient(vec3 light);
-vec3 atmosAffectDirectionalLight(float lightIntensity);
-vec3 scaleDownLight(vec3 light);
+// All lights, no specular highlights
 
-vec4 sumLights(vec3 pos, vec3 norm, vec4 color, vec4 baseLight)
+vec4 sumLights(vec3 pos, vec3 norm, vec4 color, vec4 baseLight);
+vec3 atmosAmbient(vec3 c);
+vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseLight)
 {
-	vec4 col = vec4(0);
-	col.a = color.a;
-	
-	col.rgb = light_diffuse[1].rgb * calcDirectionalLight(norm, light_position[1].xyz);
-	col.rgb = scaleDownLight(col.rgb);
-	col.rgb += atmosAmbient(baseLight.rgb);
-	col.rgb += atmosAffectDirectionalLight(calcDirectionalLight(norm, light_position[0].xyz));
-	
-	col.rgb = min(col.rgb*color.rgb, 1.0);
-	return col;	
+ 	vec4 l = sumLights(pos, norm, color, baseLight);
+    return l;
 }
-
 
