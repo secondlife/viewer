@@ -354,11 +354,19 @@ BOOL LLFastTimerView::handleToolTip(S32 x, S32 y, MASK mask)
 
 BOOL LLFastTimerView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	setPauseState(true);
-	mScrollIndex = llclamp(	mScrollIndex + clicks,
-							0,
-							llmin((S32)mRecording.getNumRecordedPeriods(), (S32)mRecording.getNumRecordedPeriods() - MAX_VISIBLE_HISTORY));
-	return TRUE;
+    if (x < mBarRect.mLeft)
+    {
+        // Inside mScrollBar and list of timers
+        mScrollBar->handleScrollWheel(x,y,clicks);
+    }
+    else
+    {
+        setPauseState(true);
+        mScrollIndex = llclamp(mScrollIndex + clicks,
+            0,
+            llmin((S32)mRecording.getNumRecordedPeriods(), (S32)mRecording.getNumRecordedPeriods() - MAX_VISIBLE_HISTORY));
+    }
+    return TRUE;
 }
 
 static BlockTimerStatHandle FTM_RENDER_TIMER("Timers");
