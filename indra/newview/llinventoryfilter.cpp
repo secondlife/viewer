@@ -58,6 +58,7 @@ LLInventoryFilter::FilterOps::FilterOps(const Params& p)
 	mHoursAgo(p.hours_ago),
 	mDateSearchDirection(p.date_search_direction),
 	mShowFolderState(p.show_folder_state),
+	mFilterCreatorType(p.creator_type),
 	mPermissions(p.permissions),
 	mFilterTypes(p.types),
 	mFilterUUID(p.uuid),
@@ -78,8 +79,7 @@ LLInventoryFilter::LLInventoryFilter(const Params& p)
 	mCurrentGeneration(0),
 	mFirstRequiredGeneration(0),
 	mFirstSuccessGeneration(0),
-	mSearchType(SEARCHTYPE_NAME),
-	mFilterCreatorType(FILTERCREATOR_ALL)
+	mSearchType(SEARCHTYPE_NAME)
 {
 	// copy mFilterOps into mDefaultFilterOps
 	markDefault();
@@ -489,7 +489,7 @@ bool LLInventoryFilter::checkAgainstCreator(const LLFolderViewModelItemInventory
 {
 	if (!listener) return TRUE;
 	const BOOL is_folder = listener->getInventoryType() == LLInventoryType::IT_CATEGORY;
-	switch(mFilterCreatorType)
+	switch (mFilterOps.mFilterCreatorType)
 	{
 		case FILTERCREATOR_SELF:
 			if(is_folder) return FALSE;
@@ -601,9 +601,9 @@ void LLInventoryFilter::setSearchType(ESearchType type)
 
 void LLInventoryFilter::setFilterCreator(EFilterCreatorType type)
 {
-	if(mFilterCreatorType != type)
+	if (mFilterOps.mFilterCreatorType != type)
 	{
-		mFilterCreatorType = type;
+		mFilterOps.mFilterCreatorType = type;
 		setModified();
 	}
 }
@@ -1194,6 +1194,7 @@ void LLInventoryFilter::toParams(Params& params) const
 	params.filter_ops.hours_ago = getHoursAgo();
 	params.filter_ops.date_search_direction = getDateSearchDirection();
 	params.filter_ops.show_folder_state = getShowFolderState();
+	params.filter_ops.creator_type = getFilterCreatorType();
 	params.filter_ops.permissions = getFilterPermissions();
 	params.substring = getFilterSubString();
 	params.since_logoff = isSinceLogoff();
@@ -1216,6 +1217,7 @@ void LLInventoryFilter::fromParams(const Params& params)
 	setHoursAgo(params.filter_ops.hours_ago);
 	setDateSearchDirection(params.filter_ops.date_search_direction);
 	setShowFolderState(params.filter_ops.show_folder_state);
+	setFilterCreator(params.filter_ops.creator_type);
 	setFilterPermissions(params.filter_ops.permissions);
 	setFilterSubString(params.substring);
 	setDateRangeLastLogoff(params.since_logoff);
@@ -1276,6 +1278,11 @@ U64 LLInventoryFilter::getFilterLinks() const
 LLInventoryFilter::EFolderShow LLInventoryFilter::getShowFolderState() const
 { 
 	return mFilterOps.mShowFolderState; 
+}
+
+LLInventoryFilter::EFilterCreatorType LLInventoryFilter::getFilterCreatorType() const
+{
+	return mFilterOps.mFilterCreatorType;
 }
 
 bool LLInventoryFilter::isTimedOut()

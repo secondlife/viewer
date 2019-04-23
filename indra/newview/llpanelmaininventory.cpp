@@ -885,7 +885,7 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
 	U32 hours = mFilter->getHoursAgo();
 	U32 date_search_direction = mFilter->getDateSearchDirection();
 
-	LLInventoryFilter::EFilterCreatorType filter_creator = mFilter->getFilterCreator();
+	LLInventoryFilter::EFilterCreatorType filter_creator = mFilter->getFilterCreatorType();
 	bool show_created_by_me = ((filter_creator == LLInventoryFilter::FILTERCREATOR_ALL) || (filter_creator == LLInventoryFilter::FILTERCREATOR_SELF));
 	bool show_created_by_others = ((filter_creator == LLInventoryFilter::FILTERCREATOR_ALL) || (filter_creator == LLInventoryFilter::FILTERCREATOR_OTHERS));
 
