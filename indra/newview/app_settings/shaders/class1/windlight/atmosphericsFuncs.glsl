@@ -102,9 +102,9 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
         //temp2.x is 0 at the sun and increases away from sun
     temp2.x = max(temp2.x, .001);    //was glow.y
         //set a minimum "angle" (smaller glow.y allows tighter, brighter hotspot)
-    temp2.x *= glow.x;
+    temp2.x *= glow.x * 1.8;
         //higher glow.x gives dimmer glow (because next step is 1 / "angle")
-    temp2.x = pow(temp2.x, glow.z);
+    temp2.x = pow(temp2.x, glow.z * 0.2);
         //glow.z should be negative, so we're doing a sort of (1 / "angle") function
 
     //add "minimum anti-solar illumination"
