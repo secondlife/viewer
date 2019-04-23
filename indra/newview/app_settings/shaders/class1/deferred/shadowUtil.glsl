@@ -49,7 +49,7 @@ uniform int sun_up_factor;
 float pcfShadow(sampler2DShadow shadowMap, vec3 norm, vec4 stc, float bias_mul, vec2 pos_screen, vec3 light_dir)
 {
     stc.xyz /= stc.w;
-    stc.z += shadow_bias * bias_mul * 16.0;
+    stc.z += shadow_bias * bias_mul * 2.0;
     stc.x = floor(stc.x*shadow_res.x + fract(stc.y*shadow_res.y))/shadow_res.x; // add some chaotic jitter to X sample pos according to Y to disguise the snapping going on here
     float cs = shadow2D(shadowMap, stc.xyz).x;
     float shadow = cs * 4.0;
@@ -78,6 +78,7 @@ float pcfSpotShadow(sampler2DShadow shadowMap, vec4 stc, float bias_scale, vec2 
     shadow += shadow2D(shadowMap, stc.xyz+vec3(-off.x*2.0, -off.y, 0.0)).x;
     return shadow*0.2;
 }
+
 float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
 {
     float shadow = 0.0f;

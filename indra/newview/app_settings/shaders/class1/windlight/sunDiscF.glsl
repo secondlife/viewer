@@ -1,5 +1,5 @@
 /** 
- * @file sunDiscF.glsl
+ * @file class1\wl\sunDiscF.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code

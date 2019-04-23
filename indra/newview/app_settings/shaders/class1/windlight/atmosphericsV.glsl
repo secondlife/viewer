@@ -1,5 +1,5 @@
 /** 
- * @file atmosphericsV.glsl 
+ * @file class1\windlight\atmosphericsV.glsl 
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code

@@ -63,7 +63,7 @@ void main()
 	float final_alpha = color.a * vertex_color.a;
 
 #ifdef HAS_ALPHA_MASK
-	if (color.a < minimum_alpha)
+	if (final_alpha < minimum_alpha)
 	{
 		discard;
 	}

@@ -1,5 +1,5 @@
 /**
- * @file sumLightsV.glsl
+ * @file class1\lighting\sumLightsV.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -38,9 +38,10 @@ vec4 sumLights(vec3 pos, vec3 norm, vec4 color, vec4 baseLight)
 	col.a = color.a;
 	
 	col.rgb = light_diffuse[1].rgb * calcDirectionalLight(norm, light_position[1].xyz);
-	col.rgb += light_diffuse[0].rgb * calcDirectionalLight(norm, light_position[0].xyz);
 	col.rgb = scaleDownLight(col.rgb);
 	col.rgb += atmosAmbient(baseLight.rgb);
+	col.rgb += atmosAffectDirectionalLight(calcDirectionalLight(norm, light_position[0].xyz));
+	
 	col.rgb = min(col.rgb*color.rgb, 1.0);
 	return col;	
 }

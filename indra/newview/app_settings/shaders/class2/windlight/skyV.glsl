@@ -1,5 +1,5 @@
 /** 
- * @file WLSkyV.glsl
+ * @file class2\wl\skyV.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -87,9 +87,11 @@ void main()
 	vec4 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
 	vec4 light_atten;
 
+    float dens_mul = density_multiplier;
+
 	// Sunlight attenuation effect (hue and brightness) due to atmosphere
 	// this is used later for sunlight modulation at various altitudes
-	light_atten = (blue_density + vec4(haze_density * 0.25)) * (density_multiplier * max_y);
+	light_atten = (blue_density + vec4(haze_density * 0.25)) * (dens_mul * max_y);
 
 	// Calculate relative weights
 	temp1 = blue_density + haze_density;
@@ -102,7 +104,7 @@ void main()
 	sunlight *= exp( - light_atten * temp2.y);
 
 	// Distance
-	temp2.z = Plen * density_multiplier;
+	temp2.z = Plen * dens_mul;
 
 	// Transparency (-> temp1)
 	// ATI Bugfix -- can't store temp1*temp2.z in a variable because the ati

@@ -1,5 +1,5 @@
 /** 
- * @file lightFuncSpecularV.glsl
+ * @file class1/lighting\lightFuncSpecularV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code

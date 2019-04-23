@@ -1,9 +1,9 @@
 /** 
- * @file class1\windlight\atmosphericsHelpersF.glsl 
+ * @file class3\lighting\lightV.glsl
  *
- * $LicenseInfo:firstyear=2005&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2005, Linden Research, Inc.
+ * Copyright (C) 2007, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,29 +23,15 @@
  * $/LicenseInfo$
  */
  
-uniform vec4 sunlight_color;
-uniform vec4 light_ambient;
-uniform int no_atmo;
 
-vec3 atmosAmbient(vec3 light)
-{
-    if (no_atmo == 1) return light + vec3(0.66);
-    return light + light_ambient.rgb;
-}
 
-vec3 atmosAffectDirectionalLight(float lightIntensity)
-{
-    return sunlight_color.rgb * lightIntensity;
-}
+// All lights, no specular highlights
 
-vec3 atmosGetDiffuseSunlightColor()
+vec4 sumLights(vec3 pos, vec3 norm, vec4 color, vec4 baseLight);
+vec3 atmosAmbient(vec3 c);
+vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseLight)
 {
-    return sunlight_color.rgb;
-}
-
-vec3 scaleDownLight(vec3 light)
-{
-    /* stub function for fallback compatibility on class1 hardware */
-    return light;
+ 	vec4 l = sumLights(pos, norm, color, baseLight);
+    return l;
 }
 
