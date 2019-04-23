@@ -83,6 +83,8 @@ uniform vec3 light_direction[8];
 uniform vec4 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
 
+float getAmbientClamp();
+
 vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spec, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, inout float glare, float ambiance)
 {
     //get light vector
@@ -305,7 +307,7 @@ void main()
     float ambient = da;
     ambient *= 0.5;
     ambient *= ambient;
-    ambient = max(0.66, ambient);
+    ambient = max(getAmbientClamp(), ambient);
     ambient = 1.0 - ambient;
 
     vec3 sun_contrib = min(final_da, shadow) * sunlit;

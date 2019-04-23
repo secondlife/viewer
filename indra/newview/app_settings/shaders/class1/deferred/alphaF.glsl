@@ -83,6 +83,8 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
 float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 #endif
 
+float getAmbientClamp();
+
 vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, float ambiance)
 {
     //get light vector
@@ -209,7 +211,7 @@ void main()
     float ambient = da;
     ambient *= 0.5;
     ambient *= ambient;
-    ambient = max(0.66, ambient); // keeps shadows dark
+    ambient = max(getAmbientClamp(), ambient); // keeps shadows dark
     ambient = 1.0 - ambient;
 
     vec3 sun_contrib = min(final_da, shadow) * sunlit;

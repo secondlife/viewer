@@ -144,13 +144,14 @@ void main()
     refcol = mix(baseCol*df2, refcol, dweight);
     
     //figure out distortion vector (ripply)   
-    vec2 distort2 = distort+wavef.xy*refScale * 0.33/max(dmod*df1, 1.0);
+    vec2 distort2 = distort+wavef.xy*(refScale * 0.01)/max(dmod*df1, 1.0);
         
     vec4 fb = texture2D(screenTex, distort2);
+
     //mix with reflection
-    // Note we actually want to use just df1, but multiplying by 0.999999 gets around an nvidia compiler bug
-    color.rgb = mix(fb.rgb, refcol.rgb, df1 * 0.99999);
-    
+    color.rgb = fb.rgb;
+    color.rgb += refcol.rgb * df1;
+ 
     vec4 pos = vary_position;
     
     vec3 screenspacewavef = normalize((norm_mat*vec4(wavef, 1.0)).xyz);

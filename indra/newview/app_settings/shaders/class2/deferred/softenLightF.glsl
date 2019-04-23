@@ -71,7 +71,7 @@ vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 scaleSoftClipFrag(vec3 l);
 
 void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
-
+float getAmbientClamp();
 vec3 atmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
 
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
@@ -106,7 +106,7 @@ void main()
 
     float final_da = da;
           final_da = clamp(final_da, 0.0, 1.0);
-	      final_da = pow(final_da, light_gamma);
+	      //final_da = pow(final_da, light_gamma);
 
     vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
     vec3 col;
@@ -124,7 +124,7 @@ void main()
         float ambient = da;
         ambient *= 0.5;
         ambient *= ambient;
-        ambient = max(0.66, ambient);
+        ambient = max(getAmbientClamp(), ambient);
         ambient = 1.0 - ambient;
 
         vec3 sun_contrib = scol * final_da * sunlit;
