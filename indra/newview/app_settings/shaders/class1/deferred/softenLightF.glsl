@@ -93,7 +93,7 @@ void main()
 
     float final_da = da;
           final_da = clamp(final_da, 0.0, 1.0);
-	      final_da = pow(final_da, light_gamma);
+	      //final_da = pow(final_da, light_gamma);
 
     vec4 diffuse = texture2DRect(diffuseRect, tc);
 
@@ -177,7 +177,7 @@ vec3 post_diffuse = col.rgb;
             bloom = fogged.a;
         #endif
 
-//col.rgb = post_diffuse;
+//col.rgb = vec3(final_da);
     }
 
     frag_color.rgb = col.rgb;

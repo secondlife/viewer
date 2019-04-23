@@ -106,7 +106,7 @@ void main()
 
     float final_da = da;
           final_da = clamp(final_da, 0.0, 1.0);
-	      final_da = pow(final_da, light_gamma);
+	      //final_da = pow(final_da, light_gamma);
 
     vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
     vec3 col;
