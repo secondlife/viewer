@@ -137,7 +137,7 @@
        bg_visible="false"
        border_visible="true"
        h_pad="1"
-       v_pad="2"
+       v_pad="4"
        max_length="254"
       />
       <!--mouse_opaque="true"-->
@@ -287,10 +287,10 @@
              bg_visible="false"
              border_visible="true"
              parse_urls="true"
-             h_pad="0"
+             h_pad="1"
              read_only="true"
              translate="false"
-             v_pad="2"
+             v_pad="4"
              max_length="254"
              />
         </layout_panel>

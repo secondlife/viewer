@@ -43,7 +43,7 @@
     <text
      name="group_name"
      value="Unknown"
-     top="0"
+     top="2"
      left_pad="5"
      right="-2"
      height="16"
