@@ -59,7 +59,6 @@
 #include "llfloatergridstatus.h"
 #include "llfloaterimsession.h"
 #include "lllocationhistory.h"
-#include "llimageworker.h"
 
 #include "llloginflags.h"
 #include "llmd5.h"
