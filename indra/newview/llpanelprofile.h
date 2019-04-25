@@ -203,6 +203,7 @@ private:
 	LLButton*			mPayButton;
 	LLButton*			mIMButton;
 	LLMenuButton*		mCopyMenuButton;
+	LLPanel*			mGiveInvPanel;
 
 	bool				mVoiceStatus;
 

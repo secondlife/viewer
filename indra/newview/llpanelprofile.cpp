@@ -270,6 +270,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mPayButton              = getChild<LLButton>("pay");
     mIMButton               = getChild<LLButton>("im");
     mCopyMenuButton         = getChild<LLMenuButton>("copy_btn");
+    mGiveInvPanel           = getChild<LLPanel>("give_stack");
 
     mStatusText->setVisible(FALSE);
     mCopyMenuButton->setVisible(FALSE);
@@ -321,6 +322,7 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
     mBlockButton->setVisible(!own_profile);
     mUnblockButton->setVisible(!own_profile);
     mGroupList->setShowNone(!own_profile);
+    mGiveInvPanel->setVisible(!own_profile);
 
     if (own_profile && !getEmbedded())
     {

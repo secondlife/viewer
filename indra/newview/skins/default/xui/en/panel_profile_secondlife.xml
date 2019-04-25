@@ -322,76 +322,106 @@
      name="group_list"
      top_delta="-20"
      left="66"
-     right="-6"
-     height="80"
+     right="-7"
+     height="82"
      follows="left|top|right"
      layout="topleft"
      border_visible="true"
      color="ScrollBgWriteableColor"
      for_agent="false"
     />
-    <text
-     name="About:"
-     value="About:"
-     top_pad="8"
+
+    <layout_stack
+     name="aboutpositioner"
+     top_pad="7"
      left="6"
-     height="16"
-     width="55"
-     follows="left|top"
-     layout="topleft"
-     halign="right"
-    />
-    <text_editor
-     name="sl_description_edit"
-     enabled="false"
-     top_delta="0"
-     left="66"
-     right="-7"
-     height="100"
+     right="-6"
+     height="130"
      follows="all"
      layout="topleft"
-     bg_readonly_color="Transparent"
-     border_visible="true"
-     font="SansSerifSmall"
-     h_pad="2"
-     max_length="510"
-     parse_urls="true"
-     word_wrap="true"
-    />
-    <text
-     name="Give item:"
-     value="Give item:"
-     top_pad="10"
-     left="6"
-     height="16"
-     width="55"
-     follows="left|bottom"
-     layout="topleft"
-     halign="right"
-    />
-    <view_border
-     name="drop_target_rect_vis"
-     top_delta="0"
-     left="66"
-     right="-6"
-     height="16"
-     follows="left|bottom|right"
-     layout="topleft"
-     bevel_style="in"
-    />
-    <text
-     name="Give inventory"
-     tool_tip="Drop inventory items here to give them to this person."
-     top_delta="0"
-     left="66"
-     right="-6"
-     height="16"
-     follows="left|bottom|right"
-     layout="topleft"
-     halign="center"
+     orientation="vertical"
     >
-        Drop inventory item here.
-    </text>
+      <layout_panel
+       name="about_stack"
+       follows="all"
+       layout="topleft"
+       left="0"
+       height="105"
+       auto_resize="true"
+       user_resize="false">
+        <text
+         name="About:"
+         value="About:"
+         top="1"
+         left="0"
+         height="16"
+         width="55"
+         follows="left|top"
+         layout="topleft"
+         halign="right"
+        />
+        <text_editor
+         name="sl_description_edit"
+         enabled="false"
+         top="0"
+         left="60"
+         right="-1"
+         bottom="-1"
+         follows="all"
+         layout="topleft"
+         bg_readonly_color="Transparent"
+         border_visible="true"
+         font="SansSerifSmall"
+         h_pad="2"
+         max_length="510"
+         parse_urls="true"
+         word_wrap="true"
+        />
+      </layout_panel>
+      <layout_panel
+       name="give_stack"
+       follows="left|bottom"
+       layout="topleft"
+       left="0"
+       height="24"
+       auto_resize="false"
+       user_resize="false">
+        <text
+         name="Give item:"
+         value="Give item:"
+         top="6"
+         left="0"
+         height="16"
+         width="55"
+         follows="left|bottom"
+         layout="topleft"
+         halign="right"
+        />
+        <view_border
+         name="drop_target_rect_vis"
+         top_delta="0"
+         left="60"
+         right="-1"
+         height="16"
+         follows="left|bottom|right"
+         layout="topleft"
+         bevel_style="in"
+        />
+        <text
+         name="Give inventory"
+         tool_tip="Drop inventory items here to give them to this person."
+         top_delta="0"
+         left="60"
+         right="-1"
+         height="16"
+         follows="left|bottom|right"
+         layout="topleft"
+         halign="center"
+        >
+          Drop inventory item here.
+        </text>
+      </layout_panel>
+    </layout_stack>
     <layout_stack
      name="buttonstack"
      bottom="-3"
