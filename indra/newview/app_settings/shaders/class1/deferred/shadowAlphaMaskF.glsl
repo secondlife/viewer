@@ -45,7 +45,7 @@ VARYING vec2 vary_texcoord0;
 
 void main() 
 {
-	float alpha = diffuseLookup(vary_texcoord0.xy).a * vertex_color.a;
+	float alpha = diffuseLookup(vary_texcoord0.xy).a;
 
 	if (alpha < 0.05) // treat as totally transparent
 	{
@@ -59,6 +59,8 @@ void main()
 	    discard;
 	  }
 	}
+
+    alpha *= vertex_color.a;
 
 	frag_color = vec4(1,1,1,1);
 	
