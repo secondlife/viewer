@@ -994,9 +994,6 @@ void LLSettingsSky::calculateHeavenlyBodyPositions()  const
     mMoonDirection.normalize();
 
     // find out about degen math earlier rather than later
-    llassert(mSunDirection.length()  >= 0.9f);
-    llassert(mMoonDirection.length() >= 0.9f);
-
     if (mSunDirection.lengthSquared() < 0.9f)
     {
         LL_WARNS("SETTINGS") << "Invalid sun direction." << LL_ENDL;
