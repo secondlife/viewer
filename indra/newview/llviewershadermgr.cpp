@@ -478,7 +478,8 @@ void LLViewerShaderMgr::setShaders()
 		//using shaders, disable fixed function
 		LLGLSLShader::sNoFixedFunction = true;
 
-		S32 light_class = 2;
+		S32 light_class = 3;
+        S32 interface_class = 2;
 		S32 env_class = 2;
 		S32 obj_class = 2;
 		S32 effect_class = 2;
@@ -519,6 +520,10 @@ void LLViewerShaderMgr::setShaders()
             // windlight shaders to stub versions.
             wl_class = 2;
         }
+        else
+        {
+            light_class = 2;
+        }
 
 		// Trigger a full rebuild of the fallback skybox / cubemap if we've toggled windlight shaders
 		if (mShaderLevel[SHADER_WINDLIGHT] != wl_class && gSky.mVOSkyp.notNull())
@@ -528,7 +533,7 @@ void LLViewerShaderMgr::setShaders()
 
 		// Load lighting shaders
 		mShaderLevel[SHADER_LIGHTING] = light_class;
-		mShaderLevel[SHADER_INTERFACE] = light_class;
+		mShaderLevel[SHADER_INTERFACE] = interface_class;
 		mShaderLevel[SHADER_ENVIRONMENT] = env_class;
 		mShaderLevel[SHADER_WATER] = water_class;
 		mShaderLevel[SHADER_OBJECT] = obj_class;

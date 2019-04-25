@@ -302,7 +302,6 @@ void main()
 
     float final_da = da;
           final_da = clamp(final_da, 0.0, 1.0);
-          final_da = pow(final_da, 1.0 / 1.3);
 
     float ambient = da;
     ambient *= 0.5;
@@ -372,6 +371,8 @@ vec3 post_spec = col.rgb;
         glare += cur_glare;
     }
 
+vec3 post_env = col.rgb;
+
     col = atmosFragLighting(col, additive, atten);
     col = scaleSoftClipFrag(col);
 
@@ -379,7 +380,7 @@ vec3 post_spec = col.rgb;
             
     vec3 light = vec3(0,0,0);
 
-    vec3 prelight_linearish_maybe = srgb_to_linear(col.rgb);
+vec3 post_atmo = col.rgb;
 
  #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w * 0.5);
 
@@ -393,7 +394,7 @@ vec3 post_spec = col.rgb;
 
 vec3 light_linear = light.rgb;
 
-    col.rgb += light.rgb;
+    col.rgb += light_linear;
 
 vec3 postlight_linear = col.rgb;
 

@@ -201,7 +201,6 @@ void main()
  
     float final_da = da;
           final_da = clamp(final_da, 0.0f, 1.0f);
-		  final_da = pow(final_da, 1.0/1.3);
 
     vec4 color = vec4(0,0,0,0);
 

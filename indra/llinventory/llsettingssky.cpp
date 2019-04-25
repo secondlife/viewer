@@ -33,9 +33,8 @@
 #include "v3colorutil.h"
 
 //=========================================================================
-namespace {
-    const F32 NIGHTTIME_ELEVATION = 8.0f; // degrees
-    const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION * DEG_TO_RAD);
+namespace
+{
     const LLUUID IMG_BLOOM1("3c59f7fe-9dc8-47f9-8aaf-a9dd1fbc3bef");
     const LLUUID IMG_RAINBOW("11b4c57c-56b3-04ed-1f82-2004363882e4");
     const LLUUID IMG_HALO("12149143-f599-91a7-77ac-b52a3c0f59cd");
@@ -958,15 +957,15 @@ F32 LLSettingsSky::getSunMoonGlowFactor() const
     LLVector3 moonDir = getMoonDirection();
 
     // sun glow at full iff moon is not up
-    if (sunDir.mV[VZ] > -NIGHTTIME_ELEVATION_SIN)
+    if (getIsSunUp())
     {
-        if (moonDir.mV[2] <= 0.0f)
+        if (!getIsMoonUp())
         {
             return 1.0f;
         }
     }
 
-    if (moonDir.mV[2] > 0.0f)
+    if (getIsMoonUp())
     {
         return 0.25f;
     }
@@ -977,13 +976,13 @@ F32 LLSettingsSky::getSunMoonGlowFactor() const
 bool LLSettingsSky::getIsSunUp() const
 {
     LLVector3 sunDir = getSunDirection();
-    return (sunDir.mV[2] >= 0.0f) || ((sunDir.mV[2] > -NIGHTTIME_ELEVATION_SIN) && !getIsMoonUp());
+    return sunDir.mV[2] >= 0.0f || !getIsMoonUp();
 }
 
 bool LLSettingsSky::getIsMoonUp() const
 {
     LLVector3 moonDir = getMoonDirection();
-    return moonDir.mV[2] > 0.0f;
+    return moonDir.mV[2] >= 0.0f;
 }
 
 void LLSettingsSky::calculateHeavenlyBodyPositions()  const
@@ -997,10 +996,19 @@ void LLSettingsSky::calculateHeavenlyBodyPositions()  const
     mSunDirection.normalize();
     mMoonDirection.normalize();
 
-    if (mSunDirection.lengthSquared() < 0.01f)
-        LL_WARNS("SETTINGS") << "Zero length sun direction. Wailing and gnashing of teeth may follow... or not." << LL_ENDL;
-    if (mMoonDirection.lengthSquared() < 0.01f)
-        LL_WARNS("SETTINGS") << "Zero length moon direction. Wailing and gnashing of teeth may follow... or not." << LL_ENDL;
+    // find out about degen math earlier rather than later
+    llassert(mSunDirection.length()  >= 0.9f);
+    llassert(mMoonDirection.length() >= 0.9f);
+
+    if (mSunDirection.lengthSquared() < 0.9f)
+    {
+        LL_WARNS("SETTINGS") << "Invalid sun direction." << LL_ENDL;
+    }
+
+    if (mMoonDirection.lengthSquared() < 0.9f)
+    {
+        LL_WARNS("SETTINGS") << "Invalid moon direction." << LL_ENDL;
+    }
 }
 
 LLVector3 LLSettingsSky::getLightDirection() const
@@ -1280,9 +1288,9 @@ void LLSettingsSky::calculateLightSettings() const
 
     // and vary_sunlight will work properly with moon light
     F32 lighty = lightnorm[2];
-    if(lighty > 0.001f)
+    if(fabs(lighty) > 0.001f)
     {
-        lighty = 1.f / lighty;
+        lighty = 1.f / fabs(lighty);
     }
     lighty = llmax(0.001f, lighty);
     componentMultBy(sunlight, componentExp((light_atten * -1.f) * lighty));

@@ -108,7 +108,7 @@ void main()
         vec3 atten;
 
         calcAtmosphericVars(pos.xyz, 1.0, sunlit, amblit, additive, atten);
-        sunlit *= 0.5;
+
         float ambient = da;
         ambient *= 0.5;
         ambient *= ambient;
