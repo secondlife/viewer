@@ -445,8 +445,48 @@ void LLTextBase::drawSelectionBackground()
 			++rect_it)
 		{
 			LLRect selection_rect = *rect_it;
-			selection_rect = *rect_it;
-			selection_rect.translate(mVisibleTextRect.mLeft - content_display_rect.mLeft, mVisibleTextRect.mBottom - content_display_rect.mBottom);
+            if (mScroller)
+            {
+                // If scroller is On content_display_rect has correct rect and safe to use as is
+                // Note: we might need to account for border
+                selection_rect.translate(mVisibleTextRect.mLeft - content_display_rect.mLeft, mVisibleTextRect.mBottom - content_display_rect.mBottom);
+            }
+            else
+            {
+                // If scroller is Off content_display_rect will have rect from document, adjusted to text width, heigh and position
+                // and we have to acount for offset depending on position
+                S32 v_delta = 0;
+                S32 h_delta = 0;
+                switch (mVAlign)
+                {
+                case LLFontGL::TOP:
+                    v_delta = mVisibleTextRect.mTop - content_display_rect.mTop - mVPad;
+                    break;
+                case LLFontGL::VCENTER:
+                    v_delta = (llmax(mVisibleTextRect.getHeight() - content_display_rect.mTop, -content_display_rect.mBottom) + (mVisibleTextRect.mBottom - content_display_rect.mBottom)) / 2;
+                    break;
+                case LLFontGL::BOTTOM:
+                    v_delta = mVisibleTextRect.mBottom - content_display_rect.mBottom;
+                    break;
+                default:
+                    break;
+                }
+                switch (mHAlign)
+                {
+                case LLFontGL::LEFT:
+                    h_delta = mVisibleTextRect.mLeft - content_display_rect.mLeft + mHPad;
+                    break;
+                case LLFontGL::HCENTER:
+                    h_delta = (llmax(mVisibleTextRect.getWidth() - content_display_rect.mLeft, -content_display_rect.mRight) + (mVisibleTextRect.mRight - content_display_rect.mRight)) / 2;
+                    break;
+                case LLFontGL::RIGHT:
+                    h_delta = mVisibleTextRect.mRight - content_display_rect.mRight;
+                    break;
+                default:
+                    break;
+                }
+                selection_rect.translate(h_delta, v_delta);
+            }
 			gl_rect_2d(selection_rect, selection_color);
 		}
 	}
