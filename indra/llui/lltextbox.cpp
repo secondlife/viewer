@@ -122,6 +122,7 @@ void LLTextBox::setEnabled(BOOL enabled)
 		LLTextBase::setReadOnly(read_only);
 		updateSegments();
 	}
+	LLTextBase::setEnabled(enabled);
 }
 
 void LLTextBox::setText(const LLStringExplicit& text , const LLStyle::Params& input_params )

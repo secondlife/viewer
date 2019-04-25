@@ -346,6 +346,7 @@ private:
 	LLTextureCtrl*	mSnapshotCtrl;
 
 	LLTextBox*		mLocationText;
+	LLTextBox*		mSeeAvatarsText;
 	LLButton*		mSetBtn;
 	LLButton*		mClearBtn;
 

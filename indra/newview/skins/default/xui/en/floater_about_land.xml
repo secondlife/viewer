@@ -1473,6 +1473,7 @@ Only large parcels can be listed in search.
              length="1"
              follows="left|top"
              text_color="LtGray"
+             text_readonly_color="LabelDisabledColor"
              height="32"
              layout="topleft"
              left="274"
