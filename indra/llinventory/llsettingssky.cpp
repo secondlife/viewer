@@ -993,16 +993,10 @@ void LLSettingsSky::calculateHeavenlyBodyPositions()  const
     mSunDirection.normalize();
     mMoonDirection.normalize();
 
-    // find out about degen math earlier rather than later
-    if (mSunDirection.lengthSquared() < 0.9f)
-    {
-        LL_WARNS("SETTINGS") << "Invalid sun direction." << LL_ENDL;
-    }
-
-    if (mMoonDirection.lengthSquared() < 0.9f)
-    {
-        LL_WARNS("SETTINGS") << "Invalid moon direction." << LL_ENDL;
-    }
+    if (mSunDirection.lengthSquared() < 0.01f)
+        LL_WARNS("SETTINGS") << "Zero length sun direction. Wailing and gnashing of teeth may follow... or not." << LL_ENDL;
+    if (mMoonDirection.lengthSquared() < 0.01f)
+        LL_WARNS("SETTINGS") << "Zero length moon direction. Wailing and gnashing of teeth may follow... or not." << LL_ENDL;
 }
 
 LLVector3 LLSettingsSky::getLightDirection() const
