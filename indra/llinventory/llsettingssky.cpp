@@ -1275,12 +1275,14 @@ void LLSettingsSky::calculateLightSettings() const
     LLColor3    light_transmittance = getLightTransmittance();
 
     // and vary_sunlight will work properly with moon light
-    F32 lighty = lightnorm[2];
-    if(fabs(lighty) > 0.001f)
+    const F32 LIMIT = FLT_EPSILON * 8.0f;
+
+    F32 lighty = fabs(lightnorm[2]);
+    if(lighty >= LIMIT)
     {
-        lighty = 1.f / fabs(lighty);
+        lighty = 1.f / lighty;
     }
-    lighty = llmax(0.001f, lighty);
+    lighty = llmax(LIMIT, lighty);
     componentMultBy(sunlight, componentExp((light_atten * -1.f) * lighty));
 
     //increase ambient when there are more clouds

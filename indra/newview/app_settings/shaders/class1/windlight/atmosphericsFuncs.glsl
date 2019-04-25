@@ -81,12 +81,12 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
     haze_weight = vec4(haze_density) / temp1;
 
     //(TERRAIN) compute sunlight from lightnorm only (for short rays like terrain)
-    temp2.y = max(0.0, tmpLightnorm.z);
-    if (temp2.y > 0.001f)
+    temp2.y = max(0.0, tmpLightnorm.y);
+    if (abs(temp2.y) > 0.000001f)
     {
-        temp2.y = 1. / temp2.y;
+        temp2.y = 1. / abs(temp2.y);
     }
-    temp2.y = max(0.001f, temp2.y);
+    temp2.y = max(0.0000001f, temp2.y);
     sunlight *= exp(-light_atten * temp2.y);
 
     // main atmospheric scattering line integral

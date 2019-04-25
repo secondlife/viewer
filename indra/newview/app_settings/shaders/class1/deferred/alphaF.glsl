@@ -229,12 +229,10 @@ vec3 post_diffuse = color.rgb;
 
     //color.rgb = mix(diff.rgb, color.rgb, final_alpha);
     
-    color.rgb = atmosFragLighting(color.rgb, additive, atten);
+    color.rgb = atmosFragLighting(color.rgb, additive, atten) * 2.0;
     color.rgb = scaleSoftClipFrag(color.rgb);
 
     vec4 light = vec4(0,0,0,0);
-
-vec3 prelight_linearish_maybe = srgb_to_linear(color.rgb);
 
    #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diff.rgb, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w * 0.5);
 
