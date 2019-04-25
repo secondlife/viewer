@@ -953,9 +953,6 @@ void LLSettingsSky::updateSettings()
 
 F32 LLSettingsSky::getSunMoonGlowFactor() const
 {
-    LLVector3 sunDir  = getSunDirection();
-    LLVector3 moonDir = getMoonDirection();
-
     // sun glow at full iff moon is not up
     if (getIsSunUp())
     {
