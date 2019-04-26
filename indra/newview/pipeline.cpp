@@ -408,6 +408,11 @@ LLPipeline::LLPipeline() :
 	mNoiseMap = 0;
 	mTrueNoiseMap = 0;
 	mLightFunc = 0;
+
+    for(U32 i = 0; i < 8; i++)
+    {
+        mHWLightColors[i] = LLColor4::black;
+    }
 }
 
 void LLPipeline::connectRefreshCachedSettingsSafe(const std::string name)
