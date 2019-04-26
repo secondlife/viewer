@@ -75,6 +75,7 @@ VARYING vec2 vary_fragcoord;
 
 VARYING vec3 vary_position;
 
+uniform mat4 proj_mat;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
@@ -96,6 +97,17 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
     float da = 1.0;
 
     vec3 col = vec3(0,0,0);
+
+    vec4 proj_tc = proj_mat * lp;
+
+    if (proj_tc.z < 0
+     || proj_tc.x < 0
+     || proj_tc.z > 1
+     || proj_tc.y < 0
+     || proj_tc.y > 1)
+    {
+        return col;
+    }
 
     if (d > 0.0)
     {
@@ -381,6 +393,8 @@ vec3 post_env = col.rgb;
 
 vec3 post_atmo = col.rgb;
 
+    //col.rgb = srgb_to_linear(col.rgb);
+
  #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w * 0.5);
 
         LIGHT_LOOP(1)
@@ -393,7 +407,7 @@ vec3 post_atmo = col.rgb;
 
 vec3 light_linear = light.rgb;
 
-    col.rgb += light_linear;
+     col.rgb += light_linear;
 
 vec3 postlight_linear = col.rgb;
 
@@ -406,7 +420,7 @@ vec3 postlight_linear = col.rgb;
     al = temp.a;
 #endif
 
-//col.rgb = light_linear;
+//col.rgb = post_atmo;
 
     col.rgb = linear_to_srgb(col.rgb);
 

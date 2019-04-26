@@ -194,6 +194,8 @@ void main()
     float final_alpha = diff.a;
 #endif
 
+    vec3 gamma_diff = diff.rgb;
+
     diff.rgb = srgb_to_linear(diff.rgb);
 
     vec3 sunlit;
@@ -239,9 +241,11 @@ vec3 post_sunlight = color.rgb;
 vec3 post_diffuse = color.rgb;
 
     //color.rgb = mix(diff.rgb, color.rgb, final_alpha);
-    
-    color.rgb = atmosFragLighting(color.rgb, additive, atten) * 2.0;
+
+    color.rgb = atmosFragLighting(color.rgb, additive, atten);
     color.rgb = scaleSoftClipFrag(color.rgb);
+
+    //color.rgb = srgb_to_linear(color.rgb);
 
     vec4 light = vec4(0,0,0,0);
 

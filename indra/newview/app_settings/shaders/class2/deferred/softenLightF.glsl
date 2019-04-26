@@ -73,6 +73,8 @@ vec3 scaleSoftClipFrag(vec3 l);
 void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
 float getAmbientClamp();
 vec3 atmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
+vec3 linear_to_srgb(vec3 c);
+vec3 srgb_to_linear(vec3 c);
 
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 vec4 getPosition(vec2 pos_screen);
@@ -99,14 +101,14 @@ void main()
     float da = dot(normalize(norm.xyz), light_dir.xyz);
           da = clamp(da, -1.0, 1.0);
 
-    vec4 diffuse = texture2DRect(diffuseRect, tc);
-   
+    vec4 gamma_diff = texture2DRect(diffuseRect, tc);
+    vec4 diffuse = gamma_diff;
+         diffuse.rgb = srgb_to_linear(diffuse.rgb);
+ 
     scol = max(scol_ambocc.r, diffuse.a);
-	//scol = pow(scol, light_gamma);
 
     float final_da = da;
           final_da = clamp(final_da, 0.0, 1.0);
-	      //final_da = pow(final_da, light_gamma);
 
     vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
     vec3 col;
@@ -138,7 +140,7 @@ vec3 post_ambient = col.rgb;
 
 vec3 post_sunlight = col.rgb;
 
-        col.rgb *= diffuse.rgb;
+        col.rgb *= gamma_diff.rgb;
 
 vec3 post_diffuse = col.rgb;
 
@@ -169,7 +171,7 @@ vec3 post_diffuse = col.rgb;
             }
         }
         
-        col.rgb += diffuse.a * diffuse.rgb;
+        col.rgb += diffuse.a * gamma_diff.rgb;
 
         if (envIntensity > 0.0)
         { //add environmentmap

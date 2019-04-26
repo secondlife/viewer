@@ -29,13 +29,12 @@ ATTRIBUTE vec3 position;
 ATTRIBUTE vec3 normal;
 ATTRIBUTE vec2 texcoord0;
 
-vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
 mat4 getSkinnedTransform();
 void calcAtmospherics(vec3 inPositionEye);
 
 float calcDirectionalLight(vec3 n, vec3 l);
 
-vec3 atmosAmbient(vec3 light);
+vec3 atmosAmbient();
 vec3 atmosAffectDirectionalLight(float lightIntensity);
 
 VARYING vec3 vary_position;
@@ -128,7 +127,7 @@ void main()
 	col.rgb = vec3(0,0,0);
 
 	// Add windlight lights
-	col.rgb = atmosAmbient(vec3(0.));
+	col.rgb = atmosAmbient();
 	
 	vary_ambient = col.rgb*color.rgb;
 	vary_directional = color.rgb*atmosAffectDirectionalLight(max(calcDirectionalLight(norm, light_position[0].xyz), 0.0));
