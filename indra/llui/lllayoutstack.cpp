@@ -251,8 +251,14 @@ void LLLayoutStack::draw()
 
 	// always clip to stack itself
 	LLLocalClipRect clip(getLocalRect());
-	BOOST_FOREACH(LLLayoutPanel* panelp, mPanels)
+	for (LLLayoutPanel* panelp : mPanels)
 	{
+		if ((!panelp->getVisible() || panelp->mCollapsed)
+			&& (panelp->mVisibleAmt < 0.001f || !mAnimate))
+		{
+			// essentially invisible
+			continue;
+		}
 		// clip to layout rectangle, not bounding rectangle
 		LLRect clip_rect = panelp->getRect();
 		// scale clipping rectangle by visible amount

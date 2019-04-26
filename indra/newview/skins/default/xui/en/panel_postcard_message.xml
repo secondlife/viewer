@@ -80,6 +80,7 @@
      left="5"
      max_length="700"
      name="msg_form"
+     spellcheck="true"
      right="-4"
      top_pad="5"
      word_wrap="true">

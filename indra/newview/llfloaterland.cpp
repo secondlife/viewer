@@ -416,6 +416,7 @@ BOOL LLPanelLandGeneral::postBuild()
 	mTextSalePending = getChild<LLTextBox>("SalePending");
 	mTextOwnerLabel = getChild<LLTextBox>("Owner:");
 	mTextOwner = getChild<LLTextBox>("OwnerText");
+	mTextOwner->setIsFriendCallback(LLAvatarActions::isFriend);
 	
 	mContentRating = getChild<LLTextBox>("ContentRatingText");
 	mLandType = getChild<LLTextBox>("LandTypeText");
@@ -1192,6 +1193,7 @@ BOOL LLPanelLandObjects::postBuild()
 	mIconGroup = LLUIImageList::getInstance()->getUIImage("icon_group.tga", 0);
 
 	mOwnerList = getChild<LLNameListCtrl>("owner list");
+	mOwnerList->setIsFriendCallback(LLAvatarActions::isFriend);
 	mOwnerList->sortByColumnIndex(3, FALSE);
 	childSetCommitCallback("owner list", onCommitList, this);
 	mOwnerList->setDoubleClickCallback(onDoubleClickOwner, this);
@@ -1921,6 +1923,13 @@ BOOL LLPanelLandOptions::postBuild()
 	mSeeAvatarsCtrl = getChild<LLCheckBoxCtrl>( "SeeAvatarsCheck");
 	childSetCommitCallback("SeeAvatarsCheck", onCommitAny, this);
 
+	if (hasChild("allow_see_label", TRUE))
+	{
+		getChild<LLTextBox>("allow_see_label")->setShowCursorHand(false);
+		getChild<LLTextBox>("allow_see_label")->setSoundFlags(LLView::MOUSE_UP);
+		getChild<LLTextBox>("allow_see_label")->setClickedCallback(boost::bind(&toggleSeeAvatars, this));
+	}
+
 	mCheckShowDirectory = getChild<LLCheckBoxCtrl>( "ShowDirectoryCheck");
 	childSetCommitCallback("ShowDirectoryCheck", onCommitAny, this);
 
@@ -2362,7 +2371,16 @@ void LLPanelLandOptions::onClickClear(void* userdata)
 	self->refresh();
 }
 
-
+void LLPanelLandOptions::toggleSeeAvatars(void* userdata)
+{
+	LLPanelLandOptions* self = (LLPanelLandOptions*)userdata;
+	if (self)
+	{
+		self->getChild<LLCheckBoxCtrl>("SeeAvatarsCheck")->toggle();
+		self->getChild<LLCheckBoxCtrl>("SeeAvatarsCheck")->setBtnFocus();
+		self->onCommitAny(NULL, userdata);
+	}
+}
 //---------------------------------------------------------------------------
 // LLPanelLandAccess
 //---------------------------------------------------------------------------

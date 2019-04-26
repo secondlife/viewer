@@ -48,7 +48,7 @@ static void tcp_close_channel(LLSocket::ptr_t* handle_ptr); // Close an open TCP
 
 LLProxy::LLProxy():
 		mHTTPProxyEnabled(false),
-		mProxyMutex(NULL),
+		mProxyMutex(),
 		mUDPProxy(),
 		mTCPProxy(),
 		mHTTPProxy(),
@@ -473,7 +473,8 @@ static apr_status_t tcp_blocking_handshake(LLSocket::ptr_t handle, char * dataou
   	rv = apr_socket_send(apr_socket, dataout, &outlen);
 	if (APR_SUCCESS != rv)
 	{
-		LL_WARNS("Proxy") << "Error sending data to proxy control channel, status: " << rv << LL_ENDL;
+		char buf[MAX_STRING];
+		LL_WARNS("Proxy") << "Error sending data to proxy control channel, status: " << rv << " " << apr_strerror(rv, buf, MAX_STRING) << LL_ENDL;
 		ll_apr_warn_status(rv);
 	}
 	else if (expected_len != outlen)
@@ -483,13 +484,16 @@ static apr_status_t tcp_blocking_handshake(LLSocket::ptr_t handle, char * dataou
 		rv = -1;
 	}
 
+	ms_sleep(1);
+
 	if (APR_SUCCESS == rv)
 	{
 		expected_len = maxinlen;
 		rv = apr_socket_recv(apr_socket, datain, &maxinlen);
 		if (rv != APR_SUCCESS)
 		{
-			LL_WARNS("Proxy") << "Error receiving data from proxy control channel, status: " << rv << LL_ENDL;
+			char buf[MAX_STRING];
+			LL_WARNS("Proxy") << "Error receiving data from proxy control channel, status: " << rv << " " << apr_strerror(rv, buf, MAX_STRING) << LL_ENDL;
 			ll_apr_warn_status(rv);
 		}
 		else if (expected_len < maxinlen)

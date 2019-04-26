@@ -682,8 +682,8 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 
 	std::vector<LLViewerMediaImpl*> proximity_order;
 
-	bool inworld_media_enabled = gSavedSettings.getBOOL("AudioStreamingMedia");
-	bool inworld_audio_enabled = gSavedSettings.getBOOL("AudioStreamingMusic");
+	static LLCachedControl<bool> inworld_media_enabled(gSavedSettings, "AudioStreamingMedia", true);
+	static LLCachedControl<bool> inworld_audio_enabled(gSavedSettings, "AudioStreamingMusic", true);
 	U32 max_instances = gSavedSettings.getU32("PluginInstancesTotal");
 	U32 max_normal = gSavedSettings.getU32("PluginInstancesNormal");
 	U32 max_low = gSavedSettings.getU32("PluginInstancesLow");
@@ -941,7 +941,8 @@ void LLViewerMedia::setAllMediaEnabled(bool val)
 			LLViewerParcelMedia::play(LLViewerParcelMgr::getInstance()->getAgentParcel());
 		}
 
-		if (gSavedSettings.getBOOL("AudioStreamingMusic") &&
+		static LLCachedControl<bool> audio_streaming_music(gSavedSettings, "AudioStreamingMusic", true);
+		if (audio_streaming_music &&
 			!LLViewerMedia::isParcelAudioPlaying() &&
 			gAudiop &&
 			LLViewerMedia::hasParcelAudio())
@@ -1012,7 +1013,8 @@ void LLViewerMedia::setAllMediaPaused(bool val)
             LLViewerParcelMedia::play(LLViewerParcelMgr::getInstance()->getAgentParcel());
         }
 
-        if (gSavedSettings.getBOOL("AudioStreamingMusic") &&
+        static LLCachedControl<bool> audio_streaming_music(gSavedSettings, "AudioStreamingMusic", true);
+        if (audio_streaming_music &&
             !LLViewerMedia::isParcelAudioPlaying() &&
             gAudiop &&
             LLViewerMedia::hasParcelAudio())
@@ -1705,7 +1707,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 
 	// HACK: we always try to keep a spare running webkit plugin around to improve launch times.
 	// If a spare was already created before PluginAttachDebuggerToPlugins was set, don't use it.
-    // Do not use a spare if launching with full viewer control (e.g. Facebook, Twitter and few others)
+    // Do not use a spare if launching with full viewer control (e.g. Twitter and few others)
 	if ((plugin_basename == "media_plugin_cef") &&
         !gSavedSettings.getBOOL("PluginAttachDebuggerToPlugins") && !clean_browser)
 	{
@@ -1899,21 +1901,8 @@ void LLViewerMediaImpl::loadURI()
 		// trim whitespace from front and back of URL - fixes EXT-5363
 		LLStringUtil::trim( mMediaURL );
 
-		// *HACK: we don't know if the URI coming in is properly escaped
-		// (the contract doesn't specify whether it is escaped or not.
-		// but LLQtWebKit expects it to be, so we do our best to encode
-		// special characters)
-		// The strings below were taken right from http://www.ietf.org/rfc/rfc1738.txt
-		// Note especially that '%' and '/' are there.
-		std::string uri = LLURI::escape(mMediaURL,
-										"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-										"0123456789"
-										"$-_.+"
-										"!*'(),"
-										"{}|\\^~[]`"
-										"<>#%"
-										";/?:@&=",
-										false);
+		// URI often comes unescaped
+		std::string uri = LLURI::escapePathAndData(mMediaURL);
         {
             // Do not log the query parts
             LLURI u(uri);
@@ -3318,8 +3307,39 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			}
 			else
 			{
-				// Don't track redirects.
-				setNavState(MEDIANAVSTATE_NONE);
+				bool internal_nav = false;
+				if (url != mCurrentMediaURL)
+				{
+					// Check if it is internal navigation
+					// Note: Not sure if we should detect internal navigations as 'address change',
+					// but they are not redirects and do not cause NAVIGATE_BEGIN (also see SL-1005)
+					size_t pos = url.find("#");
+					if (pos != std::string::npos)
+					{
+						// assume that new link always have '#', so this is either
+						// transfer from 'link#1' to 'link#2' or from link to 'link#2'
+						// filter out cases like 'redirect?link'
+						std::string base_url = url.substr(0, pos);
+						pos = mCurrentMediaURL.find(base_url);
+						if (pos == 0)
+						{
+							// base link hasn't changed
+							internal_nav = true;
+						}
+					}
+				}
+
+				if (internal_nav)
+				{
+					// Internal navigation by '#'
+					mCurrentMediaURL = url;
+					setNavState(MEDIANAVSTATE_FIRST_LOCATION_CHANGED);
+				}
+				else
+				{
+					// Don't track redirects.
+					setNavState(MEDIANAVSTATE_NONE);
+				}
 			}
 		}
 		break;

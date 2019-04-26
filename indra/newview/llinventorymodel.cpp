@@ -888,14 +888,6 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 		return mask;
 	}
 
-	// We're hiding mesh types
-#if 0
-	if (item->getType() == LLAssetType::AT_MESH)
-	{
-		return mask;
-	}
-#endif
-
 	LLPointer<LLViewerInventoryItem> old_item = getItem(item->getUUID());
 	LLPointer<LLViewerInventoryItem> new_item;
 	if(old_item)
@@ -1820,9 +1812,19 @@ void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 
 		if (LLAssetType::lookup(item->getType()) == LLAssetType::badLookup())
 		{
-			LL_WARNS(LOG_INV) << "Got unknown asset type for item [ name: " << item->getName()
-				<< " type: " << item->getType()
-				<< " inv-type: " << item->getInventoryType() << " ]." << LL_ENDL;
+			if (item->getType() >= LLAssetType::AT_COUNT)
+			{
+				// Not yet supported.
+				LL_DEBUGS(LOG_INV) << "Got unknown asset type for item [ name: " << item->getName()
+					<< " type: " << item->getType()
+					<< " inv-type: " << item->getInventoryType() << " ]." << LL_ENDL;
+			}
+			else
+			{
+				LL_WARNS(LOG_INV) << "Got unknown asset type for item [ name: " << item->getName()
+					<< " type: " << item->getType()
+					<< " inv-type: " << item->getInventoryType() << " ]." << LL_ENDL;
+			}
 		}
 
 		// This condition means that we tried to add a link without the baseobj being in memory.

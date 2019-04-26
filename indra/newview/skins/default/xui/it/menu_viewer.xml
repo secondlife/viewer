@@ -9,6 +9,7 @@
 		<menu_item_call label="Luoghi..." name="Places"/>
 		<menu_item_call label="Preferiti..." name="Picks"/>
 		<menu_item_call label="Esperienze..." name="Experiences"/>
+		<menu_item_call label="I miei Script..." name="MyScripts"/>
 		<menu_item_call label="Controlli fotocamera..." name="Camera Controls"/>
 		<menu label="Spostamento" name="Movement">
 			<menu_item_call label="Siedi" name="Sit Down Here"/>

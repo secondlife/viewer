@@ -411,68 +411,6 @@ std::string LLAppViewerMacOSX::generateSerialNumber()
 	return serial_md5;
 }
 
-static AudioDeviceID get_default_audio_output_device(void)
-{
-	AudioDeviceID device = 0;
-	UInt32 size = sizeof(device);
-	AudioObjectPropertyAddress device_address = { kAudioHardwarePropertyDefaultOutputDevice,
-												  kAudioObjectPropertyScopeGlobal,
-												  kAudioObjectPropertyElementMaster };
-
-	OSStatus err = AudioObjectGetPropertyData(kAudioObjectSystemObject, &device_address, 0, NULL, &size, &device);
-	if(err != noErr)
-	{
-		LL_DEBUGS("SystemMute") << "Couldn't get default audio output device (0x" << std::hex << err << ")" << LL_ENDL;
-	}
-
-	return device;
-}
-
-//virtual
-void LLAppViewerMacOSX::setMasterSystemAudioMute(bool new_mute)
-{
-	AudioDeviceID device = get_default_audio_output_device();
-
-	if(device != 0)
-	{
-		UInt32 mute = new_mute;
-		AudioObjectPropertyAddress device_address = { kAudioDevicePropertyMute,
-													  kAudioDevicePropertyScopeOutput,
-													  kAudioObjectPropertyElementMaster };
-
-		OSStatus err = AudioObjectSetPropertyData(device, &device_address, 0, NULL, sizeof(mute), &mute);
-		if(err != noErr)
-		{
-			LL_INFOS("SystemMute") << "Couldn't set audio mute property (0x" << std::hex << err << ")" << LL_ENDL;
-		}
-	}
-}
-
-//virtual
-bool LLAppViewerMacOSX::getMasterSystemAudioMute()
-{
-	// Assume the system isn't muted 
-	UInt32 mute = 0;
-
-	AudioDeviceID device = get_default_audio_output_device();
-
-	if(device != 0)
-	{
-		UInt32 size = sizeof(mute);
-		AudioObjectPropertyAddress device_address = { kAudioDevicePropertyMute,
-													  kAudioDevicePropertyScopeOutput,
-													  kAudioObjectPropertyElementMaster };
-
-		OSStatus err = AudioObjectGetPropertyData(device, &device_address, 0, NULL, &size, &mute);
-		if(err != noErr)
-		{
-			LL_DEBUGS("SystemMute") << "Couldn't get audio mute property (0x" << std::hex << err << ")" << LL_ENDL;
-		}
-	}
-	
-	return (mute != 0);
-}
-
 void handleUrl(const char* url_utf8)
 {
     if (url_utf8 && gViewerAppPtr)

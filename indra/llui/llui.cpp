@@ -237,13 +237,9 @@ void LLUI::dirtyRect(LLRect rect)
 void LLUI::setMousePositionScreen(S32 x, S32 y)
 {
 	S32 screen_x, screen_y;
-#if defined(LL_DARWIN)
-    screen_x = ll_round((F32)x);
-    screen_y = ll_round((F32)y);
-#else
 	screen_x = ll_round((F32)x * getScaleFactor().mV[VX]);
 	screen_y = ll_round((F32)y * getScaleFactor().mV[VY]);
-#endif
+
 	LLView::getWindow()->setCursorPosition(LLCoordGL(screen_x, screen_y).convert());
 }
 

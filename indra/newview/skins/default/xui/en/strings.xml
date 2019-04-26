@@ -58,6 +58,9 @@ Advanced Lighting Model: [GPU_SHADERS]
 Texture memory: [TEXTURE_MEMORY]MB
 VFS (cache) creation time: [VFS_TIME]
 	</string>
+	<string name="AboutOSXHiDPI">
+HiDPI display mode: [HIDPI]
+	</string>
 	<string name="AboutLibs">
 J2C Decoder Version: [J2C_VERSION]
 Audio Driver Version: [AUDIO_DRIVER_VERSION]
@@ -199,13 +202,7 @@ Please try logging in again in a minute.</string>
 	<string name="SentToInvalidRegion">You were sent to an invalid region.</string>
 	<string name="TestingDisconnect">Testing viewer disconnect</string>
 
-	<!-- SLShare: Facebook, Flickr, and Twitter -->
-  <string name="SocialFacebookConnecting">Connecting to Facebook...</string>
-  <string name="SocialFacebookPosting">Posting...</string>
-  <string name="SocialFacebookDisconnecting">Disconnecting from Facebook...</string>
-  <string name="SocialFacebookErrorConnecting">Problem connecting to Facebook</string>
-  <string name="SocialFacebookErrorPosting">Problem posting to Facebook</string>
-  <string name="SocialFacebookErrorDisconnecting">Problem disconnecting from Facebook</string>
+	<!-- SLShare: Flickr and Twitter -->
   <string name="SocialFlickrConnecting">Connecting to Flickr...</string>
   <string name="SocialFlickrPosting">Posting...</string>
   <string name="SocialFlickrDisconnecting">Disconnecting from Flickr...</string>
@@ -2299,6 +2296,9 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="MarketplaceURL_Dashboard">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard</string>
 	<string name="MarketplaceURL_Imports">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/imports</string>
 	<string name="MarketplaceURL_LearnMore">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more</string>
+	<string name="InventoryPlayAnimationTooltip">Open window with Play options.</string>
+	<string name="InventoryPlayGestureTooltip">Execute selected gesture in-world.</string>
+	<string name="InventoryPlaySoundTooltip">Open window with Play options.</string>
 	<string name="InventoryOutboxNotMerchantTitle">Anyone can sell items on the Marketplace.</string>
 	<string name="InventoryOutboxNotMerchantTooltip"></string>
 	<string name="InventoryOutboxNotMerchant">
@@ -2679,14 +2679,14 @@ If you continue to receive this message, please contact Second Life support for 
 
 	<string name="SITTING_ON">Sitting On</string>
 	<string name="ATTACH_CHEST">Chest</string>
-	<string name="ATTACH_HEAD">Head</string>
+	<string name="ATTACH_HEAD">Skull</string>
 	<string name="ATTACH_LSHOULDER">Left Shoulder</string>
 	<string name="ATTACH_RSHOULDER">Right Shoulder</string>
 	<string name="ATTACH_LHAND">Left Hand</string>
 	<string name="ATTACH_RHAND">Right Hand</string>
 	<string name="ATTACH_LFOOT">Left Foot</string>
 	<string name="ATTACH_RFOOT">Right Foot</string>
-	<string name="ATTACH_BACK">Back</string>
+	<string name="ATTACH_BACK">Spine</string>
 	<string name="ATTACH_PELVIS">Pelvis</string>
 	<string name="ATTACH_MOUTH">Mouth</string>
 	<string name="ATTACH_CHIN">Chin</string>
@@ -2696,16 +2696,16 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="ATTACH_REYE">Right Eye</string>
 	<string name="ATTACH_NOSE">Nose</string>
 	<string name="ATTACH_RUARM">Right Upper Arm</string>
-	<string name="ATTACH_RLARM">Right Lower Arm</string>
+	<string name="ATTACH_RLARM">Right Forearm</string>
 	<string name="ATTACH_LUARM">Left Upper Arm</string>
-	<string name="ATTACH_LLARM">Left Lower Arm</string>
+	<string name="ATTACH_LLARM">Left Forearm</string>
 	<string name="ATTACH_RHIP">Right Hip</string>
 	<string name="ATTACH_RULEG">Right Upper Leg</string>
 	<string name="ATTACH_RLLEG">Right Lower Leg</string>
 	<string name="ATTACH_LHIP">Left Hip</string>
 	<string name="ATTACH_LULEG">Left Upper Leg</string>
 	<string name="ATTACH_LLLEG">Left Lower Leg</string>
-	<string name="ATTACH_BELLY">Belly</string>
+	<string name="ATTACH_BELLY">Stomach</string>
 	<string name="ATTACH_LEFT_PEC">Left Pec</string>
 	<string name="ATTACH_RIGHT_PEC">Right Pec</string>
 	<string name="ATTACH_HUD_CENTER_2">HUD Center 2</string>
@@ -3650,9 +3650,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     Drag items from inventory here
   </string>
 
-  <string name="facebook_post_success">
-    You posted to Facebook.
-  </string>
   <string name="flickr_post_success">
     You posted to Flickr.
   </string>
@@ -4084,7 +4081,6 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Conversations_Label">Conversations</string>
   <string name="Command_Compass_Label">Compass</string>
   <string name="Command_Destinations_Label">Destinations</string>
-  <string name="Command_Facebook_Label">Facebook</string>
   <string name="Command_Flickr_Label">Flickr</string>
   <string name="Command_Gestures_Label">Gestures</string>
   <string name="Command_Grid_Status_Label">Grid status</string>
@@ -4117,7 +4113,6 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Conversations_Tooltip">Converse with everyone</string>
   <string name="Command_Compass_Tooltip">Compass</string>
   <string name="Command_Destinations_Tooltip">Destinations of interest</string>
-  <string name="Command_Facebook_Tooltip">Post to Facebook</string>
   <string name="Command_Flickr_Tooltip">Upload to Flickr</string>
   <string name="Command_Gestures_Tooltip">Gestures for your avatar</string>
   <string name="Command_Grid_Status_Tooltip">Show current Grid status</string>
@@ -4235,6 +4230,31 @@ Try enclosing path to the editor with double quotes.
   </string>
   <string name="Mav_Details_MAV_UNKNOWN_VERSION">
       The physics shape does not have correct version. Set the correct version for the physics model.
+  </string>
+
+  <!-- CURL error messages -->
+  <string name="couldnt_resolve_host">
+DNS could not resolve the host name([HOSTNAME]).
+Please verify that you can connect to the www.secondlife.com
+web site.  If you can, but continue to receive this error,
+please go to the support section and report this problem.
+  </string>
+  <string name="ssl_peer_certificate">
+The login server couldn't verify itself via SSL.
+If you continue to receive this error, please go
+to the Support section of the SecondLife.com web site
+and report the problem.
+  </string>
+  <string name="ssl_connect_error">
+Often this means that your computer's clock is set incorrectly.
+Please go to Control Panels and make sure the time and date
+are set correctly.
+Also check that your network and firewall are set up correctly.
+If you continue to receive this error, please go
+to the Support section of the SecondLife.com web site
+and report the problem.
+
+[https://community.secondlife.com/knowledgebase/english/error-messages-r520/#Section__3 Knowledge Base]
   </string>
 
 </strings>

@@ -78,15 +78,12 @@ private:
 	static void onDoubleClickObjectsList(void* data);
 	void onClickShowBeacon();
 
-	void doToObjects(int action, bool all);
+	void returnObjects(bool all);
 
 	void onReturnAll();
 	void onReturnSelected();
-	void onDisableAll();
-	void onDisableSelected();
 
 	static bool callbackReturnAll(const LLSD& notification, const LLSD& response);
-	static bool callbackDisableAll(const LLSD& notification, const LLSD& response);
 
 	void onGetByOwnerName();
 	void onGetByObjectName();
@@ -107,12 +104,6 @@ private:
 	BOOL mInitialized;
 
 	F32 mtotalScore;
-
-	enum
-	{
-		ACTION_RETURN = 0,
-		ACTION_DISABLE
-	};
 
 	static LLFloaterTopObjects* sInstance;
 };

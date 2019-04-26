@@ -89,14 +89,24 @@ void LLFontGL::destroyGL()
 	mFontFreetype->destroyGL();
 }
 
-BOOL LLFontGL::loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, S32 components, BOOL is_fallback)
+BOOL LLFontGL::loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, S32 components, BOOL is_fallback, S32 face_n)
 {
 	if(mFontFreetype == reinterpret_cast<LLFontFreetype*>(NULL))
 	{
 		mFontFreetype = new LLFontFreetype;
 	}
 
-	return mFontFreetype->loadFace(filename, point_size, vert_dpi, horz_dpi, components, is_fallback);
+	return mFontFreetype->loadFace(filename, point_size, vert_dpi, horz_dpi, components, is_fallback, face_n);
+}
+
+S32 LLFontGL::getNumFaces(const std::string& filename)
+{
+	if (mFontFreetype == reinterpret_cast<LLFontFreetype*>(NULL))
+	{
+		mFontFreetype = new LLFontFreetype;
+	}
+
+	return mFontFreetype->getNumFaces(filename);
 }
 
 static LLTrace::BlockTimerStatHandle FTM_RENDER_FONTS("Fonts");

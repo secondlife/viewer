@@ -34,9 +34,11 @@
 			<text name="LabelItemNameTitle">
 				Nom :
 			</text>
+			<line_editor name="LabelItemName" tool_tip="Le nom est limité à 63 caractères. Les noms de prim plus longs sont écourtés. Les noms ne peuvent contenir que des caractères imprimables trouvés dans le jeu de caractères ASCII-7 (non étendu), à l&apos;exception de la barre / pipe verticale &apos;|&apos;."/>
 			<text name="LabelItemDescTitle">
 				Description :
 			</text>
+			<line_editor name="LabelItemDesc" tool_tip="Lorsque les utilisateurs sélectionnent &apos;Conseils de survol sur tous les objets&apos; dans les paramètres de la visionneuse, la description contextuelle de chaque objet apparaît sous le pointeur de la souris. La description de la prim est limitée à 127 octets, toute chaîne supérieure à cette limite sera tronquée."/>
 			<text name="LabelCreatorTitle">
 				Créateur :
 			</text>
@@ -59,7 +61,7 @@
 				<text name="AnyoneLabel">
 					N&apos;importe qui :
 				</text>
-				<check_box label="Copier" name="CheckEveryoneCopy"/>
+				<check_box label="Copier" name="CheckEveryoneCopy" tool_tip="Tout le monde peut prendre une copie de l&apos;objet. L&apos;objet et tout son contenu doit être autorisé à être copié et transféré."/>
 				<text name="GroupLabel">
 					Groupe :
 				</text>
@@ -67,17 +69,17 @@
 				<text name="NextOwnerLabel">
 					Prochain propriétaire :
 				</text>
-				<check_box label="Modifier" name="CheckNextOwnerModify"/>
-				<check_box label="Copier" name="CheckNextOwnerCopy"/>
+				<check_box label="Modifier" name="CheckNextOwnerModify" tool_tip="Le prochain propriétaire peut modifier des propriétés telles que le libellé de l&apos;élément ou l&apos;échelle de cet objet."/>
+				<check_box label="Copier" name="CheckNextOwnerCopy" tool_tip="Le prochain propriétaire peut faire des copies illimitées de cet objet. Les copies conservent les informations sur le créateur et ne peuvent jamais être plus permissives que l&apos;élément qui est copié."/>
 				<check_box label="Transférer" name="CheckNextOwnerTransfer" tool_tip="Le prochain propriétaire peut donner ou revendre cet objet."/>
 			</panel>
-			<check_box label="À vendre" name="CheckPurchase"/>
-			<combo_box name="ComboBoxSaleType">
+			<check_box label="À vendre" name="CheckPurchase" tool_tip="Permet aux gens d&apos;acheter cet objet, son contenu ou de le copier dans Second Life à un prix donné."/>
+			<combo_box name="ComboBoxSaleType" tool_tip="Indiquez si l’acheteur recevra une copie, une copie du contenu ou l’article lui-même.">
 				<combo_box.item label="Copier" name="Copy"/>
 				<combo_box.item label="Contenu" name="Contents"/>
 				<combo_box.item label="Original" name="Original"/>
 			</combo_box>
-			<spinner label="Prix : L$" name="Edit Cost"/>
+			<spinner label="Prix : L$" name="Edit Cost" tool_tip="Coût de l&apos;objet."/>
 		</panel>
 	</scroll_container>
 	<panel name="button_panel">

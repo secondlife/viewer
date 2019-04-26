@@ -265,7 +265,7 @@ void LLBufferArray::setThreaded(bool threaded)
 	{
 		if(!mMutexp)
 		{
-			mMutexp = new LLMutex(NULL);
+			mMutexp = new LLMutex();
 		}
 	}
 	else

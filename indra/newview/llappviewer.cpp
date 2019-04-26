@@ -572,12 +572,12 @@ static void settings_to_globals()
 	LLVertexBuffer::sUseVAO = gSavedSettings.getBOOL("RenderUseVAO");
 	LLImageGL::sGlobalUseAnisotropic	= gSavedSettings.getBOOL("RenderAnisotropic");
 	LLImageGL::sCompressTextures		= gSavedSettings.getBOOL("RenderCompressTextures");
-	LLVOVolume::sLODFactor				= gSavedSettings.getF32("RenderVolumeLODFactor");
+	LLVOVolume::sLODFactor				= llclamp(gSavedSettings.getF32("RenderVolumeLODFactor"), 0.01f, MAX_LOD_FACTOR);
 	LLVOVolume::sDistanceFactor			= 1.f-LLVOVolume::sLODFactor * 0.1f;
 	LLVolumeImplFlexible::sUpdateFactor = gSavedSettings.getF32("RenderFlexTimeFactor");
 	LLVOTree::sTreeFactor				= gSavedSettings.getF32("RenderTreeLODFactor");
-	LLVOAvatar::sLODFactor				= gSavedSettings.getF32("RenderAvatarLODFactor");
-	LLVOAvatar::sPhysicsLODFactor		= gSavedSettings.getF32("RenderAvatarPhysicsLODFactor");
+	LLVOAvatar::sLODFactor				= llclamp(gSavedSettings.getF32("RenderAvatarLODFactor"), 0.f, MAX_AVATAR_LOD_FACTOR);
+	LLVOAvatar::sPhysicsLODFactor		= llclamp(gSavedSettings.getF32("RenderAvatarPhysicsLODFactor"), 0.f, MAX_AVATAR_LOD_FACTOR);
 	LLVOAvatar::updateImpostorRendering(gSavedSettings.getU32("RenderAvatarMaxNonImpostors"));
 	LLVOAvatar::sVisibleInFirstPerson	= gSavedSettings.getBOOL("FirstPersonAvatarVisible");
 	// clamp auto-open time to some minimum usable value
@@ -1167,8 +1167,14 @@ bool LLAppViewer::init()
 	// ForceAddressSize
 	updater.args.add(stringize(gSavedSettings.getU32("ForceAddressSize")));
 
+#if !LL_RELEASE_FOR_DOWNLOAD && !LL_SEND_CRASH_REPORTS
+    // This is neither a release package, nor crash-reporting enabled test build
+    // Note: pointless to launch on Windows - it shouldn't expect secondlife-bin.exe
+    LL_WARNS("LLLeap") << "Launching without version checker" << LL_ENDL;
+#else
 	// Run the updater. An exception from launching the updater should bother us.
 	LLLeap::create(updater, true);
+#endif
 
 	// Iterate over --leap command-line options. But this is a bit tricky: if
 	// there's only one, it won't be an array at all.
@@ -2168,7 +2174,7 @@ bool LLAppViewer::initThreads()
 
 	if (LLTrace::BlockTimer::sLog || LLTrace::BlockTimer::sMetricLog)
 	{
-		LLTrace::BlockTimer::setLogLock(new LLMutex(NULL));
+		LLTrace::BlockTimer::setLogLock(new LLMutex());
 		mFastTimerLogThread = new LLFastTimerLogThread(LLTrace::BlockTimer::sLogName);
 		mFastTimerLogThread->start();
 	}
@@ -3158,6 +3164,10 @@ LLSD LLAppViewer::getViewerInfo() const
     substitution["datetime"] = (S32)(gVFS ? gVFS->creationTime() : 0);
     info["VFS_TIME"] = LLTrans::getString("AboutTime", substitution);
 
+#if LL_DARWIN
+    info["HIDPI"] = gHiDPISupport;
+#endif
+
 	// Libraries
 
 	info["J2C_VERSION"] = LLImageJ2C::getEngineInfo();
@@ -3300,6 +3310,9 @@ std::string LLAppViewer::getViewerInfoString(bool default_string) const
 	}
 	support << "\n" << LLTrans::getString("AboutOGL", args, default_string);
 	support << "\n\n" << LLTrans::getString("AboutSettings", args, default_string);
+#if LL_DARWIN
+	support << "\n" << LLTrans::getString("AboutOSXHiDPI", args, default_string);
+#endif
 	support << "\n\n" << LLTrans::getString("AboutLibs", args, default_string);
 	if (info.has("COMPILER"))
 	{
@@ -5450,7 +5463,8 @@ void LLAppViewer::resumeMainloopTimeout(const std::string& state, F32 secs)
 	{
 		if(secs < 0.0f)
 		{
-			secs = gSavedSettings.getF32("MainloopTimeoutDefault");
+			static LLCachedControl<F32> mainloop_timeout(gSavedSettings, "MainloopTimeoutDefault", 60);
+			secs = mainloop_timeout;
 		}
 
 		mMainloopTimeout->setTimeout(secs);
@@ -5477,7 +5491,8 @@ void LLAppViewer::pingMainloopTimeout(const std::string& state, F32 secs)
 	{
 		if(secs < 0.0f)
 		{
-			secs = gSavedSettings.getF32("MainloopTimeoutDefault");
+			static LLCachedControl<F32> mainloop_timeout(gSavedSettings, "MainloopTimeoutDefault", 60);
+			secs = mainloop_timeout;
 		}
 
 		mMainloopTimeout->setTimeout(secs);

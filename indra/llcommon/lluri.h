@@ -158,6 +158,14 @@ public:
 		bool is_allowed_sorted = false);
 
 	/**
+	 * @brief Break string into data part and path or sheme
+	 * and escape path (if present) and data.
+	 * Data part is not allowed to have path related symbols
+	 * @param str The raw URI to escape.
+	 */
+	static std::string escapePathAndData(const std::string &str);
+
+	/**
 	 * @brief unescape an escaped URI string.
 	 *
 	 * @param str The escped URI to unescape.
