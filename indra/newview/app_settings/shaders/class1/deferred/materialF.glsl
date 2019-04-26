@@ -120,11 +120,10 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 
         float lit = max(da * dist_atten, 0.0);
 
-        col = light_col*lit*diffuse;
-        
         float amb_da = ambiance;
         if (da > 0)
         {
+            col = light_col*lit*diffuse;
             amb_da += (da*0.5 + 0.5) * ambiance;
         }
         amb_da += (da*da*0.5+0.5) * ambiance;
