@@ -58,6 +58,7 @@ VARYING vec3 vary_norm;
 VARYING vec4 vertex_color;
 #endif
 
+uniform mat4 proj_mat;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 uniform int sun_up_factor;
@@ -89,11 +90,22 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
 {
     //get light vector
     vec3 lv = lp.xyz-v;
-    
+
+    vec4 proj_tc = proj_mat * lp;
+
     //get distance
     float d = length(lv);
     float da = 1.0;
     vec3 col = vec3(0);
+    if (proj_tc.z < 0
+     || proj_tc.x < 0
+     || proj_tc.z > 1
+     || proj_tc.y < 0
+     || proj_tc.y > 1)
+    {
+        return col;
+    }
+
     if (d > 0.0)
     {
         //normalize light vector
