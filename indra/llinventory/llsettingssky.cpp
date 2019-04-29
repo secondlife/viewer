@@ -973,7 +973,7 @@ F32 LLSettingsSky::getSunMoonGlowFactor() const
 bool LLSettingsSky::getIsSunUp() const
 {
     LLVector3 sunDir = getSunDirection();
-    return sunDir.mV[2] >= 0.0f || !getIsMoonUp();
+    return sunDir.mV[2] >= 0.0f;
 }
 
 bool LLSettingsSky::getIsMoonUp() const

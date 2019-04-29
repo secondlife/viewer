@@ -10280,7 +10280,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
         //far_clip = llmin(far_clip, 128.f);
         far_clip = llmin(far_clip, camera.getFar());
-        //far_clip = llmax(far_clip, 256.0f);
+        far_clip = llmax(far_clip, 256.0f);
 
         F32 range = far_clip-near_clip;
 
