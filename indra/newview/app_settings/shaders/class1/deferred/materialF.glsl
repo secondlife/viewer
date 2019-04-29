@@ -101,8 +101,9 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
     vec4 proj_tc = proj_mat * lp;
 
     if (proj_tc.z < 0
-     || proj_tc.x < 0
      || proj_tc.z > 1
+     || proj_tc.x < 0
+     || proj_tc.x > 1 
      || proj_tc.y < 0
      || proj_tc.y > 1)
     {
@@ -119,7 +120,11 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
         fa += 1.0f;
         float dist_atten = ( fa > 0) ? clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0) : 1.0f;
         dist_atten *= dist_atten;
-        dist_atten *= 2.0f;
+
+        if (dist_atten <= 0)
+        {
+            return col;
+        }
 
         // spotlight coefficient.
         float spot = max(dot(-ln, lv), is_pointlight);
@@ -141,7 +146,9 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
         amb_da += (da*da*0.5+0.5) * ambiance;
         amb_da = min(amb_da, 1.0f - lit);
 
+#ifndef NO_AMBIANCE
         col.rgb += amb_da * 0.5 * light_col * diffuse;
+#endif
 
         if (spec.a > 0.0)
         {
@@ -172,7 +179,6 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
     }
 
     return max(col, vec3(0.0,0.0,0.0)); 
-
 }
 
 #else
@@ -405,10 +411,6 @@ vec3 post_atmo = col.rgb;
         LIGHT_LOOP(6)
         LIGHT_LOOP(7)
 
-vec3 light_linear = light.rgb;
-
-     col.rgb += light_linear;
-
 vec3 postlight_linear = col.rgb;
 
     glare = min(glare, 1.0);
@@ -423,6 +425,8 @@ vec3 postlight_linear = col.rgb;
 //col.rgb = post_atmo;
 
     col.rgb = linear_to_srgb(col.rgb);
+
+    col.rgb += light.rgb;
 
     frag_color.rgb = col.rgb;
     frag_color.a   = al;

@@ -98,8 +98,9 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
     float da = 1.0;
     vec3 col = vec3(0);
     if (proj_tc.z < 0
-     || proj_tc.x < 0
      || proj_tc.z > 1
+     || proj_tc.x < 0
+     || proj_tc.x > 1
      || proj_tc.y < 0
      || proj_tc.y > 1)
     {
@@ -139,7 +140,9 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
         amb_da *= dist_atten;
         amb_da = min(amb_da, 1.0f - lit);
 
+#ifndef NO_AMBIANCE
         col.rgb += amb_da * 0.5 * light_col * diffuse;
+#endif
 
         // no spec for alpha shader...
     }
@@ -260,17 +263,9 @@ vec3 post_atmo = color.rgb;
     LIGHT_LOOP(6)
     LIGHT_LOOP(7)
 
-vec3 light_linear = light.rgb;
-
-    // keep it linear
-    //
-    color.rgb += light.rgb;
-
-vec3 postlight_linear = color.rgb;
-
-//color.rgb = light_linear;
-
     color.rgb = linear_to_srgb(color.rgb);
+
+    color.rgb += light.rgb;
 #endif
 
 #ifdef WATER_FOG

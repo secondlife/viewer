@@ -224,7 +224,10 @@ void main()
         amb_da *= dist_atten * noise;
         amb_da = min(amb_da, 1.0-lit);
 
+#ifndef NO_AMBIANCE
         col += amb_da*color.rgb*diff_tex.rgb*amb_plcol.rgb*amb_plcol.a;
+#endif
+
     }
     
 
