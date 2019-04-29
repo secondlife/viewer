@@ -160,7 +160,9 @@ vec3 post_diffuse = col.rgb;
                 col += speccol;
             }
         }
-        
+       
+ vec3 post_spec = col.rgb;
+ 
         col.rgb += diffuse.a * diffuse.rgb;
 
         if (envIntensity > 0.0)
@@ -175,6 +177,8 @@ vec3 post_diffuse = col.rgb;
             col = atmosFragLighting(col, additive, atten);
             col = scaleSoftClipFrag(col);
         }
+
+vec3 post_atmo = col.rgb;
 
         #ifdef WATER_FOG
             vec4 fogged = applyWaterFogView(pos.xyz,vec4(col, bloom));

@@ -204,7 +204,6 @@ void main()
     vec3 atten;
 
     calcAtmosphericVars(pos.xyz, 1.0, sunlit, amblit, additive, atten);
-    sunlit *= 0.5;
 
     vec2 abnormal = encode_normal(norm.xyz);
 
@@ -240,12 +239,14 @@ vec3 post_sunlight = color.rgb;
 
 vec3 post_diffuse = color.rgb;
 
-    //color.rgb = mix(diff.rgb, color.rgb, final_alpha);
+    color.rgb = mix(diff.rgb, color.rgb, final_alpha);
+
+    //color.rgb = srgb_to_linear(color.rgb);
 
     color.rgb = atmosFragLighting(color.rgb, additive, atten);
     color.rgb = scaleSoftClipFrag(color.rgb);
 
-    //color.rgb = srgb_to_linear(color.rgb);
+vec3 post_atmo = color.rgb;
 
     vec4 light = vec4(0,0,0,0);
 
