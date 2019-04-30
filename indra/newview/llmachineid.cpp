@@ -224,11 +224,11 @@ S32 LLMachineID::init()
             unsigned int serial_size = SysStringLen(serialNumber);
             unsigned int j = 0;
 
-            while (j < serial_size)
+            while (j < serial_size && vtProp.bstrVal[j] != 0)
             {
                 for (unsigned int i = 0; i < len; i++)
                 {
-                    if (j >= serial_size)
+                    if (j >= serial_size || vtProp.bstrVal[j] == 0)
                         break;
 
                     static_unique_id[i] = (unsigned int)(static_unique_id[i] + serialNumber[j]);
