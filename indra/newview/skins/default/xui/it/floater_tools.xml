@@ -205,6 +205,7 @@
 				<combo_box.item label="Paga l&apos;oggetto" name="Payobject"/>
 				<combo_box.item label="Apri" name="Open"/>
 				<combo_box.item label="Ingrandisci" name="Zoom"/>
+				<combo_box.item label="Nessuno" name="None"/>
 			</combo_box>
 			<check_box label="In vendita:" name="checkbox for sale"/>
 			<spinner label="L$" name="Edit Cost"/>

@@ -499,6 +499,13 @@ void LLLineEditor::setCursorToEnd()
 	deselect();
 }
 
+void LLLineEditor::resetScrollPosition()
+{
+	mScrollHPos = 0;
+	// make sure cursor says in visible range
+	setCursor(getCursor());
+}
+
 BOOL LLLineEditor::canDeselect() const
 {
 	return hasSelection();

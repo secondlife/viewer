@@ -40,6 +40,7 @@
 #include "llfloateravatarpicker.h"
 #include "llfloateravatarrendersettings.h"
 #include "llfloateravatartextures.h"
+#include "llfloaterbanduration.h"
 #include "llfloaterbigpreview.h"
 #include "llfloaterbeacons.h"
 #include "llfloaterbuildoptions.h"
@@ -200,6 +201,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("avatar_render_settings", "floater_avatar_render_settings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAvatarRenderSettings>);
 	LLFloaterReg::add("avatar_textures", "floater_avatar_textures.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAvatarTextures>);
 
+	LLFloaterReg::add("ban_duration", "floater_ban_duration.xml", &LLFloaterReg::build<LLFloaterBanDuration>);
 	LLFloaterReg::add("beacons", "floater_beacons.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBeacons>);
 	LLFloaterReg::add("bulk_perms", "floater_bulk_perms.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBulkPermission>);
 	LLFloaterReg::add("buy_currency", "floater_buy_currency.xml", &LLFloaterBuyCurrency::buildFloater);
