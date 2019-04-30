@@ -12777,7 +12777,14 @@ render_pass="bump">
    width="512"
    height="512"
    clear_alpha="false">
-   
+	  <layer
+     name="base"
+	 write_all_channels="true"
+	 fixed_color = "128,128,128,255">
+		  <texture
+		   tga_file="aux_base.tga" />
+	  </layer>
+	  
     <layer
        name="leftarm_tattoo">
       <texture
@@ -12846,7 +12853,13 @@ render_pass="bump">
    width="512"
    height="512"
    clear_alpha="false">
-
+	  <layer
+     name="base"
+	 write_all_channels="true"
+	 fixed_color = "128,128,128,255">
+		  <texture
+		   tga_file="aux_base.tga" />
+	  </layer>
     <layer
        name="leftleg_tattoo">
       <texture
@@ -12916,6 +12929,14 @@ render_pass="bump">
    height="512"
    clear_alpha="false">
 
+	  <layer
+     name="base"
+	 write_all_channels="true"
+	 fixed_color = "128,128,128,255">
+		  <texture
+		   tga_file="aux_base.tga" />
+	  </layer>
+	  
     <layer
        name="aux1_tattoo">
       <texture
@@ -12985,6 +13006,14 @@ render_pass="bump">
    height="512"
    clear_alpha="false">
 
+	  <layer
+     name="base"
+	 write_all_channels="true"
+	 fixed_color = "128,128,128,255">
+		  <texture
+		   tga_file="aux_base.tga" />
+	  </layer>
+	  
     <layer
        name="aux2_tattoo">
       <texture
@@ -13054,6 +13083,14 @@ render_pass="bump">
    height="512"
    clear_alpha="false">
 
+	  <layer
+     name="base"
+	 write_all_channels="true"
+	 fixed_color = "128,128,128,255">
+		  <texture
+		   tga_file="aux_base.tga" />
+	  </layer>
+	  
     <layer
        name="aux3_tattoo">
       <texture
