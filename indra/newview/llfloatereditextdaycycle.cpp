@@ -1019,6 +1019,7 @@ void LLFloaterEditExtDayCycle::onFrameSliderMouseDown(S32 x, S32 y, MASK mask)
 
 void LLFloaterEditExtDayCycle::onFrameSliderMouseUp(S32 x, S32 y, MASK mask)
 {
+    // Only happens when clicking on empty space of frameslider, not on specific frame
     F32 sliderpos = mFramesSlider->getSliderValueFromPos(x, y);
 
     mTimeSlider->setCurSliderValue(sliderpos);
@@ -1524,7 +1525,7 @@ void LLFloaterEditExtDayCycle::updateEditEnvironment(void)
 void LLFloaterEditExtDayCycle::synchronizeTabs()
 {
     // This should probably get moved into "updateTabs"
-    LLSettingsBase::TrackPosition frame(mTimeSlider->getCurSliderValue());
+    std::string curslider = mFramesSlider->getCurSlider();
     bool canedit(false);
 
     LLSettingsWater::ptr_t psettingW;
@@ -1535,12 +1536,15 @@ void LLFloaterEditExtDayCycle::synchronizeTabs()
         {
             canedit = false;
         }
-        else if (!mFramesSlider->getCurSlider().empty())
+        else if (!curslider.empty())
         {
             canedit = !mIsPlaying;
             // either search mEditDay or retrieve from mSliderKeyMap
-            LLSettingsDay::CycleTrack_t::value_type found = mEditDay->getSettingsNearKeyframe(frame, LLSettingsDay::TRACK_WATER, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR);
-            psettingW = std::static_pointer_cast<LLSettingsWater>(found.second);
+            keymap_t::iterator slider_it = mSliderKeyMap.find(curslider);
+            if (slider_it != mSliderKeyMap.end())
+            {
+                psettingW = std::static_pointer_cast<LLSettingsWater>(slider_it->second.pSettings);
+            }
         }
         mCurrentEdit = psettingW;
         if (!psettingW)
@@ -1568,12 +1572,15 @@ void LLFloaterEditExtDayCycle::synchronizeTabs()
         {
             canedit = false;
         }
-        else if (!mFramesSlider->getCurSlider().empty())
+        else if (!curslider.empty())
         {
             canedit = !mIsPlaying;
             // either search mEditDay or retrieve from mSliderKeyMap
-            LLSettingsDay::CycleTrack_t::value_type found = mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR);
-            psettingS = std::static_pointer_cast<LLSettingsSky>(found.second);
+            keymap_t::iterator slider_it = mSliderKeyMap.find(curslider);
+            if (slider_it != mSliderKeyMap.end())
+            {
+                psettingS = std::static_pointer_cast<LLSettingsSky>(slider_it->second.pSettings);
+            }
         }
         mCurrentEdit = psettingS;
         if (!psettingS)
