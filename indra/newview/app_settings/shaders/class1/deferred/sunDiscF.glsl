@@ -49,7 +49,8 @@ void main()
     vec4 c     = mix(sunDiscA, sunDiscB, blend_factor);
     c.rgb = clamp(c.rgb, vec3(0), vec3(1));
     c.rgb = pow(c.rgb, vec3(0.7f));
-    c.rgb = fullbrightAtmosTransport(c.rgb);
+
+    //c.rgb = fullbrightAtmosTransport(c.rgb);
     c.rgb = fullbrightScaleSoftClip(c.rgb);
 
     // SL-9806 stars poke through
