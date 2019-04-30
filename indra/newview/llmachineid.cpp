@@ -217,6 +217,13 @@ S32 LLMachineID::init()
 
             // Get the value of the Name property
             hr = pclsObj->Get(L"SerialNumber", 0, &vtProp, 0, 0);
+            if (FAILED(hr))
+            {
+                LL_WARNS() << "Failed to get SerialNumber. Error code = 0x" << hex << hres << LL_ENDL;
+                pclsObj->Release();
+                pclsObj = NULL;
+                continue;
+            }
             LL_INFOS("AppInit") << " Serial Number : " << vtProp.bstrVal << LL_ENDL;
 
             // use characters in the returned Serial Number to create a byte array of size len
