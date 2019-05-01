@@ -43,6 +43,7 @@
 
 // other Linden headers
 #include "llerror.h"
+#include "lleventcoro.h"
 #include "stringize.h"
 #include "llxmlrpctransaction.h"
 #include "llsecapi.h"
@@ -401,6 +402,8 @@ public:
 
         // whether successful or not, send reply on requested LLEventPump
         replyPump.post(data);
+        // need to wake up the loginCoro now
+        llcoro::suspend();
 
         // Because mTransaction is a boost::scoped_ptr, deleting this object
         // frees our LLXMLRPCTransaction object.
