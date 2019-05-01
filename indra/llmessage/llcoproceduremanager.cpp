@@ -112,7 +112,6 @@ private:
 
     // we use a deque here rather than std::queue since we want to be able to 
     // iterate through the queue and potentially erase an entry from the middle.
-    // TODO - make this queue be backed by an unbuffered_channel
     typedef boost::fibers::unbuffered_channel<QueuedCoproc::ptr_t>  CoprocQueue_t;
     typedef std::map<LLUUID, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t> ActiveCoproc_t;
 
@@ -152,7 +151,7 @@ LLCoprocedureManager::poolPtr_t LLCoprocedureManager::initializePool(const std::
 
     LL_ERRS_IF(poolName.empty(), "CoprocedureManager") << "Poolname must not be empty" << LL_ENDL;
 
-    if (mPropertyQueryFn && !mPropertyQueryFn.empty())
+    if (mPropertyQueryFn)
     {
         size = mPropertyQueryFn(keyName);
     }
@@ -164,7 +163,7 @@ LLCoprocedureManager::poolPtr_t LLCoprocedureManager::initializePool(const std::
         auto it = DefaultPoolSizes.find(poolName);
         size = (it != DefaultPoolSizes.end()) ? it->second : DEFAULT_POOL_SIZE;
 
-        if (mPropertyDefineFn && !mPropertyDefineFn.empty())
+        if (mPropertyDefineFn)
         {
             mPropertyDefineFn(keyName, size, "Coroutine Pool size for " + poolName);
         }
@@ -352,7 +351,7 @@ void LLCoprocedurePool::coprocedureInvokerCoro(LLCoreHttpUtil::HttpCoroutineAdap
     {
         if(status == boost::fibers::channel_op_status::timeout)
         {
-            LL_INFOS() << "pool '" << mPoolName << "' stalled." << LL_ENDL;
+            LL_INFOS_ONCE() << "pool '" << mPoolName << "' stalled." << LL_ENDL;
             continue;
         }
 
