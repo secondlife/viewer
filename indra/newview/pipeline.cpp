@@ -4138,7 +4138,12 @@ void LLPipeline::renderHighlights()
 
 		glStencilFunc(GL_ALWAYS, 0, 0xFFFFFFFF);
 		glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
-				
+
+        if (canUseVertexShaders())
+        {
+            gHighlightProgram.bind();
+        }
+
 		gGL.setColorMask(false, false);
 		for (std::set<HighlightItem>::iterator iter = mHighlightSet.begin(); iter != mHighlightSet.end(); ++iter)
 		{
@@ -10505,6 +10510,11 @@ void LLPipeline::generateHighlight(LLCamera& camera)
 		disableLights();
 		gGL.setColorMask(true, true);
 		mHighlight.clear();
+
+        if (canUseVertexShaders())
+        {
+            gHighlightProgram.bind();
+        }
 
 		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
 		for (std::set<HighlightItem>::iterator iter = mHighlightSet.begin(); iter != mHighlightSet.end(); )
