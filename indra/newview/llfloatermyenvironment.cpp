@@ -49,6 +49,7 @@ namespace
     const std::string CHECK_WATER("chk_water");
     const std::string FLT_SEARCH("flt_search");
     const std::string PANEL_SETTINGS("pnl_settings");
+    const std::string CHECK_SHOWFOLDERS("chk_showfolders");
     const std::string BUTTON_NEWSETTINGS("btn_gear");
     const std::string BUTTON_GEAR("btn_newsettings");
     const std::string BUTTON_DELETE("btn_del");
@@ -76,6 +77,7 @@ namespace
 LLFloaterMyEnvironment::LLFloaterMyEnvironment(const LLSD& key) :
     LLFloater(key),
     mInventoryList(nullptr),
+    mShowFolders(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS),
     mTypeFilter((0x01 << static_cast<U64>(LLSettingsType::ST_DAYCYCLE)) | (0x01 << static_cast<U64>(LLSettingsType::ST_SKY)) | (0x01 << static_cast<U64>(LLSettingsType::ST_WATER))),
     mSelectedAsset()
 {
@@ -107,12 +109,14 @@ BOOL LLFloaterMyEnvironment::postBuild()
         mInventoryList->setFilterTypes(filter_types);
 
         mInventoryList->setSelectCallback([this](const std::deque<LLFolderViewItem*>&, BOOL) { onSelectionChange(); });
+        mInventoryList->setShowFolderState(mShowFolders);
         mInventoryList->setFilterSettingsTypes(mTypeFilter);
     }
 
     childSetCommitCallback(CHECK_DAYS, [this](LLUICtrl*, void*) { onFilterCheckChange(); }, nullptr);
     childSetCommitCallback(CHECK_SKIES, [this](LLUICtrl*, void*) { onFilterCheckChange(); }, nullptr);
     childSetCommitCallback(CHECK_WATER, [this](LLUICtrl*, void*) { onFilterCheckChange(); }, nullptr);
+    childSetCommitCallback(CHECK_SHOWFOLDERS, [this](LLUICtrl*, void*) { onShowFoldersChange(); }, nullptr);
 
     mFilterEdit = getChild<LLFilterEditor>(FLT_SEARCH);
     mFilterEdit->setCommitCallback([this](LLUICtrl*, const LLSD& param){ onFilterEdit(param.asString()); });
@@ -124,6 +128,8 @@ BOOL LLFloaterMyEnvironment::postBuild()
 
 void LLFloaterMyEnvironment::refresh()
 {
+    getChild<LLCheckBoxCtrl>(CHECK_SHOWFOLDERS)->setValue(LLSD::Boolean(mShowFolders == LLInventoryFilter::SHOW_ALL_FOLDERS));
+
     getChild<LLCheckBoxCtrl>(CHECK_DAYS)->setValue(LLSD::Boolean(mTypeFilter & (0x01 << static_cast<U64>(LLSettingsType::ST_DAYCYCLE))));
     getChild<LLCheckBoxCtrl>(CHECK_SKIES)->setValue(LLSD::Boolean(mTypeFilter & (0x01 << static_cast<U64>(LLSettingsType::ST_SKY))));
     getChild<LLCheckBoxCtrl>(CHECK_WATER)->setValue(LLSD::Boolean(mTypeFilter & (0x01 << static_cast<U64>(LLSettingsType::ST_WATER))));
@@ -156,6 +162,16 @@ void LLFloaterMyEnvironment::onOpen(const LLSD& key)
 }
 
 //-------------------------------------------------------------------------
+void LLFloaterMyEnvironment::onShowFoldersChange()
+{
+    bool show_check(getChild<LLCheckBoxCtrl>(CHECK_SHOWFOLDERS)->getValue().asBoolean());
+
+    mShowFolders = (show_check) ? LLInventoryFilter::SHOW_ALL_FOLDERS : LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS;
+
+    if (mInventoryList)
+        mInventoryList->setShowFolderState(mShowFolders);
+}
+
 void LLFloaterMyEnvironment::onFilterCheckChange()
 {
     mTypeFilter = 0x0;

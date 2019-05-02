@@ -52,9 +52,11 @@ private:
     LLInventoryPanel *              mInventoryList;
     LLFilterEditor *                mFilterEdit;
     U64                             mTypeFilter;
+    LLInventoryFilter::EFolderShow  mShowFolders;
     LLUUID                          mSelectedAsset;
     LLSaveFolderState               mSavedFolderState;
 
+    void                            onShowFoldersChange();
     void                            onFilterCheckChange();
     void                            onFilterEdit(const std::string& search_string);
     void                            onSelectionChange();
