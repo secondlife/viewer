@@ -193,6 +193,7 @@ void LLTexUnit::enable(eTextureType type)
 			stop_glerror();
 		}
 		mCurrTexType = type;
+
 		gGL.flush();
 		if (!LLGLSLShader::sNoFixedFunction && 
 			type != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
@@ -850,6 +851,8 @@ void LLTexUnit::debugTextureUnit(void)
 
 void LLTexUnit::setTextureColorSpace(eTextureColorSpace space) {
     mTexColorSpace = space;
+
+#if USE_SRGB_DECODE
     if (gGLManager.mHasTexturesRGBDecode) {
 
         if (space == TCS_SRGB) {
@@ -863,6 +866,9 @@ void LLTexUnit::setTextureColorSpace(eTextureColorSpace space) {
             assert_glerror();
         }
     }
+#endif
+    glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_SRGB_DECODE_EXT, GL_SKIP_DECODE_EXT);
+
 }
 
 LLLightState::LLLightState(S32 index)

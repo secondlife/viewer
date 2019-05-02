@@ -44,7 +44,6 @@ uniform mat3 ssao_effect_mat;
 uniform int no_atmo;
 uniform float sun_moon_glow_factor;
 
-vec3 srgb_to_linear(vec3 c);
 vec3 scaleSoftClipFrag(vec3 light);
 
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten)

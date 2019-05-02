@@ -937,15 +937,15 @@ void LLGLSLShader::bindNoShader(void)
     }
 }
 
-S32 LLGLSLShader::bindTexture(const std::string &uniform, LLTexture *texture, LLTexUnit::eTextureType mode)
+S32 LLGLSLShader::bindTexture(const std::string &uniform, LLTexture *texture, LLTexUnit::eTextureType mode, LLTexUnit::eTextureColorSpace colorspace)
 {
     S32 channel = 0;
     channel = getUniformLocation(uniform);
     
-    return bindTexture(channel, texture, mode);
+    return bindTexture(channel, texture, mode, colorspace);
 }
 
-S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture *texture, LLTexUnit::eTextureType mode)
+S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture *texture, LLTexUnit::eTextureType mode, LLTexUnit::eTextureColorSpace colorspace)
 {
     if (uniform < 0 || uniform >= (S32)mTexture.size())
     {
@@ -958,6 +958,7 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture *texture, LLTexUnit::eTextu
     if (uniform > -1)
     {
         gGL.getTexUnit(uniform)->bind(texture, mode);
+        gGL.getTexUnit(uniform)->setTextureColorSpace(colorspace);
     }
     
     return uniform;

@@ -180,7 +180,8 @@ void main()
     // Texture coords
     vary_texcoord0 = texcoord0;
     vary_texcoord0.xy -= 0.5;
-    vary_texcoord0.xy /= max(0.001, cloud_scale);
+    vary_texcoord0.xy /= cloud_scale;
+    //vary_texcoord0.xy /= max(0.001, cloud_scale);
     vary_texcoord0.xy += 0.5;
 
     vary_texcoord1 = vary_texcoord0;

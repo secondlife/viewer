@@ -72,8 +72,6 @@ uniform vec2 screen_res;
 
 uniform mat4 inv_proj;
 vec3 getNorm(vec2 pos_screen);
-vec3 srgb_to_linear(vec3 cs);
-vec3 linear_to_srgb(vec3 cl);
 
 vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 {

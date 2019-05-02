@@ -72,12 +72,17 @@ uniform vec2 screen_res;
 uniform mat4 inv_proj;
 
 vec3 getNorm(vec2 pos_screen);
-vec3 scaleDownLight(vec3 c);
+vec3 srgb_to_linear(vec3 c);
+vec4 correctWithGamma(vec4 col)
+{
+	return vec4(srgb_to_linear(col.rgb), col.a);
+}
 
 vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
-	
+	ret = correctWithGamma(ret);
+
 	vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
 	
 	float det = min(lod/(proj_lod*0.5), 1.0);
@@ -96,6 +101,7 @@ vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
+	ret = correctWithGamma(ret);
 	
 	vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
 	
@@ -113,6 +119,7 @@ vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
 vec4 texture2DLodAmbient(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
+	ret = correctWithGamma(ret);
 	
 	vec2 dist = tc-vec2(0.5);
 	
@@ -223,9 +230,7 @@ void main()
 		amb_da *= dist_atten * noise;
 		amb_da = min(amb_da, 1.0-lit);
 	
-#ifndef NO_AMBIANCE		
 	    col += amb_da*color.rgb*diff_tex.rgb*amb_plcol.rgb*amb_plcol.a;
-#endif
 	}
 	
 
@@ -289,8 +294,6 @@ void main()
 	
 	//not sure why, but this line prevents MATBUG-194
 	col = max(col, vec3(0.0));
-
-    col = scaleDownLight(col);
 
 	frag_color.rgb = col;	
 	frag_color.a = 0.0;
