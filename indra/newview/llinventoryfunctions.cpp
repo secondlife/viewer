@@ -2402,7 +2402,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 			LLFolderViewItem* folder_item = *set_iter;
 			if (folder_item)
 			{
-				LLInvFVBridge* bridge = (LLInvFVBridge*)folder_item->getViewModelItem();
+				LLInvFVBridge* bridge = dynamic_cast<LLInvFVBridge*>(folder_item->getViewModelItem());
 				if (!bridge || !bridge->isMultiPreviewAllowed())
 				{
 					open_multi_preview = false;
