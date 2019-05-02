@@ -325,6 +325,8 @@ BOOL LLFloaterModelPreview::postBuild()
 	childSetCommitCallback("import_scale", onImportScaleCommit, this);
 	childSetCommitCallback("pelvis_offset", onPelvisOffsetCommit, this);
 
+	getChild<LLLineEditor>("description_form")->setKeystrokeCallback(boost::bind(&LLFloaterModelPreview::onDescriptionKeystroke, this, _1), NULL);
+
 	getChild<LLCheckBoxCtrl>("show_edges")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
 	getChild<LLCheckBoxCtrl>("show_physics")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
 	getChild<LLCheckBoxCtrl>("show_textures")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
@@ -518,6 +520,16 @@ void LLFloaterModelPreview::onClickCalculateBtn()
 
 	toggleCalculateButton(false);
 	mUploadBtn->setEnabled(false);
+}
+
+void LLFloaterModelPreview::onDescriptionKeystroke(LLUICtrl* ctrl)
+{
+	// Workaround for SL-4186, server doesn't allow name changes after 'calculate' stage
+	LLLineEditor* input = static_cast<LLLineEditor*>(ctrl);
+	if (input->isDirty()) // dirty will be reset after commit
+	{
+		toggleCalculateButton(true);
+	}
 }
 
 //static
