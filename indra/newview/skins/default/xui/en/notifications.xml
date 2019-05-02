@@ -8632,6 +8632,7 @@ Please check your network and firewall setup.
    icon="alertmodal.tga"
    name="NoVoiceConnect"
    type="alertmodal">
+    <unique/>
 We are unable to connect to the voice server:
 
 [HOSTID]

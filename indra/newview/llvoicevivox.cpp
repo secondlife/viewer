@@ -666,7 +666,8 @@ void LLVivoxVoiceClient::voiceControlCoro()
 
     do
     {
-        if (startAndConnectSession())
+        bool success = startAndConnectSession();
+        if (success)
         {
             if (mTuningMode)
             {
@@ -689,6 +690,12 @@ void LLVivoxVoiceClient::voiceControlCoro()
             << LL_ENDL;            
         if (mRelogRequested)
         {
+            if (!success)
+            {
+                // We failed to connect, give it a bit time before retrying.
+                llcoro::suspendUntilTimeout(5.0);
+            }
+
             LL_INFOS("Voice") << "will attempt to reconnect to voice" << LL_ENDL;
             while (isGatewayRunning() || gAgent.getTeleportState() != LLAgent::TELEPORT_NONE)
             {
