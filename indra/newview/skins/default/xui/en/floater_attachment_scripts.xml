@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+		positioning="cascading"
+		can_resize="true"
+		can_tear_off="false"
+		height="200"
+		width="600"
+		min_height="200"
+		min_width="500"
+		layout="topleft"
+		name="floater_attachment_scripts"
+		reuse_instance="true"
+		save_rect="false"
+		single_instance="true"
+		title="ATTACHMENT SCRIPTS">
+
+	<layout_stack name="test_stack"
+			left="5"
+			top="5"
+			bottom="-5"
+			right="-5"
+			follows="all"
+			orientation="vertical">
+		<layout_panel name="flex"
+				auto_resize="true"
+				user_resize="true"
+				min_height="100"
+				xbg_alpha_color="blue"
+				xbackground_visible="true"
+				>
+<!--			
+I can just not get this to work.  Swing back later
+			<accordion
+					follows="all"
+					top="3"
+					left="3"
+					bottom="-3"
+					right="-3"
+					layout="topleft"
+					name="attachment_accordian"
+					background_visible="true"
+					bg_alpha_color="DkGray2">
+				<no_visible_tabs_text
+						name="no_attachments_msg"
+						value="No attachments" />
+			</accordion>
+-->
+
+	<scroll_list
+			border="true"
+			column_padding="0"
+			draw_heading="true"
+			heading_height="20"
+			follows="all"
+			height="200"
+			layout="all"
+			left="1"
+			top="15"
+			xbottom="-15"
+			xright="-1"
+			tab_stop="false"
+			multi_select="false"
+			name="scripts_scroll_list">
+		<scroll_list.columns
+				label="Attachment"
+				name="attachment"
+				dynamic_width="true" />
+		<scroll_list.columns
+				label="Name"
+				name="name"
+				dynamic_width="true" />
+		<scroll_list.columns
+				label="Running"
+				name="running"
+				type="checkbox"
+				width="40" />
+		<scroll_list.columns
+				label="Run Time"
+				name="runtime"
+				width="80" />
+		<scroll_list.columns
+				label="Experience"
+				name="experience"
+				dynamic_width="true" />
+		<scroll_list.columns
+				label="Permissions"
+				name="permissions"
+				width="80" />
+		<scroll_list.columns
+				label="Memory"
+				name="memory"
+				width="41" />
+		<scroll_list.columns
+				label="URLS"
+				name="urls"
+				width="41" />
+	</scroll_list>
+
+
+		</layout_panel>
+	</layout_stack>
+	</floater>

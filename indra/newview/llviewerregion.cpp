@@ -2881,6 +2881,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("AgentPreferences");
 	capabilityNames.append("AgentState");
 	capabilityNames.append("AttachmentResources");
+    capabilityNames.append("AgentScriptDetails");
 	capabilityNames.append("AvatarPickerSearch");
 	capabilityNames.append("AvatarRenderInfo");
 	capabilityNames.append("CharacterProperties");

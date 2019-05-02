@@ -6158,6 +6158,22 @@ class LLAvatarAddContact : public view_listener_t
 	}
 };
 
+class LLAvatarViewAttachmentScripts : public view_listener_t
+{
+    bool handleEvent(const LLSD &userdata)
+    {
+        std::string cmd = userdata.asString();
+
+        if (cmd == "attachment_scripts_panel")
+        {
+            LLFloaterReg::showInstance("floater_attachment_scripts");
+            return true;
+        }
+
+        return true;
+    }
+};
+
 bool complete_give_money(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle selection)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
@@ -9251,6 +9267,9 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLToggleSpeak(), "ToggleSpeak");
 	view_listener_t::addMenu(new LLPromptShowURL(), "PromptShowURL");
 	view_listener_t::addMenu(new LLShowAgentProfile(), "ShowAgentProfile");
+
+    view_listener_t::addMenu(new LLAvatarViewAttachmentScripts(), "Avatar.AttachmentScripts");
+
 	view_listener_t::addMenu(new LLToggleAgentProfile(), "ToggleAgentProfile");
 	view_listener_t::addMenu(new LLToggleControl(), "ToggleControl");
 	view_listener_t::addMenu(new LLCheckControl(), "CheckControl");
@@ -9278,4 +9297,5 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLEditableSelected(), "EditableSelected");
 	view_listener_t::addMenu(new LLEditableSelectedMono(), "EditableSelectedMono");
 	view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
+
 }

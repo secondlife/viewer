@@ -34,6 +34,7 @@
 #include "llcompilequeue.h"
 #include "llfasttimerview.h"
 #include "llfloaterabout.h"
+#include "llfloaterattachmentscripts.h"
 #include "llfloaterauction.h"
 #include "llfloaterautoreplacesettings.h"
 #include "llfloateravatar.h"
@@ -375,6 +376,9 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("window_size", "floater_window_size.xml", &LLFloaterReg::build<LLFloaterWindowSize>);
 	LLFloaterReg::add("world_map", "floater_world_map.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWorldMap>);	
 
+    /*MILOTIC*/
+    LLFloaterReg::add("floater_attachment_scripts", "floater_attachment_scripts.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAttachmentScripts>);
+    /*MILOTIC*/
 	// *NOTE: Please keep these alphabetized for easier merges
 	
 	LLFloaterReg::registerControlVariables(); // Make sure visibility and rect controls get preserved when saving
