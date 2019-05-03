@@ -144,9 +144,9 @@ vec3 post_diffuse = color.rgb;
             if (nh > 0.0)
             {
                 float scontrib = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
-                vec3 speccol = sun_contrib*scontrib*spec.rgb;
+                vec3 speccol = sun_contrib*scontrib*spec.rgb*0.25;
                 speccol = clamp(speccol, vec3(0), vec3(1));
-                bloom += dot(speccol, speccol) / 12.0;
+                bloom += dot(speccol, speccol);
                 color += speccol;
             }
         }
