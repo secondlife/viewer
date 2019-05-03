@@ -194,6 +194,7 @@ void main()
 #ifdef USE_VERTEX_COLOR
     float final_alpha = diffuse_linear.a * vertex_color.a;
     diffuse_srgb.rgb *= vertex_color.rgb;
+    diffuse_linear.rgb *= vertex_color.rgb;
 #else
     float final_alpha = diffuse_linear.a;
 #endif

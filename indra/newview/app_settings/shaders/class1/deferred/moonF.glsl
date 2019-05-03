@@ -57,7 +57,8 @@ void main()
     // and shows true moon color at night
     vec3 luma_weights = vec3(0.3, 0.5, 0.3);
 
-    float mix = 1.0 - dot(normalize(sunlight_color.rgb), luma_weights);
+    vec4 light_color = max(sunlight_color, moonlight_color);
+    float mix = 1.0 - dot(normalize(light_color.rgb), luma_weights);
 
     vec3 exp = vec3(1.0 - mix * moon_brightness) * 2.0  - 1.0;
     c.rgb = pow(c.rgb, exp);
