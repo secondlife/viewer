@@ -120,7 +120,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
         fa += 1.0f;
         float dist_atten = ( fa > 0) ? clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0) : 1.0f;
         dist_atten *= dist_atten;
-        dist_atten *= 2.0;
+        dist_atten *= 2.2f;
 
         if (dist_atten <= 0)
         {
@@ -143,13 +143,10 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
         {
             col = light_col*lit*diffuse;
             amb_da += (da*0.5 + 0.5) * ambiance;
+            amb_da += (da*da*0.5+0.5) * ambiance;
+            amb_da = min(amb_da, 1.0f - lit);
         }
-        amb_da += (da*da*0.5+0.5) * ambiance;
-        amb_da = min(amb_da, 1.0f - lit);
-
-#ifndef NO_AMBIANCE
-        col.rgb += amb_da * 0.5 * light_col * diffuse;
-#endif
+        col.rgb += amb_da * 0.25 * light_col * diffuse;
 
         if (spec.a > 0.0)
         {
@@ -362,7 +359,7 @@ vec3 post_diffuse = color.rgb;
             float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
             vec3 speccol = sun_contrib*scol*spec.rgb;
             speccol = clamp(speccol, vec3(0), vec3(1));
-            bloom = dot(speccol, speccol) / 6;
+            bloom = dot(speccol, speccol) / 6.0f;
             color += speccol;
         }
     }
@@ -400,7 +397,7 @@ vec3 post_atmo = color.rgb;
             
     vec3 light = vec3(0,0,0);
 
- #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse_linear.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w * 0.5);
+ #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse_linear.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w);
 
         LIGHT_LOOP(1)
         LIGHT_LOOP(2)

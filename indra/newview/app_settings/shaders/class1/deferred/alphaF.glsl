@@ -119,9 +119,9 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
         //distance attenuation
         float dist = (la > 0) ? d/la : 1.0f;
         fa += 1.0f;
-        float dist_atten = (fa > 0) ? clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0) : 1.0f;
+        float dist_atten = (fa > 0) ? clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0) : 0.0f;
         dist_atten *= dist_atten;
-        dist_atten *= 2.0;
+        dist_atten *= 2.2f;
 
         // spotlight coefficient.
         float spot = max(dot(-ln, lv), is_pointlight);
@@ -131,15 +131,14 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
         float lit = max(da * dist_atten,0.0);
 
         float amb_da = ambiance;
-        if (da > 0)
+        if (lit > 0)
         {
             col = lit * light_col * diffuse;
             amb_da += (da*0.5+0.5) * ambiance;
+            amb_da += (da*da*0.5 + 0.5) * ambiance;
+            amb_da *= dist_atten;
+            amb_da = min(amb_da, 1.0f - lit);
         }
-        amb_da += (da*da*0.5 + 0.5) * ambiance;
-        amb_da *= dist_atten;
-        amb_da = min(amb_da, 1.0f - lit);
-
         col.rgb += amb_da * 0.5 * light_col * diffuse;
 
         // no spec for alpha shader...
