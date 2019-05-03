@@ -1,5 +1,5 @@
 /** 
- * @file WLCloudsF.glsl
+ * @file class1\deferred\cloudsF.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -86,14 +86,14 @@ void main()
     vec2 disturbance2 = vec2(cloudNoise((uv1 + uv3) / 4.0f).x, cloudNoise((uv4 + uv2) / 8.0f).x) * cloud_variance * (1.0f - cloud_scale * 0.25f);
 
     // Offset texture coords
-    uv1 += cloud_pos_density1.xy;// + (disturbance * 0.02);    //large texture, visible density
+    uv1 += cloud_pos_density1.xy + (disturbance * 0.02);    //large texture, visible density
     uv2 += cloud_pos_density1.xy;   //large texture, self shadow
     uv3 += cloud_pos_density2.xy;   //small texture, visible density
     uv4 += cloud_pos_density2.xy;   //small texture, self shadow
 
     float density_variance = min(1.0, (disturbance.x* 2.0 + disturbance.y* 2.0 + disturbance2.x + disturbance2.y));
 
-    //cloudDensity *= 1.0 - (density_variance * density_variance);
+    cloudDensity *= 1.0 - (density_variance * density_variance);
 
     // Compute alpha1, the main cloud opacity
 
@@ -104,8 +104,8 @@ void main()
     alpha1 = 1. - alpha1 * alpha1;
     alpha1 = 1. - alpha1 * alpha1;  
 
-    //alpha1 *= altitude_blend_factor;
-    //alpha1 = clamp(alpha1, 0.0, 1.0);
+    alpha1 *= altitude_blend_factor;
+    alpha1 = clamp(alpha1, 0.0, 1.0);
 
     // Compute alpha2, for self shadowing effect
     // (1 - alpha2) will later be used as percentage of incoming sunlight
@@ -120,11 +120,7 @@ void main()
     vec4 color;
     color = (cloudColorSun*(1.-alpha2) + cloudColorAmbient);
     color.rgb= max(vec3(0), color.rgb);
-    //color.rgb = linear_to_srgb(color.rgb);
-
-//alpha1 = 1.0;
-//color.rgb = cloudColorAmbient.rgb;
-color.rgb = vec3(1,0,1);
+    color.rgb *= 2.0;
 
     /// Gamma correct for WL (soft clip effect).
     frag_data[0] = vec4(scaleSoftClip(color.rgb), alpha1);

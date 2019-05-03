@@ -99,14 +99,14 @@ void main()
 	vec4 temp2 = vec4(0.);
 	vec4 blue_weight;
 	vec4 haze_weight;
-	//vec4 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
-    vec4 sunlight = sunlight_color;
+	vec4 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
 	vec4 light_atten;
 
+    float dens_mul = density_multiplier * 0.45;
 
 	// Sunlight attenuation effect (hue and brightness) due to atmosphere
 	// this is used later for sunlight modulation at various altitudes
-	light_atten = (blue_density + vec4(haze_density * 0.25)) * (density_multiplier * max_y);
+	light_atten = (blue_density + vec4(haze_density * 0.25)) * (dens_mul * max_y);
 
 	// Calculate relative weights
 	temp1 = blue_density + haze_density;
@@ -119,7 +119,7 @@ void main()
 	sunlight *= exp( - light_atten * temp2.y);
 
 	// Distance
-	temp2.z = Plen * density_multiplier;
+	temp2.z = Plen * dens_mul;
 
 	// Transparency (-> temp1)
 	// ATI Bugfix -- can't store temp1*temp2.z in a variable because the ati
@@ -138,7 +138,7 @@ void main()
 	temp2.x = pow(temp2.x, glow.z);
 		// glow.z should be negative, so we're doing a sort of (1 / "angle") function
 
-    //temp2.x *= sun_moon_glow_factor;
+    temp2.x *= sun_moon_glow_factor;
 
 	// Add "minimum anti-solar illumination"
 	temp2.x += .25;
