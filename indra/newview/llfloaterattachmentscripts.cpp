@@ -26,6 +26,9 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloaterattachmentscripts.h"
+
+#include <boost\make_shared.hpp>
+
 #include "llfloaterreg.h"
 #include "llpanel.h"
 #include "llaccordionctrltab.h"
@@ -33,7 +36,6 @@
 #include "llscrollcontainer.h"
 #include "llcorehttputil.h"
 #include "llviewerregion.h"
-#include "boost\smart_ptr\make_shared_object.hpp"
 #include "llagent.h"
 
 namespace
