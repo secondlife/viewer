@@ -484,9 +484,6 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
             {
                 sun_shader->bind();
 
-                gGL.getTexUnit(0)->setTextureColorSpace(LLTexUnit::TCS_SRGB);
-                gGL.getTexUnit(1)->setTextureColorSpace(LLTexUnit::TCS_SRGB);
-
                 if (tex_a && (!tex_b || (tex_a == tex_b)))
                 {
                     // Bind current and next sun textures
@@ -534,9 +531,6 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
         if (can_use_vertex_shaders && can_use_windlight_shaders && (tex_a || tex_b))
         {
             moon_shader->bind();
-
-            gGL.getTexUnit(0)->setTextureColorSpace(LLTexUnit::TCS_SRGB);
-            gGL.getTexUnit(1)->setTextureColorSpace(LLTexUnit::TCS_SRGB);
 
             if (tex_a && (!tex_b || (tex_a == tex_b)))
             {

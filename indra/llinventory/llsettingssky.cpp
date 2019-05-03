@@ -1189,7 +1189,7 @@ LLColor3 LLSettingsSky::getTotalDensity() const
 // this is used later for sunlight modulation at various altitudes
 LLColor3 LLSettingsSky::getLightAttenuation(F32 distance) const
 {
-    F32         density_multiplier = getDensityMultiplier();
+    F32         density_multiplier = getDensityMultiplier() * 0.45f;
     LLColor3    blue_density       = getBlueDensity();
     F32         haze_density       = getHazeDensity();
     // Approximate line integral over requested distance
@@ -1200,7 +1200,7 @@ LLColor3 LLSettingsSky::getLightAttenuation(F32 distance) const
 LLColor3 LLSettingsSky::getLightTransmittance() const
 {
     LLColor3 total_density      = getTotalDensity();
-    F32      density_multiplier = getDensityMultiplier();
+    F32      density_multiplier = getDensityMultiplier() * 0.45f;
     // Transparency (-> density) from Beer's law
     LLColor3 transmittance = componentExp(total_density * -density_multiplier);
     return transmittance;
@@ -1292,15 +1292,15 @@ void LLSettingsSky::calculateLightSettings() const
     mSunDiffuse = gammaCorrect(componentMult(sunlight,   light_transmittance));
     mSunAmbient = gammaCorrect(componentMult(tmpAmbient, light_transmittance));
 
-    F32 moon_brightness = getMoonBrightness();
+    F32 moon_brightness = getIsMoonUp() ? getMoonBrightness() : 0.001f;
 
-    LLColor3 moonlight_a(0.66, 0.66, 0.66);
-    LLColor3 moonlight_b(0.66, 0.66, 1.0);
+    LLColor3 moonlight_a(0.45, 0.45, 0.66);
+    LLColor3 moonlight_b(0.33, 0.33, 1.0);
 
     LLColor3 moonlight = lerp(moonlight_b, moonlight_a, moon_brightness);    
     componentMultBy(moonlight, componentExp((light_atten * -1.f) * lighty));
 
-    mMoonDiffuse  = gammaCorrect(componentMult(moonlight, light_transmittance) * moon_brightness * 0.25f);
+    mMoonDiffuse  = gammaCorrect(componentMult(moonlight, light_transmittance) * moon_brightness);
     mMoonAmbient  = gammaCorrect(componentMult(moonlight_b, light_transmittance) * 0.0125f);
     mTotalAmbient = mSunAmbient + mMoonAmbient;
 }

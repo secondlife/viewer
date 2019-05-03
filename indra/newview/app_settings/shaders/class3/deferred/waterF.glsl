@@ -61,7 +61,6 @@ VARYING vec4 view;
 VARYING vec4 vary_position;
 
 vec3 scaleSoftClip(vec3 c);
-vec3 srgb_to_linear(vec3 cs);
 vec2 encode_normal(vec3 n);
 
 vec3 BlendNormal(vec3 bump1, vec3 bump2)

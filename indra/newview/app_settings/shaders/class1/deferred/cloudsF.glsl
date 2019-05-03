@@ -1,5 +1,5 @@
 /** 
- * @file WLCloudsF.glsl
+ * @file class1\deferred\cloudsF.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -120,7 +120,7 @@ void main()
     vec4 color;
     color = (cloudColorSun*(1.-alpha2) + cloudColorAmbient);
     color.rgb= max(vec3(0), color.rgb);
-    color.rgb = linear_to_srgb(color.rgb);
+    color.rgb *= 2.0;
 
     /// Gamma correct for WL (soft clip effect).
     frag_data[0] = vec4(scaleSoftClip(color.rgb), alpha1);

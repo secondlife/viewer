@@ -36,11 +36,12 @@ VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
 vec2 encode_normal(vec3 n);
+vec3 linear_to_srgb(vec3 c);
 
 void main() 
 {
 	vec3 col = vertex_color.rgb * diffuseLookup(vary_texcoord0.xy).rgb;
-	
+
 	vec3 spec;
 	spec.rgb = vec3(vertex_color.a);
 

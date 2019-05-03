@@ -103,7 +103,7 @@ void main()
     vec4 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
     vec4 light_atten;
 
-    float dens_mul = density_multiplier;
+    float dens_mul = density_multiplier * 0.45;
 
     // Sunlight attenuation effect (hue and brightness) due to atmosphere
     // this is used later for sunlight modulation at various altitudes
@@ -180,7 +180,8 @@ void main()
     // Texture coords
     vary_texcoord0 = texcoord0;
     vary_texcoord0.xy -= 0.5;
-    vary_texcoord0.xy /= max(0.001, cloud_scale);
+    vary_texcoord0.xy /= cloud_scale;
+    //vary_texcoord0.xy /= max(0.001, cloud_scale);
     vary_texcoord0.xy += 0.5;
 
     vary_texcoord1 = vary_texcoord0;

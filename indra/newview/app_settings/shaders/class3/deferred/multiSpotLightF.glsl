@@ -71,19 +71,11 @@ uniform vec2 screen_res;
 
 uniform mat4 inv_proj;
 
-vec3 srgb_to_linear(vec3 cs);
-vec3 linear_to_srgb(vec3 cl);
 vec3 getNorm(vec2 pos_screen);
-
-vec4 correctWithGamma(vec4 col)
-{
-    return vec4(srgb_to_linear(col.rgb), col.a);
-}
 
 vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 {
     vec4 ret = texture2DLod(projectionMap, tc, lod);
-    ret.rgb = srgb_to_linear(ret.rgb);
     
     vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
     
@@ -103,7 +95,6 @@ vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
 {
     vec4 ret = texture2DLod(projectionMap, tc, lod);
-    ret = correctWithGamma(ret);
 
     vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
     
@@ -121,7 +112,6 @@ vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
 vec4 texture2DLodAmbient(sampler2D projectionMap, vec2 tc, float lod)
 {
     vec4 ret = texture2DLod(projectionMap, tc, lod);
-    ret = correctWithGamma(ret);
 
     vec2 dist = tc-vec2(0.5);
     
@@ -260,10 +250,6 @@ void main()
             //col += spec.rgb;
         }
     }   
-    
-    
-    
-    
 
     if (envIntensity > 0.0)
     {
@@ -296,6 +282,8 @@ void main()
 
     //not sure why, but this line prevents MATBUG-194
     col = max(col, vec3(0.0));
+
+    col = scaleDownLight(col);
 
     frag_color.rgb = col;   
     frag_color.a = 0.0;

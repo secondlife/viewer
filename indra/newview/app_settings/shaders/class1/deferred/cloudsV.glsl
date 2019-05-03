@@ -78,7 +78,7 @@ void main()
 	// Get relative position
 	vec3 P = position.xyz - camPosLocal.xyz + vec3(0,50,0);
 
-        altitude_blend_factor = (P.y > -4096.0) ? 1.0 : 1.0 - clamp(abs(P.y) / max_y, 0.0, 1.0);
+    altitude_blend_factor = (P.y > -4096.0) ? 1.0 : 1.0 - clamp(abs(P.y) / max_y, 0.0, 1.0);
 
 	// Set altitude
 	if (P.y > 0.)
@@ -86,7 +86,6 @@ void main()
 		P *= (max_y / P.y);
 	}
 	else
-        if (P.y <= 0.0)
 	{
 		P *= (-32000. / P.y);
 	}
@@ -103,7 +102,7 @@ void main()
 	vec4 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
 	vec4 light_atten;
 
-    float dens_mul = density_multiplier;
+    float dens_mul = density_multiplier * 0.45;
 
 	// Sunlight attenuation effect (hue and brightness) due to atmosphere
 	// this is used later for sunlight modulation at various altitudes
@@ -127,6 +126,7 @@ void main()
 	// compiler gets confused.
 	temp1 = exp(-temp1 * temp2.z);
 
+
 	// Compute haze glow
 	temp2.x = dot(Pn, lightnorm.xyz);
 	temp2.x = 1. - temp2.x;
@@ -138,7 +138,7 @@ void main()
 	temp2.x = pow(temp2.x, glow.z);
 		// glow.z should be negative, so we're doing a sort of (1 / "angle") function
 
-        temp2.x *= sun_moon_glow_factor;
+    temp2.x *= sun_moon_glow_factor;
 
 	// Add "minimum anti-solar illumination"
 	temp2.x += .25;
@@ -179,7 +179,7 @@ void main()
 	// Texture coords
 	vary_texcoord0 = texcoord0;
 	vary_texcoord0.xy -= 0.5;
-	vary_texcoord0.xy /= max(0.001, cloud_scale);
+	vary_texcoord0.xy /= cloud_scale;
 	vary_texcoord0.xy += 0.5;
 
 	vary_texcoord1 = vary_texcoord0;
