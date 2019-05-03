@@ -707,7 +707,9 @@ void LLSettingsVOSky::applySpecial(void *ptarget)
 
         shader->uniform4fv(LLShaderMgr::SUNLIGHT_COLOR, 1, sunDiffuse.mV);
         shader->uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, moonDiffuse.mV);
-        shader->uniform4fv(LLShaderMgr::CLOUD_COLOR, 1, psky->getCloudColor().mV);
+
+        LLColor4 cloud_color(psky->getCloudColor(), 1.0);
+        shader->uniform4fv(LLShaderMgr::CLOUD_COLOR, 1, cloud_color.mV);
 	}
 
     F32 g = getGamma();
