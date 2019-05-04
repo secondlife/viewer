@@ -149,14 +149,14 @@ void main()
     vec4 fb = texture2D(screenTex, distort2);
 
     //mix with reflection
-    color.rgb = fb.rgb;
-    color.rgb += refcol.rgb * df1;
+    // Note we actually want to use just df1, but multiplying by 0.999999 gets around an nvidia compiler bug
+    color.rgb = mix(fb.rgb, refcol.rgb, df1 * 0.99999);
  
     vec4 pos = vary_position;
     
     vec3 screenspacewavef = normalize((norm_mat*vec4(wavef, 1.0)).xyz);
 
-    frag_data[0] = vec4(color.rgb, 0.25); // diffuse
+    frag_data[0] = vec4(color.rgb, 0); // diffuse
     frag_data[1] = vec4(specular * 0.15, 0.5);     // speccolor, spec
     frag_data[2] = vec4(encode_normal(screenspacewavef.xyz), 0.05, 0);// normalxy, 0, 0
 }
