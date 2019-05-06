@@ -349,7 +349,7 @@ bool    LLPipeline::sMemAllocationThrottled = false;
 S32		LLPipeline::sVisibleLightCount = 0;
 F32		LLPipeline::sMinRenderSize = 0.f;
 bool	LLPipeline::sRenderingHUDs;
-F32     LLPipeline::sDistortionWaterClipPlaneMargin = 1.0001f;
+F32     LLPipeline::sDistortionWaterClipPlaneMargin = 1.0125f;
 
 // EventHost API LLPipeline listener.
 static LLPipelineListener sPipelineListener;
@@ -9410,9 +9410,11 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                 mWaterDis.bindTarget();
                 mWaterDis.getViewport(gGLViewport);
 
+                F32 water_dist = water_height * LLPipeline::sDistortionWaterClipPlaneMargin;
+
                 //clip out geometry on the same side of water as the camera w/ enough margin to not include the water geo itself,
                 // but not so much as to clip out parts of avatars that should be seen under the water in the distortion map
-                LLPlane plane(-pnorm, water_height * LLPipeline::sDistortionWaterClipPlaneMargin);
+                LLPlane plane(-pnorm, water_dist);
 
                 LLGLUserClipPlane clip_plane(plane, current, projection);
 
