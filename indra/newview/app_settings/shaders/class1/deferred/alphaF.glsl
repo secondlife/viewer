@@ -136,9 +136,9 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
             col = lit * light_col * diffuse;
             amb_da += (da*0.5+0.5) * ambiance;
             amb_da += (da*da*0.5 + 0.5) * ambiance;
-            amb_da *= dist_atten;
-            amb_da = min(amb_da, 1.0f - lit);
         }
+        amb_da *= dist_atten;
+        amb_da = min(amb_da, 1.0f - lit);
         col.rgb += amb_da * 0.5 * light_col * diffuse;
 
         // no spec for alpha shader...
@@ -240,7 +240,7 @@ vec3 post_sunlight = color.rgb;
 
 vec3 post_diffuse = color.rgb;
 
-    //color.rgb = mix(diffuse_srgb.rgb, color.rgb, final_alpha);
+    //color.rgb = mix(diffuse_linear.rgb, color.rgb, final_alpha);
     
     color.rgb = atmosFragLighting(color.rgb, additive, atten);
     color.rgb = scaleSoftClipFrag(color.rgb);
@@ -267,7 +267,6 @@ vec3 post_atmo = color.rgb;
 
     // back to sRGB as we're going directly to the final RT post-deferred gamma correction
     color.rgb = linear_to_srgb(color.rgb);
-
 
 //color.rgb = amblit;
 //color.rgb = vec3(ambient);

@@ -144,8 +144,9 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
             col = light_col*lit*diffuse;
             amb_da += (da*0.5 + 0.5) * ambiance;
             amb_da += (da*da*0.5+0.5) * ambiance;
-            amb_da = min(amb_da, 1.0f - lit);
         }
+        amb_da *= dist_atten;
+        amb_da = min(amb_da, 1.0f - lit);
         col.rgb += amb_da * 0.25 * light_col * diffuse;
 
         if (spec.a > 0.0)
