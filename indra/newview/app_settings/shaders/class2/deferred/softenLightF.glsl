@@ -95,7 +95,10 @@ void main()
     vec4 diffuse_srgb   = texture2DRect(diffuseRect, tc);
     vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_srgb.a);
  
-    scol = max(scol_ambocc.r, diffuse_linear.a);
+
+    // clamping to alpha value kills underwater shadows...
+    //scol = max(scol_ambocc.r, diffuse_linear.a);
+    scol = scol_ambocc.r;
 
     vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
     vec3 color = vec3(0);
@@ -160,8 +163,6 @@ vec3 post_diffuse = color.rgb;
        
  vec3 post_spec = color.rgb;
  
-        color.rgb += diffuse_srgb.a * diffuse_srgb.rgb;
-
         if (envIntensity > 0.0)
         { //add environmentmap
             vec3 env_vec = env_mat * refnormpersp;

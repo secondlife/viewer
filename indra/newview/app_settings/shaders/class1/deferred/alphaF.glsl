@@ -240,8 +240,6 @@ vec3 post_sunlight = color.rgb;
 
 vec3 post_diffuse = color.rgb;
 
-    //color.rgb = mix(diffuse_linear.rgb, color.rgb, final_alpha);
-    
     color.rgb = atmosFragLighting(color.rgb, additive, atten);
     color.rgb = scaleSoftClipFrag(color.rgb);
 

@@ -367,8 +367,6 @@ vec3 post_diffuse = color.rgb;
 
 vec3 post_spec = color.rgb;
 
-    //color = mix(color.rgb, diffuse_srgb.rgb, diffuse_srgb.a);
-
     if (envIntensity > 0.0)
     {
         //add environmentmap
