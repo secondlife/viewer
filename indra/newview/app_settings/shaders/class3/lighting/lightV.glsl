@@ -31,8 +31,8 @@ vec4 sumLights(vec3 pos, vec3 norm, vec4 color);
 
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color)
 {
-	vec4 c = sumLights(pos, norm, color * 2.0);
+	vec4 c = sumLights(pos, norm, color);
     c.rgb += atmosAmbient() * color.rgb;
-    return c * 2.0; 
+    return c; 
 }
 

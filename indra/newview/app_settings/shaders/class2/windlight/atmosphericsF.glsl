@@ -37,6 +37,8 @@ uniform vec4 blue_density;
 uniform float haze_horizon;
 uniform float haze_density;
 uniform float cloud_shadow;
+uniform float density_multiplier;
+uniform float distance_multiplier;
 uniform float max_y;
 uniform vec4 glow;
 uniform float scene_light_strength;
@@ -53,7 +55,7 @@ vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten)
         return light;
     }
     light *= atten.r;
-    light += additive * exp(-1.0f);
+    light += additive;
     return light * 2.0;
 }
 

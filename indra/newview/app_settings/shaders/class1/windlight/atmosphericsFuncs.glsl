@@ -68,7 +68,7 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
     vec4 light_atten;
 
     float dens_mul = density_multiplier;
-    float dist_mul = distance_multiplier * 0.1;
+    float dist_mul = distance_multiplier;
 
     //sunlight attenuation effect (hue and brightness) due to atmosphere
     //this is used later for sunlight modulation at various altitudes
