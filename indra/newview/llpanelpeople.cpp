@@ -67,6 +67,7 @@
 #include "llrecentpeople.h"
 #include "llviewercontrol.h"		// for gSavedSettings
 #include "llviewermenu.h"			// for gMenuHolder
+#include "llviewerregion.h"
 #include "llvoiceclient.h"
 #include "llworld.h"
 #include "llspeakers.h"
@@ -613,12 +614,23 @@ void LLPanelPeople::removePicker()
 
 BOOL LLPanelPeople::postBuild()
 {
+	S32 max_premium = PREMIUM_MAX_AGENT_GROUPS; 
+	if (gAgent.getRegion())
+	{
+		LLSD features;
+		gAgent.getRegion()->getSimulatorFeatures(features);
+		if (features.has("MaxAgentGroupsPremium"))
+		{
+			max_premium = features["MaxAgentGroupsPremium"].asInteger();
+		}
+	}
+
 	getChild<LLFilterEditor>("nearby_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
 	getChild<LLFilterEditor>("friends_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
 	getChild<LLFilterEditor>("groups_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
 	getChild<LLFilterEditor>("recent_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
 
-	if(gMaxAgentGroups <= BASE_MAX_AGENT_GROUPS)
+	if(gMaxAgentGroups < max_premium)
 	{
 	    getChild<LLTextBox>("groupcount")->setText(getString("GroupCountWithInfo"));
 	    getChild<LLTextBox>("groupcount")->setURLClickedCallback(boost::bind(&LLPanelPeople::onGroupLimitInfo, this));
@@ -1165,8 +1177,25 @@ void LLPanelPeople::onFilterEdit(const std::string& search_string)
 void LLPanelPeople::onGroupLimitInfo()
 {
 	LLSD args;
-	args["MAX_BASIC"] = BASE_MAX_AGENT_GROUPS;
-	args["MAX_PREMIUM"] = PREMIUM_MAX_AGENT_GROUPS;
+
+	S32 max_basic = BASE_MAX_AGENT_GROUPS;
+	S32 max_premium = PREMIUM_MAX_AGENT_GROUPS;
+	if (gAgent.getRegion())
+	{
+		LLSD features;
+		gAgent.getRegion()->getSimulatorFeatures(features);
+		if (features.has("MaxAgentGroupsBasic"))
+		{
+			max_basic = features["MaxAgentGroupsBasic"].asInteger();
+		}
+		if (features.has("MaxAgentGroupsPremium"))
+		{
+			max_premium = features["MaxAgentGroupsPremium"].asInteger();
+		}
+	}
+	args["MAX_BASIC"] = max_basic; 
+	args["MAX_PREMIUM"] = max_premium; 
+
 	LLNotificationsUtil::add("GroupLimitInfo", args);
 }
 

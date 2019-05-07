@@ -243,6 +243,10 @@ Por favor, selecione apenas um objeto e tente novamente.
 		Nota: Ao ativar esta opção, qualquer pessoa que utilizar este computador poderá ver a sua lista de lugares preferidos.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="AllowMultipleViewers">
+		Não é possível executar múltiplos visualizadores Second Life. Pode levar a uma falha, um corrompimento, visuais alterados e falha no desempenho no cache de textura.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="GrantModifyRights">
 		Conceder direitos de modificação a outros residentes vai autorizá-los a mudar, apagar ou pegar TODOS os seus objetos. Seja MUITO cuidadoso ao conceder esta autorização.
 Deseja dar direitos de modificação a [NAME]?
@@ -711,9 +715,9 @@ Para aumentar a qualidade do vídeo, vá para Preferências &gt; Vídeo.
 		Você não está autorizado a terraplanar o terreno [PARCEL].
 	</notification>
 	<notification name="CannotCopyWarning">
-		Você não tem autorização para copiar os itens abaixo:
-[ITEMS]
-ao dá-los, você ficará sem eles no seu inventário. Deseja realmente dar estes itens?
+		Não existe autorização para copiar os itens abaixo: 
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt; 
+e eles sairão do inverntário se sair. Deseja realmente dar estes itens?
 		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
 	</notification>
 	<notification name="CannotGiveItem">
@@ -1600,8 +1604,24 @@ Por favor, ponha o objeto à venda e tente novamente.
 [DOWNLOAD_PATH]
 	</notification>
 	<notification name="RequiredUpdate">
-		Versão [VERSION] é obrigatório para efetuar login. Isto deveria ter sido atualizado por você, mas aparentemente não foi. Baixe a versão mais recente em https://secondlife.com/support/downloads/
+		Versão [VERSION] é obrigatório para efetuar login. 
+Baixe a versão mais recente em https://secondlife.com/support/downloads/
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PauseForUpdate">
+		Versão [VERSION] é obrigatório para efetuar login. 
+Clique em OK para baixar e instalar
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OptionalUpdateReady">
+		A versão [VERSION] foi baixada e está pronta para ser instalada. 
+Clique em OK para instalar
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PromptOptionalUpdate">
+		A versão [VERSION] foi baixada e está pronta para ser instalada. 
+Deseja prosseguir?
+		<usetemplate canceltext="Ainda não" name="yesnocancelbuttons" notext="Ignorar" yestext="Instalar"/>
 	</notification>
 	<notification name="LoginFailedUnknown">
 		Desculpe, motivo de falha de login desconhecido. Se você continuar a receber esta mensagem, por favor consulte o [SUPPORT_SITE].
@@ -3060,15 +3080,6 @@ Não conceda acesso se você não entender completamente por que ele deseja aces
 			<button name="Deny" text="Negar"/>
 		</form>
 	</notification>
-	<notification name="UnknownScriptQuestion">
-		A permissão de script de tempo de execução solicitada por &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, um objeto de &apos;[NAME]&apos;, não é reconhecida pelo visualizador e não pode ser concedida.
-
-Para conceder essa permissão, atualize seu visualizador para a versão mais recente em [DOWNLOADURL].
-		<form name="form">
-			<button name="Deny" text="Ok"/>
-			<button name="Mute" text="Bloquear"/>
-		</form>
-	</notification>
 	<notification name="ScriptDialog">
 		&apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos; de [NAME]
 [MESSAGE]
@@ -3731,13 +3742,13 @@ ele não está na mesma região que você.
 		Você não pode criar árvores e grama em terrenos que não são sua propriedade.
 	</notification>
 	<notification name="NoCopyPermsNoObject">
-		A cópia falhou porque você não está autorizado a copiar o objeto &apos;[OBJ_NAME]&apos;.
+		Falha na cópia por falta de permissão para copiar o objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoTransPermsNoObject">
-		A cópia falhou porque o objeto &apos;[OBJ_NAME]&apos; não pode ser transferido para você.
+		Falha na cópia, porque o objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; não pode ser transferido para você.
 	</notification>
 	<notification name="AddToNavMeshNoCopy">
-		A cópia falhou porque o objeto &apos;[OBJ_NAME]&apos; contribui para o navmesh.
+		Falha na cópia, porque o objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; contribui para o Navmesh.
 	</notification>
 	<notification name="DupeWithNoRootsSelected">
 		Duplicar sem objetos raiz selecionados.
@@ -3782,34 +3793,34 @@ Tente novamente em instantes.
 		Salvar no inventário foi desativado.
 	</notification>
 	<notification name="NoExistNoSaveToContents">
-		Não é possível salvar &apos;[OBJ_NAME]&apos; no conteúdo do objeto porque o objeto do qual ele foi renderizado não existe mais.
+		Não foi possível salvar &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; para os conteúdos do objeto, porque o objeto foi utilizado e não existe mais.
 	</notification>
 	<notification name="NoModNoSaveToContents">
-		Não é possível salvar &apos;[OBJ_NAME]&apos; no conteúdo do objeto porque você não tem permissão para modificar o objeto &apos;[DEST_NAME]&apos;.
+		Não foi possível salvar &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; para os conteúdos do objeto, porque você não tem permissão para modificar o objeto &lt;nolink&gt;&apos;[DEST_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoSaveBackToInvDisabled">
-		Não é possível salvar &apos;[OBJ_NAME]&apos; no inventário -- essa operação foi desativada.
+		Não é possível salvar &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; no inventário outra vez -- esta operação foi desabilitada.
 	</notification>
 	<notification name="NoCopyNoSelCopy">
-		Você não pode copiar sua seleção porque não está autorizado a copiar o objeto &apos;[OBJ_NAME]&apos;.
+		Não é possível copiar a seleção porque você não tem permissão para copiar o objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoTransNoSelCopy">
-		Você não pode copiar a seleção porque o objeto &apos;[OBJ_NAME]&apos; não é transferível.
+		Não é possível copiar a seleção porque o objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; não é transferível.
 	</notification>
 	<notification name="NoTransNoCopy">
-		Você não pode copiar a seleção porque o objeto &apos;[OBJ_NAME]&apos; não é transferível.
+		Não é possível copiar a seleção porque o objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; não é transferível.
 	</notification>
 	<notification name="NoPermsNoRemoval">
-		A remoção do objeto &apos;[OBJ_NAME]&apos; do simulador é proibida pelo sistema de permissões.
+		A remoção do objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; do simulador não é permitida pelo sistema de permissão.
 	</notification>
 	<notification name="NoModNoSaveSelection">
-		Você não pode salvar sua seleção porque não está autorizado a modificar o objeto &apos;[OBJ_NAME]&apos;.
+		Não é possível salvar a seleção porque você não tem permissão para modificar o objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoCopyNoSaveSelection">
-		Não é possível salvar sua seleção porque o objeto &apos;[OBJ_NAME]&apos; não é copiável.
+		Não é possível salvar a seleção porque o objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; não é copiável.
 	</notification>
 	<notification name="NoModNoTaking">
-		Você não pode levar sua seleção porque não está autorizado a modificar o objeto &apos;[OBJ_NAME]&apos;.
+		Não é possível realizar a seleção porque você não tem permissão para modificar o objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="RezDestInternalError">
 		Erro interno: tipo de destino desconhecido.

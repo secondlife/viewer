@@ -594,7 +594,7 @@ void LLImage::initClass(bool use_new_byte_range, S32 minimal_reverse_byte_range_
 {
 	sUseNewByteRange = use_new_byte_range;
     sMinimalReverseByteRangePercent = minimal_reverse_byte_range_percent;
-	sMutex = new LLMutex(NULL);
+	sMutex = new LLMutex();
 }
 
 //static

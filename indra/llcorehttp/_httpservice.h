@@ -31,7 +31,7 @@
 #include <vector>
 
 #include "linden_common.h"
-#include "llapr.h"
+#include "llatomic.h"
 #include "httpcommon.h"
 #include "httprequest.h"
 #include "_httppolicyglobal.h"

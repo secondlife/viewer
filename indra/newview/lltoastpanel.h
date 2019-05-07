@@ -49,6 +49,7 @@ public:
 	virtual const LLUUID& getID();
 
 	static const S32 MIN_PANEL_HEIGHT;
+	static const S32 MAX_TEXT_LENGTH;
 
 	/**
 	 * Builder method for constructing notification specific panels.

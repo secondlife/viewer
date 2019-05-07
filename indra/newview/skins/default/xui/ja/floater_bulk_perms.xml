@@ -38,17 +38,17 @@
 	<text name="GroupLabel">
 		グループ：
 	</text>
-	<check_box label="共有" name="share_with_group"/>
+	<check_box label="共有" name="share_with_group" tool_tip="設定したグループのメンバー全員にこのオブジェクトの修正権限を与えます。譲渡しない限り、役割制限を有効にはできません。"/>
 	<text name="AnyoneLabel">
 		全員：
 	</text>
-	<check_box label="コピー" name="everyone_copy"/>
+	<check_box label="コピー" name="everyone_copy" tool_tip="オブジェクトのコピーは誰でも受け取ることができます。オブジェクトとそのオブジェクトの中身はすべて、コピーまたは譲渡できるように設定する必要があります"/>
 	<text name="NextOwnerLabel">
 		次の所有者：
 	</text>
-	<check_box label="修正" name="next_owner_modify"/>
-	<check_box label="コピー" name="next_owner_copy"/>
-	<check_box initial_value="true" label="再販・プレゼント" name="next_owner_transfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販することができます"/>
+	<check_box label="修正" name="next_owner_modify" tool_tip="次の所有者は、アイテム名などのプロパティ内容を編集したり、このオブジェクトのサイズを変更することができます。"/>
+	<check_box label="コピー" name="next_owner_copy" tool_tip="次の所有者は、このオブジェクトを無制限にコピーできます。コピーには制作者の情報が含まれ、コピー元のアイテムと違って許可などに関し制限があります。"/>
+	<check_box initial_value="true" label="再販・プレゼント" name="next_owner_transfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販できます。"/>
 	<button label="OK" name="ok"/>
 	<button label="適用" name="apply"/>
 	<button label="キャンセル" name="close"/>

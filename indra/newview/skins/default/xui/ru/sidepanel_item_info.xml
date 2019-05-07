@@ -34,9 +34,11 @@
 			<text name="LabelItemNameTitle">
 				Название:
 			</text>
+			<line_editor name="LabelItemName" tool_tip="Название ограничено 63 символами. Более длинные имена примитива сокращаются. Имена могут состоять только из печатаемых символов, содержащихся в ASCII-7 (нерасширенном) наборе символов, за исключением вертикальной черты/линии &quot;|&quot;."/>
 			<text name="LabelItemDescTitle">
 				Описание:
 			</text>
+			<line_editor name="LabelItemDesc" tool_tip="Когда в настройках окна просмотра выбрано &apos;Всплывающие подсказки на всех объектах&apos;, у игроков появляется всплывающее окошко с описанием объекта при наведении мыши на любой объект. Описание примитива ограничивается 127 байтами и строка со значением, превышающим этот размер, усекается."/>
 			<text name="LabelCreatorTitle">
 				Создатель:
 			</text>
@@ -59,7 +61,7 @@
 				<text name="AnyoneLabel">
 					Все:
 				</text>
-				<check_box label="Копировать" name="CheckEveryoneCopy"/>
+				<check_box label="Копировать" name="CheckEveryoneCopy" tool_tip="Копию объекта может взять любой желающий. Объект и все его содержимое должны копироваться и передаваться."/>
 				<text name="GroupLabel">
 					Группа:
 				</text>
@@ -67,17 +69,17 @@
 				<text name="NextOwnerLabel">
 					Следующий владелец:
 				</text>
-				<check_box label="Изменять" name="CheckNextOwnerModify"/>
-				<check_box label="Копировать" name="CheckNextOwnerCopy"/>
-				<check_box label="Передать" name="CheckNextOwnerTransfer" tool_tip="Следующий владелец может отдать или перепродать объект"/>
+				<check_box label="Изменять" name="CheckNextOwnerModify" tool_tip="Следующий владелец может отредактировать свойства, такие как имя отдельного предмета или масштаб этого объекта."/>
+				<check_box label="Копировать" name="CheckNextOwnerCopy" tool_tip="Следующий владелец может сделать неограниченное количество копий этого объекта. Копии содержат информацию о создателе и никогда не могут быть более разрешительными, чем копируемый предмет."/>
+				<check_box label="Передать" name="CheckNextOwnerTransfer" tool_tip="Следующий владелец может отдать или перепродать этот объект."/>
 			</panel>
-			<check_box label="Для продажи" name="CheckPurchase"/>
-			<combo_box name="ComboBoxSaleType">
+			<check_box label="Для продажи" name="CheckPurchase" tool_tip="Позволяет игрокам покупать этот объект, его содержимое или копировать его в игровом мире по указанной цене."/>
+			<combo_box name="ComboBoxSaleType" tool_tip="Выберите, получит ли покупатель копию, копию содержимого или сам предмет.">
 				<combo_box.item label="Копировать" name="Copy"/>
 				<combo_box.item label="Содержимое" name="Contents"/>
 				<combo_box.item label="Оригинал" name="Original"/>
 			</combo_box>
-			<spinner label="Цена: L$" name="Edit Cost"/>
+			<spinner label="Цена: L$" name="Edit Cost" tool_tip="Стоимость объекта."/>
 		</panel>
 	</scroll_container>
 	<panel name="button_panel">

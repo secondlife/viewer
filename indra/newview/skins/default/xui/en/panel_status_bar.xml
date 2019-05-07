@@ -34,6 +34,46 @@
         L$ [AMT]
     </panel.string>
   <panel
+	 height="18"
+	 left="-458"
+	 top="0"
+	 width="120"
+	 follows="right|top"
+	 name="menu_search_panel"
+	 background_opaque="true"
+	 background_visible="true"
+	 bg_opaque_color="MouseGray">
+		<search_editor
+		 clear_button_visible="true"
+		 follows="left|top"
+		 height="18"
+		 label="Search Menus"
+		 layout="topleft"
+		 left="0"
+		 max_length_bytes="255"
+		 name="search_menu_edit"
+		 right="-1"
+		 text_pad_left="6"
+		 tool_tip="Type the search term you are interested in here. Results will be displayed for partial fulltext matches within the menu."
+		 top="0">
+			<search_button 
+			 top_pad="4"
+			 left_pad="4" 
+			 width="12"
+			 height="12" 
+			 image_unselected="Search"
+			 image_selected="Search"/>
+			<clear_button
+			 bottom="2"
+			 height="12"
+			 image_unselected="Icon_Close_Foreground"
+			 image_selected="Icon_Close_Press"
+			 pad_right="4"
+			 pad_left="4"
+			 width="12"/>
+		</search_editor>
+  </panel>
+  <panel
     height="18"
     left="-416"
     width="185"

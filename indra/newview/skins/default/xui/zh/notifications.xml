@@ -244,6 +244,10 @@
 		注意：你一旦同意這選項，任何使用這部電腦的人都可看到你有哪些「最愛」地點。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
+	<notification name="AllowMultipleViewers">
+		不支援同時執行多個Second Life瀏覽器。 這麼做可能導致材質快取相互碰撞、毀損，並降低視覺效果及性能。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
 	<notification name="GrantModifyRights">
 		賦予另一居民「修改」權，將允許他更改、刪除或拿取你在虛擬世界裡擁有的任何物件。 賦予這項權限時，敬請慎重考慮。
 你仍要賦予 [NAME] 修改權嗎?
@@ -719,7 +723,7 @@
 	</notification>
 	<notification name="CannotCopyWarning">
 		你沒有權限複製以下項目：
-[ITEMS]
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 如果你將它送人，它將無法續留在收納區。 你確定要送出這些東西嗎？
 		<usetemplate name="okcancelbuttons" notext="否" yestext="是"/>
 	</notification>
@@ -1603,9 +1607,23 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="RequiredUpdate">
 		必須用[VERSION]版本登入。
-本來應該已經完成更新，但看來你的尚未更新。
 請到 http://secondlife.com/support/ 下載更新版
 		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="PauseForUpdate">
+		必須用[VERSION]版本登入。
+點按「確定」開始下載並安裝。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="OptionalUpdateReady">
+		版本[VERSION]已下載，可以開始安裝。
+點按「確定」開始安裝。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="PromptOptionalUpdate">
+		版本[VERSION]已下載，可以開始安裝。
+繼續？
+		<usetemplate canceltext="暫時不要" name="yesnocancelbuttons" notext="略過" yestext="安裝"/>
 	</notification>
 	<notification name="LoginFailedUnknown">
 		抱歉，登入失敗，原因不明。
@@ -3067,15 +3085,6 @@ SHA1 指紋：[MD5_DIGEST]
 			<button name="Deny" text="拒絕"/>
 		</form>
 	</notification>
-	<notification name="UnknownScriptQuestion">
-		由 &apos;[NAME]&apos; 所擁有的物件 &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; 正請求某項執行時期腳本權限，但本瀏覽器無法辨識該權限，故不允准。
-
-欲准許此權限，請從 [DOWNLOADURL] 下載並更新為最新版瀏覽器。
-		<form name="form">
-			<button name="Deny" text="確定"/>
-			<button name="Mute" text="封鎖"/>
-		</form>
-	</notification>
 	<notification name="ScriptDialog">
 		[NAME] 的 &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
@@ -3743,13 +3752,13 @@ SHA1 指紋：[MD5_DIGEST]
 		你無法在別人的土地上建立樹和草。
 	</notification>
 	<notification name="NoCopyPermsNoObject">
-		複製失敗，你無權複製物件 &apos;[OBJ_NAME]&apos;。
+		複製失敗，你無權複製物件&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;。
 	</notification>
 	<notification name="NoTransPermsNoObject">
-		複製失敗，因為物件 &apos;[OBJ_NAME]&apos; 無法轉移給你。
+		複製失敗，因為物件&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;無法轉移給你。
 	</notification>
 	<notification name="AddToNavMeshNoCopy">
-		複製失敗，因為物件 &apos;[OBJ_NAME]&apos; 對導航網面有貢獻。
+		複製失敗，因為物件&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;對導航網面有貢獻。
 	</notification>
 	<notification name="DupeWithNoRootsSelected">
 		選取了沒有根的重覆物件。
@@ -3794,34 +3803,34 @@ SHA1 指紋：[MD5_DIGEST]
 		「儲存回收納區」功能已被停用。
 	</notification>
 	<notification name="NoExistNoSaveToContents">
-		無法將 &apos;[OBJ_NAME]&apos; 儲存到物件內容，因為產生它的來源物件已不存在。
+		無法將&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;儲存到物件內容，因為產生它的來源物件已不存在。
 	</notification>
 	<notification name="NoModNoSaveToContents">
-		無法儲存 [OBJ_NAME] 到物件內容，你無權修改 &apos;[DEST_NAME]&apos; 物件。
+		無法儲存&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;到物件內容，因爲你無權修改&lt;nolink&gt;&apos;[DEST_NAME]&apos;&lt;/nolink&gt;物件。
 	</notification>
 	<notification name="NoSaveBackToInvDisabled">
-		無法將 &apos;[OBJ_NAME]&apos; 儲存回收納區，此動作已被停用。
+		無法將&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;儲存回收納區，此動作已被停用。
 	</notification>
 	<notification name="NoCopyNoSelCopy">
-		無法複製你所選的，因為你無權複製物件 &apos;[OBJ_NAME]&apos;。
+		無法複製你所選的，因為你無權複製物件&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;。
 	</notification>
 	<notification name="NoTransNoSelCopy">
-		無法選取複製，因為物件 &apos;[OBJ_NAME]&apos; 不可轉移。
+		無法選取複製，因為物件&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;不可轉移。
 	</notification>
 	<notification name="NoTransNoCopy">
-		無法選取複製，因為物件 &apos;[OBJ_NAME]&apos; 不可轉移。
+		無法選取複製，因為物件&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;不可轉移。
 	</notification>
 	<notification name="NoPermsNoRemoval">
-		權限系統不允許從模擬器移除物件 &apos;[OBJ_NAME]&apos;。
+		權限系統不允許從模擬器移除物件&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;。
 	</notification>
 	<notification name="NoModNoSaveSelection">
-		無法儲存你所選的，因為你無權修改 &apos;[OBJ_NAME]&apos; 物件。
+		無法儲存你所選的，因為你無權修改&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;物件。
 	</notification>
 	<notification name="NoCopyNoSaveSelection">
-		無法儲存你所選的，因為物件 &apos;[OBJ_NAME]&apos; 不可複製。
+		無法儲存你所選的，因為物件&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;不可複製。
 	</notification>
 	<notification name="NoModNoTaking">
-		無法拿取你所選的，因為你無權修改 &apos;[OBJ_NAME]&apos; 物件。
+		無法取用你所選的，因為你無權修改物件&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;。
 	</notification>
 	<notification name="RezDestInternalError">
 		內部錯誤：未知的目的地類型。
