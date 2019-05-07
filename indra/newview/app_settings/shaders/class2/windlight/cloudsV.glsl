@@ -101,7 +101,8 @@ void main()
     vec4 temp2 = vec4(0.);
     vec4 blue_weight;
     vec4 haze_weight;
-    vec4 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
+    //vec4 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
+    vec4 sunlight = sunlight_color;
     vec4 light_atten;
 
     float dens_mul = density_multiplier;

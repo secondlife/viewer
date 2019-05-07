@@ -99,7 +99,8 @@ void main()
 	vec4 temp2 = vec4(0.);
 	vec4 blue_weight;
 	vec4 haze_weight;
-	vec4 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
+	//vec4 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
+	vec4 sunlight = sunlight_color;
 	vec4 light_atten;
 
     float dens_mul = density_multiplier * 0.45;
@@ -156,8 +157,6 @@ void main()
 			 );	
 
 	// CLOUDS
-
-	sunlight = sunlight_color;
 	temp2.y = max(0., lightnorm.y * 2.);
 	temp2.y = 1. / temp2.y;
 	sunlight *= exp( - light_atten * temp2.y);

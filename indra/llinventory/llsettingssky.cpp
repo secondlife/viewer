@@ -953,21 +953,8 @@ void LLSettingsSky::updateSettings()
 
 F32 LLSettingsSky::getSunMoonGlowFactor() const
 {
-    // sun glow at full iff moon is not up
-    if (getIsSunUp())
-    {
-        if (!getIsMoonUp())
-        {
-            return 1.0f;
-        }
-    }
-
-    if (getIsMoonUp())
-    {
-        return 0.25f;
-    }
-
-    return 0.0f;
+    return getIsSunUp()  ? 1.0f  :
+           getIsMoonUp() ? getMoonBrightness() * 0.25 : 0.0f;
 }
 
 bool LLSettingsSky::getIsSunUp() const
@@ -1302,7 +1289,7 @@ void LLSettingsSky::calculateLightSettings() const
 
     mMoonDiffuse  = gammaCorrect(componentMult(moonlight, light_transmittance) * moon_brightness);
     mMoonAmbient  = gammaCorrect(componentMult(moonlight_b, light_transmittance) * 0.0125f);
-    mTotalAmbient = mSunAmbient + mMoonAmbient;
+    mTotalAmbient = mSunAmbient;
 }
 
 LLUUID LLSettingsSky::GetDefaultAssetId()
