@@ -153,6 +153,10 @@ vec3 post_diffuse = color.rgb;
        
  vec3 post_spec = color.rgb;
  
+#ifndef WATER_FOG
+        color.rgb += diffuse_srgb.a * diffuse_srgb.rgb;
+#endif
+
         if (envIntensity > 0.0)
         { //add environmentmap
             vec3 env_vec = env_mat * refnormpersp;
