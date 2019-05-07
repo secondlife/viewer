@@ -2877,7 +2877,14 @@ bool LLAppViewer::initConfiguration()
 // keeps growing, necessitating a method all its own.
 void LLAppViewer::initStrings()
 {
-	LLTransUtil::parseStrings("strings.xml", default_trans_args);
+	std::string strings_file = "strings.xml";
+	std::string strings_path_full = gDirUtilp->findSkinnedFilenameBaseLang(LLDir::XUI, strings_file);
+	if (strings_path_full.empty() || !LLFile::isfile(strings_path_full))
+	{
+		// initial check to make sure files are there failed
+		LL_ERRS() << "Viewer failed to find localization and UI files. Please reinstall viewer from  https://secondlife.com/support/downloads/ and contact https://support.secondlife.com if issue persists after reinstall." << LL_ENDL;
+	}
+	LLTransUtil::parseStrings(strings_file, default_trans_args);
 	LLTransUtil::parseLanguageStrings("language_settings.xml");
 
 	// parseStrings() sets up the LLTrans substitution table. Add this one item.
