@@ -110,9 +110,9 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
             
             float w = 1.0;
             w -= max(spos.z-far_split.z, 0.0)/transition_domain.z;
-            w = clamp(w, 0.0, 1.0);
+            //w = clamp(w, 0.0, 1.0);
             float contrib = pcfShadow(shadowMap3, norm, lpos, 1.0, pos_screen, light_dir)*w;
-            if (contrib > 0)
+            //if (contrib > 0)
             {
                 shadow += contrib;
                 weight += w;
@@ -127,9 +127,9 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
             float w = 1.0;
             w -= max(spos.z-far_split.y, 0.0)/transition_domain.y;
             w -= max(near_split.z-spos.z, 0.0)/transition_domain.z;
-            w = clamp(w, 0.0, 1.0);
+            //w = clamp(w, 0.0, 1.0);
             float contrib = pcfShadow(shadowMap2, norm, lpos, 1.0, pos_screen, light_dir)*w;
-            if (contrib > 0)
+            //if (contrib > 0)
             {
                 shadow += contrib;
                 weight += w;
@@ -143,9 +143,9 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
             float w = 1.0;
             w -= max(spos.z-far_split.x, 0.0)/transition_domain.x;
             w -= max(near_split.y-spos.z, 0.0)/transition_domain.y;
-            w = clamp(w, 0.0, 1.0);
+            //w = clamp(w, 0.0, 1.0);
             float contrib = pcfShadow(shadowMap1, norm, lpos, 1.0, pos_screen, light_dir)*w;
-            if (contrib > 0)
+            //if (contrib > 0)
             {
                 shadow += contrib;
                 weight += w;
@@ -158,9 +158,9 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
                             
             float w = 1.0;
             w -= max(near_split.x-spos.z, 0.0)/transition_domain.x;
-            w = clamp(w, 0.0, 1.0);
+            //w = clamp(w, 0.0, 1.0);
             float contrib = pcfShadow(shadowMap0, norm, lpos, 1.0, pos_screen, light_dir)*w;
-            if (contrib > 0)
+            //if (contrib > 0)
             {
                 shadow += contrib;
                 weight += w;
