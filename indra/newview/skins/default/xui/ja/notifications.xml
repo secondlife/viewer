@@ -244,6 +244,10 @@
 		注意：このオプションを有効にすると、このパソコンを使うユーザーは誰でも、あなたのお気に入りの場所を見ることができるようになります。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="AllowMultipleViewers">
+		複数の Second Life ビューワを実行することはサポートされていません。テクスチャキャッシュのコリジョンや破損、およびビジュアルとパフォーマンスの低下につながる恐れがあります。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="GrantModifyRights">
 		他人に修正権限を与えると、権限を与えられた人はあなたが所有するインワールドのオブジェクトを変更、削除、持ち帰ることができます。この権限を与える際には十分に注意してください。
 [NAME] に修正権限を与えますか？
@@ -735,7 +739,9 @@ L$ が不足しているのでこのグループに参加することができ�
 		あなたには [PARCEL] 区画を地形編集する許可がありません。
 	</notification>
 	<notification name="CannotCopyWarning">
-		あなたには[ITEMS]というアイテムをコピーする許可がありません。他の住人に提供すると、そのアイテムはあなたのインベントリから削除されます。本当にこれらのアイテムを譲りますか？
+		あなたには次アイテムをコピーする権限がありません： 
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt; 
+他の住人に譲ると、そのアイテムはあなたの持ち物から削除されます。本当にこれらのアイテムを譲りますか？
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="CannotGiveItem">
@@ -1638,8 +1644,24 @@ SHA1 フィンガープリント： [MD5_DIGEST]
 [DOWNLOAD_PATH]
 	</notification>
 	<notification name="RequiredUpdate">
-		ログインするには、バージョン [VERSION] が必要です。このアップデートは自動的に行われるものですが、まだ実行されてないようです。https://secondlife.com/support/downloads/ からダウンロードしてください。
+		ログインするには、バージョン [VERSION] が必要です。
+https://secondlife.com/support/downloads/ からダウンロードしてください。
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PauseForUpdate">
+		ログインするには、バージョン [VERSION] が必要です。
+[OK] をクリックして、ダウンロードとインストールを開始します。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OptionalUpdateReady">
+		バージョン [VERSION] のダウンロードが完了し、インストールの準備ができました。
+[OK] をクリックして、インストールを開始します。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PromptOptionalUpdate">
+		バージョン [VERSION] のダウンロードが完了し、インストールの準備ができました。
+続けますか？
+		<usetemplate canceltext="あとで" name="yesnocancelbuttons" notext="スキップ" yestext="インストール"/>
 	</notification>
 	<notification name="LoginFailedUnknown">
 		申し訳ありませんが、不明な理由によってログインに失敗しました。このメッセージが何度も出る場合は、[SUPPORT_SITE] をご確認ください。
@@ -3116,15 +3138,6 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 			<button name="Deny" text="拒否"/>
 		</form>
 	</notification>
-	<notification name="UnknownScriptQuestion">
-		&apos;[NAME]&apos; が所有する &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; によってリクエストされたランタイムスクリプト権限がビューアによって認識されないため、許可できません。
-
-この権限を許可するには、ビューアを [DOWNLOADURL] からの最新バージョンにアップデートしてください。
-		<form name="form">
-			<button name="Deny" text="Ok"/>
-			<button name="Mute" text="ブロック"/>
-		</form>
-	</notification>
 	<notification name="ScriptDialog">
 		[NAME] の「&lt;nolink&gt;[TITLE]&lt;/nolink&gt;」
 [MESSAGE]
@@ -3788,13 +3801,13 @@ M キーを押して変更します。
 		所有していない土地に木や草を植えることはできません。
 	</notification>
 	<notification name="NoCopyPermsNoObject">
-		オブジェクト &apos;[OBJ_NAME]&apos; をコピーする権限がないため、コピーに失敗しました。
+		あなたにはオブジェクト &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; をコピーする権限がないため、コピーに失敗しました。
 	</notification>
 	<notification name="NoTransPermsNoObject">
-		オブジェクト &apos;[OBJ_NAME]&apos; をあなたに転送できないため、コピーに失敗しました。
+		オブジェクト &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; はあなたに譲渡できないため、コピーに失敗しました。
 	</notification>
 	<notification name="AddToNavMeshNoCopy">
-		オブジェクト &apos;[OBJ_NAME]&apos; がナビメッシュに貢献しているため、コピーに失敗しました。
+		オブジェクト &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; は navmesh に関連があるため、コピーに失敗しました。
 	</notification>
 	<notification name="DupeWithNoRootsSelected">
 		ルートオブジェクトを選択せずに複製します。
@@ -3839,34 +3852,34 @@ M キーを押して変更します。
 		「「持ち物」に保存」が無効になっています。
 	</notification>
 	<notification name="NoExistNoSaveToContents">
-		&apos;[OBJ_NAME]&apos; の Rez 元であるオブジェクトが存在しないため、このオブジェクトをオブジェクトコンテンツに保存できません。
+		「存在しません」から rez されたため、&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; をオブジェクトの中身に保存できませんでした。
 	</notification>
 	<notification name="NoModNoSaveToContents">
-		オブジェクト &apos;[DEST_NAME]&apos; を修正する権限がないため、オブジェクトのコンテンツに &apos;[OBJ_NAME]&apos; を保存できません。
+		あなたにはオブジェクト &lt;nolink&gt;&apos;[DEST_NAME]&apos;&lt;/nolink&gt; を修正する権限がないため、&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;をオブジェクトの中身に保存できませんでした。
 	</notification>
 	<notification name="NoSaveBackToInvDisabled">
-		インベントリに &apos;[OBJ_NAME]&apos; を保存することはできません - この操作が無効になっています。
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; をインベントリに保存できません。この操作は無効になりました。
 	</notification>
 	<notification name="NoCopyNoSelCopy">
-		オブジェクト &apos;[OBJ_NAME]&apos; を変更する権限を持っていないため、選択したものをコピーできません。
+		あなたにはオブジェクト &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; をコピーする権限がないため、選択内容をコピーできません。
 	</notification>
 	<notification name="NoTransNoSelCopy">
-		オブジェクト &apos;[OBJ_NAME]&apos; を転送できないため、選択したものをコピーできません。
+		オブジェクト &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; を譲渡できないため、選択内容をコピーできません。
 	</notification>
 	<notification name="NoTransNoCopy">
-		オブジェクト &apos;[OBJ_NAME]&apos; を転送できないため、選択したものをコピーできません。
+		オブジェクト &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; を譲渡できないため、選択内容をコピーできません。
 	</notification>
 	<notification name="NoPermsNoRemoval">
-		シミュレータからのオブジェクト &apos;[OBJ_NAME]&apos; の削除は、権限システムによって無効にされています。
+		オブジェクト &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; をシミュレーターから削除することは、権限のシステムにより許可されていません。
 	</notification>
 	<notification name="NoModNoSaveSelection">
-		オブジェクト &apos;[OBJ_NAME]&apos; を変更する権限を持っていないため、選択したものを保存できません。
+		あなたにはオブジェクト &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; を修正する権限がないため、選択内容を保存できません。
 	</notification>
 	<notification name="NoCopyNoSaveSelection">
-		オブジェクト &apos;[OBJ_NAME]&apos; をコピーできないため、選択したものを保存できません。
+		オブジェクト &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; はコピー不可なため、選択内容を保存できません。
 	</notification>
 	<notification name="NoModNoTaking">
-		オブジェクト &apos;[OBJ_NAME]&apos; を変更する権限を持っていないため、選択したものを取得できません。
+		あなたにはオブジェクト &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; を修正する権限がないため、選択内容を選ぶことはできません。
 	</notification>
 	<notification name="RezDestInternalError">
 		内部エラー: 不明な宛先タイプ。

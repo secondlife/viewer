@@ -244,6 +244,10 @@ Wählen Sie ein einzelnes Objekt aus und versuchen Sie es erneut.
 		Hinweis: Bei Aktivierung dieser Option sehen alle Personen, die diesen Computer benutzen, Ihre Lieblingsorte.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="AllowMultipleViewers">
+		Das Starten mehrerer Second Life Viewer wird nicht unterstützt. Dies kann zu Kollisionen des Textur-Caches, Fehlern sowie verschlechterter Grafik und Leistung führen.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="GrantModifyRights">
 		Wenn Sie einem anderen Einwohner Änderungsrechte gewähren, dann kann dieser JEDES Objekt, das Sie inworld besitzen, ändern, löschen oder an sich nehmen. Seien Sie daher beim Gewähren dieser Rechte sehr vorsichtig!
 Möchten Sie [NAME] Änderungsrechte gewähren?
@@ -725,9 +729,9 @@ Sie können die Grafikqualität unter Einstellungen &gt; Grafik wieder erhöhen.
 		Sie sind nicht zum Terraformen der Parzelle „[PARCEL]“ berechtigt.
 	</notification>
 	<notification name="CannotCopyWarning">
-		Sie sind nicht berechtigt, die folgenden Objekte zu kopieren:
-[ITEMS]
-Wenn Sie diese weitergeben, werden sie aus Ihrem Inventar entfernt. Möchten Sie diese Objekte wirklich weggeben?
+		Sie sind nicht berechtigt, die folgenden Objekte zu kopieren: 
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+und die Objekte werden aus Ihrem Inventar gelöscht, wenn Sie diese weggeben. Möchten Sie diese Objekte wirklich weggeben?
 		<usetemplate name="okcancelbuttons" notext="Nein" yestext="Ja"/>
 	</notification>
 	<notification name="CannotGiveItem">
@@ -1623,8 +1627,24 @@ Geben Sie das Objekt zum Verkauf frei und versuchen Sie es erneut.
 [DOWNLOAD_PATH].
 	</notification>
 	<notification name="RequiredUpdate">
-		Für die Anmeldung ist Version [VERSION] erforderlich. Diese sollte für Sie aktualisiert worden sein, was offenbar nicht geschehen ist. Bitte laden Sie die Datei unter https://secondlife.com/support/downloads/ herunter.
+		Für die Anmeldung ist Version [VERSION] erforderlich. 
+Bitte laden Sie die Datei unter https://secondlife.com/support/downloads/ herunter.
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PauseForUpdate">
+		Für die Anmeldung ist Version [VERSION] erforderlich. 
+Klicken Sie zum Herunterladen und Installieren auf OK.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OptionalUpdateReady">
+		Version [VERSION] wurde heruntergeladen und ist bereit zur Installation. 
+Klicken Sie zur Installation auf OK.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PromptOptionalUpdate">
+		Version [VERSION] wurde heruntergeladen und ist bereit zur Installation. 
+Fortfahren?
+		<usetemplate canceltext="Nicht jetzt" name="yesnocancelbuttons" notext="Überspringen" yestext="Installieren"/>
 	</notification>
 	<notification name="LoginFailedUnknown">
 		Die Anmeldung ist aus nicht bekannten Gründen leider fehlgeschlagen. Falls diese Meldung weiterhin angezeigt wird, besuchen Sie bitte die [SUPPORT_SITE].
@@ -3087,15 +3107,6 @@ Gewähren Sie dem Objekt nur dann Zugriff, wenn Sie genau verstehen, wieso ein s
 			<button name="Deny" text="Verweigern"/>
 		</form>
 	</notification>
-	<notification name="UnknownScriptQuestion">
-		Die Runtime-Skript-Berechtigung, die von „&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;“ (Besitzer: „[NAME]“) angefordert wurde, wird vom Viewer nicht erkannt und kann nicht gewährt werden.
-
-Um diese Berechtigung zu gewähren, laden Sie die neueste Version des Viewers von [DOWNLOADURL] herunter.
-		<form name="form">
-			<button name="Deny" text="OK"/>
-			<button name="Mute" text="Blockieren"/>
-		</form>
-	</notification>
 	<notification name="ScriptDialog">
 		„&lt;nolink&gt;[TITLE]&lt;/nolink&gt;“ von [NAME]
 [MESSAGE]
@@ -3759,13 +3770,13 @@ es sich nicht in der gleichen Region befindet wie Sie.
 		Auf Land, das Sie nicht besitzen, können Sie keine Bäume und Gräser erstellen.
 	</notification>
 	<notification name="NoCopyPermsNoObject">
-		Kopieren fehlgeschlagen, da Sie keine Berechtigung zum Kopieren des Objekts „OBJ_NAME]“ besitzen.
+		Kopieren fehlgeschlagen, da Sie nicht über die Berechtigung zum Kopieren des Objekts &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; verfügen.
 	</notification>
 	<notification name="NoTransPermsNoObject">
-		Kopieren fehlgeschlagen, weil Objekt „[OBJ_NAME]“ nicht an Sie übertragen werden kann.
+		Kopieren fehlgeschlagen, da das Objekt &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nicht an Sie übertragen werden kann.
 	</notification>
 	<notification name="AddToNavMeshNoCopy">
-		Kopieren fehlgeschlagen, weil Objekt „[OBJ_NAME]“ zum Navmesh beiträgt.
+		Kopieren fehlgeschlagen, da das Objekt &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; zum Navmesh beiträgt.
 	</notification>
 	<notification name="DupeWithNoRootsSelected">
 		Ohne ausgewählte Hauptobjekte duplizieren.
@@ -3810,34 +3821,34 @@ Warten Sie kurz und versuchen Sie es noch einmal.
 		Erneutes Speichern im Inventar ist deaktiviert.
 	</notification>
 	<notification name="NoExistNoSaveToContents">
-		„[OBJ_NAME]“ kann nicht im Objektinhalt gespeichert werden, da das Objekt, aus dem es gerezzt wurde, nicht mehr existiert.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; kann nicht im Objektinhalt gespeichert werden, da das Objekt, aus dem es gerezzt wurde, nicht mehr existiert.
 	</notification>
 	<notification name="NoModNoSaveToContents">
-		„[OBJ_NAME]“ kann nicht in Objektinhalt gespeichert werden, da Sie nicht die Berechtigung zum Modifizieren des Objekts „[DEST_NAME]“ besitzen.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; kann nicht in Objektinhalt gespeichert werden, da Sie nicht über die Berechtigung zum Modifizieren des Objekts &lt;nolink&gt;&apos;[DEST_NAME]&apos;&lt;/nolink&gt; verfügen.
 	</notification>
 	<notification name="NoSaveBackToInvDisabled">
-		„[OBJ_NAME]“ kann nicht erneut im Inventar gespeichert werden – dieser Vorgang wurde deaktiviert.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; kann nicht erneut im Inventar gespeichert werden – dieser Vorgang wurde deaktiviert.
 	</notification>
 	<notification name="NoCopyNoSelCopy">
-		Sie können Ihre Auswahl nicht kopieren, da Sie nicht die Berechtigung zum Kopieren des Objekts „[OBJ_NAME]“ haben.
+		Sie können Ihre Auswahl nicht kopieren, da Sie nicht über die Berechtigung zum Kopieren des Objekts &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; verfügen.
 	</notification>
 	<notification name="NoTransNoSelCopy">
-		Sie können Ihre Auswahl nicht kopieren, da das Objekt „[OBJ_NAME]“ nicht übertragbar ist.
+		Sie können Ihre Auswahl nicht kopieren, da das Objekt &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nicht übertragbar ist.
 	</notification>
 	<notification name="NoTransNoCopy">
-		Sie können Ihre Auswahl nicht kopieren, da das Objekt „[OBJ_NAME]“ nicht übertragbar ist.
+		Sie können Ihre Auswahl nicht kopieren, da das Objekt &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nicht übertragbar ist.
 	</notification>
 	<notification name="NoPermsNoRemoval">
-		Entfernen des Objekts „[OBJ_NAME]“ aus dem Simulator wird vom Berechtigungssystem nicht gestattet.
+		Entfernen des Objekts &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; aus dem Simulator wird vom Berechtigungssystem nicht gestattet.
 	</notification>
 	<notification name="NoModNoSaveSelection">
-		Sie können Ihre Auswahl nicht speichern, da Sie keine Berechtigung zum Modifizieren des Objekts „[OBJ_NAME]“ besitzen.
+		Sie können Ihre Auswahl nicht speichern, da Sie nicht über die Berechtigung zum Modifizieren des Objekts &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; verfügen.
 	</notification>
 	<notification name="NoCopyNoSaveSelection">
-		Ihre Auswahl kann nicht gespeichert werden, da das Objekt „[OBJ_NAME]“ nicht kopiert werden kann.
+		Ihre Auswahl kann nicht gespeichert werden, da das Objekt &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nicht kopiert werden kann.
 	</notification>
 	<notification name="NoModNoTaking">
-		Sie können Ihre Auswahl nicht in Empfang nehmen, da Sie nicht die Berechtigung zum Modifizieren des Objekts „[OBJ_NAME]“ haben.
+		Sie können Ihre Auswahl nicht in Empfang nehmen, da Sie nicht über die Berechtigung zum Modifizieren des Objekts &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; verfügen.
 	</notification>
 	<notification name="RezDestInternalError">
 		Interner Fehler: Unbekannter Zielttyp.

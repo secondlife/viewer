@@ -34,7 +34,7 @@
 #include <boost/thread.hpp>
 #include <boost/intrusive_ptr.hpp>
 
-#include "llapr.h"
+#include "llatomic.h"
 
 
 namespace LLCoreInt

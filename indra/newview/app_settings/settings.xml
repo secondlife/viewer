@@ -5185,28 +5185,6 @@
       <key>Value</key>
         <real>0.25</real>
       </map>
-    <key>JpegDecoderType</key>
-    <map>
-      <key>Comment</key>
-        <string>Declare decoder to prefer if both are enabled, 0 == KDU, 1 == OpenJPEG</string>
-      <key>Persist</key>
-        <integer>1</integer>
-      <key>Type</key>
-        <string>S32</string>
-      <key>Value</key>
-        <integer>0</integer>
-	  </map>
-    <key>JpegEncoderType</key>
-    <map>
-      <key>Comment</key>
-        <string>Declare encoder to prefer for uploads, if both are enabled, 0 == KDU, 1 == OpenJPEG</string>
-      <key>Persist</key>
-        <integer>1</integer>
-      <key>Type</key>
-        <string>S32</string>
-      <key>Value</key>
-        <integer>0</integer>
-	  </map>
 	<key>Jpeg2000AdvancedCompression</key>
 	  <map>
       <key>Comment</key>
@@ -5690,7 +5668,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>9</integer>
+      <integer>0</integer>
     </map>
     <key>LocalFileSystemBrowsingEnabled</key>
     <map>
@@ -11384,6 +11362,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>MenuSearch</key>
+    <map>
+      <key>Comment</key>
+      <string>Show/hide 'Search menus' field</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+  </map>
     <key>GroupListShowIcons</key>
     <map>
       <key>Comment</key>
@@ -13158,7 +13147,7 @@
     <key>LastSystemUIScaleFactor</key>
     <map>
       <key>Comment</key>
-      <string>Size of system UI during last run. On Windows 100% (96 DPI) system setting is 1.0 UI size</string>
+      <string>OBSOLETE: System UI scale factor is now automatically and independently from UIScaleFactor applied</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -14112,6 +14101,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>RegionCrossingInterpolationTime</key>
+    <map>
+      <key>Comment</key>
+      <string>How long to extrapolate object motion after crossing regions</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>VerboseLogs</key>
     <map>
       <key>Comment</key>
@@ -14122,8 +14122,7 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>VertexShaderEnable</key>
+</map><key>VertexShaderEnable</key>
     <map>
       <key>Comment</key>
       <string>Enable/disable all GLSL shaders (debug)</string>

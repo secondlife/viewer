@@ -4,7 +4,7 @@
 		Principais Scripts
 	</floater.string>
 	<floater.string name="top_scripts_text">
-		[COUNT] scripts tomando um total de [TIME] ms
+		[COUNT] scripts levam um total de [TIME] ms e usando [MEMORY] KB
 	</floater.string>
 	<floater.string name="scripts_score_label">
 		Tempo

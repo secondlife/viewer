@@ -34,9 +34,11 @@
 			<text name="LabelItemNameTitle">
 				Nome:
 			</text>
+			<line_editor name="LabelItemName" tool_tip="O nome está limitado em 63 caracteres. Nomes prim maior são cortados. Os nomes podem consistir em caracteres impressos encontrados no conjunto de caracteres ASCII-7 (não estendido), com a exceção da barra/tupo vertical ‘|’."/>
 			<text name="LabelItemDescTitle">
 				Descrição:
 			</text>
+			<line_editor name="LabelItemDesc" tool_tip="Quando as pessoas selecionam &apos;Passe o mouse em todos os objetos’ na configuração de visualização, eles verão a descrição dos objetos em uma janela pop-up sempre que passar o mouse por cima. A descrição prim é limitada em 127 bytes, qualquer string maior ficará truncada."/>
 			<text name="LabelCreatorTitle">
 				Criador:
 			</text>
@@ -59,7 +61,7 @@
 				<text name="AnyoneLabel">
 					Todos:
 				</text>
-				<check_box label="Copiar" name="CheckEveryoneCopy"/>
+				<check_box label="Copiar" name="CheckEveryoneCopy" tool_tip="Qualquer um pode fazer uma cópia do objeto. O objeto e todos os conteúdos devem ter permissão para cópia e transferência."/>
 				<text name="GroupLabel">
 					Grupo:
 				</text>
@@ -67,17 +69,17 @@
 				<text name="NextOwnerLabel">
 					Próximo proprietário:
 				</text>
-				<check_box label="Modificar" name="CheckNextOwnerModify"/>
-				<check_box label="Copiar" name="CheckNextOwnerCopy"/>
+				<check_box label="Modificar" name="CheckNextOwnerModify" tool_tip="O próximo proprietário pode editar as propriedades, como o nome do item ou escala desse objeto."/>
+				<check_box label="Copiar" name="CheckNextOwnerCopy" tool_tip="O próximo proprietário pode fazer cópias ilimitadas desse objeto. As cópias mantêm as informações do criador e nunca podem ser mais permissivo do que o item copiado."/>
 				<check_box label="Transferir" name="CheckNextOwnerTransfer" tool_tip="O próximo dono poderá revender ou dar este objeto"/>
 			</panel>
-			<check_box label="À venda" name="CheckPurchase"/>
-			<combo_box name="ComboBoxSaleType">
+			<check_box label="À venda" name="CheckPurchase" tool_tip="Permita que as pessoas comprem esse objeto, seu conteúdo ou copiá-lo no mundo virtual por um preço específico."/>
+			<combo_box name="ComboBoxSaleType" tool_tip="Selecione se o comprador receberá uma cópia. A cópia do conteúdo ou o próprio item.">
 				<combo_box.item label="Cortar" name="Copy"/>
 				<combo_box.item label="Conteúdo" name="Contents"/>
 				<combo_box.item label="Original" name="Original"/>
 			</combo_box>
-			<spinner label="Preço: L$" name="Edit Cost"/>
+			<spinner label="Preço: L$" name="Edit Cost" tool_tip="Custo do objeto."/>
 		</panel>
 	</scroll_container>
 	<panel name="button_panel">

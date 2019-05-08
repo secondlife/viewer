@@ -117,6 +117,8 @@
 #include "llfeaturemanager.h"
 #include "llviewertexturelist.h"
 
+#include "llsearchableui.h"
+
 const F32 BANDWIDTH_UPDATER_TIMEOUT = 0.5f;
 char const* const VISIBILITY_DEFAULT = "default";
 char const* const VISIBILITY_HIDDEN = "hidden";
@@ -135,6 +137,25 @@ static const F32 MAX_ARC_LIMIT = 350000.0f;
 static const F32 MIN_ARC_LOG = log(MIN_ARC_LIMIT);
 static const F32 MAX_ARC_LOG = log(MAX_ARC_LIMIT);
 static const F32 ARC_LIMIT_MAP_SCALE = (MAX_ARC_LOG - MIN_ARC_LOG) / (MAX_INDIRECT_ARC_LIMIT - MIN_INDIRECT_ARC_LIMIT);
+
+struct LabelDef : public LLInitParam::Block<LabelDef>
+{
+    Mandatory<std::string> name;
+    Mandatory<std::string> value;
+
+    LabelDef()
+        : name("name"),
+        value("value")
+    {}
+};
+
+struct LabelTable : public LLInitParam::Block<LabelTable>
+{
+    Multiple<LabelDef> labels;
+    LabelTable()
+        : labels("label")
+    {}
+};
 
 class LLVoiceSetKeyDialog : public LLModalDialog
 {
@@ -393,6 +414,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 
 	mCommitCallbackRegistrar.add("Pref.ClearLog",				boost::bind(&LLConversationLog::onClearLog, &LLConversationLog::instance()));
 	mCommitCallbackRegistrar.add("Pref.DeleteTranscripts",      boost::bind(&LLFloaterPreference::onDeleteTranscripts, this));
+	mCommitCallbackRegistrar.add("UpdateFilter", boost::bind(&LLFloaterPreference::onUpdateFilterTerm, this, false)); // <FS:ND/> Hook up for filtering
 }
 
 void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType type )
@@ -506,7 +528,33 @@ BOOL LLFloaterPreference::postBuild()
 	LLSliderCtrl* fov_slider = getChild<LLSliderCtrl>("camera_fov");
 	fov_slider->setMinValue(LLViewerCamera::getInstance()->getMinView());
 	fov_slider->setMaxValue(LLViewerCamera::getInstance()->getMaxView());
+	
+	// Hook up and init for filtering
+	mFilterEdit = getChild<LLSearchEditor>("search_prefs_edit");
+	mFilterEdit->setKeystrokeCallback(boost::bind(&LLFloaterPreference::onUpdateFilterTerm, this, false));
 
+	// Load and assign label for 'default language'
+	std::string user_filename = gDirUtilp->getExpandedFilename(LL_PATH_DEFAULT_SKIN, "default_languages.xml");
+	std::map<std::string, std::string> labels;
+	if (loadFromFilename(user_filename, labels))
+	{
+		std::string system_lang = gSavedSettings.getString("SystemLanguage");
+		std::map<std::string, std::string>::iterator iter = labels.find(system_lang);
+		if (iter != labels.end())
+		{
+			getChild<LLComboBox>("language_combobox")->add(iter->second, LLSD("default"), ADD_TOP, true);
+		}
+		else
+		{
+			LL_WARNS() << "Language \"" << system_lang << "\" is not in default_languages.xml" << LL_ENDL;
+			getChild<LLComboBox>("language_combobox")->add("System default", LLSD("default"), ADD_TOP, true);
+		}
+	}
+	else
+	{
+		LL_WARNS() << "Failed to load labels from " << user_filename << ". Using default." << LL_ENDL;
+		getChild<LLComboBox>("language_combobox")->add("System default", LLSD("default"), ADD_TOP, true);
+	}
 
 	return TRUE;
 }
@@ -786,6 +834,13 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	save_btn->setEnabled(started);
 	delete_btn->setEnabled(started);
 	exceptions_btn->setEnabled(started);
+
+	collectSearchableItems();
+	if (!mFilterEdit->getText().empty())
+	{
+		mFilterEdit->setText(LLStringExplicit(""));
+		onUpdateFilterTerm(true);
+	}
 }
 
 void LLFloaterPreference::onVertexShaderEnable()
@@ -1966,6 +2021,45 @@ void LLFloaterPreference::updateMaxComplexity()
         getChild<LLTextBox>("IndirectMaxComplexityText"));
 }
 
+bool LLFloaterPreference::loadFromFilename(const std::string& filename, std::map<std::string, std::string> &label_map)
+{
+    LLXMLNodePtr root;
+
+    if (!LLXMLNode::parseFile(filename, root, NULL))
+    {
+        LL_WARNS() << "Unable to parse file " << filename << LL_ENDL;
+        return false;
+    }
+
+    if (!root->hasName("labels"))
+    {
+        LL_WARNS() << filename << " is not a valid definition file" << LL_ENDL;
+        return false;
+    }
+
+    LabelTable params;
+    LLXUIParser parser;
+    parser.readXUI(root, params, filename);
+
+    if (params.validateBlock())
+    {
+        for (LLInitParam::ParamIterator<LabelDef>::const_iterator it = params.labels.begin();
+            it != params.labels.end();
+            ++it)
+        {
+            LabelDef label_entry = *it;
+            label_map[label_entry.name] = label_entry.value;
+        }
+    }
+    else
+    {
+        LL_WARNS() << filename << " failed to load" << LL_ENDL;
+        return false;
+    }
+
+    return true;
+}
+
 void LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity()
 {
 	// Called when the IndirectMaxComplexity control changes
@@ -2329,6 +2423,7 @@ BOOL LLPanelPreference::postBuild()
 	if (hasChild("mute_chb_label", TRUE))
 	{
 		getChild<LLTextBox>("mute_chb_label")->setShowCursorHand(false);
+		getChild<LLTextBox>("mute_chb_label")->setSoundFlags(LLView::MOUSE_UP);
 		getChild<LLTextBox>("mute_chb_label")->setClickedCallback(boost::bind(&toggleMuteWhenMinimized));
 	}
 
@@ -2452,6 +2547,11 @@ void LLPanelPreference::toggleMuteWhenMinimized()
 {
 	std::string mute("MuteWhenMinimized");
 	gSavedSettings.setBOOL(mute, !gSavedSettings.getBOOL(mute));
+	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+	if (instance)
+	{
+		instance->getChild<LLCheckBoxCtrl>("mute_when_minimized")->setBtnFocus();
+	}
 }
 
 void LLPanelPreference::cancel()
@@ -2599,6 +2699,11 @@ void LLPanelPreferenceGraphics::onPresetsListChange()
 	if (instance && !gSavedSettings.getString("PresetGraphicActive").empty())
 	{
 		instance->saveSettings(); //make cancel work correctly after changing the preset
+	}
+	else
+	{
+		std::string dummy;
+		instance->saveGraphicsPreset(dummy);
 	}
 }
 
@@ -2977,3 +3082,109 @@ void LLFloaterPreferenceProxy::onChangeSocksSettings()
 
 }
 
+void LLFloaterPreference::onUpdateFilterTerm(bool force)
+{
+	LLWString seachValue = utf8str_to_wstring( mFilterEdit->getValue() );
+	LLWStringUtil::toLower( seachValue );
+
+	if( !mSearchData || (mSearchData->mLastFilter == seachValue && !force))
+		return;
+
+	mSearchData->mLastFilter = seachValue;
+
+	if( !mSearchData->mRootTab )
+		return;
+
+	mSearchData->mRootTab->hightlightAndHide( seachValue );
+	LLTabContainer *pRoot = getChild< LLTabContainer >( "pref core" );
+	if( pRoot )
+		pRoot->selectFirstTab();
+}
+
+void collectChildren( LLView const *aView, ll::prefs::PanelDataPtr aParentPanel, ll::prefs::TabContainerDataPtr aParentTabContainer )
+{
+	if( !aView )
+		return;
+
+	llassert_always( aParentPanel || aParentTabContainer );
+
+	LLView::child_list_const_iter_t itr = aView->beginChild();
+	LLView::child_list_const_iter_t itrEnd = aView->endChild();
+
+	while( itr != itrEnd )
+	{
+		LLView *pView = *itr;
+		ll::prefs::PanelDataPtr pCurPanelData = aParentPanel;
+		ll::prefs::TabContainerDataPtr pCurTabContainer = aParentTabContainer;
+		if( !pView )
+			continue;
+		LLPanel const *pPanel = dynamic_cast< LLPanel const *>( pView );
+		LLTabContainer const *pTabContainer = dynamic_cast< LLTabContainer const *>( pView );
+		ll::ui::SearchableControl const *pSCtrl = dynamic_cast< ll::ui::SearchableControl const *>( pView );
+
+		if( pTabContainer )
+		{
+			pCurPanelData.reset();
+
+			pCurTabContainer = ll::prefs::TabContainerDataPtr( new ll::prefs::TabContainerData );
+			pCurTabContainer->mTabContainer = const_cast< LLTabContainer *>( pTabContainer );
+			pCurTabContainer->mLabel = pTabContainer->getLabel();
+			pCurTabContainer->mPanel = 0;
+
+			if( aParentPanel )
+				aParentPanel->mChildPanel.push_back( pCurTabContainer );
+			if( aParentTabContainer )
+				aParentTabContainer->mChildPanel.push_back( pCurTabContainer );
+		}
+		else if( pPanel )
+		{
+			pCurTabContainer.reset();
+
+			pCurPanelData = ll::prefs::PanelDataPtr( new ll::prefs::PanelData );
+			pCurPanelData->mPanel = pPanel;
+			pCurPanelData->mLabel = pPanel->getLabel();
+
+			llassert_always( aParentPanel || aParentTabContainer );
+
+			if( aParentTabContainer )
+				aParentTabContainer->mChildPanel.push_back( pCurPanelData );
+			else if( aParentPanel )
+				aParentPanel->mChildPanel.push_back( pCurPanelData );
+		}
+		else if( pSCtrl && pSCtrl->getSearchText().size() )
+		{
+			ll::prefs::SearchableItemPtr item = ll::prefs::SearchableItemPtr( new ll::prefs::SearchableItem() );
+			item->mView = pView;
+			item->mCtrl = pSCtrl;
+
+			item->mLabel = utf8str_to_wstring( pSCtrl->getSearchText() );
+			LLWStringUtil::toLower( item->mLabel );
+
+			llassert_always( aParentPanel || aParentTabContainer );
+
+			if( aParentPanel )
+				aParentPanel->mChildren.push_back( item );
+			if( aParentTabContainer )
+				aParentTabContainer->mChildren.push_back( item );
+		}
+		collectChildren( pView, pCurPanelData, pCurTabContainer );
+		++itr;
+	}
+}
+
+void LLFloaterPreference::collectSearchableItems()
+{
+	mSearchData.reset( nullptr );
+	LLTabContainer *pRoot = getChild< LLTabContainer >( "pref core" );
+	if( mFilterEdit && pRoot )
+	{
+		mSearchData.reset(new ll::prefs::SearchData() );
+
+		ll::prefs::TabContainerDataPtr pRootTabcontainer = ll::prefs::TabContainerDataPtr( new ll::prefs::TabContainerData );
+		pRootTabcontainer->mTabContainer = pRoot;
+		pRootTabcontainer->mLabel = pRoot->getLabel();
+		mSearchData->mRootTab = pRootTabcontainer;
+
+		collectChildren( this, ll::prefs::PanelDataPtr(), pRootTabcontainer );
+	}
+}

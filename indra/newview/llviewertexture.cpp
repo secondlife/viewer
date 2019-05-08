@@ -98,7 +98,7 @@ const S32 MAX_CACHED_RAW_IMAGE_AREA = 64 * 64;
 const S32 DEFAULT_ICON_DIMENTIONS = 32;
 S32 LLViewerTexture::sMinLargeImageSize = 65536; //256 * 256.
 S32 LLViewerTexture::sMaxSmallImageSize = MAX_CACHED_RAW_IMAGE_AREA;
-BOOL LLViewerTexture::sFreezeImageScalingDown = FALSE;
+bool LLViewerTexture::sFreezeImageUpdates = false;
 F32 LLViewerTexture::sCurrentTime = 0.0f;
 F32  LLViewerTexture::sTexelPixelRatio = 1.0f;
 
@@ -467,6 +467,7 @@ void LLViewerTexture::initClass()
 // tuning params
 const F32 discard_bias_delta = .25f;
 const F32 discard_delta_time = 0.5f;
+const F32 GPU_MEMORY_CHECK_WAIT_TIME = 1.0f;
 // non-const (used externally
 F32 texmem_lower_bound_scale = 0.85f;
 F32 texmem_middle_bound_scale = 0.925f;
@@ -476,53 +477,68 @@ static LLTrace::BlockTimerStatHandle FTM_TEXTURE_MEMORY_CHECK("Memory Check");
 //static 
 bool LLViewerTexture::isMemoryForTextureLow()
 {
-	const F32 WAIT_TIME = 1.0f; //second
-	static LLFrameTimer timer;
+    // Note: we need to figure out a better source for 'min' values,
+    // what is free for low end at minimal settings is 'nothing left'
+    // for higher end gpus at high settings.
+    const S32Megabytes MIN_FREE_TEXTURE_MEMORY(20);
+    const S32Megabytes MIN_FREE_MAIN_MEMORY(100);
 
-	if(timer.getElapsedTimeF32() < WAIT_TIME) //call this once per second.
-	{
-		return false;
-	}
-	timer.reset();
+    S32Megabytes gpu;
+    S32Megabytes physical;
+    getGPUMemoryForTextures(gpu, physical);
 
-	LL_RECORD_BLOCK_TIME(FTM_TEXTURE_MEMORY_CHECK);
+    return (gpu < MIN_FREE_TEXTURE_MEMORY) || (physical < MIN_FREE_MAIN_MEMORY);
+}
 
-	const S32Megabytes MIN_FREE_TEXTURE_MEMORY(20); //MB Changed to 20 MB per MAINT-6882
-	const S32Megabytes MIN_FREE_MAIN_MEMORY(100); //MB	
+//static
+bool LLViewerTexture::isMemoryForTextureSuficientlyFree()
+{
+    const S32Megabytes DESIRED_FREE_TEXTURE_MEMORY(50);
+    const S32Megabytes DESIRED_FREE_MAIN_MEMORY(200);
 
-	bool low_mem = false;
-	if (gGLManager.mHasATIMemInfo)
-	{
-		S32 meminfo[4];
-		glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, meminfo);
+    S32Megabytes gpu;
+    S32Megabytes physical;
+    getGPUMemoryForTextures(gpu, physical);
 
-		if((S32Megabytes)meminfo[0] < MIN_FREE_TEXTURE_MEMORY)
-		{
-			low_mem = true;
-		}
+    return (gpu > DESIRED_FREE_TEXTURE_MEMORY) && (physical > DESIRED_FREE_MAIN_MEMORY);
+}
 
-		if(!low_mem) //check main memory, only works for windows.
-		{
-			LLMemory::updateMemoryInfo();
-			if(LLMemory::getAvailableMemKB() < MIN_FREE_TEXTURE_MEMORY)
-			{
-				low_mem = true;
-			}
-		}
-	}
-	//Enabled this branch per MAINT-6882
-	else if (gGLManager.mHasNVXMemInfo)
-	{
-		S32 free_memory;
-		glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &free_memory);
-		
-		if ((S32Megabytes)(free_memory / 1024) < MIN_FREE_TEXTURE_MEMORY)
-		{
-			low_mem = true;
-		}
-	}
+//static
+void LLViewerTexture::getGPUMemoryForTextures(S32Megabytes &gpu, S32Megabytes &physical)
+{
+    static LLFrameTimer timer;
+    static S32Megabytes gpu_res = S32Megabytes(S32_MAX);
+    static S32Megabytes physical_res = S32Megabytes(S32_MAX);
 
-	return low_mem;
+    if (timer.getElapsedTimeF32() < GPU_MEMORY_CHECK_WAIT_TIME) //call this once per second.
+    {
+        gpu = gpu_res;
+        physical = physical_res;
+        return;
+    }
+    timer.reset();
+
+    LL_RECORD_BLOCK_TIME(FTM_TEXTURE_MEMORY_CHECK);
+
+    if (gGLManager.mHasATIMemInfo)
+    {
+        S32 meminfo[4];
+        glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, meminfo);
+        gpu_res = (S32Megabytes)meminfo[0];
+
+        //check main memory, only works for windows.
+        LLMemory::updateMemoryInfo();
+        physical_res = LLMemory::getAvailableMemKB();
+    }
+    else if (gGLManager.mHasNVXMemInfo)
+    {
+        S32 free_memory;
+        glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &free_memory);
+        gpu_res = (S32Megabytes)(free_memory / 1024);
+    }
+
+    gpu = gpu_res;
+    physical = physical_res;
 }
 
 static LLTrace::BlockTimerStatHandle FTM_TEXTURE_UPDATE_MEDIA("Media");
@@ -565,15 +581,20 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 			sEvaluationTimer.reset();
 		}
 	}
-	else if(sEvaluationTimer.getElapsedTimeF32() > discard_delta_time && isMemoryForTextureLow())
+	else if(isMemoryForTextureLow())
 	{
-		sDesiredDiscardBias += discard_bias_delta;
-		sEvaluationTimer.reset();
+		// Note: isMemoryForTextureLow() uses 1s delay, make sure we waited enough for it to recheck
+		if (sEvaluationTimer.getElapsedTimeF32() > GPU_MEMORY_CHECK_WAIT_TIME)
+		{
+			sDesiredDiscardBias += discard_bias_delta;
+			sEvaluationTimer.reset();
+		}
 	}
-	else if (sDesiredDiscardBias > 0.0f &&
-			 sBoundTextureMemory < sMaxBoundTextureMemory * texmem_lower_bound_scale &&
-			 sTotalTextureMemory < sMaxTotalTextureMem * texmem_lower_bound_scale)
-	{			 
+	else if (sDesiredDiscardBias > 0.0f
+			 && sBoundTextureMemory < sMaxBoundTextureMemory * texmem_lower_bound_scale
+			 && sTotalTextureMemory < sMaxTotalTextureMem * texmem_lower_bound_scale
+			 && isMemoryForTextureSuficientlyFree())
+	{
 		// If we are using less texture memory than we should,
 		// scale down the desired discard level
 		if (sEvaluationTimer.getElapsedTimeF32() > discard_delta_time)
@@ -583,14 +604,8 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 		}
 	}
 	sDesiredDiscardBias = llclamp(sDesiredDiscardBias, desired_discard_bias_min, desired_discard_bias_max);
-	
-	F32 camera_moving_speed = LLViewerCamera::getInstance()->getAverageSpeed();
-	F32 camera_angular_speed = LLViewerCamera::getInstance()->getAverageAngularSpeed();
-	sCameraMovingBias = llmax(0.2f * camera_moving_speed, 2.0f * camera_angular_speed - 1);
-	sCameraMovingDiscardBias = (S8)(sCameraMovingBias);
 
-	LLViewerTexture::sFreezeImageScalingDown = (sBoundTextureMemory < 0.75f * sMaxBoundTextureMemory * texmem_middle_bound_scale) &&
-				(sTotalTextureMemory < 0.75f * sMaxTotalTextureMem * texmem_middle_bound_scale);
+	LLViewerTexture::sFreezeImageUpdates = sDesiredDiscardBias > (desired_discard_bias_max - 1.0f);
 }
 
 //end of static functions
@@ -960,9 +975,9 @@ void LLViewerTexture::reorganizeVolumeList()
 	for (U32 i = 0; i < LLRender::NUM_VOLUME_TEXTURE_CHANNELS; ++i)
 	{
 		if (mNumVolumes[i] + MAX_EXTRA_BUFFER_SIZE > mVolumeList[i].size())
-        {
-            return;
-        }
+		{
+			return;
+		}
 	}
 
 	if(mLastVolumeListUpdateTimer.getElapsedTimeF32() < MAX_WAIT_TIME)
@@ -3105,8 +3120,15 @@ void LLViewerLODTexture::processTextureStats()
 				(!getBoundRecently() || mDesiredDiscardLevel >= mCachedRawDiscardLevel))
 			{
 				scaleDown();
-				
 			}
+		}
+
+		if (isUpdateFrozen() // we are out of memory and nearing max allowed bias
+			&& mBoostLevel < LLGLTexture::BOOST_SCULPTED
+			&& mDesiredDiscardLevel < current_discard)
+		{
+			// stop requesting more
+			 setDesiredDiscardLevel(current_discard);
 		}
 	}
 
@@ -3115,7 +3137,7 @@ void LLViewerLODTexture::processTextureStats()
 		S32 desiredDiscardLevel = llmin(mDesiredDiscardLevel, (S8)mDesiredSavedRawDiscardLevel);
         setDesiredDiscardLevel(desiredDiscardLevel);
 	}
-    else if(LLPipeline::sMemAllocationThrottled)//release memory of large textures by decrease their resolutions.
+	else if(LLPipeline::sMemAllocationThrottled)//release memory of large textures by decrease their resolutions.
 	{
 		if(scaleDown())
 		{

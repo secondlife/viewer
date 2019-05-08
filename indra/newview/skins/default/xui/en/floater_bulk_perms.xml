@@ -213,6 +213,7 @@
      layout="topleft"
      top_pad="0"
      name="share_with_group"
+     tool_tip="Allow all members of the set group to share your modify permissions for this object. You must Deed to enable role restrictions."
      width="92" />
         <text
      type="string"
@@ -234,6 +235,7 @@
      layout="topleft"
      top_pad="0"
      name="everyone_copy"
+     tool_tip="Anyone can take a copy of the object. Object and all of its contents must be copy and transfer permissive"
      width="92" />
     <text
      type="string"
@@ -254,6 +256,7 @@
      label="Modify"
      layout="topleft"
      name="next_owner_modify"
+     tool_tip="Next owner can edit properties like item name or scale of this object."
      top_pad="0"
      width="92" />
     <check_box
@@ -263,6 +266,7 @@
      layout="topleft"
      top_pad="0"
      name="next_owner_copy"
+     tool_tip="Next owner can make unlimited copies of this object. Copies maintain creator information, and can never be more permissive than the item being copied."
      width="92">
       <check_box.commit_callback
        function="BulkPermission.CommitCopy"/>
@@ -276,7 +280,7 @@
      label="Transfer"
      layout="topleft"
      name="next_owner_transfer"
-     tool_tip="Next owner can give away or resell this object"
+     tool_tip="Next owner can give away or resell this object."
      width="92" />
     <scroll_list
      enabled="false"

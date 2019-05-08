@@ -75,6 +75,8 @@ class LLTexGlobalColor;
 struct LLAppearanceMessageContents;
 class LLViewerJointMesh;
 
+const F32 MAX_AVATAR_LOD_FACTOR = 1.0f;
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLVOAvatar
@@ -809,6 +811,7 @@ public:
 	BOOL 				hasHUDAttachment() const;
 	LLBBox 				getHUDBBox() const;
 	void 				resetHUDAttachments();
+	S32					getMaxAttachments() const;
 	BOOL				canAttachMoreObjects(U32 n=1) const;
     S32					getMaxAnimatedObjectAttachments() const;
     BOOL				canAttachMoreAnimatedObjects(U32 n=1) const;

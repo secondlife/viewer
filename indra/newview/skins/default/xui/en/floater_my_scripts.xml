@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ height="570"
+ help_topic="scriptlimits"
+ layout="topleft"
+ name="myscripts"
+ save_rect="true"
+ title="My Scripts"
+ min_width="620"
+ width="620">
+  <panel
+   filename="panel_script_limits_my_avatar.xml"
+   follows="all"
+   bottom="555"
+   layout="topleft"
+   left="3"
+   right="-2"
+   name="script_limits_my_avatar_panel"
+   top="20"/>
+</floater>

@@ -1,6 +1,6 @@
 /** 
  * @file lltexturecache.h
- * @brief Object for managing texture cache.
+ * @brief Object for managing texture cachees.
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code

@@ -333,7 +333,7 @@ LLMutex *getCurlMutex()
 
     if (!sHandleMutexp)
     {
-        sHandleMutexp = new LLMutex(NULL);
+        sHandleMutexp = new LLMutex();
     }
 
     return sHandleMutexp;
@@ -389,7 +389,7 @@ void initialize()
     S32 mutex_count = CRYPTO_num_locks();
     for (S32 i = 0; i < mutex_count; i++)
     {
-        sSSLMutex.push_back(LLMutex_ptr(new LLMutex(NULL)));
+        sSSLMutex.push_back(LLMutex_ptr(new LLMutex()));
     }
     CRYPTO_set_id_callback(&ssl_thread_id);
     CRYPTO_set_locking_callback(&ssl_locking_callback);

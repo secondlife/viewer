@@ -26,10 +26,11 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llapr.h"
+#include "apr_portable.h"
 #include "apr_pools.h"
 #include "apr_dso.h"
 #include "llhttpconstants.h"
-#include "llapr.h"
 #include "llmeshrepository.h"
 
 #include "llagent.h"
@@ -830,9 +831,9 @@ LLMeshRepoThread::LLMeshRepoThread()
 {
 	LLAppCoreHttp & app_core_http(LLAppViewer::instance()->getAppCoreHttp());
 
-	mMutex = new LLMutex(NULL);
-	mHeaderMutex = new LLMutex(NULL);
-	mSignal = new LLCondition(NULL);
+	mMutex = new LLMutex();
+	mHeaderMutex = new LLMutex();
+	mSignal = new LLCondition();
 	mHttpRequest = new LLCore::HttpRequest;
 	mHttpOptions = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
 	mHttpOptions->setTransferTimeout(SMALL_MESH_XFER_TIMEOUT);
@@ -1822,7 +1823,22 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 			return false;
 		}
 
-		header_size += stream.tellg();
+		if (!header.isMap())
+		{
+			LL_WARNS(LOG_MESH) << "Mesh header is invalid for ID: " << mesh_id << LL_ENDL;
+			return false;
+		}
+
+		if (header.has("version") && header["version"].asInteger() > MAX_MESH_VERSION)
+		{
+			LL_INFOS(LOG_MESH) << "Wrong version in header for " << mesh_id << LL_ENDL;
+			header["404"] = 1;
+		}
+		// make sure there is at least one lod, function returns -1 and marks as 404 otherwise
+		else if (LLMeshRepository::getActualMeshLOD(header, 0) >= 0)
+		{
+			header_size += stream.tellg();
+		}
 	}
 	else
 	{
@@ -2039,7 +2055,7 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
 	mUploadSkin = upload_skin;
 	mUploadJoints = upload_joints;
     mLockScaleIfJointPosition = lock_scale_if_joint_position;
-	mMutex = new LLMutex(NULL);
+	mMutex = new LLMutex();
 	mPendingUploads = 0;
 	mFinished = false;
 	mOrigin = gAgent.getPositionAgent();
@@ -2174,7 +2190,6 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 	std::map<LLModel*,S32> mesh_index;
 	std::string model_name;
-	std::string model_metric;
 
 	S32 instance_num = 0;
 	
@@ -2202,11 +2217,6 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 			if (model_name.empty())
 			{
 				model_name = data.mBaseModel->getName();
-			}
-
-			if (model_metric.empty())
-			{
-				model_metric = data.mBaseModel->getMetric();
 			}
 
 			std::stringstream ostr;
@@ -2363,11 +2373,6 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				model_name = data.mBaseModel->getName();
 			}
 
-			if (model_metric.empty())
-			{
-				model_metric = data.mBaseModel->getMetric();
-			}
-
 			std::stringstream ostr;
 			
 			LLModel::Decomposition& decomp =
@@ -2498,8 +2503,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 	if (model_name.empty()) model_name = "mesh model";
 	result["name"] = model_name;
-	if (model_metric.empty()) model_metric = "MUT_Unspecified";
-	res["metric"] = model_metric;
+	res["metric"] = "MUT_Unspecified";
 	result["asset_resources"] = res;
 	dump_llsd_to_file(result,make_dump_name("whole_model_",dump_num));
 
@@ -2919,9 +2923,14 @@ S32 LLMeshRepository::getActualMeshLOD(LLSD& header, S32 lod)
 {
 	lod = llclamp(lod, 0, 3);
 
+	if (header.has("404"))
+	{
+		return -1;
+	}
+
 	S32 version = header["version"];
 
-	if (header.has("404") || version > MAX_MESH_VERSION)
+	if (version > MAX_MESH_VERSION)
 	{
 		return -1;
 	}
@@ -3168,8 +3177,7 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* b
 
 		if (header_bytes > 0
 			&& !header.has("404")
-			&& header.has("version")
-			&& header["version"].asInteger() <= MAX_MESH_VERSION)
+			&& (!header.has("version") || header["version"].asInteger() <= MAX_MESH_VERSION))
 		{
 			std::stringstream str;
 
@@ -3458,7 +3466,7 @@ LLMeshRepository::LLMeshRepository()
 
 void LLMeshRepository::init()
 {
-	mMeshMutex = new LLMutex(NULL);
+	mMeshMutex = new LLMutex();
 	
 	LLConvexDecomposition::getInstance()->initSystem();
 
@@ -4302,10 +4310,13 @@ F32 LLMeshRepository::getStreamingCostLegacy(LLSD& header, F32 radius, S32* byte
 	F32 dlow = llmin(radius/0.06f, max_distance);
 	F32 dmid = llmin(radius/0.24f, max_distance);
 	
-	F32 METADATA_DISCOUNT = (F32) gSavedSettings.getU32("MeshMetaDataDiscount");  //discount 128 bytes to cover the cost of LLSD tags and compression domain overhead
-	F32 MINIMUM_SIZE = (F32) gSavedSettings.getU32("MeshMinimumByteSize"); //make sure nothing is "free"
+	static LLCachedControl<U32> metadata_discount_ch(gSavedSettings, "MeshMetaDataDiscount", 384);  //discount 128 bytes to cover the cost of LLSD tags and compression domain overhead
+	static LLCachedControl<U32> minimum_size_ch(gSavedSettings, "MeshMinimumByteSize", 16); //make sure nothing is "free"
+	static LLCachedControl<U32> bytes_per_triangle_ch(gSavedSettings, "MeshBytesPerTriangle", 16);
 
-	F32 bytes_per_triangle = (F32) gSavedSettings.getU32("MeshBytesPerTriangle");
+	F32 metadata_discount = (F32)metadata_discount_ch;
+	F32 minimum_size = (F32)minimum_size_ch;
+	F32 bytes_per_triangle = (F32)bytes_per_triangle_ch;
 
 	S32 bytes_lowest = header["lowest_lod"]["size"].asInteger();
 	S32 bytes_low = header["low_lod"]["size"].asInteger();
@@ -4332,10 +4343,10 @@ F32 LLMeshRepository::getStreamingCostLegacy(LLSD& header, F32 radius, S32* byte
 		bytes_lowest = bytes_low;
 	}
 
-	F32 triangles_lowest = llmax((F32) bytes_lowest-METADATA_DISCOUNT, MINIMUM_SIZE)/bytes_per_triangle;
-	F32 triangles_low = llmax((F32) bytes_low-METADATA_DISCOUNT, MINIMUM_SIZE)/bytes_per_triangle;
-	F32 triangles_mid = llmax((F32) bytes_mid-METADATA_DISCOUNT, MINIMUM_SIZE)/bytes_per_triangle;
-	F32 triangles_high = llmax((F32) bytes_high-METADATA_DISCOUNT, MINIMUM_SIZE)/bytes_per_triangle;
+	F32 triangles_lowest = llmax((F32) bytes_lowest-metadata_discount, minimum_size)/bytes_per_triangle;
+	F32 triangles_low = llmax((F32) bytes_low-metadata_discount, minimum_size)/bytes_per_triangle;
+	F32 triangles_mid = llmax((F32) bytes_mid-metadata_discount, minimum_size)/bytes_per_triangle;
+	F32 triangles_high = llmax((F32) bytes_high-metadata_discount, minimum_size)/bytes_per_triangle;
 
 	if (bytes)
 	{
@@ -4429,13 +4440,13 @@ bool LLMeshCostData::init(const LLSD& header)
     mSizeByLOD[2] = bytes_med;
     mSizeByLOD[3] = bytes_high;
 
-    F32 METADATA_DISCOUNT = (F32) gSavedSettings.getU32("MeshMetaDataDiscount");  //discount 128 bytes to cover the cost of LLSD tags and compression domain overhead
-    F32 MINIMUM_SIZE = (F32) gSavedSettings.getU32("MeshMinimumByteSize"); //make sure nothing is "free"
-    F32 bytes_per_triangle = (F32) gSavedSettings.getU32("MeshBytesPerTriangle");
+    static LLCachedControl<U32> metadata_discount(gSavedSettings, "MeshMetaDataDiscount", 384);  //discount 128 bytes to cover the cost of LLSD tags and compression domain overhead
+    static LLCachedControl<U32> minimum_size(gSavedSettings, "MeshMinimumByteSize", 16); //make sure nothing is "free"
+    static LLCachedControl<U32> bytes_per_triangle(gSavedSettings, "MeshBytesPerTriangle", 16);
 
     for (S32 i=0; i<4; i++)
     {
-        mEstTrisByLOD[i] = llmax((F32) mSizeByLOD[i]-METADATA_DISCOUNT, MINIMUM_SIZE)/bytes_per_triangle; 
+        mEstTrisByLOD[i] = llmax((F32)mSizeByLOD[i] - (F32)metadata_discount, (F32)minimum_size) / (F32)bytes_per_triangle;
     }
 
     return true;
@@ -4597,8 +4608,8 @@ LLPhysicsDecomp::LLPhysicsDecomp()
 	mQuitting = false;
 	mDone = false;
 
-	mSignal = new LLCondition(NULL);
-	mMutex = new LLMutex(NULL);
+	mSignal = new LLCondition();
+	mMutex = new LLMutex();
 }
 
 LLPhysicsDecomp::~LLPhysicsDecomp()

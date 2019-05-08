@@ -48,9 +48,11 @@
 		<text name="Name:">
 			Nombre:
 		</text>
+		<line_editor name="Object Name" tool_tip="El nombre está limitado a 63 caracteres. Los nombres de prim más largos deberán abreviarse. Los nombres solo pueden tener caracteres imprimibles que formen parte del código de caracteres ASCII-7 (no extendido), exceptuando la barra vertical «|»."/>
 		<text name="Description:">
 			Descripción:
 		</text>
+		<line_editor name="Object Description" tool_tip="Cuando la opción «Mostrar Consejos al pasar el cursor en Todos los objetos» en los parámetros del visor esté seleccionada, cada vez que coloques el cursor del mouse sobre un objeto aparecerá su descripción. La descripción del prim está limitada a 127 bytes, cualquier string más larga quedará recortada."/>
 		<text name="CreatorNameLabel">
 			Creador:
 		</text>
@@ -66,7 +68,7 @@
 		<text name="label click action">
 			Pulsa para:
 		</text>
-		<combo_box name="clickaction">
+		<combo_box name="clickaction" tool_tip="Si haces clic izquierdo podrás interactuar con un objeto.  Cada vez que hagas clic aparecerá un cursor indicando en qué consiste. Algunas acciones de clic tienen ciertos requerimientos para poder funcionar. Por ejemplo Tocar y Pagar requiere scripts">
 			<combo_box.item label="Tocarlo (por defecto)" name="Touch/grab(default)"/>
 			<combo_box.item label="Sentarme en el objeto" name="Sitonobject"/>
 			<combo_box.item label="Comprar el objeto" name="Buyobject"/>
@@ -82,8 +84,8 @@
 			<text name="Anyone can:">
 				Cualquiera:
 			</text>
-			<check_box label="Copiar" name="checkbox allow everyone copy"/>
-			<check_box label="Mover" name="checkbox allow everyone move"/>
+			<check_box label="Copiar" name="checkbox allow everyone copy" tool_tip="Todos pueden tomar una copia del objeto. El objeto y todos sus contenidos deben tener un permiso para copiar y transferir."/>
+			<check_box label="Mover" name="checkbox allow everyone move" tool_tip="Todos pueden mover el objeto."/>
 			<text name="GroupLabel">
 				Grupo:
 			</text>
@@ -91,17 +93,17 @@
 			<text name="NextOwnerLabel">
 				Próximo propietario:
 			</text>
-			<check_box label="Modificar" name="checkbox next owner can modify"/>
-			<check_box label="Copiar" name="checkbox next owner can copy"/>
+			<check_box label="Modificar" name="checkbox next owner can modify" tool_tip="El próximo propietario puede editar ciertas propiedades como el nombre o la escala del objeto."/>
+			<check_box label="Copiar" name="checkbox next owner can copy" tool_tip="El próximo propietario puede realizar copias ilimitadas de este objeto. Las copias mantienen la información del creador y nunca pueden ser más permisivas que el objeto que se está copiando."/>
 			<check_box label="Transferir" name="checkbox next owner can transfer" tool_tip="El próximo propietario puede dar o revender este objeto"/>
 		</panel>
-		<check_box label="En venta" name="checkbox for sale"/>
-		<combo_box name="sale type">
+		<check_box label="En venta" name="checkbox for sale" tool_tip="Permite a las personas comprar este objeto, su contenido o su copia en el mundo virtual al precio indicado."/>
+		<combo_box name="sale type" tool_tip="Selecciona si el comprador recibirá una copia, una copia del contenido o el objeto propiamente dicho.">
 			<combo_box.item label="Copiar" name="Copy"/>
 			<combo_box.item label="Contenidos" name="Contents"/>
 			<combo_box.item label="Original" name="Original"/>
 		</combo_box>
-		<spinner label="Precio: L$" name="Edit Cost"/>
+		<spinner label="Precio: L$" name="Edit Cost" tool_tip="Precio del objeto."/>
 		<check_box label="Mostrar en la búsqueda" name="search_check" tool_tip="Permitir que la gente vea este objeto en los resultados de la búsqueda"/>
 		<text name="pathfinding_attributes_label">
 			Atributos de pathfinding:
@@ -126,9 +128,9 @@
 		</text>
 	</panel>
 	<panel name="button_panel">
-		<button label="Abrir" name="open_btn"/>
-		<button label="Pagar" name="pay_btn"/>
-		<button label="Comprar" name="buy_btn"/>
-		<button label="Detalles" name="details_btn"/>
+		<button label="Abrir" name="open_btn" tool_tip="Abre para ver los Contenidos del Objeto."/>
+		<button label="Pagar" name="pay_btn" tool_tip="Abre la Ventana Comprar. Los objetos deben tener un script relativo al pago para que esto funcione."/>
+		<button label="Comprar" name="buy_btn" tool_tip="Abre la Ventana Comprar. El objeto debe estar a la venta."/>
+		<button label="Detalles" name="details_btn" tool_tip="Abre la Ventana Inspeccionar Objeto."/>
 	</panel>
 </panel>

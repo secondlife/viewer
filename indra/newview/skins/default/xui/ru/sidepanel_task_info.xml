@@ -48,9 +48,11 @@
 		<text name="Name:">
 			Название:
 		</text>
+		<line_editor name="Object Name" tool_tip="Название ограничено 63 символами. Более длинные имена примитива сокращаются. Имена могут состоять только из печатаемых символов, содержащихся в ASCII-7 (нерасширенном) наборе символов, за исключением вертикальной черты/линии &quot;|&quot;."/>
 		<text name="Description:">
 			Описание:
 		</text>
+		<line_editor name="Object Description" tool_tip="Когда в настройках окна просмотра выбрано &apos;Всплывающие подсказки на всех объектах&apos;, у игроков появляется всплывающее окошко с описанием объекта при наведении мыши на любой объект. Описание примитива ограничивается 127 байтами и строка со значением, превышающим этот размер, усекается."/>
 		<text name="CreatorNameLabel">
 			Создатель:
 		</text>
@@ -66,7 +68,7 @@
 		<text name="label click action">
 			Действие по щелчку:
 		</text>
-		<combo_box name="clickaction">
+		<combo_box name="clickaction" tool_tip="Взаимодействие с объектом производиться нажатием на левую кнопку мыши. При каждом клике появляется специальный курсор, указывающий на производимое действие. Некоторые клики имеют функциональные требования. Например, для Touch and Pay требуются скрипты">
 			<combo_box.item label="Коснуться (по умолчанию)" name="Touch/grab(default)"/>
 			<combo_box.item label="Сесть на объект" name="Sitonobject"/>
 			<combo_box.item label="Купить объект" name="Buyobject"/>
@@ -82,8 +84,8 @@
 			<text name="Anyone can:">
 				Все:
 			</text>
-			<check_box label="Копировать" name="checkbox allow everyone copy"/>
-			<check_box label="Переместить" name="checkbox allow everyone move"/>
+			<check_box label="Копировать" name="checkbox allow everyone copy" tool_tip="Копию объекта может взять любой желающий. Объект и все его содержимое должны копироваться и передаваться."/>
+			<check_box label="Переместить" name="checkbox allow everyone move" tool_tip="Любой игрок может переместить объект."/>
 			<text name="GroupLabel">
 				Группа:
 			</text>
@@ -91,17 +93,17 @@
 			<text name="NextOwnerLabel">
 				Следующий владелец:
 			</text>
-			<check_box label="Изменять" name="checkbox next owner can modify"/>
-			<check_box label="Копировать" name="checkbox next owner can copy"/>
+			<check_box label="Изменять" name="checkbox next owner can modify" tool_tip="Следующий владелец может отредактировать свойства, такие как имя отдельного предмета или масштаб этого объекта."/>
+			<check_box label="Копировать" name="checkbox next owner can copy" tool_tip="Следующий владелец может сделать неограниченное количество копий этого объекта. Копии содержат информацию о создателе и никогда не могут быть более разрешительными, чем копируемый предмет."/>
 			<check_box label="Передать" name="checkbox next owner can transfer" tool_tip="Следующий владелец может отдать или перепродать объект"/>
 		</panel>
-		<check_box label="Для продажи" name="checkbox for sale"/>
-		<combo_box name="sale type">
+		<check_box label="Для продажи" name="checkbox for sale" tool_tip="Позволяет игрокам покупать этот объект, его содержимое или копировать его в игровом мире по указанной цене."/>
+		<combo_box name="sale type" tool_tip="Выберите, получит ли покупатель копию, копию содержимого или сам предмет.">
 			<combo_box.item label="Копировать" name="Copy"/>
 			<combo_box.item label="Контент" name="Contents"/>
 			<combo_box.item label="Оригинал" name="Original"/>
 		</combo_box>
-		<spinner label="Цена: L$" name="Edit Cost"/>
+		<spinner label="Цена: L$" name="Edit Cost" tool_tip="Стоимость объекта."/>
 		<check_box label="Показать в результатах поиска" name="search_check" tool_tip="Показывать объект в результатах поиска"/>
 		<text name="pathfinding_attributes_label">
 			Атрибуты поиска пути:
@@ -126,9 +128,9 @@
 		</text>
 	</panel>
 	<panel name="button_panel">
-		<button label="Открыть" name="open_btn"/>
-		<button label="Заплатить" name="pay_btn"/>
-		<button label="Купить" name="buy_btn"/>
-		<button label="Подробности" name="details_btn"/>
+		<button label="Открыть" name="open_btn" tool_tip="Откройте для просмотра содержимого объекта."/>
+		<button label="Заплатить" name="pay_btn" tool_tip="Откройте окно Оплатить. Чтобы оплатить за объект, он должен иметь скрипт для оплаты."/>
+		<button label="Купить" name="buy_btn" tool_tip="Откройте окно Купить. Требуется, чтобы объект был выставлен на продажу."/>
+		<button label="Подробности" name="details_btn" tool_tip="Откройте окно осмотра объекта."/>
 	</panel>
 </panel>

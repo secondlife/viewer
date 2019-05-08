@@ -38,16 +38,16 @@
 	<text name="GroupLabel">
 		Grupo:
 	</text>
-	<check_box label="Compartilhar" name="share_with_group"/>
+	<check_box label="Compartilhar" name="share_with_group" tool_tip="Permitir que todos os membros do grupo tenhas suas permissões de modificação para este objeto. Faça uma doação para ativar restrições de função."/>
 	<text name="AnyoneLabel">
 		Todos:
 	</text>
-	<check_box label="Copiar" name="everyone_copy"/>
+	<check_box label="Copiar" name="everyone_copy" tool_tip="Qualquer um pode fazer uma cópia do objeto. O objeto e todos os conteúdos devem ter permissão para cópia e transferência."/>
 	<text name="NextOwnerLabel">
 		Próximo proprietário:
 	</text>
-	<check_box label="Modificar" name="next_owner_modify"/>
-	<check_box label="Copiar" name="next_owner_copy"/>
+	<check_box label="Modificar" name="next_owner_modify" tool_tip="O próximo proprietário pode editar as propriedades, como o nome do item ou escala desse objeto."/>
+	<check_box label="Copiar" name="next_owner_copy" tool_tip="O próximo proprietário pode fazer cópias ilimitadas desse objeto. As cópias mantêm as informações do criador e nunca podem ser mais permissivo do que o item copiado."/>
 	<check_box initial_value="true" label="Transferir" name="next_owner_transfer" tool_tip="O próximo dono poderá revender ou dar este objeto"/>
 	<button label="OK" name="ok"/>
 	<button label="Aplicar" name="apply"/>
