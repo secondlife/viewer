@@ -121,7 +121,7 @@ const S32 LLSettingsDay::FRAME_MAX(56);
 
 const F32 LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR(0.02501f);
 
-const LLUUID LLSettingsDay::DEFAULT_ASSET_ID("78751d18-6c51-3c43-2887-3654cd427a42");
+const LLUUID LLSettingsDay::DEFAULT_ASSET_ID("5646d39e-d3d7-6aff-ed71-30fc87d64a91");
 
 // Minimum value to prevent multislider in edit floaters from eating up frames that 'encroach' on one another's space
 static const F32 DEFAULT_MULTISLIDER_INCREMENT(0.005f);
