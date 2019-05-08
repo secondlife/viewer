@@ -208,6 +208,10 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
     ${PTHREAD_LIBRARY}
     )
 
+  if (WINDOWS)
+      list(APPEND libraries legacy_stdio_definitions)
+  endif (WINDOWS)
+
   # Add test executable build target
   if(TEST_DEBUG)
     message(STATUS "ADD_EXECUTABLE(INTEGRATION_TEST_${testname} ${source_files})")
