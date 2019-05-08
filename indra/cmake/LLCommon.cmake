@@ -33,6 +33,10 @@ else (LINUX)
         ${BOOST_SYSTEM_LIBRARY} )
 endif (LINUX)
 
+if (WINDOWS)
+      list(APPEND LLCOMMON_LIBRARIES legacy_stdio_definitions)
+endif (WINDOWS)
+
 set(LLCOMMON_LINK_SHARED OFF CACHE BOOL "Build the llcommon target as a static library.")
 if(LLCOMMON_LINK_SHARED)
   add_definitions(-DLL_COMMON_LINK_SHARED=1)
