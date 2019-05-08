@@ -2989,9 +2989,9 @@ S8 LLViewerLODTexture::getType() const
 	return LLViewerTexture::LOD_TEXTURE;
 }
 
-BOOL LLViewerLODTexture::isUpdateFrozen()
+bool LLViewerLODTexture::isUpdateFrozen()
 {
-	return LLViewerTexture::sFreezeImageScalingDown && !getDiscardLevel();
+	return LLViewerTexture::sFreezeImageUpdates;
 }
 
 // This is gauranteed to get called periodically for every texture
