@@ -186,6 +186,9 @@ private:
 	virtual void switchToCachedImage();
 	
 	static bool isMemoryForTextureLow() ;
+	static bool isMemoryForTextureSuficientlyFree();
+	static void getGPUMemoryForTextures(S32Megabytes &gpu, S32Megabytes &physical);
+
 protected:
 	LLUUID mID;
 	S32 mTextureListType; // along with mID identifies where to search for this texture in TextureList
@@ -227,7 +230,7 @@ public:
 	static S32 sMaxSculptRez ;
 	static S32 sMinLargeImageSize ;
 	static S32 sMaxSmallImageSize ;
-	static BOOL sFreezeImageScalingDown ;//do not scale down image res if set.
+	static bool sFreezeImageUpdates;
 	static F32  sCurrentTime ;
 
 	enum EDebugTexels
@@ -543,7 +546,7 @@ public:
 	/*virtual*/ S8 getType() const;
 	// Process image stats to determine priority/quality requirements.
 	/*virtual*/ void processTextureStats();
-	BOOL isUpdateFrozen() ;
+	bool isUpdateFrozen() ;
 
 private:
 	void init(bool firstinit) ;

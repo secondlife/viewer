@@ -29,12 +29,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/intrusive_ptr.hpp>
 #include "llmutex.h"
-#include "llapr.h"
-
-#define LL_REF_COUNT_DEBUG 0
-#if LL_REF_COUNT_DEBUG
-class LLMutex ;
-#endif
+#include "llatomic.h"
 
 //----------------------------------------------------------------------------
 // RefCount objects should generally only be accessed by way of LLPointer<>'s
@@ -51,10 +46,6 @@ protected:
 public:
 	LLRefCount();
 
-#if LL_REF_COUNT_DEBUG
-	void ref() const ;
-	S32 unref() const ;
-#else
 	inline void ref() const
 	{ 
 		mRef++; 
@@ -69,8 +60,7 @@ public:
 			return 0;
 		}
 		return mRef;
-	}	
-#endif
+	}
 
 	//NOTE: when passing around a const LLRefCount object, this can return different results
 	// at different types, since mRef is mutable
@@ -81,12 +71,6 @@ public:
 
 private: 
 	mutable S32	mRef; 
-
-#if LL_REF_COUNT_DEBUG
-	LLMutex*  mMutexp ;
-	mutable U32  mLockedThreadID ;
-	mutable BOOL mCrashAtUnlock ; 
-#endif
 };
 
 
@@ -123,8 +107,8 @@ public:
 	void unref()
 	{
 		llassert(mRef >= 1);
-		if ((--mRef) == 0)		// See note in llapr.h on atomic decrement operator return value.  
-		{	
+		if ((--mRef) == 0)
+		{
 			// If we hit zero, the caller should be the only smart pointer owning the object and we can delete it.
 			// It is technically possible for a vanilla pointer to mess this up, or another thread to
 			// jump in, find this object, create another smart pointer and end up dangling, but if
@@ -140,7 +124,7 @@ public:
 	}
 
 private: 
-	LLAtomic32< S32	> mRef; 
+	LLAtomicS32 mRef; 
 };
 
 /**

@@ -63,6 +63,9 @@
 #include <sstream>
 
 const S32 LOGIN_MAX_RETRIES = 3;
+const F32 LOGIN_SRV_TIMEOUT_MIN = 10;
+const F32 LOGIN_SRV_TIMEOUT_MAX = 120;
+const F32 LOGIN_DNS_TIMEOUT_FACTOR = 0.9; // make DNS wait shorter then retry time
 
 class LLLoginInstance::Disposable {
 public:
@@ -237,8 +240,10 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 
 	// Specify desired timeout/retry options
 	LLSD http_params;
-	http_params["timeout"] = gSavedSettings.getF32("LoginSRVTimeout");
+	F32 srv_timeout = llclamp(gSavedSettings.getF32("LoginSRVTimeout"), LOGIN_SRV_TIMEOUT_MIN, LOGIN_SRV_TIMEOUT_MAX);
+	http_params["timeout"] = srv_timeout;
 	http_params["retries"] = LOGIN_MAX_RETRIES;
+	http_params["DNSCacheTimeout"] = srv_timeout * LOGIN_DNS_TIMEOUT_FACTOR; //Default: indefinite
 
 	mRequestData.clear();
 	mRequestData["method"] = "login_to_simulator";

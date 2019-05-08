@@ -957,7 +957,7 @@ void LLViewerParcelMgr::sendParcelGodForceOwner(const LLUUID& owner_id)
 		return;
 	}
 
-	LL_INFOS() << "Claiming " << mWestSouth << " to " << mEastNorth << LL_ENDL;
+	LL_INFOS("ParcelMgr") << "Claiming " << mWestSouth << " to " << mEastNorth << LL_ENDL;
 
 	// BUG: Only works for the region containing mWestSouthBottom
 	LLVector3d east_north_region_check( mEastNorth );
@@ -980,7 +980,7 @@ void LLViewerParcelMgr::sendParcelGodForceOwner(const LLUUID& owner_id)
 		return;
 	}
 
-	LL_INFOS() << "Region " << region->getOriginGlobal() << LL_ENDL;
+	LL_INFOS("ParcelMgr") << "Region " << region->getOriginGlobal() << LL_ENDL;
 
 	LLSD payload;
 	payload["owner_id"] = owner_id;
@@ -1120,8 +1120,8 @@ LLViewerParcelMgr::ParcelBuyInfo* LLViewerParcelMgr::setupParcelBuy(
 	
 	if (is_claim)
 	{
-		LL_INFOS() << "Claiming " << mWestSouth << " to " << mEastNorth << LL_ENDL;
-		LL_INFOS() << "Region " << region->getOriginGlobal() << LL_ENDL;
+		LL_INFOS("ParcelMgr") << "Claiming " << mWestSouth << " to " << mEastNorth << LL_ENDL;
+		LL_INFOS("ParcelMgr") << "Region " << region->getOriginGlobal() << LL_ENDL;
 
 		// BUG: Only works for the region containing mWestSouthBottom
 		LLVector3d east_north_region_check( mEastNorth );
@@ -1294,8 +1294,6 @@ void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel, bool use_ag
 	if (!region) 
         return;
 
-	//LL_INFOS() << "found region: " << region->getName() << LL_ENDL;
-
 	LLSD body;
 	std::string url = region->getCapability("ParcelPropertiesUpdate");
 	if (!url.empty())
@@ -1304,7 +1302,7 @@ void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel, bool use_ag
 		U32 message_flags = 0x01;
 		body["flags"] = ll_sd_from_U32(message_flags);
 		parcel->packMessage(body);
-		LL_INFOS() << "Sending parcel properties update via capability to: "
+		LL_INFOS("ParcelMgr") << "Sending parcel properties update via capability to: "
 			<< url << LL_ENDL;
 
         LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, body,
@@ -1333,21 +1331,17 @@ void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel, bool use_ag
 void LLViewerParcelMgr::setHoverParcel(const LLVector3d& pos)
 {
 	static U32 last_west, last_south;
-
+	static LLUUID last_region;
 
 	// only request parcel info if position has changed outside of the
 	// last parcel grid step
-	U32 west_parcel_step = (U32) floor( pos.mdV[VX] / PARCEL_GRID_STEP_METERS );
-	U32 south_parcel_step = (U32) floor( pos.mdV[VY] / PARCEL_GRID_STEP_METERS );
-	
+	const U32 west_parcel_step = (U32) floor( pos.mdV[VX] / PARCEL_GRID_STEP_METERS );
+	const U32 south_parcel_step = (U32) floor( pos.mdV[VY] / PARCEL_GRID_STEP_METERS );
+
 	if ((west_parcel_step == last_west) && (south_parcel_step == last_south))
 	{
+		// We are staying in same segment
 		return;
-	}
-	else 
-	{
-		last_west = west_parcel_step;
-		last_south = south_parcel_step;
 	}
 
 	LLViewerRegion* region = LLWorld::getInstance()->getRegionFromPosGlobal( pos );
@@ -1356,34 +1350,95 @@ void LLViewerParcelMgr::setHoverParcel(const LLVector3d& pos)
 		return;
 	}
 
+	LLUUID region_id = region->getRegionID();
+	LLVector3 pos_in_region = region->getPosRegionFromGlobal(pos);
 
-	// Send a rectangle around the point.
-	// This means the parcel sent back is at least a rectangle around the point,
-	// which is more efficient for public land.  Fewer requests are sent.  JC
-	LLVector3 wsb_region = region->getPosRegionFromGlobal( pos );
+	bool request_properties = false;
+	if (region_id != last_region)
+	{
+		request_properties = true;
+	}
+	else
+	{
+		// Check if new position is in same parcel.
+		// This check is not ideal, since it checks by way of straight lines.
+		// So sometimes (small parcel in the middle of large one) it can
+		// decide that parcel actually changed, but it still allows to 
+		// reduce amount of requests significantly
 
-	F32 west  = PARCEL_GRID_STEP_METERS * floor( wsb_region.mV[VX] / PARCEL_GRID_STEP_METERS );
-	F32 south = PARCEL_GRID_STEP_METERS * floor( wsb_region.mV[VY] / PARCEL_GRID_STEP_METERS );
+		S32 west_parcel_local = (S32)(pos_in_region.mV[VX] / PARCEL_GRID_STEP_METERS);
+		S32 south_parcel_local = (S32)(pos_in_region.mV[VY] / PARCEL_GRID_STEP_METERS);
 
-	F32 east  = west  + PARCEL_GRID_STEP_METERS;
-	F32 north = south + PARCEL_GRID_STEP_METERS;
+		LLViewerParcelOverlay* overlay = region->getParcelOverlay();
+		if (!overlay)
+		{
+			 request_properties = true;
+		}
+		while (!request_properties && west_parcel_step < last_west)
+		{
+			S32 segment_shift = last_west - west_parcel_step;
+			request_properties = overlay->parcelLineFlags(south_parcel_local, west_parcel_local + segment_shift) & PARCEL_WEST_LINE;
+			last_west--;
+		}
+		while (!request_properties && south_parcel_step < last_south)
+		{
+			S32 segment_shift = last_south - south_parcel_step;
+			request_properties = overlay->parcelLineFlags(south_parcel_local + segment_shift, west_parcel_local) & PARCEL_SOUTH_LINE;
+			last_south--;
+		}
+		// Note: could have just swapped values, reused first two 'while' and set last_south, last_west separately,
+		// but this looks to be easier to understand/straightforward/less bulky
+		while (!request_properties && west_parcel_step > last_west)
+		{
+			S32 segment_shift = west_parcel_step - last_west;
+			request_properties = overlay->parcelLineFlags(south_parcel_local, west_parcel_local - segment_shift + 1) & PARCEL_WEST_LINE;
+			last_west++;
+		}
+		while (!request_properties && south_parcel_step > last_south)
+		{
+			S32 segment_shift = south_parcel_step - last_south;
+			request_properties = overlay->parcelLineFlags(south_parcel_local - segment_shift + 1, west_parcel_local) & PARCEL_SOUTH_LINE;
+			last_south++;
+		}
 
-	// Send request message
-	LLMessageSystem *msg = gMessageSystem;
-	msg->newMessageFast(_PREHASH_ParcelPropertiesRequest);
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID() );
-	msg->nextBlockFast(_PREHASH_ParcelData);
-	msg->addS32Fast(_PREHASH_SequenceID,	HOVERED_PARCEL_SEQ_ID );
-	msg->addF32Fast(_PREHASH_West,			west );
-	msg->addF32Fast(_PREHASH_South,			south );
-	msg->addF32Fast(_PREHASH_East,			east );
-	msg->addF32Fast(_PREHASH_North,			north );
-	msg->addBOOL("SnapSelection",			FALSE );
-	msg->sendReliable( region->getHost() );
+		// if (!request_properties) last_south and last_west will be equal to new values
+	}
 
-	mHoverRequestResult = PARCEL_RESULT_NO_DATA;
+	if (request_properties)
+	{
+		last_west = west_parcel_step;
+		last_south = south_parcel_step;
+		last_region = region_id;
+
+		LL_DEBUGS("ParcelMgr") << "Requesting parcel properties on hover, for " << pos << LL_ENDL;
+
+
+		// Send a rectangle around the point.
+		// This means the parcel sent back is at least a rectangle around the point,
+		// which is more efficient for public land.  Fewer requests are sent.  JC
+		F32 west = PARCEL_GRID_STEP_METERS * floor(pos_in_region.mV[VX] / PARCEL_GRID_STEP_METERS);
+		F32 south = PARCEL_GRID_STEP_METERS * floor(pos_in_region.mV[VY] / PARCEL_GRID_STEP_METERS);
+
+		F32 east = west + PARCEL_GRID_STEP_METERS;
+		F32 north = south + PARCEL_GRID_STEP_METERS;
+
+		// Send request message
+		LLMessageSystem *msg = gMessageSystem;
+		msg->newMessageFast(_PREHASH_ParcelPropertiesRequest);
+		msg->nextBlockFast(_PREHASH_AgentData);
+		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+		msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+		msg->nextBlockFast(_PREHASH_ParcelData);
+		msg->addS32Fast(_PREHASH_SequenceID, HOVERED_PARCEL_SEQ_ID);
+		msg->addF32Fast(_PREHASH_West, west);
+		msg->addF32Fast(_PREHASH_South, south);
+		msg->addF32Fast(_PREHASH_East, east);
+		msg->addF32Fast(_PREHASH_North, north);
+		msg->addBOOL("SnapSelection", FALSE);
+		msg->sendReliable(region->getHost());
+
+		mHoverRequestResult = PARCEL_RESULT_NO_DATA;
+	}
 }
 
 
@@ -1472,7 +1527,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
     if (request_result == PARCEL_RESULT_NO_DATA)
     {
         // no valid parcel data
-        LL_INFOS() << "no valid parcel data" << LL_ENDL;
+        LL_INFOS("ParcelMgr") << "no valid parcel data" << LL_ENDL;
         return;
     }
 
@@ -1504,7 +1559,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
     }
     else
     {
-        LL_INFOS() << "out of order agent parcel sequence id " << sequence_id
+        LL_INFOS("ParcelMgr") << "out of order agent parcel sequence id " << sequence_id
             << " last good " << parcel_mgr.mAgentParcelSequenceID
             << LL_ENDL;
         return;
@@ -1551,6 +1606,8 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
     }
 
 	msg->getS32("ParcelData", "OtherCleanTime", other_clean_time );
+
+	LL_DEBUGS("ParcelMgr") << "Processing parcel " << local_id << " update, target(sequence): " << sequence_id << LL_ENDL;
 
 	// Actually extract the data.
 	if (parcel)
@@ -1790,7 +1847,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
                         }
                         else
                         {
-                            LL_INFOS() << "Stopping parcel music (invalid audio stream URL)" << LL_ENDL;
+                            LL_INFOS("ParcelMgr") << "Stopping parcel music (invalid audio stream URL)" << LL_ENDL;
                             // clears the URL
                             // null value causes fade out
                             LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLStringUtil::null);
@@ -1798,7 +1855,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
                     }
                     else if (!gAudiop->getInternetStreamURL().empty())
                     {
-                        LL_INFOS() << "Stopping parcel music (parcel stream URL is empty)" << LL_ENDL;
+                        LL_INFOS("ParcelMgr") << "Stopping parcel music (parcel stream URL is empty)" << LL_ENDL;
                         // null value causes fade out
                         LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLStringUtil::null);
                     }
@@ -1827,7 +1884,7 @@ void LLViewerParcelMgr::optionally_start_music(const std::string& music_url)
 		     gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING) &&
 			 gSavedSettings.getBOOL("MediaTentativeAutoPlay")))
 		{
-			LL_INFOS() << "Starting parcel music " << music_url << LL_ENDL;
+			LL_INFOS("ParcelMgr") << "Starting parcel music " << music_url << LL_ENDL;
 			LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(music_url);
 		}
 		else
@@ -1855,7 +1912,7 @@ void LLViewerParcelMgr::processParcelAccessListReply(LLMessageSystem *msg, void 
 
 	if (parcel_id != parcel->getLocalID())
 	{
-		LL_WARNS_ONCE("") << "processParcelAccessListReply for parcel " << parcel_id
+		LL_WARNS_ONCE("ParcelMgr") << "processParcelAccessListReply for parcel " << parcel_id
 			<< " which isn't the selected parcel " << parcel->getLocalID()<< LL_ENDL;
 		return;
 	}

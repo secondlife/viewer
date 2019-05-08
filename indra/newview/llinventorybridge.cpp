@@ -1415,7 +1415,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 			break;
 
 		default:
-			LL_INFOS() << "Unhandled asset type (llassetstorage.h): "
+			LL_INFOS_ONCE() << "Unhandled asset type (llassetstorage.h): "
 					<< (S32)asset_type << " (" << LLAssetType::lookup(asset_type) << ")" << LL_ENDL;
 			break;
 	}
@@ -6307,7 +6307,7 @@ bool confirm_attachment_rez(const LLSD& notification, const LLSD& response)
 	if (!gAgentAvatarp->canAttachMoreObjects())
 	{
 		LLSD args;
-		args["MAX_ATTACHMENTS"] = llformat("%d", MAX_AGENT_ATTACHMENTS);
+		args["MAX_ATTACHMENTS"] = llformat("%d", gAgentAvatarp->getMaxAttachments());
 		LLNotificationsUtil::add("MaxAttachmentsOnOutfit", args);
 		return false;
 	}
@@ -7344,7 +7344,10 @@ void LLFolderViewGroupedItemBridge::groupFilterContextMenu(folder_view_item_dequ
     {
 		if (!LLAppearanceMgr::instance().canAddWearables(ids) && canWearSelected(ids))
         {
-			disabled_items.push_back(std::string("Wearable Add"));
+            disabled_items.push_back(std::string("Wearable And Object Wear"));
+            disabled_items.push_back(std::string("Wearable Add"));
+            disabled_items.push_back(std::string("Attach To"));
+            disabled_items.push_back(std::string("Attach To HUD"));
         }
     }
 	disable_context_entries_if_present(menu, disabled_items);

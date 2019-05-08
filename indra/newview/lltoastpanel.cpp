@@ -26,6 +26,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "lldbstrings.h"
 #include "llpanelgenerictip.h"
 #include "llpanelonlinestatus.h"
 #include "llnotifications.h"
@@ -35,6 +36,8 @@
 
 //static
 const S32 LLToastPanel::MIN_PANEL_HEIGHT = 40; // VPAD(4)*2 + ICON_HEIGHT(32)
+// 'magic numbers', consider initializing (512+20) part from xml/notifications
+const S32 LLToastPanel::MAX_TEXT_LENGTH = 512 + 20 + DB_FIRST_NAME_BUF_SIZE + DB_LAST_NAME_BUF_SIZE + DB_INV_ITEM_NAME_BUF_SIZE;
 
 LLToastPanel::LLToastPanel(const LLNotificationPtr& notification)
 {

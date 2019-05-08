@@ -36,6 +36,7 @@
 #include "llfloater.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llconversationlog.h"
+#include "llsearcheditor.h"
 
 class LLConversationLogObserver;
 class LLPanelPreference;
@@ -46,6 +47,14 @@ class LLScrollListCtrl;
 class LLSliderCtrl;
 class LLSD;
 class LLTextBox;
+
+namespace ll
+{
+	namespace prefs
+	{
+		struct SearchData;
+	}
+}
 
 typedef std::map<std::string, std::string> notifications_map;
 
@@ -207,6 +216,12 @@ private:
 	std::string mSavedCameraPreset;
 	std::string mSavedGraphicsPreset;
 	LOG_CLASS(LLFloaterPreference);
+
+	LLSearchEditor *mFilterEdit;
+	std::unique_ptr< ll::prefs::SearchData > mSearchData;
+
+	void onUpdateFilterTerm( bool force = false );
+	void collectSearchableItems();
 };
 
 class LLPanelPreference : public LLPanel
@@ -256,18 +271,6 @@ private:
 	LOG_CLASS(LLPanelPreference);
 };
 
-class LLPanelPreferenceView : public LLPanelPreference
-{
-public:
-	BOOL postBuild();
-	void draw();
-	void setPresetText();
-
-private:
-	void onPresetsListChangeCamera();
-	LOG_CLASS(LLPanelPreferenceView);
-};
-
 class LLPanelPreferenceGraphics : public LLPanelPreference
 {
 public:
@@ -285,6 +288,7 @@ protected:
 	bool hasDirtyChilds();
 
 private:
+
 	void onPresetsListChange();
 	LOG_CLASS(LLPanelPreferenceGraphics);
 };

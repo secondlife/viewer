@@ -32,11 +32,6 @@
      width="200">
         <combo_box.item
          enabled="true"
-         label="System default"
-         name="System Default Language"
-         value="default" />
-        <combo_box.item
-         enabled="true"
          label="English"
          name="English"
          value="en" />
