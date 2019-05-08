@@ -315,7 +315,7 @@ void LLDirPickerThread::run()
 //static
 void LLDirPickerThread::initClass()
 {
-	sMutex = new LLMutex(NULL);
+	sMutex = new LLMutex();
 }
 
 //static

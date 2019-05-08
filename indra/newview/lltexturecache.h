@@ -221,7 +221,7 @@ private:
 	typedef std::map<LLUUID,S32> size_map_t;
 	size_map_t mTexturesSizeMap;
 	S64 mTexturesSizeTotal;
-	LLAtomic32<BOOL> mDoPurge;
+	LLAtomicBool mDoPurge;
 
 	typedef std::map<S32, Entry> idx_entry_map_t;
 	idx_entry_map_t mUpdatedEntryMap;

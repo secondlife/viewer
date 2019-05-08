@@ -35,7 +35,7 @@
 LLImageDecodeThread::LLImageDecodeThread(bool threaded)
 	: LLQueuedThread("imagedecode", threaded)
 {
-	mCreationMutex = new LLMutex(getAPRPool());
+	mCreationMutex = new LLMutex();
 }
 
 //virtual 

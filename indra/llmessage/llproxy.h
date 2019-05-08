@@ -298,7 +298,7 @@ private:
 private:
 	// Is the HTTP proxy enabled? Safe to read in any thread, but do not write directly.
 	// Instead use enableHTTPProxy() and disableHTTPProxy() instead.
-	mutable LLAtomic32<bool> mHTTPProxyEnabled;
+	mutable LLAtomicBool mHTTPProxyEnabled;
 
 	// Mutex to protect shared members in non-main thread calls to applyProxySettings().
 	mutable LLMutex mProxyMutex;

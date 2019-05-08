@@ -34,9 +34,11 @@
 			<text name="LabelItemNameTitle">
 				Name:
 			</text>
+			<line_editor name="LabelItemName" tool_tip="Der Name ist auf 63 Zeichen begrenzt. Längere formelle Namen werden gekürzt. Die Namen dürfen ausschließlich aus druckbaren Zeichen des (nicht erweiterten) ASCII-7-Zeichensatzes bestehen, mit Ausnahme des Senkrechtstrichs &quot;|&quot;."/>
 			<text name="LabelItemDescTitle">
 				Beschreibung:
 			</text>
+			<line_editor name="LabelItemDesc" tool_tip="Bei Auswahl der Option &quot;Mauszeiger-Tipps zu allen Objekten&quot; in den Viewer-Einstellungen wird für alle Objekte das Popup mit der Objektbeschreibung unter dem Mauszeiger eingeblendet. Die formelle Beschreibung ist auf 127 Byte begrenzt, und alle längeren Zeichenketten werden gekürzt."/>
 			<text name="LabelCreatorTitle">
 				Ersteller:
 			</text>
@@ -59,7 +61,7 @@
 				<text name="AnyoneLabel">
 					Jeder:
 				</text>
-				<check_box label="Kopieren" name="CheckEveryoneCopy"/>
+				<check_box label="Kopieren" name="CheckEveryoneCopy" tool_tip="Jeder Benutzer kann eine Kopie des Objekts erhalten. Das Objekt sowie alle seine Inhalte müssen kopier- und übertragbar sein."/>
 				<text name="GroupLabel">
 					Gruppe:
 				</text>
@@ -67,17 +69,17 @@
 				<text name="NextOwnerLabel">
 					Nächster Eigentümer:
 				</text>
-				<check_box label="Bearbeiten" name="CheckNextOwnerModify"/>
-				<check_box label="Kopieren" name="CheckNextOwnerCopy"/>
-				<check_box label="Übertragen" name="CheckNextOwnerTransfer" tool_tip="Nächster Eigentümer kann dieses Objekt weitergeben oder -verkaufen"/>
+				<check_box label="Bearbeiten" name="CheckNextOwnerModify" tool_tip="Der nächste Eigentümer kann Eigenschaften wie den Artikelnamen oder den Maßstab dieses Objekts bearbeiten."/>
+				<check_box label="Kopieren" name="CheckNextOwnerCopy" tool_tip="Der nächste Eigentümer kann unbegrenzt viele Kopien dieses Objekts erstellen. Die Kopien enthalten Informationen zum Ersteller und können niemals mehr Berechtigungen enthalten als der kopierte Artikel."/>
+				<check_box label="Übertragen" name="CheckNextOwnerTransfer" tool_tip="Der nächste Eigentümer kann dieses Objekt weitergeben oder verkaufen."/>
 			</panel>
-			<check_box label="Zum Verkauf" name="CheckPurchase"/>
-			<combo_box name="ComboBoxSaleType">
+			<check_box label="Zum Verkauf" name="CheckPurchase" tool_tip="Ermöglicht, dass Einwohner dieses Objekt, seine Inhalte oder eine Kopie zum angegebenen Preis inworld erwerben."/>
+			<combo_box name="ComboBoxSaleType" tool_tip="Wählen Sie aus, ob der Käufer eine Kopie, eine Kopie der Inhalte oder den Artikel selbst erhält.">
 				<combo_box.item label="Kopie" name="Copy"/>
 				<combo_box.item label="Inhalt" name="Contents"/>
 				<combo_box.item label="Original" name="Original"/>
 			</combo_box>
-			<spinner label="Preis: L$" name="Edit Cost"/>
+			<spinner label="Preis: L$" name="Edit Cost" tool_tip="Objektkosten."/>
 		</panel>
 	</scroll_container>
 	<panel name="button_panel">

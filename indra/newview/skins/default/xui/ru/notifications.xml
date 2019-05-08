@@ -244,6 +244,10 @@
 		Примечание. После включения этой опции все пользователи данного компьютера смогут увидеть список ваших избранных мест.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="AllowMultipleViewers">
+		Запуск нескольких приложений Second Life Viewer не поддерживается. Это может привести к конфликтам кэша текстур, повреждению и снижению производительности и визуального отображения.
+		<usetemplate name="okbutton" yestext="ОК"/>
+	</notification>
 	<notification name="GrantModifyRights">
 		Предоставление другому жителю прав на изменение позволит ему изменять, удалять или брать ЛЮБЫЕ ваши объекты. Будьте ОЧЕНЬ осторожны с предоставлением такого разрешения.
 Дать пользователю [NAME] права на изменение?
@@ -717,9 +721,9 @@
 		Вам не разрешено терраформировать участок [PARCEL].
 	</notification>
 	<notification name="CannotCopyWarning">
-		У вас нет разрешения на копирование следующих предметов:
-[ITEMS]
-Если вы отдадите эти вещи, их больше не будет в вашем инвентаре. Вы действительно хотите предложить эти предметы?
+		У вас нет разрешения на копирование следующих предметов: 
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt; 
+и они пропадут из вашего инвентаря, если вы их отдадите. Вы действительно хотите предложить эти предметы?
 		<usetemplate name="okcancelbuttons" notext="Нет" yestext="Да"/>
 	</notification>
 	<notification name="CannotGiveItem">
@@ -1608,8 +1612,24 @@
 [DOWNLOAD_PATH].
 	</notification>
 	<notification name="RequiredUpdate">
-		Для входа необходима версия \[VERSION]. Для вас обновление должно было произведено автоматически, но по какой-то причине этого не произошло. Скачайте обновление с веб-сайта https://secondlife.com/support/downloads/
+		Для входа необходима версия \[VERSION]. 
+Скачайте обновление с веб-сайта https://secondlife.com/support/downloads/
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PauseForUpdate">
+		Для входа необходима версия \[VERSION]. 
+Нажмите OK для загрузки и установки.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OptionalUpdateReady">
+		Версия \[VERSION] загружена и готова к установке. 
+Нажмите OK для установки.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PromptOptionalUpdate">
+		Версия \[VERSION] загружена и готова к установке. 
+Продолжить?
+		<usetemplate canceltext="Не сейчас" name="yesnocancelbuttons" notext="Пропустить" yestext="Установить"/>
 	</notification>
 	<notification name="LoginFailedUnknown">
 		Извините, ошибка входа по неустановленной причине. Если данное сообщение повторится, посетите веб-сайт [SUPPORT_SITE].
@@ -3071,15 +3091,6 @@
 			<button name="Deny" text="Отклонить"/>
 		</form>
 	</notification>
-	<notification name="UnknownScriptQuestion">
-		Объект &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;» владельца «[NAME]» требует разрешения на выполнение скрипта; разрешение не распознается клиентом и не будет предоставлено
-
-Для получения этого разрешения установите последнюю версию клиента из [DOWNLOADURL].
-		<form name="form">
-			<button name="Deny" text="OK"/>
-			<button name="Mute" text="Заблокировать"/>
-		</form>
-	</notification>
 	<notification name="ScriptDialog">
 		[NAME] – «&lt;nolink&gt;[TITLE]&lt;/nolink&gt;»
 [MESSAGE]
@@ -3744,13 +3755,13 @@
 		Вы не можете создавать деревья и траву на чужой земле.
 	</notification>
 	<notification name="NoCopyPermsNoObject">
-		Не удалось скопировать: вам не разрешено копировать объект «[OBJ_NAME]».
+		Не удалось скопировать, потому что у вас нет разрешения на копирование этого предмета &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoTransPermsNoObject">
-		Не удалось скопировать: объект «[OBJ_NAME]» нельзя перенести к вам.
+		Не удалось скопировать, потому что предмет &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; не может быть перемещён к вам.
 	</notification>
 	<notification name="AddToNavMeshNoCopy">
-		Не удалось скопировать: объект «[OBJ_NAME]» относится к навигационной сетке.
+		Не удалось скопировать, потому что предмет &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; относится к навигационной сетке.
 	</notification>
 	<notification name="DupeWithNoRootsSelected">
 		Выбран дубликат без корневых объектов.
@@ -3795,34 +3806,34 @@
 		Сохранение в инвентаре отключено.
 	</notification>
 	<notification name="NoExistNoSaveToContents">
-		Нельзя сохранить «[OBJ_NAME]» в содержимом объекта: объект, из которого оно было выложено, уже не существует.
+		Не удалось сохранить &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; в содержимом предмета, потому что место, в котором был создан предмет, больше не существует.
 	</notification>
 	<notification name="NoModNoSaveToContents">
-		Нельзя сохранить «[OBJ_NAME]» в содержимом объекта: вам не разрешено изменять объект «[DEST_NAME]».
+		Не удалось сохранить &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; в содержимом предмета, потому что у вас нет разрешения на модификацию предмета &lt;nolink&gt;&apos;[DEST_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoSaveBackToInvDisabled">
-		Невозможно сохранить «[OBJ_NAME]» в инвентаре: эта операция запрещена.
+		Не удалось сохранить &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; обратно в инвентаре – эта операция заблокирована.
 	</notification>
 	<notification name="NoCopyNoSelCopy">
-		Нельзя скопировать выбранное: вам не разрешено копировать объект «[OBJ_NAME]».
+		Вы не можете скопировать выбор, потому что у вас нет разрешения на копирование этого предмета &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoTransNoSelCopy">
-		Невозможно скопировать выбранный предмет: объект «[OBJ_NAME]» не переносится.
+		Вы не можете скопировать свой выбор, потому что предмет &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; не может быть перемещён.
 	</notification>
 	<notification name="NoTransNoCopy">
-		Невозможно скопировать выбранный предмет: объект «[OBJ_NAME]» не переносится.
+		Вы не можете скопировать свой выбор, потому что предмет &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; не может быть перемещён.
 	</notification>
 	<notification name="NoPermsNoRemoval">
-		Удаление объекта «[OBJ_NAME]» из симулятора запрещено системой разрешений.
+		Удаление предмета &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; из симулятора не допущено системой прав доступа.
 	</notification>
 	<notification name="NoModNoSaveSelection">
-		Нельзя сохранить выбранное: вам не разрешено изменять объект «[OBJ_NAME]».
+		Копирование выбора невозможно, потому что у вас нет разрешения на модифицирование этого предмета &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoCopyNoSaveSelection">
-		Невозможно сохранить выбранный предмет: объект «[OBJ_NAME]» не копируется.
+		Вы не можете сохранить свой выбор, потому что предмет &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; не поддаётся копированию.
 	</notification>
 	<notification name="NoModNoTaking">
-		Нельзя забрать выбранное: вам не разрешено изменять объект «[OBJ_NAME]».
+		Вы не можете скопировать свой выбор, потому что у вас нет разрешения на модифицирование этого предмета &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="RezDestInternalError">
 		Внутренняя ошибка: неизвестный тип места назначения.
