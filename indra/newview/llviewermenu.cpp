@@ -4751,6 +4751,12 @@ void handle_take()
 				category_id.setNull();
 			}
 
+			// check inbox
+			const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX);
+			if (category_id == inbox_id || gInventory.isObjectDescendentOf(category_id, inbox_id))
+			{
+				category_id.setNull();
+			}
 		}
 	}
 	if(category_id.isNull())
