@@ -81,6 +81,8 @@
 #include "llparcel.h"
 #include "llstring.h"
 #include "message.h"
+#include "llsearchableui.h"
+#include "llsearcheditor.h"
 
 // system includes
 #include <iomanip>
@@ -113,7 +115,9 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	mBalance(0),
 	mHealth(100),
 	mSquareMetersCredit(0),
-	mSquareMetersCommitted(0)
+	mSquareMetersCommitted(0),
+	mFilterEdit(NULL),			// Edit for filtering
+	mSearchPanel(NULL)			// Panel for filtering
 {
 	setRect(rect);
 	
@@ -239,6 +243,16 @@ BOOL LLStatusBar::postBuild()
 	mPanelNearByMedia->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
 	mPanelNearByMedia->setVisible(FALSE);
 
+	// Hook up and init for filtering
+	mFilterEdit = getChild<LLSearchEditor>( "search_menu_edit" );
+	mSearchPanel = getChild<LLPanel>( "menu_search_panel" );
+
+	mSearchPanel->setVisible(gSavedSettings.getBOOL("MenuSearch"));
+	mFilterEdit->setKeystrokeCallback(boost::bind(&LLStatusBar::onUpdateFilterTerm, this));
+	mFilterEdit->setCommitCallback(boost::bind(&LLStatusBar::onUpdateFilterTerm, this));
+	collectSearchableItems();
+	gSavedSettings.getControl("MenuSearch")->getCommitSignal()->connect(boost::bind(&LLStatusBar::updateMenuSearchVisibility, this, _2));
+
 	return TRUE;
 }
 
@@ -318,6 +332,7 @@ void LLStatusBar::setVisibleForMouselook(bool visible)
 	mMediaToggle->setVisible(visible);
 	mSGBandwidth->setVisible(visible);
 	mSGPacketLoss->setVisible(visible);
+	mSearchPanel->setVisible(visible && gSavedSettings.getBOOL("MenuSearch"));
 	setBackgroundVisible(visible);
 	mIconPresets->setVisible(visible);
 }
@@ -356,6 +371,12 @@ void LLStatusBar::setBalance(S32 balance)
 		LLRect balance_bg_rect = balance_bg_view->getRect();
 		balance_bg_rect.mLeft = balance_bg_rect.mRight - (buy_rect.getWidth() + shop_rect.getWidth() + balance_rect.getWidth() + HPAD);
 		balance_bg_view->setShape(balance_bg_rect);
+	}
+
+	// If the search panel is shown, move this according to the new balance width. Parcel text will reshape itself in setParcelInfoText
+	if (mSearchPanel && mSearchPanel->getVisible())
+	{
+		updateMenuSearchPosition();
 	}
 
 	if (mBalance && (fabs((F32)(mBalance - balance)) > gSavedSettings.getF32("UISndMoneyChangeThreshold")))
@@ -569,6 +590,75 @@ void LLStatusBar::onVolumeChanged(const LLSD& newvalue)
 {
 	refresh();
 }
+
+void LLStatusBar::onUpdateFilterTerm()
+{
+	LLWString searchValue = utf8str_to_wstring( mFilterEdit->getValue() );
+	LLWStringUtil::toLower( searchValue );
+
+	if( !mSearchData || mSearchData->mLastFilter == searchValue )
+		return;
+
+	mSearchData->mLastFilter = searchValue;
+
+	mSearchData->mRootMenu->hightlightAndHide( searchValue );
+	gMenuBarView->needsArrange();
+}
+
+void collectChildren( LLMenuGL *aMenu, ll::statusbar::SearchableItemPtr aParentMenu )
+{
+	for( U32 i = 0; i < aMenu->getItemCount(); ++i )
+	{
+		LLMenuItemGL *pMenu = aMenu->getItem( i );
+
+		ll::statusbar::SearchableItemPtr pItem( new ll::statusbar::SearchableItem );
+		pItem->mCtrl = pMenu;
+		pItem->mMenu = pMenu;
+		pItem->mLabel = utf8str_to_wstring( pMenu->ll::ui::SearchableControl::getSearchText() );
+		LLWStringUtil::toLower( pItem->mLabel );
+		aParentMenu->mChildren.push_back( pItem );
+
+		LLMenuItemBranchGL *pBranch = dynamic_cast< LLMenuItemBranchGL* >( pMenu );
+		if( pBranch )
+			collectChildren( pBranch->getBranch(), pItem );
+	}
+
+}
+
+void LLStatusBar::collectSearchableItems()
+{
+	mSearchData.reset( new ll::statusbar::SearchData );
+	ll::statusbar::SearchableItemPtr pItem( new ll::statusbar::SearchableItem );
+	mSearchData->mRootMenu = pItem;
+	collectChildren( gMenuBarView, pItem );
+}
+
+void LLStatusBar::updateMenuSearchVisibility(const LLSD& data)
+{
+	bool visible = data.asBoolean();
+	mSearchPanel->setVisible(visible);
+	if (!visible)
+	{
+		mFilterEdit->setText(LLStringUtil::null);
+		onUpdateFilterTerm();
+	}
+	else
+	{
+		updateMenuSearchPosition();
+	}
+}
+
+void LLStatusBar::updateMenuSearchPosition()
+{
+	const S32 HPAD = 12;
+	LLRect balanceRect = getChildView("balance_bg")->getRect();
+	LLRect searchRect = mSearchPanel->getRect();
+	S32 w = searchRect.getWidth();
+	searchRect.mLeft = balanceRect.mLeft - w - HPAD;
+	searchRect.mRight = searchRect.mLeft + w;
+	mSearchPanel->setShape( searchRect );
+}
+
 
 // Implements secondlife:///app/balance/request to request a L$ balance
 // update via UDP message system. JC

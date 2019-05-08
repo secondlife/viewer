@@ -621,8 +621,14 @@ void LLOutfitsList::applyFilterToTab(
 
 bool LLOutfitsList::canWearSelected()
 {
+	if (!isAgentAvatarValid())
+	{
+		return false;
+	}
+
 	uuid_vec_t selected_items;
 	getSelectedItemsUUIDs(selected_items);
+	S32 nonreplacable_objects = 0;
 
 	for (uuid_vec_t::const_iterator it = selected_items.begin(); it != selected_items.end(); ++it)
 	{
@@ -633,10 +639,21 @@ bool LLOutfitsList::canWearSelected()
 		{
 			return false;
 		}
+
+		const LLViewerInventoryItem* item = gInventory.getItem(id);
+		if (!item)
+		{
+			return false;
+		}
+
+		if (item->getType() == LLAssetType::AT_OBJECT)
+		{
+			nonreplacable_objects++;
+		}
 	}
 
-	// All selected items can be worn.
-	return true;
+	// All selected items can be worn. But do we have enough space for them?
+	return nonreplacable_objects == 0 || gAgentAvatarp->canAttachMoreObjects(nonreplacable_objects);
 }
 
 void LLOutfitsList::wearSelectedItems()

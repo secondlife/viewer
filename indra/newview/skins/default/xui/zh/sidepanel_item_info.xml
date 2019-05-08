@@ -34,9 +34,11 @@
 			<text name="LabelItemNameTitle">
 				名稱：
 			</text>
+			<line_editor name="LabelItemName" tool_tip="名稱限長63字元。 幾何元件名稱超過限長，會被截短。 名稱僅可使用ASCII-7字元集（非延伸版）的可列印字元，唯一的例外是垂直槓字元「|」。"/>
 			<text name="LabelItemDescTitle">
 				描述：
 			</text>
+			<line_editor name="LabelItemDesc" tool_tip="當人們在瀏覽器設定中選擇了「針對所有物件懸置顯示提醒」時，他們滑鼠所指的物件將會彈出描述該物件的內容。 幾何元件的描述內容不得超過127位元組，否則會被截短。"/>
 			<text name="LabelCreatorTitle">
 				創造者：
 			</text>
@@ -59,7 +61,7 @@
 				<text name="AnyoneLabel">
 					任何人：
 				</text>
-				<check_box label="複製" name="CheckEveryoneCopy"/>
+				<check_box label="複製" name="CheckEveryoneCopy" tool_tip="任何人都可取用本物件的複本。 物件和其所有內容都必須允許複製和轉移。"/>
 				<text name="GroupLabel">
 					群組：
 				</text>
@@ -67,17 +69,17 @@
 				<text name="NextOwnerLabel">
 					下一個所有人：
 				</text>
-				<check_box label="修改" name="CheckNextOwnerModify"/>
-				<check_box label="複製" name="CheckNextOwnerCopy"/>
-				<check_box label="轉移" name="CheckNextOwnerTransfer" tool_tip="下一個所有人可贈送或轉售這個物件"/>
+				<check_box label="修改" name="CheckNextOwnerModify" tool_tip="下一個所有人可以編輯本物件的性質，如名稱或尺寸。"/>
+				<check_box label="複製" name="CheckNextOwnerCopy" tool_tip="下一個所有人可無限複製本物件。 複本將保留創作人的資料，其允許設定不能比原本物件更加放寬。"/>
+				<check_box label="轉移" name="CheckNextOwnerTransfer" tool_tip="下一個所有人可贈送或轉售這個物件。"/>
 			</panel>
-			<check_box label="出售" name="CheckPurchase"/>
-			<combo_box name="ComboBoxSaleType">
+			<check_box label="出售" name="CheckPurchase" tool_tip="允許別人在虛擬世界裡以特定的價格購買此物件、其內容或其複本。"/>
+			<combo_box name="ComboBoxSaleType" tool_tip="決定購買者會收到物件複本、物件內容複本、還是物件本身。">
 				<combo_box.item label="複製" name="Copy"/>
 				<combo_box.item label="內容" name="Contents"/>
 				<combo_box.item label="原件" name="Original"/>
 			</combo_box>
-			<spinner label="價格： L$" name="Edit Cost"/>
+			<spinner label="價格： L$" name="Edit Cost" tool_tip="物件成本。"/>
 		</panel>
 	</scroll_container>
 	<panel name="button_panel">

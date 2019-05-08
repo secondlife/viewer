@@ -34,9 +34,11 @@
 			<text name="LabelItemNameTitle">
 				Ad:
 			</text>
+			<line_editor name="LabelItemName" tool_tip="Ad, 63 karakter ile sınırlıdır. Daha uzun prim adları kesilerek kısaltılır. Adlar, dikey çubuk &apos;|&apos; hariç olmak üzere, sadece ASCII-7 (genişletilmemiş) karakter kümesinde bulunan yazdırılabilir karakterlerden oluşabilir."/>
 			<text name="LabelItemDescTitle">
 				Açıklama:
 			</text>
+			<line_editor name="LabelItemDesc" tool_tip="Görüntüleyici ayarlarında &apos;İpuçlarını Tüm Nesnelerin Üzerine Getir&apos; seçildiğinde, fare imlecinin altındaki herhangi bir nesneye ait nesne açıklaması açılır penceresi görülür. Prim (temel öğe) açıklaması 127 bayt ile sınırlıdır ve bundan daha uzun her dize kesilir."/>
 			<text name="LabelCreatorTitle">
 				Oluşturan:
 			</text>
@@ -59,7 +61,7 @@
 				<text name="AnyoneLabel">
 					Herkes:
 				</text>
-				<check_box label="Kopyala" name="CheckEveryoneCopy"/>
+				<check_box label="Kopyala" name="CheckEveryoneCopy" tool_tip="Herkes nesnenin bir kopyasını alabilir. Nesne ve sahip olduğu tüm içerikler kopyalamaya ve aktarıma izin vermelidir."/>
 				<text name="GroupLabel">
 					Grup:
 				</text>
@@ -67,17 +69,17 @@
 				<text name="NextOwnerLabel">
 					Sonraki sahip:
 				</text>
-				<check_box label="Değiştir" name="CheckNextOwnerModify"/>
-				<check_box label="Kopyala" name="CheckNextOwnerCopy"/>
-				<check_box label="Aktar" name="CheckNextOwnerTransfer" tool_tip="Sonraki sahibi bu nesneyi verebilir veya tekrar satabilir"/>
+				<check_box label="Değiştir" name="CheckNextOwnerModify" tool_tip="Sonraki sahip öğe adı veya bu nesnenin büyüklüğü gibi özellikleri düzenleyebilir."/>
+				<check_box label="Kopyala" name="CheckNextOwnerCopy" tool_tip="Sonraki sahip bu nesnenin sınırsız sayıda kopyasını oluşturabilir. Kopyalar oluşturucu bilgisini içerir ve asla kopyalanan öğeden daha fazla izin veren bir özellikte olamaz."/>
+				<check_box label="Aktar" name="CheckNextOwnerTransfer" tool_tip="Sonraki sahibi bu nesneyi hediye edebilir veya tekrar satabilir."/>
 			</panel>
-			<check_box label="Satılık" name="CheckPurchase"/>
-			<combo_box name="ComboBoxSaleType">
+			<check_box label="Satılık" name="CheckPurchase" tool_tip="İnsanların bu nesneyi, içeriğini veya SL dünyasındaki kopyasını satın almasına izin verin."/>
+			<combo_box name="ComboBoxSaleType" tool_tip="Alıcının bir kopya mı, yani içeriğin kopyasını mı yoksa öğenin kendisini mi alacağını seçin.">
 				<combo_box.item label="Kopyala" name="Copy"/>
 				<combo_box.item label="İçerik" name="Contents"/>
 				<combo_box.item label="Orijinal" name="Original"/>
 			</combo_box>
-			<spinner label="Fiyat: L$" name="Edit Cost"/>
+			<spinner label="Fiyat: L$" name="Edit Cost" tool_tip="Nesne maliyeti."/>
 		</panel>
 	</scroll_container>
 	<panel name="button_panel">

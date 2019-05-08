@@ -915,7 +915,8 @@
              name="Object Name"
              select_on_focus="true"
              top_delta="0"
-             width="170" />
+             width="170"
+             tool_tip="The name is limited to 63 characters. Longer prim names are cut short. Names can only consist of printable characters found in the ASCII-7 (non-extended) character set, with the exception of the vertical bar/pipe &apos;|&apos;." />
             <text
              follows="left|top"
              height="10"
@@ -933,7 +934,8 @@
              name="Object Description"
              select_on_focus="true"
              top_delta="0"
-             width="170" />
+             width="170"
+             tool_tip="When people have &apos;Hover Tips on All Objects&apos; selected in the viewer's settings, they'll see the object description pop-up for any object under their mouse pointer. The prim description is limited to 127 bytes any string longer then that will be truncated." />
             <text
              type="string"
              left="10"
@@ -1090,7 +1092,8 @@
              layout="topleft"
              name="clickaction"
              width="130"
-             left_pad="10">
+             left_pad="10"
+             tool_tip="A click action enables you to interact with an object with a single left click. Each click action has a special cursor indicating what it does. Some click actions have requirements to function. For example Touch and Pay require scripts" >
                 <combo_box.item
                  label="Touch  (default)"
                  name="Touch/grab(default)"
@@ -1126,7 +1129,8 @@
              layout="topleft"
              name="checkbox for sale"
              left="7"
-             width="97" />
+             width="97"
+             tool_tip="Lets people buy this object, its content or it copy inworld for specified price." />
   <!-- NEW PRICE SPINNER
 Objects are allowed to be for sale for L$0 to invoke buy UI behavior
 even though the user gets a free copy.
@@ -1144,7 +1148,8 @@ even though the user gets a free copy.
       width="85"
       min_val="0"
       height="20"
-      max_val="999999999" />
+      max_val="999999999"
+      tool_tip="Object cost." />
   <!-- NEW SALE TYPE COMBO BOX -->
       <combo_box
             left_pad="8"
@@ -1157,7 +1162,8 @@ even though the user gets a free copy.
             max_chars="20"
             mouse_opaque="true"
             name="sale type"
-            width="89">
+            width="89"
+            tool_tip="Select whether purchaser will receive a copy, copy of the content or item itself." >
         <combo_box.item
            name="Copy"
            label="Copy"
@@ -1219,6 +1225,7 @@ even though the user gets a free copy.
              label="Move"
              layout="topleft"
              name="checkbox allow everyone move"
+             tool_tip="Anyone can move the object."
              left="10"
              width="85" />
             <check_box
@@ -1227,6 +1234,7 @@ even though the user gets a free copy.
              layout="topleft"
              left_pad="0"
              name="checkbox allow everyone copy"
+             tool_tip="Anyone can take a copy of the object. Object and all of its contents must be copy and transfer permissive."
              width="90" />
             <text
                type="string"
@@ -1244,6 +1252,7 @@ even though the user gets a free copy.
              left="10"
              height="10"
              name="checkbox next owner can modify"
+             tool_tip="Next owner can edit properties like item name or scale of this object."
              width="85" />
             <check_box
              follows="left|top|right"
@@ -1252,6 +1261,7 @@ even though the user gets a free copy.
              layout="topleft"
              left_pad="0"
              name="checkbox next owner can copy"
+             tool_tip="Next owner can make unlimited copies of this object. Copies maintain creator information, and can never be more permissive than the item being copied."
              width="80" />
             <check_box
              follows="left|top|right"
@@ -1261,7 +1271,7 @@ even though the user gets a free copy.
              name="checkbox next owner can transfer"
              left_pad="0"
              top_delta="0"
-             tool_tip="Next owner can give away or resell this object"
+             tool_tip="Next owner can give away or resell this object."
              width="100" />
 <!-- *NOTE: These "B/O/G/E/N/F fields may overlap "perm_modify" above, 
      but that's OK, this is used only for debugging. -->

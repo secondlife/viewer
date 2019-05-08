@@ -1,16 +1,31 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="status">
-	<panel.string name="packet_loss_tooltip">Perte de paquets</panel.string>
-	<panel.string name="bandwidth_tooltip">Bande passante</panel.string>
-	<panel.string name="time">[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]</panel.string>
-	<panel.string name="timeTooltip">[weekday, datetime, slt] [sday, datetime, slt] [month, datetime, slt] [year, datetime, slt]</panel.string>
-	<panel.string name="buycurrencylabel">[AMT] L$</panel.string>
+	<panel.string name="packet_loss_tooltip">
+		Perte de paquets
+	</panel.string>
+	<panel.string name="bandwidth_tooltip">
+		Bande passante
+	</panel.string>
+	<panel.string name="time">
+		[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
+	</panel.string>
+	<panel.string name="timeTooltip">
+		[weekday, datetime, slt] [sday, datetime, slt] [month, datetime, slt] [year, datetime, slt]
+	</panel.string>
+	<panel.string name="buycurrencylabel">
+		[AMT] L$
+	</panel.string>
+	<panel name="menu_search_panel">
+		<search_editor label="Menus de recherche" name="search_menu_edit" tool_tip="Tapez le terme de recherche qui vous intéresse ici. Les résultats seront affichés pour les correspondances partielles en texte intégral dans le menu."/>
+	</panel>
 	<panel left="-426" name="balance_bg" width="195">
 		<text name="balance" tool_tip="Cliquer sur ce bouton pour actualiser votre solde en L$." value="L$ ??"/>
 		<button label="Acheter L$" name="buyL" tool_tip="Cliquer pour acheter plus de L$."/>
 		<button label="Achats" name="goShop" tool_tip="Ouvrir la Place du marché Second Life." width="75"/>
 	</panel>
-	<text name="TimeText" tool_tip="Heure actuelle (Pacifique)">00h00 PST</text>
+	<text name="TimeText" tool_tip="Heure actuelle (Pacifique)">
+		00h00 PST
+	</text>
 	<button name="media_toggle_btn" tool_tip="Arrêter tous les médias (musique, vidéo, pages web)."/>
 	<button name="volume_btn" tool_tip="Régler le volume global."/>
 </panel>

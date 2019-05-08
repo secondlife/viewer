@@ -61,10 +61,10 @@
 		Begehbar
 	</floater.string>
 	<floater.string name="linkset_use_static_obstacle">
-		Statisches Hinternis
+		Statisches Hindernis
 	</floater.string>
 	<floater.string name="linkset_use_dynamic_obstacle">
-		Bewegliches Hinternis
+		Bewegliches Hindernis
 	</floater.string>
 	<floater.string name="linkset_use_material_volume">
 		Materialvolumen
@@ -103,8 +103,8 @@
 		<combo_box name="filter_by_linkset_use">
 			<combo_box.item label="Nach Linkset-Nutzung filtern..." name="filter_by_linkset_use_none"/>
 			<combo_box.item label="Begehbar" name="filter_by_linkset_use_walkable"/>
-			<combo_box.item label="Statisches Hinternis" name="filter_by_linkset_use_static_obstacle"/>
-			<combo_box.item label="Bewegliches Hinternis" name="filter_by_linkset_use_dynamic_obstacle"/>
+			<combo_box.item label="Statisches Hindernis" name="filter_by_linkset_use_static_obstacle"/>
+			<combo_box.item label="Bewegliches Hindernis" name="filter_by_linkset_use_dynamic_obstacle"/>
 			<combo_box.item label="Materialvolumen" name="filter_by_linkset_use_material_volume"/>
 			<combo_box.item label="Ausschlussvolumen" name="filter_by_linkset_use_exclusion_volume"/>
 			<combo_box.item label="Bewegliches Phantom" name="filter_by_linkset_use_dynamic_phantom"/>
