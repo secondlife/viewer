@@ -5992,7 +5992,7 @@ void LLVOAvatar::rebuildAttachmentOverrides()
                 LLViewerObject *vo = *at_it;
                 // Attached animated objects affect joints in their control
                 // avs, not the avs to which they are attached.
-                if (!vo->isAnimatedObject())
+                if (vo && !vo->isAnimatedObject())
                 {
                     addAttachmentOverridesForObject(vo);
                 }
@@ -6043,7 +6043,7 @@ void LLVOAvatar::updateAttachmentOverrides()
                 LLViewerObject *vo = *at_it;
                 // Attached animated objects affect joints in their control
                 // avs, not the avs to which they are attached.
-                if (!vo->isAnimatedObject())
+                if (vo && !vo->isAnimatedObject())
                 {
                     addAttachmentOverridesForObject(vo, &meshes_seen);
                 }
@@ -7037,12 +7037,33 @@ U32 LLVOAvatar::getNumAttachments() const
 }
 
 //-----------------------------------------------------------------------------
+// getMaxAttachments()
+//-----------------------------------------------------------------------------
+S32 LLVOAvatar::getMaxAttachments() const
+{
+	const S32 MAX_AGENT_ATTACHMENTS = 38;
+
+	S32 max_attach = MAX_AGENT_ATTACHMENTS;
+	
+	if (gAgent.getRegion())
+	{
+		LLSD features;
+		gAgent.getRegion()->getSimulatorFeatures(features);
+		if (features.has("MaxAgentAttachments"))
+		{
+			max_attach = features["MaxAgentAttachments"].asInteger();
+		}
+	}
+	return max_attach;
+}
+
+//-----------------------------------------------------------------------------
 // canAttachMoreObjects()
 // Returns true if we can attach <n> more objects.
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatar::canAttachMoreObjects(U32 n) const
 {
-	return (getNumAttachments() + n) <= MAX_AGENT_ATTACHMENTS;
+	return (getNumAttachments() + n) <= getMaxAttachments();
 }
 
 //-----------------------------------------------------------------------------
@@ -7070,7 +7091,7 @@ S32 LLVOAvatar::getMaxAnimatedObjectAttachments() const
     S32 max_attach = 0;
     if (gSavedSettings.getBOOL("AnimatedObjectsIgnoreLimits"))
     {
-        max_attach = MAX_AGENT_ATTACHMENTS;
+        max_attach = getMaxAttachments(); 
     }
     else
     {

@@ -27,6 +27,7 @@
 
 #include "linden_common.h"
 
+#include "llapr.h" // thread-related functions
 #include "llpidlock.h"
 #include "lldir.h"
 #include "llsd.h"

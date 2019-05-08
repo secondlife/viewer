@@ -68,8 +68,8 @@ void LLAutoReplace::autoreplaceCallback(S32& replacement_start, S32& replacement
 					word_start--; // walk word_start back to the beginning of the word
 				}
 				LL_DEBUGS("AutoReplace") << "word_start: " << word_start << " word_end: " << word_end << LL_ENDL;
-				std::string str_text  = std::string(input_text.begin(), input_text.end());
-				std::string last_word = str_text.substr(word_start, word_end - word_start + 1);
+				LLWString old_string = input_text.substr(word_start, word_end - word_start + 1);
+				std::string last_word = wstring_to_utf8str(old_string);
 				std::string replacement_word(mSettings.replaceWord(last_word));
 
 				if (replacement_word != last_word)
@@ -79,9 +79,8 @@ void LLAutoReplace::autoreplaceCallback(S32& replacement_start, S32& replacement
 					{
 						// return the replacement string
 						replacement_start = word_start;
-						replacement_length = last_word.length();
+						replacement_length = word_end - word_start + 1;
 						replacement_string = utf8str_to_wstring(replacement_word);
-						LLWString old_string = utf8str_to_wstring(last_word);
 						S32 size_change = replacement_string.size() - old_string.size();
 						cursor_pos += size_change;
 					}

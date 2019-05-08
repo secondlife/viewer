@@ -130,7 +130,8 @@
         max_length_bytes="63"
         name="LabelItemName"
         top_delta="0"
-        width="210" />
+        width="210"
+        tool_tip="The name is limited to 63 characters. Longer prim names are cut short. Names can only consist of printable characters found in the ASCII-7 (non-extended) character set, with the exception of the vertical bar/pipe &apos;|&apos;." />
       <text
         type="string"
         length="1"
@@ -153,7 +154,8 @@
         max_length_bytes="127"
         name="LabelItemDesc"
         top_delta="-5"
-        width="210" />
+        width="210"
+        tool_tip="When people have &apos;Hover Tips on All Objects&apos; selected in the viewer's settings, they'll see the object description pop-up for any object under their mouse pointer. The prim description is limited to 127 bytes any string longer then that will be truncated." />
       <text
         type="string"
         length="1"
@@ -351,6 +353,7 @@
           layout="topleft"
           left_pad="0"
           name="CheckEveryoneCopy"
+          tool_tip="Anyone can take a copy of the object . Object and all of its contents must be copy and transfer permissive."
           top_delta="-2"
           width="150" />
         <text
@@ -394,6 +397,7 @@
           left="20"
           top_pad="0"
           name="CheckNextOwnerModify"
+          tool_tip="Next owner can edit properties like item name or scale of this object."
           width="90" />
         <check_box
           height="18"
@@ -401,6 +405,7 @@
           layout="topleft"
           left_pad="0"
           name="CheckNextOwnerCopy"
+          tool_tip="Next owner can make unlimited copies of this object. Copies maintain creator information, and can never be more permissive than the item being copied."
           width="90" />
         <check_box
           height="18"
@@ -408,7 +413,7 @@
           layout="topleft"
           left_pad="0"
           name="CheckNextOwnerTransfer"
-          tool_tip="Next owner can give away or resell this object"
+          tool_tip="Next owner can give away or resell this object."
           width="106" />
       </panel>
       <check_box
@@ -418,14 +423,16 @@
         left="20"
         name="CheckPurchase"
         top_pad="20"
-        width="100" />
+        width="100"
+        tool_tip="Lets people buy this object, its content or it copy inworld for specified price." />
       <combo_box
         height="23"
         left_pad="0"
         layout="topleft"
         follows="left|top"
         name="ComboBoxSaleType"
-        width="170">
+        width="170"
+        tool_tip="Select whether purchaser will receive a copy, copy of the content or item itself." >
         <combo_box.item
              name="Copy"
              label="Copy"
@@ -452,7 +459,8 @@
         min_val="0"
         height="23"
         max_val="999999999"
-        top_pad="10"/>
+        top_pad="10"
+        tool_tip="Object cost." />
     </panel>
 
   </scroll_container>

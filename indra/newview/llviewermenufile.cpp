@@ -175,7 +175,7 @@ void LLFilePickerThread::run()
 //static
 void LLFilePickerThread::initClass()
 {
-	sMutex = new LLMutex(NULL);
+	sMutex = new LLMutex();
 }
 
 //static
@@ -812,7 +812,7 @@ void upload_done_callback(
 		LLStringUtil::trim(asset_name);
 
 		std::string display_name = LLStringUtil::null;
-		LLAssetStorage::LLStoreAssetCallback callback;
+		LLAssetStorage::LLStoreAssetCallback callback = NULL;
 		void *userdata = NULL;
 		upload_new_resource(
 			next_file,

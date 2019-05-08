@@ -4,7 +4,7 @@
 		Top-Skripts
 	</floater.string>
 	<floater.string name="top_scripts_text">
-		[COUNT] Skripts benötigen insgesamt [TIME] ms
+		[COUNT] Skripte benötigen insgesamt [TIME] ms und [MEMORY] KB
 	</floater.string>
 	<floater.string name="scripts_score_label">
 		Zeit

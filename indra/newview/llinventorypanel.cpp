@@ -896,7 +896,8 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id, LLInventoryO
 			
 			if (objectp->getType() >= LLAssetType::AT_COUNT)
   			{
-  				LL_WARNS() << "LLInventoryPanel::buildNewViews called with unknown objectp->mType : "
+				// Example: Happens when we add assets of new, not yet supported type to library
+				LL_DEBUGS() << "LLInventoryPanel::buildNewViews called with unknown objectp->mType : "
 				<< ((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID()
 				<< LL_ENDL;
 
@@ -1725,6 +1726,8 @@ bool LLInventoryPanel::isSelectionRemovable()
 /************************************************************************/
 /* Recent Inventory Panel related class                                 */
 /************************************************************************/
+class LLInventoryRecentItemsPanel;
+static LLDefaultChildRegistry::Register<LLInventoryRecentItemsPanel> t_recent_inventory_panel("recent_inventory_panel");
 
 static const LLRecentInventoryBridgeBuilder RECENT_ITEMS_BUILDER;
 class LLInventoryRecentItemsPanel : public LLInventoryPanel
