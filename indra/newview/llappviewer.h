@@ -43,6 +43,7 @@
 #define LL_LLAPPVIEWER_H
 
 #include "llallocator.h"
+#include "llapr.h"
 #include "llcontrol.h"
 #include "llsys.h"			// for LLOSInfo
 #include "lltimer.h"
@@ -109,6 +110,7 @@ public:
 	static void handleViewerCrash(); // Hey! The viewer crashed. Do this, soon.
     void checkForCrash();
     
+	// Thread accessors
 	static LLTextureCache* getTextureCache() { return sTextureCache; }
 	static LLTextureFetch* getTextureFetch() { return sTextureFetch; }
 
