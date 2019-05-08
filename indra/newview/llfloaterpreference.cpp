@@ -849,6 +849,13 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 		save_camera_btn->setEnabled(started);
 		delete_camera_btn->setEnabled(started);
 	}
+
+    collectSearchableItems();
+	if (!mFilterEdit->getText().empty())
+	{
+		mFilterEdit->setText(LLStringExplicit(""));
+		onUpdateFilterTerm(true);
+	}
 }
 
 void LLFloaterPreference::onVertexShaderEnable()
@@ -2027,6 +2034,45 @@ void LLFloaterPreference::updateMaxComplexity()
     LLAvatarComplexityControls::updateMax(
         getChild<LLSliderCtrl>("IndirectMaxComplexity"),
         getChild<LLTextBox>("IndirectMaxComplexityText"));
+}
+
+bool LLFloaterPreference::loadFromFilename(const std::string& filename, std::map<std::string, std::string> &label_map)
+{
+    LLXMLNodePtr root;
+
+    if (!LLXMLNode::parseFile(filename, root, NULL))
+    {
+        LL_WARNS() << "Unable to parse file " << filename << LL_ENDL;
+        return false;
+    }
+
+    if (!root->hasName("labels"))
+    {
+        LL_WARNS() << filename << " is not a valid definition file" << LL_ENDL;
+        return false;
+    }
+
+    LabelTable params;
+    LLXUIParser parser;
+    parser.readXUI(root, params, filename);
+
+    if (params.validateBlock())
+    {
+        for (LLInitParam::ParamIterator<LabelDef>::const_iterator it = params.labels.begin();
+            it != params.labels.end();
+            ++it)
+        {
+            LabelDef label_entry = *it;
+            label_map[label_entry.name] = label_entry.value;
+        }
+    }
+    else
+    {
+        LL_WARNS() << filename << " failed to load" << LL_ENDL;
+        return false;
+    }
+
+    return true;
 }
 
 void LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity()
