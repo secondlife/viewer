@@ -119,6 +119,7 @@ BOOL  LLAvatarListItem::postBuild()
 	mIconPermissionEditTheirs->setVisible(false);
 
 	mSpeakingIndicator = getChild<LLOutputMonitorCtrl>("speaking_indicator");
+	mSpeakingIndicator->setChannelState(LLOutputMonitorCtrl::UNDEFINED_CHANNEL);
 	mInfoBtn = getChild<LLButton>("info_btn");
 	mProfileBtn = getChild<LLButton>("profile_btn");
 

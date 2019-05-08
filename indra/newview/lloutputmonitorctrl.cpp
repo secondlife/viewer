@@ -72,9 +72,11 @@ LLOutputMonitorCtrl::LLOutputMonitorCtrl(const LLOutputMonitorCtrl::Params& p)
 	mImageLevel3(p.image_level_3),
 	mAutoUpdate(p.auto_update),
 	mSpeakerId(p.speaker_id),
+	mIsModeratorMuted(false),
 	mIsAgentControl(false),
 	mIndicatorToggled(false),
-	mShowParticipantsSpeaking(false)
+	mShowParticipantsSpeaking(false),
+	mChannelState(INACTIVE_CHANNEL)
 {
 	//static LLUIColor output_monitor_muted_color = LLUIColorTable::instance().getColor("OutputMonitorMutedColor", LLColor4::orange);
 	//static LLUIColor output_monitor_overdriven_color = LLUIColorTable::instance().getColor("OutputMonitorOverdrivenColor", LLColor4::red);
@@ -124,7 +126,7 @@ void LLOutputMonitorCtrl::draw()
 	const F32 LEVEL_1 = LLVoiceClient::OVERDRIVEN_POWER_LEVEL * 2.f / 3.f;
 	const F32 LEVEL_2 = LLVoiceClient::OVERDRIVEN_POWER_LEVEL;
 
-	if (getVisible() && mAutoUpdate && !mIsMuted && mSpeakerId.notNull())
+	if (getVisible() && mAutoUpdate && !getIsMuted() && mSpeakerId.notNull())
 	{
 		setPower(LLVoiceClient::getInstance()->getCurrentPower(mSpeakerId));
 		if(mIsAgentControl)
@@ -156,7 +158,7 @@ void LLOutputMonitorCtrl::draw()
 	}
 
 	LLPointer<LLUIImage> icon;
-	if (mIsMuted)
+	if (getIsMuted())
 	{
 		icon = mImageMute;
 	}
@@ -255,6 +257,21 @@ BOOL LLOutputMonitorCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 	return TRUE;
 }
 
+void LLOutputMonitorCtrl::setIsActiveChannel(bool val)
+{
+    setChannelState(val ? ACTIVE_CHANNEL : INACTIVE_CHANNEL);
+}
+
+void LLOutputMonitorCtrl::setChannelState(EChannelState state)
+{
+    mChannelState = state;
+    if (state == INACTIVE_CHANNEL)
+    {
+        // switchIndicator will set it to TRUE when channel becomes active
+        setVisible(FALSE);
+    }
+}
+
 void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id, const LLUUID& session_id/* = LLUUID::null*/, bool show_other_participants_speaking /* = false */)
 {
 	if (speaker_id.isNull() && mSpeakerId.notNull())
@@ -304,8 +321,7 @@ void LLOutputMonitorCtrl::onChange()
 // virtual
 void LLOutputMonitorCtrl::switchIndicator(bool switch_on)
 {
-
-    if(getVisible() != (BOOL)switch_on)
+    if ((mChannelState != INACTIVE_CHANNEL) && (getVisible() != (BOOL)switch_on))
     {
         setVisible(switch_on);
         

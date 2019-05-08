@@ -390,15 +390,22 @@ namespace
 
 		{
 			llifstream file(filename().c_str());
-			if (file.is_open())
+			if (!file.is_open())
 			{
-				LLSDSerialize::fromXML(configuration, file);
+				LL_WARNS() << filename() << " failed to open file; not changing configuration" << LL_ENDL;
+				return false;
 			}
 
-			if (configuration.isUndefined())
+			if (LLSDSerialize::fromXML(configuration, file) == LLSDParser::PARSE_FAILURE)
 			{
-				LL_WARNS() << filename() << " missing, ill-formed,"
-							" or simply undefined; not changing configuration"
+				LL_WARNS() << filename() << " parcing error; not changing configuration" << LL_ENDL;
+				return false;
+			}
+
+			if (configuration.isUndefined() || !configuration.isMap() || configuration.emptyMap())
+			{
+				LL_WARNS() << filename() << " missing, ill-formed, or simply undefined"
+							" content; not changing configuration"
 						<< LL_ENDL;
 				return false;
 			}
@@ -860,19 +867,24 @@ namespace LLError
             setEnabledLogTypesMask(config["enabled-log-types-mask"].asInteger());
         }
         
-		LLSD sets = config["settings"];
-		LLSD::array_const_iterator a, end;
-		for (a = sets.beginArray(), end = sets.endArray(); a != end; ++a)
-		{
-			const LLSD& entry = *a;
-			
-			ELevel level = decodeLevel(entry["level"]);
-			
-			setLevels(s->mFunctionLevelMap,	entry["functions"],	level);
-			setLevels(s->mClassLevelMap,	entry["classes"],	level);
-			setLevels(s->mFileLevelMap,		entry["files"],		level);
-			setLevels(s->mTagLevelMap,		entry["tags"],		level);
-		}
+        if (config.has("settings") && config["settings"].isArray())
+        {
+            LLSD sets = config["settings"];
+            LLSD::array_const_iterator a, end;
+            for (a = sets.beginArray(), end = sets.endArray(); a != end; ++a)
+            {
+                const LLSD& entry = *a;
+                if (entry.isMap() && !entry.emptyMap())
+                {
+                    ELevel level = decodeLevel(entry["level"]);
+
+                    setLevels(s->mFunctionLevelMap, entry["functions"], level);
+                    setLevels(s->mClassLevelMap, entry["classes"], level);
+                    setLevels(s->mFileLevelMap, entry["files"], level);
+                    setLevels(s->mTagLevelMap, entry["tags"], level);
+                }
+            }
+        }
 	}
 }
 
@@ -1136,6 +1148,9 @@ namespace
 }
 
 namespace {
+	LLMutex gLogMutex;
+	LLMutex gCallStacksLogMutex;
+
 	bool checkLevelMap(const LevelMap& map, const std::string& key,
 						LLError::ELevel& level)
 	{
@@ -1175,56 +1190,6 @@ namespace {
 		}
 		return found_level;
 	}
-	
-	class LogLock
-	{
-	public:
-		LogLock();
-		~LogLock();
-		bool ok() const { return mOK; }
-	private:
-		bool mLocked;
-		bool mOK;
-	};
-	
-	LogLock::LogLock()
-		: mLocked(false), mOK(false)
-	{
-		if (!gLogMutexp)
-		{
-			mOK = true;
-			return;
-		}
-		
-		const int MAX_RETRIES = 5;
-		for (int attempts = 0; attempts < MAX_RETRIES; ++attempts)
-		{
-			apr_status_t s = apr_thread_mutex_trylock(gLogMutexp);
-			if (!APR_STATUS_IS_EBUSY(s))
-			{
-				mLocked = true;
-				mOK = true;
-				return;
-			}
-
-			ms_sleep(1);
-			//apr_thread_yield();
-				// Just yielding won't necessarily work, I had problems with
-				// this on Linux - doug 12/02/04
-		}
-
-		// We're hosed, we can't get the mutex.  Blah.
-		std::cerr << "LogLock::LogLock: failed to get mutex for log"
-					<< std::endl;
-	}
-	
-	LogLock::~LogLock()
-	{
-		if (mLocked)
-		{
-			apr_thread_mutex_unlock(gLogMutexp);
-		}
-	}
 }
 
 namespace LLError
@@ -1232,8 +1197,8 @@ namespace LLError
 
 	bool Log::shouldLog(CallSite& site)
 	{
-		LogLock lock;
-		if (!lock.ok())
+		LLMutexTrylock lock(&gLogMutex, 5);
+		if (!lock.isLocked())
 		{
 			return false;
 		}
@@ -1283,11 +1248,11 @@ namespace LLError
 
 	std::ostringstream* Log::out()
 	{
-		LogLock lock;
+		LLMutexTrylock lock(&gLogMutex,5);
 		// If we hit a logging request very late during shutdown processing,
 		// when either of the relevant LLSingletons has already been deleted,
 		// DO NOT resurrect them.
-		if (lock.ok() && ! (Settings::wasDeleted() || Globals::wasDeleted()))
+		if (lock.isLocked() && ! (Settings::wasDeleted() || Globals::wasDeleted()))
 		{
 			Globals* g = Globals::getInstance();
 
@@ -1303,8 +1268,8 @@ namespace LLError
 
 	void Log::flush(std::ostringstream* out, char* message)
 	{
-		LogLock lock;
-		if (!lock.ok())
+		LLMutexTrylock lock(&gLogMutex,5);
+		if (!lock.isLocked())
 		{
 			return;
 		}
@@ -1343,8 +1308,8 @@ namespace LLError
 
 	void Log::flush(std::ostringstream* out, const CallSite& site)
 	{
-		LogLock lock;
-		if (!lock.ok())
+		LLMutexTrylock lock(&gLogMutex,5);
+		if (!lock.isLocked())
 		{
 			return;
 		}
@@ -1514,69 +1479,6 @@ namespace LLError
 	char** LLCallStacks::sBuffer = NULL ;
 	S32    LLCallStacks::sIndex  = 0 ;
 
-#define SINGLE_THREADED 1
-
-	class CallStacksLogLock
-	{
-	public:
-		CallStacksLogLock();
-		~CallStacksLogLock();
-
-#if SINGLE_THREADED
-		bool ok() const { return true; }
-#else
-		bool ok() const { return mOK; }
-	private:
-		bool mLocked;
-		bool mOK;
-#endif
-	};
-	
-#if SINGLE_THREADED
-	CallStacksLogLock::CallStacksLogLock()
-	{
-	}
-	CallStacksLogLock::~CallStacksLogLock()
-	{
-	}
-#else
-	CallStacksLogLock::CallStacksLogLock()
-		: mLocked(false), mOK(false)
-	{
-		if (!gCallStacksLogMutexp)
-		{
-			mOK = true;
-			return;
-		}
-		
-		const int MAX_RETRIES = 5;
-		for (int attempts = 0; attempts < MAX_RETRIES; ++attempts)
-		{
-			apr_status_t s = apr_thread_mutex_trylock(gCallStacksLogMutexp);
-			if (!APR_STATUS_IS_EBUSY(s))
-			{
-				mLocked = true;
-				mOK = true;
-				return;
-			}
-
-			ms_sleep(1);
-		}
-
-		// We're hosed, we can't get the mutex.  Blah.
-		std::cerr << "CallStacksLogLock::CallStacksLogLock: failed to get mutex for log"
-					<< std::endl;
-	}
-	
-	CallStacksLogLock::~CallStacksLogLock()
-	{
-		if (mLocked)
-		{
-			apr_thread_mutex_unlock(gCallStacksLogMutexp);
-		}
-	}
-#endif
-
 	//static
    void LLCallStacks::allocateStackBuffer()
    {
@@ -1605,8 +1507,8 @@ namespace LLError
    //static
    void LLCallStacks::push(const char* function, const int line)
    {
-	   CallStacksLogLock lock;
-       if (!lock.ok())
+       LLMutexTrylock lock(&gCallStacksLogMutex, 5);
+       if (!lock.isLocked())
        {
            return;
        }
@@ -1640,8 +1542,8 @@ namespace LLError
    //static
    void LLCallStacks::end(std::ostringstream* _out)
    {
-	   CallStacksLogLock lock;
-       if (!lock.ok())
+       LLMutexTrylock lock(&gCallStacksLogMutex, 5);
+       if (!lock.isLocked())
        {
            return;
        }
@@ -1662,8 +1564,8 @@ namespace LLError
    //static
    void LLCallStacks::print()
    {
-	   CallStacksLogLock lock;
-       if (!lock.ok())
+       LLMutexTrylock lock(&gCallStacksLogMutex, 5);
+       if (!lock.isLocked())
        {
            return;
        }
@@ -1700,8 +1602,8 @@ namespace LLError
 
 bool debugLoggingEnabled(const std::string& tag)
 {
-    LogLock lock;
-    if (!lock.ok())
+    LLMutexTrylock lock(&gLogMutex, 5);
+    if (!lock.isLocked())
     {
         return false;
     }

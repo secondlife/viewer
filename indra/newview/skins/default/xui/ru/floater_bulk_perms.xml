@@ -29,17 +29,17 @@
 	<text name="GroupLabel">
 		Группа:
 	</text>
-	<check_box label="Поделиться" name="share_with_group"/>
+	<check_box label="Поделиться" name="share_with_group" tool_tip="Позволить всем участникам выбранной группы получить установленные вам права на этот объект. Для включения ролевых ограничений необходимо произвести сделку."/>
 	<text name="AnyoneLabel">
 		Все:
 	</text>
-	<check_box label="Копировать" name="everyone_copy"/>
+	<check_box label="Копировать" name="everyone_copy" tool_tip="Копию объекта может взять любой желающий. Объект и все его содержимое должны копироваться и передаваться."/>
 	<text name="NextOwnerLabel">
 		Следующий владелец:
 	</text>
-	<check_box label="Изменять" name="next_owner_modify"/>
-	<check_box label="Копировать" name="next_owner_copy"/>
-	<check_box initial_value="true" label="Передать" name="next_owner_transfer" tool_tip="Следующий владелец может отдать или перепродать объект"/>
+	<check_box label="Изменять" name="next_owner_modify" tool_tip="Следующий владелец может отредактировать свойства, такие как имя отдельного предмета или масштаб этого объекта."/>
+	<check_box label="Копировать" name="next_owner_copy" tool_tip="Следующий владелец может сделать неограниченное количество копий этого объекта. Копии содержат информацию о создателе и никогда не могут быть более разрешительными, чем копируемый предмет."/>
+	<check_box initial_value="true" label="Передать" name="next_owner_transfer" tool_tip="Следующий владелец может отдать или перепродать этот объект."/>
 	<button label="OK" name="ok"/>
 	<button label="Применить" name="apply"/>
 	<button label="Отмена" name="close"/>

@@ -1,16 +1,31 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="status">
-	<panel.string name="packet_loss_tooltip">パケット損失</panel.string>
-	<panel.string name="bandwidth_tooltip">帯域幅</panel.string>
-	<panel.string name="time">[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]</panel.string>
-	<panel.string name="timeTooltip">[year, datetime, slt] [month, datetime, slt] [day, datetime, slt] （[weekday, datetime, slt]）</panel.string>
-	<panel.string name="buycurrencylabel">L$ [AMT]</panel.string>
+	<panel.string name="packet_loss_tooltip">
+		パケット損失
+	</panel.string>
+	<panel.string name="bandwidth_tooltip">
+		帯域幅
+	</panel.string>
+	<panel.string name="time">
+		[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
+	</panel.string>
+	<panel.string name="timeTooltip">
+		[year, datetime, slt] [month, datetime, slt] [day, datetime, slt] （[weekday, datetime, slt]）
+	</panel.string>
+	<panel.string name="buycurrencylabel">
+		L$ [AMT]
+	</panel.string>
+	<panel name="menu_search_panel">
+		<search_editor label="メニューの検索" name="search_menu_edit" tool_tip="検索したい内容をここに入力してください。メニューに部分的に一致する結果が表示されます。"/>
+	</panel>
 	<panel left="-391" name="balance_bg" width="160">
 		<text name="balance" tool_tip="クリックして L$ 残高を更新" value="L$??"/>
 		<button label="L$ の購入" name="buyL" tool_tip="クリックして L$ を購入します"/>
 		<button label="店" name="goShop" tool_tip="Second Life マーケットプレイスを開く" width="40"/>
 	</panel>
-	<text name="TimeText" tool_tip="現在時刻（太平洋）">24:00 AM PST</text>
+	<text name="TimeText" tool_tip="現在時刻（太平洋）">
+		24:00 AM PST
+	</text>
 	<button name="media_toggle_btn" tool_tip="すべてのメディアを開始・停止（音楽、ビデオ、Web ページ）"/>
 	<button name="volume_btn" tool_tip="グローバル音量設定"/>
 </panel>

@@ -243,6 +243,10 @@ La inicialización del mercado ha fallado por un error del sistema o de la red. 
 		Nota: Al activar esta opción, cualquiera que utilice este ordenador podrá ver tu lista de lugares favoritos.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="AllowMultipleViewers">
+		No es posible ejecutar varios visores Second Life ya que esta funcionalidad no es compatible. Puede provocar problemas de caché en la textura, imágenes degradadas o alteradas y un bajo rendimiento.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="GrantModifyRights">
 		Al conceder permisos de modificación a otro Residente, le estás permitiendo cambiar, borrar o tomar CUALQUIER objeto que tengas en el mundo. Sé MUY cuidadoso al conceder este permiso.
 ¿Quieres conceder permisos de modificación a [NAME]?
@@ -713,8 +717,9 @@ La calidad gráfica puede ajustarse en Preferencias &gt; Gráficos.
 		No tienes permiso para modificar el terreno de la parcela [PARCEL].
 	</notification>
 	<notification name="CannotCopyWarning">
-		No tienes permiso para copiar los elementos siguientes:
-[ITEMS] y, si los das, los perderás del inventario. ¿Seguro que quieres ofrecerlos?
+		No tienes permiso para copiar los elementos siguientes: 
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+y, si los das, los perderás del inventario. ¿Seguro que quieres ofrecerlos?
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Sí"/>
 	</notification>
 	<notification name="CannotGiveItem">
@@ -1613,8 +1618,24 @@ Por favor, pon en venta el objeto y vuelve a intentarlo.
 [DOWNLOAD_PATH].
 	</notification>
 	<notification name="RequiredUpdate">
-		La versión [VERSION] es necesaria para iniciar sesión. Esto debería haber sido actualizado, pero parece que no fue así. Por favor, descarga desde https://secondlife.com/support/downloads/
+		La versión [VERSION] es necesaria para iniciar sesión. 
+Por favor, realiza la descarga desde https://secondlife.com/support/downloads/
 		<usetemplate name="okbutton" yestext="Aceptar"/>
+	</notification>
+	<notification name="PauseForUpdate">
+		La versión [VERSION] es necesaria para iniciar sesión. 
+Haz clic en OK para descargar e instalar.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OptionalUpdateReady">
+		La versión [VERSION] ha sido descargada y está lista para instalar. 
+Haz clic en OK para instalar.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PromptOptionalUpdate">
+		La versión [VERSION] ha sido descargada y está lista para instalar. 
+¿Deseas continuar?
+		<usetemplate canceltext="Ahora no" name="yesnocancelbuttons" notext="Saltear" yestext="Instalar"/>
 	</notification>
 	<notification name="LoginFailedUnknown">
 		Lo sentimos, error en el inicio de sesión, motivo desconocido. Si sigues recibiendo este mensaje, por favor, acude al [SUPPORT_SITE].
@@ -3078,15 +3099,6 @@ No autorices el acceso a tu cuenta si no conoces cuál es la razón exacta.
 			<button name="Deny" text="Denegar"/>
 		</form>
 	</notification>
-	<notification name="UnknownScriptQuestion">
-		&apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, un objeto propiedad de &apos;[NAME]&apos;, ha solicitado un permiso de script en tiempo de ejecución que el visor no reconoce ni puede conceder.
-
-Para obtener el permiso, descárgate aquí la última versión: [DOWNLOADURL].
-		<form name="form">
-			<button name="Deny" text="Aceptar"/>
-			<button name="Mute" text="Ignorar"/>
-		</form>
-	</notification>
 	<notification name="ScriptDialog">
 		&apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos; de [NAME]
 [MESSAGE]
@@ -3741,13 +3753,13 @@ no está en la misma región que tú.
 		No puedes crear árboles y hierba en un terreno que no es tuyo.
 	</notification>
 	<notification name="NoCopyPermsNoObject">
-		Error al copiar: careces de permiso para copiar el objeto &apos;[OBJ_NAME]&apos;.
+		Error al copiar porque no tienes permiso para copiar el objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoTransPermsNoObject">
-		Error al copiar: no se te puede transferir el objeto &apos;[OBJ_NAME]&apos;.
+		Error al copiar porque no puedes recibir una transferencia del objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="AddToNavMeshNoCopy">
-		Error al copiar porque el objeto &apos;[OBJ_NAME]&apos; contribuye al navmesh.
+		Error al copiar porque el objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; contribuye a navmesh.
 	</notification>
 	<notification name="DupeWithNoRootsSelected">
 		Duplicación sin objetos raíz seleccionados.
@@ -3792,34 +3804,34 @@ Prueba otra vez dentro de un minuto.
 		Se ha deshabilitado Devolver el objeto a mi inventario.
 	</notification>
 	<notification name="NoExistNoSaveToContents">
-		No se puede guardar &apos;[OBJ_NAME]&apos; en el contenido del objeto porque el objeto desde el cual ha sido colocado ya no existe.
+		No se puede guardar &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; en los contenidos del objeto porque el objeto a partir del cual fue creado ya no existe.
 	</notification>
 	<notification name="NoModNoSaveToContents">
-		No se puede guardar &apos;[OBJ_NAME]&apos; en el contenido del objeto porque no tienes permiso para modificar el objeto &apos;[DEST_NAME]&apos;.
+		No se puede guardar &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; en los contenidos del objeto porque no tienes permiso para modificar el objeto &lt;nolink&gt;&apos;[DEST_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoSaveBackToInvDisabled">
-		No se puede guardar &apos;[OBJ_NAME]&apos; de nuevo en el inventario; esta operación está desactivada.
+		No se puede volver a guardar &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; en el inventario. Esta operación fue desactivada.
 	</notification>
 	<notification name="NoCopyNoSelCopy">
-		No se puede copiar tu selección porque no tienes permiso para copiar el objeto &apos;[OBJ_NAME]&apos;.
+		No puedes copiar el elemento seleccionado porque no tienes permiso para copiar el objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoTransNoSelCopy">
-		No se puede copiar tu selección porque el objeto &apos;[OBJ_NAME]&apos; es intransferible.
+		No puedes copiar el elemento seleccionado porque el objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; no es transferible.
 	</notification>
 	<notification name="NoTransNoCopy">
-		No se puede copiar tu selección porque el objeto &apos;[OBJ_NAME]&apos; es intransferible.
+		No puedes copiar el elemento seleccionado porque el objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; no es transferible.
 	</notification>
 	<notification name="NoPermsNoRemoval">
-		El sistema de permisos no admite la eliminación del objeto &apos;[OBJ_NAME]&apos; del simulador.
+		El sistema de permisos no autoriza quitar el objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; del simulador.
 	</notification>
 	<notification name="NoModNoSaveSelection">
-		No se puede guardar tu selección porque no tienes permiso para modificar el objeto &apos;[OBJ_NAME]&apos;.
+		No puedes guardar el elemento seleccionado porque no tienes permiso para modificar el objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoCopyNoSaveSelection">
-		No se puede guardar tu selección porque el objeto &apos;[OBJ_NAME]&apos; no se puede copiar.
+		No puedes guardar el elemento seleccionado porque el objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; no puede ser copiado.
 	</notification>
 	<notification name="NoModNoTaking">
-		No se puede aceptar tu selección porque no tienes permiso para modificar el objeto &apos;[OBJ_NAME]&apos;.
+		No puedes tomar el elemento seleccionado porque no tienes permiso para modificar el objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="RezDestInternalError">
 		Error interno: tipo de destino desconocido.

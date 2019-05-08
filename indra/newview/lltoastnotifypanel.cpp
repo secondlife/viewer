@@ -46,8 +46,6 @@
 const S32 BOTTOM_PAD = VPAD * 3;
 const S32 IGNORE_BTN_TOP_DELTA = 3*VPAD;//additional ignore_btn padding
 S32 BUTTON_WIDTH = 90;
-// *TODO: magic numbers - copied from llnotify.cpp(250)
-const S32 MAX_LENGTH = 512 + 20 + DB_FIRST_NAME_BUF_SIZE + DB_LAST_NAME_BUF_SIZE + DB_INV_ITEM_NAME_BUF_SIZE; 
 
 
 //static
@@ -319,7 +317,7 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
         mTextBox = getChild<LLTextEditor>("text_editor_box"); 
     }
 
-    mTextBox->setMaxTextLength(MAX_LENGTH);
+    mTextBox->setMaxTextLength(LLToastPanel::MAX_TEXT_LENGTH);
     mTextBox->setVisible(TRUE);
     mTextBox->setPlainText(!show_images);
     mTextBox->setContentTrusted(is_content_trusted);
@@ -411,7 +409,7 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
 	//.xml file intially makes info panel only follow left/right/top. This is so that when control buttons are added the info panel 
 	//can shift upward making room for the buttons inside mControlPanel. After the buttons are added, the info panel can then be set to follow 'all'.
 	mInfoPanel->setFollowsAll();
-    snapToMessageHeight(mTextBox, MAX_LENGTH);
+	snapToMessageHeight(mTextBox, LLToastPanel::MAX_TEXT_LENGTH);
 
 	// reshape the panel to its previous size
 	if (current_rect.notEmpty())
@@ -472,7 +470,7 @@ void LLIMToastNotifyPanel::snapToMessageHeight()
 	//Add message height if it is visible
 	if (mTextBox->getVisible())
 	{
-		S32 new_panel_height = computeSnappedToMessageHeight(mTextBox, MAX_LENGTH);
+		S32 new_panel_height = computeSnappedToMessageHeight(mTextBox, LLToastPanel::MAX_TEXT_LENGTH);
 
 		//reshape the panel with new height
 		if (new_panel_height != getRect().getHeight())
