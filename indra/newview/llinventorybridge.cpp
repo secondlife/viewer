@@ -81,6 +81,10 @@
 #include "llwearableitemslist.h"
 #include "lllandmarkactions.h"
 #include "llpanellandmarks.h"
+#include "llviewerparcelmgr.h"
+#include "llparcel.h"
+
+#include "llenvironment.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -4058,7 +4062,6 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
                 }
 			}
 			getClipboardEntries(false, items, disabled_items, flags);
-
 		}
 		else
 		{

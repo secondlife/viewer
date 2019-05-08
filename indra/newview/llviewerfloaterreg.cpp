@@ -90,7 +90,7 @@
 #include "llfloatermemleak.h"
 #include "llfloatermodelpreview.h"
 #include "llfloatermyscripts.h"
-"llfloatermyenvironment.h"
+#include "llfloatermyenvironment.h"
 #include "llfloaternamedesc.h"
 #include "llfloaternotificationsconsole.h"
 #include "llfloaternotificationstabbed.h"

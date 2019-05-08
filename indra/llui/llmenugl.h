@@ -175,7 +175,12 @@ protected:
 	// This function appends the character string representation of
 	// the current accelerator key and mask to the provided string.
 	void appendAcceleratorString( std::string& st ) const;
-		
+
+	virtual std::string _getSearchText() const
+	{
+		return mLabel.getString();
+	}
+
 protected:
 	KEY mAcceleratorKey;
 	MASK mAcceleratorMask;

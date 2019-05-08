@@ -1726,9 +1726,6 @@ bool LLInventoryPanel::isSelectionRemovable()
 /************************************************************************/
 /* Recent Inventory Panel related class                                 */
 /************************************************************************/
-class LLInventoryRecentItemsPanel;
-static LLDefaultChildRegistry::Register<LLInventoryRecentItemsPanel> t_recent_inventory_panel("recent_inventory_panel");
-
 static const LLRecentInventoryBridgeBuilder RECENT_ITEMS_BUILDER;
 class LLInventoryRecentItemsPanel : public LLInventoryPanel
 {

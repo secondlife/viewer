@@ -125,7 +125,7 @@ public:
 	virtual BOOL isMissingAsset() const ;
 	virtual void dump();	// debug info to LL_INFOS()
 	
-    virtual BOOL isViewerMediaTexture() const { return false; }
+    virtual bool isViewerMediaTexture() const { return false; }
 
 	/*virtual*/ bool bindDefaultImage(const S32 stage = 0) ;
 	/*virtual*/ bool bindDebugImage(const S32 stage = 0) ;

@@ -4981,7 +4981,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	if (   type == LLRenderPass::PASS_ALPHA 
 		&& facep->getTextureEntry()->getMaterialParams().notNull() 
 		&& !facep->getVertexBuffer()->hasDataType(LLVertexBuffer::TYPE_TANGENT)
-		&& LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 1)
+		&& LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 1)
 	{
 		LL_WARNS_ONCE("RenderMaterials") << "Oh no! No binormals for this alpha blended face!" << LL_ENDL;
 	}
@@ -5882,7 +5882,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		spec_mask = spec_mask | LLVertexBuffer::MAP_EMISSIVE;
 	}
 
-	BOOL batch_textures = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 1;
+	BOOL batch_textures = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 1;
 
 	if (batch_textures)
 	{

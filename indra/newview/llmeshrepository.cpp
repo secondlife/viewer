@@ -2190,7 +2190,6 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 	std::map<LLModel*,S32> mesh_index;
 	std::string model_name;
-	std::string model_metric;
 
 	S32 instance_num = 0;
 	
@@ -2218,11 +2217,6 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 			if (model_name.empty())
 			{
 				model_name = data.mBaseModel->getName();
-			}
-
-			if (model_metric.empty())
-			{
-				model_metric = data.mBaseModel->getMetric();
 			}
 
 			std::stringstream ostr;
@@ -2379,11 +2373,6 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				model_name = data.mBaseModel->getName();
 			}
 
-			if (model_metric.empty())
-			{
-				model_metric = data.mBaseModel->getMetric();
-			}
-
 			std::stringstream ostr;
 			
 			LLModel::Decomposition& decomp =
@@ -2514,8 +2503,6 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 	if (model_name.empty()) model_name = "mesh model";
 	result["name"] = model_name;
-	if (model_metric.empty()) model_metric = "MUT_Unspecified";
-	res["metric"] = model_metric;
 	result["asset_resources"] = res;
 	dump_llsd_to_file(result,make_dump_name("whole_model_",dump_num));
 
