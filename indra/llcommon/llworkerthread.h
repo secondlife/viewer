@@ -33,7 +33,7 @@
 #include <string>
 
 #include "llqueuedthread.h"
-#include "llapr.h"
+#include "llatomic.h"
 
 #define USE_FRAME_CALLBACK_MANAGER 0
 

@@ -32,7 +32,6 @@
 #include <map>
 #include <set>
 
-#include "llapr.h"
 #include "llpointer.h"
 #include "llqueuedthread.h"
 

@@ -1,16 +1,31 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="status">
-	<panel.string name="packet_loss_tooltip">封包損失</panel.string>
-	<panel.string name="bandwidth_tooltip">頻寬</panel.string>
-	<panel.string name="time">[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]</panel.string>
-	<panel.string name="timeTooltip">[weekday, datetime, slt], [day, datetime, slt] [month, datetime, slt] [year, datetime, slt]</panel.string>
-	<panel.string name="buycurrencylabel">L$ [AMT]</panel.string>
+	<panel.string name="packet_loss_tooltip">
+		封包損失
+	</panel.string>
+	<panel.string name="bandwidth_tooltip">
+		頻寬
+	</panel.string>
+	<panel.string name="time">
+		[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
+	</panel.string>
+	<panel.string name="timeTooltip">
+		[weekday, datetime, slt], [day, datetime, slt] [month, datetime, slt] [year, datetime, slt]
+	</panel.string>
+	<panel.string name="buycurrencylabel">
+		L$ [AMT]
+	</panel.string>
+	<panel name="menu_search_panel">
+		<search_editor label="搜尋選單" name="search_menu_edit" tool_tip="在這裡輸入你想搜索的字詞。 若在選單中有全文配對到結果，將會顯示部分結果。"/>
+	</panel>
 	<panel name="balance_bg">
 		<text name="balance" tool_tip="點按以重新更新你的 L$ 帳戶餘額" value="L$??"/>
 		<button label="購買 L$" name="buyL" tool_tip="點按以購買更多 L$"/>
 		<button label="購物" name="goShop" tool_tip="打開第二人生購物市集"/>
 	</panel>
-	<text name="TimeText" tool_tip="目前時區（太平洋）">24:00 AM PST</text>
+	<text name="TimeText" tool_tip="目前時區（太平洋）">
+		24:00 AM PST
+	</text>
 	<button name="media_toggle_btn" tool_tip="開始/停止全部媒體（音樂、影片、網頁）"/>
 	<button name="volume_btn" tool_tip="全域音量控制"/>
 </panel>

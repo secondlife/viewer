@@ -1437,6 +1437,11 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			mColorSwatch->setFallbackImage(LLUI::getUIImage("locked_image.j2c") );
 			mColorSwatch->setValid(FALSE);
 		}
+		LLRadioGroup* radio_mat_type = getChild<LLRadioGroup>("radio_material_type");
+		if (radio_mat_type)
+		{
+			radio_mat_type->setSelectedIndex(0);
+		}
 		getChildView("color trans")->setEnabled(FALSE);
 		getChildView("rptctrl")->setEnabled(FALSE);
 		getChildView("tex gen")->setEnabled(FALSE);

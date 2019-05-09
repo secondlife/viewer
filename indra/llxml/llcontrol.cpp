@@ -43,6 +43,9 @@
 #include "llrect.h"
 #include "llxmltree.h"
 #include "llsdserialize.h"
+#include "llfile.h"
+#include "lltimer.h"
+#include "lldir.h"
 
 #if LL_RELEASE_WITH_DEBUG_INFO || LL_DEBUG
 #define CONTROL_ERRS LL_ERRS("ControlErrors")
@@ -91,6 +94,17 @@ template <> LLSD convert_from_llsd<LLSD>(const LLSD& sd, eControlType type, cons
 
 //this defines the current version of the settings file
 const S32 CURRENT_VERSION = 101;
+
+// If you define the environment variable LL_SETTINGS_PROFILE to any value this will activate
+// the gSavedSettings profiling code.  This code tracks the calls to get a saved (debug) setting.
+// When the viewer exits the results are written to the log directory to the file specified
+// by SETTINGS_PROFILE below.  Only settings with an average access rate >= 2/second are output.
+typedef std::pair<std::string, U32> settings_pair_t;
+typedef std::vector<settings_pair_t> settings_vec_t;
+LLSD getCount;
+settings_vec_t getCount_v;
+F64 start_time = 0;
+std::string SETTINGS_PROFILE = "settings_profile.log";
 
 bool LLControlVariable::llsd_compare(const LLSD& a, const LLSD & b)
 {
@@ -327,6 +341,11 @@ LLSD LLControlVariable::getSaveValue() const
 
 LLPointer<LLControlVariable> LLControlGroup::getControl(const std::string& name)
 {
+	if (mSettingsProfile)
+	{
+		incrCount(name);
+	}
+
 	ctrl_name_table_t::iterator iter = mNameTable.find(name);
 	return iter == mNameTable.end() ? LLPointer<LLControlVariable>() : iter->second;
 }
@@ -349,8 +368,14 @@ const std::string LLControlGroup::mTypeString[TYPE_COUNT] = { "U32"
                                                              };
 
 LLControlGroup::LLControlGroup(const std::string& name)
-:	LLInstanceTracker<LLControlGroup, std::string>(name)
+:	LLInstanceTracker<LLControlGroup, std::string>(name),
+	mSettingsProfile(false)
 {
+
+	if (NULL != getenv("LL_SETTINGS_PROFILE"))
+	{
+		mSettingsProfile = true;
+	}
 }
 
 LLControlGroup::~LLControlGroup()
@@ -358,8 +383,66 @@ LLControlGroup::~LLControlGroup()
 	cleanup();
 }
 
+static bool compareRoutine(settings_pair_t lhs, settings_pair_t rhs)
+{
+	return lhs.second > rhs.second;
+};
+
 void LLControlGroup::cleanup()
 {
+	if(mSettingsProfile && getCount.size() != 0)
+	{
+		std::string file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, SETTINGS_PROFILE);
+		LLFILE* out = LLFile::fopen(file, "w"); /* Flawfinder: ignore */
+		if(!out)
+		{
+			LL_WARNS("SettingsProfile") << "Error opening " << SETTINGS_PROFILE << LL_ENDL;
+		}
+		else
+		{
+			F64 end_time = LLTimer::getTotalSeconds();
+			U32 total_seconds = (U32)(end_time - start_time);
+
+			std::string msg = llformat("Runtime (seconds): %d\n\n No. accesses   Avg. accesses/sec  Name\n", total_seconds);
+			std::ostringstream data_msg;
+
+			data_msg << msg;
+			size_t data_size = data_msg.str().size();
+			if (fwrite(data_msg.str().c_str(), 1, data_size, out) != data_size)
+			{
+				LL_WARNS("SettingsProfile") << "Failed to write settings profile header" << LL_ENDL;
+			}
+
+			for (LLSD::map_const_iterator iter = getCount.beginMap(); iter != getCount.endMap(); ++iter)
+			{
+				getCount_v.push_back(settings_pair_t(iter->first, iter->second.asInteger()));
+			}
+			sort(getCount_v.begin(), getCount_v.end(), compareRoutine);
+
+			for (settings_vec_t::iterator iter = getCount_v.begin(); iter != getCount_v.end(); ++iter)
+			{
+				U32 access_rate = 0;
+				if (total_seconds != 0)
+				{
+					access_rate = iter->second / total_seconds;
+				}
+				if (access_rate >= 2)
+				{
+					std::ostringstream data_msg;
+					msg = llformat("%13d        %7d       %s", iter->second, access_rate, iter->first.c_str());
+					data_msg << msg << "\n";
+					size_t data_size = data_msg.str().size();
+					if (fwrite(data_msg.str().c_str(), 1, data_size, out) != data_size)
+					{
+						LL_WARNS("SettingsProfile") << "Failed to write settings profile" << LL_ENDL;
+					}
+				}
+			}
+			getCount = LLSD::emptyMap();
+			fclose(out);
+		}
+	}
+
 	mNameTable.clear();
 }
 
@@ -458,6 +541,15 @@ LLControlVariable* LLControlGroup::declareColor3(const std::string& name, const 
 LLControlVariable* LLControlGroup::declareLLSD(const std::string& name, const LLSD &initial_val, const std::string& comment, LLControlVariable::ePersist persist )
 {
 	return declareControl(name, TYPE_LLSD, initial_val, comment, persist);
+}
+
+void LLControlGroup::incrCount(const std::string& name)
+{
+	if (0.0 == start_time)
+	{
+		start_time = LLTimer::getTotalSeconds();
+	}
+	getCount[name] = getCount[name].asInteger() + 1;
 }
 
 BOOL LLControlGroup::getBOOL(const std::string& name)

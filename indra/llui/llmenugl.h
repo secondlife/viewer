@@ -48,7 +48,7 @@ extern S32 MENU_BAR_WIDTH;
 // The LLMenuItemGL represents a single menu item in a menu. 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LLMenuItemGL : public LLUICtrl
+class LLMenuItemGL: public LLUICtrl, public ll::ui::SearchableControl
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
@@ -175,7 +175,12 @@ protected:
 	// This function appends the character string representation of
 	// the current accelerator key and mask to the provided string.
 	void appendAcceleratorString( std::string& st ) const;
-		
+
+	virtual std::string _getSearchText() const
+	{
+		return mLabel.getString();
+	}
+
 protected:
 	KEY mAcceleratorKey;
 	MASK mAcceleratorMask;

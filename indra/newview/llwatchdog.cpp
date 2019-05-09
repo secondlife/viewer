@@ -155,7 +155,7 @@ void LLWatchdogTimeout::ping(const std::string& state)
 
 // LLWatchdog
 LLWatchdog::LLWatchdog() :
-	mSuspectsAccessMutex(NULL),
+	mSuspectsAccessMutex(),
 	mTimer(NULL),
 	mLastClockCount(0),
 	mKillerCallback(&default_killer_callback)
@@ -185,7 +185,7 @@ void LLWatchdog::init(killer_event_callback func)
 	mKillerCallback = func;
 	if(!mSuspectsAccessMutex && !mTimer)
 	{
-		mSuspectsAccessMutex = new LLMutex(NULL);
+		mSuspectsAccessMutex = new LLMutex();
 		mTimer = new LLWatchdogTimerThread();
 		mTimer->setSleepTime(WATCHDOG_SLEEP_TIME_USEC / 1000);
 		mLastClockCount = LLTimer::getTotalTime();

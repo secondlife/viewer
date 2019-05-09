@@ -1580,7 +1580,7 @@ bool LLPrimitive::getTESTAxes(const U8 face, U32* s_axis, U32* t_axis)
 		*s_axis = VY; *t_axis = VZ;
 		return true;
 	}
-	else if (face == 5)
+	else if (face >= 5)
 	{
 		*s_axis = VX; *t_axis = VY;
 		return true;

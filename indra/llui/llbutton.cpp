@@ -769,6 +769,10 @@ void LLButton::draw()
 		}
 	}
 
+	// Highlight if needed
+	if( ll::ui::SearchableControl::getHighlighted() )
+		label_color = ll::ui::SearchableControl::getHighlightColor();
+
 	// Unselected label assignments
 	LLWString label = getCurrentLabel();
 

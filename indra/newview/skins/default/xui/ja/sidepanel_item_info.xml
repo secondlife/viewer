@@ -34,9 +34,11 @@
 			<text name="LabelItemNameTitle">
 				名前：
 			</text>
+			<line_editor name="LabelItemName" tool_tip="使用できる名前の文字数は最大 63 文字までです。長いプリム名は短縮されます。名前に使用できる文字は ASCII-7 （非拡張）に含まれる印字可能な文字のみです（縦線「|」は例外）。"/>
 			<text name="LabelItemDescTitle">
 				説明：
 			</text>
+			<line_editor name="LabelItemDesc" tool_tip="ビューワの設定で [すべてのオブジェクト上でヒントを表示] が選択されている場合、オブジェクトにマウスのポインタをかざすとそのオブジェクトの説明がポップアップ表示されます。プリムの説明は最大 127 バイトまでに制限されているため、それよりも長い文字列は切り捨てられます。"/>
 			<text name="LabelCreatorTitle">
 				制作者：
 			</text>
@@ -59,7 +61,7 @@
 				<text name="AnyoneLabel">
 					全員：
 				</text>
-				<check_box label="コピー" name="CheckEveryoneCopy"/>
+				<check_box label="コピー" name="CheckEveryoneCopy" tool_tip="オブジェクトのコピーは誰でも受け取ることができます。オブジェクトとそのオブジェクトの中身はすべて、コピーまたは譲渡できるように設定する必要があります。"/>
 				<text name="GroupLabel">
 					グループ：
 				</text>
@@ -67,17 +69,17 @@
 				<text name="NextOwnerLabel">
 					次の所有者：
 				</text>
-				<check_box label="修正" name="CheckNextOwnerModify"/>
-				<check_box label="コピー" name="CheckNextOwnerCopy"/>
-				<check_box label="再販・プレゼント" name="CheckNextOwnerTransfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販できます"/>
+				<check_box label="修正" name="CheckNextOwnerModify" tool_tip="次の所有者は、アイテム名などのプロパティ内容を編集したり、このオブジェクトのサイズを変更することができます。"/>
+				<check_box label="コピー" name="CheckNextOwnerCopy" tool_tip="次の所有者は、このオブジェクトを無制限にコピーできます。コピーには制作者の情報が含まれ、コピー元のアイテムと違って許可などに関し制限があります。"/>
+				<check_box label="再販・プレゼント" name="CheckNextOwnerTransfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販できます。"/>
 			</panel>
-			<check_box label="販売中" name="CheckPurchase"/>
-			<combo_box name="ComboBoxSaleType">
+			<check_box label="販売中" name="CheckPurchase" tool_tip="このオブジェクトやオブジェクトの中身が購入できるようになるか、指定価格でインワールドにコピーできるようになります。"/>
+			<combo_box name="ComboBoxSaleType" tool_tip="購入者がコピー、コピーの中身、またはアイテム自体を受け取るのか選択してください。">
 				<combo_box.item label="コピー" name="Copy"/>
 				<combo_box.item label="コンテンツ" name="Contents"/>
 				<combo_box.item label="オリジナル" name="Original"/>
 			</combo_box>
-			<spinner label="価格： L$" name="Edit Cost"/>
+			<spinner label="価格： L$" name="Edit Cost" tool_tip="オブジェクトの価格。"/>
 		</panel>
 	</scroll_container>
 	<panel name="button_panel">

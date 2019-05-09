@@ -7065,6 +7065,10 @@ BOOL object_selected_and_point_valid()
 
 BOOL object_is_wearable()
 {
+	if (!isAgentAvatarValid())
+	{
+		return FALSE;
+	}
 	if (!object_selected_and_point_valid())
 	{
 		return FALSE;
@@ -7073,6 +7077,10 @@ BOOL object_is_wearable()
 	{
 		return FALSE;
 	}
+    if (!gAgentAvatarp->canAttachMoreObjects())
+    {
+        return FALSE;
+    }
 	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
 	for (LLObjectSelection::valid_root_iterator iter = LLSelectMgr::getInstance()->getSelection()->valid_root_begin();
 		 iter != LLSelectMgr::getInstance()->getSelection()->valid_root_end(); iter++)

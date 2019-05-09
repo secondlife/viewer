@@ -154,7 +154,6 @@ public:
 	void ClearFacesAndMaterials() { mVolumeFaces.clear(); mMaterialList.clear(); }
 
 	std::string getName() const;
-	std::string getMetric() const {return mMetric;}
 	EModelStatus getStatus() const {return mStatus;}
 	static std::string getStatusString(U32 status) ;
 
@@ -259,8 +258,6 @@ public:
 	
 	std::string mRequestedLabel; // name requested in UI, if any.
 	std::string mLabel; // name computed from dae.
-
-	std::string mMetric; // user-supplied metric data for upload
 
 	LLVector3 mNormalizedScale;
 	LLVector3 mNormalizedTranslation;
