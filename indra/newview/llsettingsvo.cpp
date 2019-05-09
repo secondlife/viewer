@@ -566,14 +566,8 @@ void LLSettingsVOSky::convertAtmosphericsToLegacy(LLSD& legacy, LLSD& settings)
         legacy[SETTING_BLUE_DENSITY] = ensure_array_4(legacyhaze[SETTING_BLUE_DENSITY], 1.0);
         legacy[SETTING_BLUE_HORIZON] = ensure_array_4(legacyhaze[SETTING_BLUE_HORIZON], 1.0);
 
-        F32 density_multiplier = legacyhaze[SETTING_DENSITY_MULTIPLIER].asReal();
-        density_multiplier = (density_multiplier < 0.0001f) ? 0.0001f : density_multiplier;
-        density_multiplier *= 0.9f / 2.0f; // take 0 - 2.0 range to 0 - 0.9 range
-        legacy[SETTING_DENSITY_MULTIPLIER] = LLSDArray(density_multiplier)(0.0f)(0.0f)(1.0f);
-
-        F32 distance_multiplier = legacyhaze[SETTING_DISTANCE_MULTIPLIER].asReal();
-        distance_multiplier *= 0.1f; // take 0 - 1000 range to 0 - 100 range
-        legacy[SETTING_DISTANCE_MULTIPLIER] = LLSDArray(distance_multiplier)(0.0f)(0.0f)(1.0f);
+        legacy[SETTING_DENSITY_MULTIPLIER] = LLSDArray(legacyhaze[SETTING_DENSITY_MULTIPLIER].asReal())(0.0f)(0.0f)(1.0f);
+        legacy[SETTING_DISTANCE_MULTIPLIER] = LLSDArray(legacyhaze[SETTING_DISTANCE_MULTIPLIER].asReal())(0.0f)(0.0f)(1.0f);
 
         legacy[SETTING_HAZE_DENSITY]        = LLSDArray(legacyhaze[SETTING_HAZE_DENSITY])(0.0f)(0.0f)(1.0f);
         legacy[SETTING_HAZE_HORIZON]        = LLSDArray(legacyhaze[SETTING_HAZE_HORIZON])(0.0f)(0.0f)(1.0f);
