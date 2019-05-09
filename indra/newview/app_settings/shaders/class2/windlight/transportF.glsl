@@ -50,10 +50,12 @@ vec3 atmosTransport(vec3 light)
 
 vec3 fullbrightAtmosTransport(vec3 light)
 {
-     return atmosTransportFrag(light,getAdditiveColor(), getAtmosAttenuation());
+    float brightness = dot(light.rgb, vec3(0.33333));
+    return atmosTransportFrag(light, getAdditiveColor() * (brightness * 0.5 + 0.5), getAtmosAttenuation());
 }
 
 vec3 fullbrightShinyAtmosTransport(vec3 light)
 {
-    return atmosTransportFrag(light,getAdditiveColor(), getAtmosAttenuation());
+    float brightness = dot(light.rgb, vec3(0.33333));
+    return atmosTransportFrag(light, getAdditiveColor() * (brightness * 0.5 + 0.5), getAtmosAttenuation());
 }
