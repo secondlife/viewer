@@ -209,7 +209,7 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
     )
 
   if (WINDOWS)
-      list(APPEND libraries legacy_stdio_definitions)
+      list(INSERT libraries 0 legacy_stdio_definitions)
   endif (WINDOWS)
 
   # Add test executable build target

@@ -1978,7 +1978,7 @@ endif (WINDOWS)
 # modern version.
 
 if (WINDOWS)
-      list(APPEND LLAPPEARANCE_LIBRARIES legacy_stdio_definitions)
+      list(INSERT PNG_PRELOAD_ARCHIVES 0 legacy_stdio_definitions)
 endif (WINDOWS)
 
 target_link_libraries(${VIEWER_BINARY_NAME}
