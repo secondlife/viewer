@@ -198,6 +198,7 @@ endif (DARWIN)
       )
 
   set(example_libs
+      ${LEGACY_STDIO_LIBS}
       ${LLCOREHTTP_LIBRARIES}
       ${WINDOWS_LIBRARIES}
       ${LLMESSAGE_LIBRARIES}

@@ -200,6 +200,7 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
     )
 
   SET(libraries
+    ${LEGACY_STDIO_LIBS}
     ${library_dependencies}
     ${BOOST_FIBER_LIBRARY}
     ${BOOST_CONTEXT_LIBRARY}
@@ -207,10 +208,6 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
     ${GOOGLEMOCK_LIBRARIES}
     ${PTHREAD_LIBRARY}
     )
-
-  if (WINDOWS)
-      list(INSERT libraries 0 legacy_stdio_definitions)
-  endif (WINDOWS)
 
   # Add test executable build target
   if(TEST_DEBUG)

@@ -1977,11 +1977,8 @@ endif (WINDOWS)
 # dumped into the target binary and runtime lookup will find the most
 # modern version.
 
-if (WINDOWS)
-      list(INSERT PNG_PRELOAD_ARCHIVES 0 legacy_stdio_definitions)
-endif (WINDOWS)
-
 target_link_libraries(${VIEWER_BINARY_NAME}
+    ${LEGACY_STDIO_LIBS}
     ${PNG_PRELOAD_ARCHIVES}
     ${ZLIB_PRELOAD_ARCHIVES}
     ${URIPARSER_PRELOAD_ARCHIVES}
