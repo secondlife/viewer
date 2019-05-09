@@ -249,7 +249,7 @@ LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename
 	mDataFP(NULL),
 	mIndexFP(NULL)
 {
-    mDataMutex = new LLMutex(0);
+    mDataMutex = new LLMutex();
     bool created = create(index_filename, data_filename, read_only, presize, remove_after_crash);
     if (!created)
     {

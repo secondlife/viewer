@@ -26,6 +26,7 @@
 
 #include "linden_common.h"
 
+#include "llapr.h"
 #include "llimage.h"
 #include "llmath.h"
 #include "v4coloru.h"
