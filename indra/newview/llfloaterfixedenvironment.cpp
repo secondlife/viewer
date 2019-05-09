@@ -388,12 +388,14 @@ void LLFloaterFixedEnvironment::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
     std::string ctrl_action = ctrl->getName();
 
     std::string local_desc;
+    LLSettingsBase::ptr_t setting_clone;
     bool is_local = false; // because getString can be empty
     if (mSettings->getSettingsType() == "water")
     {
         LLSettingsWater::ptr_t water = std::static_pointer_cast<LLSettingsWater>(mSettings);
         if (water)
         {
+            setting_clone = water->buildClone();
             // LLViewerFetchedTexture and check for FTT_LOCAL_FILE or check LLLocalBitmapMgr
             if (LLLocalBitmapMgr::isLocal(water->getNormalMapID()))
             {
@@ -412,6 +414,7 @@ void LLFloaterFixedEnvironment::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
         LLSettingsSky::ptr_t sky = std::static_pointer_cast<LLSettingsSky>(mSettings);
         if (sky)
         {
+            setting_clone = sky->buildClone();
             if (LLLocalBitmapMgr::isLocal(sky->getSunTextureId()))
             {
                 local_desc = LLTrans::getString("EnvironmentSun");
@@ -445,19 +448,19 @@ void LLFloaterFixedEnvironment::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
 
     if (ctrl_action == ACTION_SAVE)
     {
-        doApplyUpdateInventory();
+        doApplyUpdateInventory(setting_clone);
     }
     else if (ctrl_action == ACTION_SAVEAS)
     {
         LLSD args;
         args["DESC"] = mSettings->getName();
-        LLNotificationsUtil::add("SaveSettingAs", args, LLSD(), boost::bind(&LLFloaterFixedEnvironment::onSaveAsCommit, this, _1, _2));
+        LLNotificationsUtil::add("SaveSettingAs", args, LLSD(), boost::bind(&LLFloaterFixedEnvironment::onSaveAsCommit, this, _1, _2, setting_clone));
     }
     else if ((ctrl_action == ACTION_APPLY_LOCAL) ||
         (ctrl_action == ACTION_APPLY_PARCEL) ||
         (ctrl_action == ACTION_APPLY_REGION))
     {
-        doApplyEnvironment(ctrl_action);
+        doApplyEnvironment(ctrl_action, setting_clone);
     }
     else
     {
@@ -465,7 +468,7 @@ void LLFloaterFixedEnvironment::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
     }
 }
 
-void LLFloaterFixedEnvironment::onSaveAsCommit(const LLSD& notification, const LLSD& response)
+void LLFloaterFixedEnvironment::onSaveAsCommit(const LLSD& notification, const LLSD& response, const LLSettingsBase::ptr_t &settings)
 {
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     if (0 == option)
@@ -474,7 +477,7 @@ void LLFloaterFixedEnvironment::onSaveAsCommit(const LLSD& notification, const L
         LLStringUtil::trim(settings_name);
         if (mCanMod)
         {
-            doApplyCreateNewInventory(settings_name);
+            doApplyCreateNewInventory(settings_name, settings);
         }
         else if (mInventoryItem)
         {
@@ -514,44 +517,44 @@ void LLFloaterFixedEnvironment::onButtonLoad()
     checkAndConfirmSettingsLoss([this](){ doSelectFromInventory(); });
 }
 
-void LLFloaterFixedEnvironment::doApplyCreateNewInventory(std::string settings_name)
+void LLFloaterFixedEnvironment::doApplyCreateNewInventory(std::string settings_name, const LLSettingsBase::ptr_t &settings)
 {
     if (mInventoryItem)
     {
         LLUUID parent_id = mInventoryItem->getParentUUID();
         U32 next_owner_perm = mInventoryItem->getPermissions().getMaskNextOwner();
-        LLSettingsVOBase::createInventoryItem(mSettings, next_owner_perm, parent_id, settings_name,
+        LLSettingsVOBase::createInventoryItem(settings, next_owner_perm, parent_id, settings_name,
             [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
     }
     else
     {
         LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
         // This method knows what sort of settings object to create.
-        LLSettingsVOBase::createInventoryItem(mSettings, parent_id, settings_name,
+        LLSettingsVOBase::createInventoryItem(settings, parent_id, settings_name,
             [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
     }
 }
 
-void LLFloaterFixedEnvironment::doApplyUpdateInventory()
+void LLFloaterFixedEnvironment::doApplyUpdateInventory(const LLSettingsBase::ptr_t &settings)
 {
     LL_DEBUGS("ENVEDIT") << "Update inventory for " << mInventoryId << LL_ENDL;
     if (mInventoryId.isNull())
     {
-        LLSettingsVOBase::createInventoryItem(mSettings, gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS), std::string(),
+        LLSettingsVOBase::createInventoryItem(settings, gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS), std::string(),
             [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
     }
     else
     {
-        LLSettingsVOBase::updateInventoryItem(mSettings, mInventoryId,
+        LLSettingsVOBase::updateInventoryItem(settings, mInventoryId,
             [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryUpdated(asset_id, inventory_id, results); });
     }
 }
 
-void LLFloaterFixedEnvironment::doApplyEnvironment(const std::string &where)
+void LLFloaterFixedEnvironment::doApplyEnvironment(const std::string &where, const LLSettingsBase::ptr_t &settings)
 {
     if (where == ACTION_APPLY_LOCAL)
     {
-        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, mSettings);
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, settings);
     }
     else if (where == ACTION_APPLY_PARCEL)
     {
@@ -568,13 +571,13 @@ void LLFloaterFixedEnvironment::doApplyEnvironment(const std::string &where)
         {
             LLEnvironment::instance().updateParcel(parcel->getLocalID(), mInventoryItem->getAssetUUID(), mInventoryItem->getName(), LLEnvironment::NO_TRACK, -1, -1);
         }
-        else if (mSettings->getSettingsType() == "sky")
+        else if (settings->getSettingsType() == "sky")
         {
-            LLEnvironment::instance().updateParcel(parcel->getLocalID(), std::static_pointer_cast<LLSettingsSky>(mSettings), -1, -1);
+            LLEnvironment::instance().updateParcel(parcel->getLocalID(), std::static_pointer_cast<LLSettingsSky>(settings), -1, -1);
         }
-        else if (mSettings->getSettingsType() == "water")
+        else if (settings->getSettingsType() == "water")
         {
-            LLEnvironment::instance().updateParcel(parcel->getLocalID(), std::static_pointer_cast<LLSettingsWater>(mSettings), -1, -1);
+            LLEnvironment::instance().updateParcel(parcel->getLocalID(), std::static_pointer_cast<LLSettingsWater>(settings), -1, -1);
         }
     }
     else if (where == ACTION_APPLY_REGION)
@@ -583,13 +586,13 @@ void LLFloaterFixedEnvironment::doApplyEnvironment(const std::string &where)
         {
             LLEnvironment::instance().updateRegion(mInventoryItem->getAssetUUID(), mInventoryItem->getName(), LLEnvironment::NO_TRACK, -1, -1);
         }
-        else if (mSettings->getSettingsType() == "sky")
+        else if (settings->getSettingsType() == "sky")
         {
-            LLEnvironment::instance().updateRegion(std::static_pointer_cast<LLSettingsSky>(mSettings), -1, -1);
+            LLEnvironment::instance().updateRegion(std::static_pointer_cast<LLSettingsSky>(settings), -1, -1);
         }
-        else if (mSettings->getSettingsType() == "water")
+        else if (settings->getSettingsType() == "water")
         {
-            LLEnvironment::instance().updateRegion(std::static_pointer_cast<LLSettingsWater>(mSettings), -1, -1);
+            LLEnvironment::instance().updateRegion(std::static_pointer_cast<LLSettingsWater>(settings), -1, -1);
         }
     }
     else
