@@ -32,6 +32,7 @@
 
 #include "lltexturefetch.h"
 
+#include "llapr.h"
 #include "lldir.h"
 #include "llhttpconstants.h"
 #include "llimage.h"
@@ -847,7 +848,7 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mInLocalCache(FALSE),
 	  mCanUseHTTP(true),
 	  mActiveCount(0),
-	  mWorkMutex(NULL),
+	  mWorkMutex(),
 	  mFirstPacket(0),
 	  mLastPacket(-1),
 	  mTotalPackets(0),
@@ -2310,8 +2311,8 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, bool qa_mode)
 	  mDebugPause(FALSE),
 	  mPacketCount(0),
 	  mBadPacketCount(0),
-	  mQueueMutex(getAPRPool()),
-	  mNetworkQueueMutex(getAPRPool()),
+	  mQueueMutex(),
+	  mNetworkQueueMutex(),
 	  mTextureCache(cache),
 	  mTextureBandwidth(0),
 	  mHTTPTextureBits(0),
