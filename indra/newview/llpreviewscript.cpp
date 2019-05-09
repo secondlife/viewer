@@ -1052,7 +1052,7 @@ void LLScriptEdCore::openInExternalEditor()
 		{
 			if (status == LLExternalEditor::EC_NOT_SPECIFIED) // Use custom message for this error.
 			{
-				msg = getString("external_editor_not_set");
+				msg = LLTrans::getString("ExternalEditorNotSet");
 			}
 			else
 			{
