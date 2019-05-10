@@ -6,6 +6,9 @@ https://accounts.secondlife.com/change_email/
 	</floater.string>
 	<button label="確定" label_selected="確定" name="OK"/>
 	<button label="取消" label_selected="取消" name="Cancel"/>
+	<panel name="search_panel">
+		<search_editor label="搜尋設定" name="search_prefs_edit" tool_tip="在這裡輸入你想搜索的字詞。 若在設定的名稱或評論中有全文配對結果，將會顯示部分結果。"/>
+	</panel>
 	<tab_container name="pref core">
 		<panel label="基本設定" name="general"/>
 		<panel label="顯像" name="display"/>

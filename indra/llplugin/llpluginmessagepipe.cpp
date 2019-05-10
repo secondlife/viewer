@@ -92,8 +92,8 @@ void LLPluginMessagePipeOwner::killMessagePipe(void)
 }
 
 LLPluginMessagePipe::LLPluginMessagePipe(LLPluginMessagePipeOwner *owner, LLSocket::ptr_t socket):
-	mInputMutex(gAPRPoolp),
-	mOutputMutex(gAPRPoolp),
+	mInputMutex(),
+	mOutputMutex(),
 	mOutputStartIndex(0),
 	mOwner(owner),
 	mSocket(socket)

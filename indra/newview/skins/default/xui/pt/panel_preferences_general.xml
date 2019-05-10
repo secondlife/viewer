@@ -4,7 +4,6 @@
 		Idioma:
 	</text>
 	<combo_box name="language_combobox">
-		<combo_box.item label="Padrão" name="System Default Language"/>
 		<combo_box.item label="English (Inglês)" name="English"/>
 		<combo_box.item label="Dansk (Dinamarquês) - Beta" name="Danish"/>
 		<combo_box.item label="Deutsch (Alemão) - Beta" name="Deutsch(German)"/>

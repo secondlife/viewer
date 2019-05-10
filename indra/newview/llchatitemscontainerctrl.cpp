@@ -29,6 +29,7 @@
 #include "llchatitemscontainerctrl.h"
 #include "lltextbox.h"
 
+#include "llavataractions.h"
 #include "llavatariconctrl.h"
 #include "llcommandhandler.h"
 #include "llfloaterreg.h"
@@ -204,6 +205,7 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 	
 	mMsgText = getChild<LLChatMsgBox>("msg_text", false);
 	mMsgText->setContentTrusted(false);
+	mMsgText->setIsFriendCallback(LLAvatarActions::isFriend);
 
 	mMsgText->setText(std::string(""));
 

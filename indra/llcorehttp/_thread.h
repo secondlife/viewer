@@ -33,6 +33,7 @@
 #include <boost/function.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 
+#include "apr.h" // thread-related functions
 #include "_refcounted.h"
 
 namespace LLCoreInt
