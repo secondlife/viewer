@@ -27,7 +27,7 @@
 
 #include "llfloaterattachmentscripts.h"
 
-#include <boost\make_shared.hpp>
+#include "boost/make_shared.hpp"
 
 #include "llfloaterreg.h"
 #include "llpanel.h"
