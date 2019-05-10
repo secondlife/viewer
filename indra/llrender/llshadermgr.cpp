@@ -705,17 +705,37 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	}
 	else
 	{  
-		if (major_version < 4)
+        if (major_version >= 4)
+        {
+            //set version to 400
+			shader_code_text[shader_code_count++] = strdup("#version 400\n");
+        }
+        else if (major_version == 3)
+        {
+            if (minor_version < 10)
+		    {
+			    shader_code_text[shader_code_count++] = strdup("#version 300\n");
+		    }
+		    else if (minor_version <= 19)
+		    {
+			    shader_code_text[shader_code_count++] = strdup("#version 310\n");
+		    }
+		    else if (minor_version <= 29)
+		    {
+			    shader_code_text[shader_code_count++] = strdup("#version 320\n");
+		    }
+            else
+            {
+                shader_code_text[shader_code_count++] = strdup("#version 330\n");
+            }
+        }
+		else
 		{
 			//set version to 1.30
 			shader_code_text[shader_code_count++] = strdup("#version 130\n");
 			//some implementations of GLSL 1.30 require integer precision be explicitly declared
 			extra_code_text[extra_code_count++] = strdup("precision mediump int;\n");
 			extra_code_text[extra_code_count++] = strdup("precision highp float;\n");
-		}
-		else
-		{ //set version to 400
-			shader_code_text[shader_code_count++] = strdup("#version 400\n");
 		}
 
 		extra_code_text[extra_code_count++] = strdup("#define DEFINE_GL_FRAGCOLOR 1\n");

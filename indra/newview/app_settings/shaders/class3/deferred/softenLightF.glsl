@@ -146,8 +146,8 @@ void main()
             vec3 dumbshiny = scol * texture2D(lightFunc, vec2(sa, spec.a)).r * atmo_color;
             
             // add the two types of shiny together
-            vec3 spec_contrib = dumbshiny * spec.rgb;
-            bloom = dot(spec_contrib, spec_contrib) / 6;
+            vec3 spec_contrib = dumbshiny * spec.rgb * 0.25;
+            bloom = dot(spec_contrib, spec_contrib);
             col += spec_contrib;
         }
 

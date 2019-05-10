@@ -26,7 +26,6 @@
 float calcDirectionalLight(vec3 n, vec3 l);
 float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float is_pointlight);
 
-vec3 atmosAmbient(vec3 light);
 vec3 atmosAffectDirectionalLight(float lightIntensity);
 vec3 scaleDownLight(vec3 light);
 
@@ -35,7 +34,7 @@ uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
 
-vec4 sumLights(vec3 pos, vec3 norm, vec4 color, vec4 baseLight)
+vec4 sumLights(vec3 pos, vec3 norm, vec4 color)
 {
 	vec4 col = vec4(0.0, 0.0, 0.0, color.a);
 	
@@ -46,11 +45,8 @@ vec4 sumLights(vec3 pos, vec3 norm, vec4 color, vec4 baseLight)
 	col.rgb = scaleDownLight(col.rgb);
 
 	// Add windlight lights
-	col.rgb += atmosAmbient(baseLight.rgb);
 	col.rgb += atmosAffectDirectionalLight(calcDirectionalLight(norm, light_position[0].xyz));
-				
 	col.rgb = min(col.rgb*color.rgb, 1.0);
-	
 	return col;	
 }
 

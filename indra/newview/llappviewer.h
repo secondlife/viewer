@@ -43,6 +43,7 @@
 #define LL_LLAPPVIEWER_H
 
 #include "llallocator.h"
+#include "llapr.h"
 #include "llcontrol.h"
 #include "llsys.h"			// for LLOSInfo
 #include "lltimer.h"

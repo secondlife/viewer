@@ -9,6 +9,7 @@
 		<menu_item_call label="場所..." name="Places"/>
 		<menu_item_call label="ピック..." name="Picks"/>
 		<menu_item_call label="体験..." name="Experiences"/>
+		<menu_item_call label="スクリプト…" name="MyScripts"/>
 		<menu_item_call label="カメラコントロール..." name="Camera Controls"/>
 		<menu label="ムーブメント" name="Movement">
 			<menu_item_call label="座る" name="Sit Down Here"/>

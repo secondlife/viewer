@@ -125,7 +125,7 @@ public:
 	virtual BOOL isMissingAsset() const ;
 	virtual void dump();	// debug info to LL_INFOS()
 	
-    virtual BOOL isViewerMediaTexture() const { return false; }
+    virtual bool isViewerMediaTexture() const { return false; }
 
 	/*virtual*/ bool bindDefaultImage(const S32 stage = 0) ;
 	/*virtual*/ bool bindDebugImage(const S32 stage = 0) ;
@@ -188,6 +188,9 @@ private:
 	virtual void switchToCachedImage();
 	
 	static bool isMemoryForTextureLow() ;
+	static bool isMemoryForTextureSuficientlyFree();
+	static void getGPUMemoryForTextures(S32Megabytes &gpu, S32Megabytes &physical);
+
 protected:
 	LLUUID mID;
 	S32 mTextureListType; // along with mID identifies where to search for this texture in TextureList
@@ -229,7 +232,7 @@ public:
 	static S32 sMaxSculptRez ;
 	static U32 sMinLargeImageSize ;
 	static U32 sMaxSmallImageSize ;
-	static BOOL sFreezeImageScalingDown ;//do not scale down image res if set.
+	static bool sFreezeImageUpdates;
 	static F32  sCurrentTime ;
 
 	enum EDebugTexels
@@ -545,7 +548,7 @@ public:
 	/*virtual*/ S8 getType() const;
 	// Process image stats to determine priority/quality requirements.
 	/*virtual*/ void processTextureStats();
-	BOOL isUpdateFrozen() ;
+	bool isUpdateFrozen() ;
 
 private:
 	void init(bool firstinit) ;
@@ -578,7 +581,7 @@ public:
 	BOOL isPlaying() const {return mIsPlaying;}
 	void setMediaImpl() ;
 
-    virtual BOOL isViewerMediaTexture() const { return true; }
+    virtual bool isViewerMediaTexture() const { return true; }
 
 	void initVirtualSize() ;	
 	void invalidateMediaImpl() ;

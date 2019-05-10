@@ -4,7 +4,7 @@
 		Top Komut Dosyaları
 	</floater.string>
 	<floater.string name="top_scripts_text">
-		[COUNT] komut tosyası toplam [TIME] ms sürüyor
+		[COUNT] komut dosyası toplam [TIME] ms zaman alıyor ve [MEMORY] KB bellek kullanıyor
 	</floater.string>
 	<floater.string name="scripts_score_label">
 		Süre

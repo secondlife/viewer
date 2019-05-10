@@ -566,14 +566,8 @@ void LLSettingsVOSky::convertAtmosphericsToLegacy(LLSD& legacy, LLSD& settings)
         legacy[SETTING_BLUE_DENSITY] = ensure_array_4(legacyhaze[SETTING_BLUE_DENSITY], 1.0);
         legacy[SETTING_BLUE_HORIZON] = ensure_array_4(legacyhaze[SETTING_BLUE_HORIZON], 1.0);
 
-        F32 density_multiplier = legacyhaze[SETTING_DENSITY_MULTIPLIER].asReal();
-        density_multiplier = (density_multiplier < 0.0001f) ? 0.0001f : density_multiplier;
-        density_multiplier *= 0.9f / 2.0f; // take 0 - 2.0 range to 0 - 0.9 range
-        legacy[SETTING_DENSITY_MULTIPLIER] = LLSDArray(density_multiplier)(0.0f)(0.0f)(1.0f);
-
-        F32 distance_multiplier = legacyhaze[SETTING_DISTANCE_MULTIPLIER].asReal();
-        distance_multiplier *= 0.1f; // take 0 - 1000 range to 0 - 100 range
-        legacy[SETTING_DISTANCE_MULTIPLIER] = LLSDArray(distance_multiplier)(0.0f)(0.0f)(1.0f);
+        legacy[SETTING_DENSITY_MULTIPLIER] = LLSDArray(legacyhaze[SETTING_DENSITY_MULTIPLIER].asReal())(0.0f)(0.0f)(1.0f);
+        legacy[SETTING_DISTANCE_MULTIPLIER] = LLSDArray(legacyhaze[SETTING_DISTANCE_MULTIPLIER].asReal())(0.0f)(0.0f)(1.0f);
 
         legacy[SETTING_HAZE_DENSITY]        = LLSDArray(legacyhaze[SETTING_HAZE_DENSITY])(0.0f)(0.0f)(1.0f);
         legacy[SETTING_HAZE_HORIZON]        = LLSDArray(legacyhaze[SETTING_HAZE_HORIZON])(0.0f)(0.0f)(1.0f);
@@ -707,6 +701,9 @@ void LLSettingsVOSky::applySpecial(void *ptarget)
 
         shader->uniform4fv(LLShaderMgr::SUNLIGHT_COLOR, 1, sunDiffuse.mV);
         shader->uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, moonDiffuse.mV);
+
+        LLColor4 cloud_color(psky->getCloudColor(), 1.0);
+        shader->uniform4fv(LLShaderMgr::CLOUD_COLOR, 1, cloud_color.mV);
 	}
 
     F32 g = getGamma();
@@ -736,14 +733,17 @@ LLSettingsSky::parammapping_t LLSettingsVOSky::getParameterMap() const
 
         // Following values are always present, so we can just zero these ones, but used values from defaults()
         LLSD sky_defaults = LLSettingsSky::defaults();
-        param_map[SETTING_CLOUD_COLOR] = DefaultParam(LLShaderMgr::CLOUD_COLOR, sky_defaults[SETTING_CLOUD_COLOR]);
+        
         param_map[SETTING_CLOUD_POS_DENSITY2] = DefaultParam(LLShaderMgr::CLOUD_POS_DENSITY2, sky_defaults[SETTING_CLOUD_POS_DENSITY2]);
         param_map[SETTING_CLOUD_SCALE] = DefaultParam(LLShaderMgr::CLOUD_SCALE, sky_defaults[SETTING_CLOUD_SCALE]);
         param_map[SETTING_CLOUD_SHADOW] = DefaultParam(LLShaderMgr::CLOUD_SHADOW, sky_defaults[SETTING_CLOUD_SHADOW]);
         param_map[SETTING_CLOUD_VARIANCE] = DefaultParam(LLShaderMgr::CLOUD_VARIANCE, sky_defaults[SETTING_CLOUD_VARIANCE]);
         param_map[SETTING_GLOW] = DefaultParam(LLShaderMgr::GLOW, sky_defaults[SETTING_GLOW]);
         param_map[SETTING_MAX_Y] = DefaultParam(LLShaderMgr::MAX_Y, sky_defaults[SETTING_MAX_Y]);
+
         //param_map[SETTING_SUNLIGHT_COLOR] = DefaultParam(LLShaderMgr::SUNLIGHT_COLOR, sky_defaults[SETTING_SUNLIGHT_COLOR]);
+        //param_map[SETTING_CLOUD_COLOR] = DefaultParam(LLShaderMgr::CLOUD_COLOR, sky_defaults[SETTING_CLOUD_COLOR]);
+
         param_map[SETTING_MOON_BRIGHTNESS] = DefaultParam(LLShaderMgr::MOON_BRIGHTNESS, sky_defaults[SETTING_MOON_BRIGHTNESS]);
         param_map[SETTING_SKY_MOISTURE_LEVEL] = DefaultParam(LLShaderMgr::MOISTURE_LEVEL, sky_defaults[SETTING_SKY_MOISTURE_LEVEL]);
         param_map[SETTING_SKY_DROPLET_RADIUS] = DefaultParam(LLShaderMgr::DROPLET_RADIUS, sky_defaults[SETTING_SKY_DROPLET_RADIUS]);

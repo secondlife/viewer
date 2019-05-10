@@ -4,7 +4,7 @@
 		Лучшие скрипты
 	</floater.string>
 	<floater.string name="top_scripts_text">
-		[COUNT] скриптов длительностью [TIME] мс
+		[COUNT] скриптов длительностью [TIME] мс и размером \[MEMORY] Кбайт
 	</floater.string>
 	<floater.string name="scripts_score_label">
 		Время

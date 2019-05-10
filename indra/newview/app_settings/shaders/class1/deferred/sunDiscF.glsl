@@ -33,6 +33,7 @@ out vec4 frag_data[3];
 #define frag_data gl_FragData
 #endif
 
+vec3 srgb_to_linear(vec3 c);
 vec3 fullbrightAtmosTransport(vec3 light);
 vec3 fullbrightScaleSoftClip(vec3 light);
 
@@ -47,9 +48,12 @@ void main()
     vec4 sunDiscA = texture2D(diffuseMap, vary_texcoord0.xy);
     vec4 sunDiscB = texture2D(altDiffuseMap, vary_texcoord0.xy);
     vec4 c     = mix(sunDiscA, sunDiscB, blend_factor);
+
+    c.rgb = srgb_to_linear(c.rgb);
     c.rgb = clamp(c.rgb, vec3(0), vec3(1));
     c.rgb = pow(c.rgb, vec3(0.7f));
-    c.rgb = fullbrightAtmosTransport(c.rgb);
+
+    //c.rgb = fullbrightAtmosTransport(c.rgb);
     c.rgb = fullbrightScaleSoftClip(c.rgb);
 
     // SL-9806 stars poke through

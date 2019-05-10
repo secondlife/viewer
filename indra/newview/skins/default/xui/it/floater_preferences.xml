@@ -5,6 +5,9 @@
 	</floater.string>
 	<button label="OK" label_selected="OK" name="OK"/>
 	<button label="Annulla" label_selected="Annulla" name="Cancel"/>
+	<panel name="search_panel">
+		<search_editor label="Ricerca Impostazioni" name="search_prefs_edit" tool_tip="Digita qui il termine della tua ricerca. I risultati verranno mostrati secondo la concordanza parziale o totale con il nome dell&apos;impostazione."/>
+	</panel>
 	<tab_container name="pref core" tab_width="100">
 		<panel label="Generale" name="general"/>
 		<panel label="Grafica" name="display"/>

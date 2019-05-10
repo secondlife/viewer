@@ -71,6 +71,8 @@ public:
 	S32				renderPropertyLines();
 
 	U8				ownership( const LLVector3& pos) const;
+	U8				parcelLineFlags( const LLVector3& pos) const;
+	U8				parcelLineFlags(S32 row, S32 col) const;
 
 	// MANIPULATE
 	void	uncompressLandOverlay(S32 chunk, U8 *compressed_overlay);

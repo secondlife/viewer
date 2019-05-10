@@ -49,6 +49,7 @@ uniform float haze_density;
 
 uniform float cloud_shadow;
 uniform float density_multiplier;
+uniform float distance_multiplier;
 uniform float max_y;
 
 uniform vec4 glow;
@@ -87,7 +88,7 @@ void main()
 	vec4 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
 	vec4 light_atten;
 
-    float dens_mul = density_multiplier;
+    float dens_mul = density_multiplier * 0.45;
 
 	// Sunlight attenuation effect (hue and brightness) due to atmosphere
 	// this is used later for sunlight modulation at various altitudes
@@ -109,7 +110,7 @@ void main()
 	// Transparency (-> temp1)
 	// ATI Bugfix -- can't store temp1*temp2.z in a variable because the ati
 	// compiler gets confused.
-	temp1 = exp(-temp1 * temp2.z);
+	temp1 = exp(-temp1 * temp2.z * distance_multiplier);
 
 
 	// Compute haze glow

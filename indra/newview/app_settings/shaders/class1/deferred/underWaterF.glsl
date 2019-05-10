@@ -58,6 +58,7 @@ VARYING vec4 refCoord;
 VARYING vec4 littleWave;
 VARYING vec4 view;
 
+vec3 srgb_to_linear(vec3 c);
 vec2 encode_normal(vec3 n);
 
 vec4 applyWaterFog(vec4 color, vec3 viewVec)
@@ -111,6 +112,8 @@ void main()
 	distort = distort+wavef.xy*refScale;
 		
 	vec4 fb = texture2D(screenTex, distort);
+
+    fb.rgb = srgb_to_linear(fb.rgb);
 
 	frag_data[0] = vec4(fb.rgb, 1.0); // diffuse
 	frag_data[1] = vec4(0.5,0.5,0.5, 0.95); // speccolor*spec, spec

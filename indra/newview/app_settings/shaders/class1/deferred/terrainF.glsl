@@ -61,12 +61,14 @@ void main()
     float alpha2 = texture2D(alpha_ramp,vary_texcoord1.xy).a;
     float alphaFinal = texture2D(alpha_ramp, vary_texcoord1.zw).a;
     vec4 outColor = mix( mix(color3, color2, alpha2), mix(color1, color0, alpha1), alphaFinal );
-    
+   
+    outColor.a = 0.0; // yes, downstream atmospherics 
 #ifdef WATER_FOG
     outColor = applyWaterFogView(pos.xyz, outColor);
+    outColor.a = 1.0; // no downstream atmo
 #endif
-
-    frag_data[0] = vec4(outColor.rgb, 0.0);
+    
+    frag_data[0] = outColor;
     frag_data[1] = vec4(0.0,0.0,0.0,0.0);
     vec3 nvn = normalize(vary_normal);
     frag_data[2] = vec4(encode_normal(nvn.xyz), 0.0, 0.0);

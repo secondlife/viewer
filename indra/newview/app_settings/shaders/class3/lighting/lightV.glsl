@@ -26,12 +26,13 @@
 
 
 // All lights, no specular highlights
+vec3 atmosAmbient();
+vec4 sumLights(vec3 pos, vec3 norm, vec4 color);
 
-vec4 sumLights(vec3 pos, vec3 norm, vec4 color, vec4 baseLight);
-vec3 atmosAmbient(vec3 c);
-vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseLight)
+vec4 calcLighting(vec3 pos, vec3 norm, vec4 color)
 {
- 	vec4 l = sumLights(pos, norm, color, baseLight);
-    return l;
+	vec4 c = sumLights(pos, norm, color);
+    c.rgb += atmosAmbient() * color.rgb;
+    return c; 
 }
 

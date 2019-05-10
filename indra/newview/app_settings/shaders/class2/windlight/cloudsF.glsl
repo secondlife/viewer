@@ -106,10 +106,10 @@ void main()
 
     alpha1 *= altitude_blend_factor;
 
-    if (alpha1 < 0.001f)
-    {
-        discard;
-    }
+    //if (alpha1 < 0.001f)
+    //{
+    //    discard;
+    //}
 
     // Compute alpha2, for self shadowing effect
     // (1 - alpha2) will later be used as percentage of incoming sunlight

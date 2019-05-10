@@ -34,7 +34,7 @@ ATTRIBUTE vec2 texcoord0;
 
 void calcAtmospherics(vec3 inPositionEye);
 
-vec3 atmosAmbient(vec3 light);
+vec3 atmosAmbient();
 vec3 atmosAffectDirectionalLight(float lightIntensity);
 
 VARYING vec4 vertex_color;

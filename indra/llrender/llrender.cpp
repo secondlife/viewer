@@ -193,6 +193,7 @@ void LLTexUnit::enable(eTextureType type)
 			stop_glerror();
 		}
 		mCurrTexType = type;
+
 		gGL.flush();
 		if (!LLGLSLShader::sNoFixedFunction && 
 			type != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
@@ -850,6 +851,8 @@ void LLTexUnit::debugTextureUnit(void)
 
 void LLTexUnit::setTextureColorSpace(eTextureColorSpace space) {
     mTexColorSpace = space;
+
+#if USE_SRGB_DECODE
     if (gGLManager.mHasTexturesRGBDecode) {
 
         if (space == TCS_SRGB) {
@@ -863,6 +866,9 @@ void LLTexUnit::setTextureColorSpace(eTextureColorSpace space) {
             assert_glerror();
         }
     }
+#endif
+    glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_SRGB_DECODE_EXT, GL_SKIP_DECODE_EXT);
+
 }
 
 LLLightState::LLLightState(S32 index)
@@ -1222,6 +1228,7 @@ void LLRender::syncLightState()
 		shader->uniform3fv(LLShaderMgr::LIGHT_DIFFUSE, 8, diffuse[0].mV);
 		shader->uniform4fv(LLShaderMgr::LIGHT_AMBIENT, 1, mAmbientLightColor.mV);
         shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_primary[0] ? 1 : 0);
+        shader->uniform4fv(LLShaderMgr::SUNLIGHT_COLOR, 1, diffuse[0].mV);
         shader->uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, diffuse_b[0].mV);
 	}
 }

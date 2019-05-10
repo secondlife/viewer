@@ -3780,24 +3780,10 @@ void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 
 	LLWorld::getInstance()->setSpaceTimeUSec(space_time_usec);
 
-	LL_DEBUGS("ENVIRONMENT") << "Sun phase: " << phase << " rad = " << fmodf(phase / F_TWO_PI + 0.25, 1.f) * 24.f << " h" << LL_ENDL;
+	LL_DEBUGS("WindlightSync") << "Sun phase: " << phase << " rad = " << fmodf(phase / F_TWO_PI + 0.25, 1.f) * 24.f << " h" << LL_ENDL;
 
-    F32 region_phase = LLEnvironment::instance().getRegionProgress();
-    if (region_phase >= 0.0)
-    {
-        F32 adjusted_phase = fmodf(phase / F_TWO_PI + 0.25, 1.f);
-        F32 delta_phase = adjusted_phase - region_phase;
-
-        LL_DEBUGS("ENVIRONMENT") << "adjusted phase = " << adjusted_phase << " local phase = " << region_phase << " delta = " << delta_phase << LL_ENDL;
-
-        if (!LLEnvironment::instance().isExtendedEnvironmentEnabled() && (fabs(delta_phase) > 0.125))
-        {
-            LL_INFOS("ENVIRONMENT") << "Adjusting environment to match region. adjustment=" << delta_phase << LL_ENDL;
-            LLEnvironment::instance().adjustRegionOffset(delta_phase);
-        }
-    }
-
-	/* We decode these parts of the message but ignore them
+	/* LAPRAS
+        We decode these parts of the message but ignore them
         as the real values are provided elsewhere. */
     (void)sun_direction, (void)moon_direction, (void)phase;
 }
@@ -5544,17 +5530,6 @@ void notify_cautioned_script_question(const LLSD& notification, const LLSD& resp
 
 void script_question_mute(const LLUUID& item_id, const std::string& object_name);
 
-bool unknown_script_question_cb(const LLSD& notification, const LLSD& response)
-{
-	// Only care if they muted the object here.
-	if ( response["Mute"] ) // mute
-	{
-		LLUUID task_id = notification["payload"]["task_id"].asUUID();
-		script_question_mute(task_id,notification["payload"]["object_name"].asString());
-	}
-	return false;
-}
-
 void experiencePermissionBlock(LLUUID experience, LLSD result)
 {
     LLSD permission;
@@ -5660,8 +5635,7 @@ void script_question_mute(const LLUUID& task_id, const std::string& object_name)
       	bool matches(const LLNotificationPtr notification) const
         {
             if (notification->getName() == "ScriptQuestionCaution"
-                || notification->getName() == "ScriptQuestion"
-				|| notification->getName() == "UnknownScriptQuestion")
+                || notification->getName() == "ScriptQuestion")
             {
                 return (notification->getPayload()["task_id"].asUUID() == blocked_id);
             }
@@ -5678,7 +5652,6 @@ void script_question_mute(const LLUUID& task_id, const std::string& object_name)
 static LLNotificationFunctorRegistration script_question_cb_reg_1("ScriptQuestion", script_question_cb);
 static LLNotificationFunctorRegistration script_question_cb_reg_2("ScriptQuestionCaution", script_question_cb);
 static LLNotificationFunctorRegistration script_question_cb_reg_3("ScriptQuestionExperience", script_question_cb);
-static LLNotificationFunctorRegistration unknown_script_question_cb_reg("UnknownScriptQuestion", unknown_script_question_cb);
 
 void process_script_experience_details(const LLSD& experience_details, LLSD args, LLSD payload)
 {
@@ -5776,27 +5749,27 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 				// check whether permission question should cause special caution dialog
 				caution |= (script_perm.caution);
 
-				if ((("ScriptTakeMoney" == script_perm.question) && has_not_only_debit) ||
-                        (script_perm.question == "JoinAnExperience"))
+				if (("ScriptTakeMoney" == script_perm.question) && has_not_only_debit)
 					continue;
+
+                if (script_perm.question == "JoinAnExperience")
+                { // Some experience only permissions do not have an explicit permission bit.  Add them here.
+                    script_question += "    " + LLTrans::getString("ForceSitAvatar") + "\n";
+                }
 
 				script_question += "    " + LLTrans::getString(script_perm.question) + "\n";
 			}
 		}
 	
-        script_question += "\n";
-
 		args["QUESTIONS"] = script_question;
 
 		if (known_questions != questions)
-		{	// This is in addition to the normal dialog.
-			LLSD payload;
-			payload["task_id"] = taskid;
-			payload["item_id"] = itemid;
-			payload["object_name"] = object_name;
-			
-			args["DOWNLOADURL"] = LLTrans::getString("ViewerDownloadURL");
-			LLNotificationsUtil::add("UnknownScriptQuestion",args,payload);
+		{
+			// This is in addition to the normal dialog.
+			// Viewer got a request for not supported/implemented permission 
+			LL_WARNS("Messaging") << "Object \"" << object_name << "\" requested " << script_question
+								<< " permission. Permission is unknown and can't be granted. Item id: " << itemid
+								<< " taskid:" << taskid << LL_ENDL;
 		}
 		
 		if (known_questions)

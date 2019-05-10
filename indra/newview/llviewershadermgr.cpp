@@ -399,7 +399,8 @@ void LLViewerShaderMgr::setShaders()
 		return;
 	}
 
-	LLGLSLShader::sIndexedTextureChannels = llmax(llmin(gGLManager.mNumTextureImageUnits, (S32) gSavedSettings.getU32("RenderMaxTextureIndex")), 1);
+	static LLCachedControl<U32> max_texture_index(gSavedSettings, "RenderMaxTextureIndex", 16);
+	LLGLSLShader::sIndexedTextureChannels = llmax(llmin(gGLManager.mNumTextureImageUnits, (S32) max_texture_index), 1);
 
 	//NEVER use more than 16 texture channels (work around for prevalent driver bug)
 	LLGLSLShader::sIndexedTextureChannels = llmin(LLGLSLShader::sIndexedTextureChannels, 16);
@@ -478,7 +479,8 @@ void LLViewerShaderMgr::setShaders()
 		//using shaders, disable fixed function
 		LLGLSLShader::sNoFixedFunction = true;
 
-		S32 light_class = 2;
+		S32 light_class = 3;
+        S32 interface_class = 2;
 		S32 env_class = 2;
 		S32 obj_class = 2;
 		S32 effect_class = 2;
@@ -519,6 +521,10 @@ void LLViewerShaderMgr::setShaders()
             // windlight shaders to stub versions.
             wl_class = 2;
         }
+        else
+        {
+            light_class = 2;
+        }
 
 		// Trigger a full rebuild of the fallback skybox / cubemap if we've toggled windlight shaders
 		if (mShaderLevel[SHADER_WINDLIGHT] != wl_class && gSky.mVOSkyp.notNull())
@@ -528,7 +534,7 @@ void LLViewerShaderMgr::setShaders()
 
 		// Load lighting shaders
 		mShaderLevel[SHADER_LIGHTING] = light_class;
-		mShaderLevel[SHADER_INTERFACE] = light_class;
+		mShaderLevel[SHADER_INTERFACE] = interface_class;
 		mShaderLevel[SHADER_ENVIRONMENT] = env_class;
 		mShaderLevel[SHADER_WATER] = water_class;
 		mShaderLevel[SHADER_OBJECT] = obj_class;
@@ -1335,6 +1341,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		gDeferredDiffuseProgram.mName = "Deferred Diffuse Shader";
         gDeferredDiffuseProgram.mFeatures.encodesNormal = true;
+        gDeferredDiffuseProgram.mFeatures.hasSrgb = true;
 		gDeferredDiffuseProgram.mShaderFiles.clear();
 		gDeferredDiffuseProgram.mShaderFiles.push_back(make_pair("deferred/diffuseV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredDiffuseProgram.mShaderFiles.push_back(make_pair("deferred/diffuseIndexedF.glsl", GL_FRAGMENT_SHADER_ARB));
@@ -1384,6 +1391,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredNonIndexedDiffuseProgram.mName = "Non Indexed Deferred Diffuse Shader";
 		gDeferredNonIndexedDiffuseProgram.mShaderFiles.clear();
         gDeferredNonIndexedDiffuseProgram.mFeatures.encodesNormal = true;
+        gDeferredNonIndexedDiffuseProgram.mFeatures.hasSrgb = true;
 		gDeferredNonIndexedDiffuseProgram.mShaderFiles.push_back(make_pair("deferred/diffuseV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredNonIndexedDiffuseProgram.mShaderFiles.push_back(make_pair("deferred/diffuseF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredNonIndexedDiffuseProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
@@ -1396,6 +1404,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSkinnedDiffuseProgram.mName = "Deferred Skinned Diffuse Shader";
 		gDeferredSkinnedDiffuseProgram.mFeatures.hasObjectSkinning = true;
 		gDeferredSkinnedDiffuseProgram.mFeatures.encodesNormal = true;
+        gDeferredSkinnedDiffuseProgram.mFeatures.hasSrgb = true;
 		gDeferredSkinnedDiffuseProgram.mShaderFiles.clear();
 		gDeferredSkinnedDiffuseProgram.mShaderFiles.push_back(make_pair("deferred/diffuseSkinnedV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredSkinnedDiffuseProgram.mShaderFiles.push_back(make_pair("deferred/diffuseF.glsl", GL_FRAGMENT_SHADER_ARB));
@@ -1824,10 +1833,12 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
     {
         gDeferredAlphaImpostorProgram.mName = "Deferred Alpha Impostor Shader";
 
+// Begin Hack
 		gDeferredAlphaImpostorProgram.mFeatures.calculatesLighting = false;
 		gDeferredAlphaImpostorProgram.mFeatures.hasLighting = false;
+
+        gDeferredAlphaImpostorProgram.mFeatures.hasSrgb = true;
 		gDeferredAlphaImpostorProgram.mFeatures.isAlphaLighting = true;
-		gDeferredAlphaImpostorProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of         gDeferredAlphaImpostorProgram.mFeatures.hasSrgb = true;
         gDeferredAlphaImpostorProgram.mFeatures.encodesNormal = true;
         gDeferredAlphaImpostorProgram.mFeatures.hasShadows = use_sun_shadow;
 
@@ -1859,7 +1870,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         success = gDeferredAlphaImpostorProgram.createShader(NULL, NULL);
         llassert(success);
 
-        // Hack
+// End Hack
         gDeferredAlphaImpostorProgram.mFeatures.calculatesLighting = true;
         gDeferredAlphaImpostorProgram.mFeatures.hasLighting = true;
     }
@@ -2509,6 +2520,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredWLSunProgram.mFeatures.hasAtmospherics = true;
         gDeferredWLSunProgram.mFeatures.isFullbright = true;
         gDeferredWLSunProgram.mFeatures.disableTextureIndex = true;
+        gDeferredWLSunProgram.mFeatures.hasSrgb = true;
         gDeferredWLSunProgram.mShaderFiles.clear();
         gDeferredWLSunProgram.mShaderFiles.push_back(make_pair("deferred/sunDiscV.glsl", GL_VERTEX_SHADER_ARB));
         gDeferredWLSunProgram.mShaderFiles.push_back(make_pair("deferred/sunDiscF.glsl", GL_FRAGMENT_SHADER_ARB));

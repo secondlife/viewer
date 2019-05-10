@@ -31,9 +31,7 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-#if !defined(DEPTH_CLAMP)
 VARYING vec4 post_pos;
-#endif
 
 void main() 
 {

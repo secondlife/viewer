@@ -191,7 +191,9 @@ LLTool* LLTool::getOverrideTool(MASK mask)
 	{
 		return NULL;
 	}
-	if (gSavedSettings.getBOOL("EnableAltZoom"))
+
+	static LLCachedControl<bool> alt_zoom(gSavedSettings, "EnableAltZoom", true);
+	if (alt_zoom)
 	{
 		if (mask & MASK_ALT)
 		{

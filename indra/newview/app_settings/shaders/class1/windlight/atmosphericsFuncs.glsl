@@ -42,6 +42,11 @@ uniform mat3 ssao_effect_mat;
 uniform int no_atmo;
 uniform float sun_moon_glow_factor;
 
+float getAmbientClamp()
+{
+    return 0.66f;
+}
+
 void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten) {
 
     vec3 P = inPositionEye;
@@ -63,7 +68,7 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
     vec4 light_atten;
 
     float dens_mul = density_multiplier;
-    float dist_mul = distance_multiplier * 0.1;
+    float dist_mul = distance_multiplier;
 
     //sunlight attenuation effect (hue and brightness) due to atmosphere
     //this is used later for sunlight modulation at various altitudes
@@ -76,12 +81,12 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
     haze_weight = vec4(haze_density) / temp1;
 
     //(TERRAIN) compute sunlight from lightnorm only (for short rays like terrain)
-    temp2.y = max(0.0, tmpLightnorm.z);
-    if (temp2.y > 0.001f)
+    temp2.y = max(0.0, tmpLightnorm.y);
+    if (abs(temp2.y) > 0.000001f)
     {
-        temp2.y = 1. / temp2.y;
+        temp2.y = 1. / abs(temp2.y);
     }
-    temp2.y = max(0.001f, temp2.y);
+    temp2.y = max(0.0000001f, temp2.y);
     sunlight *= exp(-light_atten * temp2.y);
 
     // main atmospheric scattering line integral
@@ -102,9 +107,9 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
         //temp2.x is 0 at the sun and increases away from sun
     temp2.x = max(temp2.x, .001);    //was glow.y
         //set a minimum "angle" (smaller glow.y allows tighter, brighter hotspot)
-    temp2.x *= glow.x;
+    temp2.x *= glow.x * 1.8;
         //higher glow.x gives dimmer glow (because next step is 1 / "angle")
-    temp2.x = pow(temp2.x, glow.z);
+    temp2.x = pow(temp2.x, glow.z * 0.2);
         //glow.z should be negative, so we're doing a sort of (1 / "angle") function
 
     //add "minimum anti-solar illumination"
@@ -132,7 +137,7 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
           + tmpAmbient));
 
     //brightness of surface both sunlight and ambient
-    sunlit = sunlight.rgb;
+    sunlit = sunlight.rgb * 0.5;
     amblit = tmpAmbient.rgb * .25;
     additive *= vec3(1.0 - temp1);
 }
