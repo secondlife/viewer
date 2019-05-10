@@ -1845,7 +1845,7 @@ You are not allowed to terraform parcel [PARCEL].
    name="CannotCopyWarning"
    type="alertmodal">
 You do not have permission to copy the following items:
-[ITEMS]
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 and will lose it from your inventory if you give it away. Do you really want to offer these items?
     <tag>confirm</tag>
     <usetemplate
@@ -7851,28 +7851,6 @@ Do not allow access if you do not fully understand why it wants access to your a
     </footer>
   </notification>
 
-  <notification
-   icon="notify.tga"
-	 name="UnknownScriptQuestion"
-	 persist="false"
-	 type="notify">
-The runtime script permission requested by &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, an object owned by &apos;[NAME]&apos;, isn&apos;t recognized by the viewer and can&apos;t be granted.
-
-To grant this permission please update your viewer to the latest version from [DOWNLOADURL].
-		<tag>confirm</tag>
-		<form name="form">
-			<button
-			 default="true"
-			 index="1"
-			 name="Deny"
-			 text="Ok"/>
-			<button
-			 index="2"
-			 name="Mute"
-			 text="Block"/>
-		</form>
-	</notification>
-
 	<notification
    icon="notify.tga"
    name="ScriptDialog"
@@ -9564,7 +9542,7 @@ You Can't create trees and grass on land you don't own.
    name="NoCopyPermsNoObject"
    type="notify">
    <tag>fail</tag>
-Copy failed because you lack permission to copy the object '[OBJ_NAME]'.
+Copy failed because you lack permission to copy the object &lt;nolink&gt;'[OBJ_NAME]'&lt;/nolink&gt;.
   </notification>
 
   <notification
@@ -9572,7 +9550,7 @@ Copy failed because you lack permission to copy the object '[OBJ_NAME]'.
    name="NoTransPermsNoObject"
    type="notify">
    <tag>fail</tag>
-Copy failed because the object '[OBJ_NAME]' cannot be transferred to you.
+Copy failed because the object &lt;nolink&gt;'[OBJ_NAME]'&lt;/nolink&gt; cannot be transferred to you.
   </notification>
 
   <notification
@@ -9580,7 +9558,7 @@ Copy failed because the object '[OBJ_NAME]' cannot be transferred to you.
    name="AddToNavMeshNoCopy"
    type="notify">
    <tag>fail</tag>
-Copy failed because the object '[OBJ_NAME]' contributes to navmesh.
+Copy failed because the object &lt;nolink&gt;'[OBJ_NAME]'&lt;/nolink&gt; contributes to navmesh.
   </notification>
 
   <notification
@@ -9704,7 +9682,7 @@ Save Back To Inventory has been disabled.
    name="NoExistNoSaveToContents"
    type="notify">
    <tag>fail</tag>
-Cannot save '[OBJ_NAME]' to object contents because the object it was rezzed from no longer exists.
+Cannot save &lt;nolink&gt;'[OBJ_NAME]'&lt;/nolink&gt; to object contents because the object it was rezzed from no longer exists.
   </notification>
 
   <notification
@@ -9712,7 +9690,7 @@ Cannot save '[OBJ_NAME]' to object contents because the object it was rezzed fro
    name="NoModNoSaveToContents"
    type="notify">
    <tag>fail</tag>
-Cannot save '[OBJ_NAME]' to object contents because you do not have permission to modify the object '[DEST_NAME]'.
+Cannot save &lt;nolink&gt;'[OBJ_NAME]'&lt;/nolink&gt; to object contents because you do not have permission to modify the object &lt;nolink&gt;'[DEST_NAME]'&lt;/nolink&gt;.
   </notification>
 
   <notification
@@ -9720,7 +9698,7 @@ Cannot save '[OBJ_NAME]' to object contents because you do not have permission t
    name="NoSaveBackToInvDisabled"
    type="notify">
    <tag>fail</tag>
-Cannot save '[OBJ_NAME]' back to inventory -- this operation has been disabled.
+Cannot save &lt;nolink&gt;'[OBJ_NAME]'&lt;/nolink&gt; back to inventory -- this operation has been disabled.
   </notification>
 
   <notification
@@ -9728,7 +9706,7 @@ Cannot save '[OBJ_NAME]' back to inventory -- this operation has been disabled.
    name="NoCopyNoSelCopy"
    type="notify">
    <tag>fail</tag>
-You cannot copy your selection because you do not have permission to copy the object '[OBJ_NAME]'.
+You cannot copy your selection because you do not have permission to copy the object &lt;nolink&gt;'[OBJ_NAME]'&lt;/nolink&gt;.
   </notification>
 
   <notification
@@ -9736,7 +9714,7 @@ You cannot copy your selection because you do not have permission to copy the ob
    name="NoTransNoSelCopy"
    type="notify">
    <tag>fail</tag>
-You cannot copy your selection because the object '[OBJ_NAME]' is not transferrable.
+You cannot copy your selection because the object &lt;nolink&gt;'[OBJ_NAME]'&lt;/nolink&gt; is not transferrable.
   </notification>
 
   <notification
@@ -9744,7 +9722,7 @@ You cannot copy your selection because the object '[OBJ_NAME]' is not transferra
    name="NoTransNoCopy"
    type="notify">
    <tag>fail</tag>
-You cannot copy your selection because the object '[OBJ_NAME]' is not transferrable.
+You cannot copy your selection because the object &lt;nolink&gt;'[OBJ_NAME]'&lt;/nolink&gt; is not transferrable.
   </notification>
 
   <notification
@@ -9752,7 +9730,7 @@ You cannot copy your selection because the object '[OBJ_NAME]' is not transferra
    name="NoPermsNoRemoval"
    type="notify">
    <tag>fail</tag>
-Removal of the object '[OBJ_NAME]' from the simulator is disallowed by the permissions system.
+Removal of the object &lt;nolink&gt;'[OBJ_NAME]'&lt;/nolink&gt; from the simulator is disallowed by the permissions system.
   </notification>
 
   <notification
@@ -9760,7 +9738,7 @@ Removal of the object '[OBJ_NAME]' from the simulator is disallowed by the permi
    name="NoModNoSaveSelection"
    type="notify">
    <tag>fail</tag>
-Cannot save your selection because you do not have permission to modify the object '[OBJ_NAME]'.
+Cannot save your selection because you do not have permission to modify the object &lt;nolink&gt;'[OBJ_NAME]'&lt;/nolink&gt;.
   </notification>
 
   <notification
@@ -9768,7 +9746,7 @@ Cannot save your selection because you do not have permission to modify the obje
    name="NoCopyNoSaveSelection"
    type="notify">
    <tag>fail</tag>
-Cannot save your selection because the object '[OBJ_NAME]' is not copyable.
+Cannot save your selection because the object &lt;nolink&gt;'[OBJ_NAME]'&lt;/nolink&gt; is not copyable.
   </notification>
 
   <notification
@@ -9776,7 +9754,7 @@ Cannot save your selection because the object '[OBJ_NAME]' is not copyable.
    name="NoModNoTaking"
    type="notify">
    <tag>fail</tag>
-You cannot take your selection because you do not have permission to modify the object '[OBJ_NAME]'.
+You cannot take your selection because you do not have permission to modify the object &lt;nolink&gt;'[OBJ_NAME]'&lt;/nolink&gt;.
   </notification>
 
   <notification

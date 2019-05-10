@@ -244,6 +244,10 @@ Lütfen sadece bir nesne seçin ve tekrar deneyin.
 		Not: Bu seçeneği etkinleştirdiğinizde, bu bilgisayarı kullanan herkes en sevdiğiniz konumlar listenizi görebilecek.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
+	<notification name="AllowMultipleViewers">
+		Birden çok Second Life görüntüleyiciyi çalıştırma özelliği desteklenmiyor. Bu durum doku önbelleği çakışmalarına, görsellerin bozulmasına ve performansın düşmesine yol açabilir.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
 	<notification name="GrantModifyRights">
 		Başka bir Sakine değişiklik yapma hakkı verdiğinizde, SL dünyasında sahip olduğunuz HERHANGİ BİR nesneyi değiştirebilme, silebilme veya alabilmelerine izin vermiş olursunuz. Bu izni verirken ÇOK dikkatli olun.
 [NAME] adlı kişiye değişiklik yapma hakkı vermek istiyor musunuz?
@@ -718,9 +722,9 @@ Grafik Kalitesi, Tercihler &gt; Grafikler sekmesinden yükseltilebilir.
 		[PARCEL] parseli üzerinde yer şekillendirmesi yapma izniniz bulunmuyor.
 	</notification>
 	<notification name="CannotCopyWarning">
-		Aşağıdaki öğeleri kopyalamak için gerekli izne sahip değilsiniz:
-[ITEMS]
-Bu öğeleri verdiğiniz takdirde envanterinizden çıkacaklar. Bu öğeleri teklif etmeyi gerçekten istiyor musunuz?
+		Aşağıdaki öğeleri kopyalama izniniz yok: 
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt; 
+ve bunları elden çıkardığınız takdirde envanterinizden kaybolacaktır. Bu öğeleri sunmayı gerçekten istiyor musunuz?
 		<usetemplate name="okcancelbuttons" notext="Hayır" yestext="Evet"/>
 	</notification>
 	<notification name="CannotGiveItem">
@@ -1609,8 +1613,24 @@ Nesneyi satılık olarak ayarlayıp tekrar deneyin.
 [DOWNLOAD_PATH].
 	</notification>
 	<notification name="RequiredUpdate">
-		Oturum açma için [VERSION] sürümü gerekli. Bu sizin için güncellenmiş olmalıydı ancak görünüşe göre güncellenmemiş. Lütfen www.secondlife.com adresinden indirin.
+		Oturum açmak için [VERSION] sürümü gerekli. 
+Lütfen https://secondlife.com/support/downloads/ adresinden indirin
 		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="PauseForUpdate">
+		Oturum açmak için [VERSION] sürümü gerekli. 
+İndirmek ve yüklemek için Tamam&apos;a tıklayın.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="OptionalUpdateReady">
+		[VERSION] sürümü indirildi ve yüklenmeye hazır. 
+Yüklemek için Tamam&apos;a tıklayın.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="PromptOptionalUpdate">
+		[VERSION] sürümü indirildi ve yüklenmeye hazır. 
+Devam edilsin mi?
+		<usetemplate canceltext="Şimdi Değil" name="yesnocancelbuttons" notext="Atla" yestext="Yükle"/>
 	</notification>
 	<notification name="LoginFailedUnknown">
 		Üzgünüz, oturum açma bilinmeyen bir nedenden dolayı başarısız oldu. Bu mesajı almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
@@ -3071,15 +3091,6 @@ Eğer hesabınıza neden erişmek istediğini tam olarak anlamıyorsanız, eriş
 			<button name="Deny" text="Reddet"/>
 		</form>
 	</notification>
-	<notification name="UnknownScriptQuestion">
-		&apos;[NAME]&apos; tarafından sahip olunan bir nesne olan &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; tarafından istenen çalışma zamanı komut dosyası izni görüntüleyici tarafından tanınmadı ve verilemez.
-
-Bu izni vermek için lütfen [DOWNLOADURL] adresinden görüntüleyicinizi en son sürüme güncelleyin.
-		<form name="form">
-			<button name="Deny" text="Tamam"/>
-			<button name="Mute" text="Engelle"/>
-		</form>
-	</notification>
 	<notification name="ScriptDialog">
 		[NAME] adlı kişiye ait &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
@@ -3743,13 +3754,13 @@ Girişim iptal edildi.
 		Sahibi olmadığınız arazide ağaçlar ve çimen oluşturamazsınız.
 	</notification>
 	<notification name="NoCopyPermsNoObject">
-		&apos;[OBJ_NAME]&apos; nesnesini kopyalama izniniz olmadığı için kopyalama başarılamadı.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesnesini kopyalama izniniz olmadığından kopyalama başarısız oldu.
 	</notification>
 	<notification name="NoTransPermsNoObject">
-		&apos;[OBJ_NAME]&apos; nesnesi size aktarılamadığı için kopyalama başarılamadı.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesnesi size devredilemediğinden kopyalama başarısız oldu.
 	</notification>
 	<notification name="AddToNavMeshNoCopy">
-		&apos;[OBJ_NAME]&apos; nesnesi navmesh&apos;e katkıda bulunduğu için kopyalama başarılamadı.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesnesi navigasyon örgüsüne katkıda bulunduğundan kopyalama başarısız oldu.
 	</notification>
 	<notification name="DupeWithNoRootsSelected">
 		Kök nesne seçili olmayan kopya.
@@ -3794,34 +3805,34 @@ Lütfen bir dakika sonra tekrar deneyin.
 		Envantere Geri Kaydet devre dışı bırakıldı.
 	</notification>
 	<notification name="NoExistNoSaveToContents">
-		&apos;[OBJ_NAME]&apos; nesne içeriğine kaydedilemedi, çünkü oluşturulurken temel alınan nesne artık mevcut değil.
+		Yeniden canlandırıldığı nesne artık mevcut olmadığından &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesne içeriklerine kaydedilemiyor.
 	</notification>
 	<notification name="NoModNoSaveToContents">
-		&apos;[DEST_NAME]&apos; nesnesini değiştirme izniniz olmadığı için &apos;[OBJ_NAME]&apos; nesne içeriğine kaydedilemedi.
+		&lt;nolink&gt;&apos;[DEST_NAME]&apos;&lt;/nolink&gt; nesnesini değiştirme izniniz olmadığından &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesne içeriklerine kaydedilemiyor.
 	</notification>
 	<notification name="NoSaveBackToInvDisabled">
-		&apos;[OBJ_NAME]&apos; envantere geri kaydedilemez -- bu işlem devre dışı bırakıldı.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; envantere tekrar kaydedilemiyor -- bu işlem devre dışı bırakılmış.
 	</notification>
 	<notification name="NoCopyNoSelCopy">
-		&apos;[OBJ_NAME]&apos; nesnesini kopyalama izniniz olmadığı için seçiminizi kopyalamayazsınız.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesnesini kopyalama izniniz olmadığından seçiminizi kopyalayamazsınız.
 	</notification>
 	<notification name="NoTransNoSelCopy">
-		&apos;[OBJ_NAME]&apos; nesnesi aktarılamaz olduğu için seçiminizi kopyalayamazsınız.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesnesi devredilebilir olmadığından seçiminizi kopyalayamazsınız.
 	</notification>
 	<notification name="NoTransNoCopy">
-		&apos;[OBJ_NAME]&apos; nesnesi aktarılamaz olduğu için seçiminizi kopyalayamazsınız.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesnesi devredilebilir olmadığından seçiminizi kopyalayamazsınız.
 	</notification>
 	<notification name="NoPermsNoRemoval">
-		Benzeticiden &apos;[OBJ_NAME]&apos; nesnesinin kaldırılmasına izinler sistemi izin vermiyor.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesnesinin simülatörden kaldırılmasına izin sistemi tarafından izin verilmiyor.
 	</notification>
 	<notification name="NoModNoSaveSelection">
-		&apos;[OBJ_NAME]&apos; nesnesini değiştirme izniniz olmadığı için seçiminizi kaydedemezsiniz.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesnesini değiştirme izniniz olmadığından seçiminiz kaydedilemiyor.
 	</notification>
 	<notification name="NoCopyNoSaveSelection">
-		&apos;[OBJ_NAME]&apos; nesnesi kopyalanamaz olduğu için seçiminizi kaydedemezsiniz.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesnesi kopyalanabilir olmadığından seçiminiz kaydedilemiyor.
 	</notification>
 	<notification name="NoModNoTaking">
-		&apos;[OBJ_NAME]&apos; nesnesini değiştirme izniniz olmadığı için seçiminizi alamazsınız.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesnesini değiştirme izniniz olmadığından seçiminizi alamazsınız.
 	</notification>
 	<notification name="RezDestInternalError">
 		Dahili Hata: Bilinmeyen hedef türü.

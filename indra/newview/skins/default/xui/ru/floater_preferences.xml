@@ -5,6 +5,9 @@
 	</floater.string>
 	<button label="ОК" label_selected="ОК" name="OK"/>
 	<button label="Отмена" label_selected="Отмена" name="Cancel"/>
+	<panel name="search_panel">
+		<search_editor label="Настройки поиска" name="search_prefs_edit" tool_tip="Введите интересующий вас термин для поиска здесь. Результаты будут отображены для частичного совпадения полного текста в названии параметра или комментариях."/>
+	</panel>
 	<tab_container name="pref core">
 		<panel label="Общие" name="general"/>
 		<panel label="Графика" name="display"/>
