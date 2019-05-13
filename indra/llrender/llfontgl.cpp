@@ -870,10 +870,6 @@ void LLFontGL::destroyAllGL()
 U8 LLFontGL::getStyleFromString(const std::string &style)
 {
 	S32 ret = 0;
-	if (style.find("NORMAL") != style.npos)
-	{
-		ret |= NORMAL;
-	}
 	if (style.find("BOLD") != style.npos)
 	{
 		ret |= BOLD;
@@ -893,7 +889,7 @@ U8 LLFontGL::getStyleFromString(const std::string &style)
 std::string LLFontGL::getStringFromStyle(U8 style)
 {
 	std::string style_string;
-	if (style & NORMAL)
+	if (style == NORMAL)
 	{
 		style_string += "|NORMAL";
 	}
