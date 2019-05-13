@@ -86,9 +86,9 @@ protected:
     LLSettingsBase::ptr_t   mSettings;
 
     virtual void            doImportFromDisk() = 0;
-    virtual void            doApplyCreateNewInventory(std::string settings_name);
-    virtual void            doApplyUpdateInventory();
-    virtual void            doApplyEnvironment(const std::string &where);
+    virtual void            doApplyCreateNewInventory(std::string settings_name, const LLSettingsBase::ptr_t &settings);
+    virtual void            doApplyUpdateInventory(const LLSettingsBase::ptr_t &settings);
+    virtual void            doApplyEnvironment(const std::string &where, const LLSettingsBase::ptr_t &settings);
     void                    doCloseInventoryFloater(bool quitting = false);
 
     bool                    canUseInventory() const;
@@ -116,7 +116,7 @@ protected:
     void                    onPanelDirtyFlagChanged(bool);
 
     virtual void            onClickCloseBtn(bool app_quitting = false) override;
-    void                    onSaveAsCommit(const LLSD& notification, const LLSD& response);
+    void                    onSaveAsCommit(const LLSD& notification, const LLSD& response, const LLSettingsBase::ptr_t &settings);
 
 private:
     void                    onNameChanged(const std::string &name);
