@@ -44,7 +44,7 @@ uniform float sun_moon_glow_factor;
 
 float getAmbientClamp()
 {
-    return 0.66f;
+    return 0.2f;
 }
 
 void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten) {
@@ -137,7 +137,7 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
           + tmpAmbient));
 
     //brightness of surface both sunlight and ambient
-    sunlit = sunlight.rgb * 0.5;
-    amblit = tmpAmbient.rgb * .25;
+    sunlit = sunlight.rgb;
+    amblit = tmpAmbient.rgb;
     additive *= vec3(1.0 - temp1);
 }
