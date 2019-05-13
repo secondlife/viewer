@@ -44,7 +44,7 @@
                     width="250"
                     name="settings_name"
                     prevalidate_callback="ascii"
-                    max_length_chars="32"
+                    max_length_chars="63"
                     height="20"/>
             <button
                     height="23"
