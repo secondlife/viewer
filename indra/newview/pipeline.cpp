@@ -7876,7 +7876,7 @@ void LLPipeline::renderBloom(bool for_snapshot, F32 zoom_factor, int subfield)
 				S32 channel = shader->enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mScreen.getUsage());
 				if (channel > -1)
 				{
-					mScreen.bindTexture(0, channel, LLTexUnit::TFO_BILINEAR);
+					mScreen.bindTexture(0, channel);
 				}
 
 				if (!LLViewerCamera::getInstance()->cameraUnderWater())
