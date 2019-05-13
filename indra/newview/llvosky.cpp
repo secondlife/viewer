@@ -207,10 +207,14 @@ void LLSkyTex::create(const F32 brightness)
 
 void LLSkyTex::createGLImage(S32 which)
 {	
-    if (LLPipeline::RenderDeferred) {
+#if USE_SRGB_DECODE
+    if (LLPipeline::RenderDeferred)
+    {
         mTexture[which]->setExplicitFormat(GL_SRGB8_ALPHA8, GL_RGBA);
     }
-    else {
+    else
+#endif
+    {
         mTexture[which]->setExplicitFormat(GL_RGBA8, GL_RGBA);
     }
 	mTexture[which]->createGLTexture(0, mImageRaw[which], 0, TRUE, LLGLTexture::LOCAL);

@@ -37,22 +37,29 @@ uniform vec4 blue_density;
 uniform float haze_horizon;
 uniform float haze_density;
 uniform float cloud_shadow;
+uniform float density_multiplier;
+uniform float distance_multiplier;
 uniform float max_y;
 uniform vec4 glow;
 uniform float scene_light_strength;
 uniform mat3 ssao_effect_mat;
+uniform int no_atmo;
+uniform float sun_moon_glow_factor;
 
 vec3 scaleSoftClipFrag(vec3 light);
 
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten)
 {
-	light *= atten.r;
-	light += additive;
-	return (2.0 * light);
+    if (no_atmo == 1)
+    {
+        return light;
+    }
+    light *= atten.r;
+    light += additive;
+    return light * 2.0;
 }
 
 vec3 atmosLighting(vec3 light)
 {
     return atmosFragLighting(light, getAdditiveColor(), getAtmosAttenuation());
 }
-
