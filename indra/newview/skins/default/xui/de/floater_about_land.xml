@@ -21,7 +21,7 @@
 	<floater.string name="Remaining">
 		Restzeit
 	</floater.string>
-	<tab_container name="landtab" tab_min_width="40" width="489">
+	<tab_container name="landtab" tab_min_width="40">
 		<panel label="ALLGEMEIN" name="land_general_panel">
 			<panel.string name="new users only">
 				Nur neue Benutzer
@@ -361,8 +361,8 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			<text name="landing_point">
 				Landepunkt: [LANDING]
 			</text>
-			<button label="Festlegen" label_selected="Festlegen" left="234" name="Set" right="-88" tool_tip="Legt Ihren Standort als Landepunkt fest, an dem Besucher ankommen. Legt die Position Ihres Avatars innerhalb dieser Parzelle fest." width="70"/>
-			<button label="Löschen" label_selected="Löschen" left="312" name="Clear" tool_tip="Landepunkt löschen" width="70"/>
+			<button label="Festlegen" label_selected="Festlegen" name="Set" tool_tip="Legt Ihren Standort als Landepunkt fest, an dem Besucher ankommen. Legt die Position Ihres Avatars innerhalb dieser Parzelle fest." width="70"/>
+			<button label="Löschen" label_selected="Löschen" name="Clear" tool_tip="Landepunkt löschen" width="70"/>
 			<text name="Teleport Routing: ">
 				Teleport-Route:
 			</text>
@@ -433,7 +433,7 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			<panel.string name="estate_override">
 				Eine oder mehrere dieser Optionen gelten auf Grundbesitzebene
 			</panel.string>
-			<check_box label="Alle Besucher sind zugelassen (Bei Deaktivierung dieser Option werden Bannlinien generiert)" name="public_access"/>
+			<check_box label="Alle Besucher sind zugelassen" tool_tip="Bei Deaktivierung dieser Option werden Bannlinien generiert" name="public_access"/>
 			<check_box label="Muss 18+ sein [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Nur Einwohner, die mindestens 18 Jahre alt sind, können diese Parzelle betreten. Weitere Informationen finden Sie unter [SUPPORT_SITE]."/>
 			<check_box label="Muss über Zahlungsinfo in Datei [ESTATE_PAYMENT_LIMIT] verfügen" name="limit_payment" tool_tip="Um diese Parzelle besuchen zu können, müssen Einwohner Zahlungsinformationen hinterlegt haben. Weitere Informationen finden Sie auf [SUPPORT_SITE]."/>
 			<check_box label="Gruppe [GROUP] ohne Beschränkungen zulassen" name="GroupCheck" tool_tip="Gruppe im Register „Allgemein“ festlegen."/>
