@@ -1276,8 +1276,10 @@ void LLSettingsSky::calculateLightSettings() const
     LLColor3 tmpAmbient = ambient + (smear(1.f) - ambient) * cloud_shadow;
 
     //brightness of surface both sunlight and ambient
-    mSunDiffuse = gammaCorrect(componentMult(sunlight,   light_transmittance));
-    mSunAmbient = gammaCorrect(componentMult(tmpAmbient, light_transmittance));
+    // reduce range to 0 - 1 before gamma correct to prevent clipping
+    // then restore to full 0 - 3 range before storage
+    mSunDiffuse = gammaCorrect(componentMult(sunlight * 0.33333f,   light_transmittance)) * 3.0f;
+    mSunAmbient = gammaCorrect(componentMult(tmpAmbient * 0.33333f, light_transmittance)) * 3.0f;
 
     F32 moon_brightness = getIsMoonUp() ? getMoonBrightness() : 0.001f;
 

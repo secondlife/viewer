@@ -389,7 +389,7 @@ bool LLSettingsBase::validate()
 
 LLSD LLSettingsBase::settingValidation(LLSD &settings, validation_list_t &validations, bool partial)
 {
-    static Validator  validateName(SETTING_NAME, false, LLSD::TypeString, boost::bind(&Validator::verifyStringLength, _1, 32));
+    static Validator  validateName(SETTING_NAME, false, LLSD::TypeString, boost::bind(&Validator::verifyStringLength, _1, 63));
     static Validator  validateId(SETTING_ID, false, LLSD::TypeUUID);
     static Validator  validateHash(SETTING_HASH, false, LLSD::TypeInteger);
     static Validator  validateType(SETTING_TYPE, false, LLSD::TypeString);
