@@ -2327,6 +2327,8 @@ bool LLPipeline::getVisibleExtents(LLCamera& camera, LLVector3& min, LLVector3& 
 	LLViewerCamera::eCameraID saved_camera_id = LLViewerCamera::sCurCameraID;
 	LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 
+	bool res = true;
+
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
@@ -2337,17 +2339,20 @@ bool LLPipeline::getVisibleExtents(LLCamera& camera, LLVector3& min, LLVector3& 
 			LLSpatialPartition* part = region->getSpatialPartition(i);
 			if (part)
 			{
-				if (hasRenderType(part->mDrawableType) && !part->getVisibleExtents(camera, min, max))
+				if (hasRenderType(part->mDrawableType))
 				{
-					LLViewerCamera::sCurCameraID = saved_camera_id;
-                    return false;
+					if (!part->getVisibleExtents(camera, min, max))
+					{
+						res = false;
+					}
 				}
 			}
 		}
 	}
 
 	LLViewerCamera::sCurCameraID = saved_camera_id;
-	return true;
+
+	return res;
 }
 
 static LLTrace::BlockTimerStatHandle FTM_CULL("Object Culling");
