@@ -1682,4 +1682,3 @@ LLUUID LLSettingsSky::getNextBloomTextureId() const
 {
     return mNextBloomTextureId;
 }
-
