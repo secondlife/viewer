@@ -140,7 +140,6 @@ pre_build()
     "$autobuild" configure --quiet -c $variant -- \
      -DPACKAGE:BOOL=ON \
      -DHAVOK:BOOL="$HAVOK" \
-     -DCMAKE_SYSTEM_VERSION:STRING="10.0" \
      -DRELEASE_CRASH_REPORTING:BOOL="$RELEASE_CRASH_REPORTING" \
      -DVIEWER_SYMBOL_FILE:STRING="${VIEWER_SYMBOL_FILE:-}" \
      -DBUGSPLAT_DB:STRING="${BUGSPLAT_DB:-}" \
