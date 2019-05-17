@@ -36,7 +36,7 @@ vec3 atmosTransportFrag(vec3 light, vec3 additive, vec3 atten)
 {
     if (no_atmo == 1)
     {
-        return light;
+        return light * 2.0;
     }
     light *= atten.r;
     light += additive;
