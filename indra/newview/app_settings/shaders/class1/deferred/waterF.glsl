@@ -64,7 +64,9 @@ VARYING vec4 view;
 VARYING vec4 vary_position;
 
 vec2 encode_normal(vec3 n);
-vec3 scaleSoftClipFrag(vec3 l);
+vec3 scaleSoftClip(vec3 l);
+vec3 srgb_to_linear(vec3 c);
+vec3 linear_to_srgb(vec3 c);
 
 vec3 BlendNormal(vec3 bump1, vec3 bump2)
 {
@@ -75,7 +77,7 @@ vec3 BlendNormal(vec3 bump1, vec3 bump2)
 void main() 
 {
     vec4 color;
-    float dist = length(view.xy);
+    float dist = length(view.xyz);
     
     //normalize view vector
     vec3 viewVec = normalize(view.xyz);
@@ -127,7 +129,8 @@ void main()
 
     vec4 refcol = refcol1 + refcol2 + refcol3;
     float df1 = df.x + df.y + df.z;
-    refcol *= df1 * 0.333;
+    df1 *= 0.333;
+    refcol *= df1;
     
     vec3 wavef = (wave1 + wave2 * 0.4 + wave3 * 0.6) * 0.5;
     wavef.z *= max(-viewVec.z, 0.1);
@@ -142,16 +145,18 @@ void main()
     vec4 baseCol = texture2D(refTex, refvec4);
 
     refcol = mix(baseCol*df2, refcol, dweight);
-    
+
     //figure out distortion vector (ripply)   
     vec2 distort2 = distort+wavef.xy*(refScale * 0.01)/max(dmod*df1, 1.0);
         
     vec4 fb = texture2D(screenTex, distort2);
-
+ 
     //mix with reflection
     // Note we actually want to use just df1, but multiplying by 0.999999 gets around an nvidia compiler bug
-    color.rgb = mix(fb.rgb, refcol.rgb, df1 * 0.99999);
- 
+    color.rgb = mix(fb.rgb, refcol.rgb, df1 + 0.6);
+    color.rgb *= 2.0f;
+    color.rgb = scaleSoftClip(color.rgb);
+
     vec4 pos = vary_position;
     
     vec3 screenspacewavef = normalize((norm_mat*vec4(wavef, 1.0)).xyz);
