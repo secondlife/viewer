@@ -318,6 +318,7 @@ void LLPanelEnvironmentInfo::refresh()
             LL_WARNS("ENVPANEL") << "Failed to add altitude sliders!" << LL_ENDL;
         }
         readjustAltLabels();
+        sld->resetCurSlider();
     }
 
     updateAltLabel(alt_prefixes[3], 1, 0); // ground
@@ -780,11 +781,8 @@ void LLPanelEnvironmentInfo::onAltSliderMouseUp()
         {
             alts.push_back(alt.second.mAltitude);
         }
-
-        LLEnvironment::instance().updateParcel(getParcelId(), LLSettingsDay::ptr_t(),
-            -1, -1, alts,
-            [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
-
+        setControlsEnabled(false);
+        LLEnvironment::instance().updateParcel(getParcelId(), LLSettingsDay::ptr_t(), -1, -1, alts);
     }
 }
 
