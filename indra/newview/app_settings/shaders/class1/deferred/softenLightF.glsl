@@ -153,7 +153,7 @@ vec3 post_diffuse = color.rgb;
  vec3 post_spec = color.rgb;
  
 #ifndef WATER_FOG
-        color.rgb += diffuse_srgb.a * diffuse_srgb.rgb;
+        color.rgb = mix(color.rgb, diffuse_srgb.rgb, diffuse_srgb.a);
 #endif
 
         if (envIntensity > 0.0)
