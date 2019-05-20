@@ -1158,9 +1158,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5cafd14e356a7855658251f8ac847f97</string>
+              <string>4bb86a7f943ac2d517443250bbf57804</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/32368/269693/google_breakpad-1413.524419-darwin64-524419.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/37725/317992/google_breakpad-1413.527375-darwin64-527375.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
