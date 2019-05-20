@@ -109,7 +109,6 @@ void process_large_generic_message(LLMessageSystem* msg, void**)
 
     if (!gGenericDispatcher.dispatch(request, invoice, strings))
     {
-        LL_WARNS() << "GenericMessage " << request << " failed to dispatch"
-            << LL_ENDL;
+        LL_WARNS() << "GenericMessage " << request << " failed to dispatch" << LL_ENDL;
     }
 }
