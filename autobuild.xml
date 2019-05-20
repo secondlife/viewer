@@ -166,7 +166,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/35800/299782/boost-1.67-darwin64-526347.tar.bz2</string>
+              <string>d42bf805fdc2084bc8d642937f2709b3</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/37733/318031/boost-1.67-darwin64-527377.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -200,7 +202,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/35802/299776/boost-1.67-windows-526347.tar.bz2</string>
+              <string>2463d77963a564f87222d10860400303</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/37734/318018/boost-1.67-windows-527377.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -210,7 +214,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/35801/299769/boost-1.67-windows64-526347.tar.bz2</string>
+              <string>d8c9ad53e8b16735c0acedf4daf13017</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/37735/318025/boost-1.67-windows64-527377.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -302,7 +308,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/35818/299831/colladadom-2.3.526352-darwin64-526352.tar.bz2</string>
+              <string>c27acac3742a2a18f76a5efa03ddf3f1</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/37739/318059/colladadom-2.3.527379-darwin64-527379.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -336,7 +344,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/35819/299837/colladadom-2.3.526352-windows-526352.tar.bz2</string>
+              <string>ec57233ee2f3dbc4c66d32cfcd057e9a</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/37745/318073/colladadom-2.3.527379-windows-527379.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -346,7 +356,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/35821/299844/colladadom-2.3.526352-windows64-526352.tar.bz2</string>
+              <string>b8295e0c45b15cd7be1dffb4a666aa99</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/37743/318066/colladadom-2.3.527379-windows64-527379.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1248,7 +1260,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/35804/299794/googlemock-1.7.0.526348-darwin64-526348.tar.bz2</string>
+              <string>18f0dd378aa9513920b2018154339f9e</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/37736/318038/googlemock-1.7.0.527378-darwin64-527378.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1282,7 +1296,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/35805/299804/googlemock-1.7.0.526348-windows-526348.tar.bz2</string>
+              <string>4ed3957328534fedce1c1f191a12488b</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/37737/318046/googlemock-1.7.0.527378-windows-527378.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1292,7 +1308,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/35803/299793/googlemock-1.7.0.526348-windows64-526348.tar.bz2</string>
+              <string>fcab8989bf17a8e1933a72af24fe3c46</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/37740/318053/googlemock-1.7.0.527378-windows64-527378.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
