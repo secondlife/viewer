@@ -3737,8 +3737,7 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 				// Display green bubble on kill
 				if ( gShowObjectUpdates )
 				{
-					LLColor4 color(0.f,1.f,0.f,1.f);
-					gPipeline.addDebugBlip(objectp->getPositionAgent(), color);
+					gPipeline.addDebugBlip(objectp->getPositionAgent(), LLColor4::green);
 				}
 
 				// Do the kill
@@ -4159,6 +4158,11 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
         return;
     }
 
+	if (gShowObjectUpdates)
+	{
+		gPipeline.addDebugBlip(volp->getPositionAgent(), LLColor4::cyan);
+	}
+	
     volp->updateControlAvatar();
     LLControlAvatar *avatarp = volp->getControlAvatar();
     if (!avatarp)

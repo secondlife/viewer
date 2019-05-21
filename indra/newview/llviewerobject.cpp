@@ -2383,16 +2383,14 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 	if ( gShowObjectUpdates )
 	{
-		LLColor4 color;
 		if (update_type == OUT_TERSE_IMPROVED)
 		{
-			color.setVec(0.f, 0.f, 1.f, 1.f);
+			gPipeline.addDebugBlip(getPositionAgent(), LLColor4::blue);
 		}
 		else
 		{
-			color.setVec(1.f, 0.f, 0.f, 1.f);
+			gPipeline.addDebugBlip(getPositionAgent(), LLColor4::red);
 		}
-		gPipeline.addDebugBlip(getPositionAgent(), color);
 	}
 
 	const F32 MAG_CUTOFF = F_APPROXIMATELY_ZERO;

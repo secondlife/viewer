@@ -111,6 +111,11 @@ public:
 			return false;
 		}
 
+		if (gShowObjectUpdates)
+		{
+			gPipeline.addDebugBlip(volp->getPositionAgent(), LLColor4::magenta);
+		}
+
 		LLControlAvatar *cav = volp->getControlAvatar();
 		if (!cav)
 		{
