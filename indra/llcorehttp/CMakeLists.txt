@@ -142,7 +142,6 @@ if (LL_TESTS)
   # If http_proxy is in the current environment (e.g. to fetch s3-proxy
   # autobuild packages), suppress it for this integration test: it screws up
   # the tests.
-  if (WINDOWS)
   LL_ADD_INTEGRATION_TEST(llcorehttp
                           "${llcorehttp_TEST_SOURCE_FILES}"
                           "${test_libs}"
@@ -150,14 +149,7 @@ if (LL_TESTS)
                           ${PYTHON_EXECUTABLE}
                           "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llcorehttp_peer.py"
                           )
-  endif (WINDOWS)
-  if (DARWIN)
-    LL_ADD_INTEGRATION_TEST(llcorehttp
-                          "${llcorehttp_TEST_SOURCE_FILES}"
-                          "${test_libs}"
-                          )
-
-  endif (DARWIN)
+ 
 if (DARWIN)
   # Path inside the app bundle where we'll need to copy libraries
   set(LL_TEST_DESTINATION_DIR
