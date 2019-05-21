@@ -630,7 +630,7 @@ void LLVOSky::initAtmospherics(void)
 	dome_radius = LLWLParamManager::getInstance()->getDomeRadius();
 	dome_offset_ratio = LLWLParamManager::getInstance()->getDomeOffset();
 	sunlight_color = LLColor3(LLWLParamManager::getInstance()->mCurParams.getVector("sunlight_color", error));
-	ambient = LLColor3(LLWLParamManager::getInstance()->mCurParams.getVector("ambient", error));
+	ambient = LLColor3(LLWLParamManager::getInstance()->mCurParams.getAmbient());
 	//lightnorm = LLWLParamManager::getInstance()->mCurParams.getVector("lightnorm", error);
 	gamma = LLWLParamManager::getInstance()->mCurParams.getFloat("gamma", error);
 	blue_density = LLColor3(LLWLParamManager::getInstance()->mCurParams.getVector("blue_density", error));

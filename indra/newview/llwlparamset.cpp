@@ -284,6 +284,11 @@ void LLWLParamSet::setEastAngle(float val)
 	mParamValues["east_angle"] = val;
 }
 
+void LLWLParamSet::setAmbient(const LLVector4& val)
+{
+	set("ambient", val);
+}
+
 void LLWLParamSet::mix(LLWLParamSet& src, LLWLParamSet& dest, F32 weight)
 {
 	// set up the iterators
@@ -379,6 +384,19 @@ void LLWLParamSet::mix(LLWLParamSet& src, LLWLParamSet& dest, F32 weight)
 
 	setSunAngle((1 - weight) * srcSunAngle + weight * destSunAngle);
 	setEastAngle((1 - weight) * srcEastAngle + weight * destEastAngle);
+
+    // ambient
+
+    LLVector4 srcAmbient = src.getAmbient();
+    LLVector4 destAmbient = dest.getAmbient();
+    LLVector4 rsltAmbient;
+
+    for (int i = 0; i < LENGTHOFVECTOR4; ++i)
+    {
+        rsltAmbient.mV[i] = srcAmbient.mV[i] + ((destAmbient.mV[i] - srcAmbient.mV[i]) * weight);
+    }
+
+    setAmbient(rsltAmbient);
 	
 	// now setup the sun properly
 
