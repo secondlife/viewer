@@ -682,8 +682,8 @@ void LLSettingsVOSky::applySpecial(void *ptarget)
 
         LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
-        LLColor4 sunDiffuse = psky->getSunDiffuse();
-        LLColor4 moonDiffuse = psky->getMoonDiffuse();
+        LLColor4 sunDiffuse = psky->getSunlightColor();
+        LLColor4 moonDiffuse = psky->getMoonlightColor();
 
         F32 max_color = llmax(sunDiffuse.mV[0], sunDiffuse.mV[1], sunDiffuse.mV[2]);
         if (max_color > 1.f)

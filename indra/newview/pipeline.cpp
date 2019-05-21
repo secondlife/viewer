@@ -6219,18 +6219,8 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
         mSunDir.setVec(sun_dir);
         mMoonDir.setVec(moon_dir);
 
-        // calculates diffuse sunlight per-pixel downstream, just provide setting sunlight_color
-        if (canUseWindLightShaders())
-        {
-            mSunDiffuse.setVec(psky->getSunlightColor());
-        }
-        else
-        {
-            // not using atmo shaders, use CPU-generated attenuated sunlight diffuse...
-            mSunDiffuse.setVec(psky->getSunDiffuse());
-        }
-
-        mMoonDiffuse.setVec(psky->getMoonDiffuse());
+        mSunDiffuse.setVec(psky->getSunlightColor());
+        mMoonDiffuse.setVec(psky->getMoonlightColor());
 
         F32 max_color = llmax(mSunDiffuse.mV[0], mSunDiffuse.mV[1], mSunDiffuse.mV[2]);
         if (max_color > 1.f)
@@ -6257,15 +6247,15 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 
         LLVector4 light_dir = sun_up ? mSunDir : mMoonDir;
 
-        mHWLightColors[0] = mSunDiffuse;
+        mHWLightColors[0] = sun_up ? mSunDiffuse : mMoonDiffuse;
 
         LLLightState* light = gGL.getLight(0);
         light->setPosition(light_dir);
 
         light->setSunPrimary(sun_up);
-        light->setDiffuse(mSunDiffuse);
+        light->setDiffuse(mHWLightColors[0]);
         light->setDiffuseB(mMoonDiffuse);
-        light->setAmbient(LLColor4::black);
+        light->setAmbient(psky->getTotalAmbient());
 		light->setSpecular(LLColor4::black);
 		light->setConstantAttenuation(1.f);
 		light->setLinearAttenuation(0.f);

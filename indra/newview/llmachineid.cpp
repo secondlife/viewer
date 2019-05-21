@@ -263,6 +263,7 @@ S32 LLMachineID::getUniqueID(unsigned char *unique_id, size_t len)
     if (has_static_unique_id)
     {
         memcpy ( unique_id, &static_unique_id, len);
+#if LL_LOG_MACHINE_ID
         LL_INFOS_ONCE("AppInit") << "UniqueID: 0x";
         // Code between here and LL_ENDL is not executed unless the LL_DEBUGS
         // actually produces output
@@ -276,6 +277,7 @@ S32 LLMachineID::getUniqueID(unsigned char *unique_id, size_t len)
         }
         // Reset default output formatting to avoid nasty surprises!
         LL_CONT << std::dec << std::setw(0) << std::setfill(' ') << LL_ENDL;
+#endif
         return 1;
     }
     return 0;

@@ -3910,6 +3910,7 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
         gWLCloudProgram.mFeatures.calculatesAtmospherics = true;
         gWLCloudProgram.mFeatures.hasTransport = true;
         gWLCloudProgram.mFeatures.hasGamma = true;
+        gWLCloudProgram.mFeatures.hasSrgb = true;
         gWLCloudProgram.mShaderFiles.push_back(make_pair("windlight/cloudsV.glsl", GL_VERTEX_SHADER_ARB));
         gWLCloudProgram.mShaderFiles.push_back(make_pair("windlight/cloudsF.glsl", GL_FRAGMENT_SHADER_ARB));
         gWLCloudProgram.mShaderLevel = mShaderLevel[SHADER_WINDLIGHT];

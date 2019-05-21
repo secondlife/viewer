@@ -24,6 +24,7 @@
  */
  
 #extension GL_ARB_texture_rectangle : enable
+#extension GL_ARB_shader_texture_lod : enable
 
 /*[EXTRA_CODE_HERE]*/
 
@@ -87,14 +88,11 @@ void main()
     float da = dot(normalize(norm.xyz), light_dir.xyz);
           da = clamp(da, -1.0, 1.0);
 
-    
-
     float final_da = da;
           final_da = clamp(final_da, 0.0, 1.0);
 
-    vec4 diffuse_srgb   = texture2DRect(diffuseRect, tc);
-    vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_srgb.a);
- 
+    vec4 diffuse_linear = texture2DRect(diffuseRect, tc);
+    vec4 diffuse_srgb   = vec4(linear_to_srgb(diffuse_linear.rgb), diffuse_linear.a);
 
     // clamping to alpha value kills underwater shadows...
     //scol = max(scol_ambocc.r, diffuse_linear.a);
@@ -116,7 +114,10 @@ void main()
         float ambient = da;
         ambient *= 0.5;
         ambient *= ambient;
-        ambient = min(getAmbientClamp(), 1.0 - ambient);
+
+        float ambient_clamp = getAmbientClamp() + 0.1;
+        ambient = (1.0 - ambient);
+        ambient *= ambient_clamp;
 
         vec3 sun_contrib = min(scol, final_da) * sunlit;
 
@@ -129,7 +130,7 @@ vec3 post_ambient = color.rgb;
 
 vec3 post_sunlight = color.rgb;
 
-        color.rgb *= diffuse_srgb.rgb;
+        color.rgb *= diffuse_linear.rgb;
 
 vec3 post_diffuse = color.rgb;
 
@@ -155,7 +156,7 @@ vec3 post_diffuse = color.rgb;
                 float scontrib = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
                 vec3 sp = sun_contrib*scontrib / 16.0;
                 sp = clamp(sp, vec3(0), vec3(1));
-                bloom += dot (sp, sp) / 6.0;
+                bloom += dot(sp, sp) / 6.0;
                 color += sp * spec.rgb;
             }
         }
@@ -163,7 +164,7 @@ vec3 post_diffuse = color.rgb;
  vec3 post_spec = color.rgb;
  
 #ifndef WATER_FOG
-        color.rgb += diffuse_srgb.a * diffuse_srgb.rgb;
+        color.rgb = mix(color.rgb, diffuse_srgb.rgb, diffuse_srgb.a);
 #endif
 
         if (envIntensity > 0.0)

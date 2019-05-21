@@ -282,6 +282,9 @@ public:
     LLVector3 getSunDirection() const;
     LLVector3 getMoonDirection() const;
 
+    // color based on brightness
+    LLColor3  getMoonlightColor() const;
+    
     LLColor4  getMoonAmbient() const;
     LLColor3  getMoonDiffuse() const;
     LLColor4  getSunAmbient() const;

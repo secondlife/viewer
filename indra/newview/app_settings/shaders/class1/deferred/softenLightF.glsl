@@ -106,7 +106,10 @@ void main()
         float ambient = da;
         ambient *= 0.5;
         ambient *= ambient;
-        ambient = min(getAmbientClamp(), 1.0 - ambient);
+
+        ambient = (1.0 - ambient);
+        float ambient_clamp = getAmbientClamp() + 0.1;
+        ambient *= ambient_clamp;
 
         vec3 sun_contrib = final_da * sunlit;
 
@@ -179,11 +182,10 @@ vec3 post_atmo = color.rgb;
             bloom = fogged.a;
         #endif
 
+// srgb colorspace debuggables
 //color.rgb = amblit;
-//color.rgb = vec3(ambient);
 //color.rgb = sunlit;
 //color.rgb = post_ambient;
-//color.rgb = vec3(final_da);
 //color.rgb = sun_contrib;
 //color.rgb = post_sunlight;
 //color.rgb = diffuse_srgb.rgb;
@@ -196,6 +198,11 @@ vec3 post_atmo = color.rgb;
 // and will be gamma (re)corrected downstream...
         color.rgb = srgb_to_linear(color.rgb);
     }
+
+// linear debuggables
+//color.rgb = vec3(final_da);
+//color.rgb = vec3(ambient);
+//color.rgb = vec3(scol);
 
     frag_color.rgb = color.rgb;
     frag_color.a = bloom;
