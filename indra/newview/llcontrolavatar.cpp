@@ -517,8 +517,17 @@ void LLControlAvatar::markForDeath()
 {
     mMarkedForDeath = true;
 
+	mRootVolp = NULL;
+
 	delete mObjectInventoryObserver;
 	mObjectInventoryObserver = NULL;
+}
+
+// virtual
+void LLControlAvatar::markDead()
+{
+	llassert(!mRootVolp);
+	LLVOAvatar::markDead();
 }
 
 void LLControlAvatar::idleUpdate(LLAgent &agent, const F64 &time)

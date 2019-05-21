@@ -53,6 +53,7 @@ public:
     // Delayed kill so we don't make graphics pipeline unhappy calling
     // markDead() inside other graphics pipeline operations.
     void markForDeath();
+	virtual void markDead();
 
     virtual void idleUpdate(LLAgent &agent, const F64 &time);
 	virtual BOOL updateCharacter(LLAgent &agent);

@@ -362,6 +362,8 @@ LLViewerObject::~LLViewerObject()
 	llassert(mChildList.size() == 0);
 
 	clearInventoryListeners();
+
+	llassert(!mControlAvatar); // Should have been cleaned up earlier
 }
 
 void LLViewerObject::deleteTEImages()
@@ -3098,7 +3100,6 @@ void LLViewerObject::unlinkControlAvatar()
         if (mControlAvatar)
         {
             mControlAvatar->markForDeath();
-			mControlAvatar->mRootVolp = NULL;
             mControlAvatar = NULL;
         }
     }
