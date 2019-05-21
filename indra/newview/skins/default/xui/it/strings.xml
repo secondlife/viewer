@@ -654,7 +654,7 @@ essere allegati ai biglietti.
 		Note sulla versione
 	</string>
 	<string name="RELEASE_NOTES_BASE_URL">
-		http://wiki.secondlife.com/wiki/Release_Notes/
+		https://releasenotes.secondlife.com/viewer/
 	</string>
 	<string name="LoadingData">
 		In caricamento...
