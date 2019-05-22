@@ -5218,8 +5218,11 @@ void LLPipeline::renderDebug()
 		{
 			DebugBlip& blip = *iter;
 
+			const F32 blip_vert_speed = 1.f;
+			const F32 blip_lifetime = 3.f;
+
 			blip.mAge += gFrameIntervalSeconds.value();
-			if (blip.mAge > 2.f)
+			if (blip.mAge > blip_lifetime)
 			{
 				mDebugBlips.erase(iter++);
 			}
@@ -5228,7 +5231,7 @@ void LLPipeline::renderDebug()
 				iter++;
 			}
 
-			blip.mPosition.mV[2] += gFrameIntervalSeconds.value()*2.f;
+			blip.mPosition.mV[2] += gFrameIntervalSeconds.value()* blip_vert_speed;
 
 			gGL.color4fv(blip.mColor.mV);
 			gGL.vertex3fv(blip.mPosition.mV);

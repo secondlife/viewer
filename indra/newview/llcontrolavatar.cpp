@@ -42,6 +42,7 @@
 #include "llviewergenericmessage.h"
 #include "llsdserialize.h"
 #include "llsdutil.h"
+#include "llavatarappearancedefines.h"
 
 const F32 LLControlAvatar::MAX_LEGAL_OFFSET = 3.0f;
 const F32 LLControlAvatar::MAX_LEGAL_SIZE = 64.0f;
@@ -273,6 +274,9 @@ void LLControlAvatar::matchVolumeTransform()
 		mPositionConstraintFixup = new_pos_fixup;
 		mScaleConstraintFixup = new_scale_fixup;
 
+		// This needs to be validated against constraint logic
+		LLVector3 hover_param_offset; // = getVisualParamWeight(LLAvatarAppearanceDefines::AVATAR_HOVER) * LLVector3(0.f, 0.f, 1.f);
+
         if (mRootVolp->isAttachment())
         {
             LLVOAvatar *attached_av = mRootVolp->getAvatarAncestor();
@@ -336,7 +340,7 @@ void LLControlAvatar::matchVolumeTransform()
 			setRotation(bind_rot*obj_rot);
             mRoot->setWorldRotation(bind_rot*obj_rot);
 			setPositionAgent(vol_pos);
-			mRoot->setPosition(vol_pos + mPositionConstraintFixup);
+			mRoot->setPosition(vol_pos + mPositionConstraintFixup + hover_param_offset);
 
             F32 global_scale = gSavedSettings.getF32("AnimatedObjectsGlobalScale");
             setGlobalScale(global_scale * mScaleConstraintFixup);
@@ -526,7 +530,14 @@ void LLControlAvatar::markForDeath()
 // virtual
 void LLControlAvatar::markDead()
 {
-	llassert(!mRootVolp);
+	// Normally mRootVolp has already been cleared in unlinkControlAvatar(),
+	// unless there's some bulk object cleanup happening e.g. on region destruction.
+	// In that case the control avatar may be killed first.
+	if (mRootVolp)
+	{
+		mRootVolp->mControlAvatar = NULL;
+		mRootVolp = NULL;
+	}
 	LLVOAvatar::markDead();
 }
 

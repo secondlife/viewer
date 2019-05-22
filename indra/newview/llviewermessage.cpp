@@ -4046,6 +4046,11 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 	//clear animation flags
 	avatarp->mSignaledAnimations.clear();
 	
+	if (gShowObjectUpdates)
+	{
+		gPipeline.addDebugBlip(avatarp->getPositionAgent(), LLColor4::cyan);
+	}
+	
 	if (avatarp->isSelf())
 	{
 		LLUUID object_id;
