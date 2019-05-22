@@ -107,7 +107,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
         return col;
     }
 
-    if (d > 0.0)
+    if (d > 0.0 && la > 0.0 && fa > 0.0)
     {
         //normalize light vector
         lv = normalize(lv);
@@ -115,13 +115,19 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
 
         da = dot(norm, lv);
         da = clamp(da, 0.0, 1.0);
+
+la /= 20.0f;
  
         //distance attenuation
-        float dist = (la > 0) ? d/la : 1.0f;
-        fa += 1.0f;
-        float dist_atten = (fa > 0) ? clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0) : 0.0f;
+        float dist = d/la;
+        
+        float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
         dist_atten *= dist_atten;
-        dist_atten *= 2.2f;
+
+        if (dist_atten < 0.0)
+        {
+            return col;
+        }
 
         // spotlight coefficient.
         float spot = max(dot(-ln, lv), is_pointlight);
@@ -224,7 +230,7 @@ void main()
     ambient *= 0.5;
     ambient *= ambient;
 
-    float ambient_clamp = getAmbientClamp() + 0.2;
+    float ambient_clamp = getAmbientClamp() + 0.1;
     ambient = (1.0 - ambient) * ambient_clamp;
 
     vec3 sun_contrib = min(final_da, shadow) * sunlit;

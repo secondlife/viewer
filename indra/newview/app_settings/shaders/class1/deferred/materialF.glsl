@@ -110,17 +110,18 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
         return col;
     }
 
-    if (d > 0.0)
-    {
+    if (d > 0.0 && la > 0.0 && fa > 0.0)
+	{
         //normalize light vector
         lv = normalize(lv);
-    
+   
+la /= 20.0f;
+ 
         //distance attenuation
-        float dist = (la > 0) ? d/la : 1.0f;
-        fa += 1.0f;
-        float dist_atten = ( fa > 0) ? clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0) : 1.0f;
+        float dist = d/la;
+        
+        float dist_atten = (fa > 0) ? clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0) : 1.0f;
         dist_atten *= dist_atten;
-        dist_atten *= 2.2f;
 
         if (dist_atten <= 0)
         {
@@ -139,15 +140,15 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
         float lit = max(da * dist_atten, 0.0);
 
         float amb_da = ambiance;
-        if (da > 0)
-        {
+        if (lit > 0)
+        {            
             col = light_col*lit*diffuse;
             amb_da += (da*0.5 + 0.5) * ambiance;
             amb_da += (da*da*0.5+0.5) * ambiance;
         }
         amb_da *= dist_atten;
         amb_da = min(amb_da, 1.0f - lit);
-        col.rgb += amb_da * 0.25 * light_col * diffuse;
+        col.rgb += amb_da * 0.5 * light_col * diffuse;
 
         if (spec.a > 0.0)
         {
@@ -321,7 +322,7 @@ void main()
     ambient *= 0.5;
     ambient *= ambient;
  
-    float ambient_clamp = getAmbientClamp() + 0.2;
+    float ambient_clamp = getAmbientClamp() + 0.1;
     ambient = (1.0 - ambient) * ambient_clamp;
 
     vec3 sun_contrib = min(final_da, shadow) * sunlit;

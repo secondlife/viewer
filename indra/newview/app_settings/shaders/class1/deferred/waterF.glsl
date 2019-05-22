@@ -129,8 +129,7 @@ void main()
 
     vec4 refcol = refcol1 + refcol2 + refcol3;
     float df1 = df.x + df.y + df.z;
-    df1 *= 0.333;
-    refcol *= df1;
+	refcol *= df1 * 0.333;
     
     vec3 wavef = (wave1 + wave2 * 0.4 + wave3 * 0.6) * 0.5;
     wavef.z *= max(-viewVec.z, 0.1);
@@ -145,23 +144,34 @@ void main()
     vec4 baseCol = texture2D(refTex, refvec4);
 
     refcol = mix(baseCol*df2, refcol, dweight);
+    refcol.rgb = srgb_to_linear(refcol.rgb);
 
-    //figure out distortion vector (ripply)   
-    vec2 distort2 = distort+wavef.xy*(refScale * 0.01)/max(dmod*df1, 1.0);
-        
-    vec4 fb = texture2D(screenTex, distort2);
- 
-    //mix with reflection
-    // Note we actually want to use just df1, but multiplying by 0.999999 gets around an nvidia compiler bug
-    color.rgb = mix(fb.rgb, refcol.rgb, df1 + 0.6);
-    color.rgb *= 2.0f;
-    color.rgb = scaleSoftClip(color.rgb);
+    //get specular component
+	float spec = clamp(dot(lightDir, (reflect(viewVec,wavef))),0.0,1.0);
+		
+	//harden specular
+	spec = pow(spec, 128.0);
 
-    vec4 pos = vary_position;
-    
-    vec3 screenspacewavef = normalize((norm_mat*vec4(wavef, 1.0)).xyz);
+	//figure out distortion vector (ripply)   
+	vec2 distort2 = distort+wavef.xy*(refScale*0.01)/max(dmod*df1, 1.0);
+		
+	vec4 fb = texture2D(screenTex, distort2);
+	
+	//mix with reflection
+	// Note we actually want to use just df1, but multiplying by 0.999999 gets around an nvidia compiler bug
+	color.rgb = mix(fb.rgb, refcol.rgb, df1 * 0.3 + 0.7);
+	
+	vec4 pos = vary_position;
+	
+	color.rgb += spec * specular;
+	
+	color.rgb = atmosTransport(color.rgb);
+	color.rgb = scaleSoftClip(color.rgb);
+	color.a   = spec * sunAngle2 * 0.88;
 
-    frag_data[0] = vec4(color.rgb, 0); // diffuse
-    frag_data[1] = vec4(specular * 0.5, 0.5);     // speccolor, spec
-    frag_data[2] = vec4(encode_normal(screenspacewavef.xyz), 0.05, 0);// normalxy, 0, 0
+	vec3 screenspacewavef = normalize((norm_mat*vec4(wavef, 1.0)).xyz);
+	
+	frag_data[0] = vec4(color.rgb, color); // diffuse
+	frag_data[1] = vec4(0);		// speccolor, spec
+	frag_data[2] = vec4(encode_normal(screenspacewavef.xyz*0.5+0.5), 0.05, 0);// normalxy, 0, 0
 }

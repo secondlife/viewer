@@ -6329,7 +6329,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			{
 				F32 size = light_radius*1.5f;
 				light_state->setLinearAttenuation(size);
-				light_state->setQuadraticAttenuation(light->getLightFalloff()*0.5f);
+				light_state->setQuadraticAttenuation(light->getLightFalloff()*0.5f+1.f);
 			}
 			else
 			{
