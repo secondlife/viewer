@@ -374,12 +374,40 @@ bool LLCommandLineParser::parseCommandLine(int argc, char **argv)
 
 bool LLCommandLineParser::parseCommandLineString(const std::string& str)
 {
+    std::string cmd_line_string("");
+    if (!str.empty())
+    {
+        bool add_last_c = true;
+        S32 last_c_pos = str.size() - 1; //don't get out of bounds on pos+1, last char will be processed separately
+        for (S32 pos = 0; pos < last_c_pos; ++pos)
+        {
+            cmd_line_string.append(&str[pos], 1);
+            if (str[pos] == '\\')
+            {
+                cmd_line_string.append("\\", 1);
+                if (str[pos + 1] == '\\')
+                {
+                    ++pos;
+                    add_last_c = (pos != last_c_pos);
+                }
+            }
+        }
+        if (add_last_c)
+        {
+            cmd_line_string.append(&str[last_c_pos], 1);
+            if (str[last_c_pos] == '\\')
+            {
+                cmd_line_string.append("\\", 1);
+            }
+        }
+    }
+
     // Split the string content into tokens
-	const char* escape_chars = "\\";
-	const char* separator_chars = "\r\n ";
-	const char* quote_chars = "\"'";
+    const char* escape_chars = "\\";
+    const char* separator_chars = "\r\n ";
+    const char* quote_chars = "\"'";
     boost::escaped_list_separator<char> sep(escape_chars, separator_chars, quote_chars);
-    boost::tokenizer< boost::escaped_list_separator<char> > tok(str, sep);
+    boost::tokenizer< boost::escaped_list_separator<char> > tok(cmd_line_string, sep);
     std::vector<std::string> tokens;
     // std::copy(tok.begin(), tok.end(), std::back_inserter(tokens));
     for(boost::tokenizer< boost::escaped_list_separator<char> >::iterator i = tok.begin();
