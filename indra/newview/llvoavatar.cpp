@@ -8635,7 +8635,7 @@ bool resolve_appearance_version(const LLAppearanceMessageContents& contents, S32
 void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 {
 	LL_DEBUGS("Avatar") << "starts" << LL_ENDL;
-	
+
 	bool enable_verbose_dumps = gSavedSettings.getBOOL("DebugAvatarAppearanceMessage");
 	std::string dump_prefix = getFullname() + "_" + (isSelf()?"s":"o") + "_";
 	if (gSavedSettings.getBOOL("BlockAvatarAppearanceMessages"))
@@ -8646,6 +8646,11 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 
 	mLastAppearanceMessageTimer.reset();
 
+	if ( gShowObjectUpdates )
+	{
+		gPipeline.addDebugBlip(getPositionAgent(), LLColor4::white);
+	}
+	
 	LLPointer<LLAppearanceMessageContents> contents(new LLAppearanceMessageContents);
 	parseAppearanceMessage(mesgsys, *contents);
 	if (enable_verbose_dumps)
@@ -8712,8 +8717,8 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	// RequestAgentUpdateAppearanceResponder::onRequestRequested()
 	// assumes that cof version is only updated with server-bake
 	// appearance messages.
-    LL_INFOS("Avatar") << "Processing appearance message version " << thisAppearanceVersion << LL_ENDL;
-
+	LL_INFOS("Avatar") << "Processing appearance message version " << thisAppearanceVersion << LL_ENDL;
+	
     // Note:
     // locally the COF is maintained via LLInventoryModel::accountForUpdate
     // which is called from various places.  This should match the simhost's 
