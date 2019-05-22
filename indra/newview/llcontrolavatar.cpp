@@ -591,7 +591,6 @@ LLViewerObject* LLControlAvatar::lineSegmentIntersectRiggedAttachments(const LLV
             std::vector<LLVOVolume*> volumes;
             getAnimatedVolumes(volumes);
 
-            std::map<LLUUID, S32> anims;
             for (std::vector<LLVOVolume*>::iterator vol_it = volumes.begin(); vol_it != volumes.end(); ++vol_it)
             {
                 LLVOVolume *volp = *vol_it;
