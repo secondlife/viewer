@@ -1095,6 +1095,7 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		gWaterProgram.mFeatures.calculatesAtmospherics = true;
 		gWaterProgram.mFeatures.hasGamma = true;
 		gWaterProgram.mFeatures.hasTransport = true;
+        gWaterProgram.mFeatures.hasSrgb = true;
 		gWaterProgram.mShaderFiles.clear();
 		gWaterProgram.mShaderFiles.push_back(make_pair("environment/waterV.glsl", GL_VERTEX_SHADER_ARB));
 		gWaterProgram.mShaderFiles.push_back(make_pair("environment/waterF.glsl", GL_FRAGMENT_SHADER_ARB));
@@ -1111,6 +1112,7 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		gWaterEdgeProgram.mFeatures.calculatesAtmospherics = true;
 		gWaterEdgeProgram.mFeatures.hasGamma = true;
 		gWaterEdgeProgram.mFeatures.hasTransport = true;
+        gWaterEdgeProgram.mFeatures.hasSrgb = true;
 		gWaterEdgeProgram.mShaderFiles.clear();
 		gWaterEdgeProgram.mShaderFiles.push_back(make_pair("environment/waterV.glsl", GL_VERTEX_SHADER_ARB));
 		gWaterEdgeProgram.mShaderFiles.push_back(make_pair("environment/waterF.glsl", GL_FRAGMENT_SHADER_ARB));

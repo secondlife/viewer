@@ -50,7 +50,6 @@ void main()
 	vec4 color;
 	color = vary_HazeColor;
 	color *= 2.;
-
 	/// Gamma correct for WL (soft clip effect).
 	frag_color.rgb = scaleSoftClip(color.rgb);
 	frag_color.a = 1.0;

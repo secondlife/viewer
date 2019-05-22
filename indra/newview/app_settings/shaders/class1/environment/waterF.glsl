@@ -121,7 +121,6 @@ void main()
 
     vec4 refcol = refcol1 + refcol2 + refcol3;
     float df1 = df.x + df.y + df.z;
-    df1 *= 0.3333;
     refcol *= df1;
     
     vec3 wavef = (wave1 + wave2 * 0.4 + wave3 * 0.6) * 0.5;
@@ -151,11 +150,11 @@ void main()
     
     //mix with reflection
     // Note we actually want to use just df1, but multiplying by 0.999999 gets around and nvidia compiler bug
-    color.rgb = mix(fb.rgb, refcol.rgb, df1 + 0.6);
+    color.rgb = mix(fb.rgb, refcol.rgb, df1 * 0.4 + 0.6);
     color.rgb += spec * specular;
     
-    color.rgb = atmosTransport(color.rgb);
-    color.rgb = scaleSoftClip(color.rgb);
+    //color.rgb = atmosTransport(color.rgb);
+    color.rgb = scaleSoftClip(color.rgb * 0.5);
     color.a = spec * sunAngle2;
 
 #if defined(WATER_EDGE)

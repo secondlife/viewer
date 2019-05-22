@@ -59,7 +59,10 @@ void main()
 	vec4 outColor = mix( mix(color3, color2, alpha2), mix(color1, color0, alpha1), alphaFinal );
 	
 	/// Add WL Components
-	outColor.rgb = atmosLighting(outColor.rgb * vertex_color.rgb);
+	outColor.rgb *= vertex_color.rgb;
+
+    // SL-11260...
+	//outColor.rgb = atmosLighting(outColor.rgb);
 	
 	outColor = applyWaterFog(outColor);
 	frag_color = outColor;
