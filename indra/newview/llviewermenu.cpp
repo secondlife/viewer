@@ -7389,6 +7389,8 @@ void handle_dump_attachments(void*)
 // these are used in the gl menus to set control values, generically.
 class LLToggleControl : public view_listener_t
 {
+protected:
+
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::string control_name = userdata.asString();
@@ -7462,6 +7464,24 @@ class LLAdvancedClickRenderBenchmark: public view_listener_t
 	{
 		gpu_benchmark();
 		return true;
+	}
+};
+
+// these are used in the gl menus to set control values that require shader recompilation
+class LLToggleShaderControl : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+        std::string control_name = userdata.asString();
+		BOOL checked = gSavedSettings.getBOOL( control_name );
+		gSavedSettings.setBOOL( control_name, !checked );
+        LLPipeline::refreshCachedSettings();
+        //gPipeline.updateRenderDeferred();
+		//gPipeline.releaseGLBuffers();
+		//gPipeline.createGLBuffers();
+		//gPipeline.resetVertexBuffers();
+        LLViewerShaderMgr::instance()->setShaders();
+		return !checked;
 	}
 };
 
@@ -9268,6 +9288,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLShowAgentProfile(), "ShowAgentProfile");
 	view_listener_t::addMenu(new LLToggleAgentProfile(), "ToggleAgentProfile");
 	view_listener_t::addMenu(new LLToggleControl(), "ToggleControl");
+    view_listener_t::addMenu(new LLToggleShaderControl(), "ToggleShaderControl");
 	view_listener_t::addMenu(new LLCheckControl(), "CheckControl");
 	view_listener_t::addMenu(new LLGoToObject(), "GoToObject");
 	commit.add("PayObject", boost::bind(&handle_give_money_dialog));

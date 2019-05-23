@@ -88,64 +88,49 @@ float getAmbientClamp();
 
 vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, float ambiance)
 {
-    //get light vector
-    vec3 lv = lp.xyz-v;
-
-    vec4 proj_tc = proj_mat * lp;
-
-    //get distance
-    float d = length(lv);
-    float da = 1.0;
-    vec3 col = vec3(0);
-    if (proj_tc.z < 0
-     || proj_tc.z > 1
-     || proj_tc.x < 0
-     || proj_tc.x > 1
-     || proj_tc.y < 0
-     || proj_tc.y > 1)
-    {
-        return col;
-    }
-
-    if (d > 0.0 && la > 0.0 && fa > 0.0)
-    {
-        //normalize light vector
-        lv = normalize(lv);
-        vec3 norm = normalize(n);
-
-        da = dot(norm, lv);
-        da = clamp(da, 0.0, 1.0);
+	//get light vector
+	vec3 lv = lp.xyz-v;
 
 la /= 20.0f;
- 
-        //distance attenuation
-        float dist = d/la;
-        
-        float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
-        dist_atten *= dist_atten;
 
-        if (dist_atten < 0.0)
-        {
-            return col;
-        }
+	//get distance
+	float d = length(lv);
+	
+	float da = 1.0;
 
-        // spotlight coefficient.
-        float spot = max(dot(-ln, lv), is_pointlight);
-        da *= spot*spot; // GL_SPOT_EXPONENT=2
+	vec3 col = vec3(0);
 
-        // to match spotLight (but not multiSpotLight) *sigh*
-        float lit = max(da * dist_atten,0.0);
+	if (d > 0.0 && la > 0.0 && fa > 0.0)
+	{
+		//normalize light vector
+		lv = normalize(lv);
+	
+		//distance attenuation
+		float dist = d/la;
+		float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
+		dist_atten *= dist_atten;
+        dist_atten *= 2.0f;
 
+		// spotlight coefficient.
+		float spot = max(dot(-ln, lv), is_pointlight);
+		da *= spot*spot; // GL_SPOT_EXPONENT=2
+
+		//angular attenuation
+		da *= max(dot(n, lv), 0.0);		
+
+		float lit = max(da * dist_atten,0.0);
+
+ambiance = 0.0f;
         float amb_da = ambiance;
         if (lit > 0)
         {
             col = lit * light_col * diffuse;
             amb_da += (da*0.5+0.5) * ambiance;
-            amb_da += (da*da*0.5 + 0.5) * ambiance;
         }
+        amb_da += (da*da*0.5 + 0.5) * ambiance;
         amb_da *= dist_atten;
         amb_da = min(amb_da, 1.0f - lit);
-        col.rgb += amb_da * 0.5 * light_col * diffuse;
+        col.rgb += amb_da * light_col * diffuse;
 
         // no spec for alpha shader...
     }
@@ -223,7 +208,6 @@ void main()
 
     vec4 color = vec4(0.0);
 
-    color.rgb = amblit;
     color.a   = final_alpha;
 
     float ambient = da;
@@ -235,11 +219,16 @@ void main()
 
     vec3 sun_contrib = min(final_da, shadow) * sunlit;
 
+#if !defined(AMBIENT_KILL)
+    color.rgb = amblit;
     color.rgb *= ambient;
+#endif
 
 vec3 post_ambient = color.rgb;
 
+#if !defined(SUNLIGHT_KILL)
     color.rgb += sun_contrib;
+#endif
 
 vec3 post_sunlight = color.rgb;
 
@@ -257,7 +246,7 @@ vec3 post_atmo = color.rgb;
     // to linear!
     color.rgb = srgb_to_linear(color.rgb);
 
-   #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diffuse_linear.rgb, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w * 0.5);
+   #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diffuse_linear.rgb, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w);
 
     LIGHT_LOOP(1)
     LIGHT_LOOP(2)
@@ -268,7 +257,9 @@ vec3 post_atmo = color.rgb;
     LIGHT_LOOP(7)
 
     // sum local light contrib in linear colorspace
+#if !defined(LOCAL_LIGHT_KILL)
     color.rgb += light.rgb;
+#endif
 
     // back to sRGB as we're going directly to the final RT post-deferred gamma correction
     color.rgb = linear_to_srgb(color.rgb);

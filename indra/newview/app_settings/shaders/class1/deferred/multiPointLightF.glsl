@@ -61,6 +61,11 @@ vec3 getNorm(vec2 pos_screen);
 
 void main() 
 {
+	vec3 out_col = vec3(0,0,0);
+
+#if defined(LOCAL_LIGHT_KILL)
+    discard;
+#else
 	vec2 frag = (vary_fragcoord.xy*0.5+0.5)*screen_res;
 	vec3 pos = getPosition(frag.xy).xyz;
 	if (pos.z < far_z)
@@ -74,7 +79,6 @@ void main()
 	vec3 diff = texture2DRect(diffuseRect, frag.xy).rgb;
 	
 	float noise = texture2D(noiseMap, frag.xy/128.0).b;
-	vec3 out_col = vec3(0,0,0);
 	vec3 npos = normalize(-pos);
 
 	// As of OSX 10.6.7 ATI Apple's crash when using a variable size loop
@@ -130,7 +134,7 @@ void main()
 		}
 	}
 	}
-	
+#endif
 	
 	frag_color.rgb = out_col;
 	frag_color.a = 0.0;

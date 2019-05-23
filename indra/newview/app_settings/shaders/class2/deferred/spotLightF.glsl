@@ -130,6 +130,11 @@ vec4 getPosition(vec2 pos_screen);
 
 void main() 
 {
+	vec3 col = vec3(0,0,0);
+
+#if defined(LOCAL_LIGHT_KILL)
+    discard;
+#else
 	vec4 frag = vary_fragcoord;
 	frag.xyz /= frag.w;
 	frag.xyz = frag.xyz*0.5+0.5;
@@ -184,12 +189,8 @@ void main()
 	lv = normalize(lv);
 	float da = dot(norm, lv);
 		
-	vec3 col = vec3(0,0,0);
-		
 	vec3 diff_tex = texture2DRect(diffuseRect, frag.xy).rgb;
-		
 	vec4 spec = texture2DRect(specularRect, frag.xy);
-
 	vec3 dlit = vec3(0, 0, 0);
 
 	float noise = texture2D(noiseMap, frag.xy/128.0).b;
@@ -227,7 +228,6 @@ void main()
 	
 	    col += amb_da*color.rgb*diff_tex.rgb*amb_plcol.rgb*amb_plcol.a;
 	}
-	
 
 	if (spec.a > 0.0)
 	{
@@ -253,10 +253,6 @@ void main()
 			col += speccol;
 		}
 	}	
-	
-	
-	
-	
 
 	if (envIntensity > 0.0)
 	{
@@ -286,10 +282,11 @@ void main()
 			}
 		}
 	}
+#endif
 	
 	//not sure why, but this line prevents MATBUG-194
 	col = max(col, vec3(0.0));
-//col.rgb = vec3(0);
+
 	frag_color.rgb = col;	
 	frag_color.a = 0.0;
 }
