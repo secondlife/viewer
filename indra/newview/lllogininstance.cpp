@@ -332,7 +332,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
         {
             data["certificate"] = response["certificate"];
         }
-        
+
         if (gViewerWindow)
             gViewerWindow->setShowProgress(FALSE);
 
@@ -349,13 +349,31 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
         // login.cgi is insisting on a required update. We were called with an
         // event that bundles both the login.cgi 'response' and the
         // synchronization event from the 'updater'.
-        std::string required_version = response["message_args"]["VERSION"];
-        LL_WARNS("LLLogin") << "Login failed because an update to version " << required_version << " is required." << LL_ENDL;
+        std::string login_version = response["message_args"]["VERSION"];
+        std::string vvm_version   = updater["VERSION"];
+        std::string relnotes      = updater["URL"];
+        LL_WARNS("LLLogin") << "Login failed because an update to version " << login_version << " is required." << LL_ENDL;
+        // vvm_version might be empty because we might not have gotten
+        // SLVersionChecker's LoginSync handshake. But if it IS populated, it
+        // should (!) be the same as the version we got from login.cgi.
+        if ((! vvm_version.empty()) && vvm_version != login_version)
+        {
+            LL_WARNS("LLLogin") << "VVM update version " << vvm_version
+                                << " differs from login version " << login_version
+                                << "; presenting VVM version to match release notes URL"
+                                << LL_ENDL;
+            login_version = vvm_version;
+        }
+        if (relnotes.empty())
+        {
+            // I thought this would be available in strings.xml or some such
+            relnotes = "https://secondlife.com/support/downloads/";
+        }
 
         if (gViewerWindow)
             gViewerWindow->setShowProgress(FALSE);
 
-        LLSD args(LLSDMap("VERSION", required_version));
+        LLSD args(LLSDMap("VERSION", login_version)("URL", relnotes));
         if (updater.isUndefined())
         {
             // If the updater failed to shake hands, better advise the user to
