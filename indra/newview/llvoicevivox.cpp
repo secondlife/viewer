@@ -1460,6 +1460,11 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
 
     LLSD timeoutResult(LLSDMap("session", "timeout"));
 
+    // We are about to start a whole new session.  Anything that MIGHT still be in our 
+    // maildrop is going to be stale and cause us much wailing and gnashing of teeth.  
+    // Just flush it all out and start new.
+    voicePump.flush();
+
     // It appears that I need to wait for BOTH the SessionGroup.AddSession response and the SessionStateChangeEvent with state 4
     // before continuing from this state.  They can happen in either order, and if I don't wait for both, things can get stuck.
     // For now, the SessionGroup.AddSession response handler sets mSessionHandle and the SessionStateChangeEvent handler transitions to stateSessionJoined.
