@@ -91,8 +91,6 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
 	//get light vector
 	vec3 lv = lp.xyz-v;
 
-la /= 20.0f;
-
 	//get distance
 	float d = length(lv);
 	
@@ -109,7 +107,7 @@ la /= 20.0f;
 		float dist = d/la;
 		float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
 		dist_atten *= dist_atten;
-        dist_atten *= 2.0f;
+        //dist_atten *= 2.0f;
 
 		// spotlight coefficient.
 		float spot = max(dot(-ln, lv), is_pointlight);
@@ -120,7 +118,6 @@ la /= 20.0f;
 
 		float lit = max(da * dist_atten,0.0);
 
-ambiance = 0.0f;
         float amb_da = ambiance;
         if (lit > 0)
         {
