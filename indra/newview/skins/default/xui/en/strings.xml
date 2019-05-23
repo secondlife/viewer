@@ -4099,6 +4099,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Conversations_Label">Conversations</string>
   <string name="Command_Compass_Label">Compass</string>
   <string name="Command_Destinations_Label">Destinations</string>
+  <string name="Command_Environments_Label">My Environments</string>
   <string name="Command_Facebook_Label">Facebook</string>
   <string name="Command_Flickr_Label">Flickr</string>
   <string name="Command_Gestures_Label">Gestures</string>
@@ -4132,6 +4133,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Conversations_Tooltip">Converse with everyone</string>
   <string name="Command_Compass_Tooltip">Compass</string>
   <string name="Command_Destinations_Tooltip">Destinations of interest</string>
+  <string name="Command_Environments_Tooltip">My Environments</string>
   <string name="Command_Facebook_Tooltip">Post to Facebook</string>
   <string name="Command_Flickr_Tooltip">Upload to Flickr</string>
   <string name="Command_Gestures_Tooltip">Gestures for your avatar</string>
