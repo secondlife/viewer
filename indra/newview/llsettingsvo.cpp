@@ -502,7 +502,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPresetFile(const std::strin
         return ptr_t();
     }
 
-    return buildFromLegacyPreset(name, legacy_data, messages);
+    return buildFromLegacyPreset(LLURI::unescape(name), legacy_data, messages);
 }
 
 
@@ -831,7 +831,7 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildFromLegacyPresetFile(const std::s
         return ptr_t();
     }
 
-    return buildFromLegacyPreset(name, legacy_data, messages);
+    return buildFromLegacyPreset(LLURI::unescape(name), legacy_data, messages);
 }
 
 
@@ -1101,8 +1101,8 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPresetFile(const std::strin
         LL_WARNS("SETTINGS") << "Could not load legacy Windlight \"" << name << "\" from " << path << LL_ENDL;
         return ptr_t();
     }
-
-    return buildFromLegacyPreset(name, path, legacy_data, messages);
+    // Name for LLSettingsDay only, path to get related files from filesystem
+    return buildFromLegacyPreset(LLURI::unescape(name), path, legacy_data, messages);
 }
 
 

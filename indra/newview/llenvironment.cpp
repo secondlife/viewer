@@ -2165,7 +2165,7 @@ LLEnvironment::EnvironmentInfo::ptr_t LLEnvironment::EnvironmentInfo::extractLeg
 //=========================================================================
 LLSettingsWater::ptr_t LLEnvironment::createWaterFromLegacyPreset(const std::string filename, LLSD &messages)
 {
-    std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(filename), true));
+    std::string name(gDirUtilp->getBaseFileName(filename, true));
     std::string path(gDirUtilp->getDirName(filename));
 
     LLSettingsWater::ptr_t water = LLSettingsVOWater::buildFromLegacyPresetFile(name, path, messages);
@@ -2180,7 +2180,7 @@ LLSettingsWater::ptr_t LLEnvironment::createWaterFromLegacyPreset(const std::str
 
 LLSettingsSky::ptr_t LLEnvironment::createSkyFromLegacyPreset(const std::string filename, LLSD &messages)
 {
-    std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(filename), true));
+    std::string name(gDirUtilp->getBaseFileName(filename, true));
     std::string path(gDirUtilp->getDirName(filename));
 
     LLSettingsSky::ptr_t sky = LLSettingsVOSky::buildFromLegacyPresetFile(name, path, messages);
@@ -2194,7 +2194,7 @@ LLSettingsSky::ptr_t LLEnvironment::createSkyFromLegacyPreset(const std::string 
 
 LLSettingsDay::ptr_t LLEnvironment::createDayCycleFromLegacyPreset(const std::string filename, LLSD &messages)
 {
-    std::string name(gDirUtilp->getBaseFileName(LLURI::unescape(filename), true));
+    std::string name(gDirUtilp->getBaseFileName(filename, true));
     std::string path(gDirUtilp->getDirName(filename));
 
     LLSettingsDay::ptr_t day = LLSettingsVODay::buildFromLegacyPresetFile(name, path, messages);
