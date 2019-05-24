@@ -1613,8 +1613,8 @@ void LLFloaterEditExtDayCycle::setTabsData(LLTabContainer * tabcontainer, const 
         LLSettingsEditPanel *panel = static_cast<LLSettingsEditPanel *>(tabcontainer->getPanelByIndex(idx));
         if (panel)
         {
-            panel->setSettings(settings);
             panel->setCanChangeSettings(editable & mCanMod);
+            panel->setSettings(settings);
         }
     }
 }

@@ -214,8 +214,8 @@ void LLFloaterFixedEnvironment::refresh()
         LLSettingsEditPanel *panel = static_cast<LLSettingsEditPanel *>(mTab->getPanelByIndex(idx));
         if (panel)
         {
-            panel->refresh();
             panel->setCanChangeSettings(mCanMod);
+            panel->refresh();
         }
     }
 }
@@ -851,9 +851,3 @@ void LLFloaterFixedEnvironmentSky::loadSkySettingFromFile(const std::vector<std:
 }
 
 //=========================================================================
-
-void LLSettingsEditPanel::setCanChangeSettings(bool enabled)
-{
-    setEnabled(enabled);
-    setAllChildrenEnabled(enabled);
-}

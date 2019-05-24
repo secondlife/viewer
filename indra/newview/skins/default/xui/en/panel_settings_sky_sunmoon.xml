@@ -21,6 +21,7 @@
                 auto_resize="true"
                 user_resize="false"
                 visible="true"
+                name="sun_layout"
                 height="400">
             <text
                     follows="left|top"
@@ -209,6 +210,7 @@
                         auto_resize="true"
                         user_resize="false"
                         visible="true"
+                        name="moon_layout"
                         height="220">
                     <text
                             follows="left|top"
