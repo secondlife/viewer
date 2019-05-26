@@ -20,7 +20,7 @@
 		<button name="activate_btn" tool_tip="Activar/Desactivar el gesto elegido"/>
 		<button name="del_btn" tool_tip="Borrar este gesto"/>
 	</panel>
-	<button label="Editar" name="edit_btn"/>
-	<button label="Reproducir" name="play_btn"/>
+	<button label="Editar" name="edit_btn" tool_tip="Abrir la ventana para editar el gesto seleccionado."/>
+	<button label="Reproducir" name="play_btn" tool_tip="Realizar gesto seleccionado en el mundo."/>
 	<button label="Parar" name="stop_btn"/>
 </floater>

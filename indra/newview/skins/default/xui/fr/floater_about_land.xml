@@ -9,6 +9,12 @@
 	<floater.string name="maturity_icon_adult">
 		&quot;Parcel_R_Dark&quot;
 	</floater.string>
+	<floater.string name="Hours">
+		[HEURES] hrs.
+	</floater.string>
+	<floater.string name="Hour">
+		hr.
+	</floater.string>
 	<floater.string name="Minutes">
 		[MINUTES] min
 	</floater.string>
@@ -20,6 +26,9 @@
 	</floater.string>
 	<floater.string name="Remaining">
 		restantes
+	</floater.string>
+	<floater.string name="Always">
+		Toujours
 	</floater.string>
 	<tab_container name="landtab" tab_min_width="60">
 		<panel label="GÉNÉRAL" name="land_general_panel">
@@ -322,18 +331,18 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 			<text name="allow_label2">
 				Construire :
 			</text>
-			<check_box label="Tous" name="edit objects check"/>
-			<check_box label="Groupe" name="edit group objects check"/>
+			<check_box label="Tous" name="edit objects check" tool_tip="Si la case est cochée, les résidents peuvent créer et rezzer des objets sur votre terrain."/>
+			<check_box label="Groupe" name="edit group objects check" tool_tip="Si la case est cochée, les membres du groupe de la parcelle peuvent créer et rezzer des objets sur votre terrain."/>
 			<text name="allow_label3">
 				Laisser entrer des objets :
 			</text>
-			<check_box label="Tous" name="all object entry check"/>
-			<check_box label="Groupe" name="group object entry check"/>
+			<check_box label="Tous" name="all object entry check" tool_tip="Si la case est cochée, les résidents peuvent déplacer les objets des autres parcelles pour les amener sur cette parcelle."/>
+			<check_box label="Groupe" name="group object entry check" tool_tip="Si la case est cochée, les membres du groupe de la parcelle peuvent déplacer les objets des autres parcelles pour les amener sur cette parcelle."/>
 			<text name="allow_label4">
 				Exécuter des scripts :
 			</text>
-			<check_box label="Tous" name="check other scripts"/>
-			<check_box label="Groupe" name="check group scripts"/>
+			<check_box label="Tous" name="check other scripts" tool_tip="Si la case est cochée, les membres du groupe de la parcelle peuvent exécuter des scripts sur votre parcelle, y compris des pièces jointes."/>
+			<check_box label="Groupe" name="check group scripts" tool_tip="Si la case est cochée, les membres du groupe de la parcelle peuvent exécuter des scripts sur votre parcelle, y compris des pièces jointes."/>
 			<check_box label="Sécurisé (pas de dégâts)" name="check safe" tool_tip="Si cette option est cochée, le terrain est sécurisé et il n&apos;y pas de risques de dommages causés par des combats. Si elle est décochée, des dommages causés par les combats peuvent avoir lieu."/>
 			<check_box label="Pas de bousculades" name="PushRestrictCheck" tool_tip="Empêche l&apos;utilisation de scripts causant des bousculades. Cette option est utile pour empêcher les comportements abusifs sur votre terrain."/>
 			<check_box label="Voir le lieu dans la recherche (30 L$/sem.)" name="ShowDirectoryCheck" tool_tip="Afficher la parcelle dans les résultats de recherche"/>
@@ -357,7 +366,7 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 				Photo :
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Cliquez pour sélectionner une image"/>
-			<text name="allow_label5">
+			<text name="allow_see_label">
 				Les avatars sur d&apos;autres parcelles peuvent voir et chatter avec les avatars sur cette parcelle.
 			</text>
 			<check_box label="Voir les avatars" name="SeeAvatarsCheck" tool_tip="Permettre aux avatars présents sur d&apos;autres parcelles de voir et chatter avec les avatars présents sur cette parcelle et à vous de les voir et de chatter avec eux."/>
@@ -464,9 +473,12 @@ musique :
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="Bannir" name="BanCheck">
-					Toujours interdit ([COUNT], max. [MAX])
+					Interdit interdit ([COUNT], max. [MAX])
 				</text>
-				<name_list name="BannedList" tool_tip="([LISTED] dans la liste, [MAX] max.)"/>
+				<name_list name="BannedList" tool_tip="([LISTED] dans la liste, [MAX] max.)">
+					<columns label="Nom" name="name"/>
+					<columns label="Durée" name="duration"/>
+				</name_list>
 				<button label="Ajouter" name="add_banned"/>
 				<button label="Supprimer" label_selected="Supprimer" name="remove_banned"/>
 			</panel>

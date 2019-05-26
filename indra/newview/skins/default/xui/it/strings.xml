@@ -73,6 +73,9 @@ Modello illuminazione avanzato: [GPU_SHADERS]
 Memoria texture: [TEXTURE_MEMORY]MB
 Data/ora creazione VFS (cache): [VFS_TIME]
 	</string>
+	<string name="AboutOSXHiDPI">
+		Modalità display HiDPI: [HIDPI]
+	</string>
 	<string name="AboutLibs">
 		J2C Versione decoder: [J2C_VERSION] 
 Versione del driver audio: [AUDIO_DRIVER_VERSION][LIBCEF_VERSION]
@@ -1467,6 +1470,15 @@ http://secondlife.com/support per risolvere il problema.
 	</string>
 	<string name="MarketplaceURL_LearnMore">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more
+	</string>
+	<string name="InventoryPlayAnimationTooltip">
+		Apri finestra con opzioni di Gioco.
+	</string>
+	<string name="InventoryPlayGestureTooltip">
+		Esegui il movimento selezionato nel mondo virtuale.
+	</string>
+	<string name="InventoryPlaySoundTooltip">
+		Apri finestra con opzioni di Gioco.
 	</string>
 	<string name="InventoryOutboxNotMerchantTitle">
 		Chiunque può vendere oggetti nel Marketplace.
@@ -5314,9 +5326,6 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	<string name="Command_Destinations_Label">
 		Destinazioni
 	</string>
-	<string name="Command_Facebook_Label">
-		Facebook
-	</string>
 	<string name="Command_Flickr_Label">
 		Flickr
 	</string>
@@ -5409,9 +5418,6 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	</string>
 	<string name="Command_Destinations_Tooltip">
 		Destinazioni interessanti
-	</string>
-	<string name="Command_Facebook_Tooltip">
-		Pubblica su Facebook
 	</string>
 	<string name="Command_Flickr_Tooltip">
 		Carica su Flickr

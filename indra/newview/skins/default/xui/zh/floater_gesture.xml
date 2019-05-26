@@ -20,7 +20,7 @@
 		<button name="activate_btn" tool_tip="啟動/停止所選姿勢"/>
 		<button name="del_btn" tool_tip="刪除這個姿勢"/>
 	</panel>
-	<button label="編輯" name="edit_btn"/>
-	<button label="播放" name="play_btn"/>
+	<button label="編輯" name="edit_btn" tool_tip="開啓視窗以便編輯所選姿勢。"/>
+	<button label="播放" name="play_btn" tool_tip="在虛擬世界裡執行所選姿勢。"/>
 	<button label="停止" name="stop_btn"/>
 </floater>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="ban_duration" title="Durata espulsione">
+	<text name="duration_textbox">
+		Durata espulsione:
+	</text>
+	<radio_group name="ban_duration_radio">
+		<radio_item label="Sempre" name="always_radio">
+			Sempre
+		</radio_item>
+		<radio_item label="Temporanea" name="temporary_radio">
+			Temporanea
+		</radio_item>
+	</radio_group>
+	<text name="hours_textbox">
+		ore.
+	</text>
+	<button label="Ok" name="ok_btn"/>
+	<button label="Annulla" name="cancel_btn"/>
+</floater>

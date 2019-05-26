@@ -76,6 +76,9 @@ SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 Память текстур: [TEXTURE_MEMORY] МБ
 Время создания VFS (кэш): [VFS_TIME]
 	</string>
+	<string name="AboutOSXHiDPI">
+		Режим отображения HiDPI: [HIDPI]
+	</string>
 	<string name="AboutLibs">
 		Версия декодера J2C: [J2C_VERSION] 
 Версия аудиодрайвера: [AUDIO_DRIVER_VERSION] 
@@ -1474,6 +1477,15 @@ support@secondlife.com.
 	</string>
 	<string name="MarketplaceURL_LearnMore">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more
+	</string>
+	<string name="InventoryPlayAnimationTooltip">
+		Откройте окно с настройками игры.
+	</string>
+	<string name="InventoryPlayGestureTooltip">
+		Выполните выбранный жест в игровом мире.
+	</string>
+	<string name="InventoryPlaySoundTooltip">
+		Откройте окно с настройками игры.
 	</string>
 	<string name="InventoryOutboxNotMerchantTitle">
 		Продавать вещи в торговом центре может кто угодно.
@@ -5405,9 +5417,6 @@ support@secondlife.com.
 	<string name="Command_Destinations_Label">
 		Пункты
 	</string>
-	<string name="Command_Facebook_Label">
-		Facebook
-	</string>
 	<string name="Command_Flickr_Label">
 		Flickr
 	</string>
@@ -5500,9 +5509,6 @@ support@secondlife.com.
 	</string>
 	<string name="Command_Destinations_Tooltip">
 		Интересные места
-	</string>
-	<string name="Command_Facebook_Tooltip">
-		Опубликовать в Facebook
 	</string>
 	<string name="Command_Flickr_Tooltip">
 		Загрузить на Flickr

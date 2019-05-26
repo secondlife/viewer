@@ -21,7 +21,7 @@
 		<button name="activate_btn" tool_tip="Ausgewählte Geste aktivieren/deaktivieren"/>
 		<button name="del_btn" tool_tip="Diese Geste löschen"/>
 	</panel>
-	<button label="Bearbeiten" name="edit_btn"/>
-	<button label="Abspielen" name="play_btn"/>
+	<button label="Bearbeiten" name="edit_btn" tool_tip="Fenster zum Bearbeiten der ausgewählten Geste öffnen."/>
+	<button label="Abspielen" name="play_btn" tool_tip="Ausgewählte Geste inworld ausführen."/>
 	<button label="Stopp" name="stop_btn"/>
 </floater>
