@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="ban_duration" title="Длительность запрета">
+	<text name="duration_textbox">
+		Длительность запрета:
+	</text>
+	<radio_group name="ban_duration_radio">
+		<radio_item label="Всегда" name="always_radio">
+			Всегда
+		</radio_item>
+		<radio_item label="Временно" name="temporary_radio">
+			Временно
+		</radio_item>
+	</radio_group>
+	<text name="hours_textbox">
+		часы
+	</text>
+	<button label="ОК" name="ok_btn"/>
+	<button label="Отмена" name="cancel_btn"/>
+</floater>

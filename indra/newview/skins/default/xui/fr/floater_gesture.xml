@@ -21,7 +21,7 @@
 		<button name="activate_btn" tool_tip="Activer/désactiver le geste sélectionné"/>
 		<button name="del_btn" tool_tip="Supprimer ce geste"/>
 	</panel>
-	<button label="Modifier" name="edit_btn"/>
-	<button label="Lire" name="play_btn"/>
+	<button label="Modifier" name="edit_btn" tool_tip="Ouvrir la fenêtre pour modifier le geste sélectionné"/>
+	<button label="Lire" name="play_btn" tool_tip="Exécuter le geste sélectionné dans le monde virtuel."/>
 	<button label="Stop" name="stop_btn"/>
 </floater>

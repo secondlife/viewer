@@ -43,6 +43,7 @@
 	<check_box label="Filtre anisotrope (plus lent quand activé)" name="ani"/>
 	<check_box initial_value="true" label="Activer OpenGL Vertex Buffer Objects" name="vbo" tool_tip="L’activation de cette option sur le matériel récent permet un gain de performance.  Cependant, les implémentations VBO pour le matériel plus ancien sont souvent médiocres et votre système risque de se planter quand cette option est activée."/>
 	<check_box initial_value="true" label="Activer la compression des textures (redémarrage requis)" name="texture compression" tool_tip="Comprime les textures en mémoire vidéo afin de permettre de charger des textures de résolution plus élevée au prix d’une certaine qualité de couleur."/>
+	<check_box initial_value="true" label="Activer le support pour l&apos;affichage en HiDPI (redémarrage requis)" name="use HiDPI" tool_tip="Activer OpenFL pour les dessins en haute résolution"/>
 	<text name="antialiasing label">
 		Anti-aliasing :
 	</text>

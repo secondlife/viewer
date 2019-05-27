@@ -15,6 +15,7 @@
 	<text_editor name="Notecard Editor">
 		Загрузка...
 	</text_editor>
+	<button label="Pедактировать..." label_selected="Редактировать" name="Edit"/>
 	<button label="Сохранить" label_selected="Сохранить" name="Save"/>
 	<button label="Удалить" label_selected="Удалить" name="Delete"/>
 </floater>

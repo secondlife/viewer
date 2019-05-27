@@ -44,7 +44,7 @@
 		<check_box label="Открытая регистрация" name="open_enrollement" tool_tip="Устанавливается, если в этой группе можно зарегистрироваться без приглашения."/>
 		<check_box label="Платная регистрация" name="check_enrollment_fee" tool_tip="Устанавливается, если в этой группе требуется оплата за вступление."/>
 		<spinner label="L$" name="spin_enrollment_fee" tool_tip="Новые участники должны будут оплатить взнос, если регистрация платная."/>
-		<combo_box name="group_mature_check" tool_tip="Устанавливает, содержит ли группа информацию категории умеренной дозволенности">
+		<combo_box name="group_mature_check" tool_tip="Рейтинги зрелости определяют тип контента и поведение, разрешенное в группе">
 			<combo_item name="select_mature">
 				- Выберите рейтинг зрелости -
 			</combo_item>
