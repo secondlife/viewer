@@ -107,6 +107,8 @@
 #include "llcleanup.h"
 #include "llcallstack.h"
 #include "llmeshrepository.h"
+#include "lldispatcher.h"
+#include "llviewergenericmessage.h"
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -3050,6 +3052,12 @@ void LLViewerObject::updateControlAvatar()
         {
             LLSelectMgr::getInstance()->pauseAssociatedAvatars();
         }
+		// Axon FIXME - this should work for visual params of animated
+		// objects, but it's less clear where this function should be called
+		// in general. Need to handle the case of object getting
+		// constructed sometime after the extended attributes have
+		// arrived, for arbitrary object type.
+		applyExtendedAttributes();
     }
 }
 
@@ -6828,6 +6836,136 @@ public:
 		dialog_refresh_all();
 	};
 };
+
+class LLExtendedAttributesDispatchHandler: public LLDispatchHandler, public LLInitClass<LLExtendedAttributesDispatchHandler>
+{
+public:
+	static void initClass();
+
+	virtual bool operator()(const LLDispatcher *, const std::string& key, const LLUUID& invoice, const sparam_t& strings) override
+	{
+		LLSD message;
+		sparam_t::const_iterator it = strings.begin();
+
+		if (it != strings.end())
+		{
+			const std::string& llsdRaw = *it++;
+			std::istringstream llsdData(llsdRaw);
+			if (!LLSDSerialize::deserialize(message, llsdData, llsdRaw.length()))
+			{
+				LL_WARNS() << "LLExtendedAttributesDispatchHandler: Attempted to read parameter data into LLSD but failed:" << llsdRaw << LL_ENDL;
+			}
+		}
+
+		LLUUID object_id = invoice; // invoice is not a great name; this field gets used for lots of things.
+		LL_INFOS("Axon") << "Handling extended attributes message, object_id " << object_id
+						 << " message " << ll_pretty_print_sd(message)
+						 << LL_ENDL;
+
+		// Persist info, regardless of whether object currently exists.
+		LLObjectExtendedAttributesMap::instance()[object_id] = message;
+		
+		// Process params
+		LLViewerObject* objectp = gObjectList.findObject(object_id);
+		if (objectp)
+		{
+			objectp->applyExtendedAttributes();
+		}
+		else
+		{
+			LL_WARNS("Axon") << "Extended attributes received for unknown object " << object_id << LL_ENDL;
+		}
+
+		return true;
+	}
+};
+
+// Apply currently 
+void LLViewerObject::applyExtendedAttributes()
+{
+	applyExtendedAttributesVisualParams();
+}
+
+void LLViewerObject::applyExtendedAttributesVisualParams()
+{
+	const LLUUID& object_id = getID();
+	LLSD params_sd = LLObjectExtendedAttributesMap::instance().getField(object_id, "VisualParams");
+	if (params_sd.isArray())
+	{
+		LL_INFOS("Axon") << "Processing visual params for object " << object_id << LL_ENDL;
+
+		LLVOVolume *volp = dynamic_cast<LLVOVolume*>(this);
+		if (!volp)
+		{
+			LL_WARNS("Axon") << "Ignoring visual params state for non-volume object " << object_id << LL_ENDL;
+			return;
+		}
+		if (!volp->isAnimatedObject())
+		{
+			LL_WARNS("Axon") << "Ignoring visual params state for non-animated object " << object_id << LL_ENDL;
+			return;
+		}
+
+		if (gShowObjectUpdates)
+		{
+			gPipeline.addDebugBlip(volp->getPositionAgent(), LLColor4::magenta);
+		}
+
+		LLControlAvatar *cav = volp->getControlAvatar();
+		if (!cav)
+		{
+			LL_WARNS("Axon") << "cav not found for uuid " << object_id << LL_ENDL;
+			return;
+		}
+		bool params_changed = false;
+		for (LLSD::array_iterator it = params_sd.beginArray();
+			 it != params_sd.endArray(); ++it)
+		{
+			LLSD& param_sd = *it;
+			S32 param_id = param_sd.get("id").asInteger();
+			F32 normalized_weight = param_sd.get("weight").asReal();
+			LLVisualParam *param = cav->getVisualParam(param_id);
+			if (!param)
+			{
+				LL_WARNS("Axon") << "param not found for id " << param_id << " object " << object_id << LL_ENDL;
+				continue;
+			}
+			F32 weight = lerp(param->getMinWeight(), param->getMaxWeight(), normalized_weight); 
+			LL_INFOS("Axon") << "Setting weight " << weight << " for param id " << param_id << " from normalized " << normalized_weight << " object " << object_id << LL_ENDL;
+			if (param->getWeight() != weight)
+			{
+				param->setWeight(weight);
+				params_changed = true;
+			}
+		}
+		if (params_changed)
+		{
+			cav->updateVisualParams();
+		}
+	}
+}
+
+LLExtendedAttributesDispatchHandler extended_attributes_dispatch_handler;
+
+// static
+void LLExtendedAttributesDispatchHandler::initClass()
+{
+	if (!gGenericDispatcher.isHandlerPresent("ObjectExtendedAttributes"))
+	{
+		gGenericDispatcher.addHandler("ObjectExtendedAttributes",&extended_attributes_dispatch_handler);
+	}
+}
+	
+LLSD LLObjectExtendedAttributesMap::getField(const LLUUID& object_id, const std::string& field_name)
+{
+	LLSD result;
+	auto it = find(object_id);
+	if (it != end())
+	{
+		result = it->second.get(field_name);
+	}
+	return result;
+}
 
 LLHTTPRegistration<ObjectPhysicsProperties>
 	gHTTPRegistrationObjectPhysicsProperties("/message/ObjectPhysicsProperties");

@@ -110,9 +110,10 @@ class LLObjectSignaledAnimationMap: public LLSingleton<LLObjectSignaledAnimation
     LLSINGLETON_EMPTY_CTOR(LLObjectSignaledAnimationMap); 
 
 public:
-    object_signaled_animation_map_t mMap;
-
     object_signaled_animation_map_t& getMap() { return mMap; }
+
+private:
+    object_signaled_animation_map_t mMap;
 };
 
 #endif //LL_CONTROLAVATAR_H

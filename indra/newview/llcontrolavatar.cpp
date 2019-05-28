@@ -72,107 +72,6 @@ LLControlAvatar::~LLControlAvatar()
 	llassert(!mRootVolp);
 }
 
-class LLVisualParamsDispatchHandler: public LLDispatchHandler, public LLInitClass<LLVisualParamsDispatchHandler>
-{
-public:
-	static void initClass();
-
-	virtual bool operator()(const LLDispatcher *, const std::string& key, const LLUUID& invoice, const sparam_t& strings) override
-	{
-		LLSD message;
-		sparam_t::const_iterator it = strings.begin();
-
-		if (it != strings.end())
-		{
-			const std::string& llsdRaw = *it++;
-			std::istringstream llsdData(llsdRaw);
-			if (!LLSDSerialize::deserialize(message, llsdData, llsdRaw.length()))
-			{
-				LL_WARNS() << "LLVisualParamsDispatchHandler: Attempted to read parameter data into LLSD but failed:" << llsdRaw << LL_ENDL;
-			}
-		}
-
-		LLUUID object_id = invoice; // invoice is not a great name, this field gets used for lots of things.
-		LL_INFOS("Axon") << "Handling visual params message, object_id " << object_id
-						 << " message " << ll_pretty_print_sd(message)
-						 << LL_ENDL;
-
-		// Process params
-		LLViewerObject* object = gObjectList.findObject(object_id);
-		LLVOVolume *volp = dynamic_cast<LLVOVolume*>(object);
-		if (!volp)
-		{
-			LL_WARNS("Axon") << "Received visual params state for non-volume object " << object_id << LL_ENDL;
-			return false;
-		}
-		
-		if (!volp->isAnimatedObject())
-		{
-			LL_WARNS("Axon") << "Received visual params state for non-animated object " << object_id << LL_ENDL;
-			return false;
-		}
-
-		if (gShowObjectUpdates)
-		{
-			gPipeline.addDebugBlip(volp->getPositionAgent(), LLColor4::magenta);
-		}
-
-		LLControlAvatar *cav = volp->getControlAvatar();
-		if (!cav)
-		{
-			LL_WARNS("Axon") << "cav not found for uuid " << object_id << LL_ENDL;
-			return false;
-		}
-		bool params_changed = false;
-		LLSD params_sd = message["VisualParams"];
-		if (!params_sd.isArray())
-		{
-			LL_WARNS("Axon") << "Missing or non-array entry for VisualParams" << LL_ENDL;
-			return false;
-		}
-		if (params_sd.isArray())
-		{
-			for (LLSD::array_iterator it = params_sd.beginArray();
-				 it != params_sd.endArray(); ++it)
-			{
-				LLSD& param_sd = *it;
-				S32 param_id = param_sd.get("id").asInteger();
-				F32 normalized_weight = param_sd.get("weight").asReal();
-				LLVisualParam *param = cav->getVisualParam(param_id);
-				if (!param)
-				{
-					LL_WARNS("Axon") << "param not found for id " << param_id << LL_ENDL;
-					continue;
-				}
-				F32 weight = lerp(param->getMinWeight(), param->getMaxWeight(), normalized_weight); 
-				LL_INFOS("Axon") << "Setting weight " << weight << " for param id " << param_id << " from normalized " << normalized_weight << LL_ENDL;
-				if (param->getWeight() != weight)
-				{
-					param->setWeight(weight);
-					params_changed = true;
-				}
-			}
-		}
-		if (params_changed)
-		{
-			cav->updateVisualParams();
-		}
-			
-		return true;
-	}
-};
-
-LLVisualParamsDispatchHandler visual_params_dispatch_handler;
-
-// static
-void LLVisualParamsDispatchHandler::initClass()
-{
-	if (!gGenericDispatcher.isHandlerPresent("ObjectVisualParams"))
-	{
-		gGenericDispatcher.addHandler("ObjectVisualParams",&visual_params_dispatch_handler);
-	}
-}
-	
 // virtual
 void LLControlAvatar::initInstance()
 {
@@ -275,7 +174,7 @@ void LLControlAvatar::matchVolumeTransform()
 		mScaleConstraintFixup = new_scale_fixup;
 
 		// This needs to be validated against constraint logic
-		LLVector3 hover_param_offset; // = getVisualParamWeight(LLAvatarAppearanceDefines::AVATAR_HOVER) * LLVector3(0.f, 0.f, 1.f);
+		LLVector3 hover_param_offset = getVisualParamWeight(LLAvatarAppearanceDefines::AVATAR_HOVER) * LLVector3(0.f, 0.f, 1.f);
 
         if (mRootVolp->isAttachment())
         {
