@@ -6284,12 +6284,27 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			{
 				continue;
 			}
+
+            if (light->isAttachment())
+            {
+                if (!sRenderAttachedLights)
+                {
+                    continue;
+                }
+            }
+
+            const LLViewerObject *vobj = drawable->getVObj();
+            if(vobj && vobj->getAvatar() && vobj->getAvatar()->isInMuteList())
+            {
+                continue;
+            }
+
 			if (drawable->isState(LLDrawable::ACTIVE))
 			{
 				mLightMovingMask |= (1<<cur_light);
 			}
 			
-			LLColor4  light_color = light->getLightColor();
+			LLColor4  light_color = sRenderDeferred ? light->getLightSRGBColor() : light->getLightColor();
 			light_color.mV[3] = 0.0f;
 
 			F32 fade = iter->fade;
@@ -6310,13 +6325,27 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 				light_color *= fade;
 			}
 
+            if (light_color.magVecSquared() < 0.001f)
+            {
+                continue;
+            }
+
 			LLVector3 light_pos(light->getRenderPosition());
 			LLVector4 light_pos_gl(light_pos, 1.0f);
 	
 			F32 light_radius = llmax(light->getLightRadius(), 0.001f);
+            F32 size = light_radius *  sRenderDeferred ? 1.5f : 1.0f;
+
+            if (size <= 0.001f)
+            {
+                continue;
+            }
 
 			F32 x = (3.f * (1.f + light->getLightFalloff())); // why this magic?  probably trying to match a historic behavior.
-			float linatten = x / (light_radius); // % of brightness at radius
+			F32 linatten = x / (light_radius); // % of brightness at radius
+
+            // get falloff to match for forward deferred rendering lights
+            F32 falloff = light->getLightFalloff()*0.5f + sRenderDeferred ? 0.0 : 1.f;
 
 			mHWLightColors[cur_light] = light_color;
 			LLLightState* light_state = gGL.getLight(cur_light);
@@ -6326,10 +6355,9 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			light_state->setAmbient(LLColor4::black);
 			light_state->setConstantAttenuation(0.f);
 			if (sRenderDeferred)
-			{
-				F32 size = light_radius*1.5f;
+			{				
 				light_state->setLinearAttenuation(size);
-				light_state->setQuadraticAttenuation(light->getLightFalloff()*0.5f+1.f);
+				light_state->setQuadraticAttenuation(falloff);
 			}
 			else
 			{
@@ -8883,7 +8911,8 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
 
                     LLVector3 center = drawablep->getPositionAgent();
                     F32* c = center.mV;
-                    F32 s = volume->getLightRadius()*1.5f;
+                    F32 light_size_final = volume->getLightRadius()*1.5f;
+                    F32 light_falloff_final = volume->getLightFalloff()*0.5f;
 
                     sVisibleLightCount++;
 
@@ -8893,11 +8922,12 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
                     setupSpotLight(gDeferredMultiSpotLightProgram, drawablep);
 
                     LLColor3 col = volume->getLightSRGBColor();
+
                     
                     gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, tc.v);
-                    gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
+                    gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, light_size_final);
                     gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
-                    gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
+                    gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, light_falloff_final);
                     mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
                 }
 

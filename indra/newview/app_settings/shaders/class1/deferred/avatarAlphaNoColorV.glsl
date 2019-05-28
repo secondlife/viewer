@@ -55,35 +55,7 @@ uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
 
-float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight)
-{
-	//get light vector
-	vec3 lv = lp.xyz-v;
-	
-	//get distance
-	float d = dot(lv,lv);
-	
-	float da = 0.0;
-
-	if (d > 0.0 && la > 0.0 && fa > 0.0)
-	{
-		//normalize light vector
-		lv = normalize(lv);
-	
-		//distance attenuation
-		float dist2 = d/la;
-		da = clamp(1.0-(dist2-1.0*(1.0-fa))/fa, 0.0, 1.0);
-
-		// spotlight coefficient.
-		float spot = max(dot(-ln, lv), is_pointlight);
-		da *= spot*spot; // GL_SPOT_EXPONENT=2
-
-		//angular attenuation
-		da *= max(dot(n, lv), 0.0);		
-	}
-
-	return da;	
-}
+float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight);
 
 void main()
 {

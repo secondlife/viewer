@@ -88,17 +88,19 @@ float getAmbientClamp();
 
 vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spec, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, inout float glare, float ambiance)
 {
-	vec3 col = vec3(0);
+    vec3 col = vec3(0);
 
 	//get light vector
 	vec3 lv = lp.xyz-v;
-	
+
 	//get distance
-	float d = length(lv);
-	
+	float dist = length(lv);
 	float da = 1.0;
 
-    /*vec4 proj_tc = proj_mat * lp;
+    dist /= la;
+
+    /* clip to projector bounds
+     vec4 proj_tc = proj_mat * lp;
 
     if (proj_tc.z < 0
      || proj_tc.z > 1
@@ -110,35 +112,42 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
         return col;
     }*/
 
-	if (d > 0.0 && la > 0.0 && fa > 0.0)
+    fa += 1.0;
+	if (dist > 0.0 && la > 0.0 && fa > 0.0)
 	{
 		//normalize light vector
 		lv = normalize(lv);
 	
 		//distance attenuation
-		float dist = d/la;
 		float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
 		dist_atten *= dist_atten;
-        //dist_atten *= 2.0f;
+        dist_atten *= 2.0f;
+
+        if (dist_atten <= 0.0)
+        {
+           return col;
+        }
 
 		// spotlight coefficient.
 		float spot = max(dot(-ln, lv), is_pointlight);
 		da *= spot*spot; // GL_SPOT_EXPONENT=2
 
 		//angular attenuation
-		da *= max(dot(n, lv), 0.0);		
-		
-		float lit = max(da * dist_atten, 0.0);
+		da *= dot(n, lv);
+
+		float lit = 0.0f;
 
         float amb_da = ambiance;
-        if (lit > 0)
-        {            
-            col = light_col*lit*diffuse;
-            amb_da += (da*0.5 + 0.5) * ambiance;
+        if (da > 0)
+        {
+		    lit = max(da * dist_atten,0.0);
+            col = lit * light_col * diffuse;
+            amb_da += (da*0.5+0.5) * ambiance;
         }
-        amb_da += (da*da*0.5+0.5) * ambiance;
+        amb_da += (da*da*0.5 + 0.5) * ambiance;
         amb_da *= dist_atten;
         amb_da = min(amb_da, 1.0f - lit);
+
         col.rgb += amb_da * light_col * diffuse;
 
 		if (spec.a > 0.0)
@@ -217,8 +226,15 @@ void main()
 {
     vec2 pos_screen = vary_texcoord0.xy;
 
-    vec4 diffuse_linear = texture2D(diffuseMap, vary_texcoord0.xy);
-    vec4 diffuse_srgb   = vec4(linear_to_srgb(diffuse_linear.rgb), diffuse_linear.a);
+    vec4 diffuse_tap = texture2D(diffuseMap, vary_texcoord0.xy);
+
+#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
+    vec4 diffuse_srgb = diffuse_tap;
+    vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_tap.a);
+#else
+    vec4 diffuse_linear = diffuse_tap;
+    vec4 diffuse_srgb = vec4(linear_to_srgb(diffuse_linear.rgb), diffuse_tap.a);
+#endif
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_MASK)
     if (diffuse_linear.a < minimum_alpha)
@@ -331,7 +347,7 @@ vec3 post_ambient = color.rgb;
 
 vec3 post_sunlight = color.rgb;
 
-    color.rgb *= diffuse_linear.rgb;
+    color.rgb *= diffuse_srgb.rgb;
  
 vec3 post_diffuse = color.rgb;
 
@@ -358,7 +374,9 @@ vec3 post_diffuse = color.rgb;
             vec3 sp = sun_contrib*scol / 16.0f;
             sp = clamp(sp, vec3(0), vec3(1));
             bloom = dot(sp, sp) / 6.0;
+#if !defined(SUNLIGHT_KILL)
             color += sp * spec.rgb;
+#endif
         }
     }
 
@@ -371,8 +389,9 @@ vec3 post_spec = color.rgb;
         
         vec3 reflected_color = textureCube(environmentMap, env_vec).rgb;
 
+#if !defined(SUNLIGHT_KILL)
         color = mix(color.rgb, reflected_color, envIntensity); 
-
+#endif
         float cur_glare = max(reflected_color.r, reflected_color.g);
         cur_glare = max(cur_glare, reflected_color.b);
         cur_glare *= envIntensity*4.0;
@@ -382,12 +401,11 @@ vec3 post_spec = color.rgb;
 vec3 post_env = color.rgb;
 
     color = atmosFragLighting(color, additive, atten);
-    color = scaleSoftClipFrag(color);
-
-vec3 post_atmo = color.rgb;
 
     //convert to linear space before adding local lights
 	color = srgb_to_linear(color);
+
+vec3 post_atmo = color.rgb;
 
     vec3 npos = normalize(-pos.xyz);
             
@@ -409,6 +427,8 @@ vec3 post_atmo = color.rgb;
 #if !defined(LOCAL_LIGHT_KILL)
     color.rgb += light.rgb;
 #endif
+
+    color = scaleSoftClipFrag(color);
 
     // (only) post-deferred needs inline gamma correction
     color.rgb = linear_to_srgb(color.rgb);
