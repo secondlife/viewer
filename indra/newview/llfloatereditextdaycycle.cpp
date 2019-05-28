@@ -271,6 +271,10 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
 
 void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
 {
+    if (!mEditDay)
+    {
+        LLEnvironment::instance().saveBeaconsState();
+    }
     mEditDay.reset();
     mEditContext = CONTEXT_UNKNOWN;
     if (key.has(KEY_EDIT_CONTEXT))
@@ -410,10 +414,12 @@ void LLFloaterEditExtDayCycle::onClose(bool app_quitting)
     // there's no point to change environment if we're quitting
     // or if we already restored environment
     stopPlay();
+    LLEnvironment::instance().revertBeaconsState();
     if (!app_quitting)
     {
         LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_FAST);
         LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_EDIT);
+        mEditDay.reset();
     }
 }
 

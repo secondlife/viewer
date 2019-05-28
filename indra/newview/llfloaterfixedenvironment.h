@@ -161,6 +161,7 @@ public:
     BOOL	                postBuild()                 override;
 
     virtual void            onOpen(const LLSD& key)     override;
+    virtual void            onClose(bool app_quitting)  override;
 
 protected:
     virtual void            updateEditEnvironment()     override;
