@@ -214,8 +214,8 @@ void LLFloaterFixedEnvironment::refresh()
         LLSettingsEditPanel *panel = static_cast<LLSettingsEditPanel *>(mTab->getPanelByIndex(idx));
         if (panel)
         {
-            panel->refresh();
             panel->setCanChangeSettings(mCanMod);
+            panel->refresh();
         }
     }
 }
@@ -814,11 +814,18 @@ void LLFloaterFixedEnvironmentSky::onOpen(const LLSD& key)
         // Initialize the settings, take a snapshot of the current water. 
         mSettings = LLEnvironment::instance().getEnvironmentFixedSky(LLEnvironment::ENV_CURRENT)->buildClone();
         mSettings->setName("Snapshot sky (new)");
-
+        LLEnvironment::instance().saveBeaconsState();
         // TODO: Should we grab water and keep it around for reference?
     }
 
     LLFloaterFixedEnvironment::onOpen(key);
+}
+
+void LLFloaterFixedEnvironmentSky::onClose(bool app_quitting)
+{
+    LLEnvironment::instance().revertBeaconsState();
+
+    LLFloaterFixedEnvironment::onClose(app_quitting);
 }
 
 void LLFloaterFixedEnvironmentSky::doImportFromDisk()
@@ -851,9 +858,3 @@ void LLFloaterFixedEnvironmentSky::loadSkySettingFromFile(const std::vector<std:
 }
 
 //=========================================================================
-
-void LLSettingsEditPanel::setCanChangeSettings(bool enabled)
-{
-    setEnabled(enabled);
-    setAllChildrenEnabled(enabled);
-}
