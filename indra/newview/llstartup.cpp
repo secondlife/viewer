@@ -162,6 +162,7 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
+#include "llviewerstatsrecorder.h"
 #include "llviewerthrottle.h"
 #include "llviewerwindow.h"
 #include "llvoavatar.h"
@@ -1228,6 +1229,7 @@ bool idle_startup()
 		//
 		// Initialize classes w/graphics stuff.
 		//
+		LLViewerStatsRecorder::instance(); // Since textures work in threads
 		gTextureList.doPrefetchImages();		
 		display_startup();
 
