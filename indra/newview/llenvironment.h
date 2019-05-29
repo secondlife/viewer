@@ -169,6 +169,9 @@ public:
     bool                        getIsSunUp() const;
     bool                        getIsMoonUp() const;
 
+    void                        saveBeaconsState();
+    void                        revertBeaconsState();
+
     // Returns either sun or moon direction (depending on which is up and stronger)
     // Light direction in +x right, +z up, +y at internal coord sys
     LLVector3                   getLightDirection() const; // returns sun or moon depending on which is up
@@ -381,6 +384,10 @@ private:
 
     void                        onRegionChange();
     void                        onParcelChange();
+
+    bool                        mShowSunBeacon;
+    bool                        mShowMoonBeacon;
+    S32                         mEditorCounter;
 
     struct UpdateInfo
     {

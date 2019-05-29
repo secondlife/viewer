@@ -115,6 +115,10 @@ BOOL LLFloaterEnvironmentAdjust::postBuild()
 
 void LLFloaterEnvironmentAdjust::onOpen(const LLSD& key)
 {
+    if (!mLiveSky)
+    {
+        LLEnvironment::instance().saveBeaconsState();
+    }
     captureCurrentEnvironment();
 
     mEventConnection = LLEnvironment::instance().setEnvironmentChanged([this](LLEnvironment::EnvSelection_t env, S32 version){ onEnvironmentUpdated(env, version); });
@@ -125,6 +129,7 @@ void LLFloaterEnvironmentAdjust::onOpen(const LLSD& key)
 
 void LLFloaterEnvironmentAdjust::onClose(bool app_quitting)
 {
+    LLEnvironment::instance().revertBeaconsState();
     mEventConnection.disconnect();
     mLiveSky.reset();
     mLiveWater.reset();

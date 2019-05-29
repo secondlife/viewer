@@ -71,10 +71,15 @@ namespace
     const std::string   FIELD_SKY_SUN_ROTATION("sun_rotation");
     const std::string   FIELD_SKY_SUN_IMAGE("sun_image");
     const std::string   FIELD_SKY_SUN_SCALE("sun_scale");
+    const std::string   FIELD_SKY_SUN_BEACON("sunbeacon");
+    const std::string   FIELD_SKY_MOON_BEACON("moonbeacon");
     const std::string   FIELD_SKY_MOON_ROTATION("moon_rotation");
     const std::string   FIELD_SKY_MOON_IMAGE("moon_image");
     const std::string   FIELD_SKY_MOON_SCALE("moon_scale");
     const std::string   FIELD_SKY_MOON_BRIGHTNESS("moon_brightness");
+
+    const std::string   PANEL_SKY_SUN_LAYOUT("sun_layout");
+    const std::string   PANEL_SKY_MOON_LAYOUT("moon_layout");
 
     const std::string   FIELD_SKY_DENSITY_RAYLEIGH_EXPONENTIAL("rayleigh_exponential");
     const std::string   FIELD_SKY_DENSITY_RAYLEIGH_EXPONENTIAL_SCALE("rayleigh_exponential_scale");
@@ -168,7 +173,7 @@ void LLPanelSettingsSkyAtmosTab::setEnabled(BOOL enabled)
 
 void LLPanelSettingsSkyAtmosTab::refresh()
 {
-    if (!mSkySettings)
+    if (!mSkySettings || !getCanChangeSettings())
     {
         setAllChildrenEnabled(FALSE);
         setEnabled(FALSE);
@@ -342,7 +347,7 @@ void LLPanelSettingsSkyCloudTab::setEnabled(BOOL enabled)
 
 void LLPanelSettingsSkyCloudTab::refresh()
 {
-    if (!mSkySettings)
+    if (!mSkySettings || !getCanChangeSettings())
     {
         setAllChildrenEnabled(FALSE);
         setEnabled(FALSE);
@@ -480,15 +485,19 @@ void LLPanelSettingsSkySunMoonTab::setEnabled(BOOL enabled)
         getChild<LLUICtrl>(FIELD_SKY_SUN_SCALE)->setEnabled(enabled);
         getChild<LLUICtrl>(FIELD_SKY_MOON_SCALE)->setEnabled(enabled);
         getChild<LLUICtrl>(FIELD_SKY_MOON_BRIGHTNESS)->setEnabled(enabled);
+        getChildView(PANEL_SKY_SUN_LAYOUT)->setAllChildrenEnabled(TRUE);
+        getChildView(PANEL_SKY_MOON_LAYOUT)->setAllChildrenEnabled(TRUE);
     }
 }
 
 void LLPanelSettingsSkySunMoonTab::refresh()
 {
-    if (!mSkySettings)
+    if (!mSkySettings || !getCanChangeSettings())
     {
-        setAllChildrenEnabled(FALSE);
-        setEnabled(FALSE);
+        getChildView(PANEL_SKY_SUN_LAYOUT)->setAllChildrenEnabled(FALSE);
+        getChildView(PANEL_SKY_MOON_LAYOUT)->setAllChildrenEnabled(FALSE);
+        getChildView(FIELD_SKY_SUN_BEACON)->setEnabled(TRUE);
+        getChildView(FIELD_SKY_MOON_BEACON)->setEnabled(TRUE);
         return;
     }
 
@@ -654,7 +663,7 @@ void LLPanelSettingsSkyDensityTab::setEnabled(BOOL enabled)
 
 void LLPanelSettingsSkyDensityTab::refresh()
 {
-    if (!mSkySettings)
+    if (!mSkySettings || !getCanChangeSettings())
     {
         setAllChildrenEnabled(FALSE);
         setEnabled(FALSE);
