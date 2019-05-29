@@ -936,7 +936,7 @@ void LLSettingsVOWater::applySpecial(void *ptarget)
         shader->uniform1f(LLShaderMgr::WATER_FOGKS, waterFogKS);
 
         F32 eyedepth = LLViewerCamera::getInstance()->getOrigin().mV[2] - water_height;
-        bool underwater = LLPipeline::sUnderWaterRender || (eyedepth <= 0.0f);
+        bool underwater = (eyedepth <= 0.0f);
 
         F32 waterFogDensity = env.getCurrentWater()->getModifiedWaterFogDensity(underwater);
         shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, waterFogDensity);
