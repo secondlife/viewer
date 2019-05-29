@@ -60,6 +60,8 @@ public:
 
     void getAnimatedVolumes(std::vector<LLVOVolume*>& volumes);
     void updateAnimations();  
+	// virtual
+	void updateVisualParams();
     
 	virtual LLViewerObject*	lineSegmentIntersectRiggedAttachments(
         const LLVector4a& start, const LLVector4a& end,
@@ -91,6 +93,8 @@ public:
     LLVector3 mPositionConstraintFixup;
     F32 mScaleConstraintFixup;
 
+	F32 mBodySizeHeightFix;
+	
     static const F32 MAX_LEGAL_OFFSET;
     static const F32 MAX_LEGAL_SIZE;
 

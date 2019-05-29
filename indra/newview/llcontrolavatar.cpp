@@ -58,7 +58,8 @@ LLControlAvatar::LLControlAvatar(const LLUUID& id, const LLPCode pcode, LLViewer
     mRootVolp(NULL),
     mScaleConstraintFixup(1.0),
 	mRegionChanged(false),
-	mObjectInventoryObserver(NULL)
+	mObjectInventoryObserver(NULL),
+	mBodySizeHeightFix(0.f)
 {
     mIsDummy = TRUE;
     mIsControlAvatar = true;
@@ -175,6 +176,7 @@ void LLControlAvatar::matchVolumeTransform()
 
 		// This needs to be validated against constraint logic
 		LLVector3 hover_param_offset = getVisualParamWeight(LLAvatarAppearanceDefines::AVATAR_HOVER) * LLVector3(0.f, 0.f, 1.f);
+		LLVector3 body_size_offset = mBodySizeHeightFix * LLVector3(0.f, 0.f, 1.f);
 
         if (mRootVolp->isAttachment())
         {
@@ -239,7 +241,7 @@ void LLControlAvatar::matchVolumeTransform()
 			setRotation(bind_rot*obj_rot);
             mRoot->setWorldRotation(bind_rot*obj_rot);
 			setPositionAgent(vol_pos);
-			mRoot->setPosition(vol_pos + mPositionConstraintFixup + hover_param_offset);
+			mRoot->setPosition(vol_pos + mPositionConstraintFixup + body_size_offset + hover_param_offset);
 
             F32 global_scale = gSavedSettings.getF32("AnimatedObjectsGlobalScale");
             setGlobalScale(global_scale * mScaleConstraintFixup);
@@ -653,6 +655,44 @@ void LLControlAvatar::updateAnimations()
 
     mSignaledAnimations = anims;
     processAnimationStateChanges();
+}
+
+// virtual
+void LLControlAvatar::updateVisualParams()
+{
+	// FIXME Axon: should look for changes to *reference* body size
+	// (that is, the body size as it would be computed by appearance
+	// service/simulator, without considering effects from
+	// animations.)  Currently using overall body size which includes
+	// everything.
+
+	if (mBodySize == LLVector3())
+	{
+		// Set initial value. No offset to update.
+		computeBodySize();
+		LLVOAvatar::updateVisualParams();
+	}
+	else
+	{
+		//F32 orig_body_size = mBodySize.mV[2];
+		F32 orig_pelvis_to_foot = mPelvisToFoot;
+		//F32 orig_delta = orig_body_size * 2.0 - orig_pelvis_to_foot;
+		LL_INFOS("Axon") << "updateVisualParams, initial body size " << mBodySize << LL_ENDL;
+	
+		LLVOAvatar::updateVisualParams();
+
+		LL_INFOS("Axon") << "updateVisualParams, end body size " << mBodySize << LL_ENDL;
+
+		//F32 body_size_delta = mBodySize.mV[2] - orig_body_size;
+
+		//F32 final_delta =  (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
+		F32 new_pelvis_to_foot = mPelvisToFoot;
+
+		mBodySizeHeightFix += new_pelvis_to_foot - orig_pelvis_to_foot;
+
+		//root_pos.mdV[VZ] -= (0.5f * mBodySize.mV[VZ]) - mPelvisToFoot;
+		LL_INFOS("Axon") << "updateVisualParams, mBodySizeHeightFix " << mBodySizeHeightFix << LL_ENDL;
+	}
 }
 
 // virtual
