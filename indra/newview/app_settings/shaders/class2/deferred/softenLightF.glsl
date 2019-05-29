@@ -114,10 +114,7 @@ void main()
         float ambient = da;
         ambient *= 0.5;
         ambient *= ambient;
-
-        float ambient_clamp = getAmbientClamp() + 0.1;
         ambient = (1.0 - ambient);
-        ambient *= ambient_clamp;
 
         vec3 sun_contrib = min(scol, final_da) * sunlit;
 
@@ -161,7 +158,9 @@ vec3 post_diffuse = color.rgb;
                 vec3 sp = sun_contrib*scontrib / 16.0;
                 sp = clamp(sp, vec3(0), vec3(1));
                 bloom += dot(sp, sp) / 6.0;
+#if !defined(SUNLIGHT_KILL)
                 color += sp * spec.rgb;
+#endif
             }
         }
        
@@ -175,7 +174,9 @@ vec3 post_diffuse = color.rgb;
         { //add environmentmap
             vec3 env_vec = env_mat * refnormpersp;
             vec3 reflected_color = textureCube(environmentMap, env_vec).rgb;
+#if !defined(SUNLIGHT_KILL)
             color = mix(color.rgb, reflected_color, envIntensity); 
+#endif
         }
         
 vec3 post_env = color.rgb;

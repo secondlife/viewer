@@ -1249,12 +1249,20 @@ LLColor4 LLSettingsSky::getTotalAmbient() const
 LLColor3 LLSettingsSky::getMoonlightColor() const
 {
     F32 moon_brightness = getIsMoonUp() ? getMoonBrightness() : 0.001f;
-
-    LLColor3 moonlight_a(0.45, 0.45, 0.66);
-    LLColor3 moonlight_b(0.33, 0.33, 1.0);
-
+    LLColor3 moonlight_a(0.9, 0.9, 1.32);
+    LLColor3 moonlight_b(0.66, 0.66, 2.0);
     LLColor3 moonlight = lerp(moonlight_b, moonlight_a, moon_brightness);    
     return moonlight;
+}
+
+void LLSettingsSky::clampColor(LLColor3& color) const
+{
+    F32 max_color = llmax(color.mV[0], color.mV[1], color.mV[2]);
+    if (max_color > 1.f)
+    {
+        color *= 1.f/max_color;
+    }
+    color.clamp();
 }
 
 void LLSettingsSky::calculateLightSettings() const
@@ -1282,30 +1290,28 @@ void LLSettingsSky::calculateLightSettings() const
     }
     lighty = llmax(LIMIT, lighty);
     componentMultBy(sunlight, componentExp((light_atten * -1.f) * lighty));
+    componentMultBy(sunlight, light_transmittance);
+    clampColor(sunlight);
 
     //increase ambient when there are more clouds
     LLColor3 tmpAmbient = ambient + (smear(1.f) - ambient) * cloud_shadow;
+    componentMultBy(tmpAmbient, light_transmittance);
+    clampColor(tmpAmbient);
 
     //brightness of surface both sunlight and ambient
-    // reduce range to 0 - 1 before gamma correct to prevent clipping
-    // then restore to full 0 - 3 range before storage
-    //mSunDiffuse = gammaCorrect(componentMult(sunlight,   light_transmittance));
-    //mSunAmbient = gammaCorrect(componentMult(tmpAmbient, light_transmittance));
-
-    mSunDiffuse = componentMult(sunlight,   light_transmittance);
-    mSunAmbient = componentMult(tmpAmbient, light_transmittance);
+    mSunDiffuse = gammaCorrect(sunlight);
+    mSunAmbient = gammaCorrect(tmpAmbient);
 
     F32 moon_brightness = getIsMoonUp() ? getMoonBrightness() : 0.001f;
 
     LLColor3 moonlight = getMoonlightColor();
-    LLColor3 moonlight_b(0.33, 0.33, 1.0); // scotopic ambient value
+    LLColor3 moonlight_b(0.66, 0.66, 1.2); // scotopic ambient value
 
     componentMultBy(moonlight, componentExp((light_atten * -1.f) * lighty));
+    clampColor(moonlight);
 
-    //mMoonDiffuse  = gammaCorrect(componentMult(moonlight, light_transmittance) * moon_brightness);
-    //mMoonAmbient  = gammaCorrect(componentMult(moonlight_b, light_transmittance) * 0.0125f);
-    mMoonDiffuse  = componentMult(moonlight, light_transmittance) * moon_brightness;
-    mMoonAmbient  = componentMult(moonlight_b, light_transmittance) * 0.0125f;
+    mMoonDiffuse  = gammaCorrect(componentMult(moonlight, light_transmittance) * moon_brightness);
+    mMoonAmbient  = gammaCorrect(componentMult(moonlight_b, light_transmittance) * 0.0125f);
 
     mTotalAmbient = mSunAmbient;
 }

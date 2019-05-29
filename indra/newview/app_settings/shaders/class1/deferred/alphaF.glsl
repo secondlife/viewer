@@ -102,8 +102,6 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
         return col;
     }
 
-    dist /= la;
-
     /* clip to projector bounds
      vec4 proj_tc = proj_mat * lp;
 
@@ -117,16 +115,17 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
         return col;
     }*/
 
-    fa += 1.0;
-	if (dist > 0.0 && la > 0.0 && fa > 0.0)
+	if (dist > 0.0 && la > 0.0)
 	{
+         dist /= la;
+
 		//normalize light vector
 		lv = normalize(lv);
 	
 		//distance attenuation
 		float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
 		dist_atten *= dist_atten;
-        dist_atten *= 2.0f;
+        //dist_atten *= 2.0f;
 
         if (dist_atten <= 0.0)
         {
@@ -177,13 +176,13 @@ void main()
 
 #ifdef USE_DIFFUSE_TEX
     vec4 diffuse_srgb = texture2D(diffuseMap,vary_texcoord0.xy);
-    vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_srgb.a);
 #endif
 
 #ifdef USE_INDEXED_TEX
-    vec4 diffuse_linear = diffuseLookup(vary_texcoord0.xy);
-    vec4 diffuse_srgb = vec4(linear_to_srgb(diffuse_linear.rgb), diffuse_linear.a);
+    vec4 diffuse_srgb = diffuseLookup(vary_texcoord0.xy);
 #endif
+
+    vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_srgb.a);
 
 #ifdef FOR_IMPOSTOR
     vec4 color;
@@ -236,9 +235,7 @@ void main()
     float ambient = da;
     ambient *= 0.5;
     ambient *= ambient;
-
-    float ambient_clamp = getAmbientClamp() + 0.1;
-    ambient = (1.0 - ambient) * ambient_clamp;
+    ambient = (1.0 - ambient);
 
     vec3 sun_contrib = min(final_da, shadow) * sunlit;
 
@@ -268,7 +265,7 @@ vec3 post_atmo = color.rgb;
     // to linear!
     color.rgb = srgb_to_linear(color.rgb);
 
-   #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diffuse_srgb.rgb, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w);
+   #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diffuse_linear.rgb, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w);
 
     LIGHT_LOOP(1)
     LIGHT_LOOP(2)

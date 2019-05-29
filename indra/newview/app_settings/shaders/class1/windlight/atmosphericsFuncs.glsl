@@ -138,6 +138,6 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
 
     //brightness of surface both sunlight and ambient
     sunlit = sunlight.rgb * 0.5;
-    amblit = tmpAmbient.rgb * .25;
+    amblit = tmpAmbient.rgb * .5;
     additive *= vec3(1.0 - temp1);
 }

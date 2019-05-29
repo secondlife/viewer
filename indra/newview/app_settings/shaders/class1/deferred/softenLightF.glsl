@@ -106,10 +106,7 @@ void main()
         float ambient = da;
         ambient *= 0.5;
         ambient *= ambient;
-
         ambient = (1.0 - ambient);
-        float ambient_clamp = getAmbientClamp() + 0.1;
-        ambient *= ambient_clamp;
 
         vec3 sun_contrib = final_da * sunlit;
 

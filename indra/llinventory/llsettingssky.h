@@ -346,6 +346,7 @@ private:
 
     void        calculateHeavenlyBodyPositions() const;
     void        calculateLightSettings() const;
+    void        clampColor(LLColor3& color) const;
 
     mutable LLVector3   mSunDirection;
     mutable LLVector3   mMoonDirection;
