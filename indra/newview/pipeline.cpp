@@ -6334,7 +6334,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			LLVector4 light_pos_gl(light_pos, 1.0f);
 	
 			F32 light_radius = llmax(light->getLightRadius(), 0.001f);
-            F32 size = light_radius *  sRenderDeferred ? 1.5f : 1.0f;
+            F32 size = light_radius * (sRenderDeferred ? 1.5f : 1.0f);
 
             if (size <= 0.001f)
             {
@@ -6345,7 +6345,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			F32 linatten = x / (light_radius); // % of brightness at radius
 
             // get falloff to match for forward deferred rendering lights
-            F32 falloff = light->getLightFalloff()*0.5f + sRenderDeferred ? 0.0 : 1.f;
+            F32 falloff = light->getLightFalloff() * 0.5f + (sRenderDeferred ? 0.0 : 1.f);
 
 			mHWLightColors[cur_light] = light_color;
 			LLLightState* light_state = gGL.getLight(cur_light);
