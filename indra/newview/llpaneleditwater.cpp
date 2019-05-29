@@ -130,7 +130,7 @@ void LLPanelSettingsWaterMainTab::setEnabled(BOOL enabled)
 //==========================================================================
 void LLPanelSettingsWaterMainTab::refresh()
 {
-    if (!mWaterSettings)
+    if (!mWaterSettings || !getCanChangeSettings())
     {
         setAllChildrenEnabled(FALSE);
         setEnabled(FALSE);

@@ -161,6 +161,7 @@ public:
     BOOL	                postBuild()                 override;
 
     virtual void            onOpen(const LLSD& key)     override;
+    virtual void            onClose(bool app_quitting)  override;
 
 protected:
     virtual void            updateEditEnvironment()     override;
@@ -183,7 +184,8 @@ public:
     inline void         setIsDirty()            { mIsDirty = true; if (!mOnDirtyChanged.empty()) mOnDirtyChanged(this, mIsDirty); }
     inline void         clearIsDirty()          { mIsDirty = false; if (!mOnDirtyChanged.empty()) mOnDirtyChanged(this, mIsDirty); }
 
-    virtual void        setCanChangeSettings(bool flag);
+    inline bool        getCanChangeSettings() const    { return mCanEdit; }
+    inline void        setCanChangeSettings(bool flag) { mCanEdit = flag; }
 
     inline connection_t setOnDirtyFlagChanged(on_dirty_charged_sg::slot_type cb)    { return mOnDirtyChanged.connect(cb); }
 
@@ -197,6 +199,7 @@ protected:
 
 private:
     bool                mIsDirty;
+    bool                mCanEdit;
     
     on_dirty_charged_sg mOnDirtyChanged;
 };
