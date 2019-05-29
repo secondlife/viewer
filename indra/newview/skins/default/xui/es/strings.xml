@@ -640,7 +640,7 @@ Intenta iniciar sesión de nuevo en unos instantes.
 		Notas de la versión
 	</string>
 	<string name="RELEASE_NOTES_BASE_URL">
-		http://wiki.secondlife.com/wiki/Release_Notes/
+		https://releasenotes.secondlife.com/viewer/
 	</string>
 	<string name="LoadingData">
 		Cargando...
