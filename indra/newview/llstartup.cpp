@@ -512,9 +512,9 @@ bool idle_startup()
 			if(!start_messaging_system(
 				   message_template_path,
 				   port,
-				   LLVersionInfo::getMajor(),
-				   LLVersionInfo::getMinor(),
-				   LLVersionInfo::getPatch(),
+				   LLVersionInfo::instance().getMajor(),
+				   LLVersionInfo::instance().getMinor(),
+				   LLVersionInfo::instance().getPatch(),
 				   FALSE,
 				   std::string(),
 				   responder,
@@ -2309,8 +2309,8 @@ void login_callback(S32 option, void *userdata)
 void show_release_notes_if_required()
 {
     static bool release_notes_shown = false;
-    if (!release_notes_shown && (LLVersionInfo::getChannelAndVersion() != gLastRunVersion)
-        && LLVersionInfo::getViewerMaturity() != LLVersionInfo::TEST_VIEWER // don't show Release Notes for the test builds
+    if (!release_notes_shown && (LLVersionInfo::instance().getChannelAndVersion() != gLastRunVersion)
+        && LLVersionInfo::instance().getViewerMaturity() != LLVersionInfo::TEST_VIEWER // don't show Release Notes for the test builds
         && gSavedSettings.getBOOL("UpdaterShowReleaseNotes")
         && !gSavedSettings.getBOOL("FirstLoginThisInstall"))
     {
