@@ -34,18 +34,18 @@
 #include "llquaternion.h"
 #include "llcoordframe.h"
 
-#define CHECK_FINITE(var)                                           \
-    if (!var.isFinite())                                            \
-    {                                                               \
-        LL_ERRS() << "Non Finite " << std::string(#var) << LL_ENDL; \
-        reset();                                                    \
+#define CHECK_FINITE(var)                                            \
+    if (!var.isFinite())                                             \
+    {                                                                \
+        LL_WARNS() << "Non Finite " << std::string(#var) << LL_ENDL; \
+        reset();                                                     \
     }
 
-#define CHECK_FINITE_OBJ()                                      \
-    if (!isFinite())                                            \
-    {                                                           \
-        LL_ERRS() << "Non Finite in LLCoordFrame " << LL_ENDL;  \
-        reset();                                                \
+#define CHECK_FINITE_OBJ()                                       \
+    if (!isFinite())                                             \
+    {                                                            \
+        LL_WARNS() << "Non Finite in LLCoordFrame " << LL_ENDL;  \
+        reset();                                                 \
     }
 
 #ifndef X_AXIS
