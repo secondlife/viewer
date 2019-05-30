@@ -8403,8 +8403,11 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     
     shader.uniform4fv(LLShaderMgr::SUNLIGHT_COLOR, 1, mSunDiffuse.mV);
     shader.uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, mMoonDiffuse.mV);
+    
 
     LLEnvironment& environment = LLEnvironment::instance();
+    LLColor4 ambient(environment.getCurrentSky()->getTotalAmbient());
+    shader.uniform4fv(LLShaderMgr::AMBIENT, 1, ambient.mV);
     shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
     shader.uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, environment.getCurrentSky()->getSunMoonGlowFactor());
 
