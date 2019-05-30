@@ -26,8 +26,8 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-#include <iostream>
-#include <sstream>
+#include "llevents.h"
+#include "lleventfilter.h"
 #include "llversioninfo.h"
 #include "stringize.h"
 #include <boost/regex.hpp>
@@ -45,14 +45,19 @@
 //
 
 LLVersionInfo::LLVersionInfo():
+	short_version(STRINGIZE(LL_VIEWER_VERSION_MAJOR << "."
+							<< LL_VIEWER_VERSION_MINOR << "."
+							<< LL_VIEWER_VERSION_PATCH)),
 	// LL_VIEWER_CHANNEL is a macro defined on the compiler command line. The
 	// macro expands to the string name of the channel, but without quotes. We
 	// need to turn it into a quoted string. LL_TO_STRING() does that.
 	mWorkingChannelName(LL_TO_STRING(LL_VIEWER_CHANNEL)),
 	build_configuration(LLBUILD_CONFIG), // set in indra/cmake/BuildVersion.cmake
-	short_version(STRINGIZE(LL_VIEWER_VERSION_MAJOR << "."
-							<< LL_VIEWER_VERSION_MINOR << "."
-							<< LL_VIEWER_VERSION_PATCH))
+	// instantiate an LLEventMailDrop with canonical name to listen for news
+	// from SLVersionChecker
+	mPump{new LLEventMailDrop("relnotes")},
+	// immediately listen on mPump, store arriving URL into mReleaseNotes
+	mStore{new LLStoreListener<std::string>(*mPump, mReleaseNotes)}
 {
 }
 
@@ -65,6 +70,10 @@ void LLVersionInfo::initSingleton()
 
 	// cache the version string
 	version = STRINGIZE(getShortVersion() << "." << getBuild());
+}
+
+LLVersionInfo::~LLVersionInfo()
+{
 }
 
 S32 LLVersionInfo::getMajor()
@@ -160,4 +169,9 @@ LLVersionInfo::ViewerMaturity LLVersionInfo::getViewerMaturity()
 std::string LLVersionInfo::getBuildConfig()
 {
     return build_configuration;
+}
+
+std::string LLVersionInfo::getReleaseNotes()
+{
+    return mReleaseNotes;
 }
