@@ -95,7 +95,6 @@
 #include "llvocache.h"
 #include "llvopartgroup.h"
 #include "llweb.h"
-#include "llfloatertexturefetchdebugger.h"
 #include "llspellcheck.h"
 #include "llscenemonitor.h"
 #include "llavatarrenderinfoaccountant.h"
@@ -151,7 +150,6 @@
 #include "llworkerthread.h"
 #include "lltexturecache.h"
 #include "lltexturefetch.h"
-#include "llimageworker.h"
 #include "llevents.h"
 
 // The files below handle dependencies from cleanup.
@@ -656,9 +654,8 @@ bool LLAppViewer::sendURLToOtherInstance(const std::string& url)
 // Static members.
 // The single viewer app.
 LLAppViewer* LLAppViewer::sInstance = NULL;
-LLTextureCache* LLAppViewer::sTextureCache = NULL;
-LLImageDecodeThread* LLAppViewer::sImageDecodeThread = NULL;
-LLTextureFetch* LLAppViewer::sTextureFetch = NULL;
+LLTextureCache* LLAppViewer::sTextureCache = NULL; 
+LLTextureFetch* LLAppViewer::sTextureFetch = NULL; 
 
 std::string getRuntime()
 {
@@ -1142,6 +1139,7 @@ bool LLAppViewer::init()
 
 	gGLActive = FALSE;
 
+#if LL_RELEASE_FOR_DOWNLOAD || LL_SEND_CRASH_REPORTS
 	LLProcess::Params updater;
 	updater.desc = "updater process";
 	// Because it's the updater, it MUST persist beyond the lifespan of the
@@ -1167,18 +1165,8 @@ bool LLAppViewer::init()
 	// ForceAddressSize
 	updater.args.add(stringize(gSavedSettings.getU32("ForceAddressSize")));
 
-#if LL_WINDOWS && !LL_RELEASE_FOR_DOWNLOAD && !LL_SEND_CRASH_REPORTS
-	// This is neither a release package, nor crash-reporting enabled test build
-	// try to run version updater, but don't bother if it fails (file might be missing)
-	LLLeap *leap_p = LLLeap::create(updater, false);
-	if (!leap_p)
-	{
-		LL_WARNS("LLLeap") << "Failed to run LLLeap" << LL_ENDL;
-	}
-#else
  	// Run the updater. An exception from launching the updater should bother us.
 	LLLeap::create(updater, true);
-#endif
 
 	// Iterate over --leap command-line options. But this is a bit tricky: if
 	// there's only one, it won't be an array at all.
@@ -1210,6 +1198,7 @@ bool LLAppViewer::init()
 							 << "lleventhost no longer supported as a dynamic library"
 							 << LL_ENDL;
 	}
+#endif
 
 	LLViewerMedia::initClass();
 	LL_INFOS("InitInfo") << "Viewer media initialized." << LL_ENDL ;
@@ -1324,6 +1313,7 @@ static LLTrace::BlockTimerStatHandle FTM_YIELD("Yield");
 
 static LLTrace::BlockTimerStatHandle FTM_TEXTURE_CACHE("Texture Cache");
 static LLTrace::BlockTimerStatHandle FTM_DECODE("Image Decode");
+static LLTrace::BlockTimerStatHandle FTM_TEXTURE_FETCH("Texture Fetch");
 static LLTrace::BlockTimerStatHandle FTM_VFS("VFS Thread");
 static LLTrace::BlockTimerStatHandle FTM_LFS("LFS Thread");
 static LLTrace::BlockTimerStatHandle FTM_PAUSE_THREADS("Pause Threads");
@@ -1527,9 +1517,6 @@ bool LLAppViewer::doFrame()
 				if (milliseconds_to_sleep > 0)
 				{
 					ms_sleep(milliseconds_to_sleep);
-					// also pause worker threads during this wait period
-					LLAppViewer::getTextureCache()->pause();
-					LLAppViewer::getImageDecodeThread()->pause();
 				}
 			}
 
@@ -1572,30 +1559,14 @@ bool LLAppViewer::doFrame()
 				total_io_pending += io_pending ;
 
 			}
-			gMeshRepo.update() ;
 
-			if(!total_work_pending) //pause texture fetching threads if nothing to process.
-			{
-				LLAppViewer::getTextureCache()->pause();
-				LLAppViewer::getImageDecodeThread()->pause();
-				LLAppViewer::getTextureFetch()->pause();
-			}
+			gMeshRepo.update() ;
+			
 			if(!total_io_pending) //pause file threads if nothing to process.
 			{
-				LLVFSThread::sLocal->pause();
-				LLLFSThread::sLocal->pause();
-			}
-
-			//texture fetching debugger
-			if(LLTextureFetchDebugger::isEnabled())
-			{
-				LLFloaterTextureFetchDebugger* tex_fetch_debugger_instance =
-					LLFloaterReg::findTypedInstance<LLFloaterTextureFetchDebugger>("tex_fetch_debugger");
-				if(tex_fetch_debugger_instance)
-				{
-					tex_fetch_debugger_instance->idle() ;
-				}
-			}
+				LLVFSThread::sLocal->pause(); 
+				LLLFSThread::sLocal->pause(); 
+			}									
 
 			resumeMainloopTimeout();
 
@@ -1626,20 +1597,13 @@ bool LLAppViewer::doFrame()
 	return ! LLApp::isRunning();
 }
 
-S32 LLAppViewer::updateTextureThreads(F32 max_time)
+S32 LLAppViewer::updateTextureThreads(U32 max_time_ms)
 {
 	S32 work_pending = 0;
 	{
-		LL_RECORD_BLOCK_TIME(FTM_TEXTURE_CACHE);
- 		work_pending += LLAppViewer::getTextureCache()->update(max_time); // unpauses the texture cache thread
-	}
-	{
-		LL_RECORD_BLOCK_TIME(FTM_DECODE);
-	 	work_pending += LLAppViewer::getImageDecodeThread()->update(max_time); // unpauses the image thread
-	}
-	{
-		LL_RECORD_BLOCK_TIME(FTM_DECODE);
-	 	work_pending += LLAppViewer::getTextureFetch()->update(max_time); // unpauses the texture fetch thread
+		LL_RECORD_BLOCK_TIME(FTM_TEXTURE_FETCH);
+        LLAppViewer::instance()->getTextureFetch()->updateMaxBandwidth();
+	 	work_pending += LLAppViewer::getTextureFetch()->update(F32(max_time_ms)); // unpauses the texture fetch thread
 	}
 	return work_pending;
 }
@@ -1851,6 +1815,12 @@ bool LLAppViewer::cleanup()
 		LL_INFOS() << "ViewerWindow deleted" << LL_ENDL;
 	}
 
+    sTextureFetch->shutdown();
+	delete sTextureFetch;
+	sTextureFetch = NULL;
+	delete sTextureCache;
+	sTextureCache = NULL;
+
 	LL_INFOS() << "Cleaning up Keyboard & Joystick" << LL_ENDL;
 
 	// viewer UI relies on keyboard so keep it aound until viewer UI isa gone
@@ -1982,9 +1952,8 @@ bool LLAppViewer::cleanup()
 	while(1)
 	{
 		S32 pending = 0;
-		pending += LLAppViewer::getTextureCache()->update(1); // unpauses the worker thread
-		pending += LLAppViewer::getImageDecodeThread()->update(1); // unpauses the image thread
-		pending += LLAppViewer::getTextureFetch()->update(1); // unpauses the texture fetch thread
+        // why continuing fetching during shutdown?!
+		//pending += LLAppViewer::getTextureFetch()->update(1); // unpauses the texture fetch thread
 		pending += LLVFSThread::updateClass(0);
 		pending += LLLFSThread::updateClass(0);
 		F64 idle_time = idleTimer.getElapsedTimeF64();
@@ -2002,12 +1971,6 @@ bool LLAppViewer::cleanup()
 	// Delete workers first
 	// shotdown all worker threads before deleting them in case of co-dependencies
 	mAppCoreHttp.requestStop();
-	sTextureFetch->shutdown();
-	sTextureCache->shutdown();
-	sImageDecodeThread->shutdown();
-
-	sTextureFetch->shutDownTextureCacheThread() ;
-	sTextureFetch->shutDownImageDecodeThread() ;
 
 	LL_INFOS() << "Shutting down message system" << LL_ENDL;
 	end_messaging_system();
@@ -2018,13 +1981,6 @@ bool LLAppViewer::cleanup()
 	SUBSYSTEM_CLEANUP(LLFilePickerThread);
 	SUBSYSTEM_CLEANUP(LLDirPickerThread);
 
-	//MUST happen AFTER SUBSYSTEM_CLEANUP(LLCurl)
-	delete sTextureCache;
-    sTextureCache = NULL;
-	delete sTextureFetch;
-    sTextureFetch = NULL;
-	delete sImageDecodeThread;
-    sImageDecodeThread = NULL;
 	delete mFastTimerLogThread;
 	mFastTimerLogThread = NULL;
 
@@ -2169,12 +2125,8 @@ bool LLAppViewer::initThreads()
 	LLLFSThread::initClass(enable_threads && false);
 
 	// Image decoding
-	LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);
-	LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
-	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(),
-													sImageDecodeThread,
-													enable_threads && true,
-													app_metrics_qa_mode);
+	LLAppViewer::sTextureCache = new LLTextureCache();
+	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(), app_metrics_qa_mode);	
 
 	if (LLTrace::BlockTimer::sLog || LLTrace::BlockTimer::sMetricLog)
 	{
@@ -3080,6 +3032,9 @@ void LLAppViewer::writeDebugInfo(bool isStatic)
 
     isStatic ?  LLSDSerialize::toPrettyXML(gDebugInfo, out_file)
              :  LLSDSerialize::toPrettyXML(gDebugInfo["Dynamic"], out_file);
+
+
+	out_file.close();
 }
 
 LLSD LLAppViewer::getViewerInfo() const
@@ -3105,11 +3060,17 @@ LLSD LLAppViewer::getViewerInfo() const
     }
 
 	// return a URL to the release notes for this viewer, such as:
-	// https://releasenotes.secondlife.com/viewer/2.1.0.123456.html
+	// http://wiki.secondlife.com/wiki/Release_Notes/Second Life Beta Viewer/2.1.0.123456
 	std::string url = LLTrans::getString("RELEASE_NOTES_BASE_URL");
 	if (! LLStringUtil::endsWith(url, "/"))
 		url += "/";
-	url += LLURI::escape(LLVersionInfo::getVersion()) + ".html";
+	std::string channel = LLVersionInfo::getChannel();
+	if (LLStringUtil::endsWith(boost::to_lower_copy(channel), " edu")) // Release Notes url shouldn't include the EDU parameter
+	{
+		boost::erase_tail(channel, 4);
+	}
+	url += LLURI::escape(channel) + "/";
+	url += LLURI::escape(LLVersionInfo::getVersion());
 
 	info["VIEWER_RELEASE_NOTES_URL"] = url;
 
