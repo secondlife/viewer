@@ -50,7 +50,6 @@ private:
     typedef std::vector<LLSingletonBase*> vec_t;
     static vec_t dep_sort();
 
-    bool mCleaned;                  // cleanupSingleton() has been called
     // we directly depend on these other LLSingletons
     typedef boost::unordered_set<LLSingletonBase*> set_t;
     set_t mDepends;
@@ -142,32 +141,15 @@ protected:
 
 public:
     /**
-     * Call this to call the cleanupSingleton() method for every LLSingleton
-     * constructed since the start of the last cleanupAll() call. (Any
-     * LLSingleton constructed DURING a cleanupAll() call won't be cleaned up
-     * until the next cleanupAll() call.) cleanupSingleton() neither deletes
-     * nor destroys its LLSingleton; therefore it's safe to include logic that
-     * might take significant realtime or even throw an exception.
-     *
-     * The most important property of cleanupAll() is that cleanupSingleton()
-     * methods are called in dependency order, leaf classes last. Thus, given
-     * two LLSingleton subclasses A and B, if A's dependency on B is properly
-     * expressed as a B::getInstance() or B::instance() call during either
-     * A::A() or A::initSingleton(), B will be cleaned up after A.
-     *
-     * If a cleanupSingleton() method throws an exception, the exception is
-     * logged, but cleanupAll() attempts to continue calling the rest of the
-     * cleanupSingleton() methods.
-     */
-    static void cleanupAll();
-    /**
-     * Call this to call the deleteSingleton() method for every LLSingleton
-     * constructed since the start of the last deleteAll() call. (Any
-     * LLSingleton constructed DURING a deleteAll() call won't be cleaned up
-     * until the next deleteAll() call.) deleteSingleton() deletes and
-     * destroys its LLSingleton. Any cleanup logic that might take significant
-     * realtime -- or throw an exception -- must not be placed in your
-     * LLSingleton's destructor, but rather in its cleanupSingleton() method.
+     * deleteAll() calls the cleanupSingleton() and deleteSingleton() methods
+     * for every LLSingleton constructed since the start of the last
+     * deleteAll() call. (Any LLSingleton constructed DURING a deleteAll()
+     * call won't be cleaned up until the next deleteAll() call.)
+     * deleteSingleton() deletes and destroys its LLSingleton. Any cleanup
+     * logic that might take significant realtime -- or throw an exception --
+     * must not be placed in your LLSingleton's destructor, but rather in its
+     * cleanupSingleton() method, which is called implicitly by
+     * deleteSingleton().
      *
      * The most important property of deleteAll() is that deleteSingleton()
      * methods are called in dependency order, leaf classes last. Thus, given
@@ -175,9 +157,9 @@ public:
      * expressed as a B::getInstance() or B::instance() call during either
      * A::A() or A::initSingleton(), B will be cleaned up after A.
      *
-     * If a deleteSingleton() method throws an exception, the exception is
-     * logged, but deleteAll() attempts to continue calling the rest of the
-     * deleteSingleton() methods.
+     * If a cleanupSingleton() or deleteSingleton() method throws an
+     * exception, the exception is logged, but deleteAll() attempts to
+     * continue calling the rest of the deleteSingleton() methods.
      */
     static void deleteAll();
 };
@@ -226,7 +208,6 @@ struct LLSingleton_manage_master<LLSingletonBase::MasterList>
 // Now we can implement LLSingletonBase's template constructor.
 template <typename DERIVED_TYPE>
 LLSingletonBase::LLSingletonBase(tag<DERIVED_TYPE>):
-    mCleaned(false),
     mDeleteSingleton(nullptr)
 {
     // This is the earliest possible point at which we can push this new
@@ -269,10 +250,19 @@ class LLParamSingleton;
  * leading back to yours, move the instance reference from your constructor to
  * your initSingleton() method.
  *
- * If you override LLSingleton<T>::cleanupSingleton(), your method will be
- * called if someone calls LLSingletonBase::cleanupAll(). The significant part
- * of this promise is that cleanupAll() will call individual
- * cleanupSingleton() methods in reverse dependency order.
+ * If you override LLSingleton<T>::cleanupSingleton(), your method will
+ * implicitly be called by LLSingleton<T>::deleteSingleton() just before the
+ * instance is destroyed. We introduce a special cleanupSingleton() method
+ * because cleanupSingleton() operations can involve nontrivial realtime, or
+ * throw an exception. A destructor should do neither!
+ *
+ * If your cleanupSingleton() method throws an exception, we log that
+ * exception but carry on.
+ *
+ * If at some point you call LLSingletonBase::deleteAll(), all remaining
+ * LLSingleton<T> instances will be destroyed in reverse dependency order. (Or
+ * call MySubclass::deleteSingleton() to specifically destroy the canonical
+ * MySubclass instance.)
  *
  * That is, consider LLSingleton subclasses C, B and A. A depends on B, which
  * in turn depends on C. These dependencies are expressed as calls to
@@ -280,26 +270,14 @@ class LLParamSingleton;
  * It shouldn't matter whether these calls appear in A::A() or
  * A::initSingleton(), likewise B::B() or B::initSingleton().
  *
- * We promise that if you later call LLSingletonBase::cleanupAll():
- * 1. A::cleanupSingleton() will be called before
- * 2. B::cleanupSingleton(), which will be called before
- * 3. C::cleanupSingleton().
+ * We promise that if you later call LLSingletonBase::deleteAll():
+ * 1. A::deleteSingleton() will be called before
+ * 2. B::deleteSingleton(), which will be called before
+ * 3. C::deleteSingleton().
  * Put differently, if your LLSingleton subclass constructor or
  * initSingleton() method explicitly depends on some other LLSingleton
  * subclass, you may continue to rely on that other subclass in your
  * cleanupSingleton() method.
- *
- * We introduce a special cleanupSingleton() method because cleanupSingleton()
- * operations can involve nontrivial realtime, or might throw an exception. A
- * destructor should do neither!
- *
- * If your cleanupSingleton() method throws an exception, we log that
- * exception but proceed with the remaining cleanupSingleton() calls.
- *
- * Similarly, if at some point you call LLSingletonBase::deleteAll(), all
- * remaining LLSingleton instances will be destroyed in dependency order. (Or
- * call MySubclass::deleteSingleton() to specifically destroy the canonical
- * MySubclass instance.)
  */
 template <typename DERIVED_TYPE>
 class LLSingleton : public LLSingletonBase
@@ -445,25 +423,18 @@ protected:
 
 public:
     /**
-     * @brief Immediately delete the singleton.
+     * @brief Cleanup and destroy the singleton instance.
      *
-     * A subsequent call to LLProxy::getInstance() will construct a new
+     * deleteSingleton() calls this instance's cleanupSingleton() method and
+     * then destroys the instance.
+     *
+     * A subsequent call to LLSingleton<T>::getInstance() will construct a new
      * instance of the class.
      *
-     * Without an explicit call to LLSingletonBase::deleteAll(), LLSingletons
-     * are implicitly destroyed after main() has exited and the C++ runtime is
-     * cleaning up statically-constructed objects. Some classes derived from
-     * LLSingleton have objects that are part of a runtime system that is
-     * terminated before main() exits. Calling the destructor of those objects
-     * after the termination of their respective systems can cause crashes and
-     * other problems during termination of the project. Using this method to
-     * destroy the singleton early can prevent these crashes.
-     *
-     * An example where this is needed is for a LLSingleton that has an APR
-     * object as a member that makes APR calls on destruction. The APR system is
-     * shut down explicitly before main() exits. This causes a crash on exit.
-     * Using this method before the call to apr_terminate() and NOT calling
-     * getInstance() again will prevent the crash.
+     * Without an explicit call to LLSingletonBase::deleteAll(), or
+     * LLSingleton<T>::deleteSingleton(), LLSingleton instances are simply
+     * leaked. (Allowing implicit destruction at shutdown caused too many
+     * problems.)
      */
     static void deleteSingleton()
     {
