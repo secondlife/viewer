@@ -142,8 +142,6 @@ namespace tut
                                                                         \
         (void)CLS::instance();                                          \
         ensure_equals(sLog, #CLS "i" #CLS);                             \
-        LLSingletonBase::cleanupAll();                                  \
-        ensure_equals(sLog, #CLS "i" #CLS "x" #CLS);                    \
         LLSingletonBase::deleteAll();                                   \
         ensure_equals(sLog, #CLS "i" #CLS "x" #CLS "~" #CLS);           \
     }                                                                   \
@@ -158,10 +156,8 @@ namespace tut
                                                                         \
         (void)CLS::instance();                                          \
         ensure_equals(sLog, #CLS #OTHER "i" #OTHER "i" #CLS);           \
-        LLSingletonBase::cleanupAll();                                  \
-        ensure_equals(sLog, #CLS #OTHER "i" #OTHER "i" #CLS "x" #CLS "x" #OTHER); \
         LLSingletonBase::deleteAll();                                   \
-        ensure_equals(sLog, #CLS #OTHER "i" #OTHER "i" #CLS "x" #CLS "x" #OTHER "~" #CLS "~" #OTHER); \
+        ensure_equals(sLog, #CLS #OTHER "i" #OTHER "i" #CLS "x" #CLS "~" #CLS "x" #OTHER "~" #OTHER); \
     }                                                                   \
                                                                         \
     template<> template<>                                               \
@@ -174,10 +170,8 @@ namespace tut
                                                                         \
         (void)CLS::instance();                                          \
         ensure_equals(sLog, #CLS "i" #CLS #OTHER "i" #OTHER);           \
-        LLSingletonBase::cleanupAll();                                  \
-        ensure_equals(sLog, #CLS "i" #CLS #OTHER "i" #OTHER "x" #CLS "x" #OTHER); \
         LLSingletonBase::deleteAll();                                   \
-        ensure_equals(sLog, #CLS "i" #CLS #OTHER "i" #OTHER "x" #CLS "x" #OTHER "~" #CLS "~" #OTHER); \
+        ensure_equals(sLog, #CLS "i" #CLS #OTHER "i" #OTHER "x" #CLS "~" #CLS "x" #OTHER "~" #OTHER); \
     }                                                                   \
                                                                         \
     template<> template<>                                               \
@@ -190,10 +184,8 @@ namespace tut
                                                                         \
         (void)CLS::instance();                                          \
         ensure_equals(sLog, #CLS "i" #CLS #OTHER "i" #OTHER);           \
-        LLSingletonBase::cleanupAll();                                  \
-        ensure_equals(sLog, #CLS "i" #CLS #OTHER "i" #OTHER "x" #CLS "x" #OTHER); \
         LLSingletonBase::deleteAll();                                   \
-        ensure_equals(sLog, #CLS "i" #CLS #OTHER "i" #OTHER "x" #CLS "x" #OTHER "~" #CLS "~" #OTHER); \
+        ensure_equals(sLog, #CLS "i" #CLS #OTHER "i" #OTHER "x" #CLS "~" #CLS "x" #OTHER "~" #OTHER); \
     }
 
     TESTS(A, B, 4, 5, 6, 7)
