@@ -142,6 +142,31 @@ template<typename Input> LLSD llsd_copy_array(Input iter, Input end)
 	return dest;
 }
 
+namespace llsd
+{
+
+/**
+ * Drill down to locate an element in 'blob' according to 'path', where 'path'
+ * is one of the following:
+ *
+ * - LLSD::String: 'blob' is an LLSD::Map. Find the entry with key 'path'.
+ * - LLSD::Integer: 'blob' is an LLSD::Array. Find the entry with index 'path'.
+ * - Any other 'path' type will be interpreted as LLSD::Array, and 'blob' is a
+ *   nested structure. For each element of 'path':
+ *   - If it's an LLSD::Integer, select the entry with that index from an
+ *     LLSD::Array at that level.
+ *   - If it's an LLSD::String, select the entry with that key from an
+ *     LLSD::Map at that level.
+ *   - Anything else is an error.
+ *
+ * By implication, if path.isUndefined() or otherwise equivalent to an empty
+ * LLSD::Array, drill() returns 'blob' as is.
+ */
+LLSD  drill(const LLSD& blob, const LLSD& path);
+LLSD& drill(      LLSD& blob, const LLSD& path);
+
+}
+
 /*****************************************************************************
 *   LLSDArray
 *****************************************************************************/
