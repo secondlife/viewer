@@ -41,6 +41,7 @@ const S32 SIZE_OF_ONE_KB = 1024;
 LLFloaterMyScripts::LLFloaterMyScripts(const LLSD& seed)
 	: LLFloater(seed), 
 	mGotAttachmentMemoryUsed(false),
+	mAttachmentDetailsRequested(false),
 	mAttachmentMemoryMax(0),
 	mAttachmentMemoryUsed(0),
 	mGotAttachmentURLsUsed(false),
@@ -55,12 +56,24 @@ BOOL LLFloaterMyScripts::postBuild()
 
 	std::string msg_waiting = LLTrans::getString("ScriptLimitsRequestWaiting");
 	getChild<LLUICtrl>("loading_text")->setValue(LLSD(msg_waiting));
-	return requestAttachmentDetails();
+	mAttachmentDetailsRequested = requestAttachmentDetails();
+	return TRUE;
 }
 
-BOOL LLFloaterMyScripts::requestAttachmentDetails()
+// virtual
+void LLFloaterMyScripts::onOpen(const LLSD& key)
 {
-	if (!gAgent.getRegion()) return FALSE;
+    if (!mAttachmentDetailsRequested)
+    {
+        mAttachmentDetailsRequested = requestAttachmentDetails();
+    }
+
+    LLFloater::onOpen(key);
+}
+
+bool LLFloaterMyScripts::requestAttachmentDetails()
+{
+	if (!gAgent.getRegion()) return false;
 
 	LLSD body;
 	std::string url = gAgent.getRegion()->getCapability("AttachmentResources");
@@ -68,11 +81,11 @@ BOOL LLFloaterMyScripts::requestAttachmentDetails()
 	{
 		LLCoros::instance().launch("LLFloaterMyScripts::getAttachmentLimitsCoro",
 			boost::bind(&LLFloaterMyScripts::getAttachmentLimitsCoro, this, url));
-		return TRUE;
+		return true;
 	}
 	else
 	{
-		return FALSE;
+		return false;
 	}
 }
 
@@ -284,7 +297,7 @@ void LLFloaterMyScripts::onClickRefresh(void* userdata)
 			btn->setEnabled(false);
 		}
 		instance->clearList();
-		instance->requestAttachmentDetails();
+		instance->mAttachmentDetailsRequested = instance->requestAttachmentDetails();
 	}
 	else
 	{
