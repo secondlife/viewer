@@ -315,7 +315,7 @@ public:
 	void enableLightsAvatar();
 	void enableLightsPreview();
 	void enableLightsAvatarEdit(const LLColor4& color);
-	void enableLightsFullbright(const LLColor4& color);
+	void enableLightsFullbright();
 	void disableLights();
 
 	void shiftObjects(const LLVector3 &offset);

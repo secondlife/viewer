@@ -4016,7 +4016,7 @@ BOOL LLModelPreview::render()
 
 					glLineWidth(3.f);
 					glPointSize(8.f);
-					gPipeline.enableLightsFullbright(LLColor4::white);
+					gPipeline.enableLightsFullbright();
 					//show degenerate triangles
 					LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
 					LLGLDisable cull(GL_CULL_FACE);
