@@ -7532,7 +7532,7 @@ void LLPipeline::renderBloom(bool for_snapshot, F32 zoom_factor, int subfield)
 	LLGLDisable blend(GL_BLEND);
 	LLGLDisable cull(GL_CULL_FACE);
 	
-	enableLightsFullbright(LLColor4(1,1,1,1));
+	enableLightsFullbright();
 
 	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.pushMatrix();
@@ -7574,7 +7574,7 @@ void LLPipeline::renderBloom(bool for_snapshot, F32 zoom_factor, int subfield)
 		mScreen.bindTexture(0, 0, LLTexUnit::TFO_POINT);
 		
 		gGL.color4f(1,1,1,1);
-		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+		gPipeline.enableLightsFullbright();
 		gGL.begin(LLRender::TRIANGLE_STRIP);
 		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
 		gGL.vertex2f(-1,-1);
