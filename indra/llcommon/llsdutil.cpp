@@ -691,9 +691,10 @@ namespace llsd
 LLSD& drill(LLSD& blob, const LLSD& rawPath)
 {
     // Treat rawPath uniformly as an array. If it's not already an array,
-    // store it as the only entry in one.
+    // store it as the only entry in one. (But let's say Undefined means an
+    // empty array.)
     LLSD path;
-    if (rawPath.isArray())
+    if (rawPath.isArray() || rawPath.isUndefined())
     {
         path = rawPath;
     }
