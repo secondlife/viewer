@@ -3061,16 +3061,12 @@ LLSD LLAppViewer::getViewerInfo() const
 	// is available to a getInfo() caller as to the user opening
 	// LLFloaterAbout.
 	LLSD info;
-	LLSD version;
-	version.append(LLVersionInfo::instance().getMajor());
-	version.append(LLVersionInfo::instance().getMinor());
-	version.append(LLVersionInfo::instance().getPatch());
-	version.append(LLVersionInfo::instance().getBuild());
-	info["VIEWER_VERSION"] = version;
-	info["VIEWER_VERSION_STR"] = LLVersionInfo::instance().getVersion();
-	info["CHANNEL"] = LLVersionInfo::instance().getChannel();
+	auto& versionInfo{ LLVersionInfo::instance() };
+	info["VIEWER_VERSION"] = LLSDArray(versionInfo.getMajor())(versionInfo.getMinor())(versionInfo.getPatch())(versionInfo.getBuild());
+	info["VIEWER_VERSION_STR"] = versionInfo.getVersion();
+	info["CHANNEL"] = versionInfo.getChannel();
     info["ADDRESS_SIZE"] = ADDRESS_SIZE;
-    std::string build_config = LLVersionInfo::instance().getBuildConfig();
+    std::string build_config = versionInfo.getBuildConfig();
     if (build_config != "Release")
     {
         info["BUILD_CONFIG"] = build_config;
@@ -3078,12 +3074,8 @@ LLSD LLAppViewer::getViewerInfo() const
 
 	// return a URL to the release notes for this viewer, such as:
 	// https://releasenotes.secondlife.com/viewer/2.1.0.123456.html
-	std::string url = LLTrans::getString("RELEASE_NOTES_BASE_URL");
-	if (! LLStringUtil::endsWith(url, "/"))
-		url += "/";
-	url += LLURI::escape(LLVersionInfo::instance().getVersion()) + ".html";
-
-	info["VIEWER_RELEASE_NOTES_URL"] = url;
+	std::string url = versionInfo.getReleaseNotes();
+	info["VIEWER_RELEASE_NOTES_URL"] = url.empty()? LLTrans::getString("RetrievingData") : url;
 
 	// Position
 	LLViewerRegion* region = gAgent.getRegion();
