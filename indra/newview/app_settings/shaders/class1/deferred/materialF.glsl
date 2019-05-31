@@ -243,6 +243,7 @@ void main()
 #endif
 
     diffuse_linear.rgb *= vertex_color.rgb;
+    diffuse_srgb.rgb *= linear_to_srgb(vertex_color.rgb);
 
 #ifdef HAS_SPECULAR_MAP
     vec4 spec = texture2D(specularMap, vary_texcoord2.xy);
