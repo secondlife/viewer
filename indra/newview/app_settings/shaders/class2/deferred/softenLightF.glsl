@@ -119,7 +119,7 @@ void main()
         vec3 sun_contrib = min(scol, final_da) * sunlit;
 
 #if !defined(AMBIENT_KILL)
-        color.rgb = amblit;
+        color.rgb = amblit * 0.5;
         color.rgb *= ambient;
 #endif
 

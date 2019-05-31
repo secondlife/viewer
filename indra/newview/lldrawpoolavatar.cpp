@@ -801,7 +801,7 @@ void LLDrawPoolAvatar::beginImpostor()
 		gImpostorProgram.setMinimumAlpha(0.01f);
 	}
 
-	gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+	gPipeline.enableLightsFullbright();
 	sDiffuseChannel = 0;
 }
 

@@ -447,7 +447,7 @@ void LLDrawPoolFullbrightAlphaMask::render(S32 pass)
 	else
 	{
 		LLGLEnable test(GL_ALPHA_TEST);
-		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+		gPipeline.enableLightsFullbright();
 		pushMaskBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, getVertexDataMask(), TRUE, FALSE);
 		gPipeline.enableLightsDynamic();
 		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT); //OK
@@ -750,7 +750,7 @@ void LLDrawPoolFullbright::render(S32 pass)
 	}
 	else
 	{
-		gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+		gPipeline.enableLightsFullbright();
 		U32 fullbright_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_COLOR;
 		renderTexture(LLRenderPass::PASS_FULLBRIGHT, fullbright_mask);
 		pushBatches(LLRenderPass::PASS_MATERIAL_ALPHA_EMISSIVE, fullbright_mask);

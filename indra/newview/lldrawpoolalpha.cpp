@@ -300,7 +300,7 @@ void LLDrawPoolAlpha::render(S32 pass)
 		}
 		else
 		{
-			gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+			gPipeline.enableLightsFullbright();
 		}
 
 		gGL.diffuseColor4f(1,0,0,1);
@@ -487,7 +487,7 @@ void LLDrawPoolAlpha::renderSimples(U32 mask, std::vector<LLDrawInfo*>& simples)
 
 void LLDrawPoolAlpha::renderFullbrights(U32 mask, std::vector<LLDrawInfo*>& fullbrights)
 {
-    gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+    gPipeline.enableLightsFullbright();
     fullbright_shader->bind();
     fullbright_shader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, 1.0f);
     bool use_shaders = gPipeline.canUseVertexShaders();
@@ -698,7 +698,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 						}
 						else
 						{
-							gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
+							gPipeline.enableLightsFullbright();
 						}
 						light_enabled = FALSE;
 					}

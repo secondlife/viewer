@@ -6191,22 +6191,15 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
     
     LLEnvironment& environment = LLEnvironment::instance();
     LLSettingsSky::ptr_t psky = environment.getCurrentSky();
-	
-	// Ambient
+
 	if (!LLGLSLShader::sNoFixedFunction)
 	{
-		gGL.syncMatrices();
-		LLColor4 ambient = psky->getTotalAmbient();
-		gGL.setAmbientLightColor(ambient);
+		gGL.syncMatrices();	
 	}
 
     // Ambient
-    if (!LLGLSLShader::sNoFixedFunction)
-    {
-        gGL.syncMatrices();
-        LLColor4 ambient = psky->getTotalAmbient();
-        gGL.setAmbientLightColor(ambient);
-    }
+    LLColor4 ambient = psky->getTotalAmbient();
+    gGL.setAmbientLightColor(ambient);
 
     bool sun_up  = environment.getIsSunUp();
     bool moon_up = environment.getIsMoonUp();
@@ -6502,9 +6495,6 @@ void LLPipeline::enableLights(U32 mask)
 		}
 		mLightMask = mask;
 		stop_glerror();
-
-		LLColor4 ambient = LLEnvironment::instance().getCurrentSky()->getTotalAmbient();
-		gGL.setAmbientLightColor(ambient);
 	}
 }
 
@@ -6620,13 +6610,11 @@ void LLPipeline::enableLightsAvatarEdit(const LLColor4& color)
 	gGL.setAmbientLightColor(color);
 }
 
-void LLPipeline::enableLightsFullbright(const LLColor4& color)
+void LLPipeline::enableLightsFullbright()
 {
 	assertInitialized();
 	U32 mask = 0x1000; // Non-0 mask, set ambient
 	enableLights(mask);
-
-	gGL.setAmbientLightColor(color);
 }
 
 void LLPipeline::disableLights()
