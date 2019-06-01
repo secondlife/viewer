@@ -3061,7 +3061,7 @@ LLSD LLAppViewer::getViewerInfo() const
 	// is available to a getInfo() caller as to the user opening
 	// LLFloaterAbout.
 	LLSD info;
-	auto& versionInfo{ LLVersionInfo::instance() };
+	auto& versionInfo(LLVersionInfo::instance());
 	info["VIEWER_VERSION"] = LLSDArray(versionInfo.getMajor())(versionInfo.getMinor())(versionInfo.getPatch())(versionInfo.getBuild());
 	info["VIEWER_VERSION_STR"] = versionInfo.getVersion();
 	info["CHANNEL"] = versionInfo.getChannel();
