@@ -409,6 +409,9 @@ public:
 
     void showPick(const LLUUID& pick_id = LLUUID::null);
     bool isPickTabSelected();
+    bool isNotesTabSelected();
+
+    void updateBtnsVisibility();
 
     void showClassified(const LLUUID& classified_id = LLUUID::null, bool edit = false);
 

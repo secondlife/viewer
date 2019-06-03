@@ -54,12 +54,6 @@ void LLFloaterProfile::onOpen(const LLSD& key)
 {
     mPanelProfile->onOpen(key);
 
-    if (mAvatarId == gAgentID)
-    {
-        getChild<LLUICtrl>("ok_btn")->setVisible(TRUE);
-        getChild<LLUICtrl>("cancel_btn")->setVisible(TRUE);
-    }
-
     // Update the avatar name.
     mNameCallbackConnection = LLAvatarNameCache::get(mAvatarId, boost::bind(&LLFloaterProfile::onAvatarNameCache, this, _1, _2));
 }
@@ -91,11 +85,7 @@ void LLFloaterProfile::showClassified(const LLUUID& classified_id, bool edit)
 
 void LLFloaterProfile::onOKBtn()
 {
-    if (mAvatarId == gAgentID)
-    {
-        mPanelProfile->apply();
-    }
-
+    mPanelProfile->apply();
     closeFloater();
 }
 

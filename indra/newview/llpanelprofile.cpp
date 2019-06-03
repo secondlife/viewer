@@ -1514,6 +1514,13 @@ void LLPanelProfile::onTabChange()
     {
         active_panel->updateData();
     }
+    updateBtnsVisibility();
+}
+
+void LLPanelProfile::updateBtnsVisibility()
+{
+    getChild<LLUICtrl>("ok_btn")->setVisible(((getSelfProfile() && !getEmbedded()) || isNotesTabSelected()));
+    getChild<LLUICtrl>("cancel_btn")->setVisible(((getSelfProfile() && !getEmbedded()) || isNotesTabSelected()));
 }
 
 void LLPanelProfile::onOpen(const LLSD& key)
@@ -1557,12 +1564,7 @@ void LLPanelProfile::onOpen(const LLSD& key)
     resetLoading();
     updateData();
 
-    // Only show commit buttons on own profile on floater version
-    if (getSelfProfile() && !getEmbedded())
-    {
-        getChild<LLUICtrl>("ok_btn")->setVisible(TRUE);
-        getChild<LLUICtrl>("cancel_btn")->setVisible(TRUE);
-    }
+    updateBtnsVisibility();
 
     // KC - Not handling pick and classified opening thru onOpen
     // because this would make unique profile floaters per slurl
@@ -1597,6 +1599,10 @@ void LLPanelProfile::apply()
 
         //KC - Classifieds handles this itself
     }
+    else
+    {
+        mPanelNotes->apply();
+    }
 }
 
 void LLPanelProfile::showPick(const LLUUID& pick_id)
@@ -1613,6 +1619,10 @@ bool LLPanelProfile::isPickTabSelected()
 	return (mTabContainer->getCurrentPanel() == mPanelPicks);
 }
 
+bool LLPanelProfile::isNotesTabSelected()
+{
+	return (mTabContainer->getCurrentPanel() == mPanelNotes);
+}
 
 void LLPanelProfile::showClassified(const LLUUID& classified_id, bool edit)
 {
