@@ -1203,7 +1203,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("fullbright");
 	mReservedUniforms.push_back("lightnorm");
 	mReservedUniforms.push_back("sunlight_color");
-	mReservedUniforms.push_back("ambient");
+	mReservedUniforms.push_back("ambient_color");
 	mReservedUniforms.push_back("blue_horizon");
 	mReservedUniforms.push_back("blue_density");
 	mReservedUniforms.push_back("haze_horizon");

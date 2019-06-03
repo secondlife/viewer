@@ -27,7 +27,7 @@ uniform vec4 lightnorm;
 uniform vec4 sunlight_color;
 uniform vec4 moonlight_color;
 uniform int sun_up_factor;
-uniform vec4 ambient;
+uniform vec4 ambient_color;
 uniform vec4 blue_horizon;
 uniform vec4 blue_density;
 uniform float haze_horizon;
@@ -118,7 +118,7 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
     temp2.x *= sun_moon_glow_factor;
     
     //increase ambient when there are more clouds
-    vec4 tmpAmbient = ambient + (vec4(1.) - ambient) * cloud_shadow * 0.5;
+    vec4 tmpAmbient = ambient_color + (vec4(1.) - ambient_color) * cloud_shadow * 0.5;
     
     /*  decrease value and saturation (that in HSV, not HSL) for occluded areas
      * // for HSV color/geometry used here, see http://gimp-savvy.com/BOOK/index.html?node52.html

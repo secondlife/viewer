@@ -49,7 +49,6 @@ uniform vec4 cloud_color;
 uniform float cloud_shadow;
 uniform float cloud_scale;
 uniform float cloud_variance;
-uniform vec3 ambient;
 uniform vec3 camPosLocal;
 uniform vec3 sun_dir;
 uniform float sun_size;

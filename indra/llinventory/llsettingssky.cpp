@@ -1176,7 +1176,7 @@ LLColor3 LLSettingsSky::getTotalDensity() const
 // this is used later for sunlight modulation at various altitudes
 LLColor3 LLSettingsSky::getLightAttenuation(F32 distance) const
 {
-    F32         density_multiplier = getDensityMultiplier() * 0.45f;
+    F32         density_multiplier = getDensityMultiplier();
     LLColor3    blue_density       = getBlueDensity();
     F32         haze_density       = getHazeDensity();
     // Approximate line integral over requested distance
@@ -1187,7 +1187,7 @@ LLColor3 LLSettingsSky::getLightAttenuation(F32 distance) const
 LLColor3 LLSettingsSky::getLightTransmittance() const
 {
     LLColor3 total_density      = getTotalDensity();
-    F32      density_multiplier = getDensityMultiplier() * 0.45f;
+    F32      density_multiplier = getDensityMultiplier();
     // Transparency (-> density) from Beer's law
     LLColor3 transmittance = componentExp(total_density * -density_multiplier);
     return transmittance;
@@ -1294,7 +1294,7 @@ void LLSettingsSky::calculateLightSettings() const
     clampColor(sunlight);
 
     //increase ambient when there are more clouds
-    LLColor3 tmpAmbient = ambient + (smear(1.f) - ambient) * cloud_shadow;
+    LLColor3 tmpAmbient = ambient + (smear(1.f) - ambient) * cloud_shadow * 0.5;
     componentMultBy(tmpAmbient, light_transmittance);
     clampColor(tmpAmbient);
 

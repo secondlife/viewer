@@ -36,7 +36,7 @@ uniform vec4 lightnorm;
 uniform vec4 sunlight_color;
 uniform vec4 moonlight_color;
 uniform int sun_up_factor;
-uniform vec4 ambient;
+uniform vec4 ambient_color;
 uniform vec4 blue_horizon;
 uniform vec4 blue_density;
 uniform float haze_horizon;
@@ -162,13 +162,13 @@ void main()
     temp2.x *= sun_moon_glow_factor;
 
     // Haze color above cloud
-    vec4 color = (    blue_horizon * blue_weight * (sunlight + ambient)
-                + (haze_horizon * haze_weight) * (sunlight * temp2.x + ambient)
+    vec4 color = (    blue_horizon * blue_weight * (sunlight + ambient_color)
+                + (haze_horizon * haze_weight) * (sunlight * temp2.x + ambient_color)
              ); 
 
 
     // Increase ambient when there are more clouds
-    vec4 tmpAmbient = ambient;
+    vec4 tmpAmbient = ambient_color;
     tmpAmbient += (1. - tmpAmbient) * cloud_shadow * 0.5; 
 
     // Dim sunlight by cloud shadow percentage

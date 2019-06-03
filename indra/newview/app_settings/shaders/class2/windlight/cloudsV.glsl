@@ -49,7 +49,7 @@ uniform vec4 lightnorm;
 uniform vec4 sunlight_color;
 uniform vec4 moonlight_color;
 uniform int sun_up_factor;
-uniform vec4 ambient;
+uniform vec4 ambient_color;
 uniform vec4 blue_horizon;
 uniform vec4 blue_density;
 uniform float haze_horizon;
@@ -147,7 +147,7 @@ void main()
     temp2.x += .25;
 
     // Increase ambient when there are more clouds
-    vec4 tmpAmbient = ambient;
+    vec4 tmpAmbient = ambient_color;
     tmpAmbient += (1. - tmpAmbient) * cloud_shadow * 0.5; 
 
     // Dim sunlight by cloud shadow percentage
