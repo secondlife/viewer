@@ -2994,6 +2994,7 @@ BOOL LLWindowWin32::restoreGamma()
 {
 	if (mCustomGammaSet != FALSE)
 	{
+        LL_DEBUGS("Window") << "Restoring gamma" << LL_ENDL;
 		mCustomGammaSet = FALSE;
 		return SetDeviceGammaRamp(mhDC, mPrevGammaRamp);
 	}
@@ -3007,8 +3008,15 @@ BOOL LLWindowWin32::setGamma(const F32 gamma)
 	//Get the previous gamma ramp to restore later.
 	if (mCustomGammaSet == FALSE)
 	{
-		if (GetDeviceGammaRamp(mhDC, mPrevGammaRamp) == FALSE)
-			return FALSE;
+        if (!gGLManager.mIsIntel) // skip for Intel GPUs (see SL-11341)
+        {
+            LL_DEBUGS("Window") << "Getting the previous gamma ramp to restore later" << LL_ENDL;
+            if(GetDeviceGammaRamp(mhDC, mPrevGammaRamp) == FALSE)
+            {
+                LL_WARNS("Window") << "Failed to get the previous gamma ramp" << LL_ENDL;
+                return FALSE;
+            }
+        }
 		mCustomGammaSet = TRUE;
 	}
 
