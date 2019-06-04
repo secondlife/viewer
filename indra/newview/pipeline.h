@@ -925,6 +925,7 @@ public:
 	static F32 RenderShadowBias;
 	static F32 RenderSpotShadowOffset;
 	static F32 RenderSpotShadowBias;
+    static LLDrawable* RenderSpotLight;
 	static F32 RenderEdgeDepthCutoff;
 	static F32 RenderEdgeNormCutoff;
 	static LLVector3 RenderShadowGaussian;

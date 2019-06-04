@@ -188,6 +188,7 @@ F32 LLPipeline::RenderShadowOffset;
 F32 LLPipeline::RenderShadowBias;
 F32 LLPipeline::RenderSpotShadowOffset;
 F32 LLPipeline::RenderSpotShadowBias;
+LLDrawable* LLPipeline::RenderSpotLight = nullptr;
 F32 LLPipeline::RenderEdgeDepthCutoff;
 F32 LLPipeline::RenderEdgeNormCutoff;
 LLVector3 LLPipeline::RenderShadowGaussian;
@@ -1137,7 +1138,7 @@ void LLPipeline::refreshCachedSettings()
 	CameraMaxCoF = gSavedSettings.getF32("CameraMaxCoF");
 	CameraDoFResScale = gSavedSettings.getF32("CameraDoFResScale");
 	RenderAutoHideSurfaceAreaLimit = gSavedSettings.getF32("RenderAutoHideSurfaceAreaLimit");
-	
+	RenderSpotLight = nullptr;
 	updateRenderDeferred();
 }
 
@@ -2119,7 +2120,8 @@ void check_references(LLSpatialGroup* group, LLDrawable* drawable)
 {
 	for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 	{
-		if (drawable == (LLDrawable*)(*i)->getDrawable())
+        LLDrawable* drawablep = (LLDrawable*)(*i)->getDrawable();
+		if (drawable == drawablep)
 		{
 			LL_ERRS() << "LLDrawable deleted while actively reference by LLPipeline." << LL_ENDL;
 		}
@@ -2144,9 +2146,9 @@ void check_references(LLSpatialGroup* group, LLFace* face)
 		LLDrawable* drawable = (LLDrawable*)(*i)->getDrawable();
 		if(drawable)
 		{
-		check_references(drawable, face);
-	}			
-}
+		    check_references(drawable, face);
+	    }			
+    }
 }
 
 void LLPipeline::checkReferences(LLFace* face)
@@ -3374,7 +3376,8 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 			group->setVisible();
 			for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 			{
-				markVisible((LLDrawable*)(*i)->getDrawable(), camera);
+                LLDrawable* drawablep = (LLDrawable*)(*i)->getDrawable();
+				markVisible(drawablep, camera);
 			}
 
 			if (!sDelayVBUpdate)
@@ -3462,7 +3465,8 @@ void LLPipeline::stateSort(LLSpatialGroup* group, LLCamera& camera)
 	{
 		for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
 		{
-			stateSort((LLDrawable*)(*i)->getDrawable(), camera);
+            LLDrawable* drawablep = (LLDrawable*)(*i)->getDrawable();            
+			stateSort(drawablep, camera);
 		}
 
 		if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD)
@@ -3491,6 +3495,14 @@ void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
 		return;
 	}
 	
+    // SL-11353
+    // ignore our own geo when rendering spotlight shadowmaps...
+    // 
+    if (RenderSpotLight && drawablep == RenderSpotLight)
+    {
+        return;
+    }
+
 	if (LLSelectMgr::getInstance()->mHideSelectedObjects)
 	{
 		if (drawablep->getVObj().notNull() &&
@@ -10774,7 +10786,11 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 			LLViewerCamera::sCurCameraID = (LLViewerCamera::eCameraID)(LLViewerCamera::CAMERA_SHADOW0 + i + 4);
 
+            RenderSpotLight = drawable;            
+
 			renderShadow(view[i+4], proj[i+4], shadow_cam, result[i], FALSE, FALSE, target_width);
+
+            RenderSpotLight = nullptr;
 
 			mShadow[i+4].flush();
  		}
