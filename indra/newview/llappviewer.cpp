@@ -3388,7 +3388,7 @@ void LLAppViewer::writeSystemInfo()
 	// "CrashNotHandled" is obsolete; it used (not very successsfully)
     // to try to distinguish crashes from freezes
 	gDebugInfo["CrashNotHandled"] = (LLSD::Boolean)false;
-    gDebugInfo["FatalMessage"] = LLError::getFatalMessage();
+    gDebugInfo["Dynamic"]["FatalMessage"] = LLError::getFatalMessage();
 #endif // ! LL_BUGSPLAT
 
 	// Insert crash host url (url to post crash log to) if configured. This insures
