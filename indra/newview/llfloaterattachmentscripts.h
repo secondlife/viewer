@@ -44,11 +44,8 @@ public:
 
 private:
     void            handleScriptData(const LLSD &results, U32 status);
+    void            handleCheckToggle(LLScrollListItem *item);
 
-    void            addAttachmentTab(const LLSD &);
-
-
-    //LLAccordionCtrl *   mAttachments;
     LLScrollListCtrl *    mScrollList;
 };
 

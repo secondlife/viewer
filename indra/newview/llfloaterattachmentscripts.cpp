@@ -37,6 +37,7 @@
 #include "llcorehttputil.h"
 #include "llviewerregion.h"
 #include "llagent.h"
+#include "llcheckboxctrl.h"
 
 namespace
 {
@@ -90,8 +91,7 @@ namespace
     typedef std::function<void(const LLSD &result, U32 status)>  results_fn;
 
     void get_attachment_scripts_coro(LLUUID agent_id, results_fn cb);
-
-
+    void change_attachment_script_state(LLUUID agent_id, LLUUID script_id, bool state, results_fn cb);
 
 }
 
@@ -133,10 +133,6 @@ void LLFloaterAttachmentScripts::refresh()
             {   // floater no longer relevant... catch and release.        	    
             }
         }));
-
-//     addAttachmentTab(LLSDMap("name", "My Attachment 1"));
-//     addAttachmentTab(LLSDMap("name", "My Attachment 2"));
-//     addAttachmentTab(LLSDMap("name", "My Attachment 3"));
 }
 
 
@@ -196,34 +192,60 @@ void LLFloaterAttachmentScripts::handleScriptData(const LLSD &results, U32 statu
                 (LLSDMap("column", "memory")("value", script_memory))
                 (LLSDMap("column", "urls")("value", script_urls));
 
-            mScrollList->addElement(element);
+            LLScrollListItem* item = mScrollList->addElement(element);
+            if (item)
+            {
+                LLCheckedHandle<LLFloaterAttachmentScripts> handle(getDerivedHandle<LLFloaterAttachmentScripts>());
+
+                LLScrollListCheck* check_cell = (LLScrollListCheck*)item->getColumn(2); // TODO: don't pass a constant.  Ask the control...
+                LLCheckBoxCtrl* check = check_cell->getCheckBox();
+                check->setCommitCallback([handle, item](LLUICtrl*, const LLSD&) { 
+                    try
+                    {
+                        handle->handleCheckToggle(item);
+                    }
+                    catch (LLCheckedHandleBase::Stale &)
+                    {   // floater no longer relevant... catch and release.        	    
+                    }
+                });
+
+            }
         }
-        
     }
 
 }
 
-void LLFloaterAttachmentScripts::addAttachmentTab(const LLSD &params)
+void LLFloaterAttachmentScripts::handleCheckToggle(LLScrollListItem *item)
 {
-//     attch_scripts_accordion_tab_params tab_params(get_accordion_tab_params());
-//     LLAccordionCtrlTab* tab = LLUICtrlFactory::create<LLAccordionCtrlTab>(tab_params);
-//     if (!tab) 
-//         return;
-//     LLPanel * script_panel = LLUICtrlFactory::create<LLPanel>(tab_params.script_panel);
-//     //script_panel->setShape(tab->getLocalRect());
-//     //script_panel->setShape(LLRect(0, 0, 400, 200));
-//     tab->addChild(script_panel);
-// 
-//     tab->setName(params["name"].asString());
-//     tab->setTitle(params["name"].asString());
-// 
-//     // *TODO: LLUICtrlFactory::defaultBuilder does not use "display_children" from xml. Should be investigated.
-//     //tab->setDisplayChildren(false);
-//     mAttachments->addCollapsibleCtrl(tab);
+    LLScrollListCheck* check_cell = (LLScrollListCheck*)item->getColumn(2);
+    LLUUID  script_uuid = item->getValue().asUUID();
+    bool    script_state = check_cell->getValue().asBoolean();
+
+    LL_WARNS("MILOTIC") << "script_id=" << script_uuid << " state=" << script_state << LL_ENDL;
+
+    LLCheckedHandle<LLFloaterAttachmentScripts> handle(getDerivedHandle<LLFloaterAttachmentScripts>());
+
+    LLCoros::instance().launch("LLFloaterAttachmentScripts", boost::bind(&change_attachment_script_state, 
+        LLUUID(), script_uuid, script_state,
+        [handle](const LLSD &result, U32 status)
+        {
+            try
+            {
+                handle->handleScriptData(result, status);
+            }
+            catch (LLCheckedHandleBase::Stale &)
+            {   // floater no longer relevant... catch and release.        	    
+            }
+        }));
+
 }
 
 namespace
 {
+    /*TODO:
+     * I've written these as private functions separate from the UI so they can be moved out easily 
+     * when the the final UI is done.
+     **/
     void get_attachment_scripts_coro(LLUUID agent_id, results_fn cb)
     {
         LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -257,7 +279,46 @@ namespace
         // remove the http_result from the llsd
         result.erase("http_result");
         cb(result, 0);
+    }
 
+
+    void change_attachment_script_state(LLUUID agent_id, LLUUID script_id, bool state, results_fn cb)
+    {
+        LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+        LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+            httpAdapter(boost::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>(CAP_AGENTSCRIPTDETAILS, httpPolicy));
+        LLCore::HttpRequest::ptr_t httpRequest(boost::make_shared<LLCore::HttpRequest>());
+
+
+        std::string url(gAgent.getRegionCapability(CAP_AGENTSCRIPTDETAILS));
+
+        if (url.empty())
+        {
+            cb(LLSD(), 1);
+            return;
+        }
+        if (!agent_id.isNull())
+        {
+            url += "?agent_id=" + agent_id.asString();
+        }
+
+        // Note... this could support multiple scripts... 
+        LLSD body(LLSDMap("scripts", 
+            LLSDMap( script_id.asString(), LLSD::Boolean(state))));
+
+        LLSD result = httpAdapter->postAndSuspend(httpRequest, url, body);
+
+        LLSD httpResults = result["http_result"];
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+        if (!status)
+        {
+            cb(result, status.getStatus());
+            return;
+        }
+
+        // remove the http_result from the llsd
+        result.erase("http_result");
+        cb(result, 0);
     }
 
 }
