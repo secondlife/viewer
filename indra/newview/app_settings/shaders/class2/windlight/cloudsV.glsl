@@ -106,7 +106,7 @@ void main()
     vec4 light_atten;
 
     float dens_mul = density_multiplier;
-    float dist_mul = distance_multiplier;
+    float dist_mul = max(0.05, distance_multiplier);
 
     // Sunlight attenuation effect (hue and brightness) due to atmosphere
     // this is used later for sunlight modulation at various altitudes
@@ -128,7 +128,8 @@ void main()
     // Transparency (-> temp1)
     // ATI Bugfix -- can't store temp1*temp2.z in a variable because the ati
     // compiler gets confused.
-    temp1 = exp(-temp1 * temp2.z * dist_mul);
+    //temp1 = exp(-temp1 * temp2.z * dist_mul);
+    temp1 = exp(-temp1 * dist_mul);
 
     // Compute haze glow
     temp2.x = dot(Pn, lightnorm.xyz);

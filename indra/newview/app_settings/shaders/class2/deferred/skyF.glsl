@@ -120,7 +120,7 @@ void main()
     vec4 light_atten;
 
     float dens_mul = density_multiplier;
-    float dist_mul = distance_multiplier;
+    float dist_mul = max(0.05, distance_multiplier);
 
     // Sunlight attenuation effect (hue and brightness) due to atmosphere
     // this is used later for sunlight modulation at various altitudes
@@ -169,13 +169,13 @@ void main()
 
     // Increase ambient when there are more clouds
     vec4 tmpAmbient = ambient_color;
-    tmpAmbient += (1. - tmpAmbient) * cloud_shadow * 0.5; 
+    tmpAmbient += max(vec4(0), (1. - ambient_color)) * cloud_shadow * 0.5; 
 
     // Dim sunlight by cloud shadow percentage
-    sunlight *= (1. - cloud_shadow);
+    sunlight *= max(0.0, (1. - cloud_shadow));
 
     // Haze color below cloud
-    vec4 additiveColorBelowCloud = (      blue_horizon * blue_weight * (sunlight + tmpAmbient)
+    vec4 additiveColorBelowCloud = (blue_horizon * blue_weight * (sunlight + tmpAmbient)
                 + (haze_horizon * haze_weight) * (sunlight * temp2.x + tmpAmbient)
              ); 
 
@@ -192,7 +192,7 @@ void main()
 
     vec3 halo_22 = halo22(optic_d);
 
-   color.rgb += rainbow(optic_d);
+    color.rgb += rainbow(optic_d);
 
     color.rgb += halo_22;
 
