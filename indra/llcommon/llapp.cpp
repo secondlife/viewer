@@ -526,7 +526,12 @@ void LLApp::setupErrorHandling(bool second_instance)
 #endif // LL_LINUX
 
 #endif // ! LL_WINDOWS
+
+#ifdef LL_BUGSPLAT
+    // do not start our own error thread
+#else // ! LL_BUGSPLAT
 	startErrorThread();
+#endif
 }
 
 void LLApp::startErrorThread()

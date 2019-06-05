@@ -66,6 +66,7 @@
 	constructViewer();
 
 #if defined(LL_BUGSPLAT)
+    infos("bugsplat setup");
 	// Engage BugsplatStartupManager *before* calling initViewer() to handle
 	// any crashes during initialization.
 	// https://www.bugsplat.com/docs/platforms/os-x#initialization
@@ -74,6 +75,7 @@
 	[BugsplatStartupManager sharedManager].delegate = self;
 	[[BugsplatStartupManager sharedManager] start];
 #endif
+    infos("post-bugsplat setup");
 
 	frameTimer = nil;
 

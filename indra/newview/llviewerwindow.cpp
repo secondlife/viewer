@@ -1791,7 +1791,8 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	
 	if (!LLAppViewer::instance()->restoreErrorTrap())
 	{
-		LL_WARNS("Window") << " Someone took over my signal/exception handler (post createWindow)!" << LL_ENDL;
+        // this always happens, so downgrading it to INFO
+		LL_INFOS("Window") << " Someone took over my signal/exception handler (post createWindow; normal)" << LL_ENDL;
 	}
 
 	const bool do_not_enforce = false;

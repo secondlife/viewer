@@ -802,8 +802,7 @@ bool LLAppViewerWin32::beingDebugged()
 
 bool LLAppViewerWin32::restoreErrorTrap()
 {	
-	return true;
-	//return LLWinDebug::checkExceptionHandler();
+	return false;
 }
 
 void LLAppViewerWin32::initCrashReporting(bool reportFreeze)

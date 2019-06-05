@@ -3386,9 +3386,8 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["CrashNotHandled"] = (LLSD::Boolean)true;
 #else // LL_BUGSPLAT
 	// "CrashNotHandled" is obsolete; it used (not very successsfully)
-    // to try to distinguish crashes from freezes
+    // to try to distinguish crashes from freezes - the intent here to to avoid calling it a freeze
 	gDebugInfo["CrashNotHandled"] = (LLSD::Boolean)false;
-    gDebugInfo["Dynamic"]["FatalMessage"] = LLError::getFatalMessage();
 #endif // ! LL_BUGSPLAT
 
 	// Insert crash host url (url to post crash log to) if configured. This insures
@@ -3617,7 +3616,7 @@ void LLAppViewer::handleViewerCrash()
 
 	if (LLWorld::instanceExists()) LLWorld::getInstance()->getInfo(gDebugInfo["Dynamic"]);
 
-	gDebugInfo["Dynamic"]["FatalMessage"] = LLError::getFatalMessage();
+	gDebugInfo["FatalMessage"] = LLError::getFatalMessage();
 
 	// Close the debug file
 	pApp->writeDebugInfo(false);  //false answers the isStatic question with the least overhead.
@@ -5476,11 +5475,6 @@ void LLAppViewer::pauseMainloopTimeout()
 
 void LLAppViewer::pingMainloopTimeout(const std::string& state, F32 secs)
 {
-//	if(!restoreErrorTrap())
-//	{
-//		LL_WARNS() << "!!!!!!!!!!!!! Its an error trap!!!!" << state << LL_ENDL;
-//	}
-
 	if(mMainloopTimeout)
 	{
 		if(secs < 0.0f)
