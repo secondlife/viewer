@@ -49,6 +49,7 @@
 #include "llviewershadermgr.h"
 #include "llrender.h"
 #include "llenvironment.h"
+#include "llsettingsvo.h"
 
 const F32 DETAIL_SCALE = 1.f/16.f;
 int DebugDetailMap = 0;
@@ -346,6 +347,10 @@ void LLDrawPoolTerrain::renderFullShader()
 		
 	shader->uniform4fv(LLShaderMgr::OBJECT_PLANE_S, 1, tp0.mV);
 	shader->uniform4fv(LLShaderMgr::OBJECT_PLANE_T, 1, tp1.mV);
+
+    LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
+
+    ((LLSettingsVOWater*)pwater.get())->updateShader(shader);
 
 	//
 	// detail texture 1
