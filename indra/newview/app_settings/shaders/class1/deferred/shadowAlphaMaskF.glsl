@@ -43,15 +43,15 @@ void main()
 {
 	float alpha = diffuseLookup(vary_texcoord0.xy).a;
 
-    // SL-11051
-    //alpha *= vertex_color.a;
 
 	if (alpha < 0.05) // treat as totally transparent
 	{
 		discard;
 	}
 
-	if (alpha < minimum_alpha) // treat as semi-transparent
+    alpha *= vertex_color.a;
+
+	if (alpha < 0.88) // treat as semi-transparent
 	{
 	  if (fract(0.5*floor(target_pos_x / post_pos.w )) < 0.25)
 	  {
