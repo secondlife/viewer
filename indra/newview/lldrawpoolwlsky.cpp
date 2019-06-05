@@ -185,6 +185,13 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
         F32 droplet_radius  = (float)psky->getSkyDropletRadius();
         F32 ice_level       = (float)psky->getSkyIceLevel();
 
+        // hobble halos and rainbows when there's no light source to generate them
+        if (!psky->getIsSunUp() && !psky->getIsMoonUp())
+        {
+            moisture_level = 0.0f;
+            ice_level      = 0.0f;
+        }
+
         sky_shader->uniform1f(LLShaderMgr::MOISTURE_LEVEL, moisture_level);
         sky_shader->uniform1f(LLShaderMgr::DROPLET_RADIUS, droplet_radius);
         sky_shader->uniform1f(LLShaderMgr::ICE_LEVEL, ice_level);
