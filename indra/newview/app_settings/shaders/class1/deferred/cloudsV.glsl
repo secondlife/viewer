@@ -103,7 +103,7 @@ void main()
 	vec4 sunlight = sunlight_color;
 	vec4 light_atten;
 
-    float dens_mul = density_multiplier * 0.45;
+    float dens_mul = density_multiplier;
 
 	// Sunlight attenuation effect (hue and brightness) due to atmosphere
 	// this is used later for sunlight modulation at various altitudes

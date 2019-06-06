@@ -56,6 +56,4 @@ void main()
 
 	vec4 color = calcLighting(pos.xyz, norm, diffuse_color);
 	vertex_color = color;
-
-	
 }
