@@ -1808,8 +1808,11 @@ if (WINDOWS)
       media_plugin_libvlc
       media_plugin_example
       winmm_shim
-      windows-crash-logger
       )
+
+    if (NOT USE_BUGSPLAT)
+        LIST(APPEND COPY_INPUT_DEPENDENCIES windows-crash-logger)
+    endif (NOT USE_BUGSPLAT)
 
     if (ADDRESS_SIZE EQUAL 64)
         list(APPEND COPY_INPUT_DEPENDENCIES
@@ -1864,10 +1867,11 @@ if (WINDOWS)
       add_dependencies(${VIEWER_BINARY_NAME} copy_win_scripts)
     endif (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
 
-    add_dependencies(${VIEWER_BINARY_NAME}
-      SLPlugin
-      windows-crash-logger
-    )
+    add_dependencies(${VIEWER_BINARY_NAME} SLPlugin)
+
+    if (NOT USE_BUGSPLAT)
+        add_dependencies(${VIEWER_BINARY_NAME} windows-crash-logger)
+    endif (NOT USE_BUGSPLAT)
 
     # sets the 'working directory' for debugging from visual studio.
     # Condition for version can be moved to requirements once build agents will be updated (see TOOL-3865)
@@ -2031,12 +2035,15 @@ if (LINUX)
   # These are the generated targets that are copied to package/
   set(COPY_INPUT_DEPENDENCIES
     ${VIEWER_BINARY_NAME}
-    linux-crash-logger
     SLPlugin
     media_plugin_gstreamer010
     media_plugin_libvlc
     llcommon
     )
+
+  if (NOT USE_BUGSPLAT)
+      LIST(APPEND COPY_INPUT_DEPENDENCIES linux-crash-logger)
+  endif (NOT USE_BUGSPLAT)
 
   add_custom_command(
       OUTPUT ${product}.tar.bz2
@@ -2162,8 +2169,11 @@ if (DARWIN)
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
     )
 
-  add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_libvlc media_plugin_cef mac-crash-logger)
-  add_dependencies(${VIEWER_BINARY_NAME} mac-crash-logger)
+  add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_libvlc media_plugin_cef)
+
+  if (NOT USE_BUGSPLAT)
+      add_dependencies(${VIEWER_BINARY_NAME} mac-crash-logger)
+  endif (USE_BUGSPLAT)
 
   if (ENABLE_SIGNING)
       set(SIGNING_SETTING "--signature=${SIGNING_IDENTITY}")
@@ -2221,7 +2231,7 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
       list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/llplugin/slplugin/${CMAKE_CFG_INTDIR}")
       list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/mac_crash_logger/${CMAKE_CFG_INTDIR}")
       list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/media_plugins/gstreamer010/${CMAKE_CFG_INTDIR}")
-      set(VIEWER_EXE_GLOBS "'${product}' SLPlugin mac-crash-logger")
+      set(VIEWER_EXE_GLOBS "'${product}' SLPlugin")
       set(VIEWER_EXE_GLOBS "'${product}' mac-crash-logger")
       set(VIEWER_LIB_GLOB "*.dylib")
     endif (DARWIN)

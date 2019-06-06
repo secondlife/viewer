@@ -60,29 +60,18 @@ add_subdirectory(${LIBS_OPEN_PREFIX}media_plugins)
 endif (ENABLE_MEDIA_PLUGINS)
 
 if (LINUX)
-  add_subdirectory(${VIEWER_PREFIX}linux_crash_logger)
   if (INSTALL_PROPRIETARY)
       include(LLAppearanceUtility)
       add_subdirectory(${LLAPPEARANCEUTILITY_SRC_DIR} ${LLAPPEARANCEUTILITY_BIN_DIR})
   endif (INSTALL_PROPRIETARY)
-  add_dependencies(viewer linux-crash-logger-strip-target)
-elseif (DARWIN)
-  add_subdirectory(${VIEWER_PREFIX}mac_crash_logger)
-  add_dependencies(viewer mac-crash-logger)
-elseif (WINDOWS)
-  add_subdirectory(${VIEWER_PREFIX}win_crash_logger)
-  # cmake EXISTS requires an absolute path, see indra/cmake/Variables.cmake
-  if (EXISTS ${VIEWER_DIR}win_setup)
-    add_subdirectory(${VIEWER_DIR}win_setup)
-  endif (EXISTS ${VIEWER_DIR}win_setup)
-  # add_dependencies(viewer windows-setup windows-crash-logger)
-  add_dependencies(viewer windows-crash-logger)
 endif (LINUX)
 
-add_subdirectory(${VIEWER_PREFIX}newview)
-add_dependencies(viewer secondlife-bin)
-
-add_subdirectory(${VIEWER_PREFIX}doxygen EXCLUDE_FROM_ALL)
+if (WINDOWS)
+    # cmake EXISTS requires an absolute path, see indra/cmake/Variables.cmake
+    if (EXISTS ${VIEWER_DIR}win_setup)
+      add_subdirectory(${VIEWER_DIR}win_setup)
+    endif (EXISTS ${VIEWER_DIR}win_setup)
+endif (WINDOWS)
 
 # sets the 'startup project' for debugging from visual studio.
 set_property(
@@ -98,7 +87,24 @@ if (USE_BUGSPLAT)
     endif (BUGSPLAT_DB)
 else (USE_BUGSPLAT)
     message(STATUS "Not building with BugSplat")
+    if (LINUX)
+      add_subdirectory(${VIEWER_PREFIX}linux_crash_logger)
+      add_dependencies(viewer linux-crash-logger-strip-target)
+    elseif (DARWIN)
+      add_subdirectory(${VIEWER_PREFIX}mac_crash_logger)
+      add_dependencies(viewer mac-crash-logger)
+    elseif (WINDOWS)
+      add_subdirectory(${VIEWER_PREFIX}win_crash_logger)
+      # add_dependencies(viewer windows-setup windows-crash-logger)
+      add_dependencies(viewer windows-crash-logger)
+    endif (LINUX)
 endif (USE_BUGSPLAT)
+
+add_subdirectory(${VIEWER_PREFIX}newview)
+add_dependencies(viewer secondlife-bin)
+
+add_subdirectory(${VIEWER_PREFIX}doxygen EXCLUDE_FROM_ALL)
+
 if (LL_TESTS)
   # Define after the custom targets are created so
   # individual apps can add themselves as dependencies
