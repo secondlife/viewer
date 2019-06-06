@@ -39,13 +39,11 @@
 #include "llexception.h"
 #include "stringize.h"
 
-using namespace std::literals;
-
 //=========================================================================
 // Map of pool sizes for known pools
 static const std::map<std::string, U32> DefaultPoolSizes{
-    {"Upload"s,  1},
-    {"AIS"s,     1},
+	{std::string("Upload"),  1},
+    {std::string("AIS"),     1},
     // *TODO: Rider for the moment keep AIS calls serialized otherwise the COF will tend to get out of sync.
 };
 
@@ -349,7 +347,7 @@ void LLCoprocedurePool::coprocedureInvokerCoro(LLCoreHttpUtil::HttpCoroutineAdap
 {
     QueuedCoproc::ptr_t coproc;
     boost::fibers::channel_op_status status;
-    while ((status = mPendingCoprocs.pop_wait_for(coproc, 10s)) != boost::fibers::channel_op_status::closed)
+    while ((status = mPendingCoprocs.pop_wait_for(coproc, std::chrono::seconds(10))) != boost::fibers::channel_op_status::closed)
     {
         if(status == boost::fibers::channel_op_status::timeout)
         {
