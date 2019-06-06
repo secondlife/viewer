@@ -315,6 +315,17 @@ Please try logging in again in a minute.</string>
 	<string name="BUTTON_DOCK">Dock</string>
 	<string name="BUTTON_HELP">Show Help</string>
 
+	<!-- ToolTips for notecards -->
+	<string name="TooltipNotecardNotAllowedTypeDrop">
+Items of this type can't be attached
+to notecards on this region.
+	</string>
+	<string name="TooltipNotecardOwnerRestrictedDrop">
+Only items with unrestricted
+'next owner' permissions
+can be attached to notecards.
+	</string>
+
 	<!-- searching - generic -->
 	<string name="Searching">Searching...</string>
 	<string name="NoneFound">None found.</string>
@@ -367,6 +378,11 @@ Error in upload request.  Please visit
 http://secondlife.com/support for help fixing this problem.
 </string>
 
+	<!-- Settings errors -->
+	<string name="SettingValidationError">Validation failed for importing settings [NAME]</string>
+	<string name="SettingImportFileError">Could not open file [FILE]</string>
+	<string name="SettingParseFileError">Could not open file [FILE]</string>
+	<string name="SettingTranslateError">Could not translate legacy windlight [NAME]</string>
 	<!-- Asset Type human readable names:  these will replace variable [TYPE] in notification FailedToFindWearable* -->
 	<!-- Will also replace [OBJECTTYPE] in notifications: UserGiveItem, ObjectGiveItem -->
 	<string name="texture">texture</string>
@@ -394,7 +410,8 @@ http://secondlife.com/support for help fixing this problem.
 	<string name="favorite">favorite</string>
 	<string name="symbolic link">link</string>
 	<string name="symbolic folder link">folder link</string>
-  <string name="mesh">mesh</string>
+	<string name="settings blob">settings</string>
+	<string name="mesh">mesh</string>
 
 	<!-- llvoavatar. Displayed in the avatar chat bubble -->
 	<string name="AvatarEditingAppearance">(Editing Appearance)</string>
@@ -519,6 +536,7 @@ http://secondlife.com/support for help fixing this problem.
 	<string name="ManageEstateSilently">Manage your estates silently</string>
 	<string name="ChangeYourDefaultAnimations">Change your default animations</string>
 	<string name="ForceSitAvatar">Force your avatar to sit</string>
+	<string name="ChangeEnvSettings">Change your environment settings</string>
 	
 	<string name="NotConnected">Not Connected</string>
 	<string name="AgentNameSubst">(You)</string> <!-- Substitution for agent name -->
