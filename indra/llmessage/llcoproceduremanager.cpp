@@ -25,6 +25,8 @@
 * $/LicenseInfo$
 */
 
+#include "llwin32headers.h"
+
 #include "linden_common.h"
 
 #include "llcoproceduremanager.h"

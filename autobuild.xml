@@ -580,9 +580,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c0456d23b8dce071eb20f07c4f4b97c2</string>
+              <string>c1cd0a6a08f71f357a01fba55e0a6b16</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/34195/285056/dullahan-1.1.1080_3.3325.1750.gaabe4c4-darwin64-525430.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/38605/326402/dullahan-1.1.1320_3.3626.1895.g7001d56-darwin64-527866.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -592,9 +592,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>53eefec74510d5de118855aba3f908b6</string>
+              <string>c0129834f8995f9c354def141cf0e12b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/34194/285057/dullahan-1.1.1080_3.3325.1750.gaabe4c4-windows-525430.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/38602/326395/dullahan-1.1.1320_3.3626.1895.g7001d56-windows-527866.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -604,9 +604,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7422f84b21b5c3c262bc0f7bcea125bf</string>
+              <string>0e2206a105b1e48ee89951d310b21025</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/34196/285066/dullahan-1.1.1080_3.3325.1750.gaabe4c4-windows64-525430.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/38601/326388/dullahan-1.1.1320_3.3626.1895.g7001d56-windows64-527866.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
