@@ -736,6 +736,9 @@ void LLPanelEnvironmentInfo::onAltSliderCallback(LLUICtrl *cntrl, const LLSD &da
 {
     LLMultiSliderCtrl *sld = (LLMultiSliderCtrl *)cntrl;
     std::string sld_name = sld->getCurSlider();
+
+    if (sld_name.empty()) return;
+
     F32 sld_value = sld->getCurSliderValue();
 
     mAltitudes[sld_name].mAltitude = sld_value;
