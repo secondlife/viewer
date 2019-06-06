@@ -947,10 +947,8 @@ void LLSettingsVOWater::applySpecial(void *ptarget)
         F32 blend_factor = env.getCurrentWater()->getBlendFactor();
         shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 
-        LLVector4 rotated_light_direction = LLEnvironment::instance().getRotatedLightNorm();
-        shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, rotated_light_direction.mV);
-        shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, 1, LLViewerCamera::getInstance()->getOrigin().mV);
-        shader->uniform1f(LLViewerShaderMgr::DISTANCE_MULTIPLIER, 0);
+        // update to normal lightnorm, water shader itself will use rotated lightnorm as necessary
+        shader->uniform4fv(LLShaderMgr::LIGHTNORM, 1, light_direction.mV);
     }
 }
 
