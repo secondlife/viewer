@@ -513,7 +513,6 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
                 sun_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);
                 sun_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 
-                LLFacePool::LLOverrideFaceColor color_override(this, color);
                 face->renderIndexed();
 
                 gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -565,7 +564,6 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
             moon_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);
             moon_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 
-            LLFacePool::LLOverrideFaceColor color_override(this, color);
             face->renderIndexed();
 
             gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);

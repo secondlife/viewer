@@ -97,7 +97,6 @@ void LLDrawPoolTree::render(S32 pass)
 	}
 
 	LLGLState test(GL_ALPHA_TEST, LLGLSLShader::sNoFixedFunction ? 0 : 1);
-	//LLOverrideFaceColor color(this, 1.f, 1.f, 1.f, 1.f);
 
 	gGL.getTexUnit(sDiffTex)->bind(mTexturep);
 				
