@@ -34,7 +34,7 @@
 #include <chrono>
 
 #include <boost/assign.hpp>
-#include <boost/fiber/unbuffered_channel.hpp>
+#include <boost/fiber/buffered_channel.hpp>
 
 #include "llexception.h"
 #include "stringize.h"
@@ -48,6 +48,7 @@ static const std::map<std::string, U32> DefaultPoolSizes{
 };
 
 static const U32 DEFAULT_POOL_SIZE = 5;
+static const U32 DEFAULT_QUEUE_SIZE = 4096;
 
 //=========================================================================
 class LLCoprocedurePool: private boost::noncopyable
@@ -112,7 +113,7 @@ private:
 
     // we use a deque here rather than std::queue since we want to be able to 
     // iterate through the queue and potentially erase an entry from the middle.
-    typedef boost::fibers::unbuffered_channel<QueuedCoproc::ptr_t>  CoprocQueue_t;
+    typedef boost::fibers::buffered_channel<QueuedCoproc::ptr_t>  CoprocQueue_t;
     typedef std::map<LLUUID, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t> ActiveCoproc_t;
 
     std::string     mPoolName;
@@ -283,7 +284,7 @@ void LLCoprocedureManager::close(const std::string &pool)
 LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
     mPoolName(poolName),
     mPoolSize(size),
-    mPendingCoprocs(),
+    mPendingCoprocs(DEFAULT_QUEUE_SIZE),
     //mShutdown(false),
     mCoroMapping(),
     mHTTPPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID)
