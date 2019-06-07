@@ -67,31 +67,12 @@ public:
     /// @return This method returns a UUID that can be used later to cancel execution.
     LLUUID enqueueCoprocedure(const std::string &name, CoProcedure_t proc);
 
-    /// Cancel a coprocedure. If the coprocedure is already being actively executed 
-    /// this method calls cancelSuspendedOperation() on the associated HttpAdapter
-    /// If it has not yet been dequeued it is simply removed from the queue.
-    //bool cancelCoprocedure(const LLUUID &id);
-
-//    /// Returns the number of coprocedures in the queue awaiting processing.
-//    ///
-//    inline size_t countPending() const
-//    {
-//        return mPendingCoprocs.size();
-//    }
-
     /// Returns the number of coprocedures actively being processed.
     ///
     inline size_t countActive() const
     {
         return mActiveCoprocs.size();
     }
-
-//    /// Returns the total number of coprocedures either queued or in active processing.
-//    ///
-//    inline size_t count() const
-//    {
-//        return countPending() + countActive();
-//    }
 
     void close();
     
@@ -111,8 +92,9 @@ private:
         CoProcedure_t mProc;
     };
 
-    // we use a deque here rather than std::queue since we want to be able to 
-    // iterate through the queue and potentially erase an entry from the middle.
+    // we use a buffered_channel here rather than unbuffered_channel since we want to be able to 
+    // push values without blocking,even if there's currently no one calling a pop operation (due to
+	// fibber running right now)
     typedef boost::fibers::buffered_channel<QueuedCoproc::ptr_t>  CoprocQueue_t;
     typedef std::map<LLUUID, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t> ActiveCoproc_t;
 
@@ -120,7 +102,6 @@ private:
     size_t          mPoolSize;
     CoprocQueue_t   mPendingCoprocs;
     ActiveCoproc_t  mActiveCoprocs;
-    //bool            mShutdown;
 
     typedef std::map<std::string, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t> CoroAdapterMap_t;
     LLCore::HttpRequest::policy_t mHTTPPolicy;
@@ -128,7 +109,6 @@ private:
     CoroAdapterMap_t mCoroMapping;
 
     void coprocedureInvokerCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter);
-
 };
 
 //=========================================================================
@@ -193,43 +173,11 @@ LLUUID LLCoprocedureManager::enqueueCoprocedure(const std::string &pool, const s
     return targetPool->enqueueCoprocedure(name, proc);
 }
 
-//void LLCoprocedureManager::cancelCoprocedure(const LLUUID &id)
-//{
-//    for (poolMap_t::const_iterator it = mPoolMap.begin(); it != mPoolMap.end(); ++it)
-//    {
-//        if (it->second->cancelCoprocedure(id))
-//        {
-//            return;
-//        }
-//    }
-//    LL_INFOS() << "Coprocedure not found." << LL_ENDL;
-//}
-
 void LLCoprocedureManager::setPropertyMethods(SettingQuery_t queryfn, SettingUpdate_t updatefn)
 {
     mPropertyQueryFn = queryfn;
     mPropertyDefineFn = updatefn;
 }
-
-////-------------------------------------------------------------------------
-//size_t LLCoprocedureManager::countPending() const
-//{
-//    size_t count = 0;
-//    for (poolMap_t::const_iterator it = mPoolMap.begin(); it != mPoolMap.end(); ++it)
-//    {
-//        count += (*it).second->countPending();
-//    }
-//    return count;
-//}
-//
-//size_t LLCoprocedureManager::countPending(const std::string &pool) const
-//{
-//    poolMap_t::const_iterator it = mPoolMap.find(pool);
-//
-//    if (it == mPoolMap.end())
-//        return 0;
-//    return (*it).second->countPending();
-//}
 
 size_t LLCoprocedureManager::countActive() const
 {
@@ -252,25 +200,6 @@ size_t LLCoprocedureManager::countActive(const std::string &pool) const
     return it->second->countActive();
 }
 
-//size_t LLCoprocedureManager::count() const
-//{
-//    size_t count = 0;
-//    for (poolMap_t::const_iterator it = mPoolMap.begin(); it != mPoolMap.end(); ++it)
-//    {
-//        count += (*it).second->count();
-//    }
-//    return count;
-//}
-//
-//size_t LLCoprocedureManager::count(const std::string &pool) const
-//{
-//    poolMap_t::const_iterator it = mPoolMap.find(pool);
-//
-//    if (it == mPoolMap.end())
-//        return 0;
-//    return (*it).second->count();
-//}
-
 void LLCoprocedureManager::close(const std::string &pool)
 {
     poolMap_t::iterator it = mPoolMap.find(pool);
@@ -285,7 +214,6 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
     mPoolName(poolName),
     mPoolSize(size),
     mPendingCoprocs(DEFAULT_QUEUE_SIZE),
-    //mShutdown(false),
     mCoroMapping(),
     mHTTPPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID)
 {
@@ -317,32 +245,6 @@ LLUUID LLCoprocedurePool::enqueueCoprocedure(const std::string &name, LLCoproced
     return id;
 }
 
-//bool LLCoprocedurePool::cancelCoprocedure(const LLUUID &id)
-//{
-//    // first check the active coroutines.  If there, remove it and return.
-//    ActiveCoproc_t::iterator itActive = mActiveCoprocs.find(id);
-//    if (itActive != mActiveCoprocs.end())
-//    {
-//        LL_INFOS() << "Found and canceling active coprocedure with id=" << id.asString() << " in pool \"" << mPoolName << "\"" << LL_ENDL;
-//        (*itActive).second->cancelSuspendedOperation();
-//        mActiveCoprocs.erase(itActive);
-//        return true;
-//    }
-//
-////    for (auto it: mPendingCoprocs)
-////    {
-////        if ((*it)->mId == id)
-////        {
-////            LL_INFOS() << "Found and removing queued coroutine(" << (*it)->mName << ") with Id=" << id.asString() << " in pool \"" << mPoolName << "\"" << LL_ENDL;
-////            mPendingCoprocs.erase(it);
-////            return true;
-////        }
-////    }
-//
-//    LL_INFOS() << "Coprocedure with Id=" << id.asString() << " was not found in pool \"" << mPoolName << "\"" << LL_ENDL;
-//    return false;
-//}
-
 //-------------------------------------------------------------------------
 void LLCoprocedurePool::coprocedureInvokerCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter)
 {
@@ -358,6 +260,7 @@ void LLCoprocedurePool::coprocedureInvokerCoro(LLCoreHttpUtil::HttpCoroutineAdap
 
         ActiveCoproc_t::iterator itActive = mActiveCoprocs.insert(ActiveCoproc_t::value_type(coproc->mId, httpAdapter)).first;
 
+        // Nicky: This is super spammy. Consider using LL_DEBUGS here?
         LL_INFOS() << "Dequeued and invoking coprocedure(" << coproc->mName << ") with id=" << coproc->mId.asString() << " in pool \"" << mPoolName << "\"" << LL_ENDL;
 
         try
@@ -374,12 +277,14 @@ void LLCoprocedurePool::coprocedureInvokerCoro(LLCoreHttpUtil::HttpCoroutineAdap
             throw;
         }
 
+        // Nicky: This is super spammy. Consider using LL_DEBUGS here?
         LL_INFOS() << "Finished coprocedure(" << coproc->mName << ")" << " in pool \"" << mPoolName << "\"" << LL_ENDL;
 
         mActiveCoprocs.erase(itActive);
     }
 }
 
-void LLCoprocedurePool::close() {
+void LLCoprocedurePool::close()
+{
     mPendingCoprocs.close();
 }
