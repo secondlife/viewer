@@ -43,6 +43,11 @@ void main()
 {
 	float alpha = diffuseLookup(vary_texcoord0.xy).a;
 
+    // mask cutoff 0 -> no shadow SL-11051
+    if (minimum_alpha == 0)
+    {
+        discard;
+    }
 
 	if (alpha < 0.05) // treat as totally transparent
 	{

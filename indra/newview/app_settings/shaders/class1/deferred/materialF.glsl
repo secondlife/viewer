@@ -41,7 +41,7 @@ vec4 applyWaterFogView(vec3 pos, vec4 color);
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 scaleSoftClipFrag(vec3 l);
 
-void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
+void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
 
 vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cs);
@@ -67,7 +67,6 @@ uniform vec3 camPosLocal;
 //uniform vec4 camPosWorld;
 uniform vec4 gamma;
 uniform mat3 env_mat;
-uniform mat3 ssao_effect_mat;
 
 uniform vec3 sun_dir;
 uniform vec3 moon_dir;
@@ -226,14 +225,8 @@ void main()
     vec2 pos_screen = vary_texcoord0.xy;
 
     vec4 diffuse_tap = texture2D(diffuseMap, vary_texcoord0.xy);
-
-#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
-    vec4 diffuse_srgb = diffuse_tap;
-    vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_tap.a);
-#else
     vec4 diffuse_linear = diffuse_tap;
     vec4 diffuse_srgb = vec4(linear_to_srgb(diffuse_linear.rgb), diffuse_tap.a);
-#endif
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_MASK)
     if (diffuse_linear.a < minimum_alpha)
@@ -313,7 +306,7 @@ void main()
     vec3 additive;
     vec3 atten;
 
-    calcAtmosphericVars(pos.xyz, 1.0, sunlit, amblit, additive, atten);
+    calcAtmosphericVars(pos.xyz, 1.0, sunlit, amblit, additive, atten, false);
 
     vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
@@ -333,7 +326,7 @@ void main()
     vec3 sun_contrib = min(final_da, shadow) * sunlit;
    
 #if !defined(AMBIENT_KILL)
-    color.rgb = amblit * 0.5;
+    color.rgb = amblit * 2.0;
     color.rgb *= ambient;
 #endif
 
@@ -345,7 +338,7 @@ vec3 post_ambient = color.rgb;
 
 vec3 post_sunlight = color.rgb;
 
-    color.rgb *= diffuse_srgb.rgb;
+    color.rgb *= diffuse_linear.rgb;
  
 vec3 post_diffuse = color.rgb;
 

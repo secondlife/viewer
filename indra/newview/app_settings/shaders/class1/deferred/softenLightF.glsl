@@ -59,7 +59,7 @@ uniform vec2 screen_res;
 vec3 getNorm(vec2 pos_screen);
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 
-void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
+void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
 float getAmbientClamp();
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 scaleSoftClipFrag(vec3 l);
@@ -87,8 +87,8 @@ void main()
     float final_da = da;
           final_da = clamp(final_da, 0.0, 1.0);
 
-    vec4 diffuse_linear = texture2DRect(diffuseRect, tc);
-    vec4 diffuse_srgb   = vec4(linear_to_srgb(diffuse_linear.rgb), diffuse_linear.a);
+    vec4 diffuse_srgb = texture2DRect(diffuseRect, tc);
+    vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_srgb.a);
 
     vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
     vec3 color = vec3(0);
@@ -101,7 +101,7 @@ void main()
         vec3 additive;
         vec3 atten;
     
-        calcAtmosphericVars(pos.xyz, ambocc, sunlit, amblit, additive, atten);
+        calcAtmosphericVars(pos.xyz, ambocc, sunlit, amblit, additive, atten, false);
 
         float ambient = da;
         ambient *= 0.5;
@@ -111,7 +111,7 @@ void main()
         vec3 sun_contrib = final_da * sunlit;
 
 #if !defined(AMBIENT_KILL)
-        color.rgb = amblit * 2.0;
+        color.rgb = amblit;
         color.rgb *= ambient;
 #endif
 
@@ -123,7 +123,7 @@ vec3 post_ambient = color.rgb;
 
 vec3 post_sunlight = color.rgb;
 
-        color.rgb *= diffuse_linear.rgb;
+        color.rgb *= diffuse_srgb.rgb;
 
 vec3 post_diffuse = color.rgb;
 
@@ -210,6 +210,7 @@ vec3 post_atmo = color.rgb;
 //color.rgb = vec3(final_da);
 //color.rgb = vec3(ambient);
 //color.rgb = vec3(scol);
+//color.rgb = diffuse_linear.rgb;
 
     frag_color.rgb = color.rgb;
     frag_color.a = bloom;

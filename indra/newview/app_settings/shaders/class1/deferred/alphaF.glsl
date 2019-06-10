@@ -40,7 +40,6 @@ out vec4 frag_color;
 uniform float display_gamma;
 uniform vec4 gamma;
 uniform mat3 env_mat;
-uniform mat3 ssao_effect_mat;
 
 uniform vec3 sun_dir;
 uniform vec3 moon_dir;
@@ -78,7 +77,7 @@ vec2 encode_normal (vec3 n);
 vec3 scaleSoftClipFrag(vec3 l);
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten);
 
-void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
+void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive, bool use_ao);
 
 #ifdef HAS_SHADOW
 float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
@@ -217,7 +216,7 @@ void main()
     vec3 additive;
     vec3 atten;
 
-    calcAtmosphericVars(pos.xyz, 1.0, sunlit, amblit, additive, atten);
+    calcAtmosphericVars(pos.xyz, 1.0, sunlit, amblit, additive, atten, false);
 
     vec2 abnormal = encode_normal(norm.xyz);
 
@@ -240,7 +239,7 @@ void main()
     vec3 sun_contrib = min(final_da, shadow) * sunlit;
 
 #if !defined(AMBIENT_KILL)
-    color.rgb = amblit * 0.5;
+    color.rgb = amblit * 2.0;
     color.rgb *= ambient;
 #endif
 

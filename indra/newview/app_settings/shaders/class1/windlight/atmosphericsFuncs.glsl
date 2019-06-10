@@ -47,7 +47,7 @@ float getAmbientClamp()
     return 1.0f;
 }
 
-void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten) {
+void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao) {
 
     vec3 P = inPositionEye;
    
@@ -116,9 +116,11 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
     temp2.x += .25;
 
     temp2.x *= sun_moon_glow_factor;
-    
+   
+    vec4 amb_color = ambient_color; 
+
     //increase ambient when there are more clouds
-    vec4 tmpAmbient = ambient_color + (vec4(1.) - ambient_color) * cloud_shadow * 0.5;
+    vec4 tmpAmbient = amb_color + (vec4(1.) - amb_color) * cloud_shadow * 0.5;
     
     /*  decrease value and saturation (that in HSV, not HSL) for occluded areas
      * // for HSV color/geometry used here, see http://gimp-savvy.com/BOOK/index.html?node52.html
@@ -128,7 +130,10 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
      * vec3 ambHueSat = vec3(tmpAmbient) - vec3(ambValue);
      * tmpAmbient = vec4(RenderSSAOEffect.valueFactor * vec3(ambValue) + RenderSSAOEffect.saturationFactor *(1.0 - ambFactor) * ambHueSat, ambAlpha);
      */
-    tmpAmbient = vec4(mix(ssao_effect_mat * tmpAmbient.rgb, tmpAmbient.rgb, ambFactor), tmpAmbient.a);
+    if (use_ao)
+    {
+        tmpAmbient = vec4(mix(ssao_effect_mat * tmpAmbient.rgb, tmpAmbient.rgb, ambFactor), tmpAmbient.a);
+    }
 
     //haze color
         additive =
