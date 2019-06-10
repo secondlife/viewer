@@ -436,7 +436,7 @@ namespace tut
             std::vector<U8> binary;
             for (size_t ix = 0, h = 0xaa; ix < 6; ++ix, h += 0x11)
             {
-                binary.push_back(h);
+                binary.push_back((U8)h);
             }
             // Full defaults arrays. We actually don't care what the LLUUID or
             // LLDate values are, as long as they're different from the
@@ -1145,7 +1145,7 @@ namespace tut
         std::vector<U8> binary;
         for (size_t h(0x01), i(0); i < 5; h+= 0x22, ++i)
         {
-            binary.push_back(h);
+            binary.push_back((U8)h);
         }
         LLSD args(LLSDMap("a", LLSDArray(true)(17)(3.14)(123.456)("char*"))
                          ("b", LLSDArray("string")

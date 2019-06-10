@@ -386,7 +386,6 @@ boolean LLImageJPEG::encodeEmptyOutputBuffer( j_compress_ptr cinfo )
   {
     self->setLastError("Out of memory in LLImageJPEG::encodeEmptyOutputBuffer( j_compress_ptr cinfo )");
     LLTHROW(LLContinueError("Out of memory in LLImageJPEG::encodeEmptyOutputBuffer( j_compress_ptr cinfo )"));
-  	return false;
   }
   memcpy( new_buffer, self->mOutputBuffer, self->mOutputBufferSize );	/* Flawfinder: ignore */
   delete[] self->mOutputBuffer;
