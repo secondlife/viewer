@@ -9360,8 +9360,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
                     updateCull(camera, mSky);
                     stateSort(camera, mSky);
-                    gPipeline.grabReferences(mSky);
-
                     renderGeom(camera, TRUE);
 
                     gPipeline.popRenderTypeMask();
@@ -9395,7 +9393,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                     LLGLDisable cull(GL_CULL_FACE);
                     updateCull(camera, mReflectedObjects, -water_clip, &plane);
                     stateSort(camera, mReflectedObjects);
-                    gPipeline.grabReferences(mReflectedObjects);                
                     renderGeom(camera);
                     
                 }
@@ -9472,11 +9469,25 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                     clip_plane.disable();
                 }
 
-                updateCull(camera, mRefractedObjects, water_clip, &plane);
-                stateSort(camera, mRefractedObjects);
-                gPipeline.grabReferences(mRefractedObjects);
+                if (detail > 0)
+                {
+                    if (detail < 4)
+                    {
+                        clearRenderTypeMask(LLPipeline::RENDER_TYPE_PARTICLES, END_RENDER_TYPES);
+                        if (detail < 3)
+                        {
+                            clearRenderTypeMask(LLPipeline::RENDER_TYPE_AVATAR, END_RENDER_TYPES);
+                            if (detail < 2)
+                            {
+                                clearRenderTypeMask(LLPipeline::RENDER_TYPE_VOLUME, END_RENDER_TYPES);
+                            }
+                        }
+                    }
 
-                renderGeom(camera);
+                    updateCull(camera, mRefractedObjects, water_clip, &plane);
+                    stateSort(camera, mRefractedObjects);
+                    renderGeom(camera);
+                }
 
                 if (LLGLSLShader::sNoFixedFunction)
                 {

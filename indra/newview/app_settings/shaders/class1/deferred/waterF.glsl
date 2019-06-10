@@ -153,7 +153,7 @@ void main()
 	spec = pow(spec, 128.0);
 
 	//figure out distortion vector (ripply)   
-	vec2 distort2 = distort+wavef.xy*refScale/max(dmod*df1, 1.0);
+	vec2 distort2 = distort+wavef.xy*(refScale * 0.01)/max(dmod*df1, 1.0);
 		
 	vec4 fb = texture2D(screenTex, distort2);
 	

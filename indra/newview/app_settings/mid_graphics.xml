@@ -19,7 +19,7 @@
 	<!--bump okay-->
 	<RenderObjectBump value="TRUE"/>
 	<!--NO SHADERS-->
-	<RenderReflectionDetail value="0"/>
+	<RenderReflectionDetail value="1"/>
 	<!--Simple-->
 	<RenderTerrainDetail value="1"/>
 	<!--Default for now-->
