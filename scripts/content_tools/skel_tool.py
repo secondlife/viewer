@@ -306,6 +306,7 @@ def skel_slider_info(ladtree,skeltree):
                         continue
                     for d in driven_params:
                         driven_bones = [b for b in d.iter("bone")]
+                        bones.extend(driven_bones)
             if bones:
                 print "param",param.get("name"),"id",param.get("id"),"group",param.get("group")
                 value_min = float(param.get("value_min"))
