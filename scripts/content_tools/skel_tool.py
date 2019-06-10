@@ -290,41 +290,75 @@ def slider_info(ladtree,skeltree):
                     print "    Offset MaxY", offset_max[1]
                     print "    Offset MaxZ", offset_max[2]
 
+def has_child_of_type(elt,child_type):
+    return next(elt.iter(child_type),None) is not None
+
+def get_param_type(param):
+    for ptype in ["param_driver","param_skeleton","param_morph","param_color","param_alpha"]:
+        if has_child_of_type(param,ptype):
+            return ptype
+    return ""
+
 def skel_slider_info(ladtree,skeltree):
     all_params = [p for p in ladtree.iter("param")]
+    parity = 1
     for param in sorted(all_params, key=lambda x: int(x.get("id"))):
         if int(param.get("group")) in [0,3]:
-            bones = []
+            param_type = get_param_type(param)
+            skel_params = []
             for skel_param in param.iter("param_skeleton"):
-                bones.extend([b for b in skel_param.iter("bone")])
+                skel_params.append(param)
+                #print("skel_params add",param)
             for skel_driver in param.iter("param_driver"):
                 for driven in skel_driver.iter("driven"):
                     driven_id = driven.get("id")
+                    #print param.get("id"),"drives",driven_id
                     driven_params = [p for p in ladtree.iter("param") if p.get("id")==driven_id]
                     if len(driven_params)==0:
                         print "param not found",driven_id
                         continue
                     for d in driven_params:
-                        driven_bones = [b for b in d.iter("bone")]
-                        bones.extend(driven_bones)
+                        #print "driven param",d
+                        if get_param_type(d) == "param_skeleton":
+                            skel_params.append(d)
+                            #print("skel_params add2",d)
+            #print "param",param.get("id"),"found",len(skel_params),"skel params"
+            bones = set()
+            bone_drivers = defaultdict(set)
+            for skel_param in skel_params:
+                for b in skel_param.iter("bone"):
+                    bone_name = b.get("name")
+                    bones.add(bone_name)
+                    #print "driver add",bone_name,skel_param
+                    bone_drivers[b.get("name")].add(skel_param.get("id"))
             if bones:
-                print "param",param.get("name"),"id",param.get("id"),"group",param.get("group")
+                #print "param",param.get("name"),"id",param.get("id"),"group",param.get("group")
                 value_min = float(param.get("value_min"))
                 value_max = float(param.get("value_max"))
                 neutral = (0.0-value_min)/(value_max-value_min)
-                print " min: 0.0 =>",value_min
-                print " max: 1.0 =>",value_max
-                print " neutral:",neutral
-                print " bones:"
-                all_names = [b.get("name") for b in bones]
-                if len(set(all_names))!=len(all_names):
-                    print "duplicate bones!"
-                    cnt = defaultdict(int)
-                    for n in all_names:
-                        cnt[n] += 1
-                    print [n for n in all_names if cnt[n]>1]
-                for b in bones:
-                    print "  -",b.get("name") 
+                print "|",param.get("id")
+                print "|",param.get("name")
+                print "|","{0:.4f}".format(neutral)
+                print "|", ", ".join(sorted(list(bones)))
+                if parity:
+                    print "|-"
+                else:
+                    print "|-bgcolor={{#var:bgcolor}}"
+                parity = 1-parity
+                #print " min: 0.0 =>",value_min
+                #print " max: 1.0 =>",value_max
+                #print " neutral:",neutral
+                #print " bones:", ", ".join(sorted(list(bones)))
+                #print
+                
+                #for b in bones:
+                #    print "  -",b,
+                #    if len(bone_drivers[b])>1:
+                #        print " *** multiply driven",bone_drivers[b]
+                #    else:
+                #        print
+            #else:
+            #    print "param",param.get("name"),param.get("id"),"group",param.get("group"),"type",param_type
 
 # Check contents of avatar_lad file relative to a specified skeleton
 def validate_lad_tree(ladtree,skeltree,orig_ladtree):
