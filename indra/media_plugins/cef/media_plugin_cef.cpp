@@ -62,6 +62,7 @@ private:
 	void onConsoleMessageCallback(std::string message, std::string source, int line);
 	void onStatusMessageCallback(std::string value);
 	void onTitleChangeCallback(std::string title);
+	void onTooltipCallback(std::string text);
 	void onLoadStartCallback();
 	void onRequestExitCallback();
 	void onLoadEndCallback(int httpStatusCode);
@@ -208,6 +209,12 @@ void MediaPluginCEF::onTitleChangeCallback(std::string title)
 	sendMessage(message);
 }
 
+void MediaPluginCEF::onTooltipCallback(std::string text)
+{
+    LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "tooltip_text");
+    message.setValue("tooltip", text);
+    sendMessage(message);
+}
 ////////////////////////////////////////////////////////////////////////////////
 //
 void MediaPluginCEF::onLoadStartCallback()
@@ -486,6 +493,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				mCEFLib->setOnConsoleMessageCallback(std::bind(&MediaPluginCEF::onConsoleMessageCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 				mCEFLib->setOnStatusMessageCallback(std::bind(&MediaPluginCEF::onStatusMessageCallback, this, std::placeholders::_1));
 				mCEFLib->setOnTitleChangeCallback(std::bind(&MediaPluginCEF::onTitleChangeCallback, this, std::placeholders::_1));
+				mCEFLib->setOnTooltipCallback(std::bind(&MediaPluginCEF::onTooltipCallback, this, std::placeholders::_1));
 				mCEFLib->setOnLoadStartCallback(std::bind(&MediaPluginCEF::onLoadStartCallback, this));
 				mCEFLib->setOnLoadEndCallback(std::bind(&MediaPluginCEF::onLoadEndCallback, this, std::placeholders::_1));
 				mCEFLib->setOnLoadErrorCallback(std::bind(&MediaPluginCEF::onLoadError, this, std::placeholders::_1, std::placeholders::_2));
