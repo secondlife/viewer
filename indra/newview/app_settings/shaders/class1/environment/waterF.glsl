@@ -150,11 +150,9 @@ void main()
     
     //mix with reflection
     // Note we actually want to use just df1, but multiplying by 0.999999 gets around and nvidia compiler bug
-    color.rgb = mix(fb.rgb, refcol.rgb, df1 * 0.4 + 0.6);
+    color.rgb = mix(fb.rgb, refcol.rgb, df1 * 0.9999999);
     color.rgb += spec * specular;
-    
-    //color.rgb = atmosTransport(color.rgb);
-    color.rgb = scaleSoftClip(color.rgb * 0.5);
+
     color.a = spec * sunAngle2;
 
 #if defined(WATER_EDGE)

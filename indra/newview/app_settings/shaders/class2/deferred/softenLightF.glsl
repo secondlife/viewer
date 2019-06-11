@@ -91,8 +91,8 @@ void main()
     float final_da = da;
           final_da = clamp(final_da, 0.0, 1.0);
 
-    vec4 diffuse_linear = texture2DRect(diffuseRect, tc);
-    vec4 diffuse_srgb   = vec4(linear_to_srgb(diffuse_linear.rgb), diffuse_linear.a);
+    vec4 diffuse_srgb   = texture2DRect(diffuseRect, tc);
+    vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_srgb.a);
 
     // clamping to alpha value kills underwater shadows...
     //scol = max(scol_ambocc.r, diffuse_linear.a);
@@ -120,7 +120,7 @@ void main()
 
 #if !defined(AMBIENT_KILL)
         color.rgb = amblit * 2.0;
-        color.rgb *= ambient;
+        color.rgb *= ambient * 0.5;
 #endif
 
 vec3 post_ambient = color.rgb;
@@ -131,7 +131,7 @@ vec3 post_ambient = color.rgb;
 
 vec3 post_sunlight = color.rgb;
 
-        color.rgb *= diffuse_linear.rgb;
+        color.rgb *= diffuse_srgb.rgb;
 
 vec3 post_diffuse = color.rgb;
 
@@ -183,8 +183,10 @@ vec3 post_env = color.rgb;
 
         if (norm.w < 1)
         {
+#if !defined(SUNLIGHT_KILL)
             color = atmosFragLighting(color, additive, atten);
             color = scaleSoftClipFrag(color);
+#endif
         }
 
 vec3 post_atmo = color.rgb;
@@ -216,6 +218,7 @@ vec3 post_atmo = color.rgb;
 //color.rgb = vec3(final_da);
 //color.rgb = vec3(ambient);
 //color.rgb = vec3(scol);
+//color.rgb = diffuse_linear.rgb;
 
     frag_color.rgb = color.rgb;
     frag_color.a = bloom;

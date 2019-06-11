@@ -41,6 +41,8 @@ uniform vec4 gamma;
 
 /// Soft clips the light with a gamma correction
 vec3 scaleSoftClip(vec3 light);
+vec3 srgb_to_linear(vec3 c);
+vec3 linear_to_srgb(vec3 c);
 
 void main()
 {
@@ -51,10 +53,12 @@ void main()
 
     vec4 color;
     color = vary_HazeColor;
-    color *= 2.;
+    color.rgb *= 2.0f;
+    //color.rgb = scaleSoftClip(color.rgb);
+    //color.rgb = linear_to_srgb(color.rgb);
 
     /// Gamma correct for WL (soft clip effect).
-    frag_data[0] = vec4(scaleSoftClip(color.rgb), 1.0);
+    frag_data[0] = vec4(color.rgb, 1.0);
     frag_data[1] = vec4(0.0,0.0,0.0,0.0);
     frag_data[2] = vec4(0.5,0.5,0.0,1.0); //1.0 in norm.w masks off fog
 

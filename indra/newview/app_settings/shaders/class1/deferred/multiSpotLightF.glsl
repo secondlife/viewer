@@ -178,6 +178,8 @@ void main()
 		
 		
 	vec3 diff_tex = texture2DRect(diffuseRect, frag.xy).rgb;
+    diff_tex.rgb = srgb_to_linear(diff_tex.rgb);
+
 	vec3 dlit = vec3(0, 0, 0);
 	
 	float noise = texture2D(noiseMap, frag.xy/128.0).b;

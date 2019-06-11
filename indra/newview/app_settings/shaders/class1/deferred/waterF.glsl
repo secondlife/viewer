@@ -144,7 +144,6 @@ void main()
     vec4 baseCol = texture2D(refTex, refvec4);
 
     refcol = mix(baseCol*df2, refcol, dweight);
-    refcol.rgb = srgb_to_linear(refcol.rgb);
 
     //get specular component
 	float spec = clamp(dot(lightDir, (reflect(viewVec,wavef))),0.0,1.0);
@@ -159,7 +158,7 @@ void main()
 	
 	//mix with reflection
 	// Note we actually want to use just df1, but multiplying by 0.999999 gets around an nvidia compiler bug
-	color.rgb = mix(fb.rgb, refcol.rgb, df1 * 0.4 + 0.6);
+	color.rgb = mix(fb.rgb, refcol.rgb, df1 * 0.999999);
 	
 	vec4 pos = vary_position;
 	
@@ -167,7 +166,7 @@ void main()
 	
 	//color.rgb = atmosTransport(color.rgb);
 	color.rgb = scaleSoftClip(color.rgb);
-
+    
 	color.a   = spec * sunAngle2;
     
 	vec3 screenspacewavef = normalize((norm_mat*vec4(wavef, 1.0)).xyz);

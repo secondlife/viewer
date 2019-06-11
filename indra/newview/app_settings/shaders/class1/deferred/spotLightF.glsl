@@ -177,6 +177,8 @@ void main()
 	float da = dot(norm, lv);
 		
 	vec3 diff_tex = texture2DRect(diffuseRect, frag.xy).rgb;
+    diff_tex.rgb = srgb_to_linear(diff_tex.rgb);
+
 	vec4 spec = texture2DRect(specularRect, frag.xy);
 
 	float noise = texture2D(noiseMap, frag.xy/128.0).b;

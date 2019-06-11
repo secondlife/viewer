@@ -1744,6 +1744,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredLightProgram.mName = "Deferred Light Shader";
 		gDeferredLightProgram.mFeatures.isDeferred = true;
 		gDeferredLightProgram.mFeatures.hasShadows = true;
+        gDeferredLightProgram.mFeatures.hasSrgb = true;
 
 		gDeferredLightProgram.mShaderFiles.clear();
 		gDeferredLightProgram.mShaderFiles.push_back(make_pair("deferred/pointLightV.glsl", GL_VERTEX_SHADER_ARB));
@@ -1778,6 +1779,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 			gDeferredMultiLightProgram[i].mName = llformat("Deferred MultiLight Shader %d", i);
 			gDeferredMultiLightProgram[i].mFeatures.isDeferred = true;
 			gDeferredMultiLightProgram[i].mFeatures.hasShadows = true;
+            gDeferredMultiLightProgram[i].mFeatures.hasSrgb = true;
 
             gDeferredMultiLightProgram[i].clearPermutations();
 			gDeferredMultiLightProgram[i].mShaderFiles.clear();
@@ -2693,7 +2695,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 		gDeferredWLSkyProgram.mShaderFiles.push_back(make_pair("deferred/skyV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredWLSkyProgram.mShaderFiles.push_back(make_pair("deferred/skyF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gDeferredWLSkyProgram.mShaderLevel = mShaderLevel[SHADER_WINDLIGHT];
+		gDeferredWLSkyProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 		gDeferredWLSkyProgram.mShaderGroup = LLGLSLShader::SG_SKY;
 
 		success = gDeferredWLSkyProgram.createShader(NULL, NULL);
@@ -2711,7 +2713,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         
 		gDeferredWLCloudProgram.mShaderFiles.push_back(make_pair("deferred/cloudsV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredWLCloudProgram.mShaderFiles.push_back(make_pair("deferred/cloudsF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gDeferredWLCloudProgram.mShaderLevel = mShaderLevel[SHADER_WINDLIGHT];
+		gDeferredWLCloudProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 		gDeferredWLCloudProgram.mShaderGroup = LLGLSLShader::SG_SKY;
 		success = gDeferredWLCloudProgram.createShader(NULL, NULL);
 		llassert(success);
@@ -4096,11 +4098,11 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
     if (success)
     {
         gWLSkyProgram.mName = "Windlight Sky Shader";
-        //gWLSkyProgram.mFeatures.hasGamma = true;
         gWLSkyProgram.mShaderFiles.clear();
         gWLSkyProgram.mFeatures.calculatesAtmospherics = true;
         gWLSkyProgram.mFeatures.hasTransport = true;
         gWLSkyProgram.mFeatures.hasGamma = true;
+        gWLSkyProgram.mFeatures.hasSrgb = true;
         gWLSkyProgram.mShaderFiles.push_back(make_pair("windlight/skyV.glsl", GL_VERTEX_SHADER_ARB));
         gWLSkyProgram.mShaderFiles.push_back(make_pair("windlight/skyF.glsl", GL_FRAGMENT_SHADER_ARB));
         gWLSkyProgram.mShaderLevel = mShaderLevel[SHADER_WINDLIGHT];
