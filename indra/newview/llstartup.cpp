@@ -210,8 +210,8 @@
 bool gAgentMovementCompleted = false;
 S32  gMaxAgentGroups;
 
-std::string SCREEN_HOME_FILENAME = "screen_home.bmp";
-std::string SCREEN_LAST_FILENAME = "screen_last.bmp";
+const std::string SCREEN_HOME_FILENAME = "screen_home%s.bmp";
+const std::string SCREEN_LAST_FILENAME = "screen_last%s.bmp";
 
 LLPointer<LLViewerTexture> gStartTexture;
 
@@ -2577,6 +2577,34 @@ bool callback_choose_gender(const LLSD& notification, const LLSD& response)
 	return false;
 }
 
+std::string get_screen_filename(const std::string& pattern)
+{
+    if (LLGridManager::getInstance()->isInProductionGrid())
+    {
+        return llformat(pattern.c_str(), "");
+    }
+    else
+    {
+        const std::string& grid_id_str = LLGridManager::getInstance()->getGridId();
+        const std::string& grid_id_lower = utf8str_tolower(grid_id_str);
+        std::string grid = "." + grid_id_lower;
+        return llformat(pattern.c_str(), grid.c_str());
+    }
+}
+
+//static
+std::string LLStartUp::getScreenLastFilename()
+{
+    return get_screen_filename(SCREEN_LAST_FILENAME);
+}
+
+//static
+std::string LLStartUp::getScreenHomeFilename()
+{
+    return get_screen_filename(SCREEN_HOME_FILENAME);
+}
+
+//static
 void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 								   const std::string& gender_name )
 {
@@ -2674,11 +2702,11 @@ void init_start_screen(S32 location_id)
 
 	if ((S32)START_LOCATION_ID_LAST == location_id)
 	{
-		temp_str += SCREEN_LAST_FILENAME;
+		temp_str += LLStartUp::getScreenLastFilename();
 	}
 	else
 	{
-		temp_str += SCREEN_HOME_FILENAME;
+		temp_str += LLStartUp::getScreenHomeFilename();
 	}
 
 	LLPointer<LLImageBMP> start_image_bmp = new LLImageBMP;

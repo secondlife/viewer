@@ -4505,7 +4505,7 @@ void LLAppViewer::saveFinalSnapshot()
 
 		std::string snap_filename = gDirUtilp->getLindenUserDir();
 		snap_filename += gDirUtilp->getDirDelimiter();
-		snap_filename += SCREEN_LAST_FILENAME;
+		snap_filename += LLStartUp::getScreenLastFilename();
 		// use full pixel dimensions of viewer window (not post-scale dimensions)
 		gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, TRUE);
 		mSavedFinalSnapshot = TRUE;
