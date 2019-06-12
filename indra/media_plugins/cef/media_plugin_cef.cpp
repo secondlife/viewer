@@ -96,7 +96,6 @@ private:
 	bool mCanCopy;
 	bool mCanPaste;
 	std::string mCachePath;
-	std::string mCookiePath;
 	std::string mCefLogFile;
 	bool mCefLogVerbose;
 	std::vector<std::string> mPickedFiles;
@@ -128,7 +127,6 @@ MediaPluginBase(host_send_func, host_user_data)
 	mCanCopy = false;
 	mCanPaste = false;
 	mCachePath = "";
-	mCookiePath = "";
 	mCefLogFile = "";
 	mCefLogVerbose = false;
 	mPickedFiles.clear();
@@ -509,7 +507,6 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.background_color = 0xff282828;
 				settings.cache_enabled = true;
 				settings.cache_path = mCachePath;
-				settings.cookie_store_path = mCookiePath;
 				settings.cookies_enabled = mCookiesEnabled;
 				settings.disable_gpu = mDisableGPU;
 				settings.flash_enabled = mPluginsEnabled;
@@ -559,7 +556,6 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				std::string user_data_path_cookies = message_in.getValue("cookies_path");
 
 				mCachePath = user_data_path_cache + "cef_cache";
-				mCookiePath = user_data_path_cookies + "cef_cookies";
 				mCefLogFile = message_in.getValue("cef_log_file");
 				mCefLogVerbose = message_in.getValueBoolean("cef_verbose_log");
 			}
