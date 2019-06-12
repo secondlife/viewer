@@ -113,7 +113,7 @@
 #include "llgroupmgr.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
-#include "llimagebmp.h"
+#include "llimagepng.h"
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
@@ -210,8 +210,8 @@
 bool gAgentMovementCompleted = false;
 S32  gMaxAgentGroups;
 
-const std::string SCREEN_HOME_FILENAME = "screen_home%s.bmp";
-const std::string SCREEN_LAST_FILENAME = "screen_last%s.bmp";
+const std::string SCREEN_HOME_FILENAME = "screen_home%s.png";
+const std::string SCREEN_LAST_FILENAME = "screen_last%s.png";
 
 LLPointer<LLViewerTexture> gStartTexture;
 
@@ -2709,7 +2709,7 @@ void init_start_screen(S32 location_id)
 		temp_str += LLStartUp::getScreenHomeFilename();
 	}
 
-	LLPointer<LLImageBMP> start_image_bmp = new LLImageBMP;
+	LLPointer<LLImagePNG> start_image_png = new LLImagePNG;
 	
 	// Turn off start screen to get around the occasional readback 
 	// driver bug
@@ -2718,18 +2718,18 @@ void init_start_screen(S32 location_id)
 		LL_INFOS("AppInit")  << "Bitmap load disabled" << LL_ENDL;
 		return;
 	}
-	else if(!start_image_bmp->load(temp_str) )
+	else if(!start_image_png->load(temp_str) )
 	{
 		LL_WARNS("AppInit") << "Bitmap load failed" << LL_ENDL;
 		gStartTexture = NULL;
 	}
 	else
 	{
-		gStartImageWidth = start_image_bmp->getWidth();
-		gStartImageHeight = start_image_bmp->getHeight();
+		gStartImageWidth = start_image_png->getWidth();
+		gStartImageHeight = start_image_png->getHeight();
 
 		LLPointer<LLImageRaw> raw = new LLImageRaw;
-		if (!start_image_bmp->decode(raw, 0.0f))
+		if (!start_image_png->decode(raw, 0.0f))
 		{
 			LL_WARNS("AppInit") << "Bitmap decode failed" << LL_ENDL;
 			gStartTexture = NULL;
