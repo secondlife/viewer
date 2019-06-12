@@ -9394,7 +9394,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                     updateCull(camera, mReflectedObjects, -water_clip, &plane);
                     stateSort(camera, mReflectedObjects);
                     renderGeom(camera);
-                    
                 }
                 gPipeline.popRenderTypeMask();
                 mWaterRef.flush();
@@ -9430,7 +9429,9 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
             if (LLPipeline::sUnderWaterRender)
             {
-                clearRenderTypeMask(LLPipeline::RENDER_TYPE_SKY,
+                clearRenderTypeMask(
+                                    LLPipeline::RENDER_TYPE_GROUND,
+									LLPipeline::RENDER_TYPE_SKY,
                                     LLPipeline::RENDER_TYPE_CLOUDS,
                                     LLPipeline::RENDER_TYPE_WL_SKY,
                                     END_RENDER_TYPES);      
@@ -9451,12 +9452,28 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                 mWaterDis.bindTarget();
                 mWaterDis.getViewport(gGLViewport);
 
+                gGL.setColorMask(true, true);
+                mWaterDis.clear();
+                gGL.setColorMask(true, false);
+
+                if (detail < 4)
+                {
+                    clearRenderTypeMask(LLPipeline::RENDER_TYPE_PARTICLES, END_RENDER_TYPES);
+                    if (detail < 3)
+                    {
+                        clearRenderTypeMask(LLPipeline::RENDER_TYPE_AVATAR, END_RENDER_TYPES);
+                        if (detail < 2)
+                        {
+                            clearRenderTypeMask(LLPipeline::RENDER_TYPE_VOLUME, END_RENDER_TYPES);
+                        }
+                    }
+                }                    
+
                 F32 water_dist = water_height * LLPipeline::sDistortionWaterClipPlaneMargin;
 
                 //clip out geometry on the same side of water as the camera w/ enough margin to not include the water geo itself,
                 // but not so much as to clip out parts of avatars that should be seen under the water in the distortion map
                 LLPlane plane(-pnorm, water_dist);
-
                 LLGLUserClipPlane clip_plane(plane, current, projection);
 
                 gGL.setColorMask(true, true);
@@ -9469,25 +9486,9 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                     clip_plane.disable();
                 }
 
-                if (detail > 0)
-                {
-                    if (detail < 4)
-                    {
-                        clearRenderTypeMask(LLPipeline::RENDER_TYPE_PARTICLES, END_RENDER_TYPES);
-                        if (detail < 3)
-                        {
-                            clearRenderTypeMask(LLPipeline::RENDER_TYPE_AVATAR, END_RENDER_TYPES);
-                            if (detail < 2)
-                            {
-                                clearRenderTypeMask(LLPipeline::RENDER_TYPE_VOLUME, END_RENDER_TYPES);
-                            }
-                        }
-                    }
-
-                    updateCull(camera, mRefractedObjects, water_clip, &plane);
-                    stateSort(camera, mRefractedObjects);
-                    renderGeom(camera);
-                }
+                updateCull(camera, mRefractedObjects, water_clip, &plane);
+                stateSort(camera, mRefractedObjects);
+                renderGeom(camera);
 
                 if (LLGLSLShader::sNoFixedFunction)
                 {
