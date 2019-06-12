@@ -787,7 +787,7 @@ void LLPanelProfileSecondLife::onCommitMenu(const LLSD& userdata)
     LLWString wstr;
     if (item_name == "display")
     {
-        wstr = utf8str_to_wstring(av_name.getDisplayName());
+        wstr = utf8str_to_wstring(av_name.getDisplayName(true));
     }
     else if (item_name == "name")
     {
