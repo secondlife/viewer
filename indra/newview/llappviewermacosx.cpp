@@ -241,7 +241,7 @@ bool LLAppViewerMacOSX::init()
 {
 	bool success = LLAppViewer::init();
     
-#if LL_SEND_CRASH_REPORTS
+#if !defined LL_BUGSPLAT && LL_SEND_CRASH_REPORTS
     if (success)
     {
         LLAppViewer* pApp = LLAppViewer::instance();
@@ -368,6 +368,7 @@ bool LLAppViewerMacOSX::restoreErrorTrap()
 
 void LLAppViewerMacOSX::initCrashReporting(bool reportFreeze)
 {
+#ifndef LL_BUGSPLAT
 	std::string command_str = "mac-crash-logger.app";
     
     std::stringstream pid_str;
@@ -379,6 +380,9 @@ void LLAppViewerMacOSX::initCrashReporting(bool reportFreeze)
     LL_WARNS() << "about to launch mac-crash-logger" << pid_str.str()
                << " " << logdir << " " << appname << LL_ENDL;
     launchApplication(&command_str, &args);
+#else
+    LL_DEBUGS("InitOSX") << "using BugSplat instead of legacy crash logger" << LL_ENDL;
+#endif // ! LL_BUGSPLAT
 }
 
 std::string LLAppViewerMacOSX::generateSerialNumber()
@@ -390,7 +394,8 @@ std::string LLAppViewerMacOSX::generateSerialNumber()
 	CFStringRef serialNumber = NULL;
 	io_service_t    platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault,
 																 IOServiceMatching("IOPlatformExpertDevice"));
-	if (platformExpert) {
+	if (platformExpert)
+    {
 		serialNumber = (CFStringRef) IORegistryEntryCreateCFProperty(platformExpert,
 																	 CFSTR(kIOPlatformSerialNumberKey),
 																	 kCFAllocatorDefault, 0);		
