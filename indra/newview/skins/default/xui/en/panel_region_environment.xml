@@ -45,8 +45,6 @@
                 name="pnl_environment_config"
                 visible="true">
             <layout_stack 
-                    width="530"
-                    height="367"
                     follows="all"
                     layout="topleft"
                     animate="false"
@@ -336,7 +334,6 @@
                                 enabled="false"
                                 top_delta="3"
                                 left_pad="21"
-                                left="-160"
                                 height="20"
                                 layout="topleft"
                                 name="edt_invname_alt3"
@@ -456,7 +453,6 @@
                            enabled="false"
                            top_delta="-1"
                            left_pad="2"
-                           left="-160"
                            height="20"
                            layout="topleft"
                            name="edt_invname_ground"
