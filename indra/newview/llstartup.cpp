@@ -113,7 +113,7 @@
 #include "llgroupmgr.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
-#include "llimagepng.h"
+#include "llimage.h"
 #include "llinventorybridge.h"
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
@@ -2698,6 +2698,7 @@ void init_start_screen(S32 location_id)
 
 	LL_DEBUGS("AppInit") << "Loading startup bitmap..." << LL_ENDL;
 
+	U8 image_codec = IMG_CODEC_PNG;
 	std::string temp_str = gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter();
 
 	if ((S32)START_LOCATION_ID_LAST == location_id)
@@ -2706,11 +2707,23 @@ void init_start_screen(S32 location_id)
 	}
 	else
 	{
-		temp_str += LLStartUp::getScreenHomeFilename();
+		std::string path = temp_str + LLStartUp::getScreenHomeFilename();
+		
+		if (!gDirUtilp->fileExists(path) && LLGridManager::getInstance()->isInProductionGrid())
+		{
+			// Fallback to old file, can be removed later
+			// Home image only sets when user changes home, so it will take time for users to switch to pngs
+			temp_str += "screen_home.bmp";
+			image_codec = IMG_CODEC_BMP;
+		}
+		else
+		{
+			temp_str = path;
+		}
 	}
 
-	LLPointer<LLImagePNG> start_image_png = new LLImagePNG;
-	
+	LLPointer<LLImageFormatted> start_image_frmted = LLImageFormatted::createFromType(image_codec);
+
 	// Turn off start screen to get around the occasional readback 
 	// driver bug
 	if(!gSavedSettings.getBOOL("UseStartScreen"))
@@ -2718,18 +2731,18 @@ void init_start_screen(S32 location_id)
 		LL_INFOS("AppInit")  << "Bitmap load disabled" << LL_ENDL;
 		return;
 	}
-	else if(!start_image_png->load(temp_str) )
+	else if(!start_image_frmted->load(temp_str) )
 	{
 		LL_WARNS("AppInit") << "Bitmap load failed" << LL_ENDL;
 		gStartTexture = NULL;
 	}
 	else
 	{
-		gStartImageWidth = start_image_png->getWidth();
-		gStartImageHeight = start_image_png->getHeight();
+		gStartImageWidth = start_image_frmted->getWidth();
+		gStartImageHeight = start_image_frmted->getHeight();
 
 		LLPointer<LLImageRaw> raw = new LLImageRaw;
-		if (!start_image_png->decode(raw, 0.0f))
+		if (!start_image_frmted->decode(raw, 0.0f))
 		{
 			LL_WARNS("AppInit") << "Bitmap decode failed" << LL_ENDL;
 			gStartTexture = NULL;
