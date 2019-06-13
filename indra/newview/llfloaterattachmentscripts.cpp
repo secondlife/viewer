@@ -141,14 +141,17 @@ void LLFloaterAttachmentScripts::handleScriptData(const LLSD &results, U32 statu
     if (!mScrollList)
         return;
 
+    S32 scriptcount(0);
+    S32 runningscript(0);
+
     mScrollList->deleteAllItems();
 
     LLUUID agent_id = results["agent_id"].asUUID();
     S32    scripts_running = results["scripts_running"].asInteger();
-    S32    scripts_remaining = results["scripts_remaining"].asInteger();
+    S32    scripts_remaining = results["script_limit"].asInteger();
     S32    scripts_total = results["scripts_total"].asInteger();
 
-    LL_WARNS("MILOTIC") << "results returned: agent_id=" << agent_id << " running=" << scripts_running << " remaining=" << scripts_remaining << " total=" << scripts_total << LL_ENDL;
+    LL_WARNS("MILOTIC") << "results returned: agent_id=" << agent_id << " running=" << scripts_running << " limit=" << scripts_remaining << " total=" << scripts_total << LL_ENDL;
 
     LLSD    attachments = results["attachments"];
     for (LLSD::array_const_iterator it_atch = attachments.beginArray(); it_atch != attachments.endArray(); ++it_atch)
@@ -171,14 +174,20 @@ void LLFloaterAttachmentScripts::handleScriptData(const LLSD &results, U32 statu
             F32         script_exectime = (*it_scpt)["execution_time"].asReal();
             LLUUID      script_experience = (*it_scpt)["experience"].asUUID();
             U32         script_permissions = (*it_scpt)["permissions"].asInteger();
+            bool        is_suspended = (*it_scpt)["suspended"].asBoolean();
             S32         script_memory = (*it_scpt)["resources"]["memory"].asInteger();
             S32         script_urls = (*it_scpt)["resources"]["urls"].asInteger();
             S32         script_listens = (*it_scpt)["resources"]["listens"].asInteger();
 
-            LL_WARNS("MILOTIC") << "results returned: ******* id=" << script_id << " name='" << script_name <<
+            ++scriptcount;
+
+            if (script_running)
+                ++runningscript;
+
+            LL_WARNS("MILOTIC") << "results returned: ******* #" << scriptcount << " id=" << script_id << " name='" << script_name <<
                 "' running=" << script_running << " canrun=" << script_canrun <<
                 " time=" << script_exectime << " exp=" << script_experience <<
-                " permissions=" << script_permissions << " memory=" << script_memory << " urls=" << script_urls << " listens=" << script_listens << LL_ENDL;
+                " permissions=" << script_permissions << "suspended=" << is_suspended << " memory=" << script_memory << " urls=" << script_urls << " listens=" << script_listens << LL_ENDL;
 
             LLSD element;
             element["id"] = script_id;
@@ -209,9 +218,19 @@ void LLFloaterAttachmentScripts::handleScriptData(const LLSD &results, U32 statu
                     }
                 });
 
+                if (is_suspended)
+                {
+                    for (S32 idx = 0; idx < item->getNumColumns(); idx++)
+                    {
+                        LLScrollListCell *cell = item->getColumn(idx);
+                        cell->setColor(LLColor3(1.0, 0.0, 0.0));
+                    }
+                }
             }
         }
     }
+
+    LL_WARNS("MILOTIC") << "total scripts=" << scriptcount << " running scripts=" << runningscript << LL_ENDL;
 
 }
 
