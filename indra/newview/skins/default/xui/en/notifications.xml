@@ -326,6 +326,16 @@ Initialization with the Marketplace failed because of a system or network error.
         name="okbutton"
         yestext="OK"/>
     </notification>
+  
+    <notification
+        icon="OutboxStatus_Error"
+        name="MyOutfitsPasteFailed"
+        type="alertmodal">
+       One or more items can't be used inside "My outfits"
+      <usetemplate
+        name="okbutton"
+        yestext="OK"/>
+    </notification>
     
     <notification
         icon="OutboxStatus_Error"
