@@ -12780,16 +12780,11 @@ render_pass="bump">
 	  <layer
      name="base"
 	 write_all_channels="true"
-	 fixed_color = "0,0,0,255">
+	 fixed_color = "128,128,128,255">
 		  <texture
 		   tga_file="aux_base.tga" />
 	  </layer>
-	  <layer
-		name="base alpha layer"
-		visibility_mask="TRUE">
-		  <texture
-			 tga_file="aux_base.tga" />
-	  </layer> 
+	  
     <layer
        name="leftarm_tattoo">
       <texture
@@ -12861,17 +12856,11 @@ render_pass="bump">
 	  <layer
      name="base"
 	 write_all_channels="true"
-	 fixed_color = "0,0,0,255">
+	 fixed_color = "128,128,128,255">
 		  <texture
 		   tga_file="aux_base.tga" />
 	  </layer>
-	  <layer
-		name="base alpha layer"
-		visibility_mask="TRUE">
-		  <texture
-			 tga_file="aux_base.tga" />
-	  </layer>
-	  <layer
+    <layer
        name="leftleg_tattoo">
       <texture
          local_texture="leftleg_tattoo" />
@@ -12943,18 +12932,12 @@ render_pass="bump">
 	  <layer
      name="base"
 	 write_all_channels="true"
-	 fixed_color = "0,0,0,255">
+	 fixed_color = "128,128,128,255">
 		  <texture
 		   tga_file="aux_base.tga" />
 	  </layer>
-	  <layer
-		name="base alpha layer"
-		visibility_mask="TRUE">
-		  <texture
-			 tga_file="aux_base.tga" />
-	  </layer>
-
-	  <layer
+	  
+    <layer
        name="aux1_tattoo">
       <texture
          local_texture="aux1_tattoo" />
@@ -13024,20 +13007,14 @@ render_pass="bump">
    clear_alpha="false">
 
 	  <layer
-	  name="base"
-	  write_all_channels="true"
-	  fixed_color = "0,0,0,255">
+     name="base"
+	 write_all_channels="true"
+	 fixed_color = "128,128,128,255">
 		  <texture
 		   tga_file="aux_base.tga" />
 	  </layer>
-	  <layer
-		name="base alpha layer"
-		visibility_mask="TRUE">
-		  <texture
-			 tga_file="aux_base.tga" />
-	  </layer>
-
-	  <layer
+	  
+    <layer
        name="aux2_tattoo">
       <texture
          local_texture="aux2_tattoo" />
@@ -13107,20 +13084,14 @@ render_pass="bump">
    clear_alpha="false">
 
 	  <layer
-	  name="base"
-	  write_all_channels="true"
-	  fixed_color = "0,0,0,255">
+     name="base"
+	 write_all_channels="true"
+	 fixed_color = "128,128,128,255">
 		  <texture
 		   tga_file="aux_base.tga" />
 	  </layer>
-	  <layer
-		name="base alpha layer"
-		visibility_mask="TRUE">
-		  <texture
-			 tga_file="aux_base.tga" />
-	  </layer>
-
-	  <layer
+	  
+    <layer
        name="aux3_tattoo">
       <texture
          local_texture="aux3_tattoo" />
