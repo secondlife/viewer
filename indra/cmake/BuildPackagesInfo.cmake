@@ -8,7 +8,7 @@ include(Python)
 # building in an IDE, it probably isn't. Set it explicitly using
 # run_build_test.py.
 add_custom_command(OUTPUT packages-info.txt
-  COMMENT Generating packages-info.txt for the about box
+  COMMENT "Generating packages-info.txt for the about box"
   MAIN_DEPENDENCY ${CMAKE_SOURCE_DIR}/../autobuild.xml
   DEPENDS ${CMAKE_SOURCE_DIR}/../scripts/packages-formatter.py
           ${CMAKE_SOURCE_DIR}/../autobuild.xml
