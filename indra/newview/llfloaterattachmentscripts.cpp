@@ -153,7 +153,14 @@ void LLFloaterAttachmentScripts::handleScriptData(const LLSD &results, U32 statu
 
     LL_WARNS("MILOTIC") << "results returned: agent_id=" << agent_id << " running=" << scripts_running << " limit=" << scripts_remaining << " total=" << scripts_total << LL_ENDL;
 
-    LLSD    attachments = results["attachments"];
+    LLSD errors = results["errors"];
+
+    for (LLSD::map_iterator it_err = errors.beginMap(); it_err != errors.endMap(); ++it_err)
+    {
+        LL_WARNS("MILOTIC") << "Error starting " << (*it_err).first << " (" << (*it_err).second[0] << ") \"" << (*it_err).second[1] << "\"" << LL_ENDL;
+    }
+
+    LLSD attachments = results["attachments"];
     for (LLSD::array_const_iterator it_atch = attachments.beginArray(); it_atch != attachments.endArray(); ++it_atch)
     {
         LLUUID      item_id = (*it_atch)["item_id"].asUUID();
