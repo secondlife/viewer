@@ -43,8 +43,6 @@ void main()
 {
 	float alpha = diffuseLookup(vary_texcoord0.xy).a;
 
-    alpha *= vertex_color.a;
-
     // mask cutoff 0 -> no shadow SL-11051
     if (minimum_alpha == 0)
     {
@@ -63,6 +61,8 @@ void main()
 	    discard;
 	  }
 	}
+
+    alpha *= vertex_color.a;
 
 	frag_color = vec4(1,1,1,1);
 	
