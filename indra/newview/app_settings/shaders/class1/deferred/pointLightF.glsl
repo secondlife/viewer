@@ -58,6 +58,7 @@ uniform vec4 viewport;
 
 vec3 getNorm(vec2 pos_screen);
 vec4 getPosition(vec2 pos_screen);
+vec3 srgb_to_linear(vec3 c);
 
 void main() 
 {
@@ -89,6 +90,7 @@ void main()
     float noise = texture2D(noiseMap, frag.xy/128.0).b;
     
     vec3 col = texture2DRect(diffuseRect, frag.xy).rgb;
+    col.rgb = srgb_to_linear(col.rgb);
 
     float fa = falloff+1.0;
     float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
