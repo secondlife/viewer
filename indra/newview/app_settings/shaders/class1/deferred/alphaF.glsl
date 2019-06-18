@@ -96,12 +96,12 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
 	float dist = length(lv);
 	float da = 1.0;
 
-    if (dist > la)
+    /*if (dist > la)
     {
         return col;
     }
 
-    /* clip to projector bounds
+    clip to projector bounds
      vec4 proj_tc = proj_mat * lp;
 
     if (proj_tc.z < 0
@@ -116,15 +116,15 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
 
 	if (dist > 0.0 && la > 0.0)
 	{
-         dist /= la;
+        dist /= la;
 
 		//normalize light vector
 		lv = normalize(lv);
 	
 		//distance attenuation
+        fa += 1.0f;
 		float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
 		dist_atten *= dist_atten;
-        //dist_atten *= 2.0f;
 
         if (dist_atten <= 0.0)
         {
@@ -137,10 +137,11 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
 
 		//angular attenuation
 		da *= dot(n, lv);
+        da = max(0.0, da);
 
 		float lit = 0.0f;
 
-        float amb_da = ambiance;
+        float amb_da = 0.0;//ambiance;
         if (da > 0)
         {
 		    lit = max(da * dist_atten,0.0);
@@ -151,7 +152,8 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
         amb_da *= dist_atten;
         amb_da = min(amb_da, 1.0f - lit);
 
-        col.rgb += amb_da * light_col * diffuse;
+        // SL-10969 ... need to work out why this blows out in many setups...
+        //col.rgb += amb_da * light_col * diffuse;
 
         // no spec for alpha shader...
     }
@@ -174,13 +176,14 @@ void main()
 #endif
 
 #ifdef USE_DIFFUSE_TEX
-    vec4 diffuse_srgb = texture2D(diffuseMap,vary_texcoord0.xy);
+    vec4 diffuse_tap = texture2D(diffuseMap,vary_texcoord0.xy);
 #endif
 
 #ifdef USE_INDEXED_TEX
-    vec4 diffuse_srgb = diffuseLookup(vary_texcoord0.xy);
+    vec4 diffuse_tap = diffuseLookup(vary_texcoord0.xy);
 #endif
 
+    vec4 diffuse_srgb = diffuse_tap;
     vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_srgb.a);
 
 #ifdef FOR_IMPOSTOR
@@ -205,7 +208,6 @@ void main()
     
 #ifdef USE_VERTEX_COLOR
     float final_alpha = diffuse_linear.a * vertex_color.a;
-    diffuse_srgb.rgb *= vertex_color.rgb;
     diffuse_linear.rgb *= vertex_color.rgb;
 #else
     float final_alpha = diffuse_linear.a;

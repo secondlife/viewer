@@ -117,6 +117,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 		lv = normalize(lv);
 	
 		//distance attenuation
+        fa += 1.0f;
 		float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
 		dist_atten *= dist_atten;
         //dist_atten *= 2.0f;
@@ -136,7 +137,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 		float lit = 0.0f;
 
         float amb_da = ambiance;
-        if (da > 0)
+        if (da >= 0)
         {
 		    lit = max(da * dist_atten,0.0);
             col = lit * light_col * diffuse;
@@ -146,7 +147,8 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
         amb_da *= dist_atten;
         amb_da = min(amb_da, 1.0f - lit);
 
-        col.rgb += amb_da * light_col * diffuse;
+        // SL-10969 need to see why these are blown out
+        //col.rgb += amb_da * light_col * diffuse;
 
 		if (spec.a > 0.0)
 		{
@@ -225,8 +227,14 @@ void main()
     vec2 pos_screen = vary_texcoord0.xy;
 
     vec4 diffuse_tap = texture2D(diffuseMap, vary_texcoord0.xy);
+
+#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
+    vec4 diffuse_srgb = diffuse_tap;
+    vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_srgb.a);
+#else
     vec4 diffuse_linear = diffuse_tap;
-    vec4 diffuse_srgb = vec4(linear_to_srgb(diffuse_linear.rgb), diffuse_tap.a);
+    vec4 diffuse_srgb = vec4(linear_to_srgb(diffuse_linear.rgb), diffuse_linear.a);
+#endif
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_MASK)
     if (diffuse_linear.a < minimum_alpha)
@@ -338,7 +346,7 @@ vec3 post_ambient = color.rgb;
 
 vec3 post_sunlight = color.rgb;
 
-    color.rgb *= diffuse_linear.rgb;
+    color.rgb *= diffuse_srgb.rgb;
  
 vec3 post_diffuse = color.rgb;
 
