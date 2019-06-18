@@ -165,6 +165,8 @@ void main()
                 + (haze_horizon * haze_weight) * (sunlight * temp2.x + ambient_color)
              ); 
 
+    // Final atmosphere additive
+    color *= (1. - temp1);
 
     // Increase ambient when there are more clouds
     vec4 tmpAmbient = ambient_color;
@@ -178,8 +180,7 @@ void main()
                 + (haze_horizon * haze_weight) * (sunlight * temp2.x + tmpAmbient)
              ); 
 
-    // Final atmosphere additive
-    color *= (1. - temp1);
+    
     
     // Attenuate cloud color by atmosphere
     temp1 = sqrt(temp1);    //less atmos opacity (more transparency) below clouds
@@ -201,6 +202,6 @@ void main()
     /// Gamma correct for WL (soft clip effect).
     frag_data[0] = vec4(color.rgb, 1.0);
     frag_data[1] = vec4(0.0,0.0,0.0,0.0);
-    frag_data[2] = vec4(0.5,0.5,0.0,1.0); //1.0 in norm.w masks off fog
+    frag_data[2] = vec4(0.0,0.0,0.0,1.0); //1.0 in norm.w masks off fog
 }
 
