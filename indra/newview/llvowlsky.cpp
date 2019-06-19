@@ -111,7 +111,7 @@ inline F32 LLVOWLSky::calcPhi(U32 i)
 	t = t*t;
 	t = 1.f - t;
 
-	return F_PI * t;
+	return (F_PI / 8.f) * t;
 }
 
 void LLVOWLSky::resetVertexBuffers()
@@ -382,7 +382,11 @@ void LLVOWLSky::buildStripsBuffer(U32 begin_stack,
 	llassert(end_stack <= num_stacks);
 
 	// stacks are iterated one-indexed since phi(0) was handled by the fan above
+#if NEW_TESS
 	for(i = begin_stack; i <= end_stack; ++i) 
+#else
+    for(i = begin_stack + 1; i <= end_stack+1; ++i) 
+#endif
 	{
 		phi0 = calcPhi(i);
 
@@ -396,7 +400,22 @@ void LLVOWLSky::buildStripsBuffer(U32 begin_stack,
 			y0 = cos(phi0);
 			z0 = sin(phi0) * sin(theta);
 
+#if NEW_TESS
             *vertices++ = LLVector3(x0 * RADIUS, y0 * RADIUS, z0 * RADIUS);
+#else
+            if (i == num_stacks-2)
+			{
+				*vertices++ = LLVector3(x0*RADIUS, y0*RADIUS-1024.f*2.f, z0*RADIUS);
+			}
+			else if (i == num_stacks-1)
+			{
+				*vertices++ = LLVector3(0, y0*RADIUS-1024.f*2.f, 0);
+			}
+			else
+			{
+				*vertices++		= LLVector3(x0 * RADIUS, y0 * RADIUS, z0 * RADIUS);
+			}
+#endif
 
 			++count_verts;
 
@@ -404,7 +423,7 @@ void LLVOWLSky::buildStripsBuffer(U32 begin_stack,
 			// note: x and z are transposed in order for things to animate
 			// correctly in the global coordinate system where +x is east and
 			// +y is north
-			*texCoords++ = LLVector2((-z0 + 1.f) / 2.f, (-x0 + 1.f) / 2.f);
+			*texCoords++	= LLVector2((-z0 + 1.f) / 2.f, (-x0 + 1.f) / 2.f);
 		}
 	}
 

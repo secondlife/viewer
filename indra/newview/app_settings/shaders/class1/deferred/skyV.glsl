@@ -66,7 +66,7 @@ void main()
 	gl_Position = pos;
 	
 	// Get relative position
-	vec3 P = pos.xyz - camPosLocal.xyz + vec3(0,50,0);
+	vec3 P = position.xyz - camPosLocal.xyz + vec3(0,50,0);
 
 	// Set altitude
 	if (P.y > 0.)
@@ -81,7 +81,7 @@ void main()
 	// Can normalize then
 	vec3 Pn = normalize(P);
 
-	float  Plen = length(P);
+	float Plen = length(P);
 
 	// Initialize temp variables
 	vec4 temp1 = vec4(0.);
@@ -114,9 +114,7 @@ void main()
 	// Transparency (-> temp1)
     // ATI Bugfix -- can't store temp1*temp2.z in a variable because the ati
     // compiler gets confused.
-    //temp1 = exp(-temp1 * temp2.z * dist_mul);
-    temp1 = exp(-temp1 * dist_mul);
-
+    temp1 = exp(-temp1 * temp2.z * dist_mul);
 
 	// Compute haze glow
 	temp2.x = dot(Pn, lightnorm.xyz);
@@ -132,11 +130,12 @@ void main()
 	// Add "minimum anti-solar illumination"
 	temp2.x += .25;
 
-    temp2.x *= sun_moon_glow_factor;
+    //temp2.x *= sun_moon_glow_factor;
 
     vec4 color = (    blue_horizon * blue_weight * (sunlight + ambient_color)
                 + (haze_horizon * haze_weight) * (sunlight * temp2.x + ambient_color)
              );
+
 
     // Final atmosphere additive
     color *= (1. - temp1);

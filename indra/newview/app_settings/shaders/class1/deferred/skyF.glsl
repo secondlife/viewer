@@ -41,6 +41,7 @@ uniform vec4 gamma;
 
 /// Soft clips the light with a gamma correction
 vec3 scaleSoftClip(vec3 light);
+vec3 srgb_to_linear(vec3 c);
 
 void main()
 {
