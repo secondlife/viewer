@@ -226,6 +226,9 @@ void LLDrawPoolAlpha::beginRenderPass(S32 pass)
         }
     }
 	gPipeline.enableLightsDynamic();
+
+    LLGLSLShader::bindNoShader();
+	current_shader = NULL;
 }
 
 void LLDrawPoolAlpha::endRenderPass( S32 pass )

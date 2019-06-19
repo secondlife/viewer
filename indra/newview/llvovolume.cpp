@@ -6493,14 +6493,20 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 					}
 					else
 					{
-						if (mat->getEnvironmentIntensity() > 0 ||
-							te->getShiny() > 0)
+						if (mat->getEnvironmentIntensity() > 0 || te->getShiny() > 0)
 						{
 							material_pass = true;
 						}
-						else if (!invisible)
+						else
 						{
-							registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT);
+                            if (opaque)
+						    {
+							    registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT);
+                            }
+                            else
+                            {
+                                registerFace(group, facep, LLRenderPass::PASS_ALPHA);
+                            }
 						}
 					}
 				}
@@ -6565,7 +6571,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 				{
 					registerFace(group, facep, fullbright ? LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK : LLRenderPass::PASS_ALPHA_MASK);
 				}
-				else if (is_alpha || (te->getColor().mV[3] < 0.999f))
+				else if (is_alpha || transparent)
 				{
 					registerFace(group, facep, LLRenderPass::PASS_ALPHA);
 				}
