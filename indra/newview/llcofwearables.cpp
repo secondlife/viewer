@@ -502,12 +502,13 @@ void LLCOFWearables::populateAttachmentsAndBodypartsLists(const LLInventoryModel
 	{
 		mAttachments->sort();
 		mAttachments->notify(REARRANGE); //notifying the parent about the list's size change (cause items were added with rearrange=false)
-		setAttachmentsTitle();
 	}
 	else
 	{
 		mAttachments->setNoItemsCommentText(LLTrans::getString("no_attachments"));
 	}
+
+	setAttachmentsTitle();
 
 	if (mBodyParts->size())
 	{
