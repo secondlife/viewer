@@ -1894,8 +1894,6 @@ bool LLAppViewer::cleanup()
 
  	//end_messaging_system();
 
-	SUBSYSTEM_CLEANUP(LLFollowCamMgr);
-	//SUBSYSTEM_CLEANUP(LLVolumeMgr);
 	LLPrimitive::cleanupVolumeManager();
 	SUBSYSTEM_CLEANUP(LLWorldMapView);
 	SUBSYSTEM_CLEANUP(LLFolderViewItem);

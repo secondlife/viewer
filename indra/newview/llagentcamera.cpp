@@ -1140,7 +1140,7 @@ void LLAgentCamera::updateCamera()
 		mCameraUpVector = mCameraUpVector * gAgentAvatarp->getRenderRotation();
 	}
 
-	if (cameraThirdPerson() && (mFocusOnAvatar || mAllowChangeToFollow) && LLFollowCamMgr::getActiveFollowCamParams())
+	if (cameraThirdPerson() && (mFocusOnAvatar || mAllowChangeToFollow) && LLFollowCamMgr::getInstance()->getActiveFollowCamParams())
 	{
 		mAllowChangeToFollow = FALSE;
 		mFocusOnAvatar = TRUE;
@@ -1240,7 +1240,7 @@ void LLAgentCamera::updateCamera()
 			// *TODO: use combined rotation of frameagent and sit object
 			LLQuaternion avatarRotationForFollowCam = gAgentAvatarp->isSitting() ? gAgentAvatarp->getRenderRotation() : gAgent.getFrameAgent().getQuaternion();
 
-			LLFollowCamParams* current_cam = LLFollowCamMgr::getActiveFollowCamParams();
+			LLFollowCamParams* current_cam = LLFollowCamMgr::getInstance()->getActiveFollowCamParams();
 			if (current_cam)
 			{
 				mFollowCam.copyParams(*current_cam);
@@ -2100,7 +2100,7 @@ void LLAgentCamera::changeCameraToDefault()
 		return;
 	}
 
-	if (LLFollowCamMgr::getActiveFollowCamParams())
+	if (LLFollowCamMgr::getInstance()->getActiveFollowCamParams())
 	{
 		changeCameraToFollow();
 	}
