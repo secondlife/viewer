@@ -2396,6 +2396,7 @@ Your search terms were too short so no search was performed.
    icon="alertmodal.tga"
    name="CouldNotTeleportReason"
    type="alertmodal">
+    <unique/>
 Teleport failed.
 [REASON]
   <tag>fail</tag>
