@@ -110,6 +110,8 @@
 #include "lldispatcher.h"
 #include "llviewergenericmessage.h"
 
+#include <boost/lexical_cast.hpp>
+
 //#define DEBUG_UPDATE_TYPE
 
 BOOL		LLViewerObject::sVelocityInterpolate = TRUE;
@@ -6890,7 +6892,7 @@ void LLViewerObject::applyExtendedAttributesVisualParams()
 {
 	const LLUUID& object_id = getID();
 	LLSD params_sd = LLObjectExtendedAttributesMap::instance().getField(object_id, "VisualParams");
-	if (params_sd.isArray())
+	if (params_sd.isMap())
 	{
 		LL_INFOS("Axon") << "Processing visual params for object " << object_id << LL_ENDL;
 
@@ -6902,13 +6904,8 @@ void LLViewerObject::applyExtendedAttributesVisualParams()
 		}
 		if (!volp->isAnimatedObject())
 		{
-			LL_WARNS("Axon") << "Ignoring visual params state for non-animated object " << object_id << LL_ENDL;
+			LL_WARNS("Axon") << "Skipping visual params for non-animated object " << object_id << LL_ENDL;
 			return;
-		}
-
-		if (gShowObjectUpdates)
-		{
-			gPipeline.addDebugBlip(volp->getPositionAgent(), LLColor4::magenta);
 		}
 
 		LLControlAvatar *cav = volp->getControlAvatar();
@@ -6918,12 +6915,23 @@ void LLViewerObject::applyExtendedAttributesVisualParams()
 			return;
 		}
 		bool params_changed = false;
-		for (LLSD::array_iterator it = params_sd.beginArray();
-			 it != params_sd.endArray(); ++it)
+		S32 params_count = 0;
+
+		// copy into std::map so we can traverse keys in sorted order.
+		std::map<S32, F32> param_vals_map;
+		for (LLSD::map_iterator it = params_sd.beginMap();
+			 it != params_sd.endMap(); ++it)
 		{
-			LLSD& param_sd = *it;
-			S32 param_id = param_sd.get("id").asInteger();
-			F32 normalized_weight = param_sd.get("weight").asReal();
+			params_count++;
+			const std::string& param_id_str = it->first;
+			S32 param_id = boost::lexical_cast<S32>(param_id_str);
+			F32 normalized_weight = it->second.asReal();
+			param_vals_map[param_id] = normalized_weight;
+		}
+		for (auto it = param_vals_map.begin(); it != param_vals_map.end(); ++it)
+		{
+			S32 param_id = it->first;
+			F32 normalized_weight = it->second;
 			LLVisualParam *param = cav->getVisualParam(param_id);
 			if (!param)
 			{
@@ -6942,6 +6950,17 @@ void LLViewerObject::applyExtendedAttributesVisualParams()
 		{
 			cav->updateVisualParams();
 		}
+		if (params_count && gShowObjectUpdates)
+		{
+			gPipeline.addDebugBlip(volp->getPositionAgent(), LLColor4::magenta);
+		}
+
+	}
+	else
+	{
+		LL_DEBUGS("Axon") << "ObjectExtendedAttributes map does not have suitable data for VisualParams,"
+						 << " contents are: " << ll_pretty_print_sd(LLObjectExtendedAttributesMap::instance()[object_id])
+						 << LL_ENDL;
 	}
 }
 
@@ -6962,7 +6981,10 @@ LLSD LLObjectExtendedAttributesMap::getField(const LLUUID& object_id, const std:
 	auto it = find(object_id);
 	if (it != end())
 	{
-		result = it->second.get(field_name);
+		if (it->second.has(field_name))
+		{
+			result = it->second.get(field_name);
+		}
 	}
 	return result;
 }
