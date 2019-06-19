@@ -28,23 +28,20 @@
 #define LL_LLMACHINEID_H
 
 
-class LLMachineID 
+class LLMachineID : public LLSingleton<LLMachineID>
 {
+    LLSINGLETON(LLMachineID);
 public:
-	LLMachineID();
-	virtual	~LLMachineID();
-    static S32 getUniqueID(unsigned char *unique_id, size_t len);
-    static S32 init();
-
-protected:
+    S32 getUniqueID(unsigned char *unique_id, size_t len);
 
 private:
+    S32 requestUniqueID();
 
+private:
+    bool mHasStaticUniqueId;
+    unsigned char mStaticUniqueId[6];
 
 };
-
-
-
 
 
 #endif // LL_LLMACHINEID_H

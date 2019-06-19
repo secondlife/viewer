@@ -1,5 +1,5 @@
 /** 
- * @file llmachineid.cpp
+ * @file llmainlooprepeater.cpp
  * @brief retrieves unique machine ids
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$

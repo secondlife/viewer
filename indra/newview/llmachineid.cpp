@@ -34,8 +34,6 @@ using namespace std;
 #include <comdef.h>
 #include <Wbemidl.h>
 #endif
-unsigned char static_unique_id[] =  {0,0,0,0,0,0};
-bool static has_static_unique_id = false;
 
 #if	LL_WINDOWS
 
@@ -60,16 +58,22 @@ public:
 #endif //LL_WINDOWS
 
 // get an unique machine id.
-// NOT THREAD SAFE - do before setting up threads.
+// NOT THREAD SAFE - do first call before setting up threads.
 // MAC Address doesn't work for Windows 7 since the first returned hardware MAC address changes with each reboot,  Go figure??
-
-S32 LLMachineID::init()
+LLMachineID::LLMachineID() :
+mHasStaticUniqueId(false)
 {
-    memset(static_unique_id,0,sizeof(static_unique_id));
+    // will set mStaticUniqueId to 0
+    requestUniqueID();
+}
+
+S32 LLMachineID::requestUniqueID()
+{
+    memset(mStaticUniqueId, 0, sizeof(mStaticUniqueId));
     S32 ret_code = 0;
 #if	LL_WINDOWS
 # pragma comment(lib, "wbemuuid.lib")
-        size_t len = sizeof(static_unique_id);
+        size_t len = sizeof(mStaticUniqueId);
 
         // algorithm to detect BIOS serial number found at:
         // http://msdn.microsoft.com/en-us/library/aa394077%28VS.85%29.aspx
@@ -228,7 +232,7 @@ S32 LLMachineID::init()
                     if (vtProp.bstrVal[j] == 0)
                         break;
                     
-                    static_unique_id[i] = (unsigned int)(static_unique_id[i] + serialNumber[j]);
+                    mStaticUniqueId[i] = (unsigned int)(mStaticUniqueId[i] + serialNumber[j]);
                     j++;
                 }
             }
@@ -253,16 +257,16 @@ S32 LLMachineID::init()
         unsigned char * staticPtr = (unsigned char *)(&static_unique_id[0]);
         ret_code = LLUUID::getNodeID(staticPtr);
 #endif
-        has_static_unique_id = true;
+        mHasStaticUniqueId = true;
         return ret_code;
 }
 
 
 S32 LLMachineID::getUniqueID(unsigned char *unique_id, size_t len)
 {
-    if (has_static_unique_id)
+    if (mHasStaticUniqueId)
     {
-        memcpy ( unique_id, &static_unique_id, len);
+        memcpy(unique_id, &mStaticUniqueId, len);
         LL_INFOS_ONCE("AppInit") << "UniqueID: 0x";
         // Code between here and LL_ENDL is not executed unless the LL_DEBUGS
         // actually produces output
