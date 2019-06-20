@@ -206,29 +206,27 @@ void LLAtmospherics::init()
 LLColor4 LLAtmospherics::calcSkyColorInDir(AtmosphericsVars& vars, const LLVector3 &dir, bool isShiny)
 {
 	F32 saturation = 0.3f;
-	if (dir.mV[VZ] < -0.02f)
+
+	if (isShiny && dir.mV[VZ] < -0.02f)
 	{
 		LLColor4 col = LLColor4(llmax(mFogColor[0],0.2f), llmax(mFogColor[1],0.2f), llmax(mFogColor[2],0.22f),0.f);
-		if (isShiny)
+		LLColor3 desat_fog = LLColor3(mFogColor);
+		F32 brightness = desat_fog.brightness();
+		// So that shiny somewhat shows up at night.
+		if (brightness < 0.15f)
 		{
-			LLColor3 desat_fog = LLColor3(mFogColor);
-			F32 brightness = desat_fog.brightness();
-			// So that shiny somewhat shows up at night.
-			if (brightness < 0.15f)
-			{
-				brightness = 0.15f;
-				desat_fog = smear(0.15f);
-			}
-			LLColor3 greyscale = smear(brightness);
-			desat_fog = desat_fog * saturation + greyscale * (1.0f - saturation);
-			if (!gPipeline.canUseWindLightShaders())
-			{
-				col = LLColor4(desat_fog, 0.f);
-			}
-			else 
-			{
-				col = LLColor4(desat_fog * 0.5f, 0.f);
-			}
+			brightness = 0.15f;
+			desat_fog = smear(0.15f);
+		}
+		LLColor3 greyscale = smear(brightness);
+		desat_fog = desat_fog * saturation + greyscale * (1.0f - saturation);
+		if (!gPipeline.canUseWindLightShaders())
+		{
+			col = LLColor4(desat_fog, 0.f);
+		}
+		else 
+		{
+			col = LLColor4(desat_fog * 0.5f, 0.f);
 		}
 		float x = 1.0f-fabsf(-0.1f-dir.mV[VZ]);
 		x *= x;
@@ -242,7 +240,17 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(AtmosphericsVars& vars, const LLVecto
 	LLVector3 Pn = LLVector3(-dir[1] , -dir[2], -dir[0]);
 
 	calcSkyColorWLVert(Pn, vars);
-	
+
+#if SL_11371
+    if (dir.mV[VZ] < 0.4f)
+    {
+        LLColor4 col = LLColor4(llmax(mFogColor[0],0.2f), llmax(mFogColor[1],0.2f), llmax(mFogColor[2],0.22f),0.f);   
+        col *= dir * LLVector3(0,1,0);
+        col += vars.hazeColor;
+        return col;
+    }	
+#endif
+
 	LLColor3 sky_color =  calcSkyColorWLFrag(Pn, vars);
 	if (isShiny)
 	{
@@ -378,6 +386,7 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 	// At horizon, blend high altitude sky color towards the darker color below the clouds
 	vars.hazeColor += componentMult(vars.hazeColorBelowCloud - vars.hazeColor, LLColor3::white - componentSqrt(temp1));
 
+#if SL_11371
 	if (Pn[1] < 0.f)
 	{
 		// Eric's original: 
@@ -397,6 +406,8 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 			vars.hazeColor = colorMix(LLColor3::white * haze_brightness, vars.hazeColor, fabs((Pn[1] + 0.05f) * -20.f));
 		}
 	}
+#endif
+
 }
 
 LLColor3 LLAtmospherics::calcSkyColorWLFrag(LLVector3 & Pn, AtmosphericsVars& vars)
