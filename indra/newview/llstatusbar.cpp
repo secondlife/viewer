@@ -183,7 +183,7 @@ BOOL LLStatusBar::postBuild()
 	mMediaToggle->setClickedCallback( &LLStatusBar::onClickMediaToggle, this );
 	mMediaToggle->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterNearbyMedia, this));
 
-	LLHints::registerHintTarget("linden_balance", getChild<LLView>("balance_bg")->getHandle());
+	LLHints::getInstance()->registerHintTarget("linden_balance", getChild<LLView>("balance_bg")->getHandle());
 
 	gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&LLStatusBar::onVolumeChanged, this, _2));
 
