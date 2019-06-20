@@ -1750,8 +1750,6 @@ bool LLAppViewer::cleanup()
 	gTransferManager.cleanup();
 #endif
 
-	SUBSYSTEM_CLEANUP(LLLocalBitmapMgr);
-
 	// Note: this is where gWorldMap used to be deleted.
 
 	// Note: this is where gHUDManager used to be deleted.
