@@ -111,7 +111,7 @@ void main()
 	// Transparency (-> temp1)
 	// ATI Bugfix -- can't store temp1*temp2.z in a variable because the ati
 	// compiler gets confused.
-	temp1 = exp(-temp1 * temp2.z * dist_mul);
+	temp1 = exp(-temp1 * temp2.z);
 
 	// Compute haze glow
 	temp2.x = dot(Pn, lightnorm.xyz);
