@@ -57,7 +57,6 @@ uniform float haze_density;
 
 uniform float cloud_shadow;
 uniform float density_multiplier;
-uniform float distance_multiplier;
 uniform float max_y;
 
 uniform vec4 glow;
@@ -70,136 +69,131 @@ uniform float cloud_scale;
 void main()
 {
 
-    // World / view / projection
-    gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
+	// World / view / projection
+	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
 
-    vary_texcoord0 = texcoord0;
+	vary_texcoord0 = texcoord0;
 
-    // Get relative position
-    vec3 P = position.xyz - camPosLocal.xyz + vec3(0,50,0);
+	// Get relative position
+	vec3 P = position.xyz - camPosLocal.xyz + vec3(0,50,0);
 
     // fade clouds beyond a certain point so the bottom of the sky dome doesn't look silly at high altitude
     altitude_blend_factor = (P.y > -4096.0) ? 1.0 : 1.0 - clamp(abs(P.y) / max_y, 0.0, 1.0);
 
-    // Set altitude
-    if (P.y > 0.)
-    {
-        P *= (max_y / P.y);
-    }
-    else
-    {
-        P *= (-32000. / P.y);
-    }
+	// Set altitude
+	if (P.y > 0.)
+	{
+		P *= (max_y / P.y);
+	}
+	else
+	{
+		P *= (-32000. / P.y);
+	}
 
+	// Can normalize then
+	vec3 Pn = normalize(P);
+	float  Plen = length(P);
 
-    // Can normalize then
-    vec3 Pn = normalize(P);
-    float  Plen = length(P);
-
-    // Initialize temp variables
-    vec4 temp1 = vec4(0.);
-    vec4 temp2 = vec4(0.);
-    vec4 blue_weight;
-    vec4 haze_weight;
-    //vec4 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
-    vec4 sunlight = sunlight_color;
-    vec4 light_atten;
+	// Initialize temp variables
+	vec4 temp1 = vec4(0.);
+	vec4 temp2 = vec4(0.);
+	vec4 blue_weight;
+	vec4 haze_weight;
+	//vec4 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
+	vec4 sunlight = sunlight_color;
+	vec4 light_atten;
 
     float dens_mul = density_multiplier;
-    float dist_mul = max(0.05, distance_multiplier);
 
-    // Sunlight attenuation effect (hue and brightness) due to atmosphere
-    // this is used later for sunlight modulation at various altitudes
-    light_atten = (blue_density + vec4(haze_density * 0.25)) * (dens_mul * max_y);
+	// Sunlight attenuation effect (hue and brightness) due to atmosphere
+	// this is used later for sunlight modulation at various altitudes
+	light_atten = (blue_density + vec4(haze_density * 0.25)) * (dens_mul * max_y);
 
-    // Calculate relative weights
-    temp1 = blue_density + haze_density;
-    blue_weight = blue_density / temp1;
-    haze_weight = haze_density / temp1;
+	// Calculate relative weights
+	temp1 = abs(blue_density) + vec4(abs(haze_density));
+	blue_weight = blue_density / temp1;
+	haze_weight = haze_density / temp1;
 
-    // Compute sunlight from P & lightnorm (for long rays like sky)
-    temp2.y = max(0., max(0., Pn.y) * 1.0 + lightnorm.y );
-    temp2.y = 1. / temp2.y;
-    sunlight *= exp( - light_atten * temp2.y);
+	// Compute sunlight from P & lightnorm (for long rays like sky)
+	temp2.y = max(0., max(0., Pn.y) * 1.0 + lightnorm.y );
+	temp2.y = 1. / temp2.y;
+	sunlight *= exp( - light_atten * temp2.y);
 
-    // Distance
-    temp2.z = Plen * dens_mul;
+	// Distance
+	temp2.z = Plen * dens_mul;
 
-    // Transparency (-> temp1)
-    // ATI Bugfix -- can't store temp1*temp2.z in a variable because the ati
-    // compiler gets confused.
-    //temp1 = exp(-temp1 * temp2.z * dist_mul);
-    temp1 = exp(-temp1 * dist_mul);
+	// Transparency (-> temp1)
+	// ATI Bugfix -- can't store temp1*temp2.z in a variable because the ati
+	// compiler gets confused.
+	temp1 = exp(-temp1 * temp2.z);
 
-    // Compute haze glow
-    temp2.x = dot(Pn, lightnorm.xyz);
-    temp2.x = 1. - temp2.x;
-        // temp2.x is 0 at the sun and increases away from sun
-    temp2.x = max(temp2.x, .001);   
-        // Set a minimum "angle" (smaller glow.y allows tighter, brighter hotspot)
-    temp2.x *= glow.x;
-        // Higher glow.x gives dimmer glow (because next step is 1 / "angle")
-    temp2.x = pow(temp2.x, glow.z);
-        // glow.z should be negative, so we're doing a sort of (1 / "angle") function
+
+	// Compute haze glow
+	temp2.x = dot(Pn, lightnorm.xyz);
+	temp2.x = 1. - temp2.x;
+		// temp2.x is 0 at the sun and increases away from sun
+	temp2.x = max(temp2.x, .001);	
+		// Set a minimum "angle" (smaller glow.y allows tighter, brighter hotspot)
+	temp2.x *= glow.x;
+		// Higher glow.x gives dimmer glow (because next step is 1 / "angle")
+	temp2.x = pow(temp2.x, glow.z);
+		// glow.z should be negative, so we're doing a sort of (1 / "angle") function
 
     temp2.x *= sun_moon_glow_factor;
 
-    // Add "minimum anti-solar illumination"
-    temp2.x += .25;
+	// Add "minimum anti-solar illumination"
+	temp2.x += .25;
 
-    // Increase ambient when there are more clouds
-    vec4 tmpAmbient = ambient_color;
-    tmpAmbient += (1. - tmpAmbient) * cloud_shadow * 0.5; 
+	// Increase ambient when there are more clouds
+	vec4 tmpAmbient = ambient_color;
+	tmpAmbient += (1. - tmpAmbient) * cloud_shadow * 0.5; 
 
-    // Dim sunlight by cloud shadow percentage
-    sunlight *= (1. - cloud_shadow);
+	// Dim sunlight by cloud shadow percentage
+	sunlight *= (1. - cloud_shadow);
 
-    // Haze color below cloud
-    vec4 additiveColorBelowCloud = (      blue_horizon * blue_weight * (sunlight + tmpAmbient)
-                + (haze_horizon * haze_weight) * (sunlight * temp2.x + tmpAmbient)
-             ); 
+	// Haze color below cloud
+	vec4 additiveColorBelowCloud = (	  blue_horizon * blue_weight * (sunlight + tmpAmbient)
+				+ (haze_horizon * haze_weight) * (sunlight * temp2.x + tmpAmbient)
+			 );	
 
-    // CLOUDS
+	// CLOUDS
+	temp2.y = max(0., lightnorm.y * 2.);
+	temp2.y = 1. / temp2.y;
+	sunlight *= exp( - light_atten * temp2.y);
 
-    sunlight = sunlight_color;
-    temp2.y = max(0., lightnorm.y * 2.);
-    temp2.y = 1. / temp2.y;
-    sunlight *= exp( - light_atten * temp2.y);
+	// Cloud color out
+	vary_CloudColorSun = (sunlight * temp2.x) * cloud_color;
+	vary_CloudColorAmbient = tmpAmbient * cloud_color;
+	
+	// Attenuate cloud color by atmosphere
+	temp1 = sqrt(temp1);	//less atmos opacity (more transparency) below clouds
+	vary_CloudColorSun *= temp1;
+	vary_CloudColorAmbient *= temp1;
+	vec4 oHazeColorBelowCloud = additiveColorBelowCloud * (1. - temp1);
 
-    // Cloud color out
-    vary_CloudColorSun = (sunlight * temp2.x) * cloud_color;
-    vary_CloudColorAmbient = tmpAmbient * cloud_color;
-    
-    // Attenuate cloud color by atmosphere
-    temp1 = sqrt(temp1);    //less atmos opacity (more transparency) below clouds
-    vary_CloudColorSun *= temp1;
-    vary_CloudColorAmbient *= temp1;
-    vec4 oHazeColorBelowCloud = additiveColorBelowCloud * (1. - temp1);
-
-    // Make a nice cloud density based on the cloud_shadow value that was passed in.
-    vary_CloudDensity = 2. * (cloud_shadow - 0.25);
+	// Make a nice cloud density based on the cloud_shadow value that was passed in.
+	vary_CloudDensity = 2. * (cloud_shadow - 0.25);
 
 
-    // Texture coords
-    vary_texcoord0 = texcoord0;
-    vary_texcoord0.xy -= 0.5;
-    vary_texcoord0.xy /= cloud_scale;
-    //vary_texcoord0.xy /= max(0.001, cloud_scale);
-    vary_texcoord0.xy += 0.5;
+	// Texture coords
+	vary_texcoord0 = texcoord0;
+	vary_texcoord0.xy -= 0.5;
+	vary_texcoord0.xy /= cloud_scale;
+	vary_texcoord0.xy += 0.5;
 
-    vary_texcoord1 = vary_texcoord0;
-    vary_texcoord1.x += lightnorm.x * 0.0125;
-    vary_texcoord1.y += lightnorm.z * 0.0125;
+	vary_texcoord1 = vary_texcoord0;
+	vary_texcoord1.x += lightnorm.x * 0.0125;
+	vary_texcoord1.y += lightnorm.z * 0.0125;
 
-    vary_texcoord2 = vary_texcoord0 * 16.;
-    vary_texcoord3 = vary_texcoord1 * 16.;
+	vary_texcoord2 = vary_texcoord0 * 16.;
+	vary_texcoord3 = vary_texcoord1 * 16.;
 
-    // Combine these to minimize register use
-    vary_CloudColorAmbient += oHazeColorBelowCloud;
+	// Combine these to minimize register use
+	vary_CloudColorAmbient += oHazeColorBelowCloud;
 
-    // needs this to compile on mac
-    //vary_AtmosAttenuation = vec3(0.0,0.0,0.0);
+	// needs this to compile on mac
+	//vary_AtmosAttenuation = vec3(0.0,0.0,0.0);
 
-    // END CLOUDS
+	// END CLOUDS
 }
 

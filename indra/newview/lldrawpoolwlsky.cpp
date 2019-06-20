@@ -454,6 +454,9 @@ void LLDrawPoolWLSky::renderSkyClouds(const LLVector3& camPosLocal, F32 camHeigh
 
         cloudshader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
         cloudshader->uniform1f(LLShaderMgr::CLOUD_VARIANCE, cloud_variance);
+        cloudshader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, psky->getSunMoonGlowFactor());
+
+        ((LLSettingsVOSky*)psky.get())->updateShader(cloudshader);
 
 		/// Render the skydome
         renderDome(camPosLocal, camHeightLocal, cloudshader);

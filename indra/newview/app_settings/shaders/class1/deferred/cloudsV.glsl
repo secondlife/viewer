@@ -110,7 +110,7 @@ void main()
 	light_atten = (blue_density + vec4(haze_density * 0.25)) * (dens_mul * max_y);
 
 	// Calculate relative weights
-	temp1 = blue_density + haze_density;
+	temp1 = abs(blue_density) + vec4(abs(haze_density));
 	blue_weight = blue_density / temp1;
 	haze_weight = haze_density / temp1;
 
