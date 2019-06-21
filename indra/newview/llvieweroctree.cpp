@@ -1110,10 +1110,9 @@ void LLOcclusionCullingGroup::checkOcclusion()
 
 				static LLCachedControl<bool> wait_for_query(gSavedSettings, "RenderSynchronousOcclusion", true);
 
-                U32 target_read_frame = (gFrameCount > 2) ? (gFrameCount - 2) : 0;
-				if (wait_for_query && (mOcclusionIssued[LLViewerCamera::sCurCameraID] < target_read_frame))
+				if (wait_for_query && mOcclusionIssued[LLViewerCamera::sCurCameraID] < gFrameCount)
 				{ //query was issued last frame, wait until it's available
-					S32 max_loop = 64;
+					S32 max_loop = 1024;
 					LL_RECORD_BLOCK_TIME(FTM_OCCLUSION_WAIT);
 					while (!available && max_loop-- > 0)
 					{

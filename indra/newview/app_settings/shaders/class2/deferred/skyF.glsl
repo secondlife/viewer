@@ -36,7 +36,7 @@ uniform vec4 lightnorm;
 uniform vec4 sunlight_color;
 uniform vec4 moonlight_color;
 uniform int sun_up_factor;
-uniform vec4 ambient;
+uniform vec4 ambient_color;
 uniform vec4 blue_horizon;
 uniform vec4 blue_density;
 uniform float haze_horizon;
@@ -119,14 +119,13 @@ void main()
     vec4 light_atten;
 
     float dens_mul = density_multiplier;
-    float dist_mul = distance_multiplier;
 
     // Sunlight attenuation effect (hue and brightness) due to atmosphere
     // this is used later for sunlight modulation at various altitudes
     light_atten = (blue_density + vec4(haze_density * 0.25)) * (dens_mul * max_y);
 
     // Calculate relative weights
-    temp1 = blue_density + haze_density;
+    temp1 = abs(blue_density) + vec4(abs(haze_density));
     blue_weight = blue_density / temp1;
     haze_weight = haze_density / temp1;
 
@@ -141,7 +140,7 @@ void main()
     // Transparency (-> temp1)
     // ATI Bugfix -- can't store temp1*temp2.z in a variable because the ati
     // compiler gets confused.
-    temp1 = exp(-temp1 * temp2.z * dist_mul);
+    temp1 = exp(-temp1 * temp2.z);
 
     // Compute haze glow
     temp2.x = dot(Pn, lightnorm.xyz);
@@ -160,25 +159,26 @@ void main()
     temp2.x *= sun_moon_glow_factor;
 
     // Haze color above cloud
-    vec4 color = (    blue_horizon * blue_weight * (sunlight + ambient)
-                + (haze_horizon * haze_weight) * (sunlight * temp2.x + ambient)
-             ); 
-
-
-    // Increase ambient when there are more clouds
-    vec4 tmpAmbient = ambient;
-    tmpAmbient += (1. - tmpAmbient) * cloud_shadow * 0.5; 
-
-    // Dim sunlight by cloud shadow percentage
-    sunlight *= (1. - cloud_shadow);
-
-    // Haze color below cloud
-    vec4 additiveColorBelowCloud = (      blue_horizon * blue_weight * (sunlight + tmpAmbient)
-                + (haze_horizon * haze_weight) * (sunlight * temp2.x + tmpAmbient)
+    vec4 color = (    blue_horizon * blue_weight * (sunlight + ambient_color)
+                + (haze_horizon * haze_weight) * (sunlight * temp2.x + ambient_color)
              ); 
 
     // Final atmosphere additive
     color *= (1. - temp1);
+
+    // Increase ambient when there are more clouds
+    vec4 tmpAmbient = ambient_color;
+    tmpAmbient += max(vec4(0), (1. - ambient_color)) * cloud_shadow * 0.5; 
+
+    // Dim sunlight by cloud shadow percentage
+    sunlight *= max(0.0, (1. - cloud_shadow));
+
+    // Haze color below cloud
+    vec4 additiveColorBelowCloud = (blue_horizon * blue_weight * (sunlight + tmpAmbient)
+                + (haze_horizon * haze_weight) * (sunlight * temp2.x + tmpAmbient)
+             ); 
+
+    
     
     // Attenuate cloud color by atmosphere
     temp1 = sqrt(temp1);    //less atmos opacity (more transparency) below clouds
@@ -190,15 +190,16 @@ void main()
 
     vec3 halo_22 = halo22(optic_d);
 
-   color.rgb += rainbow(optic_d);
+    color.rgb += rainbow(optic_d);
 
     color.rgb += halo_22;
 
-    color *= 2.;
+    color.rgb *= 2.;
+    color.rgb = scaleSoftClip(color.rgb);
 
     /// Gamma correct for WL (soft clip effect).
-    frag_data[0] = vec4(scaleSoftClip(color.rgb), 1.0);
+    frag_data[0] = vec4(color.rgb, 1.0);
     frag_data[1] = vec4(0.0,0.0,0.0,0.0);
-    frag_data[2] = vec4(0.5,0.5,0.0,1.0); //1.0 in norm.w masks off fog
+    frag_data[2] = vec4(0.0,0.0,0.0,1.0); //1.0 in norm.w masks off fog
 }
 

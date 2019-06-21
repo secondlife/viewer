@@ -73,15 +73,11 @@ uniform mat4 inv_proj;
 
 vec3 getNorm(vec2 pos_screen);
 vec3 srgb_to_linear(vec3 c);
-vec4 correctWithGamma(vec4 col)
-{
-	return vec4(srgb_to_linear(col.rgb), col.a);
-}
 
 vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
-	ret = correctWithGamma(ret);
+	ret.rgb = srgb_to_linear(ret.rgb);
 
 	vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
 	
@@ -101,7 +97,7 @@ vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
-	ret = correctWithGamma(ret);
+	ret.rgb = srgb_to_linear(ret.rgb);
 	
 	vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
 	
@@ -119,7 +115,7 @@ vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
 vec4 texture2DLodAmbient(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
-	ret = correctWithGamma(ret);
+	ret.rgb = srgb_to_linear(ret.rgb);
 	
 	vec2 dist = tc-vec2(0.5);
 	
@@ -134,6 +130,11 @@ vec4 getPosition(vec2 pos_screen);
 
 void main() 
 {
+	vec3 col = vec3(0,0,0);
+
+#if defined(LOCAL_LIGHT_KILL)
+    discard;
+#else
 	vec4 frag = vary_fragcoord;
 	frag.xyz /= frag.w;
 	frag.xyz = frag.xyz*0.5+0.5;
@@ -174,8 +175,8 @@ void main()
 	
 	proj_tc.xyz /= proj_tc.w;
 	
-	float fa = falloff + 1.0;
-	float dist_atten = min(1.0 - (dist - 1.0 * (1.0 - fa)) / fa, 1.0);
+	float fa = falloff+1.0;
+	float dist_atten = min(1.0-(dist-1.0*(1.0-fa))/fa, 1.0);
 	dist_atten *= dist_atten;
 	dist_atten *= 2.0;
 
@@ -187,14 +188,9 @@ void main()
 	lv = proj_origin-pos.xyz;
 	lv = normalize(lv);
 	float da = dot(norm, lv);
-	      da = clamp(da, 0.0, 1.0);
-	
-	vec3 col = vec3(0,0,0);
 		
 	vec3 diff_tex = texture2DRect(diffuseRect, frag.xy).rgb;
-		
 	vec4 spec = texture2DRect(specularRect, frag.xy);
-
 	vec3 dlit = vec3(0, 0, 0);
 
 	float noise = texture2D(noiseMap, frag.xy/128.0).b;
@@ -232,7 +228,6 @@ void main()
 	
 	    col += amb_da*color.rgb*diff_tex.rgb*amb_plcol.rgb*amb_plcol.a;
 	}
-	
 
 	if (spec.a > 0.0)
 	{
@@ -258,10 +253,6 @@ void main()
 			col += speccol;
 		}
 	}	
-	
-	
-	
-	
 
 	if (envIntensity > 0.0)
 	{
@@ -291,6 +282,7 @@ void main()
 			}
 		}
 	}
+#endif
 	
 	//not sure why, but this line prevents MATBUG-194
 	col = max(col, vec3(0.0));

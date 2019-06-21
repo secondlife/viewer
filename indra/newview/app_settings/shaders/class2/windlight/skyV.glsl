@@ -41,7 +41,7 @@ uniform vec4 lightnorm;
 uniform vec4 sunlight_color;
 uniform vec4 moonlight_color;
 uniform int sun_up_factor;
-uniform vec4 ambient;
+uniform vec4 ambient_color;
 uniform vec4 blue_horizon;
 uniform vec4 blue_density;
 uniform float haze_horizon;
@@ -88,7 +88,8 @@ void main()
 	vec4 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
 	vec4 light_atten;
 
-    float dens_mul = density_multiplier * 0.45;
+    float dens_mul = density_multiplier;
+    float dist_mul = max(0.05, distance_multiplier);
 
 	// Sunlight attenuation effect (hue and brightness) due to atmosphere
 	// this is used later for sunlight modulation at various altitudes
@@ -110,8 +111,7 @@ void main()
 	// Transparency (-> temp1)
 	// ATI Bugfix -- can't store temp1*temp2.z in a variable because the ati
 	// compiler gets confused.
-	temp1 = exp(-temp1 * temp2.z * distance_multiplier);
-
+	temp1 = exp(-temp1 * temp2.z);
 
 	// Compute haze glow
 	temp2.x = dot(Pn, lightnorm.xyz);
@@ -131,13 +131,13 @@ void main()
 
 
 	// Haze color above cloud
-	vary_HazeColor = (	  blue_horizon * blue_weight * (sunlight + ambient)
-				+ (haze_horizon * haze_weight) * (sunlight * temp2.x + ambient)
+	vary_HazeColor = (	  blue_horizon * blue_weight * (sunlight + ambient_color)
+				+ (haze_horizon * haze_weight) * (sunlight * temp2.x + ambient_color)
 			 );	
 
 
 	// Increase ambient when there are more clouds
-	vec4 tmpAmbient = ambient;
+	vec4 tmpAmbient = ambient_color;
 	tmpAmbient += (1. - tmpAmbient) * cloud_shadow * 0.5; 
 
 	// Dim sunlight by cloud shadow percentage

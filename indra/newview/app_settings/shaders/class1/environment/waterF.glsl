@@ -121,7 +121,7 @@ void main()
 
     vec4 refcol = refcol1 + refcol2 + refcol3;
     float df1 = df.x + df.y + df.z;
-    refcol *= df1 * 0.333;
+    refcol *= df1;
     
     vec3 wavef = (wave1 + wave2 * 0.4 + wave3 * 0.6) * 0.5;
     
@@ -144,17 +144,15 @@ void main()
     spec = pow(spec, 128.0);
 
     //figure out distortion vector (ripply)   
-    vec2 distort2 = distort+wavef.xy*refScale/max(dmod*df1, 1.0);
+    vec2 distort2 = distort+wavef.xy*(refScale*0.01)/max(dmod*df1, 1.0);
         
     vec4 fb = texture2D(screenTex, distort2);
     
     //mix with reflection
     // Note we actually want to use just df1, but multiplying by 0.999999 gets around and nvidia compiler bug
-    color.rgb = mix(fb.rgb, refcol.rgb, df1 * 0.99999);
+    color.rgb = mix(fb.rgb, refcol.rgb, df1 * 0.9999999);
     color.rgb += spec * specular;
-    
-    color.rgb = atmosTransport(color.rgb);
-    color.rgb = scaleSoftClip(color.rgb);
+
     color.a = spec * sunAngle2;
 
 #if defined(WATER_EDGE)

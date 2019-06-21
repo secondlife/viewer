@@ -81,7 +81,9 @@ LLXYVector::LLXYVector(const LLXYVector::Params& p)
     mMinValueY(p.min_val_y),
     mMaxValueY(p.max_val_y),
     mIncrementY(p.increment_y),
-    mLogarithmic(p.logarithmic)
+    mLogarithmic(p.logarithmic),
+    mValueX(0),
+    mValueY(0)
 {
     mGhostColor = p.ghost_color.isProvided() ? p.ghost_color() % 0.3f : p.arrow_color() % 0.3f;
 

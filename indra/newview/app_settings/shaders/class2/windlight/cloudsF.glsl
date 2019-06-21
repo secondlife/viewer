@@ -123,11 +123,12 @@ void main()
     // Combine
     vec4 color;
     color = (cloudColorSun*(1.-alpha2) + cloudColorAmbient);
-    color *= 2.;
+    color.rgb *= 2.;
+    color.rgb = scaleSoftClip(color.rgb);
 
     /// Gamma correct for WL (soft clip effect).
-    frag_data[0] = vec4(scaleSoftClip(color.rgb), alpha1);
+    frag_data[0] = vec4(color.rgb, alpha1);
     frag_data[1] = vec4(0.0,0.0,0.0,0.0);
-    frag_data[2] = vec4(0,0,1,0);
+    frag_data[2] = vec4(0,0,0,1);
 }
 

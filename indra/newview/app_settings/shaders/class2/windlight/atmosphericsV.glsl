@@ -22,8 +22,6 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
-
 
 // VARYING param funcs
 void setSunlitColor(vec3 v);
@@ -34,7 +32,7 @@ void setPositionEye(vec3 v);
 
 vec3 getAdditiveColor();
 
-void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
+void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
 
 void calcAtmospherics(vec3 inPositionEye) {
 
@@ -44,7 +42,7 @@ void calcAtmospherics(vec3 inPositionEye) {
     vec3 tmpamblit = vec3(1);
     vec3 tmpaddlit = vec3(1);
     vec3 tmpattenlit = vec3(1);
-    calcAtmosphericVars(inPositionEye, 1, tmpsunlit, tmpamblit, tmpaddlit, tmpattenlit);
+    calcAtmosphericVars(inPositionEye, 1, tmpsunlit, tmpamblit, tmpaddlit, tmpattenlit, false);
     setSunlitColor(tmpsunlit);
     setAmblitColor(tmpamblit);
     setAdditiveColor(tmpaddlit);

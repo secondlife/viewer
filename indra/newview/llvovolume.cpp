@@ -3370,7 +3370,7 @@ F32 LLVOVolume::getLightFalloff() const
 	const LLLightParams *param_block = (const LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
 	if (param_block)
 	{
-		return param_block->getFalloff();
+		return param_block->getFalloff() * 0.5f;
 	}
 	else
 	{
@@ -4977,6 +4977,12 @@ static LLTrace::BlockTimerStatHandle FTM_REGISTER_FACE("Register Face");
 
 void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep, U32 type)
 {
+
+    //const LLTextureEntry* te = facep->getTextureEntry();
+    //F32 te_alpha = te->getColor().mV[VW];
+    // we should not attempt to render anything that's 100% transparent except invisiprims...
+    //llassert(te_alpha > 0.0f || type == LLRenderPass::PASS_ALPHA_INVISIBLE);
+
 	LL_RECORD_BLOCK_TIME(FTM_REGISTER_FACE);
 	if (   type == LLRenderPass::PASS_ALPHA 
 		&& facep->getTextureEntry()->getMaterialParams().notNull() 
@@ -5516,6 +5522,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						LLViewerTexture* tex = facep->getTexture();
 						U32 type = gPipeline.getPoolTypeFromTE(te, tex);
 
+                        F32 te_alpha = te->getColor().mV[3];
 
 						if (te->getGlow())
 						{
@@ -5527,17 +5534,24 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						if (mat && LLPipeline::sRenderDeferred)
 						{
 							U8 alpha_mode = mat->getDiffuseAlphaMode();
+                            
+
+                            // don't bother with 100% transparent faces...
+                            if (te_alpha <= 0.0f)
+                            {
+                                continue;
+                            }
 
 							bool is_alpha = type == LLDrawPool::POOL_ALPHA &&
 								(alpha_mode == LLMaterial::DIFFUSE_ALPHA_MODE_BLEND ||
-								te->getColor().mV[3] < 0.999f);
+								te_alpha < 0.999f);
 
 							if (is_alpha)
 							{ //this face needs alpha blending, override alpha mode
 								alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
 							}
 
-							if (!is_alpha || te->getColor().mV[3] > 0.f)  // //only add the face if it will actually be visible
+							if (!is_alpha || te_alpha > 0.f)  // //only add the face if it will actually be visible
 							{ 
 								U32 mask = mat->getShaderMask(alpha_mode);
 								pool->addRiggedFace(facep, mask);
@@ -5551,35 +5565,33 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 							bool can_be_shiny = mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE ||
 												mode == LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE;
 							
-							if (mode == LLMaterial::DIFFUSE_ALPHA_MODE_MASK && te->getColor().mV[3] >= 0.999f)
-							{
-								pool->addRiggedFace(facep, fullbright ? LLDrawPoolAvatar::RIGGED_FULLBRIGHT : LLDrawPoolAvatar::RIGGED_SIMPLE);
-							}
-							else if (is_alpha || (te->getColor().mV[3] < 0.999f))
-							{
-								if (te->getColor().mV[3] > 0.f)
-								{
-									pool->addRiggedFace(facep, fullbright ? LLDrawPoolAvatar::RIGGED_FULLBRIGHT_ALPHA : LLDrawPoolAvatar::RIGGED_ALPHA);
-								}
-							}
-							else if (gPipeline.canUseVertexShaders()
-								&& LLPipeline::sRenderBump 
-								&& te->getShiny() 
-								&& can_be_shiny)
-							{
-								pool->addRiggedFace(facep, fullbright ? LLDrawPoolAvatar::RIGGED_FULLBRIGHT_SHINY : LLDrawPoolAvatar::RIGGED_SHINY);
-							}
-							else
-							{
-								pool->addRiggedFace(facep, fullbright ? LLDrawPoolAvatar::RIGGED_FULLBRIGHT : LLDrawPoolAvatar::RIGGED_SIMPLE);
-							}
+                            if (te_alpha > 0.f)
+                            {
+							    if (mode == LLMaterial::DIFFUSE_ALPHA_MODE_MASK && te_alpha >= 0.999f)
+							    {
+								    pool->addRiggedFace(facep, fullbright ? LLDrawPoolAvatar::RIGGED_FULLBRIGHT : LLDrawPoolAvatar::RIGGED_SIMPLE);
+							    }
+							    else if (is_alpha || (te_alpha < 0.999f))
+							    {								
+									    pool->addRiggedFace(facep, fullbright ? LLDrawPoolAvatar::RIGGED_FULLBRIGHT_ALPHA : LLDrawPoolAvatar::RIGGED_ALPHA);
+							    }
+							    else if (gPipeline.canUseVertexShaders()
+								    && LLPipeline::sRenderBump 
+								    && te->getShiny() 
+								    && can_be_shiny)
+							    {
+								    pool->addRiggedFace(facep, fullbright ? LLDrawPoolAvatar::RIGGED_FULLBRIGHT_SHINY : LLDrawPoolAvatar::RIGGED_SHINY);
+							    }
+							    else
+							    {
+								    pool->addRiggedFace(facep, fullbright ? LLDrawPoolAvatar::RIGGED_FULLBRIGHT : LLDrawPoolAvatar::RIGGED_SIMPLE);
+							    }
+                            }
 						}
-						else
-						{
-						if (type == LLDrawPool::POOL_ALPHA)
-						{
-							if (te->getColor().mV[3] > 0.f)
-							{
+						else if (te_alpha > 0.0f)
+                        {
+						    if (type == LLDrawPool::POOL_ALPHA)
+						    {
 								if (te->getFullbright())
 								{
 									pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT_ALPHA);
@@ -5588,54 +5600,52 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 								{
 									pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_ALPHA);
 								}
-							}
-						}
-						else if (te->getShiny())
-						{
-							if (te->getFullbright())
-							{
-								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT_SHINY);
-							}
-							else
-							{
-								if (LLPipeline::sRenderDeferred)
-								{
-									pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SIMPLE);
-								}
-								else
-								{
-									pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SHINY);
-								}
-							}
-						}
-						else
-						{
-							if (te->getFullbright())
-							{
-								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT);
-							}
-							else
-							{
-								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SIMPLE);
-							}
-						}
-
-
-						if (LLPipeline::sRenderDeferred)
-						{
-							if (type != LLDrawPool::POOL_ALPHA && !te->getFullbright())
-							{
-								if (te->getBumpmap())
-								{
-									pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_DEFERRED_BUMP);
-								}
-								else
-								{
-									pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_DEFERRED_SIMPLE);
-								}
-							}
-						}
-					}
+						    }                        
+						    else if (te->getShiny())
+						    {
+							    if (te->getFullbright())
+							    {
+								    pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT_SHINY);
+							    }
+							    else
+							    {
+								    if (LLPipeline::sRenderDeferred)
+								    {
+									    pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SIMPLE);
+								    }
+								    else
+								    {
+									    pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SHINY);
+								    }
+							    }
+						    }
+						    else
+						    {
+							    if (te->getFullbright())
+							    {
+								    pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT);
+							    }
+							    else
+							    {
+								    pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SIMPLE);
+							    }
+						    }
+                        
+						    if (LLPipeline::sRenderDeferred)
+						    {
+							    if (type != LLDrawPool::POOL_ALPHA && !te->getFullbright())
+							    {
+								    if (te->getBumpmap())
+								    {
+									    pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_DEFERRED_BUMP);
+								    }
+								    else
+								    {
+									    pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_DEFERRED_SIMPLE);
+								    }
+							    }
+						    }
+					    }
 					}
 
 					continue;
@@ -6450,10 +6460,13 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 								mode == LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE;
 			}
 
+            F32 te_alpha = te->getColor().mV[3]; 
 			bool use_legacy_bump = te->getBumpmap() && (te->getBumpmap() < 18) && (!mat || mat->getNormalID().isNull());
-			bool opaque = te->getColor().mV[3] >= 0.999f;
+			bool opaque = te_alpha >= 0.999f;
+            bool transparent = te_alpha < 0.999f;
+            bool invisible = te_alpha <= 0.0f;
 
-			if (mat && LLPipeline::sRenderDeferred && !hud_group)
+			if (mat && LLPipeline::sRenderDeferred && !hud_group && !invisible)
 			{
 				bool material_pass = false;
 
@@ -6480,14 +6493,20 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 					}
 					else
 					{
-						if (mat->getEnvironmentIntensity() > 0 ||
-							te->getShiny() > 0)
+						if (mat->getEnvironmentIntensity() > 0 || te->getShiny() > 0)
 						{
 							material_pass = true;
 						}
 						else
 						{
-							registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT);
+                            if (opaque)
+						    {
+							    registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT);
+                            }
+                            else
+                            {
+                                registerFace(group, facep, LLRenderPass::PASS_ALPHA);
+                            }
 						}
 					}
 				}
@@ -6495,7 +6514,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 				{
 					registerFace(group, facep, LLRenderPass::PASS_SIMPLE);
 				}
-				else if (te->getColor().mV[3] < 0.999f)
+				else if (transparent)
 				{
 					registerFace(group, facep, LLRenderPass::PASS_ALPHA);
 				}
@@ -6540,10 +6559,10 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 					registerFace(group, facep, pass[mask]);
 				}
 			}
-			else if (mat)
+			else if (mat && !invisible)
 			{
 				U8 mode = mat->getDiffuseAlphaMode();
-				if (te->getColor().mV[3] < 0.999f)
+				if (transparent)
 				{
 					mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
 				}
@@ -6552,7 +6571,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 				{
 					registerFace(group, facep, fullbright ? LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK : LLRenderPass::PASS_ALPHA_MASK);
 				}
-				else if (is_alpha || (te->getColor().mV[3] < 0.999f))
+				else if (is_alpha || transparent)
 				{
 					registerFace(group, facep, LLRenderPass::PASS_ALPHA);
 				}
@@ -6571,7 +6590,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 			else if (is_alpha)
 			{
 				// can we safely treat this as an alpha mask?
-				if (facep->getFaceColor().mV[3] <= 0.f)
+				if (invisible)
 				{ //100% transparent, don't render unless we're highlighting transparent
 					registerFace(group, facep, LLRenderPass::PASS_ALPHA_INVISIBLE);
 				}
@@ -6594,7 +6613,8 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 			else if (gPipeline.canUseVertexShaders()
 				&& LLPipeline::sRenderBump 
 				&& te->getShiny() 
-				&& can_be_shiny)
+				&& can_be_shiny
+                && !invisible)
 			{ //shiny
 				if (tex->getPrimaryFormat() == GL_ALPHA)
 				{ //invisiprim+shiny
@@ -6630,7 +6650,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 					registerFace(group, facep, LLRenderPass::PASS_SHINY);
 				}
 			}
-			else
+			else if (!invisible)
 			{ //not alpha and not shiny
 				if (!is_alpha && tex->getPrimaryFormat() == GL_ALPHA)
 				{ //invisiprim
@@ -6668,9 +6688,8 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 						{
 							registerFace(group, facep, LLRenderPass::PASS_SIMPLE);
 						}
+				    }
 				}
-				}
-				
 				
 				if (!gPipeline.canUseVertexShaders() && 
 					!is_alpha && 
@@ -6682,7 +6701,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 			}
 			
 			//not sure why this is here, and looks like it might cause bump mapped objects to get rendered redundantly -- davep 5/11/2010
-			if (!is_alpha && (hud_group || !LLPipeline::sRenderDeferred))
+			if (!invisible && !is_alpha && (hud_group || !LLPipeline::sRenderDeferred))
 			{
 				llassert((mask & LLVertexBuffer::MAP_NORMAL) || fullbright);
 				facep->setPoolType((fullbright) ? LLDrawPool::POOL_FULLBRIGHT : LLDrawPool::POOL_SIMPLE);
@@ -6693,7 +6712,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 				}
 			}
 
-			if (!is_alpha && LLPipeline::sRenderGlow && te->getGlow() > 0.f)
+			if (!invisible && !is_alpha && LLPipeline::sRenderGlow && te->getGlow() > 0.f)
 			{
 				registerFace(group, facep, LLRenderPass::PASS_GLOW);
 			}

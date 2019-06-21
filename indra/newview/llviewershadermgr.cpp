@@ -927,7 +927,7 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	if (gGLManager.mIsMobileGF)
 		sum_lights_class = 3;
 #endif
-	
+
 	// Use the feature table to mask out the max light level to use.  Also make sure it's at least 1.
 	S32 max_light_class = gSavedSettings.getS32("RenderShaderLightingMaxLevel");
 	sum_lights_class = llclamp(sum_lights_class, 1, max_light_class);
@@ -958,6 +958,25 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	boost::unordered_map<std::string, std::string> attribs;
 	attribs["MAX_JOINTS_PER_MESH_OBJECT"] = 
 		boost::lexical_cast<std::string>(LLSkinningUtil::getMaxJointCount());
+
+    BOOL ambient_kill = gSavedSettings.getBOOL("AmbientDisable");
+	BOOL sunlight_kill = gSavedSettings.getBOOL("SunlightDisable");
+    BOOL local_light_kill = gSavedSettings.getBOOL("LocalLightDisable");
+
+    if (ambient_kill)
+    {
+        attribs["AMBIENT_KILL"] = "1";
+    }
+
+    if (sunlight_kill)
+    {
+        attribs["SUNLIGHT_KILL"] = "1";
+    }
+
+    if (local_light_kill)
+    {
+       attribs["LOCAL_LIGHT_KILL"] = "1";
+    }
 
 	// We no longer have to bind the shaders to global glhandles, they are automatically added to a map now.
 	for (U32 i = 0; i < shaders.size(); i++)
@@ -1095,6 +1114,7 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		gWaterProgram.mFeatures.calculatesAtmospherics = true;
 		gWaterProgram.mFeatures.hasGamma = true;
 		gWaterProgram.mFeatures.hasTransport = true;
+        gWaterProgram.mFeatures.hasSrgb = true;
 		gWaterProgram.mShaderFiles.clear();
 		gWaterProgram.mShaderFiles.push_back(make_pair("environment/waterV.glsl", GL_VERTEX_SHADER_ARB));
 		gWaterProgram.mShaderFiles.push_back(make_pair("environment/waterF.glsl", GL_FRAGMENT_SHADER_ARB));
@@ -1111,6 +1131,7 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		gWaterEdgeProgram.mFeatures.calculatesAtmospherics = true;
 		gWaterEdgeProgram.mFeatures.hasGamma = true;
 		gWaterEdgeProgram.mFeatures.hasTransport = true;
+        gWaterEdgeProgram.mFeatures.hasSrgb = true;
 		gWaterEdgeProgram.mShaderFiles.clear();
 		gWaterEdgeProgram.mShaderFiles.push_back(make_pair("environment/waterV.glsl", GL_VERTEX_SHADER_ARB));
 		gWaterEdgeProgram.mShaderFiles.push_back(make_pair("environment/waterF.glsl", GL_FRAGMENT_SHADER_ARB));
@@ -1229,6 +1250,10 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 BOOL LLViewerShaderMgr::loadShadersDeferred()
 {
     bool use_sun_shadow = mShaderLevel[SHADER_DEFERRED] > 1;
+
+    BOOL ambient_kill = gSavedSettings.getBOOL("AmbientDisable");
+	BOOL sunlight_kill = gSavedSettings.getBOOL("SunlightDisable");
+    BOOL local_light_kill = gSavedSettings.getBOOL("LocalLightDisable");
 
 	if (mShaderLevel[SHADER_DEFERRED] == 0)
 	{
@@ -1455,6 +1480,22 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		{
 			gDeferredSkinnedAlphaProgram.addPermutation("HAS_SHADOW", "1");
 		}
+
+        if (ambient_kill)
+        {
+            gDeferredSkinnedAlphaProgram.addPermutation("AMBIENT_KILL", "1");
+        }
+
+        if (sunlight_kill)
+        {
+            gDeferredSkinnedAlphaProgram.addPermutation("SUNLIGHT_KILL", "1");
+        }
+
+        if (local_light_kill)
+        {
+            gDeferredSkinnedAlphaProgram.addPermutation("LOCAL_LIGHT_KILL", "1");
+        }
+
 		success = gDeferredSkinnedAlphaProgram.createShader(NULL, NULL);
 		llassert(success);
 
@@ -1523,6 +1564,21 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 				gDeferredMaterialProgram[i].addPermutation("HAS_SPECULAR_MAP", "1");
 			}
 
+            if (ambient_kill)
+            {
+                gDeferredMaterialProgram[i].addPermutation("AMBIENT_KILL", "1");
+            }
+
+            if (sunlight_kill)
+            {
+                gDeferredMaterialProgram[i].addPermutation("SUNLIGHT_KILL", "1");
+            }
+
+            if (local_light_kill)
+            {
+                gDeferredMaterialProgram[i].addPermutation("LOCAL_LIGHT_KILL", "1");
+            }
+
             gDeferredMaterialProgram[i].addPermutation("DIFFUSE_ALPHA_MODE", llformat("%d", alpha_mode));
 
             if (use_sun_shadow)
@@ -1590,6 +1646,21 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
                 gDeferredMaterialWaterProgram[i].addPermutation("HAS_SKIN", "1");
             }
             gDeferredMaterialWaterProgram[i].addPermutation("WATER_FOG","1");
+
+            if (ambient_kill)
+            {
+                gDeferredMaterialWaterProgram[i].addPermutation("AMBIENT_KILL", "1");
+            }
+
+            if (sunlight_kill)
+            {
+                gDeferredMaterialWaterProgram[i].addPermutation("SUNLIGHT_KILL", "1");
+            }
+
+            if (local_light_kill)
+            {
+                gDeferredMaterialWaterProgram[i].addPermutation("LOCAL_LIGHT_KILL", "1");
+            }
 
             gDeferredMaterialWaterProgram[i].mFeatures.hasWaterFog = true;
             gDeferredMaterialWaterProgram[i].mFeatures.hasSrgb = true;
@@ -1673,11 +1744,29 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredLightProgram.mName = "Deferred Light Shader";
 		gDeferredLightProgram.mFeatures.isDeferred = true;
 		gDeferredLightProgram.mFeatures.hasShadows = true;
+        gDeferredLightProgram.mFeatures.hasSrgb = true;
 
 		gDeferredLightProgram.mShaderFiles.clear();
 		gDeferredLightProgram.mShaderFiles.push_back(make_pair("deferred/pointLightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredLightProgram.mShaderFiles.push_back(make_pair("deferred/pointLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredLightProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+
+        gDeferredLightProgram.clearPermutations();
+
+        if (ambient_kill)
+        {
+            gDeferredLightProgram.addPermutation("AMBIENT_KILL", "1");
+        }
+
+        if (sunlight_kill)
+        {
+            gDeferredLightProgram.addPermutation("SUNLIGHT_KILL", "1");
+        }
+
+        if (local_light_kill)
+        {
+            gDeferredLightProgram.addPermutation("LOCAL_LIGHT_KILL", "1");
+        }
 
 		success = gDeferredLightProgram.createShader(NULL, NULL);
         llassert(success);
@@ -1690,12 +1779,30 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 			gDeferredMultiLightProgram[i].mName = llformat("Deferred MultiLight Shader %d", i);
 			gDeferredMultiLightProgram[i].mFeatures.isDeferred = true;
 			gDeferredMultiLightProgram[i].mFeatures.hasShadows = true;
+            gDeferredMultiLightProgram[i].mFeatures.hasSrgb = true;
 
+            gDeferredMultiLightProgram[i].clearPermutations();
 			gDeferredMultiLightProgram[i].mShaderFiles.clear();
 			gDeferredMultiLightProgram[i].mShaderFiles.push_back(make_pair("deferred/multiPointLightV.glsl", GL_VERTEX_SHADER_ARB));
 			gDeferredMultiLightProgram[i].mShaderFiles.push_back(make_pair("deferred/multiPointLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 			gDeferredMultiLightProgram[i].mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 			gDeferredMultiLightProgram[i].addPermutation("LIGHT_COUNT", llformat("%d", i+1));
+
+            if (ambient_kill)
+            {
+                gDeferredMultiLightProgram[i].addPermutation("AMBIENT_KILL", "1");
+            }
+
+            if (sunlight_kill)
+            {
+                gDeferredMultiLightProgram[i].addPermutation("SUNLIGHT_KILL", "1");
+            }
+
+            if (local_light_kill)
+            {
+                gDeferredMultiLightProgram[i].addPermutation("LOCAL_LIGHT_KILL", "1");
+            }
+
 			success = gDeferredMultiLightProgram[i].createShader(NULL, NULL);
             llassert(success);
 		}
@@ -1709,9 +1816,25 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSpotLightProgram.mFeatures.isDeferred = true;
 		gDeferredSpotLightProgram.mFeatures.hasShadows = true;
 
+        gDeferredSpotLightProgram.clearPermutations();
 		gDeferredSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/pointLightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/spotLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredSpotLightProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+
+        if (ambient_kill)
+        {
+            gDeferredSpotLightProgram.addPermutation("AMBIENT_KILL", "1");
+        }
+
+        if (sunlight_kill)
+        {
+            gDeferredSpotLightProgram.addPermutation("SUNLIGHT_KILL", "1");
+        }
+
+        if (local_light_kill)
+        {
+            gDeferredSpotLightProgram.addPermutation("LOCAL_LIGHT_KILL", "1");
+        }
 
 		success = gDeferredSpotLightProgram.createShader(NULL, NULL);
         llassert(success);
@@ -1724,10 +1847,16 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredMultiSpotLightProgram.mFeatures.isDeferred = true;
 		gDeferredMultiSpotLightProgram.mFeatures.hasShadows = true;
 
+        gDeferredMultiSpotLightProgram.clearPermutations();
 		gDeferredMultiSpotLightProgram.mShaderFiles.clear();
 		gDeferredMultiSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/multiPointLightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredMultiSpotLightProgram.mShaderFiles.push_back(make_pair("deferred/multiSpotLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredMultiSpotLightProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+
+        if (local_light_kill)
+        {
+            gDeferredMultiSpotLightProgram.addPermutation("LOCAL_LIGHT_KILL", "1");
+        }
 
 		success = gDeferredMultiSpotLightProgram.createShader(NULL, NULL);
         llassert(success);
@@ -1819,6 +1948,22 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             gDeferredAlphaProgram.addPermutation("HAS_SHADOW", "1");
         }
         gDeferredAlphaProgram.addPermutation("USE_VERTEX_COLOR", "1");
+
+        if (ambient_kill)
+        {
+            gDeferredAlphaProgram.addPermutation("AMBIENT_KILL", "1");
+        }
+
+        if (sunlight_kill)
+        {
+            gDeferredAlphaProgram.addPermutation("SUNLIGHT_KILL", "1");
+        }
+
+        if (local_light_kill)
+        {
+            gDeferredAlphaProgram.addPermutation("LOCAL_LIGHT_KILL", "1");
+        }
+
         gDeferredAlphaProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 
         success = gDeferredAlphaProgram.createShader(NULL, NULL);
@@ -1912,6 +2057,21 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		{
 			gDeferredAlphaWaterProgram.addPermutation("HAS_SHADOW", "1");
 		}
+
+        if (ambient_kill)
+        {
+            gDeferredAlphaWaterProgram.addPermutation("AMBIENT_KILL", "1");
+        }
+
+        if (sunlight_kill)
+        {
+            gDeferredAlphaWaterProgram.addPermutation("SUNLIGHT_KILL", "1");
+        }
+
+        if (local_light_kill)
+        {
+            gDeferredAlphaWaterProgram.addPermutation("LOCAL_LIGHT_KILL", "1");
+        }
         gDeferredAlphaWaterProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 
 		success = gDeferredAlphaWaterProgram.createShader(NULL, NULL);
@@ -2084,6 +2244,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredWaterProgram.mFeatures.hasGamma = true;
 		gDeferredWaterProgram.mFeatures.hasTransport = true;
 		gDeferredWaterProgram.mFeatures.encodesNormal = true;
+        gDeferredWaterProgram.mFeatures.hasSrgb = true;
 
 		gDeferredWaterProgram.mShaderFiles.clear();
 		gDeferredWaterProgram.mShaderFiles.push_back(make_pair("deferred/waterV.glsl", GL_VERTEX_SHADER_ARB));
@@ -2126,10 +2287,26 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSoftenProgram.mFeatures.isDeferred = true;
 		gDeferredSoftenProgram.mFeatures.hasShadows = use_sun_shadow;
 
+        gDeferredSoftenProgram.clearPermutations();
 		gDeferredSoftenProgram.mShaderFiles.push_back(make_pair("deferred/softenLightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredSoftenProgram.mShaderFiles.push_back(make_pair("deferred/softenLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 
 		gDeferredSoftenProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+
+        if (ambient_kill)
+        {
+            gDeferredSoftenProgram.addPermutation("AMBIENT_KILL", "1");
+        }
+
+        if (sunlight_kill)
+        {
+            gDeferredSoftenProgram.addPermutation("SUNLIGHT_KILL", "1");
+        }
+
+        if (local_light_kill)
+        {
+            gDeferredSoftenProgram.addPermutation("LOCAL_LIGHT_KILL", "1");
+        }
 
 		if (gSavedSettings.getBOOL("RenderDeferredSSAO"))
 		{ //if using SSAO, take screen space light map into account as if shadows are enabled
@@ -2147,6 +2324,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSoftenWaterProgram.mShaderFiles.push_back(make_pair("deferred/softenLightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredSoftenWaterProgram.mShaderFiles.push_back(make_pair("deferred/softenLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 
+        gDeferredSoftenWaterProgram.clearPermutations();
 		gDeferredSoftenWaterProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 		gDeferredSoftenWaterProgram.addPermutation("WATER_FOG", "1");
 		gDeferredSoftenWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
@@ -2158,6 +2336,21 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSoftenWaterProgram.mFeatures.hasGamma = true;
         gDeferredSoftenWaterProgram.mFeatures.isDeferred = true;
         gDeferredSoftenWaterProgram.mFeatures.hasShadows = use_sun_shadow;
+
+        if (ambient_kill)
+        {
+            gDeferredSoftenWaterProgram.addPermutation("AMBIENT_KILL", "1");
+        }
+
+        if (sunlight_kill)
+        {
+            gDeferredSoftenWaterProgram.addPermutation("SUNLIGHT_KILL", "1");
+        }
+
+        if (local_light_kill)
+        {
+            gDeferredSoftenWaterProgram.addPermutation("LOCAL_LIGHT_KILL", "1");
+        }
 
 		if (gSavedSettings.getBOOL("RenderDeferredSSAO"))
 		{ //if using SSAO, take screen space light map into account as if shadows are enabled
@@ -2394,6 +2587,21 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		{
 			gDeferredAvatarAlphaProgram.addPermutation("HAS_SHADOW", "1");
 		}
+
+        if (ambient_kill)
+        {
+            gDeferredAvatarAlphaProgram.addPermutation("AMBIENT_KILL", "1");
+        }
+
+        if (sunlight_kill)
+        {
+            gDeferredAvatarAlphaProgram.addPermutation("SUNLIGHT_KILL", "1");
+        }
+
+        if (local_light_kill)
+        {
+            gDeferredAvatarAlphaProgram.addPermutation("LOCAL_LIGHT_KILL", "1");
+        }
 		gDeferredAvatarAlphaProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 
 		success = gDeferredAvatarAlphaProgram.createShader(NULL, NULL);
@@ -2487,7 +2695,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 		gDeferredWLSkyProgram.mShaderFiles.push_back(make_pair("deferred/skyV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredWLSkyProgram.mShaderFiles.push_back(make_pair("deferred/skyF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gDeferredWLSkyProgram.mShaderLevel = mShaderLevel[SHADER_WINDLIGHT];
+		gDeferredWLSkyProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 		gDeferredWLSkyProgram.mShaderGroup = LLGLSLShader::SG_SKY;
 
 		success = gDeferredWLSkyProgram.createShader(NULL, NULL);
@@ -2505,7 +2713,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         
 		gDeferredWLCloudProgram.mShaderFiles.push_back(make_pair("deferred/cloudsV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredWLCloudProgram.mShaderFiles.push_back(make_pair("deferred/cloudsF.glsl", GL_FRAGMENT_SHADER_ARB));
-		gDeferredWLCloudProgram.mShaderLevel = mShaderLevel[SHADER_WINDLIGHT];
+		gDeferredWLCloudProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 		gDeferredWLCloudProgram.mShaderGroup = LLGLSLShader::SG_SKY;
 		success = gDeferredWLCloudProgram.createShader(NULL, NULL);
 		llassert(success);
@@ -3890,11 +4098,11 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
     if (success)
     {
         gWLSkyProgram.mName = "Windlight Sky Shader";
-        //gWLSkyProgram.mFeatures.hasGamma = true;
         gWLSkyProgram.mShaderFiles.clear();
         gWLSkyProgram.mFeatures.calculatesAtmospherics = true;
         gWLSkyProgram.mFeatures.hasTransport = true;
         gWLSkyProgram.mFeatures.hasGamma = true;
+        gWLSkyProgram.mFeatures.hasSrgb = true;
         gWLSkyProgram.mShaderFiles.push_back(make_pair("windlight/skyV.glsl", GL_VERTEX_SHADER_ARB));
         gWLSkyProgram.mShaderFiles.push_back(make_pair("windlight/skyF.glsl", GL_FRAGMENT_SHADER_ARB));
         gWLSkyProgram.mShaderLevel = mShaderLevel[SHADER_WINDLIGHT];
@@ -3909,6 +4117,7 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
         gWLCloudProgram.mFeatures.calculatesAtmospherics = true;
         gWLCloudProgram.mFeatures.hasTransport = true;
         gWLCloudProgram.mFeatures.hasGamma = true;
+        gWLCloudProgram.mFeatures.hasSrgb = true;
         gWLCloudProgram.mShaderFiles.push_back(make_pair("windlight/cloudsV.glsl", GL_VERTEX_SHADER_ARB));
         gWLCloudProgram.mShaderFiles.push_back(make_pair("windlight/cloudsF.glsl", GL_FRAGMENT_SHADER_ARB));
         gWLCloudProgram.mShaderLevel = mShaderLevel[SHADER_WINDLIGHT];

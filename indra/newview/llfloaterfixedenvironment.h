@@ -86,9 +86,9 @@ protected:
     LLSettingsBase::ptr_t   mSettings;
 
     virtual void            doImportFromDisk() = 0;
-    virtual void            doApplyCreateNewInventory(std::string settings_name);
-    virtual void            doApplyUpdateInventory();
-    virtual void            doApplyEnvironment(const std::string &where);
+    virtual void            doApplyCreateNewInventory(std::string settings_name, const LLSettingsBase::ptr_t &settings);
+    virtual void            doApplyUpdateInventory(const LLSettingsBase::ptr_t &settings);
+    virtual void            doApplyEnvironment(const std::string &where, const LLSettingsBase::ptr_t &settings);
     void                    doCloseInventoryFloater(bool quitting = false);
 
     bool                    canUseInventory() const;
@@ -116,7 +116,7 @@ protected:
     void                    onPanelDirtyFlagChanged(bool);
 
     virtual void            onClickCloseBtn(bool app_quitting = false) override;
-    void                    onSaveAsCommit(const LLSD& notification, const LLSD& response);
+    void                    onSaveAsCommit(const LLSD& notification, const LLSD& response, const LLSettingsBase::ptr_t &settings);
 
 private:
     void                    onNameChanged(const std::string &name);
@@ -161,6 +161,7 @@ public:
     BOOL	                postBuild()                 override;
 
     virtual void            onOpen(const LLSD& key)     override;
+    virtual void            onClose(bool app_quitting)  override;
 
 protected:
     virtual void            updateEditEnvironment()     override;
@@ -183,7 +184,8 @@ public:
     inline void         setIsDirty()            { mIsDirty = true; if (!mOnDirtyChanged.empty()) mOnDirtyChanged(this, mIsDirty); }
     inline void         clearIsDirty()          { mIsDirty = false; if (!mOnDirtyChanged.empty()) mOnDirtyChanged(this, mIsDirty); }
 
-    virtual void        setCanChangeSettings(bool flag);
+    inline bool        getCanChangeSettings() const    { return mCanEdit; }
+    inline void        setCanChangeSettings(bool flag) { mCanEdit = flag; }
 
     inline connection_t setOnDirtyFlagChanged(on_dirty_charged_sg::slot_type cb)    { return mOnDirtyChanged.connect(cb); }
 
@@ -197,6 +199,7 @@ protected:
 
 private:
     bool                mIsDirty;
+    bool                mCanEdit;
     
     on_dirty_charged_sg mOnDirtyChanged;
 };

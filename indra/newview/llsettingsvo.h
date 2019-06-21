@@ -40,6 +40,7 @@
 
 class LLVFS;
 class LLInventoryItem;
+class LLGLSLShader;
 
 //=========================================================================
 class LLSettingsVOBase : public LLSettingsBase
@@ -101,6 +102,8 @@ public:
 
     bool isAdvanced() const { return  m_isAdvanced; }
 
+    virtual void updateShader(LLGLSLShader* shader) { applySpecial(shader); }    
+
 protected:
     LLSettingsVOSky();
 
@@ -132,6 +135,9 @@ public:
     static ptr_t buildFromLegacyPresetFile(const std::string &name, const std::string &path, LLSD &messages);
 
     static LLSD     convertToLegacy(const ptr_t &);
+
+    virtual void    updateShader(LLGLSLShader* shader) { applySpecial(shader); }
+
 protected:
     LLSettingsVOWater();
 

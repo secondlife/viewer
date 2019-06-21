@@ -315,7 +315,7 @@ public:
 	void enableLightsAvatar();
 	void enableLightsPreview();
 	void enableLightsAvatarEdit(const LLColor4& color);
-	void enableLightsFullbright(const LLColor4& color);
+	void enableLightsFullbright();
 	void disableLights();
 
 	void shiftObjects(const LLVector3 &offset);
@@ -925,6 +925,7 @@ public:
 	static F32 RenderShadowBias;
 	static F32 RenderSpotShadowOffset;
 	static F32 RenderSpotShadowBias;
+    static LLDrawable* RenderSpotLight;
 	static F32 RenderEdgeDepthCutoff;
 	static F32 RenderEdgeNormCutoff;
 	static LLVector3 RenderShadowGaussian;

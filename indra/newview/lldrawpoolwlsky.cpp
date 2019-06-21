@@ -43,6 +43,7 @@
 #include "pipeline.h"
 #include "llsky.h"
 #include "llvowlsky.h"
+#include "llsettingsvo.h"
 
 static LLStaticHashedString sCamPosLocal("camPosLocal");
 static LLStaticHashedString sCustomAlpha("custom_alpha");
@@ -181,9 +182,18 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
         sky_shader->bindTexture(LLShaderMgr::RAINBOW_MAP, rainbow_tex);
         sky_shader->bindTexture(LLShaderMgr::HALO_MAP,  halo_tex);
 
+        ((LLSettingsVOSky*)psky.get())->updateShader(sky_shader);
+
         F32 moisture_level  = (float)psky->getSkyMoistureLevel();
         F32 droplet_radius  = (float)psky->getSkyDropletRadius();
         F32 ice_level       = (float)psky->getSkyIceLevel();
+
+        // hobble halos and rainbows when there's no light source to generate them
+        if (!psky->getIsSunUp() && !psky->getIsMoonUp())
+        {
+            moisture_level = 0.0f;
+            ice_level      = 0.0f;
+        }
 
         sky_shader->uniform1f(LLShaderMgr::MOISTURE_LEVEL, moisture_level);
         sky_shader->uniform1f(LLShaderMgr::DROPLET_RADIUS, droplet_radius);
@@ -390,6 +400,8 @@ void LLDrawPoolWLSky::renderSkyCloudsDeferred(const LLVector3& camPosLocal, F32 
         cloudshader->uniform1f(LLShaderMgr::CLOUD_VARIANCE, cloud_variance);
         cloudshader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, psky->getSunMoonGlowFactor());
 
+        ((LLSettingsVOSky*)psky.get())->updateShader(cloudshader);
+
 		/// Render the skydome
         renderDome(camPosLocal, camHeightLocal, cloudshader);
 
@@ -442,6 +454,9 @@ void LLDrawPoolWLSky::renderSkyClouds(const LLVector3& camPosLocal, F32 camHeigh
 
         cloudshader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
         cloudshader->uniform1f(LLShaderMgr::CLOUD_VARIANCE, cloud_variance);
+        cloudshader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, psky->getSunMoonGlowFactor());
+
+        ((LLSettingsVOSky*)psky.get())->updateShader(cloudshader);
 
 		/// Render the skydome
         renderDome(camPosLocal, camHeightLocal, cloudshader);
@@ -506,7 +521,6 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
                 sun_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);
                 sun_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 
-                LLFacePool::LLOverrideFaceColor color_override(this, color);
                 face->renderIndexed();
 
                 gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -558,7 +572,6 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
             moon_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);
             moon_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 
-            LLFacePool::LLOverrideFaceColor color_override(this, color);
             face->renderIndexed();
 
             gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);

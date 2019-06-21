@@ -43,20 +43,26 @@ void main()
 {
 	float alpha = diffuseLookup(vary_texcoord0.xy).a;
 
-    alpha *= vertex_color.a;
+    // mask cutoff 0 -> no shadow SL-11051
+    if (minimum_alpha == 0)
+    {
+        discard;
+    }
 
 	if (alpha < 0.05) // treat as totally transparent
 	{
 		discard;
 	}
 
-	if (alpha < minimum_alpha) // treat as semi-transparent
+	if (alpha < 0.88) // treat as semi-transparent
 	{
 	  if (fract(0.5*floor(target_pos_x / post_pos.w )) < 0.25)
 	  {
 	    discard;
 	  }
 	}
+
+    alpha *= vertex_color.a;
 
 	frag_color = vec4(1,1,1,1);
 	

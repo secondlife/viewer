@@ -24,6 +24,7 @@
  */
  
 #extension GL_ARB_texture_rectangle : enable
+#extension GL_ARB_shader_texture_lod : enable
 
 /*[EXTRA_CODE_HERE]*/
 
@@ -58,7 +59,7 @@ uniform vec2 screen_res;
 vec3 getNorm(vec2 pos_screen);
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 
-void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten);
+void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
 float getAmbientClamp();
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 scaleSoftClipFrag(vec3 l);
@@ -87,14 +88,11 @@ void main()
     float da = dot(normalize(norm.xyz), light_dir.xyz);
           da = clamp(da, -1.0, 1.0);
 
-    
-
     float final_da = da;
           final_da = clamp(final_da, 0.0, 1.0);
 
     vec4 diffuse_srgb   = texture2DRect(diffuseRect, tc);
     vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_srgb.a);
- 
 
     // clamping to alpha value kills underwater shadows...
     //scol = max(scol_ambocc.r, diffuse_linear.a);
@@ -111,22 +109,25 @@ void main()
         vec3 additive;
         vec3 atten;
     
-        calcAtmosphericVars(pos.xyz, ambocc, sunlit, amblit, additive, atten);
+        calcAtmosphericVars(pos.xyz, ambocc, sunlit, amblit, additive, atten, true);
 
         float ambient = da;
         ambient *= 0.5;
         ambient *= ambient;
-        //ambient = max(getAmbientClamp(), ambient);
-        ambient = 1.0 - ambient;
+        ambient = (1.0 - ambient);
 
         vec3 sun_contrib = min(scol, final_da) * sunlit;
 
+#if !defined(AMBIENT_KILL)
         color.rgb = amblit;
         color.rgb *= ambient;
+#endif
 
 vec3 post_ambient = color.rgb;
 
+#if !defined(SUNLIGHT_KILL)
         color.rgb += sun_contrib;
+#endif
 
 vec3 post_sunlight = color.rgb;
 
@@ -154,32 +155,38 @@ vec3 post_diffuse = color.rgb;
             if (nh > 0.0)
             {
                 float scontrib = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
-                vec3 speccol = sun_contrib*scontrib*spec.rgb * 0.25;
-                speccol = clamp(speccol, vec3(0), vec3(1));
-                bloom += dot (speccol, speccol);
-                color += speccol;
+                vec3 sp = sun_contrib*scontrib / 16.0;
+                sp = clamp(sp, vec3(0), vec3(1));
+                bloom += dot(sp, sp) / 6.0;
+#if !defined(SUNLIGHT_KILL)
+                color += sp * spec.rgb;
+#endif
             }
         }
        
  vec3 post_spec = color.rgb;
  
 #ifndef WATER_FOG
-        color.rgb += diffuse_srgb.a * diffuse_srgb.rgb;
+        color.rgb = mix(color.rgb, diffuse_srgb.rgb, diffuse_srgb.a);
 #endif
 
         if (envIntensity > 0.0)
         { //add environmentmap
             vec3 env_vec = env_mat * refnormpersp;
             vec3 reflected_color = textureCube(environmentMap, env_vec).rgb;
+#if !defined(SUNLIGHT_KILL)
             color = mix(color.rgb, reflected_color, envIntensity); 
+#endif
         }
         
 vec3 post_env = color.rgb;
 
         if (norm.w < 1)
         {
+#if !defined(SUNLIGHT_KILL)
             color = atmosFragLighting(color, additive, atten);
             color = scaleSoftClipFrag(color);
+#endif
         }
 
 vec3 post_atmo = color.rgb;
@@ -190,11 +197,10 @@ vec3 post_atmo = color.rgb;
             bloom = fogged.a;
         #endif
 
+// srgb colorspace debuggables
 //color.rgb = amblit;
-//color.rgb = vec3(ambient);
 //color.rgb = sunlit;
 //color.rgb = post_ambient;
-//color.rgb = vec3(final_da);
 //color.rgb = sun_contrib;
 //color.rgb = post_sunlight;
 //color.rgb = diffuse_srgb.rgb;
@@ -207,6 +213,12 @@ vec3 post_atmo = color.rgb;
 // and will be gamma (re)corrected downstream...
         color.rgb = srgb_to_linear(color.rgb);
     }
+
+// linear debuggables
+//color.rgb = vec3(final_da);
+//color.rgb = vec3(ambient);
+//color.rgb = vec3(scol);
+//color.rgb = diffuse_linear.rgb;
 
     frag_color.rgb = color.rgb;
     frag_color.a = bloom;

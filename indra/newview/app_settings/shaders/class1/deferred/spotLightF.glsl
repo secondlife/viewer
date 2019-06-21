@@ -71,10 +71,12 @@ uniform vec2 screen_res;
 uniform mat4 inv_proj;
 
 vec3 getNorm(vec2 pos_screen);
+vec3 srgb_to_linear(vec3 c);
 
 vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
+	ret.rgb = srgb_to_linear(ret.rgb);
 	
 	vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
 	
@@ -94,6 +96,7 @@ vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
+	ret.rgb = srgb_to_linear(ret.rgb);
 	
 	vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
 	
@@ -111,6 +114,7 @@ vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
 vec4 texture2DLodAmbient(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
+	ret.rgb = srgb_to_linear(ret.rgb);
 	
 	vec2 dist = tc-vec2(0.5);
 	
@@ -125,6 +129,11 @@ vec4 getPosition(vec2 pos_screen);
 
 void main() 
 {
+	vec3 col = vec3(0,0,0);
+
+#if defined(LOCAL_LIGHT_KILL)
+    discard;
+#else
 	vec4 frag = vary_fragcoord;
 	frag.xyz /= frag.w;
 	frag.xyz = frag.xyz*0.5+0.5;
@@ -138,12 +147,10 @@ void main()
 	{
 		discard;
 	}
-	
 		
 	vec3 norm = texture2DRect(normalMap, frag.xy).xyz;
 	float envIntensity = norm.z;
 	norm = getNorm(frag.xy);
-	
 	norm = normalize(norm);
 	float l_dist = -dot(lv, proj_n);
 	
@@ -169,13 +176,10 @@ void main()
 	lv = normalize(lv);
 	float da = dot(norm, lv);
 		
-	vec3 col = vec3(0,0,0);
-		
 	vec3 diff_tex = texture2DRect(diffuseRect, frag.xy).rgb;
-		
-	vec4 spec = texture2DRect(specularRect, frag.xy);
+    diff_tex.rgb = srgb_to_linear(diff_tex.rgb);
 
-	
+	vec4 spec = texture2DRect(specularRect, frag.xy);
 
 	float noise = texture2D(noiseMap, frag.xy/128.0).b;
 	vec3 dlit = vec3(0, 0, 0);
@@ -212,7 +216,6 @@ void main()
 		amb_da = min(amb_da, 1.0-lit);
 		col += amb_da*color.rgb*diff_tex.rgb*amb_plcol.rgb*amb_plcol.a*diff_tex.rgb;
 	}
-	
 
 	if (spec.a > 0.0)
 	{
@@ -238,7 +241,6 @@ void main()
 			//col += spec.rgb;
 		}
 	}	
-
 
 	if (envIntensity > 0.0)
 	{
@@ -268,7 +270,8 @@ void main()
 			}
 		}
 	}
-	
+#endif
+
 	frag_color.rgb = col;	
 	frag_color.a = 0.0;
 }

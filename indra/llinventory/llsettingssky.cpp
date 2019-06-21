@@ -136,7 +136,7 @@ const std::string LLSettingsSky::SETTING_SKY_MOISTURE_LEVEL("moisture_level");
 const std::string LLSettingsSky::SETTING_SKY_DROPLET_RADIUS("droplet_radius");
 const std::string LLSettingsSky::SETTING_SKY_ICE_LEVEL("ice_level");
 
-const LLUUID LLSettingsSky::DEFAULT_ASSET_ID("eb3a7080-831f-9f37-10f0-7b1f9ea4043c");
+const LLUUID LLSettingsSky::DEFAULT_ASSET_ID("3ae23978-ac82-bcf3-a9cb-ba6e52dcb9ad");
 
 static const LLUUID DEFAULT_SUN_ID("32bfbcea-24b1-fb9d-1ef9-48a28a63730f"); // dataserver
 static const LLUUID DEFAULT_MOON_ID("d07f6eed-b96a-47cd-b51d-400ad4a1c428"); // dataserver
@@ -1176,7 +1176,7 @@ LLColor3 LLSettingsSky::getTotalDensity() const
 // this is used later for sunlight modulation at various altitudes
 LLColor3 LLSettingsSky::getLightAttenuation(F32 distance) const
 {
-    F32         density_multiplier = getDensityMultiplier() * 0.45f;
+    F32         density_multiplier = getDensityMultiplier();
     LLColor3    blue_density       = getBlueDensity();
     F32         haze_density       = getHazeDensity();
     // Approximate line integral over requested distance
@@ -1187,7 +1187,7 @@ LLColor3 LLSettingsSky::getLightAttenuation(F32 distance) const
 LLColor3 LLSettingsSky::getLightTransmittance() const
 {
     LLColor3 total_density      = getTotalDensity();
-    F32      density_multiplier = getDensityMultiplier() * 0.45f;
+    F32      density_multiplier = getDensityMultiplier();
     // Transparency (-> density) from Beer's law
     LLColor3 transmittance = componentExp(total_density * -density_multiplier);
     return transmittance;
@@ -1246,6 +1246,25 @@ LLColor4 LLSettingsSky::getTotalAmbient() const
     return mTotalAmbient;
 }
 
+LLColor3 LLSettingsSky::getMoonlightColor() const
+{
+    F32 moon_brightness = getIsMoonUp() ? getMoonBrightness() : 0.001f;
+    LLColor3 moonlight_a(0.9, 0.9, 1.32);
+    LLColor3 moonlight_b(0.66, 0.66, 2.0);
+    LLColor3 moonlight = lerp(moonlight_b, moonlight_a, moon_brightness);    
+    return moonlight;
+}
+
+void LLSettingsSky::clampColor(LLColor3& color) const
+{
+    F32 max_color = llmax(color.mV[0], color.mV[1], color.mV[2]);
+    if (max_color > 1.f)
+    {
+        color *= 1.f/max_color;
+    }
+    color.clamp();
+}
+
 void LLSettingsSky::calculateLightSettings() const
 {
     // Initialize temp variables
@@ -1271,24 +1290,29 @@ void LLSettingsSky::calculateLightSettings() const
     }
     lighty = llmax(LIMIT, lighty);
     componentMultBy(sunlight, componentExp((light_atten * -1.f) * lighty));
+    componentMultBy(sunlight, light_transmittance);
+    clampColor(sunlight);
 
     //increase ambient when there are more clouds
-    LLColor3 tmpAmbient = ambient + (smear(1.f) - ambient) * cloud_shadow;
+    LLColor3 tmpAmbient = ambient + (smear(1.f) - ambient) * cloud_shadow * 0.5;
+    componentMultBy(tmpAmbient, light_transmittance);
+    clampColor(tmpAmbient);
 
     //brightness of surface both sunlight and ambient
-    mSunDiffuse = gammaCorrect(componentMult(sunlight,   light_transmittance));
-    mSunAmbient = gammaCorrect(componentMult(tmpAmbient, light_transmittance));
+    mSunDiffuse = gammaCorrect(sunlight);
+    mSunAmbient = gammaCorrect(tmpAmbient);
 
     F32 moon_brightness = getIsMoonUp() ? getMoonBrightness() : 0.001f;
 
-    LLColor3 moonlight_a(0.45, 0.45, 0.66);
-    LLColor3 moonlight_b(0.33, 0.33, 1.0);
+    LLColor3 moonlight = getMoonlightColor();
+    LLColor3 moonlight_b(0.66, 0.66, 1.2); // scotopic ambient value
 
-    LLColor3 moonlight = lerp(moonlight_b, moonlight_a, moon_brightness);    
     componentMultBy(moonlight, componentExp((light_atten * -1.f) * lighty));
+    clampColor(moonlight);
 
     mMoonDiffuse  = gammaCorrect(componentMult(moonlight, light_transmittance) * moon_brightness);
     mMoonAmbient  = gammaCorrect(componentMult(moonlight_b, light_transmittance) * 0.0125f);
+
     mTotalAmbient = mSunAmbient;
 }
 

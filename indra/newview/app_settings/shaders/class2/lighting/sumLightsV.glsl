@@ -24,7 +24,7 @@
  */
  
 float calcDirectionalLight(vec3 n, vec3 l);
-float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float is_pointlight);
+float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight);
 
 vec3 atmosAffectDirectionalLight(float lightIntensity);
 vec3 scaleDownLight(vec3 light);
@@ -40,13 +40,21 @@ vec4 sumLights(vec3 pos, vec3 norm, vec4 color)
 	
 	// Collect normal lights (need to be divided by two, as we later multiply by 2)
 	col.rgb += light_diffuse[1].rgb * calcDirectionalLight(norm, light_position[1].xyz);
-	col.rgb += light_diffuse[2].rgb*calcPointLightOrSpotLight(pos.xyz, norm, light_position[2], light_direction[2], light_attenuation[2].x, light_attenuation[2].z);
-	col.rgb += light_diffuse[3].rgb*calcPointLightOrSpotLight(pos.xyz, norm, light_position[3], light_direction[3], light_attenuation[3].x, light_attenuation[3].z);
+	col.rgb += light_diffuse[2].rgb*calcPointLightOrSpotLight(pos.xyz, norm, light_position[2], light_direction[2], light_attenuation[2].x, light_attenuation[2].y, light_attenuation[2].z);
+	col.rgb += light_diffuse[3].rgb*calcPointLightOrSpotLight(pos.xyz, norm, light_position[3], light_direction[3], light_attenuation[3].x, light_attenuation[3].y, light_attenuation[3].z);
 	col.rgb = scaleDownLight(col.rgb);
+
+#if defined(LOCAL_LIGHT_KILL)
+    col.rgb = vec3(0);
+i#endif
 
 	// Add windlight lights
 	col.rgb += atmosAffectDirectionalLight(calcDirectionalLight(norm, light_position[0].xyz));
+
+#if !defined(SUNLIGHT_KILL)
 	col.rgb = min(col.rgb*color.rgb, 1.0);
+#endif
+
 	return col;	
 }
 

@@ -50,7 +50,7 @@ uniform vec4 lightnorm;
 uniform vec4 sunlight_color;
 uniform vec4 moonlight_color;
 uniform int sun_up_factor;
-uniform vec4 ambient;
+uniform vec4 ambient_color;
 uniform vec4 blue_horizon;
 uniform vec4 blue_density;
 uniform float haze_horizon;
@@ -103,14 +103,14 @@ void main()
 	vec4 sunlight = sunlight_color;
 	vec4 light_atten;
 
-    float dens_mul = density_multiplier * 0.45;
+    float dens_mul = density_multiplier;
 
 	// Sunlight attenuation effect (hue and brightness) due to atmosphere
 	// this is used later for sunlight modulation at various altitudes
 	light_atten = (blue_density + vec4(haze_density * 0.25)) * (dens_mul * max_y);
 
 	// Calculate relative weights
-	temp1 = blue_density + haze_density;
+	temp1 = abs(blue_density) + vec4(abs(haze_density));
 	blue_weight = blue_density / temp1;
 	haze_weight = haze_density / temp1;
 
@@ -145,7 +145,7 @@ void main()
 	temp2.x += .25;
 
 	// Increase ambient when there are more clouds
-	vec4 tmpAmbient = ambient;
+	vec4 tmpAmbient = ambient_color;
 	tmpAmbient += (1. - tmpAmbient) * cloud_shadow * 0.5; 
 
 	// Dim sunlight by cloud shadow percentage
