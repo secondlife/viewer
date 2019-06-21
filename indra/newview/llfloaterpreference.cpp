@@ -254,8 +254,8 @@ bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response
 	if ( option == 0 ) // YES
 	{
 		// clean web
-		LLViewerMedia::clearAllCaches();
-		LLViewerMedia::clearAllCookies();
+		LLViewerMedia::getInstance()->clearAllCaches();
+		LLViewerMedia::getInstance()->clearAllCookies();
 		
 		// clean nav bar history
 		LLNavigationBar::getInstance()->clearHistoryCache();
@@ -635,14 +635,14 @@ void LLFloaterPreference::apply()
 	std::string cache_location = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
 	setCacheLocation(cache_location);
 	
-	LLViewerMedia::setCookiesEnabled(getChild<LLUICtrl>("cookies_enabled")->getValue());
+	LLViewerMedia::getInstance()->setCookiesEnabled(getChild<LLUICtrl>("cookies_enabled")->getValue());
 	
 	if (hasChild("web_proxy_enabled", TRUE) &&hasChild("web_proxy_editor", TRUE) && hasChild("web_proxy_port", TRUE))
 	{
 		bool proxy_enable = getChild<LLUICtrl>("web_proxy_enabled")->getValue();
 		std::string proxy_address = getChild<LLUICtrl>("web_proxy_editor")->getValue();
 		int proxy_port = getChild<LLUICtrl>("web_proxy_port")->getValue();
-		LLViewerMedia::setProxyConfig(proxy_enable, proxy_address, proxy_port);
+		LLViewerMedia::getInstance()->setProxyConfig(proxy_enable, proxy_address, proxy_port);
 	}
 	
 	if (mGotPersonalInfo)

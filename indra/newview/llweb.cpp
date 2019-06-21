@@ -121,7 +121,7 @@ void LLWeb::loadURLExternal(const std::string& url, const std::string& uuid)
 void LLWeb::loadURLExternal(const std::string& url, bool async, const std::string& uuid)
 {
 	// Act like the proxy window was closed, since we won't be able to track targeted windows in the external browser.
-	LLViewerMedia::proxyWindowClosed(uuid);
+	LLViewerMedia::getInstance()->proxyWindowClosed(uuid);
 	
 	if(gSavedSettings.getBOOL("DisableExternalBrowser"))
 	{

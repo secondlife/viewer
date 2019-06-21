@@ -219,7 +219,7 @@ namespace LLMarketplaceImport
         httpHeaders->append(HTTP_OUT_HEADER_CONNECTION, "Keep-Alive");
         httpHeaders->append(HTTP_OUT_HEADER_COOKIE, sMarketplaceCookie);
         httpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_XML);
-        httpHeaders->append(HTTP_OUT_HEADER_USER_AGENT, LLViewerMedia::getCurrentUserAgent());
+        httpHeaders->append(HTTP_OUT_HEADER_USER_AGENT, LLViewerMedia::getInstance()->getCurrentUserAgent());
 
         LLSD result = httpAdapter->postAndSuspend(httpRequest, url, LLSD(), httpOpts, httpHeaders);
 
@@ -283,11 +283,11 @@ namespace LLMarketplaceImport
             httpHeaders->append(HTTP_OUT_HEADER_ACCEPT, "*/*");
             httpHeaders->append(HTTP_OUT_HEADER_COOKIE, sMarketplaceCookie);
             httpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
-            httpHeaders->append(HTTP_OUT_HEADER_USER_AGENT, LLViewerMedia::getCurrentUserAgent());
+            httpHeaders->append(HTTP_OUT_HEADER_USER_AGENT, LLViewerMedia::getInstance()->getCurrentUserAgent());
         }
         else
         {
-            httpHeaders = LLViewerMedia::getHttpHeaders();
+            httpHeaders = LLViewerMedia::getInstance()->getHttpHeaders();
         }
 
         LLSD result = httpAdapter->getAndSuspend(httpRequest, url, httpOpts, httpHeaders);

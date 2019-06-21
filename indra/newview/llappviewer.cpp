@@ -1211,9 +1211,6 @@ bool LLAppViewer::init()
 							 << LL_ENDL;
 	}
 
-	LLViewerMedia::initClass();
-	LL_INFOS("InitInfo") << "Viewer media initialized." << LL_ENDL ;
-
 	LLTextUtil::TextHelpers::iconCallbackCreationFunction = create_text_segment_icon_from_url_match;
 
 	//EXT-7013 - On windows for some locale (Japanese) standard
@@ -2045,7 +2042,6 @@ bool LLAppViewer::cleanup()
 	//Note:
 	//SUBSYSTEM_CLEANUP(LLViewerMedia) has to be put before gTextureList.shutdown()
 	//because some new image might be generated during cleaning up media. --bao
-	SUBSYSTEM_CLEANUP(LLViewerMedia);
 	SUBSYSTEM_CLEANUP(LLViewerParcelMedia);
 	gTextureList.shutdown(); // shutdown again in case a callback added something
 	LLUIImageList::getInstance()->cleanUp();
