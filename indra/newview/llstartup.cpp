@@ -2806,9 +2806,6 @@ void LLStartUp::multimediaInit()
 	std::string msg = LLTrans::getString("LoginInitializingMultimedia");
 	set_startup_status(0.42f, msg.c_str(), gAgent.mMOTD.c_str());
 	display_startup();
-
-	// LLViewerMedia::initClass();
-	LLViewerParcelMedia::initClass();
 }
 
 void LLStartUp::fontInit()

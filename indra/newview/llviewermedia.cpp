@@ -952,7 +952,7 @@ void LLViewerMedia::setAllMediaEnabled(bool val)
 	{
 		if (!LLViewerMedia::isParcelMediaPlaying() && LLViewerMedia::hasParcelMedia())
 		{
-			LLViewerParcelMedia::play(LLViewerParcelMgr::getInstance()->getAgentParcel());
+			LLViewerParcelMedia::getInstance()->play(LLViewerParcelMgr::getInstance()->getAgentParcel());
 		}
 
 		static LLCachedControl<bool> audio_streaming_music(gSavedSettings, "AudioStreamingMusic", true);
@@ -974,7 +974,7 @@ void LLViewerMedia::setAllMediaEnabled(bool val)
 	}
 	else {
 		// This actually unloads the impl, as opposed to "stop"ping the media
-		LLViewerParcelMedia::stop();
+		LLViewerParcelMedia::getInstance()->stop();
 		if (gAudiop)
 		{
 			LLViewerAudio::getInstance()->stopInternetStreamWithAutoFade();
@@ -1023,7 +1023,7 @@ void LLViewerMedia::setAllMediaPaused(bool val)
     {
         if (!LLViewerMedia::isParcelMediaPlaying() && LLViewerMedia::hasParcelMedia())
         {
-            LLViewerParcelMedia::play(LLViewerParcelMgr::getInstance()->getAgentParcel());
+            LLViewerParcelMedia::getInstance()->play(LLViewerParcelMgr::getInstance()->getAgentParcel());
         }
 
         static LLCachedControl<bool> audio_streaming_music(gSavedSettings, "AudioStreamingMusic", true);
@@ -1045,7 +1045,7 @@ void LLViewerMedia::setAllMediaPaused(bool val)
     }
     else {
         // This actually unloads the impl, as opposed to "stop"ping the media
-        LLViewerParcelMedia::stop();
+        LLViewerParcelMedia::getInstance()->stop();
         if (gAudiop)
         {
             LLViewerAudio::getInstance()->stopInternetStreamWithAutoFade();
@@ -1056,7 +1056,8 @@ void LLViewerMedia::setAllMediaPaused(bool val)
 //////////////////////////////////////////////////////////////////////////////////////////
 bool LLViewerMedia::isParcelMediaPlaying()
 {
-	return (LLViewerMedia::hasParcelMedia() && LLViewerParcelMedia::getParcelMedia() && LLViewerParcelMedia::getParcelMedia()->hasMedia());
+    viewer_media_t media = LLViewerParcelMedia::getInstance()->getParcelMedia();
+    return (LLViewerMedia::hasParcelMedia() && media && media->hasMedia());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -1470,7 +1471,7 @@ bool LLViewerMedia::hasInWorldMedia()
 //////////////////////////////////////////////////////////////////////////////////////////
 bool LLViewerMedia::hasParcelMedia()
 {
-	return !LLViewerParcelMedia::getURL().empty();
+	return !LLViewerParcelMedia::getInstance()->getURL().empty();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

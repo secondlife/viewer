@@ -1457,19 +1457,19 @@ static void handle_click_action_play()
 	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if (!parcel) return;
 
-	LLViewerMediaImpl::EMediaStatus status = LLViewerParcelMedia::getStatus();
+	LLViewerMediaImpl::EMediaStatus status = LLViewerParcelMedia::getInstance()->getStatus();
 	switch(status)
 	{
 		case LLViewerMediaImpl::MEDIA_PLAYING:
-			LLViewerParcelMedia::pause();
+			LLViewerParcelMedia::getInstance()->pause();
 			break;
 
 		case LLViewerMediaImpl::MEDIA_PAUSED:
-			LLViewerParcelMedia::start();
+			LLViewerParcelMedia::getInstance()->start();
 			break;
 
 		default:
-			LLViewerParcelMedia::play(parcel);
+			LLViewerParcelMedia::getInstance()->play(parcel);
 			break;
 	}
 }
@@ -1706,7 +1706,7 @@ static ECursorType cursor_from_parcel_media(U8 click_action)
 
 	open_cursor = UI_CURSOR_TOOLMEDIAOPEN;
 
-	LLViewerMediaImpl::EMediaStatus status = LLViewerParcelMedia::getStatus();
+	LLViewerMediaImpl::EMediaStatus status = LLViewerParcelMedia::getInstance()->getStatus();
 	switch(status)
 	{
 		case LLViewerMediaImpl::MEDIA_PLAYING:

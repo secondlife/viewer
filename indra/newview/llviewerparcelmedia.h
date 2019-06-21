@@ -37,50 +37,53 @@ class LLViewerParcelMediaNavigationObserver;
 // This class understands land parcels, network traffic, LSL media
 // transport commands, and talks to the LLViewerMedia class to actually
 // do playback.  It allows us to remove code from LLViewerParcelMgr.
-class LLViewerParcelMedia : public LLViewerMediaObserver
+class LLViewerParcelMedia : public LLViewerMediaObserver, public LLSingleton<LLViewerParcelMedia>
 {
+	LLSINGLETON(LLViewerParcelMedia);
+	~LLViewerParcelMedia();
 	LOG_CLASS(LLViewerParcelMedia);
-	public:
-		static void initClass();
-		static void cleanupClass();
+public:
+	void update(LLParcel* parcel);
+	// called when the agent's parcel has a new URL, or the agent has
+	// walked on to a new parcel with media
 
-		static void update(LLParcel* parcel);
-			// called when the agent's parcel has a new URL, or the agent has
-			// walked on to a new parcel with media
+	void play(LLParcel* parcel);
+	// user clicked play button in media transport controls
 
-		static void play(LLParcel* parcel);
-			// user clicked play button in media transport controls
+	void stop();
+	// user clicked stop button in media transport controls
 
-		static void stop();
-			// user clicked stop button in media transport controls
+	void pause();
+	void start();
+	// restart after pause - no need for all the setup
 
-		static void pause();
-		static void start();
-			// restart after pause - no need for all the setup
+	void focus(bool focus);
 
-		static void focus(bool focus);
+	void seek(F32 time);
+	// jump to timecode time
 
-		static void seek(F32 time);
-		    // jump to timecode time
+	LLPluginClassMediaOwner::EMediaStatus getStatus();
+	std::string getMimeType();
+	std::string getURL();
+	std::string getName();
+	viewer_media_t getParcelMedia();
+	bool hasParcelMedia() { return mMediaImpl.notNull(); }
 
-		static LLPluginClassMediaOwner::EMediaStatus getStatus();
-		static std::string getMimeType();
-		static std::string getURL();
-		static std::string getName();
-		static viewer_media_t getParcelMedia();
+	static void parcelMediaCommandMessageHandler( LLMessageSystem *msg, void ** );
+	static void parcelMediaUpdateHandler( LLMessageSystem *msg, void ** );
+	void sendMediaNavigateMessage(const std::string& url);
 
-		static void processParcelMediaCommandMessage( LLMessageSystem *msg, void ** );
-		static void processParcelMediaUpdate( LLMessageSystem *msg, void ** );
-		static void sendMediaNavigateMessage(const std::string& url);
-		
-		// inherited from LLViewerMediaObserver
-		virtual void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
+	// inherited from LLViewerMediaObserver
+	virtual void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
 
-	public:
-		static S32 sMediaParcelLocalID;
-		static LLUUID sMediaRegionID;
-		// HACK: this will change with Media on a Prim
-		static viewer_media_t sMediaImpl;
+private:
+	void processParcelMediaCommandMessage(LLMessageSystem *msg);
+	void processParcelMediaUpdate(LLMessageSystem *msg);
+
+	S32 mMediaParcelLocalID;
+	LLUUID mMediaRegionID;
+	// HACK: this will change with Media on a Prim
+	viewer_media_t mMediaImpl;
 };
 
 
