@@ -53,7 +53,7 @@ const F32 TEXTURE_CACHE_PURGE_AMOUNT = .20f; // % amount to reduce the cache by 
 const F32 TEXTURE_CACHE_LRU_SIZE = .10f; // % amount for LRU list (low overhead to regenerate)
 const S32 TEXTURE_FAST_CACHE_ENTRY_OVERHEAD = sizeof(S32) * 4; //w, h, c, level
 const S32 TEXTURE_FAST_CACHE_ENTRY_SIZE = 16 * 16 * 4 + TEXTURE_FAST_CACHE_ENTRY_OVERHEAD;
-const F32 TEXTURE_LAZY_PURGE_TIME_LIMIT = .005f; // 5ms
+const F32 TEXTURE_LAZY_PURGE_TIME_LIMIT = .004f; // 4ms. Would be better to autoadjust, but there is a major cache rework in progress.
 
 class LLTextureCacheWorker : public LLWorkerClass
 {
