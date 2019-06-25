@@ -1477,8 +1477,10 @@ bool LLAppViewer::doFrame()
 				pingMainloopTimeout("Main:Display");
 				gGLActive = TRUE;
 
+				display();
+
 				static U64 last_call = 0;
-				if (!gTeleportDisplay)
+				if (!gTeleportDisplay || gGLManager.mIsIntel) // SL-10625...throttle early, throttle often with Intel
 				{
 					// Frame/draw throttling
 					U64 elapsed_time = LLTimer::getTotalTime() - last_call;
@@ -1491,8 +1493,6 @@ bool LLAppViewer::doFrame()
 					}
 				}
 				last_call = LLTimer::getTotalTime();
-
-				display();
 
 				pingMainloopTimeout("Main:Snapshot");
 				LLFloaterSnapshot::update(); // take snapshots
@@ -5390,7 +5390,7 @@ bool LLAppViewer::onChangeFrameLimit(LLSD const & evt)
 {
 	if (evt.asInteger() > 0)
 	{
-		mMinMicroSecPerFrame = 1000000 / evt.asInteger();
+		mMinMicroSecPerFrame = (U64)(1000000.0f / F32(evt.asInteger()));
 	}
 	else
 	{
