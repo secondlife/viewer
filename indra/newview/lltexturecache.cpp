@@ -1747,7 +1747,8 @@ void LLTextureCache::purgeTexturesLazy(F32 time_limit_sec)
 			id_map_t::iterator iter_header = mHeaderIDMap.find(entry.mID);
 			if (iter_header != mHeaderIDMap.end() && iter_header->second == idx)
 			{
-				removeEntry(idx, entry, getTextureFileName(entry.mID));
+				std::string tex_filename = getTextureFileName(entry.mID);
+				removeEntry(idx, entry, tex_filename);
 				writeEntryToHeaderImmediately(idx, entry);
 			}
 		}
