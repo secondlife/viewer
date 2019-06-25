@@ -1944,7 +1944,6 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 	msg->addU32Fast(_PREHASH_ParentEstateID, 0);
 	msg->addUUIDFast(_PREHASH_RegionID, LLUUID::null);
 	msg->addVector3Fast(_PREHASH_Position, gAgent.getPositionAgent());
-	LLInventoryObserver* opener = NULL;
 	
 	std::string from_string; // Used in the pop-up.
 	std::string chatHistory_string;  // Used in chat history.
@@ -1992,22 +1991,14 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 	}
 	
 	bool is_do_not_disturb = gAgent.isDoNotDisturb();
-	
+	LLUUID destination;
+
+	// If user accepted, accept to proper folder, if user discarded, accept to trash.
 	switch(button)
 	{
 		case IOR_ACCEPT:
-			// ACCEPT. The math for the dialog works, because the accept
-			// for inventory_offered, task_inventory_offer or
-			// group_notice_inventory is 1 greater than the offer integer value.
-			// Generates IM_INVENTORY_ACCEPTED, IM_TASK_INVENTORY_ACCEPTED, 
-			// or IM_GROUP_NOTICE_INVENTORY_ACCEPTED
-			msg->addU8Fast(_PREHASH_Dialog, (U8)(mIM + 1));
-			msg->addBinaryDataFast(_PREHASH_BinaryBucket, &(mFolderID.mData),
-								   sizeof(mFolderID.mData));
-			// send the message
-			msg->sendReliable(mHost);
-			
-			//don't spam them if they are getting flooded
+			destination = mFolderID;
+			//don't spam user if flooded
 			if (check_offer_throttle(mFromName, true))
 			{
 				log_message = "<nolink>" + chatHistory_string + "</nolink> " + LLTrans::getString("InvOfferGaveYou") + " " + getSanitizedDescription() + LLTrans::getString(".");
@@ -2015,54 +2006,13 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 				args["MESSAGE"] = log_message;
 				LLNotificationsUtil::add("SystemMessageTip", args);
 			}
-			
-			// we will want to open this item when it comes back.
-			LL_DEBUGS("Messaging") << "Initializing an opener for tid: " << mTransactionID
-			<< LL_ENDL;
-			switch (mIM)
-		{
-			case IM_TASK_INVENTORY_OFFERED:
-			case IM_GROUP_NOTICE:
-			case IM_GROUP_NOTICE_REQUESTED:
-			{
-				// This is an offer from a task or group.
-				// We don't use a new instance of an opener
-				// We instead use the singular observer gOpenTaskOffer
-				// Since it already exists, we don't need to actually do anything
-			}
-				break;
-			default:
-				LL_WARNS("Messaging") << "inventory_offer_callback: unknown offer type" << LL_ENDL;
-				break;
-		}	// end switch (mIM)
 			break;
-			
 		case IOR_MUTE:
 			// MUTE falls through to decline
 		case IOR_DECLINE:
-			// DECLINE. The math for the dialog works, because the decline
-			// for inventory_offered, task_inventory_offer or
-			// group_notice_inventory is 2 greater than the offer integer value.
-			// Generates IM_INVENTORY_DECLINED, IM_TASK_INVENTORY_DECLINED,
-			// or IM_GROUP_NOTICE_INVENTORY_DECLINED
 		default:
 			// close button probably (or any of the fall-throughs from above)
-			msg->addU8Fast(_PREHASH_Dialog, (U8)(mIM + 2));
-			msg->addBinaryDataFast(_PREHASH_BinaryBucket, EMPTY_BINARY_BUCKET, EMPTY_BINARY_BUCKET_SIZE);
-			// send the message
-			msg->sendReliable(mHost);
-
-			if (gSavedSettings.getBOOL("LogInventoryDecline"))
-			{
-				LLStringUtil::format_map_t log_message_args;
-				log_message_args["DESC"] = mDesc;
-				log_message_args["NAME"] = mFromName;
-				log_message = LLTrans::getString("InvOfferDecline", log_message_args);
-
-				LLSD args;
-				args["MESSAGE"] = log_message;
-				LLNotificationsUtil::add("SystemMessageTip", args);
-			}
+			destination = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
 			
 			if (is_do_not_disturb &&	(!mFromGroup && !mFromObject))
 			{
@@ -2070,10 +2020,30 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 			}
 			break;
 	}
-	
-	if(opener)
+
+	// ACCEPT. The math for the dialog works, because the accept
+	// for inventory_offered, task_inventory_offer or
+	// group_notice_inventory is 1 greater than the offer integer value.
+	// Generates IM_INVENTORY_ACCEPTED, IM_TASK_INVENTORY_ACCEPTED, 
+	// or IM_GROUP_NOTICE_INVENTORY_ACCEPTED
+	// Decline for inventory_offered, task_inventory_offer or
+	// group_notice_inventory is 2 greater than the offer integer value.
+	msg->addU8Fast(_PREHASH_Dialog, (U8)(mIM + 1));
+	msg->addBinaryDataFast(_PREHASH_BinaryBucket, &(destination.mData), sizeof(destination.mData));
+	// send the message
+	msg->sendReliable(mHost);
+
+	// Purely for logging purposes.
+	switch (mIM)
 	{
-		gInventory.addObserver(opener);
+	case IM_INVENTORY_OFFERED:
+	case IM_GROUP_NOTICE:
+	case IM_TASK_INVENTORY_OFFERED:
+	case IM_GROUP_NOTICE_REQUESTED: //No idea why we check for this one
+		break;
+	default:
+		LL_WARNS("Messaging") << "inventory_task_offer_callback: unknown offer type" << LL_ENDL;
+		break;
 	}
 
 	if(!mPersist)
