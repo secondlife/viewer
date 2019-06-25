@@ -179,7 +179,6 @@
             <!-- 23 pixels (BTN_HEIGHT_SMALL) are reserved by label field of texture and shouldn't be visible-->
             <texture_picker
              name="2nd_life_pic"
-             enabled="false"
              top="0"
              left="0"
              right="-1"

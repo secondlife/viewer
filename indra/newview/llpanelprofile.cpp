@@ -324,6 +324,8 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
     mGroupList->setShowNone(!own_profile);
     mGiveInvPanel->setVisible(!own_profile);
 
+    mSecondLifePic->setOpenTexPreview(!own_profile);
+
     if (own_profile && !getEmbedded())
     {
         // Group list control cannot toggle ForAgent loading
@@ -716,7 +718,6 @@ void LLPanelProfileSecondLife::updateButtons()
         mShowInSearchCheckbox->setVisible(TRUE);
         mShowInSearchCheckbox->setEnabled(TRUE);
         mDescriptionEdit->setEnabled(TRUE);
-        mSecondLifePic->setEnabled(TRUE);
     }
 
     if (!getSelfProfile())

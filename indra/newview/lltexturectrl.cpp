@@ -47,6 +47,7 @@
 #include "llui.h"
 #include "llviewerinventory.h"
 #include "llpermissions.h"
+#include "llpreviewtexture.h"
 #include "llsaleinfo.h"
 #include "llassetstorage.h"
 #include "lltextbox.h"
@@ -997,6 +998,7 @@ LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
 	mNeedsRawImageData( FALSE ),
 	mValid( TRUE ),
 	mShowLoadingPlaceholder( TRUE ),
+	mOpenTexPreview(false),
 	mImageAssetID(p.image_id),
 	mDefaultImageAssetID(p.default_image_id),
 	mDefaultImageName(p.default_image_name),
@@ -1249,12 +1251,31 @@ BOOL LLTextureCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 
 	if (!handled && mBorder->parentPointInView(x, y))
 	{
-		showPicker(FALSE);
-		//grab textures first...
-		LLInventoryModelBackgroundFetch::instance().start(gInventory.findCategoryUUIDForType(LLFolderType::FT_TEXTURE));
-		//...then start full inventory fetch.
-		LLInventoryModelBackgroundFetch::instance().start();
-		handled = TRUE;
+		if (!mOpenTexPreview)
+		{
+			showPicker(FALSE);
+			//grab textures first...
+			LLInventoryModelBackgroundFetch::instance().start(gInventory.findCategoryUUIDForType(LLFolderType::FT_TEXTURE));
+			//...then start full inventory fetch.
+			LLInventoryModelBackgroundFetch::instance().start();
+			handled = TRUE;
+		}
+		else
+		{
+			if (getImageAssetID().notNull())
+			{
+				LLPreviewTexture* preview_texture = LLFloaterReg::showTypedInstance<LLPreviewTexture>("preview_texture", getValue());
+				if (preview_texture && !preview_texture->isDependent())
+				{
+					LLFloater* root_floater = gFloaterView->getParentFloater(this);
+					if (root_floater)
+					{
+						root_floater->addDependentFloater(preview_texture);
+						preview_texture->hideCtrlButtons();
+					}
+				}
+			}
+		}
 	}
 
 	return handled;

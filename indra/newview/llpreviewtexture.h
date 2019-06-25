@@ -66,6 +66,8 @@ public:
 	
 	static void			onSaveAsBtn(void* data);
 
+	void				hideCtrlButtons();
+
 	/*virtual*/ void setObjectID(const LLUUID& object_id);
 protected:
 	void				init();
