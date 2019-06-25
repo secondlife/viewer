@@ -184,7 +184,9 @@ vec3 post_env = color.rgb;
         if (norm.w < 1)
         {
 #if !defined(SUNLIGHT_KILL)
-            color = atmosFragLighting(color, additive, atten);
+            vec3 p = normalize(pos.xyz);
+            float additive_angular_atten = max(0.0, dot(light_dir.xyz, p.xyz));
+            color = atmosFragLighting(color, additive * additive_angular_atten * (1.0 - spec.a), atten);
             color = scaleSoftClipFrag(color);
 #endif
         }
