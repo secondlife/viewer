@@ -2480,6 +2480,13 @@ Sorry, but the system was unable to complete your region crossing in a timely fa
   </notification>
   <notification
    icon="alertmodal.tga"
+   name="preexisting_tport"
+   type="alertmodal">
+   <tag>fail</tag>
+Sorry, but the system was unable to start your teleport. Please try again in a few minutes.
+  </notification>
+  <notification
+   icon="alertmodal.tga"
    name="no_host"
    type="alertmodal">
    <tag>fail</tag>
