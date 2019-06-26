@@ -1671,8 +1671,20 @@ void LLOfferInfo::fromLLSD(const LLSD& params)
 	*this = params;
 }
 
-void LLOfferInfo::send_auto_receive_response(void)
-{	
+void LLOfferInfo::sendReceiveResponse(const LLUUID &destination_folder_id)
+{
+	if(IM_INVENTORY_OFFERED == mIM)
+	{
+		// add buddy to recent people list
+		LLRecentPeople::instance().add(mFromID);
+	}
+
+	if (mTransactionID.isNull())
+	{
+		// Not provided, message won't work
+		return;
+	}
+
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_ImprovedInstantMessage);
 	msg->nextBlockFast(_PREHASH_AgentData);
@@ -1691,23 +1703,34 @@ void LLOfferInfo::send_auto_receive_response(void)
 	msg->addU32Fast(_PREHASH_ParentEstateID, 0);
 	msg->addUUIDFast(_PREHASH_RegionID, LLUUID::null);
 	msg->addVector3Fast(_PREHASH_Position, gAgent.getPositionAgent());
-	
-	// Auto Receive Message. The math for the dialog works, because the accept
+
+	// ACCEPT. The math for the dialog works, because the accept
 	// for inventory_offered, task_inventory_offer or
 	// group_notice_inventory is 1 greater than the offer integer value.
 	// Generates IM_INVENTORY_ACCEPTED, IM_TASK_INVENTORY_ACCEPTED, 
 	// or IM_GROUP_NOTICE_INVENTORY_ACCEPTED
+	// Decline for inventory_offered, task_inventory_offer or
+	// group_notice_inventory is 2 greater than the offer integer value.
+
+	EInstantMessage im = mIM;
+	if (mIM == IM_GROUP_NOTICE_REQUESTED)
+	{
+		// Request has no responder dialogs
+		im = IM_GROUP_NOTICE;
+	}
+
 	msg->addU8Fast(_PREHASH_Dialog, (U8)(mIM + 1));
-	msg->addBinaryDataFast(_PREHASH_BinaryBucket, &(mFolderID.mData),
-						   sizeof(mFolderID.mData));
+	msg->addBinaryDataFast(_PREHASH_BinaryBucket, &(destination_folder_id.mData),
+						   sizeof(destination_folder_id.mData));
 	// send the message
 	msg->sendReliable(mHost);
-	
-	if(IM_INVENTORY_OFFERED == mIM)
-	{
-		// add buddy to recent people list
-		LLRecentPeople::instance().add(mFromID);
-	}
+
+	// transaction id is usable only once
+	// Note: a bit of a hack, clicking group notice attachment will not close notice
+	// so we reset no longer usable transaction id to know not to send message again
+	// Once capabilities for responses will be implemented LLOfferInfo will have to
+	// remember that it already responded in another way and ignore IOR_DECLINE
+	mTransactionID.setNull();
 }
 
 void LLOfferInfo::handleRespond(const LLSD& notification, const LLSD& response)
@@ -1799,11 +1822,11 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			}
 			break;
 		case IM_GROUP_NOTICE:
+		case IM_GROUP_NOTICE_REQUESTED:
 			opener = new LLOpenTaskGroupOffer;
-			send_auto_receive_response();
+			sendReceiveResponse(mFolderID);
 			break;
 		case IM_TASK_INVENTORY_OFFERED:
-		case IM_GROUP_NOTICE_REQUESTED:
 			// This is an offer from a task or group.
 			// We don't use a new instance of an opener
 			// We instead use the singular observer gOpenTaskOffer
@@ -1857,15 +1880,24 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			// Disabled logging to old chat floater to fix crash in group notices - EXT-4149
 			// LLFloaterChat::addChatHistory(chat);
 			
-			LLDiscardAgentOffer* discard_agent_offer = new LLDiscardAgentOffer(mFolderID, mObjectID);
-			discard_agent_offer->startFetch();
-			if ((catp && gInventory.isCategoryComplete(mObjectID)) || (itemp && itemp->isFinished()))
+			if (mObjectID.notNull()) //make sure we can discard
 			{
-				discard_agent_offer->done();
+				LLDiscardAgentOffer* discard_agent_offer = new LLDiscardAgentOffer(mFolderID, mObjectID);
+				discard_agent_offer->startFetch();
+				if ((catp && gInventory.isCategoryComplete(mObjectID)) || (itemp && itemp->isFinished()))
+				{
+					discard_agent_offer->done();
+				}
+				else
+				{
+					opener = discard_agent_offer;
+				}
 			}
-			else
+			else if (mIM == IM_GROUP_NOTICE)
 			{
-				opener = discard_agent_offer;
+				// group notice needs to request object to trash so that user will see it later
+				LLUUID trash = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+				sendReceiveResponse(trash);
 			}
 
 			if (modified_form != NULL)
@@ -1878,9 +1910,14 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		}
 	default:
 		// close button probably
-		// The item has already been fetched and is in your inventory, we simply won't highlight it
+		// In case of agent offers item has already been fetched and is in your inventory, we simply won't highlight it
 		// OR delete it if the notification gets killed, since we don't want that to be a vector for 
 		// losing inventory offers.
+		if (mIM == IM_GROUP_NOTICE)
+		{
+			LLUUID trash = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+			sendReceiveResponse(trash);
+		}
 		break;
 	}
 
@@ -1925,28 +1962,10 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 			}
 		}
 	}
-	
-	LLMessageSystem* msg = gMessageSystem;
-	msg->newMessageFast(_PREHASH_ImprovedInstantMessage);
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	msg->nextBlockFast(_PREHASH_MessageBlock);
-	msg->addBOOLFast(_PREHASH_FromGroup, FALSE);
-	msg->addUUIDFast(_PREHASH_ToAgentID, mFromID);
-	msg->addU8Fast(_PREHASH_Offline, IM_ONLINE);
-	msg->addUUIDFast(_PREHASH_ID, mTransactionID);
-	msg->addU32Fast(_PREHASH_Timestamp, NO_TIMESTAMP); // no timestamp necessary
-	std::string name;
-	LLAgentUI::buildFullname(name);
-	msg->addStringFast(_PREHASH_FromAgentName, name);
-	msg->addStringFast(_PREHASH_Message, ""); 
-	msg->addU32Fast(_PREHASH_ParentEstateID, 0);
-	msg->addUUIDFast(_PREHASH_RegionID, LLUUID::null);
-	msg->addVector3Fast(_PREHASH_Position, gAgent.getPositionAgent());
-	
+
 	std::string from_string; // Used in the pop-up.
 	std::string chatHistory_string;  // Used in chat history.
+
 	if (mFromObject == TRUE)
 	{
 		if (mFromGroup)
@@ -2016,22 +2035,13 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 			
 			if (is_do_not_disturb &&	(!mFromGroup && !mFromObject))
 			{
+				LLMessageSystem* msg = gMessageSystem;
 				send_do_not_disturb_message(msg,mFromID);
 			}
 			break;
 	}
 
-	// ACCEPT. The math for the dialog works, because the accept
-	// for inventory_offered, task_inventory_offer or
-	// group_notice_inventory is 1 greater than the offer integer value.
-	// Generates IM_INVENTORY_ACCEPTED, IM_TASK_INVENTORY_ACCEPTED, 
-	// or IM_GROUP_NOTICE_INVENTORY_ACCEPTED
-	// Decline for inventory_offered, task_inventory_offer or
-	// group_notice_inventory is 2 greater than the offer integer value.
-	msg->addU8Fast(_PREHASH_Dialog, (U8)(mIM + 1));
-	msg->addBinaryDataFast(_PREHASH_BinaryBucket, &(destination.mData), sizeof(destination.mData));
-	// send the message
-	msg->sendReliable(mHost);
+	sendReceiveResponse(destination);
 
 	// Purely for logging purposes.
 	switch (mIM)
@@ -2039,7 +2049,7 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 	case IM_INVENTORY_OFFERED:
 	case IM_GROUP_NOTICE:
 	case IM_TASK_INVENTORY_OFFERED:
-	case IM_GROUP_NOTICE_REQUESTED: //No idea why we check for this one
+	case IM_GROUP_NOTICE_REQUESTED:
 		break;
 	default:
 		LL_WARNS("Messaging") << "inventory_task_offer_callback: unknown offer type" << LL_ENDL;

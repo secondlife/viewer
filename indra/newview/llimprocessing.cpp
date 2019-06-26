@@ -715,7 +715,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             {
                 info = new LLOfferInfo();
 
-                info->mIM = IM_GROUP_NOTICE;
+                info->mIM = dialog;
                 info->mFromID = from_id;
                 info->mFromGroup = from_group;
                 info->mTransactionID = session_id;
