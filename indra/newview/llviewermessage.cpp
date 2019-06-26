@@ -1719,7 +1719,7 @@ void LLOfferInfo::sendReceiveResponse(const LLUUID &destination_folder_id)
 		im = IM_GROUP_NOTICE;
 	}
 
-	msg->addU8Fast(_PREHASH_Dialog, (U8)(mIM + 1));
+	msg->addU8Fast(_PREHASH_Dialog, (U8)(im + 1));
 	msg->addBinaryDataFast(_PREHASH_BinaryBucket, &(destination_folder_id.mData),
 						   sizeof(destination_folder_id.mData));
 	// send the message
