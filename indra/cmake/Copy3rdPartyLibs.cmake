@@ -188,6 +188,7 @@ elseif(DARWIN)
         libexception_handler.dylib
         ${EXPAT_COPY}
         libGLOD.dylib
+        libhunspell-1.3.0.dylib
         libndofdev.dylib
         libnghttp2.dylib
         libnghttp2.14.dylib
