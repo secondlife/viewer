@@ -87,6 +87,9 @@ void LLControlAvatar::initInstance()
 	hideSkirt();
 
     mInitFlags |= 1<<4;
+
+	computeBodySize();
+	
 }
 
 void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_scale_fixup) const
@@ -563,6 +566,16 @@ void LLControlAvatar::updateDebugText()
                                   mPositionConstraintFixup[2],
                                   mScaleConstraintFixup));
         }
+
+		F32 hover_param_z = getVisualParamWeight(LLAvatarAppearanceDefines::AVATAR_HOVER);
+		F32 body_size_offset_z = mBodySizeHeightFix;
+		F32 fixup_z = mPositionConstraintFixup[2];
+		F32 total_offset_z = hover_param_z + body_size_offset_z + fixup_z; 
+		if (hover_param_z != 0.f || body_size_offset_z != 0.f || fixup_z != 0.f || total_offset_z != 0.f)
+		{
+			addDebugText(llformat("z deltas: constraint %.1f body_size %.1f, hover_param %.1f = total %.1f",
+								  fixup_z, body_size_offset_z, hover_param_z, total_offset_z));
+		}
         
 #if 0
         std::string region_name = "no region";
@@ -671,6 +684,8 @@ void LLControlAvatar::updateVisualParams()
 	if (mBodySize == LLVector3())
 	{
 		// Set initial value. No offset to update.
+		LL_WARNS("Axon") << "Unitialized mBodySize; should have been set in initInstance()" << LL_ENDL;
+		llassert(mBodySize != LLVector3());
 		computeBodySize();
 		LLVOAvatar::updateVisualParams();
 	}
