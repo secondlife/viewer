@@ -424,7 +424,6 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 
 	mInitialized = FALSE;
 	mbCanSelect = FALSE;
-	mUpdateTimer.reset();
 
     mForceUpdateThrottle.setTimerExpirySec(UPDATE_EXPRY);
     mForceUpdateThrottle.reset();
@@ -496,7 +495,8 @@ void LLVOSky::init()
 		for (S32 tile = 0; tile < NUM_TILES; ++tile)
 		{
 			initSkyTextureDirs(side, tile);
-			createSkyTexture(m_atmosphericsVars, side, tile, false);
+			createSkyTexture(m_atmosphericsVars, side, tile, mSkyTex);
+            createSkyTexture(m_atmosphericsVars, side, tile, mShinyTex);
 		}
 	}
 
@@ -663,21 +663,9 @@ void LLVOSky::restoreGL()
 
 	updateDirections();
 
-	if (gSavedSettings.getBOOL("RenderWater") && gGLManager.mHasCubeMap
-	    && LLCubeMap::sUseCubeMaps)
+	if (gSavedSettings.getBOOL("RenderWater") && gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps)
 	{
-		LLCubeMap* cube_map = getCubeMap();
-
-		std::vector<LLPointer<LLImageRaw> > images;
-		for (S32 side = 0; side < 6; side++)
-		{
-			images.push_back(mShinyTex[side].getImageRaw());
-		}
-
-		if(cube_map)
-		{
-			cube_map->init(images);
-		}
+		initCubeMap();
 	}
 
     mForceUpdate = TRUE;
@@ -721,7 +709,7 @@ void LLVOSky::initSkyTextureDirs(const S32 side, const S32 tile)
 	}
 }
 
-void LLVOSky::createSkyTexture(AtmosphericsVars& vars, const S32 side, const S32 tile, bool skip_sky_tex)
+void LLVOSky::createSkyTexture(AtmosphericsVars& vars, const S32 side, const S32 tile, LLSkyTex* tex)
 {
 	S32 tile_x = tile % NUM_TILES_X;
 	S32 tile_y = tile / NUM_TILES_X;
@@ -730,22 +718,11 @@ void LLVOSky::createSkyTexture(AtmosphericsVars& vars, const S32 side, const S32
 	S32 tile_y_pos = tile_y * sTileResY;
 
 	S32 x, y;
-    if (!skip_sky_tex)
-    {
-        for (y = tile_y_pos; y < (tile_y_pos + sTileResY); ++y)
-	    {
-		    for (x = tile_x_pos; x < (tile_x_pos + sTileResX); ++x)
-		    {
-                mSkyTex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(vars, mSkyTex[side].getDir(x, y)), x, y);
-		    }
-	    }
-    }
-
 	for (y = tile_y_pos; y < (tile_y_pos + sTileResY); ++y)
 	{
 		for (x = tile_x_pos; x < (tile_x_pos + sTileResX); ++x)
 		{
-			mShinyTex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(vars, mSkyTex[side].getDir(x, y), true), x, y);
+			tex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(vars, tex[side].getDir(x, y), true), x, y);
 		}
 	}
 }
@@ -801,124 +778,109 @@ bool LLVOSky::updateSky()
 	const S32 total_no_tiles = 6 * NUM_TILES;
 	const S32 cycle_frame_no = total_no_tiles + 1;
 
-	if (mUpdateTimer.getElapsedTimeF32() > 0.025f)
+	const S32 frame = next_frame;
+
+    mForceUpdate = mForceUpdate || (total_no_tiles == frame);
+
+	++next_frame;
+	next_frame = next_frame % cycle_frame_no;
+
+	mInterpVal = (!mInitialized) ? 1 : (F32)next_frame / cycle_frame_no;
+	// sInterpVal = (F32)next_frame / cycle_frame_no;
+	LLSkyTex::setInterpVal( mInterpVal );
+	LLHeavenBody::setInterpVal( mInterpVal );
+	updateDirections();
+
+    LLVector3 direction = mSun.getDirection();
+	direction.normalize();
+	const F32 dot_sun  = direction * mLastSunLightingDirection;
+    const F32 dot_moon = direction * mLastMoonLightingDirection;
+
+	LLColor3 delta_color;
+	delta_color.setVec(mLastTotalAmbient.mV[0] - total_ambient.mV[0],
+						mLastTotalAmbient.mV[1] - total_ambient.mV[1],
+                        mLastTotalAmbient.mV[2] - total_ambient.mV[2]);
+
+    bool sun_direction_changed  = (dot_sun < LIGHT_DIRECTION_THRESHOLD);
+    bool moon_direction_changed = (dot_moon < LIGHT_DIRECTION_THRESHOLD);
+    bool color_changed          = (delta_color.length() >= COLOR_CHANGE_THRESHOLD);
+
+    mForceUpdate = mForceUpdate || sun_direction_changed;
+    mForceUpdate = mForceUpdate || moon_direction_changed;
+    mForceUpdate = mForceUpdate || color_changed;
+    mForceUpdate = mForceUpdate || !mInitialized;
+    mForceUpdate = mForceUpdate || mForceUpdateThrottle.hasExpired();
+
+    calc();
+
+    if (mForceUpdate)
 	{
-        mUpdateTimer.reset();
-		const S32 frame = next_frame;
+        LL_RECORD_BLOCK_TIME(FTM_VOSKY_UPDATEFORCED);
 
-        mForceUpdate = mForceUpdate || (total_no_tiles == frame);
+        mForceUpdateThrottle.setTimerExpirySec(UPDATE_EXPRY);
 
-		++next_frame;
-		next_frame = next_frame % cycle_frame_no;
-
-		mInterpVal = (!mInitialized) ? 1 : (F32)next_frame / cycle_frame_no;
-		// sInterpVal = (F32)next_frame / cycle_frame_no;
-		LLSkyTex::setInterpVal( mInterpVal );
-		LLHeavenBody::setInterpVal( mInterpVal );
-		updateDirections();
-
-        LLVector3 direction = mSun.getDirection();
-		direction.normalize();
-		const F32 dot_sun  = direction * mLastSunLightingDirection;
-        const F32 dot_moon = direction * mLastMoonLightingDirection;
-
-		LLColor3 delta_color;
-		delta_color.setVec(mLastTotalAmbient.mV[0] - total_ambient.mV[0],
-							mLastTotalAmbient.mV[1] - total_ambient.mV[1],
-                            mLastTotalAmbient.mV[2] - total_ambient.mV[2]);
-
-        bool sun_direction_changed  = (dot_sun < LIGHT_DIRECTION_THRESHOLD);
-        bool moon_direction_changed = (dot_moon < LIGHT_DIRECTION_THRESHOLD);
-        bool color_changed          = (delta_color.length() >= COLOR_CHANGE_THRESHOLD);
-
-        mForceUpdate = mForceUpdate || sun_direction_changed;
-        mForceUpdate = mForceUpdate || moon_direction_changed;
-        mForceUpdate = mForceUpdate || color_changed;
-        mForceUpdate = mForceUpdate || !mInitialized;
-
-        bool is_alm_wl_sky = gPipeline.canUseWindLightShaders();
-
-        calc();
-
-        if (mForceUpdate && mForceUpdateThrottle.hasExpired())
-		{
-            LL_RECORD_BLOCK_TIME(FTM_VOSKY_UPDATEFORCED);
-
-            mForceUpdateThrottle.setTimerExpirySec(UPDATE_EXPRY);
-
-			LLSkyTex::stepCurrent();
+		LLSkyTex::stepCurrent();
 		
-			if (!direction.isExactlyZero())
+		if (!direction.isExactlyZero())
+		{            
+			mInitialized = TRUE;
+
+            updateFog(LLViewerCamera::getInstance()->getFar());
+            mLastTotalAmbient = total_ambient;
+
+			if (mCubeMap)
 			{
-                mLastTotalAmbient = total_ambient;
-				mInitialized = TRUE;
-
-				if (mCubeMap)
+				for (int side = 0; side < 6; side++) 
 				{
-					updateFog(LLViewerCamera::getInstance()->getFar());
-
-					for (int side = 0; side < 6; side++) 
+					for (int tile = 0; tile < NUM_TILES; tile++) 
 					{
-						for (int tile = 0; tile < NUM_TILES; tile++) 
-						{
-							createSkyTexture(m_atmosphericsVars, side, tile, is_alm_wl_sky);
-						}
+						createSkyTexture(m_atmosphericsVars, side, tile, mShinyTex);
 					}
-
-                    int tex = mSkyTex[0].getWhich(TRUE);
-
-					for (int side = 0; side < 6; side++) 
-					{
-                        LLImageRaw* raw1 = nullptr;
-                        LLImageRaw* raw2 = nullptr;
-
-                        if (!is_alm_wl_sky)
-                        {
-						    raw1 = mSkyTex[side].getImageRaw(TRUE);
-						    raw2 = mSkyTex[side].getImageRaw(FALSE);
-						    raw2->copy(raw1);
-						    mSkyTex[side].createGLImage(tex);
-                        }
-
-						raw1 = mShinyTex[side].getImageRaw(TRUE);
-						raw2 = mShinyTex[side].getImageRaw(FALSE);
-						raw2->copy(raw1);
-						mShinyTex[side].createGLImage(tex);
-					}
-					next_frame = 0;	
-
-			        // update the sky texture
-                    if (!is_alm_wl_sky)
-                    {
-			            for (S32 i = 0; i < 6; ++i)
-			            {
-                            mSkyTex[i].create(1.0f);
-			            }
-                    }
-
-                    for (S32 i = 0; i < 6; ++i)
-			        {
-				        mShinyTex[i].create(1.0f);
-			        }
-
-			        // update the environment map
-			        if (mCubeMap)
-			        {
-				        std::vector<LLPointer<LLImageRaw> > images;
-				        images.reserve(6);
-				        for (S32 side = 0; side < 6; side++)
-				        {
-					        images.push_back(mShinyTex[side].getImageRaw(TRUE));
-				        }
-				        mCubeMap->init(images);
-				        gGL.getTexUnit(0)->disable();
-			        }                    
 				}
-            }
 
-			gPipeline.markRebuild(gSky.mVOGroundp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
-			mForceUpdate = FALSE;
-		}
+                int tex = mShinyTex[0].getWhich(TRUE);
+
+				for (int side = 0; side < 6; side++) 
+				{
+                    LLImageRaw* raw1 = nullptr;
+                    LLImageRaw* raw2 = nullptr;
+					raw1 = mShinyTex[side].getImageRaw(TRUE);
+					raw2 = mShinyTex[side].getImageRaw(FALSE);
+					raw2->copy(raw1);
+					mShinyTex[side].createGLImage(tex);
+                    mShinyTex[side].create(1.0f);
+				}
+			    initCubeMap();
+			}
+
+            // if we're using a generated sky cubemap instead of rendered sky...
+            if (!gPipeline.canUseWindLightShaders())
+			{
+				for (int side = 0; side < 6; side++) 
+				{
+					for (int tile = 0; tile < NUM_TILES; tile++) 
+					{
+						createSkyTexture(m_atmosphericsVars, side, tile, mSkyTex);
+					}
+				}
+
+                int tex = mSkyTex[0].getWhich(TRUE);
+
+				for (int side = 0; side < 6; side++) 
+				{
+                    LLImageRaw* raw1 = nullptr;
+                    LLImageRaw* raw2 = nullptr;
+					raw1 = mSkyTex[side].getImageRaw(TRUE);
+					raw2 = mSkyTex[side].getImageRaw(FALSE);
+					raw2->copy(raw1);
+					mSkyTex[side].createGLImage(tex);
+                    mSkyTex[side].create(1.0f);
+				}
+			}
+        }
+
+		gPipeline.markRebuild(gSky.mVOGroundp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+		mForceUpdate = FALSE;
 	}
 
 	if (mDrawable.notNull() && mDrawable->getFace(0) && !mDrawable->getFace(0)->getVertexBuffer())

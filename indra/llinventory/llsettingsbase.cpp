@@ -727,22 +727,14 @@ LLSettingsBase::BlendFactor LLSettingsBlenderTimeDelta::calculateBlend(const LLS
 bool LLSettingsBlenderTimeDelta::applyTimeDelta(const LLSettingsBase::Seconds& timedelta)
 {
     mTimeSpent += timedelta;
-    mTimeDeltaPassed += timedelta;
 
     if (mTimeSpent > mBlendSpan)
     {
-        mIgnoreTimeDelta = false;
         triggerComplete();
         return false;
     }
 
-    if ((mTimeDeltaPassed < mTimeDeltaThreshold) && (!mIgnoreTimeDelta))
-    {
-        return false;
-    }
-
     LLSettingsBase::BlendFactor blendf = calculateBlend(mTimeSpent, mBlendSpan);
-    mTimeDeltaPassed = LLSettingsBase::Seconds(0.0);
 
     if (fabs(mLastBlendF - blendf) < mBlendFMinDelta)
     {

@@ -181,7 +181,6 @@ LLAtmospherics::LLAtmospherics()
 {
 	/// WL PARAMS
 	mInitialized = FALSE;
-	mUpdateTimer.reset();
 	mAmbientScale = gSavedSettings.getF32("SkyAmbientScale");
 	mNightColorShift = gSavedSettings.getColor3("SkyNightColorShift");
 	mFogColor.mV[VRED] = mFogColor.mV[VGREEN] = mFogColor.mV[VBLUE] = 0.5f;

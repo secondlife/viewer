@@ -277,7 +277,6 @@ protected:
     LLColor4            mGLFogCol;
     F32                 mFogRatio;
     F32                 mWorldScale;
-    LLFrameTimer        mUpdateTimer;
 };
 
 #endif

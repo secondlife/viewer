@@ -303,7 +303,7 @@ protected:
 	void updateDirections(void);
 
 	void initSkyTextureDirs(const S32 side, const S32 tile);
-	void createSkyTexture(AtmosphericsVars& vars, const S32 side, const S32 tile, bool skip_sky_tex);
+	void createSkyTexture(AtmosphericsVars& vars, const S32 side, const S32 tile, LLSkyTex* tex);
 
 	LLPointer<LLViewerFetchedTexture> mSunTexturep[2];
 	LLPointer<LLViewerFetchedTexture> mMoonTexturep[2];
@@ -350,11 +350,11 @@ protected:
 	LLPointer<LLCubeMap> mCubeMap;					// Cube map for the environment
 	S32					 mDrawRefl;
 
-	LLFrameTimer		mUpdateTimer;
     LLTimer             mForceUpdateThrottle;
 	bool                mHeavenlyBodyUpdated ;
 
     AtmosphericsVars    m_atmosphericsVars;
+    AtmosphericsVars    m_lastAtmosphericsVars;
     LLAtmospherics      m_legacyAtmospherics;
 };
 
