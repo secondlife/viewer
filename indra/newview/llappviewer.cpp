@@ -826,7 +826,7 @@ bool LLAppViewer::init()
 
 	LL_INFOS("InitInfo") << "LLCore::Http initialized." << LL_ENDL ;
 
-    LLMachineID::getInstance(); //needs to be initialized before threads
+    LLMachineID::init();
 
 	{
 		if (gSavedSettings.getBOOL("QAModeMetrics"))
