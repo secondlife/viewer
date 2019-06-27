@@ -30,6 +30,8 @@
 #include <cstdlib>
 #include <new>
 
+#error 2019-06-27 Do not use test_allocator.h -- does not respect alignment.
+
 size_t GetMemTotal();
 void * operator new(std::size_t size);   //throw (std::bad_alloc);
 void * operator new[](std::size_t size); //throw (std::bad_alloc);

@@ -101,17 +101,10 @@ target_link_libraries(
   )
 
 # tests
-if (DARWIN)
-  # 2019-06-26: this test executable crashes on Mac trying to initialize std::atomic?!
-  set(LLCOREHTTP_TESTS_DFT OFF)
-else ()
-  set(LLCOREHTTP_TESTS_DFT ON)
-endif ()
-set(LLCOREHTTP_TESTS ${LLCOREHTTP_TESTS_DFT} CACHE BOOL
+set(LLCOREHTTP_TESTS ON CACHE BOOL
     "Build and run llcorehttp integration tests specifically")
 if (LL_TESTS AND LLCOREHTTP_TESTS)
   SET(llcorehttp_TEST_SOURCE_FILES
-      tests/test_allocator.cpp
       )
 
   set(llcorehttp_TEST_HEADER_FILES
