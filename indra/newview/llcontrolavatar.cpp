@@ -89,6 +89,7 @@ void LLControlAvatar::initInstance()
     mInitFlags |= 1<<4;
 
 	computeBodySize();
+	LL_INFOS("Axon") << "initInstance initial body size z is " << mBodySize[2] << LL_ENDL;
 	
 }
 
@@ -573,7 +574,8 @@ void LLControlAvatar::updateDebugText()
 		F32 total_offset_z = hover_param_z + body_size_offset_z + fixup_z; 
 		if (hover_param_z != 0.f || body_size_offset_z != 0.f || fixup_z != 0.f || total_offset_z != 0.f)
 		{
-			addDebugText(llformat("z deltas: constraint %.1f body_size %.1f, hover_param %.1f = total %.1f",
+			addDebugText(llformat("z base: %.3f deltas: constraint %.3f body_size %.3f, hover_param %.3f = total %.3f",
+								  mRootVolp->getRenderPosition()[2],
 								  fixup_z, body_size_offset_z, hover_param_z, total_offset_z));
 		}
         
@@ -685,8 +687,9 @@ void LLControlAvatar::updateVisualParams()
 	{
 		// Set initial value. No offset to update.
 		LL_WARNS("Axon") << "Unitialized mBodySize; should have been set in initInstance()" << LL_ENDL;
-		llassert(mBodySize != LLVector3());
+		//llassert(mBodySize != LLVector3());
 		computeBodySize();
+		LL_INFOS("Axon") << "uvp initial body size z is " << mBodySize[2] << LL_ENDL;
 		LLVOAvatar::updateVisualParams();
 	}
 	else
