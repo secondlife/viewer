@@ -896,12 +896,18 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             if (is_muted)
             {
                 // Prefetch the offered item so that it can be discarded by the appropriate observer. (EXT-4331)
-                LLInventoryFetchItemsObserver* fetch_item = new LLInventoryFetchItemsObserver(info->mObjectID);
-                fetch_item->startFetch();
-                delete fetch_item;
-
-                // Same as closing window
-                info->forceResponse(IOR_DECLINE);
+                if (IM_INVENTORY_OFFERED == dialog)
+                {
+                    LLInventoryFetchItemsObserver* fetch_item = new LLInventoryFetchItemsObserver(info->mObjectID);
+                    fetch_item->startFetch();
+                    delete fetch_item;
+                    // Same as closing window
+                    info->forceResponse(IOR_DECLINE);
+                }
+                else
+                {
+                    info->forceResponse(IOR_MUTE);
+                }
             }
             // old logic: busy mode must not affect interaction with objects (STORM-565)
             // new logic: inventory offers from in-world objects should be auto-declined (CHUI-519)
