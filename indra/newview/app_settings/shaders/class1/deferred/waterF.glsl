@@ -155,16 +155,18 @@ void main()
 	vec2 distort2 = distort+wavef.xy*(refScale * 0.01)/max(dmod*df1, 1.0);
 		
 	vec4 fb = texture2D(screenTex, distort2);
+    fb.rgb = srgb_to_linear(fb.rgb);
 	
 	//mix with reflection
 	// Note we actually want to use just df1, but multiplying by 0.999999 gets around an nvidia compiler bug
-	color.rgb = mix(fb.rgb, refcol.rgb, df1 * 0.999999);
+	color.rgb = mix(fb.rgb, refcol.rgb, df1 * 0.49999 + 0.5);
 	
 	vec4 pos = vary_position;
 	
 	color.rgb += spec * specular;
-	
-	color.rgb = atmosTransport(color.rgb);
+
+	//color.rgb = atmosTransport(color.rgb);
+    color.rgb *= 2.0f;
 	color.rgb = scaleSoftClip(color.rgb);
     
 	color.a   = spec * sunAngle2;
