@@ -112,26 +112,6 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 	mMouseDownX = x;
 	mMouseDownY = y;
 
-#if 0
-	LLTimer pick_timer;
-	BOOL pick_rigged = false; //gSavedSettings.getBOOL("AnimatedObjectsAllowLeftClick");
-	mPick = gViewerWindow->pickImmediate(x, y, FALSE, pick_rigged);
-	LLViewerObject *object = mPick.getObject();
-	LLViewerObject *parent = object ? object->getRootEdit() : NULL;
-	if (!object
-		|| object->isAttachment()
-		|| object->getClickAction() == CLICK_ACTION_DISABLED
-		|| (!useClickAction(mask, object, parent) && !object->flagHandleTouch() && !(parent && parent->flagHandleTouch())))
-	{
-		// Unless we are hovering over actionable visible object
-		// left mouse down always picks transparent (but see handleMouseUp).
-		// Also see LLToolPie::handleHover() - priorities are a bit different there.
-		// Todo: we need a more consistent set of rules to work with
-		mPick = gViewerWindow->pickImmediate(x, y, TRUE /*transparent*/, pick_rigged);
-	}
-	LL_INFOS() << "pick_rigged is " << (S32) pick_rigged << " pick time elapsed " << pick_timer.getElapsedTimeF32() << LL_ENDL;
-#endif
-
 	//left mouse down always picks transparent (but see handleMouseUp)
 	mPick = gViewerWindow->pickImmediate(x, y, TRUE, FALSE);
 	mPick.mKeyMask = mask;

@@ -2049,8 +2049,8 @@ void LLImageGL::updatePickMask(S32 width, S32 height, const U8* data_in)
 	freePickMask();
 
     if (mFormatType != GL_UNSIGNED_BYTE ||
-        mFormatPrimary != GL_RGBA ||
-        mFormatPrimary != GL_SRGB_ALPHA)
+        ((mFormatPrimary != GL_RGBA)
+      && (mFormatPrimary != GL_SRGB_ALPHA)))
     {
         //cannot generate a pick mask for this texture
         return;
