@@ -53,9 +53,7 @@ VARYING vec3 vary_position;
 VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_norm;
 
-#ifdef USE_VERTEX_COLOR
 VARYING vec4 vertex_color;
-#endif
 
 uniform mat4 proj_mat;
 uniform mat4 inv_proj;
@@ -191,12 +189,9 @@ void main()
     color.rgb = diffuse_srgb.rgb;
     color.a = 1.0;
 
-#ifdef USE_VERTEX_COLOR
     float final_alpha = diffuse_srgb.a * vertex_color.a;
     diffuse_srgb.rgb *= vertex_color.rgb;
-#else
-    float final_alpha = diffuse_srgb.a;
-#endif
+    diffuse_linear.rgb *= vertex_color.rgb;
     
     // Insure we don't pollute depth with invis pixels in impostor rendering
     //
@@ -206,12 +201,9 @@ void main()
     }
 #else
     
-#ifdef USE_VERTEX_COLOR
     float final_alpha = diffuse_linear.a * vertex_color.a;
+    diffuse_srgb.rgb *= vertex_color.rgb;
     diffuse_linear.rgb *= vertex_color.rgb;
-#else
-    float final_alpha = diffuse_linear.a;
-#endif
 
     vec3 sunlit;
     vec3 amblit;
