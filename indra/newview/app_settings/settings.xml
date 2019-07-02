@@ -13133,6 +13133,17 @@
       <key>Value</key>
       <real>3</real>
     </map>
+    <key>HUDScaleFactor</key>
+    <map>
+    <key>Comment</key>
+      <string>Scale of HUD attachments</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
     <key>UIScaleFactor</key>
     <map>
       <key>Comment</key>

@@ -807,6 +807,12 @@ void LLAgentCamera::setCameraZoomFraction(F32 fraction)
 	startCameraAnimation();
 }
 
+F32 LLAgentCamera::getAgentHUDTargetZoom()
+{
+	static LLCachedControl<F32> hud_scale_factor(gSavedSettings, "HUDScaleFactor");
+	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+	return (selection->getObjectCount() && selection->getSelectType() == SELECT_TYPE_HUD) ? hud_scale_factor*gAgentCamera.mHUDTargetZoom : hud_scale_factor;
+}
 
 //-----------------------------------------------------------------------------
 // cameraOrbitAround()
