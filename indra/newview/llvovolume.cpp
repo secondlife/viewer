@@ -6453,7 +6453,8 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 			bool use_legacy_bump = te->getBumpmap() && (te->getBumpmap() < 18) && (!mat || mat->getNormalID().isNull());
 			bool opaque = te_alpha >= 0.999f;
             bool transparent = te_alpha < 0.999f;
-            bool invisible = te_alpha <= 0.0f;
+
+            is_alpha = (is_alpha || transparent) ? TRUE : FALSE;
 
 			if (mat && LLPipeline::sRenderDeferred && !hud_group)
 			{
@@ -6551,7 +6552,10 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 			else if (mat)
 			{
 				U8 mode = mat->getDiffuseAlphaMode();
-				if (transparent)
+
+                is_alpha = (is_alpha || (mode == LLMaterial::DIFFUSE_ALPHA_MODE_BLEND));
+
+				if (is_alpha)
 				{
 					mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
 				}
@@ -6560,7 +6564,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 				{
 					registerFace(group, facep, fullbright ? LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK : LLRenderPass::PASS_ALPHA_MASK);
 				}
-				else if (is_alpha || transparent)
+				else if (is_alpha )
 				{
 					registerFace(group, facep, LLRenderPass::PASS_ALPHA);
 				}
@@ -6579,7 +6583,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 			else if (is_alpha)
 			{
 				// can we safely treat this as an alpha mask?
-				if (invisible)
+				if (facep->getFaceColor().mV[3] <= 0.f)
 				{ //100% transparent, don't render unless we're highlighting transparent
 					registerFace(group, facep, LLRenderPass::PASS_ALPHA_INVISIBLE);
 				}

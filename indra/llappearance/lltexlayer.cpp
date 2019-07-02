@@ -1575,14 +1575,30 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 				delete [] alpha_data;
 				mAlphaCache.erase(iter2);
 			}
-			alpha_data = new U8[width * height];
+			
+            // GPUs tend to be very uptight about memory alignment as the DMA used to convey
+            // said data to the card works better when well-aligned so plain old default-aligned heap mem is a no-no
+            //new U8[width * height];
+            size_t mem_size = (width * height);
+            size_t rem = (mem_size & 0x3F);
+            mem_size += rem > 0 ? (mem_size + (32 - rem)) : 0;
+
+            alpha_data = (U8*)ll_aligned_malloc_32(mem_size);
+
 			mAlphaCache[cache_index] = alpha_data;
-    
-			// nSight doesn't support use of glReadPixels
-			if (!LLRender::sNsightDebugSupport)
+
+            bool skip_readback = LLRender::sNsightDebugSupport; // nSight doesn't support use of glReadPixels
+            // || gGLManager.mIsIntel; SL-10625?
+
+			if (!skip_readback)
 			{
-				glReadPixels(x, y, width, height, GL_ALPHA, GL_UNSIGNED_BYTE, alpha_data);
+				glReadPixels(x, y, width, height, GL_ALPHA, GL_UNSIGNED_BYTE, alpha_data);                
 			}
+            else
+            {
+                ll_aligned_free_32(alpha_data);
+                alpha_data = nullptr;
+            }            
 		}
 		
 		getTexLayerSet()->getAvatarAppearance()->dirtyMesh();
