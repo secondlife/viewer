@@ -6672,10 +6672,10 @@ private:
 
 	static void onNearAttachObject(BOOL success, void *user_data);
 	void confirmReplaceAttachment(S32 option, LLViewerJointAttachment* attachment_point);
-
-	struct CallbackData
+	class CallbackData : public LLSelectionCallbackData
 	{
-		CallbackData(LLViewerJointAttachment* point, bool replace) : mAttachmentPoint(point), mReplace(replace) {}
+	public:
+		CallbackData(LLViewerJointAttachment* point, bool replace) : LLSelectionCallbackData(), mAttachmentPoint(point), mReplace(replace) {}
 
 		LLViewerJointAttachment*	mAttachmentPoint;
 		bool						mReplace;
@@ -6716,8 +6716,8 @@ void LLObjectAttachToAvatar::onNearAttachObject(BOOL success, void *user_data)
 			// interpret 0 as "default location"
 			attachment_id = 0;
 		}
-		LLSelectMgr::getInstance()->sendAttach(attachment_id, cb_data->mReplace);
-	}		
+		LLSelectMgr::getInstance()->sendAttach(cb_data->getSelection(), attachment_id, cb_data->mReplace);
+	}
 	LLObjectAttachToAvatar::setObjectSelection(NULL);
 
 	delete cb_data;
