@@ -278,13 +278,13 @@ bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response
 
 void handleNameTagOptionChanged(const LLSD& newvalue)
 {
-	LLAvatarNameCache::setUseUsernames(gSavedSettings.getBOOL("NameTagShowUsernames"));
+	LLAvatarNameCache::getInstance()->setUseUsernames(gSavedSettings.getBOOL("NameTagShowUsernames"));
 	LLVOAvatar::invalidateNameTags();
 }
 
 void handleDisplayNamesOptionChanged(const LLSD& newvalue)
 {
-	LLAvatarNameCache::setUseDisplayNames(newvalue.asBoolean());
+	LLAvatarNameCache::getInstance()->setUseDisplayNames(newvalue.asBoolean());
 	LLVOAvatar::invalidateNameTags();
 }
 

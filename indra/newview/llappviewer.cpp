@@ -4509,7 +4509,7 @@ void LLAppViewer::loadNameCache()
 	llifstream name_cache_stream(filename.c_str());
 	if(name_cache_stream.is_open())
 	{
-		if ( ! LLAvatarNameCache::importFile(name_cache_stream))
+		if ( ! LLAvatarNameCache::getInstance()->importFile(name_cache_stream))
         {
             LL_WARNS("AppInit") << "removing invalid '" << filename << "'" << LL_ENDL;
             name_cache_stream.close();
@@ -4536,7 +4536,7 @@ void LLAppViewer::saveNameCache()
 	llofstream name_cache_stream(filename.c_str());
 	if(name_cache_stream.is_open())
 	{
-		LLAvatarNameCache::exportFile(name_cache_stream);
+		LLAvatarNameCache::getInstance()->exportFile(name_cache_stream);
     }
 
     // real names cache
@@ -5143,7 +5143,8 @@ void LLAppViewer::idleNameCache()
 	// granted to neighbor regions before the main agent gets there.  Can't
 	// do it in the move-into-region code because cap not guaranteed to be
 	// granted yet, for example on teleport.
-	bool had_capability = LLAvatarNameCache::hasNameLookupURL();
+	LLAvatarNameCache *name_cache = LLAvatarNameCache::getInstance();
+	bool had_capability = LLAvatarNameCache::getInstance()->hasNameLookupURL();
 	std::string name_lookup_url;
 	name_lookup_url.reserve(128); // avoid a memory allocation below
 	name_lookup_url = region->getCapability("GetDisplayNames");
@@ -5160,12 +5161,12 @@ void LLAppViewer::idleNameCache()
 	    {
 		    name_lookup_url += '/';
 	    }
-		LLAvatarNameCache::setNameLookupURL(name_lookup_url);
+		name_cache->setNameLookupURL(name_lookup_url);
 	}
 	else
 	{
 		// Display names not available on this region
-		LLAvatarNameCache::setNameLookupURL( std::string() );
+		name_cache->setNameLookupURL( std::string() );
 	}
 
 	// Error recovery - did we change state?
@@ -5175,7 +5176,7 @@ void LLAppViewer::idleNameCache()
 		LLVOAvatar::invalidateNameTags();
 	}
 
-	LLAvatarNameCache::idle();
+	name_cache->idle();
 }
 
 //

@@ -806,7 +806,7 @@ void LLIMModel::LLIMSession::addMessagesFromHistory(const std::list<LLSD>& histo
 		{
 			// convert it to a legacy name if we have a complete name
 			std::string legacy_name = gCacheName->buildLegacyName(from);
-			from_id = LLAvatarNameCache::findIdByName(legacy_name);
+			from_id = LLAvatarNameCache::getInstance()->findIdByName(legacy_name);
 		}
 
 		std::string timestamp = msg[LL_IM_TIME];

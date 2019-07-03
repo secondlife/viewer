@@ -221,7 +221,7 @@ void LLFloaterConversationPreview::showHistory()
 		else
  		{
 			std::string legacy_name = gCacheName->buildLegacyName(from);
-			from_id = LLAvatarNameCache::findIdByName(legacy_name);
+			from_id = LLAvatarNameCache::getInstance()->findIdByName(legacy_name);
  		}
 
 		LLChat chat;
