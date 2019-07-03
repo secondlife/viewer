@@ -70,10 +70,6 @@ void main()
 
 	vec4 color = calcLighting(pos.xyz, norm, vec4(1.0));
 
-#if defined(ALM)	
-    color.rgb *= 0.5f;
-#endif
-
 	vertex_color.rgb = color.rgb;
 
 	// Transform and pass tex coords

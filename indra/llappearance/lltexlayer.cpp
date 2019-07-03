@@ -1065,7 +1065,7 @@ LLTexLayer::~LLTexLayer()
 		 iter != mAlphaCache.end(); iter++ )
 	{
 		U8* alpha_data = iter->second;
-		delete [] alpha_data;
+		ll_aligned_free_32(alpha_data);
 	}
 
 }
@@ -1572,7 +1572,7 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 			{
 				alpha_cache_t::iterator iter2 = mAlphaCache.begin(); // arbitrarily grab the first entry
 				alpha_data = iter2->second;
-				delete [] alpha_data;
+                ll_aligned_free_32(alpha_data);
 				mAlphaCache.erase(iter2);
 			}
 			
@@ -1588,7 +1588,9 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 			mAlphaCache[cache_index] = alpha_data;
 
             bool skip_readback = LLRender::sNsightDebugSupport; // nSight doesn't support use of glReadPixels
-            // || gGLManager.mIsIntel; SL-10625?
+
+            // SL-10625 and neither does Intel in many cases
+            skip_readback = skip_readback || gGLManager.mIsIntel; 
 
 			if (!skip_readback)
 			{
