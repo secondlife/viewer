@@ -896,8 +896,6 @@ bool LLAppViewer::init()
 	// LLKeyboard relies on LLUI to know what some accelerator keys are called.
 	LLKeyboard::setStringTranslatorFunc( LLTrans::getKeyboardString );
 
-	LLWeb::initClass();			  // do this after LLUI
-
 	// Provide the text fields with callbacks for opening Urls
 	LLUrlAction::setOpenURLCallback(boost::bind(&LLWeb::loadURL, _1, LLStringUtil::null, LLStringUtil::null));
 	LLUrlAction::setOpenURLInternalCallback(boost::bind(&LLWeb::loadURLInternal, _1, LLStringUtil::null, LLStringUtil::null, false));

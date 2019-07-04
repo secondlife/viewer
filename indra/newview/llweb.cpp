@@ -39,7 +39,6 @@
 #include "lllogininstance.h"
 #include "llparcel.h"
 #include "llsd.h"
-#include "lltoastalertpanel.h"
 #include "llui.h"
 #include "lluri.h"
 #include "llversioninfo.h"
@@ -55,32 +54,6 @@
 #include <boost/regex.hpp>
 
 bool on_load_url_external_response(const LLSD& notification, const LLSD& response, bool async );
-
-
-class URLLoader : public LLToastAlertPanel::URLLoader
-{
-	virtual void load(const std::string& url , bool force_open_externally)
-	{
-		if (force_open_externally)
-		{
-			LLWeb::loadURLExternal(url);
-		}
-		else
-		{
-			LLWeb::loadURL(url);
-		}
-	}
-};
-static URLLoader sAlertURLLoader;
-
-
-// static
-void LLWeb::initClass()
-{
-	LLToastAlertPanel::setURLLoader(&sAlertURLLoader);
-}
-
-
 
 
 // static

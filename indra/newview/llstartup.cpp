@@ -1226,8 +1226,6 @@ bool idle_startup()
 		LLSurface::initClasses();
 		display_startup();
 
-
-		LLFace::initClass();
 		display_startup();
 
 		LLDrawable::initClass();
