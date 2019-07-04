@@ -5844,7 +5844,7 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 	static LLColor4 sParentColor = LLColor4(sSilhouetteParentColor[VRED], sSilhouetteParentColor[VGREEN], sSilhouetteParentColor[VBLUE], LLSelectMgr::sHighlightAlpha);
 	static LLColor4 sChildColor = LLColor4(sSilhouetteChildColor[VRED], sSilhouetteChildColor[VGREEN], sSilhouetteChildColor[VBLUE], LLSelectMgr::sHighlightAlpha);
 
-	auto renderMeshSelection_f = [fogCfx, wireframe_selection](LLSelectNode* node, LLViewerObject* objectp)
+	auto renderMeshSelection_f = [fogCfx, wireframe_selection](LLSelectNode* node, LLViewerObject* objectp, LLColor4 hlColor)
 	{
 		//Need to because crash on ATI 3800 (and similar cards) MAINT-5018 
 		LLGLDisable multisample(LLPipeline::RenderFSAASamples > 0 ? GL_MULTISAMPLE_ARB : 0);
@@ -5874,7 +5874,6 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 			gGL.translatef(trans.mV[0], trans.mV[1], trans.mV[2]);
 		}
 
-		LLColor4 hlColor = objectp->isRootEdit() ? sParentColor : sChildColor;
 		bool bRenderHidenSelection = node->isTransient() ? false : LLSelectMgr::sRenderHiddenSelections;
 
 
@@ -5887,7 +5886,7 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 
 			if (objectp->mDrawable->isState(LLDrawable::RIGGED))
 			{
-				vobj->updateRiggedVolume();
+				vobj->updateRiggedVolume(true);
 			}
 		}
 
@@ -5950,7 +5949,8 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
                     && objectp->mDrawable->getVOVolume() 
                     && objectp->mDrawable->getVOVolume()->isMesh())
                 {
-                    renderMeshSelection_f(node, objectp);
+                    LLColor4 hlColor = objectp->isRootEdit() ? sParentColor : sChildColor;
+                    renderMeshSelection_f(node, objectp, hlColor);
                 }
                 else
                 {
@@ -6003,12 +6003,13 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 				{
 					continue;
 				}
-
+				
+				LLColor4 highlight_color = objectp->isRoot() ? sHighlightParentColor : sHighlightChildColor;
 				if (objectp->mDrawable
 					&& objectp->mDrawable->getVOVolume()
 					&& objectp->mDrawable->getVOVolume()->isMesh())
 				{
-					renderMeshSelection_f(node, objectp);
+					renderMeshSelection_f(node, objectp, subtracting_from_selection ? LLColor4::red : highlight_color);
 				}
 				else if (subtracting_from_selection)
 				{
@@ -6016,7 +6017,6 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 				}
 				else if (!objectp->isSelected())
 				{
-					LLColor4 highlight_color = objectp->isRoot() ? sHighlightParentColor : sHighlightChildColor;
 					node->renderOneSilhouette(highlight_color);
 				}
 			}
