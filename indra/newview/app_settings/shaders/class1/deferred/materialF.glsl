@@ -25,7 +25,7 @@
  
 /*[EXTRA_CODE_HERE]*/
 
-#define DIFFUSE_ALPHA_MODE_IGNORE   0
+#define DIFFUSE_ALPHA_MODE_NONE     0
 #define DIFFUSE_ALPHA_MODE_BLEND    1
 #define DIFFUSE_ALPHA_MODE_MASK     2
 #define DIFFUSE_ALPHA_MODE_EMISSIVE 3
@@ -274,10 +274,11 @@ void main()
 
     vec4 final_color = diffuse_linear;
 
-#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_EMISSIVE)
-    // nop, use content of alpha emissive mask as is...
-#else
-    final_color.a = emissive_brightness;    
+#if (DIFFUSE_ALPHA_MODE != DIFFUSE_ALPHA_MODE_EMISSIVE)
+    final_color.a = max(final_color.a, emissive_brightness);
+    #if !defined(HAS_NORMAL_MAP)
+        final_color.a = 0.0f;
+    #endif
 #endif
 
     vec4 final_specular = spec;
@@ -455,8 +456,6 @@ vec3 post_atmo = color.rgb;
 
 #else
     // deferred path
-
-final_color = diffuse_linear;
     frag_data[0] = final_color;
     frag_data[1] = final_specular; // XYZ = Specular color. W = Specular exponent.
     frag_data[2] = final_normal; // XY = Normal.  Z = Env. intensity.
