@@ -213,7 +213,7 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 	sNumRenders = 0;
 	if (gGLManager.mIsDisabled || LLPipeline::sMemAllocationThrottled)
 	{
-		return TRUE;
+		return FALSE;
 	}
 
 	bool use_fbo = gGLManager.mHasFramebufferObject && gPipeline.mWaterDis.isComplete() && !gGLManager.mIsATI;
@@ -248,7 +248,7 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 					result = TRUE;
 					sNumRenders++;
 				}
-				gGL.flush();
+				//gGL.flush();
 				LLVertexBuffer::unbind();
 				
 				dynamicTexture->postRender(result);
@@ -260,6 +260,8 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 	{
 		gPipeline.mWaterDis.flush();
 	}
+
+    gGL.flush();
 
 	return ret;
 }

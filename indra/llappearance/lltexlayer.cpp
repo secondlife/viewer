@@ -1579,9 +1579,10 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
             // GPUs tend to be very uptight about memory alignment as the DMA used to convey
             // said data to the card works better when well-aligned so plain old default-aligned heap mem is a no-no
             //new U8[width * height];
-            size_t mem_size = (width * height);
-            size_t rem = (mem_size & 0x3F);
-            mem_size += rem > 0 ? (mem_size + (32 - rem)) : 0;
+            size_t bytes_per_pixel = 1; // unsigned byte alpha channel only...
+            size_t row_size        = (width + 3) & ~0x3; // OpenGL 4-byte row align (even for things < 4 bpp...)
+            size_t pixels          = (row_size * height);
+            size_t mem_size        = pixels * bytes_per_pixel;
 
             alpha_data = (U8*)ll_aligned_malloc_32(mem_size);
 
@@ -1590,7 +1591,7 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
             bool skip_readback = LLRender::sNsightDebugSupport; // nSight doesn't support use of glReadPixels
 
             // SL-10625 and neither does Intel in many cases
-            skip_readback = skip_readback || gGLManager.mIsIntel; 
+            skip_readback = skip_readback;// || gGLManager.mIsIntel; 
 
 			if (!skip_readback)
 			{
