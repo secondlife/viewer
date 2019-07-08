@@ -272,14 +272,12 @@ void main()
 
     vec2 abnormal   = encode_normal(norm.xyz);
 
-    vec4 final_color = diffuse_linear;
+    vec4 final_color = vec4(diffuse_linear.rgb, 0.0);
 
-#if (DIFFUSE_ALPHA_MODE != DIFFUSE_ALPHA_MODE_EMISSIVE)
-    final_color.a = max(final_color.a, emissive_brightness);
-    #if !defined(HAS_NORMAL_MAP)
-        final_color.a = 0.0f;
-    #endif
+#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_EMISSIVE)
+    final_color.a = diffuse_linear.a;
 #endif
+    final_color.a = max(final_color.a, emissive_brightness);
 
     vec4 final_specular = spec;
     final_specular.a = specular_color.a;
