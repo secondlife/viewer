@@ -1590,9 +1590,6 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 
             bool skip_readback = LLRender::sNsightDebugSupport; // nSight doesn't support use of glReadPixels
 
-            // SL-10625 and neither does Intel in many cases
-            skip_readback = skip_readback;// || gGLManager.mIsIntel; 
-
 			if (!skip_readback)
 			{
 				glReadPixels(x, y, width, height, GL_ALPHA, GL_UNSIGNED_BYTE, alpha_data);                
