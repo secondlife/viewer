@@ -1588,7 +1588,7 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 
 			mAlphaCache[cache_index] = alpha_data;
 
-            bool skip_readback = LLRender::sNsightDebugSupport; // nSight doesn't support use of glReadPixels
+            bool skip_readback = LLRender::sNsightDebugSupport || gGLManager.mIsIntel; // nSight doesn't support use of glReadPixels
 
 			if (!skip_readback)
 			{
