@@ -639,6 +639,7 @@ void LLAvatarTracker::processChange(LLMessageSystem* msg)
 			if(mBuddyInfo.find(agent_related) != mBuddyInfo.end())
 			{
 				(mBuddyInfo[agent_related])->setRightsTo(new_rights);
+				mChangedBuddyIDs.insert(agent_related);
 			}
 		}
 		else

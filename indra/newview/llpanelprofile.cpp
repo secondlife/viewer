@@ -1294,8 +1294,6 @@ BOOL LLPanelProfileNotes::postBuild()
     mEditObjectRights = getChild<LLCheckBoxCtrl>("objects_check");
     mNotesEditor = getChild<LLTextEditor>("notes_edit");
 
-    mOnlineStatus->setCommitCallback(boost::bind(&LLPanelProfileNotes::onCommitRights, this));
-    mMapRights->setCommitCallback(boost::bind(&LLPanelProfileNotes::onCommitRights, this));
     mEditObjectRights->setCommitCallback(boost::bind(&LLPanelProfileNotes::onCommitRights, this));
 
     mNotesEditor->setCommitCallback(boost::bind(&LLPanelProfileNotes::onCommitNotes,this));
@@ -1315,6 +1313,7 @@ void LLPanelProfileNotes::onOpen(const LLSD& key)
 void LLPanelProfileNotes::apply()
 {
     onCommitNotes();
+    applyRights();
 }
 
 void LLPanelProfileNotes::fillRightsData()
@@ -1347,39 +1346,47 @@ void LLPanelProfileNotes::onCommitNotes()
 }
 
 void LLPanelProfileNotes::rightsConfirmationCallback(const LLSD& notification,
-        const LLSD& response, S32 rights)
+        const LLSD& response)
 {
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-    if (option == 0)
-    {
-        LLAvatarPropertiesProcessor::getInstance()->sendFriendRights(getAvatarId(), rights);
-    }
-    else
+    if (option != 0)
     {
         mEditObjectRights->setValue(mEditObjectRights->getValue().asBoolean() ? FALSE : TRUE);
     }
 }
 
-void LLPanelProfileNotes::confirmModifyRights(bool grant, S32 rights)
+void LLPanelProfileNotes::confirmModifyRights(bool grant)
 {
     LLSD args;
     args["NAME"] = LLSLURL("agent", getAvatarId(), "completename").getSLURLString();
 
-    if (grant)
-    {
-        LLNotificationsUtil::add("GrantModifyRights", args, LLSD(),
-                boost::bind(&LLPanelProfileNotes::rightsConfirmationCallback, this,
-                        _1, _2, rights));
-    }
-    else
-    {
-        LLNotificationsUtil::add("RevokeModifyRights", args, LLSD(),
-                boost::bind(&LLPanelProfileNotes::rightsConfirmationCallback, this,
-                        _1, _2, rights));
-    }
+
+    LLNotificationsUtil::add(grant ? "GrantModifyRights" : "RevokeModifyRights", args, LLSD(),
+        boost::bind(&LLPanelProfileNotes::rightsConfirmationCallback, this, _1, _2));
+
 }
 
 void LLPanelProfileNotes::onCommitRights()
+{
+	const LLRelationship* buddy_relationship = LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
+
+	if (!buddy_relationship)
+	{
+		LL_WARNS("LegacyProfile") << "Trying to modify rights for non-friend avatar. Skipped." << LL_ENDL;
+		return;
+	}
+
+	bool allow_modify_objects = mEditObjectRights->getValue().asBoolean();
+
+	// if modify objects checkbox clicked
+	if (buddy_relationship->isRightGrantedTo(
+		LLRelationship::GRANT_MODIFY_OBJECTS) != allow_modify_objects)
+	{
+		confirmModifyRights(allow_modify_objects);
+	}
+}
+
+void LLPanelProfileNotes::applyRights()
 {
     const LLRelationship* buddy_relationship = LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
 
@@ -1405,20 +1412,7 @@ void LLPanelProfileNotes::onCommitRights()
         rights |= LLRelationship::GRANT_MODIFY_OBJECTS;
     }
 
-    bool allow_modify_objects = mEditObjectRights->getValue().asBoolean();
-
-    // if modify objects checkbox clicked
-    if (buddy_relationship->isRightGrantedTo(
-            LLRelationship::GRANT_MODIFY_OBJECTS) != allow_modify_objects)
-    {
-        confirmModifyRights(allow_modify_objects, rights);
-    }
-    // only one checkbox can trigger commit, so store the rest of rights
-    else
-    {
-        LLAvatarPropertiesProcessor::getInstance()->sendFriendRights(
-                        getAvatarId(), rights);
-    }
+    LLAvatarPropertiesProcessor::getInstance()->sendFriendRights(getAvatarId(), rights);
 }
 
 void LLPanelProfileNotes::processProperties(void* data, EAvatarProcessorType type)

@@ -371,11 +371,13 @@ protected:
 	 */
 	void fillRightsData();
 
-	void rightsConfirmationCallback(const LLSD& notification, const LLSD& response, S32 rights);
-	void confirmModifyRights(bool grant, S32 rights);
+	void rightsConfirmationCallback(const LLSD& notification, const LLSD& response);
+	void confirmModifyRights(bool grant);
 	void onCommitRights();
 	void onCommitNotes();
 	void enableCheckboxes(bool enable);
+
+	void applyRights();
 
     LLCheckBoxCtrl*     mOnlineStatus;
 	LLCheckBoxCtrl*     mMapRights;
