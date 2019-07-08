@@ -121,6 +121,7 @@ void main()
 
     vec4 refcol = refcol1 + refcol2 + refcol3;
     float df1 = df.x + df.y + df.z;
+    df1 *= 0.666666f;
     refcol *= df1;
     
     vec3 wavef = (wave1 + wave2 * 0.4 + wave3 * 0.6) * 0.5;
@@ -154,6 +155,9 @@ void main()
     color.rgb += spec * specular;
 
     color.a = spec * sunAngle2;
+
+    //color.rgb = atmosTransport(color.rgb);
+	color.rgb = scaleSoftClip(color.rgb);
 
 #if defined(WATER_EDGE)
     gl_FragDepth = 0.9999847f;
