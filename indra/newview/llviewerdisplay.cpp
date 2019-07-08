@@ -146,6 +146,11 @@ void display_startup()
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 
+	if (frame_count++ > 1) // make sure we have rendered a frame first
+	{
+		LLViewerDynamicTexture::updateAllInstances();
+	}
+
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 
