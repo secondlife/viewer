@@ -75,7 +75,7 @@ vec2 encode_normal (vec3 n);
 vec3 scaleSoftClipFrag(vec3 l);
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten);
 
-void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive, bool use_ao);
+void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive, bool use_ao);
 
 #ifdef HAS_SHADOW
 float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
@@ -201,6 +201,8 @@ void main()
     }
 #else
     
+    vec3 light_dir = (sun_up_factor == 1) ? sun_dir: moon_dir;
+
     float final_alpha = diffuse_linear.a * vertex_color.a;
     diffuse_srgb.rgb *= vertex_color.rgb;
     diffuse_linear.rgb *= vertex_color.rgb;
@@ -210,11 +212,10 @@ void main()
     vec3 additive;
     vec3 atten;
 
-    calcAtmosphericVars(pos.xyz, 1.0, sunlit, amblit, additive, atten, false);
+    calcAtmosphericVars(pos.xyz, light_dir, 1.0, sunlit, amblit, additive, atten, false);
 
     vec2 abnormal = encode_normal(norm.xyz);
 
-    vec3 light_dir = (sun_up_factor == 1) ? sun_dir: moon_dir;
     float da = dot(norm.xyz, light_dir.xyz);
           da = clamp(da, -1.0, 1.0);
  
