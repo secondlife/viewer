@@ -337,14 +337,14 @@ void LLWLParamSet::mix(LLWLParamSet& src, LLWLParamSet& dest, F32 weight)
 	setStarBrightness((1 - weight) * (F32) src.getStarBrightness()
 		+ weight * (F32) dest.getStarBrightness());
 
-	//llassert(src.getSunAngle() >= - F_PI && 
-	//				src.getSunAngle() <= 3 * F_PI);
-	//llassert(dest.getSunAngle() >= - F_PI && 
-	//				dest.getSunAngle() <= 3 * F_PI);
-	//llassert(src.getEastAngle() >= 0 && 
-	//				src.getEastAngle() <= 4 * F_PI);
-	//llassert(dest.getEastAngle() >= 0 && 
-	//				dest.getEastAngle() <= 4 * F_PI);
+	llassert(src.getSunAngle() >= - F_PI && 
+					src.getSunAngle() <= 3 * F_PI);
+	llassert(dest.getSunAngle() >= - F_PI && 
+					dest.getSunAngle() <= 3 * F_PI);
+	llassert(src.getEastAngle() >= 0 && 
+					src.getEastAngle() <= 4 * F_PI);
+	llassert(dest.getEastAngle() >= 0 && 
+					dest.getEastAngle() <= 4 * F_PI);
 
 	// sun angle and east angle require some handling to make sure
 	// they go in circles.  Yes quaternions would work better.
