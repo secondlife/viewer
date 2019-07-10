@@ -251,7 +251,7 @@ public:
     static LLSD translateLegacyHazeSettings(const LLSD& legacy);
 
     LLColor3 getLightAttenuation(F32 distance) const;
-    LLColor3 getLightTransmittance() const;
+    LLColor3 getLightTransmittance(F32 distance) const;
     LLColor3 getTotalDensity() const;
     LLColor3 gammaCorrect(const LLColor3& in) const;
 
@@ -290,6 +290,7 @@ public:
     LLColor4  getSunAmbient() const;
     LLColor3  getSunDiffuse() const;
     LLColor4  getTotalAmbient() const;
+    LLColor4  getHazeColor() const;
 
     virtual LLSettingsBase::ptr_t buildDerivedClone() const SETTINGS_OVERRIDE { return buildClone(); }
 
@@ -346,7 +347,7 @@ private:
 
     void        calculateHeavenlyBodyPositions() const;
     void        calculateLightSettings() const;
-    void        clampColor(LLColor3& color) const;
+    void        clampColor(LLColor3& color, F32 gamma, const F32 scale = 1.0f) const;
 
     mutable LLVector3   mSunDirection;
     mutable LLVector3   mMoonDirection;
@@ -360,6 +361,7 @@ private:
     mutable LLColor4    mSunAmbient;
     mutable LLColor3    mSunDiffuse;
     mutable LLColor4    mTotalAmbient;
+    mutable LLColor4    mHazeColor;
 
     typedef std::map<std::string, S32> mapNameToUniformId_t;
 

@@ -303,7 +303,7 @@ protected:
 	void updateDirections(void);
 
 	void initSkyTextureDirs(const S32 side, const S32 tile);
-	void createSkyTexture(AtmosphericsVars& vars, const S32 side, const S32 tile, LLSkyTex* tex);
+	void createSkyTexture(AtmosphericsVars& vars, const S32 side, const S32 tile, LLSkyTex* tex, bool is_shiny = false);
 
 	LLPointer<LLViewerFetchedTexture> mSunTexturep[2];
 	LLPointer<LLViewerFetchedTexture> mMoonTexturep[2];
