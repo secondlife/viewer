@@ -96,12 +96,14 @@ S32 LLSkyTex::sCurrent = 0;
 
 LLSkyTex::LLSkyTex() :
 	mSkyData(NULL),
-	mSkyDirs(NULL)
+	mSkyDirs(NULL),
+    mIsShiny(false)
 {
 }
 
-void LLSkyTex::init()
+void LLSkyTex::init(bool isShiny)
 {
+    mIsShiny = isShiny;
 	mSkyData = new LLColor4[sResolution * sResolution];
 	mSkyDirs = new LLVector3[sResolution * sResolution];
 
@@ -207,7 +209,14 @@ void LLSkyTex::create(const F32 brightness)
 
 void LLSkyTex::createGLImage(S32 which)
 {	
-    mTexture[which]->setExplicitFormat(GL_SRGB8_ALPHA8, GL_RGBA);
+    if (mIsShiny)
+    {
+        mTexture[which]->setExplicitFormat(GL_RGBA8, GL_RGBA);
+    }
+    else
+    {
+        mTexture[which]->setExplicitFormat(GL_SRGB8_ALPHA8, GL_RGBA);
+    }
 	mTexture[which]->createGLTexture(0, mImageRaw[which], 0, TRUE, LLGLTexture::LOCAL);
 	mTexture[which]->setAddressMode(LLTexUnit::TAM_CLAMP);
 }
@@ -421,8 +430,8 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 
 	for (S32 i = 0; i < 6; i++)
 	{
-		mSkyTex[i].init();
-		mShinyTex[i].init();
+		mSkyTex[i].init(false);
+		mShinyTex[i].init(true);
 	}
 	for (S32 i=0; i<FACE_COUNT; i++)
 	{
@@ -551,7 +560,7 @@ void LLVOSky::initCubeMap()
 	
 	if (!mCubeMap && gSavedSettings.getBOOL("RenderWater") && gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps)
 	{
-        mCubeMap = new LLCubeMap(true);
+        mCubeMap = new LLCubeMap(false);
 	}
 
     if (mCubeMap)

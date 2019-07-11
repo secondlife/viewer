@@ -68,7 +68,7 @@ public:
 	
 protected:
 	LLSkyTex();
-	void init();
+	void init(bool isShiny);
 	void cleanupGL();
 	void restoreGL();
 
@@ -121,6 +121,8 @@ protected:
 
 	LLImageRaw* getImageRaw(BOOL curr=TRUE);
 	void createGLImage(BOOL curr=TRUE);
+
+    bool mIsShiny;
 };
 
 /// TODO Move into the stars draw pool (and rename them appropriately).
