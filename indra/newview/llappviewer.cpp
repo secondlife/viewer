@@ -100,7 +100,6 @@
 #include "llscenemonitor.h"
 #include "llavatarrenderinfoaccountant.h"
 #include "lllocalbitmaps.h"
-#include "llskinningutil.h"
 
 // Linden library includes
 #include "llavatarnamecache.h"
@@ -797,9 +796,6 @@ bool LLAppViewer::init()
 		return false;
 
 	LL_INFOS("InitInfo") << "Configuration initialized." << LL_ENDL ;
-
-	// initialize skinning util
-	LLSkinningUtil::initClass();
 
 	//set the max heap size.
 	initMaxHeapSize() ;
