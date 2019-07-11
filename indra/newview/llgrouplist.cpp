@@ -153,7 +153,7 @@ BOOL LLGroupList::handleDoubleClick(S32 x, S32 y, MASK mask)
 	// Handle double click only for the selected item in the list, skip clicks on empty space.
 	if (handled)
 	{
-		if (mDoubleClickSignal)
+		if (mDoubleClickSignal && getItemsRect().pointInRect(x, y))
 		{
 			(*mDoubleClickSignal)(this, x, y, mask);
 		}
