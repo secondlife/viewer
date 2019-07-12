@@ -162,6 +162,7 @@ BOOL LLTexLayerSetBuffer::renderTexLayerSet()
 	LLGLSUIDefault gls_ui;
 	success &= mTexLayerSet->render( getCompositeOriginX(), getCompositeOriginY(), 
 									 getCompositeWidth(), getCompositeHeight() );
+	gGL.flush();
 
 	midRenderTexLayerSet(success);
 
@@ -399,6 +400,7 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 
 	// clear buffer area to ensure we don't pick up UI elements
 	{
+		gGL.flush();
 		LLGLDisable no_alpha(GL_ALPHA_TEST);
 		if (use_shaders)
 		{
@@ -408,7 +410,8 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 		gGL.color4f( 0.f, 0.f, 0.f, 1.f );
 
 		gl_rect_2d_simple( width, height );
-	
+
+		gGL.flush();
 		if (use_shaders)
 		{
 			gAlphaMaskProgram.setMinimumAlpha(0.004f);
@@ -423,7 +426,9 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 			LLTexLayerInterface* layer = *iter;
 			if (layer->getRenderPass() == LLTexLayer::RP_COLOR)
 			{
+				gGL.flush();
 				success &= layer->render(x, y, width, height);
+				gGL.flush();
 			}
 		}
 		
@@ -433,6 +438,8 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 	}
 	else
 	{
+		gGL.flush();
+
 		gGL.setSceneBlendType(LLRender::BT_REPLACE);
 		LLGLDisable no_alpha(GL_ALPHA_TEST);
 		if (use_shaders)
@@ -445,7 +452,8 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 
 		gl_rect_2d_simple( width, height );
 		gGL.setSceneBlendType(LLRender::BT_ALPHA);
-	
+
+		gGL.flush();
 		if (use_shaders)
 		{
 			gAlphaMaskProgram.setMinimumAlpha(0.004f);
@@ -544,6 +552,7 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
 	// (Optionally) replace alpha with a single component image from a tga file.
 	if (!info->mStaticAlphaFileName.empty())
 	{
+		gGL.flush();
 		{
 			LLGLTexture* tex = LLTexLayerStaticImageList::getInstance()->getTexture(info->mStaticAlphaFileName, TRUE);
 			if( tex )
@@ -554,10 +563,12 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
 				gl_rect_2d_simple_tex( width, height );
 			}
 		}
+		gGL.flush();
 	}
 	else if (forceClear || info->mClearAlpha || (mMaskLayerList.size() > 0))
 	{
 		// Set the alpha channel to one (clean up after previous blending)
+		gGL.flush();
 		LLGLDisable no_alpha(GL_ALPHA_TEST);
 		if (use_shaders)
 		{
@@ -568,6 +579,7 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
 		
 		gl_rect_2d_simple( width, height );
 		
+		gGL.flush();
 		if (use_shaders)
 		{
 			gAlphaMaskProgram.setMinimumAlpha(0.004f);
@@ -583,7 +595,9 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
 		for (layer_list_t::iterator iter = mMaskLayerList.begin(); iter != mMaskLayerList.end(); iter++)
 		{
 			LLTexLayerInterface* layer = *iter;
+			gGL.flush();
 			layer->blendAlphaTexture(x,y,width, height);
+			gGL.flush();
 		}
 		
 	}
@@ -1173,6 +1187,7 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
 		const bool force_render = true;
 		renderMorphMasks(x, y, width, height, net_color, force_render);
 		alpha_mask_specified = TRUE;
+		gGL.flush();
 		gGL.blendFunc(LLRender::BF_DEST_ALPHA, LLRender::BF_ONE_MINUS_DEST_ALPHA);
 	}
 
@@ -1180,6 +1195,7 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
 
 	if( getInfo()->mWriteAllChannels )
 	{
+		gGL.flush();
 		gGL.setSceneBlendType(LLRender::BT_REPLACE);
 	}
 
@@ -1278,6 +1294,7 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
 	if( alpha_mask_specified || getInfo()->mWriteAllChannels )
 	{
 		// Restore standard blend func value
+		gGL.flush();
 		gGL.setSceneBlendType(LLRender::BT_ALPHA);
 		stop_glerror();
 	}
@@ -1356,6 +1373,8 @@ BOOL LLTexLayer::findNetColor(LLColor4* net_color) const
 BOOL LLTexLayer::blendAlphaTexture(S32 x, S32 y, S32 width, S32 height)
 {
 	BOOL success = TRUE;
+
+	gGL.flush();
 	
 	bool use_shaders = LLGLSLShader::sNoFixedFunction;
 
@@ -1444,6 +1463,7 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	
 		// Clear the alpha
+		gGL.flush();
 		gGL.setSceneBlendType(LLRender::BT_REPLACE);
 
 		gGL.color4f( 0.f, 0.f, 0.f, 0.f );
@@ -1465,6 +1485,7 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 	}
 
 	// Approximates a min() function
+	gGL.flush();
 	gGL.setSceneBlendType(LLRender::BT_MULT_ALPHA);
 
 	// Accumulate the alpha component of the texture
@@ -1567,11 +1588,11 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 
 			mAlphaCache[cache_index] = alpha_data;
 
-            bool skip_readback = LLRender::sNsightDebugSupport; // nSight doesn't support use of glReadPixels
+            bool skip_readback = LLRender::sNsightDebugSupport || gGLManager.mIsIntel; // nSight doesn't support use of glReadPixels
 
 			if (!skip_readback)
 			{
-				glReadPixels(x, y, width, height, GL_ALPHA8, GL_UNSIGNED_BYTE, alpha_data);                
+				glReadPixels(x, y, width, height, GL_ALPHA, GL_UNSIGNED_BYTE, alpha_data);                
 			}
             else
             {
