@@ -4027,6 +4027,8 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationList);
 	S32 num_source_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationSourceList);
 
+	LL_DEBUGS("Messaging", "Motion") << "Processing " << num_blocks << " Animations" << LL_ENDL;
+
 	//clear animation flags
 	avatarp->mSignaledAnimations.clear();
 	
@@ -4038,8 +4040,6 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 		{
 			mesgsys->getUUIDFast(_PREHASH_AnimationList, _PREHASH_AnimID, animation_id, i);
 			mesgsys->getS32Fast(_PREHASH_AnimationList, _PREHASH_AnimSequenceID, anim_sequence_id, i);
-
-			LL_DEBUGS("Messaging") << "Anim sequence ID: " << anim_sequence_id << LL_ENDL;
 
 			avatarp->mSignaledAnimations[animation_id] = anim_sequence_id;
 
@@ -4079,6 +4079,14 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 						avatarp->mAnimationSources.insert(LLVOAvatar::AnimationSourceMap::value_type(object_id, animation_id));
 					}
 				}
+				LL_DEBUGS("Messaging", "Motion") << "Anim sequence ID: " << anim_sequence_id
+									<< " Animation id: " << animation_id
+									<< " From block: " << object_id << LL_ENDL;
+			}
+			else
+			{
+				LL_DEBUGS("Messaging", "Motion") << "Anim sequence ID: " << anim_sequence_id
+									<< " Animation id: " << animation_id << LL_ENDL;
 			}
 		}
 	}
