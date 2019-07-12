@@ -53,7 +53,9 @@ VARYING vec3 vary_position;
 VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_norm;
 
+#ifdef USE_VERTEX_COLOR
 VARYING vec4 vertex_color;
+#endif
 
 uniform mat4 proj_mat;
 uniform mat4 inv_proj;
@@ -203,9 +205,13 @@ void main()
     
     vec3 light_dir = (sun_up_factor == 1) ? sun_dir: moon_dir;
 
-    float final_alpha = diffuse_linear.a * vertex_color.a;
+    float final_alpha = diffuse_linear.a;
+
+#ifdef USE_VERTEX_COLOR
+    final_alpha *= vertex_color.a;
     diffuse_srgb.rgb *= vertex_color.rgb;
     diffuse_linear.rgb *= vertex_color.rgb;
+#endif
 
     vec3 sunlit;
     vec3 amblit;
