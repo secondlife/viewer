@@ -261,6 +261,7 @@ public:
 
 	void renderObjects(U32 type, U32 mask, bool texture = true, bool batch_texture = false);
 	void renderMaskedObjects(U32 type, U32 mask, bool texture = true, bool batch_texture = false);
+    void renderFullbrightMaskedObjects(U32 type, U32 mask, bool texture = true, bool batch_texture = false);
 
 	void renderGroups(LLRenderPass* pass, U32 type, U32 mask, bool texture);
 

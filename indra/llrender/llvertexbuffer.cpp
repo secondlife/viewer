@@ -942,15 +942,15 @@ S32 LLVertexBuffer::determineUsage(S32 usage)
 	{ //only stream_draw and dynamic_draw are supported when using VBOs, dynamic draw is the default
 		if (ret_usage != GL_DYNAMIC_COPY_ARB)
 		{
-		if (sDisableVBOMapping)
-		{ //always use stream draw if VBO mapping is disabled
-			ret_usage = GL_STREAM_DRAW_ARB;
-		}
-		else
-		{
-			ret_usage = GL_DYNAMIC_DRAW_ARB;
-		}
-	}
+		    if (sDisableVBOMapping)
+		    { //always use stream draw if VBO mapping is disabled
+			    ret_usage = GL_STREAM_DRAW_ARB;
+		    }
+		    else
+		    {
+			    ret_usage = GL_DYNAMIC_DRAW_ARB;
+		    }
+	    }
 	}
 	
 	return ret_usage;
@@ -1506,10 +1506,10 @@ bool LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 	llassert(newnverts >= 0);
 	llassert(newnindices >= 0);
 
-	bool sucsess = true;
+	bool success = true;
 
-	sucsess &= updateNumVerts(newnverts);		
-	sucsess &= updateNumIndices(newnindices);
+	success &= updateNumVerts(newnverts);		
+	success &= updateNumIndices(newnindices);
 	
 	if (useVBOs())
 	{
@@ -1521,7 +1521,7 @@ bool LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 		}
 	}
 
-	return sucsess;
+	return success;
 }
 
 bool LLVertexBuffer::useVBOs() const

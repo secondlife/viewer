@@ -49,6 +49,10 @@ void main()
         discard;
     }
 
+#if !defined(IS_FULLBRIGHT)
+    alpha *= vertex_color.a;
+#endif
+
 	if (alpha < 0.05) // treat as totally transparent
 	{
 		discard;
@@ -61,8 +65,6 @@ void main()
 	    discard;
 	  }
 	}
-
-    alpha *= vertex_color.a;
 
 	frag_color = vec4(1,1,1,1);
 	

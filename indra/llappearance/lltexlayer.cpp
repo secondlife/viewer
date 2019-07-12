@@ -1586,8 +1586,6 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 
             alpha_data = (U8*)ll_aligned_malloc_32(mem_size);
 
-			mAlphaCache[cache_index] = alpha_data;
-
             bool skip_readback = LLRender::sNsightDebugSupport || gGLManager.mIsIntel; // nSight doesn't support use of glReadPixels
 
 			if (!skip_readback)
@@ -1598,7 +1596,9 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
             {
                 ll_aligned_free_32(alpha_data);
                 alpha_data = nullptr;
-            }            
+            }
+
+            mAlphaCache[cache_index] = alpha_data;
 		}
 		
 		getTexLayerSet()->getAvatarAppearance()->dirtyMesh();
