@@ -240,6 +240,7 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 				gDepthDirty = TRUE;
 								
 				gGL.color4f(1,1,1,1);
+                dynamicTexture->setBoundTarget(use_fbo ? &gPipeline.mWaterDis : nullptr);
 				dynamicTexture->preRender();	// Must be called outside of startRender()
 				result = FALSE;
 				if (dynamicTexture->render())
@@ -250,7 +251,7 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 				}
 				//gGL.flush();
 				LLVertexBuffer::unbind();
-				
+				dynamicTexture->setBoundTarget(nullptr);
 				dynamicTexture->postRender(result);
 			}
 		}
