@@ -5950,6 +5950,10 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
                     && objectp->mDrawable->getVOVolume()->isMesh())
                 {
                     LLColor4 hlColor = objectp->isRootEdit() ? sParentColor : sChildColor;
+                    if (objectp->getID() == inspect_item_id)
+                    {
+                        hlColor = sHighlightInspectColor;
+                    }
                     renderMeshSelection_f(node, objectp, hlColor);
                 }
                 else
