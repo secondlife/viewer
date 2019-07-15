@@ -953,6 +953,17 @@ S32 LLVertexBuffer::determineUsage(S32 usage)
 	    }
 	}
 	
+    if (ret_usage == 0)
+    {
+            if (sDisableVBOMapping)
+		    { //always use stream draw if VBO mapping is disabled
+			    ret_usage = GL_STREAM_DRAW_ARB;
+		    }
+		    else
+		    {
+			    ret_usage = GL_DYNAMIC_DRAW_ARB;
+		    }
+    }
 	return ret_usage;
 }
 
@@ -982,6 +993,8 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage)
 	mMappable(false),
 	mFence(NULL)
 {
+    llassert(mUsage != 0);
+
 	mMappable = (mUsage == GL_DYNAMIC_DRAW_ARB && !sDisableVBOMapping);
 
 	//zero out offsets
@@ -1527,7 +1540,7 @@ bool LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 bool LLVertexBuffer::useVBOs() const
 {
 	//it's generally ineffective to use VBO for things that are streaming on apple
-	return (mUsage != 0);
+	return sEnableVBOs && (mUsage != 0);
 }
 
 //----------------------------------------------------------------------------
