@@ -432,7 +432,7 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height, LLRenderTarget*
 			}
 		}
 		
-		renderAlphaMaskTextures(x, y, width, height, false);
+		renderAlphaMaskTextures(x, y, width, height, bound_target, false);
 	
 		stop_glerror();
 	}
