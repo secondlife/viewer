@@ -619,36 +619,7 @@
                  width="250"
                  layout="topleft"
                 />
-                <text
-                 name="price_for_listing_edit_label"
-                 value="Price for listing:"
-                 top_pad="10"
-                 left="10"
-                 height="10"
-                 width="120"
-                 follows="left|top"
-                 layout="topleft"
-                 text_color="white"
-                />
-                <spinner
-                 name="price_for_listing_edit"
-                 label="L$"
-                 value="50"
-                 tool_tip="Price for listing."
-                 top_delta="0"
-                 left_pad="0"
-                 height="23"
-                 width="105"
-                 follows="left|top"
-                 layout="topleft"
-                 decimal_digits="0"
-                 halign="left"
-                 increment="1"
-                 label_width="20"
-                 max_val="99999"
-                 min_val="50"
-                />
-            </panel>
+              </panel>
         </panel>
     </scroll_container>
     <layout_stack

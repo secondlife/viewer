@@ -363,7 +363,7 @@ void LLPanelProfileClassifieds::apply()
         for (S32 tab_idx = 0; tab_idx < mTabContainer->getTabCount(); ++tab_idx)
         {
             LLPanelProfileClassified* classified_panel = dynamic_cast<LLPanelProfileClassified*>(mTabContainer->getPanelByIndex(tab_idx));
-            if (classified_panel && classified_panel->isDirty())
+            if (classified_panel && classified_panel->isDirty() && !classified_panel->isNew())
             {
                 classified_panel->doSave();
             }
@@ -419,6 +419,7 @@ LLPanelProfileClassified::LLPanelProfileClassified()
  , mTeleportClicksNew(0)
  , mMapClicksNew(0)
  , mProfileClicksNew(0)
+ , mPriceForListing(0)
  , mSnapshotCtrl(NULL)
  , mPublishFloater(NULL)
  , mIsNew(false)
@@ -475,8 +476,6 @@ BOOL LLPanelProfileClassified::postBuild()
     mLocationEdit       = getChild<LLUICtrl>("classified_location_edit");
     mCategoryCombo      = getChild<LLComboBox>("category_edit");
     mContentTypeCombo   = getChild<LLComboBox>("content_type_edit");
-    mPriceEdit          = getChild<LLUICtrl>("price_for_listing_edit");
-    mPricelabel         = getChild<LLUICtrl>("price_for_listing_edit_label");
     mAutoRenewEdit      = getChild<LLUICtrl>("auto_renew_edit");
 
     mSaveButton         = getChild<LLButton>("save_changes_btn");
@@ -513,7 +512,6 @@ BOOL LLPanelProfileClassified::postBuild()
     mClassifiedDescEdit->setKeystrokeCallback(boost::bind(&LLPanelProfileClassified::onChange, this));
     mCategoryCombo->setCommitCallback(boost::bind(&LLPanelProfileClassified::onChange, this));
     mContentTypeCombo->setCommitCallback(boost::bind(&LLPanelProfileClassified::onChange, this));
-    mPriceEdit->setCommitCallback(boost::bind(&LLPanelProfileClassified::onChange, this));
     mAutoRenewEdit->setCommitCallback(boost::bind(&LLPanelProfileClassified::onChange, this));
 
     return TRUE;
@@ -613,9 +611,6 @@ void LLPanelProfileClassified::onOpen(const LLSD& key)
     }
 
 
-    mPricelabel->setVisible(is_new);
-    mPriceEdit->setVisible(is_new);
-
     bool is_self = getSelfProfile();
     getChildView("auto_renew_layout_panel")->setVisible(is_self);
     getChildView("clickthrough_layout_panel")->setVisible(is_self);
@@ -660,8 +655,6 @@ void LLPanelProfileClassified::processProperties(void* data, EAvatarProcessorTyp
         static LLUIString  price_str = getString("l$_price");
         price_str.setArg("[PRICE]", llformat("%d", c_info->price_for_listing));
         mPriceText->setValue(LLSD(price_str));
-        mPriceEdit->setValue(c_info->price_for_listing);
-        mPriceEdit->setEnabled(isNew());
 
         static std::string date_fmt = getString("date_fmt");
         std::string date_str = date_fmt;
@@ -742,7 +735,6 @@ void LLPanelProfileClassified::enableEditing(bool enable)
     mSetLocationButton->setEnabled(enable);
     mCategoryCombo->setEnabled(enable);
     mContentTypeCombo->setEnabled(enable);
-    mPriceEdit->setEnabled(enable);
     mAutoRenewEdit->setEnabled(enable);
 }
 
@@ -753,8 +745,7 @@ void LLPanelProfileClassified::resetControls()
     mCategoryCombo->setCurrentByIndex(0);
     mContentTypeCombo->setCurrentByIndex(0);
     mAutoRenewEdit->setValue(false);
-    mPriceEdit->setValue(MINIMUM_PRICE_FOR_LISTING);
-    mPriceEdit->setEnabled(TRUE);
+    mPriceForListing = MINIMUM_PRICE_FOR_LISTING;
 }
 
 void LLPanelProfileClassified::onEditClick()
@@ -772,8 +763,7 @@ void LLPanelProfileClassified::onCancelClick()
         mCategoryCombo->setCurrentByIndex(0);
         mContentTypeCombo->setCurrentByIndex(0);
         mAutoRenewEdit->setValue(false);
-        mPriceEdit->setValue(MINIMUM_PRICE_FOR_LISTING);
-        mPriceEdit->setEnabled(TRUE);
+        mPriceForListing = MINIMUM_PRICE_FOR_LISTING;
     }
     else
     {
@@ -863,10 +853,11 @@ void LLPanelProfileClassified::resetData()
     mMapClicksNew       = 0;
     mProfileClicksNew   = 0;
 
+    mPriceForListing = MINIMUM_PRICE_FOR_LISTING;
+
     mCategoryText->setValue(LLStringUtil::null);
     mContentTypeText->setValue(LLStringUtil::null);
     getChild<LLUICtrl>("click_through_text")->setValue(LLStringUtil::null);
-    mPriceEdit->setValue(LLStringUtil::null);
     mEditButton->setValue(LLStringUtil::null);
     getChild<LLUICtrl>("creation_date")->setValue(LLStringUtil::null);
     mContentTypeM->setVisible(FALSE);
@@ -1093,7 +1084,6 @@ BOOL LLPanelProfileClassified::isDirty() const
     dirty |= mCategoryCombo->isDirty();
     dirty |= mContentTypeCombo->isDirty();
     dirty |= mAutoRenewEdit->isDirty();
-    dirty |= mPriceEdit->isDirty();
 
     return dirty;
 }
@@ -1110,7 +1100,6 @@ void LLPanelProfileClassified::resetDirty()
     mCategoryCombo->resetDirty();
     mContentTypeCombo->resetDirty();
     mAutoRenewEdit->resetDirty();
-    mPriceEdit->resetDirty();
 }
 
 bool LLPanelProfileClassified::canClose()
@@ -1219,16 +1208,6 @@ std::string LLPanelProfileClassified::makeClassifiedName()
     }
 
     return name;
-}
-
-S32 LLPanelProfileClassified::getPriceForListing()
-{
-    return mPriceEdit->getValue().asInteger();
-}
-
-void LLPanelProfileClassified::setPriceForListing(S32 price)
-{
-    mPriceEdit->setValue(price);
 }
 
 void LLPanelProfileClassified::onSetLocationClick()

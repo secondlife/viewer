@@ -185,7 +185,7 @@ public:
 
     bool getAutoRenew();
 
-    S32 getPriceForListing();
+    S32 getPriceForListing() { return mPriceForListing; }
 
     void setEditMode(BOOL edit_mode);
     bool getEditMode() {return mEditMode;}
@@ -239,7 +239,7 @@ protected:
 
     std::string makeClassifiedName();
 
-    void setPriceForListing(S32 price);
+    void setPriceForListing(S32 price) { mPriceForListing = price; }
 
     U8 getFlags();
 
@@ -318,8 +318,6 @@ private:
     LLIconCtrl*         mContentTypeG;
     LLComboBox*         mContentTypeCombo;
     LLUICtrl*           mPriceText;
-    LLUICtrl*           mPriceEdit;
-    LLUICtrl*           mPricelabel;
     LLUICtrl*           mAutoRenewText;
     LLUICtrl*           mAutoRenewEdit;
 
@@ -358,6 +356,7 @@ private:
     S32 mMapClicksNew;
     S32 mProfileClicksNew;
 
+    S32 mPriceForListing;
 
     static void handleSearchStatResponse(LLUUID classifiedId, LLSD result);
 
