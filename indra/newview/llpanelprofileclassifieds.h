@@ -88,6 +88,8 @@ public:
 
     /*virtual*/ void updateData();
 
+    /*virtual*/ void apply();
+
 private:
     void onClickNewBtn();
     void onClickDelete();
@@ -203,6 +205,8 @@ public:
             const LLVector3d& global_pos,
             const std::string& sim_name);
 
+    void doSave();
+
 protected:
 
     /*virtual*/ void resetData();
@@ -247,8 +251,6 @@ protected:
 
     void onSetLocationClick();
     void onChange();
-
-    void doSave();
 
     void onPublishFloaterPublishClicked();
 

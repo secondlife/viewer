@@ -464,6 +464,7 @@
                  font="SansSerif"
                  max_length_bytes="30"
                  prevalidate_callback="ascii"
+                 commit_on_focus_lost="false"
                  text_color="black"
                 />
                 <text

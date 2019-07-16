@@ -1591,6 +1591,7 @@ void LLPanelProfile::apply()
         mPanelInterests->apply();
         mPanelPicks->apply();
         mPanelNotes->apply();
+        mPanelClassifieds->apply();
 
         //KC - Classifieds handles this itself
     }

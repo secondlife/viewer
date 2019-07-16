@@ -356,7 +356,20 @@ bool LLPanelProfileClassifieds::canDeleteClassified()
     return (mTabContainer->getTabCount() > 0);
 }
 
-
+void LLPanelProfileClassifieds::apply()
+{
+    if (getIsLoaded())
+    {
+        for (S32 tab_idx = 0; tab_idx < mTabContainer->getTabCount(); ++tab_idx)
+        {
+            LLPanelProfileClassified* classified_panel = dynamic_cast<LLPanelProfileClassified*>(mTabContainer->getPanelByIndex(tab_idx));
+            if (classified_panel && classified_panel->isDirty())
+            {
+                classified_panel->doSave();
+            }
+        }
+    }
+}
 //-----------------------------------------------------------------------------
 // LLDispatchClassifiedClickThrough
 //-----------------------------------------------------------------------------
