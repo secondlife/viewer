@@ -660,6 +660,9 @@ void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVecto
 
 void LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_offset) const
 {
+    llassert(start < (U32)mNumVerts);
+    llassert(end < (U32)mNumVerts);
+
 	if (start >= (U32) mNumVerts ||
 	    end >= (U32) mNumVerts)
 	{
@@ -679,6 +682,9 @@ void LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_of
 		U16* idx = ((U16*) getIndicesPointer())+indices_offset;
 		for (U32 i = 0; i < count; ++i)
 		{
+            llassert(idx[i] >= start);
+            llassert(idx[i] <= end);
+
 			if (idx[i] < start || idx[i] > end)
 			{
 				LL_ERRS() << "Index out of range: " << idx[i] << " not in [" << start << ", " << end << "]" << LL_ENDL;
@@ -697,6 +703,7 @@ void LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_of
 			for (U32 i = start; i < end; i++)
 			{
 				S32 idx = (S32) (v[i][3]+0.25f);
+                llassert(idx >= 0);
 				if (idx < 0 || idx >= shader->mFeatures.mIndexedTextureChannels)
 				{
 					LL_ERRS() << "Bad texture index found in vertex data stream." << LL_ENDL;

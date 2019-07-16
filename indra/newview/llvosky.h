@@ -352,6 +352,7 @@ protected:
 	LLPointer<LLCubeMap> mCubeMap;					// Cube map for the environment
 	S32					 mDrawRefl;
 
+	LLFrameTimer		mUpdateTimer;
     LLTimer             mForceUpdateThrottle;
 	bool                mHeavenlyBodyUpdated ;
 
