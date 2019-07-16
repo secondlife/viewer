@@ -761,8 +761,6 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 
 	U16* idx = ((U16*) getIndicesPointer())+indices_offset;
 
-    llassert(idx);
-
 	stop_glerror();
 	LLGLSLShader::startProfile();
 	glDrawRangeElements(sGLMode[mode], start, end, count, GL_UNSIGNED_SHORT, 
