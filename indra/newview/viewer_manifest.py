@@ -1036,7 +1036,6 @@ class DarwinManifest(ViewerManifest):
                 for libfile in (
                                 'libortp.dylib',
                                 'libvivoxsdk.dylib',
-                                'libvivoxplatform.dylib',
                                 'SLVoice',
                                 ):
                     self.path2basename(relpkgdir, libfile)
@@ -1532,7 +1531,6 @@ class Linux_i686_Manifest(LinuxManifest):
             self.path("libsndfile.so.1")
             #self.path("libvivoxoal.so.1") # no - we'll re-use the viewer's own OpenAL lib
             self.path("libvivoxsdk.so")
-            self.path("libvivoxplatform.so")
 
         self.strip_binaries()
 

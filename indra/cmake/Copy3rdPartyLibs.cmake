@@ -173,7 +173,6 @@ elseif(DARWIN)
     set(vivox_files
         SLVoice
         libortp.dylib
-        libvivoxplatform.dylib
         libvivoxsdk.dylib
        )
     set(debug_src_dir "${ARCH_PREBUILT_DIRS_DEBUG}")
@@ -211,7 +210,6 @@ elseif(LINUX)
         libsndfile.so.1
         libortp.so
         libvivoxoal.so.1
-        libvivoxplatform.so
         libvivoxsdk.so
         SLVoice
        )
