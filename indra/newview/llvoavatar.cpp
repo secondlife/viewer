@@ -8245,16 +8245,19 @@ void LLVOAvatar::updateMeshTextures()
 			++attachment_iter)
 		{
 			LLViewerObject* attached_object = (*attachment_iter);
-			attached_object->refreshBakeTexture();
-
-			LLViewerObject::const_child_list_t& child_list = attached_object->getChildren();
-			for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-				iter != child_list.end(); ++iter)
+			if (attached_object && !attached_object->isDead())
 			{
-				LLViewerObject* objectp = *iter;
-				if (objectp)
+				attached_object->refreshBakeTexture();
+
+				LLViewerObject::const_child_list_t& child_list = attached_object->getChildren();
+				for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+					iter != child_list.end(); ++iter)
 				{
-					objectp->refreshBakeTexture();
+					LLViewerObject* objectp = *iter;
+					if (objectp && !objectp->isDead())
+					{
+						objectp->refreshBakeTexture();
+					}
 				}
 			}
 		}
