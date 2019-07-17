@@ -15,7 +15,6 @@
 #define LL_LLCOND_H
 
 #include "llunits.h"
-#include "lldate.h"
 #include <boost/fiber/condition_variable.hpp>
 #include <mutex>
 #include <chrono>
@@ -134,44 +133,6 @@ public:
     }
 
     /**
-     * Pass wait_until() a chrono::time_point, indicating the time at which we
-     * should stop waiting, and a predicate accepting (const DATA&), returning
-     * bool. The predicate returns true when the condition for which it is
-     * waiting has been satisfied, presumably determined by examining the
-     * referenced DATA. wait_until() locks the mutex and, until the predicate
-     * returns true, calls wait_until() on the condition_variable.
-     * wait_until() returns false if condition_variable::wait_until() timed
-     * out without the predicate returning true.
-     */
-    template <typename Clock, typename Duration, typename Pred>
-    bool wait_until(const std::chrono::time_point<Clock, Duration>& timeout_time, Pred pred)
-    {
-        std::unique_lock<boost::fibers::mutex> lk(mMutex);
-        // see wait() for comments about this const_cast
-        while (! pred(const_cast<const value_type&>(mData)))
-        {
-            if (boost::fibers::cv_status::timeout == mCond.wait_until(lk, timeout_time))
-            {
-                // It's possible that wait_until() timed out AND the predicate
-                // became true more or less simultaneously. Even though
-                // wait_until() timed out, check the predicate one more time.
-                return pred(const_cast<const value_type&>(mData));
-            }
-        }
-        return true;
-    }
-
-    /**
-     * This wait_until() overload accepts LLDate as the time_point. Its
-     * semantics are the same as the generic wait_until() method.
-     */
-    template <typename Pred>
-    bool wait_until(const LLDate& timeout_time, Pred pred)
-    {
-        return wait_until(convert(timeout_time), pred);
-    }
-
-    /**
      * Pass wait_for() a chrono::duration, indicating how long we're willing
      * to wait, and a predicate accepting (const DATA&), returning bool. The
      * predicate returns true when the condition for which it is waiting has
@@ -207,10 +168,54 @@ public:
     }
 
 protected:
-    // convert LLDate to a chrono::time_point
-    std::chrono::system_clock::time_point convert(const LLDate&);
     // convert F32Milliseconds to a chrono::duration
-    std::chrono::milliseconds convert(F32Milliseconds);
+    std::chrono::milliseconds convert(F32Milliseconds)
+    {
+        // extract the F32 milliseconds from F32Milliseconds, construct
+        // std::chrono::milliseconds from that value
+        return { timeout_duration.value() };
+    }
+
+private:
+    /**
+     * Pass wait_until() a chrono::time_point, indicating the time at which we
+     * should stop waiting, and a predicate accepting (const DATA&), returning
+     * bool. The predicate returns true when the condition for which it is
+     * waiting has been satisfied, presumably determined by examining the
+     * referenced DATA. wait_until() locks the mutex and, until the predicate
+     * returns true, calls wait_until() on the condition_variable.
+     * wait_until() returns false if condition_variable::wait_until() timed
+     * out without the predicate returning true.
+     *
+     * Originally this class and its subclasses published wait_until() methods
+     * corresponding to each wait_for() method. But that raised all sorts of
+     * fascinating questions about the time zone of the passed time_point:
+     * local time? server time? UTC? The bottom line is that for LLCond
+     * timeout purposes, we really shouldn't have to care -- timeout duration
+     * is all we need. This private method remains because it's the simplest
+     * way to support iteratively waiting across spurious wakeups while
+     * honoring a fixed timeout.
+     */
+    template <typename Clock, typename Duration, typename Pred>
+    bool wait_until(const std::chrono::time_point<Clock, Duration>& timeout_time, Pred pred)
+    {
+        std::unique_lock<boost::fibers::mutex> lk(mMutex);
+        // We advise the caller to pass a predicate accepting (const DATA&).
+        // But what if they instead pass a predicate accepting non-const
+        // (DATA&)? Such a predicate could modify mData, which would be Bad.
+        // Forbid that.
+        while (! pred(const_cast<const value_type&>(mData)))
+        {
+            if (boost::fibers::cv_status::timeout == mCond.wait_until(lk, timeout_time))
+            {
+                // It's possible that wait_until() timed out AND the predicate
+                // became true more or less simultaneously. Even though
+                // wait_until() timed out, check the predicate one more time.
+                return pred(const_cast<const value_type&>(mData));
+            }
+        }
+        return true;
+    }
 };
 
 template <typename DATA>
@@ -222,7 +227,6 @@ public:
     using super::value_type;
     using super::get;
     using super::wait;
-    using super::wait_until;
     using super::wait_for;
 
     /// LLScalarCond can be explicitly initialized with a specific value for
@@ -255,31 +259,6 @@ public:
     void wait_equal(const value_type& value)
     {
         super::wait([&value](const value_type& data){ return (data == value); });
-    }
-
-    /**
-     * Pass wait_until_equal() a chrono::time_point, indicating the time at
-     * which we should stop waiting, and a value for which to wait.
-     * wait_until_equal() locks the mutex and, until the stored DATA equals
-     * that value, calls wait_until() on the condition_variable.
-     * wait_until_equal() returns false if condition_variable::wait_until()
-     * timed out without the stored DATA being equal to the passed value.
-     */
-    template <typename Clock, typename Duration>
-    bool wait_until_equal(const std::chrono::time_point<Clock, Duration>& timeout_time,
-                          const value_type& value)
-    {
-        return super::wait_until(timeout_time,
-                                 [&value](const value_type& data){ return (data == value); });
-    }
-
-    /**
-     * This wait_until_equal() overload accepts LLDate as the time_point. Its
-     * semantics are the same as the generic wait_until_equal() method.
-     */
-    bool wait_until_equal(const LLDate& timeout_time, const value_type& value)
-    {
-        return wait_until_equal(super::convert(timeout_time), value);
     }
 
     /**
@@ -317,31 +296,6 @@ public:
     void wait_unequal(const value_type& value)
     {
         super::wait([&value](const value_type& data){ return (data != value); });
-    }
-
-    /**
-     * Pass wait_until_unequal() a chrono::time_point, indicating the time at
-     * which we should stop waiting, and a value from which to move away.
-     * wait_until_unequal() locks the mutex and, until the stored DATA no
-     * longer equals that value, calls wait_until() on the condition_variable.
-     * wait_until_unequal() returns false if condition_variable::wait_until()
-     * timed out with the stored DATA still being equal to the passed value.
-     */
-    template <typename Clock, typename Duration>
-    bool wait_until_unequal(const std::chrono::time_point<Clock, Duration>& timeout_time,
-                            const value_type& value)
-    {
-        return super::wait_until(timeout_time,
-                                 [&value](const value_type& data){ return (data != value); });
-    }
-
-    /**
-     * This wait_until_unequal() overload accepts LLDate as the time_point.
-     * Its semantics are the same as the generic wait_until_unequal() method.
-     */
-    bool wait_until_unequal(const LLDate& timeout_time, const value_type& value)
-    {
-        return wait_until_unequal(super::convert(timeout_time), value);
     }
 
     /**
@@ -387,13 +341,10 @@ public:
     using super::value_type;
     using super::get;
     using super::wait;
-    using super::wait_until;
     using super::wait_for;
     using super::wait_equal;
-    using super::wait_until_equal;
     using super::wait_for_equal;
     using super::wait_unequal;
-    using super::wait_until_unequal;
     using super::wait_for_unequal;
 
     /// The bool stored in LLOneShotCond is initially false
@@ -418,28 +369,6 @@ public:
     void wait()
     {
         super::wait_unequal(false);
-    }
-
-    /**
-     * Pass wait_until() a chrono::time_point, indicating the time at which we
-     * should stop waiting. wait_until() locks the mutex and, until the stored
-     * bool is true, calls wait_until() on the condition_variable.
-     * wait_until() returns false if condition_variable::wait_until() timed
-     * out without the stored bool being true.
-     */
-    template <typename Clock, typename Duration>
-    bool wait_until(const std::chrono::time_point<Clock, Duration>& timeout_time)
-    {
-        return super::wait_until_unequal(timeout_time, false);
-    }
-
-    /**
-     * This wait_until() overload accepts LLDate as the time_point.
-     * Its semantics are the same as the generic wait_until() method.
-     */
-    bool wait_until(const LLDate& timeout_time)
-    {
-        return wait_until(super::convert(timeout_time));
     }
 
     /**
