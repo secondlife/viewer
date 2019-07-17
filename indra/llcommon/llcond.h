@@ -169,11 +169,11 @@ public:
 
 protected:
     // convert F32Milliseconds to a chrono::duration
-    std::chrono::milliseconds convert(F32Milliseconds)
+    std::chrono::milliseconds convert(F32Milliseconds duration)
     {
         // extract the F32 milliseconds from F32Milliseconds, construct
         // std::chrono::milliseconds from that value
-        return { timeout_duration.value() };
+        return { duration.value() };
     }
 
 private:
