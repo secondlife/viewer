@@ -14,6 +14,8 @@
 #if ! defined(LL_LLCOND_H)
 #define LL_LLCOND_H
 
+#include "llunits.h"
+#include "lldate.h"
 #include <boost/fiber/condition_variable.hpp>
 #include <mutex>
 #include <chrono>
@@ -37,9 +39,12 @@
 template <typename DATA>
 class LLCond
 {
+public:
+    typedef value_type DATA;
+
 private:
     // This is the DATA controlled by the condition_variable.
-    DATA mData;
+    value_type mData;
     // condition_variable must be used in conjunction with a mutex. Use
     // boost::fibers::mutex instead of std::mutex because the latter blocks
     // the entire calling thread, whereas the former blocks only the current
@@ -52,7 +57,7 @@ private:
 public:
     /// LLCond can be explicitly initialized with a specific value for mData if
     /// desired.
-    LLCond(DATA&& init=DATA()):
+    LLCond(value_type&& init=value_type()):
         mData(init)
     {}
 
@@ -63,7 +68,7 @@ public:
     /// get() returns a const reference to the stored DATA. The only way to
     /// get a non-const reference -- to modify the stored DATA -- is via
     /// update_one() or update_all().
-    const DATA& get() const { return mData; }
+    const value_type& get() const { return mData; }
 
     /**
      * Pass update_one() an invocable accepting non-const (DATA&). The
@@ -122,7 +127,7 @@ public:
         // But what if they instead pass a predicate accepting non-const
         // (DATA&)? Such a predicate could modify mData, which would be Bad.
         // Forbid that.
-        while (! pred(const_cast<const DATA&>(mData)))
+        while (! pred(const_cast<const value_type&>(mData)))
         {
             mCond.wait(lk);
         }
@@ -143,17 +148,27 @@ public:
     {
         std::unique_lock<boost::fibers::mutex> lk(mMutex);
         // see wait() for comments about this const_cast
-        while (! pred(const_cast<const DATA&>(mData)))
+        while (! pred(const_cast<const value_type&>(mData)))
         {
             if (boost::fibers::cv_status::timeout == mCond.wait_until(lk, timeout_time))
             {
                 // It's possible that wait_until() timed out AND the predicate
                 // became true more or less simultaneously. Even though
                 // wait_until() timed out, check the predicate one more time.
-                return pred(const_cast<const DATA&>(mData));
+                return pred(const_cast<const value_type&>(mData));
             }
         }
         return true;
+    }
+
+    /**
+     * This wait_until() overload accepts LLDate as the time_point. Its
+     * semantics are the same as the generic wait_until() method.
+     */
+    template <typename Pred>
+    bool wait_until(const LLDate& timeout_time, Pred pred)
+    {
+        return wait_until(convert(timeout_time), pred);
     }
 
     /**
@@ -178,6 +193,24 @@ public:
         // stick to it.
         return wait_until(std::chrono::steady_clock::now() + timeout_duration, pred);
     }
+
+    /**
+     * This wait_for() overload accepts F32Milliseconds as the duration. Any
+     * duration unit defined in llunits.h is implicitly convertible to
+     * F32Milliseconds. The semantics of this method are the same as the
+     * generic wait_for() method.
+     */
+    template <typename Pred>
+    bool wait_for(F32Milliseconds timeout_duration, Pred pred)
+    {
+        return wait_for(convert(timeout_duration), pred);
+    }
+
+protected:
+    // convert LLDate to a chrono::time_point
+    std::chrono::system_clock::time_point convert(const LLDate&);
+    // convert F32Milliseconds to a chrono::duration
+    std::chrono::milliseconds convert(F32Milliseconds);
 };
 
 template <typename DATA>
@@ -186,26 +219,32 @@ class LLScalarCond: public LLCond<DATA>
     using super = LLCond<DATA>;
 
 public:
+    using super::value_type;
+    using super::get;
+    using super::wait;
+    using super::wait_until;
+    using super::wait_for;
+
     /// LLScalarCond can be explicitly initialized with a specific value for
     /// mData if desired.
-    LLCond(DATA&& init=DATA()):
+    LLCond(value_type&& init=value_type()):
         super(init)
     {}
 
     /// Pass set_one() a new value to which to update mData. set_one() will
     /// lock the mutex, update mData and then call notify_one() on the
     /// condition_variable.
-    void set_one(DATA&& value)
+    void set_one(value_type&& value)
     {
-        super::update_one([](DATA& data){ data = value; });
+        super::update_one([](value_type& data){ data = value; });
     }
 
     /// Pass set_all() a new value to which to update mData. set_all() will
     /// lock the mutex, update mData and then call notify_all() on the
     /// condition_variable.
-    void set_all(DATA&& value)
+    void set_all(value_type&& value)
     {
-        super::update_all([](DATA& data){ data = value; });
+        super::update_all([](value_type& data){ data = value; });
     }
 
     /**
@@ -213,9 +252,9 @@ public:
      * mutex and, until the stored DATA equals that value, calls wait() on the
      * condition_variable.
      */
-    void wait_equal(const DATA& value)
+    void wait_equal(const value_type& value)
     {
-        super::wait([&value](const DATA& data){ return (data == value); });
+        super::wait([&value](const value_type& data){ return (data == value); });
     }
 
     /**
@@ -228,10 +267,19 @@ public:
      */
     template <typename Clock, typename Duration>
     bool wait_until_equal(const std::chrono::time_point<Clock, Duration>& timeout_time,
-                          const DATA& value)
+                          const value_type& value)
     {
         return super::wait_until(timeout_time,
-                                 [&value](const DATA& data){ return (data == value); });
+                                 [&value](const value_type& data){ return (data == value); });
+    }
+
+    /**
+     * This wait_until_equal() overload accepts LLDate as the time_point. Its
+     * semantics are the same as the generic wait_until_equal() method.
+     */
+    bool wait_until_equal(const LLDate& timeout_time, const value_type& value)
+    {
+        return wait_until_equal(super::convert(timeout_time), value);
     }
 
     /**
@@ -244,10 +292,21 @@ public:
      */
     template <typename Rep, typename Period>
     bool wait_for_equal(const std::chrono::duration<Rep, Period>& timeout_duration,
-                        const DATA& value)
+                        const value_type& value)
     {
         return super::wait_for(timeout_duration,
-                               [&value](const DATA& data){ return (data == value); });
+                               [&value](const value_type& data){ return (data == value); });
+    }
+
+    /**
+     * This wait_for_equal() overload accepts F32Milliseconds as the duration.
+     * Any duration unit defined in llunits.h is implicitly convertible to
+     * F32Milliseconds. The semantics of this method are the same as the
+     * generic wait_for_equal() method.
+     */
+    bool wait_for_equal(F32Milliseconds timeout_duration, const value_type& value)
+    {
+        return wait_for_equal(super::convert(timeout_duration), value);
     }
 
     /**
@@ -255,9 +314,9 @@ public:
      * locks the mutex and, until the stored DATA no longer equals that value,
      * calls wait() on the condition_variable.
      */
-    void wait_unequal(const DATA& value)
+    void wait_unequal(const value_type& value)
     {
-        super::wait([&value](const DATA& data){ return (data != value); });
+        super::wait([&value](const value_type& data){ return (data != value); });
     }
 
     /**
@@ -270,10 +329,19 @@ public:
      */
     template <typename Clock, typename Duration>
     bool wait_until_unequal(const std::chrono::time_point<Clock, Duration>& timeout_time,
-                          const DATA& value)
+                            const value_type& value)
     {
         return super::wait_until(timeout_time,
-                                 [&value](const DATA& data){ return (data != value); });
+                                 [&value](const value_type& data){ return (data != value); });
+    }
+
+    /**
+     * This wait_until_unequal() overload accepts LLDate as the time_point.
+     * Its semantics are the same as the generic wait_until_unequal() method.
+     */
+    bool wait_until_unequal(const LLDate& timeout_time, const value_type& value)
+    {
+        return wait_until_unequal(super::convert(timeout_time), value);
     }
 
     /**
@@ -286,22 +354,48 @@ public:
      */
     template <typename Rep, typename Period>
     bool wait_for_unequal(const std::chrono::duration<Rep, Period>& timeout_duration,
-                        const DATA& value)
+                          const value_type& value)
     {
         return super::wait_for(timeout_duration,
-                               [&value](const DATA& data){ return (data != value); });
+                               [&value](const value_type& data){ return (data != value); });
     }
+
+    /**
+     * This wait_for_unequal() overload accepts F32Milliseconds as the duration.
+     * Any duration unit defined in llunits.h is implicitly convertible to
+     * F32Milliseconds. The semantics of this method are the same as the
+     * generic wait_for_unequal() method.
+     */
+    bool wait_for_unequal(F32Milliseconds timeout_duration, const value_type& value)
+    {
+        return wait_for_unequal(super::convert(timeout_duration), value);
+    }
+
+protected:
+    using super::convert;
 };
 
 /// Using bool as LLScalarCond's DATA seems like a particularly useful case
 using LLBoolCond = LLScalarCond<bool>;
 
-// LLOneShotCond -- init false, set (and wait for) true? Or full suite?
+/// LLOneShotCond -- init false, set (and wait for) true
 class LLOneShotCond: public LLBoolCond
 {
     using super = LLBoolCond;
 
 public:
+    using super::value_type;
+    using super::get;
+    using super::wait;
+    using super::wait_until;
+    using super::wait_for;
+    using super::wait_equal;
+    using super::wait_until_equal;
+    using super::wait_for_equal;
+    using super::wait_unequal;
+    using super::wait_until_unequal;
+    using super::wait_for_unequal;
+
     /// The bool stored in LLOneShotCond is initially false
     LLOneShotCond(): super(false) {}
 
@@ -323,7 +417,7 @@ public:
      */
     void wait()
     {
-        super::wait_equal(true);
+        super::wait_unequal(false);
     }
 
     /**
@@ -336,7 +430,16 @@ public:
     template <typename Clock, typename Duration>
     bool wait_until(const std::chrono::time_point<Clock, Duration>& timeout_time)
     {
-        return super::wait_until_equal(timeout_time, true);
+        return super::wait_until_unequal(timeout_time, false);
+    }
+
+    /**
+     * This wait_until() overload accepts LLDate as the time_point.
+     * Its semantics are the same as the generic wait_until() method.
+     */
+    bool wait_until(const LLDate& timeout_time)
+    {
+        return wait_until(super::convert(timeout_time));
     }
 
     /**
@@ -349,7 +452,18 @@ public:
     template <typename Rep, typename Period>
     bool wait_for(const std::chrono::duration<Rep, Period>& timeout_duration)
     {
-        return super::wait_for_equal(timeout_duration, true);
+        return super::wait_for_unequal(timeout_duration, false);
+    }
+
+    /**
+     * This wait_for() overload accepts F32Milliseconds as the duration.
+     * Any duration unit defined in llunits.h is implicitly convertible to
+     * F32Milliseconds. The semantics of this method are the same as the
+     * generic wait_for() method.
+     */
+    bool wait_for(F32Milliseconds timeout_duration)
+    {
+        return wait_for(super::convert(timeout_duration));
     }
 };
 
