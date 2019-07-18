@@ -39,7 +39,7 @@ template <typename DATA>
 class LLCond
 {
 public:
-    typedef value_type DATA;
+    typedef DATA value_type;
 
 private:
     // This is the DATA controlled by the condition_variable.
@@ -56,7 +56,7 @@ private:
 public:
     /// LLCond can be explicitly initialized with a specific value for mData if
     /// desired.
-    LLCond(value_type&& init=value_type()):
+    LLCond(const value_type& init=value_type()):
         mData(init)
     {}
 
@@ -169,11 +169,16 @@ public:
 
 protected:
     // convert F32Milliseconds to a chrono::duration
-    std::chrono::milliseconds convert(F32Milliseconds duration)
+    auto convert(F32Milliseconds duration)
     {
-        // extract the F32 milliseconds from F32Milliseconds, construct
-        // std::chrono::milliseconds from that value
-        return { duration.value() };
+        // std::chrono::milliseconds doesn't like to be constructed from a
+        // float (F32), rubbing our nose in the thought that
+        // std::chrono::duration::rep is probably integral. Therefore
+        // converting F32Milliseconds to std::chrono::milliseconds would lose
+        // precision. Use std::chrono::microseconds instead. Extract the F32
+        // milliseconds from F32Milliseconds, scale to microseconds, construct
+        // std::chrono::microseconds from that value.
+        return std::chrono::microseconds{ std::chrono::microseconds::rep(duration.value() * 1000) };
     }
 
 private:
@@ -224,31 +229,31 @@ class LLScalarCond: public LLCond<DATA>
     using super = LLCond<DATA>;
 
 public:
-    using super::value_type;
+    using typename super::value_type;
     using super::get;
     using super::wait;
     using super::wait_for;
 
     /// LLScalarCond can be explicitly initialized with a specific value for
     /// mData if desired.
-    LLCond(value_type&& init=value_type()):
+    LLScalarCond(const value_type& init=value_type()):
         super(init)
     {}
 
     /// Pass set_one() a new value to which to update mData. set_one() will
     /// lock the mutex, update mData and then call notify_one() on the
     /// condition_variable.
-    void set_one(value_type&& value)
+    void set_one(const value_type& value)
     {
-        super::update_one([](value_type& data){ data = value; });
+        super::update_one([&value](value_type& data){ data = value; });
     }
 
     /// Pass set_all() a new value to which to update mData. set_all() will
     /// lock the mutex, update mData and then call notify_all() on the
     /// condition_variable.
-    void set_all(value_type&& value)
+    void set_all(const value_type& value)
     {
-        super::update_all([](value_type& data){ data = value; });
+        super::update_all([&value](value_type& data){ data = value; });
     }
 
     /**
@@ -338,7 +343,7 @@ class LLOneShotCond: public LLBoolCond
     using super = LLBoolCond;
 
 public:
-    using super::value_type;
+    using typename super::value_type;
     using super::get;
     using super::wait;
     using super::wait_for;
