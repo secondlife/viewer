@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Auswahlen" name="panel_picks">
+	<string name="no_picks" value="Keine Auswahl"/>
+	<text name="Tell everyone about your favorite places in Second Life.">
+		Erzählen Sie von Ihren Lieblingsorten in Second Life.
+	</text>
+	<button label="Neu..." name="new_btn"/>
+	<button label="Löschen..." name="delete_btn"/>
+	<text name="picks_panel_text">
+		Laden...
+	</text>
+</panel>

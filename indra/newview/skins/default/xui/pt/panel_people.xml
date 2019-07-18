@@ -40,6 +40,7 @@ Em busca de alguém para conversar? Procure no [secondlife:///app/worldmap Mapa-
 			<accordion name="friends_accordion">
 				<accordion_tab name="tab_online" title="Online"/>
 				<accordion_tab name="tab_all" title="Todos"/>
+				<accordion_tab name="tab_suggested_friends" title="Pessoas que talvez você deseje adicionar"/>
 			</accordion>
 		</panel>
 		<panel label="GRUPOS" name="groups_panel">

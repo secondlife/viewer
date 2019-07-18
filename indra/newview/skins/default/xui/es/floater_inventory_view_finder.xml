@@ -6,7 +6,7 @@
 	<check_box label="Gestos" name="check_gesture"/>
 	<check_box label="Hitos" name="check_landmark"/>
 	<check_box label="Notas" name="check_notecard"/>
-	<check_box label="Redes" name="check_mesh"/>
+	<check_box label="Meshs" name="check_mesh"/>
 	<check_box label="Objetos" name="check_object"/>
 	<check_box label="Scripts" name="check_script"/>
 	<check_box label="Sonidos" name="check_sound"/>

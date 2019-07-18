@@ -9,12 +9,12 @@
 		<button label="接続..." name="connect_btn"/>
 		<button label="切断" name="disconnect_btn"/>
 		<text name="account_learn_more_label">
-			[http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-Share-Facebook/ta-p/2149711 Facebook への投稿について]]
+			[http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-Share-Facebook/ta-p/2149711 Facebook への投稿について]
 		</text>
 	</panel>
 	<text name="status_caption_label">
 		今、何を考えている?
 	</text>
 	<button label="投稿" name="post_status_btn"/>
-	<button label="取り消し" name="cancel_status_btn"/>
+	<button label="キャンセル" name="cancel_status_btn"/>
 </panel>

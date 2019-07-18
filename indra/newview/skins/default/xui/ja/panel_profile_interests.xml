@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="趣味" name="panel_profile_interests">
+	<text name="I Want To:">
+		次の内容を実行：
+	</text>
+	<check_box label="作る" name="chk0"/>
+	<check_box label="探検" name="chk1"/>
+	<check_box label="出会う" name="chk2"/>
+	<check_box label="雇ってもらう" name="chk6"/>
+	<check_box label="グループ" name="chk3"/>
+	<check_box label="買う" name="chk4"/>
+	<check_box label="販売する" name="chk5"/>
+	<check_box label="雇う" name="chk7"/>
+	<line_editor name="want_to_edit">
+		(ロード中...)
+	</line_editor>
+	<text name="Skills:">
+		スキル：
+	</text>
+	<check_box label="テクスチャ" name="schk0"/>
+	<check_box label="建築" name="schk1"/>
+	<check_box label="モデリング" name="schk3"/>
+	<check_box label="イベント計画" name="schk2"/>
+	<check_box label="スクリプト" name="schk4"/>
+	<check_box label="キャラクターのカスタマイズ" name="schk5"/>
+	<line_editor name="skills_edit">
+		(ロード中...)
+	</line_editor>
+	<text name="Languages:">
+		言語：
+	</text>
+	<line_editor name="languages_edit">
+		(ロード中...)
+	</line_editor>
+</panel>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_profile_classified">
+	<panel.string name="type_mature">
+		Orta
+	</panel.string>
+	<panel.string name="type_pg">
+		Genel İçerik
+	</panel.string>
+	<panel.string name="l$_price">
+		L$[PRICE]
+	</panel.string>
+	<panel.string name="click_through_text_fmt">
+		[TELEPORT] ışınlanma, [MAP] harita, [PROFILE] profil
+	</panel.string>
+	<panel.string name="date_fmt">
+		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
+	</panel.string>
+	<panel.string name="auto_renew_on">
+		Etkin
+	</panel.string>
+	<panel.string name="auto_renew_off">
+		Devre dışı
+	</panel.string>
+	<panel.string name="location_notice">
+		(kaydedildikten sonra güncellenir)
+	</panel.string>
+	<string name="publish_label">
+		Yayınla
+	</string>
+	<string name="save_label">
+		Kaydet
+	</string>
+	<scroll_container name="profile_scroll">
+		<panel name="info_scroll_content_panel">
+			<icon label="" name="edit_icon" tool_tip="Bir görüntü seçmek için tıklayın"/>
+			<layout_stack name="info_panel">
+				<layout_panel name="main_info_panel">
+					<text_editor name="classified_name">
+						[name]
+					</text_editor>
+					<text name="classified_location_label" value="Konum:"/>
+					<text_editor name="classified_location" value="[loading...]"/>
+					<text name="content_type_label" value="İçerik Türü:"/>
+					<text_editor name="content_type" value="[content type]"/>
+					<text name="category_label" value="Kategori:"/>
+					<text_editor name="category" value="[category]"/>
+					<text name="creation_date_label" value="Oluşturma tarihi:"/>
+					<text_editor name="creation_date" tool_tip="Oluşturma tarihi" value="[date]"/>
+					<text name="price_for_listing_label" value="İlan fiyatı:"/>
+					<text_editor name="price_for_listing" tool_tip="İlan fiyatı.">
+						[PRICE]
+					</text_editor>
+				</layout_panel>
+				<layout_panel name="clickthrough_layout_panel">
+					<text name="click_through_label" value="Tıklama sayısı:"/>
+					<text_editor name="click_through_text" tool_tip="Tıklama verileri" value="[clicks]"/>
+				</layout_panel>
+				<layout_panel name="auto_renew_layout_panel">
+					<text name="auto_renew_label" value="Otomatik yenileme:"/>
+					<text name="auto_renew" value="Etkin"/>
+				</layout_panel>
+				<layout_panel name="descr_layout_panel">
+					<text name="classified_desc_label" value="Açıklama:"/>
+					<text_editor name="classified_desc" value="[description]"/>
+				</layout_panel>
+			</layout_stack>
+			<panel name="edit_panel">
+				<text name="Name:">
+					Başlık:
+				</text>
+				<text name="description_label">
+					Açıklama:
+				</text>
+				<text name="location_label">
+					Konum:
+				</text>
+				<text name="classified_location_edit">
+					yükleniyor...
+				</text>
+				<button label="Geçerli Konuma Ayarla" name="set_to_curr_location_btn"/>
+				<text name="category_label" value="Kategori:"/>
+				<text name="content_type_label" value="İçerik türü:"/>
+				<icons_combo_box label="Genel İçerik" name="content_type_edit">
+					<icons_combo_box.item label="Orta İçerik" name="mature_ci" value="Yetişkin"/>
+					<icons_combo_box.item label="Genel İçerik" name="pg_ci" value="PG"/>
+				</icons_combo_box>
+				<check_box label="Her hafta otomatik yenile" name="auto_renew_edit"/>
+				<text name="price_for_listing_edit_label" value="İlan fiyatı:"/>
+				<spinner label="L$" name="price_for_listing_edit" tool_tip="İlan fiyatı." value="50"/>
+			</panel>
+		</panel>
+	</scroll_container>
+	<layout_stack name="edit_btns_pnl">
+		<layout_panel name="teleport_btn_lp">
+			<button label="Işınlanma" name="teleport_btn"/>
+		</layout_panel>
+		<layout_panel name="map_btn_lp">
+			<button label="Harita" name="show_on_map_btn"/>
+		</layout_panel>
+		<layout_panel name="edit_btn_lp">
+			<button label="Düzenle" name="edit_btn"/>
+		</layout_panel>
+		<layout_panel name="save_btn_lp">
+			<button label="[LABEL]" name="save_changes_btn"/>
+		</layout_panel>
+		<layout_panel name="cancel_btn_lp">
+			<button label="İptal Et" name="cancel_btn"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

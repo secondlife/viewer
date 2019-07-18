@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Профиль" name="panel_profile">
+	<string name="status_online">
+		В настоящее время в режиме онлайн
+	</string>
+	<string name="status_offline">
+		В настоящее время в режиме оффлайн
+	</string>
+	<string name="CaptionTextAcctInfo">
+		[ACCTTYPE]
+[PAYMENTINFO]
+	</string>
+	<string name="payment_update_link_url">
+		http://www.secondlife.com/account/billing.php?lang=en
+	</string>
+	<string name="partner_edit_link_url">
+		http://www.secondlife.com/account/partners.php?lang=en
+	</string>
+	<string name="my_account_link_url" value="http://secondlife.com/account"/>
+	<string name="no_partner_text" value="Никто"/>
+	<string name="no_group_text" value="Никто"/>
+	<string name="RegisterDateFormat">
+		[REG_DATE]
+	</string>
+	<string name="name_text_args">
+		[NAME]
+	</string>
+	<string name="display_name_text_args">
+		[DISPLAY_NAME]
+	</string>
+	<string name="FSDev" value="Разработчик"/>
+	<string name="FSSupp" value="Поддержка"/>
+	<string name="FSQualityAssurance" value="Отладчик"/>
+	<string name="FSGW" value="Межсетевой интерфейс"/>
+	<text name="name_label" value="Имя:"/>
+	<button label="Имя:" name="set_name" tool_tip="Задать отображаемое имя"/>
+	<panel name="name_holder">
+		<text_editor name="complete_name" value="(загрузка…)"/>
+	</panel>
+	<layout_stack name="imagepositioner">
+		<layout_panel name="label_stack">
+			<text name="status" value="Статус неизвестен"/>
+			<text name="label" value="Дата рождения в Second Life:"/>
+			<text name="label2" value="Аккаунт:"/>
+			<text name="partner_label" value="Партнер:"/>
+		</layout_panel>
+	</layout_stack>
+	<text name="Groups:" value="Группы:"/>
+	<button label="+" label_selected="+" name="group_invite" tool_tip="Пригласить в группу"/>
+	<layout_stack name="aboutpositioner">
+		<layout_panel name="about_stack">
+			<text name="About:" value="О нас:"/>
+		</layout_panel>
+		<layout_panel name="give_stack">
+			<text name="Give item:" value="Передать вещь:"/>
+			<text name="Give inventory" tool_tip="Сбросить вещи из инвентаря здесь для передачи их этому игроку.">
+				Сбросить вещь из инвентаря здесь.
+			</text>
+		</layout_panel>
+	</layout_stack>
+	<layout_stack name="buttonstack">
+		<layout_panel name="left_buttonstack">
+			<button label="Найти на карте" label_selected="Найти на карте" name="show_on_map_btn" tool_tip="Найти жителя на карте"/>
+			<button label="Оплатить" label_selected="Оплатить" name="pay" tool_tip="Выплатить деньги резиденту"/>
+		</layout_panel>
+		<layout_panel name="middle_buttonstack">
+			<button label="Предложить телепорт" label_selected="Предложить телепорт" name="teleport" tool_tip="Предложить телепорт этому жителю"/>
+			<button label="Мгновенное сообщение" label_selected="Мгновенное сообщение" name="im" tool_tip="Начать сеанс IM"/>
+		</layout_panel>
+		<layout_panel name="right_buttonstack">
+			<button label="Добавить друга" label_selected="Добавить друга" name="add_friend" tool_tip="Предложить дружбу этому жителю"/>
+			<button label="Заблокировать" name="block" tool_tip="Заблокировать этого жителя"/>
+			<button label="Разблокировать" name="unblock" tool_tip="Разблокировать этого жителя"/>
+		</layout_panel>
+	</layout_stack>
+	<check_box label="Показать в поиске" name="show_in_search_checkbox"/>
+</panel>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Веб" name="panel_profile_web">
+	<panel.string name="LoadTime" value="Время загрузки: [TIME] секунд"/>
+	<line_editor name="url_edit">
+		(загрузка…)
+	</line_editor>
+	<flyout_button label="Загрузить" name="load" tool_tip="Загрузить эту страницу с профилем с помощью встроенного веб-браузера.">
+		<flyout_button.item label="Открыть в просмотрщике браузера" name="open_item"/>
+		<flyout_button.item label="Открыть во внешнем браузере" name="home_item"/>
+	</flyout_button>
+	<button name="web_profile_popout_btn" tool_tip="Всплывающий веб-профиль"/>
+</panel>

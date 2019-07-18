@@ -355,7 +355,7 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
 			<text name="allow_label5">
-				Avatare in anderen Parzellen können Avatare in dieser Parzelle sehen und mit ihnen chatten
+				Avatare in anderen Parzellen können Avatare in dieser Parzelle sehen und mit ihnen chatten.
 			</text>
 			<check_box label="Avatare sehen" name="SeeAvatarsCheck" tool_tip="Gestattet sowohl Avataren auf anderen Parzellen, Avatare auf dieser Parzelle zu sehen und mit ihnen zu chatten, als auch Ihnen, diese Avatare auf anderen Parzellen zu sehen und mit ihnen zu chatten."/>
 			<text name="landing_point">

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Web" name="panel_profile_web">
+	<panel.string name="LoadTime" value="Yükleme Süresi: [TIME] saniye"/>
+	<line_editor name="url_edit">
+		(yükleniyor..)
+	</line_editor>
+	<flyout_button label="Yükle" name="load" tool_tip="Bu profil sayfasını tümleşik web tarayıcı ile yükleyin.">
+		<flyout_button.item label="Görüntüleyici içindeki tarayıcıda aç" name="open_item"/>
+		<flyout_button.item label="Dış tarayıcıda aç" name="home_item"/>
+	</flyout_button>
+	<button name="web_profile_popout_btn" tool_tip="Açılır web profili"/>
+</panel>

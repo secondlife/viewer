@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="avatarinfo" title="簡覽">
+	<panel name="panel_profile_view">
+		<tab_container name="panel_profile_tabs">
+			<panel label="第二人生" name="panel_profile_secondlife"/>
+			<panel label="網頁" name="panel_profile_web"/>
+			<panel label="興趣" name="panel_profile_interests"/>
+			<panel label="精選地點" name="panel_profile_picks"/>
+			<panel label="分類廣告" name="panel_profile_classifieds"/>
+			<panel label="真實世界" name="panel_profile_firstlife"/>
+			<panel label="筆記" name="panel_profile_notes"/>
+		</tab_container>
+		<button label="確定" name="ok_btn" tool_tip="儲存變更到個人檔案後關閉"/>
+		<button label="取消" label_selected="取消" name="cancel_btn"/>
+	</panel>
+</floater>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="avatarinfo" title="Profil">
+	<panel name="panel_profile_view">
+		<tab_container name="panel_profile_tabs">
+			<panel label="Second Life" name="panel_profile_secondlife"/>
+			<panel label="Web" name="panel_profile_web"/>
+			<panel label="İlgi alanları" name="panel_profile_interests"/>
+			<panel label="Favoriler" name="panel_profile_picks"/>
+			<panel label="İlan" name="panel_profile_classifieds"/>
+			<panel label="Gerçek Hayat" name="panel_profile_firstlife"/>
+			<panel label="Notlar" name="panel_profile_notes"/>
+		</tab_container>
+		<button label="Tamam" name="ok_btn" tool_tip="Değişiklikleri profile kaydet ve kapat"/>
+		<button label="İptal Et" label_selected="İptal Et" name="cancel_btn"/>
+	</panel>
+</floater>

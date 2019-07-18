@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Web" name="panel_profile_web">
+	<panel.string name="LoadTime" value="ロード時間：[TIME] 秒"/>
+	<line_editor name="url_edit">
+		(ロード中...)
+	</line_editor>
+	<flyout_button label="ロード" name="load" tool_tip="このプロフィールページを、組み込み Web ブラウザでロードします。">
+		<flyout_button.item label="ビューワ内のブラウザを開く" name="open_item"/>
+		<flyout_button.item label="外部ブラウザを開く" name="home_item"/>
+	</flyout_button>
+	<button name="web_profile_popout_btn" tool_tip="Web プロフィールのポップアウト"/>
+</panel>

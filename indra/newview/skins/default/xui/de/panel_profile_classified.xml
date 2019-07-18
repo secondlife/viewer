@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_profile_classified">
+	<panel.string name="type_mature">
+		Moderat
+	</panel.string>
+	<panel.string name="type_pg">
+		Generelle Inhalte
+	</panel.string>
+	<panel.string name="l$_price">
+		L$[PRICE]
+	</panel.string>
+	<panel.string name="click_through_text_fmt">
+		[TELEPORT] Teleportieren, [MAP] Karten, [PROFILE] Profil
+	</panel.string>
+	<panel.string name="date_fmt">
+		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
+	</panel.string>
+	<panel.string name="auto_renew_on">
+		Aktiviert
+	</panel.string>
+	<panel.string name="auto_renew_off">
+		Deaktiviert
+	</panel.string>
+	<panel.string name="location_notice">
+		(wird nach dem Speichern aktualisiert)
+	</panel.string>
+	<string name="publish_label">
+		Veröffentlichen
+	</string>
+	<string name="save_label">
+		Speichern
+	</string>
+	<scroll_container name="profile_scroll">
+		<panel name="info_scroll_content_panel">
+			<icon label="" name="edit_icon" tool_tip="Klicken, um ein Bild auszuwählen"/>
+			<layout_stack name="info_panel">
+				<layout_panel name="main_info_panel">
+					<text_editor name="classified_name">
+						[name]
+					</text_editor>
+					<text name="classified_location_label" value="Standort:"/>
+					<text_editor name="classified_location" value="[loading...]"/>
+					<text name="content_type_label" value="Inhaltsart:"/>
+					<text_editor name="content_type" value="[content type]"/>
+					<text name="category_label" value="Kategorie:"/>
+					<text_editor name="category" value="[category]"/>
+					<text name="creation_date_label" value="Erstellungsdatum:"/>
+					<text_editor name="creation_date" tool_tip="Erstellungsdatum" value="[date]"/>
+					<text name="price_for_listing_label" value="Preis für Auflistung:"/>
+					<text_editor name="price_for_listing" tool_tip="Preis für Auflistung.">
+						[PRICE]
+					</text_editor>
+				</layout_panel>
+				<layout_panel name="clickthrough_layout_panel">
+					<text name="click_through_label" value="Klicks:"/>
+					<text_editor name="click_through_text" tool_tip="Click-Through-Daten" value="[clicks]"/>
+				</layout_panel>
+				<layout_panel name="auto_renew_layout_panel">
+					<text name="auto_renew_label" value="Autom. erneuern:"/>
+					<text name="auto_renew" value="Aktiviert"/>
+				</layout_panel>
+				<layout_panel name="descr_layout_panel">
+					<text name="classified_desc_label" value="Beschreibung:"/>
+					<text_editor name="classified_desc" value="[description]"/>
+				</layout_panel>
+			</layout_stack>
+			<panel name="edit_panel">
+				<text name="Name:">
+					Titel:
+				</text>
+				<text name="description_label">
+					Beschreibung:
+				</text>
+				<text name="location_label">
+					Standort:
+				</text>
+				<text name="classified_location_edit">
+					Laden...
+				</text>
+				<button label="Aktuellen Standort verwenden" name="set_to_curr_location_btn"/>
+				<text name="category_label" value="Kategorie:"/>
+				<text name="content_type_label" value="Inhaltsart:"/>
+				<icons_combo_box label="Generelle Inhalte" name="content_type_edit">
+					<icons_combo_box.item label="Moderate Inhalte" name="mature_ci" value="Adult"/>
+					<icons_combo_box.item label="Generelle Inhalte" name="pg_ci" value="PG"/>
+				</icons_combo_box>
+				<check_box label="Jede Woche automatisch erneuern" name="auto_renew_edit"/>
+				<text name="price_for_listing_edit_label" value="Preis für Auflistung:"/>
+				<spinner label="L$" name="price_for_listing_edit" tool_tip="Preis für Auflistung." value="50"/>
+			</panel>
+		</panel>
+	</scroll_container>
+	<layout_stack name="edit_btns_pnl">
+		<layout_panel name="teleport_btn_lp">
+			<button label="Teleportieren" name="teleport_btn"/>
+		</layout_panel>
+		<layout_panel name="map_btn_lp">
+			<button label="Karte" name="show_on_map_btn"/>
+		</layout_panel>
+		<layout_panel name="edit_btn_lp">
+			<button label="Bearbeiten" name="edit_btn"/>
+		</layout_panel>
+		<layout_panel name="save_btn_lp">
+			<button label="[LABEL]" name="save_changes_btn"/>
+		</layout_panel>
+		<layout_panel name="cancel_btn_lp">
+			<button label="Abbrechen" name="cancel_btn"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

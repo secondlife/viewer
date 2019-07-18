@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Profil" name="panel_profile">
+	<string name="status_online">
+		Actuellement connecté
+	</string>
+	<string name="status_offline">
+		Actuellement déconnecté
+	</string>
+	<string name="CaptionTextAcctInfo">
+		[ACCTTYPE]
+[PAYMENTINFO]
+	</string>
+	<string name="payment_update_link_url">
+		http://www.secondlife.com/account/billing.php?lang=en
+	</string>
+	<string name="partner_edit_link_url">
+		http://www.secondlife.com/account/partners.php?lang=en
+	</string>
+	<string name="my_account_link_url" value="http://secondlife.com/account"/>
+	<string name="no_partner_text" value="Aucun"/>
+	<string name="no_group_text" value="Aucun"/>
+	<string name="RegisterDateFormat">
+		[REG_DATE]
+	</string>
+	<string name="name_text_args">
+		[NAME]
+	</string>
+	<string name="display_name_text_args">
+		[DISPLAY_NAME]
+	</string>
+	<string name="FSDev" value="Développeur"/>
+	<string name="FSSupp" value="Assistance"/>
+	<string name="FSQualityAssurance" value="Suivi des anomalies"/>
+	<string name="FSGW" value="Portail"/>
+	<text name="name_label" value="Nom :"/>
+	<button label="Nom :" name="set_name" tool_tip="Définir un nom d&apos;affichage"/>
+	<panel name="name_holder">
+		<text_editor name="complete_name" value="(en cours de chargement...)"/>
+	</panel>
+	<layout_stack name="imagepositioner">
+		<layout_panel name="label_stack">
+			<text name="status" value="Statut inconnu"/>
+			<text name="label" value="Date de naissance dans Second Life :"/>
+			<text name="label2" value="Compte :"/>
+			<text name="partner_label" value="Partenaire :"/>
+		</layout_panel>
+	</layout_stack>
+	<text name="Groups:" value="Groupes :"/>
+	<button label="+" label_selected="+" name="group_invite" tool_tip="Inviter dans le groupe"/>
+	<layout_stack name="aboutpositioner">
+		<layout_panel name="about_stack">
+			<text name="About:" value="À propos :"/>
+		</layout_panel>
+		<layout_panel name="give_stack">
+			<text name="Give item:" value="Donner des objets :"/>
+			<text name="Give inventory" tool_tip="Placer les objets de l&apos;inventaire ici pour les donner à cette personne">
+				Placer les objets de l&apos;inventaire ici.
+			</text>
+		</layout_panel>
+	</layout_stack>
+	<layout_stack name="buttonstack">
+		<layout_panel name="left_buttonstack">
+			<button label="Situer sur la carte" label_selected="Situer sur la carte" name="show_on_map_btn" tool_tip="Localiser le Résident sur la carte"/>
+			<button label="Payer" label_selected="Payer" name="pay" tool_tip="Payer le résident"/>
+		</layout_panel>
+		<layout_panel name="middle_buttonstack">
+			<button label="Proposer de téléporter" label_selected="Proposer de téléporter" name="teleport" tool_tip="Proposer une téléportation au Résident"/>
+			<button label="Message instantané" label_selected="Message instantané" name="im" tool_tip="Ouvrir une session IM."/>
+		</layout_panel>
+		<layout_panel name="right_buttonstack">
+			<button label="Ajouter un ami" label_selected="Ajouter un ami" name="add_friend" tool_tip="Proposer à ce résident de devenir votre ami"/>
+			<button label="Bloquer" name="block" tool_tip="Bloquer ce Résident"/>
+			<button label="Débloquer" name="unblock" tool_tip="Débloquer ce Résident"/>
+		</layout_panel>
+	</layout_stack>
+	<check_box label="Afficher avec la recherche" name="show_in_search_checkbox"/>
+</panel>

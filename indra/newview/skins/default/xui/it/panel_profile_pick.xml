@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_pick_info">
+	<panel.string name="location_notice">
+		(si aggiornerà dopo il salvataggio)
+	</panel.string>
+	<line_editor name="pick_location">
+		Caricamento in corso...
+	</line_editor>
+	<button label="Teletrasporto" name="teleport_btn"/>
+	<button label="Mostra sulla mappa" name="show_on_map_btn"/>
+	<button label="Imposta Luogo" name="set_to_curr_location_btn" tool_tip="Imposta come Luogo Attuale"/>
+	<button label="Salva Luogo preferito" name="save_changes_btn"/>
+</panel>

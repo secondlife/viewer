@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Объявление" name="panel_profile_classifieds">
+	<string name="no_classifieds" value="Нет рекламы"/>
+	<button label="Новый..." name="new_btn"/>
+	<button label="Удалить..." name="delete_btn"/>
+	<text name="classifieds_panel_text">
+		Загрузка...
+	</text>
+</panel>

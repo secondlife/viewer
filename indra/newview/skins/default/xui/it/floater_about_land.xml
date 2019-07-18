@@ -359,7 +359,7 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Clicca per scegliere una immagine"/>
 			<text name="allow_label5">
-				Gli avatar su altri lotti possono vedere gli avatar su questo lotto e chattare con loro
+				Gli avatar di altri lotti possono vedere gli avatar che si trovano in questo lotto e chattare con loro
 			</text>
 			<check_box label="Vedi avatar" name="SeeAvatarsCheck" tool_tip="Consente ad avatar in altri lotti di vedere e chattare con avatar in questo lotto e viceversa."/>
 			<text name="landing_point">
