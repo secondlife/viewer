@@ -145,6 +145,7 @@ set(llcommon_HEADER_FILES
     llcleanup.h
     llcommon.h
     llcommonutils.h
+    llcond.h
     llcoros.h
     llcrc.h
     llcriticaldamp.h
@@ -327,6 +328,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(commonmisc "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(bitpack "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llbase64 "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llcond "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lldate "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lldeadmantimer "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lldependencies "" "${test_libs}")
