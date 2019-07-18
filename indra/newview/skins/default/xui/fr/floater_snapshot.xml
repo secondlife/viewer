@@ -6,6 +6,9 @@
 	<string name="postcard_progress_str">
 		Envoi par e-mail
 	</string>
+	<string name="facebook_progress_str">
+		Publication sur Facebook
+	</string>
 	<string name="profile_progress_str">
 		Publication
 	</string>
@@ -14,6 +17,9 @@
 	</string>
 	<string name="local_progress_str">
 		Enregistrement sur l&apos;ordinateur
+	</string>
+	<string name="facebook_succeeded_str">
+		Image chargée
 	</string>
 	<string name="profile_succeeded_str">
 		Image chargée
@@ -26,6 +32,9 @@
 	</string>
 	<string name="local_succeeded_str">
 		Enregistrement sur l&apos;ordinateur effectué !
+	</string>
+	<string name="facebook_failed_str">
+		Échec de chargement de l&apos;image dans votre journal Facebook.
 	</string>
 	<string name="profile_failed_str">
 		Échec de chargement de l&apos;image sur le flux de votre profil.

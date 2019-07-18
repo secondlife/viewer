@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Примечания и конфиденциальность" name="panel_notes">
+	<text name="status_message" value="Личные заметки об этом аватаре:"/>
+	<text name="status_message2" value="Разрешить этому аватару:"/>
+	<check_box label="Смотреть, когда я в сети" name="status_check"/>
+	<check_box label="Найти меня на карте мира" name="map_check"/>
+	<check_box label="Редактировать, удалять или брать мои объекты" name="objects_check"/>
+</panel>

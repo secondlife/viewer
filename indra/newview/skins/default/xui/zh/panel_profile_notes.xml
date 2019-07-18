@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="筆記和隱私" name="panel_notes">
+	<text name="status_message" value="關於這化身的私人筆記："/>
+	<text name="status_message2" value="允許這個化身："/>
+	<check_box label="看見我何時上線" name="status_check"/>
+	<check_box label="在世界地圖上找到我" name="map_check"/>
+	<check_box label="邊輯，刪除或取下我的物件" name="objects_check"/>
+</panel>

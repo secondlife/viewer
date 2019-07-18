@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="メモとプライバシー" name="panel_notes">
+	<text name="status_message" value="このアバターのプライベートメモ："/>
+	<text name="status_message2" value="このアバターに次の許可を与える："/>
+	<check_box label="自分のオンラインステータスを表示する" name="status_check"/>
+	<check_box label="世界地図で自分を探せるようにする" name="map_check"/>
+	<check_box label="自分のオブジェクトを編集・削除・取得できるようにする" name="objects_check"/>
+</panel>

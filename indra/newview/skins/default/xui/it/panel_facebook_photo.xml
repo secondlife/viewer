@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <panel name="panel_facebook_photo">
-	<combo_box name="resolution_combobox" tool_tip="Risoluzione immagini">
+	<combo_box name="resolution_combobox" tool_tip="Risoluzione immagine">
 		<combo_box.item label="Finestra attuale" name="CurrentWindow"/>
 		<combo_box.item label="640x480" name="640x480"/>
 		<combo_box.item label="800x600" name="800x600"/>
 		<combo_box.item label="1024x768" name="1024x768"/>
 		<combo_box.item label="1200x630" name="1200x630"/>
 	</combo_box>
-	<combo_box name="filters_combobox" tool_tip="Filtri immagini">
+	<combo_box name="filters_combobox" tool_tip="Filtri immagine">
 		<combo_box.item label="Nessun filtro" name="NoFilter"/>
 	</combo_box>
 	<button label="Aggiorna" name="new_snapshot_btn" tool_tip="Fai clic per aggiornare"/>

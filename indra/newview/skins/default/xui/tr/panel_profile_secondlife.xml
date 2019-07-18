@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Profil" name="panel_profile">
+	<string name="status_online">
+		Şu Anda Çevrimiçi
+	</string>
+	<string name="status_offline">
+		Şu Anda Çevrimdışı
+	</string>
+	<string name="CaptionTextAcctInfo">
+		[ACCTTYPE]
+[PAYMENTINFO]
+	</string>
+	<string name="payment_update_link_url">
+		http://www.secondlife.com/account/billing.php?lang=en
+	</string>
+	<string name="partner_edit_link_url">
+		http://www.secondlife.com/account/partners.php?lang=en
+	</string>
+	<string name="my_account_link_url" value="http://secondlife.com/account"/>
+	<string name="no_partner_text" value="Yok"/>
+	<string name="no_group_text" value="Yok"/>
+	<string name="RegisterDateFormat">
+		[REG_DATE]
+	</string>
+	<string name="name_text_args">
+		[NAME]
+	</string>
+	<string name="display_name_text_args">
+		[DISPLAY_NAME]
+	</string>
+	<string name="FSDev" value="Geliştirici"/>
+	<string name="FSSupp" value="Destek"/>
+	<string name="FSQualityAssurance" value="Böcek bilimci"/>
+	<string name="FSGW" value="Ağ geçidi"/>
+	<text name="name_label" value="Ad:"/>
+	<button label="Ad:" name="set_name" tool_tip="Görünen Adı Ayarla"/>
+	<panel name="name_holder">
+		<text_editor name="complete_name" value="(yükleniyor...)"/>
+	</panel>
+	<layout_stack name="imagepositioner">
+		<layout_panel name="label_stack">
+			<text name="status" value="Durum Bilinmiyor"/>
+			<text name="label" value="Second Life Doğum Tarihi:"/>
+			<text name="label2" value="Hesap:"/>
+			<text name="partner_label" value="Ortak:"/>
+		</layout_panel>
+	</layout_stack>
+	<text name="Groups:" value="Gruplar:"/>
+	<button label="+" label_selected="+" name="group_invite" tool_tip="Gruba Davet Et"/>
+	<layout_stack name="aboutpositioner">
+		<layout_panel name="about_stack">
+			<text name="About:" value="Hakkında:"/>
+		</layout_panel>
+		<layout_panel name="give_stack">
+			<text name="Give item:" value="Öğe ver:"/>
+			<text name="Give inventory" tool_tip="Envanter öğelerini bu kişiye vermek için buraya bırakın.">
+				Envanter öğesini buraya bırakın.
+			</text>
+		</layout_panel>
+	</layout_stack>
+	<layout_stack name="buttonstack">
+		<layout_panel name="left_buttonstack">
+			<button label="Haritada Bul" label_selected="Haritada Bul" name="show_on_map_btn" tool_tip="Sakini haritada bul"/>
+			<button label="Öde" label_selected="Öde" name="pay" tool_tip="Sakine para öde"/>
+		</layout_panel>
+		<layout_panel name="middle_buttonstack">
+			<button label="Işınlanma Teklif Et" label_selected="Işınlanma Teklif Et" name="teleport" tool_tip="Sakine ışınlanma teklif et"/>
+			<button label="Anlık İleti" label_selected="Anlık İleti" name="im" tool_tip="Anlık ileti oturumu aç"/>
+		</layout_panel>
+		<layout_panel name="right_buttonstack">
+			<button label="Arkadaş Ekle" label_selected="Arkadaş Ekle" name="add_friend" tool_tip="Sakine arkadaşlık teklif et"/>
+			<button label="Engelle" name="block" tool_tip="Bu Sakini engelle"/>
+			<button label="Engellemeyi Kaldır" name="unblock" tool_tip="Bu Sakinin engellemesini kaldır"/>
+		</layout_panel>
+	</layout_stack>
+	<check_box label="Aramada göster" name="show_in_search_checkbox"/>
+</panel>

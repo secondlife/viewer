@@ -356,7 +356,7 @@
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="写真をクリックして選択"/>
 			<text name="allow_label5">
-				他の区画にいるアバターがこの区画にいるアバターに会ってチャットできる
+				他の区画にいるアバターがこの区画にいるアバターに会ってチャットできます
 			</text>
 			<check_box label="アバターを表示" name="SeeAvatarsCheck" tool_tip="他の区画のアバターが、この区画にいるアバターに会ってチャットすることを許可し、あなたもそれらアバターに会ってチャットできるようにします。"/>
 			<text name="landing_point">

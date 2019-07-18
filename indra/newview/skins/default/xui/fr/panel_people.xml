@@ -40,6 +40,7 @@ Pour rechercher des résidents avec qui passer du temps, utilisez [secondlife://
 			<accordion name="friends_accordion">
 				<accordion_tab name="tab_online" title="En ligne"/>
 				<accordion_tab name="tab_all" title="Tout"/>
+				<accordion_tab name="tab_suggested_friends" title="Personnes avec lesquelles vous aimeriez peut-être devenir ami(e)"/>
 			</accordion>
 		</panel>
 		<panel label="GROUPES" name="groups_panel">

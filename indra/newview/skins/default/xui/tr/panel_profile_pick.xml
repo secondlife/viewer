@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_pick_info">
+	<panel.string name="location_notice">
+		(kaydedildikten sonra güncellenir)
+	</panel.string>
+	<line_editor name="pick_location">
+		Yükleniyor...
+	</line_editor>
+	<button label="Işınlanma" name="teleport_btn"/>
+	<button label="Haritada Göster" name="show_on_map_btn"/>
+	<button label="Konumu Ayarla" name="set_to_curr_location_btn" tool_tip="Geçerli Konuma Ayarla"/>
+	<button label="Favoriyi Kaydet" name="save_changes_btn"/>
+</panel>

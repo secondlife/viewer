@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <panel name="panel_facebook_friends">
-	<string name="facebook_friends_empty" value="Сейчас у вас нет друзей по Facebook, которые также были бы жителями Second Life. Предложите своим друзьям по Facebook присоединиться к Second Life!"/>
+	<string name="facebook_friends_empty" value="Сейчас у вас нет друзей в Facebook, которые являются также жителями Second Life. Предложите своим друзьям в Facebook присоединиться к Second Life!"/>
 	<string name="facebook_friends_no_connected" value="Сейчас вы не подключены к Facebook. Перейдите на вкладку «Статус», чтобы подключиться и включить эту функцию."/>
 	<accordion name="friends_accordion">
 		<accordion_tab name="tab_second_life_friends" title="Друзья по SL"/>

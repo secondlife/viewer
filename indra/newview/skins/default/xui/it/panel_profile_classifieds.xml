@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Annuncio" name="panel_profile_classifieds">
+	<string name="no_classifieds" value="Nessuno annuncio"/>
+	<button label="Nuovo..." name="new_btn"/>
+	<button label="Elimina..." name="delete_btn"/>
+	<text name="classifieds_panel_text">
+		Caricamento in corso...
+	</text>
+</panel>

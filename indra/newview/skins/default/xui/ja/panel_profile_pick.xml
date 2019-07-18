@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_pick_info">
+	<panel.string name="location_notice">
+		（掲載後更新）
+	</panel.string>
+	<line_editor name="pick_location">
+		ロード中...
+	</line_editor>
+	<button label="テレポート" name="teleport_btn"/>
+	<button label="地図に表示" name="show_on_map_btn"/>
+	<button label="場所を設定" name="set_to_curr_location_btn" tool_tip="現在地に設定"/>
+	<button label="ピックを保存" name="save_changes_btn"/>
+</panel>

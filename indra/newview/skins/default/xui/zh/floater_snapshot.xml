@@ -6,6 +6,9 @@
 	<string name="postcard_progress_str">
 		正在發送電郵
 	</string>
+	<string name="facebook_progress_str">
+		發佈到臉書
+	</string>
 	<string name="profile_progress_str">
 		發佈
 	</string>
@@ -14,6 +17,9 @@
 	</string>
 	<string name="local_progress_str">
 		正在存到電腦
+	</string>
+	<string name="facebook_succeeded_str">
+		圖像已上傳
 	</string>
 	<string name="profile_succeeded_str">
 		圖像已上傳
@@ -26,6 +32,9 @@
 	</string>
 	<string name="local_succeeded_str">
 		成功存入電腦！
+	</string>
+	<string name="facebook_failed_str">
+		上傳圖像到你的臉書時間線時失敗。
 	</string>
 	<string name="profile_failed_str">
 		上傳圖像到你的檔案訊息發佈時出錯。

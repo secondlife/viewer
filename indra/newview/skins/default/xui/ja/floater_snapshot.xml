@@ -6,6 +6,9 @@
 	<string name="postcard_progress_str">
 		メールの送信
 	</string>
+	<string name="facebook_progress_str">
+		Facebook へ投稿中
+	</string>
 	<string name="profile_progress_str">
 		投稿
 	</string>
@@ -14,6 +17,9 @@
 	</string>
 	<string name="local_progress_str">
 		コンピュータに保存
+	</string>
+	<string name="facebook_succeeded_str">
+		画像がアップロードされました
 	</string>
 	<string name="profile_succeeded_str">
 		画像がアップロードされました
@@ -26,6 +32,9 @@
 	</string>
 	<string name="local_succeeded_str">
 		コンピュータに保存されました
+	</string>
+	<string name="facebook_failed_str">
+		Facebook のタイムラインに画像をアップロードできませんでした。
 	</string>
 	<string name="profile_failed_str">
 		プロフィールフィードに画像をアップロードできませんでした。

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Anotações e Privacidade" name="panel_notes">
+	<text name="status_message" value="Notas particulares neste avatar:"/>
+	<text name="status_message2" value="Permitir que esse avatar:"/>
+	<check_box label="Ver quando eu estiver conectado" name="status_check"/>
+	<check_box label="Encontre-me no mapa-múndi" name="map_check"/>
+	<check_box label="Pegar, editar ou excluir objetos meus" name="objects_check"/>
+</panel>

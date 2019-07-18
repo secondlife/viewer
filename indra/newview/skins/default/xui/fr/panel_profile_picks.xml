@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Favoris" name="panel_picks">
+	<string name="no_picks" value="Pas de favoris"/>
+	<text name="Tell everyone about your favorite places in Second Life.">
+		Faites connaître aux autres résidents vos endroits favoris dans Second Life.
+	</text>
+	<button label="Nouveau..." name="new_btn"/>
+	<button label="Supprimer..." name="delete_btn"/>
+	<text name="picks_panel_text">
+		En cours de chargement...
+	</text>
+</panel>

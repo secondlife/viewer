@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Favoriler" name="panel_picks">
+	<string name="no_picks" value="Favori Yok"/>
+	<text name="Tell everyone about your favorite places in Second Life.">
+		Second Life&apos;ta favori yerlerinizi herkese anlatın!
+	</text>
+	<button label="Yeni..." name="new_btn"/>
+	<button label="Sil..." name="delete_btn"/>
+	<text name="picks_panel_text">
+		Yükleniyor...
+	</text>
+</panel>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_pick_info">
+	<panel.string name="location_notice">
+		(mise à jour après enregistrement)
+	</panel.string>
+	<line_editor name="pick_location">
+		En cours de chargement...
+	</line_editor>
+	<button label="Téléportation" name="teleport_btn"/>
+	<button label="Voir sur la carte" name="show_on_map_btn"/>
+	<button label="Définir l&apos;emplacement" name="set_to_curr_location_btn" tool_tip="Définir sur l’emplacement actuel"/>
+	<button label="Enregistrer les favoris" name="save_changes_btn"/>
+</panel>

@@ -6,7 +6,7 @@
 		Pas connecté(e) à Facebook.
 	</text>
 	<panel name="panel_buttons">
-		<button label="Connexion..." name="connect_btn"/>
+		<button label="Connexion en cours..." name="connect_btn"/>
 		<button label="Déconnexion" name="disconnect_btn"/>
 		<text name="account_learn_more_label">
 			[http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-Share-Facebook/ta-p/2149711 Apprenez comment publier sur Facebook]

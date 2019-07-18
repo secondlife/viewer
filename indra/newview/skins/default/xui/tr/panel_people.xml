@@ -40,6 +40,7 @@ Birlikte takılacak kişiler mi arıyorsunuz? [secondlife:///app/worldmap Dünya
 			<accordion name="friends_accordion">
 				<accordion_tab name="tab_online" title="Çevrimiçi"/>
 				<accordion_tab name="tab_all" title="Tümü"/>
+				<accordion_tab name="tab_suggested_friends" title="Arkadaş olmak isteyebileceğiniz kişiler"/>
 			</accordion>
 		</panel>
 		<panel label="GRUPLAR" name="groups_panel">

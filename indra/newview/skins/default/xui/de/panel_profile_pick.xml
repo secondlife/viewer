@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_pick_info">
+	<panel.string name="location_notice">
+		(wird nach dem Speichern aktualisiert)
+	</panel.string>
+	<line_editor name="pick_location">
+		Laden...
+	</line_editor>
+	<button label="Teleportieren" name="teleport_btn"/>
+	<button label="Auf Karte anzeigen" name="show_on_map_btn"/>
+	<button label="Standort festlegen" name="set_to_curr_location_btn" tool_tip="Aktuellen Standort verwenden"/>
+	<button label="Auswahl speichern" name="save_changes_btn"/>
+</panel>

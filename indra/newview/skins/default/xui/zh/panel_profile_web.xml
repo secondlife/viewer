@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="網頁" name="panel_profile_web">
+	<panel.string name="LoadTime" value="載入時間：[TIME]秒"/>
+	<line_editor name="url_edit">
+		（載入中…）
+	</line_editor>
+	<flyout_button label="載入" name="load" tool_tip="用內嵌瀏覽器載入此個人檔案頁面。">
+		<flyout_button.item label="開啓内部瀏覽器" name="open_item"/>
+		<flyout_button.item label="開啓外部瀏覽器" name="home_item"/>
+	</flyout_button>
+	<button name="web_profile_popout_btn" tool_tip="彈出式個人檔案網頁"/>
+</panel>

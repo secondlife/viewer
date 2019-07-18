@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_pick_info">
+	<panel.string name="location_notice">
+		（儲存後將會更新）
+	</panel.string>
+	<line_editor name="pick_location">
+		載入中…
+	</line_editor>
+	<button label="瞬間傳送" name="teleport_btn"/>
+	<button label="顯示在地圖上" name="show_on_map_btn"/>
+	<button label="設定位置" name="set_to_curr_location_btn" tool_tip="設定為目前位置"/>
+	<button label="儲存精選地點" name="save_changes_btn"/>
+</panel>

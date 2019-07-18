@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <panel name="panel_facebook_status">
 	<string name="facebook_connected" value="Facebook&apos;a şu kimlikle bağlandınız:"/>
-	<string name="facebook_disconnected" value="Facebook&apos;a bağlanılmadı"/>
+	<string name="facebook_disconnected" value="Facebook&apos;a bağlanılamadı"/>
 	<text name="account_caption_label">
-		Facebook&apos;a bağlanılmadı.
+		Facebook&apos;a bağlanılamadı.
 	</text>
 	<panel name="panel_buttons">
 		<button label="Bağlan..." name="connect_btn"/>
@@ -13,8 +13,8 @@
 		</text>
 	</panel>
 	<text name="status_caption_label">
-		Ne düşünüyorsunuz?
+		Aklınızdan ne geçiyor?
 	</text>
 	<button label="Yayınla" name="post_status_btn"/>
-	<button label="İptal" name="cancel_status_btn"/>
+	<button label="İptal Et" name="cancel_status_btn"/>
 </panel>

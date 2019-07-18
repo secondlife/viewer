@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <panel name="panel_facebook_photo">
 	<combo_box name="resolution_combobox" tool_tip="Görüntü çözünürlüğü">
-		<combo_box.item label="Mevcut Pencere" name="CurrentWindow"/>
+		<combo_box.item label="Geçerli Pencere" name="CurrentWindow"/>
 		<combo_box.item label="640x480" name="640x480"/>
 		<combo_box.item label="800x600" name="800x600"/>
 		<combo_box.item label="1024x768" name="1024x768"/>
@@ -11,10 +11,10 @@
 		<combo_box.item label="Filtre Yok" name="NoFilter"/>
 	</combo_box>
 	<button label="Yenile" name="new_snapshot_btn" tool_tip="Yenilemek için tıklayın"/>
-	<button label="Önizleme" name="big_preview_btn" tool_tip="Önizleme ayarları arasında geçiş yapmak için tıklayın"/>
+	<button label="Önizleme" name="big_preview_btn" tool_tip="Önizlemeye geçmek için tıklayın"/>
 	<text name="caption_label">
 		Yorum (isteğe bağlı):
 	</text>
 	<button label="Yayınla" name="post_photo_btn"/>
-	<button label="İptal" name="cancel_photo_btn"/>
+	<button label="İptal Et" name="cancel_photo_btn"/>
 </panel>

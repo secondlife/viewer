@@ -2,10 +2,10 @@
 <panel name="panel_facebook_photo">
 	<combo_box name="resolution_combobox" tool_tip="Bildauflösung">
 		<combo_box.item label="Aktuelles Fenster" name="CurrentWindow"/>
-		<combo_box.item label="640x480" name="640x480"/>
-		<combo_box.item label="800x600" name="800x600"/>
-		<combo_box.item label="1024x768" name="1024x768"/>
-		<combo_box.item label="1200x630" name="1200x630"/>
+		<combo_box.item label="640 x 480" name="640x480"/>
+		<combo_box.item label="800 x 600" name="800x600"/>
+		<combo_box.item label="1024 x 768" name="1024x768"/>
+		<combo_box.item label="1200 x 630" name="1200x630"/>
 	</combo_box>
 	<combo_box name="filters_combobox" tool_tip="Bildfilter">
 		<combo_box.item label="Kein Filter" name="NoFilter"/>

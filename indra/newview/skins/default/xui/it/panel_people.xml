@@ -40,6 +40,7 @@ Stai cercando persone da frequentare? Prova la [secondlife:///app/worldmap Mappa
 			<accordion name="friends_accordion">
 				<accordion_tab name="tab_online" title="Online"/>
 				<accordion_tab name="tab_all" title="Tutto"/>
+				<accordion_tab name="tab_suggested_friends" title="Persone che potresti voler aggiungere agli amici"/>
 			</accordion>
 		</panel>
 		<panel label="GRUPPI" name="groups_panel">
