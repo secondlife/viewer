@@ -2567,7 +2567,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				MASK mask = gKeyboard->currentMask(TRUE);
 				// generate move event to update mouse coordinates
 				window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
-				if (window_imp->mCallbacks->handleOtherMouseDown(window_imp, gl_coord, mask, button))
+				// Windows uses numbers 1 and 2 for buttons, remap to 4, 5
+				if (window_imp->mCallbacks->handleOtherMouseDown(window_imp, gl_coord, mask, button + 3))
 				{
 					return 0;
 				}
@@ -2597,7 +2598,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				MASK mask = gKeyboard->currentMask(TRUE);
 				// generate move event to update mouse coordinates
 				window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
-				if (window_imp->mCallbacks->handleOtherMouseUp(window_imp, gl_coord, mask, button))
+				// Windows uses numbers 1 and 2 for buttons, remap to 4, 5
+				if (window_imp->mCallbacks->handleOtherMouseUp(window_imp, gl_coord, mask, button + 3))
 				{
 					return 0;
 				}

@@ -1288,11 +1288,11 @@ BOOL LLViewerWindow::handleOtherMouse(LLWindow *window, LLCoordGL pos, MASK mask
 {
     switch (button)
     {
-    case 1:
+    case 4:
         LLVoiceClient::getInstance()->updateMouseState(LLMouseHandler::CLICK_BUTTON4, down);
         handleAnyMouseClick(window, pos, mask, LLMouseHandler::CLICK_BUTTON4, down);
         break;
-    case 2:
+    case 5:
         LLVoiceClient::getInstance()->updateMouseState(LLMouseHandler::CLICK_BUTTON5, down);
         handleAnyMouseClick(window, pos, mask, LLMouseHandler::CLICK_BUTTON5, down);
         break;

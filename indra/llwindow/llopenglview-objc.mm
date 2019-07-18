@@ -444,7 +444,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
     NSPoint mPoint = gHiDPISupport ? [self convertPointToBacking:[theEvent locationInWindow]] : [theEvent locationInWindow];
     mMousePos[0] = mPoint.x;
     mMousePos[1] = mPoint.y;
-	callMiddleMouseDown(mMousePos, [theEvent modifierFlags]);
+    callOtherMouseDown(mMousePos, [theEvent modifierFlags], [theEvent buttonNumber]);
 }
 
 - (void) otherMouseUp:(NSEvent *)theEvent
@@ -452,7 +452,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
     NSPoint mPoint = gHiDPISupport ? [self convertPointToBacking:[theEvent locationInWindow]] : [theEvent locationInWindow];
     mMousePos[0] = mPoint.x;
     mMousePos[1] = mPoint.y;
-	callMiddleMouseUp(mMousePos, [theEvent modifierFlags]);
+    callOtherMouseUp(mMousePos, [theEvent modifierFlags], [theEvent buttonNumber]);
 }
 
 - (void) rightMouseDragged:(NSEvent *)theEvent
