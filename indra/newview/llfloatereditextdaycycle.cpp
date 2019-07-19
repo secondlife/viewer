@@ -1009,9 +1009,8 @@ void LLFloaterEditExtDayCycle::onFrameSliderMouseDown(S32 x, S32 y, MASK mask)
 
     if (!slidername.empty())
     {
-        F32 sliderval = mFramesSlider->getSliderValue(slidername);
-
-        if (fabs(sliderval - sliderpos) > LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)
+        LLRect thumb_rect = mFramesSlider->getSliderThumbRect(slidername);
+        if ((x >= thumb_rect.mRight) || (x <= thumb_rect.mLeft))
         {
             mFramesSlider->resetCurSlider();
         }
