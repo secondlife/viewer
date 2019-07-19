@@ -426,13 +426,14 @@ void callOtherMouseDown(float *pos, MASK mask, int button)
 	gWindowImplementation->getMouseDeltas(deltas);
 	outCoords.mX += deltas[0];
 	outCoords.mY += deltas[1];
-    if (button == 3)
+
+    if (button == 2)
     {
         gWindowImplementation->getCallbacks()->handleMiddleMouseDown(gWindowImplementation, outCoords, mask);
     }
     else
     {
-        gWindowImplementation->getCallbacks()->handleOtherMouseDown(gWindowImplementation, outCoords, mask, button);
+        gWindowImplementation->getCallbacks()->handleOtherMouseDown(gWindowImplementation, outCoords, mask, button + 1);
     }
 }
 
@@ -445,13 +446,13 @@ void callOtherMouseUp(float *pos, MASK mask, int button)
 	gWindowImplementation->getMouseDeltas(deltas);
 	outCoords.mX += deltas[0];
     outCoords.mY += deltas[1];
-    if (button == 3)
+    if (button == 2)
     {
         gWindowImplementation->getCallbacks()->handleMiddleMouseUp(gWindowImplementation, outCoords, mask);
     }
     else
     {
-        gWindowImplementation->getCallbacks()->handleOtherMouseUp(gWindowImplementation, outCoords, mask, button);
+        gWindowImplementation->getCallbacks()->handleOtherMouseUp(gWindowImplementation, outCoords, mask, button + 1);
     }
 }
 
