@@ -348,12 +348,8 @@ void LLGLSLShader::unloadInternal()
 
         for (GLsizei i = 0; i < count; i++)
         {
-            // avoid opengl errors when multiple programs link a common shader obj
-            if (glIsShader(obj[i]))
-            {
-                glDetachObjectARB(mProgramObject, obj[i]);
-                glDeleteObjectARB(obj[i]);
-            }
+            glDetachObjectARB(mProgramObject, obj[i]);
+            glDeleteObjectARB(obj[i]);
         }
 
         glDeleteObjectARB(mProgramObject);
