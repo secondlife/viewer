@@ -2634,6 +2634,7 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="Debits">Debits</string>
 	<string name="Total">Total</string>
 	<string name="NoGroupDataFound">No group data found for group </string>
+	<string name="AlreadyInGroup">You are already in this group </string>
 
 	<!-- floater IM bonus_info: When a Linden with Admin/god status receives a new IM this displays the estate (Mainland vs. teen grid) of the source avatar.
 		This is to help Lindens when answering questions. -->

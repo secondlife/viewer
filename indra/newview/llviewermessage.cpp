@@ -5153,12 +5153,27 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
             }
         }
 
-		// Error Notification can come with and without reason
-		if (notificationID == "JoinGroupError" && llsdBlock.has("reason"))
-		{
-			LLNotificationsUtil::add("JoinGroupErrorReason", llsdBlock);
-			return true;
-		}
+        // Error Notification can come with and without reason
+        if (notificationID == "JoinGroupError")
+        {
+            if (llsdBlock.has("reason"))
+            {
+                LLNotificationsUtil::add("JoinGroupErrorReason", llsdBlock);
+                return true;
+            }
+            if (llsdBlock.has("group_id"))
+            {
+                LLGroupData agent_gdatap;
+                bool is_member = gAgent.getGroupData(llsdBlock["group_id"].asUUID(), agent_gdatap);
+                if (is_member)
+                {
+                    LLSD args;
+                    args["reason"] = LLTrans::getString("AlreadyInGroup");
+                    LLNotificationsUtil::add("JoinGroupErrorReason", args);
+                    return true;
+                }
+            }
+        }
 
 		LLNotificationsUtil::add(notificationID, llsdBlock);
 		return true;
