@@ -5522,6 +5522,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						}
 
 						LLMaterial* mat = te->getMaterialParams().get();
+                        bool fullbright = te->getFullbright();
 
 						if (mat && LLPipeline::sRenderDeferred)
 						{
@@ -5536,15 +5537,18 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 								alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
 							}
 
-							if (!is_alpha || te_alpha > 0.f)  // //only add the face if it will actually be visible
+                            if (fullbright && (alpha_mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE))
+                            {
+                                pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT);
+                            }
+							else if (!is_alpha || te_alpha > 0.f)  // //only add the face if it will actually be visible
 							{ 
 								U32 mask = mat->getShaderMask(alpha_mode);
 								pool->addRiggedFace(facep, mask);
 							}
 						}
 						else if (mat)
-						{
-							bool fullbright = te->getFullbright();
+						{							
 							bool is_alpha = type == LLDrawPool::POOL_ALPHA;
 							U8 mode = mat->getDiffuseAlphaMode();
 							bool can_be_shiny = mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE ||
