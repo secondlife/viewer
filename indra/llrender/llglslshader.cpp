@@ -344,13 +344,17 @@ void LLGLSLShader::unloadInternal()
     {
         GLhandleARB obj[1024];
         GLsizei count;
+        glGetAttachedObjectsARB(mProgramObject, 1024, &count, obj);
 
-        glGetAttachedObjectsARB(mProgramObject, sizeof(obj)/sizeof(obj[0]), &count, obj);
         for (GLsizei i = 0; i < count; i++)
         {
-            glDetachObjectARB(mProgramObject, obj[i]);
+            // avoid opengl errors when multiple programs link a common shader obj
+            if (glIsShader(obj[i]))
+            {
+                glDetachObjectARB(mProgramObject, obj[i]);
                 glDeleteObjectARB(obj[i]);
             }
+        }
 
         glDeleteObjectARB(mProgramObject);
 

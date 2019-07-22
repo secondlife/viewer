@@ -408,7 +408,7 @@ void LLRenderPass::renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL t
 
 void LLRenderPass::renderTexture(U32 type, U32 mask, BOOL batch_textures)
 {
-	pushBatches(type, mask, batch_textures);
+	pushBatches(type, mask, true, batch_textures);
 }
 
 void LLRenderPass::pushBatches(U32 type, U32 mask, BOOL texture, BOOL batch_textures)
