@@ -22,7 +22,6 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-uniform vec4 gamma;
 uniform vec4 lightnorm;
 uniform vec4 sunlight_color;
 uniform vec4 moonlight_color;

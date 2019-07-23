@@ -44,7 +44,6 @@ uniform sampler3D single_mie_scattering_texture;
 uniform sampler2D irradiance_texture;
 uniform sampler2D rainbow_map;
 uniform sampler2D halo_map;
-uniform vec4 gamma;
 
 uniform float moisture_level;
 uniform float droplet_radius;

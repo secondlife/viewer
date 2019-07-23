@@ -64,7 +64,6 @@ VARYING vec3 pos;
 // The fragment shader for the sky
 /////////////////////////////////////////////////////////////////////////
 
-uniform vec4 gamma;
 uniform sampler2D rainbow_map;
 uniform sampler2D halo_map;
 
