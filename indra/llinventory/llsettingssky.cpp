@@ -1000,7 +1000,7 @@ LLVector3 LLSettingsSky::getLightDirection() const
         return mMoonDirection;
     }
 
-    return LLVector3::z_axis;
+    return -LLVector3::z_axis;
 }
 
 LLColor3 LLSettingsSky::getLightDiffuse() const
