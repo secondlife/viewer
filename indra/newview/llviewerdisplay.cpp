@@ -592,6 +592,18 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	// Actually push all of our triangles to the screen.
 	//
 
+	// do render-to-texture stuff here
+	if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_DYNAMIC_TEXTURES))
+	{
+		LLAppViewer::instance()->pingMainloopTimeout("Display:DynamicTextures");
+		LL_RECORD_BLOCK_TIME(FTM_UPDATE_DYNAMIC_TEXTURES);
+		if (LLViewerDynamicTexture::updateAllInstances())
+		{
+			gGL.setColorMask(true, true);
+			glClear(GL_DEPTH_BUFFER_BIT);
+		}
+	}
+
 	gViewerWindow->setup3DViewport();
 
 	gPipeline.resetFrameStats();	// Reset per-frame statistics.
@@ -1022,26 +1034,10 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		if (!for_snapshot)
 		{
 			render_ui();
-		}
-
-        // do render-to-texture stuff here
-	    if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_DYNAMIC_TEXTURES))
-	    {
-		    LLAppViewer::instance()->pingMainloopTimeout("Display:DynamicTextures");
-		    LL_RECORD_BLOCK_TIME(FTM_UPDATE_DYNAMIC_TEXTURES);
-		    if (LLViewerDynamicTexture::updateAllInstances())
-		    {
-			    gGL.setColorMask(true, true);
-			    glClear(GL_DEPTH_BUFFER_BIT);
-		    }
-	    }
-
-        LLAppViewer::instance()->pingMainloopTimeout("Display:RenderUI");
-		if (!for_snapshot)
-		{
 			swap();
 		}
 
+		
 		LLSpatialGroup::sNoDelete = FALSE;
 		gPipeline.clearReferences();
 

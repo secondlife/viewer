@@ -650,8 +650,6 @@ public:
 	//water distortion texture (refraction)
 	LLRenderTarget				mWaterDis;
 
-    LLRenderTarget				mBake;
-
 	//texture for making the glow
 	LLRenderTarget				mGlow[3];
 

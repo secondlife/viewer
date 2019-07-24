@@ -88,9 +88,6 @@ public:
 	static BOOL	updateAllInstances();
 	static void destroyGL() ;
 	static void restoreGL() ;
-
-    void setBoundTarget(LLRenderTarget* target) { mBoundTarget = target; }
-
 protected:
 	void generateGLTexture();
 	void generateGLTexture(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format, BOOL swap_bytes = FALSE);
@@ -100,8 +97,6 @@ protected:
 	LLCoordGL mOrigin;
 	LL_ALIGN_16(LLCamera mCamera);
 	
-    LLRenderTarget* mBoundTarget;
-
 	typedef std::set<LLViewerDynamicTexture*> instance_list_t;
 	static instance_list_t sInstances[ LLViewerDynamicTexture::ORDER_COUNT ];
 	static S32 sNumRenders;
