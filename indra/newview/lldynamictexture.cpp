@@ -129,7 +129,7 @@ void LLViewerDynamicTexture::preRender(BOOL clear_depth)
 	llassert(mFullHeight <= 512);
 	llassert(mFullWidth <= 512);
 
-	if (gGLManager.mHasFramebufferObject && gPipeline.mWaterDis.isComplete() && !gGLManager.mIsATI)
+	if (gGLManager.mHasFramebufferObject && gPipeline.mBake.isComplete())
 	{ //using offscreen render target, just use the bottom left corner
 		mOrigin.set(0, 0);
 	}
@@ -216,11 +216,12 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 		return TRUE;
 	}
 
-	bool use_fbo = gGLManager.mHasFramebufferObject && gPipeline.mWaterDis.isComplete() && !gGLManager.mIsATI;
+	bool use_fbo = gGLManager.mHasFramebufferObject && gPipeline.mBake.isComplete();
 
 	if (use_fbo)
 	{
-		gPipeline.mWaterDis.bindTarget();
+		gPipeline.mBake.bindTarget();
+        gPipeline.mBake.clear();
 	}
 
 	LLGLSLShader::bindNoShader();
@@ -240,6 +241,7 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 				gDepthDirty = TRUE;
 								
 				gGL.color4f(1,1,1,1);
+                dynamicTexture->setBoundTarget(use_fbo ? &gPipeline.mBake : nullptr);
 				dynamicTexture->preRender();	// Must be called outside of startRender()
 				result = FALSE;
 				if (dynamicTexture->render())
@@ -250,7 +252,7 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 				}
 				gGL.flush();
 				LLVertexBuffer::unbind();
-				
+				dynamicTexture->setBoundTarget(nullptr);
 				dynamicTexture->postRender(result);
 			}
 		}
@@ -258,8 +260,10 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 
 	if (use_fbo)
 	{
-		gPipeline.mWaterDis.flush();
+		gPipeline.mBake.flush();
 	}
+
+    gGL.flush();
 
 	return ret;
 }

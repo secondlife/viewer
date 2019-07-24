@@ -1162,6 +1162,7 @@ void LLPipeline::releaseGLBuffers()
 
 	mWaterRef.release();
 	mWaterDis.release();
+    mBake.release();
 	mHighlight.release();
 	
 	for (U32 i = 0; i < 3; i++)
@@ -1224,6 +1225,9 @@ void LLPipeline::createGLBuffers()
         mWaterRef.allocate(res,res,GL_RGBA,TRUE,FALSE);
         mWaterDis.allocate(res,res,GL_RGBA,TRUE,FALSE,LLTexUnit::TT_TEXTURE);
     }
+
+    // Use FBO for bake tex
+    mBake.allocate(512, 512, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_TEXTURE, true);
 
 	mHighlight.allocate(256,256,GL_RGBA, FALSE, FALSE);
 
@@ -1395,7 +1399,7 @@ bool LLPipeline::canUseVertexShaders()
 bool LLPipeline::canUseWindLightShaders() const
 {
 	return (!LLPipeline::sDisableShaders &&
-			/*gWLSkyProgram.mProgramObject != 0 &&*/
+			gWLSkyProgram.mProgramObject != 0 &&
 			LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1);
 }
 
