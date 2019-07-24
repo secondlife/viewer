@@ -474,6 +474,8 @@ public:
 	void updateInventoryLocal(LLInventoryItem* item, U8 key); // Update without messaging.
 	void updateTextureInventory(LLViewerInventoryItem* item, U8 key, bool is_new);
 	LLInventoryObject* getInventoryObject(const LLUUID& item_id);
+
+	// Get content except for root category
 	void getInventoryContents(LLInventoryObject::object_list_t& objects);
 	LLInventoryObject* getInventoryRoot();
 	LLViewerInventoryItem* getInventoryItemByAsset(const LLUUID& asset_id);
