@@ -1395,7 +1395,7 @@ bool LLPipeline::canUseVertexShaders()
 bool LLPipeline::canUseWindLightShaders() const
 {
 	return (!LLPipeline::sDisableShaders &&
-			gWLSkyProgram.mProgramObject != 0 &&
+			/*gWLSkyProgram.mProgramObject != 0 &&*/
 			LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1);
 }
 
