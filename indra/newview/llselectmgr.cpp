@@ -4163,20 +4163,20 @@ void LLSelectMgr::packMultipleUpdate(LLSelectNode* node, void *user_data)
 
 	if (type & UPD_POSITION)
 	{
-		htonmemcpy(&data[offset], &(object->getPosition().mV), MVT_LLVector3, 12); 
+		htolememcpy(&data[offset], &(object->getPosition().mV), MVT_LLVector3, 12); 
 		offset += 12;
 	}
 	if (type & UPD_ROTATION)
 	{
 		LLQuaternion quat = object->getRotation();
 		LLVector3 vec = quat.packToVector3();
-		htonmemcpy(&data[offset], &(vec.mV), MVT_LLQuaternion, 12); 
+		htolememcpy(&data[offset], &(vec.mV), MVT_LLQuaternion, 12); 
 		offset += 12;
 	}
 	if (type & UPD_SCALE)
 	{
 		//LL_INFOS() << "Sending object scale " << object->getScale() << LL_ENDL;
-		htonmemcpy(&data[offset], &(object->getScale().mV), MVT_LLVector3, 12); 
+		htolememcpy(&data[offset], &(object->getScale().mV), MVT_LLVector3, 12); 
 		offset += 12;
 	}
 	gMessageSystem->addBinaryDataFast(_PREHASH_Data, data, offset);
