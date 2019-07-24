@@ -725,6 +725,7 @@ public:
     LLPointer<LLControlAvatar> mControlAvatar;
 
 	// Extended attributes, initially used for animated object visual params but general mechanism.
+	LLSD getVisualParamsSD() const;
 	void applyExtendedAttributes();
 	void applyExtendedAttributesVisualParams();
 

@@ -551,11 +551,16 @@ void LLControlAvatar::updateDebugText()
                 type_string += "-";
             }
         }
-        addDebugText(llformat("CAV obj %d anim %d active %s impost %d upprd %d strcst %f",
+		S32 num_visual_params = 0;
+		LLSD visual_params_sd = mRootVolp->getVisualParamsSD();
+		if (visual_params_sd.isMap())
+		{
+			num_visual_params = visual_params_sd.size();
+		}
+        addDebugText(llformat("CAV obj %d anim %d active %s impost %d upprd %d strcst %f vis_params %d",
                               total_linkset_count, animated_volume_count, 
-                              active_string.c_str(), (S32) isImpostor(), getUpdatePeriod(), streaming_cost));
-        addDebugText(llformat("types %s lods %s", type_string.c_str(), lod_string.c_str()));
-        addDebugText(llformat("flags %s", animated_object_flag_string.c_str()));
+                              active_string.c_str(), (S32) isImpostor(), getUpdatePeriod(), streaming_cost, num_visual_params));
+        addDebugText(llformat("types %s lods %s flags %s", type_string.c_str(), lod_string.c_str(),animated_object_flag_string.c_str()));
         addDebugText(llformat("tris %d (est %.1f, streaming %.1f), verts %d", total_tris, est_tris, est_streaming_tris, total_verts));
         addDebugText(llformat("pxarea %s rank %d", LLStringOps::getReadableNumber(getPixelArea()).c_str(), getVisibilityRank()));
         addDebugText(llformat("lod_radius %s dists %s", LLStringOps::getReadableNumber(lod_radius).c_str(),cam_dist_string.c_str()));

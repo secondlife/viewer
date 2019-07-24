@@ -6882,6 +6882,17 @@ public:
 	}
 };
 
+LLSD LLViewerObject::getVisualParamsSD() const
+{
+	const LLUUID& object_id = getID();
+	LLSD params_sd = LLObjectExtendedAttributesMap::instance().getField(object_id, "VisualParams");
+	if (params_sd.isMap())
+	{
+		return params_sd;
+	}
+	return LLSD();
+}
+
 // Apply currently 
 void LLViewerObject::applyExtendedAttributes()
 {
