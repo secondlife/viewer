@@ -129,8 +129,6 @@ void main()
 	// Add "minimum anti-solar illumination"
 	temp2.x += .25;
 
-    //temp2.x *= sun_moon_glow_factor;
-
     vec4 color = (    blue_horizon * blue_weight * (sunlight + ambient_color)
                 + (haze_horizon * haze_weight) * (sunlight * temp2.x + ambient_color)
              );
