@@ -2040,7 +2040,6 @@ bool LLAppViewer::cleanup()
 	LLUIImageList::getInstance()->cleanUp();
 
 	// This should eventually be done in LLAppViewer
-	SUBSYSTEM_CLEANUP(LLImage);
 	SUBSYSTEM_CLEANUP(LLVFSThread);
 	SUBSYSTEM_CLEANUP(LLLFSThread);
 
@@ -2148,7 +2147,7 @@ bool LLAppViewer::initThreads()
 {
 	static const bool enable_threads = true;
 
-	LLImage::initClass(gSavedSettings.getBOOL("TextureNewByteRange"),gSavedSettings.getS32("TextureReverseByteRange"));
+	LLImage::initParamSingleton(gSavedSettings.getBOOL("TextureNewByteRange"),gSavedSettings.getS32("TextureReverseByteRange"));
 
 	LLVFSThread::initClass(enable_threads && false);
 	LLLFSThread::initClass(enable_threads && false);

@@ -1289,7 +1289,7 @@ bool idle_startup()
 		display_startup();
 		LLStartUp::setStartupState( STATE_MULTIMEDIA_INIT );
 		
-		LLConversationLog::getInstance();
+		LLConversationLog::initParamSingleton();
 
 		return FALSE;
 	}
