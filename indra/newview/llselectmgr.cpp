@@ -5861,15 +5861,18 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 
 		BOOL is_hud_object = objectp->isHUDAttachment();
 
+		if (!is_hud_object)
+		{
+			gGL.loadIdentity();
+			gGL.multMatrix(gGLModelView);
+		}
+
 		if (objectp->mDrawable->isActive())
 		{
-			gGL.loadMatrix(gGLModelView);
 			gGL.multMatrix((F32*)objectp->getRenderMatrix().mMatrix);
 		}
 		else if (!is_hud_object)
 		{
-			gGL.loadIdentity();
-			gGL.multMatrix(gGLModelView);
 			LLVector3 trans = objectp->getRegion()->getOriginAgent();
 			gGL.translatef(trans.mV[0], trans.mV[1], trans.mV[2]);
 		}
@@ -5953,6 +5956,10 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
                     if (objectp->getID() == inspect_item_id)
                     {
                         hlColor = sHighlightInspectColor;
+                    }
+                    else if (node->isTransient())
+                    {
+                        hlColor = sContextSilhouetteColor;
                     }
                     renderMeshSelection_f(node, objectp, hlColor);
                 }
