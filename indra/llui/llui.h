@@ -243,13 +243,13 @@ public:
 						  LLUIAudioCallback deferred_audio_callback = NULL,
 						  const LLVector2 *scale_factor = NULL,
 						  const std::string& language = LLStringUtil::null);
-	static void cleanupClass();
+
 	static void setPopupFuncs(const add_popup_t& add_popup, const remove_popup_t&, const clear_popups_t& );
 
-	static void pushMatrix() { LLRender2D::pushMatrix(); }
-	static void popMatrix() { LLRender2D::popMatrix(); }
-	static void loadIdentity() { LLRender2D::loadIdentity(); }
-	static void translate(F32 x, F32 y, F32 z = 0.0f) { LLRender2D::translate(x, y, z); }
+	static void pushMatrix() { LLRender2D::getInstance()->pushMatrix(); }
+	static void popMatrix() { LLRender2D::getInstance()->popMatrix(); }
+	static void loadIdentity() { LLRender2D::getInstance()->loadIdentity(); }
+	static void translate(F32 x, F32 y, F32 z = 0.0f) { LLRender2D::getInstance()->translate(x, y, z); }
 
 	static LLRect	sDirtyRect;
 	static BOOL		sDirty;
@@ -294,13 +294,13 @@ public:
 	static void getMousePositionScreen(S32 *x, S32 *y);
 	static void setMousePositionLocal(const LLView* viewp, S32 x, S32 y);
 	static void getMousePositionLocal(const LLView* viewp, S32 *x, S32 *y);
-	static LLVector2& getScaleFactor() { return LLRender2D::sGLScaleFactor; }
-	static void setScaleFactor(const LLVector2& scale_factor) { LLRender2D::setScaleFactor(scale_factor); }
-	static void setLineWidth(F32 width) { LLRender2D::setLineWidth(width); }
+	static LLVector2& getScaleFactor() { return LLRender2D::getInstance()->mGLScaleFactor; }
+	static void setScaleFactor(const LLVector2& scale_factor) { LLRender2D::getInstance()->setScaleFactor(scale_factor); }
+	static void setLineWidth(F32 width) { LLRender2D::getInstance()->setLineWidth(width); }
 	static LLPointer<LLUIImage> getUIImageByID(const LLUUID& image_id, S32 priority = 0)
-		{ return LLRender2D::getUIImageByID(image_id, priority); }
+		{ return LLRender2D::getInstance()->getUIImageByID(image_id, priority); }
 	static LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority = 0)
-		{ return LLRender2D::getUIImage(name, priority); }
+		{ return LLRender2D::getInstance()->getUIImage(name, priority); }
 	static LLVector2 getWindowSize();
 	static void screenPointToGL(S32 screen_x, S32 screen_y, S32 *gl_x, S32 *gl_y);
 	static void glPointToScreen(S32 gl_x, S32 gl_y, S32 *screen_x, S32 *screen_y);

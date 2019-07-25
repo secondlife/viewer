@@ -1886,7 +1886,6 @@ bool LLAppViewer::cleanup()
 	LLPrimitive::cleanupVolumeManager();
 	SUBSYSTEM_CLEANUP(LLWorldMapView);
 	SUBSYSTEM_CLEANUP(LLFolderViewItem);
-	SUBSYSTEM_CLEANUP(LLUI);
 
 	//
 	// Shut down the VFS's AFTER the decode manager cleans up (since it cleans up vfiles).
