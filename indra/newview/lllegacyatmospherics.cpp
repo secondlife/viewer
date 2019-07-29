@@ -242,7 +242,8 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(AtmosphericsVars& vars, const LLVecto
 
 	calcSkyColorWLVert(Pn, vars);
 
-	LLColor3 sky_color =  (isShiny || !gPipeline.canUseWindLightShaders()) ? vars.hazeColor : psky->gammaCorrect(vars.hazeColor * 2.0f);
+	LLColor3 sky_color =  isShiny ? vars.hazeColor : 
+                          !gPipeline.canUseWindLightShaders() ? vars.hazeColor * 2.0f : psky->gammaCorrect(vars.hazeColor * 2.0f);
 
 	if (isShiny)
 	{
