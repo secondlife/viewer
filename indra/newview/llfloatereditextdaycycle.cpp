@@ -699,7 +699,15 @@ void LLFloaterEditExtDayCycle::onSaveAsCommit(const LLSD& notification, const LL
     if (0 == option)
     {
         std::string settings_name = response["message"].asString();
-        LLStringUtil::trim(settings_name);
+
+        LLInventoryObject::correctInventoryName(settings_name);
+        if (settings_name.empty())
+        {
+            // Ideally notification should disable 'OK' button if name won't fit our requirements,
+            // for now either display notification, or use some default name
+            settings_name = "Unnamed";
+        }
+
         if (mCanMod)
         {
             doApplyCreateNewInventory(day, settings_name);
