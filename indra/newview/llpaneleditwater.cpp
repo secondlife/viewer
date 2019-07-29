@@ -130,15 +130,15 @@ void LLPanelSettingsWaterMainTab::setEnabled(BOOL enabled)
 //==========================================================================
 void LLPanelSettingsWaterMainTab::refresh()
 {
-    if (!mWaterSettings || !getCanChangeSettings())
+    if (!mWaterSettings)
     {
         setAllChildrenEnabled(FALSE);
         setEnabled(FALSE);
         return;
     }
 
-    setEnabled(TRUE);
-    setAllChildrenEnabled(TRUE);
+    setEnabled(getCanChangeSettings());
+    setAllChildrenEnabled(getCanChangeSettings());
     mClrFogColor->set(mWaterSettings->getWaterFogColor());
     getChild<LLUICtrl>(FIELD_WATER_FOG_DENSITY)->setValue(mWaterSettings->getWaterFogDensity());
     getChild<LLUICtrl>(FIELD_WATER_UNDERWATER_MOD)->setValue(mWaterSettings->getFogMod());
