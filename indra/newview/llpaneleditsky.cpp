@@ -173,15 +173,15 @@ void LLPanelSettingsSkyAtmosTab::setEnabled(BOOL enabled)
 
 void LLPanelSettingsSkyAtmosTab::refresh()
 {
-    if (!mSkySettings || !getCanChangeSettings())
+    if (!mSkySettings)
     {
         setAllChildrenEnabled(FALSE);
         setEnabled(FALSE);
         return;
     }
 
-    setEnabled(TRUE);
-    setAllChildrenEnabled(TRUE);
+    setEnabled(getCanChangeSettings());
+    setAllChildrenEnabled(getCanChangeSettings());
 
     getChild<LLColorSwatchCtrl>(FIELD_SKY_AMBIENT_LIGHT)->set(mSkySettings->getAmbientColor() / SLIDER_SCALE_SUN_AMBIENT);
     getChild<LLColorSwatchCtrl>(FIELD_SKY_BLUE_HORIZON)->set(mSkySettings->getBlueHorizon() / SLIDER_SCALE_BLUE_HORIZON_DENSITY);
@@ -359,15 +359,15 @@ void LLPanelSettingsSkyCloudTab::setEnabled(BOOL enabled)
 
 void LLPanelSettingsSkyCloudTab::refresh()
 {
-    if (!mSkySettings || !getCanChangeSettings())
+    if (!mSkySettings)
     {
         setAllChildrenEnabled(FALSE);
         setEnabled(FALSE);
         return;
     }
 
-    setEnabled(TRUE);
-    setAllChildrenEnabled(TRUE);
+    setEnabled(getCanChangeSettings());
+    setAllChildrenEnabled(getCanChangeSettings());
 
     getChild<LLColorSwatchCtrl>(FIELD_SKY_CLOUD_COLOR)->set(mSkySettings->getCloudColor());
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_COVERAGE)->setValue(mSkySettings->getCloudShadow());
@@ -512,7 +512,7 @@ void LLPanelSettingsSkySunMoonTab::setEnabled(BOOL enabled)
 
 void LLPanelSettingsSkySunMoonTab::refresh()
 {
-    if (!mSkySettings || !getCanChangeSettings())
+    if (!mSkySettings)
     {
         getChildView(PANEL_SKY_SUN_LAYOUT)->setAllChildrenEnabled(FALSE);
         getChildView(PANEL_SKY_MOON_LAYOUT)->setAllChildrenEnabled(FALSE);
@@ -521,8 +521,10 @@ void LLPanelSettingsSkySunMoonTab::refresh()
         return;
     }
 
-    setEnabled(TRUE);
-    setAllChildrenEnabled(TRUE);
+    setEnabled(getCanChangeSettings());
+    getChildView(PANEL_SKY_SUN_LAYOUT)->setAllChildrenEnabled(getCanChangeSettings());
+    getChildView(PANEL_SKY_MOON_LAYOUT)->setAllChildrenEnabled(getCanChangeSettings());
+    setAllChildrenEnabled(getCanChangeSettings());
 
     getChild<LLColorSwatchCtrl>(FIELD_SKY_SUN_MOON_COLOR)->set(mSkySettings->getSunlightColor() / SLIDER_SCALE_SUN_AMBIENT);
 
@@ -693,15 +695,15 @@ void LLPanelSettingsSkyDensityTab::setEnabled(BOOL enabled)
 
 void LLPanelSettingsSkyDensityTab::refresh()
 {
-    if (!mSkySettings || !getCanChangeSettings())
+    if (!mSkySettings)
     {
         setAllChildrenEnabled(FALSE);
         setEnabled(FALSE);
         return;
     }
 
-    setEnabled(TRUE);
-    setAllChildrenEnabled(TRUE);
+    setEnabled(getCanChangeSettings());
+    setAllChildrenEnabled(getCanChangeSettings());
 
     // Get first (only) profile layer of each type for editing
     LLSD rayleigh_config    = mSkySettings->getRayleighConfig();
