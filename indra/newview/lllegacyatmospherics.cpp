@@ -306,6 +306,7 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 	// this is used later for sunlight modulation at various altitudes
 	LLColor3 light_atten = vars.light_atten;
     LLColor3 light_transmittance = psky->getLightTransmittance(Plen);
+    (void)light_transmittance; // silence Clang warn-error
 
 	// Calculate relative weights
 	LLColor3 temp2(0.f, 0.f, 0.f);
