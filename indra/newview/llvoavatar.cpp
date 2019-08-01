@@ -78,6 +78,7 @@
 #include "llselectmgr.h"
 #include "llsprite.h"
 #include "lltargetingmotion.h"
+#include "lltoolmgr.h"
 #include "lltoolmorph.h"
 #include "llviewercamera.h"
 #include "llviewertexlayer.h"
@@ -7286,6 +7287,26 @@ void LLVOAvatar::sitOnObject(LLViewerObject *sit_object)
 		{
 			gAgentCamera.changeCameraToMouselook();
 		}
+
+        if (gAgentCamera.getFocusOnAvatar() && LLToolMgr::getInstance()->inEdit())
+        {
+            LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();
+            if (node && node->mValid)
+            {
+                LLViewerObject* root_object = node->getObject();
+                if (root_object == sit_object)
+                {
+                    LLFloaterTools::sPreviousFocusOnAvatar = true;
+                    if (!gSavedSettings.getBOOL("EditCameraMovement"))
+                    {
+                        // always freeze camera in space, even if camera doesn't move
+                        // so, for example, follow cam scripts can't affect you when in build mode
+                        gAgentCamera.setFocusGlobal(gAgentCamera.calcFocusPositionTargetGlobal(), LLUUID::null);
+                        gAgentCamera.setFocusOnAvatar(FALSE, ANIMATE);
+                    }
+                }
+            }
+        }
 	}
 
 	if (mDrawable.isNull())
