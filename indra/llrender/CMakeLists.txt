@@ -80,6 +80,7 @@ set(llrender_HEADER_FILES
     llshadermgr.h
     lltexture.h
     lluiimage.h
+    lluiimage.inl
     llvertexbuffer.h
     llglcommonfunc.h
     )
