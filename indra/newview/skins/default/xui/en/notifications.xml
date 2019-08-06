@@ -3577,6 +3577,30 @@ You can either check your Internet connection and try again in a few minutes, cl
 
   <notification
    icon="alertmodal.tga"
+   name="LoginPacketNeverReceivedNoTP"
+   type="alertmodal">
+    <tag>fail</tag>
+We&apos;re having trouble connecting. There may be a problem with your Internet connection or the [SECOND_LIFE_GRID].
+
+You can either check your Internet connection and try again in a few minutes or click Help to view the [SUPPORT_SITE].
+    <url option="1" name="url">
+			http://secondlife.com/support/
+    </url>
+    <form name="form">
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Help"
+       text="Help"/>
+    </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="WelcomeChooseSex"
    type="alertmodal">
 Your character will appear in a moment.
