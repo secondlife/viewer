@@ -2526,7 +2526,6 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			if (mdl[i].has("Weights"))
 			{
 				face.allocateWeights(num_verts);
-                face.allocateJointIndices(num_verts);
 
 				LLSD::Binary weights = mdl[i]["Weights"];
 
@@ -2566,13 +2565,6 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
                     if (wsum <= 0.f)
                     {
                         wght = LLVector4(0.999f,0.f,0.f,0.f);
-                    }
-                    if (face.mJointIndices)
-                    {
-                        for (U32 k=0; k<4; k++)
-                        {
-                            face.mJointIndices[cur_vertex * 4 + k] = llclamp((U8)joints[k], (U8)0, (U8)110);
-                        }
                     }
                     for (U32 k=0; k<4; k++)
                     {
@@ -4664,7 +4656,10 @@ LLVolumeFace::LLVolumeFace() :
 	mTexCoords(NULL),
 	mIndices(NULL),
 	mWeights(NULL),
+#if USE_SEPARATE_JOINT_INDICES_AND_WEIGHTS
+    mJustWeights(NULL),
     mJointIndices(NULL),
+#endif
     mWeightsScrubbed(FALSE),
 	mOctree(NULL),
 	mOptimized(FALSE)
@@ -4691,7 +4686,10 @@ LLVolumeFace::LLVolumeFace(const LLVolumeFace& src)
 	mTexCoords(NULL),
 	mIndices(NULL),
 	mWeights(NULL),
+#if USE_SEPARATE_JOINT_INDICES_AND_WEIGHTS
+    mJustWeights(NULL),
     mJointIndices(NULL),
+#endif
     mWeightsScrubbed(FALSE),
 	mOctree(NULL)
 { 
@@ -4768,19 +4766,22 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
             mWeightsScrubbed = FALSE;
 		}   
 
+    #if USE_SEPARATE_JOINT_INDICES_AND_WEIGHTS
         if (src.mJointIndices)
         {
             llassert(!mJointIndices); // don't orphan an old alloc here accidentally
             allocateJointIndices(src.mNumVertices);
             LLVector4a::memcpyNonAliased16((F32*) mJointIndices, (F32*) src.mJointIndices, src.mNumVertices * sizeof(U8) * 4);
         }
-        else
+        else*/
         {
             ll_aligned_free_16(mJointIndices);
             mJointIndices = NULL;
         }     
-	}
+    #endif
 
+	}
+    
 	if (mNumIndices)
 	{
 		S32 idx_size = (mNumIndices*sizeof(U16)+0xF) & ~0xF;
@@ -4823,8 +4824,13 @@ void LLVolumeFace::freeData()
 	mTangents = NULL;
 	ll_aligned_free_16(mWeights);
 	mWeights = NULL;
+
+#if USE_SEPARATE_JOINT_INDICES_AND_WEIGHTS
     ll_aligned_free_16(mJointIndices);
 	mJointIndices = NULL;
+    ll_aligned_free_16(mJustWeights);
+	mJustWeights = NULL;
+#endif
 
 	delete mOctree;
 	mOctree = NULL;
@@ -5479,13 +5485,17 @@ bool LLVolumeFace::cacheOptimize()
 	// DO NOT free mNormals and mTexCoords as they are part of mPositions buffer
 	ll_aligned_free_16(mWeights);
 	ll_aligned_free_16(mTangents);
+#if USE_SEPARATE_JOINT_INDICES_AND_WEIGHTS
     ll_aligned_free_16(mJointIndices);
+    ll_aligned_free_16(mJustWeights);
+    mJustWeights = NULL;
+    mJointIndices = NULL; // filled in later as necessary by skinning code for acceleration
+#endif
 
 	mPositions = pos;
 	mNormals = norm;
 	mTexCoords = tc;
-	mWeights = wght;
-    mJointIndices = NULL; // filled in later as necessary by skinning code for acceleration
+	mWeights = wght;    
 	mTangents = binorm;
 
 	//std::string result = llformat("ACMR pre/post: %.3f/%.3f  --  %d triangles %d breaks", pre_acmr, post_acmr, mNumIndices/3, breaks);
@@ -6401,8 +6411,13 @@ void LLVolumeFace::allocateWeights(S32 num_verts)
 
 void LLVolumeFace::allocateJointIndices(S32 num_verts)
 {
+#if USE_SEPARATE_JOINT_INDICES_AND_WEIGHTS
     ll_aligned_free_16(mJointIndices);
+    ll_aligned_free_16(mJustWeights);
+
     mJointIndices = (U8*)ll_aligned_malloc_16(sizeof(U8) * 4 * num_verts);    
+    mJustWeights = (LLVector4a*)ll_aligned_malloc_16(sizeof(LLVector4a) * num_verts);    
+#endif
 }
 
 void LLVolumeFace::resizeIndices(S32 num_indices)

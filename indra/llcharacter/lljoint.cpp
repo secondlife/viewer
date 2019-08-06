@@ -303,16 +303,17 @@ void LLJoint::removeChild(LLJoint* joint)
 //--------------------------------------------------------------------
 void LLJoint::removeAllChildren()
 {
-	for (joints_t::iterator iter = mChildren.begin();
-		 iter != mChildren.end();)
+	for (LLJoint* joint : mChildren)
 	{
-		joints_t::iterator curiter = iter++;
-		LLJoint* joint = *curiter;
-		mChildren.erase(curiter);
-		joint->mXform.setParent(NULL);
-		joint->mParent = NULL;
-		joint->touch();
+		if (joint)
+        {
+		    joint->mXform.setParent(NULL);
+		    joint->mParent = NULL;
+		    joint->touch();
+            //delete joint;
+        }
 	}
+    mChildren.clear();
 }
 
 

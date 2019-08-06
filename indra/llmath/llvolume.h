@@ -956,7 +956,11 @@ public:
 	// format is mWeights[vertex_index].mV[influence] = <joint_index>.<weight>
 	// mWeights.size() should be empty or match mVertices.size()  
 	LLVector4a* mWeights;
+
+#if USE_SEPARATE_JOINT_INDICES_AND_WEIGHTS
+    LLVector4a* mJustWeights;
     U8* mJointIndices;
+#endif
 
     mutable BOOL mWeightsScrubbed;
 
