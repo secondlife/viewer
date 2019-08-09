@@ -246,6 +246,7 @@ set(viewer_SOURCE_FILES
     llfloaterexperiences.cpp
     llfloaterflickr.cpp
     llfloaterfonttest.cpp
+    llfloaterforgetuser.cpp
     llfloatergesture.cpp
     llfloatergodtools.cpp
     llfloatergotoline.cpp
@@ -871,6 +872,7 @@ set(viewer_HEADER_FILES
     llfloaterexperiences.h
     llfloaterflickr.h
     llfloaterfonttest.h
+    llfloaterforgetuser.h
     llfloatergesture.h
     llfloatergodtools.h
     llfloatergotoline.h
