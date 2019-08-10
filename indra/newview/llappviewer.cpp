@@ -847,8 +847,7 @@ bool LLAppViewer::init()
 	LLUI::initClass(settings_map,
 		LLUIImageList::getInstance(),
 		ui_audio_callback,
-		deferred_ui_audio_callback,
-		&LLUI::getScaleFactor());
+		deferred_ui_audio_callback);
 	LL_INFOS("InitInfo") << "UI initialized." << LL_ENDL ;
 
 	// NOW LLUI::getLanguage() should work. gDirUtilp must know the language
