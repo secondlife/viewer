@@ -239,7 +239,7 @@ public:
 
 	/*virtual*/ BOOL			handleHover(S32 x, S32 y, MASK mask)
 	{
-		LLUI::getWindow()->setCursor(UI_CURSOR_HAND);
+		LLUI::getInstance()->getWindow()->setCursor(UI_CURSOR_HAND);
 		return TRUE;
 	}
 	virtual BOOL				handleToolTip(S32 x, S32 y, MASK mask )

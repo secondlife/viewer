@@ -1937,7 +1937,7 @@ LLCallDialog::LLCallDialog(const LLSD& payload)
 
 LLCallDialog::~LLCallDialog()
 {
-	LLUI::removePopup(this);
+	LLUI::getInstance()->removePopup(this);
 }
 
 BOOL LLCallDialog::postBuild()
@@ -2014,7 +2014,7 @@ void LLCallDialog::onOpen(const LLSD& key)
 	LLDockableFloater::onOpen(key);
 
 	// it should be over the all floaters. EXT-5116
-	LLUI::addPopup(this);
+	LLUI::getInstance()->addPopup(this);
 }
 
 void LLCallDialog::setIcon(const LLSD& session_id, const LLSD& participant_id)

@@ -670,7 +670,7 @@ LLPanelStandStopFlying* LLPanelStandStopFlying::getStandStopFlyingPanel()
 	panel->buildFromFile("panel_stand_stop_flying.xml");
 
 	panel->setVisible(FALSE);
-	//LLUI::getRootView()->addChild(panel);
+	//LLUI::getInstance()->getRootView()->addChild(panel);
 
 	LL_INFOS() << "Build LLPanelStandStopFlying panel" << LL_ENDL;
 

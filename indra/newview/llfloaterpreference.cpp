@@ -1234,7 +1234,7 @@ void LLFloaterPreference::buildPopupLists()
 		{
 			if (ignore == LLNotificationForm::IGNORE_WITH_LAST_RESPONSE)
 			{
-				LLSD last_response = LLUI::sSettingGroups["config"]->getLLSD("Default" + templatep->mName);
+				LLSD last_response = LLUI::getInstance()->mSettingGroups["config"]->getLLSD("Default" + templatep->mName);
 				if (!last_response.isUndefined())
 				{
 					for (LLSD::map_const_iterator it = last_response.beginMap();
@@ -1739,7 +1739,7 @@ void LLFloaterPreference::onClickEnablePopup()
 		LLNotificationTemplatePtr templatep = LLNotifications::instance().getTemplate(*(std::string*)((*itor)->getUserdata()));
 		//gSavedSettings.setWarning(templatep->mName, TRUE);
 		std::string notification_name = templatep->mName;
-		LLUI::sSettingGroups["ignores"]->setBOOL(notification_name, TRUE);
+		LLUI::getInstance()->mSettingGroups["ignores"]->setBOOL(notification_name, TRUE);
 	}
 	
 	buildPopupLists();

@@ -844,7 +844,7 @@ bool LLAppViewer::init()
 	settings_map["floater"] = &gSavedSettings; // *TODO: New settings file
 	settings_map["account"] = &gSavedPerAccountSettings;
 
-	LLUI::initClass(settings_map,
+	LLUI::initParamSingleton(settings_map,
 		LLUIImageList::getInstance(),
 		ui_audio_callback,
 		deferred_ui_audio_callback);
@@ -898,7 +898,7 @@ bool LLAppViewer::init()
 	LLUrlAction::setExecuteSLURLCallback(&LLURLDispatcher::dispatchFromTextEditor);
 
 	// Let code in llui access the viewer help floater
-	LLUI::sHelpImpl = LLViewerHelp::getInstance();
+	LLUI::getInstance()->mHelpImpl = LLViewerHelp::getInstance();
 
 	LL_INFOS("InitInfo") << "UI initialization is done." << LL_ENDL ;
 
@@ -3033,7 +3033,7 @@ bool LLAppViewer::initWindow()
 		gViewerWindow->getWindow()->maximize();
 	}
 
-	LLUI::sWindow = gViewerWindow->getWindow();
+	LLUI::getInstance()->mWindow = gViewerWindow->getWindow();
 
 	// Show watch cursor
 	gViewerWindow->setCursor(UI_CURSOR_WAIT);

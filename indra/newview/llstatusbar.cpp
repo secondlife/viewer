@@ -503,8 +503,8 @@ void LLStatusBar::onMouseEnterPresets()
 	mPanelPresetsPulldown->setShape(pulldown_rect);
 
 	// show the master presets pull-down
-	LLUI::clearPopups();
-	LLUI::addPopup(mPanelPresetsPulldown);
+	LLUI::getInstance()->clearPopups();
+	LLUI::getInstance()->addPopup(mPanelPresetsPulldown);
 	mPanelNearByMedia->setVisible(FALSE);
 	mPanelVolumePulldown->setVisible(FALSE);
 	mPanelPresetsPulldown->setVisible(TRUE);
@@ -527,8 +527,8 @@ void LLStatusBar::onMouseEnterVolume()
 
 
 	// show the master volume pull-down
-	LLUI::clearPopups();
-	LLUI::addPopup(mPanelVolumePulldown);
+	LLUI::getInstance()->clearPopups();
+	LLUI::getInstance()->addPopup(mPanelVolumePulldown);
 	mPanelPresetsPulldown->setVisible(FALSE);
 	mPanelNearByMedia->setVisible(FALSE);
 	mPanelVolumePulldown->setVisible(TRUE);
@@ -550,8 +550,8 @@ void LLStatusBar::onMouseEnterNearbyMedia()
 	
 	// show the master volume pull-down
 	mPanelNearByMedia->setShape(nearby_media_rect);
-	LLUI::clearPopups();
-	LLUI::addPopup(mPanelNearByMedia);
+	LLUI::getInstance()->clearPopups();
+	LLUI::getInstance()->addPopup(mPanelNearByMedia);
 
 	mPanelPresetsPulldown->setVisible(FALSE);
 	mPanelVolumePulldown->setVisible(FALSE);
