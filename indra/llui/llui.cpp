@@ -160,11 +160,9 @@ void make_ui_sound_deferred(const char* namep)
 void LLUI::initClass(const settings_map_t& settings,
 					 LLImageProviderInterface* image_provider,
 					 LLUIAudioCallback audio_callback,
-					 LLUIAudioCallback deferred_audio_callback,
-					 const LLVector2* scale_factor,
-					 const std::string& language)
+					 LLUIAudioCallback deferred_audio_callback)
 {
-	LLRender2D::initParamSingleton(image_provider,scale_factor);
+	LLRender2D::initParamSingleton(image_provider);
 	sSettingGroups = settings;
 
 	if ((get_ptr_in_map(sSettingGroups, std::string("config")) == NULL) ||

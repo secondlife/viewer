@@ -1565,10 +1565,9 @@ void gl_segmented_rect_3d_tex(const LLRectf& clip_rect, const LLRectf& center_uv
 
 }
 
-LLRender2D::LLRender2D(LLImageProviderInterface* image_provider,
-						   const LLVector2* scale_factor)
+LLRender2D::LLRender2D(LLImageProviderInterface* image_provider)
 {
-	mGLScaleFactor = (scale_factor == NULL) ? LLVector2(1.f, 1.f) : *scale_factor;
+	mGLScaleFactor = LLVector2(1.f, 1.f);
 	mImageProvider = image_provider;
 }
 

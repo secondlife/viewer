@@ -240,9 +240,7 @@ public:
 	static void initClass(const settings_map_t& settings,
 						  LLImageProviderInterface* image_provider,
 						  LLUIAudioCallback audio_callback = NULL,
-						  LLUIAudioCallback deferred_audio_callback = NULL,
-						  const LLVector2 *scale_factor = NULL,
-						  const std::string& language = LLStringUtil::null);
+						  LLUIAudioCallback deferred_audio_callback = NULL);
 
 	static void setPopupFuncs(const add_popup_t& add_popup, const remove_popup_t&, const clear_popups_t& );
 

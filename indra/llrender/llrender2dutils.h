@@ -123,7 +123,7 @@ class LLImageProviderInterface;
 
 class LLRender2D : public LLParamSingleton<LLRender2D>
 {
-	LLPARAMSINGLETON(LLRender2D, LLImageProviderInterface* image_provider, const LLVector2* scale_factor);
+	LLPARAMSINGLETON(LLRender2D, LLImageProviderInterface* image_provider);
 	LOG_CLASS(LLRender2D);
 	~LLRender2D();
 public:
