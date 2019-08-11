@@ -37,6 +37,7 @@
 #include "llerrorcontrol.h"
 #include "llexception.h"
 #include "stringize.h"
+#include "../test/catch_and_store_what_in.h"
 #include <boost/bind.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
@@ -85,6 +86,13 @@ struct WrapLLErrs
     LLError::SettingsStoragePtr mPriorErrorSettings;
     LLError::FatalFunction mPriorFatal;
 };
+
+/// Convenience wrapper for catch_what<WrapLLErrs::FatalException>()
+template <typename FUNC>
+std::string catch_llerrs(FUNC func)
+{
+    return catch_what<WrapLLErrs::FatalException>(func);
+}
 
 /**
  * Capture log messages. This is adapted (simplified) from the one in
