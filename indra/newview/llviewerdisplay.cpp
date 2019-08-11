@@ -1508,9 +1508,9 @@ void render_ui_2d()
 	if (gSavedSettings.getBOOL("RenderUIBuffer"))
 	{
 		LLUI* ui_inst = LLUI::getInstance();
-		if (LLUI::getInstance()->mDirty)
+		if (ui_inst->mDirty)
 		{
-			LLUI::getInstance()->mDirty = FALSE;
+			ui_inst->mDirty = FALSE;
 			LLRect t_rect;
 
 			gPipeline.mUIScreen.bindTarget();

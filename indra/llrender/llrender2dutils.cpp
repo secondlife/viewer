@@ -106,10 +106,11 @@ void gl_rect_2d_offset_local( S32 left, S32 top, S32 right, S32 bottom, S32 pixe
 	top += LLFontGL::sCurOrigin.mY;
 
 	gGL.loadUIIdentity();
-	gl_rect_2d(llfloor((F32)left * LLRender2D::getInstance()->mGLScaleFactor.mV[VX]) - pixel_offset,
-				llfloor((F32)top * LLRender2D::getInstance()->mGLScaleFactor.mV[VY]) + pixel_offset,
-				llfloor((F32)right * LLRender2D::getInstance()->mGLScaleFactor.mV[VX]) + pixel_offset,
-				llfloor((F32)bottom * LLRender2D::getInstance()->mGLScaleFactor.mV[VY]) - pixel_offset,
+	LLRender2D *r2d_inst = LLRender2D::getInstance();
+	gl_rect_2d(llfloor((F32)left * r2d_inst->mGLScaleFactor.mV[VX]) - pixel_offset,
+				llfloor((F32)top * r2d_inst->mGLScaleFactor.mV[VY]) + pixel_offset,
+				llfloor((F32)right * r2d_inst->mGLScaleFactor.mV[VX]) + pixel_offset,
+				llfloor((F32)bottom * r2d_inst->mGLScaleFactor.mV[VY]) - pixel_offset,
 				filled);
 	gGL.popUIMatrix();
 }
