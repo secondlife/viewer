@@ -111,37 +111,52 @@ void LLDrawPoolSky::render(S32 pass)
 	LLVertexBuffer::unbind();
 	gGL.diffuseColor4f(1,1,1,1);
 
-	for (S32 i = 0; i < llmin(6, face_count); ++i)
+	for (S32 i = 0; i < face_count; ++i)
 	{
-		renderSkyCubeFace(i);
+		renderSkyFace(i);
 	}
 
 	gGL.popMatrix();
 }
 
-void LLDrawPoolSky::renderSkyCubeFace(U8 side)
+void LLDrawPoolSky::renderSkyFace(U8 index)
 {
-	LLFace &face = *mDrawFace[LLVOSky::FACE_SIDE0 + side];
-	if (!face.getGeomCount())
+	LLFace* face = mDrawFace[index];
+
+	if (!face || !face->getGeomCount())
 	{
 		return;
 	}
 
-	llassert(mSkyTex);
-	mSkyTex[side].bindTexture(TRUE);
+    F32 interp_val = gSky.mVOSkyp ? gSky.mVOSkyp->getInterpVal() : 0.0f;
 
-    gGL.getTexUnit(0)->setTextureColorSpace(LLTexUnit::TCS_SRGB);
+    if (index < 6) // sky tex...interp
+    {
+        llassert(mSkyTex);
+	    mSkyTex[index].bindTexture(true); // bind the current tex
 
-	face.renderIndexed();
+        face->renderIndexed();
 
-	if (LLSkyTex::doInterpolate())
-	{
-		
-		LLGLEnable blend(GL_BLEND);
-		mSkyTex[side].bindTexture(FALSE);
-		gGL.diffuseColor4f(1, 1, 1, LLSkyTex::getInterpVal()); // lighting is disabled
-		face.renderIndexed();
-	}
+        if (interp_val > 0.01f) // iff, we've got enough info to lerp (a to and a from)
+	    {
+		    LLGLEnable blend(GL_BLEND);
+            llassert(mSkyTex);
+	        mSkyTex[index].bindTexture(false); // bind the "other" texture
+		    gGL.diffuseColor4f(1, 1, 1, interp_val); // lighting is disabled
+		    face->renderIndexed();
+	    }
+    }
+    else // heavenly body faces, no interp...
+    {
+        LLGLEnable blend(GL_BLEND);
+
+        LLViewerTexture* tex = face->getTexture(LLRender::DIFFUSE_MAP);
+        if (tex)
+        {
+            gGL.getTexUnit(0)->bind(tex, true);
+            face->renderIndexed();
+        }
+    }
 }
 
 void LLDrawPoolSky::endRenderPass( S32 pass )
