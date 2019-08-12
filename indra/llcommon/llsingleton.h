@@ -526,7 +526,6 @@ public:
         else
         {
             super::constructSingleton(std::forward<Args>(args)...);
-            lk.unlock();
             super::finishInitializing();
         }
     }
