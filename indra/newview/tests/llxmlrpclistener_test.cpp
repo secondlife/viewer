@@ -88,7 +88,7 @@ namespace tut
         WrapLLErrs capture;
         LLSD request;
         request["uri"] = uri;
-        std::string threw = catch_llerrs([&pumps, &request](){
+        std::string threw = capture.catch_llerrs([&pumps, &request](){
                 pumps.obtain("LLXMLRPCTransaction").post(request);
             });
         ensure_contains("threw exception", threw, "missing params");
@@ -107,7 +107,7 @@ namespace tut
         request["reply"] = "reply";
         LLSD& params(request["params"]);
         params["who"]["specifically"] = "world"; // LLXMLRPCListener only handles scalar params
-        std::string threw = catch_llerrs([&pumps, &request](){
+        std::string threw = capture.catch_llerrs([&pumps, &request](){
                 pumps.obtain("LLXMLRPCTransaction").post(request);
             });
         ensure_contains("threw exception", threw, "unknown type");

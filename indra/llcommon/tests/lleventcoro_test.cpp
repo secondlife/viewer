@@ -506,7 +506,7 @@ namespace tut
             replyName = waiter.getName0();
             errorName = waiter.getName1();
             WrapLLErrs capture;
-            threw = catch_llerrs([&waiter, &debug](){
+            threw = capture.catch_llerrs([&waiter, &debug](){
                     result = waiter.suspendWithLog();
                     debug("no exception");
                 });
@@ -756,7 +756,7 @@ namespace tut
         {
             LLCoroEventPumps waiter;
             WrapLLErrs capture;
-            threw = catch_llerrs(
+            threw = capture.catch_llerrs(
                 [&waiter, &debug](){
                     result = waiter.postAndSuspendWithLog(
                         LLSDMap("value", 31)("fail", LLSD()),

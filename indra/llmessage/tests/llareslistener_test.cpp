@@ -138,7 +138,7 @@ namespace tut
         WrapLLErrs capture;
         LLSD request;
         request["op"] = "foo";
-        std::string threw = catch_llerrs([&request](){
+        std::string threw = capture.catch_llerrs([&request](){
                 LLEventPumps::instance().obtain("LLAres").post(request);
             });
         ensure_contains("LLAresListener bad op", threw, "bad");
@@ -151,7 +151,7 @@ namespace tut
         WrapLLErrs capture;
         LLSD request;
         request["op"] = "rewriteURI";
-        std::string threw = catch_llerrs([&request](){
+        std::string threw = capture.catch_llerrs([&request](){
                 LLEventPumps::instance().obtain("LLAres").post(request);
             });
         ensure_contains("LLAresListener bad req", threw, "missing");
@@ -167,7 +167,7 @@ namespace tut
         LLSD request;
         request["op"] = "rewriteURI";
         request["reply"] = "nonexistent";
-        std::string threw = catch_llerrs([&request](){
+        std::string threw = capture.catch_llerrs([&request](){
                 LLEventPumps::instance().obtain("LLAres").post(request);
             });
         ensure_contains("LLAresListener bad req", threw, "missing");
@@ -183,7 +183,7 @@ namespace tut
         LLSD request;
         request["op"] = "rewriteURI";
         request["uri"] = "foo.bar.com";
-        std::string threw = catch_llerrs([&request](){
+        std::string threw = capture.catch_llerrs([&request](){
                 LLEventPumps::instance().obtain("LLAres").post(request);
             });
         ensure_contains("LLAresListener bad req", threw, "missing");

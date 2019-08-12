@@ -350,7 +350,7 @@ namespace tut
         // Now let the timer expire.
         filter.forceTimeout();
         // Notice the timeout.
-        std::string threw = catch_llerrs([this](){
+        std::string threw = capture.catch_llerrs([this](){
                 mainloop.post(17);
             });
         ensure_contains("errorAfter() timeout exception", threw, "timeout");

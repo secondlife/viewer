@@ -198,7 +198,7 @@ namespace tut
         {
             WrapLLErrs wrapper;
             Keyed::instance_iter i(Keyed::beginInstances());
-            what = catch_llerrs([&keyed](){
+            what = wrapper.catch_llerrs([&keyed](){
                     delete keyed;
                 });
         }
@@ -214,7 +214,7 @@ namespace tut
         {
             WrapLLErrs wrapper;
             Keyed::key_iter i(Keyed::beginKeys());
-            what = catch_llerrs([&keyed](){
+            what = wrapper.catch_llerrs([&keyed](){
                     delete keyed;
                 });
         }
@@ -230,7 +230,7 @@ namespace tut
         {
             WrapLLErrs wrapper;
             Unkeyed::instance_iter i(Unkeyed::beginInstances());
-            what = catch_llerrs([&unkeyed](){
+            what = wrapper.catch_llerrs([&unkeyed](){
                     delete unkeyed;
                 });
         }
