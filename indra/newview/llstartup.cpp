@@ -806,6 +806,8 @@ bool idle_startup()
 		gLoginMenuBarView->setEnabled( TRUE );
 		show_debug_menus();
 
+        LLConversationLog::initParamSingleton();
+
 		// Hide the splash screen
 		LLSplashScreen::hide();
 		// Push our window frontmost
@@ -1288,8 +1290,6 @@ bool idle_startup()
 
 		display_startup();
 		LLStartUp::setStartupState( STATE_MULTIMEDIA_INIT );
-		
-		LLConversationLog::initParamSingleton();
 
 		return FALSE;
 	}
