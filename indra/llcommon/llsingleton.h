@@ -491,9 +491,6 @@ typename LLSingleton<T>::SingletonData LLSingleton<T>::sData;
  * * However, distinct initParamSingleton() calls can be used to engage
  *   different constructors, as long as only one such call is executed at
  *   runtime.
- * * Circularity is not permitted. No LLSingleton referenced by an
- *   LLParamSingleton's constructor or initSingleton() method may call this
- *   LLParamSingleton's instance() or getInstance() methods.
  * * Unlike LLSingleton, an LLParamSingleton cannot be "revived" by an
  *   instance() or getInstance() call after deleteSingleton().
  *
@@ -508,7 +505,6 @@ private:
 
 public:
     using super::deleteSingleton;
-    using super::instance;
     using super::instanceExists;
     using super::wasDeleted;
 
@@ -519,7 +515,7 @@ public:
         // In case racing threads both call initParamSingleton() at the same
         // time, serialize them. One should initialize; the other should see
         // mInitState already set.
-        std::unique_lock<std::mutex> lk(mMutex);
+        std::unique_lock<decltype(mMutex)> lk(mMutex);
         // For organizational purposes this function shouldn't be called twice
         if (super::sData.mInitState != super::UNINITIALIZED)
         {
@@ -539,7 +535,7 @@ public:
     {
         // In case racing threads call getInstance() at the same moment as
         // initParamSingleton(), serialize the calls.
-        std::unique_lock<std::mutex> lk(mMutex);
+        std::unique_lock<decltype(mMutex)> lk(mMutex);
 
         switch (super::sData.mInitState)
         {
@@ -551,15 +547,10 @@ public:
         case super::CONSTRUCTING:
             super::logerrs("Tried to access param singleton ",
                            super::demangle(typeid(DERIVED_TYPE).name()).c_str(),
-                " from singleton constructor!");
+                           " from singleton constructor!");
             break;
 
         case super::INITIALIZING:
-            super::logerrs("Tried to access param singleton ",
-                           super::demangle(typeid(DERIVED_TYPE).name()).c_str(),
-                           " from initSingleton() method!");
-            break;
-
         case super::INITIALIZED:
             return super::sData.mInstance;
 
@@ -574,12 +565,23 @@ public:
         return nullptr;
     }
 
+    // instance() is replicated here so it calls
+    // LLParamSingleton::getInstance() rather than LLSingleton::getInstance()
+    // -- avoid making getInstance() virtual
+    static DERIVED_TYPE& instance()
+    {
+        return *getInstance();
+    }
+
 private:
-    static std::mutex mMutex;
+    // Use a recursive_mutex in case of constructor circularity. With a
+    // non-recursive mutex, that would result in deadlock rather than the
+    // logerrs() call coded above.
+    static std::recursive_mutex mMutex;
 };
 
 template<typename T>
-typename std::mutex LLParamSingleton<T>::mMutex;
+typename std::recursive_mutex LLParamSingleton<T>::mMutex;
 
 /**
  * Initialization locked singleton, only derived class can decide when to initialize.

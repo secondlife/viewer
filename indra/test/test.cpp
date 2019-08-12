@@ -37,7 +37,6 @@
 #include "linden_common.h"
 #include "llerrorcontrol.h"
 #include "lltut.h"
-#include "tests/wrapllerrs.h"             // RecorderProxy
 #include "stringize.h"
 #include "namedtempfile.h"
 #include "lltrace.h"

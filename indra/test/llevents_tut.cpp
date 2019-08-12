@@ -134,17 +134,15 @@ void events_object::test<1>()
 		per_frame.post(4);
 		check_listener("re-blocked", listener0, 3);
 	} // unblock
-	std::string threw;
-	try
-	{
-		// NOTE: boost::bind() saves its arguments by VALUE! If you pass
-		// an object instance rather than a pointer, you'll end up binding
-		// to an internal copy of that instance! Use boost::ref() to
-		// capture a reference instead.
-		per_frame.listen(listener0.getName(), // note bug, dup name
-						 boost::bind(&Listener::call, boost::ref(listener1), _1));
-	}
-	CATCH_AND_STORE_WHAT_IN(threw, LLEventPump::DupListenerName)
+	std::string threw = catch_what<LLEventPump::DupListenerName>(
+		[&per_frame, this](){
+			// NOTE: boost::bind() saves its arguments by VALUE! If you pass
+			// an object instance rather than a pointer, you'll end up binding
+			// to an internal copy of that instance! Use boost::ref() to
+			// capture a reference instead.
+			per_frame.listen(listener0.getName(), // note bug, dup name
+							 boost::bind(&Listener::call, boost::ref(listener1), _1));
+		});
 	ensure_equals(threw,
 				  std::string("DupListenerName: "
 							  "Attempt to register duplicate listener name '") +
@@ -341,15 +339,13 @@ void events_object::test<7>()
 	ensure_equals(collector.result, make<StringVec>(list_of("Mary")("spot")("checked")));
 	collector.clear();
 	button.stopListening("spot");
-	std::string threw;
-	try
-	{
-		button.listen("spot",
-					  boost::bind(&Collect::add, boost::ref(collector), "spot", _1),
-					  // after "Mary" and "checked" -- whoops!
-			 		  make<NameList>(list_of("Mary")("checked")));
-	}
-	CATCH_AND_STORE_WHAT_IN(threw, LLEventPump::Cycle)
+	std::string threw = catch_what<LLEventPump::Cycle>(
+		[&button, &collector](){
+			button.listen("spot",
+						  boost::bind(&Collect::add, boost::ref(collector), "spot", _1),
+						  // after "Mary" and "checked" -- whoops!
+						  make<NameList>(list_of("Mary")("checked")));
+		});
 	// Obviously the specific wording of the exception text can
 	// change; go ahead and change the test to match.
 	// Establish that it contains:
@@ -374,15 +370,13 @@ void events_object::test<7>()
 	button.post(3);
 	ensure_equals(collector.result, make<StringVec>(list_of("Mary")("checked")("yellow")("shoelaces")));
 	collector.clear();
-	threw.clear();
-	try
-	{
-		button.listen("of",
-					  boost::bind(&Collect::add, boost::ref(collector), "of", _1),
-					  make<NameList>(list_of("shoelaces")),
-					  make<NameList>(list_of("yellow")));
-	}
-	CATCH_AND_STORE_WHAT_IN(threw, LLEventPump::OrderChange)
+	threw = catch_what<LLEventPump::OrderChange>(
+		[&button, &collector](){
+			button.listen("of",
+						  boost::bind(&Collect::add, boost::ref(collector), "of", _1),
+						  make<NameList>(list_of("shoelaces")),
+						  make<NameList>(list_of("yellow")));
+		});
 	// Same remarks about the specific wording of the exception. Just
 	// ensure that it contains enough information to clarify the
 	// problem and what must be done to resolve it.
@@ -404,13 +398,11 @@ void events_object::test<8>()
 	{ 	// nested scope
 		// Hand-instantiate an LLEventStream...
 		LLEventStream bob("bob");
-		std::string threw;
-		try
-		{
-			// then another with a duplicate name.
-			LLEventStream bob2("bob");
-		}
-		CATCH_AND_STORE_WHAT_IN(threw, LLEventPump::DupPumpName)
+		std::string threw = catch_what<LLEventPump::DupPumpName>(
+			[](){
+				// then another with a duplicate name.
+				LLEventStream bob2("bob");
+			});
 		ensure("Caught DupPumpName", !threw.empty());
 	} 	// delete first 'bob'
 	LLEventStream bob("bob"); 		// should work, previous one unregistered
@@ -445,13 +437,11 @@ void events_object::test<9>()
 	listener0.listenTo(random);
 	eventSource("random");
 	check_listener("got by pump name", listener0, 17);
-	std::string threw;
-	try
-	{
-		LLListenerOrPumpName empty;
-		empty(17);
-	}
-	CATCH_AND_STORE_WHAT_IN(threw, LLListenerOrPumpName::Empty)
+	std::string threw = catch_what<LLListenerOrPumpName::Empty>(
+		[](){
+			LLListenerOrPumpName empty;
+			empty(17);
+		});
 
 	ensure("threw Empty", !threw.empty());
 }
