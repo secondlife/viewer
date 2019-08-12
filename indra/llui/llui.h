@@ -115,7 +115,7 @@ public:
 	typedef std::map<std::string, LLControlGroup*> settings_map_t;
 
 private:
-	LLPARAMSINGLETON(LLUI , const settings_map_t &settings,
+	LLSINGLETON(LLUI , const settings_map_t &settings,
 						   LLImageProviderInterface* image_provider,
 						   LLUIAudioCallback audio_callback,
 						   LLUIAudioCallback deferred_audio_callback);
