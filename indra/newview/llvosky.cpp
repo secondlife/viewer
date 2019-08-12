@@ -90,7 +90,6 @@ namespace
 
 S32 LLSkyTex::sComponents = 4;
 S32 LLSkyTex::sResolution = 64;
-F32 LLSkyTex::sInterpVal = 0.f;
 S32 LLSkyTex::sCurrent = 0;
 
 
@@ -479,8 +478,8 @@ void LLVOSky::init()
     m_atmosphericsVars.haze_horizon = psky->getHazeHorizon();
     m_atmosphericsVars.density_multiplier = psky->getDensityMultiplier();
     m_atmosphericsVars.max_y = psky->getMaxY();
-    m_atmosphericsVars.sun_norm = LLEnvironment::instance().getClampedLightNorm();
-    m_atmosphericsVars.sunlight = psky->getSunlightColor();
+    m_atmosphericsVars.sun_norm = LLEnvironment::instance().getClampedSunNorm();
+    m_atmosphericsVars.sunlight = psky->getIsSunUp() ? psky->getSunlightColor() : psky->getMoonlightColor();
     m_atmosphericsVars.ambient = psky->getAmbientColor();    
     m_atmosphericsVars.glow = psky->getGlow();
     m_atmosphericsVars.cloud_shadow = psky->getCloudShadow();
@@ -531,8 +530,8 @@ void LLVOSky::calc()
     m_atmosphericsVars.density_multiplier = psky->getDensityMultiplier();
     m_atmosphericsVars.distance_multiplier = psky->getDistanceMultiplier();
     m_atmosphericsVars.max_y = psky->getMaxY();
-    m_atmosphericsVars.sun_norm = LLEnvironment::instance().getClampedLightNorm();
-    m_atmosphericsVars.sunlight = psky->getSunlightColor();
+    m_atmosphericsVars.sun_norm = LLEnvironment::instance().getClampedSunNorm();
+    m_atmosphericsVars.sunlight = psky->getIsSunUp() ? psky->getSunlightColor() : psky->getMoonlightColor();
     m_atmosphericsVars.ambient = psky->getAmbientColor();    
     m_atmosphericsVars.glow = psky->getGlow();
     m_atmosphericsVars.cloud_shadow = psky->getCloudShadow();
@@ -725,8 +724,6 @@ bool LLVOSky::updateSky()
 	next_frame = next_frame % cycle_frame_no;
 
 	mInterpVal = (!mInitialized) ? 1 : (F32)next_frame / cycle_frame_no;
-	// sInterpVal = (F32)next_frame / cycle_frame_no;
-	LLSkyTex::setInterpVal( mInterpVal );
 	LLHeavenBody::setInterpVal( mInterpVal );
 	updateDirections();
 
@@ -753,7 +750,9 @@ bool LLVOSky::updateSky()
 
     calc();
 
-    if (mForceUpdate && mForceUpdateThrottle.hasExpired())
+    bool same_atmospherics = m_lastAtmosphericsVars == m_atmosphericsVars;
+
+    if (mForceUpdate && mForceUpdateThrottle.hasExpired() && !same_atmospherics)
 	{
         LL_RECORD_BLOCK_TIME(FTM_VOSKY_UPDATEFORCED);
 
@@ -761,6 +760,8 @@ bool LLVOSky::updateSky()
 
 		LLSkyTex::stepCurrent();
 		
+        m_lastAtmosphericsVars = m_atmosphericsVars;
+
 		if (!direction.isExactlyZero())
 		{
             mLastTotalAmbient = total_ambient;
@@ -912,6 +913,8 @@ void LLVOSky::setSunTextures(const LLUUID& sun_texture, const LLUUID& sun_textur
     mSunTexturep[0] = sun_texture.isNull() ? nullptr : LLViewerTextureManager::getFetchedTexture(sun_texture, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
     mSunTexturep[1] = sun_texture_next.isNull() ? nullptr : LLViewerTextureManager::getFetchedTexture(sun_texture_next, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 
+    bool can_use_wl = gPipeline.canUseWindLightShaders();
+
     if (mFace[FACE_SUN])
     {
         if (mSunTexturep[0])
@@ -934,17 +937,22 @@ void LLVOSky::setSunTextures(const LLUUID& sun_texture, const LLUUID& sun_textur
 
         mFace[FACE_SUN]->setTexture(LLRender::DIFFUSE_MAP, mSunTexturep[0]);
 
-        if (mSunTexturep[1])
+        if (can_use_wl)
         {
-	        mSunTexturep[1]->setAddressMode(LLTexUnit::TAM_CLAMP);            
+            if (mSunTexturep[1])
+            {
+	            mSunTexturep[1]->setAddressMode(LLTexUnit::TAM_CLAMP);            
+            }
+            mFace[FACE_SUN]->setTexture(LLRender::ALTERNATE_DIFFUSE_MAP, mSunTexturep[1]);
         }
-        mFace[FACE_SUN]->setTexture(LLRender::ALTERNATE_DIFFUSE_MAP, mSunTexturep[1]);
     }
 }
 
 void LLVOSky::setMoonTextures(const LLUUID& moon_texture, const LLUUID& moon_texture_next)
 {
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+
+    bool can_use_wl = gPipeline.canUseWindLightShaders();
 
     mMoonTexturep[0] = moon_texture.isNull()      ? nullptr : LLViewerTextureManager::getFetchedTexture(moon_texture, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
     mMoonTexturep[1] = moon_texture_next.isNull() ? nullptr : LLViewerTextureManager::getFetchedTexture(moon_texture_next, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
@@ -957,7 +965,7 @@ void LLVOSky::setMoonTextures(const LLUUID& moon_texture, const LLUUID& moon_tex
         }
         mFace[FACE_MOON]->setTexture(LLRender::DIFFUSE_MAP, mMoonTexturep[0]);
     
-        if (mMoonTexturep[1])
+        if (mMoonTexturep[1] && can_use_wl)
         {
 	        mMoonTexturep[1]->setAddressMode(LLTexUnit::TAM_CLAMP);
             mFace[FACE_MOON]->setTexture(LLRender::ALTERNATE_DIFFUSE_MAP, mMoonTexturep[1]);

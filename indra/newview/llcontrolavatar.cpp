@@ -255,7 +255,7 @@ void LLControlAvatar::recursiveScaleJoint(LLJoint* joint, F32 factor)
 {
     joint->setScale(factor * joint->getScale());
     
-	for (LLJoint::child_list_t::iterator iter = joint->mChildren.begin();
+	for (LLJoint::joints_t::iterator iter = joint->mChildren.begin();
 		 iter != joint->mChildren.end(); ++iter)
 	{
 		LLJoint* child = *iter;

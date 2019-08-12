@@ -442,7 +442,7 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
     vars.density_multiplier = psky->getDensityMultiplier();    
     vars.distance_multiplier = psky->getDistanceMultiplier();
     vars.max_y = psky->getMaxY();
-    vars.sun_norm = LLEnvironment::instance().getLightDirectionCFR();
+    vars.sun_norm = LLEnvironment::instance().getSunDirectionCFR();
     vars.sunlight = psky->getSunlightColor();
     vars.ambient = psky->getAmbientColor();    
     vars.glow = psky->getGlow();
