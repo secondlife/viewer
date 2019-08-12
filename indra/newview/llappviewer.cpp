@@ -773,7 +773,7 @@ bool LLAppViewer::init()
 
 	// initialize LLWearableType translation bridge.
 	// Memory will be cleaned up in ::cleanupClass()
-	LLWearableType::initClass(new LLUITranslationBridge());
+	LLWearableType::initParamSingleton(new LLUITranslationBridge());
 
 	// initialize SSE options
 	LLVector4a::initClass();
@@ -2084,8 +2084,6 @@ bool LLAppViewer::cleanup()
 	LL_INFOS() << "Cleaning up LLProxy." << LL_ENDL;
 	SUBSYSTEM_CLEANUP(LLProxy);
     LLCore::LLHttp::cleanup();
-
-	SUBSYSTEM_CLEANUP(LLWearableType);
 
 	LLMainLoopRepeater::instance().stop();
 
