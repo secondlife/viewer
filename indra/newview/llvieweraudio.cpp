@@ -463,7 +463,7 @@ void audio_update_volume(bool force_update)
 	F32 media_volume = gSavedSettings.getF32("AudioLevelMedia");
 	BOOL media_muted = gSavedSettings.getBOOL("MuteMedia");
 	media_volume = mute_volume * master_volume * media_volume;
-	LLViewerMedia::setVolume( media_muted ? 0.0f : media_volume );
+	LLViewerMedia::getInstance()->setVolume( media_muted ? 0.0f : media_volume );
 
 	// Voice
 	if (LLVoiceClient::getInstance())

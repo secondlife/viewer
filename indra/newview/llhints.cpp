@@ -240,7 +240,7 @@ void LLHintPopup::draw()
 		}
 		else 
 		{
-			LLView* targetp = LLHints::getHintTarget(mTarget).get();
+			LLView* targetp = LLHints::getInstance()->getHintTarget(mTarget).get();
 			if (!targetp)
 			{
 				// target widget is no longer valid, go away
@@ -349,10 +349,20 @@ void LLHintPopup::draw()
 }
 
 
-LLRegistry<std::string, LLHandle<LLView> > LLHints::sTargetRegistry;
-std::map<LLNotificationPtr, class LLHintPopup*> LLHints::sHints;
+/// LLHints
 
-//static
+LLHints::LLHints()
+{
+    LLControlVariablePtr control = gSavedSettings.getControl("EnableUIHints");
+    mControlConnection = control->getSignal()->connect(boost::bind(&LLHints::showHints, this, _2));
+    gViewerWindow->getHintHolder()->setVisible(control->getValue().asBoolean());
+}
+
+LLHints::~LLHints()
+{
+    mControlConnection.disconnect();
+}
+
 void LLHints::show(LLNotificationPtr hint)
 {
 	LLHintPopup::Params p(LLUICtrlFactory::getDefaultParams<LLHintPopup>());
@@ -365,7 +375,7 @@ void LLHints::show(LLNotificationPtr hint)
 	{
 		LLHintPopup* popup = new LLHintPopup(p);
 
-		sHints[hint] = popup;
+		mHints[hint] = popup;
 
 		LLView* hint_holder = gViewerWindow->getHintHolder();
 		if (hint_holder)
@@ -376,27 +386,24 @@ void LLHints::show(LLNotificationPtr hint)
 	}
 }
 
-//static
 void LLHints::hide(LLNotificationPtr hint)
 {
-	hint_map_t::iterator found_it = sHints.find(hint);
-	if (found_it != sHints.end())
+	hint_map_t::iterator found_it = mHints.find(hint);
+	if (found_it != mHints.end())
 	{
 		found_it->second->hide();
-		sHints.erase(found_it);
+		mHints.erase(found_it);
 	}
 }
 
-//static
 void LLHints::registerHintTarget(const std::string& name, LLHandle<LLView> target)
 {
-	sTargetRegistry.defaultRegistrar().replace(name, target);
+	mTargetRegistry.defaultRegistrar().replace(name, target);
 }
 
-//static 
 LLHandle<LLView> LLHints::getHintTarget(const std::string& name)
 {
-	LLHandle<LLView>* handlep = sTargetRegistry.getValue(name);
+	LLHandle<LLView>* handlep = mTargetRegistry.getValue(name);
 	if (handlep) 
 	{
 		return *handlep;
@@ -407,18 +414,6 @@ LLHandle<LLView> LLHints::getHintTarget(const std::string& name)
 	}
 }
 
-//static
-void LLHints::initClass()
-{
-	sRegister.reference();
-
-	LLControlVariablePtr control = gSavedSettings.getControl("EnableUIHints");
-	control->getSignal()->connect(boost::bind(&showHints, _2));
-	gViewerWindow->getHintHolder()->setVisible(control->getValue().asBoolean());
-
-}
-
-//staic
 void LLHints::showHints(const LLSD& show)
 {
 	bool visible = show.asBoolean();

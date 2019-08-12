@@ -31,6 +31,18 @@
 #include <vector>
 #include <typeinfo>
 
+#if LL_WINDOWS
+#pragma warning (push)
+#pragma warning (disable:4265)
+#endif
+// warning C4265: 'std::_Pad' : class has virtual functions, but destructor is not virtual
+
+#include <mutex>
+
+#if LL_WINDOWS
+#pragma warning (pop)
+#endif
+
 class LLSingletonBase: private boost::noncopyable
 {
 public:
@@ -205,6 +217,10 @@ LLSingletonBase::LLSingletonBase(tag<DERIVED_TYPE>):
     LLSingleton_manage_master<DERIVED_TYPE>().push_initializing(this);
 }
 
+// forward declare for friend directive within LLSingleton
+template <typename DERIVED_TYPE>
+class LLParamSingleton;
+
 /**
  * LLSingleton implements the getInstance() method part of the Singleton
  * pattern. It can't make the derived class constructors protected, though, so
@@ -270,9 +286,41 @@ template <typename DERIVED_TYPE>
 class LLSingleton : public LLSingletonBase
 {
 private:
-    static DERIVED_TYPE* constructSingleton()
+    // Allow LLParamSingleton subclass -- but NOT DERIVED_TYPE itself -- to
+    // access our private members.
+    friend class LLParamSingleton<DERIVED_TYPE>;
+
+    // LLSingleton only supports a nullary constructor. However, the specific
+    // purpose for its subclass LLParamSingleton is to support Singletons
+    // requiring constructor arguments. constructSingleton() supports both use
+    // cases.
+    template <typename... Args>
+    static void constructSingleton(Args&&... args)
     {
-        return new DERIVED_TYPE();
+        sData.mInitState = CONSTRUCTING;
+        sData.mInstance = new DERIVED_TYPE(std::forward<Args>(args)...);
+        sData.mInitState = INITIALIZING;
+    }
+
+    static void finishInitializing()
+    {
+        // go ahead and flag ourselves as initialized so we can be
+        // reentrant during initialization
+        sData.mInitState = INITIALIZED; 
+        // initialize singleton after constructing it so that it can
+        // reference other singletons which in turn depend on it, thus
+        // breaking cyclic dependencies
+        sData.mInstance->initSingleton();
+        // pop this off stack of initializing singletons
+        LLSingleton_manage_master<DERIVED_TYPE>().pop_initializing(sData.mInstance);
+
+        // The remaining top of that stack, if any, is an LLSingleton that
+        // directly depends on DERIVED_TYPE. If getInstance() was called by
+        // another LLSingleton, rather than from vanilla application code,
+        // record the dependency.
+        sData.mInstance->capture_dependency(
+            LLSingleton_manage_master<DERIVED_TYPE>().get_initializing(sData.mInstance),
+            sData.mInitState);
     }
 
     // We know of no way to instruct the compiler that every subclass
@@ -285,34 +333,17 @@ private:
     // subclass body.
     virtual void you_must_use_LLSINGLETON_macro() = 0;
 
-    // stores pointer to singleton instance
-    struct SingletonLifetimeManager
+    // The purpose of this struct is to engage the C++11 guarantee that static
+    // variables declared in function scope are initialized exactly once, even
+    // if multiple threads concurrently reach the same declaration.
+    // https://en.cppreference.com/w/cpp/language/storage_duration#Static_local_variables
+    // Since getInstance() declares a static instance of SingletonInitializer,
+    // only the first call to getInstance() calls constructSingleton().
+    struct SingletonInitializer
     {
-        SingletonLifetimeManager()
+        SingletonInitializer()
         {
-            construct();
-        }
-
-        static void construct()
-        {
-            sData.mInitState = CONSTRUCTING;
-            sData.mInstance = constructSingleton();
-            sData.mInitState = INITIALIZING;
-        }
-
-        ~SingletonLifetimeManager()
-        {
-            // The dependencies between LLSingletons, and the arbitrary order
-            // of static-object destruction, mean that we DO NOT WANT this
-            // destructor to delete this LLSingleton. This destructor will run
-            // without regard to any other LLSingleton whose cleanup might
-            // depend on its existence. If you want to clean up LLSingletons,
-            // call LLSingletonBase::deleteAll() sometime before static-object
-            // destruction begins. That method will properly honor cross-
-            // LLSingleton dependencies. Otherwise we simply leak LLSingleton
-            // instances at shutdown. Since the whole process is terminating
-            // anyway, that's not necessarily a bad thing; it depends on what
-            // resources your LLSingleton instances are managing.
+            constructSingleton();
         }
     };
 
@@ -369,7 +400,8 @@ public:
 
     static DERIVED_TYPE* getInstance()
     {
-        static SingletonLifetimeManager sLifeTimeMgr;
+        // call constructSingleton() only the first time we get here
+        static SingletonInitializer sInitializer;
 
         switch (sData.mInitState)
         {
@@ -380,47 +412,33 @@ public:
             return NULL;
 
         case CONSTRUCTING:
+            // here if DERIVED_TYPE's constructor (directly or indirectly)
+            // calls DERIVED_TYPE::getInstance()
             logerrs("Tried to access singleton ",
                     demangle(typeid(DERIVED_TYPE).name()).c_str(),
                     " from singleton constructor!");
             return NULL;
 
         case INITIALIZING:
-            // go ahead and flag ourselves as initialized so we can be
-            // reentrant during initialization
-            sData.mInitState = INITIALIZED; 
-            // initialize singleton after constructing it so that it can
-            // reference other singletons which in turn depend on it, thus
-            // breaking cyclic dependencies
-            sData.mInstance->initSingleton();
-            // pop this off stack of initializing singletons
-            LLSingleton_manage_master<DERIVED_TYPE>().pop_initializing(sData.mInstance);
+            // first time through: set to INITIALIZING by
+            // constructSingleton(), called by sInitializer's constructor
+            finishInitializing();
             break;
 
         case INITIALIZED:
+            // normal subsequent calls
             break;
 
         case DELETED:
+            // called after deleteSingleton()
             logwarns("Trying to access deleted singleton ",
                      demangle(typeid(DERIVED_TYPE).name()).c_str(),
                      " -- creating new instance");
-            SingletonLifetimeManager::construct();
-            // same as first time construction
-            sData.mInitState = INITIALIZED; 
-            sData.mInstance->initSingleton(); 
-            // pop this off stack of initializing singletons
-            LLSingleton_manage_master<DERIVED_TYPE>().pop_initializing(sData.mInstance);
+            constructSingleton();
+            finishInitializing();
             break;
         }
 
-        // By this point, if DERIVED_TYPE was pushed onto the initializing
-        // stack, it has been popped off. So the top of that stack, if any, is
-        // an LLSingleton that directly depends on DERIVED_TYPE. If this call
-        // came from another LLSingleton, rather than from vanilla application
-        // code, record the dependency.
-        sData.mInstance->capture_dependency(
-            LLSingleton_manage_master<DERIVED_TYPE>().get_initializing(sData.mInstance),
-            sData.mInitState);
         return sData.mInstance;
     }
 
@@ -460,6 +478,136 @@ private:
 template<typename T>
 typename LLSingleton<T>::SingletonData LLSingleton<T>::sData;
 
+
+/**
+ * LLParamSingleton<T> is like LLSingleton<T>, except in the following ways:
+ *
+ * * It is NOT instantiated on demand (instance() or getInstance()). You must
+ *   first call initParamSingleton(constructor args...).
+ * * Before initParamSingleton(), calling instance() or getInstance() dies with
+ *   LL_ERRS.
+ * * initParamSingleton() may be called only once. A second call dies with
+ *   LL_ERRS.
+ * * However, distinct initParamSingleton() calls can be used to engage
+ *   different constructors, as long as only one such call is executed at
+ *   runtime.
+ * * Circularity is not permitted. No LLSingleton referenced by an
+ *   LLParamSingleton's constructor or initSingleton() method may call this
+ *   LLParamSingleton's instance() or getInstance() methods.
+ * * Unlike LLSingleton, an LLParamSingleton cannot be "revived" by an
+ *   instance() or getInstance() call after deleteSingleton().
+ *
+ * Importantly, though, each LLParamSingleton subclass does participate in the
+ * dependency-ordered LLSingletonBase::deleteAll() processing.
+ */
+template <typename DERIVED_TYPE>
+class LLParamSingleton : public LLSingleton<DERIVED_TYPE>
+{
+private:
+    typedef LLSingleton<DERIVED_TYPE> super;
+
+public:
+    using super::deleteSingleton;
+    using super::instance;
+    using super::instanceExists;
+    using super::wasDeleted;
+
+    // Passes arguments to DERIVED_TYPE's constructor and sets appropriate states
+    template <typename... Args>
+    static void initParamSingleton(Args&&... args)
+    {
+        // In case racing threads both call initParamSingleton() at the same
+        // time, serialize them. One should initialize; the other should see
+        // mInitState already set.
+        std::unique_lock<std::mutex> lk(mMutex);
+        // For organizational purposes this function shouldn't be called twice
+        if (super::sData.mInitState != super::UNINITIALIZED)
+        {
+            super::logerrs("Tried to initialize singleton ",
+                           super::demangle(typeid(DERIVED_TYPE).name()).c_str(),
+                           " twice!");
+        }
+        else
+        {
+            super::constructSingleton(std::forward<Args>(args)...);
+            super::finishInitializing();
+        }
+    }
+
+    static DERIVED_TYPE* getInstance()
+    {
+        // In case racing threads call getInstance() at the same moment as
+        // initParamSingleton(), serialize the calls.
+        std::unique_lock<std::mutex> lk(mMutex);
+
+        switch (super::sData.mInitState)
+        {
+        case super::UNINITIALIZED:
+            super::logerrs("Uninitialized param singleton ",
+                           super::demangle(typeid(DERIVED_TYPE).name()).c_str());
+            break;
+
+        case super::CONSTRUCTING:
+            super::logerrs("Tried to access param singleton ",
+                           super::demangle(typeid(DERIVED_TYPE).name()).c_str(),
+                " from singleton constructor!");
+            break;
+
+        case super::INITIALIZING:
+            super::logerrs("Tried to access param singleton ",
+                           super::demangle(typeid(DERIVED_TYPE).name()).c_str(),
+                           " from initSingleton() method!");
+            break;
+
+        case super::INITIALIZED:
+            return super::sData.mInstance;
+
+        case super::DELETED:
+            super::logerrs("Trying to access deleted param singleton ",
+                           super::demangle(typeid(DERIVED_TYPE).name()).c_str());
+            break;
+        }
+
+        // should never actually get here; this is to pacify the compiler,
+        // which assumes control might return from logerrs()
+        return nullptr;
+    }
+
+private:
+    static std::mutex mMutex;
+};
+
+template<typename T>
+typename std::mutex LLParamSingleton<T>::mMutex;
+
+/**
+ * Initialization locked singleton, only derived class can decide when to initialize.
+ * Starts locked.
+ * For cases when singleton has a dependency onto something or.
+ *
+ * LLLockedSingleton is like an LLParamSingleton with a nullary constructor.
+ * It cannot be instantiated on demand (instance() or getInstance() call) --
+ * it must be instantiated by calling construct(). However, it does
+ * participate in dependency-ordered LLSingletonBase::deleteAll() processing.
+ */
+template <typename DT>
+class LLLockedSingleton : public LLParamSingleton<DT>
+{
+    typedef LLParamSingleton<DT> super;
+
+public:
+    using super::deleteSingleton;
+    using super::getInstance;
+    using super::instance;
+    using super::instanceExists;
+    using super::wasDeleted;
+
+    static void construct()
+    {
+        super::initParamSingleton();
+    }
+};
+
 /**
  * Use LLSINGLETON(Foo); at the start of an LLSingleton<Foo> subclass body
  * when you want to declare an out-of-line constructor:
@@ -484,13 +632,13 @@ typename LLSingleton<T>::SingletonData LLSingleton<T>::sData;
  * file, use 'inline' (unless it's a template class) to avoid duplicate-symbol
  * errors at link time.
  */
-#define LLSINGLETON(DERIVED_CLASS)                                      \
+#define LLSINGLETON(DERIVED_CLASS, ...)                                      \
 private:                                                                \
     /* implement LLSingleton pure virtual method whose sole purpose */  \
     /* is to remind people to use this macro */                         \
     virtual void you_must_use_LLSINGLETON_macro() {}                    \
     friend class LLSingleton<DERIVED_CLASS>;                            \
-    DERIVED_CLASS()
+    DERIVED_CLASS(__VA_ARGS__)
 
 /**
  * Use LLSINGLETON_EMPTY_CTOR(Foo); at the start of an LLSingleton<Foo>

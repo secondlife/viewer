@@ -386,7 +386,7 @@ BOOL LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
 		}
 		else if (gSavedSettings.getBOOL("SnapToMouseCursor"))
 		{
-			LLUI::setMousePositionScreen(mouse_pos.mX, mouse_pos.mY);
+			LLUI::getInstance()->setMousePositionScreen(mouse_pos.mX, mouse_pos.mY);
 			x = mouse_pos.mX;
 			y = mouse_pos.mY;
 		}

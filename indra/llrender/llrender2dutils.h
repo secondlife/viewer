@@ -121,28 +121,26 @@ inline void gl_rect_2d_offset_local( const LLRect& rect, S32 pixel_offset, BOOL 
 
 class LLImageProviderInterface;
 
-class LLRender2D
+class LLRender2D : public LLParamSingleton<LLRender2D>
 {
+	LLSINGLETON(LLRender2D, LLImageProviderInterface* image_provider);
 	LOG_CLASS(LLRender2D);
+	~LLRender2D();
 public:
-	static void initClass(LLImageProviderInterface* image_provider,
-						  const LLVector2* scale_factor);
-	static void cleanupClass();
+	void pushMatrix();
+	void popMatrix();
+	void loadIdentity();
+	void translate(F32 x, F32 y, F32 z = 0.0f);
 
-	static void pushMatrix();
-	static void popMatrix();
-	static void loadIdentity();
-	static void translate(F32 x, F32 y, F32 z = 0.0f);
+	void setLineWidth(F32 width);
+	void setScaleFactor(const LLVector2& scale_factor);
 
-	static void setLineWidth(F32 width);
-	static void setScaleFactor(const LLVector2& scale_factor);
+	LLPointer<LLUIImage> getUIImageByID(const LLUUID& image_id, S32 priority = 0);
+	LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority = 0);
 
-	static LLPointer<LLUIImage> getUIImageByID(const LLUUID& image_id, S32 priority = 0);
-	static LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority = 0);
-
-	static LLVector2		sGLScaleFactor;
+	LLVector2		mGLScaleFactor;
 private:
-	static LLImageProviderInterface* sImageProvider;
+	LLImageProviderInterface* mImageProvider;
 };
 
 class LLImageProviderInterface
