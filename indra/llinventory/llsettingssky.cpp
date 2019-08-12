@@ -1184,24 +1184,34 @@ LLColor3 LLSettingsSky::getLightAttenuation(F32 distance) const
     return light_atten;
 }
 
-LLColor3 LLSettingsSky::getLightTransmittance() const
+LLColor3 LLSettingsSky::getLightTransmittance(F32 distance) const
 {
     LLColor3 total_density      = getTotalDensity();
     F32      density_multiplier = getDensityMultiplier();
     // Transparency (-> density) from Beer's law
-    LLColor3 transmittance = componentExp(total_density * -density_multiplier);
+    LLColor3 transmittance = componentExp(total_density * -(density_multiplier * distance));
     return transmittance;
 }
 
+// performs soft scale clip and gamma correction ala the shader implementation
+// scales colors down to 0 - 1 range preserving relative ratios
 LLColor3 LLSettingsSky::gammaCorrect(const LLColor3& in) const
 {
     F32 gamma = getGamma();
+
     LLColor3 v(in);
-    v.clamp();
-    v= smear(1.0f) - v;
-    v = componentPow(v, gamma);
-    v = smear(1.0f) - v;
-    return v;
+    // scale down to 0 to 1 range preserving relative ratio (aka homegenize)
+    F32 max_color = llmax(llmax(in.mV[0], in.mV[1]), in.mV[2]);
+    if (max_color > 1.0f)
+    {
+        v *= 1.0f / max_color;
+    }
+
+    LLColor3 color = in * 2.0f;
+	color = smear(1.f) - componentSaturate(color); // clamping after mul seems wrong, but prevents negative colors...
+	componentPow(color, gamma);
+	color = smear(1.f) - color;
+    return color;
 }
 
 LLVector3 LLSettingsSky::getSunDirection() const
@@ -1240,6 +1250,12 @@ LLColor3 LLSettingsSky::getSunDiffuse() const
     return mSunDiffuse;
 }
 
+LLColor4 LLSettingsSky::getHazeColor() const
+{
+    update();
+    return mHazeColor;
+}
+
 LLColor4 LLSettingsSky::getTotalAmbient() const
 {
     update();
@@ -1255,14 +1271,19 @@ LLColor3 LLSettingsSky::getMoonlightColor() const
     return moonlight;
 }
 
-void LLSettingsSky::clampColor(LLColor3& color) const
+void LLSettingsSky::clampColor(LLColor3& color, F32 gamma, F32 scale) const
 {
     F32 max_color = llmax(color.mV[0], color.mV[1], color.mV[2]);
-    if (max_color > 1.f)
+    if (max_color > scale)
     {
-        color *= 1.f/max_color;
+        color *= scale/max_color;
     }
-    color.clamp();
+    LLColor3 linear(color);
+    linear *= 1.0 / scale;
+    linear = smear(1.0f) - linear;
+    linear = componentPow(linear, gamma);
+    linear *= scale;
+    color = linear;
 }
 
 void LLSettingsSky::calculateLightSettings() const
@@ -1278,7 +1299,7 @@ void LLSettingsSky::calculateLightSettings() const
     // this is used later for sunlight modulation at various altitudes
     F32         max_y               = getMaxY();
     LLColor3    light_atten         = getLightAttenuation(max_y);
-    LLColor3    light_transmittance = getLightTransmittance();
+    LLColor3    light_transmittance = getLightTransmittance(max_y);
 
     // and vary_sunlight will work properly with moon light
     const F32 LIMIT = FLT_EPSILON * 8.0f;
@@ -1291,16 +1312,34 @@ void LLSettingsSky::calculateLightSettings() const
     lighty = llmax(LIMIT, lighty);
     componentMultBy(sunlight, componentExp((light_atten * -1.f) * lighty));
     componentMultBy(sunlight, light_transmittance);
-    clampColor(sunlight);
+
+    F32 max_color = llmax(sunlight.mV[0], sunlight.mV[1], sunlight.mV[2]);
+    if (max_color > 1.0f)
+    {
+        sunlight *= 1.0f/max_color;
+    }
 
     //increase ambient when there are more clouds
     LLColor3 tmpAmbient = ambient + (smear(1.f) - ambient) * cloud_shadow * 0.5;
     componentMultBy(tmpAmbient, light_transmittance);
-    clampColor(tmpAmbient);
+
+    //tmpAmbient = LLColor3::clamp(tmpAmbient, getGamma(), 1.0f);
+    max_color = llmax(tmpAmbient.mV[0], tmpAmbient.mV[1], tmpAmbient.mV[2]);
+    if (max_color > 1.0f)
+    {
+        tmpAmbient *= 1.0f/max_color;
+    }
 
     //brightness of surface both sunlight and ambient
-    mSunDiffuse = gammaCorrect(sunlight);
-    mSunAmbient = gammaCorrect(tmpAmbient);
+    mSunDiffuse = sunlight;
+    mSunAmbient = tmpAmbient;
+    F32 haze_horizon = getHazeHorizon();
+    
+    sunlight *= 1.0 - cloud_shadow;
+    sunlight += tmpAmbient;
+
+    mHazeColor = getBlueHorizon() * getBlueDensity() * sunlight;
+    mHazeColor += LLColor4(haze_horizon, haze_horizon, haze_horizon, haze_horizon) * getHazeDensity() * sunlight;
 
     F32 moon_brightness = getIsMoonUp() ? getMoonBrightness() : 0.001f;
 
@@ -1308,10 +1347,10 @@ void LLSettingsSky::calculateLightSettings() const
     LLColor3 moonlight_b(0.66, 0.66, 1.2); // scotopic ambient value
 
     componentMultBy(moonlight, componentExp((light_atten * -1.f) * lighty));
-    clampColor(moonlight);
+    clampColor(moonlight, getGamma(), 1.0f);
 
-    mMoonDiffuse  = gammaCorrect(componentMult(moonlight, light_transmittance) * moon_brightness);
-    mMoonAmbient  = gammaCorrect(componentMult(moonlight_b, light_transmittance) * 0.0125f);
+    mMoonDiffuse  = componentMult(moonlight, light_transmittance) * moon_brightness;
+    mMoonAmbient  = componentMult(moonlight_b, light_transmittance) * 0.0125f;
 
     mTotalAmbient = mSunAmbient;
 }

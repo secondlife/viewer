@@ -96,12 +96,14 @@ S32 LLSkyTex::sCurrent = 0;
 
 LLSkyTex::LLSkyTex() :
 	mSkyData(NULL),
-	mSkyDirs(NULL)
+	mSkyDirs(NULL),
+    mIsShiny(false)
 {
 }
 
-void LLSkyTex::init()
+void LLSkyTex::init(bool isShiny)
 {
+    mIsShiny = isShiny;
 	mSkyData = new LLColor4[sResolution * sResolution];
 	mSkyDirs = new LLVector3[sResolution * sResolution];
 
@@ -207,15 +209,13 @@ void LLSkyTex::create(const F32 brightness)
 
 void LLSkyTex::createGLImage(S32 which)
 {	
-#if USE_SRGB_DECODE
-    if (LLPipeline::RenderDeferred)
-    {
-        mTexture[which]->setExplicitFormat(GL_SRGB8_ALPHA8, GL_RGBA);
-    }
-    else
-#endif
+    if (mIsShiny)
     {
         mTexture[which]->setExplicitFormat(GL_RGBA8, GL_RGBA);
+    }
+    else
+    {
+        mTexture[which]->setExplicitFormat(GL_SRGB8_ALPHA8, GL_RGBA);
     }
 	mTexture[which]->createGLTexture(0, mImageRaw[which], 0, TRUE, LLGLTexture::LOCAL);
 	mTexture[which]->setAddressMode(LLTexUnit::TAM_CLAMP);
@@ -424,15 +424,14 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 
 	mInitialized = FALSE;
 	mbCanSelect = FALSE;
-	mUpdateTimer.reset();
 
     mForceUpdateThrottle.setTimerExpirySec(UPDATE_EXPRY);
     mForceUpdateThrottle.reset();
 
 	for (S32 i = 0; i < 6; i++)
 	{
-		mSkyTex[i].init();
-		mShinyTex[i].init();
+		mSkyTex[i].init(false);
+		mShinyTex[i].init(true);
 	}
 	for (S32 i=0; i<FACE_COUNT; i++)
 	{
@@ -479,7 +478,7 @@ void LLVOSky::init()
     m_atmosphericsVars.haze_horizon = psky->getHazeHorizon();
     m_atmosphericsVars.density_multiplier = psky->getDensityMultiplier();
     m_atmosphericsVars.max_y = psky->getMaxY();
-    m_atmosphericsVars.sun_norm = LLEnvironment::instance().getClampedSunNorm();
+    m_atmosphericsVars.sun_norm = LLEnvironment::instance().getClampedLightNorm();
     m_atmosphericsVars.sunlight = psky->getSunlightColor();
     m_atmosphericsVars.ambient = psky->getAmbientColor();    
     m_atmosphericsVars.glow = psky->getGlow();
@@ -487,7 +486,8 @@ void LLVOSky::init()
     m_atmosphericsVars.dome_radius = psky->getDomeRadius();
     m_atmosphericsVars.dome_offset = psky->getDomeOffset();
     m_atmosphericsVars.light_atten = psky->getLightAttenuation(m_atmosphericsVars.max_y);
-    m_atmosphericsVars.light_transmittance = psky->getLightTransmittance();
+    m_atmosphericsVars.light_transmittance = psky->getLightTransmittance(m_atmosphericsVars.max_y);
+    m_atmosphericsVars.total_density = psky->getTotalDensity();
     m_atmosphericsVars.gamma = psky->getGamma();
 
 	// Initialize the cached normalized direction vectors
@@ -496,7 +496,8 @@ void LLVOSky::init()
 		for (S32 tile = 0; tile < NUM_TILES; ++tile)
 		{
 			initSkyTextureDirs(side, tile);
-			createSkyTexture(m_atmosphericsVars, side, tile, false);
+			createSkyTexture(m_atmosphericsVars, side, tile, mSkyTex);
+            createSkyTexture(m_atmosphericsVars, side, tile, mShinyTex, true);
 		}
 	}
 
@@ -527,8 +528,9 @@ void LLVOSky::calc()
     m_atmosphericsVars.haze_density = psky->getHazeDensity();
     m_atmosphericsVars.haze_horizon = psky->getHazeHorizon();
     m_atmosphericsVars.density_multiplier = psky->getDensityMultiplier();
+    m_atmosphericsVars.distance_multiplier = psky->getDistanceMultiplier();
     m_atmosphericsVars.max_y = psky->getMaxY();
-    m_atmosphericsVars.sun_norm = LLEnvironment::instance().getClampedSunNorm();
+    m_atmosphericsVars.sun_norm = LLEnvironment::instance().getClampedLightNorm();
     m_atmosphericsVars.sunlight = psky->getSunlightColor();
     m_atmosphericsVars.ambient = psky->getAmbientColor();    
     m_atmosphericsVars.glow = psky->getGlow();
@@ -536,72 +538,10 @@ void LLVOSky::calc()
     m_atmosphericsVars.dome_radius = psky->getDomeRadius();
     m_atmosphericsVars.dome_offset = psky->getDomeOffset();
     m_atmosphericsVars.light_atten = psky->getLightAttenuation(m_atmosphericsVars.max_y);
-    m_atmosphericsVars.light_transmittance = psky->getLightTransmittance();
+    m_atmosphericsVars.light_transmittance = psky->getLightTransmittance(m_atmosphericsVars.max_y);
     m_atmosphericsVars.gamma = psky->getGamma();
 
-	LLColor3 vary_HazeColor;
-	LLColor3 vary_SunlightColor;
-	LLColor3 vary_AmbientColor;
-	{
-		// Initialize temp variables
-		LLColor3 sunlight = m_atmosphericsVars.sunlight;
-
-		// Sunlight attenuation effect (hue and brightness) due to atmosphere
-		// this is used later for sunlight modulation at various altitudes
-		LLColor3 light_atten =
-			(m_atmosphericsVars.blue_density * 1.0 + smear(m_atmosphericsVars.haze_density * 0.25f)) * (m_atmosphericsVars.density_multiplier * m_atmosphericsVars.max_y);
-
-		// Calculate relative weights
-		LLColor3 temp2(0.f, 0.f, 0.f);
-		LLColor3 temp1 = m_atmosphericsVars.blue_density + smear(m_atmosphericsVars.haze_density);
-		LLColor3 blue_weight = componentDiv(m_atmosphericsVars.blue_density, temp1);
-		LLColor3 haze_weight = componentDiv(smear(m_atmosphericsVars.haze_density), temp1);
-
-		// Compute sunlight from P & lightnorm (for long rays like sky)
-		/// USE only lightnorm.
-		// temp2[1] = llmax(0.f, llmax(0.f, Pn[1]) * 1.0f + lightnorm[1] );
-		F32 lighty = getSun().getDirection().mV[2];
-		temp2.mV[1] = llmax(0.f, lighty);
-		if(temp2.mV[1] > 0.f)
-		{
-			temp2.mV[1] = 1.f / temp2.mV[1];
-		}
-		componentMultBy(sunlight, componentExp((light_atten * -1.f) * temp2.mV[1]));
-
-		// Distance
-		temp2.mV[2] = m_atmosphericsVars.density_multiplier;
-
-		// Transparency (-> temp1)
-		temp1 = componentExp((temp1 * -1.f) * temp2.mV[2]);
-
-		// vary_AtmosAttenuation = temp1; 
-
-		//increase ambient when there are more clouds
-		LLColor3 tmpAmbient = m_atmosphericsVars.ambient + (smear(1.f) - m_atmosphericsVars.ambient) * m_atmosphericsVars.cloud_shadow * 0.5f;
-
-		//haze color
-		vary_HazeColor =
-			(m_atmosphericsVars.blue_horizon * blue_weight * (sunlight * (1.f - m_atmosphericsVars.cloud_shadow) + tmpAmbient)	
-			+ componentMult(m_atmosphericsVars.haze_horizon * haze_weight, sunlight * (1.f - m_atmosphericsVars.cloud_shadow) * temp2.mV[0] + tmpAmbient)
-				 );	
-
-		//brightness of surface both sunlight and ambient
-		vary_SunlightColor = componentMult(sunlight, temp1) * 1.f;
-		vary_SunlightColor.clamp();
-		vary_SunlightColor = smear(1.0f) - vary_SunlightColor;
-		vary_SunlightColor = componentPow(vary_SunlightColor, m_atmosphericsVars.gamma);
-		vary_SunlightColor = smear(1.0f) - vary_SunlightColor;
-		vary_AmbientColor = componentMult(tmpAmbient, temp1) * 0.5;
-		vary_AmbientColor.clamp();
-		vary_AmbientColor = smear(1.0f) - vary_AmbientColor;
-		vary_AmbientColor = componentPow(vary_AmbientColor, m_atmosphericsVars.gamma);
-		vary_AmbientColor = smear(1.0f) - vary_AmbientColor;
-
-		componentMultBy(vary_HazeColor, LLColor3(1.f, 1.f, 1.f) - temp1);
-
-	}
-
-	mSun.setColor(vary_SunlightColor);
+	mSun.setColor(psky->getSunDiffuse());
 	mMoon.setColor(LLColor3(1.0f, 1.0f, 1.0f));
 
 	mSun.renewDirection();
@@ -617,17 +557,17 @@ void LLVOSky::initCubeMap()
 	{
 		images.push_back(mShinyTex[side].getImageRaw());
 	}
-	if (mCubeMap)
+	
+	if (!mCubeMap && gSavedSettings.getBOOL("RenderWater") && gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps)
+	{
+        mCubeMap = new LLCubeMap(false);
+	}
+
+    if (mCubeMap)
 	{
 		mCubeMap->init(images);
 	}
-	else if (gSavedSettings.getBOOL("RenderWater") && gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps)
-	{
-        bool wantsRGB = LLPipeline::RenderDeferred;
 
-        mCubeMap = new LLCubeMap(wantsRGB);
-        mCubeMap->init(images);
-	}
 	gGL.getTexUnit(0)->disable();
 }
 
@@ -663,21 +603,9 @@ void LLVOSky::restoreGL()
 
 	updateDirections();
 
-	if (gSavedSettings.getBOOL("RenderWater") && gGLManager.mHasCubeMap
-	    && LLCubeMap::sUseCubeMaps)
+	if (gSavedSettings.getBOOL("RenderWater") && gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps)
 	{
-		LLCubeMap* cube_map = getCubeMap();
-
-		std::vector<LLPointer<LLImageRaw> > images;
-		for (S32 side = 0; side < 6; side++)
-		{
-			images.push_back(mShinyTex[side].getImageRaw());
-		}
-
-		if(cube_map)
-		{
-			cube_map->init(images);
-		}
+		initCubeMap();
 	}
 
     mForceUpdate = TRUE;
@@ -721,7 +649,7 @@ void LLVOSky::initSkyTextureDirs(const S32 side, const S32 tile)
 	}
 }
 
-void LLVOSky::createSkyTexture(AtmosphericsVars& vars, const S32 side, const S32 tile, bool skip_sky_tex)
+void LLVOSky::createSkyTexture(AtmosphericsVars& vars, const S32 side, const S32 tile, LLSkyTex* tex, bool is_shiny)
 {
 	S32 tile_x = tile % NUM_TILES_X;
 	S32 tile_y = tile / NUM_TILES_X;
@@ -730,22 +658,11 @@ void LLVOSky::createSkyTexture(AtmosphericsVars& vars, const S32 side, const S32
 	S32 tile_y_pos = tile_y * sTileResY;
 
 	S32 x, y;
-    if (!skip_sky_tex)
-    {
-        for (y = tile_y_pos; y < (tile_y_pos + sTileResY); ++y)
-	    {
-		    for (x = tile_x_pos; x < (tile_x_pos + sTileResX); ++x)
-		    {
-                mSkyTex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(vars, mSkyTex[side].getDir(x, y)), x, y);
-		    }
-	    }
-    }
-
 	for (y = tile_y_pos; y < (tile_y_pos + sTileResY); ++y)
 	{
 		for (x = tile_x_pos; x < (tile_x_pos + sTileResX); ++x)
 		{
-			mShinyTex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(vars, mSkyTex[side].getDir(x, y), true), x, y);
+			tex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(vars, tex[side].getDir(x, y), is_shiny), x, y);
 		}
 	}
 }
@@ -762,9 +679,6 @@ void LLVOSky::updateDirections(void)
 
     mSun.setRotation(psky->getSunRotation());
 	mMoon.setRotation(psky->getMoonRotation());
-
-    mSun.setColor(psky->getSunlightColor());
-	mMoon.setColor(psky->getMoonDiffuse());
 
 	mSun.renewDirection();
 	mSun.renewColor();
@@ -801,124 +715,109 @@ bool LLVOSky::updateSky()
 	const S32 total_no_tiles = 6 * NUM_TILES;
 	const S32 cycle_frame_no = total_no_tiles + 1;
 
-	if (mUpdateTimer.getElapsedTimeF32() > 0.025f)
+	const S32 frame = next_frame;
+
+    mForceUpdate = mForceUpdate || (total_no_tiles == frame);
+
+	++next_frame;
+	next_frame = next_frame % cycle_frame_no;
+
+	mInterpVal = (!mInitialized) ? 1 : (F32)next_frame / cycle_frame_no;
+	// sInterpVal = (F32)next_frame / cycle_frame_no;
+	LLSkyTex::setInterpVal( mInterpVal );
+	LLHeavenBody::setInterpVal( mInterpVal );
+	updateDirections();
+
+    LLVector3 direction = mSun.getDirection();
+	direction.normalize();
+	const F32 dot_sun  = direction * mLastSunLightingDirection;
+    const F32 dot_moon = direction * mLastMoonLightingDirection;
+
+	LLColor3 delta_color;
+	delta_color.setVec(mLastTotalAmbient.mV[0] - total_ambient.mV[0],
+						mLastTotalAmbient.mV[1] - total_ambient.mV[1],
+                        mLastTotalAmbient.mV[2] - total_ambient.mV[2]);
+
+    bool sun_direction_changed  = (dot_sun < LIGHT_DIRECTION_THRESHOLD);
+    bool moon_direction_changed = (dot_moon < LIGHT_DIRECTION_THRESHOLD);
+    bool color_changed          = (delta_color.length() >= COLOR_CHANGE_THRESHOLD);
+
+    mForceUpdate = mForceUpdate || sun_direction_changed;
+    mForceUpdate = mForceUpdate || moon_direction_changed;
+    mForceUpdate = mForceUpdate || color_changed;
+    mForceUpdate = mForceUpdate || !mInitialized;
+    mForceUpdate = mForceUpdate || mForceUpdateThrottle.hasExpired();
+
+    calc();
+
+    if (mForceUpdate)
 	{
-        mUpdateTimer.reset();
-		const S32 frame = next_frame;
+        LL_RECORD_BLOCK_TIME(FTM_VOSKY_UPDATEFORCED);
 
-        mForceUpdate = mForceUpdate || (total_no_tiles == frame);
+        mForceUpdateThrottle.setTimerExpirySec(UPDATE_EXPRY);
 
-		++next_frame;
-		next_frame = next_frame % cycle_frame_no;
-
-		mInterpVal = (!mInitialized) ? 1 : (F32)next_frame / cycle_frame_no;
-		// sInterpVal = (F32)next_frame / cycle_frame_no;
-		LLSkyTex::setInterpVal( mInterpVal );
-		LLHeavenBody::setInterpVal( mInterpVal );
-		updateDirections();
-
-        LLVector3 direction = mSun.getDirection();
-		direction.normalize();
-		const F32 dot_sun  = direction * mLastSunLightingDirection;
-        const F32 dot_moon = direction * mLastMoonLightingDirection;
-
-		LLColor3 delta_color;
-		delta_color.setVec(mLastTotalAmbient.mV[0] - total_ambient.mV[0],
-							mLastTotalAmbient.mV[1] - total_ambient.mV[1],
-                            mLastTotalAmbient.mV[2] - total_ambient.mV[2]);
-
-        bool sun_direction_changed  = (dot_sun < LIGHT_DIRECTION_THRESHOLD);
-        bool moon_direction_changed = (dot_moon < LIGHT_DIRECTION_THRESHOLD);
-        bool color_changed          = (delta_color.length() >= COLOR_CHANGE_THRESHOLD);
-
-        mForceUpdate = mForceUpdate || sun_direction_changed;
-        mForceUpdate = mForceUpdate || moon_direction_changed;
-        mForceUpdate = mForceUpdate || color_changed;
-        mForceUpdate = mForceUpdate || !mInitialized;
-
-        bool is_alm_wl_sky = gPipeline.canUseWindLightShaders();
-
-        calc();
-
-        if (mForceUpdate && mForceUpdateThrottle.hasExpired())
-		{
-            LL_RECORD_BLOCK_TIME(FTM_VOSKY_UPDATEFORCED);
-
-            mForceUpdateThrottle.setTimerExpirySec(UPDATE_EXPRY);
-
-			LLSkyTex::stepCurrent();
+		LLSkyTex::stepCurrent();
 		
-			if (!direction.isExactlyZero())
+		if (!direction.isExactlyZero())
+		{            
+			mInitialized = TRUE;
+
+            updateFog(LLViewerCamera::getInstance()->getFar());
+            mLastTotalAmbient = total_ambient;
+
+			if (mCubeMap)
 			{
-                mLastTotalAmbient = total_ambient;
-				mInitialized = TRUE;
-
-				if (mCubeMap)
+				for (int side = 0; side < 6; side++) 
 				{
-					updateFog(LLViewerCamera::getInstance()->getFar());
-
-					for (int side = 0; side < 6; side++) 
+					for (int tile = 0; tile < NUM_TILES; tile++) 
 					{
-						for (int tile = 0; tile < NUM_TILES; tile++) 
-						{
-							createSkyTexture(m_atmosphericsVars, side, tile, is_alm_wl_sky);
-						}
+						createSkyTexture(m_atmosphericsVars, side, tile, mShinyTex, true);
 					}
-
-                    int tex = mSkyTex[0].getWhich(TRUE);
-
-					for (int side = 0; side < 6; side++) 
-					{
-                        LLImageRaw* raw1 = nullptr;
-                        LLImageRaw* raw2 = nullptr;
-
-                        if (!is_alm_wl_sky)
-                        {
-						    raw1 = mSkyTex[side].getImageRaw(TRUE);
-						    raw2 = mSkyTex[side].getImageRaw(FALSE);
-						    raw2->copy(raw1);
-						    mSkyTex[side].createGLImage(tex);
-                        }
-
-						raw1 = mShinyTex[side].getImageRaw(TRUE);
-						raw2 = mShinyTex[side].getImageRaw(FALSE);
-						raw2->copy(raw1);
-						mShinyTex[side].createGLImage(tex);
-					}
-					next_frame = 0;	
-
-			        // update the sky texture
-                    if (!is_alm_wl_sky)
-                    {
-			            for (S32 i = 0; i < 6; ++i)
-			            {
-                            mSkyTex[i].create(1.0f);
-			            }
-                    }
-
-                    for (S32 i = 0; i < 6; ++i)
-			        {
-				        mShinyTex[i].create(1.0f);
-			        }
-
-			        // update the environment map
-			        if (mCubeMap)
-			        {
-				        std::vector<LLPointer<LLImageRaw> > images;
-				        images.reserve(6);
-				        for (S32 side = 0; side < 6; side++)
-				        {
-					        images.push_back(mShinyTex[side].getImageRaw(TRUE));
-				        }
-				        mCubeMap->init(images);
-				        gGL.getTexUnit(0)->disable();
-			        }                    
 				}
-            }
 
-			gPipeline.markRebuild(gSky.mVOGroundp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
-			mForceUpdate = FALSE;
-		}
+                int tex = mShinyTex[0].getWhich(TRUE);
+
+				for (int side = 0; side < 6; side++) 
+				{
+                    LLImageRaw* raw1 = nullptr;
+                    LLImageRaw* raw2 = nullptr;
+					raw1 = mShinyTex[side].getImageRaw(TRUE);
+					raw2 = mShinyTex[side].getImageRaw(FALSE);
+					raw2->copy(raw1);
+					mShinyTex[side].createGLImage(tex);
+                    mShinyTex[side].create(1.0f);
+				}
+			    initCubeMap();
+			}
+
+            // if we're using a generated sky cubemap instead of rendered sky...
+            if (!gPipeline.canUseWindLightShaders())
+			{
+				for (int side = 0; side < 6; side++) 
+				{
+					for (int tile = 0; tile < NUM_TILES; tile++) 
+					{
+						createSkyTexture(m_atmosphericsVars, side, tile, mSkyTex);
+					}
+				}
+
+                int tex = mSkyTex[0].getWhich(TRUE);
+
+				for (int side = 0; side < 6; side++) 
+				{
+                    LLImageRaw* raw1 = nullptr;
+                    LLImageRaw* raw2 = nullptr;
+					raw1 = mSkyTex[side].getImageRaw(TRUE);
+					raw2 = mSkyTex[side].getImageRaw(FALSE);
+					raw2->copy(raw1);
+					mSkyTex[side].createGLImage(tex);
+                    mSkyTex[side].create(1.0f);
+				}
+			}
+        }
+
+		gPipeline.markRebuild(gSky.mVOGroundp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+		mForceUpdate = FALSE;
 	}
 
 	if (mDrawable.notNull() && mDrawable->getFace(0) && !mDrawable->getFace(0)->getVertexBuffer())

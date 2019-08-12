@@ -25,7 +25,7 @@
  
 /*[EXTRA_CODE_HERE]*/
 
-#define DIFFUSE_ALPHA_MODE_IGNORE   0
+#define DIFFUSE_ALPHA_MODE_NONE     0
 #define DIFFUSE_ALPHA_MODE_BLEND    1
 #define DIFFUSE_ALPHA_MODE_MASK     2
 #define DIFFUSE_ALPHA_MODE_EMISSIVE 3
@@ -41,7 +41,7 @@ vec4 applyWaterFogView(vec3 pos, vec4 color);
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 scaleSoftClipFrag(vec3 l);
 
-void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
+void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
 
 vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cs);
@@ -272,17 +272,12 @@ void main()
 
     vec2 abnormal   = encode_normal(norm.xyz);
 
-    vec4 final_color = diffuse_linear;
-    
-#if (DIFFUSE_ALPHA_MODE != DIFFUSE_ALPHA_MODE_EMISSIVE)
-    final_color.a = emissive_brightness;
-#else
-    final_color.a = max(final_color.a, emissive_brightness);
-#endif
+    vec4 final_color = vec4(diffuse_linear.rgb, 0.0);
 
-#if !defined(HAS_NORMAL_MAP)
-    final_color.a = 0.0f;
+#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_EMISSIVE)
+    final_color.a = diffuse_linear.a;
 #endif
+    final_color.a = max(final_color.a, emissive_brightness);
 
     vec4 final_specular = spec;
     final_specular.a = specular_color.a;
@@ -309,6 +304,8 @@ void main()
 
     float envIntensity = final_normal.z;
 
+    vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;
+
     vec3 color = vec3(0.0);
 
     float bloom = 0.0;
@@ -317,11 +314,10 @@ void main()
     vec3 additive;
     vec3 atten;
 
-    calcAtmosphericVars(pos.xyz, 1.0, sunlit, amblit, additive, atten, false);
+    calcAtmosphericVars(pos.xyz, light_dir, 1.0, sunlit, amblit, additive, atten, false);
 
     vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
-    vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;
 
     float da = dot(normalize(norm.xyz), normalize(light_dir.xyz));
           da = clamp(da, -1.0, 1.0);

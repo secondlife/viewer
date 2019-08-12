@@ -59,7 +59,7 @@ uniform vec2 screen_res;
 vec3 getNorm(vec2 pos_screen);
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 
-void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
+void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
 float getAmbientClamp();
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 scaleSoftClipFrag(vec3 l);
@@ -109,7 +109,7 @@ void main()
         vec3 additive;
         vec3 atten;
     
-        calcAtmosphericVars(pos.xyz, ambocc, sunlit, amblit, additive, atten, true);
+        calcAtmosphericVars(pos.xyz, light_dir, ambocc, sunlit, amblit, additive, atten, true);
 
         float ambient = da;
         ambient *= 0.5;
@@ -184,6 +184,7 @@ vec3 post_env = color.rgb;
         if (norm.w < 1)
         {
 #if !defined(SUNLIGHT_KILL)
+            vec3 p = normalize(pos.xyz);
             color = atmosFragLighting(color, additive, atten);
             color = scaleSoftClipFrag(color);
 #endif

@@ -55,8 +55,10 @@ void main()
 	float alpha2 = texture2D(alpha_ramp,vary_texcoord1.xy).a;
 	float alphaFinal = texture2D(alpha_ramp, vary_texcoord1.zw).a;
 	vec4 outColor = mix( mix(color3, color2, alpha2), mix(color1, color0, alpha1), alphaFinal );
-	
+
+    outColor.rgb *= vertex_color.rgb;	
 	outColor = applyWaterFog(outColor);
+
 	frag_color = outColor;
 }
 

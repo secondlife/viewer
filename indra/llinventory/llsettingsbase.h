@@ -477,9 +477,6 @@ public:
         mBlendSpan(blend_span),
         mLastUpdate(0.0f),
         mTimeSpent(0.0f),
-        mTimeDeltaThreshold(0.0f),
-        mTimeDeltaPassed(0.0f),
-        mIgnoreTimeDelta(false),
         mBlendFMinDelta(MIN_BLEND_DELTA),
         mLastBlendF(-1.0f)
     {
@@ -499,25 +496,10 @@ public:
         mTimeStart  = LLSettingsBase::Seconds(LLDate::now().secondsSinceEpoch());
         mLastUpdate = mTimeStart;
         mTimeSpent  = LLSettingsBase::Seconds(0.0f);
-        mTimeDeltaPassed = LLSettingsBase::Seconds(0.0f);
         mLastBlendF = LLSettingsBase::BlendFactor(-1.0f);
     }
 
     virtual bool applyTimeDelta(const LLSettingsBase::Seconds& timedelta) SETTINGS_OVERRIDE;
-
-    inline void setTimeDeltaThreshold(const LLSettingsBase::Seconds time)
-    {
-        mTimeDeltaThreshold = time;
-        mTimeDeltaPassed = time + LLSettingsBase::Seconds(1.0);  // take the next update call.
-    }
-
-    inline LLSettingsBase::Seconds getTimeDeltaThreshold() const
-    {
-        return mTimeDeltaThreshold;
-    }
-
-    inline void setIgnoreTimeDeltaThreshold(bool val) { mIgnoreTimeDelta = val; }
-    inline bool getIgnoreTimeDeltaThreshold() const { return mIgnoreTimeDelta; }
 
     inline void setTimeSpent(LLSettingsBase::Seconds time) { mTimeSpent = time; }
 protected:
@@ -527,9 +509,6 @@ protected:
     LLSettingsBase::Seconds mLastUpdate;
     LLSettingsBase::Seconds mTimeSpent;
     LLSettingsBase::Seconds mTimeStart;
-    LLSettingsBase::Seconds mTimeDeltaThreshold;
-    LLSettingsBase::Seconds mTimeDeltaPassed;
-    bool                    mIgnoreTimeDelta;
     LLSettingsBase::BlendFactor mBlendFMinDelta;
     LLSettingsBase::BlendFactor mLastBlendF;
 };

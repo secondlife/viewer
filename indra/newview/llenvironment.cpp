@@ -196,7 +196,6 @@ namespace
             mCycleLength(cyclelength),
             mCycleOffset(cycleoffset)
         {
-            setTimeDeltaThreshold(updateThreshold);
             // must happen prior to getBoundingEntries call...
             mTrackNo = selectTrackNumber(trackno);
 
@@ -233,7 +232,6 @@ namespace
             LLSettingsBase::BlendFactor blendf = calculateBlend(targetpos, targetspan);
             pendsetting->blend((*bounds.second).second, blendf);
 
-            setIgnoreTimeDeltaThreshold(true); // for the next span ignore the time delta threshold.
             reset(pstartsetting, pendsetting, LLEnvironment::TRANSITION_ALTITUDE);
         }
 

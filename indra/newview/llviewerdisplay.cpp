@@ -130,9 +130,6 @@ void display_startup()
 
 	gPipeline.updateGL();
 
-	// Update images?
-	//gImageList.updateImages(0.01f);
-	
 	// Written as branch to appease GCC which doesn't like different
 	// pointer types across ternary ops
 	//
@@ -595,18 +592,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	// Actually push all of our triangles to the screen.
 	//
 
-	// do render-to-texture stuff here
-	if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_DYNAMIC_TEXTURES))
-	{
-		LLAppViewer::instance()->pingMainloopTimeout("Display:DynamicTextures");
-		LL_RECORD_BLOCK_TIME(FTM_UPDATE_DYNAMIC_TEXTURES);
-		if (LLViewerDynamicTexture::updateAllInstances())
-		{
-			gGL.setColorMask(true, true);
-			glClear(GL_DEPTH_BUFFER_BIT);
-		}
-	}
-
 	gViewerWindow->setup3DViewport();
 
 	gPipeline.resetFrameStats();	// Reset per-frame statistics.
@@ -717,7 +702,11 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 			if (!for_snapshot)
 			{
-                gPipeline.generateSunShadow(*LLViewerCamera::getInstance());
+				if (gFrameCount > 1)
+				{ //for some reason, ATI 4800 series will error out if you 
+				  //try to generate a shadow before the first frame is through
+					gPipeline.generateSunShadow(*LLViewerCamera::getInstance());
+				}
 
 				LLVertexBuffer::unbind();
 
@@ -1022,11 +1011,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gPipeline.renderDeferredLighting(&gPipeline.mScreen);
 		}
 
-		if (to_texture)
-		{
-			gPipeline.renderBloom(gSnapshot, zoom_factor, subfield);
-		}
-
 		LLPipeline::sUnderWaterRender = FALSE;
 
 		{
@@ -1038,10 +1022,26 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		if (!for_snapshot)
 		{
 			render_ui();
+		}
+
+        // do render-to-texture stuff here
+	    if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_DYNAMIC_TEXTURES))
+	    {
+		    LLAppViewer::instance()->pingMainloopTimeout("Display:DynamicTextures");
+		    LL_RECORD_BLOCK_TIME(FTM_UPDATE_DYNAMIC_TEXTURES);
+		    if (LLViewerDynamicTexture::updateAllInstances())
+		    {
+			    gGL.setColorMask(true, true);
+			    glClear(GL_DEPTH_BUFFER_BIT);
+		    }
+	    }
+
+        LLAppViewer::instance()->pingMainloopTimeout("Display:RenderUI");
+		if (!for_snapshot)
+		{
 			swap();
 		}
 
-		
 		LLSpatialGroup::sNoDelete = FALSE;
 		gPipeline.clearReferences();
 
@@ -1288,7 +1288,14 @@ void render_ui(F32 zoom_factor, int subfield)
 	}
 
 	{
-        LL_RECORD_BLOCK_TIME(FTM_RENDER_UI_HUD);
+		BOOL to_texture = gPipeline.canUseVertexShaders() &&
+							LLPipeline::sRenderGlow;
+
+		if (to_texture)
+		{
+			gPipeline.renderBloom(gSnapshot, zoom_factor, subfield);
+		}
+		
 		render_hud_elements();
 		render_hud_attachments();
 	}

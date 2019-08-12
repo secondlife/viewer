@@ -47,7 +47,7 @@ float getAmbientClamp()
     return 1.0f;
 }
 
-void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao) {
+void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao) {
 
     vec3 P = inPositionEye;
    
@@ -68,7 +68,7 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
     vec4 light_atten;
 
     float dens_mul = density_multiplier;
-    float dist_mul = max(0.05, distance_multiplier);
+    float dist_mul = distance_multiplier;
 
     //sunlight attenuation effect (hue and brightness) due to atmosphere
     //this is used later for sunlight modulation at various altitudes
@@ -103,11 +103,17 @@ void calcAtmosphericVars(vec3 inPositionEye, float ambFactor, out vec3 sunlit, o
     //compute haze glow
     //(can use temp2.x as temp because we haven't used it yet)
     temp2.x = dot(Pn, tmpLightnorm.xyz);
+
+    // dampen sun additive contrib when not facing it...
+    if (length(light_dir) > 0.01)
+    {
+        temp2.x *= max(0.0f, dot(light_dir, Pn));
+    }
     temp2.x = 1. - temp2.x;
         //temp2.x is 0 at the sun and increases away from sun
     temp2.x = max(temp2.x, .001);    //was glow.y
         //set a minimum "angle" (smaller glow.y allows tighter, brighter hotspot)
-    temp2.x *= glow.x * 1.8;
+    temp2.x *= glow.x;
         //higher glow.x gives dimmer glow (because next step is 1 / "angle")
     temp2.x = pow(temp2.x, glow.z * 0.2);
         //glow.z should be negative, so we're doing a sort of (1 / "angle") function

@@ -406,9 +406,9 @@ void LLRenderPass::renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL t
 	}
 }
 
-void LLRenderPass::renderTexture(U32 type, U32 mask)
+void LLRenderPass::renderTexture(U32 type, U32 mask, BOOL batch_textures)
 {
-	pushBatches(type, mask, TRUE);
+	pushBatches(type, mask, batch_textures);
 }
 
 void LLRenderPass::pushBatches(U32 type, U32 mask, BOOL texture, BOOL batch_textures)
@@ -461,6 +461,11 @@ void LLRenderPass::applyModelMatrix(const LLDrawInfo& params)
 
 void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures)
 {
+    if (!params.mCount)
+    {
+        return;
+    }
+
 	applyModelMatrix(params);
 
 	bool tex_setup = false;

@@ -204,8 +204,6 @@ public:
     , light_atten()
     , light_transmittance()
     {
-        horizontalProjection[0] = LLVector2(0,0);
-        horizontalProjection[1] = LLVector2(0,0);
     }
 
     LLColor3  hazeColor;
@@ -213,7 +211,6 @@ public:
 	LLColor3  cloudColorSun;
 	LLColor3  cloudColorAmbient;
 	F32       cloudDensity;
-	LLVector2 horizontalProjection[2];
     LLColor3  blue_density;
     LLColor3  blue_horizon;
     F32       haze_density;
@@ -231,6 +228,7 @@ public:
     F32       dome_offset;
     LLColor3 light_atten;
     LLColor3 light_transmittance;
+    LLColor3 total_density;
 };
 
 class LLAtmospherics
@@ -260,7 +258,6 @@ public:
 protected:    
 
     void     calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars);
-    LLColor3 calcSkyColorWLFrag(LLVector3 & Pn, AtmosphericsVars& vars);
     LLColor3 getHazeColor(LLSettingsSky::ptr_t psky, AtmosphericsVars& vars, F32 costheta, F32 cloud_shadow);
 
     LLHaze              mHaze;
@@ -277,7 +274,6 @@ protected:
     LLColor4            mGLFogCol;
     F32                 mFogRatio;
     F32                 mWorldScale;
-    LLFrameTimer        mUpdateTimer;
 };
 
 #endif

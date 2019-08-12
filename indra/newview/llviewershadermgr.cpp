@@ -1168,10 +1168,18 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		gTerrainWaterProgram.mFeatures.mIndexedTextureChannels = 0;
 		gTerrainWaterProgram.mFeatures.disableTextureIndex = true;
 		gTerrainWaterProgram.mShaderFiles.clear();
-		gTerrainWaterProgram.mShaderFiles.push_back(make_pair("environment/terrainV.glsl", GL_VERTEX_SHADER_ARB));
+		gTerrainWaterProgram.mShaderFiles.push_back(make_pair("environment/terrainWaterV.glsl", GL_VERTEX_SHADER_ARB));
 		gTerrainWaterProgram.mShaderFiles.push_back(make_pair("environment/terrainWaterF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gTerrainWaterProgram.mShaderLevel = mShaderLevel[SHADER_ENVIRONMENT];
 		gTerrainWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
+
+        gTerrainWaterProgram.clearPermutations();
+
+        if (LLPipeline::RenderDeferred)
+        {
+            gTerrainWaterProgram.addPermutation("ALM", "1");
+        }
+
 		terrainWaterSuccess = gTerrainWaterProgram.createShader(NULL, NULL);
 		llassert(terrainWaterSuccess);
 	}	
@@ -1475,7 +1483,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSkinnedAlphaProgram.clearPermutations();
 		gDeferredSkinnedAlphaProgram.addPermutation("USE_DIFFUSE_TEX", "1");
 		gDeferredSkinnedAlphaProgram.addPermutation("HAS_SKIN", "1");
-		gDeferredSkinnedAlphaProgram.addPermutation("USE_VERTEX_COLOR", "1");
+
 		if (use_sun_shadow)
 		{
 			gDeferredSkinnedAlphaProgram.addPermutation("HAS_SHADOW", "1");
@@ -1947,7 +1955,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         {
             gDeferredAlphaProgram.addPermutation("HAS_SHADOW", "1");
         }
-        gDeferredAlphaProgram.addPermutation("USE_VERTEX_COLOR", "1");
 
         if (ambient_kill)
         {
@@ -2002,7 +2009,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
         gDeferredAlphaImpostorProgram.clearPermutations();
         gDeferredAlphaImpostorProgram.addPermutation("USE_INDEXED_TEX", "1");
-        gDeferredAlphaImpostorProgram.addPermutation("USE_VERTEX_COLOR", "1");
         gDeferredAlphaImpostorProgram.addPermutation("FOR_IMPOSTOR", "1");
 
         if (use_sun_shadow)
@@ -2052,7 +2058,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAlphaWaterProgram.clearPermutations();
 		gDeferredAlphaWaterProgram.addPermutation("USE_INDEXED_TEX", "1");
 		gDeferredAlphaWaterProgram.addPermutation("WATER_FOG", "1");
-		gDeferredAlphaWaterProgram.addPermutation("USE_VERTEX_COLOR", "1");
 		if (use_sun_shadow)
 		{
 			gDeferredAlphaWaterProgram.addPermutation("HAS_SHADOW", "1");

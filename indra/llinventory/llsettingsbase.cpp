@@ -167,6 +167,8 @@ LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, c
     stringset_t skip = getSkipInterpolateKeys();
     stringset_t slerps = getSlerpKeys();
 
+    llassert(mix >= 0.0f && mix <= 1.0f);
+
     for (LLSD::map_const_iterator it = settings.beginMap(); it != settings.endMap(); ++it)
     {
         std::string key_name = (*it).first;
@@ -678,9 +680,9 @@ bool LLSettingsBase::Validator::verifyStringLength(LLSD &value, S32 length)
 void LLSettingsBlender::update(const LLSettingsBase::BlendFactor& blendf)
 {
     F64 res = setBlendFactor(blendf);
-
-    if ((res >= 0.0001) && (res < 1.0))
-        mTarget->update();
+    llassert(res >= 0.0 && res <= 1.0);
+    (void)res;
+    mTarget->update();
 }
 
 F64 LLSettingsBlender::setBlendFactor(const LLSettingsBase::BlendFactor& blendf_in)
@@ -689,17 +691,12 @@ F64 LLSettingsBlender::setBlendFactor(const LLSettingsBase::BlendFactor& blendf_
     if (blendf >= 1.0)
     {
         triggerComplete();
-        return 1.0;
     }
     blendf = llclamp(blendf, 0.0f, 1.0f);
 
     if (mTarget)
     {
         mTarget->replaceSettings(mInitial->getSettings());
-        if (!mFinal || (mInitial == mFinal) || (blendf == 0.0))
-        {   // this is a trivial blend.  Results will be identical to the initial.
-            return blendf;
-        }
         mTarget->blend(mFinal, blendf);
     }
     else
@@ -720,7 +717,7 @@ void LLSettingsBlender::triggerComplete()
 }
 
 //-------------------------------------------------------------------------
-const LLSettingsBase::BlendFactor LLSettingsBlenderTimeDelta::MIN_BLEND_DELTA(0.001);
+const LLSettingsBase::BlendFactor LLSettingsBlenderTimeDelta::MIN_BLEND_DELTA(FLT_EPSILON);
 
 LLSettingsBase::BlendFactor LLSettingsBlenderTimeDelta::calculateBlend(const LLSettingsBase::TrackPosition& spanpos, const LLSettingsBase::TrackPosition& spanlen) const
 {
@@ -730,22 +727,14 @@ LLSettingsBase::BlendFactor LLSettingsBlenderTimeDelta::calculateBlend(const LLS
 bool LLSettingsBlenderTimeDelta::applyTimeDelta(const LLSettingsBase::Seconds& timedelta)
 {
     mTimeSpent += timedelta;
-    mTimeDeltaPassed += timedelta;
 
     if (mTimeSpent > mBlendSpan)
     {
-        mIgnoreTimeDelta = false;
         triggerComplete();
         return false;
     }
 
-    if ((mTimeDeltaPassed < mTimeDeltaThreshold) && (!mIgnoreTimeDelta))
-    {
-        return false;
-    }
-
     LLSettingsBase::BlendFactor blendf = calculateBlend(mTimeSpent, mBlendSpan);
-    mTimeDeltaPassed = LLSettingsBase::Seconds(0.0);
 
     if (fabs(mLastBlendF - blendf) < mBlendFMinDelta)
     {

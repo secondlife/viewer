@@ -174,7 +174,7 @@ public:
 	virtual void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures = FALSE);
 	virtual void renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
 	virtual void renderGroups(U32 type, U32 mask, BOOL texture = TRUE);
-	virtual void renderTexture(U32 type, U32 mask);
+	virtual void renderTexture(U32 type, U32 mask, BOOL batch_textures = TRUE);
 
 };
 

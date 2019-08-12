@@ -129,7 +129,9 @@ void LLDrawPoolSky::renderSkyCubeFace(U8 side)
 
 	llassert(mSkyTex);
 	mSkyTex[side].bindTexture(TRUE);
-	
+
+    gGL.getTexUnit(0)->setTextureColorSpace(LLTexUnit::TCS_SRGB);
+
 	face.renderIndexed();
 
 	if (LLSkyTex::doInterpolate())
