@@ -500,6 +500,9 @@ void LLDrawPoolWater::shade2(bool edge, LLGLSLShader* shader, const LLColor3& li
 	    }
 	}
 
+    LLColor4 specular(psky->getIsSunUp() ? psky->getSunlightColor() : psky->getMoonlightColor());
+    shader->uniform4fv(LLShaderMgr::SPECULAR_COLOR, 1, specular.mV);
+
 	sTime = (F32)LLFrameTimer::getElapsedSeconds() * 0.5f;
 	
 	S32 reftex = shader->enableTexture(LLShaderMgr::WATER_REFTEX);

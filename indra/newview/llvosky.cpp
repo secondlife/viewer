@@ -479,7 +479,7 @@ void LLVOSky::init()
     m_atmosphericsVars.density_multiplier = psky->getDensityMultiplier();
     m_atmosphericsVars.max_y = psky->getMaxY();
     m_atmosphericsVars.sun_norm = LLEnvironment::instance().getClampedSunNorm();
-    m_atmosphericsVars.sunlight = psky->getSunlightColor();
+    m_atmosphericsVars.sunlight = psky->getIsSunUp() ? psky->getSunlightColor() : psky->getMoonlightColor();
     m_atmosphericsVars.ambient = psky->getAmbientColor();    
     m_atmosphericsVars.glow = psky->getGlow();
     m_atmosphericsVars.cloud_shadow = psky->getCloudShadow();
@@ -531,7 +531,7 @@ void LLVOSky::calc()
     m_atmosphericsVars.distance_multiplier = psky->getDistanceMultiplier();
     m_atmosphericsVars.max_y = psky->getMaxY();
     m_atmosphericsVars.sun_norm = LLEnvironment::instance().getClampedSunNorm();
-    m_atmosphericsVars.sunlight = psky->getSunlightColor();
+    m_atmosphericsVars.sunlight = psky->getIsSunUp() ? psky->getSunlightColor() : psky->getMoonlightColor();
     m_atmosphericsVars.ambient = psky->getAmbientColor();    
     m_atmosphericsVars.glow = psky->getGlow();
     m_atmosphericsVars.cloud_shadow = psky->getCloudShadow();
@@ -750,7 +750,9 @@ bool LLVOSky::updateSky()
 
     calc();
 
-    if (mForceUpdate && mForceUpdateThrottle.hasExpired())
+    bool same_atmospherics = m_lastAtmosphericsVars == m_atmosphericsVars;
+
+    if (mForceUpdate && mForceUpdateThrottle.hasExpired() && !same_atmospherics)
 	{
         LL_RECORD_BLOCK_TIME(FTM_VOSKY_UPDATEFORCED);
 
@@ -758,6 +760,8 @@ bool LLVOSky::updateSky()
 
 		LLSkyTex::stepCurrent();
 		
+        m_lastAtmosphericsVars = m_atmosphericsVars;
+
 		if (!direction.isExactlyZero())
 		{
             mLastTotalAmbient = total_ambient;
