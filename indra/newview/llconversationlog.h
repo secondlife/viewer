@@ -109,7 +109,7 @@ private:
 
 class LLConversationLog : public LLParamSingleton<LLConversationLog>, LLIMSessionObserver
 {
-	LLPARAMSINGLETON(LLConversationLog);
+	LLSINGLETON(LLConversationLog);
 public:
 	void removeConversation(const LLConversation& conversation);
 
