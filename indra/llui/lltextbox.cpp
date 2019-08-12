@@ -107,7 +107,7 @@ BOOL LLTextBox::handleHover(S32 x, S32 y, MASK mask)
 	if (!handled && mClickedCallback && mShowCursorHand)
 	{
 		// Clickable text boxes change the cursor to a hand
-		LLUI::getWindow()->setCursor(UI_CURSOR_HAND);
+		LLUI::getInstance()->getWindow()->setCursor(UI_CURSOR_HAND);
 		return TRUE;
 	}
 	return handled;

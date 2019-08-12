@@ -1226,8 +1226,6 @@ bool idle_startup()
 		LLSurface::initClasses();
 		display_startup();
 
-
-		LLFace::initClass();
 		display_startup();
 
 		LLDrawable::initClass();
@@ -1291,7 +1289,7 @@ bool idle_startup()
 		display_startup();
 		LLStartUp::setStartupState( STATE_MULTIMEDIA_INIT );
 		
-		LLConversationLog::getInstance();
+		LLConversationLog::initParamSingleton();
 
 		return FALSE;
 	}
@@ -2806,9 +2804,6 @@ void LLStartUp::multimediaInit()
 	std::string msg = LLTrans::getString("LoginInitializingMultimedia");
 	set_startup_status(0.42f, msg.c_str(), gAgent.mMOTD.c_str());
 	display_startup();
-
-	// LLViewerMedia::initClass();
-	LLViewerParcelMedia::initClass();
 }
 
 void LLStartUp::fontInit()
@@ -2836,9 +2831,10 @@ void LLStartUp::initNameCache()
 
 	// Start cache in not-running state until we figure out if we have
 	// capabilities for display name lookup
-	LLAvatarNameCache::initClass(false,gSavedSettings.getBOOL("UsePeopleAPI"));
-	LLAvatarNameCache::setUseDisplayNames(gSavedSettings.getBOOL("UseDisplayNames"));
-	LLAvatarNameCache::setUseUsernames(gSavedSettings.getBOOL("NameTagShowUsernames"));
+	LLAvatarNameCache* cache_inst = LLAvatarNameCache::getInstance();
+	cache_inst->setUsePeopleAPI(gSavedSettings.getBOOL("UsePeopleAPI"));
+	cache_inst->setUseDisplayNames(gSavedSettings.getBOOL("UseDisplayNames"));
+	cache_inst->setUseUsernames(gSavedSettings.getBOOL("NameTagShowUsernames"));
 }
 
 
@@ -2853,8 +2849,6 @@ void LLStartUp::initExperiences()
 
 void LLStartUp::cleanupNameCache()
 {
-	SUBSYSTEM_CLEANUP(LLAvatarNameCache);
-
 	delete gCacheName;
 	gCacheName = NULL;
 }
@@ -3543,7 +3537,7 @@ bool process_login_success_response()
 	if(!openid_url.empty())
 	{
 		std::string openid_token = response["openid_token"];
-		LLViewerMedia::openIDSetup(openid_url, openid_token);
+		LLViewerMedia::getInstance()->openIDSetup(openid_url, openid_token);
 	}
 
 	gMaxAgentGroups = DEFAULT_MAX_AGENT_GROUPS;

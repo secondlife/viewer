@@ -50,7 +50,7 @@ bool LLBrowserNotification::processNotification(const LLNotificationPtr& notific
 	}
 	else if (LLViewerMediaFocus::instance().getControlsMediaID() == media_id)
 	{
-		LLViewerMediaImpl* impl = LLViewerMedia::getMediaImplFromTextureID(media_id);
+		LLViewerMediaImpl* impl = LLViewerMedia::getInstance()->getMediaImplFromTextureID(media_id);
 		if (impl)
 		{
 			impl->showNotification(notification);

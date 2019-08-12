@@ -122,7 +122,7 @@ BOOL LLViewerParcelMediaAutoPlay::tick()
 		(mTimeInParcel > AUTOPLAY_TIME) &&		// and if we've been here for so many seconds
 		(!this_media_url.empty()) &&			// and if the parcel has media
 		(stricmp(this_media_type.c_str(), LLMIMETypes::getDefaultMimeType().c_str()) != 0) &&
-		(LLViewerParcelMedia::sMediaImpl.isNull()))	// and if the media is not already playing
+		(!LLViewerParcelMedia::getInstance()->hasParcelMedia()))	// and if the media is not already playing
 	{
 		if (this_media_texture_id.notNull())	// and if the media texture is good
 		{
@@ -144,7 +144,7 @@ BOOL LLViewerParcelMediaAutoPlay::tick()
 						if (gSavedSettings.getBOOL("ParcelMediaAutoPlayEnable"))
 						{
 							// and last but not least, only play when autoplay is enabled
-							LLViewerParcelMedia::play(this_parcel);
+							LLViewerParcelMedia::getInstance()->play(this_parcel);
 						}
 					}
 
