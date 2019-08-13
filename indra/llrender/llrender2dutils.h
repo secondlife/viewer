@@ -139,6 +139,13 @@ public:
 	LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority = 0);
 
 	LLVector2		mGLScaleFactor;
+
+protected:
+	// since LLRender2D has no control of image provider's lifecycle
+	// we need a way to tell LLRender2D that provider died and
+	// LLRender2D needs to be updated.
+	static void resetProvider();
+
 private:
 	LLImageProviderInterface* mImageProvider;
 };
@@ -147,11 +154,21 @@ class LLImageProviderInterface
 {
 protected:
 	LLImageProviderInterface() {};
-	virtual ~LLImageProviderInterface() {};
+	virtual ~LLImageProviderInterface();
 public:
 	virtual LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority) = 0;
 	virtual LLPointer<LLUIImage> getUIImageByID(const LLUUID& id, S32 priority) = 0;
 	virtual void cleanUp() = 0;
+
+	// to notify holders when pointer gets deleted
+	typedef void(*callback_t)();
+	void addOnRemovalCallback(callback_t func);
+	void deleteOnRemovalCallback(callback_t func);
+
+private:
+
+	typedef std::list< callback_t >	callback_list_t;
+	callback_list_t mCallbackList;
 };
 
 

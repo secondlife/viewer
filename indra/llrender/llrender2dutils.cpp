@@ -1570,6 +1570,10 @@ LLRender2D::LLRender2D(LLImageProviderInterface* image_provider)
 {
 	mGLScaleFactor = LLVector2(1.f, 1.f);
 	mImageProvider = image_provider;
+	if(mImageProvider)
+	{
+		mImageProvider->addOnRemovalCallback(resetProvider);
+	}
 }
 
 LLRender2D::~LLRender2D()
@@ -1577,6 +1581,7 @@ LLRender2D::~LLRender2D()
 	if(mImageProvider)
 	{
 		mImageProvider->cleanUp();
+		mImageProvider->deleteOnRemovalCallback(resetProvider);
 	}
 }
 
@@ -1640,5 +1645,43 @@ LLPointer<LLUIImage> LLRender2D::getUIImage(const std::string& name, S32 priorit
 		return mImageProvider->getUIImage(name, priority);
 	else
 		return NULL;
+}
+
+// static
+void LLRender2D::resetProvider()
+{
+    if (LLRender2D::instanceExists)
+    {
+        LLRender2D::getInstance()->mImageProvider = NULL;
+    }
+}
+
+// class LLImageProviderInterface
+
+LLImageProviderInterface::~LLImageProviderInterface()
+{
+    for (callback_list_t::iterator iter = mCallbackList.begin(); iter != mCallbackList.end();)
+    {
+        callback_list_t::iterator curiter = iter++;
+        (*curiter)();
+    }
+}
+
+void LLImageProviderInterface::addOnRemovalCallback(callback_t func)
+{
+    if (!func)
+    {
+        return;
+    }
+    mCallbackList.push_back(func);
+}
+
+void LLImageProviderInterface::deleteOnRemovalCallback(callback_t func)
+{
+    callback_list_t::iterator iter = std::find(mCallbackList.begin(), mCallbackList.end(), func);
+    if (iter != mCallbackList.end())
+    {
+        mCallbackList.erase(iter);
+    }
 }
 
