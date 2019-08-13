@@ -1045,14 +1045,15 @@ const char* object_cache_dirname = "objectcache";
 const char* header_filename = "object.cache";
 
 
-LLVOCache::LLVOCache():
+LLVOCache::LLVOCache(ELLPath location, U32 size, U32 cache_version, bool read_only) :
 	mInitialized(false),
-	mReadOnly(true),
+	mReadOnly(read_only),
 	mNumEntries(0),
 	mCacheSize(1)
 {
 	mEnabled = gSavedSettings.getBOOL("ObjectCacheEnabled");
 	mLocalAPRFilePoolp = new LLVolatileAPRPool() ;
+	initCache(location, size, cache_version);
 }
 
 LLVOCache::~LLVOCache()

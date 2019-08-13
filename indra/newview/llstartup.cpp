@@ -895,8 +895,8 @@ bool idle_startup()
 		LLFile::mkdir(gDirUtilp->getLindenUserDir());
 
 		// As soon as directories are ready initialize notification storages
-		LLPersistentNotificationStorage::getInstance()->initialize();
-		LLDoNotDisturbNotificationStorage::getInstance()->initialize();
+		LLPersistentNotificationStorage::initParamSingleton();
+		LLDoNotDisturbNotificationStorage::initParamSingleton();
 
 		// Set PerAccountSettingsFile to the default value.
 		gSavedSettings.setString("PerAccountSettingsFile",

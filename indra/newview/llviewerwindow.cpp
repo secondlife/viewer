@@ -1796,8 +1796,6 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	//
 	LL_DEBUGS("Window") << "Loading feature tables." << LL_ENDL;
 
-	LLFeatureManager::getInstance()->init();
-
 	// Initialize OpenGL Renderer
 	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderVBOEnable") ||
 		!gGLManager.mHasVertexBufferObject)

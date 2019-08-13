@@ -221,9 +221,9 @@ private:
 //
 //Note: LLVOCache is not thread-safe
 //
-class LLVOCache : public LLSingleton<LLVOCache>
+class LLVOCache : public LLParamSingleton<LLVOCache>
 {
-	LLSINGLETON(LLVOCache);
+	LLSINGLETON(LLVOCache, ELLPath location, U32 size, U32 cache_version, bool read_only);
 	~LLVOCache() ;
 
 private:
@@ -259,19 +259,18 @@ private:
 	typedef std::map<U64, HeaderEntryInfo*> handle_entry_map_t;
 
 public:
-	void initCache(ELLPath location, U32 size, U32 cache_version) ;
 	void removeCache(ELLPath location, bool started = false) ;
 
 	void readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_entry_map_t& cache_entry_map) ;
 	void writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache, bool removal_enabled);
 	void removeEntry(U64 handle) ;
 
-	void setReadOnly(bool read_only) {mReadOnly = read_only;} 
-
 	U32 getCacheEntries() { return mNumEntries; }
 	U32 getCacheEntriesMax() { return mCacheSize; }
 
 private:
+	void initCache(ELLPath location, U32 size, U32 cache_version);
+
 	void setDirNames(ELLPath location);	
 	// determine the cache filename for the region from the region handle	
 	void getObjectCacheFilename(U64 handle, std::string& filename);
