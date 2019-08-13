@@ -78,7 +78,7 @@ void main()
 	// Get relative position
 	vec3 P = position.xyz - camPosLocal.xyz + vec3(0,50,0);
 
-    altitude_blend_factor = (P.y > -4096.0) ? 1.0 : 1.0 - clamp(abs(P.y) / max_y, 0.0, 1.0);
+    altitude_blend_factor = clamp((P.y + 512.0) / max_y, 0.0, 1.0);
 
 	// Set altitude
 	if (P.y > 0.)
