@@ -608,15 +608,10 @@ void renderFace(LLDrawable* drawable, LLFace *face)
     LLVOVolume* vobj = drawable->getVOVolume();
     if (vobj)
     {
-        LLVertexBuffer::unbind();
-        gGL.pushMatrix();
-        gGL.multMatrix((F32*)vobj->getRelativeXform().mMatrix);
-
         LLVolume* volume = NULL;
 
         if (drawable->isState(LLDrawable::RIGGED))
         {
-            vobj->updateRiggedVolume();
             volume = vobj->getRiggedVolume();
         }
         else
@@ -629,44 +624,11 @@ void renderFace(LLDrawable* drawable, LLFace *face)
             const LLVolumeFace& vol_face = volume->getVolumeFace(face->getTEOffset());
             LLVertexBuffer::drawElements(LLRender::TRIANGLES, vol_face.mPositions, NULL, vol_face.mNumIndices, vol_face.mIndices);
         }
-
-        gGL.popMatrix();
     }
 }
 
-void LLFace::renderOneWireframe(const LLColor4 &color, F32 fogCfx, bool wireframe_selection, bool bRenderHiddenSelections)
+void LLFace::renderOneWireframe(const LLColor4 &color, F32 fogCfx, bool wireframe_selection, bool bRenderHiddenSelections, bool shader)
 {
-    //Need to because crash on ATI 3800 (and similar cards) MAINT-5018 
-    LLGLDisable multisample(LLPipeline::RenderFSAASamples > 0 ? GL_MULTISAMPLE_ARB : 0);
-
-    LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
-
-    if (shader)
-    {
-        gDebugProgram.bind();
-    }
-
-    gGL.matrixMode(LLRender::MM_MODELVIEW);
-    gGL.pushMatrix();
-
-    BOOL is_hud_object = mVObjp->isHUDAttachment();
-
-    if (mDrawablep->isActive())
-    {
-        gGL.loadMatrix(gGLModelView);
-        gGL.multMatrix((F32*)mVObjp->getRenderMatrix().mMatrix);
-    }
-    else if (!is_hud_object)
-    {
-        gGL.loadIdentity();
-        gGL.multMatrix(gGLModelView);
-        LLVector3 trans = mVObjp->getRegion()->getOriginAgent();
-        gGL.translatef(trans.mV[0], trans.mV[1], trans.mV[2]);
-    }
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-
     if (bRenderHiddenSelections)
     {
         gGL.blendFunc(LLRender::BF_SOURCE_COLOR, LLRender::BF_ONE);
@@ -714,15 +676,6 @@ void LLFace::renderOneWireframe(const LLColor4 &color, F32 fogCfx, bool wirefram
         glLineWidth(5.f);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         renderFace(mDrawablep, this);
-    }
-
-    glLineWidth(1.f);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    gGL.popMatrix();
-
-    if (shader)
-    {
-        shader->bind();
     }
 }
 
@@ -1106,7 +1059,7 @@ void LLFace::getPlanarProjectedParams(LLQuaternion* face_rot, LLVector3* face_po
 
 // Returns the necessary texture transform to align this face's TE to align_to's TE
 bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offset, 
-								 LLVector2* res_st_scale, F32* res_st_rot) const
+								 LLVector2* res_st_scale, F32* res_st_rot, LLRender::eTexIndex map) const
 {
 	if (!align_to)
 	{
@@ -1119,6 +1072,43 @@ bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offs
 		return false;
 	}
 
+    F32 map_rot = 0.f, map_scaleS = 0.f, map_scaleT = 0.f, map_offsS = 0.f, map_offsT = 0.f;
+
+    switch (map)
+    {
+    case LLRender::DIFFUSE_MAP:
+        map_rot = orig_tep->getRotation();
+        map_scaleS = orig_tep->mScaleS;
+        map_scaleT = orig_tep->mScaleT;
+        map_offsS = orig_tep->mOffsetS;
+        map_offsT = orig_tep->mOffsetT;
+        break;
+    case LLRender::NORMAL_MAP:
+        if (orig_tep->getMaterialParams()->getNormalID().isNull())
+        {
+            return false;
+        }
+        map_rot = orig_tep->getMaterialParams()->getNormalRotation();
+        map_scaleS = orig_tep->getMaterialParams()->getNormalRepeatX();
+        map_scaleT = orig_tep->getMaterialParams()->getNormalRepeatY();
+        map_offsS = orig_tep->getMaterialParams()->getNormalOffsetX();
+        map_offsT = orig_tep->getMaterialParams()->getNormalOffsetY();
+        break;
+    case LLRender::SPECULAR_MAP:
+        if (orig_tep->getMaterialParams()->getSpecularID().isNull())
+        {
+            return false;
+        }
+        map_rot = orig_tep->getMaterialParams()->getSpecularRotation();
+        map_scaleS = orig_tep->getMaterialParams()->getSpecularRepeatX();
+        map_scaleT = orig_tep->getMaterialParams()->getSpecularRepeatY();
+        map_offsS = orig_tep->getMaterialParams()->getSpecularOffsetX();
+        map_offsT = orig_tep->getMaterialParams()->getSpecularOffsetY();
+        break;
+    default: /*make compiler happy*/
+        break;
+    }
+
 	LLVector3 orig_pos, this_pos;
 	LLQuaternion orig_face_rot, this_face_rot;
 	F32 orig_proj_scale, this_proj_scale;
@@ -1126,7 +1116,7 @@ bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offs
 	getPlanarProjectedParams(&this_face_rot, &this_pos, &this_proj_scale);
 
 	// The rotation of "this face's" texture:
-	LLQuaternion orig_st_rot = LLQuaternion(orig_tep->getRotation(), LLVector3::z_axis) * orig_face_rot;
+	LLQuaternion orig_st_rot = LLQuaternion(map_rot, LLVector3::z_axis) * orig_face_rot;
 	LLQuaternion this_st_rot = orig_st_rot * ~this_face_rot;
 	F32 x_ang, y_ang, z_ang;
 	this_st_rot.getEulerAngles(&x_ang, &y_ang, &z_ang);
@@ -1134,10 +1124,10 @@ bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offs
 
 	// Offset and scale of "this face's" texture:
 	LLVector3 centers_dist = (this_pos - orig_pos) * ~orig_st_rot;
-	LLVector3 st_scale(orig_tep->mScaleS, orig_tep->mScaleT, 1.f);
+	LLVector3 st_scale(map_scaleS, map_scaleT, 1.f);
 	st_scale *= orig_proj_scale;
 	centers_dist.scaleVec(st_scale);
-	LLVector2 orig_st_offset(orig_tep->mOffsetS, orig_tep->mOffsetT);
+	LLVector2 orig_st_offset(map_offsS, map_offsT);
 
 	*res_st_offset = orig_st_offset + (LLVector2)centers_dist;
 	res_st_offset->mV[VX] -= (S32)res_st_offset->mV[VX];
