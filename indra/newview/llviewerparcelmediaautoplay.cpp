@@ -51,29 +51,10 @@ LLViewerParcelMediaAutoPlay::LLViewerParcelMediaAutoPlay() :
 {
 }
 
-static LLViewerParcelMediaAutoPlay *sAutoPlay = NULL;
-
-// static
-void LLViewerParcelMediaAutoPlay::initClass()
-{
-	if (!sAutoPlay)
-		sAutoPlay = new LLViewerParcelMediaAutoPlay;
-}
-
-// static
-void LLViewerParcelMediaAutoPlay::cleanupClass()
-{
-	if (sAutoPlay)
-		delete sAutoPlay;
-}
-
 // static
 void LLViewerParcelMediaAutoPlay::playStarted()
 {
-	if (sAutoPlay)
-	{
-		sAutoPlay->mPlayed = TRUE;
-	}
+    LLSingleton<LLViewerParcelMediaAutoPlay>::getInstance()->mPlayed = TRUE;
 }
 
 BOOL LLViewerParcelMediaAutoPlay::tick()
