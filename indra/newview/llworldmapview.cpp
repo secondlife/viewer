@@ -890,7 +890,6 @@ void LLWorldMapView::drawFrustum()
     F32 ctr_x = ((getLocalRect().getWidth() * 0.5f + sPanX)  * LLUI::getScaleFactor().mV[VX]);
     F32 ctr_y = ((getLocalRect().getHeight() * 0.5f + sPanY) * LLUI::getScaleFactor().mV[VY]);
 
-
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	// Since we don't rotate the map, we have to rotate the frustum.
