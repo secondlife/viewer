@@ -2180,7 +2180,7 @@ Wrong chunk size in WAV file:
    icon="alertmodal.tga"
    name="SoundFileInvalidTooLong"
    type="alertmodal">
-Audio file is too long (10 second maximum):
+Audio file is too long (30 second maximum):
 [FILE]
   <tag>fail</tag>
   </notification>
