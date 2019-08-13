@@ -311,7 +311,11 @@ namespace tut
         virtual void initSingleton()
         {
             // never mind indirection, just go straight for the circularity
-            (void)instance();
+            CircularPInit *pt = getInstance();
+            if (!pt)
+            {
+                throw;
+            }
         }
     };
 
