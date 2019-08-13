@@ -5546,6 +5546,11 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 								U32 mask = mat->getShaderMask(alpha_mode);
 								pool->addRiggedFace(facep, mask);
 							}
+
+							if(vobj->isAnimatedObject() && vobj->isRiggedMesh())
+							{
+								pool->updateRiggedVertexBuffers(vobj->getAvatar());
+							}
 						}
 						else if (mat)
 						{							
