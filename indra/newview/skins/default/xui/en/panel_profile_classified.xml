@@ -409,6 +409,7 @@
                      />
                     <text_editor
                      name="classified_desc"
+                     trusted_content="false"
                      value="[description]"
                      top_pad="7"
                      left="10"
