@@ -502,6 +502,10 @@ class LLParamSingleton : public LLSingleton<DERIVED_TYPE>
 {
 private:
     typedef LLSingleton<DERIVED_TYPE> super;
+    // Use a recursive_mutex in case of constructor circularity. With a
+    // non-recursive mutex, that would result in deadlock rather than the
+    // logerrs() call in getInstance().
+    typedef std::recursive_mutex mutex_t;
 
 public:
     using super::deleteSingleton;
@@ -515,7 +519,7 @@ public:
         // In case racing threads both call initParamSingleton() at the same
         // time, serialize them. One should initialize; the other should see
         // mInitState already set.
-        std::unique_lock<decltype(mMutex)> lk(mMutex);
+        std::unique_lock<mutex_t> lk(getMutex());
         // For organizational purposes this function shouldn't be called twice
         if (super::sData.mInitState != super::UNINITIALIZED)
         {
@@ -534,7 +538,7 @@ public:
     {
         // In case racing threads call getInstance() at the same moment as
         // initParamSingleton(), serialize the calls.
-        std::unique_lock<decltype(mMutex)> lk(mMutex);
+        std::unique_lock<mutex_t> lk(getMutex());
 
         switch (super::sData.mInitState)
         {
@@ -573,14 +577,29 @@ public:
     }
 
 private:
-    // Use a recursive_mutex in case of constructor circularity. With a
-    // non-recursive mutex, that would result in deadlock rather than the
-    // logerrs() call coded above.
-    static std::recursive_mutex mMutex;
+    // sMutex must be a function-local static rather than a static member. One
+    // of the essential features of LLSingleton and friends is that they must
+    // support getInstance() even when the containing module's static
+    // variables have not yet been runtime-initialized. A mutex requires
+    // construction. A static class member might not yet have been
+    // constructed.
+    //
+    // We could store a dumb mutex_t*, notice when it's NULL and allocate a
+    // heap mutex -- but that's vulnerable to race conditions. And we can't
+    // defend the dumb pointer with another mutex.
+    //
+    // We could store a std::atomic<mutex_t*> -- but a default-constructed
+    // std::atomic<T> does not contain a valid T, even a default-constructed
+    // T! Which means std::atomic, too, requires runtime initialization.
+    //
+    // But a function-local static is guaranteed to be initialized exactly
+    // once, the first time control reaches that declaration.
+    static mutex_t& getMutex()
+    {
+        static mutex_t sMutex;
+        return sMutex;
+    }
 };
-
-template<typename T>
-typename std::recursive_mutex LLParamSingleton<T>::mMutex;
 
 /**
  * Initialization locked singleton, only derived class can decide when to initialize.
@@ -634,7 +653,7 @@ public:
  * file, use 'inline' (unless it's a template class) to avoid duplicate-symbol
  * errors at link time.
  */
-#define LLSINGLETON(DERIVED_CLASS, ...)                                      \
+#define LLSINGLETON(DERIVED_CLASS, ...)                                 \
 private:                                                                \
     /* implement LLSingleton pure virtual method whose sole purpose */  \
     /* is to remind people to use this macro */                         \
