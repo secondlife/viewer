@@ -31,7 +31,6 @@
 
 // Project includes
 #include "lluiimage.h"
-#include "llrender2dutils.h"
 
 LLUIImage::LLUIImage(const std::string& name, LLPointer<LLTexture> image)
 :	mName(name),
@@ -39,67 +38,29 @@ LLUIImage::LLUIImage(const std::string& name, LLPointer<LLTexture> image)
 	mScaleRegion(0.f, 1.f, 1.f, 0.f),
 	mClipRegion(0.f, 1.f, 1.f, 0.f),
 	mImageLoaded(NULL),
-	mScaleStyle(SCALE_INNER)
-{}
+	mScaleStyle(SCALE_INNER),
+    mCachedW(-1),
+    mCachedH(-1)
+{
+    getTextureWidth();
+    getTextureHeight();
+}
 
 LLUIImage::~LLUIImage()
 {
 	delete mImageLoaded;
 }
 
-void LLUIImage::setClipRegion(const LLRectf& region) 
+S32 LLUIImage::getWidth() const
 { 
-	mClipRegion = region; 
+	// return clipped dimensions of actual image area
+	return ll_round((F32)mImage->getWidth(0) * mClipRegion.getWidth()); 
 }
 
-void LLUIImage::setScaleRegion(const LLRectf& region) 
+S32 LLUIImage::getHeight() const
 { 
-	mScaleRegion = region; 
-}
-
-void LLUIImage::setScaleStyle(LLUIImage::EScaleStyle style)
-{
-	mScaleStyle = style;
-}
-
-//TODO: move drawing implementation inside class
-void LLUIImage::draw(S32 x, S32 y, const LLColor4& color) const
-{
-	draw(x, y, getWidth(), getHeight(), color);
-}
-
-void LLUIImage::draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color) const
-{
-	gl_draw_scaled_image_with_border(
-		x, y, 
-		width, height, 
-		mImage, 
-		color,
-		FALSE,
-		mClipRegion,
-		mScaleRegion,
-		mScaleStyle == SCALE_INNER);
-}
-
-void LLUIImage::drawSolid(S32 x, S32 y, S32 width, S32 height, const LLColor4& color) const
-{
-	gl_draw_scaled_image_with_border(
-		x, y, 
-		width, height, 
-		mImage, 
-		color, 
-		TRUE,
-		mClipRegion,
-		mScaleRegion,
-		mScaleStyle == SCALE_INNER);
-}
-
-void LLUIImage::drawBorder(S32 x, S32 y, S32 width, S32 height, const LLColor4& color, S32 border_width) const
-{
-	LLRect border_rect;
-	border_rect.setOriginAndSize(x, y, width, height);
-	border_rect.stretch(border_width, border_width);
-	drawSolid(border_rect, color);
+	// return clipped dimensions of actual image area
+	return ll_round((F32)mImage->getHeight(0) * mClipRegion.getHeight()); 
 }
 
 void LLUIImage::draw3D(const LLVector3& origin_agent, const LLVector3& x_axis, const LLVector3& y_axis, 
@@ -145,28 +106,7 @@ void LLUIImage::draw3D(const LLVector3& origin_agent, const LLVector3& x_axis, c
 	} LLRender2D::popMatrix();
 }
 
-
-S32 LLUIImage::getWidth() const
-{ 
-	// return clipped dimensions of actual image area
-	return ll_round((F32)mImage->getWidth(0) * mClipRegion.getWidth()); 
-}
-
-S32 LLUIImage::getHeight() const
-{ 
-	// return clipped dimensions of actual image area
-	return ll_round((F32)mImage->getHeight(0) * mClipRegion.getHeight()); 
-}
-
-S32 LLUIImage::getTextureWidth() const
-{
-	return mImage->getWidth(0);
-}
-
-S32 LLUIImage::getTextureHeight() const
-{
-	return mImage->getHeight(0);
-}
+//#include "lluiimage.inl"
 
 boost::signals2::connection LLUIImage::addLoadedCallback( const image_loaded_signal_t::slot_type& cb ) 
 {
@@ -185,7 +125,6 @@ void LLUIImage::onImageLoaded()
 		(*mImageLoaded)();
 	}
 }
-
 
 namespace LLInitParam
 {

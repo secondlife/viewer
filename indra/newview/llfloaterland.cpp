@@ -3319,6 +3319,8 @@ void LLPanelLandEnvironment::refresh()
     if (gDisconnected)
         return;
 
+    commitDayLenOffsetChanges(false); // commit unsaved changes if any
+
     if (!isSameRegion())
     {
         setCrossRegion(true);
