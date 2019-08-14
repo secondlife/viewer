@@ -887,14 +887,8 @@ void LLWorldMapView::drawFrustum()
 	F32 half_width_pixels = half_width_meters * meters_to_pixels;
 	
 	// Compute the frustum coordinates. Take the UI scale into account.
-#if defined(LL_DARWIN)
-    F32 ui_scale_factor = gSavedSettings.getF32("UIScaleFactor");
-    F32 ctr_x = ((getLocalRect().getWidth() * 0.5f + sPanX)  * ui_scale_factor) * LLUI::getScaleFactor().mV[VX];
-    F32 ctr_y = ((getLocalRect().getHeight() * 0.5f + sPanY) * ui_scale_factor) * LLUI::getScaleFactor().mV[VY];
-#else
     F32 ctr_x = ((getLocalRect().getWidth() * 0.5f + sPanX)  * LLUI::getScaleFactor().mV[VX]);
     F32 ctr_y = ((getLocalRect().getHeight() * 0.5f + sPanY) * LLUI::getScaleFactor().mV[VY]);
-#endif
 
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 

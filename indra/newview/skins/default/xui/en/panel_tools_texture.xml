@@ -770,6 +770,17 @@
              tool_tip="Align textures on all selected faces with the last selected face. Requires Planar texture mapping."
              top_delta="16"
              width="260" />
+			<button
+			 left="10"
+			 top="222"
+			 height="20"
+			 label="Align"
+			 label_selected="Align current texture layers"
+			 layout="topleft"
+			 name="button align textures"
+			 top_delta="0"
+			 tool_tip="Align current texture layers"
+			 width="66" />
             <web_browser
              visible="false"
              enabled="false"
