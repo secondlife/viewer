@@ -2818,7 +2818,7 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="BuyingCosts">Buying this costs L$ [AMOUNT]</string>
 	<string name="UnknownFileExtension">
 		Unknown file extension .%s
-Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
+Expected .wav, .tga, .bmp, .jpg, .jpeg, or .anim
 	</string>
   <string name="MuteObject2">Block</string>
   <string name="MuteAvatar">Block</string>
