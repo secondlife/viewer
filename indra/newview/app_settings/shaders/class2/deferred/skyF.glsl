@@ -64,7 +64,6 @@ VARYING vec3 pos;
 // The fragment shader for the sky
 /////////////////////////////////////////////////////////////////////////
 
-uniform vec4 gamma;
 uniform sampler2D rainbow_map;
 uniform sampler2D halo_map;
 
@@ -148,7 +147,7 @@ void main()
         // temp2.x is 0 at the sun and increases away from sun
     temp2.x = max(temp2.x, .001);   
         // Set a minimum "angle" (smaller glow.y allows tighter, brighter hotspot)
-    temp2.x *= glow.x * 0.33333;
+    temp2.x *= glow.x;
         // Higher glow.x gives dimmer glow (because next step is 1 / "angle")
     temp2.x = pow(temp2.x, glow.z);
         // glow.z should be negative, so we're doing a sort of (1 / "angle") function

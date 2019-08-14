@@ -50,7 +50,6 @@ uniform vec3 camPosLocal;
 uniform float cloud_shadow;
 uniform float max_y;
 uniform vec4 glow;
-uniform float global_gamma;
 uniform mat3 env_mat;
 uniform vec4 shadow_clip;
 
@@ -94,7 +93,6 @@ void main()
     norm.xyz = getNorm(tc);
 
     float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
-              da = pow(da, global_gamma + 0.3);
 
     vec4 diffuse = texture2DRect(diffuseRect, tc); // linear
 
@@ -106,7 +104,6 @@ void main()
         vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
         
         vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
-//        scol_ambocc = pow(scol_ambocc, vec3(global_gamma + 0.3));
 
         float scol = max(scol_ambocc.r, diffuse.a); 
 

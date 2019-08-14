@@ -4787,18 +4787,44 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
                 U32 max_joints = LLSkinningUtil::getMaxJointCount();
                 rigged_vert_count += dst_face.mNumVertices;
                 rigged_face_count++;
-				for (U32 j = 0; j < dst_face.mNumVertices; ++j)
-				{
-					LLMatrix4a final_mat;
-                    LLSkinningUtil::getPerVertexSkinMatrix(weight[j].getF32ptr(), mat, false, final_mat, max_joints);
+
+            #if USE_SEPARATE_JOINT_INDICES_AND_WEIGHTS
+                if (vol_face.mJointIndices) // fast path with preconditioned joint indices
+                {
+                    LLMatrix4a src[4];
+                    U8* joint_indices_cursor = vol_face.mJointIndices;
+                    LLVector4a* just_weights = vol_face.mJustWeights;
+                    for (U32 j = 0; j < dst_face.mNumVertices; ++j)
+				    {
+					    LLMatrix4a final_mat;
+                        F32* w = just_weights[j].getF32ptr();
+                        LLSkinningUtil::getPerVertexSkinMatrixWithIndices(w, joint_indices_cursor, mat, final_mat, src);
+                        joint_indices_cursor += 4;
+
+					    LLVector4a& v = vol_face.mPositions[j];
+					    LLVector4a t;
+					    LLVector4a dst;
+					    bind_shape_matrix.affineTransform(v, t);
+					    final_mat.affineTransform(t, dst);
+					    pos[j] = dst;
+				    }
+                }
+                else
+            #endif
+                {
+				    for (U32 j = 0; j < dst_face.mNumVertices; ++j)
+				    {
+					    LLMatrix4a final_mat;
+                        LLSkinningUtil::getPerVertexSkinMatrix(weight[j].getF32ptr(), mat, false, final_mat, max_joints);
 				
-					LLVector4a& v = vol_face.mPositions[j];
-					LLVector4a t;
-					LLVector4a dst;
-					bind_shape_matrix.affineTransform(v, t);
-					final_mat.affineTransform(t, dst);
-					pos[j] = dst;
-				}
+					    LLVector4a& v = vol_face.mPositions[j];
+					    LLVector4a t;
+					    LLVector4a dst;
+					    bind_shape_matrix.affineTransform(v, t);
+					    final_mat.affineTransform(t, dst);
+					    pos[j] = dst;
+				    }
+                }
 
 				//update bounding box
 				// VFExtents change
@@ -5522,6 +5548,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						}
 
 						LLMaterial* mat = te->getMaterialParams().get();
+                        bool fullbright = te->getFullbright();
 
 						if (mat && LLPipeline::sRenderDeferred)
 						{
@@ -5536,15 +5563,18 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 								alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
 							}
 
-							if (!is_alpha || te_alpha > 0.f)  // //only add the face if it will actually be visible
+                            if (fullbright && (alpha_mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE))
+                            {
+                                pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT);
+                            }
+							else if (!is_alpha || te_alpha > 0.f)  // //only add the face if it will actually be visible
 							{ 
 								U32 mask = mat->getShaderMask(alpha_mode);
 								pool->addRiggedFace(facep, mask);
 							}
 						}
 						else if (mat)
-						{
-							bool fullbright = te->getFullbright();
+						{							
 							bool is_alpha = type == LLDrawPool::POOL_ALPHA;
 							U8 mode = mat->getDiffuseAlphaMode();
 							bool can_be_shiny = mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE ||
@@ -6680,7 +6710,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 						{
 							registerFace(group, facep, LLRenderPass::PASS_SIMPLE);
 						}
-				}
+				    }
 				}
 				
 				

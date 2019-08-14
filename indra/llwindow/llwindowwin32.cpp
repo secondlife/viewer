@@ -4036,7 +4036,7 @@ void LLWindowWin32::setDPIAwareness()
 
 F32 LLWindowWin32::getSystemUISize()
 {
-	float scale_value = 0;
+	F32 scale_value = 1.f;
 	HWND hWnd = (HWND)getPlatformWindow();
 	HDC hdc = GetDC(hWnd);
 	HMONITOR hMonitor;

@@ -242,7 +242,8 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(AtmosphericsVars& vars, const LLVecto
 
 	calcSkyColorWLVert(Pn, vars);
 
-	LLColor3 sky_color =  isShiny ? vars.hazeColor : psky->gammaCorrect(vars.hazeColor * 2.0f);
+	LLColor3 sky_color =  isShiny ? vars.hazeColor : 
+                          !gPipeline.canUseWindLightShaders() ? vars.hazeColor * 2.0f : psky->gammaCorrect(vars.hazeColor * 2.0f);
 
 	if (isShiny)
 	{
@@ -306,6 +307,7 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 	// this is used later for sunlight modulation at various altitudes
 	LLColor3 light_atten = vars.light_atten;
     LLColor3 light_transmittance = psky->getLightTransmittance(Plen);
+    (void)light_transmittance; // silence Clang warn-error
 
 	// Calculate relative weights
 	LLColor3 temp2(0.f, 0.f, 0.f);
@@ -321,22 +323,18 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 	}
 
 	// Compute sunlight from P & lightnorm (for long rays like sky)
-    temp2.mV[1] = llmax(F_APPROXIMATELY_ZERO, llmax(0.f, lighty));
+    temp2.mV[1] = llmax(F_APPROXIMATELY_ZERO, llmax(0.f, Pn[1]) * 1.0f + sun_norm.mV[1] );
 
-    if (temp2.mV[1] > 0.0000001f)
-    {
-	    temp2.mV[1] = 1.f / temp2.mV[1];
-    }
-    temp2.mV[1] = llmax(temp2.mV[1], 0.0000001f);
-
+    temp2.mV[1] = 1.f / temp2.mV[1];
     componentMultBy(sunlight, componentExp((light_atten * -1.f) * temp2.mV[1]));
-    componentMultBy(sunlight, light_transmittance);
+    //componentMultBy(sunlight, light_transmittance);
 
     // Distance
 	temp2.mV[2] = Plen * density_multiplier;
 
     // Transparency (-> temp1)
-	temp1 = componentExp((temp1 * -1.f) * temp2.mV[2] * distance_multiplier);
+	temp1 = componentExp((temp1 * -1.f) * temp2.mV[2]);// * distance_multiplier);
+    (void)distance_multiplier;
 
 	// Compute haze glow
 	temp2.mV[0] = Pn * LLVector3(sun_norm);
@@ -347,7 +345,7 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 		// Set a minimum "angle" (smaller glow.y allows tighter, brighter hotspot)
 
 	// Higher glow.x gives dimmer glow (because next step is 1 / "angle")
-	temp2.mV[0] *= (glow.mV[0] > 0) ? glow.mV[0] : F32_MIN;
+	temp2.mV[0] *= glow.mV[0];
 
 	temp2.mV[0] = pow(temp2.mV[0], glow.mV[2]);
 		// glow.z should be negative, so we're doing a sort of (1 / "angle") function
@@ -374,10 +372,13 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
     final_atten.mV[2] = llmax(final_atten.mV[2], 0.0f);
 
 	// Final atmosphere additive
-	componentMultBy(vars.hazeColor, final_atten);
+	componentMultBy(vars.hazeColor, LLColor3::white - temp1);
+
+    // Attenuate cloud color by atmosphere
+	temp1 = componentSqrt(temp1);	//less atmos opacity (more transparency) below clouds
 
 	// At horizon, blend high altitude sky color towards the darker color below the clouds
-	vars.hazeColor += componentMult(vars.hazeColorBelowCloud - vars.hazeColor, final_atten);
+	vars.hazeColor += componentMult(vars.hazeColorBelowCloud - vars.hazeColor, LLColor3::white - componentSqrt(temp1));
 }
 
 void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
@@ -441,7 +442,7 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
     vars.density_multiplier = psky->getDensityMultiplier();    
     vars.distance_multiplier = psky->getDistanceMultiplier();
     vars.max_y = psky->getMaxY();
-    vars.sun_norm = LLEnvironment::instance().getLightDirectionCFR();
+    vars.sun_norm = LLEnvironment::instance().getSunDirectionCFR();
     vars.sunlight = psky->getSunlightColor();
     vars.ambient = psky->getAmbientColor();    
     vars.glow = psky->getGlow();

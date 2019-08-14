@@ -22,10 +22,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
-
-
-uniform vec4 gamma;
+uniform float gamma;
 uniform int no_atmo;
 
 vec3 getAtmosAttenuation();
@@ -39,7 +36,7 @@ vec3 scaleSoftClipFrag(vec3 light)
     }
     //soft clip effect:
     light = 1. - clamp(light, vec3(0.), vec3(1.));
-    light = 1. - pow(light, gamma.xxx);
+    light = 1. - pow(light, vec3(gamma)); // s/b inverted already CPU-side
     return light;
 }
 

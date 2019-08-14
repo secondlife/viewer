@@ -22,7 +22,6 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-uniform vec4 gamma;
 uniform vec4 lightnorm;
 uniform vec4 sunlight_color;
 uniform vec4 moonlight_color;
@@ -115,7 +114,7 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
         //set a minimum "angle" (smaller glow.y allows tighter, brighter hotspot)
     temp2.x *= glow.x;
         //higher glow.x gives dimmer glow (because next step is 1 / "angle")
-    temp2.x = pow(temp2.x, glow.z * 0.2);
+    temp2.x = pow(temp2.x, glow.z);
         //glow.z should be negative, so we're doing a sort of (1 / "angle") function
 
     //add "minimum anti-solar illumination"

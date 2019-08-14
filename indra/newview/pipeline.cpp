@@ -1162,6 +1162,7 @@ void LLPipeline::releaseGLBuffers()
 
 	mWaterRef.release();
 	mWaterDis.release();
+    mBake.release();
 	mHighlight.release();
 	
 	for (U32 i = 0; i < 3; i++)
@@ -1221,11 +1222,12 @@ void LLPipeline::createGLBuffers()
     if (LLPipeline::sWaterReflections)
     { //water reflection texture
         U32 res = (U32) llmax(gSavedSettings.getS32("RenderWaterRefResolution"), 512);
-
         mWaterRef.allocate(res,res,GL_RGBA,TRUE,FALSE);
-        //always use FBO for mWaterDis so it can be used for avatar texture bakes
-        mWaterDis.allocate(res,res,GL_RGBA,TRUE,FALSE,LLTexUnit::TT_TEXTURE, true);
+        mWaterDis.allocate(res,res,GL_RGBA,TRUE,FALSE,LLTexUnit::TT_TEXTURE);
     }
+
+    // Use FBO for bake tex
+    mBake.allocate(512, 512, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_TEXTURE, true);
 
 	mHighlight.allocate(256,256,GL_RGBA, FALSE, FALSE);
 
@@ -7455,6 +7457,15 @@ void LLPipeline::renderMaskedObjects(U32 type, U32 mask, bool texture, bool batc
 	gGLLastMatrix = NULL;		
 }
 
+void LLPipeline::renderFullbrightMaskedObjects(U32 type, U32 mask, bool texture, bool batch_texture)
+{
+	assertInitialized();
+	gGL.loadMatrix(gGLModelView);
+	gGLLastMatrix = NULL;
+	mFullbrightAlphaMaskPool->pushMaskBatches(type, mask, texture, batch_texture);
+	gGL.loadMatrix(gGLModelView);
+	gGLLastMatrix = NULL;		
+}
 
 void apply_cube_face_rotation(U32 face)
 {
@@ -7905,13 +7916,6 @@ void LLPipeline::renderBloom(bool for_snapshot, F32 zoom_factor, int subfield)
 					mScreen.bindTexture(0, channel);
 				}
 
-				if (!LLViewerCamera::getInstance()->cameraUnderWater())
-				{
-					shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 2.2);
-				} else {
-					shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 1.0);
-				}
-
 				shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
 				shader->uniform1f(LLShaderMgr::DOF_RES_SCALE, CameraDoFResScale);
 				shader->uniform1f(LLShaderMgr::DOF_WIDTH, dof_width-1);
@@ -7951,13 +7955,6 @@ void LLPipeline::renderBloom(bool for_snapshot, F32 zoom_factor, int subfield)
 			if (channel > -1)
 			{
 				mScreen.bindTexture(0, channel);
-			}
-
-			if (!LLViewerCamera::getInstance()->cameraUnderWater())
-			{
-				shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 2.2);
-			} else {
-				shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 1.0);
 			}
 
 			gGL.begin(LLRender::TRIANGLE_STRIP);
@@ -9476,6 +9473,14 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                     clip_plane.disable();
                 }
 
+                // SL-11370 prevent Low/Low-Mid graphics from rendering distortion map contents it should not
+                if (!canUseWindLightShaders())
+                {
+                    clearRenderTypeMask(LLPipeline::RENDER_TYPE_PARTICLES, END_RENDER_TYPES);
+                    clearRenderTypeMask(LLPipeline::RENDER_TYPE_AVATAR, END_RENDER_TYPES);
+                    clearRenderTypeMask(LLPipeline::RENDER_TYPE_VOLUME, END_RENDER_TYPES);
+                }
+
                 updateCull(camera, mRefractedObjects, water_clip, &plane);
                 stateSort(camera, mRefractedObjects);
                 renderGeom(camera);
@@ -9603,6 +9608,7 @@ static LLTrace::BlockTimerStatHandle FTM_SHADOW_ALPHA_MASKED("Alpha Masked");
 static LLTrace::BlockTimerStatHandle FTM_SHADOW_ALPHA_BLEND("Alpha Blend");
 static LLTrace::BlockTimerStatHandle FTM_SHADOW_ALPHA_TREE("Alpha Tree");
 static LLTrace::BlockTimerStatHandle FTM_SHADOW_ALPHA_GRASS("Alpha Grass");
+static LLTrace::BlockTimerStatHandle FTM_SHADOW_FULLBRIGHT_ALPHA_MASKED("Fullbright Alpha Masked");
 
 void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& shadow_cam, LLCullResult &result, bool use_shader, bool use_occlusion, U32 target_width)
 {
@@ -9735,14 +9741,21 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 
         {
             LL_RECORD_BLOCK_TIME(FTM_SHADOW_ALPHA_MASKED);
-            renderMaskedObjects(LLRenderPass::PASS_ALPHA_MASK, mask, TRUE, TRUE);
-            renderMaskedObjects(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, mask, TRUE, TRUE);
+            renderMaskedObjects(LLRenderPass::PASS_ALPHA_MASK, mask, TRUE, TRUE);            
         }
 
         {
             LL_RECORD_BLOCK_TIME(FTM_SHADOW_ALPHA_BLEND);
             gDeferredShadowAlphaMaskProgram.setMinimumAlpha(0.598f);
             renderObjects(LLRenderPass::PASS_ALPHA, mask, TRUE, TRUE);
+        }
+
+        {
+            LL_RECORD_BLOCK_TIME(FTM_SHADOW_FULLBRIGHT_ALPHA_MASKED);
+            gDeferredShadowFullbrightAlphaMaskProgram.bind();
+            gDeferredShadowFullbrightAlphaMaskProgram.uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
+            gDeferredShadowFullbrightAlphaMaskProgram.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
+            renderFullbrightMaskedObjects(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, mask, TRUE, TRUE);
         }
 
         mask = mask & ~LLVertexBuffer::MAP_TEXTURE_INDEX;

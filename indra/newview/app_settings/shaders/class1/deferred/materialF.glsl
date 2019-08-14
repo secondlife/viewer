@@ -31,7 +31,6 @@
 #define DIFFUSE_ALPHA_MODE_EMISSIVE 3
 
 uniform float emissive_brightness;
-uniform float display_gamma;
 uniform int sun_up_factor;
 
 #ifdef WATER_FOG
@@ -64,8 +63,6 @@ uniform sampler2D     lightFunc;
 // Inputs
 uniform vec4 morphFactor;
 uniform vec3 camPosLocal;
-//uniform vec4 camPosWorld;
-uniform vec4 gamma;
 uniform mat3 env_mat;
 
 uniform vec3 sun_dir;

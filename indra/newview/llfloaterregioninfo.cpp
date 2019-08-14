@@ -3731,6 +3731,8 @@ BOOL LLPanelRegionEnvironment::postBuild()
 
 void LLPanelRegionEnvironment::refresh()
 {
+    commitDayLenOffsetChanges(false); // commit unsaved changes if any
+
     if (!mCurrentEnvironment)
     {
         if (mCurEnvVersion <= INVALID_PARCEL_ENVIRONMENT_VERSION)

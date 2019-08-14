@@ -121,15 +121,13 @@ void main()
 		// temp2.x is 0 at the sun and increases away from sun
 	temp2.x = max(temp2.x, .001);	
 		// Set a minimum "angle" (smaller glow.y allows tighter, brighter hotspot)
-	temp2.x *= glow.x * 0.33333;
+	temp2.x *= glow.x;
 		// Higher glow.x gives dimmer glow (because next step is 1 / "angle")
 	temp2.x = pow(temp2.x, glow.z);
 		// glow.z should be negative, so we're doing a sort of (1 / "angle") function
 
 	// Add "minimum anti-solar illumination"
 	temp2.x += .25;
-
-    //temp2.x *= sun_moon_glow_factor;
 
     vec4 color = (    blue_horizon * blue_weight * (sunlight + ambient_color)
                 + (haze_horizon * haze_weight) * (sunlight * temp2.x + ambient_color)

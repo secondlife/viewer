@@ -57,13 +57,8 @@ private:
 	LLColor4		*mSkyData;
 	LLVector3		*mSkyDirs;			// Cache of sky direction vectors
 	static S32		sCurrent;
-	static F32		sInterpVal;
 
 public:
-	static F32 getInterpVal()					{ return sInterpVal; }
-	static void setInterpVal(const F32 v)		{ sInterpVal = v; }
-	static BOOL doInterpolate()					{ return sInterpVal > 0.001f; }
-
 	void bindTexture(BOOL curr = TRUE);
 	
 protected:
@@ -299,6 +294,8 @@ public:
 	LLFace	*mFace[FACE_COUNT];
 	LLVector3	mBumpSunDir;
 
+    F32 getInterpVal() const { return mInterpVal; }
+
 protected:
 	~LLVOSky();
 
@@ -352,6 +349,7 @@ protected:
 	LLPointer<LLCubeMap> mCubeMap;					// Cube map for the environment
 	S32					 mDrawRefl;
 
+	LLFrameTimer		mUpdateTimer;
     LLTimer             mForceUpdateThrottle;
 	bool                mHeavenlyBodyUpdated ;
 

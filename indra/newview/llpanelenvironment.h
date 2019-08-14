@@ -126,6 +126,7 @@ protected:
     void                        onPickerCommitted(LLUUID item_id, S32 track_num = LLEnvironment::NO_TRACK);
     void                        onEditCommitted(LLSettingsDay::ptr_t newday);
     void                        onDayLenOffsetMouseUp();
+    void                        commitDayLenOffsetChanges(bool need_callback);
 
     void                        onPickerAssetDownloaded(LLSettingsBase::ptr_t settings);
     void                        onEnvironmentReceived(S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo);

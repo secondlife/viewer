@@ -37,7 +37,6 @@ uniform sampler2D transmittance_texture;
 uniform sampler3D scattering_texture;
 uniform sampler3D single_mie_scattering_texture;
 uniform sampler2D irradiance_texture;
-uniform vec4 gamma;
 
 vec3 GetSkyLuminance(vec3 camPos, vec3 view_dir, float shadow_length, vec3 dir, out vec3 transmittance);
 

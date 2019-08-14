@@ -1596,16 +1596,6 @@ void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLS
     //_WARNS("RIDER") << "----------------------------------------------------------------" << LL_ENDL;
 
     psetting->applySpecial(shader);
-
-    if (LLPipeline::sRenderDeferred && !LLPipeline::sReflectionRender && !LLPipeline::sUnderWaterRender)
-    {
-        shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 2.2);
-    }
-    else 
-    {
-        shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 1.0);
-    }
-
 }
 
 void LLEnvironment::updateShaderUniforms(LLGLSLShader *shader)

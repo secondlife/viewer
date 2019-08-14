@@ -123,7 +123,7 @@
             <xy_vector
                     follows="left|top"
                     name="cloud_scroll_xy"
-                    width="120"
+                    width="127"
                     height="145"
                     visible="true"
                     left_delta="0"

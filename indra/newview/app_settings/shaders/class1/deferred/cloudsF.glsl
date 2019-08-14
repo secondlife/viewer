@@ -43,7 +43,6 @@ uniform sampler2D cloud_noise_texture_next;
 uniform float blend_factor;
 uniform vec4 cloud_pos_density1;
 uniform vec4 cloud_pos_density2;
-uniform vec4 gamma;
 uniform float cloud_scale;
 uniform float cloud_variance;
 
@@ -85,12 +84,12 @@ void main()
     vec2 disturbance2 = vec2(cloudNoise((uv1 + uv3) / 4.0f).x, cloudNoise((uv4 + uv2) / 8.0f).x) * cloud_variance * (1.0f - cloud_scale * 0.25f);
 
     // Offset texture coords
-    uv1 += cloud_pos_density1.xy + (disturbance * 0.02);    //large texture, visible density
+    uv1 += cloud_pos_density1.xy + (disturbance * 0.2);    //large texture, visible density
     uv2 += cloud_pos_density1.xy;   //large texture, self shadow
     uv3 += cloud_pos_density2.xy;   //small texture, visible density
     uv4 += cloud_pos_density2.xy;   //small texture, self shadow
 
-    float density_variance = min(1.0, (disturbance.x* 2.0 + disturbance.y* 2.0 + disturbance2.x + disturbance2.y));
+    float density_variance = min(1.0, (disturbance.x* 2.0 + disturbance.y* 2.0 + disturbance2.x + disturbance2.y) * 4.0);
 
     cloudDensity *= 1.0 - (density_variance * density_variance);
 

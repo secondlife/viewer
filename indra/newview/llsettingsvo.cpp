@@ -706,11 +706,15 @@ void LLSettingsVOSky::applySpecial(void *ptarget)
         shader->uniform4fv(LLShaderMgr::CLOUD_COLOR, 1, cloud_color.mV);
 	}
 
-    F32 g = getGamma();
+    
 
     shader->uniform1f(LLShaderMgr::SCENE_LIGHT_STRENGTH, mSceneLightStrength);
-    shader->uniform4f(LLShaderMgr::GAMMA, g, 0.0, 0.0, 1.0);
-    shader->uniform1f(LLShaderMgr::DISPLAY_GAMMA, g);
+    
+    F32 g             = getGamma();    
+    F32 display_gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
+
+    shader->uniform1f(LLShaderMgr::GAMMA, g);
+    shader->uniform1f(LLShaderMgr::DISPLAY_GAMMA, display_gamma);
 }
 
 LLSettingsSky::parammapping_t LLSettingsVOSky::getParameterMap() const
