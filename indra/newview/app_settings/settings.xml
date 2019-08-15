@@ -4913,7 +4913,7 @@
     <key>InventoryOutboxDisplayBoth</key>
     <map>
         <key>Comment</key>
-        <string>Show the legacy Merchant Outbox UI as well as the Marketplace Listings UI</string>
+        <string>(Deprecated) Show the legacy Merchant Outbox UI as well as the Marketplace Listings UI</string>
         <key>Persist</key>
         <integer>1</integer>
         <key>Type</key>
