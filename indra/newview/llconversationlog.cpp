@@ -486,7 +486,7 @@ bool LLConversationLog::saveToFile(const std::string& filename)
 				(S32)conv_it->getConversationType(),
 				(S32)0,
 				(S32)conv_it->hasOfflineMessages(),
-				conv_it->getConversationName().c_str(),
+				LLURI::escape(conv_it->getConversationName()).c_str(),
 				participant_id.c_str(),
 				conversation_id.c_str(),
 				LLURI::escape(conv_it->getHistoryFileName()).c_str());
@@ -541,7 +541,7 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 		params.time(LLUnits::Seconds::fromValue(time))
 			.conversation_type((SessionType)stype)
 			.has_offline_ims(has_offline_ims)
-			.conversation_name(conv_name_buffer)
+			.conversation_name(LLURI::unescape(conv_name_buffer))
 			.participant_id(LLUUID(part_id_buffer))
 			.session_id(LLUUID(conv_id_buffer))
 			.history_filename(LLURI::unescape(history_file_name));
