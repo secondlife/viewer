@@ -52,6 +52,7 @@
 #include "llfavoritesbar.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloaterimsession.h"
+#include "llkeybindings.h"
 #include "llkeyboard.h"
 #include "llmodaldialog.h"
 #include "llnavigationbar.h"
@@ -168,6 +169,7 @@ public:
 	/*virtual*/ BOOL postBuild();
 	
 	void setParent(LLFloaterPreference* parent) { mParent = parent; }
+	void setTmpParent(LLPanelPreferenceControls* parent) { mTmpParent = parent; } // todo: voice key will be removed, class renamved, so it will have only one parent
 	
 	BOOL handleKeyHere(KEY key, MASK mask);
 	BOOL handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down);
@@ -175,11 +177,13 @@ public:
 		
 private:
 	LLFloaterPreference* mParent;
+	LLPanelPreferenceControls* mTmpParent;// todo: voice key will be removed, class renamved, so it will have only one parent
 };
 
 LLVoiceSetKeyDialog::LLVoiceSetKeyDialog(const LLSD& key)
   : LLModalDialog(key),
-	mParent(NULL)
+	mParent(NULL),
+	mTmpParent(NULL)
 {
 }
 
@@ -201,14 +205,29 @@ LLVoiceSetKeyDialog::~LLVoiceSetKeyDialog()
 BOOL LLVoiceSetKeyDialog::handleKeyHere(KEY key, MASK mask)
 {
 	BOOL result = TRUE;
+
+    if (key == KEY_CONTROL || key == KEY_SHIFT || key == KEY_ALT || key == KEY_NONE)
+    {
+        // temp
+        return false;
+    }
 	
+    // todo, same for escape
 	if (key == 'Q' && mask == MASK_CONTROL)
 	{
 		result = FALSE;
-	}
+        if (mTmpParent)
+        {
+            mTmpParent->onSetKey(KEY_NONE, MASK_NONE);
+        }
+    }
 	else if (mParent)
 	{
 		mParent->setKey(key);
+	}
+	else if (mTmpParent)
+	{
+		mTmpParent->onSetKey(key, mask);
 	}
 	closeFloater();
 	return result;
@@ -217,11 +236,38 @@ BOOL LLVoiceSetKeyDialog::handleKeyHere(KEY key, MASK mask)
 BOOL LLVoiceSetKeyDialog::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down)
 {
     BOOL result = FALSE;
-    if (down
-        && (clicktype == CLICK_MIDDLE || clicktype == CLICK_BUTTON4 || clicktype == CLICK_BUTTON5)
-        && mask == 0)
+
+    if (clicktype == CLICK_LEFT)
     {
-        mParent->setMouse(clicktype);
+        if (down)
+        {
+            result = LLView::handleMouseDown(x, y, mask);
+        }
+        else
+        {
+            result = LLView::handleMouseUp(x, y, mask);
+        }
+    }
+    if (clicktype == LLMouseHandler::CLICK_LEFT)
+    {
+        result = LLView::handleDoubleClick(x, y, mask);
+    }
+    if (result)
+    {
+        return TRUE;
+    }
+    if (down && clicktype != LLMouseHandler::CLICK_RIGHT) //tmp
+        //&& (clicktype == LLMouseHandler::CLICK_MIDDLE || clicktype == LLMouseHandler::CLICK_BUTTON4 || clicktype == LLMouseHandler::CLICK_BUTTON5)
+        //&& mask == 0)
+    {
+        if (mParent)
+        {
+            mParent->setMouse(clicktype);
+        }
+        else if (mTmpParent)
+        {
+            mTmpParent->onSetMouse(clicktype, mask);
+        }
         result = TRUE;
         closeFloater();
     }
@@ -237,6 +283,11 @@ BOOL LLVoiceSetKeyDialog::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseCli
 void LLVoiceSetKeyDialog::onCancel(void* user_data)
 {
 	LLVoiceSetKeyDialog* self = (LLVoiceSetKeyDialog*)user_data;
+    // tmp needs 'no key' button
+    if (self->mTmpParent)
+        {
+            self->mTmpParent->onSetKey(KEY_NONE, MASK_NONE);
+        }
 	self->closeFloater();
 }
 
@@ -2861,6 +2912,273 @@ void LLPanelPreferenceGraphics::saveSettings()
 void LLPanelPreferenceGraphics::setHardwareDefaults()
 {
 	resetDirtyChilds();
+}
+
+
+//-------------------For LLPanelPreferenceControls' list---------------------------
+class LLGroupControlsListItem : public LLScrollListItem, public LLHandleProvider<LLGroupControlsListItem>
+{
+public:
+    LLGroupControlsListItem(const LLScrollListItem::Params& p)
+        : LLScrollListItem(p)
+    {
+    }
+
+    LLGroupControlsListItem(const LLScrollListItem::Params& p, const LLUUID& icon_id)
+        : LLScrollListItem(p), mIconId(icon_id)
+    {
+    }
+
+    void draw(const LLRect& rect, const LLColor4& fg_color, const LLColor4& bg_color, const LLColor4& highlight_color, S32 column_padding)
+    {
+        // todo: insert image and adjust rect
+        LLScrollListItem::draw(rect, fg_color, bg_color, highlight_color, column_padding);
+    }
+private:
+    LLUUID mIconId;
+};
+
+static const std::string tmp_typetostring[LLControlBindings::CONTROL_NUM_INDICES] = {
+    "control_view_actions",
+    "control_about",
+    "control_orbit",
+    "control_pan",
+    "control_world_map",
+    "control_zoom",
+    "control_interactions",
+    "control_build",
+    "control_drag",
+    "control_edit",
+    "control_menu",
+    "control_open",
+    "control_touch",
+    "control_wear",
+    "control_movements",
+    "control_moveto",
+    "control_sit",
+    "control_teleportto",
+    "control_forward",
+    "control_backward",
+    "control_left",
+    "control_right",
+    "control_lstrafe",
+    "control_rstrafe",
+    "control_jump",
+    "control_down",
+    "control_run",
+    "control_toggle_run",
+    "control_fly",
+    "control_mediacontent",
+    "control_parcel",
+    "control_media",
+    "control_voice",
+    "control_toggle_voice",
+    "control_reserved",
+    "control_menu",
+    "control_reserved_select",
+    "control_shift_select",
+    "control_cntrl_select"
+};
+
+//------------------------LLPanelPreferenceControls--------------------------------
+static LLPanelInjector<LLPanelPreferenceControls> t_pref_contrls("panel_preference_controls");
+
+BOOL LLPanelPreferenceControls::postBuild()
+{
+    //todo: on open instead of on the go
+    //todo: add pitch/yaw?
+    //todo: Scroll?
+    //todo: should be auto-expandable with menu items and should pull names from menu when possible
+
+
+    // populate list of controls
+    pControlsTable = getChild<LLScrollListCtrl>("controls_list");
+    populateControlTable();
+
+    pControlsTable->setCommitCallback(boost::bind(&LLPanelPreferenceControls::onListCommit, this));
+
+    return TRUE;
+}
+
+void LLPanelPreferenceControls::populateControlTable()
+{
+    pControlsTable->clearRows();
+
+    // todo: subsections need sorting?
+    std::string label;
+    LLScrollListCell::Params cell_params;
+    // init basic cell params
+    cell_params.font = LLFontGL::getFontSansSerif();
+    cell_params.font_halign = LLFontGL::LEFT;
+    cell_params.column = "";
+    cell_params.value = label;
+
+    LLScrollListItem::Params item_params_blank;
+    cell_params.enabled = false;
+    item_params_blank.value = LLSD::Integer(-1);
+    item_params_blank.columns.add(cell_params);
+    cell_params.enabled = true;
+
+    for (U32 i = LLControlBindings::CONTROL_VIEW_ACTIONS; i < LLControlBindings::CONTROL_NUM_INDICES; i++)
+    {
+        switch (i)
+        {
+            case LLControlBindings::CONTROL_VIEW_ACTIONS:
+            {
+                // same as below, but without separator
+                LLScrollListItem::Params item_params;
+                item_params.value = LLSD::Integer(i);
+
+                label = getString(tmp_typetostring[i]);
+                cell_params.column = "lst_action";
+                cell_params.value = label;
+                //dummy cells
+                item_params.columns.add(cell_params);
+                cell_params.column = "lst_ctrl1";
+                cell_params.value = "";
+                item_params.columns.add(cell_params);
+                cell_params.column = "lst_ctrl2";
+                cell_params.value = "";
+                item_params.columns.add(cell_params);
+                LLUUID id;
+                LLGroupControlsListItem* item = new LLGroupControlsListItem(item_params, id);
+                pControlsTable->addRow(item, item_params, EAddPosition::ADD_BOTTOM);
+                break;
+            }
+            case LLControlBindings::CONTROL_INTERACTIONS:
+            case LLControlBindings::CONTROL_MOVEMENTS:
+            case LLControlBindings::CONTROL_MEDIACONTENT:
+            case LLControlBindings::CONTROL_RESERVED:
+            {
+                // insert blank
+                pControlsTable->addRow(item_params_blank, EAddPosition::ADD_BOTTOM);
+                // inster with icon
+                LLScrollListItem::Params item_params;
+                item_params.value = LLSD::Integer(i);
+
+                label = getString(tmp_typetostring[i]);
+                cell_params.column = "lst_action";
+                cell_params.value = label;
+                //dummy cells
+                item_params.columns.add(cell_params);
+                cell_params.column = "lst_ctrl1";
+                cell_params.value = "";
+                item_params.columns.add(cell_params);
+                cell_params.column = "lst_ctrl2";
+                cell_params.value = "";
+                item_params.columns.add(cell_params);
+                LLUUID id;
+                LLGroupControlsListItem* item = new LLGroupControlsListItem(item_params, id);
+                pControlsTable->addRow(item, item_params, EAddPosition::ADD_BOTTOM);
+                break;
+            }
+            default:
+            {
+                //default insert
+                LLScrollListItem::Params item_params;
+                item_params.value = LLSD::Integer(i);
+
+                // todo oddset
+                cell_params.column = "lst_action";
+                label = getString(tmp_typetostring[i]);
+                cell_params.value = label;
+                item_params.columns.add(cell_params);
+                cell_params.column = "lst_ctrl1";
+                cell_params.value = gControlBindings.getPrimaryControl((LLControlBindings::EControlTypes)i).asString();
+                item_params.columns.add(cell_params);
+                cell_params.column = "lst_ctrl2";
+                cell_params.value = gControlBindings.getSecondaryControl((LLControlBindings::EControlTypes)i).asString();
+                item_params.columns.add(cell_params);
+
+                pControlsTable->addRow(item_params, EAddPosition::ADD_BOTTOM);
+                break;
+            }
+        }
+    }
+}
+
+void LLPanelPreferenceControls::cancel()
+{
+}
+
+void LLPanelPreferenceControls::saveSettings()
+{
+}
+
+void LLPanelPreferenceControls::resetDirtyChilds()
+{
+}
+
+bool LLPanelPreferenceControls::hasDirtyChilds()
+{
+    return false;
+}
+
+void LLPanelPreferenceControls::onListCommit()
+{
+    LLScrollListItem* item = pControlsTable->getFirstSelected();
+    if (item == NULL)
+    {
+        return;
+    }
+
+    S32 control = item->getValue().asInteger();
+
+    if (!gControlBindings.canAssignControl((LLControlBindings::EControlTypes)control))
+    {
+        return;
+    }
+    
+    // todo: add code to determine what cell was clicked, probably cells themself should be clickable
+
+    LLVoiceSetKeyDialog* dialog = LLFloaterReg::showTypedInstance<LLVoiceSetKeyDialog>("voice_set_key", LLSD(), TRUE);
+    if (dialog)
+    {
+        dialog->setTmpParent(this); // will be remade from being voice later
+    }
+}
+
+void LLPanelPreferenceControls::onSetKey(KEY key, MASK mask)
+{
+    LLScrollListItem* item = pControlsTable->getFirstSelected();
+    if (item == NULL)
+    {
+        return;
+    }
+
+    LLControlBindings::EControlTypes control = (LLControlBindings::EControlTypes)item->getValue().asInteger();
+
+    if (!gControlBindings.canAssignControl(control))
+    {
+        return;
+    }
+
+    gControlBindings.registerPrimaryControl(control, LLMouseHandler::CLICK_NONE, key, mask);
+
+    // instead of populating, update single element
+    populateControlTable();
+}
+
+void LLPanelPreferenceControls::onSetMouse(LLMouseHandler::EClickType click, MASK mask)
+{
+
+    LLScrollListItem* item = pControlsTable->getFirstSelected();
+    if (item == NULL)
+    {
+        return;
+    }
+
+    LLControlBindings::EControlTypes control = (LLControlBindings::EControlTypes)item->getValue().asInteger();
+
+    if (!gControlBindings.canAssignControl(control))
+    {
+        return;
+    }
+
+    gControlBindings.registerPrimaryControl(control, click, KEY_NONE, mask);
+
+    // instead of populating, update single element
+    populateControlTable();
 }
 
 LLFloaterPreferenceGraphicsAdvanced::LLFloaterPreferenceGraphicsAdvanced(const LLSD& key)

@@ -35,6 +35,7 @@
 #include "llnotificationsutil.h"
 #include "llsdserialize.h"
 #include "llui.h"
+#include "llkeybindings.h"
 #include "llkeyboard.h"
 #include "llagent.h"
 
@@ -691,7 +692,7 @@ void LLVoiceClient::keyDown(KEY key, MASK mask)
 		return;
 	}
 	
-	if (mPTTMouseButton == 0 && LLAgent::isActionAllowed("speak") && (key == mPTTKey))
+	if (LLAgent::isActionAllowed("speak") && gControlBindings.canHandleKey(LLControlBindings::CONTROL_VOICE, key, mask))
 	{
 		bool down = gKeyboard->getKeyDown(mPTTKey);
 		if (down)
@@ -703,7 +704,7 @@ void LLVoiceClient::keyDown(KEY key, MASK mask)
 }
 void LLVoiceClient::keyUp(KEY key, MASK mask)
 {
-	if (mPTTMouseButton == 0 && (key == mPTTKey))
+	if (gControlBindings.canHandleKey(LLControlBindings::CONTROL_VOICE, key, mask))
 	{
 		bool down = gKeyboard->getKeyDown(mPTTKey);
 		if (!down)
@@ -714,7 +715,7 @@ void LLVoiceClient::keyUp(KEY key, MASK mask)
 }
 void LLVoiceClient::updateMouseState(S32 click, MASK mask, bool down)
 {
-	if(mPTTMouseButton == click && LLAgent::isActionAllowed("speak"))
+	if(LLAgent::isActionAllowed("speak") && gControlBindings.canHandleMouse(LLControlBindings::CONTROL_VOICE, click, mask))
 	{
 		inputUserControlState(down);
 	}

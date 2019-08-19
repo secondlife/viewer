@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<panel
+ border="true"
+ follows="all"
+ height="408"
+ label="Controls"
+ layout="topleft"
+ left="102"
+ name="controls"
+ top="1"
+ width="517">
+  <panel.string
+   name="control_view_actions">
+    View Actions
+  </panel.string>
+  <panel.string
+   name="control_about">
+    About/Profile
+  </panel.string>
+  <panel.string
+   name="control_orbit">
+    Orbit
+  </panel.string>
+  <panel.string
+   name="control_pan">
+    Pan
+  </panel.string>
+  <panel.string
+   name="control_world_map">
+    World Map
+  </panel.string>
+  <panel.string
+   name="control_zoom">
+    Zoom
+  </panel.string>
+  <panel.string
+   name="control_interactions">
+    Interactions
+  </panel.string>
+  <panel.string
+   name="control_build">
+    Build
+  </panel.string>
+  <panel.string
+   name="control_drag">
+    Drag
+  </panel.string>
+  <panel.string
+   name="control_edit">
+    Edit
+  </panel.string>
+  <panel.string
+   name="control_menu">
+    Menu
+  </panel.string>
+  <panel.string
+   name="control_open">
+    Open
+  </panel.string>
+  <panel.string
+   name="control_touch">
+    Touch
+  </panel.string>
+  <panel.string
+   name="control_wear">
+    Wear
+  </panel.string>
+  <panel.string
+   name="control_movements">
+    Move Actions
+  </panel.string>
+  <panel.string
+   name="control_moveto">
+    Move To
+  </panel.string>
+  <panel.string
+   name="control_sit">
+    Sit/Stand
+  </panel.string>
+  <panel.string
+   name="control_teleportto">
+    Teleport To
+  </panel.string>
+  <panel.string
+   name="control_forward">
+    Move Forward
+  </panel.string>
+  <panel.string
+   name="control_backward">
+    Move Backward
+  </panel.string>
+  <panel.string
+   name="control_left">
+    Left
+  </panel.string>
+  <panel.string
+   name="control_right">
+    Right
+  </panel.string>
+  <!--(check with move floater)-->
+  <panel.string
+   name="control_lstrafe">
+    Strafe left
+  </panel.string>
+  <panel.string
+   name="control_rstrafe">
+    Strafe right
+  </panel.string>
+  <panel.string
+   name="control_jump">
+    Strafe right
+  </panel.string>
+  <panel.string
+   name="control_down">
+    Strafe right
+  </panel.string>
+  <panel.string
+   name="control_run">
+    Run
+  </panel.string>
+  <panel.string
+   name="control_toggle_run">
+    Toggle Run
+  </panel.string>
+  <panel.string
+   name="control_fly">
+    Fly/Stop flying
+  </panel.string>
+  <panel.string
+   name="control_mediacontent">
+    Sound and Media
+  </panel.string>
+  <panel.string
+   name="control_parcel">
+    Play/Pause Parcel Media
+  </panel.string>
+  <panel.string
+   name="control_media">
+    Play/Stop All Media
+  </panel.string>
+  <panel.string
+   name="control_voice">
+    Voice
+  </panel.string>
+  <panel.string
+   name="control_toggle_voice">
+    Toggle Voice
+  </panel.string>
+  <panel.string
+   name="control_reserved">
+    Reserved Controls
+  </panel.string>
+  <!--
+   name="control_menu" not needed
+   -->
+  <panel.string
+   name="control_reserved_select">
+    Select
+  </panel.string>
+  <panel.string
+   name="control_shift_select">
+    Multi-Select
+  </panel.string>
+  <panel.string
+   name="control_cntrl_select">
+    Add to Selection
+  </panel.string>
+
+  <scroll_list
+   draw_heading="true"
+   follows="all"
+   layout="topleft"
+   column_padding="0"
+   top="3"
+   left="3"
+   bottom="-3"
+   right="-3"
+   multi_select="false"
+   name="controls_list">
+    <scroll_list.columns
+     relative_width="0.34"
+     label="Action"
+     name="lst_action" />
+    <scroll_list.columns
+     relative_width="0.33"
+     label="Primary Control Method"
+     name="lst_ctrl1" />
+    <scroll_list.columns
+     relative_width="0.33"
+     label="Secondary Control Method"
+     name="lst_ctrl2" />
+    <scroll_list.commit_callback
+      function="Pref.CommitControl" />
+  </scroll_list>
+
+</panel>

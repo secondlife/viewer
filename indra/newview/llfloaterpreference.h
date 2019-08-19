@@ -294,6 +294,27 @@ private:
 	LOG_CLASS(LLPanelPreferenceGraphics);
 };
 
+class LLPanelPreferenceControls : public LLPanelPreference
+{
+	LOG_CLASS(LLPanelPreferenceControls);
+public:
+	BOOL postBuild();
+	void populateControlTable();
+	void cancel();
+	void saveSettings();
+	void resetDirtyChilds();
+
+	void onListCommit();
+	void onSetKey(KEY key, MASK mask);
+	void onSetMouse(LLMouseHandler::EClickType click, MASK mask);
+
+protected:
+	bool hasDirtyChilds();
+
+private:
+	LLScrollListCtrl* pControlsTable;
+};
+
 class LLFloaterPreferenceGraphicsAdvanced : public LLFloater
 {
   public: 
