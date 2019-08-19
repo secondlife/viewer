@@ -134,12 +134,6 @@ LLSingletonBase::list_t& LLSingletonBase::get_initializing()
     return LLSingletonBase::MasterList::instance().get_initializing_();
 }
 
-//static
-LLSingletonBase::list_t& LLSingletonBase::get_initializing_from(MasterList* master)
-{
-    return master->get_initializing_();
-}
-
 LLSingletonBase::~LLSingletonBase() {}
 
 void LLSingletonBase::push_initializing(const char* name)
@@ -184,6 +178,31 @@ void LLSingletonBase::pop_initializing()
 
     // log AFTER popping so logging singletons don't cry circularity
     log_initializing("Popping", typeid(*back).name());
+}
+
+void LLSingletonBase::reset_initializing(list_t::size_type size)
+{
+    // called for cleanup in case the LLSingleton subclass constructor throws
+    // an exception
+
+    // The tricky thing about this, the reason we have a separate method
+    // instead of just calling pop_initializing(), is (hopefully remote)
+    // possibility that the exception happened *before* the
+    // push_initializing() call in LLSingletonBase's constructor. So only
+    // remove the stack top if in fact we've pushed something more than the
+    // previous size.
+    list_t& list(get_initializing());
+
+    while (list.size() > size)
+    {
+        list.pop_back();
+    }
+
+    // as in pop_initializing()
+    if (list.empty())
+    {
+        MasterList::instance().cleanup_initializing_();
+    }
 }
 
 //static

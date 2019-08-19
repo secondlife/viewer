@@ -55,7 +55,6 @@ private:
     // This, on the other hand, is a stack whose top indicates the LLSingleton
     // currently being initialized.
     static list_t& get_initializing();
-    static list_t& get_initializing_from(MasterList*);
     // Produce a vector<LLSingletonBase*> of master list, in dependency order.
     typedef std::vector<LLSingletonBase*> vec_t;
     static vec_t dep_sort();
@@ -112,6 +111,9 @@ protected:
     // That being the case, we control exactly when it happens -- and we can
     // pop the stack immediately thereafter.
     void pop_initializing();
+    // Remove 'this' from the init stack in case of exception in the
+    // LLSingleton subclass constructor.
+    static void reset_initializing(list_t::size_type size);
 private:
     // logging
     static void log_initializing(const char* verb, const char* name);
@@ -190,7 +192,15 @@ struct LLSingleton_manage_master
     void remove(LLSingletonBase* sb) { sb->remove_master(); }
     void push_initializing(LLSingletonBase* sb) { sb->push_initializing(typeid(T).name()); }
     void pop_initializing (LLSingletonBase* sb) { sb->pop_initializing(); }
-    LLSingletonBase::list_t& get_initializing(T*) { return LLSingletonBase::get_initializing(); }
+    // used for init stack cleanup in case an LLSingleton subclass constructor
+    // throws an exception
+    void reset_initializing(LLSingletonBase::list_t::size_type size)
+    {
+        LLSingletonBase::reset_initializing(size);
+    }
+    // For any LLSingleton subclass except the MasterList, obtain the init
+    // stack from the MasterList singleton instance.
+    LLSingletonBase::list_t& get_initializing() { return LLSingletonBase::get_initializing(); }
 };
 
 // But for the specific case of LLSingletonBase::MasterList, don't.
@@ -201,9 +211,14 @@ struct LLSingleton_manage_master<LLSingletonBase::MasterList>
     void remove(LLSingletonBase*) {}
     void push_initializing(LLSingletonBase*) {}
     void pop_initializing (LLSingletonBase*) {}
-    LLSingletonBase::list_t& get_initializing(LLSingletonBase::MasterList* instance)
+    // since we never pushed, no need to clean up
+    void reset_initializing(LLSingletonBase::list_t::size_type size) {}
+    LLSingletonBase::list_t& get_initializing()
     {
-        return LLSingletonBase::get_initializing_from(instance);
+        // The MasterList shouldn't depend on any other LLSingletons. We'd
+        // get into trouble if we tried to recursively engage that machinery.
+        static LLSingletonBase::list_t sDummyList;
+        return sDummyList;
     }
 };
 
@@ -213,7 +228,12 @@ LLSingletonBase::LLSingletonBase(tag<DERIVED_TYPE>):
     mCleaned(false),
     mDeleteSingleton(NULL)
 {
-    // Make this the currently-initializing LLSingleton.
+    // This is the earliest possible point at which we can push this new
+    // instance onto the init stack. LLSingleton::constructSingleton() can't
+    // do it before calling the constructor, because it doesn't have an
+    // instance pointer until the constructor returns. Fortunately this
+    // constructor is guaranteed to be called before any subclass constructor.
+    // Make this new instance the currently-initializing LLSingleton.
     LLSingleton_manage_master<DERIVED_TYPE>().push_initializing(this);
 }
 
@@ -298,8 +318,27 @@ private:
     static void constructSingleton(Args&&... args)
     {
         sData.mInitState = CONSTRUCTING;
-        sData.mInstance = new DERIVED_TYPE(std::forward<Args>(args)...);
-        sData.mInitState = INITIALIZING;
+        auto prev_size = LLSingleton_manage_master<DERIVED_TYPE>().get_initializing().size();
+        try
+        {
+            sData.mInstance = new DERIVED_TYPE(std::forward<Args>(args)...);
+            sData.mInitState = INITIALIZING;
+        }
+        catch (const std::exception& err)
+        {
+            logwarns("Error constructing ", demangle(typeid(DERIVED_TYPE).name()).c_str(),
+                     ": ", err.what());
+            // There isn't a separate EInitState value meaning "we attempted
+            // to construct this LLSingleton subclass but could not," so use
+            // DELETED. That seems slightly more appropriate than UNINITIALIZED.
+            sData.mInitState = DELETED;
+            // LLSingletonBase might -- or might not -- have pushed the new
+            // instance onto the init stack before the exception. Reset the
+            // init stack to its previous size.
+            LLSingleton_manage_master<DERIVED_TYPE>().reset_initializing(prev_size);
+            // propagate the exception
+            throw;
+        }
     }
 
     static void finishInitializing()
@@ -310,16 +349,41 @@ private:
         // initialize singleton after constructing it so that it can
         // reference other singletons which in turn depend on it, thus
         // breaking cyclic dependencies
-        sData.mInstance->initSingleton();
-        // pop this off stack of initializing singletons
-        LLSingleton_manage_master<DERIVED_TYPE>().pop_initializing(sData.mInstance);
+        try
+        {
+            sData.mInstance->initSingleton();
 
-        // The remaining top of that stack, if any, is an LLSingleton that
-        // directly depends on DERIVED_TYPE. If getInstance() was called by
-        // another LLSingleton, rather than from vanilla application code,
-        // record the dependency.
+            // pop this off stack of initializing singletons
+            LLSingleton_manage_master<DERIVED_TYPE>().pop_initializing(sData.mInstance);
+
+            // record the dependency, if any
+            capture_dependency();
+        }
+        catch (const std::exception& err)
+        {
+            logwarns("Error in ", demangle(typeid(DERIVED_TYPE).name()).c_str(),
+                     "::initSingleton(): ", err.what());
+            // pop this off stack of initializing singletons here, too
+            LLSingleton_manage_master<DERIVED_TYPE>().pop_initializing(sData.mInstance);
+            // and get rid of the instance entirely
+            deleteSingleton();
+            // propagate the exception
+            throw;
+        }
+    }
+
+    // Without this 'using' declaration, the static method we're declaring
+    // here would hide the base-class method we want it to call.
+    using LLSingletonBase::capture_dependency;
+    static void capture_dependency()
+    {
+        // By this point, if DERIVED_TYPE was pushed onto the initializing
+        // stack, it has been popped off. So the top of that stack, if any, is
+        // an LLSingleton that directly depends on DERIVED_TYPE. If
+        // getInstance() was called by another LLSingleton, rather than from
+        // vanilla application code, record the dependency.
         sData.mInstance->capture_dependency(
-            LLSingleton_manage_master<DERIVED_TYPE>().get_initializing(sData.mInstance),
+            LLSingleton_manage_master<DERIVED_TYPE>().get_initializing(),
             sData.mInitState);
     }
 
@@ -427,6 +491,7 @@ public:
 
         case INITIALIZED:
             // normal subsequent calls
+            capture_dependency();
             break;
 
         case DELETED:
