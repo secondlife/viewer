@@ -461,7 +461,7 @@ void LLSingletonBase::logerrs(const char* p1, const char* p2, const char* p3, co
     // https://www.youtube.com/watch?v=OMG7paGJqhQ (emphasis on OMG)
     std::ostringstream out;
     out << p1 << p2 << p3 << p4;
-    auto crash{ LLError::getFatalFunction() };
+    auto crash = LLError::getFatalFunction();
     if (crash)
     {
         crash(out.str());
