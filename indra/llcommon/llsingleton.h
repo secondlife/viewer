@@ -68,10 +68,11 @@ protected:
     typedef enum e_init_state
     {
         UNINITIALIZED = 0,          // must be default-initialized state
-        CONSTRUCTING,
-        INITIALIZING,
-        INITIALIZED,
-        DELETED
+        CONSTRUCTING,               // within DERIVED_TYPE constructor
+        CONSTRUCTED,                // finished DERIVED_TYPE constructor
+        INITIALIZING,               // within DERIVED_TYPE::initSingleton()
+        INITIALIZED,                // normal case
+        DELETED                     // deleteSingleton() or deleteAll() called
     } EInitState;
 
     // Define tag<T> to pass to our template constructor. You can't explicitly
@@ -129,6 +130,10 @@ protected:
     static void logwarns(const char* p1, const char* p2="",
                          const char* p3="", const char* p4="");
     static std::string demangle(const char* mangled);
+    template <typename T>
+    static std::string classname()       { return demangle(typeid(T).name()); }
+    template <typename T>
+    static std::string classname(T* ptr) { return demangle(typeid(*ptr).name()); }
 
     // Default methods in case subclass doesn't declare them.
     virtual void initSingleton() {}
@@ -317,25 +322,28 @@ private:
     template <typename... Args>
     static void constructSingleton(Args&&... args)
     {
-        sData.mInitState = CONSTRUCTING;
         auto prev_size = LLSingleton_manage_master<DERIVED_TYPE>().get_initializing().size();
+        // getInstance() calls are from within constructor
+        sData.mInitState = CONSTRUCTING;
         try
         {
             sData.mInstance = new DERIVED_TYPE(std::forward<Args>(args)...);
-            sData.mInitState = INITIALIZING;
+            // we have called constructor, have not yet called initSingleton()
+            sData.mInitState = CONSTRUCTED;
         }
         catch (const std::exception& err)
         {
-            logwarns("Error constructing ", demangle(typeid(DERIVED_TYPE).name()).c_str(),
+            // LLSingletonBase might -- or might not -- have pushed the new
+            // instance onto the init stack before the exception. Reset the
+            // init stack to its previous size BEFORE logging so log-machinery
+            // LLSingletons don't record a dependency on DERIVED_TYPE!
+            LLSingleton_manage_master<DERIVED_TYPE>().reset_initializing(prev_size);
+            logwarns("Error constructing ", classname<DERIVED_TYPE>().c_str(),
                      ": ", err.what());
             // There isn't a separate EInitState value meaning "we attempted
             // to construct this LLSingleton subclass but could not," so use
             // DELETED. That seems slightly more appropriate than UNINITIALIZED.
             sData.mInitState = DELETED;
-            // LLSingletonBase might -- or might not -- have pushed the new
-            // instance onto the init stack before the exception. Reset the
-            // init stack to its previous size.
-            LLSingleton_manage_master<DERIVED_TYPE>().reset_initializing(prev_size);
             // propagate the exception
             throw;
         }
@@ -343,33 +351,39 @@ private:
 
     static void finishInitializing()
     {
-        // go ahead and flag ourselves as initialized so we can be
-        // reentrant during initialization
-        sData.mInitState = INITIALIZED; 
-        // initialize singleton after constructing it so that it can
-        // reference other singletons which in turn depend on it, thus
-        // breaking cyclic dependencies
+        // getInstance() calls are from within initSingleton()
+        sData.mInitState = INITIALIZING;
         try
         {
+            // initialize singleton after constructing it so that it can
+            // reference other singletons which in turn depend on it, thus
+            // breaking cyclic dependencies
             sData.mInstance->initSingleton();
+            sData.mInitState = INITIALIZED;
 
             // pop this off stack of initializing singletons
-            LLSingleton_manage_master<DERIVED_TYPE>().pop_initializing(sData.mInstance);
-
-            // record the dependency, if any
-            capture_dependency();
+            pop_initializing();
         }
         catch (const std::exception& err)
         {
-            logwarns("Error in ", demangle(typeid(DERIVED_TYPE).name()).c_str(),
+            // pop this off stack of initializing singletons here, too --
+            // BEFORE logging, so log-machinery LLSingletons don't record a
+            // dependency on DERIVED_TYPE!
+            pop_initializing();
+            logwarns("Error in ", classname<DERIVED_TYPE>().c_str(),
                      "::initSingleton(): ", err.what());
-            // pop this off stack of initializing singletons here, too
-            LLSingleton_manage_master<DERIVED_TYPE>().pop_initializing(sData.mInstance);
             // and get rid of the instance entirely
             deleteSingleton();
             // propagate the exception
             throw;
         }
+    }
+
+    static void pop_initializing()
+    {
+        // route through LLSingleton_manage_master so we Do The Right Thing
+        // (namely, nothing) for MasterList
+        LLSingleton_manage_master<DERIVED_TYPE>().pop_initializing(sData.mInstance);
     }
 
     // Without this 'using' declaration, the static method we're declaring
@@ -458,8 +472,7 @@ public:
     static void deleteSingleton()
     {
         delete sData.mInstance;
-        sData.mInstance = NULL;
-        sData.mInitState = DELETED;
+        // SingletonData state handled by destructor, above
     }
 
     static DERIVED_TYPE* getInstance()
@@ -472,38 +485,46 @@ public:
         case UNINITIALIZED:
             // should never be uninitialized at this point
             logerrs("Uninitialized singleton ",
-                    demangle(typeid(DERIVED_TYPE).name()).c_str());
+                    classname<DERIVED_TYPE>().c_str());
             return NULL;
 
         case CONSTRUCTING:
             // here if DERIVED_TYPE's constructor (directly or indirectly)
             // calls DERIVED_TYPE::getInstance()
             logerrs("Tried to access singleton ",
-                    demangle(typeid(DERIVED_TYPE).name()).c_str(),
+                    classname<DERIVED_TYPE>().c_str(),
                     " from singleton constructor!");
             return NULL;
 
-        case INITIALIZING:
-            // first time through: set to INITIALIZING by
-            // constructSingleton(), called by sInitializer's constructor
+        case CONSTRUCTED:
+            // first time through: set to CONSTRUCTED by
+            // constructSingleton(), called by sInitializer's constructor;
+            // still have to call initSingleton()
             finishInitializing();
             break;
 
+        case INITIALIZING:
+            // here if DERIVED_TYPE::initSingleton() (directly or indirectly)
+            // calls DERIVED_TYPE::getInstance(): go ahead and allow it
         case INITIALIZED:
             // normal subsequent calls
-            capture_dependency();
             break;
 
         case DELETED:
             // called after deleteSingleton()
             logwarns("Trying to access deleted singleton ",
-                     demangle(typeid(DERIVED_TYPE).name()).c_str(),
+                     classname<DERIVED_TYPE>().c_str(),
                      " -- creating new instance");
+            // This recovery sequence is NOT thread-safe! We would need a
+            // recursive_mutex a la LLParamSingleton.
             constructSingleton();
             finishInitializing();
             break;
         }
 
+        // record the dependency, if any: check if we got here from another
+        // LLSingleton's constructor or initSingleton() method
+        capture_dependency();
         return sData.mInstance;
     }
 
@@ -589,7 +610,7 @@ public:
         if (super::sData.mInitState != super::UNINITIALIZED)
         {
             super::logerrs("Tried to initialize singleton ",
-                           super::demangle(typeid(DERIVED_TYPE).name()).c_str(),
+                           super::template classname<DERIVED_TYPE>().c_str(),
                            " twice!");
         }
         else
@@ -609,22 +630,38 @@ public:
         {
         case super::UNINITIALIZED:
             super::logerrs("Uninitialized param singleton ",
-                           super::demangle(typeid(DERIVED_TYPE).name()).c_str());
+                           super::template classname<DERIVED_TYPE>().c_str());
             break;
 
         case super::CONSTRUCTING:
             super::logerrs("Tried to access param singleton ",
-                           super::demangle(typeid(DERIVED_TYPE).name()).c_str(),
+                           super::template classname<DERIVED_TYPE>().c_str(),
                            " from singleton constructor!");
             break;
 
+        case super::CONSTRUCTED:
+            // Should never happen!? The CONSTRUCTED state is specifically to
+            // navigate through LLSingleton::SingletonInitializer getting
+            // constructed (once) before LLSingleton::getInstance()'s switch
+            // on mInitState. But our initParamSingleton() method calls
+            // constructSingleton() and then calls finishInitializing(), which
+            // immediately sets INITIALIZING. Why are we here?
+            super::logerrs("Param singleton ",
+                           super::template classname<DERIVED_TYPE>().c_str(),
+                           "::initSingleton() not yet called");
+            break;
+
         case super::INITIALIZING:
+            // As with LLSingleton, explicitly permit circular calls from
+            // within initSingleton()
         case super::INITIALIZED:
+            // for any valid call, capture dependencies
+            super::capture_dependency();
             return super::sData.mInstance;
 
         case super::DELETED:
             super::logerrs("Trying to access deleted param singleton ",
-                           super::demangle(typeid(DERIVED_TYPE).name()).c_str());
+                           super::template classname<DERIVED_TYPE>().c_str());
             break;
         }
 
