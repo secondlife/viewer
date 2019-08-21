@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<labels>
+	<label
+	 name="en"
+	 value="System default" />
+	<label
+	 name="it"
+	 value="Default di sistema" />
+	<label
+	 name="ja"
+	 value="システムデフォルト" />
+	<label
+	 name="pl"
+	 value="Domyślny" />
+	<label
+	 name="pt"
+	 value="Padrão" />
+	<label
+	 name="ru"
+	 value="Язык системы" />
+	<label
+	 name="tr"
+	 value="Sistem varsayılanı" />
+	<label
+	 name="zh"
+	 value="系統預設" />
+	<label
+	 name="da"
+	 value="System standard" />
+	<label
+	 name="de"
+	 value="Systemvorgabe" />
+	<label
+	 name="es"
+	 value="Predeterminado del sistema" />
+	<label
+	 name="fr"
+	 value="Choix par défaut" />
+</labels>

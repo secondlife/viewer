@@ -72,12 +72,25 @@ public:
 
 	void			setPower(F32 val);
 	F32				getPower(F32 val) const { return mPower; }
-	
+
+	bool			getIsMuted() const { return (mIsMuted || mIsModeratorMuted); }
+	void			setIsModeratorMuted(bool val) { mIsModeratorMuted = val; }
+
 	// For the current user, need to know the PTT state to show
 	// correct button image.
 	void			setIsAgentControl(bool val) { mIsAgentControl = val; }
-
 	void			setIsTalking(bool val) { mIsTalking = val; }
+
+	enum EChannelState
+	{
+		ACTIVE_CHANNEL,
+		INACTIVE_CHANNEL,
+		UNDEFINED_CHANNEL
+	};
+
+	// switchIndicator controls visibility, 'active channel' governs if we are allowed to show indicator
+	void			setIsActiveChannel(bool val);
+	void			setChannelState(EChannelState state);
 
 	void			setShowParticipantsSpeaking(bool show) { mShowParticipantsSpeaking = show; }
 
@@ -131,6 +144,7 @@ private:
 
 	F32				mPower;
 	bool			mIsAgentControl;
+	bool			mIsModeratorMuted;
 	bool			mIsMuted;
 	bool			mIsTalking;
 	bool			mShowParticipantsSpeaking;
@@ -148,6 +162,8 @@ private:
 	LLUUID			mSpeakerId;
 
     bool mIndicatorToggled;
+
+    EChannelState	mChannelState;
 };
 
 #endif

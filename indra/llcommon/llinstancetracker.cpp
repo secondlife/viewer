@@ -36,17 +36,16 @@
 
 void LLInstanceTrackerBase::StaticBase::incrementDepth()
 {
-	apr_atomic_inc32(&sIterationNestDepth);
+	++sIterationNestDepth;
 }
 
 void LLInstanceTrackerBase::StaticBase::decrementDepth()
 {
 	llassert(sIterationNestDepth);
-	apr_atomic_dec32(&sIterationNestDepth);
+	--sIterationNestDepth;
 }
 
 U32 LLInstanceTrackerBase::StaticBase::getDepth()
 {
-	apr_uint32_t data = apr_atomic_read32(&sIterationNestDepth);
-	return data;
+	return sIterationNestDepth;
 }

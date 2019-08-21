@@ -555,6 +555,11 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	// about 700 or so requests and starts issuing TCP RSTs to
 	// new connections.  Reuse the DNS lookups for even a few
 	// seconds and no RSTs.
+	//
+	// -1 stores forever
+	// 0  never stores
+	// any other positive number specifies seconds
+	// supposedly curl 7.62.0 can use TTL by default, otherwise default is 60 seconds
 	check_curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, dnsCacheTimeout);
 
 	if (gpolicy.mUseLLProxy)

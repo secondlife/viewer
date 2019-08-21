@@ -4,7 +4,6 @@
 		Sprog:
 	</text>
 	<combo_box name="language_combobox">
-		<combo_box.item label="System standard" name="System Default Language"/>
 		<combo_box.item label="English (Engelsk)" name="English"/>
 		<combo_box.item label="Dansk - Beta" name="Danish"/>
 		<combo_box.item label="Deutsch (Tysk) - Beta" name="Deutsch(German)"/>

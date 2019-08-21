@@ -362,6 +362,10 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip, const
 	{
 		httpOpts->setRetries(httpParams["retries"].asInteger());
 	}
+	if (httpParams.has("DNSCacheTimeout"))
+	{
+		httpOpts->setDNSCacheTimeout(httpParams["DNSCacheTimeout"].asInteger());
+	}
 
 	bool vefifySSLCert = !gSavedSettings.getBOOL("NoVerifySSLCert");
 	mCertStore = gSavedSettings.getString("CertStore");
@@ -483,38 +487,24 @@ void LLXMLRPCTransaction::Impl::setHttpStatus(const LLCore::HttpStatus &status)
 {
 	CURLcode code = static_cast<CURLcode>(status.toULong());
 	std::string message;
-	std::string uri = "http://secondlife.com/community/support.php";
+	std::string uri = "http://support.secondlife.com";
 	LLURI failuri(mURI);
-
+	LLStringUtil::format_map_t args;
 
 	switch (code)
 	{
 	case CURLE_COULDNT_RESOLVE_HOST:
-		message =
-			std::string("DNS could not resolve the host name(") + failuri.hostName() + ").\n"
-			"Please verify that you can connect to the www.secondlife.com\n"
-			"web site.  If you can, but continue to receive this error,\n"
-			"please go to the support section and report this problem.";
+		args["[HOSTNAME]"] = failuri.hostName();
+		message = LLTrans::getString("couldnt_resolve_host", args);
 		break;
 
 	case CURLE_SSL_PEER_CERTIFICATE:
-		message =
-			"The login server couldn't verify itself via SSL.\n"
-			"If you continue to receive this error, please go\n"
-			"to the Support section of the SecondLife.com web site\n"
-			"and report the problem.";
+		message = LLTrans::getString("ssl_peer_certificate");
 		break;
 
 	case CURLE_SSL_CACERT:
-	case CURLE_SSL_CONNECT_ERROR:
-		message =
-			"Often this means that your computer\'s clock is set incorrectly.\n"
-			"Please go to Control Panels and make sure the time and date\n"
-			"are set correctly.\n"
-			"Also check that your network and firewall are set up correctly.\n"
-			"If you continue to receive this error, please go\n"
-			"to the Support section of the SecondLife.com web site\n"
-			"and report the problem.";
+	case CURLE_SSL_CONNECT_ERROR:		
+		message = LLTrans::getString("ssl_connect_error");
 		break;
 
 	default:

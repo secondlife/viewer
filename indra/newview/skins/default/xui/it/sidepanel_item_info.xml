@@ -34,9 +34,11 @@
 			<text name="LabelItemNameTitle">
 				Nome:
 			</text>
+			<line_editor name="LabelItemName" tool_tip="Il nome è limitato a 63 caratteri. Prim con nomi più lunghi verranno accorciati. I nomi possono avere solamente caratteri stampabili facenti parte del codice ASCII-7 (non esteso), con l&apos;eccezione della barra verticale &apos;|&apos;."/>
 			<text name="LabelItemDescTitle">
 				Descrizione:
 			</text>
+			<line_editor name="LabelItemDesc" tool_tip="Quando la dicitura &quot;Vedi suggerimenti su tutti gli oggetti&quot; è selezionata nelle impostazioni del Viewer, passando il mouse sopra un oggetto si vedrà la sua descrizione. La descrizione dei Prim è limitata a 127 bytes. Se più lunga, verrá troncata."/>
 			<text name="LabelCreatorTitle">
 				Ideatore:
 			</text>
@@ -59,7 +61,7 @@
 				<text name="AnyoneLabel">
 					Chiunque:
 				</text>
-				<check_box label="Copia" name="CheckEveryoneCopy"/>
+				<check_box label="Copia" name="CheckEveryoneCopy" tool_tip="Chiunque può prendere una copia di questo oggetto. L&apos;oggetto e tutti i suoi contenuti devono avere il permesso di copia e trasferimento."/>
 				<text name="GroupLabel">
 					Gruppo:
 				</text>
@@ -67,17 +69,17 @@
 				<text name="NextOwnerLabel">
 					Proprietario successivo:
 				</text>
-				<check_box label="Modifica" name="CheckNextOwnerModify"/>
-				<check_box label="Copia" name="CheckNextOwnerCopy"/>
-				<check_box label="Trasferisci" name="CheckNextOwnerTransfer" tool_tip="Il prossimo proprietario può regalare o rivendere questo oggetto"/>
+				<check_box label="Modifica" name="CheckNextOwnerModify" tool_tip="Il prossimo proprietario può modificare le proprietà dell&apos;oggetto come il nome o la scala."/>
+				<check_box label="Copia" name="CheckNextOwnerCopy" tool_tip="Il proprietario successivo può prendere infinite copie di questo oggetto. Le copie mantengono le informazioni sul creatore, e non possono avere permessi maggiori di quelli posseduti dall&apos;oggetto copiato."/>
+				<check_box label="Trasferisci" name="CheckNextOwnerTransfer" tool_tip="Il prossimo proprietario può regalare o rivendere questo oggetto."/>
 			</panel>
-			<check_box label="In vendita" name="CheckPurchase"/>
-			<combo_box name="ComboBoxSaleType">
+			<check_box label="In vendita" name="CheckPurchase" tool_tip="Permette alla gente di comprare questo oggetto, il suo contenuto o la sua copia virtuale ad un prezzo stabilito."/>
+			<combo_box name="ComboBoxSaleType" tool_tip="Decidi se vuoi che il compratore riceva una copia, una copia del contenuto o l&apos;oggetto stesso.">
 				<combo_box.item label="Copia" name="Copy"/>
 				<combo_box.item label="Contenuti" name="Contents"/>
 				<combo_box.item label="Originale" name="Original"/>
 			</combo_box>
-			<spinner label="Prezzo: L$" name="Edit Cost"/>
+			<spinner label="Prezzo: L$" name="Edit Cost" tool_tip="Costo oggetto."/>
 		</panel>
 	</scroll_container>
 	<panel name="button_panel">

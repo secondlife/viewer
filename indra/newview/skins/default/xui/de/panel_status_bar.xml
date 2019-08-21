@@ -1,16 +1,31 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="status">
-	<panel.string name="packet_loss_tooltip">Paketverlust</panel.string>
-	<panel.string name="bandwidth_tooltip">Bandbreite</panel.string>
-	<panel.string name="time">[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]</panel.string>
-	<panel.string name="timeTooltip">[weekday, datetime, slt], [day, datetime, slt] [month, datetime, slt] [year, datetime, slt]</panel.string>
-	<panel.string name="buycurrencylabel">[AMT] L$</panel.string>
+	<panel.string name="packet_loss_tooltip">
+		Paketverlust
+	</panel.string>
+	<panel.string name="bandwidth_tooltip">
+		Bandbreite
+	</panel.string>
+	<panel.string name="time">
+		[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
+	</panel.string>
+	<panel.string name="timeTooltip">
+		[weekday, datetime, slt], [day, datetime, slt] [month, datetime, slt] [year, datetime, slt]
+	</panel.string>
+	<panel.string name="buycurrencylabel">
+		[AMT] L$
+	</panel.string>
+	<panel name="menu_search_panel">
+		<search_editor label="Suchmenüs" name="search_menu_edit" tool_tip="Geben Sie hier den gewünschten Suchbegriff ein. Die Ergebnisse werden für teilweise Volltext-Treffer innerhalb des Menüs angezeigt."/>
+	</panel>
 	<panel left="-436" name="balance_bg" width="205">
 		<text name="balance" tool_tip="Klicken, um L$-Guthaben zu aktualisieren" value="L$ ??"/>
 		<button label="L$ kaufen" name="buyL" tool_tip="Hier klicken, um mehr L$ zu kaufen"/>
 		<button label="Einkaufen" name="goShop" tool_tip="Second Life-Marktplatz öffnen" width="85"/>
 	</panel>
-	<text name="TimeText" tool_tip="Aktuelle Zeit (Pazifik)">24:00 H PST</text>
+	<text name="TimeText" tool_tip="Aktuelle Zeit (Pazifik)">
+		24:00 H PST
+	</text>
 	<button name="media_toggle_btn" tool_tip="Alle Medien starten/stoppen (Musik, Video, Webseiten)"/>
 	<button name="volume_btn" tool_tip="Steuerung der Gesamtlautstärke"/>
 </panel>

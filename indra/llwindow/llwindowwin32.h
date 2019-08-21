@@ -184,8 +184,9 @@ protected:
 
 	F32			mCurrentGamma;
 	U32			mFSAASamples;
-	WORD		mPrevGammaRamp[256*3];
-	WORD		mCurrentGammaRamp[256*3];
+	WORD		mPrevGammaRamp[3][256];
+	WORD		mCurrentGammaRamp[3][256];
+	BOOL		mCustomGammaSet;
 
 	LPWSTR		mIconResource;
 	BOOL		mMousePositionModified;

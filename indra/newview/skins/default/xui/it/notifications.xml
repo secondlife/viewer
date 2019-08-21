@@ -244,6 +244,10 @@ Scegli solo un oggetto e riprova.
 		Nota: Se attivi questa opzione, chiunque usa questo computer può vedere l&apos;elenco di luoghi preferiti.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="AllowMultipleViewers">
+		Non è possibile utilizzare più di un viewer Second Life contemporaneamente. L’utilizzo simultaneo potrebbe portare a collisioni o corruzione della cache texture, e ad un peggioramento nelle immagini e nella performance.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="GrantModifyRights">
 		Quando concedi i diritti di modifica ad un altro residente, gli permetti di modificare, eliminare o prendere QUALSIASI oggetto che possiedi in Second Life. Pertanto ti consigliamo di essere ben sicuro quando concedi questo diritto.
 Vuoi concedere i diritti di modifica a [NAME]?
@@ -716,8 +720,8 @@ La qualità grafica può essere aumentata in Preferenze &gt; Grafica.
 	</notification>
 	<notification name="CannotCopyWarning">
 		Non hai l&apos;autorizzazione a copiare i seguenti oggetti:
-[ITEMS]
-e se li dai via, verranno eliminati dal tuo inventario. Sicuro di volere offrire questi oggetti?
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+e se li dai via, verranno eliminati dal tuo inventario. Sicuro di voler offrire questi oggetti?
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Si"/>
 	</notification>
 	<notification name="CannotGiveItem">
@@ -1609,8 +1613,24 @@ Imposta l&apos;oggetto per la vendita e riprova.
 [DOWNLOAD_PATH].
 	</notification>
 	<notification name="RequiredUpdate">
-		É richiesta la versione [VERSION] per l’accesso. Sembra che dovresti avere la versione aggiornata, ma cosí non é. Scaricala da https://secondlife.com/support/downloads/
+		Per effettuare l&apos;accesso è richiesta la versione [VERSION]. 
+Scaricala dal sito https://secondlife.com/support/downloads/
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PauseForUpdate">
+		Per effettuare l&apos;accesso è richiesta la versione [VERSION]. 
+Fai clic su OK per scaricarla e installarla.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OptionalUpdateReady">
+		La versione [VERSION] è stata scaricata ed è pronta per essere installata. 
+Fai clic su OK per installarla.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PromptOptionalUpdate">
+		La versione [VERSION] è stata scaricata ed è pronta per essere installata. 
+Vuoi procedere?
+		<usetemplate canceltext="Non adesso" name="yesnocancelbuttons" notext="Salta" yestext="Installa"/>
 	</notification>
 	<notification name="LoginFailedUnknown">
 		Spiacenti, accesso non riuscito per ragioni sconosciute. Se continui a visualizzare questo messaggio, visita il [SUPPORT_SITE].
@@ -3075,15 +3095,6 @@ Non consentire l&apos;accesso se non comprendi perfettamente il motivo per cui d
 			<button name="Deny" text="Nega"/>
 		</form>
 	</notification>
-	<notification name="UnknownScriptQuestion">
-		L&apos;autorizzazione per script runtime richiesta da &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, un oggetto di proprietà di &apos;[NAME]&apos;, non è stata riconosciuta nel viewer e non può essere concessa.
-
-Per concedere questa autorizzazione è necessario che il viewer venga aggiornato alla versione più recente da [DOWNLOADURL].
-		<form name="form">
-			<button name="Deny" text="Ok"/>
-			<button name="Mute" text="Blocca"/>
-		</form>
-	</notification>
 	<notification name="ScriptDialog">
 		&apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos; di [NAME]
 [MESSAGE]
@@ -3748,13 +3759,13 @@ non è nella stessa regione in cui ti trovi.
 		Non puoi creare alberi ed erba su terreni che non sono di tua proprietà.
 	</notification>
 	<notification name="NoCopyPermsNoObject">
-		Copia non riuscita perché non hai l&apos;autorizzazione necessaria per copiare l&apos;oggetto &apos;[OBJ_NAME]&apos;.
+		Copia non riuscita perché non hai il permesso per copiare l’oggetto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoTransPermsNoObject">
-		La copia non è riuscita perché &apos;[OBJ_NAME]&apos; non può essere trasferito a te.
+		Copia non riuscita perché l’oggetto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; non può esserti trasferito.
 	</notification>
 	<notification name="AddToNavMeshNoCopy">
-		La copia non è riuscita perché &apos;[OBJ_NAME]&apos; contribuisce al navmesh.
+		Copia non riuscita perché l’oggetto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; contribuisce al navmesh.
 	</notification>
 	<notification name="DupeWithNoRootsSelected">
 		Duplicato senza oggetto principale selezionato.
@@ -3799,34 +3810,34 @@ Riprova tra un minuto.
 		Opzione Salva nell&apos;inventario disattivata
 	</notification>
 	<notification name="NoExistNoSaveToContents">
-		Impossibile salvare &apos;[OBJ_NAME]&apos; nei contenuti dell&apos;oggetto perché l&apos;oggetto da cui è stato razzato non esiste più.
+		Impossibile salvare &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; in contenuti oggetto perché l’oggetto da cui è stato rezzato non esiste più.
 	</notification>
 	<notification name="NoModNoSaveToContents">
-		Impossibile salvare &apos;[OBJ_NAME]&apos; nei contenuti dell&apos;oggetto perché non hai l&apos;autorizzazione necessaria per modificare l&apos;oggetto &apos;[DEST_NAME]&apos;.
+		Impossibile salvare &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; in contenuti oggetto perché non hai i permessi per modificare l’oggetto &lt;nolink&gt;&apos;[DEST_NAME]’&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoSaveBackToInvDisabled">
-		Impossibile riportare &apos;[OBJ_NAME]&apos; nell&apos;inventario -- questa operazione è stata disattivata.
+		Impossibile salvare &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nell’inventario: questa operazione è stata disabilitata.
 	</notification>
 	<notification name="NoCopyNoSelCopy">
-		Non puoi copiare l&apos;elemento selezionato perché non hai l&apos;autorizzazione necessaria per copiare l&apos;oggetto &apos;[OBJ_NAME]&apos;.
+		Non puoi copiare la selezione perché non hai il permesso di copiare l’oggetto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoTransNoSelCopy">
-		Non puoi copiare la selezione perché l&apos;oggetto &apos;[OBJ_NAME]&apos; non può essere trasferito.
+		Non puoi copiare la selezione perché l’oggetto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; non è trasferibile.
 	</notification>
 	<notification name="NoTransNoCopy">
-		Non puoi copiare la selezione perché l&apos;oggetto &apos;[OBJ_NAME]&apos; non può essere trasferito.
+		Non puoi copiare la selezione perché l’oggetto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; non è trasferibile.
 	</notification>
 	<notification name="NoPermsNoRemoval">
-		La rimozione dell&apos;oggetto &apos;[OBJ_NAME]&apos; dal simulatore non è consentita dal sistema delle autorizzazioni.
+		La rimozione dell’oggetto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; dal simulatore è disattivata dal sistema dei permessi.
 	</notification>
 	<notification name="NoModNoSaveSelection">
-		Non puoi salvare l&apos;elemento selezionato perché non hai l&apos;autorizzazione necessaria per modificare l&apos;oggetto &apos;[OBJ_NAME]&apos;.
+		Non puoi copiare la selezione perché non hai il permesso di modificare l’oggetto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoCopyNoSaveSelection">
-		Non puoi salvare la selezione perché l&apos;oggetto &apos;[OBJ_NAME]&apos; non può essere copiato.
+		Non puoi copiare la selezione perché l’oggetto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; non è copiabile.
 	</notification>
 	<notification name="NoModNoTaking">
-		Non puoi prendere l&apos;elemento selezionato perché non hai l&apos;autorizzazione necessaria per modificare l&apos;oggetto &apos;[OBJ_NAME]&apos;.
+		Non puoi prendere ciò che hai selezionato perché non hai il permesso di modificare l’oggetto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="RezDestInternalError">
 		Errore interno: Tipo di destinazione sconosciuto.

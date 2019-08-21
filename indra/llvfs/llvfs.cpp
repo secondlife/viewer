@@ -234,7 +234,7 @@ LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename
 	mDataFP(NULL),
 	mIndexFP(NULL)
 {
-	mDataMutex = new LLMutex(0);
+	mDataMutex = new LLMutex();
 
 	S32 i;
 	for (i = 0; i < VFSLOCK_COUNT; i++)

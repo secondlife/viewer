@@ -5992,7 +5992,7 @@ void LLVOAvatar::rebuildAttachmentOverrides()
                 LLViewerObject *vo = *at_it;
                 // Attached animated objects affect joints in their control
                 // avs, not the avs to which they are attached.
-                if (!vo->isAnimatedObject())
+                if (vo && !vo->isAnimatedObject())
                 {
                     addAttachmentOverridesForObject(vo);
                 }
@@ -6043,7 +6043,7 @@ void LLVOAvatar::updateAttachmentOverrides()
                 LLViewerObject *vo = *at_it;
                 // Attached animated objects affect joints in their control
                 // avs, not the avs to which they are attached.
-                if (!vo->isAnimatedObject())
+                if (vo && !vo->isAnimatedObject())
                 {
                     addAttachmentOverridesForObject(vo, &meshes_seen);
                 }

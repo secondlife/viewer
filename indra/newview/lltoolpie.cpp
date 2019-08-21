@@ -111,11 +111,9 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
     mMouseOutsideSlop = FALSE;
 	mMouseDownX = x;
 	mMouseDownY = y;
-    LLTimer pick_timer;
-    BOOL pick_rigged = false; //gSavedSettings.getBOOL("AnimatedObjectsAllowLeftClick");
+
 	//left mouse down always picks transparent (but see handleMouseUp)
-	mPick = gViewerWindow->pickImmediate(x, y, TRUE, pick_rigged);
-    LL_INFOS() << "pick_rigged is " << (S32) pick_rigged << " pick time elapsed " << pick_timer.getElapsedTimeF32() << LL_ENDL;
+	mPick = gViewerWindow->pickImmediate(x, y, TRUE, FALSE);
 	mPick.mKeyMask = mask;
 
 	mMouseButtonDown = true;
@@ -857,13 +855,11 @@ static bool needs_tooltip(LLSelectNode* nodep)
 
 BOOL LLToolPie::handleTooltipLand(std::string line, std::string tooltip_msg)
 {
-	LLViewerParcelMgr::getInstance()->setHoverParcel( mHoverPick.mPosGlobal );
-	// 
-	//  Do not show hover for land unless prefs are set to allow it.
-	// 
-	
+	//  Do not show hover for land unless prefs are set to allow it. 
 	if (!gSavedSettings.getBOOL("ShowLandHoverTip")) return TRUE; 
-	
+
+	LLViewerParcelMgr::getInstance()->setHoverParcel( mHoverPick.mPosGlobal );
+
 	// Didn't hit an object, but since we have a land point we
 	// must be hovering over land.
 	
