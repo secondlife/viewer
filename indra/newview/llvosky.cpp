@@ -736,7 +736,9 @@ bool LLVOSky::updateSky()
         LLVector3 direction = mSun.getDirection();
         direction.normalize();
         const F32 dot_sun = direction * mLastSunLightingDirection;
-        const F32 dot_moon = direction * mLastMoonLightingDirection;
+        LLVector3 moon_direction = mMoon.getDirection();
+        moon_direction.normalize();
+        const F32 dot_moon = moon_direction * mLastMoonLightingDirection;
 
         LLColor3 delta_color;
         delta_color.setVec(mLastTotalAmbient.mV[0] - total_ambient.mV[0],
