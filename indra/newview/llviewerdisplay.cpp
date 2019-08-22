@@ -249,7 +249,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 {
 	LL_RECORD_BLOCK_TIME(FTM_RENDER);
 
-	if (gWindowResized)
+	if (gWindowResized || gResizeScreenTexture)
 	{ //skip render on frames where window has been resized
 		LL_RECORD_BLOCK_TIME(FTM_RESIZE_WINDOW);
 		gGL.flush();

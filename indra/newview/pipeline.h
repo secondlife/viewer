@@ -100,6 +100,7 @@ public:
 	void restoreGL();
 	void resetVertexBuffers();
 	void doResetVertexBuffers(bool forced = false);
+    void requestResizeScreenTexture(); // set flag only, no work, safer for callbacks...
 	void resizeScreenTexture();
 	void releaseGLBuffers();
 	void releaseLUTBuffers();

@@ -735,6 +735,11 @@ void LLPipeline::throttleNewMemoryAllocation(bool disable)
 	}
 }
 
+void LLPipeline::requestResizeScreenTexture()
+{
+    gResizeScreenTexture = TRUE;
+}
+
 void LLPipeline::resizeScreenTexture()
 {
 	LL_RECORD_BLOCK_TIME(FTM_RESIZE_SCREEN_TEXTURE);
