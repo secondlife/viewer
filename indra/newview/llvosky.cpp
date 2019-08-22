@@ -420,6 +420,7 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	mWind(0.f),
 	mForceUpdate(FALSE),
     mNeedUpdate(TRUE),
+    mCubeMapUpdateStage(-1),
 	mWorldScale(1.f),
 	mBumpSunDir(0.f, 0.f, 1.f)
 {
@@ -502,13 +503,9 @@ void LLVOSky::init()
 			initSkyTextureDirs(side, tile);
 			createSkyTexture(m_atmosphericsVars, side, tile, mSkyTex);
             createSkyTexture(m_atmosphericsVars, side, tile, mShinyTex, true);
-		}
-	}
-
-	for (S32 i = 0; i < NUM_CUBEMAP_FACES; ++i)
-	{
-		mSkyTex[i].create(1.0f);
-		mShinyTex[i].create(1.0f);
+        }
+        mSkyTex[side].create(1.0f);
+        mShinyTex[side].create(1.0f);
 	}
 
 	initCubeMap();
@@ -692,6 +689,8 @@ void LLVOSky::forceSkyUpdate()
     mForceUpdate = TRUE;
 
     memset(&m_lastAtmosphericsVars, 0x00, sizeof(AtmosphericsVars));
+
+    mCubeMapUpdateStage = -1;
 }
 
 bool LLVOSky::updateSky()
@@ -720,9 +719,7 @@ bool LLVOSky::updateSky()
 	const S32 total_no_tiles = NUM_CUBEMAP_FACES * NUM_TILES;
 	const S32 cycle_frame_no = total_no_tiles + 1;
 
-	const S32 frame = next_frame;
-
-    mNeedUpdate = mForceUpdate || (total_no_tiles == frame);
+    mNeedUpdate = mForceUpdate;
 
 	++next_frame;
 	next_frame = next_frame % cycle_frame_no;
@@ -731,95 +728,98 @@ bool LLVOSky::updateSky()
 	LLHeavenBody::setInterpVal( mInterpVal );
 	updateDirections();
 
-    // Note: must be before comparison of old/current env settings below to be an effective optimization
-    calc();
+    if (!mCubeMap)
+    {
+        mCubeMapUpdateStage = NUM_CUBEMAP_FACES;
+        mForceUpdate = FALSE;
+        return TRUE;
+    }
 
-    bool same_atmospherics = m_lastAtmosphericsVars == m_atmosphericsVars;
+    if (mCubeMapUpdateStage < 0)
+    {
+        LL_RECORD_BLOCK_TIME(FTM_VOSKY_CALC);
+        calc();
 
-    if (mNeedUpdate && mForceUpdateThrottle.hasExpired() && (mForceUpdate || !same_atmospherics))
-	{
+        bool same_atmospherics = m_lastAtmosphericsVars == m_atmosphericsVars;
+
+        mNeedUpdate = mNeedUpdate || !same_atmospherics;
+
+        if (mNeedUpdate && (mForceUpdateThrottle.hasExpired() || mForceUpdate))
+	    {
+            // start updating cube map sides
+            updateFog(LLViewerCamera::getInstance()->getFar());
+            mCubeMapUpdateStage = 0;
+            mForceUpdate = FALSE;
+        }
+    }
+    else if (mCubeMapUpdateStage == NUM_CUBEMAP_FACES)
+    {
         LL_RECORD_BLOCK_TIME(FTM_VOSKY_UPDATEFORCED);
-
-        mForceUpdateThrottle.setTimerExpirySec(UPDATE_EXPRY);
-
-		LLSkyTex::stepCurrent();
-		
-        m_lastAtmosphericsVars = m_atmosphericsVars;
-
-		mInitialized = TRUE;
-
-		if (mCubeMap)
-		{
-			updateFog(LLViewerCamera::getInstance()->getFar());
-
-			for (int side = 0; side < NUM_CUBEMAP_FACES; side++) 
-			{
-				for (int tile = 0; tile < NUM_TILES; tile++) 
-				{
-					createSkyTexture(m_atmosphericsVars, side, tile, mSkyTex);
-                    createSkyTexture(m_atmosphericsVars, side, tile, mShinyTex, true);
-				}
-			}
-		}
+        LLSkyTex::stepCurrent();
 
         int tex = mSkyTex[0].getWhich(TRUE);
 
-		for (int side = 0; side < NUM_CUBEMAP_FACES; side++) 
-		{
+        for (int side = 0; side < NUM_CUBEMAP_FACES; side++)
+        {
             LLImageRaw* raw1 = nullptr;
             LLImageRaw* raw2 = nullptr;
 
             if (!is_alm_wl_sky)
             {
-				raw1 = mSkyTex[side].getImageRaw(TRUE);
-				raw2 = mSkyTex[side].getImageRaw(FALSE);
-				raw2->copy(raw1);
-				mSkyTex[side].createGLImage(tex);
+                raw1 = mSkyTex[side].getImageRaw(TRUE);
+                raw2 = mSkyTex[side].getImageRaw(FALSE);
+                raw2->copy(raw1);
+                mSkyTex[side].createGLImage(tex);
             }
 
-			raw1 = mShinyTex[side].getImageRaw(TRUE);
-			raw2 = mShinyTex[side].getImageRaw(FALSE);
-			raw2->copy(raw1);
-			mShinyTex[side].createGLImage(tex);
-		}
-		next_frame = 0;	
+            raw1 = mShinyTex[side].getImageRaw(TRUE);
+            raw2 = mShinyTex[side].getImageRaw(FALSE);
+            raw2->copy(raw1);
+            mShinyTex[side].createGLImage(tex);
+        }
+        next_frame = 0;
 
-		// update the sky texture
+        // update the sky texture
         if (!is_alm_wl_sky)
         {
-			for (S32 i = 0; i < NUM_CUBEMAP_FACES; ++i)
-			{
+            for (S32 i = 0; i < NUM_CUBEMAP_FACES; ++i)
+            {
                 mSkyTex[i].create(1.0f);
-			}
+            }
         }
 
         for (S32 i = 0; i < NUM_CUBEMAP_FACES; ++i)
-		{
-			mShinyTex[i].create(1.0f);
-		}
+        {
+            mShinyTex[i].create(1.0f);
+        }
 
-		// update the environment map
-		if (mCubeMap)
-		{
-			std::vector<LLPointer<LLImageRaw> > images;
-			images.reserve(6);
-			for (S32 side = 0; side < NUM_CUBEMAP_FACES; side++)
-			{
-				images.push_back(mShinyTex[side].getImageRaw(TRUE));
-			}
-			mCubeMap->init(images);
-			gGL.getTexUnit(0)->disable();
-		}
+        // update the environment map
+        initCubeMap();
 
-		gPipeline.markRebuild(gSky.mVOGroundp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+        m_lastAtmosphericsVars = m_atmosphericsVars;
 
-		mNeedUpdate  = FALSE;
+        mNeedUpdate = FALSE;
         mForceUpdate = FALSE;
-	}
 
-	if (mDrawable.notNull() && mDrawable->getFace(0) && !mDrawable->getFace(0)->getVertexBuffer())
+        mForceUpdateThrottle.setTimerExpirySec(UPDATE_EXPRY);
+        gPipeline.markRebuild(gSky.mVOGroundp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+
+        if (mDrawable.notNull() && mDrawable->getFace(0) && !mDrawable->getFace(0)->getVertexBuffer())
+	    {
+		    gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
+	    }
+        mCubeMapUpdateStage = -1;
+    }
+    else if (mCubeMapUpdateStage >= 0 && mCubeMapUpdateStage < NUM_CUBEMAP_FACES)
 	{
-		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
+        LL_RECORD_BLOCK_TIME(FTM_VOSKY_CREATETEXTURES);
+        S32 side = mCubeMapUpdateStage;
+        for (int tile = 0; tile < NUM_TILES; tile++)
+        {
+            createSkyTexture(m_atmosphericsVars, side, tile, mSkyTex);
+            createSkyTexture(m_atmosphericsVars, side, tile, mShinyTex, true);
+        }
+        mCubeMapUpdateStage++;
 	}
 
 	return TRUE;
