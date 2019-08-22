@@ -528,7 +528,7 @@ void LLViewerShaderMgr::setShaders()
         }
 
 		// Trigger a full rebuild of the fallback skybox / cubemap if we've toggled windlight shaders
-		if (mShaderLevel[SHADER_WINDLIGHT] != wl_class && gSky.mVOSkyp.notNull())
+		if (!wl_class || (mShaderLevel[SHADER_WINDLIGHT] != wl_class && gSky.mVOSkyp.notNull()))
 		{
 			gSky.mVOSkyp->forceSkyUpdate();
 		}

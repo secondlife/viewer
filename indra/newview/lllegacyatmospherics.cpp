@@ -242,8 +242,10 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(AtmosphericsVars& vars, const LLVecto
 
 	calcSkyColorWLVert(Pn, vars);
 
+    bool low_end = !gPipeline.canUseWindLightShaders();
+
 	LLColor3 sky_color =  isShiny ? vars.hazeColor : 
-                          !gPipeline.canUseWindLightShaders() ? vars.hazeColor * 2.0f : psky->gammaCorrect(vars.hazeColor * 2.0f);
+                          low_end ? vars.hazeColor * 2.0f : psky->gammaCorrect(vars.hazeColor * 2.0f);
 
 	if (isShiny)
 	{
@@ -443,8 +445,8 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
     vars.distance_multiplier = psky->getDistanceMultiplier();
     vars.max_y = psky->getMaxY();
     vars.sun_norm = LLEnvironment::instance().getSunDirectionCFR();
-    vars.sunlight = psky->getSunlightColor();
-    vars.ambient = psky->getAmbientColor();    
+    vars.sunlight = psky->getSunlightColorClamped();
+    vars.ambient = psky->getAmbientColorClamped();
     vars.glow = psky->getGlow();
     vars.cloud_shadow = psky->getCloudShadow();
     vars.dome_radius = psky->getDomeRadius();
@@ -604,4 +606,113 @@ F32 azimuth(const LLVector3 &v)
 		}
 	}	
 	return azimuth;
+}
+
+bool operator==(const AtmosphericsVars& a, const AtmosphericsVars& b)
+{
+    if (a.hazeColor != b.hazeColor)
+    {
+        return false;
+    }
+
+    if (a.hazeColorBelowCloud != b.hazeColorBelowCloud)
+    {
+        return false;
+    }
+
+    if (a.cloudColorSun != b.cloudColorSun)
+    {
+        return false;
+    }
+
+    if (a.cloudColorAmbient != b.cloudColorAmbient)
+    {
+        return false;
+    }
+
+    if (a.cloudDensity != b.cloudDensity)
+    {
+        return false;
+    }
+
+    if (a.density_multiplier != b.density_multiplier)
+    {
+        return false;
+    }
+
+    if (a.haze_horizon != b.haze_horizon)
+    {
+        return false;
+    }
+
+    if (a.haze_density != b.haze_density)
+    {
+        return false;
+    }
+
+    if (a.blue_horizon != b.blue_horizon)
+    {
+        return false;
+    }
+
+    if (a.blue_density != b.blue_density)
+    {
+        return false;
+    }
+
+    if (a.dome_offset != b.dome_offset)
+    {
+        return false;
+    }
+
+    if (a.dome_radius != b.dome_radius)
+    {
+        return false;
+    }
+
+    if (a.cloud_shadow != b.cloud_shadow)
+    {
+        return false;
+    }
+
+    if (a.glow != b.glow)
+    {
+        return false;
+    }
+
+    if (a.ambient != b.ambient)
+    {
+        return false;
+    }
+
+    if (a.sunlight != b.sunlight)
+    {
+        return false;
+    }
+
+    if (a.sun_norm != b.sun_norm)
+    {
+        return false;
+    }
+
+    if (a.gamma != b.gamma)
+    {
+        return false;
+    }
+
+    if (a.max_y != b.max_y)
+    {
+        return false;
+    }
+
+    if (a.distance_multiplier != b.distance_multiplier)
+    {
+        return false;
+    }
+
+    // light_atten, light_transmittance, total_density
+    // are ignored as they always change when the values above do
+    // they're just shared calc across the sky map generation to save cycles
+
+    return true;
 }
