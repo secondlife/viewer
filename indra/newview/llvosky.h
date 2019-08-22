@@ -337,7 +337,8 @@ protected:
 	F32					mWind;
 	
 	bool				mInitialized;
-	bool				mForceUpdate;				//flag to force instantaneous update of cubemap
+	bool				mForceUpdate;				// flag to force update of cubemap
+	S32					mCubeMapUpdateStage;		// state of cubemap uodate: -1 idle; 0-5 per-face updates; 6 finalizing
 	LLVector3			mLastSunLightingDirection;
     LLVector3			mLastMoonLightingDirection;
 	LLColor3			mLastTotalAmbient;
