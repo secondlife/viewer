@@ -1880,9 +1880,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>32db254b1e8d177c0a2e6c1c4b4573bc</string>
+              <string>e3ac15c52b8af3bb981c5706291b200c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/37237/312364/libndofdev-0.1.527095-darwin64-527095.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/42229/373084/libndofdev-0.1.530327-darwin64-530327.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1892,9 +1892,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e92d0c272ac799d862e7be50f6148cf8</string>
+              <string>0e2c30aa8c72604010dd421a48037b89</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/37238/312374/libndofdev-0.1.527095-windows-527095.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/42230/373095/libndofdev-0.1.530327-windows-530327.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1904,16 +1904,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6d2ff8740e089afecff06d4c6952329a</string>
+              <string>12cfe961615ad007fb1024523ae7a8a3</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/37236/312365/libndofdev-0.1.527095-windows64-527095.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/42228/373087/libndofdev-0.1.530327-windows64-530327.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.1.500695</string>
+        <string>0.1.530327</string>
       </map>
       <key>libpng</key>
       <map>
