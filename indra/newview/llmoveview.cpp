@@ -574,6 +574,8 @@ BOOL LLPanelStandStopFlying::postBuild()
 	//mStopFlyingButton->setCommitCallback(boost::bind(&LLFloaterMove::setFlyingMode, FALSE));
 	mStopFlyingButton->setCommitCallback(boost::bind(&LLPanelStandStopFlying::onStopFlyingButtonClick, this));
 	mStopFlyingButton->setVisible(FALSE);
+
+	gViewerWindow->setOnWorldViewRectUpdated(boost::bind(&LLPanelStandStopFlying::updatePosition, this));
 	
 	return TRUE;
 }
