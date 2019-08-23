@@ -77,9 +77,6 @@ namespace
     const LLVector2 TEX10 = LLVector2(1.f, 0.f);
     const LLVector2 TEX11 = LLVector2(1.f, 1.f);
 
-    const F32 LIGHT_DIRECTION_THRESHOLD = (F32) cosf(DEG_TO_RAD * 1.f);
-    const F32 COLOR_CHANGE_THRESHOLD = 0.01f;
-
     LLTrace::BlockTimerStatHandle FTM_VOSKY_UPDATETIMER("VOSky Update Timer Tick");
     LLTrace::BlockTimerStatHandle FTM_VOSKY_CALC("VOSky Update Calculations");
     LLTrace::BlockTimerStatHandle FTM_VOSKY_CREATETEXTURES("VOSky Update Textures");
