@@ -94,6 +94,7 @@ BOOL gForceRenderLandFence = FALSE;
 BOOL gDisplaySwapBuffers = FALSE;
 BOOL gDepthDirty = FALSE;
 BOOL gResizeScreenTexture = FALSE;
+BOOL gResizeShadowTexture = FALSE;
 BOOL gWindowResized = FALSE;
 BOOL gSnapshot = FALSE;
 BOOL gShaderProfileFrame = FALSE;
@@ -249,7 +250,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 {
 	LL_RECORD_BLOCK_TIME(FTM_RENDER);
 
-	if (gWindowResized || gResizeScreenTexture)
+	if (gWindowResized)
 	{ //skip render on frames where window has been resized
 		LL_RECORD_BLOCK_TIME(FTM_RESIZE_WINDOW);
 		gGL.flush();
@@ -260,6 +261,12 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		gResizeScreenTexture = FALSE;
 		gWindowResized = FALSE;
 		return;
+	}
+
+    if (gResizeShadowTexture)
+	{ //skip render on frames where window has been resized
+		gPipeline.resizeShadowTexture();
+		gResizeShadowTexture = FALSE;
 	}
 
 	if (LLPipeline::sRenderDeferred)

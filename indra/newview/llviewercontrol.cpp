@@ -94,6 +94,7 @@ LLControlGroup gWarningSettings("Warnings"); // persists ignored dialogs/warning
 std::string gLastRunVersion;
 
 extern BOOL gResizeScreenTexture;
+extern BOOL gResizeShadowTexture;
 extern BOOL gDebugGL;
 ////////////////////////////////////////////////////////////////////////////
 // Listeners
@@ -190,6 +191,12 @@ bool handleRenderTransparentWaterChanged(const LLSD& newvalue)
 	return true;
 }
 
+
+static bool handleShadowsResized(const LLSD& newvalue)
+{
+	gPipeline.requestResizeShadowTexture();
+	return true;
+}
 
 static bool handleWindowResized(const LLSD& newvalue)
 {
@@ -623,7 +630,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderSpecularResY")->getSignal()->connect(boost::bind(&handleLUTBufferChanged, _2));
 	gSavedSettings.getControl("RenderSpecularExponent")->getSignal()->connect(boost::bind(&handleLUTBufferChanged, _2));
 	gSavedSettings.getControl("RenderAnisotropic")->getSignal()->connect(boost::bind(&handleAnisotropicChanged, _2));
-	gSavedSettings.getControl("RenderShadowResolutionScale")->getSignal()->connect(boost::bind(&handleWindowResized, _2));
+	gSavedSettings.getControl("RenderShadowResolutionScale")->getSignal()->connect(boost::bind(&handleShadowsResized, _2));
 	gSavedSettings.getControl("RenderGlow")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderGlow")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderGlowResolutionPow")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
