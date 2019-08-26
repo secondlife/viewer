@@ -532,6 +532,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildDefaultSky()
 LLSettingsSky::ptr_t LLSettingsVOSky::buildClone() const
 {
     LLSD settings = cloneSettings();
+    U32 flags = getFlags();
 
     LLSettingsSky::validation_list_t validations = LLSettingsSky::validationList();
     LLSD results = LLSettingsBase::settingValidation(settings, validations);
@@ -542,6 +543,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildClone() const
     }
 
     LLSettingsSky::ptr_t skyp = std::make_shared<LLSettingsVOSky>(settings);
+    skyp->setFlags(flags);
     return skyp;
 }
 
@@ -866,6 +868,7 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildDefaultWater()
 LLSettingsWater::ptr_t LLSettingsVOWater::buildClone() const
 {
     LLSD settings = cloneSettings();
+    U32 flags = getFlags();
     LLSettingsWater::validation_list_t validations = LLSettingsWater::validationList();
     LLSD results = LLSettingsWater::settingValidation(settings, validations);
     if (!results["success"].asBoolean())
@@ -875,7 +878,7 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildClone() const
     }
 
     LLSettingsWater::ptr_t waterp = std::make_shared<LLSettingsVOWater>(settings);
-
+    waterp->setFlags(flags);
     return waterp;
 }
 
@@ -1273,6 +1276,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildDeepCloneAndUncompress() const
     // no need for SETTING_TRACKS or SETTING_FRAMES, so take base LLSD
     LLSD settings = llsd_clone(mSettings);
 
+    U32 flags = getFlags();
     LLSettingsDay::ptr_t day_clone = std::make_shared<LLSettingsVODay>(settings);
 
     for (S32 i = 0; i < LLSettingsDay::TRACK_MAX; ++i)
@@ -1289,6 +1293,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildDeepCloneAndUncompress() const
             iter++;
         }
     }
+    day_clone->setFlags(flags);
     return day_clone;
 }
 

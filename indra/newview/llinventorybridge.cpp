@@ -6948,6 +6948,13 @@ void LLSettingsBridge::performAction(LLInventoryModel* model, std::string action
         LLUUID asset_id = item->getAssetUUID();
         std::string name = item->getName();
 
+        U32 flags(0);
+
+        if (!item->getPermissions().allowOperationBy(PERM_MODIFY, gAgent.getID()))
+            flags |= LLSettingsBase::FLAG_NOMOD;
+        if (!item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+            flags |= LLSettingsBase::FLAG_NOTRANS;
+
         LLParcel *parcel = LLViewerParcelMgr::instance().getAgentOrSelectedParcel();
         if (!parcel)
         {
@@ -6957,7 +6964,7 @@ void LLSettingsBridge::performAction(LLInventoryModel* model, std::string action
         S32 parcel_id = parcel->getLocalID();
 
         LL_DEBUGS("ENVIRONMENT") << "Applying asset ID " << asset_id << " to parcel " << parcel_id << LL_ENDL;
-        LLEnvironment::instance().updateParcel(parcel_id, asset_id, name, LLEnvironment::NO_TRACK, -1, -1);
+        LLEnvironment::instance().updateParcel(parcel_id, asset_id, name, LLEnvironment::NO_TRACK, -1, -1, flags);
         LLEnvironment::instance().setSharedEnvironment();
     }
     else

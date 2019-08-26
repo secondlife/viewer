@@ -75,6 +75,7 @@ public:
     static const U32 FLAG_NOCOPY;
     static const U32 FLAG_NOMOD;
     static const U32 FLAG_NOTRANS;
+    static const U32 FLAG_NOSAVE;
 
     class DefaultParam
     {

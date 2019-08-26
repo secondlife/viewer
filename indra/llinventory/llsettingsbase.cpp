@@ -59,6 +59,7 @@ const std::string LLSettingsBase::SETTING_FLAGS("flags");
 const U32 LLSettingsBase::FLAG_NOCOPY(0x01 << 0);
 const U32 LLSettingsBase::FLAG_NOMOD(0x01 << 1);
 const U32 LLSettingsBase::FLAG_NOTRANS(0x01 << 2);
+const U32 LLSettingsBase::FLAG_NOSAVE(0x01 << 3);
 
 const U32 LLSettingsBase::Validator::VALIDATION_PARTIAL(0x01 << 0);
 
@@ -354,7 +355,11 @@ LLSD LLSettingsBase::getSettings() const
 
 LLSD LLSettingsBase::cloneSettings() const
 {
-    return combineSDMaps(getSettings(), LLSD());
+    U32 flags = getFlags();
+    LLSD settings (combineSDMaps(getSettings(), LLSD()));
+    if (flags)
+        settings[SETTING_FLAGS] = LLSD::Integer(flags);
+    return settings;
 }
 
 size_t LLSettingsBase::getHash() const

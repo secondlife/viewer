@@ -81,6 +81,7 @@ namespace
     const std::string KEY_PARCELID("parcel_id");
     const std::string KEY_REGIONID("region_id");
     const std::string KEY_TRACKALTS("track_altitudes");
+    const std::string KEY_FLAGS("flags");
 
     const std::string MESSAGE_PUSHENVIRONMENT("PushExpEnvironment");
 
@@ -1696,7 +1697,7 @@ void LLEnvironment::updateRegion(const LLSettingsDay::ptr_t &pday, S32 day_lengt
     updateParcel(INVALID_PARCEL_ID, pday, day_length, day_offset, altitudes, cb);
 }
 
-void LLEnvironment::updateRegion(const LLUUID &asset_id, std::string display_name, S32 track_num, S32 day_length, S32 day_offset, LLEnvironment::altitudes_vect_t altitudes, environment_apply_fn cb)
+void LLEnvironment::updateRegion(const LLUUID &asset_id, std::string display_name, S32 track_num, S32 day_length, S32 day_offset, U32 flags, LLEnvironment::altitudes_vect_t altitudes, environment_apply_fn cb)
 {
     if (!isExtendedEnvironmentEnabled())
     {
@@ -1705,7 +1706,7 @@ void LLEnvironment::updateRegion(const LLUUID &asset_id, std::string display_nam
         return;
     }
 
-    updateParcel(INVALID_PARCEL_ID, asset_id, display_name, track_num, day_length, day_offset, altitudes, cb);
+    updateParcel(INVALID_PARCEL_ID, asset_id, display_name, track_num, day_length, day_offset, flags, altitudes, cb);
 }
 
 void LLEnvironment::updateRegion(const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset, LLEnvironment::altitudes_vect_t altitudes, environment_apply_fn cb)
@@ -1758,9 +1759,9 @@ void LLEnvironment::requestParcel(S32 parcel_id, environment_apply_fn cb)
         [this, parcel_id, cb]() { coroRequestEnvironment(parcel_id, cb); });
 }
 
-void LLEnvironment::updateParcel(S32 parcel_id, const LLUUID &asset_id, std::string display_name, S32 track_num, S32 day_length, S32 day_offset, LLEnvironment::altitudes_vect_t altitudes, environment_apply_fn cb)
+void LLEnvironment::updateParcel(S32 parcel_id, const LLUUID &asset_id, std::string display_name, S32 track_num, S32 day_length, S32 day_offset, U32 flags, LLEnvironment::altitudes_vect_t altitudes, environment_apply_fn cb)
 {
-    UpdateInfo::ptr_t updates(std::make_shared<UpdateInfo>(asset_id, display_name, day_length, day_offset, altitudes));
+    UpdateInfo::ptr_t updates(std::make_shared<UpdateInfo>(asset_id, display_name, day_length, day_offset, altitudes, flags));
     std::string coroname =
         LLCoros::instance().launch("LLEnvironment::coroUpdateEnvironment",
         [this, parcel_id, track_num, updates, cb]() { coroUpdateEnvironment(parcel_id, track_num, updates, cb); });
@@ -1797,12 +1798,14 @@ void LLEnvironment::onUpdateParcelAssetLoaded(LLUUID asset_id, LLSettingsBase::p
 void LLEnvironment::updateParcel(S32 parcel_id, const LLSettingsSky::ptr_t &psky, S32 day_length, S32 day_offset, LLEnvironment::altitudes_vect_t altitudes, environment_apply_fn cb)
 {
     LLSettingsDay::ptr_t pday = createDayCycleFromEnvironment((parcel_id == INVALID_PARCEL_ID) ? ENV_REGION : ENV_PARCEL, psky);
+    pday->setFlag(psky->getFlags());
     updateParcel(parcel_id, pday, day_length, day_offset, altitudes, cb);
 }
 
 void LLEnvironment::updateParcel(S32 parcel_id, const LLSettingsWater::ptr_t &pwater, S32 day_length, S32 day_offset, LLEnvironment::altitudes_vect_t altitudes, environment_apply_fn cb)
 {
     LLSettingsDay::ptr_t pday = createDayCycleFromEnvironment((parcel_id == INVALID_PARCEL_ID) ? ENV_REGION : ENV_PARCEL, pwater);
+    pday->setFlag(pwater->getFlags());
     updateParcel(parcel_id, pday, day_length, day_offset, altitudes, cb);
 }
 
@@ -1911,6 +1914,7 @@ void LLEnvironment::coroUpdateEnvironment(S32 parcel_id, S32 track_no, UpdateInf
             body[KEY_ENVIRONMENT][KEY_DAYNAME] = updates->mDayName;
     }
 
+    body[KEY_ENVIRONMENT][KEY_FLAGS] = LLSD::Integer(updates->mFlags);
     //_WARNS("ENVIRONMENT") << "Body = " << body << LL_ENDL;
 
     if ((parcel_id != INVALID_PARCEL_ID) || (track_no != NO_TRACK))
