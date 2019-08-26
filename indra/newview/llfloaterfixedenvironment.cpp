@@ -321,11 +321,16 @@ void LLFloaterFixedEnvironment::checkAndConfirmSettingsLoss(LLFloaterFixedEnviro
 
 void LLFloaterFixedEnvironment::onPickerCommitSetting(LLUUID item_id)
 {
-    mInventoryId = item_id;
-    mInventoryItem = gInventory.getItem(mInventoryId);
-
-    LLSettingsVOBase::getSettingsAsset(mInventoryItem->getAssetUUID(),
-        [this](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoaded(asset_id, settings, status); });
+    loadInventoryItem(item_id);
+//     mInventoryId = item_id;
+//     mInventoryItem = gInventory.getItem(mInventoryId);
+// 
+//     mCanCopy = mInventoryItem->getPermissions().allowCopyBy(gAgent.getID());
+//     mCanMod = mInventoryItem->getPermissions().allowModifyBy(gAgent.getID());
+//     mCanTrans = mInventoryItem->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
+// 
+//     LLSettingsVOBase::getSettingsAsset(mInventoryItem->getAssetUUID(),
+//         [this](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoaded(asset_id, settings, status); });
 }
 
 void LLFloaterFixedEnvironment::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status)
