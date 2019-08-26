@@ -1051,6 +1051,19 @@ LLColor3 LLSettingsSky::getAmbientColor() const
     return getColor(SETTING_AMBIENT, LLColor3(0.25f, 0.25f, 0.25f));
 }
 
+LLColor3 LLSettingsSky::getAmbientColorClamped() const
+{
+    LLColor3 ambient = getAmbientColor();
+
+    F32 max_color = llmax(ambient.mV[0], ambient.mV[1], ambient.mV[2]);
+    if (max_color > 1.0f)
+    {
+        ambient *= 1.0f/max_color;
+    }
+
+    return ambient;
+}
+
 LLColor3 LLSettingsSky::getBlueDensity() const
 {
     return getColor(SETTING_BLUE_DENSITY, LLColor3(0.2447f, 0.4487f, 0.7599f));
@@ -1313,9 +1326,22 @@ void LLSettingsSky::calculateLightSettings() const
     componentMultBy(sunlight, componentExp((light_atten * -1.f) * lighty));
     componentMultBy(sunlight, light_transmittance);
 
+    //F32 max_color = llmax(sunlight.mV[0], sunlight.mV[1], sunlight.mV[2]);
+    //if (max_color > 1.0f)
+    //{
+    //    sunlight *= 1.0f/max_color;
+    //}
+
     //increase ambient when there are more clouds
     LLColor3 tmpAmbient = ambient + (smear(1.f) - ambient) * cloud_shadow * 0.5;
     componentMultBy(tmpAmbient, light_transmittance);
+
+    //tmpAmbient = LLColor3::clamp(tmpAmbient, getGamma(), 1.0f);
+    //max_color = llmax(tmpAmbient.mV[0], tmpAmbient.mV[1], tmpAmbient.mV[2]);
+    //if (max_color > 1.0f)
+    //{
+    //    tmpAmbient *= 1.0f/max_color;
+    //}
 
     //brightness of surface both sunlight and ambient
     mSunDiffuse = sunlight;
@@ -1334,6 +1360,7 @@ void LLSettingsSky::calculateLightSettings() const
     LLColor3 moonlight_b(0.66, 0.66, 1.2); // scotopic ambient value
 
     componentMultBy(moonlight, componentExp((light_atten * -1.f) * lighty));
+    //clampColor(moonlight, getGamma(), 1.0f);
 
     mMoonDiffuse  = componentMult(moonlight, light_transmittance) * moon_brightness;
     mMoonAmbient  = componentMult(moonlight_b, light_transmittance) * 0.0125f;
@@ -1674,6 +1701,20 @@ void LLSettingsSky::setStarBrightness(F32 val)
 LLColor3 LLSettingsSky::getSunlightColor() const
 {
     return LLColor3(mSettings[SETTING_SUNLIGHT_COLOR]);
+}
+
+LLColor3 LLSettingsSky::getSunlightColorClamped() const
+{
+    LLColor3 sunlight = getSunlightColor();
+    //clampColor(sunlight, getGamma(), 3.0f);
+
+    F32 max_color = llmax(sunlight.mV[0], sunlight.mV[1], sunlight.mV[2]);
+    if (max_color > 1.0f)
+    {
+        sunlight *= 1.0f/max_color;
+    }
+
+    return sunlight;
 }
 
 void LLSettingsSky::setSunlightColor(const LLColor3 &val)

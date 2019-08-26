@@ -276,6 +276,10 @@ void main()
 #endif
     final_color.a = max(final_color.a, emissive_brightness);
 
+#if !defined(HAS_NORMAL_MAP)
+    final_color.a = 0.0f;
+#endif
+
     vec4 final_specular = spec;
     final_specular.a = specular_color.a;
 #ifdef HAS_SPECULAR_MAP

@@ -100,10 +100,17 @@ public:
 	void restoreGL();
 	void resetVertexBuffers();
 	void doResetVertexBuffers(bool forced = false);
+    void requestResizeScreenTexture(); // set flag only, no work, safer for callbacks...
+    void requestResizeShadowTexture(); // set flag only, no work, safer for callbacks...
+
 	void resizeScreenTexture();
+    void resizeShadowTexture();
+
 	void releaseGLBuffers();
 	void releaseLUTBuffers();
 	void releaseScreenBuffers();
+    void releaseShadowBuffers();
+
 	void createGLBuffers();
 	void createLUTBuffers();
 
@@ -125,6 +132,7 @@ public:
 	//attempt to allocate screen buffers at resX, resY
 	//returns true if allocation successful, false otherwise
 	bool allocateScreenBuffer(U32 resX, U32 resY, U32 samples);
+    bool allocateShadowBuffer(U32 resX, U32 resY);
 
 	void allocatePhysicsBuffer();
 	

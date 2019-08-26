@@ -528,7 +528,7 @@ void LLViewerShaderMgr::setShaders()
         }
 
 		// Trigger a full rebuild of the fallback skybox / cubemap if we've toggled windlight shaders
-		if (mShaderLevel[SHADER_WINDLIGHT] != wl_class && gSky.mVOSkyp.notNull())
+		if (!wl_class || (mShaderLevel[SHADER_WINDLIGHT] != wl_class && gSky.mVOSkyp.notNull()))
 		{
 			gSky.mVOSkyp->forceSkyUpdate();
 		}
@@ -2281,6 +2281,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredUnderWaterProgram.mShaderFiles.push_back(make_pair("deferred/waterV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredUnderWaterProgram.mShaderFiles.push_back(make_pair("deferred/underWaterF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredUnderWaterProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        gDeferredUnderWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
 		success = gDeferredUnderWaterProgram.createShader(NULL, NULL);
 		llassert(success);
 	}
