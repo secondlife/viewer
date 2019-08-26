@@ -1019,7 +1019,7 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 	for (LLViewerFetchedTexture *imagep : mCreateTextures)
 	{
 		imagep->createTexture();
-	}
+		}
     F32 elapsed = create_timer.getElapsedTimeF32();
 	mCreateTextures.clear();
 	return elapsed;
@@ -1059,7 +1059,7 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 	max_priority_count = llmin(max_priority_count, mImageList.size());
 	
 	size_t total_update_count = mUUIDMap.size();
-
+	
 	// MAX_HIGH_PRIO_COUNT high priority entries
 	typedef std::vector<LLViewerFetchedTexture*> entries_list_t;
 	entries_list_t entries;
@@ -1067,12 +1067,12 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 	image_priority_list_t::iterator iter1 = mImageList.begin();
 	while(update_counter > 0)
 	{
-		entries.push_back(*iter1);		
+		entries.push_back(*iter1);
 		++iter1;
 		update_counter--;
         total_update_count--;
 	}
-
+	
     F32 elapsed_time = image_op_timer.getElapsedTimeF32();
 
     F32 elapsed_time_a = elapsed_time;
@@ -1081,7 +1081,7 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 	max_update_count = llmin(max_update_count, total_update_count);	
 
 	// MAX_UPDATE_COUNT cycled entries
-	update_counter = max_update_count;
+	update_counter = max_update_count;	
     U32 iterations = 0; // limit unbounded spinning below
 
 	if(update_counter > 0)
@@ -1106,7 +1106,7 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
             iterations++;
 		}
 	}
-
+	
 	
     elapsed_time = image_op_timer.getElapsedTimeF32();
 
@@ -1210,11 +1210,11 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
     F32 create_time = 0.0f;
     if (!gGLManager.mIsDisabled)
     {
-	    max_time -= timer.getElapsedTimeF32();
-	    max_time = llmax(max_time, .001f);
+	max_time -= timer.getElapsedTimeF32();
+	max_time = llmax(max_time, .001f);
 	    create_time = updateImagesCreateTextures(max_time);
 	}
-
+	
     F32 elapsed = timer.getElapsedTimeF32();
 	LL_INFOS("Texture") << "decodeAllImages() took " << elapsed << " seconds." << LL_ENDL;
     LL_INFOS("Texture") << "Fetch_pending :" << fetch_pending << "\n Create_time :" << create_time << LL_ENDL;

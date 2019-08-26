@@ -498,7 +498,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 
 				dullahan::dullahan_settings settings;
 				settings.accept_language_list = mHostLanguage;
-				settings.background_color = 0xff282828;
+				settings.background_color = 0xffffffff;
 				settings.cache_enabled = true;
 				settings.cache_path = mCachePath;
 				settings.cookie_store_path = mCookiePath;

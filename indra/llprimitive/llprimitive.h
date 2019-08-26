@@ -319,7 +319,7 @@ public:
 // - Vir
 struct LLTEContents
 {
-	static const U32 MAX_TES = 32;
+	static const U32 MAX_TES = 45;
 
 	U8     image_data[MAX_TES*16];
 	U8	  colors[MAX_TES*4];

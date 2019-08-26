@@ -78,6 +78,22 @@ enum ETextureIndex
 	TEX_HEAD_TATTOO,
 	TEX_UPPER_TATTOO,
 	TEX_LOWER_TATTOO,
+	TEX_HEAD_UNIVERSAL_TATTOO,
+	TEX_UPPER_UNIVERSAL_TATTOO,
+	TEX_LOWER_UNIVERSAL_TATTOO,
+	TEX_SKIRT_TATTOO,
+	TEX_HAIR_TATTOO,
+	TEX_EYES_TATTOO,
+	TEX_LEFT_ARM_TATTOO,
+	TEX_LEFT_LEG_TATTOO,
+	TEX_AUX1_TATTOO,
+	TEX_AUX2_TATTOO,
+	TEX_AUX3_TATTOO,
+	TEX_LEFT_ARM_BAKED,		 // Pre-composited
+	TEX_LEFT_LEG_BAKED,     // Pre-composited
+	TEX_AUX1_BAKED,			 // Pre-composited
+	TEX_AUX2_BAKED,			 // Pre-composited
+	TEX_AUX3_BAKED,			 // Pre-composited
 	TEX_NUM_INDICES
 }; 
 
@@ -89,6 +105,11 @@ enum EBakedTextureIndex
 	BAKED_EYES,
 	BAKED_SKIRT,
 	BAKED_HAIR,
+	BAKED_LEFT_ARM,
+	BAKED_LEFT_LEG,
+	BAKED_AUX1,
+	BAKED_AUX2,
+	BAKED_AUX3,
 	BAKED_NUM_INDICES
 };
 
@@ -222,6 +243,10 @@ public:
 
 	// Given a texture entry, determine which wearable type owns it.
 	static LLWearableType::EType 		getTEWearableType(ETextureIndex index);
+
+	static BOOL							isBakedImageId(const LLUUID& id);
+	static EBakedTextureIndex			assetIdToBakedTextureIndex(const LLUUID& id);
+	static LLUUID						localTextureIndexToMagicId(ETextureIndex t);
 
 }; // End LLAvatarAppearanceDictionary
 
