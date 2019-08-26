@@ -383,6 +383,29 @@ void LLPanelVolume::getState( )
         }
     }
     getChildView("Animated Mesh Checkbox Ctrl")->setEnabled(enabled_animated_object_box);
+	
+	//refresh any bakes
+	if (root_volobjp)
+	{
+		root_volobjp->refreshBakeTexture();
+
+		LLViewerObject::const_child_list_t& child_list = root_volobjp->getChildren();
+		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+			iter != child_list.end(); ++iter)
+		{
+			LLViewerObject* objectp = *iter;
+			if (objectp)
+			{
+				objectp->refreshBakeTexture();
+			}
+		}
+
+		if (gAgentAvatarp)
+		{
+			gAgentAvatarp->updateMeshVisibility();
+		}
+	}
+	
 
 	// Flexible properties
 	BOOL is_flexible = volobjp && volobjp->isFlexible();
@@ -953,6 +976,28 @@ void LLPanelVolume::onCommitAnimatedMeshCheckbox(LLUICtrl *, void*)
     {
         volobjp->setExtendedMeshFlags(new_flags);
     }
+
+	//refresh any bakes
+	if (volobjp)
+	{
+		volobjp->refreshBakeTexture();
+
+		LLViewerObject::const_child_list_t& child_list = volobjp->getChildren();
+		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+			iter != child_list.end(); ++iter)
+		{
+			LLViewerObject* objectp = *iter;
+			if (objectp)
+			{
+				objectp->refreshBakeTexture();
+			}
+		}
+
+		if (gAgentAvatarp)
+		{
+			gAgentAvatarp->updateMeshVisibility();
+		}
+	}
 }
 
 void LLPanelVolume::onCommitIsFlexible(LLUICtrl *, void*)
