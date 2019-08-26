@@ -73,6 +73,10 @@
 
 #include "llavatarappearancedefines.h"
 
+static const F32 CONTEXT_CONE_IN_ALPHA = 0.0f;
+static const F32 CONTEXT_CONE_OUT_ALPHA = 1.f;
+static const F32 CONTEXT_FADE_TIME = 0.08f;
+
 static const S32 LOCAL_TRACKING_ID_COLUMN = 1;
 
 //static const char CURRENT_IMAGE_NAME[] = "Current Texture";
@@ -391,6 +395,9 @@ BOOL LLFloaterTexturePicker::postBuild()
 
 		// don't put keyboard focus on selected item, because the selection callback
 		// will assume that this was user input
+
+		
+
 		if(!mImageAssetID.isNull())
 		{
 			mInventoryPanel->setSelection(findItemID(mImageAssetID, FALSE), TAKE_FOCUS_NO);
@@ -437,9 +444,6 @@ void LLFloaterTexturePicker::draw()
 {
 	if (mOwner)
 	{
-        static LLCachedControl<F32> max_opacity(gSavedSettings, "PickerContextOpacity", 0.4f);
-        drawConeToOwner(mContextConeOpacity, max_opacity, mOwner);
-
 		// draw cone of context pointing back to texture swatch	
 		LLRect owner_rect;
 		mOwner->localRectToOtherView(mOwner->getLocalRect(), &owner_rect, this);
@@ -742,6 +746,7 @@ void LLFloaterTexturePicker::onBtnSelect(void* userdata)
 			local_id = LLLocalBitmapMgr::getWorldID(temp_id);
 		}
 	}
+	
 	if (self->mOnFloaterCommitCallback)
 	{
 		self->mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_SELECT, local_id);
@@ -805,14 +810,14 @@ void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem
 void LLFloaterTexturePicker::onModeSelect(LLUICtrl* ctrl, void *userdata)
 {
 	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
-	bool mode = (self->mModeSelector->getSelectedIndex() == 0);
+	int mode = self->mModeSelector->getSelectedIndex();
 
-	self->getChild<LLButton>("Default")->setVisible(mode);
-	self->getChild<LLButton>("Blank")->setVisible(mode);
-	self->getChild<LLButton>("None")->setVisible(mode);
-	self->getChild<LLButton>("Pipette")->setVisible(mode);
-	self->getChild<LLFilterEditor>("inventory search editor")->setVisible(mode);
-	self->getChild<LLInventoryPanel>("inventory panel")->setVisible(mode);
+	self->getChild<LLButton>("Default")->setVisible(mode == 0);
+	self->getChild<LLButton>("Blank")->setVisible(mode == 0);
+	self->getChild<LLButton>("None")->setVisible(mode == 0);
+	self->getChild<LLButton>("Pipette")->setVisible(mode == 0);
+	self->getChild<LLFilterEditor>("inventory search editor")->setVisible(mode == 0);
+	self->getChild<LLInventoryPanel>("inventory panel")->setVisible(mode == 0);
 
 	/*self->getChild<LLCheckBox>("show_folders_check")->setVisible(mode);
 	  no idea under which conditions the above is even shown, needs testing. */
