@@ -63,7 +63,8 @@ public:
 		WT_ALPHA	  = 13,
 		WT_TATTOO	  = 14,
 		WT_PHYSICS	  = 15,
-		WT_COUNT	  = 16,
+		WT_UNIVERSAL  = 16,
+		WT_COUNT	  = 17,
 
 		WT_INVALID	  = 255,
 		WT_NONE		  = -1,
