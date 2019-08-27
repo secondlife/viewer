@@ -381,6 +381,7 @@ void LLLocalBitmap::replaceIDs(LLUUID old_id, LLUUID new_id)
 	updateUserLayers(old_id, new_id, LLWearableType::WT_SKIRT);
 	updateUserLayers(old_id, new_id, LLWearableType::WT_SOCKS);
 	updateUserLayers(old_id, new_id, LLWearableType::WT_TATTOO);
+	updateUserLayers(old_id, new_id, LLWearableType::WT_UNIVERSAL);
 	updateUserLayers(old_id, new_id, LLWearableType::WT_UNDERPANTS);
 	updateUserLayers(old_id, new_id, LLWearableType::WT_UNDERSHIRT);
 }
@@ -512,7 +513,7 @@ void LLLocalBitmap::updateUserVolumes(LLUUID old_id, LLUUID new_id, U32 channel)
 	{
 		LLVOVolume* volobjp = (*old_texture->getVolumeList(channel))[volume_iter];
 		switch (channel)
-		{
+	{
 			case LLRender::LIGHT_TEX:
 			{
 				if (volobjp->getLightTextureID() == old_id)
@@ -526,17 +527,17 @@ void LLLocalBitmap::updateUserVolumes(LLUUID old_id, LLUUID new_id, U32 channel)
 				LLViewerObject* object = (LLViewerObject*)volobjp;
 
 				if (object)
-				{
-					if (object->isSculpted() && object->getVolume() &&
-						object->getVolume()->getParams().getSculptID() == old_id)
-					{
-						LLSculptParams* old_params = (LLSculptParams*)object->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-						LLSculptParams new_params(*old_params);
-						new_params.setSculptTexture(new_id, (*old_params).getSculptType());
-						object->setParameterEntry(LLNetworkData::PARAMS_SCULPT, new_params, TRUE);
-					}
-				}
+		{
+			if (object->isSculpted() && object->getVolume() &&
+				object->getVolume()->getParams().getSculptID() == old_id)
+			{
+				LLSculptParams* old_params = (LLSculptParams*)object->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+				LLSculptParams new_params(*old_params);
+				new_params.setSculptTexture(new_id, (*old_params).getSculptType());
+				object->setParameterEntry(LLNetworkData::PARAMS_SCULPT, new_params, TRUE);
 			}
+		}
+	}
 		}
 	}
 }
@@ -746,7 +747,7 @@ LLAvatarAppearanceDefines::ETextureIndex LLLocalBitmap::getTexIndex(
 
 		case LLWearableType::WT_TATTOO:
 		{
-			switch(baked_texind)
+			switch (baked_texind)
 			{
 				case LLAvatarAppearanceDefines::BAKED_HEAD:
 				{
@@ -764,6 +765,75 @@ LLAvatarAppearanceDefines::ETextureIndex LLLocalBitmap::getTexIndex(
 					result = LLAvatarAppearanceDefines::TEX_UPPER_TATTOO;
 					break;
 				}
+				default:
+				{
+					break;
+				}
+			}
+			break;
+			
+		}
+		case LLWearableType::WT_UNIVERSAL:
+		{
+			switch (baked_texind)
+			{
+				
+				case LLAvatarAppearanceDefines::BAKED_SKIRT:
+				{
+					result = LLAvatarAppearanceDefines::TEX_SKIRT_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_EYES:
+				{
+					result = LLAvatarAppearanceDefines::TEX_EYES_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_HAIR:
+				{
+					result = LLAvatarAppearanceDefines::TEX_HAIR_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_LEFT_ARM:
+				{
+					result = LLAvatarAppearanceDefines::TEX_LEFT_ARM_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_LEFT_LEG:
+				{
+					result = LLAvatarAppearanceDefines::TEX_LEFT_LEG_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_AUX1:
+				{
+					result = LLAvatarAppearanceDefines::TEX_AUX1_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_AUX2:
+				{
+					result = LLAvatarAppearanceDefines::TEX_AUX2_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_AUX3:
+				{
+					result = LLAvatarAppearanceDefines::TEX_AUX3_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_UPPER:
+				{
+					result = LLAvatarAppearanceDefines::TEX_UPPER_UNIVERSAL_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_LOWER:
+				{
+					result = LLAvatarAppearanceDefines::TEX_LOWER_UNIVERSAL_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_HEAD:
+				{
+					result = LLAvatarAppearanceDefines::TEX_HEAD_UNIVERSAL_TATTOO;
+					break;
+				}
+
 
 				default:
 				{

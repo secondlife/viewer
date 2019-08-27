@@ -24,6 +24,7 @@
  * $/LicenseInfo$
  */
 
+
 #include "llviewerprecompiledheaders.h"
 
 #include "llagent.h" 
@@ -4715,10 +4716,12 @@ LLTeleportRequestViaLocation::LLTeleportRequestViaLocation(const LLVector3d &pPo
 	: LLTeleportRequest(),
 	mPosGlobal(pPosGlobal)
 {
+    LL_INFOS("Teleport") << "LLTeleportRequestViaLocation created" << LL_ENDL;
 }
 
 LLTeleportRequestViaLocation::~LLTeleportRequestViaLocation()
 {
+    LL_INFOS("Teleport") << "~LLTeleportRequestViaLocation" << LL_ENDL;
 }
 
 bool LLTeleportRequestViaLocation::canRestartTeleport()
@@ -4751,6 +4754,7 @@ LLTeleportRequestViaLocationLookAt::LLTeleportRequestViaLocationLookAt(const LLV
 
 LLTeleportRequestViaLocationLookAt::~LLTeleportRequestViaLocationLookAt()
 {
+    LL_INFOS("Teleport") << "~LLTeleportRequestViaLocationLookAt" << LL_ENDL;
 }
 
 bool LLTeleportRequestViaLocationLookAt::canRestartTeleport()
