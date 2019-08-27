@@ -329,7 +329,7 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 
     temp2.mV[1] = 1.f / temp2.mV[1];
     componentMultBy(sunlight, componentExp((light_atten * -1.f) * temp2.mV[1]));
-    //componentMultBy(sunlight, light_transmittance);
+    componentMultBy(sunlight, light_transmittance);
 
     // Distance
 	temp2.mV[2] = Plen * density_multiplier;
@@ -445,8 +445,8 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
     vars.distance_multiplier = psky->getDistanceMultiplier();
     vars.max_y = psky->getMaxY();
     vars.sun_norm = LLEnvironment::instance().getSunDirectionCFR();
-    vars.sunlight = psky->getSunlightColorClamped();
-    vars.ambient = psky->getAmbientColorClamped();
+    vars.sunlight = psky->getSunlightColor();
+    vars.ambient = psky->getAmbientColor();
     vars.glow = psky->getGlow();
     vars.cloud_shadow = psky->getCloudShadow();
     vars.dome_radius = psky->getDomeRadius();
