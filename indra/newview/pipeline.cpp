@@ -116,6 +116,7 @@
 #include "llcleanup.h"
 
 #include "llenvironment.h"
+#include "llsettingsvo.h"
 
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
@@ -8424,21 +8425,19 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     shader.uniform1f(LLShaderMgr::DEFERRED_DEPTH_CUTOFF, RenderEdgeDepthCutoff);
     shader.uniform1f(LLShaderMgr::DEFERRED_NORM_CUTOFF, RenderEdgeNormCutoff);
     
-    shader.uniform4fv(LLShaderMgr::SUNLIGHT_COLOR, 1, mSunDiffuse.mV);
-    shader.uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, mMoonDiffuse.mV);
-    
-
-    LLEnvironment& environment = LLEnvironment::instance();
-    LLColor4 ambient(environment.getCurrentSky()->getTotalAmbient());
-    shader.uniform4fv(LLShaderMgr::AMBIENT, 1, ambient.mV);
-    shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
-    shader.uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, environment.getCurrentSky()->getSunMoonGlowFactor());
-
     if (shader.getUniformLocation(LLShaderMgr::DEFERRED_NORM_MATRIX) >= 0)
     {
         glh::matrix4f norm_mat = get_current_modelview().inverse().transpose();
         shader.uniformMatrix4fv(LLShaderMgr::DEFERRED_NORM_MATRIX, 1, FALSE, norm_mat.m);
     }
+
+    shader.uniform4fv(LLShaderMgr::SUNLIGHT_COLOR, 1, mSunDiffuse.mV);
+    shader.uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, mMoonDiffuse.mV);
+
+    LLEnvironment& environment = LLEnvironment::instance();
+    LLSettingsSky::ptr_t sky = environment.getCurrentSky();
+
+    static_cast<LLSettingsVOSky*>(sky.get())->updateShader(&shader);
 }
 
 LLColor3 pow3f(LLColor3 v, F32 f)

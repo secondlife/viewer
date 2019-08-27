@@ -353,7 +353,7 @@ protected:
     virtual validation_list_t getValidationList() const = 0;
 
     // Apply any settings that need special handling. 
-    virtual void applySpecial(void *) { };
+    virtual void applySpecial(void *, bool force = false) { };
 
     virtual parammapping_t getParameterMap() const { return parammapping_t(); }
 

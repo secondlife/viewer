@@ -102,7 +102,7 @@ public:
 
     bool isAdvanced() const { return  m_isAdvanced; }
 
-    virtual void updateShader(LLGLSLShader* shader) { applySpecial(shader); }    
+    virtual void updateShader(LLGLSLShader* shader) { applySpecial(shader, true); }
 
 protected:
     LLSettingsVOSky();
@@ -112,7 +112,7 @@ protected:
 
     virtual void    updateSettings() override;
 
-    virtual void    applySpecial(void *) override;
+    virtual void    applySpecial(void *, bool) override;
 
     virtual parammapping_t getParameterMap() const override;
 
@@ -136,13 +136,13 @@ public:
 
     static LLSD     convertToLegacy(const ptr_t &);
 
-    virtual void    updateShader(LLGLSLShader* shader) { applySpecial(shader); }
+    virtual void    updateShader(LLGLSLShader* shader) { applySpecial(shader, true); }
 
 protected:
     LLSettingsVOWater();
 
     virtual void    updateSettings() override;
-    virtual void    applySpecial(void *) override;
+    virtual void    applySpecial(void *, bool) override;
 
     virtual parammapping_t getParameterMap() const override;
 

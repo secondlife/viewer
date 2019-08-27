@@ -1326,26 +1326,13 @@ void LLSettingsSky::calculateLightSettings() const
     componentMultBy(sunlight, componentExp((light_atten * -1.f) * lighty));
     componentMultBy(sunlight, light_transmittance);
 
-    //F32 max_color = llmax(sunlight.mV[0], sunlight.mV[1], sunlight.mV[2]);
-    //if (max_color > 1.0f)
-    //{
-    //    sunlight *= 1.0f/max_color;
-    //}
-
     //increase ambient when there are more clouds
     LLColor3 tmpAmbient = ambient + (smear(1.f) - ambient) * cloud_shadow * 0.5;
-    componentMultBy(tmpAmbient, light_transmittance);
-
-    //tmpAmbient = LLColor3::clamp(tmpAmbient, getGamma(), 1.0f);
-    //max_color = llmax(tmpAmbient.mV[0], tmpAmbient.mV[1], tmpAmbient.mV[2]);
-    //if (max_color > 1.0f)
-    //{
-    //    tmpAmbient *= 1.0f/max_color;
-    //}
 
     //brightness of surface both sunlight and ambient
     mSunDiffuse = sunlight;
     mSunAmbient = tmpAmbient;
+
     F32 haze_horizon = getHazeHorizon();
     
     sunlight *= 1.0 - cloud_shadow;
@@ -1360,12 +1347,11 @@ void LLSettingsSky::calculateLightSettings() const
     LLColor3 moonlight_b(0.66, 0.66, 1.2); // scotopic ambient value
 
     componentMultBy(moonlight, componentExp((light_atten * -1.f) * lighty));
-    //clampColor(moonlight, getGamma(), 1.0f);
 
     mMoonDiffuse  = componentMult(moonlight, light_transmittance) * moon_brightness;
-    mMoonAmbient  = componentMult(moonlight_b, light_transmittance) * 0.0125f;
+    mMoonAmbient  = moonlight_b * 0.0125f;
 
-    mTotalAmbient = mSunAmbient;
+    mTotalAmbient = ambient;
 }
 
 LLUUID LLSettingsSky::GetDefaultAssetId()
