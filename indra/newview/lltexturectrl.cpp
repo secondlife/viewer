@@ -73,10 +73,6 @@
 
 #include "llavatarappearancedefines.h"
 
-static const F32 CONTEXT_CONE_IN_ALPHA = 0.0f;
-static const F32 CONTEXT_CONE_OUT_ALPHA = 1.f;
-static const F32 CONTEXT_FADE_TIME = 0.08f;
-
 static const S32 LOCAL_TRACKING_ID_COLUMN = 1;
 
 //static const char CURRENT_IMAGE_NAME[] = "Current Texture";
@@ -442,6 +438,10 @@ BOOL LLFloaterTexturePicker::postBuild()
 // virtual
 void LLFloaterTexturePicker::draw()
 {
+    static const F32 CONTEXT_CONE_IN_ALPHA = 0.0f;
+    static const F32 CONTEXT_CONE_OUT_ALPHA = 1.f;
+    static const F32 CONTEXT_FADE_TIME = 0.08f;
+
 	if (mOwner)
 	{
 		// draw cone of context pointing back to texture swatch	
