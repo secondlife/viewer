@@ -9495,14 +9495,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                     clip_plane.disable();
                 }
 
-                // SL-11370 prevent Low/Low-Mid graphics from rendering distortion map contents it should not
-                if (!canUseWindLightShaders())
-                {
-                    clearRenderTypeMask(LLPipeline::RENDER_TYPE_PARTICLES, END_RENDER_TYPES);
-                    clearRenderTypeMask(LLPipeline::RENDER_TYPE_AVATAR, END_RENDER_TYPES);
-                    clearRenderTypeMask(LLPipeline::RENDER_TYPE_VOLUME, END_RENDER_TYPES);
-                }
-
                 updateCull(camera, mRefractedObjects, water_clip, &plane);
                 stateSort(camera, mRefractedObjects);
                 renderGeom(camera);
