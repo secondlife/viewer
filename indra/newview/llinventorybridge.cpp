@@ -1415,8 +1415,10 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 			break;
 
 		default:
+#if VERBOSE_ASSET_TYPE_WARNINGS
 			LL_INFOS_ONCE() << "Unhandled asset type (llassetstorage.h): "
 					<< (S32)asset_type << " (" << LLAssetType::lookup(asset_type) << ")" << LL_ENDL;
+#endif
 			break;
 	}
 
