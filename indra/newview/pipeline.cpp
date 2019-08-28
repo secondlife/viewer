@@ -2401,11 +2401,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 
 	sCull->clear();
 
-	bool to_texture =	LLPipeline::sUseOcclusion > 1 &&
-						!hasRenderType(LLPipeline::RENDER_TYPE_HUD) && 
-						LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD &&
-						gPipeline.canUseVertexShaders() &&
-						sRenderGlow;
+	bool to_texture = LLPipeline::sUseOcclusion > 1 && gPipeline.canUseVertexShaders();
 
 	if (to_texture)
 	{
@@ -2455,7 +2451,10 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
         mCubeVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
     }
     
-    camera.disableUserClipPlane();
+    if (!sReflectionRender)
+    {
+        camera.disableUserClipPlane();
+    }
 
     for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
             iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
@@ -2479,6 +2478,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
         if(vo_part)
         {
             bool do_occlusion_cull = can_use_occlusion && use_occlusion && !gUseWireframe && 0 > water_clip /* && !gViewerWindow->getProgressView()->getVisible()*/;
+            do_occlusion_cull &= !sReflectionRender;
             vo_part->cull(camera, do_occlusion_cull);
         }
     }
