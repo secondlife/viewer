@@ -83,6 +83,8 @@ namespace
     LLTrace::BlockTimerStatHandle FTM_VOSKY_UPDATEFORCED("VOSky Update Forced");
 
     F32Seconds UPDATE_EXPRY(0.25f);
+
+    const F32 UPDATE_MIN_DELTA_THRESHOLD = 0.0005f;
 }
 /***************************************
 		SkyTex
@@ -737,7 +739,7 @@ bool LLVOSky::updateSky()
         LL_RECORD_BLOCK_TIME(FTM_VOSKY_CALC);
         calc();
 
-        bool same_atmospherics = aproximatelyEqual(m_lastAtmosphericsVars, m_atmosphericsVars);
+        bool same_atmospherics = approximatelyEqual(m_lastAtmosphericsVars, m_atmosphericsVars, UPDATE_MIN_DELTA_THRESHOLD);
 
         mNeedUpdate = mNeedUpdate || !same_atmospherics;
 

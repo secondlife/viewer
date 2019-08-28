@@ -715,7 +715,7 @@ bool operator==(const AtmosphericsVars& a, const AtmosphericsVars& b)
     return true;
 }
 
-bool aproximately_equal(const F32 &a, const  F32 &b, const F32 &fraction_treshold)
+bool approximatelyEqual(const F32 &a, const  F32 &b, const F32 &fraction_treshold)
 {
     F32 diff = fabs(a - b);
     if (diff < F_APPROXIMATELY_ZERO || diff < llmax(fabs(a), fabs(b)) * fraction_treshold)
@@ -725,119 +725,119 @@ bool aproximately_equal(const F32 &a, const  F32 &b, const F32 &fraction_treshol
     return false;
 }
 
-bool aproximately_equal(const LLColor3 &a, const  LLColor3 &b, const F32 &fraction_treshold)
+bool approximatelyEqual(const LLColor3 &a, const  LLColor3 &b, const F32 &fraction_treshold)
 {
-    return aproximately_equal(a.mV[0], b.mV[0], fraction_treshold)
-           && aproximately_equal(a.mV[1], b.mV[1], fraction_treshold)
-           && aproximately_equal(a.mV[2], b.mV[2], fraction_treshold);
+    return approximatelyEqual(a.mV[0], b.mV[0], fraction_treshold)
+           && approximatelyEqual(a.mV[1], b.mV[1], fraction_treshold)
+           && approximatelyEqual(a.mV[2], b.mV[2], fraction_treshold);
 }
 
-bool aproximately_equal(const LLVector4 &a, const  LLVector4 &b, const F32 &fraction_treshold)
+bool approximatelyEqual(const LLVector4 &a, const  LLVector4 &b, const F32 &fraction_treshold)
 {
-    return aproximately_equal(a.mV[0], b.mV[0], fraction_treshold)
-        && aproximately_equal(a.mV[1], b.mV[1], fraction_treshold)
-        && aproximately_equal(a.mV[2], b.mV[2], fraction_treshold)
-        && aproximately_equal(a.mV[3], b.mV[3], fraction_treshold);
+    return approximatelyEqual(a.mV[0], b.mV[0], fraction_treshold)
+        && approximatelyEqual(a.mV[1], b.mV[1], fraction_treshold)
+        && approximatelyEqual(a.mV[2], b.mV[2], fraction_treshold)
+        && approximatelyEqual(a.mV[3], b.mV[3], fraction_treshold);
 }
 
-bool aproximatelyEqual(const AtmosphericsVars& a, const AtmosphericsVars& b, const F32 fraction_treshold)
+bool approximatelyEqual(const AtmosphericsVars& a, const AtmosphericsVars& b, const F32 fraction_treshold)
 {
-    if (!aproximately_equal(a.hazeColor, b.hazeColor, fraction_treshold))
+    if (!approximatelyEqual(a.hazeColor, b.hazeColor, fraction_treshold))
     {
         return false;
     }
 
-    if (!aproximately_equal(a.hazeColorBelowCloud, b.hazeColorBelowCloud, fraction_treshold))
+    if (!approximatelyEqual(a.hazeColorBelowCloud, b.hazeColorBelowCloud, fraction_treshold))
     {
         return false;
     }
 
-    if (!aproximately_equal(a.cloudColorSun, b.cloudColorSun, fraction_treshold))
+    if (!approximatelyEqual(a.cloudColorSun, b.cloudColorSun, fraction_treshold))
     {
         return false;
     }
 
-    if (!aproximately_equal(a.cloudColorAmbient, b.cloudColorAmbient, fraction_treshold))
+    if (!approximatelyEqual(a.cloudColorAmbient, b.cloudColorAmbient, fraction_treshold))
     {
         return false;
     }
 
-    if (!aproximately_equal(a.cloudDensity, b.cloudDensity, fraction_treshold))
+    if (!approximatelyEqual(a.cloudDensity, b.cloudDensity, fraction_treshold))
     {
         return false;
     }
 
-    if (!aproximately_equal(a.density_multiplier, b.density_multiplier, fraction_treshold))
+    if (!approximatelyEqual(a.density_multiplier, b.density_multiplier, fraction_treshold))
     {
         return false;
     }
 
-    if (!aproximately_equal(a.haze_horizon, b.haze_horizon, fraction_treshold))
+    if (!approximatelyEqual(a.haze_horizon, b.haze_horizon, fraction_treshold))
     {
         return false;
     }
 
-    if (!aproximately_equal(a.haze_density, b.haze_density, fraction_treshold))
+    if (!approximatelyEqual(a.haze_density, b.haze_density, fraction_treshold))
     {
         return false;
     }
 
-    if (!aproximately_equal(a.blue_horizon, b.blue_horizon, fraction_treshold))
+    if (!approximatelyEqual(a.blue_horizon, b.blue_horizon, fraction_treshold))
     {
         return false;
     }
 
-    if (!aproximately_equal(a.blue_density, b.blue_density, fraction_treshold))
+    if (!approximatelyEqual(a.blue_density, b.blue_density, fraction_treshold))
     {
         return false;
     }
 
-    if (!aproximately_equal(a.dome_offset, b.dome_offset, fraction_treshold))
+    if (!approximatelyEqual(a.dome_offset, b.dome_offset, fraction_treshold))
     {
         return false;
     }
 
-    if (!aproximately_equal(a.dome_radius, b.dome_radius, fraction_treshold))
+    if (!approximatelyEqual(a.dome_radius, b.dome_radius, fraction_treshold))
     {
         return false;
     }
 
-    if (!aproximately_equal(a.cloud_shadow, b.cloud_shadow, fraction_treshold))
+    if (!approximatelyEqual(a.cloud_shadow, b.cloud_shadow, fraction_treshold))
     {
         return false;
     }
 
-    if (!aproximately_equal(a.glow, b.glow, fraction_treshold))
+    if (!approximatelyEqual(a.glow, b.glow, fraction_treshold))
     {
         return false;
     }
 
-    if (!aproximately_equal(a.ambient, b.ambient, fraction_treshold))
+    if (!approximatelyEqual(a.ambient, b.ambient, fraction_treshold))
     {
         return false;
     }
 
-    if (!aproximately_equal(a.sunlight, b.sunlight, fraction_treshold))
+    if (!approximatelyEqual(a.sunlight, b.sunlight, fraction_treshold))
     {
         return false;
     }
 
-    if (!aproximately_equal(a.sun_norm, b.sun_norm, fraction_treshold))
+    if (!approximatelyEqual(a.sun_norm, b.sun_norm, fraction_treshold))
     {
         return false;
     }
 
-    if (!aproximately_equal(a.gamma, b.gamma, fraction_treshold))
+    if (!approximatelyEqual(a.gamma, b.gamma, fraction_treshold))
     {
         return false;
     }
 
-    if (!aproximately_equal(a.max_y, b.max_y, fraction_treshold))
+    if (!approximatelyEqual(a.max_y, b.max_y, fraction_treshold))
     {
         return false;
     }
 
-    if (!aproximately_equal(a.distance_multiplier, b.distance_multiplier, fraction_treshold))
+    if (!approximatelyEqual(a.distance_multiplier, b.distance_multiplier, fraction_treshold))
     {
         return false;
     }

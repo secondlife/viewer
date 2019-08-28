@@ -208,7 +208,7 @@ public:
 
     friend bool operator==(const AtmosphericsVars& a, const AtmosphericsVars& b);
     // returns true if values are within treshold of each other.
-    friend bool aproximatelyEqual(const AtmosphericsVars& a, const AtmosphericsVars& b, const F32 fraction_treshold = 0.0005);
+    friend bool approximatelyEqual(const AtmosphericsVars& a, const AtmosphericsVars& b, const F32 fraction_treshold);
 
     LLColor3  hazeColor;
     LLColor3  hazeColorBelowCloud;
