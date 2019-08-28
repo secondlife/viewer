@@ -498,8 +498,7 @@ void LLVOSky::init()
 		for (S32 tile = 0; tile < NUM_TILES; ++tile)
 		{
 			initSkyTextureDirs(side, tile);
-			createSkyTexture(m_atmosphericsVars, side, tile, mSkyTex);
-            createSkyTexture(m_atmosphericsVars, side, tile, mShinyTex, true);
+            createSkyTexture(m_atmosphericsVars, side, tile);
         }
         mSkyTex[side].create(1.0f);
         mShinyTex[side].create(1.0f);
@@ -647,8 +646,10 @@ void LLVOSky::initSkyTextureDirs(const S32 side, const S32 tile)
 	}
 }
 
-void LLVOSky::createSkyTexture(AtmosphericsVars& vars, const S32 side, const S32 tile, LLSkyTex* tex, bool is_shiny)
+void LLVOSky::createSkyTexture(AtmosphericsVars& vars, const S32 side, const S32 tile)
 {
+	LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+
 	S32 tile_x = tile % NUM_TILES_X;
 	S32 tile_y = tile / NUM_TILES_X;
 
@@ -660,7 +661,8 @@ void LLVOSky::createSkyTexture(AtmosphericsVars& vars, const S32 side, const S32
 	{
 		for (x = tile_x_pos; x < (tile_x_pos + sTileResX); ++x)
 		{
-			tex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(vars, tex[side].getDir(x, y), is_shiny), x, y);
+			mSkyTex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(psky, vars, mSkyTex[side].getDir(x, y), false), x, y);
+			mShinyTex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(psky, vars, mShinyTex[side].getDir(x, y), true), x, y);
 		}
 	}
 }
@@ -710,8 +712,6 @@ bool LLVOSky::updateSky()
 		return TRUE;
 	}
 
-    bool is_alm_wl_sky = gPipeline.canUseWindLightShaders();
-
 	static S32 next_frame = 0;
 	const S32 total_no_tiles = NUM_CUBEMAP_FACES * NUM_TILES;
 	const S32 cycle_frame_no = total_no_tiles + 1;
@@ -737,7 +737,7 @@ bool LLVOSky::updateSky()
         LL_RECORD_BLOCK_TIME(FTM_VOSKY_CALC);
         calc();
 
-        bool same_atmospherics = m_lastAtmosphericsVars == m_atmosphericsVars;
+        bool same_atmospherics = aproximatelyEqual(m_lastAtmosphericsVars, m_atmosphericsVars);
 
         mNeedUpdate = mNeedUpdate || !same_atmospherics;
 
@@ -753,6 +753,8 @@ bool LLVOSky::updateSky()
     {
         LL_RECORD_BLOCK_TIME(FTM_VOSKY_UPDATEFORCED);
         LLSkyTex::stepCurrent();
+
+        bool is_alm_wl_sky = gPipeline.canUseWindLightShaders();
 
         int tex = mSkyTex[0].getWhich(TRUE);
 
@@ -807,14 +809,19 @@ bool LLVOSky::updateSky()
 	    }
         mCubeMapUpdateStage = -1;
     }
+    // run 0 to 5 faces, each face in own frame
     else if (mCubeMapUpdateStage >= 0 && mCubeMapUpdateStage < NUM_CUBEMAP_FACES)
 	{
         LL_RECORD_BLOCK_TIME(FTM_VOSKY_CREATETEXTURES);
         S32 side = mCubeMapUpdateStage;
-        for (int tile = 0; tile < NUM_TILES; tile++)
+        // CPU hungry part, createSkyTexture() is math heavy
+        // Prior to EEP it was mostly per tile, but since EPP it is per face.
+        // This still can be optimized further
+        // (i.e. potentially can be made per tile again, can be moved to thread
+        // instead of executing per face, or may be can be moved to shaders)
+        for (S32 tile = 0; tile < NUM_TILES; tile++)
         {
-            createSkyTexture(m_atmosphericsVars, side, tile, mSkyTex);
-            createSkyTexture(m_atmosphericsVars, side, tile, mShinyTex, true);
+            createSkyTexture(m_atmosphericsVars, side, tile);
         }
         mCubeMapUpdateStage++;
 	}

@@ -205,12 +205,16 @@ void LLAtmospherics::init()
 LLColor4 LLAtmospherics::calcSkyColorInDir(AtmosphericsVars& vars, const LLVector3 &dir, bool isShiny)
 {
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+    return calcSkyColorInDir(psky, vars, dir, isShiny);
+}
 
+LLColor4 LLAtmospherics::calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, AtmosphericsVars& vars, const LLVector3 &dir, bool isShiny)
+{
 	F32 saturation = 0.3f;
 
 	if (isShiny && dir.mV[VZ] < -0.02f)
 	{
-		LLColor4 col = LLColor4(llmax(mFogColor[0],0.2f), llmax(mFogColor[1],0.2f), llmax(mFogColor[2],0.22f),0.f);
+		LLColor4 col;
 		LLColor3 desat_fog = LLColor3(mFogColor);
 		F32 brightness = desat_fog.brightness();
 		// So that shiny somewhat shows up at night.
@@ -219,8 +223,8 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(AtmosphericsVars& vars, const LLVecto
 			brightness = 0.15f;
 			desat_fog = smear(0.15f);
 		}
-		LLColor3 greyscale = smear(brightness);
-		desat_fog = desat_fog * saturation + greyscale * (1.0f - saturation);
+		F32 greyscale_sat = brightness * (1.0f - saturation);
+		desat_fog = desat_fog * saturation + smear(greyscale_sat);
 		if (!gPipeline.canUseWindLightShaders())
 		{
 			col = LLColor4(desat_fog, 0.f);
@@ -240,36 +244,34 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(AtmosphericsVars& vars, const LLVecto
 	// undo OGL_TO_CFR_ROTATION and negate vertical direction.
 	LLVector3 Pn = LLVector3(-dir[1] , -dir[2], -dir[0]);
 
-	calcSkyColorWLVert(Pn, vars);
-
-    bool low_end = !gPipeline.canUseWindLightShaders();
-
-	LLColor3 sky_color =  isShiny ? vars.hazeColor : 
-                          low_end ? vars.hazeColor * 2.0f : psky->gammaCorrect(vars.hazeColor * 2.0f);
+	//calculates hazeColor
+	calcSkyColorWLVert(psky, Pn, vars);
 
 	if (isShiny)
 	{
-		F32 brightness = sky_color.brightness();
-		LLColor3 greyscale = smear(brightness);
-		sky_color = sky_color * saturation + greyscale * (1.0f - saturation);
+		F32 brightness = vars.hazeColor.brightness();
+		F32 greyscale_sat = brightness * (1.0f - saturation);
+		LLColor3 sky_color = vars.hazeColor * saturation + smear(greyscale_sat);
 		sky_color *= (0.5f + 0.5f * brightness);
+		return LLColor4(sky_color, 0.0f);
 	}
+
+	bool low_end = !gPipeline.canUseWindLightShaders();
+	LLColor3 sky_color = low_end ? vars.hazeColor * 2.0f : psky->gammaCorrect(vars.hazeColor * 2.0f);
+
 	return LLColor4(sky_color, 0.0f);
 }
 
 const F32 NIGHTTIME_ELEVATION = -8.0f; // degrees
 const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION*DEG_TO_RAD);
 
-void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
+void LLAtmospherics::calcSkyColorWLVert(const LLSettingsSky::ptr_t &psky, LLVector3 & Pn, AtmosphericsVars& vars)
 {
-    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
-
     LLColor3    blue_density = vars.blue_density;
     LLColor3    blue_horizon = vars.blue_horizon;
     F32         haze_horizon = vars.haze_horizon;
     F32         haze_density = vars.haze_density;
     F32         density_multiplier = vars.density_multiplier;
-    F32         distance_multiplier = vars.distance_multiplier;
     F32         max_y = vars.max_y;
     LLVector4   sun_norm = vars.sun_norm;
 
@@ -316,13 +318,10 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 	LLColor3 temp1 = vars.total_density;
 
 	LLColor3 blue_weight = componentDiv(blue_density, temp1);
+	LLColor3 blue_factor = blue_horizon * blue_weight;
 	LLColor3 haze_weight = componentDiv(smear(haze_density), temp1);
+	LLColor3 haze_factor = haze_horizon * haze_weight;
 
-    F32 lighty = sun_norm.mV[1];
-	if(lighty < NIGHTTIME_ELEVATION_SIN)
-	{
-		lighty = -lighty;
-	}
 
 	// Compute sunlight from P & lightnorm (for long rays like sky)
     temp2.mV[1] = llmax(F_APPROXIMATELY_ZERO, llmax(0.f, Pn[1]) * 1.0f + sun_norm.mV[1] );
@@ -335,8 +334,7 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 	temp2.mV[2] = Plen * density_multiplier;
 
     // Transparency (-> temp1)
-	temp1 = componentExp((temp1 * -1.f) * temp2.mV[2]);// * distance_multiplier);
-    (void)distance_multiplier;
+	temp1 = componentExp((temp1 * -1.f) * temp2.mV[2]);
 
 	// Compute haze glow
 	temp2.mV[0] = Pn * LLVector3(sun_norm);
@@ -357,7 +355,7 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 
 
 	// Haze color above cloud
-	vars.hazeColor = (blue_horizon * blue_weight * (sunlight + ambient) + componentMult(haze_horizon * haze_weight, sunlight * temp2.mV[0] + ambient));	
+	vars.hazeColor = (blue_factor * (sunlight + ambient) + componentMult(haze_factor, sunlight * temp2.mV[0] + ambient));	
 
 	// Increase ambient when there are more clouds
 	LLColor3 tmpAmbient = ambient + (LLColor3::white - ambient) * cloud_shadow * 0.5f;
@@ -366,7 +364,7 @@ void LLAtmospherics::calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars)
 	sunlight *= (1.f - cloud_shadow);
 
 	// Haze color below cloud
-	vars.hazeColorBelowCloud = (blue_horizon * blue_weight * (sunlight + tmpAmbient) + componentMult(haze_horizon * haze_weight, sunlight * temp2.mV[0] + tmpAmbient));	
+	vars.hazeColorBelowCloud = (blue_factor * (sunlight + tmpAmbient) + componentMult(haze_factor, sunlight * temp2.mV[0] + tmpAmbient));	
 
     LLColor3 final_atten = LLColor3::white - temp1;
     final_atten.mV[0] = llmax(final_atten.mV[0], 0.0f);
@@ -716,3 +714,138 @@ bool operator==(const AtmosphericsVars& a, const AtmosphericsVars& b)
 
     return true;
 }
+
+bool aproximately_equal(const F32 &a, const  F32 &b, const F32 &fraction_treshold)
+{
+    F32 diff = fabs(a - b);
+    if (diff < F_APPROXIMATELY_ZERO || diff < llmax(fabs(a), fabs(b)) * fraction_treshold)
+    {
+        return true;
+    }
+    return false;
+}
+
+bool aproximately_equal(const LLColor3 &a, const  LLColor3 &b, const F32 &fraction_treshold)
+{
+    return aproximately_equal(a.mV[0], b.mV[0], fraction_treshold)
+           && aproximately_equal(a.mV[1], b.mV[1], fraction_treshold)
+           && aproximately_equal(a.mV[2], b.mV[2], fraction_treshold);
+}
+
+bool aproximately_equal(const LLVector4 &a, const  LLVector4 &b, const F32 &fraction_treshold)
+{
+    return aproximately_equal(a.mV[0], b.mV[0], fraction_treshold)
+        && aproximately_equal(a.mV[1], b.mV[1], fraction_treshold)
+        && aproximately_equal(a.mV[2], b.mV[2], fraction_treshold)
+        && aproximately_equal(a.mV[3], b.mV[3], fraction_treshold);
+}
+
+bool aproximatelyEqual(const AtmosphericsVars& a, const AtmosphericsVars& b, const F32 fraction_treshold)
+{
+    if (!aproximately_equal(a.hazeColor, b.hazeColor, fraction_treshold))
+    {
+        return false;
+    }
+
+    if (!aproximately_equal(a.hazeColorBelowCloud, b.hazeColorBelowCloud, fraction_treshold))
+    {
+        return false;
+    }
+
+    if (!aproximately_equal(a.cloudColorSun, b.cloudColorSun, fraction_treshold))
+    {
+        return false;
+    }
+
+    if (!aproximately_equal(a.cloudColorAmbient, b.cloudColorAmbient, fraction_treshold))
+    {
+        return false;
+    }
+
+    if (!aproximately_equal(a.cloudDensity, b.cloudDensity, fraction_treshold))
+    {
+        return false;
+    }
+
+    if (!aproximately_equal(a.density_multiplier, b.density_multiplier, fraction_treshold))
+    {
+        return false;
+    }
+
+    if (!aproximately_equal(a.haze_horizon, b.haze_horizon, fraction_treshold))
+    {
+        return false;
+    }
+
+    if (!aproximately_equal(a.haze_density, b.haze_density, fraction_treshold))
+    {
+        return false;
+    }
+
+    if (!aproximately_equal(a.blue_horizon, b.blue_horizon, fraction_treshold))
+    {
+        return false;
+    }
+
+    if (!aproximately_equal(a.blue_density, b.blue_density, fraction_treshold))
+    {
+        return false;
+    }
+
+    if (!aproximately_equal(a.dome_offset, b.dome_offset, fraction_treshold))
+    {
+        return false;
+    }
+
+    if (!aproximately_equal(a.dome_radius, b.dome_radius, fraction_treshold))
+    {
+        return false;
+    }
+
+    if (!aproximately_equal(a.cloud_shadow, b.cloud_shadow, fraction_treshold))
+    {
+        return false;
+    }
+
+    if (!aproximately_equal(a.glow, b.glow, fraction_treshold))
+    {
+        return false;
+    }
+
+    if (!aproximately_equal(a.ambient, b.ambient, fraction_treshold))
+    {
+        return false;
+    }
+
+    if (!aproximately_equal(a.sunlight, b.sunlight, fraction_treshold))
+    {
+        return false;
+    }
+
+    if (!aproximately_equal(a.sun_norm, b.sun_norm, fraction_treshold))
+    {
+        return false;
+    }
+
+    if (!aproximately_equal(a.gamma, b.gamma, fraction_treshold))
+    {
+        return false;
+    }
+
+    if (!aproximately_equal(a.max_y, b.max_y, fraction_treshold))
+    {
+        return false;
+    }
+
+    if (!aproximately_equal(a.distance_multiplier, b.distance_multiplier, fraction_treshold))
+    {
+        return false;
+    }
+
+    // light_atten, light_transmittance, total_density
+    // are ignored as they always change when the values above do
+    // they're just shared calc across the sky map generation to save cycles
+
+    return true;
+}
+
