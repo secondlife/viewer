@@ -179,6 +179,7 @@ LLFloaterEditExtDayCycle::LLFloaterEditExtDayCycle(const LLSD &key) :
     mScratchWater(),
     mIsPlaying(false),
     mIsDirty(false),
+    mCanSave(false),
     mCanCopy(false),
     mCanMod(false),
     mCanTrans(false),
@@ -305,6 +306,7 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
     }
     else
     {
+        mCanSave = true;
         mCanCopy = true;
         mCanMod = true;
         mCanTrans = true;
@@ -475,8 +477,8 @@ void LLFloaterEditExtDayCycle::refresh()
     mFlyoutControl->setMenuItemVisible(ACTION_APPLY_REGION, show_apply);
 
     mFlyoutControl->setMenuItemEnabled(ACTION_COMMIT, show_commit && !mCommitSignal.empty());
-    mFlyoutControl->setMenuItemEnabled(ACTION_SAVE, is_inventory_avail && mCanMod && !mInventoryId.isNull());
-    mFlyoutControl->setMenuItemEnabled(ACTION_SAVEAS, is_inventory_avail && mCanCopy);
+    mFlyoutControl->setMenuItemEnabled(ACTION_SAVE, is_inventory_avail && mCanMod && !mInventoryId.isNull() && mCanSave);
+    mFlyoutControl->setMenuItemEnabled(ACTION_SAVEAS, is_inventory_avail && mCanCopy && mCanSave);
     mFlyoutControl->setMenuItemEnabled(ACTION_APPLY_LOCAL, true);
     mFlyoutControl->setMenuItemEnabled(ACTION_APPLY_PARCEL, canApplyParcel() && show_apply);
     mFlyoutControl->setMenuItemEnabled(ACTION_APPLY_REGION, canApplyRegion() && show_apply);
@@ -503,6 +505,11 @@ void LLFloaterEditExtDayCycle::setEditDayCycle(const LLSettingsDay::ptr_t &pday)
         LL_WARNS("ENVDAYEDIT") << "No sky frames found, generating replacement" << LL_ENDL;
         mEditDay->setSkyAtKeyframe(LLSettingsVOSky::buildDefaultSky(), .5f, LLSettingsDay::TRACK_GROUND_LEVEL);
     }
+
+    mCanSave = !pday->getFlag(LLSettingsBase::FLAG_NOSAVE);
+    mCanCopy = !pday->getFlag(LLSettingsBase::FLAG_NOCOPY) && mCanSave;
+    mCanMod = !pday->getFlag(LLSettingsBase::FLAG_NOMOD) && mCanSave;
+    mCanTrans = !pday->getFlag(LLSettingsBase::FLAG_NOTRANS) && mCanSave;
 
     updateEditEnvironment();
     LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_INSTANT);
@@ -1427,6 +1434,7 @@ void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId)
     {
         mInventoryItem = nullptr;
         mInventoryId.setNull();
+        mCanSave = true;
         mCanCopy = true;
         mCanMod = true;
         mCanTrans = true;
@@ -1460,6 +1468,7 @@ void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId)
         return;
     }
 
+    mCanSave = true;
     mCanCopy = mInventoryItem->getPermissions().allowCopyBy(gAgent.getID());
     mCanMod = mInventoryItem->getPermissions().allowModifyBy(gAgent.getID());
     mCanTrans = mInventoryItem->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
@@ -1488,23 +1497,33 @@ void LLFloaterEditExtDayCycle::onAssetLoaded(LLUUID asset_id, LLSettingsBase::pt
         return;
     }
 
-    if (mCanCopy)
-        settings->clearFlag(LLSettingsBase::FLAG_NOCOPY);
+    if (settings->getFlag(LLSettingsBase::FLAG_NOSAVE))
+    {
+        mCanSave = false;
+        mCanCopy = false;
+        mCanMod = false;
+        mCanTrans = false;
+    }
     else
-        settings->setFlag(LLSettingsBase::FLAG_NOCOPY);
+    {
+        if (mCanCopy)
+            settings->clearFlag(LLSettingsBase::FLAG_NOCOPY);
+        else
+            settings->setFlag(LLSettingsBase::FLAG_NOCOPY);
 
-    if (mCanMod)
-        settings->clearFlag(LLSettingsBase::FLAG_NOMOD);
-    else
-        settings->setFlag(LLSettingsBase::FLAG_NOMOD);
+        if (mCanMod)
+            settings->clearFlag(LLSettingsBase::FLAG_NOMOD);
+        else
+            settings->setFlag(LLSettingsBase::FLAG_NOMOD);
 
-    if (mCanTrans)
-        settings->clearFlag(LLSettingsBase::FLAG_NOTRANS);
-    else
-        settings->setFlag(LLSettingsBase::FLAG_NOTRANS);
+        if (mCanTrans)
+            settings->clearFlag(LLSettingsBase::FLAG_NOTRANS);
+        else
+            settings->setFlag(LLSettingsBase::FLAG_NOTRANS);
 
-    if (mInventoryItem)
-        settings->setName(mInventoryItem->getName());
+        if (mInventoryItem)
+            settings->setName(mInventoryItem->getName());
+    }
 
     setEditDayCycle(std::dynamic_pointer_cast<LLSettingsDay>(settings));
 }
@@ -1674,6 +1693,19 @@ void LLFloaterEditExtDayCycle::doApplyUpdateInventory(const LLSettingsDay::ptr_t
 
 void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where, const LLSettingsDay::ptr_t &day)
 {
+    U32 flags(0);
+
+    if (mInventoryItem)
+    {
+        if (!mInventoryItem->getPermissions().allowOperationBy(PERM_MODIFY, gAgent.getID()))
+            flags |= LLSettingsBase::FLAG_NOMOD;
+        if (!mInventoryItem->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+            flags |= LLSettingsBase::FLAG_NOTRANS;
+    }
+
+    flags |= day->getFlags();
+    day->setFlag(flags);
+
     if (where == ACTION_APPLY_LOCAL)
     {
         LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, day);
@@ -1691,7 +1723,7 @@ void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where, cons
 
         if (mInventoryItem && !isDirty())
         {
-            LLEnvironment::instance().updateParcel(parcel->getLocalID(), mInventoryItem->getAssetUUID(), mInventoryItem->getName(), LLEnvironment::NO_TRACK, -1, -1);
+            LLEnvironment::instance().updateParcel(parcel->getLocalID(), mInventoryItem->getAssetUUID(), mInventoryItem->getName(), LLEnvironment::NO_TRACK, -1, -1, flags);
         }
         else
         {
@@ -1702,7 +1734,7 @@ void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where, cons
     {
         if (mInventoryItem && !isDirty())
         {
-            LLEnvironment::instance().updateRegion(mInventoryItem->getAssetUUID(), mInventoryItem->getName(), LLEnvironment::NO_TRACK, -1, -1);
+            LLEnvironment::instance().updateRegion(mInventoryItem->getAssetUUID(), mInventoryItem->getName(), LLEnvironment::NO_TRACK, -1, -1, flags);
         }
         else
         {

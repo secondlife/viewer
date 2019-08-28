@@ -440,6 +440,7 @@ void LLPanelEnvironmentInfo::updateEditFloater(const LLEnvironment::EnvironmentI
         // old settings will be invalid.
         mEditorLastParcelId = nextenv->mParcelId;
         mEditorLastRegionId = nextenv->mRegionId;
+
         dayeditor->setEditDayCycle(nextenv->mDayCycle);
     }
 }
@@ -967,12 +968,23 @@ void LLPanelEnvironmentInfo::onPickerCommitted(LLUUID item_id, S32 track_num)
         clearDirtyFlag(DIRTY_FLAG_DAYLENGTH);
         clearDirtyFlag(DIRTY_FLAG_DAYOFFSET);
 
+        U32 flags(0);
+
+        if (itemp)
+        {
+            if (!itemp->getPermissions().allowOperationBy(PERM_MODIFY, gAgent.getID()))
+                flags |= LLSettingsBase::FLAG_NOMOD;
+            if (!itemp->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+                flags |= LLSettingsBase::FLAG_NOTRANS;
+        }
+
         LLEnvironment::instance().updateParcel(getParcelId(),
                                                itemp->getAssetUUID(),
                                                itemp->getName(),
                                                track_num,
                                                mCurrentEnvironment ? mCurrentEnvironment->mDayLength.value() : -1,
                                                mCurrentEnvironment ? mCurrentEnvironment->mDayOffset.value() : -1,
+                                               flags,
                                                LLEnvironment::altitudes_vect_t(),
             [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
     }

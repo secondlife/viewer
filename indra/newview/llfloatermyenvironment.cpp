@@ -277,9 +277,16 @@ void LLFloaterMyEnvironment::onDoApply(const std::string &context)
         LLUUID asset_id = itemp->getAssetUUID();
         std::string name = itemp->getName();
 
+        U32 flags(0);
+        
+        if (!itemp->getPermissions().allowOperationBy(PERM_MODIFY, gAgent.getID()))
+            flags |= LLSettingsBase::FLAG_NOMOD;
+        if (!itemp->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+            flags |= LLSettingsBase::FLAG_NOTRANS;
+
         if (context == PARAMETER_REGION)
         {
-            LLEnvironment::instance().updateRegion(asset_id, name, LLEnvironment::NO_TRACK, -1, -1);
+            LLEnvironment::instance().updateRegion(asset_id, name, LLEnvironment::NO_TRACK, -1, -1, flags);
             LLEnvironment::instance().setSharedEnvironment();
         }
         else if (context == PARAMETER_PARCEL)
@@ -290,7 +297,7 @@ void LLFloaterMyEnvironment::onDoApply(const std::string &context)
                 LL_WARNS("ENVIRONMENT") << "Unable to determine parcel." << LL_ENDL;
                 return;
             }
-            LLEnvironment::instance().updateParcel(parcel->getLocalID(), asset_id, name, LLEnvironment::NO_TRACK, -1, -1);
+            LLEnvironment::instance().updateParcel(parcel->getLocalID(), asset_id, name, LLEnvironment::NO_TRACK, -1, -1, flags);
             LLEnvironment::instance().setSharedEnvironment();
         }
         else if (context == PARAMETER_LOCAL)

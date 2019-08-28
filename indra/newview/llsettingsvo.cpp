@@ -532,6 +532,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildDefaultSky()
 LLSettingsSky::ptr_t LLSettingsVOSky::buildClone() const
 {
     LLSD settings = cloneSettings();
+    U32 flags = getFlags();
 
     LLSettingsSky::validation_list_t validations = LLSettingsSky::validationList();
     LLSD results = LLSettingsBase::settingValidation(settings, validations);
@@ -542,6 +543,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildClone() const
     }
 
     LLSettingsSky::ptr_t skyp = std::make_shared<LLSettingsVOSky>(settings);
+    skyp->setFlags(flags);
     return skyp;
 }
 
@@ -661,7 +663,7 @@ void LLSettingsVOSky::updateSettings()
     gSky.setMoonScale(getMoonScale());
 }
 
-void LLSettingsVOSky::applySpecial(void *ptarget)
+void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
 {
     LLGLSLShader *shader = (LLGLSLShader *)ptarget;
 
@@ -669,46 +671,38 @@ void LLSettingsVOSky::applySpecial(void *ptarget)
 
     if (shader->mShaderGroup == LLGLSLShader::SG_DEFAULT)
 	{        
-        shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, light_direction.mV);
-		shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, 1, LLViewerCamera::getInstance()->getOrigin().mV);
+    shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, light_direction.mV);
+	shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, 1, LLViewerCamera::getInstance()->getOrigin().mV);
 	} 
 	else if (shader->mShaderGroup == LLGLSLShader::SG_SKY)
 	{
-        shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, light_direction.mV);        
+    shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, light_direction.mV);        
 
-        LLVector4 vect_c_p_d1(mSettings[SETTING_CLOUD_POS_DENSITY1]);
-        vect_c_p_d1 += LLVector4(LLEnvironment::instance().getCloudScrollDelta());
-        shader->uniform4fv(LLShaderMgr::CLOUD_POS_DENSITY1, 1, vect_c_p_d1.mV);
+    LLVector4 vect_c_p_d1(mSettings[SETTING_CLOUD_POS_DENSITY1]);
+    vect_c_p_d1 += LLVector4(LLEnvironment::instance().getCloudScrollDelta());
+    shader->uniform4fv(LLShaderMgr::CLOUD_POS_DENSITY1, 1, vect_c_p_d1.mV);
 
-        LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
-        LLColor4 sunDiffuse = psky->getSunlightColor();
-        LLColor4 moonDiffuse = psky->getMoonlightColor();
+    LLColor4 sunDiffuse = psky->getSunlightColor();
+    LLColor4 moonDiffuse = psky->getMoonlightColor();
 
-        F32 max_color = llmax(sunDiffuse.mV[0], sunDiffuse.mV[1], sunDiffuse.mV[2]);
-        if (max_color > 1.f)
-        {
-            sunDiffuse *= 1.f/max_color;
-        }
-        sunDiffuse.clamp();
+    shader->uniform4fv(LLShaderMgr::SUNLIGHT_COLOR, 1, sunDiffuse.mV);
+    shader->uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, moonDiffuse.mV);
 
-        max_color = llmax(moonDiffuse.mV[0], moonDiffuse.mV[1], moonDiffuse.mV[2]);
-        if (max_color > 1.f)
-        {
-            moonDiffuse *= 1.f/max_color;
-        }
-        moonDiffuse.clamp();
-
-        shader->uniform4fv(LLShaderMgr::SUNLIGHT_COLOR, 1, sunDiffuse.mV);
-        shader->uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, moonDiffuse.mV);
-
-        LLColor4 cloud_color(psky->getCloudColor(), 1.0);
-        shader->uniform4fv(LLShaderMgr::CLOUD_COLOR, 1, cloud_color.mV);
+    LLColor4 cloud_color(psky->getCloudColor(), 1.0);
+    shader->uniform4fv(LLShaderMgr::CLOUD_COLOR, 1, cloud_color.mV);
 	}
-
     
-
     shader->uniform1f(LLShaderMgr::SCENE_LIGHT_STRENGTH, mSceneLightStrength);
+
+    LLColor4 ambient(getTotalAmbient());
+    shader->uniform4fv(LLShaderMgr::AMBIENT, 1, ambient.mV);
+
+    shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, getIsSunUp() ? 1 : 0);
+    shader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, getSunMoonGlowFactor());
+    shader->uniform1f(LLShaderMgr::DENSITY_MULTIPLIER, getDensityMultiplier());
+    shader->uniform1f(LLShaderMgr::DISTANCE_MULTIPLIER, getDistanceMultiplier());
     
     F32 g             = getGamma();    
     F32 display_gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
@@ -866,6 +860,7 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildDefaultWater()
 LLSettingsWater::ptr_t LLSettingsVOWater::buildClone() const
 {
     LLSD settings = cloneSettings();
+    U32 flags = getFlags();
     LLSettingsWater::validation_list_t validations = LLSettingsWater::validationList();
     LLSD results = LLSettingsWater::settingValidation(settings, validations);
     if (!results["success"].asBoolean())
@@ -875,7 +870,7 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildClone() const
     }
 
     LLSettingsWater::ptr_t waterp = std::make_shared<LLSettingsVOWater>(settings);
-
+    waterp->setFlags(flags);
     return waterp;
 }
 
@@ -901,13 +896,13 @@ LLSD LLSettingsVOWater::convertToLegacy(const LLSettingsWater::ptr_t &pwater)
 }
 //-------------------------------------------------------------------------
 //-------------------------------------------------------------------------
-void LLSettingsVOWater::applySpecial(void *ptarget)
+void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 {
     LLGLSLShader *shader = (LLGLSLShader *)ptarget;
 
     LLEnvironment& env = LLEnvironment::instance();
 
-    if (shader->mShaderGroup == LLGLSLShader::SG_WATER)
+    if (force || (shader->mShaderGroup == LLGLSLShader::SG_WATER))
 	{
         F32 water_height = env.getWaterHeight();
 
@@ -1273,6 +1268,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildDeepCloneAndUncompress() const
     // no need for SETTING_TRACKS or SETTING_FRAMES, so take base LLSD
     LLSD settings = llsd_clone(mSettings);
 
+    U32 flags = getFlags();
     LLSettingsDay::ptr_t day_clone = std::make_shared<LLSettingsVODay>(settings);
 
     for (S32 i = 0; i < LLSettingsDay::TRACK_MAX; ++i)
@@ -1289,6 +1285,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildDeepCloneAndUncompress() const
             iter++;
         }
     }
+    day_clone->setFlags(flags);
     return day_clone;
 }
 

@@ -240,6 +240,7 @@ private:
     bool                        mCanCopy;
     bool                        mCanMod;
     bool                        mCanTrans;
+    bool                        mCanSave;
 
     edit_commit_signal_t        mCommitSignal;
 

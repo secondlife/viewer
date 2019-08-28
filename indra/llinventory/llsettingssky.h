@@ -292,6 +292,9 @@ public:
     LLColor4  getTotalAmbient() const;
     LLColor4  getHazeColor() const;
 
+    LLColor3 getSunlightColorClamped() const;
+    LLColor3 getAmbientColorClamped() const;
+
     virtual LLSettingsBase::ptr_t buildDerivedClone() const SETTINGS_OVERRIDE { return buildClone(); }
 
     static LLUUID GetDefaultAssetId();

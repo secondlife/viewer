@@ -75,6 +75,7 @@ public:
     static const U32 FLAG_NOCOPY;
     static const U32 FLAG_NOMOD;
     static const U32 FLAG_NOTRANS;
+    static const U32 FLAG_NOSAVE;
 
     class DefaultParam
     {
@@ -352,7 +353,7 @@ protected:
     virtual validation_list_t getValidationList() const = 0;
 
     // Apply any settings that need special handling. 
-    virtual void applySpecial(void *) { };
+    virtual void applySpecial(void *, bool force = false) { };
 
     virtual parammapping_t getParameterMap() const { return parammapping_t(); }
 

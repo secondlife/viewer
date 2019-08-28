@@ -97,6 +97,7 @@ enum ESubpart {
         SUBPART_SKIRT,
         SUBPART_ALPHA,
         SUBPART_TATTOO,
+		SUBPART_UNIVERSAL,
         SUBPART_PHYSICS_BREASTS_UPDOWN,
         SUBPART_PHYSICS_BREASTS_INOUT,
         SUBPART_PHYSICS_BREASTS_LEFTRIGHT,
@@ -241,7 +242,8 @@ LLEditWearableDictionary::Wearables::Wearables()
         addEntry(LLWearableType::WT_SKIRT,              new WearableEntry(LLWearableType::WT_SKIRT,"edit_skirt_title","skirt_desc_text", texture_vec_t{TEX_SKIRT}, texture_vec_t{TEX_SKIRT}, subpart_vec_t{SUBPART_SKIRT}));
         addEntry(LLWearableType::WT_ALPHA,              new WearableEntry(LLWearableType::WT_ALPHA,"edit_alpha_title","alpha_desc_text", texture_vec_t(), texture_vec_t{TEX_LOWER_ALPHA, TEX_UPPER_ALPHA, TEX_HEAD_ALPHA, TEX_EYES_ALPHA, TEX_HAIR_ALPHA}, subpart_vec_t{SUBPART_ALPHA}));
         addEntry(LLWearableType::WT_TATTOO,     new WearableEntry(LLWearableType::WT_TATTOO,"edit_tattoo_title","tattoo_desc_text", texture_vec_t{TEX_HEAD_TATTOO}, texture_vec_t{TEX_LOWER_TATTOO, TEX_UPPER_TATTOO, TEX_HEAD_TATTOO}, subpart_vec_t{SUBPART_TATTOO}));
-        addEntry(LLWearableType::WT_PHYSICS,    new WearableEntry(LLWearableType::WT_PHYSICS,"edit_physics_title","physics_desc_text", texture_vec_t(), texture_vec_t(), subpart_vec_t{SUBPART_PHYSICS_BREASTS_UPDOWN, SUBPART_PHYSICS_BREASTS_INOUT, SUBPART_PHYSICS_BREASTS_LEFTRIGHT, SUBPART_PHYSICS_BELLY_UPDOWN, SUBPART_PHYSICS_BUTT_UPDOWN, SUBPART_PHYSICS_BUTT_LEFTRIGHT, SUBPART_PHYSICS_ADVANCED}));
+		addEntry(LLWearableType::WT_UNIVERSAL, new WearableEntry(LLWearableType::WT_UNIVERSAL, "edit_universal_title", "universal_desc_text", texture_vec_t{ TEX_HEAD_UNIVERSAL_TATTOO }, texture_vec_t{ TEX_HEAD_UNIVERSAL_TATTOO, TEX_UPPER_UNIVERSAL_TATTOO, TEX_LOWER_UNIVERSAL_TATTOO, TEX_SKIRT_TATTOO, TEX_HAIR_TATTOO, TEX_EYES_TATTOO, TEX_LEFT_ARM_TATTOO, TEX_LEFT_LEG_TATTOO, TEX_AUX1_TATTOO, TEX_AUX2_TATTOO, TEX_AUX3_TATTOO }, subpart_vec_t{ SUBPART_UNIVERSAL }));
+		addEntry(LLWearableType::WT_PHYSICS,    new WearableEntry(LLWearableType::WT_PHYSICS,"edit_physics_title","physics_desc_text", texture_vec_t(), texture_vec_t(), subpart_vec_t{SUBPART_PHYSICS_BREASTS_UPDOWN, SUBPART_PHYSICS_BREASTS_INOUT, SUBPART_PHYSICS_BREASTS_LEFTRIGHT, SUBPART_PHYSICS_BELLY_UPDOWN, SUBPART_PHYSICS_BUTT_UPDOWN, SUBPART_PHYSICS_BUTT_LEFTRIGHT, SUBPART_PHYSICS_ADVANCED}));
 }
 
 LLEditWearableDictionary::WearableEntry::WearableEntry(LLWearableType::EType type,
@@ -294,7 +296,9 @@ LLEditWearableDictionary::Subparts::Subparts()
         addEntry(SUBPART_UNDERPANTS, new SubpartEntry(SUBPART_UNDERPANTS, "mPelvis", "underpants", "underpants_main_param_list", "underpants_main_tab", LLVector3d(0.f, 0.f, -0.5f), LLVector3d(-1.6f, 0.15f, -0.5f),SEX_BOTH));
         addEntry(SUBPART_ALPHA, new SubpartEntry(SUBPART_ALPHA, "mPelvis", "alpha", "alpha_main_param_list", "alpha_main_tab", LLVector3d(0.f, 0.f, 0.1f), LLVector3d(-2.5f, 0.5f, 0.8f),SEX_BOTH));
         addEntry(SUBPART_TATTOO, new SubpartEntry(SUBPART_TATTOO, "mPelvis", "tattoo", "tattoo_main_param_list", "tattoo_main_tab", LLVector3d(0.f, 0.f, 0.1f), LLVector3d(-2.5f, 0.5f, 0.8f),SEX_BOTH));
-        addEntry(SUBPART_PHYSICS_BREASTS_UPDOWN, new SubpartEntry(SUBPART_PHYSICS_BREASTS_UPDOWN, "mTorso", "physics_breasts_updown", "physics_breasts_updown_param_list", "physics_breasts_updown_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(0.f, 0.f, 0.f),SEX_FEMALE));
+		addEntry(SUBPART_UNIVERSAL, new SubpartEntry(SUBPART_UNIVERSAL, "mPelvis", "universal", "universal_main_param_list", "universal_main_tab", LLVector3d(0.f, 0.f, 0.1f), LLVector3d(-2.5f, 0.5f, 0.8f), SEX_BOTH));
+
+		addEntry(SUBPART_PHYSICS_BREASTS_UPDOWN, new SubpartEntry(SUBPART_PHYSICS_BREASTS_UPDOWN, "mTorso", "physics_breasts_updown", "physics_breasts_updown_param_list", "physics_breasts_updown_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(0.f, 0.f, 0.f),SEX_FEMALE));
         addEntry(SUBPART_PHYSICS_BREASTS_INOUT, new SubpartEntry(SUBPART_PHYSICS_BREASTS_INOUT, "mTorso", "physics_breasts_inout", "physics_breasts_inout_param_list", "physics_breasts_inout_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(0.f, 0.f, 0.f),SEX_FEMALE));
         addEntry(SUBPART_PHYSICS_BREASTS_LEFTRIGHT, new SubpartEntry(SUBPART_PHYSICS_BREASTS_LEFTRIGHT, "mTorso", "physics_breasts_leftright", "physics_breasts_leftright_param_list", "physics_breasts_leftright_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(0.f, 0.f, 0.f),SEX_FEMALE));
         addEntry(SUBPART_PHYSICS_BELLY_UPDOWN, new SubpartEntry(SUBPART_PHYSICS_BELLY_UPDOWN, "mTorso", "physics_belly_updown", "physics_belly_updown_param_list", "physics_belly_updown_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(0.f, 0.f, 0.f),SEX_BOTH));
@@ -335,6 +339,7 @@ LLEditWearableDictionary::ColorSwatchCtrls::ColorSwatchCtrls()
         addEntry ( TEX_UPPER_UNDERSHIRT, new PickerControlEntry (TEX_UPPER_UNDERSHIRT, "Color/Tint" ));
         addEntry ( TEX_LOWER_UNDERPANTS, new PickerControlEntry (TEX_LOWER_UNDERPANTS, "Color/Tint" ));
         addEntry ( TEX_HEAD_TATTOO, new PickerControlEntry(TEX_HEAD_TATTOO, "Color/Tint" ));
+		addEntry (TEX_HEAD_UNIVERSAL_TATTOO, new PickerControlEntry(TEX_HEAD_UNIVERSAL_TATTOO, "Color/Tint"));
 }
 
 LLEditWearableDictionary::TextureCtrls::TextureCtrls()
@@ -362,6 +367,17 @@ LLEditWearableDictionary::TextureCtrls::TextureCtrls()
         addEntry ( TEX_LOWER_TATTOO, new PickerControlEntry (TEX_LOWER_TATTOO, "Lower Tattoo", LLUUID::null, TRUE ));
         addEntry ( TEX_UPPER_TATTOO, new PickerControlEntry (TEX_UPPER_TATTOO, "Upper Tattoo", LLUUID::null, TRUE ));
         addEntry ( TEX_HEAD_TATTOO, new PickerControlEntry (TEX_HEAD_TATTOO, "Head Tattoo", LLUUID::null, TRUE ));
+		addEntry ( TEX_LOWER_UNIVERSAL_TATTOO, new PickerControlEntry( TEX_LOWER_UNIVERSAL_TATTOO, "Lower Universal Tattoo", LLUUID::null, TRUE));
+		addEntry ( TEX_UPPER_UNIVERSAL_TATTOO, new PickerControlEntry( TEX_UPPER_UNIVERSAL_TATTOO, "Upper Universal Tattoo", LLUUID::null, TRUE));
+		addEntry ( TEX_HEAD_UNIVERSAL_TATTOO, new PickerControlEntry( TEX_HEAD_UNIVERSAL_TATTOO, "Head Universal Tattoo", LLUUID::null, TRUE));
+		addEntry ( TEX_SKIRT_TATTOO, new PickerControlEntry(TEX_SKIRT_TATTOO, "Skirt Tattoo", LLUUID::null, TRUE));
+		addEntry ( TEX_HAIR_TATTOO, new PickerControlEntry(TEX_HAIR_TATTOO, "Hair Tattoo", LLUUID::null, TRUE));
+		addEntry ( TEX_EYES_TATTOO, new PickerControlEntry(TEX_EYES_TATTOO, "Eyes Tattoo", LLUUID::null, TRUE));
+		addEntry (TEX_LEFT_ARM_TATTOO, new PickerControlEntry(TEX_LEFT_ARM_TATTOO, "Left Arm Tattoo", LLUUID::null, TRUE));
+		addEntry (TEX_LEFT_LEG_TATTOO, new PickerControlEntry(TEX_LEFT_LEG_TATTOO, "Left Leg Tattoo", LLUUID::null, TRUE));
+		addEntry (TEX_AUX1_TATTOO, new PickerControlEntry(TEX_AUX1_TATTOO, "Aux1 Tattoo", LLUUID::null, TRUE));
+		addEntry (TEX_AUX2_TATTOO, new PickerControlEntry(TEX_AUX2_TATTOO, "Aux2 Tattoo", LLUUID::null, TRUE));
+		addEntry (TEX_AUX3_TATTOO, new PickerControlEntry(TEX_AUX3_TATTOO, "Aux3 Tattoo", LLUUID::null, TRUE));
 }
 
 LLEditWearableDictionary::PickerControlEntry::PickerControlEntry(ETextureIndex tex_index,
@@ -739,6 +755,7 @@ BOOL LLPanelEditWearable::postBuild()
         mPanelSkirt = getChild<LLPanel>("edit_skirt_panel");
         mPanelAlpha = getChild<LLPanel>("edit_alpha_panel");
         mPanelTattoo = getChild<LLPanel>("edit_tattoo_panel");
+		mPanelUniversal = getChild<LLPanel>("edit_universal_panel");
         mPanelPhysics = getChild<LLPanel>("edit_physics_panel");
 
         mTxtAvatarHeight = mPanelShape->getChild<LLTextBox>("avatar_height");
@@ -1442,6 +1459,10 @@ LLPanel* LLPanelEditWearable::getPanel(LLWearableType::EType type)
                 case LLWearableType::WT_TATTOO:
                         return mPanelTattoo;
                         break;
+				
+				case LLWearableType::WT_UNIVERSAL:
+					return mPanelUniversal;
+					break;
 
                 case LLWearableType::WT_PHYSICS:
                         return mPanelPhysics;

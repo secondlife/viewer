@@ -321,11 +321,16 @@ void LLFloaterFixedEnvironment::checkAndConfirmSettingsLoss(LLFloaterFixedEnviro
 
 void LLFloaterFixedEnvironment::onPickerCommitSetting(LLUUID item_id)
 {
-    mInventoryId = item_id;
-    mInventoryItem = gInventory.getItem(mInventoryId);
-
-    LLSettingsVOBase::getSettingsAsset(mInventoryItem->getAssetUUID(),
-        [this](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoaded(asset_id, settings, status); });
+    loadInventoryItem(item_id);
+//     mInventoryId = item_id;
+//     mInventoryItem = gInventory.getItem(mInventoryId);
+// 
+//     mCanCopy = mInventoryItem->getPermissions().allowCopyBy(gAgent.getID());
+//     mCanMod = mInventoryItem->getPermissions().allowModifyBy(gAgent.getID());
+//     mCanTrans = mInventoryItem->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
+// 
+//     LLSettingsVOBase::getSettingsAsset(mInventoryItem->getAssetUUID(),
+//         [this](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoaded(asset_id, settings, status); });
 }
 
 void LLFloaterFixedEnvironment::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status)
@@ -560,6 +565,19 @@ void LLFloaterFixedEnvironment::doApplyUpdateInventory(const LLSettingsBase::ptr
 
 void LLFloaterFixedEnvironment::doApplyEnvironment(const std::string &where, const LLSettingsBase::ptr_t &settings)
 {
+    U32 flags(0);
+
+    if (mInventoryItem)
+    {
+        if (!mInventoryItem->getPermissions().allowOperationBy(PERM_MODIFY, gAgent.getID()))
+            flags |= LLSettingsBase::FLAG_NOMOD;
+        if (!mInventoryItem->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+            flags |= LLSettingsBase::FLAG_NOTRANS;
+    }
+
+    flags |= settings->getFlags();
+    settings->setFlag(flags);
+
     if (where == ACTION_APPLY_LOCAL)
     {
         LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, settings);
@@ -577,7 +595,7 @@ void LLFloaterFixedEnvironment::doApplyEnvironment(const std::string &where, con
 
         if (mInventoryItem && !isDirty())
         {
-            LLEnvironment::instance().updateParcel(parcel->getLocalID(), mInventoryItem->getAssetUUID(), mInventoryItem->getName(), LLEnvironment::NO_TRACK, -1, -1);
+            LLEnvironment::instance().updateParcel(parcel->getLocalID(), mInventoryItem->getAssetUUID(), mInventoryItem->getName(), LLEnvironment::NO_TRACK, -1, -1, flags);
         }
         else if (settings->getSettingsType() == "sky")
         {
@@ -592,7 +610,7 @@ void LLFloaterFixedEnvironment::doApplyEnvironment(const std::string &where, con
     {
         if (mInventoryItem && !isDirty())
         {
-            LLEnvironment::instance().updateRegion(mInventoryItem->getAssetUUID(), mInventoryItem->getName(), LLEnvironment::NO_TRACK, -1, -1);
+            LLEnvironment::instance().updateRegion(mInventoryItem->getAssetUUID(), mInventoryItem->getName(), LLEnvironment::NO_TRACK, -1, -1, flags);
         }
         else if (settings->getSettingsType() == "sky")
         {

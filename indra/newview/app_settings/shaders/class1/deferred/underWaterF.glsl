@@ -58,44 +58,7 @@ VARYING vec4 refCoord;
 VARYING vec4 littleWave;
 VARYING vec4 view;
 
-vec3 srgb_to_linear(vec3 c);
 vec2 encode_normal(vec3 n);
-
-vec4 applyWaterFog(vec4 color, vec3 viewVec)
-{
-	//normalize view vector
-	vec3 view = normalize(viewVec);
-	float es = -view.z;
-
-	//find intersection point with water plane and eye vector
-	
-	//get eye depth
-	float e0 = max(-waterPlane.w, 0.0);
-	
-	//get object depth
-	float depth = length(viewVec);
-		
-	//get "thickness" of water
-	float l = max(depth, 0.1);
-
-	float kd = waterFogDensity;
-	float ks = waterFogKS;
-	vec4 kc = waterFogColor;
-	
-	float F = 0.98;
-	
-	float t1 = -kd * pow(F, ks * e0);
-	float t2 = kd + ks * es;
-	float t3 = pow(F, t2*l) - 1.0;
-	
-	float L = min(t1/t2*t3, 1.0);
-	
-	float D = pow(0.98, l*kd);
-	//return vec4(1.0, 0.0, 1.0, 1.0);
-	return color * D + kc * L;
-	//depth /= 10.0;
-	//return vec4(depth,depth,depth,0.0);
-}
 
 void main() 
 {
@@ -113,9 +76,7 @@ void main()
 		
 	vec4 fb = texture2D(screenTex, distort);
 
-    fb.rgb = srgb_to_linear(fb.rgb);
-
 	frag_data[0] = vec4(fb.rgb, 1.0); // diffuse
 	frag_data[1] = vec4(0.5,0.5,0.5, 0.95); // speccolor*spec, spec
-	frag_data[2] = vec4(encode_normal(wavef), 0.0, 0.0); // normalxyz, displace
+	frag_data[2] = vec4(encode_normal(wavef), 0.0, 0.0); // normalxyz, env intens, atmo kill
 }

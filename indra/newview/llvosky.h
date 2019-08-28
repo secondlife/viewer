@@ -288,7 +288,7 @@ public:
     void setSunScale(F32 sun_scale);
     void setMoonScale(F32 sun_scale);
 
-	void forceSkyUpdate(void)							{ mForceUpdate = TRUE; }
+	void forceSkyUpdate(void);
 
 public:
 	LLFace	*mFace[FACE_COUNT];
@@ -337,10 +337,10 @@ protected:
 	F32					mWind;
 	
 	bool				mInitialized;
-	bool				mForceUpdate;				//flag to force instantaneous update of cubemap
-	LLVector3			mLastSunLightingDirection;
-    LLVector3			mLastMoonLightingDirection;
-	LLColor3			mLastTotalAmbient;
+	bool				mForceUpdate;	
+    bool				mNeedUpdate;				// flag to force update of cubemap
+	S32					mCubeMapUpdateStage;		// state of cubemap uodate: -1 idle; 0-5 per-face updates; 6 finalizing
+
 	F32					mAmbientScale;
 	LLColor3			mNightColorShift;
 	F32					mInterpVal;

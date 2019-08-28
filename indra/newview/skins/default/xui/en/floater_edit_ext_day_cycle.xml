@@ -287,24 +287,24 @@
                                 <button
                                         follows="top|left"
                                         height="23"
-                                        width="90"
-                                        label="Clone From"
+                                        width="110"
+                                        label="Clone Track From"
                                         left="10"
                                         top_pad="10"
                                         name="copy_track" />
                                 <button
                                         follows="top|left"
                                         height="23"
-                                        width="90"
-                                        label="Load From"
+                                        width="110"
+                                        label="Load Track From"
                                         top_pad="0"
                                         left_delta="0"
                                         name="load_track" />
                                 <button
                                         follows="top|left"
                                         height="23"
-                                        width="90"
-                                        label="Clear"
+                                        width="110"
+                                        label="Clear Track"
                                         top_pad="0"
                                         left_delta="0"
                                         name="clear_track" />

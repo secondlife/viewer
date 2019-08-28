@@ -116,6 +116,7 @@
 #include "llcleanup.h"
 
 #include "llenvironment.h"
+#include "llsettingsvo.h"
 
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
@@ -735,6 +736,23 @@ void LLPipeline::throttleNewMemoryAllocation(bool disable)
 	}
 }
 
+void LLPipeline::requestResizeScreenTexture()
+{
+    gResizeScreenTexture = TRUE;
+}
+
+void LLPipeline::requestResizeShadowTexture()
+{
+    gResizeShadowTexture = TRUE;
+}
+
+void LLPipeline::resizeShadowTexture()
+{
+    releaseShadowTargets();
+    allocateShadowBuffer(mScreenWidth, mScreenHeight);
+    gResizeShadowTexture = FALSE;
+}
+
 void LLPipeline::resizeScreenTexture()
 {
 	LL_RECORD_BLOCK_TIME(FTM_RESIZE_SCREEN_TEXTURE);
@@ -743,23 +761,12 @@ void LLPipeline::resizeScreenTexture()
 		GLuint resX = gViewerWindow->getWorldViewWidthRaw();
 		GLuint resY = gViewerWindow->getWorldViewHeightRaw();
 	
-		if ((resX != mScreen.getWidth()) || (resY != mScreen.getHeight()))
+		if (gResizeScreenTexture || (resX != mScreen.getWidth()) || (resY != mScreen.getHeight()))
 		{
 			releaseScreenBuffers();
-		if (!allocateScreenBuffer(resX,resY))
-			{
-#if PROBABLE_FALSE_DISABLES_OF_ALM_HERE
-				//FAILSAFE: screen buffer allocation failed, disable deferred rendering if it's enabled
-			//NOTE: if the session closes successfully after this call, deferred rendering will be 
-			// disabled on future sessions
-			if (LLPipeline::sRenderDeferred)
-			{
-				gSavedSettings.setBOOL("RenderDeferred", FALSE);
-				LLPipeline::refreshCachedSettings();
-
-				}
-#endif
-			}
+            releaseShadowTargets();
+		    allocateScreenBuffer(resX,resY);
+            gResizeScreenTexture = FALSE;
 		}
 	}
 }
@@ -864,9 +871,6 @@ LLPipeline::eFBOStatus LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
 	return ret;
 }
 
- // must be even to avoid a stripe in the horizontal shadow blur
-inline U32 BlurHappySize(U32 x, U32 scale) { return (((x*scale)+1)&~1); }
-
 bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 {
 	refreshCachedSettings();
@@ -934,6 +938,54 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			mDeferredLight.release();
 		}
 
+        allocateShadowBuffer(resX, resY);
+
+        //HACK make screenbuffer allocations start failing after 30 seconds
+        if (gSavedSettings.getBOOL("SimulateFBOFailure"))
+        {
+            return false;
+        }
+    }
+    else
+    {
+        mDeferredLight.release();
+
+        releaseShadowTargets();
+
+		mFXAABuffer.release();
+		mScreen.release();
+		mDeferredScreen.release(); //make sure to release any render targets that share a depth buffer with mDeferredScreen first
+		mDeferredDepth.release();
+		mOcclusionDepth.release();
+						
+		if (!mScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;		
+	}
+	
+	if (LLPipeline::sRenderDeferred)
+	{ //share depth buffer between deferred targets
+		mDeferredScreen.shareDepthBuffer(mScreen);
+	}
+
+	gGL.getTexUnit(0)->disable();
+
+	stop_glerror();
+
+	return true;
+}
+
+// must be even to avoid a stripe in the horizontal shadow blur
+inline U32 BlurHappySize(U32 x, F32 scale) { return U32( x * scale + 16.0f) & ~0xF; }
+
+bool LLPipeline::allocateShadowBuffer(U32 resX, U32 resY)
+{
+	refreshCachedSettings();
+	
+	if (LLPipeline::sRenderDeferred)
+	{
+		S32 shadow_detail = RenderShadowDetail;
+
+		const U32 occlusion_divisor = 3;
+
         F32 scale = RenderShadowResolutionScale;
 		U32 sun_shadow_map_width  = BlurHappySize(resX, scale);
 		U32 sun_shadow_map_height = BlurHappySize(resY, scale);
@@ -987,36 +1039,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
                 releaseShadowTarget(i);
             }
         }
-
-        //HACK make screenbuffer allocations start failing after 30 seconds
-        if (gSavedSettings.getBOOL("SimulateFBOFailure"))
-        {
-            return false;
-        }
     }
-    else
-    {
-        mDeferredLight.release();
-
-        releaseShadowTargets();
-
-		mFXAABuffer.release();
-		mScreen.release();
-		mDeferredScreen.release(); //make sure to release any render targets that share a depth buffer with mDeferredScreen first
-		mDeferredDepth.release();
-		mOcclusionDepth.release();
-						
-		if (!mScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;		
-	}
-	
-	if (LLPipeline::sRenderDeferred)
-	{ //share depth buffer between deferred targets
-		mDeferredScreen.shareDepthBuffer(mScreen);
-	}
-
-	gGL.getTexUnit(0)->disable();
-
-	stop_glerror();
 
 	return true;
 }
@@ -1185,6 +1208,11 @@ void LLPipeline::releaseLUTBuffers()
 	}
 }
 
+void LLPipeline::releaseShadowBuffers()
+{
+    releaseShadowTargets();
+}
+
 void LLPipeline::releaseScreenBuffers()
 {
 	mUIScreen.release();
@@ -1194,8 +1222,7 @@ void LLPipeline::releaseScreenBuffers()
 	mDeferredScreen.release();
 	mDeferredDepth.release();
 	mDeferredLight.release();
-	mOcclusionDepth.release();
-	releaseShadowTargets();
+	mOcclusionDepth.release();	
 }
 
 
@@ -8401,21 +8428,19 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     shader.uniform1f(LLShaderMgr::DEFERRED_DEPTH_CUTOFF, RenderEdgeDepthCutoff);
     shader.uniform1f(LLShaderMgr::DEFERRED_NORM_CUTOFF, RenderEdgeNormCutoff);
     
-    shader.uniform4fv(LLShaderMgr::SUNLIGHT_COLOR, 1, mSunDiffuse.mV);
-    shader.uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, mMoonDiffuse.mV);
-    
-
-    LLEnvironment& environment = LLEnvironment::instance();
-    LLColor4 ambient(environment.getCurrentSky()->getTotalAmbient());
-    shader.uniform4fv(LLShaderMgr::AMBIENT, 1, ambient.mV);
-    shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
-    shader.uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, environment.getCurrentSky()->getSunMoonGlowFactor());
-
     if (shader.getUniformLocation(LLShaderMgr::DEFERRED_NORM_MATRIX) >= 0)
     {
         glh::matrix4f norm_mat = get_current_modelview().inverse().transpose();
         shader.uniformMatrix4fv(LLShaderMgr::DEFERRED_NORM_MATRIX, 1, FALSE, norm_mat.m);
     }
+
+    shader.uniform4fv(LLShaderMgr::SUNLIGHT_COLOR, 1, mSunDiffuse.mV);
+    shader.uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, mMoonDiffuse.mV);
+
+    LLEnvironment& environment = LLEnvironment::instance();
+    LLSettingsSky::ptr_t sky = environment.getCurrentSky();
+
+    static_cast<LLSettingsVOSky*>(sky.get())->updateShader(&shader);
 }
 
 LLColor3 pow3f(LLColor3 v, F32 f)
@@ -9471,14 +9496,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                 if (camera_is_underwater)
                 {
                     clip_plane.disable();
-                }
-
-                // SL-11370 prevent Low/Low-Mid graphics from rendering distortion map contents it should not
-                if (!canUseWindLightShaders())
-                {
-                    clearRenderTypeMask(LLPipeline::RENDER_TYPE_PARTICLES, END_RENDER_TYPES);
-                    clearRenderTypeMask(LLPipeline::RENDER_TYPE_AVATAR, END_RENDER_TYPES);
-                    clearRenderTypeMask(LLPipeline::RENDER_TYPE_VOLUME, END_RENDER_TYPES);
                 }
 
                 updateCull(camera, mRefractedObjects, water_clip, &plane);

@@ -410,7 +410,7 @@ http://secondlife.com/support for help fixing this problem.
 	<string name="favorite">favorite</string>
 	<string name="symbolic link">link</string>
 	<string name="symbolic folder link">folder link</string>
-	<string name="settings blob">settings</string>
+  <string name="settings blob">settings</string>
 	<string name="mesh">mesh</string>
 
 	<!-- llvoavatar. Displayed in the avatar chat bubble -->
@@ -536,7 +536,8 @@ http://secondlife.com/support for help fixing this problem.
 	<string name="ManageEstateSilently">Manage your estates silently</string>
 	<string name="ChangeYourDefaultAnimations">Change your default animations</string>
 	<string name="ForceSitAvatar">Force your avatar to sit</string>
-	<string name="ChangeEnvSettings">Change your environment settings</string>
+	
+<string name="ChangeEnvSettings">Change your environment settings</string>
 	
 	<string name="NotConnected">Not Connected</string>
 	<string name="AgentNameSubst">(You)</string> <!-- Substitution for agent name -->
@@ -2227,6 +2228,7 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="skirt">Skirt</string>
 	<string name="alpha">Alpha</string>
 	<string name="tattoo">Tattoo</string>
+  <string name="universal">Universal</string>
   <string name="physics">Physics</string>
   <string name="invalid">invalid</string>
   <string name="none">none</string>
@@ -2243,6 +2245,7 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="skirt_not_worn">Skirt not worn</string>
 	<string name="alpha_not_worn">Alpha not worn</string>
 	<string name="tattoo_not_worn">Tattoo not worn</string>
+  <string name="universal_not_worn">Universal not worn</string>
   <string name="physics_not_worn">Physics not worn</string>
 	<string name="invalid_not_worn">invalid</string>
 
@@ -2262,6 +2265,7 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="create_new_skirt">Create new skirt</string>
 	<string name="create_new_alpha">Create new alpha</string>
 	<string name="create_new_tattoo">Create new tattoo</string>
+  <string name="create_new_universal">Create new universal</string>
   <string name="create_new_physics">Create new physics</string>
 	<string name="create_new_invalid">invalid</string>
 
@@ -2790,7 +2794,8 @@ If you continue to receive this message, please contact Second Life support for 
 	<!-- Environment settings -->
 	<string name="LocalSettings">Local Settings</string>
 	<string name="RegionSettings">Region Settings</string>
-	<string name="NoEnvironmentSettings">This Region does not support environmental settings.</string>
+
+<string name="NoEnvironmentSettings">This Region does not support environmental settings.</string>
 
 	<string name="EnvironmentSun">Sun</string>
 	<string name="EnvironmentMoon">Moon</string>
@@ -3835,6 +3840,7 @@ Abuse Report</string>
   <string name="New Skirt">New Skirt</string>
   <string name="New Alpha">New Alpha</string>
   <string name="New Tattoo">New Tattoo</string>
+  <string name="New Universal">New Universal</string>
   <string name="New Physics">New Physics</string>
   <string name="Invalid Wearable">Invalid Wearable</string>
   <string name="New Gesture">New Gesture</string>
@@ -3879,7 +3885,8 @@ Abuse Report</string>
   <string name="Female - Shrug">Female - Shrug</string>
   <string name="Female - Stick tougue out">Female - Stick tongue out</string>
   <string name="Female - Wow">Female - Wow</string>
-  <!-- settings -->
+
+<!-- settings -->
   <string name="New Daycycle">New Daycycle</string>
   <string name="New Water">New Water</string>
   <string name="New Sky">New Sky</string>
@@ -4240,7 +4247,8 @@ Try enclosing path to the editor with double quotes.
   <string name="ExperiencePermissionShort10">Control Camera</string>
   <string name="ExperiencePermissionShort11">Teleport</string>
   <string name="ExperiencePermissionShort12">Permission</string>
-  <string name="ExperiencePermissionShort16">Sit</string>
+
+<string name="ExperiencePermissionShort16">Sit</string>
   <string name="ExperiencePermissionShort17">Environment</string>
 
   <!-- Conversation log messages -->

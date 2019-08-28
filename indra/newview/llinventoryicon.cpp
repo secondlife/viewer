@@ -84,6 +84,7 @@ LLIconDictionary::LLIconDictionary()
 	addEntry(LLInventoryType::ICONNAME_CLOTHING_SKIRT, 			new IconEntry("Inv_Skirt"));
 	addEntry(LLInventoryType::ICONNAME_CLOTHING_ALPHA, 			new IconEntry("Inv_Alpha"));
 	addEntry(LLInventoryType::ICONNAME_CLOTHING_TATTOO, 		new IconEntry("Inv_Tattoo"));
+	addEntry(LLInventoryType::ICONNAME_CLOTHING_UNIVERSAL,      new IconEntry("Inv_Universal"));
 	addEntry(LLInventoryType::ICONNAME_ANIMATION, 				new IconEntry("Inv_Animation"));
 	addEntry(LLInventoryType::ICONNAME_GESTURE, 				new IconEntry("Inv_Gesture"));
 
@@ -173,14 +174,8 @@ const std::string& LLInventoryIcon::getIconName(LLAssetType::EType asset_type,
 			break;
 		case LLAssetType::AT_MESH:
 			idx = LLInventoryType::ICONNAME_MESH;
-            break;
-        case LLAssetType::AT_SETTINGS:
-            // TODO: distinguish between Sky and Water settings.
-            idx = assignSettingsIcon(misc_flag);
-            break;
 		case LLAssetType::AT_UNKNOWN:
 			idx = LLInventoryType::ICONNAME_UNKNOWN;
-			break;
 		default:
 			break;
 	}
@@ -199,10 +194,4 @@ LLInventoryType::EIconName LLInventoryIcon::assignWearableIcon(U32 misc_flag)
 {
 	const LLWearableType::EType wearable_type = LLWearableType::inventoryFlagsToWearableType(misc_flag);
 	return LLWearableType::getIconName(wearable_type);
-}
-
-LLInventoryType::EIconName LLInventoryIcon::assignSettingsIcon(U32 misc_flag)
-{
-    LLSettingsType::type_e settings_type = LLSettingsType::fromInventoryFlags(misc_flag);
-    return LLSettingsType::getIconName(settings_type);
 }
