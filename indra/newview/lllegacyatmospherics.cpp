@@ -262,9 +262,6 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, Atm
 	return LLColor4(sky_color, 0.0f);
 }
 
-const F32 NIGHTTIME_ELEVATION = -8.0f; // degrees
-const F32 NIGHTTIME_ELEVATION_SIN = (F32)sinf(NIGHTTIME_ELEVATION*DEG_TO_RAD);
-
 void LLAtmospherics::calcSkyColorWLVert(const LLSettingsSky::ptr_t &psky, LLVector3 & Pn, AtmosphericsVars& vars)
 {
     LLColor3    blue_density = vars.blue_density;
