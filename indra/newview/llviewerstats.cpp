@@ -144,7 +144,8 @@ LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> > TRIANGLES_DRAWN_BY_PA
    { "trianglesdrawnperframestat_pass_alpha" },
    { "trianglesdrawnperframestat_pass_alpha_mask" },
    { "trianglesdrawnperframestat_pass_fullbright_alpha_mask" },
-   { "trianglesdrawnperframestat_pass_alpha_invisible" }
+   { "trianglesdrawnperframestat_pass_alpha_invisible" },
+   { "trianglesdrawnperframestat_pass_unknown" }
 };
 
 LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> > TRIANGLES_DRAWN_BY_PASS_TYPE_PER_FRAME[LLRenderPass::NUM_RENDER_TYPES] = 
@@ -197,7 +198,8 @@ LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> > TRIANGLES_DRAWN_BY_PA
    { "trianglesdrawnperframestat_pass_alpha_perframestat" },
    { "trianglesdrawnperframestat_pass_alpha_mask_perframestat" },
    { "trianglesdrawnperframestat_pass_fullbright_alpha_mask_perframestat" },
-   { "trianglesdrawnperframestat_pass_alpha_invisible_perframestat" }
+   { "trianglesdrawnperframestat_pass_alpha_invisible_perframestat" },
+   { "trianglesdrawnperframestat_pass_unknown" }
 };
 
 LLTrace::CountStatHandle<F64Kilobytes >	

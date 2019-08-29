@@ -67,7 +67,7 @@ LLViewerJoint::~LLViewerJoint()
 //--------------------------------------------------------------------
 // render()
 //--------------------------------------------------------------------
-U32 LLViewerJoint::render(U32 render_pass_type, F32 pixelArea, BOOL first_pass, BOOL is_dummy )
+U32 LLViewerJoint::render(U32 render_pass_type, F32 pixelArea, bool first_pass, bool is_dummy )
 {
 	stop_glerror();
 
@@ -134,7 +134,7 @@ U32 LLViewerJoint::render(U32 render_pass_type, F32 pixelArea, BOOL first_pass, 
 		else
 		{
 			// set up render state
-			triangle_count += drawShape(render_pass_type, pixelArea, first_pass );
+			triangle_count += drawShape(render_pass_type, pixelArea, first_pass, false);
 		}
 	}
 
@@ -163,7 +163,7 @@ U32 LLViewerJoint::render(U32 render_pass_type, F32 pixelArea, BOOL first_pass, 
 //--------------------------------------------------------------------
 // drawShape()
 //--------------------------------------------------------------------
-U32 LLViewerJoint::drawShape(U32 render_pass_type, F32 pixelArea, BOOL first_pass, BOOL is_dummy )
+U32 LLViewerJoint::drawShape(U32 render_pass_type, F32 pixelArea, bool first_pass, bool is_dummy )
 {
 	return 0;
 }

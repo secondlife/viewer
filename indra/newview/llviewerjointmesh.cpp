@@ -220,7 +220,7 @@ int compare_int(const void *a, const void *b)
 //--------------------------------------------------------------------
 // LLViewerJointMesh::drawShape()
 //--------------------------------------------------------------------
-U32 LLViewerJointMesh::drawShape(U32 render_pass_type, F32 pixelArea, BOOL first_pass, BOOL is_dummy)
+U32 LLViewerJointMesh::drawShape(U32 render_pass_type, F32 pixelArea, bool first_pass, bool is_dummy)
 {
 	if (!mValid || !mMesh || !mFace || !mVisible || 
 		!mFace->getVertexBuffer() ||
