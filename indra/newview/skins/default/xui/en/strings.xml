@@ -2209,6 +2209,7 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="skirt">Skirt</string>
 	<string name="alpha">Alpha</string>
 	<string name="tattoo">Tattoo</string>
+  <string name="universal">Universal</string>
   <string name="physics">Physics</string>
   <string name="invalid">invalid</string>
   <string name="none">none</string>
@@ -2225,6 +2226,7 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="skirt_not_worn">Skirt not worn</string>
 	<string name="alpha_not_worn">Alpha not worn</string>
 	<string name="tattoo_not_worn">Tattoo not worn</string>
+  <string name="universal_not_worn">Universal not worn</string>
   <string name="physics_not_worn">Physics not worn</string>
 	<string name="invalid_not_worn">invalid</string>
 
@@ -2244,6 +2246,7 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="create_new_skirt">Create new skirt</string>
 	<string name="create_new_alpha">Create new alpha</string>
 	<string name="create_new_tattoo">Create new tattoo</string>
+  <string name="create_new_universal">Create new universal</string>
   <string name="create_new_physics">Create new physics</string>
 	<string name="create_new_invalid">invalid</string>
 
@@ -3809,6 +3812,7 @@ Abuse Report</string>
   <string name="New Skirt">New Skirt</string>
   <string name="New Alpha">New Alpha</string>
   <string name="New Tattoo">New Tattoo</string>
+  <string name="New Universal">New Universal</string>
   <string name="New Physics">New Physics</string>
   <string name="Invalid Wearable">Invalid Wearable</string>
   <string name="New Gesture">New Gesture</string>
