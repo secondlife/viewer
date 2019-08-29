@@ -621,8 +621,12 @@ private:
 
 	static void initObjectDataMap();
 
-	// forms task inventory request if none are pending
+	// forms task inventory request if none are pending, marks request as pending
 	void fetchInventoryFromServer();
+
+	// forms task inventory request after some time passed, marks request as pending
+	void fetchInventoryDelayed(const F64 &time_seconds);
+	static void fetchInventoryDelayedCoro(const LLUUID task_inv, const F64 time_seconds);
 
 public:
 	//
@@ -807,8 +811,9 @@ protected:
 	enum EInventoryRequestState
 	{
 		INVENTORY_REQUEST_STOPPED,
-		INVENTORY_REQUEST_PENDING,
-		INVENTORY_XFER
+		INVENTORY_REQUEST_WAIT,    // delay before requesting
+		INVENTORY_REQUEST_PENDING, // just did fetchInventoryFromServer()
+		INVENTORY_XFER             // processed response from 'fetch', now doing an xfer
 	};
 	EInventoryRequestState	mInvRequestState;
 	U64						mInvRequestXFerId;
