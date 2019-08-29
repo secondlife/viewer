@@ -2259,6 +2259,7 @@ Unable to create output file: [FILE]
    icon="alertmodal.tga"
    name="DoNotSupportBulkAnimationUpload"
    type="alertmodal">
+    <unique/>
 [APP_NAME] does not currently support bulk upload of BVH format animation files.
   <tag>fail</tag>
   </notification>
@@ -3440,6 +3441,9 @@ Display settings have been set to recommended levels because of a change to the 
    icon="alertmodal.tga"
    name="ErrorMessage"
    type="alertmodal">
+    <unique>
+      <context>ERROR_MESSAGE</context>
+    </unique>
 [ERROR_MESSAGE]
   <tag>fail</tag>
     <usetemplate
