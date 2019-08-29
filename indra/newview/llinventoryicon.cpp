@@ -174,6 +174,9 @@ const std::string& LLInventoryIcon::getIconName(LLAssetType::EType asset_type,
 			break;
 		case LLAssetType::AT_MESH:
 			idx = LLInventoryType::ICONNAME_MESH;
+		case LLAssetType::AT_SETTINGS:
+			idx = assignSettingsIcon(misc_flag);
+			break;
 		case LLAssetType::AT_UNKNOWN:
 			idx = LLInventoryType::ICONNAME_UNKNOWN;
 		default:
@@ -194,4 +197,10 @@ LLInventoryType::EIconName LLInventoryIcon::assignWearableIcon(U32 misc_flag)
 {
 	const LLWearableType::EType wearable_type = LLWearableType::inventoryFlagsToWearableType(misc_flag);
 	return LLWearableType::getIconName(wearable_type);
+}
+
+LLInventoryType::EIconName LLInventoryIcon::assignSettingsIcon(U32 misc_flag)
+{
+	LLSettingsType::type_e settings_type = LLSettingsType::fromInventoryFlags(misc_flag);
+	return LLSettingsType::getIconName(settings_type);
 }
