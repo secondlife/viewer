@@ -1,5 +1,5 @@
 /** 
- * @file llglviewertexture.h
+ * @file llgltexture.h
  * @brief Object for managing opengl textures
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
