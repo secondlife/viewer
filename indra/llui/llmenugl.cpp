@@ -788,6 +788,12 @@ void LLMenuItemCallGL::initFromParams(const Params& p)
 			{
 				setEnabledControlVariable(control);
 			}
+			else
+			{
+				LL_WARNS() << "Failed to assign 'enabled' control variable to menu " << getName()
+							<< ": control " << p.on_enable.control_name()
+							<< " does not exist." << LL_ENDL;
+			}
 		}
 	}
 	if (p.on_click.isProvided())
