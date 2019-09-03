@@ -770,12 +770,16 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
     {
 #ifndef VIVOXDAEMON_REMOTEHOST
         // Launch the voice daemon
-        std::string exe_path = gDirUtilp->getAppRODataDir();
 #if LL_WINDOWS
+		// Note: AppRODataDir() does not work on windows, gives wrong path for RWD builds.
+        std::string exe_path = gDirUtilp->getExecutableDir();
         gDirUtilp->append(exe_path, "SLVoice.exe");
 #elif LL_DARWIN
+		// Maybe AppRODataDir() is needed on mac? There must be some reason the windows setup keeps getting broken.
+        std::string exe_path = gDirUtilp->getAppRODataDir();
         gDirUtilp->append(exe_path, "SLVoice");
 #else
+        std::string exe_path = gDirUtilp->getAppRODataDir();
         gDirUtilp->append(exe_path, "SLVoice");
 #endif
         // See if the vivox executable exists
