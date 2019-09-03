@@ -112,6 +112,8 @@ public:
 private:
 	/** Determines default camera offset depending on the current camera preset */
 	LLVector3 getCameraOffsetInitial();
+	/** Determines maximum camera distance from target for mouselook, opposite to LAND_MIN_ZOOM */
+	F32 getCameraMaxZoomDistance();
 
 	/** Camera preset in Third Person Mode */
 	ECameraPreset mCameraPreset; 

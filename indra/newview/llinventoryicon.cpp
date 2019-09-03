@@ -83,6 +83,7 @@ LLIconDictionary::LLIconDictionary()
 	addEntry(LLInventoryType::ICONNAME_CLOTHING_SKIRT, 			new IconEntry("Inv_Skirt"));
 	addEntry(LLInventoryType::ICONNAME_CLOTHING_ALPHA, 			new IconEntry("Inv_Alpha"));
 	addEntry(LLInventoryType::ICONNAME_CLOTHING_TATTOO, 		new IconEntry("Inv_Tattoo"));
+	addEntry(LLInventoryType::ICONNAME_CLOTHING_UNIVERSAL,      new IconEntry("Inv_Universal"));
 	addEntry(LLInventoryType::ICONNAME_ANIMATION, 				new IconEntry("Inv_Animation"));
 	addEntry(LLInventoryType::ICONNAME_GESTURE, 				new IconEntry("Inv_Gesture"));
 
@@ -93,6 +94,7 @@ LLIconDictionary::LLIconDictionary()
 	addEntry(LLInventoryType::ICONNAME_MESH,	 				new IconEntry("Inv_Mesh"));
 
 	addEntry(LLInventoryType::ICONNAME_INVALID, 				new IconEntry("Inv_Invalid"));
+	addEntry(LLInventoryType::ICONNAME_UNKNOWN, 				new IconEntry("Inv_Unknown"));
 
 	addEntry(LLInventoryType::ICONNAME_NONE, 					new IconEntry("NONE"));
 }
@@ -166,6 +168,8 @@ const std::string& LLInventoryIcon::getIconName(LLAssetType::EType asset_type,
 			break;
 		case LLAssetType::AT_MESH:
 			idx = LLInventoryType::ICONNAME_MESH;
+		case LLAssetType::AT_UNKNOWN:
+			idx = LLInventoryType::ICONNAME_UNKNOWN;
 		default:
 			break;
 	}

@@ -861,13 +861,38 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
 
  	if (!folder_view_item && parent_folder)
   		{
-  			if (objectp->getType() <= LLAssetType::AT_NONE ||
-  				objectp->getType() >= LLAssetType::AT_COUNT)
+			if (objectp->getType() <= LLAssetType::AT_NONE)
+			{
+				LL_WARNS() << "LLInventoryPanel::buildNewViews called with invalid objectp->mType : "
+					<< ((S32)objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID()
+					<< LL_ENDL;
+				return NULL;
+			}
+			
+			if (objectp->getType() >= LLAssetType::AT_COUNT)
   			{
-  				LL_WARNS() << "LLInventoryPanel::buildNewViews called with invalid objectp->mType : "
-                << ((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID()
-                << LL_ENDL;
-  				return NULL;
+				// Example: Happens when we add assets of new, not yet supported type to library
+				LL_DEBUGS() << "LLInventoryPanel::buildNewViews called with unknown objectp->mType : "
+				<< ((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID()
+				<< LL_ENDL;
+
+				LLInventoryItem* item = (LLInventoryItem*)objectp;
+				if (item)
+				{
+					LLInvFVBridge* new_listener = mInvFVBridgeBuilder->createBridge(LLAssetType::AT_UNKNOWN,
+						LLAssetType::AT_UNKNOWN,
+						LLInventoryType::IT_UNKNOWN,
+						this,
+						&mInventoryViewModel,
+						mFolderRoot.get(),
+						item->getUUID(),
+						item->getFlags());
+
+					if (new_listener)
+					{
+						folder_view_item = createFolderViewItem(new_listener);
+					}
+				}
   			}
   		
   			if ((objectp->getType() == LLAssetType::AT_CATEGORY) &&
@@ -1104,12 +1129,16 @@ void LLInventoryPanel::onSelectionChange(const std::deque<LLFolderViewItem*>& it
 	mCompletionObserver->reset();
 	for (std::deque<LLFolderViewItem*>::const_iterator it = items.begin(); it != items.end(); ++it)
 	{
-		LLUUID id = static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem())->getUUID();
-		LLViewerInventoryItem* inv_item = mInventory->getItem(id);
-
-		if (inv_item && !inv_item->isFinished())
+		LLFolderViewModelItemInventory* view_model = static_cast<LLFolderViewModelItemInventory*>((*it)->getViewModelItem());
+		if (view_model)
 		{
-			mCompletionObserver->watchItem(id);
+			LLUUID id = view_model->getUUID();
+			LLViewerInventoryItem* inv_item = mInventory->getItem(id);
+
+			if (inv_item && !inv_item->isFinished())
+			{
+				mCompletionObserver->watchItem(id);
+			}
 		}
 	}
 
@@ -1135,6 +1164,11 @@ void LLInventoryPanel::onSelectionChange(const std::deque<LLFolderViewItem*>& it
 			LLFolderViewModelItemInventory* fve_listener = static_cast<LLFolderViewModelItemInventory*>(folder_item->getViewModelItem());
 			if (fve_listener && (fve_listener->getInventoryType() == LLInventoryType::IT_CATEGORY))
 			{
+				if (fve_listener->getInventoryObject() && fve_listener->getInventoryObject()->getIsLinkType())
+				{
+					return;
+				}
+
 				if(prev_folder_item)
 				{
 					LLFolderBridge* prev_bridge = (LLFolderBridge*)prev_folder_item->getViewModelItem();
@@ -1449,14 +1483,16 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
 //static
 void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const LLUUID& obj_id, BOOL main_panel, BOOL take_keyboard_focus, BOOL reset_filter)
 {
-	LLInventoryPanel *active_panel;
+	LLSidepanelInventory* sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+	sidepanel_inventory->showInventoryPanel();
+
 	bool in_inbox = (gInventory.isObjectDescendentOf(obj_id, gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX)));
 
 	if (main_panel && !in_inbox)
 	{
-		LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory")->selectAllItemsPanel();
+		sidepanel_inventory->selectAllItemsPanel();
 	}
-	active_panel = LLInventoryPanel::getActiveInventoryPanel(auto_open);
+	LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(auto_open);
 
 	if (active_panel)
 	{
@@ -1469,7 +1505,7 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
 
 		if (in_inbox)
 		{
-			LLSidepanelInventory * sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+			
 			LLInventoryPanel * inventory_panel = NULL;
 			sidepanel_inventory->openInbox();
 			inventory_panel = sidepanel_inventory->getInboxPanel();

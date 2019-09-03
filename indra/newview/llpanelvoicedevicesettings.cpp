@@ -39,7 +39,6 @@
 // Library includes (after viewer)
 #include "lluictrlfactory.h"
 
-
 static LLPanelInjector<LLPanelVoiceDeviceSettings> t_panel_group_general("panel_voice_device_settings");
 static const std::string DEFAULT_DEVICE("Default");
 
@@ -233,18 +232,18 @@ void LLPanelVoiceDeviceSettings::refresh()
 	}
 	else if (LLVoiceClient::getInstance()->deviceSettingsUpdated())
 	{
-		LLVoiceDeviceList::const_iterator iter;
+		LLVoiceDeviceList::const_iterator device;
 		
 		if(mCtrlInputDevices)
 		{
 			mCtrlInputDevices->removeall();
 			mCtrlInputDevices->add(getLocalizedDeviceName(DEFAULT_DEVICE), DEFAULT_DEVICE, ADD_BOTTOM);
 
-			for(iter=LLVoiceClient::getInstance()->getCaptureDevices().begin(); 
-				iter != LLVoiceClient::getInstance()->getCaptureDevices().end();
-				iter++)
+			for(device=LLVoiceClient::getInstance()->getCaptureDevices().begin(); 
+				device != LLVoiceClient::getInstance()->getCaptureDevices().end();
+				device++)
 			{
-				mCtrlInputDevices->add(getLocalizedDeviceName(*iter), *iter, ADD_BOTTOM);
+				mCtrlInputDevices->add(getLocalizedDeviceName(device->display_name), device->full_name, ADD_BOTTOM);
 			}
 
 			// Fix invalid input audio device preference.
@@ -261,10 +260,11 @@ void LLPanelVoiceDeviceSettings::refresh()
 			mCtrlOutputDevices->removeall();
 			mCtrlOutputDevices->add(getLocalizedDeviceName(DEFAULT_DEVICE), DEFAULT_DEVICE, ADD_BOTTOM);
 
-			for(iter= LLVoiceClient::getInstance()->getRenderDevices().begin(); 
-				iter !=  LLVoiceClient::getInstance()->getRenderDevices().end(); iter++)
+			for(device = LLVoiceClient::getInstance()->getRenderDevices().begin(); 
+				device !=  LLVoiceClient::getInstance()->getRenderDevices().end();
+                device++)
 			{
-				mCtrlOutputDevices->add(getLocalizedDeviceName(*iter), *iter, ADD_BOTTOM);
+                mCtrlOutputDevices->add(getLocalizedDeviceName(device->display_name), device->full_name, ADD_BOTTOM);
 			}
 
 			// Fix invalid output audio device preference.

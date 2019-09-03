@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llmediadataclient.h"
+#include "llviewercontrol.h"
 
 #if LL_MSVC
 // disable boost::lexical_cast warning
@@ -718,6 +719,13 @@ bool LLObjectMediaDataClient::compareRequestScores(const Request::ptr_t &o1, con
 
 void LLObjectMediaDataClient::enqueue(Request::ptr_t request)
 {
+	static LLCachedControl<bool> audio_streaming_enabled(gSavedSettings, "AudioStreamingMedia", true);
+	if (!audio_streaming_enabled)
+	{
+		LL_DEBUGS("LLMediaDataClient") << "not queueing request when Media is disabled " << *request << LL_ENDL;
+		return;
+	}
+
 	if(request->isDead())
 	{
 		LL_DEBUGS("LLMediaDataClient") << "not queueing dead request " << *request << LL_ENDL;
@@ -978,6 +986,13 @@ const char *LLObjectMediaNavigateClient::getCapabilityName() const
 
 void LLObjectMediaNavigateClient::enqueue(Request::ptr_t request)
 {
+	static LLCachedControl<bool> audio_streaming_enabled(gSavedSettings, "AudioStreamingMedia", true);
+	if (!audio_streaming_enabled)
+	{
+		LL_DEBUGS("LLMediaDataClient") << "not queueing request when Media is disabled " << *request << LL_ENDL;
+		return;
+	}
+
 	if(request->isDead())
 	{
 		LL_DEBUGS("LLMediaDataClient") << "not queuing dead request " << *request << LL_ENDL;

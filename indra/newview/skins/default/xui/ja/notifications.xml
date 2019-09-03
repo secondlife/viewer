@@ -244,6 +244,10 @@
 		注意：このオプションを有効にすると、このパソコンを使うユーザーは誰でも、あなたのお気に入りの場所を見ることができるようになります。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="AllowMultipleViewers">
+		複数の Second Life ビューワを実行することはサポートされていません。テクスチャキャッシュのコリジョンや破損、およびビジュアルとパフォーマンスの低下につながる恐れがあります。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="GrantModifyRights">
 		他人に修正権限を与えると、権限を与えられた人はあなたが所有するインワールドのオブジェクトを変更、削除、持ち帰ることができます。この権限を与える際には十分に注意してください。
 [NAME] に修正権限を与えますか？
@@ -702,6 +706,9 @@ L$ が不足しているのでこのグループに参加することができ�
 		</url>
 		<usetemplate ignoretext="使用中のコンピューターのハードウェアがサポートされていないとき" name="okcancelignore" notext="いいえ" yestext="はい"/>
 	</notification>
+	<notification name="RunLauncher">
+		ビューワ実行ファイルを直接実行しないでください。代わりに、既存のショートカットの内のどれかをアップデートし、SL_Launcher を実行してください。
+	</notification>
 	<notification name="OldGPUDriver">
 		グラフィックスチップに最新のドライバがある可能性があります。グラフィックドライバを更新することにより、大幅にパフォーマンスが向上します。
 
@@ -732,7 +739,9 @@ L$ が不足しているのでこのグループに参加することができ�
 		あなたには [PARCEL] 区画を地形編集する許可がありません。
 	</notification>
 	<notification name="CannotCopyWarning">
-		あなたには[ITEMS]というアイテムをコピーする許可がありません。他の住人に提供すると、そのアイテムはあなたのインベントリから削除されます。本当にこれらのアイテムを譲りますか？
+		あなたには次アイテムをコピーする権限がありません： 
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt; 
+他の住人に譲ると、そのアイテムはあなたの持ち物から削除されます。本当にこれらのアイテムを譲りますか？
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="CannotGiveItem">
@@ -1596,6 +1605,30 @@ SHA1 フィンガープリント： [MD5_DIGEST]
 	<notification name="ProblemAddingEstateManagerBanned">
 		追放された住人を不動産管理者リストに追加できません。
 	</notification>
+	<notification name="ProblemBanningEstateManager">
+		禁止リストに不動産マネージャー [AGENT] を追加できません。
+	</notification>
+	<notification name="GroupIsAlreadyInList">
+		&lt;nolink&gt;[GROUP]&lt;/nolink&gt; はすでに許可されたグループのリストに追加されています。
+	</notification>
+	<notification name="AgentIsAlreadyInList">
+		[AGENT] はすでにあなたの [LIST_TYPE] リストに追加されています。
+	</notification>
+	<notification name="AgentsAreAlreadyInList">
+		[AGENT] はすでにあなたの [LIST_TYPE] リストに追加されています。
+	</notification>
+	<notification name="AgentWasAddedToList">
+		[AGENT] が [ESTATE] の [LIST_TYPE] リストに追加されました。
+	</notification>
+	<notification name="AgentsWereAddedToList">
+		[AGENT] が [ESTATE] の [LIST_TYPE] リストに追加されました。
+	</notification>
+	<notification name="AgentWasRemovedFromList">
+		[AGENT] が [ESTATE] の [LIST_TYPE] リストから削除されました。
+	</notification>
+	<notification name="AgentsWereRemovedFromList">
+		[AGENT] が [ESTATE] の [LIST_TYPE] リストから削除されました。
+	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		衣類およびシェイプが読み込まれるまでは、容姿の変更はできません。
 	</notification>
@@ -1610,153 +1643,29 @@ SHA1 フィンガープリント： [MD5_DIGEST]
 		未加工の地形ファイルをダウンロードしました：
 [DOWNLOAD_PATH]
 	</notification>
-	<notification name="DownloadWindowsMandatory">
-		[APP_NAME] の最新バージョンがご利用可能です。
-[MESSAGE]
-[APP_NAME] をご利用になるにはこのアップデートは必須です。
-		<usetemplate name="okcancelbuttons" notext="終了" yestext="ダウンロード"/>
-	</notification>
-	<notification name="DownloadWindows">
-		[APP_NAME] のアップデートバージョンがご利用可能です。
-[MESSAGE]
-このアップデートは必須ではありませんが、パフォーマンス向上のためにインストールをおすすめします。
-		<usetemplate name="okcancelbuttons" notext="続行" yestext="ダウンロード"/>
-	</notification>
-	<notification name="DownloadWindowsReleaseForDownload">
-		[APP_NAME] のアップデートバージョンがご利用可能です。
-[MESSAGE]
-このアップデートは必須ではありませんが、パフォーマンス向上のためにインストールをおすすめします。
-		<usetemplate name="okcancelbuttons" notext="続行" yestext="ダウンロード"/>
-	</notification>
-	<notification name="DownloadLinuxMandatory">
-		[APP_NAME] の最新バージョンがご利用可能です。
-[MESSAGE]
-[APP_NAME] をご利用になるにはこのアップデートは必須です。
-		<usetemplate name="okcancelbuttons" notext="終了" yestext="ダウンロード"/>
-	</notification>
-	<notification name="DownloadLinux">
-		[APP_NAME] のアップデートバージョンがご利用可能です。
-[MESSAGE]
-このアップデートは必須ではありませんが、パフォーマンス向上のためにインストールをおすすめします。
-		<usetemplate name="okcancelbuttons" notext="続ける" yestext="ダウンロード"/>
-	</notification>
-	<notification name="DownloadLinuxReleaseForDownload">
-		[APP_NAME] のアップデートバージョンがご利用可能です。
-[MESSAGE]
-このアップデートは必須ではありませんが、パフォーマンス向上のためにインストールをおすすめします。
-		<usetemplate name="okcancelbuttons" notext="続ける" yestext="ダウンロード"/>
-	</notification>
-	<notification name="DownloadMacMandatory">
-		[APP_NAME] の最新バージョンがご利用可能です。
-[MESSAGE]
-[APP_NAME] をご利用になるにはこのアップデートは必須です。
-
-あなたのアプリケーションフォルダにダウンロードしますか？
-		<usetemplate name="okcancelbuttons" notext="終了" yestext="ダウンロード"/>
-	</notification>
-	<notification name="DownloadMac">
-		[APP_NAME] のアップデートバージョンがご利用可能です。
-[MESSAGE]
-このアップデートは必須ではありませんが、パフォーマンス向上のためにインストールをおすすめします。
-
-あなたのアプリケーションフォルダにダウンロードしますか？
-		<usetemplate name="okcancelbuttons" notext="続行" yestext="ダウンロード"/>
-	</notification>
-	<notification name="DownloadMacReleaseForDownload">
-		[APP_NAME] のアップデートバージョンがご利用可能です。
-[MESSAGE]
-このアップデートは必須ではありませんが、パフォーマンス向上のためにインストールをおすすめします。
-
-あなたのアプリケーションフォルダにダウンロードしますか？
-		<usetemplate name="okcancelbuttons" notext="続行" yestext="ダウンロード"/>
-	</notification>
-	<notification name="FailedUpdateInstall">
-		ビューワのアップデートをインストール中にエラーが発生しました。
-http://secondlife.com/download から最新バージョンをダウンロードしてインストールしてください。
+	<notification name="RequiredUpdate">
+		ログインするには、バージョン [VERSION] が必要です。
+https://secondlife.com/support/downloads/ からダウンロードしてください。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="FailedRequiredUpdateInstall">
-		必要なアップデートをインストールできませんでした。 
-[APP_NAME] がアップデートされるまでログインできません。
-
-http://secondlife.com/download から最新バージョンをダウンロードしてインストールしてください。
+	<notification name="PauseForUpdate">
+		ログインするには、バージョン [VERSION] が必要です。
+[OK] をクリックして、ダウンロードとインストールを開始します。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OptionalUpdateReady">
+		バージョン [VERSION] のダウンロードが完了し、インストールの準備ができました。
+[OK] をクリックして、インストールを開始します。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PromptOptionalUpdate">
+		バージョン [VERSION] のダウンロードが完了し、インストールの準備ができました。
+続けますか？
+		<usetemplate canceltext="あとで" name="yesnocancelbuttons" notext="スキップ" yestext="インストール"/>
+	</notification>
+	<notification name="LoginFailedUnknown">
+		申し訳ありませんが、不明な理由によってログインに失敗しました。このメッセージが何度も出る場合は、[SUPPORT_SITE] をご確認ください。
 		<usetemplate name="okbutton" yestext="終了"/>
-	</notification>
-	<notification name="UpdaterServiceNotRunning">
-		お使いの Second Life に必要なアップデートがインストールされていません。
-
-このアップデートは、http://www.secondlife.com/downloads からダウンロードして、今すぐインストールできます。
-		<usetemplate name="okcancelbuttons" notext="終了" yestext="今すぐダウンロードしてインストール"/>
-	</notification>
-	<notification name="DownloadBackgroundTip">
-		お使いの [APP_NAME] に必要なアップデートをダウンロードしました。
-バージョン [VERSION] [[RELEASE_NOTES_FULL_URL] このアップデートに関する情報]
-		<usetemplate name="okcancelbuttons" notext="後で実行" yestext="今すぐインストールして [APP_NAME] を再起動"/>
-	</notification>
-	<notification name="DownloadBackgroundDialog">
-		お使いの [APP_NAME] に必要なアップデートをダウンロードしました。
-バージョン [VERSION] [[RELEASE_NOTES_FULL_URL] このアップデートに関する情報]
-		<usetemplate name="okcancelbuttons" notext="後で実行" yestext="今すぐインストールして [APP_NAME] を再起動"/>
-	</notification>
-	<notification name="RequiredUpdateDownloadedVerboseDialog">
-		必要なソフトウェアのアップデートをダウンロードしました。
-バージョン [VERSION] [[INFO_URL] このアップデートに関する情報]
-
-アップデートをインストールするには [APP_NAME] を再起動する必要があります。
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="RequiredUpdateDownloadedDialog">
-		アップデートをインストールするには [APP_NAME] を再起動する必要があります。
-[[INFO_URL] このアップデートに関する情報]
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="OtherChannelDownloadBackgroundTip">
-		お使いの [APP_NAME] に必要なアップデートをダウンロードしました。
-バージョン [VERSION] 
-この試験的なビューアが [NEW_CHANNEL] ビューアに置き換えられています;
-このアップデートの詳細については、[[INFO_URL] を参照してください]
-		<usetemplate name="okcancelbuttons" notext="後で実行" yestext="今すぐインストールして [APP_NAME] を再起動"/>
-	</notification>
-	<notification name="OtherChannelDownloadBackgroundDialog">
-		お使いの [APP_NAME] に必要なアップデートをダウンロードしました。
-バージョン [VERSION]
-この試験的なビューアが [NEW_CHANNEL] ビューアに置き換えられています;
-[[INFO_URL] このアップデートに関する情報] を参照
-		<usetemplate name="okcancelbuttons" notext="後で実行" yestext="今すぐインストールして [APP_NAME] を再起動"/>
-	</notification>
-	<notification name="OtherChannelRequiredUpdateDownloadedVerboseDialog">
-		必要なソフトウェアのアップデートをダウンロードしました。
-バージョン [VERSION]
-この試験的なビューアが [NEW_CHANNEL] ビューアに置き換えられています;
-[[INFO_URL] このアップデートに関する情報] を参照
-
-アップデートをインストールするには [APP_NAME] を再起動する必要があります。
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="OtherChannelRequiredUpdateDownloadedDialog">
-		アップデートをインストールするには [APP_NAME] を再起動する必要があります。
-この試験的なビューアが [NEW_CHANNEL] ビューアに置き換えられています;
-[[INFO_URL] このアップデートに関する情報] を参照
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateDownloadInProgress">
-		アップデートを利用できます。
-バックグラウンドでアップデートをダウンロードしています。準備ができ次第、インストールを完了するために、ビューワを再起動するように求めるメッセージが表示されます。
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateDownloadComplete">
-		アップデートがダウンロードされました。再起動中にインストールされます。
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateCheckError">
-		アップデートの確認中にエラーが発生しました。
-あとでもう一度お試しください。
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateViewerUpToDate">
-		ご利用のビューワは最新です!
-最新の機能と修正を今すぐ試したい場合は、代替ビューワページ (http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers) をチェックしてください。
-		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
 		このオブジェクトを譲渡するとグループは以下のことが可能です：
@@ -1766,10 +1675,6 @@ http://secondlife.com/download から最新バージョンをダウンロード�
 	<notification name="WebLaunchExternalTarget">
 		Web ブラウザを開いてこのコンテンツを表示しますか？
 		<usetemplate ignoretext="ブラウザを起動して Web ページを見るとき" name="okcancelignore" notext="キャンセル" yestext="OK"/>
-	</notification>
-	<notification name="SystemUIScaleFactorChanged">
-		前回実行時からシステム UI サイズ係数が変更されています。UI サイズ調整設定ページを開きますか?
-		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchJoinNow">
 		[http://jp.secondlife.com/account/ マイアカウント] ページに移動してアカウントを管理しますか？
@@ -2044,7 +1949,7 @@ http://wiki.secondlife.com/wiki/Setting_your_display_name を参照してくだ�
 		<usetemplate canceltext="取り消し" name="yesnocancelbuttons" notext="すべての不動産" yestext="この不動産"/>
 	</notification>
 	<notification label="不動産を選択" name="EstateBannedAgentRemove">
-		この住人が、この不動産限定、または [ALL_ESTATES] にアクセスできるように、禁止リストから削除しますか？
+		この住人をこの不動産の立入禁止リストからのみ削除しますか？それとも [ALL_ESTATES] の立入禁止リストから削除しますか？
 		<usetemplate canceltext="取り消し" name="yesnocancelbuttons" notext="すべての不動産" yestext="この不動産"/>
 	</notification>
 	<notification label="不動産を選択" name="EstateManagerAdd">
@@ -3233,15 +3138,6 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 			<button name="Deny" text="拒否"/>
 		</form>
 	</notification>
-	<notification name="UnknownScriptQuestion">
-		&apos;[NAME]&apos; が所有する &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; によってリクエストされたランタイムスクリプト権限がビューアによって認識されないため、許可できません。
-
-この権限を許可するには、ビューアを [DOWNLOADURL] からの最新バージョンにアップデートしてください。
-		<form name="form">
-			<button name="Deny" text="Ok"/>
-			<button name="Mute" text="ブロック"/>
-		</form>
-	</notification>
 	<notification name="ScriptDialog">
 		[NAME] の「&lt;nolink&gt;[TITLE]&lt;/nolink&gt;」
 [MESSAGE]
@@ -3346,13 +3242,22 @@ M キーを押して変更します。
 		[VOICE_CHANNEL_NAME] への接続に失敗しました。あとで再度お試しください。  「近くのボイスチャット」に再接続されます。
 	</notification>
 	<notification name="VoiceEffectsExpired">
-		ボイスモーフィング効果の1つまたは複数の有効期限が終了しました。期限を延長・更新するには[[URL]こちらをクリック]してください。
+		ボイスモーフィング効果の1つまたは複数の有効期限が終了しました。
+期限を延長・更新するには [[URL] Click here] をクリックしてください。
+
+プレミアム会員の方は、 [[PREMIUM_URL] click here] をクリックしてボイスモーフィング特典をお受け取りください。
 	</notification>
 	<notification name="VoiceEffectsExpiredInUse">
-		ボイスモーフィング効果の有効期限が終了したため、あなたの通常のボイス設定が適用されました。期限を延長・更新するには[[URL]こちらをクリック]してください。
+		ボイスモーフィング効果の有効期限が終了したため、あなたの通常のボイス設定が適用されました。
+期限を延長・更新するには [[URL] Click here] をクリックしてください。
+
+プレミアム会員の方は、 [[PREMIUM_URL] click here] をクリックしてボイスモーフィング特典をお受け取りください。
 	</notification>
 	<notification name="VoiceEffectsWillExpire">
-		ボイスモーフィング効果の1つまたは複数の有効期限が[INTERVAL]日以内に終了します。期限を延長・更新するには[[URL]こちらをクリック]してください。
+		ボイスモーフィング効果の1つまたは複数の有効期限が [INTERVAL] 日以内に終了します。
+期限を延長・更新するには [[URL] Click here] をクリックしてください。
+
+プレミアム会員の方は、 [[PREMIUM_URL] click here] をクリックしてボイスモーフィング特典をお受け取りください。
 	</notification>
 	<notification name="VoiceEffectsNew">
 		新しいボイスモーフィング効果が登場！
@@ -3404,8 +3309,14 @@ M キーを押して変更します。
 	<notification name="SnapshotToComputerFailed">
 		スナップショットを [PATH] に保存できませんでした:ディスクの空き容量が不足しています。[NEED_MEMORY]KB が必要ですが、[FREE_MEMORY]KB しかありません。
 	</notification>
+	<notification name="SnapshotToLocalDirNotExist">
+		スナップショットを [PATH] に保存できませんでした:ディレクトリは存在しません。
+	</notification>
 	<notification name="PresetNotSaved">
 		プリセット [NAME] の保存エラー。
+	</notification>
+	<notification name="DefaultPresetNotSaved">
+		デフォルトの事前設定を上書きすることはできません。
 	</notification>
 	<notification name="PresetNotDeleted">
 		プリセット [NAME] の削除エラー。
@@ -3548,6 +3459,10 @@ M キーを押して変更します。
 お使いのルーターの SIP ALG 機能をすべて無効にしてください。
 
 ボイスチャットによるコミュニケーションが利用できません。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="NoVoiceConnect-GIAB">
+		ボイスサーバーに接続できません。ボイスチャットによるコミュニケーションが利用できません。お使いのネットワークやファイアウォールの設定を確認してください。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">
@@ -3886,13 +3801,13 @@ M キーを押して変更します。
 		所有していない土地に木や草を植えることはできません。
 	</notification>
 	<notification name="NoCopyPermsNoObject">
-		オブジェクト &apos;[OBJ_NAME]&apos; をコピーする権限がないため、コピーに失敗しました。
+		あなたにはオブジェクト &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; をコピーする権限がないため、コピーに失敗しました。
 	</notification>
 	<notification name="NoTransPermsNoObject">
-		オブジェクト &apos;[OBJ_NAME]&apos; をあなたに転送できないため、コピーに失敗しました。
+		オブジェクト &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; はあなたに譲渡できないため、コピーに失敗しました。
 	</notification>
 	<notification name="AddToNavMeshNoCopy">
-		オブジェクト &apos;[OBJ_NAME]&apos; がナビメッシュに貢献しているため、コピーに失敗しました。
+		オブジェクト &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; は navmesh に関連があるため、コピーに失敗しました。
 	</notification>
 	<notification name="DupeWithNoRootsSelected">
 		ルートオブジェクトを選択せずに複製します。
@@ -3937,34 +3852,34 @@ M キーを押して変更します。
 		「「持ち物」に保存」が無効になっています。
 	</notification>
 	<notification name="NoExistNoSaveToContents">
-		&apos;[OBJ_NAME]&apos; の Rez 元であるオブジェクトが存在しないため、このオブジェクトをオブジェクトコンテンツに保存できません。
+		「存在しません」から rez されたため、&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; をオブジェクトの中身に保存できませんでした。
 	</notification>
 	<notification name="NoModNoSaveToContents">
-		オブジェクト &apos;[DEST_NAME]&apos; を修正する権限がないため、オブジェクトのコンテンツに &apos;[OBJ_NAME]&apos; を保存できません。
+		あなたにはオブジェクト &lt;nolink&gt;&apos;[DEST_NAME]&apos;&lt;/nolink&gt; を修正する権限がないため、&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;をオブジェクトの中身に保存できませんでした。
 	</notification>
 	<notification name="NoSaveBackToInvDisabled">
-		インベントリに &apos;[OBJ_NAME]&apos; を保存することはできません - この操作が無効になっています。
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; をインベントリに保存できません。この操作は無効になりました。
 	</notification>
 	<notification name="NoCopyNoSelCopy">
-		オブジェクト &apos;[OBJ_NAME]&apos; を変更する権限を持っていないため、選択したものをコピーできません。
+		あなたにはオブジェクト &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; をコピーする権限がないため、選択内容をコピーできません。
 	</notification>
 	<notification name="NoTransNoSelCopy">
-		オブジェクト &apos;[OBJ_NAME]&apos; を転送できないため、選択したものをコピーできません。
+		オブジェクト &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; を譲渡できないため、選択内容をコピーできません。
 	</notification>
 	<notification name="NoTransNoCopy">
-		オブジェクト &apos;[OBJ_NAME]&apos; を転送できないため、選択したものをコピーできません。
+		オブジェクト &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; を譲渡できないため、選択内容をコピーできません。
 	</notification>
 	<notification name="NoPermsNoRemoval">
-		シミュレータからのオブジェクト &apos;[OBJ_NAME]&apos; の削除は、権限システムによって無効にされています。
+		オブジェクト &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; をシミュレーターから削除することは、権限のシステムにより許可されていません。
 	</notification>
 	<notification name="NoModNoSaveSelection">
-		オブジェクト &apos;[OBJ_NAME]&apos; を変更する権限を持っていないため、選択したものを保存できません。
+		あなたにはオブジェクト &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; を修正する権限がないため、選択内容を保存できません。
 	</notification>
 	<notification name="NoCopyNoSaveSelection">
-		オブジェクト &apos;[OBJ_NAME]&apos; をコピーできないため、選択したものを保存できません。
+		オブジェクト &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; はコピー不可なため、選択内容を保存できません。
 	</notification>
 	<notification name="NoModNoTaking">
-		オブジェクト &apos;[OBJ_NAME]&apos; を変更する権限を持っていないため、選択したものを取得できません。
+		あなたにはオブジェクト &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; を修正する権限がないため、選択内容を選ぶことはできません。
 	</notification>
 	<notification name="RezDestInternalError">
 		内部エラー: 不明な宛先タイプ。
@@ -4161,6 +4076,9 @@ M キーを押して変更します。
 	<notification name="CantCreateObjectRegionFull">
 		リクエストされたオブジェクトを作成できません。リージョンが埋まっています。
 	</notification>
+	<notification name="CantCreateAnimatedObjectTooLarge">
+		リグ入三角形の限度数を超えるため、リクエストされたアニメーションオブジェクトを作成することができません。
+	</notification>
 	<notification name="CantAttackMultipleObjOneSpot">
 		1 つの場所に複数のオブジェクトを着用することはできません。
 	</notification>
@@ -4208,6 +4126,21 @@ M キーを押して変更します。
 	</notification>
 	<notification name="CantChangeShape">
 		あなたにはこのシェイプを変更する許可がありません。
+	</notification>
+	<notification name="NoPermsTooManyAttachedAnimatedObjects">
+		この操作を行うと、装着されたアニメーションオブジェクトが限度数を超えます。
+	</notification>
+	<notification name="NoPermsLinkAnimatedObjectTooLarge">
+		結果として、アニメーションオブジェクトがリグ入り三角形の限度数を超えるため、これらのオブジェクトを結合できません。
+	</notification>
+	<notification name="NoPermsSetFlagAnimatedObjectTooLarge">
+		リグ入り三角形の限度数を超えるため、このオブジェクトをアニメーションオブジェクトにすることはできません。
+	</notification>
+	<notification name="CantChangeAnimatedObjectStateInsufficientLand">
+		このオブジェクトをアニメーションオブジェクトの状態に変えると、区画の限度数を超えるため変更できません。
+	</notification>
+	<notification name="ErrorNoMeshData">
+		サーバーエラー： メッシュデータが読み込まれていないため、この操作を完了できません。
 	</notification>
 	<notification name="NoAccessToClaimObjects">
 		現在のアクセス権限では、ここにオブジェクトを取得できません。
@@ -4470,7 +4403,7 @@ M キーを押して変更します。
 		内部エラーが発生したため、ビューワを正しく更新できませんでした。ビューワに表示されるリンデンドルの残高または区画の所有は、サーバー上の実際の残高を反映していない可能性があります。
 	</notification>
 	<notification name="LargePrimAgentIntersect">
-		他のプレイヤーの関心を引く大きなプリムを作成できません。他のプレイヤーが移動したときに再試行してください。
+		他の住民と交差する大きなプリムを作成することはできません。他の住民が移動した場合は再度お試しください。
 	</notification>
 	<notification name="PreferenceChatClearLog">
 		これにより、過去の会話のログ、およびそのファイルのすべてのバックアップが削除されます。

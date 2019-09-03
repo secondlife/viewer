@@ -36,20 +36,25 @@
 #include "llappviewermacosx-objc.h"
 
 #include "llappviewermacosx.h"
+#include "llappviewermacosx-for-objc.h"
 #include "llwindowmacosx-objc.h"
 #include "llcommandlineparser.h"
+#include "llsdserialize.h"
 
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
 #include "llmd5.h"
 #include "llfloaterworldmap.h"
 #include "llurldispatcher.h"
+#include "llerrorcontrol.h"
+#include "llvoavatarself.h"         // for gAgentAvatarp->getFullname()
 #include <ApplicationServices/ApplicationServices.h>
 #ifdef LL_CARBON_CRASH_HANDLER
 #include <Carbon/Carbon.h>
 #endif
 #include <vector>
 #include <exception>
+#include <fstream>
 
 #include "lldir.h"
 #include <signal.h>
@@ -81,7 +86,7 @@ static void exceptionTerminateHandler()
 	gOldTerminateHandler(); // call old terminate() handler
 }
 
-bool initViewer()
+void constructViewer()
 {
 	// Set the working dir to <bundle>/Contents/Resources
 	if (chdir(gDirUtilp->getAppRODataDir().c_str()) == -1)
@@ -97,18 +102,20 @@ bool initViewer()
 	gOldTerminateHandler = std::set_terminate(exceptionTerminateHandler);
 
 	gViewerAppPtr->setErrorHandler(LLAppViewer::handleViewerCrash);
+}
 
-	
+bool initViewer()
+{
 	bool ok = gViewerAppPtr->init();
 	if(!ok)
 	{
 		LL_WARNS() << "Application init failed." << LL_ENDL;
 	}
-    else if (!gHandleSLURL.empty())
-    {
-        dispatchUrl(gHandleSLURL);
-        gHandleSLURL = "";
-    }
+	else if (!gHandleSLURL.empty())
+	{
+		dispatchUrl(gHandleSLURL);
+		gHandleSLURL = "";
+	}
 	return ok;
 }
 
@@ -145,6 +152,73 @@ void cleanupViewer()
 	
 	delete gViewerAppPtr;
 	gViewerAppPtr = NULL;
+}
+
+// The BugsplatMac API is structured as a number of different method
+// overrides, each returning a different piece of metadata. But since we
+// obtain such metadata by opening and parsing a file, it seems ridiculous to
+// reopen and reparse it for every individual string desired. What we want is
+// to open and parse the file once, retaining the data for subsequent
+// requests. That's why this is an LLSingleton.
+// Another approach would be to provide a function that simply returns
+// CrashMetadata, storing the struct in LLAppDelegate, but nat doesn't know
+// enough Objective-C++ to code that. We'd still have to detect which of the
+// method overrides is called first so that the results are order-insensitive.
+class CrashMetadataSingleton: public CrashMetadata, public LLSingleton<CrashMetadataSingleton>
+{
+    LLSINGLETON(CrashMetadataSingleton);
+
+    // convenience method to log each metadata field retrieved by constructor
+    std::string get_metadata(const LLSD& info, const LLSD::String& key) const
+    {
+        std::string data(info[key].asString());
+        LL_INFOS() << "  " << key << "='" << data << "'" << LL_ENDL;
+        return data;
+    }
+};
+
+// Populate the fields of our public base-class struct.
+CrashMetadataSingleton::CrashMetadataSingleton()
+{
+    // Note: we depend on being able to read the static_debug_info.log file
+    // from the *previous* run before we overwrite it with the new one for
+    // *this* run. LLAppViewer initialization must happen in the Right Order.
+    staticDebugPathname = *gViewerAppPtr->getStaticDebugFile();
+    std::ifstream static_file(staticDebugPathname);
+    LLSD info;
+    if (! static_file.is_open())
+    {
+        LL_INFOS() << "Can't open '" << staticDebugPathname
+                   << "'; no metadata about previous run" << LL_ENDL;
+    }
+    else if (! LLSDSerialize::deserialize(info, static_file, LLSDSerialize::SIZE_UNLIMITED))
+    {
+        LL_INFOS() << "Can't parse '" << staticDebugPathname
+                   << "'; no metadata about previous run" << LL_ENDL;
+    }
+    else
+    {
+        LL_INFOS() << "Metadata from '" << staticDebugPathname << "':" << LL_ENDL;
+        logFilePathname      = get_metadata(info, "SLLog");
+        userSettingsPathname = get_metadata(info, "SettingsFilename");
+        OSInfo               = get_metadata(info, "OSInfo");
+        agentFullname        = get_metadata(info, "LoginName");
+        // Translate underscores back to spaces
+        LLStringUtil::replaceChar(agentFullname, '_', ' ');
+        regionName           = get_metadata(info, "CurrentRegion");
+        fatalMessage         = get_metadata(info, "FatalMessage");
+    }
+}
+
+// Avoid having to compile all of our LLSingleton machinery in Objective-C++.
+CrashMetadata& CrashMetadata_instance()
+{
+    return CrashMetadataSingleton::instance();
+}
+
+void infos(const std::string& message)
+{
+    LL_INFOS() << message << LL_ENDL;
 }
 
 int main( int argc, char **argv ) 
@@ -335,68 +409,6 @@ std::string LLAppViewerMacOSX::generateSerialNumber()
 	}
 
 	return serial_md5;
-}
-
-static AudioDeviceID get_default_audio_output_device(void)
-{
-	AudioDeviceID device = 0;
-	UInt32 size = sizeof(device);
-	AudioObjectPropertyAddress device_address = { kAudioHardwarePropertyDefaultOutputDevice,
-												  kAudioObjectPropertyScopeGlobal,
-												  kAudioObjectPropertyElementMaster };
-
-	OSStatus err = AudioObjectGetPropertyData(kAudioObjectSystemObject, &device_address, 0, NULL, &size, &device);
-	if(err != noErr)
-	{
-		LL_DEBUGS("SystemMute") << "Couldn't get default audio output device (0x" << std::hex << err << ")" << LL_ENDL;
-	}
-
-	return device;
-}
-
-//virtual
-void LLAppViewerMacOSX::setMasterSystemAudioMute(bool new_mute)
-{
-	AudioDeviceID device = get_default_audio_output_device();
-
-	if(device != 0)
-	{
-		UInt32 mute = new_mute;
-		AudioObjectPropertyAddress device_address = { kAudioDevicePropertyMute,
-													  kAudioDevicePropertyScopeOutput,
-													  kAudioObjectPropertyElementMaster };
-
-		OSStatus err = AudioObjectSetPropertyData(device, &device_address, 0, NULL, sizeof(mute), &mute);
-		if(err != noErr)
-		{
-			LL_INFOS("SystemMute") << "Couldn't set audio mute property (0x" << std::hex << err << ")" << LL_ENDL;
-		}
-	}
-}
-
-//virtual
-bool LLAppViewerMacOSX::getMasterSystemAudioMute()
-{
-	// Assume the system isn't muted 
-	UInt32 mute = 0;
-
-	AudioDeviceID device = get_default_audio_output_device();
-
-	if(device != 0)
-	{
-		UInt32 size = sizeof(mute);
-		AudioObjectPropertyAddress device_address = { kAudioDevicePropertyMute,
-													  kAudioDevicePropertyScopeOutput,
-													  kAudioObjectPropertyElementMaster };
-
-		OSStatus err = AudioObjectGetPropertyData(device, &device_address, 0, NULL, &size, &mute);
-		if(err != noErr)
-		{
-			LL_DEBUGS("SystemMute") << "Couldn't get audio mute property (0x" << std::hex << err << ")" << LL_ENDL;
-		}
-	}
-	
-	return (mute != 0);
 }
 
 void handleUrl(const char* url_utf8)

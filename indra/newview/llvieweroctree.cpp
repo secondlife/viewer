@@ -465,7 +465,7 @@ LLViewerOctreeGroup::LLViewerOctreeGroup(OctreeNode* node)
 {
 	LLVector4a tmp;
 	tmp.splat(0.f);
-	mExtents[0] = mExtents[1] = mObjectBounds[0] = mObjectBounds[0] = mObjectBounds[1] = 
+	mExtents[0] = mExtents[1] = mObjectBounds[0] = mObjectBounds[1] =
 		mObjectExtents[0] = mObjectExtents[1] = tmp;
 	
 	mBounds[0] = node->getCenter();
@@ -731,7 +731,7 @@ bool LLViewerOctreeGroup::boundObjects(BOOL empty, LLVector4a& minOut, LLVector4
 			update_min_max(newMin, newMax, minMax[0]);
 			update_min_max(newMin, newMax, minMax[1]);
 		}
-		
+
 		mObjectBounds[0].setAdd(newMin, newMax);
 		mObjectBounds[0].mul(0.5f);
 		mObjectBounds[1].setSub(newMax, newMin);

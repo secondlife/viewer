@@ -9,9 +9,11 @@
 		<menu_item_call label="Endroits..." name="Places"/>
 		<menu_item_call label="Favoris..." name="Picks"/>
 		<menu_item_call label="Expériences..." name="Experiences"/>
+		<menu_item_call label="Mes scripts..." name="MyScripts"/>
 		<menu_item_call label="Contrôles de la caméra..." name="Camera Controls"/>
 		<menu label="Déplacement" name="Movement">
 			<menu_item_call label="M&apos;asseoir" name="Sit Down Here"/>
+			<menu_item_call label="Se lever" name="Stand up"/>
 			<menu_item_check label="Voler" name="Fly"/>
 			<menu_item_check label="Toujours courir" name="Always Run"/>
 			<menu_item_call label="Arrêter mon animation" name="Stop Animating My Avatar"/>
@@ -77,9 +79,9 @@
 			<menu_item_check label="Propriétés de la parcelle" name="Parcel Properties"/>
 			<menu_item_check label="Menu Avancé" name="Show Advanced Menu"/>
 		</menu>
-		<menu label="Luminosité" name="Sun">
+		<menu label="Soleil" name="Sun">
 			<menu_item_check label="Aube" name="Sunrise"/>
-			<menu_item_check label="Milieu de journée" name="Noon"/>
+			<menu_item_check label="Midi" name="Noon"/>
 			<menu_item_check label="Coucher de soleil" name="Sunset"/>
 			<menu_item_check label="Minuit" name="Midnight"/>
 			<menu_item_check label="Utiliser les réglages de la région" name="Use Region Settings"/>
@@ -278,7 +280,6 @@
 			<menu_item_check label="Afficher les matrices" name="Show Matrices"/>
 			<menu_item_check label="Afficher la couleur sous le curseur" name="Show Color Under Cursor"/>
 			<menu_item_check label="Afficher la mémoire" name="Show Memory"/>
-			<menu_item_check label="Afficher les infos de mémoire privées" name="Show Private Mem Info"/>
 			<menu_item_check label="Afficher les mises à jour des objets" name="Show Updates"/>
 		</menu>
 		<menu label="Forcer une erreur" name="Force Errors">
@@ -313,6 +314,7 @@
 			<menu_item_check label="Zone de texture" name="Texture Area"/>
 			<menu_item_check label="Zone de face" name="Face Area"/>
 			<menu_item_check label="Infos sur le niveau de détail" name="LOD Info"/>
+			<menu_item_check label="Nombre de triangles" name="Triangle Count"/>
 			<menu_item_check label="File d&apos;attente pour la construction" name="Build Queue"/>
 			<menu_item_check label="Lumières" name="Lights"/>
 			<menu_item_check label="Particules" name="Particles"/>
@@ -425,6 +427,7 @@
 			<menu_item_check label="Afficher le squelette de collision" name="Show Collision Skeleton"/>
 			<menu_item_check label="Voir les os" name="Show Bones"/>
 			<menu_item_check label="Afficher la cible de l&apos;avatar" name="Display Agent Target"/>
+			<menu_item_check label="Afficher les étendues d&apos;imposteur" name="Show Impostor Extents"/>
 			<menu_item_call label="Dump Attachments" name="Dump Attachments"/>
 			<menu_item_call label="Débogage des textures des avatars" name="Debug Avatar Textures"/>
 			<menu_item_call label="Dump Local Textures" name="Dump Local Textures"/>

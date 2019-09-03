@@ -38,17 +38,17 @@
 	<text name="GroupLabel">
 		Gruppo:
 	</text>
-	<check_box label="Condividi" name="share_with_group"/>
+	<check_box label="Condividi" name="share_with_group" tool_tip="Consenti a tutti i membri del gruppo selezionato di condividere i tuoi diritti di modifica per questo oggetto. Per attivare le restrizioni per ruolo devi prima effettuare la cessione."/>
 	<text name="AnyoneLabel">
 		Chiunque:
 	</text>
-	<check_box label="Copia" name="everyone_copy"/>
+	<check_box label="Copia" name="everyone_copy" tool_tip="Chiunque può prendere una copia di questo oggetto. L&apos;oggetto e tutti i suoi contenuti devono avere il permesso di copia e trasferimento."/>
 	<text name="NextOwnerLabel">
 		Proprietario successivo:
 	</text>
-	<check_box label="Modificare" name="next_owner_modify"/>
-	<check_box label="Copiare" name="next_owner_copy"/>
-	<check_box initial_value="true" label="Trasferisci" name="next_owner_transfer" tool_tip="Il prossimo proprietario può regalare o rivendere questo oggetto"/>
+	<check_box label="Modificare" name="next_owner_modify" tool_tip="Il prossimo proprietario può modificare le proprietà dell&apos;oggetto come il nome o la scala."/>
+	<check_box label="Copiare" name="next_owner_copy" tool_tip="Il proprietario successivo può prendere infinite copie di questo oggetto. Le copie mantengono le informazioni sul creatore, e non possono avere permessi maggiori di quelli posseduti dall&apos;oggetto copiato."/>
+	<check_box initial_value="true" label="Trasferisci" name="next_owner_transfer" tool_tip="Il prossimo proprietario può regalare o rivendere questo oggetto."/>
 	<button label="OK" name="ok"/>
 	<button label="Applica" name="apply"/>
 	<button label="Annulla" name="close"/>

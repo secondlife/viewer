@@ -63,6 +63,9 @@
 #include <sstream>
 
 const S32 LOGIN_MAX_RETRIES = 3;
+const F32 LOGIN_SRV_TIMEOUT_MIN = 10;
+const F32 LOGIN_SRV_TIMEOUT_MAX = 120;
+const F32 LOGIN_DNS_TIMEOUT_FACTOR = 0.9; // make DNS wait shorter then retry time
 
 class LLLoginInstance::Disposable {
 public:
@@ -113,6 +116,11 @@ void LLLoginInstance::connect(LLPointer<LLCredential> credentials)
 {
 	std::vector<std::string> uris;
 	LLGridManager::getInstance()->getLoginURIs(uris);
+    if (uris.size() < 1)
+    {
+        LL_WARNS() << "Failed to get login URIs during connect. No connect for you!" << LL_ENDL;
+        return;
+    }
 	connect(uris.front(), credentials);
 }
 
@@ -232,8 +240,10 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 
 	// Specify desired timeout/retry options
 	LLSD http_params;
-	http_params["timeout"] = gSavedSettings.getF32("LoginSRVTimeout");
+	F32 srv_timeout = llclamp(gSavedSettings.getF32("LoginSRVTimeout"), LOGIN_SRV_TIMEOUT_MIN, LOGIN_SRV_TIMEOUT_MAX);
+	http_params["timeout"] = srv_timeout;
 	http_params["retries"] = LOGIN_MAX_RETRIES;
+	http_params["DNSCacheTimeout"] = srv_timeout * LOGIN_DNS_TIMEOUT_FACTOR; //Default: indefinite
 
 	mRequestData.clear();
 	mRequestData["method"] = "login_to_simulator";
@@ -253,13 +263,11 @@ bool LLLoginInstance::handleLoginEvent(const LLSD& event)
 
 	mLoginState = event["state"].asString();
 	mResponseData = event["data"];
-	
+
 	if(event.has("transfer_rate"))
 	{
 		mTransferRate = event["transfer_rate"].asReal();
 	}
-
-	
 
 	// Call the method registered in constructor, if any, for more specific
 	// handling
@@ -276,6 +284,14 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
     // Login has failed. 
     // Figure out why and respond...
     LLSD response = event["data"];
+    LLSD updater  = response["updater"];
+
+    // Always provide a response to the updater, if in fact the updater
+    // contacted us, if in fact the ping contains a 'reply' key. Most code
+    // paths tell it not to proceed with updating.
+    ResponsePtr resp(std::make_shared<LLEventAPI::Response>
+                         (LLSDMap("update", false), updater));
+
     std::string reason_response = response["reason"].asString();
     std::string message_response = response["message"].asString();
     LL_DEBUGS("LLLogin") << "reason " << reason_response
@@ -328,17 +344,44 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
     }
     else if(reason_response == "update")
     {
-        // This shouldn't happen - the viewer manager should have forced an update; 
-        // possibly the user ran the viewer directly and bypassed the update check
+        // This can happen if the user clicked Login quickly, before we heard
+        // back from the Viewer Version Manager, but login failed because
+        // login.cgi is insisting on a required update. We were called with an
+        // event that bundles both the login.cgi 'response' and the
+        // synchronization event from the 'updater'.
         std::string required_version = response["message_args"]["VERSION"];
         LL_WARNS("LLLogin") << "Login failed because an update to version " << required_version << " is required." << LL_ENDL;
 
         if (gViewerWindow)
             gViewerWindow->setShowProgress(FALSE);
 
-        LLSD data(LLSD::emptyMap());
-        data["VERSION"] = required_version;
-        LLNotificationsUtil::add("RequiredUpdate", data, LLSD::emptyMap(), boost::bind(&LLLoginInstance::handleLoginDisallowed, this, _1, _2));
+        LLSD args(LLSDMap("VERSION", required_version));
+        if (updater.isUndefined())
+        {
+            // If the updater failed to shake hands, better advise the user to
+            // download the update him/herself.
+            LLNotificationsUtil::add(
+                "RequiredUpdate",
+                args,
+                updater,
+                boost::bind(&LLLoginInstance::handleLoginDisallowed, this, _1, _2));
+        }
+        else
+        {
+            // If we've heard from the updater that an update is required,
+            // then display the prompt that assures the user we'll take care
+            // of it. This is the one case in which we bind 'resp':
+            // instead of destroying our Response object (and thus sending a
+            // negative reply to the updater) as soon as we exit this
+            // function, bind our shared_ptr so it gets passed into
+            // syncWithUpdater. That ensures that the response is delayed
+            // until the user has responded to the notification.
+            LLNotificationsUtil::add(
+                "PauseForUpdate",
+                args,
+                updater,
+                boost::bind(&LLLoginInstance::syncWithUpdater, this, resp, _1, _2));
+        }
     }
     else if(   reason_response == "key"
             || reason_response == "presence"
@@ -359,6 +402,19 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 
         LLNotificationsUtil::add("LoginFailedUnknown", LLSD::emptyMap(), LLSD::emptyMap(), boost::bind(&LLLoginInstance::handleLoginDisallowed, this, _1, _2));
     }   
+}
+
+void LLLoginInstance::syncWithUpdater(ResponsePtr resp, const LLSD& notification, const LLSD& response)
+{
+    LL_INFOS("LLLogin") << "LLLoginInstance::syncWithUpdater" << LL_ENDL;
+    // 'resp' points to an instance of LLEventAPI::Response that will be
+    // destroyed as soon as we return and the notification response functor is
+    // unregistered. Modify it so that it tells the updater to go ahead and
+    // perform the update. Naturally, if we allowed the user a choice as to
+    // whether to proceed or not, this assignment would reflect the user's
+    // selection.
+    (*resp)["update"] = true;
+    attemptComplete();
 }
 
 void LLLoginInstance::handleLoginDisallowed(const LLSD& notification, const LLSD& response)
@@ -419,7 +475,6 @@ bool LLLoginInstance::handleTOSResponse(bool accepted, const std::string& key)
 	LLEventPumps::instance().obtain(TOS_REPLY_PUMP).stopListening(TOS_LISTENER_NAME);
 	return true;
 }
-
 
 std::string construct_start_string()
 {

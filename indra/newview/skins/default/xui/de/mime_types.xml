@@ -57,6 +57,11 @@
 			Echtzeit-Streaming
 		</label>
 	</scheme>
+	<scheme name="example">
+		<label name="example_label">
+			Beispiel-Plugin-Schema auslösen
+		</label>
+	</scheme>
 	<scheme name="libvlc">
 		<label name="libvlc_label">
 			Von LibVLC unterstützte Medien

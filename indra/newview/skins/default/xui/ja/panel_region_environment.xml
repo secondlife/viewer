@@ -29,5 +29,5 @@
 		</combo_box>
 	</panel>
 	<button label="適用" name="apply_btn"/>
-	<button label="取り消し" name="cancel_btn"/>
+	<button label="キャンセル" name="cancel_btn"/>
 </panel>

@@ -214,10 +214,30 @@ BOOL LLFloaterReporter::postBuild()
 	std::string reporter = LLSLURL("agent", gAgent.getID(), "inspect").getSLURLString();
 	getChild<LLUICtrl>("reporter_field")->setValue(reporter);
 
+	// request categories
+	if (gAgent.getRegion()
+		&& gAgent.getRegion()->capabilitiesReceived())
+	{
+		std::string cap_url = gAgent.getRegionCapability("AbuseCategories");
+
+		if (!cap_url.empty())
+		{
+			std::string lang = gSavedSettings.getString("Language");
+			if (lang != "default" && !lang.empty())
+			{
+				cap_url += "?lc=";
+				cap_url += lang;
+			}
+			LLCoros::instance().launch("LLFloaterReporter::requestAbuseCategoriesCoro",
+				boost::bind(LLFloaterReporter::requestAbuseCategoriesCoro, cap_url, this->getHandle()));
+		}
+	}
+
 	center();
 
 	return TRUE;
 }
+
 // virtual
 LLFloaterReporter::~LLFloaterReporter()
 {
@@ -402,6 +422,65 @@ void LLFloaterReporter::onAvatarNameCache(const LLUUID& avatar_id, const LLAvata
 	}
 }
 
+void LLFloaterReporter::requestAbuseCategoriesCoro(std::string url, LLHandle<LLFloater> handle)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("requestAbuseCategoriesCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status || !result.has("categories")) // success = httpResults["success"].asBoolean();
+    {
+        LL_WARNS() << "Error requesting Abuse Categories from capability: " << url << LL_ENDL;
+        return;
+    }
+
+    if (handle.isDead())
+    {
+        // nothing to do
+        return;
+    }
+
+    LLFloater* floater = handle.get();
+    LLComboBox* combo = floater->getChild<LLComboBox>("category_combo");
+    if (!combo)
+    {
+        LL_WARNS() << "categories category_combo not found!" << LL_ENDL;
+        return;
+    }
+
+    //get selection (in case capability took a while)
+    S32 selection = combo->getCurrentIndex();
+
+    // Combobox should have a "Select category" element;
+    // This is a bit of workaround since there is no proper and simple way to save array of
+    // localizable strings in xml along with data (value). For now combobox is initialized along
+    // with placeholders, and first element is "Select category" which we want to keep, so remove
+    // everything but first element.
+    // Todo: once sim with capability fully releases, just remove this string and all unnecessary
+    // items from combobox since they will be obsolete (or depending on situation remake this to
+    // something better, for example move "Select category" to separate string)
+    while (combo->remove(1));
+
+    LLSD contents = result["categories"];
+
+    LLSD::array_iterator i = contents.beginArray();
+    LLSD::array_iterator iEnd = contents.endArray();
+    for (; i != iEnd; ++i)
+    {
+        const LLSD &message_data(*i);
+        std::string label = message_data["description_localized"];
+        combo->add(label, message_data["category"]);
+    }
+
+    //restore selection
+    combo->selectNthItem(selection);
+}
 
 // static
 void LLFloaterReporter::onClickSend(void *userdata)

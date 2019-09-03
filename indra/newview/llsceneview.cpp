@@ -33,6 +33,7 @@
 #include "llviewerregion.h"
 #include "llagent.h"
 #include "llvolumemgr.h"
+#include "llmeshrepository.h"
 
 LLSceneView* gSceneView = NULL;
 
@@ -129,16 +130,22 @@ void LLSceneView::draw()
 				visible_triangles[idx].push_back(visible);
 				triangles[idx].push_back(high_triangles);
 
-				S32 bytes = 0;
-				S32 visible_bytes = 0;
-
-				F32 streaming = object->getStreamingCost(&bytes, &visible_bytes);
-				total_streaming[idx] += streaming;
-				streaming_cost[idx].push_back(streaming);
+                F32 streaming = object->getStreamingCost();
+                total_streaming[idx] += streaming;
+                streaming_cost[idx].push_back(streaming);
 
 				F32 physics = object->getPhysicsCost();
 				total_physics[idx] += physics;
 				physics_cost[idx].push_back(physics);
+
+				S32 bytes = 0;
+				S32 visible_bytes = 0;
+                LLMeshCostData costs;
+                if (object->getCostData(costs))
+                {
+                    bytes = costs.getSizeTotal();
+                    visible_bytes = costs.getSizeByLOD(object->getLOD());
+                }
 
 				total_bytes[idx] += bytes;
 				total_visible_bytes[idx] += visible_bytes;

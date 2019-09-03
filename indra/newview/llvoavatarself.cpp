@@ -235,6 +235,8 @@ void LLVOAvatarSelf::initInstance()
 	//doPeriodically(output_self_av_texture_diagnostics, 30.0);
 	doPeriodically(update_avatar_rez_metrics, 5.0);
 	doPeriodically(boost::bind(&LLVOAvatarSelf::checkStuckAppearance, this), 30.0);
+
+    mInitFlags |= 1<<2;
 }
 
 void LLVOAvatarSelf::setHoverIfRegionEnabled()
@@ -2606,6 +2608,8 @@ void LLVOAvatarSelf::requestLayerSetUpdate(ETextureIndex index )
 			if( mUpperBodyLayerSet )
 				mUpperBodyLayerSet->requestUpdate(); */
 	const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearanceDictionary::getInstance()->getTexture(index);
+	if (!texture_dict)
+		return;
 	if (!texture_dict->mIsLocalTexture || !texture_dict->mIsUsedByBakedTexture)
 		return;
 	const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
@@ -2622,7 +2626,7 @@ LLViewerTexLayerSet* LLVOAvatarSelf::getLayerSet(ETextureIndex index) const
                case TEX_HEAD_BODYPAINT:
                        return mHeadLayerSet; */
        const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearanceDictionary::getInstance()->getTexture(index);
-       if (texture_dict->mIsUsedByBakedTexture)
+       if (texture_dict && texture_dict->mIsUsedByBakedTexture)
        {
                const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
                return getLayerSet(baked_index);
@@ -2697,6 +2701,12 @@ void LLVOAvatarSelf::onCustomizeEnd(bool disable_camera_switch)
 	}
 }
 
+// virtual
+bool LLVOAvatarSelf::shouldRenderRigged() const
+{
+    return gAgent.needsRenderAvatar(); 
+}
+
 // HACK: this will null out the avatar's local texture IDs before the TE message is sent
 //       to ensure local texture IDs are not sent to other clients in the area.
 //       this is a short-term solution. The long term solution will be to not set the texture
@@ -2758,7 +2768,7 @@ void LLVOAvatarSelf::sendHoverHeight() const
         // class responder if nothing else gets added. 
         // (comment from removed Responder)
         LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, update, 
-            "Hover hight sent to sim", "Hover hight not sent to sim");
+            "Hover height sent to sim", "Hover height not sent to sim");
 		mLastHoverOffsetSent = hover_offset;
 	}
 }
@@ -2791,7 +2801,7 @@ BOOL LLVOAvatarSelf::needsRenderBeam()
 		// don't render selection beam on hud objects
 		is_touching_or_grabbing = FALSE;
 	}
-	return is_touching_or_grabbing || (mState & AGENT_STATE_EDITING && LLSelectMgr::getInstance()->shouldShowSelection());
+	return is_touching_or_grabbing || (getAttachmentState() & AGENT_STATE_EDITING && LLSelectMgr::getInstance()->shouldShowSelection());
 }
 
 // static

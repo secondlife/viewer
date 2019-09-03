@@ -1890,7 +1890,7 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 		GL_TEXTURE_COORD_ARRAY
 	};
 
-	 U32 mask[] = 
+	static const U32 mask[] = 
 	{ //copied from llvertexbuffer.h
 		0x0001, //MAP_VERTEX,
 		0x0002, //MAP_NORMAL,
@@ -2561,5 +2561,11 @@ void LLGLSyncFence::wait()
 #endif
 }
 
-
+#if LL_WINDOWS
+// Expose desired use of high-performance graphics processor to Optimus driver
+extern "C" 
+{ 
+    _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001; 
+}
+#endif
 

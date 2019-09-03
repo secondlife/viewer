@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <role_actions>
 	<action_set description="這些能力包括新增或移除群組成員和允許新成員不受邀即可加入群組的等權力。" name="Membership">
-		<action description="邀請他人加入這個群組" longdescription="欲邀請他人加入這個群組，請按下角色欄下的成員頁籤中的「邀請」按鈕。" name="member invite" value="1"/>
-		<action description="將會員由這個群組中踢出" longdescription="欲將成員從群組踢出，請按下角色欄下的成員頁籤中的「踢出」按鈕。 所有人可踢出任何不具所有人角色的人。 如果你不是所有人，一位成員只在他僅屬於「任何人」角色且沒有其他角色的情況下被踢出群組。 欲卸除成員的角色，你必須有「卸除成員角色」的能力。" name="member eject" value="2"/>
+		<action description="邀請他人加入這個群組" longdescription="欲邀請他人加入這個群組，請按下「角色及成員」欄目下「成員」頁籤的「邀請」按鈕。" name="member invite" value="1"/>
+		<action description="把屬於「任何人」角色的成員踢出這個群組" longdescription="欲將成員從群組踢出，請按「角色及成員」欄下「成員」頁籤的「踢出」按鈕。 所有人可踢出任何不具所有人角色的人。 如果你不是所有人，一位成員只在他僅屬於「任何人」角色且沒有其他角色的情況下被踢出群組。 欲卸除成員的角色，你必須有「卸除成員角色」的能力。" name="member eject" value="2"/>
 		<action description="管理禁入清單" longdescription="允許群組成員控制是否禁止或重新允許居民加入這個群組。" name="allow ban" value="51"/>
 		<action description="切換「免費自由加入」設定，更改「加入費」。" longdescription="切換「免費自由加入」設定，讓成員不受邀也可加入，並在基本設定欄更改「加入費」。" name="member options" value="3"/>
 	</action_set>
 	<action_set description="這些能力包括新增、移除、更改群組角色，新增或移除成員的角色，和為角色設定能力等權力。" name="Roles">
-		<action description="創立一個新角色" longdescription="到角色欄的角色頁籤，可以建立新角色。" name="role create" value="4"/>
-		<action description="刪除角色" longdescription="到角色欄的角色頁籤，可以刪除角色。" name="role delete" value="5"/>
-		<action description="變更角色名稱、頭銜、描述，設定角色的成員名單是否公開" longdescription="變更角色名稱、頭銜、描述，設定角色的成員名單是否公開。 選取一個角色後，可到角色欄底下的角色頁籤完成這動作。" name="role properties" value="6"/>
-		<action description="賦予成員「指派者」角色" longdescription="從已知的指派角色中選擇若干，賦予給成員（角色欄 &gt; 成員頁籤）。 有這能力的成員，只能把他自己已身負的角色賦予給別的成員。" name="role assign member limited" value="7"/>
-		<action description="賦予成員「任何人」角色" longdescription="從已知的指派角色中，賦予給成員「任何人」角色（角色欄 &gt; 成員頁籤）。 *警告* 任何身負具這能力的角色的成員，都可以把某些角色賦予自己或任何不是所有人的成員，因此使自己或別人得到比現在更多的權力，最終可能擁有近似「所有人」的權力。 賦予這項能力之前，敬請慎重考慮。" name="role assign member" value="8"/>
-		<action description="由角色中移除成員" longdescription="從已知的指派角色中選擇，將成員卸除該角色（角色欄 &gt; 成員頁籤）。 所有人角色不得被卸除。" name="role remove member" value="9"/>
-		<action description="設定或卸除角色能力" longdescription="從允許的能力清單中選擇，為每一角色設定或卸除該能力（角色欄 &gt; 角色頁籤）。 *警告* 任何身負具有這能力的角色的成員，都可以將所有能力賦予自己和任何其他不是所有人的人，因此讓自己或他人提升為近似「所有人」權力的層級。 賦予這項能力之前，敬請慎重考慮。" name="role change actions" value="10"/>
+		<action description="創立一個新角色" longdescription="到「角色及成員」欄的「角色」頁籤，可以建立新角色。" name="role create" value="4"/>
+		<action description="刪除角色" longdescription="到「角色及成員」欄的「角色」頁籤，可以刪除角色。" name="role delete" value="5"/>
+		<action description="變更角色名稱、頭銜、描述，設定角色的成員名單是否公開" longdescription="變更角色名稱、頭銜、描述，設定角色的成員名單是否公開。 選取一個角色後，可到「角色及成員」欄底下的「角色」頁籤完成這動作。" name="role properties" value="6"/>
+		<action description="賦予成員「指派者」角色" longdescription="從已知的指派角色中選擇若干，賦予給成員（「角色及成員」欄 &gt; 「成員」頁籤）。 有這能力的成員，只能把他自己已身負的角色賦予給別的成員。" name="role assign member limited" value="7"/>
+		<action description="賦予成員「任何人」角色" longdescription="從已知的指派角色中，賦予給成員「任何人」角色（「角色及成員」欄 &gt; 「成員」頁籤）。 *警告* 任何身負具這能力的角色的成員，都可以把某些角色賦予自己或任何不是所有人的成員，因此使自己或別人得到比現在更多的權力，最終可能擁有近似「所有人」的權力。 賦予這項能力之前，敬請慎重考慮。" name="role assign member" value="8"/>
+		<action description="由角色中移除成員" longdescription="從已知的指派角色中選擇，將成員卸除該角色（「角色及成員」欄 &gt; 「成員」頁籤）。 所有人不得被卸除。" name="role remove member" value="9"/>
+		<action description="設定或卸除角色能力" longdescription="從允許的能力清單中選擇，為每一角色設定或卸除該能力（「角色及成員」欄 &gt; 「角色」頁籤）。 *警告* 任何身負具有這能力的角色的成員，都可以將所有能力賦予自己和任何其他不是所有人的人，因此讓自己或他人提升為近似「所有人」權力的層級。 賦予這項能力之前，敬請慎重考慮。" name="role change actions" value="10"/>
 	</action_set>
 	<action_set description="這些能力包括有權修改群組身份，例如更改公開程度、規章和徽章。" name="Group Identity">
 		<action description="更改規章、徽章，設定是否「顯示於搜尋結果」。" longdescription="更改規章、徽章，設定是否「顯示於搜尋結果」。 這可在「基本資料」欄設定。" name="group change identity" value="11"/>

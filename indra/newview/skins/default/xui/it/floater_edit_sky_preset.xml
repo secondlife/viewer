@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Edit Sky Preset" title="Modifica predefiniti cielo">
+<floater name="Edit Sky Preset" title="Modifica valore predefinito cielo">
 	<string name="title_new">
-		Crea un nuovo valore predefinito per il cielo
+		Crea un nuovo valore predefinito cielo
 	</string>
 	<string name="title_edit">
-		Modifica predefiniti cielo
+		Modifica valore predefinito cielo
 	</string>
 	<string name="hint_new">
-		Dai un nome al valore predefinito, modifica i controlli per crearlo e fai clic su &quot;Salva&quot;.
+		Dai un nome al valore predefinito, regola i comandi per crearlo e fai clic su &quot;Salva&quot;.
 	</string>
 	<string name="hint_edit">
-		Per modificare il valore predefinito per il cielo, modifica i controlli e fai clic su &quot;Salva&quot;.
+		Per modificare il valore predefinito cielo, regola i comandi e fai clic su &quot;Salva&quot;.
 	</string>
 	<string name="combo_label">
 		-Seleziona un valore predefinito-
 	</string>
 	<text name="hint">
-		Per modificare i valori predefiniti, modifica i controlli e quindi fai clic su &quot;Salva&quot;
+		Per modificare il valore predefinito, regola i comandi e quindi fai clic su &quot;Salva&quot;
 	</text>
 	<text name="label">
 		Nome predefinito:
@@ -61,7 +61,7 @@
 			<slider label="Centro focale" name="WLGlowB"/>
 			<slider label="Dimensioni" name="WLGlowR"/>
 			<text name="WLStarText">
-				Luminosità cielo
+				Luminosità stella
 			</text>
 			<text name="SceneGammaText">
 				Gamma scena
@@ -89,18 +89,18 @@
 				00:00
 			</text>
 			<text name="WL6am">
-				06:00:00
+				06.00
 			</text>
 			<text name="WL12pmHash">
-				12:00:00
+				12:00
 			</text>
 			<text name="WL6pm">
-				18:00:00
+				18:00
 			</text>
 			<text name="WL12am2">
 				00:00
 			</text>
-			<time name="WLDayTime" value="06:00:00"/>
+			<time name="WLDayTime" value="06:00"/>
 			<text name="WLEastAngleText">
 				Angolo est
 			</text>

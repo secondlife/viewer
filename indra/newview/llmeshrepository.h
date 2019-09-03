@@ -177,6 +177,21 @@ public:
 
 };
 
+class RequestStats
+{
+public:
+    RequestStats() : mRetries(0) {};
+
+    void updateTime();
+    bool canRetry() const;
+    bool isDelayed() const;
+    U32 getRetries() { return mRetries; }
+
+private:
+    U32 mRetries;
+    LLFrameTimer mTimer;
+};
+
 class LLMeshRepoThread : public LLThread
 {
 public:
@@ -197,14 +212,14 @@ public:
 	mesh_header_map mMeshHeader;
 	
 	std::map<LLUUID, U32> mMeshHeaderSize;
-	
-	class HeaderRequest
+
+	class HeaderRequest : public RequestStats
 	{ 
 	public:
 		const LLVolumeParams mMeshParams;
 
 		HeaderRequest(const LLVolumeParams&  mesh_params)
-			: mMeshParams(mesh_params)
+			: RequestStats(), mMeshParams(mesh_params)
 		{
 		}
 
@@ -214,7 +229,7 @@ public:
 		}
 	};
 
-	class LODRequest
+	class LODRequest : public RequestStats
 	{
 	public:
 		LLVolumeParams  mMeshParams;
@@ -222,7 +237,7 @@ public:
 		F32 mScore;
 
 		LODRequest(const LLVolumeParams&  mesh_params, S32 lod)
-			: mMeshParams(mesh_params), mLOD(lod), mScore(0.f)
+			: RequestStats(), mMeshParams(mesh_params), mLOD(lod), mScore(0.f)
 		{
 		}
 	};
@@ -234,7 +249,22 @@ public:
 			return lhs.mScore > rhs.mScore; // greatest = first
 		}
 	};
-	
+
+	class UUIDBasedRequest : public RequestStats
+	{
+	public:
+		LLUUID mId;
+
+		UUIDBasedRequest(const LLUUID& id)
+			: RequestStats(), mId(id)
+		{
+        }
+
+        bool operator<(const UUIDBasedRequest& rhs) const
+        {
+            return mId < rhs.mId;
+        }
+	};
 
 	class LoadedMesh
 	{
@@ -251,16 +281,16 @@ public:
 	};
 
 	//set of requested skin info
-	std::set<LLUUID> mSkinRequests;
+	std::set<UUIDBasedRequest> mSkinRequests;
 	
 	// list of completed skin info requests
 	std::list<LLMeshSkinInfo> mSkinInfoQ;
 
 	//set of requested decompositions
-	std::set<LLUUID> mDecompositionRequests;
+	std::set<UUIDBasedRequest> mDecompositionRequests;
 
 	//set of requested physics shapes
-	std::set<LLUUID> mPhysicsShapeRequests;
+	std::set<UUIDBasedRequest> mPhysicsShapeRequests;
 
 	// list of completed Decomposition info requests
 	std::list<LLModel::Decomposition*> mDecompositionQ;
@@ -304,8 +334,8 @@ public:
 	void lockAndLoadMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
 	void loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
 
-	bool fetchMeshHeader(const LLVolumeParams& mesh_params);
-	bool fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
+	bool fetchMeshHeader(const LLVolumeParams& mesh_params, bool can_retry = true);
+	bool fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, bool can_retry = true);
 	bool headerReceived(const LLVolumeParams& mesh_params, U8* data, S32 data_size);
 	EMeshProcessingResult lodReceived(const LLVolumeParams& mesh_params, S32 lod, U8* data, S32 data_size);
 	bool skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
@@ -460,6 +490,53 @@ private:
 	LLCore::HttpRequest::priority_t		mHttpPriority;
 };
 
+// Params related to streaming cost, render cost, and scene complexity tracking.
+class LLMeshCostData
+{
+public:
+    LLMeshCostData();
+
+    bool init(const LLSD& header);
+    
+    // Size for given LOD
+    S32 getSizeByLOD(S32 lod);
+
+    // Sum of all LOD sizes.
+    S32 getSizeTotal();
+
+    // Estimated triangle counts for the given LOD.
+    F32 getEstTrisByLOD(S32 lod);
+    
+    // Estimated triangle counts for the largest LOD. Typically this
+    // is also the "high" LOD, but not necessarily.
+    F32 getEstTrisMax();
+
+    // Triangle count as computed by original streaming cost
+    // formula. Triangles in each LOD are weighted based on how
+    // frequently they will be seen.
+    // This was called "unscaled_value" in the original getStreamingCost() functions.
+    F32 getRadiusWeightedTris(F32 radius);
+
+    // Triangle count used by triangle-based cost formula. Based on
+    // triangles in highest LOD plus potentially partial charges for
+    // lower LODs depending on complexity.
+    F32 getEstTrisForStreamingCost();
+
+    // Streaming cost. This should match the server-side calculation
+    // for the corresponding volume.
+    F32 getRadiusBasedStreamingCost(F32 radius);
+
+    // New streaming cost formula, currently only used for animated objects.
+    F32 getTriangleBasedStreamingCost();
+
+private:
+    // From the "size" field of the mesh header. LOD 0=lowest, 3=highest.
+    std::vector<S32> mSizeByLOD;
+
+    // Estimated triangle counts derived from the LOD sizes. LOD 0=lowest, 3=highest.
+    std::vector<F32> mEstTrisByLOD;
+};
+
 class LLMeshRepository
 {
 public:
@@ -481,8 +558,13 @@ public:
 	
 	static LLDeadmanTimer sQuiescentTimer;		// Time-to-complete-mesh-downloads after significant events
 
-	F32 getStreamingCost(LLUUID mesh_id, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL, LLSD *sdp = NULL);
-	static F32 getStreamingCost(LLSD& header, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL, LLSD *sdp = NULL);
+    // Estimated triangle count of the largest LOD
+    F32 getEstTrianglesMax(LLUUID mesh_id);
+    F32 getEstTrianglesStreamingCost(LLUUID mesh_id);
+	F32 getStreamingCostLegacy(LLUUID mesh_id, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
+	static F32 getStreamingCostLegacy(LLSD& header, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
+    bool getCostData(LLUUID mesh_id, LLMeshCostData& data);
+    bool getCostData(LLSD& header, LLMeshCostData& data);
 
 	LLMeshRepository();
 
@@ -592,6 +674,9 @@ public:
 };
 
 extern LLMeshRepository gMeshRepo;
+
+const F32 ANIMATED_OBJECT_BASE_COST = 15.0f;
+const F32 ANIMATED_OBJECT_COST_PER_KTRI = 1.5f;
 
 #endif
 

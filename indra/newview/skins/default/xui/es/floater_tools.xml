@@ -58,9 +58,6 @@
 	<button label="Enlazar" name="link_btn"/>
 	<button label="Desenlazar" name="unlink_btn" width="95"/>
 	<check_box label="Estirar ambos lados" name="checkbox uniform"/>
-	<text label="Estirar ambos lados" name="checkbox uniform label">
-		Estirar ambos lados
-	</text>
 	<check_box initial_value="true" label="Estirar las texturas" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Intervalo" name="checkbox snap to grid"/>
 	<button label="Opciones..." label_selected="Opciones..." name="Options..." tool_tip="Ver más opciones de la cuadrícula"/>
@@ -155,9 +152,11 @@
 			<text name="Name:">
 				Nombre:
 			</text>
+			<line_editor name="Object Name" tool_tip="El nombre está limitado a 63 caracteres. Los nombres de prim más largos deberán abreviarse. Los nombres solo pueden tener caracteres imprimibles que formen parte del código de caracteres ASCII-7 (no extendido), exceptuando la barra vertical «|»."/>
 			<text name="Description:">
 				Descripción:
 			</text>
+			<line_editor name="Object Description" tool_tip="Cuando la opción «Mostrar Consejos al pasar el cursor en Todos los objetos» en los parámetros del visor esté seleccionada, cada vez que coloques el cursor del mouse sobre un objeto aparecerá su descripción. La descripción del prim está limitada a 127 bytes, cualquier string más larga quedará recortada."/>
 			<text name="Creator:">
 				Creador:
 			</text>
@@ -174,17 +173,18 @@
 			<text name="label click action">
 				Al tocarlo:
 			</text>
-			<combo_box name="clickaction">
+			<combo_box name="clickaction" tool_tip="Si haces clic izquierdo podrás interactuar con un objeto.  Cada vez que hagas clic aparecerá un cursor indicando en qué consiste. Algunas acciones de clic tienen ciertos requerimientos para poder funcionar. Por ejemplo Tocar y Pagar requiere scripts">
 				<combo_box.item label="Tocarlo (por defecto)" name="Touch/grab(default)"/>
 				<combo_box.item label="Sentarse en el objeto" name="Sitonobject"/>
 				<combo_box.item label="Comprar el objeto" name="Buyobject"/>
 				<combo_box.item label="Pagar al objeto" name="Payobject"/>
 				<combo_box.item label="Abrirlo" name="Open"/>
 				<combo_box.item label="Zoom" name="Zoom"/>
+				<combo_box.item label="Ninguno" name="None"/>
 			</combo_box>
-			<check_box label="En venta:" name="checkbox for sale"/>
-			<spinner label="L$" name="Edit Cost"/>
-			<combo_box name="sale type">
+			<check_box label="En venta:" name="checkbox for sale" tool_tip="Permite a las personas comprar este objeto, su contenido o su copia en el mundo virtual al precio indicado."/>
+			<spinner label="L$" name="Edit Cost" tool_tip="Precio del objeto."/>
+			<combo_box name="sale type" tool_tip="Selecciona si el comprador recibirá una copia, una copia del contenido o el objeto propiamente dicho.">
 				<combo_box.item label="Copia" name="Copy"/>
 				<combo_box.item label="Contenidos" name="Contents"/>
 				<combo_box.item label="Original" name="Original"/>
@@ -197,14 +197,14 @@
 				<text name="Anyone can:">
 					Cualquiera:
 				</text>
-				<check_box label="Moverlo" name="checkbox allow everyone move"/>
-				<check_box label="Copiarlo" name="checkbox allow everyone copy"/>
+				<check_box label="Moverlo" name="checkbox allow everyone move" tool_tip="Todos pueden mover el objeto."/>
+				<check_box label="Copiarlo" name="checkbox allow everyone copy" tool_tip="Todos pueden tomar una copia del objeto. El objeto y todos sus contenidos deben tener un permiso para copiar y transferir."/>
 				<text name="Next owner can:">
 					Próximo propietario:
 				</text>
-				<check_box label="Modificarlo" name="checkbox next owner can modify"/>
-				<check_box label="Copiarlo" left_delta="80" name="checkbox next owner can copy"/>
-				<check_box label="Transferirlo" left_delta="67" name="checkbox next owner can transfer" tool_tip="El próximo propietario puede dar o revender este objeto"/>
+				<check_box label="Modificarlo" name="checkbox next owner can modify" tool_tip="El próximo propietario puede editar ciertas propiedades como el nombre o la escala del objeto."/>
+				<check_box label="Copiarlo" left_delta="80" name="checkbox next owner can copy" tool_tip="El próximo propietario puede realizar copias ilimitadas de este objeto. Las copias mantienen la información del creador y nunca pueden ser más permisivas que el objeto que se está copiando."/>
+				<check_box label="Transferirlo" left_delta="67" name="checkbox next owner can transfer" tool_tip="El próximo propietario puede dar o revender este objeto."/>
 				<text name="B:">
 					B:
 				</text>
@@ -352,6 +352,7 @@
 			<text name="edit_object">
 				Editar las características del objeto:
 			</text>
+			<check_box label="Malla animada" name="Animated Mesh Checkbox Ctrl" tool_tip="Permite que los objetos de malla aparejados estén animados de manera independiente"/>
 			<check_box label="Flexibilidad" name="Flexible1D Checkbox Ctrl" tool_tip="Permite que el objeto flexione en el eje Z (sólo del lado del cliente)"/>
 			<spinner label="Blandura" name="FlexNumSections"/>
 			<spinner label="Gravedad" name="FlexGravity"/>
@@ -388,82 +389,7 @@
 			<spinner label="Densidad en 100 kg/m^3" name="Physics Density"/>
 			<spinner label="Reemplazo" name="Physics Restitution"/>
 		</panel>
-		<panel label="Textura" name="Texture">
-			<panel.string name="string repeats per meter">
-				Repeticiones por m.
-			</panel.string>
-			<panel.string name="string repeats per face">
-				Repeticiones por cara
-			</panel.string>
-			<texture_picker label="Textura" name="texture control" tool_tip="Pulse para elegir una imagen"/>
-			<color_swatch label="Color" name="colorswatch" tool_tip="Pulsa para abrir el selector de color"/>
-			<text name="color trans">
-				Transparencia %
-			</text>
-			<text name="glow label">
-				Resplandor
-			</text>
-			<check_box bottom_delta="-21" label="Brillo al  máximo" name="checkbox fullbright"/>
-			<text name="tex gen">
-				Detallado
-			</text>
-			<combo_box name="combobox texgen">
-				<combo_box.item label="Por defecto" name="Default"/>
-				<combo_box.item label="Plano" name="Planar"/>
-			</combo_box>
-			<text name="label shininess">
-				Brillantez
-			</text>
-			<combo_box name="combobox shininess">
-				<combo_box.item label="Ninguna" name="None"/>
-				<combo_box.item label="Baja" name="Low"/>
-				<combo_box.item label="Media" name="Medium"/>
-				<combo_box.item label="Alta" name="High"/>
-			</combo_box>
-			<text name="label bumpiness">
-				Relieve
-			</text>
-			<combo_box name="combobox bumpiness">
-				<combo_box.item label="Ninguno" name="None"/>
-				<combo_box.item label="Brillo" name="Brightness"/>
-				<combo_box.item label="Oscuro" name="Darkness"/>
-				<combo_box.item label="grano de madera" name="woodgrain"/>
-				<combo_box.item label="corteza" name="bark"/>
-				<combo_box.item label="ladrillos" name="bricks"/>
-				<combo_box.item label="cajero" name="checker"/>
-				<combo_box.item label="cemento" name="concrete"/>
-				<combo_box.item label="azulejería" name="crustytile"/>
-				<combo_box.item label="piedra cortada" name="cutstone"/>
-				<combo_box.item label="discos" name="discs"/>
-				<combo_box.item label="grava" name="gravel"/>
-				<combo_box.item label="placa de Petri" name="petridish"/>
-				<combo_box.item label="revestimiento" name="siding"/>
-				<combo_box.item label="baldosa de piedra" name="stonetile"/>
-				<combo_box.item label="estuco" name="stucco"/>
-				<combo_box.item label="succión" name="suction"/>
-				<combo_box.item label="tejido" name="weave"/>
-			</combo_box>
-			<spinner label="Horizontal (U)" name="TexScaleU"/>
-			<check_box label="Voltear" name="checkbox flip s"/>
-			<spinner label="Vertical (V)" name="TexScaleV"/>
-			<check_box label="Voltear" name="checkbox flip t"/>
-			<spinner label="Rotación" name="TexRot"/>
-			<button label="Aplicar" label_selected="Aplicar" name="button apply"/>
-			<text name="tex offset">
-				Desplazar
-			</text>
-			<spinner label="Horizontal (U)" name="TexOffsetU"/>
-			<spinner label="Vertical (V)" name="TexOffsetV"/>
-			<panel name="Add_Media">
-				<text name="media_tex">
-					Media
-				</text>
-				<button name="add_media" tool_tip="Añadir un media"/>
-				<button name="delete_media" tool_tip="Borrar esta textura para media"/>
-				<button name="edit_media" tool_tip="Editar este media"/>
-				<button label="Centrar" label_selected="Centrar los media" name="button align" tool_tip="Centrar esta textura para media (primero debe cargarse)"/>
-			</panel>
-		</panel>
+		<panel label="Textura" name="Texture"/>
 		<panel label="Contenido " name="Contents">
 			<button label="Script nuevo" label_selected="Script nuevo" name="button new script"/>
 			<button label="Permisos" name="button permissions"/>

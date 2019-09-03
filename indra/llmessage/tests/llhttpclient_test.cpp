@@ -41,6 +41,7 @@
 #include "llpumpio.h"
 
 #include "lliosocket.h"
+#include "llstring.h"
 #include "stringize.h"
 #include "llcleanup.h"
 
@@ -50,13 +51,13 @@ namespace tut
 	{
 	public:
 		HTTPClientTestData():
-			PORT(getenv("PORT")),
+			PORT(LLStringUtil::getenv("PORT")),
 			// Turning NULL PORT into empty string doesn't make things work;
 			// that's just to keep this initializer from blowing up. We test
 			// PORT separately in the constructor body.
-			local_server(STRINGIZE("http://127.0.0.1:" << (PORT? PORT : "") << "/"))
+			local_server(STRINGIZE("http://127.0.0.1:" << PORT << "/"))
 		{
-			ensure("Set environment variable PORT to local test server port", PORT);
+			ensure("Set environment variable PORT to local test server port", !PORT.empty());
 			apr_pool_create(&mPool, NULL);
 			LLCurl::initClass(false);
 			mClientPump = new LLPumpIO(mPool);
@@ -87,7 +88,7 @@ namespace tut
 			}
 		}
 
-		const char* const PORT;
+		const std::string PORT;
 		const std::string local_server;
 
 	private:

@@ -73,9 +73,6 @@
 	<button label="リンク" name="link_btn"/>
 	<button label="リンクを外す" name="unlink_btn"/>
 	<check_box label="両側を引き伸ばす" name="checkbox uniform"/>
-	<text label="両側を延ばす" name="checkbox uniform label">
-		両側を延ばす
-	</text>
 	<check_box initial_value="true" label="テクスチャを引き延ばす" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="スナップ" name="checkbox snap to grid"/>
 	<combo_box name="combobox grid mode" tool_tip="オブジェクトの配置に使うグリッドルーラの種類を選択">
@@ -175,9 +172,11 @@
 			<text name="Name:">
 				名前：
 			</text>
+			<line_editor name="Object Name" tool_tip="使用できる名前の文字数は最大 63 文字までです。長いプリム名は短縮されます。名前に使用できる文字は ASCII-7 （非拡張）に含まれる印字可能な文字のみです（縦線「|」は例外）。"/>
 			<text name="Description:">
 				説明：
 			</text>
+			<line_editor name="Object Description" tool_tip="ビューワの設定で [すべてのオブジェクト上でヒントを表示] が選択されている場合、オブジェクトにマウスのポインタをかざすとそのオブジェクトの説明がポップアップ表示されます。プリムの説明は最大 127 バイトまでに制限されているため、それよりも長い文字列は切り捨てられます。"/>
 			<text name="Creator:">
 				制作者：
 			</text>
@@ -200,17 +199,18 @@
 			<text name="label click action">
 				クリックで：
 			</text>
-			<combo_box name="clickaction">
+			<combo_box name="clickaction" tool_tip="マウスを 1 回左クリックすると、オブジェクトに対してアクションを起こせるようになります。各クリックアクションには、何ができるかを示す特別なカーソルがあります。クリックアクションによっては、動作要件が必要なものもあります。たとえば、[タッチ] や [支払い] にはスクリプトが必要になるなどです">
 				<combo_box.item label="触る（デフォルト）" name="Touch/grab(default)"/>
 				<combo_box.item label="オブジェクトに座る" name="Sitonobject"/>
 				<combo_box.item label="オブジェクトを購入する" name="Buyobject"/>
 				<combo_box.item label="オブジェクトに支払う" name="Payobject"/>
 				<combo_box.item label="開く" name="Open"/>
 				<combo_box.item label="ズームする" name="Zoom"/>
+				<combo_box.item label="なし" name="None"/>
 			</combo_box>
-			<check_box label="販売対象：" name="checkbox for sale"/>
-			<spinner label="L$" name="Edit Cost"/>
-			<combo_box name="sale type">
+			<check_box label="販売対象：" name="checkbox for sale" tool_tip="このオブジェクトやオブジェクトの中身が購入できるようになるか、指定価格でインワールドにコピーできるようになります。"/>
+			<spinner label="L$" name="Edit Cost" tool_tip="オブジェクトの価格。"/>
+			<combo_box name="sale type" tool_tip="購入者がコピー、コピーの中身、またはアイテム自体を受け取るのか選択してください。">
 				<combo_box.item label="コピー" name="Copy"/>
 				<combo_box.item label="中身" name="Contents"/>
 				<combo_box.item label="オリジナル" name="Original"/>
@@ -223,14 +223,14 @@
 				<text name="Anyone can:">
 					全員：
 				</text>
-				<check_box label="移動" name="checkbox allow everyone move"/>
-				<check_box label="コピー" name="checkbox allow everyone copy"/>
+				<check_box label="移動" name="checkbox allow everyone move" tool_tip="オブジェクトは誰でも動かすことができます。"/>
+				<check_box label="コピー" name="checkbox allow everyone copy" tool_tip="オブジェクトのコピーは誰でも受け取ることができます。オブジェクトとそのオブジェクトの中身はすべて、コピーまたは譲渡できるように設定する必要があります。"/>
 				<text name="Next owner can:">
 					次の所有者：
 				</text>
-				<check_box label="修正" name="checkbox next owner can modify"/>
-				<check_box label="コピー" name="checkbox next owner can copy"/>
-				<check_box label="再販・プレゼント" name="checkbox next owner can transfer" tool_tip="次に所有する人は、このオブジェクトを他人にあげたり再販できます"/>
+				<check_box label="修正" name="checkbox next owner can modify" tool_tip="次の所有者は、アイテム名などのプロパティ内容を編集したり、このオブジェクトのサイズを変更することができます。"/>
+				<check_box label="コピー" name="checkbox next owner can copy" tool_tip="次の所有者は、このオブジェクトを無制限にコピーできます。コピーには制作者の情報が含まれ、コピー元のアイテムと違って許可などに関し制限があります。"/>
+				<check_box label="再販・プレゼント" name="checkbox next owner can transfer" tool_tip="次の所有者はこのオブジェクトを他人にあげたり再販できます。"/>
 				<text name="B:">
 					B:
 				</text>
@@ -378,6 +378,7 @@
 			<text name="edit_object">
 				オブジェクトの特徴を編集：
 			</text>
+			<check_box label="アニメーションメッシュ" name="Animated Mesh Checkbox Ctrl" tool_tip="リグ入りメッシュオブジェクトをそれぞれアニメーションさせることができるようになります"/>
 			<check_box label="フレキシブルパス" name="Flexible1D Checkbox Ctrl" tool_tip="Z 軸を中心にオブジェクトの屈曲を有効にします（クライアント側のみ）"/>
 			<spinner label="柔軟性" name="FlexNumSections"/>
 			<spinner label="重力" name="FlexGravity"/>
@@ -414,82 +415,7 @@
 			<spinner label="密度（100 kg/m^3）" name="Physics Density"/>
 			<spinner label="復元" name="Physics Restitution"/>
 		</panel>
-		<panel label="材質" name="Texture">
-			<panel.string name="string repeats per meter">
-				メートルごとに繰り返す
-			</panel.string>
-			<panel.string name="string repeats per face">
-				面ごとに繰り返す
-			</panel.string>
-			<texture_picker label="テクスチャ" name="texture control" tool_tip="写真をクリックして選択します"/>
-			<color_swatch label="色" name="colorswatch" tool_tip="クリックしてカラーピッカーを開きます"/>
-			<text name="color trans">
-				透過度 %
-			</text>
-			<text name="glow label">
-				グロー
-			</text>
-			<check_box label="明るさ全開" name="checkbox fullbright"/>
-			<text name="tex gen">
-				マッピング
-			</text>
-			<combo_box name="combobox texgen">
-				<combo_box.item label="デフォルト" name="Default"/>
-				<combo_box.item label="平面" name="Planar"/>
-			</combo_box>
-			<text name="label shininess">
-				輝き
-			</text>
-			<combo_box name="combobox shininess">
-				<combo_box.item label="なし" name="None"/>
-				<combo_box.item label="低" name="Low"/>
-				<combo_box.item label="中" name="Medium"/>
-				<combo_box.item label="高" name="High"/>
-			</combo_box>
-			<text name="label bumpiness">
-				凹凸
-			</text>
-			<combo_box name="combobox bumpiness">
-				<combo_box.item label="なし" name="None"/>
-				<combo_box.item label="明るさ" name="Brightness"/>
-				<combo_box.item label="暗さ" name="Darkness"/>
-				<combo_box.item label="木目調" name="woodgrain"/>
-				<combo_box.item label="木の皮" name="bark"/>
-				<combo_box.item label="レンガ" name="bricks"/>
-				<combo_box.item label="チェッカー" name="checker"/>
-				<combo_box.item label="コンクリート" name="concrete"/>
-				<combo_box.item label="クラスティ・タイル" name="crustytile"/>
-				<combo_box.item label="カットストーン" name="cutstone"/>
-				<combo_box.item label="ディスク" name="discs"/>
-				<combo_box.item label="砂利" name="gravel"/>
-				<combo_box.item label="ペトリ" name="petridish"/>
-				<combo_box.item label="羽目板" name="siding"/>
-				<combo_box.item label="ストーン・タイル" name="stonetile"/>
-				<combo_box.item label="しっくい" name="stucco"/>
-				<combo_box.item label="吸い込み" name="suction"/>
-				<combo_box.item label="織目" name="weave"/>
-			</combo_box>
-			<spinner label="水平（U）" name="TexScaleU"/>
-			<check_box label="反転" name="checkbox flip s"/>
-			<spinner label="垂直（V）" name="TexScaleV"/>
-			<check_box label="反転" name="checkbox flip t"/>
-			<spinner label="回転˚" name="TexRot"/>
-			<button label="適用" label_selected="適用" name="button apply"/>
-			<text name="tex offset">
-				テクスチャのズレ
-			</text>
-			<spinner label="水平（U）" name="TexOffsetU"/>
-			<spinner label="垂直（V）" name="TexOffsetV"/>
-			<panel name="Add_Media">
-				<text name="media_tex">
-					メディア
-				</text>
-				<button name="add_media" tool_tip="メディアを追加します"/>
-				<button name="delete_media" tool_tip="このメディアテクスチャを削除します"/>
-				<button name="edit_media" tool_tip="このメディアを編集します"/>
-				<button label="揃える" label_selected="メディアを一列に揃えます" name="button align" tool_tip="メディアテクスチャを一列に揃えます（最初に読み込む必要があります）"/>
-			</panel>
-		</panel>
+		<panel label="材質" name="Texture"/>
 		<panel label="中身" name="Contents">
 			<button label="新しいスクリプト" label_selected="新規スクリプト" name="button new script"/>
 			<button label="権限" name="button permissions"/>

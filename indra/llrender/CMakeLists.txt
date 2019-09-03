@@ -51,6 +51,7 @@ set(llrender_SOURCE_FILES
     lltexture.cpp
     lluiimage.cpp
     llvertexbuffer.cpp
+    llglcommonfunc.cpp
     )
     
 set(llrender_HEADER_FILES
@@ -78,6 +79,7 @@ set(llrender_HEADER_FILES
     lltexture.h
     lluiimage.h
     llvertexbuffer.h
+    llglcommonfunc.h
     )
 
 set_source_files_properties(${llrender_HEADER_FILES}

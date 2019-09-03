@@ -31,7 +31,7 @@
 	<text name="AvatarPhysicsDetailText">
 		Faible
 	</text>
-	<text name="ShadersText">
+	<text name="HardwareText">
 		Matériel
 	</text>
 	<slider label="Mémoire textures (Mo) :" name="GraphicsCardTextureMemory" tool_tip="Quantité de mémoire à affecter aux textures. Utilise la mémoire de la carte vidéo par défaut. Si vous réduisez ce paramètre, cela peut améliorer les performances, mais les textures risquent d’être floues."/>
@@ -56,6 +56,9 @@
 	<text name="antialiasing restart">
 		(redémarrage requis)
 	</text>
+	<text name="MeshText">
+		Maillage
+	</text>
 	<slider label="Détails des rendus des terrains :" name="TerrainMeshDetail"/>
 	<text name="TerrainMeshDetailText">
 		Faible
@@ -71,6 +74,9 @@
 	<slider label="Flexiprims :" name="FlexibleMeshDetail"/>
 	<text name="FlexibleMeshDetailText">
 		Faible
+	</text>
+	<text name="ShadersText">
+		Effets
 	</text>
 	<check_box initial_value="true" label="Eau transparente" name="TransparentWater"/>
 	<check_box initial_value="true" label="Placage de relief et brillance" name="BumpShiny"/>
@@ -111,5 +117,6 @@
 	<button label="Réinitialiser les paramètres recommandés" name="Defaults"/>
 	<button label="OK" label_selected="OK" name="OK"/>
 	<button label="Annuler" label_selected="Annuler" name="Cancel"/>
-	<check_box label="RenderAvatarMaxComplexity" name="RenderAvatarMaxNonImpostors"/>
+	<check_box label="RenderAvatarMaxComplexity" name="RenderAvatarMaxComplexity"/>
+	<check_box label="RenderAvatarMaxNonImpostors" name="RenderAvatarMaxNonImpostors"/>
 </floater>

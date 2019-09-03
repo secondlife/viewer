@@ -265,9 +265,19 @@ BOOL LLVorbisDecodeState::initDecode()
 		mInFilep = NULL;
 		return FALSE;
 	}
-	
-	mWAVBuffer.reserve(size_guess);
-	mWAVBuffer.resize(WAV_HEADER_SIZE);
+
+	try
+	{
+		mWAVBuffer.reserve(size_guess);
+		mWAVBuffer.resize(WAV_HEADER_SIZE);
+	}
+	catch (std::bad_alloc)
+	{
+		LL_WARNS("AudioEngine") << "Out of memory when trying to alloc buffer: " << size_guess << LL_ENDL;
+		delete mInFilep;
+		mInFilep = NULL;
+		return FALSE;
+	}
 
 	{
 		// write the .wav format header

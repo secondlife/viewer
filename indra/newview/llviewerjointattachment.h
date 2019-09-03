@@ -77,6 +77,7 @@ public:
 	S32 getGroup() const { return mGroup; }
 	S32 getPieSlice() const { return mPieSlice; }
 	S32	getNumObjects() const { return mAttachedObjects.size(); }
+	S32	getNumAnimatedObjects() const;
 
 	void clampObjectPosition();
 

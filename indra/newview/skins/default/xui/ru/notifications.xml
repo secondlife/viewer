@@ -244,6 +244,10 @@
 		Примечание. После включения этой опции все пользователи данного компьютера смогут увидеть список ваших избранных мест.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="AllowMultipleViewers">
+		Запуск нескольких приложений Second Life Viewer не поддерживается. Это может привести к конфликтам кэша текстур, повреждению и снижению производительности и визуального отображения.
+		<usetemplate name="okbutton" yestext="ОК"/>
+	</notification>
 	<notification name="GrantModifyRights">
 		Предоставление другому жителю прав на изменение позволит ему изменять, удалять или брать ЛЮБЫЕ ваши объекты. Будьте ОЧЕНЬ осторожны с предоставлением такого разрешения.
 Дать пользователю [NAME] права на изменение?
@@ -684,6 +688,9 @@
 		</url>
 		<usetemplate ignoretext="Оборудование моего компьютера не поддерживается" name="okcancelignore" notext="Нет" yestext="Да"/>
 	</notification>
+	<notification name="RunLauncher">
+		Пожалуйста, не запускайте напрямую исполняемый файл просмотра. Обновите все имеющиеся ярлыки, чтобы вместо этого запускать SL_Launcher.
+	</notification>
 	<notification name="OldGPUDriver">
 		Возможно, для вашей видеокарты имеется более новый драйвер.  Обновление драйвера может существенно повысить быстродействие.
 
@@ -714,9 +721,9 @@
 		Вам не разрешено терраформировать участок [PARCEL].
 	</notification>
 	<notification name="CannotCopyWarning">
-		У вас нет разрешения на копирование следующих предметов:
-[ITEMS]
-Если вы отдадите эти вещи, их больше не будет в вашем инвентаре. Вы действительно хотите предложить эти предметы?
+		У вас нет разрешения на копирование следующих предметов: 
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt; 
+и они пропадут из вашего инвентаря, если вы их отдадите. Вы действительно хотите предложить эти предметы?
 		<usetemplate name="okcancelbuttons" notext="Нет" yestext="Да"/>
 	</notification>
 	<notification name="CannotGiveItem">
@@ -1566,6 +1573,30 @@
 	<notification name="ProblemAddingEstateManagerBanned">
 		Невозможно добавить заблокированного жителя в список менеджеров землевладения.
 	</notification>
+	<notification name="ProblemBanningEstateManager">
+		Невозможно добавить заблокированного жителя в список менеджеров землевладения [AGENT].
+	</notification>
+	<notification name="GroupIsAlreadyInList">
+		&lt;nolink&gt;\[GROUP]&lt;/nolink&gt; уже находится в списке допущенных групп.
+	</notification>
+	<notification name="AgentIsAlreadyInList">
+		[AGENT] уже находится на вашем [LIST_TYPE] листе.
+	</notification>
+	<notification name="AgentsAreAlreadyInList">
+		[AGENT] уже находится на вашем [LIST_TYPE] листе.
+	</notification>
+	<notification name="AgentWasAddedToList">
+		[AGENT] был добавлен в [LIST_TYPE] лист [ESTATE].
+	</notification>
+	<notification name="AgentsWereAddedToList">
+		[AGENT] был добавлен в [LIST_TYPE] лист [ESTATE].
+	</notification>
+	<notification name="AgentWasRemovedFromList">
+		[AGENT] был удален из [LIST_TYPE] листа [ESTATE].
+	</notification>
+	<notification name="AgentsWereRemovedFromList">
+		[AGENT] был удален из [LIST_TYPE] листа [ESTATE].
+	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		Нельзя изменять внешность, пока загружаются одежда и фигура.
 	</notification>
@@ -1580,156 +1611,29 @@
 		Завершена загрузка файла ландшафта:
 [DOWNLOAD_PATH].
 	</notification>
-	<notification name="DownloadWindowsMandatory">
-		Появилась новая версия [APP_NAME].
-[MESSAGE]
-Это обновление необходимо загрузить для использования [APP_NAME].
-		<usetemplate name="okcancelbuttons" notext="Выйти" yestext="Загрузить"/>
-	</notification>
-	<notification name="DownloadWindows">
-		Появилось обновление для [APP_NAME].
-[MESSAGE]
-Устанавливать это обновление не обязательно, но рекомендуется для повышения производительности и стабильности.
-		<usetemplate name="okcancelbuttons" notext="Продолжить" yestext="Загрузить"/>
-	</notification>
-	<notification name="DownloadWindowsReleaseForDownload">
-		Появилось обновление для [APP_NAME].
-[MESSAGE]
-Устанавливать это обновление не обязательно, но рекомендуется для повышения производительности и стабильности.
-		<usetemplate name="okcancelbuttons" notext="Продолжить" yestext="Загрузить"/>
-	</notification>
-	<notification name="DownloadLinuxMandatory">
-		Появилась новая версия [APP_NAME].
-[MESSAGE]
-Это обновление необходимо загрузить для использования [APP_NAME].
-		<usetemplate name="okcancelbuttons" notext="Выйти" yestext="Загрузить"/>
-	</notification>
-	<notification name="DownloadLinux">
-		Появилось обновление для [APP_NAME].
-[MESSAGE]
-Устанавливать это обновление не обязательно, но рекомендуется для повышения производительности и стабильности.
-		<usetemplate name="okcancelbuttons" notext="Продолжить" yestext="Загрузить"/>
-	</notification>
-	<notification name="DownloadLinuxReleaseForDownload">
-		Появилось обновление для [APP_NAME].
-[MESSAGE]
-Устанавливать это обновление не обязательно, но рекомендуется для повышения производительности и стабильности.
-		<usetemplate name="okcancelbuttons" notext="Продолжить" yestext="Загрузить"/>
-	</notification>
-	<notification name="DownloadMacMandatory">
-		Появилась новая версия [APP_NAME].
-[MESSAGE]
-Это обновление необходимо загрузить для использования [APP_NAME].
-
-Загрузить его в папку приложений?
-		<usetemplate name="okcancelbuttons" notext="Выйти" yestext="Загрузить"/>
-	</notification>
-	<notification name="DownloadMac">
-		Появилось обновление для [APP_NAME].
-[MESSAGE]
-Устанавливать это обновление не обязательно, но рекомендуется для повышения производительности и стабильности.
-
-Загрузить его в папку приложений?
-		<usetemplate name="okcancelbuttons" notext="Продолжить" yestext="Загрузить"/>
-	</notification>
-	<notification name="DownloadMacReleaseForDownload">
-		Появилось обновление для [APP_NAME].
-[MESSAGE]
-Устанавливать это обновление не обязательно, но рекомендуется для повышения производительности и стабильности.
-
-Загрузить его в папку приложений?
-		<usetemplate name="okcancelbuttons" notext="Продолжить" yestext="Загрузить"/>
-	</notification>
-	<notification name="FailedUpdateInstall">
-		Произошла ошибка при установке обновления.
-Загрузите новую версию программы на сайте
-http://secondlife.com/download.
+	<notification name="RequiredUpdate">
+		Для входа необходима версия \[VERSION]. 
+Скачайте обновление с веб-сайта https://secondlife.com/support/downloads/
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="FailedRequiredUpdateInstall">
-		Не удалось установить обязательное обновление. 
-Вы не сможете войти в [APP_NAME], пока обновление не будет установлено.
-
-Загрузите новую версию программы на сайте
-http://secondlife.com/download.
+	<notification name="PauseForUpdate">
+		Для входа необходима версия \[VERSION]. 
+Нажмите OK для загрузки и установки.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OptionalUpdateReady">
+		Версия \[VERSION] загружена и готова к установке. 
+Нажмите OK для установки.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PromptOptionalUpdate">
+		Версия \[VERSION] загружена и готова к установке. 
+Продолжить?
+		<usetemplate canceltext="Не сейчас" name="yesnocancelbuttons" notext="Пропустить" yestext="Установить"/>
+	</notification>
+	<notification name="LoginFailedUnknown">
+		Извините, ошибка входа по неустановленной причине. Если данное сообщение повторится, посетите веб-сайт [SUPPORT_SITE].
 		<usetemplate name="okbutton" yestext="Выйти"/>
-	</notification>
-	<notification name="UpdaterServiceNotRunning">
-		Появились обязательные обновления для вашей версии Second Life.
-
-Загрузите это обновление на сайте http://www.secondlife.com/downloads
-или установите его сейчас.
-		<usetemplate name="okcancelbuttons" notext="Выйти из Second Life" yestext="Загрузить и установить сейчас"/>
-	</notification>
-	<notification name="DownloadBackgroundTip">
-		Загружено обновление для вашей версии [APP_NAME].
-Версия [VERSION]. [[RELEASE_NOTES_FULL_URL] Сведения об этом обновлении]
-		<usetemplate name="okcancelbuttons" notext="Позже..." yestext="Установите обновление и перезапустите [APP_NAME]"/>
-	</notification>
-	<notification name="DownloadBackgroundDialog">
-		Загружено обновление для вашей версии [APP_NAME].
-Версия [VERSION]. [[RELEASE_NOTES_FULL_URL] Сведения об этом обновлении]
-		<usetemplate name="okcancelbuttons" notext="Позже..." yestext="Установите обновление и перезапустите [APP_NAME]"/>
-	</notification>
-	<notification name="RequiredUpdateDownloadedVerboseDialog">
-		Загружено обязательное обновление.
-Версия [VERSION]. [[INFO_URL] Сведения об этом обновлении]
-
-Необходимо перезапустить [APP_NAME] для установки обновления.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="RequiredUpdateDownloadedDialog">
-		Необходимо перезапустить [APP_NAME] для установки обновления.
-[[INFO_URL] Сведения об этом обновлении]
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="OtherChannelDownloadBackgroundTip">
-		Загружено обновление для вашей версии [APP_NAME].
-Версия [VERSION] 
-На замену этой экспериментальной версии клиента предлагается клиент [NEW_CHANNEL];
-см. [[INFO_URL] об этом обновлении]
-		<usetemplate name="okcancelbuttons" notext="Позже..." yestext="Установите обновление и перезапустите [APP_NAME]"/>
-	</notification>
-	<notification name="OtherChannelDownloadBackgroundDialog">
-		Загружено обновление для вашей версии [APP_NAME].
-Версия [VERSION]
-На замену этой экспериментальной версии клиента предлагается клиент [NEW_CHANNEL];
-см. [[INFO_URL] Сведения об этом обновлении]
-		<usetemplate name="okcancelbuttons" notext="Позже..." yestext="Установите обновление и перезапустите [APP_NAME]"/>
-	</notification>
-	<notification name="OtherChannelRequiredUpdateDownloadedVerboseDialog">
-		Загружено обязательное обновление.
-Версия [VERSION]
-На замену этой экспериментальной версии клиента предлагается клиент [NEW_CHANNEL];
-см. [[INFO_URL] Сведения об этом обновлении]
-
-Необходимо перезапустить [APP_NAME] для установки обновления.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="OtherChannelRequiredUpdateDownloadedDialog">
-		Необходимо перезапустить [APP_NAME] для установки обновления.
-На замену этой экспериментальной версии клиента предлагается клиент [NEW_CHANNEL];
-см. [[INFO_URL] Сведения об этом обновлении]
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateDownloadInProgress">
-		Появилось обновление!
-Оно сейчас загружается в фоновом режиме и, как только будет готово, вам будет предложено перезапустить клиент для завершения установки.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateDownloadComplete">
-		Обновление загружено. Оно будет установлено после перезапуска.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateCheckError">
-		При поиске обновлений произошла ошибка.
-Повторите попытку позже.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateViewerUpToDate">
-		Ваш клиент уже обновлен!
-Если вы хотите немедленно испробовать наши новейшие функции и исправления, обратитесь на страницу «Альтернативные клиенты»: http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers.
-		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
 		В результате передачи этого объекта группа:
@@ -1739,10 +1643,6 @@ http://secondlife.com/download.
 	<notification name="WebLaunchExternalTarget">
 		Открыть браузер для просмотра этого контента?
 		<usetemplate ignoretext="Запустить браузер для просмотра веб-страницы" name="okcancelignore" notext="Отмена" yestext="OK"/>
-	</notification>
-	<notification name="SystemUIScaleFactorChanged">
-		Со времени последнего запуска изменился системный коэффициент размера интерфейса. Открыть страницу настроек размера интерфейса?
-		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchJoinNow">
 		Перейти на [http://secondlife.com/account/ информационную панель] для управления вашим аккаунтом?
@@ -2012,7 +1912,7 @@ http://secondlife.com/download.
 		<usetemplate canceltext="Отмена" name="yesnocancelbuttons" notext="Для всех землевладений" yestext="Для этого землевладения"/>
 	</notification>
 	<notification label="Выбрать землевладение" name="EstateBannedAgentRemove">
-		Удалить этого жителя из списка запрета доступа только для этого землевладения или для [ALL_ESTATES]?
+		Удалить этого жителя из списка заблокированного доступа только для этого землевладения или для [ALL_ESTATES]?
 		<usetemplate canceltext="Отмена" name="yesnocancelbuttons" notext="Для всех землевладений" yestext="Для этого землевладения"/>
 	</notification>
 	<notification label="Выбрать землевладение" name="EstateManagerAdd">
@@ -3191,15 +3091,6 @@ http://secondlife.com/download.
 			<button name="Deny" text="Отклонить"/>
 		</form>
 	</notification>
-	<notification name="UnknownScriptQuestion">
-		Объект &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;» владельца «[NAME]» требует разрешения на выполнение скрипта; разрешение не распознается клиентом и не будет предоставлено
-
-Для получения этого разрешения установите последнюю версию клиента из [DOWNLOADURL].
-		<form name="form">
-			<button name="Deny" text="OK"/>
-			<button name="Mute" text="Заблокировать"/>
-		</form>
-	</notification>
 	<notification name="ScriptDialog">
 		[NAME] – «&lt;nolink&gt;[TITLE]&lt;/nolink&gt;»
 [MESSAGE]
@@ -3304,16 +3195,22 @@ http://secondlife.com/download.
 		Не удалось подключиться к [VOICE_CHANNEL_NAME], повторите попытку позже.  Будет установлено подключение к локальному голосовому чату.
 	</notification>
 	<notification name="VoiceEffectsExpired">
-		Истек срок действия одного или нескольких типов изменения голоса, на которые вы подписаны.
-[[URL] Щелкните здесь], чтобы обновить подписку.
+		Истек срок действия подписки на один или несколько типов анимационного изменения голоса. 
+[[URL] Щелкните здесь], чтобы обновить подписку. 
+
+Если вы - владелец премиум-аккаунта, [[PREMIUM_URL] щелкните здесь], чтобы получить право на анимационное изменение голоса.
 	</notification>
 	<notification name="VoiceEffectsExpiredInUse">
-		Истек срок действия активного типа изменения голоса, применены настройки вашего обычного голоса.
-[[URL] Щелкните здесь], чтобы обновить подписку.
+		Истек срок действия анимационного изменения голоса, действуют настройки вашего обычного голоса. 
+[[URL] Щелкните здесь], чтобы обновить подписку. 
+
+Если вы - владелец премиум-аккаунта, [[PREMIUM_URL] щелкните здесь], чтобы получить право на анимационное изменение голоса.
 	</notification>
 	<notification name="VoiceEffectsWillExpire">
-		Срок действия одного или нескольких ваших типов изменения голоса истекает через [INTERVAL] дней или раньше.
-[[URL] Щелкните здесь], чтобы обновить подписку.
+		Срок действия одного или нескольких ваших типов анимационного изменения голоса истекает через [INTERVAL] дней или раньше. 
+[[URL] Щелкните здесь], чтобы обновить подписку. 
+
+Если вы - владелец премиум-аккаунта, [[PREMIUM_URL] щелкните здесь], чтобы получить право на анимационное изменение голоса.
 	</notification>
 	<notification name="VoiceEffectsNew">
 		Появились новые типы изменения голоса!
@@ -3365,8 +3262,14 @@ http://secondlife.com/download.
 	<notification name="SnapshotToComputerFailed">
 		Не удалось сохранить моментальный снимок на [PATH]: Диск переполнен. Необходимо [NEED_MEMORY] Кбайт, но доступно только  [FREE_MEMORY] Кбайт.
 	</notification>
+	<notification name="SnapshotToLocalDirNotExist">
+		Не удалось сохранить моментальный снимок на [PATH]: Каталог не существует.
+	</notification>
 	<notification name="PresetNotSaved">
 		Ошибка при сохранении пресета [NAME].
+	</notification>
+	<notification name="DefaultPresetNotSaved">
+		Невозможно изменить настройку по умолчанию.
 	</notification>
 	<notification name="PresetNotDeleted">
 		Ошибка при удалении пресета [NAME].
@@ -3509,6 +3412,10 @@ http://secondlife.com/download.
 Отключите любую функцию SIP ALG в маршрутизаторе. 
 
 Голосовое общение будет недоступно.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="NoVoiceConnect-GIAB">
+		Проблемы соединения с речевым сервером: Голосовое общение будет недоступно. Проверьте настройки сети и брандмауэра.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">
@@ -3848,13 +3755,13 @@ http://secondlife.com/download.
 		Вы не можете создавать деревья и траву на чужой земле.
 	</notification>
 	<notification name="NoCopyPermsNoObject">
-		Не удалось скопировать: вам не разрешено копировать объект «[OBJ_NAME]».
+		Не удалось скопировать, потому что у вас нет разрешения на копирование этого предмета &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoTransPermsNoObject">
-		Не удалось скопировать: объект «[OBJ_NAME]» нельзя перенести к вам.
+		Не удалось скопировать, потому что предмет &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; не может быть перемещён к вам.
 	</notification>
 	<notification name="AddToNavMeshNoCopy">
-		Не удалось скопировать: объект «[OBJ_NAME]» относится к навигационной сетке.
+		Не удалось скопировать, потому что предмет &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; относится к навигационной сетке.
 	</notification>
 	<notification name="DupeWithNoRootsSelected">
 		Выбран дубликат без корневых объектов.
@@ -3899,34 +3806,34 @@ http://secondlife.com/download.
 		Сохранение в инвентаре отключено.
 	</notification>
 	<notification name="NoExistNoSaveToContents">
-		Нельзя сохранить «[OBJ_NAME]» в содержимом объекта: объект, из которого оно было выложено, уже не существует.
+		Не удалось сохранить &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; в содержимом предмета, потому что место, в котором был создан предмет, больше не существует.
 	</notification>
 	<notification name="NoModNoSaveToContents">
-		Нельзя сохранить «[OBJ_NAME]» в содержимом объекта: вам не разрешено изменять объект «[DEST_NAME]».
+		Не удалось сохранить &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; в содержимом предмета, потому что у вас нет разрешения на модификацию предмета &lt;nolink&gt;&apos;[DEST_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoSaveBackToInvDisabled">
-		Невозможно сохранить «[OBJ_NAME]» в инвентаре: эта операция запрещена.
+		Не удалось сохранить &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; обратно в инвентаре – эта операция заблокирована.
 	</notification>
 	<notification name="NoCopyNoSelCopy">
-		Нельзя скопировать выбранное: вам не разрешено копировать объект «[OBJ_NAME]».
+		Вы не можете скопировать выбор, потому что у вас нет разрешения на копирование этого предмета &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoTransNoSelCopy">
-		Невозможно скопировать выбранный предмет: объект «[OBJ_NAME]» не переносится.
+		Вы не можете скопировать свой выбор, потому что предмет &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; не может быть перемещён.
 	</notification>
 	<notification name="NoTransNoCopy">
-		Невозможно скопировать выбранный предмет: объект «[OBJ_NAME]» не переносится.
+		Вы не можете скопировать свой выбор, потому что предмет &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; не может быть перемещён.
 	</notification>
 	<notification name="NoPermsNoRemoval">
-		Удаление объекта «[OBJ_NAME]» из симулятора запрещено системой разрешений.
+		Удаление предмета &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; из симулятора не допущено системой прав доступа.
 	</notification>
 	<notification name="NoModNoSaveSelection">
-		Нельзя сохранить выбранное: вам не разрешено изменять объект «[OBJ_NAME]».
+		Копирование выбора невозможно, потому что у вас нет разрешения на модифицирование этого предмета &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoCopyNoSaveSelection">
-		Невозможно сохранить выбранный предмет: объект «[OBJ_NAME]» не копируется.
+		Вы не можете сохранить свой выбор, потому что предмет &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; не поддаётся копированию.
 	</notification>
 	<notification name="NoModNoTaking">
-		Нельзя забрать выбранное: вам не разрешено изменять объект «[OBJ_NAME]».
+		Вы не можете скопировать свой выбор, потому что у вас нет разрешения на модифицирование этого предмета &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="RezDestInternalError">
 		Внутренняя ошибка: неизвестный тип места назначения.
@@ -4129,6 +4036,9 @@ http://secondlife.com/download.
 	<notification name="CantCreateObjectRegionFull">
 		Невозможно создать запрошенный объект. Регион уже заполнен.
 	</notification>
+	<notification name="CantCreateAnimatedObjectTooLarge">
+		Невозможно создать необходимый анимированный объект, так как он превышает предел риг-структурированных треугольников.
+	</notification>
 	<notification name="CantAttackMultipleObjOneSpot">
 		Нельзя присоединить несколько объектов к одной точке.
 	</notification>
@@ -4176,6 +4086,21 @@ http://secondlife.com/download.
 	</notification>
 	<notification name="CantChangeShape">
 		Вам не разрешено изменять эту фигуру.
+	</notification>
+	<notification name="NoPermsTooManyAttachedAnimatedObjects">
+		Действие приведёт к превышению лимита по количеству добавленных анимированных объектов.
+	</notification>
+	<notification name="NoPermsLinkAnimatedObjectTooLarge">
+		Невозможно связать эти объекты, поскольку полученный анимированный объект превысит предел риг-структурированных треугольников.
+	</notification>
+	<notification name="NoPermsSetFlagAnimatedObjectTooLarge">
+		Невозможно преобразовать этот объект в анимированный объект, потому что будет превышен лимит риг-структурированных треугольников.
+	</notification>
+	<notification name="CantChangeAnimatedObjectStateInsufficientLand">
+		Невозможно изменить состояние анимированного объекта для этого объекта, так как это приведет к превышению лимита участка.
+	</notification>
+	<notification name="ErrorNoMeshData">
+		Ошибка сервера: не удается завершить действие, так как данные сетки не загружается.
 	</notification>
 	<notification name="NoAccessToClaimObjects">
 		Ваши привилегии доступа не разрешают претендовать на объекты на этом месте.
@@ -4438,7 +4363,7 @@ http://secondlife.com/download.
 		Не удалось обновить клиент из-за внутренней ошибки.  Отображаемый в клиенте баланс L$ или владение участками могут не соответствовать действительному балансу на серверах.
 	</notification>
 	<notification name="LargePrimAgentIntersect">
-		Нельзя создавать большие примитивы, которые пересекаются с другими игроками.  Повторите попытку, когда другие игроки уйдут.
+		Невозможно создать большие примитивы, которые пересекаются с другими жителями. Пожалуйста, повторите попытку, когда другие жители переедут.
 	</notification>
 	<notification name="PreferenceChatClearLog">
 		Будут удалены журналы предыдущих разговоров и все резервные копии этих файлов.

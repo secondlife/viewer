@@ -38,7 +38,7 @@
 		Ошибка инициализации графики. Обновите графический драйвер!
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) ([CHANNEL])
+		[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) 
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
 	<string name="BuildConfig">
@@ -71,17 +71,17 @@ SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 Дальность отрисовки: [DRAW_DISTANCE] м
 Ширина канала: [NET_BANDWITH] кбит/с
 Коэффициент детализации: [LOD_FACTOR]
-Качество визуализации: [RENDER_QUALITY] / 7
+Качество визуализации: [RENDER_QUALITY]
 Расширенная модель освещения: [GPU_SHADERS]
 Память текстур: [TEXTURE_MEMORY] МБ
 Время создания VFS (кэш): [VFS_TIME]
 	</string>
 	<string name="AboutLibs">
-		Версия декодера J2C: [J2C_VERSION]
-Версия драйвера звука: [AUDIO_DRIVER_VERSION]
-Версия CEF: [LIBCEF_VERSION]
-Версия LibVLC: [LIBVLC_VERSION]
-Версия голосового сервера: [VOICE_VERSION]
+		Версия декодера J2C: [J2C_VERSION] 
+Версия аудиодрайвера: [AUDIO_DRIVER_VERSION] 
+[LIBCEF_VERSION] 
+Версия LibVLC: [LIBVLC_VERSION] 
+Версия речевого сервера: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		Потеряно пакетов: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
@@ -1442,6 +1442,9 @@ support@secondlife.com.
 	<string name="InventoryNoMatchingItems">
 		Не нашли того, что вам нужно? Воспользуйтесь [secondlife:///app/search/all/[SEARCH_TERM] поиском].
 	</string>
+	<string name="InventoryNoMatchingRecentItems">
+		Не нашли то, что искали? Попробуйте на [secondlife:///app/inventory/filters Show filters].
+	</string>
 	<string name="PlacesNoMatchingItems">
 		Не нашли того, что вам нужно? Воспользуйтесь [secondlife:///app/search/places/[SEARCH_TERM] поиском].
 	</string>
@@ -2223,6 +2226,18 @@ support@secondlife.com.
 	<string name="RegionInfoListTypeBannedAgents">
 		Всегда заблокированы
 	</string>
+	<string name="RegionInfoAllEstates">
+		все землевладения
+	</string>
+	<string name="RegionInfoManagedEstates">
+		управляемые землевладения
+	</string>
+	<string name="RegionInfoThisEstate">
+		это землевладение
+	</string>
+	<string name="AndNMore">
+		и \[EXTRA_COUNT] более
+	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Память под скрипты на участке
 	</string>
@@ -2266,7 +2281,7 @@ support@secondlife.com.
 		Грудь
 	</string>
 	<string name="ATTACH_HEAD">
-		Голова
+		Череп
 	</string>
 	<string name="ATTACH_LSHOULDER">
 		Левое плечо
@@ -2287,7 +2302,7 @@ support@secondlife.com.
 		Правая ступня
 	</string>
 	<string name="ATTACH_BACK">
-		Спина
+		Позвоночник
 	</string>
 	<string name="ATTACH_PELVIS">
 		Таз
@@ -5743,5 +5758,26 @@ support@secondlife.com.
 	</string>
 	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
 		У физической формы нет правильной версии. Задайте правильную версию для физической модели.
+	</string>
+	<string name="couldnt_resolve_host">
+		DNS не удалось разрешить имя узла([HOSTNAME]). 
+Проверьте возможность подключения к веб-сайту www.secondlife.com. 
+Если вы продолжаете получать эту ошибку, перейдите в раздел 
+поддержки и сообщите о проблеме.
+	</string>
+	<string name="ssl_peer_certificate">
+		Серверу входа в систему не удалось пройти аутентификацию с помощью 
+протокола SSL. Если вы продолжаете получать эту ошибку, 
+перейдите в раздел поддержки на веб-сайте SecondLife.com 
+и сообщите о проблеме.
+	</string>
+	<string name="ssl_connect_error">
+		Часто это означает, что часы компьютера установлены неправильно. 
+Перейдите, пожалуйста, на Панели управления и убедитесь в правильной 
+установке времени и даты. Также проверьте правильность настройки сети 
+и брандмауэра. Если вы продолжаете получать эту ошибку, перейдите в 
+раздел поддержки на веб-сайте SecondLife.com и сообщите о проблеме. 
+
+[https://community.secondlife.com/knowledgebase/english/error-messages-r520/#Section__3 База знаний]
 	</string>
 </strings>

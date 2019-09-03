@@ -29,17 +29,17 @@
 	<text name="GroupLabel">
 		群組：
 	</text>
-	<check_box label="分享" name="share_with_group"/>
+	<check_box label="分享" name="share_with_group" tool_tip="允許此群組所有成員共享你修改此物件的權限。 你必須讓渡才能啟動角色限制。"/>
 	<text name="AnyoneLabel">
 		任何人：
 	</text>
-	<check_box label="恚庨" name="everyone_copy"/>
+	<check_box label="複製" name="everyone_copy" tool_tip="任何人都可取用本物件的複本。 物件和其所有內容都必須允許複製和轉移"/>
 	<text name="NextOwnerLabel">
 		下一個所有人：
 	</text>
-	<check_box label="修改" name="next_owner_modify"/>
-	<check_box label="恚庨" name="next_owner_copy"/>
-	<check_box initial_value="true" label="轉移" name="next_owner_transfer" tool_tip="下一個所有人可贈送或轉售這個物件"/>
+	<check_box label="修改" name="next_owner_modify" tool_tip="下一個所有人可以編輯本物件的性質，如名稱或尺寸。"/>
+	<check_box label="複製" name="next_owner_copy" tool_tip="下一個所有人可無限複製本物件。 複本將保留創作人的資料，其允許設定不能比原本物件更加放寬。"/>
+	<check_box initial_value="true" label="轉移" name="next_owner_transfer" tool_tip="下一個所有人可贈送或轉售這個物件。"/>
 	<button label="確定" name="ok"/>
 	<button label="套用" name="apply"/>
 	<button label="取消" name="close"/>

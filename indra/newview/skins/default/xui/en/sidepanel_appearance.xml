@@ -131,15 +131,6 @@ width="333">
    tab_group="1"
    top_pad="6"
    follows="all" />
-  <!--   <button
-	  follows="bottom|left"
-		height="23"
-		label="New outfit"
-		layout="topleft"
-		left_pad="5"
-		right="-10"
-		name="newlook_btn"
-		 width="100" />-->
    <panel
    class="panel_outfit_edit"
    filename="panel_outfit_edit.xml"

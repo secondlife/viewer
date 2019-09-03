@@ -593,45 +593,13 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
 
         case IM_TYPING_START:
         {
-            std::vector<U8> bucket(binary_bucket[0], binary_bucket_size);
-            LLSD data;
-            data["binary_bucket"] = bucket;
-            LLPointer<LLIMInfo> im_info = new LLIMInfo(from_id,
-                    from_group,
-                    to_id,
-                    dialog,
-                    agentName,
-                    message,
-                    session_id,
-                    parent_estate_id,
-                    region_id,
-                    position,
-                    data,
-                    offline,
-                    timestamp);
-            gIMMgr->processIMTypingStart(im_info);
+            gIMMgr->processIMTypingStart(from_id, dialog);
         }
         break;
 
         case IM_TYPING_STOP:
         {
-            std::vector<U8> bucket(binary_bucket[0], binary_bucket_size);
-            LLSD data;
-            data["binary_bucket"] = bucket;
-            LLPointer<LLIMInfo> im_info = new LLIMInfo(from_id,
-                    from_group,
-                    to_id,
-                    dialog,
-                    agentName,
-                    message,
-                    session_id,
-                    parent_estate_id,
-                    region_id,
-                    position,
-                    data,
-                    offline,
-                    timestamp);
-            gIMMgr->processIMTypingStop(im_info);
+            gIMMgr->processIMTypingStop(from_id, dialog);
         }
         break;
 
@@ -846,10 +814,11 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
 
                 LLSD payload;
                 payload["transaction_id"] = session_id;
-                payload["group_id"] = from_id;
+                payload["group_id"] = from_group ? from_id : aux_id;
                 payload["name"] = name;
                 payload["message"] = message;
                 payload["fee"] = membership_fee;
+                payload["use_offline_cap"] = session_id.isNull() && (offline == IM_OFFLINE);
 
                 LLSD args;
                 args["MESSAGE"] = message;
@@ -885,15 +854,33 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             }
             else // IM_TASK_INVENTORY_OFFERED
             {
-                if (sizeof(S8) != binary_bucket_size)
+                if (offline == IM_OFFLINE && session_id.isNull() && aux_id.notNull() && binary_bucket_size > sizeof(S8)* 5)
                 {
-                    LL_WARNS("Messaging") << "Malformed inventory offer from object" << LL_ENDL;
-                    delete info;
-                    break;
+                    // cap received offline message
+                    std::string str_bucket = ll_safe_string((char*)binary_bucket, binary_bucket_size);
+                    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+                    boost::char_separator<char> sep("|", "", boost::keep_empty_tokens);
+                    tokenizer tokens(str_bucket, sep);
+                    tokenizer::iterator iter = tokens.begin();
+
+                    info->mType = (LLAssetType::EType)(atoi((*(iter++)).c_str()));
+                    // Note There is more elements in 'tokens' ...
+
+                    info->mObjectID = LLUUID::null;
+                    info->mFromObject = TRUE;
                 }
-                info->mType = (LLAssetType::EType) binary_bucket[0];
-                info->mObjectID = LLUUID::null;
-                info->mFromObject = TRUE;
+                else
+                {
+                    if (sizeof(S8) != binary_bucket_size)
+                    {
+                        LL_WARNS("Messaging") << "Malformed inventory offer from object" << LL_ENDL;
+                        delete info;
+                        break;
+                    }
+                    info->mType = (LLAssetType::EType) binary_bucket[0];
+                    info->mObjectID = LLUUID::null;
+                    info->mFromObject = TRUE;
+                }
             }
 
             info->mIM = dialog;
@@ -1491,8 +1478,12 @@ void LLIMProcessing::requestOfflineMessages()
         // Auto-accepted inventory items may require the avatar object
         // to build a correct name.  Likewise, inventory offers from
         // muted avatars require the mute list to properly mute.
-        if (cap_url.empty())
+        if (cap_url.empty()
+            || gAgent.getRegionCapability("AcceptFriendship").empty()
+            || gAgent.getRegionCapability("AcceptGroupInvite").empty())
         {
+            // Offline messages capability provides no session/transaction ids for message AcceptFriendship and IM_GROUP_INVITATION to work
+            // So make sure we have the caps before using it.
             requestOfflineMessagesLegacy();
         }
         else
@@ -1593,7 +1584,7 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
             message_data["to_agent_id"].asUUID(),
             IM_OFFLINE,
             (EInstantMessage)message_data["dialog"].asInteger(),
-            LLUUID::null, // session id, fix this for friendship offers to work
+            LLUUID::null, // session id, since there is none we can only use frienship/group invite caps
             message_data["timestamp"].asInteger(),
             message_data["from_agent_name"].asString(),
             message_data["message"].asString(),

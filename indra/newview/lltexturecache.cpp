@@ -615,7 +615,7 @@ bool LLTextureCacheRemoteWorker::doWrite()
 			if(idx >= 0)
 			{
 				// write to the fast cache.
-				if(!mCache->writeToFastCache(idx, mRawImage, mRawDiscardLevel))
+				if(!mCache->writeToFastCache(mID, idx, mRawImage, mRawDiscardLevel))
 				{
 					LL_WARNS() << "writeToFastCache failed" << LL_ENDL;
 					mDataSize = -1; // failed
@@ -825,10 +825,10 @@ void LLTextureCacheWorker::endWork(S32 param, bool aborted)
 
 LLTextureCache::LLTextureCache(bool threaded)
 	: LLWorkerThread("TextureCache", threaded),
-	  mWorkersMutex(NULL),
-	  mHeaderMutex(NULL),
-	  mListMutex(NULL),
-	  mFastCacheMutex(NULL),
+	  mWorkersMutex(),
+	  mHeaderMutex(),
+	  mListMutex(),
+	  mFastCacheMutex(),
 	  mHeaderAPRFile(NULL),
 	  mReadOnly(TRUE), //do not allow to change the texture cache until setReadOnly() is called.
 	  mTexturesSizeTotal(0),
@@ -1038,11 +1038,11 @@ S64 LLTextureCache::initCache(ELLPath location, S64 max_size, BOOL texture_cache
 {
 	llassert_always(getPending() == 0) ; //should not start accessing the texture cache before initialized.
 
-	S64 header_size = (max_size / 100) * 36; //0.36 * max_size
-	S64 max_entries = header_size / (TEXTURE_CACHE_ENTRY_SIZE + TEXTURE_FAST_CACHE_ENTRY_SIZE);
+	S64 entries_size = (max_size * 36) / 100; //0.36 * max_size
+	S64 max_entries = entries_size / (TEXTURE_CACHE_ENTRY_SIZE + TEXTURE_FAST_CACHE_ENTRY_SIZE);
 	sCacheMaxEntries = (S32)(llmin((S64)sCacheMaxEntries, max_entries));
-	header_size = sCacheMaxEntries * TEXTURE_CACHE_ENTRY_SIZE;
-	max_size -= header_size;
+	entries_size = sCacheMaxEntries * (TEXTURE_CACHE_ENTRY_SIZE + TEXTURE_FAST_CACHE_ENTRY_SIZE);
+	max_size -= entries_size;
 	if (sCacheMaxTexturesSize > 0)
 		sCacheMaxTexturesSize = llmin(sCacheMaxTexturesSize, max_size);
 	else
@@ -1998,8 +1998,48 @@ LLPointer<LLImageRaw> LLTextureCache::readFromFastCache(const LLUUID& id, S32& d
 	return raw;
 }
 
+#if LL_WINDOWS
+
+static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
+
+U32 exception_dupe_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop)
+{
+    if (code == STATUS_MSC_EXCEPTION)
+    {
+        // C++ exception, go on
+        return EXCEPTION_CONTINUE_SEARCH;
+    }
+    else
+    {
+        // handle it
+        return EXCEPTION_EXECUTE_HANDLER;
+    }
+}
+
+//due to unwinding
+void dupe(LLPointer<LLImageRaw> &raw)
+{
+    raw = raw->duplicate();
+}
+
+void logExceptionDupplicate(LLPointer<LLImageRaw> &raw)
+{
+    __try
+    {
+        dupe(raw);
+    }
+    __except (exception_dupe_filter(GetExceptionCode(), GetExceptionInformation()))
+    {
+        // convert to C++ styled exception
+        char integer_string[32];
+        sprintf(integer_string, "SEH, code: %lu\n", GetExceptionCode());
+        throw std::exception(integer_string);
+    }
+}
+#endif
+
 //return the fast cache location
-bool LLTextureCache::writeToFastCache(S32 id, LLPointer<LLImageRaw> raw, S32 discardlevel)
+bool LLTextureCache::writeToFastCache(LLUUID image_id, S32 id, LLPointer<LLImageRaw> raw, S32 discardlevel)
 {
 	//rescale image if needed
 	if (raw.isNull() || raw->isBufferInvalid() || !raw->getData())
@@ -2027,12 +2067,38 @@ bool LLTextureCache::writeToFastCache(S32 id, LLPointer<LLImageRaw> raw, S32 dis
 		if(w * h *c > 0) //valid
 		{
 			//make a duplicate to keep the original raw image untouched.
-			raw = raw->scaled(w, h);
+
+            try
+            {
+#if LL_WINDOWS
+                // Temporary diagnostics for scale/duplicate crash
+                logExceptionDupplicate(raw);
+#else
+                raw = raw->duplicate();
+#endif
+            }
+            catch (...)
+            {
+                removeFromCache(image_id);
+                LL_ERRS() << "Failed to cache image: " << image_id
+                    << " local id: " << id
+                    << " Exception: " << boost::current_exception_diagnostic_information()
+                    << " Image new width: " << w
+                    << " Image new height: " << h
+                    << " Image new components: " << c
+                    << " Image discard difference: " << i
+                    << LL_ENDL;
+
+                return false;
+            }
+
 			if (raw->isBufferInvalid())
 			{
 				LL_WARNS() << "Invalid image duplicate buffer" << LL_ENDL;
 				return false;
 			}
+
+			raw->scale(w, h);
 
 			discardlevel += i ;
 		}

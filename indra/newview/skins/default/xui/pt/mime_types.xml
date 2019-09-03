@@ -57,6 +57,11 @@
 			Transmissão em tempo real
 		</label>
 	</scheme>
+	<scheme name="example">
+		<label name="example_label">
+			Exemplo Plugin scheme trigger
+		</label>
+	</scheme>
 	<scheme name="libvlc">
 		<label name="libvlc_label">
 			Mídia com suporte a LibVLC

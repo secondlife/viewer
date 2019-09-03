@@ -14,6 +14,7 @@
 
   <string name="status_idle"></string>
   <string name="status_parse_error">Error: Dae parsing issue - see log for details.</string>
+  <string name="status_bind_shape_orientation">Warning: bind shape matrix is not in standard X-forward orientation.</string>
   <string name="status_material_mismatch">Error: Material of model is not a subset of reference model.</string>
   <string name="status_reading_file">Loading...</string>
   <string name="status_generating_meshes">Generating Meshes...</string>
@@ -72,35 +73,6 @@
           prevalidate_callback="ascii"
           top_pad="5"
           width="290" />
-        <text
-          follows="left|top"
-          height="15"
-          layout="topleft"
-          left_pad="15"
-          name="model_category_label"
-          text_color="White"
-          top="0"
-          width="200">
-          This model represents...
-        </text>
-        <combo_box
-          follows="left|top"
-          height="23"
-          left_pad="10"
-          name="model_category_combo"
-          top_pad="10"
-          width="200">
-        <combo_box.drop_down_button
-          label_color="White"/>
-          <combo_item name="Choose one" label="Choose One..." value="MUT_Unspecified"/>
-          <combo_item name="Avatar shape" label="Avatar shape" value="MUT_AvatarShape"/>
-          <combo_item name="Avatar attachment" label="Avatar attachment" value="MUT_AvatarAttachment"/>
-          <combo_item name="Moving object (vehicle, animal)" label="Moving object (vehicle, animal)" value="MUT_MovingObject"/>
-          <combo_item name="Building Component" label="Building Component" value="MUT_BuildingComponent"/>
-          <combo_item name="Large, non moving etc" label="Large, non moving etc" value="MUT_LargeStationary"/>
-          <combo_item name="Smaller, non-moving etc" label="Smaller, non-moving etc" value="MUT_SmallStationary"/>
-          <combo_item name="Not really any of these" label="Not really any of these" value="MUT_Other"/>
-         </combo_box>
     </panel>
     <tab_container
       follows="top|left"

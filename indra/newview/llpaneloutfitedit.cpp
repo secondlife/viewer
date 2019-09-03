@@ -467,6 +467,7 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mListViewItemTypes.push_back(new LLFilterItem(LLTrans::getString("alpha"), new LLFindActualWearablesOfType(LLWearableType::WT_ALPHA)));
 	mListViewItemTypes.push_back(new LLFilterItem(LLTrans::getString("tattoo"), new LLFindActualWearablesOfType(LLWearableType::WT_TATTOO)));
 	mListViewItemTypes.push_back(new LLFilterItem(LLTrans::getString("physics"), new LLFindActualWearablesOfType(LLWearableType::WT_PHYSICS)));
+	mListViewItemTypes.push_back(new LLFilterItem(LLTrans::getString("universal"), new LLFindActualWearablesOfType(LLWearableType::WT_UNIVERSAL)));
 
 	mCurrentOutfitName = getChild<LLTextBox>("curr_outfit_name"); 
 	mStatus = getChild<LLTextBox>("status");
@@ -531,11 +532,6 @@ BOOL LLPanelOutfitEdit::postBuild()
 
 	mPlusBtn = getChild<LLButton>("plus_btn");
 	mPlusBtn->setClickedCallback(boost::bind(&LLPanelOutfitEdit::onPlusBtnClicked, this));
-	
-	mEditWearableBtn = getChild<LLButton>("edit_wearable_btn");
-	mEditWearableBtn->setEnabled(FALSE);
-	mEditWearableBtn->setVisible(FALSE);
-	mEditWearableBtn->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onEditWearableClicked, this));
 
 	childSetAction(REVERT_BTN, boost::bind(&LLAppearanceMgr::wearBaseOutfit, LLAppearanceMgr::getInstance()));
 

@@ -225,18 +225,18 @@
         <key>version</key>
         <string>1.57</string>
       </map>
-      <key>chardet</key>
+      <key>bugsplat</key>
       <map>
         <key>copyright</key>
-        <string>Contributors to charset (see https://github.com/chardet/chardet)</string>
+        <string>Copyright 2003-2017, BugSplat</string>
         <key>description</key>
-        <string>Python Character Encoding Library</string>
+        <string>Bugsplat crash reporting package</string>
         <key>license</key>
-        <string>LGPL</string>
+        <string>Proprietary</string>
         <key>license_file</key>
-        <string>LICENSES/chardet.txt</string>
+        <string>LICENSES/BUGSPLAT_LICENSE.txt</string>
         <key>name</key>
-        <string>chardet</string>
+        <string>bugsplat</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -244,16 +244,40 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0124862b6a1b88455c78a68f8b823d21</string>
+              <string>c3b5e8c57bd1c92bc9e0956586908b99</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6662/23578/chardet-3.0.4-darwin64-506651.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/26330/207568/bugsplat-1.0.7.520791-darwin64-520791.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
           </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>766dfde65a5b42ea5691d41df79c43e0</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/26332/207582/bugsplat-3.6.0.4.520791-windows-520791.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>afd01285e22f27d473fac6f88fac9a3b</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/26331/207576/bugsplat-3.6.0.4.520791-windows64-520791.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
         </map>
         <key>version</key>
-        <string>3.0.4</string>
+        <string>1.0.7.520791</string>
       </map>
       <key>colladadom</key>
       <map>
@@ -556,9 +580,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>118987b1a5b56214cfdbd0c763e180da</string>
+              <string>23aeaf23e7db2484a1850017141860dd</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/15127/97748/dullahan-1.1.1080_3.3325.1750.gaabe4c4-darwin64-513449.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/34069/283470/dullahan-1.1.1320_3.3626.1895.g7001d56-darwin64-525361.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -568,9 +592,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2ecc71350b30a1057091b9cd7af18b1c</string>
+              <string>71fa66203326aca918796e874976c080</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/15128/97755/dullahan-1.1.1080_3.3325.1750.gaabe4c4-windows-513449.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/34070/283477/dullahan-1.1.1320_3.3626.1895.g7001d56-windows-525361.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -580,16 +604,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2ed3e49388514dafb907c59a209d580e</string>
+              <string>c7162e4805f50a3609f5dc63d0cf2bc0</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/15129/97760/dullahan-1.1.1080_3.3325.1750.gaabe4c4-windows64-513449.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/34071/283480/dullahan-1.1.1320_3.3626.1895.g7001d56-windows64-525361.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.1.1080_3.3325.1750.gaabe4c4</string>
+        <string>1.1.1320_3.3626.1895.g7001d56</string>
       </map>
       <key>elfio</key>
       <map>
@@ -1465,36 +1489,6 @@
         <key>version</key>
         <string>2012.1-2</string>
       </map>
-      <key>idna</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright (c) 2013-2017, Kim Davies. All rights reserved.</string>
-        <key>description</key>
-        <string>Python Internationalized Domain Names in Applications (IDNA) Library</string>
-        <key>license</key>
-        <string>see idna.rst</string>
-        <key>license_file</key>
-        <string>LICENSES/idna.rst</string>
-        <key>name</key>
-        <string>idna</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>7dfe9fc4023d7d4f511dd9fac7258266</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6663/23584/idna-2.5-darwin64-506652.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin64</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>2.5</string>
-      </map>
       <key>jpeglib</key>
       <map>
         <key>copyright</key>
@@ -1694,9 +1688,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7b769c4284bdbd5fce536395d1eab695</string>
+              <string>3855bd40f950e3c22739ae8f3ee2afc9</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4054/11304/kdu-7.9.1.504041-darwin-504041.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15258/98444/kdu-7.10.4.513518-darwin-513518.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1706,9 +1700,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a48db5cf79a4631090bfc968572d9953</string>
+              <string>d1521becaf21bf7233173722af63f57d</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4052/11292/kdu-7.9.1.504041-darwin64-504041.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15257/98440/kdu-7.10.4.513518-darwin64-513518.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1718,9 +1712,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ed952c0cb86329e63a8db190953962d8</string>
+              <string>43d7a6a69a54534a736f132e9c81795b</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/kdu_3p-update-kdu/rev/296932/arch/Linux/installer/kdu-7.2.296932-linux-296932.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15255/98451/kdu-7.10.4.513518-linux-513518.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1730,9 +1724,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>99b0b22f87cebdd02c4cc954a7b3b465</string>
+              <string>a705a665810a71e7b0114a97ae9a2224</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4053/11298/kdu-7.9.1.504041-linux64-504041.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15256/98457/kdu-7.10.4.513518-linux64-513518.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1742,9 +1736,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f3ff5982b3b5f02738044432dd77a2c1</string>
+              <string>0e5b37a03a3f873d15142473b193ec5f</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4055/11310/kdu-7.9.1.504041-windows-504041.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15259/98463/kdu-7.10.4.513518-windows-513518.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1754,16 +1748,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3010fa35f412b36296342b07de06f1ca</string>
+              <string>da3b1ea90797b189d80ab5d50fdf05d4</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/4056/11316/kdu-7.9.1.504041-windows64-504041.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/15260/98469/kdu-7.10.4.513518-windows64-513518.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>7.9.1.504041</string>
+        <string>7.A.4.513518</string>
       </map>
       <key>libhunspell</key>
       <map>
@@ -2173,46 +2167,6 @@
         <key>version</key>
         <string>0.0.1</string>
       </map>
-      <key>llbase</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright (c) 2010, Linden Research, Inc.</string>
-        <key>license</key>
-        <string>mit</string>
-        <key>license_file</key>
-        <string>LICENSES/llbase-license.txt</string>
-        <key>name</key>
-        <string>llbase</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>e18eeb0691af053b83bd46b76c6ee86a</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6299/21982/llbase-0.9.3.506286-darwin64-506286.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin64</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>e6865670f9bca1c82fb8b91db3ea515c</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6301/21994/llbase-0.9.3.506286-windows-506286.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>0.9.3.506286</string>
-      </map>
       <key>llca</key>
       <map>
         <key>copyright</key>
@@ -2526,9 +2480,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bb8bed08fd5973a040c509ef8b545ec8</string>
+              <string>2c17cfd900c88914e06947fe0f1fdae4</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/490/1046/ogg_vorbis-1.2.2-1.3.2.500397-darwin64-500397.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/25395/199641/ogg_vorbis-1.3.3-1.3.6.520171-darwin64-520171.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2562,9 +2516,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f7edf86dcf2d9be7bee98c91256fa569</string>
+              <string>1818627d4d1f05b49709717e240bdcf4</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/512/1108/ogg_vorbis-1.2.2-1.3.2.500397-windows-500397.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/25396/199634/ogg_vorbis-1.3.3-1.3.6.520171-windows-520171.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2574,16 +2528,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>497ec6ac26c2e136ee65acbed86cb2ef</string>
+              <string>d124788c798684c890c1803fca541a10</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/511/1105/ogg_vorbis-1.2.2-1.3.2.500397-windows64-500397.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/25397/199631/ogg_vorbis-1.3.3-1.3.6.520171-windows64-520171.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.2.2-1.3.2.500397</string>
+        <string>1.3.3-1.3.6.520171</string>
       </map>
       <key>open-libndofdev</key>
       <map>
@@ -2955,52 +2909,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>version</key>
         <string>8.35.500898</string>
       </map>
-      <key>requests</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright 2016 Kenneth Reitz</string>
-        <key>description</key>
-        <string>Python HTTP Library</string>
-        <key>license</key>
-        <string>Apache</string>
-        <key>license_file</key>
-        <string>LICENSES/requests.txt</string>
-        <key>name</key>
-        <string>requests</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>b8d134a970261b445a3f376ba4e05ff7</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6693/23788/requests-2.18.1-darwin64-506681.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin64</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>a92f2235991871c3d601a73cfef9b2af</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4105/11530/requests-1.0-linux64-504094.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-        </map>
-        <key>source</key>
-        <string>https://bitbucket.org/lindenlab/p64_python-requests</string>
-        <key>source_type</key>
-        <string>hg</string>
-        <key>version</key>
-        <string>2.18.1</string>
-      </map>
       <key>slvoice</key>
       <map>
         <key>copyright</key>
@@ -3032,9 +2940,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b1b0134bc55f55a7c1a04ee78d70c64d</string>
+              <string>a605ec940768c878527d3b8f2ff61288</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12438/73598/slvoice-4.9.0002.27586.511884-darwin64-511884.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/21421/157284/slvoice-4.9.0002.30313.517593-darwin64-517593.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3068,9 +2976,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ec50c31efce74bdedee470b5388aeeec</string>
+              <string>5a78539626b5f23522d0b466247f48b4</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12434/73576/slvoice-4.9.0002.27586.511884-windows-511884.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/21422/157291/slvoice-4.9.0002.30313.517593-windows-517593.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3080,16 +2988,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4bf45d641bf5b2bd6b2cc39edcb01a6e</string>
+              <string>1f8e09c053c00d9dc44ea74568e63dc1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/12433/73570/slvoice-4.9.0002.27586.511884-windows64-511884.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/21423/157298/slvoice-4.9.0002.30313.517593-windows64-517593.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.9.0002.27586.511884</string>
+        <string>4.9.0002.30313.517593</string>
       </map>
       <key>tut</key>
       <map>
@@ -3211,36 +3119,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>version</key>
         <string>0.8.0.1</string>
       </map>
-      <key>urllib3</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright 2008-2016 Andrey Petrov and contributors (see CONTRIBUTORS.txt)</string>
-        <key>description</key>
-        <string>Python HTTP Library</string>
-        <key>license</key>
-        <string>MIT</string>
-        <key>license_file</key>
-        <string>LICENSES/urllib3.txt</string>
-        <key>name</key>
-        <string>urllib3</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>22f64c7fbb6704d2e9519fd1cca8e49b</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/6659/23560/urllib3-1.21.1-darwin64-506648.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin64</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>1.21.1</string>
-      </map>
       <key>viewer-manager</key>
       <map>
         <key>copyright</key>
@@ -3248,7 +3126,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>description</key>
         <string>Linden Lab Viewer Management Process suite.</string>
         <key>license</key>
-        <string>Proprietary</string>
+        <string>viewerlgpl</string>
         <key>license_file</key>
         <string>LICENSE</string>
         <key>name</key>
@@ -3260,9 +3138,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4aefe12a3825d1b4b8370986d84792a2</string>
+              <string>aaf04f5ed1d28477781d976dc04871ee</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/15295/98583/viewer_manager-1.0.513540-darwin64-513540.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/31904/266163/viewer_manager-2.0.524157-darwin64-524157.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3284,9 +3162,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>db96bc8a83e6577d31657586100bfc35</string>
+              <string>4604624f11b215b052f4a840f4da4bf8</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/15298/98589/viewer_manager-1.0.513540-windows-513540.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/31906/266177/viewer_manager-2.0.524157-windows-524157.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3297,7 +3175,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>source_type</key>
         <string>hg</string>
         <key>version</key>
-        <string>1.0.513540</string>
+        <string>2.0.524157</string>
       </map>
       <key>vlc-bin</key>
       <map>
@@ -3548,6 +3426,8 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
     </map>
     <key>package_description</key>
     <map>
+      <key>canonical_repo</key>
+      <string>https://bitbucket.org/lindenlab/viewer-release</string>
       <key>copyright</key>
       <string>Copyright (c) 2014, Linden Research, Inc.</string>
       <key>description</key>
@@ -3662,10 +3542,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <map>
                 <key>command</key>
                 <string>xcodebuild</string>
-                <key>filters</key>
-                <array>
-                  <string>setenv</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-configuration</string>
@@ -3722,10 +3598,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <map>
                 <key>command</key>
                 <string>xcodebuild</string>
-                <key>filters</key>
-                <array>
-                  <string>setenv</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-configuration</string>

@@ -12,6 +12,9 @@
 	<text name="title_animation">
 		Animationen
 	</text>
+	<text name="title_model">
+		Modelle
+	</text>
 	<text name="upload_help">
 		Um einen Zielordner zu ändern, klicken Sie im Inventar mit der rechten Maustaste auf den Ordner und wählen Sie „Als Standard verwenden für“.
 	</text>

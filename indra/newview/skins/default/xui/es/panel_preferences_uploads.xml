@@ -12,6 +12,9 @@
 	<text name="title_animation">
 		Animaciones
 	</text>
+	<text name="title_model">
+		Modelos
+	</text>
 	<text name="upload_help">
 		Para cambiar una carpeta de destino, pulsa con el botón derecho en ella en el inventario y elige
 &quot;Usar como valor predeterminado para&quot;

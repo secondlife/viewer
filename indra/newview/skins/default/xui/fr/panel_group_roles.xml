@@ -95,6 +95,11 @@ Pour sélectionner plusieurs membres, cliquez sur leurs noms en maintenant la to
 			<scroll_list.columns label="" name="action"/>
 		</scroll_list>
 	</panel>
+	<panel name="members_header">
+		<text_editor name="member_action_description">
+			Ce pouvoir permet « d&apos;expulser des membres de ce groupe ». Seul un propriétaire peut expulser un autre propriétaire.
+		</text_editor>
+	</panel>
 	<panel name="roles_footer">
 		<text name="static">
 			Nom du rôle
@@ -119,6 +124,11 @@ Pour sélectionner plusieurs membres, cliquez sur leurs noms en maintenant la to
 			<scroll_list.columns label="" name="checkbox"/>
 			<scroll_list.columns label="" name="action"/>
 		</scroll_list>
+	</panel>
+	<panel name="roles_header">
+		<text_editor name="role_action_description">
+			Ce pouvoir permet « d&apos;expulser des membres de ce groupe ». Seul un propriétaire peut expulser un autre propriétaire.
+		</text_editor>
 	</panel>
 	<panel name="actions_footer">
 		<text_editor name="action_description">

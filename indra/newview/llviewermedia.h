@@ -202,7 +202,7 @@ public:
 	bool initializeMedia(const std::string& mime_type);
 	bool initializePlugin(const std::string& media_type);
 	void loadURI();
-	LLPluginClassMedia* getMediaPlugin() { return mMediaSource; }
+	LLPluginClassMedia* getMediaPlugin() { return mMediaSource.get(); }
 	void setSize(int width, int height);
 
 	void showNotification(LLNotificationPtr notify);
@@ -216,6 +216,7 @@ public:
 	void skipBack(F32 step_scale);
 	void skipForward(F32 step_scale);
 	void setVolume(F32 volume);
+	void setMute(bool mute);
 	void updateVolume();
 	F32 getVolume();
 	void focus(bool focus);
@@ -417,7 +418,7 @@ private:
 	
 private:
 	// a single media url with some data and an impl.
-	LLPluginClassMedia* mMediaSource;
+	boost::shared_ptr<LLPluginClassMedia> mMediaSource;
 	F64		mZoomFactor;
 	LLUUID mTextureId;
 	bool  mMovieImageHasMips;
@@ -448,6 +449,7 @@ private:
 	bool mNavigateServerRequest;
 	bool mMediaSourceFailed;
 	F32 mRequestedVolume;
+	F32 mPreviousVolume;
 	bool mIsMuted;
 	bool mNeedsMuteCheck;
 	int mPreviousMediaState;

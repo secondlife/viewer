@@ -9,9 +9,11 @@
 		<menu_item_call label="Lugares..." name="Places"/>
 		<menu_item_call label="Destacados..." name="Picks"/>
 		<menu_item_call label="Experiencias..." name="Experiences"/>
+		<menu_item_call label="Mis Scripts..." name="MyScripts"/>
 		<menu_item_call label="Controles de la cámara..." name="Camera Controls"/>
 		<menu label="Movimiento" name="Movement">
 			<menu_item_call label="Sentarte" name="Sit Down Here"/>
+			<menu_item_call label="Levantarme" name="Stand up"/>
 			<menu_item_check label="Volar" name="Fly"/>
 			<menu_item_check label="Correr siempre" name="Always Run"/>
 			<menu_item_call label="Parar mis animaciones" name="Stop Animating My Avatar"/>
@@ -77,12 +79,12 @@
 			<menu_item_check label="Propiedades de la parcela" name="Parcel Properties"/>
 			<menu_item_check label="Menú Avanzado" name="Show Advanced Menu"/>
 		</menu>
-		<menu label="Sol" name="Sun">
+		<menu label="Dom" name="Sun">
 			<menu_item_check label="Amanecer" name="Sunrise"/>
 			<menu_item_check label="Mediodía" name="Noon"/>
 			<menu_item_check label="Atardecer" name="Sunset"/>
 			<menu_item_check label="Medianoche" name="Midnight"/>
-			<menu_item_check label="Usar configuración de región" name="Use Region Settings"/>
+			<menu_item_check label="Usar Configuración de la Región" name="Use Region Settings"/>
 		</menu>
 		<menu label="Editor de entorno" name="Environment Editor">
 			<menu_item_call label="Configuración del entorno..." name="Environment Settings"/>
@@ -273,7 +275,6 @@
 			<menu_item_check label="Mostrar información de textura" name="Show Texture Info"/>
 			<menu_item_check label="Show Color Under Cursor" name="Show Color Under Cursor"/>
 			<menu_item_check label="Mostrar la memoria" name="Show Memory"/>
-			<menu_item_check label="Mostrar información de memoria privada" name="Show Private Mem Info"/>
 			<menu_item_check label="Show Updates to Objects" name="Show Updates"/>
 		</menu>
 		<menu label="Force an Error" name="Force Errors">
@@ -298,6 +299,7 @@
 			<menu_item_check label="Formas del físico" name="Physics Shapes"/>
 			<menu_item_check label="Actualizar el tipo" name="Update Type"/>
 			<menu_item_check label="Información sobre el nivel de detalle" name="LOD Info"/>
+			<menu_item_check label="Recuento de triángulo" name="Triangle Count"/>
 			<menu_item_check label="Crear cola" name="Build Queue"/>
 			<menu_item_check label="Partículas" name="Particles"/>
 			<menu_item_check label="Articulaciones" name="Joints"/>
@@ -372,6 +374,7 @@
 			<menu_item_check label="Show Collision Skeleton" name="Show Collision Skeleton"/>
 			<menu_item_check label="Mostrar los huesos" name="Show Bones"/>
 			<menu_item_check label="Display Agent Target" name="Display Agent Target"/>
+			<menu_item_check label="Mostrar las medidas impostoras" name="Show Impostor Extents"/>
 			<menu_item_call label="Debug Avatar Textures" name="Debug Avatar Textures"/>
 		</menu>
 		<menu_item_check label="HTTP Textures" name="HTTP Textures"/>

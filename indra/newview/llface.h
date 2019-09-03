@@ -114,7 +114,7 @@ public:
 	LLVector2       surfaceToTexture(LLVector2 surface_coord, const LLVector4a& position, const LLVector4a& normal);
 	void 			getPlanarProjectedParams(LLQuaternion* face_rot, LLVector3* face_pos, F32* scale) const;
 	bool			calcAlignedPlanarTE(const LLFace* align_to, LLVector2* st_offset,
-										LLVector2* st_scale, F32* st_rot) const;
+										LLVector2* st_scale, F32* st_rot, LLRender::eTexIndex map = LLRender::DIFFUSE_MAP) const;
 	
 	U32				getState()			const	{ return mState; }
 	void			setState(U32 state)			{ mState |= state; }
@@ -198,6 +198,7 @@ public:
 	void		renderSelectedUV();
 
 	void		renderSelected(LLViewerTexture *image, const LLColor4 &color);
+	void		renderOneWireframe(const LLColor4 &color, F32 fogCfx, bool wireframe_selection, bool bRenderHiddenSelections, bool shader);
 
 	F32			getKey()					const	{ return mDistance; }
 

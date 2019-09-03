@@ -177,7 +177,7 @@ LLWorldMapView::LLWorldMapView()
 	mMouseDownY( 0 ),
 	mSelectIDStart(0)
 {
-	//LL_INFOS("World Map") << "Creating the Map -> LLWorldMapView::LLWorldMapView()" << LL_ENDL;
+	//LL_INFOS("WorldMap") << "Creating the Map -> LLWorldMapView::LLWorldMapView()" << LL_ENDL;
 
 	clearLastClick();
 }
@@ -217,7 +217,7 @@ BOOL LLWorldMapView::postBuild()
 
 LLWorldMapView::~LLWorldMapView()
 {
-	//LL_INFOS("World Map") << "Destroying the map -> LLWorldMapView::~LLWorldMapView()" << LL_ENDL;
+	//LL_INFOS("WorldMap") << "Destroying the map -> LLWorldMapView::~LLWorldMapView()" << LL_ENDL;
 	cleanupTextures();
 }
 
@@ -465,7 +465,11 @@ void LLWorldMapView::draw()
 					mesg, 0,
 					llfloor(left + 3), llfloor(bottom + 2),
 					LLColor4::white,
-					LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW);
+					LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW,
+					S32_MAX, //max_chars
+					sMapScale, //max_pixels
+					NULL,
+					TRUE); //use ellipses
 			}
 		}
 	}
@@ -616,7 +620,7 @@ void LLWorldMapView::drawMipmap(S32 width, S32 height)
 	}
 	else
 	{
-		//LL_INFOS("World Map") << "Render complete, don't draw background..." << LL_ENDL;
+		//LL_INFOS("WorldMap") << "Render complete, don't draw background..." << LL_ENDL;
 	}
 
 	// Render the current level
@@ -705,7 +709,7 @@ bool LLWorldMapView::drawMipmapLevel(S32 width, S32 height, S32 level, bool load
 				//else
 				//{
 				//	Waiting for a tile -> the level is not complete
-				//	LL_INFOS("World Map") << "Unfetched tile. level = " << level << LL_ENDL;
+				//	LL_INFOS("WorldMap") << "Unfetched tile. level = " << level << LL_ENDL;
 				//}
 			}
 			else
@@ -883,9 +887,8 @@ void LLWorldMapView::drawFrustum()
 	F32 half_width_pixels = half_width_meters * meters_to_pixels;
 	
 	// Compute the frustum coordinates. Take the UI scale into account.
-	F32 ui_scale_factor = gSavedSettings.getF32("UIScaleFactor");
-	F32 ctr_x = (getLocalRect().getWidth() * 0.5f + sPanX)  * ui_scale_factor;
-	F32 ctr_y = (getLocalRect().getHeight() * 0.5f + sPanY) * ui_scale_factor;
+    F32 ctr_x = ((getLocalRect().getWidth() * 0.5f + sPanX)  * LLUI::getScaleFactor().mV[VX]);
+    F32 ctr_y = ((getLocalRect().getHeight() * 0.5f + sPanY) * LLUI::getScaleFactor().mV[VY]);
 
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
@@ -1668,7 +1671,7 @@ void LLWorldMapView::updateVisibleBlocks()
 	S32 world_bottom = world_center_y - S32(half_height / sMapScale) - 1;
 	S32 world_top    = world_center_y + S32(half_height / sMapScale) + 1;
 
-	//LL_INFOS("World Map") << "LLWorldMapView::updateVisibleBlocks() : sMapScale = " << sMapScale << ", left = " << world_left << ", right = " << world_right << ", bottom  = " << world_bottom << ", top = " << world_top << LL_ENDL;
+	//LL_INFOS("WorldMap") << "LLWorldMapView::updateVisibleBlocks() : sMapScale = " << sMapScale << ", left = " << world_left << ", right = " << world_right << ", bottom  = " << world_bottom << ", top = " << world_top << LL_ENDL;
 	LLWorldMap::getInstance()->updateRegions(world_left, world_bottom, world_right, world_top);
 }
 
@@ -1751,9 +1754,12 @@ BOOL LLWorldMapView::handleDoubleClick( S32 x, S32 y, MASK mask )
 		case MAP_ITEM_LAND_FOR_SALE_ADULT:
 			{
 				LLVector3d pos_global = viewPosToGlobal(x, y);
-				LLSimInfo* info = LLWorldMap::getInstance()->simInfoFromPosGlobal(pos_global);
-				LLFloaterReg::hideInstance("world_map");
-				LLFloaterReg::showInstance("search", LLSD().with("category", "land").with("query", info->getName()));
+				std::string sim_name;
+				if (LLWorldMap::getInstance()->simNameFromPosGlobal(pos_global, sim_name))
+				{
+					LLFloaterReg::hideInstance("world_map");
+					LLFloaterReg::showInstance("search", LLSD().with("category", "land").with("query", sim_name));
+				}
 				break;
 			}
 		case MAP_ITEM_CLASSIFIED:

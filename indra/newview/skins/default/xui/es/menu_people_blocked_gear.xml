@@ -3,6 +3,7 @@
 	<menu_item_call label="No ignorar" name="unblock"/>
 	<menu_item_check label="Bloquear la voz" name="BlockVoice"/>
 	<menu_item_check label="Bloquear el texto" name="MuteText"/>
+	<menu_item_check label="Bloquear partículas" name="MuteParticles"/>
 	<menu_item_check label="Bloquear los sonidos de objeto" name="BlockObjectSounds"/>
 	<menu_item_call label="Perfil..." name="profile"/>
 </toggleable_menu>

@@ -62,9 +62,11 @@ LLTransferManager::LLTransferManager() :
 
 LLTransferManager::~LLTransferManager()
 {
+	// LLTransferManager should have been cleaned up by message system shutdown process
+	llassert(!mValid);
 	if (mValid)
 	{
-		LL_WARNS() << "LLTransferManager::~LLTransferManager - Should have been cleaned up by message system shutdown process" << LL_ENDL;
+		// Usually happens if OS tries to kill viewer
 		cleanup();
 	}
 }

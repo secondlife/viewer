@@ -158,7 +158,7 @@ void LLRegionInfoModel::update(LLMessageSystem* msg)
 
 	// actually the "last set" sun hour, not the current sun hour. JC
 	msg->getF32(_PREHASH_RegionInfo, _PREHASH_SunHour, mSunHour);
-	LL_DEBUGS("Windlight Sync") << "Got region sun hour: " << mSunHour << LL_ENDL;
+	LL_DEBUGS("WindlightSync") << "Got region sun hour: " << mSunHour << LL_ENDL;
 
 	msg->getS32Fast(_PREHASH_RegionInfo2, _PREHASH_HardMaxAgents, mHardAgentLimit);
 

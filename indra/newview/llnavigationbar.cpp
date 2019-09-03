@@ -443,6 +443,7 @@ void LLNavigationBar::onLocationSelection()
 			{
 				
 				gAgent.teleportViaLandmark( LLUUID(value["AssetUUID"].asString()));
+				mSaveToLocationHistory = true;
 				return;
 			}
 			else
@@ -453,6 +454,7 @@ void LLNavigationBar::onLocationSelection()
 				if (!landmark_items.empty())
 				{
 					gAgent.teleportViaLandmark( landmark_items[0]->getAssetUUID());
+					mSaveToLocationHistory = true;
 					return; 
 				}
 			}

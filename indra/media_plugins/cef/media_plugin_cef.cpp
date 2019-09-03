@@ -498,7 +498,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 
 				dullahan::dullahan_settings settings;
 				settings.accept_language_list = mHostLanguage;
-				settings.background_color = 0xff282828;
+				settings.background_color = 0xffffffff;
 				settings.cache_enabled = true;
 				settings.cache_path = mCachePath;
 				settings.cookie_store_path = mCookiePath;
@@ -519,6 +519,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.webgl_enabled = true;
 				settings.log_file = mCefLogFile;
 				settings.log_verbose = mCefLogVerbose;
+				settings.autoplay_without_gesture = true;
 
 				std::vector<std::string> custom_schemes(1, "secondlife");
 				mCEFLib->setCustomSchemes(custom_schemes);
@@ -810,8 +811,9 @@ void MediaPluginCEF::keyEvent(dullahan::EKeyEvent key_event, LLSD native_key_dat
 	bool event_isrepeat = native_key_data["event_isrepeat"].asBoolean();
 
 	// adding new code below in unicodeInput means we don't send ascii chars
-	// here too or we get double key presses on a mac.  
-	if (((unsigned char)event_chars < 0x10 || (unsigned char)event_chars >= 0x7f ))
+	// here too or we get double key presses on a mac.
+	bool esc_key = (event_umodchars == 27);
+	if (esc_key || ((unsigned char)event_chars < 0x10 || (unsigned char)event_chars >= 0x7f ))
 	{
 		mCEFLib->nativeKeyboardEventOSX(key_event, event_modifiers, 
 										event_keycode, event_chars, 

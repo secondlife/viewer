@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <role_actions>
 	<action_set description="これらの能力には、グループメンバーを追加、排除し、招待状なしに新メンバーの参加を認める権限が含まれます。" name="Membership">
-		<action description="このグループに人を招待" longdescription="「役割」セクションの「メンバー」タブ内にある「招待」ボタンを押して、このグループにメンバーを招待します。" name="member invite" value="1"/>
-		<action description="メンバーをこのグループから追放" longdescription="「役割」セクションの「メンバー」タブ内にある「追放」ボタンを押して、このグループからメンバーを追放します。 「オーナー」は、他の「オーナー」以外は誰でも追放できます。 「オーナー」ではない人が「全員（Everyone）」にしか役割がない場合、メンバーはグループから追放されることがあります。 「役割」からメンバーを削除するには、「役割からメンバーを削除」の能力が与えられている必要があります。" name="member eject" value="2"/>
+		<action description="このグループに人を招待" longdescription="「役割&amp;メンバー」セクションの「メンバー」タブ内にある「招待」ボタンを押して、このグループにメンバーを招待します。" name="member invite" value="1"/>
+		<action description="このグループから「全員（Everyone）」の役割に属するメンバーを追放します" longdescription="「役割&amp;メンバー」セクションの「メンバー」タブ内にある「追放」ボタンを押して、このグループからメンバーを追放します。「オーナー」は、他の「オーナー」以外は誰でも追放できます。「オーナー」ではない人が「全員（Everyone）」にしか役割がない場合、メンバーはグループから追放されることがあります。「役割」からメンバーを削除するには、「役割からメンバーを削除」の能力が与えられている必要があります。" name="member eject" value="2"/>
 		<action description="立入禁止リストの管理" longdescription="グループのメンバーに、このグループから住人を立入禁止/立入禁止解除できるようにします。" name="allow ban" value="51"/>
 		<action description="「自由参加」と「入会費」の切り替え" longdescription="「自由参加」に切り替えると、招待されなくても新しいメンバーが入会できます。「入会費」は「一般」セクションで変更します。" name="member options" value="3"/>
 	</action_set>
 	<action_set description="これらの能力には、グループ内の役割を追加、削除、変更し、役割にメンバーを追加、削除し、さらに役割へ能力を割り当てる権限が含まれます。" name="Roles">
-		<action description="新しい役割を作成" longdescription="新しい「役割」は、「役割」セクション &gt; 「役割」タブで作成します。" name="role create" value="4"/>
-		<action description="役割を削除" longdescription="「役割」は、「役割」セクション &gt; 「役割」タブで削除できます。" name="role delete" value="5"/>
-		<action description="「役割」の名前、タイトル、説明、メンバー公開の有無を変更" longdescription="「役割」の名前、タイトル、説明、メンバー公開の有無を変更します。 「役割」を選択後に、「役割」セクション &gt; 「役割」タブ の下で設定できます。" name="role properties" value="6"/>
-		<action description="メンバーを割り当て人の役割に割り当てる" longdescription="「割り当てられた役割」（「役割」セクション &gt; 「メンバー」タブ）のリストで、メンバーを「役割」に割り当てます。 この能力があるメンバーは、割り当てる人が既に所属する「役割」にのみメンバーを追加できます。" name="role assign member limited" value="7"/>
-		<action description="メンバーを任意の役割に割り当てる" longdescription="「割り当てられた役割」（「役割」セクション &gt; 「メンバー」タブ）のリストで、メンバーをどの「役割」にも割り当てることができます。 *警告* この「能力」がある「役割」を持つメンバーなら誰でも自分自身と、他の「オーナー」以外のメンバーを現在以上の権限のある「役割」に割り当てることができます。つまり、「オーナー」以外の人が「オーナー」に近い力を持つよう設定できることになります。 この「能力」を割り当てる前に、自分がしようとしていることをよく把握してください。" name="role assign member" value="8"/>
-		<action description="役割からメンバーを解除" longdescription="「割り当てられた役割」（「役割」セクション &gt; 「メンバー」タブ）のリストで、メンバーを「役割」から削除します。 「オーナー」は削除できません。" name="role remove member" value="9"/>
-		<action description="役割の能力の割り当てと解除" longdescription="「許可された能力」（「役割」セクション &gt; 「役割」タブ）のリストにある、各「役割」の「能力」を割り当てたり、削除します。 *警告* この「能力」がある「役割」を持つメンバーなら誰でも自分自身と、他の「オーナー」以外のメンバーをすべての「能力」」に割り当てることができます。つまり、「オーナー」以外の人が「オーナー」に近い権限を持つよう設定できることになります。 この「能力」を割り当てる前に、自分がしようとしていることをよく把握してください。" name="role change actions" value="10"/>
+		<action description="新しい役割を作成" longdescription="新しい「役割」は、「役割&amp;メンバー」セクション &gt; 「役割」タブで作成します。" name="role create" value="4"/>
+		<action description="役割を削除" longdescription="「役割」は、「役割&amp;メンバー」セクション &gt; 「役割」タブで削除します。" name="role delete" value="5"/>
+		<action description="「役割」の名前、タイトル、説明、メンバー公開の有無を変更" longdescription="「役割」の名前、肩書き、説明、メンバー公開の有無を変更します。「役割」を選択後に、「役割&amp;メンバー」セクション &gt; 「役割」タブ の下で設定できます。" name="role properties" value="6"/>
+		<action description="メンバーを割り当て人の役割に割り当てる" longdescription="「割り当てられた役割」（「役割&amp;メンバー」セクション &gt; 「メンバー」タブ）のリストで、メンバーを「役割」に割り当てます。この能力があるメンバーは、割り当てる人が既に所属する「役割」にのみメンバーを追加できます。" name="role assign member limited" value="7"/>
+		<action description="メンバーを任意の役割に割り当てる" longdescription="「割り当てられた役割」（「役割&amp;メンバー」セクション &gt; 「メンバー」タブ）のリストで、メンバーを「いずれかの役割」に割り当てます。*警告* この「能力」がある「役割」を持つメンバーなら誰でも自分自身と、他の「オーナー」以外のメンバーを現在以上の権限のある「役割」に割り当てることができます。つまり、「オーナー」以外の人が「オーナー」に近い力を持つよう設定できることになります。この「能力」を割り当てる前に、自分がしようとしていることをよく把握してください。" name="role assign member" value="8"/>
+		<action description="役割からメンバーを解除" longdescription="「割り当てられた役割」（「役割&amp;メンバー」セクション &gt; 「メンバー」タブ）のリストで、メンバーを「役割」から削除します。「オーナー」は削除できません。" name="role remove member" value="9"/>
+		<action description="役割の能力の割り当てと解除" longdescription="「許可された能力」（「役割&amp;メンバー」セクション &gt; 「役割」タブ）のリストで、各「役割」に対する「能力」を割り当てたり削除したりします。*警告* この「能力」がある「役割」を持つメンバーなら誰でも自分自身と、他の「オーナー」以外のメンバーをすべての「能力」」に割り当てることができます。つまり、「オーナー」以外の人が「オーナー」に近い権限を持つよう設定できることになります。この「能力」を割り当てる前に、自分がしようとしていることをよく把握してください。" name="role change actions" value="10"/>
 	</action_set>
 	<action_set description="これらの能力には、グループの公開性や理念、記章の変更といった、グループのアイデンティティを修正する権限が含まれます。" name="Group Identity">
 		<action description="理念、記章、「Web 上で公開」、およびグループ情報内で公開のメンバーを変更。" longdescription="理念、記章、「検索に表示」の変更をします。 「一般」セクションで行えます。" name="group change identity" value="11"/>

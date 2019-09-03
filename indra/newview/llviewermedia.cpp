@@ -55,6 +55,7 @@
 #include "llversioninfo.h"
 #include "llviewermediafocus.h"
 #include "llviewercontrol.h"
+#include "llviewermenufile.h" // LLFilePickerThread
 #include "llviewernetwork.h"
 #include "llviewerparcelmedia.h"
 #include "llviewerparcelmgr.h"
@@ -81,6 +82,43 @@
 /*static*/ const char* LLViewerMedia::SHOW_MEDIA_WITHIN_PARCEL_SETTING = "MediaShowWithinParcel";
 /*static*/ const char* LLViewerMedia::SHOW_MEDIA_OUTSIDE_PARCEL_SETTING = "MediaShowOutsideParcel";
 
+
+class LLMediaFilePicker : public LLFilePickerThread // deletes itself when done
+{
+public:
+    LLMediaFilePicker(LLPluginClassMedia* plugin, LLFilePicker::ELoadFilter filter, bool get_multiple)
+        : LLFilePickerThread(filter, get_multiple),
+        mPlugin(plugin->getSharedPrt())
+    {
+    }
+
+    LLMediaFilePicker(LLPluginClassMedia* plugin, LLFilePicker::ESaveFilter filter, const std::string &proposed_name)
+        : LLFilePickerThread(filter, proposed_name),
+        mPlugin(plugin->getSharedPrt())
+    {
+    }
+
+    virtual void notify(const std::vector<std::string>& filenames)
+    {
+        mPlugin->sendPickFileResponse(mResponses);
+        mPlugin = NULL;
+    }
+
+private:
+    boost::shared_ptr<LLPluginClassMedia> mPlugin;
+};
+
+void init_threaded_picker_load_dialog(LLPluginClassMedia* plugin, LLFilePicker::ELoadFilter filter, bool get_multiple)
+{
+    (new LLMediaFilePicker(plugin, filter, get_multiple))->getFile(); // will delete itself
+}
+
+void init_threaded_picker_save_dialog(LLPluginClassMedia* plugin, LLFilePicker::ESaveFilter filter, std::string &proposed_name)
+{
+    (new LLMediaFilePicker(plugin, filter, proposed_name))->getFile(); // will delete itself
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 // Move this to its own file.
 
@@ -644,8 +682,8 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 
 	std::vector<LLViewerMediaImpl*> proximity_order;
 
-	bool inworld_media_enabled = gSavedSettings.getBOOL("AudioStreamingMedia");
-	bool inworld_audio_enabled = gSavedSettings.getBOOL("AudioStreamingMusic");
+	static LLCachedControl<bool> inworld_media_enabled(gSavedSettings, "AudioStreamingMedia", true);
+	static LLCachedControl<bool> inworld_audio_enabled(gSavedSettings, "AudioStreamingMusic", true);
 	U32 max_instances = gSavedSettings.getU32("PluginInstancesTotal");
 	U32 max_normal = gSavedSettings.getU32("PluginInstancesNormal");
 	U32 max_low = gSavedSettings.getU32("PluginInstancesLow");
@@ -903,7 +941,8 @@ void LLViewerMedia::setAllMediaEnabled(bool val)
 			LLViewerParcelMedia::play(LLViewerParcelMgr::getInstance()->getAgentParcel());
 		}
 
-		if (gSavedSettings.getBOOL("AudioStreamingMusic") &&
+		static LLCachedControl<bool> audio_streaming_music(gSavedSettings, "AudioStreamingMusic", true);
+		if (audio_streaming_music &&
 			!LLViewerMedia::isParcelAudioPlaying() &&
 			gAudiop &&
 			LLViewerMedia::hasParcelAudio())
@@ -974,7 +1013,8 @@ void LLViewerMedia::setAllMediaPaused(bool val)
             LLViewerParcelMedia::play(LLViewerParcelMgr::getInstance()->getAgentParcel());
         }
 
-        if (gSavedSettings.getBOOL("AudioStreamingMusic") &&
+        static LLCachedControl<bool> audio_streaming_music(gSavedSettings, "AudioStreamingMusic", true);
+        if (audio_streaming_music &&
             !LLViewerMedia::isParcelAudioPlaying() &&
             gAudiop &&
             LLViewerMedia::hasParcelAudio())
@@ -1517,6 +1557,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mNavigateServerRequest(false),
 	mMediaSourceFailed(false),
 	mRequestedVolume(1.0f),
+	mPreviousVolume(1.0f),
 	mIsMuted(false),
 	mNeedsMuteCheck(false),
 	mPreviousMediaState(MEDIA_NONE),
@@ -1647,8 +1688,7 @@ void LLViewerMediaImpl::destroyMediaSource()
 	if(mMediaSource)
 	{
 		mMediaSource->setDeleteOK(true) ;
-		delete mMediaSource;
-		mMediaSource = NULL;
+		mMediaSource = NULL; // shared pointer
 	}
 }
 
@@ -1840,7 +1880,7 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 			media_source->clear_cache();
 		}
 
-		mMediaSource = media_source;
+		mMediaSource.reset(media_source);
 		mMediaSource->setDeleteOK(false) ;
 		updateVolume();
 
@@ -2042,6 +2082,20 @@ void LLViewerMediaImpl::setVolume(F32 volume)
 {
 	mRequestedVolume = volume;
 	updateVolume();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::setMute(bool mute)
+{
+	if (mute)
+	{
+		mPreviousVolume = mRequestedVolume;
+		setVolume(0.0);
+	}
+	else
+	{
+		setVolume(mPreviousVolume);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -3266,45 +3320,48 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			}
 			else
 			{
-				// Don't track redirects.
-				setNavState(MEDIANAVSTATE_NONE);
+				bool internal_nav = false;
+				if (url != mCurrentMediaURL)
+				{
+					// Check if it is internal navigation
+					// Note: Not sure if we should detect internal navigations as 'address change',
+					// but they are not redirects and do not cause NAVIGATE_BEGIN (also see SL-1005)
+					size_t pos = url.find("#");
+					if (pos != std::string::npos)
+					{
+						// assume that new link always have '#', so this is either
+						// transfer from 'link#1' to 'link#2' or from link to 'link#2'
+						// filter out cases like 'redirect?link'
+						std::string base_url = url.substr(0, pos);
+						pos = mCurrentMediaURL.find(base_url);
+						if (pos == 0)
+						{
+							// base link hasn't changed
+							internal_nav = true;
+						}
+					}
+				}
+
+				if (internal_nav)
+				{
+					// Internal navigation by '#'
+					mCurrentMediaURL = url;
+					setNavState(MEDIANAVSTATE_FIRST_LOCATION_CHANGED);
+				}
+				else
+				{
+					// Don't track redirects.
+					setNavState(MEDIANAVSTATE_NONE);
+				}
 			}
 		}
 		break;
 
 		case LLViewerMediaObserver::MEDIA_EVENT_PICK_FILE_REQUEST:
 		{
-			LLFilePicker& picker = LLFilePicker::instance();
-			std::vector<std::string> responses;
+			LL_DEBUGS("Media") << "Media event - file pick requested." <<  LL_ENDL;
 
-			bool pick_multiple_files = plugin->getIsMultipleFilePick();
-			if (pick_multiple_files == false)
-			{
-				picker.getOpenFile(LLFilePicker::FFLOAD_ALL);
-
-				std::string filename = picker.getFirstFile();
-				responses.push_back(filename);
-			}
-			else
-			{
-				if (picker.getMultipleOpenFiles())
-				{
-					std::string filename = picker.getFirstFile();
-
-					responses.push_back(filename);
-
-					while (!filename.empty())
-					{
-						filename = picker.getNextFile();
-
-						if (!filename.empty())
-						{
-							responses.push_back(filename);
-						}
-					}
-				}
-			}
-			plugin->sendPickFileResponse(responses);
+			init_threaded_picker_load_dialog(plugin, LLFilePicker::FFLOAD_ALL, plugin->getIsMultipleFilePick());
 		}
 		break;
 

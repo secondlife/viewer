@@ -135,7 +135,8 @@ std::string LLNotificationListItem::buildNotificationDate(const LLDate& time_sta
 			   	+LLTrans::getString("TimeDay")+"]/["
 				+LLTrans::getString("TimeYear")+"] ["
 				+LLTrans::getString("TimeHour")+"]:["
-				+LLTrans::getString("TimeMin")+"]";
+				+LLTrans::getString("TimeMin")+"] ["
+				+LLTrans::getString("TimeTimezone")+"]";
 			break;
 	}
     LLSD substitution;
@@ -288,9 +289,7 @@ BOOL LLGroupInviteNotificationListItem::postBuild()
 
     //invitation with any non-default group role, doesn't have newline characters at the end unlike simple invitations
     std::string invitation_desc = mNoticeTextExp->getValue().asString();
-    boost::regex pattern = boost::regex("\n\n$", boost::regex::perl|boost::regex::icase);
-    boost::match_results<std::string::const_iterator> matches;
-    if(!boost::regex_search(invitation_desc, matches, pattern))
+    if (invitation_desc.substr(invitation_desc.size() - 2) != "\n\n")
     {
         invitation_desc += "\n\n";
         mNoticeTextExp->setValue(invitation_desc);
@@ -314,38 +313,15 @@ void LLGroupInviteNotificationListItem::onClickJoinBtn()
 		return;
 	}
 
-	if(mParams.fee > 0)
-	{
-		LLSD args;
-		args["COST"] = llformat("%d", mParams.fee);
-		// Set the fee for next time to 0, so that we don't keep
-		// asking about a fee.
-		LLSD next_payload;
-		next_payload["group_id"]=  mParams.group_id;
-		next_payload["transaction_id"]= mParams.transaction_id;
-		next_payload["fee"] = 0;
-		LLNotificationsUtil::add("JoinGroupCanAfford", args, next_payload);
-	}
-	else
-	{
-		send_improved_im(mParams.group_id,
-						std::string("name"),
-						std::string("message"),
-						IM_ONLINE,
-						IM_GROUP_INVITATION_ACCEPT,
-						mParams.transaction_id);
-	}
+	send_join_group_response(mParams.group_id, mParams.transaction_id, true, mParams.fee, mParams.use_offline_cap);
+
 	LLNotificationListItem::onClickCloseBtn();
 }
 
 void LLGroupInviteNotificationListItem::onClickDeclineBtn()
 {
-	send_improved_im(mParams.group_id,
-					std::string("name"),
-					std::string("message"),
-					IM_ONLINE,
-					IM_GROUP_INVITATION_DECLINE,
-					mParams.transaction_id);
+	send_join_group_response(mParams.group_id, mParams.transaction_id, false, mParams.fee, mParams.use_offline_cap);
+
 	LLNotificationListItem::onClickCloseBtn();
 }
 
@@ -401,13 +377,13 @@ BOOL LLGroupNoticeNotificationListItem::postBuild()
     mTitleBoxExp->setValue(mParams.subject);
     mNoticeTextExp->setValue(mParams.message);
 
-    mTimeBox->setValue(buildNotificationDate(mParams.time_stamp, UTC));
-    mTimeBoxExp->setValue(buildNotificationDate(mParams.time_stamp, UTC));
+    mTimeBox->setValue(buildNotificationDate(mParams.time_stamp));
+    mTimeBoxExp->setValue(buildNotificationDate(mParams.time_stamp));
     //Workaround: in case server timestamp is 0 - we use the time when notification was actually received
     if (mParams.time_stamp.isNull())
     {
-        mTimeBox->setValue(buildNotificationDate(mParams.received_time, UTC));
-        mTimeBoxExp->setValue(buildNotificationDate(mParams.received_time, UTC));
+        mTimeBox->setValue(buildNotificationDate(mParams.received_time));
+        mTimeBoxExp->setValue(buildNotificationDate(mParams.received_time));
     }
     setSender(mParams.sender);
 

@@ -48,7 +48,7 @@ add_executable(SLPlugin
     WIN32
     MACOSX_BUNDLE
     ${SLPlugin_SOURCE_FILES}
-)
+    )
 
 if (WINDOWS)
 set_target_properties(SLPlugin

@@ -35,6 +35,7 @@ set(llcommon_SOURCE_FILES
     llapp.cpp
     llapr.cpp
     llassettype.cpp
+    llatomic.cpp
     llbase32.cpp
     llbase64.cpp
     llbitpack.cpp
@@ -135,6 +136,7 @@ set(llcommon_HEADER_FILES
     llapp.h
     llapr.h
     llassettype.h
+    llatomic.h
     llbase32.h
     llbase64.h
     llbitpack.h
@@ -254,6 +256,11 @@ set(llcommon_HEADER_FILES
 
 set_source_files_properties(${llcommon_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
+
+if (BUGSPLAT_DB)
+  set_source_files_properties(llapp.cpp
+    PROPERTIES COMPILE_DEFINITIONS "LL_BUGSPLAT")
+endif (BUGSPLAT_DB)
 
 list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
 

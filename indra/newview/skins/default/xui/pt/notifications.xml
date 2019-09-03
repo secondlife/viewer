@@ -243,6 +243,10 @@ Por favor, selecione apenas um objeto e tente novamente.
 		Nota: Ao ativar esta opção, qualquer pessoa que utilizar este computador poderá ver a sua lista de lugares preferidos.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="AllowMultipleViewers">
+		Não é possível executar múltiplos visualizadores Second Life. Pode levar a uma falha, um corrompimento, visuais alterados e falha no desempenho no cache de textura.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="GrantModifyRights">
 		Conceder direitos de modificação a outros residentes vai autorizá-los a mudar, apagar ou pegar TODOS os seus objetos. Seja MUITO cuidadoso ao conceder esta autorização.
 Deseja dar direitos de modificação a [NAME]?
@@ -678,6 +682,9 @@ Consultar [_URL] para mais informações?
 		</url>
 		<usetemplate ignoretext="O hardware do meu computador não é suportado" name="okcancelignore" notext="Não" yestext="Sim"/>
 	</notification>
+	<notification name="RunLauncher">
+		Não executar diretamente o visualizador executável. Atualizar quaisquer atalhos existentes para executar o SL_Launcher.
+	</notification>
 	<notification name="OldGPUDriver">
 		Provavelmente, há um driver mais recente para o seu chip gráfico.  A atualização dos drivers gráficos pode melhorar significativamente o desempenho.
 
@@ -708,9 +715,9 @@ Para aumentar a qualidade do vídeo, vá para Preferências &gt; Vídeo.
 		Você não está autorizado a terraplanar o terreno [PARCEL].
 	</notification>
 	<notification name="CannotCopyWarning">
-		Você não tem autorização para copiar os itens abaixo:
-[ITEMS]
-ao dá-los, você ficará sem eles no seu inventário. Deseja realmente dar estes itens?
+		Não existe autorização para copiar os itens abaixo: 
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt; 
+e eles sairão do inverntário se sair. Deseja realmente dar estes itens?
 		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
 	</notification>
 	<notification name="CannotGiveItem">
@@ -1558,6 +1565,30 @@ Ultrapassa o limite de [MAX_AGENTS] [LIST_TYPE] de [NUM_EXCESS].
 	<notification name="ProblemAddingEstateManagerBanned">
 		Não foi possível adicionar residentes banidos à lista de gerentes de propriedades.
 	</notification>
+	<notification name="ProblemBanningEstateManager">
+		Não foi possível adicionar o gerente [AGENT] à lista de banimento.
+	</notification>
+	<notification name="GroupIsAlreadyInList">
+		&lt;nolink&gt;[GROUP]&lt;/nolink&gt; já está na lista de Grupos permitidos.
+	</notification>
+	<notification name="AgentIsAlreadyInList">
+		[AGENT] já está na sua [LIST_TYPE] lista.
+	</notification>
+	<notification name="AgentsAreAlreadyInList">
+		[AGENT] já está na sua [LIST_TYPE] lista.
+	</notification>
+	<notification name="AgentWasAddedToList">
+		[AGENT] foi adicionado na [LIST_TYPE] lista de [ESTATE].
+	</notification>
+	<notification name="AgentsWereAddedToList">
+		[AGENT] foi adicionado na [LIST_TYPE] lista de [ESTATE].
+	</notification>
+	<notification name="AgentWasRemovedFromList">
+		[AGENT] foi removido da [LIST_TYPE] lista de [ESTATE].
+	</notification>
+	<notification name="AgentsWereRemovedFromList">
+		[AGENT] foi removido da [LIST_TYPE] lista de [ESTATE].
+	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		Não é possível alterar a aparência até que as roupas e formas estejam carregadas.
 	</notification>
@@ -1572,156 +1603,29 @@ Por favor, ponha o objeto à venda e tente novamente.
 		Download do arquivo de terreno RAW concluído em:
 [DOWNLOAD_PATH]
 	</notification>
-	<notification name="DownloadWindowsMandatory">
-		Existe uma nova versão do [APP_NAME] 
-[MESSAGE]
-Baixe a atualização para usar o [APP_NAME].
-		<usetemplate name="okcancelbuttons" notext="Sair" yestext="Atualizar"/>
-	</notification>
-	<notification name="DownloadWindows">
-		Existe uma nova versão do [APP_NAME] 
-[MESSAGE]
-Não é preciso passar para a nova versão, mas ela pode melhorar o desempenho e estabilidade do visualizador.
-		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Atualizar"/>
-	</notification>
-	<notification name="DownloadWindowsReleaseForDownload">
-		Existe uma nova versão do [APP_NAME] 
-[MESSAGE]
-Não é preciso passar para a nova versão, mas ela pode melhorar o desempenho e estabilidade do visualizador.
-		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Atualizar"/>
-	</notification>
-	<notification name="DownloadLinuxMandatory">
-		Existe uma nova versão do [APP_NAME] 
-[MESSAGE]
-Baixe a atualização para usar o [APP_NAME].
-		<usetemplate name="okcancelbuttons" notext="Sair" yestext="Baixar"/>
-	</notification>
-	<notification name="DownloadLinux">
-		Existe uma nova versão do [APP_NAME] 
-[MESSAGE]
-Não é preciso passar para a nova versão, mas ela pode melhorar o desempenho e estabilidade.
-		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Baixar"/>
-	</notification>
-	<notification name="DownloadLinuxReleaseForDownload">
-		Existe uma nova versão do [APP_NAME] 
-[MESSAGE]
-Não é preciso passar para a nova versão, mas ela pode melhorar o desempenho e estabilidade.
-		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Baixar"/>
-	</notification>
-	<notification name="DownloadMacMandatory">
-		Existe uma nova versão do [APP_NAME] 
-[MESSAGE]
-Baixe a atualização para usar o [APP_NAME].
-
-Salvar na pasta Aplicativos?
-		<usetemplate name="okcancelbuttons" notext="Sair" yestext="Atualizar"/>
-	</notification>
-	<notification name="DownloadMac">
-		Existe uma nova versão do [APP_NAME] 
-[MESSAGE]
-Não é preciso passar para a nova versão, mas ela pode melhorar o desempenho e estabilidade do visualizador. 
-
-Salvar na pasta Aplicativos?
-		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Atualizar"/>
-	</notification>
-	<notification name="DownloadMacReleaseForDownload">
-		Existe uma nova versão do [APP_NAME] 
-[MESSAGE]
-Não é preciso passar para a nova versão, mas ela pode melhorar o desempenho e estabilidade do visualizador. 
-
-Salvar na pasta Aplicativos?
-		<usetemplate name="okcancelbuttons" notext="Continuar" yestext="Atualizar"/>
-	</notification>
-	<notification name="FailedUpdateInstall">
-		Ocorreu um erro de atualização do visualizador. 
-Baixe e instale a versão mais recente do visualizador em 
-http://secondlife.com/download.
+	<notification name="RequiredUpdate">
+		Versão [VERSION] é obrigatório para efetuar login. 
+Baixe a versão mais recente em https://secondlife.com/support/downloads/
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
-	<notification name="FailedRequiredUpdateInstall">
-		Não foi possível instalar uma atualização necessária. 
-Não será possível acessar a sua conta até que você atualize o [APP_NAME].
-
-Baixe e instale a versão mais recente do visualizador em 
-http://secondlife.com/download.
+	<notification name="PauseForUpdate">
+		Versão [VERSION] é obrigatório para efetuar login. 
+Clique em OK para baixar e instalar
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OptionalUpdateReady">
+		A versão [VERSION] foi baixada e está pronta para ser instalada. 
+Clique em OK para instalar
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PromptOptionalUpdate">
+		A versão [VERSION] foi baixada e está pronta para ser instalada. 
+Deseja prosseguir?
+		<usetemplate canceltext="Ainda não" name="yesnocancelbuttons" notext="Ignorar" yestext="Instalar"/>
+	</notification>
+	<notification name="LoginFailedUnknown">
+		Desculpe, motivo de falha de login desconhecido. Se você continuar a receber esta mensagem, por favor consulte o [SUPPORT_SITE].
 		<usetemplate name="okbutton" yestext="Sair"/>
-	</notification>
-	<notification name="UpdaterServiceNotRunning">
-		A instalação do Second Life requer uma atualização.
-
-Baixe a atualização em http://www.secondlife.com/downloads
-ou você pode instalar a instalação agora.
-		<usetemplate name="okcancelbuttons" notext="Sair do Second Life" yestext="Baixar e instalar agora"/>
-	</notification>
-	<notification name="DownloadBackgroundTip">
-		Baixamos uma atualização para a instalação do [APP_NAME].
-Versão [VERSION] [[RELEASE_NOTES_FULL_URL] sobre esta atualização]
-		<usetemplate name="okcancelbuttons" notext="Depois..." yestext="Instalar agora e reiniciar o [APP_NAME]"/>
-	</notification>
-	<notification name="DownloadBackgroundDialog">
-		Baixamos uma atualização para a instalação do [APP_NAME].
-Versão [VERSION] [[RELEASE_NOTES_FULL_URL] sobre esta atualização]
-		<usetemplate name="okcancelbuttons" notext="Depois..." yestext="Instalar agora e reiniciar o [APP_NAME]"/>
-	</notification>
-	<notification name="RequiredUpdateDownloadedVerboseDialog">
-		O software requer uma atualização que já foi baixada.
-Versão [VERSION] Informação [[INFO_URL] sobre essa atualização]
-
-Para instalar a atualização, será preciso reiniciar o [APP_NAME].
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="RequiredUpdateDownloadedDialog">
-		Para instalar a atualização, será preciso reiniciar o [APP_NAME].
-Informação [[INFO_URL] sobre essa atualização]
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="OtherChannelDownloadBackgroundTip">
-		Baixamos uma atualização para a instalação do [APP_NAME].
-Versão [VERSION] 
-O visualizador experimental foi substituído por um visualizador [NEW_CHANNEL];
-consulte [[INFO_URL] para obter mais detalhes sobre essa atualização]
-		<usetemplate name="okcancelbuttons" notext="Depois..." yestext="Instalar agora e reiniciar o [APP_NAME]"/>
-	</notification>
-	<notification name="OtherChannelDownloadBackgroundDialog">
-		Baixamos uma atualização para a instalação do [APP_NAME].
-Versão [VERSION]
-O visualizador experimental foi substituído por um visualizador [NEW_CHANNEL];
-consulte a informação [[INFO_URL] sobre essa atualização]
-		<usetemplate name="okcancelbuttons" notext="Depois..." yestext="Instalar agora e reiniciar o [APP_NAME]"/>
-	</notification>
-	<notification name="OtherChannelRequiredUpdateDownloadedVerboseDialog">
-		O software requer uma atualização que já foi baixada.
-Versão [VERSION]
-O visualizador experimental foi substituído por um visualizador [NEW_CHANNEL];
-consulte a informação [[INFO_URL] sobre essa atualização]
-
-Para instalar a atualização, será preciso reiniciar o [APP_NAME].
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="OtherChannelRequiredUpdateDownloadedDialog">
-		Para instalar a atualização, será preciso reiniciar o [APP_NAME].
-O visualizador experimental foi substituído por um visualizador [NEW_CHANNEL];
-consulte a informação [[INFO_URL] sobre essa atualização]
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateDownloadInProgress">
-		Uma atualização está disponível!
-O download está ocorrendo em segundo plano e reiniciaremos seu visualizador automaticamente para terminar a instalação assim que ele estiver concluído.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateDownloadComplete">
-		Uma atualização foi baixada. Ela será instalada durante a reinicialização.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateCheckError">
-		Erro ao verificar atualizações.
-Tente novamente mais tarde.
-		<usetemplate name="okbutton" yestext="OK"/>
-	</notification>
-	<notification name="UpdateViewerUpToDate">
-		Seu visualizador está atualizado!
-Se você estiver muito ansioso para experimentar os novos recursos e correções, consulte a página de visualizadores alternativos. http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers.
-		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
 		Delegar este objeto causará ao grupo:
@@ -1731,10 +1635,6 @@ Se você estiver muito ansioso para experimentar os novos recursos e correções
 	<notification name="WebLaunchExternalTarget">
 		Abrir uma janela do navegador para ver essas informações?
 		<usetemplate ignoretext="Abrir o navegador para acessar uma página na web" name="okcancelignore" notext="Cancelar" yestext="OK"/>
-	</notification>
-	<notification name="SystemUIScaleFactorChanged">
-		O fator de tamanho da interface do sistema foi alterado desde a última execução. Deseja abrir a página de configurações de ajuste de tamanho da interface?
-		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="WebLaunchJoinNow">
 		Deseja abrir o [http://secondlife.com/account/ Painel] para gerenciar sua conta?
@@ -2004,7 +1904,7 @@ Isto mudará milhares de regiões e fará o spaceserver soluçar.
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Todas as Propriedades" yestext="Esta Propriedade"/>
 	</notification>
 	<notification label="Selecione a propriedade" name="EstateBannedAgentRemove">
-		Remover este residente da lista de banidos para acesso a esta propriedade apenas ou para [ALL_ESTATES]?
+		Remover este Residente da lista de banimento para acessar este estado somente ou para [ALL_ESTATES]?
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Todas as Propriedades" yestext="Esta Propriedade"/>
 	</notification>
 	<notification label="Selecione a propriedade" name="EstateManagerAdd">
@@ -3180,15 +3080,6 @@ Não conceda acesso se você não entender completamente por que ele deseja aces
 			<button name="Deny" text="Negar"/>
 		</form>
 	</notification>
-	<notification name="UnknownScriptQuestion">
-		A permissão de script de tempo de execução solicitada por &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, um objeto de &apos;[NAME]&apos;, não é reconhecida pelo visualizador e não pode ser concedida.
-
-Para conceder essa permissão, atualize seu visualizador para a versão mais recente em [DOWNLOADURL].
-		<form name="form">
-			<button name="Deny" text="Ok"/>
-			<button name="Mute" text="Bloquear"/>
-		</form>
-	</notification>
 	<notification name="ScriptDialog">
 		&apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos; de [NAME]
 [MESSAGE]
@@ -3293,16 +3184,22 @@ Clique em Aceitar para atender ou em Recusar para recusar este convite.  Clique 
 		Falha de conexão com [VOICE_CHANNEL_NAME]. Tente novamente mais tarde.   Agora você será reconectado ao bate-papo local.
 	</notification>
 	<notification name="VoiceEffectsExpired">
-		Um ou mais serviços de distorção de voz que você assinou veceu.
-[[URL] Clique aqui] para renovar o serviço.
+		Um ou mais serviços de distorção de voz que você assinou venceu. 
+[[URL] Clique aqui] para renovar o serviço. 
+
+Se você é um Membro Premium, [[PREMIUM_URL] clique aqui] para receber o seu app de distorção de voz.
 	</notification>
 	<notification name="VoiceEffectsExpiredInUse">
-		A Distorção de voz ativa expirou. Suas configurações de voz padrão foram ativadas.
-[[URL] Clique aqui] para renovar o serviço.
+		A Distorção de voz ativa expirou. Suas configurações de voz padrão foram ativadas. 
+[[URL] Clique aqui] para renovar o serviço. 
+
+Se você é um Membro Premium, [[PREMIUM_URL] clique aqui] para receber o seu app de distorção de voz.
 	</notification>
 	<notification name="VoiceEffectsWillExpire">
-		Uma ou mais das suas distorções de voz tem vencimento em menos de [INTERVAL] dias.
-[[URL] Clique aqui] para renovar o serviço.
+		Uma ou mais das suas distorções de voz tem vencimento em menos de [INTERVAL] dias. 
+[[URL] Clique aqui] para renovar o serviço. 
+
+Se você é um Membro Premium, [[PREMIUM_URL] clique aqui] para receber o seu app de distorção de voz.
 	</notification>
 	<notification name="VoiceEffectsNew">
 		Novas Distorções de voz!
@@ -3354,8 +3251,14 @@ Para sua segurança, os SLurls serão bloqueados por alguns instantes.
 	<notification name="SnapshotToComputerFailed">
 		Falha ao salvar fotografia em [PATH]: Disco cheio. [NEED_MEMORY]KB é necessário, mas somente [FREE_MEMORY]KB está livre.
 	</notification>
+	<notification name="SnapshotToLocalDirNotExist">
+		Falha ao salvar fotografia em [PATH]: O diretório não existe.
+	</notification>
 	<notification name="PresetNotSaved">
 		Erro ao salvar predefinição [NAME].
+	</notification>
+	<notification name="DefaultPresetNotSaved">
+		Não é possível sobrescrever o padrão definido.
 	</notification>
 	<notification name="PresetNotDeleted">
 		Erro ao excluir a predefinição [NAME].
@@ -3498,6 +3401,10 @@ Verifique a configuração da sua rede e firewall.
 Desativar qualquer configuração SIP ALG em seu router. 
 
 Talvez não seja possível se comunicar via voz.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="NoVoiceConnect-GIAB">
+		Estamos tendo problemas de conexão com o seu servidor de voz: Talvez não seja possível se comunicar via voz. Verifique a configuração da sua rede e firewall.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">
@@ -3835,13 +3742,13 @@ ele não está na mesma região que você.
 		Você não pode criar árvores e grama em terrenos que não são sua propriedade.
 	</notification>
 	<notification name="NoCopyPermsNoObject">
-		A cópia falhou porque você não está autorizado a copiar o objeto &apos;[OBJ_NAME]&apos;.
+		Falha na cópia por falta de permissão para copiar o objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoTransPermsNoObject">
-		A cópia falhou porque o objeto &apos;[OBJ_NAME]&apos; não pode ser transferido para você.
+		Falha na cópia, porque o objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; não pode ser transferido para você.
 	</notification>
 	<notification name="AddToNavMeshNoCopy">
-		A cópia falhou porque o objeto &apos;[OBJ_NAME]&apos; contribui para o navmesh.
+		Falha na cópia, porque o objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; contribui para o Navmesh.
 	</notification>
 	<notification name="DupeWithNoRootsSelected">
 		Duplicar sem objetos raiz selecionados.
@@ -3886,34 +3793,34 @@ Tente novamente em instantes.
 		Salvar no inventário foi desativado.
 	</notification>
 	<notification name="NoExistNoSaveToContents">
-		Não é possível salvar &apos;[OBJ_NAME]&apos; no conteúdo do objeto porque o objeto do qual ele foi renderizado não existe mais.
+		Não foi possível salvar &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; para os conteúdos do objeto, porque o objeto foi utilizado e não existe mais.
 	</notification>
 	<notification name="NoModNoSaveToContents">
-		Não é possível salvar &apos;[OBJ_NAME]&apos; no conteúdo do objeto porque você não tem permissão para modificar o objeto &apos;[DEST_NAME]&apos;.
+		Não foi possível salvar &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; para os conteúdos do objeto, porque você não tem permissão para modificar o objeto &lt;nolink&gt;&apos;[DEST_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoSaveBackToInvDisabled">
-		Não é possível salvar &apos;[OBJ_NAME]&apos; no inventário -- essa operação foi desativada.
+		Não é possível salvar &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; no inventário outra vez -- esta operação foi desabilitada.
 	</notification>
 	<notification name="NoCopyNoSelCopy">
-		Você não pode copiar sua seleção porque não está autorizado a copiar o objeto &apos;[OBJ_NAME]&apos;.
+		Não é possível copiar a seleção porque você não tem permissão para copiar o objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoTransNoSelCopy">
-		Você não pode copiar a seleção porque o objeto &apos;[OBJ_NAME]&apos; não é transferível.
+		Não é possível copiar a seleção porque o objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; não é transferível.
 	</notification>
 	<notification name="NoTransNoCopy">
-		Você não pode copiar a seleção porque o objeto &apos;[OBJ_NAME]&apos; não é transferível.
+		Não é possível copiar a seleção porque o objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; não é transferível.
 	</notification>
 	<notification name="NoPermsNoRemoval">
-		A remoção do objeto &apos;[OBJ_NAME]&apos; do simulador é proibida pelo sistema de permissões.
+		A remoção do objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; do simulador não é permitida pelo sistema de permissão.
 	</notification>
 	<notification name="NoModNoSaveSelection">
-		Você não pode salvar sua seleção porque não está autorizado a modificar o objeto &apos;[OBJ_NAME]&apos;.
+		Não é possível salvar a seleção porque você não tem permissão para modificar o objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="NoCopyNoSaveSelection">
-		Não é possível salvar sua seleção porque o objeto &apos;[OBJ_NAME]&apos; não é copiável.
+		Não é possível salvar a seleção porque o objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; não é copiável.
 	</notification>
 	<notification name="NoModNoTaking">
-		Você não pode levar sua seleção porque não está autorizado a modificar o objeto &apos;[OBJ_NAME]&apos;.
+		Não é possível realizar a seleção porque você não tem permissão para modificar o objeto &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;.
 	</notification>
 	<notification name="RezDestInternalError">
 		Erro interno: tipo de destino desconhecido.
@@ -4116,6 +4023,9 @@ Tente novamente em instantes.
 	<notification name="CantCreateObjectRegionFull">
 		Não foi possível criar o objeto solicitado. A região está cheia.
 	</notification>
+	<notification name="CantCreateAnimatedObjectTooLarge">
+		Não é possível criar o objeto animado solicitado porque excede o limite triangular manipulado.
+	</notification>
 	<notification name="CantAttackMultipleObjOneSpot">
 		Não é possível anexar vários objetos a um local.
 	</notification>
@@ -4163,6 +4073,21 @@ Tente novamente em instantes.
 	</notification>
 	<notification name="CantChangeShape">
 		Você não está autorizado a alterar essa forma.
+	</notification>
+	<notification name="NoPermsTooManyAttachedAnimatedObjects">
+		A operação faria com que o número de objetos animados anexados excedesse o limite.
+	</notification>
+	<notification name="NoPermsLinkAnimatedObjectTooLarge">
+		Não é possível vincular esses objetos porque o objeto animado resultante excederia o limite triangular manipulado.
+	</notification>
+	<notification name="NoPermsSetFlagAnimatedObjectTooLarge">
+		Não é possível tornar este objeto em animado porque excederia o limite triangular manipulado.
+	</notification>
+	<notification name="CantChangeAnimatedObjectStateInsufficientLand">
+		Não é possível mudar o estado do objeto animado para este objeto, porque faria o limite do lote ser excedido.
+	</notification>
+	<notification name="ErrorNoMeshData">
+		Erro do servidor: não foi possível completar esta operação porque os dados mesh não está carregado.
 	</notification>
 	<notification name="NoAccessToClaimObjects">
 		Seus privilégios de acesso não permitem que você reivindique objetos aqui.
@@ -4425,7 +4350,7 @@ Tente selecionar uma quantidade menor de terreno.
 		Um erro interno impediu que seu visualizador fosse atualizado corretamente.  O saldo em L$ ou a propriedade de lotes exibidos em seu visualizador pode não refletir o saldo real nos servidores.
 	</notification>
 	<notification name="LargePrimAgentIntersect">
-		Não é possível criar grandes prims que interceptam outros jogadores.  Tente novamente quando os outros jogadores tiverem se movido.
+		Não é possível prims maiores que cruzam com outros residentes. Tente novamente quando os outros residentes tiverem mudado.
 	</notification>
 	<notification name="PreferenceChatClearLog">
 		Isso excluirá os registros das conversas anteriores e qualquer backup desse arquivo.

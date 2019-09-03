@@ -77,6 +77,14 @@ LLDirPicker::LLDirPicker() :
 	mFileName(NULL),
 	mLocked(false)
 {
+	bi.hwndOwner = NULL;
+	bi.pidlRoot = NULL;
+	bi.pszDisplayName = NULL;
+	bi.lpszTitle = NULL;
+	bi.ulFlags = BIF_USENEWUI;
+	bi.lpfn = NULL;
+	bi.lParam = NULL;
+	bi.iImage = 0;
 }
 
 LLDirPicker::~LLDirPicker()
@@ -84,7 +92,7 @@ LLDirPicker::~LLDirPicker()
 	// nothing
 }
 
-BOOL LLDirPicker::getDir(std::string* filename)
+BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 {
 	if( mLocked )
 	{
@@ -99,39 +107,39 @@ BOOL LLDirPicker::getDir(std::string* filename)
 
 	BOOL success = FALSE;
 
-	// Modal, so pause agent
-	send_agent_pause();
+	
+	if (blocking)
+	{
+		// Modal, so pause agent
+		send_agent_pause();
+	}
 
-   BROWSEINFO bi;
-   memset(&bi, 0, sizeof(bi));
+	bi.hwndOwner = (HWND)gViewerWindow->getPlatformWindow();
 
-   bi.ulFlags   = BIF_USENEWUI;
-   bi.hwndOwner = (HWND)gViewerWindow->getPlatformWindow();
-   bi.lpszTitle = NULL;
+	::OleInitialize(NULL);
+	LPITEMIDLIST pIDL = ::SHBrowseForFolder(&bi);
 
-   ::OleInitialize(NULL);
+	if(pIDL != NULL)
+	{
+		WCHAR buffer[_MAX_PATH] = {'\0'};
 
-   LPITEMIDLIST pIDL = ::SHBrowseForFolder(&bi);
+		if(::SHGetPathFromIDList(pIDL, buffer) != 0)
+		{
+			// Set the string value.
 
-   if(pIDL != NULL)
-   {
-      WCHAR buffer[_MAX_PATH] = {'\0'};
+			mDir = utf16str_to_utf8str(llutf16string(buffer));
+			success = TRUE;
+		}
+		// free the item id list
+		CoTaskMemFree(pIDL);
+	}
 
-      if(::SHGetPathFromIDList(pIDL, buffer) != 0)
-      {
-		  	// Set the string value.
+	::OleUninitialize();
 
-   			mDir = utf16str_to_utf8str(llutf16string(buffer));
-	         success = TRUE;
-      }
-
-      // free the item id list
-      CoTaskMemFree(pIDL);
-   }
-
-   ::OleUninitialize();
-
-	send_agent_resume();
+	if (blocking)
+	{
+		send_agent_resume();
+	}
 
 	// Account for the fact that the app has been stalled.
 	LLFrameTimer::updateFrameTime();
@@ -167,7 +175,7 @@ void LLDirPicker::reset()
 
 
 //static
-BOOL LLDirPicker::getDir(std::string* filename)
+BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 {
     LLFilePicker::ELoadFilter filter=LLFilePicker::FFLOAD_DIRECTORY;
     
@@ -201,7 +209,7 @@ void LLDirPicker::reset()
 		mFilePicker->reset();
 }
 
-BOOL LLDirPicker::getDir(std::string* filename)
+BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 {
 	reset();
 
@@ -256,7 +264,7 @@ void LLDirPicker::reset()
 {
 }
 
-BOOL LLDirPicker::getDir(std::string* filename)
+BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 {
 	return FALSE;
 }
@@ -267,3 +275,94 @@ std::string LLDirPicker::getDirName()
 }
 
 #endif
+
+
+LLMutex* LLDirPickerThread::sMutex = NULL;
+std::queue<LLDirPickerThread*> LLDirPickerThread::sDeadQ;
+
+void LLDirPickerThread::getFile()
+{
+#if LL_WINDOWS
+	start();
+#else
+	run();
+#endif
+}
+
+//virtual 
+void LLDirPickerThread::run()
+{
+#if LL_WINDOWS
+	bool blocking = false;
+#else
+	bool blocking = true; // modal
+#endif
+
+	LLDirPicker picker;
+
+	if (picker.getDir(&mProposedName, blocking))
+	{
+		mResponses.push_back(picker.getDirName());
+	}	
+
+	{
+		LLMutexLock lock(sMutex);
+		sDeadQ.push(this);
+	}
+
+}
+
+//static
+void LLDirPickerThread::initClass()
+{
+	sMutex = new LLMutex();
+}
+
+//static
+void LLDirPickerThread::cleanupClass()
+{
+	clearDead();
+
+	delete sMutex;
+	sMutex = NULL;
+}
+
+//static
+void LLDirPickerThread::clearDead()
+{
+	if (!sDeadQ.empty())
+	{
+		LLMutexLock lock(sMutex);
+		while (!sDeadQ.empty())
+		{
+			LLDirPickerThread* thread = sDeadQ.front();
+			thread->notify(thread->mResponses);
+			delete thread;
+			sDeadQ.pop();
+		}
+	}
+}
+
+LLDirPickerThread::LLDirPickerThread(const dir_picked_signal_t::slot_type& cb, const std::string &proposed_name)
+	: LLThread("dir picker"),
+	mFilePickedSignal(NULL)
+{
+	mFilePickedSignal = new dir_picked_signal_t();
+	mFilePickedSignal->connect(cb);
+}
+
+LLDirPickerThread::~LLDirPickerThread()
+{
+	delete mFilePickedSignal;
+}
+
+void LLDirPickerThread::notify(const std::vector<std::string>& filenames)
+{
+	if (!filenames.empty())
+	{
+		if (mFilePickedSignal)
+		{
+			(*mFilePickedSignal)(filenames, mProposedName);
+		}
+	}
+}

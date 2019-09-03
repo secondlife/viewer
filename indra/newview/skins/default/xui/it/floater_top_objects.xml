@@ -4,7 +4,7 @@
 		Script pesanti
 	</floater.string>
 	<floater.string name="top_scripts_text">
-		[COUNT] script richiedono un totale di [TIME] ms
+		[COUNT] script che impiegano un totale di [TIME] ms e utilizzano [MEMORY] KB
 	</floater.string>
 	<floater.string name="scripts_score_label">
 		Ora

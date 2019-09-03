@@ -9,9 +9,11 @@
 		<menu_item_call label="Yerler..." name="Places"/>
 		<menu_item_call label="Favoriler..." name="Picks"/>
 		<menu_item_call label="Deneyimler..." name="Experiences"/>
+		<menu_item_call label="Komut Dosyalarım..." name="MyScripts"/>
 		<menu_item_call label="Kamera Denetimleri..." name="Camera Controls"/>
 		<menu label="Hareket" name="Movement">
 			<menu_item_call label="Otur" name="Sit Down Here"/>
+			<menu_item_call label="Kalk" name="Stand up"/>
 			<menu_item_check label="Uç" name="Fly"/>
 			<menu_item_check label="Daima Koş" name="Always Run"/>
 			<menu_item_call label="Beni Anime Etmeyi Durdur" name="Stop Animating My Avatar"/>
@@ -76,10 +78,10 @@
 			<menu_item_check label="Gelişmiş Menü" name="Show Advanced Menu"/>
 		</menu>
 		<menu label="Güneş" name="Sun">
-			<menu_item_check label="Gün Doğumu" name="Sunrise"/>
-			<menu_item_check label="Gün Ortası" name="Noon"/>
-			<menu_item_check label="Gün Batımı" name="Sunset"/>
-			<menu_item_check label="Gece Yarısı" name="Midnight"/>
+			<menu_item_check label="Gün doğumu" name="Sunrise"/>
+			<menu_item_check label="Öğle" name="Noon"/>
+			<menu_item_check label="Gün batımı" name="Sunset"/>
+			<menu_item_check label="Gece yarısı" name="Midnight"/>
 			<menu_item_check label="Bölge Ayarlarını Kullan" name="Use Region Settings"/>
 		</menu>
 		<menu label="Ortam Düzenleyici" name="Environment Editor">
@@ -276,7 +278,6 @@
 			<menu_item_check label="Matrisleri Göster" name="Show Matrices"/>
 			<menu_item_check label="İmlecin Altındaki Rengi Göster" name="Show Color Under Cursor"/>
 			<menu_item_check label="Belleği Göster" name="Show Memory"/>
-			<menu_item_check label="Özel Bellek Bilgisini Göster" name="Show Private Mem Info"/>
 			<menu_item_check label="Nesneler İçin Güncelleştirmeleri Göster" name="Show Updates"/>
 		</menu>
 		<menu label="Bir Hatayı Zorla" name="Force Errors">
@@ -311,6 +312,7 @@
 			<menu_item_check label="Doku Alanı" name="Texture Area"/>
 			<menu_item_check label="Yüz Alanı" name="Face Area"/>
 			<menu_item_check label="Ayrıntı Seviyesi Bilgisi" name="LOD Info"/>
+			<menu_item_check label="Üçgen Sayısı" name="Triangle Count"/>
 			<menu_item_check label="İnşa Kuyruğu" name="Build Queue"/>
 			<menu_item_check label="Işıklar" name="Lights"/>
 			<menu_item_check label="Parçacıklar" name="Particles"/>
@@ -423,6 +425,7 @@
 			<menu_item_check label="Çarpışma İskeletini Göster" name="Show Collision Skeleton"/>
 			<menu_item_check label="Kemikleri Göster" name="Show Bones"/>
 			<menu_item_check label="Aracı Hedefini Göster" name="Display Agent Target"/>
+			<menu_item_check label="Düşük Grafik Özellikli Avatar Kapsamını Göster" name="Show Impostor Extents"/>
 			<menu_item_call label="Aksesuarların Dökümünü Al" name="Dump Attachments"/>
 			<menu_item_call label="Avatar Dokuları İçin Hata Ayıklama" name="Debug Avatar Textures"/>
 			<menu_item_call label="Yerel Dokuların Dökümünü Al" name="Dump Local Textures"/>

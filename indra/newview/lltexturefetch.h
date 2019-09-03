@@ -35,7 +35,6 @@
 #include "lluuid.h"
 #include "llworkerthread.h"
 #include "lltextureinfo.h"
-#include "llapr.h"
 #include "llimageworker.h"
 #include "httprequest.h"
 #include "httpoptions.h"
@@ -308,12 +307,15 @@ public:
 	S32 mPacketCount;
 	S32 mBadPacketCount;
 	
+    static LLTrace::CountStatHandle<F64>        sCacheHit;
+    static LLTrace::CountStatHandle<F64>        sCacheAttempt;
+    static LLTrace::SampleStatHandle<F32Seconds> sCacheReadLatency;
+    static LLTrace::SampleStatHandle<F32Seconds> sTexDecodeLatency;
+    static LLTrace::SampleStatHandle<F32Seconds> sTexFetchLatency;
+
 private:
 	LLMutex mQueueMutex;        //to protect mRequestMap and mCommands only
 	LLMutex mNetworkQueueMutex; //to protect mNetworkQueue, mHTTPTextureQueue and mCancelQueue.
-
-	static LLTrace::EventStatHandle<LLUnit<F32, LLUnits::Percent> > sCacheHitRate;
-	static LLTrace::EventStatHandle<F64Milliseconds > sCacheReadLatency;
 
 	LLTextureCache* mTextureCache;
 	LLImageDecodeThread* mImageDecodeThread;
