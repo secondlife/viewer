@@ -4123,7 +4123,7 @@ bool LLAppViewer::initCache()
 	mPurgeCache = false;
 	BOOL read_only = mSecondInstance ? TRUE : FALSE;
 	LLAppViewer::getTextureCache()->setReadOnly(read_only) ;
-	LLVOCache::initParamSingleton(LL_PATH_CACHE, gSavedSettings.getU32("CacheNumberOfRegionsForObjects"), getObjectCacheVersion(), read_only);
+	LLVOCache::initParamSingleton(read_only);
 
 	bool texture_cache_mismatch = false;
 	if (gSavedSettings.getS32("LocalCacheVersion") != LLAppViewer::getTextureCacheVersion())
@@ -4194,6 +4194,9 @@ bool LLAppViewer::initCache()
 
 	S64 extra = LLAppViewer::getTextureCache()->initCache(LL_PATH_CACHE, texture_cache_size, texture_cache_mismatch);
 	texture_cache_size -= extra;
+
+
+	LLVOCache::getInstance()->initCache(LL_PATH_CACHE, gSavedSettings.getU32("CacheNumberOfRegionsForObjects"), getObjectCacheVersion());
 
 	LLSplashScreen::update(LLTrans::getString("StartupInitializingVFS"));
 

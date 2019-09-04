@@ -223,7 +223,7 @@ private:
 //
 class LLVOCache : public LLParamSingleton<LLVOCache>
 {
-	LLSINGLETON(LLVOCache, ELLPath location, U32 size, U32 cache_version, bool read_only);
+	LLSINGLETON(LLVOCache, bool read_only);
 	~LLVOCache() ;
 
 private:
@@ -259,6 +259,8 @@ private:
 	typedef std::map<U64, HeaderEntryInfo*> handle_entry_map_t;
 
 public:
+	// We need this init to be separate from constructor, since we might construct cache, purge it, then init.
+	void initCache(ELLPath location, U32 size, U32 cache_version);
 	void removeCache(ELLPath location, bool started = false) ;
 
 	void readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_entry_map_t& cache_entry_map) ;
@@ -269,8 +271,6 @@ public:
 	U32 getCacheEntriesMax() { return mCacheSize; }
 
 private:
-	void initCache(ELLPath location, U32 size, U32 cache_version);
-
 	void setDirNames(ELLPath location);	
 	// determine the cache filename for the region from the region handle	
 	void getObjectCacheFilename(U64 handle, std::string& filename);
