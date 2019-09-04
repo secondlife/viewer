@@ -148,7 +148,7 @@ public:
     /*virtual*/	F32		getEstTrianglesStreamingCost() const;
     /*virtual*/ F32		getStreamingCost() const;
 				// ARCtan version
-	F32 LLVOVolume::getStreamingCost_(S32* bytes, S32* visible_bytes, F32* unscaled_value, LLSD *sdp) const;
+	F32 getStreamingCost_(S32* bytes, S32* visible_bytes, F32* unscaled_value, LLSD *sdp) const;
     /*virtual*/ bool 	getCostData(LLMeshCostData& costs) const;
 
     LLSD				getFrameData(texture_cost_t& textures, texture_cost_t& material_textures, bool first_frame = false) const;
