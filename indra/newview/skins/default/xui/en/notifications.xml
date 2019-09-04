@@ -6168,6 +6168,20 @@ Are you sure you want to permanently delete the contents of your Lost And Found?
 
   <notification
    icon="alertmodal.tga"
+   name="ConfirmReplaceLink"
+   type="alertmodal">
+You're about to replace '[TYPE]' body part link with the item which doesn't match the type.
+Are you sure you want to proceed?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Confirm before I replace link"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
    name="CopySLURL"
    type="alertmodal">
 The following SLurl has been copied to your clipboard:
