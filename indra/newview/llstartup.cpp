@@ -806,7 +806,11 @@ bool idle_startup()
 		gLoginMenuBarView->setEnabled( TRUE );
 		show_debug_menus();
 
-        LLConversationLog::initParamSingleton();
+        if (!LLConversationLog::instanceExists())
+        {
+            // Check existance since this part can be reached twice if login fails
+            LLConversationLog::initParamSingleton();
+        }
 
 		// Hide the splash screen
 		LLSplashScreen::hide();
@@ -895,8 +899,13 @@ bool idle_startup()
 		LLFile::mkdir(gDirUtilp->getLindenUserDir());
 
 		// As soon as directories are ready initialize notification storages
-		LLPersistentNotificationStorage::initParamSingleton();
-		LLDoNotDisturbNotificationStorage::initParamSingleton();
+		if (!LLPersistentNotificationStorage::instanceExists())
+		{
+			// check existance since this part of code can be reached
+			// twice due to login failures
+			LLPersistentNotificationStorage::initParamSingleton();
+			LLDoNotDisturbNotificationStorage::initParamSingleton();
+		}
 
 		// Set PerAccountSettingsFile to the default value.
 		gSavedSettings.setString("PerAccountSettingsFile",
