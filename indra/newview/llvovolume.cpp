@@ -4226,6 +4226,8 @@ U32 LLVOVolume::getRenderCost_(texture_cost_t &textures, texture_cost_t &materia
         F32 weighted_triangles = -1.0;
         getStreamingCost_(NULL, NULL, &weighted_triangles, sdp);
 
+		// FIXME ARC - this needs animated object checks. Switch to MeshCostData() streaming cost check.
+
         if (weighted_triangles > 0.0)
         {
             num_triangles = (U32)(weighted_triangles);
@@ -4601,6 +4603,7 @@ F32 LLVOVolume::getStreamingCost() const
 }
 
 // ARCtan version
+// FIXME ARC - this should be consistent with getStreamingCost() except for lack of animated object support.
 F32 LLVOVolume::getStreamingCost_(S32* bytes, S32* visible_bytes, F32* unscaled_value, LLSD *sdp) const
 {
     F32 radius = getScale().length()*0.5f;
@@ -4616,6 +4619,7 @@ F32 LLVOVolume::getStreamingCost_(S32* bytes, S32* visible_bytes, F32* unscaled_
         LLVolume::getTriangleCount(volume->getParams(), count);
 
         LLSD header;
+		// FIXME ARC - why does count not vary with LOD? Is it consistent with previous non-mesh calcs?
         header["lowest_lod"]["size"] = count * 10;
         header["low_lod"]["size"]    = count * 10;
         header["medium_lod"]["size"] = count * 10;

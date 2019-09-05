@@ -130,6 +130,7 @@ void LLSceneView::draw()
 				visible_triangles[idx].push_back(visible);
 				triangles[idx].push_back(high_triangles);
 
+				// FIXME ARC - performance impact?
                 F32 streaming = object->getStreamingCost();
                 total_streaming[idx] += streaming;
                 streaming_cost[idx].push_back(streaming);
