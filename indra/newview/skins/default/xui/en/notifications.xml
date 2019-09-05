@@ -6057,6 +6057,34 @@ Would you like to turn off Do Not Disturb before completing this transaction?
   </notification>
 
   <notification
+   icon="notify.tga"
+   label="Parcel is Playing Media"
+   name="ParcelPlayingMedia"   
+   persist="false"
+   type="notify">
+This land has media:
+[URL]
+Would you like to play it?
+    <tag>confirm</tag>
+    <form name="form">
+      <ignore name="ignore"
+       checkbox_only="true"
+       text="Always choose this option for this land."/>
+      <button
+       ignore="Play Media"
+       index="1"
+       name="Yes"
+       text="Play"/>
+      <button
+       default="true"
+       ignore="Ignore Media"
+       index="0"
+       name="No"
+       text="Ignore"/>
+    </form>
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="ConfirmDeleteProtectedCategory"
    type="alertmodal">

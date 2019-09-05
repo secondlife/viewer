@@ -163,6 +163,11 @@ void LLToastNotifyPanel::updateButtonsLayout(const std::vector<index_button_pair
 		{
 			left = (max_width - btn_rect.getWidth()) / 2;
 		}
+		else if (left == 0 && buttons.size() == 2)
+		{
+			// Note: this and "size() == 1" shouldn't be inside the cycle, might be good idea to refactor whole placing process
+			left = (max_width - (btn_rect.getWidth() * 2) - h_pad) / 2;
+		}
 		else if (left + btn_rect.getWidth() > max_width)// whether there is still some place for button+h_pad in the mControlPanel
 		{
 			// looks like we need to add button to the next row
@@ -412,7 +417,7 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
 	mInfoPanel->setFollowsAll();
 
     // Add checkbox (one of couple types) if nessesary.
-    setCheckBoxes(HPAD * 3, 0, mInfoPanel);
+    setCheckBoxes(HPAD * 2, 0, mInfoPanel);
     if (mCheck)
     {
         mCheck->setFollows(FOLLOWS_BOTTOM | FOLLOWS_LEFT);

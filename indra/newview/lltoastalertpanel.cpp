@@ -34,7 +34,6 @@
 #include "llfontgl.h"
 #include "lltextbox.h"
 #include "llbutton.h"
-#include "llcheckboxctrl.h"
 #include "llkeyboard.h"
 #include "llfocusmgr.h"
 #include "lliconctrl.h"

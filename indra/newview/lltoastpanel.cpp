@@ -161,7 +161,20 @@ void LLCheckBoxToastPanel::setCheckBoxes(const S32 &h_pad, const S32 &v_pad, LLV
     std::string ignore_label;
     LLNotificationFormPtr form = mNotification->getForm();
 
-    if (form->getIgnoreType() == LLNotificationForm::IGNORE_WITH_DEFAULT_RESPONSE)
+    if (form->getIgnoreType() == LLNotificationForm::IGNORE_CHECKBOX_ONLY)
+    {
+        // Normally text is only used to describe notification in preferences, 
+        // but this one is not displayed in preferences and works on case by case
+        // basis.
+        // Display text if present, display 'always chose' if not.
+        std::string ignore_message = form->getIgnoreMessage();
+        if (ignore_message.empty())
+        {
+            ignore_message = LLNotifications::instance().getGlobalString("alwayschoose");
+        }
+        setCheckBox(ignore_message, ignore_label, boost::bind(&LLCheckBoxToastPanel::onCommitCheckbox, this, _1), h_pad, v_pad, parent_view);
+    }
+    else if (form->getIgnoreType() == LLNotificationForm::IGNORE_WITH_DEFAULT_RESPONSE)
     {
         setCheckBox(LLNotifications::instance().getGlobalString("skipnexttime"), ignore_label, boost::bind(&LLCheckBoxToastPanel::onCommitCheckbox, this, _1), h_pad, v_pad, parent_view);
     }
