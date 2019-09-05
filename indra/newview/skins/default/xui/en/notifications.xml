@@ -2259,6 +2259,7 @@ Unable to create output file: [FILE]
    icon="alertmodal.tga"
    name="DoNotSupportBulkAnimationUpload"
    type="alertmodal">
+    <unique/>
 [APP_NAME] does not currently support bulk upload of BVH format animation files.
   <tag>fail</tag>
   </notification>
@@ -3440,6 +3441,9 @@ Display settings have been set to recommended levels because of a change to the 
    icon="alertmodal.tga"
    name="ErrorMessage"
    type="alertmodal">
+    <unique>
+      <context>ERROR_MESSAGE</context>
+    </unique>
 [ERROR_MESSAGE]
   <tag>fail</tag>
     <usetemplate
@@ -6162,6 +6166,20 @@ Are you sure you want to permanently delete the contents of your Lost And Found?
      yestext="Yes"/>
   </notification>
 
+  <notification
+   icon="alertmodal.tga"
+   name="ConfirmReplaceLink"
+   type="alertmodal">
+You're about to replace '[TYPE]' body part link with the item which doesn't match the type.
+Are you sure you want to proceed?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Confirm before I replace link"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
+  
   <notification
    icon="alertmodal.tga"
    name="CopySLURL"
