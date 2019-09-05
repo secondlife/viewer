@@ -46,7 +46,7 @@ class LLLineEditor;
  */
 
 class LLToastAlertPanel
-	: public LLToastPanel
+	: public LLCheckBoxToastPanel
 {
 	LOG_CLASS(LLToastAlertPanel);
 public:
@@ -75,13 +75,11 @@ public:
 	virtual void	draw();
 	virtual void	setVisible( BOOL visible );
 
-	bool 			setCheckBox( const std::string&, const std::string& );	
 	void			setCaution(BOOL val = TRUE) { mCaution = val; }
 	// If mUnique==TRUE only one copy of this message should exist
 	void			setUnique(BOOL val = TRUE) { mUnique = val; }
 	void			setEditTextArgs(const LLSD& edit_args);
 	
-	void onClickIgnore(LLUICtrl* ctrl);
 	void onButtonPressed(const LLSD& data, S32 button);
 	
 private:
@@ -106,7 +104,6 @@ private:
 	std::vector<ButtonData> mButtonData;
 
 	S32				mDefaultOption;
-	LLCheckBoxCtrl* mCheck;
 	BOOL			mCaution;
 	BOOL			mUnique;
 	LLUIString		mLabel;
