@@ -136,9 +136,6 @@ public:
 	
 	void setEastAngle(F32 val);
 	F32 getEastAngle();	
-
-	void setAmbient(const LLVector4& val);
-	LLVector4 getAmbient();
 	
 							
 	
@@ -208,11 +205,6 @@ inline F32 LLWLParamSet::getSunAngle() {
 
 inline F32 LLWLParamSet::getEastAngle() {
 	return (F32) mParamValues["east_angle"].asReal();
-}
-
-inline LLVector4 LLWLParamSet::getAmbient() {
-    bool error;
-    return mParamValues.has("ambient") ? getVector("ambient", error) : LLVector4(0.5f, 0.75f, 1.0f, 1.19f);
 }
 
 
