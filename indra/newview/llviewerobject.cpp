@@ -142,6 +142,9 @@ const F32 PHYSICS_TIMESTEP = 1.f / 45.f;
 const U32 MAX_INV_FILE_READ_FAILS = 25;
 const S32 MAX_OBJECT_BINARY_DATA_SIZE = 60 + 16;
 
+const F64 INVENTORY_UPDATE_WAIT_TIME_DESYNC = 5; // seconds
+const F64 INVENTORY_UPDATE_WAIT_TIME_OUTDATED = 1;
+
 static LLTrace::BlockTimerStatHandle FTM_CREATE_OBJECT("Create Object");
 
 // static
@@ -2979,6 +2982,8 @@ void LLViewerObject::fetchInventoryFromServer()
 	if (!isInventoryPending())
 	{
 		delete mInventory;
+
+		// Results in processTaskInv
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessageFast(_PREHASH_RequestTaskInventory);
 		msg->nextBlockFast(_PREHASH_AgentData);
@@ -2988,9 +2993,42 @@ void LLViewerObject::fetchInventoryFromServer()
 		msg->addU32Fast(_PREHASH_LocalID, mLocalID);
 		msg->sendReliable(mRegionp->getHost());
 
-		// this will get reset by dirtyInventory or doInventoryCallback
+		// This will get reset by doInventoryCallback or processTaskInv
 		mInvRequestState = INVENTORY_REQUEST_PENDING;
 	}
+}
+
+void LLViewerObject::fetchInventoryDelayed(const F64 &time_seconds)
+{
+    // unless already waiting, drop previous request and shedule an update
+    if (mInvRequestState != INVENTORY_REQUEST_WAIT)
+    {
+        if (mInvRequestXFerId != 0)
+        {
+            // abort download.
+            gXferManager->abortRequestById(mInvRequestXFerId, -1);
+            mInvRequestXFerId = 0;
+        }
+        mInvRequestState = INVENTORY_REQUEST_WAIT; // affects isInventoryPending()
+        LLCoros::instance().launch("LLViewerObject::fetchInventoryDelayedCoro()",
+            boost::bind(&LLViewerObject::fetchInventoryDelayedCoro, mID, time_seconds));
+    }
+}
+
+//static
+void LLViewerObject::fetchInventoryDelayedCoro(const LLUUID task_inv, const F64 time_seconds)
+{
+    llcoro::suspendUntilTimeout(time_seconds);
+    LLViewerObject *obj = gObjectList.findObject(task_inv);
+    if (obj)
+    {
+        // Might be good idea to prolong delay here in case expected serial changed.
+        // As it is, it will get a response with obsolete serial and will delay again.
+
+        // drop waiting state to unlock isInventoryPending()
+        obj->mInvRequestState = INVENTORY_REQUEST_STOPPED;
+        obj->fetchInventoryFromServer();
+    }
 }
 
 LLControlAvatar *LLViewerObject::getControlAvatar()
@@ -3166,30 +3204,32 @@ void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
     // we can receive multiple task updates simultaneously, make sure we will not rewrite newer with older update
     msg->getS16Fast(_PREHASH_InventoryData, _PREHASH_Serial, ft->mSerial);
 
-    if (ft->mSerial == object->mInventorySerialNum)
+    if (ft->mSerial == object->mInventorySerialNum
+        && ft->mSerial < object->mExpectedInventorySerialNum)
     {
         // Loop Protection.
         // We received same serial twice.
         // Viewer did some changes to inventory that couldn't be saved server side
-        // or something went wrong to cause serial to be out of sync
+        // or something went wrong to cause serial to be out of sync.
+        // Drop xfer and restart after some time, assign server's value as expected
         LL_WARNS() << "Task inventory serial might be out of sync, server serial: " << ft->mSerial << " client expected serial: " << object->mExpectedInventorySerialNum << LL_ENDL;
         object->mExpectedInventorySerialNum = ft->mSerial;
+        object->fetchInventoryDelayed(INVENTORY_UPDATE_WAIT_TIME_DESYNC);
     }
-
-    if (ft->mSerial < object->mExpectedInventorySerialNum)
+    else if (ft->mSerial < object->mExpectedInventorySerialNum)
     {
-        // out of date message, record to current serial for loop protection, but do not load it
-        // just drop xfer to restart on idle
+        // Out of date message, record to current serial for loop protection, but do not load it
+        // Drop xfer and restart after some time
         if (ft->mSerial < object->mInventorySerialNum)
         {
-            LL_WARNS() << "Somehow task serial decreased, out of order packet?" << LL_ENDL;
+            LL_WARNS() << "Task serial decreased. Potentially out of order packet or desync." << LL_ENDL;
         }
         object->mInventorySerialNum = ft->mSerial;
-        object->mInvRequestXFerId = 0;
-        object->mInvRequestState = INVENTORY_REQUEST_STOPPED;
+        object->fetchInventoryDelayed(INVENTORY_UPDATE_WAIT_TIME_OUTDATED);
     }
     else if (ft->mSerial >= object->mExpectedInventorySerialNum)
     {
+        // We received version we expected or newer. Load it.
         object->mInventorySerialNum = ft->mSerial;
         object->mExpectedInventorySerialNum = ft->mSerial;
 
@@ -4740,13 +4780,76 @@ void LLViewerObject::sendTEUpdate() const
 	msg->sendReliable( regionp->getHost() );
 }
 
+LLViewerTexture* LLViewerObject::getBakedTextureForMagicId(const LLUUID& id)
+{
+	if (!LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(id))
+	{
+		return NULL;
+	}
+
+	LLViewerObject *root = getRootEdit();
+	if (root && root->isAnimatedObject())
+	{
+		return LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+	}
+
+	LLVOAvatar* avatar = getAvatar();
+	if (avatar)
+	{
+		LLAvatarAppearanceDefines::EBakedTextureIndex texIndex = LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::assetIdToBakedTextureIndex(id);
+		LLViewerTexture* bakedTexture = avatar->getBakedTexture(texIndex);
+		if (bakedTexture == NULL || bakedTexture->isMissingAsset())
+		{
+			return LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+		}
+		else
+		{
+			return bakedTexture;
+		}
+	}
+	else
+	{
+		return LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+	}
+
+}
+
+void LLViewerObject::updateAvatarMeshVisibility(const LLUUID& id, const LLUUID& old_id)
+{
+	if (id == old_id)
+	{
+		return;
+	}
+
+	if (!LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(old_id) && !LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(id))
+	{
+		return;
+	}
+
+	LLVOAvatar* avatar = getAvatar();
+	if (avatar)
+	{
+		avatar->updateMeshVisibility();
+	}
+}
+
 void LLViewerObject::setTE(const U8 te, const LLTextureEntry &texture_entry)
 {
+	LLUUID old_image_id;
+	if (getTE(te))
+	{
+		old_image_id = getTE(te)->getID();
+	}
+		
 	LLPrimitive::setTE(te, texture_entry);
 
 		const LLUUID& image_id = getTE(te)->getID();
-		mTEImages[te] = LLViewerTextureManager::getFetchedTexture(image_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+	LLViewerTexture* bakedTexture = getBakedTextureForMagicId(image_id);
+	mTEImages[te] = bakedTexture ? bakedTexture : LLViewerTextureManager::getFetchedTexture(image_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+
 	
+	updateAvatarMeshVisibility(image_id,old_image_id);
+
 	if (getTE(te)->getMaterialParams().notNull())
 	{
 		const LLUUID& norm_id = getTE(te)->getMaterialParams()->getNormalID();
@@ -4757,12 +4860,31 @@ void LLViewerObject::setTE(const U8 te, const LLTextureEntry &texture_entry)
 	}
 }
 
+void LLViewerObject::refreshBakeTexture()
+{
+	for (int face_index = 0; face_index < getNumTEs(); face_index++)
+	{
+		LLTextureEntry* tex_entry = getTE(face_index);
+		if (tex_entry && LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(tex_entry->getID()))
+		{
+			const LLUUID& image_id = tex_entry->getID();
+			LLViewerTexture* bakedTexture = getBakedTextureForMagicId(image_id);
+			changeTEImage(face_index, bakedTexture);
+		}
+	}
+}
+
 void LLViewerObject::setTEImage(const U8 te, LLViewerTexture *imagep)
 {
 	if (mTEImages[te] != imagep)
 	{
-		mTEImages[te] = imagep;
+		LLUUID old_image_id = getTE(te) ? getTE(te)->getID() : LLUUID::null;
+		
 		LLPrimitive::setTETexture(te, imagep->getID());
+
+		LLViewerTexture* baked_texture = getBakedTextureForMagicId(imagep->getID());
+		mTEImages[te] = baked_texture ? baked_texture : imagep;
+		updateAvatarMeshVisibility(imagep->getID(), old_image_id);
 		setChanged(TEXTURE);
 		if (mDrawable.notNull())
 		{
@@ -4773,13 +4895,16 @@ void LLViewerObject::setTEImage(const U8 te, LLViewerTexture *imagep)
 
 S32 LLViewerObject::setTETextureCore(const U8 te, LLViewerTexture *image)
 {
+	LLUUID old_image_id = getTE(te)->getID();
 	const LLUUID& uuid = image->getID();
 	S32 retval = 0;
 	if (uuid != getTE(te)->getID() ||
 		uuid == LLUUID::null)
 	{
 		retval = LLPrimitive::setTETexture(te, uuid);
-		mTEImages[te] = image;
+		LLViewerTexture* baked_texture = getBakedTextureForMagicId(uuid);
+		mTEImages[te] = baked_texture ? baked_texture : image;
+		updateAvatarMeshVisibility(uuid,old_image_id);
 		setChanged(TEXTURE);
 		if (mDrawable.notNull())
 		{
@@ -4870,7 +4995,7 @@ S32 LLViewerObject::setTETexture(const U8 te, const LLUUID& uuid)
 	// Invalid host == get from the agent's sim
 	LLViewerFetchedTexture *image = LLViewerTextureManager::getFetchedTexture(
 		uuid, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, LLHost());
-	return setTETextureCore(te,image);
+		return setTETextureCore(te, image);
 }
 
 S32 LLViewerObject::setTENormalMap(const U8 te, const LLUUID& uuid)
