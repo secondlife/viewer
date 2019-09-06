@@ -173,10 +173,6 @@ void LLCheckBoxToastPanel::setCheckBoxes(const S32 &h_pad, const S32 &v_pad, LLV
     {
         setCheckBox(LLNotifications::instance().getGlobalString("alwayschoose"), ignore_label, boost::bind(&LLCheckBoxToastPanel::onCommitCheckbox, this, _1), h_pad, v_pad, parent_view);
     }
-    else if (form->getIgnoreType() == LLNotificationForm::IGNORE_MEDIA_PLAYMUTE)
-    {
-        setCheckBox(LLNotifications::instance().getGlobalString("alwayschoose"), ignore_label, boost::bind(&LLCheckBoxToastPanel::onCommitCheckbox, this, _1), h_pad, v_pad, parent_view);
-    }
 }
 
 bool LLCheckBoxToastPanel::setCheckBox(const std::string& check_title,
