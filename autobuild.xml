@@ -2918,7 +2918,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>license</key>
         <string>Mixed</string>
         <key>license_file</key>
-        <string>LICENSES/slvoice.txt</string>
+        <string>LICENSES/vivox_licenses.txt</string>
         <key>name</key>
         <string>slvoice</string>
         <key>platforms</key>
@@ -2940,9 +2940,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fff83736e4dc4b22218cdd24aaada680</string>
+              <string>44bc68dbfe3f4b77817e80cb32845bed</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/40868/353426/slvoice-4.9.0002.32137.529403-darwin64-529403.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/42782/379901/slvoice-4.9.0002.32137.3410b595.530683-darwin64-530683.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2997,7 +2997,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.9.0002.32137.529403</string>
+        <string>4.9.0002.32137.3410b595.530683</string>
       </map>
       <key>tut</key>
       <map>

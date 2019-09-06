@@ -534,8 +534,11 @@ class WindowsManifest(ViewerManifest):
                 self.path("msvcr120.dll")
                 self.path("msvcp120.dll")
 
-            # Vivox runtimes
-            self.path("SLVoice.exe")
+            # SLVoice executable
+            with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
+                self.path("SLVoice.exe")
+
+            # Vivox libraries
             if (self.address_size == 64):
                 self.path("vivoxsdk_x64.dll")
                 self.path("ortp_x64.dll")
@@ -1032,11 +1035,14 @@ class DarwinManifest(ViewerManifest):
                                 ):
                     dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
 
-                # SLVoice and vivox lols, no symlinks needed
+                # SLVoice executable
+                with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
+                    self.path("SLVoice.exe")
+
+                # Vivox libraries
                 for libfile in (
                                 'libortp.dylib',
                                 'libvivoxsdk.dylib',
-                                'SLVoice',
                                 ):
                     self.path2basename(relpkgdir, libfile)
 
