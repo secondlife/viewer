@@ -1737,7 +1737,7 @@ Paste Rotation
              image_unselected="Toolbar_Middle_Off"
              layout="topleft"
              left_pad="5"
-             name="patse_gear_btn"
+             name="paste_gear_btn"
              tool_tip="Paste options"
              width="31"/>
             <combo_box
@@ -2661,7 +2661,7 @@ Paste Rotation
              top_pad="8"
              width="132" />
         </panel>
-         <panel
+        <panel
          label="Texture"
          help_topic="toolbox_texture_tab"
          name="Texture"

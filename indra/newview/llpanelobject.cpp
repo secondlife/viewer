@@ -156,28 +156,28 @@ BOOL	LLPanelObject::postBuild()
 
     // Copy/paste pos
     mBtnCopyPos = getChild<LLButton>("copy_pos_btn");
-    mBtnCopyPos->setCommitCallback( boost::bind(&LLPanelObject::onCopyPos, this, _2 ));
+    mBtnCopyPos->setCommitCallback(boost::bind(&LLPanelObject::onCopyPos, this));
     mBtnPastePos = getChild<LLButton>("paste_pos_btn");
-    mBtnPastePos->setCommitCallback( boost::bind(&LLPanelObject::onPastePos, this, _2 ));
+    mBtnPastePos->setCommitCallback(boost::bind(&LLPanelObject::onPastePos, this));
 
     // Copy/paste size
     mBtnCopySize = getChild<LLButton>("copy_size_btn");
-    mBtnCopySize->setCommitCallback( boost::bind(&LLPanelObject::onCopySize, this, _2 ));
+    mBtnCopySize->setCommitCallback(boost::bind(&LLPanelObject::onCopySize, this));
     mBtnPasteSize = getChild<LLButton>("paste_size_btn");
-    mBtnPasteSize->setCommitCallback( boost::bind(&LLPanelObject::onPasteSize, this, _2 ));
+    mBtnPasteSize->setCommitCallback(boost::bind(&LLPanelObject::onPasteSize, this));
 
     // Copy/paste rot
     mBtnCopyRot = getChild<LLButton>("copy_rot_btn");
-    mBtnCopyRot->setCommitCallback( boost::bind(&LLPanelObject::onCopyRot, this, _2 ));
+    mBtnCopyRot->setCommitCallback(boost::bind(&LLPanelObject::onCopyRot, this));
     mBtnPasteRot = getChild<LLButton>("paste_rot_btn");
-    mBtnPasteRot->setCommitCallback( boost::bind(&LLPanelObject::onPasteRot, this, _2 ));;
+    mBtnPasteRot->setCommitCallback(boost::bind(&LLPanelObject::onPasteRot, this));;
 
     // Copy/paste obj prams
     mBtnCopyParams = getChild<LLButton>("copy_params_btn");
-    mBtnCopyParams->setCommitCallback( boost::bind(&LLPanelObject::onCopyParams, this, _2 ));
+    mBtnCopyParams->setCommitCallback(boost::bind(&LLPanelObject::onCopyParams, this));
     mBtnPasteParams = getChild<LLButton>("paste_params_btn");
-    mBtnPasteParams->setCommitCallback( boost::bind(&LLPanelObject::onPasteParams, this, _2 ));
-    mBtnPasteMenu = getChild<LLMenuButton>("patse_gear_btn");
+    mBtnPasteParams->setCommitCallback(boost::bind(&LLPanelObject::onPasteParams, this));
+    mBtnPasteMenu = getChild<LLMenuButton>("paste_gear_btn");
 
 	//--------------------------------------------------------
 		
@@ -2050,7 +2050,7 @@ void LLPanelObject::onCommitSculptType(LLUICtrl *ctrl, void* userdata)
 	self->sendSculpt();
 }
 
-void LLPanelObject::onCopyPos(const LLSD& data)
+void LLPanelObject::onCopyPos()
 {
     mClipboardPos = LLVector3(mCtrlPosX->get(), mCtrlPosY->get(), mCtrlPosZ->get());
 
@@ -2066,7 +2066,7 @@ void LLPanelObject::onCopyPos(const LLSD& data)
     mHasPosClipboard = TRUE;
 }
 
-void LLPanelObject::onCopySize(const LLSD& data)
+void LLPanelObject::onCopySize()
 {
     mClipboardSize = LLVector3(mCtrlScaleX->get(), mCtrlScaleY->get(), mCtrlScaleZ->get());
 
@@ -2082,7 +2082,7 @@ void LLPanelObject::onCopySize(const LLSD& data)
     mHasSizeClipboard = TRUE;
 }
 
-void LLPanelObject::onCopyRot(const LLSD& data)
+void LLPanelObject::onCopyRot()
 {
     mClipboardRot = LLVector3(mCtrlRotX->get(), mCtrlRotY->get(), mCtrlRotZ->get());
 
@@ -2098,7 +2098,7 @@ void LLPanelObject::onCopyRot(const LLSD& data)
     mHasRotClipboard = TRUE;
 }
 
-void LLPanelObject::onPastePos(const LLSD& data)
+void LLPanelObject::onPastePos()
 {
     if(!mHasPosClipboard) return;
 
@@ -2117,7 +2117,7 @@ void LLPanelObject::onPastePos(const LLSD& data)
     sendPosition(FALSE);
 }
 
-void LLPanelObject::onPasteSize(const LLSD& data)
+void LLPanelObject::onPasteSize()
 {
     if(!mHasSizeClipboard) return;
 
@@ -2132,7 +2132,7 @@ void LLPanelObject::onPasteSize(const LLSD& data)
     sendScale(FALSE);
 }
 
-void LLPanelObject::onPasteRot(const LLSD& data)
+void LLPanelObject::onPasteRot()
 {
     if(!mHasRotClipboard) return;
 
@@ -2143,7 +2143,7 @@ void LLPanelObject::onPasteRot(const LLSD& data)
     sendRotation(FALSE);
 }
 
-void LLPanelObject::onCopyParams(const LLSD& data)
+void LLPanelObject::onCopyParams()
 {
     LLViewerObject* objectp = mObject;
     if (!objectp)
@@ -2255,7 +2255,7 @@ void LLPanelObject::onCopyParams(const LLSD& data)
     mHasParamsClipboard = TRUE;
 }
 
-void LLPanelObject::onPasteParams(const LLSD& data)
+void LLPanelObject::onPasteParams()
 {
     LLViewerObject* objectp = mObject;
     if (!objectp || !mHasParamsClipboard)
@@ -2286,7 +2286,7 @@ void LLPanelObject::onPasteParams(const LLSD& data)
 
         if (mParamsClipboard.has("spot"))
         {
-            volobjp->setLightTextureID(mParamsClipboard["spot"]["id"]);
+            volobjp->setLightTextureID(mParamsClipboard["spot"]["id"].asUUID());
             LLVector3 spot_params;
             spot_params.mV[0] = (F32)mParamsClipboard["spot"]["fov"].asReal();
             spot_params.mV[1] = (F32)mParamsClipboard["spot"]["focus"].asReal();
@@ -2440,6 +2440,7 @@ bool LLPanelObject::pasteEnabletMenuItem(const LLSD& userdata)
 // User is allowed to copy if they could otherwise recreate it manually
 // ie. User has full perm copy of the sculpted texture in their inventory,
 // or is a default texture or library asset.
+// Static
 bool LLPanelObject::canCopyTexture(LLUUID image_id)
 {
     // Library asset or default texture

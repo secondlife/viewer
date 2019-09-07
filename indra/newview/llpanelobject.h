@@ -67,14 +67,14 @@ public:
 	static void 	onCommitPhantom(		LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitPhysics(		LLUICtrl* ctrl, void* userdata);
 
-    void            onCopyPos(const LLSD& data);
-    void            onPastePos(const LLSD& data);
-    void            onCopySize(const LLSD& data);
-    void            onPasteSize(const LLSD& data);
-    void            onCopyRot(const LLSD& data);
-    void            onPasteRot(const LLSD& data);
-    void            onCopyParams(const LLSD& data);
-    void            onPasteParams(const LLSD& data);
+    void            onCopyPos();
+    void            onPastePos();
+    void            onCopySize();
+    void            onPasteSize();
+    void            onCopyRot();
+    void            onPasteRot();
+    void            onCopyParams();
+    void            onPasteParams();
 
 	static void 	onCommitParametric(LLUICtrl* ctrl, void* userdata);
 
@@ -88,6 +88,7 @@ public:
     bool            pasteCheckMenuItem(const LLSD& userdata);
     void            pasteDoMenuItem(const LLSD& userdata);
     bool            pasteEnabletMenuItem(const LLSD& userdata);
+    static bool     canCopyTexture(LLUUID image_id);
 
 protected:
 	void			getState();
@@ -102,8 +103,6 @@ protected:
 	void            sendSculpt();
 	
 	void 			getVolumeParams(LLVolumeParams& volume_params);
-
-    bool            canCopyTexture(LLUUID image_id);
 	
 protected:
 	// Per-object options
