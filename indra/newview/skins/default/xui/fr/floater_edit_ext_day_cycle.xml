@@ -18,6 +18,18 @@
 	<string name="sky_track_label">
 		Ciel [ALT]
 	</string>
+	<string name="sky_label">
+		Ciel
+	</string>
+	<string name="water_label">
+		Eau
+	</string>
+	<string name="commit_parcel">
+		Appliquer à la parcelle
+	</string>
+	<string name="commit_region">
+		Appliquer à la région
+	</string>
 	<layout_stack name="outer_stack">
 		<layout_panel name="name_and_import">
 			<text name="label">
@@ -44,17 +56,28 @@
 						<multi_slider initial_value="0" name="WLTimeSlider"/>
 						<multi_slider initial_value="0" name="WLDayCycleFrames"/>
 						<text name="current_time" value="[PRCNT]%[DSC]"/>
-						<layout_stack name="progress_control">
-							<layout_panel name="skip_back">
-								<button name="skip_back_btn" tool_tip="Reculer"/>
+						<layout_stack>
+							<layout_panel>
+								<button label="Cloner la piste à partir" name="copy_track"/>
+								<button label="Charger la piste à partir" name="load_track"/>
+								<button label="Effacer la piste" name="clear_track"/>
 							</layout_panel>
-							<layout_panel name="skip_forward">
-								<button name="skip_forward_btn" tool_tip="Avancer"/>
+							<layout_panel>
+								<layout_stack name="progress_control">
+									<layout_panel name="skip_back">
+										<button name="skip_back_btn" tool_tip="Reculer"/>
+									</layout_panel>
+									<layout_panel name="skip_forward">
+										<button name="skip_forward_btn" tool_tip="Avancer"/>
+									</layout_panel>
+								</layout_stack>
+							</layout_panel>
+							<layout_panel>
+								<button label="Ajouter [FRAME]" name="add_frame"/>
+								<button label="Charger [FRAME]" name="btn_load_frame"/>
+								<button label="Annuler [FRAME]" name="delete_frame"/>
 							</layout_panel>
 						</layout_stack>
-						<button label="Ajouter un cadre" name="add_frame"/>
-						<button label="Charger un cadre" name="btn_load_frame"/>
-						<button label="Supprimer le cadre" name="delete_frame"/>
 					</panel>
 				</layout_panel>
 				<layout_panel name="frame_edit_controls">

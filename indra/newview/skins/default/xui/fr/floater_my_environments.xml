@@ -5,15 +5,19 @@
 			<check_box label="Jours" name="chk_days"/>
 			<check_box label="Ciels" name="chk_skies"/>
 			<check_box label="Eau" name="chk_water"/>
+			<filter_editor label="Filtrer les environnements" name="flt_search"/>
 		</layout_panel>
 		<layout_panel label="Environnements" name="list_panel">
-			<check_box initial_value="false" label="Afficher les dossiers vides" name="chk_showfolders"/>
+			<panel label="pnl_inv_wrap" name="pnl_inv_wrap"/>
+		</layout_panel>
+		<layout_panel>
+			<check_box initial_value="false" label="Afficher tous les dossiers" name="chk_showfolders"/>
 		</layout_panel>
 		<layout_panel name="pnl_control">
 			<panel label="bottom_panel" name="pnl_bottom">
 				<menu_button name="btn_gear" tool_tip="Plus d&apos;options"/>
 				<menu_button name="btn_newsettings" tool_tip="Créer un nouveau paramètre"/>
-				<button name="btn_del" tool_tip="Supprimer ce paramètre"/>
+				<button name="btn_del" tool_tip="Supprimer l&apos;article sélectionné"/>
 			</panel>
 		</layout_panel>
 	</layout_stack>

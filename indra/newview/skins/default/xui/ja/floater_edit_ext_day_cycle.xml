@@ -18,6 +18,18 @@
 	<string name="sky_track_label">
 		空 [ALT]
 	</string>
+	<string name="sky_label">
+		空
+	</string>
+	<string name="water_label">
+		水
+	</string>
+	<string name="commit_parcel">
+		区画に適用
+	</string>
+	<string name="commit_region">
+		リージョンに適用
+	</string>
 	<layout_stack name="outer_stack">
 		<layout_panel name="name_and_import">
 			<text name="label">
@@ -44,17 +56,28 @@
 						<multi_slider initial_value="0" name="WLTimeSlider"/>
 						<multi_slider initial_value="0" name="WLDayCycleFrames"/>
 						<text name="current_time" value="[PRCNT]%[DSC]"/>
-						<layout_stack name="progress_control">
-							<layout_panel name="skip_back">
-								<button name="skip_back_btn" tool_tip="後ろに移動"/>
+						<layout_stack>
+							<layout_panel>
+								<button label="トラックを以下からクローン" name="copy_track"/>
+								<button label="トラックを以下からロード" name="load_track"/>
+								<button label="トラックをクリア" name="clear_track"/>
 							</layout_panel>
-							<layout_panel name="skip_forward">
-								<button name="skip_forward_btn" tool_tip="前に移動"/>
+							<layout_panel>
+								<layout_stack name="progress_control">
+									<layout_panel name="skip_back">
+										<button name="skip_back_btn" tool_tip="後ろに移動"/>
+									</layout_panel>
+									<layout_panel name="skip_forward">
+										<button name="skip_forward_btn" tool_tip="前に移動"/>
+									</layout_panel>
+								</layout_stack>
+							</layout_panel>
+							<layout_panel>
+								<button label="[FRAME] を追加" name="add_frame"/>
+								<button label="[FRAME] をロード" name="btn_load_frame"/>
+								<button label="[FRAME] を削除" name="delete_frame"/>
 							</layout_panel>
 						</layout_stack>
-						<button label="フレームを追加" name="add_frame"/>
-						<button label="フレームを読み込み" name="btn_load_frame"/>
-						<button label="フレームを削除" name="delete_frame"/>
 					</panel>
 				</layout_panel>
 				<layout_panel name="frame_edit_controls">

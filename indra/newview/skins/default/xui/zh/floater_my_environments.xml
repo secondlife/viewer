@@ -5,15 +5,19 @@
 			<check_box label="日" name="chk_days"/>
 			<check_box label="天空" name="chk_skies"/>
 			<check_box label="水文" name="chk_water"/>
+			<filter_editor label="過濾環境" name="flt_search"/>
 		</layout_panel>
 		<layout_panel label="環境" name="list_panel">
-			<check_box initial_value="false" label="顯示空資料夾" name="chk_showfolders"/>
+			<panel label="pnl_inv_wrap" name="pnl_inv_wrap"/>
+		</layout_panel>
+		<layout_panel>
+			<check_box initial_value="false" label="顯示所有資料夾" name="chk_showfolders"/>
 		</layout_panel>
 		<layout_panel name="pnl_control">
 			<panel label="bottom_panel" name="pnl_bottom">
 				<menu_button name="btn_gear" tool_tip="更多選項"/>
 				<menu_button name="btn_newsettings" tool_tip="製作新的設定"/>
-				<button name="btn_del" tool_tip="刪除這個設定"/>
+				<button name="btn_del" tool_tip="移除所選擇的物品"/>
 			</panel>
 		</layout_panel>
 	</layout_stack>

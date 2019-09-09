@@ -6,5 +6,5 @@
 	<menu_item_call label="リージョンに適用" name="Settings Apply Region"/>
 	<menu_item_call label="コピー" name="copy_settings"/>
 	<menu_item_call label="貼り付け" name="paste_settings"/>
-	<menu_item_call label="UUIDをコピー" name="copy_uuid"/>
+	<menu_item_call label="UUID をコピー" name="copy_uuid"/>
 </toggleable_menu>

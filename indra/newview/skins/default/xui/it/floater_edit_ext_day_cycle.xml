@@ -7,16 +7,28 @@
 		Modifica ciclo giornata
 	</string>
 	<string name="hint_new">
-		Dai un nome al ciclo della giornata, regola i controlli per crearlo e fai clic su &quot;Salva&quot;.
+		Dai un nome al ciclo della giornata, regola i comandi per crearlo e fai clic su &quot;Salva&quot;.
 	</string>
 	<string name="hint_edit">
-		Per modificare il ciclo della giornata, regola i controlli seguenti e fai clic su &quot;Salva&quot;.
+		Per modificare il ciclo della giornata, regola i comandi seguenti e fai clic su &quot;Salva&quot;.
 	</string>
 	<string name="time_label">
 		([HH]:[MM])
 	</string>
 	<string name="sky_track_label">
 		Cielo [ALT]
+	</string>
+	<string name="sky_label">
+		Cielo
+	</string>
+	<string name="water_label">
+		Acqua
+	</string>
+	<string name="commit_parcel">
+		Applica al lotto
+	</string>
+	<string name="commit_region">
+		Applica alla regione
 	</string>
 	<layout_stack name="outer_stack">
 		<layout_panel name="name_and_import">
@@ -44,17 +56,28 @@
 						<multi_slider initial_value="0" name="WLTimeSlider"/>
 						<multi_slider initial_value="0" name="WLDayCycleFrames"/>
 						<text name="current_time" value="[PRCNT]%[DSC]"/>
-						<layout_stack name="progress_control">
-							<layout_panel name="skip_back">
-								<button name="skip_back_btn" tool_tip="Passo indietro"/>
+						<layout_stack>
+							<layout_panel>
+								<button label="Clona Percorso Da" name="copy_track"/>
+								<button label="Carica Percorso Da" name="load_track"/>
+								<button label="Cancella Percorso" name="clear_track"/>
 							</layout_panel>
-							<layout_panel name="skip_forward">
-								<button name="skip_forward_btn" tool_tip="Passo avanti"/>
+							<layout_panel>
+								<layout_stack name="progress_control">
+									<layout_panel name="skip_back">
+										<button name="skip_back_btn" tool_tip="Passo indietro"/>
+									</layout_panel>
+									<layout_panel name="skip_forward">
+										<button name="skip_forward_btn" tool_tip="Passo avanti"/>
+									</layout_panel>
+								</layout_stack>
+							</layout_panel>
+							<layout_panel>
+								<button label="Aggiungi [FRAME]" name="add_frame"/>
+								<button label="Carica [FRAME]" name="btn_load_frame"/>
+								<button label="Elimina [FRAME]" name="delete_frame"/>
 							</layout_panel>
 						</layout_stack>
-						<button label="Aggiungi fotogramma" name="add_frame"/>
-						<button label="Carica fotogramma" name="btn_load_frame"/>
-						<button label="Elimina fotogramma" name="delete_frame"/>
 					</panel>
 				</layout_panel>
 				<layout_panel name="frame_edit_controls">
@@ -71,7 +94,7 @@
 					<tab_container name="sky_tabs">
 						<panel label="Atmosfera e illuminazione" name="atmosphere_panel"/>
 						<panel label="Nuvole" name="clouds_panel"/>
-						<panel label="Sole e luna" name="moon_panel"/>
+						<panel label="Sole e Luna" name="moon_panel"/>
 					</tab_container>
 				</layout_panel>
 			</layout_stack>

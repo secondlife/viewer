@@ -8,7 +8,7 @@
 	</string>
 	<layout_stack name="floater_stack">
 		<layout_panel name="info_panel">
-			<button label="ロード" name="btn_load" tool_tip="インベントリから設定をロードする"/>
+			<button label="ロード" name="btn_load" tool_tip="持ち物から設定をロードする"/>
 			<button label="インポート" name="btn_import" tool_tip="ディスクから過去の設定をインポートする。"/>
 		</layout_panel>
 		<layout_panel name="button_panel">

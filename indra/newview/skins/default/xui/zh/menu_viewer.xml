@@ -84,6 +84,7 @@
 			<menu_item_check label="午夜" name="Midnight"/>
 			<menu_item_check label="使用共享環境" name="Use Shared Environment"/>
 			<menu_item_call label="我的環境…" name="my_environs"/>
+			<menu_item_call label="個人照明⋯" name="adjustment_tool"/>
 			<menu_item_check label="暫停雲彩" name="pause_clouds"/>
 		</menu>
 	</menu>
@@ -328,6 +329,9 @@
 			<menu_item_check label="自動半透明遮罩（非遞延）" name="Automatic Alpha Masks (non-deferred)"/>
 			<menu_item_check label="動作材質" name="Animation Textures"/>
 			<menu_item_check label="關閉材質" name="Disable Textures"/>
+			<menu_item_check label="停用環境光" name="Disable Ambient"/>
+			<menu_item_check label="停用日光" name="Disable Sunlight"/>
+			<menu_item_check label="停用本地光線" name="Disable Local Lights"/>
 			<menu_item_check label="全解析度材質" name="Rull Res Textures"/>
 			<menu_item_check label="使附著燈光呈像" name="Render Attached Lights"/>
 			<menu_item_check label="使附著例子效果呈像" name="Render Attached Particles"/>
@@ -465,6 +469,7 @@
 			<menu_item_call label="裙子" name="Skirt"/>
 			<menu_item_call label="半透明" name="Alpha"/>
 			<menu_item_call label="刺青" name="Tattoo"/>
+			<menu_item_call label="通用值" name="Universal"/>
 			<menu_item_call label="身體物理" name="Physics"/>
 			<menu_item_call label="全部衣服" name="All Clothes"/>
 		</menu>

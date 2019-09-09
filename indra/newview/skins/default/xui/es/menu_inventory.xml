@@ -33,6 +33,7 @@
 		<menu_item_call label="Ropa interior nueva" name="New Underpants"/>
 		<menu_item_call label="Nueva capa Alpha" name="New Alpha Mask"/>
 		<menu_item_call label="Tatuaje nuevo" name="New Tattoo"/>
+		<menu_item_call label="Nuevo Universal" name="New Universal"/>
 		<menu_item_call label="Nueva física" name="New Physics"/>
 	</menu>
 	<menu label="Nuevas partes del cuerpo" name="New Body Parts">
@@ -41,7 +42,7 @@
 		<menu_item_call label="Pelo nuevo" name="New Hair"/>
 		<menu_item_call label="Ojos nuevos" name="New Eyes"/>
 	</menu>
-	<menu label="Nueva configuración" name="New Settings">
+	<menu label="Nueva Configuración" name="New Settings">
 		<menu_item_call label="Nuevo Cielo" name="New Sky"/>
 		<menu_item_call label="Nueva Agua" name="New Water"/>
 		<menu_item_call label="Nuevo Ciclo del día" name="New Day Cycle"/>
@@ -108,7 +109,6 @@
 	<menu_item_call label="Quitarse" name="Take Off"/>
 	<menu_item_call label="Aplicar sólo a Mi mismo" name="Settings Apply Local"/>
 	<menu_item_call label="Aplicar a la Parcela" name="Settings Apply Parcel"/>
-	<menu_item_call label="Aplicar a la Región" name="Settings Apply Region"/>
 	<menu_item_call label="Copiar en artículos del Mercado" name="Marketplace Copy"/>
 	<menu_item_call label="Mover a artículos del Mercado" name="Marketplace Move"/>
 	<menu_item_call label="--sin opciones--" name="--no options--"/>
