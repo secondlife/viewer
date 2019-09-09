@@ -86,6 +86,7 @@
 			<menu_item_check label="深夜" name="Midnight"/>
 			<menu_item_check label="共有された環境を使用" name="Use Shared Environment"/>
 			<menu_item_call label="私の環境…" name="my_environs"/>
+			<menu_item_call label="個人的な照明…" name="adjustment_tool"/>
 			<menu_item_check label="雲を一時停止" name="pause_clouds"/>
 		</menu>
 	</menu>
@@ -330,6 +331,9 @@
 			<menu_item_check label="自動アルファマスク（遅延なし）" name="Automatic Alpha Masks (non-deferred)"/>
 			<menu_item_check label="アニメーションテクスチャ" name="Animation Textures"/>
 			<menu_item_check label="テクスチャを無効にする" name="Disable Textures"/>
+			<menu_item_check label="アンビエントを無効にする" name="Disable Ambient"/>
+			<menu_item_check label="日の出を無効にする" name="Disable Sunlight"/>
+			<menu_item_check label="近くの光を無効にする" name="Disable Local Lights"/>
 			<menu_item_check label="フル解像度テクスチャ" name="Rull Res Textures"/>
 			<menu_item_check label="装着された光源を描画する" name="Render Attached Lights"/>
 			<menu_item_check label="取り付けられたパーティクルを描画する" name="Render Attached Particles"/>
@@ -467,6 +471,7 @@
 			<menu_item_call label="スカート" name="Skirt"/>
 			<menu_item_call label="アルファ" name="Alpha"/>
 			<menu_item_call label="タトゥ" name="Tattoo"/>
+			<menu_item_call label="ユニバーサル" name="Universal"/>
 			<menu_item_call label="物理作用" name="Physics"/>
 			<menu_item_call label="すべての衣類" name="All Clothes"/>
 		</menu>

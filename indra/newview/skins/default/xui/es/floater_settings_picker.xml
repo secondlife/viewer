@@ -1,15 +1,26 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="settings picker" title="DESTACADO: CONFIGURACIÓN">
-	<floater.string name="choose_picture">
-		Pulsa para elegir una imagen
-	</floater.string>
 	<floater.string name="pick title">
 		Destacado:
 	</floater.string>
+	<floater.string name="pick_track">
+		SELECCIONAR RUTA
+	</floater.string>
+	<floater.string name="pick_settings">
+		SELECCIONAR CONFIGURACIÓN
+	</floater.string>
+	<floater.string name="track_water">
+		Agua
+	</floater.string>
+	<floater.string name="track_ground">
+		Terreno
+	</floater.string>
+	<floater.string name="track_sky">
+		Cielo[NUM]
+	</floater.string>
 	<layout_stack name="test_stack">
-		<layout_panel name="temp">
+		<layout_panel name="inv_list">
 			<filter_editor label="Filtrar las texturas" name="flt_inventory_search"/>
-			<check_box initial_value="false" label="Ver las carpetas" name="chk_showfolders"/>
 		</layout_panel>
 		<layout_panel name="temp">
 			<button label="OK" label_selected="OK" name="btn_select"/>

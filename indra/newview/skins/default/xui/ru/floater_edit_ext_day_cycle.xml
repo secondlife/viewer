@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="env_edit_extdaycycle" title="Изменить суточный цикл">
 	<string name="title_new">
-		Создать суточный цикл
+		Создать новый суточный цикл
 	</string>
 	<string name="title_edit">
 		Изменить суточный цикл
@@ -16,14 +16,26 @@
 		([HH]:[MM])
 	</string>
 	<string name="sky_track_label">
-		Небо \[ALT]
+		Небо [ALT]
+	</string>
+	<string name="sky_label">
+		Небо
+	</string>
+	<string name="water_label">
+		Вода
+	</string>
+	<string name="commit_parcel">
+		Применить к участку
+	</string>
+	<string name="commit_region">
+		Применить к региону
 	</string>
 	<layout_stack name="outer_stack">
 		<layout_panel name="name_and_import">
 			<text name="label">
 				Название суточного цикла:
 			</text>
-			<button label="Импортировать" name="btn_import" tool_tip="Импортировать устаревшие параметры с диска."/>
+			<button label="Импортировать" name="btn_import" tool_tip="Импортировать устаревшие настройки с диска."/>
 		</layout_panel>
 		<layout_panel name="content">
 			<layout_stack name="content_stack">
@@ -44,22 +56,33 @@
 						<multi_slider initial_value="0" name="WLTimeSlider"/>
 						<multi_slider initial_value="0" name="WLDayCycleFrames"/>
 						<text name="current_time" value="[PRCNT]%[DSC]"/>
-						<layout_stack name="progress_control">
-							<layout_panel name="skip_back">
-								<button name="skip_back_btn" tool_tip="Шаг назад"/>
+						<layout_stack>
+							<layout_panel>
+								<button label="Клонировать режим редактирования из" name="copy_track"/>
+								<button label="Загрузить режим редактирования из" name="load_track"/>
+								<button label="Очистить режим редактирования" name="clear_track"/>
 							</layout_panel>
-							<layout_panel name="skip_forward">
-								<button name="skip_forward_btn" tool_tip="Шаг вперед"/>
+							<layout_panel>
+								<layout_stack name="progress_control">
+									<layout_panel name="skip_back">
+										<button name="skip_back_btn" tool_tip="Шаг назад"/>
+									</layout_panel>
+									<layout_panel name="skip_forward">
+										<button name="skip_forward_btn" tool_tip="Шаг вперед"/>
+									</layout_panel>
+								</layout_stack>
+							</layout_panel>
+							<layout_panel>
+								<button label="Добавить [FRAME]" name="add_frame"/>
+								<button label="Загрузить [FRAME]" name="btn_load_frame"/>
+								<button label="Удалить [FRAME]" name="delete_frame"/>
 							</layout_panel>
 						</layout_stack>
-						<button label="Добавить фрейм" name="add_frame"/>
-						<button label="Загрузить фрейм" name="btn_load_frame"/>
-						<button label="Удалить фрейм" name="delete_frame"/>
 					</panel>
 				</layout_panel>
 				<layout_panel name="frame_edit_controls">
 					<text name="icn_lock_edit">
-						Выбрать ключевой фрейм на временной шкале для изменения настроек.
+						Выбрать ключевой фрейм на временной шкале выше для изменения настроек.
 					</text>
 				</layout_panel>
 				<layout_panel name="frame_settings_water">

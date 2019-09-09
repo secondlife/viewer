@@ -1,15 +1,26 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="settings picker" title="選擇：設定">
-	<floater.string name="choose_picture">
-		點按以挑選圖片
-	</floater.string>
 	<floater.string name="pick title">
 		精選地點：
 	</floater.string>
+	<floater.string name="pick_track">
+		選取軌跡
+	</floater.string>
+	<floater.string name="pick_settings">
+		選取設定
+	</floater.string>
+	<floater.string name="track_water">
+		水文
+	</floater.string>
+	<floater.string name="track_ground">
+		地面
+	</floater.string>
+	<floater.string name="track_sky">
+		天空[NUM]
+	</floater.string>
 	<layout_stack name="test_stack">
-		<layout_panel name="temp">
+		<layout_panel name="inv_list">
 			<filter_editor label="材質過濾器" name="flt_inventory_search"/>
-			<check_box initial_value="false" label="顯示資料夾" name="chk_showfolders"/>
 		</layout_panel>
 		<layout_panel name="temp">
 			<button label="確定" label_selected="確定" name="btn_select"/>

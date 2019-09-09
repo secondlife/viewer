@@ -80,12 +80,13 @@
 			<menu_item_check label="Menu avançado" name="Show Advanced Menu"/>
 		</menu>
 		<menu label="Ambiente" name="Environment">
-			<menu_item_check label="Nascer-do-sol" name="Sunrise"/>
+			<menu_item_check label="Nascer do sol" name="Sunrise"/>
 			<menu_item_check label="Meio-dia" name="Noon"/>
-			<menu_item_check label="Pôr-do-sol" name="Sunset"/>
+			<menu_item_check label="Pôr do sol" name="Sunset"/>
 			<menu_item_check label="Meia-noite" name="Midnight"/>
 			<menu_item_check label="Use o ambiente compartilhado" name="Use Shared Environment"/>
 			<menu_item_call label="Meu ambiente..." name="my_environs"/>
+			<menu_item_call label="Iluminação pessoal..." name="adjustment_tool"/>
 			<menu_item_check label="Pausar as nuvens" name="pause_clouds"/>
 		</menu>
 	</menu>
@@ -307,6 +308,9 @@
 			<menu_item_check label="Máscaras alpha automáticas (sem adiar)" name="Automatic Alpha Masks (non-deferred)"/>
 			<menu_item_check label="Texturas de animação" name="Animation Textures"/>
 			<menu_item_check label="Desativar texturas" name="Disable Textures"/>
+			<menu_item_check label="Desativar ambiente" name="Disable Ambient"/>
+			<menu_item_check label="Desabilitar a luz solar" name="Disable Sunlight"/>
+			<menu_item_check label="Desativar Luzes locais" name="Disable Local Lights"/>
 			<menu_item_check label="Render Attached Lights" name="Render Attached Lights"/>
 			<menu_item_check label="Render Attached Particles" name="Render Attached Particles"/>
 			<menu_item_check label="Objetos iridescentes" name="Hover Glow Objects"/>
@@ -397,6 +401,7 @@
 	</menu>
 	<menu label="Admin" name="Deprecated">
 		<menu label="Take Off Clothing" name="Take Off Clothing">
+			<menu_item_call label="Universal" name="Universal"/>
 			<menu_item_call label="Físico" name="Physics"/>
 		</menu>
 		<menu label="Ajuda" name="DeprecatedHelp">

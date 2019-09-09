@@ -1,15 +1,26 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="settings picker" title="SEÇİM: AYARLAR">
-	<floater.string name="choose_picture">
-		Bir resim seçmek için tıklayın
-	</floater.string>
 	<floater.string name="pick title">
 		Seçim:
 	</floater.string>
+	<floater.string name="pick_track">
+		ROTA SEÇ
+	</floater.string>
+	<floater.string name="pick_settings">
+		AYARLARI SEÇ
+	</floater.string>
+	<floater.string name="track_water">
+		Su
+	</floater.string>
+	<floater.string name="track_ground">
+		Zemin
+	</floater.string>
+	<floater.string name="track_sky">
+		Gökyüzü [NUM]
+	</floater.string>
 	<layout_stack name="test_stack">
-		<layout_panel name="temp">
+		<layout_panel name="inv_list">
 			<filter_editor label="Dokuları Filtrele" name="flt_inventory_search"/>
-			<check_box initial_value="false" label="Klasörleri göster" name="chk_showfolders"/>
 		</layout_panel>
 		<layout_panel name="temp">
 			<button label="Tamam" label_selected="Tamam" name="btn_select"/>
