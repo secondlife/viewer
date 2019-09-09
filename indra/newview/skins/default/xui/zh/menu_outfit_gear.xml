@@ -20,6 +20,7 @@
 		<menu_item_call label="新半透明" name="New Alpha"/>
 		<menu_item_call label="新身體物理" name="New Physics"/>
 		<menu_item_call label="新刺青" name="New Tattoo"/>
+		<menu_item_call label="新通用值" name="New Universal"/>
 	</menu>
 	<menu label="新身體部位" name="New Body Parts">
 		<menu_item_call label="新體形" name="New Shape"/>

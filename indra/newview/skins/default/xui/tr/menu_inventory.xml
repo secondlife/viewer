@@ -33,6 +33,7 @@
 		<menu_item_call label="Yeni Külot" name="New Underpants"/>
 		<menu_item_call label="Yeni Alfa Maskesi" name="New Alpha Mask"/>
 		<menu_item_call label="Yeni Dövme" name="New Tattoo"/>
+		<menu_item_call label="Yeni Evrensel" name="New Universal"/>
 		<menu_item_call label="Yeni Fizik" name="New Physics"/>
 	</menu>
 	<menu label="Yeni Vücut Bölümleri" name="New Body Parts">
@@ -109,7 +110,6 @@
 	<menu_item_call label="Çıkar" name="Take Off"/>
 	<menu_item_call label="Sadece Kendime Uygula" name="Settings Apply Local"/>
 	<menu_item_call label="Parsele Uygula" name="Settings Apply Parcel"/>
-	<menu_item_call label="Bölgeye Uygula" name="Settings Apply Region"/>
 	<menu_item_call label="Pazaryeri İlanlarına Kopyala" name="Marketplace Copy"/>
 	<menu_item_call label="Pazaryeri İlanlarına Taşı" name="Marketplace Move"/>
 	<menu_item_call label="--seçenek yok--" name="--no options--"/>

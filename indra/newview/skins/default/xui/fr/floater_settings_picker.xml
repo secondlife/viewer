@@ -1,15 +1,26 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="settings picker" title="CHOISIR : PARAMÈTRES">
-	<floater.string name="choose_picture">
-		Cliquer pour sélectionner une image.
-	</floater.string>
 	<floater.string name="pick title">
 		Choisir :
 	</floater.string>
+	<floater.string name="pick_track">
+		SÉLECTIONNER UNE PISTE
+	</floater.string>
+	<floater.string name="pick_settings">
+		SÉLECTIONNEZ LES PARAMÈTRES
+	</floater.string>
+	<floater.string name="track_water">
+		Eau
+	</floater.string>
+	<floater.string name="track_ground">
+		Sol
+	</floater.string>
+	<floater.string name="track_sky">
+		Ciel[NUM]
+	</floater.string>
 	<layout_stack name="test_stack">
-		<layout_panel name="temp">
+		<layout_panel name="inv_list">
 			<filter_editor label="Filtrer les textures" name="flt_inventory_search"/>
-			<check_box initial_value="false" label="Afficher les dossiers" name="chk_showfolders"/>
 		</layout_panel>
 		<layout_panel name="temp">
 			<button label="OK" label_selected="OK" name="btn_select"/>

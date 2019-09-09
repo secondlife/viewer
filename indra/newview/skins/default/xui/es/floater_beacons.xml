@@ -18,5 +18,7 @@
 		<check_box label="Origen de sonidos" name="sounds"/>
 		<check_box label="Origen de partículas" name="particles"/>
 		<check_box label="Fuentes de media" name="moapbeacon"/>
+		<check_box label="Sol" name="sun"/>
+		<check_box label="Luna" name="moon"/>
 	</panel>
 </floater>

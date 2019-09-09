@@ -6,9 +6,6 @@
 	<string name="str_label_use_region">
 		Usar Configuración de la Región
 	</string>
-	<string name="str_unknow_inventory">
-		Desconocido
-	</string>
 	<string name="str_altitude_desription">
 		Cielo [INDEX]([ALTITUDE]m)
 	</string>
@@ -21,6 +18,18 @@
 	<string name="str_legacy">
 		La configuración de entorno no está disponible en esta región.
 	</string>
+	<string name="str_disallowed">
+		El administrador del estado no permite cambiar los entornos de parcela en esta región.
+	</string>
+	<string name="str_too_small">
+		La parcela debe tener como mínimo 128 metros cuadrados para ser compatible con un entorno.
+	</string>
+	<string name="str_empty">
+		(vacío)
+	</string>
+	<string name="str_region_env">
+		(entorno de la región)
+	</string>
 	<layout_stack>
 		<layout_panel name="pnl_environment_disabled">
 			<text name="txt_environment_disabled">
@@ -29,49 +38,79 @@
 		</layout_panel>
 		<layout_panel name="pnl_environment_config">
 			<layout_stack>
-				<layout_panel name="pnl_environment_current">
-					<radio_group name="rdg_environment_select">
-						<radio_item label="[USEDEFAULT]" name="rdo_use_xxx_setting"/>
-						<radio_item label="Configuración del Inventario" name="rdo_use_inv_setting"/>
-						<radio_item label="Entorno personalizado" name="rdo_use_custom_setting"/>
-					</radio_group>
-					<line_editor name="edt_inventory_name">
-						Desconocido
-					</line_editor>
-					<button label="Editar Entorno" name="btn_edit"/>
+				<layout_panel name="pnl_environment_config">
+					<layout_stack>
+						<layout_panel name="pnl_environment_current">
+							<button label="[USEDEFAULT]" name="btn_usedefault"/>
+							<button label="Usar Inventario" name="btn_select_inventory"/>
+							<button label="Personalizar" name="btn_edit"/>
+							<check_box label="Los propietarios de parcelas pueden borrar el entorno" name="chk_allow_override"/>
+						</layout_panel>
+						<layout_panel name="pnl_environment_length">
+							<text name="lbl_apparent_time">
+								[HH]:[MM][AP] ([PRC]%)
+							</text>
+						</layout_panel>
+						<layout_panel name="pnl_environment_buttons"/>
+					</layout_stack>
 				</layout_panel>
-				<layout_panel name="pnl_environment_length">
-					<text name="lbl_apparent_time">
-						[HH]:[MM][AP] ([PRC]%)
-					</text>
+				<layout_panel name="pnl_environment_altitudes">
+					<panel name="pnl_alt1">
+						<text name="txt_alt1">
+							Cielo [INDEX]
+                            [ALTITUDE]m
+						</text>
+						<line_editor name="edt_invname_alt1">
+							Desconocido
+						</line_editor>
+						<settings_drop_target name="sdt_alt1" tool_tip="Mover un parámetro desde el Inventario hasta este recuadro para seleccionarlo como cielo actual."/>
+					</panel>
+					<panel name="pnl_alt2">
+						<text name="txt_alt2">
+							Cielo [INDEX]
+                            [ALTITUDE]m
+						</text>
+						<line_editor name="edt_invname_alt2">
+							Desconocido
+						</line_editor>
+						<settings_drop_target name="sdt_alt2" tool_tip="Mover un parámetro desde el Inventario hasta este recuadro para seleccionarlo como cielo actual."/>
+					</panel>
+					<panel name="pnl_alt3">
+						<text name="txt_alt3">
+							Cielo [INDEX]
+                            [ALTITUDE]m
+						</text>
+						<line_editor name="edt_invname_alt3">
+							Desconocido
+						</line_editor>
+						<settings_drop_target name="sdt_alt3" tool_tip="Mover un parámetro desde el Inventario hasta este recuadro para seleccionarlo como cielo actual."/>
+					</panel>
+					<multi_slider initial_value="0" name="sld_altitudes">
+						<slider name="sld1" value="1000"/>
+						<slider name="sld2" value="2000"/>
+						<slider name="sld3" value="3000"/>
+					</multi_slider>
+					<panel name="pnl_ground">
+						<text name="txt_ground">
+							Terreno
+						</text>
+						<line_editor name="edt_invname_ground">
+							Desconocido
+						</line_editor>
+						<settings_drop_target name="sdt_ground" tool_tip="Mover un parámetro desde el Inventario hasta este recuadro para seleccionarlo como cielo a nivel del terreno."/>
+					</panel>
+					<panel name="pnl_water">
+						<text name="txt_water">
+							Agua
+						</text>
+						<line_editor name="edt_invname_water">
+							Desconocido
+						</line_editor>
+						<settings_drop_target name="sdt_water" tool_tip="Mover un parámetro desde el Inventario hasta este recuadro para seleccionarlo como agua actual."/>
+					</panel>
+					<button label="Restablecer" name="btn_rst_altitudes" tool_tip="Restablecer altitudes predeterminadas"/>
 				</layout_panel>
 			</layout_stack>
-		</layout_panel>
-		<layout_panel name="pnl_environment_altitudes">
-			<panel name="cnt_panel">
-				<multi_slider initial_value="100." name="sld_altitudes">
-					<slider name="sld1" value="200"/>
-					<slider name="sld2" value="400"/>
-					<slider name="sld3" value="600"/>
-				</multi_slider>
-				<text name="ground">
-					Terreno
-				</text>
-				<text name="alt1">
-					Cielo [INDEX]([ALTITUDE]m)
-				</text>
-				<text name="alt2">
-					Cielo [INDEX]([ALTITUDE]m)
-				</text>
-				<text name="alt3">
-					Cielo [INDEX]([ALTITUDE]m)
-				</text>
-			</panel>
-		</layout_panel>
-		<layout_panel name="pnl_environment_buttons">
-			<check_box label="Los propietarios de parcelas pueden borrar el entorno" name="chk_allow_override"/>
-			<button label="Aplicar" name="btn_apply"/>
-			<button label="Restablecer" name="btn_cancel"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

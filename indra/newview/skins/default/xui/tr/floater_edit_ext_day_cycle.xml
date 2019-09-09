@@ -18,6 +18,18 @@
 	<string name="sky_track_label">
 		Gökyüzü [ALT]
 	</string>
+	<string name="sky_label">
+		Gökyüzü
+	</string>
+	<string name="water_label">
+		Su
+	</string>
+	<string name="commit_parcel">
+		Parsele Uygula
+	</string>
+	<string name="commit_region">
+		Bölgeye Uygula
+	</string>
 	<layout_stack name="outer_stack">
 		<layout_panel name="name_and_import">
 			<text name="label">
@@ -44,17 +56,28 @@
 						<multi_slider initial_value="0" name="WLTimeSlider"/>
 						<multi_slider initial_value="0" name="WLDayCycleFrames"/>
 						<text name="current_time" value="%[PRCNT] [DSC]"/>
-						<layout_stack name="progress_control">
-							<layout_panel name="skip_back">
-								<button name="skip_back_btn" tool_tip="Geri çekil"/>
+						<layout_stack>
+							<layout_panel>
+								<button label="Buradan Rota Kopyala:" name="copy_track"/>
+								<button label="Buradan Rota Yükle:" name="load_track"/>
+								<button label="Rotayı Temizle" name="clear_track"/>
 							</layout_panel>
-							<layout_panel name="skip_forward">
-								<button name="skip_forward_btn" tool_tip="İleri çık"/>
+							<layout_panel>
+								<layout_stack name="progress_control">
+									<layout_panel name="skip_back">
+										<button name="skip_back_btn" tool_tip="Geri çekil"/>
+									</layout_panel>
+									<layout_panel name="skip_forward">
+										<button name="skip_forward_btn" tool_tip="İleri çık"/>
+									</layout_panel>
+								</layout_stack>
+							</layout_panel>
+							<layout_panel>
+								<button label="[FRAME] Ekle" name="add_frame"/>
+								<button label="[FRAME] Yükle" name="btn_load_frame"/>
+								<button label="[FRAME] Sil" name="delete_frame"/>
 							</layout_panel>
 						</layout_stack>
-						<button label="Çerçeve Ekle" name="add_frame"/>
-						<button label="Çerçeve Yükle" name="btn_load_frame"/>
-						<button label="Çerçeve Sil" name="delete_frame"/>
 					</panel>
 				</layout_panel>
 				<layout_panel name="frame_edit_controls">

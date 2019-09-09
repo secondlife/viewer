@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Fixed Environment" title="Фиксированная среда">
 	<string name="edit_sky">
-		Изменить небо:
+		Редактировать настройки неба:
 	</string>
 	<string name="edit_water">
-		Изменить настройки воды:
+		Редактировать настройки воды:
 	</string>
 	<layout_stack name="floater_stack">
 		<layout_panel name="info_panel">
 			<button label="Загрузить" name="btn_load" tool_tip="Загрузить настройки из инвентарного списка"/>
-			<button label="Импортировать" name="btn_import" tool_tip="Импортировать устаревшие параметры с диска."/>
+			<button label="Импортировать" name="btn_import" tool_tip="Импортировать устаревшие настройки с диска."/>
 		</layout_panel>
 		<layout_panel name="button_panel">
 			<layout_stack name="button_bar_ls">

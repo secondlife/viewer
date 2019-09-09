@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="テクスチャ" name="Texture">
-	<panel.string name="string repeats per meter">
-		メーターごとに繰り返す
-	</panel.string>
-	<panel.string name="string repeats per face">
-		面ごとに繰り返す
-	</panel.string>
 	<text name="color label">
 		色
 	</text>
@@ -114,4 +108,5 @@
 	<spinner label="水平オフセット" name="shinyOffsetU"/>
 	<spinner label="垂直オフセット" name="shinyOffsetV"/>
 	<check_box initial_value="false" label="平面を揃える" name="checkbox planar align" tool_tip="選択面全てのテクスチャを、最後に選択された面に揃えます。平面テクスチャのマッピングが必要です。"/>
+	<button label="揃える" label_selected="現在のテクスチャレイヤーを揃える" name="button align textures" tool_tip="現在のテクスチャレイヤーを揃える"/>
 </panel>
