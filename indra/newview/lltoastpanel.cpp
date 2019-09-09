@@ -211,7 +211,9 @@ bool LLCheckBoxToastPanel::setCheckBox(const std::string& check_title,
 
     // set check_box's attributes
     LLRect check_rect;
-    mCheck->setRect(check_rect.setOriginAndSize(msg_x, v_pad + BTN_HEIGHT + LINE_HEIGHT / 2, max_msg_width, LINE_HEIGHT*lines.size()));
+    // if we are part of the toast, we need to leave space for buttons
+    S32 msg_y = v_pad + (parent_view ? 0 : (BTN_HEIGHT + LINE_HEIGHT / 2));
+    mCheck->setRect(check_rect.setOriginAndSize(msg_x, msg_y, max_msg_width, LINE_HEIGHT*lines.size()));
     mCheck->setLabel(check_title);
     mCheck->setCommitCallback(cb);
 

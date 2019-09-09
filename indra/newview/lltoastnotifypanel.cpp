@@ -411,14 +411,17 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
 	//can shift upward making room for the buttons inside mControlPanel. After the buttons are added, the info panel can then be set to follow 'all'.
 	mInfoPanel->setFollowsAll();
 
-    // Add checkboxes if nessesary.
-    setCheckBoxes(HPAD * 3, VPAD * 4, mInfoPanel);
-
+    // Add checkbox (one of couple types) if nessesary.
+    setCheckBoxes(HPAD * 3, 0, mInfoPanel);
+    if (mCheck)
+    {
+        mCheck->setFollows(FOLLOWS_BOTTOM | FOLLOWS_LEFT);
+    }
     // Snap to message, then to checkbox if present
     snapToMessageHeight(mTextBox, LLToastPanel::MAX_TEXT_LENGTH);
     if (mCheck)
     {
-        S32 new_panel_height = mCheck->getRect().getHeight() + getRect().getHeight();
+        S32 new_panel_height = mCheck->getRect().getHeight() + getRect().getHeight() + VPAD;
         reshape(getRect().getWidth(), new_panel_height);
     }
 
