@@ -2518,18 +2518,12 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
         sCull->pushDrawable(gSky.mVOWLSkyp->mDrawable);
     }
 
-// not currently enabled as it causes reflection/distortion map
-// rendering to occur every frame instead of periodically for visible near water
-#if PRECULL_WATER_OBJECTS
     bool render_water = !sReflectionRender && (hasRenderType(LLPipeline::RENDER_TYPE_WATER) || hasRenderType(LLPipeline::RENDER_TYPE_VOIDWATER));
 
     if (render_water)
     {
         LLWorld::getInstance()->precullWaterObjects(camera, sCull, render_water);
     }
-#endif
-
-	
 	
 	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.popMatrix();
@@ -9299,7 +9293,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
         S32 detail = RenderReflectionDetail;
 
         F32 water_height      = gAgent.getRegion()->getWaterHeight(); 
-        F32 camera_height     = camera_in.getOrigin().mV[2];
+        F32 camera_height     = camera_in.getOrigin().mV[VZ];
         F32 distance_to_water = (water_height < camera_height) ? (camera_height - water_height) : (water_height - camera_height);
 
         LLVector3 reflection_offset      = LLVector3(0, 0, distance_to_water * 2.0f);
@@ -9334,7 +9328,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
         glh::matrix4f current = get_current_modelview();
 
-        if (!LLViewerCamera::getInstance()->cameraUnderWater())
+        if (!camera_is_underwater)
         {   //generate planar reflection map
             
             LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WATER0;
@@ -9443,8 +9437,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                                 LLPipeline::RENDER_TYPE_GROUND,
                                 END_RENDER_TYPES);  
             
-            bool camera_is_underwater = LLViewerCamera::getInstance()->cameraUnderWater();
-
             // intentionally inverted so that distortion map contents (objects under the water when we're above it)
             // will properly include water fog effects
             LLPipeline::sUnderWaterRender = !camera_is_underwater;
