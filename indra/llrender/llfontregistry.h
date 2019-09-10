@@ -40,6 +40,7 @@ public:
 	LLFontDescriptor();
 	LLFontDescriptor(const std::string& name, const std::string& size, const U8 style);
 	LLFontDescriptor(const std::string& name, const std::string& size, const U8 style, const string_vec_t& file_names);
+	LLFontDescriptor(const std::string& name, const std::string& size, const U8 style, const string_vec_t& file_names, const string_vec_t& font_collections);
 	LLFontDescriptor normalize() const;
 
 	bool operator<(const LLFontDescriptor& b) const;
@@ -52,6 +53,8 @@ public:
 	void setSize(const std::string& size) { mSize = size; }
 	const std::vector<std::string>& getFileNames() const { return mFileNames; }
 	std::vector<std::string>& getFileNames() { return mFileNames; }
+	const std::vector<std::string>& getFontCollectionsList() const { return mFontCollectionsList; }
+	std::vector<std::string>& getFontCollectionsList() { return mFontCollectionsList; }
 	const U8 getStyle() const { return mStyle; }
 	void setStyle(U8 style) { mStyle = style; }
 
@@ -59,6 +62,7 @@ private:
 	std::string mName;
 	std::string mSize;
 	string_vec_t mFileNames;
+	string_vec_t mFontCollectionsList;
 	U8 mStyle;
 };
 

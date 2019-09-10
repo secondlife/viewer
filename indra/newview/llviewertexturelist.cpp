@@ -1019,7 +1019,7 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 	for (LLViewerFetchedTexture *imagep : mCreateTextures)
 	{
 		imagep->createTexture();
-		}
+	}
     F32 elapsed = create_timer.getElapsedTimeF32();
 	mCreateTextures.clear();
 	return elapsed;

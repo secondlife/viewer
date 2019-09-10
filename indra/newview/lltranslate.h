@@ -91,6 +91,9 @@ public :
 	 */
 	static bool isTranslationConfigured();
 
+    static std::string addNoTranslateTags(std::string mesg);
+    static std::string removeNoTranslateTags(std::string mesg);
+
 private:
 	static LLTranslationAPIHandler& getPreferredHandler();
 	static LLTranslationAPIHandler& getHandler(EService service);

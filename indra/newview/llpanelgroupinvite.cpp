@@ -606,11 +606,30 @@ void LLPanelGroupInvite::updateLists()
 	{
 		if (!mPendingUpdate) 
 		{
+			// Note: this will partially fail if some requests are already in progress
 			LLGroupMgr::getInstance()->sendGroupPropertiesRequest(mImplementation->mGroupID);
 			LLGroupMgr::getInstance()->sendGroupRoleDataRequest(mImplementation->mGroupID);
 			LLGroupMgr::getInstance()->sendGroupRoleMembersRequest(mImplementation->mGroupID);
 			LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mImplementation->mGroupID);
 		}
+        else if (gdatap)
+        {
+            // restart requests that were interrupted/dropped/failed to start
+            if (!gdatap->isRoleDataPending() && !gdatap->isRoleDataComplete())
+            {
+                LLGroupMgr::getInstance()->sendGroupRoleDataRequest(mImplementation->mGroupID);
+            }
+            if (!gdatap->isRoleMemberDataPending() && !gdatap->isRoleMemberDataComplete())
+            {
+                LLGroupMgr::getInstance()->sendGroupRoleMembersRequest(mImplementation->mGroupID);
+            }
+            // sendCapGroupMembersRequest has a per frame send limitation that could have
+            // interrupted previous request
+            if (!gdatap->isMemberDataPending() && !gdatap->isMemberDataComplete())
+            {
+                LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mImplementation->mGroupID);
+            }
+        }
 		mPendingUpdate = TRUE;
 	} 
 	else

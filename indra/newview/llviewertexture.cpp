@@ -1341,7 +1341,7 @@ void LLViewerFetchedTexture::addToCreateTexture()
 	{	
 		mNeedsCreateTexture = TRUE;
 		gTextureList.mCreateTextures.push_back(this);
-	}
+	}	
 }
 
 // ONLY called from LLViewerTextureList
@@ -1521,7 +1521,7 @@ void LLViewerFetchedTexture::processTextureStats()
 			else if(mKnownDrawSizeChanged)//known draw size is set
 			{			
 				S32 desiredDiscardLevel = (S8)llmin(log((F32)mFullWidth / mKnownDrawWidth) / log_2, 
-											     log((F32)mFullHeight / mKnownDrawHeight) / log_2);
+													 log((F32)mFullHeight / mKnownDrawHeight) / log_2);
 				desiredDiscardLevel = 	llclamp(mDesiredDiscardLevel, (S8)0, (S8)getMaxDiscardLevel());
 				desiredDiscardLevel = llmin(mDesiredDiscardLevel, mMinDesiredDiscardLevel);
                 setDesiredDiscardLevel(desiredDiscardLevel);
@@ -1622,7 +1622,7 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 		priority = (ddiscard + 1) * PRIORITY_DELTA_DISCARD_LEVEL_FACTOR;
 		setAdditionalDecodePriority(0.25f);//boost the textures without any data so far.
 	}
-    else if ((mMinDiscardLevel > 0) && (cur_discard <= mMinDiscardLevel))
+	else if ((mMinDiscardLevel > 0) && (cur_discard <= mMinDiscardLevel))
 	{
 		// larger mips are corrupted
 		setAdditionalDecodePriority(-6.0f);
@@ -2812,7 +2812,7 @@ void LLViewerFetchedTexture::setCachedRawImage()
 	if(mCachedRawDiscardLevel < 0 || mCachedRawDiscardLevel > mRawDiscardLevel)
 	{
 		mCachedRawImage = mRawImage;
-		mCachedRawDiscardLevel = mRawDiscardLevel;
+		mCachedRawDiscardLevel = mRawDiscardLevel;			
 		mCachedRawImageReady = mCachedRawDiscardLevel == 0;
 	}
 }
