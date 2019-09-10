@@ -66,6 +66,7 @@ public:
 
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask) = 0;
 	virtual BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks) = 0;
+	virtual BOOL	handleScrollHWheel(S32 x, S32 y, S32 clicks) = 0;
 	virtual BOOL	handleToolTip(S32 x, S32 y, MASK mask) = 0;
 	virtual const std::string& getName() const = 0;
 
