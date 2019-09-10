@@ -277,6 +277,7 @@
                  max_length="127"
                  name="notes_editor"
                  read_only="true"
+                 spellcheck="true"
                  text_readonly_color="white"
                  text_type="ascii_with_newline"
                  top_pad="5"

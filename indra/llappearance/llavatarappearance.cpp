@@ -1482,6 +1482,21 @@ BOOL LLAvatarAppearance::teToColorParams( ETextureIndex te, U32 *param_name )
 			param_name[0] = 1071; //"tattoo_red";
 			param_name[1] = 1072; //"tattoo_green";
 			param_name[2] = 1073; //"tattoo_blue";
+			break;
+		case TEX_HEAD_UNIVERSAL_TATTOO:
+		case TEX_UPPER_UNIVERSAL_TATTOO:
+		case TEX_LOWER_UNIVERSAL_TATTOO:
+		case TEX_SKIRT_TATTOO:
+		case TEX_HAIR_TATTOO:
+		case TEX_EYES_TATTOO:
+		case TEX_LEFT_ARM_TATTOO:
+		case TEX_LEFT_LEG_TATTOO:
+		case TEX_AUX1_TATTOO:
+		case TEX_AUX2_TATTOO:
+		case TEX_AUX3_TATTOO:
+			param_name[0] = 1238; //"tattoo_universal_red";
+			param_name[1] = 1239; //"tattoo_universal_green";
+			param_name[2] = 1240; //"tattoo_universal_blue";
 			break;	
 
 		default:

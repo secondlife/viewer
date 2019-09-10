@@ -57,8 +57,6 @@ public:
 	// when voice is available
 	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
 
-    bool mTryToConnectToFacebook;
-
 	// internals
 	class Updater;
 
@@ -80,10 +78,8 @@ private:
 	// methods indirectly called by the updaters
 	void					updateFriendListHelpText();
 	void					updateFriendList();
-	bool					updateSuggestedFriendList();
 	void					updateNearbyList();
 	void					updateRecentList();
-	void					updateFacebookList(bool visible);
 
 	bool					isItemsFreeOfFriends(const uuid_vec_t& uuids);
 
@@ -131,8 +127,6 @@ private:
 
 	void					onFriendListRefreshComplete(LLUICtrl*ctrl, const LLSD& param);
 
-	bool					onConnectedToFacebook(const LLSD& data);
-
 	void					setAccordionCollapsedByUser(LLUICtrl* acc_tab, bool collapsed);
 	void					setAccordionCollapsedByUser(const std::string& name, bool collapsed);
 	bool					isAccordionCollapsedByUser(LLUICtrl* acc_tab);
@@ -141,7 +135,6 @@ private:
 	LLTabContainer*			mTabContainer;
 	LLAvatarList*			mOnlineFriendList;
 	LLAvatarList*			mAllFriendList;
-	LLAvatarList*			mSuggestedFriends;
 	LLAvatarList*			mNearbyList;
 	LLAvatarList*			mRecentList;
 	LLGroupList*			mGroupList;

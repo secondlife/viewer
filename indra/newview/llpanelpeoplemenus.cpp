@@ -52,7 +52,6 @@ namespace LLPanelPeopleMenus
 
 PeopleContextMenu gPeopleContextMenu;
 NearbyPeopleContextMenu gNearbyPeopleContextMenu;
-SuggestedFriendsContextMenu gSuggestedFriendsContextMenu;
 
 //== PeopleContextMenu ===============================================================
 
@@ -411,38 +410,6 @@ void NearbyPeopleContextMenu::buildContextMenu(class LLMenuGL& menu, U32 flags)
 	}
 
     hide_context_entries(menu, items, disabled_items);
-}
-
-//== SuggestedFriendsContextMenu ===============================================================
-
-LLContextMenu* SuggestedFriendsContextMenu::createMenu()
-{
-	// set up the callbacks for all of the avatar menu items
-	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
-	LLContextMenu* menu;
-
-	// Set up for one person selected menu
-	const LLUUID& id = mUUIDs.front();
-	registrar.add("Avatar.Profile",			boost::bind(&LLAvatarActions::showProfile,				id));
-	registrar.add("Avatar.AddFriend",		boost::bind(&LLAvatarActions::requestFriendshipDialog,	id));
-
-	// create the context menu from the XUI
-	menu = createFromFile("menu_people_nearby.xml");
-	buildContextMenu(*menu, 0x0);
-
-	return menu;
-}
-
-void SuggestedFriendsContextMenu::buildContextMenu(class LLMenuGL& menu, U32 flags)
-{ 
-	menuentry_vec_t items;
-	menuentry_vec_t disabled_items;
-
-	items.push_back(std::string("view_profile"));
-	items.push_back(std::string("add_friend"));
-
-	hide_context_entries(menu, items, disabled_items);
 }
 
 } // namespace LLPanelPeopleMenus

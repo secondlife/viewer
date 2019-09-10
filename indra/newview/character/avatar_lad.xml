@@ -8947,6 +8947,66 @@
       <texture
          local_texture="hair_alpha" />
     </layer>
+    <layer
+       name="hair_tattoo">
+      <texture
+         local_texture="hair_tattoo" />
+      <param
+       id="1211"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_hair_red"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="255, 0, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1212"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_hair_green"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 255, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1213"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_hair_blue"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 0, 255, 255" />
+        </param_color>
+      </param>
+
+    </layer>
+
 
   </layer_set>
   <!-- =========================================================== -->
@@ -10024,7 +10084,65 @@ render_pass="bump">
       </param>
 
     </layer>
+    <layer
+      name="head_universal_tattoo">
+      <texture
+         local_texture="head_universal_tattoo" />
+      <param
+       id="1229"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_head_universal_red"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
 
+          <value
+           color="255, 0, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1230"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_head_universal_green"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 255, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1231"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_head_universal_blue"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 0, 255, 255" />
+        </param_color>
+      </param>
+
+    </layer>
 
   </layer_set>
 
@@ -10201,7 +10319,65 @@ render_pass="bump">
       </param>
 
     </layer>
+    <layer
+     name="upper_universal_tattoo">
+      <texture
+         local_texture="upper_universal_tattoo" />
+      <param
+       id="1232"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_upper_universal_red"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
 
+          <value
+           color="255, 0, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1233"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_upper_universal_green"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 255, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1234"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_upper_universal_blue"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 0, 255, 255" />
+        </param_color>
+      </param>
+
+    </layer>
 
     <layer
      name="upper_undershirt bump"
@@ -11453,7 +11629,65 @@ render_pass="bump">
       </param>
 
     </layer>
+    <layer
+    name="lower_universal_tattoo">
+      <texture
+         local_texture="lower_universal_tattoo" />
+      <param
+       id="1235"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_lower_universal_red"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
 
+          <value
+           color="255, 0, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1236"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_lower_universal_green"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 255, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1237"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_lower_universal_blue"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 0, 255, 255" />
+        </param_color>
+      </param>
+
+    </layer>
     <layer
      name="lower_underpants bump"
      render_pass="bump"
@@ -12235,6 +12469,66 @@ render_pass="bump">
       <texture
          local_texture="eyes_alpha" />
     </layer>
+    <layer
+       name="eyes_tattoo">
+      <texture
+         local_texture="eyes_tattoo" />
+      <param
+       id="924"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_eyes_red"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="255, 0, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="925"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_eyes_green"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 255, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="926"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_eyes_blue"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 0, 255, 255" />
+        </param_color>
+      </param>
+
+    </layer>
+
 
   </layer_set>
 
@@ -12414,6 +12708,447 @@ render_pass="bump">
          multiply_blend="true"
          domain="0" />
       </param>
+    </layer>
+    <layer
+       name="skirt_tattoo">
+      <texture
+         local_texture="skirt_tattoo" />
+      <param
+       id="1208"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_skirt_red"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="255, 0, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1209"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_skirt_green"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 255, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1210"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_skirt_blue"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 0, 255, 255" />
+        </param_color>
+      </param>
+
+    </layer>
+
+  </layer_set>
+
+  <!-- =========================================================== -->
+  <layer_set
+   body_region="leftarm"
+   width="512"
+   height="512"
+   clear_alpha="false">
+	  <layer
+     name="base"
+	 write_all_channels="true"
+	 fixed_color = "128,128,128,255">
+		  <texture
+		   tga_file="aux_base.tga" />
+	  </layer>
+	  
+    <layer
+       name="leftarm_tattoo">
+      <texture
+         local_texture="leftarm_tattoo" />
+      <param
+       id="1214"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_leftarm_red"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="255, 0, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1215"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_leftarm_green"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 255, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1216"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_leftarm_blue"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 0, 255, 255" />
+        </param_color>
+      </param>
+
+    </layer>
+
+  </layer_set>
+
+  <!-- =========================================================== -->
+  <layer_set
+   body_region="leftleg"
+   width="512"
+   height="512"
+   clear_alpha="false">
+	  <layer
+     name="base"
+	 write_all_channels="true"
+	 fixed_color = "128,128,128,255">
+		  <texture
+		   tga_file="aux_base.tga" />
+	  </layer>
+    <layer
+       name="leftleg_tattoo">
+      <texture
+         local_texture="leftleg_tattoo" />
+      <param
+       id="1217"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_leftleg_red"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="255, 0, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1218"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_leftleg_green"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 255, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1219"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_leftleg_blue"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 0, 255, 255" />
+        </param_color>
+      </param>
+
+    </layer>
+
+  </layer_set>
+
+  <!-- =========================================================== -->
+  <layer_set
+   body_region="aux1"
+   width="512"
+   height="512"
+   clear_alpha="false">
+
+	  <layer
+     name="base"
+	 write_all_channels="true"
+	 fixed_color = "128,128,128,255">
+		  <texture
+		   tga_file="aux_base.tga" />
+	  </layer>
+	  
+    <layer
+       name="aux1_tattoo">
+      <texture
+         local_texture="aux1_tattoo" />
+      <param
+       id="1220"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_aux1_red"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="255, 0, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1221"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_aux1_green"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 255, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1222"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_aux1_blue"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 0, 255, 255" />
+        </param_color>
+      </param>
+
+    </layer>
+
+  </layer_set>
+
+  <!-- =========================================================== -->
+  <layer_set
+   body_region="aux2"
+   width="512"
+   height="512"
+   clear_alpha="false">
+
+	  <layer
+     name="base"
+	 write_all_channels="true"
+	 fixed_color = "128,128,128,255">
+		  <texture
+		   tga_file="aux_base.tga" />
+	  </layer>
+	  
+    <layer
+       name="aux2_tattoo">
+      <texture
+         local_texture="aux2_tattoo" />
+      <param
+       id="1223"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_aux2_red"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="255, 0, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1224"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_aux2_green"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 255, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1225"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_aux2_blue"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 0, 255, 255" />
+        </param_color>
+      </param>
+
+    </layer>
+
+  </layer_set>
+
+  <!-- =========================================================== -->
+  <layer_set
+   body_region="aux3"
+   width="512"
+   height="512"
+   clear_alpha="false">
+
+	  <layer
+     name="base"
+	 write_all_channels="true"
+	 fixed_color = "128,128,128,255">
+		  <texture
+		   tga_file="aux_base.tga" />
+	  </layer>
+	  
+    <layer
+       name="aux3_tattoo">
+      <texture
+         local_texture="aux3_tattoo" />
+      <param
+       id="1226"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_aux3_red"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="255, 0, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1227"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_aux3_green"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 255, 0, 255" />
+        </param_color>
+      </param>
+
+      <param
+       id="1228"
+       group="1"
+       edit_group="colorpicker_driven"
+       wearable="universal"
+       name="tattoo_aux3_blue"
+       value_min="0"
+       value_max="1"
+       value_default="1">
+        <param_color>
+          <value
+           color="0, 0, 0, 255" />
+
+          <value
+           color="0, 0, 255, 255" />
+        </param_color>
+      </param>
+
     </layer>
 
   </layer_set>
@@ -15934,7 +16669,277 @@ render_pass="bump">
       </param_driver>
     </param>
 
+    <param
+     id="1238"
+     group="2"
+     wearable="universal"
+     edit_group="colorpicker"
+     name="tattoo_universal_red"
+     value_min="0"
+     value_max="1"
+     value_default="1">
+      <param_driver>
+        <driven
+         id="1229"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1232"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1235"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1208"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1211"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="924"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1214"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1217"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1220"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1223"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1226"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+        
+      </param_driver>
+    </param>
+
+    <param
+     id="1239"
+     group="2"
+     wearable="universal"
+     edit_group="colorpicker"
+     name="tattoo_universal_green"
+     value_min="0"
+     value_max="1"
+     value_default="1">
+      <param_driver>
+        <driven
+         id="1230"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1233"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1236"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1209"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1212"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="925"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1215"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1218"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1221"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1224"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1227"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+      </param_driver>
+    </param>
+
+    <param
+     id="1240"
+     group="2"
+     wearable="universal"
+     edit_group="colorpicker"
+     name="tattoo_universal_blue"
+     value_min="0"
+     value_max="1"
+     value_default="1">
+      <param_driver>
+        <driven
+         id="1231"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1234"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1237"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1210"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1213"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="926"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1216"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1219"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1222"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1225"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+        <driven
+         id="1228"
+         min1="0"
+         max1="1"
+         max2="1"
+         min2="1" />
+
+      </param_driver>
+    </param>
   <!-- ==PHYSICS PARAMETERS======================================= -->
+    
 
    <param
      id="1100"

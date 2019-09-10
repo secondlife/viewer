@@ -212,7 +212,15 @@ clicking on their names.
        layout="topleft"
        left="0"
        name="role_create"
-       width="120" />
+       width="100" />
+      <button
+       follows="top|left"
+       height="23"
+       label="Copy Role"
+       layout="topleft"
+       left_pad="10"
+       name="role_copy"
+       width="100" />
       <button
        height="23"
        follows="top|left"
@@ -220,7 +228,7 @@ clicking on their names.
        layout="topleft"
        left_pad="10"
        name="role_delete"
-       width="120" />
+       width="100" />
     </panel>
     <panel
      border="false"
