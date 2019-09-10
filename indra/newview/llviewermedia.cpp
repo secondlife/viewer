@@ -57,6 +57,7 @@
 #include "llviewercontrol.h"
 #include "llviewermenufile.h" // LLFilePickerThread
 #include "llviewernetwork.h"
+#include "llviewerparcelaskplay.h"
 #include "llviewerparcelmedia.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
@@ -77,7 +78,6 @@
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
 
-/*static*/ const char* LLViewerMedia::AUTO_PLAY_MEDIA_SETTING = "ParcelMediaAutoPlayEnable";
 /*static*/ const char* LLViewerMedia::SHOW_MEDIA_ON_OTHERS_SETTING = "MediaShowOnOthers";
 /*static*/ const char* LLViewerMedia::SHOW_MEDIA_WITHIN_PARCEL_SETTING = "MediaShowWithinParcel";
 /*static*/ const char* LLViewerMedia::SHOW_MEDIA_OUTSIDE_PARCEL_SETTING = "MediaShowOutsideParcel";
@@ -1005,12 +1005,14 @@ void LLViewerMedia::setAllMediaPaused(bool val)
         }
     }
 
+    LLParcel *agent_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+
     // Also do Parcel Media and Parcel Audio
     if (!val)
     {
         if (!LLViewerMedia::isParcelMediaPlaying() && LLViewerMedia::hasParcelMedia())
         {
-            LLViewerParcelMedia::play(LLViewerParcelMgr::getInstance()->getAgentParcel());
+            LLViewerParcelMedia::play(agent_parcel);
         }
 
         static LLCachedControl<bool> audio_streaming_music(gSavedSettings, "AudioStreamingMusic", true);
@@ -1037,6 +1039,12 @@ void LLViewerMedia::setAllMediaPaused(bool val)
         {
             LLViewerAudio::getInstance()->stopInternetStreamWithAutoFade();
         }
+    }
+
+    // remove play choice for current parcel
+    if (agent_parcel && gAgent.getRegion())
+    {
+        LLViewerParcelAskPlay::getInstance()->resetSetting(gAgent.getRegion()->getRegionID(), agent_parcel->getLocalID());
     }
 }
 
@@ -3777,7 +3785,7 @@ void LLViewerMediaImpl::setTextureID(LLUUID id)
 bool LLViewerMediaImpl::isAutoPlayable() const
 {
 	return (mMediaAutoPlay &&
-			gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING) &&
+			gSavedSettings.getS32("ParcelMediaAutoPlayEnable") != 0 &&
 			gSavedSettings.getBOOL("MediaTentativeAutoPlay"));
 }
 

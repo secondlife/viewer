@@ -41,6 +41,9 @@ class LLViewerParcelMediaAutoPlay : LLEventTimer
 	static void playStarted();
 
  private:
+	static void onStartMusicResponse(const LLUUID &region_id, const S32 &parcel_id, const std::string &url, const bool &play);
+
+ private:
 	S32 mLastParcelID;
 	LLUUID mLastRegionID;
 	BOOL mPlayed;

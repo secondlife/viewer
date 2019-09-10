@@ -68,6 +68,7 @@
 #include "llviewerwindow.h"
 #include "llviewerdisplay.h"
 #include "llviewermedia.h"
+#include "llviewerparcelaskplay.h"
 #include "llviewerparcelmedia.h"
 #include "llviewermediafocus.h"
 #include "llviewermessage.h"
@@ -1938,6 +1939,11 @@ bool LLAppViewer::cleanup()
 	{
 		gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"), TRUE);
 		LL_INFOS() << "Saved settings" << LL_ENDL;
+
+		if (LLViewerParcelAskPlay::instanceExists())
+		{
+			LLViewerParcelAskPlay::getInstance()->saveSettings();
+		}
 	}
 
 	std::string warnings_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFilename("Default", "Warnings"));
