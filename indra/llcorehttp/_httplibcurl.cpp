@@ -355,7 +355,8 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 	}
     if (op->mStatus)
     {
-        int http_status(HTTP_OK);
+        // note: CURLINFO_RESPONSE_CODE requires a long - https://curl.haxx.se/libcurl/c/CURLINFO_RESPONSE_CODE.html
+        long http_status(HTTP_OK);
 
         if (handle)
         {

@@ -265,7 +265,7 @@ LLSocket::~LLSocket()
 void LLSocket::setBlocking(S32 timeout)
 {
 	// set up the socket options
-	ll_apr_warn_status(apr_socket_timeout_set(mSocket, timeout));
+	ll_apr_warn_status(apr_socket_timeout_set(mSocket, timeout)); // Sets both receive and send timeout SO_RCVTIMEO, SO_SNDTIMEO
 	ll_apr_warn_status(apr_socket_opt_set(mSocket, APR_SO_NONBLOCK, 0));
 	ll_apr_warn_status(apr_socket_opt_set(mSocket, APR_SO_SNDBUF, LL_SEND_BUFFER_SIZE));
 	ll_apr_warn_status(apr_socket_opt_set(mSocket, APR_SO_RCVBUF, LL_RECV_BUFFER_SIZE));

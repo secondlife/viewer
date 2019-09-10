@@ -1962,6 +1962,7 @@ LLPanelGroupRolesSubTab::LLPanelGroupRolesSubTab()
 	mRoleDescription(NULL),
 	mMemberVisibleCheck(NULL),
 	mDeleteRoleButton(NULL),
+	mCopyRoleButton(NULL),
 	mCreateRoleButton(NULL),
 	mFirstOpen(TRUE),
 	mHasRoleChange(FALSE)
@@ -2011,6 +2012,14 @@ BOOL LLPanelGroupRolesSubTab::postBuildSubTab(LLView* root)
 	{
 		mCreateRoleButton->setClickedCallback(onCreateRole, this);
 		mCreateRoleButton->setEnabled(FALSE);
+	}
+
+	mCopyRoleButton = 
+		parent->getChild<LLButton>("role_copy", recurse);
+	if ( mCopyRoleButton )
+	{
+		mCopyRoleButton->setClickedCallback(onCopyRole, this);
+		mCopyRoleButton->setEnabled(FALSE);
 	}
 	
 	mDeleteRoleButton =  
@@ -2226,6 +2235,7 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
 			mRoleTitle->clear();
 			setFooterEnabled(FALSE);
 			mDeleteRoleButton->setEnabled(FALSE);
+			mCopyRoleButton->setEnabled(FALSE);
 		}
 	}
 	
@@ -2336,6 +2346,7 @@ void LLPanelGroupRolesSubTab::handleRoleSelect()
 	mSelectedRole = item->getUUID();
 	buildMembersList();
 
+	mCopyRoleButton->setEnabled(gAgent.hasPowerInGroup(mGroupID, GP_ROLE_CREATE));
 	can_delete = can_delete && gAgent.hasPowerInGroup(mGroupID,
 													  GP_ROLE_DELETE);
 	mDeleteRoleButton->setEnabled(can_delete);
@@ -2640,6 +2651,57 @@ void LLPanelGroupRolesSubTab::handleCreateRole()
 
 	LLRoleData rd;
 	rd.mRoleName = "New Role";
+	gdatap->createRole(new_role_id,rd);
+
+	mRolesList->deselectAllItems(TRUE);
+	LLSD row;
+	row["id"] = new_role_id;
+	row["columns"][0]["column"] = "name";
+	row["columns"][0]["value"] = rd.mRoleName;
+	mRolesList->addElement(row, ADD_BOTTOM, this);
+	mRolesList->selectByID(new_role_id);
+
+	// put focus on name field and select its contents
+	if(mRoleName)
+	{
+		mRoleName->setFocus(TRUE);
+		mRoleName->onTabInto();
+		gFocusMgr.triggerFocusFlash();
+	}
+
+	notifyObservers();
+}
+
+// static 
+void LLPanelGroupRolesSubTab::onCopyRole(void* user_data)
+{
+	LLPanelGroupRolesSubTab* self = static_cast<LLPanelGroupRolesSubTab*>(user_data);
+	if (!self) return;
+
+	self->handleCopyRole();
+}
+
+void LLPanelGroupRolesSubTab::handleCopyRole()
+{
+	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
+
+	if (!gdatap) return;
+
+	LLScrollListItem* role_item = mRolesList->getFirstSelected();
+	if (!role_item || role_item->getUUID().isNull())
+	{
+		return;
+	}
+
+	LLRoleData rd;
+	if (!gdatap->getRoleData(role_item->getUUID(), rd))
+	{
+		return;
+	}
+
+	LLUUID new_role_id;
+	new_role_id.generate();
+	rd.mRoleName += "(Copy)";
 	gdatap->createRole(new_role_id,rd);
 
 	mRolesList->deselectAllItems(TRUE);

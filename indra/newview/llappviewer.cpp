@@ -2439,9 +2439,9 @@ bool LLAppViewer::initConfiguration()
 	bool set_defaults = true;
 	if(!loadSettingsFromDirectory("Default", set_defaults))
 	{
-		std::ostringstream msg;
-		msg << "Unable to load default settings file. The installation may be corrupted.";
-		OSMessageBox(msg.str(),LLStringUtil::null,OSMB_OK);
+		OSMessageBox(
+			"Unable to load default settings file. The installation may be corrupted.",
+			LLStringUtil::null,OSMB_OK);
 		return false;
 	}
 
@@ -2562,7 +2562,7 @@ bool LLAppViewer::initConfiguration()
 	if(gSavedSettings.getBOOL("DisableCrashLogger"))
 	{
 		LL_WARNS() << "Crashes will be handled by system, stack trace logs and crash logger are both disabled" << LL_ENDL;
-		LLAppViewer::instance()->disableCrashlogger();
+		disableCrashlogger();
 	}
 
 	// Handle initialization from settings.
@@ -2579,7 +2579,7 @@ bool LLAppViewer::initConfiguration()
 		LL_INFOS()	<< msg.str() << LL_ENDL;
 
 		OSMessageBox(
-			msg.str().c_str(),
+			msg.str(),
 			LLStringUtil::null,
 			OSMB_OK);
 
@@ -2689,7 +2689,34 @@ bool LLAppViewer::initConfiguration()
 		ll_init_fail_log(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "test_failures.log"));
 	}
 
+	const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinCurrent");
+	if(skinfolder && LLStringUtil::null != skinfolder->getValue().asString())
+	{
+		// Examining "Language" may not suffice -- see LLUI::getLanguage()
+		// logic. Unfortunately LLUI::getLanguage() doesn't yet do us much
+		// good because we haven't yet called LLUI::initClass().
+		gDirUtilp->setSkinFolder(skinfolder->getValue().asString(),
+								 gSavedSettings.getString("Language"));
+	}
+
+	if (gSavedSettings.getBOOL("SpellCheck"))
+	{
+		std::list<std::string> dict_list;
+		std::string dict_setting = gSavedSettings.getString("SpellCheckDictionary");
+		boost::split(dict_list, dict_setting, boost::is_any_of(std::string(",")));
+		if (!dict_list.empty())
+		{
+			LLSpellChecker::setUseSpellCheck(dict_list.front());
+			dict_list.pop_front();
+			LLSpellChecker::instance().setSecondaryDictionaries(dict_list);
+		}
+	}
+
 	// Handle slurl use. NOTE: Don't let SL-55321 reappear.
+	// This initial-SLURL logic, up through the call to
+	// sendURLToOtherInstance(), must precede LLSplashScreen::show() --
+	// because if sendURLToOtherInstance() succeeds, we take a fast exit,
+	// SKIPPING the splash screen and everything else.
 
     // *FIX: This init code should be made more robust to prevent
     // the issue SL-55321 from returning. One thought is to allow
@@ -2734,6 +2761,27 @@ bool LLAppViewer::initConfiguration()
 		}
 	}
 
+	// NextLoginLocation is set as a side effect of LLStartUp::setStartSLURL()
+	std::string nextLoginLocation = gSavedSettings.getString( "NextLoginLocation" );
+	if ( !nextLoginLocation.empty() )
+	{
+		LL_DEBUGS("AppInit")<<"set start from NextLoginLocation: "<<nextLoginLocation<<LL_ENDL;
+		LLStartUp::setStartSLURL(LLSLURL(nextLoginLocation));
+	}
+	else if (   (   clp.hasOption("login") || clp.hasOption("autologin"))
+			 && gSavedSettings.getString("CmdLineLoginLocation").empty())
+	{
+		// If automatic login from command line with --login switch
+		// init StartSLURL location.
+		std::string start_slurl_setting = gSavedSettings.getString("LoginLocation");
+		LL_DEBUGS("AppInit") << "start slurl setting '" << start_slurl_setting << "'" << LL_ENDL;
+		LLStartUp::setStartSLURL(LLSLURL(start_slurl_setting));
+	}
+	else
+	{
+		// the login location will be set by the login panel (see LLPanelLogin)
+	}
+
 	//RN: if we received a URL, hand it off to the existing instance.
 	// don't call anotherInstanceRunning() when doing URL handoff, as
 	// it relies on checking a marker file which will not work when running
@@ -2748,30 +2796,6 @@ bool LLAppViewer::initConfiguration()
 			return false;
 		}
     }
-
-	const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinCurrent");
-	if(skinfolder && LLStringUtil::null != skinfolder->getValue().asString())
-	{
-		// Examining "Language" may not suffice -- see LLUI::getLanguage()
-		// logic. Unfortunately LLUI::getLanguage() doesn't yet do us much
-		// good because we haven't yet called LLUI::initClass().
-		gDirUtilp->setSkinFolder(skinfolder->getValue().asString(),
-								 gSavedSettings.getString("Language"));
-	}
-
-	if (gSavedSettings.getBOOL("SpellCheck"))
-	{
-		std::list<std::string> dict_list;
-		std::string dict_setting = gSavedSettings.getString("SpellCheckDictionary");
-		boost::split(dict_list, dict_setting, boost::is_any_of(std::string(",")));
-		if (!dict_list.empty())
-		{
-			LLSpellChecker::setUseSpellCheck(dict_list.front());
-			dict_list.pop_front();
-			LLSpellChecker::instance().setSecondaryDictionaries(dict_list);
-		}
-	}
-
 
 	// Display splash screen.  Must be after above check for previous
 	// crash as this dialog is always frontmost.
@@ -2804,30 +2828,15 @@ bool LLAppViewer::initConfiguration()
 	}
 	LLStringUtil::truncate(gWindowTitle, 255);
 
-	//RN: if we received a URL, hand it off to the existing instance.
-	// don't call anotherInstanceRunning() when doing URL handoff, as
-	// it relies on checking a marker file which will not work when running
-	// out of different directories
-
-	if (LLStartUp::getStartSLURL().isValid() &&
-		(gSavedSettings.getBOOL("SLURLPassToOtherInstance")))
-	{
-		if (sendURLToOtherInstance(LLStartUp::getStartSLURL().getSLURLString()))
-		{
-			// successfully handed off URL to existing instance, exit
-			return false;
-		}
-	}
-
 	//
 	// Check for another instance of the app running
+	// This happens AFTER LLSplashScreen::show(). That may or may not be
+	// important.
 	//
 	if (mSecondInstance && !gSavedSettings.getBOOL("AllowMultipleViewers"))
 	{
-		std::ostringstream msg;
-		msg << LLTrans::getString("MBAlreadyRunning");
 		OSMessageBox(
-			msg.str(),
+			LLTrans::getString("MBAlreadyRunning"),
 			LLStringUtil::null,
 			OSMB_OK);
 		return false;
@@ -2843,27 +2852,6 @@ bool LLAppViewer::initConfiguration()
 			const BOOL DO_NOT_PERSIST = FALSE;
 			disable_voice->setValue(LLSD(TRUE), DO_NOT_PERSIST);
 		}
-	}
-
-   	// NextLoginLocation is set from the command line option
-	std::string nextLoginLocation = gSavedSettings.getString( "NextLoginLocation" );
-	if ( !nextLoginLocation.empty() )
-	{
-		LL_DEBUGS("AppInit")<<"set start from NextLoginLocation: "<<nextLoginLocation<<LL_ENDL;
-		LLStartUp::setStartSLURL(LLSLURL(nextLoginLocation));
-	}
-	else if (   (   clp.hasOption("login") || clp.hasOption("autologin"))
-			 && gSavedSettings.getString("CmdLineLoginLocation").empty())
-	{
-		// If automatic login from command line with --login switch
-		// init StartSLURL location.
-		std::string start_slurl_setting = gSavedSettings.getString("LoginLocation");
-		LL_DEBUGS("AppInit") << "start slurl setting '" << start_slurl_setting << "'" << LL_ENDL;
-		LLStartUp::setStartSLURL(LLSLURL(start_slurl_setting));
-	}
-	else
-	{
-		// the login location will be set by the login panel (see LLPanelLogin)
 	}
 
 	gLastRunVersion = gSavedSettings.getString("LastRunVersion");
@@ -2889,7 +2877,14 @@ bool LLAppViewer::initConfiguration()
 // keeps growing, necessitating a method all its own.
 void LLAppViewer::initStrings()
 {
-	LLTransUtil::parseStrings("strings.xml", default_trans_args);
+	std::string strings_file = "strings.xml";
+	std::string strings_path_full = gDirUtilp->findSkinnedFilenameBaseLang(LLDir::XUI, strings_file);
+	if (strings_path_full.empty() || !LLFile::isfile(strings_path_full))
+	{
+		// initial check to make sure files are there failed
+		LL_ERRS() << "Viewer failed to find localization and UI files. Please reinstall viewer from  https://secondlife.com/support/downloads/ and contact https://support.secondlife.com if issue persists after reinstall." << LL_ENDL;
+	}
+	LLTransUtil::parseStrings(strings_file, default_trans_args);
 	LLTransUtil::parseLanguageStrings("language_settings.xml");
 
 	// parseStrings() sets up the LLTrans substitution table. Add this one item.
@@ -3174,6 +3169,10 @@ LLSD LLAppViewer::getViewerInfo() const
     substitution["datetime"] = (S32)(gVFS ? gVFS->creationTime() : 0);
     info["VFS_TIME"] = LLTrans::getString("AboutTime", substitution);
 
+#if LL_DARWIN
+    info["HIDPI"] = gHiDPISupport;
+#endif
+
 	// Libraries
 
 	info["J2C_VERSION"] = LLImageJ2C::getEngineInfo();
@@ -3316,6 +3315,9 @@ std::string LLAppViewer::getViewerInfoString(bool default_string) const
 	}
 	support << "\n" << LLTrans::getString("AboutOGL", args, default_string);
 	support << "\n\n" << LLTrans::getString("AboutSettings", args, default_string);
+#if LL_DARWIN
+	support << "\n" << LLTrans::getString("AboutOSXHiDPI", args, default_string);
+#endif
 	support << "\n\n" << LLTrans::getString("AboutLibs", args, default_string);
 	if (info.has("COMPILER"))
 	{

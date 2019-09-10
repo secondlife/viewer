@@ -84,7 +84,14 @@ public:
 
 	// is_fallback should be true for fallback fonts that aren't used
 	// to render directly (Unicode backup, primarily)
-	BOOL loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, S32 components, BOOL is_fallback);
+	BOOL loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, S32 components, BOOL is_fallback, S32 face_n = 0);
+
+	S32 getNumFaces(const std::string& filename);
+
+#ifdef LL_WINDOWS
+	S32 ftOpenFace(const std::string& filename, S32 face_n);
+	void clearFontStreams();
+#endif
 
 	typedef std::vector<LLPointer<LLFontFreetype> > font_vector_t;
 
