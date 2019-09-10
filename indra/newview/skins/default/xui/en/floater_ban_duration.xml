@@ -28,12 +28,12 @@
     draw_border="false"
     enabled="true"
     follows="left|top"
-    height="40"
+    height="47"
     left="20"
     mouse_opaque="true"
     name="ban_duration_radio"
     tab_stop="true"
-    width="200">
+    width="150">
        <radio_item
         type="string"
         follows="left|top"
@@ -75,7 +75,7 @@
     left_delta="70"
     name="hours_textbox"
     top_delta="5"
-    width="75">
+    width="70">
         hours.
    </text>
     

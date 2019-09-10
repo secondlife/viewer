@@ -32,6 +32,7 @@
 
 #include "llagent.h"
 #include "lldraghandle.h"
+#include "llexternaleditor.h"
 #include "llviewerwindow.h"
 #include "llbutton.h"
 #include "llfloaterreg.h"
@@ -43,6 +44,7 @@
 #include "roles_constants.h"
 #include "llscrollbar.h"
 #include "llselectmgr.h"
+#include "lltrans.h"
 #include "llviewertexteditor.h"
 #include "llvfile.h"
 #include "llviewerinventory.h"
@@ -63,7 +65,8 @@
 
 // Default constructor
 LLPreviewNotecard::LLPreviewNotecard(const LLSD& key) //const LLUUID& item_id, 
-	: LLPreview( key )
+	: LLPreview( key ),
+	mLiveFile(NULL)
 {
 	const LLInventoryItem *item = getItem();
 	if (item)
@@ -74,19 +77,22 @@ LLPreviewNotecard::LLPreviewNotecard(const LLSD& key) //const LLUUID& item_id,
 
 LLPreviewNotecard::~LLPreviewNotecard()
 {
+	delete mLiveFile;
 }
 
 BOOL LLPreviewNotecard::postBuild()
 {
-	LLViewerTextEditor *ed = getChild<LLViewerTextEditor>("Notecard Editor");
-	ed->setNotecardInfo(mItemUUID, mObjectID, getKey());
-	ed->makePristine();
+	mEditor = getChild<LLViewerTextEditor>("Notecard Editor");
+	mEditor->setNotecardInfo(mItemUUID, mObjectID, getKey());
+	mEditor->makePristine();
 
 	childSetAction("Save", onClickSave, this);
 	getChildView("lock")->setVisible( FALSE);	
 
 	childSetAction("Delete", onClickDelete, this);
 	getChildView("Delete")->setEnabled(false);
+
+	childSetAction("Edit", onClickEdit, this);
 
 	const LLInventoryItem* item = getItem();
 
@@ -408,6 +414,16 @@ void LLPreviewNotecard::onClickDelete(void* user_data)
 	}
 }
 
+// static
+void LLPreviewNotecard::onClickEdit(void* user_data)
+{
+	LLPreviewNotecard* preview = (LLPreviewNotecard*)user_data;
+	if (preview)
+	{
+		preview->openInExternalEditor();
+	}
+}
+
 struct LLSaveNotecardInfo
 {
 	LLPreviewNotecard* mSelf;
@@ -468,7 +484,7 @@ void LLPreviewNotecard::finishTaskUpload(LLUUID itemId, LLUUID newAssetId, LLUUI
     }
 }
 
-bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem)
+bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem, bool sync)
 {
 	LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("Notecard Editor");
 
@@ -487,7 +503,10 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem)
 		}
 
 		editor->makePristine();
-
+		if (sync)
+		{
+			syncExternal();
+		}
 		const LLInventoryItem* item = getItem();
 		// save it out to database
         if (item)
@@ -564,6 +583,18 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem)
 		}
 	}
 	return true;
+}
+
+void LLPreviewNotecard::syncExternal()
+{
+	// Sync with external editor.
+	std::string tmp_file = getTmpFileName();
+	llstat s;
+	if (LLFile::stat(tmp_file, &s) == 0) // file exists
+	{
+		if (mLiveFile) mLiveFile->ignoreNextUpdate();
+		writeToFile(tmp_file);
+	}
 }
 
 void LLPreviewNotecard::deleteNotecard()
@@ -713,5 +744,129 @@ bool LLPreviewNotecard::handleConfirmDeleteDialog(const LLSD& notification, cons
 	closeFloater();
 	return false;
 }
+
+void LLPreviewNotecard::openInExternalEditor()
+{
+    delete mLiveFile; // deletes file
+
+    // Save the notecard to a temporary file.
+    std::string filename = getTmpFileName();
+    writeToFile(filename);
+
+    // Start watching file changes.
+    mLiveFile = new LLLiveLSLFile(filename, boost::bind(&LLPreviewNotecard::onExternalChange, this, _1));
+    mLiveFile->addToEventTimer();
+
+    // Open it in external editor.
+    {
+        LLExternalEditor ed;
+        LLExternalEditor::EErrorCode status;
+        std::string msg;
+
+        status = ed.setCommand("LL_SCRIPT_EDITOR");
+        if (status != LLExternalEditor::EC_SUCCESS)
+        {
+            if (status == LLExternalEditor::EC_NOT_SPECIFIED) // Use custom message for this error.
+            {
+                msg = LLTrans::getString("ExternalEditorNotSet");
+            }
+            else
+            {
+                msg = LLExternalEditor::getErrorMessage(status);
+            }
+
+            LLNotificationsUtil::add("GenericAlert", LLSD().with("MESSAGE", msg));
+            return;
+        }
+
+        status = ed.run(filename);
+        if (status != LLExternalEditor::EC_SUCCESS)
+        {
+            msg = LLExternalEditor::getErrorMessage(status);
+            LLNotificationsUtil::add("GenericAlert", LLSD().with("MESSAGE", msg));
+        }
+    }
+}
+
+bool LLPreviewNotecard::onExternalChange(const std::string& filename)
+{
+    if (!loadNotecardText(filename))
+    {
+        return false;
+    }
+
+    // Disable sync to avoid recursive load->save->load calls.
+    saveIfNeeded(NULL, false);
+    return true;
+}
+
+bool LLPreviewNotecard::loadNotecardText(const std::string& filename)
+{
+    if (filename.empty())
+    {
+        LL_WARNS() << "Empty file name" << LL_ENDL;
+        return false;
+    }
+
+    LLFILE* file = LLFile::fopen(filename, "rb");		/*Flawfinder: ignore*/
+    if (!file)
+    {
+        LL_WARNS() << "Error opening " << filename << LL_ENDL;
+        return false;
+    }
+
+    // read in the whole file
+    fseek(file, 0L, SEEK_END);
+    size_t file_length = (size_t)ftell(file);
+    fseek(file, 0L, SEEK_SET);
+    char* buffer = new char[file_length + 1];
+    size_t nread = fread(buffer, 1, file_length, file);
+    if (nread < file_length)
+    {
+        LL_WARNS() << "Short read" << LL_ENDL;
+    }
+    buffer[nread] = '\0';
+    fclose(file);
+
+    mEditor->setText(LLStringExplicit(buffer));
+    delete[] buffer;
+
+    return true;
+}
+
+bool LLPreviewNotecard::writeToFile(const std::string& filename)
+{
+    LLFILE* fp = LLFile::fopen(filename, "wb");
+    if (!fp)
+    {
+        LL_WARNS() << "Unable to write to " << filename << LL_ENDL;
+        return false;
+    }
+
+    std::string utf8text = mEditor->getText();
+
+    if (utf8text.size() == 0)
+    {
+        utf8text = " ";
+    }
+
+    fputs(utf8text.c_str(), fp);
+    fclose(fp);
+    return true;
+}
+
+
+std::string LLPreviewNotecard::getTmpFileName()
+{
+    std::string notecard_id = mObjectID.asString() + "_" + mItemUUID.asString();
+
+    // Use MD5 sum to make the file name shorter and not exceed maximum path length.
+    char notecard_id_hash_str[33];			   /* Flawfinder: ignore */
+    LLMD5 notecard_id_hash((const U8 *)notecard_id.c_str());
+    notecard_id_hash.hex_digest(notecard_id_hash_str);
+
+    return std::string(LLFile::tmpdir()) + "sl_notecard_" + notecard_id_hash_str + ".txt";
+}
+
 
 // EOF

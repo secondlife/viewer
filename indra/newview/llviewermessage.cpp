@@ -2415,7 +2415,7 @@ void translateSuccess(LLChat chat, LLSD toastArgs, std::string originalMsg, std:
         && ((detected_language.empty()) || (expectLang != detected_language))
         && (LLStringUtil::compareInsensitive(translation, originalMsg) != 0))
     {
-        chat.mText += " (" + translation + ")";
+        chat.mText += " (" + LLTranslate::removeNoTranslateTags(translation) + ")";
     }
 
     LLNotificationsUI::LLNotificationManager::instance().onChat(chat, toastArgs);

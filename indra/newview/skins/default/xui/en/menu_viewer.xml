@@ -307,13 +307,6 @@
         </menu_item_check>
         <menu_item_separator/>
       <menu_item_call
-        label="Facebook..."
-        name="Facebook">
-        <menu_item_call.on_click
-          function="Floater.Toggle"
-          parameter="facebook"/>
-      </menu_item_call>
-      <menu_item_call
         label="Twitter..."
         name="Twitter">
         <menu_item_call.on_click
@@ -1051,8 +1044,7 @@
            shortcut="control|D">
             <menu_item_call.on_click
                function="Object.Duplicate" />
-            <menu_item_call.on_enable
-               function="Object.EnableDuplicate" />
+
           </menu_item_call>
 		</menu>
         <menu
@@ -1507,8 +1499,7 @@
         </menu_item_call>
         <menu_item_call
            label="Set UI Size to Default"
-           name="Set UI Size to Default"
-           shortcut="control|alt|shift|R">
+           name="Set UI Size to Default"           shortcut="control|alt|shift|R">
           <menu_item_call.on_click
              function="View.DefaultUISize" />
         </menu_item_call>
@@ -4011,6 +4002,16 @@
                 <menu_item_call.on_enable
                  function="Edit.EnableTakeOff"
                  parameter="tattoo" />
+            </menu_item_call>
+            <menu_item_call
+             label="Universal"
+             name="Universal">
+              <menu_item_call.on_click
+               function="Edit.TakeOff"
+               parameter="tattoo" />
+              <menu_item_call.on_enable
+               function="Edit.EnableTakeOff"
+               parameter="universal" />
             </menu_item_call>
             <menu_item_call
              label="Physics"

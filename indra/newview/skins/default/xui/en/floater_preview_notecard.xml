@@ -6,7 +6,7 @@
  height="361"
  layout="topleft"
  min_height="243"
- min_width="234"
+ min_width="330"
  name="preview notecard"
  help_topic="preview_notecard"
  title="NOTECARD:"
@@ -77,6 +77,16 @@
      word_wrap="true">
         Loading...
     </text_editor>
+      <button
+     follows="left|bottom"
+     height="22"
+     label="Edit..."
+     label_selected="Edit"
+     layout="topleft"
+     left="4"
+     name="Edit"
+     top="332"
+     width="100" />
     <button
      follows="right|bottom"
      height="22"

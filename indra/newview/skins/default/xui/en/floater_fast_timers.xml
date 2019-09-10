@@ -60,10 +60,21 @@
                   min_width="100">
       <panel top="0"
              left="0"
-             width="220"
+             width="204"
              height="440"
              name="legend"
              follows="all"/>
+      <scroll_bar
+        top ="0"
+        right="-1"
+        height="440"
+        width="15"
+        follows="top|right|bottom"
+        name="scroll_vert"
+        orientation="vertical"
+        step_size="16"
+        doc_size="3000"
+          />
     </layout_panel>
     <layout_panel name="timers_panel"
                   auto_resize="true"

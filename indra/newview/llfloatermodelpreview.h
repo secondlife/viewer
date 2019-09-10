@@ -143,7 +143,9 @@ protected:
 	friend class LLModelPreview;
 	friend class LLMeshFilePicker;
 	friend class LLPhysicsDecomp;
-	
+
+	void		onDescriptionKeystroke(LLUICtrl*);
+
 	static void		onImportScaleCommit(LLUICtrl*, void*);
 	static void		onPelvisOffsetCommit(LLUICtrl*, void*);
 	static void		onUploadJointsCommit(LLUICtrl*,void*);

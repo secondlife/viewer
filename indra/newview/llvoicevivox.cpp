@@ -658,6 +658,8 @@ void LLVivoxVoiceClient::voiceControlCoro()
     mIsCoroutineActive = true;
     LLCoros::set_consuming(true);
 
+    U32 retry = 0;
+
     while (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE)
     {
         LL_DEBUGS("Voice") << "Suspending voiceControlCoro() momentarily for teleport. Tuning: " << mTuningMode << ". Relog: " << mRelogRequested << LL_ENDL;
@@ -666,7 +668,8 @@ void LLVivoxVoiceClient::voiceControlCoro()
 
     do
     {
-        if (startAndConnectSession())
+        bool success = startAndConnectSession();
+        if (success)
         {
             if (mTuningMode)
             {
@@ -677,6 +680,7 @@ void LLVivoxVoiceClient::voiceControlCoro()
     
             LL_DEBUGS("Voice") << "lost channel RelogRequested=" << mRelogRequested << LL_ENDL;            
             endAndDisconnectSession();
+            retry = 0;
         }
         
         // if we hit this and mRelogRequested is true, that indicates
@@ -689,7 +693,19 @@ void LLVivoxVoiceClient::voiceControlCoro()
             << LL_ENDL;            
         if (mRelogRequested)
         {
-            LL_INFOS("Voice") << "will attempt to reconnect to voice" << LL_ENDL;
+            if (!success)
+            {
+                // We failed to connect, give it a bit time before retrying.
+                retry++;
+                F32 delay = llmin(5.f * (F32)retry, 60.f);
+                llcoro::suspendUntilTimeout(delay);
+                LL_INFOS("Voice") << "Voice failed to establish session after " << retry << " tries. Will attempt to reconnect." << LL_ENDL;
+            }
+            else
+            {
+                LL_INFOS("Voice") << "will attempt to reconnect to voice" << LL_ENDL;
+            }
+
             while (isGatewayRunning() || gAgent.getTeleportState() != LLAgent::TELEPORT_NONE)
             {
                 LL_INFOS("Voice") << "waiting for SLVoice to exit" << LL_ENDL;
@@ -770,12 +786,16 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
     {
 #ifndef VIVOXDAEMON_REMOTEHOST
         // Launch the voice daemon
-        std::string exe_path = gDirUtilp->getAppRODataDir();
 #if LL_WINDOWS
+        // On windows use exe (not work or RO) directory
+        std::string exe_path = gDirUtilp->getExecutableDir();
         gDirUtilp->append(exe_path, "SLVoice.exe");
 #elif LL_DARWIN
+        // On MAC use resource directory
+        std::string exe_path = gDirUtilp->getAppRODataDir();
         gDirUtilp->append(exe_path, "SLVoice");
 #else
+        std::string exe_path = gDirUtilp->getExecutableDir();
         gDirUtilp->append(exe_path, "SLVoice");
 #endif
         // See if the vivox executable exists
