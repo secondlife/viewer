@@ -52,7 +52,7 @@
      control_name="mode_selection"
      height="20"
      layout="topleft"
-     left="18"
+     left="0"
      top_pad="80"
      name="mode_selection"
      follows="left|top">
@@ -64,7 +64,7 @@
          height="16" 
          left="0" 
          value="0"
-         width="80" />
+         width="70" />
         <radio_item
          label="Local"
          left_pad="0"
@@ -73,7 +73,16 @@
          height="16" 
          name="local"
          value="1"
-         width="75" />
+         width="50" />
+       <radio_item
+         label="Bake"
+         left_pad="0"
+         layout="topleft"
+         top_delta="0"
+         height="16"
+         name="bake"
+         value="2"
+         width="50" />
     </radio_group>
 	<!-- -->
 	
@@ -83,7 +92,7 @@
      follows="left|top"
      height="14"
      layout="topleft"
-     left_delta="-12"
+     left_delta="12"
      name="unknown"
      top_pad="4">
         Size: [DIMENSIONS]
@@ -225,7 +234,80 @@
         <column name="unit_name" label="Name" dynamicwidth="true" />
         <column name="unit_id_HIDDEN" label="ID" width="0" />
     </scroll_list>
-     
+
+<!-- middle: bake mode -->
+  <combo_box
+         left="180"
+         top="30"
+			   height="19"
+			   top_delta="15"
+			   layout="topleft"
+			   follows="left|top"
+			   name="l_bake_use_texture_combo_box"
+			   tool_tip="Choose the bake texture"
+			   width="118"
+         visible="false">
+        <combo_box.item
+         label="None"
+         name="None"
+         value="-1" />
+        <combo_box.item
+         label="BAKED_HEAD"
+         name="BAKED_HEAD"
+         value="0" />
+        <combo_box.item
+         label="BAKED_UPPER"
+         name="BAKED_UPPER"
+         value="1" />
+        <combo_box.item
+         label="BAKED_LOWER"
+         name="BAKED_LOWER"
+         value="2" />
+        <combo_box.item
+         label="BAKED_EYES"
+         name="BAKED_EYES"
+         value="3" />
+        <combo_box.item
+         label="BAKED_SKIRT"
+         name="BAKED_SKIRT"
+         value="4" />
+        <combo_box.item
+         label="BAKED_HAIR"
+         name="BAKED_HAIR"
+         value="5" />
+        <combo_box.item
+          label="BAKED_LEFTARM"
+          name="BAKED_LEFTARM"
+          value="6" />
+        <combo_box.item
+          label="BAKED_LEFTLEG"
+          name="BAKED_LEFTLEG"
+          value="7" />
+        <combo_box.item
+         label="BAKED_AUX1"
+         name="BAKED_AUX1"
+         value="8" />
+        <combo_box.item
+           label="BAKED_AUX2"
+           name="BAKED_AUX2"
+           value="9" />
+        <combo_box.item
+         label="BAKED_AUX3"
+         name="BAKED_AUX3"
+         value="10" />
+  </combo_box>
+  <check_box
+     follows="left|top"
+     height="20"
+     initial_value="false"
+     label="Hide Base Mesh Region"
+     layout="topleft"
+     name="hide_base_mesh_region"
+     left_delta="0"
+     top_pad="10"
+     top_delta="0"
+     width="120" 
+     visible="false"/>
 <!-- bottom static -->
     <button
      follows="bottom"

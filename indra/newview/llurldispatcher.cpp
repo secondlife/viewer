@@ -47,6 +47,7 @@
 // library includes
 #include "llnotificationsutil.h"
 #include "llsd.h"
+#include "stringize.h"
 
 static LLURLDispatcherListener sURLDispatcherListener;
 
@@ -255,14 +256,23 @@ void LLURLDispatcherImpl::regionHandleCallback(U64 region_handle, const LLSLURL&
 // Teleportation links are handled here because they are tightly coupled
 // to SLURL parsing and sim-fragment parsing
 
-class LLTeleportHandler : public LLCommandHandler
+class LLTeleportHandler : public LLCommandHandler, public LLEventAPI
 {
 public:
 	// Teleport requests *must* come from a trusted browser
 	// inside the app, otherwise a malicious web page could
 	// cause a constant teleport loop.  JC
-	LLTeleportHandler() : LLCommandHandler("teleport", UNTRUSTED_THROTTLE) { }
-
+	LLTeleportHandler() :
+		LLCommandHandler("teleport", UNTRUSTED_THROTTLE),
+		LLEventAPI("LLTeleportHandler", "Low-level teleport API")
+	{
+		LLEventAPI::add("teleport",
+						"Teleport to specified [\"regionname\"] at\n"
+						"specified region-relative [\"x\"], [\"y\"], [\"z\"].\n"
+						"If [\"regionname\"] omitted, teleport to GLOBAL\n"
+						"coordinates [\"x\"], [\"y\"], [\"z\"].",
+						&LLTeleportHandler::from_event);
+	}
 
 	bool handle(const LLSD& tokens, const LLSD& query_map,
 				LLMediaCtrl* web)
@@ -291,6 +301,41 @@ public:
 
 		LLNotificationsUtil::add("TeleportViaSLAPP", args, payload);
 		return true;
+	}
+
+	void from_event(const LLSD& params) const
+	{
+		Response response(LLSD(), params);
+		if (params.has("regionname"))
+		{
+			// region specified, coordinates (if any) are region-local
+			LLVector3 local_pos(
+				params.has("x")? params["x"].asReal() : 128,
+				params.has("y")? params["y"].asReal() : 128,
+				params.has("z")? params["z"].asReal() : 0);
+			std::string regionname(params["regionname"]);
+			std::string destination(LLSLURL(regionname, local_pos).getSLURLString());
+			// have to resolve region's global coordinates first
+			teleport_via_slapp(regionname, destination);
+			response["message"] = "Teleporting to " + destination;
+		}
+		else                        // no regionname
+		{
+			// coordinates are global, and at least (x, y) are required
+			if (! (params.has("x") && params.has("y")))
+			{
+				return response.error("Specify either regionname or global (x, y)");
+			}
+			LLVector3d global_pos(params["x"].asReal(), params["y"].asReal(),
+								  params["z"].asReal());
+			gAgent.teleportViaLocation(global_pos);
+			LLFloaterWorldMap* instance = LLFloaterWorldMap::getInstance();
+			if (instance)
+			{
+				instance->trackLocation(global_pos);
+			}
+			response["message"] = STRINGIZE("Teleporting to global " << global_pos);
+		}
 	}
 
 	static void teleport_via_slapp(std::string region_name, std::string callback_url)

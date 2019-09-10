@@ -383,6 +383,41 @@ namespace tut
 		ensure_equals("query",		u.query(),		"redirect-http-hack=secondlife:///app/login?first_name=Callum&last_name=Linden&location=specify&grid=vaak&region=/Morris/128/128&web_login_key=efaa4795-c2aa-4c58-8966-763c27931e78");
 		ensure_equals("query map element", u.queryMap()["redirect-http-hack"].asString(), "secondlife:///app/login?first_name=Callum&last_name=Linden&location=specify&grid=vaak&region=/Morris/128/128&web_login_key=efaa4795-c2aa-4c58-8966-763c27931e78");
 	}
+
+	template<> template<>
+	void URITestObject::test<20>()
+	{
+        set_test_name("escapePathAndData uri test");
+
+        // Basics scheme:[//authority]path[?query][#fragment]
+        ensure_equals(LLURI::escapePathAndData("dirname?query"),
+            "dirname?query");
+        ensure_equals(LLURI::escapePathAndData("dirname?query=data"),
+            "dirname?query=data");
+        ensure_equals(LLURI::escapePathAndData("host://dirname/subdir name?query#fragment"),
+            "host://dirname/subdir%20name?query#fragment");
+        ensure_equals(LLURI::escapePathAndData("host://dirname/subdir name?query=some@>data#fragment"),
+            "host://dirname/subdir%20name?query=some@%3Edata#fragment");
+        ensure_equals(LLURI::escapePathAndData("host://dir[name/subdir name?query=some[data#fra[gment"),
+            "host://dir[name/subdir%20name?query=some%5Bdata#fra[gment");
+        ensure_equals(LLURI::escapePathAndData("mailto:zero@ll.com"),
+            "mailto:zero@ll.com");
+        // pre-escaped
+        ensure_equals(LLURI::escapePathAndData("host://dirname/subdir%20name"),
+            "host://dirname/subdir%20name");
+
+        // data:[<mediatype>][;base64],<data>
+        ensure_equals(LLURI::escapePathAndData("data:,Hello, World!"),
+            "data:,Hello%2C%20World%21");
+        ensure_equals(LLURI::escapePathAndData("data:text/html,<h1>Hello, World!</h1>"),
+            "data:text/html,%3Ch1%3EHello%2C%20World%21%3C%2Fh1%3E");
+        // pre-escaped
+        ensure_equals(LLURI::escapePathAndData("data:text/html,%3Ch1%3EHello%2C%20World!</h1>"),
+            "data:text/html,%3Ch1%3EHello%2C%20World%21%3C%2Fh1%3E");
+        // assume that base64 does not need escaping
+        ensure_equals(LLURI::escapePathAndData("data:image;base64,SGVs/bG8sIFd/vcmxkIQ%3D%3D!-&*?="),
+            "data:image;base64,SGVs/bG8sIFd/vcmxkIQ%3D%3D!-&*?=");
+    }
 }
 
 

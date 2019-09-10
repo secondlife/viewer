@@ -94,6 +94,7 @@
      layout="topleft"
      left_delta="0"
      name="texture_detail_0"
+     default_image_id="0bc58228-74a0-7e83-89bc-5c23464bcec5"
      top_delta="20"
      width="100" />
     <texture_picker
@@ -102,6 +103,7 @@
      layout="topleft"
      left_pad="10"
      name="texture_detail_1"
+     default_image_id="63338ede-0037-c4fd-855b-015d77112fc8"
      top_delta="0"
      width="100" />
     <texture_picker
@@ -110,6 +112,7 @@
      layout="topleft"
      left_pad="10"
      name="texture_detail_2"
+     default_image_id="303cd381-8560-7579-23f1-f0a880799740"
      top_delta="0"
      width="100" />
     <texture_picker
@@ -118,6 +121,7 @@
      layout="topleft"
      left_pad="10"
      name="texture_detail_3"
+     default_image_id="53a2f406-4895-1d13-d541-d2e3b86bc19c"
      top_delta="0"
      width="100" />
     <text

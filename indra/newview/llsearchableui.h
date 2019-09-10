@@ -107,7 +107,7 @@ namespace ll
 			SearchableItem();
 
 			void setNotHighlighted( );
-			bool hightlightAndHide( LLWString const &aFilter );
+			bool hightlightAndHide( LLWString const &aFilter, bool hide = true );
 		};
 
 		struct SearchData

@@ -91,6 +91,7 @@ LLWearableDictionary::LLWearableDictionary()
 	addEntry(LLWearableType::WT_SKIRT,        new WearableEntry("skirt",       "New Skirt",			LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_SKIRT, FALSE, TRUE));
 	addEntry(LLWearableType::WT_ALPHA,        new WearableEntry("alpha",       "New Alpha",			LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_ALPHA, FALSE, TRUE));
 	addEntry(LLWearableType::WT_TATTOO,       new WearableEntry("tattoo",      "New Tattoo",		LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_TATTOO, FALSE, TRUE));
+	addEntry(LLWearableType::WT_UNIVERSAL,    new WearableEntry("universal",   "New Universal",     LLAssetType::AT_CLOTHING,   LLInventoryType::ICONNAME_CLOTHING_UNIVERSAL, FALSE, TRUE));
 
 	addEntry(LLWearableType::WT_PHYSICS,      new WearableEntry("physics",     "New Physics",		LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_PHYSICS, TRUE, TRUE));
 

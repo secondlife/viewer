@@ -65,11 +65,11 @@ public:
 
 S32 LLMachineID::init()
 {
-    memset(static_unique_id,0,sizeof(static_unique_id));
+    size_t len = sizeof(static_unique_id);
+    memset(static_unique_id, 0, len);
     S32 ret_code = 0;
 #if	LL_WINDOWS
 # pragma comment(lib, "wbemuuid.lib")
-        size_t len = sizeof(static_unique_id);
 
         // algorithm to detect BIOS serial number found at:
         // http://msdn.microsoft.com/en-us/library/aa394077%28VS.85%29.aspx
@@ -217,17 +217,27 @@ S32 LLMachineID::init()
 
             // Get the value of the Name property
             hr = pclsObj->Get(L"SerialNumber", 0, &vtProp, 0, 0);
+            if (FAILED(hr))
+            {
+                LL_WARNS() << "Failed to get SerialNumber. Error code = 0x" << hex << hres << LL_ENDL;
+                pclsObj->Release();
+                pclsObj = NULL;
+                continue;
+            }
             LL_INFOS("AppInit") << " Serial Number : " << vtProp.bstrVal << LL_ENDL;
+
             // use characters in the returned Serial Number to create a byte array of size len
             BSTR serialNumber ( vtProp.bstrVal);
+            unsigned int serial_size = SysStringLen(serialNumber);
             unsigned int j = 0;
-            while( vtProp.bstrVal[j] != 0)
+
+            while (j < serial_size && vtProp.bstrVal[j] != 0)
             {
                 for (unsigned int i = 0; i < len; i++)
                 {
-                    if (vtProp.bstrVal[j] == 0)
+                    if (j >= serial_size || vtProp.bstrVal[j] == 0)
                         break;
-                    
+
                     static_unique_id[i] = (unsigned int)(static_unique_id[i] + serialNumber[j]);
                     j++;
                 }
@@ -254,6 +264,21 @@ S32 LLMachineID::init()
         ret_code = LLUUID::getNodeID(staticPtr);
 #endif
         has_static_unique_id = true;
+
+        LL_INFOS("AppInit") << "UniqueID: 0x";
+        // Code between here and LL_ENDL is not executed unless the LL_DEBUGS
+        // actually produces output
+        for (size_t i = 0; i < len; ++i)
+        {
+            // Copy each char to unsigned int to hexify. Sending an unsigned
+            // char to a std::ostream tries to represent it as a char, not
+            // what we want here.
+            unsigned byte = static_unique_id[i];
+            LL_CONT << std::hex << std::setw(2) << std::setfill('0') << byte;
+        }
+        // Reset default output formatting to avoid nasty surprises!
+        LL_CONT << std::dec << std::setw(0) << std::setfill(' ') << LL_ENDL;
+
         return ret_code;
 }
 
@@ -263,19 +288,6 @@ S32 LLMachineID::getUniqueID(unsigned char *unique_id, size_t len)
     if (has_static_unique_id)
     {
         memcpy ( unique_id, &static_unique_id, len);
-        LL_INFOS_ONCE("AppInit") << "UniqueID: 0x";
-        // Code between here and LL_ENDL is not executed unless the LL_DEBUGS
-        // actually produces output
-        for (size_t i = 0; i < len; ++i)
-        {
-            // Copy each char to unsigned int to hexify. Sending an unsigned
-            // char to a std::ostream tries to represent it as a char, not
-            // what we want here.
-            unsigned byte = unique_id[i];
-            LL_CONT << std::hex << std::setw(2) << std::setfill('0') << byte;
-        }
-        // Reset default output formatting to avoid nasty surprises!
-        LL_CONT << std::dec << std::setw(0) << std::setfill(' ') << LL_ENDL;
         return 1;
     }
     return 0;

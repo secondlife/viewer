@@ -96,6 +96,7 @@
 #include "llviewershadermgr.h"
 #include "llpanelface.h"
 #include "llglheaders.h"
+#include "llinventoryobserver.h"
 
 LLViewerObject* getSelectedParentObject(LLViewerObject *object) ;
 //
@@ -1656,6 +1657,7 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 				// * Can just apply the texture and be done with it.
 				objectp->setTEImage(te, LLViewerTextureManager::getFetchedTexture(mImageID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
 			}
+
 			return true;
 		}
 	};
@@ -1855,6 +1857,7 @@ BOOL LLSelectMgr::selectionRevertTextures()
 					else
 					{
 						object->setTEImage(te, LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
+
 					}
 				}
 			}
@@ -3861,6 +3864,14 @@ BOOL LLSelectMgr::selectGetAggregateTexturePermissions(LLAggregatePermissions& r
 	return TRUE;
 }
 
+BOOL LLSelectMgr::isSelfAvatarSelected()
+{
+	if (mAllowSelectAvatar)
+	{
+		return (getSelection()->getObjectCount() == 1) && (getSelection()->getFirstRootObject() == gAgentAvatarp);
+	}
+	return FALSE;
+}
 
 //--------------------------------------------------------------------
 // Duplicate objects
@@ -3882,6 +3893,17 @@ void LLSelectMgr::selectDuplicate(const LLVector3& offset, BOOL select_copy)
 		//RN: do not duplicate attachments
 		make_ui_sound("UISndInvalidOp");
 		return;
+	}
+	if (!canDuplicate())
+	{
+		LLSelectNode* node = getSelection()->getFirstRootNode(NULL, true);
+		if (node)
+		{
+			LLSD args;
+			args["OBJ_NAME"] = node->mName;
+			LLNotificationsUtil::add("NoCopyPermsNoObject", args);
+			return;
+		}
 	}
 	LLDuplicateData	data;
 
@@ -6762,8 +6784,28 @@ void LLSelectMgr::pauseAssociatedAvatars()
 			
         mSelectedObjects->mSelectType = getSelectTypeForObject(object);
 
+        bool is_attached = false;
         if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT && 
-            isAgentAvatarValid() && object->getParent() != NULL)
+            isAgentAvatarValid())
+        {
+            // Selection can be obsolete, confirm that this is an attachment
+            LLViewerObject* parent = (LLViewerObject*)object->getParent();
+            while (parent != NULL)
+            {
+                if (parent->isAvatar())
+                {
+                    is_attached = true;
+                    break;
+                }
+                else
+                {
+                    parent = (LLViewerObject*)parent->getParent();
+                }
+            }
+        }
+
+
+        if (is_attached)
         {
             if (object->isAnimatedObject())
             {
@@ -6781,14 +6823,12 @@ void LLSelectMgr::pauseAssociatedAvatars()
                 mPauseRequests.push_back(gAgentAvatarp->requestPause());
             }
         }
-        else
+        else if (object && object->isAnimatedObject() && object->getControlAvatar())
         {
-            if (object && object->isAnimatedObject() && object->getControlAvatar())
-            {
-                // Is a non-attached animated object. Pause the control avatar.
-                mPauseRequests.push_back(object->getControlAvatar()->requestPause());
-            }
+            // Is a non-attached animated object. Pause the control avatar.
+            mPauseRequests.push_back(object->getControlAvatar()->requestPause());
         }
+
     }
 }
 
