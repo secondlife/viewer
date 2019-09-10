@@ -66,12 +66,12 @@ namespace
     const S32 NUM_TILES = NUM_TILES_X * NUM_TILES_Y;
     const S32 NUM_CUBEMAP_FACES = 6;
 
-    // Heavenly body constants
+// Heavenly body constants
     const F32 SUN_DISK_RADIUS	= 0.5f;
     const F32 MOON_DISK_RADIUS	= SUN_DISK_RADIUS * 0.9f;
     const F32 SUN_INTENSITY = 1e5;
 
-    // Texture coordinates:
+// Texture coordinates:
     const LLVector2 TEX00 = LLVector2(0.f, 0.f);
     const LLVector2 TEX01 = LLVector2(0.f, 1.f);
     const LLVector2 TEX10 = LLVector2(1.f, 0.f);
@@ -452,7 +452,7 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	mHeavenlyBodyUpdated = FALSE ;
 
 	mDrawRefl = 0;
-	mInterpVal = 0.f;    
+	mInterpVal = 0.f;
 }
 
 
@@ -501,7 +501,7 @@ void LLVOSky::init()
 		{
 			initSkyTextureDirs(side, tile);
             createSkyTexture(m_atmosphericsVars, side, tile);
-        }
+		}
         mSkyTex[side].create(1.0f);
         mShinyTex[side].create(1.0f);
 	}
@@ -595,7 +595,7 @@ void LLVOSky::restoreGL()
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
     if (psky)
-    {
+	{
         setSunTextures(psky->getSunTextureId(), psky->getNextSunTextureId());
         setMoonTextures(psky->getMoonTextureId(), psky->getNextMoonTextureId());
     }
@@ -603,9 +603,9 @@ void LLVOSky::restoreGL()
 	updateDirections();
 
 	if (gSavedSettings.getBOOL("RenderWater") && gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps)
-	{
+		{
 		initCubeMap();
-	}
+		}
 
     forceSkyUpdate();
 
@@ -695,29 +695,29 @@ void LLVOSky::forceSkyUpdate()
 }
 
 bool LLVOSky::updateSky()
-{    
+{
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
 	if (mDead || !(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY)))
-	{
+{
 		return TRUE;
-	}
-	
+}
+
 	if (mDead)
-	{
+{
 		// It's dead.  Don't update it.
 		return TRUE;
-	}
+}
 
 	if (gGLManager.mIsDisabled)
-	{
+{
 		return TRUE;
-	}
+}
 
 	static S32 next_frame = 0;
 	const S32 total_no_tiles = NUM_CUBEMAP_FACES * NUM_TILES;
 	const S32 cycle_frame_no = total_no_tiles + 1;
-
+	
     mNeedUpdate = mForceUpdate;
 
 	++next_frame;
@@ -728,12 +728,12 @@ bool LLVOSky::updateSky()
 	updateDirections();
 
     if (!mCubeMap)
-    {
+	{
         mCubeMapUpdateStage = NUM_CUBEMAP_FACES;
         mForceUpdate = FALSE;
         return TRUE;
-    }
-
+	}
+	
     if (mCubeMapUpdateStage < 0)
     {
         LL_RECORD_BLOCK_TIME(FTM_VOSKY_CALC);
@@ -744,15 +744,15 @@ bool LLVOSky::updateSky()
         mNeedUpdate = mNeedUpdate || !same_atmospherics;
 
         if (mNeedUpdate && (mForceUpdateThrottle.hasExpired() || mForceUpdate))
-	    {
+{
             // start updating cube map sides
             updateFog(LLViewerCamera::getInstance()->getFar());
             mCubeMapUpdateStage = 0;
             mForceUpdate = FALSE;
-        }
-    }
+			}
+			}
     else if (mCubeMapUpdateStage == NUM_CUBEMAP_FACES)
-    {
+			{
         LL_RECORD_BLOCK_TIME(FTM_VOSKY_UPDATEFORCED);
         LLSkyTex::stepCurrent();
 
@@ -764,35 +764,35 @@ bool LLVOSky::updateSky()
         {
             LLImageRaw* raw1 = nullptr;
             LLImageRaw* raw2 = nullptr;
-
+	
             if (!is_alm_wl_sky)
-            {
+	{
                 raw1 = mSkyTex[side].getImageRaw(TRUE);
                 raw2 = mSkyTex[side].getImageRaw(FALSE);
                 raw2->copy(raw1);
                 mSkyTex[side].createGLImage(tex);
-            }
+	}
 
             raw1 = mShinyTex[side].getImageRaw(TRUE);
             raw2 = mShinyTex[side].getImageRaw(FALSE);
             raw2->copy(raw1);
             mShinyTex[side].createGLImage(tex);
-        }
+}
         next_frame = 0;
 
         // update the sky texture
         if (!is_alm_wl_sky)
         {
             for (S32 i = 0; i < NUM_CUBEMAP_FACES; ++i)
-            {
+{
                 mSkyTex[i].create(1.0f);
             }
-        }
+	}
 
         for (S32 i = 0; i < NUM_CUBEMAP_FACES; ++i)
-        {
+	{
             mShinyTex[i].create(1.0f);
-        }
+	}
 
         // update the environment map
         initCubeMap();
@@ -806,14 +806,14 @@ bool LLVOSky::updateSky()
         gPipeline.markRebuild(gSky.mVOGroundp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
 
         if (mDrawable.notNull() && mDrawable->getFace(0) && !mDrawable->getFace(0)->getVertexBuffer())
-	    {
+	{
 		    gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
 	    }
         mCubeMapUpdateStage = -1;
     }
     // run 0 to 5 faces, each face in own frame
     else if (mCubeMapUpdateStage >= 0 && mCubeMapUpdateStage < NUM_CUBEMAP_FACES)
-	{
+		{
         LL_RECORD_BLOCK_TIME(FTM_VOSKY_CREATETEXTURES);
         S32 side = mCubeMapUpdateStage;
         // CPU hungry part, createSkyTexture() is math heavy
@@ -822,9 +822,9 @@ bool LLVOSky::updateSky()
         // (i.e. potentially can be made per tile again, can be moved to thread
         // instead of executing per face, or may be can be moved to shaders)
         for (S32 tile = 0; tile < NUM_TILES; tile++)
-        {
+		{
             createSkyTexture(m_atmosphericsVars, side, tile);
-        }
+		}
         mCubeMapUpdateStage++;
 	}
 
@@ -836,33 +836,33 @@ void LLVOSky::updateTextures()
 	if (mSunTexturep[0])
 	{
 		mSunTexturep[0]->addTextureStats( (F32)MAX_IMAGE_AREA );
-    }
+	}
 
     if (mSunTexturep[1])
 	{
 		mSunTexturep[1]->addTextureStats( (F32)MAX_IMAGE_AREA );
-    }
+}
 
     if (mMoonTexturep[0])
-	{
+{
 		mMoonTexturep[0]->addTextureStats( (F32)MAX_IMAGE_AREA );
-    }
+}
 
     if (mMoonTexturep[1])
-	{
+{
 		mMoonTexturep[1]->addTextureStats( (F32)MAX_IMAGE_AREA );
-    }   
+}
 
     if (mBloomTexturep[0])
-    {
+	{
 		mBloomTexturep[0]->addTextureStats( (F32)MAX_IMAGE_AREA );
-	}
+		}
 
     if (mBloomTexturep[1])
-    {
+		{
 		mBloomTexturep[1]->addTextureStats( (F32)MAX_IMAGE_AREA );
+		}
 	}
-}
 
 LLDrawable *LLVOSky::createDrawable(LLPipeline *pipeline)
 {
@@ -872,7 +872,7 @@ LLDrawable *LLVOSky::createDrawable(LLPipeline *pipeline)
 	LLDrawPoolSky *poolp = (LLDrawPoolSky*) gPipeline.getPool(LLDrawPool::POOL_SKY);
 	poolp->setSkyTex(mSkyTex);
 	mDrawable->setRenderType(LLPipeline::RENDER_TYPE_SKY);
-	
+
 	for (S32 i = 0; i < NUM_CUBEMAP_FACES; ++i)
 	{
 		mFace[FACE_SIDE0 + i] = mDrawable->addFace(poolp, NULL);
@@ -893,10 +893,10 @@ void LLVOSky::setSunScale(F32 sun_scale)
 void LLVOSky::setMoonScale(F32 moon_scale)
 {
     mMoonScale = moon_scale;
-}
-
+	}
+	
 void LLVOSky::setSunTextures(const LLUUID& sun_texture, const LLUUID& sun_texture_next)
-{
+	{
     // We test the UUIDs here because we explicitly do not want the default image returned by getFetchedTexture in that case...
     mSunTexturep[0] = sun_texture.isNull() ? nullptr : LLViewerTextureManager::getFetchedTexture(sun_texture, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
     mSunTexturep[1] = sun_texture_next.isNull() ? nullptr : LLViewerTextureManager::getFetchedTexture(sun_texture_next, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
@@ -904,9 +904,9 @@ void LLVOSky::setSunTextures(const LLUUID& sun_texture, const LLUUID& sun_textur
     bool can_use_wl = gPipeline.canUseWindLightShaders();
 
     if (mFace[FACE_SUN])
-    {
+	{
         if (mSunTexturep[0])
-        {
+		{
 	        mSunTexturep[0]->setAddressMode(LLTexUnit::TAM_CLAMP);
         }
 
@@ -914,32 +914,32 @@ void LLVOSky::setSunTextures(const LLUUID& sun_texture, const LLUUID& sun_textur
         LLViewerTexture* current_tex1 = mFace[FACE_SUN]->getTexture(LLRender::ALTERNATE_DIFFUSE_MAP);
 
         if (current_tex0 && (mSunTexturep[0] != current_tex0) && current_tex0->isViewerMediaTexture())
-        {
+			{
             static_cast<LLViewerMediaTexture*>(current_tex0)->removeMediaFromFace(mFace[FACE_SUN]);
         }
 
         if (current_tex1 && (mSunTexturep[1] != current_tex1) && current_tex1->isViewerMediaTexture())
-        {
+				{
             static_cast<LLViewerMediaTexture*>(current_tex1)->removeMediaFromFace(mFace[FACE_SUN]);
-        }
+						}
 
         mFace[FACE_SUN]->setTexture(LLRender::DIFFUSE_MAP, mSunTexturep[0]);
 
         if (can_use_wl)
         {
             if (mSunTexturep[1])
-            {
+						{
 	            mSunTexturep[1]->setAddressMode(LLTexUnit::TAM_CLAMP);            
-            }
+						}
             mFace[FACE_SUN]->setTexture(LLRender::ALTERNATE_DIFFUSE_MAP, mSunTexturep[1]);
-        }
-    }
-}
+					}
+				}
+			}
 
 void LLVOSky::setMoonTextures(const LLUUID& moon_texture, const LLUUID& moon_texture_next)
-{
+			{
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
-
+			
     bool can_use_wl = gPipeline.canUseWindLightShaders();
 
     mMoonTexturep[0] = moon_texture.isNull()      ? nullptr : LLViewerTextureManager::getFetchedTexture(moon_texture, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
@@ -948,17 +948,17 @@ void LLVOSky::setMoonTextures(const LLUUID& moon_texture, const LLUUID& moon_tex
     if (mFace[FACE_MOON])
     {
         if (mMoonTexturep[0])
-        {
+		{
 	        mMoonTexturep[0]->setAddressMode(LLTexUnit::TAM_CLAMP);
-        }
+	}
         mFace[FACE_MOON]->setTexture(LLRender::DIFFUSE_MAP, mMoonTexturep[0]);
-    
+
         if (mMoonTexturep[1] && can_use_wl)
-        {
+	{
 	        mMoonTexturep[1]->setAddressMode(LLTexUnit::TAM_CLAMP);
             mFace[FACE_MOON]->setTexture(LLRender::ALTERNATE_DIFFUSE_MAP, mMoonTexturep[1]);
-        }
-    }
+	}
+	}
 }
 
 void LLVOSky::setCloudNoiseTextures(const LLUUID& cloud_noise_texture, const LLUUID& cloud_noise_texture_next)
@@ -967,11 +967,11 @@ void LLVOSky::setCloudNoiseTextures(const LLUUID& cloud_noise_texture, const LLU
 
     mCloudNoiseTexturep[0] = cloud_noise_texture.isNull() ? nullptr : LLViewerTextureManager::getFetchedTexture(cloud_noise_texture, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
     mCloudNoiseTexturep[1] = cloud_noise_texture_next.isNull() ? nullptr : LLViewerTextureManager::getFetchedTexture(cloud_noise_texture_next, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
-
+	
     if (mCloudNoiseTexturep[0])
-    {
+	{
 	    mCloudNoiseTexturep[0]->setAddressMode(LLTexUnit::TAM_WRAP);
-    }
+	}
 
     if (mCloudNoiseTexturep[1])
     {
@@ -990,15 +990,15 @@ void LLVOSky::setBloomTextures(const LLUUID& bloom_texture, const LLUUID& bloom_
     mBloomTexturep[1] = bloom_tex_next.isNull() ? nullptr : LLViewerTextureManager::getFetchedTexture(bloom_tex_next, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 
     if (mBloomTexturep[0])
-    {
+{	
 	    mBloomTexturep[0]->setAddressMode(LLTexUnit::TAM_CLAMP);
     }
 
     if (mBloomTexturep[1])
-    {
+	{
 	    mBloomTexturep[1]->setAddressMode(LLTexUnit::TAM_CLAMP);
     }
-}
+	}
 
 static LLTrace::BlockTimerStatHandle FTM_GEO_SKY("Sky Geometry");
 
@@ -1089,7 +1089,7 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 	LLVector3 up = right % look_at;
 	right.normalize();
 	up.normalize();
-    
+
     bool draw_sun  = updateHeavenlyBodyGeometry(drawable, mSunScale, FACE_SUN, mSun, up, right);
     bool draw_moon = updateHeavenlyBodyGeometry(drawable, mMoonScale, FACE_MOON, mMoon, up, right);
 
@@ -1106,17 +1106,17 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 
 	bool sun_flag = FALSE;
 	if (mSun.isVisible())
-	{        
+	{
         sun_flag = !mMoon.isVisible() || ((look_at * mSun.getDirection()) > 0);
-	}
-	
+		}
+
     bool above_water = (height_above_water > 0);
     bool render_ref  = above_water && gPipeline.getPool(LLDrawPool::POOL_WATER)->getShaderLevel() == 0;
     setDrawRefl(above_water ? (sun_flag ? 0 : 1) : -1);
-    if (render_ref)
-	{        
-        updateReflectionGeometry(drawable, height_above_water, mSun);
-    }
+			if (render_ref)
+			{
+				updateReflectionGeometry(drawable, height_above_water, mSun);
+			}
 
 	LLPipeline::sCompiles++;
 	return TRUE;
@@ -1133,7 +1133,7 @@ bool LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, F32 scale, const 
 	S32 index_offset;
 	LLFace *facep;
 
-    
+
     LLQuaternion rot    = hb.getRotation();
 	LLVector3 to_dir    = LLVector3::x_axis * rot;
 
@@ -1142,17 +1142,17 @@ bool LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, F32 scale, const 
 
     // at zenith so math below fails spectacularly
     if ((to_dir * LLVector3::z_axis) > 0.99f)
-    {
+	{
         hb_right  = LLVector3::y_axis_neg * rot;
 	    hb_up     = LLVector3::z_axis     * rot;
-    }
+	}
 
 	LLVector3 draw_pos = to_dir * HEAVENLY_BODY_DIST;
 
 	hb_right.normalize();
 	hb_up.normalize();
 
-    const F32 enlargm_factor = ( 1 - to_dir.mV[2] );
+	const F32 enlargm_factor = ( 1 - to_dir.mV[2] );
 	F32 horiz_enlargement = 1 + enlargm_factor * 0.3f;
 	F32 vert_enlargement = 1 + enlargm_factor * 0.2f;
 
@@ -1410,208 +1410,208 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 
     if (face)
     {
-        if (!face->getVertexBuffer() || quads * 4 != face->getGeomCount())
-        {
-            face->setSize(quads * 4, quads * 6);
-            LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolWater::VERTEX_DATA_MASK, GL_STREAM_DRAW_ARB);
-			if (!buff->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), TRUE))
-			{
-				LL_WARNS() << "Failed to allocate Vertex Buffer for vosky to "
-					<< face->getGeomCount() << " vertices and "
-					<< face->getIndicesCount() << " indices" << LL_ENDL;
-			}
-            face->setIndicesIndex(0);
-            face->setGeomIndex(0);
-            face->setVertexBuffer(buff);
-        }
+	if (!face->getVertexBuffer() || quads*4 != face->getGeomCount())
+	{
+		face->setSize(quads * 4, quads * 6);
+		LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolWater::VERTEX_DATA_MASK, GL_STREAM_DRAW_ARB);
+		if (!buff->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), TRUE))
+		{
+			LL_WARNS() << "Failed to allocate Vertex Buffer for vosky to "
+				<< face->getGeomCount() << " vertices and "
+				<< face->getIndicesCount() << " indices" << LL_ENDL;
+		}
+		face->setIndicesIndex(0);
+		face->setGeomIndex(0);
+		face->setVertexBuffer(buff);
+	}
+	
+	LLStrider<LLVector3> verticesp;
+	LLStrider<LLVector3> normalsp;
+	LLStrider<LLVector2> texCoordsp;
+	LLStrider<U16> indicesp;
+	S32 index_offset;
+	
+	index_offset = face->getGeometry(verticesp,normalsp,texCoordsp, indicesp);
+	if (-1 == index_offset)
+	{
+		return;
+	}
 
-        LLStrider<LLVector3> verticesp;
-        LLStrider<LLVector3> normalsp;
-        LLStrider<LLVector2> texCoordsp;
-        LLStrider<U16> indicesp;
-        S32 index_offset;
+	LLColor3 hb_col3 = HB.getInterpColor();
+	hb_col3.clamp();
+	const LLColor4 hb_col = LLColor4(hb_col3);
 
-        index_offset = face->getGeometry(verticesp, normalsp, texCoordsp, indicesp);
-        if (-1 == index_offset)
-        {
-            return;
-        }
-
-        LLColor3 hb_col3 = HB.getInterpColor();
-        hb_col3.clamp();
-        const LLColor4 hb_col = LLColor4(hb_col3);
-
-        const F32 min_attenuation = 0.4f;
-        const F32 max_attenuation = 0.7f;
-        const F32 attenuation = min_attenuation
-            + cos_angle_of_view * (max_attenuation - min_attenuation);
+	const F32 min_attenuation = 0.4f;
+	const F32 max_attenuation = 0.7f;
+	const F32 attenuation = min_attenuation
+		+ cos_angle_of_view * (max_attenuation - min_attenuation);
 
         LLColor4 hb_refl_col = (1 - attenuation) * hb_col + attenuation * getSkyFogColor();
-        face->setFaceColor(hb_refl_col);
+	face->setFaceColor(hb_refl_col);
+	
+	LLVector3 v_far[2];
+	v_far[0] = v_refl_corner[1];
+	v_far[1] = v_refl_corner[3];
 
-        LLVector3 v_far[2];
-        v_far[0] = v_refl_corner[1];
-        v_far[1] = v_refl_corner[3];
+	if(dt_clip > 0)
+	{
+		if (dt_clip >= 1)
+		{
+			for (S32 vtx = 0; vtx < 4; ++vtx)
+			{
+				F32 ratio = far_clip / v_refl_corner[vtx].length();
+				*(verticesp++) = v_refl_corner[vtx] = ratio * v_refl_corner[vtx] + mCameraPosAgent;
+			}
+			const LLVector3 draw_pos = 0.25 *
+				(v_refl_corner[0] + v_refl_corner[1] + v_refl_corner[2] + v_refl_corner[3]);
+			face->mCenterAgent = draw_pos;
+		}
+		else
+		{
+			F32 ratio = far_clip / v_refl_corner[1].length();
+			v_sprite_corner[1] = v_refl_corner[1] * ratio;
 
-        if (dt_clip > 0)
-        {
-            if (dt_clip >= 1)
-            {
-                for (S32 vtx = 0; vtx < 4; ++vtx)
-                {
-                    F32 ratio = far_clip / v_refl_corner[vtx].length();
-                    *(verticesp++) = v_refl_corner[vtx] = ratio * v_refl_corner[vtx] + mCameraPosAgent;
-                }
-                const LLVector3 draw_pos = 0.25 *
-                    (v_refl_corner[0] + v_refl_corner[1] + v_refl_corner[2] + v_refl_corner[3]);
-                face->mCenterAgent = draw_pos;
-            }
-            else
-            {
-                F32 ratio = far_clip / v_refl_corner[1].length();
-                v_sprite_corner[1] = v_refl_corner[1] * ratio;
+			ratio = far_clip / v_refl_corner[3].length();
+			v_sprite_corner[3] = v_refl_corner[3] * ratio;
 
-                ratio = far_clip / v_refl_corner[3].length();
-                v_sprite_corner[3] = v_refl_corner[3] * ratio;
+			v_refl_corner[1] = (1 - dt_clip) * v_refl_corner[1] + dt_clip * v_refl_corner[0];
+			v_refl_corner[3] = (1 - dt_clip) * v_refl_corner[3] + dt_clip * v_refl_corner[2];
+			v_sprite_corner[0] = v_refl_corner[1];
+			v_sprite_corner[2] = v_refl_corner[3];
 
-                v_refl_corner[1] = (1 - dt_clip) * v_refl_corner[1] + dt_clip * v_refl_corner[0];
-                v_refl_corner[3] = (1 - dt_clip) * v_refl_corner[3] + dt_clip * v_refl_corner[2];
-                v_sprite_corner[0] = v_refl_corner[1];
-                v_sprite_corner[2] = v_refl_corner[3];
+			for (S32 vtx = 0; vtx < 4; ++vtx)
+			{
+				*(verticesp++) = v_sprite_corner[vtx] + mCameraPosAgent;
+			}
 
-                for (S32 vtx = 0; vtx < 4; ++vtx)
-                {
-                    *(verticesp++) = v_sprite_corner[vtx] + mCameraPosAgent;
-                }
+			const LLVector3 draw_pos = 0.25 *
+				(v_refl_corner[0] + v_sprite_corner[1] + v_refl_corner[2] + v_sprite_corner[3]);
+			face->mCenterAgent = draw_pos;
+		}
 
-                const LLVector3 draw_pos = 0.25 *
-                    (v_refl_corner[0] + v_sprite_corner[1] + v_refl_corner[2] + v_sprite_corner[3]);
-                face->mCenterAgent = draw_pos;
-            }
+		*(texCoordsp++) = TEX0tt;
+		*(texCoordsp++) = TEX0t;
+		*(texCoordsp++) = TEX1tt;
+		*(texCoordsp++) = TEX1t;
 
-            *(texCoordsp++) = TEX0tt;
-            *(texCoordsp++) = TEX0t;
-            *(texCoordsp++) = TEX1tt;
-            *(texCoordsp++) = TEX1t;
+		*indicesp++ = index_offset + 0;
+		*indicesp++ = index_offset + 2;
+		*indicesp++ = index_offset + 1;
 
-            *indicesp++ = index_offset + 0;
-            *indicesp++ = index_offset + 2;
-            *indicesp++ = index_offset + 1;
+		*indicesp++ = index_offset + 1;
+		*indicesp++ = index_offset + 2;
+		*indicesp++ = index_offset + 3;
 
-            *indicesp++ = index_offset + 1;
-            *indicesp++ = index_offset + 2;
-            *indicesp++ = index_offset + 3;
+		index_offset += 4;
+	}
 
-            index_offset += 4;
-        }
+	if (dt_clip < 1)
+	{
+		if (dt_clip <= 0)
+		{
+			const LLVector3 draw_pos = 0.25 *
+				(v_refl_corner[0] + v_refl_corner[1] + v_refl_corner[2] + v_refl_corner[3]);
+			face->mCenterAgent = draw_pos;
+		}
 
-        if (dt_clip < 1)
-        {
-            if (dt_clip <= 0)
-            {
-                const LLVector3 draw_pos = 0.25 *
-                    (v_refl_corner[0] + v_refl_corner[1] + v_refl_corner[2] + v_refl_corner[3]);
-                face->mCenterAgent = draw_pos;
-            }
+		const F32 raws_inv = 1.f/raws;
+		const F32 cols_inv = 1.f/cols;
+		LLVector3 left	= v_refl_corner[0] - v_refl_corner[1];
+		LLVector3 right = v_refl_corner[2] - v_refl_corner[3];
+		left *= raws_inv;
+		right *= raws_inv;
 
-            const F32 raws_inv = 1.f / raws;
-            const F32 cols_inv = 1.f / cols;
-            LLVector3 left = v_refl_corner[0] - v_refl_corner[1];
-            LLVector3 right = v_refl_corner[2] - v_refl_corner[3];
-            left *= raws_inv;
-            right *= raws_inv;
-
-            for (S32 raw = 0; raw < raws; ++raw)
-            {
-                F32 dt_v0 = raw * raws_inv;
-                F32 dt_v1 = (raw + 1) * raws_inv;
-                const LLVector3 BL = v_refl_corner[1] + (F32)raw * left;
-                const LLVector3 BR = v_refl_corner[3] + (F32)raw * right;
-                const LLVector3 EL = BL + left;
-                const LLVector3 ER = BR + right;
+		for (S32 raw = 0; raw < raws; ++raw)
+		{
+			F32 dt_v0 = raw * raws_inv;
+			F32 dt_v1 = (raw + 1) * raws_inv;
+			const LLVector3 BL = v_refl_corner[1] + (F32)raw * left;
+			const LLVector3 BR = v_refl_corner[3] + (F32)raw * right;
+			const LLVector3 EL = BL + left;
+			const LLVector3 ER = BR + right;
                 dt_v0 = dt_v1 = dtReflection(EL, cos_dir_from_top[0], sin_dir_from_top, diff_angl_dir);
-                for (S32 col = 0; col < cols; ++col)
-                {
-                    F32 dt_h0 = col * cols_inv;
-                    *(verticesp++) = (1 - dt_h0) * EL + dt_h0 * ER + mCameraPosAgent;
-                    *(verticesp++) = (1 - dt_h0) * BL + dt_h0 * BR + mCameraPosAgent;
-                    F32 dt_h1 = (col + 1) * cols_inv;
-                    *(verticesp++) = (1 - dt_h1) * EL + dt_h1 * ER + mCameraPosAgent;
-                    *(verticesp++) = (1 - dt_h1) * BL + dt_h1 * BR + mCameraPosAgent;
+			for (S32 col = 0; col < cols; ++col)
+			{
+				F32 dt_h0 = col * cols_inv;
+				*(verticesp++) = (1 - dt_h0) * EL + dt_h0 * ER + mCameraPosAgent;
+				*(verticesp++) = (1 - dt_h0) * BL + dt_h0 * BR + mCameraPosAgent;
+				F32 dt_h1 = (col + 1) * cols_inv;
+				*(verticesp++) = (1 - dt_h1) * EL + dt_h1 * ER + mCameraPosAgent;
+				*(verticesp++) = (1 - dt_h1) * BL + dt_h1 * BR + mCameraPosAgent;
 
-                    *(texCoordsp++) = LLVector2(dt_h0, dt_v1);
-                    *(texCoordsp++) = LLVector2(dt_h0, dt_v0);
-                    *(texCoordsp++) = LLVector2(dt_h1, dt_v1);
-                    *(texCoordsp++) = LLVector2(dt_h1, dt_v0);
+				*(texCoordsp++) = LLVector2(dt_h0, dt_v1);
+				*(texCoordsp++) = LLVector2(dt_h0, dt_v0);
+				*(texCoordsp++) = LLVector2(dt_h1, dt_v1);
+				*(texCoordsp++) = LLVector2(dt_h1, dt_v0);
 
-                    *indicesp++ = index_offset + 0;
-                    *indicesp++ = index_offset + 2;
-                    *indicesp++ = index_offset + 1;
+				*indicesp++ = index_offset + 0;
+				*indicesp++ = index_offset + 2;
+				*indicesp++ = index_offset + 1;
 
-                    *indicesp++ = index_offset + 1;
-                    *indicesp++ = index_offset + 2;
-                    *indicesp++ = index_offset + 3;
+				*indicesp++ = index_offset + 1;
+				*indicesp++ = index_offset + 2;
+				*indicesp++ = index_offset + 3;
 
-                    index_offset += 4;
-                }
-            }
-        }
+				index_offset += 4;
+			}
+		}
+	}
 
-        face->getVertexBuffer()->flush();
-    }
+	face->getVertexBuffer()->flush();
+}
 }
 
 void LLVOSky::updateFog(const F32 distance)
 {
     LLEnvironment& environment = LLEnvironment::instance();
     if (environment.getCurrentSky() != nullptr)
-    {
+	{
         LLVector3 light_dir = LLVector3(environment.getClampedLightNorm());
         m_legacyAtmospherics.updateFog(distance, light_dir);
-    }
-}
+		}
+	}
 
 void LLVOSky::setSunAndMoonDirectionsCFR(const LLVector3 &sun_dir_cfr, const LLVector3 &moon_dir_cfr)
-{
+	{
     mSun.setDirection(sun_dir_cfr);	
 	mMoon.setDirection(moon_dir_cfr);
 
 	// Push the sun "South" as it approaches directly overhead so that we can always see bump mapping
 	// on the upward facing faces of cubes.
-    {
+	{
 	    // Same as dot product with the up direction + clamp.
 	    F32 sunDot = llmax(0.f, sun_dir_cfr.mV[2]);
 	    sunDot *= sunDot;	
 
 	    // Create normalized vector that has the sunDir pushed south about an hour and change.
 	    LLVector3 adjustedDir = (sun_dir_cfr + LLVector3(0.f, -0.70711f, 0.70711f)) * 0.5f;
-
+		
 	    // Blend between normal sun dir and adjusted sun dir based on how close we are
 	    // to having the sun overhead.
 	    mBumpSunDir = adjustedDir * sunDot + sun_dir_cfr * (1.0f - sunDot);
 	    mBumpSunDir.normalize();
-    }
+		}
 	updateDirections();
-}
+	}
 
 void LLVOSky::setSunDirectionCFR(const LLVector3 &sun_dir_cfr)
-{
+	{
     mSun.setDirection(sun_dir_cfr);	
 
 	// Push the sun "South" as it approaches directly overhead so that we can always see bump mapping
 	// on the upward facing faces of cubes.
     {
-	    // Same as dot product with the up direction + clamp.
+	// Same as dot product with the up direction + clamp.
 	    F32 sunDot = llmax(0.f, sun_dir_cfr.mV[2]);
-	    sunDot *= sunDot;	
+	sunDot *= sunDot;	
 
-	    // Create normalized vector that has the sunDir pushed south about an hour and change.
+	// Create normalized vector that has the sunDir pushed south about an hour and change.
 	    LLVector3 adjustedDir = (sun_dir_cfr + LLVector3(0.f, -0.70711f, 0.70711f)) * 0.5f;
 
-	    // Blend between normal sun dir and adjusted sun dir based on how close we are
-	    // to having the sun overhead.
+	// Blend between normal sun dir and adjusted sun dir based on how close we are
+	// to having the sun overhead.
 	    mBumpSunDir = adjustedDir * sunDot + sun_dir_cfr * (1.0f - sunDot);
-	    mBumpSunDir.normalize();
+	mBumpSunDir.normalize();
     }
 	updateDirections();
 }

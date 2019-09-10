@@ -105,7 +105,7 @@ protected:
 	static void* createPanelLandAccess(void* data);
 	static void* createPanelLandExperiences(void* data);
     static void* createPanelLandEnvironment(void* data);
-    static void* createPanelLandBan(void* data);
+	static void* createPanelLandBan(void* data);
 
 
 protected:
@@ -330,6 +330,7 @@ private:
 	static void onCommitAny(LLUICtrl* ctrl, void *userdata);
 	static void onClickSet(void* userdata);
 	static void onClickClear(void* userdata);
+	static void toggleSeeAvatars(void* userdata);
 
 private:
 	LLCheckBoxCtrl*	mCheckEditObjects;
@@ -348,6 +349,7 @@ private:
 	LLTextureCtrl*	mSnapshotCtrl;
 
 	LLTextBox*		mLocationText;
+	LLTextBox*		mSeeAvatarsText;
 	LLButton*		mSetBtn;
 	LLButton*		mClearBtn;
 

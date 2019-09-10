@@ -889,7 +889,7 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
 	U32 hours = mFilter->getHoursAgo();
 	U32 date_search_direction = mFilter->getDateSearchDirection();
 
-	LLInventoryFilter::EFilterCreatorType filter_creator = mFilter->getFilterCreator();
+	LLInventoryFilter::EFilterCreatorType filter_creator = mFilter->getFilterCreatorType();
 	bool show_created_by_me = ((filter_creator == LLInventoryFilter::FILTERCREATOR_ALL) || (filter_creator == LLInventoryFilter::FILTERCREATOR_SELF));
 	bool show_created_by_others = ((filter_creator == LLInventoryFilter::FILTERCREATOR_ALL) || (filter_creator == LLInventoryFilter::FILTERCREATOR_OTHERS));
 
@@ -902,7 +902,6 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
 	getChild<LLUICtrl>("check_clothing")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_WEARABLE));
 	getChild<LLUICtrl>("check_gesture")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_GESTURE));
 	getChild<LLUICtrl>("check_landmark")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_LANDMARK));
-	getChild<LLUICtrl>("check_mesh")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_MESH));
 	getChild<LLUICtrl>("check_notecard")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_NOTECARD));
 	getChild<LLUICtrl>("check_object")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_OBJECT));
 	getChild<LLUICtrl>("check_script")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_LSL));
@@ -956,12 +955,6 @@ void LLFloaterInventoryFinder::draw()
 
 	{
 		filter &= ~(0x1 << LLInventoryType::IT_LANDMARK);
-		filtered_by_all_types = FALSE;
-	}
-
-	if (!getChild<LLUICtrl>("check_mesh")->getValue())
-	{
-		filter &= ~(0x1 << LLInventoryType::IT_MESH);
 		filtered_by_all_types = FALSE;
 	}
 
@@ -1119,13 +1112,12 @@ void LLFloaterInventoryFinder::selectAllTypes(void* user_data)
 	self->getChild<LLUICtrl>("check_clothing")->setValue(TRUE);
 	self->getChild<LLUICtrl>("check_gesture")->setValue(TRUE);
 	self->getChild<LLUICtrl>("check_landmark")->setValue(TRUE);
-	self->getChild<LLUICtrl>("check_mesh")->setValue(TRUE);
 	self->getChild<LLUICtrl>("check_notecard")->setValue(TRUE);
 	self->getChild<LLUICtrl>("check_object")->setValue(TRUE);
 	self->getChild<LLUICtrl>("check_script")->setValue(TRUE);
 	self->getChild<LLUICtrl>("check_sound")->setValue(TRUE);
 	self->getChild<LLUICtrl>("check_texture")->setValue(TRUE);
-    self->getChild<LLUICtrl>("check_snapshot")->setValue(TRUE);
+	self->getChild<LLUICtrl>("check_snapshot")->setValue(TRUE);
     self->getChild<LLUICtrl>("check_settings")->setValue(TRUE);
 }
 
@@ -1140,7 +1132,6 @@ void LLFloaterInventoryFinder::selectNoTypes(void* user_data)
 	self->getChild<LLUICtrl>("check_clothing")->setValue(FALSE);
 	self->getChild<LLUICtrl>("check_gesture")->setValue(FALSE);
 	self->getChild<LLUICtrl>("check_landmark")->setValue(FALSE);
-	self->getChild<LLUICtrl>("check_mesh")->setValue(FALSE);
 	self->getChild<LLUICtrl>("check_notecard")->setValue(FALSE);
 	self->getChild<LLUICtrl>("check_object")->setValue(FALSE);
 	self->getChild<LLUICtrl>("check_script")->setValue(FALSE);

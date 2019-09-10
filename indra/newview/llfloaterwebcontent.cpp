@@ -30,7 +30,6 @@
 #include "lliconctrl.h"
 #include "llfloaterreg.h"
 #include "llhttpconstants.h"
-#include "llfacebookconnect.h"
 #include "llflickrconnect.h"
 #include "lltwitterconnect.h"
 #include "lllayoutstack.h"
@@ -289,17 +288,7 @@ void LLFloaterWebContent::onOpen(const LLSD& key)
 //virtual
 void LLFloaterWebContent::onClose(bool app_quitting)
 {
-    // If we close the web browsing window showing the facebook login, we need to signal to this object that the connection will not happen
-	// MAINT-3440 note change here to use findInstance and not getInstance - latter creates an instance if it's not there which is bad.
-    LLFloater* fbc_web = LLFloaterReg::findInstance("fbc_web");
-    if (fbc_web == this)
-    {
-        if (!LLFacebookConnect::instance().isConnected())
-        {
-            LLFacebookConnect::instance().setConnectionState(LLFacebookConnect::FB_CONNECTION_FAILED);
-        }
-    }
-	// Same with Flickr
+    // If we close the web browsing window showing the Flickr login, we need to signal to this object that the connection will not happen
 	// MAINT-3440 note change here to use findInstance and not getInstance - latter creates an instance if it's not there which is bad.
 	LLFloater* flickr_web = LLFloaterReg::findInstance("flickr_web");
     if (flickr_web == this)
@@ -309,7 +298,7 @@ void LLFloaterWebContent::onClose(bool app_quitting)
             LLFlickrConnect::instance().setConnectionState(LLFlickrConnect::FLICKR_CONNECTION_FAILED);
         }
     }
-	// And Twitter
+	// Same with Twitter
 	// MAINT-3440 note change here to use findInstance and not getInstance - latter creates an instance if it's not there which is bad.
 	LLFloater* twitter_web = LLFloaterReg::findInstance("twitter_web");
     if (twitter_web == this)
@@ -379,13 +368,6 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 	{
 		// The browser instance wants its window closed.
 		closeFloater();
-	}
-	else if(event == MEDIA_EVENT_GEOMETRY_CHANGE)
-	{
-		if (mCurrentURL.find("facebook.com/dialog/oauth") == std::string::npos) // HACK to fix ACME-1317 - Cho
-		{
-		geometryChanged(self->getGeometryX(), self->getGeometryY(), self->getGeometryWidth(), self->getGeometryHeight());
-	}
 	}
 	else if(event == MEDIA_EVENT_STATUS_TEXT_CHANGED )
 	{

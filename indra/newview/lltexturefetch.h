@@ -312,6 +312,7 @@ public:
     static LLTrace::SampleStatHandle<F32Seconds> sCacheReadLatency;
     static LLTrace::SampleStatHandle<F32Seconds> sTexDecodeLatency;
     static LLTrace::SampleStatHandle<F32Seconds> sTexFetchLatency;
+    static LLTrace::EventStatHandle<LLUnit<F32, LLUnits::Percent> > sCacheHitRate;
 
 private:
 	LLMutex mQueueMutex;        //to protect mRequestMap and mCommands only

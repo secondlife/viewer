@@ -64,7 +64,12 @@ LLViewerKeyboard gViewerKeyboard;
 
 void agent_jump( EKeystate s )
 {
-	if( KEYSTATE_UP == s  ) return;
+	static BOOL first_fly_attempt(TRUE);
+	if (KEYSTATE_UP == s)
+	{
+		first_fly_attempt = TRUE;
+		return;
+	}
 	F32 time = gKeyboard->getCurKeyElapsedTime();
 	S32 frame_count = ll_round(gKeyboard->getCurKeyElapsedFrameCount());
 
@@ -77,7 +82,8 @@ void agent_jump( EKeystate s )
 	}
 	else
 	{
-		gAgent.setFlying(TRUE);
+		gAgent.setFlying(TRUE, first_fly_attempt);
+		first_fly_attempt = FALSE;
 		gAgent.moveUp(1);
 	}
 }

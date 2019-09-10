@@ -24,10 +24,6 @@
         Sending Email
     </string>
     <string
-        name="facebook_progress_str">
-        Posting to Facebook
-    </string>
-    <string
         name="profile_progress_str">
         Posting
     </string>
@@ -39,10 +35,6 @@
      name="local_progress_str">
         Saving to Computer
     </string>
- 	<string
-        name="facebook_succeeded_str">
- 	    Image uploaded
- 	</string>
  	<string
         name="profile_succeeded_str">
  	    Image uploaded
@@ -58,10 +50,6 @@
  	<string
  	 name="local_succeeded_str">
  	    Saved to Computer!
- 	</string>
- 	<string
-     name="facebook_failed_str">
- 	    Failed to upload image to your Facebook timeline.
  	</string>
  	<string
      name="profile_failed_str">

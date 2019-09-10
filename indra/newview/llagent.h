@@ -204,7 +204,7 @@ public:
 protected:
 	void			propagate(const F32 dt); // ! BUG ! Should roll into updateAgentPosition
 private:
-	mutable LLVector3d  mPositionGlobal;
+	mutable LLVector3d mPositionGlobal;
 
     position_signal_t   mOnPositionChanged;
     LLVector3d          mLastTestGlobal;
@@ -345,7 +345,7 @@ private:
 	//--------------------------------------------------------------------
 public:
 	BOOL			getFlying() const;
-	void			setFlying(BOOL fly);
+	void			setFlying(BOOL fly, BOOL fail_sound = FALSE);
 	static void		toggleFlying();
 	static bool		enableFlying();
 	BOOL			canFly(); 			// Does this parcel allow you to fly?

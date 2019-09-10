@@ -714,6 +714,8 @@ public:
 
 	LLPermissions* findObjectPermissions(const LLViewerObject* object);
 
+	BOOL isSelfAvatarSelected();
+
 	void selectDelete();							// Delete on simulator
 	void selectForceDelete();			// just delete, no into trash
 	void selectDuplicate(const LLVector3& offset, BOOL select_copy);	// Duplicate on simulator
