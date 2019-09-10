@@ -302,6 +302,7 @@ public:
 	
     static LLTrace::CountStatHandle<F64>        sCacheHit;
     static LLTrace::CountStatHandle<F64>        sCacheAttempt;
+    static LLTrace::EventStatHandle<LLUnit<F32, LLUnits::Percent> > sCacheHitRate;
     static LLTrace::SampleStatHandle<F32Seconds> sCacheReadLatency;
     static LLTrace::SampleStatHandle<F32Seconds> sTexDecodeLatency;
     static LLTrace::SampleStatHandle<F32Seconds> sTexFetchLatency;
