@@ -2987,7 +2987,7 @@ Si vous restez dans cette région, vous serez déconnecté(e).
 Si vous restez dans cette région, vous serez déconnecté(e).
 	</notification>
 	<notification name="LoadWebPage">
-		Charger la page Web [URL] ?
+Charger la page Web [URL] ?
 
 [MESSAGE]
 

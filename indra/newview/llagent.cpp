@@ -743,7 +743,7 @@ BOOL LLAgent::getFlying() const
 //-----------------------------------------------------------------------------
 // setFlying()
 //-----------------------------------------------------------------------------
-void LLAgent::setFlying(BOOL fly)
+void LLAgent::setFlying(BOOL fly, BOOL fail_sound)
 {
 	if (isAgentAvatarValid())
 	{
@@ -772,7 +772,10 @@ void LLAgent::setFlying(BOOL fly)
 			// parcel doesn't let you start fly
 			// gods can always fly
 			// and it's OK if you're already flying
-			make_ui_sound("UISndBadKeystroke");
+			if (fail_sound)
+			{
+				make_ui_sound("UISndBadKeystroke");
+			}
 			return;
 		}
 		if( !was_flying )

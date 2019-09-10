@@ -58,12 +58,12 @@
 	 label_width="95"
 	 layout="topleft"
 	 left_delta="210"
-	 max_val="12000"
+	 max_val="65535"
 	 min_val="10"
 	 name="web_proxy_port"
 	 top_delta="0"
 	 tool_tip="The port of the HTTP proxy you would like to use."
-	 width="145" />
+	 width="150" />
 	<check_box
 	 control_name="Socks5ProxyEnabled"
 	 height="16"
@@ -111,11 +111,11 @@
 	 label_width="95"
 	 layout="topleft"
 	 left_delta="210"
-	 max_val="12000"
+	 max_val="65535"
 	 min_val="10"
 	 name="socks_proxy_port"
 	 top_delta="0"
-	 width="145"
+	 width="150"
 	 tool_tip="The port of the SOCKS 5 proxy you would like to use."
 	 commit_callback.function="Proxy.Change" />
 	<text

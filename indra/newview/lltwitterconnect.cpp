@@ -28,6 +28,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "lltwitterconnect.h"
+#include "llflickrconnect.h"
 
 #include "llagent.h"
 #include "llcallingcard.h"			// for LLAvatarTracker
@@ -64,6 +65,49 @@ void toast_user_for_twitter_success()
     args["MESSAGE"] = LLTrans::getString("twitter_post_success");
     LLNotificationsUtil::add("TwitterConnect", args);
 }
+
+class LLTwitterConnectHandler : public LLCommandHandler
+{
+public:
+    LLTwitterConnectHandler() : LLCommandHandler("fbc", UNTRUSTED_THROTTLE) {}
+
+    bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web)
+    {
+        if (tokens.size() >= 1)
+        {
+            if (tokens[0].asString() == "connect")
+            {
+                if (tokens.size() >= 2 && tokens[1].asString() == "twitter")
+                {
+                    // this command probably came from the twitter_web browser, so close it
+                    LLFloaterReg::hideInstance("twitter_web");
+
+                    // connect to twitter
+                    if (query_map.has("oauth_token"))
+                    {
+                        LLTwitterConnect::instance().connectToTwitter(query_map["oauth_token"], query_map.get("oauth_verifier"));
+                    }
+                    return true;
+                }
+                else if (tokens.size() >= 2 && tokens[1].asString() == "flickr")
+                {
+                    // this command probably came from the flickr_web browser, so close it
+                    LLFloaterReg::hideInstance("flickr_web");
+
+                    // connect to flickr
+                    if (query_map.has("oauth_token"))
+                    {
+                        LLFlickrConnect::instance().connectToFlickr(query_map["oauth_token"], query_map.get("oauth_verifier"));
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+};
+LLTwitterConnectHandler gTwitterConnectHandler;
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //

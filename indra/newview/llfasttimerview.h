@@ -33,6 +33,8 @@
 #include "lltracerecording.h"
 #include <deque>
 
+class LLScrollbar;
+
 class LLFastTimerView : public LLFloater
 {
 public:
@@ -142,6 +144,8 @@ private:
 									mLegendRect;
 	LLFrameTimer					mHighlightTimer;
 	LLTrace::PeriodicRecording		mRecording;
+
+	LLScrollbar* 					mScrollBar;
 };
 
 #endif
