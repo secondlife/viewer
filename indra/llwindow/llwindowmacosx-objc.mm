@@ -258,17 +258,17 @@ float getDeviceUnitSize(GLViewRef view)
 	return [(LLOpenGLView*)view convertSizeToBacking:NSMakeSize(1, 1)].width;
 }
 
-const CGPoint getContentViewBoundsPosition(NSWindowRef window)
+CGPoint getContentViewBoundsPosition(NSWindowRef window)
 {
 	return [[(LLNSWindow*)window contentView] bounds].origin;
 }
 
-const CGSize getContentViewBoundsSize(NSWindowRef window)
+CGSize getContentViewBoundsSize(NSWindowRef window)
 {
 	return [[(LLNSWindow*)window contentView] bounds].size;
 }
 
-const CGSize getDeviceContentViewSize(NSWindowRef window, GLViewRef view)
+CGSize getDeviceContentViewSize(NSWindowRef window, GLViewRef view)
 {
     return [(NSOpenGLView*)view convertRectToBacking:[[(LLNSWindow*)window contentView] bounds]].size;
 }

@@ -1877,6 +1877,7 @@ LLPanelLandOptions::LLPanelLandOptions(LLParcelSelectionHandle& parcel)
 	mLandingTypeCombo(NULL),
 	mSnapshotCtrl(NULL),
 	mLocationText(NULL),
+	mSeeAvatarsText(NULL),
 	mSetBtn(NULL),
 	mClearBtn(NULL),
 	mMatureCtrl(NULL),
@@ -1922,6 +1923,14 @@ BOOL LLPanelLandOptions::postBuild()
 
 	mSeeAvatarsCtrl = getChild<LLCheckBoxCtrl>( "SeeAvatarsCheck");
 	childSetCommitCallback("SeeAvatarsCheck", onCommitAny, this);
+
+	mSeeAvatarsText = getChild<LLTextBox>("allow_see_label");
+	if (mSeeAvatarsText)
+	{
+		mSeeAvatarsText->setShowCursorHand(false);
+		mSeeAvatarsText->setSoundFlags(LLView::MOUSE_UP);
+		mSeeAvatarsText->setClickedCallback(boost::bind(&toggleSeeAvatars, this));
+	}
 
 	mCheckShowDirectory = getChild<LLCheckBoxCtrl>( "ShowDirectoryCheck");
 	childSetCommitCallback("ShowDirectoryCheck", onCommitAny, this);
@@ -2016,6 +2025,7 @@ void LLPanelLandOptions::refresh()
 
 		mSeeAvatarsCtrl->set(TRUE);
 		mSeeAvatarsCtrl->setEnabled(FALSE);
+		mSeeAvatarsText->setEnabled(FALSE);
 
 		mLandingTypeCombo->setCurrentByIndex(0);
 		mLandingTypeCombo->setEnabled(FALSE);
@@ -2074,6 +2084,7 @@ void LLPanelLandOptions::refresh()
 
 		mSeeAvatarsCtrl->set(parcel->getSeeAVs());
 		mSeeAvatarsCtrl->setEnabled(can_change_options && parcel->getHaveNewParcelLimitData());
+		mSeeAvatarsText->setEnabled(can_change_options && parcel->getHaveNewParcelLimitData());
 
 		BOOL can_change_landing_point = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, 
 														GP_LAND_SET_LANDING_POINT);
@@ -2364,7 +2375,16 @@ void LLPanelLandOptions::onClickClear(void* userdata)
 	self->refresh();
 }
 
-
+void LLPanelLandOptions::toggleSeeAvatars(void* userdata)
+{
+	LLPanelLandOptions* self = (LLPanelLandOptions*)userdata;
+	if (self)
+	{
+		self->getChild<LLCheckBoxCtrl>("SeeAvatarsCheck")->toggle();
+		self->getChild<LLCheckBoxCtrl>("SeeAvatarsCheck")->setBtnFocus();
+		self->onCommitAny(NULL, userdata);
+	}
+}
 //---------------------------------------------------------------------------
 // LLPanelLandAccess
 //---------------------------------------------------------------------------

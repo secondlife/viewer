@@ -151,6 +151,8 @@ endif (LINUX)
 
 
 if (DARWIN)
+  # Warnings should be fatal -- thanks, Nicky Perian, for spotting reversed default
+  set(CLANG_DISABLE_FATAL_WARNINGS OFF)
   set(CMAKE_CXX_LINK_FLAGS "-Wl,-headerpad_max_install_names,-search_paths_first")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_CXX_LINK_FLAGS}")
   set(DARWIN_extra_cstar_flags "-Wno-unused-local-typedef -Wno-deprecated-declarations")
