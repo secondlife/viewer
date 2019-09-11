@@ -274,20 +274,16 @@ void main()
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_EMISSIVE)
     final_color.a = diffuse_linear.a;
 #endif
+
     final_color.a = max(final_color.a, emissive_brightness);
 
-#if !defined(HAS_NORMAL_MAP)
-    final_color.a = 0.0f;
-#endif
-
-    vec4 final_specular = spec;
-    final_specular.a = specular_color.a;
-#ifdef HAS_SPECULAR_MAP
-    final_specular.a *= norm.a;
-#endif
-
     vec4 final_normal = vec4(encode_normal(normalize(tnorm)), env_intensity, 0.0);
-#ifdef HAS_SPECULAR_MAP
+    vec4 final_specular = spec;
+    
+    final_specular.a = specular_color.a;
+
+#if HAS_SPECULAR_MAP	
+	final_specular.a *= norm.a;
     final_normal.z *= spec.a;
 #endif
 

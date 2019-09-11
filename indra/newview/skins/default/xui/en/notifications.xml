@@ -6737,14 +6737,7 @@ Please select at least one type of content to search (General, Moderate, or Adul
 
  <notification
   icon="notify.tga"
-  name="FacebookConnect"
-  type="notifytip">
-[MESSAGE]
- </notification>
-
-  <notification
-   icon="notify.tga"
-   name="FlickrConnect"
+  name="FlickrConnect"
    type="notifytip">
     [MESSAGE]
   </notification>
@@ -8669,6 +8662,7 @@ Please check your network and firewall setup.
    icon="alertmodal.tga"
    name="NoVoiceConnect"
    type="alertmodal">
+    <unique/>
 We are unable to connect to the voice server:
 
 [HOSTID]

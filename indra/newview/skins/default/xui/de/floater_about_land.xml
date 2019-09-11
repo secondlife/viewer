@@ -433,7 +433,7 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			<panel.string name="estate_override">
 				Eine oder mehrere dieser Optionen gelten auf Grundbesitzebene
 			</panel.string>
-			<check_box label="Alle Besucher sind zugelassen (Bei Deaktivierung dieser Option werden Bannlinien generiert)" name="public_access"/>
+			<check_box label="Alle Besucher sind zugelassen" tool_tip="Bei Deaktivierung dieser Option werden Bannlinien generiert" name="public_access"/>
 			<check_box label="Muss 18+ sein [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Nur Einwohner, die mindestens 18 Jahre alt sind, können diese Parzelle betreten. Weitere Informationen finden Sie unter [SUPPORT_SITE]."/>
 			<check_box label="Muss über Zahlungsinfo in Datei [ESTATE_PAYMENT_LIMIT] verfügen" name="limit_payment" tool_tip="Um diese Parzelle besuchen zu können, müssen Einwohner Zahlungsinformationen hinterlegt haben. Weitere Informationen finden Sie auf [SUPPORT_SITE]."/>
 			<check_box label="Gruppe [GROUP] ohne Beschränkungen zulassen" name="GroupCheck" tool_tip="Gruppe im Register „Allgemein“ festlegen."/>
@@ -465,6 +465,5 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			</panel>
 		</panel>
 		<panel label="ERLEBNISSE" name="land_experiences_panel"/>
-		<panel label="UMGEBUNG" name="land_environment_panel"/>
 	</tab_container>
 </floater>

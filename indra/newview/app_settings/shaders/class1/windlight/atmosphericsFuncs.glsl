@@ -121,7 +121,7 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     temp2.x += .25;
 
     temp2.x *= sun_moon_glow_factor;
-   
+ 
     vec4 amb_color = ambient_color; 
 
     //increase ambient when there are more clouds

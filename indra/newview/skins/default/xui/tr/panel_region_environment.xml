@@ -6,9 +6,6 @@
 	<string name="str_label_use_region">
 		Bölge Ayarlarını Kullan
 	</string>
-	<string name="str_unknow_inventory">
-		Bilinmiyor
-	</string>
 	<string name="str_altitude_desription">
 		Gökyüzü [INDEX]([ALTITUDE] m)
 	</string>
@@ -21,6 +18,18 @@
 	<string name="str_legacy">
 		Ortam ayarları bu bölgede kullanılamıyor.
 	</string>
+	<string name="str_disallowed">
+		Gayrimenkul yöneticisi bu bölgede parsel ortamlarını değiştirmeye izin vermiyor.
+	</string>
+	<string name="str_too_small">
+		Parselin bir ortamı desteklemesi için en az 128 metrekare olması gerekir.
+	</string>
+	<string name="str_empty">
+		(boş)
+	</string>
+	<string name="str_region_env">
+		(bölge ortamı)
+	</string>
 	<layout_stack>
 		<layout_panel name="pnl_environment_disabled">
 			<text name="txt_environment_disabled">
@@ -29,49 +38,79 @@
 		</layout_panel>
 		<layout_panel name="pnl_environment_config">
 			<layout_stack>
-				<layout_panel name="pnl_environment_current">
-					<radio_group name="rdg_environment_select">
-						<radio_item label="[USEDEFAULT]" name="rdo_use_xxx_setting"/>
-						<radio_item label="Envanterden Gelen Ayarlar" name="rdo_use_inv_setting"/>
-						<radio_item label="Özel Ortam" name="rdo_use_custom_setting"/>
-					</radio_group>
-					<line_editor name="edt_inventory_name">
-						Bilinmiyor
-					</line_editor>
-					<button label="Ortamı Düzenle" name="btn_edit"/>
+				<layout_panel name="pnl_environment_config">
+					<layout_stack>
+						<layout_panel name="pnl_environment_current">
+							<button label="[USEDEFAULT]" name="btn_usedefault"/>
+							<button label="Envanteri Kullan" name="btn_select_inventory"/>
+							<button label="Özelleştir" name="btn_edit"/>
+							<check_box label="Parsel Sahipleri Ortamı Geçersiz Kılabilir" name="chk_allow_override"/>
+						</layout_panel>
+						<layout_panel name="pnl_environment_length">
+							<text name="lbl_apparent_time">
+								[HH]:[MM][AP] (% [PRC])
+							</text>
+						</layout_panel>
+						<layout_panel name="pnl_environment_buttons"/>
+					</layout_stack>
 				</layout_panel>
-				<layout_panel name="pnl_environment_length">
-					<text name="lbl_apparent_time">
-						[HH]:[MM][AP] (% [PRC])
-					</text>
+				<layout_panel name="pnl_environment_altitudes">
+					<panel name="pnl_alt1">
+						<text name="txt_alt1">
+							Gökyüzü [INDEX]
+                            [ALTITUDE] m
+						</text>
+						<line_editor name="edt_invname_alt1">
+							Bilinmiyor
+						</line_editor>
+						<settings_drop_target name="sdt_alt1" tool_tip="Geçerli gökyüzü olarak seçmek için Envanterden bir ayarı bu hedef kutuya sürükleyin."/>
+					</panel>
+					<panel name="pnl_alt2">
+						<text name="txt_alt2">
+							Gökyüzü [INDEX]
+                            [ALTITUDE] m
+						</text>
+						<line_editor name="edt_invname_alt2">
+							Bilinmiyor
+						</line_editor>
+						<settings_drop_target name="sdt_alt2" tool_tip="Geçerli gökyüzü olarak seçmek için Envanterden bir ayarı bu hedef kutuya sürükleyin."/>
+					</panel>
+					<panel name="pnl_alt3">
+						<text name="txt_alt3">
+							Gökyüzü [INDEX]
+                            [ALTITUDE] m
+						</text>
+						<line_editor name="edt_invname_alt3">
+							Bilinmiyor
+						</line_editor>
+						<settings_drop_target name="sdt_alt3" tool_tip="Geçerli gökyüzü olarak seçmek için Envanterden bir ayarı bu hedef kutuya sürükleyin."/>
+					</panel>
+					<multi_slider initial_value="0" name="sld_altitudes">
+						<slider name="sld1" value="1000"/>
+						<slider name="sld2" value="2000"/>
+						<slider name="sld3" value="3000"/>
+					</multi_slider>
+					<panel name="pnl_ground">
+						<text name="txt_ground">
+							Zemin
+						</text>
+						<line_editor name="edt_invname_ground">
+							Bilinmiyor
+						</line_editor>
+						<settings_drop_target name="sdt_ground" tool_tip="Zemin seviyesinde gökyüzü olarak seçmek için Envanterden bir ayarı bu hedef kutuya sürükleyin."/>
+					</panel>
+					<panel name="pnl_water">
+						<text name="txt_water">
+							Su
+						</text>
+						<line_editor name="edt_invname_water">
+							Bilinmiyor
+						</line_editor>
+						<settings_drop_target name="sdt_water" tool_tip="Geçerli su olarak seçmek için Envanterden bir ayarı bu hedef kutuya sürükleyin."/>
+					</panel>
+					<button label="Sıfırla" name="btn_rst_altitudes" tool_tip="Varsayılan irtifalara sıfırla"/>
 				</layout_panel>
 			</layout_stack>
-		</layout_panel>
-		<layout_panel name="pnl_environment_altitudes">
-			<panel name="cnt_panel">
-				<multi_slider initial_value="100" name="sld_altitudes">
-					<slider name="sld1" value="200"/>
-					<slider name="sld2" value="400"/>
-					<slider name="sld3" value="600"/>
-				</multi_slider>
-				<text name="ground">
-					Zemin
-				</text>
-				<text name="alt1">
-					Gökyüzü [INDEX]([ALTITUDE] m)
-				</text>
-				<text name="alt2">
-					Gökyüzü [INDEX]([ALTITUDE] m)
-				</text>
-				<text name="alt3">
-					Gökyüzü [INDEX]([ALTITUDE] m)
-				</text>
-			</panel>
-		</layout_panel>
-		<layout_panel name="pnl_environment_buttons">
-			<check_box label="Parsel Sahipleri Ortamı Geçersiz Kılabilir" name="chk_allow_override"/>
-			<button label="Uygula" name="btn_apply"/>
-			<button label="Sıfırla" name="btn_cancel"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

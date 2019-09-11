@@ -200,7 +200,6 @@ set(viewer_SOURCE_FILES
     llexperiencelog.cpp
     llexternaleditor.cpp
     llface.cpp
-    llfacebookconnect.cpp
     llfasttimerview.cpp
     llfavoritesbar.cpp
     llfeaturemanager.cpp
@@ -241,7 +240,6 @@ set(viewer_SOURCE_FILES
     llfloaterexperiencepicker.cpp
     llfloaterexperienceprofile.cpp
     llfloaterexperiences.cpp
-    llfloaterfacebook.cpp
     llfloaterfixedenvironment.cpp
     llfloaterflickr.cpp
     llfloaterfonttest.cpp
@@ -827,7 +825,6 @@ set(viewer_HEADER_FILES
     llexperiencelog.h
     llexternaleditor.h
     llface.h
-    llfacebookconnect.h
     llfasttimerview.h
     llfavoritesbar.h
     llfeaturemanager.h
@@ -868,7 +865,6 @@ set(viewer_HEADER_FILES
     llfloaterexperiencepicker.h
     llfloaterexperienceprofile.h
     llfloaterexperiences.h
-    llfloaterfacebook.h
     llfloaterfixedenvironment.h
     llfloaterflickr.h
     llfloaterfonttest.h
@@ -1879,19 +1875,13 @@ if (WINDOWS)
     )
 
     # sets the 'working directory' for debugging from visual studio.
-    if ((NOT UNATTENDED) AND (NOT DEFINED ENV{TEAMCITY_PROJECT_NAME}))
-        add_custom_command(
-            TARGET ${VIEWER_BINARY_NAME} POST_BUILD
-            COMMAND ${CMAKE_SOURCE_DIR}/tools/vstool/vstool.exe
-            ARGS
-              --solution
-              ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.sln
-              --workingdir
-              ${VIEWER_BINARY_NAME}
-              "${CMAKE_CURRENT_SOURCE_DIR}"
-            COMMENT "Setting the ${VIEWER_BINARY_NAME} working directory for debugging."
-            )
-    endif ((NOT UNATTENDED) AND (NOT DEFINED ENV{TEAMCITY_PROJECT_NAME}))
+    # Condition for version can be moved to requirements once build agents will be updated (see TOOL-3865)
+    if (NOT UNATTENDED)
+        set_property(
+          TARGET ${VIEWER_BINARY_NAME}
+          PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+          )
+    endif (NOT UNATTENDED)
 
     if (PACKAGE)
       add_custom_command(

@@ -7,16 +7,28 @@
 		Tageszyklus bearbeiten
 	</string>
 	<string name="hint_new">
-		Geben Sie einen Namen für den Tageszyklus ein, passen Sie die Steuerungen an, um den Tageszyklus zu erstellen, und klicken Sie auf „Speichern“.
+		Geben Sie einen Namen für Ihren Tageszyklus ein, passen Sie die Steuerungen an, um den Tageszyklus zu erstellen, und klicken Sie auf &quot;Speichern&quot;.
 	</string>
 	<string name="hint_edit">
-		Um den Tageszyklus zu bearbeiten, passen Sie die unten angezeigten Steuerungen an und klicken Sie auf „Speichern“.
+		Um Ihren Tageszyklus zu bearbeiten, passen Sie die unten angezeigten Steuerungen an und klicken Sie auf „Speichern“.
 	</string>
 	<string name="time_label">
 		([HH]:[MM])
 	</string>
 	<string name="sky_track_label">
 		Himmel [ALT]
+	</string>
+	<string name="sky_label">
+		Himmel
+	</string>
+	<string name="water_label">
+		Wasser
+	</string>
+	<string name="commit_parcel">
+		Auf Parzelle anwenden
+	</string>
+	<string name="commit_region">
+		Auf Region anwenden
 	</string>
 	<layout_stack name="outer_stack">
 		<layout_panel name="name_and_import">
@@ -44,17 +56,28 @@
 						<multi_slider initial_value="0" name="WLTimeSlider"/>
 						<multi_slider initial_value="0" name="WLDayCycleFrames"/>
 						<text name="current_time" value="[PRCNT]%[DSC]"/>
-						<layout_stack name="progress_control">
-							<layout_panel name="skip_back">
-								<button name="skip_back_btn" tool_tip="Schritt vor"/>
+						<layout_stack>
+							<layout_panel>
+								<button label="Pfad klonen von" name="copy_track"/>
+								<button label="Pfad laden von" name="load_track"/>
+								<button label="Pfad löschen" name="clear_track"/>
 							</layout_panel>
-							<layout_panel name="skip_forward">
-								<button name="skip_forward_btn" tool_tip="Schritt zurück"/>
+							<layout_panel>
+								<layout_stack name="progress_control">
+									<layout_panel name="skip_back">
+										<button name="skip_back_btn" tool_tip="Schritt vor"/>
+									</layout_panel>
+									<layout_panel name="skip_forward">
+										<button name="skip_forward_btn" tool_tip="Schritt zurück"/>
+									</layout_panel>
+								</layout_stack>
+							</layout_panel>
+							<layout_panel>
+								<button label="[FRAME] hinzufügen" name="add_frame"/>
+								<button label="[FRAME] laden" name="btn_load_frame"/>
+								<button label="[FRAME] löschen" name="delete_frame"/>
 							</layout_panel>
 						</layout_stack>
-						<button label="Frame hinzufügen" name="add_frame"/>
-						<button label="Frame laden" name="btn_load_frame"/>
-						<button label="Frame löschen" name="delete_frame"/>
 					</panel>
 				</layout_panel>
 				<layout_panel name="frame_edit_controls">

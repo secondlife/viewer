@@ -10,11 +10,11 @@
 		</layout_panel>
 		<layout_panel>
 			<slider label="レイリー指数項：" name="mie_exponential"/>
-			<slider label="Mie指数スケール：" name="mie_exponential_scale"/>
-			<slider label="Mie線形項：" name="mie_linear"/>
-			<slider label="Mie定数項：" name="mie_constant"/>
-			<slider label="Mie不等要素：" name="mie_aniso_factor"/>
-			<slider label="Mie最大高度：" name="mie_max_altitude"/>
+			<slider label="Mie 指数スケール：" name="mie_exponential_scale"/>
+			<slider label="Mie 線形項：" name="mie_linear"/>
+			<slider label="Mie 定数項：" name="mie_constant"/>
+			<slider label="Mie 不等要素：" name="mie_aniso_factor"/>
+			<slider label="Mie 最大高度：" name="mie_max_altitude"/>
 		</layout_panel>
 		<layout_panel>
 			<slider label="吸収指数項：" name="absorption_exponential"/>

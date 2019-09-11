@@ -207,6 +207,8 @@ public:
     }
 
     friend bool operator==(const AtmosphericsVars& a, const AtmosphericsVars& b);
+    // returns true if values are within treshold of each other.
+    friend bool approximatelyEqual(const AtmosphericsVars& a, const AtmosphericsVars& b, const F32 fraction_treshold);
 
     LLColor3  hazeColor;
     LLColor3  hazeColorBelowCloud;
@@ -256,10 +258,11 @@ public:
     void setWind ( const LLVector3& wind )           { mWind = wind.length(); }
 
     LLColor4 calcSkyColorInDir(AtmosphericsVars& vars, const LLVector3& dir, bool isShiny = false);
+    LLColor4 calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, AtmosphericsVars& vars, const LLVector3& dir, bool isShiny = false);
 
 protected:    
 
-    void     calcSkyColorWLVert(LLVector3 & Pn, AtmosphericsVars& vars);
+    void     calcSkyColorWLVert(const LLSettingsSky::ptr_t &psky, LLVector3 & Pn, AtmosphericsVars& vars);
     LLColor3 getHazeColor(LLSettingsSky::ptr_t psky, AtmosphericsVars& vars, F32 costheta, F32 cloud_shadow);
 
     LLHaze              mHaze;

@@ -1,15 +1,26 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="settings picker" title="選択：設定">
-	<floater.string name="choose_picture">
-		クリックして写真を選択する
-	</floater.string>
 	<floater.string name="pick title">
 		選択：
 	</floater.string>
+	<floater.string name="pick_track">
+		トラックを選択
+	</floater.string>
+	<floater.string name="pick_settings">
+		設定を選択
+	</floater.string>
+	<floater.string name="track_water">
+		水
+	</floater.string>
+	<floater.string name="track_ground">
+		地面
+	</floater.string>
+	<floater.string name="track_sky">
+		空 [NUM]
+	</floater.string>
 	<layout_stack name="test_stack">
-		<layout_panel name="temp">
+		<layout_panel name="inv_list">
 			<filter_editor label="テクスチャをフィルター" name="flt_inventory_search"/>
-			<check_box initial_value="false" label="フォルダを表示" name="chk_showfolders"/>
 		</layout_panel>
 		<layout_panel name="temp">
 			<button label="OK" label_selected="OK" name="btn_select"/>

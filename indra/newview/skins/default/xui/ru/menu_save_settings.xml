@@ -3,7 +3,7 @@
 	<menu_item_check label="Сохранить" name="save_settings"/>
 	<menu_item_check label="Сохранить как" name="save_as_new_settings"/>
 	<menu_item_check label="Подтвердить" name="commit_changes"/>
-	<menu_item_check label="Применять только к себе" name="apply_local"/>
+	<menu_item_check label="Применить только к себе" name="apply_local"/>
 	<menu_item_check label="Применить к участку" name="apply_parcel"/>
 	<menu_item_check label="Применить к региону" name="apply_region"/>
 </toggleable_menu>

@@ -45,6 +45,9 @@
 	<string name="edit_tattoo_title">
 		タトゥーを編集中
 	</string>
+	<string name="edit_universal_title">
+		ユニバーサルを編集中
+	</string>
 	<string name="edit_physics_title">
 		物理作用の編集中
 	</string>
@@ -92,6 +95,9 @@
 	</string>
 	<string name="tattoo_desc_text">
 		タトゥ：
+	</string>
+	<string name="universal_desc_text">
+		ユニバーサル：
 	</string>
 	<string name="physics_desc_text">
 		物理作用：

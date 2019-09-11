@@ -1403,13 +1403,6 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 			// Only should happen for broken links.
 			new_listener = new LLLinkItemBridge(inventory, root, uuid);
 			break;
-	    case LLAssetType::AT_MESH:
-			if(!(inv_type == LLInventoryType::IT_MESH))
-			{
-				LL_WARNS() << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << LL_ENDL;
-			}
-			new_listener = new LLMeshBridge(inventory, root, uuid);
-			break;
 		case LLAssetType::AT_UNKNOWN:
 			new_listener = new LLUnknownItemBridge(inventory, root, uuid);
 			break;
@@ -2114,11 +2107,8 @@ BOOL LLItemBridge::isItemCopyable() const
 	if (item)
 	{
 		// Can't copy worn objects. DEV-15183
-
-		// FIXME - the motivation seems to be odd behavior with
-		// attachments. We could certainly remove the check for
-		// regular wearables, and even for attachments the benefit of
-		// the restriction is debatable.
+		// Worn objects are tied to their inworld conterparts
+		// Copy of modified worn object will return object with obsolete asset and inventory
 		if(get_is_item_worn(mUUID))
 		{
 			return FALSE;
@@ -6858,58 +6848,6 @@ void LLLinkItemBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		items.push_back(std::string("Properties"));
 		addDeleteContextMenuOptions(items, disabled_items);
 	}
-	addLinkReplaceMenuOption(items, disabled_items);
-	hide_context_entries(menu, items, disabled_items);
-}
-
-// +=================================================+
-// |        LLMeshBridge                             |
-// +=================================================+
-
-LLUIImagePtr LLMeshBridge::getIcon() const
-{
-	return LLInventoryIcon::getIcon(LLAssetType::AT_MESH, LLInventoryType::IT_MESH, 0, FALSE);
-}
-
-void LLMeshBridge::openItem()
-{
-	LLViewerInventoryItem* item = getItem();
-	
-	if (item)
-	{
-		// open mesh
-	}
-}
-
-void LLMeshBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
-{
-	LL_DEBUGS() << "LLMeshBridge::buildContextMenu()" << LL_ENDL;
-	std::vector<std::string> items;
-	std::vector<std::string> disabled_items;
-
-	if(isItemInTrash())
-	{
-		items.push_back(std::string("Purge Item"));
-		if (!isItemRemovable())
-		{
-			disabled_items.push_back(std::string("Purge Item"));
-		}
-
-		items.push_back(std::string("Restore Item"));
-	}
-    else if (isMarketplaceListingsFolder())
-    {
-		addMarketplaceContextMenuOptions(flags, items, disabled_items);
-		items.push_back(std::string("Properties"));
-		getClipboardEntries(false, items, disabled_items, flags);
-    }
-	else
-	{
-		items.push_back(std::string("Properties"));
-
-		getClipboardEntries(true, items, disabled_items, flags);
-	}
-
 	addLinkReplaceMenuOption(items, disabled_items);
 	hide_context_entries(menu, items, disabled_items);
 }

@@ -1,2 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Sonne und Mond" name="panel_settings_sky_hbodies"/>
+<panel label="Sonne und Mond" name="panel_settings_sky_hbodies">
+	<layout_stack>
+		<layout_panel name="sun_layout">
+			<check_box label="Beacon anzeigen" name="sunbeacon"/>
+		</layout_panel>
+		<layout_panel>
+			<layout_stack>
+				<layout_panel name="moon_layout">
+					<check_box label="Beacon anzeigen" name="moonbeacon"/>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
+</panel>
