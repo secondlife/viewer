@@ -4225,7 +4225,7 @@ void LLMeshRepository::uploadError(LLSD& args)
 F32 LLMeshRepository::getEstTrianglesMax(LLUUID mesh_id)
 {
     LLMeshCostData costs;
-    if (getCostData(mesh_id, costs))
+    if (getMeshCostData(mesh_id, costs))
     {
         return costs.getEstTrisMax();
     }
@@ -4238,7 +4238,7 @@ F32 LLMeshRepository::getEstTrianglesMax(LLUUID mesh_id)
 F32 LLMeshRepository::getEstTrianglesStreamingCost(LLUUID mesh_id)
 {
     LLMeshCostData costs;
-    if (getCostData(mesh_id, costs))
+    if (getMeshCostData(mesh_id, costs))
     {
         return costs.getEstTrisForStreamingCost();
     }
@@ -4264,7 +4264,7 @@ F32 LLMeshRepository::getStreamingCostLegacy(LLUUID mesh_id, F32 radius, S32* by
     if (result > 0.f)
     {
         LLMeshCostData data;
-        if (getCostData(mesh_id, data))
+        if (getMeshCostData(mesh_id, data))
         {
             F32 ref_streaming_cost = data.getRadiusBasedStreamingCost(radius);
             F32 ref_weighted_tris = data.getRadiusWeightedTris(radius);
@@ -4287,7 +4287,7 @@ F32 LLMeshRepository::getStreamingCostLegacy(LLUUID mesh_id, F32 radius, S32* by
         }
         else
         {
-            LL_WARNS() << "getCostData failed!!!" << LL_ENDL;
+            LL_WARNS() << "getMeshCostData failed!!!" << LL_ENDL;
         }
     }
     return result;
@@ -4582,7 +4582,7 @@ F32 LLMeshCostData::getTriangleBasedStreamingCost()
     return result;
 }
 
-bool LLMeshRepository::getCostData(LLUUID mesh_id, LLMeshCostData& data)
+bool LLMeshRepository::getMeshCostData(LLUUID mesh_id, LLMeshCostData& data)
 {
     data = LLMeshCostData();
     
@@ -4599,7 +4599,7 @@ bool LLMeshRepository::getCostData(LLUUID mesh_id, LLMeshCostData& data)
                                    || (header.has("version") && header["version"].asInteger() > MAX_MESH_VERSION));
             if (!header_invalid)
             {
-                return getCostData(header, data);
+                return getMeshCostData(header, data);
             }
 
             return true;
@@ -4608,7 +4608,7 @@ bool LLMeshRepository::getCostData(LLUUID mesh_id, LLMeshCostData& data)
     return false;
 }
 
-bool LLMeshRepository::getCostData(LLSD& header, LLMeshCostData& data)
+bool LLMeshRepository::getMeshCostData(LLSD& header, LLMeshCostData& data)
 {
     data = LLMeshCostData();
 

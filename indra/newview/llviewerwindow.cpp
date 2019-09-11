@@ -548,7 +548,7 @@ public:
 								S32 visible = 0;
 								cost += object->getStreamingCost();
                                 LLMeshCostData costs;
-                                if (object->getCostData(costs))
+                                if (object->getMeshCostData(costs))
                                 {
                                     bytes = costs.getSizeTotal();
                                     visible = costs.getSizeByLOD(object->getLOD());

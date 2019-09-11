@@ -3786,13 +3786,13 @@ F32 LLViewerObject::getEstTrianglesStreamingCost() const
 }
 
 // virtual
-F32 LLViewerObject::getStreamingCost() const
+F32 LLViewerObject::getStreamingCost(U32 version) const
 {
 	return 0.f;
 }
 
 // virtual
-bool LLViewerObject::getCostData(LLMeshCostData& costs) const
+bool LLViewerObject::getMeshCostData(LLMeshCostData& costs) const
 {
     costs = LLMeshCostData();
     return false;

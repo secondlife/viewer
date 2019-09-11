@@ -563,8 +563,8 @@ public:
     F32 getEstTrianglesStreamingCost(LLUUID mesh_id);
 	F32 getStreamingCostLegacy(LLUUID mesh_id, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
 	static F32 getStreamingCostLegacy(LLSD& header, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
-    bool getCostData(LLUUID mesh_id, LLMeshCostData& data);
-    bool getCostData(LLSD& header, LLMeshCostData& data);
+    bool getMeshCostData(LLUUID mesh_id, LLMeshCostData& data);
+    bool getMeshCostData(LLSD& header, LLMeshCostData& data);
 
 	LLMeshRepository();
 

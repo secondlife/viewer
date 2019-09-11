@@ -142,7 +142,7 @@ void LLSceneView::draw()
 				S32 bytes = 0;
 				S32 visible_bytes = 0;
                 LLMeshCostData costs;
-                if (object->getCostData(costs))
+                if (object->getMeshCostData(costs))
                 {
                     bytes = costs.getSizeTotal();
                     visible_bytes = costs.getSizeByLOD(object->getLOD());

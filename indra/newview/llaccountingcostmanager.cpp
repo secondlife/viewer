@@ -150,6 +150,7 @@ void LLAccountingCostManager::accountingCostCoro(std::string url,
 
                 SelectionCost selectionCost( physicsCost, networkCost, simulationCost);
 
+				// FIXME ARC this updates more often than necessary, with distracting flashing of loading cursors.
                 observer->onWeightsUpdate(selectionCost);
             }
 

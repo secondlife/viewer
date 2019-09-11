@@ -3892,7 +3892,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures, texture_cost_t &material
 		profile_params = volume_params.getProfileParams();
 
         LLMeshCostData costs;
-		if (getCostData(costs))
+		if (getMeshCostData(costs))
 		{
             if (isAnimatedObject() && isRiggedMesh())
             {
@@ -4215,24 +4215,29 @@ U32 LLVOVolume::getRenderCost_(texture_cost_t &textures, texture_cost_t &materia
     const LLDrawable* drawablep = mDrawable;
     U32 num_faces = drawablep->getNumFaces();
 
-    if (has_volume)
-    {
-        volume_params = getVolume()->getParams();
-        // ARC FIXME not used
-        path_params = volume_params.getPathParams();
-        // ARC FIXME not used
-        profile_params = volume_params.getProfileParams();
+	if (has_volume)
+	{
+		volume_params = getVolume()->getParams();
+		path_params = volume_params.getPathParams();
+		profile_params = volume_params.getProfileParams();
 
-        F32 weighted_triangles = -1.0;
-        getStreamingCost_(NULL, NULL, &weighted_triangles, sdp);
-
-		// FIXME ARC - this needs animated object checks. Switch to MeshCostData() streaming cost check.
-
-        if (weighted_triangles > 0.0)
-        {
-            num_triangles = (U32)(weighted_triangles);
-        }
-    }
+        LLMeshCostData costs;
+		if (getMeshCostData(costs))
+		{
+            if (isAnimatedObject() && isRiggedMesh())
+            {
+                // Scaling here is to make animated object vs
+                // non-animated object ARC proportional to the
+                // corresponding calculations for streaming cost.
+                num_triangles = (ANIMATED_OBJECT_COST_PER_KTRI * 0.001 * costs.getEstTrisForStreamingCost())/0.06;
+            }
+            else
+            {
+                F32 radius = getScale().length()*0.5f;
+                num_triangles = costs.getRadiusWeightedTris(radius);
+            }
+		}
+	}
 
     if (num_triangles == 0)
     {
@@ -4567,13 +4572,19 @@ F32 LLVOVolume::getEstTrianglesStreamingCost() const
     return 0.f;
 }
 
-F32 LLVOVolume::getStreamingCost() const
+F32 LLVOVolume::getStreamingCost(U32 version) const
+{
+	return LLObjectCostManager::instance().getStreamingCost(version, this);
+}
+
+// FIXME ARC - compare with object cost manager results, remove when verified.
+F32 LLVOVolume::getStreamingCostLegacy() const
 {
 	F32 radius = getScale().length()*0.5f;
     F32 linkset_base_cost = 0.f;
 
     LLMeshCostData costs;
-    if (getCostData(costs))
+    if (getMeshCostData(costs))
     {
         if (isAnimatedObject() && isRootEdit())
         {
@@ -4602,39 +4613,12 @@ F32 LLVOVolume::getStreamingCost() const
     }
 }
 
-// ARCtan version
-// FIXME ARC - this should be consistent with getStreamingCost() except for lack of animated object support.
-F32 LLVOVolume::getStreamingCost_(S32* bytes, S32* visible_bytes, F32* unscaled_value, LLSD *sdp) const
-{
-    F32 radius = getScale().length()*0.5f;
-
-    if (isMesh())
-    {
-        return gMeshRepo.getStreamingCostLegacy(getVolume()->getParams().getSculptID(), radius, bytes, visible_bytes, mLOD, unscaled_value);
-    }
-    else
-    {
-        LLVolume* volume = getVolume();
-        S32 count;
-        LLVolume::getTriangleCount(volume->getParams(), count);
-
-        LLSD header;
-		// FIXME ARC - why does count not vary with LOD? Is it consistent with previous non-mesh calcs?
-        header["lowest_lod"]["size"] = count * 10;
-        header["low_lod"]["size"]    = count * 10;
-        header["medium_lod"]["size"] = count * 10;
-        header["high_lod"]["size"]   = count * 10;
-
-        return LLMeshRepository::getStreamingCostLegacy(header, radius, NULL, NULL, -1, unscaled_value);
-    }
-}
-
 // virtual
-bool LLVOVolume::getCostData(LLMeshCostData& costs) const
+bool LLVOVolume::getMeshCostData(LLMeshCostData& costs) const
 {
     if (isMesh())
     {
-        return gMeshRepo.getCostData(getVolume()->getParams().getSculptID(), costs);
+        return gMeshRepo.getMeshCostData(getVolume()->getParams().getSculptID(), costs);
     }
     else
     {
@@ -4648,7 +4632,7 @@ bool LLVOVolume::getCostData(LLMeshCostData& costs) const
 		header["medium_lod"]["size"] = counts[2] * 10;
 		header["high_lod"]["size"] = counts[3] * 10;
 
-		return gMeshRepo.getCostData(header, costs);
+		return gMeshRepo.getMeshCostData(header, costs);
     }
 }
 

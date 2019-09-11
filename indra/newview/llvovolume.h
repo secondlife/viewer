@@ -32,6 +32,7 @@
 #include "llviewermedia.h"
 #include "llframetimer.h"
 #include "lllocalbitmaps.h"
+#include "llobjectcostmanager.h"
 #include "m3math.h"		// LLMatrix3
 #include "m4math.h"		// LLMatrix4
 #include <map>
@@ -146,10 +147,9 @@ public:
 
     /*virtual*/	F32		getEstTrianglesMax() const;
     /*virtual*/	F32		getEstTrianglesStreamingCost() const;
-    /*virtual*/ F32		getStreamingCost() const;
-				// ARCtan version
-	F32 getStreamingCost_(S32* bytes, S32* visible_bytes, F32* unscaled_value, LLSD *sdp) const;
-    /*virtual*/ bool 	getCostData(LLMeshCostData& costs) const;
+    /*virtual*/ F32		getStreamingCost(U32 version = LLObjectCostManager::instance().getCurrentCostVersion()) const;
+    F32		getStreamingCostLegacy() const;
+    /*virtual*/ bool 	getMeshCostData(LLMeshCostData& costs) const;
 
     LLSD				getFrameData(texture_cost_t& textures, texture_cost_t& material_textures, bool first_frame = false) const;
 	/*virtual*/ U32		getTriangleCount(S32* vcount = NULL) const;
@@ -402,6 +402,7 @@ public:
 private:
 	friend class LLDrawable;
 	friend class LLFace;
+	friend class LLObjectCostManagerImpl;
 
 	BOOL		mFaceMappingChanged;
 	LLFrameTimer mTextureUpdateTimer;

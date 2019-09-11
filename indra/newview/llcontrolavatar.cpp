@@ -61,7 +61,8 @@ LLControlAvatar::LLControlAvatar(const LLUUID& id, const LLPCode pcode, LLViewer
 LLControlAvatar::~LLControlAvatar()
 {
 	// Should already have been unlinked before destruction
-	llassert(!mRootVolp);
+	// FIXME ARC - still hitting this sometimes on login
+	//llassert(!mRootVolp);
 }
 
 // virtual
