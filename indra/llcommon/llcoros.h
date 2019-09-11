@@ -239,4 +239,17 @@ private:
     static void delete_CoroData(CoroData* cdptr);
 };
 
+namespace llcoro
+{
+
+inline
+std::string logname()
+{
+    static std::string main("main");
+    std::string name(LLCoros::instance().getName());
+    return name.empty()? main : name;
+}
+
+} // llcoro
+
 #endif /* ! defined(LL_LLCOROS_H) */

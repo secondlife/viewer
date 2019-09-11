@@ -45,6 +45,7 @@
 #include "llcoros.h"
 #include "lleventcoro.h"
 #include "../test/debug.h"
+#include "../test/sync.h"
 
 using namespace llcoro;
 
@@ -58,8 +59,9 @@ using namespace llcoro;
 class ImmediateAPI
 {
 public:
-    ImmediateAPI():
-        mPump("immediate", true)
+    ImmediateAPI(Sync& sync):
+        mPump("immediate", true),
+        mSync(sync)
     {
         mPump.listen("API", boost::bind(&ImmediateAPI::operator(), this, _1));
     }
@@ -68,22 +70,18 @@ public:
 
     // Invoke this with an LLSD map containing:
     // ["value"]: Integer value. We will reply with ["value"] + 1.
-    // ["reply"]: Name of LLEventPump on which to send success response.
-    // ["error"]: Name of LLEventPump on which to send error response.
-    // ["fail"]: Presence of this key selects ["error"], else ["success"] as
-    // the name of the pump on which to send the response.
+    // ["reply"]: Name of LLEventPump on which to send response.
     bool operator()(const LLSD& event) const
     {
+        mSync.bump();
         LLSD::Integer value(event["value"]);
-        LLSD::String replyPumpName(event.has("fail")? "error" : "reply");
-        LLEventPumps::instance().obtain(event[replyPumpName]).post(value + 1);
-        // give listener a chance to process
-        llcoro::suspend();
+        LLEventPumps::instance().obtain(event["reply"]).post(value + 1);
         return false;
     }
 
 private:
     LLEventStream mPump;
+    Sync& mSync;
 };
 
 /*****************************************************************************
@@ -91,34 +89,29 @@ private:
 *****************************************************************************/
 namespace tut
 {
-    struct coroutine_data {};
-    typedef test_group<coroutine_data> coroutine_group;
+    struct test_data
+    {
+        Sync mSync;
+        ImmediateAPI immediateAPI{mSync};
+        std::string replyName, errorName, threw, stringdata;
+        LLSD result, errordata;
+        int which;
+
+        void explicit_wait(boost::shared_ptr<LLCoros::Promise<std::string>>& cbp);
+        void waitForEventOn1();
+        void coroPump();
+        void postAndWait1();
+        void coroPumpPost();
+    };
+    typedef test_group<test_data> coroutine_group;
     typedef coroutine_group::object object;
     coroutine_group coroutinegrp("coroutine");
 
-    // use static data so we can intersperse coroutine functions with the
-    // tests that engage them
-    ImmediateAPI immediateAPI;
-    std::string replyName, errorName, threw, stringdata;
-    LLSD result, errordata;
-    int which;
-
-    // reinit vars at the start of each test
-    void clear()
-    {
-        replyName.clear();
-        errorName.clear();
-        threw.clear();
-        stringdata.clear();
-        result = LLSD();
-        errordata = LLSD();
-        which = 0;
-    }
-
-    void explicit_wait(boost::shared_ptr<LLCoros::Promise<std::string>>& cbp)
+    void test_data::explicit_wait(boost::shared_ptr<LLCoros::Promise<std::string>>& cbp)
     {
         BEGIN
         {
+            mSync.bump();
             // The point of this test is to verify / illustrate suspending a
             // coroutine for something other than an LLEventPump. In other
             // words, this shows how to adapt to any async operation that
@@ -136,6 +129,7 @@ namespace tut
             // calling get() on the future causes us to suspend
             debug("about to suspend");
             stringdata = future.get();
+            mSync.bump();
             ensure_equals("Got it", stringdata, "received");
         }
         END
@@ -144,30 +138,32 @@ namespace tut
     template<> template<>
     void object::test<1>()
     {
-        clear();
         set_test_name("explicit_wait");
         DEBUG;
 
         // Construct the coroutine instance that will run explicit_wait.
         boost::shared_ptr<LLCoros::Promise<std::string>> respond;
         LLCoros::instance().launch("test<1>",
-                                   boost::bind(explicit_wait, boost::ref(respond)));
+                                   [this, &respond](){ explicit_wait(respond); });
+        mSync.bump();
         // When the coroutine waits for the future, it returns here.
         debug("about to respond");
         // Now we're the I/O subsystem delivering a result. This should make
         // the coroutine ready.
         respond->set_value("received");
         // but give it a chance to wake up
-        llcoro::suspend();
+        mSync.yield();
         // ensure the coroutine ran and woke up again with the intended result
         ensure_equals(stringdata, "received");
     }
 
-    void waitForEventOn1()
+    void test_data::waitForEventOn1()
     {
         BEGIN
         {
+            mSync.bump();
             result = suspendUntilEventOn("source");
+            mSync.bump();
         }
         END
     }
@@ -175,25 +171,27 @@ namespace tut
     template<> template<>
     void object::test<2>()
     {
-        clear();
         set_test_name("waitForEventOn1");
         DEBUG;
-        LLCoros::instance().launch("test<2>", waitForEventOn1);
+        LLCoros::instance().launch("test<2>", [this](){ waitForEventOn1(); });
+        mSync.bump();
         debug("about to send");
         LLEventPumps::instance().obtain("source").post("received");
         // give waitForEventOn1() a chance to run
-        llcoro::suspend();
+        mSync.yield();
         debug("back from send");
         ensure_equals(result.asString(), "received");
     }
 
-    void coroPump()
+    void test_data::coroPump()
     {
         BEGIN
         {
+            mSync.bump();
             LLCoroEventPump waiter;
             replyName = waiter.getName();
             result = waiter.suspend();
+            mSync.bump();
         }
         END
     }
@@ -201,26 +199,28 @@ namespace tut
     template<> template<>
     void object::test<3>()
     {
-        clear();
         set_test_name("coroPump");
         DEBUG;
-        LLCoros::instance().launch("test<3>", coroPump);
+        LLCoros::instance().launch("test<3>", [this](){ coroPump(); });
+        mSync.bump();
         debug("about to send");
         LLEventPumps::instance().obtain(replyName).post("received");
         // give coroPump() a chance to run
-        llcoro::suspend();
+        mSync.yield();
         debug("back from send");
         ensure_equals(result.asString(), "received");
     }
 
-    void postAndWait1()
+    void test_data::postAndWait1()
     {
         BEGIN
         {
+            mSync.bump();
             result = postAndSuspend(LLSDMap("value", 17),       // request event
                                  immediateAPI.getPump(),     // requestPump
                                  "reply1",                   // replyPump
                                  "reply");                   // request["reply"] = name
+            mSync.bump();
         }
         END
     }
@@ -228,22 +228,21 @@ namespace tut
     template<> template<>
     void object::test<4>()
     {
-        clear();
         set_test_name("postAndWait1");
         DEBUG;
-        LLCoros::instance().launch("test<4>", postAndWait1);
-        // give postAndWait1() a chance to run
-        llcoro::suspend();
+        LLCoros::instance().launch("test<4>", [this](){ postAndWait1(); });
         ensure_equals(result.asInteger(), 18);
     }
 
-    void coroPumpPost()
+    void test_data::coroPumpPost()
     {
         BEGIN
         {
+            mSync.bump();
             LLCoroEventPump waiter;
             result = waiter.postAndSuspend(LLSDMap("value", 17),
                                         immediateAPI.getPump(), "reply");
+            mSync.bump();
         }
         END
     }
@@ -251,12 +250,9 @@ namespace tut
     template<> template<>
     void object::test<5>()
     {
-        clear();
         set_test_name("coroPumpPost");
         DEBUG;
-        LLCoros::instance().launch("test<5>", coroPumpPost);
-        // give coroPumpPost() a chance to run
-        llcoro::suspend();
+        LLCoros::instance().launch("test<5>", [this](){ coroPumpPost(); });
         ensure_equals(result.asInteger(), 18);
     }
 }

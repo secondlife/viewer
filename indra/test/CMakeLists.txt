@@ -67,6 +67,7 @@ set(test_HEADER_FILES
     llpipeutil.h
     llsdtraits.h
     lltut.h
+    sync.h
     )
 
 if (NOT WINDOWS)
