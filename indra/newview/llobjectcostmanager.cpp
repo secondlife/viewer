@@ -146,6 +146,10 @@ class LLObjectCostManagerImpl
 
 F32 LLObjectCostManagerImpl::getStreamingCost(U32 version, const LLVOVolume *vol)
 {
+	if (version == 0)
+	{
+		version = LLObjectCostManager::instance().getCurrentCostVersion();
+	}
 	if (version == 1)
 	{
 		return getStreamingCostV1(vol);
@@ -194,6 +198,10 @@ F32 LLObjectCostManagerImpl::getStreamingCostV1(const LLVOVolume *vol)
 
 F32 LLObjectCostManagerImpl::getRenderCost(U32 version, const LLVOVolume *vol)
 {
+	if (version == 0)
+	{
+		version = LLObjectCostManager::instance().getCurrentCostVersion();
+	}
 	if (version == 1)
 	{
 		return getRenderCostV1(vol);
@@ -219,8 +227,8 @@ F32 LLObjectCostManagerImpl::getRenderCostV1(const LLVOVolume *vol)
 
 	// per-prim costs
 	static const U32 ARC_PARTICLE_COST = 1; // determined experimentally
-	static const U32 ARC_PARTICLE_MAX = 2048; // default values
-	static const U32 ARC_TEXTURE_COST = 16; // multiplier for texture resolution - performance tested
+	//static const U32 ARC_PARTICLE_MAX = 2048; // default values
+	//static const U32 ARC_TEXTURE_COST = 16; // multiplier for texture resolution - performance tested
 	static const U32 ARC_LIGHT_COST = 500; // static cost for light-producing prims 
 	static const U32 ARC_MEDIA_FACE_COST = 1500; // static cost per media-enabled face 
 

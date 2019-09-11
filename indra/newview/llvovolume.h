@@ -32,7 +32,6 @@
 #include "llviewermedia.h"
 #include "llframetimer.h"
 #include "lllocalbitmaps.h"
-#include "llobjectcostmanager.h"
 #include "m3math.h"		// LLMatrix3
 #include "m4math.h"		// LLMatrix4
 #include <map>
@@ -47,6 +46,7 @@ class LLObjectMediaDataClient;
 class LLObjectMediaNavigateClient;
 class LLVOAvatar;
 class LLMeshSkinInfo;
+class LLObjectCostManagerImpl;
 
 typedef std::vector<viewer_media_t> media_list_t;
 
@@ -147,7 +147,7 @@ public:
 
     /*virtual*/	F32		getEstTrianglesMax() const;
     /*virtual*/	F32		getEstTrianglesStreamingCost() const;
-    /*virtual*/ F32		getStreamingCost(U32 version = LLObjectCostManager::instance().getCurrentCostVersion()) const;
+    /*virtual*/ F32		getStreamingCost(U32 version = 0) const;
     F32		getStreamingCostLegacy() const;
     /*virtual*/ bool 	getMeshCostData(LLMeshCostData& costs) const;
 
