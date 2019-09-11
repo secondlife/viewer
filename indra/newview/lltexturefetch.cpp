@@ -1261,6 +1261,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			LL_DEBUGS(LOG_TXT) << mID << ": Cached. Bytes: " << mFormattedImage->getDataSize()
 							   << " Size: " << llformat("%dx%d",mFormattedImage->getWidth(),mFormattedImage->getHeight())
 							   << " Desired Discard: " << mDesiredDiscard << " Desired Size: " << mDesiredSize << LL_ENDL;
+			record(LLTextureFetch::sCacheHitRate, LLUnits::Ratio::fromValue(1));
 		}
 		else
 		{
@@ -1280,6 +1281,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				setState(LOAD_FROM_NETWORK);
 			}
 			
+			record(LLTextureFetch::sCacheHitRate, LLUnits::Ratio::fromValue(0));
 			// fall through
 		}
 	}
