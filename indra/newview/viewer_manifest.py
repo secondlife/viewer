@@ -1037,7 +1037,7 @@ class DarwinManifest(ViewerManifest):
 
                 # SLVoice executable
                 with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
-                    self.path("SLVoice.exe")
+                    self.path("SLVoice")
 
                 # Vivox libraries
                 for libfile in (
