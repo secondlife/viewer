@@ -293,7 +293,8 @@ public:
                                                      U32& cost,
                                                      hud_complexity_list_t& hud_complexity_list);
 	void			calculateUpdateRenderComplexity();
-    void			calculateUpdateRenderComplexity_(); // ARCtan version
+	void			calculateUpdateRenderComplexityLegacy();
+    void			calculateUpdateRenderComplexityLegacy_(); // ARCtan version
 	static const U32 VISUAL_COMPLEXITY_UNKNOWN;
 	void			updateVisualComplexity();
 	

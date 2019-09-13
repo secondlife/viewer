@@ -141,9 +141,10 @@ public:
 	/*virtual*/	const LLMatrix4	getRenderMatrix() const;
 				typedef std::map<LLUUID, S32> texture_cost_t;
 
-				U32 	getRenderCost(texture_cost_t &textures,texture_cost_t &material_textures, LLSD *sdp = NULL, bool first_frame = false) const;
+	/*virtual*/ F32		getRenderCost(U32 version = 0) const;
+				U32 	getRenderCostLegacy(texture_cost_t &textures,texture_cost_t &material_textures, LLSD *sdp = NULL, bool first_frame = false) const;
                 // ARCtan version
-                U32 	getRenderCost_(texture_cost_t &textures, texture_cost_t &material_textures, LLSD *sdp = NULL, bool first_frame = false) const;
+                U32 	getRenderCostLegacy_(texture_cost_t &textures, texture_cost_t &material_textures, LLSD *sdp = NULL, bool first_frame = false) const;
 
     /*virtual*/	F32		getEstTrianglesMax() const;
     /*virtual*/	F32		getEstTrianglesStreamingCost() const;

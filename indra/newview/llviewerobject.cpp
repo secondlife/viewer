@@ -3792,6 +3792,12 @@ F32 LLViewerObject::getStreamingCost(U32 version) const
 }
 
 // virtual
+F32 LLViewerObject::getRenderCost(U32 version) const
+{
+	return 0.f;
+}
+
+// virtual
 bool LLViewerObject::getMeshCostData(LLMeshCostData& costs) const
 {
     costs = LLMeshCostData();

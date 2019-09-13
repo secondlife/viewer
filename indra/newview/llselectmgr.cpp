@@ -98,6 +98,8 @@
 #include "llglheaders.h"
 #include "llinventoryobserver.h"
 
+#pragma optimize("", off)
+
 LLViewerObject* getSelectedParentObject(LLViewerObject *object) ;
 //
 // Consts
@@ -7333,7 +7335,7 @@ S32 LLObjectSelection::getSelectedObjectRenderCost()
 
                if (object && object->isRootEdit())
                {
-				   cost += object->getRenderCost(textures, material_textures);
+				   cost += object->getRenderCostLegacy(textures, material_textures);
 				   computed_objects.insert(object->getID());
 
 				   const_child_list_t children = object->getChildren();
@@ -7345,7 +7347,7 @@ S32 LLObjectSelection::getSelectedObjectRenderCost()
 					   LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
 					   if (child)
 					   {
-						   cost += child->getRenderCost(textures, material_textures);
+						   cost += child->getRenderCostLegacy(textures, material_textures);
 						   computed_objects.insert(child->getID());
 					   }
 				   }
@@ -7369,7 +7371,7 @@ S32 LLObjectSelection::getSelectedObjectRenderCost()
 
 			if (object && computed_objects.find(object->getID()) == computed_objects.end()  )
 			{
-                cost += object->getRenderCost(textures, material_textures);
+                cost += object->getRenderCostLegacy(textures, material_textures);
                 computed_objects.insert(object->getID());
 			}
 

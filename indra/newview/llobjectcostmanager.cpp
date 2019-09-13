@@ -38,11 +38,15 @@
 
 #include <set>
 
+#define VALIDATE_COSTS
+
+typedef std::set<LLUUID> texture_ids_t;
+
+#pragma optimize("", off)
+
 class LLObjectCostData
 {
 public:
-	typedef std::set<LLUUID> texture_ids_t;
-
 	LLObjectCostData();
 	~LLObjectCostData();
 
@@ -63,6 +67,7 @@ public:
 	U32 m_planar_faces;
 	U32 m_shiny_faces;
 	U32 m_shiny_any_faces;
+
 	U32 m_normalmap_faces;
     U32 m_specmap_faces;
 
@@ -122,8 +127,6 @@ LLObjectCostData::~LLObjectCostData()
 {
 }
 
-
-		   
 class LLObjectCostManagerImpl
 {
   public:
@@ -136,29 +139,75 @@ class LLObjectCostManagerImpl
 	F32 getRenderCost(U32 version, const LLVOVolume *vol);
 	F32 getRenderCostV1(const LLVOVolume *vol);
 
+	F32 getRenderCostLinkset(U32 version, const LLViewerObject *root);
+	F32 getRenderCostLinksetV1(const LLViewerObject *root);
+
 	// Accumulate data for a single prim.
 	void getObjectCostData(const LLVOVolume *vol, LLObjectCostData& cost_data);
 
 	// Accumulate data for a root prim and all its children.
 	void getObjectCostDataLinkset(const LLViewerObject *root, LLObjectCostData& cost_data); 
 
+	U32 textureCostsV1(const texture_ids_t& ids);
 };
 
-F32 LLObjectCostManagerImpl::getStreamingCost(U32 version, const LLVOVolume *vol)
+F32 LLObjectCostManagerImpl::getRenderCostLinkset(U32 version, const LLViewerObject *root)
 {
+	F32 render_cost = 0.f;
+
 	if (version == 0)
 	{
 		version = LLObjectCostManager::instance().getCurrentCostVersion();
 	}
 	if (version == 1)
 	{
-		return getStreamingCostV1(vol);
+		render_cost = getRenderCostLinksetV1(root);
+#ifdef VALIDATE_COSTS
+		// FIXME ARC need to rework legacy code to make comparison possible
+#endif
 	}
 	else
 	{
 		LL_WARNS("Arctan") << "Unrecognized version " << version << LL_ENDL;
-		return -1.0f;
 	}
+
+	return render_cost;
+}
+
+F32 LLObjectCostManagerImpl::getRenderCostLinksetV1(const LLViewerObject *root)
+{
+	F32 render_cost = -1.f;
+	// FIXME ARC IMPLEMENT
+
+	return render_cost;
+}
+
+F32 LLObjectCostManagerImpl::getStreamingCost(U32 version, const LLVOVolume *vol)
+{
+	F32 streaming_cost = -1.f;
+	
+	if (version == 0)
+	{
+		version = LLObjectCostManager::instance().getCurrentCostVersion();
+	}
+	if (version == 1)
+	{
+		streaming_cost = getStreamingCostV1(vol);
+
+#ifdef VALIDATE_COSTS
+		F32 streaming_cost_legacy = vol->getStreamingCostLegacy();
+		if (streaming_cost != streaming_cost_legacy)
+		{
+			LL_WARNS("Arctan") << "streaming cost mismatch " << streaming_cost << ", " << streaming_cost_legacy << LL_ENDL;
+		}
+#endif
+	}
+	else
+	{
+		LL_WARNS("Arctan") << "Unrecognized version " << version << LL_ENDL;
+	}
+
+	return streaming_cost;
 };
 
 F32 LLObjectCostManagerImpl::getStreamingCostV1(const LLVOVolume *vol)
@@ -198,19 +247,32 @@ F32 LLObjectCostManagerImpl::getStreamingCostV1(const LLVOVolume *vol)
 
 F32 LLObjectCostManagerImpl::getRenderCost(U32 version, const LLVOVolume *vol)
 {
+	F32 render_cost = -1.f;
+	
 	if (version == 0)
 	{
 		version = LLObjectCostManager::instance().getCurrentCostVersion();
 	}
 	if (version == 1)
 	{
-		return getRenderCostV1(vol);
+
+		F32 render_cost = getRenderCostV1(vol);
+
+#ifdef VALIDATE_COSTS
+		LLVOVolume::texture_cost_t textures, material_textures;
+		U32 render_cost_legacy = vol->getRenderCostLegacy(textures, material_textures);
+		if ((U32) render_cost != render_cost_legacy)
+		{
+			LL_WARNS("Arctan") << "render cost mismatch " << render_cost << ", " << render_cost_legacy << LL_ENDL;
+		}
+#endif
 	}
 	else
 	{
 		LL_WARNS("Arctan") << "Unrecognized version " << version << LL_ENDL;
-		return -1.0f;
 	}
+
+	return render_cost;
 };
 
 F32 LLObjectCostManagerImpl::getRenderCostV1(const LLVOVolume *vol)
@@ -301,10 +363,6 @@ F32 LLObjectCostManagerImpl::getRenderCostV1(const LLVOVolume *vol)
 		num_triangles = 4;
 	}
 
-	// FIXME add accounting for textures
-	//			S32 texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (img->getFullHeight() / 128.f + img->getFullWidth() / 128.f));
-	// also sculpt texture if applicable
-	
 	// shame currently has the "base" cost of 1 point per 15 triangles, min 2.
 	shame = num_triangles  * 5.f;
 	shame = shame < 2.f ? 2.f : shame;
@@ -382,6 +440,10 @@ F32 LLObjectCostManagerImpl::getRenderCostV1(const LLVOVolume *vol)
         shame += (ANIMATED_OBJECT_BASE_COST/0.06) * 5.0f;
     }
 
+	// Material textures not included in V1 costs
+	shame += textureCostsV1(cost_data.m_sculpt_ids);
+	shame += textureCostsV1(cost_data.m_diffuse_ids);
+	
 	return shame;
 }
 
@@ -568,6 +630,26 @@ void LLObjectCostManagerImpl::getObjectCostDataLinkset(const LLViewerObject *roo
 	// How we aggregate per-prim data will affect what kind of cost functions can be defined.
 }
 
+U32 LLObjectCostManagerImpl::textureCostsV1(const texture_ids_t& ids)
+{
+	U32 cost = 0;
+
+    static const U32 ARC_TEXTURE_COST    = 16; // multiplier for texture resolution - performance tested
+
+	for (texture_ids_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
+	{
+		const LLUUID& id = *it;
+		LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(id);
+		if (texture)
+		{
+			cost += 256 + (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f));
+		}
+	}
+
+	return cost;
+}
+
+		   
 LLObjectCostManager::LLObjectCostManager()
 {
 	m_impl = new LLObjectCostManagerImpl;
@@ -586,10 +668,26 @@ U32 LLObjectCostManager::getCurrentCostVersion()
 
 F32 LLObjectCostManager::getStreamingCost(U32 version, const LLVOVolume *vol)
 {
-	return m_impl->getStreamingCost(version, vol);
+	F32 streaming_cost = m_impl->getStreamingCost(version, vol);
+	return streaming_cost;
 }
 
 F32 LLObjectCostManager::getRenderCost(U32 version, const LLVOVolume *vol)
 {
-	return m_impl->getRenderCost(version, vol);
+	F32 render_cost = m_impl->getRenderCost(version, vol);
+	return render_cost;
+}
+
+F32 LLObjectCostManager::getRenderCostLinkset(U32 version, const LLViewerObject *root)
+{
+	F32 render_cost = 0.f;
+	if (!root->isRootEdit())
+	{
+		LL_WARNS("Arctan") << "called with non-root object" << LL_ENDL;
+	}
+	else
+	{
+		render_cost = m_impl->getRenderCostLinkset(version, root);
+	}
+	return render_cost;
 }

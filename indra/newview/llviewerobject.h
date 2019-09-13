@@ -43,7 +43,6 @@
 #include "llvertexbuffer.h"
 #include "llbbox.h"
 #include "llrigginginfo.h"
-#include "llobjectcostmanager.h"
 
 class LLAgent;			// TODO: Get rid of this.
 class LLAudioSource;
@@ -370,7 +369,8 @@ public:
     F32 recursiveGetEstTrianglesMax() const;
     virtual F32 getEstTrianglesMax() const;
     virtual F32 getEstTrianglesStreamingCost() const;
-	virtual F32 getStreamingCost(U32 version = LLObjectCostManager::instance().getCurrentCostVersion()) const;
+	virtual F32 getStreamingCost(U32 version = 0) const;
+	virtual F32 getRenderCost(U32 version = 0) const;
     virtual bool getMeshCostData(LLMeshCostData& costs) const;
 	virtual U32 getTriangleCount(S32* vcount = NULL) const;
 	virtual U32	getLODTriangleCount(S32 lod) const;

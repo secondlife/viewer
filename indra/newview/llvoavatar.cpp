@@ -10270,8 +10270,8 @@ void LLVOAvatar::idleUpdateRenderComplexity()
     }
 
     // Render Complexity
-    calculateUpdateRenderComplexity_(); // Update mVisualComplexityArctan if needed	(must be first)
-    calculateUpdateRenderComplexity(); // Update mVisualComplexity if needed	
+    calculateUpdateRenderComplexityLegacy_(); // Update mVisualComplexityArctan if needed	(must be first)
+    calculateUpdateRenderComplexityLegacy(); // Update mVisualComplexity if needed	
 
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_AVATAR_DRAW_INFO))
 	{
@@ -10394,7 +10394,7 @@ void LLVOAvatar::accountRenderComplexityForObject(
                 {
                     attachment_volume_cost += animated_object_attachment_surcharge;
                 }
-				attachment_volume_cost += volume->getRenderCost(textures, material_textures);
+				attachment_volume_cost += volume->getRenderCostLegacy(textures, material_textures);
 				const_child_list_t children = volume->getChildren();
 				for (const_child_list_t::const_iterator child_iter = children.begin();
 					 child_iter != children.end();
@@ -10404,7 +10404,7 @@ void LLVOAvatar::accountRenderComplexityForObject(
 					LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
 					if (child)
 					{
-						attachment_children_cost += child->getRenderCost(textures, material_textures);
+						attachment_children_cost += child->getRenderCostLegacy(textures, material_textures);
 					}
 				}
 
@@ -10461,7 +10461,7 @@ void LLVOAvatar::accountRenderComplexityForObject(
 			gAgentAvatarp->getAttachedPointName(attached_object->getAttachmentItemID(), joint_name);
 			hud_object_complexity.jointName = joint_name;
 			// get cost and individual textures
-			hud_object_complexity.objectsCost += volume->getRenderCost(textures, material_textures);
+			hud_object_complexity.objectsCost += volume->getRenderCostLegacy(textures, material_textures);
 			hud_object_complexity.objectsCount++;
 
 			LLViewerObject::const_child_list_t& child_list = attached_object->getChildren();
@@ -10473,7 +10473,7 @@ void LLVOAvatar::accountRenderComplexityForObject(
 				if (chld_volume)
 				{
 					// get cost and individual textures
-					hud_object_complexity.objectsCost += chld_volume->getRenderCost(textures, material_textures);
+					hud_object_complexity.objectsCost += chld_volume->getRenderCostLegacy(textures, material_textures);
 					hud_object_complexity.objectsCount++;
 				}
 			}
@@ -10503,7 +10503,7 @@ void LLVOAvatar::accountRenderComplexityForObject(
 }
 
 // Calculations for mVisualComplexity value
-void LLVOAvatar::calculateUpdateRenderComplexity()
+void LLVOAvatar::calculateUpdateRenderComplexityLegacy()
 {
     /*****************************************************************
      * This calculation should not be modified by third party viewers,
@@ -10646,7 +10646,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 }
 
 // Calculations for mVisualComplexity value
-void LLVOAvatar::calculateUpdateRenderComplexity_()
+void LLVOAvatar::calculateUpdateRenderComplexityLegacy_()
 {
     /*****************************************************************
      * This calculation should not be modified by third party viewers,
@@ -10707,7 +10707,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity_()
                             F32 attachment_texture_cost = 0;
                             F32 attachment_children_cost = 0;
 
-							attachment_volume_cost += volume->getRenderCost_(textures, material_textures);
+							attachment_volume_cost += volume->getRenderCostLegacy_(textures, material_textures);
 
 							const_child_list_t children = volume->getChildren();
 							for (const_child_list_t::const_iterator child_iter = children.begin();
@@ -10718,7 +10718,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity_()
 								LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
 								if (child)
 								{
-									attachment_children_cost += child->getRenderCost_(textures, material_textures);
+									attachment_children_cost += child->getRenderCostLegacy_(textures, material_textures);
 								}
 							}
 
@@ -10776,7 +10776,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity_()
                         gAgentAvatarp->getAttachedPointName(attached_object->getAttachmentItemID(), joint_name);
                         hud_object_complexity.jointName = joint_name;
                         // get cost and individual textures
-                        hud_object_complexity.objectsCost += volume->getRenderCost(textures, material_textures);
+                        hud_object_complexity.objectsCost += volume->getRenderCostLegacy(textures, material_textures);
                         hud_object_complexity.objectsCount++;
 
                         LLViewerObject::const_child_list_t& child_list = attached_object->getChildren();
@@ -10788,7 +10788,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity_()
                             if (chld_volume)
                             {
                                 // get cost and individual textures
-                                hud_object_complexity.objectsCost += chld_volume->getRenderCost(textures, material_textures);
+                                hud_object_complexity.objectsCost += chld_volume->getRenderCostLegacy(textures, material_textures);
                                 hud_object_complexity.objectsCount++;
                             }
                         }

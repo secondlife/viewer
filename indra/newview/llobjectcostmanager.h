@@ -30,6 +30,7 @@
 #include "llsingleton.h"
 
 class LLVOVolume;
+class LLViewerObject;
 
 class LLObjectCostManagerImpl;
 
@@ -44,6 +45,7 @@ public:
 	F32 getStreamingCost(U32 version, const LLVOVolume *vol);
 
 	F32 getRenderCost(U32 version, const LLVOVolume *vol);
+	F32 getRenderCostLinkset(U32 version, const LLViewerObject *root);
 
 private:
 	LLObjectCostManagerImpl *m_impl;
