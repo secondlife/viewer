@@ -2940,9 +2940,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>44bc68dbfe3f4b77817e80cb32845bed</string>
+              <string>9e47f686671fd6b019983a0d1c94165f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/42782/379901/slvoice-4.9.0002.32137.3410b595.530683-darwin64-530683.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/43234/383706/slvoice-4.9.0002.32137.3410b595.530909-darwin64-530909.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2997,7 +2997,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.9.0002.32137.3410b595.530683</string>
+        <string>4.9.0002.32137.3410b595.530909</string>
       </map>
       <key>tut</key>
       <map>
