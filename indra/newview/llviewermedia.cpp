@@ -2309,14 +2309,14 @@ void LLViewerMediaImpl::mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-void LLViewerMediaImpl::scrollWheel(S32 x, S32 y, S32 scroll_x, S32 scroll_y, MASK mask)
+void LLViewerMediaImpl::scrollWheel(S32 x, S32 y, MASK mask)
 {
 	scaleMouse(&x, &y);
 	mLastMouseX = x;
 	mLastMouseY = y;
 	if (mMediaSource)
 	{
-		mMediaSource->scrollEvent(x, y, scroll_x, scroll_y, mask);
+		mMediaSource->scrollEvent(x, y, mask);
 	}
 }
 

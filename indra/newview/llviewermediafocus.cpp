@@ -377,7 +377,12 @@ BOOL LLViewerMediaFocus::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	LLViewerMediaImpl* media_impl = getFocusedMediaImpl();
 	if(media_impl && media_impl->hasMedia())
 	{
-		media_impl->scrollWheel(x, y, 0, clicks, gKeyboard->currentMask(TRUE));
+        // the scrollEvent() API's x and y are not the same as handleScrollWheel's x and y.
+        // The latter is the position of the mouse at the time of the event
+        // The former is the 'scroll amount' in x and y, respectively.
+        // All we have for 'scroll amount' here is 'clicks'.
+		// We're also not passed the keyboard modifier mask, but we can get that from gKeyboard.
+		media_impl->getMediaPlugin()->scrollEvent(0, clicks, gKeyboard->currentMask(TRUE));
 		retval = TRUE;
 	}
 	return retval;
