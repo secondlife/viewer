@@ -1731,9 +1731,11 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		std::string launcher_name = gDirUtilp->getLLPluginLauncher();
 		std::string plugin_name = gDirUtilp->getLLPluginFilename(plugin_basename);
 
-		// cookies now are stored in the CEF cache directory too (no more control over their location)
 		std::string user_data_path_cache = gDirUtilp->getCacheDir(false);
 		user_data_path_cache += gDirUtilp->getDirDelimiter();
+
+		std::string user_data_path_cookies = gDirUtilp->getOSUserAppDir();
+		user_data_path_cookies += gDirUtilp->getDirDelimiter();
 
 		std::string user_data_path_cef_log = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "cef_log.txt");
 
@@ -1745,9 +1747,8 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		std::string linden_user_dir = gDirUtilp->getLindenUserDir();
 		if ( ! linden_user_dir.empty() )
 		{
-			// cookies now are stored in the CEF cache directory too (no more control over their location)
-			user_data_path_cache = linden_user_dir;
-			user_data_path_cache += gDirUtilp->getDirDelimiter();
+			user_data_path_cookies = linden_user_dir;
+			user_data_path_cookies += gDirUtilp->getDirDelimiter();
 		};
 
 		// See if the plugin executable exists
@@ -1766,7 +1767,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		{
 			media_source = new LLPluginClassMedia(owner);
 			media_source->setSize(default_width, default_height);
-			media_source->setUserDataPath(user_data_path_cache, user_data_path_cef_log);
+			media_source->setUserDataPath(user_data_path_cache, user_data_path_cookies, user_data_path_cef_log);
 			media_source->setLanguageCode(LLUI::getLanguage());
 			media_source->setZoomFactor(zoom_factor);
 

@@ -580,9 +580,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>11362c72e1edae9c98e6cc40d378fd37</string>
+              <string>d7b0c8910632f50ae8d21c5d68cdaca8</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/38952/328700/dullahan-1.2.1022544_75.0.1_gb5e74dd_chromium-75.0.3770.80-darwin64-528086.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/38862/328055/dullahan-1.1.2222_74.1.19_gb62bacf_chromium-74.0.3729.157-darwin64-528032.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -592,9 +592,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0980cd50e5fed4e68ee78132e5c2e240</string>
+              <string>9237b8e73999b539a9b2466941d02b79</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/38954/328712/dullahan-1.2.1022544_75.0.1_gb5e74dd_chromium-75.0.3770.80-windows-528086.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/38863/328061/dullahan-1.1.2222_74.1.19_gb62bacf_chromium-74.0.3729.157-windows-528032.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -604,16 +604,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dd072189ea40ed9fa0af0f2caef866ca</string>
+              <string>3aef2dad2664a535d561ab4b235944db</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/38953/328705/dullahan-1.2.1022544_75.0.1_gb5e74dd_chromium-75.0.3770.80-windows64-528086.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/38864/328065/dullahan-1.1.2222_74.1.19_gb62bacf_chromium-74.0.3729.157-windows64-528032.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.2.1022544_75.0.1_gb5e74dd_chromium-75.0.3770.80</string>
+        <string>1.1.2222_74.1.19_gb62bacf_chromium-74.0.3729.157</string>
       </map>
       <key>elfio</key>
       <map>
