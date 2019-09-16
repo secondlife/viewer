@@ -109,8 +109,11 @@
 #include "llsdserialize.h"
 #include "llcallstack.h"
 #include "llrendersphere.h"
+#include "llobjectcostmanager.h"
 
 #include <boost/lexical_cast.hpp>
+
+#pragma optimize("", off)
 
 extern F32 SPEED_ADJUST_MAX;
 extern F32 SPEED_ADJUST_MAX_SEC;
@@ -10502,6 +10505,70 @@ void LLVOAvatar::accountRenderComplexityForObject(
 	}
 }
 
+F32 LLVOAvatar::calculateRenderComplexity(U32 version) const
+{
+    /*****************************************************************
+     * This calculation should not be modified by third party viewers,
+     * since it is used to limit rendering and should be uniform for
+     * everyone. If you have suggested improvements, submit them to
+     * the official viewer for consideration.
+     *****************************************************************/
+	static const U32 COMPLEXITY_BODY_PART_COST = 200;
+	static LLCachedControl<F32> max_complexity_setting(gSavedSettings,"MaxAttachmentComplexity");
+	F32 max_attachment_complexity = max_complexity_setting;
+	max_attachment_complexity = llmax(max_attachment_complexity, DEFAULT_MAX_ATTACHMENT_COMPLEXITY);
+
+	U32 cost = VISUAL_COMPLEXITY_UNKNOWN;
+	LLVOVolume::texture_cost_t textures;
+	LLVOVolume::texture_cost_t material_textures;
+	hud_complexity_list_t hud_complexity_list;
+
+	for (U8 baked_index = 0; baked_index <= BAKED_HAIR; baked_index++)
+	{
+		const LLAvatarAppearanceDictionary::BakedEntry *baked_dict
+			= LLAvatarAppearanceDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)baked_index);
+		ETextureIndex tex_index = baked_dict->mTextureIndex;
+		if ((tex_index != TEX_SKIRT_BAKED) || (isWearingWearableType(LLWearableType::WT_SKIRT)))
+		{
+			if (isTextureVisible(tex_index))
+			{
+				cost += COMPLEXITY_BODY_PART_COST;
+			}
+		}
+	}
+	LL_DEBUGS("ARCdetail") << "Avatar body parts complexity: " << cost << LL_ENDL;
+
+	// A standalone animated object needs to be accounted for
+	// using its associated volume. Attached animated objects
+	// will be covered by the subsequent loop over attachments.
+	const LLControlAvatar *control_av = dynamic_cast<const LLControlAvatar*>(this);
+	if (control_av)
+	{
+		LLVOVolume *volp = control_av->mRootVolp;
+		if (volp && !volp->isAttachment())
+		{
+			cost += LLObjectCostManager::instance().getRenderCostLinkset(version, volp); 
+		}
+	}
+
+	// Account for complexity of all attachments.
+	for (attachment_map_t::const_iterator attachment_point = mAttachmentPoints.begin(); 
+		 attachment_point != mAttachmentPoints.end();
+		 ++attachment_point)
+	{
+		LLViewerJointAttachment* attachment = attachment_point->second;
+		for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+			 attachment_iter != attachment->mAttachedObjects.end();
+			 ++attachment_iter)
+		{
+			const LLViewerObject* attached_object = (*attachment_iter);
+			cost += LLObjectCostManager::instance().getRenderCostLinkset(version, attached_object);
+		}
+	}
+
+	return cost;
+}
+
 // Calculations for mVisualComplexity value
 void LLVOAvatar::calculateUpdateRenderComplexityLegacy()
 {
@@ -10521,12 +10588,13 @@ void LLVOAvatar::calculateUpdateRenderComplexityLegacy()
 
 	if (mVisualComplexityStale)
 	{
+
 		U32 cost = VISUAL_COMPLEXITY_UNKNOWN;
 		LLVOVolume::texture_cost_t textures;
 		LLVOVolume::texture_cost_t material_textures;
 		hud_complexity_list_t hud_complexity_list;
 
-		for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
+		for (U8 baked_index = 0; baked_index <= BAKED_HAIR; baked_index++)
 		{
 		    const LLAvatarAppearanceDictionary::BakedEntry *baked_dict
 				= LLAvatarAppearanceDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)baked_index);
@@ -10535,7 +10603,7 @@ void LLVOAvatar::calculateUpdateRenderComplexityLegacy()
 			{
 				if (isTextureVisible(tex_index))
 				{
-					cost +=COMPLEXITY_BODY_PART_COST;
+					cost += COMPLEXITY_BODY_PART_COST;
 				}
 			}
 		}
@@ -10614,6 +10682,13 @@ void LLVOAvatar::calculateUpdateRenderComplexityLegacy()
 			}
 		}
 
+		F32 new_cost = calculateRenderComplexity();
+		U32 unew_cost = (U32) new_cost;
+		if (unew_cost != cost)
+		{
+			LL_WARNS("Arctan") << "Avatar cost mismatch, old " << cost << ", new " << unew_cost << LL_ENDL;
+		}
+		
         if ( cost != mVisualComplexity )
         {
             LL_DEBUGS("AvatarRender") << "Avatar "<< getID()

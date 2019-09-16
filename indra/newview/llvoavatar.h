@@ -292,6 +292,9 @@ public:
                                                      LLVOVolume::texture_cost_t& material_textures,
                                                      U32& cost,
                                                      hud_complexity_list_t& hud_complexity_list);
+
+	F32				calculateRenderComplexity(U32 version = 0) const;
+	
 	void			calculateUpdateRenderComplexity();
 	void			calculateUpdateRenderComplexityLegacy();
     void			calculateUpdateRenderComplexityLegacy_(); // ARCtan version
