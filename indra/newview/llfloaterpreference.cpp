@@ -523,7 +523,7 @@ BOOL LLFloaterPreference::postBuild()
 	// set 'enable' property for 'Clear log...' button
 	changed();
 
-	LLLogChat::setSaveHistorySignal(boost::bind(&LLFloaterPreference::onLogChatHistorySaved, this));
+	LLLogChat::getInstance()->setSaveHistorySignal(boost::bind(&LLFloaterPreference::onLogChatHistorySaved, this));
 
 	LLSliderCtrl* fov_slider = getChild<LLSliderCtrl>("camera_fov");
 	fov_slider->setMinValue(LLViewerCamera::getInstance()->getMinView());
