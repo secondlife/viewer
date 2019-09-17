@@ -115,7 +115,8 @@ public:
 		// sort and search behavior
 		Optional<S32>	search_column,
 						sort_column;
-		Optional<bool>	sort_ascending;
+		Optional<bool>	sort_ascending,
+						can_sort; // whether user is allowed to sort
 
 		// colors
 		Optional<LLUIColor>	fg_unselected_color,
@@ -460,6 +461,7 @@ private:
 	bool			mNeedsScroll;
 	bool			mMouseWheelOpaque;
 	bool			mCanSelect;
+    bool			mCanSort;		// Whether user is allowed to sort
 	bool			mDisplayColumnHeaders;
 	bool			mColumnsDirty;
 	bool			mColumnWidthsDirty;

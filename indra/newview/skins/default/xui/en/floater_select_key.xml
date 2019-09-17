@@ -7,7 +7,15 @@
  height="90"
  layout="topleft"
  name="modal container"
- width="240">
+ width="272">
+  <floater.string
+   name="keyboard">
+    Keyboard
+  </floater.string>
+  <floater.string
+   name="mouse">
+    Mouse Buttons
+  </floater.string>
     <text
      type="string"
      halign="center"
@@ -16,19 +24,35 @@
      height="30"
      layout="topleft"
      left="30"
-     name="Save item as:"
+     name="descritption"
      top="25"
      word_wrap="true"
-     width="180">
-        Press a key to set your Speak button trigger.
+     width="212">
+Press a key to set your trigger.
+Allowed input: [INPUT].
     </text>
     <button
      height="23"
-     label="Cancel"
-     label_selected="Cancel"
+     label="Set Empty"
      layout="topleft"
-     right="-10"
-     name="Cancel"
+     left="8"
+     name="SetEmpty"
      top_pad="8"
-     width="100" />
+     width="80" />
+    <button
+     height="23"
+     label="Default"
+     layout="topleft"
+     left_pad="8"
+     name="Default"
+     top_delta="0"
+     width="80" />
+    <button
+     height="23"
+     label="Cancel"
+     layout="topleft"
+     left_pad="8"
+     name="Cancel"
+     top_delta="0"
+     width="80" />
 </floater>

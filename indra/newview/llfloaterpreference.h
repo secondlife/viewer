@@ -37,12 +37,14 @@
 #include "llavatarpropertiesprocessor.h"
 #include "llconversationlog.h"
 #include "llsearcheditor.h"
+#include "llkeyconflict.h"
 
 class LLConversationLogObserver;
 class LLPanelPreference;
 class LLPanelLCD;
 class LLPanelDebug;
 class LLMessageSystem;
+class LLComboBox;
 class LLScrollListCtrl;
 class LLSliderCtrl;
 class LLSD;
@@ -147,8 +149,6 @@ public:
 	void onClickSkin(LLUICtrl* ctrl,const LLSD& userdata);
 	void onSelectSkin();
 	void onClickSetKey();
-	void setKey(KEY key);
-	void setMouse(EMouseClickType click);
 	void onClickSetMiddleMouse();
 	void onClickSetSounds();
 	void onClickEnablePopup();
@@ -298,21 +298,36 @@ class LLPanelPreferenceControls : public LLPanelPreference
 {
 	LOG_CLASS(LLPanelPreferenceControls);
 public:
+	LLPanelPreferenceControls();
+	~LLPanelPreferenceControls();
+
 	BOOL postBuild();
-	void populateControlTable();
+	BOOL handleHover(S32 x, S32 y, MASK mask);
+
+	void apply();
 	void cancel();
 	void saveSettings();
 	void resetDirtyChilds();
 
 	void onListCommit();
-	void onSetKey(KEY key, MASK mask);
-	void onSetMouse(LLMouseHandler::EClickType click, MASK mask);
-
-protected:
-	bool hasDirtyChilds();
+	void onModeCommit();
+	void onSetKeyBind(EMouseClickType click, KEY key, MASK mask);
+	void onRestoreDefaults();
+	void onDefaultKeyBind();
 
 private:
+	void addGroupRow(const std::string &icon, S32 index);
+	void regenerateControls();
+	void populateControlTable();
+	void addSeparator();
+
 	LLScrollListCtrl* pControlsTable;
+	LLComboBox *pKeyModeBox;
+	LLKeyConflictHandler mConflictHandler[LLKeyConflictHandler::MODE_COUNT];
+	S32 mEditingIndex;
+	S32 mEditingColumn;
+	S32 mEditingMode;
+	bool mShowKeyDialog;
 };
 
 class LLFloaterPreferenceGraphicsAdvanced : public LLFloater

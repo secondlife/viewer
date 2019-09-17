@@ -605,6 +605,12 @@ void start_gesture( EKeystate s )
 	}
 }
 
+void toggle_parcel_media(EKeystate s)
+{
+    bool pause = LLViewerMedia::isAnyMediaPlaying();
+    LLViewerMedia::setAllMediaPaused(pause);
+}
+
 #define REGISTER_KEYBOARD_ACTION(KEY, ACTION) LLREGISTER_STATIC(LLKeyboardActionRegistry, KEY, ACTION);
 REGISTER_KEYBOARD_ACTION("jump", agent_jump);
 REGISTER_KEYBOARD_ACTION("push_down", agent_push_down);
@@ -646,6 +652,7 @@ REGISTER_KEYBOARD_ACTION("edit_avatar_move_backward", edit_avatar_move_backward)
 REGISTER_KEYBOARD_ACTION("stop_moving", stop_moving);
 REGISTER_KEYBOARD_ACTION("start_chat", start_chat);
 REGISTER_KEYBOARD_ACTION("start_gesture", start_gesture);
+REGISTER_KEYBOARD_ACTION("toggle_parcel_media", toggle_parcel_media);
 #undef REGISTER_KEYBOARD_ACTION
 
 LLViewerKeyboard::LLViewerKeyboard()
@@ -807,7 +814,7 @@ BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, c
 	mBindings[mode][index].mFunction = function;
 
 	if (index == mBindingCount[mode])
-		mBindingCount[mode]++;
+        mBindingCount[mode]++;
 
 	return TRUE;
 }
@@ -818,21 +825,25 @@ LLViewerKeyboard::KeyBinding::KeyBinding()
 	command("command")
 {}
 
-LLViewerKeyboard::KeyMode::KeyMode(EKeyboardMode _mode)
-:	bindings("binding"),
-	mode(_mode)
+LLViewerKeyboard::KeyMode::KeyMode()
+:	bindings("binding")
 {}
 
 LLViewerKeyboard::Keys::Keys()
-:	first_person("first_person", KeyMode(MODE_FIRST_PERSON)),
-	third_person("third_person", KeyMode(MODE_THIRD_PERSON)),
-	edit("edit", KeyMode(MODE_EDIT)),
-	sitting("sitting", KeyMode(MODE_SITTING)),
-	edit_avatar("edit_avatar", KeyMode(MODE_EDIT_AVATAR))
+:	first_person("first_person"),
+	third_person("third_person"),
+	edit("edit"),
+	sitting("sitting"),
+	edit_avatar("edit_avatar")
 {}
 
 S32 LLViewerKeyboard::loadBindingsXML(const std::string& filename)
 {
+	for (S32 i = 0; i < MODE_COUNT; i++)
+	{
+		mBindingCount[i] = 0;
+	}
+
 	S32 binding_count = 0;
 	Keys keys;
 	LLSimpleXUIParser parser;
@@ -840,16 +851,16 @@ S32 LLViewerKeyboard::loadBindingsXML(const std::string& filename)
 	if (parser.readXUI(filename, keys) 
 		&& keys.validateBlock())
 	{
-		binding_count += loadBindingMode(keys.first_person);
-		binding_count += loadBindingMode(keys.third_person);
-		binding_count += loadBindingMode(keys.edit);
-		binding_count += loadBindingMode(keys.sitting);
-		binding_count += loadBindingMode(keys.edit_avatar);
+		binding_count += loadBindingMode(keys.first_person, MODE_FIRST_PERSON);
+		binding_count += loadBindingMode(keys.third_person, MODE_THIRD_PERSON);
+		binding_count += loadBindingMode(keys.edit, MODE_EDIT);
+		binding_count += loadBindingMode(keys.sitting, MODE_SITTING);
+		binding_count += loadBindingMode(keys.edit_avatar, MODE_EDIT_AVATAR);
 	}
 	return binding_count;
 }
 
-S32 LLViewerKeyboard::loadBindingMode(const LLViewerKeyboard::KeyMode& keymode)
+S32 LLViewerKeyboard::loadBindingMode(const LLViewerKeyboard::KeyMode& keymode, S32 mode)
 {
 	S32 binding_count = 0;
 	for (LLInitParam::ParamIterator<KeyBinding>::const_iterator it = keymode.bindings.begin(), 
@@ -857,12 +868,15 @@ S32 LLViewerKeyboard::loadBindingMode(const LLViewerKeyboard::KeyMode& keymode)
 		it != end_it;
 		++it)
 	{
-		KEY key;
-		MASK mask;
-		LLKeyboard::keyFromString(it->key, &key);
-		LLKeyboard::maskFromString(it->mask, &mask);
-		bindKey(keymode.mode, key, mask, it->command);
-		binding_count++;
+        if (!it->key.getValue().empty())
+        {
+            KEY key;
+            MASK mask;
+            LLKeyboard::keyFromString(it->key, &key);
+            LLKeyboard::maskFromString(it->mask, &mask);
+            bindKey(mode, key, mask, it->command);
+            binding_count++;
+        }
 	}
 
 	return binding_count;

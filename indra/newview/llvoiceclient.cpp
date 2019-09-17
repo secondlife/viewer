@@ -35,7 +35,6 @@
 #include "llnotificationsutil.h"
 #include "llsdserialize.h"
 #include "llui.h"
-#include "llkeybindings.h"
 #include "llkeyboard.h"
 #include "llagent.h"
 
@@ -692,33 +691,38 @@ void LLVoiceClient::keyDown(KEY key, MASK mask)
 		return;
 	}
 	
-	if (LLAgent::isActionAllowed("speak") && gControlBindings.canHandleKey(LLControlBindings::CONTROL_VOICE, key, mask))
+    //
+	/*static LLCachedControl<LLSD> key_bind(gSavedSettings, "control_toggle_voice");
+    LLKeyBind bind(key_bind);
+	if (LLAgent::isActionAllowed("speak") && bind().canHandleKey(key, mask))
 	{
 		bool down = gKeyboard->getKeyDown(mPTTKey);
 		if (down)
 		{
 			inputUserControlState(down);
 		}
-	}
+	}*/
 	
 }
 void LLVoiceClient::keyUp(KEY key, MASK mask)
 {
-	if (gControlBindings.canHandleKey(LLControlBindings::CONTROL_VOICE, key, mask))
+	/*static LLCachedControl<LLKeyBind> key_bind(gSavedSettings, "control_toggle_voice");
+	if (key_bind().canHandleKey(key, mask))
 	{
 		bool down = gKeyboard->getKeyDown(mPTTKey);
 		if (!down)
 		{
 			inputUserControlState(down);
 		}
-	}
+	}*/
 }
 void LLVoiceClient::updateMouseState(S32 click, MASK mask, bool down)
 {
-	if(LLAgent::isActionAllowed("speak") && gControlBindings.canHandleMouse(LLControlBindings::CONTROL_VOICE, click, mask))
+	/*static LLCachedControl<LLKeyBind> mouse_bind(gSavedSettings, "control_toggle_voice");
+	if (mouse_bind().canHandleMouse((EMouseClickType)click, mask))
 	{
 		inputUserControlState(down);
-	}
+	}*/
 }
 
 

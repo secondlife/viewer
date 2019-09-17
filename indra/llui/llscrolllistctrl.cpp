@@ -130,6 +130,7 @@ LLScrollListCtrl::Params::Params()
 	search_column("search_column", 0),
 	sort_column("sort_column", -1),
 	sort_ascending("sort_ascending", true),
+	can_sort("can_sort", true),
 	mouse_wheel_opaque("mouse_wheel_opaque", false),
 	commit_on_keyboard_movement("commit_on_keyboard_movement", true),
 	heading_height("heading_height"),
@@ -166,6 +167,7 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 	mSelectionChanged(false),
 	mNeedsScroll(false),
 	mCanSelect(true),
+	mCanSort(p.can_sort),
 	mColumnsDirty(false),
 	mMaxItemCount(INT_MAX), 
 	mBorderThickness( 2 ),
@@ -2800,6 +2802,8 @@ void LLScrollListCtrl::onClickColumn(void *userdata)
 
 	LLScrollListCtrl *parent = info->mParentCtrl;
 	if (!parent) return;
+
+	if (!parent->mCanSort) return;
 
 	S32 column_index = info->mIndex;
 
