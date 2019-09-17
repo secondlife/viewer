@@ -44,7 +44,7 @@
             />
             <panel
              name="panel_profile_web"
-             label="Web"
+             label="Feed"
              layout="topleft"
              class="panel_profile_web"
              filename="panel_profile_web.xml"
