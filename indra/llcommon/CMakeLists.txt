@@ -157,6 +157,7 @@ set(llcommon_HEADER_FILES
     lldepthstack.h
     lldictionary.h
     lldoubledispatch.h
+    lldynamicpqueue.h
     llendianswizzle.h
     llerror.h
     llerrorcontrol.h
@@ -330,6 +331,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(lldate "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lldeadmantimer "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lldependencies "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(lldynamicpqueue "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llerror "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lleventdispatcher "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lleventcoro "" "${test_libs}")
