@@ -9287,7 +9287,7 @@
   <key>RenderShadowResolutionScale</key>
   <map>
     <key>Comment</key>
-    <string>Scale of shadow map resolution vs. screen resolution</string>
+    <string>Scale of shadow map resolution vs. screen resolution (only positivie values are allowed)</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>

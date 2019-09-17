@@ -973,7 +973,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			mDeferredLight.release();
 		}
 
-		F32 scale = RenderShadowResolutionScale;
+		F32 scale = llmax(0.f, RenderShadowResolutionScale);
 
 		if (shadow_detail > 0)
 		{ //allocate 4 sun shadow maps
