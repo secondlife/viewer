@@ -32,32 +32,186 @@
 #include "llsdserialize.h"
 #include "llviewercontrol.h"
 #include "llcoros.h"
+#include "llsdutil.h"
 
-// This controls how often we update the on-disk data for the cache
-// with contents of the in-memory map of cached texture data.
-static const U32 NEW_ENTRIES_PER_FLUSH_TO_DISK = 4;
+//=====================================================================
+const std::string LLTextureCache::CachedTextureInfo::CACHE_ENTRY_ID("id");
+const std::string LLTextureCache::CachedTextureInfo::CACHE_ENTRY_CODEC("codec");
+const std::string LLTextureCache::CachedTextureInfo::CACHE_ENTRY_ENCODED_SIZE("size");
+const std::string LLTextureCache::CachedTextureInfo::CACHE_ENTRY_DISCARD_LEVEL("discard");
+const std::string LLTextureCache::CachedTextureInfo::CACHE_ENTRY_CACHED_WIDTH("cached_width");
+const std::string LLTextureCache::CachedTextureInfo::CACHE_ENTRY_CACHED_HEIGHT("cached_height");
+const std::string LLTextureCache::CachedTextureInfo::CACHE_ENTRY_FULL_WIDTH("full_width");
+const std::string LLTextureCache::CachedTextureInfo::CACHE_ENTRY_FULL_HEIGHT("full_height");
+const std::string LLTextureCache::CachedTextureInfo::CACHE_ENTRY_LAST_ACCESS("last_access");
+const std::string LLTextureCache::CachedTextureInfo::CACHE_ENTRY_DISCARD_BYTES("discard_bytes");
 
-const std::string LLTextureCache::CACHE_ENTRY_ID("id");
-const std::string LLTextureCache::CACHE_ENTRY_CODEC("codec");
-const std::string LLTextureCache::CACHE_ENTRY_ENCODED_SIZE("size");
-const std::string LLTextureCache::CACHE_ENTRY_DISCARD_LEVEL("discard");
-const std::string LLTextureCache::CACHE_ENTRY_CACHED_WIDTH("cached_width");
-const std::string LLTextureCache::CACHE_ENTRY_CACHED_HEIGHT("cached_height");
-const std::string LLTextureCache::CACHE_ENTRY_FULL_WIDTH("full_width");
-const std::string LLTextureCache::CACHE_ENTRY_FULL_HEIGHT("full_height");
-const std::string LLTextureCache::CACHE_ENTRY_LAST_ACCESS("last_access");
-const std::string LLTextureCache::CACHE_ENTRY_DISCARD_BYTES("discard_bytes");
-
-const std::string TEXTURE_CACHE_DIR_NAME("texturecache");
-
-LLTextureCache::LLTextureCache()
+//=====================================================================
+namespace
 {
+    // This controls how often we update the on-disk data for the cache
+    // with contents of the in-memory map of cached texture data.
+    const U32 NEW_ENTRIES_PER_FLUSH_TO_DISK = 10;
+    const F32 TIME_PER_FLUSH_TO_DISK = 30.0;
+    LLTrace::BlockTimerStatHandle FTM_TEXTURE_CACHE_IO("TexCache IO");
+
+    const std::string TEXTURE_CACHE_DIR_NAME("texturecache");
 }
 
+//=====================================================================
+LLTextureCache::CachedTextureInfo::CachedTextureInfo():
+    mID(),
+    mCodec(0),
+    mImageEncodedSize(0),
+    mDiscardLevel(0),
+    mCachedWidth(0),
+    mCachedHeight(0),
+    mFullWidth(0),
+    mFullHeight(0),
+    mLastAccess(time(nullptr)),
+    mDiscardBytes()
+{
+    mDiscardBytes.fill(0);
+}
+
+LLTextureCache::CachedTextureInfo::CachedTextureInfo(LLUUID id, LLImageFormatted* image):
+    mID(),
+    mCodec(0),
+    mImageEncodedSize(0),
+    mDiscardLevel(0),
+    mCachedWidth(0),
+    mCachedHeight(0),
+    mFullWidth(0),
+    mFullHeight(0),
+    mLastAccess(time(nullptr)),
+    mDiscardBytes()
+{
+    mDiscardBytes.fill(0);
+    fromImage(id, image);
+}
+
+
+LLSD LLTextureCache::CachedTextureInfo::toLLSD() const
+{
+    LLSD data(LLSDMap(CACHE_ENTRY_ID, mID)
+        (CACHE_ENTRY_CODEC, LLSD::Integer(mCodec))
+        (CACHE_ENTRY_ENCODED_SIZE, LLSD::Integer(mImageEncodedSize))
+        (CACHE_ENTRY_DISCARD_LEVEL, LLSD::Integer(mDiscardLevel))
+        (CACHE_ENTRY_CACHED_WIDTH, LLSD::Integer(mCachedWidth))
+        (CACHE_ENTRY_CACHED_HEIGHT, LLSD::Integer(mCachedHeight))
+        (CACHE_ENTRY_FULL_WIDTH, LLSD::Integer(mFullWidth))
+        (CACHE_ENTRY_FULL_HEIGHT, LLSD::Integer(mFullHeight))
+        (CACHE_ENTRY_LAST_ACCESS, LLSD::Integer(mLastAccess)));
+
+    for (U32 index = 0; index < MAX_DISCARD_LEVEL; index++)
+    {
+        data[CACHE_ENTRY_DISCARD_BYTES][index] = LLSD::Integer(mDiscardBytes[index]);
+    }
+
+    return data;
+}
+
+void LLTextureCache::CachedTextureInfo::fromLLSD(LLSD data)
+{
+
+    mID = data[CACHE_ENTRY_ID].asUUID();
+    mImageEncodedSize = data[CACHE_ENTRY_ENCODED_SIZE].asInteger();
+    mCodec =            S8(data[CACHE_ENTRY_CODEC].asInteger() & 0xFF);
+    mCachedHeight =     data[CACHE_ENTRY_CACHED_HEIGHT].asInteger();
+    mCachedWidth =      data[CACHE_ENTRY_CACHED_WIDTH].asInteger();
+    mFullHeight =       data[CACHE_ENTRY_FULL_WIDTH].asInteger();
+    mFullWidth =        data[CACHE_ENTRY_FULL_HEIGHT].asInteger();
+    mDiscardLevel =     data[CACHE_ENTRY_DISCARD_LEVEL].asInteger();
+    mLastAccess =       data[CACHE_ENTRY_LAST_ACCESS].asInteger();
+
+    U32 index(0);
+    for (LLSD::array_const_iterator iter = data[CachedTextureInfo::CACHE_ENTRY_DISCARD_BYTES].beginArray();
+        (index < MAX_DISCARD_LEVEL) && (iter != data[CachedTextureInfo::CACHE_ENTRY_DISCARD_BYTES].endArray());
+        ++iter, ++index)
+    {
+        mDiscardBytes[index] = iter->asInteger();
+    }
+
+}
+
+void LLTextureCache::CachedTextureInfo::fromImage(LLUUID id, LLImageFormatted* image)
+{
+    mID = id;
+    mCachedHeight = image->getHeight();
+    mCachedWidth = image->getWidth();
+    mDiscardLevel = image->getDiscardLevel();
+    mFullHeight = image->getFullHeight();
+    mFullWidth = image->getFullWidth();
+    mImageEncodedSize = image->getDataSize();
+    mCodec = image->getCodec();
+
+    if (image->getCodec() == IMG_CODEC_J2C)
+    {
+        S32* dataSizes = ((LLImageJ2C*)image)->getDataSizes();
+        for (U32 index = 1; index < MAX_DISCARD_LEVEL; index++)
+        {
+            mDiscardBytes[index] = dataSizes[index];
+        }
+        if (image->getDiscardLevel() == 0)
+        {
+            mDiscardBytes[0] = image->getDataSize();
+        }
+        else
+        {
+            mDiscardBytes[0] = dataSizes[0];
+        }
+    }
+    else
+    {
+        for (U32 index = 1; index < MAX_DISCARD_LEVEL; index++)
+        {
+            mDiscardBytes[index] = image->getDataSize();
+        }
+    }
+
+    updateDiscards(image);
+}
+
+void LLTextureCache::CachedTextureInfo::updateDiscards(LLImageFormatted *image)
+{
+    if (image->getCodec() == IMG_CODEC_J2C)
+    {
+        S32* dataSizes = ((LLImageJ2C*)image)->getDataSizes();
+        for (U32 index = 1; index < MAX_DISCARD_LEVEL; index++)
+        {
+            mDiscardBytes[index] = dataSizes[index];
+        }
+        if (image->getDiscardLevel() == 0)
+        {
+            mDiscardBytes[0] = image->getDataSize();
+        }
+        else
+        {
+            mDiscardBytes[0] = dataSizes[0];
+        }
+    }
+    else
+    {
+        for (U32 index = 1; index < MAX_DISCARD_LEVEL; index++)
+        {
+            mDiscardBytes[index] = image->getDataSize();
+        }
+    }
+
+    mLastAccess = time(nullptr);
+}
+
+//=====================================================================
 LLTextureCache::~LLTextureCache()
 {
-	writeCacheContentsFile(true);
 }
+
+void LLTextureCache::cleanupSingleton() 
+{
+    LL_INFOS("TEXTURECACHE") << "shutting down texture cache." << LL_ENDL;
+    writeCacheContentsFile(true);
+}
+
 
 bool LLTextureCache::initCache(ELLPath loc, bool purgeCache)
 {
@@ -103,99 +257,51 @@ bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
     {
 	    LLMutexLock lock(&mMutex);
 
-        CachedTextureInfo info;
-        memset(info.mDiscardBytes, 0, sizeof(U32) * MAX_DISCARD_LEVEL);
+        CachedTextureInfo::ptr_t info;
 
         map_t::iterator iter = mMap.find(id);
 
         if(iter != mMap.end())
         {
+            LL_DEBUGS("TEXTURECACHE") << "Updating texture in cache with ID=" << id << LL_ENDL;
             info = iter->second;
 
             // got a better discard, record its info...
-            if (image->getDiscardLevel() < info.mDiscardLevel)
+            if (image->getDiscardLevel() < info->mDiscardLevel)
             {
                 write_to_disk = true;
-                info.mID                = id;
-                info.mCachedHeight      = image->getHeight();
-                info.mCachedWidth       = image->getWidth();
-                info.mDiscardLevel      = image->getDiscardLevel();
-                info.mFullHeight        = image->getFullHeight();
-                info.mFullWidth         = image->getFullWidth();
-                info.mImageEncodedSize  = image->getDataSize();
-                info.mCodec             = image->getCodec();
+                info->fromImage(id, image);
+            }
+            else
+            {
+                info->updateDiscards(image);
             }
         }
         else // new addition
         {
+            LL_DEBUGS("TEXTURECACHE") << "Adding new texture to cache with ID=" << id << LL_ENDL;
+            info = std::make_shared<CachedTextureInfo>(id, image);
             write_to_disk = true;
-            info.mID                = id;
-            info.mCachedHeight      = image->getHeight();
-            info.mCachedWidth       = image->getWidth();
-            info.mDiscardLevel      = image->getDiscardLevel();
-            info.mImageEncodedSize  = image->getDataSize();
-            info.mFullWidth         = image->getFullWidth();
-            info.mImageEncodedSize  = image->getDataSize();
-            info.mCodec             = image->getCodec();
         }
 
-        if (image->getCodec() == IMG_CODEC_J2C)
-        {
-            S32* dataSizes = ((LLImageJ2C*)image)->getDataSizes();
-            for (U32 index = 1; index < MAX_DISCARD_LEVEL; index++)
-            {
-                info.mDiscardBytes[index] = dataSizes[index];
-            }
-            if (image->getDiscardLevel() == 0)
-            {
-                info.mDiscardBytes[0] = image->getDataSize();
-            }
-            else
-            {
-                info.mDiscardBytes[0] = dataSizes[0];
-            }
-        }
-        else
-        {
-            for (U32 index = 1; index < MAX_DISCARD_LEVEL; index++)
-            {
-                info.mDiscardBytes[index] = image->getDataSize();
-            }
-        }
 
-        info.mLastAccess = time(nullptr);
+        LLSD entry = info->toLLSD();
 
-        LLSD entry;
-        entry[CACHE_ENTRY_ID]            = info.mID;
-        entry[CACHE_ENTRY_CODEC]         = LLSD::Integer(info.mCodec);
-        entry[CACHE_ENTRY_ENCODED_SIZE]  = LLSD::Integer(info.mImageEncodedSize);
-        entry[CACHE_ENTRY_DISCARD_LEVEL] = LLSD::Integer(info.mDiscardLevel);
-        entry[CACHE_ENTRY_CACHED_WIDTH]  = LLSD::Integer(info.mCachedWidth);
-        entry[CACHE_ENTRY_CACHED_HEIGHT] = LLSD::Integer(info.mCachedHeight);
-        entry[CACHE_ENTRY_FULL_WIDTH]    = LLSD::Integer(info.mFullWidth);
-        entry[CACHE_ENTRY_FULL_HEIGHT]   = LLSD::Integer(info.mFullHeight);
-        entry[CACHE_ENTRY_LAST_ACCESS]   = LLSD::Integer(info.mLastAccess);
-
-        for (U32 index = 0; index < MAX_DISCARD_LEVEL; index++)
-        {
-            entry[CACHE_ENTRY_DISCARD_BYTES][index] = LLSD::Integer(info.mDiscardBytes[index]);
-        }
-
-        mEntries[info.mID.asString()] = entry;
+        mEntries[info->mID.asString()] = entry;
 
         U32 iterations = 0;
-        while (mUsageMax && ((mUsage + info.mImageEncodedSize) > mUsageMax) && (iterations++ < 256))
+        while (mUsageMax && ((mUsage + info->mImageEncodedSize) > mUsageMax) && (iterations++ < 256))
         {
-            if (!evict(info.mImageEncodedSize))
+            if (!evict(info->mImageEncodedSize))
             {
-                LL_WARNS() << "Failed to evict textures from cache. Exceeding max usage." << LL_ENDL;
+                LL_WARNS("TEXTURECACHE") << "Failed to evict textures from cache. Exceeding max usage." << LL_ENDL;
                 break;
             }
         }
 
         mMap.insert(std::make_pair(id, info));
 
-        mUsage += info.mImageEncodedSize;
+        mUsage += info->mImageEncodedSize;
     }
 
     if (write_to_disk)
@@ -205,7 +311,7 @@ bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
         LLFILE* f = LLFile::fopen(filename, "wb");
         if (!f)
         {
-            LL_WARNS() << "Failed to write complete file while caching texture " << filename << LL_ENDL;
+            LL_WARNS("TEXTURECACHE") << "Failed to write complete file while caching texture " << filename << LL_ENDL;
             return false;
         }
 
@@ -215,7 +321,7 @@ bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
 
         if (bytes_written != image->getDataSize())
         {
-            LL_WARNS() << "Failed to write complete file while caching texture." << LL_ENDL;
+            LL_WARNS("TEXTURECACHE") << "Failed to write complete file while caching texture." << LL_ENDL;
             return false;
         }
     }
@@ -225,61 +331,56 @@ bool LLTextureCache::add(const LLUUID& id, LLImageFormatted* image)
     return true;
 }
 
-struct SortEntryByLRU
-{
-	bool operator()(const CachedTextureInfo* i1, const CachedTextureInfo* i2)
-    {
-		if (i1->mLastAccess < i2->mLastAccess)
-        {
-            return true;
-        }
-        else if (i1->mLastAccess == i2->mLastAccess)
-        {
-            if (i1->mImageEncodedSize > i2->mImageEncodedSize)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-};
-
 bool LLTextureCache::evict(U64 spaceRequired)
 {
-    std::vector<const CachedTextureInfo*> potential_evictees;
+    // put the cache into a a vector.
+    std::vector<CachedTextureInfo::ptr_t> potential_evictees; 
     std::vector<LLUUID> evictees;
-    U64 spaceReclaimed = 0;
+    U64 spaceReclaimed( (mUsage < mUsageMax ) ? (mUsageMax - mUsage) : 0 ); // count existing free space towards reclaimed.
 
-    for (map_t::const_reverse_iterator iter = mMap.rbegin(); iter != mMap.rend(); iter++)
-	{
-        const CachedTextureInfo& info = iter->second;
-        potential_evictees.push_back(&info);       
+    potential_evictees.reserve(mMap.size());
+
+    for (const auto &value : mMap)
+    {   // C++17: In C++17 I could do something cool like const auto &[key, entry]... 
+        potential_evictees.push_back(value.second);
     }
 
     // sort potential_evictees to get least recently used items with largest size at front
-    std::sort(potential_evictees.begin(), potential_evictees.end(), SortEntryByLRU());
+    std::sort(potential_evictees.begin(), potential_evictees.end(), 
+            [](const CachedTextureInfo::ptr_t &i1, const CachedTextureInfo::ptr_t &i2)
+            {
+                if (i1->mLastAccess < i2->mLastAccess)
+                {
+                    return true;
+                }
+                else if (i1->mLastAccess == i2->mLastAccess)
+                {
+                    if (i1->mImageEncodedSize > i2->mImageEncodedSize)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            });
 
-    for (const CachedTextureInfo* potential_evictee : potential_evictees) 
+    for (const CachedTextureInfo::ptr_t &evictee : potential_evictees) 
 	{
-        evictees.push_back(potential_evictee->mID);
-        spaceReclaimed += potential_evictee->mImageEncodedSize;
         if (spaceReclaimed >= spaceRequired)
-        {
             break;
-        }
-    }
-
-    for (LLUUID& id : evictees)
-    {
-        map_t::iterator iter = mMap.find(id);
-        if (iter != mMap.end())
+        map_t::iterator it = mMap.find(evictee->mID);
+        if (it != mMap.end())
         {
-            mUsage -= (mUsage > iter->second.mImageEncodedSize) ? (mUsage - iter->second.mImageEncodedSize) : 0;
+            mUsage = (mUsage > evictee->mImageEncodedSize) ? (mUsage - evictee->mImageEncodedSize) : 0;
+            spaceReclaimed += evictee->mImageEncodedSize;
+
+            mMap.erase(it);
+            mEntries.erase(evictee->mID.asString());
+            ++mAddedEntries;
         }
-        mMap.erase(id);
-        mEntries.erase(id.asString());
-        mAddedEntries++; // signal requirement to update on-disk rep to capture removed entry
     }
+    potential_evictees.clear();
+
+    LL_WARNS("TEXTURECACHE") << "Reclaim from texture cache.  Desired:" << spaceRequired << " reclaimed:" << spaceReclaimed << LL_ENDL;
 
     return ((mUsage + spaceRequired) < mUsageMax);
 }
@@ -291,7 +392,8 @@ bool LLTextureCache::remove(const LLUUID& id)
     map_t::iterator iter = mMap.find(id);
     if (iter != mMap.end())
     {
-        mUsage -= (mUsage > iter->second.mImageEncodedSize) ? (mUsage - iter->second.mImageEncodedSize) : 0;
+        LL_DEBUGS("TEXTURECACHE") << "remove ID=" << id << " from texture cache." << LL_ENDL;
+        mUsage = (mUsage > iter->second->mImageEncodedSize) ? (mUsage - iter->second->mImageEncodedSize) : 0;
         mMap.erase(id);
         mEntries.erase(id.asString());
         mAddedEntries++; // signal requirement to update on-disk rep to capture removed entry
@@ -310,34 +412,34 @@ LLPointer<LLImageFormatted> LLTextureCache::find(const LLUUID& id, S32 discard_l
         return LLPointer<LLImageFormatted>();
     }
 
-    CachedTextureInfo& info = iter->second;
+    CachedTextureInfo::ptr_t info = iter->second;
 
-    U8* data = (U8*)ll_aligned_malloc_16(info.mImageEncodedSize);
+    U8* data = (U8*)ll_aligned_malloc_16(info->mImageEncodedSize);
 
-    std::string filename = getTextureFileName(id, EImageCodec(info.mCodec));
+    std::string filename = getTextureFileName(id, EImageCodec(info->mCodec));
     
     LLFILE* f = LLFile::fopen(filename, "rb");
     if (!f)
     {
-        LL_WARNS() << "Failed to open cached texture " << id << " removing from cache." << LL_ENDL;
+        LL_WARNS("TEXTURECACHE") << "Failed to open cached texture " << id << " removing from cache." << LL_ENDL;
         remove(id);        
         return LLPointer<LLImageFormatted>();
     }
 
-    size_t bytes_cached = info.mDiscardBytes[discard_level];
+    size_t bytes_cached = info->mDiscardBytes[discard_level];
     size_t bytes_read   = fread(data, 1, bytes_cached, f);
 
     fclose(f);
 
     LLPointer<LLImageFormatted> image;
 
-    if (info.mCodec == IMG_CODEC_J2C)
+    if (info->mCodec == IMG_CODEC_J2C)
     {
-        image = LLImageFormatted::createFromTypeWithImpl(info.mCodec, gSavedSettings.getS32("JpegDecoderType"));
+        image = LLImageFormatted::createFromTypeWithImpl(info->mCodec, gSavedSettings.getS32("JpegDecoderType"));
     }
     else
     {
-		image = LLImageFormatted::createFromType(info.mCodec);
+		image = LLImageFormatted::createFromType(info->mCodec);
     }
 
     if (bytes_read)
@@ -345,16 +447,16 @@ LLPointer<LLImageFormatted> LLTextureCache::find(const LLUUID& id, S32 discard_l
         image->setData((U8*)data, bytes_read);
         if (!image->updateData())
         {
-            LL_WARNS() << "Failed to parse header data from cached texture " << id << " removing from cache." << LL_ENDL;
+            LL_WARNS("TEXTURECACHE") << "Failed to parse header data from cached texture " << id << " removing from cache." << LL_ENDL;
             remove(id);
             return LLPointer<LLImageFormatted>();
         }
 
-        info.mLastAccess = time(nullptr);
+        info->mLastAccess = time(nullptr);
     }
     else
     {
-        LL_WARNS() << "Failed to read cached texture " << id << " removing from cache." << LL_ENDL;
+        LL_WARNS("TEXTURECACHE") << "Failed to read cached texture " << id << " removing from cache." << LL_ENDL;
         ll_aligned_free_16(data);
         remove(id);
     }
@@ -371,7 +473,7 @@ void LLTextureCache::purge()
     // recreate this dir so subsequent caching to local disk works...
     LLFile::mkdir(mTexturesDirName);
 	mMap.clear();    
-	LL_INFOS() << "The entire texture cache is cleared." << LL_ENDL;
+    LL_INFOS("TEXTURECACHE") << "The entire texture cache is cleared." << LL_ENDL;
 }
 
 std::string LLTextureCache::getTextureFileName(const LLUUID& id, EImageCodec codec)
@@ -383,57 +485,59 @@ std::string LLTextureCache::getTextureFileName(const LLUUID& id, EImageCodec cod
 	return filename;
 }
 
-static LLTrace::BlockTimerStatHandle FTM_TEXTURE_CACHE_IO("TexCache IO");
-
 bool LLTextureCache::writeCacheContentsFile(bool force_immediate_write)
 {
-
-try
-{
-    //LL_RECORD_BLOCK_TIME(FTM_TEXTURE_CACHE_IO);
-
-    if (!mEntries.size())
+    LL_DEBUGS("TEXTURECACHE") << "Writing texture cache." << LL_ENDL;
+    try
     {
-        LL_WARNS() << "No texture cache contents file to write." << LL_ENDL;
-        return false;
+        //LL_RECORD_BLOCK_TIME(FTM_TEXTURE_CACHE_IO);
+
+        if (!mEntries.size())
+        {
+            LL_WARNS("TEXTURECACHE") << "No texture cache contents file to write." << LL_ENDL;
+            return false;
+        }
+
+        std::string filename = mTexturesDirName + ".contents";
+        llofstream out;
+        out.open(filename);
+        if (!out.is_open())
+        {
+            LL_WARNS("TEXTURECACHE") << "Could not open texture cache contents file for write." << LL_ENDL;
+            return false;
+        }
+
+        S32 entriesSerialized = LLSDSerialize::toPrettyNotation(mEntries, out);
+
+        out.close();
+
+        if (!entriesSerialized)
+        {
+            LL_WARNS("TEXTURECACHE") << "Failed to serialize texture cache content entries." << LL_ENDL;
+            return false;
+        }
+
+        mAddedEntries = 0;
+    }
+    catch (const std::exception& e)
+    {
+        LL_WARNS("TEXTURECACHE") << "Caught exception writing cache file: \"" << e.what() << "\"" << LL_ENDL;
+        llassert(false);
     }
 
-    std::string filename = mTexturesDirName + ".contents";
-    llofstream out;
-    out.open(filename);
-    if (!out.is_open())
-    {
-        LL_WARNS() << "Could not open texture cache contents file for write." << LL_ENDL;
-        return false;
-    }
-
-    S32 entriesSerialized = LLSDSerialize::toPrettyNotation(mEntries, out);
-
-    out.close();
-
-    if (!entriesSerialized)
-    {
-        LL_WARNS() << "Failed to serialize texture cache content entries." << LL_ENDL;
-        return false;
-    }
-
-    mAddedEntries = 0;
-}
-catch (const std::exception& e)
-{
-    (void)e;
-    llassert(false);
-}
-
-    return true;
+        return true;
 }
 
 bool LLTextureCache::updateCacheContentsFile(bool force_immediate_write)
 {
-    if (!force_immediate_write && (mAddedEntries < NEW_ENTRIES_PER_FLUSH_TO_DISK))
+    static LLTimer sFlushTimeout;
+
+    if (!force_immediate_write)
     {
-        return false;
+        if ((sFlushTimeout.getElapsedTimeF32() < TIME_PER_FLUSH_TO_DISK) || (mAddedEntries < NEW_ENTRIES_PER_FLUSH_TO_DISK))
+            return false;
     }
+    sFlushTimeout.reset();
 
     std::string name = LLCoros::instance().launch("TexCacheWrite", boost::bind(&LLTextureCache::writeCacheContentsFile, this, force_immediate_write));
 
@@ -466,32 +570,16 @@ bool LLTextureCache::readCacheContentsFile()
 
     for (LLSD::map_const_iterator iter = mEntries.beginMap(); iter != mEntries.endMap(); ++iter)
     {
-        CachedTextureInfo info;
-        info.mID                = iter->second[CACHE_ENTRY_ID].asUUID();
-        info.mImageEncodedSize  = iter->second[CACHE_ENTRY_ENCODED_SIZE].asInteger();
-        info.mCodec             = S8(iter->second[CACHE_ENTRY_CODEC].asInteger() & 0xFF);
-        info.mCachedHeight      = iter->second[CACHE_ENTRY_CACHED_HEIGHT].asInteger();
-        info.mCachedWidth       = iter->second[CACHE_ENTRY_CACHED_WIDTH].asInteger();
-        info.mFullHeight        = iter->second[CACHE_ENTRY_FULL_WIDTH].asInteger();
-        info.mFullWidth         = iter->second[CACHE_ENTRY_FULL_HEIGHT].asInteger();
-        info.mDiscardLevel      = iter->second[CACHE_ENTRY_DISCARD_LEVEL].asInteger();
-        info.mLastAccess        = iter->second[CACHE_ENTRY_LAST_ACCESS].asInteger();
+        CachedTextureInfo::ptr_t info(std::make_shared<CachedTextureInfo>());
+        info->fromLLSD(iter->second);
 
-        U32 index = 0;
-        for (LLSD::array_const_iterator discard_iter = iter->second[CACHE_ENTRY_DISCARD_BYTES].beginArray();
-             (index < MAX_DISCARD_LEVEL) && (discard_iter != iter->second[CACHE_ENTRY_DISCARD_BYTES].endArray());
-            ++discard_iter)
-        {
-            info.mDiscardBytes[index++] = discard_iter->asInteger();
-        }
-
-        if (info.mID.isNull())
+        if (info->mID.isNull())
         {
             continue;
         }
 
         bool validCodec = false;
-        switch(info.mCodec)
+        switch(info->mCodec)
         {
             default:
             case IMG_CODEC_INVALID:
@@ -509,10 +597,10 @@ bool LLTextureCache::readCacheContentsFile()
             break;
         }
 
-        if ((info.mCachedHeight > 2048)
-         || (info.mCachedWidth > 2048)
-         || (info.mFullHeight > 2048)
-         || (info.mFullWidth > 2048))
+        if ((info->mCachedHeight > 2048)
+         || (info->mCachedWidth > 2048)
+         || (info->mFullHeight > 2048)
+         || (info->mFullWidth > 2048))
         {
             continue;
         }
@@ -522,17 +610,17 @@ bool LLTextureCache::readCacheContentsFile()
             continue;
         }
 
-        if (info.mDiscardLevel > MAX_DISCARD_LEVEL)
+        if (info->mDiscardLevel > MAX_DISCARD_LEVEL)
         {
             continue;
         }
 
-        if (info.mImageEncodedSize > (1 << 28))
+        if (info->mImageEncodedSize > (1 << 28))
         {
             continue;
         }
 
-        mMap.insert(std::make_pair(info.mID, info));
+        mMap.insert(std::make_pair(info->mID, info));
     }
 
     return mMap.size() > 0;

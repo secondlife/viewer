@@ -198,10 +198,10 @@ void LLTextureInfo::setRequestCompleteTimeAndLog(const LLUUID& id, U64Microsecon
 				}
 				texture_cache["cache_read"] = LLSD::Integer(cache_read);
 				texture_cache["cache_write"] = LLSD::Integer(cache_write);
-				texture_cache["hit_rate"] = LLSD::Real(cache_hit_rate);
-				texture_cache["entries"] = LLSD::Integer(LLAppViewer::getTextureCache()->getEntryCount());
-				texture_cache["space_max"] = ll_sd_from_U64(LLAppViewer::getTextureCache()->getMaxUsage()); // bytes
-				texture_cache["space_used"] = ll_sd_from_U64(LLAppViewer::getTextureCache()->getUsage()); // bytes
+                texture_cache["hit_rate"] = LLSD::Real(cache_hit_rate);
+                texture_cache["entries"] = LLSD::Integer(LLTextureCache::instance().getEntryCount());
+                texture_cache["space_max"] = ll_sd_from_U64(LLTextureCache::instance().getMaxUsage());  // bytes
+                texture_cache["space_used"] = ll_sd_from_U64(LLTextureCache::instance().getUsage());    // bytes
 				texture_data["texture_cache"] = texture_cache;
 
 				// VO and mesh cache

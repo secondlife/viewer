@@ -111,7 +111,6 @@ public:
     void checkForCrash();
     
 	// Thread accessors
-	static LLTextureCache* getTextureCache() { return sTextureCache; }
 	static LLTextureFetch* getTextureFetch() { return sTextureFetch; }
 
 	static U32 getTextureCacheVersion() ;
@@ -271,7 +270,6 @@ private:
 	std::string mServerReleaseNotesURL;
 
 	// Thread objects.
-	static LLTextureCache* sTextureCache; 
 	static LLTextureFetch* sTextureFetch;
 
 	S32 mNumSessions;

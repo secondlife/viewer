@@ -31,7 +31,6 @@
 #include "llappviewer.h"
 #include "llcallstack.h"
 #include "lltexturecache.h"
-#include "lltexturefetch.h"
 #include "llviewerwindow.h"
 #include "llviewerobjectlist.h"
 #include "llvovolume.h"

@@ -35,63 +35,80 @@
 #include "llpointer.h"
 #include "llimage.h"
 
-struct CachedTextureInfo
-{
-    LLUUID  mID;
-    S8      mCodec;
-    U32     mImageEncodedSize;
-    U32     mDiscardLevel;
-    U32     mDiscardBytes[MAX_DISCARD_LEVEL]; // track sizes of each discard level
-    U32     mCachedWidth;
-    U32     mCachedHeight;
-    U32     mFullWidth;
-    U32     mFullHeight;
-    U32     mLastAccess; // epoch time for LRU
-};
+#include "llsingleton.h"
 
-class LLTextureCache
+class LLTextureCache : public LLSingleton<LLTextureCache>
 {
+    LLSINGLETON_EMPTY_CTOR(LLTextureCache)
+
 public:
-    static const std::string CACHE_ENTRY_ID;
-    static const std::string CACHE_ENTRY_CODEC;
-    static const std::string CACHE_ENTRY_ENCODED_SIZE;
-    static const std::string CACHE_ENTRY_DISCARD_LEVEL;
-    static const std::string CACHE_ENTRY_CACHED_WIDTH;
-    static const std::string CACHE_ENTRY_CACHED_HEIGHT;
-    static const std::string CACHE_ENTRY_FULL_WIDTH;
-    static const std::string CACHE_ENTRY_FULL_HEIGHT;
-    static const std::string CACHE_ENTRY_LAST_ACCESS;
-    static const std::string CACHE_ENTRY_DISCARD_BYTES;
+    virtual                     ~LLTextureCache();
 
-	LLTextureCache();
-	~LLTextureCache();
-
-    bool initCache(ELLPath loc, bool purgeCache);
+    bool                        initCache(ELLPath loc, bool purgeCache);
 
 	bool                        add(const LLUUID& id, LLImageFormatted* rawimage);
     bool                        remove(const LLUUID& id);
 	LLPointer<LLImageFormatted> find(const LLUUID& id, S32 discard_level = 0);
 
-    void purge();
+    void                        purge();
 
-    U32 getEntryCount();
-    U64 getMaxUsage();
-    U64 getUsage();
+    U32                         getEntryCount();
+    U64                         getMaxUsage();
+    U64                         getUsage();
 
-    bool updateCacheContentsFile(bool force_immediate_write);    
-    bool readCacheContentsFile();
+    bool                        updateCacheContentsFile(bool force_immediate_write);    
+    bool                        readCacheContentsFile();
 
 private:
-    typedef std::map<LLUUID, CachedTextureInfo> map_t;
+    virtual void cleanupSingleton() override;
 
-    bool writeCacheContentsFile(bool force_immediate_write);
+    struct CachedTextureInfo
+    {
+        typedef std::shared_ptr<CachedTextureInfo>  ptr_t;
+
+        static const std::string CACHE_ENTRY_ID;
+        static const std::string CACHE_ENTRY_CODEC;
+        static const std::string CACHE_ENTRY_ENCODED_SIZE;
+        static const std::string CACHE_ENTRY_DISCARD_LEVEL;
+        static const std::string CACHE_ENTRY_CACHED_WIDTH;
+        static const std::string CACHE_ENTRY_CACHED_HEIGHT;
+        static const std::string CACHE_ENTRY_FULL_WIDTH;
+        static const std::string CACHE_ENTRY_FULL_HEIGHT;
+        static const std::string CACHE_ENTRY_LAST_ACCESS;
+        static const std::string CACHE_ENTRY_DISCARD_BYTES;
+
+        CachedTextureInfo();
+        CachedTextureInfo(LLUUID id, LLImageFormatted* image);
+
+        LLSD    toLLSD() const;
+        void    fromLLSD(LLSD data);
+        void    fromImage(LLUUID id, LLImageFormatted* image);
+        void    updateDiscards(LLImageFormatted *image);
+
+        LLUUID  mID;
+        S8      mCodec;
+        U32     mImageEncodedSize;
+        U32     mDiscardLevel;
+        U32     mCachedWidth;
+        U32     mCachedHeight;
+        U32     mFullWidth;
+        U32     mFullHeight;
+        U32     mLastAccess; // epoch time for LRU
+        // TODO: After VS2017 change the 5 below to MAX_DISCARD_LEVEL
+        std::array<U32, 5>  mDiscardBytes; // track sizes of each discard level
+    };
+
+
+    typedef std::map<LLUUID, CachedTextureInfo::ptr_t> map_t;
+
+    bool        writeCacheContentsFile(bool force_immediate_write);
 
 	std::string getTextureFileName(const LLUUID& id, EImageCodec codec);
 
-    bool evict(U64 spaceRequired);
+    bool        evict(U64 spaceRequired);
 	
     LLMutex     mMutex;
-    LLSD        mEntries;
+    LLSD        mEntries;   /*TODO: mEntries is only used for reading and writing to disk... */
     ELLPath     mCacheLoc;
     std::string mTexturesDirName;
 	map_t       mMap;
@@ -99,7 +116,5 @@ private:
     U64         mUsageMax = 0; // 0 -> unlimited
     U64         mUsage    = 0;
 };
-
-extern const S32 TEXTURE_CACHE_ENTRY_SIZE;
 
 #endif // LL_LLTEXTURECACHE_H

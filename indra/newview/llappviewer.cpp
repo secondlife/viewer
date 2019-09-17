@@ -654,7 +654,6 @@ bool LLAppViewer::sendURLToOtherInstance(const std::string& url)
 // Static members.
 // The single viewer app.
 LLAppViewer* LLAppViewer::sInstance = NULL;
-LLTextureCache* LLAppViewer::sTextureCache = NULL;
 LLTextureFetch* LLAppViewer::sTextureFetch = NULL;
 
 std::string getRuntime()
@@ -1818,8 +1817,6 @@ bool LLAppViewer::cleanup()
     sTextureFetch->shutdown();
 	delete sTextureFetch;
 	sTextureFetch = NULL;
-	delete sTextureCache;
-	sTextureCache = NULL;
 
 	LL_INFOS() << "Cleaning up Keyboard & Joystick" << LL_ENDL;
 
@@ -2125,8 +2122,9 @@ bool LLAppViewer::initThreads()
 	LLLFSThread::initClass(enable_threads && false);
 
 	// Image decoding
-	LLAppViewer::sTextureCache = new LLTextureCache();
-	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(), app_metrics_qa_mode);	
+    LLTextureCache::instance();
+
+    LLAppViewer::sTextureFetch = new LLTextureFetch( LLTextureCache::getInstance(), app_metrics_qa_mode);	
 
 	if (LLTrace::BlockTimer::sLog || LLTrace::BlockTimer::sMetricLog)
 	{
@@ -4160,7 +4158,7 @@ bool LLAppViewer::initCache()
 	S64 vfs_size = llmin((S64)((cache_size * 2) / 10), MAX_VFS_SIZE);
 	S64 texture_cache_size = cache_size - vfs_size;
 
-	S64 extra = LLAppViewer::getTextureCache()->initCache(LL_PATH_CACHE, mPurgeCache);
+	S64 extra = LLTextureCache::instance().initCache(LL_PATH_CACHE, mPurgeCache);
 	texture_cache_size -= extra;
 
 	LLSplashScreen::update(LLTrans::getString("StartupInitializingVFS"));
@@ -4331,7 +4329,7 @@ void LLAppViewer::addOnIdleCallback(const boost::function<void()>& cb)
 void LLAppViewer::purgeCache()
 {
 	LL_INFOS("AppCache") << "Purging Cache and Texture Cache..." << LL_ENDL;
-	LLAppViewer::getTextureCache()->purge();
+    LLTextureCache::instance().purge();
 	LLVOCache::getInstance()->removeCache(LL_PATH_CACHE);
 	std::string browser_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "cef_cache");
 	if (LLFile::isdir(browser_cache))
@@ -4358,7 +4356,7 @@ void LLAppViewer::purgeCache()
 void LLAppViewer::purgeCacheImmediate()
 {
 	LL_INFOS("AppCache") << "Purging Object Cache and Texture Cache immediately..." << LL_ENDL;
-	LLAppViewer::getTextureCache()->purge();
+    LLTextureCache::instance().purge();
 	LLVOCache::getInstance()->removeCache(LL_PATH_CACHE, true);
 }
 
