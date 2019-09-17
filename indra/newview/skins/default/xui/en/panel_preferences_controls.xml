@@ -82,37 +82,37 @@
     Teleport To
   </panel.string>
   <panel.string
-   name="control_forward">
+   name="push_forward">
     Move Forward
   </panel.string>
   <panel.string
-   name="control_backward">
+   name="push_backward">
     Move Backward
   </panel.string>
   <panel.string
-   name="control_left">
+   name="turn_left">
     Left
   </panel.string>
   <panel.string
-   name="control_right">
+   name="turn_right">
     Right
   </panel.string>
   <!--(check with move floater)-->
   <panel.string
-   name="control_lstrafe">
+   name="slide_left">
     Strafe left
   </panel.string>
   <panel.string
-   name="control_rstrafe">
+   name="slide_right">
     Strafe right
   </panel.string>
   <panel.string
-   name="control_jump">
-    Strafe right
+   name="jump">
+    Jump/Up
   </panel.string>
   <panel.string
-   name="control_down">
-    Strafe right
+   name="push_down">
+    Down
   </panel.string>
   <panel.string
    name="control_run">
@@ -123,8 +123,84 @@
     Toggle Run
   </panel.string>
   <panel.string
-   name="control_fly">
+   name="toggle_fly">
     Fly/Stop flying
+  </panel.string>
+  <panel.string
+   name="control_camera">
+    Camera
+  </panel.string>
+  <panel.string
+   name="look_up">
+    Look Up
+  </panel.string>
+  <panel.string
+   name="look_down">
+    Look Down
+  </panel.string>
+  <panel.string
+   name="move_forward">
+    Camera Forward
+  </panel.string>
+  <panel.string
+   name="move_backward">
+    Camera Backward
+  </panel.string>
+  <panel.string
+   name="move_forward_fast">
+    Camera Forward Fast
+  </panel.string>
+  <panel.string
+   name="move_backward_fast">
+    Camera Backward Fast
+  </panel.string>
+  <panel.string
+   name="move_forward_sitting">
+    Camera Forward Sitting
+  </panel.string>
+  <panel.string
+   name="move_backward_sitting">
+    Camera Backward Sitting
+  </panel.string>
+  <panel.string
+   name="spin_over">
+    Camera Spin Over
+  </panel.string>
+  <panel.string
+   name="spin_under">
+    Camera Spin Under
+  </panel.string>
+  <panel.string
+   name="spin_over_sitting">
+    Camera Spin Over
+  </panel.string>
+  <panel.string
+   name="spin_under_sitting">
+    Camera Spin Under
+  </panel.string>
+  <panel.string
+   name="pan_up">
+    Camera Pan Up
+  </panel.string>
+  <panel.string
+   name="pan_down">
+    Camera Pan Down
+  </panel.string>
+  <panel.string
+   name="pan_left">
+    Camera Pan Left
+  </panel.string>
+  <panel.string
+   name="pan_right">
+    Camera Pan Right
+  </panel.string>
+  <panel.string
+   name="pan_left">
+    Camera Pan In
+  </panel.string>
+  <panel.string
+   name="pan_right">
+    Camera Pan Out
   </panel.string>
   <panel.string
    name="control_mediacontent">
@@ -150,6 +226,10 @@
    name="control_reserved">
     Reserved Controls
   </panel.string>
+  <panel.string
+   name="control_delete">
+    Delete
+  </panel.string>
   <!--
    name="control_menu" not needed
    -->
@@ -166,15 +246,60 @@
     Add to Selection
   </panel.string>
 
+  <combo_box
+   follows="top|left"
+   layout="topleft"
+   top="6"
+   left="10"
+   height="23"
+   width="110"
+   name="key_mode">
+    <combo_box.item
+     label="First Person "
+     name="first_person"
+     value="0"/>
+    <combo_box.item
+     label="Third Person "
+     name="third_person"
+     value="1"/>
+    <combo_box.item
+     label="Edit"
+     name="edit"
+     value="2"/>
+    <combo_box.item
+     label="Edit Avatar"
+     name="edit_avatar"
+     value="3"/>
+    <combo_box.item
+     label="Sitting"
+     name="sitting"
+     value="4"/>
+    <combo_box.item
+     label="General"
+     name="general"
+     value="5"/>
+  </combo_box>
+
+  <button
+   follows="top|left"
+   layout="topleft"
+   top="6"
+   right="-10"
+   height="23"
+   width="110"
+   label="Restore Default"
+   name="restore_defaults"/>
+  
   <scroll_list
    draw_heading="true"
    follows="all"
    layout="topleft"
    column_padding="0"
-   top="3"
+   top="31"
    left="3"
    bottom="-3"
    right="-3"
+   can_sort="false"
    multi_select="false"
    name="controls_list">
     <scroll_list.columns
@@ -182,13 +307,17 @@
      label="Action"
      name="lst_action" />
     <scroll_list.columns
-     relative_width="0.33"
-     label="Primary Control Method"
+     relative_width="0.22"
+     label="Control Method 1"
      name="lst_ctrl1" />
     <scroll_list.columns
-     relative_width="0.33"
-     label="Secondary Control Method"
+     relative_width="0.22"
+     label="Control Method 2"
      name="lst_ctrl2" />
+    <scroll_list.columns
+     relative_width="0.22"
+     label="Control Method 3"
+     name="lst_ctrl3" />
     <scroll_list.commit_callback
       function="Pref.CommitControl" />
   </scroll_list>

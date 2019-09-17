@@ -34,12 +34,16 @@ class LL_COMMON_API LLKeyData
 {
 public:
     LLKeyData();
+    LLKeyData(EMouseClickType mouse, KEY key, MASK mask);
     LLKeyData(const LLSD &key_data);
 
     LLSD asLLSD() const;
     bool isEmpty() const;
+    bool empty() const { return isEmpty(); };
     void reset();
     LLKeyData& operator=(const LLKeyData& rhs);
+    bool operator==(const LLKeyData& rhs);
+    bool operator!=(const LLKeyData& rhs);
 
     EMouseClickType mMouse;
     KEY mKey;
@@ -54,7 +58,9 @@ public:
     LLKeyBind(const LLSD &key_bind);
 
     bool operator==(const LLKeyBind& rhs);
-    bool empty();
+    bool operator!=(const LLKeyBind& rhs);
+    bool isEmpty() const;
+    bool empty() const { return isEmpty(); };
 
     LLSD asLLSD() const;
 
@@ -62,8 +68,19 @@ public:
     bool canHandleKey(KEY key, MASK mask) const;
     bool canHandleMouse(EMouseClickType mouse, MASK mask) const;
 
-    LLKeyData mDataPrimary;
-    LLKeyData mDataSecondary;
+    // these methods enshure there will be no repeats
+    bool addKeyData(EMouseClickType mouse, KEY key, MASK mask);
+    bool addKeyData(const LLKeyData& data);
+    void replaceKeyData(EMouseClickType mouse, KEY key, MASK mask, U32 index);
+    void replaceKeyData(const LLKeyData& data, U32 index);
+    bool hasKeyData(U32 index) const;
+    void clear() { mData.clear(); };
+    LLKeyData getKeyData(U32 index) const;
+    U32 getDataCount();
+
+private:
+    typedef std::vector<LLKeyData> data_vector_t;
+    data_vector_t mData;
 };
 
 

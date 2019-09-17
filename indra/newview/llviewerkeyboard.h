@@ -71,8 +71,8 @@ public:
 	struct KeyMode : public LLInitParam::Block<KeyMode>
 	{
 		Multiple<KeyBinding>		bindings;
-		EKeyboardMode				mode;
-		KeyMode(EKeyboardMode mode);
+
+		KeyMode();
 	};
 
 	struct Keys : public LLInitParam::Block<Keys>
@@ -100,7 +100,7 @@ public:
 	void			scanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level);
 
 private:
-	S32				loadBindingMode(const LLViewerKeyboard::KeyMode& keymode);
+	S32				loadBindingMode(const LLViewerKeyboard::KeyMode& keymode, S32 mode);
 	BOOL			bindKey(const S32 mode, const KEY key, const MASK mask, const std::string& function_name);
 
 	// Hold all the ugly stuff torn out to make LLKeyboard non-viewer-specific here

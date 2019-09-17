@@ -376,6 +376,7 @@ set(viewer_SOURCE_FILES
     llinventoryobserver.cpp
     llinventorypanel.cpp
     lljoystickbutton.cpp
+    llkeyconflict.cpp
     lllandmarkactions.cpp
     lllandmarklist.cpp
     lllistbrowser.cpp
@@ -1004,6 +1005,7 @@ set(viewer_HEADER_FILES
     llinventoryobserver.h
     llinventorypanel.h
     lljoystickbutton.h
+    llkeyconflict.h
     lllandmarkactions.h
     lllandmarklist.h
     lllightconstants.h
