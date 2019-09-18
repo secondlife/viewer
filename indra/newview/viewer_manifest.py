@@ -145,13 +145,10 @@ class ViewerManifest(LLManifest):
             with self.prefix(src_dst="skins"):
                     # include the entire textures directory recursively
                     with self.prefix(src_dst="*/textures"):
-                            self.path("*/*.tga")
-                            self.path("*/*.j2c")
                             self.path("*/*.jpg")
                             self.path("*/*.png")
                             self.path("*.tga")
                             self.path("*.j2c")
-                            self.path("*.jpg")
                             self.path("*.png")
                             self.path("textures.xml")
                     self.path("*/xui/*/*.xml")
@@ -170,11 +167,6 @@ class ViewerManifest(LLManifest):
                             self.path("*/*/*.html")
                             self.path("*/*/*.gif")
 
-
-            # local_assets dir (for pre-cached textures)
-            with self.prefix(src_dst="local_assets"):
-                self.path("*.j2c")
-                self.path("*.tga")
 
             #build_data.json.  Standard with exception handling is fine.  If we can't open a new file for writing, we have worse problems
             #platform is computed above with other arg parsing
@@ -514,17 +506,6 @@ class WindowsManifest(ViewerManifest):
         with self.prefix(src=os.path.join(self.args['build'], os.pardir,
                                           'sharedlibs', self.args['configuration'])):
 
-            # Get llcommon and deps. If missing assume static linkage and continue.
-            try:
-                self.path('llcommon.dll')
-                self.path('libapr-1.dll')
-                self.path('libaprutil-1.dll')
-                self.path('libapriconv-1.dll')
-                
-            except MissingError as err:
-                print err.message
-                print "Skipping llcommon.dll (assuming llcommon was linked statically)"
-
             # Mesh 3rd party libs needed for auto LOD and collada reading
             try:
                 self.path("glod.dll")
@@ -549,13 +530,9 @@ class WindowsManifest(ViewerManifest):
             if self.args['configuration'].lower() == 'debug':
                 self.path("msvcr120d.dll")
                 self.path("msvcp120d.dll")
-                self.path("msvcr100d.dll")
-                self.path("msvcp100d.dll")
             else:
                 self.path("msvcr120.dll")
                 self.path("msvcp120.dll")
-                self.path("msvcr100.dll")
-                self.path("msvcp100.dll")
 
             # Vivox runtimes
             self.path("SLVoice.exe")
@@ -565,8 +542,6 @@ class WindowsManifest(ViewerManifest):
             else:
                 self.path("vivoxsdk.dll")
                 self.path("ortp.dll")
-            self.path("libsndfile-1.dll")
-            self.path("vivoxoal.dll")
             
             # Security
             self.path("ssleay32.dll")
@@ -588,15 +563,6 @@ class WindowsManifest(ViewerManifest):
                     self.path("BsSndRpt.exe")
                     self.path("BugSplat.dll")
                     self.path("BugSplatRc.dll")
-
-            # For google-perftools tcmalloc allocator.
-            try:
-                if self.args['configuration'].lower() == 'debug':
-                    self.path('libtcmalloc_minimal-debug.dll')
-                else:
-                    self.path('libtcmalloc_minimal.dll')
-            except:
-                print "Skipping libtcmalloc_minimal.dll"
 
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
