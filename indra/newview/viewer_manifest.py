@@ -1018,33 +1018,19 @@ class DarwinManifest(ViewerManifest):
                 # symlink from sub-app/Contents/Resources to the real .dylib.
                 # Need to get the llcommon dll from any of the build directories as well.
                 libfile_parent = self.get_dst_prefix()
-                libfile = "libllcommon.dylib"
-                dylibs = path_optional(self.find_existing_file(os.path.join(os.pardir,
-                                                               "llcommon",
-                                                               self.args['configuration'],
-                                                               libfile),
-                                                               os.path.join(relpkgdir, libfile)),
-                                       dst=libfile)
-
                 for libfile in (
                                 "libapr-1.0.dylib",
                                 "libaprutil-1.0.dylib",
-                                "libcollada14dom.dylib",
                                 "libexpat.1.dylib",
                                 "libexception_handler.dylib",
                                 "libGLOD.dylib",
-                                # libnghttp2.dylib is a symlink to
-                                # libnghttp2.major.dylib, which is a symlink to
-                                # libnghttp2.version.dylib. Get all of them.
                                 "libnghttp2.*dylib",
                                 ):
-                    dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
+                    dylibs = path_optional(os.path.join(relpkgdir, libfile), libfile)
 
                 # SLVoice and vivox lols, no symlinks needed
                 for libfile in (
                                 'libortp.dylib',
-                                #'libsndfile.dylib',
-                                #'libvivoxoal.dylib',
                                 'libvivoxsdk.dylib',
                                 'libvivoxplatform.dylib',
                                 'SLVoice',
