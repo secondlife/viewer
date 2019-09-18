@@ -475,6 +475,10 @@ void LLObjectCostManagerImpl::getObjectCostData(const LLVOVolume *vol, LLObjectC
         }
         else if (face->getPoolType() == LLDrawPool::POOL_FULLBRIGHT)
         {
+			// FIXME ARC: this only gets hit for full bright faces
+			// with some graphics quality settings (e.g. on
+			// low). Doesn't make sense since render cost should only
+			// be a function of the content.
             cost_data.m_full_bright_faces++;
         }
 		else if (img && img->getPrimaryFormat() == GL_ALPHA)
@@ -552,18 +556,24 @@ U32 LLObjectCostManagerImpl::textureCostsV1(const texture_ids_t& ids)
 
     static const U32 ARC_TEXTURE_COST    = 16; // multiplier for texture resolution - performance tested
 
+	// FIXME ARC Media faces do not give the right dimensions. Old
+	// code uses face texture directly, right value. Here we look up
+	// the corresponding fetched texture, doesn't work (get 0x0 texture).
 	for (texture_ids_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
 	{
 		const LLUUID& id = *it;
 		LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(id);
+		U32 texture_cost = 0;
 		if (texture)
 		{
-			cost += 256 + (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f));
+			texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f));
 		}
 		else
 		{
-			cost += 1;
+			texture_cost = 1;
 		}
+		LL_DEBUGS("ARCdetail") << "texture " << id << " cost " << texture_cost << LL_ENDL;
+		cost += texture_cost;
 	}
 
 	return cost;

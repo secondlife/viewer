@@ -298,10 +298,15 @@ public:
 	void			calculateUpdateRenderComplexity();
 	void			calculateUpdateRenderComplexityLegacy();
     void			calculateUpdateRenderComplexityLegacy_(); // ARCtan version
+	// FIXME ARC - this doesn't make sense. Gets used as a starting
+	// value and then incremented, so it can't give right results
+	// unless the starting value is 0, so can't pretend it's an
+	// unspecified magic value.
 	static const U32 VISUAL_COMPLEXITY_UNKNOWN;
 	void			updateVisualComplexity();
 	
 	U32				getVisualComplexity() const		{ return mVisualComplexity;	};		// Numbers calculated here by rendering AV
+	U32				getVisualComplexityNew() const		{ return mVisualComplexityNew;	};		// Numbers calculated by LLObjectManager path
     U32				getVisualComplexityArctan() const		{ return mVisualComplexityArctan;	};		// Numbers calculated here by rendering AV w/ Arctan adjustments
 
 	F32				getAttachmentSurfaceArea() const { return mAttachmentSurfaceArea; };		// estimated surface area of attachments
@@ -476,6 +481,7 @@ public:
 	S32	 		mUpdatePeriod;
 	S32  		mNumInitFaces; //number of faces generated when creating the avatar drawable, does not inculde splitted faces due to long vertex buffer.
 
+	U32  		mVisualComplexityNew;
 	U32  		mVisualComplexity;
     U32  		mVisualComplexityArctan;
 	bool 		mVisualComplexityStale;

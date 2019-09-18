@@ -664,6 +664,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mPreviousFullyLoaded(FALSE),
 	mFullyLoadedInitialized(FALSE),
 	mVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
+	mVisualComplexityNew(VISUAL_COMPLEXITY_UNKNOWN),
     mVisualComplexityArctan(VISUAL_COMPLEXITY_UNKNOWN),
     mReportedVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
     mReportedVisualComplexityArctan(VISUAL_COMPLEXITY_UNKNOWN),
@@ -10562,7 +10563,10 @@ F32 LLVOAvatar::calculateRenderComplexity(U32 version) const
 			 ++attachment_iter)
 		{
 			const LLViewerObject* attached_object = (*attachment_iter);
-			cost += LLObjectCostManager::instance().getRenderCostLinkset(version, attached_object);
+			if (attached_object && !attached_object->isHUDAttachment() && attached_object->mDrawable && attached_object->mDrawable->getVOVolume())
+			{
+				cost += LLObjectCostManager::instance().getRenderCostLinkset(version, attached_object);
+			}
 		}
 	}
 
@@ -10704,6 +10708,7 @@ void LLVOAvatar::calculateUpdateRenderComplexityLegacy()
                                       << " reported " << mReportedVisualComplexity
                                       << LL_ENDL;
         }
+		mVisualComplexityNew = unew_cost;
 		mVisualComplexity = cost;
 		mVisualComplexityStale = false;
 

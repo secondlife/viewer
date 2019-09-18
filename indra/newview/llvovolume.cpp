@@ -88,6 +88,8 @@
 #include "llavatarappearancedefines.h"
 #include "llobjectcostmanager.h"
 
+#pragma optimize("", off)
+
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
 U32 JOINT_COUNT_REQUIRED_FOR_FULLRIG = 1;
@@ -3962,6 +3964,7 @@ U32 LLVOVolume::getRenderCostLegacy(texture_cost_t &textures, texture_cost_t &ma
 				if (texture)
 				{
 					S32 texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f));
+					LL_DEBUGS("ARCdetail") << "sculpt texture " << sculpt_id << " cost " << texture_cost << LL_ENDL;
 					textures.insert(texture_cost_t::value_type(sculpt_id, texture_cost));
 				}
 			}
@@ -3993,8 +3996,27 @@ U32 LLVOVolume::getRenderCostLegacy(texture_cost_t &textures, texture_cost_t &ma
 		{
 			if (textures.find(img->getID()) == textures.end())
 			{
-				S32 texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (img->getFullHeight() / 128.f + img->getFullWidth() / 128.f));
+				S32 height = img->getFullHeight();
+				S32 width = img->getFullWidth();
+				S32 texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (height / 128.f + width / 128.f));
 				textures.insert(texture_cost_t::value_type(img->getID(), texture_cost));
+				LL_DEBUGS("ARCdetail") << "texture " << img->getID() << " cost " << texture_cost << LL_ENDL;
+				LLViewerFetchedTexture *fetched_texture = LLViewerTextureManager::getFetchedTexture(img->getID());
+				if (fetched_texture)
+				{
+					S32 fetched_height = fetched_texture->getFullHeight();
+					S32 fetched_width = fetched_texture->getFullWidth();
+					if ((height != fetched_height) || (width != fetched_width))
+					{
+						LL_DEBUGS("ARCdetail") << "texture size mismatch, face " << width << "x" << height
+											   << " fetched " << fetched_width << "x" << fetched_height << LL_ENDL;
+					}
+				}
+				else
+				{
+					LL_DEBUGS("ARCdetail") << "texture existence mismatch, face " << width << "x" << height
+										   << " fetched not found " << LL_ENDL; 
+				}
 			}
 		}
 
@@ -4294,6 +4316,7 @@ U32 LLVOVolume::getRenderCostLegacy_(texture_cost_t &textures, texture_cost_t &m
                 {
                     S32 texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f));
                     textures.insert(texture_cost_t::value_type(sculpt_id, texture_cost));
+					LL_DEBUGS("ARCdetail") << "sculpt texture " << sculpt_id << " cost " << texture_cost << LL_ENDL;
                 }
             }
         }
