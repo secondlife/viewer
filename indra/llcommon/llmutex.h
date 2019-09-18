@@ -58,6 +58,8 @@ public:
 		NO_THREAD = 0xFFFFFFFF
 	} e_locking_thread;
 
+    typedef std::unique_ptr<LLMutex>    uptr_t;
+
 	LLMutex();
 	virtual ~LLMutex();
 	
@@ -96,13 +98,19 @@ protected:
 class LLMutexLock
 {
 public:
-	LLMutexLock(LLMutex* mutex)
+	LLMutexLock(LLMutex* mutex):
+        mMutex(mutex)
 	{
-		mMutex = mutex;
-		
 		if(mMutex)
 			mMutex->lock();
 	}
+    LLMutexLock(const LLMutex::uptr_t &mutex) :
+        mMutex(mutex.get())
+    {
+        if (mMutex)
+            mMutex->lock();
+    }
+
 	~LLMutexLock()
 	{
 		if(mMutex)

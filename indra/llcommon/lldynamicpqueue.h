@@ -26,7 +26,9 @@
 #ifndef LL_LLDYNAMICQUEUE_H
 #define LL_LLDYNAMICQUEUE_H
 
+#ifdef LL_TEST_lldynamicpqueue
 #include <iostream>
+#endif 
 #include <set>
 #include <vector>
 #include "stdtypes.h"
@@ -62,7 +64,7 @@
  // This would be the item queued
  struct QueuedItemType
  {
-     typedef std::shared_ptr<QueuedItemType1>    ptr_t;
+     typedef std::shared_ptr<QueuedItemType>    ptr_t;
 
      QueuedItemType(std::string &name) :
          mName(name),
@@ -80,7 +82,7 @@
 // in order to extract a UUID from the item. 
 struct get_item_id
 {
-    LLUUID operator()(const QueuedItemType1::ptr_t &item)
+    LLUUID operator()(const QueuedItemType::ptr_t &item)
     {
         return item->mID;
     }
@@ -92,8 +94,28 @@ typedef LLDynamicPriorityQueue <QueuedItemType::ptr_t, get_item_id>  dynamic_que
  *------------------------------------------------------------------------
  *
  */
+
+
+template<class ITEMT>
+struct default_priority_change
+{
+    /**
+     * Default priority modification functor.
+     *  If increasing the priority add the old and new.
+     *  If decreasing the priority subtract the two.  If the bump is greater than the old priority return 0.
+     */
+    U32 operator()(bool increase, const ITEMT &, U32 priority, U32 bump)
+    {
+        if (increase)
+            return priority + bump;
+        else
+            return (bump <= priority) ? (priority - bump) : 0;
+    }
+};
+
 template <class ITEMT,              // Queued item type
-    class IDFN>                     // Identity getter for ITEMT    
+    class IDFN,                     // Identity getter for ITEMT.  Must be of the form <UUID (const ITEMT &)>  taking an ITEMT and returning its UUID.
+    class PRIOFN = default_priority_change<ITEMT> >   // Priority update function.  Must be of the form <U32 (PriorityChange, const ITEMT &, U32, U32)>
 class LLDynamicPriorityQueue
 {
     struct HeapEntry
@@ -118,13 +140,15 @@ class LLDynamicPriorityQueue
         }
     };
 
+
+    // Fibonacci heaps are used with intent here.  Fibonacci heaps provide for efficient reordering.
     typedef boost::heap::fibonacci_heap<typename HeapEntry::ptr_t, 
             boost::heap::compare< compare_entry >,
             boost::heap::stable<true> >                             queueheap_t;
     typedef typename queueheap_t::handle_type                       queuehandle_t;
     typedef std::map<LLUUID, typename queuehandle_t>                queuemapping_t;
     typedef IDFN                                                    get_id_fn_t;
-
+    typedef PRIOFN                                                  update_priority_fn_t;
 public:
 
     /**
@@ -133,28 +157,26 @@ public:
      * to the queue.
      */
     LLDynamicPriorityQueue(bool threadsafe = false) :
-        mGetIdFn(get_id_fn_t()),
         mPriorityHeap(),
         mEntryMapping(),
-        mMutexp(nullptr)
+        mMutexp()
     {
         if (threadsafe)
-            mMutexp = new LLMutex;
+            mMutexp.reset(new LLMutex);
     }
-    ~LLDynamicPriorityQueue() 
-    {
-        delete mMutexp;
-    }
+    ~LLDynamicPriorityQueue() {}
 
     /**
      * Place an item on the queue with the given priority.  Or, if the item is already queued increase 
-     * the priority of the previously queued item.  Returns the UUID associated with the enqueued item.
+     * the priority of the previously queued item.  The higher an item's priority, the more quickly it
+     * is popped off the queue. 
+     * Returns the UUID associated with the enqueued item.
      */
     LLUUID enqueue(const ITEMT &item, U32 priority = 1)
     {
         LLMutexLock lock(mMutexp);  // scoped lock is a noop with a nullptr mutex.
         LLUUID id;
-        id = mGetIdFn(item);
+        id = get_id_fn_t()(item);
 
         queuemapping_t::iterator it = mEntryMapping.find(id);
 
@@ -171,8 +193,9 @@ public:
         else
         {   // The item has already been queued, increase its priority by the passed amount. 
             queuehandle_t handle((*it).second);
-            (*handle)->mPriority += priority;   // if desired priority bump is 0 then priority remains unchanged.
-            mPriorityHeap.increase(handle);
+
+            (*handle)->mPriority = update_priority_fn_t()(true, (*handle)->mItem, (*handle)->mPriority, priority);
+            mPriorityHeap.update(handle); 
         }
 
         return id;
@@ -194,16 +217,22 @@ public:
 
         queuehandle_t handle((*it).second);
 
-        if ((*handle)->mPriority <= priority)
+        (*handle)->mPriority = update_priority_fn_t()(false, (*handle)->mItem, (*handle)->mPriority, priority);
+
+        if (!(*handle)->mPriority)
         {
             mPriorityHeap.erase(handle);
             mEntryMapping.erase(it);
         }
         else
         {
-            (*handle)->mPriority -= priority;
-            mPriorityHeap.decrease(handle);
+            mPriorityHeap.update(handle);
         }
+    }
+
+    void forget(ITEMT item, U32 priority = 1)
+    {
+        forget(get_id_fn_t()(item), priority);
     }
 
     /**
@@ -220,6 +249,11 @@ public:
         queuehandle_t handle((*it).second);
         mPriorityHeap.erase(handle);
         mEntryMapping.erase(it);
+    }
+
+    void remove(const ITEMT item)
+    {
+        remove(get_id_fn_t()(item));
     }
 
     /**
@@ -281,12 +315,7 @@ public:
         return entry->mItem;
     }
 
-
-    bool is_stable() const
-    {
-        return mPriorityHeap.is_stable;
-    }
-
+#ifdef LL_TEST_lldynamicpqueue
     void debug_dump(std::ostream &os)
     {
         os << "Ordered dump: [ ";
@@ -314,13 +343,12 @@ public:
 //         }
 //         os << "]" << std::endl;
     }
-
+#endif
 
 private:
     queueheap_t             mPriorityHeap;
     queuemapping_t          mEntryMapping;
-    get_id_fn_t             mGetIdFn;
-    LLMutex *               mMutexp;
+    LLMutex::uptr_t         mMutexp;
 };
 
 #if LL_MSVC
