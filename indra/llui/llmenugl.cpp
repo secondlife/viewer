@@ -263,13 +263,13 @@ BOOL LLMenuItemGL::handleRightMouseUp(S32 x, S32 y, MASK mask)
 
 // This function checks to see if the accelerator key is already in use;
 // if not, it will be added to the list
-BOOL LLMenuItemGL::addToAcceleratorList(std::list <LLKeyBinding*> *listp)
+BOOL LLMenuItemGL::addToAcceleratorList(std::list <LLMenuKeyboardBinding*> *listp)
 {
-	LLKeyBinding *accelerator = NULL;
+	LLMenuKeyboardBinding *accelerator = NULL;
 
 	if (mAcceleratorKey != KEY_NONE)
 	{
-		std::list<LLKeyBinding*>::iterator list_it;
+		std::list<LLMenuKeyboardBinding*>::iterator list_it;
 		for (list_it = listp->begin(); list_it != listp->end(); ++list_it)
 		{
 			accelerator = *list_it;
@@ -293,7 +293,7 @@ BOOL LLMenuItemGL::addToAcceleratorList(std::list <LLKeyBinding*> *listp)
 		}
 		if (!accelerator)
 		{				
-			accelerator = new LLKeyBinding;
+			accelerator = new LLMenuKeyboardBinding;
 			if (accelerator)
 			{
 				accelerator->mKey = mAcceleratorKey;
@@ -1024,7 +1024,7 @@ BOOL LLMenuItemBranchGL::handleAcceleratorKey(KEY key, MASK mask)
 
 // This function checks to see if the accelerator key is already in use;
 // if not, it will be added to the list
-BOOL LLMenuItemBranchGL::addToAcceleratorList(std::list<LLKeyBinding*> *listp)
+BOOL LLMenuItemBranchGL::addToAcceleratorList(std::list<LLMenuKeyboardBinding*> *listp)
 {
 	LLMenuGL* branch = getBranch();
 	if (!branch)

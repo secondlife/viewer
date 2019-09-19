@@ -42,6 +42,13 @@
 extern S32 MENU_BAR_HEIGHT;
 extern S32 MENU_BAR_WIDTH;
 
+class LLMenuKeyboardBinding
+{
+public:
+    KEY				mKey;
+    MASK			mMask;
+};
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLMenuItemGL
 //
@@ -109,7 +116,7 @@ public:
 	virtual void setBriefItem(BOOL brief);
 	virtual BOOL isBriefItem() const;
 
-	virtual BOOL addToAcceleratorList(std::list<LLKeyBinding*> *listp);
+	virtual BOOL addToAcceleratorList(std::list<LLMenuKeyboardBinding*> *listp);
 	void setAllowKeyRepeat(BOOL allow) { mAllowKeyRepeat = allow; }
 	BOOL getAllowKeyRepeat() const { return mAllowKeyRepeat; }
 
@@ -631,7 +638,7 @@ public:
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 
 	// check if we've used these accelerators already
-	virtual BOOL addToAcceleratorList(std::list <LLKeyBinding*> *listp);
+	virtual BOOL addToAcceleratorList(std::list <LLMenuKeyboardBinding*> *listp);
 
 	// called to rebuild the draw label
 	virtual void buildDrawLabel( void );
@@ -797,7 +804,7 @@ private:
 
 	void checkMenuTrigger();
 
-	std::list <LLKeyBinding*>	mAccelerators;
+	std::list <LLMenuKeyboardBinding*>	mAccelerators;
 	BOOL						mAltKeyTrigger;
 };
 
