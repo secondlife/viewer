@@ -40,6 +40,7 @@
 #include <boost/fiber/unbuffered_channel.hpp>
 
 #include "../test/lltut.h"
+#include "../test/sync.h"
 
 
 #if LL_WINDOWS
@@ -83,19 +84,18 @@ namespace tut
     template<> template<>
     void coproceduremanager_object_t::test<1>()
     {
-		// TODO: fix me. timing issues.the coproc gets executed after a frame, access violation in release
-
-		/*
+        Sync sync;
         int foo = 0;
         LLUUID queueId = LLCoprocedureManager::instance().enqueueCoprocedure("PoolName", "ProcName",
-            [&foo] (LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t & ptr, const LLUUID & id) {
+            [&foo, &sync] (LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t & ptr, const LLUUID & id) {
+                sync.bump();
                 foo = 1;
             });
 
-		ensure_equals("coprocedure failed to update foo", foo, 1);
+        sync.yield();
+        ensure_equals("coprocedure failed to update foo", foo, 1);
         
         LLCoprocedureManager::instance().close("PoolName");
-		*/
     }
 
     template<> template<>
