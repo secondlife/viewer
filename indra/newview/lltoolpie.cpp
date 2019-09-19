@@ -91,7 +91,7 @@ LLToolPie::LLToolPie()
 {
 }
 
-BOOL LLToolPie::handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktype, BOOL down)
+BOOL LLToolPie::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down)
 {
 	BOOL result = LLMouseHandler::handleAnyMouseClick(x, y, mask, clicktype, down);
 	

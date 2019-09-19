@@ -176,7 +176,7 @@ public:
 	void			setUIVisibility(bool);
 	bool			getUIVisibility();
 
-	BOOL handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down);
+	BOOL handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK mask, EMouseClickType clicktype, BOOL down);
 
 	//
 	// LLWindowCallback interface implementation
