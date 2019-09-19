@@ -642,15 +642,15 @@ void LLVoiceClient::setPTTKey(std::string &key)
 	// Value is stored as text for readability
 	if(key == "MiddleMouse")
 	{
-		mPTTMouseButton = LLMouseHandler::CLICK_MIDDLE;
+		mPTTMouseButton = CLICK_MIDDLE;
 	}
 	else if(key == "MouseButton4")
 	{
-		mPTTMouseButton = LLMouseHandler::CLICK_BUTTON4;
+		mPTTMouseButton = CLICK_BUTTON4;
 	}
 	else if (key == "MouseButton5")
 	{
-		mPTTMouseButton = LLMouseHandler::CLICK_BUTTON5;
+		mPTTMouseButton = CLICK_BUTTON5;
 	}
 	else
 	{
@@ -712,7 +712,7 @@ void LLVoiceClient::keyUp(KEY key, MASK mask)
 		}
 	}
 }
-void LLVoiceClient::updateMouseState(S32 click, bool down)
+void LLVoiceClient::updateMouseState(S32 click, MASK mask, bool down)
 {
 	if(mPTTMouseButton == click && LLAgent::isActionAllowed("speak"))
 	{

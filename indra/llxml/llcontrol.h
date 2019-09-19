@@ -34,8 +34,6 @@
 #include "llrefcount.h"
 #include "llinstancetracker.h"
 
-#include "llcontrolgroupreader.h"
-
 #include <vector>
 
 // *NOTE: boost::visit_each<> generates warning 4675 on .net 2003

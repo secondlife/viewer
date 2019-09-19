@@ -914,7 +914,7 @@ LLViewerWindow::Params::Params()
 {}
 
 
-BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down)
+BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK mask, EMouseClickType clicktype, BOOL down)
 {
 	const char* buttonname = "";
 	const char* buttonstatestr = "";
@@ -922,6 +922,8 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 	S32 y = pos.mY;
 	x = ll_round((F32)x / mDisplayScale.mV[VX]);
 	y = ll_round((F32)y / mDisplayScale.mV[VY]);
+
+    LLVoiceClient::getInstance()->updateMouseState(clicktype, mask, down);
 
 	// only send mouse clicks to UI if UI is visible
 	if(gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
@@ -938,26 +940,26 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 		
 		switch (clicktype)
 		{
-		case LLMouseHandler::CLICK_LEFT:
+		case CLICK_LEFT:
 			mLeftMouseDown = down;
 			buttonname = "Left";
 			break;
-		case LLMouseHandler::CLICK_RIGHT:
+		case CLICK_RIGHT:
 			mRightMouseDown = down;
 			buttonname = "Right";
 			break;
-		case LLMouseHandler::CLICK_MIDDLE:
+		case CLICK_MIDDLE:
 			mMiddleMouseDown = down;
 			buttonname = "Middle";
 			break;
-		case LLMouseHandler::CLICK_DOUBLELEFT:
+		case CLICK_DOUBLELEFT:
 			mLeftMouseDown = down;
 			buttonname = "Left Double Click";
 			break;
-		case LLMouseHandler::CLICK_BUTTON4:
+		case CLICK_BUTTON4:
 			buttonname = "Button 4";
 			break;
-		case LLMouseHandler::CLICK_BUTTON5:
+		case CLICK_BUTTON5:
 			buttonname = "Button 5";
 			break;
 		}
@@ -1075,7 +1077,7 @@ BOOL LLViewerWindow::handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask
         mMouseDownTimer.reset();
     }    
     BOOL down = TRUE;
-	return handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_LEFT,down);
+	return handleAnyMouseClick(window, pos, mask, CLICK_LEFT, down);
 }
 
 BOOL LLViewerWindow::handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask)
@@ -1083,8 +1085,7 @@ BOOL LLViewerWindow::handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK ma
 	// try handling as a double-click first, then a single-click if that
 	// wasn't handled.
 	BOOL down = TRUE;
-	if (handleAnyMouseClick(window, pos, mask,
-				LLMouseHandler::CLICK_DOUBLELEFT, down))
+	if (handleAnyMouseClick(window, pos, mask, CLICK_DOUBLELEFT, down))
 	{
 		return TRUE;
 	}
@@ -1098,7 +1099,7 @@ BOOL LLViewerWindow::handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
         mMouseDownTimer.stop();
     }
     BOOL down = FALSE;
-	return handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_LEFT,down);
+	return handleAnyMouseClick(window, pos, mask, CLICK_LEFT, down);
 }
 
 
@@ -1110,7 +1111,7 @@ BOOL LLViewerWindow::handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK
 	y = ll_round((F32)y / mDisplayScale.mV[VY]);
 
 	BOOL down = TRUE;
-	BOOL handle = handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_RIGHT,down);
+	BOOL handle = handleAnyMouseClick(window, pos, mask, CLICK_RIGHT, down);
 	if (handle)
 		return handle;
 
@@ -1131,14 +1132,13 @@ BOOL LLViewerWindow::handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK
 BOOL LLViewerWindow::handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	BOOL down = FALSE;
- 	return handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_RIGHT,down);
+ 	return handleAnyMouseClick(window, pos, mask, CLICK_RIGHT, down);
 }
 
 BOOL LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	BOOL down = TRUE;
-	LLVoiceClient::getInstance()->updateMouseState(LLMouseHandler::CLICK_MIDDLE, true);
- 	handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_MIDDLE,down);
+ 	handleAnyMouseClick(window, pos, mask, CLICK_MIDDLE, down);
   
   	// Always handled as far as the OS is concerned.
 	return TRUE;
@@ -1293,8 +1293,7 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 BOOL LLViewerWindow::handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	BOOL down = FALSE;
-	LLVoiceClient::getInstance()->updateMouseState(LLMouseHandler::CLICK_MIDDLE, false);
- 	handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_MIDDLE,down);
+ 	handleAnyMouseClick(window, pos, mask, CLICK_MIDDLE, down);
   
   	// Always handled as far as the OS is concerned.
 	return TRUE;
@@ -1305,12 +1304,10 @@ BOOL LLViewerWindow::handleOtherMouse(LLWindow *window, LLCoordGL pos, MASK mask
     switch (button)
     {
     case 4:
-        LLVoiceClient::getInstance()->updateMouseState(LLMouseHandler::CLICK_BUTTON4, down);
-        handleAnyMouseClick(window, pos, mask, LLMouseHandler::CLICK_BUTTON4, down);
+        handleAnyMouseClick(window, pos, mask, CLICK_BUTTON4, down);
         break;
     case 5:
-        LLVoiceClient::getInstance()->updateMouseState(LLMouseHandler::CLICK_BUTTON5, down);
-        handleAnyMouseClick(window, pos, mask, LLMouseHandler::CLICK_BUTTON5, down);
+        handleAnyMouseClick(window, pos, mask, CLICK_BUTTON5, down);
         break;
     default:
         break;

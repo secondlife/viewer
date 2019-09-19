@@ -60,7 +60,7 @@ LLTool::~LLTool()
 	}
 }
 
-BOOL LLTool::handleAnyMouseClick(S32 x, S32 y, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down)
+BOOL LLTool::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down)
 {
 	BOOL result = LLMouseHandler::handleAnyMouseClick(x, y, mask, clicktype, down);
 	

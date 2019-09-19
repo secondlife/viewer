@@ -170,7 +170,7 @@ public:
 	void setParent(LLFloaterPreference* parent) { mParent = parent; }
 	
 	BOOL handleKeyHere(KEY key, MASK mask);
-	BOOL handleAnyMouseClick(S32 x, S32 y, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down);
+	BOOL handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down);
 	static void onCancel(void* user_data);
 		
 private:
@@ -214,11 +214,11 @@ BOOL LLVoiceSetKeyDialog::handleKeyHere(KEY key, MASK mask)
 	return result;
 }
 
-BOOL LLVoiceSetKeyDialog::handleAnyMouseClick(S32 x, S32 y, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down)
+BOOL LLVoiceSetKeyDialog::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down)
 {
     BOOL result = FALSE;
     if (down
-        && (clicktype == LLMouseHandler::CLICK_MIDDLE || clicktype == LLMouseHandler::CLICK_BUTTON4 || clicktype == LLMouseHandler::CLICK_BUTTON5)
+        && (clicktype == CLICK_MIDDLE || clicktype == CLICK_BUTTON4 || clicktype == CLICK_BUTTON5)
         && mask == 0)
     {
         mParent->setMouse(clicktype);
@@ -1674,21 +1674,21 @@ void LLFloaterPreference::setKey(KEY key)
 	getChild<LLUICtrl>("modifier_combo")->onCommit();
 }
 
-void LLFloaterPreference::setMouse(LLMouseHandler::EClickType click)
+void LLFloaterPreference::setMouse(EMouseClickType click)
 {
     std::string bt_name;
     std::string ctrl_value;
     switch (click)
     {
-        case LLMouseHandler::CLICK_MIDDLE:
+        case CLICK_MIDDLE:
             bt_name = "middle_mouse";
             ctrl_value = MIDDLE_MOUSE_CV;
             break;
-        case LLMouseHandler::CLICK_BUTTON4:
+        case CLICK_BUTTON4:
             bt_name = "button4_mouse";
             ctrl_value = MOUSE_BUTTON_4_CV;
             break;
-        case LLMouseHandler::CLICK_BUTTON5:
+        case CLICK_BUTTON5:
             bt_name = "button5_mouse";
             ctrl_value = MOUSE_BUTTON_5_CV;
             break;
