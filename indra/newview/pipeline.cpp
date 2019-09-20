@@ -2010,7 +2010,7 @@ void LLPipeline::updateMovedList(LLDrawable::drawable_vector_t& moved_list)
 		drawablep->clearState(LLDrawable::EARLY_MOVE | LLDrawable::MOVE_UNDAMPED);
 		if (done)
 		{
-			if (drawablep->isRoot())
+			if (drawablep->isRoot() && !drawablep->isState(LLDrawable::ACTIVE))
 			{
 				drawablep->makeStatic();
 			}
