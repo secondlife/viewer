@@ -379,6 +379,14 @@ public:
 
     U32 recursiveGetTriangleCount(S32* vcount = NULL) const;
 
+
+	// Data for the linkset of which this is the root, if applicable.
+	virtual LLSD getFrameDataLinkset() const;
+	// Data for just this prim.
+	virtual LLSD getFrameDataPrim() const;
+
+	bool mFrameDataStale;
+
 	void setObjectCost(F32 cost);
 	F32 getObjectCost();
 	

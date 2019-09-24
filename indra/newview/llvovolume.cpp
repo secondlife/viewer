@@ -1152,6 +1152,7 @@ void LLVOVolume::updateVisualComplexity()
     {
         rigged_avatar->updateVisualComplexity();
     }
+	getRootEdit()->mFrameDataStale = true;
 }
 
 void LLVOVolume::notifyMeshLoaded()
@@ -3837,7 +3838,7 @@ F32 LLVOVolume::getRenderCost(U32 version) const
 // total cost is returned value + 5 * size of the resulting set.
 // Cannot include cost of textures, as they may be re-used in linked
 // children, and cost should only be increased for unique textures  -Nyx
-U32 LLVOVolume::getRenderCostLegacy(texture_cost_t &textures, texture_cost_t &material_textures, LLSD *sdp, bool first_frame) const
+U32 LLVOVolume::getRenderCostLegacy(texture_cost_t &textures, texture_cost_t &material_textures, LLSD *sdp) const
 {
     /*****************************************************************
      * This calculation should not be modified by third party viewers,
@@ -4178,7 +4179,7 @@ U32 LLVOVolume::getRenderCostLegacy(texture_cost_t &textures, texture_cost_t &ma
 	return (U32)shame;
 }
 
-U32 LLVOVolume::getRenderCostLegacy_(texture_cost_t &textures, texture_cost_t &material_textures, LLSD *sdp, bool first_frame) const
+U32 LLVOVolume::getRenderCostLegacy_(texture_cost_t &textures, texture_cost_t &material_textures, LLSD *sdp) const
 {
     /*****************************************************************
     * This calculation should not be modified by third party viewers,
@@ -4685,19 +4686,10 @@ void LLVOVolume::updateRenderComplexity()
 	mRenderComplexity_currentArctan = 0;
 }
 
-LLSD LLVOVolume::getFrameData(LLVOVolume::texture_cost_t& textures, LLVOVolume::texture_cost_t& material_textures, bool first_frame) const
+LLSD LLVOVolume::getFrameData(LLVOVolume::texture_cost_t& textures, LLVOVolume::texture_cost_t& material_textures) const
 {
-    LLSD sd;
-    sd["TriangleCount"] = (LLSD::Integer) getTriangleCount();
-    sd["TriangleCount_Lowest"] = (LLSD::Integer) getLODTriangleCount(LLModel::LOD_IMPOSTOR);
-    sd["TriangleCount_Low"] = (LLSD::Integer) getLODTriangleCount(LLModel::LOD_LOW);
-    sd["TriangleCount_Medium"] = (LLSD::Integer) getLODTriangleCount(LLModel::LOD_MEDIUM);
-    sd["TriangleCount_HIGH"] = (LLSD::Integer) getLODTriangleCount(LLModel::LOD_HIGH);
-
-    getRenderCostLegacy(textures, material_textures, &sd, first_frame);
-    getRenderCostLegacy_(textures, material_textures, &sd, first_frame);
-
-    return sd;
+    LLSD sd = LLObjectCostManager::instance().getFrameDataPrim(this);
+	return sd;
 }
 
 U32 LLVOVolume::getTriangleCount(S32* vcount) const
@@ -4745,6 +4737,18 @@ U32 LLVOVolume::getLODTriangleCount(S32 lod) const
 U32 LLVOVolume::getHighLODTriangleCount() const
 {
     return getLODTriangleCount(LLModel::LOD_HIGH);
+}
+
+// virtual
+LLSD LLVOVolume::getFrameDataLinkset() const
+{
+	return LLObjectCostManager::instance().getFrameDataLinkset(this);
+}
+
+// virtual
+LLSD LLVOVolume::getFrameDataPrim() const
+{
+	return LLObjectCostManager::instance().getFrameDataPrim(this);
 }
 
 //static

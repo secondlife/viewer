@@ -44,11 +44,11 @@ typedef std::set<LLUUID> texture_ids_t;
 
 #pragma optimize("", off)
 
-class LLObjectCostData
+class LLPrimCostData
 {
 public:
-	LLObjectCostData();
-	~LLObjectCostData();
+	LLPrimCostData();
+	~LLPrimCostData();
 
 	void asLLSD( LLSD& sd ) const;
 
@@ -74,7 +74,7 @@ public:
 	// Volume counts
 	U32 m_materials_vols;
 	U32 m_mesh_vols;
-	U32 m_weighted_mesh_vols;
+	U32 m_weighted_mesh_vols; // rigged
 	U32 m_particle_source_vols;
 	U32 m_produces_light_vols;
 	U32 m_sculpt_vols;
@@ -88,12 +88,12 @@ public:
 
 	// Texture ids
 	texture_ids_t m_diffuse_ids;
+	texture_ids_t m_sculpt_ids;
 	texture_ids_t m_normal_ids;
 	texture_ids_t m_specular_ids;
-	texture_ids_t m_sculpt_ids;
 };
 
-LLObjectCostData::LLObjectCostData():
+LLPrimCostData::LLPrimCostData():
 	// Face counts
 	m_alpha_mask_faces(0),
 	m_alpha_faces(0),
@@ -129,8 +129,39 @@ LLObjectCostData::LLObjectCostData():
 {
 }
 	
-LLObjectCostData::~LLObjectCostData()
+LLPrimCostData::~LLPrimCostData()
 {
+}
+
+void LLPrimCostData::asLLSD( LLSD& sd ) const
+{
+	sd["m_alpha_mask_faces"] = (LLSD::Integer) m_alpha_mask_faces;
+	sd["m_alpha_faces"] = (LLSD::Integer) m_alpha_faces;
+	sd["m_animtex_faces"] = (LLSD::Integer) m_animtex_faces;
+	sd["m_bumpmap_faces"] = (LLSD::Integer) m_bumpmap_faces;
+	sd["m_bump_any_faces"] = (LLSD::Integer) m_bump_any_faces;
+	sd["m_flexi_vols"] = (LLSD::Integer) m_flexi_vols;
+	sd["m_full_bright_faces"] = (LLSD::Integer) m_full_bright_faces;
+	sd["m_glow_faces"] = (LLSD::Integer) m_glow_faces;
+	sd["m_invisi_faces"] = (LLSD::Integer) m_invisi_faces;
+	sd["m_materials_faces"] = (LLSD::Integer) m_materials_faces;
+	sd["m_media_faces"] = (LLSD::Integer) m_media_faces;
+	sd["m_planar_faces"] = (LLSD::Integer) m_planar_faces;
+	sd["m_shiny_faces"] = (LLSD::Integer) m_shiny_faces;
+	sd["m_shiny_any_faces"] = (LLSD::Integer) m_shiny_any_faces;
+	sd["m_normalmap_faces"] = (LLSD::Integer) m_normalmap_faces;
+	sd["m_specmap_faces"] = (LLSD::Integer) m_specmap_faces;
+	sd["m_materials_vols"] = (LLSD::Integer) m_materials_vols;
+	sd["m_mesh_vols"] = (LLSD::Integer) m_mesh_vols;
+	sd["m_weighted_mesh_vols"] = (LLSD::Integer) m_weighted_mesh_vols;
+	sd["m_particle_source_vols"] = (LLSD::Integer) m_particle_source_vols;
+	sd["m_produces_light_vols"] = (LLSD::Integer) m_produces_light_vols;
+	sd["m_sculpt_vols"] = (LLSD::Integer) m_sculpt_vols;
+	sd["m_num_particles"] = (LLSD::Integer) m_num_particles;
+	sd["m_part_size"] = (LLSD::Real) m_part_size;
+	sd["m_num_triangles_v1"] = (LLSD::Integer) m_num_triangles_v1;
+	sd["m_is_animated_object"] = (LLSD::Boolean) m_is_animated_object;
+	sd["m_is_root_edit"] = (LLSD::Boolean) m_is_root_edit;
 }
 
 class LLObjectCostManagerImpl
@@ -149,11 +180,10 @@ class LLObjectCostManagerImpl
 	F32 getRenderCostLinksetV1(const LLViewerObject *root);
 
 	// Accumulate data for a single prim.
-	void getObjectCostData(const LLVOVolume *vol, LLObjectCostData& cost_data);
+	void getPrimCostData(const LLVOVolume *vol, LLPrimCostData& cost_data);
 
 	U32 textureCostsV1(const texture_ids_t& ids);
-	F32 triangleCostsV1(LLObjectCostData& cost_data); 
-
+	F32 triangleCostsV1(LLPrimCostData& cost_data); 
 };
 
 F32 LLObjectCostManagerImpl::getRenderCostLinkset(U32 version, const LLViewerObject *root)
@@ -179,10 +209,12 @@ F32 LLObjectCostManagerImpl::getRenderCostLinkset(U32 version, const LLViewerObj
 	return render_cost;
 }
 
-void get_volumes_for_linkset(const LLViewerObject *root, std::vector<const LLVOVolume*>& volumes)
+typedef std::vector<const LLVOVolume*> const_vol_vec_t;
+
+void get_volumes_for_linkset(const LLViewerObject *root, const_vol_vec_t& volumes)
 {
 	const LLVOVolume *root_vol = dynamic_cast<const LLVOVolume*>(root);
-	if (root_vol)	
+	if (root_vol && root_vol->isRootEdit())	
 	{
 		volumes.push_back(root_vol);
 		
@@ -206,7 +238,7 @@ F32 LLObjectCostManagerImpl::getRenderCostLinksetV1(const LLViewerObject *root)
 	F32 shame = 0.f;
 	texture_ids_t all_sculpt_ids, all_diffuse_ids;
 
-	std::vector<const LLVOVolume*> volumes;
+	const_vol_vec_t volumes;
 	get_volumes_for_linkset(root,volumes);
 
 	for (std::vector<const LLVOVolume*>::const_iterator it = volumes.begin();
@@ -214,8 +246,8 @@ F32 LLObjectCostManagerImpl::getRenderCostLinksetV1(const LLViewerObject *root)
 	{
 		const LLVOVolume *vol = *it;
 
-		LLObjectCostData cost_data;
-		getObjectCostData(vol, cost_data);
+		LLPrimCostData cost_data;
+		getPrimCostData(vol, cost_data);
 
 		// Charge for effective triangles
 		shame += triangleCostsV1(cost_data);
@@ -327,8 +359,8 @@ F32 LLObjectCostManagerImpl::getRenderCost(U32 version, const LLVOVolume *vol)
 
 F32 LLObjectCostManagerImpl::getRenderCostV1(const LLVOVolume *vol)
 {
-	LLObjectCostData cost_data;
-	getObjectCostData(vol, cost_data);
+	LLPrimCostData cost_data;
+	getPrimCostData(vol, cost_data);
 
 	// Charge for effective triangles
 	F32 shame = triangleCostsV1(cost_data);
@@ -341,7 +373,7 @@ F32 LLObjectCostManagerImpl::getRenderCostV1(const LLVOVolume *vol)
 }
 
 // Accumulate data for a single prim.
-void LLObjectCostManagerImpl::getObjectCostData(const LLVOVolume *vol, LLObjectCostData& cost_data)
+void LLObjectCostManagerImpl::getPrimCostData(const LLVOVolume *vol, LLPrimCostData& cost_data)
 {
 	static const U32 ARC_PARTICLE_MAX = 2048; // default values
 
@@ -579,7 +611,7 @@ U32 LLObjectCostManagerImpl::textureCostsV1(const texture_ids_t& ids)
 	return cost;
 }
 
-F32 LLObjectCostManagerImpl::triangleCostsV1(LLObjectCostData& cost_data)
+F32 LLObjectCostManagerImpl::triangleCostsV1(LLPrimCostData& cost_data)
 {
     /*****************************************************************
      * This calculation should not be modified by third party viewers,
@@ -745,4 +777,92 @@ F32 LLObjectCostManager::getRenderCostLinkset(U32 version, const LLViewerObject 
 		render_cost = m_impl->getRenderCostLinkset(version, root);
 	}
 	return render_cost;
+}
+
+LLSD LLObjectCostManager::getFrameDataPrim(const LLVOVolume *vol)
+{
+	LLSD sd;
+
+    sd["TriangleCount"] = (LLSD::Integer) vol->getTriangleCount();
+    sd["TriangleCount_Lowest"] = (LLSD::Integer) vol->getLODTriangleCount(LLModel::LOD_IMPOSTOR);
+    sd["TriangleCount_Low"] = (LLSD::Integer) vol->getLODTriangleCount(LLModel::LOD_LOW);
+    sd["TriangleCount_Medium"] = (LLSD::Integer) vol->getLODTriangleCount(LLModel::LOD_MEDIUM);
+    sd["TriangleCount_HIGH"] = (LLSD::Integer) vol->getLODTriangleCount(LLModel::LOD_HIGH);
+
+	LLPrimCostData cost_data;
+	m_impl->getPrimCostData(vol, cost_data);
+	cost_data.asLLSD(sd);
+	return sd;
+}
+
+LLSD texture_as_llsd(const LLUUID& id)
+{
+	LLSD texture_sd = LLSD::emptyMap();
+	texture_sd["id"] = id;
+	LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(id);
+	if (texture)
+	{
+		texture_sd["width"] = (LLSD::Integer) texture->getFullWidth();
+		texture_sd["height"] = (LLSD::Integer) texture->getFullHeight();
+		texture_sd["format"] = (LLSD::Integer) texture->getPrimaryFormat();
+	}
+	else
+	{
+		texture_sd["width"] = (LLSD::Integer) -1;
+		texture_sd["height"] = (LLSD::Integer) -1;
+		texture_sd["format"] = (LLSD::Integer) -1;
+	}
+	return texture_sd;
+}
+
+LLSD textures_as_llsd(texture_ids_t& ids)
+{
+	LLSD array_sd = LLSD::emptyArray();
+	for (texture_ids_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
+	{
+		const LLUUID& id = *it;
+		array_sd.append(texture_as_llsd(id));
+	}
+	return array_sd;
+
+}
+
+LLSD LLObjectCostManager::getFrameDataLinkset(const LLVOVolume *vol)
+{
+	const_vol_vec_t volumes;
+	get_volumes_for_linkset(vol, volumes);
+
+	LLSD sd;
+
+	texture_ids_t all_sculpt_ids, all_diffuse_ids, all_normal_ids, all_specular_ids;
+
+	if (volumes.size()>0)
+	{
+		sd["id"] = (LLSD::UUID) vol->getID();
+		sd["prims"] = LLSD::emptyArray();
+		for (std::vector<const LLVOVolume*>::const_iterator it = volumes.begin();
+			 it != volumes.end(); ++it)
+		{
+			const LLVOVolume *vol = *it;
+
+			LLPrimCostData cost_data;
+			m_impl->getPrimCostData(vol, cost_data);
+			LLSD prim_sd;
+			cost_data.asLLSD(prim_sd);
+			sd["prims"].append(prim_sd);
+
+			// Accumulate texture ids
+			all_diffuse_ids.insert(cost_data.m_diffuse_ids.begin(), cost_data.m_diffuse_ids.end());
+			all_sculpt_ids.insert(cost_data.m_sculpt_ids.begin(), cost_data.m_sculpt_ids.end());
+			all_normal_ids.insert(cost_data.m_normal_ids.begin(), cost_data.m_normal_ids.end());
+			all_specular_ids.insert(cost_data.m_specular_ids.begin(), cost_data.m_specular_ids.end());
+		}
+		sd["textures"] = LLSD::emptyMap();
+		sd["textures"]["diffuse"] = textures_as_llsd(all_diffuse_ids);
+		sd["textures"]["sculpt"] = textures_as_llsd(all_sculpt_ids);
+		sd["textures"]["specular"] = textures_as_llsd(all_normal_ids);
+		sd["textures"]["normal"] = textures_as_llsd(all_specular_ids);
+	}
+
+	return sd;
 }

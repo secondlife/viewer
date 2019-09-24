@@ -296,7 +296,8 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mLastUpdateType(OUT_UNKNOWN),
 	mLastUpdateCached(FALSE),
 	mCachedMuteListUpdateTime(0),
-	mCachedOwnerInMuteList(false)
+	mCachedOwnerInMuteList(false),
+	mFrameDataStale(true)
 {
 	if (!is_global)
 	{
@@ -3833,6 +3834,20 @@ U32 LLViewerObject::recursiveGetTriangleCount(S32* vcount) const
         }
     }
     return total_tris;
+}
+
+// virtual
+LLSD LLViewerObject::getFrameDataLinkset() const
+{
+	LLSD sd;
+	return sd;
+}
+
+// virtual
+LLSD LLViewerObject::getFrameDataPrim() const
+{
+	LLSD sd;
+	return sd;
 }
 
 // This is using the stored surface area for each volume (which

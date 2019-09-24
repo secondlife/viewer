@@ -7781,12 +7781,12 @@ void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapse
 }
 
 //static
-LLSD LLVOAvatar::getAllAvatarsFrameData(bool first_frame)
+LLSD LLVOAvatar::getAllAvatarsFrameData()
 {
     LLSD result;
     if (gAgentAvatarp && gAgentAvatarp->mFrameDataStale)
     {
-        result["Self"] = gAgentAvatarp->getFrameData(first_frame);
+        result["Self"] = gAgentAvatarp->getFrameData();
         gAgentAvatarp->mFrameDataStale = false;
     }
 
@@ -7797,40 +7797,16 @@ LLSD LLVOAvatar::getAllAvatarsFrameData(bool first_frame)
 		LLVOAvatar* inst = (LLVOAvatar*) *iter;
         if (!inst->isSelf() && inst->mFrameDataStale)
         {
-            LLSD avatar_record = inst->getFrameData(first_frame);
+            LLSD avatar_record = inst->getFrameData();
             result["Other"].append(avatar_record);
             inst->mFrameDataStale = false;
         }
     }
 
-    LLSD extraFrameData;
-
-    LLTrace::Recording& last_frame_recording = LLTrace::get_frame_recording().getLastRecording();
-
-    U32 drawcalls = (U32)last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize);
-    U32 batchMin  = (U32)last_frame_recording.getMin(LLPipeline::sStatBatchSize);
-    U32 batchMean = (U32)last_frame_recording.getMax(LLPipeline::sStatBatchSize);
-    U32 batchMax  = (U32)last_frame_recording.getMean(LLPipeline::sStatBatchSize);
-
-    extraFrameData["DrawCalls"]          = (LLSD::Integer)drawcalls;
-    extraFrameData["BatchMin"]           = (LLSD::Integer)batchMin;
-    extraFrameData["BatchMean"]          = (LLSD::Integer)batchMean;
-    extraFrameData["BatchMax"]           = (LLSD::Integer)batchMax;
-    extraFrameData["VertexBuffers"]      = (LLSD::Integer)LLVertexBuffer::sGLCount;
-    extraFrameData["VertexBufferMapped"] = (LLSD::Integer)LLVertexBuffer::sMappedCount;
-    extraFrameData["VertexBufferBinds"]  = (LLSD::Integer)LLVertexBuffer::sBindCount;
-    extraFrameData["VertexBufferSets"]   = (LLSD::Integer)LLVertexBuffer::sSetCount;
-    extraFrameData["TextureBinds"]       = (LLSD::Integer)LLImageGL::sBindCount;
-    extraFrameData["UniqueTextures"]     = (LLSD::Integer)LLImageGL::sUniqueCount;
-    extraFrameData["UniqueTextures"]     = (LLSD::Integer)LLImageGL::sUniqueCount;
-    extraFrameData["MatrixOps"]          = (LLSD::Integer)gPipeline.mMatrixOpCount;
-    extraFrameData["TexMatrixOps"]          = (LLSD::Integer)gPipeline.mTextureMatrixOps;
-
-    result["ExtraFrameData"] = extraFrameData;
 	return result;
 }
 
-LLSD LLVOAvatar::getFrameData(bool first_frame) const
+LLSD LLVOAvatar::getFrameData() const
 {
     LLSD av_sd;
     av_sd["Name"] = (LLSD::String) getFullname();

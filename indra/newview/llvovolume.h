@@ -142,9 +142,9 @@ public:
 				typedef std::map<LLUUID, S32> texture_cost_t;
 
 	/*virtual*/ F32		getRenderCost(U32 version = 0) const;
-				U32 	getRenderCostLegacy(texture_cost_t &textures,texture_cost_t &material_textures, LLSD *sdp = NULL, bool first_frame = false) const;
+				U32 	getRenderCostLegacy(texture_cost_t &textures,texture_cost_t &material_textures, LLSD *sdp = NULL) const;
                 // ARCtan version
-                U32 	getRenderCostLegacy_(texture_cost_t &textures, texture_cost_t &material_textures, LLSD *sdp = NULL, bool first_frame = false) const;
+                U32 	getRenderCostLegacy_(texture_cost_t &textures, texture_cost_t &material_textures, LLSD *sdp = NULL) const;
 
     /*virtual*/	F32		getEstTrianglesMax() const;
     /*virtual*/	F32		getEstTrianglesStreamingCost() const;
@@ -152,10 +152,14 @@ public:
     F32		getStreamingCostLegacy() const;
     /*virtual*/ bool 	getMeshCostData(LLMeshCostData& costs) const;
 
-    LLSD				getFrameData(texture_cost_t& textures, texture_cost_t& material_textures, bool first_frame = false) const;
+    LLSD				getFrameData(texture_cost_t& textures, texture_cost_t& material_textures) const;
 	/*virtual*/ U32		getTriangleCount(S32* vcount = NULL) const;
 	/*virtual*/ U32		getLODTriangleCount(S32 lod) const;
 	/*virtual*/ U32		getHighLODTriangleCount() const;
+
+	/*virtual*/ LLSD	getFrameDataLinkset() const;
+	/*virtual*/ LLSD	getFrameDataPrim() const;
+
 	/*virtual*/ BOOL lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, 
 										  S32 face = -1,                        // which face to check, -1 = ALL_SIDES
 										  BOOL pick_transparent = FALSE,

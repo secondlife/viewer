@@ -1290,6 +1290,29 @@ void LLViewerObjectList::clearDebugText()
 	}
 }
 
+LLSD LLViewerObjectList::getAllObjectsFrameData()
+{
+	LLSD sd = LLSD::emptyArray();
+	for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
+	{
+		LLViewerObject *vobj = *iter;
+		if (!vobj->isRootEdit())
+		{
+			continue;
+		}
+		if (vobj->mFrameDataStale)
+		{
+			LLSD obj_record = vobj->getFrameDataLinkset();
+			if (obj_record.isMap())
+			{
+				sd.append(obj_record);
+				vobj->mFrameDataStale = false;
+			}
+		}
+
+	}
+	return sd;
+}
 
 void LLViewerObjectList::cleanupReferences(LLViewerObject *objectp)
 {

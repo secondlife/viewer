@@ -142,6 +142,8 @@ public:
 
 	void clearDebugText();
 
+	LLSD getAllObjectsFrameData();
+	
 	////////////////////////////////////////////
 	//
 	// Only accessed by markDead in LLViewerObject

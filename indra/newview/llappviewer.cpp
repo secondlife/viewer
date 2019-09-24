@@ -1344,6 +1344,34 @@ LLTrace::BlockTimerStatHandle FTM_FRAME("Frame");
 
 LLUUID g_unique_session_id;
 
+LLSD getPipelineLogData()
+{
+    LLSD pipeline_sd;
+
+    LLTrace::Recording& last_frame_recording = LLTrace::get_frame_recording().getLastRecording();
+
+    U32 drawcalls = (U32)last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize);
+    U32 batchMin  = (U32)last_frame_recording.getMin(LLPipeline::sStatBatchSize);
+    U32 batchMean = (U32)last_frame_recording.getMax(LLPipeline::sStatBatchSize);
+    U32 batchMax  = (U32)last_frame_recording.getMean(LLPipeline::sStatBatchSize);
+
+    pipeline_sd["DrawCalls"]          = (LLSD::Integer)drawcalls;
+    pipeline_sd["BatchMin"]           = (LLSD::Integer)batchMin;
+    pipeline_sd["BatchMean"]          = (LLSD::Integer)batchMean;
+    pipeline_sd["BatchMax"]           = (LLSD::Integer)batchMax;
+    pipeline_sd["VertexBuffers"]      = (LLSD::Integer)LLVertexBuffer::sGLCount;
+    pipeline_sd["VertexBufferMapped"] = (LLSD::Integer)LLVertexBuffer::sMappedCount;
+    pipeline_sd["VertexBufferBinds"]  = (LLSD::Integer)LLVertexBuffer::sBindCount;
+    pipeline_sd["VertexBufferSets"]   = (LLSD::Integer)LLVertexBuffer::sSetCount;
+    pipeline_sd["TextureBinds"]       = (LLSD::Integer)LLImageGL::sBindCount;
+    pipeline_sd["UniqueTextures"]     = (LLSD::Integer)LLImageGL::sUniqueCount;
+    pipeline_sd["UniqueTextures"]     = (LLSD::Integer)LLImageGL::sUniqueCount;
+    pipeline_sd["MatrixOps"]          = (LLSD::Integer)gPipeline.mMatrixOpCount;
+    pipeline_sd["TexMatrixOps"]          = (LLSD::Integer)gPipeline.mTextureMatrixOps;
+
+    return pipeline_sd;
+}
+
 void LLAppViewer::doPerFrameStatsLogging()
 {
     if (LLTrace::BlockTimer::sLog)
@@ -1355,11 +1383,21 @@ void LLAppViewer::doPerFrameStatsLogging()
         {
             if (LLStartUp::getStartupState() >= STATE_STARTED)
             {
-                LLSD avatar_sd = LLVOAvatar::getAllAvatarsFrameData(first_frame);
+				LLSD pipeline_sd = getPipelineLogData();
+				if (pipeline_sd.isMap())
+				{
+                    LLTrace::BlockTimer::pushLogExtraRecord("Pipeline", pipeline_sd);
+				}
+                LLSD avatar_sd = LLVOAvatar::getAllAvatarsFrameData();
                 if (avatar_sd.size()>0)
                 {
                     LLTrace::BlockTimer::pushLogExtraRecord("Avatars", avatar_sd);
                 }
+				LLSD objects_sd = gObjectList.getAllObjectsFrameData();
+				if (objects_sd.size() > 0)
+				{
+                    LLTrace::BlockTimer::pushLogExtraRecord("Objects", objects_sd);
+				}
 
                 if (first_frame)
                 {
