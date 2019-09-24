@@ -1,5 +1,5 @@
 /** 
- * @file lldynamicqueue.h
+ * @file lldynamicpqueue.h
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -23,8 +23,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDYNAMICQUEUE_H
-#define LL_LLDYNAMICQUEUE_H
+#ifndef LL_DYNAMICPQUEUE_H
+#define LL_DYNAMICPQUEUE_H
 
 #ifdef LL_TEST_lldynamicpqueue
 #include <iostream>
@@ -94,16 +94,14 @@ typedef LLDynamicPriorityQueue <QueuedItemType::ptr_t, get_item_id>  dynamic_que
  *------------------------------------------------------------------------
  *
  */
-
-
-template<class ITEMT>
+template <class ITEMT>
 struct default_priority_change
 {
     /**
-     * Default priority modification functor.
-     *  If increasing the priority add the old and new.
-     *  If decreasing the priority subtract the two.  If the bump is greater than the old priority return 0.
-     */
+    * Default priority modification functor.
+    *  If increasing the priority add the old and new.
+    *  If decreasing the priority subtract the two.  If the bump is greater than the old priority return 0.
+    */
     U32 operator()(bool increase, const ITEMT &, U32 priority, U32 bump)
     {
         if (increase)
@@ -112,6 +110,7 @@ struct default_priority_change
             return (bump <= priority) ? (priority - bump) : 0;
     }
 };
+
 
 template <class ITEMT,              // Queued item type
     class IDFN,                     // Identity getter for ITEMT.  Must be of the form <UUID (const ITEMT &)>  taking an ITEMT and returning its UUID.
@@ -150,7 +149,6 @@ class LLDynamicPriorityQueue
     typedef IDFN                                                    get_id_fn_t;
     typedef PRIOFN                                                  update_priority_fn_t;
 public:
-
     /**
      * Construct a new Dynamic Priority Queue.  
      *   If threadsafe is set to true it will also allocate a mutex to control access 
@@ -257,6 +255,40 @@ public:
     }
 
     /**
+     * Increase or decrease the priority of an item
+     */
+    void priorityAdjust(LLUUID item_id, S32 adjustment)
+    {
+        LLMutexLock lock(mMutexp);  // scoped lock is a noop with a nullptr mutex.
+        if (!isQueued(item_id))
+            return;
+
+        queuemapping_t::iterator it = mEntryMapping.find(item_id);
+        if (it == mEntryMapping.end())
+            return;
+
+        queuehandle_t handle((*it).second);
+        if (adjustment > 0)
+        {
+            (*handle)->mPriority += adjustment;
+            mPriorityHeap.increase(handle);
+        }
+        else if (adjustment < 0)
+        {
+            adjustment = -adjustment;
+            if (adjustment < (*handle)->mPriority)
+            {
+                (*handle)->mPriority -= adjustment;
+                mPriorityHeap.decrease(handle);
+            }
+            else
+            {
+                mPriorityHeap.erase(handle);
+                mEntryMapping.erase(it);
+            }
+        }
+    }
+    /**
      * Remove all items from the queue.
      */
     void clear()
@@ -285,6 +317,15 @@ public:
     }
 
     /**
+     * Test if an item is currently in the queue
+     */
+    bool isQueued(LLUUID item_id) const
+    {
+        LLMutexLock lock(mMutexp);  // scoped lock is a noop with a nullptr mutex.
+        return (mEntryMapping.find(item_id) != mEntryMapping.end());
+    }
+
+    /**
      * Peek at the first item (the item with the highest priority) on the queue.
      * If the queue is empty return a default constructed ITEMT
      */
@@ -295,6 +336,17 @@ public:
             return ITEMT();
 
         return mPriorityHeap.top()->mItem;
+    }
+
+    /**
+     * Peek at the priority of the top item on the queue.
+     */
+    U32 topPriority() const
+    {
+        LLMutexLock lock(mMutexp);  // scoped lock is a noop with a nullptr mutex.
+        if (mPriorityHeap.empty())
+            return 0;
+        return mPriorityHeap.top()->mPriority;
     }
 
     /**
@@ -314,6 +366,22 @@ public:
         mEntryMapping.erase(entry->mId);
         return entry->mItem;
     }
+
+    /**
+     * Take an explicit lock on the queue.  Allows for multiple operations 
+     */
+    void lock()
+    {
+        if (mMutexp)
+            mMutexp->lock();
+    }
+
+    void unlock()
+    {
+        if (mMutexp && mMutexp->isSelfLocked())
+            mMutexp->unlock();
+    }
+
 
 #ifdef LL_TEST_lldynamicpqueue
     void debug_dump(std::ostream &os)

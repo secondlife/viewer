@@ -339,7 +339,7 @@ protected:
 		: mStaticScope(NULL)
 	{}
 
-	virtual void initSingleton()
+	virtual void initSingleton() override
 	{
 		mStaticScope = new ScopedRegistrar();
 	}

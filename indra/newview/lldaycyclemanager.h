@@ -67,7 +67,7 @@ public:
 	boost::signals2::connection setModifyCallback(const modify_signal_t::slot_type& cb);
 
 private:
-	/*virtual*/ void initSingleton();
+	virtual void initSingleton() override;
 
 	void loadAllPresets();
 	void loadPresets(const std::string& dir);

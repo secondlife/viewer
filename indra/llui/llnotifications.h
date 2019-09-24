@@ -972,7 +972,7 @@ public:
 	bool isVisibleByRules(LLNotificationPtr pNotification);
 	
 private:
-	/*virtual*/ void initSingleton();
+	virtual void initSingleton() override;
 	
 	void loadPersistentNotifications();
 

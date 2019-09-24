@@ -287,7 +287,7 @@ private:
 	static std::string getSysDir();
 	static std::string getUserDir();
 
-	/*virtual*/ void initSingleton();
+	virtual void initSingleton() override;
 	// list of all the parameters, listed by name
 	std::map<LLWLParamKey, LLWLParamSet> mParamList;
 

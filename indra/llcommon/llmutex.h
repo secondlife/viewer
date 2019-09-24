@@ -37,6 +37,7 @@
 // 'std::_Pad' : class has virtual functions, but destructor is not virtual
 #include <mutex>
 #include <condition_variable>
+#include <memory>
 
 #if LL_WINDOWS
 #pragma warning (pop)
@@ -91,6 +92,8 @@ public:
 	void signal();
 	void broadcast();
 	
+    typedef std::unique_ptr<LLCondition> uptr_t;
+
 protected:
 	std::condition_variable mCond;
 };
