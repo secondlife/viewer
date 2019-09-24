@@ -723,11 +723,13 @@ namespace LLError
 	{
 		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
 		s->mFatalHook = fatal_hook;
+        LL_DEBUGS("FatalHook") << "set fatal hook to " << fatal_hook << LL_ENDL;
 	}
 
 	FatalHook getFatalHook()
 	{
 		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
+        LL_DEBUGS("FatalHook") << "read fatal hook " << s->mFatalHook << LL_ENDL;
 		return s->mFatalHook;
 	}
 

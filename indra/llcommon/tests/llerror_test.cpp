@@ -781,30 +781,33 @@ namespace tut
 		// proper cached, efficient lookup of filtering
 	void ErrorTestObject::test<15>()
 	{
-		LLError::setDefaultLevel(LLError::LEVEL_NONE);
+		LLError::setDefaultLevel(LLError::LEVEL_NONE); 
+
+        // Note that the setFatalHook in the ErrorTestData constructor
+        // increments the shouldLogCallCount
 
 		TestAlpha::doInfo();
 		ensure_message_count(0);
-		ensure_equals("first check", LLError::shouldLogCallCount(), 1);
+		ensure_equals("first check", LLError::shouldLogCallCount(), 2);
 		TestAlpha::doInfo();
 		ensure_message_count(0);
-		ensure_equals("second check", LLError::shouldLogCallCount(), 1);
+		ensure_equals("second check", LLError::shouldLogCallCount(), 2);
 
 		LLError::setClassLevel("TestAlpha", LLError::LEVEL_DEBUG);
 		TestAlpha::doInfo();
 		ensure_message_count(1);
-		ensure_equals("third check", LLError::shouldLogCallCount(), 2);
+		ensure_equals("third check", LLError::shouldLogCallCount(), 3);
 		TestAlpha::doInfo();
 		ensure_message_count(2);
-		ensure_equals("fourth check", LLError::shouldLogCallCount(), 2);
+		ensure_equals("fourth check", LLError::shouldLogCallCount(), 3);
 
 		LLError::setClassLevel("TestAlpha", LLError::LEVEL_WARN);
 		TestAlpha::doInfo();
 		ensure_message_count(2);
-		ensure_equals("fifth check", LLError::shouldLogCallCount(), 3);
+		ensure_equals("fifth check", LLError::shouldLogCallCount(), 4);
 		TestAlpha::doInfo();
 		ensure_message_count(2);
-		ensure_equals("sixth check", LLError::shouldLogCallCount(), 3);
+		ensure_equals("sixth check", LLError::shouldLogCallCount(), 4);
 	}
 
 	template<> template<>
