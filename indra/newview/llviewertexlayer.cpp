@@ -58,6 +58,8 @@ LLViewerTexLayerSetBuffer::LLViewerTexLayerSetBuffer(LLTexLayerSet* const owner,
 	mNeedsUpdate(TRUE),
 	mNumLowresUpdates(0)
 {
+	mGLTexturep->setNeedsAlphaAndPickMask(FALSE);
+
 	LLViewerTexLayerSetBuffer::sGLByteCount += getSize();
 	mNeedsUpdateTimer.start();
 }

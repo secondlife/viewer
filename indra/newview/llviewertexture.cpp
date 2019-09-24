@@ -1219,6 +1219,7 @@ void LLViewerFetchedTexture::loadFromFastCache()
         F32 cachReadTime = fastCacheTimer.getElapsedTimeF32();
 
         add(LLTextureFetch::sCacheHit, 1.0);
+        record(LLTextureFetch::sCacheHitRate, LLUnits::Ratio::fromValue(1));
         sample(LLTextureFetch::sCacheReadLatency, cachReadTime);
 
 		mFullWidth = mRawImage->getWidth() << mRawDiscardLevel;
@@ -1251,6 +1252,10 @@ void LLViewerFetchedTexture::loadFromFastCache()
 			addToCreateTexture();
 		}
 	}
+    else
+    {
+        record(LLTextureFetch::sCacheHitRate, LLUnits::Ratio::fromValue(0));
+    }
 }
 
 void LLViewerFetchedTexture::setForSculpt()

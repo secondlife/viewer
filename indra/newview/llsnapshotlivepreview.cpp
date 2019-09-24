@@ -34,7 +34,6 @@
 #include "lleconomy.h"
 #include "llfloaterperms.h"
 #include "llfloaterreg.h"
-#include "llfloaterfacebook.h"
 #include "llfloaterflickr.h"
 #include "llfloatertwitter.h"
 #include "llimagefilter.h"
@@ -572,7 +571,7 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
     
     if (mThumbnailSubsampled)
     {
-        // The thumbnail is be a subsampled version of the preview (used in SL Share previews, i.e. Flickr, Twitter, Facebook)
+        // The thumbnail is be a subsampled version of the preview (used in SL Share previews, i.e. Flickr, Twitter)
 		raw->resize( mPreviewImage->getWidth(),
                      mPreviewImage->getHeight(),
                      mPreviewImage->getComponents());
@@ -638,7 +637,7 @@ LLViewerTexture* LLSnapshotLivePreview::getBigThumbnailImage()
     
 	if (raw)
 	{
-        // The big thumbnail is a new filtered version of the preview (used in SL Share previews, i.e. Flickr, Twitter, Facebook)
+        // The big thumbnail is a new filtered version of the preview (used in SL Share previews, i.e. Flickr, Twitter)
         mBigThumbnailWidth = mPreviewImage->getWidth();
         mBigThumbnailHeight = mPreviewImage->getHeight();
         raw->resize( mBigThumbnailWidth,

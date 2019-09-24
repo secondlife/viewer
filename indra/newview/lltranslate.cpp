@@ -38,7 +38,11 @@
 #include "llcoros.h"
 #include "reader.h"
 #include "llcorehttputil.h"
+#include "llurlregistry.h"
 
+
+static const std::string BING_NOTRANSLATE_OPENING_TAG("<div class=\"notranslate\">");
+static const std::string BING_NOTRANSLATE_CLOSING_TAG("</div>");
 
 /**
 * Handler of an HTTP machine translation service.
@@ -98,6 +102,8 @@ public:
     * @return if the handler is configured to function properly
     */
     virtual bool isConfigured() const = 0;
+
+    virtual LLTranslate::EService getCurrentService() = 0;
 
     virtual void verifyKey(const std::string &key, LLTranslate::KeyVerificationResult_fn fnc) = 0;
     virtual void translateMessage(LanguagePair_t fromTo, std::string msg, LLTranslate::TranslationSuccess_fn success, LLTranslate::TranslationFailure_fn failure);
@@ -247,6 +253,8 @@ public:
         std::string& detected_lang,
         std::string& err_msg) const;
     /*virtual*/ bool isConfigured() const;
+
+    /*virtual*/ LLTranslate::EService getCurrentService() { return LLTranslate::EService::SERVICE_GOOGLE; }
 
     /*virtual*/ void verifyKey(const std::string &key, LLTranslate::KeyVerificationResult_fn fnc);
 
@@ -409,6 +417,8 @@ public:
         std::string& err_msg) const;
     /*virtual*/ bool isConfigured() const;
 
+    /*virtual*/ LLTranslate::EService getCurrentService() { return LLTranslate::EService::SERVICE_BING; }
+
     /*virtual*/ void verifyKey(const std::string &key, LLTranslate::KeyVerificationResult_fn fnc);
 private:
     static std::string getAPIKey();
@@ -520,7 +530,59 @@ void LLTranslate::translateMessage(const std::string &from_lang, const std::stri
 {
     LLTranslationAPIHandler& handler = getPreferredHandler();
 
-    handler.translateMessage(LLTranslationAPIHandler::LanguagePair_t(from_lang, to_lang), mesg, success, failure);
+    handler.translateMessage(LLTranslationAPIHandler::LanguagePair_t(from_lang, to_lang), addNoTranslateTags(mesg), success, failure);
+}
+
+std::string LLTranslate::addNoTranslateTags(std::string mesg)
+{
+    if (getPreferredHandler().getCurrentService() != SERVICE_BING)
+    {
+        return mesg;
+    }
+
+    std::string upd_msg(mesg);
+    LLUrlMatch match;
+    S32 dif = 0;
+    //surround all links (including SLURLs) with 'no-translate' tags to prevent unnecessary translation
+    while (LLUrlRegistry::instance().findUrl(mesg, match))
+    {
+        upd_msg.insert(dif + match.getStart(), BING_NOTRANSLATE_OPENING_TAG);
+        upd_msg.insert(dif + BING_NOTRANSLATE_OPENING_TAG.size() + match.getEnd() + 1, BING_NOTRANSLATE_CLOSING_TAG);
+        mesg.erase(match.getStart(), match.getEnd() - match.getStart());
+        dif += match.getEnd() - match.getStart() + BING_NOTRANSLATE_OPENING_TAG.size() + BING_NOTRANSLATE_CLOSING_TAG.size();
+    }
+    return upd_msg;
+}
+
+std::string LLTranslate::removeNoTranslateTags(std::string mesg)
+{
+    if (getPreferredHandler().getCurrentService() != SERVICE_BING)
+    {
+        return mesg;
+    }
+    std::string upd_msg(mesg);
+    LLUrlMatch match;
+    S32 opening_tag_size = BING_NOTRANSLATE_OPENING_TAG.size();
+    S32 closing_tag_size = BING_NOTRANSLATE_CLOSING_TAG.size();
+    S32 dif = 0;
+    //remove 'no-translate' tags we added to the links before
+    while (LLUrlRegistry::instance().findUrl(mesg, match))
+    {
+        if (upd_msg.substr(dif + match.getStart() - opening_tag_size, opening_tag_size) == BING_NOTRANSLATE_OPENING_TAG)
+        {
+            upd_msg.erase(dif + match.getStart() - opening_tag_size, opening_tag_size);
+            dif -= opening_tag_size;
+
+            if (upd_msg.substr(dif + match.getEnd() + 1, closing_tag_size) == BING_NOTRANSLATE_CLOSING_TAG)
+            {
+                upd_msg.replace(dif + match.getEnd() + 1, closing_tag_size, " ");
+                dif -= closing_tag_size - 1;
+            }
+        }
+        mesg.erase(match.getStart(), match.getUrl().size());
+        dif += match.getUrl().size();
+    }
+    return upd_msg;
 }
 
 /*static*/
