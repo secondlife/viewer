@@ -722,7 +722,7 @@ namespace LLError
 	void setFatalHook(const FatalHook& fatal_hook)
 	{
 		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
-        LL_DEBUGS("FatalHook") << "set fatal hook to "(fatal_hook ? "non-null" : "null")
+        LL_DEBUGS("FatalHook") << "set fatal hook to " << (fatal_hook ? "non-null" : "null")
                                << " was " << (s->mFatalHook ? "non-null" : "null")
                                << LL_ENDL;
 		s->mFatalHook = fatal_hook;
