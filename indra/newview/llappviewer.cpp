@@ -2166,7 +2166,8 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 	LLError::initForApplication( gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "")
                                 ,gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "")
                                 );
-	LLError::setFatalHook(fatalErrorHook);
+
+    // TBD fatal hook belongs here
 
 	// Remove the last ".old" log file.
 	std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
@@ -2228,6 +2229,10 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 	{
 		LL_WARNS("MarkerFile") << duration_log_msg << LL_ENDL;
 	}
+
+    // TBD - temporary location for fatal hook (should be above, but for now it logs...)
+    LLError::setFatalHook(fatalErrorHook);
+
 }
 
 bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,

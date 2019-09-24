@@ -67,6 +67,7 @@ public:
         // this class or method name.
         mListener(new LLLeapListener(boost::bind(&LLLeapImpl::connect, this, _1, _2)))
     {
+        LL_DEBUGS("FatalHook") << "previous fatal hook was " <<reinterpret_cast<void*>(mPrevFatalHook) << LL_ENDL;
         // Rule out unpopulated Params block
         if (! cparams.executable.isProvided())
         {
@@ -398,6 +399,7 @@ public:
         }
 
         // forward the call to the previous FatalHook, default to crashing if there isn't one
+        LL_DEBUGS("FatalHook") << "end" << LL_ENDL;
         return mPrevFatalHook ? mPrevFatalHook(error) : LLError::ERR_CRASH;
     }
 
