@@ -194,6 +194,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   # handle embedded app bundles such as CEF and others. Any signing for local
   # development must be done after the build as we do in viewer_manifest.py for
   # released builds
+  # https://stackoverflow.com/a/54296008
   # "-" represents "Sign to Run Locally" and empty string represents "Do Not Sign"
   set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
 
