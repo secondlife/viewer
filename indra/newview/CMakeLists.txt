@@ -2173,7 +2173,7 @@ if (DARWIN)
 
   if (NOT USE_BUGSPLAT)
       add_dependencies(${VIEWER_BINARY_NAME} mac-crash-logger)
-  endif (USE_BUGSPLAT)
+  endif (NOT USE_BUGSPLAT)
 
   if (ENABLE_SIGNING)
       set(SIGNING_SETTING "--signature=${SIGNING_IDENTITY}")
