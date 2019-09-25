@@ -57,8 +57,8 @@ static const std::string typetostring[LLKeyConflictHandler::CONTROL_NUM_INDICES]
     "control_touch",
     "control_wear",
     "control_movements",
-    "control_moveto",
-    "control_teleportto",
+    "walk_to",
+    "teleport_to",
     "push_forward",
     "push_backward",
     "turn_left",
@@ -164,7 +164,9 @@ static const control_enum_t command_to_key =
     { "toggle_run", LLKeyConflictHandler::CONTROL_TOGGLE_RUN },
     { "toggle_sit", LLKeyConflictHandler::CONTROL_SIT },
     { "toggle_parcel_media", LLKeyConflictHandler::CONTROL_PAUSE_MEDIA },
-    { "toggle_enable_media", LLKeyConflictHandler::CONTROL_ENABLE_MEDIA }, 
+    { "toggle_enable_media", LLKeyConflictHandler::CONTROL_ENABLE_MEDIA },
+    { "walk_to", LLKeyConflictHandler::CONTROL_MOVETO },
+    { "teleport_to", LLKeyConflictHandler::CONTROL_TELEPORTTO },
 };
 
 
@@ -268,7 +270,7 @@ LLKeyConflictHandler::LLKeyConflictHandler()
 
 LLKeyConflictHandler::LLKeyConflictHandler(EModes mode)
     : mHasUnsavedChanges(false),
-    mLoadedMode(mode)
+    mLoadMode(mode)
 {
     loadFromSettings(mode);
 }
@@ -497,7 +499,7 @@ void  LLKeyConflictHandler::loadFromSettings(EModes load_mode)
             mControlsMap.insert(mDefaultsMap.begin(), mDefaultsMap.end());
         }
     }
-    mLoadedMode = load_mode;
+    mLoadMode = load_mode;
 }
 
 void  LLKeyConflictHandler::saveToSettings()
@@ -507,7 +509,7 @@ void  LLKeyConflictHandler::saveToSettings()
         return;
     }
 
-    if (mLoadedMode == MODE_GENERAL)
+    if (mLoadMode == MODE_GENERAL)
     {
         for (U32 i = 0; i < CONTROL_NUM_INDICES; i++)
         {
@@ -591,7 +593,7 @@ void  LLKeyConflictHandler::saveToSettings()
                 }
             }
 
-            switch (mLoadedMode)
+            switch (mLoadMode)
             {
             case MODE_FIRST_PERSON:
                 if (keys.first_person.isProvided())
@@ -657,7 +659,7 @@ void  LLKeyConflictHandler::saveToSettings()
 
 LLKeyData LLKeyConflictHandler::getDefaultControl(EControlTypes control_type, U32 index)
 {
-    if (mLoadedMode == MODE_GENERAL)
+    if (mLoadMode == MODE_GENERAL)
     {
         std::string name = getControlName(control_type);
         LLControlVariablePtr var = gSavedSettings.getControl(name);
@@ -686,7 +688,7 @@ void LLKeyConflictHandler::resetToDefault(EControlTypes control_type, U32 index)
 
 void LLKeyConflictHandler::resetToDefault(EControlTypes control_type)
 {
-    if (mLoadedMode == MODE_GENERAL)
+    if (mLoadMode == MODE_GENERAL)
     {
         std::string name = getControlName(control_type);
         LLControlVariablePtr var = gSavedSettings.getControl(name);
@@ -753,40 +755,18 @@ void LLKeyConflictHandler::resetToDefaults()
 {
     if (!empty())
     {
-        resetToDefaults(mLoadedMode);
+        resetToDefaults(mLoadMode);
     }
-}
-
-void LLKeyConflictHandler::resetAllToDefaults()
-{
-    std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "keys.xml");
-    if (gDirUtilp->fileExists(filename))
+    else
     {
-        LLFile::remove(filename);
-        std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "keys.xml");
-        gViewerKeyboard.loadBindingsXML(filename);
+        // not optimal since:
+        // 1. We are not sure that mLoadMode was set
+        // 2. We are not sure if there are any changes in comparison to default
+        // 3. We are loading 'current' only to replace it
+        // but it is reliable and works Todo: consider optimizing.
+        loadFromSettings(mLoadMode);
+        resetToDefaults(mLoadMode);
     }
-
-    for (U32 i = 0; i < CONTROL_NUM_INDICES; i++)
-    {
-        EControlTypes type = (EControlTypes)i;
-        switch (type)
-        {
-        case LLKeyConflictHandler::CONTROL_VIEW_ACTIONS:
-        case LLKeyConflictHandler::CONTROL_INTERACTIONS:
-        case LLKeyConflictHandler::CONTROL_MOVEMENTS:
-        case LLKeyConflictHandler::CONTROL_MEDIACONTENT:
-        case LLKeyConflictHandler::CONTROL_RESERVED:
-            // ignore 'headers', they are for representation and organization purposes
-            break;
-        default:
-            {
-                resetToDefault(type);
-                break;
-            }
-        }
-    }
-    mHasUnsavedChanges = false;
 }
 
 void LLKeyConflictHandler::clear()

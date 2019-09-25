@@ -167,7 +167,7 @@ static const U32 ALLOW_KEYS = 4; //keyboard
 static const U32 ALLOW_MASK_KEYS = 8;
 static const U32 ALLOW_MASKS = 16;
 static const U32 CAN_IGNORE_MASKS = 32; // For example W (aka Forward) should work regardless of SHIFT being pressed
-static const U32 DEFAULT_KEY_FILTER = ALLOW_MOUSE | ALLOW_MASK_MOUSE | ALLOW_KEYS | ALLOW_MASK_KEYS;
+static const U32 DEFAULT_KEY_FILTER = ALLOW_MOUSE | ALLOW_MASK_MOUSE | ALLOW_KEYS | ALLOW_MASK_KEYS | CAN_IGNORE_MASKS;
 
 class LLSetKeyBindDialog : public LLModalDialog
 {
@@ -2970,6 +2970,10 @@ LLPanelPreferenceControls::LLPanelPreferenceControls()
     mEditingMode(0),
     mShowKeyDialog(false)
 {
+    for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT; ++i)
+    {
+        mConflictHandler[i].setLoadMode((LLKeyConflictHandler::EModes)i);
+    }
 }
 
 LLPanelPreferenceControls::~LLPanelPreferenceControls()
@@ -3294,7 +3298,10 @@ void LLPanelPreferenceControls::onSetKeyBind(EMouseClickType click, KEY key, MAS
 
 void LLPanelPreferenceControls::onRestoreDefaults()
 {
-    mConflictHandler[mEditingMode].resetToDefaults();
+    for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT; ++i)
+    {
+        mConflictHandler[mEditingMode].resetToDefaults();
+    }
     populateControlTable();
 }
 

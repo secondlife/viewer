@@ -183,18 +183,20 @@ public:
     // Resets keybinding to default variant from 'saved settings' or xml
     void resetToDefault(EControlTypes control_type, U32 index);
     void resetToDefault(EControlTypes control_type);
-    void resetToDefaults(EModes mode);
+    // resets current mode to defaults, 
     void resetToDefaults();
-    void resetAllToDefaults();
 
     bool empty() { return mControlsMap.empty(); }
     void clear();
 
     bool hasUnsavedChanges() { return mHasUnsavedChanges; }
-    EModes getLoadedMode() { return mLoadedMode; }
+    void setLoadMode(EModes mode) { mLoadMode = mode; }
+    EModes getLoadMode() { return mLoadMode; }
     // todo: conflict search
 
 private:
+    void resetToDefaults(EModes mode);
+
     // at the moment these kind of control is not savable, but takes part will take part in conflict resolution
     void registerTemporaryControl(EControlTypes control_type, EMouseClickType mouse_ind, KEY key, MASK mask, U32 conflict_mask);
 
@@ -207,7 +209,7 @@ private:
     control_map_t mControlsMap;
     control_map_t mDefaultsMap;
     bool mHasUnsavedChanges;
-    EModes mLoadedMode;
+    EModes mLoadMode;
 };
 
 
