@@ -2231,8 +2231,8 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 	}
 
     // TBD - temporary location for fatal hook (should be above, but for now it logs...)
+    LL_DEBUGS("FatalHook") << "initial setting of default fatalhook" << LL_ENDL;
     LLError::setFatalHook(fatalErrorHook);
-
 }
 
 bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,

@@ -333,11 +333,12 @@ bool LLAppViewerMacOSX::restoreErrorTrap()
 	
 	unsigned int reset_count = 0;
 	
-#define SET_SIG(S) 	sigaction(SIGABRT, &act, &old_act); \
-					if(act.sa_sigaction != old_act.sa_sigaction) \
-						++reset_count;
+#define SET_SIG(SIGNAL) sigaction(SIGNAL, &act, &old_act); \
+                        if(act.sa_sigaction != old_act.sa_sigaction) ++reset_count;
 	// Synchronous signals
-	SET_SIG(SIGABRT)
+#   ifndef LL_BUGSPLAT
+	SET_SIG(SIGABRT) // let bugsplat catch this
+#   endif        
 	SET_SIG(SIGALRM)
 	SET_SIG(SIGBUS)
 	SET_SIG(SIGFPE)

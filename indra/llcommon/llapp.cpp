@@ -779,7 +779,9 @@ void setup_signals()
 	act.sa_flags = SA_SIGINFO;
 
 	// Synchronous signals
+#   ifndef LL_BUGSPLAT
 	sigaction(SIGABRT, &act, NULL);
+#   endif
 	sigaction(SIGALRM, &act, NULL);
 	sigaction(SIGBUS, &act, NULL);
 	sigaction(SIGFPE, &act, NULL);
@@ -816,7 +818,9 @@ void clear_signals()
 	act.sa_flags = SA_SIGINFO;
 
 	// Synchronous signals
+#   ifndef LL_BUGSPLAT
 	sigaction(SIGABRT, &act, NULL);
+#   endif
 	sigaction(SIGALRM, &act, NULL);
 	sigaction(SIGBUS, &act, NULL);
 	sigaction(SIGFPE, &act, NULL);
@@ -869,6 +873,7 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *)
 
 		return;
 	case SIGABRT:
+        // Note that this handler is not set for SIGABRT when using Bugsplat
 		// Abort just results in termination of the app, no funky error handling.
 		if (LLApp::sLogInSignal)
 		{
