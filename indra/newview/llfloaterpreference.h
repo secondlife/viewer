@@ -311,7 +311,7 @@ public:
 
 	void onListCommit();
 	void onModeCommit();
-	void onSetKeyBind(EMouseClickType click, KEY key, MASK mask);
+	void onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool ignore_mask);
 	void onRestoreDefaults();
 	void onDefaultKeyBind();
 

@@ -4,7 +4,7 @@
  border="false"
  can_close="false"
  can_minimize="false"
- height="90"
+ height="116"
  layout="topleft"
  name="modal container"
  width="272">
@@ -31,13 +31,25 @@
 Press a key to set your trigger.
 Allowed input: [INPUT].
     </text>
+    <check_box
+     follows="top|left"
+     height="20"
+     initial_value="false"
+     label="Ignore accelerator keys"
+     layout="topleft"
+     left="8"
+     name="ignore_masks"
+     tool_tip="Ignore Shift, Alt and Ctrl keys. Example: This allows to hold W (forward, ignores shift) and Shift+A (slide left) simultaneously and agent will both move forward and slide left."
+     top_pad="8"
+     width="160" />
+  
     <button
      height="23"
      label="Set Empty"
      layout="topleft"
      left="8"
      name="SetEmpty"
-     top_pad="8"
+     top_pad="6"
      width="80" />
     <button
      height="23"

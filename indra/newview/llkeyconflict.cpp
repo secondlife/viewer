@@ -58,7 +58,6 @@ static const std::string typetostring[LLKeyConflictHandler::CONTROL_NUM_INDICES]
     "control_wear",
     "control_movements",
     "control_moveto",
-    "control_sit",
     "control_teleportto",
     "push_forward",
     "push_backward",
@@ -69,8 +68,9 @@ static const std::string typetostring[LLKeyConflictHandler::CONTROL_NUM_INDICES]
     "jump",
     "push_down",
     //"control_run",
-    "control_toggle_run",
+    "toggle_run",
     "toggle_fly",
+    "toggle_sit",
     "stop_moving",
     "control_camera",
     "look_up",
@@ -103,8 +103,8 @@ static const std::string typetostring[LLKeyConflictHandler::CONTROL_NUM_INDICES]
     "edit_avatar_move_forward",
     "edit_avatar_move_backward",
     "control_mediacontent",
-    "control_parcel",
-    "control_media",
+    "toggle_pause_media",
+    "toggle_enable_media",
     "control_voice",
     "control_toggle_voice",
     "start_chat",
@@ -161,6 +161,10 @@ static const control_enum_t command_to_key =
     { "stop_moving", LLKeyConflictHandler::CONTROL_STOP },
     { "start_chat", LLKeyConflictHandler::CONTROL_START_CHAT },
     { "start_gesture", LLKeyConflictHandler::CONTROL_START_GESTURE },
+    { "toggle_run", LLKeyConflictHandler::CONTROL_TOGGLE_RUN },
+    { "toggle_sit", LLKeyConflictHandler::CONTROL_SIT },
+    { "toggle_parcel_media", LLKeyConflictHandler::CONTROL_PAUSE_MEDIA },
+    { "toggle_enable_media", LLKeyConflictHandler::CONTROL_ENABLE_MEDIA }, 
 };
 
 
@@ -189,6 +193,60 @@ std::string string_from_mask(MASK mask)
         res = "NONE";
     }
     return res;
+}
+
+std::string string_from_mouse(EMouseClickType click)
+{
+    std::string res;
+    switch (click)
+    {
+    case CLICK_LEFT:
+        res = "LMB";
+        break;
+    case CLICK_MIDDLE:
+        res = "MMB";
+        break;
+    case CLICK_RIGHT:
+        res = "RMB";
+        break;
+    case CLICK_BUTTON4:
+        res = "MB4";
+        break;
+    case CLICK_BUTTON5:
+        res = "MB5";
+        break;
+    case CLICK_DOUBLELEFT:
+        res = "Double LMB";
+        break;
+    default:
+        break;
+    }
+    return res;
+}
+
+EMouseClickType mouse_from_string(const std::string& input)
+{
+    if (input == "LMB")
+    {
+        return CLICK_LEFT;
+    }
+    if (input == "MMB")
+    {
+        return CLICK_MIDDLE;
+    }
+    if (input == "RMB")
+    {
+        return CLICK_RIGHT;
+    }
+    if (input == "MB4")
+    {
+        return CLICK_BUTTON4;
+    }
+    if (input == "MB5")
+    {
+        return CLICK_BUTTON5;
+    }
+    return CLICK_NONE;
 }
 
 // LLKeyConflictHandler
@@ -245,14 +303,14 @@ bool LLKeyConflictHandler::canAssignControl(EControlTypes control_type)
     return false;
 }
 
-void LLKeyConflictHandler::registerControl(EControlTypes control_type, U32 index, EMouseClickType mouse, KEY key, MASK mask)
+void LLKeyConflictHandler::registerControl(EControlTypes control_type, U32 index, EMouseClickType mouse, KEY key, MASK mask, bool ignore_mask)
 {
     LLKeyConflict &type_data = mControlsMap[control_type];
     if (!type_data.mAssignable)
     {
         LL_ERRS() << "Error in code, user or system should not be able to change certain controls" << LL_ENDL;
     }
-    type_data.mKeyBind.replaceKeyData(mouse, key, mask, index);
+    type_data.mKeyBind.replaceKeyData(mouse, key, mask, ignore_mask, index);
 
     mHasUnsavedChanges = true;
 }
@@ -277,45 +335,11 @@ std::string LLKeyConflictHandler::getStringFromKeyData(const LLKeyData& keydata)
     }
     else if (keydata.mMask != MASK_NONE)
     {
-        LL_ERRS() << "Masks binding without keys is not supported yet" << LL_ENDL;
+        result = LLKeyboard::stringFromAccelerator(keydata.mMask);
     }
 
-    #ifdef LL_DARWIN
-    // darwin uses special symbols and doesn't need '+' for masks
-    if (mMouse != CLICK_NONE && mKey != KEY_NONE)
-    {
-    result += " + ";
-    }
-    #else
-    if (keydata.mMouse != CLICK_NONE && !result.empty())
-    {
-    result += " + ";
-    }
-    #endif
+    result += string_from_mouse(keydata.mMouse);
 
-    switch (keydata.mMouse)
-    {
-    case CLICK_LEFT:
-    result += "LMB";
-    break;
-    case CLICK_MIDDLE:
-    result += "MMB";
-    break;
-    case CLICK_RIGHT:
-    result += "RMB";
-    break;
-    case CLICK_BUTTON4:
-    result += "MB4";
-    break;
-    case CLICK_BUTTON5:
-    result += "MB5";
-    break;
-    case CLICK_DOUBLELEFT:
-    result += "Double LMB";
-    break;
-    default:
-    break;
-    }
     return result;
 }
 
@@ -339,6 +363,8 @@ void  LLKeyConflictHandler::loadFromSettings(const LLViewerKeyboard::KeyMode& ke
     {
         KEY key;
         MASK mask;
+        EMouseClickType mouse = it->mouse.isProvided() ? mouse_from_string(it->mouse) : CLICK_NONE;
+        bool ignore = it->ignore.isProvided() ? it->ignore.getValue() : false;
         if (it->key.getValue().empty())
         {
             key = KEY_NONE;
@@ -358,7 +384,7 @@ void  LLKeyConflictHandler::loadFromSettings(const LLViewerKeyboard::KeyMode& ke
             LLKeyConflict &type_data = (*destination)[iter->second];
             type_data.mAssignable = true;
             // Don't care about conflict level, all movement and view commands already account for it
-            type_data.mKeyBind.addKeyData(CLICK_NONE, key, mask);
+            type_data.mKeyBind.addKeyData(mouse, key, mask, ignore);
         }
     }
 }
@@ -418,6 +444,10 @@ void  LLKeyConflictHandler::loadFromSettings(EModes load_mode)
 {
     mControlsMap.clear();
     mDefaultsMap.clear();
+
+    // E.X. In case we need placeholder keys for conflict resolution.
+    generatePlaceholders(load_mode);
+
     if (load_mode == MODE_GENERAL)
     {
         for (U32 i = 0; i < CONTROL_NUM_INDICES; i++)
@@ -463,12 +493,11 @@ void  LLKeyConflictHandler::loadFromSettings(EModes load_mode)
         }
         else
         {
-            mControlsMap = mDefaultsMap;
+            // mind placeholders
+            mControlsMap.insert(mDefaultsMap.begin(), mDefaultsMap.end());
         }
     }
     mLoadedMode = load_mode;
-
-    generatePlaceholders();
 }
 
 void  LLKeyConflictHandler::saveToSettings()
@@ -555,6 +584,8 @@ void  LLKeyConflictHandler::saveToSettings()
                         binding.key = LLKeyboard::stringFromKey(data.mKey);
                     }
                     binding.mask = string_from_mask(data.mMask);
+                    binding.mouse.set(string_from_mouse(data.mMouse), true); //set() because 'optional', for compatibility purposes
+                    binding.ignore.set(data.mIgnoreMasks, true);
                     binding.command = getControlName(iter->first);
                     mode.bindings.add(binding);
                 }
@@ -711,8 +742,8 @@ void LLKeyConflictHandler::resetToDefaults(EModes mode)
     else
     {
         mControlsMap.clear();
-        mControlsMap = mDefaultsMap;
-        generatePlaceholders();
+        generatePlaceholders(mode);
+        mControlsMap.insert(mDefaultsMap.begin(), mDefaultsMap.end());
     }
 
     mHasUnsavedChanges = true;
@@ -774,7 +805,7 @@ void LLKeyConflictHandler::resetKeyboardBindings()
     gViewerKeyboard.loadBindingsXML(filename);
 }
 
-void LLKeyConflictHandler::generatePlaceholders()
+void LLKeyConflictHandler::generatePlaceholders(EModes load_mode)
 {
 
 }
@@ -784,6 +815,6 @@ void LLKeyConflictHandler::registerTemporaryControl(EControlTypes control_type, 
     LLKeyConflict *type_data = &mControlsMap[control_type];
     type_data->mAssignable = false;
     type_data->mConflictMask = conflict_mask;
-    type_data->mKeyBind.addKeyData(mouse, key, mask);
+    type_data->mKeyBind.addKeyData(mouse, key, mask, false);
 }
 

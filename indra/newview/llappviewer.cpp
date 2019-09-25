@@ -1447,6 +1447,7 @@ bool LLAppViewer::doFrame()
 			{
 				joystick->scanJoystick();
 				gKeyboard->scanKeyboard();
+                gViewerKeyboard.scanMouse();
 			}
 
 			// Update state based on messages, user input, object idle.

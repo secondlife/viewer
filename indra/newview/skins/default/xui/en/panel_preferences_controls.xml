@@ -74,7 +74,7 @@
     Move To
   </panel.string>
   <panel.string
-   name="control_sit">
+   name="toggle_sit">
     Sit/Stand
   </panel.string>
   <panel.string
@@ -119,7 +119,7 @@
     Run
   </panel.string>
   <panel.string
-   name="control_toggle_run">
+   name="toggle_run">
     Toggle Run
   </panel.string>
   <panel.string
@@ -207,11 +207,11 @@
     Sound and Media
   </panel.string>
   <panel.string
-   name="control_parcel">
-    Play/Pause Parcel Media
+   name="toggle_pause_media">
+    Play/Pause Media
   </panel.string>
   <panel.string
-   name="control_media">
+   name="toggle_enable_media">
     Play/Stop All Media
   </panel.string>
   <panel.string

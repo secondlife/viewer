@@ -166,7 +166,7 @@ static const U32 ALLOW_MASK_MOUSE = 2;
 static const U32 ALLOW_KEYS = 4; //keyboard
 static const U32 ALLOW_MASK_KEYS = 8;
 static const U32 ALLOW_MASKS = 16;
-static const U32 IGNORE_MASKS = 32; // For example W (aka Forward) should work regardless of SHIFT being pressed
+static const U32 CAN_IGNORE_MASKS = 32; // For example W (aka Forward) should work regardless of SHIFT being pressed
 static const U32 DEFAULT_KEY_FILTER = ALLOW_MOUSE | ALLOW_MASK_MOUSE | ALLOW_KEYS | ALLOW_MASK_KEYS;
 
 class LLSetKeyBindDialog : public LLModalDialog
@@ -176,6 +176,7 @@ public:
 	~LLSetKeyBindDialog();
 
 	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void onClose(bool app_quiting);
 
 	void setParent(LLPanelPreferenceControls* parent, U32 key_mask = DEFAULT_KEY_FILTER);
 
@@ -186,15 +187,20 @@ public:
 	static void onDefault(void* user_data);
 
 private:
-	LLPanelPreferenceControls* mParent;
+	LLPanelPreferenceControls* pParent;
+	LLCheckBoxCtrl* pCheckBox;
 
 	U32 mKeyMask;
 };
 
 LLSetKeyBindDialog::LLSetKeyBindDialog(const LLSD& key)
   : LLModalDialog(key),
-	mParent(NULL),
+	pParent(NULL),
 	mKeyMask(DEFAULT_KEY_FILTER)
+{
+}
+
+LLSetKeyBindDialog::~LLSetKeyBindDialog()
 {
 }
 
@@ -205,15 +211,24 @@ BOOL LLSetKeyBindDialog::postBuild()
 	childSetAction("Default", onDefault, this);
 	childSetAction("Cancel", onCancel, this);
 	getChild<LLUICtrl>("Cancel")->setFocus(TRUE);
-	
+
+	pCheckBox = getChild<LLCheckBoxCtrl>("ignore_masks");
+
 	gFocusMgr.setKeystrokesOnly(TRUE);
 	
 	return TRUE;
 }
 
+//virtual
+void LLSetKeyBindDialog::onClose(bool app_quiting)
+{
+    pParent = NULL;
+    LLModalDialog::onClose(app_quiting);
+}
+
 void LLSetKeyBindDialog::setParent(LLPanelPreferenceControls* parent, U32 key_mask)
 {
-    mParent = parent;
+    pParent = parent;
     mKeyMask = key_mask;
 
     LLTextBase *text_ctrl = getChild<LLTextBase>("descritption");
@@ -232,10 +247,10 @@ void LLSetKeyBindDialog::setParent(LLPanelPreferenceControls* parent, U32 key_ma
         input += getString("keyboard");
     }
     text_ctrl->setTextArg("[INPUT]", input);
-}
 
-LLSetKeyBindDialog::~LLSetKeyBindDialog()
-{
+    bool can_ignore_masks = (key_mask & CAN_IGNORE_MASKS) != 0;
+    pCheckBox->setVisible(can_ignore_masks);
+    pCheckBox->setValue(false);
 }
 
 BOOL LLSetKeyBindDialog::handleKeyHere(KEY key, MASK mask)
@@ -249,10 +264,19 @@ BOOL LLSetKeyBindDialog::handleKeyHere(KEY key, MASK mask)
         return true;
     }
 
+    if (key == KEY_DELETE)
+    {
+        if (pParent)
+        {
+            pParent->onSetKeyBind(CLICK_NONE, KEY_NONE, MASK_NONE, false);
+        }
+        closeFloater();
+        return true;
+    }
+
     // forbidden keys
     if (key == KEY_NONE
         || key == KEY_RETURN
-        || key == KEY_DELETE
         || key == KEY_BACKSPACE)
     {
         return false;
@@ -275,9 +299,9 @@ BOOL LLSetKeyBindDialog::handleKeyHere(KEY key, MASK mask)
         return false;
     }
 
-	else if (mParent)
+	if (pParent)
 	{
-		mParent->onSetKeyBind(CLICK_NONE, key, mask);
+        pParent->onSetKeyBind(CLICK_NONE, key, mask, pCheckBox->getValue().asBoolean());
 	}
 	closeFloater();
 	return result;
@@ -305,9 +329,9 @@ BOOL LLSetKeyBindDialog::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClic
         && (clicktype != CLICK_RIGHT || mask != 0) // reassigning menu button is not supported
         && ((mKeyMask & ALLOW_MASK_MOUSE) != 0 || mask == 0))
     {
-        if (mParent)
+        if (pParent)
         {
-            mParent->onSetKeyBind(clicktype, KEY_NONE, mask);
+            pParent->onSetKeyBind(clicktype, KEY_NONE, mask, pCheckBox->getValue().asBoolean());
         }
         result = TRUE;
         closeFloater();
@@ -333,9 +357,9 @@ void LLSetKeyBindDialog::onBlank(void* user_data)
 {
     LLSetKeyBindDialog* self = (LLSetKeyBindDialog*)user_data;
     // tmp needs 'no key' button
-    if (self->mParent)
+    if (self->pParent)
     {
-        self->mParent->onSetKeyBind(CLICK_NONE, KEY_NONE, MASK_NONE);
+        self->pParent->onSetKeyBind(CLICK_NONE, KEY_NONE, MASK_NONE, false);
     }
     self->closeFloater();
 }
@@ -345,9 +369,9 @@ void LLSetKeyBindDialog::onDefault(void* user_data)
 {
     LLSetKeyBindDialog* self = (LLSetKeyBindDialog*)user_data;
     // tmp needs 'no key' button
-    if (self->mParent)
+    if (self->pParent)
     {
-        self->mParent->onDefaultKeyBind();
+        self->pParent->onDefaultKeyBind();
     }
     self->closeFloater();
 }
@@ -2921,6 +2945,23 @@ BOOL LLPanelPreferenceControls::postBuild()
 // Something of a workaround: cells don't handle clicks, so we catch a click, then process it on hover.
 BOOL LLPanelPreferenceControls::handleHover(S32 x, S32 y, MASK mask)
 {
+    /*S32 column = pControlsTable->getColumnIndexFromOffset(x);
+    LLScrollListItem* item = pControlsTable->hitItem(x, y);
+    static LLScrollListCell* last_cell = NULL;
+    if (item && column > 0)
+    {
+        LLScrollListCell* cell = item->getColumn(column);
+        if (cell)
+        {
+            cell->highlightText(0, CHAR_MAX);
+            if (last_cell != NULL && last_cell !=cell)
+            {
+                last_cell->highlightText(0, 0);
+            }
+            last_cell = cell;
+        }
+    }*/
+
     if (mShowKeyDialog)
     {
         if (mEditingIndex > 0 && mConflictHandler[mEditingMode].canAssignControl((LLKeyConflictHandler::EControlTypes)mEditingIndex))
@@ -2932,14 +2973,14 @@ BOOL LLPanelPreferenceControls::handleHover(S32 x, S32 y, MASK mask)
                 LLSetKeyBindDialog* dialog = LLFloaterReg::showTypedInstance<LLSetKeyBindDialog>("keybind_dialog", LLSD(), TRUE);
                 if (dialog)
                 {
-                    if (mConflictHandler[mEditingMode].getLoadedMode() == LLKeyConflictHandler::MODE_GENERAL)
-                    {
+                    /*if (mConflictHandler[mEditingMode].getLoadedMode() == LLKeyConflictHandler::MODE_GENERAL)
+                    {*/
                         dialog->setParent(this, DEFAULT_KEY_FILTER);
-                    }
+                    /*}
                     else
                     {
                         dialog->setParent(this, ALLOW_KEYS | ALLOW_MASK_KEYS);
-                    }
+                    }*/
                 }
             }
         }
@@ -3082,10 +3123,6 @@ void LLPanelPreferenceControls::populateControlTable()
             }
         }
     }
-
-    //temp
-    if (mEditingMode == LLKeyConflictHandler::MODE_GENERAL)
-        pControlsTable->setEnabled(false);
 }
 
 // Just a workaround to not care about first separator before headers (we can start from random header)
@@ -3175,7 +3212,8 @@ void LLPanelPreferenceControls::onModeCommit()
     regenerateControls();
 }
 
-void LLPanelPreferenceControls::onSetKeyBind(EMouseClickType click, KEY key, MASK mask)
+// todo: copy onSetKeyBind to interface and inherit from interface
+void LLPanelPreferenceControls::onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool ignore_mask)
 {
     LLKeyConflictHandler::EControlTypes control = (LLKeyConflictHandler::EControlTypes)mEditingIndex;
 
@@ -3190,7 +3228,7 @@ void LLPanelPreferenceControls::onSetKeyBind(EMouseClickType click, KEY key, MAS
     if (item && mEditingColumn > 0)
     {
 
-        mConflictHandler[mEditingMode].registerControl(control, mEditingColumn - 1, click, key, mask);
+        mConflictHandler[mEditingMode].registerControl(control, mEditingColumn - 1, click, key, mask, ignore_mask);
 
         LLScrollListCell *cell = item->getColumn(1);
         cell->setValue(mConflictHandler[mEditingMode].getControlString(control, 0));

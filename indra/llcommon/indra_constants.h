@@ -61,7 +61,8 @@ enum EMouseClickType{
     CLICK_RIGHT,
     CLICK_BUTTON4,
     CLICK_BUTTON5,
-    CLICK_DOUBLELEFT
+    CLICK_DOUBLELEFT,
+    CLICK_COUNT // 'size', CLICK_NONE does not counts
 };
 
 // keys
