@@ -798,7 +798,7 @@ bool LLAppViewerWin32::beingDebugged()
 
 bool LLAppViewerWin32::restoreErrorTrap()
 {	
-	return false;
+	return true; // we don't check for handler collisions on windows, so just say they're ok
 }
 
 void LLAppViewerWin32::initCrashReporting(bool reportFreeze)
