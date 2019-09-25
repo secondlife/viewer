@@ -86,6 +86,13 @@ public:
 	bool m_is_animated_object;
 	bool m_is_root_edit;
 
+	// Triangle-related
+	U32 m_triangle_count;
+	U32 m_triangle_count_lowest;
+	U32 m_triangle_count_low;
+	U32 m_triangle_count_medium;
+	U32 m_triangle_count_high;
+	
 	// Texture ids
 	texture_ids_t m_diffuse_ids;
 	texture_ids_t m_sculpt_ids;
@@ -119,6 +126,13 @@ LLPrimCostData::LLPrimCostData():
 	m_particle_source_vols(0),
 	m_produces_light_vols(0),
 	m_sculpt_vols(0),
+
+	// Triangle
+	m_triangle_count(0),
+	m_triangle_count_lowest(0),
+	m_triangle_count_low(0),
+	m_triangle_count_medium(0),
+	m_triangle_count_high(0),
 
 	// Other stats
 	m_num_particles(0),
@@ -162,6 +176,12 @@ void LLPrimCostData::asLLSD( LLSD& sd ) const
 	sd["m_num_triangles_v1"] = (LLSD::Integer) m_num_triangles_v1;
 	sd["m_is_animated_object"] = (LLSD::Boolean) m_is_animated_object;
 	sd["m_is_root_edit"] = (LLSD::Boolean) m_is_root_edit;
+
+	sd["m_triangle_count"] = (LLSD::Integer) m_triangle_count;
+	sd["m_triangle_count_lowest("] = (LLSD::Integer) m_triangle_count_lowest;
+	sd["m_triangle_count_low"] = (LLSD::Integer) m_triangle_count_low;
+	sd["m_triangle_count_medium"] = (LLSD::Integer) m_triangle_count_medium;
+	sd["m_triangle_count_high"] = (LLSD::Integer) m_triangle_count_high;
 }
 
 class LLObjectCostManagerImpl
@@ -579,7 +599,11 @@ void LLObjectCostManagerImpl::getPrimCostData(const LLVOVolume *vol, LLPrimCostD
 		// ARC - how do we use this info? how do we aggregate it across multiple prims?
 	}
 
-
+    cost_data.m_triangle_count = vol->getTriangleCount();
+    cost_data.m_triangle_count_lowest = vol->getLODTriangleCount(LLModel::LOD_IMPOSTOR);
+    cost_data.m_triangle_count_low = vol->getLODTriangleCount(LLModel::LOD_LOW);
+    cost_data.m_triangle_count_medium = vol->getLODTriangleCount(LLModel::LOD_MEDIUM);
+    cost_data.m_triangle_count_high = vol->getLODTriangleCount(LLModel::LOD_HIGH);
 }
 
 U32 LLObjectCostManagerImpl::textureCostsV1(const texture_ids_t& ids)
@@ -782,14 +806,8 @@ F32 LLObjectCostManager::getRenderCostLinkset(U32 version, const LLViewerObject 
 LLSD LLObjectCostManager::getFrameDataPrim(const LLVOVolume *vol)
 {
 	LLSD sd;
-
-    sd["TriangleCount"] = (LLSD::Integer) vol->getTriangleCount();
-    sd["TriangleCount_Lowest"] = (LLSD::Integer) vol->getLODTriangleCount(LLModel::LOD_IMPOSTOR);
-    sd["TriangleCount_Low"] = (LLSD::Integer) vol->getLODTriangleCount(LLModel::LOD_LOW);
-    sd["TriangleCount_Medium"] = (LLSD::Integer) vol->getLODTriangleCount(LLModel::LOD_MEDIUM);
-    sd["TriangleCount_HIGH"] = (LLSD::Integer) vol->getLODTriangleCount(LLModel::LOD_HIGH);
-
 	LLPrimCostData cost_data;
+
 	m_impl->getPrimCostData(vol, cost_data);
 	cost_data.asLLSD(sd);
 	return sd;

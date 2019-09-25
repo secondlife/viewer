@@ -223,7 +223,6 @@ public:
 	static std::string		sLogName;
 	static bool				sMetricLog,
 							sLog;	
-    static bool				sExtendedLogging;
     static bool				sArctanLogging;
 	static U64				sClockResolution;
     static LLSD             sExtraLogRecords;

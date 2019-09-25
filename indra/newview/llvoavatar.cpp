@@ -7795,7 +7795,7 @@ LLSD LLVOAvatar::getAllAvatarsFrameData()
 		 iter != LLCharacter::sInstances.end(); ++iter)
 	{
 		LLVOAvatar* inst = (LLVOAvatar*) *iter;
-        if (!inst->isSelf() && inst->mFrameDataStale)
+        if (!inst->isSelf() && !inst->isAnimatedObject() && inst->mFrameDataStale)
         {
             LLSD avatar_record = inst->getFrameData();
             result["Other"].append(avatar_record);
@@ -7856,86 +7856,13 @@ LLSD LLVOAvatar::getFrameData() const
             const LLViewerObject* attached_object = (*attachment_iter);
             if (attached_object && !attached_object->isHUDAttachment())
             {
-                const LLDrawable* drawable = attached_object->mDrawable;
-                if (drawable)
-                {
-                    const LLVOVolume* volume = drawable->getVOVolume();
-                    if (volume)
-                    {
-                        LLSD attachment_sd = volume->getFrameData(textures, material_textures);
-                        av_attachments.append(attachment_sd);
-
-                        const_child_list_t children = volume->getChildren();
-                        for (const_child_list_t::const_iterator child_iter = children.begin();
-                             child_iter != children.end();
-                             ++child_iter)
-                        {
-                            LLViewerObject* child_obj = *child_iter;
-                            LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
-                            if (child)
-                            {
-                                LLSD attachment_sd = child->getFrameData(textures, material_textures);
-                                av_attachments.append(attachment_sd);
-                            }
-                        }
-                        
-                    }
-                }
+				LLSD attachment_sd = attached_object->getFrameDataLinkset();
+				av_attachments.append(attachment_sd);
             }
         }
 
     }
     av_sd["Attachments"] = av_attachments;
-
-    S32 texture_missing = 0;
-    S32 texture_count = 0;
-    F32 texture_mpixels = 0;
-    S32 material_texture_missing = 0;
-    S32 material_texture_count = 0;
-    F32 material_texture_mpixels = 0;
-
-    for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
-         volume_texture != textures.end();
-         ++volume_texture)
-    {
-        LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(volume_texture->first);
-        if (texture)
-        {
-            texture_count++;
-            texture_mpixels += 1.0 * texture->getFullHeight() * texture->getFullWidth() / (1024*1024);
-        }
-        else
-        {
-            texture_missing++;
-        }
-    }
-    for (LLVOVolume::texture_cost_t::iterator volume_texture = material_textures.begin();
-         volume_texture != material_textures.end();
-         ++volume_texture)
-    {
-        // Only count textures not already accounted for above
-        if (textures.find(volume_texture->first) == textures.end())
-        {
-            LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(volume_texture->first);
-            if (texture)
-            {
-                material_texture_count++;
-                material_texture_mpixels += 1.0 * texture->getFullHeight() * texture->getFullWidth() / (1024*1024);
-            }
-            else
-            {
-                material_texture_missing++;
-            }
-        }
-    }
-
-	LLSD av_attachment_textures;
-    av_sd["AttachmentTextures"]["texture_count"] = texture_count;
-    av_sd["AttachmentTextures"]["texture_mpixels"] = texture_mpixels;
-    av_sd["AttachmentTextures"]["texture_missing"] = texture_missing;
-    av_sd["AttachmentTextures"]["material_texture_count"] = material_texture_count;
-    av_sd["AttachmentTextures"]["material_texture_mpixels"] = material_texture_mpixels;
-    av_sd["AttachmentTextures"]["material_texture_missing"] = material_texture_missing;
 
     return av_sd;
 }
