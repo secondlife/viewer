@@ -141,6 +141,7 @@ private:
     enum EMouseState
     {
         MOUSE_STATE_DOWN, // key down this frame
+        MOUSE_STATE_CLICK, // key went up and down in scope of same frame
         MOUSE_STATE_LEVEL, // clicked again fast, or never released
         MOUSE_STATE_UP, // went up this frame
         MOUSE_STATE_SILENT // notified about 'up', do not notify again

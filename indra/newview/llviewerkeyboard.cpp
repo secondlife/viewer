@@ -38,6 +38,7 @@
 #include "llmorphview.h"
 #include "llmoveview.h"
 #include "lltoolfocus.h"
+#include "lltoolpie.h"
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llfloatercamera.h"
@@ -567,7 +568,7 @@ void edit_avatar_move_backward( EKeystate s )
 
 void stop_moving( EKeystate s )
 {
-	if( KEYSTATE_UP == s  ) return;
+	if( KEYSTATE_DOWN != s  ) return;
 	// stop agent
 	gAgent.setControlFlags(AGENT_CONTROL_STOP);
 
@@ -581,7 +582,8 @@ void start_chat( EKeystate s )
     {
         return; // can't talk, gotta go, kthxbye!
     }
-    
+    if (KEYSTATE_DOWN != s) return;
+
 	// start chat
 	LLFloaterIMNearbyChat::startChat(NULL);
 }
@@ -649,6 +651,19 @@ void toggle_enable_media(EKeystate s)
     LLViewerMedia::setAllMediaEnabled(!pause);
 }
 
+void walk_to(EKeystate s)
+{
+    LL_WARNS() << "processing " << LLSD(s).asString() << LL_ENDL;
+    if (KEYSTATE_DOWN != s) return;
+    LLToolPie::getInstance()->walkToClickedLocation();
+}
+
+void teleport_to(EKeystate s)
+{
+    if (KEYSTATE_DOWN != s) return;
+    LLToolPie::getInstance()->teleportToClickedLocation();
+}
+
 #define REGISTER_KEYBOARD_ACTION(KEY, ACTION) LLREGISTER_STATIC(LLKeyboardActionRegistry, KEY, ACTION);
 REGISTER_KEYBOARD_ACTION("jump", agent_jump);
 REGISTER_KEYBOARD_ACTION("push_down", agent_push_down);
@@ -694,6 +709,8 @@ REGISTER_KEYBOARD_ACTION("toggle_run", toggle_run);
 REGISTER_KEYBOARD_ACTION("toggle_sit", toggle_sit);
 REGISTER_KEYBOARD_ACTION("toggle_pause_media", toggle_pause_media);
 REGISTER_KEYBOARD_ACTION("toggle_enable_media", toggle_enable_media);
+REGISTER_KEYBOARD_ACTION("teleport_to", teleport_to);
+REGISTER_KEYBOARD_ACTION("walk_to", walk_to);
 #undef REGISTER_KEYBOARD_ACTION
 
 LLViewerKeyboard::LLViewerKeyboard()
@@ -756,7 +773,7 @@ BOOL LLViewerKeyboard::mouseFromString(const std::string& string, EMouseClickTyp
         *mode = CLICK_LEFT;
         return TRUE;
     }
-    else if (string == "DLMB")
+    else if (string == "Double LMB")
     {
         *mode = CLICK_DOUBLELEFT;
         return TRUE;
@@ -1045,24 +1062,44 @@ S32 LLViewerKeyboard::loadBindingMode(const LLViewerKeyboard::KeyMode& keymode, 
 		it != end_it;
 		++it)
 	{
+        bool processed = false;
         if (!it->key.getValue().empty())
         {
             KEY key;
-            MASK mask;
-            bool ignore = it->ignore.isProvided() ? it->ignore.getValue() : false;
             LLKeyboard::keyFromString(it->key, &key);
-            LLKeyboard::maskFromString(it->mask, &mask);
-            bindKey(mode, key, mask, ignore, it->command);
-            binding_count++;
+            if (key != KEY_NONE)
+            {
+                MASK mask;
+                bool ignore = it->ignore.isProvided() ? it->ignore.getValue() : false;
+                LLKeyboard::maskFromString(it->mask, &mask);
+                bindKey(mode, key, mask, ignore, it->command);
+                processed = true;
+            }
+            else
+            {
+                LL_WARNS_ONCE() << "There might be issues in keybindings' file" << LL_ENDL;
+            }
         }
-        else if (it->mouse.isProvided() && !it->mouse.getValue().empty())
+        if (!processed && it->mouse.isProvided() && !it->mouse.getValue().empty())
         {
             EMouseClickType mouse;
-            MASK mask;
-            bool ignore = it->ignore.isProvided() ? it->ignore.getValue() : false;
             mouseFromString(it->mouse.getValue(), &mouse);
-            LLKeyboard::maskFromString(it->mask, &mask);
-            bindMouse(mode, mouse, mask, ignore, it->command);
+            if (mouse != CLICK_NONE)
+            {
+                MASK mask;
+                bool ignore = it->ignore.isProvided() ? it->ignore.getValue() : false;
+                LLKeyboard::maskFromString(it->mask, &mask);
+                bindMouse(mode, mouse, mask, ignore, it->command);
+                processed = true;
+            }
+            else
+            {
+                LL_WARNS_ONCE() << "There might be issues in keybindings' file" << LL_ENDL;
+            }
+        }
+        if (processed)
+        {
+            // total
             binding_count++;
         }
 	}
@@ -1261,28 +1298,41 @@ BOOL LLViewerKeyboard::handleMouse(LLWindow *window_impl, LLCoordGL pos, MASK ma
 
     if (clicktype != CLICK_NONE)
     {
-        // special case
-        // if UI doesn't handle double click, LMB click is issued, so supres LMB 'down' when doubleclick is set
+        // Special case
+        // If UI doesn't handle double click, LMB click is issued, so supres LMB 'down' when doubleclick is set
         // handle !down as if we are handling doubleclick
-        bool override_lmb = (clicktype == CLICK_LEFT
-            && (mMouseLevel[CLICK_DOUBLELEFT] == MOUSE_STATE_DOWN || mMouseLevel[CLICK_DOUBLELEFT] == MOUSE_STATE_LEVEL));
 
-        if (override_lmb && !down)
+        bool double_click_sp = (clicktype == CLICK_LEFT
+            && (mMouseLevel[CLICK_DOUBLELEFT] != MOUSE_STATE_SILENT)
+            && mMouseLevel[CLICK_LEFT] == MOUSE_STATE_SILENT);
+        if (double_click_sp && !down)
         {
-            // process doubleclick instead
+            // Process doubleclick instead
             clicktype = CLICK_DOUBLELEFT;
         }
 
-        if (override_lmb && down)
+
+        if (double_click_sp && down)
         {
-            // else-supress
+            // Consume click.
+            // Due to handling, double click that is not handled will be immediately followed by LMB click
         }
-        // if UI handled 'down', it should handle 'up' as well
-        // if we handle 'down' not by UI, then we should handle 'up'/'level' regardless of UI
-        else if (handled && mMouseLevel[clicktype] != MOUSE_STATE_SILENT)
+        // If UI handled 'down', it should handle 'up' as well
+        // If we handle 'down' not by UI, then we should handle 'up'/'level' regardless of UI
+        else if (handled)
         {
             // UI handled new 'down' so iterupt whatever state we were in.
-            mMouseLevel[clicktype] = MOUSE_STATE_UP;
+            if (mMouseLevel[clicktype] != MOUSE_STATE_SILENT)
+            {
+                if (mMouseLevel[clicktype] == MOUSE_STATE_DOWN)
+                {
+                    mMouseLevel[clicktype] = MOUSE_STATE_CLICK;
+                }
+                else
+                {
+                    mMouseLevel[clicktype] = MOUSE_STATE_UP;
+                }
+            }
         }
         else if (down)
         {
@@ -1297,10 +1347,17 @@ BOOL LLViewerKeyboard::handleMouse(LLWindow *window_impl, LLCoordGL pos, MASK ma
                 mMouseLevel[clicktype] = MOUSE_STATE_DOWN;
             }
         }
-        else
+        else if (mMouseLevel[clicktype] != MOUSE_STATE_SILENT)
         {
             // Released mouse key
-            mMouseLevel[clicktype] = MOUSE_STATE_UP;
+            if (mMouseLevel[clicktype] == MOUSE_STATE_DOWN)
+            {
+                mMouseLevel[clicktype] = MOUSE_STATE_CLICK;
+            }
+            else 
+            {
+                mMouseLevel[clicktype] = MOUSE_STATE_UP;
+            }
         }
     }
 
@@ -1316,6 +1373,7 @@ bool LLViewerKeyboard::scanMouse(const LLMouseBinding *binding, S32 binding_coun
             switch (state)
             {
             case MOUSE_STATE_DOWN:
+            case MOUSE_STATE_CLICK:
                 binding[i].mFunction(KEYSTATE_DOWN);
                 break;
             case MOUSE_STATE_LEVEL:
@@ -1360,7 +1418,7 @@ void LLViewerKeyboard::scanMouse()
                 // mouse doesn't support 'continued' state like keyboard does, so after handling, switch to LEVEL
                 mMouseLevel[i] = MOUSE_STATE_LEVEL;
             }
-            else if (mMouseLevel[i] == MOUSE_STATE_UP)
+            else if (mMouseLevel[i] == MOUSE_STATE_UP || mMouseLevel[i] == MOUSE_STATE_CLICK)
             {
                 mMouseLevel[i] = MOUSE_STATE_SILENT;
             }
