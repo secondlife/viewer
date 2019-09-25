@@ -32,20 +32,59 @@
 #include "llsdutil.h"
 
 LLKeyData::LLKeyData()
-    : mMouse(CLICK_NONE), mKey(KEY_NONE), mMask(MASK_NONE)
+    :
+    mMouse(CLICK_NONE),
+    mKey(KEY_NONE),
+    mMask(MASK_NONE),
+    mIgnoreMasks(false)
 {
 }
 
 LLKeyData::LLKeyData(EMouseClickType mouse, KEY key, MASK mask)
-: mMouse(mouse), mKey(key), mMask(mask)
+    :
+    mMouse(mouse),
+    mKey(key),
+    mMask(mask),
+    mIgnoreMasks(false)
+{
+}
+
+LLKeyData::LLKeyData(EMouseClickType mouse, KEY key, bool ignore_mask)
+    :
+    mMouse(mouse),
+    mKey(key),
+    mMask(MASK_NONE),
+    mIgnoreMasks(ignore_mask)
+{
+}
+
+LLKeyData::LLKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore_mask)
+    :
+    mMouse(mouse),
+    mKey(key),
+    mMask(mask),
+    mIgnoreMasks(ignore_mask)
 {
 }
 
 LLKeyData::LLKeyData(const LLSD &key_data)
 {
-    mMouse = (EMouseClickType)key_data["mouse"].asInteger();
-    mKey = key_data["key"].asInteger();
-    mMask = key_data["mask"].asInteger();
+    if (key_data.has("mouse"))
+    {
+        mMouse = (EMouseClickType)key_data["mouse"].asInteger();
+    }
+    if (key_data.has("key"))
+    {
+        mKey = key_data["key"].asInteger();
+    }
+    if (key_data.has("ignore_accelerators"))
+    {
+        mIgnoreMasks = key_data["ignore_accelerators"];
+    }
+    if (key_data.has("mask"))
+    {
+        mMask = key_data["mask"].asInteger();
+    }
 }
 
 LLSD LLKeyData::asLLSD() const
@@ -53,13 +92,20 @@ LLSD LLKeyData::asLLSD() const
     LLSD data;
     data["mouse"] = (LLSD::Integer)mMouse;
     data["key"] = (LLSD::Integer)mKey;
-    data["mask"] = (LLSD::Integer)mMask;
+    if (mIgnoreMasks)
+    {
+        data["ignore_accelerators"] = (LLSD::Boolean)mIgnoreMasks;
+    }
+    else
+    {
+        data["mask"] = (LLSD::Integer)mMask;
+    }
     return data;
 }
 
 bool LLKeyData::isEmpty() const
 {
-    return mMouse == CLICK_NONE && mKey == KEY_NONE &&  mMask == MASK_NONE;
+    return mMouse == CLICK_NONE && mKey == KEY_NONE;
 }
 
 void LLKeyData::reset()
@@ -67,6 +113,7 @@ void LLKeyData::reset()
     mMouse = CLICK_NONE;
     mKey = KEY_NONE;
     mMask = MASK_NONE;
+    mIgnoreMasks = false;
 }
 
 LLKeyData& LLKeyData::operator=(const LLKeyData& rhs)
@@ -74,6 +121,7 @@ LLKeyData& LLKeyData::operator=(const LLKeyData& rhs)
     mMouse = rhs.mMouse;
     mKey = rhs.mKey;
     mMask = rhs.mMask;
+    mIgnoreMasks = rhs.mIgnoreMasks;
     return *this;
 }
 
@@ -82,6 +130,7 @@ bool LLKeyData::operator==(const LLKeyData& rhs)
     if (mMouse != rhs.mMouse) return false;
     if (mKey != rhs.mKey) return false;
     if (mMask != rhs.mMask) return false;
+    if (mIgnoreMasks != rhs.mIgnoreMasks) return false;
     return true;
 }
 
@@ -90,6 +139,29 @@ bool LLKeyData::operator!=(const LLKeyData& rhs)
     if (mMouse != rhs.mMouse) return true;
     if (mKey != rhs.mKey) return true;
     if (mMask != rhs.mMask) return true;
+    if (mIgnoreMasks != rhs.mIgnoreMasks) return true;
+    return false;
+}
+
+bool LLKeyData::canHandle(const LLKeyData& data) const
+{
+    if (data.mKey == mKey
+        && data.mMouse == mMouse
+        && (mIgnoreMasks || data.mMask == mMask))
+    {
+        return true;
+    }
+    return false;
+}
+
+bool LLKeyData::canHandle(EMouseClickType mouse, KEY key, MASK mask) const
+{
+    if (mouse == mMouse
+        && key == mKey
+        && (mIgnoreMasks || mask == mMask))
+    {
+        return true;
+    }
     return false;
 }
 
@@ -167,7 +239,7 @@ bool LLKeyBind::canHandle(EMouseClickType mouse, KEY key, MASK mask) const
 
     for (data_vector_t::const_iterator iter = mData.begin(); iter != mData.end(); iter++)
     {
-        if (iter->mKey == key && iter->mMask == mask && iter->mMouse == mouse)
+        if (iter->canHandle(mouse, key, mask))
         {
             return true;
         }
@@ -185,11 +257,34 @@ bool LLKeyBind::canHandleMouse(EMouseClickType mouse, MASK mask) const
     return canHandle(mouse, KEY_NONE, mask);
 }
 
-bool LLKeyBind::addKeyData(EMouseClickType mouse, KEY key, MASK mask)
+bool LLKeyBind::hasKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore) const
 {
-    if (!canHandle(mouse, key, mask))
+    if (mouse != CLICK_NONE || key != KEY_NONE)
     {
-        mData.push_back(LLKeyData(mouse, key, mask));
+        for (data_vector_t::const_iterator iter = mData.begin(); iter != mData.end(); iter++)
+        {
+            if (iter->mKey == key
+                && iter->mMask == mask
+                && iter->mMouse == mouse
+                && iter->mIgnoreMasks == ignore)
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool LLKeyBind::hasKeyData(const LLKeyData& data) const
+{
+    return hasKeyData(data.mMouse, data.mKey, data.mMask, data.mIgnoreMasks);
+}
+
+bool LLKeyBind::addKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore)
+{
+    if (!hasKeyData(mouse, key, mask, ignore))
+    {
+        mData.push_back(LLKeyData(mouse, key, mask, ignore));
         return true;
     }
     return false;
@@ -197,7 +292,7 @@ bool LLKeyBind::addKeyData(EMouseClickType mouse, KEY key, MASK mask)
 
 bool LLKeyBind::addKeyData(const LLKeyData& data)
 {
-    if (!canHandle(data.mMouse, data.mKey, data.mMask))
+    if (!hasKeyData(data))
     {
         mData.push_back(data);
         return true;
@@ -205,37 +300,48 @@ bool LLKeyBind::addKeyData(const LLKeyData& data)
     return false;
 }
 
-void LLKeyBind::replaceKeyData(EMouseClickType mouse, KEY key, MASK mask, U32 index)
+void LLKeyBind::replaceKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore, U32 index)
 {
-    if (mouse != CLICK_NONE && key != KEY_NONE && mask != MASK_NONE)
+    if (mouse != CLICK_NONE || key != KEY_NONE )
     {
-        for (data_vector_t::const_iterator iter = mData.begin(); iter != mData.end(); iter++)
+        // if both click and key are none, we are inserting a placeholder, we don't want to reset anything
+        // otherwise reset identical key
+        for (data_vector_t::iterator iter = mData.begin(); iter != mData.end(); iter++)
         {
-            if (iter->mKey == key && iter->mMask == mask && iter->mMouse == mouse)
+            if (iter->mKey == key
+                && iter->mMouse == mouse
+                && iter->mIgnoreMasks == ignore
+                && (iter->mIgnoreMasks || iter->mMask == mask))
             {
-                mData.erase(iter);
+                iter->reset();
                 break;
             }
         }
     }
     if (mData.size() > index)
     {
-        mData[index] = LLKeyData(mouse, key, mask);
+        mData[index] = LLKeyData(mouse, key, mask, ignore);
     }
     else
     {
-        mData.push_back(LLKeyData(mouse, key, mask));
+        mData.push_back(LLKeyData(mouse, key, mask, ignore));
     }
 }
 
 void LLKeyBind::replaceKeyData(const LLKeyData& data, U32 index)
 {
-    for (data_vector_t::const_iterator iter = mData.begin(); iter != mData.end(); iter++)
+    if (!data.isEmpty())
     {
-        if (iter->mKey == data.mKey && iter->mMask == data.mMask && iter->mMouse == data.mMouse)
+        for (data_vector_t::iterator iter = mData.begin(); iter != mData.end(); iter++)
         {
-            mData.erase(iter);
-            break;
+            if (iter->mKey == data.mKey
+                && iter->mMouse == data.mMouse
+                && iter->mIgnoreMasks == data.mIgnoreMasks
+                && (iter->mIgnoreMasks || iter->mMask == data.mMask))
+            {
+                iter->reset();
+                break;
+            }
         }
     }
     if (mData.size() > index)

@@ -314,6 +314,11 @@ void LLScrollListText::draw(const LLColor4& color, const LLColor4& highlight_col
 				left + mFont->getWidth(mText.getString(), mHighlightOffset, mHighlightCount) + 1, 
 				1);
 		mRoundedRectImage->draw(highlight_rect, highlight_color);
+		/*LLRect highlight_rect(left - 2, 
+				mFont->getLineHeight() + 2, 
+				left + getWidth() + 2, 
+				1);
+		mRoundedRectImage->draw(highlight_rect, LLColor4::black);*/
 	}
 
 	// Try to draw the entire string

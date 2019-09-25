@@ -35,6 +35,8 @@ class LL_COMMON_API LLKeyData
 public:
     LLKeyData();
     LLKeyData(EMouseClickType mouse, KEY key, MASK mask);
+    LLKeyData(EMouseClickType mouse, KEY key, bool ignore_mask);
+    LLKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore_mask);
     LLKeyData(const LLSD &key_data);
 
     LLSD asLLSD() const;
@@ -45,9 +47,13 @@ public:
     bool operator==(const LLKeyData& rhs);
     bool operator!=(const LLKeyData& rhs);
 
+    bool canHandle(const LLKeyData& data) const;
+    bool canHandle(EMouseClickType mouse, KEY key, MASK mask) const;
+
     EMouseClickType mMouse;
     KEY mKey;
     MASK mMask;
+    bool mIgnoreMasks;
 };
 
 // One function can bind to multiple Key options
@@ -68,10 +74,13 @@ public:
     bool canHandleKey(KEY key, MASK mask) const;
     bool canHandleMouse(EMouseClickType mouse, MASK mask) const;
 
+    bool LLKeyBind::hasKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore) const;
+    bool LLKeyBind::hasKeyData(const LLKeyData& data) const;
+
     // these methods enshure there will be no repeats
-    bool addKeyData(EMouseClickType mouse, KEY key, MASK mask);
+    bool addKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore);
     bool addKeyData(const LLKeyData& data);
-    void replaceKeyData(EMouseClickType mouse, KEY key, MASK mask, U32 index);
+    void replaceKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore, U32 index);
     void replaceKeyData(const LLKeyData& data, U32 index);
     bool hasKeyData(U32 index) const;
     void clear() { mData.clear(); };

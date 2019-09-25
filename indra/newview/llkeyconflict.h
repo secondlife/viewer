@@ -95,7 +95,6 @@ public:
         CONTROL_WEAR,
         CONTROL_MOVEMENTS, // Group control, for visual representation
         CONTROL_MOVETO,
-        CONTROL_SIT,
         CONTROL_TELEPORTTO,
         CONTROL_FORWARD,
         CONTROL_BACKWARD,
@@ -108,6 +107,7 @@ public:
         //CONTROL_RUN,
         CONTROL_TOGGLE_RUN,
         CONTROL_TOGGLE_FLY,
+        CONTROL_SIT,
         CONTROL_STOP,
         CONTROL_CAMERA, // Group control, for visual representation
         CONTROL_LOOK_UP,
@@ -140,8 +140,8 @@ public:
         CONTROL_EDIT_AV_MV_FORWARD,
         CONTROL_EDIT_AV_MV_BACKWARD,
         CONTROL_MEDIACONTENT, // Group control, for visual representation
-        CONTROL_PARCEL, // Play pause
-        CONTROL_MEDIA, // Play stop
+        CONTROL_PAUSE_MEDIA, // Play pause
+        CONTROL_ENABLE_MEDIA, // Play stop
         CONTROL_VOICE, // Keep pressing for it to be ON
         CONTROL_TOGGLE_VOICE, // Press once to ON/OFF
         CONTROL_START_CHAT, // Press once to ON/OFF
@@ -165,7 +165,7 @@ public:
     bool canHandleMouse(EControlTypes control_type, EMouseClickType mouse_ind, MASK mask);
     bool canHandleMouse(EControlTypes control_type, S32 mouse_ind, MASK mask); //Just for convinience
     bool canAssignControl(EControlTypes control_type);
-    void registerControl(EControlTypes control_type, U32 data_index, EMouseClickType mouse_ind, KEY key, MASK mask); //todo: return conflicts?
+    void registerControl(EControlTypes control_type, U32 data_index, EMouseClickType mouse_ind, KEY key, MASK mask, bool ignore_mask); //todo: return conflicts?
 
     LLKeyData getControl(EControlTypes control_type, U32 data_index);
 
@@ -202,7 +202,7 @@ private:
     void loadFromSettings(const LLViewerKeyboard::KeyMode& keymode, control_map_t *destination);
     void loadFromSettings(const EModes &load_mode, const std::string &filename, control_map_t *destination);
     void resetKeyboardBindings();
-    void generatePlaceholders(); //'headers' for ui and non-assignable values
+    void generatePlaceholders(EModes load_mode); //E.x. non-assignable values
 
     control_map_t mControlsMap;
     control_map_t mDefaultsMap;
