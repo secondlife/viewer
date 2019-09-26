@@ -222,7 +222,11 @@ BOOL LLSetKeyBindDialog::postBuild()
 //virtual
 void LLSetKeyBindDialog::onClose(bool app_quiting)
 {
-    pParent = NULL;
+    if (pParent)
+    {
+        pParent->onCancelKeyBind();
+        pParent = NULL;
+    }
     LLModalDialog::onClose(app_quiting);
 }
 
@@ -269,6 +273,7 @@ BOOL LLSetKeyBindDialog::handleKeyHere(KEY key, MASK mask)
         if (pParent)
         {
             pParent->onSetKeyBind(CLICK_NONE, KEY_NONE, MASK_NONE, false);
+            pParent = NULL;
         }
         closeFloater();
         return true;
@@ -302,6 +307,7 @@ BOOL LLSetKeyBindDialog::handleKeyHere(KEY key, MASK mask)
 	if (pParent)
 	{
         pParent->onSetKeyBind(CLICK_NONE, key, mask, pCheckBox->getValue().asBoolean());
+        pParent = NULL;
 	}
 	closeFloater();
 	return result;
@@ -332,6 +338,7 @@ BOOL LLSetKeyBindDialog::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClic
         if (pParent)
         {
             pParent->onSetKeyBind(clicktype, KEY_NONE, mask, pCheckBox->getValue().asBoolean());
+            pParent = NULL;
         }
         result = TRUE;
         closeFloater();
@@ -360,6 +367,7 @@ void LLSetKeyBindDialog::onBlank(void* user_data)
     if (self->pParent)
     {
         self->pParent->onSetKeyBind(CLICK_NONE, KEY_NONE, MASK_NONE, false);
+        self->pParent = NULL;
     }
     self->closeFloater();
 }
@@ -372,6 +380,7 @@ void LLSetKeyBindDialog::onDefault(void* user_data)
     if (self->pParent)
     {
         self->pParent->onDefaultKeyBind();
+        self->pParent = NULL;
     }
     self->closeFloater();
 }
@@ -2917,11 +2926,12 @@ LLPanelPreferenceControls::LLPanelPreferenceControls()
     mEditingIndex(-1),
     mEditingColumn(-1),
     mEditingMode(0),
-    mShowKeyDialog(false)
+    mShowKeyDialog(false),
+    mHighlightedCell(NULL)
 {
-    for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT; ++i)
+    for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
     {
-        mConflictHandler[i].setLoadMode((LLKeyConflictHandler::EModes)i);
+        mConflictHandler[i].setLoadMode((LLKeyConflictHandler::ESourceMode)i);
     }
 }
 
@@ -2949,46 +2959,34 @@ BOOL LLPanelPreferenceControls::postBuild()
 // Something of a workaround: cells don't handle clicks, so we catch a click, then process it on hover.
 BOOL LLPanelPreferenceControls::handleHover(S32 x, S32 y, MASK mask)
 {
-    /*S32 column = pControlsTable->getColumnIndexFromOffset(x);
-    LLScrollListItem* item = pControlsTable->hitItem(x, y);
-    static LLScrollListCell* last_cell = NULL;
-    if (item && column > 0)
-    {
-        LLScrollListCell* cell = item->getColumn(column);
-        if (cell)
-        {
-            cell->highlightText(0, CHAR_MAX);
-            if (last_cell != NULL && last_cell !=cell)
-            {
-                last_cell->highlightText(0, 0);
-            }
-            last_cell = cell;
-        }
-    }*/
-
     if (mShowKeyDialog)
     {
-        if (mEditingIndex > 0 && mConflictHandler[mEditingMode].canAssignControl((LLKeyConflictHandler::EControlTypes)mEditingIndex))
+        mShowKeyDialog = false;
+        if (mEditingIndex > 0
+            && mConflictHandler[mEditingMode].canAssignControl((LLKeyConflictHandler::EControlTypes)mEditingIndex))
         {
-            mEditingColumn = pControlsTable->getColumnIndexFromOffset(x);
-
-            if (mEditingColumn >0)
+            LLScrollListItem* item = pControlsTable->getFirstSelected(); // don't use pControlsTable->hitItem(x, y) dur to drift;
+            if (item)
             {
-                LLSetKeyBindDialog* dialog = LLFloaterReg::showTypedInstance<LLSetKeyBindDialog>("keybind_dialog", LLSD(), TRUE);
-                if (dialog)
+                mEditingColumn = pControlsTable->getColumnIndexFromOffset(x);
+                if (mEditingColumn > 0)
                 {
-                    /*if (mConflictHandler[mEditingMode].getLoadedMode() == LLKeyConflictHandler::MODE_GENERAL)
-                    {*/
-                        dialog->setParent(this, DEFAULT_KEY_FILTER);
-                    /*}
-                    else
+                    LLScrollListCell* cell = item->getColumn(mEditingColumn);
+                    if (cell)
                     {
-                        dialog->setParent(this, ALLOW_KEYS | ALLOW_MASK_KEYS);
-                    }*/
+                        LLSetKeyBindDialog* dialog = LLFloaterReg::showTypedInstance<LLSetKeyBindDialog>("keybind_dialog", LLSD(), TRUE);
+                        if (dialog)
+                        {
+                            dialog->setParent(this, DEFAULT_KEY_FILTER);
+                            cell->setHighlighted(true);
+                            mHighlightedCell = cell;
+                            pControlsTable->deselectAllItems();
+                            return TRUE;
+                        }
+                    }
                 }
             }
         }
-        mShowKeyDialog = false;
     }
     return LLPanelPreference::handleHover(x, y, mask);
 }
@@ -3038,13 +3036,19 @@ void LLPanelPreferenceControls::addGroupRow(const std::string &icon, S32 index)
 void LLPanelPreferenceControls::regenerateControls()
 {
     mEditingMode = pKeyModeBox->getValue().asInteger();
-    mConflictHandler[mEditingMode].loadFromSettings((LLKeyConflictHandler::EModes)mEditingMode);
+    mConflictHandler[mEditingMode].loadFromSettings((LLKeyConflictHandler::ESourceMode)mEditingMode);
     populateControlTable();
 }
 
 void LLPanelPreferenceControls::populateControlTable()
 {
     pControlsTable->clearRows();
+
+    if (mHighlightedCell)
+    {
+        mHighlightedCell->setHighlighted(false);
+        mHighlightedCell = NULL;
+    }
 
     // todo: subsections need sorting?
     std::string label, control_name;
@@ -3138,20 +3142,50 @@ void LLPanelPreferenceControls::addSeparator()
     }
 }
 
+void LLPanelPreferenceControls::updateTable()
+{
+    std::vector<LLScrollListItem*> list = pControlsTable->getAllData();
+    for (S32 i = 0; i < list.size(); ++i)
+    {
+        S32 value = list[i]->getValue().asInteger();
+        if (value > 0)
+        {
+            LLKeyConflictHandler::EControlTypes control = (LLKeyConflictHandler::EControlTypes)value;
+            LLScrollListCell* cell = list[i]->getColumn(1);
+            cell->setValue(mConflictHandler[mEditingMode].getControlString(control, 0));
+            cell = list[i]->getColumn(2);
+            cell->setValue(mConflictHandler[mEditingMode].getControlString(control, 1));
+            cell = list[i]->getColumn(3);
+            cell->setValue(mConflictHandler[mEditingMode].getControlString(control, 2));
+        }
+    }
+
+    if (mHighlightedCell)
+    {
+        mHighlightedCell->setHighlighted(false);
+        mHighlightedCell = NULL;
+    }
+}
+
 void LLPanelPreferenceControls::apply()
 {
-    for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT; ++i)
+    for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
     {
         if (mConflictHandler[i].hasUnsavedChanges())
         {
             mConflictHandler[i].saveToSettings();
         }
     }
+    if (mHighlightedCell)
+    {
+        mHighlightedCell->setHighlighted(false);
+        mHighlightedCell = NULL;
+    }
 }
 
 void LLPanelPreferenceControls::cancel()
 {
-    for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT; ++i)
+    for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
     {
         if (mConflictHandler[i].hasUnsavedChanges())
         {
@@ -3159,11 +3193,16 @@ void LLPanelPreferenceControls::cancel()
         }
     }
     pControlsTable->clear();
+    if (mHighlightedCell)
+    {
+        mHighlightedCell->setHighlighted(false);
+        mHighlightedCell = NULL;
+    }
 }
 
 void LLPanelPreferenceControls::saveSettings()
 {
-    for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT; ++i)
+    for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
     {
         if (mConflictHandler[i].hasUnsavedChanges())
         {
@@ -3175,6 +3214,11 @@ void LLPanelPreferenceControls::saveSettings()
     if (mConflictHandler[mode].empty())
     {
         regenerateControls();
+    }
+    else if (mHighlightedCell)
+    {
+        mHighlightedCell->setHighlighted(false);
+        mHighlightedCell = NULL;
     }
 }
 
@@ -3209,6 +3253,12 @@ void LLPanelPreferenceControls::onListCommit()
     // use coordinates from hover to calculate cell
     mEditingIndex = control;
     mShowKeyDialog = true;
+
+    if (mHighlightedCell)
+    {
+        mHighlightedCell->setHighlighted(false);
+        mHighlightedCell = NULL;
+    }
 }
 
 void LLPanelPreferenceControls::onModeCommit()
@@ -3228,30 +3278,20 @@ void LLPanelPreferenceControls::onSetKeyBind(EMouseClickType click, KEY key, MAS
 
     pControlsTable->deselectAllItems();
     pControlsTable->selectByValue(mEditingIndex);
-    LLScrollListItem *item = pControlsTable->getFirstSelected();
-    if (item && mEditingColumn > 0)
+    if ( mEditingColumn > 0)
     {
-
         mConflictHandler[mEditingMode].registerControl(control, mEditingColumn - 1, click, key, mask, ignore_mask);
-
-        LLScrollListCell *cell = item->getColumn(1);
-        cell->setValue(mConflictHandler[mEditingMode].getControlString(control, 0));
-        cell = item->getColumn(2);
-        cell->setValue(mConflictHandler[mEditingMode].getControlString(control, 1));
-        cell = item->getColumn(3);
-        cell->setValue(mConflictHandler[mEditingMode].getControlString(control, 2));
     }
 
-    populateControlTable();
+    updateTable();
 }
 
 void LLPanelPreferenceControls::onRestoreDefaults()
 {
-    for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT; ++i)
+    for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
     {
         mConflictHandler[mEditingMode].resetToDefaults();
     }
-    populateControlTable();
 }
 
 void LLPanelPreferenceControls::onDefaultKeyBind()
@@ -3265,16 +3305,20 @@ void LLPanelPreferenceControls::onDefaultKeyBind()
 
     pControlsTable->deselectAllItems();
     pControlsTable->selectByValue(mEditingIndex);
-    LLScrollListItem *item = pControlsTable->getFirstSelected();
-    if (item)
-    {
-        LLScrollListCell *cell = item->getColumn(mEditingColumn);
 
-        if (mEditingColumn > 0)
-        {
-            mConflictHandler[mEditingMode].resetToDefault(control, mEditingColumn - 1);
-            cell->setValue(mConflictHandler[mEditingMode].getControlString(control, mEditingColumn - 1));
-        }
+    if (mEditingColumn > 0)
+    {
+        mConflictHandler[mEditingMode].resetToDefault(control, mEditingColumn - 1);
+    }
+    updateTable();
+}
+
+void LLPanelPreferenceControls::onCancelKeyBind()
+{
+    if (mHighlightedCell)
+    {
+        mHighlightedCell->setHighlighted(false);
+        mHighlightedCell = NULL;
     }
 }
 

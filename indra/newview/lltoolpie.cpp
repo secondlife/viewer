@@ -537,13 +537,13 @@ void LLToolPie::resetSelection()
 	mClickAction = 0;
 }
 
-void LLToolPie::walkToClickedLocation()
+bool LLToolPie::walkToClickedLocation()
 {
     if (gAgent.getFlying()							// don't auto-navigate while flying until that works
         || !gAgentAvatarp
         || gAgentAvatarp->isSitting())
     {
-        return;
+        return false;
     }
 
     LLPickInfo saved_pick = mPick;
@@ -557,7 +557,7 @@ void LLToolPie::walkToClickedLocation()
         if (mPick.getObject() && mPick.getObject()->isHUDAttachment())
         {
             mPick = saved_pick;
-            return;
+            return false;
         }
     }
 
@@ -592,6 +592,7 @@ void LLToolPie::walkToClickedLocation()
         gAgent.startAutoPilotGlobal(pos, std::string(), NULL, NULL, NULL, 0.f, 0.03f, FALSE);
         LLFirstUse::notMoving(false);
         showVisualContextMenuEffect();
+        return true;
     }
     else
     {
@@ -601,10 +602,12 @@ void LLToolPie::walkToClickedLocation()
             << ", pick object was " << mPick.mObjectID
             << LL_ENDL;
         mPick = saved_pick;
+        return false;
     }
+    return true;
 }
 
-void LLToolPie::teleportToClickedLocation()
+bool LLToolPie::teleportToClickedLocation()
 {
     LLViewerObject* objp = mHoverPick.getObject();
     LLViewerObject* parentp = objp ? objp->getRootEdit() : NULL;
@@ -620,9 +623,11 @@ void LLToolPie::teleportToClickedLocation()
         LLVector3d pos = mHoverPick.mPosGlobal;
         pos.mdV[VZ] += gAgentAvatarp->getPelvisToFoot();
         gAgent.teleportViaLocationLookAt(pos);
+        mPick = mHoverPick;
+        showVisualContextMenuEffect();
+        return true;
     }
-    mPick = mHoverPick;
-    showVisualContextMenuEffect();
+    return false;
 }
 
 // When we get object properties after left-clicking on an object

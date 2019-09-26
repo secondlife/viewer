@@ -1002,20 +1002,15 @@ bool LLAppViewer::init()
 	gGLManager.getGLInfo(gDebugInfo);
 	gGLManager.printGLInfoString();
 
-	// Load Default bindings
-	std::string key_bindings_file = gDirUtilp->findFile("keys.xml",
-														gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, ""),
-														gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
-
-
-	if (!gViewerKeyboard.loadBindingsXML(key_bindings_file))
+	// Load User's bindings
+	std::string key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "keys.xml");
+	if (!gDirUtilp->fileExists(key_bindings_file) || !gViewerKeyboard.loadBindingsXML(key_bindings_file))
 	{
-		std::string key_bindings_file = gDirUtilp->findFile("keys.ini",
-															gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, ""),
-															gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
-		if (!gViewerKeyboard.loadBindings(key_bindings_file))
+		// Failed to load custom bindings, try default ones
+		key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "keys.xml");
+		if (!gViewerKeyboard.loadBindingsXML(key_bindings_file))
 		{
-			LL_ERRS("InitInfo") << "Unable to open keys.ini" << LL_ENDL;
+			LL_ERRS("InitInfo") << "Unable to open default key bindings from" << key_bindings_file << LL_ENDL;
 		}
 	}
 

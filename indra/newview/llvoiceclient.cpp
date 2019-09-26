@@ -200,8 +200,6 @@ const LLVoiceVersionInfo LLVoiceClient::getVersion()
 void LLVoiceClient::updateSettings()
 {
 	setUsePTT(gSavedSettings.getBOOL("PTTCurrentlyEnabled"));
-	std::string keyString = gSavedSettings.getString("PushToTalkButton");
-	setPTTKey(keyString);
 	setPTTIsToggle(gSavedSettings.getBOOL("PushToTalkToggle"));
 	mDisableMic = gSavedSettings.getBOOL("VoiceDisableMic");
 
@@ -637,32 +635,6 @@ bool LLVoiceClient::getPTTIsToggle()
 	return mPTTIsToggle;
 }
 
-void LLVoiceClient::setPTTKey(std::string &key)
-{
-	// Value is stored as text for readability
-	if(key == "MiddleMouse")
-	{
-		mPTTMouseButton = CLICK_MIDDLE;
-	}
-	else if(key == "MouseButton4")
-	{
-		mPTTMouseButton = CLICK_BUTTON4;
-	}
-	else if (key == "MouseButton5")
-	{
-		mPTTMouseButton = CLICK_BUTTON5;
-	}
-	else
-	{
-		mPTTMouseButton = 0;
-		if(!LLKeyboard::keyFromString(key, &mPTTKey))
-		{
-			// If the call failed, don't match any key.
-			key = KEY_NONE;
-		}
-	}
-}
-
 void LLVoiceClient::inputUserControlState(bool down)
 {
 	if(mPTTIsToggle)
@@ -681,48 +653,6 @@ void LLVoiceClient::inputUserControlState(bool down)
 void LLVoiceClient::toggleUserPTTState(void)
 {
 	setUserPTTState(!getUserPTTState());
-}
-
-void LLVoiceClient::keyDown(KEY key, MASK mask)
-{	
-	if (gKeyboard->getKeyRepeated(key))
-	{
-		// ignore auto-repeat keys                                                                         
-		return;
-	}
-	
-    //
-	/*static LLCachedControl<LLSD> key_bind(gSavedSettings, "control_toggle_voice");
-    LLKeyBind bind(key_bind);
-	if (LLAgent::isActionAllowed("speak") && bind().canHandleKey(key, mask))
-	{
-		bool down = gKeyboard->getKeyDown(mPTTKey);
-		if (down)
-		{
-			inputUserControlState(down);
-		}
-	}*/
-	
-}
-void LLVoiceClient::keyUp(KEY key, MASK mask)
-{
-	/*static LLCachedControl<LLKeyBind> key_bind(gSavedSettings, "control_toggle_voice");
-	if (key_bind().canHandleKey(key, mask))
-	{
-		bool down = gKeyboard->getKeyDown(mPTTKey);
-		if (!down)
-		{
-			inputUserControlState(down);
-		}
-	}*/
-}
-void LLVoiceClient::updateMouseState(S32 click, MASK mask, bool down)
-{
-	/*static LLCachedControl<LLKeyBind> mouse_bind(gSavedSettings, "control_toggle_voice");
-	if (mouse_bind().canHandleMouse((EMouseClickType)click, mask))
-	{
-		inputUserControlState(down);
-	}*/
 }
 
 

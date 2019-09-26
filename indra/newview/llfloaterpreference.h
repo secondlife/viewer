@@ -46,6 +46,7 @@ class LLPanelDebug;
 class LLMessageSystem;
 class LLComboBox;
 class LLScrollListCtrl;
+class LLScrollListCell;
 class LLSliderCtrl;
 class LLSD;
 class LLTextBox;
@@ -314,15 +315,18 @@ public:
 	void onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool ignore_mask);
 	void onRestoreDefaults();
 	void onDefaultKeyBind();
+	void onCancelKeyBind();
 
 private:
 	void addGroupRow(const std::string &icon, S32 index);
 	void regenerateControls();
 	void populateControlTable();
 	void addSeparator();
+	void updateTable();
 
 	LLScrollListCtrl* pControlsTable;
 	LLComboBox *pKeyModeBox;
+	LLScrollListCell *mHighlightedCell;
 	LLKeyConflictHandler mConflictHandler[LLKeyConflictHandler::MODE_COUNT];
 	S32 mEditingIndex;
 	S32 mEditingColumn;

@@ -34,7 +34,7 @@
 class LLKeyConflict
 {
 public:
-    LLKeyConflict() : mAssignable(true), mConflictMask(0) {} //temporary assignable, don't forget to change once all keys are recorded
+    LLKeyConflict() : mAssignable(true), mConflictMask(U32_MAX) {} //temporary assignable, don't forget to change once all keys are recorded
     LLKeyConflict(bool assignable, U32 conflict_mask)
         : mAssignable(assignable), mConflictMask(conflict_mask) {}
     LLKeyConflict(const LLKeyBind &bind, bool assignable, U32 conflict_mask)
@@ -55,26 +55,20 @@ class LLKeyConflictHandler
 {
 public:
 
-    enum EModes // partially repeats e_keyboard_mode
+    enum ESourceMode // partially repeats e_keyboard_mode
     {
         MODE_FIRST_PERSON,
         MODE_THIRD_PERSON,
         MODE_EDIT,
         MODE_EDIT_AVATAR,
         MODE_SITTING,
-        MODE_GENERAL,
+        MODE_GENERAL, // for settings from saved settings
         MODE_COUNT
     };
 
-    enum EConflictTypes // priority higherst to lowest
-    {
-        CONFLICT_LAND = 1,
-        CONFLICT_OBJECT = 2,
-        CONFLICT_TOUCH = 4,
-        CONFLICT_INTERACTIBLE = 8,
-        CONFLICT_AVATAR = 16,
-        CONFLICT_ANY = 511
-    };
+    const U32 CONFLICT_NOTHING = 0;
+    // at the moment this just means that key will conflict with everything that is identical
+    const U32 CONFLICT_ANY = U32_MAX;
 
     // todo, unfortunately will have to remove this and use map/array of strings
     enum EControlTypes
@@ -142,7 +136,7 @@ public:
         CONTROL_MEDIACONTENT, // Group control, for visual representation
         CONTROL_PAUSE_MEDIA, // Play pause
         CONTROL_ENABLE_MEDIA, // Play stop
-        CONTROL_VOICE, // Keep pressing for it to be ON
+        CONTROL_VOICE, // Keep pressing for voice to be ON
         CONTROL_TOGGLE_VOICE, // Press once to ON/OFF
         CONTROL_START_CHAT, // Press once to ON/OFF
         CONTROL_START_GESTURE, // Press once to ON/OFF
@@ -158,14 +152,14 @@ public:
     // Note: missed selection and edition commands (would be really nice to go through selection via MB4/5 or wheel)
 
     LLKeyConflictHandler();
-    LLKeyConflictHandler(EModes mode);
+    LLKeyConflictHandler(ESourceMode mode);
 
     bool canHandleControl(EControlTypes control_type, EMouseClickType mouse_ind, KEY key, MASK mask);
     bool canHandleKey(EControlTypes control_type, KEY key, MASK mask);
     bool canHandleMouse(EControlTypes control_type, EMouseClickType mouse_ind, MASK mask);
     bool canHandleMouse(EControlTypes control_type, S32 mouse_ind, MASK mask); //Just for convinience
     bool canAssignControl(EControlTypes control_type);
-    void registerControl(EControlTypes control_type, U32 data_index, EMouseClickType mouse_ind, KEY key, MASK mask, bool ignore_mask); //todo: return conflicts?
+    bool registerControl(EControlTypes control_type, U32 data_index, EMouseClickType mouse_ind, KEY key, MASK mask, bool ignore_mask); //todo: return conflicts?
 
     LLKeyData getControl(EControlTypes control_type, U32 data_index);
 
@@ -175,7 +169,7 @@ public:
 
 
     // Drops any changes loads controls with ones from 'saved settings' or from xml
-    void loadFromSettings(EModes load_mode);
+    void loadFromSettings(ESourceMode load_mode);
     // Saves settings to 'saved settings' or to xml
     void saveToSettings();
 
@@ -190,26 +184,28 @@ public:
     void clear();
 
     bool hasUnsavedChanges() { return mHasUnsavedChanges; }
-    void setLoadMode(EModes mode) { mLoadMode = mode; }
-    EModes getLoadMode() { return mLoadMode; }
-    // todo: conflict search
+    void setLoadMode(ESourceMode mode) { mLoadMode = mode; }
+    ESourceMode getLoadMode() { return mLoadMode; }
 
 private:
-    void resetToDefaults(EModes mode);
+    void resetToDefaultAndResolve(EControlTypes control_type, bool ignore_conflicts);
+    void resetToDefaults(ESourceMode mode);
 
     // at the moment these kind of control is not savable, but takes part will take part in conflict resolution
     void registerTemporaryControl(EControlTypes control_type, EMouseClickType mouse_ind, KEY key, MASK mask, U32 conflict_mask);
 
     typedef std::map<EControlTypes, LLKeyConflict> control_map_t;
     void loadFromSettings(const LLViewerKeyboard::KeyMode& keymode, control_map_t *destination);
-    void loadFromSettings(const EModes &load_mode, const std::string &filename, control_map_t *destination);
+    void loadFromSettings(const ESourceMode &load_mode, const std::string &filename, control_map_t *destination);
     void resetKeyboardBindings();
-    void generatePlaceholders(EModes load_mode); //E.x. non-assignable values
+    void generatePlaceholders(ESourceMode load_mode); //E.x. non-assignable values
+    // returns false in case user is trying to reuse control that can't be reassigned
+    bool removeConflicts(const LLKeyData &data, const U32 &conlict_mask);
 
     control_map_t mControlsMap;
     control_map_t mDefaultsMap;
     bool mHasUnsavedChanges;
-    EModes mLoadMode;
+    ESourceMode mLoadMode;
 };
 
 

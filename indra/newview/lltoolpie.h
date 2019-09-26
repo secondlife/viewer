@@ -67,8 +67,8 @@ public:
 	LLViewerObject*		getClickActionObject() { return mClickActionObject; }
 	LLObjectSelection*	getLeftClickSelection() { return (LLObjectSelection*)mLeftClickSelection; }
 	void 				resetSelection();
-	void				walkToClickedLocation();
-	void				teleportToClickedLocation();
+	bool				walkToClickedLocation();
+	bool				teleportToClickedLocation();
 	void				stopClickToWalk();
 	
 	static void			selectionPropertiesReceived();

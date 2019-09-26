@@ -274,10 +274,6 @@
      label="Sitting"
      name="sitting"
      value="4"/>
-    <combo_box.item
-     label="General"
-     name="general"
-     value="5"/>
   </combo_box>
 
   <button
@@ -301,6 +297,7 @@
    right="-3"
    can_sort="false"
    multi_select="false"
+   bg_selected_color="Transparent"
    name="controls_list">
     <scroll_list.columns
      relative_width="0.34"

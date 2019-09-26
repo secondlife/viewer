@@ -408,16 +408,10 @@ public:
 	void setUsePTT(bool usePTT);
 	void setPTTIsToggle(bool PTTIsToggle);
 	bool getPTTIsToggle();	
-	void setPTTKey(std::string &key);
-	
+
 	void updateMicMuteLogic();
-	
+
 	BOOL lipSyncEnabled();
-	
-	// PTT key triggering
-	void keyDown(KEY key, MASK mask);
-	void keyUp(KEY key, MASK mask);
-	void updateMouseState(S32 click, MASK mask, bool down);
 
 	boost::signals2::connection MicroChangedCallback(const micro_changed_signal_t::slot_type& cb ) { return mMicroChangedSignal.connect(cb); }
 

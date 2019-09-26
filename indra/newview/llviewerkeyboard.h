@@ -115,14 +115,16 @@ public:
 	BOOL			handleKey(KEY key, MASK mask, BOOL repeated);
 	BOOL			handleKeyUp(KEY key, MASK mask);
 
-	S32				loadBindings(const std::string& filename);										// returns number bound, 0 on error
 	S32				loadBindingsXML(const std::string& filename);										// returns number bound, 0 on error
 	EKeyboardMode	getMode() const;
 
 	BOOL			modeFromString(const std::string& string, S32 *mode) const;			// False on failure
 	BOOL			mouseFromString(const std::string& string, EMouseClickType *mode) const;// False on failure
 
-    void			scanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level) const;
+    bool            scanKey(KEY key,
+                            BOOL key_down,
+                            BOOL key_up,
+                            BOOL key_level) const;
 
     // handleMouse() records state, scanMouse() goes through states, scanMouse(click) processes individual saved states after UI is done with them
     BOOL			handleMouse(LLWindow *window_impl, LLCoordGL pos, MASK mask, EMouseClickType clicktype, BOOL down);
@@ -163,6 +165,10 @@ private:
     // This way with W+ignore defined to 'forward' and with ctrl+W tied to camera,
     // pressing undefined Shift+W will do 'forward', yet ctrl+W will do 'camera forward'
     // With A defined to 'turn', shift+A defined to strafe, pressing Shift+W+A will do strafe+forward
+
+    // TODO: at some point it is better to remake this, especially keyaboard part
+    // would be much better to send to functions actual state of the button than
+    // to send what we think function wants based on collection of bools (mKeyRepeated, mKeyLevel, mKeyDown)
     S32				mKeyBindingCount[MODE_COUNT];
     S32				mKeyIgnoreMaskCount[MODE_COUNT];
     S32				mMouseBindingCount[MODE_COUNT];

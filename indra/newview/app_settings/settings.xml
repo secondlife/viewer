@@ -8274,7 +8274,7 @@
     <key>PushToTalkButton</key>
     <map>
       <key>Comment</key>
-      <string>Which button or keyboard key is used for push-to-talk</string>
+      <string>(Obsolete)Which button or keyboard key is used for push-to-talk</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
