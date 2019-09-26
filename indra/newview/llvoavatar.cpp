@@ -1950,7 +1950,7 @@ void LLVOAvatar::buildCharacter()
     // Currently disabled for control avatars (animated objects), enabled for all others.
     if (mEnableDefaultMotions)
     {
-	startDefaultMotions();
+		startDefaultMotions();
     }
 
 	//-------------------------------------------------------------------------
@@ -5511,10 +5511,10 @@ void LLVOAvatar::processAnimationStateChanges()
 	else if (mInAir && !isSitting())
 	{
 		stopMotion(ANIM_AGENT_WALK_ADJUST);
-        if (mEnableDefaultMotions)
-        {
-		startMotion(ANIM_AGENT_FLY_ADJUST);
-	}
+		if (mEnableDefaultMotions)
+		{
+			startMotion(ANIM_AGENT_FLY_ADJUST);
+		}
 	}
 	else
 	{
@@ -5524,19 +5524,19 @@ void LLVOAvatar::processAnimationStateChanges()
 
 	if ( isAnyAnimationSignaled(AGENT_GUN_AIM_ANIMS, NUM_AGENT_GUN_AIM_ANIMS) )
 	{
-        if (mEnableDefaultMotions)
-        {
-		startMotion(ANIM_AGENT_TARGET);
-        }
+		if (mEnableDefaultMotions)
+		{
+			startMotion(ANIM_AGENT_TARGET);
+		}
 		stopMotion(ANIM_AGENT_BODY_NOISE);
 	}
 	else
 	{
 		stopMotion(ANIM_AGENT_TARGET);
-        if (mEnableDefaultMotions)
-        {
-		startMotion(ANIM_AGENT_BODY_NOISE);
-	}
+		if (mEnableDefaultMotions)
+		{
+			startMotion(ANIM_AGENT_BODY_NOISE);
+		}
 	}
 	
 	// clear all current animations
@@ -7416,7 +7416,7 @@ void LLVOAvatar::getOffObject()
 
     if (mEnableDefaultMotions)
     {
-	startMotion(ANIM_AGENT_BODY_NOISE);
+		startMotion(ANIM_AGENT_BODY_NOISE);
     }
 
 	if (isSelf())
