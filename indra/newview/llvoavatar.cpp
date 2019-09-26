@@ -1893,16 +1893,22 @@ LLVOAvatar* LLVOAvatar::asAvatar()
 //-----------------------------------------------------------------------------
 void LLVOAvatar::startDefaultMotions()
 {
-	//-------------------------------------------------------------------------
-	// start default motions
-	//-------------------------------------------------------------------------
-	startMotion( ANIM_AGENT_HEAD_ROT );
-	startMotion( ANIM_AGENT_EYE );
-	startMotion( ANIM_AGENT_BODY_NOISE );
-	startMotion( ANIM_AGENT_BREATHE_ROT );
-	startMotion( ANIM_AGENT_PHYSICS_MOTION );
-	startMotion( ANIM_AGENT_HAND_MOTION );
-	startMotion( ANIM_AGENT_PELVIS_FIX );
+	if (mEnableDefaultMotions)
+	{
+		// Regular avatars enable all motions
+		startMotion( ANIM_AGENT_HEAD_ROT );
+		startMotion( ANIM_AGENT_EYE );
+		startMotion( ANIM_AGENT_BODY_NOISE );
+		startMotion( ANIM_AGENT_BREATHE_ROT );
+		startMotion( ANIM_AGENT_PHYSICS_MOTION );
+		startMotion( ANIM_AGENT_HAND_MOTION );
+		startMotion( ANIM_AGENT_PELVIS_FIX );
+	}
+	else
+	{
+		// Animated objects only support a subset
+		startMotion( ANIM_AGENT_PHYSICS_MOTION );
+	}
 
 	//-------------------------------------------------------------------------
 	// restart any currently active motions
@@ -1947,11 +1953,7 @@ void LLVOAvatar::buildCharacter()
 		mAahMorph = getVisualParam( "Express_Open_Mouth" );
 	}
 
-    // Currently disabled for control avatars (animated objects), enabled for all others.
-    if (mEnableDefaultMotions)
-    {
-		startDefaultMotions();
-    }
+	startDefaultMotions();
 
 	//-------------------------------------------------------------------------
 	// restart any currently active motions
