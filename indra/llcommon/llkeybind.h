@@ -74,17 +74,26 @@ public:
     bool canHandleKey(KEY key, MASK mask) const;
     bool canHandleMouse(EMouseClickType mouse, MASK mask) const;
 
-    bool LLKeyBind::hasKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore) const;
-    bool LLKeyBind::hasKeyData(const LLKeyData& data) const;
+    // contains specified combination
+    bool hasKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore) const;
+    bool hasKeyData(const LLKeyData& data) const;
+    bool hasKeyData(U32 index) const;
+
+    // index of contained LLKeyData
+    S32 findKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore) const;
+    S32 findKeyData(const LLKeyData& data) const;
+
+    LLKeyData getKeyData(U32 index) const;
 
     // these methods enshure there will be no repeats
     bool addKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore);
     bool addKeyData(const LLKeyData& data);
     void replaceKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore, U32 index);
     void replaceKeyData(const LLKeyData& data, U32 index);
-    bool hasKeyData(U32 index) const;
-    void clear() { mData.clear(); };
-    LLKeyData getKeyData(U32 index) const;
+    void resetKeyData(S32 index);
+    void clear() { mData.clear(); }
+    // if there any empty LLKeyData in the end of the array, remove them
+    void trimEmpty();
     U32 getDataCount();
 
 private:

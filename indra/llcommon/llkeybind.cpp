@@ -218,13 +218,17 @@ bool LLKeyBind::isEmpty() const
 
 LLSD LLKeyBind::asLLSD() const
 {
-    LLSD data;
-    for (data_vector_t::const_iterator iter = mData.begin(); iter != mData.end(); iter++)
+    S32 last = mData.size() - 1;
+    while (mData[last].empty())
     {
-        if (!iter->isEmpty())
-        {
-            data.append(iter->asLLSD());
-        }
+        last--;
+    }
+
+    LLSD data;
+    for (S32 i = 0; i <= last; ++i)
+    {
+        // append even if empty to not affect visual representation
+        data.append(mData[i].asLLSD());
     }
     return data;
 }
@@ -278,6 +282,43 @@ bool LLKeyBind::hasKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignor
 bool LLKeyBind::hasKeyData(const LLKeyData& data) const
 {
     return hasKeyData(data.mMouse, data.mKey, data.mMask, data.mIgnoreMasks);
+}
+
+bool LLKeyBind::hasKeyData(U32 index) const
+{
+    return mData.size() > index;
+}
+
+S32 LLKeyBind::findKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore) const
+{
+    if (mouse != CLICK_NONE || key != KEY_NONE)
+    {
+        for (S32 i = 0; i < mData.size(); ++i)
+        {
+            if (mData[i].mKey == key
+                && mData[i].mMask == mask
+                && mData[i].mMouse == mouse
+                && mData[i].mIgnoreMasks == ignore)
+            {
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+
+S32 LLKeyBind::findKeyData(const LLKeyData& data) const
+{
+    return findKeyData(data.mMouse, data.mKey, data.mMask, data.mIgnoreMasks);
+}
+
+LLKeyData LLKeyBind::getKeyData(U32 index) const
+{
+    if (mData.size() > index)
+    {
+        return mData[index];
+    }
+    return LLKeyData();
 }
 
 bool LLKeyBind::addKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore)
@@ -344,28 +385,29 @@ void LLKeyBind::replaceKeyData(const LLKeyData& data, U32 index)
             }
         }
     }
-    if (mData.size() > index)
+    if (mData.size() <= index)
     {
-        mData[index] = data;
+        mData.resize(index + 1);
     }
-    else
-    {
-        mData.push_back(data);
-    }
+    mData[index] = data;
 }
 
-bool LLKeyBind::hasKeyData(U32 index) const
-{
-    return mData.size() > index;
-}
-
-LLKeyData LLKeyBind::getKeyData(U32 index) const
+void LLKeyBind::resetKeyData(S32 index)
 {
     if (mData.size() > index)
     {
-        return mData[index];
+        mData[index].reset();
     }
-    return LLKeyData();
+}
+
+void LLKeyBind::trimEmpty()
+{
+    S32 last = mData.size() - 1;
+    while (last >= 0 && mData[last].empty())
+    {
+        mData.erase(mData.begin() + last);
+        last--;
+    }
 }
 
 U32 LLKeyBind::getDataCount()

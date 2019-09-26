@@ -103,6 +103,7 @@ public:
 	virtual BOOL			getVisible() const { return TRUE; }
 	virtual void			setWidth(S32 width) { mWidth = width; }
 	virtual void			highlightText(S32 offset, S32 num_chars) {}
+	virtual void			setHighlighted(bool highlighted) {}
 	virtual BOOL			isText() const { return FALSE; }
 	virtual BOOL			needsToolTip() const { return ! mToolTip.empty(); }
 	virtual void			setColor(const LLColor4&) {}
@@ -140,6 +141,7 @@ public:
 	/*virtual*/ const LLSD getValue() const;
 	/*virtual*/ BOOL	getVisible() const;
 	/*virtual*/ void	highlightText(S32 offset, S32 num_chars);
+	/*virtual*/ void	setHighlighted(bool highlighted);
 
 	/*virtual*/ void	setColor(const LLColor4&);
 	/*virtual*/ BOOL	isText() const;
