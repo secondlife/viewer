@@ -1,6 +1,6 @@
 /** 
- * @file llviewerkeyboard.h
- * @brief LLViewerKeyboard class header file
+ * @file llviewerinput.h
+ * @brief LLViewerInput class header file
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWERKEYBOARD_H
-#define LL_LLVIEWERKEYBOARD_H
+#ifndef LL_LLVIEWERINPUT_H
+#define LL_LLVIEWERINPUT_H
 
 #include "llkeyboard.h" // For EKeystate
 #include "llinitparam.h"
@@ -78,7 +78,7 @@ class LLWindow;
 
 void bind_keyboard_functions();
 
-class LLViewerKeyboard
+class LLViewerInput
 {
 public:
 	struct KeyBinding : public LLInitParam::Block<KeyBinding>
@@ -110,7 +110,7 @@ public:
 		Keys();
 	};
 
-	LLViewerKeyboard();
+	LLViewerInput();
 
 	BOOL			handleKey(KEY key, MASK mask, BOOL repeated);
 	BOOL			handleKeyUp(KEY key, MASK mask);
@@ -127,8 +127,8 @@ public:
                             BOOL key_level) const;
 
     // handleMouse() records state, scanMouse() goes through states, scanMouse(click) processes individual saved states after UI is done with them
-    BOOL			handleMouse(LLWindow *window_impl, LLCoordGL pos, MASK mask, EMouseClickType clicktype, BOOL down);
-	void LLViewerKeyboard::scanMouse();
+    BOOL            handleMouse(LLWindow *window_impl, LLCoordGL pos, MASK mask, EMouseClickType clicktype, BOOL down);
+    void            scanMouse();
 
 private:
     bool            scanKey(const LLKeyboardBinding* binding,
@@ -155,7 +155,7 @@ private:
                           MASK mask,
                           EMouseState state) const;
 
-    S32				loadBindingMode(const LLViewerKeyboard::KeyMode& keymode, S32 mode);
+    S32				loadBindingMode(const LLViewerInput::KeyMode& keymode, S32 mode);
     BOOL			bindKey(const S32 mode, const KEY key, const MASK mask, const bool ignore, const std::string& function_name);
     BOOL			bindMouse(const S32 mode, const EMouseClickType mouse, const MASK mask, const bool ignore, const std::string& function_name);
     void			resetBindings();
@@ -188,6 +188,6 @@ private:
     EMouseState		mMouseLevel[CLICK_COUNT];	// records of key state
 };
 
-extern LLViewerKeyboard gViewerKeyboard;
+extern LLViewerInput gViewerInput;
 
-#endif // LL_LLVIEWERKEYBOARD_H
+#endif // LL_LLVIEWERINPUT_H
