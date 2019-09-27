@@ -10,6 +10,10 @@
  top="1"
  width="517">
   <panel.string
+   name="walk_to">
+    Walk to
+  </panel.string>
+  <panel.string
    name="control_view_actions">
     View Actions
   </panel.string>
@@ -70,8 +74,8 @@
     Move Actions
   </panel.string>
   <panel.string
-   name="control_moveto">
-    Move To
+   name="teleport_to">
+    Teleport to
   </panel.string>
   <panel.string
    name="toggle_sit">
@@ -119,12 +123,32 @@
     Run
   </panel.string>
   <panel.string
+   name="run_forward">
+    Run Forward
+  </panel.string>
+  <panel.string
+   name="run_backward">
+    Run Backward
+  </panel.string>
+  <panel.string
+   name="run_left">
+    Run Left
+  </panel.string>
+  <panel.string
+   name="run_right">
+    Run Right
+  </panel.string>
+  <panel.string
    name="toggle_run">
     Toggle Run
   </panel.string>
   <panel.string
    name="toggle_fly">
     Fly/Stop flying
+  </panel.string>
+  <panel.string
+   name="stop_moving">
+    Stop Moving
   </panel.string>
   <panel.string
    name="control_camera">
@@ -215,35 +239,12 @@
     Play/Stop All Media
   </panel.string>
   <panel.string
-   name="control_voice">
+   name="voice_follow_key">
     Voice
   </panel.string>
   <panel.string
-   name="control_toggle_voice">
+   name="toggle_voice">
     Toggle Voice
-  </panel.string>
-  <panel.string
-   name="control_reserved">
-    Reserved Controls
-  </panel.string>
-  <panel.string
-   name="control_delete">
-    Delete
-  </panel.string>
-  <!--
-   name="control_menu" not needed
-   -->
-  <panel.string
-   name="control_reserved_select">
-    Select
-  </panel.string>
-  <panel.string
-   name="control_shift_select">
-    Multi-Select
-  </panel.string>
-  <panel.string
-   name="control_cntrl_select">
-    Add to Selection
   </panel.string>
 
   <combo_box

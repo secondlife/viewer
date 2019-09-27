@@ -41,135 +41,7 @@
 #include "llxuiparser.h"
 //#include "llstring.h"
 
-static const std::string typetostring[LLKeyConflictHandler::CONTROL_NUM_INDICES] = {
-    "control_view_actions",
-    "control_about",
-    "control_orbit",
-    "control_pan",
-    "control_world_map",
-    "control_zoom",
-    "control_interactions",
-    "control_build",
-    //"control_drag",
-    "control_edit",
-    //"control_menu",
-    "control_open",
-    "control_touch",
-    "control_wear",
-    "control_movements",
-    "walk_to",
-    "teleport_to",
-    "push_forward",
-    "push_backward",
-    "turn_left",
-    "turn_right",
-    "slide_left",
-    "slide_right",
-    "jump",
-    "push_down",
-    //"control_run",
-    "toggle_run",
-    "toggle_fly",
-    "toggle_sit",
-    "stop_moving",
-    "control_camera",
-    "look_up",
-    "look_down",
-    "move_forward",
-    "move_backward",
-    "move_forward_fast",
-    "move_backward_fast",
-    "move_forward_sitting",
-    "move_backward_sitting",
-    "spin_over",
-    "spin_under",
-    "spin_over_sitting",
-    "spin_under_sitting",
-    "pan_up",
-    "pan_down",
-    "pan_left",
-    "pan_right",
-    "pan_in",
-    "pan_out",
-    "spin_around_ccw",
-    "spin_around_cw",
-    "spin_around_ccw_sitting",
-    "spin_around_cw_sitting",
-    "control_edit_title",
-    "edit_avatar_spin_ccw",
-    "edit_avatar_spin_cw",
-    "edit_avatar_spin_over",
-    "edit_avatar_spin_under",
-    "edit_avatar_move_forward",
-    "edit_avatar_move_backward",
-    "control_mediacontent",
-    "toggle_pause_media",
-    "toggle_enable_media",
-    "voice_follow_key",
-    "toggle_voice",
-    "start_chat",
-    "start_gesture",
-    "control_reserved",
-    "control_delete",
-    "control_menu",
-    "control_reserved_select",
-    "control_shift_select",
-    "control_cntrl_select"
-};
-
-// note, a solution is needed that will keep this up to date with llviewerinput
-typedef std::map<std::string, LLKeyConflictHandler::EControlTypes> control_enum_t;
-static const control_enum_t command_to_key =
-{
-    { "jump", LLKeyConflictHandler::CONTROL_JUMP },
-    { "push_down", LLKeyConflictHandler::CONTROL_DOWN },
-    { "push_forward", LLKeyConflictHandler::CONTROL_FORWARD },
-    { "push_backward", LLKeyConflictHandler::CONTROL_BACKWARD },
-    { "look_up", LLKeyConflictHandler::CONTROL_LOOK_UP },
-    { "look_down", LLKeyConflictHandler::CONTROL_LOOK_DOWN },
-    { "toggle_fly", LLKeyConflictHandler::CONTROL_TOGGLE_FLY },
-    { "turn_left", LLKeyConflictHandler::CONTROL_LEFT },
-    { "turn_right", LLKeyConflictHandler::CONTROL_RIGHT },
-    { "slide_left", LLKeyConflictHandler::CONTROL_LSTRAFE },
-    { "slide_right", LLKeyConflictHandler::CONTROL_RSTRAFE },
-    { "spin_around_ccw", LLKeyConflictHandler::CONTROL_CAMERA_SPIN_CCW }, // todo, no idea what these spins are
-    { "spin_around_cw", LLKeyConflictHandler::CONTROL_CAMERA_SPIN_CW },
-    { "spin_around_ccw_sitting", LLKeyConflictHandler::CONTROL_CAMERA_SPIN_CCW_SITTING },
-    { "spin_around_cw_sitting", LLKeyConflictHandler::CONTROL_CAMERA_SPIN_CCW_SITTING },
-    { "spin_over", LLKeyConflictHandler::CONTROL_CAMERA_SOVER },
-    { "spin_under", LLKeyConflictHandler::CONTROL_CAMERA_SUNDER },
-    { "spin_over_sitting", LLKeyConflictHandler::CONTROL_CAMERA_SOVER_SITTING },
-    { "spin_under_sitting", LLKeyConflictHandler::CONTROL_CAMERA_SUNDER_SITTING },
-    { "move_forward", LLKeyConflictHandler::CONTROL_CAMERA_FORWARD },
-    { "move_backward", LLKeyConflictHandler::CONTROL_CAMERA_BACKWARD },
-    { "move_forward_sitting", LLKeyConflictHandler::CONTROL_CAMERA_FSITTING },
-    { "move_backward_sitting", LLKeyConflictHandler::CONTROL_CAMERA_BSITTING },
-    { "pan_up", LLKeyConflictHandler::CONTROL_CAMERA_PANUP },
-    { "pan_down", LLKeyConflictHandler::CONTROL_CAMERA_PANDOWN },
-    { "pan_left", LLKeyConflictHandler::CONTROL_CAMERA_PANLEFT },
-    { "pan_right", LLKeyConflictHandler::CONTROL_CAMERA_PANRIGHT },
-    { "pan_in", LLKeyConflictHandler::CONTROL_CAMERA_PANIN },
-    { "pan_out", LLKeyConflictHandler::CONTROL_CAMERA_PANOUT },
-    { "move_forward_fast", LLKeyConflictHandler::CONTROL_CAMERA_FFORWARD },
-    { "move_backward_fast", LLKeyConflictHandler::CONTROL_CAMERA_FBACKWARD },
-    { "edit_avatar_spin_ccw", LLKeyConflictHandler::CONTROL_EDIT_AV_SPIN_CCW },
-    { "edit_avatar_spin_cw", LLKeyConflictHandler::CONTROL_EDIT_AV_SPIN_CW },
-    { "edit_avatar_spin_over", LLKeyConflictHandler::CONTROL_EDIT_AV_SPIN_OVER },
-    { "edit_avatar_spin_under", LLKeyConflictHandler::CONTROL_EDIT_AV_SPIN_UNDER },
-    { "edit_avatar_move_forward", LLKeyConflictHandler::CONTROL_EDIT_AV_MV_FORWARD },
-    { "edit_avatar_move_backward", LLKeyConflictHandler::CONTROL_EDIT_AV_MV_BACKWARD },
-    { "stop_moving", LLKeyConflictHandler::CONTROL_STOP },
-    { "start_chat", LLKeyConflictHandler::CONTROL_START_CHAT },
-    { "start_gesture", LLKeyConflictHandler::CONTROL_START_GESTURE },
-    { "toggle_run", LLKeyConflictHandler::CONTROL_TOGGLE_RUN },
-    { "toggle_sit", LLKeyConflictHandler::CONTROL_SIT },
-    { "toggle_parcel_media", LLKeyConflictHandler::CONTROL_PAUSE_MEDIA },
-    { "toggle_enable_media", LLKeyConflictHandler::CONTROL_ENABLE_MEDIA },
-    { "walk_to", LLKeyConflictHandler::CONTROL_MOVETO },
-    { "teleport_to", LLKeyConflictHandler::CONTROL_TELEPORTTO },
-    { "toggle_voice", LLKeyConflictHandler::CONTROL_TOGGLE_VOICE },
-    { "voice_follow_key", LLKeyConflictHandler::CONTROL_VOICE },
-};
+static const std::string saved_settings_key_controls[] = { "placeholder" };
 
 
 // LLKeyboard::stringFromMask is meant for UI and is OS dependent,
@@ -267,29 +139,29 @@ LLKeyConflictHandler::LLKeyConflictHandler(ESourceMode mode)
     loadFromSettings(mode);
 }
 
-bool LLKeyConflictHandler::canHandleControl(LLKeyConflictHandler::EControlTypes control_type, EMouseClickType mouse_ind, KEY key, MASK mask)
+bool LLKeyConflictHandler::canHandleControl(const std::string &control_name, EMouseClickType mouse_ind, KEY key, MASK mask)
 {
-    return mControlsMap[control_type].canHandle(mouse_ind, key, mask);
+    return mControlsMap[control_name].canHandle(mouse_ind, key, mask);
 }
 
-bool LLKeyConflictHandler::canHandleKey(EControlTypes control_type, KEY key, MASK mask)
+bool LLKeyConflictHandler::canHandleKey(const std::string &control_name, KEY key, MASK mask)
 {
-    return canHandleControl(control_type, CLICK_NONE, key, mask);
+    return canHandleControl(control_name, CLICK_NONE, key, mask);
 }
 
-bool LLKeyConflictHandler::canHandleMouse(LLKeyConflictHandler::EControlTypes control_type, EMouseClickType mouse_ind, MASK mask)
+bool LLKeyConflictHandler::canHandleMouse(const std::string &control_name, EMouseClickType mouse_ind, MASK mask)
 {
-    return canHandleControl(control_type, mouse_ind, KEY_NONE, mask);
+    return canHandleControl(control_name, mouse_ind, KEY_NONE, mask);
 }
 
-bool LLKeyConflictHandler::canHandleMouse(EControlTypes control_type, S32 mouse_ind, MASK mask)
+bool LLKeyConflictHandler::canHandleMouse(const std::string &control_name, S32 mouse_ind, MASK mask)
 {
-    return canHandleControl(control_type, (EMouseClickType)mouse_ind, KEY_NONE, mask);
+    return canHandleControl(control_name, (EMouseClickType)mouse_ind, KEY_NONE, mask);
 }
 
-bool LLKeyConflictHandler::canAssignControl(EControlTypes control_type)
+bool LLKeyConflictHandler::canAssignControl(const std::string &control_name)
 {
-    std::map<EControlTypes, LLKeyConflict>::iterator iter = mControlsMap.find(control_type);
+    control_map_t::iterator iter = mControlsMap.find(control_name);
     if (iter != mControlsMap.end())
     {
         return iter->second.mAssignable;
@@ -297,9 +169,13 @@ bool LLKeyConflictHandler::canAssignControl(EControlTypes control_type)
     return false;
 }
 
-bool LLKeyConflictHandler::registerControl(EControlTypes control_type, U32 index, EMouseClickType mouse, KEY key, MASK mask, bool ignore_mask)
+bool LLKeyConflictHandler::registerControl(const std::string &control_name, U32 index, EMouseClickType mouse, KEY key, MASK mask, bool ignore_mask)
 {
-    LLKeyConflict &type_data = mControlsMap[control_type];
+    if (control_name.empty())
+    {
+        return false;
+    }
+    LLKeyConflict &type_data = mControlsMap[control_name];
     if (!type_data.mAssignable)
     {
         LL_ERRS() << "Error in code, user or system should not be able to change certain controls" << LL_ENDL;
@@ -319,9 +195,13 @@ bool LLKeyConflictHandler::registerControl(EControlTypes control_type, U32 index
     return false;
 }
 
-LLKeyData LLKeyConflictHandler::getControl(EControlTypes control_type, U32 index)
+LLKeyData LLKeyConflictHandler::getControl(const std::string &control_name, U32 index)
 {
-    return mControlsMap[control_type].getKeyData(index);
+    if (control_name.empty())
+    {
+        return LLKeyData();
+    }
+    return mControlsMap[control_name].getKeyData(index);
 }
 
 // static
@@ -341,24 +221,37 @@ std::string LLKeyConflictHandler::getStringFromKeyData(const LLKeyData& keydata)
     {
         result = LLKeyboard::stringFromAccelerator(keydata.mMask);
     }
+    else if (keydata.mIgnoreMasks)
+    {
+        result = "acc+";
+    }
 
     result += string_from_mouse(keydata.mMouse);
 
     return result;
 }
 
-// static
-std::string LLKeyConflictHandler::getControlName(EControlTypes control_type)
+std::string LLKeyConflictHandler::getControlString(const std::string &control_name, U32 index)
 {
-    return typetostring[control_type];
+    if (control_name.empty())
+    {
+        return "";
+    }
+    return getStringFromKeyData(mControlsMap[control_name].getKeyData(index));
 }
 
-std::string LLKeyConflictHandler::getControlString(EControlTypes control_type, U32 index)
+void LLKeyConflictHandler::loadFromControlSettings(const std::string &name)
 {
-    return getStringFromKeyData(mControlsMap[control_type].getKeyData(index));
+    LLControlVariablePtr var = gSavedSettings.getControl(name);
+    if (var)
+    {
+        LLKeyBind bind(var->getValue());
+        LLKeyConflict key(bind, true, 0);
+        mControlsMap[name] = key;
+    }
 }
 
-void  LLKeyConflictHandler::loadFromSettings(const LLViewerInput::KeyMode& keymode, control_map_t *destination)
+void LLKeyConflictHandler::loadFromSettings(const LLViewerInput::KeyMode& keymode, control_map_t *destination)
 {
     for (LLInitParam::ParamIterator<LLViewerInput::KeyBinding>::const_iterator it = keymode.bindings.begin(),
         end_it = keymode.bindings.end();
@@ -378,27 +271,22 @@ void  LLKeyConflictHandler::loadFromSettings(const LLViewerInput::KeyMode& keymo
             LLKeyboard::keyFromString(it->key, &key);
         }
         LLKeyboard::maskFromString(it->mask, &mask);
-        std::string command_name = it->command;
-        // it->command
-        // It might be better to have <string,bind> map, but at the moment enum is easier to iterate through.
-        // Besides keys.xml might not contain all commands
-        control_enum_t::const_iterator iter = command_to_key.find(command_name);
-        if (iter != command_to_key.end())
-        {
-            LLKeyConflict &type_data = (*destination)[iter->second];
-            type_data.mAssignable = true;
-            // Don't care about conflict level, all movement and view commands already account for it
-            type_data.mKeyBind.addKeyData(mouse, key, mask, ignore);
-        }
+        // Note: it->command is also the name of UI element, howhever xml we are loading from
+        // might not know all the commands, so UI will have to know what to fill by its own
+        LLKeyConflict &type_data = (*destination)[it->command];
+        type_data.mAssignable = true;
+        type_data.mKeyBind.addKeyData(mouse, key, mask, ignore);
     }
 }
 
-void LLKeyConflictHandler::loadFromSettings(const ESourceMode &load_mode, const std::string &filename, control_map_t *destination)
+bool LLKeyConflictHandler::loadFromSettings(const ESourceMode &load_mode, const std::string &filename, control_map_t *destination)
 {
     if (filename.empty())
     {
-        return;
+        return false;
     }
+
+    bool res = false;
 
     LLViewerInput::Keys keys;
     LLSimpleXUIParser parser;
@@ -412,39 +300,45 @@ void LLKeyConflictHandler::loadFromSettings(const ESourceMode &load_mode, const 
             if (keys.first_person.isProvided())
             {
                 loadFromSettings(keys.first_person, destination);
+                res = true;
             }
             break;
         case MODE_THIRD_PERSON:
             if (keys.third_person.isProvided())
             {
                 loadFromSettings(keys.third_person, destination);
+                res = true;
             }
             break;
         case MODE_EDIT:
             if (keys.edit.isProvided())
             {
                 loadFromSettings(keys.edit, destination);
+                res = true;
             }
             break;
         case MODE_EDIT_AVATAR:
             if (keys.edit_avatar.isProvided())
             {
                 loadFromSettings(keys.edit_avatar, destination);
+                res = true;
             }
             break;
         case MODE_SITTING:
             if (keys.sitting.isProvided())
             {
                 loadFromSettings(keys.sitting, destination);
+                res = true;
             }
             break;
         default:
             break;
         }
     }
+    return res;
 }
 
-void  LLKeyConflictHandler::loadFromSettings(ESourceMode load_mode)
+void LLKeyConflictHandler::loadFromSettings(ESourceMode load_mode)
 {
     mControlsMap.clear();
     mDefaultsMap.clear();
@@ -454,48 +348,26 @@ void  LLKeyConflictHandler::loadFromSettings(ESourceMode load_mode)
 
     if (load_mode == MODE_GENERAL)
     {
-        for (U32 i = 0; i < CONTROL_NUM_INDICES; i++)
+        // load settings clss knows about, but it also possible to load settings by name separately
+        const S32 size = std::extent<decltype(saved_settings_key_controls)>::value;
+        for (U32 i = 0; i < size; i++)
         {
-            EControlTypes type = (EControlTypes)i;
-            switch (type)
-            {
-            case LLKeyConflictHandler::CONTROL_VIEW_ACTIONS:
-            case LLKeyConflictHandler::CONTROL_INTERACTIONS:
-            case LLKeyConflictHandler::CONTROL_MOVEMENTS:
-            case LLKeyConflictHandler::CONTROL_MEDIACONTENT:
-            case LLKeyConflictHandler::CONTROL_CAMERA:
-            case LLKeyConflictHandler::CONTROL_EDIT_TITLE:
-            case LLKeyConflictHandler::CONTROL_RESERVED:
-                // ignore 'headers', they are for representation and organization purposes
-                break;
-            default:
-                {
-                    std::string name = getControlName(type);
-                    LLControlVariablePtr var = gSavedSettings.getControl(name);
-                    if (var)
-                    {
-                        LLKeyBind bind(var->getValue());
-                        LLKeyConflict key(bind, true, 0);
-                        mControlsMap[type] = key;
-                    }
-                    break;
-                }
-            }
+            loadFromControlSettings(saved_settings_key_controls[i]);
         }
     }
     else
     {
         // load defaults
         std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "keys.xml");
-        loadFromSettings(load_mode, filename, &mDefaultsMap);
+        if (!loadFromSettings(load_mode, filename, &mDefaultsMap))
+        {
+            LL_WARNS() << "Failed to load default settings, aborting" << LL_ENDL;
+            return;
+        }
 
         // load user's
         filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "keys.xml");
-        if (gDirUtilp->fileExists(filename))
-        {
-            loadFromSettings(load_mode, filename, &mControlsMap);
-        }
-        else
+        if (!gDirUtilp->fileExists(filename) || loadFromSettings(load_mode, filename, &mControlsMap))
         {
             // mind placeholders
             mControlsMap.insert(mDefaultsMap.begin(), mDefaultsMap.end());
@@ -504,7 +376,7 @@ void  LLKeyConflictHandler::loadFromSettings(ESourceMode load_mode)
     mLoadMode = load_mode;
 }
 
-void  LLKeyConflictHandler::saveToSettings()
+void LLKeyConflictHandler::saveToSettings()
 {
     if (mControlsMap.empty())
     {
@@ -513,39 +385,33 @@ void  LLKeyConflictHandler::saveToSettings()
 
     if (mLoadMode == MODE_GENERAL)
     {
-        for (U32 i = 0; i < CONTROL_NUM_INDICES; i++)
+        control_map_t::iterator iter = mControlsMap.begin();
+        control_map_t::iterator end = mControlsMap.end();
+
+        for (; iter != end; ++iter)
         {
-            EControlTypes type = (EControlTypes)i;
-            switch (type)
+            if (iter->first.empty())
             {
-            case LLKeyConflictHandler::CONTROL_VIEW_ACTIONS:
-            case LLKeyConflictHandler::CONTROL_INTERACTIONS:
-            case LLKeyConflictHandler::CONTROL_MOVEMENTS:
-            case LLKeyConflictHandler::CONTROL_MEDIACONTENT:
-            case LLKeyConflictHandler::CONTROL_CAMERA:
-            case LLKeyConflictHandler::CONTROL_EDIT_TITLE:
-            case LLKeyConflictHandler::CONTROL_RESERVED:
-                // ignore 'headers', they are for representation and organization purposes
-                break;
-            default:
-            {
-                if (mControlsMap[type].mAssignable)
-                {
-                    std::string name = getControlName(type);
-                    if (gSavedSettings.controlExists(name))
-                    {
-                        gSavedSettings.setLLSD(name, mControlsMap[type].mKeyBind.asLLSD());
-                    }
-                    else if (!mControlsMap[type].mKeyBind.empty())
-                    {
-                        // shouldn't happen user side since all settings are supposed to be declared already, but handy when creating new ones
-                        // (just don't forget to change comment and to copy them from user's folder)
-                        LL_INFOS() << "Creating new keybinding " << name << LL_ENDL;
-                        gSavedSettings.declareLLSD(name, mControlsMap[type].mKeyBind.asLLSD(), "comment", LLControlVariable::PERSIST_ALWAYS);
-                    }
-                }
-                break;
+                continue;
             }
+
+            LLKeyConflict &key = iter->second;
+            key.mKeyBind.trimEmpty();
+            if (!key.mAssignable)
+            {
+                continue;
+            }
+
+            if (gSavedSettings.controlExists(iter->first))
+            {
+                gSavedSettings.setLLSD(iter->first, key.mKeyBind.asLLSD());
+            }
+            else if (!key.mKeyBind.empty())
+            {
+                // Note: this is currently not in use, might be better for load mechanics to ask for and retain control group
+                // otherwise settings loaded from other control groups will end in this one
+                LL_INFOS() << "Creating new keybinding " << iter->first << LL_ENDL;
+                gSavedSettings.declareLLSD(iter->first, key.mKeyBind.asLLSD(), "comment", LLControlVariable::PERSIST_ALWAYS);
             }
         }
     }
@@ -564,8 +430,8 @@ void  LLKeyConflictHandler::saveToSettings()
         {
             // replace category we edited
 
-            // todo: fix this
-            // workaround to avoid doing own param container 
+            // mode is a HACK to correctly reset bindings without reparsing whole file and avoid doing
+            // own param container (which will face issues with inasseesible members of LLInitParam)
             LLViewerInput::KeyMode mode;
             LLViewerInput::KeyBinding binding;
 
@@ -581,8 +447,20 @@ void  LLKeyConflictHandler::saveToSettings()
                 U32 size = iter->second.mKeyBind.getDataCount();
                 for (U32 i = 0; i < size; ++i)
                 {
-                    // Still write empty keys to make sure we will maintain UI position
-                    LLKeyData data = iter->second.mKeyBind.getKeyData(i);
+                    if (iter->first.empty())
+                    {
+                        continue;
+                    }
+
+                    LLKeyConflict &key = iter->second;
+                    key.mKeyBind.trimEmpty();
+                    if (key.mKeyBind.empty() || !key.mAssignable)
+                    {
+                        continue;
+                    }
+
+                    LLKeyData data = key.mKeyBind.getKeyData(i);
+                    // Still write empty LLKeyData to make sure we will maintain UI position
                     if (data.mKey == KEY_NONE)
                     {
                         binding.key = "";
@@ -595,7 +473,7 @@ void  LLKeyConflictHandler::saveToSettings()
                     binding.mask = string_from_mask(data.mMask);
                     binding.mouse.set(string_from_mouse(data.mMouse), true); //set() because 'optional', for compatibility purposes
                     binding.ignore.set(data.mIgnoreMasks, true);
-                    binding.command = getControlName(iter->first);
+                    binding.command = iter->first;
                     mode.bindings.add(binding);
                 }
             }
@@ -664,12 +542,15 @@ void  LLKeyConflictHandler::saveToSettings()
     mHasUnsavedChanges = false;
 }
 
-LLKeyData LLKeyConflictHandler::getDefaultControl(EControlTypes control_type, U32 index)
+LLKeyData LLKeyConflictHandler::getDefaultControl(const std::string &control_name, U32 index)
 {
+    if (control_name.empty())
+    {
+        return LLKeyData();
+    }
     if (mLoadMode == MODE_GENERAL)
     {
-        std::string name = getControlName(control_type);
-        LLControlVariablePtr var = gSavedSettings.getControl(name);
+        LLControlVariablePtr var = gSavedSettings.getControl(control_name);
         if (var)
         {
             return LLKeyBind(var->getDefault()).getKeyData(index);
@@ -678,7 +559,7 @@ LLKeyData LLKeyConflictHandler::getDefaultControl(EControlTypes control_type, U3
     }
     else
     {
-        control_map_t::iterator iter = mDefaultsMap.find(control_type);
+        control_map_t::iterator iter = mDefaultsMap.find(control_name);
         if (iter != mDefaultsMap.end())
         {
             return iter->second.mKeyBind.getKeyData(index);
@@ -687,24 +568,31 @@ LLKeyData LLKeyConflictHandler::getDefaultControl(EControlTypes control_type, U3
     }
 }
 
-void LLKeyConflictHandler::resetToDefault(EControlTypes control_type, U32 index)
+void LLKeyConflictHandler::resetToDefault(const std::string &control_name, U32 index)
 {
-    LLKeyData data = getDefaultControl(control_type, index);
+    if (control_name.empty())
+    {
+        return;
+    }
+    LLKeyData data = getDefaultControl(control_name, index);
 
-    if (data != mControlsMap[control_type].getKeyData(index))
+    if (data != mControlsMap[control_name].getKeyData(index))
     {
         // reset controls that might have been switched to our current control
-        removeConflicts(data, mControlsMap[control_type].mConflictMask);
-        mControlsMap[control_type].setKeyData(data, index);
+        removeConflicts(data, mControlsMap[control_name].mConflictMask);
+        mControlsMap[control_name].setKeyData(data, index);
     }
 }
 
-void LLKeyConflictHandler::resetToDefaultAndResolve(EControlTypes control_type, bool ignore_conflicts)
+void LLKeyConflictHandler::resetToDefaultAndResolve(const std::string &control_name, bool ignore_conflicts)
 {
+    if (control_name.empty())
+    {
+        return;
+    }
     if (mLoadMode == MODE_GENERAL)
     {
-        std::string name = getControlName(control_type);
-        LLControlVariablePtr var = gSavedSettings.getControl(name);
+        LLControlVariablePtr var = gSavedSettings.getControl(control_name);
         if (var)
         {
             LLKeyBind bind(var->getDefault());
@@ -712,67 +600,53 @@ void LLKeyConflictHandler::resetToDefaultAndResolve(EControlTypes control_type, 
             {
                 for (S32 i = 0; i < bind.getDataCount(); ++i)
                 {
-                    removeConflicts(bind.getKeyData(i), mControlsMap[control_type].mConflictMask);
+                    removeConflicts(bind.getKeyData(i), mControlsMap[control_name].mConflictMask);
                 }
             }
-            mControlsMap[control_type].mKeyBind = bind;
+            mControlsMap[control_name].mKeyBind = bind;
         }
         else
         {
-            mControlsMap[control_type].mKeyBind.clear();
+            mControlsMap[control_name].mKeyBind.clear();
         }
     }
     else
     {
-        control_map_t::iterator iter = mDefaultsMap.find(control_type);
+        control_map_t::iterator iter = mDefaultsMap.find(control_name);
         if (iter != mDefaultsMap.end())
         {
             if (!ignore_conflicts)
             {
                 for (S32 i = 0; i < iter->second.mKeyBind.getDataCount(); ++i)
                 {
-                    removeConflicts(iter->second.mKeyBind.getKeyData(i), mControlsMap[control_type].mConflictMask);
+                    removeConflicts(iter->second.mKeyBind.getKeyData(i), mControlsMap[control_name].mConflictMask);
                 }
             }
-            mControlsMap[control_type].mKeyBind = iter->second.mKeyBind;
+            mControlsMap[control_name].mKeyBind = iter->second.mKeyBind;
         }
         else
         {
-            mControlsMap[control_type].mKeyBind.clear();
+            mControlsMap[control_name].mKeyBind.clear();
         }
     }
 }
 
-void LLKeyConflictHandler::resetToDefault(EControlTypes control_type)
+void LLKeyConflictHandler::resetToDefault(const std::string &control_name)
 {
     // reset specific binding without ignoring conflicts
-    resetToDefaultAndResolve(control_type, false);
+    resetToDefaultAndResolve(control_name, false);
 }
 
 void LLKeyConflictHandler::resetToDefaults(ESourceMode mode)
 {
     if (mode == MODE_GENERAL)
     {
-        for (U32 i = 0; i < CONTROL_NUM_INDICES; i++)
+        control_map_t::iterator iter = mControlsMap.begin();
+        control_map_t::iterator end = mControlsMap.end();
+
+        for (; iter != end; ++iter)
         {
-            EControlTypes type = (EControlTypes)i;
-            switch (type)
-            {
-            case LLKeyConflictHandler::CONTROL_VIEW_ACTIONS:
-            case LLKeyConflictHandler::CONTROL_INTERACTIONS:
-            case LLKeyConflictHandler::CONTROL_MOVEMENTS:
-            case LLKeyConflictHandler::CONTROL_MEDIACONTENT:
-            case LLKeyConflictHandler::CONTROL_CAMERA:
-            case LLKeyConflictHandler::CONTROL_EDIT_TITLE:
-            case LLKeyConflictHandler::CONTROL_RESERVED:
-                // ignore 'headers', they are for representation and organization purposes
-                break;
-            default:
-            {
-                resetToDefaultAndResolve(type, true);
-                break;
-            }
-            }
+            resetToDefaultAndResolve(iter->first, true);
         }
     }
     else
@@ -834,7 +708,7 @@ bool LLKeyConflictHandler::removeConflicts(const LLKeyData &data, const U32 &con
         // Can't conflict
         return true;
     }
-    std::map<EControlTypes, S32> conflict_list;
+    std::map<std::string, S32> conflict_list;
     control_map_t::iterator cntrl_iter = mControlsMap.begin();
     control_map_t::iterator cntrl_end = mControlsMap.end();
     for (; cntrl_iter != cntrl_end; ++cntrl_iter)
@@ -859,8 +733,8 @@ bool LLKeyConflictHandler::removeConflicts(const LLKeyData &data, const U32 &con
         }
     }
 
-    std::map<EControlTypes, S32>::iterator cnflct_iter = conflict_list.begin();
-    std::map<EControlTypes, S32>::iterator cnflct_end = conflict_list.end();
+    std::map<std::string, S32>::iterator cnflct_iter = conflict_list.begin();
+    std::map<std::string, S32>::iterator cnflct_end = conflict_list.end();
     for (; cnflct_iter != cnflct_end; ++cnflct_iter)
     {
         mControlsMap[cnflct_iter->first].mKeyBind.resetKeyData(cnflct_iter->second);
@@ -868,9 +742,9 @@ bool LLKeyConflictHandler::removeConflicts(const LLKeyData &data, const U32 &con
     return true;
 }
 
-void LLKeyConflictHandler::registerTemporaryControl(EControlTypes control_type, EMouseClickType mouse, KEY key, MASK mask, U32 conflict_mask)
+void LLKeyConflictHandler::registerTemporaryControl(const std::string &control_name, EMouseClickType mouse, KEY key, MASK mask, U32 conflict_mask)
 {
-    LLKeyConflict *type_data = &mControlsMap[control_type];
+    LLKeyConflict *type_data = &mControlsMap[control_name];
     type_data->mAssignable = false;
     type_data->mConflictMask = conflict_mask;
     type_data->mKeyBind.addKeyData(mouse, key, mask, false);
