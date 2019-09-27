@@ -4896,7 +4896,7 @@ Unchecking this option may remove restrictions that parcel owners have added to 
    icon="alertmodal.tga"
    name="EstateParcelEnvironmentOverride"
    type="alertmodal">
-Unchecking this option will remove any custom environments that parcel owners have added to their parcels. Please discuss with your parcel owners as needed.
+(Estate-wide change: [ESTATENAME]) Unchecking this option will remove any custom environments that parcel owners have added to their parcels. Please discuss with your parcel owners as needed.
 Do you wish to proceed?
     <tag>confirm</tag>
     <usetemplate

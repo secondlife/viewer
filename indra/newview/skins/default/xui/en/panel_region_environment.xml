@@ -19,11 +19,51 @@
     <string name="str_too_small">The parcel must be at least 128 square meters to support an environment.</string>
     <string name="str_empty">(empty)</string>
     <string name="str_region_env">(region environment)</string>
+    <text
+      type="string"
+      length="1"
+      follows="left|top"
+      height="32"
+      layout="topleft"
+      left="10"
+      name="env_help_text"
+      top="14"
+      word_wrap="true">
+       Changes to settings on this tab will affect all regions in the estate.
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     right="160"
+     name="estate_text"
+     top_pad="2"
+     halign="right"
+     width="140">
+        Estate:
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     top_delta="0"
+     name="estate_name"
+     left_pad="6"
+     width="150">
+        (unknown)
+    </text>
     <layout_stack 
             width="530"
-            height="367"
+            height="400"
             follows="all"
             layout="topleft"
+						left="0"
             animate="false"
             orientation="vertical">
         <layout_panel

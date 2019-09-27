@@ -96,6 +96,7 @@ public:
 	static LLPanelRegionTerrainInfo* getPanelRegionTerrain();
 	static LLPanelRegionExperiences* getPanelExperiences();
 	static LLPanelRegionGeneralInfo* getPanelGeneral();
+	static LLPanelRegionEnvironment* getPanelEnvironment();
 
 	// from LLPanel
 	virtual void refresh();
@@ -105,6 +106,8 @@ public:
 	void requestMeshRezInfo();
 	void enableTopButtons();
 	void disableTopButtons();
+
+	static void updateEstateName(const std::string& estate_name);
 
 private:
 	
