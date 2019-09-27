@@ -70,114 +70,35 @@ public:
     // at the moment this just means that key will conflict with everything that is identical
     const U32 CONFLICT_ANY = U32_MAX;
 
-    // todo, unfortunately will have to remove this and use map/array of strings
-    enum EControlTypes
-    {
-        CONTROL_VIEW_ACTIONS = 0, // Group control, for visual representation in view, not for use
-        CONTROL_ABOUT,
-        CONTROL_ORBIT,
-        CONTROL_PAN,
-        CONTROL_WORLD_MAP,
-        CONTROL_ZOOM,
-        CONTROL_INTERACTIONS, // Group control, for visual representation
-        CONTROL_BUILD,
-        //CONTROL_DRAG,
-        CONTROL_EDIT,
-        //CONTROL_MENU,
-        CONTROL_OPEN,
-        CONTROL_TOUCH,
-        CONTROL_WEAR,
-        CONTROL_MOVEMENTS, // Group control, for visual representation
-        CONTROL_MOVETO,
-        CONTROL_TELEPORTTO,
-        CONTROL_FORWARD,
-        CONTROL_BACKWARD,
-        CONTROL_LEFT, // Check and sinc name with real movement names
-        CONTROL_RIGHT,
-        CONTROL_LSTRAFE,
-        CONTROL_RSTRAFE,
-        CONTROL_JUMP,
-        CONTROL_DOWN,
-        //CONTROL_RUN,
-        CONTROL_TOGGLE_RUN,
-        CONTROL_TOGGLE_FLY,
-        CONTROL_SIT,
-        CONTROL_STOP,
-        CONTROL_CAMERA, // Group control, for visual representation
-        CONTROL_LOOK_UP,
-        CONTROL_LOOK_DOWN,
-        CONTROL_CAMERA_FORWARD,
-        CONTROL_CAMERA_BACKWARD,
-        CONTROL_CAMERA_FFORWARD,
-        CONTROL_CAMERA_FBACKWARD,
-        CONTROL_CAMERA_FSITTING,
-        CONTROL_CAMERA_BSITTING,
-        CONTROL_CAMERA_SOVER,
-        CONTROL_CAMERA_SUNDER,
-        CONTROL_CAMERA_SOVER_SITTING,
-        CONTROL_CAMERA_SUNDER_SITTING,
-        CONTROL_CAMERA_PANUP,
-        CONTROL_CAMERA_PANDOWN,
-        CONTROL_CAMERA_PANLEFT,
-        CONTROL_CAMERA_PANRIGHT,
-        CONTROL_CAMERA_PANIN,
-        CONTROL_CAMERA_PANOUT,
-        CONTROL_CAMERA_SPIN_CCW,
-        CONTROL_CAMERA_SPIN_CW,
-        CONTROL_CAMERA_SPIN_CCW_SITTING,
-        CONTROL_CAMERA_SPIN_CW_SITTING,
-        CONTROL_EDIT_TITLE, // Group control, for visual representation
-        CONTROL_EDIT_AV_SPIN_CCW,
-        CONTROL_EDIT_AV_SPIN_CW,
-        CONTROL_EDIT_AV_SPIN_OVER,
-        CONTROL_EDIT_AV_SPIN_UNDER,
-        CONTROL_EDIT_AV_MV_FORWARD,
-        CONTROL_EDIT_AV_MV_BACKWARD,
-        CONTROL_MEDIACONTENT, // Group control, for visual representation
-        CONTROL_PAUSE_MEDIA, // Play pause
-        CONTROL_ENABLE_MEDIA, // Play stop
-        CONTROL_VOICE, // Keep pressing for voice to be ON
-        CONTROL_TOGGLE_VOICE, // Press once to ON/OFF
-        CONTROL_START_CHAT, // Press once to ON/OFF
-        CONTROL_START_GESTURE, // Press once to ON/OFF
-        CONTROL_RESERVED, // Special group control, controls that are disabled by default and not meant to be changed
-        CONTROL_DELETE,
-        CONTROL_RESERVED_MENU,
-        CONTROL_RESERVED_SELECT,
-        CONTROL_SHIFT_SELECT,
-        CONTROL_CNTRL_SELECT,
-        CONTROL_NUM_INDICES // Size, always should be last
-    };
-
     // Note: missed selection and edition commands (would be really nice to go through selection via MB4/5 or wheel)
 
     LLKeyConflictHandler();
     LLKeyConflictHandler(ESourceMode mode);
 
-    bool canHandleControl(EControlTypes control_type, EMouseClickType mouse_ind, KEY key, MASK mask);
-    bool canHandleKey(EControlTypes control_type, KEY key, MASK mask);
-    bool canHandleMouse(EControlTypes control_type, EMouseClickType mouse_ind, MASK mask);
-    bool canHandleMouse(EControlTypes control_type, S32 mouse_ind, MASK mask); //Just for convinience
-    bool canAssignControl(EControlTypes control_type);
-    bool registerControl(EControlTypes control_type, U32 data_index, EMouseClickType mouse_ind, KEY key, MASK mask, bool ignore_mask); //todo: return conflicts?
+    bool canHandleControl(const std::string &control_name, EMouseClickType mouse_ind, KEY key, MASK mask);
+    bool canHandleKey(const std::string &control_name, KEY key, MASK mask);
+    bool canHandleMouse(const std::string &control_name, EMouseClickType mouse_ind, MASK mask);
+    bool canHandleMouse(const std::string &control_name, S32 mouse_ind, MASK mask); //Just for convinience
+    bool canAssignControl(const std::string &control_name);
+    bool registerControl(const std::string &control_name, U32 data_index, EMouseClickType mouse_ind, KEY key, MASK mask, bool ignore_mask); //todo: return conflicts?
 
-    LLKeyData getControl(EControlTypes control_type, U32 data_index);
+    LLKeyData getControl(const std::string &control_name, U32 data_index);
 
-    static std::string LLKeyConflictHandler::getStringFromKeyData(const LLKeyData& keydata);
-    static std::string getControlName(EControlTypes control_type);
-    std::string getControlString(EControlTypes control_type, U32 data_index);
+    static std::string getStringFromKeyData(const LLKeyData& keydata);
+    std::string getControlString(const std::string &control_name, U32 data_index);
 
-
+    // Load single control, overrides existing one if names match
+    void loadFromControlSettings(const std::string &name);
     // Drops any changes loads controls with ones from 'saved settings' or from xml
     void loadFromSettings(ESourceMode load_mode);
     // Saves settings to 'saved settings' or to xml
     void saveToSettings();
 
-    LLKeyData getDefaultControl(EControlTypes control_type, U32 data_index);
+    LLKeyData getDefaultControl(const std::string &control_name, U32 data_index);
     // Resets keybinding to default variant from 'saved settings' or xml
-    void resetToDefault(EControlTypes control_type, U32 index);
-    void resetToDefault(EControlTypes control_type);
-    // resets current mode to defaults, 
+    void resetToDefault(const std::string &control_name, U32 index);
+    void resetToDefault(const std::string &control_name);
+    // resets current mode to defaults
     void resetToDefaults();
 
     bool empty() { return mControlsMap.empty(); }
@@ -188,15 +109,15 @@ public:
     ESourceMode getLoadMode() { return mLoadMode; }
 
 private:
-    void resetToDefaultAndResolve(EControlTypes control_type, bool ignore_conflicts);
+    void resetToDefaultAndResolve(const std::string &control_name, bool ignore_conflicts);
     void resetToDefaults(ESourceMode mode);
 
     // at the moment these kind of control is not savable, but takes part will take part in conflict resolution
-    void registerTemporaryControl(EControlTypes control_type, EMouseClickType mouse_ind, KEY key, MASK mask, U32 conflict_mask);
+    void registerTemporaryControl(const std::string &control_name, EMouseClickType mouse_ind, KEY key, MASK mask, U32 conflict_mask);
 
-    typedef std::map<EControlTypes, LLKeyConflict> control_map_t;
+    typedef std::map<std::string, LLKeyConflict> control_map_t;
     void loadFromSettings(const LLViewerInput::KeyMode& keymode, control_map_t *destination);
-    void loadFromSettings(const ESourceMode &load_mode, const std::string &filename, control_map_t *destination);
+    bool loadFromSettings(const ESourceMode &load_mode, const std::string &filename, control_map_t *destination);
     void resetKeyboardBindings();
     void generatePlaceholders(ESourceMode load_mode); //E.x. non-assignable values
     // returns false in case user is trying to reuse control that can't be reassigned

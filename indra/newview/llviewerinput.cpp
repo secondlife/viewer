@@ -650,6 +650,78 @@ bool start_gesture( EKeystate s )
 	return true;
 }
 
+bool run_forward(EKeystate s)
+{
+    if (KEYSTATE_DOWN == s)
+    {
+        gAgent.setAlwaysRun();
+        gAgent.setRunning();
+        gAgent.sendWalkRun(true);
+    }
+    else if(KEYSTATE_UP == s)
+    {
+        gAgent.clearAlwaysRun();
+        gAgent.clearRunning();
+        gAgent.sendWalkRun(false);
+    }
+    agent_push_forward(s);
+    return true;
+}
+
+bool run_backward(EKeystate s)
+{
+    if (KEYSTATE_DOWN == s)
+    {
+        gAgent.setAlwaysRun();
+        gAgent.setRunning();
+        gAgent.sendWalkRun(true);
+    }
+    else if (KEYSTATE_UP == s)
+    {
+        gAgent.clearAlwaysRun();
+        gAgent.clearRunning();
+        gAgent.sendWalkRun(false);
+    }
+    agent_push_backward(s);
+    return true;
+}
+
+bool run_left(EKeystate s)
+{
+    if (KEYSTATE_DOWN == s)
+    {
+        gAgent.setAlwaysRun();
+        gAgent.setRunning();
+        gAgent.sendWalkRun(true);
+    }
+    else if (KEYSTATE_UP == s)
+    {
+        gAgent.clearAlwaysRun();
+        gAgent.clearRunning();
+        gAgent.sendWalkRun(false);
+    }
+    agent_slide_left(s);
+    return true;
+}
+
+bool run_right(EKeystate s)
+{
+    if (KEYSTATE_DOWN == s)
+    {
+        gAgent.setAlwaysRun();
+        gAgent.setRunning();
+        gAgent.sendWalkRun(true);
+    }
+    else if (KEYSTATE_UP == s)
+    {
+        gAgent.clearAlwaysRun();
+        gAgent.clearRunning();
+        gAgent.sendWalkRun(false);
+    }
+    agent_slide_right(s);
+    return true;
+}
+
 bool toggle_run(EKeystate s)
 {
     if (KEYSTATE_DOWN != s) return true;
@@ -791,6 +863,10 @@ REGISTER_KEYBOARD_ACTION("edit_avatar_move_backward", edit_avatar_move_backward)
 REGISTER_KEYBOARD_ACTION("stop_moving", stop_moving);
 REGISTER_KEYBOARD_ACTION("start_chat", start_chat);
 REGISTER_KEYBOARD_ACTION("start_gesture", start_gesture);
+REGISTER_KEYBOARD_ACTION("run_forward", run_forward);
+REGISTER_KEYBOARD_ACTION("run_backward", run_backward);
+REGISTER_KEYBOARD_ACTION("run_left", run_left);
+REGISTER_KEYBOARD_ACTION("run_right", run_right);
 REGISTER_KEYBOARD_ACTION("toggle_run", toggle_run);
 REGISTER_KEYBOARD_ACTION("toggle_sit", toggle_sit);
 REGISTER_KEYBOARD_ACTION("toggle_pause_media", toggle_pause_media);

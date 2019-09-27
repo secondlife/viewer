@@ -318,7 +318,7 @@ public:
 	void onCancelKeyBind();
 
 private:
-	void addGroupRow(const std::string &icon, S32 index);
+	void addGroupRow(const std::string &control_name, const std::string &icon);
 	void regenerateControls();
 	void populateControlTable();
 	void addSeparator();
@@ -328,7 +328,7 @@ private:
 	LLComboBox *pKeyModeBox;
 	LLScrollListCell *mHighlightedCell;
 	LLKeyConflictHandler mConflictHandler[LLKeyConflictHandler::MODE_COUNT];
-	S32 mEditingIndex;
+	std::string mEditingControl;
 	S32 mEditingColumn;
 	S32 mEditingMode;
 	bool mShowKeyDialog;

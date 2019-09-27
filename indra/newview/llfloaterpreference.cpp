@@ -185,18 +185,53 @@ public:
 	static void onCancel(void* user_data);
 	static void onBlank(void* user_data);
 	static void onDefault(void* user_data);
+	static void onClickTimeout(void* user_data, MASK mask);
+
+	class Updater;
 
 private:
+	void setKeyBind(EMouseClickType click, KEY key, MASK mask, bool ignore);
 	LLPanelPreferenceControls* pParent;
 	LLCheckBoxCtrl* pCheckBox;
 
-	U32 mKeyMask;
+	U32 mKeyFilterMask;
+	Updater *pUpdater;
+};
+
+class LLSetKeyBindDialog::Updater : public LLEventTimer
+{
+public:
+
+    typedef boost::function<void(MASK)> callback_t;
+
+    Updater(callback_t cb, F32 period, MASK mask)
+        :LLEventTimer(period),
+        mMask(mask),
+        mCallback(cb)
+    {
+        mEventTimer.start();
+    }
+
+    virtual ~Updater(){}
+
+protected:
+    BOOL tick()
+    {
+        mCallback(mMask);
+        // Deletes itseft after execution
+        return TRUE;
+    }
+
+private:
+    MASK mMask;
+    callback_t mCallback;
 };
 
 LLSetKeyBindDialog::LLSetKeyBindDialog(const LLSD& key)
   : LLModalDialog(key),
 	pParent(NULL),
-	mKeyMask(DEFAULT_KEY_FILTER)
+	mKeyFilterMask(DEFAULT_KEY_FILTER),
+	pUpdater(NULL)
 {
 }
 
@@ -227,13 +262,19 @@ void LLSetKeyBindDialog::onClose(bool app_quiting)
         pParent->onCancelKeyBind();
         pParent = NULL;
     }
+    if (pUpdater)
+    {
+        // Doubleclick timer has't fired, delete it
+        delete pUpdater;
+        pUpdater = NULL;
+    }
     LLModalDialog::onClose(app_quiting);
 }
 
 void LLSetKeyBindDialog::setParent(LLPanelPreferenceControls* parent, U32 key_mask)
 {
     pParent = parent;
-    mKeyMask = key_mask;
+    mKeyFilterMask = key_mask;
 
     LLTextBase *text_ctrl = getChild<LLTextBase>("descritption");
 
@@ -259,24 +300,18 @@ void LLSetKeyBindDialog::setParent(LLPanelPreferenceControls* parent, U32 key_ma
 
 BOOL LLSetKeyBindDialog::handleKeyHere(KEY key, MASK mask)
 {
-	BOOL result = TRUE;
-
     if ((key == 'Q' && mask == MASK_CONTROL)
         || key == KEY_ESCAPE)
     {
         closeFloater();
-        return true;
+        return TRUE;
     }
 
     if (key == KEY_DELETE)
     {
-        if (pParent)
-        {
-            pParent->onSetKeyBind(CLICK_NONE, KEY_NONE, MASK_NONE, false);
-            pParent = NULL;
-        }
+        setKeyBind(CLICK_NONE, KEY_NONE, MASK_NONE, false);
         closeFloater();
-        return true;
+        return FALSE;
     }
 
     // forbidden keys
@@ -284,40 +319,41 @@ BOOL LLSetKeyBindDialog::handleKeyHere(KEY key, MASK mask)
         || key == KEY_RETURN
         || key == KEY_BACKSPACE)
     {
-        return false;
+        return FALSE;
     }
 
-    if ((mKeyMask & ALLOW_MASKS) == 0
+    if ((mKeyFilterMask & ALLOW_MASKS) == 0
         && (key == KEY_CONTROL || key == KEY_SHIFT || key == KEY_ALT))
     {
         // mask by themself are not allowed
-        return false;
+        return FALSE;
     }
-    else if ((mKeyMask & ALLOW_KEYS) == 0)
+    else if ((mKeyFilterMask & ALLOW_KEYS) == 0)
     {
         // basic keys not allowed
-        return false;
+        return FALSE;
     }
-    else if ((mKeyMask & ALLOW_MASK_KEYS) == 0 && mask != 0)
+    else if ((mKeyFilterMask & ALLOW_MASK_KEYS) == 0 && mask != 0)
     {
         // masked keys not allowed
-        return false;
+        return FALSE;
     }
 
-	if (pParent)
-	{
-        pParent->onSetKeyBind(CLICK_NONE, key, mask, pCheckBox->getValue().asBoolean());
-        pParent = NULL;
-	}
-	closeFloater();
-	return result;
+    setKeyBind(CLICK_NONE, key, mask, pCheckBox->getValue().asBoolean());
+    closeFloater();
+    return TRUE;
 }
 
 BOOL LLSetKeyBindDialog::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down)
 {
     BOOL result = FALSE;
-
-    if (clicktype == CLICK_LEFT)
+    if (!pParent)
+    {
+        // we already processed 'down' event, this is 'up', consume
+        closeFloater();
+        result = TRUE;
+    }
+    if (!result && clicktype == CLICK_LEFT)
     {
         // try handling buttons first
         if (down)
@@ -328,25 +364,38 @@ BOOL LLSetKeyBindDialog::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClic
         {
             result = LLView::handleMouseUp(x, y, mask);
         }
+        if (result)
+        {
+            setFocus(TRUE);
+            gFocusMgr.setKeystrokesOnly(TRUE);
+        }
+        // ignore selection related combinations
+        else if (down && (mask & (MASK_SHIFT | MASK_CONTROL)) == 0)
+        {
+            // this can be a double click, wait a bit;
+            if (!pUpdater)
+            {
+                // Note: default doubleclick time is 500ms, but can stretch up to 5s
+                pUpdater = new Updater(boost::bind(&onClickTimeout, this, _1), 0.7f, mask);
+                result = TRUE;
+            }
+        }
     }
 
     if (!result
-        && ((mKeyMask & ALLOW_MOUSE) != 0)
+        && (clicktype != CLICK_LEFT) // subcases were handled above
+        && ((mKeyFilterMask & ALLOW_MOUSE) != 0)
         && (clicktype != CLICK_RIGHT || mask != 0) // reassigning menu button is not supported
-        && ((mKeyMask & ALLOW_MASK_MOUSE) != 0 || mask == 0))
+        && ((mKeyFilterMask & ALLOW_MASK_MOUSE) != 0 || mask == 0)) // reserved for selection
     {
-        if (pParent)
-        {
-            pParent->onSetKeyBind(clicktype, KEY_NONE, mask, pCheckBox->getValue().asBoolean());
-            pParent = NULL;
-        }
+        setKeyBind(clicktype, KEY_NONE, mask, pCheckBox->getValue().asBoolean());
         result = TRUE;
-        closeFloater();
-    }
-    
-    if (!result)
-    {
-        result = LLMouseHandler::handleAnyMouseClick(x, y, mask, clicktype, down);
+        if (!down)
+        {
+            // wait for 'up' event before closing
+            // alternative: set pUpdater
+            closeFloater();
+        }
     }
 
     return result;
@@ -356,7 +405,7 @@ BOOL LLSetKeyBindDialog::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClic
 void LLSetKeyBindDialog::onCancel(void* user_data)
 {
     LLSetKeyBindDialog* self = (LLSetKeyBindDialog*)user_data;
-	self->closeFloater();
+    self->closeFloater();
 }
 
 //static
@@ -364,11 +413,7 @@ void LLSetKeyBindDialog::onBlank(void* user_data)
 {
     LLSetKeyBindDialog* self = (LLSetKeyBindDialog*)user_data;
     // tmp needs 'no key' button
-    if (self->pParent)
-    {
-        self->pParent->onSetKeyBind(CLICK_NONE, KEY_NONE, MASK_NONE, false);
-        self->pParent = NULL;
-    }
+    self->setKeyBind(CLICK_NONE, KEY_NONE, MASK_NONE, false);
     self->closeFloater();
 }
 
@@ -376,13 +421,33 @@ void LLSetKeyBindDialog::onBlank(void* user_data)
 void LLSetKeyBindDialog::onDefault(void* user_data)
 {
     LLSetKeyBindDialog* self = (LLSetKeyBindDialog*)user_data;
-    // tmp needs 'no key' button
     if (self->pParent)
     {
         self->pParent->onDefaultKeyBind();
         self->pParent = NULL;
     }
     self->closeFloater();
+}
+
+//static
+void LLSetKeyBindDialog::onClickTimeout(void* user_data, MASK mask)
+{
+    LLSetKeyBindDialog* self = (LLSetKeyBindDialog*)user_data;
+
+    // timer will delete itself after timeout
+    self->pUpdater = NULL;
+
+    self->setKeyBind(CLICK_LEFT, KEY_NONE, mask, self->pCheckBox->getValue().asBoolean());
+    self->closeFloater();
+}
+
+void LLSetKeyBindDialog::setKeyBind(EMouseClickType click, KEY key, MASK mask, bool ignore)
+{
+    if (pParent)
+    {
+        pParent->onSetKeyBind(click, key, mask, ignore);
+        pParent = NULL;
+    }
 }
 
 
@@ -2921,9 +2986,72 @@ void LLPanelPreferenceGraphics::setHardwareDefaults()
 //------------------------LLPanelPreferenceControls--------------------------------
 static LLPanelInjector<LLPanelPreferenceControls> t_pref_contrls("panel_preference_controls");
 
+//name of control and name of icon if it is a group, likely 'TEMP' until xml gets properly populated
+typedef std::vector<std::pair<std::string, std::string> > controls_to_icon_t;
+static const controls_to_icon_t commands_and_headers =
+{
+    //{ "control_view_actions", "Search_Icon" },
+    //{ "control_interactions", "Command_Gestures_Icon" },
+    { "control_movements", "Move_Walk_Off" },
+    { "walk_to", "" },
+    { "teleport_to", "" },
+    { "push_forward", "" },
+    { "push_backward", "" },
+    { "turn_left", "" },
+    { "turn_right", "" },
+    { "slide_left", "" },
+    { "slide_right", "" },
+    { "jump", "" },
+    { "push_down", "" },
+    { "run_forward", "" },
+    { "run_backward", "" },
+    { "run_left", "" },
+    { "run_right", "" },
+    { "toggle_run", "" },
+    { "toggle_fly", "" },
+    { "toggle_sit", "" },
+    { "stop_moving", "" },
+    { "control_camera", "Cam_FreeCam_Off" },
+    { "look_up", "" },
+    { "look_down", "" },
+    { "move_forward", "" },
+    { "move_backward", "" },
+    { "move_forward_fast", "" },
+    { "move_backward_fast", "" },
+    { "move_forward_sitting", "" },
+    { "move_backward_sitting", "" },
+    { "spin_over", "" },
+    { "spin_under", "" },
+    { "spin_over_sitting", "" },
+    { "spin_under_sitting", "" },
+    { "pan_up", "" },
+    { "pan_down", "" },
+    { "pan_left", "" },
+    { "pan_right", "" },
+    { "pan_in", "" },
+    { "pan_out", "" },
+    { "spin_around_ccw", "" },
+    { "spin_around_cw", "" },
+    { "spin_around_ccw_sitting", "" },
+    { "spin_around_cw_sitting", "" },
+    { "control_edit_title", "Tool_Dozer" },
+    { "edit_avatar_spin_ccw", "" },
+    { "edit_avatar_spin_cw", "" },
+    { "edit_avatar_spin_over", "" },
+    { "edit_avatar_spin_under", "" },
+    { "edit_avatar_move_forward", "" },
+    { "edit_avatar_move_backward", "" },
+    { "control_mediacontent", "Audio_Press" },
+    { "toggle_pause_media", "" },
+    { "toggle_enable_media", "" },
+    { "voice_follow_key", "" },
+    { "toggle_voice", "" },
+    { "start_chat", "" },
+    { "start_gesture", "" },
+};
+
 LLPanelPreferenceControls::LLPanelPreferenceControls()
     :LLPanelPreference(),
-    mEditingIndex(-1),
     mEditingColumn(-1),
     mEditingMode(0),
     mShowKeyDialog(false),
@@ -2962,8 +3090,8 @@ BOOL LLPanelPreferenceControls::handleHover(S32 x, S32 y, MASK mask)
     if (mShowKeyDialog)
     {
         mShowKeyDialog = false;
-        if (mEditingIndex > 0
-            && mConflictHandler[mEditingMode].canAssignControl((LLKeyConflictHandler::EControlTypes)mEditingIndex))
+        if (!mEditingControl.empty()
+            && mConflictHandler[mEditingMode].canAssignControl(mEditingControl))
         {
             LLScrollListItem* item = pControlsTable->getFirstSelected(); // don't use pControlsTable->hitItem(x, y) dur to drift;
             if (item)
@@ -2991,10 +3119,10 @@ BOOL LLPanelPreferenceControls::handleHover(S32 x, S32 y, MASK mask)
     return LLPanelPreference::handleHover(x, y, mask);
 }
 
-void LLPanelPreferenceControls::addGroupRow(const std::string &icon, S32 index)
+void LLPanelPreferenceControls::addGroupRow(const std::string &control_name, const std::string &icon)
 {
     LLScrollListItem::Params item_params;
-    item_params.value = LLSD::Integer(-1);
+    item_params.value = "";
 
     LLScrollListCell::Params icon_cell_params;
     icon_cell_params.font = LLFontGL::getFontSansSerif();
@@ -3006,7 +3134,6 @@ void LLPanelPreferenceControls::addGroupRow(const std::string &icon, S32 index)
     cell_params.font = LLFontGL::getFontSansSerif();
     cell_params.font_halign = LLFontGL::LEFT;
 
-    std::string control_name = LLKeyConflictHandler::getControlName((LLKeyConflictHandler::EControlTypes)index);
     std::string label;
     if (hasString(control_name))
     {
@@ -3059,76 +3186,48 @@ void LLPanelPreferenceControls::populateControlTable()
     cell_params.column = "";
     cell_params.value = label;
 
-    S32 start = mEditingMode == LLKeyConflictHandler::MODE_GENERAL ? LLKeyConflictHandler::CONTROL_VIEW_ACTIONS : LLKeyConflictHandler::CONTROL_MOVEMENTS;
-    S32 end = mEditingMode == LLKeyConflictHandler::MODE_GENERAL ? LLKeyConflictHandler::CONTROL_NUM_INDICES : LLKeyConflictHandler::CONTROL_RESERVED;
-    for (S32 i = start; i < end; i++)
+    controls_to_icon_t::const_iterator iter = commands_and_headers.begin();
+    controls_to_icon_t::const_iterator end = commands_and_headers.end();
+    for (; iter != end; ++iter)
     {
-        LLKeyConflictHandler::EControlTypes type = (LLKeyConflictHandler::EControlTypes)i;
-        switch (type)
+        if (iter->second.empty())
         {
-        case LLKeyConflictHandler::CONTROL_VIEW_ACTIONS:
-            addSeparator();
-            addGroupRow("Search_Icon", i);
-            break;
-        case LLKeyConflictHandler::CONTROL_INTERACTIONS:
-            addSeparator();
-            addGroupRow("Command_Gestures_Icon", i);
-            break;
-        case LLKeyConflictHandler::CONTROL_MOVEMENTS:
-            addSeparator();
-            addGroupRow("Move_Walk_Off", i);
-            break;
-        case LLKeyConflictHandler::CONTROL_MEDIACONTENT:
-            addSeparator();
-            addGroupRow("Audio_Press", i);
-            break;
-        case LLKeyConflictHandler::CONTROL_CAMERA:
-            addSeparator();
-            addGroupRow("Cam_FreeCam_Off", i);
-            break;
-        case LLKeyConflictHandler::CONTROL_EDIT_TITLE:
-            addSeparator();
-            addGroupRow("Tool_Dozer", i);
-            break;
-        case LLKeyConflictHandler::CONTROL_RESERVED:
-            addSeparator();
-            addGroupRow("Info_Small", i);
-            break;
-        default:
+            // general control
+            LLScrollListItem::Params item_params;
+            item_params.value = LLSD(iter->first);
+
+            cell_params.column = "lst_action";
+            bool enabled = mConflictHandler[mEditingMode].canAssignControl(iter->first);
+            if (hasString(iter->first))
             {
-                //default insert
-                LLScrollListItem::Params item_params;
-                item_params.value = LLSD::Integer(i);
-
-                cell_params.column = "lst_action";
-                bool enabled = mConflictHandler[mEditingMode].canAssignControl(type);
-                control_name = LLKeyConflictHandler::getControlName(type);
-                if (hasString(control_name))
-                {
-                    label = getString(control_name);
-                }
-                else
-                {
-                    label = control_name;
-                }
-                cell_params.value = label;
-                item_params.columns.add(cell_params);
-                cell_params.column = "lst_ctrl1";
-                cell_params.value = mConflictHandler[mEditingMode].getControlString(type, 0);
-                cell_params.enabled = enabled;
-                item_params.columns.add(cell_params);
-                cell_params.column = "lst_ctrl2";
-                cell_params.value = mConflictHandler[mEditingMode].getControlString(type, 1);
-                cell_params.enabled = enabled;
-                item_params.columns.add(cell_params);
-                cell_params.column = "lst_ctrl3";
-                cell_params.value = mConflictHandler[mEditingMode].getControlString(type, 2);
-                cell_params.enabled = enabled;
-                item_params.columns.add(cell_params);
-
-                pControlsTable->addRow(item_params, EAddPosition::ADD_BOTTOM);
-                break;
+                label = getString(iter->first);
             }
+            else
+            {
+                label = iter->first;
+            }
+            cell_params.value = label;
+            item_params.columns.add(cell_params);
+            cell_params.column = "lst_ctrl1";
+            cell_params.value = mConflictHandler[mEditingMode].getControlString(iter->first, 0);
+            cell_params.enabled = enabled;
+            item_params.columns.add(cell_params);
+            cell_params.column = "lst_ctrl2";
+            cell_params.value = mConflictHandler[mEditingMode].getControlString(iter->first, 1);
+            cell_params.enabled = enabled;
+            item_params.columns.add(cell_params);
+            cell_params.column = "lst_ctrl3";
+            cell_params.value = mConflictHandler[mEditingMode].getControlString(iter->first, 2);
+            cell_params.enabled = enabled;
+            item_params.columns.add(cell_params);
+
+            pControlsTable->addRow(item_params, EAddPosition::ADD_BOTTOM);
+        }
+        else
+        {
+            // header
+            addSeparator();
+            addGroupRow(iter->first, iter->second);
         }
     }
 }
@@ -3144,13 +3243,13 @@ void LLPanelPreferenceControls::addSeparator()
 
 void LLPanelPreferenceControls::updateTable()
 {
+    mEditingControl.clear();
     std::vector<LLScrollListItem*> list = pControlsTable->getAllData();
     for (S32 i = 0; i < list.size(); ++i)
     {
-        S32 value = list[i]->getValue().asInteger();
-        if (value > 0)
+        std::string control = list[i]->getValue();
+        if (!control.empty())
         {
-            LLKeyConflictHandler::EControlTypes control = (LLKeyConflictHandler::EControlTypes)value;
             LLScrollListCell* cell = list[i]->getColumn(1);
             cell->setValue(mConflictHandler[mEditingMode].getControlString(control, 0));
             cell = list[i]->getColumn(2);
@@ -3207,6 +3306,7 @@ void LLPanelPreferenceControls::saveSettings()
         if (mConflictHandler[i].hasUnsavedChanges())
         {
             mConflictHandler[i].saveToSettings();
+            mConflictHandler[i].clear();
         }
     }
 
@@ -3229,20 +3329,21 @@ void LLPanelPreferenceControls::resetDirtyChilds()
 
 void LLPanelPreferenceControls::onListCommit()
 {
+    mShowKeyDialog = false;
     LLScrollListItem* item = pControlsTable->getFirstSelected();
     if (item == NULL)
     {
         return;
     }
 
-    S32 control = item->getValue().asInteger();
+    std::string control = item->getValue();
 
-    if (control <= 0)
+    if (control.empty())
     {
         return;
     }
 
-    if (!mConflictHandler[mEditingMode].canAssignControl((LLKeyConflictHandler::EControlTypes)control))
+    if (!mConflictHandler[mEditingMode].canAssignControl(control))
     {
         return;
     }
@@ -3251,7 +3352,7 @@ void LLPanelPreferenceControls::onListCommit()
     // fresh mouse coordinates are not yet accessible during onCommit() and there are other issues,
     // so we cheat: remember item user clicked at, trigger 'key dialog' on hover that comes next,
     // use coordinates from hover to calculate cell
-    mEditingIndex = control;
+    mEditingControl = control;
     mShowKeyDialog = true;
 
     if (mHighlightedCell)
@@ -3269,18 +3370,16 @@ void LLPanelPreferenceControls::onModeCommit()
 // todo: copy onSetKeyBind to interface and inherit from interface
 void LLPanelPreferenceControls::onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool ignore_mask)
 {
-    LLKeyConflictHandler::EControlTypes control = (LLKeyConflictHandler::EControlTypes)mEditingIndex;
-
-    if (!mConflictHandler[mEditingMode].canAssignControl(control))
+    if (!mConflictHandler[mEditingMode].canAssignControl(mEditingControl))
     {
         return;
     }
 
     pControlsTable->deselectAllItems();
-    pControlsTable->selectByValue(mEditingIndex);
+    pControlsTable->selectByValue(mEditingControl);
     if ( mEditingColumn > 0)
     {
-        mConflictHandler[mEditingMode].registerControl(control, mEditingColumn - 1, click, key, mask, ignore_mask);
+        mConflictHandler[mEditingMode].registerControl(mEditingControl, mEditingColumn - 1, click, key, mask, ignore_mask);
     }
 
     updateTable();
@@ -3296,19 +3395,17 @@ void LLPanelPreferenceControls::onRestoreDefaults()
 
 void LLPanelPreferenceControls::onDefaultKeyBind()
 {
-    LLKeyConflictHandler::EControlTypes control = (LLKeyConflictHandler::EControlTypes)mEditingIndex;
-
-    if (!mConflictHandler[mEditingMode].canAssignControl(control))
+    if (!mConflictHandler[mEditingMode].canAssignControl(mEditingControl))
     {
         return;
     }
 
     pControlsTable->deselectAllItems();
-    pControlsTable->selectByValue(mEditingIndex);
+    pControlsTable->selectByValue(mEditingControl);
 
     if (mEditingColumn > 0)
     {
-        mConflictHandler[mEditingMode].resetToDefault(control, mEditingColumn - 1);
+        mConflictHandler[mEditingMode].resetToDefault(mEditingControl, mEditingColumn - 1);
     }
     updateTable();
 }
