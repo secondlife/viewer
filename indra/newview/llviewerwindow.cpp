@@ -45,7 +45,7 @@
 #include "llmeshrepository.h"
 #include "llnotificationhandler.h"
 #include "llpanellogin.h"
-#include "llviewerkeyboard.h"
+#include "llviewerinput.h"
 #include "llviewermenu.h"
 
 #include "llviewquery.h"
@@ -173,7 +173,7 @@
 #include "llviewergesture.h"
 #include "llviewertexturelist.h"
 #include "llviewerinventory.h"
-#include "llviewerkeyboard.h"
+#include "llviewerinput.h"
 #include "llviewermedia.h"
 #include "llviewermediafocus.h"
 #include "llviewermenu.h"
@@ -1097,7 +1097,7 @@ BOOL LLViewerWindow::handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask
     }    
     BOOL down = TRUE;
     //handleMouse() loops back to LLViewerWindow::handleAnyMouseClick
-    return gViewerKeyboard.handleMouse(window, pos, mask, CLICK_LEFT, down);
+    return gViewerInput.handleMouse(window, pos, mask, CLICK_LEFT, down);
 }
 
 BOOL LLViewerWindow::handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask)
@@ -1105,7 +1105,7 @@ BOOL LLViewerWindow::handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK ma
 	// try handling as a double-click first, then a single-click if that
 	// wasn't handled.
 	BOOL down = TRUE;
-	if (gViewerKeyboard.handleMouse(window, pos, mask, CLICK_DOUBLELEFT, down))
+	if (gViewerInput.handleMouse(window, pos, mask, CLICK_DOUBLELEFT, down))
 	{
 		return TRUE;
 	}
@@ -1119,24 +1119,24 @@ BOOL LLViewerWindow::handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
         mMouseDownTimer.stop();
     }
     BOOL down = FALSE;
-    return gViewerKeyboard.handleMouse(window, pos, mask, CLICK_LEFT, down);
+    return gViewerInput.handleMouse(window, pos, mask, CLICK_LEFT, down);
 }
 BOOL LLViewerWindow::handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	BOOL down = TRUE;
-	return gViewerKeyboard.handleMouse(window, pos, mask, CLICK_RIGHT, down);
+	return gViewerInput.handleMouse(window, pos, mask, CLICK_RIGHT, down);
 }
 
 BOOL LLViewerWindow::handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	BOOL down = FALSE;
- 	return gViewerKeyboard.handleMouse(window, pos, mask, CLICK_RIGHT, down);
+ 	return gViewerInput.handleMouse(window, pos, mask, CLICK_RIGHT, down);
 }
 
 BOOL LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	BOOL down = TRUE;
- 	gViewerKeyboard.handleMouse(window, pos, mask, CLICK_MIDDLE, down);
+ 	gViewerInput.handleMouse(window, pos, mask, CLICK_MIDDLE, down);
   
   	// Always handled as far as the OS is concerned.
 	return TRUE;
@@ -1291,7 +1291,7 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 BOOL LLViewerWindow::handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	BOOL down = FALSE;
- 	gViewerKeyboard.handleMouse(window, pos, mask, CLICK_MIDDLE, down);
+ 	gViewerInput.handleMouse(window, pos, mask, CLICK_MIDDLE, down);
   
   	// Always handled as far as the OS is concerned.
 	return TRUE;
@@ -1302,10 +1302,10 @@ BOOL LLViewerWindow::handleOtherMouse(LLWindow *window, LLCoordGL pos, MASK mask
     switch (button)
     {
     case 4:
-        gViewerKeyboard.handleMouse(window, pos, mask, CLICK_BUTTON4, down);
+        gViewerInput.handleMouse(window, pos, mask, CLICK_BUTTON4, down);
         break;
     case 5:
-        gViewerKeyboard.handleMouse(window, pos, mask, CLICK_BUTTON5, down);
+        gViewerInput.handleMouse(window, pos, mask, CLICK_BUTTON5, down);
         break;
     default:
         break;
@@ -1470,7 +1470,7 @@ BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
 	}
 
     // remaps, handles ignored cases and returns back to viewer window.
-    return gViewerKeyboard.handleKey(key, mask, repeated);
+    return gViewerInput.handleKey(key, mask, repeated);
 }
 
 BOOL LLViewerWindow::handleTranslatedKeyUp(KEY key,  MASK mask)
@@ -1482,13 +1482,13 @@ BOOL LLViewerWindow::handleTranslatedKeyUp(KEY key,  MASK mask)
 		tool_inspectp->keyUp(key, mask);
 	}
 
-	return gViewerKeyboard.handleKeyUp(key, mask);
+	return gViewerInput.handleKeyUp(key, mask);
 }
 
 void LLViewerWindow::handleScanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level)
 {
 	LLViewerJoystick::getInstance()->setCameraNeedsUpdate(true);
-	gViewerKeyboard.scanKey(key, key_down, key_up, key_level);
+	gViewerInput.scanKey(key, key_down, key_up, key_level);
 	return; // Be clear this function returns nothing
 }
 
@@ -2944,7 +2944,7 @@ BOOL LLViewerWindow::handleUnicodeChar(llwchar uni_char, MASK mask)
 		if (mask != MASK_ALT)
 		{
 			// remaps, handles ignored cases and returns back to viewer window.
-			return gViewerKeyboard.handleKey(KEY_RETURN, mask, gKeyboard->getKeyRepeated(KEY_RETURN));
+			return gViewerInput.handleKey(KEY_RETURN, mask, gKeyboard->getKeyRepeated(KEY_RETURN));
 		}
 	}
 

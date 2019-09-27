@@ -285,7 +285,7 @@
    width="110"
    label="Restore Default"
    name="restore_defaults"/>
-  
+
   <scroll_list
    draw_heading="true"
    follows="all"
@@ -315,8 +315,5 @@
      relative_width="0.22"
      label="Control Method 3"
      name="lst_ctrl3" />
-    <scroll_list.commit_callback
-      function="Pref.CommitControl" />
   </scroll_list>
-
 </panel>

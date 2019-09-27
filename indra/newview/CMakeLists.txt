@@ -662,7 +662,7 @@ set(viewer_SOURCE_FILES
     llviewerjointattachment.cpp
     llviewerjointmesh.cpp
     llviewerjoystick.cpp
-    llviewerkeyboard.cpp
+    llviewerinput.cpp
     llviewerlayer.cpp
     llviewermedia.cpp
     llviewermedia_streamingaudio.cpp
@@ -1286,7 +1286,7 @@ set(viewer_HEADER_FILES
     llviewerjointattachment.h
     llviewerjointmesh.h
     llviewerjoystick.h
-    llviewerkeyboard.h
+    llviewerinput.h
     llviewerlayer.h
     llviewermedia.h
     llviewermediafocus.h

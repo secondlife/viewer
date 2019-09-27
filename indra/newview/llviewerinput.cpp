@@ -1,6 +1,6 @@
 /** 
- * @file llviewerkeyboard.cpp
- * @brief LLViewerKeyboard class implementation
+ * @file llviewerinput.cpp
+ * @brief LLViewerInput class implementation
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -26,7 +26,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llviewerkeyboard.h"
+#include "llviewerinput.h"
 
 #include "llappviewer.h"
 #include "llfloaterreg.h"
@@ -65,7 +65,7 @@ struct LLKeyboardActionRegistry
 	LLSINGLETON_EMPTY_CTOR(LLKeyboardActionRegistry);
 };
 
-LLViewerKeyboard gViewerKeyboard;
+LLViewerInput gViewerInput;
 
 bool agent_jump( EKeystate s )
 {
@@ -469,7 +469,6 @@ bool camera_move_forward_sitting( EKeystate s )
 	return true;
 }
 
-
 bool camera_move_backward_sitting( EKeystate s )
 {
 	if( KEYSTATE_UP == s && gAgent.mDoubleTapRunMode != LLAgent::DOUBLETAP_BACKWARD ) return true;
@@ -802,7 +801,7 @@ REGISTER_KEYBOARD_ACTION("toggle_voice", toggle_voice);
 REGISTER_KEYBOARD_ACTION("voice_follow_key", voice_follow_key);
 #undef REGISTER_KEYBOARD_ACTION
 
-LLViewerKeyboard::LLViewerKeyboard()
+LLViewerInput::LLViewerInput()
 {
     resetBindings();
 
@@ -821,7 +820,7 @@ LLViewerKeyboard::LLViewerKeyboard()
 	}
 }
 
-BOOL LLViewerKeyboard::modeFromString(const std::string& string, S32 *mode) const
+BOOL LLViewerInput::modeFromString(const std::string& string, S32 *mode) const
 {
 	if (string == "FIRST_PERSON")
 	{
@@ -855,7 +854,7 @@ BOOL LLViewerKeyboard::modeFromString(const std::string& string, S32 *mode) cons
 	}
 }
 
-BOOL LLViewerKeyboard::mouseFromString(const std::string& string, EMouseClickType *mode) const
+BOOL LLViewerInput::mouseFromString(const std::string& string, EMouseClickType *mode) const
 {
     if (string == "LMB")
     {
@@ -889,10 +888,10 @@ BOOL LLViewerKeyboard::mouseFromString(const std::string& string, EMouseClickTyp
     }
 }
 
-BOOL LLViewerKeyboard::handleKey(KEY translated_key,  MASK translated_mask, BOOL repeated)
+BOOL LLViewerInput::handleKey(KEY translated_key, MASK translated_mask, BOOL repeated)
 {
 	// check for re-map
-	EKeyboardMode mode = gViewerKeyboard.getMode();
+	EKeyboardMode mode = gViewerInput.getMode();
 	U32 keyidx = (translated_mask<<16) | translated_key;
 	key_remap_t::iterator iter = mRemapKeys[mode].find(keyidx);
 	if (iter != mRemapKeys[mode].end())
@@ -927,12 +926,12 @@ BOOL LLViewerKeyboard::handleKey(KEY translated_key,  MASK translated_mask, BOOL
 	return mKeyHandledByUI[translated_key];
 }
 
-BOOL LLViewerKeyboard::handleKeyUp(KEY translated_key, MASK translated_mask)
+BOOL LLViewerInput::handleKeyUp(KEY translated_key, MASK translated_mask)
 {
 	return gViewerWindow->handleKeyUp(translated_key, translated_mask);
 }
 
-BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, const bool ignore, const std::string& function_name)
+BOOL LLViewerInput::bindKey(const S32 mode, const KEY key, const MASK mask, const bool ignore, const std::string& function_name)
 {
 	S32 index;
 	typedef boost::function<bool(EKeystate)> function_t;
@@ -1023,7 +1022,7 @@ BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, c
 	return TRUE;
 }
 
-BOOL LLViewerKeyboard::bindMouse(const S32 mode, const EMouseClickType mouse, const MASK mask, const bool ignore, const std::string& function_name)
+BOOL LLViewerInput::bindMouse(const S32 mode, const EMouseClickType mouse, const MASK mask, const bool ignore, const std::string& function_name)
 {
     S32 index;
     typedef boost::function<bool(EKeystate)> function_t;
@@ -1092,7 +1091,7 @@ BOOL LLViewerKeyboard::bindMouse(const S32 mode, const EMouseClickType mouse, co
     return TRUE;
 }
 
-LLViewerKeyboard::KeyBinding::KeyBinding()
+LLViewerInput::KeyBinding::KeyBinding()
 :	key("key"),
 	mouse("mouse"),
 	mask("mask"),
@@ -1100,11 +1099,11 @@ LLViewerKeyboard::KeyBinding::KeyBinding()
 	ignore("ignore", false)
 {}
 
-LLViewerKeyboard::KeyMode::KeyMode()
+LLViewerInput::KeyMode::KeyMode()
 :	bindings("binding")
 {}
 
-LLViewerKeyboard::Keys::Keys()
+LLViewerInput::Keys::Keys()
 :	first_person("first_person"),
 	third_person("third_person"),
 	edit("edit"),
@@ -1112,7 +1111,7 @@ LLViewerKeyboard::Keys::Keys()
 	edit_avatar("edit_avatar")
 {}
 
-void LLViewerKeyboard::resetBindings()
+void LLViewerInput::resetBindings()
 {
     for (S32 i = 0; i < MODE_COUNT; i++)
     {
@@ -1123,7 +1122,7 @@ void LLViewerKeyboard::resetBindings()
     }
 }
 
-S32 LLViewerKeyboard::loadBindingsXML(const std::string& filename)
+S32 LLViewerInput::loadBindingsXML(const std::string& filename)
 {
     resetBindings();
 
@@ -1143,7 +1142,7 @@ S32 LLViewerKeyboard::loadBindingsXML(const std::string& filename)
 	return binding_count;
 }
 
-S32 LLViewerKeyboard::loadBindingMode(const LLViewerKeyboard::KeyMode& keymode, S32 mode)
+S32 LLViewerInput::loadBindingMode(const LLViewerInput::KeyMode& keymode, S32 mode)
 {
 	S32 binding_count = 0;
 	for (LLInitParam::ParamIterator<KeyBinding>::const_iterator it = keymode.bindings.begin(), 
@@ -1196,7 +1195,7 @@ S32 LLViewerKeyboard::loadBindingMode(const LLViewerKeyboard::KeyMode& keymode, 
 	return binding_count;
 }
 
-EKeyboardMode LLViewerKeyboard::getMode() const
+EKeyboardMode LLViewerInput::getMode() const
 {
 	if ( gAgentCamera.cameraMouselook() )
 	{
@@ -1216,7 +1215,7 @@ EKeyboardMode LLViewerKeyboard::getMode() const
 	}
 }
 
-bool LLViewerKeyboard::scanKey(const LLKeyboardBinding* binding,
+bool LLViewerInput::scanKey(const LLKeyboardBinding* binding,
                                S32 binding_count,
                                KEY key,
                                MASK mask,
@@ -1258,7 +1257,7 @@ bool LLViewerKeyboard::scanKey(const LLKeyboardBinding* binding,
 }
 
 // Called from scanKeyboard.
-bool LLViewerKeyboard::scanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level) const
+bool LLViewerInput::scanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level) const
 {
 	if (LLApp::isExiting())
 	{
@@ -1298,7 +1297,7 @@ bool LLViewerKeyboard::scanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_lev
     return res;
 }
 
-BOOL LLViewerKeyboard::handleMouse(LLWindow *window_impl, LLCoordGL pos, MASK mask, EMouseClickType clicktype, BOOL down)
+BOOL LLViewerInput::handleMouse(LLWindow *window_impl, LLCoordGL pos, MASK mask, EMouseClickType clicktype, BOOL down)
 {
     BOOL handled = gViewerWindow->handleAnyMouseClick(window_impl, pos, mask, clicktype, down);
 
@@ -1370,7 +1369,7 @@ BOOL LLViewerKeyboard::handleMouse(LLWindow *window_impl, LLCoordGL pos, MASK ma
     return handled;
 }
 
-bool LLViewerKeyboard::scanMouse(const LLMouseBinding *binding, S32 binding_count, EMouseClickType mouse, MASK mask, EMouseState state) const
+bool LLViewerInput::scanMouse(const LLMouseBinding *binding, S32 binding_count, EMouseClickType mouse, MASK mask, EMouseState state) const
 {
     for (S32 i = 0; i < binding_count; i++)
     {
@@ -1406,7 +1405,7 @@ bool LLViewerKeyboard::scanMouse(const LLMouseBinding *binding, S32 binding_coun
 }
 
 // todo: this recods key, scanMouse() triggers functions with EKeystate
-bool LLViewerKeyboard::scanMouse(EMouseClickType click, EMouseState state) const
+bool LLViewerInput::scanMouse(EMouseClickType click, EMouseState state) const
 {
     bool res = false;
     S32 mode = getMode();
@@ -1443,7 +1442,7 @@ bool LLViewerKeyboard::scanMouse(EMouseClickType click, EMouseState state) const
     return res;
 }
 
-void LLViewerKeyboard::scanMouse()
+void LLViewerInput::scanMouse()
 {
     for (S32 i = 0; i < CLICK_COUNT; i++)
     {

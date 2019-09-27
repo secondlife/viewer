@@ -28,7 +28,7 @@
 #define LL_LLKEYCONFLICT_H
 
 #include "llkeybind.h"
-#include "llviewerkeyboard.h"
+#include "llviewerinput.h"
 
 
 class LLKeyConflict
@@ -195,7 +195,7 @@ private:
     void registerTemporaryControl(EControlTypes control_type, EMouseClickType mouse_ind, KEY key, MASK mask, U32 conflict_mask);
 
     typedef std::map<EControlTypes, LLKeyConflict> control_map_t;
-    void loadFromSettings(const LLViewerKeyboard::KeyMode& keymode, control_map_t *destination);
+    void loadFromSettings(const LLViewerInput::KeyMode& keymode, control_map_t *destination);
     void loadFromSettings(const ESourceMode &load_mode, const std::string &filename, control_map_t *destination);
     void resetKeyboardBindings();
     void generatePlaceholders(ESourceMode load_mode); //E.x. non-assignable values

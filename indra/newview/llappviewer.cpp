@@ -149,7 +149,7 @@
 #include "llapr.h"
 #include <boost/lexical_cast.hpp>
 
-#include "llviewerkeyboard.h"
+#include "llviewerinput.h"
 #include "lllfsthread.h"
 #include "llworkerthread.h"
 #include "lltexturecache.h"
@@ -1004,11 +1004,11 @@ bool LLAppViewer::init()
 
 	// Load User's bindings
 	std::string key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "keys.xml");
-	if (!gDirUtilp->fileExists(key_bindings_file) || !gViewerKeyboard.loadBindingsXML(key_bindings_file))
+	if (!gDirUtilp->fileExists(key_bindings_file) || !gViewerInput.loadBindingsXML(key_bindings_file))
 	{
 		// Failed to load custom bindings, try default ones
 		key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "keys.xml");
-		if (!gViewerKeyboard.loadBindingsXML(key_bindings_file))
+		if (!gViewerInput.loadBindingsXML(key_bindings_file))
 		{
 			LL_ERRS("InitInfo") << "Unable to open default key bindings from" << key_bindings_file << LL_ENDL;
 		}
@@ -1442,7 +1442,7 @@ bool LLAppViewer::doFrame()
 			{
 				joystick->scanJoystick();
 				gKeyboard->scanKeyboard();
-                gViewerKeyboard.scanMouse();
+                gViewerInput.scanMouse();
 			}
 
 			// Update state based on messages, user input, object idle.

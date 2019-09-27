@@ -37,7 +37,7 @@
 #include "llinitparam.h"
 #include "llkeyboard.h"
 #include "llviewercontrol.h"
-#include "llviewerkeyboard.h"
+#include "llviewerinput.h"
 #include "llxuiparser.h"
 //#include "llstring.h"
 
@@ -117,7 +117,7 @@ static const std::string typetostring[LLKeyConflictHandler::CONTROL_NUM_INDICES]
     "control_cntrl_select"
 };
 
-// note, a solution is needed that will keep this up to date with llviewerkeyboard
+// note, a solution is needed that will keep this up to date with llviewerinput
 typedef std::map<std::string, LLKeyConflictHandler::EControlTypes> control_enum_t;
 static const control_enum_t command_to_key =
 {
@@ -358,9 +358,9 @@ std::string LLKeyConflictHandler::getControlString(EControlTypes control_type, U
     return getStringFromKeyData(mControlsMap[control_type].getKeyData(index));
 }
 
-void  LLKeyConflictHandler::loadFromSettings(const LLViewerKeyboard::KeyMode& keymode, control_map_t *destination)
+void  LLKeyConflictHandler::loadFromSettings(const LLViewerInput::KeyMode& keymode, control_map_t *destination)
 {
-    for (LLInitParam::ParamIterator<LLViewerKeyboard::KeyBinding>::const_iterator it = keymode.bindings.begin(),
+    for (LLInitParam::ParamIterator<LLViewerInput::KeyBinding>::const_iterator it = keymode.bindings.begin(),
         end_it = keymode.bindings.end();
         it != end_it;
     ++it)
@@ -400,7 +400,7 @@ void LLKeyConflictHandler::loadFromSettings(const ESourceMode &load_mode, const 
         return;
     }
 
-    LLViewerKeyboard::Keys keys;
+    LLViewerInput::Keys keys;
     LLSimpleXUIParser parser;
 
     if (parser.readXUI(filename, keys)
@@ -556,7 +556,7 @@ void  LLKeyConflictHandler::saveToSettings()
             gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, ""),
             gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
 
-        LLViewerKeyboard::Keys keys;
+        LLViewerInput::Keys keys;
         LLSimpleXUIParser parser;
 
         if (parser.readXUI(filename, keys)
@@ -566,8 +566,8 @@ void  LLKeyConflictHandler::saveToSettings()
 
             // todo: fix this
             // workaround to avoid doing own param container 
-            LLViewerKeyboard::KeyMode mode;
-            LLViewerKeyboard::KeyBinding binding;
+            LLViewerInput::KeyMode mode;
+            LLViewerInput::KeyBinding binding;
 
             control_map_t::iterator iter = mControlsMap.begin();
             control_map_t::iterator end = mControlsMap.end();
@@ -657,7 +657,7 @@ void  LLKeyConflictHandler::saveToSettings()
             // Now force a rebind for keyboard
             if (gDirUtilp->fileExists(filename))
             {
-                gViewerKeyboard.loadBindingsXML(filename);
+                gViewerInput.loadBindingsXML(filename);
             }
         }
     }
@@ -816,7 +816,7 @@ void LLKeyConflictHandler::resetKeyboardBindings()
         gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, ""),
         gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
     
-    gViewerKeyboard.loadBindingsXML(filename);
+    gViewerInput.loadBindingsXML(filename);
 }
 
 void LLKeyConflictHandler::generatePlaceholders(ESourceMode load_mode)
