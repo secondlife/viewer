@@ -1430,9 +1430,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c34024373db655d35102a62b517c8e48</string>
+              <string>668da467b8263718f15bbbba37f62710</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/34575/288480/havok_source-2012.1-2-darwin64-525665.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/44456/392442/havok_source-2012.1-2-darwin64-531405.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1466,9 +1466,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>876df9eb24cdc7369f9a715470dace27</string>
+              <string>10b825ebd97742ee7a67c11086143c01</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/34578/288494/havok_source-2012.1-2-windows-525665.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/44457/392449/havok_source-2012.1-2-windows-531405.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1478,9 +1478,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e6534ac16156444ec122d19df1c16e63</string>
+              <string>d66ab3aec4baa4e5642cdcfa27ccb523</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/34576/288487/havok_source-2012.1-2-windows64-525665.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/44455/392436/havok_source-2012.1-2-windows64-531405.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
