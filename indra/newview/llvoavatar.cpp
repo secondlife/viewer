@@ -883,8 +883,9 @@ BOOL LLVOAvatar::hasGray() const
 S32 LLVOAvatar::getRezzedStatus() const
 {
 	if (getIsCloud()) return 0;
-	if (isFullyTextured() && allBakedTexturesCompletelyDownloaded()) return 3;
-	if (isFullyTextured()) return 2;
+	bool textured = isFullyTextured();
+	if (textured && allBakedTexturesCompletelyDownloaded()) return 3;
+	if (textured) return 2;
 	llassert(hasGray());
 	return 1; // gray
 }
@@ -7621,14 +7622,13 @@ bool LLVOAvatar::getIsCloud() const
 			);
 }
 
-void LLVOAvatar::updateRezzedStatusTimers()
+void LLVOAvatar::updateRezzedStatusTimers(S32 rez_status)
 {
 	// State machine for rezzed status. Statuses are -1 on startup, 0
 	// = cloud, 1 = gray, 2 = downloading, 3 = full.
 	// Purpose is to collect time data for each it takes avatar to reach
 	// various loading landmarks: gray, textured (partial), textured fully.
 
-	S32 rez_status = getRezzedStatus();
 	if (rez_status != mLastRezzedStatus)
 	{
 		LL_DEBUGS("Avatar") << avString() << "rez state change: " << mLastRezzedStatus << " -> " << rez_status << LL_ENDL;
@@ -7798,8 +7798,13 @@ void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapse
 // returns true if the value has changed.
 BOOL LLVOAvatar::updateIsFullyLoaded()
 {
-	const bool loading = getIsCloud();
-	updateRezzedStatusTimers();
+	S32 rez_status = getRezzedStatus();
+	bool loading = getIsCloud();
+	if (mFirstFullyVisible && !mIsControlAvatar && rez_status < 3)
+	{
+		loading = ((rez_status < 2) || !isFullyBaked());
+	}
+	updateRezzedStatusTimers(rez_status);
 	updateRuthTimer(loading);
 	return processFullyLoadedChange(loading);
 }
@@ -7835,13 +7840,22 @@ void LLVOAvatar::updateRuthTimer(bool loading)
 
 BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
 {
-	// we wait a little bit before giving the all clear,
-	// to let textures settle down
-	const F32 PAUSE = 1.f;
+	// We wait a little bit before giving the 'all clear', to let things to
+	// settle down (models to snap into place, textures to get first packets)
+	const F32 LOADED_DELAY = 1.f;
+	const F32 FIRST_USE_DELAY = 3.f;
+
 	if (loading)
 		mFullyLoadedTimer.reset();
-	
-	mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > PAUSE);
+
+	if (mFirstFullyVisible)
+	{
+		mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > FIRST_USE_DELAY);
+	}
+	else
+	{
+		mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > LOADED_DELAY);
+	}
 
 	if (!mPreviousFullyLoaded && !loading && mFullyLoaded)
 	{
