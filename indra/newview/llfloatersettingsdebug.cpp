@@ -34,6 +34,7 @@
 #include "llcolorswatch.h"
 #include "llviewercontrol.h"
 #include "lltexteditor.h"
+#include "llviewershadermgr.h"
 
 
 LLFloaterSettingsDebug::LLFloaterSettingsDebug(const LLSD& key) 
@@ -207,6 +208,11 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 	getChildView("val_text")->setVisible( FALSE);
 	mComment->setText(LLStringUtil::null);
 
+    getChild<LLUICtrl>("boolean_combo")->setEnabled(true);
+    getChild<LLUICtrl>("TRUE")->setEnabled(true);
+    getChild<LLUICtrl>("FALSE")->setEnabled(true);
+    getChild<LLUICtrl>("default_btn")->setEnabled(true);
+
 	if (controlp)
 	{
 		eControlType type = controlp->type();
@@ -287,6 +293,19 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 				else
 				{
 					getChild<LLUICtrl>("boolean_combo")->setValue(LLSD(""));
+				}
+
+				bool bUseVAO = controlp->getName() == "RenderUseVAO";
+				if (bUseVAO)
+				{
+					bool use_shaders = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 0;
+					getChild<LLUICtrl>("boolean_combo")->setEnabled(use_shaders);
+					getChild<LLUICtrl>("TRUE")->setEnabled(use_shaders);
+					getChild<LLUICtrl>("FALSE")->setEnabled(use_shaders);
+					getChild<LLUICtrl>("default_btn")->setEnabled(use_shaders);
+					if (!use_shaders) {
+						getChild<LLUICtrl>("boolean_combo")->setValue(LLSD(false));
+					}
 				}
 			}
 			break;
