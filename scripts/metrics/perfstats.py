@@ -43,13 +43,11 @@ def xstr(x):
 
 def get_default_export_name(pd_data,prefix="performance"):
     res = None
-    unique_id = pd_data["Session.UniqueHostID"][0]
     session_id = pd_data["Session.UniqueSessionUUID"][0]
-    name = prefix + "_" + str(unique_id)[0:6] + "_" + str(session_id) + ".csv"
+    name = prefix + "_" + str(session_id) + ".csv"
 
     res = name.replace(":",".").replace("Z","").replace("T","-")
-        #fig.savefig("times_histo_outfit_" + label.replace(" ","_").replace("*","") + ".jpg", bbox_inches="tight")
-    print "unique_id",unique_id,"session_id",session_id,"name",res
+    print "session_id",session_id,"name",res
     return res
     
 def export(filename, timers):
@@ -110,6 +108,12 @@ class AttachmentsDerivedField:
                 return tris_with_property/tris_grand_total if tris_grand_total > 0.0 else 0.0
             elif key in sum_graphic_properties:
                 return sum([sd_extract_field(att,"StreamingCost." + key,0.0) for att in attachments])
+            elif key=="ActiveTriangleCount":
+                total = 0
+                for att in attachments:
+                    for prim in att["prims"]:
+                        total += prim["m_triangle_count"]
+                return total
             else:
                 raise IndexError()
 
@@ -307,14 +311,13 @@ def abbrev_number(f):
     else:
         return str(int(f/1e12))+"T"
 
-def get_outfit_spans(pd_data): 
+def get_outfit_spans(pd_data, cost_key="Avatars.Self.ARCCalculated"): 
     results = []
     results = []
     outfit_key = "Avatars.Self.OutfitName"
-    arc_key="Avatars.Self.ARCCalculated"
     time_key="Timers.Frame.Time" 
-    pd_data['span_num'] = (pd_data[arc_key].shift(1) != pd_data[arc_key]).astype(int).cumsum()
-    grouped = pd_data.groupby([outfit_key,arc_key,'span_num'])
+    pd_data['span_num'] = (pd_data[cost_key].shift(1) != pd_data[cost_key]).astype(int).cumsum()
+    grouped = pd_data.groupby([outfit_key,cost_key,'span_num'])
     if args.verbose:
         print "Grouped has",len(grouped),"groups"
     for name, group in grouped:
@@ -326,7 +329,7 @@ def get_outfit_spans(pd_data):
         if (num_frames) > 200 and (duration > 10.0):
             low, high = np.percentile(times,5.0), np.percentile(times,95.0)
             outfit_rec = {"outfit": name[0], 
-                          "arc": name[1],
+                          "cost": name[1],
                           "duration": duration,
                           "num_frames": num_frames,
                           "group": group,
@@ -342,6 +345,7 @@ def get_outfit_spans(pd_data):
                          "Avatars.Self.AttachmentTextures.texture_missing",
                          "Avatars.Self.AttachmentTextures.texture_mpixels",
                          "Derived.Avatar.Attachments.Count",
+                         "Derived.Avatar.Attachments.ActiveTriangleCount",
                          "Derived.Avatar.Attachments.triangles_high",
                          "Derived.Avatar.Attachments.triangles_mid",
                          "Derived.Avatar.Attachments.triangles_low",
@@ -357,9 +361,9 @@ def get_outfit_spans(pd_data):
     df =  pd.DataFrame(results)
     return df
 
-def process_by_outfit(pd_data,cost_key="Avatars.Self.ARCCalculated"):
+def process_by_outfit(pd_data, cost_key="Avatars.Self.ARCCalculated"):
     time_key = "Timers.Frame.Time"
-    outfit_spans = get_outfit_spans(pd_data)
+    outfit_spans = get_outfit_spans(pd_data, cost_key)
     outfit_spans = outfit_spans.sort_values("avg")
     outfits_csv_filename = get_default_export_name(pd_data,"outfits")
     outfit_spans.to_csv(outfits_csv_filename, columns=outfit_spans.columns.difference(['group','times']))
@@ -374,7 +378,7 @@ def process_by_outfit(pd_data,cost_key="Avatars.Self.ARCCalculated"):
     for index, outfit_span in outfit_spans.iterrows():
         outfit = outfit_span["outfit"]
         avg = outfit_span["avg"]
-        arc = outfit_span["arc"]
+        arc = outfit_span["cost"]
         times = outfit_span["times"]
         num_frames = outfit_span["num_frames"]
         timeses.append(times)
@@ -383,14 +387,14 @@ def process_by_outfit(pd_data,cost_key="Avatars.Self.ARCCalculated"):
         errorbar_high = (np.percentile(times,75.0)-avg)
         errorbars_low.append(errorbar_low)
         errorbars_high.append(errorbar_high)
-        label = outfit + " arc " + abbrev_number(arc) + " frames " + str(num_frames)
+        label = outfit + " cost " + abbrev_number(arc) + " frames " + str(num_frames)
         labels.append(label)
         per_outfit_csv_filename = label.replace(" ","_").replace("*","") + ".csv"
         outfit_span["group"].to_csv(per_outfit_csv_filename)
 
     avgs = outfit_spans["avg"]
     costs = outfit_spans[cost_key]
-    arcs = outfit_spans["arc"]
+    arcs = outfit_spans["cost"]
     if num_rows>1:
         try:
             corr = np.corrcoef([costs,avgs,arcs])
@@ -430,7 +434,7 @@ def process_by_outfit(pd_data,cost_key="Avatars.Self.ARCCalculated"):
 def plot_time_series(pd_data,fields):
     time_key = "Timers.Frame.Time"
     print "plot_time_series",fields
-    outfit_spans = get_outfit_spans(pd_data)
+    outfit_spans = get_outfit_spans(pd_data, fields[0])
     for f in fields:
         #pd_data[f] = pd_data[f].clip(0,0.05)
         ax = pd_data.plot(y=f, alpha=0.3)
@@ -440,11 +444,11 @@ def plot_time_series(pd_data,fields):
             x0 = min(index)
             x1 = max(index)
             y = outfit_span["avg"]
-            arc = outfit_span["arc"]
+            cost = outfit_span["cost"]
             outfit = outfit_span["outfit"]
             print "annotate",outfit,(x0,x1),y
             plt.plot((x0,x1),(y,y),"b-")
-            plt.text((x0+x1)/2, y, outfit + " arc " + abbrev_number(arc) , ha='center', va='bottom', rotation='vertical')
+            plt.text((x0+x1)/2, y, outfit + " cost " + abbrev_number(cost) , ha='center', va='bottom', rotation='vertical')
         ax.set_ylim([0,.1])
         fig = ax.get_figure()
         fig.savefig("time_series_" + f + ".jpg")
@@ -506,6 +510,7 @@ if __name__ == "__main__":
                        "Derived.Avatar.Attachments.triangles_mid",
                        "Derived.Avatar.Attachments.triangles_low",
                        "Derived.Avatar.Attachments.triangles_lowest",
+                       "Derived.Avatar.Attachments.ActiveTriangleCount",
                        "Derived.SelfTimers.Render",
     ]
     default_fields.extend(["Derived.Avatar.Attachments." + key for key in bool_graphic_properties])
@@ -633,8 +638,7 @@ if __name__ == "__main__":
             print "median", f, medians[f]
         
     if args.by_outfit:
-        process_by_outfit(pd_data)#,cost_key="Derived.Avatar.Attachments.triangles_high")
-
+        process_by_outfit(pd_data,cost_key="Derived.Avatar.Attachments.ActiveTriangleCount")
     if args.plot_time_series:
         plot_time_series(pd_data, args.plot_time_series)
 
