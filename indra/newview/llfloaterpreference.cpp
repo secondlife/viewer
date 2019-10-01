@@ -43,6 +43,7 @@
 #include "llcombobox.h"
 #include "llcommandhandler.h"
 #include "lldirpicker.h"
+#include "lldrawfrustum.h"
 #include "lleventtimer.h"
 #include "llfeaturemanager.h"
 #include "llfocusmgr.h"
@@ -169,14 +170,15 @@ static const U32 ALLOW_MASKS = 16;
 static const U32 CAN_IGNORE_MASKS = 32; // For example W (aka Forward) should work regardless of SHIFT being pressed
 static const U32 DEFAULT_KEY_FILTER = ALLOW_MOUSE | ALLOW_MASK_MOUSE | ALLOW_KEYS | ALLOW_MASK_KEYS | CAN_IGNORE_MASKS;
 
-class LLSetKeyBindDialog : public LLModalDialog
+class LLSetKeyBindDialog : public LLModalDialog, public LLDrawFrustum
 {
 public:
 	LLSetKeyBindDialog(const LLSD& key);
 	~LLSetKeyBindDialog();
 
 	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onClose(bool app_quiting);
+    /*virtual*/ void onClose(bool app_quiting);
+    /*virtual*/ void draw();
 
 	void setParent(LLPanelPreferenceControls* parent, U32 key_mask = DEFAULT_KEY_FILTER);
 
@@ -271,9 +273,18 @@ void LLSetKeyBindDialog::onClose(bool app_quiting)
     LLModalDialog::onClose(app_quiting);
 }
 
+//virtual
+void LLSetKeyBindDialog::draw()
+{
+    LLRect local_rect;
+    drawFrustum(local_rect, this, (LLView*)getDragHandle(), hasFocus());
+    LLModalDialog::draw();
+}
+
 void LLSetKeyBindDialog::setParent(LLPanelPreferenceControls* parent, U32 key_mask)
 {
     pParent = parent;
+    setFrustumOrigin(parent);
     mKeyFilterMask = key_mask;
 
     LLTextBase *text_ctrl = getChild<LLTextBase>("descritption");
@@ -3053,9 +3064,7 @@ static const controls_to_icon_t commands_and_headers =
 LLPanelPreferenceControls::LLPanelPreferenceControls()
     :LLPanelPreference(),
     mEditingColumn(-1),
-    mEditingMode(0),
-    mShowKeyDialog(false),
-    mHighlightedCell(NULL)
+    mEditingMode(0)
 {
     for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
     {
@@ -3082,41 +3091,6 @@ BOOL LLPanelPreferenceControls::postBuild()
     getChild<LLButton>("restore_defaults")->setCommitCallback(boost::bind(&LLPanelPreferenceControls::onRestoreDefaults, this));
 
     return TRUE;
-}
-
-// Something of a workaround: cells don't handle clicks, so we catch a click, then process it on hover.
-BOOL LLPanelPreferenceControls::handleHover(S32 x, S32 y, MASK mask)
-{
-    if (mShowKeyDialog)
-    {
-        mShowKeyDialog = false;
-        if (!mEditingControl.empty()
-            && mConflictHandler[mEditingMode].canAssignControl(mEditingControl))
-        {
-            LLScrollListItem* item = pControlsTable->getFirstSelected(); // don't use pControlsTable->hitItem(x, y) dur to drift;
-            if (item)
-            {
-                mEditingColumn = pControlsTable->getColumnIndexFromOffset(x);
-                if (mEditingColumn > 0)
-                {
-                    LLScrollListCell* cell = item->getColumn(mEditingColumn);
-                    if (cell)
-                    {
-                        LLSetKeyBindDialog* dialog = LLFloaterReg::showTypedInstance<LLSetKeyBindDialog>("keybind_dialog", LLSD(), TRUE);
-                        if (dialog)
-                        {
-                            dialog->setParent(this, DEFAULT_KEY_FILTER);
-                            cell->setHighlighted(true);
-                            mHighlightedCell = cell;
-                            pControlsTable->deselectAllItems();
-                            return TRUE;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return LLPanelPreference::handleHover(x, y, mask);
 }
 
 void LLPanelPreferenceControls::addGroupRow(const std::string &control_name, const std::string &icon)
@@ -3170,13 +3144,7 @@ void LLPanelPreferenceControls::regenerateControls()
 void LLPanelPreferenceControls::populateControlTable()
 {
     pControlsTable->clearRows();
-
-    if (mHighlightedCell)
-    {
-        mHighlightedCell->setHighlighted(false);
-        mHighlightedCell = NULL;
-    }
-
+    
     // todo: subsections need sorting?
     std::string label, control_name;
     LLScrollListCell::Params cell_params;
@@ -3243,6 +3211,7 @@ void LLPanelPreferenceControls::addSeparator()
 
 void LLPanelPreferenceControls::updateTable()
 {
+    pControlsTable->deselectAllItems();
     mEditingControl.clear();
     std::vector<LLScrollListItem*> list = pControlsTable->getAllData();
     for (S32 i = 0; i < list.size(); ++i)
@@ -3258,12 +3227,6 @@ void LLPanelPreferenceControls::updateTable()
             cell->setValue(mConflictHandler[mEditingMode].getControlString(control, 2));
         }
     }
-
-    if (mHighlightedCell)
-    {
-        mHighlightedCell->setHighlighted(false);
-        mHighlightedCell = NULL;
-    }
 }
 
 void LLPanelPreferenceControls::apply()
@@ -3274,11 +3237,6 @@ void LLPanelPreferenceControls::apply()
         {
             mConflictHandler[i].saveToSettings();
         }
-    }
-    if (mHighlightedCell)
-    {
-        mHighlightedCell->setHighlighted(false);
-        mHighlightedCell = NULL;
     }
 }
 
@@ -3292,11 +3250,6 @@ void LLPanelPreferenceControls::cancel()
         }
     }
     pControlsTable->clear();
-    if (mHighlightedCell)
-    {
-        mHighlightedCell->setHighlighted(false);
-        mHighlightedCell = NULL;
-    }
 }
 
 void LLPanelPreferenceControls::saveSettings()
@@ -3315,11 +3268,6 @@ void LLPanelPreferenceControls::saveSettings()
     {
         regenerateControls();
     }
-    else if (mHighlightedCell)
-    {
-        mHighlightedCell->setHighlighted(false);
-        mHighlightedCell = NULL;
-    }
 }
 
 void LLPanelPreferenceControls::resetDirtyChilds()
@@ -3329,7 +3277,6 @@ void LLPanelPreferenceControls::resetDirtyChilds()
 
 void LLPanelPreferenceControls::onListCommit()
 {
-    mShowKeyDialog = false;
     LLScrollListItem* item = pControlsTable->getFirstSelected();
     if (item == NULL)
     {
@@ -3340,11 +3287,20 @@ void LLPanelPreferenceControls::onListCommit()
 
     if (control.empty())
     {
+        pControlsTable->deselectAllItems();
         return;
     }
 
     if (!mConflictHandler[mEditingMode].canAssignControl(control))
     {
+        pControlsTable->deselectAllItems();
+        return;
+    }
+
+    S32 cell_ind = item->getSelectedCell();
+    if (cell_ind <= 0)
+    {
+        pControlsTable->deselectAllItems();
         return;
     }
 
@@ -3352,13 +3308,27 @@ void LLPanelPreferenceControls::onListCommit()
     // fresh mouse coordinates are not yet accessible during onCommit() and there are other issues,
     // so we cheat: remember item user clicked at, trigger 'key dialog' on hover that comes next,
     // use coordinates from hover to calculate cell
-    mEditingControl = control;
-    mShowKeyDialog = true;
 
-    if (mHighlightedCell)
+    LLScrollListCell* cell = item->getColumn(cell_ind);
+    if (cell)
     {
-        mHighlightedCell->setHighlighted(false);
-        mHighlightedCell = NULL;
+        LLSetKeyBindDialog* dialog = LLFloaterReg::getTypedInstance<LLSetKeyBindDialog>("keybind_dialog", LLSD());
+        if (dialog)
+        {
+            mEditingControl = control;
+            mEditingColumn = cell_ind;
+            dialog->setParent(this, DEFAULT_KEY_FILTER);
+
+            LLFloater* root_floater = gFloaterView->getParentFloater(this);
+            if (root_floater)
+                root_floater->addDependentFloater(dialog);
+            dialog->openFloater();
+            dialog->setFocus(TRUE);
+        }
+    }
+    else
+    {
+        pControlsTable->deselectAllItems();
     }
 }
 
@@ -3375,8 +3345,6 @@ void LLPanelPreferenceControls::onSetKeyBind(EMouseClickType click, KEY key, MAS
         return;
     }
 
-    pControlsTable->deselectAllItems();
-    pControlsTable->selectByValue(mEditingControl);
     if ( mEditingColumn > 0)
     {
         mConflictHandler[mEditingMode].registerControl(mEditingControl, mEditingColumn - 1, click, key, mask, ignore_mask);
@@ -3399,10 +3367,7 @@ void LLPanelPreferenceControls::onDefaultKeyBind()
     {
         return;
     }
-
-    pControlsTable->deselectAllItems();
-    pControlsTable->selectByValue(mEditingControl);
-
+    
     if (mEditingColumn > 0)
     {
         mConflictHandler[mEditingMode].resetToDefault(mEditingControl, mEditingColumn - 1);
@@ -3412,11 +3377,7 @@ void LLPanelPreferenceControls::onDefaultKeyBind()
 
 void LLPanelPreferenceControls::onCancelKeyBind()
 {
-    if (mHighlightedCell)
-    {
-        mHighlightedCell->setHighlighted(false);
-        mHighlightedCell = NULL;
-    }
+    pControlsTable->deselectAllItems();
 }
 
 LLFloaterPreferenceGraphicsAdvanced::LLFloaterPreferenceGraphicsAdvanced(const LLSD& key)
