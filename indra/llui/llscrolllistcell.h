@@ -60,7 +60,7 @@ public:
 
 		Optional<void*>				userdata;
 		Optional<LLSD>				value; // state of checkbox, icon id/name, date
-		Optional<std::string>		text; // description or text
+		Optional<std::string>		label; // description or text
 		Optional<std::string>		tool_tip;
 
 		Optional<const LLFontGL*>	font;
@@ -70,12 +70,13 @@ public:
 		Optional<LLColor4>			color;
 
 		Params()
-		:	type("type", "text"),
+		:	type("cell_type", "text"), // Don't use "type", it overlaps with xml's parameter
 			column("column"),
 			width("width"),
 			enabled("enabled", true),
 			visible("visible", true),
 			value("value"),
+			label("label"),
 			tool_tip("tool_tip", ""),
 			font("font", LLFontGL::getFontSansSerifSmall()),
 			font_color("font_color", LLColor4::black),
@@ -103,7 +104,6 @@ public:
 	virtual BOOL			getVisible() const { return TRUE; }
 	virtual void			setWidth(S32 width) { mWidth = width; }
 	virtual void			highlightText(S32 offset, S32 num_chars) {}
-	virtual void			setHighlighted(bool highlighted) {}
 	virtual BOOL			isText() const { return FALSE; }
 	virtual BOOL			needsToolTip() const { return ! mToolTip.empty(); }
 	virtual void			setColor(const LLColor4&) {}
@@ -141,7 +141,6 @@ public:
 	/*virtual*/ const LLSD getValue() const;
 	/*virtual*/ BOOL	getVisible() const;
 	/*virtual*/ void	highlightText(S32 offset, S32 num_chars);
-	/*virtual*/ void	setHighlighted(bool highlighted);
 
 	/*virtual*/ void	setColor(const LLColor4&);
 	/*virtual*/ BOOL	isText() const;
@@ -160,6 +159,7 @@ protected:
 	S32				mTextWidth;
 	const LLFontGL*	mFont;
 	LLColor4		mColor;
+	LLColor4		mHighlightColor;
 	U8				mUseColor;
 	LLFontGL::HAlign mFontAlignment;
 	BOOL			mVisible;
