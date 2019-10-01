@@ -314,6 +314,7 @@ LLPanelObject::LLPanelObject()
 	mSculptTextureRevert(LLUUID::null),
 	mSculptTypeRevert(0),
 	mSizeChanged(FALSE),
+    mHasParamsClipboard(FALSE),
     mHasPosClipboard(FALSE),
     mHasSizeClipboard(FALSE),
     mHasRotClipboard(FALSE)
@@ -473,7 +474,7 @@ void LLPanelObject::getState( )
     mBtnPasteRot->setEnabled( enable_rotate && mHasRotClipboard );
 
     mBtnCopyParams->setEnabled( single_volume && enable_modify );
-    mBtnPasteParams->setEnabled( single_volume && enable_modify );
+    mBtnPasteParams->setEnabled( single_volume && enable_modify && mHasParamsClipboard );
 
 	LLUUID owner_id;
 	std::string owner_name;
@@ -2284,13 +2285,13 @@ void LLPanelObject::onCopyParams(const LLSD& data)
             mParamsClipboard["physics_material"] = material_code;
         }
     }
-    
+    mBtnPasteParams->setEnabled(TRUE);
 }
 
 void LLPanelObject::onPasteParams(const LLSD& data)
 {
     LLViewerObject* objectp = mObject;
-    if (!objectp)
+    if (!objectp || !mHasParamsClipboard)
     {
         return;
     }
