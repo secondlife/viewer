@@ -2988,16 +2988,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d583294eec6183db62f2b5a4e94a432c</string>
+              <string>2e7b4afeac45cf8c2126833fc94ae9d9</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/44140/390938/slvoice-4.9.0002.32137.3410b595.531323-windows64-531323.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/44530/393171/slvoice-4.9.0002.32137.3410b595.531460-windows64-531460.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.9.0002.32137.3410b595.531323</string>
+        <string>4.9.0002.32137.3410b595.531460</string>
       </map>
       <key>tut</key>
       <map>
