@@ -208,7 +208,7 @@ def sd_extract_field(sd,key,default_val=None):
         return default_val
 
 def collect_pandas_frame_data(filename, fields, max_records, **kwargs):
-    # previously generated cvs file?
+    # previously generated csv file?
     if re.match(".*\.csv$", filename):
         if args.filter_csv:
             return pd.DataFrame.from_csv(filename)[fields]
@@ -232,7 +232,7 @@ def collect_pandas_frame_data(filename, fields, max_records, **kwargs):
 
     return pd.DataFrame(frame_data,columns=header)
 
-def get_timer_info(filename):
+def get_nested_timer_info(filename):
     iter_rec = iter(get_frame_record(filename))
     sd = next(iter_rec)
     child_info = {}
@@ -338,12 +338,6 @@ def get_outfit_spans(pd_data, cost_key="Avatars.Self.ARCCalculated"):
                           "std": np.std(times), 
                           "times": times}
             std_props = ["Avatars.Self.ARCCalculated",
-                         "Avatars.Self.AttachmentTextures.material_texture_count",
-                         "Avatars.Self.AttachmentTextures.material_texture_missing",
-                         "Avatars.Self.AttachmentTextures.material_texture_mpixels",
-                         "Avatars.Self.AttachmentTextures.texture_count",
-                         "Avatars.Self.AttachmentTextures.texture_missing",
-                         "Avatars.Self.AttachmentTextures.texture_mpixels",
                          "Derived.Avatar.Attachments.Count",
                          "Derived.Avatar.Attachments.ActiveTriangleCount",
                          "Derived.Avatar.Attachments.triangles_high",
@@ -488,22 +482,12 @@ def extract_percent(df, key="Timers.Frame.Time", low=0.0, high=100.0, filename="
 if __name__ == "__main__":
 
     default_fields = [ "Timers.Frame.Time", 
-                       "Timers.Render.Time", 
-                       "Timers.UI.Time", 
                        "Session.UniqueHostID", 
                        "Session.UniqueSessionUUID", 
                        "Summary.Timestamp", 
                        "Avatars.Self.ARCCalculated", 
                        "Avatars.Self.OutfitName", 
                        "Avatars.Self.AttachmentSurfaceArea",
-                       "Avatars.Self.AttachmentTextures.material_texture_count",
-                       "Avatars.Self.AttachmentTextures.material_texture_missing",
-                       "Avatars.Self.AttachmentTextures.material_texture_mpixels",
-                       "Avatars.Self.AttachmentTextures.texture_count",
-                       "Avatars.Self.AttachmentTextures.texture_missing",
-                       "Avatars.Self.AttachmentTextures.texture_mpixels",
-                       "Derived.Timers.NonRender", 
-                       "Derived.Timers.SceneRender",
                        "Derived.Avatar.Attachments.Count",
                        "Derived.Avatar.Attachments.MeshCount",
                        "Derived.Avatar.Attachments.triangles_high",
@@ -511,7 +495,6 @@ if __name__ == "__main__":
                        "Derived.Avatar.Attachments.triangles_low",
                        "Derived.Avatar.Attachments.triangles_lowest",
                        "Derived.Avatar.Attachments.ActiveTriangleCount",
-                       "Derived.SelfTimers.Render",
     ]
     default_fields.extend(["Derived.Avatar.Attachments." + key for key in bool_graphic_properties])
     default_fields.extend(["Derived.Avatar.Attachments." + key for key in sum_graphic_properties])
@@ -522,6 +505,7 @@ if __name__ == "__main__":
     parser.add_argument("--summarize", action="store_true", help="show summary of results")
     parser.add_argument("--fields", help="specify fields to be extracted or calculated", nargs="+", default=[])
     parser.add_argument("--timers", help="specify timer keys to be added to fields", nargs="+", default=[])
+    parser.add_argument("--nested_timers", help="support nested timers", action="store_true", default=False)
     parser.add_argument("--filter_csv", action="store_true", help="restrict to requested fields/timers when reading csv files too")
     parser.add_argument("--child_timers", help="include children of specified timer keys in fields", nargs="+", default=[])
     parser.add_argument("--no_reparented", action="store_true", help="ignore timers that have been reparented directly or indirectly")
@@ -534,21 +518,24 @@ if __name__ == "__main__":
     parser.add_argument("infilename", help="name of performance or csv file", nargs="?", default="performance.slp")
     args = parser.parse_args()
 
-    print "start get_timer_info"
-    child_info, parent_info, all_keys, reparented_timers, directly_reparented = get_timer_info("performance.slp")
-    print "done get_timer_info"
+    if (args.nested_timers):
+        # this specifically requires an slp file, since a pre-processed csv will have discarded timer parent info
+        child_info, parent_info, all_timer_keys, reparented_timers, directly_reparented = get_nested_timer_info("performance.slp")
+        all_self_timers = sorted(["Derived.SelfTimers." + key for key in all_timer_keys])
+    else:
+        all_timer_keys = ["Frame"]
+        all_self_timers = None
+        child_info = None
 
     if args.no_reparented:
         print len(reparented_timers),"are reparented, of which",len(directly_reparented),"reparented directly"
         print ", ".join(sorted(reparented_timers))
         print
         print ", ".join(sorted(directly_reparented))
-        all_keys = [key for key in all_keys if key not in reparented_timers]
+        all_timer_keys = [key for key in all_timer_keys if key not in reparented_timers]
 
-    all_timers = sorted(["Timers." + key + ".Time" for key in all_keys])
-    all_calls = sorted(["Timers." + key + ".Calls" for key in all_keys])
-    all_self_timers = sorted(["Derived.SelfTimers." + key for key in all_keys])
-
+    all_timers = sorted(["Timers." + key + ".Time" for key in all_timer_keys])
+    all_calls = sorted(["Timers." + key + ".Calls" for key in all_timer_keys])
 
     # handle special values for fields
     newargs = []
