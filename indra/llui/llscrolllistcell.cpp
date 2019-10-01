@@ -172,7 +172,7 @@ U32 LLScrollListText::sCount = 0;
 
 LLScrollListText::LLScrollListText(const LLScrollListCell::Params& p)
 :	LLScrollListCell(p),
-	mText(p.text.isProvided() ? p.text() : p.value().asString()),
+	mText(p.label.isProvided() ? p.label() : p.value().asString()),
 	mFont(p.font),
 	mColor(p.color),
 	mUseColor(p.color.isProvided()),
@@ -197,13 +197,6 @@ void LLScrollListText::highlightText(S32 offset, S32 num_chars)
 {
 	mHighlightOffset = offset;
 	mHighlightCount = llmax(0, num_chars);
-}
-
-//virtual
-void LLScrollListText::setHighlighted(bool highlighted)
-{
-    mHighlightOffset = 0;
-    mHighlightCount = highlighted ? -1 : 0;
 }
 
 //virtual 
@@ -322,15 +315,6 @@ void LLScrollListText::draw(const LLColor4& color, const LLColor4& highlight_col
 				left + mFont->getWidth(mText.getString(), mHighlightOffset, mHighlightCount) + 1, 
 				1);
 		mRoundedRectImage->draw(highlight_rect, highlight_color);
-	}
-	else if (mHighlightCount < 0)
-	{
-		// Highlight whole cell
-		LLRect highlight_rect(0,
-		getHeight(),
-		getWidth() - 1,
-		-1);
-		gl_rect_2d(highlight_rect, LLColor4(0.38f, 0.694f, 0.573f, 0.35f));
 	}
 
 	// Try to draw the entire string
