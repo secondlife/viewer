@@ -302,7 +302,6 @@ public:
 	~LLPanelPreferenceControls();
 
 	BOOL postBuild();
-	BOOL handleHover(S32 x, S32 y, MASK mask);
 
 	void apply();
 	void cancel();
@@ -325,12 +324,10 @@ private:
 
 	LLScrollListCtrl* pControlsTable;
 	LLComboBox *pKeyModeBox;
-	LLScrollListCell *mHighlightedCell;
 	LLKeyConflictHandler mConflictHandler[LLKeyConflictHandler::MODE_COUNT];
 	std::string mEditingControl;
 	S32 mEditingColumn;
 	S32 mEditingMode;
-	bool mShowKeyDialog;
 };
 
 class LLFloaterPreferenceGraphicsAdvanced : public LLFloater

@@ -256,13 +256,13 @@
    width="110"
    name="key_mode">
     <combo_box.item
-     label="First Person "
-     name="first_person"
-     value="0"/>
-    <combo_box.item
      label="Third Person "
      name="third_person"
      value="1"/>
+    <combo_box.item
+     label="First Person "
+     name="first_person"
+     value="0"/>
     <combo_box.item
      label="Edit"
      name="edit"
@@ -292,13 +292,13 @@
    follows="all"
    layout="topleft"
    column_padding="0"
+   selection_type="header"
    top="31"
    left="3"
    bottom="-3"
    right="-3"
    can_sort="false"
    multi_select="false"
-   bg_selected_color="Transparent"
    name="controls_list">
     <scroll_list.columns
      relative_width="0.34"
