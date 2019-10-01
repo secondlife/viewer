@@ -28,6 +28,7 @@
 #define LLFLOATERAVATARPICKER_H
 
 #include "llfloater.h"
+#include "lldrawfrustum.h"
 #include "lleventcoro.h"
 #include "llcoros.h"
 
@@ -36,7 +37,7 @@
 class LLAvatarName;
 class LLScrollListCtrl;
 
-class LLFloaterAvatarPicker :public LLFloater
+class LLFloaterAvatarPicker :public LLFloater, public LLDrawFrustum
 {
 public:
 	typedef boost::signals2::signal<bool(const uuid_vec_t&), boost_boolean_combiner> validate_signal_t;
@@ -91,7 +92,6 @@ private:
 	void setAllowMultiple(BOOL allow_multiple);
 	LLScrollListCtrl* getActiveList();
 
-    void drawFrustum();
 	virtual void draw();
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
 
@@ -100,11 +100,6 @@ private:
 	BOOL				mNearMeListComplete;
 	BOOL				mCloseOnSelect;
 	BOOL                mExcludeAgentFromSearchResults;
-    LLHandle <LLView>   mFrustumOrigin;
-    F32		            mContextConeOpacity;
-    F32                 mContextConeInAlpha;
-    F32                 mContextConeOutAlpha;
-    F32                 mContextConeFadeTime;
 
 	validate_signal_t mOkButtonValidateSignal;
 	select_callback_t mSelectionCallback;

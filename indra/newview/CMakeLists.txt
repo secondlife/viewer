@@ -179,6 +179,7 @@ set(viewer_SOURCE_FILES
     lldonotdisturbnotificationstorage.cpp
     lldndbutton.cpp
     lldrawable.cpp
+    lldrawfrustum.cpp
     lldrawpool.cpp
     lldrawpoolalpha.cpp
     lldrawpoolavatar.cpp
@@ -807,6 +808,7 @@ set(viewer_HEADER_FILES
     lldonotdisturbnotificationstorage.h
     lldndbutton.h
     lldrawable.h
+    lldrawfrustum.h
     lldrawpool.h
     lldrawpoolalpha.h
     lldrawpoolavatar.h
