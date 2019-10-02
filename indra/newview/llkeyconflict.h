@@ -62,7 +62,7 @@ public:
         MODE_EDIT,
         MODE_EDIT_AVATAR,
         MODE_SITTING,
-        MODE_GENERAL, // for settings from saved settings
+        MODE_SAVED_SETTINGS, // for settings from saved settings
         MODE_COUNT
     };
 
