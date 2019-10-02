@@ -463,37 +463,13 @@
   enabled_control="EnableVoiceChat"
   control_name="PushToTalkToggle"
   height="15"
-  label="Toggle speak on/off when I press:"
+  label="Toggle speak on/off when I press button in toolbar"
   layout="topleft"
   left="44"
   name="push_to_talk_toggle_check"
   width="237"
   tool_tip="When in toggle mode, press and release the trigger key ONCE to switch your microphone on or off. When not in toggle mode, the microphone broadcasts your voice only while the trigger is being held down."
   top_pad="3"/>
-  <line_editor
-   follows="top|left"
-   control_name="PushToTalkButton"
-   enabled="false"
-   enabled_control="EnableVoiceChat"
-   height="23"
-   left="80"
-   max_length_bytes="200"
-   name="modifier_combo"
-   label="Push-to-Speak trigger"
-   top_pad="3"
-   width="200" />
-  <button
-   layout="topleft"
-   follows="top|left"
-   enabled_control="EnableVoiceChat"
-   height="23"
-   label="Set Key"
-   left_pad="5"
-   name="set_voice_hotkey_button"
-   width="100">
-    <button.commit_callback
-    function="Pref.VoiceSetKey" />
-  </button>
   <button
      enabled_control="EnableVoiceChat"
      follows="top|left"

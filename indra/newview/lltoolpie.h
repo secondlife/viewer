@@ -110,7 +110,6 @@ private:
 	LLPointer<LLHUDEffectBlob>	mAutoPilotDestination;
 	LLPointer<LLHUDEffectBlob>	mMouseSteerGrabPoint;
 	bool				mClockwise;			
-	bool				mBlockClickToWalk;
 	LLUUID				mMediaMouseCaptureID;
 	LLPickInfo			mPick;
 	LLPickInfo			mHoverPick;

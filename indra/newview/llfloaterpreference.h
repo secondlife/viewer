@@ -130,13 +130,6 @@ protected:
 	// callback for when client turns on impostors
 	void onAvatarImpostorsEnable();
 
-	// callback for commit in the "Single click on land" and "Double click on land" comboboxes.
-	void onClickActionChange();
-	// updates click/double-click action settings depending on controls values
-	void updateClickActionSettings();
-	// updates click/double-click action controls depending on values from settings.xml
-	void updateClickActionControls();
-
 public:
 	// This function squirrels away the current values of the controls so that
 	// cancel() can restore them.	
@@ -149,7 +142,6 @@ public:
 	void onClickResetCache();
 	void onClickSkin(LLUICtrl* ctrl,const LLSD& userdata);
 	void onSelectSkin();
-	void onClickSetKey();
 	void onClickSetMiddleMouse();
 	void onClickSetSounds();
 	void onClickEnablePopup();
@@ -205,7 +197,6 @@ private:
 
 	static std::string sSkin;
 	notifications_map mNotificationOptions;
-	bool mClickActionDirty; ///< Set to true when the click/double-click options get changed by user.
 	bool mGotPersonalInfo;
 	bool mOriginalIMViaEmail;
 	bool mLanguageChanged;
@@ -317,7 +308,6 @@ public:
 	void onCancelKeyBind();
 
 private:
-	void addGroupRow(const std::string &control_name, const std::string &icon);
 	void regenerateControls();
 	void populateControlTable();
 	void addSeparator();

@@ -166,7 +166,8 @@ bool LLKeyConflictHandler::canAssignControl(const std::string &control_name)
     {
         return iter->second.mAssignable;
     }
-    return false;
+    // If we don't know this control means it wasn't assigned by user yet and thus is editable
+    return true;
 }
 
 bool LLKeyConflictHandler::registerControl(const std::string &control_name, U32 index, EMouseClickType mouse, KEY key, MASK mask, bool ignore_mask)
@@ -346,7 +347,7 @@ void LLKeyConflictHandler::loadFromSettings(ESourceMode load_mode)
     // E.X. In case we need placeholder keys for conflict resolution.
     generatePlaceholders(load_mode);
 
-    if (load_mode == MODE_GENERAL)
+    if (load_mode == MODE_SAVED_SETTINGS)
     {
         // load settings clss knows about, but it also possible to load settings by name separately
         const S32 size = std::extent<decltype(saved_settings_key_controls)>::value;
@@ -383,7 +384,7 @@ void LLKeyConflictHandler::saveToSettings()
         return;
     }
 
-    if (mLoadMode == MODE_GENERAL)
+    if (mLoadMode == MODE_SAVED_SETTINGS)
     {
         control_map_t::iterator iter = mControlsMap.begin();
         control_map_t::iterator end = mControlsMap.end();
@@ -548,7 +549,7 @@ LLKeyData LLKeyConflictHandler::getDefaultControl(const std::string &control_nam
     {
         return LLKeyData();
     }
-    if (mLoadMode == MODE_GENERAL)
+    if (mLoadMode == MODE_SAVED_SETTINGS)
     {
         LLControlVariablePtr var = gSavedSettings.getControl(control_name);
         if (var)
@@ -590,7 +591,7 @@ void LLKeyConflictHandler::resetToDefaultAndResolve(const std::string &control_n
     {
         return;
     }
-    if (mLoadMode == MODE_GENERAL)
+    if (mLoadMode == MODE_SAVED_SETTINGS)
     {
         LLControlVariablePtr var = gSavedSettings.getControl(control_name);
         if (var)
@@ -639,7 +640,7 @@ void LLKeyConflictHandler::resetToDefault(const std::string &control_name)
 
 void LLKeyConflictHandler::resetToDefaults(ESourceMode mode)
 {
-    if (mode == MODE_GENERAL)
+    if (mode == MODE_SAVED_SETTINGS)
     {
         control_map_t::iterator iter = mControlsMap.begin();
         control_map_t::iterator end = mControlsMap.end();

@@ -564,8 +564,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mGotPersonalInfo(false),
 	mOriginalIMViaEmail(false),
 	mLanguageChanged(false),
-	mAvatarDataInitialized(false),
-	mClickActionDirty(false)
+	mAvatarDataInitialized(false)
 {
 	LLConversationLog::instance().addObserver(this);
 
@@ -587,7 +586,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.ResetCache",				boost::bind(&LLFloaterPreference::onClickResetCache, this));
 	mCommitCallbackRegistrar.add("Pref.ClickSkin",				boost::bind(&LLFloaterPreference::onClickSkin, this,_1, _2));
 	mCommitCallbackRegistrar.add("Pref.SelectSkin",				boost::bind(&LLFloaterPreference::onSelectSkin, this));
-	mCommitCallbackRegistrar.add("Pref.VoiceSetKey",			boost::bind(&LLFloaterPreference::onClickSetKey, this));
 	mCommitCallbackRegistrar.add("Pref.VoiceSetMiddleMouse",	boost::bind(&LLFloaterPreference::onClickSetMiddleMouse, this));
 	mCommitCallbackRegistrar.add("Pref.SetSounds",				boost::bind(&LLFloaterPreference::onClickSetSounds, this));
 	mCommitCallbackRegistrar.add("Pref.ClickEnablePopup",		boost::bind(&LLFloaterPreference::onClickEnablePopup, this));
@@ -614,8 +612,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.Advanced",				boost::bind(&LLFloaterPreference::onClickAdvanced, this));
 
 	sSkin = gSavedSettings.getString("SkinCurrent");
-
-	mCommitCallbackRegistrar.add("Pref.ClickActionChange",		boost::bind(&LLFloaterPreference::onClickActionChange, this));
 
 	gSavedSettings.getControl("NameTagShowUsernames")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 	gSavedSettings.getControl("NameTagShowFriends")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
@@ -883,12 +879,6 @@ void LLFloaterPreference::apply()
 	}
 
 	saveAvatarProperties();
-
-	if (mClickActionDirty)
-	{
-		updateClickActionSettings();
-		mClickActionDirty = false;
-	}
 }
 
 void LLFloaterPreference::cancel()
@@ -920,12 +910,6 @@ void LLFloaterPreference::cancel()
 	
 	// reverts any changes to current skin
 	gSavedSettings.setString("SkinCurrent", sSkin);
-
-	if (mClickActionDirty)
-	{
-		updateClickActionControls();
-		mClickActionDirty = false;
-	}
 
 	LLFloaterPreferenceProxy * advanced_proxy_settings = LLFloaterReg::findTypedInstance<LLFloaterPreferenceProxy>("prefs_proxy");
 	if (advanced_proxy_settings)
@@ -1008,9 +992,6 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	onChangeTextureFolder();
 	onChangeSoundFolder();
 	onChangeAnimationFolder();
-
-	// Load (double-)click to walk/teleport settings.
-	updateClickActionControls();
 	
 	// Enabled/disabled popups, might have been changed by user actions
 	// while preferences floater was closed.
@@ -1848,10 +1829,6 @@ void LLFloaterPreference::onChangeQuality(const LLSD& data)
 	refresh();
 }
 
-void LLFloaterPreference::onClickSetKey()
-{
-}
-
 void LLFloaterPreference::onClickSetMiddleMouse()
 {
 	LLUICtrl* p2t_line_editor = getChild<LLUICtrl>("modifier_combo");
@@ -2335,11 +2312,6 @@ void LLFloaterPreference::onClickAdvanced()
 	}
 }
 
-void LLFloaterPreference::onClickActionChange()
-{
-	mClickActionDirty = true;
-}
-
 void LLFloaterPreference::onClickPermsDefault()
 {
 	LLFloaterReg::showInstance("perms_default");
@@ -2375,26 +2347,6 @@ void LLFloaterPreference::onLogChatHistorySaved()
 	{
 		delete_transcripts_buttonp->setEnabled(true);
 	}
-}
-
-void LLFloaterPreference::updateClickActionSettings()
-{
-	const int single_clk_action = getChild<LLComboBox>("single_click_action_combo")->getValue().asInteger();
-	const int double_clk_action = getChild<LLComboBox>("double_click_action_combo")->getValue().asInteger();
-
-	gSavedSettings.setBOOL("ClickToWalk",			single_clk_action == 1);
-	gSavedSettings.setBOOL("DoubleClickAutoPilot",	double_clk_action == 1);
-	gSavedSettings.setBOOL("DoubleClickTeleport",	double_clk_action == 2);
-}
-
-void LLFloaterPreference::updateClickActionControls()
-{
-	const bool click_to_walk = gSavedSettings.getBOOL("ClickToWalk");
-	const bool dbl_click_to_walk = gSavedSettings.getBOOL("DoubleClickAutoPilot");
-	const bool dbl_click_to_teleport = gSavedSettings.getBOOL("DoubleClickTeleport");
-
-	getChild<LLComboBox>("single_click_action_combo")->setValue((int)click_to_walk);
-	getChild<LLComboBox>("double_click_action_combo")->setValue(dbl_click_to_teleport ? 2 : (int)dbl_click_to_walk);
 }
 
 void LLFloaterPreference::applyUIColor(LLUICtrl* ctrl, const LLSD& param)
@@ -2997,70 +2949,6 @@ void LLPanelPreferenceGraphics::setHardwareDefaults()
 //------------------------LLPanelPreferenceControls--------------------------------
 static LLPanelInjector<LLPanelPreferenceControls> t_pref_contrls("panel_preference_controls");
 
-//name of control and name of icon if it is a group, likely 'TEMP' until xml gets properly populated
-typedef std::vector<std::pair<std::string, std::string> > controls_to_icon_t;
-static const controls_to_icon_t commands_and_headers =
-{
-    //{ "control_view_actions", "Search_Icon" },
-    //{ "control_interactions", "Command_Gestures_Icon" },
-    { "control_movements", "Move_Walk_Off" },
-    { "walk_to", "" },
-    { "teleport_to", "" },
-    { "push_forward", "" },
-    { "push_backward", "" },
-    { "turn_left", "" },
-    { "turn_right", "" },
-    { "slide_left", "" },
-    { "slide_right", "" },
-    { "jump", "" },
-    { "push_down", "" },
-    { "run_forward", "" },
-    { "run_backward", "" },
-    { "run_left", "" },
-    { "run_right", "" },
-    { "toggle_run", "" },
-    { "toggle_fly", "" },
-    { "toggle_sit", "" },
-    { "stop_moving", "" },
-    { "control_camera", "Cam_FreeCam_Off" },
-    { "look_up", "" },
-    { "look_down", "" },
-    { "move_forward", "" },
-    { "move_backward", "" },
-    { "move_forward_fast", "" },
-    { "move_backward_fast", "" },
-    { "move_forward_sitting", "" },
-    { "move_backward_sitting", "" },
-    { "spin_over", "" },
-    { "spin_under", "" },
-    { "spin_over_sitting", "" },
-    { "spin_under_sitting", "" },
-    { "pan_up", "" },
-    { "pan_down", "" },
-    { "pan_left", "" },
-    { "pan_right", "" },
-    { "pan_in", "" },
-    { "pan_out", "" },
-    { "spin_around_ccw", "" },
-    { "spin_around_cw", "" },
-    { "spin_around_ccw_sitting", "" },
-    { "spin_around_cw_sitting", "" },
-    { "control_edit_title", "Tool_Dozer" },
-    { "edit_avatar_spin_ccw", "" },
-    { "edit_avatar_spin_cw", "" },
-    { "edit_avatar_spin_over", "" },
-    { "edit_avatar_spin_under", "" },
-    { "edit_avatar_move_forward", "" },
-    { "edit_avatar_move_backward", "" },
-    { "control_mediacontent", "Audio_Press" },
-    { "toggle_pause_media", "" },
-    { "toggle_enable_media", "" },
-    { "voice_follow_key", "" },
-    { "toggle_voice", "" },
-    { "start_chat", "" },
-    { "start_gesture", "" },
-};
-
 LLPanelPreferenceControls::LLPanelPreferenceControls()
     :LLPanelPreference(),
     mEditingColumn(-1),
@@ -3078,10 +2966,6 @@ LLPanelPreferenceControls::~LLPanelPreferenceControls()
 
 BOOL LLPanelPreferenceControls::postBuild()
 {
-    //todo: add pitch/yaw?
-    //todo: should be auto-expandable with menu items and should pull names from menu when possible
-
-
     // populate list of controls
     pControlsTable = getChild<LLScrollListCtrl>("controls_list");
     pKeyModeBox = getChild<LLComboBox>("key_mode");
@@ -3091,47 +2975,6 @@ BOOL LLPanelPreferenceControls::postBuild()
     getChild<LLButton>("restore_defaults")->setCommitCallback(boost::bind(&LLPanelPreferenceControls::onRestoreDefaults, this));
 
     return TRUE;
-}
-
-void LLPanelPreferenceControls::addGroupRow(const std::string &control_name, const std::string &icon)
-{
-    LLScrollListItem::Params item_params;
-    item_params.value = "";
-
-    LLScrollListCell::Params icon_cell_params;
-    icon_cell_params.font = LLFontGL::getFontSansSerif();
-    icon_cell_params.font_halign = LLFontGL::LEFT;
-    icon_cell_params.type = "icontext";
-
-    LLScrollListCell::Params cell_params;
-    // init basic cell params
-    cell_params.font = LLFontGL::getFontSansSerif();
-    cell_params.font_halign = LLFontGL::LEFT;
-
-    std::string label;
-    if (hasString(control_name))
-    {
-        label = getString(control_name);
-    }
-    else
-    {
-        label = control_name;
-    }
-    icon_cell_params.column = "lst_action";
-    icon_cell_params.text = label;
-    icon_cell_params.value = icon;
-    item_params.columns.add(icon_cell_params);
-    //dummy cells
-    cell_params.column = "lst_ctrl1";
-    cell_params.value = "";
-    item_params.columns.add(cell_params);
-    cell_params.column = "lst_ctrl2";
-    cell_params.value = "";
-    item_params.columns.add(cell_params);
-    cell_params.column = "lst_ctrl3";
-    cell_params.value = "";
-    item_params.columns.add(cell_params);
-    pControlsTable->addRow(item_params, EAddPosition::ADD_BOTTOM);
 }
 
 void LLPanelPreferenceControls::regenerateControls()
@@ -3144,58 +2987,74 @@ void LLPanelPreferenceControls::regenerateControls()
 void LLPanelPreferenceControls::populateControlTable()
 {
     pControlsTable->clearRows();
-    
-    // todo: subsections need sorting?
-    std::string label, control_name;
+    pControlsTable->clearColumns();
+
+    std::string filename;
+    switch ((LLKeyConflictHandler::ESourceMode)mEditingMode)
+    {
+    case LLKeyConflictHandler::MODE_THIRD_PERSON:
+    case LLKeyConflictHandler::MODE_FIRST_PERSON:
+    case LLKeyConflictHandler::MODE_EDIT:
+    case LLKeyConflictHandler::MODE_EDIT_AVATAR:
+    case LLKeyConflictHandler::MODE_SITTING:
+        filename = "control_table_contents.xml";
+        break;
+    default:
+        // 'saved settings' mode doesn't have UI or actual settings yet
+        LL_INFOS() << "Unimplemented mode" << LL_ENDL;
+        return;
+    }
+
+    std::string full_filename = gDirUtilp->findSkinnedFilenameBaseLang(LLDir::XUI, filename);
+    LLSimpleXUIParser parser;
+    LLScrollListCtrl::Contents contents;
+    if (!parser.readXUI(full_filename, contents)
+        || !contents.validateBlock())
+    {
+        LL_INFOS() << "Failed to load" << LL_ENDL;
+        return;
+    }
+
+    for (LLInitParam::ParamIterator<LLScrollListColumn::Params>::const_iterator row_it = contents.columns.begin();
+        row_it != contents.columns.end();
+        ++row_it)
+    {
+        pControlsTable->addColumn(*row_it);
+    }
+
     LLScrollListCell::Params cell_params;
     // init basic cell params
     cell_params.font = LLFontGL::getFontSansSerif();
     cell_params.font_halign = LLFontGL::LEFT;
     cell_params.column = "";
-    cell_params.value = label;
+    cell_params.value = "";
 
-    controls_to_icon_t::const_iterator iter = commands_and_headers.begin();
-    controls_to_icon_t::const_iterator end = commands_and_headers.end();
-    for (; iter != end; ++iter)
+
+    for (LLInitParam::ParamIterator<LLScrollListItem::Params>::const_iterator row_it = contents.rows.begin();
+        row_it != contents.rows.end();
+        ++row_it)
     {
-        if (iter->second.empty())
+        std::string control = row_it->value.getValue().asString();
+        if (!control.empty() && control != "menu_separator")
         {
-            // general control
-            LLScrollListItem::Params item_params;
-            item_params.value = LLSD(iter->first);
-
-            cell_params.column = "lst_action";
-            bool enabled = mConflictHandler[mEditingMode].canAssignControl(iter->first);
-            if (hasString(iter->first))
-            {
-                label = getString(iter->first);
-            }
-            else
-            {
-                label = iter->first;
-            }
-            cell_params.value = label;
-            item_params.columns.add(cell_params);
+            // At the moment 4 collumns are hardcoded
+            LLScrollListItem::Params item_params(*row_it);
+            bool enabled = mConflictHandler[mEditingMode].canAssignControl(control);
+            item_params.enabled.setValue(enabled);
             cell_params.column = "lst_ctrl1";
-            cell_params.value = mConflictHandler[mEditingMode].getControlString(iter->first, 0);
-            cell_params.enabled = enabled;
+            cell_params.value = mConflictHandler[mEditingMode].getControlString(control, 0);
             item_params.columns.add(cell_params);
             cell_params.column = "lst_ctrl2";
-            cell_params.value = mConflictHandler[mEditingMode].getControlString(iter->first, 1);
-            cell_params.enabled = enabled;
+            cell_params.value = mConflictHandler[mEditingMode].getControlString(control, 1);
             item_params.columns.add(cell_params);
             cell_params.column = "lst_ctrl3";
-            cell_params.value = mConflictHandler[mEditingMode].getControlString(iter->first, 2);
-            cell_params.enabled = enabled;
+            cell_params.value = mConflictHandler[mEditingMode].getControlString(control, 2);
             item_params.columns.add(cell_params);
-
             pControlsTable->addRow(item_params, EAddPosition::ADD_BOTTOM);
         }
         else
         {
-            // header
-            addSeparator();
-            addGroupRow(iter->first, iter->second);
+            pControlsTable->addRow(*row_it, EAddPosition::ADD_BOTTOM);
         }
     }
 }
@@ -3211,7 +3070,6 @@ void LLPanelPreferenceControls::addSeparator()
 
 void LLPanelPreferenceControls::updateTable()
 {
-    pControlsTable->deselectAllItems();
     mEditingControl.clear();
     std::vector<LLScrollListItem*> list = pControlsTable->getAllData();
     for (S32 i = 0; i < list.size(); ++i)
@@ -3227,6 +3085,7 @@ void LLPanelPreferenceControls::updateTable()
             cell->setValue(mConflictHandler[mEditingMode].getControlString(control, 2));
         }
     }
+    pControlsTable->deselectAllItems();
 }
 
 void LLPanelPreferenceControls::apply()
