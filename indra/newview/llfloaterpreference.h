@@ -292,7 +292,7 @@ class LLPanelPreferenceControls : public LLPanelPreference, public LLKeyBindResp
 	LOG_CLASS(LLPanelPreferenceControls);
 public:
 	LLPanelPreferenceControls();
-	~LLPanelPreferenceControls();
+	virtual ~LLPanelPreferenceControls();
 
 	BOOL postBuild();
 
@@ -303,10 +303,10 @@ public:
 
 	void onListCommit();
 	void onModeCommit();
-	bool onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool ignore_mask);
 	void onRestoreDefaults();
-	void onDefaultKeyBind();
-	void onCancelKeyBind();
+	/*virtual*/ bool onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool ignore_mask);
+	/*virtual*/ void onDefaultKeyBind();
+	/*virtual*/ void onCancelKeyBind();
 
 private:
 	void regenerateControls();

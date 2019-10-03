@@ -53,7 +53,8 @@ public:
     EMouseClickType mMouse;
     KEY mKey;
     MASK mMask;
-    bool mIgnoreMasks;
+    // Either to expect exact match or ignore not expected masks
+    bool mIgnoreMasks; 
 };
 
 // One function can bind to multiple Key options

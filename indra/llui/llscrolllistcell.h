@@ -70,7 +70,7 @@ public:
 		Optional<LLColor4>			color;
 
 		Params()
-		:	type("cell_type", "text"), // Don't use "type", it overlaps with xml's parameter
+		:	type("type", "text"),
 			column("column"),
 			width("width"),
 			enabled("enabled", true),

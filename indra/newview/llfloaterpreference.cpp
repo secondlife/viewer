@@ -2875,7 +2875,7 @@ void LLPanelPreferenceControls::onListCommit()
         {
             mEditingControl = control;
             mEditingColumn = cell_ind;
-            dialog->setParent(this, DEFAULT_KEY_FILTER);
+            dialog->setParent(this, pControlsTable, DEFAULT_KEY_FILTER);
 
             LLFloater* root_floater = gFloaterView->getParentFloater(this);
             if (root_floater)
@@ -2895,6 +2895,14 @@ void LLPanelPreferenceControls::onModeCommit()
     regenerateControls();
 }
 
+void LLPanelPreferenceControls::onRestoreDefaults()
+{
+    for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
+    {
+        mConflictHandler[mEditingMode].resetToDefaults();
+    }
+}
+
 // todo: copy onSetKeyBind to interface and inherit from interface
 bool LLPanelPreferenceControls::onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool ignore_mask)
 {
@@ -2905,19 +2913,11 @@ bool LLPanelPreferenceControls::onSetKeyBind(EMouseClickType click, KEY key, MAS
 
     if ( mEditingColumn > 0)
     {
-        mConflictHandler[mEditingMode].registerControl(mEditingControl, mEditingColumn - 1, click, key, mask, ignore_mask);
+        mConflictHandler[mEditingMode].registerControl(mEditingControl, mEditingColumn - 1, click, key, mask, true);
     }
 
     updateTable();
     return true;
-}
-
-void LLPanelPreferenceControls::onRestoreDefaults()
-{
-    for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
-    {
-        mConflictHandler[mEditingMode].resetToDefaults();
-    }
 }
 
 void LLPanelPreferenceControls::onDefaultKeyBind()

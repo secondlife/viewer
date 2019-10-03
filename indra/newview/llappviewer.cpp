@@ -1003,11 +1003,11 @@ bool LLAppViewer::init()
 	gGLManager.printGLInfoString();
 
 	// Load User's bindings
-	std::string key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "keys.xml");
+	std::string key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "key_bindings.xml");
 	if (!gDirUtilp->fileExists(key_bindings_file) || !gViewerInput.loadBindingsXML(key_bindings_file))
 	{
 		// Failed to load custom bindings, try default ones
-		key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "keys.xml");
+		key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "key_bindings.xml");
 		if (!gViewerInput.loadBindingsXML(key_bindings_file))
 		{
 			LL_ERRS("InitInfo") << "Unable to open default key bindings from" << key_bindings_file << LL_ENDL;
