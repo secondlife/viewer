@@ -34,7 +34,6 @@
 #include "llbutton.h"
 #include "lltabcontainer.h"
 #include "llfloaterreg.h"
-#include "llfloaterpreference.h"
 #include "llpresetsmanager.h"
 #include "llsliderctrl.h"
 #include "llscrolllistctrl.h"

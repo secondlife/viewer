@@ -38,6 +38,7 @@
 #include "llkeyboard.h"
 #include "llviewercontrol.h"
 #include "llviewerinput.h"
+#include "llviewermenu.h"
 #include "llxuiparser.h"
 //#include "llstring.h"
 
@@ -170,6 +171,22 @@ bool LLKeyConflictHandler::canAssignControl(const std::string &control_name)
     return true;
 }
 
+// static
+bool LLKeyConflictHandler::isReservedByMenu(const KEY &key, const MASK &mask)
+{
+    return gMenuBarView->hasAccelerator(key, mask) || gLoginMenuBarView->hasAccelerator(key, mask);
+}
+
+// static
+bool LLKeyConflictHandler::isReservedByMenu(const LLKeyData &data)
+{
+    if (data.mMouse != CLICK_NONE)
+    {
+        return false;
+    }
+    return gMenuBarView->hasAccelerator(data.mKey, data.mMask) || gLoginMenuBarView->hasAccelerator(data.mKey, data.mMask);
+}
+
 bool LLKeyConflictHandler::registerControl(const std::string &control_name, U32 index, EMouseClickType mouse, KEY key, MASK mask, bool ignore_mask)
 {
     if (control_name.empty())
@@ -185,6 +202,10 @@ bool LLKeyConflictHandler::registerControl(const std::string &control_name, U32 
     if (type_data.mKeyBind.getKeyData(index) == data)
     {
         return true;
+    }
+    if (isReservedByMenu(data))
+    {
+        return false;
     }
     if (removeConflicts(data, type_data.mConflictMask))
     {
