@@ -2658,9 +2658,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2cbec24a9c0a6f63fb7de8714d844dc2</string>
+              <string>f1695ffd2003606b60a22cb0a0b0e1e6</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/29113/243338/openjpeg-2.3.0.522661-darwin64-522661.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/44650/394511/openjpeg-2.3.0.531540-darwin64-531540.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2694,9 +2694,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>65bc27385f99f58a0151bb4dc9d6543c</string>
+              <string>aca0c93f857e1a7aa76de3517adce0e4</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/29114/243345/openjpeg-2.3.0.522661-windows-522661.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/44651/394509/openjpeg-2.3.0.531540-windows-531540.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2706,16 +2706,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>62044d31c9cf7801c8150a56d302ec71</string>
+              <string>2ccf1c5ceaafd60b4c3cfd00e865c6ef</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/29115/243350/openjpeg-2.3.0.522661-windows64-522661.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/44652/394510/openjpeg-2.3.0.531540-windows64-531540.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.3.0.522661</string>
+        <string>2.3.0.531540</string>
       </map>
       <key>openssl</key>
       <map>
