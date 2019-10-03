@@ -3536,6 +3536,27 @@ S32 LLMenuBarGL::getRightmostMenuEdge()
 	return (*item_iter)->getRect().mRight;
 }
 
+bool LLMenuBarGL::hasAccelerator(const KEY &key, const MASK &mask) const
+{
+    if (key == KEY_NONE)
+    {
+        return false;
+    }
+
+    LLMenuKeyboardBinding *accelerator = NULL;
+    std::list<LLMenuKeyboardBinding*>::const_iterator list_it;
+    for (list_it = mAccelerators.begin(); list_it != mAccelerators.end(); ++list_it)
+    {
+        accelerator = *list_it;
+        if ((accelerator->mKey == key) && (accelerator->mMask == (mask & MASK_NORMALKEYS)))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 // add a vertical separator to this menu
 BOOL LLMenuBarGL::addSeparator()
 {

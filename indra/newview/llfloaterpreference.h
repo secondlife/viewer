@@ -37,6 +37,7 @@
 #include "llavatarpropertiesprocessor.h"
 #include "llconversationlog.h"
 #include "llsearcheditor.h"
+#include "llsetkeybinddialog.h"
 #include "llkeyconflict.h"
 
 class LLConversationLogObserver;
@@ -286,7 +287,7 @@ private:
 	LOG_CLASS(LLPanelPreferenceGraphics);
 };
 
-class LLPanelPreferenceControls : public LLPanelPreference
+class LLPanelPreferenceControls : public LLPanelPreference, public LLKeyBindResponderInterface
 {
 	LOG_CLASS(LLPanelPreferenceControls);
 public:
@@ -302,7 +303,7 @@ public:
 
 	void onListCommit();
 	void onModeCommit();
-	void onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool ignore_mask);
+	bool onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool ignore_mask);
 	void onRestoreDefaults();
 	void onDefaultKeyBind();
 	void onCancelKeyBind();

@@ -80,6 +80,8 @@ public:
     bool canHandleMouse(const std::string &control_name, EMouseClickType mouse_ind, MASK mask);
     bool canHandleMouse(const std::string &control_name, S32 mouse_ind, MASK mask); //Just for convinience
     bool canAssignControl(const std::string &control_name);
+    static bool isReservedByMenu(const KEY &key, const MASK &mask);
+    static bool isReservedByMenu(const LLKeyData &data);
     bool registerControl(const std::string &control_name, U32 data_index, EMouseClickType mouse_ind, KEY key, MASK mask, bool ignore_mask); //todo: return conflicts?
 
     LLKeyData getControl(const std::string &control_name, U32 data_index);

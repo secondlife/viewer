@@ -795,6 +795,8 @@ public:
 
 	void resetMenuTrigger() { mAltKeyTrigger = FALSE; }
 
+	bool hasAccelerator(const KEY &key, const MASK &mask) const;
+
 private:
 	// add a menu - this will create a drop down menu.
 	virtual BOOL appendMenu( LLMenuGL* menu );
