@@ -16,6 +16,15 @@
    name="mouse">
     Mouse Buttons
   </floater.string>
+  <floater.string
+   name="basic_description">
+Press a key to set your trigger.
+Allowed input: [INPUT].
+  </floater.string>
+  <floater.string
+   name="reserved_by_menu">
+Combination [KEYSTR] is reserved by menu.
+  </floater.string>
     <text
      type="string"
      halign="center"
@@ -35,11 +44,11 @@ Allowed input: [INPUT].
      follows="top|left"
      height="20"
      initial_value="false"
-     label="Ignore accelerator keys"
+     label="Ignore extra accelerator keys"
      layout="topleft"
-     left="8"
+     left="28"
      name="ignore_masks"
-     tool_tip="Ignore Shift, Alt and Ctrl keys. Example: This allows to hold W (forward, ignores shift) and Shift+A (slide left) simultaneously and agent will both move forward and slide left."
+     tool_tip="Ignore extra Shift, Alt and Ctrl keys. Example: This allows to hold W (forward, ignores shift) and Shift+A (slide left) simultaneously and agent will both move forward and slide left."
      top_pad="8"
      width="160" />
   

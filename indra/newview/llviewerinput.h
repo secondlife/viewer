@@ -30,7 +30,6 @@
 #include "llkeyboard.h" // For EKeystate
 #include "llinitparam.h"
 
-const S32 MAX_NAMED_FUNCTIONS = 100;
 const S32 MAX_KEY_BINDINGS = 128; // was 60
 
 class LLNamedFunction
@@ -48,7 +47,6 @@ class LLKeyboardBinding
 public:
     KEY				mKey;
     MASK			mMask;
-    bool			mIgnoreMask; // whether CTRL/ALT/SHIFT should be checked
 
     LLKeyFunc		mFunction;
 };
@@ -58,7 +56,6 @@ class LLMouseBinding
 public:
     EMouseClickType	mMouse;
     MASK			mMask;
-    bool			mIgnoreMask; // whether CTRL/ALT/SHIFT should be checked
 
     LLKeyFunc		mFunction;
 };
@@ -86,8 +83,7 @@ public:
 		Mandatory<std::string>	key,
 								mask,
 								command;
-		Optional<std::string>	mouse; // Note, not mandatory for the sake of backward campatibility
-		Optional<bool>			ignore;
+		Optional<std::string>	mouse; // Note, not mandatory for the sake of backward campatibility with keys.xml
 
 		KeyBinding();
 	};
@@ -131,7 +127,7 @@ public:
     void            scanMouse();
 
 private:
-    bool            scanKey(const LLKeyboardBinding* binding,
+    bool            scanKey(const std::vector<LLKeyboardBinding> &binding,
                             S32 binding_count,
                             KEY key,
                             MASK mask,
@@ -149,34 +145,24 @@ private:
         MOUSE_STATE_SILENT // notified about 'up', do not notify again
     };
     bool			scanMouse(EMouseClickType click, EMouseState state) const;
-    bool            scanMouse(const LLMouseBinding *binding,
+    bool            scanMouse(const std::vector<LLMouseBinding> &binding,
                           S32 binding_count,
                           EMouseClickType mouse,
                           MASK mask,
                           EMouseState state) const;
 
     S32				loadBindingMode(const LLViewerInput::KeyMode& keymode, S32 mode);
-    BOOL			bindKey(const S32 mode, const KEY key, const MASK mask, const bool ignore, const std::string& function_name);
-    BOOL			bindMouse(const S32 mode, const EMouseClickType mouse, const MASK mask, const bool ignore, const std::string& function_name);
+    BOOL			bindKey(const S32 mode, const KEY key, const MASK mask, const std::string& function_name);
+    BOOL			bindMouse(const S32 mode, const EMouseClickType mouse, const MASK mask, const std::string& function_name);
     void			resetBindings();
 
 	// Hold all the ugly stuff torn out to make LLKeyboard non-viewer-specific here
-    // We process specific keys first, then keys that should ignore mask.
-    // This way with W+ignore defined to 'forward' and with ctrl+W tied to camera,
-    // pressing undefined Shift+W will do 'forward', yet ctrl+W will do 'camera forward'
-    // With A defined to 'turn', shift+A defined to strafe, pressing Shift+W+A will do strafe+forward
 
     // TODO: at some point it is better to remake this, especially keyaboard part
     // would be much better to send to functions actual state of the button than
     // to send what we think function wants based on collection of bools (mKeyRepeated, mKeyLevel, mKeyDown)
-    S32				mKeyBindingCount[MODE_COUNT];
-    S32				mKeyIgnoreMaskCount[MODE_COUNT];
-    S32				mMouseBindingCount[MODE_COUNT];
-    S32				mMouseIgnoreMaskCount[MODE_COUNT];
-    LLKeyboardBinding	mKeyBindings[MODE_COUNT][MAX_KEY_BINDINGS];
-    LLKeyboardBinding	mKeyIgnoreMask[MODE_COUNT][MAX_KEY_BINDINGS];
-    LLMouseBinding		mMouseBindings[MODE_COUNT][MAX_KEY_BINDINGS];
-    LLMouseBinding		mMouseIgnoreMask[MODE_COUNT][MAX_KEY_BINDINGS];
+    std::vector<LLKeyboardBinding>	mKeyBindings[MODE_COUNT];
+    std::vector<LLMouseBinding>		mMouseBindings[MODE_COUNT];
 
 	typedef std::map<U32, U32> key_remap_t;
 	key_remap_t		mRemapKeys[MODE_COUNT];

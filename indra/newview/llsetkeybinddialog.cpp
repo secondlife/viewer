@@ -34,6 +34,7 @@
 #include "llcheckboxctrl.h"
 #include "lleventtimer.h"
 #include "llfocusmgr.h"
+#include "llkeyconflict.h"
 
 class LLSetKeyBindDialog::Updater : public LLEventTimer
 {
@@ -85,6 +86,7 @@ BOOL LLSetKeyBindDialog::postBuild()
     getChild<LLUICtrl>("Cancel")->setFocus(TRUE);
 
     pCheckBox = getChild<LLCheckBoxCtrl>("ignore_masks");
+    pDesription = getChild<LLTextBase>("descritption");
 
     gFocusMgr.setKeystrokesOnly(TRUE);
 
@@ -116,13 +118,11 @@ void LLSetKeyBindDialog::draw()
     LLModalDialog::draw();
 }
 
-void LLSetKeyBindDialog::setParent(LLPanelPreferenceControls* parent, U32 key_mask)
+void LLSetKeyBindDialog::setParent(LLKeyBindResponderInterface* parent, LLView* frustum_origin, U32 key_mask)
 {
     pParent = parent;
-    setFrustumOrigin(parent);
+    setFrustumOrigin(frustum_origin);
     mKeyFilterMask = key_mask;
-
-    LLTextBase *text_ctrl = getChild<LLTextBase>("descritption");
 
     std::string input;
     if ((key_mask & ALLOW_MOUSE) != 0)
@@ -137,7 +137,8 @@ void LLSetKeyBindDialog::setParent(LLPanelPreferenceControls* parent, U32 key_ma
         }
         input += getString("keyboard");
     }
-    text_ctrl->setTextArg("[INPUT]", input);
+    pDesription->setText(getString("basic_description"));
+    pDesription->setTextArg("[INPUT]", input);
 
     bool can_ignore_masks = (key_mask & CAN_IGNORE_MASKS) != 0;
     pCheckBox->setVisible(can_ignore_masks);
@@ -183,6 +184,13 @@ BOOL LLSetKeyBindDialog::handleKeyHere(KEY key, MASK mask)
     {
         // masked keys not allowed
         return FALSE;
+    }
+
+    if (LLKeyConflictHandler::isReservedByMenu(key, mask))
+    {
+        pDesription->setText(getString("reserved_by_menu"));
+        pDesription->setTextArg("[KEYSTR]", LLKeyboard::stringFromAccelerator(mask,key));
+        return TRUE;
     }
 
     setKeyBind(CLICK_NONE, key, mask, pCheckBox->getValue().asBoolean());

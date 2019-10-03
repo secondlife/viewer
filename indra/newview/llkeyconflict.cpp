@@ -243,10 +243,6 @@ std::string LLKeyConflictHandler::getStringFromKeyData(const LLKeyData& keydata)
     {
         result = LLKeyboard::stringFromAccelerator(keydata.mMask);
     }
-    else if (keydata.mIgnoreMasks)
-    {
-        result = "acc+";
-    }
 
     result += string_from_mouse(keydata.mMouse);
 
@@ -283,7 +279,6 @@ void LLKeyConflictHandler::loadFromSettings(const LLViewerInput::KeyMode& keymod
         KEY key;
         MASK mask;
         EMouseClickType mouse = it->mouse.isProvided() ? mouse_from_string(it->mouse) : CLICK_NONE;
-        bool ignore = it->ignore.isProvided() ? it->ignore.getValue() : false;
         if (it->key.getValue().empty())
         {
             key = KEY_NONE;
@@ -297,7 +292,7 @@ void LLKeyConflictHandler::loadFromSettings(const LLViewerInput::KeyMode& keymod
         // might not know all the commands, so UI will have to know what to fill by its own
         LLKeyConflict &type_data = (*destination)[it->command];
         type_data.mAssignable = true;
-        type_data.mKeyBind.addKeyData(mouse, key, mask, ignore);
+        type_data.mKeyBind.addKeyData(mouse, key, mask, true);
     }
 }
 
@@ -380,7 +375,7 @@ void LLKeyConflictHandler::loadFromSettings(ESourceMode load_mode)
     else
     {
         // load defaults
-        std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "keys.xml");
+        std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "key_bindings.xml");
         if (!loadFromSettings(load_mode, filename, &mDefaultsMap))
         {
             LL_WARNS() << "Failed to load default settings, aborting" << LL_ENDL;
@@ -388,7 +383,7 @@ void LLKeyConflictHandler::loadFromSettings(ESourceMode load_mode)
         }
 
         // load user's
-        filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "keys.xml");
+        filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "key_bindings.xml");
         if (!gDirUtilp->fileExists(filename) || loadFromSettings(load_mode, filename, &mControlsMap))
         {
             // mind placeholders
@@ -440,7 +435,7 @@ void LLKeyConflictHandler::saveToSettings()
     else
     {
         // loaded full copy of original file
-        std::string filename = gDirUtilp->findFile("keys.xml",
+        std::string filename = gDirUtilp->findFile("key_bindings.xml",
             gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, ""),
             gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
 
@@ -494,7 +489,6 @@ void LLKeyConflictHandler::saveToSettings()
                     }
                     binding.mask = string_from_mask(data.mMask);
                     binding.mouse.set(string_from_mouse(data.mMouse), true); //set() because 'optional', for compatibility purposes
-                    binding.ignore.set(data.mIgnoreMasks, true);
                     binding.command = iter->first;
                     mode.bindings.add(binding);
                 }
@@ -537,7 +531,7 @@ void LLKeyConflictHandler::saveToSettings()
             }
 
             // write back to user's xml;
-            std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "keys.xml");
+            std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "key_bindings.xml");
 
             LLXMLNodePtr output_node = new LLXMLNode("keys", false);
             LLXUIParser parser;
@@ -708,7 +702,7 @@ void LLKeyConflictHandler::clear()
 
 void LLKeyConflictHandler::resetKeyboardBindings()
 {
-    std::string filename = gDirUtilp->findFile("keys.xml",
+    std::string filename = gDirUtilp->findFile("key_bindings.xml",
         gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, ""),
         gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
     

@@ -33,6 +33,7 @@
 
 #include "llbutton.h"
 #include "lltabcontainer.h"
+#include "llfloater.h"
 #include "llfloaterreg.h"
 #include "llpresetsmanager.h"
 #include "llsliderctrl.h"

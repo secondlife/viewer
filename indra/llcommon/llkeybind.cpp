@@ -92,13 +92,10 @@ LLSD LLKeyData::asLLSD() const
     LLSD data;
     data["mouse"] = (LLSD::Integer)mMouse;
     data["key"] = (LLSD::Integer)mKey;
+    data["mask"] = (LLSD::Integer)mMask;
     if (mIgnoreMasks)
     {
         data["ignore_accelerators"] = (LLSD::Boolean)mIgnoreMasks;
-    }
-    else
-    {
-        data["mask"] = (LLSD::Integer)mMask;
     }
     return data;
 }
@@ -147,7 +144,7 @@ bool LLKeyData::canHandle(const LLKeyData& data) const
 {
     if (data.mKey == mKey
         && data.mMouse == mMouse
-        && (mIgnoreMasks || data.mMask == mMask))
+        && ((mIgnoreMasks && (data.mMask & mMask) == data.mMask) || data.mMask == mMask))
     {
         return true;
     }
@@ -158,7 +155,7 @@ bool LLKeyData::canHandle(EMouseClickType mouse, KEY key, MASK mask) const
 {
     if (mouse == mMouse
         && key == mKey
-        && (mIgnoreMasks || mask == mMask))
+        && ((mIgnoreMasks && (mask & mMask) == mask) || mask == mMask))
     {
         return true;
     }

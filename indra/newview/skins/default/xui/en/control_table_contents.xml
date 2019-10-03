@@ -20,7 +20,7 @@
      enabled="false"
      value="">
         <columns
-         cell_type="icontext"
+         type="icontext"
          column="lst_action"
          font="SansSerif"
          halign="left"
@@ -195,7 +195,7 @@
     <rows
      enabled="false">
         <columns
-         cell_type="icon"
+         type="icon"
          color="0 0 0 0.7"
          halign="center"
          value="menu_separator" />
@@ -204,7 +204,7 @@
      enabled="false"
      value="">
         <columns
-         cell_type="icontext"
+         type="icontext"
          column="lst_action"
          font="SansSerif"
          halign="left"
@@ -417,7 +417,7 @@
     <rows
      enabled="false">
         <columns
-         cell_type="icon"
+         type="icon"
          color="0 0 0 0.7"
          halign="center"
          value="menu_separator" />
@@ -426,7 +426,7 @@
      enabled="false"
      value="">
         <columns
-         cell_type="icontext"
+         type="icontext"
          column="lst_action"
          font="SansSerif"
          halign="left"
@@ -495,7 +495,7 @@
     <rows
      enabled="false">
         <columns
-         cell_type="icon"
+         type="icon"
          color="0 0 0 0.7"
          halign="center"
          value="menu_separator" />
@@ -504,7 +504,7 @@
      enabled="false"
      value="">
         <columns
-         cell_type="icontext"
+         type="icontext"
          column="lst_action"
          font="SansSerif"
          halign="left"
