@@ -480,6 +480,7 @@ void LLKeyConflictHandler::saveToSettings()
                     // Still write empty LLKeyData to make sure we will maintain UI position
                     if (data.mKey == KEY_NONE)
                     {
+                        // Might be better idea to be consistent and use NONE. LLViewerInput can work with both cases
                         binding.key = "";
                     }
                     else

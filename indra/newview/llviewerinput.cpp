@@ -1196,10 +1196,11 @@ S32 LLViewerInput::loadBindingMode(const LLViewerInput::KeyMode& keymode, S32 mo
 		++it)
 	{
         bool processed = false;
-        if (!it->key.getValue().empty())
+        std::string key_str = it->key.getValue();
+        if (!key_str.empty() && key_str != "NONE")
         {
             KEY key;
-            LLKeyboard::keyFromString(it->key, &key);
+            LLKeyboard::keyFromString(key_str, &key);
             if (key != KEY_NONE)
             {
                 MASK mask;
