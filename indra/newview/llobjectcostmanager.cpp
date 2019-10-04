@@ -202,7 +202,7 @@ class LLObjectCostManagerImpl
 	// Accumulate data for a single prim.
 	void getPrimCostData(const LLVOVolume *vol, LLPrimCostData& cost_data);
 
-	U32 textureCostsV1(const texture_ids_t& ids);
+	U32 textureCostsV1(const texture_ids_t& ids, U32 multiplier = 1);
 	F32 triangleCostsV1(LLPrimCostData& cost_data); 
 };
 
@@ -256,7 +256,7 @@ void get_volumes_for_linkset(const LLViewerObject *root, const_vol_vec_t& volume
 F32 LLObjectCostManagerImpl::getRenderCostLinksetV1(const LLViewerObject *root)
 {
 	F32 shame = 0.f;
-	texture_ids_t all_sculpt_ids, all_diffuse_ids;
+	texture_ids_t all_sculpt_ids, all_diffuse_ids, all_normal_ids, all_specular_ids;
 
 	const_vol_vec_t volumes;
 	get_volumes_for_linkset(root,volumes);
@@ -275,11 +275,18 @@ F32 LLObjectCostManagerImpl::getRenderCostLinksetV1(const LLViewerObject *root)
 		// Accumulate texture ids
 		all_sculpt_ids.insert(cost_data.m_sculpt_ids.begin(), cost_data.m_sculpt_ids.end());
 		all_diffuse_ids.insert(cost_data.m_diffuse_ids.begin(), cost_data.m_diffuse_ids.end());
+
+		all_normal_ids.insert(cost_data.m_normal_ids.begin(), cost_data.m_normal_ids.end());
+		all_specular_ids.insert(cost_data.m_specular_ids.begin(), cost_data.m_specular_ids.end());
 	}
 	
 	// Material textures not included in V1 costs
 	shame += textureCostsV1(all_sculpt_ids);
 	shame += textureCostsV1(all_diffuse_ids);
+
+	// FIXME ARC including material textures here to force ARC to change for logging purposes. This is not the correct formula for V1.
+	shame += textureCostsV1(all_normal_ids, 2);
+	shame += textureCostsV1(all_specular_ids, 3);
 	
 	return shame;
 }
@@ -606,7 +613,7 @@ void LLObjectCostManagerImpl::getPrimCostData(const LLVOVolume *vol, LLPrimCostD
     cost_data.m_triangle_count_high = vol->getLODTriangleCount(LLModel::LOD_HIGH);
 }
 
-U32 LLObjectCostManagerImpl::textureCostsV1(const texture_ids_t& ids)
+U32 LLObjectCostManagerImpl::textureCostsV1(const texture_ids_t& ids, U32 multiplier)
 {
 	U32 cost = 0;
 
@@ -631,6 +638,9 @@ U32 LLObjectCostManagerImpl::textureCostsV1(const texture_ids_t& ids)
 		LL_DEBUGS("ARCdetail") << "texture " << id << " cost " << texture_cost << LL_ENDL;
 		cost += texture_cost;
 	}
+
+	// FIXME ARC multiplier is just a hack to make costs more likely to differ when number/size of textures is the same. Should always be 1.
+	cost *= multiplier;
 
 	return cost;
 }

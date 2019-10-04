@@ -87,6 +87,21 @@ bool_graphic_properties = ["alpha","animtex","bump","flexi","glow","invisi","par
 # for these, we will sum all counts found in all attachments
 sum_graphic_properties = ["media_faces"]
 
+ref_props = ["Avatars.Self.ARCCalculated",
+             "Avatars.Self.ARCCalculated2",
+             "Derived.Avatar.Attachments.Count",
+             "Derived.Avatar.Attachments.ActiveTriangleCount",
+]
+
+model_props = ["Derived.Avatar.Attachments.AlphaTriFrac",
+               "Derived.Avatar.Attachments.GlowTriFrac",
+               "Derived.Avatar.Attachments.ShinyTriFrac",
+               "Derived.Avatar.Attachments.BumpTriFrac",
+               "Derived.Avatar.Attachments.NormalMapTriFrac",
+               "Derived.Avatar.Attachments.SpecMapTriFrac",
+               "Derived.Avatar.Attachments.ProducesLightTriFrac",
+]
+
 class AttachmentsDerivedField:
     def __init__(self,sd,**kwargs):
         self.sd = sd
@@ -109,11 +124,40 @@ class AttachmentsDerivedField:
             elif key in sum_graphic_properties:
                 return sum([sd_extract_field(att,"StreamingCost." + key,0.0) for att in attachments])
             elif key=="ActiveTriangleCount":
-                total = 0
-                for att in attachments:
-                    for prim in att["prims"]:
-                        total += prim["m_triangle_count"]
+                total = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]])
+                #total = 0
+                #for att in attachments:
+                #    for prim in att["prims"]:
+                #        total += prim["m_triangle_count"]
                 return total
+            elif key=="AlphaTriFrac":
+                all_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]])
+                alpha_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"] if prim["m_alpha_faces"]>0])
+                return 1.0 * alpha_tris/all_tris
+            elif key=="GlowTriFrac":
+                all_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]])
+                alpha_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"] if prim["m_glow_faces"]>0])
+                return 1.0 * alpha_tris/all_tris
+            elif key=="ShinyTriFrac":
+                all_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]])
+                alpha_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"] if prim["m_shiny_faces"]>0])
+                return 1.0 * alpha_tris/all_tris
+            elif key=="BumpTriFrac":
+                all_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]])
+                alpha_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"] if prim["m_bumpmap_faces"]>0])
+                return 1.0 * alpha_tris/all_tris
+            elif key=="NormalMapTriFrac":
+                all_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]])
+                alpha_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"] if prim["m_normalmap_faces"]>0])
+                return 1.0 * alpha_tris/all_tris
+            elif key=="SpecMapTriFrac":
+                all_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]])
+                alpha_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"] if prim["m_specmap_faces"]>0])
+                return 1.0 * alpha_tris/all_tris
+            elif key=="ProducesLightTriFrac":
+                all_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]])
+                alpha_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"] if prim["m_produces_light_vols"]>0])
+                return 1.0 * alpha_tris/all_tris
             else:
                 raise IndexError()
 
@@ -211,9 +255,9 @@ def collect_pandas_frame_data(filename, fields, max_records, **kwargs):
     # previously generated csv file?
     if re.match(".*\.csv$", filename):
         if args.filter_csv:
-            return pd.DataFrame.from_csv(filename)[fields]
+            return pd.read_csv(filename, index_col=0)[fields]
         else:
-            return pd.DataFrame.from_csv(filename)
+            return pd.read_csv(filename, index_col=0)
 
     # otherwise assume we're processing a .slp file
     frame_data = []
@@ -293,6 +337,8 @@ def fill_blanks(df):
         else:
             # Intermittently recorded, can just fill in
             df[col].fillna(method="ffill", inplace=True)
+            # catch anything before the first recorded value
+            df[col].fillna(value=0, inplace=True)
 
 # Shorten 33,412 to 33K, etc., for simplified display.
 # Input: float
@@ -311,13 +357,36 @@ def abbrev_number(f):
     else:
         return str(int(f/1e12))+"T"
 
+def estimate_cost_coeffs(outfit_spans, props):
+    span_clusters = outfit_spans.groupby(props)
+    canonical = dict()
+    for name, group in span_clusters:
+        #print "span_cluster", name, type(name)
+        highest_duration = group.loc[group["duration"].idxmax()]
+        canonical[name] = highest_duration
+        #print "-- highest duration row", highest_duration
+    base_prop_key = tuple([0.0 for field in props])
+    print "base_prop", base_prop_key
+    base_span = canonical[base_prop_key]
+    print "base_span:", base_span
+    for prop_key, span in canonical.iteritems():
+        if prop_key != base_prop_key:
+            diff_keys = []
+            for i, s in enumerate(props):
+                if prop_key[i] != base_prop_key[i]:
+                    diff_keys.append(s)
+            coeff = span["avg"]/base_span["avg"]
+            print "est coeff:", diff_keys, coeff
+        
 def get_outfit_spans(pd_data, cost_key="Avatars.Self.ARCCalculated"): 
     results = []
     results = []
     outfit_key = "Avatars.Self.OutfitName"
     time_key="Timers.Frame.Time" 
     pd_data['span_num'] = (pd_data[cost_key].shift(1) != pd_data[cost_key]).astype(int).cumsum()
-    grouped = pd_data.groupby([outfit_key,cost_key,'span_num'])
+
+    std_props = ref_props + model_props
+    grouped = pd_data.groupby([outfit_key,'span_num'] + std_props)
     if args.verbose:
         print "Grouped has",len(grouped),"groups"
     for name, group in grouped:
@@ -337,18 +406,10 @@ def get_outfit_spans(pd_data, cost_key="Avatars.Self.ARCCalculated"):
                           "avg": np.percentile(times, 50.0), #np.average(timespan.clip(low,high)), 
                           "std": np.std(times), 
                           "times": times}
-            std_props = ["Avatars.Self.ARCCalculated",
-                         "Derived.Avatar.Attachments.Count",
-                         "Derived.Avatar.Attachments.ActiveTriangleCount",
-                         "Derived.Avatar.Attachments.triangles_high",
-                         "Derived.Avatar.Attachments.triangles_mid",
-                         "Derived.Avatar.Attachments.triangles_low",
-                         "Derived.Avatar.Attachments.triangles_lowest"]
-            std_props.extend(["Derived.Avatar.Attachments." + key for key in bool_graphic_properties])
-            std_props.extend(["Derived.Avatar.Attachments." + key for key in sum_graphic_properties])
+#            std_props.extend(["Derived.Avatar.Attachments." + key for key in bool_graphic_properties])
+#            std_props.extend(["Derived.Avatar.Attachments." + key for key in sum_graphic_properties])
             for f in std_props:
-                outfit_rec[f] = group.iloc[0][f]
-            #print outfit_rec
+                outfit_rec[f] = group.iloc[0][f] # all values are equal after groupby, can use any index
             results.append(outfit_rec)
     if args.verbose:
         print len(results),"groups found of sufficient duration and frame count"
@@ -358,9 +419,12 @@ def get_outfit_spans(pd_data, cost_key="Avatars.Self.ARCCalculated"):
 def process_by_outfit(pd_data, cost_key="Avatars.Self.ARCCalculated"):
     time_key = "Timers.Frame.Time"
     outfit_spans = get_outfit_spans(pd_data, cost_key)
-    outfit_spans = outfit_spans.sort_values("avg")
     outfits_csv_filename = get_default_export_name(pd_data,"outfits")
+    outfit_spans = outfit_spans.sort_values("start_frame")
     outfit_spans.to_csv(outfits_csv_filename, columns=outfit_spans.columns.difference(['group','times']))
+    outfit_spans = outfit_spans.sort_values("avg")
+
+    estimate_cost_coeffs(outfit_spans, model_props)
 
     all_times = []
     num_rows = outfit_spans.shape[0]
@@ -389,21 +453,22 @@ def process_by_outfit(pd_data, cost_key="Avatars.Self.ARCCalculated"):
     avgs = outfit_spans["avg"]
     costs = outfit_spans[cost_key]
     arcs = outfit_spans["cost"]
-    if num_rows>1:
-        try:
-            corr = np.corrcoef([costs,avgs,arcs])
-            print corr
-            print "CORRELATION between",cost_key,"and",time_key,"is:",corr[0][1]
-            columns = outfit_spans.columns.difference(['group','times','outfit'])
-            subspans = outfit_spans[columns].T
-            #print subspans.describe()
-            print subspans.values
-            allcorr = np.corrcoef(subspans.values)
-            print "columns",len(columns),columns
-            print allcorr
-        except:
-            print "CORCOEFF failed"
-            raise
+
+    #if num_rows>1:
+    #    try:
+    #        corr = np.corrcoef([costs,avgs,arcs])
+    #        print corr
+    #        print "CORRELATION between",cost_key,"and",time_key,"is:",corr[0][1]
+    #        columns = outfit_spans.columns.difference(['group','times','outfit'])
+    #        subspans = outfit_spans[columns].T
+    #        #print subspans.describe()
+    #        print subspans.values
+    #        allcorr = np.corrcoef(subspans.values)
+    #        print "columns",len(columns),columns
+    #        print allcorr
+    #    except:
+    #        print "CORCOEFF failed"
+    #        raise
 
     plt.errorbar(costs, avgs, yerr=(errorbars_low, errorbars_high), fmt='o')
     for label, x, y in zip(labels,costs,avgs):
@@ -486,6 +551,7 @@ if __name__ == "__main__":
                        "Session.UniqueSessionUUID", 
                        "Summary.Timestamp", 
                        "Avatars.Self.ARCCalculated", 
+                       "Avatars.Self.ARCCalculated2", 
                        "Avatars.Self.OutfitName", 
                        "Avatars.Self.AttachmentSurfaceArea",
                        "Derived.Avatar.Attachments.Count",
@@ -495,13 +561,19 @@ if __name__ == "__main__":
                        "Derived.Avatar.Attachments.triangles_low",
                        "Derived.Avatar.Attachments.triangles_lowest",
                        "Derived.Avatar.Attachments.ActiveTriangleCount",
+                       "Derived.Avatar.Attachments.AlphaTriFrac",
+                       "Derived.Avatar.Attachments.GlowTriFrac",
+                       "Derived.Avatar.Attachments.ShinyTriFrac",
+                       "Derived.Avatar.Attachments.BumpTriFrac",
+                       "Derived.Avatar.Attachments.NormalMapTriFrac",
+                       "Derived.Avatar.Attachments.SpecMapTriFrac",
+                       "Derived.Avatar.Attachments.ProducesLightTriFrac",
     ]
     default_fields.extend(["Derived.Avatar.Attachments." + key for key in bool_graphic_properties])
     default_fields.extend(["Derived.Avatar.Attachments." + key for key in sum_graphic_properties])
 
     parser = argparse.ArgumentParser(description="analyze viewer performance files")
     parser.add_argument("--verbose", action="store_true", help="verbose flag")
-    parser.add_argument("--fill_blanks", action="store_true", help="use default fillna handling to fill all fields")
     parser.add_argument("--summarize", action="store_true", help="show summary of results")
     parser.add_argument("--fields", help="specify fields to be extracted or calculated", nargs="+", default=[])
     parser.add_argument("--timers", help="specify timer keys to be added to fields", nargs="+", default=[])
@@ -509,7 +581,7 @@ if __name__ == "__main__":
     parser.add_argument("--filter_csv", action="store_true", help="restrict to requested fields/timers when reading csv files too")
     parser.add_argument("--child_timers", help="include children of specified timer keys in fields", nargs="+", default=[])
     parser.add_argument("--no_reparented", action="store_true", help="ignore timers that have been reparented directly or indirectly")
-    parser.add_argument("--export", help="export results to specified file")
+    parser.add_argument("--export", action="store_true", help="export results as csv")
     parser.add_argument("--max_records", type=int, help="limit to number of frames to process") 
     parser.add_argument("--by_outfit", action="store_true", help="break results down based on active outfit")
     parser.add_argument("--plot_time_series", nargs="+", default=[], help="show timers by frame")
@@ -585,14 +657,13 @@ if __name__ == "__main__":
         for key in sorted(child_info.keys()):
             print key,child_info[key]
 
-    if args.fill_blanks:
-        fill_blanks(pd_data)
+    # always want to do this
+    fill_blanks(pd_data)
         
     print "args.export",args.export
     if args.export:
         print "Calling export",args.export
-        arc_key="Avatars.Self.ARCCalculated"
-        export_file = export(args.export, pd_data)
+        export_file = export("auto", pd_data)
         if export_file is not None:
             print "reloading data from exported file",export_file
             pd_data = collect_pandas_frame_data(export_file, args.fields, args.max_records, children=child_info, ignore=ignore_list)
@@ -625,7 +696,7 @@ if __name__ == "__main__":
             print "median", f, medians[f]
         
     if args.by_outfit:
-        process_by_outfit(pd_data,cost_key="Derived.Avatar.Attachments.ActiveTriangleCount")
+        process_by_outfit(pd_data,cost_key="Avatars.Self.ARCCalculated") #Derived.Avatar.Attachments.ActiveTriangleCount")
     if args.plot_time_series:
         plot_time_series(pd_data, args.plot_time_series)
 

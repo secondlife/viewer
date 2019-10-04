@@ -10596,10 +10596,10 @@ void LLVOAvatar::calculateUpdateRenderComplexityLegacy()
 			LL_WARNS("Arctan") << "Avatar cost mismatch, old " << cost << ", new " << unew_cost << LL_ENDL;
 		}
 		
-        if ( cost != mVisualComplexity )
+        if ( unew_cost != mVisualComplexity )
         {
             LL_DEBUGS("AvatarRender") << "Avatar "<< getID()
-                                      << " complexity updated was " << mVisualComplexity << " now " << cost
+                                      << " complexity updated was " << mVisualComplexity << " now " << unew_cost
                                       << " reported " << mReportedVisualComplexity
                                       << LL_ENDL;
             mFrameDataStale = true;
@@ -10611,8 +10611,9 @@ void LLVOAvatar::calculateUpdateRenderComplexityLegacy()
                                       << " reported " << mReportedVisualComplexity
                                       << LL_ENDL;
         }
+		// FIXME ARC - using new cost here for logging, may not precisely match the V1 ARC formula
 		mVisualComplexityNew = unew_cost;
-		mVisualComplexity = cost;
+		mVisualComplexity = unew_cost;
 		mVisualComplexityStale = false;
 
         static LLCachedControl<U32> show_my_complexity_changes(gSavedSettings, "ShowMyComplexityChanges", 20);

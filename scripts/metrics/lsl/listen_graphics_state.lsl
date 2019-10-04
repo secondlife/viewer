@@ -55,85 +55,73 @@ integer change_gstate(string gstate)
         return 0;
     }
     say_if_verbose("change_gstate " + gstate + " starts");
-    integer start = llGetNumberOfPrims() > 1;
-    integer end = start + llGetNumberOfPrims();
-    integer link;
-    integer i = 0;
-    for(link=start; link < end; ++link)//loop through all prims
-    {
-        say_if_verbose("link " + (string) link + " change_gstate gstate " + gstate);
-        integer face = 0;
-        for (;face < llGetLinkNumberOfSides(link);++face)
-        {
-            if (gstate=="alpha")
-            {
-                vector color = <1,0,0>;
-                float alpha = 0.5;
-                say_if_verbose("alter link " + (string) link + " face " + (string) face + " color " + (string) color + " alpha " + (string) alpha);
-                llSetLinkPrimitiveParamsFast(link, [PRIM_COLOR, face, color, alpha]);
-            }
-            else if (gstate=="glow")
-            {
-                float glow = 1.0;
-                say_if_verbose("alter link " + (string) link + " face " + (string) face + " glow " + (string) glow);
-                llSetLinkPrimitiveParamsFast(link, [PRIM_GLOW, face, glow]);
-            }
-            else if (gstate=="shiny")
-            {
-                integer shiny = PRIM_SHINY_HIGH;
-                integer bump = PRIM_BUMP_NONE;
-                say_if_verbose("alter link " + (string) link + " face " + (string) face + " shiny " + (string) shiny);
-                llSetLinkPrimitiveParamsFast(link, [PRIM_BUMP_SHINY, face, shiny, bump]);
-                llSetLinkPrimitiveParams(link, [PRIM_BUMP_SHINY, face, shiny, bump]);
-            }
-            else if (gstate=="bump")
-            {
-                integer shiny = PRIM_SHINY_NONE;
-                integer bump = PRIM_BUMP_BRICKS;
-                say_if_verbose("alter link " + (string) link + " face " + (string) face + " bump " + (string) bump);
-                llSetLinkPrimitiveParamsFast(link, [PRIM_BUMP_SHINY, face, shiny, bump]);
-                llSetLinkPrimitiveParams(link, [PRIM_BUMP_SHINY, face, shiny, bump]);
-            }
-            else if (gstate=="point_light")
-            {
-                if (face==0)
-                {
-                    say_if_verbose("alter link " + (string) link + " face " + (string) face + " point_light on");
-                    llSetLinkPrimitiveParamsFast(link, [PRIM_POINT_LIGHT, 1, <0,1,0>, 1.0, 10.0, 0.5]);
-                }
-            }
-            else if (gstate=="normalmap")
-            {
-                string map_string = "8ae04f05-9e8a-e685-2bff-dc061efe6b34";
-                say_if_verbose("alter link " + (string) link + " face " + (string) face + " normalmap " + map_string);
-                llSetLinkPrimitiveParamsFast(link, [PRIM_NORMAL, face, map_string, <1,1,0>, <0,0,0>, 0]);
-            }
-            else if (gstate=="specmap")
-            {
-                string map_string = "5be7fc03-fb6f-2eba-0417-814b3a6289b3";
-                say_if_verbose("alter link " + (string) link + " face " + (string) face + " specmap " + map_string);
-                llSetLinkPrimitiveParamsFast(link, [PRIM_SPECULAR, face, map_string, <1,1,0>, <0,0,0>, 0, <1,1,1>, 200, 0]);
-            }
-            else if (gstate=="materials")
-            {
-                //string map_string = "7cc4fdec-0ff5-933d-6977-2adb13298466";
-                //llOwnerSay("alter link " + (string) link + " face " + (string) face + " texture " + map_string);
-                //llSetLinkPrimitiveParamsFast(link, [PRIM_TEXTURE, face, map_string, <1,1,0>, <0,0,0>, 0]);
+    integer link = LINK_SET; // all prims
+    integer face = ALL_SIDES; // all faces
+	say_if_verbose("link " + (string) link + " change_gstate gstate " + gstate);
+	if (gstate=="alpha")
+	{
+		vector color = <1,0,0>;
+		float alpha = 0.5;
+		say_if_verbose("alter link " + (string) link + " face " + (string) face + " color " + (string) color + " alpha " + (string) alpha);
+		llSetLinkPrimitiveParamsFast(link, [PRIM_COLOR, face, color, alpha]);
+	}
+	else if (gstate=="glow")
+	{
+		float glow = 1.0;
+		say_if_verbose("alter link " + (string) link + " face " + (string) face + " glow " + (string) glow);
+		llSetLinkPrimitiveParamsFast(link, [PRIM_GLOW, face, glow]);
+	}
+	else if (gstate=="shiny")
+	{
+		integer shiny = PRIM_SHINY_HIGH;
+		integer bump = PRIM_BUMP_NONE;
+		say_if_verbose("alter link " + (string) link + " face " + (string) face + " shiny " + (string) shiny);
+		llSetLinkPrimitiveParamsFast(link, [PRIM_BUMP_SHINY, face, shiny, bump]);
+		llSetLinkPrimitiveParams(link, [PRIM_BUMP_SHINY, face, shiny, bump]);
+	}
+	else if (gstate=="bump")
+	{
+		integer shiny = PRIM_SHINY_NONE;
+		integer bump = PRIM_BUMP_BRICKS;
+		say_if_verbose("alter link " + (string) link + " face " + (string) face + " bump " + (string) bump);
+		llSetLinkPrimitiveParamsFast(link, [PRIM_BUMP_SHINY, face, shiny, bump]);
+		llSetLinkPrimitiveParams(link, [PRIM_BUMP_SHINY, face, shiny, bump]);
+	}
+	else if (gstate=="point_light")
+	{
+		say_if_verbose("alter link " + (string) link + " face " + (string) face + " point_light on");
+		llSetLinkPrimitiveParamsFast(link, [PRIM_POINT_LIGHT, 1, <0,1,0>, 1.0, 10.0, 0.5]);
+	}
+	else if (gstate=="normalmap")
+	{
+		string map_string = "8ae04f05-9e8a-e685-2bff-dc061efe6b34";
+		say_if_verbose("alter link " + (string) link + " face " + (string) face + " normalmap " + map_string);
+		llSetLinkPrimitiveParamsFast(link, [PRIM_NORMAL, face, map_string, <1,1,0>, <0,0,0>, 0]);
+	}
+	else if (gstate=="specmap")
+	{
+		map_string = "5be7fc03-fb6f-2eba-0417-814b3a6289b3";
+		say_if_verbose("alter link " + (string) link + " face " + (string) face + " specmap " + map_string);
+		llSetLinkPrimitiveParamsFast(link, [PRIM_SPECULAR, face, map_string, <1,1,0>, <0,0,0>, 0, <1,1,1>, 200, 0]);
+	}
+	else if (gstate=="materials")
+	{
+		//string map_string = "7cc4fdec-0ff5-933d-6977-2adb13298466";
+		//llOwnerSay("alter link " + (string) link + " face " + (string) face + " texture " + map_string);
+		//llSetLinkPrimitiveParamsFast(link, [PRIM_TEXTURE, face, map_string, <1,1,0>, <0,0,0>, 0]);
 
-                string map_string = "8ae04f05-9e8a-e685-2bff-dc061efe6b34";
-                say_if_verbose("alter link " + (string) link + " face " + (string) face + " normalmap " + map_string);
-                llSetLinkPrimitiveParamsFast(link, [PRIM_NORMAL, face, map_string, <1,1,0>, <0,0,0>, 0]);
+		string map_string = "8ae04f05-9e8a-e685-2bff-dc061efe6b34";
+		say_if_verbose("alter link " + (string) link + " face " + (string) face + " normalmap " + map_string);
+		llSetLinkPrimitiveParamsFast(link, [PRIM_NORMAL, face, map_string, <1,1,0>, <0,0,0>, 0]);
 
-                map_string = "5be7fc03-fb6f-2eba-0417-814b3a6289b3";
-                say_if_verbose("alter link " + (string) link + " face " + (string) face + " specmap " + map_string);
-                llSetLinkPrimitiveParamsFast(link, [PRIM_SPECULAR, face, map_string, <1,1,0>, <0,0,0>, 0, <1,1,1>, 200, 0]);
-            }
-            else
-            {
-                say_if_verbose("ignoring unknown gstate " + gstate);
-            }
-        }
-    }
+		map_string = "5be7fc03-fb6f-2eba-0417-814b3a6289b3";
+		say_if_verbose("alter link " + (string) link + " face " + (string) face + " specmap " + map_string);
+		llSetLinkPrimitiveParamsFast(link, [PRIM_SPECULAR, face, map_string, <1,1,0>, <0,0,0>, 0, <1,1,1>, 200, 0]);
+	}
+	else
+	{
+		say_if_verbose("ignoring unknown gstate " + gstate);
+	}
     say_if_verbose("change_gstate " + gstate + " done");
     return 0;
 }
@@ -151,76 +139,64 @@ integer clear_gstate(string gstate)
         return 0;
     }
     say_if_verbose("clear_gstate " + gstate + " starts");
-    integer start = llGetNumberOfPrims() > 1;
-    integer end = start + llGetNumberOfPrims();
-    integer link;
-    integer i = 0;
-    for(link=start; link < end; ++link)//loop through all prims
-    {
-        say_if_verbose("link " + (string) link + " clear_gstate gstate " + gstate);
-        integer face = 0;
-        for (;face < llGetLinkNumberOfSides(link);++face)
-        {
-            if (gstate=="alpha")
-            {
-                vector color = <1,1,1>;
-                float alpha = 1.0;
-                say_if_verbose("clear link " + (string) link + " face " + (string) face + " color " + (string) color + " alpha " + (string) alpha);
-                llSetLinkPrimitiveParamsFast(link, [PRIM_COLOR, face, color, alpha]);
-            }
-            else if (gstate=="glow")
-            {
-                float glow = 0.0;
-                say_if_verbose("clear link " + (string) link + " face " + (string) face + " glow " + (string) glow);
-                llSetLinkPrimitiveParamsFast(link, [PRIM_GLOW, face, glow]);
-            }
-            else if (gstate=="shiny")
-            {
-                integer shiny = PRIM_SHINY_NONE;
-                integer bump = PRIM_BUMP_NONE;
-                say_if_verbose("clear link " + (string) link + " face " + (string) face + " shiny " + (string) shiny);
-                llSetLinkPrimitiveParamsFast(link, [PRIM_BUMP_SHINY, face, shiny, bump]);
-            }
-            else if (gstate=="bump")
-            {
-                integer shiny = PRIM_SHINY_NONE;
-                integer bump = PRIM_BUMP_NONE;
-                say_if_verbose("clear link " + (string) link + " face " + (string) face + " bump " + (string) bump);
-                llSetLinkPrimitiveParamsFast(link, [PRIM_BUMP_SHINY, face, shiny, bump]);
-            }
-            else if (gstate=="point_light")
-            {
-                if (face==0)
-                {
-                    say_if_verbose("clear link " + (string) link + " face " + (string) face + " point_light off");
-                    llSetLinkPrimitiveParamsFast(link, [PRIM_POINT_LIGHT, 0, <0,1,0>, 1.0, 10.0, 0.5]);
-                }
-            }
-            else if (gstate=="normalmap")
-            {
-                say_if_verbose("clear link " + (string) link + " face " + (string) face + " normalmap");
-                llSetLinkPrimitiveParamsFast(link, [PRIM_NORMAL, face, NULL_KEY, <1,1,0>, <0,0,0>, 0]);
-            }
-            else if (gstate=="specmap")
-            {
-                say_if_verbose("clear link " + (string) link + " face " + (string) face + " specmap");
-                llSetLinkPrimitiveParamsFast(link, [PRIM_SPECULAR, face, NULL_KEY, <1,1,0>, <0,0,0>, 0, <1,1,1>, 200, 0]);
-            }
-            else if (gstate=="materials")
-            {
-                string map_string = NULL_KEY;
-                say_if_verbose("clear link " + (string) link + " face " + (string) face + " normalmap " + map_string);
-                llSetLinkPrimitiveParamsFast(link, [PRIM_NORMAL, face, map_string, <1,1,0>, <0,0,0>, 0]);
+    integer link = LINK_SET; // all prims
+    integer face = ALL_SIDES; // all faces
+	say_if_verbose("link " + (string) link + " clear_gstate gstate " + gstate);
+	if (gstate=="alpha")
+	{
+		vector color = <1,1,1>;
+		float alpha = 1.0;
+		say_if_verbose("clear link " + (string) link + " face " + (string) face + " color " + (string) color + " alpha " + (string) alpha);
+		llSetLinkPrimitiveParamsFast(link, [PRIM_COLOR, face, color, alpha]);
+	}
+	else if (gstate=="glow")
+	{
+		float glow = 0.0;
+		say_if_verbose("clear link " + (string) link + " face " + (string) face + " glow " + (string) glow);
+		llSetLinkPrimitiveParamsFast(link, [PRIM_GLOW, face, glow]);
+	}
+	else if (gstate=="shiny")
+	{
+		integer shiny = PRIM_SHINY_NONE;
+		integer bump = PRIM_BUMP_NONE;
+		say_if_verbose("clear link " + (string) link + " face " + (string) face + " shiny " + (string) shiny);
+		llSetLinkPrimitiveParamsFast(link, [PRIM_BUMP_SHINY, face, shiny, bump]);
+	}
+	else if (gstate=="bump")
+	{
+		integer shiny = PRIM_SHINY_NONE;
+		integer bump = PRIM_BUMP_NONE;
+		say_if_verbose("clear link " + (string) link + " face " + (string) face + " bump " + (string) bump);
+		llSetLinkPrimitiveParamsFast(link, [PRIM_BUMP_SHINY, face, shiny, bump]);
+	}
+	else if (gstate=="point_light")
+	{
+		say_if_verbose("clear link " + (string) link + " face " + (string) face + " point_light off");
+		llSetLinkPrimitiveParamsFast(link, [PRIM_POINT_LIGHT, 0, <0,1,0>, 1.0, 10.0, 0.5]);
+	}
+	else if (gstate=="normalmap")
+	{
+		say_if_verbose("clear link " + (string) link + " face " + (string) face + " normalmap");
+		llSetLinkPrimitiveParamsFast(link, [PRIM_NORMAL, face, NULL_KEY, <1,1,0>, <0,0,0>, 0]);
+	}
+	else if (gstate=="specmap")
+	{
+		say_if_verbose("clear link " + (string) link + " face " + (string) face + " specmap");
+		llSetLinkPrimitiveParamsFast(link, [PRIM_SPECULAR, face, NULL_KEY, <1,1,0>, <0,0,0>, 0, <1,1,1>, 200, 0]);
+	}
+	else if (gstate=="materials")
+	{
+		string map_string = NULL_KEY;
+		say_if_verbose("clear link " + (string) link + " face " + (string) face + " normalmap " + map_string);
+		llSetLinkPrimitiveParamsFast(link, [PRIM_NORMAL, face, map_string, <1,1,0>, <0,0,0>, 0]);
 
-                say_if_verbose("clear link " + (string) link + " face " + (string) face + " specmap " + map_string);
-                llSetLinkPrimitiveParamsFast(link, [PRIM_SPECULAR, face, map_string, <1,1,0>, <0,0,0>, 0, <1,1,1>, 200, 0]);
-            }
-            else
-            {
-                say_if_verbose("unknown gstate " + gstate);
-            }
-        }
-   }
+		say_if_verbose("clear link " + (string) link + " face " + (string) face + " specmap " + map_string);
+		llSetLinkPrimitiveParamsFast(link, [PRIM_SPECULAR, face, map_string, <1,1,0>, <0,0,0>, 0, <1,1,1>, 200, 0]);
+	}
+	else
+	{
+		say_if_verbose("unknown gstate " + gstate);
+	}
     say_if_verbose("clear_gstate " + gstate + " done");
     return 0;
 }
@@ -254,8 +230,9 @@ default
             say_if_verbose("step 2: sleeping for requested duration " + (string) duration);
             llSleep((integer) duration);
 
-            say_if_verbose("step 3: running clear_gstate");
+            say_if_verbose("step 3: running clear_gstate and sleeping briefly");
             clear_gstate(gstate);
+            llSleep(2);
 
             say_if_verbose("backChannel sending: done");
             llSay(backChannel,"done");
