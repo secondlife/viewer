@@ -2437,12 +2437,13 @@ bool LLPanelObject::pasteEnabletMenuItem(const LLSD& userdata)
     return true;
 }
 
-// User is allowed to copy if they could otherwise recreate it manually
-// ie. User has full perm copy of the sculpted texture in their inventory,
-// or is a default texture or library asset.
 // Static
 bool LLPanelObject::canCopyTexture(LLUUID image_id)
 {
+    // User is allowed to copy a texture if:
+    // library asset or default texture,
+    // or full perm asset exists in user's inventory
+
     // Library asset or default texture
     if (gInventory.isObjectDescendentOf(image_id, gInventory.getLibraryRootFolderID())
         || image_id == LLUUID(gSavedSettings.getString( "DefaultObjectTexture" ))
@@ -2452,8 +2453,8 @@ bool LLPanelObject::canCopyTexture(LLUUID image_id)
     {
         return true;
     }
-    
-    // LLUUID inventory_item_id;
+
+    // Search for a full perm asset
     LLViewerInventoryCategory::cat_array_t cats;
     LLViewerInventoryItem::item_array_t items;
     LLAssetIDMatches asset_id_matches(image_id);
@@ -2464,12 +2465,10 @@ bool LLPanelObject::canCopyTexture(LLUUID image_id)
                                     asset_id_matches);
     if (items.size())
     {
-        // search for copyable version first
         for (S32 i = 0; i < items.size(); i++)
         {
-            LLInventoryItem* itemp = items[i];
-            LLPermissions item_permissions = itemp->getPermissions();
-            if (item_permissions.allowCopyBy(gAgent.getID()))
+            LLViewerInventoryItem* itemp = items[i];
+            if (itemp->getIsFullPerm())
             {
                 return true;
             }
