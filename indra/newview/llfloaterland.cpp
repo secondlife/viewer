@@ -3329,6 +3329,7 @@ BOOL LLPanelLandEnvironment::postBuild()
 
     getChild<LLUICtrl>(BTN_USEDEFAULT)->setLabelArg("[USEDEFAULT]", getString(STR_LABEL_USEREGION));
     getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setVisible(FALSE);
+    getChild<LLUICtrl>(PNL_REGION_MSG)->setVisible(FALSE);
     getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(TRUE);
 
     return TRUE;

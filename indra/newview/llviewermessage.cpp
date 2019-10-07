@@ -6714,8 +6714,9 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	msg->getString("Data", "EstateName", estate_name);
 	msg->getUUID("Data", "EstateOwnerID", estate_owner_id);
 
+	LLPanelEstateCovenant::updateEstateName(estate_name);
 	LLPanelLandCovenant::updateEstateName(estate_name);
-	LLFloaterRegionInfo::updateEstateName(estate_name);
+	LLPanelEstateInfo::updateEstateName(estate_name);
 	LLFloaterBuyLand::updateEstateName(estate_name);
 
 	std::string owner_name =
