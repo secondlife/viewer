@@ -137,20 +137,27 @@ LLBoundListener postAndSuspendSetup(const std::string& callerName,
     // make a callback that will assign a value to the future, and listen on
     // the specified LLEventPump with that callback
     LLBoundListener connection(
-        replyPump.getPump().listen(listenerName,
-                                   [&promise, consuming, listenerName](const LLSD& result)
-                                   {
-                                       try
-                                       {
-                                           promise.set_value(result);
-                                       }
-                                       catch(boost::fibers::promise_already_satisfied & ex)
-                                       {
-                                           LL_WARNS("lleventcoro") << "promise already satisfied in '"
-                                               << listenerName << "' "  << ex.what() << LL_ENDL;
-                                       }
-                                       return consuming;
-                                   }));
+        replyPump.getPump().listen(
+            listenerName,
+            [&promise, consuming, listenerName](const LLSD& result)
+            {
+                try
+                {
+                    promise.set_value(result);
+                    // We did manage to propagate the result value to the
+                    // (real) listener. If we're supposed to indicate that
+                    // we've consumed it, do so.
+                    return consuming;
+                }
+                catch(boost::fibers::promise_already_satisfied & ex)
+                {
+                    LL_WARNS("lleventcoro") << "promise already satisfied in '"
+                        << listenerName << "' "  << ex.what() << LL_ENDL;
+                    // We could not propagate the result value to the
+                    // listener.
+                    return false;
+                }
+            }));
     // skip the "post" part if requestPump is default-constructed
     if (requestPump)
     {
