@@ -91,7 +91,7 @@ void constructViewer()
 	// Set the working dir to <bundle>/Contents/Resources
 	if (chdir(gDirUtilp->getAppRODataDir().c_str()) == -1)
 	{
-		LL_WARNS() << "Could not change directory to "
+		LL_WARNS("InitOSX") << "Could not change directory to "
 				<< gDirUtilp->getAppRODataDir() << ": " << strerror(errno)
 				<< LL_ENDL;
 	}
@@ -109,7 +109,7 @@ bool initViewer()
 	bool ok = gViewerAppPtr->init();
 	if(!ok)
 	{
-		LL_WARNS() << "Application init failed." << LL_ENDL;
+		LL_WARNS("InitOSX") << "Application init failed." << LL_ENDL;
 	}
 	else if (!gHandleSLURL.empty())
 	{
@@ -172,7 +172,7 @@ class CrashMetadataSingleton: public CrashMetadata, public LLSingleton<CrashMeta
     std::string get_metadata(const LLSD& info, const LLSD::String& key) const
     {
         std::string data(info[key].asString());
-        LL_INFOS() << "  " << key << "='" << data << "'" << LL_ENDL;
+        LL_INFOS("Bugsplat") << "  " << key << "='" << data << "'" << LL_ENDL;
         return data;
     }
 };
@@ -188,17 +188,17 @@ CrashMetadataSingleton::CrashMetadataSingleton()
     LLSD info;
     if (! static_file.is_open())
     {
-        LL_WARNS() << "Can't open '" << staticDebugPathname
+        LL_WARNS("Bugsplat") << "Can't open '" << staticDebugPathname
                    << "'; no metadata about previous run" << LL_ENDL;
     }
     else if (! LLSDSerialize::deserialize(info, static_file, LLSDSerialize::SIZE_UNLIMITED))
     {
-        LL_WARNS() << "Can't parse '" << staticDebugPathname
+        LL_WARNS("Bugsplat") << "Can't parse '" << staticDebugPathname
                    << "'; no metadata about previous run" << LL_ENDL;
     }
     else
     {
-        LL_INFOS() << "Previous run metadata from '" << staticDebugPathname << "':" << LL_ENDL;
+        LL_INFOS("Bugsplat") << "Previous run metadata from '" << staticDebugPathname << "':" << LL_ENDL;
         logFilePathname      = get_metadata(info, "SLLog");
         userSettingsPathname = get_metadata(info, "SettingsFilename");
         OSInfo               = get_metadata(info, "OSInfo");
@@ -218,7 +218,7 @@ CrashMetadata& CrashMetadata_instance()
 
 void infos(const std::string& message)
 {
-    LL_INFOS() << message << LL_ENDL;
+    LL_INFOS("InitOSX", "Bugsplat") << message << LL_ENDL;
 }
 
 int main( int argc, char **argv ) 
