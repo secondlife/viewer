@@ -42,7 +42,12 @@
 
 typedef std::set<LLUUID> texture_ids_t;
 
+// ARC remove before release
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+#ifdef MSVC
 #pragma optimize("", off)
+#endif
+#endif
 
 class LLPrimCostData
 {

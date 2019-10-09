@@ -98,7 +98,12 @@
 #include "llglheaders.h"
 #include "llinventoryobserver.h"
 
+// ARC remove before release
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+#ifdef MSVC
 #pragma optimize("", off)
+#endif
+#endif
 
 LLViewerObject* getSelectedParentObject(LLViewerObject *object) ;
 //

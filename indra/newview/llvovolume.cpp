@@ -88,7 +88,12 @@
 #include "llavatarappearancedefines.h"
 #include "llobjectcostmanager.h"
 
+// ARC remove before release
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+#ifdef MSVC
 #pragma optimize("", off)
+#endif
+#endif
 
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;

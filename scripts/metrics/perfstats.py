@@ -35,6 +35,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import itertools
+import statsmodels.formula.api as smf
 
 def xstr(x):
     if x is None:
@@ -97,9 +98,10 @@ model_props = ["Derived.Avatar.Attachments.AlphaTriFrac",
                "Derived.Avatar.Attachments.GlowTriFrac",
                "Derived.Avatar.Attachments.ShinyTriFrac",
                "Derived.Avatar.Attachments.BumpTriFrac",
-               "Derived.Avatar.Attachments.NormalMapTriFrac",
-               "Derived.Avatar.Attachments.SpecMapTriFrac",
                "Derived.Avatar.Attachments.ProducesLightTriFrac",
+               "Derived.Avatar.Attachments.MaterialsTriFrac",
+#               "Derived.Avatar.Attachments.NormalMapTriFrac",
+#               "Derived.Avatar.Attachments.SpecMapTriFrac",
 ]
 
 class AttachmentsDerivedField:
@@ -145,6 +147,10 @@ class AttachmentsDerivedField:
             elif key=="BumpTriFrac":
                 all_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]])
                 alpha_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"] if prim["m_bumpmap_faces"]>0])
+                return 1.0 * alpha_tris/all_tris
+            elif key=="MaterialsTriFrac":
+                all_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]])
+                alpha_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"] if prim["m_materials_faces"]>0])
                 return 1.0 * alpha_tris/all_tris
             elif key=="NormalMapTriFrac":
                 all_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]])
@@ -358,7 +364,13 @@ def abbrev_number(f):
         return str(int(f/1e12))+"T"
 
 def estimate_cost_coeffs(outfit_spans, props):
-    span_clusters = outfit_spans.groupby(props)
+    tckey = "Derived.Avatar.Attachments.ActiveTriangleCount"
+    modal_tri_count = outfit_spans[tckey].mode()[0]
+    print "modal_tris", modal_tri_count
+    is_modal = outfit_spans[tckey]==modal_tri_count
+    modal_spans = outfit_spans[is_modal]
+    span_clusters = modal_spans.groupby(props)
+
     canonical = dict()
     for name, group in span_clusters:
         #print "span_cluster", name, type(name)
@@ -372,12 +384,42 @@ def estimate_cost_coeffs(outfit_spans, props):
     for prop_key, span in canonical.iteritems():
         if prop_key != base_prop_key:
             diff_keys = []
-            for i, s in enumerate(props):
-                if prop_key[i] != base_prop_key[i]:
-                    diff_keys.append(s)
+            for key in props:
+                if base_span[key] != span[key]:
+                    diff_keys.append(key)
+            print "Comparing test span, starting", span["start_frame"], "to base span, starting", base_span["start_frame"]
             coeff = span["avg"]/base_span["avg"]
             print "est coeff:", diff_keys, coeff
-        
+
+def linear_regression_model_outfits(outfit_spans, props):
+    all_tri_prop = 'Derived.Avatar.Attachments.ActiveTriangleCount'
+    print "Linear regression model based on outfit_spans:"
+    #print outfit_spans.describe(include='all')
+    #print "columns", outfit_spans.columns
+    #print "props", props
+    tri_count_props = []
+    for prop in props:
+        short_prop = prop.replace("Derived.Avatar.Attachments.","")
+        tri_count_prop = prop.replace("Frac","Count").replace("Derived.Avatar.Attachments.","")
+        outfit_spans[short_prop] = outfit_spans[prop]
+        #print tri_count_prop
+        tri_count_props.append(tri_count_prop)
+        outfit_spans[tri_count_prop] = outfit_spans[prop] * outfit_spans[all_tri_prop]
+        #print outfit_spans[tri_count_prop]
+    outfit_spans.drop(columns=props, inplace=True)
+    outfit_spans.to_csv("dumpitydo.csv")
+    raw_tri_prop = "RawTriCount"
+    outfit_spans[raw_tri_prop] = outfit_spans[all_tri_prop]
+    for tri_count_prop in tri_count_props:
+        outfit_spans[raw_tri_prop] -= outfit_spans[tri_count_prop]
+    #print "raw counts", outfit_spans[raw_tri_prop]
+    tri_count_props.append(raw_tri_prop)
+    formula_str = "avg ~ " + " + ".join(tri_count_props)
+    print formula_str
+    lm = smf.ols(formula = formula_str, data = outfit_spans).fit()
+    print lm.params
+    print lm.summary()
+
 def get_outfit_spans(pd_data, cost_key="Avatars.Self.ARCCalculated"): 
     results = []
     results = []
@@ -422,9 +464,11 @@ def process_by_outfit(pd_data, cost_key="Avatars.Self.ARCCalculated"):
     outfits_csv_filename = get_default_export_name(pd_data,"outfits")
     outfit_spans = outfit_spans.sort_values("start_frame")
     outfit_spans.to_csv(outfits_csv_filename, columns=outfit_spans.columns.difference(['group','times']))
-    outfit_spans = outfit_spans.sort_values("avg")
 
-    estimate_cost_coeffs(outfit_spans, model_props)
+#    estimate_cost_coeffs(outfit_spans, model_props)
+    linear_regression_model_outfits(outfit_spans, model_props)
+
+    outfit_spans.to_csv("linreg_" + outfits_csv_filename, columns=outfit_spans.columns.difference(['group','times']))
 
     all_times = []
     num_rows = outfit_spans.shape[0]
@@ -565,6 +609,7 @@ if __name__ == "__main__":
                        "Derived.Avatar.Attachments.GlowTriFrac",
                        "Derived.Avatar.Attachments.ShinyTriFrac",
                        "Derived.Avatar.Attachments.BumpTriFrac",
+                       "Derived.Avatar.Attachments.MaterialsTriFrac",
                        "Derived.Avatar.Attachments.NormalMapTriFrac",
                        "Derived.Avatar.Attachments.SpecMapTriFrac",
                        "Derived.Avatar.Attachments.ProducesLightTriFrac",

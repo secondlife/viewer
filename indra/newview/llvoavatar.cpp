@@ -113,7 +113,12 @@
 
 #include <boost/lexical_cast.hpp>
 
+// ARC remove before release
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+#ifdef MSVC
 #pragma optimize("", off)
+#endif
+#endif
 
 extern F32 SPEED_ADJUST_MAX;
 extern F32 SPEED_ADJUST_MAX_SEC;

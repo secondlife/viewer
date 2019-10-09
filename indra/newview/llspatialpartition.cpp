@@ -55,8 +55,6 @@
 #include "llviewershadermgr.h"
 #include "llcontrolavatar.h"
 
-//#pragma optimize("", off)
-
 static LLTrace::BlockTimerStatHandle FTM_FRUSTUM_CULL("Frustum Culling");
 static LLTrace::BlockTimerStatHandle FTM_CULL_REBOUND("Cull Rebound Partition");
 
