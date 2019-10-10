@@ -37,6 +37,28 @@ import pandas as pd
 import itertools
 import statsmodels.formula.api as smf
 
+#=========================================================================================================
+# for these, we will sum all counts found in all attachments
+sum_graphic_properties = ["media_faces"]
+
+ref_props = ["Avatars.Self.ARCCalculated",
+             "Avatars.Self.ARCCalculated2",
+             "active_triangle_count",
+]
+
+# for these, we will compute the fraction of triangles affected by the setting
+face_count_props = ["alpha", "glow", "shiny", "bumpmap", "produces_light", "materials"]
+tri_frac_props = [prop + "_frac" for prop in face_count_props]
+print "tri_frac_props", tri_frac_props
+
+tri_count_props = [prop + "_count" for prop in face_count_props]
+computed_props = ["raw_triangle_count"]
+
+triangle_lod_keys = ["triangle_count_lowest", "triangle_count_low", "triangle_count_mid", "triangle_count_high"]
+
+model_props = tri_frac_props
+#=========================================================================================================
+
 def xstr(x):
     if x is None:
         return ''
@@ -82,88 +104,59 @@ class DerivedSelfTimers:
                             value -= self.sd["Timers"][child]["Time"]
         return value
 
-# for these, we will compute the fraction of triangles affected by the setting
-bool_graphic_properties = ["alpha","animtex","bump","flexi","glow","invisi","particles","planar","produces_light","shiny","weighted_mesh","specmap","normalmap","materials"]
-
-# for these, we will sum all counts found in all attachments
-sum_graphic_properties = ["media_faces"]
-
-ref_props = ["Avatars.Self.ARCCalculated",
-             "Avatars.Self.ARCCalculated2",
-             "Derived.Avatar.Attachments.Count",
-             "Derived.Avatar.Attachments.ActiveTriangleCount",
-]
-
-model_props = ["Derived.Avatar.Attachments.AlphaTriFrac",
-               "Derived.Avatar.Attachments.GlowTriFrac",
-               "Derived.Avatar.Attachments.ShinyTriFrac",
-               "Derived.Avatar.Attachments.BumpTriFrac",
-               "Derived.Avatar.Attachments.ProducesLightTriFrac",
-               "Derived.Avatar.Attachments.MaterialsTriFrac",
-#               "Derived.Avatar.Attachments.NormalMapTriFrac",
-#               "Derived.Avatar.Attachments.SpecMapTriFrac",
-]
-
 class AttachmentsDerivedField:
     def __init__(self,sd,**kwargs):
         self.sd = sd
         self.kwargs = kwargs
     def __getitem__(self, key):
         attachments = sd_extract_field(self.sd,"Avatars.Self.Attachments") 
-        triangle_keys = ["triangles_lowest", "triangles_low", "triangles_mid", "triangles_high"]
         if attachments:
-            if key=="Count":
+            if key=="attachment_count":
                 return len(attachments)
-            if key=="MeshCount":
-                return len([att for att in attachments if att["isMesh"]])
-            elif key in triangle_keys:
-                total = sum([sd_extract_field(att,"StreamingCost." + key,0.0) for att in attachments])
-                return total
-            elif key in bool_graphic_properties:
-                tris_with_property = sum([sd_extract_field(att,"StreamingCost.triangles_high",0.0) for att in attachments if sd_extract_field(att,key)])
-                tris_grand_total = sum([sd_extract_field(att,"StreamingCost.triangles_high",0.0) for att in attachments])
-                return tris_with_property/tris_grand_total if tris_grand_total > 0.0 else 0.0
-            elif key in sum_graphic_properties:
-                return sum([sd_extract_field(att,"StreamingCost." + key,0.0) for att in attachments])
-            elif key=="ActiveTriangleCount":
+            elif key=="mesh_attachment_count":
+                count = 0
+                for att in attachments:
+                    for prim in att["prims"]:
+                        if prim["m_mesh_vols"]>0:
+                            count += 1
+                            continue
+                return count
+            elif key=="rigged_mesh_attachment_count":
+                count = 0
+                for att in attachments:
+                    for prim in att["prims"]:
+                        if prim["m_weighted_mesh_vols"]>0:
+                            count += 1
+                            continue
+                return count
+            elif key in triangle_lod_keys:
+                lod_tris = sum([prim["m_" + key] for att in attachments for prim in att["prims"]])
+                return lod_tris
+            elif key=="active_triangle_count":
                 total = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]])
-                #total = 0
-                #for att in attachments:
-                #    for prim in att["prims"]:
-                #        total += prim["m_triangle_count"]
                 return total
-            elif key=="AlphaTriFrac":
+            elif key == "produces_light_frac":
+                prim_vol_prop = "m_" + key.replace("_frac","_vols")
+                prop_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]
+                                 if prim[prim_vol_prop]>0])
                 all_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]])
-                alpha_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"] if prim["m_alpha_faces"]>0])
-                return 1.0 * alpha_tris/all_tris
-            elif key=="GlowTriFrac":
+                return 1.0 * prop_tris/all_tris
+            elif key in tri_frac_props:
+                prim_face_prop = "m_" + key.replace("_frac","_faces")
                 all_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]])
-                alpha_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"] if prim["m_glow_faces"]>0])
-                return 1.0 * alpha_tris/all_tris
-            elif key=="ShinyTriFrac":
-                all_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]])
-                alpha_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"] if prim["m_shiny_faces"]>0])
-                return 1.0 * alpha_tris/all_tris
-            elif key=="BumpTriFrac":
-                all_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]])
-                alpha_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"] if prim["m_bumpmap_faces"]>0])
-                return 1.0 * alpha_tris/all_tris
-            elif key=="MaterialsTriFrac":
-                all_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]])
-                alpha_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"] if prim["m_materials_faces"]>0])
-                return 1.0 * alpha_tris/all_tris
-            elif key=="NormalMapTriFrac":
-                all_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]])
-                alpha_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"] if prim["m_normalmap_faces"]>0])
-                return 1.0 * alpha_tris/all_tris
-            elif key=="SpecMapTriFrac":
-                all_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]])
-                alpha_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"] if prim["m_specmap_faces"]>0])
-                return 1.0 * alpha_tris/all_tris
-            elif key=="ProducesLightTriFrac":
-                all_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]])
-                alpha_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"] if prim["m_produces_light_vols"]>0])
-                return 1.0 * alpha_tris/all_tris
+                prop_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]
+                                 if prim[prim_face_prop]>0])
+                return 1.0 * prop_tris/all_tris
+            elif key=="produces_light_count":
+                prim_vol_prop = "m_" + key.replace("_count","_vols")
+                prop_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]
+                                 if prim[prim_vol_prop]>0])
+                return prop_tris
+            elif key in tri_count_props:
+                prim_face_prop = "m_" + key.replace("_count","_faces")
+                prop_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]
+                                 if prim[prim_face_prop]>0])
+                return prop_tris
             else:
                 raise IndexError()
 
@@ -256,6 +249,12 @@ def sd_extract_field(sd,key,default_val=None):
         return t
     except KeyError:
         return default_val
+
+def add_computed_columns(frame_data):
+    frame_data['raw_triangle_count'] = frame_data['active_triangle_count']
+    for prop in tri_count_props:
+        frame_data['raw_triangle_count'] -= frame_data[prop]
+    frame_data['smooth_time'] = frame_data['frame_time'].rolling(window=20, center=True, min_periods=1).mean()
 
 def collect_pandas_frame_data(filename, fields, max_records, **kwargs):
     # previously generated csv file?
@@ -364,7 +363,7 @@ def abbrev_number(f):
         return str(int(f/1e12))+"T"
 
 def estimate_cost_coeffs(outfit_spans, props):
-    tckey = "Derived.Avatar.Attachments.ActiveTriangleCount"
+    tckey = "Derived.Avatar.Attachments.active_triangle_count"
     modal_tri_count = outfit_spans[tckey].mode()[0]
     print "modal_tris", modal_tri_count
     is_modal = outfit_spans[tckey]==modal_tri_count
@@ -391,46 +390,49 @@ def estimate_cost_coeffs(outfit_spans, props):
             coeff = span["avg"]/base_span["avg"]
             print "est coeff:", diff_keys, coeff
 
+def print_arc_coeffs(lm_params):
+    for key in lm_params.index:
+        coeff = lm_params[key]/lm_params['raw_triangle_count']
+        print "ARC coeff", key, coeff
+
 def linear_regression_model_outfits(outfit_spans, props):
-    all_tri_prop = 'Derived.Avatar.Attachments.ActiveTriangleCount'
     print "Linear regression model based on outfit_spans:"
-    #print outfit_spans.describe(include='all')
-    #print "columns", outfit_spans.columns
-    #print "props", props
-    tri_count_props = []
-    for prop in props:
-        short_prop = prop.replace("Derived.Avatar.Attachments.","")
-        tri_count_prop = prop.replace("Frac","Count").replace("Derived.Avatar.Attachments.","")
-        outfit_spans[short_prop] = outfit_spans[prop]
-        #print tri_count_prop
-        tri_count_props.append(tri_count_prop)
-        outfit_spans[tri_count_prop] = outfit_spans[prop] * outfit_spans[all_tri_prop]
-        #print outfit_spans[tri_count_prop]
-    outfit_spans.drop(columns=props, inplace=True)
-    outfit_spans.to_csv("dumpitydo.csv")
-    raw_tri_prop = "RawTriCount"
-    outfit_spans[raw_tri_prop] = outfit_spans[all_tri_prop]
-    for tri_count_prop in tri_count_props:
-        outfit_spans[raw_tri_prop] -= outfit_spans[tri_count_prop]
-    #print "raw counts", outfit_spans[raw_tri_prop]
-    tri_count_props.append(raw_tri_prop)
-    formula_str = "avg ~ " + " + ".join(tri_count_props)
+    driver_vars = tri_count_props
+    driver_vars.append("raw_triangle_count")
+    formula_str = "avg ~ " + " + ".join(driver_vars)
     print formula_str
     lm = smf.ols(formula = formula_str, data = outfit_spans).fit()
     print lm.params
     print lm.summary()
+    print_arc_coeffs(lm.params)
+
+def linear_regression_frame_times(pd_data, props, time_key="frame_time"):
+    print "Linear regression model based on frame times, hopefully filtered into periods with fixed content"
+    driver_vars = tri_count_props
+    driver_vars.append("raw_triangle_count")
+    formula_str = time_key + " ~ " + " + ".join(driver_vars)
+    print formula_str
+    lm = smf.ols(formula = formula_str, data = pd_data).fit()
+    print lm.params
+    print lm.summary()
+    print_arc_coeffs(lm.params)
 
 def get_outfit_spans(pd_data, cost_key="Avatars.Self.ARCCalculated"): 
     results = []
     results = []
     outfit_key = "Avatars.Self.OutfitName"
-    time_key="Timers.Frame.Time" 
+    time_key="frame_time"
     pd_data['span_num'] = (pd_data[cost_key].shift(1) != pd_data[cost_key]).astype(int).cumsum()
 
-    std_props = ref_props + model_props
-    grouped = pd_data.groupby([outfit_key,'span_num'] + std_props)
+    std_props = ref_props + model_props + tri_count_props + computed_props
+    print "outfit std props", std_props
+    grouped = pd_data.groupby([outfit_key, 'span_num'] + std_props)
+    pd_filtered = grouped.filter(lambda x: x[time_key].sum() > 10.0 and len(x)>200)
     if args.verbose:
         print "Grouped has",len(grouped),"groups"
+        print "orig data lines", len(pd_data), "filtered", len(pd_filtered)
+        print "columns are:", pd_data.columns
+        print "std_props is", std_props
     for name, group in grouped:
         #print name, len(group) 
         #print "group:", group
@@ -448,27 +450,26 @@ def get_outfit_spans(pd_data, cost_key="Avatars.Self.ARCCalculated"):
                           "avg": np.percentile(times, 50.0), #np.average(timespan.clip(low,high)), 
                           "std": np.std(times), 
                           "times": times}
-#            std_props.extend(["Derived.Avatar.Attachments." + key for key in bool_graphic_properties])
-#            std_props.extend(["Derived.Avatar.Attachments." + key for key in sum_graphic_properties])
             for f in std_props:
                 outfit_rec[f] = group.iloc[0][f] # all values are equal after groupby, can use any index
             results.append(outfit_rec)
     if args.verbose:
         print len(results),"groups found of sufficient duration and frame count"
     df =  pd.DataFrame(results)
-    return df
+    return (df, pd_filtered)
 
 def process_by_outfit(pd_data, cost_key="Avatars.Self.ARCCalculated"):
-    time_key = "Timers.Frame.Time"
-    outfit_spans = get_outfit_spans(pd_data, cost_key)
+    time_key = "frame_time"
+    (outfit_spans, pd_filtered) = get_outfit_spans(pd_data, cost_key)
     outfits_csv_filename = get_default_export_name(pd_data,"outfits")
     outfit_spans = outfit_spans.sort_values("start_frame")
     outfit_spans.to_csv(outfits_csv_filename, columns=outfit_spans.columns.difference(['group','times']))
 
 #    estimate_cost_coeffs(outfit_spans, model_props)
     linear_regression_model_outfits(outfit_spans, model_props)
+    linear_regression_frame_times(pd_filtered, model_props, time_key="smooth_time")
 
-    outfit_spans.to_csv("linreg_" + outfits_csv_filename, columns=outfit_spans.columns.difference(['group','times']))
+    #outfit_spans.to_csv("linreg_" + outfits_csv_filename, columns=outfit_spans.columns.difference(['group','times']))
 
     all_times = []
     num_rows = outfit_spans.shape[0]
@@ -535,9 +536,9 @@ def process_by_outfit(pd_data, cost_key="Avatars.Self.ARCCalculated"):
     fig.savefig("times_histo_outfits.jpg")
         
 def plot_time_series(pd_data,fields):
-    time_key = "Timers.Frame.Time"
+    time_key = "frame_time"
     print "plot_time_series",fields
-    outfit_spans = get_outfit_spans(pd_data, fields[0])
+    (outfit_spans, ignored) = get_outfit_spans(pd_data, fields[0])
     for f in fields:
         #pd_data[f] = pd_data[f].clip(0,0.05)
         ax = pd_data.plot(y=f, alpha=0.3)
@@ -579,7 +580,7 @@ def compare_frames(a,b):
     compare_df.to_csv("compare.csv")
     return compare_df
 
-def extract_percent(df, key="Timers.Frame.Time", low=0.0, high=100.0, filename="extract_percent.csv"):
+def extract_percent(df, key="frame_time", low=0.0, high=100.0, filename="extract_percent.csv"):
     df.to_csv("percent_input.csv")
     result = df
     result["Avatars.Self.OutfitName"] = df["Avatars.Self.OutfitName"].fillna(method='ffill')
@@ -598,24 +599,14 @@ if __name__ == "__main__":
                        "Avatars.Self.ARCCalculated2", 
                        "Avatars.Self.OutfitName", 
                        "Avatars.Self.AttachmentSurfaceArea",
-                       "Derived.Avatar.Attachments.Count",
-                       "Derived.Avatar.Attachments.MeshCount",
-                       "Derived.Avatar.Attachments.triangles_high",
-                       "Derived.Avatar.Attachments.triangles_mid",
-                       "Derived.Avatar.Attachments.triangles_low",
-                       "Derived.Avatar.Attachments.triangles_lowest",
-                       "Derived.Avatar.Attachments.ActiveTriangleCount",
-                       "Derived.Avatar.Attachments.AlphaTriFrac",
-                       "Derived.Avatar.Attachments.GlowTriFrac",
-                       "Derived.Avatar.Attachments.ShinyTriFrac",
-                       "Derived.Avatar.Attachments.BumpTriFrac",
-                       "Derived.Avatar.Attachments.MaterialsTriFrac",
-                       "Derived.Avatar.Attachments.NormalMapTriFrac",
-                       "Derived.Avatar.Attachments.SpecMapTriFrac",
-                       "Derived.Avatar.Attachments.ProducesLightTriFrac",
+                       "Derived.Avatar.Attachments.attachment_count",
+                       "Derived.Avatar.Attachments.mesh_attachment_count",
+                       "Derived.Avatar.Attachments.rigged_mesh_attachment_count",
+                       "Derived.Avatar.Attachments.active_triangle_count",
     ]
-    default_fields.extend(["Derived.Avatar.Attachments." + key for key in bool_graphic_properties])
-    default_fields.extend(["Derived.Avatar.Attachments." + key for key in sum_graphic_properties])
+    default_fields.extend(["Derived.Avatar.Attachments." + key for key in triangle_lod_keys])
+    default_fields.extend(["Derived.Avatar.Attachments." + key for key in tri_count_props])
+    default_fields.extend(["Derived.Avatar.Attachments." + key for key in tri_frac_props])
 
     parser = argparse.ArgumentParser(description="analyze viewer performance files")
     parser.add_argument("--verbose", action="store_true", help="verbose flag")
@@ -688,9 +679,17 @@ if __name__ == "__main__":
     args.fields = list(set(args.fields))
     print "FIELDS",args.fields
         
-    #timer_data = collect_frame_data(args.infilename, args.fields, args.max_records, 0.001)
-    print "infilename",args.infilename
+    print "collecting frame data, infilename",args.infilename
     pd_data = collect_pandas_frame_data(args.infilename, args.fields, args.max_records, children=child_info, ignore=ignore_list)
+    pd_data.rename(inplace=True, columns = lambda col: col.replace("Derived.Avatar.Attachments.",""))
+    pd_data.rename(inplace=True, columns = lambda col: col.replace("Timers.Frame.Time","frame_time"))
+    fill_blanks(pd_data)
+    add_computed_columns(pd_data)
+    print "driver data means:"
+    for p in tri_frac_props:
+        print p, pd_data[p].mean()
+    for p in tri_count_props:
+        print p, pd_data[p].mean()
 
     if args.compare:
         compare_data = collect_pandas_frame_data(args.compare, args.fields, args.max_records, children=child_info, ignore=ignore_list)
@@ -702,8 +701,6 @@ if __name__ == "__main__":
         for key in sorted(child_info.keys()):
             print key,child_info[key]
 
-    # always want to do this
-    fill_blanks(pd_data)
         
     print "args.export",args.export
     if args.export:
@@ -722,7 +719,7 @@ if __name__ == "__main__":
         low_pct = float(low_pct)
         high_pct = float(high_pct)
         print "extract percent",low_pct,high_pct,filename
-        extract_percent(pd_data,"Timers.Frame.Time",low_pct,high_pct,filename)
+        extract_percent(pd_data,"frame_time",low_pct,high_pct,filename)
             
     if args.summarize:
         pd_data = pd_data.fillna(0.0)
@@ -741,7 +738,7 @@ if __name__ == "__main__":
             print "median", f, medians[f]
         
     if args.by_outfit:
-        process_by_outfit(pd_data,cost_key="Avatars.Self.ARCCalculated") #Derived.Avatar.Attachments.ActiveTriangleCount")
+        process_by_outfit(pd_data,cost_key="Avatars.Self.ARCCalculated") #Derived.Avatar.Attachments.active_triangle_count")
     if args.plot_time_series:
         plot_time_series(pd_data, args.plot_time_series)
 
