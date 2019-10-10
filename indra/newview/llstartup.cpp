@@ -806,12 +806,6 @@ bool idle_startup()
 		gLoginMenuBarView->setEnabled( TRUE );
 		show_debug_menus();
 
-        if (!LLConversationLog::instanceExists())
-        {
-            // Check existance since this part can be reached twice if login fails
-            LLConversationLog::initParamSingleton();
-        }
-
 		// Hide the splash screen
 		LLSplashScreen::hide();
 		// Push our window frontmost
@@ -948,6 +942,12 @@ bool idle_startup()
 		LLFile::mkdir(gDirUtilp->getChatLogsDir());
 		LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
 
+		//Initialize conversation log only when chat log directories are ready
+		if (!LLConversationLog::instanceExists())
+		{
+			// Check existance since this part can be reached twice if login fails
+			LLConversationLog::initParamSingleton();
+		}
 
 		//good a place as any to create user windlight directories
 		std::string user_windlight_path_name(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight", ""));
