@@ -611,6 +611,9 @@ int main(int argc, char **argv)
 				wait_at_exit = true;
 				break;
 			case 'd':
+				// this is what LLError::initForApplication() does internally
+				// when you pass log_to_stderr=true
+				LLError::logToStderr();
 				LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
 				break;
 			case 'x':
