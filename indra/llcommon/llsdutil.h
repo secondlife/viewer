@@ -129,6 +129,16 @@ LL_COMMON_API std::string llsd_matches(const LLSD& prototype, const LLSD& data, 
 /// equality rather than bitwise equality, pass @a bits as for
 /// is_approx_equal_fraction().
 LL_COMMON_API bool llsd_equals(const LLSD& lhs, const LLSD& rhs, int bits=-1);
+/// If you don't care about LLSD::Real equality
+inline bool operator==(const LLSD& lhs, const LLSD& rhs)
+{
+    return llsd_equals(lhs, rhs);
+}
+inline bool operator!=(const LLSD& lhs, const LLSD& rhs)
+{
+    // operator!=() should always be the negation of operator==()
+    return ! (lhs == rhs);
+}
 
 // Simple function to copy data out of input & output iterators if
 // there is no need for casting.
@@ -236,6 +246,36 @@ private:
     LLSD _data;
 };
 
+namespace llsd
+{
+
+/**
+ * Construct an LLSD::Array inline, using modern C++ variadic arguments.
+ */
+
+// recursion tail
+inline
+void array_(LLSD&) {}
+
+// recursive call
+template <typename T0, typename... Ts>
+void array_(LLSD& data, T0&& v0, Ts&&... vs)
+{
+    data.append(std::forward<T0>(v0));
+    array_(data, std::forward<Ts>(vs)...);
+}
+
+// public interface
+template <typename... Ts>
+LLSD array(Ts&&... vs)
+{
+    LLSD data;
+    array_(data, std::forward<Ts>(vs)...);
+    return data;
+}
+
+} // namespace llsd
+
 /*****************************************************************************
 *   LLSDMap
 *****************************************************************************/
@@ -279,6 +319,36 @@ public:
 private:
     LLSD _data;
 };
+
+namespace llsd
+{
+
+/**
+ * Construct an LLSD::Map inline, using modern C++ variadic arguments.
+ */
+
+// recursion tail
+inline
+void map_(LLSD&) {}
+
+// recursive call
+template <typename T0, typename... Ts>
+void map_(LLSD& data, const LLSD::String& k0, T0&& v0, Ts&&... vs)
+{
+    data[k0] = v0;
+    map_(data, std::forward<Ts>(vs)...);
+}
+
+// public interface
+template <typename... Ts>
+LLSD map(Ts&&... vs)
+{
+    LLSD data;
+    map_(data, std::forward<Ts>(vs)...);
+    return data;
+}
+
+} // namespace llsd
 
 /*****************************************************************************
 *   LLSDParam
