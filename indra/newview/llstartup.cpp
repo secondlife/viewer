@@ -942,12 +942,6 @@ bool idle_startup()
 		LLFile::mkdir(gDirUtilp->getChatLogsDir());
 		LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
 
-		//Initialize conversation log only when chat log directories are ready
-		if (!LLConversationLog::instanceExists())
-		{
-			// Check existance since this part can be reached twice if login fails
-			LLConversationLog::initParamSingleton();
-		}
 
 		//good a place as any to create user windlight directories
 		std::string user_windlight_path_name(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight", ""));
@@ -1298,6 +1292,12 @@ bool idle_startup()
 		LLStartUp::initExperiences();
 
 		display_startup();
+
+		// If logging should be enebled, turns it on and loads history from disk
+		// Note: does not happen on init of singleton because preferences can use
+		// this instance without logging in
+		LLConversationLog::getInstance()->initLoggingState();
+
 		LLStartUp::setStartupState( STATE_MULTIMEDIA_INIT );
 
 		return FALSE;

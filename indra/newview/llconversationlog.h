@@ -107,7 +107,7 @@ private:
  * To distinguish two conversations with the same sessionID it's also needed to compare their creation date.
  */
 
-class LLConversationLog : public LLParamSingleton<LLConversationLog>, LLIMSessionObserver
+class LLConversationLog : public LLSingleton<LLConversationLog>, LLIMSessionObserver
 {
 	LLSINGLETON(LLConversationLog);
 public:
@@ -146,6 +146,12 @@ public:
 
 	bool getIsLoggingEnabled() { return mLoggingEnabled; }
 	bool isLogEmpty() { return mConversations.empty(); }
+
+	/**
+	 * inits connection to per account settings,
+	 * loads saved file and inits enabled state
+	 */
+	void initLoggingState();
 
 	/**
 	 * constructs file name in which conversations log will be saved
