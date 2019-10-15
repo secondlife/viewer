@@ -254,8 +254,13 @@ def add_computed_columns(frame_data):
     frame_data['raw_triangle_count'] = frame_data['active_triangle_count']
     for prop in tri_count_props:
         frame_data['raw_triangle_count'] -= frame_data[prop]
-    frame_data['smooth_time'] = frame_data['frame_time'].rolling(window=20, center=True, min_periods=1).mean()
+    frame_data['elapsed_time'] = frame_data['frame_time'].cumsum()
 
+def filter_extreme_times(fd, pct):
+    times = fd['frame_time']
+    extreme = np.percentile(times, pct)
+    return fd[fd.frame_time<extreme]
+    
 def collect_pandas_frame_data(filename, fields, max_records, **kwargs):
     # previously generated csv file?
     if re.match(".*\.csv$", filename):
@@ -403,10 +408,13 @@ def linear_regression_model_outfits(outfit_spans, props):
     print formula_str
     lm = smf.ols(formula = formula_str, data = outfit_spans).fit()
     print lm.params
-    print lm.summary()
+    #print lm.summary()
     print_arc_coeffs(lm.params)
 
-def linear_regression_frame_times(pd_data, props, time_key="frame_time"):
+def linear_regression_frame_times(pd_data, props, time_key="frame_time", **kwargs):
+    window = kwargs["window"] or 1
+    print "window", window
+    pd_data['smooth_time'] = pd_data['frame_time'].rolling(window, center=True, min_periods=1).mean()
     print "Linear regression model based on frame times, hopefully filtered into periods with fixed content"
     driver_vars = tri_count_props
     driver_vars.append("raw_triangle_count")
@@ -414,7 +422,7 @@ def linear_regression_frame_times(pd_data, props, time_key="frame_time"):
     print formula_str
     lm = smf.ols(formula = formula_str, data = pd_data).fit()
     print lm.params
-    print lm.summary()
+    #print lm.summary()
     print_arc_coeffs(lm.params)
 
 def get_outfit_spans(pd_data, cost_key="Avatars.Self.ARCCalculated"): 
@@ -426,7 +434,7 @@ def get_outfit_spans(pd_data, cost_key="Avatars.Self.ARCCalculated"):
 
     std_props = ref_props + model_props + tri_count_props + computed_props
     print "outfit std props", std_props
-    grouped = pd_data.groupby([outfit_key, 'span_num'] + std_props)
+    grouped = pd_data.groupby([outfit_key, cost_key, 'span_num'] + std_props)
     pd_filtered = grouped.filter(lambda x: x[time_key].sum() > 10.0 and len(x)>200)
     if args.verbose:
         print "Grouped has",len(grouped),"groups"
@@ -440,10 +448,11 @@ def get_outfit_spans(pd_data, cost_key="Avatars.Self.ARCCalculated"):
         times = group[time_key]
         duration = sum(times)
         if (num_frames) > 200 and (duration > 10.0):
-            low, high = np.percentile(times,5.0), np.percentile(times,95.0)
             outfit_rec = {"outfit": name[0], 
                           "cost": name[1],
                           "duration": duration,
+                          "start_time": group['elapsed_time'].iloc[0],
+                          "end_time": group['elapsed_time'].iloc[-1],
                           "num_frames": num_frames,
                           "group": group,
                           "start_frame": min(group.index),
@@ -458,7 +467,7 @@ def get_outfit_spans(pd_data, cost_key="Avatars.Self.ARCCalculated"):
     df =  pd.DataFrame(results)
     return (df, pd_filtered)
 
-def process_by_outfit(pd_data, cost_key="Avatars.Self.ARCCalculated"):
+def process_by_outfit(pd_data, cost_key="Avatars.Self.ARCCalculated", **kwargs):
     time_key = "frame_time"
     (outfit_spans, pd_filtered) = get_outfit_spans(pd_data, cost_key)
     outfits_csv_filename = get_default_export_name(pd_data,"outfits")
@@ -467,7 +476,7 @@ def process_by_outfit(pd_data, cost_key="Avatars.Self.ARCCalculated"):
 
 #    estimate_cost_coeffs(outfit_spans, model_props)
     linear_regression_model_outfits(outfit_spans, model_props)
-    linear_regression_frame_times(pd_filtered, model_props, time_key="smooth_time")
+    linear_regression_frame_times(pd_filtered, model_props, time_key="smooth_time", **kwargs)
 
     #outfit_spans.to_csv("linreg_" + outfits_csv_filename, columns=outfit_spans.columns.difference(['group','times']))
 
@@ -515,6 +524,7 @@ def process_by_outfit(pd_data, cost_key="Avatars.Self.ARCCalculated"):
     #        print "CORCOEFF failed"
     #        raise
 
+    fig = plt.figure()
     plt.errorbar(costs, avgs, yerr=(errorbars_low, errorbars_high), fmt='o')
     for label, x, y in zip(labels,costs,avgs):
         plt.annotate(label, xy=(x,y))
@@ -522,6 +532,7 @@ def process_by_outfit(pd_data, cost_key="Avatars.Self.ARCCalculated"):
     plt.gca().set_ylabel(time_key)
     plt.gcf().savefig("costs_vs_times.jpg", bbox_inches="tight")
     plt.clf()
+
     all_low, all_high = np.percentile(all_times,0), np.percentile(all_times,98.0)
     fig = plt.figure(figsize=(6, 2*num_rows))
     fig.subplots_adjust(wspace=1.0)
@@ -536,26 +547,26 @@ def process_by_outfit(pd_data, cost_key="Avatars.Self.ARCCalculated"):
     fig.savefig("times_histo_outfits.jpg")
         
 def plot_time_series(pd_data,fields):
-    time_key = "frame_time"
     print "plot_time_series",fields
-    (outfit_spans, ignored) = get_outfit_spans(pd_data, fields[0])
+    (outfit_spans, ignored) = get_outfit_spans(pd_data)
+    #pd_data = filter_extreme_times(pd_data, 95.0)
+    ax = pd_data.plot(x='elapsed_time', y=fields, alpha=0.3)#, kind='scatter')
+    ax.set_ylim(0.0, 1.2 * np.percentile(pd_data[fields[0]],95.0))
     for f in fields:
-        #pd_data[f] = pd_data[f].clip(0,0.05)
-        ax = pd_data.plot(y=f, alpha=0.3)
+        pd_data[f] = pd_data[f].clip(0,0.05)
         for index, outfit_span in outfit_spans.iterrows():
             index = outfit_span["group"].index
-            #print "times count",len(times),times
-            x0 = min(index)
-            x1 = max(index)
+            x0 = outfit_span["start_time"]
+            x1 = outfit_span["end_time"]
             y = outfit_span["avg"]
             cost = outfit_span["cost"]
             outfit = outfit_span["outfit"]
             print "annotate",outfit,(x0,x1),y
             plt.plot((x0,x1),(y,y),"b-")
             plt.text((x0+x1)/2, y, outfit + " cost " + abbrev_number(cost) , ha='center', va='bottom', rotation='vertical')
-        ax.set_ylim([0,.1])
-        fig = ax.get_figure()
-        fig.savefig("time_series_" + f + ".jpg")
+    ax.set_ylim(0.0, 1.2 * np.percentile(pd_data[f],95.0))
+    fig = ax.get_figure()
+    fig.savefig("time_series_" + f + ".jpg")
 
 def compare_frames(a,b):
     fill_blanks(a)
@@ -738,7 +749,10 @@ if __name__ == "__main__":
             print "median", f, medians[f]
         
     if args.by_outfit:
-        process_by_outfit(pd_data,cost_key="Avatars.Self.ARCCalculated") #Derived.Avatar.Attachments.active_triangle_count")
+        # how sensitive are the results to this?
+        process_by_outfit(pd_data,cost_key="Avatars.Self.ARCCalculated", window=1) #Derived.Avatar.Attachments.active_triangle_count")
+        process_by_outfit(pd_data,cost_key="Avatars.Self.ARCCalculated", window=10) #Derived.Avatar.Attachments.active_triangle_count")
+        process_by_outfit(pd_data,cost_key="Avatars.Self.ARCCalculated", window=100) #Derived.Avatar.Attachments.active_triangle_count")
     if args.plot_time_series:
         plot_time_series(pd_data, args.plot_time_series)
 
