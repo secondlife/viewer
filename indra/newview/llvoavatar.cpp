@@ -7334,13 +7334,6 @@ void LLVOAvatar::sitOnObject(LLViewerObject *sit_object)
                 if (root_object == sit_object)
                 {
                     LLFloaterTools::sPreviousFocusOnAvatar = true;
-                    if (!gSavedSettings.getBOOL("EditCameraMovement"))
-                    {
-                        // always freeze camera in space, even if camera doesn't move
-                        // so, for example, follow cam scripts can't affect you when in build mode
-                        gAgentCamera.setFocusGlobal(gAgentCamera.calcFocusPositionTargetGlobal(), LLUUID::null);
-                        gAgentCamera.setFocusOnAvatar(FALSE, ANIMATE);
-                    }
                 }
             }
         }

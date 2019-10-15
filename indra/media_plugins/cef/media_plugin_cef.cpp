@@ -62,7 +62,6 @@ private:
 	void onConsoleMessageCallback(std::string message, std::string source, int line);
 	void onStatusMessageCallback(std::string value);
 	void onTitleChangeCallback(std::string title);
-	void onTooltipCallback(std::string text);
 	void onLoadStartCallback();
 	void onRequestExitCallback();
 	void onLoadEndCallback(int httpStatusCode);
@@ -97,6 +96,7 @@ private:
 	bool mCanCopy;
 	bool mCanPaste;
 	std::string mCachePath;
+	std::string mCookiePath;
 	std::string mCefLogFile;
 	bool mCefLogVerbose;
 	std::vector<std::string> mPickedFiles;
@@ -128,6 +128,7 @@ MediaPluginBase(host_send_func, host_user_data)
 	mCanCopy = false;
 	mCanPaste = false;
 	mCachePath = "";
+	mCookiePath = "";
 	mCefLogFile = "";
 	mCefLogVerbose = false;
 	mPickedFiles.clear();
@@ -208,12 +209,6 @@ void MediaPluginCEF::onTitleChangeCallback(std::string title)
 	sendMessage(message);
 }
 
-void MediaPluginCEF::onTooltipCallback(std::string text)
-{
-    LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "tooltip_text");
-    message.setValue("tooltip", text);
-    sendMessage(message);
-}
 ////////////////////////////////////////////////////////////////////////////////
 //
 void MediaPluginCEF::onLoadStartCallback()
@@ -505,7 +500,6 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				mCEFLib->setOnConsoleMessageCallback(std::bind(&MediaPluginCEF::onConsoleMessageCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 				mCEFLib->setOnStatusMessageCallback(std::bind(&MediaPluginCEF::onStatusMessageCallback, this, std::placeholders::_1));
 				mCEFLib->setOnTitleChangeCallback(std::bind(&MediaPluginCEF::onTitleChangeCallback, this, std::placeholders::_1));
-				mCEFLib->setOnTooltipCallback(std::bind(&MediaPluginCEF::onTooltipCallback, this, std::placeholders::_1));
 				mCEFLib->setOnLoadStartCallback(std::bind(&MediaPluginCEF::onLoadStartCallback, this));
 				mCEFLib->setOnLoadEndCallback(std::bind(&MediaPluginCEF::onLoadEndCallback, this, std::placeholders::_1));
 				mCEFLib->setOnLoadErrorCallback(std::bind(&MediaPluginCEF::onLoadError, this, std::placeholders::_1, std::placeholders::_2));
@@ -522,6 +516,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.background_color = 0xffffffff;
 				settings.cache_enabled = true;
 				settings.cache_path = mCachePath;
+				settings.cookie_store_path = mCookiePath;
 				settings.cookies_enabled = mCookiesEnabled;
 				settings.disable_gpu = mDisableGPU;
 				settings.flash_enabled = mPluginsEnabled;
@@ -576,6 +571,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				std::string user_data_path_cookies = message_in.getValue("cookies_path");
 
 				mCachePath = user_data_path_cache + "cef_cache";
+				mCookiePath = user_data_path_cookies + "cef_cookies";
 				mCefLogFile = message_in.getValue("cef_log_file");
 				mCefLogVerbose = message_in.getValueBoolean("cef_verbose_log");
 			}
@@ -676,13 +672,10 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			{
 				S32 x = message_in.getValueS32("x");
 				S32 y = message_in.getValueS32("y");
-				S32 delta_x = message_in.getValueS32("clicks_x");
-				S32 delta_y = message_in.getValueS32("clicks_y");
 				const int scaling_factor = 40;
-				delta_x *= -scaling_factor;
-				delta_y *= -scaling_factor;
+				y *= -scaling_factor;
 
-				mCEFLib->mouseWheel(x, y, delta_x, delta_y);
+				mCEFLib->mouseWheel(x, y);
 			}
 			else if (message_name == "text_event")
 			{

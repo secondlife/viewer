@@ -229,7 +229,7 @@ public:
 	void mouseMove(const LLVector2& texture_coords, MASK mask);
     void mouseDoubleClick(const LLVector2& texture_coords, MASK mask);
     void mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button = 0);
-	void scrollWheel(S32 x, S32 y, S32 scroll_x, S32 scroll_y, MASK mask);
+	void scrollWheel(S32 x, S32 y, MASK mask);
 	void mouseCapture();
 	
 	void navigateBack();
