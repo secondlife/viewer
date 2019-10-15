@@ -307,7 +307,7 @@ BOOL	LLPanelFace::postBuild()
     mBtnCopyFaces = getChild<LLButton>("copy_face_btn");
     if(mBtnCopyFaces)
     {
-        BtnCopyFaces->setCommitCallback(boost::bind(&LLPanelFace::onCopyFaces, this));
+        mBtnCopyFaces->setCommitCallback(boost::bind(&LLPanelFace::onCopyFaces, this));
     }
     mBtnPasteFaces = getChild<LLButton>("paste_face_btn");
     if (mBtnPasteFaces)
