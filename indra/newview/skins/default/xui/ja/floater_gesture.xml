@@ -21,7 +21,7 @@
 		<button name="activate_btn" tool_tip="選択したジェスチャーのアクティベートの有無"/>
 		<button name="del_btn" tool_tip="このジェスチャーを削除"/>
 	</panel>
-	<button label="編集" name="edit_btn"/>
-	<button label="再生" name="play_btn"/>
+	<button label="編集" name="edit_btn" tool_tip="選択済みのジェスチャーを編集するためにウィンドウを開ける。"/>
+	<button label="再生" name="play_btn" tool_tip="インワールドで選択済みのジェスチャーを実行する。"/>
 	<button label="停止" name="stop_btn"/>
 </floater>

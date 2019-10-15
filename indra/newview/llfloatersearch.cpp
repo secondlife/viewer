@@ -120,6 +120,7 @@ void LLFloaterSearch::onOpen(const LLSD& key)
 	p.allow_address_entry = false;
 
 	LLFloaterWebContent::onOpen(p);
+	mWebBrowser->setFocus(TRUE);
 	search(p.search);
 }
 

@@ -16,7 +16,7 @@
 		(unbekannt)
 	</text>
 	<radio_group name="externally_visible_radio">
-		<radio_item label="Nur Einwohner und Gruppen zulassen, die im Reiter &quot;Zugang&quot; aufgelistet sind." name="estate_restricted_access"/>
+		<radio_item label="Nur Einwohner und Gruppen zulassen, die im Reiter &quot;Zugang&quot; aufgelistet sind" name="estate_restricted_access"/>
 		<radio_item label="Alle Besucher zugelassen" name="estate_public_access"/>
 	</radio_group>
 	<check_box label="Muss 18+ sein" name="limit_age_verified" tool_tip="Nur Einwohner, die mindestens 18 Jahre alt sind, können diesen Grundbesitz betreten. Weitere Informationen finden Sie unter [SUPPORT_SITE]."/>

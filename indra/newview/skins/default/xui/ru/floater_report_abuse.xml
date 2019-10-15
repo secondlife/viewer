@@ -67,7 +67,7 @@
 		<combo_box.item label="Земля &gt; Посягательство &gt; Объекты или текстуры" name="Land__Encroachment__Objects_textures"/>
 		<combo_box.item label="Земля &gt; Посягательство &gt; Частицы" name="Land__Encroachment__Particles"/>
 		<combo_box.item label="Земля &gt; Посягательство &gt; Деревья/растения" name="Land__Encroachment__Trees_plants"/>
-		<combo_box.item label="Нарушение политики игр" name="Wagering_gambling"/>
+		<combo_box.item label="Нарушение правил игр на ловкость" name="Wagering_gambling"/>
 		<combo_box.item label="Другое" name="Other"/>
 	</combo_box>
 	<text name="abuser_name_title">

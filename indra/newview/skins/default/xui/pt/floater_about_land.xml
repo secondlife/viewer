@@ -9,6 +9,12 @@
 	<floater.string name="maturity_icon_adult">
 		&quot;Parcel_R_Dark&quot;
 	</floater.string>
+	<floater.string name="Hours">
+		[HOURS] hrs.
+	</floater.string>
+	<floater.string name="Hour">
+		hr.
+	</floater.string>
 	<floater.string name="Minutes">
 		[MINUTES] min.
 	</floater.string>
@@ -20,6 +26,9 @@
 	</floater.string>
 	<floater.string name="Remaining">
 		faltam
+	</floater.string>
+	<floater.string name="Always">
+		Sempre
 	</floater.string>
 	<tab_container name="landtab">
 		<panel label="GERAL" name="land_general_panel">
@@ -318,18 +327,18 @@ Apenas lotes maiores podem ser listados na busca.
 			<text name="allow_label2">
 				Criar objetos:
 			</text>
-			<check_box label="Residentes" name="edit objects check"/>
-			<check_box label="Grupo" name="edit group objects check"/>
+			<check_box label="Residentes" name="edit objects check" tool_tip="Se verificado, os Residentes podem criar e mover objetos no seu terreno."/>
+			<check_box label="Grupo" name="edit group objects check" tool_tip="Se verificado, o grupo de membros do terreno podem criar e adicionar objetos no seu terreno."/>
 			<text name="allow_label3">
 				Entrada de objetos:
 			</text>
-			<check_box label="Residentes" name="all object entry check"/>
-			<check_box label="Grupo" name="group object entry check"/>
+			<check_box label="Residentes" name="all object entry check" tool_tip="Se verificado, os Residentes podem mover objetos existentes de outros terrenos para esse terreno."/>
+			<check_box label="Grupo" name="group object entry check" tool_tip="Se verificado, o grupo de membros do terreno podem mover os objetos existentes de outros terrenos para esse terreno."/>
 			<text name="allow_label4">
 				Executar scripts:
 			</text>
-			<check_box label="Residentes" name="check other scripts"/>
-			<check_box label="Grupo" name="check group scripts"/>
+			<check_box label="Residentes" name="check other scripts" tool_tip="Se verificado, os Residentes podem rodar scripts no seu terreno, incluindo anexos."/>
+			<check_box label="Grupo" name="check group scripts" tool_tip="Se verificado, o grupo de membros do terreno podem rodar scripts no seu terreno, incluindo anexos."/>
 			<check_box label="Seguro (sem danos)" name="check safe" tool_tip="Se ativado, ajusta o terreno para Seguro, impedindo lutas com danos. Se não ativado, lutas com danos é habilitado."/>
 			<check_box label="Proibido empurrar" name="PushRestrictCheck" tool_tip="Evita scripts que empurram. Ativar essa opção ajuda a prevenir comportamentos desordeiros no seu terreno."/>
 			<check_box label="Mostrar terreno nos resultados de busca (L$30/semana)" name="ShowDirectoryCheck" tool_tip="Permitir que as pessoas vejam este terreno nos resultados de busca"/>
@@ -353,7 +362,7 @@ Apenas lotes maiores podem ser listados na busca.
 				Foto:
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Clique para escolher uma imagem"/>
-			<text name="allow_label5">
+			<text name="allow_see_label">
 				Avatares em outros lotes podem ver e conversar com avatares neste lote
 			</text>
 			<check_box label="Ver avatares" name="SeeAvatarsCheck" tool_tip="Permite que os avatares em outros lotes vejam e batam papo com avatares neste lote. Você poderá vê-los e conversar com eles."/>
@@ -459,9 +468,12 @@ Mídia:
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="Ban" name="BanCheck">
-					Sempre banido ([COUNT], máx: [MAX])
+					Banido ([COUNT], máx: [MAX])
 				</text>
-				<name_list name="BannedList" tool_tip="(Total [LISTED], máx de [MAX])"/>
+				<name_list name="BannedList" tool_tip="(Total [LISTED], máx de [MAX])">
+					<columns label="Nome" name="name"/>
+					<columns label="Duração" name="duration"/>
+				</name_list>
 				<button label="Adicionar" name="add_banned"/>
 				<button label="Tirar" label_selected="Tirar" name="remove_banned"/>
 			</panel>

@@ -67,7 +67,7 @@
 		<combo_box.item label="土地 &gt; 侵佔 &gt; 物件或材質" name="Land__Encroachment__Objects_textures"/>
 		<combo_box.item label="土地 &gt; 侵佔 &gt; 粒子" name="Land__Encroachment__Particles"/>
 		<combo_box.item label="土地 &gt; 侵佔 &gt; 樹種 / 植物" name="Land__Encroachment__Trees_plants"/>
-		<combo_box.item label="違反遊戲規則" name="Wagering_gambling"/>
+		<combo_box.item label="違反技術遊戲規則" name="Wagering_gambling"/>
 		<combo_box.item label="其他" name="Other"/>
 	</combo_box>
 	<text name="abuser_name_title">
