@@ -108,6 +108,7 @@ set(llcommon_SOURCE_FILES
     llsys.cpp
     llthread.cpp
     llthreadlocalstorage.cpp
+    llthreadpool.cpp
     llthreadsafequeue.cpp
     lltimer.cpp
     lltrace.cpp
@@ -233,6 +234,7 @@ set(llcommon_HEADER_FILES
     llsys.h
     llthread.h
     llthreadlocalstorage.h
+    llthreadpool.h
     llthreadsafequeue.h
     lltimer.h
     lltrace.h

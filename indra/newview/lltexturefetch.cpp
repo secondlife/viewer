@@ -311,7 +311,7 @@ class LLTextureFetchWorker : public LLWorkerClass, public LLCore::HttpHandler
 
 	// Threads:  Ttf
 	// Locks:  Mw
-	S32 callbackHttpGet(LLCore::HttpResponse * response,
+	S32 callbackHttpGet(const LLCore::HttpResponse::ptr_t &response,
 						bool partial, bool success);
 
 	// Threads:  T*
@@ -332,7 +332,7 @@ class LLTextureFetchWorker : public LLWorkerClass, public LLCore::HttpHandler
 
 	// Inherited from LLCore::HttpHandler
 	// Threads:  Ttf
-	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+	virtual void onCompleted(LLCore::HttpHandle handle, const LLCore::HttpResponse::ptr_t &response);
 
 protected:
 	LLTextureFetchWorker(LLTextureFetch* fetcher, FTType f_type,
@@ -1907,7 +1907,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 // Threads:  Ttf
 // virtual
-void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
+void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, const LLCore::HttpResponse::ptr_t &response)
 {
 	static LLCachedControl<bool> log_to_viewer_log(gSavedSettings, "LogTextureDownloadsToViewerLog", false);
 	static LLCachedControl<bool> log_to_sim(gSavedSettings, "LogTextureDownloadsToSimulator", false);
@@ -2158,7 +2158,7 @@ bool LLTextureFetchWorker::processSimulatorPackets()
 
 // Threads:  Ttf
 // Locks:  Mw
-S32 LLTextureFetchWorker::callbackHttpGet(LLCore::HttpResponse * response,
+S32 LLTextureFetchWorker::callbackHttpGet(const LLCore::HttpResponse::ptr_t &response,
 										  bool partial, bool success)
 {
 	S32 data_size = 0 ;
@@ -2969,8 +2969,9 @@ void LLTextureFetch::sendRequestListToSimulators()
 				continue; // paranoia
 			}
 
-            llassert((req->mState == LLTextureFetchWorker::LOAD_FROM_NETWORK)
-                  || (req->mState == LLTextureFetchWorker::LOAD_FROM_SIMULATOR));
+            /*RIDER*/
+//             llassert((req->mState == LLTextureFetchWorker::LOAD_FROM_NETWORK)
+//                   || (req->mState == LLTextureFetchWorker::LOAD_FROM_SIMULATOR));
 
 			if ((req->mState != LLTextureFetchWorker::LOAD_FROM_NETWORK) &&
 				(req->mState != LLTextureFetchWorker::LOAD_FROM_SIMULATOR))
@@ -3624,7 +3625,7 @@ class AssetReportHandler : public LLCore::HttpHandler
 public:
 
 	// Threads:  Ttf
-	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
+	virtual void onCompleted(LLCore::HttpHandle handle, const LLCore::HttpResponse::ptr_t &response)
 	{
 		LLCore::HttpStatus status(response->getStatus());
 

@@ -575,7 +575,7 @@ LLCore::HttpStatus LLAppCoreHttp::sslVerify(const std::string &url,
 
 
 
-void LLAppCoreHttp::onCompleted(LLCore::HttpHandle, LLCore::HttpResponse *)
+void LLAppCoreHttp::onCompleted(LLCore::HttpHandle, const LLCore::HttpResponse::ptr_t &)
 {
 	mStopped = true;
 }

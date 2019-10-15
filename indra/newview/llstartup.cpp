@@ -197,6 +197,8 @@
 
 #include "llstacktrace.h"
 
+#include "lltexturefetch.h"
+
 #if LL_WINDOWS
 #include "lldxhardware.h"
 #endif

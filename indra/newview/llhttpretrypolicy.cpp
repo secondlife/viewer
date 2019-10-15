@@ -96,7 +96,7 @@ void LLAdaptiveRetryPolicy::onFailure(S32 status, const LLSD& headers)
 	onFailureCommon(status, has_retry_header_time, retry_header_time);
 }
   
-void LLAdaptiveRetryPolicy::onFailure(const LLCore::HttpResponse *response)
+void LLAdaptiveRetryPolicy::onFailure(const LLCore::HttpResponse::ptr_t &response)
 {
 	F32 retry_header_time;
 	const LLCore::HttpHeaders::ptr_t headers = response->getHeaders();

@@ -236,6 +236,8 @@
 #include "llcoproceduremanager.h"
 #include "llviewereventrecorder.h"
 
+#include "llassetfetch.h"
+
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either
 // this app, or another 'component' of the viewer. App globals should be
@@ -2123,6 +2125,8 @@ bool LLAppViewer::initThreads()
 
 	// Image decoding
     LLTextureCache::instance();
+
+    LLAssetFetch::instance();
 
     LLAppViewer::sTextureFetch = new LLTextureFetch( LLTextureCache::getInstance(), app_metrics_qa_mode);	
 
@@ -4606,6 +4610,11 @@ void LLAppViewer::idle()
 	// here.
 	LLIMProcessing::requestOfflineMessages();
 
+    if (!gDisconnected)
+    {   // Make sure this is pumped even if not signed on.
+        LLAssetFetch::instance().update();
+    }
+
 	///////////////////////////////////
 	//
 	// Special case idle if still starting up
@@ -4622,6 +4631,8 @@ void LLAppViewer::idle()
 		gGLActive = FALSE;
 	}
 
+    // Code below this point will not execute before login:
+    //===========================================================
 
     F32 yaw = 0.f;				// radians
 

@@ -86,7 +86,7 @@ extern const F32 HTTP_REQUEST_EXPIRY_SECS;
 /// @return				Returns true (and writes to out_llsd) if
 ///						parse was successful.  False otherwise.
 ///
-bool responseToLLSD(LLCore::HttpResponse * response,
+bool responseToLLSD(const LLCore::HttpResponse::ptr_t &response,
 					bool log,
 					LLSD & out_llsd);
 
@@ -94,7 +94,7 @@ bool responseToLLSD(LLCore::HttpResponse * response,
 /// suitable for logging.  Mainly intended for logging of
 /// failures and debug information.  This won't be fast,
 /// just adequate.
-std::string responseToString(LLCore::HttpResponse * response);
+std::string responseToString(const LLCore::HttpResponse::ptr_t &response);
 
 
 /// Issue a standard HttpRequest::requestPost() call but using
@@ -272,14 +272,14 @@ class HttpCoroHandler : public LLCore::HttpHandler
 {
 public:
 
-    typedef boost::shared_ptr<HttpCoroHandler>  ptr_t;
-    typedef boost::weak_ptr<HttpCoroHandler>    wptr_t;
+    typedef std::shared_ptr<HttpCoroHandler>  ptr_t;
+    typedef std::weak_ptr<HttpCoroHandler>    wptr_t;
 
     HttpCoroHandler(LLEventStream &reply);
 
     static void writeStatusCodes(LLCore::HttpStatus status, const std::string &url, LLSD &result);
 
-    virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+    virtual void onCompleted(LLCore::HttpHandle handle, const LLCore::HttpResponse::ptr_t &response);
 
     inline LLEventStream &getReplyPump()
     {
@@ -288,11 +288,11 @@ public:
 
 protected:
     /// this method may modify the status value
-    virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status) = 0;
-    virtual LLSD parseBody(LLCore::HttpResponse *response, bool &success) = 0;
+    virtual LLSD handleSuccess(const LLCore::HttpResponse::ptr_t &response, LLCore::HttpStatus &status) = 0;
+    virtual LLSD parseBody(const LLCore::HttpResponse::ptr_t &response, bool &success) = 0;
 
 private:
-    void buildStatusEntry(LLCore::HttpResponse *response, LLCore::HttpStatus status, LLSD &result);
+    void buildStatusEntry(const LLCore::HttpResponse::ptr_t &response, LLCore::HttpStatus status, LLSD &result);
 
     LLEventStream &mReplyPump;
 };
@@ -326,8 +326,8 @@ public:
     static const std::string HTTP_RESULTS_CONTENT;
     static const std::string HTTP_RESULTS_RAW;
 
-    typedef boost::shared_ptr<HttpCoroutineAdapter> ptr_t;
-    typedef boost::weak_ptr<HttpCoroutineAdapter>   wptr_t;
+    typedef std::shared_ptr<HttpCoroutineAdapter> ptr_t;
+    typedef std::weak_ptr<HttpCoroutineAdapter>   wptr_t;
 
     HttpCoroutineAdapter(const std::string &name, LLCore::HttpRequest::policy_t policyId,
         LLCore::HttpRequest::priority_t priority = 0L);

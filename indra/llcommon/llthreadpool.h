@@ -54,13 +54,13 @@ public:
         typedef std::shared_ptr<ThreadRequest>  ptr_t;
 
         ThreadRequest(LLUUID id = LLUUID()) :
-            mId(id),
+            mRequestId(id),
             mPoolController(nullptr)
         { }
 
         virtual ~ThreadRequest()                    {  };
 
-        virtual LLUUID  getId() const               { return mId; }
+        virtual LLUUID  getRequestId() const         { return mRequestId; }
         virtual bool    execute(U32 priority)       { return true; }
         virtual bool    preexecute(U32 priority)    { return true; }
         virtual void    postexecute(U32 priority)   {  }
@@ -71,7 +71,7 @@ public:
         size_t          requestCount() const;
         bool            checkRequest(LLUUID request_id) const;
 
-        LLUUID          mId;
+        LLUUID          mRequestId;
 
         LLThreadPool *  mPoolController;
     };
@@ -88,6 +88,9 @@ public:
 protected:
     void        initSingleton_();
     void        cleanupSingleton_();
+
+    void        startPool();
+    void        clearThreadRequests();
 
     void        setPoolSize(U32 size) { mPoolSize = size; }
     U32         getPoolSize() const { return mPoolSize; }
@@ -119,7 +122,7 @@ private:
 
     struct get_thread_request_id
     {
-        LLUUID operator()(const ThreadRequest::ptr_t &item)  { return item->getId(); }
+        LLUUID operator()(const ThreadRequest::ptr_t &item)  { return item->getRequestId(); }
     };
 
     typedef std::set<PooledThread::ptr_t>  thread_pool_t;

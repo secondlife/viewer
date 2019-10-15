@@ -213,7 +213,7 @@ public:
 	void cleanup();
 
 	// Notification when the stop request is complete.
-	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+	virtual void onCompleted(LLCore::HttpHandle handle, const LLCore::HttpResponse::ptr_t &response);
 
 	// Retrieve a policy class identifier for desired
 	// application function.

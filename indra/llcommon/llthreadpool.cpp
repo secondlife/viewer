@@ -36,7 +36,7 @@ namespace
     class ThreadStopRequest : public LLThreadPool::ThreadRequest
     {
     public:
-        virtual LLUUID getId() const override
+        virtual LLUUID getRequestId() const override
         {
             return STOP_REQUEST_ID;
         }
@@ -67,6 +67,8 @@ LLThreadPool::LLThreadPool(const std::string name) :
 void LLThreadPool::initSingleton_()
 {
     LL_INFOS("THREADPOOL") << "Initializing thread pool \"" << mPoolName << "\" with " << mPoolSize << " workers." << LL_ENDL;
+
+    mQueueReady.reset(new LLCondition());
 
     for (S32 idx = 0; idx < mPoolSize; ++idx)
     {
@@ -105,6 +107,19 @@ void LLThreadPool::cleanupSingleton_()
 
     mPool.clear();
     mQueueReady.reset();
+}
+
+void LLThreadPool::startPool()
+{
+    for (auto thread : mPool)
+    {
+        thread->start();
+    }
+}
+
+void LLThreadPool::clearThreadRequests()
+{
+    mRequestQueue.clear();
 }
 
 LLUUID LLThreadPool::queueRequest(const ThreadRequest::ptr_t &request, U32 priority)
@@ -166,22 +181,24 @@ LLThreadPool::PooledThread::PooledThread(std::string &name, LLCondition::uptr_t 
 //-----------------------------------------------------------------------------
 void LLThreadPool::PooledThread::run()
 {
-    LL_DEBUGS("THREADPOOL") << "Pooled thread \"" << mName << "\" starting." << LL_ENDL;
+    LL_INFOS("THREADPOOL") << "Pooled thread \"" << mName << "\" starting." << LL_ENDL;
     do 
     {
         if (mRequestQueue.empty())
         {   // nothing to do.. wait to get poked.
             mQueueReady->wait();
         }
+        //_INFOS("THREADPOOL") << "Pooled thread \"" << mName << "\" may have a job..." << LL_ENDL;
 
         mRequestQueue.lock();   // We do not want the queue changing underneath us.
         ThreadRequest::ptr_t request = mRequestQueue.top();
         if (!request)
         {   // An empty request.
+            mRequestQueue.pop(); //  get it out of there before we continue. 
             mRequestQueue.unlock();
             continue;
         }
-        if (request->getId() == ThreadStopRequest::STOP_REQUEST_ID)
+        if (request->getRequestId() == ThreadStopRequest::STOP_REQUEST_ID)
         {   // note that we break out here before popping so that the top request stays on the head of the queue.
             mRequestQueue.unlock();
             break;
@@ -206,7 +223,7 @@ void LLThreadPool::PooledThread::run()
 
     } while (true);
 
-    LL_DEBUGS("THREADPOOL") << "Pooled thread \"" << mName << "\" stopping." << LL_ENDL;
+    LL_INFOS("THREADPOOL") << "Pooled thread \"" << mName << "\" stopping." << LL_ENDL;
 }
 
 //============================================================================

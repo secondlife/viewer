@@ -113,6 +113,12 @@ public:
         if (mMutex)
             mMutex->lock();
     }
+    LLMutexLock(LLMutex &mutex) :
+        mMutex(&mutex)
+    {
+        if (mMutex)
+            mMutex->lock();
+    }
 
 	~LLMutexLock()
 	{

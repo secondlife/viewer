@@ -33,8 +33,7 @@ namespace LLCore
 {
 
 
-HttpResponse::HttpResponse()
-	: LLCoreInt::RefCounted(true),
+HttpResponse::HttpResponse(): 
 	  mReplyOffset(0U),
 	  mReplyLength(0U),
 	  mReplyFullLength(0U),

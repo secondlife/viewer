@@ -4004,7 +4004,7 @@ LLInventoryModel::FetchItemHttpHandler::~FetchItemHttpHandler()
 {}
 
 void LLInventoryModel::FetchItemHttpHandler::onCompleted(LLCore::HttpHandle handle,
-														 LLCore::HttpResponse * response)
+														 const LLCore::HttpResponse::ptr_t &response)
 {
 	do		// Single-pass do-while used for common exit handling
 	{
@@ -4067,7 +4067,7 @@ void LLInventoryModel::FetchItemHttpHandler::onCompleted(LLCore::HttpHandle hand
 	while (false);
 }
 
-void LLInventoryModel::FetchItemHttpHandler::processData(LLSD & content, LLCore::HttpResponse * response)
+void LLInventoryModel::FetchItemHttpHandler::processData(LLSD & content, const LLCore::HttpResponse::ptr_t &response)
 {
 	start_new_inventory_observer();
 
@@ -4137,7 +4137,7 @@ void LLInventoryModel::FetchItemHttpHandler::processData(LLSD & content, LLCore:
 }
 
 
-void LLInventoryModel::FetchItemHttpHandler::processFailure(LLCore::HttpStatus status, LLCore::HttpResponse * response)
+void LLInventoryModel::FetchItemHttpHandler::processFailure(LLCore::HttpStatus status, const LLCore::HttpResponse::ptr_t &response)
 {
 	const std::string & ct(response->getContentType());
 	LL_WARNS(LOG_INV) << "Inventory item fetch failure\n"
@@ -4149,7 +4149,7 @@ void LLInventoryModel::FetchItemHttpHandler::processFailure(LLCore::HttpStatus s
 	gInventory.notifyObservers();
 }
 
-void LLInventoryModel::FetchItemHttpHandler::processFailure(const char * const reason, LLCore::HttpResponse * response)
+void LLInventoryModel::FetchItemHttpHandler::processFailure(const char * const reason, const LLCore::HttpResponse::ptr_t &response)
 {
 	LL_WARNS(LOG_INV) << "Inventory item fetch failure\n"
 					  << "[Status: internal error]\n"

@@ -200,14 +200,14 @@ HttpOpRequest::~HttpOpRequest()
 
 void HttpOpRequest::stageFromRequest(HttpService * service)
 {
-    HttpOpRequest::ptr_t self(boost::dynamic_pointer_cast<HttpOpRequest>(shared_from_this()));
+    HttpOpRequest::ptr_t self(std::dynamic_pointer_cast<HttpOpRequest>(shared_from_this()));
     service->getPolicy().addOp(self);			// transfers refcount
 }
 
 
 void HttpOpRequest::stageFromReady(HttpService * service)
 {
-    HttpOpRequest::ptr_t self(boost::dynamic_pointer_cast<HttpOpRequest>(shared_from_this()));
+    HttpOpRequest::ptr_t self(std::dynamic_pointer_cast<HttpOpRequest>(shared_from_this()));
     service->getTransport().addOp(self);		// transfers refcount
 }
 
@@ -252,7 +252,7 @@ void HttpOpRequest::visitNotifier(HttpRequest * request)
 {
 	if (mUserHandler)
 	{
-		HttpResponse * response = new HttpResponse();
+		HttpResponse::ptr_t response(std::make_shared<HttpResponse>());
 		response->setStatus(mStatus);
 		response->setBody(mReplyBody);
 		response->setHeaders(mReplyHeaders);
@@ -277,8 +277,6 @@ void HttpOpRequest::visitNotifier(HttpRequest * request)
 		response->setTransferStats(stats);
 
 		mUserHandler->onCompleted(this->getHandle(), response);
-
-		response->release();
 	}
 }
 

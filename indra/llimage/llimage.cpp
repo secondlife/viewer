@@ -614,6 +614,7 @@ const std::string& LLImage::getLastError()
 void LLImage::setLastError(const std::string& message)
 {
 	LLMutexLock m(sMutex);
+    LL_WARNS_IF(!message.empty(), "IMAGE") << "last error='" << message << LL_ENDL;
 	sLastErrorMessage = message;
 }
 

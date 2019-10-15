@@ -57,13 +57,14 @@ class HttpHeaders;
 /// Allocation:  Refcounted, heap only.  Caller of the constructor
 /// is given a refcount.
 ///
-class HttpResponse : public LLCoreInt::RefCounted
+class HttpResponse
 {
 public:
+    typedef std::shared_ptr<HttpResponse>   ptr_t;
 	HttpResponse();
+    virtual ~HttpResponse();							// Use release()
 
 protected:
-	virtual ~HttpResponse();							// Use release()
 	
 	HttpResponse(const HttpResponse &);					// Not defined
 	void operator=(const HttpResponse &);				// Not defined
@@ -72,7 +73,7 @@ public:
 	/// Statistics for the HTTP 
 	struct TransferStats
 	{
-		typedef boost::shared_ptr<TransferStats> ptr_t;
+		typedef std::shared_ptr<TransferStats> ptr_t;
 
 		TransferStats() : mSizeDownload(0.0), mTotalTime(0.0), mSpeedDownload(0.0) {}
 		F64 mSizeDownload;

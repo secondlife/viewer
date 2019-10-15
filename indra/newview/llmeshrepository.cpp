@@ -570,10 +570,10 @@ S32 LLMeshRepoThread::sRequestWaterLevel = 0;
 //   LLMeshUploadThread
 
 class LLMeshHandlerBase : public LLCore::HttpHandler,
-    public boost::enable_shared_from_this<LLMeshHandlerBase>
+    public std::enable_shared_from_this<LLMeshHandlerBase>
 {
 public:
-    typedef boost::shared_ptr<LLMeshHandlerBase> ptr_t;
+    typedef std::shared_ptr<LLMeshHandlerBase> ptr_t;
 
 	LOG_CLASS(LLMeshHandlerBase);
 	LLMeshHandlerBase(U32 offset, U32 requested_bytes)
@@ -593,7 +593,7 @@ protected:
 	void operator=(const LLMeshHandlerBase &);					// Not defined
 	
 public:
-	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+	virtual void onCompleted(LLCore::HttpHandle handle, const LLCore::HttpResponse::ptr_t &response);
 	virtual void processData(LLCore::BufferArray * body, S32 body_offset, U8 * data, S32 data_size) = 0;
 	virtual void processFailure(LLCore::HttpStatus status) = 0;
 	
@@ -2678,7 +2678,7 @@ void LLMeshUploadThread::requestWholeModelFee()
 
 
 // Does completion duty for both fee queries and actual uploads.
-void LLMeshUploadThread::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
+void LLMeshUploadThread::onCompleted(LLCore::HttpHandle handle, const LLCore::HttpResponse::ptr_t &response)
 {
 	// QA/Devel:  0x2 to enable fake error import on upload, 0x1 on fee check
 	const S32 fake_error(gSavedSettings.getS32("MeshUploadFakeErrors") & (mDoUpload ? 0xa : 0x5));
@@ -2995,7 +2995,7 @@ void LLMeshRepository::cacheOutgoingMesh(LLMeshUploadData& data, LLSD& header)
 // than cache the whole asset, we just extract the part that would
 // have been sent in a 206 and process that.  Inefficient but these
 // are cases far off the norm.
-void LLMeshHandlerBase::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
+void LLMeshHandlerBase::onCompleted(LLCore::HttpHandle handle, const LLCore::HttpResponse::ptr_t &response)
 {
 	mProcessed = true;
 

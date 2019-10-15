@@ -61,7 +61,7 @@ private:
 	void operator=(const HttpRequestQueue &);			// Not defined
 
 public:
-    typedef boost::shared_ptr<HttpOperation> opPtr_t;
+    typedef std::shared_ptr<HttpOperation> opPtr_t;
 
 	static void init();
 	static void term();

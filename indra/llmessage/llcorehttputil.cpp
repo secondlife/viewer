@@ -109,7 +109,7 @@ private:
 // *TODO:  Currently converts only from XML content.  A mode
 // to convert using fromBinary() might be useful as well.  Mesh
 // headers could use it.
-bool responseToLLSD(HttpResponse * response, bool log, LLSD & out_llsd)
+bool responseToLLSD(const HttpResponse::ptr_t &response, bool log, LLSD & out_llsd)
 {
     // Convert response to LLSD
     BufferArray * body(response->getBody());
@@ -209,7 +209,7 @@ HttpHandle requestPatchWithLLSD(HttpRequest * request,
 }
 
 
-std::string responseToString(LLCore::HttpResponse * response)
+std::string responseToString(const LLCore::HttpResponse::ptr_t &response)
 {
     static const std::string empty("[Empty]");
 
@@ -261,7 +261,7 @@ HttpCoroHandler::HttpCoroHandler(LLEventStream &reply) :
 {
 }
 
-void HttpCoroHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
+void HttpCoroHandler::onCompleted(LLCore::HttpHandle handle, const LLCore::HttpResponse::ptr_t &response)
 {
     LLSD result;
 
@@ -328,7 +328,7 @@ void HttpCoroHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespons
     mReplyPump.post(result);
 }
 
-void HttpCoroHandler::buildStatusEntry(LLCore::HttpResponse *response, LLCore::HttpStatus status, LLSD &result)
+void HttpCoroHandler::buildStatusEntry(const LLCore::HttpResponse::ptr_t &response, LLCore::HttpStatus status, LLSD &result)
 {
     LLSD httpresults = LLSD::emptyMap();
 
@@ -388,8 +388,8 @@ public:
     HttpCoroLLSDHandler(LLEventStream &reply);
 
 protected:
-    virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status);
-    virtual LLSD parseBody(LLCore::HttpResponse *response, bool &success);
+    virtual LLSD handleSuccess(const LLCore::HttpResponse::ptr_t &response, LLCore::HttpStatus &status);
+    virtual LLSD parseBody(const LLCore::HttpResponse::ptr_t &response, bool &success);
 };
 
 //-------------------------------------------------------------------------
@@ -399,7 +399,7 @@ HttpCoroLLSDHandler::HttpCoroLLSDHandler(LLEventStream &reply):
 }
     
 
-LLSD HttpCoroLLSDHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status)
+LLSD HttpCoroLLSDHandler::handleSuccess(const LLCore::HttpResponse::ptr_t &response, LLCore::HttpStatus &status)
 {
     LLSD result;
 
@@ -464,7 +464,7 @@ LLSD HttpCoroLLSDHandler::handleSuccess(LLCore::HttpResponse * response, LLCore:
     return result;
 }
 
-LLSD HttpCoroLLSDHandler::parseBody(LLCore::HttpResponse *response, bool &success)
+LLSD HttpCoroLLSDHandler::parseBody(const LLCore::HttpResponse::ptr_t &response, bool &success)
 {
     success = true;
     if (response->getBodySize() == 0)
@@ -495,8 +495,8 @@ class HttpCoroRawHandler : public HttpCoroHandler
 public:
     HttpCoroRawHandler(LLEventStream &reply);
 
-    virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status);
-    virtual LLSD parseBody(LLCore::HttpResponse *response, bool &success);
+    virtual LLSD handleSuccess(const LLCore::HttpResponse::ptr_t &response, LLCore::HttpStatus &status);
+    virtual LLSD parseBody(const LLCore::HttpResponse::ptr_t &response, bool &success);
 };
 
 //-------------------------------------------------------------------------
@@ -505,7 +505,7 @@ HttpCoroRawHandler::HttpCoroRawHandler(LLEventStream &reply):
 {
 }
 
-LLSD HttpCoroRawHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status)
+LLSD HttpCoroRawHandler::handleSuccess(const LLCore::HttpResponse::ptr_t &response, LLCore::HttpStatus &status)
 {
     LLSD result = LLSD::emptyMap();
 
@@ -551,7 +551,7 @@ LLSD HttpCoroRawHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::
     return result;
 }
 
-LLSD HttpCoroRawHandler::parseBody(LLCore::HttpResponse *response, bool &success)
+LLSD HttpCoroRawHandler::parseBody(const LLCore::HttpResponse::ptr_t &response, bool &success)
 {
     success = true;
     return LLSD();
@@ -570,8 +570,8 @@ class HttpCoroJSONHandler : public HttpCoroHandler
 public:
     HttpCoroJSONHandler(LLEventStream &reply);
 
-    virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status);
-    virtual LLSD parseBody(LLCore::HttpResponse *response, bool &success);
+    virtual LLSD handleSuccess(const LLCore::HttpResponse::ptr_t &response, LLCore::HttpStatus &status);
+    virtual LLSD parseBody(const LLCore::HttpResponse::ptr_t &response, bool &success);
 };
 
 //-------------------------------------------------------------------------
@@ -580,7 +580,7 @@ HttpCoroJSONHandler::HttpCoroJSONHandler(LLEventStream &reply) :
 {
 }
 
-LLSD HttpCoroJSONHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status)
+LLSD HttpCoroJSONHandler::handleSuccess(const LLCore::HttpResponse::ptr_t &response, LLCore::HttpStatus &status)
 {
     LLSD result = LLSD::emptyMap();
 
@@ -609,7 +609,7 @@ LLSD HttpCoroJSONHandler::handleSuccess(LLCore::HttpResponse * response, LLCore:
     return result;
 }
 
-LLSD HttpCoroJSONHandler::parseBody(LLCore::HttpResponse *response, bool &success)
+LLSD HttpCoroJSONHandler::parseBody(const LLCore::HttpResponse::ptr_t &response, bool &success)
 {
     success = true;
     BufferArray * body(response->getBody());

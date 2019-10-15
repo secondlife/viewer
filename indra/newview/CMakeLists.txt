@@ -128,6 +128,7 @@ set(viewer_SOURCE_FILES
     llappearancemgr.cpp
     llappviewer.cpp
     llappviewerlistener.cpp
+    llassetfetch.cpp
     llattachmentsmgr.cpp
     llaudiosourcevo.cpp
     llautoreplace.cpp
@@ -752,6 +753,7 @@ set(viewer_HEADER_FILES
     llappearancemgr.h
     llappviewer.h
     llappviewerlistener.h
+    llassetfetch.h
     llattachmentsmgr.h
     llaudiosourcevo.h
     llautoreplace.h

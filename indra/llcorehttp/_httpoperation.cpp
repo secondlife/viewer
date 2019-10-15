@@ -58,7 +58,7 @@ HttpOperation::handleMap_t  HttpOperation::mHandleMap;
 LLCoreInt::HttpMutex	    HttpOperation::mOpMutex;
 
 HttpOperation::HttpOperation():
-    boost::enable_shared_from_this<HttpOperation>(),
+    std::enable_shared_from_this<HttpOperation>(),
     mReplyQueue(),
     mUserHandler(),
     mReqPolicy(HttpRequest::DEFAULT_POLICY_ID),
@@ -121,12 +121,11 @@ void HttpOperation::visitNotifier(HttpRequest *)
 {
 	if (mUserHandler)
 	{
-		HttpResponse * response = new HttpResponse();
+		HttpResponse::ptr_t response(std::make_shared<HttpResponse>());
 
 		response->setStatus(mStatus);
 		mUserHandler->onCompleted(getHandle(), response);
 
-		response->release();
 	}
 }
 

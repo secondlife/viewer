@@ -159,14 +159,14 @@ protected:
 	void operator=(const BGFolderHttpHandler &);				// Not defined
 
 public:
-	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+	virtual void onCompleted(LLCore::HttpHandle handle, const LLCore::HttpResponse::ptr_t &response);
 
 	bool getIsRecursive(const LLUUID & cat_id) const;
 
 private:
-	void processData(LLSD & body, LLCore::HttpResponse * response);
-	void processFailure(LLCore::HttpStatus status, LLCore::HttpResponse * response);
-	void processFailure(const char * const reason, LLCore::HttpResponse * response);
+	void processData(LLSD & body, const LLCore::HttpResponse::ptr_t &response);
+	void processFailure(LLCore::HttpStatus status, const LLCore::HttpResponse::ptr_t &response);
+	void processFailure(const char * const reason, const LLCore::HttpResponse::ptr_t &response);
 
 private:
 	LLSD mRequestSD;
@@ -590,7 +590,7 @@ namespace
 /// Class <anonymous>::BGFolderHttpHandler
 ///----------------------------------------------------------------------------
 
-void BGFolderHttpHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
+void BGFolderHttpHandler::onCompleted(LLCore::HttpHandle handle, const LLCore::HttpResponse::ptr_t &response)
 {
 	do  	// Single-pass do-while used for common exit handling
 	{
@@ -652,7 +652,7 @@ void BGFolderHttpHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRes
 }
 
 
-void BGFolderHttpHandler::processData(LLSD & content, LLCore::HttpResponse * response)
+void BGFolderHttpHandler::processData(LLSD & content, const LLCore::HttpResponse::ptr_t &response)
 {
 	LLInventoryModelBackgroundFetch * fetcher(LLInventoryModelBackgroundFetch::getInstance());
 
@@ -785,7 +785,7 @@ void BGFolderHttpHandler::processData(LLSD & content, LLCore::HttpResponse * res
 }
 
 
-void BGFolderHttpHandler::processFailure(LLCore::HttpStatus status, LLCore::HttpResponse * response)
+void BGFolderHttpHandler::processFailure(LLCore::HttpStatus status, const LLCore::HttpResponse::ptr_t &response)
 {
 	const std::string & ct(response->getContentType());
 	LL_WARNS(LOG_INV) << "Inventory folder fetch failure\n"
@@ -827,7 +827,7 @@ void BGFolderHttpHandler::processFailure(LLCore::HttpStatus status, LLCore::Http
 }
 
 
-void BGFolderHttpHandler::processFailure(const char * const reason, LLCore::HttpResponse * response)
+void BGFolderHttpHandler::processFailure(const char * const reason, const LLCore::HttpResponse::ptr_t &response)
 {
 	LL_WARNS(LOG_INV) << "Inventory folder fetch failure\n"
 					  << "[Status: internal error]\n"

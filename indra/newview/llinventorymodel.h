@@ -100,12 +100,12 @@ public:
 		void operator=(const FetchItemHttpHandler &);					// Not defined
 
 	public:
-		virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+		virtual void onCompleted(LLCore::HttpHandle handle, const LLCore::HttpResponse::ptr_t &response);
 
 	private:
-		void processData(LLSD & body, LLCore::HttpResponse * response);
-		void processFailure(LLCore::HttpStatus status, LLCore::HttpResponse * response);
-		void processFailure(const char * const reason, LLCore::HttpResponse * response);
+		void processData(LLSD & body, const LLCore::HttpResponse::ptr_t &response);
+		void processFailure(LLCore::HttpStatus status, const LLCore::HttpResponse::ptr_t &response);
+		void processFailure(const char * const reason, const LLCore::HttpResponse::ptr_t &response);
 
 	private:
 		LLSD mRequestSD;

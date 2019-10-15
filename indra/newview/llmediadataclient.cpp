@@ -610,7 +610,7 @@ LLMediaDataClient::Handler::Handler(const Request::ptr_t &request):
 }
 
 
-void LLMediaDataClient::Handler::onSuccess(LLCore::HttpResponse * response, const LLSD &content)
+void LLMediaDataClient::Handler::onSuccess(const LLCore::HttpResponse::ptr_t &response, const LLSD &content)
 {
     mRequest->stopTracking();
 
@@ -623,7 +623,7 @@ void LLMediaDataClient::Handler::onSuccess(LLCore::HttpResponse * response, cons
     LL_DEBUGS("LLMediaDataClientResponse") << *mRequest << LL_ENDL;
 }
 
-void LLMediaDataClient::Handler::onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status)
+void LLMediaDataClient::Handler::onFailure(const LLCore::HttpResponse::ptr_t &response, LLCore::HttpStatus status)
 {
     mRequest->stopTracking();
 
@@ -926,7 +926,7 @@ LLCore::HttpHandler::ptr_t LLObjectMediaDataClient::RequestUpdate::createHandler
     return LLCore::HttpHandler::ptr_t(new LLMediaDataClient::Handler(shared_from_this()));
 }
 
-void LLObjectMediaDataClient::Handler::onSuccess(LLCore::HttpResponse * response, const LLSD &content)
+void LLObjectMediaDataClient::Handler::onSuccess(const LLCore::HttpResponse::ptr_t &response, const LLSD &content)
 {
     LLMediaDataClient::Handler::onSuccess(response, content);
 
@@ -1067,7 +1067,7 @@ LLCore::HttpHandler::ptr_t LLObjectMediaNavigateClient::RequestNavigate::createH
     return LLCore::HttpHandler::ptr_t(new LLObjectMediaNavigateClient::Handler(shared_from_this()));
 }
 
-void LLObjectMediaNavigateClient::Handler::onSuccess(LLCore::HttpResponse * response, const LLSD &content)
+void LLObjectMediaNavigateClient::Handler::onSuccess(const LLCore::HttpResponse::ptr_t &response, const LLSD &content)
 {
     LLMediaDataClient::Handler::onSuccess(response, content);
 
@@ -1103,7 +1103,7 @@ void LLObjectMediaNavigateClient::Handler::onSuccess(LLCore::HttpResponse * resp
 
 }
 
-void LLObjectMediaNavigateClient::Handler::onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status)
+void LLObjectMediaNavigateClient::Handler::onFailure(const LLCore::HttpResponse::ptr_t &response, LLCore::HttpStatus status)
 {
     LLMediaDataClient::Handler::onFailure(response, status);
 

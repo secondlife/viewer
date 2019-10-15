@@ -207,8 +207,8 @@ protected:
         Request::ptr_t getRequest() const { return mRequest; }
 
     protected:
-        virtual void onSuccess(LLCore::HttpResponse * response, const LLSD &content);
-        virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status);
+        virtual void onSuccess(const LLCore::HttpResponse::ptr_t &response, const LLSD &content);
+        virtual void onFailure(const LLCore::HttpResponse::ptr_t &response, LLCore::HttpStatus status);
 
     private:
         Request::ptr_t mRequest;
@@ -366,7 +366,7 @@ protected:
         {}
 
     protected:
-        virtual void onSuccess(LLCore::HttpResponse * response, const LLSD &content);
+        virtual void onSuccess(const LLCore::HttpResponse::ptr_t &response, const LLSD &content);
     };
 
 private:
@@ -428,8 +428,8 @@ protected:
         {}
 
     protected:
-        virtual void onSuccess(LLCore::HttpResponse * response, const LLSD &content);
-        virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status);
+        virtual void onSuccess(const LLCore::HttpResponse::ptr_t &response, const LLSD &content);
+        virtual void onFailure(const LLCore::HttpResponse::ptr_t &response, LLCore::HttpStatus status);
 
     private:
         void mediaNavigateBounceBack();

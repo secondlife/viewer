@@ -470,7 +470,7 @@ public:
 	void setUploadObserverHandle(LLHandle<LLWholeModelUploadObserver> observer_handle) { mUploadObserverHandle = observer_handle; }
 
 	// Inherited from LLCore::HttpHandler
-	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+	virtual void onCompleted(LLCore::HttpHandle handle, const LLCore::HttpResponse::ptr_t &response);
 
         LLViewerFetchedTexture* FindViewerTexture(const LLImportMaterial& material);
 

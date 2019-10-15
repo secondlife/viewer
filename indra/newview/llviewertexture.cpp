@@ -60,6 +60,8 @@
 #include "llvovolume.h"
 #include "llviewermedia.h"
 #include "lltexturecache.h"
+
+#include "llassetfetch.h"
 ///////////////////////////////////////////////////////////////////////////////
 
 // extern
@@ -2079,12 +2081,11 @@ bool LLViewerFetchedTexture::updateFetch()
 		{
 			desired_discard = override_tex_discard_level;
 		}
-		
-		// bypass texturefetch directly by pulling from LLTextureCache
+
+        // bypass texturefetch directly by pulling from LLTextureCache
 		bool fetch_request_created = false;
 		fetch_request_created = LLAppViewer::getTextureFetch()->createRequest(mFTType, mUrl, getID(), getTargetHost(), decode_priority,
 																			  w, h, c, desired_discard, needsAux(), mCanUseHTTP);
-		
 		if (fetch_request_created)
 		{
 			mHasFetcher = TRUE;
@@ -2093,6 +2094,12 @@ bool LLViewerFetchedTexture::updateFetch()
 			mFetchState = LLAppViewer::getTextureFetch()->getFetchState(mID, mDownloadProgress, mRequestedDownloadPriority,
 													   mFetchPriority, mFetchDeltaTime, mRequestDeltaTime, mCanUseHTTP);
 		}
+
+        /*!NEWWAY!*/        
+        LLAssetFetch::instance().requestTexture(mFTType, mID, mUrl, decode_priority, w, h, c, desired_discard, needsAux(), 
+            [this](const LLAssetFetch::AssetRequest::ptr_t &request, const LLPointer<LLImageRaw> &raw, const LLPointer<LLImageRaw> &aux) {
+                LL_WARNS("RIDER") << "LLViewerFetchedTexture has a result! " << request->getFetchState() << " raw=" << ((raw) ? "YES" : "NO") << " aux=" << ((aux) ? "YES" : "NO") << LL_ENDL;
+            });
 
 		// if createRequest() failed, we're finishing up a request for this UUID,
 		// wait for it to complete
@@ -2111,7 +2118,7 @@ bool LLViewerFetchedTexture::updateFetch()
             }
             else
             {
- 			LL_DEBUGS("Texture") << "exceeded idle time " << FETCH_IDLE_TIME << ", deleting request: " << getID() << LL_ENDL;
+ 			    LL_DEBUGS("Texture") << "exceeded idle time " << FETCH_IDLE_TIME << ", deleting request: " << getID() << LL_ENDL;
             }
 			LLAppViewer::getTextureFetch()->deleteRequest(getID(), true);
 			mHasFetcher = FALSE;

@@ -85,7 +85,7 @@ public:
 
 	bool reload(LLCore::HttpRequest *, LLCore::HttpOptions::ptr_t &);
 	
-	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+	virtual void onCompleted(LLCore::HttpHandle handle, const LLCore::HttpResponse::ptr_t &response);
 
 	void loadAssetUuids(FILE * in);
 	
@@ -503,7 +503,7 @@ bool WorkingSet::reload(LLCore::HttpRequest * hr, LLCore::HttpOptions::ptr_t & o
 }
 	
 
-void WorkingSet::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
+void WorkingSet::onCompleted(LLCore::HttpHandle handle, const LLCore::HttpResponse::ptr_t &response)
 {
 	handle_set_t::iterator it(mHandles.find(handle));
 	if (mHandles.end() == it)

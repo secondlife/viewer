@@ -173,9 +173,9 @@ public:
 	Handler(LLCore::HttpRequest::ptr_t &request, LLXMLRPCTransaction::Impl *impl);
 	virtual ~Handler();
 
-	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+	virtual void onCompleted(LLCore::HttpHandle handle, const LLCore::HttpResponse::ptr_t &response);
 
-	typedef boost::shared_ptr<LLXMLRPCTransaction::Handler> ptr_t;
+	typedef std::shared_ptr<LLXMLRPCTransaction::Handler> ptr_t;
 
 private:
 
@@ -234,7 +234,7 @@ LLXMLRPCTransaction::Handler::~Handler()
 }
 
 void LLXMLRPCTransaction::Handler::onCompleted(LLCore::HttpHandle handle, 
-	LLCore::HttpResponse * response)
+	const LLCore::HttpResponse::ptr_t &response)
 {
 	LLCore::HttpStatus status = response->getStatus();
 

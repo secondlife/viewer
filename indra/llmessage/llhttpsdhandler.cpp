@@ -40,7 +40,7 @@ LLHttpSDHandler::LLHttpSDHandler()
 {
 }
 
-void LLHttpSDHandler::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
+void LLHttpSDHandler::onCompleted(LLCore::HttpHandle handle, const LLCore::HttpResponse::ptr_t &response)
 {
 	LLCore::HttpStatus status = response->getStatus();
 
