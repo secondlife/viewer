@@ -76,7 +76,7 @@ protected:
 
     LLFloaterSettingsPicker *getSettingsPicker();
 
-    void                    loadInventoryItem(const LLUUID  &inventoryId);
+    void                    loadInventoryItem(const LLUUID  &inventoryId, bool can_trans = true);
 
     void                    checkAndConfirmSettingsLoss(on_confirm_fn cb);
 
