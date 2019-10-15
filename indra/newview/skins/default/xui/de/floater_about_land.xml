@@ -9,6 +9,12 @@
 	<floater.string name="maturity_icon_adult">
 		&quot;Parcel_R_Dark&quot;
 	</floater.string>
+	<floater.string name="Hours">
+		[HOURS] Stunden
+	</floater.string>
+	<floater.string name="Hour">
+		Std.
+	</floater.string>
 	<floater.string name="Minutes">
 		[MINUTES] Min.
 	</floater.string>
@@ -21,7 +27,10 @@
 	<floater.string name="Remaining">
 		Restzeit
 	</floater.string>
-	<tab_container name="landtab" tab_min_width="40">
+	<floater.string name="Always">
+		Immer
+	</floater.string>
+	<tab_container name="landtab" tab_min_width="40" width="489">
 		<panel label="ALLGEMEIN" name="land_general_panel">
 			<panel.string name="new users only">
 				Nur neue Benutzer
@@ -319,18 +328,18 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			<text name="allow_label2">
 				Bauen:
 			</text>
-			<check_box label="Jeder" name="edit objects check"/>
-			<check_box label="Gruppe" name="edit group objects check"/>
+			<check_box label="Jeder" name="edit objects check" tool_tip="Wenn aktiviert, können Einwohner auf Ihrem Land Objekte erstellen und rezzen."/>
+			<check_box label="Gruppe" name="edit group objects check" tool_tip="Wenn aktiviert, können Parzellengruppen-Mitglieder auf Ihrem Land Objekte erstellen und rezzen."/>
 			<text name="allow_label3">
 				Objekteintritt:
 			</text>
-			<check_box label="Jeder" name="all object entry check"/>
-			<check_box label="Gruppe" name="group object entry check"/>
+			<check_box label="Jeder" name="all object entry check" tool_tip="Wenn aktiviert, können Einwohner bestehende Objekte von anderen Parzellen auf diese Parzelle verschieben."/>
+			<check_box label="Gruppe" name="group object entry check" tool_tip="Wenn aktiviert, können Parzellengruppen-Mitglieder bestehende Objekte von anderen Parzellen auf diese Parzelle verschieben."/>
 			<text name="allow_label4">
 				Skripts ausführen:
 			</text>
-			<check_box label="Jeder" name="check other scripts"/>
-			<check_box label="Gruppe" name="check group scripts"/>
+			<check_box label="Jeder" name="check other scripts" tool_tip="Wenn aktiviert, können Einwohner auf Ihrer Parzelle Skripte inklusive Anhängen ausführen."/>
+			<check_box label="Gruppe" name="check group scripts" tool_tip="Wenn aktiviert, können Parzellengruppen-Mitglieder auf Ihrer Parzelle Skripte inklusive Anhängen ausführen."/>
 			<check_box label="Sicher (kein Schaden)" name="check safe" tool_tip="Falls aktiviert, wird Land auf Option „Sicher“ eingestellt, Kampfschäden sind deaktiviert. Ansonsten sind Kampfschäden aktiviert."/>
 			<check_box label="Kein Stoßen" name="PushRestrictCheck" tool_tip="Verhindert Stoßen durch Skripte. Durch Aktivieren dieser Option verhindern Sie störendes Verhalten auf Ihrem Land."/>
 			<check_box label="Ort in Suche anzeigen (30 L$/Woche)" name="ShowDirectoryCheck" tool_tip="Diese Parzelle in Suchergebnissen anzeigen."/>
@@ -354,8 +363,8 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 				Foto:
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
-			<text name="allow_label5">
-				Avatare in anderen Parzellen können Avatare in dieser Parzelle sehen und mit ihnen chatten
+			<text name="allow_see_label">
+				Avatare in anderen Parzellen können Avatare in dieser Parzelle sehen und mit ihnen chatten.
 			</text>
 			<check_box label="Avatare sehen" name="SeeAvatarsCheck" tool_tip="Gestattet sowohl Avataren auf anderen Parzellen, Avatare auf dieser Parzelle zu sehen und mit ihnen zu chatten, als auch Ihnen, diese Avatare auf anderen Parzellen zu sehen und mit ihnen zu chatten."/>
 			<text name="landing_point">
@@ -457,9 +466,12 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="Verbannen" name="BanCheck">
-					Immer verbannt ([COUNT], max. [MAX])
+					Verbannt ([COUNT], max. [MAX])
 				</text>
-				<name_list name="BannedList" tool_tip="([LISTED] aufgeführt, [MAX] max)"/>
+				<name_list name="BannedList" tool_tip="([LISTED] aufgeführt, [MAX] max)">
+					<columns label="Name" name="name"/>
+					<columns label="Dauer" name="duration"/>
+				</name_list>
 				<button label="Hinzufügen" name="add_banned"/>
 				<button label="Entfernen" label_selected="Entfernen" name="remove_banned"/>
 			</panel>

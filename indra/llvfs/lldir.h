@@ -194,7 +194,7 @@ class LLDir
 	virtual bool setCacheDir(const std::string &path);
 	virtual void updatePerAccountChatLogsDir();
 
-	virtual void dumpCurrentDirectories();
+	virtual void dumpCurrentDirectories(LLError::ELevel level = LLError::LEVEL_DEBUG);
 
 	// Utility routine
 	std::string buildSLOSCacheDir() const;

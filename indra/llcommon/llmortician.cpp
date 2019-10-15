@@ -37,6 +37,42 @@ LLMortician::~LLMortician()
 	sGraveyard.remove(this);
 }
 
+U32 LLMortician::logClass(std::stringstream &str)
+{
+    U32 size = sGraveyard.size();
+    str << "Mortician graveyard count: " << size;
+    str << " Zealous: " << (sDestroyImmediate ? "True" : "False");
+    if (size == 0)
+    {
+        return size;
+    }
+    str << " Output:\n";
+    std::list<LLMortician*>::iterator iter = sGraveyard.begin();
+    std::list<LLMortician*>::iterator end = sGraveyard.end();
+    while (iter!=end)
+    {
+        LLMortician* dead = *iter;
+        iter++;
+        // Be as detailed and safe as possible to figure out issues
+        str << "Pointer: " << dead;
+        if (dead)
+        {
+            try
+            {
+                str << " Is dead: " << (dead->isDead() ? "True" : "False");
+                str << " Name: " << typeid(*dead).name();
+            }
+            catch (...)
+            {
+
+            }
+        }
+        str << "\n";
+    }
+    str << "--------------------------------------------";
+    return size;
+}
+
 void LLMortician::updateClass() 
 {
 	while (!sGraveyard.empty()) 

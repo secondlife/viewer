@@ -199,14 +199,10 @@ private:
 	friend BlockTimer timeThisBlock(BlockTimerStatHandle&); 
 
 	BlockTimer(BlockTimerStatHandle& timer);
-#if !defined(MSC_VER) || MSC_VER < 1700
-	// Visual Studio 2010 has a bug where capturing an object returned by value
-	// into a local reference requires access to the copy constructor at the call site.
-	// This appears to be fixed in 2012.
-public:
-#endif
+
 	// no-copy
-	BlockTimer(const BlockTimer& other) {};
+	BlockTimer(const BlockTimer& other);
+	BlockTimer& operator=(const BlockTimer& other);
 
 private:
 	U64						mStartTime;

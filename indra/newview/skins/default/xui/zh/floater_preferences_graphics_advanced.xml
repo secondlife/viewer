@@ -43,6 +43,7 @@
 	<check_box label="各向異性過濾（若啟用會變慢）" name="ani"/>
 	<check_box initial_value="true" label="啟用 OpenGL 頂點緩衝物件(VBO)" name="vbo" tool_tip="在較新硬體上啟用，可提升效能。  但是，較舊硬體的 VBO 實作不佳，若啟用可能導致當機。"/>
 	<check_box initial_value="true" label="啟用材質壓縮（須重新啟動）" name="texture compression" tool_tip="在影片記憶體中壓縮材質，讓高解析度材質可以載入，但色彩品質稍差。"/>
+	<check_box initial_value="true" label="啟用HiDPI顯示支援（須重新啟動）" name="use HiDPI" tool_tip="啓用OpenGL高解析度繪圖。"/>
 	<text name="antialiasing label">
 		消除鋸齒：
 	</text>

@@ -14,6 +14,7 @@
 		<panel label="İZİN VERİLEN" name="allowed_panel">
 			<panel label="top_panel" name="allowed_search_panel">
 				<filter_editor label="İzin verilen aracıları ara" name="allowed_search_input"/>
+				<button label="Kopyala" name="copy_allowed_list_btn"/>
 			</panel>
 			<text name="allow_resident_label">
 				Her zaman izin verilen:
@@ -27,6 +28,7 @@
 		<panel label="İZİN VERİLEN GRUPLAR" name="allowed_groups_panel">
 			<panel label="top_panel" name="allowed_group_search_panel">
 				<filter_editor label="İzin verilen grupları ara" name="allowed_group_search_input"/>
+				<button label="Kopyala" name="copy_allowed_group_list_btn"/>
 			</panel>
 			<text name="allow_group_label">
 				Her zaman izin verilen gruplar:
@@ -40,6 +42,7 @@
 		<panel label="ENGELLENEN" name="banned_panel">
 			<panel label="top_panel" name="banned_search_panel">
 				<filter_editor label="Engellenen aracıları ara" name="banned_search_input"/>
+				<button label="Kopyala" name="copy_banned_list_btn"/>
 			</panel>
 			<text name="ban_resident_label">
 				Her zaman engellenen:

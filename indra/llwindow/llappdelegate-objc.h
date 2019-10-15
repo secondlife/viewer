@@ -46,3 +46,6 @@
 - (void) languageUpdated;
 - (bool) romanScript;
 @end
+
+@interface LLApplication : NSApplication
+@end
