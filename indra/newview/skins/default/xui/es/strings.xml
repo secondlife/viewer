@@ -640,7 +640,7 @@ Intenta iniciar sesión de nuevo en unos instantes.
 		Notas de la versión
 	</string>
 	<string name="RELEASE_NOTES_BASE_URL">
-		http://wiki.secondlife.com/wiki/Release_Notes/
+		https://releasenotes.secondlife.com/viewer/
 	</string>
 	<string name="LoadingData">
 		Cargando...
@@ -2205,6 +2205,18 @@ Si sigues recibiendo el mismo mensaje, solicita ayuda al personal de asistencia 
 	<string name="RegionInfoListTypeBannedAgents">
 		Siempre prohibido
 	</string>
+	<string name="RegionInfoAllEstates">
+		todos los estados
+	</string>
+	<string name="RegionInfoManagedEstates">
+		estados administrados
+	</string>
+	<string name="RegionInfoThisEstate">
+		este estado
+	</string>
+	<string name="AndNMore">
+		y [EXTRA_COUNT] más
+	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Memoria de los scripts de la parcela
 	</string>
@@ -2248,7 +2260,7 @@ Si sigues recibiendo el mismo mensaje, solicita ayuda al personal de asistencia 
 		Tórax
 	</string>
 	<string name="ATTACH_HEAD">
-		Cabeza
+		Cráneo
 	</string>
 	<string name="ATTACH_LSHOULDER">
 		Hombro izquierdo
@@ -2269,7 +2281,7 @@ Si sigues recibiendo el mismo mensaje, solicita ayuda al personal de asistencia 
 		Pie der.
 	</string>
 	<string name="ATTACH_BACK">
-		Anterior
+		Columna
 	</string>
 	<string name="ATTACH_PELVIS">
 		Pelvis
@@ -2299,13 +2311,13 @@ Si sigues recibiendo el mismo mensaje, solicita ayuda al personal de asistencia 
 		Brazo der.
 	</string>
 	<string name="ATTACH_RLARM">
-		Antebrazo der.
+		Antebrazo derecho
 	</string>
 	<string name="ATTACH_LUARM">
 		Brazo izq.
 	</string>
 	<string name="ATTACH_LLARM">
-		Antebrazo izq.
+		Antebrazo izquierdo
 	</string>
 	<string name="ATTACH_RHIP">
 		Cadera der.
@@ -2326,7 +2338,7 @@ Si sigues recibiendo el mismo mensaje, solicita ayuda al personal de asistencia 
 		Pantorrilla izq.
 	</string>
 	<string name="ATTACH_BELLY">
-		Vientre
+		Abdomen
 	</string>
 	<string name="ATTACH_LEFT_PEC">
 		Pectoral izquierdo
@@ -5650,5 +5662,26 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	</string>
 	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
 		La versión de la forma física no es correcta. Configura la versión correcta del modelo físico.
+	</string>
+	<string name="couldnt_resolve_host">
+		Error de DNS al resolver el nombre del host([HOSTNAME]). 
+Por favor verifica si puedes conectarte al sitio web www.secondlife.com. 
+Si puedes conectarte, pero aún recibes este error, por favor accede a 
+la sección Soporte y genera un informe del problema.
+	</string>
+	<string name="ssl_peer_certificate">
+		El servidor de inicio de sesión no pudo verificarse vía SSL. 
+Si aún recibes este error, por favor accede a 
+la sección Soporte del sitio web Secondlife.com 
+y genera un informe del problema.
+	</string>
+	<string name="ssl_connect_error">
+		En general esto significa que el horario de tu computadora no está bien configurado. 
+Por favor accede al Panel de control y asegúrate de que la hora y la fecha estén 
+bien configurados. Verifica también que tu red y tu cortafuegos estén bien 
+configurados. Si aún recibes este error, por favor accede a la sección Soporte 
+del sitio web Secondlife.com y genera un informe del problema. 
+
+[https://community.secondlife.com/knowledgebase/english/error-messages-r520/#Section__3 Base de conocimientos]
 	</string>
 </strings>

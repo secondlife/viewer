@@ -4,7 +4,7 @@
 		トップ・スクリプト
 	</floater.string>
 	<floater.string name="top_scripts_text">
-		[COUNT]スクリプト全体の実行時間は[TIME]ミリ秒。
+		[COUNT] スクリプトには合計で [TIME] 分かかり、[MEMORY] KB 使用しています。
 	</floater.string>
 	<floater.string name="scripts_score_label">
 		時間

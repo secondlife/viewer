@@ -316,6 +316,7 @@ LLPanelObject::LLPanelObject()
 	mSculptTextureRevert(LLUUID::null),
 	mSculptTypeRevert(0),
 	mSizeChanged(FALSE),
+    mHasParamsClipboard(FALSE),
     mHasPosClipboard(FALSE),
     mHasSizeClipboard(FALSE),
     mHasRotClipboard(FALSE),
@@ -481,7 +482,7 @@ void LLPanelObject::getState( )
     mBtnPasteRot->setEnabled( enable_rotate && mHasRotClipboard );
 
     mBtnCopyParams->setEnabled( single_volume && enable_modify );
-    mBtnPasteParams->setEnabled( single_volume && enable_modify );
+    mBtnPasteParams->setEnabled( single_volume && enable_modify && mHasParamsClipboard );
     mBtnPasteMenu->setEnabled( single_volume && enable_modify );
 
 	LLUUID owner_id;

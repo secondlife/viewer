@@ -36,15 +36,22 @@
 #include <boost/noncopyable.hpp>
 #include "llwin32headerslean.h"
 #include "apr_thread_proc.h"
-#include "apr_thread_mutex.h"
 #include "apr_getopt.h"
 #include "apr_signal.h"
-#include "apr_atomic.h"
 
 #include "llstring.h"
 
-extern LL_COMMON_API apr_thread_mutex_t* gLogMutexp;
-extern apr_thread_mutex_t* gCallStacksLogMutexp;
+#if LL_WINDOWS
+#pragma warning (push)
+#pragma warning (disable:4265)
+#endif
+// warning C4265: 'std::_Pad' : class has virtual functions, but destructor is not virtual
+
+#include <mutex>
+
+#if LL_WINDOWS
+#pragma warning (pop)
+#endif
 
 struct apr_dso_handle_t;
 /**
@@ -120,76 +127,8 @@ private:
 	S32 mNumActiveRef ; //number of active pointers pointing to the apr_pool.
 	S32 mNumTotalRef ;  //number of total pointers pointing to the apr_pool since last creating.  
 
-	apr_thread_mutex_t *mMutexp;
-	apr_pool_t         *mMutexPool;
+	std::unique_ptr<std::mutex> mMutexp;
 } ;
-
-/** 
- * @class LLScopedLock
- * @brief Small class to help lock and unlock mutexes.
- *
- * This class is used to have a stack level lock once you already have
- * an apr mutex handy. The constructor handles the lock, and the
- * destructor handles the unlock. Instances of this class are
- * <b>not</b> thread safe.
- */
-class LL_COMMON_API LLScopedLock : private boost::noncopyable
-{
-public:
-	/**
-	 * @brief Constructor which accepts a mutex, and locks it.
-	 *
-	 * @param mutex An allocated APR mutex. If you pass in NULL,
-	 * this wrapper will not lock.
-	 */
-	LLScopedLock(apr_thread_mutex_t* mutex);
-
-	/**
-	 * @brief Destructor which unlocks the mutex if still locked.
-	 */
-	~LLScopedLock();
-
-	/** 
-	 * @brief Check lock.
-	 */
-	bool isLocked() const { return mLocked; }
-
-	/** 
-	 * @brief This method unlocks the mutex.
-	 */
-	void unlock();
-
-protected:
-	bool mLocked;
-	apr_thread_mutex_t* mMutex;
-};
-
-template <typename Type> class LLAtomic32
-{
-public:
-	LLAtomic32<Type>() {};
-	LLAtomic32<Type>(Type x) {apr_atomic_set32(&mData, apr_uint32_t(x)); };
-	~LLAtomic32<Type>() {};
-
-	operator const Type() { apr_uint32_t data = apr_atomic_read32(&mData); return Type(data); }
-	
-	Type	CurrentValue() const { apr_uint32_t data = apr_atomic_read32(const_cast< volatile apr_uint32_t* >(&mData)); return Type(data); }
-
-	Type operator =(const Type& x) { apr_atomic_set32(&mData, apr_uint32_t(x)); return Type(mData); }
-	void operator -=(Type x) { apr_atomic_sub32(&mData, apr_uint32_t(x)); }
-	void operator +=(Type x) { apr_atomic_add32(&mData, apr_uint32_t(x)); }
-	Type operator ++(int) { return apr_atomic_inc32(&mData); } // Type++
-	Type operator --(int) { return apr_atomic_dec32(&mData); } // approximately --Type (0 if final is 0, non-zero otherwise)
-
-	Type operator ++() { return apr_atomic_inc32(&mData); } // Type++
-	Type operator --() { return apr_atomic_dec32(&mData); } // approximately --Type (0 if final is 0, non-zero otherwise)
-	
-private:
-	volatile apr_uint32_t mData;
-};
-
-typedef LLAtomic32<U32> LLAtomicU32;
-typedef LLAtomic32<S32> LLAtomicS32;
 
 // File IO convenience functions.
 // Returns NULL if the file fails to open, sets *sizep to file size if not NULL

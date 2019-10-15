@@ -244,6 +244,10 @@ Wählen Sie ein einzelnes Objekt aus und versuchen Sie es erneut.
 		Hinweis: Bei Aktivierung dieser Option sehen alle Personen, die diesen Computer benutzen, Ihre Lieblingsorte.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="AllowMultipleViewers">
+		Das Starten mehrerer Second Life Viewer wird nicht unterstützt. Dies kann zu Kollisionen des Textur-Caches, Fehlern sowie verschlechterter Grafik und Leistung führen.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="GrantModifyRights">
 		Wenn Sie einem anderen Einwohner Änderungsrechte gewähren, dann kann dieser JEDES Objekt, das Sie inworld besitzen, ändern, löschen oder an sich nehmen. Seien Sie daher beim Gewähren dieser Rechte sehr vorsichtig!
 Möchten Sie [NAME] Änderungsrechte gewähren?
@@ -725,9 +729,9 @@ Sie können die Grafikqualität unter Einstellungen &gt; Grafik wieder erhöhen.
 		Sie sind nicht zum Terraformen der Parzelle „[PARCEL]“ berechtigt.
 	</notification>
 	<notification name="CannotCopyWarning">
-		Sie sind nicht berechtigt, die folgenden Objekte zu kopieren:
-[ITEMS]
-Wenn Sie diese weitergeben, werden sie aus Ihrem Inventar entfernt. Möchten Sie diese Objekte wirklich weggeben?
+		Sie sind nicht berechtigt, die folgenden Objekte zu kopieren: 
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+und die Objekte werden aus Ihrem Inventar gelöscht, wenn Sie diese weggeben. Möchten Sie diese Objekte wirklich weggeben?
 		<usetemplate name="okcancelbuttons" notext="Nein" yestext="Ja"/>
 	</notification>
 	<notification name="CannotGiveItem">
@@ -1584,6 +1588,30 @@ Ersetzen Sie die Textur [TEXTURE_NUM] mit einer Bilddatei von maximal 512x512 un
 	<notification name="ProblemAddingEstateManagerBanned">
 		Verbannter Einwohner kann nicht zur Grundbesitzverwalterliste hinzugefügt werden.
 	</notification>
+	<notification name="ProblemBanningEstateManager">
+		Grundbesitzverwalter [AGENT] kann nicht zur Bannliste hinzugefügt werden.
+	</notification>
+	<notification name="GroupIsAlreadyInList">
+		&lt;nolink&gt;[GROUP]&lt;/nolink&gt; befindet sich bereits auf der Liste der zulässigen Gruppen.
+	</notification>
+	<notification name="AgentIsAlreadyInList">
+		[AGENT] befindet sich bereits auf Ihrer [LIST_TYPE]-Liste.
+	</notification>
+	<notification name="AgentsAreAlreadyInList">
+		[AGENT] befinden sich bereits auf Ihrer [LIST_TYPE]-Liste.
+	</notification>
+	<notification name="AgentWasAddedToList">
+		[AGENT] wurde der [LIST_TYPE]-Liste von [ESTATE] hinzugefügt.
+	</notification>
+	<notification name="AgentsWereAddedToList">
+		[AGENT] wurden zur [LIST_TYPE]-Liste von [ESTATE] hinzugefügt.
+	</notification>
+	<notification name="AgentWasRemovedFromList">
+		[AGENT] wurden von der [LIST_TYPE]-Liste von [ESTATE] entfernt.
+	</notification>
+	<notification name="AgentsWereRemovedFromList">
+		[AGENT] wurden von der [LIST_TYPE]-Liste von [ESTATE] entfernt.
+	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		Das Aussehen lässt sich erst ändern, wenn Kleider und Form/Gestalt geladen sind.
 	</notification>
@@ -1599,8 +1627,24 @@ Geben Sie das Objekt zum Verkauf frei und versuchen Sie es erneut.
 [DOWNLOAD_PATH].
 	</notification>
 	<notification name="RequiredUpdate">
-		Für die Anmeldung ist Version [VERSION] erforderlich. Diese sollte für Sie aktualisiert worden sein, was offenbar nicht geschehen ist. Bitte laden Sie die Datei unter https://secondlife.com/support/downloads/ herunter.
+		Für die Anmeldung ist Version [VERSION] erforderlich. 
+Bitte laden Sie die Datei unter https://secondlife.com/support/downloads/ herunter.
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PauseForUpdate">
+		Für die Anmeldung ist Version [VERSION] erforderlich. 
+Klicken Sie zum Herunterladen und Installieren auf OK.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OptionalUpdateReady">
+		Version [VERSION] wurde heruntergeladen und ist bereit zur Installation. 
+Klicken Sie zur Installation auf OK.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="PromptOptionalUpdate">
+		Version [VERSION] wurde heruntergeladen und ist bereit zur Installation. 
+Fortfahren?
+		<usetemplate canceltext="Nicht jetzt" name="yesnocancelbuttons" notext="Überspringen" yestext="Installieren"/>
 	</notification>
 	<notification name="LoginFailedUnknown">
 		Die Anmeldung ist aus nicht bekannten Gründen leider fehlgeschlagen. Falls diese Meldung weiterhin angezeigt wird, besuchen Sie bitte die [SUPPORT_SITE].
@@ -1885,7 +1929,7 @@ Tausende Regionen werden verändert und der Spaceserver wird dadurch stark belas
 		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Alle Grundbesitze" yestext="Diesen Grundbesitz"/>
 	</notification>
 	<notification label="Grundbesitz wählen" name="EstateBannedAgentRemove">
-		Einwohner nur für diesen Grundbesitz oder für alle [ALL_ESTATES] von der Bannliste entfernen?
+		Den Einwohner nur für diesen Grundbesitz oder für [ALL_ESTATES] von der Bannliste entfernen?
 		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Alle Grundbesitze" yestext="Diesen Grundbesitz"/>
 	</notification>
 	<notification label="Grundbesitz wählen" name="EstateManagerAdd">
@@ -3063,15 +3107,6 @@ Gewähren Sie dem Objekt nur dann Zugriff, wenn Sie genau verstehen, wieso ein s
 			<button name="Deny" text="Verweigern"/>
 		</form>
 	</notification>
-	<notification name="UnknownScriptQuestion">
-		Die Runtime-Skript-Berechtigung, die von „&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;“ (Besitzer: „[NAME]“) angefordert wurde, wird vom Viewer nicht erkannt und kann nicht gewährt werden.
-
-Um diese Berechtigung zu gewähren, laden Sie die neueste Version des Viewers von [DOWNLOADURL] herunter.
-		<form name="form">
-			<button name="Deny" text="OK"/>
-			<button name="Mute" text="Blockieren"/>
-		</form>
-	</notification>
 	<notification name="ScriptDialog">
 		„&lt;nolink&gt;[TITLE]&lt;/nolink&gt;“ von [NAME]
 [MESSAGE]
@@ -3177,16 +3212,22 @@ Klicken Sie auf  &apos;Akzeptieren &apos;, um dem Chat beizutreten, oder auf  &a
 		Verbindung zu [VOICE_CHANNEL_NAME] nicht möglich. Bitte versuchen Sie es später.  Sie werden nun wieder mit dem Chat in Ihrer Nähe verbunden.
 	</notification>
 	<notification name="VoiceEffectsExpired">
-		Ein oder mehrere Ihrer Voice-Morph-Abos ist/sind abgelaufen.
-[[URL] Hier klicken], um Ihr Abo zu erneuern.
+		Ein oder mehrere Ihrer Voice-Morph-Abos sind abgelaufen. 
+[[URL] Klicken Sie hier], um Ihr Abo zu erneuern. 
+
+Wenn Sie Premium-Mitglied sind, [[PREMIUM_URL] klicken Sie hier], um Ihren Voice-Morphing-Vorteil zu nutzen.
 	</notification>
 	<notification name="VoiceEffectsExpiredInUse">
-		Das aktive Voice-Morph-Abo ist abgelaufen. Ihre normalen Voice-Einstellungen werden angewendet.
-[[URL] Hier klicken], um Ihr Abo zu erneuern.
+		Das aktive Voice-Morph-Abo ist abgelaufen. Ihre normalen Voice-Einstellungen werden angewendet. 
+[[URL] Klicken Sie hier], um Ihr Abo zu erneuern. 
+
+Wenn Sie Premium-Mitglied sind, [[PREMIUM_URL] klicken Sie hier], um Ihren Voice-Morphing-Vorteil zu nutzen.
 	</notification>
 	<notification name="VoiceEffectsWillExpire">
-		Ein oder mehrere Ihrer Voice-Morph-Abos werden in weniger als [INTERVAL] Tagen ablaufen.
-[[URL] Hier klicken], um Ihr Abo zu erneuern.
+		Ein oder mehrere Ihrer Voice-Morph-Abos laufen in weniger als [INTERVAL] Tagen ab. 
+[[URL] Klicken Sie hier], um Ihr Abo zu erneuern. 
+
+Wenn Sie Premium-Mitglied sind, [[PREMIUM_URL] klicken Sie hier], um Ihren Voice-Morphing-Vorteil zu nutzen.
 	</notification>
 	<notification name="VoiceEffectsNew">
 		Neue Voice-Morph-Effekte sind erhältlich!
@@ -3237,6 +3278,9 @@ Diese werden für ein paar Sekunden sicherheitshalber gesperrt.
 	</notification>
 	<notification name="SnapshotToComputerFailed">
 		Fehler beim Speichern des Bildes unter [PATH]: Zu wenig Speicherplatz auf dem Medium. [NEED_MEMORY]KB werden benötigt, es stehen jedoch nur [FREE_MEMORY]KB zur Verfügung.
+	</notification>
+	<notification name="SnapshotToLocalDirNotExist">
+		Fehler beim Speichern des Bildes unter [PATH]: Verzeichnis nicht vorhanden.
 	</notification>
 	<notification name="PresetNotSaved">
 		Fehler beim Speichern der Voreinstellung [NAME].
@@ -3726,13 +3770,13 @@ es sich nicht in der gleichen Region befindet wie Sie.
 		Auf Land, das Sie nicht besitzen, können Sie keine Bäume und Gräser erstellen.
 	</notification>
 	<notification name="NoCopyPermsNoObject">
-		Kopieren fehlgeschlagen, da Sie keine Berechtigung zum Kopieren des Objekts „OBJ_NAME]“ besitzen.
+		Kopieren fehlgeschlagen, da Sie nicht über die Berechtigung zum Kopieren des Objekts &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; verfügen.
 	</notification>
 	<notification name="NoTransPermsNoObject">
-		Kopieren fehlgeschlagen, weil Objekt „[OBJ_NAME]“ nicht an Sie übertragen werden kann.
+		Kopieren fehlgeschlagen, da das Objekt &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nicht an Sie übertragen werden kann.
 	</notification>
 	<notification name="AddToNavMeshNoCopy">
-		Kopieren fehlgeschlagen, weil Objekt „[OBJ_NAME]“ zum Navmesh beiträgt.
+		Kopieren fehlgeschlagen, da das Objekt &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; zum Navmesh beiträgt.
 	</notification>
 	<notification name="DupeWithNoRootsSelected">
 		Ohne ausgewählte Hauptobjekte duplizieren.
@@ -3777,34 +3821,34 @@ Warten Sie kurz und versuchen Sie es noch einmal.
 		Erneutes Speichern im Inventar ist deaktiviert.
 	</notification>
 	<notification name="NoExistNoSaveToContents">
-		„[OBJ_NAME]“ kann nicht im Objektinhalt gespeichert werden, da das Objekt, aus dem es gerezzt wurde, nicht mehr existiert.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; kann nicht im Objektinhalt gespeichert werden, da das Objekt, aus dem es gerezzt wurde, nicht mehr existiert.
 	</notification>
 	<notification name="NoModNoSaveToContents">
-		„[OBJ_NAME]“ kann nicht in Objektinhalt gespeichert werden, da Sie nicht die Berechtigung zum Modifizieren des Objekts „[DEST_NAME]“ besitzen.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; kann nicht in Objektinhalt gespeichert werden, da Sie nicht über die Berechtigung zum Modifizieren des Objekts &lt;nolink&gt;&apos;[DEST_NAME]&apos;&lt;/nolink&gt; verfügen.
 	</notification>
 	<notification name="NoSaveBackToInvDisabled">
-		„[OBJ_NAME]“ kann nicht erneut im Inventar gespeichert werden – dieser Vorgang wurde deaktiviert.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; kann nicht erneut im Inventar gespeichert werden – dieser Vorgang wurde deaktiviert.
 	</notification>
 	<notification name="NoCopyNoSelCopy">
-		Sie können Ihre Auswahl nicht kopieren, da Sie nicht die Berechtigung zum Kopieren des Objekts „[OBJ_NAME]“ haben.
+		Sie können Ihre Auswahl nicht kopieren, da Sie nicht über die Berechtigung zum Kopieren des Objekts &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; verfügen.
 	</notification>
 	<notification name="NoTransNoSelCopy">
-		Sie können Ihre Auswahl nicht kopieren, da das Objekt „[OBJ_NAME]“ nicht übertragbar ist.
+		Sie können Ihre Auswahl nicht kopieren, da das Objekt &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nicht übertragbar ist.
 	</notification>
 	<notification name="NoTransNoCopy">
-		Sie können Ihre Auswahl nicht kopieren, da das Objekt „[OBJ_NAME]“ nicht übertragbar ist.
+		Sie können Ihre Auswahl nicht kopieren, da das Objekt &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nicht übertragbar ist.
 	</notification>
 	<notification name="NoPermsNoRemoval">
-		Entfernen des Objekts „[OBJ_NAME]“ aus dem Simulator wird vom Berechtigungssystem nicht gestattet.
+		Entfernen des Objekts &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; aus dem Simulator wird vom Berechtigungssystem nicht gestattet.
 	</notification>
 	<notification name="NoModNoSaveSelection">
-		Sie können Ihre Auswahl nicht speichern, da Sie keine Berechtigung zum Modifizieren des Objekts „[OBJ_NAME]“ besitzen.
+		Sie können Ihre Auswahl nicht speichern, da Sie nicht über die Berechtigung zum Modifizieren des Objekts &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; verfügen.
 	</notification>
 	<notification name="NoCopyNoSaveSelection">
-		Ihre Auswahl kann nicht gespeichert werden, da das Objekt „[OBJ_NAME]“ nicht kopiert werden kann.
+		Ihre Auswahl kann nicht gespeichert werden, da das Objekt &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nicht kopiert werden kann.
 	</notification>
 	<notification name="NoModNoTaking">
-		Sie können Ihre Auswahl nicht in Empfang nehmen, da Sie nicht die Berechtigung zum Modifizieren des Objekts „[OBJ_NAME]“ haben.
+		Sie können Ihre Auswahl nicht in Empfang nehmen, da Sie nicht über die Berechtigung zum Modifizieren des Objekts &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; verfügen.
 	</notification>
 	<notification name="RezDestInternalError">
 		Interner Fehler: Unbekannter Zielttyp.

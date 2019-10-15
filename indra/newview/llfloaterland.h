@@ -327,6 +327,7 @@ private:
 	static void onCommitAny(LLUICtrl* ctrl, void *userdata);
 	static void onClickSet(void* userdata);
 	static void onClickClear(void* userdata);
+	static void toggleSeeAvatars(void* userdata);
 
 private:
 	LLCheckBoxCtrl*	mCheckEditObjects;
@@ -345,6 +346,7 @@ private:
 	LLTextureCtrl*	mSnapshotCtrl;
 
 	LLTextBox*		mLocationText;
+	LLTextBox*		mSeeAvatarsText;
 	LLButton*		mSetBtn;
 	LLButton*		mClearBtn;
 
@@ -378,6 +380,7 @@ public:
 	void onClickAddAccess();
 	void onClickAddBanned();
 	void callbackAvatarCBBanned(const uuid_vec_t& ids);
+	void callbackAvatarCBBanned2(const uuid_vec_t& ids, S32 duration);
 	void callbackAvatarCBAccess(const uuid_vec_t& ids);
 
 protected:

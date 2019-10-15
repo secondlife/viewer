@@ -75,6 +75,8 @@ class LLTexGlobalColor;
 struct LLAppearanceMessageContents;
 class LLViewerJointMesh;
 
+const F32 MAX_AVATAR_LOD_FACTOR = 1.0f;
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLVOAvatar
@@ -615,6 +617,7 @@ public:
 public:
 	/*virtual*/ LLTexLayerSet*	createTexLayerSet(); // Return LLViewerTexLayerSet
 	void			releaseComponentTextures(); // ! BACKWARDS COMPATIBILITY !
+
 protected:
 	static void		onBakedTextureMasksLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
 	static void		onInitialBakedTextureLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
@@ -699,6 +702,9 @@ public:
 	void 			updateSexDependentLayerSets();
 	virtual void	dirtyMesh(); // Dirty the avatar mesh
 	void 			updateMeshData();
+	void			updateMeshVisibility();
+	LLViewerTexture*		getBakedTexture(const U8 te);
+
 protected:
 	void 			releaseMeshData();
 	virtual void restoreMeshData();
@@ -809,6 +815,7 @@ public:
 	BOOL 				hasHUDAttachment() const;
 	LLBBox 				getHUDBBox() const;
 	void 				resetHUDAttachments();
+	S32					getMaxAttachments() const;
 	BOOL				canAttachMoreObjects(U32 n=1) const;
     S32					getMaxAnimatedObjectAttachments() const;
     BOOL				canAttachMoreAnimatedObjects(U32 n=1) const;

@@ -2226,6 +2226,18 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 	<string name="RegionInfoListTypeBannedAgents">
 		Her zaman engellenen
 	</string>
+	<string name="RegionInfoAllEstates">
+		tüm gayrimenkuller
+	</string>
+	<string name="RegionInfoManagedEstates">
+		yönetilen gayrimenkuller
+	</string>
+	<string name="RegionInfoThisEstate">
+		bu gayrimenkul
+	</string>
+	<string name="AndNMore">
+		ve [EXTRA_COUNT] tane daha
+	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Parsel Komut Dosyası Belleği
 	</string>
@@ -2269,7 +2281,7 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 		Göğüs
 	</string>
 	<string name="ATTACH_HEAD">
-		Baş
+		Kafatası
 	</string>
 	<string name="ATTACH_LSHOULDER">
 		Sol Omuz
@@ -2290,7 +2302,7 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 		Sağ Ayak
 	</string>
 	<string name="ATTACH_BACK">
-		Geri
+		Omurga
 	</string>
 	<string name="ATTACH_PELVIS">
 		Leğen Kemiği
@@ -2320,13 +2332,13 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 		Sol Üst Kol
 	</string>
 	<string name="ATTACH_RLARM">
-		Sağ Alt Kol
+		Sağ Ön Kol
 	</string>
 	<string name="ATTACH_LUARM">
 		Sol Üst Kol
 	</string>
 	<string name="ATTACH_LLARM">
-		Sol Alt Kol
+		Sol Ön Kol
 	</string>
 	<string name="ATTACH_RHIP">
 		Sağ Kalça
@@ -2347,7 +2359,7 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 		Sol Alt Bacak
 	</string>
 	<string name="ATTACH_BELLY">
-		Göbek
+		Karın
 	</string>
 	<string name="ATTACH_LEFT_PEC">
 		Sol Göğüs
@@ -5747,5 +5759,26 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
 		Fiziksel şekil doğru sürüme sahip değil. Fiziksel model için doğru sürümü ayarlayın.
+	</string>
+	<string name="couldnt_resolve_host">
+		DNS sunucusu ana bilgisayar adını çözümleyemedi ([HOSTNAME]). 
+Lütfen www.secondlife.com web sitesine bağlanabildiğinizi doğrulayın. 
+Bağlanabiliyor, ancak bu hatayı almaya devam ediyorsanız, lütfen 
+destek bölümüne gidin ve bu sorunu bildirin.
+	</string>
+	<string name="ssl_peer_certificate">
+		Oturum açma sunucusu SSL aracılığıyla kendini doğrulayamadı. 
+Bu hatayı almaya devam ederseniz, lütfen 
+SecondLife.com web sitesinin Destek 
+bölümüne gidin ve sorunu bildirin.
+	</string>
+	<string name="ssl_connect_error">
+		Çoğunlukla, bu durum, bilgisayarınızın saatinin yanlış ayarlandığı anlamına gelir. 
+Lütfen Denetim Masası&apos;na gidin ve tarih ve saat ayarlarının doğru yapıldığından emin olun. 
+Ayrıca, ağınızın ve güvenlik duvarınızın doğru şekilde ayarlanıp ayarlanmadığını kontrol edin. 
+Bu hatayı almaya devam ederseniz, lütfen SecondLife.com web sitesinin Destek bölümüne 
+gidin ve sorunu bildirin. 
+
+[https://community.secondlife.com/knowledgebase/english/error-messages-r520/#Section__3 Bilgi Bankası]
 	</string>
 </strings>

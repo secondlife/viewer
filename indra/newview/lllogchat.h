@@ -121,6 +121,7 @@ public:
 	static bool isTranscriptExist(const LLUUID& avatar_id, bool is_group=false);
 	static bool isNearbyTranscriptExist();
 	static bool isAdHocTranscriptExist(std::string file_name);
+	static bool isTranscriptFileFound(std::string fullname);
 
 	static bool historyThreadsFinished(LLUUID session_id);
 	static LLLoadHistoryThread* getLoadHistoryThread(LLUUID session_id);

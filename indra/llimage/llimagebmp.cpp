@@ -181,7 +181,7 @@ bool LLImageBMP::updateData()
 		}
 	}
 	else
-	if( 12 <= header.mSize && 64 <= header.mSize )
+	if( 12 <= header.mSize && header.mSize <= 64 )
 	{
 		setLastError("OS/2 2.x BMP files are not supported");
 		return false;

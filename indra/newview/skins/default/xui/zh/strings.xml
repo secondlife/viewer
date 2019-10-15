@@ -2222,6 +2222,18 @@ http://secondlife.com/support 求助解決問題。
 	<string name="RegionInfoListTypeBannedAgents">
 		永遠封鎖
 	</string>
+	<string name="RegionInfoAllEstates">
+		全部領地
+	</string>
+	<string name="RegionInfoManagedEstates">
+		受管領地
+	</string>
+	<string name="RegionInfoThisEstate">
+		這個領地
+	</string>
+	<string name="AndNMore">
+		及其他[EXTRA_COUNT]個
+	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		地段腳本記憶體
 	</string>
@@ -2265,7 +2277,7 @@ http://secondlife.com/support 求助解決問題。
 		胸部
 	</string>
 	<string name="ATTACH_HEAD">
-		頭部
+		頭顱
 	</string>
 	<string name="ATTACH_LSHOULDER">
 		左肩
@@ -2286,7 +2298,7 @@ http://secondlife.com/support 求助解決問題。
 		右腳
 	</string>
 	<string name="ATTACH_BACK">
-		背部
+		脊椎
 	</string>
 	<string name="ATTACH_PELVIS">
 		骨盆
@@ -5745,5 +5757,26 @@ http://secondlife.com/support 求助解決問題。
 	</string>
 	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
 		物理形狀的版本不正確。 請設成正確的物理模型版本。
+	</string>
+	<string name="couldnt_resolve_host">
+		DNS無法解決主機名稱（[HOSTNAME]）。
+請確認你能夠連通 www.secondlife.com
+網站。  如能連通，但繼續看到這個錯誤，
+請到「支援」部分通報問題。
+	</string>
+	<string name="ssl_peer_certificate">
+		登入伺服器無法透過SSL自我確認。
+如果你繼續看到這個錯誤，請前往
+SecondLife.com網站的「支援」部分
+提報問題。
+	</string>
+	<string name="ssl_connect_error">
+		這通常意味你電腦的時鐘設定不正確。
+請到控制台確定時間和日期設定正確。
+並檢查確定你的網路和防火牆設定正確。
+如果你繼續看到這個錯誤，請前往SecondLife.com
+網站的「支援」部分提報問題。
+
+[https://community.secondlife.com/knowledgebase/english/error-messages-r520/#Section__3 知識庫]
 	</string>
 </strings>

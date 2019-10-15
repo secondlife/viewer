@@ -29,17 +29,17 @@
 	<text name="GroupLabel">
 		Grup:
 	</text>
-	<check_box label="Paylaş" name="share_with_group"/>
+	<check_box label="Paylaş" name="share_with_group" tool_tip="Ayarlanan grubun tüm üyelerinin, bu nesne için değiştirme izinlerinizi paylaşmasına izin verir. Rol kısıtlamalarını etkinleştirmek için Devretmeniz gerekiyor."/>
 	<text name="AnyoneLabel">
 		Herkes:
 	</text>
-	<check_box label="Kopyala" name="everyone_copy"/>
+	<check_box label="Kopyala" name="everyone_copy" tool_tip="Herkes nesnenin bir kopyasını alabilir. Nesne ve sahip olduğu tüm içerikler kopyalamaya ve aktarıma izin vermelidir."/>
 	<text name="NextOwnerLabel">
 		Sonraki sahip:
 	</text>
-	<check_box label="Değiştir" name="next_owner_modify"/>
-	<check_box label="Kopyala" name="next_owner_copy"/>
-	<check_box initial_value="true" label="Aktar" name="next_owner_transfer" tool_tip="Sonraki sahibi bu nesneyi verebilir veya tekrar satabilir"/>
+	<check_box label="Değiştir" name="next_owner_modify" tool_tip="Sonraki sahip öğe adı veya bu nesnenin büyüklüğü gibi özellikleri düzenleyebilir."/>
+	<check_box label="Kopyala" name="next_owner_copy" tool_tip="Sonraki sahip bu nesnenin sınırsız sayıda kopyasını oluşturabilir. Kopyalar oluşturucu bilgisini içerir ve asla kopyalanan öğeden daha fazla izin veren bir özellikte olamaz."/>
+	<check_box initial_value="true" label="Aktar" name="next_owner_transfer" tool_tip="Sonraki sahibi bu nesneyi hediye edebilir veya tekrar satabilir."/>
 	<button label="Tamam" name="ok"/>
 	<button label="Uygula" name="apply"/>
 	<button label="İptal" name="close"/>

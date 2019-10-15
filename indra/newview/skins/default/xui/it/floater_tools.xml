@@ -173,9 +173,11 @@
 			<text name="Name:">
 				Nome:
 			</text>
+			<line_editor name="Object Name" tool_tip="Il nome è limitato a 63 caratteri. Prim con nomi più lunghi verranno accorciati. I nomi possono avere solamente caratteri stampabili facenti parte del codice ASCII-7 (non esteso), con l&apos;eccezione della barra verticale &apos;|&apos;."/>
 			<text name="Description:">
 				Descrizione:
 			</text>
+			<line_editor name="Object Description" tool_tip="Quando la dicitura &quot;Vedi suggerimenti su tutti gli oggetti&quot; è selezionata nelle impostazioni del Viewer, passando il mouse sopra un oggetto si vedrà la sua descrizione. La descrizione dei Prim è limitata a 127 bytes. Se più lunga, verrá troncata."/>
 			<text name="Creator:">
 				Creatore:
 			</text>
@@ -198,17 +200,18 @@
 			<text name="label click action">
 				Fai clic per:
 			</text>
-			<combo_box name="clickaction">
+			<combo_box name="clickaction" tool_tip="Con l&apos;azione &quot;clic singolo&quot; puoi interagire con un oggetto semplicemente cliccandolo una volta. Ogni azione &quot;clic singolo&quot; ha un cursore speciale che indica il suo effetto. Alcune azioni &quot;clic singolo&quot; hanno dei requisiti per funzionare. Ad esempio per il comando &quot;Touch and Pay&quot; sono necessari degli script.">
 				<combo_box.item label="Tocca (predefinito)" name="Touch/grab(default)"/>
 				<combo_box.item label="Siediti sull&apos;oggetto" name="Sitonobject"/>
 				<combo_box.item label="Compra l&apos;oggetto" name="Buyobject"/>
 				<combo_box.item label="Paga l&apos;oggetto" name="Payobject"/>
 				<combo_box.item label="Apri" name="Open"/>
 				<combo_box.item label="Ingrandisci" name="Zoom"/>
+				<combo_box.item label="Nessuno" name="None"/>
 			</combo_box>
-			<check_box label="In vendita:" name="checkbox for sale"/>
-			<spinner label="L$" name="Edit Cost"/>
-			<combo_box name="sale type">
+			<check_box label="In vendita:" name="checkbox for sale" tool_tip="Permette alla gente di comprare questo oggetto, il suo contenuto o la sua copia virtuale ad un prezzo stabilito."/>
+			<spinner label="L$" name="Edit Cost" tool_tip="Costo oggetto."/>
+			<combo_box name="sale type" tool_tip="Decidi se vuoi che il compratore riceva una copia, una copia del contenuto o l&apos;oggetto stesso.">
 				<combo_box.item label="Copia" name="Copy"/>
 				<combo_box.item label="Contenuto" name="Contents"/>
 				<combo_box.item label="Originale" name="Original"/>
@@ -221,14 +224,14 @@
 				<text name="Anyone can:">
 					Chiunque:
 				</text>
-				<check_box label="Sposta" name="checkbox allow everyone move"/>
-				<check_box label="Copia" name="checkbox allow everyone copy"/>
+				<check_box label="Sposta" name="checkbox allow everyone move" tool_tip="Chiunque può muovere l&apos;oggetto."/>
+				<check_box label="Copia" name="checkbox allow everyone copy" tool_tip="Chiunque può prendere una copia di questo oggetto. L&apos;oggetto e tutti i suoi contenuti devono avere il permesso di copia e trasferimento."/>
 				<text name="Next owner can:">
 					Proprietario successivo:
 				</text>
-				<check_box label="Modificare" name="checkbox next owner can modify"/>
-				<check_box label="Copiare" name="checkbox next owner can copy"/>
-				<check_box label="Trasferisci" name="checkbox next owner can transfer" tool_tip="Il prossimo proprietario può regalare o rivendere questo oggetto"/>
+				<check_box label="Modificare" name="checkbox next owner can modify" tool_tip="Il prossimo proprietario può modificare le proprietà dell&apos;oggetto come il nome o la scala."/>
+				<check_box label="Copiare" name="checkbox next owner can copy" tool_tip="Il proprietario successivo può prendere infinite copie di questo oggetto. Le copie mantengono le informazioni sul creatore, e non possono avere permessi maggiori di quelli posseduti dall&apos;oggetto copiato."/>
+				<check_box label="Trasferisci" name="checkbox next owner can transfer" tool_tip="Il prossimo proprietario può regalare o rivendere questo oggetto."/>
 				<text name="B:">
 					B:
 				</text>

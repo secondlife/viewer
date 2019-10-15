@@ -605,7 +605,7 @@ Aguarde um minuto antes que tentar logar-se novamente.
 		Notas de versão
 	</string>
 	<string name="RELEASE_NOTES_BASE_URL">
-		http://wiki.secondlife.com/wiki/Release_Notes/
+		https://releasenotes.secondlife.com/viewer/
 	</string>
 	<string name="LoadingData">
 		Carregando...
@@ -2173,6 +2173,18 @@ Se você continuar a receber essa mensagem, entre em contato com o suporte do Se
 	<string name="RegionInfoListTypeBannedAgents">
 		Sempre banido
 	</string>
+	<string name="RegionInfoAllEstates">
+		todos os terrenos
+	</string>
+	<string name="RegionInfoManagedEstates">
+		administre terrenos
+	</string>
+	<string name="RegionInfoThisEstate">
+		este terreno
+	</string>
+	<string name="AndNMore">
+		e [EXTRA_COUNT] mais
+	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Memória de scripts no lote
 	</string>
@@ -2216,7 +2228,7 @@ Se você continuar a receber essa mensagem, entre em contato com o suporte do Se
 		Peito
 	</string>
 	<string name="ATTACH_HEAD">
-		Cabeça
+		Crânio
 	</string>
 	<string name="ATTACH_LSHOULDER">
 		Ombro esquerdo
@@ -2237,7 +2249,7 @@ Se você continuar a receber essa mensagem, entre em contato com o suporte do Se
 		Pé direito
 	</string>
 	<string name="ATTACH_BACK">
-		Atrás
+		Coluna
 	</string>
 	<string name="ATTACH_PELVIS">
 		Pélvis
@@ -2294,7 +2306,7 @@ Se você continuar a receber essa mensagem, entre em contato com o suporte do Se
 		Perna esquerda
 	</string>
 	<string name="ATTACH_BELLY">
-		Barriga
+		Estômago
 	</string>
 	<string name="ATTACH_LEFT_PEC">
 		Peitorais E
@@ -5614,5 +5626,26 @@ Tente colocar o caminho do editor entre aspas.
 	</string>
 	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
 		A forma física não tem a versão correta. Defina a versão correta para o modelo físico.
+	</string>
+	<string name="couldnt_resolve_host">
+		O DNS não pode resolver o nome do host([HOSTNAME]). 
+Verifique se você pode conectar ao site www.secondlife.com . Se você 
+puder, mas se continuar recebendo esta mensagem de erro, vá à sessão 
+Suporte no site Secondlife.com e informe o problema.
+	</string>
+	<string name="ssl_peer_certificate">
+		O servidor de acesso não pôde verificá-lo pelo SSL. 
+Se você continuar recebendo esta mensagem de erro, 
+vá à sessão Suporte no site Secondlife.com 
+e informe o problema.
+	</string>
+	<string name="ssl_connect_error">
+		Geralmente, esse erro significa que o relógio do seu computador não está com o horário correto. 
+Vá em Painel de Controles e certifique-se de que a hora e data estejam corretos. 
+Além disso, verifique se a sua rede e firewall estejam corretos. Se você continuar 
+recebendo esta mensagem de erro, vá à sessão Suporte no site Secondlife.com 
+e informe o problema. 
+
+[https://community.secondlife.com/knowledgebase/english/error-messages-r520/#Section__3 Base de conhecimento]
 	</string>
 </strings>

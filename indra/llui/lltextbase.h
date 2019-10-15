@@ -275,7 +275,8 @@ typedef LLPointer<LLTextSegment> LLTextSegmentPtr;
 class LLTextBase 
 :	public LLUICtrl,
 	protected LLEditMenuHandler,
-	public LLSpellCheckMenuHandler
+	public LLSpellCheckMenuHandler,
+	public ll::ui::SearchableControl
 {
 public:
 	friend class LLTextSegment;
@@ -617,6 +618,11 @@ protected:
 	void							appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params, bool underline_on_hover_only = false);
 	S32 normalizeUri(std::string& uri);
 	
+protected:
+	virtual std::string _getSearchText() const
+	{
+		return mLabel.getString() + getToolTip();
+	}
 
 protected:
 	// text segmentation and flow

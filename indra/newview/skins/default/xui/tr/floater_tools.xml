@@ -175,9 +175,11 @@
 			<text name="Name:">
 				Ad:
 			</text>
+			<line_editor name="Object Name" tool_tip="Ad, 63 karakter ile sınırlıdır. Daha uzun prim adları kesilerek kısaltılır. Adlar, dikey çubuk &apos;|&apos; hariç olmak üzere, sadece ASCII-7 (genişletilmemiş) karakter kümesinde bulunan yazdırılabilir karakterlerden oluşabilir."/>
 			<text name="Description:">
 				Açıklama:
 			</text>
+			<line_editor name="Object Description" tool_tip="Görüntüleyici ayarlarında &apos;İpuçlarını Tüm Nesnelerin Üzerine Getir&apos; seçildiğinde, fare imlecinin altındaki herhangi bir nesneye ait nesne açıklaması açılır penceresi görülür. Prim (temel öğe) açıklaması 127 bayt ile sınırlıdır ve bundan daha uzun her dize kesilir."/>
 			<text name="Creator:">
 				Oluşturan:
 			</text>
@@ -194,17 +196,18 @@
 			<text name="label click action">
 				Şu eylem için tıklayın:
 			</text>
-			<combo_box name="clickaction">
+			<combo_box name="clickaction" tool_tip="Tıklama eylemi, tek bir sol tıklama yoluyla bir nesne ile etkileşime girmenize olanak sağlar. Her tıklama eylemi, ne işe yaradığını gösteren özel bir imlece sahiptir. Bazı tıklama eylemlerinin işlevlerini yerine getirmesi için belirli gereklilikler vardır. Örneğin, Dokun ve Öde komut dosyaları gerektirir">
 				<combo_box.item label="Dokun (varsayılan)" name="Touch/grab(default)"/>
 				<combo_box.item label="Nesnenin üzerine otur" name="Sitonobject"/>
 				<combo_box.item label="Nesneyi satın al" name="Buyobject"/>
 				<combo_box.item label="Nesneye ödeme yap" name="Payobject"/>
 				<combo_box.item label="Aç" name="Open"/>
 				<combo_box.item label="Yakınlaştır" name="Zoom"/>
+				<combo_box.item label="Yok" name="None"/>
 			</combo_box>
-			<check_box label="Satılık:" name="checkbox for sale"/>
-			<spinner label="L$" name="Edit Cost"/>
-			<combo_box name="sale type">
+			<check_box label="Satılık:" name="checkbox for sale" tool_tip="İnsanların bu nesneyi, içeriğini veya SL dünyasındaki kopyasını satın almasına izin verin."/>
+			<spinner label="L$" name="Edit Cost" tool_tip="Nesne maliyeti."/>
+			<combo_box name="sale type" tool_tip="Alıcının bir kopya mı, yani içeriğin kopyasını mı yoksa öğenin kendisini mi alacağını seçin.">
 				<combo_box.item label="Kopyala" name="Copy"/>
 				<combo_box.item label="İçerik" name="Contents"/>
 				<combo_box.item label="Orijinal" name="Original"/>
@@ -217,14 +220,14 @@
 				<text name="Anyone can:">
 					Herkes:
 				</text>
-				<check_box label="Hareket Et" name="checkbox allow everyone move"/>
-				<check_box label="Kopyala" name="checkbox allow everyone copy"/>
+				<check_box label="Hareket Et" name="checkbox allow everyone move" tool_tip="Herkes nesneyi hareket ettirebilir."/>
+				<check_box label="Kopyala" name="checkbox allow everyone copy" tool_tip="Herkes nesnenin bir kopyasını alabilir. Nesne ve sahip olduğu tüm içerikler kopyalamaya ve aktarıma izin vermelidir."/>
 				<text name="Next owner can:">
 					Sonraki sahip:
 				</text>
-				<check_box label="Değiştir" name="checkbox next owner can modify"/>
-				<check_box label="Kopyala" name="checkbox next owner can copy"/>
-				<check_box label="Aktar" name="checkbox next owner can transfer" tool_tip="Sonraki sahibi bu nesneyi verebilir veya tekrar satabilir"/>
+				<check_box label="Değiştir" name="checkbox next owner can modify" tool_tip="Sonraki sahip öğe adı veya bu nesnenin büyüklüğü gibi özellikleri düzenleyebilir."/>
+				<check_box label="Kopyala" name="checkbox next owner can copy" tool_tip="Sonraki sahip bu nesnenin sınırsız sayıda kopyasını oluşturabilir. Kopyalar oluşturucu bilgisini içerir ve asla kopyalanan öğeden daha fazla izin veren bir özellikte olamaz."/>
+				<check_box label="Aktar" name="checkbox next owner can transfer" tool_tip="Sonraki sahibi bu nesneyi hediye edebilir veya tekrar satabilir."/>
 				<text name="B:">
 					B:
 				</text>

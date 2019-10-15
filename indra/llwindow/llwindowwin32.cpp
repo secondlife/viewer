@@ -425,6 +425,9 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	mKeyVirtualKey = 0;
 	mhDC = NULL;
 	mhRC = NULL;
+	memset(mCurrentGammaRamp, 0, sizeof(mCurrentGammaRamp));
+	memset(mPrevGammaRamp, 0, sizeof(mPrevGammaRamp));
+	mCustomGammaSet = FALSE;
 	
 	if (!SystemParametersInfo(SPI_GETMOUSEVANISH, 0, &mMouseVanish, 0))
 	{
@@ -738,6 +741,17 @@ void LLWindowWin32::restore()
 	SetFocus(mWindowHandle);
 }
 
+bool destroy_window_handler(HWND &hWnd)
+{
+    __try
+    {
+        return DestroyWindow(hWnd);
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER)
+    {
+        return false;
+    }
+}
 
 // close() destroys all OS-specific code associated with a window.
 // Usually called from LLWindowManager::destroyWindow()
@@ -811,7 +825,7 @@ void LLWindowWin32::close()
 	ShowWindow(mWindowHandle, SW_HIDE);
 
 	// This causes WM_DESTROY to be sent *immediately*
-	if (!DestroyWindow(mWindowHandle))
+	if (!destroy_window_handler(mWindowHandle))
 	{
 		OSMessageBox(mCallbacks->translateString("MBDestroyWinFailed"),
 			mCallbacks->translateString("MBShutdownErr"),
@@ -2989,12 +3003,33 @@ F32 LLWindowWin32::getGamma()
 
 BOOL LLWindowWin32::restoreGamma()
 {
-	return SetDeviceGammaRamp(mhDC, mPrevGammaRamp);
+	if (mCustomGammaSet != FALSE)
+	{
+        LL_DEBUGS("Window") << "Restoring gamma" << LL_ENDL;
+		mCustomGammaSet = FALSE;
+		return SetDeviceGammaRamp(mhDC, mPrevGammaRamp);
+	}
+	return TRUE;
 }
 
 BOOL LLWindowWin32::setGamma(const F32 gamma)
 {
 	mCurrentGamma = gamma;
+
+	//Get the previous gamma ramp to restore later.
+	if (mCustomGammaSet == FALSE)
+	{
+        if (!gGLManager.mIsIntel) // skip for Intel GPUs (see SL-11341)
+        {
+            LL_DEBUGS("Window") << "Getting the previous gamma ramp to restore later" << LL_ENDL;
+            if(GetDeviceGammaRamp(mhDC, mPrevGammaRamp) == FALSE)
+            {
+                LL_WARNS("Window") << "Failed to get the previous gamma ramp" << LL_ENDL;
+                return FALSE;
+            }
+        }
+		mCustomGammaSet = TRUE;
+	}
 
 	LL_DEBUGS("Window") << "Setting gamma to " << gamma << LL_ENDL;
 
@@ -3007,9 +3042,9 @@ BOOL LLWindowWin32::setGamma(const F32 gamma)
 		if ( value > 0xffff )
 			value = 0xffff;
 
-		mCurrentGammaRamp [ 0 * 256 + i ] = 
-			mCurrentGammaRamp [ 1 * 256 + i ] = 
-				mCurrentGammaRamp [ 2 * 256 + i ] = ( WORD )value;
+		mCurrentGammaRamp[0][i] =
+			mCurrentGammaRamp[1][i] =
+			mCurrentGammaRamp[2][i] = (WORD) value;
 	};
 
 	return SetDeviceGammaRamp ( mhDC, mCurrentGammaRamp );
@@ -4012,7 +4047,7 @@ void LLWindowWin32::setDPIAwareness()
 
 F32 LLWindowWin32::getSystemUISize()
 {
-	float scale_value = 0;
+	F32 scale_value = 1.f;
 	HWND hWnd = (HWND)getPlatformWindow();
 	HDC hdc = GetDC(hWnd);
 	HMONITOR hMonitor;

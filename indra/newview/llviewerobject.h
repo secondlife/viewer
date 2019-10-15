@@ -588,6 +588,10 @@ public:
 	friend class LLViewerMediaList;
 
 public:
+	LLViewerTexture* getBakedTextureForMagicId(const LLUUID& id);
+	void updateAvatarMeshVisibility(const LLUUID& id, const LLUUID& old_id);
+	void refreshBakeTexture();
+public:
 	static void unpackVector3(LLDataPackerBinaryBuffer* dp, LLVector3& value, std::string name);
 	static void unpackUUID(LLDataPackerBinaryBuffer* dp, LLUUID& value, std::string name);
 	static void unpackU32(LLDataPackerBinaryBuffer* dp, U32& value, std::string name);
@@ -615,7 +619,7 @@ private:
     U32 checkMediaURL(const std::string &media_url);
 	
 	// Motion prediction between updates
-	void interpolateLinearMotion(const F64SecondsImplicit & time, const F32SecondsImplicit & dt);
+	void interpolateLinearMotion(const F64SecondsImplicit & frame_time, const F32SecondsImplicit & dt);
 
 	static void initObjectDataMap();
 
@@ -772,6 +776,7 @@ protected:
 	F64Seconds		mLastInterpUpdateSecs;			// Last update for purposes of interpolation
 	F64Seconds		mLastMessageUpdateSecs;			// Last update from a message from the simulator
 	TPACKETID		mLatestRecvPacketID;			// Latest time stamp on message from simulator
+	F64SecondsImplicit mRegionCrossExpire;		// frame time we detected region crossing in + wait time
 
 	// extra data sent from the sim...currently only used for tree species info
 	U8* mData;
@@ -851,6 +856,7 @@ protected:
 
 	static void setPhaseOutUpdateInterpolationTime(F32 value)	{ sPhaseOutUpdateInterpolationTime = (F64Seconds) value;	}
 	static void setMaxUpdateInterpolationTime(F32 value)		{ sMaxUpdateInterpolationTime = (F64Seconds) value;	}
+	static void setMaxRegionCrossingInterpolationTime(F32 value)		{ sMaxRegionCrossingInterpolationTime = (F64Seconds) value; }
 
 	static void	setVelocityInterpolate(BOOL value)		{ sVelocityInterpolate = value;	}
 	static void	setPingInterpolate(BOOL value)			{ sPingInterpolate = value;	}
@@ -860,6 +866,7 @@ private:
 
 	static F64Seconds sPhaseOutUpdateInterpolationTime;	// For motion interpolation
 	static F64Seconds sMaxUpdateInterpolationTime;			// For motion interpolation
+	static F64Seconds sMaxRegionCrossingInterpolationTime;			// For motion interpolation
 
 	static BOOL sVelocityInterpolate;
 	static BOOL sPingInterpolate;

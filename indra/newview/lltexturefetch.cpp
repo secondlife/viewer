@@ -66,6 +66,7 @@ bool LLTextureFetchDebugger::sDebuggerEnabled = false ;
 
 LLTrace::CountStatHandle<F64> LLTextureFetch::sCacheHit("texture_cache_hit");
 LLTrace::CountStatHandle<F64> LLTextureFetch::sCacheAttempt("texture_cache_attempt");
+LLTrace::EventStatHandle<LLUnit<F32, LLUnits::Percent> > LLTextureFetch::sCacheHitRate("texture_cache_hits");
 
 LLTrace::SampleStatHandle<F32Seconds> LLTextureFetch::sCacheReadLatency("texture_cache_read_latency");
 LLTrace::SampleStatHandle<F32Seconds> LLTextureFetch::sTexDecodeLatency("texture_decode_latency");
@@ -936,7 +937,7 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mCanUseHTTP(true),
 	  mRetryAttempt(0),
 	  mActiveCount(0),
-	  mWorkMutex(NULL),
+	  mWorkMutex(),
 	  mFirstPacket(0),
 	  mLastPacket(-1),
 	  mTotalPackets(0),
@@ -1311,6 +1312,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			LL_DEBUGS(LOG_TXT) << mID << ": Cached. Bytes: " << mFormattedImage->getDataSize()
 							   << " Size: " << llformat("%dx%d",mFormattedImage->getWidth(),mFormattedImage->getHeight())
 							   << " Desired Discard: " << mDesiredDiscard << " Desired Size: " << mDesiredSize << LL_ENDL;
+			record(LLTextureFetch::sCacheHitRate, LLUnits::Ratio::fromValue(1));
 		}
 		else
 		{
@@ -1326,7 +1328,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				LL_DEBUGS(LOG_TXT) << mID << ": Not in Cache" << LL_ENDL;
 				setState(LOAD_FROM_NETWORK);
 			}
-			
+			record(LLTextureFetch::sCacheHitRate, LLUnits::Ratio::fromValue(0));
 			// fall through
 		}
 	}
@@ -2558,8 +2560,8 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mDebugPause(FALSE),
 	  mPacketCount(0),
 	  mBadPacketCount(0),
-	  mQueueMutex(getAPRPool()),
-	  mNetworkQueueMutex(getAPRPool()),
+	  mQueueMutex(),
+	  mNetworkQueueMutex(),
 	  mTextureCache(cache),
 	  mImageDecodeThread(imagedecodethread),
 	  mTextureBandwidth(0),

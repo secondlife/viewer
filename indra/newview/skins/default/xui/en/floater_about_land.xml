@@ -22,6 +22,14 @@
       "Parcel_R_Dark"
     </floater.string>
     <floater.string
+     name="Hours">
+        [HOURS] hrs.
+    </floater.string>
+    <floater.string
+     name="Hour">
+        hr.
+    </floater.string>
+    <floater.string
      name="Minutes">
         [MINUTES] min.
     </floater.string>
@@ -36,6 +44,10 @@
     <floater.string
      name="Remaining">
         remaining
+    </floater.string>
+    <floater.string
+     name="Always">
+        Always
     </floater.string>
     <tab_container
      follows="all"
@@ -151,6 +163,7 @@
              layout="topleft"
              left_pad="2"
              name="Description"
+             spellcheck="true"
              top_delta="0"
              width="365"
              word_wrap="true" />
@@ -1256,6 +1269,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="2"
              name="edit objects check"
+             tool_tip="If checked, Residents can create and rez objects on your land."
              width="130" />
             <check_box
              height="16"
@@ -1263,6 +1277,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="2"
              name="edit group objects check"
+             tool_tip="If checked, parcel group members can create and rez objects on your land."
              width="70" />
             <text
              type="string"
@@ -1281,6 +1296,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="2"
              name="all object entry check"
+             tool_tip="If checked, Residents can move existing objects from other parcels onto this parcel."
              top_delta="0"
              width="130" />
             <check_box
@@ -1289,6 +1305,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="2"
              name="group object entry check"
+             tool_tip="If checked, parcel group members can move existing objects from other parcels onto this parcel."
              top_delta="0"
              width="70" />
             <text
@@ -1308,6 +1325,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="2"
              name="check other scripts"
+             tool_tip="If checked, Residents can run scripts on your parcel, including attachments."
              top_delta="0"
              width="130" />
             <check_box
@@ -1316,6 +1334,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_pad="2"
              name="check group scripts"
+             tool_tip="If checked, parcel group members can run scripts on your parcel, including attachments."
              top_delta="0"
              width="70" />
           <panel
@@ -1454,11 +1473,12 @@ Only large parcels can be listed in search.
              length="1"
              follows="left|top"
              text_color="LtGray"
+             text_readonly_color="LabelDisabledColor"
              height="32"
              layout="topleft"
              left="274"
              top="150"
-             name="allow_label5"
+             name="allow_see_label"
              width="205"
              word_wrap="true">
               Avatars on other parcels can see and chat with avatars on this parcel
@@ -1896,6 +1916,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="8"
              name="public_access"
+             tool_tip=""
              label="Anyone can visit (Unchecking this will create ban lines)"
              top_pad="10" 
              width="278" />
@@ -2063,19 +2084,29 @@ Only large parcels can be listed in search.
              name="BanCheck"
              top="0"
              width="200">
-                Always banned ([COUNT], max [MAX])
+                Banned ([COUNT], max [MAX])
             </text>
             <name_list
              column_padding="0"
              follows="top|bottom"
-             heading_height="14"
+             heading_height="16"
              height="125"
              layout="topleft"
              left="0"
              multi_select="true"
+             draw_heading="true"
              name="BannedList"
              tool_tip="([LISTED] listed, [MAX] max)"
-             width="230" />
+             width="230">
+             <columns
+              label="Name"
+              name="name"
+              width="155" />
+             <columns
+              label="Duration"
+              name="duration"
+              width="75" />
+            </name_list>
             <button
              follows="bottom"
              height="23"

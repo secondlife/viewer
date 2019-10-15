@@ -2415,7 +2415,7 @@ void translateSuccess(LLChat chat, LLSD toastArgs, std::string originalMsg, std:
         && ((detected_language.empty()) || (expectLang != detected_language))
         && (LLStringUtil::compareInsensitive(translation, originalMsg) != 0))
     {
-        chat.mText += " (" + translation + ")";
+        chat.mText += " (" + LLTranslate::removeNoTranslateTags(translation) + ")";
     }
 
     LLNotificationsUI::LLNotificationManager::instance().onChat(chat, toastArgs);
@@ -5531,17 +5531,6 @@ void notify_cautioned_script_question(const LLSD& notification, const LLSD& resp
 
 void script_question_mute(const LLUUID& item_id, const std::string& object_name);
 
-bool unknown_script_question_cb(const LLSD& notification, const LLSD& response)
-{
-	// Only care if they muted the object here.
-	if ( response["Mute"] ) // mute
-	{
-		LLUUID task_id = notification["payload"]["task_id"].asUUID();
-		script_question_mute(task_id,notification["payload"]["object_name"].asString());
-	}
-	return false;
-}
-
 void experiencePermissionBlock(LLUUID experience, LLSD result)
 {
     LLSD permission;
@@ -5647,8 +5636,7 @@ void script_question_mute(const LLUUID& task_id, const std::string& object_name)
       	bool matches(const LLNotificationPtr notification) const
         {
             if (notification->getName() == "ScriptQuestionCaution"
-                || notification->getName() == "ScriptQuestion"
-				|| notification->getName() == "UnknownScriptQuestion")
+                || notification->getName() == "ScriptQuestion")
             {
                 return (notification->getPayload()["task_id"].asUUID() == blocked_id);
             }
@@ -5665,7 +5653,6 @@ void script_question_mute(const LLUUID& task_id, const std::string& object_name)
 static LLNotificationFunctorRegistration script_question_cb_reg_1("ScriptQuestion", script_question_cb);
 static LLNotificationFunctorRegistration script_question_cb_reg_2("ScriptQuestionCaution", script_question_cb);
 static LLNotificationFunctorRegistration script_question_cb_reg_3("ScriptQuestionExperience", script_question_cb);
-static LLNotificationFunctorRegistration unknown_script_question_cb_reg("UnknownScriptQuestion", unknown_script_question_cb);
 
 void process_script_experience_details(const LLSD& experience_details, LLSD args, LLSD payload)
 {
@@ -5778,14 +5765,12 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 		args["QUESTIONS"] = script_question;
 
 		if (known_questions != questions)
-		{	// This is in addition to the normal dialog.
-			LLSD payload;
-			payload["task_id"] = taskid;
-			payload["item_id"] = itemid;
-			payload["object_name"] = object_name;
-			
-			args["DOWNLOADURL"] = LLTrans::getString("ViewerDownloadURL");
-			LLNotificationsUtil::add("UnknownScriptQuestion",args,payload);
+		{
+			// This is in addition to the normal dialog.
+			// Viewer got a request for not supported/implemented permission 
+			LL_WARNS("Messaging") << "Object \"" << object_name << "\" requested " << script_question
+								<< " permission. Permission is unknown and can't be granted. Item id: " << itemid
+								<< " taskid:" << taskid << LL_ENDL;
 		}
 		
 		if (known_questions)

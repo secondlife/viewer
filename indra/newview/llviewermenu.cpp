@@ -54,7 +54,6 @@
 #include "lldaycyclemanager.h"
 #include "lldebugview.h"
 #include "llenvmanager.h"
-#include "llfacebookconnect.h"
 #include "llfilepicker.h"
 #include "llfirstuse.h"
 #include "llfloaterabout.h"
@@ -4066,10 +4065,8 @@ void near_sit_down_point(BOOL success, void *)
 	if (success)
 	{
 		gAgent.setFlying(FALSE);
+		gAgent.clearControlFlags(AGENT_CONTROL_STAND_UP); // might have been set by autopilot
 		gAgent.setControlFlags(AGENT_CONTROL_SIT_ON_GROUND);
-
-		// Might be first sit
-		//LLFirstUse::useSit();
 	}
 }
 
@@ -4754,6 +4751,12 @@ void handle_take()
 				category_id.setNull();
 			}
 
+			// check inbox
+			const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX);
+			if (category_id == inbox_id || gInventory.isObjectDescendentOf(category_id, inbox_id))
+			{
+				category_id.setNull();
+			}
 		}
 	}
 	if(category_id.isNull())
@@ -7068,6 +7071,10 @@ BOOL object_selected_and_point_valid()
 
 BOOL object_is_wearable()
 {
+	if (!isAgentAvatarValid())
+	{
+		return FALSE;
+	}
 	if (!object_selected_and_point_valid())
 	{
 		return FALSE;
@@ -7076,17 +7083,7 @@ BOOL object_is_wearable()
 	{
 		return FALSE;
 	}
-	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
-	for (LLObjectSelection::valid_root_iterator iter = LLSelectMgr::getInstance()->getSelection()->valid_root_begin();
-		 iter != LLSelectMgr::getInstance()->getSelection()->valid_root_end(); iter++)
-	{
-		LLSelectNode* node = *iter;		
-		if (node->mPermissions->getOwner() == gAgent.getID())
-		{
-			return TRUE;
-		}
-	}
-	return FALSE;
+	return gAgentAvatarp->canAttachMoreObjects();
 }
 
 
@@ -9207,13 +9204,12 @@ void initialize_menus()
 	enable.add("Object.EnableOpen", boost::bind(&enable_object_open));
 	enable.add("Object.EnableTouch", boost::bind(&enable_object_touch, _1));
 	enable.add("Object.EnableDelete", boost::bind(&enable_object_delete));
-	enable.add("Object.EnableWear", boost::bind(&object_selected_and_point_valid));
+	enable.add("Object.EnableWear", boost::bind(&object_is_wearable));
 
 	enable.add("Object.EnableStandUp", boost::bind(&enable_object_stand_up));
 	enable.add("Object.EnableSit", boost::bind(&enable_object_sit, _1));
 
 	view_listener_t::addMenu(new LLObjectEnableReturn(), "Object.EnableReturn");
-	enable.add("Object.EnableDuplicate", boost::bind(&LLSelectMgr::canDuplicate, LLSelectMgr::getInstance()));
 	view_listener_t::addMenu(new LLObjectEnableReportAbuse(), "Object.EnableReportAbuse");
 
 	enable.add("Avatar.EnableMute", boost::bind(&enable_object_mute));

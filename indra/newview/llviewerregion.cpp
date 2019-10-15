@@ -2892,9 +2892,9 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("DispatchRegionInfo");
 	capabilityNames.append("DirectDelivery");
 	capabilityNames.append("EnvironmentSettings");
+	capabilityNames.append("EstateAccess");
 	capabilityNames.append("EstateChangeInfo");
 	capabilityNames.append("EventQueueGet");
-	capabilityNames.append("FacebookConnect");
 	capabilityNames.append("FlickrConnect");
 	capabilityNames.append("TwitterConnect");
 
@@ -3232,6 +3232,12 @@ bool LLViewerRegion::meshUploadEnabled() const
 {
 	return (mSimulatorFeatures.has("MeshUploadEnabled") &&
 		mSimulatorFeatures["MeshUploadEnabled"].asBoolean());
+}
+
+bool LLViewerRegion::bakesOnMeshEnabled() const
+{
+	return (mSimulatorFeatures.has("BakesOnMeshEnabled") &&
+		mSimulatorFeatures["BakesOnMeshEnabled"].asBoolean());
 }
 
 bool LLViewerRegion::meshRezEnabled() const

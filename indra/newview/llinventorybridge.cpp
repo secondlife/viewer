@@ -1399,13 +1399,6 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 			// Only should happen for broken links.
 			new_listener = new LLLinkItemBridge(inventory, root, uuid);
 			break;
-	    case LLAssetType::AT_MESH:
-			if(!(inv_type == LLInventoryType::IT_MESH))
-			{
-				LL_WARNS() << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << LL_ENDL;
-			}
-			new_listener = new LLMeshBridge(inventory, root, uuid);
-			break;
 		case LLAssetType::AT_UNKNOWN:
 			new_listener = new LLUnknownItemBridge(inventory, root, uuid);
 			break;
@@ -1415,7 +1408,7 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
 			break;
 
 		default:
-			LL_INFOS() << "Unhandled asset type (llassetstorage.h): "
+			LL_INFOS_ONCE() << "Unhandled asset type (llassetstorage.h): "
 					<< (S32)asset_type << " (" << LLAssetType::lookup(asset_type) << ")" << LL_ENDL;
 			break;
 	}
@@ -2101,7 +2094,9 @@ BOOL LLItemBridge::isItemCopyable() const
 	LLViewerInventoryItem* item = getItem();
 	if (item)
 	{
-		// Can't copy worn objects. DEV-15183
+		// Can't copy worn objects.
+		// Worn objects are tied to their inworld conterparts
+		// Copy of modified worn object will return object with obsolete asset and inventory
 		if(get_is_item_worn(mUUID))
 		{
 			return FALSE;
@@ -6307,7 +6302,7 @@ bool confirm_attachment_rez(const LLSD& notification, const LLSD& response)
 	if (!gAgentAvatarp->canAttachMoreObjects())
 	{
 		LLSD args;
-		args["MAX_ATTACHMENTS"] = llformat("%d", MAX_AGENT_ATTACHMENTS);
+		args["MAX_ATTACHMENTS"] = llformat("%d", gAgentAvatarp->getMaxAttachments());
 		LLNotificationsUtil::add("MaxAttachmentsOnOutfit", args);
 		return false;
 	}
@@ -6830,58 +6825,6 @@ void LLLinkItemBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	hide_context_entries(menu, items, disabled_items);
 }
 
-// +=================================================+
-// |        LLMeshBridge                             |
-// +=================================================+
-
-LLUIImagePtr LLMeshBridge::getIcon() const
-{
-	return LLInventoryIcon::getIcon(LLAssetType::AT_MESH, LLInventoryType::IT_MESH, 0, FALSE);
-}
-
-void LLMeshBridge::openItem()
-{
-	LLViewerInventoryItem* item = getItem();
-	
-	if (item)
-	{
-		// open mesh
-	}
-}
-
-void LLMeshBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
-{
-	LL_DEBUGS() << "LLMeshBridge::buildContextMenu()" << LL_ENDL;
-	std::vector<std::string> items;
-	std::vector<std::string> disabled_items;
-
-	if(isItemInTrash())
-	{
-		items.push_back(std::string("Purge Item"));
-		if (!isItemRemovable())
-		{
-			disabled_items.push_back(std::string("Purge Item"));
-		}
-
-		items.push_back(std::string("Restore Item"));
-	}
-    else if (isMarketplaceListingsFolder())
-    {
-		addMarketplaceContextMenuOptions(flags, items, disabled_items);
-		items.push_back(std::string("Properties"));
-		getClipboardEntries(false, items, disabled_items, flags);
-    }
-	else
-	{
-		items.push_back(std::string("Properties"));
-
-		getClipboardEntries(true, items, disabled_items, flags);
-	}
-
-	addLinkReplaceMenuOption(items, disabled_items);
-	hide_context_entries(menu, items, disabled_items);
-}
-
 
 // +=================================================+
 // |        LLLinkBridge                             |
@@ -7344,7 +7287,10 @@ void LLFolderViewGroupedItemBridge::groupFilterContextMenu(folder_view_item_dequ
     {
 		if (!LLAppearanceMgr::instance().canAddWearables(ids) && canWearSelected(ids))
         {
-			disabled_items.push_back(std::string("Wearable Add"));
+            disabled_items.push_back(std::string("Wearable And Object Wear"));
+            disabled_items.push_back(std::string("Wearable Add"));
+            disabled_items.push_back(std::string("Attach To"));
+            disabled_items.push_back(std::string("Attach To HUD"));
         }
     }
 	disable_context_entries_if_present(menu, disabled_items);
@@ -7355,8 +7301,7 @@ bool LLFolderViewGroupedItemBridge::canWearSelected(uuid_vec_t item_ids)
 	for (uuid_vec_t::const_iterator it = item_ids.begin(); it != item_ids.end(); ++it)
 	{
 		LLViewerInventoryItem* item = gInventory.getItem(*it);
-		LLAssetType::EType asset_type = item->getType();
-		if (!item || (asset_type >= LLAssetType::AT_COUNT) || (asset_type <= LLAssetType::AT_NONE))
+		if (!item || (item->getType() >= LLAssetType::AT_COUNT) || (item->getType() <= LLAssetType::AT_NONE))
 		{
 			return false;
 		}

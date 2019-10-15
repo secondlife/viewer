@@ -2226,6 +2226,18 @@ support@secondlife.com.
 	<string name="RegionInfoListTypeBannedAgents">
 		Всегда заблокированы
 	</string>
+	<string name="RegionInfoAllEstates">
+		все землевладения
+	</string>
+	<string name="RegionInfoManagedEstates">
+		управляемые землевладения
+	</string>
+	<string name="RegionInfoThisEstate">
+		это землевладение
+	</string>
+	<string name="AndNMore">
+		и \[EXTRA_COUNT] более
+	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Память под скрипты на участке
 	</string>
@@ -2269,7 +2281,7 @@ support@secondlife.com.
 		Грудь
 	</string>
 	<string name="ATTACH_HEAD">
-		Голова
+		Череп
 	</string>
 	<string name="ATTACH_LSHOULDER">
 		Левое плечо
@@ -2290,7 +2302,7 @@ support@secondlife.com.
 		Правая ступня
 	</string>
 	<string name="ATTACH_BACK">
-		Спина
+		Позвоночник
 	</string>
 	<string name="ATTACH_PELVIS">
 		Таз
@@ -5746,5 +5758,26 @@ support@secondlife.com.
 	</string>
 	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
 		У физической формы нет правильной версии. Задайте правильную версию для физической модели.
+	</string>
+	<string name="couldnt_resolve_host">
+		DNS не удалось разрешить имя узла([HOSTNAME]). 
+Проверьте возможность подключения к веб-сайту www.secondlife.com. 
+Если вы продолжаете получать эту ошибку, перейдите в раздел 
+поддержки и сообщите о проблеме.
+	</string>
+	<string name="ssl_peer_certificate">
+		Серверу входа в систему не удалось пройти аутентификацию с помощью 
+протокола SSL. Если вы продолжаете получать эту ошибку, 
+перейдите в раздел поддержки на веб-сайте SecondLife.com 
+и сообщите о проблеме.
+	</string>
+	<string name="ssl_connect_error">
+		Часто это означает, что часы компьютера установлены неправильно. 
+Перейдите, пожалуйста, на Панели управления и убедитесь в правильной 
+установке времени и даты. Также проверьте правильность настройки сети 
+и брандмауэра. Если вы продолжаете получать эту ошибку, перейдите в 
+раздел поддержки на веб-сайте SecondLife.com и сообщите о проблеме. 
+
+[https://community.secondlife.com/knowledgebase/english/error-messages-r520/#Section__3 База знаний]
 	</string>
 </strings>

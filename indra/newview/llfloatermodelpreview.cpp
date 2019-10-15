@@ -266,7 +266,7 @@ mCalculateBtn(NULL)
 	sInstance = this;
 	mLastMouseX = 0;
 	mLastMouseY = 0;
-	mStatusLock = new LLMutex(NULL);
+	mStatusLock = new LLMutex();
 	mModelPreview = NULL;
 
 	mLODMode[LLModel::LOD_HIGH] = 0;
@@ -324,6 +324,8 @@ BOOL LLFloaterModelPreview::postBuild()
 
 	childSetCommitCallback("import_scale", onImportScaleCommit, this);
 	childSetCommitCallback("pelvis_offset", onPelvisOffsetCommit, this);
+
+	getChild<LLLineEditor>("description_form")->setKeystrokeCallback(boost::bind(&LLFloaterModelPreview::onDescriptionKeystroke, this, _1), NULL);
 
 	getChild<LLCheckBoxCtrl>("show_edges")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
 	getChild<LLCheckBoxCtrl>("show_physics")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
@@ -518,6 +520,16 @@ void LLFloaterModelPreview::onClickCalculateBtn()
 
 	toggleCalculateButton(false);
 	mUploadBtn->setEnabled(false);
+}
+
+void LLFloaterModelPreview::onDescriptionKeystroke(LLUICtrl* ctrl)
+{
+	// Workaround for SL-4186, server doesn't allow name changes after 'calculate' stage
+	LLLineEditor* input = static_cast<LLLineEditor*>(ctrl);
+	if (input->isDirty()) // dirty will be reset after commit
+	{
+		toggleCalculateButton(true);
+	}
 }
 
 //static
@@ -1208,7 +1220,7 @@ void LLFloaterModelPreview::onMouseCaptureLostModelPreview(LLMouseHandler* handl
 //-----------------------------------------------------------------------------
 
 LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
-: LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE), LLMutex(NULL)
+: LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE), LLMutex()
 , mLodsQuery()
 , mLodsWithParsingError()
 , mPelvisZOffset( 0.0f )
@@ -1418,8 +1430,6 @@ void LLModelPreview::rebuildUploadData()
 
 	std::string requested_name = mFMP->getChild<LLUICtrl>("description_form")->getValue().asString();
 
-	std::string metric = mFMP->getChild<LLUICtrl>("model_category_combo")->getValue().asString();
-
 	LLSpinCtrl* scale_spinner = mFMP->getChild<LLSpinCtrl>("import_scale");
 
 	F32 scale = scale_spinner->getValue().asReal();
@@ -1460,7 +1470,6 @@ void LLModelPreview::rebuildUploadData()
 			if (base_model && !requested_name.empty())
 			{
 				base_model->mRequestedLabel = requested_name;
-				base_model->mMetric = metric;
 			}
 
 			for (int i = LLModel::NUM_LODS - 1; i >= LLModel::LOD_IMPOSTOR; i--)
