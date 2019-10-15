@@ -47,6 +47,7 @@ class LLUICtrl;
 class LLViewerObject;
 class LLFloater;
 class LLMaterialID;
+class LLMenuButton;
 
 // Represents an edit for use in replicating the op across one or more materials in the selection set.
 //
@@ -112,6 +113,8 @@ public:
 	}
 
 	LLRender::eTexIndex getTextureChannelToEdit();
+
+    void            pasteFace(LLViewerObject* object, S32 te);
 
 protected:
 	void			getState();
@@ -203,9 +206,13 @@ protected:
 	static void		onCommitRepeatsPerMeter(	LLUICtrl* ctrl, void* userinfo);
 	static void		onClickAutoFix(void*);
 
-	static F32     valueGlow(LLViewerObject* object, S32 face);
+    void            onCopyFaces();
+    void            onPasteFaces();
+    bool            pasteCheckMenuItem(const LLSD& userdata);
+    void            pasteDoMenuItem(const LLSD& userdata);
+    bool            pasteEnabletMenuItem(const LLSD& userdata);
 
-	
+	static F32     valueGlow(LLViewerObject* object, S32 face);
 
 private:
 
@@ -231,6 +238,20 @@ private:
 	F32		getCurrentShinyScaleV();
 	F32		getCurrentShinyOffsetU();
 	F32		getCurrentShinyOffsetV();
+
+    LLButton        *mBtnCopyFaces;
+    LLButton        *mBtnPasteFaces;
+    LLMenuButton    *mBtnPasteMenu;
+
+    LLSD            mClipboard;
+    BOOL            mPasteColor;
+    BOOL            mPasteAlpha;
+    BOOL            mPasteGlow;
+    BOOL            mPasteDiffuse;
+    BOOL            mPasteNormal;
+    BOOL            mPasteSpecular;
+    BOOL            mPasteMapping;
+    BOOL            mPasteMedia;
 
 	// Update visibility of controls to match current UI mode
 	// (e.g. materials vs media editing)
@@ -495,6 +516,8 @@ public:
 		DEF_EDIT_MAT_STATE(LLUUID,const LLUUID&,setNormalID);
 		DEF_EDIT_MAT_STATE(LLUUID,const LLUUID&,setSpecularID);
 		DEF_EDIT_MAT_STATE(LLColor4U,	const LLColor4U&,setSpecularLightColor);
+
+		DEF_EDIT_MAT_STATE(LLSD, const LLSD&, fromLLSD);
 	};
 
 	class LLSelectedTE

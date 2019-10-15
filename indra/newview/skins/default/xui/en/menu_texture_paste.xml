@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu
+ layout="topleft"
+ name="Conversation Gear Menu">
+    <menu_item_check
+     label="Color"
+     layout="topleft"
+     name="Color">
+        <on_check function="BuildFace.PasteCheckItem" parameter="Color" />
+        <on_click function="BuildFace.PasteDoToSelected" parameter="Color" />
+        <on_enable function="BuildFace.PasteEnable" parameter="Color" />
+    </menu_item_check>
+    <menu_item_check
+     label="Transparency"
+     layout="topleft"
+     name="Transparency">
+        <on_check function="BuildFace.PasteCheckItem" parameter="Transparency" />
+        <on_click function="BuildFace.PasteDoToSelected" parameter="Transparency" />
+        <on_enable function="BuildFace.PasteEnable" parameter="Transparency" />
+    </menu_item_check>
+    <menu_item_check
+     label="Glow"
+     layout="topleft"
+     name="Glow">
+        <on_check function="BuildFace.PasteCheckItem" parameter="Glow" />
+        <on_click function="BuildFace.PasteDoToSelected" parameter="Glow" />
+        <on_enable function="BuildFace.PasteEnable" parameter="Glow" />
+    </menu_item_check>
+    <menu_item_check
+     label="Texture"
+     layout="topleft"
+     name="Diffuse">
+        <on_check function="BuildFace.PasteCheckItem" parameter="Diffuse" />
+        <on_click function="BuildFace.PasteDoToSelected" parameter="Diffuse" />
+        <on_enable function="BuildFace.PasteEnable" parameter="Diffuse" />
+    </menu_item_check>
+    <menu_item_check
+     label="Bumpiness"
+     layout="topleft"
+     name="Normal">
+        <on_check function="BuildFace.PasteCheckItem" parameter="Normal" />
+        <on_click function="BuildFace.PasteDoToSelected" parameter="Normal" />
+        <on_enable function="BuildFace.PasteEnable" parameter="Normal" />
+    </menu_item_check>
+    <menu_item_check
+     label="Shininess"
+     layout="topleft"
+     name="Specular">
+        <on_check function="BuildFace.PasteCheckItem" parameter="Specular" />
+        <on_click function="BuildFace.PasteDoToSelected" parameter="Specular" />
+        <on_enable function="BuildFace.PasteEnable" parameter="Specular" />
+    </menu_item_check>
+    <menu_item_check
+     label="Mapping"
+     layout="topleft"
+     name="Mapping">
+        <on_check function="BuildFace.PasteCheckItem" parameter="Mapping" />
+        <on_click function="BuildFace.PasteDoToSelected" parameter="Mapping" />
+        <on_enable function="BuildFace.PasteEnable" parameter="Mapping" />
+    </menu_item_check>
+    <menu_item_check
+     label="Media"
+     layout="topleft"
+     name="Media">
+        <on_check function="BuildFace.PasteCheckItem" parameter="Media" />
+        <on_click function="BuildFace.PasteDoToSelected" parameter="Media" />
+        <on_enable function="BuildFace.PasteEnable" parameter="Media" />
+    </menu_item_check>
+</toggleable_menu>
+

@@ -38,6 +38,7 @@
 #include "llfontgl.h"
 
 // project includes
+#include "llagent.h" // gAgent
 #include "llagentdata.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
@@ -45,10 +46,14 @@
 #include "llcombobox.h"
 #include "lldrawpoolbump.h"
 #include "llface.h"
+#include "llinventoryfunctions.h"
+#include "llinventorymodel.h" // gInventory
 #include "lllineeditor.h"
 #include "llmaterialmgr.h"
 #include "llmediaentry.h"
+#include "llmenubutton.h"
 #include "llnotificationsutil.h"
+#include "llpanelobject.h" // LLPanelObject::canCopyTexture
 #include "llradiogroup.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
@@ -295,7 +300,18 @@ BOOL	LLPanelFace::postBuild()
 	{
 		mCtrlGlow->setCommitCallback(LLPanelFace::onCommitGlow, this);
 	}
-	
+
+    mBtnCopyFaces = getChild<LLButton>("copy_face_btn");
+    if(mBtnCopyFaces)
+    {
+        BtnCopyFaces->setCommitCallback(boost::bind(&LLPanelFace::onCopyFaces, this));
+    }
+    mBtnPasteFaces = getChild<LLButton>("paste_face_btn");
+    if (mBtnPasteFaces)
+    {
+        mBtnPasteFaces->setCommitCallback(boost::bind(&LLPanelFace::onPasteFaces, this));
+    }
+    mBtnPasteMenu = getChild<LLMenuButton>("paste_face_gear_btn");
 
 	clearCtrls();
 
@@ -304,9 +320,21 @@ BOOL	LLPanelFace::postBuild()
 
 LLPanelFace::LLPanelFace()
 :	LLPanel(),
-	mIsAlpha(false)
+    mIsAlpha(false),
+    mPasteColor(TRUE),
+    mPasteAlpha(TRUE),
+    mPasteGlow(TRUE),
+    mPasteDiffuse(TRUE),
+    mPasteNormal(TRUE),
+    mPasteSpecular(TRUE),
+    mPasteMapping(TRUE),
+    mPasteMedia(TRUE)
 {
 	USE_TEXTURE = LLTrans::getString("use_texture");
+
+    mEnableCallbackRegistrar.add("BuildFace.PasteCheckItem", boost::bind(&LLPanelFace::pasteCheckMenuItem, this, _2));
+    mCommitCallbackRegistrar.add("BuildFace.PasteDoToSelected", boost::bind(&LLPanelFace::pasteDoMenuItem, this, _2));
+    mEnableCallbackRegistrar.add("BuildFace.PasteEnable", boost::bind(&LLPanelFace::pasteEnabletMenuItem, this, _2));
 }
 
 
@@ -1407,6 +1435,12 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			}
 		}
 
+        S32 selected_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
+        BOOL single_volume = (selected_count == 1);
+        mBtnCopyFaces->setEnabled(editable && single_volume);
+        mBtnPasteFaces->setEnabled(editable && (mClipboard.size() > 0));
+        mBtnPasteMenu->setEnabled(editable);
+
 		// Set variable values for numeric expressions
 		LLCalc* calcp = LLCalc::getInstance();
 		calcp->setVar(LLCalc::TEX_U_SCALE, childGetValue("TexScaleU").asReal());
@@ -1602,8 +1636,6 @@ void LLPanelFace::updateVisibility()
 	getChildView("bumpyRot")->setVisible(show_bumpiness);
 	getChildView("bumpyOffsetU")->setVisible(show_bumpiness);
 	getChildView("bumpyOffsetV")->setVisible(show_bumpiness);
-
-
 }
 
 // static
@@ -2680,4 +2712,446 @@ void LLPanelFace::LLSelectedTE::getMaxDiffuseRepeats(F32& repeats, bool& identic
 
 	} max_diff_repeats_func;
 	identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &max_diff_repeats_func, repeats );
+}
+
+static LLSD texture_clipboard;
+
+void LLPanelFace::onCopyFaces()
+{
+    LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+    LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
+    S32 selected_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
+    if( !objectp || !node
+        || objectp->getPCode() != LL_PCODE_VOLUME
+        || !objectp->permModify()
+        || objectp->isPermanentEnforced()
+        || selected_count > 1)
+    {
+        return;
+    }
+
+    mClipboard.clear();
+
+    S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
+    for (S32 te = 0; te < num_tes; ++te)
+    {
+        if (node->isTESelected(te))
+        {
+            LLTextureEntry* tep = objectp->getTE(te);
+            if (tep)
+            {
+                LLSD te_data;
+
+                te_data["te"] = tep->asLLSD();
+                te_data["te"]["glow"] = tep->getGlow();
+                te_data["te"]["shiny"] = tep->getShiny();
+
+                if (te_data["te"].has("imageid"))
+                {
+                    LLUUID id = te_data["te"]["imageid"].asUUID();
+                    if (id.isNull() || !LLPanelObject::canCopyTexture(id))
+                    {
+                        te_data["te"].erase("imageid");
+                        te_data["te"]["imageid"] = LLUUID(gSavedSettings.getString( "DefaultObjectTexture" ));
+                    }
+                    // else
+                    // {
+                        // te_data["te"]["imageid"] = canCopyTexture(te_data["te"]["imageid"].asUUID());
+                    // }
+                }
+
+                LLMaterialPtr material_ptr = tep->getMaterialParams();
+                if (!material_ptr.isNull())
+                {
+                    LLSD mat_data;
+
+                    mat_data["NormMap"] = material_ptr->getNormalID();
+                    mat_data["SpecMap"] = material_ptr->getSpecularID();
+
+                    mat_data["NormRepX"] = material_ptr->getNormalRepeatX();
+                    mat_data["NormRepY"] = material_ptr->getNormalRepeatY();
+                    mat_data["NormOffX"] = material_ptr->getNormalOffsetX();
+                    mat_data["NormOffY"] = material_ptr->getNormalOffsetY();
+                    mat_data["NormRot"] = material_ptr->getNormalRotation();
+
+                    mat_data["SpecRepX"] = material_ptr->getSpecularRepeatX();
+                    mat_data["SpecRepY"] = material_ptr->getSpecularRepeatY();
+                    mat_data["SpecOffX"] = material_ptr->getSpecularOffsetX();
+                    mat_data["SpecOffY"] = material_ptr->getSpecularOffsetY();
+                    mat_data["SpecRot"] = material_ptr->getSpecularRotation();
+
+                    mat_data["SpecColor"] = material_ptr->getSpecularLightColor().getValue();
+                    mat_data["SpecExp"] = material_ptr->getSpecularLightExponent();
+                    mat_data["EnvIntensity"] = material_ptr->getEnvironmentIntensity();
+                    mat_data["AlphaMaskCutoff"] = material_ptr->getAlphaMaskCutoff();
+                    mat_data["DiffuseAlphaMode"] = material_ptr->getDiffuseAlphaMode();
+
+                    // Replace no-copy textures, destination texture will get used instead if available
+                    if (mat_data.has("NormMap"))
+                    {
+                        LLUUID id = te_data["material"]["NormMap"].asUUID();
+                        if (id.notNull() && !LLPanelObject::canCopyTexture(id))
+                        {
+                            mat_data["NormMap"] = LLUUID(gSavedSettings.getString( "DefaultObjectTexture" ));
+                            mat_data["NormMapNoCopy"] = true;
+                        }
+                        
+                    }
+                    if (mat_data.has("SpecMap"))
+                    {
+                        LLUUID id = te_data["material"]["SpecMap"].asUUID();
+                        if (id.notNull() && !LLPanelObject::canCopyTexture(id))
+                        {
+                            mat_data["SpecMap"]  = LLUUID(gSavedSettings.getString( "DefaultObjectTexture" ));
+                            mat_data["SpecMapNoCopy"] = true;
+                        }
+                        
+                    }
+
+                    te_data["material"] = mat_data;
+                }
+
+                //*TODO: Media
+
+                mClipboard.append(te_data);
+            }
+        }
+    }
+}
+
+void LLPanelFace::pasteFace(LLViewerObject* objectp, S32 te)
+{
+    LLSD te_data;
+    if (mClipboard.size() == 1)
+    {
+        te_data = *(mClipboard.beginArray());
+    }
+    else if (mClipboard[te])
+    {
+        te_data = mClipboard[te];
+    }
+    else
+    {
+        return;
+    }
+
+    LLTextureEntry* tep = objectp->getTE(te);
+    if (tep)
+    {
+        if (te_data.has("te"))
+        {
+            // Texture
+            if (mPasteDiffuse)
+            {
+                // Replace no-copy texture with target's
+                if (!te_data["te"].has("imageid"))
+                {
+                    te_data["te"]["imageid"] = tep->getID();
+                }
+                const LLUUID& imageid = te_data["te"]["imageid"].asUUID();
+                LLViewerInventoryItem* item = gInventory.getItem(imageid);
+                if (item)
+                {
+                    if (te == -1) // all faces
+                    {
+                        LLToolDragAndDrop::dropTextureAllFaces(objectp,
+                                                               item,
+                                                               LLToolDragAndDrop::SOURCE_AGENT,
+                                                               LLUUID::null);
+                    }
+                    else // one face
+                    {
+                        LLToolDragAndDrop::dropTextureOneFace(objectp,
+                                                              te,
+                                                              item,
+                                                              LLToolDragAndDrop::SOURCE_AGENT,
+                                                              LLUUID::null);
+                    }
+                }
+                else // not an inventory item
+                {
+                    LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(imageid, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+                    objectp->setTEImage(U8(te), image);
+                }
+            }
+
+            // Color / Alpha
+            if ((mPasteColor || mPasteAlpha) && te_data.has("colors"))
+            {
+                LLColor4 color = objectp->getTE(te)->getColor();
+
+                LLColor4 clip_color;
+                clip_color.setValue(te_data["colors"]);
+
+                // Color
+                if (mPasteColor)
+                {
+                    color.mV[VRED] = clip_color.mV[VRED];
+                    color.mV[VGREEN] = clip_color.mV[VGREEN];
+                    color.mV[VBLUE] = clip_color.mV[VBLUE];
+                }
+
+                // Alpha
+                if (mPasteAlpha)
+                {
+                    color.mV[VALPHA] = clip_color.mV[VALPHA];
+                }
+
+                objectp->setTEColor(te, color);
+            }
+            
+            // Glow
+            if (mPasteGlow && te_data.has("glow"))
+            {
+                objectp->setTEGlow(te, (F32)te_data["glow"].asReal());
+            }
+
+            // Texture map
+            if (mPasteMapping)
+            {
+                if (te_data.has("scales") && te_data.has("scalet"))
+                {
+                    objectp->setTEScale(te, (F32)te_data["scales"].asReal(), (F32)te_data["scalet"].asReal());
+                }
+                if (te_data.has("offsets") && te_data.has("offsett"))
+                {
+                    objectp->setTEOffset(te, (F32)te_data["offsets"].asReal(), (F32)te_data["offsett"].asReal());
+                }
+                if (te_data.has("imagerot"))
+                {
+                    objectp->setTERotation(te, (F32)te_data["imagerot"].asReal());
+                }
+            }
+
+           // Media
+            if (mPasteMedia && te_data.has("media"))
+            {
+                //*TODO
+            }
+            else
+            {
+                // // Keep media flags on destination unchanged
+                // // Media is handled later
+                // if (te_data["te"].has("media_flags"))
+                // {
+                    // te_data["te"]["media_flags"] = tep->getMediaTexGen();
+                // }
+            }
+        }
+
+        if (te_data.has("material"))
+        {
+            LLUUID object_id = objectp->getID();
+
+            LLSelectedTEMaterial::setAlphaMaskCutoff(this, (U8)te_data["material"]["SpecRot"].asInteger(), te, object_id);
+
+            if (mPasteNormal)
+            {
+                // Replace placeholders with target's
+                if (te_data["material"].has("NormMapNoCopy"))
+                {
+                    LLMaterialPtr material = tep->getMaterialParams();
+                    if (material.notNull())
+                    {
+                        LLUUID id = material->getNormalID();
+                        if (id.notNull())
+                        {
+                            te_data["material"]["NormMap"] = id;
+                        }
+                    }
+                }
+                LLSelectedTEMaterial::setNormalID(this, te_data["material"]["NormMap"].asUUID(), te, object_id);
+                LLSelectedTEMaterial::setNormalRepeatX(this, (F32)te_data["material"]["NormRepX"].asReal(), te, object_id);
+                LLSelectedTEMaterial::setNormalRepeatY(this, (F32)te_data["material"]["NormRepY"].asReal(), te, object_id);
+                LLSelectedTEMaterial::setNormalOffsetX(this, (F32)te_data["material"]["NormOffX"].asReal(), te, object_id);
+                LLSelectedTEMaterial::setNormalOffsetY(this, (F32)te_data["material"]["NormOffY"].asReal(), te, object_id);
+                LLSelectedTEMaterial::setNormalRotation(this, (F32)te_data["material"]["NormRot"].asReal(), te, object_id);
+            }
+
+            if (mPasteSpecular)
+            {
+                // Replace placeholders with target's
+                if (te_data["material"].has("SpecMapNoCopy"))
+                {
+                    LLMaterialPtr material = tep->getMaterialParams();
+                    if (material.notNull())
+                    {
+                        LLUUID id = material->getSpecularID();
+                        if (id.notNull())
+                        {
+                            te_data["material"]["SpecMap"] = id;
+                        }
+                    }
+                }
+                LLSelectedTEMaterial::setSpecularID(this, te_data["material"]["SpecMap"].asUUID(), te, object_id);
+                LLSelectedTEMaterial::setSpecularRepeatX(this, (F32)te_data["material"]["SpecRepX"].asReal(), te, object_id);
+                LLSelectedTEMaterial::setSpecularRepeatY(this, (F32)te_data["material"]["SpecRepY"].asReal(), te, object_id);
+                LLSelectedTEMaterial::setSpecularOffsetX(this, (F32)te_data["material"]["SpecOffX"].asReal(), te, object_id);
+                LLSelectedTEMaterial::setSpecularOffsetY(this, (F32)te_data["material"]["SpecOffY"].asReal(), te, object_id);
+                LLSelectedTEMaterial::setSpecularRotation(this, (F32)te_data["material"]["SpecRot"].asReal(), te, object_id);
+                LLColor4 spec_color(te_data["material"]["SpecColor"]);
+                LLSelectedTEMaterial::setSpecularLightColor(this, spec_color, te);
+                LLSelectedTEMaterial::setSpecularLightExponent(this, (U8)te_data["material"]["SpecExp"].asInteger(), te, object_id);
+                LLSelectedTEMaterial::setEnvironmentIntensity(this, (U8)te_data["material"]["EnvIntensity"].asInteger(), te), object_id;
+                LLSelectedTEMaterial::setDiffuseAlphaMode(this, (U8)te_data["material"]["SpecRot"].asInteger(), te, object_id);
+                if (te_data.has("shiny"))
+                {
+                    objectp->setTEShiny(te, (U8)te_data["shiny"].asInteger());
+                }
+            }
+        }
+    }
+}
+
+struct LLPanelFacePasteTexFunctor : public LLSelectedTEFunctor
+{
+    LLPanelFacePasteTexFunctor(LLPanelFace* panel) :
+        mPanelFace(panel){}
+
+    virtual bool apply(LLViewerObject* objectp, S32 te)
+    {
+        mPanelFace->pasteFace(objectp, te);
+        return true;
+    }
+private:
+    LLPanelFace *mPanelFace;
+};
+
+void LLPanelFace::onPasteFaces()
+{
+    LLPanelFacePasteTexFunctor paste_func(this);
+    LLSelectMgr::getInstance()->getSelection()->applyToTEs(&paste_func);
+
+    LLPanelFaceSendFunctor sendfunc;
+    LLSelectMgr::getInstance()->getSelection()->applyToObjects(&sendfunc);
+}
+
+bool LLPanelFace::pasteCheckMenuItem(const LLSD& userdata)
+{
+    std::string command = userdata.asString();
+
+    if ("Color" == command)
+    {
+        return mPasteColor;
+    }
+    if ("Transparency" == command)
+    {
+        return mPasteAlpha;
+    }
+    if ("Glow" == command)
+    {
+        return mPasteGlow;
+    }
+    if ("Diffuse" == command)
+    {
+        return mPasteDiffuse;
+    }
+    if ("Normal" == command)
+    {
+        return mPasteNormal;
+    }
+    if ("Specular" == command)
+    {
+        return mPasteSpecular;
+    }
+    if ("Mapping" == command)
+    {
+        return mPasteMapping;
+    }
+    if ("Media" == command)
+    {
+        return mPasteMedia;
+    }
+
+    return false;
+}
+
+void LLPanelFace::pasteDoMenuItem(const LLSD& userdata)
+{
+    std::string command = userdata.asString();
+
+    if ("Color" == command)
+    {
+        mPasteColor = !mPasteColor;
+    }
+    if ("Transparency" == command)
+    {
+        mPasteAlpha = !mPasteAlpha;
+    }
+    if ("Glow" == command)
+    {
+        mPasteGlow = !mPasteGlow;
+    }
+    if ("Diffuse" == command)
+    {
+        mPasteDiffuse = !mPasteDiffuse;
+    }
+    if ("Normal" == command)
+    {
+        mPasteNormal = !mPasteNormal;
+    }
+    if ("Specular" == command)
+    {
+        mPasteSpecular = !mPasteSpecular;
+    }
+    if ("Mapping" == command)
+    {
+        mPasteMapping = !mPasteMapping;
+    }
+    if ("Media" == command)
+    {
+        mPasteMedia = !mPasteMedia;
+    }
+}
+
+bool LLPanelFace::pasteEnabletMenuItem(const LLSD& userdata)
+{
+    std::string command = userdata.asString();
+
+    // Keep at least one option enabled
+    S32 num_enabled = mPasteColor
+                    + mPasteAlpha
+                    + mPasteGlow
+                    + mPasteDiffuse
+                    + mPasteNormal
+                    + mPasteSpecular
+                    + mPasteMapping
+                    + mPasteMedia;
+    if ( num_enabled == 1)
+    {
+        if ("Color" == command && mPasteColor)
+        {
+            return false;
+        }
+        if ("Transparency" == command && mPasteAlpha)
+        {
+            return false;
+        }
+        if ("Glow" == command && mPasteGlow)
+        {
+            return false;
+        }
+        if ("Diffuse" == command && mPasteDiffuse)
+        {
+            return false;
+        }
+        if ("Normal" == command && mPasteNormal)
+        {
+            return false;
+        }
+        if ("Specular" == command && mPasteSpecular)
+        {
+            return false;
+        }
+        if ("Mapping" == command && mPasteMapping)
+        {
+            return false;
+        }
+        if ("Media" == command && mPasteMedia)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
