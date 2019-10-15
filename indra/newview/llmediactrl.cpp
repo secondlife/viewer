@@ -215,7 +215,7 @@ BOOL LLMediaCtrl::handleScrollHWheel(S32 x, S32 y, S32 clicks)
     if (mMediaSource && mMediaSource->hasMedia())
     {
         convertInputCoords(x, y);
-        mMediaSource->scrollWheel(x, y, clicks, 0, gKeyboard->currentMask(TRUE));
+        mMediaSource->scrollWheel(x, y, clicks);
     }
 
     return TRUE;
