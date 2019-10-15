@@ -814,62 +814,6 @@ private:
 LL_COMMON_API bool sendReply(const LLSD& reply, const LLSD& request,
                              const std::string& replyKey="reply");
 
-/**
- * Base class for LLListenerWrapper. See visit_and_connect() and llwrap(). We
- * provide virtual @c accept_xxx() methods, customization points allowing a
- * subclass access to certain data visible at LLEventPump::listen() time.
- * Example subclass usage:
- *
- * @code
- * myEventPump.listen("somename",
- *                    llwrap<MyListenerWrapper>(boost::bind(&MyClass::method, instance, _1)));
- * @endcode
- *
- * Because of the anticipated usage (note the anonymous temporary
- * MyListenerWrapper instance in the example above), the @c accept_xxx()
- * methods must be @c const.
- */
-class LL_COMMON_API LLListenerWrapperBase
-{
-public:
-    /// New instance. The accept_xxx() machinery makes it important to use
-    /// shared_ptrs for our data. Many copies of this object are made before
-    /// the instance that actually ends up in the signal, yet accept_xxx()
-    /// will later be called on the @em original instance. All copies of the
-    /// same original instance must share the same data.
-    LLListenerWrapperBase():
-        mName(new std::string),
-        mConnection(new LLBoundListener)
-    {
-    }
-
-    /// Copy constructor. Copy shared_ptrs to original instance data.
-    LLListenerWrapperBase(const LLListenerWrapperBase& that):
-        mName(that.mName),
-        mConnection(that.mConnection)
-    {
-    }
-    virtual ~LLListenerWrapperBase() {}
-
-    /// Ask LLEventPump::listen() for the listener name
-    virtual void accept_name(const std::string& name) const
-    {
-        *mName = name;
-    }
-
-    /// Ask LLEventPump::listen() for the new connection
-    virtual void accept_connection(const LLBoundListener& connection) const
-    {
-        *mConnection = connection;
-    }
-
-protected:
-    /// Listener name.
-    boost::shared_ptr<std::string> mName;
-    /// Connection.
-    boost::shared_ptr<LLBoundListener> mConnection;
-};
-
 /*****************************************************************************
 *   Underpinnings
 *****************************************************************************/
@@ -1121,19 +1065,7 @@ namespace LLEventDetail
         // Boost.Signals, in case we were passed a boost::ref().
         visit_each(visitor, LLEventDetail::unwrap(raw_listener));
         // Make the connection using passed function.
-        LLBoundListener connection(connect_func(listener));
-        // If the LISTENER is an LLListenerWrapperBase subclass, pass it the
-        // desired information. It's important that we pass the raw_listener
-        // so the compiler can make decisions based on its original type.
-        const LLListenerWrapperBase* lwb =
-            ll_template_cast<const LLListenerWrapperBase*>(&raw_listener);
-        if (lwb)
-        {
-            lwb->accept_name(name);
-            lwb->accept_connection(connection);
-        }
-        // In any case, show new connection to caller.
-        return connection;
+        return connect_func(listener);
     }
 } // namespace LLEventDetail
 

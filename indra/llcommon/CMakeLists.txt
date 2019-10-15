@@ -1,4 +1,3 @@
-
 # -*- cmake -*-
 
 project(llcommon)
@@ -185,7 +184,6 @@ set(llcommon_HEADER_FILES
     llkeythrottle.h
     llleap.h
     llleaplistener.h
-    lllistenerwrapper.h
     llliveappconfig.h
     lllivefile.h
     llmainthreadtask.h
