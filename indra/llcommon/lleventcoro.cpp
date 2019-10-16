@@ -125,8 +125,8 @@ LLBoundListener postAndSuspendSetup(const std::string& callerName,
                                     const std::string& listenerName,
                                     LLCoros::Promise<LLSD>& promise,
                                     const LLSD& event,
-                                    const LLEventPumpOrPumpName& requestPump,
-                                    const LLEventPumpOrPumpName& replyPump,
+                                    const LLEventPumpOrPumpName& requestPumpP,
+                                    const LLEventPumpOrPumpName& replyPumpP,
                                     const LLSD& replyPumpNamePath)
 {
     // Get the consuming attribute for THIS coroutine, the one that's about to
@@ -134,10 +134,12 @@ LLBoundListener postAndSuspendSetup(const std::string& callerName,
     // return the consuming attribute for some other coroutine, most likely
     // the main routine.
     bool consuming(LLCoros::get_consuming());
-    // make a callback that will assign a value to the future, and listen on
-    // the specified LLEventPump with that callback
+    // listen on the specified LLEventPump with a lambda that will assign a
+    // value to the promise, thus fulfilling its future
+    llassert_always_msg(replyPumpP, ("replyPump required for " + callerName));
+    LLEventPump& replyPump{replyPumpP.getPump()};
     LLBoundListener connection(
-        replyPump.getPump().listen(
+        replyPump.listen(
             listenerName,
             [&promise, consuming, listenerName](const LLSD& result)
             {
@@ -151,30 +153,31 @@ LLBoundListener postAndSuspendSetup(const std::string& callerName,
                 }
                 catch(boost::fibers::promise_already_satisfied & ex)
                 {
-                    LL_WARNS("lleventcoro") << "promise already satisfied in '"
-                        << listenerName << "' "  << ex.what() << LL_ENDL;
+                    LL_DEBUGS("lleventcoro") << "promise already satisfied in '"
+                        << listenerName << "': "  << ex.what() << LL_ENDL;
                     // We could not propagate the result value to the
                     // listener.
                     return false;
                 }
             }));
     // skip the "post" part if requestPump is default-constructed
-    if (requestPump)
+    if (requestPumpP)
     {
+        LLEventPump& requestPump{requestPumpP.getPump()};
         // If replyPumpNamePath is non-empty, store the replyPump name in the
         // request event.
         LLSD modevent(event);
-        storeToLLSDPath(modevent, replyPumpNamePath, replyPump.getPump().getName());
+        storeToLLSDPath(modevent, replyPumpNamePath, replyPump.getName());
         LL_DEBUGS("lleventcoro") << callerName << ": coroutine " << listenerName
-                                 << " posting to " << requestPump.getPump().getName()
+                                 << " posting to " << requestPump.getName()
                                  << LL_ENDL;
 
         // *NOTE:Mani - Removed because modevent could contain user's hashed passwd.
         //                         << ": " << modevent << LL_ENDL;
-        requestPump.getPump().post(modevent);
+        requestPump.post(modevent);
     }
     LL_DEBUGS("lleventcoro") << callerName << ": coroutine " << listenerName
-                             << " about to wait on LLEventPump " << replyPump.getPump().getName()
+                             << " about to wait on LLEventPump " << replyPump.getName()
                              << LL_ENDL;
     return connection;
 }
