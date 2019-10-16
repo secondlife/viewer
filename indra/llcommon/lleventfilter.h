@@ -427,4 +427,99 @@ private:
     const bool mConsume;
 };
 
+/*****************************************************************************
+*   LLEventLogProxy
+*****************************************************************************/
+/**
+ * LLEventLogProxy is a little different than the other LLEventFilter
+ * subclasses declared in this header file, in that it completely wraps the
+ * passed LLEventPump (both input and output) instead of simply processing its
+ * output. Of course, if someone directly posts to the wrapped LLEventPump by
+ * looking up its string name in LLEventPumps, LLEventLogProxy can't intercept
+ * that post() call. But as long as consuming code is willing to access the
+ * LLEventLogProxy instance instead of the wrapped LLEventPump, all event data
+ * both post()ed and received is logged.
+ *
+ * The proxy role means that LLEventLogProxy intercepts more of LLEventPump's
+ * API than a typical LLEventFilter subclass.
+ */
+class LLEventLogProxy: public LLEventFilter
+{
+    typedef LLEventFilter super;
+public:
+    /**
+     * Construct LLEventLogProxy, wrapping the specified LLEventPump.
+     * Unlike a typical LLEventFilter subclass, the name parameter is @emph
+     * not optional because typically you want LLEventLogProxy to completely
+     * replace the wrapped LLEventPump. So you give the subject LLEventPump
+     * some other name and give the LLEventLogProxy the name that would have
+     * been used for the subject LLEventPump.
+     */
+    LLEventLogProxy(LLEventPump& source, const std::string& name, bool tweak=false);
+
+    /// register a new listener
+    LLBoundListener listen_impl(const std::string& name, const LLEventListener& target,
+                                const NameList& after, const NameList& before);
+
+    /// Post an event to all listeners
+    virtual bool post(const LLSD& event) /* override */;
+
+private:
+    /// This method intercepts each call to any target listener. We pass it
+    /// the listener name and the caller's intended target listener plus the
+    /// posted LLSD event.
+    bool listener(const std::string& name,
+                  const LLEventListener& target,
+                  const LLSD& event) const;
+
+    LLEventPump& mPump;
+    LLSD::Integer mCounter{0};
+};
+
+/**
+ * LLEventPumpHolder<T> is a helper for LLEventLogProxyFor<T>. It simply
+ * stores an instance of T, presumably a subclass of LLEventPump. We derive
+ * LLEventLogProxyFor<T> from LLEventPumpHolder<T>, ensuring that
+ * LLEventPumpHolder's contained mWrappedPump is fully constructed before
+ * passing it to LLEventLogProxyFor's LLEventLogProxy base class constructor.
+ * But since LLEventPumpHolder<T> presents none of the LLEventPump API,
+ * LLEventLogProxyFor<T> inherits its methods unambiguously from
+ * LLEventLogProxy.
+ */
+template <class T>
+class LLEventPumpHolder
+{
+protected:
+    LLEventPumpHolder(const std::string& name, bool tweak=false):
+        mWrappedPump(name, tweak)
+    {}
+    T mWrappedPump;
+};
+
+/**
+ * LLEventLogProxyFor<T> is a wrapper around any of the LLEventPump subclasses.
+ * Instantiating an LLEventLogProxy<T> instantiates an internal T. Otherwise
+ * it behaves like LLEventLogProxy.
+ */
+template <class T>
+class LLEventLogProxyFor: private LLEventPumpHolder<T>, public LLEventLogProxy
+{
+    // We derive privately from LLEventPumpHolder because it's an
+    // implementation detail of LLEventLogProxyFor. The only reason it's a
+    // base class at all is to guarantee that it's constructed first so we can
+    // pass it to our LLEventLogProxy base class constructor.
+    typedef LLEventPumpHolder<T> holder;
+    typedef LLEventLogProxy super;
+
+public:
+    LLEventLogProxyFor(const std::string& name, bool tweak=false):
+        // our wrapped LLEventPump subclass instance gets a name suffix
+        // because that's not the LLEventPump we want consumers to obtain when
+        // they ask LLEventPumps for this name
+        holder(name + "-", tweak),
+        // it's our LLEventLogProxy that gets the passed name
+        super(holder::mWrappedPump, name, tweak)
+    {}
+};
+
 #endif /* ! defined(LL_LLEVENTFILTER_H) */

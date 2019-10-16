@@ -37,6 +37,7 @@
 // other Linden headers
 #include "llerror.h"                // LL_ERRS
 #include "llsdutil.h"               // llsd_matches()
+#include "stringize.h"
 
 /*****************************************************************************
 *   LLEventFilter
@@ -408,4 +409,62 @@ void LLEventBatchThrottle::setSize(std::size_t size)
     {
         flush();
     }
+}
+
+/*****************************************************************************
+*   LLEventLogProxy
+*****************************************************************************/
+LLEventLogProxy::LLEventLogProxy(LLEventPump& source, const std::string& name, bool tweak):
+    // note: we are NOT using the constructor that implicitly connects!
+    LLEventFilter(name, tweak),
+    // instead we simply capture a reference to the subject LLEventPump
+    mPump(source)
+{
+}
+
+bool LLEventLogProxy::post(const LLSD& event) /* override */
+{
+    auto counter = mCounter++;
+    auto eventplus = event;
+    if (eventplus.type() == LLSD::TypeMap)
+    {
+        eventplus["_cnt"] = counter;
+    }
+    std::string hdr{STRINGIZE(getName() << ": post " << counter)};
+    LL_INFOS("LogProxy") << hdr << ": " << event << LL_ENDL;
+    bool result = mPump.post(eventplus);
+    LL_INFOS("LogProxy") << hdr << " => " << result << LL_ENDL;
+    return result;
+}
+
+LLBoundListener LLEventLogProxy::listen_impl(const std::string& name,
+                                             const LLEventListener& target,
+                                             const NameList& after,
+                                             const NameList& before)
+{
+    LL_DEBUGS("LogProxy") << "LLEventLogProxy('" << getName() << "').listen('"
+                          << name << "')" << LL_ENDL;
+    return mPump.listen(name,
+                        [this, name, target](const LLSD& event)->bool
+                        { return listener(name, target, event); },
+                        after,
+                        before);
+}
+
+bool LLEventLogProxy::listener(const std::string& name,
+                               const LLEventListener& target,
+                               const LLSD& event) const
+{
+    auto eventminus = event;
+    std::string counter{"**"};
+    if (eventminus.has("_cnt"))
+    {
+        counter = stringize(eventminus["_cnt"].asInteger());
+        eventminus.erase("_cnt");
+    }
+    std::string hdr{STRINGIZE(getName() << " to " << name << " " << counter)};
+    LL_INFOS("LogProxy") << hdr << ": " << eventminus << LL_ENDL;
+    bool result = target(eventminus);
+    LL_INFOS("LogProxy") << hdr << " => " << result << LL_ENDL;
+    return result;
 }
