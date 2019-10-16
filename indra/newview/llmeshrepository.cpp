@@ -2504,6 +2504,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 	if (model_name.empty()) model_name = "mesh model";
 	result["name"] = model_name;
+	res["metric"] = "MUT_Unspecified";
 	result["asset_resources"] = res;
 	dump_llsd_to_file(result,make_dump_name("whole_model_",dump_num));
 
@@ -3177,8 +3178,7 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* b
 
 		if (header_bytes > 0
 			&& !header.has("404")
-			&& header.has("version")
-			&& header["version"].asInteger() <= MAX_MESH_VERSION)
+			&& (!header.has("version") || header["version"].asInteger() <= MAX_MESH_VERSION))
 		{
 			std::stringstream str;
 
