@@ -3161,7 +3161,7 @@ void LLPanelFace::pasteFace(LLViewerObject* objectp, S32 te)
                 LLColor4 spec_color(te_data["material"]["SpecColor"]);
                 LLSelectedTEMaterial::setSpecularLightColor(this, spec_color, te);
                 LLSelectedTEMaterial::setSpecularLightExponent(this, (U8)te_data["material"]["SpecExp"].asInteger(), te, object_id);
-                LLSelectedTEMaterial::setEnvironmentIntensity(this, (U8)te_data["material"]["EnvIntensity"].asInteger(), te), object_id;
+                LLSelectedTEMaterial::setEnvironmentIntensity(this, (U8)te_data["material"]["EnvIntensity"].asInteger(), te, object_id);
                 LLSelectedTEMaterial::setDiffuseAlphaMode(this, (U8)te_data["material"]["SpecRot"].asInteger(), te, object_id);
                 if (te_data.has("shiny"))
                 {
