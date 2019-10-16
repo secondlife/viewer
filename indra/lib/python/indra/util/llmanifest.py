@@ -27,6 +27,7 @@ THE SOFTWARE.
 $/LicenseInfo$
 """
 
+from collections import namedtuple, defaultdict
 import commands
 import errno
 import filecmp
@@ -312,6 +313,8 @@ class LLManifestRegistry(type):
         if match:
            cls.manifests[match.group(1).lower()] = cls
 
+MissingFile = namedtuple("MissingFile", ("pattern", "tried"))
+
 class LLManifest(object):
     __metaclass__ = LLManifestRegistry
     manifests = {}
@@ -333,7 +336,8 @@ class LLManifest(object):
         self.dst_prefix = [args['dest']]
         self.created_paths = []
         self.package_name = "Unknown"
-        
+        self.missing = []
+
     def default_channel(self):
         return self.args.get('channel', None) == RELEASE_CHANNEL
 
@@ -592,6 +596,40 @@ class LLManifest(object):
     def package_action(self, src, dst):
         pass
 
+    def finish(self):
+        """
+        generic finish, always called before the ${action}_finish() methods
+        """
+        # Collecting MissingFile instances in self.missing, and checking that
+        # here, is intended to minimize the number of (potentially lengthy)
+        # build cycles a developer must run in order to fix missing-files
+        # errors. The manifest processing is necessarily the last step in a
+        # build, and if we only caught a single missing file error per run,
+        # the developer would need to run a build for each additional missing-
+        # file error until all were resolved. This way permits the developer
+        # to resolve them all at once.
+        if self.missing:
+            print '*' * 72
+            print "Missing files:"
+            # Instead of just dumping each missing file and all the places we
+            # looked for it, group by common sets of places we looked. Use a
+            # set to store the 'tried' directories, to avoid mismatches due to
+            # reordering -- but since we intend to use the set of 'tried'
+            # directories as a dict key, it must be a frozenset.
+            organize = defaultdict(set)
+            for missingfile in self.missing:
+                organize[frozenset(missingfile.tried)].add(missingfile.pattern)
+            # Now dump all the patterns sought in each group of 'tried'
+            # directories.
+            for tried, patterns in organize.items():
+                print "  Could not find in:"
+                for dir in sorted(tried):
+                    print "    %s" % dir
+                for pattern in sorted(patterns):
+                    print "      %s" % pattern
+            print '*' * 72
+            raise MissingError('%s patterns could not be found' % len(self.missing))
+
     def copy_finish(self):
         pass
 
@@ -825,17 +863,23 @@ class LLManifest(object):
             return count
 
         try_prefixes = [self.get_src_prefix(), self.get_artwork_prefix(), self.get_build_prefix()]
-        tried=[]
-        count=0
-        while not count and try_prefixes: 
-            pfx = try_prefixes.pop(0)
+        for pfx in try_prefixes:
             try:
                 count = try_path(os.path.join(pfx, src))
             except MissingError:
-                tried.append(pfx)
-                if not try_prefixes:
-                    # no more prefixes left to try
-                    print "unable to find '%s'; looked in:\n  %s" % (src, '\n  '.join(tried))
+                # if we produce MissingError, just try the next prefix
+                continue
+            # If we actually found nonzero files, stop looking
+            if count:
+                break
+        else:
+            # no more prefixes left to try
+            print("\nunable to find '%s'; looked in:\n  %s" % (src, '\n  '.join(try_prefixes)))
+            self.missing.append(MissingFile(pattern=src, tried=try_prefixes))
+            # At this point 'count' might never have been successfully
+            # assigned! Even if it was, though, we can be sure it is 0.
+            return 0
+
         print "%d files" % count
 
         # Let caller check whether we processed as many files as expected. In
@@ -846,6 +890,8 @@ class LLManifest(object):
         self.actions = actions
         self.construct()
         # perform finish actions
+        # generic finish first
+        self.finish()
         for action in self.actions:
             methodname = action + "_finish"
             method = getattr(self, methodname, None)
