@@ -1607,7 +1607,7 @@ Ersetzen Sie die Textur [TEXTURE_NUM] mit einer Bilddatei von maximal 512x512 un
 		[AGENT] wurden zur [LIST_TYPE]-Liste von [ESTATE] hinzugefügt.
 	</notification>
 	<notification name="AgentWasRemovedFromList">
-		[AGENT] wurden von der [LIST_TYPE]-Liste von [ESTATE] entfernt.
+		[AGENT] wurde von der [LIST_TYPE]-Liste von [ESTATE] entfernt.
 	</notification>
 	<notification name="AgentsWereRemovedFromList">
 		[AGENT] wurden von der [LIST_TYPE]-Liste von [ESTATE] entfernt.

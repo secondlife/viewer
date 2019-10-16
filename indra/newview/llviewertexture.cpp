@@ -3680,9 +3680,9 @@ void LLViewerMediaTexture::removeFace(U32 ch, LLFace* facep)
 		}
 	}
 
-	if(te && te->getID().notNull()) //should have a texture
+	if(te && te->getID().notNull()) //should have a texture but none found
 	{
-		LL_ERRS() << "mTextureList texture reference number is corrupted." << LL_ENDL;
+		LL_ERRS() << "mTextureList texture reference number is corrupted. Texture id: " << te->getID() << " List size: " << (U32)mTextureList.size() << LL_ENDL;
 	}
 }
 

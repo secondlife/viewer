@@ -76,6 +76,9 @@ LOD 係数: [LOD_FACTOR]
 テクスチャメモリ: [TEXTURE_MEMORY]MB
 VFS（キャッシュ）作成時間: [VFS_TIME]
 	</string>
+	<string name="AboutOSXHiDPI">
+		HiDPI 表示モード: [HIDPI]
+	</string>
 	<string name="AboutLibs">
 		J2C デコーダバージョン： [J2C_VERSION] 
 オーディオドライババージョン： [AUDIO_DRIVER_VERSION] 
@@ -1512,6 +1515,15 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="MarketplaceURL_LearnMore">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more
+	</string>
+	<string name="InventoryPlayAnimationTooltip">
+		[再生] オプションでウィンドウを開ける。
+	</string>
+	<string name="InventoryPlayGestureTooltip">
+		インワールドで選択済みのジェスチャーを実行する。
+	</string>
+	<string name="InventoryPlaySoundTooltip">
+		[再生] オプションでウィンドウを開ける。
 	</string>
 	<string name="InventoryOutboxNotMerchantTitle">
 		マーケットプレイスでは誰でもアイテムを売ることができます。

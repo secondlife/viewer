@@ -76,7 +76,7 @@
 		<combo_box.item label="土地 &gt; 不法侵入 &gt; オブジェクトまたはテクスチャ" name="Land__Encroachment__Objects_textures"/>
 		<combo_box.item label="土地＞不法侵入＞パーティクル" name="Land__Encroachment__Particles"/>
 		<combo_box.item label="土地＞不法侵入＞樹木/植物" name="Land__Encroachment__Trees_plants"/>
-		<combo_box.item label="ゲーミング ポリシー違反" name="Wagering_gambling"/>
+		<combo_box.item label="スキルゲーミング ポリシー違反" name="Wagering_gambling"/>
 		<combo_box.item label="その他" name="Other"/>
 	</combo_box>
 	<text name="abuser_name_title">

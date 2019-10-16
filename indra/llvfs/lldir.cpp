@@ -1033,24 +1033,24 @@ bool LLDir::setCacheDir(const std::string &path)
 	}
 }
 
-void LLDir::dumpCurrentDirectories()
+void LLDir::dumpCurrentDirectories(LLError::ELevel level)
 {
-	LL_DEBUGS("AppInit","Directories") << "Current Directories:" << LL_ENDL;
+	LL_VLOGS(level, "AppInit","Directories") << "Current Directories:" << LL_ENDL;
 
-	LL_DEBUGS("AppInit","Directories") << "  CurPath:               " << getCurPath() << LL_ENDL;
-	LL_DEBUGS("AppInit","Directories") << "  AppName:               " << getAppName() << LL_ENDL;
-	LL_DEBUGS("AppInit","Directories") << "  ExecutableFilename:    " << getExecutableFilename() << LL_ENDL;
-	LL_DEBUGS("AppInit","Directories") << "  ExecutableDir:         " << getExecutableDir() << LL_ENDL;
-	LL_DEBUGS("AppInit","Directories") << "  ExecutablePathAndName: " << getExecutablePathAndName() << LL_ENDL;
-	LL_DEBUGS("AppInit","Directories") << "  WorkingDir:            " << getWorkingDir() << LL_ENDL;
-	LL_DEBUGS("AppInit","Directories") << "  AppRODataDir:          " << getAppRODataDir() << LL_ENDL;
-	LL_DEBUGS("AppInit","Directories") << "  OSUserDir:             " << getOSUserDir() << LL_ENDL;
-	LL_DEBUGS("AppInit","Directories") << "  OSUserAppDir:          " << getOSUserAppDir() << LL_ENDL;
-	LL_DEBUGS("AppInit","Directories") << "  LindenUserDir:         " << getLindenUserDir() << LL_ENDL;
-	LL_DEBUGS("AppInit","Directories") << "  TempDir:               " << getTempDir() << LL_ENDL;
-	LL_DEBUGS("AppInit","Directories") << "  CAFile:				 " << getCAFile() << LL_ENDL;
-	LL_DEBUGS("AppInit","Directories") << "  SkinBaseDir:           " << getSkinBaseDir() << LL_ENDL;
-	LL_DEBUGS("AppInit","Directories") << "  SkinDir:               " << getSkinDir() << LL_ENDL;
+	LL_VLOGS(level, "AppInit", "Directories") << "  CurPath:               " << getCurPath() << LL_ENDL;
+	LL_VLOGS(level, "AppInit", "Directories") << "  AppName:               " << getAppName() << LL_ENDL;
+	LL_VLOGS(level, "AppInit", "Directories") << "  ExecutableFilename:    " << getExecutableFilename() << LL_ENDL;
+	LL_VLOGS(level, "AppInit", "Directories") << "  ExecutableDir:         " << getExecutableDir() << LL_ENDL;
+	LL_VLOGS(level, "AppInit", "Directories") << "  ExecutablePathAndName: " << getExecutablePathAndName() << LL_ENDL;
+	LL_VLOGS(level, "AppInit", "Directories") << "  WorkingDir:            " << getWorkingDir() << LL_ENDL;
+	LL_VLOGS(level, "AppInit", "Directories") << "  AppRODataDir:          " << getAppRODataDir() << LL_ENDL;
+	LL_VLOGS(level, "AppInit", "Directories") << "  OSUserDir:             " << getOSUserDir() << LL_ENDL;
+	LL_VLOGS(level, "AppInit", "Directories") << "  OSUserAppDir:          " << getOSUserAppDir() << LL_ENDL;
+	LL_VLOGS(level, "AppInit", "Directories") << "  LindenUserDir:         " << getLindenUserDir() << LL_ENDL;
+	LL_VLOGS(level, "AppInit", "Directories") << "  TempDir:               " << getTempDir() << LL_ENDL;
+	LL_VLOGS(level, "AppInit", "Directories") << "  CAFile:                " << getCAFile() << LL_ENDL;
+	LL_VLOGS(level, "AppInit", "Directories") << "  SkinBaseDir:           " << getSkinBaseDir() << LL_ENDL;
+	LL_VLOGS(level, "AppInit", "Directories") << "  SkinDir:               " << getSkinDir() << LL_ENDL;
 }
 
 void LLDir::append(std::string& destpath, const std::string& name) const

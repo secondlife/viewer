@@ -325,10 +325,13 @@ LLControlAvatar *LLControlAvatar::createControlAvatar(LLVOVolume *obj)
 {
 	LLControlAvatar *cav = (LLControlAvatar*)gObjectList.createObjectViewer(LL_PCODE_LEGACY_AVATAR, gAgent.getRegion(), CO_FLAG_CONTROL_AVATAR);
 
-    cav->mRootVolp = obj;
+    if (cav)
+    {
+        cav->mRootVolp = obj;
 
-    // Sync up position/rotation with object
-    cav->matchVolumeTransform();
+        // Sync up position/rotation with object
+        cav->matchVolumeTransform();
+    }
 
     return cav;
 }
