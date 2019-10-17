@@ -610,7 +610,8 @@ public:
     virtual bool post(const LLSD& event) override;
     
     /// Remove any history stored in the mail drop.
-    virtual void flush() override { mEventHistory.clear(); LLEventStream::flush(); };
+    void discard();
+
 protected:
     virtual LLBoundListener listen_impl(const std::string& name, const LLEventListener&,
                                         const NameList& after,
