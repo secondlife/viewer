@@ -91,9 +91,7 @@ template<> template<>
 void events_object::test<1>()
 {
 	set_test_name("basic operations");
-	// Now there's a static constructor in llevents.cpp that registers on
-	// the "mainloop" pump to call LLEventPumps::flush().
-	// Actually -- having to modify this to track the statically-
+	// Having to modify this to track the statically-
 	// constructed pumps in other TUT modules in this giant monolithic test
 	// executable isn't such a hot idea.
 	// ensure_equals("initial pump", pumps.mPumpMap.size(), 1);
@@ -210,43 +208,6 @@ bool chainEvents(Listener& someListener, const LLSD& event)
 template<> template<>
 void events_object::test<3>()
 {
-	set_test_name("LLEventQueue delayed action");
-	// This access is NOT legal usage: we can do it only because we're
-	// hacking private for test purposes. Normally we'd either compile in
-	// a particular name, or (later) edit a config file.
-	pumps.mQueueNames.insert("login");
-	LLEventPump& login(pumps.obtain("login"));
-	// The "mainloop" pump is special: posting on that implicitly calls
-	// LLEventPumps::flush(), which in turn should flush our "login"
-	// LLEventQueue.
-	LLEventPump& mainloop(pumps.obtain("mainloop"));
-	ensure("LLEventQueue leaf class", dynamic_cast<LLEventQueue*> (&login));
-	listener0.listenTo(login);
-	listener0.reset(0);
-	login.post(1);
-	check_listener("waiting for queued event", listener0, 0);
-	mainloop.post(LLSD());
-	check_listener("got queued event", listener0, 1);
-	login.stopListening(listener0.getName());
-	// Verify that when an event handler posts a new event on the same
-	// LLEventQueue, it doesn't get processed in the same flush() call --
-	// it waits until the next flush() call.
-	listener0.reset(17);
-	login.listen("chainEvents", boost::bind(chainEvents, boost::ref(listener0), _1));
-	login.post(1);
-	check_listener("chainEvents(1) not yet called", listener0, 17);
-	mainloop.post(LLSD());
-	check_listener("chainEvents(1) called", listener0, 1);
-	mainloop.post(LLSD());
-	check_listener("chainEvents(0) called", listener0, 0);
-	mainloop.post(LLSD());
-	check_listener("chainEvents(-1) not called", listener0, 0);
-	login.stopListening("chainEvents");
-}
-
-template<> template<>
-void events_object::test<4>()
-{
 	set_test_name("explicitly-instantiated LLEventStream");
 	// Explicitly instantiate an LLEventStream, and verify that it
 	// self-registers with LLEventPumps
@@ -270,7 +231,7 @@ void events_object::test<4>()
 }
 
 template<> template<>
-void events_object::test<5>()
+void events_object::test<4>()
 {
 	set_test_name("stopListening()");
 	LLEventPump& login(pumps.obtain("login"));
@@ -284,7 +245,7 @@ void events_object::test<5>()
 }
 
 template<> template<>
-void events_object::test<6>()
+void events_object::test<5>()
 {
 	set_test_name("chaining LLEventPump instances");
 	LLEventPump& upstream(pumps.obtain("upstream"));
@@ -309,7 +270,7 @@ void events_object::test<6>()
 }
 
 template<> template<>
-void events_object::test<7>()
+void events_object::test<6>()
 {
 	set_test_name("listener dependency order");
 	typedef LLEventPump::NameList NameList;
@@ -391,7 +352,7 @@ void events_object::test<7>()
 }
 
 template<> template<>
-void events_object::test<8>()
+void events_object::test<7>()
 {
 	set_test_name("tweaked and untweaked LLEventPump instance names");
 	{ 	// nested scope
@@ -423,7 +384,7 @@ void eventSource(const LLListenerOrPumpName& listener)
 }
 
 template<> template<>
-void events_object::test<9>()
+void events_object::test<8>()
 {
 	set_test_name("LLListenerOrPumpName");
 	// Passing a boost::bind() expression to LLListenerOrPumpName
@@ -464,7 +425,7 @@ private:
 };
 
 template<> template<>
-void events_object::test<10>()
+void events_object::test<9>()
 {
 	set_test_name("listen(boost::bind(...TempListener...))");
 	// listen() can't do anything about a plain TempListener instance:
@@ -501,7 +462,7 @@ public:
 };
 
 template<> template<>
-void events_object::test<11>()
+void events_object::test<10>()
 {
     set_test_name("listen(boost::bind(...TempTrackableListener ref...))");
     bool live = false;
@@ -524,7 +485,7 @@ void events_object::test<11>()
 }
 
 template<> template<>
-void events_object::test<12>()
+void events_object::test<11>()
 {
     set_test_name("listen(boost::bind(...TempTrackableListener pointer...))");
     bool live = false;

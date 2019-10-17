@@ -37,6 +37,7 @@
 #include <set>
 #include <vector>
 #include <deque>
+#include <functional>
 #if LL_WINDOWS
 	#pragma warning (push)
 	#pragma warning (disable : 4263) // boost::signals2::expired_slot::what() has const mismatch
@@ -55,7 +56,6 @@
 #include <boost/visit_each.hpp>
 #include <boost/ref.hpp>            // reference_wrapper
 #include <boost/type_traits/is_pointer.hpp>
-#include <boost/function.hpp>
 #include <boost/static_assert.hpp>
 #include "llsd.h"
 #include "llsingleton.h"
@@ -303,10 +303,10 @@ testable:
     // destroyed.
     typedef std::set<LLEventPump*> PumpSet;
     PumpSet mOurPumps;
-    // LLEventPump names that should be instantiated as LLEventQueue rather
-    // than as LLEventStream
-    typedef std::set<std::string> PumpNames;
-    PumpNames mQueueNames;
+    // LLEventPump subclasses that should be instantiated for particular
+    // instance names
+    typedef std::map<std::string, std::function<LLEventPump*(const std::string&)>> PumpFactories;
+    static PumpFactories mFactories;
 };
 
 /*****************************************************************************
@@ -351,7 +351,7 @@ typedef boost::signals2::trackable LLEventTrackable;
 *****************************************************************************/
 /**
  * LLEventPump is the base class interface through which we access the
- * concrete subclasses LLEventStream and LLEventQueue.
+ * concrete subclasses such as LLEventStream.
  *
  * @NOTE
  * LLEventPump derives from LLEventTrackable so that when you "chain"
@@ -594,11 +594,10 @@ public:
  * event *must* eventually reach a listener that will consume it, else the
  * queue will grow to arbitrary length.
  * 
- * @NOTE: When using an LLEventMailDrop (or LLEventQueue) with a LLEventTimeout or
+ * @NOTE: When using an LLEventMailDrop with an LLEventTimeout or
  * LLEventFilter attaching the filter downstream, using Timeout's constructor will
  * cause the MailDrop to discharge any of its stored events. The timeout should 
  * instead be connected upstream using its listen() method.  
- * See llcoro::suspendUntilEventOnWithTimeout() for an example.
  */
 class LL_COMMON_API LLEventMailDrop : public LLEventStream
 {
@@ -620,30 +619,6 @@ protected:
 private:
     typedef std::list<LLSD> EventList;
     EventList mEventHistory;
-};
-
-/*****************************************************************************
-*   LLEventQueue
-*****************************************************************************/
-/**
- * LLEventQueue is a LLEventPump whose post() method defers calling registered
- * listeners until flush() is called.
- */
-class LL_COMMON_API LLEventQueue: public LLEventPump
-{
-public:
-    LLEventQueue(const std::string& name, bool tweak=false): LLEventPump(name, tweak) {}
-    virtual ~LLEventQueue() {}
-
-    /// Post an event to all listeners
-    virtual bool post(const LLSD& event);
-
-    /// flush queued events
-    virtual void flush();
-
-private:
-    typedef std::deque<LLSD> EventQueue;
-    EventQueue mEventQueue;
 };
 
 /*****************************************************************************

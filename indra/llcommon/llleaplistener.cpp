@@ -14,6 +14,8 @@
 // associated header
 #include "llleaplistener.h"
 // STL headers
+#include <map>
+#include <functional>
 // std headers
 // external library headers
 #include <boost/foreach.hpp>
@@ -119,6 +121,18 @@ LLLeapListener::~LLLeapListener()
     }
 }
 
+namespace
+{
+
+static std::map<std::string, std::function<LLEventPump*(const std::string&)>> factories
+{
+    // tweak name for uniqueness
+    { "LLEventStream",   [](const std::string& name){ return new LLEventStream(name, true); } },
+    { "LLEventMailDrop", [](const std::string& name){ return new LLEventMailDrop(name, true); } }
+};
+
+} // anonymous namespace
+
 void LLLeapListener::newpump(const LLSD& request)
 {
     Response reply(LLSD(), request);
@@ -127,13 +141,14 @@ void LLLeapListener::newpump(const LLSD& request)
     LLSD const & type = request["type"];
 
     LLEventPump * new_pump = NULL;
-    if (type.asString() == "LLEventQueue")
+    auto found = factories.find(type.asString());
+    if (found != factories.end())
     {
-        new_pump = new LLEventQueue(name, true); // tweak name for uniqueness
+        new_pump = (found->second)(name);
     }
     else
     {
-        if (! (type.isUndefined() || type.asString() == "LLEventStream"))
+        if (! type.isUndefined())
         {
             reply.warn(STRINGIZE("unknown 'type' " << type << ", using LLEventStream"));
         }
