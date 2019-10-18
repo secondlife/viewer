@@ -4807,6 +4807,15 @@ U32 LLVOAvatar::renderSkinned()
 		BOOL first_pass = TRUE;
 		if (!LLDrawPoolAvatar::sSkipOpaque)
 		{
+			if (isUIAvatar() && mIsDummy)
+			{
+				LLViewerJoint* hair_mesh = getViewerJoint(MESH_ID_HAIR);
+				if (hair_mesh)
+				{
+					num_indices += hair_mesh->render(mAdjustedPixelArea, TRUE, mIsDummy);
+				}
+				first_pass = FALSE;
+			}
 			if (!isSelf() || gAgent.needsRenderHead() || LLPipeline::sShadowRender)
 			{
 				if (isTextureVisible(TEX_HEAD_BAKED) || isUIAvatar())
