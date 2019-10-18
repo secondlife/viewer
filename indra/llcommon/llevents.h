@@ -211,8 +211,7 @@ public:
     /// exception if you try to call when empty
     struct Empty: public LLException
     {
-        Empty(const std::string& what):
-            LLException(std::string("LLListenerOrPumpName::Empty: ") + what) {}
+        Empty(const std::string& what): LLException("LLListenerOrPumpName::Empty: " + what) {}
     };
 
 private:
@@ -246,6 +245,30 @@ public:
      * an instance without conferring @em ownership.
      */
     LLEventPump& obtain(const std::string& name);
+
+    /// exception potentially thrown by make()
+    struct BadType: public LLException
+    {
+        BadType(const std::string& what): LLException("BadType: " + what) {}
+    };
+
+    /**
+     * Create an LLEventPump with suggested name (optionally of specified
+     * LLEventPump subclass type). As with obtain(), LLEventPumps owns the new
+     * instance.
+     *
+     * As with LLEventPump's constructor, make() could throw
+     * LLEventPump::DupPumpName unless you pass tweak=true.
+     *
+     * As with a hand-constructed LLEventPump subclass, if you pass
+     * tweak=true, the tweaked name can be obtained by LLEventPump::getName().
+     *
+     * Pass empty type to get the default LLEventStream.
+     *
+     * If you pass an unrecognized type string, make() throws BadType.
+     */
+    LLEventPump& make(const std::string& name, bool tweak=false,
+                      const std::string& type=std::string());
 
     /**
      * Find the named LLEventPump instance. If it exists post the message to it.
@@ -303,10 +326,19 @@ testable:
     // destroyed.
     typedef std::set<LLEventPump*> PumpSet;
     PumpSet mOurPumps;
-    // LLEventPump subclasses that should be instantiated for particular
-    // instance names
-    typedef std::map<std::string, std::function<LLEventPump*(const std::string&)>> PumpFactories;
-    static PumpFactories mFactories;
+    // for make(), map string type name to LLEventPump subclass factory function
+    typedef std::map<std::string, std::function<LLEventPump*(const std::string&, bool)>> PumpFactories;
+    // Data used by make().
+    // One might think mFactories and mTypes could reasonably be static. So
+    // they could -- if not for the fact that make() or obtain() might be
+    // called before this module's static variables have been initialized.
+    // This is why we use singletons in the first place.
+    PumpFactories mFactories;
+
+    // for obtain(), map desired string instance name to string type when
+    // obtain() must create the instance
+    typedef std::map<std::string, std::string> InstanceTypes;
+    InstanceTypes mTypes;
 };
 
 /*****************************************************************************
@@ -372,8 +404,7 @@ public:
      */
     struct DupPumpName: public LLException
     {
-        DupPumpName(const std::string& what):
-            LLException(std::string("DupPumpName: ") + what) {}
+        DupPumpName(const std::string& what): LLException("DupPumpName: " + what) {}
     };
 
     /**
@@ -409,9 +440,7 @@ public:
      */
     struct DupListenerName: public ListenError
     {
-        DupListenerName(const std::string& what):
-            ListenError(std::string("DupListenerName: ") + what)
-        {}
+        DupListenerName(const std::string& what): ListenError("DupListenerName: " + what) {}
     };
     /**
      * exception thrown by listen(). The order dependencies specified for your
@@ -423,7 +452,7 @@ public:
      */
     struct Cycle: public ListenError
     {
-        Cycle(const std::string& what): ListenError(std::string("Cycle: ") + what) {}
+        Cycle(const std::string& what): ListenError("Cycle: " + what) {}
     };
     /**
      * exception thrown by listen(). This one means that your new listener
@@ -444,7 +473,7 @@ public:
      */
     struct OrderChange: public ListenError
     {
-        OrderChange(const std::string& what): ListenError(std::string("OrderChange: ") + what) {}
+        OrderChange(const std::string& what): ListenError("OrderChange: " + what) {}
     };
 
     /// used by listen()

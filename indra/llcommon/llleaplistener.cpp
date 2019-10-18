@@ -62,15 +62,10 @@ LLLeapListener::LLLeapListener(const ConnectFunc& connect):
     LLSD need_name(LLSDMap("name", LLSD()));
     add("newpump",
         "Instantiate a new LLEventPump named like [\"name\"] and listen to it.\n"
-        "If [\"type\"] == \"LLEventQueue\", make LLEventQueue, else LLEventStream.\n"
+        "[\"type\"] == \"LLEventStream\", \"LLEventMailDrop\" et al.\n"
         "Events sent through new LLEventPump will be decorated with [\"pump\"]=name.\n"
         "Returns actual name in [\"name\"] (may be different if collision).",
         &LLLeapListener::newpump,
-        need_name);
-    add("killpump",
-        "Delete LLEventPump [\"name\"] created by \"newpump\".\n"
-        "Returns [\"status\"] boolean indicating whether such a pump existed.",
-        &LLLeapListener::killpump,
         need_name);
     LLSD need_source_listener(LLSDMap("source", LLSD())("listener", LLSD()));
     add("listen",
@@ -121,58 +116,28 @@ LLLeapListener::~LLLeapListener()
     }
 }
 
-namespace
-{
-
-static std::map<std::string, std::function<LLEventPump*(const std::string&)>> factories
-{
-    // tweak name for uniqueness
-    { "LLEventStream",   [](const std::string& name){ return new LLEventStream(name, true); } },
-    { "LLEventMailDrop", [](const std::string& name){ return new LLEventMailDrop(name, true); } }
-};
-
-} // anonymous namespace
-
 void LLLeapListener::newpump(const LLSD& request)
 {
     Response reply(LLSD(), request);
 
     std::string name = request["name"];
-    LLSD const & type = request["type"];
+    std::string type = request["type"];
 
-    LLEventPump * new_pump = NULL;
-    auto found = factories.find(type.asString());
-    if (found != factories.end())
+    try
     {
-        new_pump = (found->second)(name);
+        // tweak name for uniqueness
+        LLEventPump& new_pump(LLEventPumps::instance().make(name, true, type));
+        name = new_pump.getName();
+        reply["name"] = name;
+
+        // Now listen on this new pump with our plugin listener
+        std::string myname("llleap");
+        saveListener(name, myname, mConnect(new_pump, myname));
     }
-    else
+    catch (const LLEventPumps::BadType& error)
     {
-        if (! type.isUndefined())
-        {
-            reply.warn(STRINGIZE("unknown 'type' " << type << ", using LLEventStream"));
-        }
-        new_pump = new LLEventStream(name, true); // tweak name for uniqueness
+        reply.error(error.what());
     }
-
-    name = new_pump->getName();
-
-    mEventPumps.insert(name, new_pump);
-
-    // Now listen on this new pump with our plugin listener
-    std::string myname("llleap");
-    saveListener(name, myname, mConnect(*new_pump, myname));
-
-    reply["name"] = name;
-}
-
-void LLLeapListener::killpump(const LLSD& request)
-{
-    Response reply(LLSD(), request);
-
-    std::string name = request["name"];
-    // success == (nonzero number of entries were erased)
-    reply["status"] = bool(mEventPumps.erase(name));
 }
 
 void LLLeapListener::listen(const LLSD& request)

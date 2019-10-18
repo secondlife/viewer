@@ -66,14 +66,21 @@
 /*****************************************************************************
 *   LLEventPumps
 *****************************************************************************/
-LLEventPumps::PumpFactories LLEventPumps::mFactories
-{
-    // LLEventStream is the default for obtain(), so even if somebody DOES
-    // call obtain("placeholder"), this sample entry won't break anything.
-    { "placeholder", [](const std::string& name) { return new LLEventStream(name); } }
-};
-
-LLEventPumps::LLEventPumps() {}
+LLEventPumps::LLEventPumps():
+    mFactories
+    {
+        { "LLEventStream",   [](const std::string& name, bool tweak)
+                             { return new LLEventStream(name, tweak); } },
+        { "LLEventMailDrop", [](const std::string& name, bool tweak)
+                             { return new LLEventMailDrop(name, tweak); } }
+    },
+    mTypes
+    {
+        // LLEventStream is the default for obtain(), so even if somebody DOES
+        // call obtain("placeholder"), this sample entry won't break anything.
+        { "placeholder", "LLEventStream" }
+    }
+{}
 
 LLEventPump& LLEventPumps::obtain(const std::string& name)
 {
@@ -84,14 +91,31 @@ LLEventPump& LLEventPumps::obtain(const std::string& name)
         // name.
         return *found->second;
     }
-    // Here we must instantiate an LLEventPump subclass. 
-    LLEventPump* newInstance;
-    // Do we have a predefined factory for this instance name?
-    PumpFactories::const_iterator nfound = mFactories.find(name);
-    if (nfound != mFactories.end())
-        newInstance = (nfound->second)(name);
-    else
-        newInstance = new LLEventStream(name);
+
+    // Here we must instantiate an LLEventPump subclass. Is there a
+    // preregistered class name override for this specific instance name?
+    auto nfound = mTypes.find(name);
+    std::string type;
+    if (nfound != mTypes.end())
+    {
+        type = nfound->second;
+    }
+    // pass tweak=false: we already know there's no existing instance with
+    // this name
+    return make(name, false, type);
+}
+
+LLEventPump& LLEventPumps::make(const std::string& name, bool tweak,
+                                const std::string& type)
+{
+    // find the relevant factory for this (or default) type
+    auto found = mFactories.find(type.empty()? "LLEventStream" : type);
+    if (found == mFactories.end())
+    {
+        // Passing an unrecognized type name is a no-no
+        LLTHROW(BadType(type));
+    }
+    auto newInstance = (found->second)(name, tweak);
     // LLEventPump's constructor implicitly registers each new instance in
     // mPumpMap. But remember that we instantiated it (in mOurPumps) so we'll
     // delete it later.
