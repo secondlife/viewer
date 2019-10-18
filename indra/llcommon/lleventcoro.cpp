@@ -137,7 +137,7 @@ LLBoundListener postAndSuspendSetup(const std::string& callerName,
     // listen on the specified LLEventPump with a lambda that will assign a
     // value to the promise, thus fulfilling its future
     llassert_always_msg(replyPumpP, ("replyPump required for " + callerName));
-    LLEventPump& replyPump{replyPumpP.getPump()};
+    LLEventPump& replyPump(replyPumpP.getPump());
     LLBoundListener connection(
         replyPump.listen(
             listenerName,
@@ -163,7 +163,7 @@ LLBoundListener postAndSuspendSetup(const std::string& callerName,
     // skip the "post" part if requestPump is default-constructed
     if (requestPumpP)
     {
-        LLEventPump& requestPump{requestPumpP.getPump()};
+        LLEventPump& requestPump(requestPumpP.getPump());
         // If replyPumpNamePath is non-empty, store the replyPump name in the
         // request event.
         LLSD modevent(event);
