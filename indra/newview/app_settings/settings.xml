@@ -5758,7 +5758,7 @@
     <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>arctan</string>
+      <string>standard</string>
     </map>
     <key>LogTextureNetworkTraffic</key>
     <map>

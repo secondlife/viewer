@@ -54,6 +54,11 @@ print "tri_frac_props", tri_frac_props
 tri_count_props = [prop + "_count" for prop in face_count_props]
 computed_props = ["raw_triangle_count"]
 
+texture_pixels = ["tex_diffuse_kp", "tex_sculpt_kp", "tex_specular_kp", "tex_normal_kp"]
+texture_counts = ["tex_diffuse_count", "tex_sculpt_count", "tex_specular_count", "tex_normal_count"]
+texture_props = texture_pixels + texture_counts
+
+
 triangle_lod_keys = ["triangle_count_lowest", "triangle_count_low", "triangle_count_mid", "triangle_count_high"]
 
 model_props = tri_frac_props
@@ -157,7 +162,31 @@ class AttachmentsDerivedField:
                 prop_tris = sum([prim["m_triangle_count"] for att in attachments for prim in att["prims"]
                                  if prim[prim_face_prop]>0])
                 return prop_tris
+            elif key in texture_pixels:
+                tex_type = key.replace("tex_","").replace("_kp","")
+                pixels = 0
+                for att in attachments:
+                    if tex_type in att["textures"]:
+                        tex_array = att["textures"][tex_type]
+                        for tex in tex_array:
+                            if "width" in tex and "height" in tex:
+                                im_pixels = tex["width"] * tex["height"]
+                                print "pixels", im_pixels, ":", tex["width"], "x", tex["height"]
+                                # Deflate this from raw pixel count so we don't overflow the counter
+                                pixels += im_pixels/(32*32)
+                            else:
+                                print "bad tex", tex
+                return pixels
+            elif key in texture_counts:
+                tex_type = key.replace("tex_","").replace("_count","")
+                count = 0
+                for att in attachments:
+                    if tex_type in att["textures"]:
+                        tex_array = att["textures"][tex_type]
+                        count += len(tex_array)
+                return count
             else:
+                print "Unknown key", key
                 raise IndexError()
 
 class DerivedAvatarField:
@@ -432,7 +461,7 @@ def get_outfit_spans(pd_data, cost_key="Avatars.Self.ARCCalculated"):
     time_key="frame_time"
     pd_data['span_num'] = (pd_data[cost_key].shift(1) != pd_data[cost_key]).astype(int).cumsum()
 
-    std_props = ref_props + model_props + tri_count_props + computed_props
+    std_props = ref_props + model_props + texture_props + tri_count_props + computed_props
     print "outfit std props", std_props
     grouped = pd_data.groupby([outfit_key, cost_key, 'span_num'] + std_props)
     pd_filtered = grouped.filter(lambda x: x[time_key].sum() > 10.0 and len(x)>200)
@@ -618,6 +647,7 @@ if __name__ == "__main__":
     default_fields.extend(["Derived.Avatar.Attachments." + key for key in triangle_lod_keys])
     default_fields.extend(["Derived.Avatar.Attachments." + key for key in tri_count_props])
     default_fields.extend(["Derived.Avatar.Attachments." + key for key in tri_frac_props])
+    default_fields.extend(["Derived.Avatar.Attachments." + key for key in texture_props])
 
     parser = argparse.ArgumentParser(description="analyze viewer performance files")
     parser.add_argument("--verbose", action="store_true", help="verbose flag")
@@ -750,9 +780,10 @@ if __name__ == "__main__":
         
     if args.by_outfit:
         # how sensitive are the results to this?
-        process_by_outfit(pd_data,cost_key="Avatars.Self.ARCCalculated", window=1) #Derived.Avatar.Attachments.active_triangle_count")
+        #process_by_outfit(pd_data,cost_key="Avatars.Self.ARCCalculated", window=1) #Derived.Avatar.Attachments.active_triangle_count")
         process_by_outfit(pd_data,cost_key="Avatars.Self.ARCCalculated", window=10) #Derived.Avatar.Attachments.active_triangle_count")
-        process_by_outfit(pd_data,cost_key="Avatars.Self.ARCCalculated", window=100) #Derived.Avatar.Attachments.active_triangle_count")
+        #process_by_outfit(pd_data,cost_key="Avatars.Self.ARCCalculated", window=100) #Derived.Avatar.Attachments.active_triangle_count")
+
     if args.plot_time_series:
         plot_time_series(pd_data, args.plot_time_series)
 
