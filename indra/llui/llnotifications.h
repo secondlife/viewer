@@ -919,10 +919,10 @@ public:
 						const LLSD& substitutions, 
 						const LLSD& payload, 
 						const std::string& functor_name);
-	/* virtual */ LLNotificationPtr add(const std::string& name, 
+	virtual LLNotificationPtr add(const std::string& name, 
 						const LLSD& substitutions, 
 						const LLSD& payload, 
-						LLNotificationFunctorRegistry::ResponseFunctor functor);
+						LLNotificationFunctorRegistry::ResponseFunctor functor) override;
 	LLNotificationPtr add(const LLNotification::Params& p);
 
 	void add(const LLNotificationPtr pNotif);

@@ -90,7 +90,7 @@ public:
 		  mExpectHandle(LLCORE_HTTP_HANDLE_INVALID)
 		{}
 	
-	virtual void onCompleted(HttpHandle handle, HttpResponse * response)
+	virtual void onCompleted(HttpHandle handle, const HttpResponse::ptr_t &response) override
 		{
 			if (LLCORE_HTTP_HANDLE_INVALID != mExpectHandle)
 			{

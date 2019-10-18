@@ -46,9 +46,9 @@
 namespace LLCore
 {
 
-HttpStatus::type_enum_t EXT_CURL_EASY;
-HttpStatus::type_enum_t EXT_CURL_MULTI;
-HttpStatus::type_enum_t LLCORE;
+const HttpStatus::type_enum_t HttpStatus::EXT_CURL_EASY(0);			///< mStatus is an error from a curl_easy_*() call
+const HttpStatus::type_enum_t HttpStatus::EXT_CURL_MULTI(1);		///< mStatus is an error from a curl_multi_*() call
+const HttpStatus::type_enum_t HttpStatus::LLCORE(2);				///< mStatus is an HE_* error code
 
 HttpStatus::operator U32() const
 {

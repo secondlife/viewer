@@ -134,8 +134,6 @@ namespace
         virtual S8                  getImageCodec() override;
 
     private:
-        S32                         mImageCodec;
-
         bool                        cacheTexture();
 
     };
@@ -776,6 +774,8 @@ void LLAssetFetch::AssetRequest::setFetchState(LLAssetFetch::FetchState state)
         mTotalTime.stop();
         /*TODO*/    // trigger done here?
         break;
+    default:
+        break;
     };
 }
 
@@ -793,7 +793,11 @@ std::string LLAssetFetch::AssetRequest::getBaseURL() const
 {
     LLViewerRegion *regionp = gAgent.getRegion();
 
-    LL_WARNS_IF(!regionp, "ASSETFETCH") << "Request for asset but no region yet!" << LL_ENDL;
+    if (!regionp)
+    {
+        LL_WARNS_IF("ASSETFETCH") << "Request for asset but no region yet!" << LL_ENDL;
+    }
+    //_WARNS_IF(!regionp, "ASSETFETCH") << "Request for asset but no region yet!" << LL_ENDL;
 
     if (!regionp)
     {
@@ -903,7 +907,11 @@ void LLAssetFetch::AssetRequest::advance()
     }
     else if ((mState == RQST_ERROR) || (mState == RQST_CANCELED))
     {
-        LL_WARNS_IF((mState == RQST_ERROR), "ASSETFETCH") << "Advancing error for request " << getId() << " code=" << mErrorCode << "(" << mErrorSubcode << ":" << mErrorMessage << ")" << LL_ENDL;
+        if (mState == RQST_ERROR)
+        {
+            LL_WARNS("ASSETFETCH") << "Advancing error for request " << getId() << " code=" << mErrorCode << "(" << mErrorSubcode << ":" << mErrorMessage << ")" << LL_ENDL;
+        }
+        //LL_WARNS_IF((mState == RQST_ERROR), "ASSETFETCH") << "Advancing error for request " << getId() << " code=" << mErrorCode << "(" << mErrorSubcode << ":" << mErrorMessage << ")" << LL_ENDL;
         LLAssetFetch::instance().recordRequestDone(self);
     }
     else
@@ -1125,21 +1133,18 @@ namespace
 
     //====================================================================
     TextureDownloadRequest::TextureDownloadRequest(LLUUID id, FTType ftype, S32 width, S32 height, S32 components, S32 discard, bool needs_aux):
-        TextureRequest(id, std::string(), ftype, width, height, components, discard, needs_aux),
-        mImageCodec(IMG_CODEC_INVALID)
+        TextureRequest(id, std::string(), ftype, width, height, components, discard, needs_aux)
     {
     }
 
     TextureDownloadRequest::TextureDownloadRequest(std::string url, FTType ftype, S32 width, S32 height, S32 components, S32 discard, bool needs_aux):
-        TextureRequest(LLUUID::generateNewID(url), url, ftype, width, height, components, discard, needs_aux),
-        mImageCodec(IMG_CODEC_INVALID)
+        TextureRequest(LLUUID::generateNewID(url), url, ftype, width, height, components, discard, needs_aux)
     {
         /*TODO*/ // verify that generateNewID() above will generate the same UUID for the same URL.
     }
 
     TextureDownloadRequest::TextureDownloadRequest(LLUUID id, std::string url, FTType ftype, S32 width, S32 height, S32 components, S32 discard, bool needs_aux) :
-        TextureRequest(id, url, ftype, width, height, components, discard, needs_aux),
-        mImageCodec(IMG_CODEC_INVALID)
+        TextureRequest(id, url, ftype, width, height, components, discard, needs_aux)
     {
         /*TODO*/ // verify that generateNewID() above will generate the same UUID for the same URL.
     }

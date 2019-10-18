@@ -170,12 +170,12 @@ class LLVoiceChannelProximal : public LLVoiceChannel, public LLSingleton<LLVoice
 	LLSINGLETON(LLVoiceChannelProximal);
 public:
 
-	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
-	/*virtual*/ void handleStatusChange(EStatusType status);
-	/*virtual*/ void handleError(EStatusType status);
-	/*virtual*/ BOOL isActive();
-	/*virtual*/ void activate();
-	/*virtual*/ void deactivate();
+	virtual void onChange(EStatusType status, const std::string &channelURI, bool proximal) override;
+	virtual void handleStatusChange(EStatusType status) override;
+	virtual void handleError(EStatusType status) override;
+	virtual BOOL isActive() override;
+	virtual void activate() override;
+	virtual void deactivate() override;
 
 };
 

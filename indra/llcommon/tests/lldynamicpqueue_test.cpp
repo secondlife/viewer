@@ -34,7 +34,7 @@ struct QueuedItemType1
 {
     typedef std::shared_ptr<QueuedItemType1>    ptr_t;
 
-    QueuedItemType1(std::string &name, U32 counter) :
+    QueuedItemType1(const std::string &name, U32 counter) :
         mName(name),
         mCounter(counter),
         mID()

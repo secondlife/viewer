@@ -371,7 +371,7 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 			LLError::End();                   \
 			LLError::Log::flush(_out, _site); \
 		}                                     \
-	} while(0)
+	} while(false)
 
 // NEW Macros for debugging, allow the passing of a string tag
 

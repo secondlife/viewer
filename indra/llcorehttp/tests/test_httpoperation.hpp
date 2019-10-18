@@ -43,7 +43,7 @@ namespace
 class TestHandler : public LLCore::HttpHandler
 {
 public:
-	virtual void onCompleted(HttpHandle, HttpResponse *)
+	virtual void onCompleted(HttpHandle, const HttpResponse::ptr_t &) override
 		{
 			std::cout << "TestHandler::onCompleted() invoked" << std::endl;
 		}

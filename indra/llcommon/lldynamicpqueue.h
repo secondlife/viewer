@@ -125,7 +125,7 @@ class LLDynamicPriorityQueue
         U32     mPriority;
         ITEMT   mItem;
 
-        bool operator < (typename const HeapEntry &other) const
+        bool operator < (const typename LLDynamicPriorityQueue<ITEMT, IDFN, PRIOFN>::HeapEntry &other) const
         {   
             return mPriority < other.mPriority;
         }
@@ -133,7 +133,8 @@ class LLDynamicPriorityQueue
 
     struct compare_entry
     {
-        bool operator()(typename const HeapEntry::ptr_t &a, typename const HeapEntry::ptr_t &b) const
+        bool operator()(const typename LLDynamicPriorityQueue<ITEMT, IDFN, PRIOFN>::HeapEntry::ptr_t &a,
+            const typename LLDynamicPriorityQueue<ITEMT, IDFN, PRIOFN>::HeapEntry::ptr_t &b) const
         {
             return (*a < *b);
         }
@@ -144,8 +145,10 @@ class LLDynamicPriorityQueue
     typedef boost::heap::fibonacci_heap<typename HeapEntry::ptr_t, 
             boost::heap::compare< compare_entry >,
             boost::heap::stable<true> >                             queueheap_t;
-    typedef typename queueheap_t::handle_type                       queuehandle_t;
-    typedef std::map<LLUUID, typename queuehandle_t>                queuemapping_t;
+    typedef typename LLDynamicPriorityQueue<ITEMT, IDFN, PRIOFN>::queueheap_t::handle_type  
+                                                                    queuehandle_t;
+    typedef std::map<LLUUID, typename LLDynamicPriorityQueue<ITEMT, IDFN, PRIOFN>::queuehandle_t>                
+                                                                    queuemapping_t;
     typedef IDFN                                                    get_id_fn_t;
     typedef PRIOFN                                                  update_priority_fn_t;
 public:
@@ -176,11 +179,11 @@ public:
         LLUUID id;
         id = get_id_fn_t()(item);
 
-        queuemapping_t::iterator it = mEntryMapping.find(id);
+        typename queuemapping_t::iterator it = mEntryMapping.find(id);
 
         if (it == mEntryMapping.end())
         {   // No item with this id is in the queue.  Create a new entry. 
-            HeapEntry::ptr_t entry(std::make_shared<HeapEntry>());
+            typename HeapEntry::ptr_t entry(std::make_shared<HeapEntry>());
             entry->mId = id;
             entry->mPriority = (priority) ? priority : 1;   // if 0 priority then use a minimum priority of 1
             entry->mItem = item;
@@ -206,7 +209,7 @@ public:
     void forget(LLUUID item_id, U32 priority = 1)
     {
         LLMutexLock lock(mMutexp);  // scoped lock is a noop with a nullptr mutex.
-        queuemapping_t::iterator it = mEntryMapping.find(item_id);
+        typename queuemapping_t::iterator it = mEntryMapping.find(item_id);
 
         if (it == mEntryMapping.end())
         {
@@ -239,7 +242,7 @@ public:
     void remove(LLUUID item_id)
     {
         LLMutexLock lock(mMutexp);  // scoped lock is a noop with a nullptr mutex.
-        queuemapping_t::iterator it = mEntryMapping.find(item_id);
+        typename queuemapping_t::iterator it = mEntryMapping.find(item_id);
 
         if (it == mEntryMapping.end())
             return;
@@ -263,7 +266,7 @@ public:
         if (!isQueued(item_id))
             return;
 
-        queuemapping_t::iterator it = mEntryMapping.find(item_id);
+        typename queuemapping_t::iterator it = mEntryMapping.find(item_id);
         if (it == mEntryMapping.end())
             return;
 
@@ -360,7 +363,7 @@ public:
         if (mPriorityHeap.empty())
             return ITEMT();
 
-        HeapEntry::ptr_t entry(mPriorityHeap.top());
+        typename HeapEntry::ptr_t entry(mPriorityHeap.top());
 
         mPriorityHeap.pop();
         mEntryMapping.erase(entry->mId);
@@ -388,7 +391,7 @@ public:
     {
         os << "Ordered dump: [ ";
         bool first(true);
-        queueheap_t::ordered_iterator oit = mPriorityHeap.ordered_begin();
+        typename queueheap_t::ordered_iterator oit = mPriorityHeap.ordered_begin();
         while (oit != mPriorityHeap.ordered_end())
         {
             if (!first)

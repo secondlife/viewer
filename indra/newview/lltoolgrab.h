@@ -57,22 +57,22 @@ public:
 	LLToolGrabBase(LLToolComposite* composite=NULL);
 	~LLToolGrabBase();
 
-	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
-	/*virtual*/ void	render();		// 3D elements
-	/*virtual*/ void	draw();			// 2D elements
+	virtual BOOL        handleHover(S32 x, S32 y, MASK mask) override;
+	virtual BOOL        handleMouseDown(S32 x, S32 y, MASK mask) override;
+	virtual BOOL        handleMouseUp(S32 x, S32 y, MASK mask) override;
+	virtual BOOL        handleDoubleClick(S32 x, S32 y, MASK mask) override;
+	virtual void        render() override;		// 3D elements
+	virtual void	    draw() override;		// 2D elements
 
-	virtual void		handleSelect();
-	virtual void		handleDeselect();
+	virtual void		handleSelect() override;
+	virtual void		handleDeselect() override;
 	
-	virtual LLViewerObject*	getEditingObject();
-	virtual LLVector3d		getEditingPointGlobal();
-	virtual BOOL			isEditing();
-	virtual void			stopEditing();
+	virtual LLViewerObject*	getEditingObject() override;
+	virtual LLVector3d		getEditingPointGlobal() override;
+	virtual BOOL			isEditing() override;
+	virtual void			stopEditing() override;
 	
-	virtual void			onMouseCaptureLost();
+	virtual void			onMouseCaptureLost() override;
 
 	BOOL			hasGrabOffset()  { return TRUE; }	// HACK
 	LLVector3		getGrabOffset(S32 x, S32 y);		// HACK

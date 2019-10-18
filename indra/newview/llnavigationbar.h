@@ -60,11 +60,11 @@ public:
 		}
 	};
 	
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask) override;
 
-	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask) override;
 
-	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
+	virtual void onMouseLeave(S32 x, S32 y, MASK mask) override;
 
 	boost::signals2::connection setClickDraggingCallback(const commit_signal_t::slot_type& cb);
 
@@ -92,10 +92,10 @@ class LLNavigationBar
 
 public:
 	
-	/*virtual*/ void	draw();
-	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	postBuild();
-	/*virtual*/ void	setVisible(BOOL visible);
+	virtual void	draw() override;
+	virtual BOOL    handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+	virtual BOOL	postBuild() override;
+	virtual void	setVisible(BOOL visible) override;
 
 	void handleLoginComplete();
 	void clearHistoryCache();

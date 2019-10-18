@@ -190,46 +190,47 @@ if (DARWIN)
 
 endif (DARWIN)
 
-  #
-  # Example Programs
-  #
-  SET(llcorehttp_EXAMPLE_SOURCE_FILES
-      examples/http_texture_load.cpp
-      )
-
-  set(example_libs
-      ${LLCOREHTTP_LIBRARIES}
-      ${WINDOWS_LIBRARIES}
-      ${LLMESSAGE_LIBRARIES}
-      ${LLCOMMON_LIBRARIES}
-      ${GOOGLEMOCK_LIBRARIES}
-      ${CURL_LIBRARIES}
-      ${OPENSSL_LIBRARIES}
-      ${CRYPTO_LIBRARIES}
-      ${NGHTTP2_LIBRARIES}
-      ${BOOST_THREAD_LIBRARY}
-      ${BOOST_SYSTEM_LIBRARY}
-      )
-
-  add_executable(http_texture_load
-                 ${llcorehttp_EXAMPLE_SOURCE_FILES}
-                 )
-  set_target_properties(http_texture_load
-                        PROPERTIES
-                        RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}"
-                        )
-
-  if (WINDOWS)
-    # The following come from LLAddBuildTest.cmake's INTEGRATION_TEST_xxxx target.
-    set_target_properties(http_texture_load
-                          PROPERTIES
-                          LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:CONSOLE"
-                          LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
-                          LINK_FLAGS_RELEASE ""
-                          )
-  endif (WINDOWS)
-
-  target_link_libraries(http_texture_load ${example_libs})
-
+#if (CORE_EXAMPLES)
+# #
+#  # Example Programs
+# #
+#  SET(llcorehttp_EXAMPLE_SOURCE_FILES
+#      examples/http_texture_load.cpp
+#      )
+#
+#  set(example_libs
+#      ${WINDOWS_LIBRARIES}
+#      ${LLMESSAGE_LIBRARIES}
+#      ${LLCOREHTTP_LIBRARIES}
+#      ${LLCOMMON_LIBRARIES}
+#      ${GOOGLEMOCK_LIBRARIES}
+#      ${CURL_LIBRARIES}
+#      ${OPENSSL_LIBRARIES}
+#      ${CRYPTO_LIBRARIES}
+#      ${NGHTTP2_LIBRARIES}
+#      ${BOOST_THREAD_LIBRARY}
+#      ${BOOST_SYSTEM_LIBRARY}
+#      )
+#
+#  add_executable(http_texture_load
+#                 ${llcorehttp_EXAMPLE_SOURCE_FILES}
+#                 )
+#  set_target_properties(http_texture_load
+#                        PROPERTIES
+#                        RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}"
+#                        )
+#
+#  if (WINDOWS)
+#    # The following come from LLAddBuildTest.cmake's INTEGRATION_TEST_xxxx target.
+#    set_target_properties(http_texture_load
+#                          PROPERTIES
+#                          LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:CONSOLE"
+#                          LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
+#                          LINK_FLAGS_RELEASE ""
+#                          )
+#  endif (WINDOWS)
+#
+#  target_link_libraries(http_texture_load ${example_libs})
+#endif (CORE_EXAMPLES)
 endif (LL_TESTS)
 

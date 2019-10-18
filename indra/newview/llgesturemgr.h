@@ -124,7 +124,7 @@ public:
 	BOOL triggerGesture(KEY key, MASK mask);
 
 	// Trigger all gestures referenced as substrings in this string
-	BOOL triggerAndReviseString(const std::string &str, std::string *revised_string = NULL);
+	BOOL triggerAndReviseString(const std::string &str, std::string *revised_string = nullptr);
 
 	// Does some gesture have this key bound?
 	BOOL isKeyBound(KEY key, MASK mask);
@@ -136,7 +136,7 @@ public:
 	void notifyObservers();
 
 	// Overriding so we can update active gesture names and notify observers 
-	void changed(U32 mask); 
+	virtual void changed(U32 mask) override; 
 
 	BOOL matchPrefix(const std::string& in_str, std::string* out_str);
 
@@ -151,7 +151,7 @@ protected:
 	void runStep(LLMultiGesture* gesture, LLGestureStep* step);
 
 	// LLInventoryCompletionObserver trigger
-	void done();
+	virtual void done() override;
 
 	// Used by loadGesture
 	static void onLoadComplete(LLVFS *vfs,

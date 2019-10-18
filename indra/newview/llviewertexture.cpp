@@ -2097,7 +2097,7 @@ bool LLViewerFetchedTexture::updateFetch()
 
         /*!NEWWAY!*/        
         LLAssetFetch::instance().requestTexture(mFTType, mID, mUrl, decode_priority, w, h, c, desired_discard, needsAux(), 
-            [this](const LLAssetFetch::AssetRequest::ptr_t &request, const LLPointer<LLImageRaw> &raw, const LLPointer<LLImageRaw> &aux) {
+            [/*this*/](const LLAssetFetch::AssetRequest::ptr_t &request, const LLPointer<LLImageRaw> &raw, const LLPointer<LLImageRaw> &aux) {
                 LL_WARNS("RIDER") << "LLViewerFetchedTexture has a result! " << request->getFetchState() << " raw=" << ((raw) ? "YES" : "NO") << " aux=" << ((aux) ? "YES" : "NO") << LL_ENDL;
             });
 

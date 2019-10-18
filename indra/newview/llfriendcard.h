@@ -55,7 +55,7 @@ public:
     };
 
 	// LLFriendObserver implementation
-	void changed(U32 mask)
+	virtual void changed(U32 mask) override
 	{
 		onFriendListUpdate(mask);
 	}

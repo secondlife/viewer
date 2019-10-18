@@ -413,7 +413,7 @@ public:
 	{
 		LLSINGLETON(ContextMenu);
 	public:
-		/*virtual*/ void show(LLView* spawning_view, const uuid_vec_t& uuids, S32 x, S32 y);
+		virtual void show(LLView* spawning_view, const uuid_vec_t& uuids, S32 x, S32 y) override;
 
 	protected:
 		enum {
@@ -424,7 +424,7 @@ public:
 			MASK_UNKNOWN		= 0x10,
 		};
 
-		/* virtual */ LLContextMenu* createMenu();
+		virtual LLContextMenu* createMenu() override;
 		void updateItemsVisibility(LLContextMenu* menu);
 		void updateItemsLabels(LLContextMenu* menu);
 		static void setMenuItemVisible(LLContextMenu* menu, const std::string& name, bool val);

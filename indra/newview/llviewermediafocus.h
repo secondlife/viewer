@@ -55,9 +55,9 @@ public:
 	void clearHover();
 	
 	/*virtual*/ bool	getFocus();
-	/*virtual*/ BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent);
-	/*virtual*/ BOOL	handleKeyUp(KEY key, MASK mask, BOOL called_from_parent);
-	/*virtual*/ BOOL	handleUnicodeChar(llwchar uni_char, BOOL called_from_parent);
+	virtual BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent) override;
+	virtual BOOL	handleKeyUp(KEY key, MASK mask, BOOL called_from_parent) override;
+	virtual BOOL	handleUnicodeChar(llwchar uni_char, BOOL called_from_parent) override;
 	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
 
 	void update();
@@ -90,12 +90,12 @@ public:
 	LLUUID getControlsMediaID();
 
     // The MoaP object wants keyup and keydown events.  Overridden to return true.
-    virtual bool    wantsKeyUpKeyDown() const;
-    virtual bool    wantsReturnKey() const;
+    virtual bool    wantsKeyUpKeyDown() const override;
+    virtual bool    wantsReturnKey() const override;
 
 protected:
-	/*virtual*/ void	onFocusReceived();
-	/*virtual*/ void	onFocusLost();
+	virtual void	onFocusReceived() override;
+	virtual void	onFocusLost() override;
 
 private:
 	

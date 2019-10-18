@@ -342,7 +342,7 @@ public:
 	BOOL contains(LLViewerObject* object);
 	BOOL contains(LLViewerObject* object, S32 te);
 
-	// returns TRUE is any node is currenly worn as an attachment
+	// returns TRUE is any node is currently worn as an attachment
 	BOOL isAttachment();
 
     bool checkAnimatedObjectEstTris();
@@ -429,17 +429,17 @@ public:
 	static void cleanupGlobals();
 
 	// LLEditMenuHandler interface
-	virtual BOOL canUndo() const;
-	virtual void undo();
+	virtual BOOL canUndo() const override;
+	virtual void undo() override;
 
-	virtual BOOL canRedo() const;
-	virtual void redo();
+	virtual BOOL canRedo() const override;
+	virtual void redo() override;
 
-	virtual BOOL canDoDelete() const;
-	virtual void doDelete();
+	virtual BOOL canDoDelete() const override;
+	virtual void doDelete() override;
 
-	virtual void deselect();
-	virtual BOOL canDeselect() const;
+	virtual void deselect() override;
+	virtual BOOL canDeselect() const override;
 
 	virtual void duplicate();
 	virtual BOOL canDuplicate() const;

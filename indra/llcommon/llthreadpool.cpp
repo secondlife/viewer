@@ -170,7 +170,7 @@ bool LLThreadPool::checkRequest(LLUUID request_id) const
 }
 
 //============================================================================
-LLThreadPool::PooledThread::PooledThread(std::string &name, LLCondition::uptr_t &queue_ready, request_queue_t &queue, LLThreadPool *owner) :
+LLThreadPool::PooledThread::PooledThread(const std::string &name, LLCondition::uptr_t &queue_ready, request_queue_t &queue, LLThreadPool *owner) :
     LLThread(name),
     mQueueReady(queue_ready),
     mRequestQueue(queue),

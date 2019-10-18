@@ -121,11 +121,11 @@ public:
 	void				renderGuidelines(BOOL draw_x = TRUE, BOOL draw_y = TRUE, BOOL draw_z = TRUE);
 	static void			renderXYZ(const LLVector3 &vec);
 
-    /*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
+    virtual BOOL	    handleMouseUp(S32 x, S32 y, MASK mask) override;
+    virtual BOOL	    handleHover(S32 x, S32 y, MASK mask) override;
 	virtual void		highlightManipulators(S32 x, S32 y) = 0;
-	virtual void		handleSelect();
-	virtual void		handleDeselect();
+	virtual void		handleSelect() override;
+	virtual void		handleDeselect() override;
 	virtual BOOL		canAffectSelection() = 0;
 
 	EManipPart			getHighlightedPart() { return mHighlightedPart; }

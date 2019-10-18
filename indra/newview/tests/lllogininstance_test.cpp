@@ -252,11 +252,11 @@ public:
 
 	virtual ~MockNotifications() {}
 
-	/* virtual */ LLNotificationPtr add(
+	virtual LLNotificationPtr add(
 					const std::string& name,
 					const LLSD& substitutions,
 					const LLSD& payload, 
-					LLNotificationFunctorRegistry::ResponseFunctor functor)
+					LLNotificationFunctorRegistry::ResponseFunctor functor) override
 	{
 		mResponder = functor;
 		mAddedCount++;

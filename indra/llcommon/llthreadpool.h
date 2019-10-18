@@ -110,7 +110,7 @@ private:
     public:
         typedef std::shared_ptr<PooledThread>   ptr_t;
 
-        PooledThread(std::string &name, LLCondition::uptr_t &queue_ready, request_queue_t &queue, LLThreadPool *owner);
+        PooledThread(const std::string &name, LLCondition::uptr_t &queue_ready, request_queue_t &queue, LLThreadPool *owner);
 
         virtual void run() override; 
 
