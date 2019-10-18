@@ -2158,7 +2158,10 @@ void LLPanelObject::onCopyParams()
     mParamsClipboard["is_physical"] = objectp->flagUsePhysics();
 
     // Parametrics
-    getVolumeParams(mClipboardVolumeParams);
+    if (!objectp->isMesh())
+    {
+        getVolumeParams(mClipboardVolumeParams);
+    }
 
     LLVOVolume *volobjp = NULL;
     if (objectp && (objectp->getPCode() == LL_PCODE_VOLUME))
@@ -2188,19 +2191,22 @@ void LLPanelObject::onCopyParams()
     if (objectp->getParameterEntryInUse(LLNetworkData::PARAMS_SCULPT))
     {
         LLSculptParams *sculpt_params = (LLSculptParams *)objectp->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-
-        LLUUID texture_id = sculpt_params->getSculptTexture();
-        if (canCopyTexture(texture_id))
+        
+        if (!objectp->isMesh())
         {
-            LL_INFOS() << "copu texture " << LL_ENDL;
-            mParamsClipboard["sculpt"]["id"] = texture_id;
-        }
-        else
-        {
-            mParamsClipboard["sculpt"]["id"] = LLUUID(SCULPT_DEFAULT_TEXTURE);
-        }
+            LLUUID texture_id = sculpt_params->getSculptTexture();
+            if (canCopyTexture(texture_id))
+            {
+                LL_INFOS() << "copy texture " << LL_ENDL;
+                mParamsClipboard["sculpt"]["id"] = texture_id;
+            }
+            else
+            {
+                mParamsClipboard["sculpt"]["id"] = LLUUID(SCULPT_DEFAULT_TEXTURE);
+            }
 
-        mParamsClipboard["sculpt"]["type"] = sculpt_params->getSculptType();
+            mParamsClipboard["sculpt"]["type"] = sculpt_params->getSculptType();
+        }
     }
 
     // Light Source
