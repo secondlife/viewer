@@ -817,6 +817,36 @@
         <key>version</key>
         <string>4.44.64.501533</string>
       </map>
+      <key>fonts</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright various</string>
+        <key>description</key>
+        <string>Viewer fonts</string>
+        <key>license</key>
+        <string>Various open source</string>
+        <key>license_file</key>
+        <string>LICENSES/fonts.txt</string>
+        <key>name</key>
+        <string>fonts</string>
+        <key>platforms</key>
+        <map>
+          <key>common</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>65b89f06d9b698b376e1736216dd5623</string>
+              <key>url</key>
+              <string>viewer_fonts-1.0-1.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>common</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>1.0</string>
+      </map>
       <key>fontconfig</key>
       <map>
         <key>copyright</key>
@@ -926,9 +956,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b7a8df22cfc910180c66bb1c1ed89cd4</string>
+              <string>d8f5b352176d5c582d91ce936a700b2c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/876/1922/freetype-2.4.4.500865-windows-500865.tar.bz2</string>
+              <string>freetype-2.10.1.0-windows-72.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -938,9 +968,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ff72a895012ed603935083496b0a7bc9</string>
+              <string>aa8be83cdfcd5cda0343ea72e7d662ca</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/877/1925/freetype-2.4.4.500865-windows64-500865.tar.bz2</string>
+              <string>freetype-2.10.1.0-windows64-72.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>

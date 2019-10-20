@@ -137,7 +137,7 @@ class ViewerManifest(LLManifest):
                 self.path("*.tga")
 
             # Include our fonts
-            with self.prefix(src_dst="fonts"):
+            with self.prefix(src="../packages/fonts"):
                 self.path("*.ttf")
                 self.path("*.txt")
 

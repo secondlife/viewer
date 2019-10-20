@@ -36,6 +36,7 @@ indra/newview/browser_profile
 indra/newview/character
 indra/newview/fmod.dll
 indra/newview/fmod.log
+indra/newview/fonts
 indra/newview/mozilla-theme
 indra/newview/mozilla-universal-darwin.tgz
 indra/newview/res/ll_icon.*
