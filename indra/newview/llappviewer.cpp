@@ -3991,7 +3991,9 @@ static LLNotificationFunctorRegistration finish_quit_reg("ConfirmQuit", finish_q
 
 void LLAppViewer::userQuit()
 {
-	if (gDisconnected || gViewerWindow->getProgressView()->getVisible())
+	if (gDisconnected
+		|| !gViewerWindow
+		|| (gViewerWindow->getProgressView() && gViewerWindow->getProgressView()->getVisible()))
 	{
 		requestQuit();
 	}
