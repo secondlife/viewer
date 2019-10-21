@@ -2277,6 +2277,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 			instance_entry["material"] = LL_MCODE_WOOD;
 			instance_entry["physics_shape_type"] = data.mModel[LLModel::LOD_PHYSICS].notNull() ? (U8)(LLViewerObject::PHYSICS_SHAPE_PRIM) : (U8)(LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL);
 			instance_entry["mesh"] = mesh_index[data.mBaseModel];
+			instance_entry["mesh_name"] = instance.mLabel;
 
 			instance_entry["face_list"] = LLSD::emptyArray();
 
@@ -2503,6 +2504,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 	if (model_name.empty()) model_name = "mesh model";
 	result["name"] = model_name;
+	res["metric"] = "MUT_Unspecified";
 	result["asset_resources"] = res;
 	dump_llsd_to_file(result,make_dump_name("whole_model_",dump_num));
 
@@ -3176,8 +3178,7 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* b
 
 		if (header_bytes > 0
 			&& !header.has("404")
-			&& header.has("version")
-			&& header["version"].asInteger() <= MAX_MESH_VERSION)
+			&& (!header.has("version") || header["version"].asInteger() <= MAX_MESH_VERSION))
 		{
 			std::stringstream str;
 

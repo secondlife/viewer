@@ -900,10 +900,10 @@ void LLWorld::precullWaterObjects(LLCamera& camera, LLCullResult* cull, bool inc
 
     if (include_void_water)
     {
-	    for (std::list<LLVOWater*>::iterator iter = mHoleWaterObjects.begin();
-		     iter != mHoleWaterObjects.end(); ++ iter)
-	    {
-		    LLVOWater* waterp = *iter;
+		for (std::list<LLPointer<LLVOWater> >::iterator iter = mHoleWaterObjects.begin();
+			 iter != mHoleWaterObjects.end(); ++ iter)
+		{
+			LLVOWater* waterp = (*iter).get();
 		    if (waterp && waterp->mDrawable)
             {
                 waterp->mDrawable->setVisible(camera);
@@ -967,10 +967,10 @@ void LLWorld::updateWaterObjects()
 		}
 	}
 
-	for (std::list<LLVOWater*>::iterator iter = mHoleWaterObjects.begin();
+	for (std::list<LLPointer<LLVOWater> >::iterator iter = mHoleWaterObjects.begin();
 		 iter != mHoleWaterObjects.end(); ++ iter)
 	{
-		LLVOWater* waterp = *iter;
+		LLVOWater* waterp = (*iter).get();
 		gObjectList.killObject(waterp);
 	}
 	mHoleWaterObjects.clear();

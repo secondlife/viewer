@@ -250,7 +250,7 @@ LLFloaterSettingsPicker * LLFloaterFixedEnvironment::getSettingsPicker()
     return picker;
 }
 
-void LLFloaterFixedEnvironment::loadInventoryItem(const LLUUID  &inventoryId)
+void LLFloaterFixedEnvironment::loadInventoryItem(const LLUUID  &inventoryId, bool can_trans)
 {
     if (inventoryId.isNull())
     {
@@ -290,7 +290,7 @@ void LLFloaterFixedEnvironment::loadInventoryItem(const LLUUID  &inventoryId)
 
     mCanCopy = mInventoryItem->getPermissions().allowCopyBy(gAgent.getID());
     mCanMod = mInventoryItem->getPermissions().allowModifyBy(gAgent.getID());
-    mCanTrans = mInventoryItem->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
+    mCanTrans = can_trans && mInventoryItem->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
 
     LLSettingsVOBase::getSettingsAsset(mInventoryItem->getAssetUUID(),
         [this](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoaded(asset_id, settings, status); });
@@ -653,6 +653,7 @@ void LLFloaterFixedEnvironment::onInventoryCreated(LLUUID asset_id, LLUUID inven
 
 void LLFloaterFixedEnvironment::onInventoryCreated(LLUUID asset_id, LLUUID inventory_id)
 {
+    bool can_trans = true;
     if (mInventoryItem)
     {
         LLPermissions perms = mInventoryItem->getPermissions();
@@ -661,13 +662,14 @@ void LLFloaterFixedEnvironment::onInventoryCreated(LLUUID asset_id, LLUUID inven
 
         if (created_item)
         {
+            can_trans = perms.allowOperationBy(PERM_TRANSFER, gAgent.getID());
             created_item->setPermissions(perms);
             created_item->updateServer(false);
         }
     }
     clearDirtyFlag();
     setFocus(TRUE);                 // Call back the focus...
-    loadInventoryItem(inventory_id);
+    loadInventoryItem(inventory_id, can_trans);
 }
 
 void LLFloaterFixedEnvironment::onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results)

@@ -96,6 +96,7 @@ public:
 	static LLPanelRegionTerrainInfo* getPanelRegionTerrain();
 	static LLPanelRegionExperiences* getPanelExperiences();
 	static LLPanelRegionGeneralInfo* getPanelGeneral();
+	static LLPanelRegionEnvironment* getPanelEnvironment();
 
 	// from LLPanel
 	virtual void refresh();

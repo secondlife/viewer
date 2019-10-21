@@ -573,6 +573,16 @@ LLPanelRegionGeneralInfo* LLFloaterRegionInfo::getPanelGeneral()
 }
 
 // static
+LLPanelRegionEnvironment* LLFloaterRegionInfo::getPanelEnvironment()
+{
+	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
+	if (!floater) return NULL;
+	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
+	LLPanelRegionEnvironment* panel = (LLPanelRegionEnvironment*)tab->getChild<LLPanel>("panel_env_info");
+	return panel;
+}
+
+// static
 LLPanelRegionTerrainInfo* LLFloaterRegionInfo::getPanelRegionTerrain()
 {
 	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
@@ -3754,6 +3764,11 @@ bool LLPanelRegionEnvironment::refreshFromRegion(LLViewerRegion* region)
         setNoSelection(true);
         setControlsEnabled(false);
         mCurEnvVersion = INVALID_PARCEL_ENVIRONMENT_VERSION;
+        getChild<LLUICtrl>("region_text")->setValue(LLSD(""));
+    }
+    else
+    {
+        getChild<LLUICtrl>("region_text")->setValue(LLSD(region->getName()));
     }
     setNoSelection(false);
 
@@ -3824,7 +3839,10 @@ void LLPanelRegionEnvironment::onChkAllowOverride(bool value)
     if (LLPanelEstateInfo::isLindenEstate())
         notification = "ChangeLindenEstate";
 
-    LLNotification::Params params(notification);
+	LLSD args;
+	args["ESTATENAME"] = LLEstateInfoModel::instance().getName();
+	LLNotification::Params params(notification);
+	params.substitutions(args);
     params.functor.function([this](const LLSD& notification, const LLSD& response) { confirmUpdateEstateEnvironment(notification, response); });
 
     if (!value || LLPanelEstateInfo::isLindenEstate())

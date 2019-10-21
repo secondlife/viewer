@@ -84,6 +84,7 @@ const std::string LLPanelEnvironmentInfo::PNL_ENVIRONMENT_ALTITUDES("pnl_environ
 const std::string LLPanelEnvironmentInfo::PNL_BUTTONS("pnl_environment_buttons");
 const std::string LLPanelEnvironmentInfo::PNL_DISABLED("pnl_environment_disabled");
 const std::string LLPanelEnvironmentInfo::TXT_DISABLED("txt_environment_disabled");
+const std::string LLPanelEnvironmentInfo::PNL_REGION_MSG("pnl_environment_region_msg");
 const std::string LLPanelEnvironmentInfo::SDT_DROP_TARGET("sdt_drop_target");
 
 const std::string LLPanelEnvironmentInfo::STR_LABEL_USEDEFAULT("str_label_use_default");
@@ -483,7 +484,7 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
         getChild<LLUICtrl>(PNL_BUTTONS)->setVisible(false);
         getChild<LLUICtrl>(PNL_DISABLED)->setVisible(true);
         getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(false);
-
+        getChild<LLUICtrl>(PNL_REGION_MSG)->setVisible(false);
         updateEditFloater(mCurrentEnvironment, false);
 
         return false;
@@ -491,6 +492,7 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
     getChild<LLUICtrl>(PNL_SETTINGS)->setVisible(true);
     getChild<LLUICtrl>(PNL_BUTTONS)->setVisible(true);
     getChild<LLUICtrl>(PNL_DISABLED)->setVisible(false);
+    getChild<LLUICtrl>(PNL_REGION_MSG)->setVisible(isRegion());
 
     getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(LLEnvironment::instance().isExtendedEnvironmentEnabled());
     getChild<LLUICtrl>(BTN_RST_ALTITUDES)->setVisible(isRegion());

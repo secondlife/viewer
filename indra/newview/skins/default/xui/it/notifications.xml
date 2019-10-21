@@ -1574,7 +1574,7 @@ Eccede il [MAX_AGENTS] [LIST_TYPE] limite di [NUM_EXCESS].
 		Impossibile aggiungere il residente espulso alla lista dei gestori delle proprietà.
 	</notification>
 	<notification name="ProblemBanningEstateManager">
-		Impossibile aggiunere il gestore della proprietà immobiliare [AGENT] all’elenco degli espulsi.
+		Impossibile aggiungere il gestore della proprietà immobiliare [AGENT] all’elenco degli espulsi.
 	</notification>
 	<notification name="GroupIsAlreadyInList">
 		&lt;nolink&gt;[GROUP]&lt;/nolink&gt; si trova già nell’elenco dei Gruppi ammessi.
@@ -1916,7 +1916,7 @@ Cambierà migliaia di regioni e produrrà seri problemi ai vari server.
 		<usetemplate canceltext="Annulla" name="yesnocancelbuttons" notext="Tutte le proprietà" yestext="Questa proprietà"/>
 	</notification>
 	<notification label="Seleziona la proprietà" name="EstateBannedAgentRemove">
-		Rimuovi questo Residente dall’elenco degli espulsi solo per questa proprietà immobiliare oppure per [ALL_ESTATES]?
+		Vuoi rimuovere questo Residente dall’elenco degli espulsi solo per questa proprietà immobiliare oppure per [ALL_ESTATES]?
 		<usetemplate canceltext="Annulla" name="yesnocancelbuttons" notext="Tutte le proprietà" yestext="Questa proprietà"/>
 	</notification>
 	<notification label="Seleziona la proprietà" name="EstateManagerAdd">

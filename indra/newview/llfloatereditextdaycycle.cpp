@@ -1428,7 +1428,7 @@ LLFloaterEditExtDayCycle::connection_t LLFloaterEditExtDayCycle::setEditCommitSi
     return mCommitSignal.connect(cb);
 }
 
-void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId)
+void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId, bool can_trans)
 {
     if (inventoryId.isNull())
     {
@@ -1471,7 +1471,7 @@ void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId)
     mCanSave = true;
     mCanCopy = mInventoryItem->getPermissions().allowCopyBy(gAgent.getID());
     mCanMod = mInventoryItem->getPermissions().allowModifyBy(gAgent.getID());
-    mCanTrans = mInventoryItem->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
+    mCanTrans = can_trans && mInventoryItem->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
 
     mExpectingAssetId = mInventoryItem->getAssetUUID();
     LLSettingsVOBase::getSettingsAsset(mInventoryItem->getAssetUUID(),
@@ -1799,7 +1799,7 @@ void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID invent
 
 void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID inventory_id)
 {
-
+    bool can_trans = true;
     if (mInventoryItem)
     {
         LLPermissions perms = mInventoryItem->getPermissions();
@@ -1808,6 +1808,7 @@ void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID invent
         
         if (created_item)
         {
+            can_trans = perms.allowOperationBy(PERM_TRANSFER, gAgent.getID());
             created_item->setPermissions(perms);
             created_item->updateServer(false);
         }
@@ -1815,7 +1816,7 @@ void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID invent
 
     clearDirtyFlag();
     setFocus(TRUE);                 // Call back the focus...
-    loadInventoryItem(inventory_id);
+    loadInventoryItem(inventory_id, can_trans);
 }
 
 void LLFloaterEditExtDayCycle::onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results)

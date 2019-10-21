@@ -412,16 +412,15 @@ LLControlAvatar *LLControlAvatar::createControlAvatar(LLVOVolume *obj)
 {
 	LLControlAvatar *cav = (LLControlAvatar*)gObjectList.createObjectViewer(LL_PCODE_LEGACY_AVATAR, gAgent.getRegion(), CO_FLAG_CONTROL_AVATAR);
 
-    cav->mRootVolp = obj;
+    if (cav)
+    {
+        cav->mRootVolp = obj;
+		
+		// Sync up position/rotation with object
+		cav->matchVolumeTransform();
 
-	// Axon - this is temporary code for a viewer-side hack. Remove before release.
-	// cav->mObjectInventoryObserver = new LLAnimatedObjectInventoryObserver(obj);
-	// obj->requestInventory();
-
-    // Sync up position/rotation with object
-    cav->matchVolumeTransform();
-
-    return cav;
+		return cav;
+	}
 }
 
 void LLControlAvatar::markForDeath()

@@ -76,6 +76,9 @@ Modèle d’éclairage avancé : [GPU_SHADERS]
 Mémoire textures : [TEXTURE_MEMORY] Mo
 Heure de création VFS (cache) : [VFS_TIME]
 	</string>
+	<string name="AboutOSXHiDPI">
+		Mode d&apos;affichage HiDPI : [HIDPI]
+	</string>
 	<string name="AboutLibs">
 		J2C Decoder Version: [J2C_VERSION] 
 Audio Driver Version: [AUDIO_DRIVER_VERSION] 
@@ -1513,6 +1516,15 @@ http://secondlife.com/support pour vous aider à résoudre ce problème.
 	</string>
 	<string name="MarketplaceURL_LearnMore">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more
+	</string>
+	<string name="InventoryPlayAnimationTooltip">
+		Ouvrir la fenêtre avec les options Jeu
+	</string>
+	<string name="InventoryPlayGestureTooltip">
+		Exécuter le geste sélectionné dans le monde virtuel.
+	</string>
+	<string name="InventoryPlaySoundTooltip">
+		Ouvrir la fenêtre avec les options Jeu
 	</string>
 	<string name="InventoryOutboxNotMerchantTitle">
 		Tout le monde peut vendre des articles sur la Place du marché.
