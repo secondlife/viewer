@@ -806,14 +806,14 @@
              top_delta="16"
              width="260" />
 			<button
-			 left="10"
-			 top="222"
+       follows="left|top"
+       layout="topleft"
+			 left="9"
+			 top="192"
 			 height="20"
 			 label="Align"
 			 label_selected="Align current texture layers"
-			 layout="topleft"
 			 name="button align textures"
-			 top_delta="0"
 			 tool_tip="Align current texture layers"
 			 width="66" />
             <web_browser
