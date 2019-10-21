@@ -38,6 +38,7 @@
 #include "llerror.h"                // LL_ERRS
 #include "llsdutil.h"               // llsd_matches()
 #include "stringize.h"
+#include "lldate.h"
 
 /*****************************************************************************
 *   LLEventFilter
@@ -181,6 +182,27 @@ void LLEventTimeout::setCountdown(F32 seconds)
 bool LLEventTimeout::countdownElapsed() const
 {
     return mTimer.hasExpired();
+}
+
+LLEventTimer* LLEventTimeout::post_every(F32 period, const std::string& pump, const LLSD& data)
+{
+    return LLEventTimer::run_every(
+        period,
+        [pump, data](){ LLEventPumps::instance().obtain(pump).post(data); });
+}
+
+LLEventTimer* LLEventTimeout::post_at(const LLDate& time, const std::string& pump, const LLSD& data)
+{
+    return LLEventTimer::run_at(
+        time,
+        [pump, data](){ LLEventPumps::instance().obtain(pump).post(data); });
+}
+
+LLEventTimer* LLEventTimeout::post_after(F32 interval, const std::string& pump, const LLSD& data)
+{
+    return LLEventTimer::run_after(
+        interval,
+        [pump, data](){ LLEventPumps::instance().obtain(pump).post(data); });
 }
 
 /*****************************************************************************
