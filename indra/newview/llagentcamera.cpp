@@ -282,6 +282,11 @@ LLAgentCamera::~LLAgentCamera()
 //-----------------------------------------------------------------------------
 void LLAgentCamera::resetView(BOOL reset_camera, BOOL change_camera)
 {
+	if (gDisconnected)
+	{
+		return;
+	}
+
 	if (gAgent.getAutoPilot())
 	{
 		gAgent.stopAutoPilot(TRUE);
