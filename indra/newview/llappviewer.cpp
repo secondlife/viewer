@@ -4610,6 +4610,9 @@ void LLAppViewer::idle()
 	LLFrameTimer::updateFrameTime();
 	LLFrameTimer::updateFrameCount();
 	LLEventTimer::updateClass();
+	// LLApp::stepFrame() performs the above three calls plus mRunner.run().
+	// Not sure why we don't call stepFrame() here, except that LLRunner seems
+	// completely redundant with LLEventTimer.
 	LLNotificationsUI::LLToast::updateClass();
 	LLSmoothInterpolation::updateInterpolants();
 	LLMortician::updateClass();
