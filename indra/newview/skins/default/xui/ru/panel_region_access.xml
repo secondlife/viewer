@@ -14,6 +14,7 @@
 		<panel label="РАЗРЕШЕННЫЕ" name="allowed_panel">
 			<panel label="top_panel" name="allowed_search_panel">
 				<filter_editor label="Поиск допущенных агентов" name="allowed_search_input"/>
+				<button label="Копировать" name="copy_allowed_list_btn"/>
 			</panel>
 			<text name="allow_resident_label">
 				Разрешено всегда:
@@ -27,6 +28,7 @@
 		<panel label="ДОПУЩЕННЫЕ ГРУППЫ" name="allowed_groups_panel">
 			<panel label="top_panel" name="allowed_group_search_panel">
 				<filter_editor label="Поиск допущенных групп" name="allowed_group_search_input"/>
+				<button label="Копировать" name="copy_allowed_group_list_btn"/>
 			</panel>
 			<text name="allow_group_label">
 				Допуск групп всегда разрешен:
@@ -40,6 +42,7 @@
 		<panel label="ЗАБЛОКИРОВАНЫ" name="banned_panel">
 			<panel label="top_panel" name="banned_search_panel">
 				<filter_editor label="Поиск заблокированных агентов" name="banned_search_input"/>
+				<button label="Копировать" name="copy_banned_list_btn"/>
 			</panel>
 			<text name="ban_resident_label">
 				Всегда заблокированы:

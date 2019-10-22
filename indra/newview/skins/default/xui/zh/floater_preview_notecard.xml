@@ -15,6 +15,7 @@
 	<text_editor name="Notecard Editor">
 		載入中...
 	</text_editor>
+	<button label="編輯…" label_selected="編輯" name="Edit"/>
 	<button label="儲存" label_selected="儲存" name="Save"/>
 	<button label="刪除" label_selected="刪除" name="Delete"/>
 </floater>

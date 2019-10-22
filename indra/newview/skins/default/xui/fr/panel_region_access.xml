@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="ACCÈS" name="Access">
+<panel label="Accès" name="Access">
 	<tab_container name="tabs">
 		<panel label="GÉRANTS DU DOMAINE" name="estate_managers_panel">
 			<text name="estate_manager_label">
@@ -14,6 +14,7 @@
 		<panel label="AUTORISÉ" name="allowed_panel">
 			<panel label="top_panel" name="allowed_search_panel">
 				<filter_editor label="Rechercher des agents autorisés" name="allowed_search_input"/>
+				<button label="Copier" name="copy_allowed_list_btn"/>
 			</panel>
 			<text name="allow_resident_label">
 				Toujours autorisé :
@@ -27,6 +28,7 @@
 		<panel label="GROUPES AUTORISÉS" name="allowed_groups_panel">
 			<panel label="top_panel" name="allowed_group_search_panel">
 				<filter_editor label="Rechercher des groupes autorisés" name="allowed_group_search_input"/>
+				<button label="Copier" name="copy_allowed_group_list_btn"/>
 			</panel>
 			<text name="allow_group_label">
 				Groupes toujours autorisés :
@@ -40,6 +42,7 @@
 		<panel label="INTERDIT" name="banned_panel">
 			<panel label="top_panel" name="banned_search_panel">
 				<filter_editor label="Rechercher des agents interdits" name="banned_search_input"/>
+				<button label="Copier" name="copy_banned_list_btn"/>
 			</panel>
 			<text name="ban_resident_label">
 				Toujours interdit :

@@ -2882,6 +2882,7 @@ void LLAppViewer::initStrings()
 	if (strings_path_full.empty() || !LLFile::isfile(strings_path_full))
 	{
 		// initial check to make sure files are there failed
+		gDirUtilp->dumpCurrentDirectories(LLError::LEVEL_WARN);
 		LL_ERRS() << "Viewer failed to find localization and UI files. Please reinstall viewer from  https://secondlife.com/support/downloads/ and contact https://support.secondlife.com if issue persists after reinstall." << LL_ENDL;
 	}
 	LLTransUtil::parseStrings(strings_file, default_trans_args);
@@ -4504,10 +4505,37 @@ void LLAppViewer::saveFinalSnapshot()
 
 		std::string snap_filename = gDirUtilp->getLindenUserDir();
 		snap_filename += gDirUtilp->getDirDelimiter();
-		snap_filename += SCREEN_LAST_FILENAME;
+		snap_filename += LLStartUp::getScreenLastFilename();
 		// use full pixel dimensions of viewer window (not post-scale dimensions)
-		gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, TRUE);
+		gViewerWindow->saveSnapshot(snap_filename,
+									gViewerWindow->getWindowWidthRaw(),
+									gViewerWindow->getWindowHeightRaw(),
+									FALSE,
+									TRUE,
+									LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
+									LLSnapshotModel::SNAPSHOT_FORMAT_PNG);
 		mSavedFinalSnapshot = TRUE;
+
+		if (gAgent.isInHomeRegion())
+		{
+			LLVector3d home;
+			if (gAgent.getHomePosGlobal(&home) && dist_vec(home, gAgent.getPositionGlobal()) < 10)
+			{
+				// We are at home position or close to it, see if we need to create home screenshot
+				// Notes:
+				// 1. It might be beneficial to also replace home if file is too old
+				// 2. This is far from best way/place to update screenshot since location might be not fully loaded,
+				// but we don't have many options
+				std::string snap_home = gDirUtilp->getLindenUserDir();
+				snap_home += gDirUtilp->getDirDelimiter();
+				snap_home += LLStartUp::getScreenHomeFilename();
+				if (!gDirUtilp->fileExists(snap_home))
+				{
+					// We are at home position yet no home image exist, fix it
+					LLFile::copy(snap_filename, snap_home);
+				}
+			}
+		}
 	}
 }
 

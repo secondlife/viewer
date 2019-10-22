@@ -42,7 +42,7 @@
 #include "llfeaturemanager.h"
 //#include "llfirstuse.h"
 #include "llhudmanager.h"
-#include "llimagebmp.h"
+#include "llimagepng.h"
 #include "llmemory.h"
 #include "llselectmgr.h"
 #include "llsky.h"
@@ -1588,17 +1588,17 @@ void render_disconnected_background()
 		LL_INFOS() << "Loading last bitmap..." << LL_ENDL;
 
 		std::string temp_str;
-		temp_str = gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter() + SCREEN_LAST_FILENAME;
+		temp_str = gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter() + LLStartUp::getScreenLastFilename();
 
-		LLPointer<LLImageBMP> image_bmp = new LLImageBMP;
-		if( !image_bmp->load(temp_str) )
+		LLPointer<LLImagePNG> image_png = new LLImagePNG;
+		if( !image_png->load(temp_str) )
 		{
 			//LL_INFOS() << "Bitmap load failed" << LL_ENDL;
 			return;
 		}
 		
 		LLPointer<LLImageRaw> raw = new LLImageRaw;
-		if (!image_bmp->decode(raw, 0.0f))
+		if (!image_png->decode(raw, 0.0f))
 		{
 			LL_INFOS() << "Bitmap decode failed" << LL_ENDL;
 			gDisconnectedImagep = NULL;
@@ -1606,7 +1606,7 @@ void render_disconnected_background()
 		}
 
 		U8 *rawp = raw->getData();
-		S32 npixels = (S32)image_bmp->getWidth()*(S32)image_bmp->getHeight();
+		S32 npixels = (S32)image_png->getWidth()*(S32)image_png->getHeight();
 		for (S32 i = 0; i < npixels; i++)
 		{
 			S32 sum = 0;

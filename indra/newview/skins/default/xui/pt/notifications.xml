@@ -1904,7 +1904,7 @@ Isto mudará milhares de regiões e fará o spaceserver soluçar.
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Todas as Propriedades" yestext="Esta Propriedade"/>
 	</notification>
 	<notification label="Selecione a propriedade" name="EstateBannedAgentRemove">
-		Remover este Residente da lista de banimento para acessar este estado somente ou para [ALL_ESTATES]?
+		Remover este Residente da lista de banimento para acessar esta propriedade somente ou para [ALL_ESTATES]?
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Todas as Propriedades" yestext="Esta Propriedade"/>
 	</notification>
 	<notification label="Selecione a propriedade" name="EstateManagerAdd">

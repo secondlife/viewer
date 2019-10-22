@@ -5107,8 +5107,8 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 			// save the home location image to disk
 			std::string snap_filename = gDirUtilp->getLindenUserDir();
 			snap_filename += gDirUtilp->getDirDelimiter();
-			snap_filename += SCREEN_HOME_FILENAME;
-			gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, FALSE);
+			snap_filename += LLStartUp::getScreenHomeFilename();
+			gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, FALSE, LLSnapshotModel::SNAPSHOT_TYPE_COLOR, LLSnapshotModel::SNAPSHOT_FORMAT_PNG);
 		}
 		
 		if (notificationID == "RegionRestartMinutes" ||
@@ -5190,8 +5190,8 @@ static void process_special_alert_messages(const std::string & message)
 		// save the home location image to disk
 		std::string snap_filename = gDirUtilp->getLindenUserDir();
 		snap_filename += gDirUtilp->getDirDelimiter();
-		snap_filename += SCREEN_HOME_FILENAME;
-		gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, FALSE);
+		snap_filename += LLStartUp::getScreenHomeFilename();
+		gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, FALSE, LLSnapshotModel::SNAPSHOT_TYPE_COLOR, LLSnapshotModel::SNAPSHOT_FORMAT_PNG);
 	}
 }
 

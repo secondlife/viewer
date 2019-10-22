@@ -263,6 +263,8 @@ Please try logging in again in a minute.</string>
 	<string name="TooltipOutboxDragActive">You can't move a listed listing</string>
 	<string name="TooltipOutboxCannotMoveRoot">You can't move the marketplace listings root folder</string>
 	<string name="TooltipOutboxMixedStock">All items in a stock folder must have the same type and permission</string>
+	<string name="TooltipOutfitNotInInventory">You can only put items or outfits from your personal inventory into "My outfits"</string>
+	<string name="TooltipCantCreateOutfit">One or more items can't be used inside "My outfits"</string>
 	
 	<string name="TooltipDragOntoOwnChild">You can't move a folder into its child</string>
 	<string name="TooltipDragOntoSelf">You can't move a folder into itself</string>
