@@ -449,10 +449,10 @@ void LLRenderPass::applyModelMatrix(const LLDrawInfo& params)
 	if (params.mModelMatrix != gGLLastMatrix)
 	{
 		gGLLastMatrix = params.mModelMatrix;
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		gGL.loadMatrix(gGLModelView);
 		if (params.mModelMatrix)
 		{
-			llassert(gGL.getMatrixMode() == LLRender::MM_MODELVIEW);
 			gGL.multMatrix((GLfloat*) params.mModelMatrix->mMatrix);
 		}
 		gPipeline.mMatrixOpCount++;

@@ -2083,8 +2083,8 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				gGL.loadMatrix((F32*) face->mTextureMatrix->mMatrix);
 				buff->setBuffer(data_mask);
 				buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
+				gGL.matrixMode(LLRender::MM_TEXTURE);
 				gGL.loadIdentity();
-				gGL.matrixMode(LLRender::MM_MODELVIEW);
 			}
 			else
 			{
