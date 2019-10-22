@@ -33,9 +33,9 @@
 #include "stdtypes.h"
 #include "lltimer.h"
 #include "llsdutil.h"
-#include "lleventtimer.h"
 #include <boost/function.hpp>
 
+class LLEventTimer;
 class LLDate;
 
 /**

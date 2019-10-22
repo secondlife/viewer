@@ -38,6 +38,7 @@
 #include "llerror.h"                // LL_ERRS
 #include "llsdutil.h"               // llsd_matches()
 #include "stringize.h"
+#include "lleventtimer.h"
 #include "lldate.h"
 
 /*****************************************************************************
