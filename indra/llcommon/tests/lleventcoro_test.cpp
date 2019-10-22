@@ -40,6 +40,7 @@
 #include <typeinfo>
 
 #include "../test/lltut.h"
+#include "../test/lltestapp.h"
 #include "llsd.h"
 #include "llsdutil.h"
 #include "llevents.h"
@@ -98,6 +99,7 @@ namespace tut
         std::string replyName, errorName, threw, stringdata;
         LLSD result, errordata;
         int which;
+        LLTestApp testApp;
 
         void explicit_wait(boost::shared_ptr<LLCoros::Promise<std::string>>& cbp);
         void waitForEventOn1();

@@ -48,6 +48,7 @@
 #undef BOOST_DISABLE_ASSERTS
 #endif
 // other Linden headers
+#include "llapp.h"
 #include "lltimer.h"
 #include "llevents.h"
 #include "llerror.h"
@@ -58,10 +59,15 @@
 #include <excpt.h>
 #endif
 
-
-const LLCoros::CoroData& LLCoros::get_CoroData(const std::string& caller) const
+// static
+LLCoros::CoroData& LLCoros::get_CoroData(const std::string& caller)
 {
-    CoroData* current = mCurrent.get();
+    CoroData* current{ nullptr };
+    // be careful about attempted accesses in the final throes of app shutdown
+    if (! wasDeleted())
+    {
+        current = instance().mCurrent.get();
+    }
     // For the main() coroutine, the one NOT explicitly launched by launch(),
     // we never explicitly set mCurrent. Use a static CoroData instance with
     // canonical values.
@@ -78,12 +84,6 @@ const LLCoros::CoroData& LLCoros::get_CoroData(const std::string& caller) const
     return *current;
 }
 
-LLCoros::CoroData& LLCoros::get_CoroData(const std::string& caller)
-{
-    // reuse const implementation, just cast away const-ness of result
-    return const_cast<CoroData&>(const_cast<const LLCoros*>(this)->get_CoroData(caller));
-}
-
 //static
 LLCoros::coro::id LLCoros::get_self()
 {
@@ -93,7 +93,7 @@ LLCoros::coro::id LLCoros::get_self()
 //static
 void LLCoros::set_consuming(bool consuming)
 {
-    CoroData& data(LLCoros::instance().get_CoroData("set_consuming()"));
+    CoroData& data(get_CoroData("set_consuming()"));
     // DO NOT call this on the main() coroutine.
     llassert_always(! data.mName.empty());
     data.mConsuming = consuming;
@@ -102,7 +102,19 @@ void LLCoros::set_consuming(bool consuming)
 //static
 bool LLCoros::get_consuming()
 {
-    return LLCoros::instance().get_CoroData("get_consuming()").mConsuming;
+    return get_CoroData("get_consuming()").mConsuming;
+}
+
+// static
+void LLCoros::setStatus(const std::string& status)
+{
+    get_CoroData("setStatus()").mStatus = status;
+}
+
+// static
+std::string LLCoros::getStatus()
+{
+    return get_CoroData("getStatus()").mStatus;
 }
 
 LLCoros::LLCoros():
@@ -116,6 +128,11 @@ LLCoros::LLCoros():
     mStackSize(256*1024)
 #endif
 {
+}
+
+LLCoros::~LLCoros()
+{
+    printActiveCoroutines("at LLCoros destruction");
 }
 
 std::string LLCoros::generateDistinctName(const std::string& prefix) const
@@ -166,19 +183,19 @@ void LLCoros::setStackSize(S32 stacksize)
     mStackSize = stacksize;
 }
 
-void LLCoros::printActiveCoroutines()
+void LLCoros::printActiveCoroutines(const std::string& when)
 {
-    LL_INFOS("LLCoros") << "Number of active coroutines: " << (S32)mCoros.size() << LL_ENDL;
+    LL_INFOS("LLCoros") << "Number of active coroutines " << when
+                        << ": " << (S32)mCoros.size() << LL_ENDL;
     if (mCoros.size() > 0)
     {
         LL_INFOS("LLCoros") << "-------------- List of active coroutines ------------";
-        CoroMap::iterator iter;
-        CoroMap::iterator end = mCoros.end();
         F64 time = LLTimer::getTotalSeconds();
-        for (iter = mCoros.begin(); iter != end; iter++)
+        for (const auto& pair : mCoros)
         {
-            F64 life_time = time - iter->second->mCreationTime;
-            LL_CONT << LL_NEWLINE << "Name: " << iter->first << " life: " << life_time;
+            F64 life_time = time - pair.second->mCreationTime;
+            LL_CONT << LL_NEWLINE << pair.first << ' ' << pair.second->mStatus
+                    << " life: " << life_time;
         }
         LL_CONT << LL_ENDL;
         LL_INFOS("LLCoros") << "-----------------------------------------------------" << LL_ENDL;
@@ -244,11 +261,19 @@ void LLCoros::winlevel(const callable_t& callable)
 #endif
 
 // Top-level wrapper around caller's coroutine callable.
-void LLCoros::toplevel(const std::string& name, const callable_t& callable)
+// Normally we like to pass strings and such by const reference -- but in this
+// case, we WANT to copy both the name and the callable to our local stack!
+void LLCoros::toplevel(std::string name, callable_t callable)
 {
     CoroData* corodata = new CoroData(name);
-    // Store it in our pointer map. Oddly, must cast away const-ness of key.
-    mCoros.insert(const_cast<std::string&>(name), corodata);
+    if (corodata == NULL)
+    {
+        // Out of memory?
+        printActiveCoroutines();
+        LL_ERRS("LLCoros") << "Failed to start coroutine: " << name << " Stacksize: " << mStackSize << " Total coroutines: " << mCoros.size() << LL_ENDL;
+    }
+    // Store it in our pointer map.
+    mCoros.insert(name, corodata);
     // also set it as current
     mCurrent.reset(corodata);
 
@@ -261,18 +286,39 @@ void LLCoros::toplevel(const std::string& name, const callable_t& callable)
         callable();
 #endif
     }
+    catch (const Stop& exc)
+    {
+        LL_INFOS("LLCoros") << "coroutine " << name << " terminating because "
+                            << exc.what() << LL_ENDL;
+    }
     catch (const LLContinueError&)
     {
         // Any uncaught exception derived from LLContinueError will be caught
         // here and logged. This coroutine will terminate but the rest of the
         // viewer will carry on.
-        LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << corodata->mName));
+        LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << name));
     }
     catch (...)
     {
         // Any OTHER kind of uncaught exception will cause the viewer to
         // crash, hopefully informatively.
-        CRASH_ON_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << corodata->mName));
+        CRASH_ON_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << name));
+    }
+}
+
+void LLCoros::checkStop()
+{
+    if (wasDeleted())
+    {
+        LLTHROW(Shutdown("LLCoros was deleted"));
+    }
+    if (LLApp::isStopped())
+    {
+        LLTHROW(Stopped("viewer is stopped"));
+    }
+    if (! LLApp::isRunning())
+    {
+        LLTHROW(Stopping("viewer is stopping"));
     }
 }
 
@@ -288,6 +334,19 @@ void LLCoros::delete_CoroData(CoroData* cdptr)
 {
     // This custom cleanup function is necessarily static. Find and bind the
     // LLCoros instance.
+    // In case the LLCoros instance has already been deleted, just warn and
+    // scoot. We do NOT want to reinstantiate LLCoros during shutdown!
+    if (wasDeleted())
+    {
+        // The LLSingletons involved in logging may have been deleted too.
+        // This warning may help developers track down coroutines that have
+        // not yet been cleaned up.
+        // But cdptr is very likely a dangling pointer by this time, so don't
+        // try to dereference mName.
+        logwarns("Coroutine terminating after LLCoros instance deleted");
+        return;
+    }
+
     LLCoros& self(LLCoros::instance());
     // We set mCurrent on entry to a new fiber, expecting that the
     // corresponding entry has already been stored in mCoros. It is an

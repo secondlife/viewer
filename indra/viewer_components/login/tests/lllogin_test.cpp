@@ -42,6 +42,7 @@
 // other Linden headers
 #include "llsd.h"
 #include "../../../test/lltut.h"
+#include "../../../test/lltestapp.h"
 //#define DEBUG_ON
 #include "../../../test/debug.h"
 #include "llevents.h"
@@ -201,6 +202,7 @@ namespace tut
             pumps.clear();
         }
         LLEventPumps& pumps;
+        LLTestApp testApp;
     };
 
     typedef test_group<llviewerlogin_data> llviewerlogin_group;
