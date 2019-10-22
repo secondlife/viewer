@@ -266,6 +266,9 @@ LLEventPumps::~LLEventPumps()
     {
         delete *mOurPumps.begin();
     }
+    // Reset every remaining registered LLEventPump subclass instance: those
+    // we DIDN'T instantiate using either make() or obtain().
+    reset();
 }
 
 /*****************************************************************************
