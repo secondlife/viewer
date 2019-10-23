@@ -33,6 +33,8 @@
 #include "llstring.h"
 #include "llsd.h"
 
+# pragma comment(lib, "wbemuuid.lib")
+
 class LLVersion
 {
 public:
