@@ -3998,7 +3998,8 @@ void LLAppViewer::userQuit()
 {
 	if (gDisconnected
 		|| !gViewerWindow
-		|| (gViewerWindow->getProgressView() && gViewerWindow->getProgressView()->getVisible()))
+		|| !gViewerWindow->getProgressView()
+		|| gViewerWindow->getProgressView()->getVisible())
 	{
 		requestQuit();
 	}
