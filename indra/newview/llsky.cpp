@@ -119,7 +119,7 @@ void LLSky::restoreGL()
 
 void LLSky::resetVertexBuffers()
 {
-	if (gSky.mVOSkyp.notNull())
+	if (gSky.mVOSkyp.notNull() && gSky.mVOGroundp.notNull())
 	{
 		gPipeline.resetVertexBuffers(gSky.mVOSkyp->mDrawable);
 		gPipeline.resetVertexBuffers(gSky.mVOGroundp->mDrawable);

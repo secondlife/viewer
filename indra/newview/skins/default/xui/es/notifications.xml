@@ -1589,7 +1589,7 @@ Se superan en [NUM_EXCESS] los [MAX_AGENTS] permitidos en [LIST_TYPE].
 		[AGENT] ya está en tu lista [LIST_TYPE].
 	</notification>
 	<notification name="AgentsAreAlreadyInList">
-		[AGENT] ya está en tu lista [LIST_TYPE].
+		[AGENT] ya están en tu lista [LIST_TYPE].
 	</notification>
 	<notification name="AgentWasAddedToList">
 		[AGENT] fue añadido a la lista [LIST_TYPE] de [ESTATE].

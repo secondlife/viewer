@@ -43,6 +43,7 @@
 	<check_box label="Anisotropik Filtreleme (etkinken daha yavaş)" name="ani"/>
 	<check_box initial_value="true" label="OpenGL Vertex Tampon Nesnelerini Etkinleştir" name="vbo" tool_tip="Modern donanımlarda bunun etkinleştirilmesi performans artışı sağlar.  Ancak, eski donanımlardaki VBO uygulamaları yetersizdir ve etkinleştirildiğinde bilgisayarınız çökebilir."/>
 	<check_box initial_value="true" label="Doku Sıkıştırmasını Etkinleştir (yeniden başlatma gerektirir)" name="texture compression" tool_tip="Video bellekteki dokuları sıkıştırır, renk kalitesinde bazı kayıplar olmasına karşın daha yüksek çözünürlükte dokuların yüklenmesine imkan tanır."/>
+	<check_box initial_value="true" label="HiDPI görüntü desteğini etkinleştir (yeniden başlatma gerekir)" name="use HiDPI" tool_tip="Yüksek Çözünürlüklü Çizim için OpenGL&apos;yi etkinleştirin."/>
 	<text name="antialiasing label">
 		Antialiasing:
 	</text>

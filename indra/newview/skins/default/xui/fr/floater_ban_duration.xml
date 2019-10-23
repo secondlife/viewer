@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="ban_duration" title="Durée de l&apos;interdiction">
+	<text name="duration_textbox">
+		Durée de l&apos;interdiction :
+	</text>
+	<radio_group name="ban_duration_radio">
+		<radio_item label="Toujours" name="always_radio">
+			Toujours
+		</radio_item>
+		<radio_item label="Temporaire" name="temporary_radio">
+			Temporaire
+		</radio_item>
+	</radio_group>
+	<text name="hours_textbox">
+		heures
+	</text>
+	<button label="OK" name="ok_btn"/>
+	<button label="Annuler" name="cancel_btn"/>
+</floater>
