@@ -172,7 +172,7 @@ postAndSuspendSetup(const std::string& callerName,
                             std::make_exception_ptr(
                                 LLCoros::Stopping("status " + statsd.asString())));
                     }
-                    catch (const boost::fibers::promise_already_satisfied& exc)
+                    catch (const boost::fibers::promise_already_satisfied&)
                     {
                         LL_WARNS("lleventcoro") << listenerName
                                                 << " couldn't throw Stopping "
