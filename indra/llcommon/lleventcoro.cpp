@@ -153,7 +153,6 @@ postAndSuspendSetup(const std::string& callerName,
     // The relative order of the two listen() calls below would only matter if
     // "LLApp" were an LLEventMailDrop. But if we ever go there, we'd want to
     // notice the pending LLApp status first.
-    // Run this listener before the "final" listener.
     LLBoundListener stopper(
         LLEventPumps::instance().obtain("LLApp").listen(
             listenerName,
@@ -182,9 +181,7 @@ postAndSuspendSetup(const std::string& callerName,
                 }
                 // do not consume -- every listener must see status
                 return false;
-            },
-            LLEventPump::NameList{},            // after
-            LLEventPump::NameList{ "final "})); // before
+            }));
     LLBoundListener connection(
         replyPump.listen(
             listenerName,

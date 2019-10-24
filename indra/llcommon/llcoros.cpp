@@ -128,38 +128,6 @@ LLCoros::LLCoros():
     mStackSize(256*1024)
 #endif
 {
-    // Set up a listener to notice when the viewer is starting to shut down.
-    // Store the connection in an LLTempBoundListener so it will automatically
-    // disconnect.
-    mAppListener = LLEventPumps::instance().obtain("LLApp").listen(
-        "final",              // must be the LAST listener on this LLEventPump
-        [this](const LLSD& status)
-        {
-            if (status["status"].asString() == "quitting")
-            {
-                // Other LLApp status-change listeners do things like close
-                // work queues and inject the Stop exception into pending
-                // promises, to force coroutines waiting on those things to
-                // notice and terminate. The only problem is that by the time
-                // LLApp sets "quitting" status, the main loop has stopped
-                // pumping the fiber scheduler with yield() calls. A waiting
-                // coroutine still might not wake up until after resources on
-                // which it depends have been freed. Pump it a few times
-                // ourselves. Of course, stop pumping as soon as the last of
-                // the coroutines has terminated.
-                for (size_t count = 0; count < 10 && ! mCoros.empty(); ++count)
-                {
-                    // don't use llcoro::suspend() because that module depends
-                    // on this one
-                    boost::this_fiber::yield();
-                }
-            }
-            // If we're really the last listener, it shouldn't matter whether
-            // we consume this event -- but our being last depends on every
-            // other listen() call specifying before "final", which would be
-            // all too easy to forget. So do not consume the event.
-            return false;
-        });
 }
 
 LLCoros::~LLCoros()
