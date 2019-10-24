@@ -463,7 +463,8 @@ def get_outfit_spans(pd_data, cost_key="Avatars.Self.ARCCalculated"):
 
     std_props = ref_props + model_props + texture_props + tri_count_props + computed_props
     print "outfit std props", std_props
-    grouped = pd_data.groupby([outfit_key, cost_key, 'span_num'] + std_props)
+    group_keys = [outfit_key, cost_key, 'span_num'] + std_props
+    grouped = pd_data.groupby(group_keys)
     pd_filtered = grouped.filter(lambda x: x[time_key].sum() > 10.0 and len(x)>200)
     if args.verbose:
         print "Grouped has",len(grouped),"groups"
@@ -477,7 +478,22 @@ def get_outfit_spans(pd_data, cost_key="Avatars.Self.ARCCalculated"):
         times = group[time_key]
         duration = sum(times)
         if (num_frames) > 200 and (duration > 10.0):
+            kv = dict(zip(group_keys, name))
+            #print kv
+            group_label = kv[outfit_key]
+            differs = []
+            for k in tri_frac_props:
+                if kv[k] != group[k].iloc[0]:
+                    print "name ordering issue for", k
+                if group[k].iloc[0] != 0:
+                #print k
+                    differs.append(k.replace("_frac",""))
+            if len(differs):
+                group_label += "(" + ",".join(differs) + ")"
+            print "group_label", group_label
+        
             outfit_rec = {"outfit": name[0], 
+                          "group_label": group_label,
                           "cost": name[1],
                           "duration": duration,
                           "start_time": group['elapsed_time'].iloc[0],
@@ -518,6 +534,7 @@ def process_by_outfit(pd_data, cost_key="Avatars.Self.ARCCalculated", **kwargs):
 
     for index, outfit_span in outfit_spans.iterrows():
         outfit = outfit_span["outfit"]
+        group_label = outfit_span["group_label"]
         avg = outfit_span["avg"]
         arc = outfit_span["cost"]
         times = outfit_span["times"]
@@ -528,7 +545,7 @@ def process_by_outfit(pd_data, cost_key="Avatars.Self.ARCCalculated", **kwargs):
         errorbar_high = (np.percentile(times,75.0)-avg)
         errorbars_low.append(errorbar_low)
         errorbars_high.append(errorbar_high)
-        label = outfit + " cost " + abbrev_number(arc) + " frames " + str(num_frames)
+        label = group_label + " frames " + str(num_frames)
         labels.append(label)
         per_outfit_csv_filename = label.replace(" ","_").replace("*","") + ".csv"
         outfit_span["group"].to_csv(per_outfit_csv_filename)

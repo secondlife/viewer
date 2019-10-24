@@ -838,12 +838,16 @@ LLSD texture_as_llsd(const LLUUID& id)
 		texture_sd["width"] = (LLSD::Integer) texture->getFullWidth();
 		texture_sd["height"] = (LLSD::Integer) texture->getFullHeight();
 		texture_sd["format"] = (LLSD::Integer) texture->getPrimaryFormat();
+		texture_sd["components"] = (LLSD::Integer) texture->getComponents();
+		texture_sd["discard"] = (LLSD::Integer) texture->getDiscardLevel();
 	}
 	else
 	{
 		texture_sd["width"] = (LLSD::Integer) -1;
 		texture_sd["height"] = (LLSD::Integer) -1;
 		texture_sd["format"] = (LLSD::Integer) -1;
+		texture_sd["components"] = (LLSD::Integer) -1;
+		texture_sd["discard"] = (LLSD::Integer) -1;
 	}
 	return texture_sd;
 }

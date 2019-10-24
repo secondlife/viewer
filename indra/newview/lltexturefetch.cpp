@@ -1936,6 +1936,12 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				llassert_always(mRawImage.notNull());
 				LL_DEBUGS(LOG_TXT) << mID << ": Decoded. Discard: " << mDecodedDiscard
 								   << " Raw Image: " << llformat("%dx%d",mRawImage->getWidth(),mRawImage->getHeight()) << LL_ENDL;
+				U32 pixels = mRawImage->getWidth() * mRawImage->getHeight();
+				if (pixels > 0 && mDecodedDiscard==0)
+				{
+
+					LL_DEBUGS(LOG_TXT) << "csv-me " << mID << "," << mRawImage->getWidth() << "," << mRawImage->getHeight() << "," << (S32) mRawImage->getComponents() << "," << 1.0*mRawImage->getDataSize()/pixels << LL_ENDL;
+				}
 				setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 				setState(WRITE_TO_CACHE);
 			}
