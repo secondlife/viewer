@@ -34,6 +34,7 @@
 #include <boost/fiber/future/promise.hpp>
 #include <boost/fiber/future/future.hpp>
 #include "llsingleton.h"
+#include "llevents.h"
 #include <boost/ptr_container/ptr_map.hpp>
 #include <boost/function.hpp>
 #include <string>
@@ -283,6 +284,8 @@ private:
     };
     typedef boost::ptr_map<std::string, CoroData> CoroMap;
     CoroMap mCoros;
+
+    LLTempBoundListener mAppListener;
 
     // Identify the current coroutine's CoroData. This local_ptr isn't static
     // because it's a member of an LLSingleton, and we rely on it being

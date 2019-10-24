@@ -218,8 +218,9 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
     mHTTPPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
     mCoroMapping()
 {
-    // store in our LLTempBoundListener so that when the LLCoprocedurePool is
-    // destroyed, we implicitly disconnect from this LLEventPump
+    // Store in our LLTempBoundListener so that when the LLCoprocedurePool is
+    // destroyed, we implicitly disconnect from this LLEventPump.
+    // Run this listener before the "final" listener.
     mStatusListener = LLEventPumps::instance().obtain("LLApp").listen(
         poolName,
         [this, poolName](const LLSD& status)
@@ -235,7 +236,9 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
                 mPendingCoprocs.close();
             }
             return false;
-        });
+        },
+        LLEventPump::NameList{},           // after
+        LLEventPump::NameList{ "final "}); // before
 
     for (size_t count = 0; count < mPoolSize; ++count)
     {
