@@ -390,7 +390,7 @@ void LLVivoxVoiceClient::init(LLPumpIO *pump)
 	// constructor will set up LLVoiceClient::getInstance()
 	LLVivoxVoiceClient::getInstance()->mPump = pump;
 
-//     LLCoros::instance().launch("LLVivoxVoiceClient::voiceControlCoro();",
+//     LLCoros::instance().launch("LLVivoxVoiceClient::voiceControlCoro",
 //         boost::bind(&LLVivoxVoiceClient::voiceControlCoro, LLVivoxVoiceClient::getInstance()));
 
 }
@@ -2537,7 +2537,7 @@ void LLVivoxVoiceClient::tuningStart()
     mTuningMode = true;
     if (!mIsCoroutineActive)
     {
-        LLCoros::instance().launch("LLVivoxVoiceClient::voiceControlCoro();",
+        LLCoros::instance().launch("LLVivoxVoiceClient::voiceControlCoro",
             boost::bind(&LLVivoxVoiceClient::voiceControlCoro, LLVivoxVoiceClient::getInstance()));
     }
     else if (mIsInChannel)
@@ -5132,7 +5132,7 @@ void LLVivoxVoiceClient::setVoiceEnabled(bool enabled)
 
             if (!mIsCoroutineActive)
             {
-                LLCoros::instance().launch("LLVivoxVoiceClient::voiceControlCoro();",
+                LLCoros::instance().launch("LLVivoxVoiceClient::voiceControlCoro",
                     boost::bind(&LLVivoxVoiceClient::voiceControlCoro, LLVivoxVoiceClient::getInstance()));
             }
             else

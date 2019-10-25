@@ -34,7 +34,7 @@
 #include <boost/fiber/future/promise.hpp>
 #include <boost/fiber/future/future.hpp>
 #include "llsingleton.h"
-#include <boost/ptr_container/ptr_map.hpp>
+#include "llinstancetracker.h"
 #include <boost/function.hpp>
 #include <string>
 
@@ -269,7 +269,7 @@ private:
     S32 mStackSize;
 
     // coroutine-local storage, as it were: one per coro we track
-    struct CoroData
+    struct CoroData: public LLInstanceTracker<CoroData, std::string>
     {
         CoroData(const std::string& name);
 
@@ -281,18 +281,11 @@ private:
         std::string mStatus;
         F64 mCreationTime; // since epoch
     };
-    typedef boost::ptr_map<std::string, CoroData> CoroMap;
-    CoroMap mCoros;
 
     // Identify the current coroutine's CoroData. This local_ptr isn't static
     // because it's a member of an LLSingleton, and we rely on it being
     // cleaned up in proper dependency order.
-    // As each coroutine terminates, use our custom cleanup function to remove
-    // the corresponding entry from mCoros.
-    local_ptr<CoroData> mCurrent{delete_CoroData};
-
-    // Cleanup function for each fiber's instance of mCurrent.
-    static void delete_CoroData(CoroData* cdptr);
+    local_ptr<CoroData> mCurrent;
 };
 
 namespace llcoro
