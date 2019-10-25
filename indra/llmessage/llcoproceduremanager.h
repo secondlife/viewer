@@ -32,6 +32,7 @@
 #include "llcoros.h"
 #include "llcorehttputil.h"
 #include "lluuid.h"
+#include <boost/smart_ptr/shared_ptr.hpp>
 
 class LLCoprocedurePool;
 
