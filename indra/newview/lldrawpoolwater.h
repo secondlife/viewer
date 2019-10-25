@@ -63,7 +63,6 @@ public:
 	LLDrawPoolWater();
 	/*virtual*/ ~LLDrawPoolWater();
 
-	/*virtual*/ LLDrawPool *instancePool();
 	static void restoreGL();
 	
 	/*virtual*/ S32 getNumPostDeferredPasses() { return 0; } //getNumPasses(); }

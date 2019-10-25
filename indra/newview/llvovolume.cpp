@@ -4850,6 +4850,10 @@ U32 LLVOVolume::getPartitionType() const
 	{
 		return LLViewerRegion::PARTITION_HUD;
 	}
+	if (isAnimatedObject() && getControlAvatar())
+	{
+		return LLViewerRegion::PARTITION_CONTROL_AV;
+	}
 
 	return LLViewerRegion::PARTITION_VOLUME;
 }
@@ -4878,6 +4882,13 @@ LLVolumeGeometryManager()
 	mBufferUsage = GL_DYNAMIC_DRAW_ARB;
 
 	mSlopRatio = 0.25f;
+}
+
+LLControlAVBridge::LLControlAVBridge(LLDrawable* drawablep, LLViewerRegion* regionp)
+	: LLVolumeBridge(drawablep, regionp)
+{
+	mDrawableType = LLPipeline::RENDER_TYPE_CONTROL_AV;
+	mPartitionType = LLViewerRegion::PARTITION_CONTROL_AV;
 }
 
 bool can_batch_texture(LLFace* facep)
@@ -5224,7 +5235,8 @@ static LLDrawPoolAvatar* get_avatar_drawpool(LLViewerObject* vobj)
 				LLDrawPool* drawpool = face->getPool();
 				if (drawpool)
 				{
-					if (drawpool->getType() == LLDrawPool::POOL_AVATAR)
+					if (drawpool->getType() == LLDrawPool::POOL_AVATAR
+						|| drawpool->getType() == LLDrawPool::POOL_CONTROL_AV)
 					{
 						return (LLDrawPoolAvatar*) drawpool;
 					}
@@ -5503,7 +5515,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 						//remove face from old pool if it exists
 						LLDrawPool* old_pool = facep->getPool();
-						if (old_pool && old_pool->getType() == LLDrawPool::POOL_AVATAR)
+						if (old_pool
+							&& (old_pool->getType() == LLDrawPool::POOL_AVATAR || old_pool->getType() == LLDrawPool::POOL_CONTROL_AV))
 						{
 							((LLDrawPoolAvatar*) old_pool)->removeRiggedFace(facep);
 						}

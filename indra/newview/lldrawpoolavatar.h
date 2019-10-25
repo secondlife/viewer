@@ -177,11 +177,9 @@ typedef enum
 
 	virtual S32 getVertexShaderLevel() const;
 
-	LLDrawPoolAvatar();
+	LLDrawPoolAvatar(U32 type);
 
 	static LLMatrix4& getModelView();
-
-	/*virtual*/ LLDrawPool *instancePool();
 
 	/*virtual*/ S32  getNumPasses();
 	/*virtual*/ void beginRenderPass(S32 pass);

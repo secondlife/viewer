@@ -607,6 +607,7 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mImpl->mObjectPartition.push_back(new LLGrassPartition(this));		//PARTITION_GRASS
 	mImpl->mObjectPartition.push_back(new LLVolumePartition(this));	//PARTITION_VOLUME
 	mImpl->mObjectPartition.push_back(new LLBridgePartition(this));	//PARTITION_BRIDGE
+	mImpl->mObjectPartition.push_back(new LLControlAVPartition(this));	//PARTITION_CONTROL_AV
 	mImpl->mObjectPartition.push_back(new LLHUDParticlePartition(this));//PARTITION_HUD_PARTICLE
 	mImpl->mObjectPartition.push_back(new LLVOCachePartition(this)); //PARTITION_VO_CACHE
 	mImpl->mObjectPartition.push_back(NULL);					//PARTITION_NONE

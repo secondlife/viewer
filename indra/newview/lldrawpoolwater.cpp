@@ -96,13 +96,6 @@ void LLDrawPoolWater::restoreGL()
 	
 }
 
-LLDrawPool *LLDrawPoolWater::instancePool()
-{
-	LL_ERRS() << "Should never be calling instancePool on a water pool!" << LL_ENDL;
-	return NULL;
-}
-
-
 void LLDrawPoolWater::prerender()
 {
 	mVertexShaderLevel = (gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps) ?

@@ -48,11 +48,6 @@ LLDrawPoolSky::LLDrawPoolSky()
 {
 }
 
-LLDrawPool *LLDrawPoolSky::instancePool()
-{
-	return new LLDrawPoolSky();
-}
-
 void LLDrawPoolSky::prerender()
 {
 	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT); 

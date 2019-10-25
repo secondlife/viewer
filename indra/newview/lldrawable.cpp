@@ -1178,11 +1178,23 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
 	}
 	else if (isRoot())
 	{
-		if (mSpatialBridge && (mSpatialBridge->asPartition()->mPartitionType == LLViewerRegion::PARTITION_HUD) != mVObjp->isHUDAttachment())
+		if (mSpatialBridge)
 		{
-			// remove obsolete bridge
-			mSpatialBridge->markDead();
-			setSpatialBridge(NULL);
+			U32 partition_type = mSpatialBridge->asPartition()->mPartitionType;
+			if ((partition_type == LLViewerRegion::PARTITION_HUD) != mVObjp->isHUDAttachment())
+			{
+				// Was/became HUD
+				// remove obsolete bridge
+				mSpatialBridge->markDead();
+				setSpatialBridge(NULL);
+			}
+			else if ((partition_type == LLViewerRegion::PARTITION_CONTROL_AV) != (mVObjp->isAnimatedObject() && mVObjp->getControlAvatar() != NULL))
+			{
+				// Was/became part of animesh
+				// remove obsolete bridge
+				mSpatialBridge->markDead();
+				setSpatialBridge(NULL);
+			}
 		}
 		//must be an active volume
 		if (!mSpatialBridge)
@@ -1190,6 +1202,10 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
 			if (mVObjp->isHUDAttachment())
 			{
 				setSpatialBridge(new LLHUDBridge(this, getRegion()));
+			}
+			else if (mVObjp->isAnimatedObject() && mVObjp->getControlAvatar())
+			{
+				setSpatialBridge(new LLControlAVBridge(this, getRegion()));
 			}
 			else
 			{
@@ -1702,6 +1718,13 @@ LLBridgePartition::LLBridgePartition(LLViewerRegion* regionp)
 	mPartitionType = LLViewerRegion::PARTITION_BRIDGE;
 	mLODPeriod = 16;
 	mSlopRatio = 0.25f;
+}
+
+LLControlAVPartition::LLControlAVPartition(LLViewerRegion* regionp)
+	: LLBridgePartition(regionp)
+{
+	mDrawableType = LLPipeline::RENDER_TYPE_CONTROL_AV;
+	mPartitionType = LLViewerRegion::PARTITION_CONTROL_AV;
 }
 
 LLHUDBridge::LLHUDBridge(LLDrawable* drawablep, LLViewerRegion* regionp)
