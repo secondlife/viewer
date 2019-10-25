@@ -822,6 +822,7 @@ protected:
 	BOOL			mOnActiveList;
 	BOOL			mOnMap;						// On the map.
 	BOOL			mStatic;					// Object doesn't move.
+	S32				mSeatCount;
 	S32				mNumFaces;
 
 	F32				mRotTime;					// Amount (in seconds) that object has rotated according to angular velocity (llSetTargetOmega)

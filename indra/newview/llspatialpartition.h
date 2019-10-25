@@ -685,6 +685,12 @@ public:
 	virtual void addGeometryCount(LLSpatialGroup* group, U32 &vertex_count, U32& index_count) { LLVolumeGeometryManager::addGeometryCount(group, vertex_count, index_count); }
 };
 
+class LLAvatarBridge : public LLVolumeBridge
+{
+public:
+	LLAvatarBridge(LLDrawable* drawablep, LLViewerRegion* regionp);
+};
+
 class LLControlAVBridge : public LLVolumeBridge
 {
 public:
@@ -706,6 +712,12 @@ public:
 	LLBridgePartition(LLViewerRegion* regionp);
 	virtual void getGeometry(LLSpatialGroup* group) { }
 	virtual void addGeometryCount(LLSpatialGroup* group, U32 &vertex_count, U32& index_count) {  }
+};
+
+class LLAvatarPartition : public LLBridgePartition
+{
+public:
+	LLAvatarPartition(LLViewerRegion* regionp);
 };
 
 class LLControlAVPartition : public LLBridgePartition
