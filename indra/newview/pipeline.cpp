@@ -1,4 +1,4 @@
-﻿/** 
+/** 
  * @file pipeline.cpp
  * @brief Rendering pipeline.
  *
@@ -2396,7 +2396,7 @@ bool LLPipeline::getVisibleExtents(LLCamera& camera, LLVector3& min, LLVector3& 
 
 static LLTrace::BlockTimerStatHandle FTM_CULL("Object Culling");
 
-void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_clip, LLPlane* planep, bool hud_attachments)
+void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_clip, LLPlane* planep)
 {
 	static LLCachedControl<bool> use_occlusion(gSavedSettings,"UseOcclusion");
 	static bool can_use_occlusion = LLGLSLShader::sNoFixedFunction
@@ -2514,9 +2514,9 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 			LLSpatialPartition* part = region->getSpatialPartition(i);
 			if (part)
 			{
-				if (!hud_attachments ? LLViewerRegion::PARTITION_BRIDGE == i || hasRenderType(part->mDrawableType) : hasRenderType(part->mDrawableType))
+				if (hasRenderType(part->mDrawableType))
 				{
-				    part->cull(camera);
+					part->cull(camera);
 				}
 			}
 		}
