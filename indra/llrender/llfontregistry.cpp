@@ -721,6 +721,17 @@ void LLFontRegistry::dump()
 	}
 }
 
+void LLFontRegistry::dumpTextures()
+{
+	for (const auto& fontEntry : mFontMap)
+	{
+		if (fontEntry.second)
+		{
+			fontEntry.second->dumpTextures();
+		}
+	}
+}
+
 const string_vec_t& LLFontRegistry::getUltimateFallbackList() const 
 { 
 	return mUltimateFallbackList;

@@ -94,6 +94,7 @@ public:
 	bool nameToSize(const std::string& size_name, F32& size);
 
 	void dump();
+	void dumpTextures();
 	
 	const string_vec_t& getUltimateFallbackList() const;
 

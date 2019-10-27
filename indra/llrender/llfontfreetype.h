@@ -143,6 +143,7 @@ public:
 
 	const std::string& getName() const;
 
+	void       dumpFontBitmaps() const;
 	const LLFontBitmapCache* getFontBitmapCache() const;
 
 	void setStyle(U8 style);

@@ -3195,6 +3195,18 @@
              parameter="https://cryptic-ridge-1632.herokuapp.com/"/>
           </menu_item_call>
           <menu_item_call
+           label="Dump Fonts"
+           name="Dump Fonts">
+            <menu_item_call.on_click
+             function="Develop.Fonts.Dump" />
+          </menu_item_call>
+          <menu_item_call
+           label="Dump Font Textures"
+           name="Dump Font Textures">
+            <menu_item_call.on_click
+             function="Develop.Fonts.DumpTextures" />
+          </menu_item_call>
+          <menu_item_call
              label="Dump SelectMgr"
              name="Dump SelectMgr">
                 <menu_item_call.on_click

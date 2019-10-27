@@ -53,6 +53,7 @@ public:
  	LLImageGL *getImageGL(U32 bitmapNum = 0) const;
 	
 	S32 getMaxCharWidth() const { return mMaxCharWidth; }
+	S32 getNumBitmaps() const { return mImageRawVec.size(); }
 	S32 getNumComponents() const { return mNumComponents; }
 	S32 getBitmapWidth() const { return mBitmapWidth; }
 	S32 getBitmapHeight() const { return mBitmapHeight; }

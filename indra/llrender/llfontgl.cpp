@@ -831,6 +831,26 @@ void LLFontGL::initClass(F32 screen_dpi, F32 x_scale, F32 y_scale, const std::st
 	}
 }
 
+void LLFontGL::dumpTextures()
+{
+	if (mFontFreetype.notNull())
+	{
+		mFontFreetype->dumpFontBitmaps();
+	}
+}
+
+// static
+void LLFontGL::dumpFonts()
+{
+	sFontRegistry->dump();
+}
+
+// static
+void LLFontGL::dumpFontTextures()
+{
+	sFontRegistry->dumpTextures();
+}
+
 // Force standard fonts to get generated up front.
 // This is primarily for error detection purposes.
 // Don't do this during initClass because it can be slow and we want to get

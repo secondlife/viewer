@@ -40,8 +40,10 @@
 #include FT_FREETYPE_H
 #endif
 
+#include "lldir.h"
 #include "llerror.h"
 #include "llimage.h"
+#include "llimagepng.h"
 //#include "llimagej2c.h"
 #include "llmath.h"	// Linden math
 #include "llstring.h"
@@ -655,6 +657,37 @@ void LLFontFreetype::destroyGL()
 const std::string &LLFontFreetype::getName() const
 {
 	return mName;
+}
+
+static void dumpFontBitmap(const LLImageRaw* image_raw, const std::string& file_name)
+{
+	LLPointer<LLImagePNG> tmpImage = new LLImagePNG();
+	if ( (tmpImage->encode(image_raw, 0.0f)) && (tmpImage->save(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, file_name))) )
+	{
+		LL_INFOS("Font") << "Successfully saved " << file_name << LL_ENDL;
+	}
+	else
+	{
+		LL_WARNS("Font") << "Failed to save " << file_name << LL_ENDL;
+	}
+}
+
+void LLFontFreetype::dumpFontBitmaps() const
+{
+	// Dump all the regular bitmaps
+	for (int idx = 0, cnt = mFontBitmapCachep->getNumBitmaps(); idx < cnt; idx++)
+	{
+		dumpFontBitmap(mFontBitmapCachep->getImageRaw(idx), llformat("%s_%d_%d_%d.png", mFTFace->family_name, (int)(mPointSize * 10), mStyle, idx));
+	}
+
+//	// Dump all the color bitmaps (if any)
+//	if (mFontColorBitmapCachep)
+//	{
+//		for (int idxBitmap = 0, cntBitmap = mFontColorBitmapCachep->getNumBitmaps(); idxBitmap < cntBitmap; idxBitmap++)
+//		{
+//			dumpFontBitmap(mFontColorBitmapCachep->getImageRaw(idxBitmap), llformat("%s_%d_%d_clr_%d.png", mFTFace->family_name, (int)mPointSize, mStyle, idxBitmap));
+//		}
+//	}
 }
 
 const LLFontBitmapCache* LLFontFreetype::getFontBitmapCache() const

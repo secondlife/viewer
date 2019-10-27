@@ -168,6 +168,32 @@
       <menu_item_separator />
       <menu
        create_jump_keys="true"
+       label="Fonts"
+       name="Fonts"
+       tear_off="true">
+        <menu_item_call
+         label="Show Font Test"
+         name="Show Font Test">
+          <menu_item_call.on_click
+           function="Floater.Show"
+           parameter="font_test" />
+        </menu_item_call>
+        <menu_item_separator />
+        <menu_item_call
+         label="Dump Fonts"
+         name="Dump Fonts">
+          <menu_item_call.on_click
+           function="Develop.Fonts.Dump" />
+        </menu_item_call>
+        <menu_item_call
+         label="Dump Font Textures"
+         name="Dump Font Textures">
+          <menu_item_call.on_click
+           function="Develop.Fonts.DumpTextures" />
+        </menu_item_call>
+      </menu>
+      <menu
+       create_jump_keys="true"
        label="UI Tests"
        name="UI Tests"
        tear_off="true">
