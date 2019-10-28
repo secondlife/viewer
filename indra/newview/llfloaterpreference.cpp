@@ -285,7 +285,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.ResetCache",				boost::bind(&LLFloaterPreference::onClickResetCache, this));
 	mCommitCallbackRegistrar.add("Pref.ClickSkin",				boost::bind(&LLFloaterPreference::onClickSkin, this,_1, _2));
 	mCommitCallbackRegistrar.add("Pref.SelectSkin",				boost::bind(&LLFloaterPreference::onSelectSkin, this));
-	mCommitCallbackRegistrar.add("Pref.VoiceSetMiddleMouse",	boost::bind(&LLFloaterPreference::onClickSetMiddleMouse, this));
 	mCommitCallbackRegistrar.add("Pref.SetSounds",				boost::bind(&LLFloaterPreference::onClickSetSounds, this));
 	mCommitCallbackRegistrar.add("Pref.ClickEnablePopup",		boost::bind(&LLFloaterPreference::onClickEnablePopup, this));
 	mCommitCallbackRegistrar.add("Pref.ClickDisablePopup",		boost::bind(&LLFloaterPreference::onClickDisablePopup, this));	
@@ -1571,21 +1570,6 @@ void LLFloaterPreference::onChangeQuality(const LLSD& data)
 	refresh();
 }
 
-void LLFloaterPreference::onClickSetMiddleMouse()
-{
-	LLUICtrl* p2t_line_editor = getChild<LLUICtrl>("modifier_combo");
-
-	// update the control right away since we no longer wait for apply
-	p2t_line_editor->setControlValue(MIDDLE_MOUSE_CV);
-
-	//push2talk button "middle mouse" control value is in English, need to localize it for presentation
-	LLPanel* advanced_preferences = dynamic_cast<LLPanel*>(p2t_line_editor->getParent());
-	if (advanced_preferences)
-	{
-		p2t_line_editor->setValue(advanced_preferences->getString("middle_mouse"));
-	}
-}
-
 void LLFloaterPreference::onClickSetSounds()
 {
 	// Disable Enable gesture sounds checkbox if the master sound is disabled 
@@ -2270,25 +2254,6 @@ BOOL LLPanelPreference::postBuild()
 		getChild<LLTextBox>("mute_chb_label")->setShowCursorHand(false);
 		getChild<LLTextBox>("mute_chb_label")->setSoundFlags(LLView::MOUSE_UP);
 		getChild<LLTextBox>("mute_chb_label")->setClickedCallback(boost::bind(&toggleMuteWhenMinimized));
-	}
-
-	//////////////////////PanelAdvanced ///////////////////
-	if (hasChild("modifier_combo", TRUE))
-	{
-		//localizing if push2talk button is set to middle mouse
-		std::string modifier_value = getChild<LLUICtrl>("modifier_combo")->getValue().asString();
-		if (MIDDLE_MOUSE_CV == modifier_value)
-		{
-			getChild<LLUICtrl>("modifier_combo")->setValue(getString("middle_mouse"));
-		}
-		else if (MOUSE_BUTTON_4_CV == modifier_value)
-		{
-			getChild<LLUICtrl>("modifier_combo")->setValue(getString("button4_mouse"));
-		}
-		else if (MOUSE_BUTTON_5_CV == modifier_value)
-		{
-			getChild<LLUICtrl>("modifier_combo")->setValue(getString("button5_mouse"));
-		}
 	}
 
 	//////////////////////PanelSetup ///////////////////

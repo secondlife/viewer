@@ -143,7 +143,6 @@ public:
 	void onClickResetCache();
 	void onClickSkin(LLUICtrl* ctrl,const LLSD& userdata);
 	void onSelectSkin();
-	void onClickSetMiddleMouse();
 	void onClickSetSounds();
 	void onClickEnablePopup();
 	void onClickDisablePopup();	

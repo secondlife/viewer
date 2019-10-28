@@ -471,21 +471,6 @@
   tool_tip="When in toggle mode, press and release the trigger key ONCE to switch your microphone on or off. When not in toggle mode, the microphone broadcasts your voice only while the trigger is being held down."
   top_pad="3"/>
   <button
-     enabled_control="EnableVoiceChat"
-     follows="top|left"
-     halign="center"
-     height="23"
-     image_overlay="Refresh_Off"
-     layout="topleft"
-     tool_tip="Reset to Middle Mouse Button"
-     mouse_opaque="true"
-     name="set_voice_middlemouse_button"
-     left_pad="5"
-     width="25">
-    <button.commit_callback
-    function="Pref.VoiceSetMiddleMouse" />
-  </button>
-  <button
    control_name="ShowDeviceSettings"
    follows="left|top"
    height="23"
