@@ -98,6 +98,7 @@ public:
 	/*virtual*/ void setValue(const LLSD& value);
 	/*virtual*/ LLSD getValue() const;
 
+	virtual bool hasAccelerator(const KEY &key, const MASK &mask) const;
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 
 	LLColor4 getHighlightBgColor() { return mHighlightBackground.get(); }
@@ -443,7 +444,8 @@ public:
 	/*virtual*/ bool addChild(LLView* view, S32 tab_group = 0);
 	/*virtual*/ void removeChild( LLView* ctrl);
 	/*virtual*/ BOOL postBuild();
-
+	
+	virtual bool hasAccelerator(const KEY &key, const MASK &mask) const;
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 
 	LLMenuGL* findChildMenuByName(const std::string& name, BOOL recurse) const;
@@ -632,6 +634,7 @@ public:
 	
 	virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 
+	virtual bool hasAccelerator(const KEY &key, const MASK &mask) const;
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 
 	// check if we've used these accelerators already
@@ -791,8 +794,6 @@ public:
 	S32 getRightmostMenuEdge();
 
 	void resetMenuTrigger() { mAltKeyTrigger = FALSE; }
-
-	bool hasAccelerator(const KEY &key, const MASK &mask) const;
 
 private:
 	// add a menu - this will create a drop down menu.

@@ -213,6 +213,12 @@ LLSD LLMenuItemGL::getValue() const
 }
 
 //virtual
+bool LLMenuItemGL::hasAccelerator(const KEY &key, const MASK &mask) const
+{
+	return (mAcceleratorKey == key) && (mAcceleratorMask == mask);
+}
+
+//virtual
 BOOL LLMenuItemGL::handleAcceleratorKey(KEY key, MASK mask)
 {
 	if( getEnabled() && (!gKeyboard->getKeyRepeated(key) || mAllowKeyRepeat) && (key == mAcceleratorKey) && (mask == (mAcceleratorMask & MASK_NORMALKEYS)) )
@@ -1015,6 +1021,11 @@ BOOL LLMenuItemBranchGL::handleMouseUp(S32 x, S32 y, MASK mask)
 	onCommit();
 	make_ui_sound("UISndClickRelease");
 	return TRUE;
+}
+
+bool LLMenuItemBranchGL::hasAccelerator(const KEY &key, const MASK &mask) const
+{
+	return getBranch() && getBranch()->hasAccelerator(key, mask);
 }
 
 BOOL LLMenuItemBranchGL::handleAcceleratorKey(KEY key, MASK mask)
@@ -3001,6 +3012,27 @@ void LLMenuGL::updateParent(LLView* parentp)
 	}
 }
 
+bool LLMenuGL::hasAccelerator(const KEY &key, const MASK &mask) const
+{
+	if (key == KEY_NONE)
+	{
+		return false;
+	}
+	// Note: checking this way because mAccelerators seems to be broken
+	// mAccelerators probably needs to be cleaned up or fixed
+	// It was used for dupplicate accelerator avoidance.
+	item_list_t::const_iterator item_iter;
+	for (item_iter = mItems.begin(); item_iter != mItems.end(); ++item_iter)
+	{
+		LLMenuItemGL* itemp = *item_iter;
+		if (itemp->hasAccelerator(key, mask))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 BOOL LLMenuGL::handleAcceleratorKey(KEY key, MASK mask)
 {
 	// don't handle if not enabled
@@ -3512,27 +3544,6 @@ S32 LLMenuBarGL::getRightmostMenuEdge()
 		return 0;
 	}
 	return (*item_iter)->getRect().mRight;
-}
-
-bool LLMenuBarGL::hasAccelerator(const KEY &key, const MASK &mask) const
-{
-    if (key == KEY_NONE)
-    {
-        return false;
-    }
-
-    LLMenuKeyboardBinding *accelerator = NULL;
-    std::list<LLMenuKeyboardBinding*>::const_iterator list_it;
-    for (list_it = mAccelerators.begin(); list_it != mAccelerators.end(); ++list_it)
-    {
-        accelerator = *list_it;
-        if ((accelerator->mKey == key) && (accelerator->mMask == (mask & MASK_NORMALKEYS)))
-        {
-            return true;
-        }
-    }
-
-    return false;
 }
 
 // add a vertical separator to this menu

@@ -62,12 +62,16 @@ public:
     ~LLSetKeyBindDialog();
 
     /*virtual*/ BOOL postBuild();
+    /*virtual*/ void onOpen(const LLSD& data);
     /*virtual*/ void onClose(bool app_quiting);
     /*virtual*/ void draw();
 
     void setParent(LLKeyBindResponderInterface* parent, LLView* frustum_origin, U32 key_mask = DEFAULT_KEY_FILTER);
 
-    BOOL handleKeyHere(KEY key, MASK mask);
+    // Wrapper around recordAndHandleKey
+    // It does not record, it handles, but handleKey function is already in use
+    static bool recordKey(KEY key, MASK mask);
+
     BOOL handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down);
     static void onCancel(void* user_data);
     static void onBlank(void* user_data);
@@ -77,6 +81,7 @@ public:
     class Updater;
 
 private:
+    bool recordAndHandleKey(KEY key, MASK mask);
     void setKeyBind(EMouseClickType click, KEY key, MASK mask, bool ignore);
     LLKeyBindResponderInterface *pParent;
     LLCheckBoxCtrl *pCheckBox;
@@ -84,6 +89,8 @@ private:
 
     U32 mKeyFilterMask;
     Updater *pUpdater;
+
+    static bool sRecordKeys; // for convinience and not to check instance each time
 };
 
 
