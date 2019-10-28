@@ -53,6 +53,46 @@
 #include "llstl.h"
 #include "lltimer.h"
 
+#if LL_WINDOWS
+#define fhclose  _close
+#define fhdup    _dup
+#define fhdup2   _dup2
+#define fhfdopen _fdopen
+#define fhfileno _fileno
+#else
+#define fhclose  ::close
+#define fhdup    ::dup
+#define fhdup2   ::dup2
+#define fhfdopen ::fdopen
+#define fhfileno ::fileno
+#endif
+
+namespace LLError
+{
+
+	class SettingsConfig;
+	typedef LLPointer<SettingsConfig> SettingsConfigPtr;
+
+	class Settings : public LLSingleton<Settings>
+	{
+		LLSINGLETON(Settings);
+	public:
+		SettingsConfigPtr getSettingsConfig();
+		~Settings();
+
+		void reset();
+		SettingsStoragePtr saveAndReset();
+		void restore(SettingsStoragePtr pSettingsStorage);
+
+		int getDupStderr() const;
+
+	private:
+		SettingsConfigPtr mSettingsConfig;
+		int mDupStderr;
+	};
+
+} // namespace LLError
+
 namespace {
 #if LL_WINDOWS
 	void debugger_print(const std::string& s)
@@ -120,7 +160,8 @@ namespace {
 	public:
 		RecordToFile(const std::string& filename):
 			mName(filename),
-			mFile(LLFile::fopen(filename, "a"))
+			mFile(LLFile::fopen(filename, "a")),
+			mSavedStderr(LLError::Settings::instance().getDupStderr())
 		{
 			if (!mFile)
 			{
@@ -128,25 +169,19 @@ namespace {
 			}
 			else
 			{
-#if LL_DARWIN || LL_LINUX
 				// We use a number of classic-C libraries, some of which write
 				// log output to stderr. The trouble with that is that unless
 				// you launch the viewer from a console, stderr output is
 				// lost. Redirect STDERR_FILENO to write into this log file.
-				// But first, save the original stream in case we want it later.
-				mSavedStderr = ::dup(STDERR_FILENO);
-				::dup2(::fileno(mFile), STDERR_FILENO);
-#endif
+				fhdup2(fhfileno(mFile), fhfileno(stderr));
 			}
 		}
 
 		~RecordToFile()
 		{
-#if LL_DARWIN || LL_LINUX
 			// restore stderr to its original fileno so any subsequent output
 			// to stderr goes to original stream
-			::dup2(mSavedStderr, STDERR_FILENO);
-#endif
+			fhdup2(mSavedStderr, fhfileno(stderr));
 			mFile.close();
 		}
 
@@ -166,7 +201,8 @@ namespace {
 		virtual void recordMessage(LLError::ELevel level,
 									const std::string& message) override
 		{
-			fwrite(message.c_str(), sizeof(char), message.length(), mFile);
+			::fwrite(message.c_str(), sizeof(char), message.length(), mFile);
+			::fputc('\n', mFile);
 			if (LLError::getAlwaysFlush())
 			{
 				::fflush(mFile);
@@ -176,22 +212,26 @@ namespace {
 	private:
 		const std::string mName;
 		LLUniqueFile mFile;
-		int mSavedStderr{0};
+		int mSavedStderr;
 	};
 
 
 	class RecordToStderr : public LLError::Recorder
 	{
 	public:
-		RecordToStderr(bool timestamp) : mUseANSI(checkANSI()) 
+		RecordToStderr(bool timestamp) :
+			mUseANSI(checkANSI()),
+			// use duplicate stderr file handle so THIS output isn't affected
+			// by our internal redirection of all (other) stderr output
+			mStderr(fhfdopen(LLError::Settings::instance().getDupStderr(), "a"))
 		{
-            this->showMultiline(true);
+			this->showMultiline(true);
 		}
-		
-        virtual bool enabled() override
-        {
-            return LLError::getEnabledLogTypesMask() & 0x04;
-        }
+
+		virtual bool enabled() override
+		{
+			return LLError::getEnabledLogTypesMask() & 0x04;
+		}
         
 		virtual void recordMessage(LLError::ELevel level,
 					   const std::string& message) override
@@ -214,17 +254,18 @@ namespace {
 					break;
 				}
 			}
-			fprintf(stderr, "%s\n", message.c_str());
+			fprintf(mStderr, "%s\n", message.c_str());
 			if (mUseANSI) colorANSI("0"); // reset
 		}
-	
+
 	private:
 		bool mUseANSI;
+		LLFILE* mStderr;
 
 		void colorANSI(const std::string color)
 		{
 			// ANSI color code escape sequence
-			fprintf(stderr, "\033[%sm", color.c_str() );
+			fprintf(mStderr, "\033[%sm", color.c_str() );
 		};
 
 		static bool checkANSI(void)
@@ -233,7 +274,7 @@ namespace {
 			// Check whether it's okay to use ANSI; if stderr is
 			// a tty then we assume yes.  Can be turned off with
 			// the LL_NO_ANSI_COLOR env var.
-			return (0 != isatty(2)) &&
+			return (0 != isatty(fhfileno(stderr))) &&
 				(NULL == getenv("LL_NO_ANSI_COLOR"));
 #endif // LL_LINUX
 			return false;
@@ -504,22 +545,6 @@ namespace LLError
 		SettingsConfig();
 	};
 
-	typedef LLPointer<SettingsConfig> SettingsConfigPtr;
-
-	class Settings : public LLSingleton<Settings>
-	{
-		LLSINGLETON(Settings);
-	public:
-		SettingsConfigPtr getSettingsConfig();
-
-		void reset();
-		SettingsStoragePtr saveAndReset();
-		void restore(SettingsStoragePtr pSettingsStorage);
-		
-	private:
-		SettingsConfigPtr mSettingsConfig;
-	};
-
 	SettingsConfig::SettingsConfig()
 		: LLRefCount(),
 		mDefaultLevel(LLError::LEVEL_DEBUG),
@@ -543,8 +568,18 @@ namespace LLError
 	}
 
 	Settings::Settings():
-		mSettingsConfig(new SettingsConfig())
+		mSettingsConfig(new SettingsConfig()),
+		// duplicate stderr file handle right away
+		mDupStderr(fhdup(fhfileno(stderr)))
 	{
+	}
+
+	Settings::~Settings()
+	{
+		// restore original stderr
+		fhdup2(mDupStderr, fhfileno(stderr));
+		// and close the duplicate
+		fhclose(mDupStderr);
 	}
 
 	SettingsConfigPtr Settings::getSettingsConfig()
@@ -570,6 +605,11 @@ namespace LLError
 		Globals::getInstance()->invalidateCallSites();
 		SettingsConfigPtr newSettingsConfig(dynamic_cast<SettingsConfig *>(pSettingsStorage.get()));
 		mSettingsConfig = newSettingsConfig;
+	}
+
+	int Settings::getDupStderr() const
+	{
+		return mDupStderr;
 	}
 
 	bool is_available()
