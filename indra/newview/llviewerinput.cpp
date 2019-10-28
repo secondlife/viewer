@@ -1311,7 +1311,7 @@ bool LLViewerInput::scanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level)
 {
 	if (LLApp::isExiting())
 	{
-		return;
+		return false;
 	}
 
 	S32 mode = getMode();
