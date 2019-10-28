@@ -28,11 +28,10 @@
 
 #include "llsetkeybinddialog.h"
 
-//#include "llkeyboard.h"
-
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "lleventtimer.h"
+#include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "llkeyconflict.h"
 
@@ -65,6 +64,8 @@ private:
     callback_t mCallback;
 };
 
+bool LLSetKeyBindDialog::sRecordKeys = false;
+
 LLSetKeyBindDialog::LLSetKeyBindDialog(const LLSD& key)
     : LLModalDialog(key),
     pParent(NULL),
@@ -94,8 +95,16 @@ BOOL LLSetKeyBindDialog::postBuild()
 }
 
 //virtual
+void LLSetKeyBindDialog::onOpen(const LLSD& data)
+{
+     sRecordKeys = true;
+     LLModalDialog::onOpen(data);
+}
+
+//virtual
 void LLSetKeyBindDialog::onClose(bool app_quiting)
 {
+    sRecordKeys = false;
     if (pParent)
     {
         pParent->onCancelKeyBind();
@@ -145,20 +154,41 @@ void LLSetKeyBindDialog::setParent(LLKeyBindResponderInterface* parent, LLView* 
     pCheckBox->setValue(false);
 }
 
-BOOL LLSetKeyBindDialog::handleKeyHere(KEY key, MASK mask)
+// static
+bool LLSetKeyBindDialog::recordKey(KEY key, MASK mask)
+{
+    if (sRecordKeys)
+    {
+        LLSetKeyBindDialog* dialog = LLFloaterReg::getTypedInstance<LLSetKeyBindDialog>("keybind_dialog", LLSD());
+        if (dialog && dialog->getVisible())
+        {
+            return dialog->recordAndHandleKey(key, mask);
+        }
+        else
+        {
+            LL_WARNS() << "Key recording was set despite no open dialog" << LL_ENDL;
+            sRecordKeys = false;
+        }
+    }
+    return false;
+}
+
+bool LLSetKeyBindDialog::recordAndHandleKey(KEY key, MASK mask)
 {
     if ((key == 'Q' && mask == MASK_CONTROL)
         || key == KEY_ESCAPE)
     {
+        sRecordKeys = false;
         closeFloater();
-        return TRUE;
+        return true;
     }
 
     if (key == KEY_DELETE)
     {
         setKeyBind(CLICK_NONE, KEY_NONE, MASK_NONE, false);
+        sRecordKeys = false;
         closeFloater();
-        return FALSE;
+        return false;
     }
 
     // forbidden keys
@@ -166,36 +196,37 @@ BOOL LLSetKeyBindDialog::handleKeyHere(KEY key, MASK mask)
         || key == KEY_RETURN
         || key == KEY_BACKSPACE)
     {
-        return FALSE;
+        return false;
     }
 
     if ((mKeyFilterMask & ALLOW_MASKS) == 0
         && (key == KEY_CONTROL || key == KEY_SHIFT || key == KEY_ALT))
     {
         // mask by themself are not allowed
-        return FALSE;
+        return false;
     }
     else if ((mKeyFilterMask & ALLOW_KEYS) == 0)
     {
         // basic keys not allowed
-        return FALSE;
+        return false;
     }
     else if ((mKeyFilterMask & ALLOW_MASK_KEYS) == 0 && mask != 0)
     {
         // masked keys not allowed
-        return FALSE;
+        return false;
     }
 
     if (LLKeyConflictHandler::isReservedByMenu(key, mask))
     {
         pDesription->setText(getString("reserved_by_menu"));
         pDesription->setTextArg("[KEYSTR]", LLKeyboard::stringFromAccelerator(mask,key));
-        return TRUE;
+        return true;
     }
 
     setKeyBind(CLICK_NONE, key, mask, pCheckBox->getValue().asBoolean());
+    sRecordKeys = false;
     closeFloater();
-    return TRUE;
+    return true;
 }
 
 BOOL LLSetKeyBindDialog::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down)

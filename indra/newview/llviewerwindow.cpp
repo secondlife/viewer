@@ -45,6 +45,7 @@
 #include "llmeshrepository.h"
 #include "llnotificationhandler.h"
 #include "llpanellogin.h"
+#include "llsetkeybinddialog.h"
 #include "llviewerinput.h"
 #include "llviewermenu.h"
 
@@ -2729,6 +2730,14 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 {
 	// hide tooltips on keypress
 	LLToolTipMgr::instance().blockToolTips();
+
+    // let menus handle navigation keys for navigation
+    if (LLSetKeyBindDialog::recordKey(key, mask))
+    {
+        LL_DEBUGS() << "Key handled by LLSetKeyBindDialog" << LL_ENDL;
+        LLViewerEventRecorder::instance().logKeyEvent(key,mask);
+        return TRUE;
+    }
 
     LLFocusableElement* keyboard_focus = gFocusMgr.getKeyboardFocus();
 

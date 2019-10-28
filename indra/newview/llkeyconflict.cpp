@@ -174,17 +174,23 @@ bool LLKeyConflictHandler::canAssignControl(const std::string &control_name)
 // static
 bool LLKeyConflictHandler::isReservedByMenu(const KEY &key, const MASK &mask)
 {
-    return gMenuBarView->hasAccelerator(key, mask) || gLoginMenuBarView->hasAccelerator(key, mask);
+    if (key == KEY_NONE)
+    {
+        return false;
+    }
+    return (gMenuBarView && gMenuBarView->hasAccelerator(key, mask))
+           || (gLoginMenuBarView && gLoginMenuBarView->hasAccelerator(key, mask));
 }
 
 // static
 bool LLKeyConflictHandler::isReservedByMenu(const LLKeyData &data)
 {
-    if (data.mMouse != CLICK_NONE)
+    if (data.mMouse != CLICK_NONE || data.mKey == KEY_NONE)
     {
         return false;
     }
-    return gMenuBarView->hasAccelerator(data.mKey, data.mMask) || gLoginMenuBarView->hasAccelerator(data.mKey, data.mMask);
+    return (gMenuBarView && gMenuBarView->hasAccelerator(data.mKey, data.mMask))
+           || (gLoginMenuBarView && gLoginMenuBarView->hasAccelerator(data.mKey, data.mMask));
 }
 
 bool LLKeyConflictHandler::registerControl(const std::string &control_name, U32 index, EMouseClickType mouse, KEY key, MASK mask, bool ignore_mask)
