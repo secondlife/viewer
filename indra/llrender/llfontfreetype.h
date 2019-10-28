@@ -71,6 +71,7 @@ struct LLFontGlyphInfo
 	S32 mYBitmapOffset; // Offset to the origin in the bitmap
 	S32 mXBearing;	// Distance from baseline to left in pixels
 	S32 mYBearing;	// Distance from baseline to top in pixels
+	EFontGlyphType mBitmapType; // Specifies the bitmap type in the bitmap cache
 	S32 mBitmapNum; // Which bitmap in the bitmap cache contains this glyph
 };
 
@@ -84,7 +85,7 @@ public:
 
 	// is_fallback should be true for fallback fonts that aren't used
 	// to render directly (Unicode backup, primarily)
-	BOOL loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, S32 components, BOOL is_fallback, S32 face_n = 0);
+	BOOL loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, bool use_color, bool is_fallback, S32 face_n);
 
 	S32 getNumFaces(const std::string& filename);
 
@@ -152,10 +153,11 @@ public:
 private:
 	void resetBitmapCache();
 	void setSubImageLuminanceAlpha(U32 x, U32 y, U32 bitmap_num, U32 width, U32 height, U8 *data, S32 stride = 0) const;
+	bool setSubImageBGRA(U32 x, U32 y, U32 bitmap_num, U16 width, U16 height, const U8* data, U32 stride) const;
 	BOOL hasGlyph(llwchar wch) const;		// Has a glyph for this character
 	LLFontGlyphInfo* addGlyph(llwchar wch) const;		// Add a new character to the font if necessary
-	LLFontGlyphInfo* addGlyphFromFont(const LLFontFreetype *fontp, llwchar wch, U32 glyph_index) const;	// Add a glyph from this font to the other (returns the glyph_index, 0 if not found)
-	void renderGlyph(U32 glyph_index) const;
+	LLFontGlyphInfo* addGlyphFromFont(const LLFontFreetype *fontp, llwchar wch, U32 glyph_index, EFontGlyphType bitmap_type) const;	// Add a glyph from this font to the other (returns the glyph_index, 0 if not found)
+	void renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index) const;
 	void insertGlyphInfo(llwchar wch, LLFontGlyphInfo* gi) const;
 
 	std::string mName;

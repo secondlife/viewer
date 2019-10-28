@@ -87,7 +87,7 @@ public:
 
 	void destroyGL();
 
-	BOOL loadFace(const std::string& filename, F32 point_size, const F32 vert_dpi, const F32 horz_dpi, const S32 components, BOOL is_fallback, S32 face_n = 0);
+	BOOL loadFace(const std::string& filename, F32 point_size, const F32 vert_dpi, const F32 horz_dpi, bool use_color, bool is_fallback, S32 face_n);
 
 	S32 getNumFaces(const std::string& filename);
 

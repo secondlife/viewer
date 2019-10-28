@@ -30,6 +30,13 @@
 #include <vector>
 #include "lltrace.h"
 
+enum class EFontGlyphType : U32
+{
+	Grayscale = 0,
+	Color,
+	Count
+};
+
 // Maintain a collection of bitmaps containing rendered glyphs.
 // Generalizes the single-bitmap logic from LLFontFreetype and LLFontGL.
 class LLFontBitmapCache : public LLTrace::MemTrackable<LLFontBitmapCache>
@@ -39,36 +46,35 @@ public:
 	~LLFontBitmapCache();
 
 	// Need to call this once, before caching any glyphs.
- 	void init(S32 num_components,
-			  S32 max_char_width,
+ 	void init(S32 max_char_width,
 			  S32 max_char_height);
 
 	void reset();
 
-	BOOL nextOpenPos(S32 width, S32 &posX, S32 &posY, S32 &bitmapNum);
+	BOOL nextOpenPos(S32 width, S32& posX, S32& posY, EFontGlyphType bitmapType, U32& bitmapNum);
 	
 	void destroyGL();
 	
- 	LLImageRaw *getImageRaw(U32 bitmapNum = 0) const;
- 	LLImageGL *getImageGL(U32 bitmapNum = 0) const;
-	
+ 	LLImageRaw* getImageRaw(EFontGlyphType bitmapType, U32 bitmapNum) const;
+ 	LLImageGL* getImageGL(EFontGlyphType bitmapType, U32 bitmapNum) const;
+
 	S32 getMaxCharWidth() const { return mMaxCharWidth; }
-	S32 getNumBitmaps() const { return mImageRawVec.size(); }
-	S32 getNumComponents() const { return mNumComponents; }
+	U32 getNumBitmaps(EFontGlyphType bitmapType) const { return (bitmapType < EFontGlyphType::Count) ? mImageRawVec[static_cast<U32>(bitmapType)].size() : 0; }
 	S32 getBitmapWidth() const { return mBitmapWidth; }
 	S32 getBitmapHeight() const { return mBitmapHeight; }
 
+protected:
+	static U32 getNumComponents(EFontGlyphType bitmap_type);
+
 private:
-	S32 mNumComponents;
 	S32 mBitmapWidth;
 	S32 mBitmapHeight;
-	S32 mBitmapNum;
+	S32 mCurrentOffsetX[static_cast<U32>(EFontGlyphType::Count)];
+	S32 mCurrentOffsetY[static_cast<U32>(EFontGlyphType::Count)];
 	S32 mMaxCharWidth;
 	S32 mMaxCharHeight;
-	S32 mCurrentOffsetX;
-	S32 mCurrentOffsetY;
-	std::vector<LLPointer<LLImageRaw> >	mImageRawVec;
-	std::vector<LLPointer<LLImageGL> > mImageGLVec;
+	std::vector<LLPointer<LLImageRaw>> mImageRawVec[static_cast<U32>(EFontGlyphType::Count)];
+	std::vector<LLPointer<LLImageGL>> mImageGLVec[static_cast<U32>(EFontGlyphType::Count)];
 };
 
 #endif //LL_LLFONTBITMAPCACHE_H

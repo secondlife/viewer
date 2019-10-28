@@ -89,14 +89,14 @@ void LLFontGL::destroyGL()
 	mFontFreetype->destroyGL();
 }
 
-BOOL LLFontGL::loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, S32 components, BOOL is_fallback, S32 face_n)
+BOOL LLFontGL::loadFace(const std::string& filename, F32 point_size, const F32 vert_dpi, const F32 horz_dpi, bool use_color, bool is_fallback, S32 face_n)
 {
 	if(mFontFreetype == reinterpret_cast<LLFontFreetype*>(NULL))
 	{
 		mFontFreetype = new LLFontFreetype;
 	}
 
-	return mFontFreetype->loadFace(filename, point_size, vert_dpi, horz_dpi, components, is_fallback, face_n);
+	return mFontFreetype->loadFace(filename, point_size, vert_dpi, horz_dpi, use_color, is_fallback, face_n);
 }
 
 S32 LLFontGL::getNumFaces(const std::string& filename)
@@ -280,7 +280,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
 	LLColor4U text_color(color);
 
-	S32 bitmap_num = -1;
+	std::pair<EFontGlyphType, S32> bitmap_entry = std::make_pair(EFontGlyphType::Grayscale, -1);
 	S32 glyph_count = 0;
 	for (i = begin_offset; i < begin_offset + length; i++)
 	{
@@ -298,8 +298,8 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 			break;
 		}
 		// Per-glyph bitmap texture.
-		S32 next_bitmap_num = fgi->mBitmapNum;
-		if (next_bitmap_num != bitmap_num)
+		std::pair<EFontGlyphType, S32> next_bitmap_entry = std::make_pair(fgi->mBitmapType, fgi->mBitmapNum);
+		if (next_bitmap_entry != bitmap_entry)
 		{
 			// Actually draw the queued glyphs before switching their texture;
 			// otherwise the queued glyphs will be taken from wrong textures.
@@ -313,8 +313,8 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 				glyph_count = 0;
 			}
 
-			bitmap_num = next_bitmap_num;
-			LLImageGL *font_image = font_bitmap_cache->getImageGL(bitmap_num);
+			bitmap_entry = next_bitmap_entry;
+			LLImageGL* font_image = font_bitmap_cache->getImageGL(fgi->mBitmapType, bitmap_entry.second);
 			gGL.getTexUnit(0)->bind(font_image);
 		}
 	
@@ -347,7 +347,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 			glyph_count = 0;
 		}
 
-		drawGlyph(glyph_count, vertices, uvs, colors, screen_rect, uv_rect, text_color, style_to_add, shadow, drop_shadow_strength);
+		drawGlyph(glyph_count, vertices, uvs, colors, screen_rect, uv_rect, (fgi->mBitmapType == EFontGlyphType::Grayscale) ? text_color : LLColor4U::white, style_to_add, shadow, drop_shadow_strength);
 
 		chars_drawn++;
 		cur_x += fgi->mXAdvance;

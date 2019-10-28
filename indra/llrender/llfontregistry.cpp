@@ -495,7 +495,7 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 					fontp = new LLFontGL;
 				}
 				if (fontp->loadFace(*font_paths_it, point_size_scale,
-								 LLFontGL::sVertDPI, LLFontGL::sHorizDPI, 2, is_fallback, i))
+								 LLFontGL::sVertDPI, LLFontGL::sHorizDPI, true, is_fallback, i))
 				{
 					is_font_loaded = true;
 					if (is_first_found)
