@@ -352,13 +352,6 @@ bool idle_startup()
 	gIdleCallbacks.callFunctions();
 	gViewerWindow->updateUI();
 
-	// There is a crash on updateClass, this is an attempt to get more information
-	if (LLMortician::graveyardCount())
-	{
-		std::stringstream log_stream;
-		LLMortician::logClass(log_stream);
-		LL_INFOS() << log_stream.str() << LL_ENDL;
-	}
 	LLMortician::updateClass();
 
 	const std::string delims (" ");
