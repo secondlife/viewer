@@ -39,6 +39,8 @@
 #if !LL_WINDOWS
 # include <syslog.h>
 # include <unistd.h>
+#else
+# include <io.h>
 #endif // !LL_WINDOWS
 #include <vector>
 #include "string.h"
