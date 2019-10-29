@@ -262,8 +262,6 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 	}
 	else if(PRESETS_CAMERA == subdirectory)
 	{
-		gSavedSettings.setString("PresetGraphicActive", name);
-
 		name_list.clear();
 		getControlNames(name_list);
 		name_list.push_back("PresetCameraActive");
@@ -292,14 +290,17 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 		{
 			std::string ctrl_name = *it;
 			LLControlVariable* ctrl = gSavedSettings.getControl(ctrl_name).get();
-			std::string comment = ctrl->getComment();
-			std::string type = LLControlGroup::typeEnumToString(ctrl->type());
-			LLSD value = ctrl->getValue();
+			if (ctrl)
+			{
+				std::string comment = ctrl->getComment();
+				std::string type = LLControlGroup::typeEnumToString(ctrl->type());
+				LLSD value = ctrl->getValue();
 
-			paramsData[ctrl_name]["Comment"] = comment;
-			paramsData[ctrl_name]["Persist"] = 1;
-			paramsData[ctrl_name]["Type"] = type;
-			paramsData[ctrl_name]["Value"] = value;
+				paramsData[ctrl_name]["Comment"] = comment;
+				paramsData[ctrl_name]["Persist"] = 1;
+				paramsData[ctrl_name]["Type"] = type;
+				paramsData[ctrl_name]["Value"] = value;
+			}
 		}
 	}
 
