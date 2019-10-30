@@ -74,6 +74,7 @@ public:
 
     LLKeyConflictHandler();
     LLKeyConflictHandler(ESourceMode mode);
+    ~LLKeyConflictHandler();
 
     bool canHandleControl(const std::string &control_name, EMouseClickType mouse_ind, KEY key, MASK mask);
     bool canHandleKey(const std::string &control_name, KEY key, MASK mask);
@@ -93,8 +94,14 @@ public:
     void loadFromControlSettings(const std::string &name);
     // Drops any changes loads controls with ones from 'saved settings' or from xml
     void loadFromSettings(ESourceMode load_mode);
+
     // Saves settings to 'saved settings' or to xml
-    void saveToSettings();
+    // If 'temporary' is set, function will save settings to temporary
+    // file and reload input from temporary file.
+    // 'temporary' does not support gSavedSettings, those are handled
+    // by preferences, so 'temporary' is such case will simply not
+    // reset mHasUnsavedChanges
+    void saveToSettings(bool temporary = false);
 
     LLKeyData getDefaultControl(const std::string &control_name, U32 data_index);
     // Resets keybinding to default variant from 'saved settings' or xml
@@ -125,10 +132,19 @@ private:
     // returns false in case user is trying to reuse control that can't be reassigned
     bool removeConflicts(const LLKeyData &data, const U32 &conlict_mask);
 
+    void clearUnsavedChanges();
+    static void clearTemporaryFile();
+
     control_map_t mControlsMap;
     control_map_t mDefaultsMap;
     bool mHasUnsavedChanges;
     ESourceMode mLoadMode;
+
+    // To implement 'apply immediately'+revert on cancel, class applies changes to temporary file
+    // but this only works for settings from keybndings files (key_bindings.xml)
+    // saved setting rely onto external mechanism of preferences floater
+    bool mUsesTemporaryFile;
+    static S32 sTemporaryFileUseCount;
 };
 
 

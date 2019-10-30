@@ -2916,6 +2916,8 @@ void LLPanelPreferenceControls::onRestoreDefaults()
     for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
     {
         mConflictHandler[mEditingMode].resetToDefaults();
+        // Apply changes to viewer as 'temporary'
+        mConflictHandler[mEditingMode].saveToSettings(true);
     }
 }
 
@@ -2930,6 +2932,8 @@ bool LLPanelPreferenceControls::onSetKeyBind(EMouseClickType click, KEY key, MAS
     if ( mEditingColumn > 0)
     {
         mConflictHandler[mEditingMode].registerControl(mEditingControl, mEditingColumn - 1, click, key, mask, true);
+        // Apply changes to viewer as 'temporary'
+        mConflictHandler[mEditingMode].saveToSettings(true);
     }
 
     updateTable();
@@ -2946,6 +2950,8 @@ void LLPanelPreferenceControls::onDefaultKeyBind()
     if (mEditingColumn > 0)
     {
         mConflictHandler[mEditingMode].resetToDefault(mEditingControl, mEditingColumn - 1);
+        // Apply changes to viewer as 'temporary'
+        mConflictHandler[mEditingMode].saveToSettings(true);
     }
     updateTable();
 }

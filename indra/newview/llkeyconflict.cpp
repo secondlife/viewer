@@ -40,10 +40,11 @@
 #include "llviewerinput.h"
 #include "llviewermenu.h"
 #include "llxuiparser.h"
-//#include "llstring.h"
 
-static const std::string saved_settings_key_controls[] = { "placeholder" };
+static const std::string saved_settings_key_controls[] = { "placeholder" }; // add settings from gSavedSettings here
 
+static const std::string filename_default = "key_bindings.xml";
+static const std::string filename_temporary = "key_bindings_tmp.xml"; // used to apply uncommited changes on the go.
 
 // LLKeyboard::stringFromMask is meant for UI and is OS dependent,
 // so this class uses it's own version
@@ -128,16 +129,26 @@ EMouseClickType mouse_from_string(const std::string& input)
 
 // LLKeyConflictHandler
 
+S32 LLKeyConflictHandler::sTemporaryFileUseCount = 0;
+
 LLKeyConflictHandler::LLKeyConflictHandler()
-    : mHasUnsavedChanges(false)
+:   mHasUnsavedChanges(false),
+    mUsesTemporaryFile(false),
+    mLoadMode(MODE_COUNT)
 {
 }
 
 LLKeyConflictHandler::LLKeyConflictHandler(ESourceMode mode)
-    : mHasUnsavedChanges(false),
+:   mHasUnsavedChanges(false),
+    mUsesTemporaryFile(false),
     mLoadMode(mode)
 {
     loadFromSettings(mode);
+}
+
+LLKeyConflictHandler::~LLKeyConflictHandler()
+{
+    clearUnsavedChanges();
 }
 
 bool LLKeyConflictHandler::canHandleControl(const std::string &control_name, EMouseClickType mouse_ind, KEY key, MASK mask)
@@ -355,6 +366,7 @@ bool LLKeyConflictHandler::loadFromSettings(const ESourceMode &load_mode, const 
             }
             break;
         default:
+            LL_ERRS() << "Not implememted mode " << load_mode << LL_ENDL;
             break;
         }
     }
@@ -381,7 +393,7 @@ void LLKeyConflictHandler::loadFromSettings(ESourceMode load_mode)
     else
     {
         // load defaults
-        std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "key_bindings.xml");
+        std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, filename_default);
         if (!loadFromSettings(load_mode, filename, &mDefaultsMap))
         {
             LL_WARNS() << "Failed to load default settings, aborting" << LL_ENDL;
@@ -389,7 +401,7 @@ void LLKeyConflictHandler::loadFromSettings(ESourceMode load_mode)
         }
 
         // load user's
-        filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "key_bindings.xml");
+        filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename_default);
         if (!gDirUtilp->fileExists(filename) || loadFromSettings(load_mode, filename, &mControlsMap))
         {
             // mind placeholders
@@ -399,7 +411,7 @@ void LLKeyConflictHandler::loadFromSettings(ESourceMode load_mode)
     mLoadMode = load_mode;
 }
 
-void LLKeyConflictHandler::saveToSettings()
+void LLKeyConflictHandler::saveToSettings(bool temporary)
 {
     if (mControlsMap.empty())
     {
@@ -408,6 +420,8 @@ void LLKeyConflictHandler::saveToSettings()
 
     if (mLoadMode == MODE_SAVED_SETTINGS)
     {
+        // Does not support 'temporary', preferences handle that themself
+        // so in case of saved settings we just do not clear mHasUnsavedChanges
         control_map_t::iterator iter = mControlsMap.begin();
         control_map_t::iterator end = mControlsMap.end();
 
@@ -440,10 +454,24 @@ void LLKeyConflictHandler::saveToSettings()
     }
     else
     {
-        // loaded full copy of original file
-        std::string filename = gDirUtilp->findFile("key_bindings.xml",
-            gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, ""),
-            gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
+        // Determine what file to load and load full copy of that file
+        std::string filename;
+
+        if (temporary)
+        {
+            filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename_temporary);
+            if (!gDirUtilp->fileExists(filename))
+            {
+                filename.clear();
+            }
+        }
+
+        if (filename.empty())
+        {
+            filename = gDirUtilp->findFile(filename_default,
+                gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, ""),
+                gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
+        }
 
         LLViewerInput::Keys keys;
         LLSimpleXUIParser parser;
@@ -495,7 +523,16 @@ void LLKeyConflictHandler::saveToSettings()
                         binding.key = LLKeyboard::stringFromKey(data.mKey);
                     }
                     binding.mask = string_from_mask(data.mMask);
-                    binding.mouse.set(string_from_mouse(data.mMouse), true); //set() because 'optional', for compatibility purposes
+                    if (data.mMouse == CLICK_NONE)
+                    {
+                        binding.mouse.setProvided(false);
+                    }
+                    else
+                    {
+                        // set() because 'optional', for compatibility purposes
+                        // just copy old keys.xml and rename to key_bindings.xml, it should work
+                        binding.mouse.set(string_from_mouse(data.mMouse), true);
+                    }
                     binding.command = iter->first;
                     mode.bindings.add(binding);
                 }
@@ -534,11 +571,22 @@ void LLKeyConflictHandler::saveToSettings()
                 }
                 break;
             default:
+                LL_ERRS() << "Not implememted mode " << mLoadMode << LL_ENDL;
                 break;
             }
 
-            // write back to user's xml;
-            std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "key_bindings.xml");
+            if (temporary)
+            {
+                // write to temporary xml and use it for gViewerInput
+                filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename_temporary);
+                mUsesTemporaryFile = true;
+                sTemporaryFileUseCount++;
+            }
+            else
+            {
+                // write back to user's xml and use it for gViewerInput
+                filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename_default);
+            }
 
             LLXMLNodePtr output_node = new LLXMLNode("keys", false);
             LLXUIParser parser;
@@ -562,7 +610,11 @@ void LLKeyConflictHandler::saveToSettings()
             }
         }
     }
-    mHasUnsavedChanges = false;
+
+    if (!temporary)
+    {
+        clearUnsavedChanges();
+    }
 }
 
 LLKeyData LLKeyConflictHandler::getDefaultControl(const std::string &control_name, U32 index)
@@ -702,17 +754,17 @@ void LLKeyConflictHandler::resetToDefaults()
 
 void LLKeyConflictHandler::clear()
 {
-    mHasUnsavedChanges = false;
+    clearUnsavedChanges();
     mControlsMap.clear();
     mDefaultsMap.clear();
 }
 
 void LLKeyConflictHandler::resetKeyboardBindings()
 {
-    std::string filename = gDirUtilp->findFile("key_bindings.xml",
+    std::string filename = gDirUtilp->findFile(filename_default,
         gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, ""),
         gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
-    
+
     gViewerInput.loadBindingsXML(filename);
 }
 
@@ -771,5 +823,34 @@ void LLKeyConflictHandler::registerTemporaryControl(const std::string &control_n
     type_data->mAssignable = false;
     type_data->mConflictMask = conflict_mask;
     type_data->mKeyBind.addKeyData(mouse, key, mask, false);
+}
+
+void LLKeyConflictHandler::clearUnsavedChanges()
+{
+    mHasUnsavedChanges = false;
+
+    if (mUsesTemporaryFile)
+    {
+        mUsesTemporaryFile = false;
+        sTemporaryFileUseCount--;
+        if (!sTemporaryFileUseCount)
+        {
+            clearTemporaryFile();
+        }
+        // else: might be usefull to overwrite content of temp file with defaults
+        // but at the moment there is no such need
+    }
+}
+
+//static
+void LLKeyConflictHandler::clearTemporaryFile()
+{
+    // At the moment single file needs five handlers (one per mode), so doing this
+    // will remove file for all hadlers
+    std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename_temporary);
+    if (gDirUtilp->fileExists(filename))
+    {
+        LLFile::remove(filename);
+    }
 }
 
