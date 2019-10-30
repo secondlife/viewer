@@ -640,6 +640,8 @@ U32 LLObjectCostManagerImpl::textureCostsV1(const texture_ids_t& ids, U32 multip
 		{
 			texture_cost = 1;
 		}
+		// FIXME ARC another hack to force RC change
+		texture_cost += 5 - texture->getDiscardLevel();
 		LL_DEBUGS("ARCdetail") << "texture " << id << " cost " << texture_cost << LL_ENDL;
 		cost += texture_cost;
 	}

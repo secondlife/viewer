@@ -56,7 +56,8 @@ computed_props = ["raw_triangle_count"]
 
 texture_pixels = ["tex_diffuse_kp", "tex_sculpt_kp", "tex_specular_kp", "tex_normal_kp"]
 texture_counts = ["tex_diffuse_count", "tex_sculpt_count", "tex_specular_count", "tex_normal_count"]
-texture_props = texture_pixels + texture_counts
+texture_incomplete = ["tex_diffuse_incomplete", "tex_sculpt_incomplete", "tex_specular_incomplete", "tex_normal_incomplete"]
+texture_props = texture_pixels + texture_counts + texture_incomplete
 
 
 triangle_lod_keys = ["triangle_count_lowest", "triangle_count_low", "triangle_count_mid", "triangle_count_high"]
@@ -171,12 +172,22 @@ class AttachmentsDerivedField:
                         for tex in tex_array:
                             if "width" in tex and "height" in tex:
                                 im_pixels = tex["width"] * tex["height"]
-                                print "pixels", im_pixels, ":", tex["width"], "x", tex["height"]
+                                #print "pixels", im_pixels, ":", tex["width"], "x", tex["height"]
                                 # Deflate this from raw pixel count so we don't overflow the counter
                                 pixels += im_pixels/(32*32)
                             else:
                                 print "bad tex", tex
                 return pixels
+            elif key in texture_incomplete:
+                tex_type = key.replace("tex_","").replace("_incomplete","")
+                incomplete = 0
+                for att in attachments:
+                    if tex_type in att["textures"]:
+                        tex_array = att["textures"][tex_type]
+                        for tex in tex_array:
+                            if "discard" not in tex or tex["discard"] != 0:
+                                incomplete += 1
+                return incomplete
             elif key in texture_counts:
                 tex_type = key.replace("tex_","").replace("_count","")
                 count = 0
@@ -596,10 +607,13 @@ def plot_time_series(pd_data,fields):
     print "plot_time_series",fields
     (outfit_spans, ignored) = get_outfit_spans(pd_data)
     #pd_data = filter_extreme_times(pd_data, 95.0)
+    maxes = pd_data[fields].max(axis=1)
     ax = pd_data.plot(x='elapsed_time', y=fields, alpha=0.3)#, kind='scatter')
-    ax.set_ylim(0.0, 1.2 * np.percentile(pd_data[fields[0]],95.0))
+    ylim = 1.2 * np.percentile(maxes,95.0)
+    print "ylim",ylim
+    ax.set_ylim(0.0, ylim)
     for f in fields:
-        pd_data[f] = pd_data[f].clip(0,0.05)
+        #pd_data[f] = pd_data[f].clip(0,0.05)
         for index, outfit_span in outfit_spans.iterrows():
             index = outfit_span["group"].index
             x0 = outfit_span["start_time"]
@@ -610,9 +624,8 @@ def plot_time_series(pd_data,fields):
             print "annotate",outfit,(x0,x1),y
             plt.plot((x0,x1),(y,y),"b-")
             plt.text((x0+x1)/2, y, outfit + " cost " + abbrev_number(cost) , ha='center', va='bottom', rotation='vertical')
-    ax.set_ylim(0.0, 1.2 * np.percentile(pd_data[f],95.0))
     fig = ax.get_figure()
-    fig.savefig("time_series_" + f + ".jpg")
+    fig.savefig("time_series_" + "+".join(fields) + ".jpg")
 
 def compare_frames(a,b):
     fill_blanks(a)

@@ -12314,13 +12314,24 @@
     <key>TextureDiscardLevel</key>
     <map>
       <key>Comment</key>
-      <string>Specify texture resolution (0 = highest, 5 = lowest)</string>
+      <string>Obsolete - use OverrideTextureDiscardLevel. Specify texture resolution (0 = highest, 5 = lowest)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>OverrideTextureDiscardLevel</key>
+    <map>
+      <key>Comment</key>
+      <string>Specify texture resolution (-1 ignore, 0 = highest, 5 = lowest)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
     </map>
     <key>TextureFetchConcurrency</key>
     <map>

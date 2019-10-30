@@ -285,6 +285,7 @@ public:
 	// force all name tags to rebuild, useful when display names turned on/off
 	static void		invalidateNameTags();
 	void			addNameTagLine(const std::string& line, const LLColor4& color, S32 style, const LLFontGL* font);
+
 	void 			idleUpdateRenderComplexity();
     void 			accountRenderComplexityForObject(const LLViewerObject *attached_object,
                                                      const F32 max_attachment_complexity,
@@ -481,6 +482,8 @@ public:
 	S32	 		mUpdatePeriod;
 	S32  		mNumInitFaces; //number of faces generated when creating the avatar drawable, does not inculde splitted faces due to long vertex buffer.
 
+	LLFrameTimer mVisualComplexityUpdateTimer; // time since last updateVisualComplexity() call, which sets a flag to force recalculation.
+	
 	U32  		mVisualComplexityNew;
 	U32  		mVisualComplexity;
     U32  		mVisualComplexityArctan;

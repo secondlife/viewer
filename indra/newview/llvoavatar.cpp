@@ -10182,6 +10182,11 @@ void LLVOAvatar::idleUpdateRenderComplexity()
     }
 
     // Render Complexity
+	const F32 force_complexity_update_interval = 10.0; // update every 10 seconds regardless
+	if (isSelf() &&  mVisualComplexityUpdateTimer.getElapsedTimeF32() > force_complexity_update_interval)
+	{
+		updateVisualComplexity();
+	}
     calculateUpdateRenderComplexityLegacy_(); // Update mVisualComplexityArctan if needed	(must be first)
     calculateUpdateRenderComplexityLegacy(); // Update mVisualComplexity if needed	
 
@@ -10269,6 +10274,7 @@ void LLVOAvatar::updateVisualComplexity()
 	LL_DEBUGS("AvatarRender") << "avatar " << getID() << " appearance changed" << LL_ENDL;
 	// Set the cache time to in the past so it's updated ASAP
 	mVisualComplexityStale = true;
+	mVisualComplexityUpdateTimer.reset();
 }
 
 // Account for the complexity of a single top-level object associated

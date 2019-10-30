@@ -1425,7 +1425,7 @@ BOOL LLVOAvatarSelf::isLocalTextureDataAvailable(const LLViewerTexLayerSet* laye
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLViewerTexLayerSet* layerset) const
 {
-	const U32 desired_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel"); 
+	const S32 desired_tex_discard_level = llmax(0,gSavedSettings.getS32("OverrideTextureDiscardLevel")); 
 	// const U32 desired_tex_discard_level = 0; // hack to not bake textures on lower discard levels.
 
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
@@ -1460,8 +1460,7 @@ BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLViewerTexLayerSet* layerset
 
 BOOL LLVOAvatarSelf::isAllLocalTextureDataFinal() const
 {
-	const U32 desired_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel"); 
-	// const U32 desired_tex_discard_level = 0; // hack to not bake textures on lower discard levels
+	const S32 desired_tex_discard_level = llmax(0,gSavedSettings.getS32("OverrideTextureDiscardLevel")); 
 
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
@@ -2150,7 +2149,7 @@ const std::string LLVOAvatarSelf::debugDumpLocalTextureDataInfo(const LLViewerTe
 const std::string LLVOAvatarSelf::debugDumpAllLocalTextureDataInfo() const
 {
 	std::string text;
-	const U32 override_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel");
+	const S32 desired_tex_discard_level = llmax(0,gSavedSettings.getS32("OverrideTextureDiscardLevel"));
 
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
@@ -2165,7 +2164,7 @@ const std::string LLVOAvatarSelf::debugDumpAllLocalTextureDataInfo() const
 			const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 			for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
 			{
-				is_texture_final &= (getLocalDiscardLevel(*local_tex_iter, wearable_index) <= (S32)(override_tex_discard_level));
+				is_texture_final &= (getLocalDiscardLevel(*local_tex_iter, wearable_index) <= (S32)(desired_tex_discard_level));
 			}
 		}
 		text += llformat("%s:%d ",baked_dict->mName.c_str(),is_texture_final);
