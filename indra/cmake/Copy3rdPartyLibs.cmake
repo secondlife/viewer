@@ -94,7 +94,7 @@ if(WINDOWS)
         set(registry_find_path "[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Windows;Directory]/System32")
     endif(ADDRESS_SIZE EQUAL 32)
 
-    FIND_PATH(release_msvc_redist_path NAME msvcr${MSVC_VER}.dll
+    FIND_PATH(release_msvc_redist_path NAME msvcp${MSVC_VER}.dll
         PATHS            
         ${registry_find_path}
         NO_DEFAULT_PATH
@@ -122,8 +122,11 @@ if(WINDOWS)
             ${release_msvc_files}
             )
         set(third_party_targets ${third_party_targets} ${out_targets})
+        MESSAGE(STATUS "Copied ${third_party_targets}")
 
         unset(release_msvc_redist_path CACHE)
+    else()
+        MESSAGE(SEND_ERROR "Redist libs for VC ${MSVC_VER} not found!")
     endif()
 
 elseif(DARWIN)
