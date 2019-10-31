@@ -104,6 +104,7 @@ set(llcommon_SOURCE_FILES
     llstring.cpp
     llstringtable.cpp
     llsys.cpp
+    lltempredirect.cpp
     llthread.cpp
     llthreadlocalstorage.cpp
     llthreadsafequeue.cpp
@@ -228,6 +229,7 @@ set(llcommon_HEADER_FILES
     llstaticstringtable.h
     llstatsaccumulator.h
     llsys.h
+    lltempredirect.h
     llthread.h
     llthreadlocalstorage.h
     llthreadsafequeue.h

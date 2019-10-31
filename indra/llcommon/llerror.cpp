@@ -39,8 +39,6 @@
 #if !LL_WINDOWS
 # include <syslog.h>
 # include <unistd.h>
-#else
-# include <io.h>
 #endif // !LL_WINDOWS
 #include <vector>
 #include "string.h"
@@ -54,20 +52,7 @@
 #include "llsingleton.h"
 #include "llstl.h"
 #include "lltimer.h"
-
-#if LL_WINDOWS
-#define fhclose  _close
-#define fhdup    _dup
-#define fhdup2   _dup2
-#define fhfdopen _fdopen
-#define fhfileno _fileno
-#else
-#define fhclose  ::close
-#define fhdup    ::dup
-#define fhdup2   ::dup2
-#define fhfdopen ::fdopen
-#define fhfileno ::fileno
-#endif
+#include "lltempredirect.h"
 
 namespace LLError
 {
@@ -80,7 +65,6 @@ namespace LLError
 		LLSINGLETON(Settings);
 	public:
 		SettingsConfigPtr getSettingsConfig();
-		~Settings();
 
 		void reset();
 		SettingsStoragePtr saveAndReset();
@@ -90,7 +74,7 @@ namespace LLError
 
 	private:
 		SettingsConfigPtr mSettingsConfig;
-		int mDupStderr;
+		LLTempRedirect mRedirect;
 	};
 
 } // namespace LLError
@@ -162,8 +146,7 @@ namespace {
 	public:
 		RecordToFile(const std::string& filename):
 			mName(filename),
-			mFile(LLFile::fopen(filename, "a")),
-			mSavedStderr(LLError::Settings::instance().getDupStderr())
+			mFile(LLFile::fopen(filename, "a"))
 		{
 			if (!mFile)
 			{
@@ -174,16 +157,13 @@ namespace {
 				// We use a number of classic-C libraries, some of which write
 				// log output to stderr. The trouble with that is that unless
 				// you launch the viewer from a console, stderr output is
-				// lost. Redirect STDERR_FILENO to write into this log file.
-				fhdup2(fhfileno(mFile), fhfileno(stderr));
+				// lost. Redirect stderr to write into this log file.
+				mRedirect = LLTempRedirect(mFile, stderr);
 			}
 		}
 
 		~RecordToFile()
 		{
-			// restore stderr to its original fileno so any subsequent output
-			// to stderr goes to original stream
-			fhdup2(mSavedStderr, fhfileno(stderr));
 			mFile.close();
 		}
 
@@ -214,7 +194,7 @@ namespace {
 	private:
 		const std::string mName;
 		LLUniqueFile mFile;
-		int mSavedStderr;
+		LLTempRedirect mRedirect;
 	};
 
 
@@ -225,7 +205,7 @@ namespace {
 			mUseANSI(checkANSI()),
 			// use duplicate stderr file handle so THIS output isn't affected
 			// by our internal redirection of all (other) stderr output
-			mStderr(fhfdopen(LLError::Settings::instance().getDupStderr(), "a"))
+			mStderr(llfd::open(LLError::Settings::instance().getDupStderr(), "a"))
 		{
 			this->showMultiline(true);
 		}
@@ -276,7 +256,7 @@ namespace {
 			// Check whether it's okay to use ANSI; if stderr is
 			// a tty then we assume yes.  Can be turned off with
 			// the LL_NO_ANSI_COLOR env var.
-			return (0 != isatty(fhfileno(stderr))) &&
+			return (0 != isatty(fileno(stderr))) &&
 				(NULL == getenv("LL_NO_ANSI_COLOR"));
 #endif // LL_LINUX
 			return false;
@@ -572,16 +552,8 @@ namespace LLError
 	Settings::Settings():
 		mSettingsConfig(new SettingsConfig()),
 		// duplicate stderr file handle right away
-		mDupStderr(fhdup(fhfileno(stderr)))
+		mRedirect(NULL, stderr)
 	{
-	}
-
-	Settings::~Settings()
-	{
-		// restore original stderr
-		fhdup2(mDupStderr, fhfileno(stderr));
-		// and close the duplicate
-		fhclose(mDupStderr);
 	}
 
 	SettingsConfigPtr Settings::getSettingsConfig()
@@ -611,7 +583,7 @@ namespace LLError
 
 	int Settings::getDupStderr() const
 	{
-		return mDupStderr;
+		return mRedirect.getOriginalTarget();
 	}
 
 	bool is_available()
