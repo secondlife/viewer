@@ -528,11 +528,11 @@ class WindowsManifest(ViewerManifest):
             # These need to be installed as a SxS assembly, currently a 'private' assembly.
             # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
             if self.args['configuration'].lower() == 'debug':
-                self.path("msvcr150d.dll")
-                self.path("msvcp150d.dll")
+                self.path("msvcr140d.dll")
+                self.path("msvcp140d.dll")
             else:
-                self.path("msvcr150.dll")
-                self.path("msvcp150.dll")
+                self.path("msvcr140.dll")
+                self.path("msvcp140.dll")
 
             # SLVoice executable
             with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
@@ -606,8 +606,8 @@ class WindowsManifest(ViewerManifest):
             # MSVC DLLs needed for CEF and have to be in same directory as plugin
             with self.prefix(src=os.path.join(self.args['build'], os.pardir,
                                               'sharedlibs', 'Release')):
-                self.path("msvcp150.dll")
-                self.path("msvcr150.dll")
+                self.path("msvcp140.dll")
+                self.path("msvcr140.dll")
 
             # CEF files common to all configurations
             with self.prefix(src=os.path.join(pkgdir, 'resources')):
