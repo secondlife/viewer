@@ -1088,9 +1088,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b618532b67f253d321329cfc7a1101e0</string>
+              <string>014f6dca98a0964a5d9de31a9fdf3333</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/44337/391697/glod-1.0pre3.531370-darwin64-531370.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/45956/405375/glod-1.0pre3.532346-darwin64-532346.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1126,11 +1126,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3be25680814037b801481dfc80850992</string>
+              <string>fe8215c04f959e703653a6133e142fd4</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/44368/391838/glod-1.0pre3.531370-windows-531370.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/45955/405362/glod-1.0pre3.532346-windows-532346.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1140,16 +1140,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c896cb1a2a5d55f2d15877f557c1311b</string>
+              <string>77f7c414366a903e66769d7af31c42aa</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/44367/391831/glod-1.0pre3.531370-windows64-531370.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/45954/405349/glod-1.0pre3.532346-windows64-532346.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0pre3.531370</string>
+        <string>1.0pre3.532346</string>
       </map>
       <key>google_breakpad</key>
       <map>

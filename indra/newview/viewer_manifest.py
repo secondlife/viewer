@@ -527,18 +527,8 @@ class WindowsManifest(ViewerManifest):
 
             # These need to be installed as a SxS assembly, currently a 'private' assembly.
             # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
-            if self.args['configuration'].lower() == 'debug':
-                self.path("msvcr140d.dll")
-                self.path("msvcp140d.dll")
-            else:
-                # SL-12205: For reasons not yet diagnosed, an early build of
-                # the VS 2017 viewer requires VS 2013 runtime DLLs as well as
-                # VS 2017 runtime DLLs.
-                self.path("msvcr120.dll")
-                self.path("msvcp120.dll")
-                self.path("msvcr140.dll")
-                self.path("msvcp140.dll")
-                self.path("vcruntime140.dll")
+            self.path("msvcp140.dll")
+            self.path("vcruntime140.dll")
 
             # SLVoice executable
             with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
@@ -612,10 +602,7 @@ class WindowsManifest(ViewerManifest):
             # MSVC DLLs needed for CEF and have to be in same directory as plugin
             with self.prefix(src=os.path.join(self.args['build'], os.pardir,
                                               'sharedlibs', 'Release')):
-                self.path("msvcp120.dll")
-                self.path("msvcr120.dll")
                 self.path("msvcp140.dll")
-                self.path("msvcr140.dll")
                 self.path("vcruntime140.dll")
 
             # CEF files common to all configurations
