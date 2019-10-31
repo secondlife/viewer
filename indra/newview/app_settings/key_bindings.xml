@@ -31,8 +31,9 @@
     <binding key="SPACE" mask="NONE" command="stop_moving"/>
     <binding key="ENTER" mask="NONE" command="start_chat"/>
     <binding key="DIVIDE" mask="NONE" command="start_gesture"/>
-    
+
     <binding key="" mask="NONE" mouse="MMB" command="toggle_voice"/>
+    <binding key="" mask="NONE" mouse="LMB" command="walk_to"/>
   </first_person>
   <third_person>
     <binding key="A" mask="NONE" command="turn_left"/>
@@ -126,6 +127,7 @@
     <binding key="PAD_DIVIDE" mask="CTL_ALT_SHIFT" command="start_gesture"/>
 
     <binding key="" mask="NONE" mouse="MMB" command="toggle_voice"/>
+    <binding key="" mask="NONE" mouse="LMB" command="walk_to"/>
   </third_person>
 
   <!-- Basic editing camera control -->
@@ -184,6 +186,7 @@
     <binding key="PAD_DIVIDE" mask="ALT" command="start_gesture"/>
 
     <binding key="" mask="NONE" mouse="MMB" command="toggle_voice"/>
+    <binding key="" mask="NONE" mouse="LMB" command="walk_to"/>
   </edit>
   <sitting>
     <binding key="A" mask="ALT" command="spin_around_cw"/>
@@ -281,6 +284,7 @@
     <binding key="DIVIDE" mask="NONE" command="start_gesture"/>
 
     <binding key="" mask="NONE" mouse="MMB" command="toggle_voice"/>
+    <binding key="" mask="NONE" mouse="LMB" command="walk_to"/>
   </sitting>
   <edit_avatar>
     <!--Avatar editing camera controls-->
@@ -308,5 +312,6 @@
     <binding key="PAD_DIVIDE" mask="NONE" command="start_gesture"/>
 
     <binding key="" mask="NONE" mouse="MMB" command="toggle_voice"/>
+    <binding key="" mask="NONE" mouse="LMB" command="walk_to"/>
   </edit_avatar>
 </keys>
