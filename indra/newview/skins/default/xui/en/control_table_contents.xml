@@ -6,7 +6,7 @@
      name="lst_action" />
     <columns
      relative_width="0.22"
-     label="Prymary Control"
+     label="Primary Control"
      name="lst_ctrl1" />
     <columns
      relative_width="0.22"
