@@ -2952,7 +2952,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/44719/395040/slvoice-4.10.0000.32327.5fc3fe7c.531581-darwin64-531581.tar.bz2</string>
+              <string>d1c28eef1aa72d0aaa227e5122b43659</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/45922/405171/slvoice-4.10.0000.32327.5fc3fe7c.532334-darwin64-532334.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2986,7 +2988,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/44720/395047/slvoice-4.10.0000.32327.5fc3fe7c.531581-windows-531581.tar.bz2</string>
+              <string>fcb26f570187eff2c724c3272581628f</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/45927/405216/slvoice-4.10.0000.32327.5fc3fe7c.532334-windows-532334.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2996,14 +3000,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/44721/395056/slvoice-4.10.0000.32327.5fc3fe7c.531581-windows64-531581.tar.bz2</string>
+              <string>cf6800e2221ff54d8af1de23b10f2797</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/45926/405209/slvoice-4.10.0000.32327.5fc3fe7c.532334-windows64-532334.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.10.0000.32327.5fc3fe7c.531581</string>
+        <string>4.10.0000.32327.5fc3fe7c.532334</string>
       </map>
       <key>tut</key>
       <map>
