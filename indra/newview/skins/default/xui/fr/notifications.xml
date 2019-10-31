@@ -1572,10 +1572,10 @@ Dépasse la limite fixée à [MAX_AGENTS] [LIST_TYPE] de [NUM_EXCESS].
 		Impossible d’ajouter un résident banni à la liste des gérants de domaine.
 	</notification>
 	<notification name="ProblemBanningEstateManager">
-		Impossible d&apos;ajouter le gérant de domaine à la liste interdite.
+		Impossible d&apos;ajouter le gérant de domaine [AGENT] à la liste interdite.
 	</notification>
 	<notification name="GroupIsAlreadyInList">
-		&lt;nolink&gt;[GROUP]&lt;/nolink&gt; est déjà dans la liste des groupes autorisés.
+		&lt;nolink&gt;[GROUP]&lt;/nolink&gt; est déjà dans la liste des Groupes autorisés.
 	</notification>
 	<notification name="AgentIsAlreadyInList">
 		[AGENT] est déjà dans votre liste [LIST_TYPE].
@@ -1587,7 +1587,7 @@ Dépasse la limite fixée à [MAX_AGENTS] [LIST_TYPE] de [NUM_EXCESS].
 		[AGENT] a été ajouté à la liste [LIST_TYPE] de [ESTATE].
 	</notification>
 	<notification name="AgentsWereAddedToList">
-		[AGENT] ont été ajoutéq à la liste [LIST_TYPE] de [ESTATE].
+		[AGENT] ont été ajouté à la liste [LIST_TYPE] de [ESTATE].
 	</notification>
 	<notification name="AgentWasRemovedFromList">
 		[AGENT] a été supprimé de la liste [LIST_TYPE] de [ESTATE].
@@ -2987,7 +2987,7 @@ Si vous restez dans cette région, vous serez déconnecté(e).
 Si vous restez dans cette région, vous serez déconnecté(e).
 	</notification>
 	<notification name="LoadWebPage">
-Charger la page Web [URL] ?
+		Charger la page Web [URL] ?
 
 [MESSAGE]
 

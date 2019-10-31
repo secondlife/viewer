@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="ban_duration" title="Engelleme süresi">
+	<text name="duration_textbox">
+		Engelleme süresi:
+	</text>
+	<radio_group name="ban_duration_radio">
+		<radio_item label="Her zaman" name="always_radio">
+			Her zaman
+		</radio_item>
+		<radio_item label="Geçici" name="temporary_radio">
+			Geçici
+		</radio_item>
+	</radio_group>
+	<text name="hours_textbox">
+		saat
+	</text>
+	<button label="Tamam" name="ok_btn"/>
+	<button label="İptal Et" name="cancel_btn"/>
+</floater>

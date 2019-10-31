@@ -233,6 +233,8 @@ public:
 	void			setStartPosition(U32 location_id); // Marks current location as start, sends information to servers
 	void			setHomePosRegion(const U64& region_handle, const LLVector3& pos_region);
 	BOOL			getHomePosGlobal(LLVector3d* pos_global);
+	bool			isInHomeRegion();
+
 private:
     void            setStartPositionSuccess(const LLSD &result);
 

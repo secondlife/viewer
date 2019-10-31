@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="ban_duration" title="Duración">
+	<text name="duration_textbox">
+		Duración:
+	</text>
+	<radio_group name="ban_duration_radio">
+		<radio_item label="Siempre" name="always_radio">
+			Siempre
+		</radio_item>
+		<radio_item label="Temporario" name="temporary_radio">
+			Temporario
+		</radio_item>
+	</radio_group>
+	<text name="hours_textbox">
+		horas
+	</text>
+	<button label="Aceptar" name="ok_btn"/>
+	<button label="Cancelar" name="cancel_btn"/>
+</floater>

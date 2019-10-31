@@ -43,6 +43,7 @@
 	<check_box label="異方的フィルタリング (有効にすると速度が低下)" name="ani"/>
 	<check_box initial_value="true" label="OpenGL Vertex Buffer Objects を有効化" name="vbo" tool_tip="最新のハードウェアでこのオプションを有効にするとパフォーマンスが向上します。ただし、古いハードウェアでは VBO の実装が貧弱なため、このオプションを有効にするとクラッシュする場合があります。"/>
 	<check_box initial_value="true" label="テクスチャ圧縮の有効化 (再起動後に反映)" name="texture compression" tool_tip="ビデオメモリでテクスチャを圧縮すると、一部のカラー品質を犠牲にして、高解像度のテクスチャをロードできます。"/>
+	<check_box initial_value="true" label="HiDPI 表示のためにサポートを有効にする（再起動が必要）" name="use HiDPI" tool_tip="高画質の描画のために OpenGL を有効にする"/>
 	<text name="antialiasing label">
 		アンチエイリアシング：
 	</text>
