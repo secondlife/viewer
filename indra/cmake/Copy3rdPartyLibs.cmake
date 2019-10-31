@@ -81,7 +81,7 @@ if(WINDOWS)
     elseif (MSVC_VERSION EQUAL 1800) # VisualStudio 2013, which is (sigh) VS 12
         list(APPEND LMSVC_VER 120)
         list(APPEND LMSVC_VERDOT 12.0)
-    elseif (MSVC_VERSION EQUAL 1915 OR MSVC_VERSION EQUAL 1916) # Visual Studio 2017
+    elseif (MSVC_VERSION GREATER_EQUAL 1910 AND MSVC_VERSION LESS 1920) # Visual Studio 2017
         list(APPEND LMSVC_VER 150)
         list(APPEND LMSVC_VERDOT 15.0)
     else (MSVC80)
