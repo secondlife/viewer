@@ -1548,6 +1548,11 @@ class Linux_x86_64_Manifest(LinuxManifest):
 ################################################################
 
 if __name__ == "__main__":
+    # Report our own command line so that, in case of trouble, a developer can
+    # manually rerun the same command.
+    print('%s \\\n%s' %
+          (sys.executable,
+           ' '.join((("'%s'" % arg) if ' ' in arg else arg) for arg in sys.argv)))
     extra_arguments = [
         dict(name='bugsplat', description="""BugSplat database to which to post crashes,
              if BugSplat crash reporting is desired""", default=''),
