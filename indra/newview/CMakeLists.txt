@@ -1773,6 +1773,11 @@ if (WINDOWS)
     # be met. I'm looking forward to a source-code split-up project next year that will address this kind of thing.
     # In the meantime, if you have any ideas on how to easily maintain one list, either here or in viewer_manifest.py
     # and have the build deps get tracked *please* tell me about it.
+    # nat: https://cmake.org/cmake/help/v3.14/command/file.html
+    # "For example, the code
+    # file(STRINGS myfile.txt myfile)
+    # stores a list in the variable myfile in which each item is a line from the input file."
+    # And of course it's straightforward to read a text file in Python.
 
     set(COPY_INPUT_DEPENDENCIES
       # The following commented dependencies are determined at variably at build time. Can't do this here.
