@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- height="170"
+ height="128"
  layout="topleft"
  name="floaterpreferencesviewadvanced"
  help_topic="floaterviewadvanced"
- title="ADJUST CAMERA VIEW"
+ title="CAMERA POSITION"
  save_rect="true"
  width="280">
 
@@ -113,28 +113,4 @@
     <spinner.commit_callback
      function="CommitSettings" />
   </spinner>
-
-  <button
-   follows="left|top"
-   height="23"
-   label="OK"
-   layout="topleft"
-   left="90"
-   name="ok"
-   top_pad="30"
-   width="90">
-    <button.commit_callback
-     function="Ok"/>
-  </button>
-  <button
-   follows="left|top"
-   height="23"
-   label="Cancel"
-   layout="topleft"
-   left_pad="5"
-   name="cancel"
-   width="90">
-    <button.commit_callback
-     function="Cancel"/>
-  </button>
 </floater>

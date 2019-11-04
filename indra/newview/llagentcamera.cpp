@@ -210,10 +210,12 @@ void LLAgentCamera::init()
 	mCameraOffsetInitial[CAMERA_PRESET_REAR_VIEW] = gSavedSettings.getControl("CameraOffsetRearView");
 	mCameraOffsetInitial[CAMERA_PRESET_FRONT_VIEW] = gSavedSettings.getControl("CameraOffsetFrontView");
 	mCameraOffsetInitial[CAMERA_PRESET_GROUP_VIEW] = gSavedSettings.getControl("CameraOffsetGroupView");
+	mCameraOffsetInitial[CAMERA_PRESET_CUSTOM] = gSavedSettings.getControl("CameraOffsetCustomPreset");
 
 	mFocusOffsetInitial[CAMERA_PRESET_REAR_VIEW] = gSavedSettings.getControl("FocusOffsetRearView");
 	mFocusOffsetInitial[CAMERA_PRESET_FRONT_VIEW] = gSavedSettings.getControl("FocusOffsetFrontView");
 	mFocusOffsetInitial[CAMERA_PRESET_GROUP_VIEW] = gSavedSettings.getControl("FocusOffsetGroupView");
+	mFocusOffsetInitial[CAMERA_PRESET_CUSTOM] = gSavedSettings.getControl("FocusOffsetCustomPreset");
 
 	mCameraCollidePlane.clearVec();
 	mCurrentCameraDistance = getCameraOffsetInitial().magVec() * gSavedSettings.getF32("CameraOffsetScale");
@@ -1934,6 +1936,21 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 LLVector3 LLAgentCamera::getCameraOffsetInitial()
 {
 	return convert_from_llsd<LLVector3>(mCameraOffsetInitial[mCameraPreset]->get(), TYPE_VEC3, "");
+}
+
+LLVector3d LLAgentCamera::getFocusOffsetInitial()
+{
+	return convert_from_llsd<LLVector3d>(mFocusOffsetInitial[mCameraPreset]->get(), TYPE_VEC3D, "");
+}
+
+std::string LLAgentCamera::getCameraOffsetCtrlName()
+{
+	return mCameraOffsetInitial[mCameraPreset]->getName();
+}
+
+std::string LLAgentCamera::getFocusOffsetCtrlName()
+{
+	return mFocusOffsetInitial[mCameraPreset]->getName();
 }
 
 F32 LLAgentCamera::getCameraMaxZoomDistance()

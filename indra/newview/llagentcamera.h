@@ -59,7 +59,7 @@ enum ECameraPreset
 	CAMERA_PRESET_GROUP_VIEW,
 
 	/** Current view when a preset is saved */
-	CAMERA_PRESET_CUSTOM0
+	CAMERA_PRESET_CUSTOM
 };
 
 //------------------------------------------------------------------------
@@ -112,9 +112,14 @@ private:
 	//--------------------------------------------------------------------
 public:
 	void switchCameraPreset(ECameraPreset preset);
-private:
 	/** Determines default camera offset depending on the current camera preset */
 	LLVector3 getCameraOffsetInitial();
+	/** Determines default focus offset depending on the current camera preset */
+	LLVector3d getFocusOffsetInitial();
+
+	std::string getCameraOffsetCtrlName();
+	std::string getFocusOffsetCtrlName();
+private:
 	/** Determines maximum camera distance from target for mouselook, opposite to LAND_MIN_ZOOM */
 	F32 getCameraMaxZoomDistance();
 

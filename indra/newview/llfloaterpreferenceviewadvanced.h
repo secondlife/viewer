@@ -37,21 +37,14 @@ class LLFloaterPreferenceViewAdvanced
 
 public:
 	LLFloaterPreferenceViewAdvanced(const LLSD& key);
-	virtual BOOL postBuild();
 	virtual void draw();
 
 	void onCommitSettings();
-	void onClickCancel();
-	void onClickOk();
 	void updateCameraControl(const LLVector3& vector);
 	void updateFocusControl(const LLVector3d& vector3d);
 
 private:
 	virtual ~LLFloaterPreferenceViewAdvanced();
-
-	LLVector3	mCameraSaved;
-	LLVector3d	mFocusSaved;
-	
 };
 
 #endif //LLFLOATERPREFERENCEVIEWADVANCED_H

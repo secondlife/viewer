@@ -65,22 +65,22 @@ void LLPresetsManager::createMissingDefault(const std::string& subdirectory)
 {
 	if(gDirUtilp->getLindenUserDir().empty())
 	{
-		return;
+return;
 	}
 
 	std::string default_file = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, PRESETS_DIR,
-															  subdirectory, PRESETS_DEFAULT + ".xml");
+		subdirectory, PRESETS_DEFAULT + ".xml");
 	if (!gDirUtilp->fileExists(default_file))
 	{
 		LL_INFOS() << "No default preset found -- creating one at " << default_file << LL_ENDL;
 
 		// Write current settings as the default
-        savePreset(subdirectory, PRESETS_DEFAULT, true);
+		savePreset(subdirectory, PRESETS_DEFAULT, true);
 	}
-    else
-    {
-        LL_DEBUGS() << "default preset exists; no-op" << LL_ENDL;
-    }
+	else
+	{
+		LL_DEBUGS() << "default preset exists; no-op" << LL_ENDL;
+	}
 }
 
 void LLPresetsManager::startWatching(const std::string& subdirectory)
@@ -99,7 +99,7 @@ void LLPresetsManager::startWatching(const std::string& subdirectory)
 				if (cntrl_ptr.isNull())
 				{
 					LL_WARNS("Init") << "Unable to set signal on global setting '" << ctrl_name
-									<< "'" << LL_ENDL;
+						<< "'" << LL_ENDL;
 				}
 				else
 				{
@@ -120,25 +120,25 @@ std::string LLPresetsManager::getPresetsDir(const std::string& subdirectory)
 	if (!gDirUtilp->fileExists(dest_path))
 		LLFile::mkdir(dest_path);
 
-		if (PRESETS_CAMERA == subdirectory)
+	if (PRESETS_CAMERA == subdirectory)
+	{
+		std::string source_dir = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, PRESETS_CAMERA);
+		LLDirIterator dir_iter(source_dir, "*.xml");
+		bool found = true;
+		while (found)
 		{
-			std::string source_dir = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, PRESETS_CAMERA);
-			LLDirIterator dir_iter(source_dir, "*.xml");
-			bool found = true;
-			while (found)
-			{
-				std::string file;
-				found = dir_iter.next(file);
+			std::string file;
+			found = dir_iter.next(file);
 
-				if (found)
-				{
-					std::string source = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, PRESETS_CAMERA, file);
-					file = LLURI::escape(file);
-					std::string dest = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, PRESETS_DIR, PRESETS_CAMERA, file);
-					LLFile::copy(source, dest);
-				}
+			if (found)
+			{
+				std::string source = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, PRESETS_CAMERA, file);
+				file = LLURI::escape(file);
+				std::string dest = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, PRESETS_DIR, PRESETS_CAMERA, file);
+				LLFile::copy(source, dest);
 			}
 		}
+	}
 
 	return dest_path;
 }
@@ -160,8 +160,15 @@ void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir, preset_nam
 		{
 			std::string path = gDirUtilp->add(dir, file);
 			std::string name = LLURI::unescape(gDirUtilp->getBaseFileName(path, /*strip_exten = */ true));
-            LL_DEBUGS() << "  Found preset '" << name << "'" << LL_ENDL;
+			LL_DEBUGS() << "  Found preset '" << name << "'" << LL_ENDL;
 
+			if (default_option == DEFAULT_VIEWS_HIDE)
+			{
+				if (name == PRESETS_REAR || name == PRESETS_SIDE || name == PRESETS_FRONT)
+				{
+					continue;
+				}
+			}
 			if (PRESETS_DEFAULT != name)
 			{
 				mPresetNames.push_back(name);
@@ -205,11 +212,15 @@ void LLPresetsManager::settingChanged()
 {
 	setCameraDirty(true);
 
-	gSavedSettings.setString("PresetCameraActive", "");
+	static LLCachedControl<std::string> preset_camera_active(gSavedSettings, "PresetCameraActive", "");
+	std::string preset_name = preset_camera_active;
+	if (!preset_name.empty())
+	{
+		gSavedSettings.setString("PresetCameraActive", "");
 
-// Hack call because this is a static routine
-	LLPresetsManager::getInstance()->triggerChangeCameraSignal();
-
+		// Hack call because this is a static routine
+		LLPresetsManager::getInstance()->triggerChangeCameraSignal();
+	}
 }
 
 void LLPresetsManager::getControlNames(std::vector<std::string>& names)
@@ -222,8 +233,6 @@ void LLPresetsManager::getControlNames(std::vector<std::string>& names)
 		("AppearanceCameraMovement")
 		// From llagentcamera.cpp
 		("CameraOffsetBuild")
-		("CameraOffsetRearView")
-		("FocusOffsetRearView")
 		("CameraOffsetScale")
 		("TrackFocusObject")
         ;
@@ -286,9 +295,25 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 	}
 	else
 	{
+		bool custom_camera_offsets = false;
+		if (subdirectory == PRESETS_CAMERA)
+		{
+			name_list.push_back(gAgentCamera.getCameraOffsetCtrlName());
+			name_list.push_back(gAgentCamera.getFocusOffsetCtrlName());
+			custom_camera_offsets = (name != PRESETS_REAR && name != PRESETS_SIDE && name != PRESETS_FRONT);
+		}
 		for (std::vector<std::string>::iterator it = name_list.begin(); it != name_list.end(); ++it)
 		{
 			std::string ctrl_name = *it;
+			std::string dest_ctrl_name = ctrl_name;
+			if (custom_camera_offsets && ctrl_name == gAgentCamera.getCameraOffsetCtrlName())
+			{
+				dest_ctrl_name = "CameraOffsetCustomPreset";
+			}
+			if (custom_camera_offsets && ctrl_name == gAgentCamera.getFocusOffsetCtrlName())
+			{
+				dest_ctrl_name = "FocusOffsetCustomPreset";
+			}
 			LLControlVariable* ctrl = gSavedSettings.getControl(ctrl_name).get();
 			if (ctrl)
 			{
@@ -296,10 +321,10 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 				std::string type = LLControlGroup::typeEnumToString(ctrl->type());
 				LLSD value = ctrl->getValue();
 
-				paramsData[ctrl_name]["Comment"] = comment;
-				paramsData[ctrl_name]["Persist"] = 1;
-				paramsData[ctrl_name]["Type"] = type;
-				paramsData[ctrl_name]["Value"] = value;
+				paramsData[dest_ctrl_name]["Comment"] = comment;
+				paramsData[dest_ctrl_name]["Persist"] = 1;
+				paramsData[dest_ctrl_name]["Type"] = type;
+				paramsData[dest_ctrl_name]["Value"] = value;
 			}
 		}
 	}
@@ -354,6 +379,7 @@ bool LLPresetsManager::setPresetNamesInComboBox(const std::string& subdirectory,
 
 	combo->clearRows();
 
+
 	std::string presets_dir = getPresetsDir(subdirectory);
 
 	if (!presets_dir.empty())
@@ -368,7 +394,7 @@ bool LLPresetsManager::setPresetNamesInComboBox(const std::string& subdirectory,
 			for (std::list<std::string>::const_iterator it = preset_names.begin(); it != preset_names.end(); ++it)
 			{
 				const std::string& name = *it;
-				combo->add(name, LLSD().with(0, name));
+				combo->add(name, name);
 			}
 		}
 		else

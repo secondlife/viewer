@@ -1499,6 +1499,21 @@
         <real>0.5</real>
       </array>
     </map>
+    <key>CameraOffsetCustomPreset</key>
+    <map>
+      <key>Comment</key>
+      <string>Initial camera offset from avatar for the custom camera preset</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+        <real>-3.0</real>
+        <real>0.0</real>
+        <real>0.75</real>
+      </array>
+    </map>
     <key>CameraOffsetScale</key>
     <map>
       <key>Comment</key>
@@ -4353,6 +4368,21 @@
       <array>
         <real>1.5</real>
         <real>0.7</real>
+        <real>1.0</real>
+      </array>
+    </map>
+    <key>FocusOffsetCustomPreset</key>
+    <map>
+      <key>Comment</key>
+      <string>Initial focus point offset relative to avatar for the custom camera preset (x-axis is forward)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3D</string>
+      <key>Value</key>
+      <array>
+        <real>1.0</real>
+        <real>0.0</real>
         <real>1.0</real>
       </array>
     </map>

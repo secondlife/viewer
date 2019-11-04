@@ -36,11 +36,15 @@ static const std::string PRESETS_DEFAULT = "Default";
 static const std::string PRESETS_DIR = "presets";
 static const std::string PRESETS_GRAPHIC = "graphic";
 static const std::string PRESETS_CAMERA = "camera";
+static const std::string PRESETS_REAR = "Rear";
+static const std::string PRESETS_FRONT = "Front";
+static const std::string PRESETS_SIDE = "Side";
 
 enum EDefaultOptions
 {
 	DEFAULT_SHOW,
 	DEFAULT_TOP,
+	DEFAULT_VIEWS_HIDE,
 	DEFAULT_HIDE				// Do not display "Default" in a list
 };
 

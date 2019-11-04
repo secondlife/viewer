@@ -1,51 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <floater
  legacy_header_height="18"
- height="145"
+ height="185"
  help_topic="floater_save_preset"
  layout="topleft"
  name="save_pref_preset"
  save_rect="true"
  title="SAVE PREF PRESET"
- width="300">
+ width="280">
 
     <string name="title_graphic">Save Graphic Preset</string>
     <string name="title_camera">Save Camera Preset</string>
-
-    <text
-     follows="top|left|right"
-     height="32"
+    <string name="btn_label_save">Save</string>
+    <string name="btn_label_replace">Replace</string>
+    <radio_group
+     height="85"
      layout="topleft"
-     word_wrap="true"
      left="20"
-     name="Preset"
-     top="30"
-     width="200">
-     Type a name for the preset or choose an existing preset.
-    </text>
+     top="15"
+     width="150"
+     name="radio_save_preset">
+     <radio_item
+      label="Save as a new preset"
+      name="new_preset"
+      top="10" 
+      layout="topleft"
+      height="16" 
+      value="0"/>
+     <radio_item
+      label="Replace a preset"
+      name="replace_preset"
+      layout="topleft"
+      top="70" 
+      height="16" 
+      value="1"/>
+    </radio_group> 
+    <line_editor
+     commit_on_focus_lost = "true"
+     follows="top|left"
+     height="23"
+     layout="topleft"
+     left="41"
+     name="preset_txt_editor"
+     width="200"
+     top="45"/>
     <combo_box
      follows="top|left"
      layout="topleft"
-     left="20"
+     left="41"
      name="preset_combo"
-     top_delta="35"
-     allow_text_entry="true"
+     top_pad="35"
      width="200"/>
     <button
      follows="top|left"
-     height="23"
+     height="25"
      label="Save"
      layout="topleft"
      top_delta="40"
-     left="20"
+     left="25"
      name="save"
-     width="70"/>
+     width="110"/>
     <button
      follows="bottom|right"
-     height="23"
+     height="25"
      label="Cancel"
      layout="topleft"
      left_pad="20"
      name="cancel"
-     width="70"/>
+     width="110"/>
 </floater>

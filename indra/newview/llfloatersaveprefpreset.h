@@ -28,11 +28,13 @@
 #ifndef LL_LLFLOATERSAVEPREFPRESET_H
 #define LL_LLFLOATERSAVEPREFPRESET_H
 
-#include "llfloater.h"
+#include "llmodaldialog.h"
 
 class LLComboBox;
+class LLRadioGroup;
+class LLLineEditor;
 
-class LLFloaterSavePrefPreset : public LLFloater
+class LLFloaterSavePrefPreset : public LLModalDialog
 {
 
 public:
@@ -43,8 +45,11 @@ public:
 
 	void onBtnSave();
 	void onBtnCancel();
+	void onSwitchSaveReplace();
 
 private:
+	LLRadioGroup*	mSaveRadioGroup;
+	LLLineEditor*	mNameEditor;
 	LLComboBox*		mPresetCombo;
 	LLButton*		mSaveButton;
 
