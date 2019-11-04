@@ -664,6 +664,7 @@ if __name__ == "__main__":
     default_fields = [ "Timers.Frame.Time", 
                        "Session.UniqueHostID", 
                        "Session.UniqueSessionUUID", 
+                       "ViewerInfo.RENDER_QUALITY",
                        "Summary.Timestamp", 
                        "Avatars.Self.ARCCalculated", 
                        "Avatars.Self.ARCCalculated2", 

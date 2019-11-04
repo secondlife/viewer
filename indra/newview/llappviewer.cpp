@@ -1422,6 +1422,10 @@ void LLAppViewer::doPerFrameStatsLogging()
                 {
                     LLSD session_sd = getSessionLogData();
                     LLTrace::BlockTimer::pushLogExtraRecord("Session", session_sd);
+
+					LLSD viewer_info_sd = getViewerInfo(); 
+                    LLTrace::BlockTimer::pushLogExtraRecord("ViewerInfo", viewer_info_sd);
+
                     first_frame = false;
                 }                
 
