@@ -149,6 +149,7 @@ LLKeyConflictHandler::LLKeyConflictHandler(ESourceMode mode)
 LLKeyConflictHandler::~LLKeyConflictHandler()
 {
     clearUnsavedChanges();
+    // Note: does not reset bindings if temporary file was used
 }
 
 bool LLKeyConflictHandler::canHandleControl(const std::string &control_name, EMouseClickType mouse_ind, KEY key, MASK mask)
@@ -579,13 +580,17 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
             {
                 // write to temporary xml and use it for gViewerInput
                 filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename_temporary);
-                mUsesTemporaryFile = true;
-                sTemporaryFileUseCount++;
+                if (!mUsesTemporaryFile)
+                {
+                    mUsesTemporaryFile = true;
+                    sTemporaryFileUseCount++;
+                }
             }
             else
             {
                 // write back to user's xml and use it for gViewerInput
                 filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename_default);
+                // Don't reset mUsesTemporaryFile, it will be reset at cleanup stage
             }
 
             LLXMLNodePtr output_node = new LLXMLNode("keys", false);
@@ -606,6 +611,10 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
             // Now force a rebind for keyboard
             if (gDirUtilp->fileExists(filename))
             {
+                // Ideally instead of rebinding immediately we should shedule
+                // the rebind since single file can have multiple handlers,
+                // one per mode, saving simultaneously.
+                // Or whatever uses LLKeyConflictHandler should control the process.
                 gViewerInput.loadBindingsXML(filename);
             }
         }
@@ -613,6 +622,7 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
 
     if (!temporary)
     {
+        // will remove any temporary file if there were any
         clearUnsavedChanges();
     }
 }
@@ -754,18 +764,29 @@ void LLKeyConflictHandler::resetToDefaults()
 
 void LLKeyConflictHandler::clear()
 {
-    clearUnsavedChanges();
+    if (clearUnsavedChanges())
+    {
+        // temporary file was removed, this means we were using it and need to reload keyboard's bindings
+        resetKeyboardBindings();
+    }
     mControlsMap.clear();
     mDefaultsMap.clear();
 }
 
+// static
 void LLKeyConflictHandler::resetKeyboardBindings()
 {
-    std::string filename = gDirUtilp->findFile(filename_default,
-        gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, ""),
-        gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
-
-    gViewerInput.loadBindingsXML(filename);
+    // Try to load User's bindings first
+    std::string key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename_default);
+    if (!gDirUtilp->fileExists(key_bindings_file) || !gViewerInput.loadBindingsXML(key_bindings_file))
+    {
+        // Failed to load custom bindings, try default ones
+        key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, filename_default);
+        if (!gViewerInput.loadBindingsXML(key_bindings_file))
+        {
+            LL_ERRS("InitInfo") << "Unable to open default key bindings from " << key_bindings_file << LL_ENDL;
+        }
+    }
 }
 
 void LLKeyConflictHandler::generatePlaceholders(ESourceMode load_mode)
@@ -825,8 +846,9 @@ void LLKeyConflictHandler::registerTemporaryControl(const std::string &control_n
     type_data->mKeyBind.addKeyData(mouse, key, mask, false);
 }
 
-void LLKeyConflictHandler::clearUnsavedChanges()
+bool LLKeyConflictHandler::clearUnsavedChanges()
 {
+    bool result = false;
     mHasUnsavedChanges = false;
 
     if (mUsesTemporaryFile)
@@ -835,15 +857,16 @@ void LLKeyConflictHandler::clearUnsavedChanges()
         sTemporaryFileUseCount--;
         if (!sTemporaryFileUseCount)
         {
-            clearTemporaryFile();
+            result = clearTemporaryFile();
         }
         // else: might be usefull to overwrite content of temp file with defaults
         // but at the moment there is no such need
     }
+    return result;
 }
 
 //static
-void LLKeyConflictHandler::clearTemporaryFile()
+bool LLKeyConflictHandler::clearTemporaryFile()
 {
     // At the moment single file needs five handlers (one per mode), so doing this
     // will remove file for all hadlers
@@ -851,6 +874,8 @@ void LLKeyConflictHandler::clearTemporaryFile()
     if (gDirUtilp->fileExists(filename))
     {
         LLFile::remove(filename);
+        return true;
     }
+    return false;
 }
 

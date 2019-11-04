@@ -2618,6 +2618,7 @@ LLPanelPreferenceControls::LLPanelPreferenceControls()
     mEditingColumn(-1),
     mEditingMode(0)
 {
+    // MODE_COUNT - 1 because there are currently no settings assigned to 'saved settings'.
     for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
     {
         mConflictHandler[i].setLoadMode((LLKeyConflictHandler::ESourceMode)i);
@@ -2857,17 +2858,25 @@ void LLPanelPreferenceControls::onListCommit()
 
 void LLPanelPreferenceControls::onModeCommit()
 {
-    regenerateControls();
+    mEditingMode = pKeyModeBox->getValue().asInteger();
+    if (mConflictHandler[mEditingMode].empty())
+    {
+        // opening for first time
+        mConflictHandler[mEditingMode].loadFromSettings((LLKeyConflictHandler::ESourceMode)mEditingMode);
+    }
+    populateControlTable();
 }
 
 void LLPanelPreferenceControls::onRestoreDefaults()
 {
     for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
     {
-        mConflictHandler[mEditingMode].resetToDefaults();
+        mConflictHandler[i].resetToDefaults();
         // Apply changes to viewer as 'temporary'
-        mConflictHandler[mEditingMode].saveToSettings(true);
+        mConflictHandler[i].saveToSettings(true);
     }
+
+    updateTable();
 }
 
 // todo: copy onSetKeyBind to interface and inherit from interface
