@@ -1012,7 +1012,7 @@ bool LLAppViewer::init()
 		key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "key_bindings.xml");
 		if (!gViewerInput.loadBindingsXML(key_bindings_file))
 		{
-			LL_ERRS("InitInfo") << "Unable to open default key bindings from" << key_bindings_file << LL_ENDL;
+			LL_ERRS("InitInfo") << "Unable to open default key bindings from " << key_bindings_file << LL_ENDL;
 		}
 	}
 

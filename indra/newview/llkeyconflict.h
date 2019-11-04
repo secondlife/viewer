@@ -97,11 +97,11 @@ public:
 
     // Saves settings to 'saved settings' or to xml
     // If 'temporary' is set, function will save settings to temporary
-    // file and reload input from temporary file.
+    // file and reload input bindings from temporary file.
     // 'temporary' does not support gSavedSettings, those are handled
     // by preferences, so 'temporary' is such case will simply not
     // reset mHasUnsavedChanges
-    void saveToSettings(bool temporary = false);
+    void saveToSettings(bool apply_temporary = false);
 
     LLKeyData getDefaultControl(const std::string &control_name, U32 data_index);
     // Resets keybinding to default variant from 'saved settings' or xml
@@ -112,6 +112,10 @@ public:
 
     bool empty() { return mControlsMap.empty(); }
     void clear();
+
+    // reloads bindings from last valid user's xml or from default xml
+    // to keyboard's handler
+    static void resetKeyboardBindings();
 
     bool hasUnsavedChanges() { return mHasUnsavedChanges; }
     void setLoadMode(ESourceMode mode) { mLoadMode = mode; }
@@ -127,13 +131,14 @@ private:
     typedef std::map<std::string, LLKeyConflict> control_map_t;
     void loadFromSettings(const LLViewerInput::KeyMode& keymode, control_map_t *destination);
     bool loadFromSettings(const ESourceMode &load_mode, const std::string &filename, control_map_t *destination);
-    void resetKeyboardBindings();
     void generatePlaceholders(ESourceMode load_mode); //E.x. non-assignable values
     // returns false in case user is trying to reuse control that can't be reassigned
     bool removeConflicts(const LLKeyData &data, const U32 &conlict_mask);
 
-    void clearUnsavedChanges();
-    static void clearTemporaryFile();
+    // removes flags and removes temporary file, returns 'true' if file was removed
+    bool clearUnsavedChanges();
+    // return true if there was a file to remove
+    static bool clearTemporaryFile();
 
     control_map_t mControlsMap;
     control_map_t mDefaultsMap;

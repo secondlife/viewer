@@ -307,7 +307,9 @@ public:
 	/*virtual*/ void onCancelKeyBind();
 
 private:
+	// reloads settings, discards current changes, updates table
 	void regenerateControls();
+
 	void populateControlTable();
 	void addSeparator();
 	void updateTable();
