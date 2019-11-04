@@ -3045,12 +3045,12 @@ void LLPanelFace::pasteFace(LLViewerObject* objectp, S32 te)
             }
 
             // Color / Alpha
-            if ((mPasteColor || mPasteAlpha) && te_data.has("colors"))
+            if ((mPasteColor || mPasteAlpha) && te_data["te"].has("colors"))
             {
                 LLColor4 color = objectp->getTE(te)->getColor();
 
                 LLColor4 clip_color;
-                clip_color.setValue(te_data["colors"]);
+                clip_color.setValue(te_data["te"]["colors"]);
 
                 // Color
                 if (mPasteColor)
@@ -3068,32 +3068,38 @@ void LLPanelFace::pasteFace(LLViewerObject* objectp, S32 te)
 
                 objectp->setTEColor(te, color);
             }
-            
-            // Glow
-            if (mPasteGlow && te_data.has("glow"))
+
+            if (mPasteColor && te_data["te"].has("fullbright"))
             {
-                objectp->setTEGlow(te, (F32)te_data["glow"].asReal());
+                objectp->setTEFullbright(te, te_data["te"]["fullbright"].asInteger());
+            }
+
+
+            // Glow
+            if (mPasteGlow && te_data["te"].has("glow"))
+            {
+                objectp->setTEGlow(te, (F32)te_data["te"]["glow"].asReal());
             }
 
             // Texture map
             if (mPasteMapping)
             {
-                if (te_data.has("scales") && te_data.has("scalet"))
+                if (te_data["te"].has("scales") && te_data["te"].has("scalet"))
                 {
-                    objectp->setTEScale(te, (F32)te_data["scales"].asReal(), (F32)te_data["scalet"].asReal());
+                    objectp->setTEScale(te, (F32)te_data["te"]["scales"].asReal(), (F32)te_data["te"]["scalet"].asReal());
                 }
-                if (te_data.has("offsets") && te_data.has("offsett"))
+                if (te_data["te"].has("offsets") && te_data["te"].has("offsett"))
                 {
-                    objectp->setTEOffset(te, (F32)te_data["offsets"].asReal(), (F32)te_data["offsett"].asReal());
+                    objectp->setTEOffset(te, (F32)te_data["te"]["offsets"].asReal(), (F32)te_data["te"]["offsett"].asReal());
                 }
-                if (te_data.has("imagerot"))
+                if (te_data["te"].has("imagerot"))
                 {
-                    objectp->setTERotation(te, (F32)te_data["imagerot"].asReal());
+                    objectp->setTERotation(te, (F32)te_data["te"]["imagerot"].asReal());
                 }
             }
 
            // Media
-            if (mPasteMedia && te_data.has("media"))
+            if (mPasteMedia && te_data.has("media")) //te_data["te"]?
             {
                 //*TODO
             }
@@ -3163,9 +3169,9 @@ void LLPanelFace::pasteFace(LLViewerObject* objectp, S32 te)
                 LLSelectedTEMaterial::setSpecularLightExponent(this, (U8)te_data["material"]["SpecExp"].asInteger(), te, object_id);
                 LLSelectedTEMaterial::setEnvironmentIntensity(this, (U8)te_data["material"]["EnvIntensity"].asInteger(), te, object_id);
                 LLSelectedTEMaterial::setDiffuseAlphaMode(this, (U8)te_data["material"]["SpecRot"].asInteger(), te, object_id);
-                if (te_data.has("shiny"))
+                if (te_data.has("te") && te_data["te"].has("shiny"))
                 {
-                    objectp->setTEShiny(te, (U8)te_data["shiny"].asInteger());
+                    objectp->setTEShiny(te, (U8)te_data["te"]["shiny"].asInteger());
                 }
             }
         }
