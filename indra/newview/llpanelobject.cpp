@@ -2449,7 +2449,7 @@ bool LLPanelObject::canCopyTexture(LLUUID image_id)
 {
     // User is allowed to copy a texture if:
     // library asset or default texture,
-    // or full perm asset exists in user's inventory
+    // or copy perm asset exists in user's inventory
 
     // Library asset or default texture
     if (gInventory.isObjectDescendentOf(image_id, gInventory.getLibraryRootFolderID())
@@ -2461,7 +2461,7 @@ bool LLPanelObject::canCopyTexture(LLUUID image_id)
         return true;
     }
 
-    // Search for a full perm asset
+    // Search for a copy perm asset
     LLViewerInventoryCategory::cat_array_t cats;
     LLViewerInventoryItem::item_array_t items;
     LLAssetIDMatches asset_id_matches(image_id);
@@ -2475,9 +2475,15 @@ bool LLPanelObject::canCopyTexture(LLUUID image_id)
         for (S32 i = 0; i < items.size(); i++)
         {
             LLViewerInventoryItem* itemp = items[i];
-            if (itemp->getIsFullPerm())
+            if (itemp)
             {
-                return true;
+                LLPermissions item_permissions = itemp->getPermissions();
+                if (item_permissions.allowOperationBy(PERM_COPY,
+                    gAgent.getID(),
+                    gAgent.getGroupID()))
+                {
+                    return true;
+                }
             }
         }
     }
