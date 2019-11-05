@@ -26,6 +26,7 @@
     <button
      name="new_btn"
      label="New..."
+     tool_tip="Create a new classified at the current location"
      enabled="false"
      top="25"
      left="5"
@@ -38,6 +39,7 @@
     <button
      name="delete_btn"
      label="Delete..."
+     tool_tip="Delete currently selected classified"
      enabled="false"
      left_pad="5"
      height="20"

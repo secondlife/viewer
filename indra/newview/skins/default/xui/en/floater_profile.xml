@@ -106,6 +106,7 @@
         <button
          name="cancel_btn"
          label="Cancel"
+         tool_tip="Discard unsaved changes and close"
          bottom_delta="0"
          right="-10"
          height="20"

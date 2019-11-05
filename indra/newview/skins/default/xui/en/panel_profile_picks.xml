@@ -38,6 +38,7 @@
     <button
      name="new_btn"
      label="New..."
+     tool_tip="Create a new pick at the current location"
      enabled="false"
      top_pad="4"
      left="5"
@@ -50,6 +51,7 @@
     <button
      name="delete_btn"
      label="Delete..."
+     tool_tip="Delete currently selected pick"
      enabled="false"
      left_pad="5"
      height="20"
