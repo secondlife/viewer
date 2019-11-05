@@ -98,6 +98,7 @@ protected:
     LLUUID      queueRequest(const ThreadRequest::ptr_t &request, U32 priority);
     void        dropRequest(LLUUID request_id);
     void        adjustRequest(LLUUID request_id, S32 adjustment);
+    void        setRequest(LLUUID request_id, U32 priority);
     size_t      requestCount() const;
     bool        checkRequest(LLUUID request_id) const;
 

@@ -212,6 +212,8 @@
 #include "llpaneltopinfobar.h"
 #include "llcleanup.h"
 
+#include "llviewertexturemanager.h"
+
 #if LL_WINDOWS
 #include <tchar.h> // For Unicode conversion methods
 #endif
@@ -1832,8 +1834,8 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	// Init the image list.  Must happen after GL is initialized and before the images that
 	// LLViewerWindow needs are requested.
 	LLImageGL::initClass(LLViewerTexture::MAX_GL_IMAGE_CATEGORY) ;
-	gTextureList.init();
-	LLViewerTextureManager::init() ;
+
+	LLViewerTextureManager::instance(); // just get an instance to force creation.
 	gBumpImageList.init();
 	
 	// Init font system, but don't actually load the fonts yet
@@ -2224,7 +2226,6 @@ void LLViewerWindow::shutdownGL()
 	LL_INFOS() << "Cleaning up wearables" << LL_ENDL;
 	LLWearableList::instance().cleanup() ;
 
-	gTextureList.shutdown();
 	stop_glerror();
 
 	gBumpImageList.shutdown();
@@ -2232,7 +2233,7 @@ void LLViewerWindow::shutdownGL()
 
 	LLWorldMapView::cleanupTextures();
 
-	LLViewerTextureManager::cleanup() ;
+	//LLViewerTextureManager::cleanup() ;
 	SUBSYSTEM_CLEANUP(LLImageGL) ;
 
 	LL_INFOS() << "All textures and llimagegl images are destroyed!" << LL_ENDL ;
@@ -2244,6 +2245,7 @@ void LLViewerWindow::shutdownGL()
 	stopGL(FALSE);
 	stop_glerror();
 
+    LLViewerTextureManager::deleteSingleton();
 	gGL.shutdown();
 
 	SUBSYSTEM_CLEANUP(LLVertexBuffer);
@@ -5071,13 +5073,13 @@ void LLViewerWindow::stopGL(BOOL save_state)
 	//Note: --bao
 	//if not necessary, do not change the order of the function calls in this function.
 	//if change something, make sure it will not break anything.
-	//especially be careful to put anything behind gTextureList.destroyGL(save_state);
+	//especially be careful to put anything behind LLViewerTextureList::instance().destroyGL(save_state);
 	if (!gGLManager.mIsDisabled)
 	{
 		LL_INFOS() << "Shutting down GL..." << LL_ENDL;
 
-		// Pause texture decode threads (will get unpaused during main loop)
-		LLAppViewer::getTextureFetch()->pause();
+// 		// Pause texture decode threads (will get unpaused during main loop)
+// 		LLAppViewer::getTextureFetch()->pause();
 				
 		gSky.destroyGL();
 		stop_glerror();		
@@ -5111,7 +5113,7 @@ void LLViewerWindow::stopGL(BOOL save_state)
 			gPostProcess->invalidate();
 		}
 
-		gTextureList.destroyGL(save_state);
+		LLViewerTextureManager::instance().destroyGL(save_state);
 		stop_glerror();
 		
 		gGLManager.mIsDisabled = TRUE;
@@ -5133,7 +5135,7 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 	//Note: --bao
 	//if not necessary, do not change the order of the function calls in this function.
 	//if change something, make sure it will not break anything. 
-	//especially, be careful to put something before gTextureList.restoreGL();
+	//especially, be careful to put something before LLViewerTextureList::instance().restoreGL();
 	if (gGLManager.mIsDisabled)
 	{
 		LL_INFOS() << "Restoring GL..." << LL_ENDL;
@@ -5142,7 +5144,7 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 		initGLDefaults();
 		LLGLState::restoreGL();
 		
-		gTextureList.restoreGL();
+		LLViewerTextureManager::instance().restoreGL();
 		
 		// for future support of non-square pixels, and fonts that are properly stretched
 		//LLFontGL::destroyDefaultFonts();
@@ -5639,7 +5641,7 @@ void LLPickInfo::updateXYCoords()
 	if (mObjectFace > -1)
 	{
 		const LLTextureEntry* tep = getObject()->getTE(mObjectFace);
-		LLPointer<LLViewerTexture> imagep = LLViewerTextureManager::getFetchedTexture(tep->getID());
+		LLPointer<LLViewerTexture> imagep = LLViewerTextureManager::instance().getFetchedTexture(tep->getID());
 		if(mUVCoords.mV[VX] >= 0.f && mUVCoords.mV[VY] >= 0.f && imagep.notNull())
 		{
 			mXYCoords.mX = ll_round(mUVCoords.mV[VX] * (F32)imagep->getWidth());

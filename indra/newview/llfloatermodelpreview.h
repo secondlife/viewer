@@ -299,7 +299,7 @@ public:
 	const bool isLegacyRigValid( void ) const { return mLegacyRigValid; }
 	void setLegacyRigValid( bool rigValid ) { mLegacyRigValid = rigValid; }		
 
-	static void	textureLoadedCallback( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
+    static void	textureLoadedCallback(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, void *userdata);
     static bool lodQueryCallback();
 	
 	boost::signals2::connection setDetailsCallback( const details_signal_t::slot_type& cb ){  return mDetailsSignal.connect(cb);  }

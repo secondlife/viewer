@@ -65,6 +65,7 @@
 #include "lltrans.h"
 #include "llfloaterbuycurrency.h"
 #include "llviewerassetupload.h"
+#include "llviewertexturemanager.h"
 
 // linden libraries
 #include "lleconomy.h"
@@ -659,7 +660,7 @@ void handle_compress_image(void*)
 
 			BOOL success;
 
-			success = LLViewerTextureList::createUploadFile(infile, outfile, IMG_CODEC_TGA);
+			success = LLViewerTextureManager::createUploadFile(infile, outfile, IMG_CODEC_TGA);
 
 			if (success)
 			{

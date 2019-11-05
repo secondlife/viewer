@@ -67,6 +67,7 @@
 #include "llsdserialize.h"
 #include "llcallstack.h"
 #include "llcorehttputil.h"
+#include "llviewertexturemanager.h"
 
 #if LL_MSVC
 // disable boost::lexical_cast warning
@@ -874,7 +875,7 @@ void LLVOAvatarSelf::removeMissingBakedTextures()
 		// is seriously wrong).
 		if (!tex || tex->isMissingAsset())
 		{
-			LLViewerTexture *imagep = LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT_AVATAR);
+			LLViewerTexture *imagep = LLViewerTextureManager::instance().getFetchedTexture(IMG_DEFAULT_AVATAR);
 			if (imagep && imagep != tex)
 			{
 				setTEImage(te, imagep);
@@ -1282,32 +1283,30 @@ U32 LLVOAvatarSelf::getNumWearables(LLAvatarAppearanceDefines::ETextureIndex i) 
 }
 
 // virtual
-void LLVOAvatarSelf::localTextureLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src_raw, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
+void LLVOAvatarSelf::localTextureLoaded(BOOL success, LLPointer<LLViewerFetchedTexture> &src_vi, BOOL done_final, LLAvatarAppearanceDefines::ETextureIndex index)
 {	
-
-	const LLUUID& src_id = src_vi->getID();
-	LLAvatarTexData *data = (LLAvatarTexData *)userdata;
-	ETextureIndex index = data->mIndex;
-	if (!isIndexLocalTexture(index)) return;
+	LLUUID src_id = src_vi->getID();
+	if (!isIndexLocalTexture(index)) 
+        return;
 
 	LLLocalTextureObject *local_tex_obj = getLocalTextureObject(index, 0);
 
 	// fix for EXT-268. Preventing using of NULL pointer
-	if(NULL == local_tex_obj)
+	if(!local_tex_obj)
 	{
 		LL_WARNS("TAG") << "There is no Local Texture Object with index: " << index 
-			<< ", final: " << final
+			<< ", final: " << done_final
 			<< LL_ENDL;
 		return;
 	}
 	if (success)
 	{
 		if (!local_tex_obj->getBakedReady() &&
-			local_tex_obj->getImage() != NULL &&
+			(local_tex_obj->getImage() != nullptr) &&
 			(local_tex_obj->getID() == src_id) &&
-			discard_level < local_tex_obj->getDiscard())
+			(src_vi->getDiscardLevel() < local_tex_obj->getDiscard()))
 		{
-			local_tex_obj->setDiscard(discard_level);
+            local_tex_obj->setDiscard(src_vi->getDiscardLevel());
 			requestLayerSetUpdate(index);
 			if (isEditingAppearance())
 			{
@@ -1316,12 +1315,12 @@ void LLVOAvatarSelf::localTextureLoaded(BOOL success, LLViewerFetchedTexture *sr
 			updateMeshTextures();
 		}
 	}
-	else if (final)
+	else if (done_final)
 	{
 		// Failed: asset is missing
 		if (!local_tex_obj->getBakedReady() &&
-			local_tex_obj->getImage() != NULL &&
-			local_tex_obj->getImage()->getID() == src_id)
+			(local_tex_obj->getImage() != nullptr) &&
+			(local_tex_obj->getImage()->getID() == src_id))
 		{
 			local_tex_obj->setDiscard(0);
 			requestLayerSetUpdate(index);
@@ -1361,7 +1360,7 @@ LLViewerFetchedTexture* LLVOAvatarSelf::getLocalTextureGL(LLAvatarAppearanceDefi
 	}
 	if (local_tex_obj->getID() == IMG_DEFAULT_AVATAR)
 	{
-		return LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT_AVATAR);
+		return LLViewerTextureManager::instance().getFetchedTexture(IMG_DEFAULT_AVATAR);
 	}
 	return dynamic_cast<LLViewerFetchedTexture*> (local_tex_obj->getImage());
 }
@@ -1756,7 +1755,12 @@ void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, LLViewerTexture* src_te
 				}
 				else
 				{					
-					tex->setLoadedCallback(onLocalTextureLoaded, desired_discard, TRUE, FALSE, new LLAvatarTexData(getID(), type), NULL);
+                    LLUUID avatar_id(getID());
+                    /*TACO:TODO*/ // capture the connection so we can disconnect it after the call.
+                    LLViewerFetchedTexture::connection_t cntion =  tex->addCallback(
+                        [avatar_id, type](bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done) {
+                            LLVOAvatarSelf::onLocalTextureLoaded(success, src_vi, final_done, avatar_id, type);
+                    });
 				}
 			}
 			tex->setMinDiscardLevel(desired_discard);
@@ -1829,7 +1833,7 @@ void LLVOAvatarSelf::dumpLocalTextures() const
 					// makes textures easier to steal
 						<< image->getID() << " "
 #endif
-						<< "Priority: " << image->getDecodePriority()
+						<< "Priority: " << image->getPriority()
 						<< LL_ENDL;
 			}
 		}
@@ -1845,21 +1849,39 @@ void LLVOAvatarSelf::dumpLocalTextures() const
 // onLocalTextureLoaded()
 //-----------------------------------------------------------------------------
 
-void LLVOAvatarSelf::onLocalTextureLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src_raw, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
+/*static*/ 
+void LLVOAvatarSelf::onLocalTextureLoaded(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, LLUUID avatar_id, LLAvatarAppearanceDefines::ETextureIndex index)
 {
-	LLAvatarTexData *data = (LLAvatarTexData *)userdata;
-	LLVOAvatarSelf *self = (LLVOAvatarSelf *)gObjectList.findObject(data->mAvatarID);
-	if (self)
-	{
-		// We should only be handling local textures for ourself
-		self->localTextureLoaded(success, src_vi, src_raw, aux_src, discard_level, final, userdata);
-	}
-	// ensure data is cleaned up
-	if (final || !success)
-	{
-		delete data;
-	}
+    LLVOAvatarSelf *self = (LLVOAvatarSelf *)gObjectList.findObject(avatar_id);
+
+    if (self)
+    {
+        // We should only be handling local textures for ourself
+        self->localTextureLoaded(success, src_vi, final_done, index);
+    }
+    // ensure data is cleaned up
+    if (final_done || !success)
+    {
+    }
+
 }
+
+/*TACO: Remove*/
+// void LLVOAvatarSelf::onLocalTextureLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src_raw, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
+// {
+// 	LLAvatarTexData *data = (LLAvatarTexData *)userdata;
+// 	LLVOAvatarSelf *self = (LLVOAvatarSelf *)gObjectList.findObject(data->mAvatarID);
+// 	if (self)
+// 	{
+// 		// We should only be handling local textures for ourself
+// 		self->localTextureLoaded(success, src_vi, src_raw, aux_src, discard_level, final, userdata);
+// 	}
+// 	// ensure data is cleaned up
+// 	if (final || !success)
+// 	{
+// 		delete data;
+// 	}
+// }
 
 /*virtual*/	void LLVOAvatarSelf::setImage(const U8 te, LLViewerTexture *imagep, const U32 index)
 {
@@ -1984,36 +2006,25 @@ bool LLVOAvatarSelf::getIsCloud() const
 }
 
 /*static*/
-void LLVOAvatarSelf::debugOnTimingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
+void LLVOAvatarSelf::debugOnTimingLocalTexLoaded(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, LLUUID texture_id, LLAvatarAppearanceDefines::ETextureIndex index)
 {
 	if (gAgentAvatarp.notNull())
 	{
-		gAgentAvatarp->debugTimingLocalTexLoaded(success, src_vi, src, aux_src, discard_level, final, userdata);
+		gAgentAvatarp->debugTimingLocalTexLoaded(success, src_vi, final_done, texture_id, index);
 	}
 }
 
-void LLVOAvatarSelf::debugTimingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
+void LLVOAvatarSelf::debugTimingLocalTexLoaded(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, LLUUID texture_id, LLAvatarAppearanceDefines::ETextureIndex index)
 {
-	LLAvatarTexData *data = (LLAvatarTexData *)userdata;
-	if (!data)
-	{
-		return;
-	}
 
-	ETextureIndex index = data->mIndex;
-	
 	if (index < 0 || index >= TEX_NUM_INDICES)
 	{
 		return;
 	}
 
-	if (discard_level >=0 && discard_level <= MAX_DISCARD_LEVEL) // ignore discard level -1, as it means we have no data.
+    if ((src_vi->getDiscardLevel() >= 0) && (src_vi->getDiscardLevel() <= MAX_DISCARD_LEVEL)) // ignore discard level -1, as it means we have no data.
 	{
-		mDebugTextureLoadTimes[(U32)index][(U32)discard_level] = mDebugSelfLoadTimer.getElapsedTimeF32();
-	}
-	if (final)
-	{
-		delete data;
+        mDebugTextureLoadTimes[(U32)index][(U32)src_vi->getDiscardLevel()] = mDebugSelfLoadTimer.getElapsedTimeF32();
 	}
 }
 
@@ -2067,7 +2078,7 @@ const std::string LLVOAvatarSelf::verboseDebugDumpLocalTextureDataInfo(const LLV
 									   << " glocdisc: " << getLocalDiscardLevel(tex_index, wearable_index)
 									   << " discard: " << image->getDiscardLevel()
 									   << " desired: " << image->getDesiredDiscardLevel()
-									   << " decode: " << image->getDecodePriority()
+									   << " decode: " << image->getPriority()
 									   << " addl: " << image->getAdditionalDecodePriority()
 									   << " ts: " << image->getTextureState()
 									   << " bl: " << image->getBoostLevel()

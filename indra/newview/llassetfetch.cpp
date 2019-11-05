@@ -88,6 +88,9 @@ namespace
         LLPointer<LLImageRaw>       getRawImage() const { return mRawImage; }
         LLPointer<LLImageRaw>       getAuxImage() const { return mAuxImage; }
         LLPointer<LLImageFormatted> getFormattedImage() const { return mFormattedImage; }
+        S32                         getDiscardLever() const { return mDiscard; }
+        S32                         getFullWidth() const { return mWidth; }
+        S32                         getFullHeight() const { return mHeight; }
 
     protected:
         std::string                 mURL;
@@ -179,6 +182,11 @@ const std::string LLAssetFetch::FETCHER_NAME("AssetFetcher");
 const S32 LLAssetFetch::HTTP_REQUESTS_RANGE_END_MAX(20000000);
 const std::string LLAssetFetch::REQUEST_EVENT_PUMP("LLAssetFetch-event-pump");
 
+namespace
+{
+    const S32 POOL_SIZE(2);
+}
+
 //========================================================================
 LLAssetFetch::LLAssetFetch():
     LLThreadPool(FETCHER_NAME),
@@ -200,7 +208,7 @@ LLAssetFetch::LLAssetFetch():
 void LLAssetFetch::initSingleton()
 {
     TextureRequest::setJPEGDecoder(gSavedSettings.getS32(SETTING_JPEGDECODER));
-    setPoolSize(1);    /*TODO*/// get this from a config
+    setPoolSize(POOL_SIZE);    /*TODO*/// get this from a config
 
 //     mMaxBandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
 //     mTextureInfo.setLogging(true);
@@ -300,16 +308,16 @@ LLUUID LLAssetFetch::requestTexture(FTType ftype, const std::string &url, S32 pr
 
 LLUUID LLAssetFetch::requestTexture(FTType ftype, const LLUUID &id, const std::string &url, S32 priority, S32 width, S32 height, S32 components, S32 discard, bool needs_aux, texture_signal_cb_t cb)
 {
-    if (priority <= 0)
-    {
-        LL_WARNS(LOG_KEY_ASSETFETCH) << "Texture request with priority " << priority << " <= 0 (" << url << ")" << LL_ENDL;
-        return LLUUID::null;
-    }
-
     if (id.isNull() && url.empty())
     {
         LL_WARNS(LOG_KEY_ASSETFETCH) << "Must have either UUID or url." << LL_ENDL;
         return LLUUID::null;
+    }
+
+    if (priority <= 0)
+    {
+        LL_WARNS(LOG_KEY_ASSETFETCH) << "Texture request with priority " << priority << " <= 0 (" << url << ")" << LL_ENDL;
+        priority = 1;
     }
 
     LLUUID use_id = id;
@@ -331,21 +339,21 @@ LLUUID LLAssetFetch::requestTexture(FTType ftype, const LLUUID &id, const std::s
     }
     else if (!url.empty() && isFileRequest(url))
     {   // We are actually requesting a file
-        LL_WARNS("ASSETFETCH") << "File request for " << url << " as " << use_id << LL_ENDL;
+        //LL_WARNS("ASSETFETCH") << "File request for " << url << " as " << use_id << LL_ENDL;
         request = std::make_shared<TextureFileRequest>(use_id, url, ftype, width, height, components, discard, needs_aux);
         request->setPriority(priority);
         recordThreadRequest(request);
     }
     else if (isInCache(use_id, LLAssetType::AT_TEXTURE))
     {
-        LL_WARNS("ASSETFETCH") << "Cache request for " << use_id << "(" << url << ")" << LL_ENDL;
+        //LL_WARNS("ASSETFETCH") << "Cache request for " << use_id << "(" << url << ")" << LL_ENDL;
         request = std::make_shared<TextureCacheReadRequest>(use_id, ftype, width, height, components, discard, needs_aux);
         request->setPriority(priority);
         recordThreadRequest(request);
     }
     else
     {
-        LL_WARNS("ASSETFETCH") << "Download request for " << use_id << "(" << url << ")" << LL_ENDL;
+        //LL_WARNS("ASSETFETCH") << "Download request for " << use_id << "(" << url << ")" << LL_ENDL;
         // make a new request
         request = std::make_shared<TextureDownloadRequest>(use_id, url, ftype, width, height, components, discard, needs_aux);
         request->setPriority(priority);
@@ -356,23 +364,30 @@ LLUUID LLAssetFetch::requestTexture(FTType ftype, const LLUUID &id, const std::s
         asset_signal_cb_t wrap = [cb](const AssetRequest::ptr_t &request) {
             TextureRequest::ptr_t textr = std::static_pointer_cast<TextureRequest>(request);
 
-            LL_WARNS("ASSETFETCH") << "Signal done on texture. " << textr->getId() << LL_ENDL;
+            LL_DEBUGS("ASSETFETCH") << "Signal done on texture. " << textr->getId() << LL_ENDL;
+            TextureInfo texture_info;
+            texture_info.mRawImage = textr->getRawImage();
+            texture_info.mAuxImage = textr->getAuxImage();
+            texture_info.mDiscardLevel = textr->getDiscardLever();
+            texture_info.mFullWidth = textr->getFullWidth();
+            texture_info.mFullHeight = textr->getFullHeight();
 
-            cb(request, textr->getRawImage(), textr->getAuxImage());
+            cb(request, texture_info);
         };
 
 
         request->addSignal( wrap );
     }
+    mAssetRequests[request->getId()] = request;
     return request->getId();
 }
 
 //========================================================================
-LLAssetFetch::AssetRequest::ptr_t LLAssetFetch::getExistingRequest(const LLUUID &id)
+LLAssetFetch::AssetRequest::ptr_t LLAssetFetch::getExistingRequest(const LLUUID &id) const
 {
     {
 	    LLMutexLock lock(mAllRequestMtx);
-	    asset_fetch_map_t::iterator it( mAssetRequests.find(id) );
+	    asset_fetch_map_t::const_iterator it( mAssetRequests.find(id) );
 	
 	    if (it != mAssetRequests.end())
 	        return (*it).second;
@@ -392,26 +407,55 @@ LLAssetFetch::AssetRequest::ptr_t LLAssetFetch::getExistingRequest(const LLUUID 
     return AssetRequest::ptr_t();
 }
 
-LLAssetFetch::AssetRequest::ptr_t LLAssetFetch::getExistingRequest(const std::string &url)
+LLAssetFetch::AssetRequest::ptr_t LLAssetFetch::getExistingRequest(const std::string &url) const
 {
     LLUUID url_id(LLUUID::generateNewID(url));
     return getExistingRequest(url_id);
 }
 
-bool LLAssetFetch::isInCache(LLUUID id, LLAssetType::EType type) const
+LLAssetFetch::FetchState LLAssetFetch::getFetchState(const LLUUID &id) const
+{
+    AssetRequest::ptr_t request(getExistingRequest(id));
+
+    if (request)
+        return request->getFetchState();
+    return RQST_UNKNOWN;
+}
+
+LLAssetFetch::FetchState LLAssetFetch::getFetchState(const std::string &url) const
+{
+    LLUUID url_id(LLUUID::generateNewID(url));
+    return getFetchState(url_id);
+}
+
+// Used internally... move to private?
+
+
+bool LLAssetFetch::isInCache(const LLUUID &id, LLAssetType::EType type) const
 {
     return gVFS->getExists(id, type);
 }
 
-bool LLAssetFetch::isInCache(std::string url, LLAssetType::EType type) const
+bool LLAssetFetch::isInCache(const std::string &url, LLAssetType::EType type) const
 {
     LLUUID url_id(LLUUID::generateNewID(url));
     return isInCache(url_id, type);
 }
 
+void LLAssetFetch::adjustRequestPriority(const LLUUID &id, S32 adjustment)
+{
+    AssetRequest::ptr_t request(getExistingRequest(id));
+    
+    if (request)
+        adjustRequestPriority(request, adjustment);
+}
+
 void LLAssetFetch::adjustRequestPriority(const AssetRequest::ptr_t &request, S32 adjustment)
 {
-    FetchState state = request->getFetchState();
+    if (!request)
+        return;
+
+    FetchState state(request->getFetchState());
 
     switch (state)
     {
@@ -427,12 +471,86 @@ void LLAssetFetch::adjustRequestPriority(const AssetRequest::ptr_t &request, S32
     }
 
     request->adjustPriority(adjustment);
+
+    LL_DEBUGS("ASSETFETCH") << "Adjusted priority on " << request->getId() << " by " << adjustment << " priority is now " << request->getPriority() << LL_ENDL;
+
     if (request->getPriority() == 0)
     {   // priority has fallen to 0
-        LLMutexLock lock(mThreadDoneMtx);
-        request->setFetchState(RQST_CANCELED);
-        mThreadDone.insert(request);
+        cancelRequest(request);
     }
+}
+
+U32 LLAssetFetch::getRequestPriority(const LLUUID &id) const
+{
+    AssetRequest::ptr_t request(getExistingRequest(id));
+
+    if (!request)
+        return 0;
+
+    return request->getPriority();
+}
+
+void LLAssetFetch::setRequestPriority(const LLUUID &id, U32 priority)
+{
+    AssetRequest::ptr_t request(getExistingRequest(id));
+
+    if (request)
+        setRequestPriority(request, priority);
+}
+
+void LLAssetFetch::setRequestPriority(const AssetRequest::ptr_t &request, U32 priority)
+{
+    if (!request)
+        return;
+    if (priority == 0)
+    {
+        cancelRequest(request);
+        return;
+    }
+
+    FetchState state(request->getFetchState());
+
+    switch (state)
+    {
+        break;
+    case LLAssetFetch::HTTP_QUEUE:
+        mHttpQueue.prioritySet(request->getId(), priority);
+        break;
+    case LLAssetFetch::THRD_QUEUE:
+        setRequest(request->getId(), priority);
+        break;
+    default:
+        break;
+    }
+
+    request->setPriority(priority);
+}
+
+void LLAssetFetch::cancelRequest(const LLUUID &id)
+{
+    AssetRequest::ptr_t request(getExistingRequest(id));
+
+    if (request)
+        cancelRequest(request);
+}
+
+void LLAssetFetch::cancelRequests(const uuid_set_t &id_list)
+{
+    for (const LLUUID &id : id_list)
+    {
+        cancelRequest(id);
+    }
+}
+
+void LLAssetFetch::cancelRequest(const AssetRequest::ptr_t &request)
+{
+    if (!request)
+        return;
+    LL_DEBUGS("ASSETFETCH") << "Canceling request " << request->getId() << LL_ENDL;
+
+    LLMutexLock lock(mThreadDoneMtx);
+    request->setFetchState(RQST_CANCELED);
+    mThreadDone.insert(request);
 }
 
 bool LLAssetFetch::isFileRequest(std::string url) const
@@ -549,6 +667,7 @@ void LLAssetFetch::recordThreadInflight(const LLAssetFetch::AssetRequest::ptr_t 
 
 void LLAssetFetch::recordRequestDone(const AssetRequest::ptr_t &request)
 {
+    //_WARNS("ASSETFETCH") << "Recording 'Done' for " << request->getId() << LL_ENDL;
     if ((request->getFetchState() != RQST_CANCELED) || (request->getFetchState() != RQST_ERROR))
     {
         request->setFetchState(RQST_DONE);
@@ -583,6 +702,7 @@ bool LLAssetFetch::makeHTTPRequest(const AssetRequest::ptr_t &request)
     std::string  url(request->getURL());
     U32 priority(request->getPriority());
 
+    //LL_WARNS("ASSETFETCH") << "Making HTTP Request for " << request->getURL() << LL_ENDL;
     // Only server bake images use the returned headers currently, for getting retry-after field.
 /*TODO*/ // Is this really necessary?
 //     if (request->useRangeRequest())
@@ -632,7 +752,7 @@ void LLAssetFetch::handleHTTPRequest(const LLAssetFetch::AssetRequest::ptr_t &re
         mHttpInFlight.erase(it);
     }
 
-    LL_WARNS("ASSETFETCH") << "HTTP GET DONE: id=" << request->getId() << " status=" << status.getStatus() << "/" << status.getType() << "(" << status.getMessage() << ")" << LL_ENDL;
+    //LL_WARNS("ASSETFETCH") << "HTTP GET DONE: id=" << request->getId() << " status=" << status.getStatus() << "/" << status.getType() << "(" << status.getMessage() << ")" << LL_ENDL;
 
     if (!status)
     {
@@ -703,7 +823,6 @@ void LLAssetFetch::AssetRequest::setId(LLUUID id)
     mAssetId = id;
     mRequestId = id;
 }
-
 
 void LLAssetFetch::AssetRequest::adjustPriority(S32 adjustment)
 {
@@ -793,11 +912,7 @@ std::string LLAssetFetch::AssetRequest::getBaseURL() const
 {
     LLViewerRegion *regionp = gAgent.getRegion();
 
-    if (!regionp)
-    {
-        LL_WARNS_IF("ASSETFETCH") << "Request for asset but no region yet!" << LL_ENDL;
-    }
-    //_WARNS_IF(!regionp, "ASSETFETCH") << "Request for asset but no region yet!" << LL_ENDL;
+    LL_WARNS_IF(!regionp, "ASSETFETCH") << "Request for asset but no region yet!" << LL_ENDL;
 
     if (!regionp)
     {
@@ -854,11 +969,8 @@ void LLAssetFetch::AssetRequest::onCompleted(LLCore::HttpHandle handle, const LL
     LLCore::HttpStatus status(response->getStatus());
     AssetRequest::ptr_t self(shared_from_this());
 
-    if (!status)
-    {
-        LL_WARNS("ASSETFETCH") << "HTTP GET request failed for " << self->getId() << ", Status: " << status.toTerseString() <<
-            " Reason: '" << status.toString() << "'" << LL_ENDL;
-    }
+    LL_WARNS_IF(!status, "ASSETFETCH") << "HTTP GET request failed for " << self->getId() << ", Status: " << status.toTerseString() <<
+        " Reason: '" << status.toString() << "'" << LL_ENDL;
 
     mHTTPResponse = response;
     mDownloadSize = response->getBodySize();
@@ -907,11 +1019,7 @@ void LLAssetFetch::AssetRequest::advance()
     }
     else if ((mState == RQST_ERROR) || (mState == RQST_CANCELED))
     {
-        if (mState == RQST_ERROR)
-        {
-            LL_WARNS("ASSETFETCH") << "Advancing error for request " << getId() << " code=" << mErrorCode << "(" << mErrorSubcode << ":" << mErrorMessage << ")" << LL_ENDL;
-        }
-        //LL_WARNS_IF((mState == RQST_ERROR), "ASSETFETCH") << "Advancing error for request " << getId() << " code=" << mErrorCode << "(" << mErrorSubcode << ":" << mErrorMessage << ")" << LL_ENDL;
+        LL_WARNS_IF((mState == RQST_ERROR), "ASSETFETCH") << "Advancing error for request " << getId() << " code=" << mErrorCode << "(" << mErrorSubcode << ":" << mErrorMessage << ")" << LL_ENDL;
         LLAssetFetch::instance().recordRequestDone(self);
     }
     else
@@ -1112,7 +1220,7 @@ namespace
         mRawImage = new LLImageRaw(mFormattedImage->getWidth(), mFormattedImage->getHeight(), mFormattedImage->getComponents());
         mAuxImage = mNeedsAux ? new LLImageRaw(mFormattedImage->getWidth(), mFormattedImage->getHeight(), 1) : NULL;
 
-        LL_DEBUGS(LOG_KEY_ASSETFETCH) << getId() << ": Decoding. Bytes: " << mFormattedImage->getDataSize() << " Discard: " << mFormattedImage->getDiscardLevel() << LL_ENDL;
+        //_WARNS("RIDER") << getId() << ": Decoding. Bytes: " << mFormattedImage->getDataSize() << " Discard: " << mFormattedImage->getDiscardLevel() << LL_ENDL;
 
         bool decoded = mFormattedImage->decode(mRawImage, 1.0f);
 
@@ -1123,10 +1231,19 @@ namespace
             return false;
         }
 
+        if (!mRawImage->getFullWidth())
+            mRawImage->setFullWidth(mRawImage->getWidth());
+        if (!mRawImage->getFullHeight())
+            mRawImage->setFullHeight(mRawImage->getHeight());
+        mWidth = mRawImage->getFullWidth();
+        mHeight = mRawImage->getFullHeight();
+
         if (mNeedsAux)
         {
             mFormattedImage->decodeChannels(mAuxImage, 1.0f, 4, 4);
         }
+
+        //_WARNS("RIDER") << "Request " << getRequestId() << " decoded mRawImage=" << mRawImage.notNull() << " mAuxImage=" << mAuxImage.notNull() << " dims=" << mWidth << "x" << mHeight << LL_ENDL;
 
         return (mRawImage.notNull() && (!mNeedsAux || mAuxImage.notNull()));
     }
@@ -1166,6 +1283,8 @@ namespace
 
     bool TextureDownloadRequest::execute(U32 priority) 
     {
+        //_WARNS("ASSETFETCH") << "Post HTTP processing for " << getURL() << LL_ENDL;
+
         if (buildFormattedImage())
         {
             if (decodeTexture())
@@ -1199,10 +1318,10 @@ namespace
 
     bool TextureDownloadRequest::cacheTexture()
     {
-        LLVFile file(gVFS, getId(), mAssetType, LLVFile::WRITE);
-        file.setMaxSize(mFormattedImage->getDataSize());
-        // write is synchronous.
-        file.write(mFormattedImage->getData(), mFormattedImage->getDataSize()); 
+//         LLVFile file(gVFS, getId(), mAssetType, LLVFile::WRITE);
+//         file.setMaxSize(mFormattedImage->getDataSize());
+//         // write is synchronous.
+//         file.write(mFormattedImage->getData(), mFormattedImage->getDataSize()); 
 
         return true;
     }
@@ -1215,6 +1334,8 @@ namespace
 
     bool TextureCacheReadRequest::execute(U32 priority)
     {
+        //_WARNS("ASSETFETCH") << "Thread processing for " << getId() << LL_ENDL;
+
         if (buildFormattedImage())
         {
             decodeTexture();
@@ -1253,6 +1374,7 @@ namespace
 
     bool TextureFileRequest::execute(U32 priority)
     {
+        //_WARNS("ASSETFETCH") << "Thread processing for " << getId() << LL_ENDL;
         if (buildFormattedImage())
             decodeTexture();
 

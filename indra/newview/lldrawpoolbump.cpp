@@ -47,6 +47,7 @@
 #include "pipeline.h"
 #include "llspatialpartition.h"
 #include "llviewershadermgr.h"
+#include "llviewertexturemanager.h"
 
 //#include "llimagebmp.h"
 //#include "../tools/imdebug/imdebug.h"
@@ -94,12 +95,12 @@ void LLStandardBumpmap::restoreGL()
 // static
 void LLStandardBumpmap::addstandard()
 {
-	if(!gTextureList.isInitialized())
-	{
-		//Note: loading pre-configuration sometimes triggers this call.
-		//But it is safe to return here because bump images will be reloaded during initialization later.
-		return ;
-	}
+// 	if(!LLViewerTextureList::instance().isInitialized())
+// 	{
+// 		//Note: loading pre-configuration sometimes triggers this call.
+// 		//But it is safe to return here because bump images will be reloaded during initialization later.
+// 		return ;
+// 	}
 
 	// can't assert; we destroyGL and restoreGL a lot during *first* startup, which populates this list already, THEN we explicitly init the list as part of *normal* startup.  Sigh.  So clear the list every time before we (re-)add the standard bumpmaps.
 	//llassert( LLStandardBumpmap::sStandardBumpmapCount == 0 );
@@ -149,13 +150,17 @@ void LLStandardBumpmap::addstandard()
 			return;
 		}
 
+        LLViewerTextureManager::FetchParams params;
+        params.mBoostPriority = LLGLTexture::LOCAL;
+        params.mForceToSaveRaw = true;
+        params.mSaveKeepTime = 30.0f;
+        params.mDesiredDiscard = 0;
+        params.mKeepRaw = true;
+        params.mCallback = LLBumpImageList::onSourceStandardLoaded;
+
 // 		LL_INFOS() << "Loading bumpmap: " << bump_image_id << " from viewerart" << LL_ENDL;
 		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mLabel = label;
-		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage = 
-			LLViewerTextureManager::getFetchedTexture(LLUUID(bump_image_id));	
-		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage->setBoostLevel(LLGLTexture::LOCAL) ;
-		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage->setLoadedCallback(LLBumpImageList::onSourceStandardLoaded, 0, TRUE, FALSE, NULL, NULL );
-		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage->forceToSaveRawImage(0, 30.f) ;
+        gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage = LLViewerTextureManager::instance().getFetchedTexture(LLUUID(bump_image_id), params);
 		LLStandardBumpmap::sStandardBumpmapCount++;
 	}
 
@@ -952,11 +957,11 @@ void LLBumpImageList::destroyGL()
 
 void LLBumpImageList::restoreGL()
 {
-	if(!gTextureList.isInitialized())
-	{
-		//safe to return here because bump images will be reloaded during initialization later.
-		return ;
-	}
+// 	if(!LLViewerTextureList::instance().isInitialized())
+// 	{
+// 		//safe to return here because bump images will be reloaded during initialization later.
+// 		return ;
+// 	}
 
 	LLStandardBumpmap::restoreGL();
 	// Images will be recreated as they are needed.
@@ -1046,24 +1051,24 @@ LLViewerTexture* LLBumpImageList::getBrightnessDarknessImage(LLViewerFetchedText
 {
 	llassert( (bump_code == BE_BRIGHTNESS) || (bump_code == BE_DARKNESS) );
 
-	LLViewerTexture* bump = NULL;
+	LLViewerTexture* bump = nullptr;
 	
-	bump_image_map_t* entries_list = NULL;
-	void (*callback_func)( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata ) = NULL;
+	bump_image_map_t* entries_list = nullptr;
+	//void (*callback_func)( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata ) = NULL;
 
 	switch( bump_code )
 	{
 	case BE_BRIGHTNESS:
 		entries_list = &mBrightnessEntries;
-		callback_func = LLBumpImageList::onSourceBrightnessLoaded;
+		//callback_func = LLBumpImageList::onSourceBrightnessLoaded;
 		break;
 	case BE_DARKNESS:
 		entries_list = &mDarknessEntries;
-		callback_func = LLBumpImageList::onSourceDarknessLoaded;
+		//callback_func = LLBumpImageList::onSourceDarknessLoaded;
 		break;
 	default:
 		llassert(0);
-		return NULL;
+		return nullptr;
 	}
 
 	bump_image_map_t::iterator iter = entries_list->find(src_image->getID());
@@ -1076,7 +1081,7 @@ LLViewerTexture* LLBumpImageList::getBrightnessDarknessImage(LLViewerFetchedText
 		LLPointer<LLImageRaw> raw = new LLImageRaw(1,1,1);
 		raw->clear(0x77, 0x77, 0xFF, 0xFF);
 
-		(*entries_list)[src_image->getID()] = LLViewerTextureManager::getLocalTexture( raw.get(), TRUE);
+		(*entries_list)[src_image->getID()] = LLViewerTextureManager::instance().getLocalTexture( raw.get(), true);
 		bump = (*entries_list)[src_image->getID()]; // In case callback was called immediately and replaced the image
 	}
 
@@ -1087,7 +1092,10 @@ LLViewerTexture* LLBumpImageList::getBrightnessDarknessImage(LLViewerFetchedText
 			//(LLPipeline::sRenderDeferred && bump->getComponents() != 4))
 		{
 			src_image->setBoostLevel(LLGLTexture::BOOST_BUMP) ;
-			src_image->setLoadedCallback( callback_func, 0, TRUE, FALSE, new LLUUID(src_image->getID()), NULL );
+            src_image->addCallback([bump_code](bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done) {
+                LLBumpImageList::onSourceLoaded(success, src_vi, final_done, (EBumpEffect)bump_code);
+            });
+
 			src_image->forceToSaveRawImage(0) ;
 		}
 	}
@@ -1099,39 +1107,43 @@ LLViewerTexture* LLBumpImageList::getBrightnessDarknessImage(LLViewerFetchedText
 static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_STANDARD_LOADED("Bump Standard Callback");
 
 // static
-void LLBumpImageList::onSourceBrightnessLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata )
-{
-	LLUUID* source_asset_id = (LLUUID*)userdata;
-	LLBumpImageList::onSourceLoaded( success, src_vi, src, *source_asset_id, BE_BRIGHTNESS );
-	if( final )
-	{
-		delete source_asset_id;
-	}
-}
-
+// void LLBumpImageList::onSourceBrightnessLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata )
+// {
+// 	LLUUID* source_asset_id = (LLUUID*)userdata;
+// 	LLBumpImageList::onSourceLoaded( success, src_vi, src, *source_asset_id, BE_BRIGHTNESS );
+// 	if( final )
+// 	{
+// 		delete source_asset_id;
+// 	}
+// }
+// 
 // static
-void LLBumpImageList::onSourceDarknessLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata )
+// void LLBumpImageList::onSourceDarknessLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata )
+// {
+// 	LLUUID* source_asset_id = (LLUUID*)userdata;
+// 	LLBumpImageList::onSourceLoaded( success, src_vi, src, *source_asset_id, BE_DARKNESS );
+// 	if( final )
+// 	{
+// 		delete source_asset_id;
+// 	}
+// }
+
+namespace 
 {
-	LLUUID* source_asset_id = (LLUUID*)userdata;
-	LLBumpImageList::onSourceLoaded( success, src_vi, src, *source_asset_id, BE_DARKNESS );
-	if( final )
-	{
-		delete source_asset_id;
-	}
+    LLTrace::BlockTimerStatHandle FTM_BUMP_GEN_NORMAL("Generate Normal Map");
+    LLTrace::BlockTimerStatHandle FTM_BUMP_CREATE_TEXTURE("Create GL Normal Map");
 }
 
-static LLTrace::BlockTimerStatHandle FTM_BUMP_GEN_NORMAL("Generate Normal Map");
-static LLTrace::BlockTimerStatHandle FTM_BUMP_CREATE_TEXTURE("Create GL Normal Map");
-
-void LLBumpImageList::onSourceStandardLoaded( BOOL success, LLViewerFetchedTexture* src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
+void LLBumpImageList::onSourceStandardLoaded(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done)
 {
 	if (success && LLPipeline::sRenderDeferred)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_BUMP_SOURCE_STANDARD_LOADED);
-		LLPointer<LLImageRaw> nrm_image = new LLImageRaw(src->getWidth(), src->getHeight(), 4);
+        LLPointer<LLImageRaw> src_img(src_vi->getRawImage());
+		LLPointer<LLImageRaw> nrm_image = new LLImageRaw(src_img->getWidth(), src_img->getHeight(), 4);
 		{
 			LL_RECORD_BLOCK_TIME(FTM_BUMP_GEN_NORMAL);
-			generateNormalMapFromAlpha(src, nrm_image);
+			generateNormalMapFromAlpha(src_img, nrm_image);
 		}
 		src_vi->setExplicitFormat(GL_RGBA, GL_RGBA);
 		{
@@ -1196,25 +1208,37 @@ void LLBumpImageList::generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nr
 	}
 }
 
-
-static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_LOADED("Bump Source Loaded");
-static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_ENTRIES_UPDATE("Entries Update");
-static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_MIN_MAX("Min/Max");
-static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_RGB2LUM("RGB to Luminance");
-static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_RESCALE("Rescale");
-static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_GEN_NORMAL("Generate Normal");
-static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_CREATE("Bump Source Create");
+namespace
+{
+    LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_LOADED("Bump Source Loaded");
+    LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_ENTRIES_UPDATE("Entries Update");
+    LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_MIN_MAX("Min/Max");
+    LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_RGB2LUM("RGB to Luminance");
+    LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_RESCALE("Rescale");
+    LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_GEN_NORMAL("Generate Normal");
+    LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_CREATE("Bump Source Create");
+}
 
 // static
-void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLImageRaw* src, LLUUID& source_asset_id, EBumpEffect bump_code )
+//void LLBumpImageList::onSourceLoaded(BOOL success, LLViewerTexture *src_vi, LLImageRaw* src, LLUUID& source_asset_id, EBumpEffect bump_code)
+void LLBumpImageList::onSourceLoaded(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, EBumpEffect bump_code)
 {
 	if( success )
 	{
+        LLPointer<LLImageRaw> src = src_vi->getRawImage();
+
+        if (!src)
+        {
+            //LL_WARNS("RIDER") << "Has this image already been processed?" << LL_ENDL;
+            return;
+        }
+
+        LLUUID asset_id = src_vi->getID();
 		LL_RECORD_BLOCK_TIME(FTM_BUMP_SOURCE_LOADED);
 
 
 		bump_image_map_t& entries_list(bump_code == BE_BRIGHTNESS ? gBumpImageList.mBrightnessEntries : gBumpImageList.mDarknessEntries );
-		bump_image_map_t::iterator iter = entries_list.find(source_asset_id);
+		bump_image_map_t::iterator iter = entries_list.find(asset_id);
 
 		{
 			LL_RECORD_BLOCK_TIME(FTM_BUMP_SOURCE_ENTRIES_UPDATE);
@@ -1226,7 +1250,7 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 				LLPointer<LLImageRaw> raw = new LLImageRaw(1,1,1);
 				raw->clear(0x77, 0x77, 0xFF, 0xFF);
 
-				entries_list[src_vi->getID()] = LLViewerTextureManager::getLocalTexture( raw.get(), TRUE);
+                entries_list[src_vi->getID()] = LLViewerTextureManager::instance().getLocalTexture(raw.get(), true);
 				iter = entries_list.find(src_vi->getID());
 			}
 		}
@@ -1351,7 +1375,7 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 			//---------------------------------------------------
 			// immediately assign bump to a global smart pointer in case some local smart pointer
 			// accidentally releases it.
-			LLPointer<LLViewerTexture> bump = LLViewerTextureManager::getLocalTexture( TRUE );
+            LLPointer<LLViewerTexture> bump = LLViewerTextureManager::instance().getLocalTexture(true);
 
 			if (!LLPipeline::sRenderDeferred)
 			{

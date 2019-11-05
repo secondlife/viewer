@@ -38,7 +38,7 @@
 #include "noise.h"
 #include "llregionhandle.h" // for from_region_handle
 #include "llviewercontrol.h"
-
+#include "llviewertexturemanager.h"
 
 
 F32 bilinear(const F32 v00, const F32 v01, const F32 v10, const F32 v11, const F32 x_frac, const F32 y_frac)
@@ -101,9 +101,14 @@ void LLVLComposition::setDetailTextureID(S32 corner, const LLUUID& id)
 	}
 	// This is terrain texture, but we are not setting it as BOOST_TERRAIN
 	// since we will be manipulating it later as needed.
-	mDetailTextures[corner] = LLViewerTextureManager::getFetchedTexture(id);
+    LLViewerTextureManager::FetchParams params;
+    params.mBoostPriority = LLViewerTexture::BOOST_TERRAIN;
+
+    LL_WARNS("RIDER") << "setDetailTextureID corner=" << corner << " id=" << id << LL_ENDL;
+
+	mDetailTextures[corner] = LLViewerTextureManager::instance().getFetchedTexture(id, params);
 	mDetailTextures[corner]->setNoDelete() ;
-	mRawImages[corner] = NULL;
+	mRawImages[corner] = nullptr;
 }
 
 BOOL LLVLComposition::generateHeights(const F32 x, const F32 y,

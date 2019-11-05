@@ -48,6 +48,7 @@
 #include "pipeline.h"
 #include "llviewershadermgr.h"
 #include "llrender.h"
+#include "llviewertexturemanager.h"
 
 const F32 DETAIL_SCALE = 1.f/16.f;
 int DebugDetailMap = 0;
@@ -65,12 +66,12 @@ LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerTexture *texturep) :
 	// Hack!
 	sDetailScale = 1.f/gSavedSettings.getF32("RenderTerrainScale");
 	sDetailMode = gSavedSettings.getS32("RenderTerrainDetail");
-	mAlphaRampImagep = LLViewerTextureManager::getFetchedTexture(IMG_ALPHA_GRAD);
+	mAlphaRampImagep = LLViewerTextureManager::instance().getFetchedTexture(IMG_ALPHA_GRAD);
 
 	//gGL.getTexUnit(0)->bind(mAlphaRampImagep.get());
 	mAlphaRampImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
 
-	m2DAlphaRampImagep = LLViewerTextureManager::getFetchedTexture(IMG_ALPHA_GRAD_2D);
+	m2DAlphaRampImagep = LLViewerTextureManager::instance().getFetchedTexture(IMG_ALPHA_GRAD_2D);
 
 	//gGL.getTexUnit(0)->bind(m2DAlphaRampImagep.get());
 	m2DAlphaRampImagep->setAddressMode(LLTexUnit::TAM_CLAMP);

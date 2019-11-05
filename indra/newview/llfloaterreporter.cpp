@@ -88,6 +88,7 @@
 
 #include "llcorehttputil.h"
 #include "llviewerassetupload.h"
+#include "llviewertexturemanager.h"
 
 const std::string SCREEN_PREV_FILENAME = "screen_report_last.bmp";
 
@@ -883,7 +884,7 @@ void LLFloaterReporter::takeScreenshot(bool use_prev_screenshot)
 		mImageRaw = mPrevImageRaw;
 	}
 
-	LLPointer<LLImageJ2C> upload_data = LLViewerTextureList::convertToUploadFile(mImageRaw);
+	LLPointer<LLImageJ2C> upload_data = LLViewerTextureManager::convertToUploadFile(mImageRaw);
 
 	// create a resource data
 	mResourceDatap->mInventoryType = LLInventoryType::IT_NONE;
@@ -914,7 +915,7 @@ void LLFloaterReporter::takeScreenshot(bool use_prev_screenshot)
 
 	// store in the image list so it doesn't try to fetch from the server
 	LLPointer<LLViewerFetchedTexture> image_in_list = 
-		LLViewerTextureManager::getFetchedTexture(mResourceDatap->mAssetInfo.mUuid);
+		LLViewerTextureManager::instance().getFetchedTexture(mResourceDatap->mAssetInfo.mUuid);
 	image_in_list->createGLTexture(0, mImageRaw, 0, TRUE, LLGLTexture::OTHER);
 	
 	// the texture picker then uses that texture

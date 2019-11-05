@@ -678,6 +678,7 @@ set(viewer_SOURCE_FILES
     llviewertexture.cpp
     llviewertextureanim.cpp
     llviewertexturelist.cpp
+    llviewertexturemanager.cpp
     llviewerthrottle.cpp
     llviewerwearable.cpp
     llviewerwindow.cpp
@@ -958,6 +959,7 @@ set(viewer_HEADER_FILES
     llfolderviewmodelinventory.h
     llfollowcam.h
     llfriendcard.h
+    llfttype.h
     llgesturelistener.h
     llgesturemgr.h
     llgiveinventory.h
@@ -1298,6 +1300,7 @@ set(viewer_HEADER_FILES
     llviewertexture.h
     llviewertextureanim.h
     llviewertexturelist.h
+    llviewertexturemanager.h
     llviewerthrottle.h
     llviewerwearable.h
     llviewerwindow.h

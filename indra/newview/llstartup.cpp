@@ -202,6 +202,7 @@
 #if LL_WINDOWS
 #include "lldxhardware.h"
 #endif
+#include "llviewertexturemanager.h"
 
 //
 // exported globals
@@ -298,8 +299,9 @@ void callback_cache_name(const LLUUID& id, const std::string& full_name, bool is
 
 void update_texture_fetch()
 {
-	LLAppViewer::getTextureFetch()->update(4); // unpauses the texture fetch thread
-	gTextureList.updateImages(0.004f);
+// 	LLAppViewer::getTextureFetch()->update(4); // unpauses the texture fetch thread
+// 	LLViewerTextureList::instance().updateImages(0.004f);
+    LLViewerTextureManager::instance().update();
 }
 
 void set_flags_and_update_appearance()
@@ -375,7 +377,7 @@ bool idle_startup()
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_WAIT);
 
         //note: Removing this line will cause incorrect button size in the login screen. -- bao.
-	    gTextureList.updateImages(0.01f) ;
+        LLViewerTextureManager::instance().update();
 
 		/////////////////////////////////////////////////
 		//
@@ -1218,7 +1220,7 @@ bool idle_startup()
 		//
 		// Initialize classes w/graphics stuff.
 		//
-		gTextureList.doPrefetchImages();		
+//		LLViewerTextureList::instance().doPrefetchImages();		
 		display_startup();
 
 		LLSurface::initClasses();
@@ -1352,7 +1354,7 @@ bool idle_startup()
 	if (STATE_SEED_CAP_GRANTED == LLStartUp::getStartupState())
 	{
 		display_startup();
-		update_texture_fetch();
+        LLViewerTextureManager::instance().update();
 		display_startup();
 
 		if ( gViewerWindow != NULL)
@@ -1476,7 +1478,7 @@ bool idle_startup()
 			F32 frac = (F32)i / (F32)DECODE_TIME_SEC;
 			set_startup_status(0.45f + frac*0.1f, LLTrans::getString("LoginDecodingImages"), gAgent.mMOTD);
 			display_startup();
-			gTextureList.decodeAllImages(1.f);
+			//LLViewerTextureList::instance().decodeAllImages(1.f);
 		}
 		LLStartUp::setStartupState( STATE_WORLD_WAIT );
 
@@ -2361,8 +2363,7 @@ void use_circuit_callback(void**, S32 result)
 void register_viewer_callbacks(LLMessageSystem* msg)
 {
 	msg->setHandlerFuncFast(_PREHASH_LayerData,				process_layer_data );
-	msg->setHandlerFuncFast(_PREHASH_ImageData,				LLViewerTextureList::receiveImageHeader );
-	msg->setHandlerFuncFast(_PREHASH_ImagePacket,				LLViewerTextureList::receiveImagePacket );
+// 	msg->setHandlerFuncFast(_PREHASH_ImagePacket,				LLViewerTextureList::receiveImagePacket );
 	msg->setHandlerFuncFast(_PREHASH_ObjectUpdate,				process_object_update );
 	msg->setHandlerFunc("ObjectUpdateCompressed",				process_compressed_object_update );
 	msg->setHandlerFunc("ObjectUpdateCached",					process_cached_object_update );
@@ -2488,8 +2489,6 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	msg->setHandlerFunc("TeleportProgress", process_teleport_progress);
 	msg->setHandlerFunc("TeleportFailed", process_teleport_failed, NULL);
 	msg->setHandlerFunc("TeleportLocal", process_teleport_local, NULL);
-
-	msg->setHandlerFunc("ImageNotInDatabase", LLViewerTextureList::processImageNotInDatabase, NULL);
 
 	msg->setHandlerFuncFast(_PREHASH_GroupMembersReply,
 						LLGroupMgr::processGroupMembersReply);
@@ -2697,7 +2696,7 @@ void init_start_screen(S32 location_id)
 		else
 		{
 			raw->expandToPowerOfTwo();
-			gStartTexture = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE) ;
+            gStartTexture = LLViewerTextureManager::instance().getLocalTexture(raw.get(), false);
 		}
 	}
 

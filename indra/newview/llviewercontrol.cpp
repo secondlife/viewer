@@ -75,6 +75,7 @@
 #include "llspellcheck.h"
 #include "llslurl.h"
 #include "llstartup.h"
+#include "llviewertexturemanager.h"
 
 // Third party library includes
 #include <boost/algorithm/string.hpp>
@@ -295,7 +296,7 @@ static bool handleMaxPartCountChanged(const LLSD& newvalue)
 
 static bool handleVideoMemoryChanged(const LLSD& newvalue)
 {
-	gTextureList.updateMaxResidentTexMem(S32Megabytes(newvalue.asInteger()));
+	LLViewerTextureManager::instance().updateMaxResidentTexMem(S32Megabytes(newvalue.asInteger()));
 	return true;
 }
 

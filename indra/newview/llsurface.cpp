@@ -54,6 +54,7 @@
 #include "llglheaders.h"
 #include "lldrawpoolterrain.h"
 #include "lldrawable.h"
+#include "llviewertexturemanager.h"
 
 extern LLPipeline gPipeline;
 extern bool gShiftFrame;
@@ -243,7 +244,7 @@ void LLSurface::createSTexture()
 			}
 		}
 
-		mSTexturep = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE);
+        mSTexturep = LLViewerTextureManager::instance().getLocalTexture(raw.get(), false);
 		mSTexturep->dontDiscard();
 		gGL.getTexUnit(0)->bind(mSTexturep);
 		mSTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);		
@@ -268,7 +269,7 @@ void LLSurface::createWaterTexture()
 			}
 		}		
 		
-		mWaterTexturep = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE);
+        mWaterTexturep = LLViewerTextureManager::instance().getLocalTexture(raw.get(), false);
 		mWaterTexturep->dontDiscard();
 		gGL.getTexUnit(0)->bind(mWaterTexturep);
 		mWaterTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);

@@ -33,6 +33,7 @@
 #include "../llworldmipmap.h"
 // Tut header
 #include "../test/lltut.h"
+#include "../llviewertexturemanager.h"
 
 // -------------------------------------------------------------------------------------------
 // Stubbing: Declarations required to link and run the class being tested
@@ -43,8 +44,9 @@
 // * A simulator for a class can be implemented here. Please comment and document thoroughly.
 
 void LLGLTexture::setBoostLevel(S32 ) { }
-LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromUrl(const std::string&, FTType, BOOL, LLGLTexture::EBoostLevel, S8, 
-																		 LLGLint, LLGLenum, const LLUUID& ) { return NULL; }
+LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::getFetchedTextureFromUrl(const std::string&, const LLViewerTextureManager::FetchParams &) { return nullptr; }
+void LLViewerTextureManager::initSingleton() { }
+void LLViewerTextureManager::cleanupSingleton() { }
 
 LLControlGroup::LLControlGroup(const std::string& name) : LLInstanceTracker<LLControlGroup, std::string>(name) { }
 LLControlGroup::~LLControlGroup() { }

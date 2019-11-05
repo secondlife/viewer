@@ -118,6 +118,7 @@
 #include "llviewertexturelist.h"
 
 #include "llsearchableui.h"
+#include "llviewertexturemanager.h"
 
 const F32 BANDWIDTH_UPDATER_TIMEOUT = 0.5f;
 char const* const VISIBILITY_DEFAULT = "default";
@@ -1406,8 +1407,8 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 
 	// Hardware settings
 	F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
-	S32Megabytes min_tex_mem = LLViewerTextureList::getMinVideoRamSetting();
-	S32Megabytes max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false, mem_multiplier);
+	S32Megabytes min_tex_mem = LLViewerTextureManager::instance().getMinVideoRamSetting();
+	S32Megabytes max_tex_mem = LLViewerTextureManager::instance().getMaxVideoRamSetting(false, mem_multiplier);
 	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMinValue(min_tex_mem.value());
 	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMaxValue(max_tex_mem.value());
 

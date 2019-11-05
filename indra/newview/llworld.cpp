@@ -60,7 +60,7 @@
 #include <queue>
 #include <map>
 #include <cstring>
-
+#include "llviewertexturemanager.h"
 
 //
 // Globals
@@ -105,7 +105,7 @@ LLWorld::LLWorld() :
 	*(default_texture++) = MAX_WATER_COLOR.mV[2];
 	*(default_texture++) = MAX_WATER_COLOR.mV[3];
 	
-	mDefaultWaterTexturep = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE);
+    mDefaultWaterTexturep = LLViewerTextureManager::instance().getLocalTexture(raw.get(), false);
 	gGL.getTexUnit(0)->bind(mDefaultWaterTexturep);
 	mDefaultWaterTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 

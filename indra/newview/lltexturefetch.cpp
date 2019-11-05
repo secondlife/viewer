@@ -25,7 +25,7 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
+#if 0
 #include <iostream>
 #include <map>
 #include <algorithm>
@@ -63,6 +63,7 @@
 #include "llhttpretrypolicy.h"
 
 #include "llfile.h"
+#include "llviewertexturemanager.h"
 
 LLTrace::CountStatHandle<F64> LLTextureFetch::sCacheHit("texture_cache_hit");
 LLTrace::CountStatHandle<F64> LLTextureFetch::sCacheAttempt("texture_cache_attempt");
@@ -978,7 +979,7 @@ void LLTextureFetchWorker::setupPacketData()
 U32 LLTextureFetchWorker::calcWorkPriority()
 {
  	//llassert_always(mImagePriority >= 0 && mImagePriority <= LLViewerFetchedTexture::maxDecodePriority());
-	static const F32 PRIORITY_SCALE = (F32)LLWorkerThread::PRIORITY_LOWBITS / LLViewerFetchedTexture::maxDecodePriority();
+	static const F32 PRIORITY_SCALE = (F32)LLWorkerThread::PRIORITY_LOWBITS / (F32)LLViewerFetchedTexture::maxPriority();
 
 	mWorkPriority = llmin((U32)LLWorkerThread::PRIORITY_LOWBITS, (U32)(mImagePriority * PRIORITY_SCALE));
 	return mWorkPriority;
@@ -1023,7 +1024,7 @@ void LLTextureFetchWorker::setDesiredDiscard(S32 discard, S32 size)
 // Locks:  Mw
 void LLTextureFetchWorker::setImagePriority(F32 priority)
 {
-// 	llassert_always(priority >= 0 && priority <= LLViewerTexture::maxDecodePriority());
+// 	llassert_always(priority >= 0 && priority <= LLViewerTexture::maxPriority());
 	F32 delta = fabs(priority - mImagePriority);
 	if (delta > (mImagePriority * .05f) || mState == DONE)
 	{
@@ -1996,9 +1997,9 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, const LLCore::
 	if (log_texture_traffic && data_size > 0)
 	{
         // one worker per multiple textures
-        std::vector<LLViewerTexture*> textures;
-        LLViewerTextureManager::findTextures(mID, textures);
-        std::vector<LLViewerTexture*>::iterator iter = textures.begin();
+        LLViewerTextureManager::list_texture_t textures;
+        LLViewerTextureManager::instance().findTextures(mID, textures);
+        auto iter = textures.begin();
         while (iter != textures.end())
         {
             LLViewerTexture* tex = *iter++;
@@ -3170,134 +3171,6 @@ void LLTextureFetchWorker::setState(e_state new_state)
 	mState = new_state;
 }
 
-// Threads:  T*
-bool LLTextureFetch::receiveImageHeader(const LLHost& host, const LLUUID& id, U8 codec, U16 packets, U32 totalbytes,
-										U16 data_size, U8* data)
-{
-	LLTextureFetchWorker* worker = getWorker(id);
-	bool res = true;
-
-	++mPacketCount;
-	
-	if (!worker)
-	{
-        LL_DEBUGS(LOG_TXT) << "Received header for non active worker: " << id << LL_ENDL;
-		res = false;
-	}
-	else if (worker->mState != LLTextureFetchWorker::LOAD_FROM_NETWORK ||
-			 worker->mSentRequest != LLTextureFetchWorker::SENT_SIM)
-	{
-        LL_DEBUGS(LOG_TXT) << "receiveImageHeader for worker: " << id
-            << " in state: " << LLTextureFetchWorker::sStateDescs[worker->mState]
-            << " sent: " << worker->mSentRequest << LL_ENDL;
-		res = false;
-	}
-	else if (worker->mLastPacket != -1)
-	{
-		// check to see if we've gotten this packet before
-        LL_DEBUGS(LOG_TXT) << "Received duplicate header for: " << id << LL_ENDL;
-		res = false;
-	}
-	else if (!data_size)
-	{
-        LL_DEBUGS(LOG_TXT) << "Img: " << id << ":" << " Empty Image Header" << LL_ENDL;
-		res = false;
-	}
-	if (!res)
-	{
-		mNetworkQueueMutex.lock();										// +Mfnq
-		++mBadPacketCount;
-		mCancelQueue[host].insert(id);
-		mNetworkQueueMutex.unlock();									// -Mfnq 
-		return false;
-	}
-
-	LLViewerStatsRecorder::instance().textureFetch(data_size);
-
-	worker->lockWorkMutex();
-
-
-	//	Copy header data into image object
-	worker->mImageCodec = codec;
-	worker->mTotalPackets = packets;
-	worker->mFileSize = (S32)totalbytes;	
-	llassert_always(totalbytes > 0);
-	llassert_always(data_size == FIRST_PACKET_SIZE || data_size == worker->mFileSize);
-	res = worker->insertPacket(0, data, data_size);
-	worker->setPriority(LLWorkerThread::PRIORITY_HIGH | worker->mWorkPriority);
-	worker->setState(LLTextureFetchWorker::LOAD_FROM_SIMULATOR);
-	worker->unlockWorkMutex();											// -Mw
-	return res;
-}
-
-
-// Threads:  T*
-bool LLTextureFetch::receiveImagePacket(const LLHost& host, const LLUUID& id, U16 packet_num, U16 data_size, U8* data)
-{
-	LLTextureFetchWorker* worker = getWorker(id);
-	bool res = true;
-
-	++mPacketCount;
-	
-	if (!worker)
-	{
-        LL_DEBUGS(LOG_TXT) << "Received packet " << packet_num << " for non active worker: " << id << LL_ENDL;
-		res = false;
-	}
-	else if (worker->mLastPacket == -1)
-	{
-        LL_DEBUGS(LOG_TXT) << "Received packet " << packet_num << " before header for: " << id << LL_ENDL;
-		res = false;
-	}
-	else if (!data_size)
-	{
-        LL_DEBUGS(LOG_TXT) << "Img: " << id << ":" << " Empty Image Header" << LL_ENDL;
-		res = false;
-	}
-	if (!res)
-	{
-		mNetworkQueueMutex.lock();										// +Mfnq
-		++mBadPacketCount;
-		mCancelQueue[host].insert(id);
-		mNetworkQueueMutex.unlock();									// -Mfnq
-		return false;
-	}
-	
-	LLViewerStatsRecorder::instance().textureFetch(data_size);
-
-	worker->lockWorkMutex();
-
-	
-	res = worker->insertPacket(packet_num, data, data_size);
-	
-	if ((worker->mState == LLTextureFetchWorker::LOAD_FROM_SIMULATOR) ||
-		(worker->mState == LLTextureFetchWorker::LOAD_FROM_NETWORK))
-	{
-		worker->setState(LLTextureFetchWorker::LOAD_FROM_SIMULATOR);
-	}
-	else
-	{
- 		LL_DEBUGS(LOG_TXT) << "receiveImagePacket " << packet_num << "/" << worker->mLastPacket << " for worker: " << id
- 				<< " in state: " << LLTextureFetchWorker::sStateDescs[worker->mState] << LL_ENDL;
-		removeFromNetworkQueue(worker, true); // failsafe
-	}
-
-	if (packet_num >= (worker->mTotalPackets - 1))
-	{
-		static LLCachedControl<bool> log_to_viewer_log(gSavedSettings,"LogTextureDownloadsToViewerLog", false);
-		static LLCachedControl<bool> log_to_sim(gSavedSettings,"LogTextureDownloadsToSimulator", false);
-
-		if (log_to_viewer_log || log_to_sim)
-		{
-			U64Microseconds timeNow = LLTimer::getTotalTime();
-			mTextureInfoMainThread.setRequestSize(id, worker->mFileSize);
-			mTextureInfoMainThread.setRequestCompleteTimeAndLog(id, timeNow);
-		}
-	}
-	worker->unlockWorkMutex();											// -Mw
-
-	return res;
-}
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -3787,3 +3660,4 @@ truncate_viewer_metrics(int max_regions, LLSD & metrics)
 }
 
 } // end of anonymous namespace
+#endif

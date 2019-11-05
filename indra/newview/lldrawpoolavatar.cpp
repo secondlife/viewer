@@ -52,6 +52,7 @@
 #include "llviewerpartsim.h"
 #include "llviewercontrol.h" // for gSavedSettings
 #include "llviewertexturelist.h"
+#include "llviewertexturemanager.h"
 
 static U32 sDataMask = LLDrawPoolAvatar::VERTEX_DATA_MASK;
 static U32 sBufferUsage = GL_STREAM_DRAW_ARB;
@@ -2014,7 +2015,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
                 LLViewerTexture* specular = NULL;
                 if (LLPipeline::sImpostorRender)
                 {
-                    specular = LLViewerTextureManager::findFetchedTexture(gBlackSquareID, TEX_LIST_STANDARD);
+                    specular = LLViewerTextureManager::instance().findFetchedTexture(gBlackSquareID);
                     llassert(NULL != specular);
                 }
                 else

@@ -165,7 +165,7 @@ public:
         if (threadsafe)
             mMutexp.reset(new LLMutex);
     }
-    ~LLDynamicPriorityQueue() {}
+    ~LLDynamicPriorityQueue() = default;
 
     /**
      * Place an item on the queue with the given priority.  Or, if the item is already queued increase 
@@ -286,11 +286,35 @@ public:
             }
             else
             {
-                mPriorityHeap.erase(handle);
-                mEntryMapping.erase(it);
+                remove(item_id);
             }
         }
     }
+
+    /**
+     * Set an item to an absolute priority.
+     */
+    void prioritySet(LLUUID item_id, U32 priority)
+    {
+        LLMutexLock lock(mMutexp);  // scoped lock is a noop with a nullptr mutex.
+        if (!isQueued(item_id))
+            return;
+
+        if (!priority)
+        {
+            remove(item_id);
+            return;
+        }
+
+        typename queuemapping_t::iterator it = mEntryMapping.find(item_id);
+        if (it == mEntryMapping.end())
+            return;
+
+        queuehandle_t handle((*it).second);
+        (*handle)->mPriority = priority;
+        mPriorityHeap.update(handle);
+    }
+
     /**
      * Remove all items from the queue.
      */

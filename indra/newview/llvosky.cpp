@@ -50,6 +50,7 @@
 #include "lldrawpoolwlsky.h"
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
+#include "llviewertexturemanager.h"
 
 #undef min
 #undef max
@@ -217,7 +218,7 @@ void LLSkyTex::init()
 
 	for (S32 i = 0; i < 2; ++i)
 	{
-		mTexture[i] = LLViewerTextureManager::getLocalTexture(FALSE);
+        mTexture[i] = LLViewerTextureManager::instance().getLocalTexture(false);
 		mTexture[i]->setAddressMode(LLTexUnit::TAM_CLAMP);
 		mImageRaw[i] = new LLImageRaw(sResolution, sResolution, sComponents);
 		
@@ -235,7 +236,7 @@ void LLSkyTex::restoreGL()
 {
 	for (S32 i = 0; i < 2; i++)
 	{
-		mTexture[i] = LLViewerTextureManager::getLocalTexture(FALSE);
+        mTexture[i] = LLViewerTextureManager::instance().getLocalTexture(false);
 		mTexture[i]->setAddressMode(LLTexUnit::TAM_CLAMP);
 	}
 }
@@ -359,7 +360,7 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	}
 	for (S32 i=0; i<FACE_COUNT; i++)
 	{
-		mFace[i] = NULL;
+		mFace[i] = nullptr;
 	}
 	
 	mCameraPosAgent = gAgentCamera.getCameraPositionAgent();
@@ -380,11 +381,14 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	mSun.setIntensity(SUN_INTENSITY);
 	mMoon.setIntensity(0.1f * SUN_INTENSITY);
 
-	mSunTexturep = LLViewerTextureManager::getFetchedTexture(gSunTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+    LLViewerTextureManager::FetchParams params;
+    params.mBoostPriority = LLGLTexture::BOOST_UI;
+
+	mSunTexturep = LLViewerTextureManager::instance().getFetchedTexture(gSunTextureID, params);
 	mSunTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
-	mMoonTexturep = LLViewerTextureManager::getFetchedTexture(gMoonTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+    mMoonTexturep = LLViewerTextureManager::instance().getFetchedTexture(gMoonTextureID, params);
 	mMoonTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
-	mBloomTexturep = LLViewerTextureManager::getFetchedTexture(IMG_BLOOM1);
+    mBloomTexturep = LLViewerTextureManager::instance().getFetchedTexture(IMG_BLOOM1);
 	mBloomTexturep->setNoDelete() ;
 	mBloomTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 
@@ -398,10 +402,10 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 
 LLVOSky::~LLVOSky()
 {
-	// Don't delete images - it'll get deleted by gTextureList on shutdown
+	// Don't delete images - it'll get deleted by LLViewerTextureList::instance() on shutdown
 	// This needs to be done for each texture
 
-	mCubeMap = NULL;
+	mCubeMap = nullptr;
 }
 
 void LLVOSky::init()
@@ -474,11 +478,15 @@ void LLVOSky::restoreGL()
 	{
 		mSkyTex[i].restoreGL();
 	}
-	mSunTexturep = LLViewerTextureManager::getFetchedTexture(gSunTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+
+    LLViewerTextureManager::FetchParams params;
+    params.mBoostPriority = LLGLTexture::BOOST_UI;
+
+	mSunTexturep = LLViewerTextureManager::instance().getFetchedTexture(gSunTextureID, params);
 	mSunTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
-	mMoonTexturep = LLViewerTextureManager::getFetchedTexture(gMoonTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+	mMoonTexturep = LLViewerTextureManager::instance().getFetchedTexture(gMoonTextureID, params);
 	mMoonTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
-	mBloomTexturep = LLViewerTextureManager::getFetchedTexture(IMG_BLOOM1);
+	mBloomTexturep = LLViewerTextureManager::instance().getFetchedTexture(IMG_BLOOM1);
 	mBloomTexturep->setNoDelete() ;
 	mBloomTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 

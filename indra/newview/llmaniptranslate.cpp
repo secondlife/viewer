@@ -62,6 +62,7 @@
 #include "pipeline.h"
 #include "llviewershadermgr.h"
 #include "lltrans.h"
+#include "llviewertexturemanager.h"
 
 const S32 NUM_AXES = 3;
 const S32 MOUSE_DRAG_SLOP = 2;       // pixels
@@ -162,7 +163,7 @@ void LLManipTranslate::restoreGL()
 	U32 mip = 0;
 
 	destroyGL() ;
-	sGridTex = LLViewerTextureManager::getLocalTexture() ;
+    sGridTex = LLViewerTextureManager::instance().getLocalTexture();
 	if(!sGridTex->createGLTexture())
 	{
 		sGridTex = NULL ;

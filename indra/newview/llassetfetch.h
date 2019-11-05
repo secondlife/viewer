@@ -30,6 +30,8 @@
 #include <vector>
 #include <map>
 
+#include <boost/signals2.hpp>
+
 #include "lldir.h"
 #include "llimage.h"
 #include "lluuid.h"
@@ -40,7 +42,6 @@
 #include "httpheaders.h"
 #include "httphandler.h"
 #include "lltrace.h"
-#include "llviewertexture.h"
 #include "llsingleton.h"
 
 #include "llthreadpool.h"
@@ -48,9 +49,14 @@
 #include "llassettype.h"
 #include "httpcommon.h"
 
+#include "llfttype.h"
 #include "llappcorehttp.h"
 //========================================================================
+// forwards
+class LLImageRaw;
 
+
+//========================================================================
 class LLAssetFetch :
     public LLThreadPool,
     public LLSingleton<LLAssetFetch>
@@ -171,30 +177,58 @@ public:
     };
 
     typedef std::function<void(const AssetRequest::ptr_t &)>  asset_signal_cb_t;
-    typedef std::function<void(const AssetRequest::ptr_t &, const LLPointer<LLImageRaw> &, const LLPointer<LLImageRaw> &)>  texture_signal_cb_t;
+
+    // Asset specific information on completion.
+    // --- Texture info
+    struct TextureInfo
+    {
+        TextureInfo():
+            mRawImage(nullptr),
+            mAuxImage(nullptr),
+            mDiscardLevel(-1),
+            mFullWidth(-1),
+            mFullHeight(-1)
+        {}
+
+        LLPointer<LLImageRaw>   mRawImage;
+        LLPointer<LLImageRaw>   mAuxImage;
+        S32                     mDiscardLevel;
+        S32                     mFullWidth;
+        S32                     mFullHeight;
+    };
+    typedef std::function<void(const AssetRequest::ptr_t &, const TextureInfo &)>    texture_signal_cb_t;
+    // ---
+
     // texture_signal_cb_t is a special case callback issued in response to textures
 
     //--------------------------------------------------------------------
     virtual ~LLAssetFetch() {}
     void    update();
 
-    LLUUID  requestTexture(FTType ftype, const LLUUID &id, S32 priority, S32 width, S32 height, S32 components, S32 discard, bool needs_aux, texture_signal_cb_t cb);
-    LLUUID  requestTexture(FTType ftype, const std::string &url, S32 priority, S32 width, S32 height, S32 components, S32 discard, bool needs_aux, texture_signal_cb_t cb);
-    LLUUID  requestTexture(FTType ftype, const LLUUID &id, const std::string &url, S32 priority, S32 width, S32 height, S32 components, S32 discard, bool needs_aux, texture_signal_cb_t cb);
+    LLUUID                      requestTexture(FTType ftype, const LLUUID &id, S32 priority, S32 width, S32 height, S32 components, S32 discard, bool needs_aux, texture_signal_cb_t cb);
+    LLUUID                      requestTexture(FTType ftype, const std::string &url, S32 priority, S32 width, S32 height, S32 components, S32 discard, bool needs_aux, texture_signal_cb_t cb);
+    LLUUID                      requestTexture(FTType ftype, const LLUUID &id, const std::string &url, S32 priority, S32 width, S32 height, S32 components, S32 discard, bool needs_aux, texture_signal_cb_t cb);
+
+    void                        cancelRequest(const LLUUID &id);
+    void                        cancelRequests(const uuid_set_t &id_list);
+    void                        setRequestPriority(const LLUUID &id, U32 priority);
+    void                        adjustRequestPriority(const LLUUID &id, S32 adjustment);
+    U32                         getRequestPriority(const LLUUID &id) const;
+
     // Note... these are the old interfaces... Free to update them.
 //    bool    createRequest(FTType f_type, const std::string& url, const LLUUID& id, const LLHost& host, F32 priority, S32 w, S32 h, S32 c, S32 desired_discard, bool needs_aux, bool can_use_http);
 //    void    deleteRequest(const LLUUID& id, bool cancel);
 //     bool    getRequestFinished(const LLUUID& id, S32& discard_level, S32& full_w, S32& full_h, LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux, LLCore::HttpStatus& last_http_get_status);
 //     bool    updateRequestPriority(const LLUUID& id, F32 priority);
 //     S32     getFetchState(const LLUUID& id, F32& data_progress_p, F32& requested_priority_p, U32& fetch_priority_p, F32& fetch_dtime_p, F32& request_dtime_p, bool& can_use_http);
-    bool        isAssetInCache(const LLUUID &id);
-    void        adjustRequestPriority(const AssetRequest::ptr_t &request, S32 adjustment);
+    bool                        isAssetInCache(const LLUUID &id);
 
+    FetchState                  getFetchState(const LLUUID &id) const;
+    FetchState                  getFetchState(const std::string &url) const;
 
 // Used internally... move to private?
-    AssetRequest::ptr_t         getFetchRecord(LLUUID id) const;
-    bool                        isInCache(LLUUID id, LLAssetType::EType type) const;
-    bool                        isInCache(std::string url, LLAssetType::EType type) const;
+    bool                        isInCache(const LLUUID &id, LLAssetType::EType type) const;
+    bool                        isInCache(const std::string &url, LLAssetType::EType type) const;
 
 protected:
     virtual void                initSingleton() override;
@@ -215,8 +249,12 @@ private:
     typedef std::map<LLUUID, AssetRequest::ptr_t>  asset_fetch_map_t;
     typedef std::set<AssetRequest::ptr_t>          asset_fetch_set_t;
 
-    AssetRequest::ptr_t         getExistingRequest(const LLUUID &id);
-    AssetRequest::ptr_t         getExistingRequest(const std::string &url);
+    void                        adjustRequestPriority(const AssetRequest::ptr_t &request, S32 adjustment);
+    void                        setRequestPriority(const AssetRequest::ptr_t &request, U32 priority);
+    void                        cancelRequest(const AssetRequest::ptr_t &request);
+
+    AssetRequest::ptr_t         getExistingRequest(const LLUUID &id) const;
+    AssetRequest::ptr_t         getExistingRequest(const std::string &url) const;
 
     bool                        isFileRequest(std::string url) const;
 
@@ -240,9 +278,9 @@ private:
     asset_id_set_t              mThreadInFlight;
     asset_fetch_set_t           mThreadDone;
 
-    LLMutex                     mAllRequestMtx;
-    LLMutex                     mThreadInFlightMtx;
-    LLMutex                     mThreadDoneMtx;
+    mutable LLMutex             mAllRequestMtx;
+    mutable LLMutex             mThreadInFlightMtx;
+    mutable LLMutex             mThreadDoneMtx;
 
     connection_t                mCapsSignal;
 

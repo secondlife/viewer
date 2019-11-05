@@ -39,7 +39,7 @@
 #include "llvoavatar.h"
 #include "llworld.h"
 #include "pipeline.h"
-
+#include "llviewertexturemanager.h"
 
 static LLVOAvatar* find_avatar(const LLUUID& id)
 {
@@ -114,7 +114,7 @@ LLViewerPartSourceScript::LLViewerPartSourceScript(LLViewerObject *source_objp) 
 	llassert(source_objp);
 	mSourceObjectp = source_objp;
 	mPosAgent = mSourceObjectp->getPositionAgent();
-	mImagep = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.j2c");
+	mImagep = LLViewerTextureManager::instance().getFetchedTextureFromSkin("pixiesmall.j2c");
 	
 	mImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
 }
@@ -619,7 +619,7 @@ void LLViewerPartSourceSpiral::update(const F32 dt)
 {
 	if (!mImagep)
 	{
-		mImagep = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.j2c");
+		mImagep = LLViewerTextureManager::instance().getFetchedTextureFromSkin("pixiesmall.j2c");
 	}
 
 	const F32 RATE = 0.025f;
@@ -789,7 +789,7 @@ void LLViewerPartSourceBeam::update(const F32 dt)
 
 		if (!mImagep)
 		{
-			mImagep = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.j2c");
+			mImagep = LLViewerTextureManager::instance().getFetchedTextureFromSkin("pixiesmall.j2c");
 		}
 
 		LLViewerPart* part = new LLViewerPart();
@@ -876,7 +876,7 @@ void LLViewerPartSourceChat::update(const F32 dt)
 {
 	if (!mImagep)
 	{
-		mImagep = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.j2c");
+		mImagep = LLViewerTextureManager::instance().getFetchedTextureFromFile("pixiesmall.j2c");
 	}
 
 

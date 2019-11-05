@@ -97,6 +97,7 @@
 #include "llpanelface.h"
 #include "llglheaders.h"
 #include "llinventoryobserver.h"
+#include "llviewertexturemanager.h"
 
 LLViewerObject* getSelectedParentObject(LLViewerObject *object) ;
 //
@@ -1567,7 +1568,7 @@ void LLObjectSelection::applyNoCopyTextureToTEs(LLViewerInventoryItem* item)
 	{
 		return;
 	}
-	LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(item->getAssetUUID());
+	LLViewerTexture* image = LLViewerTextureManager::instance().getFetchedTexture(item->getAssetUUID());
 
 	for (iterator iter = begin(); iter != end(); ++iter)
 	{
@@ -1655,7 +1656,9 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 				// Texture picker defaults aren't inventory items
 				// * Don't need to worry about permissions for them
 				// * Can just apply the texture and be done with it.
-				objectp->setTEImage(te, LLViewerTextureManager::getFetchedTexture(mImageID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
+                LLViewerTextureManager::FetchParams params;
+                params.mTextureType = LLViewerTexture::LOD_TEXTURE;
+				objectp->setTEImage(te, LLViewerTextureManager::instance().getFetchedTexture(mImageID, params));
 			}
 
 			return true;
@@ -1856,8 +1859,9 @@ BOOL LLSelectMgr::selectionRevertTextures()
 					}
 					else
 					{
-						object->setTEImage(te, LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
-
+                        LLViewerTextureManager::FetchParams params;
+                        params.mTextureType = LLViewerTexture::LOD_TEXTURE;
+						object->setTEImage(te, LLViewerTextureManager::instance().getFetchedTexture(id, params));
 					}
 				}
 			}
@@ -5559,7 +5563,9 @@ void LLSelectMgr::updateSilhouettes()
 
 	if (!mSilhouetteImagep)
 	{
-		mSilhouetteImagep = LLViewerTextureManager::getFetchedTextureFromFile("silhouette.j2c", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI);
+        LLViewerTextureManager::FetchParams params;
+        params.mBoostPriority = LLGLTexture::BOOST_UI;
+        mSilhouetteImagep = LLViewerTextureManager::instance().getFetchedTextureFromSkin("silhouette.j2c", params);
 	}
 
 	mHighlightedObjects->cleanupNodes();

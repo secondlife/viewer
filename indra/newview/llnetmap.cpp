@@ -60,6 +60,7 @@
 #include "llviewerwindow.h"
 #include "llworld.h"
 #include "llworldmapview.h"		// shared draw code
+#include "llviewertexturemanager.h"
 
 static LLDefaultChildRegistry::Register<LLNetMap> r1("net_map");
 
@@ -800,7 +801,7 @@ void LLNetMap::createObjectImage()
 		mObjectRawImagep = new LLImageRaw(img_size, img_size, 4);
 		U8* data = mObjectRawImagep->getData();
 		memset( data, 0, img_size * img_size * 4 );
-		mObjectImagep = LLViewerTextureManager::getLocalTexture( mObjectRawImagep.get(), FALSE);
+        mObjectImagep = LLViewerTextureManager::instance().getLocalTexture(mObjectRawImagep.get(), false);
 	}
 	setScale(mScale);
 	mUpdateNow = true;

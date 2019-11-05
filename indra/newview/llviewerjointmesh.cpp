@@ -55,6 +55,7 @@
 #include "m3math.h"
 #include "m4math.h"
 #include "llmatrix4a.h"
+#include "llviewertexturemanager.h"
 
 #if !LL_DARWIN && !LL_LINUX && !LL_SOLARIS
 extern PFNGLWEIGHTPOINTERARBPROC glWeightPointerARB;
@@ -277,7 +278,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 		}
 		else
 		{
-			gGL.getTexUnit(diffuse_channel)->bind(LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT));
+			gGL.getTexUnit(diffuse_channel)->bind(LLViewerTextureManager::instance().getFetchedTexture(IMG_DEFAULT));
 		}
 	}
 	else
@@ -292,7 +293,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 	}
 	else
 	{
-		gGL.getTexUnit(diffuse_channel)->bind(LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT));
+		gGL.getTexUnit(diffuse_channel)->bind(LLViewerTextureManager::instance().getFetchedTexture(IMG_DEFAULT));
 	}
 	
 	

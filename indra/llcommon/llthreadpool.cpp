@@ -99,10 +99,7 @@ void LLThreadPool::cleanupSingleton_()
 
     for (PooledThread::ptr_t thread : mPool)
     {
-        if (!thread->isStopped())
-        {
-            LL_WARNS("THREADPOOL") << "Thread failed to stop!" << LL_ENDL;
-        }
+        LL_WARNS_IF(!thread->isStopped(), "THREADPOOL") << "Thread failed to stop!" << LL_ENDL;
     }
 
     mPool.clear();
@@ -158,6 +155,21 @@ void LLThreadPool::adjustRequest(LLUUID request_id, S32 adjustment)
     }
     mRequestQueue.unlock();
 }
+
+void LLThreadPool::setRequest(LLUUID request_id, U32 priority)
+{
+    mRequestQueue.lock();
+    if (mRequestQueue.isQueued(request_id))
+    {
+        mRequestQueue.prioritySet(request_id, priority);
+    }
+    else
+    {
+        /*TODO*/ // track executing requests so that we can signal them to quit. 
+    }
+    mRequestQueue.unlock();
+}
+
 
 size_t LLThreadPool::requestCount() const
 {

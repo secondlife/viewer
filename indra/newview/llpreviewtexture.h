@@ -52,14 +52,7 @@ public:
 	virtual void		reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	virtual void 		onFocusReceived();
 	
-	static void			onFileLoadedForSave( 
-							BOOL success,
-							LLViewerFetchedTexture *src_vi,
-							LLImageRaw* src, 
-							LLImageRaw* aux_src,
-							S32 discard_level, 
-							BOOL final,
-							void* userdata );
+    static void			onFileLoadedForSave(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, LLUUID item_id);
 	void 				openToSave();
 
 	void				saveTextureToFile(const std::vector<std::string>& filenames);
@@ -99,7 +92,7 @@ private:
 	S32 mLastWidth;
 	F32 mAspectRatio;	
 
-	LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList ; 
+    LLViewerFetchedTexture::connection_list_t   mConnections;
 	std::vector<std::string>		mRatiosList;
 };
 #endif  // LL_LLPREVIEWTEXTURE_H

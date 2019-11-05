@@ -51,6 +51,7 @@
 #include "llpreviewnotecard.h"
 #include "llpreviewgesture.h"
 #include "llcoproceduremanager.h"
+#include "llviewertexturemanager.h"
 
 void dialog_refresh_all();
 
@@ -383,7 +384,7 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
     {
         // It's an image file, the upload procedure is the same for all
         assetType = LLAssetType::AT_TEXTURE;
-        if (!LLViewerTextureList::createUploadFile(getFileName(), filename, codec))
+        if (!LLViewerTextureManager::createUploadFile(getFileName(), filename, codec))
         {
             errorMessage = llformat("Problem with file %s:\n\n%s\n",
                 getFileName().c_str(), LLImage::getLastError().c_str());

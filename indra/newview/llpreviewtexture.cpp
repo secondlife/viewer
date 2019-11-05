@@ -52,6 +52,7 @@
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "lllineeditor.h"
+#include "llviewertexturemanager.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -87,7 +88,11 @@ LLPreviewTexture::LLPreviewTexture(const LLSD& key)
 
 LLPreviewTexture::~LLPreviewTexture()
 {
-	LLLoadedCallbackEntry::cleanUpCallbackList(&mCallbackTextureList) ;
+    for (const auto& connection : mConnections)
+    {
+        connection.disconnect();
+    }
+    mConnections.clear();
 
 	if( mLoadingFullImage )
 	{
@@ -312,9 +317,13 @@ void LLPreviewTexture::saveTextureToFile(const std::vector<std::string>& filenam
 	mLoadingFullImage = TRUE;
 	getWindow()->incBusyCount();
 
+    LLUUID item_id(mItemUUID);
 	mImage->forceToSaveRawImage(0);//re-fetch the raw image if the old one is removed.
-	mImage->setLoadedCallback(LLPreviewTexture::onFileLoadedForSave,
-		0, TRUE, FALSE, new LLUUID(mItemUUID), &mCallbackTextureList);
+    LLViewerFetchedTexture::connection_t connection = mImage->addCallback(
+        [item_id](bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done) { 
+            LLPreviewTexture::onFileLoadedForSave(success, src_vi, final_done, item_id); 
+    });
+    mConnections.insert(connection);
 }
 
 // virtual
@@ -374,22 +383,13 @@ void LLPreviewTexture::openToSave()
 }
 
 // static
-void LLPreviewTexture::onFileLoadedForSave(BOOL success, 
-					   LLViewerFetchedTexture *src_vi,
-					   LLImageRaw* src, 
-					   LLImageRaw* aux_src, 
-					   S32 discard_level,
-					   BOOL final,
-					   void* userdata)
+void LLPreviewTexture::onFileLoadedForSave(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, LLUUID item_id)
 {
-	LLUUID* item_uuid = (LLUUID*) userdata;
+    /*TODO:*/ // this could be a handle.
+	LLPreviewTexture* self = LLFloaterReg::findTypedInstance<LLPreviewTexture>("preview_texture", item_id);
 
-	LLPreviewTexture* self = LLFloaterReg::findTypedInstance<LLPreviewTexture>("preview_texture", *item_uuid);
-
-	if( final || !success )
+	if( final_done || !success )
 	{
-		delete item_uuid;
-
 		if( self )
 		{
 			self->getWindow()->decBusyCount();
@@ -397,7 +397,7 @@ void LLPreviewTexture::onFileLoadedForSave(BOOL success,
 		}
 	}
 
-	if( self && final && success )
+	if( self && final_done && success )
 	{
 		const U32 ext_length = 3;
 		std::string extension = self->mSaveFileName.substr( self->mSaveFileName.length() - ext_length);
@@ -413,7 +413,7 @@ void LLPreviewTexture::onFileLoadedForSave(BOOL success,
 			image = new LLImageTGA;
 		}
 
-		if( image && !image->encode( src, 0 ) )
+		if( image && !image->encode( src_vi->getRawImage(), 0 ) )
 		{
 			LLSD args;
 			args["FILE"] = self->mSaveFileName;
@@ -538,10 +538,14 @@ void LLPreviewTexture::onAspectRatioCommit(LLUICtrl* ctrl, void* userdata)
 
 void LLPreviewTexture::loadAsset()
 {
-	mImage = LLViewerTextureManager::getFetchedTexture(mImageID, FTT_DEFAULT, MIPMAP_TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-	mImageOldBoostLevel = mImage->getBoostLevel();
-	mImage->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
-	mImage->forceToSaveRawImage(0) ;
+    LLViewerTextureManager::FetchParams params;
+    params.mTextureType = LLViewerTexture::LOD_TEXTURE;
+    params.mBoostPriority = LLGLTexture::BOOST_PREVIEW;
+    params.mKeepRaw = true;
+	mImage = LLViewerTextureManager::instance().getFetchedTexture(mImageID, params);
+// 	mImageOldBoostLevel = mImage->getBoostLevel();
+// 	mImage->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
+// 	mImage->forceToSaveRawImage(0) ;
 	mAssetStatus = PREVIEW_ASSET_LOADING;
 	mUpdateDimensions = TRUE;
 	updateDimensions();

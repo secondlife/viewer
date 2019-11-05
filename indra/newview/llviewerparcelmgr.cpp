@@ -68,6 +68,7 @@
 #include "llweb.h"
 #include "llvieweraudio.h"
 #include "llcorehttputil.h"
+#include "llviewertexturemanager.h"
 
 const F32 PARCEL_COLLISION_DRAW_SECS = 1.f;
 
@@ -144,8 +145,8 @@ LLViewerParcelMgr::LLViewerParcelMgr()
 	// JC: Resolved a merge conflict here, eliminated
 	// mBlockedImage->setAddressMode(LLTexUnit::TAM_WRAP);
 	// because it is done in llviewertexturelist.cpp
-	mBlockedImage = LLViewerTextureManager::getFetchedTextureFromFile("world/NoEntryLines.png", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI);
-	mPassImage = LLViewerTextureManager::getFetchedTextureFromFile("world/NoEntryPassLines.png", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI);
+	mBlockedImage = LLViewerTextureManager::instance().getFetchedTextureFromSkin("world/NoEntryLines.png");
+    mPassImage = LLViewerTextureManager::instance().getFetchedTextureFromSkin("world/NoEntryPassLines.png");
 
 	S32 overlay_size = mParcelsPerEdge * mParcelsPerEdge / PARCEL_OVERLAY_CHUNKS;
 	sPackedOverlay = new U8[overlay_size];

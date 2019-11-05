@@ -72,6 +72,6 @@ private:
 
 	BOOL mExceedLimits;
 
-	LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList ;
+
 };
 #endif  // LL_LLFLOATEROUTFITPHOTOPREVIEW_H

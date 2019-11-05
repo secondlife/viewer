@@ -68,6 +68,7 @@
 #include "lluictrlfactory.h"
 #include "llpluginclassmedia.h"
 #include "llviewertexturelist.h"// Update sel manager as to which channel we're editing so it can reflect the correct overlay UI
+#include "llviewertexturemanager.h"
 
 //
 // Constant definitions for comboboxes
@@ -2695,7 +2696,7 @@ void LLPanelFace::LLSelectedTE::getTexId(LLUUID& id, bool& identical)
 			{
 				if (te)
 				{
-					LLViewerTexture* tex = te->getID().notNull() ? gTextureList.findImage(te->getID(), TEX_LIST_STANDARD) : NULL;
+					LLViewerTexture* tex = te->getID().notNull() ? LLViewerTextureManager::instance().findFetchedTexture(te->getID()) : nullptr;
 					if(!tex)
 					{
 						tex = LLViewerFetchedTexture::sDefaultImagep;

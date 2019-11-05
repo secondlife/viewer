@@ -1,8 +1,8 @@
 /** 
- * @file lltexturemanagerbridge.h
- * @brief Bridge to an application-specific texture manager.
+ * @file llfttype.h
+ * @brief Texture request constants
  *
- * $LicenseInfo:firstyear=2012&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -24,25 +24,17 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_TEXTUREMANAGERBRIDGE_H
-#define LL_TEXTUREMANAGERBRIDGE_H
+#ifndef LL_FTTYPE_H
+#define LL_FTTYPE_H
 
-#include "llavatarappearancedefines.h"
-#include "llpointer.h"
-#include "llgltexture.h"
-
-// Abstract bridge interface
-class LLTextureManagerBridge
+enum FTType
 {
-public:
-    virtual ~LLTextureManagerBridge() {}
-
-	virtual LLPointer<LLGLTexture> getLocalTexture(bool usemipmaps = true, bool generate_gl_tex = true) = 0;
-	virtual LLPointer<LLGLTexture> getLocalTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps, bool generate_gl_tex = true) = 0;
-	virtual LLPointer<LLGLTexture> getFetchedTexture(const LLUUID &image_id) = 0;
+    FTT_UNKNOWN = -1,
+    FTT_DEFAULT = 0, // standard texture fetched by id.
+    FTT_SERVER_BAKE, // texture produced by appearance service and fetched from there.
+    FTT_HOST_BAKE, // old-style baked texture uploaded by viewer and fetched from avatar's host.
+    FTT_MAP_TILE, // tiles are fetched from map server directly.
+    FTT_LOCAL_FILE // fetch directly from a local file.
 };
 
-extern LLTextureManagerBridge* gTextureManagerBridgep;
-
-#endif // LL_TEXTUREMANAGERBRIDGE_H
-
+#endif

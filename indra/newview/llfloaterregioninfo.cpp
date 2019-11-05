@@ -100,6 +100,7 @@
 #include "llpanelexperiences.h"
 #include "llcorehttputil.h"
 #include "llavatarnamecache.h"
+#include "llviewertexturemanager.h"
 
 const S32 TERRAIN_TEXTURE_COUNT = 4;
 const S32 CORNER_COUNT = 4;
@@ -1245,7 +1246,7 @@ BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 		if (!texture_ctrl) continue;
 
 		LLUUID image_asset_id = texture_ctrl->getImageAssetID();
-		LLViewerTexture* img = LLViewerTextureManager::getFetchedTexture(image_asset_id);
+		LLViewerTexture* img = LLViewerTextureManager::instance().getFetchedTexture(image_asset_id);
 		S32 components = img->getComponents();
 		// Must ask for highest resolution version's width. JC
 		S32 width = img->getFullWidth();

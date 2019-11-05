@@ -52,6 +52,7 @@
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "lllineeditor.h"
+#include "llviewertexturemanager.h"
 
 const S32 MAX_OUTFIT_PHOTO_WIDTH = 256;
 const S32 MAX_OUTFIT_PHOTO_HEIGHT = 256;
@@ -61,7 +62,7 @@ const S32 CLIENT_RECT_VPAD = 4;
 LLFloaterOutfitPhotoPreview::LLFloaterOutfitPhotoPreview(const LLSD& key)
 	: LLPreview(key),
 	  mUpdateDimensions(TRUE),
-	  mImage(NULL),
+	  mImage(nullptr),
 	  mOutfitID(LLUUID()),
 	  mImageOldBoostLevel(LLGLTexture::BOOST_NONE),
 	  mExceedLimits(FALSE)
@@ -71,12 +72,10 @@ LLFloaterOutfitPhotoPreview::LLFloaterOutfitPhotoPreview(const LLSD& key)
 
 LLFloaterOutfitPhotoPreview::~LLFloaterOutfitPhotoPreview()
 {
-	LLLoadedCallbackEntry::cleanUpCallbackList(&mCallbackTextureList) ;
-
 	if (mImage.notNull())
 	{
 		mImage->setBoostLevel(mImageOldBoostLevel);
-		mImage = NULL;
+		mImage = nullptr;
 	}
 }
 
@@ -210,10 +209,12 @@ void LLFloaterOutfitPhotoPreview::loadAsset()
 	{
 		mImage->setBoostLevel(mImageOldBoostLevel);
 	}
-	mImage = LLViewerTextureManager::getFetchedTexture(mImageID, FTT_DEFAULT, MIPMAP_TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-	mImageOldBoostLevel = mImage->getBoostLevel();
-	mImage->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
-	mImage->forceToSaveRawImage(0) ;
+    LLViewerTextureManager::FetchParams params;
+    params.mBoostPriority = LLGLTexture::BOOST_PREVIEW;
+    params.mTextureType = LLViewerTexture::LOD_TEXTURE;
+    params.mForceToSaveRaw = true;
+
+	mImage = LLViewerTextureManager::instance().getFetchedTexture(mImageID, params);
 	mAssetStatus = PREVIEW_ASSET_LOADING;
 	mUpdateDimensions = TRUE;
 	updateDimensions();

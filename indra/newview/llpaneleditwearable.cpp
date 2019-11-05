@@ -62,6 +62,8 @@
 #include "lltextutil.h"
 #include "llappearancemgr.h"
 
+#include "llviewertexturemanager.h"
+
 // register panel with appropriate XML
 static LLPanelInjector<LLPanelEditWearable> t_edit_wearable("panel_edit_wearable");
 
@@ -968,30 +970,30 @@ void LLPanelEditWearable::onTexturePickerCommit(const LLUICtrl* ctrl)
                         = find_picker_ctrl_entry_if<LLTextureCtrl, PickerControlEntryNamePredicate>(type, name_pred);
                 if (entry)
                 {
-                        // Set the new version
-                        LLViewerFetchedTexture* image = LLViewerTextureManager::getFetchedTexture(texture_ctrl->getImageAssetID());
-                        if( image->getID() == IMG_DEFAULT )
-                        {
-                                image = LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT_AVATAR);
-                        }
-                        if (getWearable())
-                        {
-							U32 index;
-							if (gAgentWearables.getWearableIndex(getWearable(), index))
-							{
-								gAgentAvatarp->setLocalTexture(entry->mTextureIndex, image, FALSE, index);
-								LLVisualParamHint::requestHintUpdates();
-								gAgentAvatarp->wearableUpdated(type);
-							}
-							else
-							{
-								LL_WARNS() << "wearable not found in gAgentWearables" << LL_ENDL;
-							}
-                        }
+                    // Set the new version
+                    LLViewerFetchedTexture* image = LLViewerTextureManager::instance().getFetchedTexture(texture_ctrl->getImageAssetID());
+                    if( image->getID() == IMG_DEFAULT )
+                    {
+                            image = LLViewerTextureManager::instance().getFetchedTexture(IMG_DEFAULT_AVATAR);
+                    }
+                    if (getWearable())
+                    {
+						U32 index;
+						if (gAgentWearables.getWearableIndex(getWearable(), index))
+						{
+							gAgentAvatarp->setLocalTexture(entry->mTextureIndex, image, FALSE, index);
+							LLVisualParamHint::requestHintUpdates();
+							gAgentAvatarp->wearableUpdated(type);
+						}
+						else
+						{
+							LL_WARNS() << "wearable not found in gAgentWearables" << LL_ENDL;
+						}
+                    }
                 }
                 else
                 {
-                        LL_WARNS() << "could not get texture picker dictionary entry for wearable of type: " << type << LL_ENDL;
+                    LL_WARNS() << "could not get texture picker dictionary entry for wearable of type: " << type << LL_ENDL;
                 }
         }
 }
@@ -1601,7 +1603,7 @@ void LLPanelEditWearable::onInvisibilityCommit(LLCheckBoxCtrl* checkbox_ctrl, LL
                 LLLocalTextureObject *lto = getWearable()->getLocalTextureObject(te);
                 mPreviousAlphaTexture[te] = lto->getID();
                 
-                LLViewerFetchedTexture* image = LLViewerTextureManager::getFetchedTexture( IMG_INVISIBLE );
+                LLViewerFetchedTexture* image = LLViewerTextureManager::instance().getFetchedTexture( IMG_INVISIBLE );
 				gAgentAvatarp->setLocalTexture(te, image, FALSE, index);
 				gAgentAvatarp->wearableUpdated(getWearable()->getType());
         }
@@ -1615,7 +1617,7 @@ void LLPanelEditWearable::onInvisibilityCommit(LLCheckBoxCtrl* checkbox_ctrl, LL
                 }
                 if (prev_id.isNull()) return;
                 
-                LLViewerFetchedTexture* image = LLViewerTextureManager::getFetchedTexture(prev_id);
+                LLViewerFetchedTexture* image = LLViewerTextureManager::instance().getFetchedTexture(prev_id);
                 if (!image) return;
 
                 gAgentAvatarp->setLocalTexture(te, image, FALSE, index);

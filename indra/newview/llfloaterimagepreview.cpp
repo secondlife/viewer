@@ -59,6 +59,7 @@
 #include "llviewercontrol.h"
 #include "lltrans.h"
 #include "llimagedimensionsinfo.h"
+#include "llviewertexturemanager.h"
 
 const S32 PREVIEW_BORDER_WIDTH = 2;
 const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PREVIEW_BORDER_WIDTH;
@@ -252,7 +253,7 @@ void LLFloaterImagePreview::draw()
 			}
 			else
 			{
-				mImagep = LLViewerTextureManager::getLocalTexture(mRawImagep.get(), FALSE) ;
+                mImagep = LLViewerTextureManager::instance().getLocalTexture(mRawImagep.get(), false);
 				
 				gGL.getTexUnit(0)->unbind(mImagep->getTarget()) ;
 				gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mImagep->getTexName());

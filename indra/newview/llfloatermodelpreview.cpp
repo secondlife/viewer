@@ -85,6 +85,7 @@
 #include "llanimationstates.h"
 #include "llviewernetwork.h"
 #include "llviewershadermgr.h"
+#include "llviewertexturemanager.h"
 
 #include "glod/glod.h"
 #include <boost/algorithm/string.hpp>
@@ -188,7 +189,10 @@ BOOL stop_gloderror()
 
 LLViewerFetchedTexture* bindMaterialDiffuseTexture(const LLImportMaterial& material)
 {
-	LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(material.getDiffuseMap(), FTT_DEFAULT, TRUE, LLGLTexture::BOOST_PREVIEW);
+    LLViewerTextureManager::FetchParams params;
+    
+    params.mBoostPriority = LLGLTexture::BOOST_PREVIEW;
+	LLViewerFetchedTexture *texture = LLViewerTextureManager::instance().getFetchedTexture(material.getDiffuseMap(), params);
 
 	if (texture)
 	{
@@ -3562,9 +3566,13 @@ U32 LLModelPreview::loadTextures(LLImportMaterial& material,void* opaque)
 		material.mOpaqueData = new LLPointer< LLViewerFetchedTexture >;
 		LLPointer< LLViewerFetchedTexture >& tex = (*reinterpret_cast< LLPointer< LLViewerFetchedTexture > * >(material.mOpaqueData));
 
-		tex = LLViewerTextureManager::getFetchedTextureFromUrl("file://" + material.mDiffuseMapFilename, FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_PREVIEW);
-		tex->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, TRUE, FALSE, opaque, NULL, FALSE);
-		tex->forceToSaveRawImage(0, F32_MAX);
+        LLViewerTextureManager::FetchParams params;
+        params.mBoostPriority = LLGLTexture::BOOST_PREVIEW;
+        params.mForceToSaveRaw = true;
+        params.mSaveKeepTime = F32_MAX;
+        params.mCallback = [opaque](bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done) { LLModelPreview::textureLoadedCallback(success, src_vi, final_done, opaque); };
+
+        tex = LLViewerTextureManager::instance().getFetchedTextureFromFile(material.mDiffuseMapFilename, params);
 		material.setDiffuseMap(tex->getID()); // record tex ID
 		return 1;
 	}
@@ -4354,19 +4362,12 @@ void LLFloaterModelPreview::refresh()
 }
 
 //static
-void LLModelPreview::textureLoadedCallback(
-    BOOL success,
-    LLViewerFetchedTexture *src_vi,
-    LLImageRaw* src,
-    LLImageRaw* src_aux,
-    S32 discard_level,
-    BOOL final,
-    void* userdata )
+void LLModelPreview::textureLoadedCallback(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, void *userdata)
 {
 	LLModelPreview* preview = (LLModelPreview*) userdata;
 	preview->refresh();
 
-	if(final && preview->mModelLoader)
+	if(final_done && preview->mModelLoader)
 	{
 		if(preview->mModelLoader->mNumOfFetchingTextures > 0)
 		{

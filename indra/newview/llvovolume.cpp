@@ -86,6 +86,7 @@
 #include "llcallstack.h"
 #include "llsculptidsize.h"
 #include "llavatarappearancedefines.h"
+#include "llviewertexturemanager.h"
 
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
@@ -717,10 +718,10 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 
 	static LLCachedControl<bool> dont_load_textures(gSavedSettings,"TextureDisable", false);
 		
-	if (dont_load_textures || LLAppViewer::getTextureFetch()->mDebugPause) // || !mDrawable->isVisible())
-	{
-		return;
-	}
+// 	if (dont_load_textures || LLAppViewer::getTextureFetch()->mDebugPause) // || !mDrawable->isVisible())
+// 	{
+// 		return;
+// 	}
 
 	mTextureUpdateTimer.reset();
 	
@@ -779,7 +780,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 			LLViewerFetchedTexture* img = LLViewerTextureManager::staticCastToFetchedTexture(imagep) ;
 			if(img)
 			{
-				F32 pri = img->getDecodePriority();
+				F32 pri = img->getPriority();
 				pri = llmax(pri, 0.0f);
 				if (pri < min_vsize) min_vsize = pri;
 				if (pri > max_vsize) max_vsize = pri;
@@ -849,7 +850,10 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 	{
 		LLLightImageParams* params = (LLLightImageParams*) getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
 		LLUUID id = params->getLightTexture();
-		mLightTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_ALM);
+        LLViewerTextureManager::FetchParams fparams;
+        fparams.mBoostPriority = LLGLTexture::BOOST_ALM;
+
+		mLightTexture = LLViewerTextureManager::instance().getFetchedTexture(id, fparams);
 		if (mLightTexture.notNull())
 		{
 			F32 rad = getLightRadius();
@@ -1015,7 +1019,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 	
 	if (is404)
 	{
-		setIcon(LLViewerTextureManager::getFetchedTextureFromFile("icons/Inv_Mesh.png", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI));
+		setIcon(LLViewerTextureManager::instance().getFetchedTextureFromSkin("icons/Inv_Mesh.png"));
 		//render prim proxy when mesh loading attempts give up
 		volume_params.setSculptID(LLUUID::null, LL_SCULPT_TYPE_NONE);
 
@@ -1099,7 +1103,9 @@ void LLVOVolume::updateSculptTexture()
 		LLUUID id =  sculpt_params->getSculptTexture();
 		if (id.notNull())
 		{
-			mSculptTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+            LLViewerTextureManager::FetchParams params;
+            params.mTextureType = LLViewerTexture::LOD_TEXTURE;
+			mSculptTexture = LLViewerTextureManager::instance().getFetchedTexture(id, params);
 		}
 	}
 	else
@@ -1610,7 +1616,7 @@ void LLVOVolume::regenFaces()
 		{
 			if(mMediaImplList[i])
 			{
-				LLViewerMediaTexture* media_tex = LLViewerTextureManager::findMediaTexture(mMediaImplList[i]->getMediaTextureID()) ;
+                LLViewerMediaTexture* media_tex = LLViewerTextureManager::instance().findMediaTexture(mMediaImplList[i]->getMediaTextureID());
 				if(media_tex)
 				{
 					media_tex->addMediaToFace(facep) ;
@@ -2944,7 +2950,7 @@ void LLVOVolume::removeMediaImpl(S32 texture_index)
 		LLFace* facep = mDrawable->getFace(texture_index) ;
 		if(facep)
 		{
-			LLViewerMediaTexture* media_tex = LLViewerTextureManager::findMediaTexture(mMediaImplList[texture_index]->getMediaTextureID()) ;
+            LLViewerMediaTexture* media_tex = LLViewerTextureManager::instance().findMediaTexture(mMediaImplList[texture_index]->getMediaTextureID());
 			if(media_tex)
 			{
 				media_tex->removeMediaFromFace(facep) ;
@@ -3003,7 +3009,7 @@ void LLVOVolume::addMediaImpl(LLViewerMediaImpl* media_impl, S32 texture_index)
 
 		if(facep)
 		{
-			LLViewerMediaTexture* media_tex = LLViewerTextureManager::findMediaTexture(mMediaImplList[texture_index]->getMediaTextureID()) ;
+            LLViewerMediaTexture* media_tex = LLViewerTextureManager::instance().findMediaTexture(mMediaImplList[texture_index]->getMediaTextureID());
 			if(media_tex)
 			{
 				media_tex->addMediaToFace(facep) ;
@@ -3324,7 +3330,9 @@ LLViewerTexture* LLVOVolume::getLightTexture()
 	{
 		if (mLightTexture.isNull() || id != mLightTexture->getID())
 		{
-			mLightTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_ALM);
+            LLViewerTextureManager::FetchParams params;
+            params.mBoostPriority = LLGLTexture::BOOST_ALM;
+			mLightTexture = LLViewerTextureManager::instance().getFetchedTexture(id, params);
 		}
 	}
 	else
@@ -3919,7 +3927,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 			LLUUID sculpt_id = sculpt_params->getSculptTexture();
 			if (textures.find(sculpt_id) == textures.end())
 			{
-				LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(sculpt_id);
+				LLViewerFetchedTexture *texture = LLViewerTextureManager::instance().getFetchedTexture(sculpt_id);
 				if (texture)
 				{
 					S32 texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f));

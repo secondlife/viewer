@@ -32,6 +32,7 @@
 #include "lluuid.h"
 #include "llpointer.h"
 #include "llviewertexture.h"
+#include "llhost.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFloaterAuction

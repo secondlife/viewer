@@ -52,6 +52,7 @@
 #include "llnotificationsutil.h"
 #include "raytrace.h"
 #include "llglslshader.h"
+#include "llviewertexturemanager.h"
 
 extern LLPipeline gPipeline;
 
@@ -316,8 +317,10 @@ U32 LLVOTree::processUpdateMessage(LLMessageSystem *mesgsys,
 	//
 	//  Load Species-Specific data 
 	//
+    LLViewerTextureManager::FetchParams params;
+    params.mTextureType = LLViewerTexture::LOD_TEXTURE;
 	static const S32 MAX_TREE_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL = 32 ; //frames.
-	mTreeImagep = LLViewerTextureManager::getFetchedTexture(sSpeciesTable[mSpecies]->mTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+	mTreeImagep = LLViewerTextureManager::instance().getFetchedTexture(sSpeciesTable[mSpecies]->mTextureID, params);
 	mTreeImagep->setMaxVirtualSizeResetInterval(MAX_TREE_TEXTURE_VIRTURE_SIZE_RESET_INTERVAL); //allow to wait for at most 16 frames to reset virtual size.
 
 	mBranchLength = sSpeciesTable[mSpecies]->mBranchLength;

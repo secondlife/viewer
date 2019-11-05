@@ -73,6 +73,7 @@
 #include "llcorehttputil.h"
 
 #include "llfloaterwebcontent.h"	// for handling window close requests and geometry change requests in media browser windows.
+#include "llviewertexturemanager.h"
 
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
@@ -1593,7 +1594,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 
 	// connect this media_impl to the media texture, creating it if it doesn't exist.0
 	// This is necessary because we need to be able to use getMaxVirtualSize() even if the media plugin is not loaded.
-	LLViewerMediaTexture* media_tex = LLViewerTextureManager::getMediaTexture(mTextureId);
+    LLViewerMediaTexture* media_tex = LLViewerTextureManager::instance().getMediaTexture(mTextureId);
 	if(media_tex)
 	{
 		media_tex->setMediaImpl();
@@ -1677,7 +1678,7 @@ void LLViewerMediaImpl::destroyMediaSource()
 	mNeedsNewTexture = true;
 
 	// Tell the viewer media texture it's no longer active
-	LLViewerMediaTexture* oldImage = LLViewerTextureManager::findMediaTexture( mTextureId );
+    LLViewerMediaTexture* oldImage = LLViewerTextureManager::instance().findMediaTexture(mTextureId);
 	if (oldImage)
 	{
 		oldImage->setPlaying(FALSE) ;
@@ -2931,7 +2932,7 @@ LLViewerMediaTexture* LLViewerMediaImpl::updatePlaceholderImage()
 		return NULL;
 	}
 
-	LLViewerMediaTexture* placeholder_image = LLViewerTextureManager::getMediaTexture( mTextureId );
+    LLViewerMediaTexture* placeholder_image = LLViewerTextureManager::instance().getMediaTexture(mTextureId);
 
 	if (mNeedsNewTexture
 		|| placeholder_image->getUseMipMaps()
@@ -3494,7 +3495,7 @@ static LLTrace::BlockTimerStatHandle FTM_MEDIA_CALCULATE_INTEREST("Calculate Int
 void LLViewerMediaImpl::calculateInterest()
 {
 	LL_RECORD_BLOCK_TIME(FTM_MEDIA_CALCULATE_INTEREST);
-	LLViewerMediaTexture* texture = LLViewerTextureManager::findMediaTexture( mTextureId );
+    LLViewerMediaTexture* texture = LLViewerTextureManager::instance().findMediaTexture(mTextureId);
 
 	if(texture != NULL)
 	{

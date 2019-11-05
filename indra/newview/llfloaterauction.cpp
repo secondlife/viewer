@@ -58,6 +58,7 @@
 #include "llsdutil_math.h"
 #include "lltrans.h"
 #include "llcorehttputil.h"
+#include "llviewertexturemanager.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -209,7 +210,7 @@ void LLFloaterAuction::onClickSnapshot(void* data)
 		j2c->encode(raw, 0.0f);
 		LLVFile::writeFile(j2c->getData(), j2c->getDataSize(), gVFS, self->mImageID, LLAssetType::AT_TEXTURE);
 
-		self->mImage = LLViewerTextureManager::getLocalTexture((LLImageRaw*)raw, FALSE);
+        self->mImage = LLViewerTextureManager::instance().getLocalTexture((LLImageRaw*)raw, false);
 		gGL.getTexUnit(0)->bind(self->mImage);
 		self->mImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 	}

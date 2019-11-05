@@ -619,16 +619,32 @@ public:
 	void			releaseComponentTextures(); // ! BACKWARDS COMPATIBILITY !
 
 protected:
-	static void		onBakedTextureMasksLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
-	static void		onInitialBakedTextureLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
-	static void		onBakedTextureLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
+    // Callback data
+    struct LLTextureMaskData
+    {
+        typedef std::shared_ptr<LLTextureMaskData>  ptr_t;
+
+        LLTextureMaskData(const LLUUID& id) :
+            mAvatarID(id),
+            mLastDiscardLevel(S32_MAX)
+        {}
+
+        LLUUID				mAvatarID;
+        S32					mLastDiscardLevel;
+        LLViewerFetchedTexture::connection_t    mConnection;
+    };
+
+
+    static void		onBakedTextureMasksLoaded(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, const LLTextureMaskData::ptr_t &mask_data);
+    static void		onInitialBakedTextureLoaded(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, LLUUID avatar_id);
+    static void		onBakedTextureLoaded(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, LLUUID avatar_id);
 	virtual void	removeMissingBakedTextures();
 	void			useBakedTexture(const LLUUID& id);
 	LLViewerTexLayerSet*  getTexLayerSet(const U32 index) const { return dynamic_cast<LLViewerTexLayerSet*>(mBakedTextureDatas[index].mTexLayerSet);	}
 
 
-	LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList ; 
-	BOOL mLoadedCallbacksPaused;
+    LLViewerFetchedTexture::connection_list_t mConnections;
+// 	BOOL mLoadedCallbacksPaused;
 	std::set<LLUUID>	mTextureIDs;
 	//--------------------------------------------------------------------
 	// Local Textures

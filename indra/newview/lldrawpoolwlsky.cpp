@@ -41,6 +41,7 @@
 #include "llviewerregion.h"
 #include "llface.h"
 #include "llrender.h"
+#include "llviewertexturemanager.h"
 
 LLPointer<LLViewerTexture> LLDrawPoolWLSky::sCloudNoiseTexture = NULL;
 
@@ -73,7 +74,7 @@ LLDrawPoolWLSky::LLDrawPoolWLSky(void) :
 				(S32)sCloudNoiseRawImage->getComponents() << " : data size: " << sCloudNoiseRawImage->getDataSize() << LL_ENDL ;
 			llassert_always(sCloudNoiseRawImage->getData()) ;
 
-			sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
+            sCloudNoiseTexture = LLViewerTextureManager::instance().getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
 		}
 		else
 		{
@@ -419,7 +420,7 @@ void LLDrawPoolWLSky::restoreGL()
 {
 	if(sCloudNoiseRawImage.notNull())
 	{
-		sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
+        sCloudNoiseTexture = LLViewerTextureManager::instance().getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
 	}
 }
 

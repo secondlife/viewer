@@ -78,6 +78,7 @@
 #include "llwaterparammanager.h"
 #include "llpostprocess.h"
 #include "llscenemonitor.h"
+#include "llviewertexturemanager.h"
 
 extern LLPointer<LLViewerTexture> gStartTexture;
 extern bool gShiftFrame;
@@ -465,7 +466,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gAgent.setTeleportState( LLAgent::TELEPORT_ARRIVING );
 			gAgent.setTeleportMessage(
 				LLAgent::sTeleportProgressMessages["arriving"]);
-			gTextureList.mForceResetTextureStats = TRUE;
+            LLViewerTextureManager::instance().resetStatistics();
 			gAgentCamera.resetView(TRUE, TRUE);
 			
 			break;
@@ -795,12 +796,13 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			
 			{
 				LL_RECORD_BLOCK_TIME(FTM_IMAGE_UPDATE_BUMP);
-				gBumpImageList.updateImages();  // must be called before gTextureList version so that it's textures are thrown out first.
+				gBumpImageList.updateImages();  // must be called before LLViewerTextureList::instance() version so that it's textures are thrown out first.
 			}
 
 			{
 				LL_RECORD_BLOCK_TIME(FTM_IMAGE_UPDATE_LIST);
-				gTextureList.updateImages(0.004f);
+                LLViewerTextureManager::instance().update();
+				//LLViewerTextureList::instance().updateImages(0.004f);
 			}
 
 			/*{
@@ -1620,7 +1622,7 @@ void render_disconnected_background()
 
 		
 		raw->expandToPowerOfTwo();
-		gDisconnectedImagep = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE );
+        gDisconnectedImagep = LLViewerTextureManager::instance().getLocalTexture(raw.get(), false);
 		gStartTexture = gDisconnectedImagep;
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	}

@@ -37,6 +37,7 @@
 #include "../llworldmap.h"
 // Tut header
 #include "../test/lltut.h"
+#include "../llviewertexturemanager.h"
 
 // -------------------------------------------------------------------------------------------
 // Stubbing: Declarations required to link and run the class being tested
@@ -49,8 +50,9 @@
 // Stub image calls
 void LLGLTexture::setBoostLevel(S32 ) { }
 void LLGLTexture::setAddressMode(LLTexUnit::eTextureAddressMode ) { }
-LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTexture(const LLUUID&, FTType, BOOL, LLGLTexture::EBoostLevel, S8,
-																  LLGLint, LLGLenum, LLHost ) { return NULL; }
+LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::getFetchedTexture(const LLUUID&, const LLViewerTextureManager::FetchParams &) { return nullptr; }
+void LLViewerTextureManager::initSingleton() { }
+void LLViewerTextureManager::cleanupSingleton() { }
 
 // Stub related map calls
 LLWorldMapMessage::LLWorldMapMessage() { }

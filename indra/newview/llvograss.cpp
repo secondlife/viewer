@@ -48,6 +48,7 @@
 #include "lldir.h"
 #include "llxmltree.h"
 #include "llvotree.h"
+#include "llviewertexturemanager.h"
 
 const S32 GRASS_MAX_BLADES =	32;
 const F32 GRASS_BLADE_BASE =	0.25f;			//  Width of grass at base
@@ -100,7 +101,10 @@ void LLVOGrass::updateSpecies()
 		SpeciesMap::const_iterator it = sSpeciesTable.begin();
 		mSpecies = (*it).first;
 	}
-	setTEImage(0, LLViewerTextureManager::getFetchedTexture(sSpeciesTable[mSpecies]->mTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
+    LLViewerTextureManager::FetchParams params;
+
+    params.mTextureType = LLViewerTexture::LOD_TEXTURE;
+	setTEImage(0, LLViewerTextureManager::instance().getFetchedTexture(sSpeciesTable[mSpecies]->mTextureID, params));
 }
 
 

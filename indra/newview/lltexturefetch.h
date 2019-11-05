@@ -27,6 +27,7 @@
 #ifndef LL_LLTEXTUREFETCH_H
 #define LL_LLTEXTUREFETCH_H
 
+#if 0
 #include <vector>
 #include <map>
 
@@ -89,12 +90,6 @@ public:
 
 	// Threads:  T*
 	bool updateRequestPriority(const LLUUID& id, F32 priority);
-
-    // Threads:  T*
-	bool receiveImageHeader(const LLHost& host, const LLUUID& id, U8 codec, U16 packets, U32 totalbytes, U16 data_size, U8* data);
-
-    // Threads:  T*
-	bool receiveImagePacket(const LLHost& host, const LLUUID& id, U16 packet_num, U16 data_size, U8* data);
 
     // Threads:  T* (but not safe)
 	void setTextureBandwidth(F32 bandwidth) { mTextureBandwidth = bandwidth; }
@@ -410,5 +405,6 @@ public:
 	void resetLoadSource() {mFetchSource = mOriginFetchSource;}
 	bool canLoadFromCache() { return mFetchSource != FROM_HTTP_ONLY;}
 };
+#endif
 #endif // LL_LLTEXTUREFETCH_H
 

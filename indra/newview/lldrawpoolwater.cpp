@@ -47,6 +47,7 @@
 #include "pipeline.h"
 #include "llviewershadermgr.h"
 #include "llwaterparammanager.h"
+#include "llviewertexturemanager.h"
 
 const LLUUID TRANSPARENT_WATER_TEXTURE("2bfd3884-7e27-69b9-ba3a-3e673f680004");
 const LLUUID OPAQUE_WATER_TEXTURE("43c32285-d658-1793-c123-bf86315de055");
@@ -66,21 +67,24 @@ LLVector3 LLDrawPoolWater::sLightDir;
 LLDrawPoolWater::LLDrawPoolWater() :
 	LLFacePool(POOL_WATER)
 {
-	mHBTex[0] = LLViewerTextureManager::getFetchedTexture(gSunTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+    LLViewerTextureManager::FetchParams body_params;
+    body_params.mFTType = FTT_DEFAULT;
+    body_params.mBoostPriority = LLGLTexture::BOOST_UI;
+	mHBTex[0] = LLViewerTextureManager::instance().getFetchedTexture(gSunTextureID, body_params);
 	gGL.getTexUnit(0)->bind(mHBTex[0]) ;
 	mHBTex[0]->setAddressMode(LLTexUnit::TAM_CLAMP);
 
-	mHBTex[1] = LLViewerTextureManager::getFetchedTexture(gMoonTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
+    mHBTex[1] = LLViewerTextureManager::instance().getFetchedTexture(gMoonTextureID, body_params);
 	gGL.getTexUnit(0)->bind(mHBTex[1]);
 	mHBTex[1]->setAddressMode(LLTexUnit::TAM_CLAMP);
 
 
-	mWaterImagep = LLViewerTextureManager::getFetchedTexture(TRANSPARENT_WATER_TEXTURE);
+    mWaterImagep = LLViewerTextureManager::instance().getFetchedTexture(TRANSPARENT_WATER_TEXTURE);
 	llassert(mWaterImagep);
 	mWaterImagep->setNoDelete();
-	mOpaqueWaterImagep = LLViewerTextureManager::getFetchedTexture(OPAQUE_WATER_TEXTURE);
+    mOpaqueWaterImagep = LLViewerTextureManager::instance().getFetchedTexture(OPAQUE_WATER_TEXTURE);
 	llassert(mOpaqueWaterImagep);
-	mWaterNormp = LLViewerTextureManager::getFetchedTexture(DEFAULT_WATER_NORMAL);
+    mWaterNormp = LLViewerTextureManager::instance().getFetchedTexture(DEFAULT_WATER_NORMAL);
 	mWaterNormp->setNoDelete();
 
 	restoreGL();
@@ -570,7 +574,7 @@ void LLDrawPoolWater::shade()
 	// change mWaterNormp if needed
 	if (mWaterNormp->getID() != param_mgr->getNormalMapID())
 	{
-		mWaterNormp = LLViewerTextureManager::getFetchedTexture(param_mgr->getNormalMapID());
+		mWaterNormp = LLViewerTextureManager::instance().getFetchedTexture(param_mgr->getNormalMapID());
 	}
 
 	mWaterNormp->addTextureStats(1024.f*1024.f);

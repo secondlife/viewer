@@ -56,6 +56,7 @@
 #include "llvfs.h"
 #include "llwindow.h"
 #include "llworld.h"
+#include "llviewertexturemanager.h"
 #include <boost/filesystem.hpp>
 
 const F32 AUTO_SNAPSHOT_TIME_DELAY = 1.f;
@@ -614,7 +615,7 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
         }
         // Scale to a power of 2 so it can be mapped to a texture
         raw->expandToPowerOfTwo();
-		mThumbnailImage = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE);
+        mThumbnailImage = LLViewerTextureManager::instance().getLocalTexture(raw.get(), false);
 		mThumbnailUpToDate = TRUE ;
 	}
 
@@ -662,7 +663,7 @@ LLViewerTexture* LLSnapshotLivePreview::getBigThumbnailImage()
         }
         // Scale to a power of 2 so it can be mapped to a texture
         raw->expandToPowerOfTwo();
-		mBigThumbnailImage = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE);
+        mBigThumbnailImage = LLViewerTextureManager::instance().getLocalTexture(raw.get(), false);
 		mBigThumbnailUpToDate = TRUE ;
 	}
     
@@ -817,7 +818,7 @@ void LLSnapshotLivePreview::prepareFreezeFrame()
             scaled->expandToPowerOfTwo(1024, FALSE);
         }
 
-        mViewerImage[mCurImageIndex] = LLViewerTextureManager::getLocalTexture(scaled.get(), FALSE);
+        mViewerImage[mCurImageIndex] = LLViewerTextureManager::instance().getLocalTexture(scaled.get(), false);
         LLPointer<LLViewerTexture> curr_preview_image = mViewerImage[mCurImageIndex];
         gGL.getTexUnit(0)->bind(curr_preview_image);
         curr_preview_image->setFilteringOption(getSnapshotType() == LLSnapshotModel::SNAPSHOT_TEXTURE ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT);

@@ -31,6 +31,7 @@
 
 #include "llviewertexturelist.h"
 #include "math.h"	// log()
+#include "llviewertexturemanager.h"
 
 // Turn this on to output tile stats in the standard output
 #define DEBUG_TILES_STAT 0
@@ -189,8 +190,12 @@ LLPointer<LLViewerFetchedTexture> LLWorldMipmap::loadObjectsTile(U32 grid_x, U32
 	// END DEBUG
 	//LL_INFOS("WorldMap") << "LLWorldMipmap::loadObjectsTile(), URL = " << imageurl << LL_ENDL;
 
-	LLPointer<LLViewerFetchedTexture> img = LLViewerTextureManager::getFetchedTextureFromUrl(imageurl, FTT_MAP_TILE, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-	img->setBoostLevel(LLGLTexture::BOOST_MAP);
+    LLViewerTextureManager::FetchParams params;
+    params.mFTType = FTT_MAP_TILE;
+    params.mTextureType = LLViewerTexture::LOD_TEXTURE;
+    params.mBoostPriority = LLGLTexture::BOOST_MAP;
+
+	LLPointer<LLViewerFetchedTexture> img = LLViewerTextureManager::instance().getFetchedTextureFromUrl(imageurl, params);
 
 	// Return the smart pointer
 	return img;

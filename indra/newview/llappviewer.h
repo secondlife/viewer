@@ -53,7 +53,6 @@ class LLCommandLineParser;
 class LLFrameTimer;
 class LLPumpIO;
 class LLTextureCache;
-class LLTextureFetch;
 class LLWatchdogTimeout;
 class LLViewerJoystick;
 
@@ -111,8 +110,6 @@ public:
     void checkForCrash();
     
 	// Thread accessors
-	static LLTextureFetch* getTextureFetch() { return sTextureFetch; }
-
 	static U32 getTextureCacheVersion() ;
 	static U32 getObjectCacheVersion() ;
 
@@ -268,9 +265,6 @@ private:
 	bool mReportedCrash;
 
 	std::string mServerReleaseNotesURL;
-
-	// Thread objects.
-	static LLTextureFetch* sTextureFetch;
 
 	S32 mNumSessions;
 

@@ -37,6 +37,7 @@
 #include "llviewertexturelist.h"         // for texture stats
 #include "llagent.h"
 #include "llmimetypes.h"
+#include "llviewertexturemanager.h"
 
 const F32 AUTOPLAY_TIME  = 5;          // how many seconds before we autoplay
 const F32 AUTOPLAY_SIZE  = 24*24;      // how big the texture must be (pixel area) before we autoplay
@@ -126,7 +127,7 @@ BOOL LLViewerParcelMediaAutoPlay::tick()
 	{
 		if (this_media_texture_id.notNull())	// and if the media texture is good
 		{
-			LLViewerMediaTexture *image = LLViewerTextureManager::getMediaTexture(this_media_texture_id, FALSE) ;
+            LLViewerMediaTexture *image = LLViewerTextureManager::instance().getMediaTexture(this_media_texture_id, FALSE);
 
 			F32 image_size = 0;
 

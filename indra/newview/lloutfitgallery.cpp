@@ -55,6 +55,7 @@
 #include "llviewermenufile.h"
 #include "llviewertexturelist.h"
 #include "llwearableitemslist.h"
+#include "llviewertexturemanager.h"
 
 static LLPanelInjector<LLOutfitGallery> t_outfit_gallery("outfit_gallery");
 
@@ -785,7 +786,10 @@ BOOL LLOutfitGalleryItem::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 bool LLOutfitGalleryItem::setImageAssetId(LLUUID image_asset_id)
 {
-    LLPointer<LLViewerFetchedTexture> texture = LLViewerTextureManager::getFetchedTexture(image_asset_id, FTT_DEFAULT, MIPMAP_YES, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+    LLViewerTextureManager::FetchParams params;
+    params.mTextureType = LLViewerTexture::LOD_TEXTURE;
+
+    LLPointer<LLViewerFetchedTexture> texture = LLViewerTextureManager::instance().getFetchedTexture(image_asset_id, params);
     if (texture && texture->getOriginalWidth() <= MAX_OUTFIT_PHOTO_WIDTH && texture->getOriginalHeight() <= MAX_OUTFIT_PHOTO_HEIGHT)
     {
         mImageAssetId = image_asset_id;

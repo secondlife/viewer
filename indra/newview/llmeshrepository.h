@@ -39,6 +39,7 @@
 #include "httpheaders.h"
 #include "httphandler.h"
 #include "llthread.h"
+#include "llhost.h"
 
 #define LLCONVEXDECOMPINTER_STATIC 1
 

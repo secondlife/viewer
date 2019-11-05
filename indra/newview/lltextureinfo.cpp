@@ -189,9 +189,10 @@ void LLTextureInfo::setRequestCompleteTimeAndLog(const LLUUID& id, U64Microsecon
 
 				// Texture cache
 				LLSD texture_cache;
-				U32 cache_read = 0, cache_write = 0, res_wait = 0;
+                U32 cache_read = 0, cache_write = 0; // , res_wait = 0;
 				F64 cache_hit_rate = 0;
-				LLAppViewer::getTextureFetch()->getStateStats(&cache_read, &cache_write, &res_wait);
+                /*TODO*/ // RIDER
+				//LLAppViewer::getTextureFetch()->getStateStats(&cache_read, &cache_write, &res_wait);
 				if (cache_read > 0 || cache_write > 0)
 				{
 					cache_hit_rate = cache_read / (cache_read + cache_write);

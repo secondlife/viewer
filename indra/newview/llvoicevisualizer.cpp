@@ -40,6 +40,7 @@
 #include "llviewertexturelist.h"
 #include "llvoiceclient.h"
 #include "llrender.h"
+#include "llviewertexturemanager.h"
 
 //brent's wave image
 //29de489d-0491-fb00-7dab-f9e686d31e83
@@ -121,10 +122,12 @@ LLVoiceVisualizer::LLVoiceVisualizer( const U8 type )
 		"voice_meter_rings.j2c"
 	};
 
+    LLViewerTextureManager::FetchParams params;
+    params.mUseMipMaps = false;
 	for (int i=0; i<NUM_VOICE_SYMBOL_WAVES; i++)
 	{
 		mSoundSymbol.mWaveFadeOutStartTime	[i] = mCurrentTime;
-		mSoundSymbol.mTexture				[i] = LLViewerTextureManager::getFetchedTextureFromFile(sound_level_img[i], FTT_LOCAL_FILE, FALSE, LLGLTexture::BOOST_UI);
+		mSoundSymbol.mTexture				[i] = LLViewerTextureManager::instance().getFetchedTextureFromSkin(sound_level_img[i], params);
 		mSoundSymbol.mWaveActive			[i] = false;
 		mSoundSymbol.mWaveOpacity			[i] = 1.0f;
 		mSoundSymbol.mWaveExpansion			[i] = 1.0f;

@@ -384,14 +384,15 @@ void update_statistics()
 	add(LLStatViewer::ASSET_UDP_DATA_RECEIVED, F64Bits(gTransferManager.getTransferBitsIn(LLTCT_ASSET)));
 	gTransferManager.resetTransferBitsIn(LLTCT_ASSET);
 
-	if (LLAppViewer::getTextureFetch()->getNumRequests() == 0)
-	{
-		gTextureTimer.pause();
-	}
-	else
-	{
-		gTextureTimer.unpause();
-	}
+    /*TODO*/ // RIDER texture timing
+// 	if (LLAppViewer::getTextureFetch()->getNumRequests() == 0)
+// 	{
+// 		gTextureTimer.pause();
+// 	}
+// 	else
+// 	{
+// 		gTextureTimer.unpause();
+// 	}
 	
 	sample(LLStatViewer::VISIBLE_AVATARS, LLVOAvatar::sNumVisibleAvatars);
 	LLWorld::getInstance()->updateNetStats();

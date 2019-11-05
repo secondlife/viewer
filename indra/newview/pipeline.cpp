@@ -114,6 +114,7 @@
 #include "llscenemonitor.h"
 #include "llprogressview.h"
 #include "llcleanup.h"
+#include "llviewertexturemanager.h"
 
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
@@ -4233,7 +4234,7 @@ void LLPipeline::renderHighlights()
 	
 	if (hasRenderDebugFeatureMask(RENDER_DEBUG_FEATURE_SELECTED) && !mFaceSelectImagep)
 		{
-			mFaceSelectImagep = LLViewerTextureManager::getFetchedTexture(IMG_FACE_SELECT);
+			mFaceSelectImagep = LLViewerTextureManager::instance().getFetchedTexture(IMG_FACE_SELECT);
 		}
 
 	if (hasRenderDebugFeatureMask(RENDER_DEBUG_FEATURE_SELECTED) && (sRenderHighlightTextureChannel == LLRender::DIFFUSE_MAP))

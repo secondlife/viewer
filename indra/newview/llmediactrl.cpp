@@ -61,6 +61,7 @@
 #include "lllineeditor.h"
 #include "llfloaterwebcontent.h"
 #include "llwindowshade.h"
+#include "llviewertexturemanager.h"
 
 extern BOOL gRestoreGL;
 
@@ -776,7 +777,7 @@ void LLMediaCtrl::draw()
 
 		if(media_plugin && (media_plugin->textureValid()))
 		{
-			media_texture = LLViewerTextureManager::findMediaTexture(mMediaTextureID);
+            media_texture = LLViewerTextureManager::instance().findMediaTexture(mMediaTextureID);
 			if(media_texture)
 			{
 				draw_media = true;

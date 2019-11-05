@@ -77,6 +77,7 @@
 #include "llinventorypanel.h"
 #include "lluploaddialog.h"
 #include "llfloaterreg.h"
+#include "llviewertexturemanager.h"
 
 #include "boost/lexical_cast.hpp"
 
@@ -2306,9 +2307,10 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				if (texture != NULL && include_textures && mUploadTextures)
 				{
 					if(texture->hasSavedRawImage())
-					{											
+					{
+                        LLPointer<LLImageRaw> raw_image(texture->getSavedRawImage());
 						LLPointer<LLImageJ2C> upload_file =
-							LLViewerTextureList::convertToUploadFile(texture->getSavedRawImage());
+							LLViewerTextureManager::convertToUploadFile(raw_image);
 
 						if (!upload_file.isNull() && upload_file->getDataSize())
 						{
@@ -2443,35 +2445,36 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				LLImportMaterial& material = instance.mMaterial[data.mBaseModel->mMaterialList[face_num]];
 				LLSD face_entry = LLSD::emptyMap();
 
-				LLViewerFetchedTexture *texture = NULL;
+				LLViewerFetchedTexture *texture = nullptr;
 
-				if (material.mDiffuseMapFilename.size())
+				if (!material.mDiffuseMapFilename.empty())
 				{
 					texture = FindViewerTexture(material);
 				}
 
-				if ((texture != NULL) &&
+				if ((texture != nullptr) &&
 					(textures.find(texture) == textures.end()))
 				{
 					textures.insert(texture);
 				}
 
 				std::stringstream texture_str;
-				if (texture != NULL && include_textures && mUploadTextures)
+				if (texture != nullptr && include_textures && mUploadTextures)
 				{
 					if(texture->hasSavedRawImage())
-					{											
+					{
+                        LLPointer<LLImageRaw> raw_image(texture->getSavedRawImage());
 						LLPointer<LLImageJ2C> upload_file =
-							LLViewerTextureList::convertToUploadFile(texture->getSavedRawImage());
+							LLViewerTextureManager::convertToUploadFile(raw_image);
 
 						if (!upload_file.isNull() && upload_file->getDataSize())
-						{
-						texture_str.write((const char*) upload_file->getData(), upload_file->getDataSize());
-					}
-				}
+                        {
+                            texture_str.write((const char*) upload_file->getData(), upload_file->getDataSize());
+                        }
+				    }
 				}
 
-				if (texture != NULL &&
+				if (texture != nullptr &&
 					mUploadTextures &&
 					texture_index.find(texture) == texture_index.end())
 				{
@@ -2482,7 +2485,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				}
 
 				// Subset of TextureEntry fields.
-				if (texture != NULL && mUploadTextures)
+				if (texture != nullptr && mUploadTextures)
 				{
 					face_entry["image"] = texture_index[texture];
 					face_entry["scales"] = 1.0;
@@ -2501,7 +2504,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 		}
 	}
 
-	if (model_name.empty()) model_name = "mesh model";
+	if (model_name.empty()) 
+        model_name = "mesh model";
 	result["name"] = model_name;
 	res["metric"] = "MUT_Unspecified";
 	result["asset_resources"] = res;

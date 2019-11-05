@@ -175,10 +175,11 @@ void LLFloaterLagMeter::determineClient()
 		{
 			mClientCause->setText( getString("client_draw_distance_cause_msg", mStringArgs) );
 		}
-		else if(LLAppViewer::instance()->getTextureFetch()->getNumRequests() > 2)
-		{
-			mClientCause->setText( getString("client_texture_loading_cause_msg", mStringArgs) );
-		}
+        /*TODO*/ // RIDER
+// 		else if(LLAppViewer::instance()->getTextureFetch()->getNumRequests() > 2)
+// 		{
+// 			mClientCause->setText( getString("client_texture_loading_cause_msg", mStringArgs) );
+// 		}
 		else if(LLViewerTexture::sBoundTextureMemory > LLViewerTexture::sMaxBoundTextureMemory)
 		{
 			mClientCause->setText( getString("client_texture_memory_cause_msg", mStringArgs) );

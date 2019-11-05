@@ -237,6 +237,7 @@
 #include "llviewereventrecorder.h"
 
 #include "llassetfetch.h"
+#include "llviewertexturemanager.h"
 
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either
@@ -656,7 +657,6 @@ bool LLAppViewer::sendURLToOtherInstance(const std::string& url)
 // Static members.
 // The single viewer app.
 LLAppViewer* LLAppViewer::sInstance = NULL;
-LLTextureFetch* LLAppViewer::sTextureFetch = NULL;
 
 std::string getRuntime()
 {
@@ -1602,9 +1602,10 @@ S32 LLAppViewer::updateTextureThreads(U32 max_time_ms)
 {
 	S32 work_pending = 0;
 	{
-		LL_RECORD_BLOCK_TIME(FTM_TEXTURE_FETCH);
-        LLAppViewer::instance()->getTextureFetch()->updateMaxBandwidth();
-	 	work_pending += LLAppViewer::getTextureFetch()->update(F32(max_time_ms)); // unpauses the texture fetch thread
+        /*TODO*/ // RIDER
+// 		LL_RECORD_BLOCK_TIME(FTM_TEXTURE_FETCH);
+//         LLAppViewer::instance()->getTextureFetch()->updateMaxBandwidth();
+// 	 	work_pending += LLAppViewer::getTextureFetch()->update(F32(max_time_ms)); // unpauses the texture fetch thread
 	}
 	return work_pending;
 }
@@ -1816,10 +1817,6 @@ bool LLAppViewer::cleanup()
 		LL_INFOS() << "ViewerWindow deleted" << LL_ENDL;
 	}
 
-    sTextureFetch->shutdown();
-	delete sTextureFetch;
-	sTextureFetch = NULL;
-
 	LL_INFOS() << "Cleaning up Keyboard & Joystick" << LL_ENDL;
 
 	// viewer UI relies on keyboard so keep it aound until viewer UI isa gone
@@ -2002,12 +1999,13 @@ bool LLAppViewer::cleanup()
 	LL_INFOS() << "Cleaning up Media and Textures" << LL_ENDL;
 
 	//Note:
-	//SUBSYSTEM_CLEANUP(LLViewerMedia) has to be put before gTextureList.shutdown()
+	//SUBSYSTEM_CLEANUP(LLViewerMedia) has to be put before LLViewerTextureList::instance().shutdown()
 	//because some new image might be generated during cleaning up media. --bao
 	SUBSYSTEM_CLEANUP(LLViewerMedia);
 	SUBSYSTEM_CLEANUP(LLViewerParcelMedia);
-	gTextureList.shutdown(); // shutdown again in case a callback added something
-	LLUIImageList::getInstance()->cleanUp();
+
+    // Explicitly remove these singletons before GL is shut down.
+    LLUIImageList::deleteSingleton();
 
 	// This should eventually be done in LLAppViewer
 	SUBSYSTEM_CLEANUP(LLImage);
@@ -2127,8 +2125,6 @@ bool LLAppViewer::initThreads()
     LLTextureCache::instance();
 
     LLAssetFetch::instance();
-
-    LLAppViewer::sTextureFetch = new LLTextureFetch( LLTextureCache::getInstance(), app_metrics_qa_mode);	
 
 	if (LLTrace::BlockTimer::sLog || LLTrace::BlockTimer::sMetricLog)
 	{
@@ -5564,28 +5560,29 @@ void LLAppViewer::metricsSend(bool enable_reporting)
 	if (! gViewerAssetStats)
 		return;
 
-	if (LLAppViewer::sTextureFetch)
-	{
-		LLViewerRegion * regionp = gAgent.getRegion();
-
-		if (enable_reporting && regionp)
-		{
-			std::string	caps_url = regionp->getCapability("ViewerMetrics");
-
-            LLSD sd = gViewerAssetStats->asLLSD(true);
-
-			// Send a report request into 'thread1' to get the rest of the data
-			// and provide some additional parameters while here.
-			LLAppViewer::sTextureFetch->commandSendMetrics(caps_url,
-														   gAgentSessionID,
-														   gAgentID,
-														   sd);
-		}
-		else
-		{
-			LLAppViewer::sTextureFetch->commandDataBreak();
-		}
-	}
+    /*TODO*/ // RIDER
+// 	if (LLAppViewer::sTextureFetch)
+// 	{
+// 		LLViewerRegion * regionp = gAgent.getRegion();
+// 
+// 		if (enable_reporting && regionp)
+// 		{
+// 			std::string	caps_url = regionp->getCapability("ViewerMetrics");
+// 
+//             LLSD sd = gViewerAssetStats->asLLSD(true);
+// 
+// 			// Send a report request into 'thread1' to get the rest of the data
+// 			// and provide some additional parameters while here.
+// 			LLAppViewer::sTextureFetch->commandSendMetrics(caps_url,
+// 														   gAgentSessionID,
+// 														   gAgentID,
+// 														   sd);
+// 		}
+// 		else
+// 		{
+// 			LLAppViewer::sTextureFetch->commandDataBreak();
+// 		}
+// 	}
 
 	// Reset even if we can't report.  Rather than gather up a huge chunk of
 	// data, we'll keep to our sampling interval and retain the data

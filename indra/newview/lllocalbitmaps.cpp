@@ -65,6 +65,7 @@
 #include "llviewercontrol.h"
 #include "lltrans.h"
 #include "llviewerdisplay.h"
+#include "llviewertexturemanager.h"
 
 /*=======================================*/
 /*  Formal declarations, constants, etc. */
@@ -135,8 +136,8 @@ LLLocalBitmap::~LLLocalBitmap()
 	}
 
 	// delete self from gimagelist
-	LLViewerFetchedTexture* image = gTextureList.findImage(mWorldID, TEX_LIST_STANDARD);
-	gTextureList.deleteImage(image);
+    LLViewerFetchedTexture* image = LLViewerTextureManager::instance().findFetchedTexture(mWorldID);
+    LLViewerTextureManager::instance().removeTexture(image);
 
 	if (image)
 	{
@@ -205,6 +206,7 @@ bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
 					mWorldID.generate();
 					mLastModified = new_last_modified;
 
+                    /*TODO*/ // can't this be delegated to the LLViewerTextureManager?  It handles files.
 					LLPointer<LLViewerFetchedTexture> texture = new LLViewerFetchedTexture
 						("file://"+mFilename, FTT_LOCAL_FILE, mWorldID, LL_LOCAL_USE_MIPMAPS);
 
@@ -212,7 +214,7 @@ bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
 					texture->setCachedRawImage(LL_LOCAL_DISCARD_LEVEL, raw_image);
 					texture->ref(); 
 
-					gTextureList.addImage(texture, TEX_LIST_STANDARD);
+                    LLViewerTextureManager::instance().explicitAddTexture(texture, LLViewerTextureManager::TEX_LIST_STANDARD);
 			
 					if (optional_firstupdate != UT_FIRSTUSE)
 					{
@@ -220,10 +222,10 @@ bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
 						replaceIDs(old_id, mWorldID);
 
 						// remove old_id from gimagelist
-						LLViewerFetchedTexture* image = gTextureList.findImage(old_id, TEX_LIST_STANDARD);
+                        LLViewerFetchedTexture* image = LLViewerTextureManager::instance().findFetchedTexture(old_id, LLViewerTextureManager::TEX_LIST_STANDARD);
 						if (image != NULL)
 						{
-							gTextureList.deleteImage(image);
+                            LLViewerTextureManager::instance().removeTexture(image);
 							image->unref();
 						}
 					}
@@ -391,7 +393,7 @@ void LLLocalBitmap::replaceIDs(LLUUID old_id, LLUUID new_id)
 std::vector<LLViewerObject*> LLLocalBitmap::prepUpdateObjects(LLUUID old_id, U32 channel)
 {
 	std::vector<LLViewerObject*> obj_list;
-	LLViewerFetchedTexture* old_texture = gTextureList.findImage(old_id, TEX_LIST_STANDARD);
+	LLViewerFetchedTexture* old_texture = LLViewerTextureManager::instance().findFetchedTexture(old_id);
 
 	for(U32 face_iterator = 0; face_iterator < old_texture->getNumFaces(channel); face_iterator++)
 	{
@@ -508,7 +510,7 @@ void LLLocalBitmap::updateUserPrims(LLUUID old_id, LLUUID new_id, U32 channel)
 
 void LLLocalBitmap::updateUserVolumes(LLUUID old_id, LLUUID new_id, U32 channel)
 {
-	LLViewerFetchedTexture* old_texture = gTextureList.findImage(old_id, TEX_LIST_STANDARD);
+	LLViewerFetchedTexture* old_texture = LLViewerTextureManager::instance().findFetchedTexture(old_id);
 	for (U32 volume_iter = 0; volume_iter < old_texture->getNumVolumes(channel); volume_iter++)
 	{
 		LLVOVolume* volobjp = (*old_texture->getVolumeList(channel))[volume_iter];
@@ -568,7 +570,7 @@ void LLLocalBitmap::updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableTyp
 						U32 index;
 						if (gAgentWearables.getWearableIndex(wearable,index))
 						{
-							gAgentAvatarp->setLocalTexture(reg_texind, gTextureList.getImage(new_id), FALSE, index);
+                            gAgentAvatarp->setLocalTexture(reg_texind, LLViewerTextureManager::instance().getFetchedTexture(new_id), FALSE, index);
 							gAgentAvatarp->wearableUpdated(type);
 							/* telling the manager to rebake once update cycle is fully done */
 							LLLocalBitmapMgr::setNeedsRebake();

@@ -73,6 +73,8 @@
 
 #include "llavatarappearancedefines.h"
 
+#include "llviewertexturemanager.h"
+
 static const F32 CONTEXT_CONE_IN_ALPHA = 0.0f;
 static const F32 CONTEXT_CONE_OUT_ALPHA = 1.f;
 static const F32 CONTEXT_FADE_TIME = 0.08f;
@@ -524,7 +526,7 @@ void LLFloaterTexturePicker::draw()
 
 			if (texture.isNull())
 			{
-				texture = LLViewerTextureManager::getFetchedTexture(mImageAssetID);
+				texture = LLViewerTextureManager::instance().getFetchedTexture(mImageAssetID);
 			}
 
 			mTexturep = texture;
@@ -1662,7 +1664,10 @@ void LLTextureCtrl::draw()
 
 		if (texture.isNull())
 		{
-			texture = LLViewerTextureManager::getFetchedTexture(mImageAssetID, FTT_DEFAULT, MIPMAP_YES, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+            LLViewerTextureManager::FetchParams params;
+            params.mTextureType = LLViewerTexture::LOD_TEXTURE;
+            params.mForceToSaveRaw = true;
+			texture = LLViewerTextureManager::instance().getFetchedTexture(mImageAssetID, params);
 		}
 		
 		texture->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
