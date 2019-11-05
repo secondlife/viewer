@@ -558,17 +558,21 @@ LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::getFetchedTexture(cons
 
 }
 
-LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::getFetchedTextureFromFile(const std::string& filename, LLViewerTextureManager::FetchParams &params)
+LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::getFetchedTextureFromFile(const std::string& filename, const LLViewerTextureManager::FetchParams &params)
 {
-    if (params.mFTType == boost::none)
-        params.mFTType = FTT_LOCAL_FILE;
+    FetchParams use_params(params);
+
+    if (use_params.mFTType == boost::none)
+    {   
+        use_params.mFTType = FTT_LOCAL_FILE;
+    }
 
     std::string url = "file://" + filename;
 
-    return getFetchedTextureFromUrl(url, params);
+    return getFetchedTextureFromUrl(url, use_params);
 }
 
-LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::getFetchedTextureFromSkin(const std::string& filename, LLViewerTextureManager::FetchParams &params)
+LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::getFetchedTextureFromSkin(const std::string& filename, const LLViewerTextureManager::FetchParams &params)
 {
     std::string full_path = gDirUtilp->findSkinnedFilename("textures", filename);
     if (full_path.empty())
@@ -580,10 +584,11 @@ LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::getFetchedTextureFromS
 
         return getFetchedTexture(IMG_DEFAULT, img_def_params);
     }
-    if (params.mBoostPriority == boost::none)
-        params.mBoostPriority = LLViewerTexture::BOOST_UI;
+    FetchParams use_params(params);
+    if (use_params.mBoostPriority == boost::none)
+        use_params.mBoostPriority = LLViewerTexture::BOOST_UI;
 
-    return getFetchedTextureFromFile(full_path, params);
+    return getFetchedTextureFromFile(full_path, use_params);
 }
 
 LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::getFetchedTextureFromUrl(const std::string& url, const LLViewerTextureManager::FetchParams &params)

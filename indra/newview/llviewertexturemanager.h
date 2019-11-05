@@ -126,8 +126,8 @@ public:
 	LLPointer<LLViewerTexture>      getLocalTexture(U32 width, U32 height, U8 components, bool usemipmaps, bool generate_gl_tex = true) const;
 
     LLPointer<LLViewerFetchedTexture> getFetchedTexture(const LLUUID &image_id, const FetchParams &params = FetchParams());
-    LLPointer<LLViewerFetchedTexture> getFetchedTextureFromFile(const std::string& filename, FetchParams &params = FetchParams());
-    LLPointer<LLViewerFetchedTexture> getFetchedTextureFromSkin(const std::string& filename, FetchParams &params = FetchParams());
+    LLPointer<LLViewerFetchedTexture> getFetchedTextureFromFile(const std::string& filename, const FetchParams &params = FetchParams());
+    LLPointer<LLViewerFetchedTexture> getFetchedTextureFromSkin(const std::string& filename, const FetchParams &params = FetchParams());
     LLPointer<LLViewerFetchedTexture> getFetchedTextureFromUrl(const std::string& url, const FetchParams &params = FetchParams());
 
     LLPointer<LLViewerMediaTexture> getMediaTexture(const LLUUID& id, bool usemipmaps = true, LLImageGL* gl_image = nullptr);
