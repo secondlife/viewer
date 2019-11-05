@@ -122,16 +122,16 @@ public:
 	LLViewerTexture(const LLImageRaw* raw, BOOL usemipmaps) ;
 	LLViewerTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps) ;
 
-	virtual S8 getType() const;
+	virtual S8 getType() const override;
 	virtual bool            isMissingAsset() const;
-	virtual void dump();	// debug info to LL_INFOS()
+	virtual void dump() override;	// debug info to LL_INFOS()
 	
-	/*virtual*/ bool bindDefaultImage(const S32 stage = 0) ;
-	/*virtual*/ bool bindDebugImage(const S32 stage = 0) ;
-	/*virtual*/ void forceImmediateUpdate() ;
-	virtual bool isActiveFetching();
+	virtual bool bindDefaultImage(const S32 stage = 0) override;
+	virtual bool bindDebugImage(const S32 stage = 0) override;
+	virtual void forceImmediateUpdate() override;
+	virtual bool isActiveFetching() override;
 	
-	/*virtual*/ const LLUUID& getID() const { return mID; }
+	virtual const LLUUID& getID() const override { return mID; }
 	void setBoostLevel(S32 level);
 	S32  getBoostLevel() const { return mBoostLevel; }
 	void setTextureListType(S32 tex_type) { mTextureListType = tex_type; }
@@ -149,7 +149,7 @@ public:
 	
 	S32 getFullWidth() const { return mFullWidth; }
 	S32 getFullHeight() const { return mFullHeight; }	
-	/*virtual*/ void setKnownDrawSize(S32 width, S32 height);
+	virtual void setKnownDrawSize(S32 width, S32 height) override;
 
 	virtual void addFace(U32 channel, LLFace* facep) ;
 	virtual void removeFace(U32 channel, LLFace* facep) ; 
@@ -170,7 +170,7 @@ public:
 	BOOL hasParcelMedia() const { return mParcelMedia != NULL;}
 	LLViewerMediaTexture* getParcelMedia() const { return mParcelMedia;}
 
-	/*virtual*/ void updateBindStatsForTester() ;
+	virtual void updateBindStatsForTester() override;
 protected:
 	void cleanup() ;
 	void init(bool firstinit) ;
@@ -393,7 +393,7 @@ public:
 	// Override the computation of discard levels if we know the exact output
 	// size of the image.  Used for UI textures to not decode, even if we have
 	// more data.
-	/*virtual*/ void setKnownDrawSize(S32 width, S32 height);
+	virtual void setKnownDrawSize(S32 width, S32 height) override;
 
 
 	// returns dimensions of original image for local files (before power of two scaling)
@@ -434,7 +434,7 @@ public:
 	BOOL        isRawImageValid()const { return mIsRawImageValid ; }	
 	void        forceToSaveRawImage(S32 desired_discard = 0, F32 kept_time = 0.f) ;
 	void        forceToRefetchTexture(S32 desired_discard = 0, F32 kept_time = 60.f);
-	/*virtual*/ void setCachedRawImage(S32 discard_level, LLImageRaw* imageraw) ;
+	virtual void setCachedRawImage(S32 discard_level, LLImageRaw* imageraw) override;
 	void        destroySavedRawImage() ;
 	LLImageRaw* getSavedRawImage() ;
 	BOOL        hasSavedRawImage() const ;
@@ -447,7 +447,7 @@ public:
 
 
 protected:
-	/*virtual*/ void switchToCachedImage();
+	virtual void switchToCachedImage() override;
 	S32 getCurrentDiscardLevelForFetching() ;
 
 private:
@@ -548,9 +548,9 @@ public:
 	LLViewerLODTexture(const LLUUID& id, FTType f_type, BOOL usemipmaps = TRUE);
 	LLViewerLODTexture(const std::string& url, FTType f_type, const LLUUID& id, BOOL usemipmaps = TRUE);
 
-	/*virtual*/ S8 getType() const;
+	virtual S8 getType() const override;
 	// Process image stats to determine priority/quality requirements.
-	/*virtual*/ void processTextureStats();
+	virtual void processTextureStats() override;
 	bool isUpdateFrozen() ;
 
 private:
@@ -574,7 +574,7 @@ protected:
 public:
 	LLViewerMediaTexture(const LLUUID& id, BOOL usemipmaps = TRUE, LLImageGL* gl_image = NULL) ;
 
-	/*virtual*/ S8 getType() const;
+	virtual S8 getType() const override;
 	void reinit(BOOL usemipmaps = TRUE);	
 
 	BOOL  getUseMipMaps() {return mUseMipMaps ; }
@@ -590,10 +590,10 @@ public:
 	void addMediaToFace(LLFace* facep) ;
 	void removeMediaFromFace(LLFace* facep) ;
 
-	/*virtual*/ void addFace(U32 ch, LLFace* facep) ;
-	/*virtual*/ void removeFace(U32 ch, LLFace* facep) ; 
+	virtual void addFace(U32 ch, LLFace* facep) override;
+	virtual void removeFace(U32 ch, LLFace* facep) override; 
 
-	/*virtual*/ F32  getMaxVirtualSize() ;
+	virtual F32  getMaxVirtualSize() override;
 private:
 	void switchTexture(U32 ch, LLFace* facep) ;
 	BOOL findFaces() ;

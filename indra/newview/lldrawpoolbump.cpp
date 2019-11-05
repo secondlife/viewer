@@ -1220,7 +1220,6 @@ namespace
 }
 
 // static
-//void LLBumpImageList::onSourceLoaded(BOOL success, LLViewerTexture *src_vi, LLImageRaw* src, LLUUID& source_asset_id, EBumpEffect bump_code)
 void LLBumpImageList::onSourceLoaded(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, EBumpEffect bump_code)
 {
 	if( success )
