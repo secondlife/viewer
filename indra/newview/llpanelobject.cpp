@@ -2318,7 +2318,7 @@ void LLPanelObject::onPasteParams()
         {
             objectp->setPhysicsShapeType((U8)mParamsClipboard["physics"]["shape"].asInteger());
             U8 cur_material = objectp->getMaterial();
-            U8 material = (U8)mParamsClipboard["physics_material"].asInteger() | (cur_material & ~LL_MCODE_MASK);
+            U8 material = (U8)mParamsClipboard["physics"]["material"].asInteger() | (cur_material & ~LL_MCODE_MASK);
 
             objectp->setMaterial(material);
             objectp->sendMaterialUpdate();
