@@ -166,14 +166,14 @@ const S32 TEX_IMAGE_SIZE_OTHER = 512 / 4;  // The size of local textures for oth
 
 const F32 HEAD_MOVEMENT_AVG_TIME = 0.9f;
 
-const S32 MORPH_MASK_REQUESTED_DISCARD = 0;
+//const S32 MORPH_MASK_REQUESTED_DISCARD = 0;
 
 const F32 MAX_STANDOFF_FROM_ORIGIN = 3;
 const F32 MAX_STANDOFF_DISTANCE_CHANGE = 32;
 
 // Discard level at which to switch to baked textures
 // Should probably be 4 or 3, but didn't want to change it while change other logic - SJB
-const S32 SWITCH_TO_BAKED_DISCARD = 5;
+//const S32 SWITCH_TO_BAKED_DISCARD = 5;
 
 const F32 FOOT_COLLIDE_FUDGE = 0.04f;
 
@@ -5294,7 +5294,7 @@ void LLVOAvatar::addLocalTextureStats( ETextureIndex idx, LLViewerFetchedTexture
 	return;
 }
 
-const S32 MAX_TEXTURE_UPDATE_INTERVAL = 64 ; //need to call updateTextures() at least every 32 frames.	
+//const S32 MAX_TEXTURE_UPDATE_INTERVAL = 64 ; //need to call updateTextures() at least every 32 frames.	
 const S32 MAX_TEXTURE_VIRTUAL_SIZE_RESET_INTERVAL = S32_MAX ; //frames
 void LLVOAvatar::checkTextureLoading()
 {
