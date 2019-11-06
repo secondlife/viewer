@@ -50,16 +50,13 @@ class LLViewerTextureManager : public LLSingleton<LLViewerTextureManager>
     LLSINGLETON_EMPTY_CTOR(LLViewerTextureManager);
     LOG_CLASS(LLViewerTextureManager);
 
+    friend LLViewerFetchedTexture;
 public:
     enum ETexListType
     {
         TEX_LIST_STANDARD = 0,
         TEX_LIST_SCALE
     };
-
-    // 	void setLoadedCallback(loaded_callback_func cb,
-    // 						   S32 discard_level, BOOL keep_imageraw, BOOL needs_aux,
-    // 						   void* userdata, LLLoadedCallbackEntry::source_callback_list_t* src_callback_list, BOOL pause = FALSE);
 
     struct FetchParams
     {
@@ -163,7 +160,10 @@ protected:
     virtual void                    initSingleton() override;
     virtual void                    cleanupSingleton() override;
 
+    void                            updatedSavedRaw(const LLPointer<LLViewerFetchedTexture> &texture);
 private:
+    static const F32                MAX_INACTIVE_TIME;
+
     struct TextureKey
     {
         TextureKey(const LLUUID &id, ETexListType tex_type) :
@@ -193,6 +193,8 @@ private:
     };
 
     typedef std::map<TextureKey, LLPointer<LLViewerFetchedTexture> >    map_key_texture_t;
+    typedef std::list<LLPointer<LLViewerFetchedTexture> >   llist_texture_t;
+    typedef std::set<LLPointer<LLViewerFetchedTexture> >    set_texture_t;
 
     bool                            mIsCleaningUp;
 
@@ -205,7 +207,8 @@ private:
     S32Megabytes                    mMaxResidentTexMemInMegaBytes;
     S32Megabytes                    mMaxTotalTextureMemInMegaBytes;
     
-    std::set<LLPointer<LLViewerFetchedTexture>> mImagePreloads; // simply holds on to LLViewerFetchedTexture references to stop them from being purged too soon
+    set_texture_t                   mImagePreloads; // simply holds on to LLViewerFetchedTexture references to stop them from being purged too soon
+    llist_texture_t                 mImageSaves;    // list of saved textures. 
 
     void                            doPreloadImages();
 
@@ -214,9 +217,13 @@ private:
                                         LLViewerFetchedTexture::EBoostLevel usage, S8 texture_type, 
                                         LLGLint internal_format = 0, LLGLenum primary_format = 0) const;
 
+    F32                             updateCleanSavedRaw(F32 timeout);
+    F32                             updateCleanDead(F32 timeout);
+
     void                            addTexture(LLPointer<LLViewerFetchedTexture> texturep, ETexListType list_type);
 
     void                            onTextureFetchDone(const LLAssetFetch::AssetRequest::ptr_t &request, const LLAssetFetch::TextureInfo &info, ETexListType text_type);
+
 };
 
 //

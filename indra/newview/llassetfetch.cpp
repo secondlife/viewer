@@ -69,7 +69,14 @@
 #include "llvfs.h"
 #include "llvfile.h"
 
+#include "llfasttimer.h"
 //========================================================================
+namespace
+{
+    LLTrace::BlockTimerStatHandle FTM_ASSET_HTTP("Asset HTTP Service");
+    LLTrace::BlockTimerStatHandle FTM_ASSET_CALLBACK("Asset Callback");
+}
+
 namespace
 {
     class TextureRequest : public LLAssetFetch::AssetRequest
@@ -287,13 +294,29 @@ void LLAssetFetch::cleanupSingleton()
 void LLAssetFetch::update()
 {
     // Deliver all completion notifications
-    LLCore::HttpStatus status = mHttpRequest->update(0);
-    if (!status)
+    F32 timeremaining(0.0125);
+
     {
-        LL_WARNS_ONCE(LOG_KEY_ASSETFETCH) << "Problem during HTTP servicing.  Reason:  " << status.toString() << LL_ENDL;
+        LLFrameTimer timeout;
+        timeout.setTimerExpirySec(timeremaining);
+
+        LL_RECORD_BLOCK_TIME(FTM_ASSET_HTTP);
+        LLCore::HttpStatus status = mHttpRequest->update(U64Microseconds(F32Seconds(timeremaining)).value());
+        if (!status)
+        {
+            LL_WARNS_ONCE(LOG_KEY_ASSETFETCH) << "Problem during HTTP servicing.  Reason:  " << status.toString() << LL_ENDL;
+        }
+        timeremaining = timeout.getTimeToExpireF32();
     }
 
-    handleAllFinishedRequests();
+    if (timeremaining > 0.0f)
+    {
+        LL_RECORD_BLOCK_TIME(FTM_ASSET_CALLBACK);
+        timeremaining = updateAllFinishedRequests(timeremaining);
+    }
+
+    LL_WARNS_IF(timeremaining >= 0.f, "ASSETFETCH") << "Finished asset fetcher update with " << F32Seconds(timeremaining) << " to spare" << LL_ENDL;
+    LL_WARNS_IF(timeremaining < 0.f, "ASSETFETCH") << "Ran out of time updating asset fetch. " << mThreadDone.size() << " items remain to signal done." << LL_ENDL;
 }
 
 LLUUID LLAssetFetch::requestTexture(FTType ftype, const LLUUID &id, S32 priority, S32 width, S32 height, S32 components, S32 discard, bool needs_aux, texture_signal_cb_t cb)
@@ -780,16 +803,22 @@ void LLAssetFetch::handleHTTPRequest(const LLAssetFetch::AssetRequest::ptr_t &re
     LL_DEBUGS("ASSETFETCH") << "Asset HTTP request finished, inflight count now: " << mHttpInFlight.size() << LL_ENDL;
 }
 
-void LLAssetFetch::handleAllFinishedRequests()
+F32 LLAssetFetch::updateAllFinishedRequests(F32 timeout)
 {
     LLMutexLock lock(mThreadDoneMtx);
+    LLFrameTimer timer;
+    
+    timer.setTimerExpirySec(timeout);
 
-    for (auto request : mThreadDone)
+    for (auto it = mThreadDone.begin(); it != mThreadDone.end(); )
     {
-        request->signalDone();
+        if (timer.hasExpired())
+            break;
+        (*it)->signalDone();
+        mThreadDone.erase(it++);
     }
 
-    mThreadDone.clear();
+    return timer.getTimeToExpireF32();
 }
 
 //========================================================================

@@ -167,7 +167,7 @@ public:
 	BOOL isLargeImage() ;	
 	
 	void setParcelMedia(LLViewerMediaTexture* media) {mParcelMedia = media;}
-	BOOL hasParcelMedia() const { return mParcelMedia != NULL;}
+	BOOL hasParcelMedia() const { return mParcelMedia != nullptr;}
 	LLViewerMediaTexture* getParcelMedia() const { return mParcelMedia;}
 
 	virtual void updateBindStatsForTester() override;

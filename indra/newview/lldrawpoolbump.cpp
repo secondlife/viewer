@@ -156,7 +156,7 @@ void LLStandardBumpmap::addstandard()
         params.mSaveKeepTime = 30.0f;
         params.mDesiredDiscard = 0;
         params.mKeepRaw = true;
-        params.mCallback = LLBumpImageList::onSourceStandardLoaded;
+        params.mCallback = &LLBumpImageList::onSourceStandardLoaded;
 
 // 		LL_INFOS() << "Loading bumpmap: " << bump_image_id << " from viewerart" << LL_ENDL;
 		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mLabel = label;
@@ -1085,51 +1085,30 @@ LLViewerTexture* LLBumpImageList::getBrightnessDarknessImage(LLViewerFetchedText
 		bump = (*entries_list)[src_image->getID()]; // In case callback was called immediately and replaced the image
 	}
 
-	if (!src_image->hasCallbacks())
-	{ //if image has no callbacks but resolutions don't match, trigger raw image loaded callback again
-		if (src_image->getWidth() != bump->getWidth() ||
-			src_image->getHeight() != bump->getHeight())// ||
-			//(LLPipeline::sRenderDeferred && bump->getComponents() != 4))
-		{
-			src_image->setBoostLevel(LLGLTexture::BOOST_BUMP) ;
-            src_image->addCallback([bump_code](bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done) {
-                LLBumpImageList::onSourceLoaded(success, src_vi, final_done, (EBumpEffect)bump_code);
-            });
-
-			src_image->forceToSaveRawImage(0) ;
-		}
-	}
+    /*TODO*/ // force a reload from CDN?
+// 	if (!src_image->hasCallbacks())
+// 	{ //if image has no callbacks but resolutions don't match, trigger raw image loaded callback again
+// 		if (src_image->getWidth() != bump->getWidth() ||
+// 			src_image->getHeight() != bump->getHeight())// ||
+// 			//(LLPipeline::sRenderDeferred && bump->getComponents() != 4))
+// 		{
+// 			src_image->setBoostLevel(LLGLTexture::BOOST_BUMP) ;
+//             src_image->addCallback([bump_code](bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done) {
+//                 LLBumpImageList::onSourceLoaded(success, src_vi, final_done, (EBumpEffect)bump_code);
+//             });
+// 
+// 			src_image->forceToSaveRawImage(0) ;
+// 		}
+// 	}
 
 	return bump;
 }
 
 
-static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_STANDARD_LOADED("Bump Standard Callback");
-
-// static
-// void LLBumpImageList::onSourceBrightnessLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata )
-// {
-// 	LLUUID* source_asset_id = (LLUUID*)userdata;
-// 	LLBumpImageList::onSourceLoaded( success, src_vi, src, *source_asset_id, BE_BRIGHTNESS );
-// 	if( final )
-// 	{
-// 		delete source_asset_id;
-// 	}
-// }
-// 
-// static
-// void LLBumpImageList::onSourceDarknessLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata )
-// {
-// 	LLUUID* source_asset_id = (LLUUID*)userdata;
-// 	LLBumpImageList::onSourceLoaded( success, src_vi, src, *source_asset_id, BE_DARKNESS );
-// 	if( final )
-// 	{
-// 		delete source_asset_id;
-// 	}
-// }
 
 namespace 
 {
+    LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_STANDARD_LOADED("Bump Standard Callback");
     LLTrace::BlockTimerStatHandle FTM_BUMP_GEN_NORMAL("Generate Normal Map");
     LLTrace::BlockTimerStatHandle FTM_BUMP_CREATE_TEXTURE("Create GL Normal Map");
 }

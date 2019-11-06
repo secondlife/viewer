@@ -270,7 +270,7 @@ private:
     void                        assetRequestError(const AssetRequest::ptr_t &request);
     bool                        makeHTTPRequest(const AssetRequest::ptr_t &request);
     void                        handleHTTPRequest(const AssetRequest::ptr_t &request, const LLCore::HttpResponse::ptr_t &response, LLCore::HttpStatus status);
-    void                        handleAllFinishedRequests();
+    F32                         updateAllFinishedRequests(F32 timeremaining);
 
     asset_fetch_map_t           mAssetRequests;
     asset_http_queue_t          mHttpQueue;

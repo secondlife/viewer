@@ -130,6 +130,11 @@ inline bool is_approx_equal(F32 x, F32 y)
 	return (std::abs((S32) ((U32&)x - (U32&)y) ) < COMPARE_MANTISSA_UP_TO_BIT);
 }
 
+inline bool is_almost_zero(F32 val)
+{
+    return (std::abs(val) < F_APPROXIMATELY_ZERO);
+}
+
 inline bool is_approx_equal(F64 x, F64 y)
 {
 	const S64 COMPARE_MANTISSA_UP_TO_BIT = 0x02;

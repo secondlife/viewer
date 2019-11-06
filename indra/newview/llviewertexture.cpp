@@ -167,8 +167,6 @@ const U32 DESIRED_NORMAL_TEXTURE_SIZE = (U32)LLViewerFetchedTexture::MAX_IMAGE_S
 // }
 
 //----------------------------------------------------------------------------------------------
-#pragma region LLViewerTexture
-//----------------------------------------------------------------------------------------------
 //start of LLViewerTexture
 //----------------------------------------------------------------------------------------------
 // static
@@ -735,7 +733,6 @@ void LLViewerTexture::updateBindStatsForTester()
 //----------------------------------------------------------------------------------------------
 //end of LLViewerTexture
 //----------------------------------------------------------------------------------------------
-#pragma endregion LLViewerTexture
 
 const std::string& fttype_to_string(const FTType& fttype)
 {
@@ -758,7 +755,6 @@ const std::string& fttype_to_string(const FTType& fttype)
 	return ftt_error;
 }
 
-#pragma region LLViewerFetchedTexture
 //----------------------------------------------------------------------------------------------
 //start of LLViewerFetchedTexture
 //----------------------------------------------------------------------------------------------
@@ -868,7 +864,8 @@ void LLViewerFetchedTexture::cleanup()
     if (!mIsFinal && !mAssetDoneSignal.empty())
     {   // We are cleaning up and have outstanding callbacks.  Signal a cancel 
         // (success = false, final = true)
-        mAssetDoneSignal(false, LLPointer<LLViewerFetchedTexture>(this), true);
+        LLPointer<LLViewerFetchedTexture> self(this);
+        mAssetDoneSignal(false, self, true);
         mAssetDoneSignal.disconnect_all_slots();
     }
 
@@ -876,9 +873,9 @@ void LLViewerFetchedTexture::cleanup()
 
     // Clean up image data
     destroyRawImage();
-    mCachedRawImage = false;
+    mCachedRawImage = nullptr;
     mCachedRawDiscardLevel = -1;
-    mSavedRawImage = false;
+    mSavedRawImage = nullptr;
     mSavedRawDiscardLevel = -1;
 }
 
@@ -1856,7 +1853,8 @@ void LLViewerFetchedTexture::onTextureFetchComplete(const LLAssetFetch::AssetReq
 
     if (!mAssetDoneSignal.empty())
     {
-        mAssetDoneSignal(mSuccess, LLPointer<LLViewerFetchedTexture>(this), mIsFinal);
+        LLPointer<LLViewerFetchedTexture> self(this);
+        mAssetDoneSignal(mSuccess, self, mIsFinal);
         if (mIsFinal)
         {   // no more call backs after "final"
             mAssetDoneSignal.disconnect_all_slots();
@@ -2188,9 +2186,12 @@ void LLViewerFetchedTexture::saveRawImage()
         mSavedRawImage = new LLImageRaw(mRawImage->getData(), mRawImage->getWidth(), mRawImage->getHeight(), mRawImage->getComponents());
     }
 
+    // Tell the texture manager that we might have a saved raw image.
+    LLViewerTextureManager::instance().updatedSavedRaw(this);
+
 	if(mForceToSaveRawImage && mSavedRawDiscardLevel <= mDesiredSavedRawDiscardLevel)
 	{
-		mForceToSaveRawImage = FALSE;
+		mForceToSaveRawImage = false;
 	}
 
 	mLastReferencedSavedRawImageTime = sCurrentTime;
@@ -2303,9 +2304,7 @@ LLViewerFetchedTexture::connection_t LLViewerFetchedTexture::addCallback(LLViewe
 //----------------------------------------------------------------------------------------------
 //end of LLViewerFetchedTexture
 //----------------------------------------------------------------------------------------------
-#pragma endregion LLViewerFetchedTexture
 
-#pragma region LLViewerLODTexture
 //----------------------------------------------------------------------------------------------
 //start of LLViewerLODTexture
 //----------------------------------------------------------------------------------------------
@@ -2510,9 +2509,7 @@ bool LLViewerLODTexture::scaleDown()
 //----------------------------------------------------------------------------------------------
 //end of LLViewerLODTexture
 //----------------------------------------------------------------------------------------------
-#pragma endregion LLViewerLODTexture
 
-#pragma region LLViewerMediaTexture
 //----------------------------------------------------------------------------------------------
 //start of LLViewerMediaTexture
 //----------------------------------------------------------------------------------------------
@@ -3035,5 +3032,4 @@ F32 LLViewerMediaTexture::getMaxVirtualSize()
 //----------------------------------------------------------------------------------------------
 //end of LLViewerMediaTexture
 //----------------------------------------------------------------------------------------------
-#pragma endregion LLViewerMediaTexture
 

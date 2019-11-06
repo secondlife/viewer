@@ -75,6 +75,19 @@ const std::string sTesterName("TextureTester");
 //========================================================================
 namespace
 {
+    LLTrace::BlockTimerStatHandle FTM_IMAGE_MARK_DIRTY("Dirty Images");
+    LLTrace::BlockTimerStatHandle FTM_IMAGE_CLEAN("Clean Images");
+    LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE_PRIORITIES("Prioritize");
+    LLTrace::BlockTimerStatHandle FTM_IMAGE_CALLBACKS("Callbacks");
+    LLTrace::BlockTimerStatHandle FTM_IMAGE_FETCH("Fetch");
+    LLTrace::BlockTimerStatHandle FTM_FAST_CACHE_IMAGE_FETCH("Fast Cache Fetch");
+    LLTrace::BlockTimerStatHandle FTM_IMAGE_CREATE("Create");
+    LLTrace::BlockTimerStatHandle FTM_IMAGE_STATS("Stats");
+    LLTrace::BlockTimerStatHandle FTM_UPDATE_TEXTURES("Update Textures");
+}
+
+namespace
+{
     // Create a bridge to the viewer texture manager.
     class LLViewerTextureManagerBridge : public LLTextureManagerBridge
     {
@@ -99,6 +112,9 @@ namespace
         return (usage == LLViewerFetchedTexture::BOOST_ICON) ? LLViewerTextureManager::TEX_LIST_SCALE : LLViewerTextureManager::TEX_LIST_STANDARD;
     }
 }
+
+//========================================================================
+const F32 LLViewerTextureManager::MAX_INACTIVE_TIME(20.0f);
 
 //========================================================================
 void LLViewerTextureManager::initSingleton()
@@ -321,13 +337,10 @@ void LLViewerTextureManager::doPreloadImages()
 }
 
 //========================================================================
-namespace
-{
-    LLTrace::BlockTimerStatHandle FTM_IMAGE_MARK_DIRTY("Dirty Images");
-}
 
 void LLViewerTextureManager::update()
 {
+    F32     timeremaining = 1.0;
     if (!mDirtyTextureList.empty())
     {
         LL_RECORD_BLOCK_TIME(FTM_IMAGE_MARK_DIRTY);
@@ -335,7 +348,74 @@ void LLViewerTextureManager::update()
         mDirtyTextureList.clear();
     }
 
+    if (timeremaining < F_APPROXIMATELY_ZERO)
+        return;
+
+    {
+        LL_RECORD_BLOCK_TIME(FTM_IMAGE_CLEAN);
+        timeremaining = updateCleanSavedRaw(timeremaining);
+        if (timeremaining < F_APPROXIMATELY_ZERO)
+            return;
+
+        timeremaining = updateCleanDead(timeremaining);
+        if (timeremaining < F_APPROXIMATELY_ZERO)
+            return;
+    }
+
 }
+
+F32 LLViewerTextureManager::updateCleanSavedRaw(F32 timeout)
+{
+    LLFrameTimer timer; 
+    std::deque<llist_texture_t::iterator> erase_candidates;
+
+    timer.setTimerExpirySec(timeout);
+
+    for (llist_texture_t::iterator itex = mImageSaves.begin(); itex != mImageSaves.end(); ++itex)
+    {
+        if (timer.hasExpired())
+        {
+            break;
+        }
+        if (!(*itex)->hasSavedRawImage())
+        {   // image does not have a saved image... 
+            erase_candidates.push_front(itex);
+            continue;
+        }
+        if ((*itex)->getElapsedLastReferencedSavedRawImageTime() > MAX_INACTIVE_TIME)
+        {
+            (*itex)->destroySavedRawImage();
+            erase_candidates.push_front(itex);
+        }
+    }
+
+    for (const auto& it: erase_candidates)
+    {   // the list of candidates is built backwards (push_front) so erasures go from the end to the beginning.
+        mImageSaves.erase(it);
+    }
+
+    return timer.getTimeToExpireF32();
+}
+
+F32 LLViewerTextureManager::updateCleanDead(F32 timeout)
+{
+    LLFrameTimer timer;
+    timer.setTimerExpirySec(timeout);
+
+
+
+    return timer.getTimeToExpireF32();
+}
+
+
+void LLViewerTextureManager::updatedSavedRaw(const LLPointer<LLViewerFetchedTexture> &texture)
+{
+    /*TODO*/ // This could be an ordered list or a queue based on the expire time...that would save
+    // us from having to iterate through the entire list to check cleanup.
+    if (texture->hasSavedRawImage())   
+        mImageSaves.push_back(texture);
+}
+
 
 //========================================================================
 void  LLViewerTextureManager::findTextures(const LLUUID& id, LLViewerTextureManager::list_texture_t &output) const
@@ -377,9 +457,10 @@ LLPointer<LLViewerMediaTexture> LLViewerTextureManager::findMediaTexture(const L
 
 
 //========================================================================
-
 LLPointer<LLViewerMediaTexture> LLViewerTextureManager::createMediaTexture(const LLUUID &media_id, bool usemipmaps, LLImageGL* gl_image) const
 {
+    LL_RECORD_BLOCK_TIME(FTM_IMAGE_CREATE);
+
 	return new LLViewerMediaTexture(media_id, usemipmaps, gl_image);
 }
 
@@ -391,6 +472,8 @@ LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::createFetchedTexture(c
     LLGLint internal_format,
     LLGLenum primary_format) const
 {
+    LL_RECORD_BLOCK_TIME(FTM_IMAGE_CREATE);
+
     LLPointer<LLViewerFetchedTexture> imagep;
     switch (texture_type)
     {
@@ -728,6 +811,8 @@ void LLViewerTextureManager::setTextureDirty(const LLPointer<LLViewerFetchedText
 
 void LLViewerTextureManager::onTextureFetchDone(const LLAssetFetch::AssetRequest::ptr_t &request, const LLAssetFetch::TextureInfo &info, ETexListType tex_type)
 {
+    LL_RECORD_BLOCK_TIME(FTM_IMAGE_CALLBACKS);
+
     if (mIsCleaningUp)
         return;
 
@@ -1007,9 +1092,7 @@ LLViewerFetchedTexture* LLViewerTextureManager::staticCastToFetchedTexture(LLTex
 
 //========================================================================
 
-#pragma endregion LLViewerTextureManager
 
-#pragma region LLTexturePipelineTester
 //----------------------------------------------------------------------------------------------
 //start of LLTexturePipelineTester
 //----------------------------------------------------------------------------------------------
@@ -1411,5 +1494,4 @@ void LLTexturePipelineTester::LLTextureTestSession::reset()
 //----------------------------------------------------------------------------------------------
 //end of LLTexturePipelineTester
 //----------------------------------------------------------------------------------------------
-#pragma endregion LLTexturePipelineTester
 

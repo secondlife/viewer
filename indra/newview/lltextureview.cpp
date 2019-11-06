@@ -74,10 +74,10 @@ static std::string title_string2("State");
 static std::string title_string3("Pkt Bnd");
 static std::string title_string4("  W x H (Dis) Mem");
 
-static S32 title_x1 = 0;
-static S32 title_x2 = 460;
-static S32 title_x3 = title_x2 + 40;
-static S32 title_x4 = title_x3 + 46;
+// static S32 title_x1 = 0;
+// static S32 title_x2 = 460;
+// static S32 title_x3 = title_x2 + 40;
+// static S32 title_x4 = title_x3 + 46;
 static S32 texture_bar_height = 8;
 
 ////////////////////////////////////////////////////////////////////////////
