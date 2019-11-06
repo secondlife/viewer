@@ -56,9 +56,11 @@ private:
 
 struct LLFontGlyphInfo
 {
-	LLFontGlyphInfo(U32 index);
+	LLFontGlyphInfo(U32 index, EFontGlyphType glyph_type);
+	LLFontGlyphInfo(const LLFontGlyphInfo& fgi);
 
 	U32 mGlyphIndex;
+	EFontGlyphType mGlyphType;
 
 	// Metrics
 	S32 mWidth;			// In pixels
@@ -71,8 +73,7 @@ struct LLFontGlyphInfo
 	S32 mYBitmapOffset; // Offset to the origin in the bitmap
 	S32 mXBearing;	// Distance from baseline to left in pixels
 	S32 mYBearing;	// Distance from baseline to top in pixels
-	EFontGlyphType mBitmapType; // Specifies the bitmap type in the bitmap cache
-	S32 mBitmapNum; // Which bitmap in the bitmap cache contains this glyph
+	std::pair<EFontGlyphType, S32> mBitmapEntry; // Which bitmap in the bitmap cache contains this glyph
 };
 
 extern LLFontManager *gFontManagerp;
@@ -136,7 +137,7 @@ public:
 	F32 getXKerning(llwchar char_left, llwchar char_right) const; // Get the kerning between the two characters
 	F32 getXKerning(const LLFontGlyphInfo* left_glyph_info, const LLFontGlyphInfo* right_glyph_info) const; // Get the kerning between the two characters
 
-	LLFontGlyphInfo* getGlyphInfo(llwchar wch) const;
+	LLFontGlyphInfo* getGlyphInfo(llwchar wch, EFontGlyphType glyph_type) const;
 
 	void reset(F32 vert_dpi, F32 horz_dpi);
 
@@ -155,7 +156,7 @@ private:
 	void setSubImageLuminanceAlpha(U32 x, U32 y, U32 bitmap_num, U32 width, U32 height, U8 *data, S32 stride = 0) const;
 	bool setSubImageBGRA(U32 x, U32 y, U32 bitmap_num, U16 width, U16 height, const U8* data, U32 stride) const;
 	BOOL hasGlyph(llwchar wch) const;		// Has a glyph for this character
-	LLFontGlyphInfo* addGlyph(llwchar wch) const;		// Add a new character to the font if necessary
+	LLFontGlyphInfo* addGlyph(llwchar wch, EFontGlyphType glyph_type) const;		// Add a new character to the font if necessary
 	LLFontGlyphInfo* addGlyphFromFont(const LLFontFreetype *fontp, llwchar wch, U32 glyph_index, EFontGlyphType bitmap_type) const;	// Add a glyph from this font to the other (returns the glyph_index, 0 if not found)
 	void renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index) const;
 	void insertGlyphInfo(llwchar wch, LLFontGlyphInfo* gi) const;
@@ -179,7 +180,8 @@ private:
 	BOOL mIsFallback;
 	font_vector_t mFallbackFonts; // A list of fallback fonts to look for glyphs in (for Unicode chars)
 
-	typedef boost::unordered_map<llwchar, LLFontGlyphInfo*> char_glyph_info_map_t;
+	// *NOTE: the same glyph can be present with multiple representations (but the pointer is always unique)
+	typedef boost::unordered_multimap<llwchar, LLFontGlyphInfo*> char_glyph_info_map_t;
 	mutable char_glyph_info_map_t mCharGlyphInfoMap; // Information about glyph location in bitmap
 
 	mutable LLFontBitmapCache* mFontBitmapCachep;

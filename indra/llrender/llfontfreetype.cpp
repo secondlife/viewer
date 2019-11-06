@@ -91,8 +91,9 @@ LLFontManager::~LLFontManager()
 }
 
 
-LLFontGlyphInfo::LLFontGlyphInfo(U32 index)
+LLFontGlyphInfo::LLFontGlyphInfo(U32 index, EFontGlyphType glyph_type)
 :	mGlyphIndex(index),
+	mGlyphType(glyph_type),
 	mWidth(0),			// In pixels
 	mHeight(0),			// In pixels
 	mXAdvance(0.f),		// In pixels
@@ -101,9 +102,23 @@ LLFontGlyphInfo::LLFontGlyphInfo(U32 index)
 	mYBitmapOffset(0), 	// Offset to the origin in the bitmap
 	mXBearing(0),		// Distance from baseline to left in pixels
 	mYBearing(0),		// Distance from baseline to top in pixels
-	mBitmapType(EFontGlyphType::Grayscale),
-	mBitmapNum(0) // Which bitmap in the bitmap cache contains this glyph
+	mBitmapEntry(std::make_pair(EFontGlyphType::Unspecified, -1)) // Which bitmap in the bitmap cache contains this glyph
 {
+}
+
+LLFontGlyphInfo::LLFontGlyphInfo(const LLFontGlyphInfo& fgi)
+	: mGlyphIndex(fgi.mGlyphIndex)
+	, mGlyphType(fgi.mGlyphType)
+	, mWidth(fgi.mWidth)
+	, mHeight(fgi.mHeight)
+	, mXAdvance(fgi.mXAdvance)
+	, mYAdvance(fgi.mYAdvance)
+	, mXBitmapOffset(fgi.mXBitmapOffset)
+	, mYBitmapOffset(fgi.mYBitmapOffset)
+	, mXBearing(fgi.mXBearing)
+	, mYBearing(fgi.mYBearing)
+{
+	mBitmapEntry = fgi.mBitmapEntry;
 }
 
 LLFontFreetype::LLFontFreetype()
@@ -361,7 +376,7 @@ F32 LLFontFreetype::getXAdvance(llwchar wch) const
 		return 0.0;
 
 	// Return existing info only if it is current
-	LLFontGlyphInfo* gi = getGlyphInfo(wch);
+	LLFontGlyphInfo* gi = getGlyphInfo(wch, EFontGlyphType::Unspecified);
 	if (gi)
 	{
 		return gi->mXAdvance;
@@ -393,10 +408,10 @@ F32 LLFontFreetype::getXKerning(llwchar char_left, llwchar char_right) const
 		return 0.0;
 
 	//llassert(!mIsFallback);
-	LLFontGlyphInfo* left_glyph_info = getGlyphInfo(char_left);;
+	LLFontGlyphInfo* left_glyph_info = getGlyphInfo(char_left, EFontGlyphType::Unspecified);;
 	U32 left_glyph = left_glyph_info ? left_glyph_info->mGlyphIndex : 0;
 	// Kern this puppy.
-	LLFontGlyphInfo* right_glyph_info = getGlyphInfo(char_right);
+	LLFontGlyphInfo* right_glyph_info = getGlyphInfo(char_right, EFontGlyphType::Unspecified);
 	U32 right_glyph = right_glyph_info ? right_glyph_info->mGlyphIndex : 0;
 
 	FT_Vector  delta;
@@ -427,12 +442,13 @@ BOOL LLFontFreetype::hasGlyph(llwchar wch) const
 	return(mCharGlyphInfoMap.find(wch) != mCharGlyphInfoMap.end());
 }
 
-LLFontGlyphInfo* LLFontFreetype::addGlyph(llwchar wch) const
+LLFontGlyphInfo* LLFontFreetype::addGlyph(llwchar wch, EFontGlyphType glyph_type) const
 {
 	if (mFTFace == NULL)
 		return FALSE;
 
 	llassert(!mIsFallback);
+	llassert(glyph_type < EFontGlyphType::Count);
 	//LL_DEBUGS() << "Adding new glyph for " << wch << " to font" << LL_ENDL;
 
 	FT_UInt glyph_index;
@@ -448,34 +464,38 @@ LLFontGlyphInfo* LLFontFreetype::addGlyph(llwchar wch) const
 			glyph_index = FT_Get_Char_Index((*iter)->mFTFace, wch);
 			if (glyph_index)
 			{
-				return addGlyphFromFont(*iter, wch, glyph_index, EFontGlyphType::Color);
+				return addGlyphFromFont(*iter, wch, glyph_index, glyph_type);
 			}
 		}
 	}
 	
-	char_glyph_info_map_t::iterator iter = mCharGlyphInfoMap.find(wch);
-	if (iter == mCharGlyphInfoMap.end())
+	std::pair<char_glyph_info_map_t::iterator, char_glyph_info_map_t::iterator> range_it = mCharGlyphInfoMap.equal_range(wch);
+	char_glyph_info_map_t::iterator iter = 
+		std::find_if(range_it.first, range_it.second, [&glyph_type](const char_glyph_info_map_t::value_type& entry) { return entry.second->mGlyphType == glyph_type; });
+	if (iter == range_it.second)
 	{
-		return addGlyphFromFont(this, wch, glyph_index, EFontGlyphType::Color);
+		return addGlyphFromFont(this, wch, glyph_index, glyph_type);
 	}
 	return NULL;
 }
 
-LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, llwchar wch, U32 glyph_index, EFontGlyphType bitmap_type) const
+LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, llwchar wch, U32 glyph_index, EFontGlyphType requested_glyph_type) const
 {
 	if (mFTFace == NULL)
 		return NULL;
 
 	llassert(!mIsFallback);
-	fontp->renderGlyph(bitmap_type, glyph_index);
+	fontp->renderGlyph(requested_glyph_type, glyph_index);
+
+	EFontGlyphType bitmap_glyph_type = EFontGlyphType::Unspecified;
 	switch (fontp->mFTFace->glyph->bitmap.pixel_mode)
 	{
 		case FT_PIXEL_MODE_MONO:
 		case FT_PIXEL_MODE_GRAY:
-			bitmap_type = EFontGlyphType::Grayscale;
+			bitmap_glyph_type = EFontGlyphType::Grayscale;
 			break;
 		case FT_PIXEL_MODE_BGRA:
-			bitmap_type = EFontGlyphType::Color;
+			bitmap_glyph_type = EFontGlyphType::Color;
 			break;
 		default:
 			llassert_always(true);
@@ -486,14 +506,13 @@ LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, l
 
 	S32 pos_x, pos_y;
 	U32 bitmap_num;
-	mFontBitmapCachep->nextOpenPos(width, pos_x, pos_y, bitmap_type, bitmap_num);
+	mFontBitmapCachep->nextOpenPos(width, pos_x, pos_y, bitmap_glyph_type, bitmap_num);
 	mAddGlyphCount++;
 
-	LLFontGlyphInfo* gi = new LLFontGlyphInfo(glyph_index);
+	LLFontGlyphInfo* gi = new LLFontGlyphInfo(glyph_index, requested_glyph_type);
 	gi->mXBitmapOffset = pos_x;
 	gi->mYBitmapOffset = pos_y;
-	gi->mBitmapType = bitmap_type;
-	gi->mBitmapNum = bitmap_num;
+	gi->mBitmapEntry = std::make_pair(bitmap_glyph_type, bitmap_num);
 	gi->mWidth = width;
 	gi->mHeight = height;
 	gi->mXBearing = fontp->mFTFace->glyph->bitmap_left;
@@ -503,6 +522,13 @@ LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, l
 	gi->mYAdvance = fontp->mFTFace->glyph->advance.y / 64.f;
 
 	insertGlyphInfo(wch, gi);
+
+	if (requested_glyph_type != bitmap_glyph_type)
+	{
+		LLFontGlyphInfo* gi_temp = new LLFontGlyphInfo(*gi);
+		gi_temp->mGlyphType = bitmap_glyph_type;
+		insertGlyphInfo(wch, gi_temp);
+	}
 
 	if (fontp->mFTFace->glyph->bitmap.pixel_mode == FT_PIXEL_MODE_MONO
 	    || fontp->mFTFace->glyph->bitmap.pixel_mode == FT_PIXEL_MODE_GRAY)
@@ -561,31 +587,39 @@ LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, l
 		llassert(false);
 	}
 	
-	LLImageGL *image_gl = mFontBitmapCachep->getImageGL(bitmap_type, bitmap_num);
-	LLImageRaw *image_raw = mFontBitmapCachep->getImageRaw(bitmap_type, bitmap_num);
+	LLImageGL *image_gl = mFontBitmapCachep->getImageGL(bitmap_glyph_type, bitmap_num);
+	LLImageRaw *image_raw = mFontBitmapCachep->getImageRaw(bitmap_glyph_type, bitmap_num);
 	image_gl->setSubImage(image_raw, 0, 0, image_gl->getWidth(), image_gl->getHeight());
 
 	return gi;
 }
 
-LLFontGlyphInfo* LLFontFreetype::getGlyphInfo(llwchar wch) const
+LLFontGlyphInfo* LLFontFreetype::getGlyphInfo(llwchar wch, EFontGlyphType glyph_type) const
 {
-	char_glyph_info_map_t::iterator iter = mCharGlyphInfoMap.find(wch);
-	if (iter != mCharGlyphInfoMap.end())
+	std::pair<char_glyph_info_map_t::iterator, char_glyph_info_map_t::iterator> range_it = mCharGlyphInfoMap.equal_range(wch);
+
+	char_glyph_info_map_t::iterator iter = (EFontGlyphType::Unspecified != glyph_type)
+		? std::find_if(range_it.first, range_it.second, [&glyph_type](const char_glyph_info_map_t::value_type& entry) { return entry.second->mGlyphType == glyph_type; })
+		: range_it.first;
+	if (iter != range_it.second)
 	{
 		return iter->second;
 	}
 	else
 	{
 		// this glyph doesn't yet exist, so render it and return the result
-		return addGlyph(wch);
+		return addGlyph(wch, (EFontGlyphType::Unspecified != glyph_type) ? glyph_type : EFontGlyphType::Grayscale);
 	}
 }
 
 void LLFontFreetype::insertGlyphInfo(llwchar wch, LLFontGlyphInfo* gi) const
 {
-	char_glyph_info_map_t::iterator iter = mCharGlyphInfoMap.find(wch);
-	if (iter != mCharGlyphInfoMap.end())
+	llassert(gi->mGlyphType < EFontGlyphType::Count);
+	std::pair<char_glyph_info_map_t::iterator, char_glyph_info_map_t::iterator> range_it = mCharGlyphInfoMap.equal_range(wch);
+
+	char_glyph_info_map_t::iterator iter =
+		std::find_if(range_it.first, range_it.second, [&gi](const char_glyph_info_map_t::value_type& entry) { return entry.second->mGlyphType == gi->mGlyphType; });
+	if (iter != range_it.second)
 	{
 		delete iter->second;
 		iter->second = gi;
@@ -593,7 +627,7 @@ void LLFontFreetype::insertGlyphInfo(llwchar wch, LLFontGlyphInfo* gi) const
 	else
 	{
 		claimMem(gi);
-		mCharGlyphInfoMap[wch] = gi;
+		mCharGlyphInfoMap.insert(std::make_pair(wch, gi));
 	}
 }
 

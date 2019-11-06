@@ -1282,7 +1282,7 @@ void LLView::drawDebugRect()
 										debug_rect.getWidth(), debug_rect.getHeight());
 			LLFontGL::getFontSansSerifSmall()->renderUTF8(debug_text, 0, (F32)x, (F32)y, border_color,
 												LLFontGL::HCENTER, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-												S32_MAX, S32_MAX, NULL, FALSE);
+												S32_MAX, S32_MAX, NULL, /*use_ellipses*/FALSE, /*use_color*/FALSE);
 		}
 	}
 	LLUI::popMatrix();

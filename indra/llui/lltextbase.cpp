@@ -163,6 +163,7 @@ LLTextBase::Params::Params()
 	wrap("wrap"),
 	trusted_content("trusted_content", true),
 	use_ellipses("use_ellipses", false),
+	use_color("use_color", false),
 	parse_urls("parse_urls", false),
 	force_urls_external("force_urls_external", false),
 	parse_highlights("parse_highlights", false)
@@ -217,6 +218,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mPlainText ( p.plain_text ),
 	mWordWrap(p.wrap),
 	mUseEllipses( p.use_ellipses ),
+	mUseColor(p.use_color),
 	mParseHTML(p.parse_urls),
 	mForceUrlsExternal(p.force_urls_external),
 	mParseHighlights(p.parse_highlights),
@@ -3198,7 +3200,8 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 				 mStyle->getShadowType(), 
 				 length,
 				 &right_x, 
-				 mEditor.getUseEllipses());
+				 mEditor.getUseEllipses(),
+				 mEditor.getUseColor());
 	}
 	rect.mLeft = right_x;
 	
@@ -3217,7 +3220,8 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 				 LLFontGL::NO_SHADOW, 
 				 length,
 				 &right_x, 
-				 mEditor.getUseEllipses());
+				 mEditor.getUseEllipses(),
+				 mEditor.getUseColor());
 	}
 	rect.mLeft = right_x;
 	if( selection_end < seg_end )
@@ -3234,7 +3238,8 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 				 mStyle->getShadowType(), 
 				 length,
 				 &right_x, 
-				 mEditor.getUseEllipses());
+				 mEditor.getUseEllipses(),
+				 mEditor.getUseColor());
 	}
     return right_x;
 }

@@ -314,6 +314,7 @@ public:
 								plain_text,
 								wrap,
 								use_ellipses,
+								use_color,
 								parse_urls,
 								force_urls_external,
 								parse_highlights,
@@ -389,6 +390,7 @@ public:
 	// used by LLTextSegment layout code
 	bool					getWordWrap() { return mWordWrap; }
 	bool					getUseEllipses() { return mUseEllipses; }
+	bool					getUseColor() { return mUseColor; }
 	bool					truncate(); // returns true of truncation occurred
 
 	bool					isContentTrusted() {return mTrustedContent;}
@@ -681,6 +683,7 @@ protected:
 	bool						mParseHighlights;	// highlight user-defined keywords
 	bool                		mWordWrap;
 	bool						mUseEllipses;
+	bool						mUseColor;
 	bool						mTrackEnd;			// if true, keeps scroll position at end of document during resize
 	bool						mReadOnly;
 	bool						mBGVisible;			// render background?

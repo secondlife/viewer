@@ -34,7 +34,8 @@ enum class EFontGlyphType : U32
 {
 	Grayscale = 0,
 	Color,
-	Count
+	Count,
+	Unspecified,
 };
 
 // Maintain a collection of bitmaps containing rendered glyphs.
