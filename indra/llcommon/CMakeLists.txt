@@ -4,6 +4,7 @@
 project(llcommon)
 
 include(00-Common)
+include(ICU4C)
 include(LLCommon)
 include(Linking)
 include(Boost)
@@ -288,6 +289,7 @@ target_link_libraries(
     ${APRUTIL_LIBRARIES}
     ${APR_LIBRARIES}
     ${EXPAT_LIBRARIES}
+    ${ICU4C_LIBRARY}
     ${JSONCPP_LIBRARIES}
     ${ZLIB_LIBRARIES}
     ${WINDOWS_LIBRARIES}

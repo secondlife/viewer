@@ -86,7 +86,7 @@ public:
 
 	// is_fallback should be true for fallback fonts that aren't used
 	// to render directly (Unicode backup, primarily)
-	BOOL loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, bool use_color, bool is_fallback, S32 face_n);
+	BOOL loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, bool is_fallback, S32 face_n);
 
 	S32 getNumFaces(const std::string& filename);
 
@@ -95,10 +95,8 @@ public:
 	void clearFontStreams();
 #endif
 
-	typedef std::vector<LLPointer<LLFontFreetype> > font_vector_t;
-
-	void setFallbackFonts(const font_vector_t &font);
-	const font_vector_t &getFallbackFonts() const;
+	typedef std::function<bool(llwchar)> char_functor_t;
+	void addFallbackFont(const LLPointer<LLFontFreetype>& fallback_font, const char_functor_t& functor = nullptr);
 
 	// Global font metrics - in units of pixels
 	F32 getLineHeight() const;
@@ -178,7 +176,9 @@ private:
 #endif
 
 	BOOL mIsFallback;
-	font_vector_t mFallbackFonts; // A list of fallback fonts to look for glyphs in (for Unicode chars)
+	typedef std::pair<LLPointer<LLFontFreetype>, char_functor_t> fallback_font_t;
+	typedef std::vector<fallback_font_t> fallback_font_vector_t;
+	fallback_font_vector_t mFallbackFonts; // A list of fallback fonts to look for glyphs in (for Unicode chars)
 
 	// *NOTE: the same glyph can be present with multiple representations (but the pointer is always unique)
 	typedef boost::unordered_multimap<llwchar, LLFontGlyphInfo*> char_glyph_info_map_t;

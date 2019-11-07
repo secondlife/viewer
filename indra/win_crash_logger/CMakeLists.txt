@@ -3,6 +3,7 @@
 project(win_crash_logger)
 
 include(00-Common)
+include(ICU4C)
 include(LLCommon)
 include(LLCoreHttp)
 include(LLCrashLogger)
@@ -74,6 +75,7 @@ add_executable(windows-crash-logger WIN32 ${win_crash_logger_SOURCE_FILES})
 
 target_link_libraries(windows-crash-logger
     ${BREAKPAD_EXCEPTION_HANDLER_LIBRARIES}
+    ${ICU4C_LIBRARY}
     ${LLCRASHLOGGER_LIBRARIES}
     ${LLWINDOW_LIBRARIES}
     ${LLVFS_LIBRARIES}

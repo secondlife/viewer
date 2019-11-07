@@ -34,13 +34,32 @@ class LLFontGL;
 
 typedef std::vector<std::string> string_vec_t;
 
+struct LLFontFileInfo
+{
+	LLFontFileInfo(const std::string& file_name, const std::function<bool(llwchar)>& char_functor = nullptr)
+		: FileName(file_name)
+		, CharFunctor(char_functor)
+	{
+	}
+
+	LLFontFileInfo(const LLFontFileInfo& ffi)
+		: FileName(ffi.FileName)
+		, CharFunctor(ffi.CharFunctor)
+	{
+	}
+
+	std::string FileName;
+	std::function<bool(llwchar)> CharFunctor;
+};
+typedef std::vector<LLFontFileInfo> font_file_info_vec_t;
+
 class LLFontDescriptor
 {
 public:
 	LLFontDescriptor();
 	LLFontDescriptor(const std::string& name, const std::string& size, const U8 style);
-	LLFontDescriptor(const std::string& name, const std::string& size, const U8 style, const string_vec_t& file_names);
-	LLFontDescriptor(const std::string& name, const std::string& size, const U8 style, const string_vec_t& file_names, const string_vec_t& font_collections);
+	LLFontDescriptor(const std::string& name, const std::string& size, const U8 style, const font_file_info_vec_t& font_list);
+	LLFontDescriptor(const std::string& name, const std::string& size, const U8 style, const font_file_info_vec_t& font_list, const font_file_info_vec_t& font_collection_list);
 	LLFontDescriptor normalize() const;
 
 	bool operator<(const LLFontDescriptor& b) const;
@@ -51,19 +70,26 @@ public:
 	void setName(const std::string& name) { mName = name; }
 	const std::string& getSize() const { return mSize; }
 	void setSize(const std::string& size) { mSize = size; }
-	const std::vector<std::string>& getFileNames() const { return mFileNames; }
-	std::vector<std::string>& getFileNames() { return mFileNames; }
-	const std::vector<std::string>& getFontCollectionsList() const { return mFontCollectionsList; }
-	std::vector<std::string>& getFontCollectionsList() { return mFontCollectionsList; }
+
+	void addFontFile(const std::string& file_name, const std::string& char_functor = LLStringUtil::null);
+	const font_file_info_vec_t & getFontFiles() const { return mFontFiles; }
+	void setFontFiles(const font_file_info_vec_t& font_files) { mFontFiles = font_files; }
+	void addFontCollectionFile(const std::string& file_name, const std::string& char_functor = LLStringUtil::null);
+	const font_file_info_vec_t& getFontCollectionFiles() const { return mFontCollectionFiles; }
+	void setFontCollectionFiles(const font_file_info_vec_t& font_collection_files) { mFontCollectionFiles = font_collection_files; }
+
 	const U8 getStyle() const { return mStyle; }
 	void setStyle(U8 style) { mStyle = style; }
 
 private:
 	std::string mName;
 	std::string mSize;
-	string_vec_t mFileNames;
-	string_vec_t mFontCollectionsList;
+	font_file_info_vec_t mFontFiles;
+	font_file_info_vec_t mFontCollectionFiles;
 	U8 mStyle;
+
+	typedef std::map<std::string, std::function<bool(llwchar)>> char_functor_map_t;
+	static char_functor_map_t mCharFunctors;
 };
 
 class LLFontRegistry

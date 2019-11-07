@@ -193,6 +193,8 @@ public:
 	static bool isAlnum(char a) { return isalnum((unsigned char)a) != 0; }
 	static bool isAlnum(llwchar a) { return iswalnum(a) != 0; }
 
+	static bool isEmoji(llwchar wch);
+
 	static S32	collate(const char* a, const char* b) { return strcoll(a, b); }
 	static S32	collate(const llwchar* a, const llwchar* b);
 

@@ -175,7 +175,7 @@ void ft_close_cb(FT_Stream stream) {
 }
 #endif
 
-BOOL LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, bool use_color, bool is_fallback, S32 face_n)
+BOOL LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, bool is_fallback, S32 face_n)
 {
 	// Don't leak face objects.  This is also needed to deal with
 	// changed font file names.
@@ -345,14 +345,11 @@ void LLFontFreetype::clearFontStreams()
 }
 #endif
 
-void LLFontFreetype::setFallbackFonts(const font_vector_t &font)
+void LLFontFreetype::addFallbackFont(const LLPointer<LLFontFreetype>& fallback_font, const char_functor_t& functor)
 {
-	mFallbackFonts = font;
-}
-
-const LLFontFreetype::font_vector_t &LLFontFreetype::getFallbackFonts() const
-{
-	return mFallbackFonts;
+	// Insert functor fallbacks before generic fallbacks
+	mFallbackFonts.insert((functor) ? std::find_if(mFallbackFonts.begin(), mFallbackFonts.end(), [](const fallback_font_t& fe) { return !fe.second; }) : mFallbackFonts.end(),
+	                      std::make_pair(fallback_font, functor));
 }
 
 F32 LLFontFreetype::getLineHeight() const
@@ -453,18 +450,31 @@ LLFontGlyphInfo* LLFontFreetype::addGlyph(llwchar wch, EFontGlyphType glyph_type
 
 	FT_UInt glyph_index;
 
+	// Fallback fonts with a functor have precedence over everything else
+	fallback_font_vector_t::const_iterator it_fallback = mFallbackFonts.cbegin();
+	for (; it_fallback != mFallbackFonts.cend() && it_fallback->second; ++it_fallback)
+	{
+		if (it_fallback->second(wch))
+		{
+			glyph_index = FT_Get_Char_Index(it_fallback->first->mFTFace, wch);
+			if (glyph_index)
+			{
+				return addGlyphFromFont(it_fallback->first, wch, glyph_index, glyph_type);
+			}
+		}
+	}
+
 	// Initialize char to glyph map
 	glyph_index = FT_Get_Char_Index(mFTFace, wch);
 	if (glyph_index == 0)
 	{
 		//LL_INFOS() << "Trying to add glyph from fallback font!" << LL_ENDL;
-		font_vector_t::const_iterator iter;
-		for(iter = mFallbackFonts.begin(); iter != mFallbackFonts.end(); iter++)
+		for (; it_fallback != mFallbackFonts.cend(); ++it_fallback)
 		{
-			glyph_index = FT_Get_Char_Index((*iter)->mFTFace, wch);
+			glyph_index = FT_Get_Char_Index(it_fallback->first->mFTFace, wch);
 			if (glyph_index)
 			{
-				return addGlyphFromFont(*iter, wch, glyph_index, glyph_type);
+				return addGlyphFromFont(it_fallback->first, wch, glyph_index, glyph_type);
 			}
 		}
 	}
@@ -653,7 +663,7 @@ void LLFontFreetype::renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index) co
 void LLFontFreetype::reset(F32 vert_dpi, F32 horz_dpi)
 {
 	resetBitmapCache(); 
-	loadFace(mName, mPointSize, vert_dpi ,horz_dpi, true, mIsFallback, 0);
+	loadFace(mName, mPointSize, vert_dpi ,horz_dpi, mIsFallback, 0);
 	if (!mIsFallback)
 	{
 		// This is the head of the list - need to rebuild ourself and all fallbacks.
@@ -663,11 +673,9 @@ void LLFontFreetype::reset(F32 vert_dpi, F32 horz_dpi)
 		}
 		else
 		{
-			for(font_vector_t::iterator it = mFallbackFonts.begin();
-				it != mFallbackFonts.end();
-				++it)
+			for (fallback_font_vector_t::iterator it = mFallbackFonts.begin(); it != mFallbackFonts.end(); ++it)
 			{
-				(*it)->reset(vert_dpi, horz_dpi);
+				it->first->reset(vert_dpi, horz_dpi);
 			}
 		}
 	}

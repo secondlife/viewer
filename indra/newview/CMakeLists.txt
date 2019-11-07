@@ -21,6 +21,7 @@ include(EXPAT)
 include(FMODEX)
 include(GLOD)
 include(Hunspell)
+include(ICU4C)
 include(JsonCpp)
 include(LLAppearance)
 include(LLAudio)
@@ -2003,6 +2004,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${NDOF_LIBRARY}
     ${NVAPI_LIBRARY}
     ${HUNSPELL_LIBRARY}
+    ${ICU4C_LIBRARY}
     ${viewer_LIBRARIES}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
     ${BOOST_REGEX_LIBRARY}
