@@ -2637,7 +2637,7 @@ BOOL LLPanelPreferenceControls::postBuild()
 
     pControlsTable->setCommitCallback(boost::bind(&LLPanelPreferenceControls::onListCommit, this));
     pKeyModeBox->setCommitCallback(boost::bind(&LLPanelPreferenceControls::onModeCommit, this));
-    getChild<LLButton>("restore_defaults")->setCommitCallback(boost::bind(&LLPanelPreferenceControls::onRestoreDefaults, this));
+    getChild<LLButton>("restore_defaults")->setCommitCallback(boost::bind(&LLPanelPreferenceControls::onRestoreDefaultsBtn, this));
 
     return TRUE;
 }
@@ -2659,7 +2659,6 @@ void LLPanelPreferenceControls::populateControlTable()
     {
     case LLKeyConflictHandler::MODE_THIRD_PERSON:
     case LLKeyConflictHandler::MODE_FIRST_PERSON:
-    case LLKeyConflictHandler::MODE_EDIT:
     case LLKeyConflictHandler::MODE_EDIT_AVATAR:
     case LLKeyConflictHandler::MODE_SITTING:
         filename = "control_table_contents.xml";
@@ -2867,20 +2866,42 @@ void LLPanelPreferenceControls::onModeCommit()
     populateControlTable();
 }
 
-void LLPanelPreferenceControls::onRestoreDefaults()
+void LLPanelPreferenceControls::onRestoreDefaultsBtn()
 {
-    for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
-    {
-        mConflictHandler[i].resetToDefaults();
-        // Apply changes to viewer as 'temporary'
-        mConflictHandler[i].saveToSettings(true);
-    }
+    LLNotificationsUtil::add("PreferenceControlsDefaults", LLSD(), LLSD(), boost::bind(&LLPanelPreferenceControls::onRestoreDefaultsResponse, this, _1, _2));
+}
 
-    updateTable();
+void LLPanelPreferenceControls::onRestoreDefaultsResponse(const LLSD& notification, const LLSD& response)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    switch(option)
+    {
+    case 0: // All
+        for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
+        {
+            mConflictHandler[i].resetToDefaults();
+            // Apply changes to viewer as 'temporary'
+            mConflictHandler[i].saveToSettings(true);
+        }
+
+        updateTable();
+        break;
+    case 1: // Current
+        mConflictHandler[mEditingMode].resetToDefaults();
+        // Apply changes to viewer as 'temporary'
+        mConflictHandler[mEditingMode].saveToSettings(true);
+
+        updateTable();
+        break;
+    case 2: // Cancel
+    default:
+        //exit;
+        break;
+    }
 }
 
 // todo: copy onSetKeyBind to interface and inherit from interface
-bool LLPanelPreferenceControls::onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool ignore_mask)
+bool LLPanelPreferenceControls::onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool all_modes)
 {
     if (!mConflictHandler[mEditingMode].canAssignControl(mEditingControl))
     {
@@ -2889,16 +2910,32 @@ bool LLPanelPreferenceControls::onSetKeyBind(EMouseClickType click, KEY key, MAS
 
     if ( mEditingColumn > 0)
     {
-        mConflictHandler[mEditingMode].registerControl(mEditingControl, mEditingColumn - 1, click, key, mask, true);
-        // Apply changes to viewer as 'temporary'
-        mConflictHandler[mEditingMode].saveToSettings(true);
+        if (all_modes)
+        {
+            for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
+            {
+                if (mConflictHandler[i].empty())
+                {
+                    mConflictHandler[i].loadFromSettings((LLKeyConflictHandler::ESourceMode)i);
+                }
+                mConflictHandler[i].registerControl(mEditingControl, mEditingColumn - 1, click, key, mask, true);
+                // Apply changes to viewer as 'temporary'
+                mConflictHandler[i].saveToSettings(true);
+            }
+        }
+        else
+        {
+            mConflictHandler[mEditingMode].registerControl(mEditingControl, mEditingColumn - 1, click, key, mask, true);
+            // Apply changes to viewer as 'temporary'
+            mConflictHandler[mEditingMode].saveToSettings(true);
+        }
     }
 
     updateTable();
     return true;
 }
 
-void LLPanelPreferenceControls::onDefaultKeyBind()
+void LLPanelPreferenceControls::onDefaultKeyBind(bool all_modes)
 {
     if (!mConflictHandler[mEditingMode].canAssignControl(mEditingControl))
     {
@@ -2907,9 +2944,25 @@ void LLPanelPreferenceControls::onDefaultKeyBind()
     
     if (mEditingColumn > 0)
     {
-        mConflictHandler[mEditingMode].resetToDefault(mEditingControl, mEditingColumn - 1);
-        // Apply changes to viewer as 'temporary'
-        mConflictHandler[mEditingMode].saveToSettings(true);
+        if (all_modes)
+        {
+            for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
+            {
+                if (mConflictHandler[i].empty())
+                {
+                    mConflictHandler[i].loadFromSettings((LLKeyConflictHandler::ESourceMode)i);
+                }
+                mConflictHandler[i].resetToDefault(mEditingControl, mEditingColumn - 1);
+                // Apply changes to viewer as 'temporary'
+                mConflictHandler[i].saveToSettings(true);
+            }
+        }
+        else
+        {
+            mConflictHandler[mEditingMode].resetToDefault(mEditingControl, mEditingColumn - 1);
+            // Apply changes to viewer as 'temporary'
+            mConflictHandler[mEditingMode].saveToSettings(true);
+        }
     }
     updateTable();
 }

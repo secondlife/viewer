@@ -44,11 +44,11 @@ Allowed input: [INPUT].
      follows="top|left"
      height="20"
      initial_value="false"
-     label="Ignore extra accelerator keys"
+     label="Apply to all"
      layout="topleft"
-     left="28"
-     name="ignore_masks"
-     tool_tip="Ignore extra Shift, Alt and Ctrl keys. Example: This allows to hold W (forward, ignores shift) and Shift+A (slide left) simultaneously and agent will both move forward and slide left."
+     left="90"
+     name="apply_all"
+     tool_tip="Viewer uses different control combinations depending on what you are doing in world, setting this will apply your change to all combinations"
      top_pad="8"
      width="160" />
   

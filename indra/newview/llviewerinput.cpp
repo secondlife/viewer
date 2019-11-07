@@ -936,11 +936,6 @@ BOOL LLViewerInput::modeFromString(const std::string& string, S32 *mode) const
 		*mode = MODE_THIRD_PERSON;
 		return TRUE;
 	}
-	else if (string == "EDIT")
-	{
-		*mode = MODE_EDIT;
-		return TRUE;
-	}
 	else if (string == "EDIT_AVATAR")
 	{
 		*mode = MODE_EDIT_AVATAR;
@@ -1155,7 +1150,6 @@ LLViewerInput::KeyMode::KeyMode()
 LLViewerInput::Keys::Keys()
 :	first_person("first_person"),
 	third_person("third_person"),
-	edit("edit"),
 	sitting("sitting"),
 	edit_avatar("edit_avatar")
 {}
@@ -1182,7 +1176,6 @@ S32 LLViewerInput::loadBindingsXML(const std::string& filename)
 	{
 		binding_count += loadBindingMode(keys.first_person, MODE_FIRST_PERSON);
 		binding_count += loadBindingMode(keys.third_person, MODE_THIRD_PERSON);
-		binding_count += loadBindingMode(keys.edit, MODE_EDIT);
 		binding_count += loadBindingMode(keys.sitting, MODE_SITTING);
 		binding_count += loadBindingMode(keys.edit_avatar, MODE_EDIT_AVATAR);
 	}

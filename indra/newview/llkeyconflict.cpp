@@ -345,13 +345,6 @@ bool LLKeyConflictHandler::loadFromSettings(const ESourceMode &load_mode, const 
                 res = true;
             }
             break;
-        case MODE_EDIT:
-            if (keys.edit.isProvided())
-            {
-                loadFromSettings(keys.edit, destination);
-                res = true;
-            }
-            break;
         case MODE_EDIT_AVATAR:
             if (keys.edit_avatar.isProvided())
             {
@@ -551,12 +544,6 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
                 if (keys.third_person.isProvided())
                 {
                     keys.third_person.bindings.set(mode.bindings, true);
-                }
-                break;
-            case MODE_EDIT:
-                if (keys.edit.isProvided())
-                {
-                    keys.edit.bindings.set(mode.bindings, true);
                 }
                 break;
             case MODE_EDIT_AVATAR:

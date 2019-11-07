@@ -59,7 +59,6 @@ public:
     {
         MODE_FIRST_PERSON,
         MODE_THIRD_PERSON,
-        MODE_EDIT,
         MODE_EDIT_AVATAR,
         MODE_SITTING,
         MODE_SAVED_SETTINGS, // for settings from saved settings

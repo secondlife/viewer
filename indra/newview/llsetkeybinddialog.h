@@ -40,7 +40,6 @@ static const U32 ALLOW_MASK_MOUSE = 2;
 static const U32 ALLOW_KEYS = 4; //keyboard
 static const U32 ALLOW_MASK_KEYS = 8;
 static const U32 ALLOW_MASKS = 16;
-static const U32 CAN_IGNORE_MASKS = 32; // For example W (aka Forward) should work regardless of SHIFT being pressed
 static const U32 DEFAULT_KEY_FILTER = ALLOW_MOUSE | ALLOW_MASK_MOUSE | ALLOW_KEYS | ALLOW_MASK_KEYS;
 
 
@@ -50,9 +49,9 @@ public:
     virtual ~LLKeyBindResponderInterface() {};
 
     virtual void onCancelKeyBind() = 0;
-    virtual void onDefaultKeyBind() = 0;
+    virtual void onDefaultKeyBind(bool all_modes) = 0;
     // returns true if parent failed to set key due to key being in use
-    virtual bool onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool ignore) = 0;
+    virtual bool onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool all_modes) = 0;
 };
 
 class LLSetKeyBindDialog : public LLModalDialog, public LLDrawFrustum
@@ -82,7 +81,7 @@ public:
 
 private:
     bool recordAndHandleKey(KEY key, MASK mask);
-    void setKeyBind(EMouseClickType click, KEY key, MASK mask, bool ignore);
+    void setKeyBind(EMouseClickType click, KEY key, MASK mask, bool all_modes);
     LLKeyBindResponderInterface *pParent;
     LLCheckBoxCtrl *pCheckBox;
     LLTextBase *pDesription;

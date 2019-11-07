@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <panel
  border="true"
  follows="all"
@@ -15,28 +15,24 @@
    top="6"
    left="10"
    height="23"
-   width="110"
+   width="140"
    name="key_mode">
     <combo_box.item
      label="Third Person "
      name="third_person"
      value="1"/>
     <combo_box.item
-     label="First Person "
+     label="First Person (Mouselook)"
      name="first_person"
      value="0"/>
     <combo_box.item
-     label="Edit"
-     name="edit"
-     value="2"/>
-    <combo_box.item
      label="Edit Avatar"
      name="edit_avatar"
-     value="3"/>
+     value="2"/>
     <combo_box.item
      label="Sitting"
      name="sitting"
-     value="4"/>
+     value="3"/>
   </combo_box>
 
   <button
@@ -45,8 +41,8 @@
    top="6"
    right="-10"
    height="23"
-   width="110"
-   label="Restore Default"
+   width="140"
+   label="Restore Defaults"
    tooltip="Restores default values for all control modes."
    name="restore_defaults"/>
 

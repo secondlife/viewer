@@ -65,7 +65,6 @@ typedef enum e_keyboard_mode
 {
 	MODE_FIRST_PERSON,
 	MODE_THIRD_PERSON,
-	MODE_EDIT,
 	MODE_EDIT_AVATAR,
 	MODE_SITTING,
 	MODE_COUNT
@@ -99,7 +98,6 @@ public:
 	{
 		Optional<KeyMode>	first_person,
 							third_person,
-							edit,
 							sitting,
 							edit_avatar;
 
