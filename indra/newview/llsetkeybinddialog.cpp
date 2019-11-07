@@ -86,7 +86,7 @@ BOOL LLSetKeyBindDialog::postBuild()
     childSetAction("Cancel", onCancel, this);
     getChild<LLUICtrl>("Cancel")->setFocus(TRUE);
 
-    pCheckBox = getChild<LLCheckBoxCtrl>("ignore_masks");
+    pCheckBox = getChild<LLCheckBoxCtrl>("apply_all");
     pDesription = getChild<LLTextBase>("descritption");
 
     gFocusMgr.setKeystrokesOnly(TRUE);
@@ -148,10 +148,6 @@ void LLSetKeyBindDialog::setParent(LLKeyBindResponderInterface* parent, LLView* 
     }
     pDesription->setText(getString("basic_description"));
     pDesription->setTextArg("[INPUT]", input);
-
-    bool can_ignore_masks = (key_mask & CAN_IGNORE_MASKS) != 0;
-    pCheckBox->setVisible(can_ignore_masks);
-    pCheckBox->setValue(false);
 }
 
 // static
@@ -308,7 +304,7 @@ void LLSetKeyBindDialog::onDefault(void* user_data)
     LLSetKeyBindDialog* self = (LLSetKeyBindDialog*)user_data;
     if (self->pParent)
     {
-        self->pParent->onDefaultKeyBind();
+        self->pParent->onDefaultKeyBind(self->pCheckBox->getValue().asBoolean());
         self->pParent = NULL;
     }
     self->closeFloater();
@@ -326,11 +322,11 @@ void LLSetKeyBindDialog::onClickTimeout(void* user_data, MASK mask)
     self->closeFloater();
 }
 
-void LLSetKeyBindDialog::setKeyBind(EMouseClickType click, KEY key, MASK mask, bool ignore)
+void LLSetKeyBindDialog::setKeyBind(EMouseClickType click, KEY key, MASK mask, bool all_modes)
 {
     if (pParent)
     {
-        pParent->onSetKeyBind(click, key, mask, ignore);
+        pParent->onSetKeyBind(click, key, mask, all_modes);
         pParent = NULL;
     }
 }

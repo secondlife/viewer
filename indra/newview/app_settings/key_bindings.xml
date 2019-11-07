@@ -129,65 +129,6 @@
     <binding key="" mask="NONE" mouse="MMB" command="toggle_voice"/>
     <binding key="" mask="NONE" mouse="LMB" command="walk_to"/>
   </third_person>
-
-  <!-- Basic editing camera control -->
-  <edit>
-    <binding key="A" mask="NONE" command="spin_around_cw"/>
-    <binding key="D" mask="NONE" command="spin_around_ccw"/>
-    <binding key="W" mask="NONE" command="move_forward"/>
-    <binding key="S" mask="NONE" command="move_backward"/>
-    <binding key="E" mask="NONE" command="spin_over"/>
-    <binding key="C" mask="NONE" command="spin_under"/>
-    <binding key="ENTER" mask="NONE" command="start_chat"/>
-    <binding key="DIVIDE" mask="NONE" command="start_gesture"/>
-    <binding key="PAD_ENTER" mask="NONE" command="start_chat"/>
-    <binding key="PAD_DIVIDE" mask="NONE" command="start_gesture"/>
-
-    <binding key="LEFT" mask="NONE" command="spin_around_cw"/>
-    <binding key="RIGHT" mask="NONE" command="spin_around_ccw"/>
-    <binding key="UP" mask="NONE" command="move_forward"/>
-    <binding key="DOWN" mask="NONE" command="move_backward"/>
-    <binding key="PGUP" mask="NONE" command="spin_over"/>
-    <binding key="PGDN" mask="NONE" command="spin_under"/>
-
-    <binding key="A" mask="SHIFT" command="pan_left"/>
-    <binding key="D" mask="SHIFT" command="pan_right"/>
-    <binding key="W" mask="SHIFT" command="pan_up"/>
-    <binding key="S" mask="SHIFT" command="pan_down"/>
-
-    <binding key="LEFT" mask="SHIFT" command="pan_left"/>
-    <binding key="RIGHT" mask="SHIFT" command="pan_right"/>
-    <binding key="UP" mask="SHIFT" command="pan_up"/>
-    <binding key="DOWN" mask="SHIFT" command="pan_down"/>
-
-    <!--Walking works with ALT held down.-->
-    <binding key="A" mask="ALT" command="slide_left"/>
-    <binding key="D" mask="ALT" command="slide_right"/>
-    <binding key="W" mask="ALT" command="push_forward"/>
-    <binding key="S" mask="ALT" command="push_backward"/>
-    <binding key="E" mask="ALT" command="jump"/>
-    <binding key="C" mask="ALT" command="push_down"/>
-
-    <binding key="LEFT" mask="ALT" command="slide_left"/>
-    <binding key="RIGHT" mask="ALT" command="slide_right"/>
-    <binding key="UP" mask="ALT" command="push_forward"/>
-    <binding key="DOWN" mask="ALT" command="push_backward"/>
-    <binding key="PGUP" mask="ALT" command="jump"/>
-    <binding key="PGDN" mask="ALT" command="push_down"/>
-    <binding key="HOME" mask="ALT" command="toggle_fly"/>
-
-    <binding key="PAD_LEFT" mask="ALT" command="slide_left"/>
-    <binding key="PAD_RIGHT" mask="ALT" command="slide_right"/>
-    <binding key="PAD_UP" mask="ALT" command="push_forward"/>
-    <binding key="PAD_DOWN" mask="ALT" command="push_backward"/>
-    <binding key="PAD_PGUP" mask="ALT" command="jump"/>
-    <binding key="PAD_PGDN" mask="ALT" command="push_down"/>
-    <binding key="PAD_ENTER" mask="ALT" command="start_chat"/>
-    <binding key="PAD_DIVIDE" mask="ALT" command="start_gesture"/>
-
-    <binding key="" mask="NONE" mouse="MMB" command="toggle_voice"/>
-    <binding key="" mask="NONE" mouse="LMB" command="walk_to"/>
-  </edit>
   <sitting>
     <binding key="A" mask="ALT" command="spin_around_cw"/>
     <binding key="D" mask="ALT" command="spin_around_ccw"/>
@@ -312,6 +253,5 @@
     <binding key="PAD_DIVIDE" mask="NONE" command="start_gesture"/>
 
     <binding key="" mask="NONE" mouse="MMB" command="toggle_voice"/>
-    <binding key="" mask="NONE" mouse="LMB" command="walk_to"/>
   </edit_avatar>
 </keys>

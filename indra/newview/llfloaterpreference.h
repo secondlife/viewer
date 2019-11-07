@@ -301,9 +301,10 @@ public:
 
 	void onListCommit();
 	void onModeCommit();
-	void onRestoreDefaults();
-	/*virtual*/ bool onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool ignore_mask);
-	/*virtual*/ void onDefaultKeyBind();
+	void onRestoreDefaultsBtn();
+	void onRestoreDefaultsResponse(const LLSD& notification, const LLSD& response);
+	/*virtual*/ bool onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool all_modes);
+    /*virtual*/ void onDefaultKeyBind(bool all_modes);
 	/*virtual*/ void onCancelKeyBind();
 
 private:
