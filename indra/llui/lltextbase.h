@@ -333,6 +333,8 @@ public:
 
 		Optional<LLFontGL::ShadowType>	font_shadow;
 
+		Optional<LLFontGL::VAlign> text_valign;
+
 		Params();
 	};
 
@@ -673,8 +675,9 @@ protected:
 	// configuration
 	S32							mHPad;				// padding on left of text
 	S32							mVPad;				// padding above text
-	LLFontGL::HAlign			mHAlign;
-	LLFontGL::VAlign			mVAlign;
+	LLFontGL::HAlign			mHAlign;			// horizontal alignment of the document in its entirety
+	LLFontGL::VAlign			mVAlign;			// vertical alignment of the document in its entirety
+	LLFontGL::VAlign			mTextVAlign;		// vertical alignment of a text segment within a single line of text
 	F32							mLineSpacingMult;	// multiple of line height used as space for a single line of text (e.g. 1.5 to get 50% padding)
 	S32							mLineSpacingPixels;	// padding between lines
 	bool						mBorderVisible;
