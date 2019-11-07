@@ -1889,8 +1889,6 @@ LLTextBase::segment_set_t::iterator LLTextBase::getSegIterContaining(S32 index)
 		text_len = mLabel.getWString().length();
 	}
 
-	if (index > text_len) { return mSegments.end(); }
-
 	// when there are no segments, we return the end iterator, which must be checked by caller
 	if (mSegments.size() <= 1) { return mSegments.begin(); }
 
@@ -1913,8 +1911,6 @@ LLTextBase::segment_set_t::const_iterator LLTextBase::getSegIterContaining(S32 i
 	{
 		text_len = mLabel.getWString().length();
 	}
-
-	if (index > text_len) { return mSegments.end(); }
 
 	// when there are no segments, we return the end iterator, which must be checked by caller
 	if (mSegments.size() <= 1) { return mSegments.begin(); }
