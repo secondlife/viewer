@@ -272,18 +272,6 @@ private:
 	LOG_CLASS(LLPanelPreference);
 };
 
-class LLPanelPreferenceView : public LLPanelPreference
-{
-public:
-	BOOL postBuild();
-	void draw();
-	void setPresetText();
-
-private:
-	void onPresetsListChangeCamera();
-	LOG_CLASS(LLPanelPreferenceView);
-};
-
 class LLPanelPreferenceGraphics : public LLPanelPreference
 {
 public:

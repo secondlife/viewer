@@ -121,19 +121,12 @@ https://accounts.secondlife.com/change_email/
          help_topic="preferences_chat_tab"
          name="chat" />
         <panel
-		 class="panel_preference_view"
+		 class="panel_preference"
          filename="panel_preferences_move.xml"
-         label="Move"
+         label="Move &amp; View"
          layout="topleft"
          help_topic="preferences_move_tab"
          name="move" />
-        <panel
-		 class="panel_preference_view"
-         filename="panel_preferences_view.xml"
-         label="View"
-         layout="topleft"
-         help_topic="preferences_view_tab"
-         name="view" />
         <panel
 		 class="panel_preference"
          filename="panel_preferences_alerts.xml"

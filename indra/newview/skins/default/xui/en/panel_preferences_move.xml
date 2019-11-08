@@ -2,24 +2,100 @@
 <panel
  border="true"
  follows="left|top|right|bottom"
- height="418"
+ height="408"
  label="Move"
  layout="topleft"
  left="102"
  name="move_panel"
  top="1"
  width="517">
-
   <icon
+     follows="left|top"
+     height="18"
+     image_name="Cam_FreeCam_Off"
+     layout="topleft"
+     name="camera_icon"
+     mouse_opaque="false"
+     visible="true"
+     width="18"
+     left="30"
+     top="10"/>
+  <slider
+   can_edit_text="true"
+   control_name="CameraAngle"
+   decimal_digits="2"
    follows="left|top"
-   height="18"
-   image_name="Move_Walk_Off"
+   height="16"
+   increment="0.025"
+   initial_value="1.57"
    layout="topleft"
-   name="avatar_icon"
-   mouse_opaque="false"
-   visible="true"
-   width="18"
-   top_pad="4"
+   label_width="100"
+   label="View angle"
+   left_pad="30"
+   max_val="2.97"
+   min_val="0.17"
+   name="camera_fov"
+   show_text="false"
+   width="240" />
+  <slider
+   can_edit_text="true"
+   control_name="CameraOffsetScale"
+   decimal_digits="2"
+   follows="left|top"
+   height="16"
+   increment="0.025"
+   initial_value="1"
+   layout="topleft"
+   label="Distance"
+   left_delta="0"
+   label_width="100"
+   max_val="3"
+   min_val="0.5"
+   name="camera_offset_scale"
+   show_text="false"
+   width="240"
+   top_pad="5"/>
+  <text
+  follows="left|top"
+  type="string"
+  length="1"
+  height="10"
+  left="80"
+  name="heading2"
+  width="270"
+  top_pad="5">
+    Automatic position for:
+  </text>
+  <check_box
+     control_name="EditCameraMovement"
+     height="20"
+     follows="left|top"
+     label="Build/Edit"
+     layout="topleft"
+     left_delta="30"
+     name="edit_camera_movement"
+     tool_tip="Use automatic camera positioning when entering and exiting edit mode"
+     width="280"
+     top_pad="5" />
+  <check_box
+   control_name="AppearanceCameraMovement"
+   follows="left|top"
+   height="16"
+   label="Appearance"
+   layout="topleft"
+   name="appearance_camera_movement"
+   tool_tip="Use automatic camera positioning while in edit mode"
+   width="242" />
+  <icon
+	 follows="left|top"
+	 height="18"
+	 image_name="Move_Walk_Off"
+   layout="topleft"
+	 name="avatar_icon"
+	 mouse_opaque="false"
+	 visible="true"
+	 width="18"
+   top_pad="10"
    left="30" />
   <text
    follows="left|top"
@@ -188,11 +264,10 @@
    label="Other Devices"
    left="30"
    name="joystick_setup_button"
-   top_pad="5"
+   top="30"
    width="155">
     <button.commit_callback
      function="Floater.Show"
      parameter="pref_joystick" />
   </button>
-
 </panel>
