@@ -205,6 +205,7 @@ protected:
     BOOL            mHasParamsClipboard;
     
     BOOL            mPasteParametric;
+    BOOL            mPasteFlexible;
     BOOL            mPastePhysics;
     BOOL            mPasteLight;
 

@@ -321,6 +321,7 @@ LLPanelObject::LLPanelObject()
     mHasSizeClipboard(FALSE),
     mHasRotClipboard(FALSE),
     mPasteParametric(TRUE),
+    mPasteFlexible(TRUE),
     mPastePhysics(TRUE),
     mPasteLight(TRUE)
 {
@@ -2330,6 +2331,75 @@ void LLPanelObject::onPasteParams()
         }
     }
 
+    if (mPasteFlexible)
+    {
+        bool is_flexible = mParamsClipboard.has("flex");
+        if (is_flexible)
+        {
+            LLVOVolume *volobjp = (LLVOVolume *)objectp;
+            BOOL update_shape = FALSE;
+            if (!mPasteParametric)
+            {
+                // do before setParameterEntry or it will think that it is already flexi
+                update_shape = volobjp->setIsFlexible(is_flexible);
+            }
+
+            if (objectp->getClickAction() == CLICK_ACTION_SIT)
+            {
+                objectp->setClickAction(CLICK_ACTION_NONE);
+            }
+
+            LLFlexibleObjectData *attributes = (LLFlexibleObjectData *)objectp->getParameterEntry(LLNetworkData::PARAMS_FLEXIBLE);
+            if (attributes)
+            {
+                LLFlexibleObjectData new_attributes;
+                new_attributes = *attributes;
+                new_attributes.setSimulateLOD(mParamsClipboard["flex"]["lod"].asInteger());
+                new_attributes.setGravity(mParamsClipboard["flex"]["gav"].asReal());
+                new_attributes.setTension(mParamsClipboard["flex"]["ten"].asReal());
+                new_attributes.setAirFriction(mParamsClipboard["flex"]["fri"].asReal());
+                new_attributes.setWindSensitivity(mParamsClipboard["flex"]["sen"].asReal());
+                F32 fx = (F32)mParamsClipboard["flex"]["forx"].asReal();
+                F32 fy = (F32)mParamsClipboard["flex"]["fory"].asReal();
+                F32 fz = (F32)mParamsClipboard["flex"]["forz"].asReal();
+                LLVector3 force(fx, fy, fz);
+                new_attributes.setUserForce(force);
+                objectp->setParameterEntry(LLNetworkData::PARAMS_FLEXIBLE, new_attributes, true);
+            }
+
+            if (!mPasteParametric && update_shape)
+            {
+                mObject->sendShapeUpdate();
+                LLSelectMgr::getInstance()->selectionUpdatePhantom(volobjp->flagPhantom());
+            }
+        }
+        else if (!mPasteParametric)
+        {
+            LLVOVolume *volobjp = (LLVOVolume *)objectp;
+            if (volobjp->setIsFlexible(is_flexible))
+            {
+                mObject->sendShapeUpdate();
+                LLSelectMgr::getInstance()->selectionUpdatePhantom(volobjp->flagPhantom());
+            }
+        }
+    }
+    // Parametric does updateVolume(), make sure we won't affect flexible
+    else if (mPasteParametric)
+    {
+        LLVOVolume *volobjp = (LLVOVolume *)objectp;
+        if (volobjp->isFlexible())
+        {
+            if (mClipboardVolumeParams.getPathParams().getCurveType() == LL_PCODE_PATH_LINE)
+            {
+                mClipboardVolumeParams.getPathParams().setCurveType(LL_PCODE_PATH_FLEXIBLE);
+            }
+        }
+        else if (mClipboardVolumeParams.getPathParams().getCurveType() == LL_PCODE_PATH_FLEXIBLE)
+        {
+            mClipboardVolumeParams.getPathParams().setCurveType(LL_PCODE_PATH_LINE);
+        }
+    }
+
     // Parametrics
     if(mPasteParametric)
     {
@@ -2351,33 +2421,6 @@ void LLPanelObject::onPasteParams()
             }
         }
 
-        // Flexi Params
-        if (mParamsClipboard.has("flex"))
-        {
-            if (objectp->getClickAction() == CLICK_ACTION_SIT)
-            {
-                objectp->setClickAction(CLICK_ACTION_NONE);
-            }
-
-            LLFlexibleObjectData *attributes = (LLFlexibleObjectData *)objectp->getParameterEntry(LLNetworkData::PARAMS_FLEXIBLE);
-            if (attributes)
-            {
-                LLFlexibleObjectData new_attributes;
-                new_attributes = *attributes;
-                new_attributes.setSimulateLOD(mParamsClipboard["flex"]["lod"].asInteger());
-                new_attributes.setGravity(mParamsClipboard["flex"]["gav"].asReal());
-                new_attributes.setTension(mParamsClipboard["flex"]["ten"].asReal());
-                new_attributes.setAirFriction(mParamsClipboard["flex"]["fri"].asReal());
-                new_attributes.setWindSensitivity(mParamsClipboard["flex"]["sen"].asReal());
-                F32 fx = (F32)mParamsClipboard["flex"]["forx"].asReal();
-                F32 fy = (F32)mParamsClipboard["flex"]["fory"].asReal();
-                F32 fz = (F32)mParamsClipboard["flex"]["forz"].asReal();
-                LLVector3 force(fx,fy,fz);
-                new_attributes.setUserForce(force);
-                objectp->setParameterEntry(LLNetworkData::PARAMS_FLEXIBLE, new_attributes, true);
-            }
-        }
-
         objectp->updateVolume(mClipboardVolumeParams);
     }
 }
@@ -2389,6 +2432,10 @@ bool LLPanelObject::pasteCheckMenuItem(const LLSD& userdata)
     if ("Parametric" == command)
     {
         return mPasteParametric;
+    }
+    if ("Flexible" == command)
+    {
+        return mPasteFlexible;
     }
     if ("Physics" == command)
     {
@@ -2410,6 +2457,10 @@ void LLPanelObject::pasteDoMenuItem(const LLSD& userdata)
     {
         mPasteParametric = !mPasteParametric;
     }
+    if ("Flexible" == command)
+    {
+        mPasteFlexible = !mPasteFlexible;
+    }
     if ("Physics" == command)
     {
         mPastePhysics = !mPastePhysics;
@@ -2425,9 +2476,13 @@ bool LLPanelObject::pasteEnabletMenuItem(const LLSD& userdata)
     std::string command = userdata.asString();
 
     // Keep at least one option enabled
-    if (mPasteParametric + mPastePhysics + mPasteLight == 1)
+    if (mPasteParametric + mPasteFlexible + mPastePhysics + mPasteLight == 1)
     {
         if ("Parametric" == command && mPasteParametric)
+        {
+            return false;
+        }
+        if ("Flexible" == command && mPasteFlexible)
         {
             return false;
         }

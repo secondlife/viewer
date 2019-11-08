@@ -11,6 +11,14 @@
         <on_enable function="BuildObject.PasteEnable" parameter="Parametric" />
     </menu_item_check>
     <menu_item_check
+     label="Flexible"
+     layout="topleft"
+     name="Flexible">
+        <on_check function="BuildObject.PasteCheckItem" parameter="Flexible" />
+        <on_click function="BuildObject.PasteDoToSelected" parameter="Flexible" />
+        <on_enable function="BuildObject.PasteEnable" parameter="Flexible" />
+    </menu_item_check>
+    <menu_item_check
      label="Physics"
      layout="topleft"
      name="Physics">
