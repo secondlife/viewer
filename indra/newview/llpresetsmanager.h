@@ -71,7 +71,8 @@ public:
 	bool isCameraDirty();
 	static void setCameraDirty(bool dirty);
 
-	bool isDefaultPreset(std::string preset_name);
+	bool isDefaultCameraPreset(std::string preset_name);
+	void resetCameraPreset(std::string preset_name);
 
 	// Emitted when a preset gets loaded, deleted, or saved.
 	boost::signals2::connection setPresetListChangeCameraCallback(const preset_list_signal_t::slot_type& cb);
@@ -88,6 +89,7 @@ public:
 	LOG_CLASS(LLPresetsManager);
 
 	void getControlNames(std::vector<std::string>& names);
+	void getOffsetControlNames(std::vector<std::string>& names);
 	static void settingChanged();
 
 	boost::signals2::connection	mCameraChangedSignal;

@@ -351,6 +351,7 @@ LLFloaterCamera::LLFloaterCamera(const LLSD& val)
 	LLHints::registerHintTarget("view_popup", getHandle());
 	mCommitCallbackRegistrar.add("CameraPresets.ChangeView", boost::bind(&LLFloaterCamera::onClickCameraItem, _2));
 	mCommitCallbackRegistrar.add("CameraPresets.Save", boost::bind(&LLFloaterCamera::onSavePreset, this));
+	mCommitCallbackRegistrar.add("CameraPresets.ShowPresetsList", boost::bind(&LLFloaterReg::showInstance, "camera_presets", LLSD(), FALSE));
 }
 
 // virtual
@@ -599,7 +600,7 @@ void LLFloaterCamera::onSavePreset()
 	LLSD key;
 	key["subdirectory"] = PRESETS_CAMERA;
 	std::string current_preset = gSavedSettings.getString("PresetCameraActive");
-	bool is_custom_preset = current_preset != "" && !LLPresetsManager::getInstance()->isDefaultPreset(current_preset);
+	bool is_custom_preset = current_preset != "" && !LLPresetsManager::getInstance()->isDefaultCameraPreset(current_preset);
 	key["index"] = is_custom_preset ? 1 : 0;
 	LLFloaterReg::showInstance("save_pref_preset", key);
 }

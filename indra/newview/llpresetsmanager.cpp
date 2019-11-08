@@ -89,6 +89,7 @@ void LLPresetsManager::startWatching(const std::string& subdirectory)
 	{
 		std::vector<std::string> name_list;
 		getControlNames(name_list);
+		getOffsetControlNames(name_list);
 
 		for (std::vector<std::string>::iterator it = name_list.begin(); it != name_list.end(); ++it)
 		{
@@ -164,7 +165,7 @@ void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir, preset_nam
 
 			if (default_option == DEFAULT_VIEWS_HIDE)
 			{
-				if (isDefaultPreset(name))
+				if (isDefaultCameraPreset(name))
 				{
 					continue;
 				}
@@ -239,6 +240,21 @@ void LLPresetsManager::getControlNames(std::vector<std::string>& names)
     names = camera_controls;
 }
 
+void LLPresetsManager::getOffsetControlNames(std::vector<std::string>& names)
+{
+	const std::vector<std::string> offset_controls = boost::assign::list_of
+		("CameraOffsetRearView")
+		("CameraOffsetFrontView")
+		("CameraOffsetGroupView")
+		("CameraOffsetCustomPreset")
+		("FocusOffsetRearView")
+		("FocusOffsetFrontView")
+		("FocusOffsetGroupView")
+		("FocusOffsetCustomPreset")
+		;
+	names.insert(std::end(names), std::begin(offset_controls), std::end(offset_controls));
+}
+
 bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string name, bool createDefault)
 {
 	if (LLTrans::getString(PRESETS_DEFAULT) == name)
@@ -300,7 +316,7 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 		{
 			name_list.push_back(gAgentCamera.getCameraOffsetCtrlName());
 			name_list.push_back(gAgentCamera.getFocusOffsetCtrlName());
-			custom_camera_offsets = !isDefaultPreset(name);
+			custom_camera_offsets = !isDefaultCameraPreset(name);
 		}
 		for (std::vector<std::string>::iterator it = name_list.begin(); it != name_list.end(); ++it)
 		{
@@ -489,9 +505,14 @@ bool LLPresetsManager::deletePreset(const std::string& subdirectory, std::string
 	return sts;
 }
 
-bool LLPresetsManager::isDefaultPreset(std::string preset_name)
+bool LLPresetsManager::isDefaultCameraPreset(std::string preset_name)
 {
 	return (preset_name == PRESETS_REAR || preset_name == PRESETS_SIDE || preset_name == PRESETS_FRONT);
+}
+
+void LLPresetsManager::resetCameraPreset(std::string preset_name)
+{
+
 }
 
 boost::signals2::connection LLPresetsManager::setPresetListChangeCameraCallback(const preset_list_signal_t::slot_type& cb)

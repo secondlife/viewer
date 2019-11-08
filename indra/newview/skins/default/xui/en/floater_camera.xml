@@ -222,16 +222,22 @@
          name="Use preset"
          value="default" />
       </combo_box>
-      <icon
-        height="28"
-        width="28"
-        image_name="Command_Preferences_Icon"
+      <button
+        height="16"
+        width="16"  
         layout="topleft"
         mouse_opaque="true"
-        name="icon_gear"
+        name="gear_btn"
         tool_tip="My Camera Presets"
-        top_delta="0"
-        left_pad="5" />
+        top_delta="3"
+        left_pad="10" 
+        image_selected="Icon_Gear"
+        image_pressed="Icon_Gear"
+        image_unselected="Icon_Gear"
+        is_toggle="true">
+        <button.commit_callback
+          function="CameraPresets.ShowPresetsList"/>
+      </button>
       <button
         follows="top|left"
         height="25"
@@ -239,7 +245,7 @@
         layout="topleft"
         left="0"
         name="save_preset_btn"
-        top_pad="8"
+        top_pad="18"
         width="150">
         <button.commit_callback
           function="CameraPresets.Save"/>
