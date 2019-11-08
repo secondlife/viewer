@@ -189,23 +189,23 @@ public:
 	// Local Textures
 	//--------------------------------------------------------------------
 public:
-	BOOL				getLocalTextureGL(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerTexture** image_gl_pp, U32 index) const;
-	LLViewerFetchedTexture*	getLocalTextureGL(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const;
+	BOOL				getLocalTextureGL(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerTexture::ptr_t* image_gl_pp, U32 index) const;
+	LLViewerFetchedTexture::ptr_t	getLocalTextureGL(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const;
 	const LLUUID&		getLocalTextureID(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const;
-	void				setLocalTextureTE(U8 te, LLViewerTexture* image, U32 index);
-	/*virtual*/ void	setLocalTexture(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerTexture* tex, BOOL baked_version_exits, U32 index);
+	void				setLocalTextureTE(U8 te, const LLViewerTexture::ptr_t &image, U32 index);
+	/*virtual*/ void	setLocalTexture(LLAvatarAppearanceDefines::ETextureIndex type, const LLViewerTexture::ptr_t &tex, BOOL baked_version_exits, U32 index);
 protected:
 	/*virtual*/ void	setBakedReady(LLAvatarAppearanceDefines::ETextureIndex type, BOOL baked_version_exists, U32 index);
-    void				localTextureLoaded(BOOL succcess, LLPointer<LLViewerFetchedTexture> &src_vi, BOOL done_final, LLAvatarAppearanceDefines::ETextureIndex index);
+    void				localTextureLoaded(BOOL succcess, LLViewerFetchedTexture::ptr_t &src_vi, BOOL done_final, LLAvatarAppearanceDefines::ETextureIndex index);
 	void				getLocalTextureByteCount(S32* gl_byte_count) const;
-	/*virtual*/ void	addLocalTextureStats(LLAvatarAppearanceDefines::ETextureIndex i, LLViewerFetchedTexture* imagep, F32 texel_area_ratio, BOOL rendered, BOOL covered_by_baked);
+	/*virtual*/ void	addLocalTextureStats(LLAvatarAppearanceDefines::ETextureIndex i, const LLViewerFetchedTexture::ptr_t &imagep, F32 texel_area_ratio, BOOL rendered, BOOL covered_by_baked);
 	LLLocalTextureObject* getLocalTextureObject(LLAvatarAppearanceDefines::ETextureIndex i, U32 index) const;
 
 private:
-    static void         onLocalTextureLoaded(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool done_final, LLUUID avatar_id, LLAvatarAppearanceDefines::ETextureIndex index);
+    static void         onLocalTextureLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool done_final, LLUUID avatar_id, LLAvatarAppearanceDefines::ETextureIndex index);
 
-	/*virtual*/	void	setImage(const U8 te, LLViewerTexture *imagep, const U32 index); 
-	/*virtual*/ LLViewerTexture* getImage(const U8 te, const U32 index) const;
+	/*virtual*/	void	setImage(const U8 te, const LLViewerTexture::ptr_t &imagep, const U32 index); 
+	/*virtual*/ LLViewerTexture::ptr_t getImage(const U8 te, const U32 index) const;
 
 
 	//--------------------------------------------------------------------
@@ -372,7 +372,7 @@ public:
 	void					outputRezTiming(const std::string& msg) const;
 	void					reportAvatarRezTime() const;
 	void 					debugBakedTextureUpload(LLAvatarAppearanceDefines::EBakedTextureIndex index, BOOL finished);
-    static void				debugOnTimingLocalTexLoaded(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, LLUUID texture_id, LLAvatarAppearanceDefines::ETextureIndex index);
+    static void				debugOnTimingLocalTexLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, LLUUID texture_id, LLAvatarAppearanceDefines::ETextureIndex index);
 
 	BOOL					isAllLocalTextureDataFinal() const;
 
@@ -388,7 +388,7 @@ private:
 	F32 					mDebugTimeAvatarVisible;
 	F32 					mDebugTextureLoadTimes[LLAvatarAppearanceDefines::TEX_NUM_INDICES][MAX_DISCARD_LEVEL+1]; // load time for each texture at each discard level
 	F32 					mDebugBakedTextureTimes[LLAvatarAppearanceDefines::BAKED_NUM_INDICES][2]; // time to start upload and finish upload of each baked texture
-    void					debugTimingLocalTexLoaded(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, LLUUID texture_id, LLAvatarAppearanceDefines::ETextureIndex index);
+    void					debugTimingLocalTexLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, LLUUID texture_id, LLAvatarAppearanceDefines::ETextureIndex index);
 
     void                    appearanceChangeMetricsCoro(std::string url);
     bool                    mInitialMetric;

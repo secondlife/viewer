@@ -127,10 +127,10 @@ LLWearable::EImportResult LLViewerWearable::importStream( std::istream& input_st
 			textureid = lto->getID();
 		}
 
-		LLViewerFetchedTexture* image = LLViewerTextureManager::instance().getFetchedTexture( textureid );
+		LLViewerFetchedTexture::ptr_t image = LLViewerTextureManager::instance().getFetchedTexture( textureid );
 		if(gSavedSettings.getBOOL("DebugAvatarLocalTexLoadedTime"))
 		{
-            image->addCallback([textureid, te](bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done) {
+            image->addCallback([textureid, te](bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done) {
                 LLVOAvatarSelf::debugOnTimingLocalTexLoaded(success, src_vi, final_done, textureid, (LLAvatarAppearanceDefines::ETextureIndex)te);
             });
 		}
@@ -282,7 +282,7 @@ void LLViewerWearable::setTexturesToDefaults()
 		if (LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex) te) == mType)
 		{
 			LLUUID id = getDefaultTextureImageID((ETextureIndex) te);
-			LLViewerFetchedTexture * image = LLViewerTextureManager::instance().getFetchedTexture( id );
+			LLViewerFetchedTexture::ptr_t image = LLViewerTextureManager::instance().getFetchedTexture( id );
 			if( mTEMap.find(te) == mTEMap.end() )
 			{
 				mTEMap[te] = new LLLocalTextureObject(image, id);
@@ -350,7 +350,7 @@ void LLViewerWearable::writeToAvatar(LLAvatarAppearance *avatarp)
 				image_id = getDefaultTextureImageID((ETextureIndex) te);
 			}
 
-			LLViewerTexture* image = LLViewerTextureManager::instance().getFetchedTexture( image_id, params );
+			LLViewerTexture::ptr_t image = LLViewerTextureManager::instance().getFetchedTexture( image_id, params );
 			// MULTI-WEARABLE: assume index 0 will be used when writing to avatar. TODO: eliminate the need for this.
 			viewer_avatar->setLocalTextureTE(te, image, 0);
 		}
@@ -435,10 +435,10 @@ void LLViewerWearable::copyDataFrom(const LLViewerWearable* src)
 		{
 			te_map_t::const_iterator iter = src->mTEMap.find(te);
 			LLUUID image_id;
-			LLViewerFetchedTexture *image = NULL;
+			LLViewerFetchedTexture::ptr_t image;
 			if(iter != src->mTEMap.end())
 			{
-				image = dynamic_cast<LLViewerFetchedTexture*> (src->getLocalTextureObject(te)->getImage());
+                image = LLViewerTextureManager::staticCastToFetchedTexture(src->getLocalTextureObject(te)->getImage());
 				image_id = src->getLocalTextureObject(te)->getID();
 				mTEMap[te] = new LLLocalTextureObject(image, image_id);
 				mSavedTEMap[te] = new LLLocalTextureObject(image, image_id);

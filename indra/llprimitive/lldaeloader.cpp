@@ -823,7 +823,7 @@ LLDAELoader::LLDAELoader(
 	joint_lookup_func_t	joint_lookup_func,
 	texture_load_func_t	texture_load_func,
 	state_callback_t	state_cb,
-	void*				opaque_userdata,
+    const preview_ptr_t &model_preview,
 	JointTransformMap&	jointTransformMap,
 	JointNameSet&		jointsFromNodes,
     std::map<std::string, std::string>&		jointAliasMap,
@@ -837,7 +837,7 @@ LLDAELoader::LLDAELoader(
 		joint_lookup_func,
 		texture_load_func,
 		state_cb,
-		opaque_userdata,
+        model_preview,
 		jointTransformMap,
 		jointsFromNodes,
         jointAliasMap,
@@ -1424,7 +1424,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
                 {
                     //LL_INFOS()<<"joint "<<lookingForJoint.c_str()<<LL_ENDL;
                     LLMatrix4 jointTransform = mJointList[lookingForJoint];
-                    LLJoint* pJoint = mJointLookupFunc(lookingForJoint,mOpaqueData);
+                    LLJoint* pJoint = mJointLookupFunc(lookingForJoint, mLoaderPreview.lock());
                     if ( pJoint )
                     {   
                         const LLVector3& joint_pos = jointTransform.getTranslation();

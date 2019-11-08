@@ -108,7 +108,7 @@ LLModelLoader::LLModelLoader(
 	joint_lookup_func_t	joint_lookup_func,
 	texture_load_func_t	texture_load_func,
 	state_callback_t	state_cb,
-	void*				opaque_userdata,
+    const preview_ptr_t &model_preview,
 	JointTransformMap&	jointTransformMap,
 	JointNameSet&		jointsFromNodes,
     JointMap&           legalJointNamesMap,
@@ -125,7 +125,7 @@ LLModelLoader::LLModelLoader(
 , mJointLookupFunc(joint_lookup_func)
 , mTextureLoadFunc(texture_load_func)
 , mStateCallback(state_cb)
-, mOpaqueData(opaque_userdata)
+, mLoaderPreview(model_preview)
 , mRigValidJointUpload(true)
 , mLegacyRigValid(true)
 , mNoNormalize(false)
@@ -202,7 +202,7 @@ bool LLModelLoader::doLoadModel()
 
 void LLModelLoader::setLoadState(U32 state)
 {
-	mStateCallback(state, mOpaqueData);
+    mStateCallback(state, mLoaderPreview.lock());
 }
 
 bool LLModelLoader::loadFromSLM(const std::string& filename)
@@ -361,7 +361,7 @@ bool LLModelLoader::isAlive(LLModelLoader* loader)
 
 void LLModelLoader::loadModelCallback()
 {
-	mLoadCallback(mScene,mModelList,mLod, mOpaqueData);
+    mLoadCallback(mScene, mModelList, mLod, mLoaderPreview.lock());
 
 	while (!isStopped())
 	{ //wait until this thread is stopped before deleting self
@@ -474,7 +474,7 @@ void LLModelLoader::loadTextures()
 
 				if(!material.mDiffuseMapFilename.empty())
 				{
-					mNumOfFetchingTextures += mTextureLoadFunc(material, mOpaqueData);					
+                    mNumOfFetchingTextures += mTextureLoadFunc(material, mLoaderPreview.lock());
 				}
 			}
 		}

@@ -87,7 +87,7 @@ protected:
 	F32			mLastPartTime;
 	LLUUID		mOwnerUUID;
 	LLPointer<LLVOAvatar> mOwnerAvatarp;
-	LLPointer<LLViewerTexture>	mImagep;
+    std::shared_ptr<LLViewerTexture> mTexturep;  // LLViewerTexture::ptr_t
 	// Particle information
 	U32			mPartFlags; // Flags for the particle
 	U32         mDelay ; //delay to start particles
@@ -119,8 +119,8 @@ public:
 	static LLPointer<LLViewerPartSourceScript> unpackPSS(LLViewerObject *source_objp, LLPointer<LLViewerPartSourceScript> pssp, LLDataPacker &dp, bool legacy);
 	static LLPointer<LLViewerPartSourceScript> createPSS(LLViewerObject *source_objp, const LLPartSysData& particle_parameters);
 
-	LLViewerTexture *getImage() const				{ return mImagep; }
-	void setImage(LLViewerTexture *imagep);
+	std::shared_ptr<LLViewerTexture> getImage() const				{ return mTexturep; } // LLViewerTexture::ptr_t
+	void setImage(const std::shared_ptr<LLViewerTexture> &imagep);
 	LLPartSysData				mPartSysData;
 
 	void setTargetObject(LLViewerObject *objp);

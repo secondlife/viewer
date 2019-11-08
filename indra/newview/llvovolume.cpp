@@ -277,12 +277,12 @@ void LLVOVolume::markDead()
 			removeMediaImpl(i);
 		}
 
-		if (mSculptTexture.notNull())
+		if (mSculptTexture)
 		{
 			mSculptTexture->removeVolume(LLRender::SCULPT_TEX, this);
 		}
 
-		if (mLightTexture.notNull())
+		if (mLightTexture)
 		{
 			mLightTexture->removeVolume(LLRender::LIGHT_TEX, this);
 		}
@@ -736,7 +736,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 		LLFace* face = mDrawable->getFace(i);
 		if (!face) continue;
 		const LLTextureEntry *te = face->getTextureEntry();
-		LLViewerTexture *imagep = face->getTexture();
+		LLViewerTexture::ptr_t imagep = face->getTexture();
 		if (!imagep || !te ||			
 			face->mExtents[0].equals3(face->mExtents[1]))
 		{
@@ -777,7 +777,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 		}
 		else if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY))
 		{
-			LLViewerFetchedTexture* img = LLViewerTextureManager::staticCastToFetchedTexture(imagep) ;
+			LLViewerFetchedTexture::ptr_t img = LLViewerTextureManager::staticCastToFetchedTexture(imagep) ;
 			if(img)
 			{
 				F32 pri = img->getPriority();
@@ -803,7 +803,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 		
 		
 
-		if (mSculptTexture.notNull())
+		if (mSculptTexture)
 		{
 			mSculptTexture->setBoostLevel(llmax((S32)mSculptTexture->getBoostLevel(),
 												(S32)LLGLTexture::BOOST_SCULPTED));
@@ -854,7 +854,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
         fparams.mBoostPriority = LLGLTexture::BOOST_ALM;
 
 		mLightTexture = LLViewerTextureManager::instance().getFetchedTexture(id, fparams);
-		if (mLightTexture.notNull())
+		if (mLightTexture)
 		{
 			F32 rad = getLightRadius();
 			mLightTexture->addTextureStats(gPipeline.calcPixelArea(getPositionAgent(), 
@@ -897,7 +897,7 @@ BOOL LLVOVolume::setMaterial(const U8 material)
 void LLVOVolume::setTexture(const S32 face)
 {
 	llassert(face < getNumTEs());
-	gGL.getTexUnit(0)->bind(getTEImage(face));
+	gGL.getTexUnit(0)->bind(getTEImage(face).get());
 }
 
 void LLVOVolume::setScale(const LLVector3 &scale, BOOL damped)
@@ -923,11 +923,11 @@ void LLVOVolume::setScale(const LLVector3 &scale, BOOL damped)
 LLFace* LLVOVolume::addFace(S32 f)
 {
 	const LLTextureEntry* te = getTE(f);
-	LLViewerTexture* imagep = getTEImage(f);
+	LLViewerTexture::ptr_t imagep = getTEImage(f);
 	if (te->getMaterialParams().notNull())
 	{
-		LLViewerTexture* normalp = getTENormalMap(f);
-		LLViewerTexture* specularp = getTESpecularMap(f);
+		LLViewerTexture::ptr_t normalp = getTENormalMap(f);
+		LLViewerTexture::ptr_t specularp = getTESpecularMap(f);
 		return mDrawable->addFace(te, imagep, normalp, specularp);
 	}
 	return mDrawable->addFace(te, imagep);
@@ -1056,7 +1056,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 			}
 			else // otherwise is sculptie
 			{
-				if (mSculptTexture.notNull())
+				if (mSculptTexture)
 				{
 					sculpt();
 				}
@@ -1095,7 +1095,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 
 void LLVOVolume::updateSculptTexture()
 {
-	LLPointer<LLViewerFetchedTexture> old_sculpt = mSculptTexture;
+    LLViewerFetchedTexture::ptr_t old_sculpt = mSculptTexture;
 
 	if (isSculpted() && !isMesh())
 	{
@@ -1115,11 +1115,11 @@ void LLVOVolume::updateSculptTexture()
 
 	if (mSculptTexture != old_sculpt)
 	{
-		if (old_sculpt.notNull())
+		if (old_sculpt)
 		{
 			old_sculpt->removeVolume(LLRender::SCULPT_TEX, this);
 		}
-		if (mSculptTexture.notNull())
+		if (mSculptTexture)
 		{
 			mSculptTexture->addVolume(LLRender::SCULPT_TEX, this);
 		}
@@ -1160,7 +1160,7 @@ void LLVOVolume::notifyMeshLoaded()
 // sculpt replaces generate() for sculpted surfaces
 void LLVOVolume::sculpt()
 {	
-	if (mSculptTexture.notNull())
+	if (mSculptTexture)
 	{				
 		U16 sculpt_height = 0;
 		U16 sculpt_width = 0;
@@ -1616,7 +1616,7 @@ void LLVOVolume::regenFaces()
 		{
 			if(mMediaImplList[i])
 			{
-                LLViewerMediaTexture* media_tex = LLViewerTextureManager::instance().findMediaTexture(mMediaImplList[i]->getMediaTextureID());
+                LLViewerMediaTexture::ptr_t media_tex = LLViewerTextureManager::instance().findMediaTexture(mMediaImplList[i]->getMediaTextureID());
 				if(media_tex)
 				{
 					media_tex->addMediaToFace(facep) ;
@@ -2087,7 +2087,7 @@ void LLVOVolume::setNumTEs(const U8 num_tes)
 }
 
 //virtual     
-void LLVOVolume::changeTEImage(S32 index, LLViewerTexture* imagep)
+void LLVOVolume::changeTEImage(S32 index, const LLViewerTexture::ptr_t &imagep)
 {
 	BOOL changed = (mTEImages[index] != imagep);
 	LLViewerObject::changeTEImage(index, imagep);
@@ -2098,7 +2098,7 @@ void LLVOVolume::changeTEImage(S32 index, LLViewerTexture* imagep)
 	}
 }
 
-void LLVOVolume::setTEImage(const U8 te, LLViewerTexture *imagep)
+void LLVOVolume::setTEImage(const U8 te, const LLViewerTexture::ptr_t &imagep)
 {
 	BOOL changed = (mTEImages[te] != imagep);
 	LLViewerObject::setTEImage(te, imagep);
@@ -2283,7 +2283,7 @@ S32 LLVOVolume::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
 	return res;
 }
 
-bool LLVOVolume::notifyAboutCreatingTexture(LLViewerTexture *texture)
+bool LLVOVolume::notifyAboutCreatingTexture(const LLViewerTexture::ptr_t &texture)
 { //Ok, here we have confirmation about texture creation, check our wait-list
   //and make changes, or return false
 
@@ -2335,7 +2335,7 @@ bool LLVOVolume::notifyAboutCreatingTexture(LLViewerTexture *texture)
 	return 0 != new_material.size();
 }
 
-bool LLVOVolume::notifyAboutMissingAsset(LLViewerTexture *texture)
+bool LLVOVolume::notifyAboutMissingAsset(const LLViewerTexture::ptr_t &texture)
 { //Ok, here if we wait information about texture and it's missing
   //then depending from the texture map (diffuse, normal, or specular)
   //make changes in material and confirm it. If not return false.
@@ -2421,9 +2421,9 @@ S32 LLVOVolume::setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialPa
 	if(pMaterialParams)
 	{ //check all of them according to material settings
 
-		LLViewerTexture *img_diffuse = getTEImage(te);
-		LLViewerTexture *img_normal = getTENormalMap(te);
-		LLViewerTexture *img_specular = getTESpecularMap(te);
+		LLViewerTexture::ptr_t img_diffuse = getTEImage(te);
+        LLViewerTexture::ptr_t img_normal = getTENormalMap(te);
+        LLViewerTexture::ptr_t img_specular = getTESpecularMap(te);
 
 		llassert(NULL != img_diffuse);
 
@@ -2950,7 +2950,7 @@ void LLVOVolume::removeMediaImpl(S32 texture_index)
 		LLFace* facep = mDrawable->getFace(texture_index) ;
 		if(facep)
 		{
-            LLViewerMediaTexture* media_tex = LLViewerTextureManager::instance().findMediaTexture(mMediaImplList[texture_index]->getMediaTextureID());
+            LLViewerMediaTexture::ptr_t media_tex = LLViewerTextureManager::instance().findMediaTexture(mMediaImplList[texture_index]->getMediaTextureID());
 			if(media_tex)
 			{
 				media_tex->removeMediaFromFace(facep) ;
@@ -3009,7 +3009,7 @@ void LLVOVolume::addMediaImpl(LLViewerMediaImpl* media_impl, S32 texture_index)
 
 		if(facep)
 		{
-            LLViewerMediaTexture* media_tex = LLViewerTextureManager::instance().findMediaTexture(mMediaImplList[texture_index]->getMediaTextureID());
+            LLViewerMediaTexture::ptr_t media_tex = LLViewerTextureManager::instance().findMediaTexture(mMediaImplList[texture_index]->getMediaTextureID());
 			if(media_tex)
 			{
 				media_tex->addMediaToFace(facep) ;
@@ -3077,7 +3077,7 @@ S32 LLVOVolume::getFaceIndexWithMediaImpl(const LLViewerMediaImpl* media_impl, S
 
 void LLVOVolume::setLightTextureID(LLUUID id)
 {
-	LLViewerTexture* old_texturep = getLightTexture(); // same as mLightTexture, but inits if nessesary
+	LLViewerTexture::ptr_t old_texturep = getLightTexture(); // same as mLightTexture, but inits if nessesary
 	if (id.notNull())
 	{
 		if (!hasLightTexture())
@@ -3094,7 +3094,7 @@ void LLVOVolume::setLightTextureID(LLUUID id)
 			param_block->setLightTexture(id);
 			parameterChanged(LLNetworkData::PARAMS_LIGHT_IMAGE, true);
 		}
-		LLViewerTexture* tex = getLightTexture();
+		LLViewerTexture::ptr_t tex = getLightTexture();
 		if (tex)
 		{
 			tex->addVolume(LLRender::LIGHT_TEX, this); // new texture
@@ -3303,7 +3303,7 @@ void LLVOVolume::updateSpotLightPriority()
 	
 	mSpotLightPriority = gPipeline.calcPixelArea(pos, LLVector3(r,r,r), *LLViewerCamera::getInstance());
 
-	if (mLightTexture.notNull())
+	if (mLightTexture)
 	{
 		mLightTexture->addTextureStats(mSpotLightPriority);
 		mLightTexture->setBoostLevel(LLGLTexture::BOOST_CLOUDS);
@@ -3322,13 +3322,13 @@ bool LLVOVolume::isLightSpotlight() const
 }
 
 
-LLViewerTexture* LLVOVolume::getLightTexture()
+LLViewerTexture::ptr_t LLVOVolume::getLightTexture()
 {
 	LLUUID id = getLightTextureID();
 
 	if (id.notNull())
 	{
-		if (mLightTexture.isNull() || id != mLightTexture->getID())
+		if (!mLightTexture || id != mLightTexture->getID())
 		{
             LLViewerTextureManager::FetchParams params;
             params.mBoostPriority = LLGLTexture::BOOST_ALM;
@@ -3927,7 +3927,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 			LLUUID sculpt_id = sculpt_params->getSculptTexture();
 			if (textures.find(sculpt_id) == textures.end())
 			{
-				LLViewerFetchedTexture *texture = LLViewerTextureManager::instance().getFetchedTexture(sculpt_id);
+				LLViewerFetchedTexture::ptr_t texture = LLViewerTextureManager::instance().getFetchedTexture(sculpt_id);
 				if (texture)
 				{
 					S32 texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f));
@@ -3956,7 +3956,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		const LLFace* face = drawablep->getFace(i);
 		if (!face) continue;
 		const LLTextureEntry* te = face->getTextureEntry();
-		const LLViewerTexture* img = face->getTexture();
+		const LLViewerTexture::ptr_t img = face->getTexture();
 
 		if (img)
 		{
@@ -5042,7 +5042,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	U8 bump = (type == LLRenderPass::PASS_BUMP || type == LLRenderPass::PASS_POST_BUMP) ? facep->getTextureEntry()->getBumpmap() : 0;
 	U8 shiny = facep->getTextureEntry()->getShiny();
 	
-	LLViewerTexture* tex = facep->getTexture();
+	LLViewerTexture::ptr_t tex = facep->getTexture();
 
 	U8 index = facep->getTextureIndex();
 
@@ -5074,7 +5074,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		}
 		else if (index < draw_vec[idx]->mTextureList.size())
 		{
-			if (draw_vec[idx]->mTextureList[index].isNull())
+			if (!draw_vec[idx]->mTextureList[index])
 			{
 				batchable = true;
 				draw_vec[idx]->mTextureList[index] = tex;
@@ -5517,7 +5517,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						}
 
 						//add face to new pool
-						LLViewerTexture* tex = facep->getTexture();
+						LLViewerTexture::ptr_t tex = facep->getTexture();
 						U32 type = gPipeline.getPoolTypeFromTE(te, tex);
 
 
@@ -5674,7 +5674,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				if (facep->hasGeometry() && facep->getPixelArea() > FORCE_CULL_AREA)
 				{
 					const LLTextureEntry* te = facep->getTextureEntry();
-					LLViewerTexture* tex = facep->getTexture();
+					LLViewerTexture::ptr_t tex = facep->getTexture();
 
 					if (te->getGlow() >= 1.f/255.f)
 					{
@@ -6162,7 +6162,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 	
 	LLSpatialGroup::buffer_map_t buffer_map;
 
-	LLViewerTexture* last_tex = NULL;
+	LLViewerTexture::ptr_t last_tex;
 	S32 buffer_index = 0;
 
 	if (distance_sort)
@@ -6194,12 +6194,12 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 	{
 		//pull off next face
 		LLFace* facep = *face_iter;
-		LLViewerTexture* tex = facep->getTexture();
+		LLViewerTexture::ptr_t tex = facep->getTexture();
 		LLMaterialPtr mat = facep->getTextureEntry()->getMaterialParams();
 
 		if (distance_sort)
 		{
-			tex = NULL;
+			tex.reset();
 		}
 
 		if (last_tex == tex)
@@ -6224,7 +6224,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 		++i;
 		
 		const U32 MAX_TEXTURE_COUNT = 32;
-		LLViewerTexture* texture_list[MAX_TEXTURE_COUNT];
+		LLViewerTexture::ptr_t texture_list[MAX_TEXTURE_COUNT];
 		
 		U32 texture_count = 0;
 

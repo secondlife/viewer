@@ -104,7 +104,7 @@ void LLFloaterBigPreview::draw()
         // Draw the preview texture
 		gl_draw_scaled_image(offset_x, offset_y,
                              thumbnail_w, thumbnail_h,
-                             previewp->getBigThumbnailImage(), color % alpha);
+                             previewp->getBigThumbnailImage().get(), color % alpha);
 	}
 }
 

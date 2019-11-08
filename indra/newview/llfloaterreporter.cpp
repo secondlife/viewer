@@ -914,7 +914,7 @@ void LLFloaterReporter::takeScreenshot(bool use_prev_screenshot)
 						mResourceDatap->mAssetInfo.mType);
 
 	// store in the image list so it doesn't try to fetch from the server
-	LLPointer<LLViewerFetchedTexture> image_in_list = 
+    LLViewerFetchedTexture::ptr_t image_in_list =
 		LLViewerTextureManager::instance().getFetchedTexture(mResourceDatap->mAssetInfo.mUuid);
 	image_in_list->createGLTexture(0, mImageRaw, 0, TRUE, LLGLTexture::OTHER);
 	

@@ -208,18 +208,18 @@ void LLSurface::create(const S32 grids_per_edge,
 	createPatchData();
 }
 
-LLViewerTexture* LLSurface::getSTexture()
+LLViewerTexture::ptr_t LLSurface::getSTexture()
 {
-	if (mSTexturep.notNull() && !mSTexturep->hasGLTexture())
+	if (mSTexturep && !mSTexturep->hasGLTexture())
 	{
 		createSTexture();
 	}
 	return mSTexturep;
 }
 
-LLViewerTexture* LLSurface::getWaterTexture()
+LLViewerTexture::ptr_t LLSurface::getWaterTexture()
 {
-	if (mWaterTexturep.notNull() && !mWaterTexturep->hasGLTexture())
+	if (mWaterTexturep && !mWaterTexturep->hasGLTexture())
 	{
 		createWaterTexture();
 	}
@@ -246,7 +246,7 @@ void LLSurface::createSTexture()
 
         mSTexturep = LLViewerTextureManager::instance().getLocalTexture(raw.get(), false);
 		mSTexturep->dontDiscard();
-		gGL.getTexUnit(0)->bind(mSTexturep);
+		gGL.getTexUnit(0)->bind(mSTexturep.get());
 		mSTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);		
 	}
 }
@@ -271,7 +271,7 @@ void LLSurface::createWaterTexture()
 		
         mWaterTexturep = LLViewerTextureManager::instance().getLocalTexture(raw.get(), false);
 		mWaterTexturep->dontDiscard();
-		gGL.getTexUnit(0)->bind(mWaterTexturep);
+		gGL.getTexUnit(0)->bind(mWaterTexturep.get());
 		mWaterTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 	}
 }

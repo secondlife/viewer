@@ -80,10 +80,10 @@
 #include "llscenemonitor.h"
 #include "llviewertexturemanager.h"
 
-extern LLPointer<LLViewerTexture> gStartTexture;
+extern LLViewerTexture::ptr_t gStartTexture;
 extern bool gShiftFrame;
 
-LLPointer<LLViewerTexture> gDisconnectedImagep = NULL;
+LLViewerTexture::ptr_t gDisconnectedImagep = NULL;
 
 // used to toggle renderer back on after teleport
 BOOL		 gTeleportDisplay = FALSE;
@@ -137,9 +137,9 @@ void display_startup()
 	// Written as branch to appease GCC which doesn't like different
 	// pointer types across ternary ops
 	//
-	if (!LLViewerFetchedTexture::sWhiteImagep.isNull())
+	if (LLViewerFetchedTexture::sWhiteImagep)
 	{
-	LLTexUnit::sWhiteTexture = LLViewerFetchedTexture::sWhiteImagep->getTexName();
+    	LLTexUnit::sWhiteTexture = LLViewerFetchedTexture::sWhiteImagep->getTexName();
 	}
 
 	LLGLSDefault gls_default;
@@ -1643,7 +1643,7 @@ void render_disconnected_background()
 			const LLVector2& display_scale = gViewerWindow->getDisplayScale();
 			gGL.scalef(display_scale.mV[VX], display_scale.mV[VY], 1.f);
 
-			gGL.getTexUnit(0)->bind(gDisconnectedImagep);
+			gGL.getTexUnit(0)->bind(gDisconnectedImagep.get());
 			gGL.color4f(1.f, 1.f, 1.f, 1.f);
 			gl_rect_2d_simple_tex(width, height);
 			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);

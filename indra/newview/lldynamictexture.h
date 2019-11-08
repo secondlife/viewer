@@ -36,6 +36,8 @@
 class LLViewerDynamicTexture : public LLViewerTexture
 {
 public:
+    typedef std::shared_ptr<LLViewerDynamicTexture> ptr_t;
+
 	void* operator new(size_t size)
 	{
 		return LLTrace::MemTrackable<LLTexture>::aligned_new<16>(size);

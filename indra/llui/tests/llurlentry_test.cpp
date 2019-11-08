@@ -65,7 +65,7 @@ LLUIColor LLUIColorTable::getColor(const std::string& name, const LLColor4& defa
 
 LLUIColor::LLUIColor() : mColorPtr(NULL) {}
 
-LLUIImage::LLUIImage(const std::string& name, LLPointer<LLTexture> image)
+LLUIImage::LLUIImage(const std::string& name, const LLTexture::ptr_t &image)
 {
 }
 

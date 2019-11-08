@@ -749,7 +749,7 @@ void LLTracker::drawMarker(const LLVector3d& pos_global, const LLColor4& color)
 									 mHUDArrowCenterY - half_arrow_size, 
 									 HUD_ARROW_SIZE, HUD_ARROW_SIZE, 
 									 RAD_TO_DEG * angle, 
-									 LLWorldMapView::sTrackArrowImage->getImage(), 
+									 LLWorldMapView::sTrackArrowImage->getImage().get(), 
 									 color);
 	}
 }

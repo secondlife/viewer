@@ -40,10 +40,11 @@ class LLViewerJointMesh;
 class LLPreviewAnimation : public LLViewerDynamicTexture
 {
 protected:
-	virtual ~LLPreviewAnimation();
 
 public:
+    typedef std::shared_ptr<LLPreviewAnimation> ptr_t;
 	LLPreviewAnimation(S32 width, S32 height);	
+    virtual ~LLPreviewAnimation();
 
 	/*virtual*/ S8 getType() const ;
 
@@ -116,7 +117,7 @@ protected:
 	void			draw();
 	void			resetMotion();
 
-	LLPointer< LLPreviewAnimation > mAnimPreview;
+	LLPreviewAnimation::ptr_t   mAnimPreview;
 	S32					mLastMouseX;
 	S32					mLastMouseY;
 	LLButton*			mPlayButton;

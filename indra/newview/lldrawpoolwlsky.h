@@ -49,7 +49,7 @@ public:
 	/*virtual*/ void endDeferredPass(S32 pass);
 	/*virtual*/ void renderDeferred(S32 pass);
 
-	/*virtual*/ LLViewerTexture *getDebugTexture();
+	/*virtual*/ std::shared_ptr<LLViewerTexture> getDebugTexture();
 	/*virtual*/ void beginRenderPass( S32 pass );
 	/*virtual*/ void endRenderPass( S32 pass );
 	/*virtual*/ S32	 getNumPasses() { return 1; }
@@ -63,7 +63,7 @@ public:
 
 	// Create an empty new instance of the pool.
 	/*virtual*/ LLDrawPoolWLSky *instancePool();  ///< covariant override
-	/*virtual*/ LLViewerTexture* getTexture();
+    /*virtual*/ std::shared_ptr<LLViewerTexture> getTexture();
 	/*virtual*/ BOOL isFacePool() { return FALSE; }
 	/*virtual*/ void resetDrawOrders();
 
@@ -77,7 +77,7 @@ private:
 	void renderHeavenlyBodies();
 
 private:
-	static LLPointer<LLViewerTexture> sCloudNoiseTexture;
+    static std::shared_ptr<LLViewerTexture>   sCloudNoiseTexture;
 	static LLPointer<LLImageRaw> sCloudNoiseRawImage;
 };
 

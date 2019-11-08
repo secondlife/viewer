@@ -62,7 +62,7 @@ const S32 CLIENT_RECT_VPAD = 4;
 LLFloaterOutfitPhotoPreview::LLFloaterOutfitPhotoPreview(const LLSD& key)
 	: LLPreview(key),
 	  mUpdateDimensions(TRUE),
-	  mImage(nullptr),
+	  mTexture(nullptr),
 	  mOutfitID(LLUUID()),
 	  mImageOldBoostLevel(LLGLTexture::BOOST_NONE),
 	  mExceedLimits(FALSE)
@@ -72,10 +72,10 @@ LLFloaterOutfitPhotoPreview::LLFloaterOutfitPhotoPreview(const LLSD& key)
 
 LLFloaterOutfitPhotoPreview::~LLFloaterOutfitPhotoPreview()
 {
-	if (mImage.notNull())
+	if (mTexture)
 	{
-		mImage->setBoostLevel(mImageOldBoostLevel);
-		mImage = nullptr;
+		mTexture->setBoostLevel(mImageOldBoostLevel);
+		mTexture = nullptr;
 	}
 }
 
@@ -107,7 +107,7 @@ void LLFloaterOutfitPhotoPreview::draw()
 		gl_rect_2d( border, LLColor4(0.f, 0.f, 0.f, 1.f));
 		gl_rect_2d_checkerboard( interior );
 
-		if ( mImage.notNull() )
+		if ( mTexture )
 		{
 			// Draw the texture
 			gGL.diffuseColor3f( 1.f, 1.f, 1.f );
@@ -115,15 +115,15 @@ void LLFloaterOutfitPhotoPreview::draw()
 								interior.mBottom,
 								interior.getWidth(),
 								interior.getHeight(),
-								mImage);
+								mTexture.get());
 
 			// Pump the texture priority
 			F32 pixel_area = (F32)(interior.getWidth() * interior.getHeight() );
-			mImage->addTextureStats( pixel_area );
+			mTexture->addTextureStats( pixel_area );
 
 			S32 int_width = interior.getWidth();
 			S32 int_height = interior.getHeight();
-			mImage->setKnownDrawSize(int_width, int_height);
+			mTexture->setKnownDrawSize(int_width, int_height);
 		}
 	} 
 
@@ -159,11 +159,11 @@ void LLFloaterOutfitPhotoPreview::reshape(S32 width, S32 height, BOOL called_fro
 
 void LLFloaterOutfitPhotoPreview::updateDimensions()
 {
-	if (!mImage)
+	if (!mTexture)
 	{
 		return;
 	}
-	if ((mImage->getFullWidth() * mImage->getFullHeight()) == 0)
+	if ((mTexture->getFullWidth() * mTexture->getFullHeight()) == 0)
 	{
 		return;
 	}
@@ -174,10 +174,10 @@ void LLFloaterOutfitPhotoPreview::updateDimensions()
 		mUpdateDimensions = TRUE;
 	}
 	
-	getChild<LLUICtrl>("dimensions")->setTextArg("[WIDTH]",  llformat("%d", mImage->getFullWidth()));
-	getChild<LLUICtrl>("dimensions")->setTextArg("[HEIGHT]", llformat("%d", mImage->getFullHeight()));
+	getChild<LLUICtrl>("dimensions")->setTextArg("[WIDTH]",  llformat("%d", mTexture->getFullWidth()));
+	getChild<LLUICtrl>("dimensions")->setTextArg("[HEIGHT]", llformat("%d", mTexture->getFullHeight()));
 
-	if ((mImage->getFullWidth() <= MAX_OUTFIT_PHOTO_WIDTH) && (mImage->getFullHeight() <= MAX_OUTFIT_PHOTO_HEIGHT))
+	if ((mTexture->getFullWidth() <= MAX_OUTFIT_PHOTO_WIDTH) && (mTexture->getFullHeight() <= MAX_OUTFIT_PHOTO_HEIGHT))
 	{
 		getChild<LLButton>("ok_btn")->setEnabled(TRUE);
 		mExceedLimits = FALSE;
@@ -205,16 +205,16 @@ void LLFloaterOutfitPhotoPreview::updateDimensions()
 
 void LLFloaterOutfitPhotoPreview::loadAsset()
 {
-	if (mImage.notNull())
+	if (mTexture)
 	{
-		mImage->setBoostLevel(mImageOldBoostLevel);
+		mTexture->setBoostLevel(mImageOldBoostLevel);
 	}
     LLViewerTextureManager::FetchParams params;
     params.mBoostPriority = LLGLTexture::BOOST_PREVIEW;
     params.mTextureType = LLViewerTexture::LOD_TEXTURE;
     params.mForceToSaveRaw = true;
 
-	mImage = LLViewerTextureManager::instance().getFetchedTexture(mImageID, params);
+	mTexture = LLViewerTextureManager::instance().getFetchedTexture(mImageID, params);
 	mAssetStatus = PREVIEW_ASSET_LOADING;
 	mUpdateDimensions = TRUE;
 	updateDimensions();
@@ -222,7 +222,7 @@ void LLFloaterOutfitPhotoPreview::loadAsset()
 
 LLPreview::EAssetStatus LLFloaterOutfitPhotoPreview::getAssetStatus()
 {
-	if (mImage.notNull() && (mImage->getFullWidth() * mImage->getFullHeight() > 0))
+	if (mTexture && (mTexture->getFullWidth() * mTexture->getFullHeight() > 0))
 	{
 		mAssetStatus = PREVIEW_ASSET_LOADED;
 	}

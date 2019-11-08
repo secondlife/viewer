@@ -123,7 +123,7 @@ void LLNetMap::setScale( F32 scale )
 	mCurPan *= scale / mScale;
 	mScale = scale;
 	
-	if (mObjectImagep.notNull())
+	if (mObjectImagep)
 	{
 		F32 width = (F32)(getRect().getWidth());
 		F32 height = (F32)(getRect().getHeight());
@@ -156,7 +156,7 @@ void LLNetMap::draw()
 	static LLUIColor map_frustum_color = LLUIColorTable::instance().getColor("MapFrustumColor", LLColor4::white);
 	static LLUIColor map_frustum_rotating_color = LLUIColorTable::instance().getColor("MapFrustumRotatingColor", LLColor4::white);
 	
-	if (mObjectImagep.isNull())
+	if (!mObjectImagep)
 	{
 		createObjectImage();
 	}
@@ -246,7 +246,7 @@ void LLNetMap::draw()
 
 
 			// Draw using texture.
-			gGL.getTexUnit(0)->bind(regionp->getLand().getSTexture());
+			gGL.getTexUnit(0)->bind(regionp->getLand().getSTexture().get());
 			gGL.begin(LLRender::QUADS);
 				gGL.texCoord2f(0.f, 1.f);
 				gGL.vertex2f(left, top);
@@ -263,7 +263,7 @@ void LLNetMap::draw()
 			{
 				if (regionp->getLand().getWaterTexture())
 				{
-					gGL.getTexUnit(0)->bind(regionp->getLand().getWaterTexture());
+					gGL.getTexUnit(0)->bind(regionp->getLand().getWaterTexture().get());
 					gGL.begin(LLRender::QUADS);
 						gGL.texCoord2f(0.f, 1.f);
 						gGL.vertex2f(left, top);
@@ -309,7 +309,7 @@ void LLNetMap::draw()
 		map_center_agent.mV[VX] *= mScale/region_width;
 		map_center_agent.mV[VY] *= mScale/region_width;
 
-		gGL.getTexUnit(0)->bind(mObjectImagep);
+		gGL.getTexUnit(0)->bind(mObjectImagep.get());
 		F32 image_half_width = 0.5f*mObjectMapPixels;
 		F32 image_half_height = 0.5f*mObjectMapPixels;
 
@@ -794,7 +794,7 @@ void LLNetMap::createObjectImage()
 		img_size <<= 1;
 	}
 
-	if( mObjectImagep.isNull() ||
+	if( !mObjectImagep ||
 		(mObjectImagep->getWidth() != img_size) ||
 		(mObjectImagep->getHeight() != img_size) )
 	{

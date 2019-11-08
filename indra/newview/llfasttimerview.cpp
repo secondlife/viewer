@@ -1470,7 +1470,7 @@ void LLFastTimerView::drawBars()
 	const S32 image_width = bar_image->getTextureWidth();
 	const S32 image_height = bar_image->getTextureHeight();
 
-	gGL.getTexUnit(0)->bind(bar_image->getImage());
+	gGL.getTexUnit(0)->bind(bar_image->getImage().get());
 	{	
 		const S32 histmax = (S32)mRecording.getNumRecordedPeriods();
 

@@ -252,7 +252,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 	//----------------------------------------------------------------
 	// setup current texture
 	//----------------------------------------------------------------
-	llassert( !(mTexture.notNull() && mLayerSet) );  // mutually exclusive
+	llassert( !(mTexture && mLayerSet) );  // mutually exclusive
 
 	LLTexUnit::eTextureAddressMode old_mode = LLTexUnit::TAM_WRAP;
 	LLViewerTexLayerSet *layerset = dynamic_cast<LLViewerTexLayerSet*>(mLayerSet);
@@ -274,26 +274,26 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 	{
 		if(	layerset->hasComposite() )
 		{
-			gGL.getTexUnit(diffuse_channel)->bind(layerset->getViewerComposite());
+			gGL.getTexUnit(diffuse_channel)->bind(layerset->getViewerComposite().get());
 		}
 		else
 		{
-			gGL.getTexUnit(diffuse_channel)->bind(LLViewerTextureManager::instance().getFetchedTexture(IMG_DEFAULT));
+			gGL.getTexUnit(diffuse_channel)->bind(LLViewerTextureManager::instance().getFetchedTexture(IMG_DEFAULT).get());
 		}
 	}
 	else
-	if ( !is_dummy && mTexture.notNull() )
+	if ( !is_dummy && mTexture )
 	{
 		if(mTexture->hasGLTexture())
 		{
 			old_mode = mTexture->getAddressMode();
 		}
-		gGL.getTexUnit(diffuse_channel)->bind(mTexture);
+		gGL.getTexUnit(diffuse_channel)->bind(mTexture.get());
 		gGL.getTexUnit(diffuse_channel)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 	}
 	else
 	{
-		gGL.getTexUnit(diffuse_channel)->bind(LLViewerTextureManager::instance().getFetchedTexture(IMG_DEFAULT));
+		gGL.getTexUnit(diffuse_channel)->bind(LLViewerTextureManager::instance().getFetchedTexture(IMG_DEFAULT).get());
 	}
 	
 	
@@ -342,9 +342,9 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 		gGL.getTexUnit(diffuse_channel)->setTextureBlendType(LLTexUnit::TB_MULT);
 	}
 
-	if (mTexture.notNull() && !is_dummy)
+	if (mTexture && !is_dummy)
 	{
-		gGL.getTexUnit(diffuse_channel)->bind(mTexture);
+		gGL.getTexUnit(diffuse_channel)->bind(mTexture.get());
 		gGL.getTexUnit(diffuse_channel)->setTextureAddressMode(old_mode);
 	}
 

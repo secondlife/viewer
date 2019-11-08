@@ -52,6 +52,7 @@
 #include "lltextureatlas.h"
 #include "llviewershadermgr.h"
 #include "llcontrolavatar.h"
+#include "llviewertexturemanager.h"
 
 //#pragma optimize("", off)
 
@@ -134,10 +135,10 @@ LLSpatialGroup::~LLSpatialGroup()
 	clearAtlasList() ;
 }
 
-BOOL LLSpatialGroup::hasAtlas(LLTextureAtlas* atlasp)
+BOOL LLSpatialGroup::hasAtlas(const LLTextureAtlas::ptr_t &atlasp)
 {
 	S8 type = atlasp->getComponents() - 1 ;
-	for(std::list<LLTextureAtlas*>::iterator iter = mAtlasList[type].begin(); iter != mAtlasList[type].end() ; ++iter)
+	for(std::list<LLTextureAtlas::ptr_t>::iterator iter = mAtlasList[type].begin(); iter != mAtlasList[type].end() ; ++iter)
 	{
 		if(atlasp == *iter)
 		{
@@ -147,7 +148,7 @@ BOOL LLSpatialGroup::hasAtlas(LLTextureAtlas* atlasp)
 	return FALSE ;
 }
 
-void LLSpatialGroup::addAtlas(LLTextureAtlas* atlasp, S8 recursive_level) 
+void LLSpatialGroup::addAtlas(const LLTextureAtlas::ptr_t &atlasp, S8 recursive_level) 
 {		
 	if(!hasAtlas(atlasp))
 	{
@@ -166,7 +167,7 @@ void LLSpatialGroup::addAtlas(LLTextureAtlas* atlasp, S8 recursive_level)
 	}	
 }
 
-void LLSpatialGroup::removeAtlas(LLTextureAtlas* atlasp, BOOL remove_group, S8 recursive_level) 
+void LLSpatialGroup::removeAtlas(const LLTextureAtlas::ptr_t &atlasp, BOOL remove_group /*= TRUE*/, S8 recursive_level /*= 3*/) 
 {
 	mAtlasList[atlasp->getComponents() - 1].remove(atlasp) ;
 	if(remove_group)
@@ -187,28 +188,28 @@ void LLSpatialGroup::removeAtlas(LLTextureAtlas* atlasp, BOOL remove_group, S8 r
 
 void LLSpatialGroup::clearAtlasList() 
 {
-	std::list<LLTextureAtlas*>::iterator iter ;
+	std::list<LLTextureAtlas::ptr_t>::iterator iter ;
 	for(S8 i = 0 ; i < 4 ; i++)
 	{
 		if(mAtlasList[i].size() > 0)
 		{
 			for(iter = mAtlasList[i].begin(); iter != mAtlasList[i].end() ; ++iter)
 			{
-				((LLTextureAtlas*)*iter)->removeSpatialGroup(this) ;			
+				(*iter)->removeSpatialGroup(this) ;			
 			}
 			mAtlasList[i].clear() ;
 		}
 	}
 }
 
-LLTextureAtlas* LLSpatialGroup::getAtlas(S8 ncomponents, S8 to_be_reserved, S8 recursive_level)
+LLTextureAtlas::ptr_t LLSpatialGroup::getAtlas(S8 ncomponents, S8 to_be_reserved, S8 recursive_level /*= 3*/)
 {
 	S8 type = ncomponents - 1 ;
 	if(mAtlasList[type].size() > 0)
 	{
-		for(std::list<LLTextureAtlas*>::iterator iter = mAtlasList[type].begin(); iter != mAtlasList[type].end() ; ++iter)
+		for(std::list<LLTextureAtlas::ptr_t>::iterator iter = mAtlasList[type].begin(); iter != mAtlasList[type].end() ; ++iter)
 		{
-			if(!((LLTextureAtlas*)*iter)->isFull(to_be_reserved))
+			if(!(*iter)->isFull(to_be_reserved))
 			{
 				return *iter ;
 			}
@@ -2893,7 +2894,7 @@ void renderShadowFrusta(LLDrawInfo* params)
 void renderTexelDensity(LLDrawable* drawable)
 {
 	if (LLViewerTexture::sDebugTexelsMode == LLViewerTexture::DEBUG_TEXELS_OFF
-		|| LLViewerTexture::sCheckerBoardImagep.isNull())
+		|| !LLViewerTexture::sCheckerBoardImagep)
 	{
 		return;
 	}
@@ -2908,7 +2909,7 @@ void renderTexelDensity(LLDrawable* drawable)
 	{
 		LLFace* facep = drawable->getFace(f);
 		LLVertexBuffer* buffer = facep->getVertexBuffer();
-		LLViewerTexture* texturep = facep->getTexture();
+		LLViewerTexture::ptr_t texturep = facep->getTexture();
 
 		if (texturep == NULL) continue;
 
@@ -2919,7 +2920,7 @@ void renderTexelDensity(LLDrawable* drawable)
 			break;
 		case LLViewerTexture::DEBUG_TEXELS_DESIRED:
 			{
-				LLViewerFetchedTexture* fetched_texturep = dynamic_cast<LLViewerFetchedTexture*>(texturep);
+                LLViewerFetchedTexture::ptr_t fetched_texturep = LLViewerTextureManager::staticCastToFetchedTexture(texturep);
 				discard_level = fetched_texturep ? fetched_texturep->getDesiredDiscardLevel() : -1;
 				break;
 			}
@@ -2931,7 +2932,7 @@ void renderTexelDensity(LLDrawable* drawable)
 
 		checkerboard_matrix.initScale(LLVector3(texturep->getWidth(discard_level) / 8, texturep->getHeight(discard_level) / 8, 1.f));
 
-		gGL.getTexUnit(0)->bind(LLViewerTexture::sCheckerBoardImagep, TRUE);
+		gGL.getTexUnit(0)->bind(LLViewerTexture::sCheckerBoardImagep.get(), TRUE);
 		gGL.matrixMode(LLRender::MM_TEXTURE);
 		gGL.loadMatrix((GLfloat*)&checkerboard_matrix.mMatrix);
 
@@ -3974,7 +3975,7 @@ LLDrawable* LLSpatialPartition::lineSegmentIntersect(const LLVector4a& start, co
 }
 
 LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset, 
-					   LLViewerTexture* texture, LLVertexBuffer* buffer,
+					   const LLViewerTexture::ptr_t &texture, LLVertexBuffer* buffer,
 					   bool selected,
 					   BOOL fullbright, U8 bump, BOOL particle, F32 part_size)
 :	LLTrace::MemTrackableNonVirtual<LLDrawInfo, 16>("LLDrawInfo"),

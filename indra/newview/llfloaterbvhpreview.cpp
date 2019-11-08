@@ -221,7 +221,7 @@ BOOL LLFloaterBvhPreview::postBuild()
 
 	getChildView("bad_animation_text")->setVisible(FALSE);
 
-    mAnimPreview = new LLPreviewAnimation(256, 256);
+    mAnimPreview = std::make_shared<LLPreviewAnimation>(256, 256);
     
 	std::string exten = gDirUtilp->getExtension(mFilename);
 	if (exten == "bvh")
@@ -338,7 +338,7 @@ BOOL LLFloaterBvhPreview::postBuild()
 		}
 		else
 		{
-			mAnimPreview = NULL;
+			mAnimPreview.reset();
 			mMotionID.setNull();
 			getChild<LLUICtrl>("bad_animation_text")->setValue(getString("failed_to_initialize"));
 		}
@@ -364,7 +364,7 @@ BOOL LLFloaterBvhPreview::postBuild()
 
 		//setEnabled(FALSE);
 		mMotionID.setNull();
-		mAnimPreview = NULL;
+		mAnimPreview.reset();
 	}
 
 	refresh();
@@ -379,7 +379,7 @@ BOOL LLFloaterBvhPreview::postBuild()
 //-----------------------------------------------------------------------------
 LLFloaterBvhPreview::~LLFloaterBvhPreview()
 {
-	mAnimPreview = NULL;
+    mAnimPreview.reset();
 
 	setEnabled(FALSE);
 }
@@ -398,7 +398,7 @@ void LLFloaterBvhPreview::draw()
 	{
 		gGL.color3f(1.f, 1.f, 1.f);
 
-		gGL.getTexUnit(0)->bind(mAnimPreview);
+		gGL.getTexUnit(0)->bind(mAnimPreview.get());
 
 		gGL.begin( LLRender::QUADS );
 		{

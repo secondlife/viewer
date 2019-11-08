@@ -111,7 +111,7 @@ public:
     void refreshOutfit(const LLUUID& category_id);
 
     void onTexturePickerCommit(LLTextureCtrl::ETexturePickOp op, LLUUID id);
-    void onTexturePickerUpdateImageStats(LLPointer<LLViewerTexture> texture);
+    void onTexturePickerUpdateImageStats(const LLViewerTexture::ptr_t &texture);
     void onBeforeOutfitSnapshotSave();
     void onAfterOutfitSnapshotSave();
 
@@ -175,7 +175,7 @@ private:
     bool mGalleryCreated;
     int mRowCount;
     int mItemsAddedCount;
-    LLPointer<LLViewerTexture> mTextureSelected;
+    LLViewerTexture::ptr_t  mTextureSelected;
     /* Params */
     int mRowPanelHeight;
     int mVerticalGap;
@@ -276,7 +276,7 @@ public:
     void setHidden(bool hidden) {mHidden = hidden;}
     
 private:
-    LLPointer<LLViewerFetchedTexture> mTexturep;
+    LLViewerFetchedTexture::ptr_t mTexturep;
     LLUUID mUUID;
     LLUUID mImageAssetId;
     LLTextBox* mOutfitNameText;

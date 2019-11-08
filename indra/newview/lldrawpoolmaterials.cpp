@@ -152,14 +152,14 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
 	}
 }
 
-void LLDrawPoolMaterials::bindSpecularMap(LLViewerTexture* tex)
+void LLDrawPoolMaterials::bindSpecularMap(const LLViewerTexture::ptr_t &tex)
 {
-	mShader->bindTexture(LLShaderMgr::SPECULAR_MAP, tex);
+	mShader->bindTexture(LLShaderMgr::SPECULAR_MAP, tex.get());
 }
 
-void LLDrawPoolMaterials::bindNormalMap(LLViewerTexture* tex)
+void LLDrawPoolMaterials::bindNormalMap(const LLViewerTexture::ptr_t &tex)
 {
-	mShader->bindTexture(LLShaderMgr::BUMP_MAP, tex);
+	mShader->bindTexture(LLShaderMgr::BUMP_MAP, tex.get());
 }
 
 void LLDrawPoolMaterials::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures)
@@ -172,9 +172,9 @@ void LLDrawPoolMaterials::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, 
 	{
 		for (U32 i = 0; i < params.mTextureList.size(); ++i)
 		{
-			if (params.mTextureList[i].notNull())
+			if (params.mTextureList[i])
 			{
-				gGL.getTexUnit(i)->bind(params.mTextureList[i], TRUE);
+				gGL.getTexUnit(i)->bind(params.mTextureList[i].get(), TRUE);
 			}
 		}
 	}
@@ -196,9 +196,9 @@ void LLDrawPoolMaterials::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, 
 		
 		if (mVertexShaderLevel > 1 && texture)
 		{
-			if (params.mTexture.notNull())
+			if (params.mTexture)
 			{
-				gGL.getTexUnit(diffuse_channel)->bind(params.mTexture);
+				gGL.getTexUnit(diffuse_channel)->bind(params.mTexture.get());
 				params.mTexture->addTextureStats(params.mVSize);
 			}
 			else

@@ -75,7 +75,7 @@ const F32 PLANE_TICK_SIZE = 0.4f;
 const F32 MANIPULATOR_SCALE_HALF_LIFE = 0.07f;
 const F32 SNAP_ARROW_SCALE = 0.7f;
 
-static LLPointer<LLViewerTexture> sGridTex = NULL ;
+static LLViewerTexture::ptr_t sGridTex = NULL;
 
 const LLManip::EManipPart MANIPULATOR_IDS[9] = 
 {
@@ -129,7 +129,7 @@ LLManipTranslate::LLManipTranslate( LLToolComposite* composite )
 	mPlaneScales(1.f, 1.f, 1.f),
 	mPlaneManipPositions(1.f, 1.f, 1.f, 1.f)
 { 
-	if (sGridTex.isNull())
+	if (!sGridTex)
 	{ 
 		restoreGL();
 	}
@@ -138,12 +138,12 @@ LLManipTranslate::LLManipTranslate( LLToolComposite* composite )
 //static
 U32 LLManipTranslate::getGridTexName()
 {
-	if(sGridTex.isNull())
+	if(!sGridTex)
 	{
 		restoreGL() ;
 	}
 
-	return sGridTex.isNull() ? 0 : sGridTex->getTexName() ;
+	return (!sGridTex) ? 0 : sGridTex->getTexName() ;
 }
 
 //static
@@ -151,7 +151,7 @@ void LLManipTranslate::destroyGL()
 {
 	if (sGridTex)
 	{
-		sGridTex = NULL ;
+		sGridTex.reset();
 	}
 }
 

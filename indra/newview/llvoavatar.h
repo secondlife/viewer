@@ -153,7 +153,7 @@ public:
 	void 						collectTextureUUIDs(std::set<LLUUID>& ids);
 	void						releaseOldTextures();
 	/*virtual*/ void   	 	 	updateTextures();
-	LLViewerFetchedTexture*		getBakedTextureImage(const U8 te, const LLUUID& uuid);
+	LLViewerFetchedTexture::ptr_t   getBakedTextureImage(const U8 te, const LLUUID& uuid);
 	/*virtual*/ S32    	 	 	setTETexture(const U8 te, const LLUUID& uuid); // If setting a baked texture, need to request it from a non-local sim.
 	/*virtual*/ void   	 	 	onShift(const LLVector4a& shift_vector);
 	/*virtual*/ U32    	 	 	getPartitionType() const;
@@ -512,7 +512,7 @@ public:
 private:
 	LLFace* 	mShadow0Facep;
 	LLFace* 	mShadow1Facep;
-	LLPointer<LLViewerTexture> mShadowImagep;
+    LLViewerTexture::ptr_t  mShadowImagep;
 
 	//--------------------------------------------------------------------
 	// Impostors
@@ -635,9 +635,9 @@ protected:
     };
 
 
-    static void		onBakedTextureMasksLoaded(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, const LLTextureMaskData::ptr_t &mask_data);
-    static void		onInitialBakedTextureLoaded(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, LLUUID avatar_id);
-    static void		onBakedTextureLoaded(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, LLUUID avatar_id);
+    static void		onBakedTextureMasksLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, const LLTextureMaskData::ptr_t &mask_data);
+    static void		onInitialBakedTextureLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, LLUUID avatar_id);
+    static void		onBakedTextureLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, LLUUID avatar_id);
 	virtual void	removeMissingBakedTextures();
 	void			useBakedTexture(const LLUUID& id);
 	LLViewerTexLayerSet*  getTexLayerSet(const U32 index) const { return dynamic_cast<LLViewerTexLayerSet*>(mBakedTextureDatas[index].mTexLayerSet);	}
@@ -650,8 +650,8 @@ protected:
 	// Local Textures
 	//--------------------------------------------------------------------
 protected:
-	virtual void	setLocalTexture(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerTexture* tex, BOOL baked_version_exits, U32 index = 0);
-	virtual void	addLocalTextureStats(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerFetchedTexture* imagep, F32 texel_area_ratio, BOOL rendered, BOOL covered_by_baked);
+	virtual void	setLocalTexture(LLAvatarAppearanceDefines::ETextureIndex type, const LLViewerTexture::ptr_t &tex, BOOL baked_version_exits, U32 index = 0);
+	virtual void	addLocalTextureStats(LLAvatarAppearanceDefines::ETextureIndex type, const LLViewerFetchedTexture::ptr_t &imagep, F32 texel_area_ratio, BOOL rendered, BOOL covered_by_baked);
 	// MULTI-WEARABLE: make self-only?
 	virtual void	setBakedReady(LLAvatarAppearanceDefines::ETextureIndex type, BOOL baked_version_exists, U32 index = 0);
 
@@ -659,9 +659,9 @@ protected:
 	// Texture accessors
 	//--------------------------------------------------------------------
 private:
-	virtual	void				setImage(const U8 te, LLViewerTexture *imagep, const U32 index); 
-	virtual LLViewerTexture*	getImage(const U8 te, const U32 index) const;
-	const std::string 			getImageURL(const U8 te, const LLUUID &uuid);
+	virtual	void				    setImage(const U8 te, const LLViewerTexture::ptr_t &imagep, const U32 index); 
+	virtual LLViewerTexture::ptr_t  getImage(const U8 te, const U32 index) const;
+	const std::string 			    getImageURL(const U8 te, const LLUUID &uuid);
 
 	virtual const LLTextureEntry* getTexEntry(const U8 te_num) const;
 	virtual void setTexEntry(const U8 index, const LLTextureEntry &te);
@@ -672,7 +672,7 @@ private:
 	//--------------------------------------------------------------------
 protected:
 	void			deleteLayerSetCaches(bool clearAll = true);
-	void			addBakedTextureStats(LLViewerFetchedTexture* imagep, F32 pixel_area, F32 texel_area_ratio, S32 boost_level);
+	void			addBakedTextureStats(const LLViewerFetchedTexture::ptr_t &imagep, F32 pixel_area, F32 texel_area_ratio, S32 boost_level);
 
 	//--------------------------------------------------------------------
 	// Composites
@@ -719,7 +719,7 @@ public:
 	virtual void	dirtyMesh(); // Dirty the avatar mesh
 	void 			updateMeshData();
 	void			updateMeshVisibility();
-	LLViewerTexture*		getBakedTexture(const U8 te);
+	LLViewerTexture::ptr_t  getBakedTexture(const U8 te);
 
 protected:
 	void 			releaseMeshData();

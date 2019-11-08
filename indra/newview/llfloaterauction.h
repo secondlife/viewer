@@ -75,7 +75,7 @@ private:
 
 	LLTransactionID mTransactionID;
 	LLAssetID mImageID;
-	LLPointer<LLViewerTexture> mImage;
+    LLViewerTexture::ptr_t  mImage;
 	LLSafeHandle<LLParcelSelection> mParcelp;
 	S32 mParcelID;
 	LLHost mParcelHost;

@@ -151,8 +151,8 @@ protected:
 	LLVector3		mTrunkBend;		// Accumulated wind (used for blowing trees)
 	LLVector3		mWind;
 
-	LLPointer<LLVertexBuffer> mReferenceBuffer; //reference geometry for generating tree mesh
-	LLPointer<LLViewerFetchedTexture> mTreeImagep;	// Pointer to proper tree image
+	LLPointer<LLVertexBuffer>       mReferenceBuffer; //reference geometry for generating tree mesh
+    std::shared_ptr<LLViewerFetchedTexture> mTreeImagep;	// Pointer to proper tree image
 
 	U8				mSpecies;		// Species of tree
 	F32				mBranchLength;	// Scale (length) of tree branches

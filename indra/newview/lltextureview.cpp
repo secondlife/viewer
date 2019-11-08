@@ -64,7 +64,7 @@ LLTextureView *gTextureView = NULL;
 #define HIGH_PRIORITY 100000000.f
 
 //static
-std::set<LLViewerFetchedTexture*> LLTextureView::sDebugImages;
+std::set<LLViewerFetchedTexture::ptr_t> LLTextureView::sDebugImages;
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -85,7 +85,7 @@ static S32 texture_bar_height = 8;
 class LLTextureBar : public LLView
 {
 public:
-	LLPointer<LLViewerFetchedTexture> mImagep;
+    LLViewerFetchedTexture::ptr_t   mTexturep;
 	S32 mHilite;
 
 public:
@@ -115,8 +115,8 @@ public:
 		{
 			LLTextureBar* bar1p = (LLTextureBar*)i1;
 			LLTextureBar* bar2p = (LLTextureBar*)i2;
-			LLViewerFetchedTexture *i1p = bar1p->mImagep;
-			LLViewerFetchedTexture *i2p = bar2p->mImagep;
+			LLViewerFetchedTexture::ptr_t i1p = bar1p->mTexturep;
+			LLViewerFetchedTexture::ptr_t i2p = bar2p->mTexturep;
 			F32 pri1 = i1p->getPriority(); // i1p->mRequestedDownloadPriority
 			F32 pri2 = i2p->getPriority(); // i2p->mRequestedDownloadPriority
 			if (pri1 > pri2)
@@ -134,8 +134,8 @@ public:
 		{
 			LLTextureBar* bar1p = (LLTextureBar*)i1;
 			LLTextureBar* bar2p = (LLTextureBar*)i2;
-			LLViewerFetchedTexture *i1p = bar1p->mImagep;
-			LLViewerFetchedTexture *i2p = bar2p->mImagep;
+			LLViewerFetchedTexture::ptr_t i1p = bar1p->mTexturep;
+			LLViewerFetchedTexture::ptr_t i2p = bar2p->mTexturep;
 			U32 pri1 = i1p->getPriority();
 			U32 pri2 = i2p->getPriority();
 			if (pri1 > pri2)
@@ -432,8 +432,9 @@ void LLAvatarTexBar::draw()
 		const LLAvatarAppearanceDefines::EBakedTextureIndex baked_index = baked_iter->first;
 		const LLViewerTexLayerSet *layerset = avatarp->debugGetLayerSet(baked_index);
 		if (!layerset) continue;
-		const LLViewerTexLayerSetBuffer *layerset_buffer = layerset->getViewerComposite();
-		if (!layerset_buffer) continue;
+		const LLViewerTexLayerSetBuffer::ptr_t layerset_buffer = layerset->getViewerComposite();
+		if (!layerset_buffer) 
+            continue;
 
 		LLColor4 text_color = LLColor4::white;
 
@@ -797,7 +798,7 @@ LLTextureView::~LLTextureView()
 	mAvatarTexBar = 0;
 }
 
-typedef std::pair<F32,LLViewerFetchedTexture*> decode_pair_t;
+typedef std::pair<F32,LLViewerFetchedTexture::ptr_t> decode_pair_t;
 struct compare_decode_pair
 {
 	bool operator()(const decode_pair_t& a, const decode_pair_t& b) const
@@ -852,7 +853,7 @@ void LLTextureView::draw()
 		for (LLViewerTextureList::image_priority_list_t::iterator iter = LLViewerTextureList::instance().mImageList.begin();
 			 iter != LLViewerTextureList::instance().mImageList.end(); )
 		{
-			LLPointer<LLViewerFetchedTexture> imagep = *iter++;
+            LLViewerFetchedTexture::ptr_t imagep = *iter++;
 			if(!imagep->hasFetcher())
 			{
 				continue ;
@@ -966,7 +967,7 @@ void LLTextureView::draw()
 		for (display_list_t::iterator iter = display_image_list.begin();
 			 iter != display_image_list.end(); iter++)
 		{
-			LLViewerFetchedTexture* imagep = iter->second;
+			LLViewerFetchedTexture::ptr_t imagep = iter->second;
 			S32 hilite = 0;
 			F32 pri = iter->first;
 			if (pri >= 1 * HIGH_PRIORITY)
@@ -1027,7 +1028,7 @@ void LLTextureView::draw()
 
 }
 
-BOOL LLTextureView::addBar(LLViewerFetchedTexture *imagep, S32 hilite)
+BOOL LLTextureView::addBar(const LLViewerFetchedTexture::ptr_t &imagep, S32 hilite)
 {
 	llassert(imagep);
 	
@@ -1041,7 +1042,7 @@ BOOL LLTextureView::addBar(LLViewerFetchedTexture *imagep, S32 hilite)
 	tbp.rect(r);
 	tbp.texture_view(this);
 	barp = LLUICtrlFactory::create<LLTextureBar>(tbp);
-	barp->mImagep = imagep;	
+	barp->mTexturep = imagep;	
 	barp->mHilite = hilite;
 
 	addChild(barp);

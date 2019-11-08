@@ -971,7 +971,7 @@ void LLPanelEditWearable::onTexturePickerCommit(const LLUICtrl* ctrl)
                 if (entry)
                 {
                     // Set the new version
-                    LLViewerFetchedTexture* image = LLViewerTextureManager::instance().getFetchedTexture(texture_ctrl->getImageAssetID());
+                    LLViewerFetchedTexture::ptr_t image = LLViewerTextureManager::instance().getFetchedTexture(texture_ctrl->getImageAssetID());
                     if( image->getID() == IMG_DEFAULT )
                     {
                             image = LLViewerTextureManager::instance().getFetchedTexture(IMG_DEFAULT_AVATAR);
@@ -1603,7 +1603,7 @@ void LLPanelEditWearable::onInvisibilityCommit(LLCheckBoxCtrl* checkbox_ctrl, LL
                 LLLocalTextureObject *lto = getWearable()->getLocalTextureObject(te);
                 mPreviousAlphaTexture[te] = lto->getID();
                 
-                LLViewerFetchedTexture* image = LLViewerTextureManager::instance().getFetchedTexture( IMG_INVISIBLE );
+                LLViewerFetchedTexture::ptr_t image = LLViewerTextureManager::instance().getFetchedTexture( IMG_INVISIBLE );
 				gAgentAvatarp->setLocalTexture(te, image, FALSE, index);
 				gAgentAvatarp->wearableUpdated(getWearable()->getType());
         }
@@ -1617,7 +1617,7 @@ void LLPanelEditWearable::onInvisibilityCommit(LLCheckBoxCtrl* checkbox_ctrl, LL
                 }
                 if (prev_id.isNull()) return;
                 
-                LLViewerFetchedTexture* image = LLViewerTextureManager::instance().getFetchedTexture(prev_id);
+                LLViewerFetchedTexture::ptr_t image = LLViewerTextureManager::instance().getFetchedTexture(prev_id);
                 if (!image) return;
 
                 gAgentAvatarp->setLocalTexture(te, image, FALSE, index);

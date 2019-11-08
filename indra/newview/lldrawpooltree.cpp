@@ -43,7 +43,7 @@ S32 LLDrawPoolTree::sDiffTex = 0;
 static LLGLSLShader* shader = NULL;
 static LLTrace::BlockTimerStatHandle FTM_SHADOW_TREE("Tree Shadow");
 
-LLDrawPoolTree::LLDrawPoolTree(LLViewerTexture *texturep) :
+LLDrawPoolTree::LLDrawPoolTree(const std::shared_ptr<LLViewerTexture> &texturep) :
 	LLFacePool(POOL_TREE),
 	mTexturep(texturep)
 {
@@ -98,7 +98,7 @@ void LLDrawPoolTree::render(S32 pass)
 	LLGLState test(GL_ALPHA_TEST, LLGLSLShader::sNoFixedFunction ? 0 : 1);
 	LLOverrideFaceColor color(this, 1.f, 1.f, 1.f, 1.f);
 
-	gGL.getTexUnit(sDiffTex)->bind(mTexturep);
+	gGL.getTexUnit(sDiffTex)->bind(mTexturep.get());
 				
 	for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
 		 iter != mDrawFace.end(); iter++)
@@ -209,12 +209,12 @@ BOOL LLDrawPoolTree::verify() const
 	return TRUE;
 }
 
-LLViewerTexture *LLDrawPoolTree::getTexture()
+LLViewerTexture::ptr_t LLDrawPoolTree::getTexture()
 {
 	return mTexturep;
 }
 
-LLViewerTexture *LLDrawPoolTree::getDebugTexture()
+LLViewerTexture::ptr_t LLDrawPoolTree::getDebugTexture()
 {
 	return mTexturep;
 }

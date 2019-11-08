@@ -311,8 +311,8 @@ private:
 	static bool callbackJoinLand(const LLSD& notification, const LLSD& response);
 
 	//void	finishClaim(BOOL user_to_user_sale, U32 join);
-	LLViewerTexture* getBlockedImage() const;
-	LLViewerTexture* getPassImage() const;
+	std::shared_ptr<LLViewerTexture> getBlockedImage() const;
+    std::shared_ptr<LLViewerTexture> getPassImage() const;
 
 private:
 	BOOL						mSelected;
@@ -361,8 +361,8 @@ private:
 	BOOL						mRenderSelection;
 	S32							mCollisionBanned;     
 	LLFrameTimer				mCollisionTimer;
-	LLViewerTexture*			mBlockedImage;
-	LLViewerTexture*			mPassImage;
+    std::shared_ptr<LLViewerTexture>    mBlockedImage;
+    std::shared_ptr<LLViewerTexture>    mPassImage;
 
 	// Media
 	S32 						mMediaParcelId;

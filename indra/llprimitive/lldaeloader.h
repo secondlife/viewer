@@ -53,7 +53,7 @@ public:
 		LLModelLoader::joint_lookup_func_t	joint_lookup_func,
 		LLModelLoader::texture_load_func_t	texture_load_func,
 		LLModelLoader::state_callback_t		state_cb,
-		void*								opaque_userdata,
+        const preview_ptr_t &               model_preview,
 		JointTransformMap&					jointTransformMap,
 		JointNameSet&						jointsFromNodes,
         std::map<std::string, std::string>& jointAliasMap,

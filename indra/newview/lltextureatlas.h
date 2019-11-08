@@ -33,11 +33,11 @@ class LLSpatialGroup ;
 
 class LLTextureAtlas : public LLViewerTexture
 {
-protected:
-	/*virtual*/ ~LLTextureAtlas() ;
-
 public:
+    typedef std::shared_ptr<LLTextureAtlas> ptr_t;
+
 	LLTextureAtlas(U8 ncomponents, S16 atlas_dim = 16) ;	
+    virtual ~LLTextureAtlas();
 
 	/*virtual*/ S8 getType() const;
 

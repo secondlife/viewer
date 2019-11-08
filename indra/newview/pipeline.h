@@ -141,15 +141,15 @@ public:
 
 	/// @brief Get a draw pool from pool type (POOL_SIMPLE, POOL_MEDIA) and texture.
 	/// @return Draw pool, or NULL if not found.
-	LLDrawPool *findPool(const U32 pool_type, LLViewerTexture *tex0 = NULL);
+    LLDrawPool *findPool(const U32 pool_type, const std::shared_ptr<LLViewerTexture> &tex0 = std::shared_ptr<LLViewerTexture>());
 
 	/// @brief Get a draw pool for faces of the appropriate type and texture.  Create if necessary.
 	/// @return Always returns a draw pool.
-	LLDrawPool *getPool(const U32 pool_type, LLViewerTexture *tex0 = NULL);
+    LLDrawPool *getPool(const U32 pool_type, const std::shared_ptr<LLViewerTexture> &tex0 = std::shared_ptr<LLViewerTexture>());
 
 	/// @brief Figures out draw pool type from texture entry. Creates pool if necessary.
-	static LLDrawPool* getPoolFromTE(const LLTextureEntry* te, LLViewerTexture* te_image);
-	static U32 getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* imagep);
+    static LLDrawPool* getPoolFromTE(const LLTextureEntry* te, const std::shared_ptr<LLViewerTexture> &te_image);
+    static U32 getPoolTypeFromTE(const LLTextureEntry* te, const std::shared_ptr<LLViewerTexture> &imagep);
 
 	void		 addPool(LLDrawPool *poolp);	// Only to be used by LLDrawPool classes for splitting pools!
 	void		 removePool( LLDrawPool* poolp );
@@ -206,7 +206,7 @@ public:
 		);
 
 	// Something about these textures has changed.  Dirty them.
-	void        dirtyPoolObjectTextures(const std::set<LLViewerFetchedTexture*>& textures);
+	void        dirtyPoolObjectTextures(const std::set<LLViewerFetchedTexture::ptr_t>& textures);
 
 	void        resetDrawOrders();
 
@@ -839,7 +839,7 @@ protected:
 
 	std::list<DebugBlip> mDebugBlips;
 
-	LLPointer<LLViewerFetchedTexture>	mFaceSelectImagep;
+    LLViewerFetchedTexture::ptr_t   mFaceSelectImagep;
 	
 	U32						mLightMask;
 	U32						mLightMovingMask;

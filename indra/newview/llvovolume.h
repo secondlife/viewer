@@ -188,9 +188,9 @@ public:
 
 	/*virtual*/ void	setScale(const LLVector3 &scale, BOOL damped);
 
-	/*virtual*/ void    changeTEImage(S32 index, LLViewerTexture* new_image)  ;
+	/*virtual*/ void    changeTEImage(S32 index, const LLViewerTexture::ptr_t &new_image)  ;
 	/*virtual*/ void	setNumTEs(const U8 num_tes);
-	/*virtual*/ void	setTEImage(const U8 te, LLViewerTexture *imagep);
+	/*virtual*/ void	setTEImage(const U8 te, const LLViewerTexture::ptr_t &imagep);
 	/*virtual*/ S32		setTETexture(const U8 te, const LLUUID &uuid);
 	/*virtual*/ S32		setTEColor(const U8 te, const LLColor3 &color);
 	/*virtual*/ S32		setTEColor(const U8 te, const LLColor4 &color);
@@ -259,7 +259,7 @@ public:
 	void	updateSpotLightPriority();
 	F32		getSpotLightPriority() const;
 
-	LLViewerTexture* getLightTexture();
+	LLViewerTexture::ptr_t getLightTexture();
 	F32 getLightIntensity() const;
 	F32 getLightRadius() const;
 	F32 getLightFalloff() const;
@@ -400,8 +400,8 @@ private:
 	BOOL		mVolumeChanged;
 	F32			mVObjRadius;
 	LLVolumeInterface *mVolumeImpl;
-	LLPointer<LLViewerFetchedTexture> mSculptTexture;
-	LLPointer<LLViewerFetchedTexture> mLightTexture;
+    LLViewerFetchedTexture::ptr_t   mSculptTexture;
+    LLViewerFetchedTexture::ptr_t   mLightTexture;
 	media_list_t mMediaImplList;
 	S32			mLastFetchedMediaVersion; // as fetched from the server, starts as -1
 	S32 mIndexInTex[LLRender::NUM_VOLUME_TEXTURE_CHANNELS];
@@ -424,8 +424,8 @@ protected:
 	friend class LLVolumeImplFlexible;
 
 public:
-	bool notifyAboutCreatingTexture(LLViewerTexture *texture);
-	bool notifyAboutMissingAsset(LLViewerTexture *texture);
+	bool notifyAboutCreatingTexture(const LLViewerTexture::ptr_t &texture);
+	bool notifyAboutMissingAsset(const LLViewerTexture::ptr_t &texture);
 
 private:
 	struct material_info 

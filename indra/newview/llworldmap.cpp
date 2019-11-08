@@ -92,9 +92,9 @@ void LLSimInfo::setLandForSaleImage (LLUUID image_id)
 	}
 }
 
-LLPointer<LLViewerFetchedTexture> LLSimInfo::getLandForSaleImage () 
+LLViewerFetchedTexture::ptr_t LLSimInfo::getLandForSaleImage()
 {
-	if (mOverlayImage.isNull() && mMapImageID.notNull())
+	if (!mOverlayImage && mMapImageID.notNull())
 	{
         LLViewerTextureManager::FetchParams params;
         params.mBoostPriority = LLGLTexture::BOOST_MAP;
@@ -103,7 +103,7 @@ LLPointer<LLViewerFetchedTexture> LLSimInfo::getLandForSaleImage ()
 		mOverlayImage = LLViewerTextureManager::instance().getFetchedTexture(mMapImageID, params);
 		mOverlayImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 	}
-	if (!mOverlayImage.isNull())
+	if (mOverlayImage)
 	{
 		// Boost the fetch level when we try to access that image
 		mOverlayImage->setBoostLevel(LLGLTexture::BOOST_MAP);
@@ -132,16 +132,16 @@ LLVector3 LLSimInfo::getLocalPos(LLVector3d global_pos) const
 
 void LLSimInfo::clearImage()
 {
-	if (!mOverlayImage.isNull())
+	if (mOverlayImage)
 	{
 		mOverlayImage->setBoostLevel(0);
-		mOverlayImage = NULL;
+		mOverlayImage.reset();
 	}
 }
 
 void LLSimInfo::dropImagePriority()
 {
-	if (!mOverlayImage.isNull())
+	if (mOverlayImage)
 	{
 		mOverlayImage->setBoostLevel(0);
 	}

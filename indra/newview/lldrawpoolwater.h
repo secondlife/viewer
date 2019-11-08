@@ -37,10 +37,10 @@ class LLWaterSurface;
 class LLDrawPoolWater: public LLFacePool
 {
 protected:
-	LLPointer<LLViewerTexture> mHBTex[2];
-	LLPointer<LLViewerTexture> mWaterImagep;
-	LLPointer<LLViewerTexture> mOpaqueWaterImagep;
-	LLPointer<LLViewerTexture> mWaterNormp;
+    std::shared_ptr<LLViewerTexture>  mHBTex[2];
+    std::shared_ptr<LLViewerTexture>  mWaterImagep;
+    std::shared_ptr<LLViewerTexture>  mOpaqueWaterImagep;
+    std::shared_ptr<LLViewerTexture>  mWaterNormp;
 
 public:
 	static BOOL sSkipScreenCopy;
@@ -77,7 +77,7 @@ public:
 	/*virtual*/ void render(S32 pass = 0);
 	/*virtual*/ void prerender();
 
-	/*virtual*/ LLViewerTexture *getDebugTexture();
+    /*virtual*/ std::shared_ptr<LLViewerTexture> getDebugTexture();
 	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
 
 	void renderReflection(LLFace* face);

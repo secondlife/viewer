@@ -108,11 +108,12 @@ public:
 	typedef std::vector<class LLFace*> ll_face_list_t;
 	typedef std::vector<LLVOVolume*> ll_volume_list_t;
 
+    typedef std::shared_ptr<LLViewerTexture>    ptr_t;
 
 protected:
-	virtual ~LLViewerTexture();
 	LOG_CLASS(LLViewerTexture);
 
+                // note this is not virtual.  Hidden by subclasses that return their own type.
 public:	
 	static void initClass();
 	static void updateClass(const F32 velocity, const F32 angular_velocity) ;
@@ -121,6 +122,7 @@ public:
 	LLViewerTexture(const LLUUID& id, BOOL usemipmaps) ;
 	LLViewerTexture(const LLImageRaw* raw, BOOL usemipmaps) ;
 	LLViewerTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps) ;
+    virtual ~LLViewerTexture();
 
 	virtual S8 getType() const override;
 	virtual bool            isMissingAsset() const;
@@ -190,6 +192,8 @@ private:
 	static bool isMemoryForTextureSuficientlyFree();
 	static void getGPUMemoryForTextures(S32Megabytes &gpu, S32Megabytes &physical);
 
+    ptr_t       getSharedPointer() { return std::static_pointer_cast<LLViewerTexture>(shared_from_this()); }
+
 protected:
 	LLUUID mID;
 	S32 mTextureListType; // along with mID identifies where to search for this texture in TextureList
@@ -244,9 +248,9 @@ public:
 
 	static EDebugTexels sDebugTexelsMode;
 
-	static LLPointer<LLViewerTexture> sNullImagep; // Null texture for non-textured objects.
-	static LLPointer<LLViewerTexture> sBlackImagep;	// Texture to show NOTHING (pure black)
-	static LLPointer<LLViewerTexture> sCheckerBoardImagep;	// Texture to show NOTHING (pure black)
+    static LLViewerTexture::ptr_t sNullImagep; // Null texture for non-textured objects.
+    static LLViewerTexture::ptr_t sBlackImagep;	// Texture to show NOTHING (pure black)
+    static LLViewerTexture::ptr_t sCheckerBoardImagep;	// Texture to show NOTHING (pure black)
 };
 
 
@@ -263,31 +267,32 @@ class LLViewerFetchedTexture : public LLViewerTexture
 	friend class LLTextureBar; // debug info only
 	friend class LLTextureView; // debug info only
 public:
-    typedef std::function<void(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done)>  loaded_cb_fn;
+    typedef std::shared_ptr<LLViewerFetchedTexture> ptr_t;
+    typedef std::function<void(bool success, ptr_t &src_vi, bool final_done)>  loaded_cb_fn;
     typedef boost::signals2::connection     connection_t;
     typedef std::set<connection_t>          connection_list_t;  // convenience for collection multiple connections.
 
+    /*TODO*/ // I don't think this is still used
     struct Compare
     {
         // lhs < rhs
-        bool operator()(const LLPointer<LLViewerFetchedTexture> &lhs, const LLPointer<LLViewerFetchedTexture> &rhs) const
+        bool operator()(const ptr_t &lhs, const ptr_t &rhs) const
         {
-            const LLViewerFetchedTexture* lhsp = (const LLViewerFetchedTexture*)lhs;
-            const LLViewerFetchedTexture* rhsp = (const LLViewerFetchedTexture*)rhs;
             // greater priority is "less"
-            const F32 lpriority = lhsp->getPriority();
-            const F32 rpriority = rhsp->getPriority();
+            const F32 lpriority = lhs->getPriority();
+            const F32 rpriority = rhs->getPriority();
             if (lpriority > rpriority) // higher priority
                 return true;
             if (lpriority < rpriority)
                 return false;
-            return lhsp < rhsp;
+            return lhs < rhs;
         }
     };
 
 	LLViewerFetchedTexture(const LLUUID& id, FTType f_type, BOOL usemipmaps = TRUE);
 	LLViewerFetchedTexture(const LLImageRaw* raw, FTType f_type, BOOL usemipmaps);
 	LLViewerFetchedTexture(const std::string& url, FTType f_type, const LLUUID& id, BOOL usemipmaps = TRUE);
+    virtual                     ~LLViewerFetchedTexture();
 
     virtual S8                  getType() const override        { return LLViewerTexture::FETCHED_TEXTURE; }
     FTType                      getFTType() const               { return mFTType; }
@@ -320,10 +325,9 @@ public:
     connection_t                addCallback(loaded_cb_fn cb);
 
 protected:
-    virtual                     ~LLViewerFetchedTexture();
-
+        
 private:
-    typedef boost::signals2::signal<void(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done)> texture_done_signal_t;
+    typedef boost::signals2::signal<void(bool success, ptr_t &src_vi, bool final_done)> texture_done_signal_t;
 
     FTType                      mFTType;            // What category of image is this - map tile, server bake, etc?
     bool                        mIsMissingAsset;    // True if we know that there is no image asset with this image id in the database.		
@@ -340,6 +344,9 @@ private:
 
     texture_done_signal_t       mAssetDoneSignal;
 
+                                // note this is not virtual!
+    ptr_t                       getSharedPointer() { return std::static_pointer_cast<LLViewerFetchedTexture>(shared_from_this()); }
+
     void                        init(bool firstinit);
     void                        cleanup();
 
@@ -348,19 +355,7 @@ private:
 public:
 	virtual void dump() override;
 
-	// Set callbacks to get called when the image gets updated with higher 
-	// resolution versions.
-// 	void setLoadedCallback(loaded_callback_func cb,
-// 						   S32 discard_level, BOOL keep_imageraw, BOOL needs_aux,
-// 						   void* userdata, LLLoadedCallbackEntry::source_callback_list_t* src_callback_list, BOOL pause = FALSE);
-// 	void pauseLoadedCallbacks(const LLLoadedCallbackEntry::source_callback_list_t* callback_list);
-// 	void unpauseLoadedCallbacks(const LLLoadedCallbackEntry::source_callback_list_t* callback_list);
-// 	bool doLoadedCallbacks();
-// 	void deleteCallbackEntry(const LLLoadedCallbackEntry::source_callback_list_t* callback_list);
-// 	void clearCallbackEntryList() ;
-
 	void addToCreateTexture();
-
 
 	 // ONLY call from LLViewerTextureList
 	BOOL createTexture(S32 usename = 0);
@@ -370,9 +365,6 @@ public:
 
 	F32  calcDecodePriority() ;
 
-	// Set the decode priority for this image...
-	// DON'T CALL THIS UNLESS YOU KNOW WHAT YOU'RE DOING, it can mess up
-	// the priority list, and cause horrible things to happen.
 	F32 getAdditionalDecodePriority() const { return mAdditionalDecodePriority; };
 
 	void setAdditionalDecodePriority(F32 priority) ;
@@ -528,11 +520,11 @@ protected:
     void    handleTextureLoadCancel(const LLAssetFetch::AssetRequest::ptr_t &);
 
 public:
-	static LLPointer<LLViewerFetchedTexture> sMissingAssetImagep;	// Texture to show for an image asset that is not in the database
-	static LLPointer<LLViewerFetchedTexture> sWhiteImagep;	// Texture to show NOTHING (whiteness)
-	static LLPointer<LLViewerFetchedTexture> sDefaultImagep; // "Default" texture for error cases, the only case of fetched texture which is generated in local.
-	static LLPointer<LLViewerFetchedTexture> sSmokeImagep; // Old "Default" translucent texture
-	static LLPointer<LLViewerFetchedTexture> sFlatNormalImagep; // Flat normal map denoting no bumpiness on a surface
+    static ptr_t sMissingAssetImagep;	// Texture to show for an image asset that is not in the database
+	static ptr_t sWhiteImagep;	// Texture to show NOTHING (whiteness)
+	static ptr_t sDefaultImagep; // "Default" texture for error cases, the only case of fetched texture which is generated in local.
+	static ptr_t sSmokeImagep; // Old "Default" translucent texture
+	static ptr_t sFlatNormalImagep; // Flat normal map denoting no bumpiness on a surface
 };
 
 //
@@ -541,12 +533,12 @@ public:
 //
 class LLViewerLODTexture : public LLViewerFetchedTexture
 {
-protected:
-	/*virtual*/ ~LLViewerLODTexture(){}
-
 public:
+    std::shared_ptr<LLViewerLODTexture> ptr_t;
+
 	LLViewerLODTexture(const LLUUID& id, FTType f_type, BOOL usemipmaps = TRUE);
 	LLViewerLODTexture(const std::string& url, FTType f_type, const LLUUID& id, BOOL usemipmaps = TRUE);
+    virtual ~LLViewerLODTexture(){}
 
 	virtual S8 getType() const override;
 	// Process image stats to determine priority/quality requirements.
@@ -568,11 +560,10 @@ private:
 //
 class LLViewerMediaTexture : public LLViewerTexture
 {
-protected:
-	/*virtual*/ ~LLViewerMediaTexture() ;
-
 public:
-	LLViewerMediaTexture(const LLUUID& id, BOOL usemipmaps = TRUE, LLImageGL* gl_image = NULL) ;
+    typedef std::shared_ptr<LLViewerMediaTexture> ptr_t;
+	LLViewerMediaTexture(const LLUUID& id, BOOL usemipmaps = TRUE, LLImageGL* gl_image = nullptr) ;
+    virtual ~LLViewerMediaTexture();
 
 	virtual S8 getType() const override;
 	void reinit(BOOL usemipmaps = TRUE);	
@@ -600,7 +591,6 @@ private:
 	void stopPlaying() ;
 
 private:
-	//
 	//an instant list, recording all faces referencing or can reference to this media texture.
 	//NOTE: it is NOT thread safe. 
 	//
@@ -608,22 +598,25 @@ private:
 
 	//an instant list keeping all textures which are replaced by the current media texture,
 	//is only used to avoid the removal of those textures from memory.
-	std::list< LLPointer<LLViewerTexture> > mTextureList ;
+    std::list< LLViewerTexture::ptr_t > mTextureList;
 
 	LLViewerMediaImpl* mMediaImplp ;	
 	BOOL mIsPlaying ;
 	U32  mUpdateVirtualSizeTime ;
 
+    // note this is not virtual!
+    ptr_t getSharedPointer() { return std::static_pointer_cast<LLViewerMediaTexture>(shared_from_this()); }
+
 public:
 	static void updateClass() ;
 	static void cleanUpClass() ;	
 
-	static LLViewerMediaTexture* findMediaTexture(const LLUUID& media_id) ;
-	static void removeMediaImplFromTexture(const LLUUID& media_id) ;
+// 	static LLViewerMediaTexture::ptr_t findMediaTexture(const LLUUID& media_id) ;
+// 	static void removeMediaImplFromTexture(const LLUUID& media_id) ;
 
 private:
-	typedef std::map< LLUUID, LLPointer<LLViewerMediaTexture> > media_map_t ;
-	static media_map_t sMediaMap ;	
+// 	typedef std::map< LLUUID, LLViewerMediaTexture::ptr_t> media_map_t ;
+// 	static media_map_t sMediaMap ;	
 };
 
 #endif

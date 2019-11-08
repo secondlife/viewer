@@ -826,14 +826,14 @@ public:
 			if (objectp && !objectp->isDead())
 			{
 				S32 num_faces = objectp->mDrawable->getNumFaces() ;
-				std::set<LLViewerFetchedTexture*> tex_list;
+				std::set<LLViewerFetchedTexture::ptr_t> tex_list;
 
 				for(S32 i = 0 ; i < num_faces; i++)
 				{
 					LLFace* facep = objectp->mDrawable->getFace(i) ;
 					if(facep)
 					{						
-						LLViewerFetchedTexture* tex = dynamic_cast<LLViewerFetchedTexture*>(facep->getTexture()) ;
+						LLViewerFetchedTexture::ptr_t tex = LLViewerTextureManager::staticCastToFetchedTexture(facep->getTexture()) ;
 						if(tex)
 						{
 							if(tex_list.find(tex) != tex_list.end())
@@ -5641,8 +5641,8 @@ void LLPickInfo::updateXYCoords()
 	if (mObjectFace > -1)
 	{
 		const LLTextureEntry* tep = getObject()->getTE(mObjectFace);
-		LLPointer<LLViewerTexture> imagep = LLViewerTextureManager::instance().getFetchedTexture(tep->getID());
-		if(mUVCoords.mV[VX] >= 0.f && mUVCoords.mV[VY] >= 0.f && imagep.notNull())
+        LLViewerTexture::ptr_t imagep = LLViewerTextureManager::instance().getFetchedTexture(tep->getID());
+		if(mUVCoords.mV[VX] >= 0.f && mUVCoords.mV[VY] >= 0.f && imagep)
 		{
 			mXYCoords.mX = ll_round(mUVCoords.mV[VX] * (F32)imagep->getWidth());
 			mXYCoords.mY = ll_round((1.f - mUVCoords.mV[VY]) * (F32)imagep->getHeight());

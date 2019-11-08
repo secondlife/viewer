@@ -71,11 +71,11 @@ LLDrawPoolWater::LLDrawPoolWater() :
     body_params.mFTType = FTT_DEFAULT;
     body_params.mBoostPriority = LLGLTexture::BOOST_UI;
 	mHBTex[0] = LLViewerTextureManager::instance().getFetchedTexture(gSunTextureID, body_params);
-	gGL.getTexUnit(0)->bind(mHBTex[0]) ;
+	gGL.getTexUnit(0)->bind(mHBTex[0].get()) ;
 	mHBTex[0]->setAddressMode(LLTexUnit::TAM_CLAMP);
 
     mHBTex[1] = LLViewerTextureManager::instance().getFetchedTexture(gMoonTextureID, body_params);
-	gGL.getTexUnit(0)->bind(mHBTex[1]);
+	gGL.getTexUnit(0)->bind(mHBTex[1].get());
 	mHBTex[1]->setAddressMode(LLTexUnit::TAM_CLAMP);
 
 
@@ -210,7 +210,7 @@ void LLDrawPoolWater::render(S32 pass)
 	mWaterImagep->addTextureStats(1024.f*1024.f);
 	gGL.getTexUnit(1)->activate();
 	gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(1)->bind(mWaterImagep) ;
+	gGL.getTexUnit(1)->bind(mWaterImagep.get()) ;
 
 	LLVector3 camera_up = LLViewerCamera::getInstance()->getUpAxis();
 	F32 up_dot = camera_up * LLVector3::z_axis;
@@ -259,7 +259,7 @@ void LLDrawPoolWater::render(S32 pass)
 		{
 			continue;
 		}
-		gGL.getTexUnit(0)->bind(face->getTexture());
+		gGL.getTexUnit(0)->bind(face->getTexture().get());
 		face->renderIndexed();
 	}
 
@@ -372,7 +372,7 @@ void LLDrawPoolWater::renderOpaqueLegacyWater()
 	// texture since all images will have the same texture
 	gGL.getTexUnit(0)->activate();
 	gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(0)->bind(mOpaqueWaterImagep);
+	gGL.getTexUnit(0)->bind(mOpaqueWaterImagep.get());
 
 	// Automatically generate texture coords for water texture
 	if (!shader)
@@ -465,7 +465,7 @@ void LLDrawPoolWater::renderReflection(LLFace* face)
 
 	LLGLSNoFog noFog;
 
-	gGL.getTexUnit(0)->bind(mHBTex[dr]);
+	gGL.getTexUnit(0)->bind(mHBTex[dr].get());
 
 	LLOverrideFaceColor override(this, LLColor4(face->getFaceColor().mV));
 	face->renderIndexed();
@@ -578,7 +578,7 @@ void LLDrawPoolWater::shade()
 	}
 
 	mWaterNormp->addTextureStats(1024.f*1024.f);
-	gGL.getTexUnit(bumpTex)->bind(mWaterNormp) ;
+	gGL.getTexUnit(bumpTex)->bind(mWaterNormp.get()) ;
 	if (gSavedSettings.getBOOL("RenderWaterMipNormal"))
 	{
 		mWaterNormp->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
@@ -679,7 +679,7 @@ void LLDrawPoolWater::shade()
 			}
 
 			LLVOWater* water = (LLVOWater*) face->getViewerObject();
-			gGL.getTexUnit(diffTex)->bind(face->getTexture());
+			gGL.getTexUnit(diffTex)->bind(face->getTexture().get());
 
 			sNeedsReflectionUpdate = TRUE;
 			
@@ -725,7 +725,7 @@ void LLDrawPoolWater::shade()
 
 }
 
-LLViewerTexture *LLDrawPoolWater::getDebugTexture()
+LLViewerTexture::ptr_t LLDrawPoolWater::getDebugTexture()
 {
 	return LLViewerFetchedTexture::sSmokeImagep;
 }

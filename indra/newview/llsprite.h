@@ -76,7 +76,7 @@ public:
 
 public:
 	LLUUID mImageID;
-  	LLPointer<LLViewerTexture> mImagep;
+    LLViewerTexture::ptr_t  mImagep;
 private:
 	F32 mWidth;
 	F32 mHeight;

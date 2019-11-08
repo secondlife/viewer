@@ -50,7 +50,7 @@
 // Stub image calls
 void LLGLTexture::setBoostLevel(S32 ) { }
 void LLGLTexture::setAddressMode(LLTexUnit::eTextureAddressMode ) { }
-LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::getFetchedTexture(const LLUUID&, const LLViewerTextureManager::FetchParams &) { return nullptr; }
+LLViewerFetchedTexture::ptr_t LLViewerTextureManager::getFetchedTexture(const LLUUID&, const LLViewerTextureManager::FetchParams &) { return LLViewerFetchedTexture::ptr_t(); }
 void LLViewerTextureManager::initSingleton() { }
 void LLViewerTextureManager::cleanupSingleton() { }
 
@@ -65,7 +65,7 @@ LLWorldMipmap::~LLWorldMipmap() { }
 void LLWorldMipmap::reset() { }
 void LLWorldMipmap::dropBoostLevels() { }
 void LLWorldMipmap::equalizeBoostLevels() { }
-LLPointer<LLViewerFetchedTexture> LLWorldMipmap::getObjectsTile(U32 grid_x, U32 grid_y, S32 level, bool load) { return NULL; }
+LLViewerFetchedTexture::ptr_t LLWorldMipmap::getObjectsTile(U32 grid_x, U32 grid_y, S32 level, bool load) { return LLViewerFetchedTexture::ptr_t(); }
 
 // Stub other stuff
 std::string LLTrans::getString(const std::string &, const LLStringUtil::format_map_t&, bool def_string) { return std::string("test_trans"); }
@@ -237,8 +237,8 @@ namespace tut
 		// Test 9 : setLandForSaleImage() / getLandForSaleImage()
 		LLUUID id;
 		mSim->setLandForSaleImage(id);
-		LLPointer<LLViewerFetchedTexture> image = mSim->getLandForSaleImage();
-		ensure("LLSimInfo::getLandForSaleImage() test failed", image.isNull());
+        LLViewerFetchedTexture::ptr_t image = mSim->getLandForSaleImage();
+		ensure("LLSimInfo::getLandForSaleImage() test failed", !image);
 		// Test 10 : isPG()
 		mSim->setAccess(SIM_ACCESS_PG);
 		ensure("LLSimInfo::isPG() test failed", mSim->isPG());
@@ -370,8 +370,8 @@ namespace tut
  		}
 		// Test 7 : getObjectsTile()
 		try {
-			LLPointer<LLViewerFetchedTexture> image = mWorld->getObjectsTile((U32)(X_WORLD_TEST/REGION_WIDTH_METERS), (U32)(Y_WORLD_TEST/REGION_WIDTH_METERS), 1);
-			ensure("LLWorldMap::getObjectsTile() failed", image.isNull());
+            LLViewerFetchedTexture::ptr_t image = mWorld->getObjectsTile((U32)(X_WORLD_TEST / REGION_WIDTH_METERS), (U32)(Y_WORLD_TEST / REGION_WIDTH_METERS), 1);
+			ensure("LLWorldMap::getObjectsTile() failed", !image);
 		} catch (...) {
 			fail("LLWorldMap::getObjectsTile() test failed with exception");
 		}

@@ -31,12 +31,12 @@
 #include "llstring.h"
 #include "lltextureentry.h"
 #include "lluuid.h"
+#include "llviewertexture.h"
 
 class LLImageRaw;
 class LLSpatialGroup;
 class LLDrawInfo;
 class LLGLSLShader;
-class LLViewerFetchedTexture;
 
 class LLDrawPoolBump : public LLRenderPass
 {
@@ -91,7 +91,7 @@ public:
 	static BOOL bindBumpMap(LLFace* face, S32 channel = -2);
 
 private:
-	static BOOL bindBumpMap(U8 bump_code, LLViewerTexture* tex, F32 vsize, S32 channel);
+	static BOOL bindBumpMap(U8 bump_code, const LLViewerTexture::ptr_t &tex, F32 vsize, S32 channel);
 
 };
 
@@ -114,7 +114,7 @@ public:
 	LLStandardBumpmap( const std::string& label ) : mLabel(label) {}
 	
 	std::string	mLabel;
-	LLPointer<LLViewerFetchedTexture> mImage;
+	std::shared_ptr<LLViewerFetchedTexture> mTexture;
 
 	static	U32 sStandardBumpmapCount;  // Number of valid values in gStandardBumpmapList[]
 
@@ -130,7 +130,7 @@ public:
 extern LLStandardBumpmap gStandardBumpmapList[TEM_BUMPMAP_COUNT];
 
 ////////////////////////////////////////////////////////////////
-// List of one-component bump-maps created from other texures.
+// List of one-component bump-maps created from other textures.
 
 struct LLBumpImageEntry;
 
@@ -142,26 +142,24 @@ public:
 
 	void		init();
 	void		shutdown();
-	void            clear();
-	void		destroyGL();
+	void        clear();
+	void        destroyGL();
 	void		restoreGL();
 	void		updateImages();
 
 
-	LLViewerTexture*	getBrightnessDarknessImage(LLViewerFetchedTexture* src_image, U8 bump_code);
+	LLViewerTexture::ptr_t  getBrightnessDarknessImage(const LLViewerFetchedTexture::ptr_t &src_image, U8 bump_code);
 	void		addTextureStats(U8 bump, const LLUUID& base_image_id, F32 virtual_size);
 
-// 	static void onSourceBrightnessLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata );
-// 	static void onSourceDarknessLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata );
-    static void onSourceStandardLoaded(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done);
+    static void onSourceStandardLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done);
 	static void generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nrm_image);
 
 
 private:
-    static void onSourceLoaded(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, EBumpEffect bump_code);
+    static void onSourceLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, EBumpEffect bump_code);
 
 private:
-	typedef std::map<LLUUID, LLPointer<LLViewerTexture> > bump_image_map_t;
+	typedef std::map<LLUUID, LLViewerTexture::ptr_t> bump_image_map_t;
 	bump_image_map_t mBrightnessEntries;
 	bump_image_map_t mDarknessEntries;
 };

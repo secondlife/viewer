@@ -106,7 +106,7 @@ public:
 private:
 	LLTexLayerParamAlpha(const LLTexLayerParamAlpha& pOther);
 
-	LLPointer<LLGLTexture>	mCachedProcessedTexture;
+	std::shared_ptr<LLGLTexture>    mCachedProcessedTexture;
 	LLPointer<LLImageTGA>	mStaticImageTGA;
 	LLPointer<LLImageRaw>	mStaticImageRaw;
 	BOOL					mNeedsCreateTexture;

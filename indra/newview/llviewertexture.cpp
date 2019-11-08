@@ -65,15 +65,14 @@
 
 
 // statics
-LLPointer<LLViewerTexture>        LLViewerTexture::sNullImagep = NULL;
-LLPointer<LLViewerTexture>        LLViewerTexture::sBlackImagep = NULL;
-LLPointer<LLViewerTexture>        LLViewerTexture::sCheckerBoardImagep = NULL;
-LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sMissingAssetImagep = NULL;
-LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sWhiteImagep = NULL;
-LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sDefaultImagep = NULL;
-LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sSmokeImagep = NULL;
-LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sFlatNormalImagep = NULL;
-LLViewerMediaTexture::media_map_t LLViewerMediaTexture::sMediaMap;
+LLViewerTexture::ptr_t        LLViewerTexture::sNullImagep = NULL;
+LLViewerTexture::ptr_t        LLViewerTexture::sBlackImagep = NULL;
+LLViewerTexture::ptr_t        LLViewerTexture::sCheckerBoardImagep = NULL;
+LLViewerFetchedTexture::ptr_t LLViewerFetchedTexture::sMissingAssetImagep = NULL;
+LLViewerFetchedTexture::ptr_t LLViewerFetchedTexture::sWhiteImagep = NULL;
+LLViewerFetchedTexture::ptr_t LLViewerFetchedTexture::sDefaultImagep = NULL;
+LLViewerFetchedTexture::ptr_t LLViewerFetchedTexture::sSmokeImagep = NULL;
+LLViewerFetchedTexture::ptr_t LLViewerFetchedTexture::sFlatNormalImagep = NULL;
 
 const std::string sTesterName("TextureTester");
 
@@ -411,7 +410,7 @@ void LLViewerTexture::notifyAboutCreatingTexture()
 	{
 		for(U32 f = 0; f < mNumFaces[ch]; f++)
 		{
-			mFaceList[ch][f]->notifyAboutCreatingTexture(this);
+			mFaceList[ch][f]->notifyAboutCreatingTexture(getSharedPointer());
 		}
 	}
 }
@@ -422,7 +421,7 @@ void LLViewerTexture::notifyAboutMissingAsset()
 	{
 		for(U32 f = 0; f < mNumFaces[ch]; f++)
 		{
-			mFaceList[ch][f]->notifyAboutMissingAsset(this);
+			mFaceList[ch][f]->notifyAboutMissingAsset(getSharedPointer());
 		}
 	}
 }
@@ -466,9 +465,9 @@ bool LLViewerTexture::bindDebugImage(const S32 stage)
 	if (stage < 0) return false;
 
 	bool res = true;
-	if (LLViewerTexture::sCheckerBoardImagep.notNull() && (this != LLViewerTexture::sCheckerBoardImagep.get()))
+	if (LLViewerTexture::sCheckerBoardImagep && (this != LLViewerTexture::sCheckerBoardImagep.get()))
 	{
-		res = gGL.getTexUnit(stage)->bind(LLViewerTexture::sCheckerBoardImagep);
+		res = gGL.getTexUnit(stage)->bind(LLViewerTexture::sCheckerBoardImagep.get());
 	}
 
 	if(!res)
@@ -484,14 +483,14 @@ bool LLViewerTexture::bindDefaultImage(S32 stage)
 	if (stage < 0) return false;
 
 	bool res = true;
-	if (LLViewerFetchedTexture::sDefaultImagep.notNull() && (this != LLViewerFetchedTexture::sDefaultImagep.get()))
+	if (LLViewerFetchedTexture::sDefaultImagep && (this != LLViewerFetchedTexture::sDefaultImagep.get()))
 	{
 		// use default if we've got it
-		res = gGL.getTexUnit(stage)->bind(LLViewerFetchedTexture::sDefaultImagep);
+		res = gGL.getTexUnit(stage)->bind(LLViewerFetchedTexture::sDefaultImagep.get());
 	}
-	if (!res && LLViewerTexture::sNullImagep.notNull() && (this != LLViewerTexture::sNullImagep))
+	if (!res && LLViewerTexture::sNullImagep && (this != LLViewerTexture::sNullImagep.get()))
 	{
-		res = gGL.getTexUnit(stage)->bind(LLViewerTexture::sNullImagep);
+		res = gGL.getTexUnit(stage)->bind(LLViewerTexture::sNullImagep.get());
 	}
 	if (!res)
 	{
@@ -864,8 +863,7 @@ void LLViewerFetchedTexture::cleanup()
     if (!mIsFinal && !mAssetDoneSignal.empty())
     {   // We are cleaning up and have outstanding callbacks.  Signal a cancel 
         // (success = false, final = true)
-        LLPointer<LLViewerFetchedTexture> self(this);
-        mAssetDoneSignal(false, self, true);
+        mAssetDoneSignal(false, getSharedPointer(), true);
         mAssetDoneSignal.disconnect_all_slots();
     }
 
@@ -1853,8 +1851,7 @@ void LLViewerFetchedTexture::onTextureFetchComplete(const LLAssetFetch::AssetReq
 
     if (!mAssetDoneSignal.empty())
     {
-        LLPointer<LLViewerFetchedTexture> self(this);
-        mAssetDoneSignal(mSuccess, self, mIsFinal);
+        mAssetDoneSignal(mSuccess, getSharedPointer(), mIsFinal);
         if (mIsFinal)
         {   // no more call backs after "final"
             mAssetDoneSignal.disconnect_all_slots();
@@ -2084,7 +2081,7 @@ void LLViewerFetchedTexture::switchToCachedImage()
 			// objects using this pool to a different pool.
 			mComponents = mRawImage->getComponents();
 			mGLTexturep->setComponents(mComponents);
-			LLViewerTextureManager::instance().setTextureDirty(LLPointer<LLViewerFetchedTexture>(this));
+			LLViewerTextureManager::instance().setTextureDirty(getSharedPointer());
 		}			
 
 		mIsRawImageValid = TRUE;
@@ -2187,7 +2184,7 @@ void LLViewerFetchedTexture::saveRawImage()
     }
 
     // Tell the texture manager that we might have a saved raw image.
-    LLViewerTextureManager::instance().updatedSavedRaw(this);
+    LLViewerTextureManager::instance().updatedSavedRaw(getSharedPointer());
 
 	if(mForceToSaveRawImage && mSavedRawDiscardLevel <= mDesiredSavedRawDiscardLevel)
 	{
@@ -2295,7 +2292,7 @@ LLViewerFetchedTexture::connection_t LLViewerFetchedTexture::addCallback(LLViewe
     }
 
 //     LL_DEBUGS("TEXTURE") << "Texture all ready done for " << mID << ".  Calling cb directly." << LL_ENDL;
-//     cb(mSuccess, LLPointer<LLViewerFetchedTexture>(this), true);
+//     cb(mSuccess, shared_from_this(), true);
     return connection_t();
 
 }
@@ -2523,65 +2520,52 @@ void LLViewerMediaTexture::updateClass()
 	gSavedSettings.setBOOL("AudioStreamingMedia", true);
 #endif
 
-	for(media_map_t::iterator iter = sMediaMap.begin(); iter != sMediaMap.end(); )
-	{
-		LLViewerMediaTexture* mediap = iter->second;	
-		
-		if(mediap->getNumRefs() == 1) //one reference by sMediaMap
-		{
-			//
-			//Note: delay some time to delete the media textures to stop endlessly creating and immediately removing media texture.
-			//
-			if(mediap->getLastReferencedTimer()->getElapsedTimeF32() > MAX_INACTIVE_TIME)
-			{
-				media_map_t::iterator cur = iter++;
-				sMediaMap.erase(cur);
-				continue;
-			}
-		}
-		++iter;
-	}
-}
-
-//static 
-void LLViewerMediaTexture::removeMediaImplFromTexture(const LLUUID& media_id) 
-{
-	LLViewerMediaTexture* media_tex = findMediaTexture(media_id);
-	if(media_tex)
-	{
-		media_tex->invalidateMediaImpl();
-	}
+// 	for(media_map_t::iterator iter = sMediaMap.begin(); iter != sMediaMap.end(); )
+// 	{
+// 		LLViewerMediaTexture::ptr_t &mediap(iter->second);	
+// 		
+// 		if(mediap.unique()) //one reference by sMediaMap
+// 		{
+// 			//Note: delay some time to delete the media textures to stop endlessly creating and immediately removing media texture.
+// 			//
+// 			if(mediap->getLastReferencedTimer()->getElapsedTimeF32() > MAX_INACTIVE_TIME)
+// 			{
+// 				media_map_t::iterator cur = iter++;
+// 				sMediaMap.erase(cur);
+// 				continue;
+// 			}
+// 		}
+// 		++iter;
+// 	}
 }
 
 //static
 void LLViewerMediaTexture::cleanUpClass()
 {
-	sMediaMap.clear();
+//	sMediaMap.clear();
 }
 
-//static
-LLViewerMediaTexture* LLViewerMediaTexture::findMediaTexture(const LLUUID& media_id)
-{
-	media_map_t::iterator iter = sMediaMap.find(media_id);
-	if(iter == sMediaMap.end())
-	{
-		return NULL;
-	}
-
-	LLViewerMediaTexture* media_tex = iter->second;
-	media_tex->setMediaImpl();
-	media_tex->getLastReferencedTimer()->reset();
-
-	return media_tex;
-}
+// static
+// LLViewerMediaTexture::ptr_t LLViewerMediaTexture::findMediaTexture(const LLUUID& media_id)
+// {
+// 	media_map_t::iterator iter = sMediaMap.find(media_id);
+// 	if(iter == sMediaMap.end())
+// 	{
+// 		return NULL;
+// 	}
+// 
+// 	LLViewerMediaTexture::ptr_t media_tex = iter->second;
+// 	media_tex->setMediaImpl();
+// 	media_tex->getLastReferencedTimer()->reset();
+// 
+// 	return media_tex;
+// }
 
 LLViewerMediaTexture::LLViewerMediaTexture(const LLUUID& id, BOOL usemipmaps, LLImageGL* gl_image) 
 	: LLViewerTexture(id, usemipmaps),
-	mMediaImplp(NULL),
+	mMediaImplp(nullptr),
 	mUpdateVirtualSizeTime(0)
 {
-	sMediaMap.insert(std::make_pair(id, this));
-
 	mGLTexturep = gl_image;
 
 	if(mGLTexturep.isNull())
@@ -2599,7 +2583,7 @@ LLViewerMediaTexture::LLViewerMediaTexture(const LLUUID& id, BOOL usemipmaps, LL
 
 	setCategory(LLGLTexture::MEDIA);
 	
-	LLViewerTexture* tex = LLViewerTextureManager::instance().findFetchedTexture(mID);
+	LLViewerTexture::ptr_t tex = LLViewerTextureManager::instance().findFetchedTexture(mID);
 	if(tex) //this media is a parcel media for tex.
 	{
 		tex->setParcelMedia(this);
@@ -2609,7 +2593,7 @@ LLViewerMediaTexture::LLViewerMediaTexture(const LLUUID& id, BOOL usemipmaps, LL
 //virtual 
 LLViewerMediaTexture::~LLViewerMediaTexture() 
 {	
-	LLViewerTexture* tex = LLViewerTextureManager::instance().findFetchedTexture(mID);
+	LLViewerTexture::ptr_t tex = LLViewerTextureManager::instance().findFetchedTexture(mID);
 	if(tex) //this media is a parcel media for tex.
 	{
 		tex->setParcelMedia(nullptr);
@@ -2664,7 +2648,7 @@ BOOL LLViewerMediaTexture::findFaces()
 
 	BOOL ret = TRUE;
 	
-	LLViewerTexture* tex = LLViewerTextureManager::instance().findFetchedTexture(mID);
+	LLViewerTexture::ptr_t tex = LLViewerTextureManager::instance().findFetchedTexture(mID);
 	if(tex) //this media is a parcel media for tex.
 	{
 		for (U32 ch = 0; ch < LLRender::NUM_TEXTURE_CHANNELS; ++ch)
@@ -2773,7 +2757,7 @@ void LLViewerMediaTexture::addFace(U32 ch, LLFace* facep)
 	const LLTextureEntry* te = facep->getTextureEntry();
 	if(te && te->getID().notNull())
 	{
-		LLViewerTexture* tex = LLViewerTextureManager::instance().findFetchedTexture(te->getID());
+		LLViewerTexture::ptr_t tex = LLViewerTextureManager::instance().findFetchedTexture(te->getID());
 		if(tex)
 		{
 			mTextureList.push_back(tex);//increase the reference number by one for tex to avoid deleting it.
@@ -2782,7 +2766,7 @@ void LLViewerMediaTexture::addFace(U32 ch, LLFace* facep)
 	}
 
 	//check if it is a parcel media
-	if(facep->getTexture() && facep->getTexture() != this && facep->getTexture()->getID() == mID)
+	if(facep->getTexture() && facep->getTexture().get() != this && facep->getTexture()->getID() == mID)
 	{
 		mTextureList.push_back(facep->getTexture()); //a parcel media.
 		return;
@@ -2802,10 +2786,10 @@ void LLViewerMediaTexture::removeFace(U32 ch, LLFace* facep)
 	const LLTextureEntry* te = facep->getTextureEntry();
 	if(te && te->getID().notNull())
 	{
-		LLViewerTexture* tex = LLViewerTextureManager::instance().findFetchedTexture(te->getID());
+		LLViewerTexture::ptr_t tex = LLViewerTextureManager::instance().findFetchedTexture(te->getID());
 		if(tex)
 		{
-			for(std::list< LLPointer<LLViewerTexture> >::iterator iter = mTextureList.begin();
+            for (std::list< LLViewerTexture::ptr_t >::iterator iter = mTextureList.begin();
 				iter != mTextureList.end(); ++iter)
 			{
 				if(*iter == tex)
@@ -2839,7 +2823,7 @@ void LLViewerMediaTexture::removeFace(U32 ch, LLFace* facep)
 
 			S32 end = te_list.size();
 
-			for(std::list< LLPointer<LLViewerTexture> >::iterator iter = mTextureList.begin();
+            for (std::list< LLViewerTexture::ptr_t >::iterator iter = mTextureList.begin();
 				iter != mTextureList.end(); ++iter)
 			{
 				S32 i = 0;
@@ -2862,7 +2846,7 @@ void LLViewerMediaTexture::removeFace(U32 ch, LLFace* facep)
 	}
 
 	//check if it is a parcel media
-	for(std::list< LLPointer<LLViewerTexture> >::iterator iter = mTextureList.begin();
+    for (std::list< LLViewerTexture::ptr_t >::iterator iter = mTextureList.begin();
 				iter != mTextureList.end(); ++iter)
 	{
 		if((*iter)->getID() == mID)
@@ -2893,7 +2877,7 @@ void LLViewerMediaTexture::switchTexture(U32 ch, LLFace* facep)
 	if(facep)
 	{
 		//check if another media is playing on this face.
-		if(facep->getTexture() && facep->getTexture() != this 
+		if(facep->getTexture() && facep->getTexture().get() != this 
 			&& facep->getTexture()->getType() == LLViewerTexture::MEDIA_TEXTURE)
 		{
 			if(mID == facep->getTexture()->getID()) //this is a parcel media
@@ -2904,14 +2888,16 @@ void LLViewerMediaTexture::switchTexture(U32 ch, LLFace* facep)
 
 		if(mIsPlaying) //old textures switch to the media texture
 		{
-			facep->switchTexture(ch, this);
+			facep->switchTexture(ch, getSharedPointer());
 		}
 		else //switch to old textures.
 		{
 			const LLTextureEntry* te = facep->getTextureEntry();
 			if(te)
 			{
-				LLViewerTexture* tex = (te->getID().notNull()) ? LLViewerTextureManager::instance().findFetchedTexture(te->getID()) : nullptr;
+                LLViewerTexture::ptr_t tex; 
+                if (te->getID().notNull())
+                    tex = LLViewerTextureManager::instance().findFetchedTexture(te->getID());
 				if(!tex && te->getID() != mID)//try parcel media.
 				{
 					tex = LLViewerTextureManager::instance().findFetchedTexture(mID);

@@ -110,10 +110,10 @@ BOOL LLFloaterImagePreview::postBuild()
 
 	if (mRawImagep.notNull() && gAgent.getRegion() != NULL)
 	{
-		mAvatarPreview = new LLImagePreviewAvatar(256, 256);
+		mAvatarPreview = std::make_shared<LLImagePreviewAvatar>(256, 256);
 		mAvatarPreview->setPreviewTarget("mPelvis", "mUpperBodyMesh0", mRawImagep, 2.f, FALSE);
 
-		mSculptedPreview = new LLImagePreviewSculpted(256, 256);
+		mSculptedPreview = std::make_shared<LLImagePreviewSculpted>(256, 256);
 		mSculptedPreview->setPreviewTarget(mRawImagep, 2.0f);
 
 		if (mRawImagep->getWidth() * mRawImagep->getHeight () <= LL_IMAGE_REZ_LOSSLESS_CUTOFF * LL_IMAGE_REZ_LOSSLESS_CUTOFF)
@@ -247,7 +247,7 @@ void LLFloaterImagePreview::draw()
 			gl_rect_2d_checkerboard(mPreviewRect);
 			LLGLDisable gls_alpha(GL_ALPHA_TEST);
 
-			if(mImagep.notNull())
+			if(mImagep)
 			{
 				gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mImagep->getTexName());
 			}
@@ -295,11 +295,11 @@ void LLFloaterImagePreview::draw()
 
 				if (selected == 9)
 				{
-					gGL.getTexUnit(0)->bind(mSculptedPreview);
+					gGL.getTexUnit(0)->bind(mSculptedPreview.get());
 				}
 				else
 				{
-					gGL.getTexUnit(0)->bind(mAvatarPreview);
+					gGL.getTexUnit(0)->bind(mAvatarPreview.get());
 				}
 
 				gGL.begin( LLRender::QUADS );

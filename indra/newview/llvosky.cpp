@@ -301,7 +301,7 @@ void LLSkyTex::createGLImage(S32 which)
 
 void LLSkyTex::bindTexture(BOOL curr)
 {
-	gGL.getTexUnit(0)->bind(mTexture[getWhich(curr)], true);
+	gGL.getTexUnit(0)->bind(mTexture[getWhich(curr)].get(), true);
 }
 
 /***************************************

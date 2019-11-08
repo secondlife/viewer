@@ -93,7 +93,7 @@ void LLViewerPartSource::update(const F32 dt)
 
 LLUUID LLViewerPartSource::getImageUUID() const
 {
-	LLViewerTexture* imagep = mImagep;
+	LLViewerTexture::ptr_t imagep = mTexturep;
 	if(imagep)
 	{
 		return imagep->getID();
@@ -114,9 +114,9 @@ LLViewerPartSourceScript::LLViewerPartSourceScript(LLViewerObject *source_objp) 
 	llassert(source_objp);
 	mSourceObjectp = source_objp;
 	mPosAgent = mSourceObjectp->getPositionAgent();
-	mImagep = LLViewerTextureManager::instance().getFetchedTextureFromSkin("pixiesmall.j2c");
+	mTexturep = LLViewerTextureManager::instance().getFetchedTextureFromSkin("pixiesmall.j2c");
 	
-	mImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
+	mTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 }
 
 
@@ -303,7 +303,7 @@ void LLViewerPartSourceScript::update(const F32 dt)
 
 			LLViewerPart* part = new LLViewerPart();
 
-			part->init(this, mImagep, NULL);
+			part->init(this, mTexturep, NULL);
 			part->mFlags = mPartSysData.mPartData.mFlags;
 			if (!mSourceObjectp.isNull() && mSourceObjectp->isHUDAttachment())
 			{
@@ -564,9 +564,9 @@ LLPointer<LLViewerPartSourceScript> LLViewerPartSourceScript::createPSS(LLViewer
 }
 
 
-void LLViewerPartSourceScript::setImage(LLViewerTexture *imagep)
+void LLViewerPartSourceScript::setImage(const LLViewerTexture::ptr_t &imagep)
 {
-	mImagep = imagep;
+	mTexturep = imagep;
 }
 
 void LLViewerPartSourceScript::setTargetObject(LLViewerObject *objp)
@@ -617,9 +617,9 @@ void LLViewerPartSourceSpiral::updatePart(LLViewerPart &part, const F32 dt)
 
 void LLViewerPartSourceSpiral::update(const F32 dt)
 {
-	if (!mImagep)
+	if (!mTexturep)
 	{
-		mImagep = LLViewerTextureManager::instance().getFetchedTextureFromSkin("pixiesmall.j2c");
+		mTexturep = LLViewerTextureManager::instance().getFetchedTextureFromSkin("pixiesmall.j2c");
 	}
 
 	const F32 RATE = 0.025f;
@@ -644,7 +644,7 @@ void LLViewerPartSourceSpiral::update(const F32 dt)
 			mPosAgent = mSourceObjectp->getRenderPosition();
 		}
 		LLViewerPart* part = new LLViewerPart();
-		part->init(this, mImagep, updatePart);
+		part->init(this, mTexturep, updatePart);
 		part->mStartColor = mColor;
 		part->mEndColor = mColor;
 		part->mEndColor.mV[3] = 0.f;
@@ -787,13 +787,13 @@ void LLViewerPartSourceBeam::update(const F32 dt)
 			return;
 		}
 
-		if (!mImagep)
+		if (!mTexturep)
 		{
-			mImagep = LLViewerTextureManager::instance().getFetchedTextureFromSkin("pixiesmall.j2c");
+			mTexturep = LLViewerTextureManager::instance().getFetchedTextureFromSkin("pixiesmall.j2c");
 		}
 
 		LLViewerPart* part = new LLViewerPart();
-		part->init(this, mImagep, NULL);
+		part->init(this, mTexturep, NULL);
 
 		part->mFlags = LLPartData::LL_PART_INTERP_COLOR_MASK |
 						LLPartData::LL_PART_INTERP_SCALE_MASK |
@@ -874,9 +874,9 @@ void LLViewerPartSourceChat::updatePart(LLViewerPart &part, const F32 dt)
 
 void LLViewerPartSourceChat::update(const F32 dt)
 {
-	if (!mImagep)
+	if (!mTexturep)
 	{
-		mImagep = LLViewerTextureManager::instance().getFetchedTextureFromFile("pixiesmall.j2c");
+		mTexturep = LLViewerTextureManager::instance().getFetchedTextureFromFile("pixiesmall.j2c");
 	}
 
 
@@ -911,7 +911,7 @@ void LLViewerPartSourceChat::update(const F32 dt)
 			mPosAgent = mSourceObjectp->getRenderPosition();
 		}
 		LLViewerPart* part = new LLViewerPart();
-		part->init(this, mImagep, updatePart);
+		part->init(this, mTexturep, updatePart);
 		part->mStartColor = mColor;
 		part->mEndColor = mColor;
 		part->mEndColor.mV[3] = 0.f;

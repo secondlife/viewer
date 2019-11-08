@@ -73,7 +73,7 @@ void LLWorldMipmap::equalizeBoostLevels()
 		// For each tile
 		for (sublevel_tiles_t::iterator iter = level_mipmap.begin(); iter != level_mipmap.end(); iter++)
 		{
-			LLPointer<LLViewerFetchedTexture> img = iter->second;
+            LLViewerFetchedTexture::ptr_t img = iter->second;
 			S32 current_boost_level = img->getBoostLevel();
 			if (current_boost_level == LLGLTexture::BOOST_MAP_VISIBLE)
 			{
@@ -115,13 +115,13 @@ void LLWorldMipmap::dropBoostLevels()
 		// For each tile
 		for (sublevel_tiles_t::iterator iter = level_mipmap.begin(); iter != level_mipmap.end(); iter++)
 		{
-			LLPointer<LLViewerFetchedTexture> img = iter->second;
+            LLViewerFetchedTexture::ptr_t img = iter->second;
 			img->setBoostLevel(LLGLTexture::BOOST_NONE);
 		}
 	}
 }
 
-LLPointer<LLViewerFetchedTexture> LLWorldMipmap::getObjectsTile(U32 grid_x, U32 grid_y, S32 level, bool load)
+LLViewerFetchedTexture::ptr_t LLWorldMipmap::getObjectsTile(U32 grid_x, U32 grid_y, S32 level, bool load)
 {
 	// Check the input data
 	llassert(level <= MAP_LEVELS);
@@ -148,7 +148,7 @@ LLPointer<LLViewerFetchedTexture> LLWorldMipmap::getObjectsTile(U32 grid_x, U32 
 		if (load)
 		{
 			// Load it 
-			LLPointer<LLViewerFetchedTexture> img = loadObjectsTile(grid_x, grid_y, level);
+            LLViewerFetchedTexture::ptr_t img = loadObjectsTile(grid_x, grid_y, level);
 			// Insert the image in the map
 			level_mipmap.insert(sublevel_tiles_t::value_type( handle, img ));
 			// Find the element again in the map (it's there now...)
@@ -162,7 +162,7 @@ LLPointer<LLViewerFetchedTexture> LLWorldMipmap::getObjectsTile(U32 grid_x, U32 
 	}
 
 	// Get the image pointer and check if this asset is missing
-	LLPointer<LLViewerFetchedTexture> img = found->second;
+    LLViewerFetchedTexture::ptr_t img = found->second;
 	if (img->isMissingAsset())
 	{
 		// Return NULL if asset missing
@@ -179,7 +179,7 @@ LLPointer<LLViewerFetchedTexture> LLWorldMipmap::getObjectsTile(U32 grid_x, U32 
 	}
 }
 
-LLPointer<LLViewerFetchedTexture> LLWorldMipmap::loadObjectsTile(U32 grid_x, U32 grid_y, S32 level)
+LLViewerFetchedTexture::ptr_t LLWorldMipmap::loadObjectsTile(U32 grid_x, U32 grid_y, S32 level)
 {
 	// Get the grid coordinates
 	std::string imageurl = gSavedSettings.getString("CurrentMapServerURL") + llformat("map-%d-%d-%d-objects.jpg", level, grid_x, grid_y);
@@ -195,7 +195,7 @@ LLPointer<LLViewerFetchedTexture> LLWorldMipmap::loadObjectsTile(U32 grid_x, U32
     params.mTextureType = LLViewerTexture::LOD_TEXTURE;
     params.mBoostPriority = LLGLTexture::BOOST_MAP;
 
-	LLPointer<LLViewerFetchedTexture> img = LLViewerTextureManager::instance().getFetchedTextureFromUrl(imageurl, params);
+    LLViewerFetchedTexture::ptr_t img = LLViewerTextureManager::instance().getFetchedTextureFromUrl(imageurl, params);
 
 	// Return the smart pointer
 	return img;
@@ -223,7 +223,7 @@ void LLWorldMipmap::cleanMissedTilesFromLevel(S32 level)
 	sublevel_tiles_t::iterator it = level_mipmap.begin();
 	while (it != level_mipmap.end())
 	{
-		LLPointer<LLViewerFetchedTexture> img = it->second;
+        LLViewerFetchedTexture::ptr_t img = it->second;
 		if (img->isMissingAsset())
 		{
 			level_mipmap.erase(it++);

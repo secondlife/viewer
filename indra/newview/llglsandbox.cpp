@@ -639,11 +639,11 @@ void LLViewerParcelMgr::renderCollisionSegments(U8* segments, BOOL use_pass, LLV
 	
 	if (use_pass && (mCollisionBanned == BA_NOT_ON_LIST))
 	{
-		gGL.getTexUnit(0)->bind(mPassImage);
+		gGL.getTexUnit(0)->bind(mPassImage.get());
 	}
 	else
 	{
-		gGL.getTexUnit(0)->bind(mBlockedImage);
+		gGL.getTexUnit(0)->bind(mBlockedImage.get());
 	}
 
 	gGL.begin(LLRender::QUADS);

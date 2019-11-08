@@ -333,7 +333,7 @@ S32 LLDrawable::findReferences(LLDrawable *drawablep)
 
 static LLTrace::BlockTimerStatHandle FTM_ALLOCATE_FACE("Allocate Face");
 
-LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerTexture *texturep)
+LLFace*	LLDrawable::addFace(LLFacePool *poolp, const LLViewerTexture::ptr_t &texturep)
 {
 	
 	LLFace *face;
@@ -361,7 +361,7 @@ LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerTexture *texturep)
 	return face;
 }
 
-LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep)
+LLFace*	LLDrawable::addFace(const LLTextureEntry *te, const LLViewerTexture::ptr_t &texturep)
 {
 	LLFace *face;
 
@@ -385,7 +385,7 @@ LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep)
 
 }
 
-LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep, LLViewerTexture *normalp)
+LLFace*	LLDrawable::addFace(const LLTextureEntry *te, const LLViewerTexture::ptr_t &texturep, const LLViewerTexture::ptr_t &normalp)
 {
 	LLFace *face;
 	face = new LLFace(this, mVObjp);
@@ -406,7 +406,7 @@ LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep,
 	
 }
 
-LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep, LLViewerTexture *normalp, LLViewerTexture *specularp)
+LLFace*	LLDrawable::addFace(const LLTextureEntry *te, const LLViewerTexture::ptr_t &texturep, const LLViewerTexture::ptr_t &normalp, const LLViewerTexture::ptr_t &specularp)
 {
 	LLFace *face;
 	face = new LLFace(this, mVObjp);
@@ -428,7 +428,7 @@ LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep,
 	
 }
 
-void LLDrawable::setNumFaces(const S32 newFaces, LLFacePool *poolp, LLViewerTexture *texturep)
+void LLDrawable::setNumFaces(const S32 newFaces, LLFacePool *poolp, const LLViewerTexture::ptr_t &texturep)
 {
 	if (newFaces == (S32)mFaces.size())
 	{
@@ -451,7 +451,7 @@ void LLDrawable::setNumFaces(const S32 newFaces, LLFacePool *poolp, LLViewerText
 	llassert_always(mFaces.size() == newFaces);
 }
 
-void LLDrawable::setNumFacesFast(const S32 newFaces, LLFacePool *poolp, LLViewerTexture *texturep)
+void LLDrawable::setNumFacesFast(const S32 newFaces, LLFacePool *poolp, const LLViewerTexture::ptr_t &texturep)
 {
 	if (newFaces <= (S32)mFaces.size() && newFaces >= (S32)mFaces.size()/2)
 	{

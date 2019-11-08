@@ -56,7 +56,7 @@ S32 LLDrawPool::sNumDrawPools = 0;
 //=============================
 // Draw Pool Implementation
 //=============================
-LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerTexture *tex0)
+LLDrawPool *LLDrawPool::createPool(const U32 type, const LLViewerTexture::ptr_t &tex0)
 {
 	LLDrawPool *poolp = NULL;
 	switch (type)
@@ -136,9 +136,9 @@ LLDrawPool::~LLDrawPool()
 
 }
 
-LLViewerTexture *LLDrawPool::getDebugTexture()
+LLViewerTexture::ptr_t LLDrawPool::getDebugTexture()
 {
-	return NULL;
+    return LLViewerTexture::ptr_t();
 }
 
 //virtuals
@@ -262,7 +262,7 @@ void LLFacePool::destroy()
 	}
 }
 
-void LLFacePool::dirtyTextures(const std::set<LLViewerFetchedTexture*>& textures)
+void LLFacePool::dirtyTextures(const std::set<LLViewerFetchedTexture::ptr_t> &textures)
 {
 }
 
@@ -294,9 +294,9 @@ void LLFacePool::resetDrawOrders()
 	mDrawFace.resize(0);
 }
 
-LLViewerTexture *LLFacePool::getTexture()
+LLViewerTexture::ptr_t LLFacePool::getTexture()
 {
-	return NULL;
+    return LLViewerTexture::ptr_t();
 }
 
 void LLFacePool::removeFaceReference(LLFace *facep)
@@ -471,18 +471,18 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL ba
 		{
 			for (U32 i = 0; i < params.mTextureList.size(); ++i)
 			{
-				if (params.mTextureList[i].notNull())
+				if (params.mTextureList[i])
 				{
-					gGL.getTexUnit(i)->bind(params.mTextureList[i], TRUE);
+					gGL.getTexUnit(i)->bind(params.mTextureList[i].get(), TRUE);
 				}
 			}
 		}
 		else
 		{ //not batching textures or batch has only 1 texture -- might need a texture matrix
-			if (params.mTexture.notNull())
+			if (params.mTexture)
 			{
 				params.mTexture->addTextureStats(params.mVSize);
-				gGL.getTexUnit(0)->bind(params.mTexture, TRUE) ;
+				gGL.getTexUnit(0)->bind(params.mTexture.get(), TRUE) ;
 				if (params.mTextureMatrix)
 				{
 					tex_setup = true;

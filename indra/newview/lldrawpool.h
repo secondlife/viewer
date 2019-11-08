@@ -83,7 +83,7 @@ public:
 	BOOL getSkipRenderFlag() const { return mSkipRender;}
 	void setSkipRenderFlag( BOOL flag ) { mSkipRender = flag; }
 
-	virtual LLViewerTexture *getDebugTexture();
+    virtual std::shared_ptr<LLViewerTexture> getDebugTexture();
 	virtual void beginRenderPass( S32 pass );
 	virtual void endRenderPass( S32 pass );
 	virtual S32	 getNumPasses();
@@ -109,9 +109,9 @@ public:
 	virtual BOOL verify() const { return TRUE; }		// Verify that all data in the draw pool is correct!
 	virtual S32 getVertexShaderLevel() const { return mVertexShaderLevel; }
 	
-	static LLDrawPool* createPool(const U32 type, LLViewerTexture *tex0 = NULL);
+    static LLDrawPool* createPool(const U32 type, const std::shared_ptr<LLViewerTexture> &tex0 = std::shared_ptr<LLViewerTexture>());
 	virtual LLDrawPool *instancePool() = 0;	// Create an empty new instance of the pool.
-	virtual LLViewerTexture* getTexture() = 0;
+    virtual std::shared_ptr<LLViewerTexture> getTexture() = 0;
 	virtual BOOL isFacePool() { return FALSE; }
 	virtual void resetDrawOrders() = 0;
 
@@ -163,8 +163,8 @@ public:
 	LLRenderPass(const U32 type);
 	virtual ~LLRenderPass();
 	/*virtual*/ LLDrawPool* instancePool();
-	/*virtual*/ LLViewerTexture* getDebugTexture() { return NULL; }
-	LLViewerTexture* getTexture() { return NULL; }
+    /*virtual*/ std::shared_ptr<LLViewerTexture> getDebugTexture() { return std::shared_ptr<LLViewerTexture>(); }
+    std::shared_ptr<LLViewerTexture> getTexture() { return std::shared_ptr<LLViewerTexture>(); }
 	BOOL isDead() { return FALSE; }
 	void resetDrawOrders() { }
 
@@ -194,8 +194,8 @@ public:
 	
 	BOOL isDead() { return mReferences.empty(); }
 	
-	virtual LLViewerTexture *getTexture();
-	virtual void dirtyTextures(const std::set<LLViewerFetchedTexture*>& textures);
+    virtual std::shared_ptr<LLViewerTexture> getTexture();
+    virtual void dirtyTextures(const std::set<std::shared_ptr<LLViewerFetchedTexture> >& textures);
 
 	virtual void enqueue(LLFace *face);
 	virtual BOOL addFace(LLFace *face);

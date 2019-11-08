@@ -37,7 +37,7 @@ const F32 MIN_ATLAS_FULLNESS = 0.6f ;
 //*********************************************************************************************
 //implementation of class LLTextureAtlasInfo
 //*********************************************************************************************
-LLTextureAtlasSlot::LLTextureAtlasSlot(LLTextureAtlas* atlasp, LLSpatialGroup* groupp, S16 col, S16 row, F32 xoffset, F32 yoffset, S8 slot_width) : 
+LLTextureAtlasSlot::LLTextureAtlasSlot(const LLTextureAtlas::ptr_t &atlasp, LLSpatialGroup* groupp, S16 col, S16 row, F32 xoffset, F32 yoffset, S8 slot_width) : 
 	mAtlasp(atlasp),
 	mGroupp(groupp),
 	mCol(col),
@@ -60,7 +60,7 @@ LLTextureAtlasSlot::~LLTextureAtlasSlot()
 		{
 			LLTextureAtlasManager::getInstance()->releaseAtlas(mAtlasp) ;
 		}
-		mAtlasp = NULL ;
+        mAtlasp.reset();
 	}
 }
 
@@ -153,7 +153,7 @@ BOOL LLTextureAtlasManager::canAddToAtlas(S32 w, S32 h, S8 ncomponents, LLGLenum
 	return TRUE ;
 }
 
-void LLTextureAtlasManager::releaseAtlas(LLTextureAtlas* atlasp)
+void LLTextureAtlasManager::releaseAtlas(const LLTextureAtlas::ptr_t &atlasp)
 {	
 	LLSpatialGroup* groupp = atlasp->getLastSpatialGroup() ;
 	while(groupp)
@@ -208,8 +208,8 @@ LLPointer<LLTextureAtlasSlot> LLTextureAtlasManager::reserveAtlasSlot(S32 sub_te
 	S8 total_bits = bits_len * bits_len ;
 
 	//insert to the atlas reserved by the same spatial group
-	LLPointer<LLTextureAtlas> atlasp = groupp->getAtlas(ncomponents, total_bits) ;
-	if(atlasp.notNull())
+    LLTextureAtlas::ptr_t atlasp = groupp->getAtlas(ncomponents, total_bits);
+	if(atlasp)
 	{
 		if(!atlasp->getNextAvailableSlot(bits_len, col, row))
 		{
@@ -225,7 +225,7 @@ LLPointer<LLTextureAtlasSlot> LLTextureAtlasManager::reserveAtlasSlot(S32 sub_te
 		ll_texture_atlas_list_t::iterator iter = mAtlasMap[atlas_index].begin() ;
 		for(; iter != mAtlasMap[atlas_index].end(); ++iter) 
 		{
-			LLTextureAtlas* cur = (LLTextureAtlas*)*iter ;
+			LLTextureAtlas::ptr_t cur = *iter ;
 			if(cur->getFullness() < MIN_ATLAS_FULLNESS)//this atlas is empty enough for this group to insert more sub-textures later if necessary.
 			{
 				if(cur->getNextAvailableSlot(bits_len, col, row))
@@ -249,7 +249,7 @@ LLPointer<LLTextureAtlasSlot> LLTextureAtlasManager::reserveAtlasSlot(S32 sub_te
 		}
 		else
 		{
-			atlasp = new LLTextureAtlas(ncomponents, 16) ;
+			atlasp = std::make_shared<LLTextureAtlas>(ncomponents, 16) ;
 		}
 		mAtlasMap[ncomponents - 1].push_back(atlasp) ;
 		atlasp->getNextAvailableSlot(bits_len, col, row) ;		

@@ -50,12 +50,12 @@ public:
 	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent);
 
-	static void addDebugImage(LLViewerFetchedTexture* image) { sDebugImages.insert(image); }
-	static void removeDebugImage(LLViewerFetchedTexture* image) { sDebugImages.insert(image); }
+	static void addDebugImage(const std::shared_ptr<LLViewerFetchedTexture> &image) { sDebugImages.insert(image); }
+    static void removeDebugImage(const std::shared_ptr<LLViewerFetchedTexture> &image) { sDebugImages.insert(image); }
 	static void clearDebugImages() { sDebugImages.clear(); }
 
 private:
-	BOOL addBar(LLViewerFetchedTexture *image, BOOL hilight = FALSE);
+    BOOL addBar(const std::shared_ptr<LLViewerFetchedTexture> &image, BOOL hilight = FALSE);
 	void removeAllBars();
 
 private:
@@ -71,7 +71,7 @@ private:
 	LLGLTexMemBar* mGLTexMemBar;
 	LLAvatarTexBar* mAvatarTexBar;
 public:
-	static std::set<LLViewerFetchedTexture*> sDebugImages;
+    static std::set<std::shared_ptr<LLViewerFetchedTexture> > sDebugImages;
 };
 
 class LLGLTexSizeBar;

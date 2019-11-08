@@ -44,7 +44,7 @@
 // * A simulator for a class can be implemented here. Please comment and document thoroughly.
 
 void LLGLTexture::setBoostLevel(S32 ) { }
-LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::getFetchedTextureFromUrl(const std::string&, const LLViewerTextureManager::FetchParams &) { return nullptr; }
+LLViewerFetchedTexture::ptr_t LLViewerTextureManager::getFetchedTextureFromUrl(const std::string&, const LLViewerTextureManager::FetchParams &) { return LLViewerFetchedTexture::ptr_t(); }
 void LLViewerTextureManager::initSingleton() { }
 void LLViewerTextureManager::cleanupSingleton() { }
 

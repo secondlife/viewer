@@ -89,6 +89,8 @@ public:
 		NO_DELETE = 99       //stay in memory, can not be removed.
 	} LLGLTextureState;
 
+    typedef std::shared_ptr<LLGLTexture>    ptr_t;
+
 	static S32 getTotalNumOfCategories() ;
 	static S32 getIndexFromCategory(S32 category) ;
 	static S32 getCategoryFromIndex(S32 index) ;

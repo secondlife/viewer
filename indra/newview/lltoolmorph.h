@@ -49,9 +49,9 @@ class LLJoint;
 class LLVisualParamHint : public LLViewerDynamicTexture
 {
 protected:
-	virtual ~LLVisualParamHint();
 
 public:
+    typedef std::shared_ptr<LLVisualParamHint> ptr_t;
 	LLVisualParamHint(
 		S32 pos_x, S32 pos_y,
 		S32 width, S32 height, 
@@ -60,6 +60,7 @@ public:
 		LLWearable *wearable,
 		F32 param_weight, 
 		LLJoint* jointp);	
+    virtual ~LLVisualParamHint();
 
 	/*virtual*/ S8 getType() const ;
 
@@ -79,7 +80,7 @@ public:
 	const LLRect&			getRect()	{ return mRect; }
 
 	// Requests updates for all instances (excluding two possible exceptions)  Grungy but efficient.
-	static void				requestHintUpdates( LLVisualParamHint* exception1 = NULL, LLVisualParamHint* exception2 = NULL );
+    static void				requestHintUpdates(const LLVisualParamHint::ptr_t &exception1 = LLVisualParamHint::ptr_t(), const LLVisualParamHint::ptr_t &exception2 = LLVisualParamHint::ptr_t());
 
 protected:
 	BOOL					mNeedsUpdate;		// does this texture need to be re-rendered?
@@ -93,10 +94,11 @@ protected:
 	LLRect					mRect;
 	F32						mLastParamWeight;
 	LLJoint*				mCamTargetJoint;	// joint to target with preview camera
+    LLUIImagePtr            mBackgroundp;
 
-	LLUIImagePtr mBackgroundp;
+    ptr_t                   getSharedPointer() { return std::static_pointer_cast<LLVisualParamHint>(shared_from_this()); }
 
-	typedef std::set< LLVisualParamHint* > instance_list_t;
+	typedef std::set< ptr_t > instance_list_t;
 	static instance_list_t sInstances;
 };
 

@@ -39,20 +39,20 @@ LLLocalTextureObject::LLLocalTextureObject() :
 	mIsBakedReady(FALSE),
 	mDiscard(MAX_DISCARD_LEVEL+1)
 {
-	mImage = NULL;
+	mTexture = NULL;
 }
 
-LLLocalTextureObject::LLLocalTextureObject(LLGLTexture* image, const LLUUID& id) :
+LLLocalTextureObject::LLLocalTextureObject(const LLGLTexture::ptr_t &texturep, const LLUUID& id) :
 	mIsBakedReady(FALSE),
 	mDiscard(MAX_DISCARD_LEVEL+1)
 {
-	mImage = image;
-	gGL.getTexUnit(0)->bind(mImage);
+	mTexture = texturep;
+	gGL.getTexUnit(0)->bind(mTexture.get());
 	mID = id;
 }
 
 LLLocalTextureObject::LLLocalTextureObject(const LLLocalTextureObject& lto) :
-	mImage(lto.mImage),
+	mTexture(lto.mTexture),
 	mID(lto.mID),
 	mIsBakedReady(lto.mIsBakedReady),
 	mDiscard(lto.mDiscard)
@@ -78,9 +78,9 @@ LLLocalTextureObject::~LLLocalTextureObject()
 {
 }
 
-LLGLTexture* LLLocalTextureObject::getImage() const
+LLGLTexture::ptr_t LLLocalTextureObject::getImage() const
 {
-	return mImage;
+	return mTexture;
 }
 
 LLTexLayer* LLLocalTextureObject::getTexLayer(U32 index) const
@@ -127,9 +127,9 @@ BOOL LLLocalTextureObject::getBakedReady() const
 	return mIsBakedReady;
 }
 
-void LLLocalTextureObject::setImage(LLGLTexture* new_image)
+void LLLocalTextureObject::setImage(const LLGLTexture::ptr_t &new_image)
 {
-	mImage = new_image;
+	mTexture = new_image;
 }
 
 BOOL LLLocalTextureObject::setTexLayer(LLTexLayer *new_tex_layer, U32 index)

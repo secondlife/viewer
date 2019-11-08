@@ -278,7 +278,7 @@ typedef enum
 
 	std::vector<LLFace*> mRiggedFace[NUM_RIGGED_PASSES];
 
-	/*virtual*/ LLViewerTexture *getDebugTexture();
+    /*virtual*/ std::shared_ptr<LLViewerTexture> getDebugTexture();
 	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
 
 	void renderAvatars(LLVOAvatar *single_avatar, S32 pass = -1); // renders only one avatar if single_avatar is not null.

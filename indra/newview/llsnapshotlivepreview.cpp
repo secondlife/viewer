@@ -140,7 +140,7 @@ void LLSnapshotLivePreview::setMaxImageSize(S32 size)
     mMaxImageSize = llmin(size,(S32)(MAX_SNAPSHOT_IMAGE_SIZE));
 }
 
-LLViewerTexture* LLSnapshotLivePreview::getCurrentImage()
+LLViewerTexture::ptr_t LLSnapshotLivePreview::getCurrentImage()
 {
 	return mViewerImage[mCurImageIndex];
 }
@@ -291,7 +291,7 @@ void LLSnapshotLivePreview::draw()
 
 		LLColor4 image_color(1.f, 1.f, 1.f, 1.f);
 		gGL.color4fv(image_color.mV);
-		gGL.getTexUnit(0)->bind(getCurrentImage());
+		gGL.getTexUnit(0)->bind(getCurrentImage().get());
 		// calculate UV scale
 		F32 uv_width = isImageScaled() ? 1.f : llmin((F32)getWidth() / (F32)getCurrentImage()->getWidth(), 1.f);
 		F32 uv_height = isImageScaled() ? 1.f : llmin((F32)getHeight() / (F32)getCurrentImage()->getHeight(), 1.f);
@@ -420,17 +420,17 @@ void LLSnapshotLivePreview::draw()
 	if (mFallAnimTimer.getStarted())
 	{
 		S32 old_image_index = (mCurImageIndex + 1) % 2;
-		if (mViewerImage[old_image_index].notNull() && mFallAnimTimer.getElapsedTimeF32() < FALL_TIME)
+		if (mViewerImage[old_image_index] && mFallAnimTimer.getElapsedTimeF32() < FALL_TIME)
 		{
 			LL_DEBUGS() << "Drawing fall animation" << LL_ENDL;
 			F32 fall_interp = mFallAnimTimer.getElapsedTimeF32() / FALL_TIME;
 			F32 alpha = clamp_rescale(fall_interp, 0.f, 1.f, 0.8f, 0.4f);
 			LLColor4 image_color(1.f, 1.f, 1.f, alpha);
 			gGL.color4fv(image_color.mV);
-			gGL.getTexUnit(0)->bind(mViewerImage[old_image_index]);
+			gGL.getTexUnit(0)->bind(mViewerImage[old_image_index].get());
 			// calculate UV scale
 			// *FIX get this to work with old image
-			BOOL rescale = !mImageScaled[old_image_index] && mViewerImage[mCurImageIndex].notNull();
+			BOOL rescale = !mImageScaled[old_image_index] && mViewerImage[mCurImageIndex];
 			F32 uv_width = rescale ? llmin((F32)mWidth[old_image_index] / (F32)mViewerImage[mCurImageIndex]->getWidth(), 1.f) : 1.f;
 			F32 uv_height = rescale ? llmin((F32)mHeight[old_image_index] / (F32)mViewerImage[mCurImageIndex]->getHeight(), 1.f) : 1.f;
 			gGL.pushMatrix();
@@ -623,7 +623,7 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
 	mThumbnailUpdateLock = FALSE ;		
 }
 
-LLViewerTexture* LLSnapshotLivePreview::getBigThumbnailImage()
+LLViewerTexture::ptr_t LLSnapshotLivePreview::getBigThumbnailImage()
 {
 	if (mThumbnailUpdateLock) //in the process of updating
 	{
@@ -819,8 +819,8 @@ void LLSnapshotLivePreview::prepareFreezeFrame()
         }
 
         mViewerImage[mCurImageIndex] = LLViewerTextureManager::instance().getLocalTexture(scaled.get(), false);
-        LLPointer<LLViewerTexture> curr_preview_image = mViewerImage[mCurImageIndex];
-        gGL.getTexUnit(0)->bind(curr_preview_image);
+        LLViewerTexture::ptr_t curr_preview_image = mViewerImage[mCurImageIndex];
+        gGL.getTexUnit(0)->bind(curr_preview_image.get());
         curr_preview_image->setFilteringOption(getSnapshotType() == LLSnapshotModel::SNAPSHOT_TEXTURE ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT);
         curr_preview_image->setAddressMode(LLTexUnit::TAM_CLAMP);
 

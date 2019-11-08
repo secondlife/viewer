@@ -213,7 +213,7 @@ S32  gMaxAgentGroups;
 std::string SCREEN_HOME_FILENAME = "screen_home.bmp";
 std::string SCREEN_LAST_FILENAME = "screen_last.bmp";
 
-LLPointer<LLViewerTexture> gStartTexture;
+LLViewerTexture::ptr_t gStartTexture;
 
 //
 // Imported globals
@@ -2649,9 +2649,9 @@ std::string& LLStartUp::getInitialOutfitName()
 // Loads a bitmap to display during load
 void init_start_screen(S32 location_id)
 {
-	if (gStartTexture.notNull())
+	if (gStartTexture)
 	{
-		gStartTexture = NULL;
+		gStartTexture.reset();
 		LL_INFOS("AppInit") << "re-initializing start screen" << LL_ENDL;
 	}
 
@@ -2700,7 +2700,7 @@ void init_start_screen(S32 location_id)
 		}
 	}
 
-	if(gStartTexture.isNull())
+	if(!gStartTexture)
 	{
 		gStartTexture = LLViewerTexture::sBlackImagep ;
 		gStartImageWidth = gStartTexture->getWidth() ;

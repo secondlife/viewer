@@ -42,7 +42,7 @@ class LLViewerFetchedTexture;
 // structure (at least, that it exists...) but doesn't requite the caller to know the details of it.
 // IOW, you need to know that rendering levels exists as well as grid coordinates for regions, 
 // but you can ignore where those tiles are located, how to get them, etc...
-// The class API gives you back LLPointer<LLViewerFetchedTexture> per tile.
+// The class API gives you back std::shared_ptr<LLViewerFetchedTexture> per tile.
 
 // See llworldmipmapview.cpp for the implementation of a class who knows how to render an LLWorldMipmap.
 
@@ -66,7 +66,7 @@ public:
 	// Drop the boost levels to none (used when hiding the map)
 	void	dropBoostLevels();
 	// Get the tile smart pointer, does the loading if necessary
-	LLPointer<LLViewerFetchedTexture> getObjectsTile(U32 grid_x, U32 grid_y, S32 level, bool load = true);
+    std::shared_ptr<LLViewerFetchedTexture> getObjectsTile(U32 grid_x, U32 grid_y, S32 level, bool load = true);
 
 	// Helper functions: those are here as they depend solely on the topology of the mipmap though they don't access it
 	// Convert sim scale (given in sim width in display pixels) into a mipmap level
@@ -78,13 +78,13 @@ private:
 	// Get a handle (key) from grid coordinates
 	U64		convertGridToHandle(U32 grid_x, U32 grid_y) { return to_region_handle(grid_x * REGION_WIDTH_UNITS, grid_y * REGION_WIDTH_UNITS); }
 	// Load the relevant tile from S3
-	LLPointer<LLViewerFetchedTexture> loadObjectsTile(U32 grid_x, U32 grid_y, S32 level);
+    std::shared_ptr<LLViewerFetchedTexture>   loadObjectsTile(U32 grid_x, U32 grid_y, S32 level);
 	// Clear a level from its "missing" tiles
 	void cleanMissedTilesFromLevel(S32 level);
 
 	// The mipmap is organized by resolution level (MAP_LEVELS of them). Each resolution level is an std::map
 	// using a region_handle as a key and storing a smart pointer to the image as a value.
-	typedef std::map<U64, LLPointer<LLViewerFetchedTexture> > sublevel_tiles_t;
+    typedef std::map<U64, std::shared_ptr<LLViewerFetchedTexture>> sublevel_tiles_t;
 	sublevel_tiles_t mWorldObjectsMipMap[MAP_LEVELS];
 //	sublevel_tiles_t mWorldTerrainMipMap[MAP_LEVELS];
 

@@ -89,7 +89,7 @@ void LLHUDIcon::renderIcon(BOOL for_select)
 	if (mHidden)
 		return;
 
-	if (mSourceObject.isNull() || mImagep.isNull())
+	if (mSourceObject.isNull() || !mImagep)
 	{
 		markDead();
 		return;
@@ -161,7 +161,7 @@ void LLHUDIcon::renderIcon(BOOL for_select)
 		LLColor4 icon_color = LLColor4::white;
 		icon_color.mV[VALPHA] = alpha_factor;
 		gGL.color4fv(icon_color.mV);
-		gGL.getTexUnit(0)->bind(mImagep);
+		gGL.getTexUnit(0)->bind(mImagep.get());
 	}
 
 	gGL.begin(LLRender::QUADS);
@@ -178,7 +178,7 @@ void LLHUDIcon::renderIcon(BOOL for_select)
 	gGL.end();
 }
 
-void LLHUDIcon::setImage(LLViewerTexture* imagep)
+void LLHUDIcon::setImage(const LLViewerTexture::ptr_t &imagep)
 {
 	mImagep = imagep;
 	mImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
@@ -208,7 +208,7 @@ BOOL LLHUDIcon::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& 
 	if (mHidden)
 		return FALSE;
 
-	if (mSourceObject.isNull() || mImagep.isNull())
+	if (mSourceObject.isNull() || !mImagep)
 	{
 		markDead();
 		return FALSE;

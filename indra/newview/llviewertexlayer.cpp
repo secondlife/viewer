@@ -310,7 +310,7 @@ void LLViewerTexLayerSet::createComposite()
 		{
 			LL_ERRS() << "composites should not be created for non-self avatars!" << LL_ENDL;
 		}
-		mComposite = new LLViewerTexLayerSetBuffer( this, width, height );
+		mComposite = std::make_shared<LLViewerTexLayerSetBuffer>( this, width, height );
 	}
 }
 
@@ -329,14 +329,14 @@ const LLVOAvatarSelf* LLViewerTexLayerSet::getAvatar() const
 	return dynamic_cast<const LLVOAvatarSelf*> (mAvatarAppearance);
 }
 
-LLViewerTexLayerSetBuffer* LLViewerTexLayerSet::getViewerComposite()
+LLViewerTexLayerSetBuffer::ptr_t LLViewerTexLayerSet::getViewerComposite()
 {
-	return dynamic_cast<LLViewerTexLayerSetBuffer*> (getComposite());
+	return std::dynamic_pointer_cast<LLViewerTexLayerSetBuffer> (getComposite());
 }
 
-const LLViewerTexLayerSetBuffer* LLViewerTexLayerSet::getViewerComposite() const
+const LLViewerTexLayerSetBuffer::ptr_t LLViewerTexLayerSet::getViewerComposite() const
 {
-	return dynamic_cast<const LLViewerTexLayerSetBuffer*> (getComposite());
+	return std::dynamic_pointer_cast<LLViewerTexLayerSetBuffer>(getComposite());
 }
 
 

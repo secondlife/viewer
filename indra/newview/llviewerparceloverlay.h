@@ -48,7 +48,7 @@ public:
 	~LLViewerParcelOverlay();
 
 	// ACCESS
-	LLViewerTexture*		getTexture() const		{ return mTexture; }
+	LLViewerTexture::ptr_t  getTexture() const		{ return mTexture; }
 
 	BOOL			isOwned(const LLVector3& pos) const;
 	BOOL			isOwnedSelf(const LLVector3& pos) const;
@@ -105,7 +105,7 @@ private:
 
 	S32				mParcelGridsPerEdge;
 
-	LLPointer<LLViewerTexture> mTexture;
+    LLViewerTexture::ptr_t mTexture;
 	LLPointer<LLImageRaw> mImageRaw;
 	
 	// Size: mParcelGridsPerEdge * mParcelGridsPerEdge

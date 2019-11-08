@@ -451,7 +451,7 @@ BOOL LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 		facep->setTexture(part->mImagep);
 			
 		//check if this particle texture is replaced by a parcel media texture.
-		if(part->mImagep.notNull() && part->mImagep->hasParcelMedia()) 
+		if(part->mImagep && part->mImagep->hasParcelMedia()) 
 		{
 			part->mImagep->getParcelMedia()->addMediaToFace(facep) ;
 		}

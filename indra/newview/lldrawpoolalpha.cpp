@@ -317,7 +317,7 @@ void LLDrawPoolAlpha::render(S32 pass)
 		gGL.diffuseColor4f(1,0,0,1);
 				
 		LLViewerFetchedTexture::sSmokeImagep->addTextureStats(1024.f*1024.f);
-		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sSmokeImagep, TRUE) ;
+		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sSmokeImagep.get(), TRUE) ;
 		renderAlphaHighlight(LLVertexBuffer::MAP_VERTEX |
 							LLVertexBuffer::MAP_TEXCOORD0);
 
@@ -522,13 +522,13 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 						if (params.mNormalMap)
 						{
 							params.mNormalMap->addTextureStats(params.mVSize);
-							current_shader->bindTexture(LLShaderMgr::BUMP_MAP, params.mNormalMap);
+							current_shader->bindTexture(LLShaderMgr::BUMP_MAP, params.mNormalMap.get());
 						} 
 						
 						if (params.mSpecularMap)
 						{
 							params.mSpecularMap->addTextureStats(params.mVSize);
-							current_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, params.mSpecularMap);
+							current_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, params.mSpecularMap.get());
 						} 
 					}
 
@@ -537,9 +537,9 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 					current_shader->uniform4f(LLShaderMgr::SPECULAR_COLOR, 1.0f, 1.0f, 1.0f, 1.0f);						
 					current_shader->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, 0.0f);			
 					LLViewerFetchedTexture::sFlatNormalImagep->addTextureStats(params.mVSize);
-					current_shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);						
+					current_shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep.get());						
 					LLViewerFetchedTexture::sWhiteImagep->addTextureStats(params.mVSize);
-					current_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
+					current_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep.get());
 				}
 
 				if (params.mGroup)
@@ -553,24 +553,24 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 				{
 					for (U32 i = 0; i < params.mTextureList.size(); ++i)
 					{
-						if (params.mTextureList[i].notNull())
+						if (params.mTextureList[i])
 						{
-							gGL.getTexUnit(i)->bind(params.mTextureList[i], TRUE);
+							gGL.getTexUnit(i)->bind(params.mTextureList[i].get(), TRUE);
 						}
 					}
 				}
 				else
 				{ //not batching textures or batch has only 1 texture -- might need a texture matrix
-					if (params.mTexture.notNull())
+					if (params.mTexture)
 					{
 						params.mTexture->addTextureStats(params.mVSize);
 						if (use_shaders && mat)
 						{
-							current_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, params.mTexture);
+							current_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, params.mTexture.get());
 						}
 						else
 						{
-						gGL.getTexUnit(0)->bind(params.mTexture, TRUE) ;
+						    gGL.getTexUnit(0)->bind(params.mTexture.get(), TRUE) ;
 						}
 						
 						if (params.mTextureMatrix)

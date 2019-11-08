@@ -106,7 +106,7 @@ LLWorld::LLWorld() :
 	*(default_texture++) = MAX_WATER_COLOR.mV[3];
 	
     mDefaultWaterTexturep = LLViewerTextureManager::instance().getLocalTexture(raw.get(), false);
-	gGL.getTexUnit(0)->bind(mDefaultWaterTexturep);
+	gGL.getTexUnit(0)->bind(mDefaultWaterTexturep.get());
 	mDefaultWaterTexturep->setAddressMode(LLTexUnit::TAM_CLAMP);
 
 	LLViewerRegion::sVOCacheCullingEnabled = gSavedSettings.getBOOL("RequestFullRegionCache") && gSavedSettings.getBOOL("ObjectCacheEnabled");
@@ -1026,7 +1026,7 @@ void LLWorld::shiftRegions(const LLVector3& offset)
 	LLViewerPartSim::getInstance()->shift(offset);
 }
 
-LLViewerTexture* LLWorld::getDefaultWaterTexture()
+LLViewerTexture::ptr_t LLWorld::getDefaultWaterTexture()
 {
 	return mDefaultWaterTexturep;
 }

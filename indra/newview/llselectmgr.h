@@ -835,7 +835,7 @@ public:
 	update_signal_t mUpdateSignal;
 
 private:
-	LLPointer<LLViewerTexture>				mSilhouetteImagep;
+    std::shared_ptr<LLViewerTexture>        mSilhouetteImagep;
 	LLObjectSelectionHandle					mSelectedObjects;
 	LLObjectSelectionHandle					mHoverObjects;
 	LLObjectSelectionHandle					mHighlightedObjects;

@@ -215,7 +215,7 @@ void LLFloaterTexturePicker::stopUsingPipette()
 
 void LLFloaterTexturePicker::updateImageStats()
 {
-	if (mTexturep.notNull())
+	if (mTexturep)
 	{
 		//RN: have we received header data for this image?
 		if (mTexturep->getFullWidth() > 0 && mTexturep->getFullHeight() > 0)
@@ -512,19 +512,19 @@ void LLFloaterTexturePicker::draw()
 		mTexturep = NULL;
 		if(mImageAssetID.notNull())
 		{
-			LLPointer<LLViewerFetchedTexture> texture = NULL;
+            LLViewerFetchedTexture::ptr_t texture;
 
 			if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(mImageAssetID))
 			{
 				LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 				if (obj)
 				{
-					LLViewerTexture* viewerTexture = obj->getBakedTextureForMagicId(mImageAssetID);
-					texture = viewerTexture ? dynamic_cast<LLViewerFetchedTexture*>(viewerTexture) : NULL;
+					LLViewerTexture::ptr_t viewerTexture = obj->getBakedTextureForMagicId(mImageAssetID);
+                    texture = LLViewerTextureManager::staticCastToFetchedTexture(viewerTexture);
 				}
 			}
 
-			if (texture.isNull())
+			if (!texture)
 			{
 				texture = LLViewerTextureManager::instance().getFetchedTexture(mImageAssetID);
 			}
@@ -567,7 +567,7 @@ void LLFloaterTexturePicker::draw()
 				gl_rect_2d_checkerboard( interior, alpha );
 			}
 
-			gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep, UI_VERTEX_COLOR % alpha );
+			gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep.get(), UI_VERTEX_COLOR % alpha );
 
 			// Pump the priority
 			mTexturep->addTextureStats( (F32)(interior.getWidth() * interior.getHeight()) );
@@ -1649,20 +1649,20 @@ void LLTextureCtrl::draw()
 	}
 	else if (!mImageAssetID.isNull())
 	{
-		LLPointer<LLViewerFetchedTexture> texture = NULL;
+        LLViewerFetchedTexture::ptr_t texture = NULL;
 
 		if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(mImageAssetID))
 		{
 			LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 			if (obj)
 			{
-				LLViewerTexture* viewerTexture = obj->getBakedTextureForMagicId(mImageAssetID);
-				texture = viewerTexture ? dynamic_cast<LLViewerFetchedTexture*>(viewerTexture) : NULL;
+				LLViewerTexture::ptr_t viewerTexture = obj->getBakedTextureForMagicId(mImageAssetID);
+                texture = LLViewerTextureManager::staticCastToFetchedTexture(viewerTexture);
 			}
 			
 		}
 
-		if (texture.isNull())
+		if (!texture)
 		{
             LLViewerTextureManager::FetchParams params;
             params.mTextureType = LLViewerTexture::LOD_TEXTURE;
@@ -1697,7 +1697,7 @@ void LLTextureCtrl::draw()
 			gl_rect_2d_checkerboard( interior, alpha );
 		}
 		
-		gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep, UI_VERTEX_COLOR % alpha);
+		gl_draw_scaled_image( interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep.get(), UI_VERTEX_COLOR % alpha);
 		mTexturep->addTextureStats( (F32)(interior.getWidth() * interior.getHeight()) );
 	}
 	else if (!mFallbackImage.isNull())
@@ -1717,7 +1717,7 @@ void LLTextureCtrl::draw()
 	// Show "Loading..." string on the top left corner while this texture is loading.
 	// Using the discard level, do not show the string if the texture is almost but not 
 	// fully loaded.
-	if (mTexturep.notNull() &&
+	if (mTexturep &&
 		(!mTexturep->isFullyLoaded()) &&
 		(mShowLoadingPlaceholder == TRUE))
 	{

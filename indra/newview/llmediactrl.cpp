@@ -769,7 +769,7 @@ void LLMediaCtrl::draw()
 	bool draw_media = false;
 	
 	LLPluginClassMedia* media_plugin = NULL;
-	LLViewerMediaTexture* media_texture = NULL;
+	LLViewerMediaTexture::ptr_t media_texture;
 	
 	if(mMediaSource && mMediaSource->hasMedia())
 	{
@@ -800,7 +800,7 @@ void LLMediaCtrl::draw()
 			}
 
 			// scale texture to fit the space using texture coords
-			gGL.getTexUnit(0)->bind(media_texture);
+			gGL.getTexUnit(0)->bind(media_texture.get());
 			LLColor4 media_color = LLColor4::white % alpha;
 			gGL.color4fv( media_color.mV );
 			F32 max_u = ( F32 )media_plugin->getWidth() / ( F32 )media_plugin->getTextureWidth();

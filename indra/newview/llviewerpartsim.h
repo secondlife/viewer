@@ -54,7 +54,7 @@ public:
 public:
 	LLViewerPart();
 
-	void init(LLPointer<LLViewerPartSource> sourcep, LLViewerTexture *imagep, LLVPCallback cb);
+	void init(LLPointer<LLViewerPartSource> sourcep, const std::shared_ptr<LLViewerTexture> &imagep, LLVPCallback cb);
 
 
 	U32					mPartID;					// Particle ID used primarily for moving between groups
@@ -68,7 +68,7 @@ public:
 	LLViewerPart*		mChild;						// child particle for clean reference destruction
 
 	// Current particle state (possibly used for rendering)
-	LLPointer<LLViewerTexture>	mImagep;
+    std::shared_ptr<LLViewerTexture>  mImagep;
 	LLVector3		mPosAgent;
 	LLVector3		mVelocity;
 	LLVector3		mAccel;

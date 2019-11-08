@@ -473,7 +473,7 @@ public:
 	// Inherited from LLCore::HttpHandler
 	virtual void onCompleted(LLCore::HttpHandle handle, const LLCore::HttpResponse::ptr_t &response);
 
-        LLViewerFetchedTexture* FindViewerTexture(const LLImportMaterial& material);
+        LLViewerFetchedTexture::ptr_t FindViewerTexture(const LLImportMaterial& material);
 
 private:
 	LLHandle<LLWholeModelFeeObserver> mFeeObserverHandle;

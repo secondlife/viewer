@@ -56,8 +56,8 @@ public:
 
 	LLVOAvatarSelf*				getAvatar();
 	const LLVOAvatarSelf*		getAvatar()	const;
-	LLViewerTexLayerSetBuffer*	getViewerComposite();
-	const LLViewerTexLayerSetBuffer*	getViewerComposite() const;
+	std::shared_ptr<LLViewerTexLayerSetBuffer>	getViewerComposite();
+	const std::shared_ptr<LLViewerTexLayerSetBuffer> getViewerComposite() const;
 
 private:
 	BOOL						mUpdatesEnabled;
@@ -78,6 +78,8 @@ public:
 	virtual ~LLViewerTexLayerSetBuffer();
 
 public:
+    typedef std::shared_ptr<LLViewerTexLayerSetBuffer>  ptr_t;
+
 	/*virtual*/ S8          getType() const;
 	BOOL					isInitialized(void) const;
 	static void				dumpTotalByteCount();

@@ -63,7 +63,7 @@ private:
 	void				updateDimensions();
 	LLUUID				mImageID;
 	LLUUID				mOutfitID;
-	LLPointer<LLViewerFetchedTexture>		mImage;
+    LLViewerFetchedTexture::ptr_t   mTexture;
 	S32                 mImageOldBoostLevel;
 
 	// This is stored off in a member variable, because the save-as

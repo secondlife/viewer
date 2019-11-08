@@ -42,7 +42,8 @@ class LLFontGL ;
 //
 //this is an abstract class as the parent for the class LLGLTexture
 //
-class LLTexture : public virtual LLRefCount, public LLTrace::MemTrackable<LLTexture>
+class LLTexture : public LLTrace::MemTrackable<LLTexture>,
+    public std::enable_shared_from_this<LLTexture>
 {
 	friend class LLTexUnit ;
 	friend class LLFontGL ;
@@ -51,6 +52,8 @@ protected:
 	virtual ~LLTexture();
 
 public:
+    typedef std::shared_ptr<LLTexture>  ptr_t;
+
 	LLTexture()
 	:	LLTrace::MemTrackable<LLTexture>("LLTexture")
 	{}

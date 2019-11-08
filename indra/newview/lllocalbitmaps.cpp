@@ -136,13 +136,10 @@ LLLocalBitmap::~LLLocalBitmap()
 	}
 
 	// delete self from gimagelist
-    LLViewerFetchedTexture* image = LLViewerTextureManager::instance().findFetchedTexture(mWorldID);
+    LLViewerFetchedTexture::ptr_t image = LLViewerTextureManager::instance().findFetchedTexture(mWorldID);
     LLViewerTextureManager::instance().removeTexture(image);
 
-	if (image)
-	{
-		image->unref();
-	}
+    mTexture.reset();
 }
 
 /* accessors */
@@ -207,12 +204,13 @@ bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
 					mLastModified = new_last_modified;
 
                     /*TODO*/ // can't this be delegated to the LLViewerTextureManager?  It handles files.
-					LLPointer<LLViewerFetchedTexture> texture = new LLViewerFetchedTexture
+                    LLViewerFetchedTexture::ptr_t texture = std::make_shared<LLViewerFetchedTexture>
 						("file://"+mFilename, FTT_LOCAL_FILE, mWorldID, LL_LOCAL_USE_MIPMAPS);
 
 					texture->createGLTexture(LL_LOCAL_DISCARD_LEVEL, raw_image);
 					texture->setCachedRawImage(LL_LOCAL_DISCARD_LEVEL, raw_image);
-					texture->ref(); 
+					
+                    mTexture = texture;
 
                     LLViewerTextureManager::instance().explicitAddTexture(texture, LLViewerTextureManager::TEX_LIST_STANDARD);
 			
@@ -222,11 +220,10 @@ bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
 						replaceIDs(old_id, mWorldID);
 
 						// remove old_id from gimagelist
-                        LLViewerFetchedTexture* image = LLViewerTextureManager::instance().findFetchedTexture(old_id, LLViewerTextureManager::TEX_LIST_STANDARD);
-						if (image != NULL)
+                        LLViewerFetchedTexture::ptr_t image = LLViewerTextureManager::instance().findFetchedTexture(old_id, LLViewerTextureManager::TEX_LIST_STANDARD);
+						if (image)
 						{
                             LLViewerTextureManager::instance().removeTexture(image);
-							image->unref();
 						}
 					}
 
@@ -393,7 +390,7 @@ void LLLocalBitmap::replaceIDs(LLUUID old_id, LLUUID new_id)
 std::vector<LLViewerObject*> LLLocalBitmap::prepUpdateObjects(LLUUID old_id, U32 channel)
 {
 	std::vector<LLViewerObject*> obj_list;
-	LLViewerFetchedTexture* old_texture = LLViewerTextureManager::instance().findFetchedTexture(old_id);
+	LLViewerFetchedTexture::ptr_t old_texture = LLViewerTextureManager::instance().findFetchedTexture(old_id);
 
 	for(U32 face_iterator = 0; face_iterator < old_texture->getNumFaces(channel); face_iterator++)
 	{
@@ -510,7 +507,7 @@ void LLLocalBitmap::updateUserPrims(LLUUID old_id, LLUUID new_id, U32 channel)
 
 void LLLocalBitmap::updateUserVolumes(LLUUID old_id, LLUUID new_id, U32 channel)
 {
-	LLViewerFetchedTexture* old_texture = LLViewerTextureManager::instance().findFetchedTexture(old_id);
+	LLViewerFetchedTexture::ptr_t old_texture = LLViewerTextureManager::instance().findFetchedTexture(old_id);
 	for (U32 volume_iter = 0; volume_iter < old_texture->getNumVolumes(channel); volume_iter++)
 	{
 		LLVOVolume* volobjp = (*old_texture->getVolumeList(channel))[volume_iter];

@@ -196,7 +196,7 @@ void LLFlickrPhotoPanel::draw()
 		LLColor4 color = LLColor4::white;
 		gl_draw_scaled_image(offset_x, offset_y, 
 			thumbnail_w, thumbnail_h,
-			previewp->getThumbnailImage(), color % alpha);
+			previewp->getThumbnailImage().get(), color % alpha);
 	}
 
     // Update the visibility of the working (computing preview) label

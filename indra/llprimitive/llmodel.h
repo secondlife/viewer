@@ -35,6 +35,7 @@
 
 class daeElement;
 class domMesh;
+class LLViewerFetchedTexture;
 
 #define MAX_MODEL_FACES 8
 
@@ -327,10 +328,7 @@ public:
 protected:
     
     LLUUID		mDiffuseMapID;
-    void*			mOpaqueData;	// allow refs to viewer/platform-specific structs for each material
-    // currently only stores an LLPointer< LLViewerFetchedTexture > > to
-    // maintain refs to textures associated with each material for free
-    // ref counting.
+    std::shared_ptr<LLViewerFetchedTexture> mTexture;
 };
 
 typedef std::map<std::string, LLImportMaterial> material_map;

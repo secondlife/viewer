@@ -125,7 +125,7 @@ public:
 	const std::string getAccessString() const { return LLViewerRegion::accessToString((U8)mAccess); }
 
 	const S32 getAgentCount() const;				// Compute the total agents count
-	LLPointer<LLViewerFetchedTexture> getLandForSaleImage();	// Get the overlay image, fetch it if necessary
+    std::shared_ptr<LLViewerFetchedTexture>   getLandForSaleImage();	// Get the overlay image, fetch it if necessary
 
 	bool isName(const std::string& name) const;
 	bool isDown() { return (mAccess == SIM_ACCESS_DOWN); }
@@ -171,7 +171,7 @@ private:
 
 	// Handling the "land for sale / land for auction" overlay image
 	LLUUID mMapImageID;						// Image ID of the overlay image
-	LLPointer<LLViewerFetchedTexture> mOverlayImage;	// Reference to the overlay image
+    std::shared_ptr<LLViewerFetchedTexture>   mOverlayImage;	// Reference to the overlay image
 
 	// Items for this region
 	// Those are data received through item requests (as opposed to block requests for the rest of the data)
@@ -246,7 +246,7 @@ public:
 
 	// World Mipmap delegation: currently used when drawing the mipmap
 	void	equalizeBoostLevels();
-	LLPointer<LLViewerFetchedTexture> getObjectsTile(U32 grid_x, U32 grid_y, S32 level, bool load = true) { return mWorldMipmap.getObjectsTile(grid_x, grid_y, level, load); }
+    std::shared_ptr<LLViewerFetchedTexture>   getObjectsTile(U32 grid_x, U32 grid_y, S32 level, bool load = true) { return mWorldMipmap.getObjectsTile(grid_x, grid_y, level, load); }
 
 private:
 	bool clearItems(bool force = false);	// Clears the item lists

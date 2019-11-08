@@ -1079,7 +1079,7 @@ void LLFloaterSnapshotBase::draw()
 			LLColor4 color = working ? LLColor4::grey4 : LLColor4::white;
 			gl_draw_scaled_image(offset_x, offset_y, 
 					thumbnail_w, thumbnail_h,
-					previewp->getThumbnailImage(), color % alpha);
+					previewp->getThumbnailImage().get(), color % alpha);
 
 			previewp->drawPreviewRect(offset_x, offset_y) ;
 

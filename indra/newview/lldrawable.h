@@ -132,13 +132,13 @@ public:
 	inline S32			getNumFaces()      	 const;
 
 	//void                removeFace(const S32 i); // SJB: Avoid using this, it's slow
-	LLFace*				addFace(LLFacePool *poolp, LLViewerTexture *texturep);
-	LLFace*				addFace(const LLTextureEntry *te, LLViewerTexture *texturep);
-	LLFace*				addFace(const LLTextureEntry *te, LLViewerTexture *texturep, LLViewerTexture *normalp);
-	LLFace*				addFace(const LLTextureEntry *te, LLViewerTexture *texturep, LLViewerTexture *normalp, LLViewerTexture *specularp);
+    LLFace*				addFace(LLFacePool *poolp, const std::shared_ptr<LLViewerTexture> &texturep);
+    LLFace*				addFace(const LLTextureEntry *te, const std::shared_ptr<LLViewerTexture> &texturep);
+    LLFace*				addFace(const LLTextureEntry *te, const std::shared_ptr<LLViewerTexture> &texturep, const std::shared_ptr<LLViewerTexture> &normalp);
+    LLFace*				addFace(const LLTextureEntry *te, const std::shared_ptr<LLViewerTexture> &texturep, const std::shared_ptr<LLViewerTexture> &normalp, const std::shared_ptr<LLViewerTexture> &specularp);
 	void				deleteFaces(S32 offset, S32 count);
-	void                setNumFaces(const S32 numFaces, LLFacePool *poolp, LLViewerTexture *texturep);
-	void                setNumFacesFast(const S32 numFaces, LLFacePool *poolp, LLViewerTexture *texturep);
+    void                setNumFaces(const S32 numFaces, LLFacePool *poolp, const std::shared_ptr<LLViewerTexture> &texturep);
+    void                setNumFacesFast(const S32 numFaces, LLFacePool *poolp, const std::shared_ptr<LLViewerTexture> &texturep);
 	void				mergeFaces(LLDrawable* src);
 
 	void init(bool new_entry);

@@ -483,7 +483,7 @@ void LLPanelClassifiedInfo::stretchSnapshot()
 	// *NOTE dzaporozhan
 	// Could be moved to LLTextureCtrl
 
-	LLViewerFetchedTexture* texture = mSnapshotCtrl->getTexture();
+	LLViewerFetchedTexture::ptr_t texture = mSnapshotCtrl->getTexture();
 
 	if(!texture)
 	{

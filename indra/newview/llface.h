@@ -42,10 +42,8 @@
 
 class LLFacePool;
 class LLVolume;
-class LLViewerTexture;
 class LLTextureEntry;
 class LLVertexProgram;
-class LLViewerTexture;
 class LLGeometryManager;
 class LLTextureAtlasSlot;
 class LLDrawInfo;
@@ -101,12 +99,12 @@ public:
 	U16				getGeomStart()		const	{ return mGeomIndex; }		// index into draw pool
 	void			setTextureIndex(U8 index);
 	U8				getTextureIndex() const		{ return mTextureIndex; }
-	void			setTexture(U32 ch, LLViewerTexture* tex);
-	void			setTexture(LLViewerTexture* tex) ;
-	void			setDiffuseMap(LLViewerTexture* tex);
-	void			setNormalMap(LLViewerTexture* tex);
-	void			setSpecularMap(LLViewerTexture* tex);
-	void            switchTexture(U32 ch, LLViewerTexture* new_texture);
+	void			setTexture(U32 ch, const LLViewerTexture::ptr_t & tex);
+	void			setTexture(const LLViewerTexture::ptr_t & tex) ;
+	void			setDiffuseMap(const LLViewerTexture::ptr_t & tex);
+	void			setNormalMap(const LLViewerTexture::ptr_t & tex);
+	void			setSpecularMap(const LLViewerTexture::ptr_t & tex);
+	void            switchTexture(U32 ch, const LLViewerTexture::ptr_t & new_texture);
 	void            dirtyTexture();
 	LLXformMatrix*	getXform()			const	{ return mXform; }
 	BOOL			hasGeometry()		const	{ return mGeomCount > 0; }
@@ -144,10 +142,10 @@ public:
 	S32				getLOD()			const	{ return mVObjp.notNull() ? mVObjp->getLOD() : 0; }
 	void			setPoolType(U32 type)		{ mPoolType = type; }
 	S32				getTEOffset()				{ return mTEOffset; }
-	LLViewerTexture*	getTexture(U32 ch = LLRender::DIFFUSE_MAP) const;
+	LLViewerTexture::ptr_t    getTexture(U32 ch = LLRender::DIFFUSE_MAP) const;
 
 	void			setViewerObject(LLViewerObject* object);
-	void			setPool(LLFacePool *pool, LLViewerTexture *texturep);
+	void			setPool(LLFacePool *pool, const LLViewerTexture::ptr_t &texturep);
 	void			setPool(LLFacePool* pool);
 
 	void			setDrawable(LLDrawable *drawable);
@@ -197,7 +195,7 @@ public:
 	void		updateCenterAgent(); // Update center when xform has changed.
 	void		renderSelectedUV();
 
-	void		renderSelected(LLViewerTexture *image, const LLColor4 &color);
+	void		renderSelected(const LLViewerTexture::ptr_t &image, const LLColor4 &color);
 	void		renderOneWireframe(const LLColor4 &color, F32 fogCfx, bool wireframe_selection, bool bRenderHiddenSelections, bool shader);
 
 	F32			getKey()					const	{ return mDistance; }
@@ -231,8 +229,8 @@ public:
 
 	static U32 getRiggedDataMask(U32 type);
 
-	void	notifyAboutCreatingTexture(LLViewerTexture *texture);
-	void	notifyAboutMissingAsset(LLViewerTexture *texture);
+	void	notifyAboutCreatingTexture(const LLViewerTexture::ptr_t &texture);
+	void	notifyAboutMissingAsset(const LLViewerTexture::ptr_t &texture);
 
 public: //aligned members
 	LLVector4a		mExtents[2];
@@ -276,7 +274,7 @@ private:
 
 	LLXformMatrix* mXform;
 
-	LLPointer<LLViewerTexture> mTexture[LLRender::NUM_TEXTURE_CHANNELS];
+    LLViewerTexture::ptr_t  mTexture[LLRender::NUM_TEXTURE_CHANNELS];
 	
 	LLPointer<LLDrawable> mDrawablep;
 	LLPointer<LLViewerObject> mVObjp;

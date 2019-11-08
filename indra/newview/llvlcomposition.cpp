@@ -347,7 +347,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 	//
 	//
 
-	LLViewerTexture *texturep;
+	LLViewerTexture::ptr_t texturep;
 	U32 tex_width, tex_height, tex_comps;
 	U32 tex_stride;
 	F32 tex_x_scalef, tex_y_scalef;
@@ -472,7 +472,7 @@ LLUUID LLVLComposition::getDetailTextureID(S32 corner)
 	return mDetailTextures[corner]->getID();
 }
 
-LLViewerFetchedTexture* LLVLComposition::getDetailTexture(S32 corner)
+LLViewerFetchedTexture::ptr_t LLVLComposition::getDetailTexture(S32 corner)
 {
 	return mDetailTextures[corner];
 }

@@ -376,7 +376,7 @@ void LLVoiceVisualizer::render()
 		//-----------------------------
 		// bind texture 0 (the dot)
 		//-----------------------------
-		gGL.getTexUnit(0)->bind(mSoundSymbol.mTexture[0]);
+		gGL.getTexUnit(0)->bind(mSoundSymbol.mTexture[0].get());
 		
 		//-------------------------------------------------------------
 		// now render the dot
@@ -501,7 +501,7 @@ void LLVoiceVisualizer::render()
 				LLVector3 topRight		= mSoundSymbol.mPosition - l + u;
 							
 				gGL.color4fv( LLColor4( red, green, blue, mSoundSymbol.mWaveOpacity[i] ).mV );		
-				gGL.getTexUnit(0)->bind(mSoundSymbol.mTexture[i]);
+				gGL.getTexUnit(0)->bind(mSoundSymbol.mTexture[i].get());
 
 				
 				//---------------------------------------------------

@@ -1246,7 +1246,7 @@ BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 		if (!texture_ctrl) continue;
 
 		LLUUID image_asset_id = texture_ctrl->getImageAssetID();
-		LLViewerTexture* img = LLViewerTextureManager::instance().getFetchedTexture(image_asset_id);
+		LLViewerTexture::ptr_t img = LLViewerTextureManager::instance().getFetchedTexture(image_asset_id);
 		S32 components = img->getComponents();
 		// Must ask for highest resolution version's width. JC
 		S32 width = img->getFullWidth();

@@ -539,10 +539,9 @@ bool RequestStats::isDelayed() const
     return mTimer.getStarted() && !mTimer.hasExpired();
 }
 
-LLViewerFetchedTexture* LLMeshUploadThread::FindViewerTexture(const LLImportMaterial& material)
+LLViewerFetchedTexture::ptr_t LLMeshUploadThread::FindViewerTexture(const LLImportMaterial& material)
 {
-	LLPointer< LLViewerFetchedTexture > * ppTex = static_cast< LLPointer< LLViewerFetchedTexture > * >(material.mOpaqueData);
-	return ppTex ? (*ppTex).get() : NULL;
+    return material.mTexture;
 }
 
 volatile S32 LLMeshRepoThread::sActiveHeaderRequests = 0;
@@ -2186,8 +2185,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 	S32 mesh_num = 0;
 	S32 texture_num = 0;
 	
-	std::set<LLViewerTexture* > textures;
-	std::map<LLViewerTexture*,S32> texture_index;
+	std::set<LLViewerTexture::ptr_t> textures;
+	std::map<LLViewerTexture::ptr_t, S32> texture_index;
 
 	std::map<LLModel*,S32> mesh_index;
 	std::string model_name;
@@ -2290,21 +2289,21 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				LLImportMaterial& material = instance.mMaterial[data.mBaseModel->mMaterialList[face_num]];
 				LLSD face_entry = LLSD::emptyMap();
 
-				LLViewerFetchedTexture *texture = NULL;
+				LLViewerFetchedTexture::ptr_t texture;
 
-				if (material.mDiffuseMapFilename.size())
+				if (!material.mDiffuseMapFilename.empty())
 				{
 					texture = FindViewerTexture(material);
 				}
 				
-				if ((texture != NULL) &&
+				if ((texture) &&
 					(textures.find(texture) == textures.end()))
 				{
 					textures.insert(texture);
 				}
 
 				std::stringstream texture_str;
-				if (texture != NULL && include_textures && mUploadTextures)
+				if (texture && include_textures && mUploadTextures)
 				{
 					if(texture->hasSavedRawImage())
 					{
@@ -2319,7 +2318,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				}
 				}
 
-				if (texture != NULL &&
+				if (texture &&
 					mUploadTextures &&
 					texture_index.find(texture) == texture_index.end())
 				{
@@ -2330,7 +2329,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				}
 
 				// Subset of TextureEntry fields.
-				if (texture != NULL && mUploadTextures)
+				if (texture && mUploadTextures)
 				{
 					face_entry["image"] = texture_index[texture];
 					face_entry["scales"] = 1.0;
@@ -2445,14 +2444,14 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				LLImportMaterial& material = instance.mMaterial[data.mBaseModel->mMaterialList[face_num]];
 				LLSD face_entry = LLSD::emptyMap();
 
-				LLViewerFetchedTexture *texture = nullptr;
+				LLViewerFetchedTexture::ptr_t texture;
 
 				if (!material.mDiffuseMapFilename.empty())
 				{
 					texture = FindViewerTexture(material);
 				}
 
-				if ((texture != nullptr) &&
+				if (texture &&
 					(textures.find(texture) == textures.end()))
 				{
 					textures.insert(texture);
@@ -2474,7 +2473,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				    }
 				}
 
-				if (texture != nullptr &&
+				if (texture &&
 					mUploadTextures &&
 					texture_index.find(texture) == texture_index.end())
 				{
@@ -2485,7 +2484,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				}
 
 				// Subset of TextureEntry fields.
-				if (texture != nullptr && mUploadTextures)
+				if (texture && mUploadTextures)
 				{
 					face_entry["image"] = texture_index[texture];
 					face_entry["scales"] = 1.0;

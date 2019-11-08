@@ -136,7 +136,7 @@ public:
 	F32 getLandFarClip() const;
 	void setLandFarClip(const F32 far_clip);
 
-	LLViewerTexture *getDefaultWaterTexture();
+	LLViewerTexture::ptr_t getDefaultWaterTexture();
 	void updateWaterObjects();
 	void waterHeightRegionInfo(std::string const& sim_name, F32 water_height);
 	void shiftRegions(const LLVector3& offset);
@@ -202,7 +202,7 @@ private:
 	std::list<LLVOWater*> mHoleWaterObjects;
 	LLPointer<LLVOWater> mEdgeWaterObjects[8];
 
-	LLPointer<LLViewerTexture> mDefaultWaterTexturep;
+    LLViewerTexture::ptr_t mDefaultWaterTexturep;
 };
 
 

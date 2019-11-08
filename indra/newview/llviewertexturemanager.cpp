@@ -91,17 +91,17 @@ namespace
     // Create a bridge to the viewer texture manager.
     class LLViewerTextureManagerBridge : public LLTextureManagerBridge
     {
-        virtual LLPointer<LLGLTexture> getLocalTexture(bool usemipmaps = true, bool generate_gl_tex = true) override
+        virtual LLGLTexture::ptr_t getLocalTexture(bool usemipmaps = true, bool generate_gl_tex = true) override
         {
             return LLViewerTextureManager::instance().getLocalTexture(usemipmaps, generate_gl_tex);
         }
 
-        virtual LLPointer<LLGLTexture> getLocalTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps, bool generate_gl_tex = true) override
+        virtual LLGLTexture::ptr_t getLocalTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps, bool generate_gl_tex = true) override
         {
             return LLViewerTextureManager::instance().getLocalTexture(width, height, components, usemipmaps, generate_gl_tex);
         }
 
-        virtual LLPointer<LLGLTexture> getFetchedTexture(const LLUUID &image_id) override
+        virtual LLGLTexture::ptr_t getFetchedTexture(const LLUUID &image_id) override
         {
             return LLViewerTextureManager::instance().getFetchedTexture(image_id);
         }
@@ -138,7 +138,7 @@ void LLViewerTextureManager::initSingleton()
     params.mBoostPriority = LLGLTexture::BOOST_UI;
 
 #if 1
-    LLPointer<LLViewerFetchedTexture> imagep = LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT);
+    LLViewerFetchedTexture::ptr_t imagep = LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT);
     LLViewerFetchedTexture::sDefaultImagep = imagep;
 
     for (S32 i = 0; i < dim; i++)
@@ -228,6 +228,7 @@ void LLViewerTextureManager::cleanupSingleton()
     mOutstandingRequests.clear();
     mTextureList.clear();
     mImagePreloads.clear();
+    mMediaMap.clear();
 
     LLImageGL::sDefaultGLTexture = NULL;
     LLViewerTexture::sNullImagep = NULL;
@@ -278,7 +279,7 @@ void LLViewerTextureManager::doPreloadImages()
     // prefetch specific UUIDs
     getFetchedTexture(IMG_SHOT);
     getFetchedTexture(IMG_SMOKE_POOF);
-    LLViewerFetchedTexture* image = getFetchedTextureFromSkin("silhouette.j2c");
+    LLViewerFetchedTexture::ptr_t image = getFetchedTextureFromSkin("silhouette.j2c");
     if (image)
     {
         image->setAddressMode(LLTexUnit::TAM_WRAP);
@@ -330,7 +331,7 @@ void LLViewerTextureManager::doPreloadImages()
 
     LLPointer<LLImageRaw> img_blak_square_tex(new LLImageRaw(2, 2, 3));
     memset(img_blak_square_tex->getData(), 0, img_blak_square_tex->getDataSize());
-    LLPointer<LLViewerFetchedTexture> img_blak_square(new LLViewerFetchedTexture(img_blak_square_tex, FTT_DEFAULT, FALSE));
+    LLViewerFetchedTexture::ptr_t img_blak_square(std::make_shared<LLViewerFetchedTexture>(img_blak_square_tex, FTT_DEFAULT, FALSE));
     gBlackSquareID = img_blak_square->getID();
     img_blak_square->setUnremovable(true);
     explicitAddTexture(img_blak_square, TEX_LIST_STANDARD);
@@ -403,12 +404,31 @@ F32 LLViewerTextureManager::updateCleanDead(F32 timeout)
     timer.setTimerExpirySec(timeout);
 
 
+//     for (media_map_t::iterator iter = sMediaMap.begin(); iter != sMediaMap.end();)
+//     {
+//         LLViewerMediaTexture::ptr_t &mediap(iter->second);
+// 
+//         if (mediap.unique()) //one reference by sMediaMap
+//         {
+//             //Note: delay some time to delete the media textures to stop endlessly creating and immediately removing media texture.
+//             //
+//             if (mediap->getLastReferencedTimer()->getElapsedTimeF32() > MAX_INACTIVE_TIME)
+//             {
+//                 media_map_t::iterator cur = iter++;
+//                 sMediaMap.erase(cur);
+//                 continue;
+//             }
+//         }
+//         ++iter;
+//     }
+
+
 
     return timer.getTimeToExpireF32();
 }
 
 
-void LLViewerTextureManager::updatedSavedRaw(const LLPointer<LLViewerFetchedTexture> &texture)
+void LLViewerTextureManager::updatedSavedRaw(const LLViewerFetchedTexture::ptr_t &texture)
 {
     /*TODO*/ // This could be an ordered list or a queue based on the expire time...that would save
     // us from having to iterate through the entire list to check cleanup.
@@ -432,7 +452,7 @@ void  LLViewerTextureManager::findTextures(const LLUUID& id, LLViewerTextureMana
 //     //search media texture list
 //     if (output.empty())
 //     {
-//         LLPointer<LLViewerTexture> tex;
+//         LLViewerTexture::ptr_t tex;
 //         tex = findMediaTexture(id);
 //         if (tex)
 //         {
@@ -441,7 +461,7 @@ void  LLViewerTextureManager::findTextures(const LLUUID& id, LLViewerTextureMana
 //     }
 }
 
-LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::findFetchedTexture(const LLUUID& id, S32 tex_type) const
+LLViewerFetchedTexture::ptr_t LLViewerTextureManager::findFetchedTexture(const LLUUID& id, S32 tex_type) const
 {
     map_key_texture_t::const_iterator it(mTextureList.find(TextureKey(id, ETexListType(tex_type))));
     
@@ -450,21 +470,34 @@ LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::findFetchedTexture(con
     return (*it).second;
 }
 
-LLPointer<LLViewerMediaTexture> LLViewerTextureManager::findMediaTexture(const LLUUID &media_id) const
+LLViewerMediaTexture::ptr_t LLViewerTextureManager::findMediaTexture(const LLUUID& id, bool setimpl/*=true*/) const
 {
-    return LLViewerMediaTexture::findMediaTexture(media_id);
+    media_map_t::const_iterator iter = mMediaMap.find(id);
+    if (iter == mMediaMap.end())
+    {
+        return LLViewerMediaTexture::ptr_t();
+    }
+
+    LLViewerMediaTexture::ptr_t media_tex = iter->second;
+    media_tex->setMediaImpl();
+    media_tex->getLastReferencedTimer()->reset();
+
+    return media_tex;
 }
 
 
 //========================================================================
-LLPointer<LLViewerMediaTexture> LLViewerTextureManager::createMediaTexture(const LLUUID &media_id, bool usemipmaps, LLImageGL* gl_image) const
+LLViewerMediaTexture::ptr_t LLViewerTextureManager::createMediaTexture(const LLUUID &media_id, bool usemipmaps, LLImageGL* gl_image)
 {
     LL_RECORD_BLOCK_TIME(FTM_IMAGE_CREATE);
 
-	return new LLViewerMediaTexture(media_id, usemipmaps, gl_image);
+    LLViewerMediaTexture::ptr_t media = std::make_shared<LLViewerMediaTexture>(media_id, usemipmaps, gl_image);
+    mMediaMap.insert(std::make_pair(media_id, media));
+
+    return media;
 }
 
-LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::createFetchedTexture(const LLUUID &image_id,
+LLViewerFetchedTexture::ptr_t LLViewerTextureManager::createFetchedTexture(const LLUUID &image_id,
     FTType f_type,
     BOOL usemipmaps,
     LLViewerFetchedTexture::EBoostLevel usage,
@@ -474,14 +507,14 @@ LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::createFetchedTexture(c
 {
     LL_RECORD_BLOCK_TIME(FTM_IMAGE_CREATE);
 
-    LLPointer<LLViewerFetchedTexture> imagep;
+    LLViewerFetchedTexture::ptr_t imagep;
     switch (texture_type)
     {
     case LLViewerTexture::FETCHED_TEXTURE:
-        imagep = new LLViewerFetchedTexture(image_id, f_type, usemipmaps);
+        imagep = std::make_shared<LLViewerFetchedTexture>(image_id, f_type, usemipmaps);
         break;
     case LLViewerTexture::LOD_TEXTURE:
-        imagep = new LLViewerLODTexture(image_id, f_type, usemipmaps);
+        imagep = std::make_shared<LLViewerLODTexture>(image_id, f_type, usemipmaps);
         break;
     default:
         LL_ERRS("Texture") << "Invalid texture type " << texture_type << LL_ENDL;
@@ -518,15 +551,15 @@ LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::createFetchedTexture(c
     return imagep;
 }
 
-void LLViewerTextureManager::addTexture(LLPointer<LLViewerFetchedTexture> texturep, ETexListType list_type)
+void LLViewerTextureManager::addTexture(LLViewerFetchedTexture::ptr_t &texturep, ETexListType list_type)
 {
     mTextureList[TextureKey(texturep->getID(), list_type)] = texturep;
 }
 
 //========================================================================
-LLPointer<LLViewerTexture> LLViewerTextureManager::getLocalTexture(bool usemipmaps, bool generate_gl_tex) const
+LLViewerTexture::ptr_t LLViewerTextureManager::getLocalTexture(bool usemipmaps, bool generate_gl_tex) const
 {
-	LLPointer<LLViewerTexture> tex(new LLViewerTexture(usemipmaps));
+    LLViewerTexture::ptr_t tex(std::make_shared<LLViewerTexture>(usemipmaps));
 	if(generate_gl_tex)
 	{
 		tex->generateGLTexture();
@@ -535,9 +568,9 @@ LLPointer<LLViewerTexture> LLViewerTextureManager::getLocalTexture(bool usemipma
 	return tex;
 }
 
-LLPointer<LLViewerTexture> LLViewerTextureManager::getLocalTexture(const LLUUID& id, bool usemipmaps, bool generate_gl_tex) const
+LLViewerTexture::ptr_t LLViewerTextureManager::getLocalTexture(const LLUUID& id, bool usemipmaps, bool generate_gl_tex) const
 {
-	LLPointer<LLViewerTexture> tex(new LLViewerTexture(id, usemipmaps));
+    LLViewerTexture::ptr_t tex(std::make_shared<LLViewerTexture>(id, usemipmaps));
 	if(generate_gl_tex)
 	{
 		tex->generateGLTexture();
@@ -546,16 +579,16 @@ LLPointer<LLViewerTexture> LLViewerTextureManager::getLocalTexture(const LLUUID&
 	return tex;
 }
 
-LLPointer<LLViewerTexture> LLViewerTextureManager::getLocalTexture(const LLImageRaw* raw, bool usemipmaps) const
+LLViewerTexture::ptr_t LLViewerTextureManager::getLocalTexture(const LLImageRaw* raw, bool usemipmaps) const
 {
-	LLPointer<LLViewerTexture> tex(new LLViewerTexture(raw, usemipmaps));
+    LLViewerTexture::ptr_t tex(std::make_shared<LLViewerTexture>(raw, usemipmaps));
 	tex->setCategory(LLGLTexture::LOCAL);
 	return tex;
 }
 
-LLPointer<LLViewerTexture> LLViewerTextureManager::getLocalTexture(U32 width, U32 height, U8 components, bool usemipmaps, bool generate_gl_tex) const
+LLViewerTexture::ptr_t LLViewerTextureManager::getLocalTexture(U32 width, U32 height, U8 components, bool usemipmaps, bool generate_gl_tex) const
 {
-	LLPointer<LLViewerTexture> tex(new LLViewerTexture(width, height, components, usemipmaps));
+    LLViewerTexture::ptr_t tex(std::make_shared<LLViewerTexture>(width, height, components, usemipmaps));
 	if(generate_gl_tex)
 	{
 		tex->generateGLTexture();
@@ -565,7 +598,7 @@ LLPointer<LLViewerTexture> LLViewerTextureManager::getLocalTexture(U32 width, U3
 }
 
 //========================================================================
-LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::getFetchedTexture(const LLUUID &image_id, const LLViewerTextureManager::FetchParams &params)
+LLViewerFetchedTexture::ptr_t LLViewerTextureManager::getFetchedTexture(const LLUUID &image_id, const LLViewerTextureManager::FetchParams &params)
 {
     // Return the image with ID image_id
     // If the image is not found, creates new image and
@@ -588,9 +621,9 @@ LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::getFetchedTexture(cons
 
     ETexListType tex_type(get_element_type(boost_priority));
 
-    LLPointer<LLViewerFetchedTexture> imagep = findFetchedTexture(image_id, tex_type);
+    LLViewerFetchedTexture::ptr_t imagep = findFetchedTexture(image_id, tex_type);
 
-    if (imagep.isNull())
+    if (!imagep)
     {   // new request
         imagep = createFetchedTexture(image_id, f_type, usemipmaps, boost_priority, texture_type, internal_format, primary_format);
 
@@ -641,7 +674,7 @@ LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::getFetchedTexture(cons
 
 }
 
-LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::getFetchedTextureFromFile(const std::string& filename, const LLViewerTextureManager::FetchParams &params)
+LLViewerFetchedTexture::ptr_t LLViewerTextureManager::getFetchedTextureFromFile(const std::string& filename, const LLViewerTextureManager::FetchParams &params)
 {
     FetchParams use_params(params);
 
@@ -655,7 +688,7 @@ LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::getFetchedTextureFromF
     return getFetchedTextureFromUrl(url, use_params);
 }
 
-LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::getFetchedTextureFromSkin(const std::string& filename, const LLViewerTextureManager::FetchParams &params)
+LLViewerFetchedTexture::ptr_t LLViewerTextureManager::getFetchedTextureFromSkin(const std::string& filename, const LLViewerTextureManager::FetchParams &params)
 {
     std::string full_path = gDirUtilp->findSkinnedFilename("textures", filename);
     if (full_path.empty())
@@ -674,7 +707,7 @@ LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::getFetchedTextureFromS
     return getFetchedTextureFromFile(full_path, use_params);
 }
 
-LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::getFetchedTextureFromUrl(const std::string& url, const LLViewerTextureManager::FetchParams &params)
+LLViewerFetchedTexture::ptr_t LLViewerTextureManager::getFetchedTextureFromUrl(const std::string& url, const LLViewerTextureManager::FetchParams &params)
 {
     if (url.empty())
     {
@@ -703,9 +736,9 @@ LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::getFetchedTextureFromU
 
     ETexListType tex_type(get_element_type(boost_priority));
 
-    LLPointer<LLViewerFetchedTexture> imagep = findFetchedTexture(force_id, tex_type);
+    LLViewerFetchedTexture::ptr_t imagep = findFetchedTexture(force_id, tex_type);
 
-    if (imagep.notNull())
+    if (imagep)
     {
         if (imagep->getUrl().empty())
         {
@@ -760,12 +793,12 @@ LLPointer<LLViewerFetchedTexture> LLViewerTextureManager::getFetchedTextureFromU
     return imagep;
 }
 
-LLPointer<LLViewerMediaTexture>  LLViewerTextureManager::getMediaTexture(const LLUUID& id, bool usemipmaps, LLImageGL* gl_image)
+LLViewerMediaTexture::ptr_t LLViewerTextureManager::getMediaTexture(const LLUUID& id, bool usemipmaps, LLImageGL* gl_image)
 {
-    LLViewerMediaTexture* tex = LLViewerMediaTexture::findMediaTexture(id);
+    LLViewerMediaTexture::ptr_t tex = findMediaTexture(id);
     if (!tex)
     {
-        tex = LLViewerTextureManager::createMediaTexture(id, usemipmaps, gl_image);
+        tex = createMediaTexture(id, usemipmaps, gl_image);
     }
 
     tex->initVirtualSize();
@@ -773,7 +806,7 @@ LLPointer<LLViewerMediaTexture>  LLViewerTextureManager::getMediaTexture(const L
     return tex;
 }
 
-void LLViewerTextureManager::removeTexture(const LLPointer<LLViewerFetchedTexture> &texture)
+void LLViewerTextureManager::removeTexture(const LLViewerFetchedTexture::ptr_t &texture)
 {
     LLUUID id(texture->getID());
 
@@ -781,8 +814,16 @@ void LLViewerTextureManager::removeTexture(const LLPointer<LLViewerFetchedTextur
     mTextureList.erase(TextureKey(id, get_element_type(texture->getBoostLevel())));
 }
 
+void LLViewerTextureManager::removeMediaImplFromTexture(const LLUUID& media_id)
+{
+    LLViewerMediaTexture::ptr_t media_tex = findMediaTexture(media_id, false);
+    if (media_tex)
+    {
+        media_tex->invalidateMediaImpl();
+    }
+}
 
-void LLViewerTextureManager::explicitAddTexture(const LLPointer<LLViewerFetchedTexture> &texture, LLViewerTextureManager::ETexListType type)
+void LLViewerTextureManager::explicitAddTexture(const LLViewerFetchedTexture::ptr_t &texture, LLViewerTextureManager::ETexListType type)
 {
     mTextureList[TextureKey(texture->getID(), type)] = texture;
 }
@@ -803,9 +844,9 @@ void LLViewerTextureManager::cancelRequest(const LLUUID &id)
 }
 
 
-void LLViewerTextureManager::setTextureDirty(const LLPointer<LLViewerFetchedTexture> &texture)
+void LLViewerTextureManager::setTextureDirty(const LLViewerFetchedTexture::ptr_t &texture)
 {
-    mDirtyTextureList.insert(texture.get());
+    mDirtyTextureList.insert(texture);
 }
 
 
@@ -818,7 +859,7 @@ void LLViewerTextureManager::onTextureFetchDone(const LLAssetFetch::AssetRequest
 
     LLUUID fetch_id(request->getId());
 
-    LLPointer<LLViewerFetchedTexture> texture(findFetchedTexture(fetch_id, tex_type));
+    LLViewerFetchedTexture::ptr_t texture(findFetchedTexture(fetch_id, tex_type));
 
     mOutstandingRequests.erase(fetch_id);
     if (!texture)
@@ -1069,17 +1110,17 @@ void LLViewerTextureManager::resetStatistics()
 }
 
 //========================================================================
-LLViewerFetchedTexture* LLViewerTextureManager::staticCastToFetchedTexture(LLTexture* tex, bool report_error)
+LLViewerFetchedTexture::ptr_t LLViewerTextureManager::staticCastToFetchedTexture(const LLTexture::ptr_t &tex, bool report_error)
 {
     if (!tex)
     {
-        return nullptr;
+        return LLViewerFetchedTexture::ptr_t();
     }
 
     S8 type = tex->getType();
     if ((type == LLViewerTexture::FETCHED_TEXTURE) || (type == LLViewerTexture::LOD_TEXTURE))
     {
-        return static_cast<LLViewerFetchedTexture*>(tex);
+        return std::static_pointer_cast<LLViewerFetchedTexture>(tex);
     }
 
     if (report_error)
@@ -1087,7 +1128,7 @@ LLViewerFetchedTexture* LLViewerTextureManager::staticCastToFetchedTexture(LLTex
         LL_ERRS("Texture") << "not a fetched texture type: " << type << LL_ENDL;
     }
 
-    return nullptr;
+    return LLViewerFetchedTexture::ptr_t();
 }
 
 //========================================================================

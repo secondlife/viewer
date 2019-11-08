@@ -62,9 +62,9 @@ LLScrollingPanelParam::LLScrollingPanelParam( const LLPanel::Params& panel_param
 	F32 min_weight = param->getMinWeight();
 	F32 max_weight = param->getMaxWeight();
 
-	mHintMin = new LLVisualParamHint( pos_x, pos_y, PARAM_HINT_WIDTH, PARAM_HINT_HEIGHT, mesh, (LLViewerVisualParam*) wearable->getVisualParam(param->getID()), wearable,  min_weight, jointp);
+	mHintMin = std::make_shared<LLVisualParamHint>( pos_x, pos_y, PARAM_HINT_WIDTH, PARAM_HINT_HEIGHT, mesh, (LLViewerVisualParam*) wearable->getVisualParam(param->getID()), wearable,  min_weight, jointp);
 	pos_x = getChild<LLViewBorder>("right_border")->getRect().mLeft + left_border->getBorderWidth();
-	mHintMax = new LLVisualParamHint( pos_x, pos_y, PARAM_HINT_WIDTH, PARAM_HINT_HEIGHT, mesh, (LLViewerVisualParam*) wearable->getVisualParam(param->getID()), wearable, max_weight, jointp );
+	mHintMax = std::make_shared<LLVisualParamHint>( pos_x, pos_y, PARAM_HINT_WIDTH, PARAM_HINT_HEIGHT, mesh, (LLViewerVisualParam*) wearable->getVisualParam(param->getID()), wearable, max_weight, jointp );
 	
 	mHintMin->setAllowsUpdates( FALSE );
 	mHintMax->setAllowsUpdates( FALSE );
@@ -210,7 +210,7 @@ void LLScrollingPanelParam::onHintMaxMouseDown( void* userdata )
 }
 
 
-void LLScrollingPanelParam::onHintMouseDown( LLVisualParamHint* hint )
+void LLScrollingPanelParam::onHintMouseDown(const LLVisualParamHint::ptr_t &hint)
 {
 	// morph towards this result
 	F32 current_weight = mWearable->getVisualParamWeight( hint->getVisualParam()->getID() );
@@ -237,7 +237,7 @@ void LLScrollingPanelParam::onHintMaxHeldDown( void* userdata )
 	self->onHintHeldDown( self->mHintMax );
 }
 	
-void LLScrollingPanelParam::onHintHeldDown( LLVisualParamHint* hint )
+void LLScrollingPanelParam::onHintHeldDown(const LLVisualParamHint::ptr_t &hint)
 {
 	F32 current_weight = mWearable->getVisualParamWeight( hint->getVisualParam()->getID() );
 
@@ -283,14 +283,14 @@ void LLScrollingPanelParam::onHintMinMouseUp( void* userdata )
 
 	F32 elapsed_time = self->mMouseDownTimer.getElapsedTimeF32();
 
-	LLVisualParamHint* hint = self->mHintMin;
+	LLVisualParamHint::ptr_t hint = self->mHintMin;
 
 	if (elapsed_time < PARAM_STEP_TIME_THRESHOLD)
 	{
 		// step in direction
 		F32 current_weight = self->mWearable->getVisualParamWeight( hint->getVisualParam()->getID() );
 		F32 range = self->mHintMax->getVisualParamWeight() - self->mHintMin->getVisualParamWeight();
-		// step a fraction in the negative directiona
+		// step a fraction in the negative direction
 		F32 new_weight = current_weight - (range / 10.f);
 		F32 new_percent = self->weightToPercent(new_weight);
 		LLSliderCtrl* slider = self->getChild<LLSliderCtrl>("param slider");
@@ -317,7 +317,7 @@ void LLScrollingPanelParam::onHintMaxMouseUp( void* userdata )
 
 	if (isAgentAvatarValid())
 	{
-		LLVisualParamHint* hint = self->mHintMax;
+		LLVisualParamHint::ptr_t hint = self->mHintMax;
 
 		if (elapsed_time < PARAM_STEP_TIME_THRESHOLD)
 		{

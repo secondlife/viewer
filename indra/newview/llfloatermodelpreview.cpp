@@ -187,18 +187,18 @@ BOOL stop_gloderror()
 	return FALSE;
 }
 
-LLViewerFetchedTexture* bindMaterialDiffuseTexture(const LLImportMaterial& material)
+LLViewerFetchedTexture::ptr_t bindMaterialDiffuseTexture(const LLImportMaterial& material)
 {
     LLViewerTextureManager::FetchParams params;
     
     params.mBoostPriority = LLGLTexture::BOOST_PREVIEW;
-	LLViewerFetchedTexture *texture = LLViewerTextureManager::instance().getFetchedTexture(material.getDiffuseMap(), params);
+	LLViewerFetchedTexture::ptr_t texture = LLViewerTextureManager::instance().getFetchedTexture(material.getDiffuseMap(), params);
 
 	if (texture)
 	{
 		if (texture->getDiscardLevel() > -1)
 		{
-			gGL.getTexUnit(0)->bind(texture, true);
+			gGL.getTexUnit(0)->bind(texture.get(), true);
 			return texture;
 		}
 	}
@@ -1843,7 +1843,7 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 
 	if (mModelLoader)
 	{
-		LL_WARNS() << "Incompleted model load operation pending." << LL_ENDL;
+		LL_WARNS() << "incomplete model load operation pending." << LL_ENDL;
 		return;
 	}
 	
@@ -1864,7 +1864,7 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
 		&LLModelPreview::lookupJointByName,
 		&LLModelPreview::loadTextures,
 		&LLModelPreview::stateChangedCallback,
-		this,
+		getSharedPointer(),
 		mJointTransformMap,
 		mJointsFromNode,
         joint_alias_map,
@@ -3529,55 +3529,47 @@ void LLModelPreview::loadedCallback(
 	LLModelLoader::scene& scene,
 	LLModelLoader::model_list& model_list,
 	S32 lod,
-	void* opaque)
+	const LLModelPreview::ptr_t &preview)
 {
-	LLModelPreview* pPreview = static_cast< LLModelPreview* >(opaque);
-	if (pPreview && !LLModelPreview::sIgnoreLoadedCallback)
+	if (preview && !LLModelPreview::sIgnoreLoadedCallback)
 	{
-		pPreview->loadModelCallback(lod);
+		preview->loadModelCallback(lod);
 	}	
 }
 
-void LLModelPreview::stateChangedCallback(U32 state,void* opaque)
+void LLModelPreview::stateChangedCallback(U32 state, const LLModelPreview::ptr_t &preview)
 {
-	LLModelPreview* pPreview = static_cast< LLModelPreview* >(opaque);
-	if (pPreview)
+	if (preview)
 	{
-	 pPreview->setLoadState(state);
+        preview->setLoadState(state);
 	}
 }
 
-LLJoint* LLModelPreview::lookupJointByName(const std::string& str, void* opaque)
+LLJoint* LLModelPreview::lookupJointByName(const std::string& str, const LLModelPreview::ptr_t &preview)
 {
-	LLModelPreview* pPreview = static_cast< LLModelPreview* >(opaque);
-	if (pPreview)
+	if (preview)
 	{
-		return pPreview->getPreviewAvatar()->getJoint(str);
+		return preview->getPreviewAvatar()->getJoint(str);
 	}
-	return NULL;
+	return nullptr;
 }
 
-U32 LLModelPreview::loadTextures(LLImportMaterial& material,void* opaque)
+U32 LLModelPreview::loadTextures(LLImportMaterial& material, const LLModelPreview::ptr_t &preview)
 {
-	(void)opaque;
 
-	if (material.mDiffuseMapFilename.size())
+	if (!material.mDiffuseMapFilename.empty())
 	{
-		material.mOpaqueData = new LLPointer< LLViewerFetchedTexture >;
-		LLPointer< LLViewerFetchedTexture >& tex = (*reinterpret_cast< LLPointer< LLViewerFetchedTexture > * >(material.mOpaqueData));
-
         LLViewerTextureManager::FetchParams params;
         params.mBoostPriority = LLGLTexture::BOOST_PREVIEW;
         params.mForceToSaveRaw = true;
         params.mSaveKeepTime = F32_MAX;
-        params.mCallback = [opaque](bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done) { LLModelPreview::textureLoadedCallback(success, src_vi, final_done, opaque); };
-
-        tex = LLViewerTextureManager::instance().getFetchedTextureFromFile(material.mDiffuseMapFilename, params);
-		material.setDiffuseMap(tex->getID()); // record tex ID
+        params.mCallback = [preview](bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done) { LLModelPreview::textureLoadedCallback(success, src_vi, final_done, preview); };
+        material.mTexture = LLViewerTextureManager::instance().getFetchedTextureFromFile(material.mDiffuseMapFilename, params);
+        material.setDiffuseMap(material.mTexture->getID()); // record tex ID
 		return 1;
 	}
 
-	material.mOpaqueData = NULL;
+    material.mTexture.reset();
 	return 0;	
 }
 
@@ -3886,7 +3878,7 @@ BOOL LLModelPreview::render()
 
 								// Find the tex for this material, bind it, and add it to our set
 								//
-								LLViewerFetchedTexture* tex = bindMaterialDiffuseTexture(material);
+								LLViewerFetchedTexture::ptr_t tex = bindMaterialDiffuseTexture(material);
 								if (tex)
 								{
 									mTextureSet.insert(tex);
@@ -4183,7 +4175,7 @@ BOOL LLModelPreview::render()
 
 							// Find the tex for this material, bind it, and add it to our set
 							//
-							LLViewerFetchedTexture* tex = bindMaterialDiffuseTexture(material);
+							LLViewerFetchedTexture::ptr_t tex = bindMaterialDiffuseTexture(material);
 							if (tex)
 							{
 								mTextureSet.insert(tex);
@@ -4362,9 +4354,11 @@ void LLFloaterModelPreview::refresh()
 }
 
 //static
-void LLModelPreview::textureLoadedCallback(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, void *userdata)
+void LLModelPreview::textureLoadedCallback(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, const LLModelPreview::ptr_t &preview)
 {
-	LLModelPreview* preview = (LLModelPreview*) userdata;
+    if (!preview)
+        return;
+
 	preview->refresh();
 
 	if(final_done && preview->mModelLoader)

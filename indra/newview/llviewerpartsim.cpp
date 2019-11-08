@@ -110,7 +110,7 @@ LLViewerPart::~LLViewerPart()
 	--LLViewerPartSim::sParticleCount2 ;
 }
 
-void LLViewerPart::init(LLPointer<LLViewerPartSource> sourcep, LLViewerTexture *imagep, LLVPCallback cb)
+void LLViewerPart::init(LLPointer<LLViewerPartSource> sourcep, const LLViewerTexture::ptr_t &imagep, LLVPCallback cb)
 {
 	mPartID = LLViewerPart::sNextPartID;
 	LLViewerPart::sNextPartID++;

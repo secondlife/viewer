@@ -1364,7 +1364,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 		if (pass==0 && (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_PARTICLES) || LLViewerPartSim::getMaxPartCount() <= 0))
 		{
 			// debug code to draw a sphere in place of avatar
-			gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
+			gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep.get());
 			gGL.setColorMask(true, true);
 			LLVector3 pos = avatarp->getPositionAgent();
 			gGL.color4f(1.0f, 1.0f, 1.0f, 0.7f);
@@ -1883,7 +1883,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
             bool is_alpha_blend = false;
             bool is_alpha_mask  = false;
 
-            LLViewerTexture* tex = face->getTexture(LLRender::DIFFUSE_MAP);
+            LLViewerTexture::ptr_t tex = face->getTexture(LLRender::DIFFUSE_MAP);
             if (tex)
             {
                 if (tex->getIsAlphaMask())
@@ -2012,11 +2012,11 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 			{
 				//order is important here LLRender::DIFFUSE_MAP should be last, becouse it change 
 				//(gGL).mCurrTextureUnitIndex
-                LLViewerTexture* specular = NULL;
+                LLViewerTexture::ptr_t specular;
                 if (LLPipeline::sImpostorRender)
                 {
                     specular = LLViewerTextureManager::instance().findFetchedTexture(gBlackSquareID);
-                    llassert(NULL != specular);
+                    llassert(specular);
                 }
                 else
                 {
@@ -2024,11 +2024,11 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
                 }
                 if (specular)
                 {
-                    gGL.getTexUnit(specular_channel)->bind(specular);
+                    gGL.getTexUnit(specular_channel)->bind(specular.get());
                 }
                 
-				gGL.getTexUnit(normal_channel)->bind(face->getTexture(LLRender::NORMAL_MAP));
-				gGL.getTexUnit(sDiffuseChannel)->bind(face->getTexture(LLRender::DIFFUSE_MAP), false, true);
+				gGL.getTexUnit(normal_channel)->bind(face->getTexture(LLRender::NORMAL_MAP).get());
+				gGL.getTexUnit(sDiffuseChannel)->bind(face->getTexture(LLRender::DIFFUSE_MAP).get(), false, true);
 
 
 				LLColor4 col = mat->getSpecularLightColor();
@@ -2061,7 +2061,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 
 				for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
 				{
-					LLViewerTexture* tex = face->getTexture(i);
+					LLViewerTexture::ptr_t tex = face->getTexture(i);
 					if (tex)
 					{
 						tex->addTextureStats(avatar->getPixelArea());
@@ -2070,7 +2070,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 			}
 			else
 			{
-				gGL.getTexUnit(sDiffuseChannel)->bind(face->getTexture());
+				gGL.getTexUnit(sDiffuseChannel)->bind(face->getTexture().get());
 				sVertexProgram->setMinimumAlpha(0.f);
 				if (normal_channel > -1)
 				{
@@ -2242,7 +2242,7 @@ void LLDrawPoolAvatar::renderRiggedGlow(LLVOAvatar* avatar)
 //-----------------------------------------------------------------------------
 // getDebugTexture()
 //-----------------------------------------------------------------------------
-LLViewerTexture *LLDrawPoolAvatar::getDebugTexture()
+LLViewerTexture::ptr_t LLDrawPoolAvatar::getDebugTexture()
 {
 	if (mReferences.empty())
 	{

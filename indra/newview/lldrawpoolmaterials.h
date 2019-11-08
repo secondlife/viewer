@@ -66,8 +66,8 @@ public:
 	/*virtual*/ void endDeferredPass(S32 pass);
 	/*virtual*/ void renderDeferred(S32 pass);
 	
-	void bindSpecularMap(LLViewerTexture* tex);
-	void bindNormalMap(LLViewerTexture* tex);
+	void bindSpecularMap(const std::shared_ptr<LLViewerTexture> &tex);
+    void bindNormalMap(const std::shared_ptr<LLViewerTexture> &tex);
 	
 	/*virtual*/ void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures = FALSE);
 };

@@ -29,11 +29,11 @@
 #define LL_SCROLLINGPANELPARAM_H
 
 #include "llscrollingpanelparambase.h"
+#include "lltoolmorph.h"
 
 class LLViewerJointMesh;
 class LLViewerVisualParam;
 class LLWearable;
-class LLVisualParamHint;
 class LLViewerVisualParam;
 class LLJoint;
 
@@ -58,8 +58,8 @@ public:
 	static void			onHintMinMouseUp(void* userdata);
 	static void			onHintMaxMouseUp(void* userdata);
 
-	void				onHintMouseDown( LLVisualParamHint* hint );
-	void				onHintHeldDown( LLVisualParamHint* hint );
+	void				onHintMouseDown( const LLVisualParamHint::ptr_t &hint );
+    void				onHintHeldDown( const LLVisualParamHint::ptr_t &hint);
 
 	F32					weightToPercent( F32 weight );
 	F32					percentToWeight( F32 percent );
@@ -72,8 +72,8 @@ public:
 	const static S32 PARAM_HINT_HEIGHT;
 
 public:
-	LLPointer<LLVisualParamHint>	mHintMin;
-	LLPointer<LLVisualParamHint>	mHintMax;
+	LLVisualParamHint::ptr_t	mHintMin;
+	LLVisualParamHint::ptr_t	mHintMax;
 	static S32 			sUpdateDelayFrames;
 	
 protected:

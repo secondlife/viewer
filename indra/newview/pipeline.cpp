@@ -1505,9 +1505,9 @@ S32 LLPipeline::setLightingDetail(S32 level)
 class LLOctreeDirtyTexture : public OctreeTraveler
 {
 public:
-	const std::set<LLViewerFetchedTexture*>& mTextures;
+	const std::set<LLViewerFetchedTexture::ptr_t>& mTextures;
 
-	LLOctreeDirtyTexture(const std::set<LLViewerFetchedTexture*>& textures) : mTextures(textures) { }
+	LLOctreeDirtyTexture(const std::set<LLViewerFetchedTexture::ptr_t>& textures) : mTextures(textures) { }
 
 	virtual void visit(const OctreeNode* node)
 	{
@@ -1520,7 +1520,7 @@ public:
 				for (LLSpatialGroup::drawmap_elem_t::iterator j = i->second.begin(); j != i->second.end(); ++j) 
 				{
 					LLDrawInfo* params = *j;
-					LLViewerFetchedTexture* tex = LLViewerTextureManager::staticCastToFetchedTexture(params->mTexture);
+					LLViewerFetchedTexture::ptr_t tex = LLViewerTextureManager::staticCastToFetchedTexture(params->mTexture);
 					if (tex && mTextures.find(tex) != mTextures.end())
 					{ 
 						group->setState(LLSpatialGroup::GEOM_DIRTY);
@@ -1538,7 +1538,7 @@ public:
 };
 
 // Called when a texture changes # of channels (causes faces to move to alpha pool)
-void LLPipeline::dirtyPoolObjectTextures(const std::set<LLViewerFetchedTexture*>& textures)
+void LLPipeline::dirtyPoolObjectTextures(const std::set<LLViewerFetchedTexture::ptr_t>& textures)
 {
 	assertInitialized();
 
@@ -1570,7 +1570,7 @@ void LLPipeline::dirtyPoolObjectTextures(const std::set<LLViewerFetchedTexture*>
 	}
 }
 
-LLDrawPool *LLPipeline::findPool(const U32 type, LLViewerTexture *tex0)
+LLDrawPool *LLPipeline::findPool(const U32 type, const LLViewerTexture::ptr_t &tex0)
 {
 	assertInitialized();
 
@@ -1652,7 +1652,7 @@ LLDrawPool *LLPipeline::findPool(const U32 type, LLViewerTexture *tex0)
 }
 
 
-LLDrawPool *LLPipeline::getPool(const U32 type,	LLViewerTexture *tex0)
+LLDrawPool *LLPipeline::getPool(const U32 type, const LLViewerTexture::ptr_t &tex0)
 {
 	LLDrawPool *poolp = findPool(type, tex0);
 	if (poolp)
@@ -1668,14 +1668,14 @@ LLDrawPool *LLPipeline::getPool(const U32 type,	LLViewerTexture *tex0)
 
 
 // static
-LLDrawPool* LLPipeline::getPoolFromTE(const LLTextureEntry* te, LLViewerTexture* imagep)
+LLDrawPool* LLPipeline::getPoolFromTE(const LLTextureEntry* te, const LLViewerTexture::ptr_t &imagep)
 {
 	U32 type = getPoolTypeFromTE(te, imagep);
 	return gPipeline.getPool(type, imagep);
 }
 
 //static 
-U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* imagep)
+U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, const LLViewerTexture::ptr_t &imagep)
 {
 	if (!te || !imagep)
 	{
@@ -4409,7 +4409,7 @@ void LLPipeline::renderGeom(LLCamera& camera, bool forceVBOUpdate)
 		sUnderWaterRender = false;
 	}
 
-	gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sDefaultImagep);
+	gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sDefaultImagep.get());
 	LLViewerFetchedTexture::sDefaultImagep->setAddressMode(LLTexUnit::TAM_WRAP);
 	
 
@@ -5050,7 +5050,7 @@ void LLPipeline::renderDebug()
 						if (LLGLSLShader::sNoFixedFunction)
 						{
 							gUIProgram.bind();
-							gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
+							gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep.get());
 							llPathingLibInstance->renderPath();
 							gPathfindingProgram.bind();
 						}
@@ -5267,7 +5267,7 @@ void LLPipeline::renderDebug()
 			gUIProgram.bind();
 		}
 
-		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep, true);
+		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep.get(), true);
 
 		glPointSize(8.f);
 		LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
@@ -5573,7 +5573,7 @@ void LLPipeline::renderDebug()
 		LLGLEnable blend(GL_BLEND);
 		gGL.setSceneBlendType(LLRender::BT_ALPHA);
 		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
-		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
+		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep.get());
 		
 		gGL.pushMatrix();
 		gGL.loadMatrix(gGLModelView);
@@ -9670,9 +9670,9 @@ void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
 		}
 	}
 
-	LLViewerTexture* img = volume->getLightTexture();
+	LLViewerTexture::ptr_t img = volume->getLightTexture();
 
-	if (img == NULL)
+	if (!img)
 	{
 		img = LLViewerFetchedTexture::sWhiteImagep;
 	}
@@ -9683,7 +9683,7 @@ void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
 	{
 		if (img)
 		{
-			gGL.getTexUnit(channel)->bind(img);
+			gGL.getTexUnit(channel)->bind(img.get());
 
 			F32 lod_range = logf(img->getWidth())/logf(2.f);
 
@@ -10516,7 +10516,7 @@ void LLPipeline::generateHighlight(LLCamera& camera)
             gHighlightProgram.bind();
         }
 
-		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
+		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep.get());
 		for (std::set<HighlightItem>::iterator iter = mHighlightSet.begin(); iter != mHighlightSet.end(); )
 		{
 			std::set<HighlightItem>::iterator cur_iter = iter++;

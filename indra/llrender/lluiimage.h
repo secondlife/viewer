@@ -50,15 +50,15 @@ public:
 
 	typedef boost::signals2::signal<void (void)> image_loaded_signal_t;
 
-	LLUIImage(const std::string& name, LLPointer<LLTexture> image);
+	LLUIImage(const std::string& name, const LLTexture::ptr_t &image);
 	virtual ~LLUIImage();
 
 	void setClipRegion(const LLRectf& region);
 	void setScaleRegion(const LLRectf& region);
 	void setScaleStyle(EScaleStyle style);
 
-	LLPointer<LLTexture> getImage() { return mImage; }
-	const LLPointer<LLTexture>& getImage() const { return mImage; }
+	LLTexture::ptr_t getImage() { return mImage; }
+	const LLTexture::ptr_t& getImage() const { return mImage; }
 
 	void draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color = UI_VERTEX_COLOR) const;
 	void draw(S32 x, S32 y, const LLColor4& color = UI_VERTEX_COLOR) const;
@@ -93,7 +93,7 @@ protected:
 	std::string				mName;
 	LLRectf					mScaleRegion;
 	LLRectf					mClipRegion;
-	LLPointer<LLTexture>	mImage;
+	LLTexture::ptr_t    	mImage;
 	EScaleStyle				mScaleStyle;
 };
 

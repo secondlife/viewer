@@ -180,7 +180,7 @@ void LLFace::destroy()
 
 	for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
 	{
-		if(mTexture[i].notNull())
+		if(mTexture[i])
 		{
 			mTexture[i]->removeFace(i, this) ;
 		}
@@ -244,7 +244,7 @@ void LLFace::setPool(LLFacePool* pool)
 	mDrawPoolp = pool;
 }
 
-void LLFace::setPool(LLFacePool* new_pool, LLViewerTexture *texturep)
+void LLFace::setPool(LLFacePool* new_pool, const LLViewerTexture::ptr_t &texturep)
 {
 	if (!new_pool)
 	{
@@ -276,7 +276,7 @@ void LLFace::setPool(LLFacePool* new_pool, LLViewerTexture *texturep)
 	setTexture(texturep) ;
 }
 
-void LLFace::setTexture(U32 ch, LLViewerTexture* tex) 
+void LLFace::setTexture(U32 ch, const LLViewerTexture::ptr_t & tex) 
 {
 	llassert(ch < LLRender::NUM_TEXTURE_CHANNELS);
 
@@ -285,7 +285,7 @@ void LLFace::setTexture(U32 ch, LLViewerTexture* tex)
 		return ;
 	}
 
-	if(mTexture[ch].notNull())
+	if(mTexture[ch])
 	{
 		mTexture[ch]->removeFace(ch, this) ;
 	}	
@@ -298,22 +298,22 @@ void LLFace::setTexture(U32 ch, LLViewerTexture* tex)
 	mTexture[ch] = tex ;
 }
 
-void LLFace::setTexture(LLViewerTexture* tex) 
+void LLFace::setTexture(const LLViewerTexture::ptr_t & tex) 
 {
 	setDiffuseMap(tex);
 }
 
-void LLFace::setDiffuseMap(LLViewerTexture* tex)
+void LLFace::setDiffuseMap(const LLViewerTexture::ptr_t & tex)
 {
 	setTexture(LLRender::DIFFUSE_MAP, tex);
 }
 
-void LLFace::setNormalMap(LLViewerTexture* tex)
+void LLFace::setNormalMap(const LLViewerTexture::ptr_t & tex)
 {
 	setTexture(LLRender::NORMAL_MAP, tex);
 }
 
-void LLFace::setSpecularMap(LLViewerTexture* tex)
+void LLFace::setSpecularMap(const LLViewerTexture::ptr_t & tex)
 {
 	setTexture(LLRender::SPECULAR_MAP, tex);
 }
@@ -326,7 +326,7 @@ void LLFace::dirtyTexture()
 	{
 		for (U32 ch = 0; ch < LLRender::NUM_TEXTURE_CHANNELS; ++ch)
 		{
-			if (mTexture[ch].notNull() && mTexture[ch]->getComponents() == 4)
+			if (mTexture[ch] && mTexture[ch]->getComponents() == 4)
 			{ //dirty texture on an alpha object should be treated as an LoD update
 				LLVOVolume* vobj = drawablep->getVOVolume();
 				if (vobj)
@@ -343,7 +343,7 @@ void LLFace::dirtyTexture()
 	gPipeline.markTextured(drawablep);
 }
 
-void LLFace::notifyAboutCreatingTexture(LLViewerTexture *texture)
+void LLFace::notifyAboutCreatingTexture(const LLViewerTexture::ptr_t &texture)
 {
 	LLDrawable* drawablep = getDrawable();
 	if(mVObjp.notNull() && mVObjp->getVolume())
@@ -357,7 +357,7 @@ void LLFace::notifyAboutCreatingTexture(LLViewerTexture *texture)
 	}
 }
 
-void LLFace::notifyAboutMissingAsset(LLViewerTexture *texture)
+void LLFace::notifyAboutMissingAsset(const LLViewerTexture::ptr_t &texture)
 {
 	LLDrawable* drawablep = getDrawable();
 	if(mVObjp.notNull() && mVObjp->getVolume())
@@ -371,7 +371,7 @@ void LLFace::notifyAboutMissingAsset(LLViewerTexture *texture)
 	}
 }
 
-void LLFace::switchTexture(U32 ch, LLViewerTexture* new_texture)
+void LLFace::switchTexture(U32 ch, const LLViewerTexture::ptr_t & new_texture)
 {
 	llassert(ch < LLRender::NUM_TEXTURE_CHANNELS);
 
@@ -386,7 +386,7 @@ void LLFace::switchTexture(U32 ch, LLViewerTexture* new_texture)
 		return;
 	}
 
-	llassert(mTexture[ch].notNull());
+	llassert(mTexture[ch]);
 
 	new_texture->addTextureStats(mTexture[ch]->getMaxVirtualSize()) ;
 
@@ -533,7 +533,7 @@ void LLFace::updateCenterAgent()
 	}
 }
 
-void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
+void LLFace::renderSelected(const LLViewerTexture::ptr_t &imagep, const LLColor4& color)
 {
 	if (mDrawablep->getSpatialGroup() == NULL)
 	{
@@ -550,7 +550,7 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 
 	if (mGeomCount > 0 && mIndicesCount > 0)
 	{
-		gGL.getTexUnit(0)->bind(imagep);
+		gGL.getTexUnit(0)->bind(imagep.get());
 	
 		gGL.pushMatrix();
 		if (mDrawablep->isActive())
@@ -682,8 +682,8 @@ void LLFace::renderOneWireframe(const LLColor4 &color, F32 fogCfx, bool wirefram
 /* removed in lieu of raycast uv detection
 void LLFace::renderSelectedUV()
 {
-	LLViewerTexture* red_blue_imagep = LLViewerTextureManager::instance().getFetchedTextureFromFile("uv_test1.j2c", TRUE, LLGLTexture::BOOST_UI);
-	LLViewerTexture* green_imagep = LLViewerTextureManager::instance().getFetchedTextureFromFile("uv_test2.tga", TRUE, LLGLTexture::BOOST_UI);
+	LLViewerTexture::ptr_t red_blue_imagep = LLViewerTextureManager::instance().getFetchedTextureFromFile("uv_test1.j2c", TRUE, LLGLTexture::BOOST_UI);
+	LLViewerTexture::ptr_t green_imagep = LLViewerTextureManager::instance().getFetchedTextureFromFile("uv_test2.tga", TRUE, LLGLTexture::BOOST_UI);
 
 	LLGLSUVSelect object_select;
 
@@ -1686,7 +1686,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					break;
 					case BE_BRIGHTNESS:
 					case BE_DARKNESS:
-					if( mTexture[LLRender::DIFFUSE_MAP].notNull() && mTexture[LLRender::DIFFUSE_MAP]->hasGLTexture())
+					if( mTexture[LLRender::DIFFUSE_MAP] && mTexture[LLRender::DIFFUSE_MAP]->hasGLTexture())
 					{
 						// Offset by approximately one texel
 						S32 cur_discard = mTexture[LLRender::DIFFUSE_MAP]->getDiscardLevel();
@@ -2309,7 +2309,7 @@ BOOL LLFace::hasMedia() const
 	{
 		return TRUE ;
 	}
-	if(mTexture[LLRender::DIFFUSE_MAP].notNull()) 
+	if(mTexture[LLRender::DIFFUSE_MAP]) 
 	{
 		return mTexture[LLRender::DIFFUSE_MAP]->hasParcelMedia() ;  //if has a parcel media
 	}
@@ -2363,7 +2363,7 @@ F32 LLFace::getTextureVirtualSize()
 	face_area = LLFace::adjustPixelArea(mImportanceToCamera, face_area) ;
 	if(face_area > LLViewerTexture::sMinLargeImageSize) //if is large image, shrink face_area by considering the partial overlapping.
 	{
-		if(mImportanceToCamera > LEAST_IMPORTANCE_FOR_LARGE_IMAGE && mTexture[LLRender::DIFFUSE_MAP].notNull() && mTexture[LLRender::DIFFUSE_MAP]->isLargeImage())
+		if(mImportanceToCamera > LEAST_IMPORTANCE_FOR_LARGE_IMAGE && mTexture[LLRender::DIFFUSE_MAP] && mTexture[LLRender::DIFFUSE_MAP]->isLargeImage())
 		{		
 			face_area *= adjustPartialOverlapPixelArea(cos_angle_to_view_dir, radius );
 		}	
@@ -2728,7 +2728,7 @@ LLVector3 LLFace::getPositionAgent() const
 	}
 }
 
-LLViewerTexture* LLFace::getTexture(U32 ch) const
+LLViewerTexture::ptr_t LLFace::getTexture(U32 ch) const
 {
 	llassert(ch < LLRender::NUM_TEXTURE_CHANNELS);
 

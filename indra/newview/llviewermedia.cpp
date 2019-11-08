@@ -1594,7 +1594,7 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 
 	// connect this media_impl to the media texture, creating it if it doesn't exist.0
 	// This is necessary because we need to be able to use getMaxVirtualSize() even if the media plugin is not loaded.
-    LLViewerMediaTexture* media_tex = LLViewerTextureManager::instance().getMediaTexture(mTextureId);
+    LLViewerMediaTexture::ptr_t media_tex = LLViewerTextureManager::instance().getMediaTexture(mTextureId);
 	if(media_tex)
 	{
 		media_tex->setMediaImpl();
@@ -1607,7 +1607,7 @@ LLViewerMediaImpl::~LLViewerMediaImpl()
 {
 	destroyMediaSource();
 
-	LLViewerMediaTexture::removeMediaImplFromTexture(mTextureId) ;
+	LLViewerTextureManager::instance().removeMediaImplFromTexture(mTextureId) ;
 
 	setTextureID();
 	remove_media_impl(this);
@@ -1678,7 +1678,7 @@ void LLViewerMediaImpl::destroyMediaSource()
 	mNeedsNewTexture = true;
 
 	// Tell the viewer media texture it's no longer active
-    LLViewerMediaTexture* oldImage = LLViewerTextureManager::instance().findMediaTexture(mTextureId);
+    LLViewerMediaTexture::ptr_t oldImage = LLViewerTextureManager::instance().findMediaTexture(mTextureId);
 	if (oldImage)
 	{
 		oldImage->setPlaying(FALSE) ;
@@ -2864,7 +2864,7 @@ void LLViewerMediaImpl::update()
 		return;
 	}
 
-	LLViewerMediaTexture* placeholder_image = updatePlaceholderImage();
+	LLViewerMediaTexture::ptr_t placeholder_image = updatePlaceholderImage();
 
 	if(placeholder_image)
 	{
@@ -2924,15 +2924,15 @@ void LLViewerMediaImpl::updateImagesMediaStreams()
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
-LLViewerMediaTexture* LLViewerMediaImpl::updatePlaceholderImage()
+LLViewerMediaTexture::ptr_t LLViewerMediaImpl::updatePlaceholderImage()
 {
 	if(mTextureId.isNull())
 	{
 		// The code that created this instance will read from the plugin's bits.
-		return NULL;
+        return LLViewerMediaTexture::ptr_t();
 	}
 
-    LLViewerMediaTexture* placeholder_image = LLViewerTextureManager::instance().getMediaTexture(mTextureId);
+    LLViewerMediaTexture::ptr_t placeholder_image = LLViewerTextureManager::instance().getMediaTexture(mTextureId);
 
 	if (mNeedsNewTexture
 		|| placeholder_image->getUseMipMaps()
@@ -3495,7 +3495,7 @@ static LLTrace::BlockTimerStatHandle FTM_MEDIA_CALCULATE_INTEREST("Calculate Int
 void LLViewerMediaImpl::calculateInterest()
 {
 	LL_RECORD_BLOCK_TIME(FTM_MEDIA_CALCULATE_INTEREST);
-    LLViewerMediaTexture* texture = LLViewerTextureManager::instance().findMediaTexture(mTextureId);
+    LLViewerMediaTexture::ptr_t texture = LLViewerTextureManager::instance().findMediaTexture(mTextureId);
 
 	if(texture != NULL)
 	{

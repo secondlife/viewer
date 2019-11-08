@@ -157,7 +157,7 @@ void LLFloaterColorPicker::createUI ()
 		}
 	}
     mRGBImage = LLViewerTextureManager::instance().getLocalTexture((LLImageRaw*)raw, false);
-	gGL.getTexUnit(0)->bind(mRGBImage);
+	gGL.getTexUnit(0)->bind(mRGBImage.get());
 	mRGBImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 	
 	// create palette
@@ -547,7 +547,7 @@ void LLFloaterColorPicker::draw()
 	const F32 alpha = getSwatchTransparency();
 
 	// draw image for RGB area (not really RGB but you'll see what I mean...
-	gl_draw_image ( mRGBViewerImageLeft, mRGBViewerImageTop - mRGBViewerImageHeight, mRGBImage, LLColor4::white % alpha);
+	gl_draw_image ( mRGBViewerImageLeft, mRGBViewerImageTop - mRGBViewerImageHeight, mRGBImage.get(), LLColor4::white % alpha);
 
 	// update 'cursor' into RGB Section
 	S32 xPos = ( S32 ) ( ( F32 )mRGBViewerImageWidth * getCurH () ) - 8;

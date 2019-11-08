@@ -248,6 +248,9 @@ public:
 	} eLoDMode;
 
 public:
+    typedef std::shared_ptr<LLModelPreview> ptr_t;
+    typedef std::weak_ptr<LLModelPreview> wptr_t;
+
 	LLModelPreview(S32 width, S32 height, LLFloater* fmp);
 	virtual ~LLModelPreview();
 
@@ -299,7 +302,7 @@ public:
 	const bool isLegacyRigValid( void ) const { return mLegacyRigValid; }
 	void setLegacyRigValid( bool rigValid ) { mLegacyRigValid = rigValid; }		
 
-    static void	textureLoadedCallback(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, void *userdata);
+    static void	textureLoadedCallback(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, const ptr_t &preview);
     static bool lodQueryCallback();
 	
 	boost::signals2::connection setDetailsCallback( const details_signal_t::slot_type& cb ){  return mDetailsSignal.connect(cb);  }
@@ -315,11 +318,11 @@ public:
 
 protected:
 
-	static void			loadedCallback(LLModelLoader::scene& scene,LLModelLoader::model_list& model_list, S32 lod, void* opaque);
-	static void			stateChangedCallback(U32 state, void* opaque);
+	static void			loadedCallback(LLModelLoader::scene& scene,LLModelLoader::model_list& model_list, S32 lod, const ptr_t &preview);
+    static void			stateChangedCallback(U32 state, const ptr_t &preview);
 
-	static LLJoint*	lookupJointByName(const std::string&, void* opaque);
-	static U32			loadTextures(LLImportMaterial& material, void* opaque);
+    static LLJoint*	    lookupJointByName(const std::string&, const ptr_t &preview);
+    static U32			loadTextures(LLImportMaterial& material, const ptr_t &preview);
 
 private:
 	//Utility function for controller vertex compare
@@ -330,6 +333,8 @@ private:
 	LLVOAvatar* getPreviewAvatar( void ) { return mPreviewAvatar; }
 	// Count amount of original models, excluding sub-models
 	static U32 countRootModels(LLModelLoader::model_list models);
+
+    ptr_t getSharedPointer() { return std::static_pointer_cast<LLModelPreview>(shared_from_this()); }
 
  protected:
 	friend class LLModelLoader;
@@ -395,7 +400,7 @@ private:
 	U32 mMaxTriangleLimit;
 	
 	LLMeshUploadThread::instance_list mUploadData;
-	std::set<LLViewerFetchedTexture * > mTextureSet;
+	std::set<LLViewerFetchedTexture::ptr_t> mTextureSet;
 
 	//map of vertex buffers to models (one vertex buffer in vector per face in model
 	std::map<LLModel*, std::vector<LLPointer<LLVertexBuffer> > > mVertexBuffer[LLModel::NUM_LODS+1];

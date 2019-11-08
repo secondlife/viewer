@@ -315,7 +315,7 @@ void LLAssetFetch::update()
         timeremaining = updateAllFinishedRequests(timeremaining);
     }
 
-    LL_WARNS_IF(timeremaining >= 0.f, "ASSETFETCH") << "Finished asset fetcher update with " << F32Seconds(timeremaining) << " to spare" << LL_ENDL;
+    //LL_WARNS_IF(timeremaining >= 0.f, "ASSETFETCH") << "Finished asset fetcher update with " << F32Seconds(timeremaining) << " to spare" << LL_ENDL;
     LL_WARNS_IF(timeremaining < 0.f, "ASSETFETCH") << "Ran out of time updating asset fetch. " << mThreadDone.size() << " items remain to signal done." << LL_ENDL;
 }
 

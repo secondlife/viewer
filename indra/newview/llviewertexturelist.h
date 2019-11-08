@@ -93,7 +93,7 @@ public:
 	static LLPointer<LLImageJ2C> convertToUploadFile(LLPointer<LLImageRaw> raw_image);
 
 public:
-    typedef std::vector<LLPointer<LLViewerFetchedTexture> > image_list_t;
+    typedef std::vector<LLViewerFetchedTexture::ptr_t> image_list_t;
 
 	void                dump();
 	void                destroyGL(bool save_state = TRUE);
@@ -102,8 +102,8 @@ public:
 
 //     void                findTexturesByID(const LLUUID &image_id, image_list_t &output) const;
 // 
-// 	LLPointer<LLViewerFetchedTexture> findImage(const LLUUID &image_id, ETexListType tex_type) const;
-//     LLPointer<LLViewerFetchedTexture> findImage(const LLTextureKey &search_key) const;
+// 	LLViewerFetchedTexture::ptr_t findImage(const LLUUID &image_id, ETexListType tex_type) const;
+//     LLViewerFetchedTexture::ptr_t findImage(const LLTextureKey &search_key) const;
 
 	void                dirtyImage(LLViewerFetchedTexture *image);
 	
@@ -189,7 +189,7 @@ private:
 // 									 );
 
 public:
-	typedef std::set<LLPointer<LLViewerFetchedTexture> > image_set_t;	
+    typedef std::set<LLViewerFetchedTexture::ptr_t> image_set_t;	
 	image_list_t    mCreateTextures;
 
 	// Note: just raw pointers because they are never referenced, just compared against
@@ -198,17 +198,17 @@ public:
 	bool        mForceResetTextureStats;
     
 private:
-    typedef std::map< LLTextureKey, LLPointer<LLViewerFetchedTexture> > loaded_map_t;
+    typedef std::map< LLTextureKey, LLViewerFetchedTexture::ptr_t > loaded_map_t;
 
     loaded_map_t    mLoadedTextures; //mUUIDMap;
     LLTextureKey    mLastUpdateKey;
     LLTextureKey    mLastFetchKey;
 	
-	typedef std::set<LLPointer<LLViewerFetchedTexture>, LLViewerFetchedTexture::Compare> image_priority_list_t;	
+    typedef std::set<LLViewerFetchedTexture::ptr_t, LLViewerFetchedTexture::Compare> image_priority_list_t;	
 	image_priority_list_t mImageList;
 
 	// simply holds on to LLViewerFetchedTexture references to stop them from being purged too soon
-	std::set<LLPointer<LLViewerFetchedTexture> > mImagePreloads;
+    std::set<LLViewerFetchedTexture::ptr_t > mImagePreloads;
 
 	bool            mInitialized ;
 	S32Megabytes    mMaxResidentTexMemInMegaBytes;
@@ -263,14 +263,14 @@ private:
 								 LLViewerTexture::EBoostLevel boost_priority = LLGLTexture::BOOST_UI,
 								 LLUIImage::EScaleStyle = LLUIImage::SCALE_INNER);
 
-	LLPointer<LLUIImage>    loadUIImage(LLViewerFetchedTexture* imagep, const std::string& name, BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null, const LLRect& clip_rect = LLRect::null, LLUIImage::EScaleStyle = LLUIImage::SCALE_INNER);
+	LLPointer<LLUIImage>    loadUIImage(const LLViewerFetchedTexture::ptr_t &imagep, const std::string& name, BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null, const LLRect& clip_rect = LLRect::null, LLUIImage::EScaleStyle = LLUIImage::SCALE_INNER);
 
 
-    static void             onUIImageLoaded(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, const LLUIImageLoadData::ptr_t &image_datap);
+    static void             onUIImageLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, const LLUIImageLoadData::ptr_t &image_datap);
     //
 	//keep a copy of UI textures to prevent them to be deleted.
 	//mGLTexturep of each UI texture equals to some LLUIImage.mImage.
-	std::list< LLPointer<LLViewerFetchedTexture> > mUITextureList ;
+    std::list< LLViewerFetchedTexture::ptr_t > mUITextureList;
 };
 
 const BOOL GLTEXTURE_TRUE = TRUE;

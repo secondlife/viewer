@@ -42,6 +42,8 @@
 #include "llvector4a.h"
 #include <queue>
 
+#include "lltextureatlas.h"
+
 #define SG_STATE_INHERIT_MASK (OCCLUDED)
 #define SG_INITIAL_STATE_MASK (DIRTY | GEOM_DIRTY)
 
@@ -49,7 +51,6 @@ class LLViewerOctreePartition;
 class LLSpatialPartition;
 class LLSpatialBridge;
 class LLSpatialGroup;
-class LLTextureAtlas;
 class LLTextureAtlasSlot;
 class LLViewerRegion;
 
@@ -74,7 +75,7 @@ public:
 	}
 
 	LLDrawInfo(U16 start, U16 end, U32 count, U32 offset, 
-				LLViewerTexture* image, LLVertexBuffer* buffer, 
+				const LLViewerTexture::ptr_t &image, LLVertexBuffer* buffer, 
 				bool selected,
 				BOOL fullbright = FALSE, U8 bump = 0, BOOL particle = FALSE, F32 part_size = 0);
 	
@@ -83,9 +84,9 @@ public:
 
 	LLVector4a mExtents[2];
 	
-	LLPointer<LLVertexBuffer> mVertexBuffer;
-	LLPointer<LLViewerTexture>     mTexture;
-	std::vector<LLPointer<LLViewerTexture> > mTextureList;
+	LLPointer<LLVertexBuffer>   mVertexBuffer;
+    LLViewerTexture::ptr_t      mTexture;
+    std::vector<LLViewerTexture::ptr_t> mTextureList;
 
 	S32 mDebugColor;
 	const LLMatrix4* mTextureMatrix;
@@ -110,9 +111,9 @@ public:
 	U32 mBlendFuncSrc;
 	U32 mBlendFuncDst;
 	BOOL mHasGlow;
-	LLPointer<LLViewerTexture> mSpecularMap;
+    LLViewerTexture::ptr_t  mSpecularMap;
 	const LLMatrix4* mSpecularMapMatrix;
-	LLPointer<LLViewerTexture> mNormalMap;
+    LLViewerTexture::ptr_t  mNormalMap;
 	const LLMatrix4* mNormalMapMatrix;
 	LLVector4 mSpecColor; // XYZ = Specular RGB, W = Specular Exponent
 	F32  mEnvIntensity;
@@ -311,10 +312,10 @@ public:
 	void setCurUpdatingTexture(LLViewerTexture* tex){ mCurUpdatingTexture = tex ;}
 	LLViewerTexture* getCurUpdatingTexture() const { return mCurUpdatingTexture ;}
 	
-	BOOL hasAtlas(LLTextureAtlas* atlasp) ;
-	LLTextureAtlas* getAtlas(S8 ncomponents, S8 to_be_reserved, S8 recursive_level = 3) ;
-	void addAtlas(LLTextureAtlas* atlasp, S8 recursive_level = 3) ;
-	void removeAtlas(LLTextureAtlas* atlasp, BOOL remove_group = TRUE, S8 recursive_level = 3) ;
+	BOOL hasAtlas(const LLTextureAtlas::ptr_t &atlasp) ;
+	LLTextureAtlas::ptr_t getAtlas(S8 ncomponents, S8 to_be_reserved, S8 recursive_level = 3) ;
+	void addAtlas(const LLTextureAtlas::ptr_t &atlasp, S8 recursive_level = 3) ;
+	void removeAtlas(const LLTextureAtlas::ptr_t &atlasp, BOOL remove_group = TRUE, S8 recursive_level = 3) ;
 	void clearAtlasList() ;
 
 public:
@@ -331,7 +332,7 @@ private:
 	LLTextureAtlasSlot* mCurUpdatingSlotp ;
 	LLViewerTexture*          mCurUpdatingTexture ;
 
-	std::vector< std::list<LLTextureAtlas*> > mAtlasList ; 
+	std::vector< std::list<LLTextureAtlas::ptr_t> > mAtlasList ; 
 //-------------------
 //end for atlas use
 //-------------------

@@ -415,7 +415,7 @@ void LLWorldMapView::draw()
 		else if (gSavedSettings.getBOOL("MapShowLandForSale") && (level <= DRAW_LANDFORSALE_THRESHOLD))
 		{
 			// Draw the overlay image "Land for Sale / Land for Auction"
-			LLViewerFetchedTexture* overlayimage = info->getLandForSaleImage();
+			LLViewerFetchedTexture::ptr_t overlayimage = info->getLandForSaleImage();
 			if (overlayimage)
 			{
 				// Inform the fetch mechanism of the size we need
@@ -425,7 +425,7 @@ void LLWorldMapView::draw()
 				if (overlayimage->hasGLTexture())
 				{
 					gGL.blendFunc(LLRender::BF_SOURCE_ALPHA, LLRender::BF_ONE_MINUS_SOURCE_ALPHA);	
-					gGL.getTexUnit(0)->bind(overlayimage);
+					gGL.getTexUnit(0)->bind(overlayimage.get());
 					gGL.color4f(1.f, 1.f, 1.f, 1.f);
 					gGL.begin(LLRender::QUADS);
 						gGL.texCoord2f(0.f, 1.f);
@@ -661,7 +661,7 @@ bool LLWorldMapView::drawMipmapLevel(S32 width, S32 height, S32 level, bool load
 			// Convert to the mipmap level coordinates for that point (i.e. which tile to we hit)
 			LLWorldMipmap::globalToMipmap(pos_global[VX], pos_global[VY], level, &grid_x, &grid_y);
 			// Get the tile. Note: NULL means that the image does not exist (so it's considered "complete" as far as fetching is concerned)
-			LLPointer<LLViewerFetchedTexture> simimage = LLWorldMap::getInstance()->getObjectsTile(grid_x, grid_y, level, load);
+            LLViewerFetchedTexture::ptr_t simimage = LLWorldMap::getInstance()->getObjectsTile(grid_x, grid_y, level, load);
 			if (simimage)
 			{
 				// Checks that the image has a valid texture
@@ -1370,7 +1370,7 @@ void LLWorldMapView::drawTrackingArrow(const LLRect& rect, S32 x, S32 y,
 		sTrackingArrowY,
 		arrow_size, arrow_size, 
 		RAD_TO_DEG * angle, 
-		sTrackArrowImage->getImage(), 
+		sTrackArrowImage->getImage().get(), 
 		color);
 }
 

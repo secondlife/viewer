@@ -264,7 +264,7 @@ void LLViewerTextureList::doPreloadImages()
 
 	LLPointer<LLImageRaw> img_blak_square_tex(new LLImageRaw(2, 2, 3));
 	memset(img_blak_square_tex->getData(), 0, img_blak_square_tex->getDataSize());
-	LLPointer<LLViewerFetchedTexture> img_blak_square(new LLViewerFetchedTexture(img_blak_square_tex, FTT_DEFAULT, FALSE));
+    LLViewerFetchedTexture::ptr_t img_blak_square(make_shared<LLViewerFetchedTexture>(img_blak_square_tex, FTT_DEFAULT, FALSE));
 	gBlackSquareID = img_blak_square->getID();
 	img_blak_square->setUnremovable(true);
 	addImage(img_blak_square, TEX_LIST_STANDARD);
@@ -609,7 +609,7 @@ void LLViewerTextureList::findTexturesByID(const LLUUID &image_id, LLViewerTextu
     }
 }
 
-LLPointer<LLViewerFetchedTexture> LLViewerTextureList::findImage(const LLTextureKey &search_key) const
+LLViewerFetchedTexture::ptr_t LLViewerTextureList::findImage(const LLTextureKey &search_key) const
 {
     loaded_map_t::const_iterator iter = mLoadedTextures.find(search_key);
     if (iter == mLoadedTextures.end())
@@ -617,7 +617,7 @@ LLPointer<LLViewerFetchedTexture> LLViewerTextureList::findImage(const LLTexture
     return iter->second;
 }
 
-LLPointer<LLViewerFetchedTexture> LLViewerTextureList::findImage(const LLUUID &image_id, ETexListType tex_type) const
+LLViewerFetchedTexture::ptr_t LLViewerTextureList::findImage(const LLUUID &image_id, ETexListType tex_type) const
 {
     return findImage(LLTextureKey(image_id, tex_type));
 }
@@ -1480,7 +1480,7 @@ LLUIImagePtr LLUIImageList::loadUIImageByName(const std::string& name, const std
     if (boost_priority != LLGLTexture::BOOST_NONE)
         params.mBoostPriority = boost_priority;
 
-	LLViewerFetchedTexture* imagep = LLViewerTextureManager::instance().getFetchedTextureFromSkin(filename, params);
+	LLViewerFetchedTexture::ptr_t imagep = LLViewerTextureManager::instance().getFetchedTextureFromSkin(filename, params);
 	return loadUIImage(imagep, name, use_mips, scale_rect, clip_rect, scale_style);
 }
 
@@ -1492,11 +1492,11 @@ LLUIImagePtr LLUIImageList::loadUIImageByID(const LLUUID& id,
     if (boost_priority != LLGLTexture::BOOST_NONE)
         params.mBoostPriority = boost_priority;
 
-    LLViewerFetchedTexture* imagep = LLViewerTextureManager::instance().getFetchedTexture(id, params);
+    LLViewerFetchedTexture::ptr_t imagep = LLViewerTextureManager::instance().getFetchedTexture(id, params);
 	return loadUIImage(imagep, id.asString(), use_mips, scale_rect, clip_rect, scale_style);
 }
 
-LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const std::string& name, BOOL use_mips, const LLRect& scale_rect, const LLRect& clip_rect,
+LLUIImagePtr LLUIImageList::loadUIImage(const LLViewerFetchedTexture::ptr_t &imagep, const std::string& name, BOOL use_mips, const LLRect& scale_rect, const LLRect& clip_rect,
 										LLUIImage::EScaleStyle scale_style)
 {
 	if (!imagep) return NULL;
@@ -1530,7 +1530,7 @@ LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const st
 		datap->mImageScaleRegion = scale_rect;
 		datap->mImageClipRegion = clip_rect;
 
-        datap->mConnection = imagep->addCallback([datap](bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done){
+        datap->mConnection = imagep->addCallback([datap](bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done){
             onUIImageLoaded(success, src_vi, final_done, datap);
         });
 	}
@@ -1551,7 +1551,7 @@ LLUIImagePtr LLUIImageList::preloadUIImage(const std::string& name, const std::s
 }
 
 //static 
-void LLUIImageList::onUIImageLoaded( bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, const LLUIImageLoadData::ptr_t &image_datap)
+void LLUIImageList::onUIImageLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, const LLUIImageLoadData::ptr_t &image_datap)
 {
 	if(!success) 
 	{

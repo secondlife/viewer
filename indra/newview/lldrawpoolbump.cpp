@@ -160,7 +160,7 @@ void LLStandardBumpmap::addstandard()
 
 // 		LL_INFOS() << "Loading bumpmap: " << bump_image_id << " from viewerart" << LL_ENDL;
 		gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mLabel = label;
-        gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mImage = LLViewerTextureManager::instance().getFetchedTexture(LLUUID(bump_image_id), params);
+        gStandardBumpmapList[LLStandardBumpmap::sStandardBumpmapCount].mTexture = LLViewerTextureManager::instance().getFetchedTexture(LLUUID(bump_image_id), params);
 		LLStandardBumpmap::sStandardBumpmapCount++;
 	}
 
@@ -174,7 +174,7 @@ void LLStandardBumpmap::clear()
 	for( U32 i = 0; i < LLStandardBumpmap::sStandardBumpmapCount; i++ )
 	{
 		gStandardBumpmapList[i].mLabel.assign("");
-		gStandardBumpmapList[i].mImage = NULL;
+        gStandardBumpmapList[i].mTexture.reset();
 	}
 	sStandardBumpmapCount = 0;
 }
@@ -663,17 +663,17 @@ BOOL LLDrawPoolBump::bindBumpMap(LLFace* face, S32 channel)
 }
 
 //static
-BOOL LLDrawPoolBump::bindBumpMap(U8 bump_code, LLViewerTexture* texture, F32 vsize, S32 channel)
+BOOL LLDrawPoolBump::bindBumpMap(U8 bump_code, const LLViewerTexture::ptr_t &texture, F32 vsize, S32 channel)
 {
 	//Note: texture atlas does not support bump texture now.
-	LLViewerFetchedTexture* tex = LLViewerTextureManager::staticCastToFetchedTexture(texture) ;
+	LLViewerFetchedTexture::ptr_t tex = LLViewerTextureManager::staticCastToFetchedTexture(texture) ;
 	if(!tex)
 	{
 		//if the texture is not a fetched texture
 		return FALSE;
 	}
 
-	LLViewerTexture* bump = NULL;
+	LLViewerTexture::ptr_t bump;
 
 	switch( bump_code )
 	{
@@ -687,7 +687,7 @@ BOOL LLDrawPoolBump::bindBumpMap(U8 bump_code, LLViewerTexture* texture, F32 vsi
 	default:
 		if( bump_code < LLStandardBumpmap::sStandardBumpmapCount )
 		{
-			bump = gStandardBumpmapList[bump_code].mImage;
+			bump = gStandardBumpmapList[bump_code].mTexture;
 			gBumpImageList.addTextureStats(bump_code, tex->getID(), vsize);
 		}
 		break;
@@ -697,12 +697,12 @@ BOOL LLDrawPoolBump::bindBumpMap(U8 bump_code, LLViewerTexture* texture, F32 vsi
 	{
 		if (channel == -2)
 		{
-			gGL.getTexUnit(1)->bind(bump);
-			gGL.getTexUnit(0)->bind(bump);
+			gGL.getTexUnit(1)->bind(bump.get());
+			gGL.getTexUnit(0)->bind(bump.get());
 		}
 		else
 		{
-			gGL.getTexUnit(channel)->bind(bump);
+			gGL.getTexUnit(channel)->bind(bump.get());
 		}
 
 		return TRUE;
@@ -980,7 +980,7 @@ LLBumpImageList::~LLBumpImageList()
 void LLBumpImageList::addTextureStats(U8 bump, const LLUUID& base_image_id, F32 virtual_size)
 {
 	bump &= TEM_BUMP_MASK;
-	LLViewerFetchedTexture* bump_image = gStandardBumpmapList[bump].mImage;
+	LLViewerFetchedTexture::ptr_t bump_image = gStandardBumpmapList[bump].mTexture;
 	if( bump_image )
 	{		
 		bump_image->addTextureStats(virtual_size);
@@ -993,7 +993,7 @@ void LLBumpImageList::updateImages()
 	for (bump_image_map_t::iterator iter = mBrightnessEntries.begin(); iter != mBrightnessEntries.end(); )
 	{
 		bump_image_map_t::iterator curiter = iter++;
-		LLViewerTexture* image = curiter->second;
+		LLViewerTexture::ptr_t image = curiter->second;
 		if( image )
 		{
 			BOOL destroy = TRUE;
@@ -1020,7 +1020,7 @@ void LLBumpImageList::updateImages()
 	for (bump_image_map_t::iterator iter = mDarknessEntries.begin(); iter != mDarknessEntries.end(); )
 	{
 		bump_image_map_t::iterator curiter = iter++;
-		LLViewerTexture* image = curiter->second;
+		LLViewerTexture::ptr_t image = curiter->second;
 		if( image )
 		{
 			BOOL destroy = TRUE;
@@ -1047,11 +1047,11 @@ void LLBumpImageList::updateImages()
 
 
 // Note: the caller SHOULD NOT keep the pointer that this function returns.  It may be updated as more data arrives.
-LLViewerTexture* LLBumpImageList::getBrightnessDarknessImage(LLViewerFetchedTexture* src_image, U8 bump_code )
+LLViewerTexture::ptr_t LLBumpImageList::getBrightnessDarknessImage(const LLViewerFetchedTexture::ptr_t &src_image, U8 bump_code )
 {
 	llassert( (bump_code == BE_BRIGHTNESS) || (bump_code == BE_DARKNESS) );
 
-	LLViewerTexture* bump = nullptr;
+	LLViewerTexture::ptr_t bump;
 	
 	bump_image_map_t* entries_list = nullptr;
 	//void (*callback_func)( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata ) = NULL;
@@ -1072,7 +1072,7 @@ LLViewerTexture* LLBumpImageList::getBrightnessDarknessImage(LLViewerFetchedText
 	}
 
 	bump_image_map_t::iterator iter = entries_list->find(src_image->getID());
-	if (iter != entries_list->end() && iter->second.notNull())
+	if (iter != entries_list->end() && iter->second)
 	{
 		bump = iter->second;
 	}
@@ -1093,7 +1093,7 @@ LLViewerTexture* LLBumpImageList::getBrightnessDarknessImage(LLViewerFetchedText
 // 			//(LLPipeline::sRenderDeferred && bump->getComponents() != 4))
 // 		{
 // 			src_image->setBoostLevel(LLGLTexture::BOOST_BUMP) ;
-//             src_image->addCallback([bump_code](bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done) {
+//             src_image->addCallback([bump_code](bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done) {
 //                 LLBumpImageList::onSourceLoaded(success, src_vi, final_done, (EBumpEffect)bump_code);
 //             });
 // 
@@ -1113,7 +1113,7 @@ namespace
     LLTrace::BlockTimerStatHandle FTM_BUMP_CREATE_TEXTURE("Create GL Normal Map");
 }
 
-void LLBumpImageList::onSourceStandardLoaded(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done)
+void LLBumpImageList::onSourceStandardLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done)
 {
 	if (success && LLPipeline::sRenderDeferred)
 	{
@@ -1199,7 +1199,7 @@ namespace
 }
 
 // static
-void LLBumpImageList::onSourceLoaded(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, EBumpEffect bump_code)
+void LLBumpImageList::onSourceLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, EBumpEffect bump_code)
 {
 	if( success )
 	{
@@ -1221,9 +1221,9 @@ void LLBumpImageList::onSourceLoaded(bool success, LLPointer<LLViewerFetchedText
 		{
 			LL_RECORD_BLOCK_TIME(FTM_BUMP_SOURCE_ENTRIES_UPDATE);
 			if (iter == entries_list.end() ||
-				iter->second.isNull() ||
-							iter->second->getWidth() != src->getWidth() ||
-							iter->second->getHeight() != src->getHeight()) // bump not cached yet or has changed resolution
+                    !iter->second ||
+                    iter->second->getWidth() != src->getWidth() ||
+                    iter->second->getHeight() != src->getHeight()) // bump not cached yet or has changed resolution
 			{ //make sure an entry exists for this image
 				LLPointer<LLImageRaw> raw = new LLImageRaw(1,1,1);
 				raw->clear(0x77, 0x77, 0xFF, 0xFF);
@@ -1353,7 +1353,7 @@ void LLBumpImageList::onSourceLoaded(bool success, LLPointer<LLViewerFetchedText
 			//---------------------------------------------------
 			// immediately assign bump to a global smart pointer in case some local smart pointer
 			// accidentally releases it.
-            LLPointer<LLViewerTexture> bump = LLViewerTextureManager::instance().getLocalTexture(true);
+            LLViewerTexture::ptr_t bump = LLViewerTextureManager::instance().getLocalTexture(true);
 
 			if (!LLPipeline::sRenderDeferred)
 			{
@@ -1394,7 +1394,7 @@ void LLBumpImageList::onSourceLoaded(bool success, LLPointer<LLViewerFetchedText
 					LLVector2 v((F32) bump->getWidth()/gPipeline.mScreen.getWidth(),
 								(F32) bump->getHeight()/gPipeline.mScreen.getHeight());
 
-					gGL.getTexUnit(0)->bind(bump);
+					gGL.getTexUnit(0)->bind(bump.get());
 					
 					S32 width = bump->getWidth();
 					S32 height = bump->getHeight();
@@ -1490,9 +1490,9 @@ void LLDrawPoolBump::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL 
 	{
 		for (U32 i = 0; i < params.mTextureList.size(); ++i)
 		{
-			if (params.mTextureList[i].notNull())
+			if (params.mTextureList[i])
 			{
-				gGL.getTexUnit(i)->bind(params.mTextureList[i], TRUE);
+				gGL.getTexUnit(i)->bind(params.mTextureList[i].get(), TRUE);
 			}
 		}
 	}
@@ -1528,9 +1528,9 @@ void LLDrawPoolBump::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL 
 
 		if (mShiny && mVertexShaderLevel > 1 && texture)
 		{
-			if (params.mTexture.notNull())
+			if (params.mTexture)
 			{
-				gGL.getTexUnit(diffuse_channel)->bind(params.mTexture);
+				gGL.getTexUnit(diffuse_channel)->bind(params.mTexture.get());
 				params.mTexture->addTextureStats(params.mVSize);		
 			}
 			else

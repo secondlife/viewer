@@ -51,7 +51,7 @@ public:
 	/*virtual*/ void markDead();
 	/*virtual*/ F32 getDistance() const { return mDistance; }
 
-	void setImage(LLViewerTexture* imagep);
+	void setImage(const std::shared_ptr<LLViewerTexture> &imagep);
 	void setScale(F32 fraction_of_fov);
 
 	void restartLifeTimer() { mLifeTimer.reset(); }
@@ -78,7 +78,7 @@ protected:
 	void renderIcon(BOOL for_select); // common render code
 
 private:
-	LLPointer<LLViewerTexture> mImagep;
+    std::shared_ptr<LLViewerTexture> mImagep;
 	LLFrameTimer	mAnimTimer;
 	LLFrameTimer	mLifeTimer;
 	F32				mDistance;

@@ -714,7 +714,7 @@ void LLOutfitGalleryItem::draw()
             LLRect interior = border;
             interior.stretch(-1);
 
-            gl_draw_scaled_image(interior.mLeft - 1, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep, UI_VERTEX_COLOR % alpha);
+            gl_draw_scaled_image(interior.mLeft - 1, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep.get(), UI_VERTEX_COLOR % alpha);
 
             // Pump the priority
             mTexturep->addTextureStats((F32)(interior.getWidth() * interior.getHeight()));
@@ -789,7 +789,7 @@ bool LLOutfitGalleryItem::setImageAssetId(LLUUID image_asset_id)
     LLViewerTextureManager::FetchParams params;
     params.mTextureType = LLViewerTexture::LOD_TEXTURE;
 
-    LLPointer<LLViewerFetchedTexture> texture = LLViewerTextureManager::instance().getFetchedTexture(image_asset_id, params);
+    LLViewerFetchedTexture::ptr_t texture = LLViewerTextureManager::instance().getFetchedTexture(image_asset_id, params);
     if (texture && texture->getOriginalWidth() <= MAX_OUTFIT_PHOTO_WIDTH && texture->getOriginalHeight() <= MAX_OUTFIT_PHOTO_HEIGHT)
     {
         mImageAssetId = image_asset_id;
@@ -1295,7 +1295,7 @@ void LLOutfitGallery::onTexturePickerCommit(LLTextureCtrl::ETexturePickOp op, LL
         std::string image_load_error;
         S32 max_width = MAX_OUTFIT_PHOTO_WIDTH;
         S32 max_height = MAX_OUTFIT_PHOTO_HEIGHT;
-        if (mTextureSelected.isNull() ||
+        if (!mTextureSelected ||
             mTextureSelected->getFullWidth() == 0 ||
             mTextureSelected->getFullHeight() == 0)
         {
@@ -1406,7 +1406,7 @@ void LLOutfitGallery::onAfterOutfitSnapshotSave()
     }
 }
 
-void LLOutfitGallery::onTexturePickerUpdateImageStats(LLPointer<LLViewerTexture> texture)
+void LLOutfitGallery::onTexturePickerUpdateImageStats(const LLViewerTexture::ptr_t &texture)
 {
     mTextureSelected = texture;
 }

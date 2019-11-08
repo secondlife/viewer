@@ -107,7 +107,7 @@ void LLTexLayerParamAlpha::getCacheByteCount(S32* gl_bytes)
 		 iter != sInstances.end(); iter++)
 	{
 		LLTexLayerParamAlpha* instance = *iter;
-		LLGLTexture* tex = instance->mCachedProcessedTexture;
+		LLGLTexture::ptr_t tex = instance->mCachedProcessedTexture;
 		if (tex)
 		{
 			S32 bytes = (S32)tex->getWidth() * tex->getHeight() * tex->getComponents();
@@ -343,12 +343,12 @@ BOOL LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
 				{
 					mCachedProcessedTexture->createGLTexture(0, mStaticImageRaw);
 					mNeedsCreateTexture = FALSE;
-					gGL.getTexUnit(0)->bind(mCachedProcessedTexture);
+					gGL.getTexUnit(0)->bind(mCachedProcessedTexture.get());
 					mCachedProcessedTexture->setAddressMode(LLTexUnit::TAM_CLAMP);
 				}
 
 				LLGLSNoAlphaTest gls_no_alpha_test;
-				gGL.getTexUnit(0)->bind(mCachedProcessedTexture);
+				gGL.getTexUnit(0)->bind(mCachedProcessedTexture.get());
 				gl_rect_2d_simple_tex(width, height);
 				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 				stop_glerror();

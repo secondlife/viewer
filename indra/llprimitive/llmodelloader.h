@@ -42,36 +42,40 @@ typedef std::deque<std::string>						JointNameSet;
 const S32 SLM_SUPPORTED_VERSION	= 3;
 const S32 NUM_LOD						= 4;
 
+class LLModelPreview;
+
 class LLModelLoader : public LLThread
 {
 public:
+    typedef std::shared_ptr<LLModelPreview>     preview_ptr_t;
+    typedef std::weak_ptr<LLModelPreview>       wpreview_ptr_t;
 
 	typedef std::map<std::string, LLImportMaterial>			material_map;
-	typedef std::vector<LLPointer<LLModel > >					model_list;	
-	typedef std::vector<LLModelInstance>						model_instance_list;	
+	typedef std::vector<LLPointer<LLModel > >				model_list;	
+	typedef std::vector<LLModelInstance>					model_instance_list;	
 	typedef std::map<LLMatrix4, model_instance_list >		scene;
 
 	// Callback with loaded model data and loaded LoD
 	// 
-	typedef boost::function<void (scene&,model_list&,S32,void*) >		load_callback_t;
+    typedef boost::function<void(scene&, model_list&, S32, const preview_ptr_t &) > load_callback_t;
 
 	// Function to provide joint lookup by name
 	// (within preview avi skeleton, for example)
 	//
-	typedef boost::function<LLJoint* (const std::string&,void*) >		joint_lookup_func_t;
+    typedef boost::function<LLJoint* (const std::string&, const preview_ptr_t &) >  joint_lookup_func_t;
 
 	// Func to load and associate material with all it's textures,
 	// returned value is the number of textures loaded
 	// intentionally non-const so func can modify material to
 	// store platform-specific data
 	//
-	typedef boost::function<U32 (LLImportMaterial&,void*) >				texture_load_func_t;
+    typedef boost::function<U32(LLImportMaterial&, const preview_ptr_t &) >         texture_load_func_t;
 
 	// Callback to inform client of state changes
 	// during loading process (errors will be reported
 	// as state changes here as well)
 	//
-	typedef boost::function<void (U32,void*) >								state_callback_t;
+    typedef boost::function<void(U32, const preview_ptr_t &) >                      state_callback_t;
 
 	typedef enum
 	{
@@ -120,14 +124,14 @@ public:
 	JointNameSet&		mJointsFromNode;
     U32					mMaxJointsPerMesh;
 
-	LLModelLoader(
-		std::string							filename,
-		S32									lod, 
-		LLModelLoader::load_callback_t		load_cb,
-		LLModelLoader::joint_lookup_func_t	joint_lookup_func,
-		LLModelLoader::texture_load_func_t	texture_load_func,
-		LLModelLoader::state_callback_t		state_cb,
-		void*								opaque_userdata,
+    LLModelLoader(
+        std::string							filename,
+        S32									lod,
+        LLModelLoader::load_callback_t		load_cb,
+        LLModelLoader::joint_lookup_func_t	joint_lookup_func,
+        LLModelLoader::texture_load_func_t	texture_load_func,
+        LLModelLoader::state_callback_t		state_cb,
+        const preview_ptr_t &               model_preview,
 		JointTransformMap&					jointTransformMap,
 		JointNameSet&						jointsFromNodes,
         JointMap&                           legalJointNamesMap,
@@ -191,7 +195,7 @@ protected:
 	LLModelLoader::joint_lookup_func_t	mJointLookupFunc;
 	LLModelLoader::texture_load_func_t	mTextureLoadFunc;
 	LLModelLoader::state_callback_t		mStateCallback;
-	void*								mOpaqueData;
+    wpreview_ptr_t                      mLoaderPreview;
 
 	bool		mRigValidJointUpload;
 	bool		mLegacyRigValid;

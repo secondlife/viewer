@@ -33,6 +33,7 @@
 #include "llpointer.h"
 #include "llwearabletype.h"
 
+class LLViewerFetchedTexture;
 class LLScrollListCtrl;
 class LLImageRaw;
 class LLViewerObject;
@@ -93,7 +94,7 @@ class LLLocalBitmap
 		EExtension  mExtension;
 		ELinkStatus mLinkStatus;
 		S32         mUpdateRetries;
-
+        std::shared_ptr<LLViewerFetchedTexture> mTexture;
 };
 
 class LLLocalBitmapTimer : public LLEventTimer

@@ -4601,14 +4601,14 @@ void LLViewerObject::setNumTEs(const U8 num_tes)
 	{
 		if (num_tes)
 		{
-			LLPointer<LLViewerTexture> *new_images;
-			new_images = new LLPointer<LLViewerTexture>[num_tes];
+            LLViewerTexture::ptr_t *new_images;
+            new_images = new LLViewerTexture::ptr_t[num_tes];
 			
-			LLPointer<LLViewerTexture> *new_normmaps;
-			new_normmaps = new LLPointer<LLViewerTexture>[num_tes];
+            LLViewerTexture::ptr_t *new_normmaps;
+            new_normmaps = new LLViewerTexture::ptr_t[num_tes];
 			
-			LLPointer<LLViewerTexture> *new_specmaps;
-			new_specmaps = new LLPointer<LLViewerTexture>[num_tes];
+            LLViewerTexture::ptr_t *new_specmaps;
+            new_specmaps = new LLViewerTexture::ptr_t[num_tes];
 			for (i = 0; i < num_tes; i++)
 			{
 				if (i < getNumTEs())
@@ -4711,7 +4711,7 @@ void LLViewerObject::sendTEUpdate() const
 	msg->sendReliable( regionp->getHost() );
 }
 
-LLViewerTexture* LLViewerObject::getBakedTextureForMagicId(const LLUUID& id)
+LLViewerTexture::ptr_t LLViewerObject::getBakedTextureForMagicId(const LLUUID& id)
 {
 	if (!LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(id))
 	{
@@ -4731,8 +4731,8 @@ LLViewerTexture* LLViewerObject::getBakedTextureForMagicId(const LLUUID& id)
 	if (avatar)
 	{
 		LLAvatarAppearanceDefines::EBakedTextureIndex texIndex = LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::assetIdToBakedTextureIndex(id);
-		LLViewerTexture* bakedTexture = avatar->getBakedTexture(texIndex);
-		if (bakedTexture == NULL || bakedTexture->isMissingAsset())
+		LLViewerTexture::ptr_t bakedTexture = avatar->getBakedTexture(texIndex);
+		if (!bakedTexture || bakedTexture->isMissingAsset())
 		{
 			return LLViewerTextureManager::instance().getFetchedTexture(IMG_DEFAULT, params);
 		}
@@ -4778,7 +4778,7 @@ void LLViewerObject::setTE(const U8 te, const LLTextureEntry &texture_entry)
 	LLPrimitive::setTE(te, texture_entry);
 
     const LLUUID& image_id = getTE(te)->getID();
-	LLViewerTexture* bakedTexture = getBakedTextureForMagicId(image_id);
+	LLViewerTexture::ptr_t bakedTexture = getBakedTextureForMagicId(image_id);
 
     LLViewerTextureManager::FetchParams params;
     params.mTextureType = LLViewerTexture::LOD_TEXTURE;
@@ -4806,13 +4806,13 @@ void LLViewerObject::refreshBakeTexture()
 		if (tex_entry && LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(tex_entry->getID()))
 		{
 			const LLUUID& image_id = tex_entry->getID();
-			LLViewerTexture* bakedTexture = getBakedTextureForMagicId(image_id);
+			LLViewerTexture::ptr_t bakedTexture = getBakedTextureForMagicId(image_id);
 			changeTEImage(face_index, bakedTexture);
 		}
 	}
 }
 
-void LLViewerObject::setTEImage(const U8 te, LLViewerTexture *imagep)
+void LLViewerObject::setTEImage(const U8 te, const LLViewerTexture::ptr_t &imagep)
 {
 	if (mTEImages[te] != imagep)
 	{
@@ -4820,7 +4820,7 @@ void LLViewerObject::setTEImage(const U8 te, LLViewerTexture *imagep)
 		
 		LLPrimitive::setTETexture(te, imagep->getID());
 
-		LLViewerTexture* baked_texture = getBakedTextureForMagicId(imagep->getID());
+		LLViewerTexture::ptr_t baked_texture = getBakedTextureForMagicId(imagep->getID());
 		mTEImages[te] = baked_texture ? baked_texture : imagep;
 		updateAvatarMeshVisibility(imagep->getID(), old_image_id);
 		setChanged(TEXTURE);
@@ -4831,7 +4831,7 @@ void LLViewerObject::setTEImage(const U8 te, LLViewerTexture *imagep)
 	}
 }
 
-S32 LLViewerObject::setTETextureCore(const U8 te, LLViewerTexture *image)
+S32 LLViewerObject::setTETextureCore(const U8 te, const LLViewerTexture::ptr_t &image)
 {
 	LLUUID old_image_id = getTE(te)->getID();
 	const LLUUID& uuid = image->getID();
@@ -4840,7 +4840,7 @@ S32 LLViewerObject::setTETextureCore(const U8 te, LLViewerTexture *image)
 		uuid == LLUUID::null)
 	{
 		retval = LLPrimitive::setTETexture(te, uuid);
-		LLViewerTexture* baked_texture = getBakedTextureForMagicId(uuid);
+		LLViewerTexture::ptr_t baked_texture = getBakedTextureForMagicId(uuid);
 		mTEImages[te] = baked_texture ? baked_texture : image;
 		updateAvatarMeshVisibility(uuid,old_image_id);
 		setChanged(TEXTURE);
@@ -4852,7 +4852,7 @@ S32 LLViewerObject::setTETextureCore(const U8 te, LLViewerTexture *image)
 	return retval;
 }
 
-S32 LLViewerObject::setTENormalMapCore(const U8 te, LLViewerTexture *image)
+S32 LLViewerObject::setTENormalMapCore(const U8 te, const LLViewerTexture::ptr_t &image)
 {
 	S32 retval = TEM_CHANGE_TEXTURE;
 	const LLUUID& uuid = image ? image->getID() : LLUUID::null;
@@ -4875,7 +4875,7 @@ S32 LLViewerObject::setTENormalMapCore(const U8 te, LLViewerTexture *image)
 	return retval;
 }
 
-S32 LLViewerObject::setTESpecularMapCore(const U8 te, LLViewerTexture *image)
+S32 LLViewerObject::setTESpecularMapCore(const U8 te, const LLViewerTexture::ptr_t &image)
 {
 	S32 retval = TEM_CHANGE_TEXTURE;
 	const LLUUID& uuid = image ? image->getID() : LLUUID::null;
@@ -4899,7 +4899,7 @@ S32 LLViewerObject::setTESpecularMapCore(const U8 te, LLViewerTexture *image)
 }
 
 //virtual
-void LLViewerObject::changeTEImage(S32 index, LLViewerTexture* new_image) 
+void LLViewerObject::changeTEImage(S32 index, const LLViewerTexture::ptr_t &new_image) 
 {
 	if(index < 0 || index >= getNumTEs())
 	{
@@ -4908,7 +4908,7 @@ void LLViewerObject::changeTEImage(S32 index, LLViewerTexture* new_image)
 	mTEImages[index] = new_image ;
 }
 
-void LLViewerObject::changeTENormalMap(S32 index, LLViewerTexture* new_image)
+void LLViewerObject::changeTENormalMap(S32 index, const LLViewerTexture::ptr_t &new_image)
 {
 	if(index < 0 || index >= getNumTEs())
 	{
@@ -4918,7 +4918,7 @@ void LLViewerObject::changeTENormalMap(S32 index, LLViewerTexture* new_image)
 	refreshMaterials();
 }
 
-void LLViewerObject::changeTESpecularMap(S32 index, LLViewerTexture* new_image)
+void LLViewerObject::changeTESpecularMap(S32 index, const LLViewerTexture::ptr_t &new_image)
 {
 	if(index < 0 || index >= getNumTEs())
 	{
@@ -4932,7 +4932,7 @@ S32 LLViewerObject::setTETexture(const U8 te, const LLUUID& uuid)
 {
     LLViewerTextureManager::FetchParams params;
     params.mTextureType = LLViewerTexture::LOD_TEXTURE;
-	LLViewerFetchedTexture *image = LLViewerTextureManager::instance().getFetchedTexture(uuid, params);
+	LLViewerFetchedTexture::ptr_t image = LLViewerTextureManager::instance().getFetchedTexture(uuid, params);
 	return setTETextureCore(te,image);
 }
 
@@ -4941,7 +4941,9 @@ S32 LLViewerObject::setTENormalMap(const U8 te, const LLUUID& uuid)
     LLViewerTextureManager::FetchParams params;
     params.mTextureType = LLViewerTexture::LOD_TEXTURE;
     params.mBoostPriority = LLGLTexture::BOOST_ALM;
-	LLViewerFetchedTexture *image = (uuid.isNull()) ? nullptr : LLViewerTextureManager::instance().getFetchedTexture(uuid, params);
+    LLViewerFetchedTexture::ptr_t image;
+    if (uuid.notNull()) 
+        image = LLViewerTextureManager::instance().getFetchedTexture(uuid, params);
 	return setTENormalMapCore(te, image);
 }
 
@@ -4950,7 +4952,9 @@ S32 LLViewerObject::setTESpecularMap(const U8 te, const LLUUID& uuid)
     LLViewerTextureManager::FetchParams params;
     params.mTextureType = LLViewerTexture::LOD_TEXTURE;
     params.mBoostPriority = LLGLTexture::BOOST_ALM;
-    LLViewerFetchedTexture *image = (uuid.isNull()) ? nullptr : LLViewerTextureManager::instance().getFetchedTexture(uuid, params);
+    LLViewerFetchedTexture::ptr_t image; 
+    if (uuid.notNull()) 
+        image = LLViewerTextureManager::instance().getFetchedTexture(uuid, params);
 	return setTESpecularMapCore(te, image);
 }
 
@@ -5244,32 +5248,32 @@ S32 LLViewerObject::setTERotation(const U8 te, const F32 r)
 }
 
 
-LLViewerTexture *LLViewerObject::getTEImage(const U8 face) const
+LLViewerTexture::ptr_t LLViewerObject::getTEImage(const U8 face) const
 {
 //	llassert(mTEImages);
 
 	if (face < getNumTEs())
 	{
-		LLViewerTexture* image = mTEImages[face];
+		LLViewerTexture::ptr_t image = mTEImages[face];
 		if (image)
 		{
 			return image;
 		}
 		else
 		{
-			return (LLViewerTexture*)(LLViewerFetchedTexture::sDefaultImagep);
+			return LLViewerFetchedTexture::sDefaultImagep;
 		}
 	}
 
 	LL_ERRS() << llformat("Requested Image from invalid face: %d/%d",face,getNumTEs()) << LL_ENDL;
 
-	return NULL;
+    return LLViewerTexture::ptr_t();
 }
 
 
 bool LLViewerObject::isImageAlphaBlended(const U8 te) const
 {
-	LLViewerTexture* image = getTEImage(te);
+	LLViewerTexture::ptr_t image = getTEImage(te);
 	LLGLenum format = image ? image->getPrimaryFormat() : GL_RGB;
 	switch (format)
 	{
@@ -5291,48 +5295,48 @@ bool LLViewerObject::isImageAlphaBlended(const U8 te) const
 	return false;
 }
 
-LLViewerTexture *LLViewerObject::getTENormalMap(const U8 face) const
+LLViewerTexture::ptr_t LLViewerObject::getTENormalMap(const U8 face) const
 {
 	//	llassert(mTEImages);
 	
 	if (face < getNumTEs())
 	{
-		LLViewerTexture* image = mTENormalMaps[face];
+		LLViewerTexture::ptr_t image = mTENormalMaps[face];
 		if (image)
 		{
 			return image;
 		}
 		else
 		{
-			return (LLViewerTexture*)(LLViewerFetchedTexture::sDefaultImagep);
+			return LLViewerFetchedTexture::sDefaultImagep;
 		}
 	}
 	
 	LL_ERRS() << llformat("Requested Image from invalid face: %d/%d",face,getNumTEs()) << LL_ENDL;
 	
-	return NULL;
+    return LLViewerTexture::ptr_t();
 }
 
-LLViewerTexture *LLViewerObject::getTESpecularMap(const U8 face) const
+LLViewerTexture::ptr_t LLViewerObject::getTESpecularMap(const U8 face) const
 {
 	//	llassert(mTEImages);
 	
 	if (face < getNumTEs())
 	{
-		LLViewerTexture* image = mTESpecularMaps[face];
+		LLViewerTexture::ptr_t image = mTESpecularMaps[face];
 		if (image)
 		{
 			return image;
 		}
 		else
 		{
-			return (LLViewerTexture*)(LLViewerFetchedTexture::sDefaultImagep);
+			return LLViewerFetchedTexture::sDefaultImagep;
 		}
 	}
 	
 	LL_ERRS() << llformat("Requested Image from invalid face: %d/%d",face,getNumTEs()) << LL_ENDL;
 	
-	return NULL;
+    return LLViewerTexture::ptr_t();
 }
 
 void LLViewerObject::fitFaceTexture(const U8 face)
@@ -5492,7 +5496,7 @@ void LLViewerObject::restoreHudText()
     }
 }
 
-void LLViewerObject::setIcon(LLViewerTexture* icon_image)
+void LLViewerObject::setIcon(const LLViewerTexture::ptr_t &icon_image)
 {
 	if (!mIcon)
 	{
@@ -5631,7 +5635,7 @@ void LLViewerObject::setParticleSource(const LLPartSysData& particle_parameters,
 
 		if (mPartSourcep->getImage()->getID() != mPartSourcep->mPartSysData.mPartImageID)
 		{
-			LLViewerTexture* image;
+			LLViewerTexture::ptr_t image;
 			if (mPartSourcep->mPartSysData.mPartImageID == LLUUID::null)
 			{
 				image = LLViewerTextureManager::instance().getFetchedTextureFromSkin("pixiesmall.tga");
@@ -5680,7 +5684,7 @@ void LLViewerObject::unpackParticleSource(const S32 block_num, const LLUUID& own
 	{
 		if (mPartSourcep->getImage()->getID() != mPartSourcep->mPartSysData.mPartImageID)
 		{
-			LLViewerTexture* image;
+			LLViewerTexture::ptr_t image;
 			if (mPartSourcep->mPartSysData.mPartImageID == LLUUID::null)
 			{
 				image = LLViewerTextureManager::instance().getFetchedTextureFromSkin("pixiesmall.j2c");
@@ -5727,7 +5731,7 @@ void LLViewerObject::unpackParticleSource(LLDataPacker &dp, const LLUUID& owner_
 	{
 		if (mPartSourcep->getImage()->getID() != mPartSourcep->mPartSysData.mPartImageID)
 		{
-			LLViewerTexture* image;
+			LLViewerTexture::ptr_t image;
 			if (mPartSourcep->mPartSysData.mPartImageID == LLUUID::null)
 			{
 				image = LLViewerTextureManager::instance().getFetchedTextureFromSkin("pixiesmall.j2c");

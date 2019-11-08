@@ -106,8 +106,8 @@ void LLIconCtrl::setValue(const LLSD& value, S32 priority)
         mImagep = LLUI::getUIImage(tvalue.asString(), priority);
 	}
 
-	if(mImagep.notNull() 
-		&& mImagep->getImage().notNull() 
+	if(mImagep
+		&& mImagep->getImage()
 		&& mMinWidth 
 		&& mMinHeight)
 	{

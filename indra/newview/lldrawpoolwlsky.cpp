@@ -43,7 +43,7 @@
 #include "llrender.h"
 #include "llviewertexturemanager.h"
 
-LLPointer<LLViewerTexture> LLDrawPoolWLSky::sCloudNoiseTexture = NULL;
+LLViewerTexture::ptr_t LLDrawPoolWLSky::sCloudNoiseTexture = NULL;
 
 LLPointer<LLImageRaw> LLDrawPoolWLSky::sCloudNoiseRawImage = NULL;
 
@@ -92,9 +92,9 @@ LLDrawPoolWLSky::~LLDrawPoolWLSky()
 	sCloudNoiseRawImage = NULL;
 }
 
-LLViewerTexture *LLDrawPoolWLSky::getDebugTexture()
+LLViewerTexture::ptr_t LLDrawPoolWLSky::getDebugTexture()
 {
-	return NULL;
+	return LLViewerTexture::ptr_t();
 }
 
 void LLDrawPoolWLSky::beginRenderPass( S32 pass )
@@ -202,7 +202,7 @@ void LLDrawPoolWLSky::renderStars(void) const
 		return;
 	}
 
-	gGL.getTexUnit(0)->bind(gSky.mVOSkyp->getBloomTex());
+	gGL.getTexUnit(0)->bind(gSky.mVOSkyp->getBloomTex().get());
 
 	gGL.pushMatrix();
 	gGL.rotatef(gFrameTimeSeconds*0.01f, 0.f, 0.f, 1.f);
@@ -236,12 +236,12 @@ void LLDrawPoolWLSky::renderStars(void) const
 
 void LLDrawPoolWLSky::renderSkyClouds(F32 camHeightLocal) const
 {
-	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && sCloudNoiseTexture.notNull())
+	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && sCloudNoiseTexture)
 	{
 		LLGLEnable blend(GL_BLEND);
 		gGL.setSceneBlendType(LLRender::BT_ALPHA);
 		
-		gGL.getTexUnit(0)->bind(sCloudNoiseTexture);
+		gGL.getTexUnit(0)->bind(sCloudNoiseTexture.get());
 
 		cloud_shader->bind();
 
@@ -262,7 +262,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 	LLFace * face = gSky.mVOSkyp->mFace[LLVOSky::FACE_SUN];
 	if (gSky.mVOSkyp->getSun().getDraw() && face->getGeomCount())
 	{
-		LLViewerTexture * tex  = face->getTexture();
+		LLViewerTexture::ptr_t tex  = face->getTexture();
 		gGL.getTexUnit(0)->bind(tex);
 		LLColor4 color(gSky.mVOSkyp->getSun().getInterpColor());
 		LLFacePool::LLOverrideFaceColor color_override(this, color);
@@ -277,7 +277,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 		// *NOTE: even though we already bound this texture above for the
 		// stars register combiners, we bind again here for defensive reasons,
 		// since LLImageGL::bind detects that it's a noop, and optimizes it out.
-		gGL.getTexUnit(0)->bind(face->getTexture());
+		gGL.getTexUnit(0)->bind(face->getTexture().get());
 		LLColor4 color(gSky.mVOSkyp->getMoon().getInterpColor());
 		F32 a = gSky.mVOSkyp->getMoon().getDirection().mV[2];
 		if (a > 0.f)
@@ -333,7 +333,7 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 		// *NOTE: have to bind a texture here since register combiners blending in
 		// renderStars() requires something to be bound and we might as well only
 		// bind the moon's texture once.		
-		gGL.getTexUnit(0)->bind(gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture());
+		gGL.getTexUnit(0)->bind(gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture().get());
 
 		renderHeavenlyBodies();
 
@@ -376,7 +376,7 @@ void LLDrawPoolWLSky::render(S32 pass)
 		// *NOTE: have to bind a texture here since register combiners blending in
 		// renderStars() requires something to be bound and we might as well only
 		// bind the moon's texture once.		
-		gGL.getTexUnit(0)->bind(gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture());
+		gGL.getTexUnit(0)->bind(gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON]->getTexture().get());
 
 		renderHeavenlyBodies();
 
@@ -400,9 +400,9 @@ LLDrawPoolWLSky *LLDrawPoolWLSky::instancePool()
 	return new LLDrawPoolWLSky();
 }
 
-LLViewerTexture* LLDrawPoolWLSky::getTexture()
+LLViewerTexture::ptr_t LLDrawPoolWLSky::getTexture()
 {
-	return NULL;
+	return LLViewerTexture::ptr_t();
 }
 
 void LLDrawPoolWLSky::resetDrawOrders()

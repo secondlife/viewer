@@ -33,6 +33,7 @@
 #include "llpointer.h"
 #include "llcolorswatch.h"
 #include "llspinctrl.h"
+#include "llviewertexture.h"
 
 class LLButton;
 class LLLineEditor;
@@ -180,7 +181,7 @@ class LLFloaterColorPicker
 		const S32 mPaletteRegionHeight;
 
 		// image used to compose color grid
-		LLPointer<class LLViewerTexture> mRGBImage;
+		LLViewerTexture::ptr_t mRGBImage;
 
 		// current swatch in use
 		LLColorSwatchCtrl* mSwatch;

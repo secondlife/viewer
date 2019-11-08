@@ -112,7 +112,7 @@ void LLManipRotate::handleSelect()
 void LLManipRotate::render()
 {
 	LLGLSUIDefault gls_ui;
-	gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
+	gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep.get());
 	LLGLDepthTest gls_depth(GL_TRUE);
 	LLGLEnable gl_blend(GL_BLEND);
 	LLGLEnable gls_alpha_test(GL_ALPHA_TEST);

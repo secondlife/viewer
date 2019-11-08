@@ -37,7 +37,7 @@ class LLViewerTexture ;
 class LLTextureAtlasSlot : public LLRefCount
 {
 public:
-	LLTextureAtlasSlot(LLTextureAtlas* atlasp, LLSpatialGroup* groupp, S16 col, S16 row, F32 xoffset, F32 yoffset, S8 slot_width) ;
+	LLTextureAtlasSlot(const LLTextureAtlas::ptr_t &atlasp, LLSpatialGroup* groupp, S16 col, S16 row, F32 xoffset, F32 yoffset, S8 slot_width) ;
 
 protected:
 	virtual ~LLTextureAtlasSlot();
@@ -57,7 +57,7 @@ public:
 	void setTexCoordScale(F32 xscale, F32 yscale) ;
 	void setValid() {mValid = TRUE ;}
 
-	LLTextureAtlas* getAtlas()const {return mAtlasp;}
+	LLTextureAtlas::ptr_t   getAtlas()const {return mAtlasp;}
 	LLSpatialGroup* getSpatialGroup() const {return mGroupp ;} 
 	S16             getSlotCol()const {return mCol;}
 	S16             getSlotRow()const {return mRow;}
@@ -70,7 +70,7 @@ public:
 	U32  getUpdatedTime()const {return mUpdatedTime;}
 
 private:
-	LLTextureAtlas* mAtlasp;
+	LLTextureAtlas::ptr_t   mAtlasp;
 	S16             mCol ;//col of the slot
 	S16             mRow ;//row of the slot
 	S8              mReservedSlotWidth ; //slot is a square with each edge length a power-of-two number	
@@ -87,13 +87,13 @@ class LLTextureAtlasManager : public LLSingleton<LLTextureAtlasManager>
 {
 	LLSINGLETON(LLTextureAtlasManager);
 	~LLTextureAtlasManager();
-	typedef std::list<LLPointer<LLTextureAtlas> > ll_texture_atlas_list_t ;
+    typedef std::list<LLTextureAtlas::ptr_t> ll_texture_atlas_list_t;
 
 public:
 
 	LLPointer<LLTextureAtlasSlot> reserveAtlasSlot(S32 sub_texture_size, S8 ncomponents, 
 		LLSpatialGroup* groupp, LLViewerTexture* imagep) ;
-	void releaseAtlas(LLTextureAtlas* atlasp);
+	void releaseAtlas(const LLTextureAtlas::ptr_t &atlasp);
 
 	BOOL canAddToAtlas(S32 w, S32 h, S8 ncomponents, LLGLenum target) ;
 

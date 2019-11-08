@@ -91,7 +91,7 @@ LLVisualParamHint::LLVisualParamHint(
 	mLastParamWeight(0.f),
 	mCamTargetJoint(jointp)
 {
-	LLVisualParamHint::sInstances.insert( this );
+	LLVisualParamHint::sInstances.insert( getSharedPointer() );
 	mBackgroundp = LLUI::getUIImage("avatar_thumb_bkgrnd.png");
 
 	llassert(width != 0);
@@ -103,7 +103,7 @@ LLVisualParamHint::LLVisualParamHint(
 //-----------------------------------------------------------------------------
 LLVisualParamHint::~LLVisualParamHint()
 {
-	LLVisualParamHint::sInstances.erase( this );
+	LLVisualParamHint::sInstances.erase( getSharedPointer() );
 }
 
 //virtual
@@ -117,13 +117,13 @@ S8 LLVisualParamHint::getType() const
 // requestHintUpdates()
 // Requests updates for all instances (excluding two possible exceptions)  Grungy but efficient.
 //-----------------------------------------------------------------------------
-void LLVisualParamHint::requestHintUpdates( LLVisualParamHint* exception1, LLVisualParamHint* exception2 )
+void LLVisualParamHint::requestHintUpdates( const LLVisualParamHint::ptr_t &exception1, const LLVisualParamHint::ptr_t &exception2 )
 {
 	S32 delay_frames = 0;
 	for (instance_list_t::iterator iter = sInstances.begin();
 		 iter != sInstances.end(); ++iter)
 	{
-		LLVisualParamHint* instance = *iter;
+		LLVisualParamHint::ptr_t instance = *iter;
 		if( (instance != exception1) && (instance != exception2) )
 		{
 			if( instance->mAllowsUpdates )

@@ -322,9 +322,9 @@ public:
 	/*virtual*/ S32		setTETexture(const U8 te, const LLUUID &uuid);
 	/*virtual*/ S32		setTENormalMap(const U8 te, const LLUUID &uuid);
 	/*virtual*/ S32		setTESpecularMap(const U8 te, const LLUUID &uuid);
-	S32 				setTETextureCore(const U8 te, LLViewerTexture *image);
-	S32 setTENormalMapCore(const U8 te, LLViewerTexture *image);
-	S32 setTESpecularMapCore(const U8 te, LLViewerTexture *image);
+	S32 				setTETextureCore(const U8 te, const std::shared_ptr<LLViewerTexture> &image);
+	S32 setTENormalMapCore(const U8 te, const std::shared_ptr<LLViewerTexture> &image);
+	S32 setTESpecularMapCore(const U8 te, const std::shared_ptr<LLViewerTexture> &image);
 	/*virtual*/ S32		setTEColor(const U8 te, const LLColor3 &color);
 	/*virtual*/ S32		setTEColor(const U8 te, const LLColor4 &color);
 	/*virtual*/ S32		setTEScale(const U8 te, const F32 s, const F32 t);
@@ -350,13 +350,13 @@ public:
 	void refreshMaterials();
 
 	/*virtual*/	BOOL	setMaterial(const U8 material);
-	virtual		void	setTEImage(const U8 te, LLViewerTexture *imagep); // Not derived from LLPrimitive
-	virtual     void    changeTEImage(S32 index, LLViewerTexture* new_image)  ;
-	virtual     void    changeTENormalMap(S32 index, LLViewerTexture* new_image)  ;
-	virtual     void    changeTESpecularMap(S32 index, LLViewerTexture* new_image)  ;
-	LLViewerTexture		*getTEImage(const U8 te) const;
-	LLViewerTexture		*getTENormalMap(const U8 te) const;
-	LLViewerTexture		*getTESpecularMap(const U8 te) const;
+	virtual		void	setTEImage(const U8 te, const std::shared_ptr<LLViewerTexture> &imagep); // Not derived from LLPrimitive
+	virtual     void    changeTEImage(S32 index, const std::shared_ptr<LLViewerTexture> &new_image);
+	virtual     void    changeTENormalMap(S32 index, const std::shared_ptr<LLViewerTexture> &new_image);
+	virtual     void    changeTESpecularMap(S32 index, const std::shared_ptr<LLViewerTexture> &new_image);
+	std::shared_ptr<LLViewerTexture>  getTEImage(const U8 te) const;
+	std::shared_ptr<LLViewerTexture>  getTENormalMap(const U8 te) const;
+	std::shared_ptr<LLViewerTexture>  getTESpecularMap(const U8 te) const;
 	
 	bool 						isImageAlphaBlended(const U8 te) const;
 
@@ -425,7 +425,7 @@ public:
 	void setDebugText(const std::string &utf8text);
 	void initHudText();
 	void restoreHudText();
-	void setIcon(LLViewerTexture* icon_image);
+	void setIcon(const std::shared_ptr<LLViewerTexture> &icon_image);
 	void clearIcon();
 
     void recursiveMarkForUpdate(BOOL priority);
@@ -588,7 +588,7 @@ public:
 	friend class LLViewerMediaList;
 
 public:
-	LLViewerTexture* getBakedTextureForMagicId(const LLUUID& id);
+	std::shared_ptr<LLViewerTexture> getBakedTextureForMagicId(const LLUUID& id);
 	void updateAvatarMeshVisibility(const LLUUID& id, const LLUUID& old_id);
 	void refreshBakeTexture();
 public:
@@ -665,9 +665,9 @@ public:
 	// index into LLViewerObjectList::mActiveObjects or -1 if not in list
 	S32				mListIndex;
 
-	LLPointer<LLViewerTexture> *mTEImages;
-	LLPointer<LLViewerTexture> *mTENormalMaps;
-	LLPointer<LLViewerTexture> *mTESpecularMaps;
+    std::shared_ptr<LLViewerTexture> *mTEImages;        // LLViewerTexture::ptr_t
+    std::shared_ptr<LLViewerTexture> *mTENormalMaps;    // LLViewerTexture::ptr_t
+    std::shared_ptr<LLViewerTexture> *mTESpecularMaps;  // LLViewerTexture::ptr_t
 
 	// Selection, picking and rendering variables
 	U32				mGLName;			// GL "name" used by selection code

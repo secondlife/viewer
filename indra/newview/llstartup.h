@@ -85,7 +85,7 @@ typedef enum {
 // exported symbols
 extern bool gAgentMovementCompleted;
 extern S32  gMaxAgentGroups;
-extern LLPointer<LLViewerTexture> gStartTexture;
+extern std::shared_ptr<LLViewerTexture> gStartTexture;  // LLViewerTexture::ptr_t
 
 class LLStartUp
 {

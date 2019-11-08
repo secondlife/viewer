@@ -116,7 +116,7 @@ class LLSkyTex
 private:
 	static S32		sResolution;
 	static S32		sComponents;
-	LLPointer<LLViewerTexture> mTexture[2];
+    LLViewerTexture::ptr_t mTexture[2];
 	LLPointer<LLImageRaw> mImageRaw[2];
 	LLColor4		*mSkyData;
 	LLVector3		*mSkyDirs;			// Cache of sky direction vectors
@@ -541,9 +541,9 @@ public:
 	BOOL isReflFace(const LLFace* face) const			{ return face == mFace[FACE_REFLECTION]; }
 	LLFace* getReflFace() const							{ return mFace[FACE_REFLECTION]; }
 
-	LLViewerTexture*	getSunTex() const					{ return mSunTexturep; }
-	LLViewerTexture*	getMoonTex() const					{ return mMoonTexturep; }
-	LLViewerTexture*	getBloomTex() const					{ return mBloomTexturep; }
+	LLViewerTexture::ptr_t  getSunTex() const           { return mSunTexturep; }
+	LLViewerTexture::ptr_t	getMoonTex() const          { return mMoonTexturep; }
+	LLViewerTexture::ptr_t	getBloomTex() const         { return mBloomTexturep; }
 	void forceSkyUpdate(void)							{ mForceUpdate = TRUE; }
 
 public:
@@ -553,9 +553,9 @@ public:
 protected:
 	~LLVOSky();
 
-	LLPointer<LLViewerFetchedTexture> mSunTexturep;
-	LLPointer<LLViewerFetchedTexture> mMoonTexturep;
-	LLPointer<LLViewerFetchedTexture> mBloomTexturep;
+    LLViewerFetchedTexture::ptr_t   mSunTexturep;
+    LLViewerFetchedTexture::ptr_t   mMoonTexturep;
+    LLViewerFetchedTexture::ptr_t   mBloomTexturep;
 
 	static S32			sResolution;
 	static S32			sTileResX;

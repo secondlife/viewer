@@ -43,10 +43,11 @@ class LLVolume;
 class LLImagePreviewSculpted : public LLViewerDynamicTexture
 {
 protected:
-	virtual ~LLImagePreviewSculpted();
 
  public:
+    typedef std::shared_ptr<LLImagePreviewSculpted> ptr_t;
 	LLImagePreviewSculpted(S32 width, S32 height);	
+    virtual ~LLImagePreviewSculpted();
 
 	/*virtual*/ S8 getType() const ;
 
@@ -75,11 +76,11 @@ protected:
 
 class LLImagePreviewAvatar : public LLViewerDynamicTexture
 {
-protected:
-	virtual ~LLImagePreviewAvatar();
 
 public:
-	LLImagePreviewAvatar(S32 width, S32 height);	
+    typedef std::shared_ptr<LLImagePreviewAvatar> ptr_t;
+    LLImagePreviewAvatar(S32 width, S32 height);
+    virtual ~LLImagePreviewAvatar();
 
 	/*virtual*/ S8 getType() const ;
 
@@ -130,13 +131,13 @@ protected:
 	bool			loadImage(const std::string& filename);
 
 	LLPointer<LLImageRaw> mRawImagep;
-	LLPointer<LLImagePreviewAvatar> mAvatarPreview;
-	LLPointer<LLImagePreviewSculpted> mSculptedPreview;
+	LLImagePreviewAvatar::ptr_t     mAvatarPreview;
+	LLImagePreviewSculpted::ptr_t   mSculptedPreview;
 	S32				mLastMouseX;
 	S32				mLastMouseY;
 	LLRect			mPreviewRect;
 	LLRectf			mPreviewImageRect;
-	LLPointer<LLViewerTexture> mImagep ;
+    LLViewerTexture::ptr_t  mImagep;
 	
 	std::string mImageLoadError;
 };

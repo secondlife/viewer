@@ -190,8 +190,8 @@ public:
 	LLTexLayerSet(LLAvatarAppearance* const appearance);
 	virtual ~LLTexLayerSet();
 
-	LLTexLayerSetBuffer*		getComposite();
-	const LLTexLayerSetBuffer* 	getComposite() const; // Do not create one if it doesn't exist.
+	std::shared_ptr<LLTexLayerSetBuffer>        getComposite();
+	const std::shared_ptr<LLTexLayerSetBuffer> &getComposite() const; // Do not create one if it doesn't exist.
 	virtual void				createComposite() = 0;
 	void						destroyComposite();
 	void						gatherMorphMaskAlpha(U8 *data, S32 origin_x, S32 origin_y, S32 width, S32 height);
@@ -213,7 +213,7 @@ public:
 	
 	LLAvatarAppearance*			getAvatarAppearance()	const		{ return mAvatarAppearance; }
 	const std::string			getBodyRegionName() const;
-	BOOL						hasComposite() const 		{ return (mComposite.notNull()); }
+	BOOL						hasComposite() const 		{ return static_cast<bool>(mComposite); }
 	LLAvatarAppearanceDefines::EBakedTextureIndex getBakedTexIndex() const { return mBakedTexIndex; }
 	void						setBakedTexIndex(LLAvatarAppearanceDefines::EBakedTextureIndex index) { mBakedTexIndex = index; }
 	BOOL						isVisible() const 			{ return mIsVisible; }
@@ -226,7 +226,7 @@ protected:
 	typedef std::vector<LLTexLayerInterface *> layer_list_t;
 	layer_list_t				mLayerList;
 	layer_list_t				mMaskLayerList;
-	LLPointer<LLTexLayerSetBuffer>	mComposite;
+	std::shared_ptr<LLTexLayerSetBuffer>    mComposite;
 	LLAvatarAppearance*	const	mAvatarAppearance; // note: backlink only; don't make this an LLPointer.
 	BOOL						mIsVisible;
 
@@ -264,7 +264,7 @@ protected:
 //
 // The composite image that a LLTexLayerSet writes to.  Each LLTexLayerSet has one.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class LLTexLayerSetBuffer : public virtual LLRefCount
+class LLTexLayerSetBuffer 
 {
 	LOG_CLASS(LLTexLayerSetBuffer);
 
@@ -272,6 +272,7 @@ public:
 	LLTexLayerSetBuffer(LLTexLayerSet* const owner);
 	virtual ~LLTexLayerSetBuffer();
 
+    typedef std::shared_ptr<LLTexLayerSetBuffer>    ptr_t;
 protected:
 	void					pushProjection() const;
 	void					popProjection() const;
@@ -296,7 +297,7 @@ class LLTexLayerStaticImageList : public LLSingleton<LLTexLayerStaticImageList>
 	LLSINGLETON(LLTexLayerStaticImageList);
 	~LLTexLayerStaticImageList();
 public:
-	LLGLTexture*		getTexture(const std::string& file_name, BOOL is_mask);
+	LLGLTexture::ptr_t  getTexture(const std::string& file_name, BOOL is_mask);
 	LLImageTGA*			getImageTGA(const std::string& file_name);
 	void				deleteCachedImages();
 	void				dumpByteCount() const;
@@ -304,7 +305,7 @@ protected:
 	BOOL				loadImageRaw(const std::string& file_name, LLImageRaw* image_raw);
 private:
 	LLStringTable 		mImageNames;
-	typedef std::map<const char*, LLPointer<LLGLTexture> > texture_map_t;
+	typedef std::map<const char*, LLGLTexture::ptr_t> texture_map_t;
 	texture_map_t 		mStaticImageList;
 	typedef std::map<const char*, LLPointer<LLImageTGA> > image_tga_map_t;
 	image_tga_map_t 	mStaticImageListTGA;

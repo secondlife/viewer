@@ -127,7 +127,7 @@ BOOL LLViewerParcelMediaAutoPlay::tick()
 	{
 		if (this_media_texture_id.notNull())	// and if the media texture is good
 		{
-            LLViewerMediaTexture *image = LLViewerTextureManager::instance().getMediaTexture(this_media_texture_id, FALSE);
+            LLViewerMediaTexture::ptr_t image = LLViewerTextureManager::instance().getMediaTexture(this_media_texture_id, FALSE);
 
 			F32 image_size = 0;
 

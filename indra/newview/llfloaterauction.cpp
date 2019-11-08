@@ -147,7 +147,7 @@ void LLFloaterAuction::draw()
 {
 	LLFloater::draw();
 
-	if(!isMinimized() && mImage.notNull()) 
+	if(!isMinimized() && mImage) 
 	{
 		LLView* snapshot_icon = findChildView("snapshot_icon");
 		if (snapshot_icon)
@@ -165,7 +165,7 @@ void LLFloaterAuction::draw()
 									 rect.mBottom,
 									 rect.getWidth(),
 									 rect.getHeight(),
-									 mImage);
+									 mImage.get());
 			}
 		}
 	}
@@ -211,7 +211,7 @@ void LLFloaterAuction::onClickSnapshot(void* data)
 		LLVFile::writeFile(j2c->getData(), j2c->getDataSize(), gVFS, self->mImageID, LLAssetType::AT_TEXTURE);
 
         self->mImage = LLViewerTextureManager::instance().getLocalTexture((LLImageRaw*)raw, false);
-		gGL.getTexUnit(0)->bind(self->mImage);
+		gGL.getTexUnit(0)->bind(self->mImage.get());
 		self->mImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 	}
 	else

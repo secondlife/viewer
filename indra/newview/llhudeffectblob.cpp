@@ -67,7 +67,7 @@ void LLHUDEffectBlob::render()
 	LLViewerCamera::instance().getPixelVectors(pos_agent, pixel_up, pixel_right);
 
 	LLGLSPipelineAlpha gls_pipeline_alpha;
-	gGL.getTexUnit(0)->bind(mImage->getImage());
+	gGL.getTexUnit(0)->bind(mImage->getImage().get());
 
 	LLColor4U color = mColor;
 	color.mV[VALPHA] = (U8)clamp_rescale(time, 0.f, mDuration, 255.f, 0.f);

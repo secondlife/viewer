@@ -2661,7 +2661,7 @@ void LLPanelFace::LLSelectedTE::getImageFormat(LLGLenum& image_format_to_return,
 	{
 		LLGLenum get(LLViewerObject* object, S32 te_index)
 		{
-			LLViewerTexture* image = object->getTEImage(te_index);
+			LLViewerTexture::ptr_t image = object->getTEImage(te_index);
 			return image ? image->getPrimaryFormat() : GL_RGB;
 		}
 	} get_glenum;
@@ -2686,7 +2686,7 @@ void LLPanelFace::LLSelectedTE::getTexId(LLUUID& id, bool& identical)
 			}
 
 			LLUUID id;
-			LLViewerTexture* image = object->getTEImage(te_index);
+			LLViewerTexture::ptr_t image = object->getTEImage(te_index);
 			if (image)
 			{
 				id = image->getID();
@@ -2696,7 +2696,7 @@ void LLPanelFace::LLSelectedTE::getTexId(LLUUID& id, bool& identical)
 			{
 				if (te)
 				{
-					LLViewerTexture* tex = te->getID().notNull() ? LLViewerTextureManager::instance().findFetchedTexture(te->getID()) : nullptr;
+					LLViewerTexture::ptr_t tex = te->getID().notNull() ? LLViewerTextureManager::instance().findFetchedTexture(te->getID()) : nullptr;
 					if(!tex)
 					{
 						tex = LLViewerFetchedTexture::sDefaultImagep;

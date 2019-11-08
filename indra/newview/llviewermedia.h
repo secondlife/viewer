@@ -481,7 +481,7 @@ private:
     bool mCanceling;
 
 private:
-	LLViewerMediaTexture *updatePlaceholderImage();
+	std::shared_ptr<LLViewerMediaTexture> updatePlaceholderImage();
 };
 
 #endif	// LLVIEWERMEDIA_H

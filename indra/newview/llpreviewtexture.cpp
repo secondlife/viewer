@@ -76,7 +76,7 @@ LLPreviewTexture::LLPreviewTexture(const LLSD& key)
 	  mLastWidth(0),
 	  mAspectRatio(0.f),
 	  mPreviewToSave(FALSE),
-	  mImage(NULL),
+	  mTexture(NULL),
 	  mImageOldBoostLevel(LLGLTexture::BOOST_NONE)
 {
 	updateImageID();
@@ -99,10 +99,10 @@ LLPreviewTexture::~LLPreviewTexture()
 		getWindow()->decBusyCount();
 	}
 
-	if (mImage.notNull())
+	if (mTexture)
 	{
-		mImage->setBoostLevel(mImageOldBoostLevel);
-		mImage = NULL;
+		mTexture->setBoostLevel(mImageOldBoostLevel);
+		mTexture.reset();
 	}
 }
 
@@ -206,7 +206,7 @@ void LLPreviewTexture::draw()
 		gl_rect_2d( border, LLColor4(0.f, 0.f, 0.f, 1.f));
 		gl_rect_2d_checkerboard( interior );
 
-		if ( mImage.notNull() )
+		if ( mTexture )
 		{
 			// Draw the texture
 			gGL.diffuseColor3f( 1.f, 1.f, 1.f );
@@ -214,11 +214,11 @@ void LLPreviewTexture::draw()
 								interior.mBottom,
 								interior.getWidth(),
 								interior.getHeight(),
-								mImage);
+								mTexture.get());
 
 			// Pump the texture priority
 			F32 pixel_area = mLoadingFullImage ? (F32)MAX_IMAGE_AREA  : (F32)(interior.getWidth() * interior.getHeight() );
-			mImage->addTextureStats( pixel_area );
+			mTexture->addTextureStats( pixel_area );
 
 			// Don't bother decoding more than we can display, unless
 			// we're loading the full image.
@@ -226,12 +226,12 @@ void LLPreviewTexture::draw()
 			{
 				S32 int_width = interior.getWidth();
 				S32 int_height = interior.getHeight();
-				mImage->setKnownDrawSize(int_width, int_height);
+				mTexture->setKnownDrawSize(int_width, int_height);
 			}
 			else
 			{
 				// Don't use this feature
-				mImage->setKnownDrawSize(0, 0);
+				mTexture->setKnownDrawSize(0, 0);
 			}
 
 			if( mLoadingFullImage )
@@ -243,7 +243,7 @@ void LLPreviewTexture::draw()
 					LLFontGL::NORMAL,
 					LLFontGL::DROP_SHADOW);
 				
-				F32 data_progress = mImage->getDownloadProgress() ;
+				F32 data_progress = mTexture->getDownloadProgress() ;
 				
 				// Draw the progress bar.
 				const S32 BAR_HEIGHT = 12;
@@ -289,7 +289,7 @@ void LLPreviewTexture::draw()
 // virtual
 BOOL LLPreviewTexture::canSaveAs() const
 {
-	return mIsFullPerm && !mLoadingFullImage && mImage.notNull() && !mImage->isMissingAsset();
+	return mIsFullPerm && !mLoadingFullImage && mTexture && !mTexture->isMissingAsset();
 }
 
 
@@ -318,9 +318,9 @@ void LLPreviewTexture::saveTextureToFile(const std::vector<std::string>& filenam
 	getWindow()->incBusyCount();
 
     LLUUID item_id(mItemUUID);
-	mImage->forceToSaveRawImage(0);//re-fetch the raw image if the old one is removed.
-    LLViewerFetchedTexture::connection_t connection = mImage->addCallback(
-        [item_id](bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done) { 
+	mTexture->forceToSaveRawImage(0);//re-fetch the raw image if the old one is removed.
+    LLViewerFetchedTexture::connection_t connection = mTexture->addCallback(
+        [item_id](bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done) {
             LLPreviewTexture::onFileLoadedForSave(success, src_vi, final_done, item_id); 
     });
     mConnections.insert(connection);
@@ -383,7 +383,7 @@ void LLPreviewTexture::openToSave()
 }
 
 // static
-void LLPreviewTexture::onFileLoadedForSave(bool success, LLPointer<LLViewerFetchedTexture> &src_vi, bool final_done, LLUUID item_id)
+void LLPreviewTexture::onFileLoadedForSave(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, LLUUID item_id)
 {
     /*TODO:*/ // this could be a handle.
 	LLPreviewTexture* self = LLFloaterReg::findTypedInstance<LLPreviewTexture>("preview_texture", item_id);
@@ -446,17 +446,17 @@ void LLPreviewTexture::onFileLoadedForSave(bool success, LLPointer<LLViewerFetch
 // When we receive it, reshape the window accordingly.
 void LLPreviewTexture::updateDimensions()
 {
-	if (!mImage)
+	if (!mTexture)
 	{
 		return;
 	}
-	if ((mImage->getFullWidth() * mImage->getFullHeight()) == 0)
+	if ((mTexture->getFullWidth() * mTexture->getFullHeight()) == 0)
 	{
 		return;
 	}
 
-	S32 img_width = mImage->getFullWidth();
-	S32 img_height = mImage->getFullHeight();
+	S32 img_width = mTexture->getFullWidth();
+	S32 img_height = mTexture->getFullHeight();
 
 	if (mAssetStatus != PREVIEW_ASSET_LOADED
 		|| mLastWidth != img_width
@@ -542,7 +542,7 @@ void LLPreviewTexture::loadAsset()
     params.mTextureType = LLViewerTexture::LOD_TEXTURE;
     params.mBoostPriority = LLGLTexture::BOOST_PREVIEW;
     params.mKeepRaw = true;
-	mImage = LLViewerTextureManager::instance().getFetchedTexture(mImageID, params);
+	mTexture = LLViewerTextureManager::instance().getFetchedTexture(mImageID, params);
 // 	mImageOldBoostLevel = mImage->getBoostLevel();
 // 	mImage->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
 // 	mImage->forceToSaveRawImage(0) ;
@@ -568,7 +568,7 @@ void LLPreviewTexture::loadAsset()
 
 LLPreview::EAssetStatus LLPreviewTexture::getAssetStatus()
 {
-	if (mImage.notNull() && (mImage->getFullWidth() * mImage->getFullHeight() > 0))
+	if (mTexture && (mTexture->getFullWidth() * mTexture->getFullHeight() > 0))
 	{
 		mAssetStatus = PREVIEW_ASSET_LOADED;
 	}
@@ -577,8 +577,8 @@ LLPreview::EAssetStatus LLPreviewTexture::getAssetStatus()
 
 void LLPreviewTexture::adjustAspectRatio()
 {
-	S32 w = mImage->getFullWidth();
-    S32 h = mImage->getFullHeight();
+	S32 w = mTexture->getFullWidth();
+    S32 h = mTexture->getFullHeight();
 
 	// Determine aspect ratio of the image
 	S32 tmp;
@@ -589,8 +589,8 @@ void LLPreviewTexture::adjustAspectRatio()
         h = tmp;
     }
 	S32 divisor = w;
-	S32 num = mImage->getFullWidth() / divisor;
-	S32 denom = mImage->getFullHeight() / divisor;
+	S32 num = mTexture->getFullWidth() / divisor;
+	S32 denom = mTexture->getFullHeight() / divisor;
 
 	if (setAspectRatio(num, denom))
 	{

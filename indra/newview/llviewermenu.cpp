@@ -7257,7 +7257,7 @@ void handle_selected_texture_info(void*)
    		{
    			if (!node->isTESelected(i)) continue;
 	   
-   			LLViewerTexture* img = node->getObject()->getTEImage(i);
+   			LLViewerTexture::ptr_t img = node->getObject()->getTEImage(i);
    			LLUUID image_id = img->getID();
    			faces_per_texture[image_id].push_back(i);
    		}
@@ -7267,7 +7267,7 @@ void handle_selected_texture_info(void*)
    		{
    			LLUUID image_id = it->first;
    			U8 te = it->second[0];
-   			LLViewerTexture* img = node->getObject()->getTEImage(te);
+   			LLViewerTexture::ptr_t img = node->getObject()->getTEImage(te);
    			S32 height = img->getHeight();
    			S32 width = img->getWidth();
    			S32 components = img->getComponents();

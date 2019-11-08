@@ -43,6 +43,7 @@
 #define LL_VOICE_VISUALIZER_H
 
 #include "llhudeffect.h"
+#include "llviewertexture.h"
 
 //-----------------------------------------------------------------------------------------------
 // The values of voice gesticulation represent energy levels for avatar animation, based on 
@@ -114,7 +115,7 @@ class LLVoiceVisualizer : public LLHUDEffect
 			bool					mWaveActive				[ NUM_VOICE_SYMBOL_WAVES ];
 			F64						mWaveFadeOutStartTime	[ NUM_VOICE_SYMBOL_WAVES ];
 			F32						mWaveOpacity			[ NUM_VOICE_SYMBOL_WAVES ];
-			LLPointer<LLViewerFetchedTexture>	mTexture				[ NUM_VOICE_SYMBOL_WAVES ];
+            LLViewerFetchedTexture::ptr_t   mTexture[NUM_VOICE_SYMBOL_WAVES];
 			bool					mActive;
 			LLVector3				mPosition;
 		};

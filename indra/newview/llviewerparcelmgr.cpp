@@ -79,8 +79,8 @@ U8* LLViewerParcelMgr::sPackedOverlay = NULL;
 
 LLUUID gCurrentMovieID = LLUUID::null;
 
-LLPointer<LLViewerTexture> sBlockedImage;
-LLPointer<LLViewerTexture> sPassImage;
+LLViewerTexture::ptr_t sBlockedImage;
+LLViewerTexture::ptr_t sPassImage;
 
 // Local functions
 void callback_start_music(S32 option, void* data);
@@ -2523,12 +2523,12 @@ void LLViewerParcelMgr::cleanupGlobals()
 {
 }
 
-LLViewerTexture* LLViewerParcelMgr::getBlockedImage() const
+LLViewerTexture::ptr_t LLViewerParcelMgr::getBlockedImage() const
 {
 	return sBlockedImage;
 }
 
-LLViewerTexture* LLViewerParcelMgr::getPassImage() const
+LLViewerTexture::ptr_t LLViewerParcelMgr::getPassImage() const
 {
 	return sPassImage;
 }

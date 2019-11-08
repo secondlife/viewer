@@ -682,7 +682,7 @@ void LLFolderViewItem::drawOpenFolderArrow(const Params& default_params, const L
 		LLUIImage* arrow_image = default_params.folder_arrow_image;
 		gl_draw_scaled_rotated_image(
 			mIndentation, getRect().getHeight() - mArrowSize - mTextPad - TOP_PAD,
-			mArrowSize, mArrowSize, mControlLabelRotation, arrow_image->getImage(), fg_color);
+			mArrowSize, mArrowSize, mControlLabelRotation, arrow_image->getImage().get(), fg_color);
 	}
 }
 

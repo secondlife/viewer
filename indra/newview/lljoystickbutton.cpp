@@ -562,7 +562,7 @@ void LLJoystickCameraRotate::drawRotatedImage( LLPointer<LLUIImage> image, S32 r
 {
 	S32 width = image->getWidth();
 	S32 height = image->getHeight();
-	LLTexture* texture = image->getImage();
+	LLTexture::ptr_t texture = image->getImage();
 
 	/*
 	 * Scale  texture coordinate system 
@@ -579,7 +579,7 @@ void LLJoystickCameraRotate::drawRotatedImage( LLPointer<LLUIImage> image, S32 r
 		{ (F32)width/texture->getWidth(), 0.f }
 	};
 
-	gGL.getTexUnit(0)->bind(texture);
+	gGL.getTexUnit(0)->bind(texture.get());
 
 	gGL.color4fv(UI_VERTEX_COLOR.mV);
 	

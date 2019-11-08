@@ -78,14 +78,14 @@ public:
     LLSnapshotModel::ESnapshotFormat getSnapshotFormat() const { return mSnapshotFormat; }
 	BOOL getSnapshotUpToDate() const { return mSnapshotUpToDate; }
 	BOOL isSnapshotActive() { return mSnapshotActive; }
-	LLViewerTexture* getThumbnailImage() const { return mThumbnailImage ; }
+	LLViewerTexture::ptr_t getThumbnailImage() const { return mThumbnailImage ; }
 	S32  getThumbnailWidth() const { return mThumbnailWidth ; }
 	S32  getThumbnailHeight() const { return mThumbnailHeight ; }
 	BOOL getThumbnailLock() const { return mThumbnailUpdateLock ; }
 	BOOL getThumbnailUpToDate() const { return mThumbnailUpToDate ;}
     void setThumbnailSubsampled(BOOL subsampled) { mThumbnailSubsampled = subsampled; }
 
-	LLViewerTexture* getCurrentImage();
+	LLViewerTexture::ptr_t getCurrentImage();
 	F32 getImageAspect();
 	const LLRect& getImageRect() const { return mImageRect[mCurImageIndex]; }
 	BOOL isImageScaled() const { return mImageScaled[mCurImageIndex]; }
@@ -115,7 +115,7 @@ public:
 	void drawPreviewRect(S32 offset_x, S32 offset_y) ;
 	void prepareFreezeFrame();
     
-	LLViewerTexture* getBigThumbnailImage();
+	LLViewerTexture::ptr_t getBigThumbnailImage();
 	S32  getBigThumbnailWidth() const { return mBigThumbnailWidth ; }
 	S32  getBigThumbnailHeight() const { return mBigThumbnailHeight ; }
 
@@ -126,7 +126,7 @@ private:
     LLView*                     mViewContainer;
     
 	LLColor4					mColor;
-	LLPointer<LLViewerTexture>	mViewerImage[2]; //used to represent the scene when the frame is frozen.
+    LLViewerTexture::ptr_t      mViewerImage[2]; //used to represent the scene when the frame is frozen.
 	LLRect						mImageRect[2];
 	S32							mWidth[2];
 	S32							mHeight[2];
@@ -134,7 +134,7 @@ private:
 	S32                         mMaxImageSize ;
 
 	//thumbnail image
-	LLPointer<LLViewerTexture>	mThumbnailImage ;
+    LLViewerTexture::ptr_t      mThumbnailImage;
 	S32                         mThumbnailWidth ;
 	S32                         mThumbnailHeight ;
 	LLRect                      mPreviewRect ;
@@ -143,7 +143,7 @@ private:
 	LLRect                      mThumbnailPlaceholderRect;
     BOOL                        mThumbnailSubsampled; // TRUE if the thumbnail is a subsampled version of the mPreviewImage
     
-	LLPointer<LLViewerTexture>	mBigThumbnailImage ;
+    LLViewerTexture::ptr_t      mBigThumbnailImage;
     S32                         mBigThumbnailWidth;
     S32                         mBigThumbnailHeight;
     BOOL                        mBigThumbnailUpToDate;

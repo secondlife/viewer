@@ -34,6 +34,7 @@
 #include "v4color.h"
 #include "llpointer.h"
 #include "llcoord.h"
+#include "llviewertexture.h"
 
 class LLColor4U;
 class LLImageRaw;
@@ -120,7 +121,7 @@ private:
 
 	LLVector3d		mObjectImageCenterGlobal;
 	LLPointer<LLImageRaw> mObjectRawImagep;
-	LLPointer<LLViewerTexture>	mObjectImagep;
+    LLViewerTexture::ptr_t  mObjectImagep;
 
 	LLUUID			mClosestAgentToCursor;
 	LLUUID			mClosestAgentAtLastRightClick;

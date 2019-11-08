@@ -32,6 +32,7 @@
 #include "llfloater.h"
 #include "llcharacter.h"
 #include "lltracerecording.h"
+#include "llviewertexture.h"
 
 class LLCharacter;
 class LLRenderTarget;
@@ -94,7 +95,7 @@ private:
 											mDiffTolerance, //pixels are filtered out when R+G+B < mDiffTolerance
 											mDiffPixelRatio; //ratio of pixels used for comparison against the original mDiff size along one dimension
 
-	LLPointer<LLViewerTexture>				mDitheringTexture;
+    LLViewerTexture::ptr_t				    mDitheringTexture;
 	S32										mDitherMatrixWidth;
 	F32										mDitherScale,
 											mDitherScaleS,

@@ -398,7 +398,7 @@ void LLSceneMonitor::compare()
 	
 	gGL.getTexUnit(2)->activate();
 	gGL.getTexUnit(2)->enable(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(2)->bind(mDitheringTexture);
+	gGL.getTexUnit(2)->bind(mDitheringTexture.get());
 	gGL.getTexUnit(2)->activate();	
 
 	gl_rect_2d_simple_tex(width, height);

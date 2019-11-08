@@ -33,7 +33,7 @@
 #include "lluiimage.h"
 #include "llrender2dutils.h"
 
-LLUIImage::LLUIImage(const std::string& name, LLPointer<LLTexture> image)
+LLUIImage::LLUIImage(const std::string& name, const LLTexture::ptr_t &image)
 :	mName(name),
 	mImage(image),
 	mScaleRegion(0.f, 1.f, 1.f, 0.f),
@@ -73,7 +73,7 @@ void LLUIImage::draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color)
 	gl_draw_scaled_image_with_border(
 		x, y, 
 		width, height, 
-		mImage, 
+		mImage.get(), 
 		color,
 		FALSE,
 		mClipRegion,
@@ -86,7 +86,7 @@ void LLUIImage::drawSolid(S32 x, S32 y, S32 width, S32 height, const LLColor4& c
 	gl_draw_scaled_image_with_border(
 		x, y, 
 		width, height, 
-		mImage, 
+		mImage.get(), 
 		color, 
 		TRUE,
 		mClipRegion,
@@ -126,7 +126,7 @@ void LLUIImage::draw3D(const LLVector3& origin_agent, const LLVector3& x_axis, c
 		LLRender2D::translate(rect_origin.mV[VX],
 						rect_origin.mV[VY], 
 						rect_origin.mV[VZ]);
-		gGL.getTexUnit(0)->bind(getImage());
+		gGL.getTexUnit(0)->bind(getImage().get());
 		gGL.color4fv(color.mV);
 
 		LLRectf center_uv_rect(mClipRegion.mLeft + mScaleRegion.mLeft * mClipRegion.getWidth(),

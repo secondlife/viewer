@@ -1568,7 +1568,7 @@ void LLObjectSelection::applyNoCopyTextureToTEs(LLViewerInventoryItem* item)
 	{
 		return;
 	}
-	LLViewerTexture* image = LLViewerTextureManager::instance().getFetchedTexture(item->getAssetUUID());
+	LLViewerTexture::ptr_t image = LLViewerTextureManager::instance().getFetchedTexture(item->getAssetUUID());
 
 	for (iterator iter = begin(); iter != end(); ++iter)
 	{
@@ -5838,7 +5838,7 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 		return;
 	}
 
-	gGL.getTexUnit(0)->bind(mSilhouetteImagep);
+	gGL.getTexUnit(0)->bind(mSilhouetteImagep.get());
 	LLGLSPipelineSelection gls_select;
 	LLGLEnable blend(GL_BLEND);
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);

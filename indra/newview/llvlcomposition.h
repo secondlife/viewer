@@ -56,7 +56,7 @@ public:
 		CORNER_COUNT = 4
 	};
 	LLUUID getDetailTextureID(S32 corner);
-	LLViewerFetchedTexture* getDetailTexture(S32 corner);
+	LLViewerFetchedTexture::ptr_t getDetailTexture(S32 corner);
 	F32 getStartHeight(S32 corner);
 	F32 getHeightRange(S32 corner);
 
@@ -73,7 +73,7 @@ protected:
 	LLSurface *mSurfacep;
 	BOOL mTexturesLoaded;
 
-	LLPointer<LLViewerFetchedTexture> mDetailTextures[CORNER_COUNT];
+    LLViewerFetchedTexture::ptr_t   mDetailTextures[CORNER_COUNT];
 	LLPointer<LLImageRaw> mRawImages[CORNER_COUNT];
 
 	F32 mStartHeight[CORNER_COUNT];
