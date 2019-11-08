@@ -148,19 +148,19 @@
     <icon
      follows="right|top"
      height="16"
-     image_name="Cam_Avatar_Off"
+     image_name="Cam_FreeCam_Off"
      left_pad="8"
      top="2"
      name="presets_icon_camera"
      width="18" />
     <icon
      follows="right|top"
-     height="16"
-     image_name="Presets_Icon_Graphic"
+     height="13"
+     image_name="Presets_Icon"
      left_pad="8"
-     top="2"
+     top="4"
      name="presets_icon_graphic"
-     width="18" />
+     width="16" />
     <button
      follows="right|top"
      height="16"

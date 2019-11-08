@@ -206,6 +206,7 @@ with the same filename but different name
 
   <texture name="Presets_Icon" file_name="icons/Presets_Icon.png" preload="true" />
 
+  <texture name="Presets_Icon" file_name="icons/Presets_Icon.png" preload="true" />
   <texture name="Presets_Icon_Graphic" file_name="icons/Presets_Icon_Graphic.png" preload="true" />
  <texture name="Favorite_Star_Active" file_name="navbar/Favorite_Star_Active.png" preload="false" />
   <texture name="Favorite_Star_Off" file_name="navbar/Favorite_Star_Off.png" preload="false" />
@@ -256,6 +257,7 @@ with the same filename but different name
   <texture name="Icon_Gear_Background" file_name="windows/Icon_Gear_Background.png" preload="false" />
   <texture name="Icon_Gear_Foreground" file_name="windows/Icon_Gear_Foreground.png" preload="false" />
   <texture name="Icon_Gear_Press" file_name="windows/Icon_Gear_Press.png" preload="false" />
+  <texture name="Icon_Gear" file_name="windows/Icon_Gear.png" preload="false" />
 
   <texture name="Icon_Help_Foreground" file_name="windows/Icon_Help_Foreground.png" preload="true" />
   <texture name="Icon_Help_Press" file_name="windows/Icon_Help_Press.png" preload="true" />
