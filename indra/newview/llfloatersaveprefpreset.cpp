@@ -53,7 +53,6 @@ BOOL LLFloaterSavePrefPreset::postBuild()
 	}
 	
 	mPresetCombo = getChild<LLComboBox>("preset_combo");
-	//mPresetCombo->setCommitCallback(boost::bind(&LLFloaterSavePrefPreset::onPresetNameEdited, this));
 
 	mNameEditor = getChild<LLLineEditor>("preset_txt_editor");
 	mNameEditor->setKeystrokeCallback(boost::bind(&LLFloaterSavePrefPreset::onPresetNameEdited, this), NULL);
@@ -84,7 +83,19 @@ void LLFloaterSavePrefPreset::onPresetNameEdited()
 void LLFloaterSavePrefPreset::onOpen(const LLSD& key)
 {
 	LLModalDialog::onOpen(key);
-	mSubdirectory = key.asString();
+	S32 index = 0;
+	if (key.has("subdirectory"))
+	{
+		mSubdirectory = key["subdirectory"].asString();
+		if (key.has("index"))
+		{
+			index = key["index"].asInteger();
+		}
+	}
+	else
+	{
+		mSubdirectory = key.asString();
+	}
 
 	std::string floater_title = getString(std::string("title_") + mSubdirectory);
 
@@ -93,7 +104,7 @@ void LLFloaterSavePrefPreset::onOpen(const LLSD& key)
 	EDefaultOptions option = DEFAULT_HIDE;
 	LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, mPresetCombo, option);
 
-	mSaveRadioGroup->setSelectedIndex(0);
+	mSaveRadioGroup->setSelectedIndex(index);
 	onPresetNameEdited();
 	onSwitchSaveReplace();
 }

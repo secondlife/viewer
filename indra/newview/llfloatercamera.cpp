@@ -361,11 +361,13 @@ BOOL LLFloaterCamera::postBuild()
 	mRotate = getChild<LLJoystickCameraRotate>(ORBIT);
 	mZoom = findChild<LLPanelCameraZoom>(ZOOM);
 	mTrack = getChild<LLJoystickCameraTrack>(PAN);
+	mPresetCombo = getChild<LLComboBox>("preset_combo");
 
 	getChild<LLTextBox>("precise_ctrs_label")->setShowCursorHand(false);
 	getChild<LLTextBox>("precise_ctrs_label")->setSoundFlags(LLView::MOUSE_UP);
 	getChild<LLTextBox>("precise_ctrs_label")->setClickedCallback(boost::bind(&LLFloaterReg::showInstance, "prefs_view_advanced", LLSD(), FALSE));
-	getChild<LLComboBox>("preset_combo")->setCommitCallback(boost::bind(&LLFloaterCamera::onCustomPresetSelected, this));
+
+	mPresetCombo->setCommitCallback(boost::bind(&LLFloaterCamera::onCustomPresetSelected, this));
 	LLPresetsManager::getInstance()->setPresetListChangeCameraCallback(boost::bind(&LLFloaterCamera::populatePresetCombo, this));
 
 	update();
@@ -571,15 +573,21 @@ void LLFloaterCamera::fromFreeToPresets()
 
 void LLFloaterCamera::populatePresetCombo()
 {
-	LLPresetsManager::getInstance()->setPresetNamesInComboBox(PRESETS_CAMERA, getChild<LLComboBox>("preset_combo"), EDefaultOptions::DEFAULT_VIEWS_HIDE);
-	if ((ECameraPreset)gSavedSettings.getU32("CameraPreset") == CAMERA_PRESET_CUSTOM)
+	LLPresetsManager::getInstance()->setPresetNamesInComboBox(PRESETS_CAMERA, mPresetCombo, EDefaultOptions::DEFAULT_VIEWS_HIDE);
+	std::string active_preset_name = gSavedSettings.getString("PresetCameraActive");
+	if (active_preset_name.empty())
 	{
-		getChild<LLComboBox>("preset_combo")->selectByValue(gSavedSettings.getString("PresetCameraActive"));
+		gSavedSettings.setU32("CameraPreset", CAMERA_PRESET_CUSTOM);
+		updateItemsSelection();
+		mPresetCombo->setLabel(getString("inactive_combo_text"));
+	}
+	else if ((ECameraPreset)gSavedSettings.getU32("CameraPreset") == CAMERA_PRESET_CUSTOM)
+	{
+		mPresetCombo->selectByValue(active_preset_name);
 	}
 	else
 	{
-		std::string inactive_text = getString("inactive_combo_text");
-		getChild<LLComboBox>("preset_combo")->setLabel(inactive_text);// add(inactive_text, inactive_text, ADD_TOP);
+		mPresetCombo->setLabel(getString("inactive_combo_text"));
 	}
 }
 
@@ -587,12 +595,18 @@ void LLFloaterCamera::onSavePreset()
 {
 	LLFloaterReg::hideInstance("delete_pref_preset", PRESETS_CAMERA);
 	LLFloaterReg::hideInstance("load_pref_preset", PRESETS_CAMERA);
-	LLFloaterReg::showInstance("save_pref_preset", PRESETS_CAMERA);
+	
+	LLSD key;
+	key["subdirectory"] = PRESETS_CAMERA;
+	std::string current_preset = gSavedSettings.getString("PresetCameraActive");
+	bool is_custom_preset = current_preset != "" && !LLPresetsManager::getInstance()->isDefaultPreset(current_preset);
+	key["index"] = is_custom_preset ? 1 : 0;
+	LLFloaterReg::showInstance("save_pref_preset", key);
 }
 
 void LLFloaterCamera::onCustomPresetSelected()
 {
-	std::string selected_preset = getChild<LLComboBox>("preset_combo")->getSelectedItemLabel();
+	std::string selected_preset = mPresetCombo->getSelectedItemLabel();
 	if (gSavedSettings.getString("PresetCameraActive") != selected_preset && getString("inactive_combo_text") != selected_preset)
 	{
 		gAgentCamera.switchCameraPreset(CAMERA_PRESET_CUSTOM);

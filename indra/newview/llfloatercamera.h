@@ -36,6 +36,7 @@ class LLJoystickCameraRotate;
 class LLJoystickCameraTrack;
 class LLFloaterReg;
 class LLPanelCameraZoom;
+class LLComboBox;
 
 enum ECameraControlMode
 {
@@ -128,6 +129,8 @@ private:
 	ECameraControlMode mPrevMode;
 	ECameraControlMode mCurrMode;
 	std::map<ECameraControlMode, LLButton*> mMode2Button;
+
+	LLComboBox* mPresetCombo;
 };
 
 /**

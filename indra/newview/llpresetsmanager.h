@@ -71,6 +71,8 @@ public:
 	bool isCameraDirty();
 	static void setCameraDirty(bool dirty);
 
+	bool isDefaultPreset(std::string preset_name);
+
 	// Emitted when a preset gets loaded, deleted, or saved.
 	boost::signals2::connection setPresetListChangeCameraCallback(const preset_list_signal_t::slot_type& cb);
 	boost::signals2::connection setPresetListChangeCallback(const preset_list_signal_t::slot_type& cb);

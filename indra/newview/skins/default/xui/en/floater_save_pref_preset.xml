@@ -44,19 +44,12 @@
      name="preset_txt_editor"
      width="200"
      top="45"/>
-    <combo_box
-     follows="top|left"
-     layout="topleft"
-     left="41"
-     name="preset_combo"
-     top_pad="35"
-     width="200"/>
     <button
      follows="top|left"
      height="25"
      label="Save"
      layout="topleft"
-     top_delta="40"
+     top="145"
      left="25"
      name="save"
      width="110"/>
@@ -68,4 +61,12 @@
      left_pad="20"
      name="cancel"
      width="110"/>
+<!-- *HACK to correctly draw drop-down list over the buttons-->
+    <combo_box
+     follows="top|left"
+     layout="topleft"
+     left="41"
+     name="preset_combo"
+     top_delta="-40"
+     width="200"/>
 </floater>

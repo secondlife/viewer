@@ -164,7 +164,7 @@ void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir, preset_nam
 
 			if (default_option == DEFAULT_VIEWS_HIDE)
 			{
-				if (name == PRESETS_REAR || name == PRESETS_SIDE || name == PRESETS_FRONT)
+				if (isDefaultPreset(name))
 				{
 					continue;
 				}
@@ -300,7 +300,7 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 		{
 			name_list.push_back(gAgentCamera.getCameraOffsetCtrlName());
 			name_list.push_back(gAgentCamera.getFocusOffsetCtrlName());
-			custom_camera_offsets = (name != PRESETS_REAR && name != PRESETS_SIDE && name != PRESETS_FRONT);
+			custom_camera_offsets = !isDefaultPreset(name);
 		}
 		for (std::vector<std::string>::iterator it = name_list.begin(); it != name_list.end(); ++it)
 		{
@@ -378,7 +378,7 @@ bool LLPresetsManager::setPresetNamesInComboBox(const std::string& subdirectory,
 	bool sts = true;
 
 	combo->clearRows();
-
+	combo->setEnabled(TRUE);
 
 	std::string presets_dir = getPresetsDir(subdirectory);
 
@@ -400,6 +400,7 @@ bool LLPresetsManager::setPresetNamesInComboBox(const std::string& subdirectory,
 		else
 		{
 			combo->setLabel(LLTrans::getString("preset_combo_label"));
+			combo->setEnabled(FALSE);
 			sts = false;
 		}
 	}
@@ -486,6 +487,11 @@ bool LLPresetsManager::deletePreset(const std::string& subdirectory, std::string
 	}
 
 	return sts;
+}
+
+bool LLPresetsManager::isDefaultPreset(std::string preset_name)
+{
+	return (preset_name == PRESETS_REAR || preset_name == PRESETS_SIDE || preset_name == PRESETS_FRONT);
 }
 
 boost::signals2::connection LLPresetsManager::setPresetListChangeCameraCallback(const preset_list_signal_t::slot_type& cb)

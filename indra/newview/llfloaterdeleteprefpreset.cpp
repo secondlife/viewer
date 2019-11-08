@@ -82,6 +82,13 @@ void LLFloaterDeletePrefPreset::onBtnDelete()
 		args["NAME"] = name;
 		LLNotificationsUtil::add("PresetNotDeleted", args);
 	}
+	else if (mSubdirectory == PRESETS_CAMERA)
+	{
+		if (gSavedSettings.getString("PresetCameraActive") == name)
+		{
+			gSavedSettings.setString("PresetCameraActive", "");
+		}
+	}
 
 	closeFloater();
 }
