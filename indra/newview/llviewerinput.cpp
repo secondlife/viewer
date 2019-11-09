@@ -732,11 +732,11 @@ bool run_right(EKeystate s)
         if (gAgent.mDoubleTapRunMode != LLAgent::DOUBLETAP_SLIDERIGHT)
         {
             gAgent.mDoubleTapRunMode = LLAgent::DOUBLETAP_SLIDERIGHT;
-            if (!gAgent.getRunning())
-            {
-                gAgent.setRunning();
-                gAgent.sendWalkRun(true);
-            }
+        }
+        if (!gAgent.getRunning())
+        {
+            gAgent.setRunning();
+            gAgent.sendWalkRun(true);
         }
     }
     else if (KEYSTATE_UP == s)
