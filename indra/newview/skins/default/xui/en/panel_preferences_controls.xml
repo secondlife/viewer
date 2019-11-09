@@ -43,7 +43,7 @@
    height="23"
    width="140"
    label="Restore Defaults"
-   tooltip="Restores default values for all control modes."
+   tool_tip="Restores default values for all control modes."
    name="restore_defaults"/>
 
   <scroll_list
