@@ -576,11 +576,11 @@ bool LLToolPie::walkToClickedLocation()
         mPick.mPosGlobal = gAgent.getPositionGlobal() + LLVector3d(LLViewerCamera::instance().getAtAxis()) * SELF_CLICK_WALK_DISTANCE;
     }
 
-    gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
-
     if ((mPick.mPickType == LLPickInfo::PICK_LAND && !mPick.mPosGlobal.isExactlyZero()) ||
         (mPick.mObjectID.notNull() && !mPick.mPosGlobal.isExactlyZero()))
     {
+        gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
+
         if (mAutoPilotDestination) { mAutoPilotDestination->markDead(); }
         mAutoPilotDestination = (LLHUDEffectBlob *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BLOB, FALSE);
         mAutoPilotDestination->setPositionGlobal(mPick.mPosGlobal);
