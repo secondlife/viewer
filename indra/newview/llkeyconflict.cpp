@@ -124,6 +124,10 @@ EMouseClickType mouse_from_string(const std::string& input)
     {
         return CLICK_BUTTON5;
     }
+    if (input == "Double LMB")
+    {
+        return CLICK_DOUBLELEFT;
+    }
     return CLICK_NONE;
 }
 
@@ -396,7 +400,7 @@ void LLKeyConflictHandler::loadFromSettings(ESourceMode load_mode)
 
         // load user's
         filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename_default);
-        if (!gDirUtilp->fileExists(filename) || loadFromSettings(load_mode, filename, &mControlsMap))
+        if (!gDirUtilp->fileExists(filename) || !loadFromSettings(load_mode, filename, &mControlsMap))
         {
             // mind placeholders
             mControlsMap.insert(mDefaultsMap.begin(), mDefaultsMap.end());
