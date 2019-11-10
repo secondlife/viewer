@@ -340,43 +340,24 @@ bool LLKeyBind::addKeyData(const LLKeyData& data)
 
 void LLKeyBind::replaceKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore, U32 index)
 {
-    if (mouse != CLICK_NONE || key != KEY_NONE )
-    {
-        // if both click and key are none, we are inserting a placeholder, we don't want to reset anything
-        // otherwise reset identical key
-        for (data_vector_t::iterator iter = mData.begin(); iter != mData.end(); iter++)
-        {
-            if (iter->mKey == key
-                && iter->mMouse == mouse
-                && iter->mIgnoreMasks == ignore
-                && (iter->mIgnoreMasks || iter->mMask == mask))
-            {
-                iter->reset();
-                break;
-            }
-        }
-    }
-    if (mData.size() > index)
-    {
-        mData[index] = LLKeyData(mouse, key, mask, ignore);
-    }
-    else
-    {
-        mData.push_back(LLKeyData(mouse, key, mask, ignore));
-    }
+    replaceKeyData(LLKeyData(mouse, key, mask, ignore), index);
 }
 
 void LLKeyBind::replaceKeyData(const LLKeyData& data, U32 index)
 {
     if (!data.isEmpty())
     {
+        // if both click and key are none (isEmpty()), we are inserting a placeholder, we don't want to reset anything
+        // otherwise reset identical key
         for (data_vector_t::iterator iter = mData.begin(); iter != mData.end(); iter++)
         {
             if (iter->mKey == data.mKey
                 && iter->mMouse == data.mMouse
                 && iter->mIgnoreMasks == data.mIgnoreMasks
-                && (iter->mIgnoreMasks || iter->mMask == data.mMask))
+                && iter->mMask == data.mMask)
             {
+                // Replacing only fully equal combinations even in case 'ignore' is set
+                // Reason: Simplicity and user might decide to do a 'move' command as W and Shift+Ctrl+W, and 'run' as Shift+W
                 iter->reset();
                 break;
             }

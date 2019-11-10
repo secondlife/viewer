@@ -517,8 +517,7 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
                     }
                     else
                     {
-                        // Note: this is UI string, we might want to hardcode our own for 'fixed' use in keys.xml
-                        binding.key = LLKeyboard::stringFromKey(data.mKey);
+                        binding.key = LLKeyboard::stringFromKey(data.mKey, false /*Do not localize*/);
                     }
                     binding.mask = string_from_mask(data.mMask);
                     if (data.mMouse == CLICK_NONE)

@@ -327,7 +327,7 @@ BOOL LLKeyboard::keyFromString(const std::string& str, KEY *key)
 
 
 // static
-std::string LLKeyboard::stringFromKey(KEY key)
+std::string LLKeyboard::stringFromKey(KEY key, bool translate)
 {
 	std::string res = get_if_there(sKeysToNames, key, std::string());
 	if (res.empty())
@@ -338,10 +338,13 @@ std::string LLKeyboard::stringFromKey(KEY key)
 		res = std::string(buffer);
 	}
 
-	LLKeyStringTranslatorFunc *trans = gKeyboard->mStringTranslator;
-	if (trans != NULL)
+	if (translate)
 	{
-		res = trans(res.c_str());
+		LLKeyStringTranslatorFunc *trans = gKeyboard->mStringTranslator;
+		if (trans != NULL)
+		{
+			res = trans(res.c_str());
+		}
 	}
 
 	return res;
