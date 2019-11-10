@@ -94,7 +94,7 @@ public:
 
 	static BOOL		maskFromString(const std::string& str, MASK *mask);		// False on failure
 	static BOOL		keyFromString(const std::string& str, KEY *key);			// False on failure
-	static std::string stringFromKey(KEY key);
+	static std::string stringFromKey(KEY key, bool translate = true);
 	static std::string stringFromAccelerator( MASK accel_mask ); // separated for convinience, returns with "+": "Shift+" or "Shift+Alt+"...
 	static std::string stringFromAccelerator( MASK accel_mask, KEY key );
 

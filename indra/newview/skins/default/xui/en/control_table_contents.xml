@@ -30,6 +30,7 @@
          value="Move_Walk_Off" />
     </rows>
     <rows
+     name="walk_to"
      value="walk_to">
         <columns
          column="lst_action"
@@ -40,6 +41,7 @@
          value="Walk to" />
     </rows>
     <rows
+     name="teleport_to"
      value="teleport_to">
         <columns
          column="lst_action"
@@ -50,6 +52,7 @@
          value="Teleport to" />
     </rows>
     <rows
+     name="push_forward"
      value="push_forward">
         <columns
          column="lst_action"
@@ -59,6 +62,7 @@
          value="Move Forward" />
     </rows>
     <rows
+     name="push_backward"
      value="push_backward">
         <columns
          column="lst_action"
@@ -68,6 +72,7 @@
          value="Move Backward" />
     </rows>
     <rows
+     name="turn_left"
      value="turn_left">
         <columns
          column="lst_action"
@@ -77,6 +82,7 @@
          value="Left" />
     </rows>
     <rows
+     name="turn_right"
      value="turn_right">
         <columns
          column="lst_action"
@@ -86,6 +92,7 @@
          value="Right" />
     </rows>
     <rows
+     name="slide_left"
      value="slide_left">
         <columns
          column="lst_action"
@@ -95,6 +102,7 @@
          value="Strafe left" />
     </rows>
     <rows
+     name="slide_right"
      value="slide_right">
         <columns
          column="lst_action"
@@ -104,6 +112,7 @@
          value="Strafe right" />
     </rows>
     <rows
+     name="jump"
      value="jump">
         <columns
          column="lst_action"
@@ -113,6 +122,7 @@
          value="Jump/Up" />
     </rows>
     <rows
+     name="push_down"
      value="push_down">
         <columns
          column="lst_action"
@@ -122,6 +132,7 @@
          value="Down" />
     </rows>
     <rows
+     name="run_forward"
      value="run_forward">
         <columns
          column="lst_action"
@@ -131,6 +142,7 @@
          value="Run Forward" />
     </rows>
     <rows
+     name="run_backward"
      value="run_backward">
         <columns
          column="lst_action"
@@ -140,6 +152,7 @@
          value="Run Backward" />
     </rows>
     <rows
+     name="run_left"
      value="run_left">
         <columns
          column="lst_action"
@@ -149,6 +162,7 @@
          value="Run Left" />
     </rows>
     <rows
+     name="run_right"
      value="run_right">
         <columns
          column="lst_action"
@@ -158,6 +172,7 @@
          value="Run Right" />
     </rows>
     <rows
+     name="toggle_run"
      value="toggle_run">
         <columns
          column="lst_action"
@@ -167,6 +182,7 @@
          value="Toggle Run" />
     </rows>
     <rows
+     name="toggle_fly"
      value="toggle_fly">
         <columns
          column="lst_action"
@@ -176,6 +192,7 @@
          value="Fly/Stop flying" />
     </rows>
     <rows
+     name="toggle_sit"
      value="toggle_sit">
         <columns
          column="lst_action"
@@ -185,6 +202,7 @@
          value="Sit/Stand" />
     </rows>
     <rows
+     name="stop_moving"
      value="stop_moving">
         <columns
          column="lst_action"
@@ -215,6 +233,7 @@
          value="Cam_FreeCam_Off" />
     </rows>
     <rows
+     name="look_up"
      value="look_up">
         <columns
          column="lst_action"
@@ -224,6 +243,7 @@
          value="Look Up" />
     </rows>
     <rows
+     name="look_down"
      value="look_down">
         <columns
          column="lst_action"
@@ -233,6 +253,7 @@
          value="Look Down" />
     </rows>
     <rows
+     name="move_forward"
      value="move_forward">
         <columns
          column="lst_action"
@@ -242,6 +263,7 @@
          value="Camera Forward" />
     </rows>
     <rows
+     name="move_backward"
      value="move_backward">
         <columns
          column="lst_action"
@@ -251,6 +273,7 @@
          value="Camera Backward" />
     </rows>
     <rows
+     name="move_forward_fast"
      value="move_forward_fast">
         <columns
          column="lst_action"
@@ -260,6 +283,7 @@
          value="Camera Forward Fast" />
     </rows>
     <rows
+     name="move_backward_fast"
      value="move_backward_fast">
         <columns
          column="lst_action"
@@ -269,6 +293,7 @@
          value="Camera Backward Fast" />
     </rows>
     <rows
+     name="move_forward_sitting"
      value="move_forward_sitting">
         <columns
          column="lst_action"
@@ -278,6 +303,7 @@
          value="Camera Forward Sitting" />
     </rows>
     <rows
+     name="move_backward_sitting"
      value="move_backward_sitting">
         <columns
          column="lst_action"
@@ -287,6 +313,7 @@
          value="Camera Backward Sitting" />
     </rows>
     <rows
+     name="spin_over"
      value="spin_over">
         <columns
          column="lst_action"
@@ -296,6 +323,7 @@
          value="Camera Spin Over" />
     </rows>
     <rows
+     name="spin_under"
      value="spin_under">
         <columns
          column="lst_action"
@@ -305,6 +333,7 @@
          value="Camera Spin Under" />
     </rows>
     <rows
+     name="spin_over_sitting"
      value="spin_over_sitting">
         <columns
          column="lst_action"
@@ -314,6 +343,7 @@
          value="Camera Spin Over" />
     </rows>
     <rows
+     name="spin_under_sitting"
      value="spin_under_sitting">
         <columns
          column="lst_action"
@@ -323,6 +353,7 @@
          value="Camera Spin Under" />
     </rows>
     <rows
+     name="pan_up"
      value="pan_up">
         <columns
          column="lst_action"
@@ -332,6 +363,7 @@
          value="Camera Pan Up" />
     </rows>
     <rows
+     name="pan_down"
      value="pan_down">
         <columns
          column="lst_action"
@@ -341,6 +373,7 @@
          value="Camera Pan Down" />
     </rows>
     <rows
+     name="pan_left"
      value="pan_left">
         <columns
          column="lst_action"
@@ -350,6 +383,7 @@
          value="Camera Pan Left" />
     </rows>
     <rows
+     name="pan_right"
      value="pan_right">
         <columns
          column="lst_action"
@@ -359,6 +393,7 @@
          value="Camera Pan Right" />
     </rows>
     <rows
+     name="pan_in"
      value="pan_in">
         <columns
          column="lst_action"
@@ -368,6 +403,7 @@
          value="Camera Pan In" />
     </rows>
     <rows
+     name="pan_out"
      value="pan_out">
         <columns
          column="lst_action"
@@ -377,6 +413,7 @@
          value="Camera Pan Out" />
     </rows>
     <rows
+     name="spin_around_ccw"
      value="spin_around_ccw">
         <columns
          column="lst_action"
@@ -387,6 +424,7 @@
          value="Counterclockwise" />
     </rows>
     <rows
+     name="spin_around_cw"
      value="spin_around_cw">
         <columns
          column="lst_action"
@@ -397,6 +435,7 @@
          value="Clockwise" />
     </rows>
     <rows
+     name="spin_around_ccw_sitting"
      value="spin_around_ccw_sitting">
         <columns
          column="lst_action"
@@ -407,6 +446,7 @@
          value="Counterclockwise Sitting" />
     </rows>
     <rows
+     name="spin_around_cw_sitting"
      value="spin_around_cw_sitting">
         <columns
          column="lst_action"
@@ -438,6 +478,7 @@
          value="Tool_Dozer" />
     </rows>
     <rows
+     name="edit_avatar_spin_ccw"
      value="edit_avatar_spin_ccw">
         <columns
          column="lst_action"
@@ -448,6 +489,7 @@
          value="Counterclockwise" />
     </rows>
     <rows
+     name="edit_avatar_spin_cw"
      value="edit_avatar_spin_cw">
         <columns
          column="lst_action"
@@ -458,6 +500,7 @@
          value="Clockwise" />
     </rows>
     <rows
+     name="edit_avatar_spin_over"
      value="edit_avatar_spin_over">
         <columns
          column="lst_action"
@@ -468,6 +511,7 @@
          value="Camera Spin Over" />
     </rows>
     <rows
+     name="edit_avatar_spin_under"
      value="edit_avatar_spin_under">
         <columns
          column="lst_action"
@@ -478,6 +522,7 @@
          value="Camera Spin Under" />
     </rows>
     <rows
+     name="edit_avatar_move_forward"
      value="edit_avatar_move_forward">
         <columns
          column="lst_action"
@@ -487,6 +532,7 @@
          value="Camera Forward" />
     </rows>
     <rows
+     name="edit_avatar_move_backward"
      value="edit_avatar_move_backward">
         <columns
          column="lst_action"
@@ -517,6 +563,7 @@
          value="Audio_Press" />
     </rows>
     <rows
+     name="toggle_pause_media"
      value="toggle_pause_media">
         <columns
          column="lst_action"
@@ -526,6 +573,7 @@
          value="Play/Pause Media" />
     </rows>
     <rows
+     name="toggle_enable_media"
      value="toggle_enable_media">
         <columns
          column="lst_action"
@@ -535,6 +583,7 @@
          value="Play/Stop All Media" />
     </rows>
     <rows
+     name="voice_follow_key"
      value="voice_follow_key">
         <columns
          column="lst_action"
@@ -544,6 +593,7 @@
          value="Voice" />
     </rows>
     <rows
+     name="toggle_voice"
      value="toggle_voice">
         <columns
          column="lst_action"
@@ -553,6 +603,7 @@
          value="Toggle Voice" />
     </rows>
     <rows
+     name="start_chat"
      value="start_chat">
         <columns
          column="lst_action"
@@ -562,6 +613,7 @@
          value="Start Chat" />
     </rows>
     <rows
+     name="start_gesture"
      value="start_gesture">
         <columns
          column="lst_action"

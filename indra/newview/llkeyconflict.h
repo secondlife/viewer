@@ -86,6 +86,7 @@ public:
 
     LLKeyData getControl(const std::string &control_name, U32 data_index);
 
+    // localized string
     static std::string getStringFromKeyData(const LLKeyData& keydata);
     std::string getControlString(const std::string &control_name, U32 data_index);
 
