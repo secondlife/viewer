@@ -2669,21 +2669,26 @@ void LLPanelPreferenceControls::populateControlTable()
         return;
     }
 
-    std::string full_filename = gDirUtilp->findSkinnedFilenameBaseLang(LLDir::XUI, filename);
-    LLSimpleXUIParser parser;
+    LLXMLNodePtr xmlNode;
     LLScrollListCtrl::Contents contents;
-    if (!parser.readXUI(full_filename, contents)
-        || !contents.validateBlock())
+    if (!LLUICtrlFactory::getLayeredXMLNode(filename, xmlNode))
     {
-        LL_INFOS() << "Failed to load" << LL_ENDL;
+    LL_WARNS() << "Failed to load " << filename << LL_ENDL;
+    return;
+    }
+    LLXUIParser parser;
+    parser.readXUI(xmlNode, contents, filename);
+
+    if (!contents.validateBlock())
+    {
         return;
     }
 
-    for (LLInitParam::ParamIterator<LLScrollListColumn::Params>::const_iterator row_it = contents.columns.begin();
-        row_it != contents.columns.end();
-        ++row_it)
+    for (LLInitParam::ParamIterator<LLScrollListColumn::Params>::const_iterator col_it = contents.columns.begin();
+        col_it != contents.columns.end();
+        ++col_it)
     {
-        pControlsTable->addColumn(*row_it);
+        pControlsTable->addColumn(*col_it);
     }
 
     LLScrollListCell::Params cell_params;

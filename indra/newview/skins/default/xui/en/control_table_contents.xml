@@ -18,6 +18,7 @@
      name="lst_ctrl3" />
     <rows
      enabled="false"
+     name="move_actions"
      value="">
         <columns
          type="icontext"
@@ -202,6 +203,7 @@
     </rows>
     <rows
      enabled="false"
+     name="camera_actions"
      value="">
         <columns
          type="icontext"
@@ -424,6 +426,7 @@
     </rows>
     <rows
      enabled="false"
+     name="editing_actions"
      value="">
         <columns
          type="icontext"
@@ -502,6 +505,7 @@
     </rows>
     <rows
      enabled="false"
+     name="media_actions"
      value="">
         <columns
          type="icontext"
