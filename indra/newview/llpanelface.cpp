@@ -48,6 +48,7 @@
 #include "llface.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h" // gInventory
+#include "llinventorymodelbackgroundfetch.h"
 #include "lllineeditor.h"
 #include "llmaterialmgr.h"
 #include "llmediaentry.h"
@@ -2918,15 +2919,36 @@ void LLPanelFace::onCopyFaces()
                 if (te_data["te"].has("imageid"))
                 {
                     LLUUID id = te_data["te"]["imageid"].asUUID();
+                    // Doesn't support local images!
                     if (id.isNull() || !LLPanelObject::canCopyTexture(id))
                     {
                         te_data["te"].erase("imageid");
                         te_data["te"]["imageid"] = LLUUID(gSavedSettings.getString( "DefaultObjectTexture" ));
+                        te_data["te"]["itemfullperm"] = true;
                     }
-                    // else
-                    // {
-                        // te_data["te"]["imageid"] = canCopyTexture(te_data["te"]["imageid"].asUUID());
-                    // }
+                    else
+                    {
+                        te_data["te"]["itemfullperm"] = false; // if item is not in inventory, we won't get here
+                        LLTextureCtrl* texture_ctrl = getChild<LLTextureCtrl>("texture control");
+                        LLUUID item_id = texture_ctrl->getImageItemID();
+                        if (item_id.notNull())
+                        {
+                            // Texture control should have the id (otherwise canCopyTexture == false),
+                            // use it for consistency.
+                            te_data["te"]["imageitemid"] = item_id;
+
+                            LLViewerInventoryItem* itemp = gInventory.getItem(item_id);
+                            if (itemp)
+                            {
+                                te_data["te"]["itemfullperm"] = itemp->getIsFullPerm();
+                                if (!itemp->isFinished())
+                                {
+                                    // needed for dropTextureAllFaces
+                                    LLInventoryModelBackgroundFetch::instance().start(item_id, false);
+                                }
+                            }
+                        }
+                    }
                 }
 
                 LLMaterialPtr material_ptr = tep->getMaterialParams();
@@ -3010,21 +3032,63 @@ void LLPanelFace::pasteFace(LLViewerObject* objectp, S32 te)
         if (te_data.has("te"))
         {
             // Texture
-            if (mPasteDiffuse)
+            if (mPasteDiffuse && te_data["te"].has("imageid"))
             {
-                // Replace no-copy texture with target's
-                if (!te_data["te"].has("imageid"))
+                const LLUUID& imageid = te_data["te"]["imageid"].asUUID(); //texture or asset id
+                LLViewerInventoryItem* itemp_res = NULL;
+
+                if (te_data["te"].has("imageitemid"))
                 {
-                    te_data["te"]["imageid"] = tep->getID();
+                    LLUUID item_id = te_data["te"]["imageitemid"].asUUID();
+                    if (item_id.notNull())
+                    {
+                        LLViewerInventoryItem* itemp = gInventory.getItem(item_id);
+                        if (itemp && itemp->isFinished())
+                        {
+                            // dropTextureAllFaces will fail if incomplete
+                            itemp_res = itemp;
+                        }
+                    }
                 }
-                const LLUUID& imageid = te_data["te"]["imageid"].asUUID();
-                LLViewerInventoryItem* item = gInventory.getItem(imageid);
-                if (item)
+
+                // for case when item got removed from inventory after we pressed 'copy'
+                if (!itemp_res)
+                {
+                    LLViewerInventoryCategory::cat_array_t cats;
+                    LLViewerInventoryItem::item_array_t items;
+                    LLAssetIDMatches asset_id_matches(imageid);
+                    gInventory.collectDescendentsIf(LLUUID::null,
+                        cats,
+                        items,
+                        LLInventoryModel::INCLUDE_TRASH,
+                        asset_id_matches);
+
+                    // Extremely unreliable and perfomance unfriendly.
+                    // But we need this to check permissions and it is how texture control finds items
+                    for (S32 i = 0; i < items.size(); i++)
+                    {
+                        LLViewerInventoryItem* itemp = items[i];
+                        if (itemp && itemp->isFinished())
+                        {
+                            // dropTextureAllFaces will fail if incomplete
+                            LLPermissions item_permissions = itemp->getPermissions();
+                            if (item_permissions.allowOperationBy(PERM_COPY,
+                                gAgent.getID(),
+                                gAgent.getGroupID()))
+                            {
+                                itemp_res = itemp;
+                                break; // first match
+                            }
+                        }
+                    }
+                }
+
+                if (itemp_res)
                 {
                     if (te == -1) // all faces
                     {
                         LLToolDragAndDrop::dropTextureAllFaces(objectp,
-                                                               item,
+                                                               itemp_res,
                                                                LLToolDragAndDrop::SOURCE_AGENT,
                                                                LLUUID::null);
                     }
@@ -3032,15 +3096,20 @@ void LLPanelFace::pasteFace(LLViewerObject* objectp, S32 te)
                     {
                         LLToolDragAndDrop::dropTextureOneFace(objectp,
                                                               te,
-                                                              item,
+                                                              itemp_res,
                                                               LLToolDragAndDrop::SOURCE_AGENT,
                                                               LLUUID::null);
                     }
                 }
-                else // not an inventory item
+                // not an inventory item or no complete items
+                else if (te_data["te"].has("itemfullperm"))
                 {
-                    LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(imageid, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-                    objectp->setTEImage(U8(te), image);
+                    if (te_data["te"]["itemfullperm"].asBoolean())
+                    {
+                        // when user clicked copy, item existed in inventory as fullperm (also can be used for local images)
+                        LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(imageid, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+                        objectp->setTEImage(U8(te), image);
+                    }
                 }
             }
 
