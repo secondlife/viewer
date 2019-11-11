@@ -4261,7 +4261,7 @@ void process_clear_follow_cam_properties(LLMessageSystem *mesgsys, void **user_d
 
 	mesgsys->getUUIDFast(_PREHASH_ObjectData, _PREHASH_ObjectID, source_id);
 
-	LLFollowCamMgr::removeFollowCamParams(source_id);
+	LLFollowCamMgr::getInstance()->removeFollowCamParams(source_id);
 }
 
 void process_set_follow_cam_properties(LLMessageSystem *mesgsys, void **user_data)
@@ -4293,7 +4293,7 @@ void process_set_follow_cam_properties(LLMessageSystem *mesgsys, void **user_dat
 		switch(type)
 		{
 		case FOLLOWCAM_PITCH:
-			LLFollowCamMgr::setPitch(source_id, value);
+			LLFollowCamMgr::getInstance()->setPitch(source_id, value);
 			break;
 		case FOLLOWCAM_FOCUS_OFFSET_X:
 			focus_offset.mV[VX] = value;
@@ -4308,29 +4308,29 @@ void process_set_follow_cam_properties(LLMessageSystem *mesgsys, void **user_dat
 			settingFocusOffset = true;
 			break;
 		case FOLLOWCAM_POSITION_LAG:
-			LLFollowCamMgr::setPositionLag(source_id, value);
+			LLFollowCamMgr::getInstance()->setPositionLag(source_id, value);
 			break;
 		case FOLLOWCAM_FOCUS_LAG:
-			LLFollowCamMgr::setFocusLag(source_id, value);
+			LLFollowCamMgr::getInstance()->setFocusLag(source_id, value);
 			break;
 		case FOLLOWCAM_DISTANCE:
-			LLFollowCamMgr::setDistance(source_id, value);
+			LLFollowCamMgr::getInstance()->setDistance(source_id, value);
 			break;
 		case FOLLOWCAM_BEHINDNESS_ANGLE:
-			LLFollowCamMgr::setBehindnessAngle(source_id, value);
+			LLFollowCamMgr::getInstance()->setBehindnessAngle(source_id, value);
 			break;
 		case FOLLOWCAM_BEHINDNESS_LAG:
-			LLFollowCamMgr::setBehindnessLag(source_id, value);
+			LLFollowCamMgr::getInstance()->setBehindnessLag(source_id, value);
 			break;
 		case FOLLOWCAM_POSITION_THRESHOLD:
-			LLFollowCamMgr::setPositionThreshold(source_id, value);
+			LLFollowCamMgr::getInstance()->setPositionThreshold(source_id, value);
 			break;
 		case FOLLOWCAM_FOCUS_THRESHOLD:
-			LLFollowCamMgr::setFocusThreshold(source_id, value);
+			LLFollowCamMgr::getInstance()->setFocusThreshold(source_id, value);
 			break;
 		case FOLLOWCAM_ACTIVE:
 			//if 1, set using followcam,. 
-			LLFollowCamMgr::setCameraActive(source_id, value != 0.f);
+			LLFollowCamMgr::getInstance()->setCameraActive(source_id, value != 0.f);
 			break;
 		case FOLLOWCAM_POSITION_X:
 			settingPosition = true;
@@ -4357,10 +4357,10 @@ void process_set_follow_cam_properties(LLMessageSystem *mesgsys, void **user_dat
 			focus.mV[ 2 ] = value;
 			break;
 		case FOLLOWCAM_POSITION_LOCKED:
-			LLFollowCamMgr::setPositionLocked(source_id, value != 0.f);
+			LLFollowCamMgr::getInstance()->setPositionLocked(source_id, value != 0.f);
 			break;
 		case FOLLOWCAM_FOCUS_LOCKED:
-			LLFollowCamMgr::setFocusLocked(source_id, value != 0.f);
+			LLFollowCamMgr::getInstance()->setFocusLocked(source_id, value != 0.f);
 			break;
 
 		default:
@@ -4370,15 +4370,15 @@ void process_set_follow_cam_properties(LLMessageSystem *mesgsys, void **user_dat
 
 	if ( settingPosition )
 	{
-		LLFollowCamMgr::setPosition(source_id, position);
+		LLFollowCamMgr::getInstance()->setPosition(source_id, position);
 	}
 	if ( settingFocus )
 	{
-		LLFollowCamMgr::setFocus(source_id, focus);
+		LLFollowCamMgr::getInstance()->setFocus(source_id, focus);
 	}
 	if ( settingFocusOffset )
 	{
-		LLFollowCamMgr::setFocusOffset(source_id, focus_offset);
+		LLFollowCamMgr::getInstance()->setFocusOffset(source_id, focus_offset);
 	}
 }
 //end Ventrella 

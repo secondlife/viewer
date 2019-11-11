@@ -193,40 +193,40 @@ protected:
 };// end of FollowCam class
 
 
-class LLFollowCamMgr
+class LLFollowCamMgr : public LLSingleton<LLFollowCamMgr>
 {
-public:
-	static void cleanupClass			( );
-	
-	static void setPositionLag			( const LLUUID& source, F32 lag);
-	static void setFocusLag				( const LLUUID& source, F32 lag);
-	static void setFocusThreshold		( const LLUUID& source, F32 threshold);
-	static void setPositionThreshold	( const LLUUID& source, F32 threshold);
-	static void setDistance				( const LLUUID& source, F32 distance);
-	static void setPitch				( const LLUUID& source, F32 pitch);
-	static void setFocusOffset			( const LLUUID& source, const LLVector3& offset);
-	static void setBehindnessAngle		( const LLUUID& source, F32 angle);
-	static void setBehindnessLag		( const LLUUID& source, F32 lag);
-	static void setPosition				( const LLUUID& source, const LLVector3 position);
-	static void setFocus				( const LLUUID& source, const LLVector3 focus);
-	static void setPositionLocked		( const LLUUID& source, bool locked);
-	static void setFocusLocked			( const LLUUID& source, bool locked );
+    LLSINGLETON(LLFollowCamMgr);
+    ~LLFollowCamMgr();
+public:	
+	void setPositionLag			( const LLUUID& source, F32 lag);
+	void setFocusLag				( const LLUUID& source, F32 lag);
+	void setFocusThreshold		( const LLUUID& source, F32 threshold);
+	void setPositionThreshold	( const LLUUID& source, F32 threshold);
+	void setDistance				( const LLUUID& source, F32 distance);
+	void setPitch				( const LLUUID& source, F32 pitch);
+	void setFocusOffset			( const LLUUID& source, const LLVector3& offset);
+	void setBehindnessAngle		( const LLUUID& source, F32 angle);
+	void setBehindnessLag		( const LLUUID& source, F32 lag);
+	void setPosition				( const LLUUID& source, const LLVector3 position);
+	void setFocus				( const LLUUID& source, const LLVector3 focus);
+	void setPositionLocked		( const LLUUID& source, bool locked);
+	void setFocusLocked			( const LLUUID& source, bool locked );
 
-	static void setCameraActive			( const LLUUID& source, bool active );
+	void setCameraActive			( const LLUUID& source, bool active );
 
-	static LLFollowCamParams* getActiveFollowCamParams();
-	static LLFollowCamParams* getParamsForID(const LLUUID& source);
-	static void removeFollowCamParams(const LLUUID& source);
-	static bool isScriptedCameraSource(const LLUUID& source);
-	static void dump();
+	LLFollowCamParams* getActiveFollowCamParams();
+	LLFollowCamParams* getParamsForID(const LLUUID& source);
+	void removeFollowCamParams(const LLUUID& source);
+	bool isScriptedCameraSource(const LLUUID& source);
+	void dump();
 
 protected:
 
 	typedef std::map<LLUUID, LLFollowCamParams*> param_map_t;
-	static param_map_t sParamMap;
+	param_map_t mParamMap;
 
 	typedef std::vector<LLFollowCamParams*> param_stack_t;
-	static param_stack_t sParamStack;
+	param_stack_t mParamStack;
 };
 
 #endif //LL_FOLLOWCAM_H

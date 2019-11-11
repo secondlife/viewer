@@ -83,7 +83,7 @@ void LLWebProfile::setAuthCookie(const std::string& cookie)
 LLCore::HttpHeaders::ptr_t LLWebProfile::buildDefaultHeaders()
 {
     LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
-    LLSD headers = LLViewerMedia::getHeaders();
+    LLSD headers = LLViewerMedia::getInstance()->getHeaders();
 
     for (LLSD::map_iterator it = headers.beginMap(); it != headers.endMap(); ++it)
     {

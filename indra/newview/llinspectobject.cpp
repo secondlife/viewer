@@ -202,11 +202,11 @@ void LLInspectObject::onOpen(const LLSD& data)
 	// See LLToolTipMgr::createToolTip
 	if (data.has("pos"))
 	{
-		LLUI::positionViewNearMouse(this, data["pos"]["x"].asInteger(), data["pos"]["y"].asInteger());
+		LLUI::getInstance()->positionViewNearMouse(this, data["pos"]["x"].asInteger(), data["pos"]["y"].asInteger());
 	}
 	else
 	{
-		LLUI::positionViewNearMouse(this);
+		LLUI::getInstance()->positionViewNearMouse(this);
 	}
 
 	// Promote hovered object to a complete selection, which will also force
@@ -241,7 +241,7 @@ void LLInspectObject::onOpen(const LLSD& data)
 		if(!mMediaEntry)
 			return;
 		
-		mMediaImpl = LLViewerMedia::getMediaImplFromTextureID(mMediaEntry->getMediaID());
+		mMediaImpl = LLViewerMedia::getInstance()->getMediaImplFromTextureID(mMediaEntry->getMediaID());
 	}
 }
 
@@ -300,7 +300,7 @@ void LLInspectObject::update()
 	if(!mMediaEntry)
 		return;
 	
-	mMediaImpl = LLViewerMedia::getMediaImplFromTextureID(mMediaEntry->getMediaID());
+	mMediaImpl = LLViewerMedia::getInstance()->getMediaImplFromTextureID(mMediaEntry->getMediaID());
 	
 	updateMediaCurrentURL();
 	updateSecureBrowsing();

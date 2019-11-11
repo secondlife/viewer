@@ -198,14 +198,9 @@ namespace tut
         {
             WrapLLErrs wrapper;
             Keyed::instance_iter i(Keyed::beginInstances());
-            try
-            {
-                delete keyed;
-            }
-            catch (const WrapLLErrs::FatalException& e)
-            {
-                what = e.what();
-            }
+            what = wrapper.catch_llerrs([&keyed](){
+                    delete keyed;
+                });
         }
         ensure(! what.empty());
     }
@@ -219,14 +214,9 @@ namespace tut
         {
             WrapLLErrs wrapper;
             Keyed::key_iter i(Keyed::beginKeys());
-            try
-            {
-                delete keyed;
-            }
-            catch (const WrapLLErrs::FatalException& e)
-            {
-                what = e.what();
-            }
+            what = wrapper.catch_llerrs([&keyed](){
+                    delete keyed;
+                });
         }
         ensure(! what.empty());
     }
@@ -240,14 +230,9 @@ namespace tut
         {
             WrapLLErrs wrapper;
             Unkeyed::instance_iter i(Unkeyed::beginInstances());
-            try
-            {
-                delete unkeyed;
-            }
-            catch (const WrapLLErrs::FatalException& e)
-            {
-                what = e.what();
-            }
+            what = wrapper.catch_llerrs([&unkeyed](){
+                    delete unkeyed;
+                });
         }
         ensure(! what.empty());
     }

@@ -31,8 +31,6 @@
 #include <iostream>
 #include <fstream>
 
-LLUrlWhiteList* LLUrlWhiteList::sInstance = 0;
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 LLUrlWhiteList::LLUrlWhiteList () :
@@ -47,29 +45,6 @@ LLUrlWhiteList::LLUrlWhiteList () :
 //
 LLUrlWhiteList::~LLUrlWhiteList ()
 {
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-//static
-void LLUrlWhiteList::initClass ()
-{
-    if ( ! sInstance )
-	{
-        sInstance = new LLUrlWhiteList ();
-	}
-}
-
-//static
-void LLUrlWhiteList::cleanupClass ()
-{
-	delete sInstance;
-	sInstance = NULL;
-}
-
-LLUrlWhiteList* LLUrlWhiteList::getInstance ()
-{
-	return sInstance;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
