@@ -120,6 +120,7 @@ const F32 LLViewerTextureManager::MAX_INACTIVE_TIME(20.0f);
 void LLViewerTextureManager::initSingleton()
 {
     mIsCleaningUp = false;
+    mDeadlistDirty = false;
 
     {
         LLPointer<LLImageRaw> raw = new LLImageRaw(1, 1, 3);
@@ -227,6 +228,7 @@ void LLViewerTextureManager::cleanupSingleton()
 
     mOutstandingRequests.clear();
     mTextureList.clear();
+    mDeadlist.clear();
     mImagePreloads.clear();
     mMediaMap.clear();
 
@@ -361,18 +363,20 @@ void LLViewerTextureManager::update()
         timeremaining = updateCleanDead(timeremaining);
         if (timeremaining < F_APPROXIMATELY_ZERO)
             return;
-    }
 
+        timeremaining = updateAddToDeadlist(timeremaining);
+
+    }
 }
 
 F32 LLViewerTextureManager::updateCleanSavedRaw(F32 timeout)
 {
     LLFrameTimer timer; 
-    std::deque<llist_texture_t::iterator> erase_candidates;
+    std::deque<list_texture_t::iterator> erase_candidates;
 
     timer.setTimerExpirySec(timeout);
 
-    for (llist_texture_t::iterator itex = mImageSaves.begin(); itex != mImageSaves.end(); ++itex)
+    for (list_texture_t::iterator itex = mImageSaves.begin(); itex != mImageSaves.end(); ++itex)
     {
         if (timer.hasExpired())
         {
@@ -398,12 +402,85 @@ F32 LLViewerTextureManager::updateCleanSavedRaw(F32 timeout)
     return timer.getTimeToExpireF32();
 }
 
+namespace
+{
+    bool deletion_sort_pred(const LLViewerTexture::ptr_t &a, const LLViewerTexture::ptr_t &b)
+    {
+        if (a.use_count() > 2)
+        {   // The texture has more than two references. It shouldn't be on the deadlist... 
+            // move it to the front of the line so that it can be summarily removed
+            return true;
+        }
+        if (a->getTimeOnDeadlist() != b->getTimeOnDeadlist())
+        {   // One has been on the list longer.  Longest time wins.
+            return (a->getTimeOnDeadlist() > b->getTimeOnDeadlist());
+        }
+        // these have been on the list the same amount of time... biggest wins
+        if (a->hasGLTexture())
+            return (a->getTextureMemory() > b->getTextureMemory());
+        // here we do not have a GL texture... just move it forward.
+        return true;
+    }
+}
+
 F32 LLViewerTextureManager::updateCleanDead(F32 timeout)
 {
     LLFrameTimer timer;
     timer.setTimerExpirySec(timeout);
+    S32Bytes recovered(0);
+    S32 count(0);
+    S32 rescue(0);
 
+    // Put the deletion candidates in order.
+    if (mDeadlistDirty)
+    {   // only resort if stuff added.
+        std::sort(mDeadlist.begin(), mDeadlist.end(), deletion_sort_pred);
+        mDeadlistDirty = false;
+        LL_WARNS("RIDER") << "New textures added to deadlist. There are " << mDeadlist.size() << " textures eligible for deletion." << LL_ENDL;
+    }
 
+    /*TODO*/ // Test memory here.  Don't need to clean up if there is still lots of space.
+
+    while (!mDeadlist.empty())
+    {   
+        if (mDeadlist.front().use_count() > 2)
+        {   // items that shouldn't be on the deletion list are towards the front.. just pop them
+            mDeadlist.front()->clearDeadlistTime();
+            mDeadlist.pop_front();
+            ++rescue;
+            continue;
+        }
+
+        if (mDeadlist.front()->getTimeOnDeadlist() < MAX_INACTIVE_TIME)
+        {   // We've come to the first item that hasn't been on long enough to remove. All done.
+            break;
+        }
+
+        LLViewerTexture::ptr_t texture(mDeadlist.front());
+        mDeadlist.pop_front();
+
+        /*TODO:RIDER*/ // test if media texture and delete from correct list.
+        mTextureList.erase(TextureKey(texture->getID(), get_element_type(texture->getBoostLevel())));
+//      mMediaMap.erase(texture->getID());
+
+        if (texture->hasGLTexture())
+        {
+            recovered += texture->getTextureMemory();
+            ++count;
+        }
+
+        texture.reset();
+
+        /*TODO:RIDER*/ // Test here to see if we've now under budget.  If plenty of space, leave well enough alone.
+
+        if (timer.hasExpired())
+        {   // we've run out of time!  Come back next time.
+            break;
+        }
+    }
+
+    LL_WARNS_IF((count > 0) || (rescue > 0), "RIDER") << "Dead list contains " << mDeadlist.size() << " textures. " << count << " removed, for " << 
+            F32Kilobytes(recovered) << "(texture memory now: " << F32Kilobytes(LLImageGL::sGlobalTextureMemory) << ". " << rescue << " textures rescued." << LL_ENDL;
 //     for (media_map_t::iterator iter = sMediaMap.begin(); iter != sMediaMap.end();)
 //     {
 //         LLViewerMediaTexture::ptr_t &mediap(iter->second);
@@ -428,6 +505,28 @@ F32 LLViewerTextureManager::updateCleanDead(F32 timeout)
 }
 
 
+F32 LLViewerTextureManager::updateAddToDeadlist(F32 timeout)
+{
+    LLFrameTimer timer;
+    timer.setTimerExpirySec(timeout);
+    S32 count(mDeadlist.size());
+
+    /*TODO*/ // This should go away in favor of adding things to the deadlist pro actively. 
+    for (auto &entry : mTextureList)
+    {
+        if (entry.second.use_count() == 1 && !entry.second->isNoDelete()) // Only referenced by the texture manager.
+        {   // Won't duplicate entries since things on the dead list will have a second reference.
+            mDeadlist.push_back(entry.second);
+            entry.second->addToDeadlist();
+            mDeadlistDirty = true;
+        }
+        if (timer.hasExpired())
+            break;
+    }
+    LL_WARNS_IF((count != mDeadlist.size()), "RIDER") << "Deadlist now has " << mDeadlist.size() << " textures." << LL_ENDL;
+    return timer.getTimeToExpireF32();
+}
+
 void LLViewerTextureManager::updatedSavedRaw(const LLViewerFetchedTexture::ptr_t &texture)
 {
     /*TODO*/ // This could be an ordered list or a queue based on the expire time...that would save
@@ -438,7 +537,7 @@ void LLViewerTextureManager::updatedSavedRaw(const LLViewerFetchedTexture::ptr_t
 
 
 //========================================================================
-void  LLViewerTextureManager::findTextures(const LLUUID& id, LLViewerTextureManager::list_texture_t &output) const
+void  LLViewerTextureManager::findTextures(const LLUUID& id, LLViewerTextureManager::deque_texture_t &output) const
 {
     map_key_texture_t::const_iterator itb(mTextureList.lower_bound(TextureKey(id, ETexListType(0))));
     map_key_texture_t::const_iterator ite(mTextureList.upper_bound(TextureKey(id, ETexListType(0xFFFF))));

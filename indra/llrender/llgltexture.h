@@ -166,6 +166,7 @@ public:
 	void forceActive() ;
 	void setNoDelete() ;
 	void dontDiscard() { mDontDiscard = 1; mTextureState = NO_DELETE; }
+    bool isNoDelete() const { return (mTextureState == NO_DELETE); }
 	BOOL getDontDiscard() const { return mDontDiscard; }
 	//-----------------	
 

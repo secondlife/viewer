@@ -61,34 +61,6 @@ class LLMessageSystem;
 class LLViewerMediaImpl ;
 class LLVOVolume ;
 
-// class LLLoadedCallbackEntry
-// {
-// public:
-//     typedef std::set< LLTextureKey > source_callback_list_t;
-// 
-// public:
-// 	LLLoadedCallbackEntry(loaded_callback_func cb,
-// 						  S32 discard_level,
-// 						  BOOL need_imageraw, // Needs image raw for the callback
-// 						  void* userdata,
-// 						  source_callback_list_t* src_callback_list,
-// 						  LLViewerFetchedTexture* target,
-// 						  BOOL pause);
-// 	~LLLoadedCallbackEntry();
-// 	void removeTexture(LLViewerFetchedTexture* tex) ;
-// 
-// 	loaded_callback_func	mCallback;
-// 	S32						mLastUsedDiscard;
-// 	S32						mDesiredDiscard;
-// 	BOOL					mNeedsImageRaw;
-// 	BOOL                    mPaused;
-// 	void*					mUserData;
-// 	source_callback_list_t* mSourceCallbackList;
-// 	
-// public:
-// //	static void cleanUpCallbackList(LLLoadedCallbackEntry::source_callback_list_t* callback_list) ;
-// };
-
 class LLTextureBar;
 
 class LLViewerTexture : public LLGLTexture
@@ -173,6 +145,11 @@ public:
 	LLViewerMediaTexture* getParcelMedia() const { return mParcelMedia;}
 
 	virtual void updateBindStatsForTester() override;
+
+    void    addToDeadlist(); 
+    F32     getTimeOnDeadlist() const; 
+    void    clearDeadlistTime() { mTimeOnDeadList = 0.0f; }
+
 protected:
 	void cleanup() ;
 	void init(bool firstinit) ;
@@ -204,6 +181,7 @@ protected:
 	mutable S32  mMaxVirtualSizeResetInterval;
 	mutable F32 mAdditionalDecodePriority;  // priority add to mDecodePriority.
 	LLFrameTimer mLastReferencedTimer;	
+    F32 mTimeOnDeadList;    // The time time that this texture was added to the deadlist.
 
 	ll_face_list_t    mFaceList[LLRender::NUM_TEXTURE_CHANNELS]; //reverse pointer pointing to the faces using this image as texture
 	U32               mNumFaces[LLRender::NUM_TEXTURE_CHANNELS];

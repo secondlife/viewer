@@ -96,7 +96,7 @@ public:
         boost::optional<LLUUID>     mForceUUID;
     };
 
-    typedef std::deque<LLViewerFetchedTexture::ptr_t> list_texture_t;
+    typedef std::deque<LLViewerFetchedTexture::ptr_t> deque_texture_t;
 
     //-------------------------------------------
     void                            update();
@@ -112,7 +112,7 @@ public:
 
 	//
 	//"find-texture" just check if the texture exists, if yes, return it, otherwise return null.
-    void                            findTextures(const LLUUID& id, list_texture_t &output) const;
+    void                            findTextures(const LLUUID& id, deque_texture_t &output) const;
     LLViewerFetchedTexture::ptr_t   findFetchedTexture(const LLUUID& id, S32 tex_type = TEX_LIST_STANDARD) const;
     LLViewerMediaTexture::ptr_t findMediaTexture(const LLUUID& id, bool setimpl=true) const;
 	
@@ -194,14 +194,17 @@ private:
     };
 
     typedef std::map<TextureKey, LLViewerFetchedTexture::ptr_t> map_key_texture_t;
-    typedef std::list<LLViewerFetchedTexture::ptr_t>            llist_texture_t;
+    typedef std::list<LLViewerFetchedTexture::ptr_t>            list_texture_t;
     typedef std::set<LLViewerFetchedTexture::ptr_t>             set_texture_t;
-    typedef std::map< LLUUID, LLViewerMediaTexture::ptr_t>      media_map_t;
+    typedef std::map<LLUUID, LLViewerMediaTexture::ptr_t>       media_map_t;
+    typedef std::deque<LLViewerTexture::ptr_t>                  deque_deadlist_t;
 
     bool                            mIsCleaningUp;
 
     map_key_texture_t               mTextureList;           // master list of all textures.
     uuid_set_t                      mOutstandingRequests;   // list of requests being fetched.
+    deque_deadlist_t                mDeadlist;    // candidates for deletion.
+    bool                            mDeadlistDirty;
 
     // Note: just raw pointers because they are never referenced, just compared against
     std::set<LLViewerFetchedTexture::ptr_t> mDirtyTextureList;
@@ -210,7 +213,7 @@ private:
     S32Megabytes                    mMaxTotalTextureMemInMegaBytes;
     
     set_texture_t                   mImagePreloads; // simply holds on to LLViewerFetchedTexture references to stop them from being purged too soon
-    llist_texture_t                 mImageSaves;    // list of saved textures. 
+    list_texture_t                  mImageSaves;    // list of saved textures. 
     media_map_t                     mMediaMap;
 
     void                            doPreloadImages();
@@ -222,6 +225,7 @@ private:
 
     F32                             updateCleanSavedRaw(F32 timeout);
     F32                             updateCleanDead(F32 timeout);
+    F32                             updateAddToDeadlist(F32 timeout);
 
     void                            addTexture(LLViewerFetchedTexture::ptr_t &texturep, ETexListType list_type);
 

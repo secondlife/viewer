@@ -729,6 +729,16 @@ void LLViewerTexture::updateBindStatsForTester()
 	}
 }
 
+void LLViewerTexture::addToDeadlist()
+{
+    mTimeOnDeadList = LLImageGL::sLastFrameTime;
+}
+
+F32 LLViewerTexture::getTimeOnDeadlist() const
+{
+    return LLImageGL::sLastFrameTime - mTimeOnDeadList;
+}
+
 //----------------------------------------------------------------------------------------------
 //end of LLViewerTexture
 //----------------------------------------------------------------------------------------------

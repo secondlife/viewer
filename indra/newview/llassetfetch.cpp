@@ -339,7 +339,7 @@ LLUUID LLAssetFetch::requestTexture(FTType ftype, const LLUUID &id, const std::s
 
     if (priority <= 0)
     {
-        LL_WARNS(LOG_KEY_ASSETFETCH) << "Texture request with priority " << priority << " <= 0 (" << url << ")" << LL_ENDL;
+        //LL_WARNS(LOG_KEY_ASSETFETCH) << "Texture request with priority " << priority << " <= 0 (" << url << ")" << LL_ENDL;
         priority = 1;
     }
 
