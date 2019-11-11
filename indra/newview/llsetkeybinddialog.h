@@ -29,7 +29,6 @@
 #define LL_LLSETKEYBINDDIALOG_H
 
 #include "llmodaldialog.h"
-#include "lldrawfrustum.h"
 
 class LLCheckBoxCtrl;
 class LLTextBase;
@@ -54,7 +53,7 @@ public:
     virtual bool onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool all_modes) = 0;
 };
 
-class LLSetKeyBindDialog : public LLModalDialog, public LLDrawFrustum
+class LLSetKeyBindDialog : public LLModalDialog
 {
 public:
     LLSetKeyBindDialog(const LLSD& key);
@@ -90,6 +89,16 @@ private:
     Updater *pUpdater;
 
     static bool sRecordKeys; // for convinience and not to check instance each time
+
+    // drawFrustum
+private:
+    void drawFrustum();
+
+    LLHandle <LLView>   mFrustumOrigin;
+    F32                 mContextConeOpacity;
+    F32                 mContextConeInAlpha;
+    F32                 mContextConeOutAlpha;
+    F32                 mContextConeFadeTime;
 };
 
 
