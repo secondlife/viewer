@@ -863,7 +863,8 @@ void LLViewerFetchedTexture::cleanup()
     if (!mIsFinal && !mAssetDoneSignal.empty())
     {   // We are cleaning up and have outstanding callbacks.  Signal a cancel 
         // (success = false, final = true)
-        mAssetDoneSignal(false, getSharedPointer(), true);
+        ptr_t self(getSharedPointer());
+        mAssetDoneSignal(false, self, true);
         mAssetDoneSignal.disconnect_all_slots();
     }
 
@@ -1851,7 +1852,8 @@ void LLViewerFetchedTexture::onTextureFetchComplete(const LLAssetFetch::AssetReq
 
     if (!mAssetDoneSignal.empty())
     {
-        mAssetDoneSignal(mSuccess, getSharedPointer(), mIsFinal);
+        ptr_t self(getSharedPointer());
+        mAssetDoneSignal(mSuccess, self, mIsFinal);
         if (mIsFinal)
         {   // no more call backs after "final"
             mAssetDoneSignal.disconnect_all_slots();
@@ -2513,7 +2515,7 @@ bool LLViewerLODTexture::scaleDown()
 //static
 void LLViewerMediaTexture::updateClass()
 {
-	static const F32 MAX_INACTIVE_TIME = 30.f;
+//	static const F32 MAX_INACTIVE_TIME = 30.f;
 
 #if 0
 	//force to play media.
