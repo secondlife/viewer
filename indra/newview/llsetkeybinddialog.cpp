@@ -34,6 +34,7 @@
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "llkeyconflict.h"
+#include "llviewercontrol.h"
 
 class LLSetKeyBindDialog::Updater : public LLEventTimer
 {
@@ -70,8 +71,15 @@ LLSetKeyBindDialog::LLSetKeyBindDialog(const LLSD& key)
     : LLModalDialog(key),
     pParent(NULL),
     mKeyFilterMask(DEFAULT_KEY_FILTER),
-    pUpdater(NULL)
+    pUpdater(NULL),
+    mContextConeOpacity(0.f),
+    mContextConeInAlpha(0.f),
+    mContextConeOutAlpha(0.f),
+    mContextConeFadeTime(0.f)
 {
+	mContextConeInAlpha = gSavedSettings.getF32("ContextConeInAlpha");
+	mContextConeOutAlpha = gSavedSettings.getF32("ContextConeOutAlpha");
+	mContextConeFadeTime = gSavedSettings.getF32("ContextConeFadeTime");
 }
 
 LLSetKeyBindDialog::~LLSetKeyBindDialog()
@@ -119,18 +127,23 @@ void LLSetKeyBindDialog::onClose(bool app_quiting)
     LLModalDialog::onClose(app_quiting);
 }
 
+void LLSetKeyBindDialog::drawFrustum()
+{
+    static LLCachedControl<F32> max_opacity(gSavedSettings, "PickerContextOpacity", 0.4f);
+    drawConeToOwner(mContextConeOpacity, max_opacity, mFrustumOrigin.get(), mContextConeFadeTime, mContextConeInAlpha, mContextConeOutAlpha);
+}
+
 //virtual
 void LLSetKeyBindDialog::draw()
 {
-    LLRect local_rect;
-    drawFrustum(local_rect, this, (LLView*)getDragHandle(), hasFocus());
+    drawFrustum();
     LLModalDialog::draw();
 }
 
 void LLSetKeyBindDialog::setParent(LLKeyBindResponderInterface* parent, LLView* frustum_origin, U32 key_mask)
 {
     pParent = parent;
-    setFrustumOrigin(frustum_origin);
+    mFrustumOrigin = frustum_origin->getHandle();
     mKeyFilterMask = key_mask;
 
     std::string input;

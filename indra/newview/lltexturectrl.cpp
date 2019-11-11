@@ -73,9 +73,6 @@
 
 #include "llavatarappearancedefines.h"
 
-static const F32 CONTEXT_CONE_IN_ALPHA = 0.0f;
-static const F32 CONTEXT_CONE_OUT_ALPHA = 1.f;
-static const F32 CONTEXT_FADE_TIME = 0.08f;
 
 static const S32 LOCAL_TRACKING_ID_COLUMN = 1;
 
