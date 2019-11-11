@@ -30,7 +30,6 @@
 #include <vector>
 
 #include "llfloater.h"
-#include "lldrawfrustum.h"
 #include "llpointer.h"
 #include "llcolorswatch.h"
 #include "llspinctrl.h"
@@ -42,7 +41,7 @@ class LLCheckBoxCtrl;
 //////////////////////////////////////////////////////////////////////////////
 // floater class
 class LLFloaterColorPicker 
-	: public LLFloater, public LLDrawFrustum
+	: public LLFloater
 {
 	public:
 		LLFloaterColorPicker (LLColorSwatchCtrl* swatch, BOOL show_apply_immediate = FALSE);
@@ -64,7 +63,7 @@ class LLFloaterColorPicker
 		void destroyUI ();
 		void cancelSelection ();
 		LLColorSwatchCtrl* getSwatch () { return mSwatch; };
-        void setSwatch(LLColorSwatchCtrl* swatch) { mSwatch = swatch; setFrustumOrigin(mSwatch); }
+		void setSwatch( LLColorSwatchCtrl* swatch) { mSwatch = swatch; }
 
 		// mutator / accessor for original RGB value
 		void setOrigRgb ( F32 origRIn, F32 origGIn, F32 origBIn );
@@ -197,6 +196,12 @@ class LLFloaterColorPicker
 		LLButton* mCancelBtn;
 
 		LLButton* mPipetteBtn;
+
+		F32		  mContextConeOpacity;
+        F32       mContextConeInAlpha;
+        F32       mContextConeOutAlpha;
+        F32       mContextConeFadeTime;
+
 };
 
 #endif // LL_LLFLOATERCOLORPICKER_H
