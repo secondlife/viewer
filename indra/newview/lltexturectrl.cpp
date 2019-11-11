@@ -73,6 +73,10 @@
 
 #include "llavatarappearancedefines.h"
 
+static const F32 CONTEXT_CONE_IN_ALPHA = 0.0f;
+static const F32 CONTEXT_CONE_OUT_ALPHA = 1.f;
+static const F32 CONTEXT_FADE_TIME = 0.08f;
+
 static const S32 LOCAL_TRACKING_ID_COLUMN = 1;
 
 //static const char CURRENT_IMAGE_NAME[] = "Current Texture";
@@ -109,6 +113,7 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	mImmediateFilterPermMask(immediate_filter_perm_mask),
 	mDnDFilterPermMask(dnd_filter_perm_mask),
 	mNonImmediateFilterPermMask(non_immediate_filter_perm_mask),
+	mContextConeOpacity(0.f),
 	mSelectedItemPinned( FALSE ),
 	mCanApply(true),
 	mCanPreview(true),
@@ -122,7 +127,6 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	buildFromFile("floater_texture_ctrl.xml");
 	mCanApplyImmediately = can_apply_immediately;
 	setCanMinimize(FALSE);
-	setFrustumOrigin(mOwner);
 }
 
 LLFloaterTexturePicker::~LLFloaterTexturePicker()

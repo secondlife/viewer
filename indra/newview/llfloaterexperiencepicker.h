@@ -28,14 +28,13 @@
 #define LL_LLFLOATEREXPERIENCEPICKER_H
 
 #include "llfloater.h"
-#include "lldrawfrustum.h"
 
 class LLScrollListCtrl;
 class LLLineEditor;
 class LLPanelExperiencePicker;
 
 
-class LLFloaterExperiencePicker : public LLFloater, public LLDrawFrustum
+class LLFloaterExperiencePicker : public LLFloater
 {
 public:
 
@@ -55,6 +54,13 @@ public:
 private:
 
 	LLPanelExperiencePicker* mSearchPanel;
+
+	void drawFrustum();
+	LLHandle <LLView>   mFrustumOrigin;
+	F32		            mContextConeOpacity;
+	F32                 mContextConeInAlpha;
+	F32                 mContextConeOutAlpha;
+	F32                 mContextConeFadeTime;
 };
 
 #endif // LL_LLFLOATEREXPERIENCEPICKER_H

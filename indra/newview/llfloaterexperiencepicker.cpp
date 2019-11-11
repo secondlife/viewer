@@ -64,7 +64,10 @@ LLFloaterExperiencePicker* LLFloaterExperiencePicker::show( select_callback_t ca
 		floater->mSearchPanel->filterContent();
 	}
 
-	floater->setFrustumOrigin(frustumOrigin);
+	if(frustumOrigin)
+	{
+		floater->mFrustumOrigin = frustumOrigin->getHandle();
+	}
 
 	return floater;
 }
@@ -77,15 +80,21 @@ void LLFloaterExperiencePicker::drawFrustum()
 
 void LLFloaterExperiencePicker::draw()
 {
-    LLRect local_rect = getLocalRect();
-    drawFrustum(local_rect, this, getDragHandle(), hasFocus());
+	drawFrustum();
 	LLFloater::draw();
 }
 
 LLFloaterExperiencePicker::LLFloaterExperiencePicker( const LLSD& key )
 	:LLFloater(key)
 	,mSearchPanel(NULL)
+	,mContextConeOpacity(0.f)
+	,mContextConeInAlpha(0.f)
+	,mContextConeOutAlpha(0.f)
+	,mContextConeFadeTime(0.f)
 {
+	mContextConeInAlpha = gSavedSettings.getF32("ContextConeInAlpha");
+	mContextConeOutAlpha = gSavedSettings.getF32("ContextConeOutAlpha");
+	mContextConeFadeTime = gSavedSettings.getF32("ContextConeFadeTime");
 }
 
 LLFloaterExperiencePicker::~LLFloaterExperiencePicker()

@@ -29,7 +29,6 @@
 #define LL_LLTEXTURECTRL_H
 
 #include "llcoord.h"
-#include "lldrawfrustum.h"
 #include "llfiltereditor.h"
 #include "llfloater.h"
 #include "llfolderview.h"
@@ -250,7 +249,7 @@ typedef boost::function<void()> floater_close_callback;
 typedef boost::function<void(const LLUUID& asset_id)> set_image_asset_id_callback;
 typedef boost::function<void(LLPointer<LLViewerTexture> texture)> set_on_update_image_stats_callback;
 
-class LLFloaterTexturePicker : public LLFloater, public LLDrawFrustum
+class LLFloaterTexturePicker : public LLFloater
 {
 public:
 	LLFloaterTexturePicker(
@@ -292,7 +291,7 @@ public:
 	void			setActive(BOOL active);
 
 	LLView*			getOwner() const { return mOwner; }
-	void			setOwner(LLView* owner) { mOwner = owner; setFrustumOrigin(owner); }
+	void			setOwner(LLView* owner) { mOwner = owner; }
 	void			stopUsingPipette();
 	PermissionMask 	getFilterPermMask();
 
@@ -364,6 +363,7 @@ protected:
 	PermissionMask		mNonImmediateFilterPermMask;
 	BOOL				mCanApplyImmediately;
 	BOOL				mNoCopyTextureSelected;
+	F32					mContextConeOpacity;
 	LLSaveFolderState	mSavedFolderState;
 	BOOL				mSelectedItemPinned;
 
