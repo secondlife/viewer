@@ -1606,11 +1606,11 @@ LLDrawPool *LLPipeline::findPool(const U32 type, const LLViewerTexture::ptr_t &t
 		break;
 
 	case LLDrawPool::POOL_TREE:
-		poolp = get_if_there(mTreePools, (uintptr_t)tex0, (LLDrawPool*)0 );
+		poolp = get_if_there(mTreePools, (uintptr_t)(tex0.get()), (LLDrawPool*)0 );
 		break;
 
 	case LLDrawPool::POOL_TERRAIN:
-		poolp = get_if_there(mTerrainPools, (uintptr_t)tex0, (LLDrawPool*)0 );
+		poolp = get_if_there(mTerrainPools, (uintptr_t)(tex0.get()), (LLDrawPool*)0 );
 		break;
 
 	case LLDrawPool::POOL_BUMP:
@@ -5757,11 +5757,11 @@ void LLPipeline::addToQuickLookup( LLDrawPool* new_poolp )
 		break;
 
 	case LLDrawPool::POOL_TREE:
-		mTreePools[ uintptr_t(new_poolp->getTexture()) ] = new_poolp ;
+		mTreePools[ uintptr_t(new_poolp->getTexture().get()) ] = new_poolp ;
 		break;
  
 	case LLDrawPool::POOL_TERRAIN:
-		mTerrainPools[ uintptr_t(new_poolp->getTexture()) ] = new_poolp ;
+		mTerrainPools[ uintptr_t(new_poolp->getTexture().get()) ] = new_poolp ;
 		break;
 
 	case LLDrawPool::POOL_BUMP:
@@ -5912,11 +5912,11 @@ void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
 	case LLDrawPool::POOL_TREE:
 		#ifdef _DEBUG
 			{
-				bool found = mTreePools.erase( (uintptr_t)poolp->getTexture() );
+				bool found = mTreePools.erase( (uintptr_t)poolp->getTexture().get() );
 				llassert( found );
 			}
 		#else
-			mTreePools.erase( (uintptr_t)poolp->getTexture() );
+			mTreePools.erase( uintptr_t(poolp->getTexture().get()) );
 		#endif
 		break;
 
@@ -5927,7 +5927,7 @@ void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
 				llassert( found );
 			}
 		#else
-			mTerrainPools.erase( (uintptr_t)poolp->getTexture() );
+			mTerrainPools.erase( uintptr_t(poolp->getTexture().get()) );
 		#endif
 		break;
 
