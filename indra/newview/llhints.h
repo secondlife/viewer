@@ -32,19 +32,22 @@
 #include "llinitdestroyclass.h"
 
 
-class LLHints :  public LLInitClass<LLHints>
+class LLHints :  public LLSingleton<LLHints>
 {
+	LLSINGLETON(LLHints);
+	~LLHints();
 public:
-	static void show(LLNotificationPtr hint);
-	static void hide(LLNotificationPtr hint);
-	static void registerHintTarget(const std::string& name, LLHandle<LLView> target);
-	static LLHandle<LLView> getHintTarget(const std::string& name);
-	static void initClass();
+	void show(LLNotificationPtr hint);
+	void hide(LLNotificationPtr hint);
+	void registerHintTarget(const std::string& name, LLHandle<LLView> target);
+	LLHandle<LLView> getHintTarget(const std::string& name);
 private:
-	static LLRegistry<std::string, LLHandle<LLView> > sTargetRegistry;
+	LLRegistry<std::string, LLHandle<LLView> > mTargetRegistry;
 	typedef std::map<LLNotificationPtr, class LLHintPopup*> hint_map_t;
-	static hint_map_t sHints;
-	static void showHints(const LLSD& show);
+	hint_map_t mHints;
+	void showHints(const LLSD& show);
+
+	boost::signals2::connection mControlConnection;
 };
 
 

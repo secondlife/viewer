@@ -97,7 +97,7 @@ public:
 			return false;
 		}
 
-		if (!LLUI::sSettingGroups["config"]->getBOOL("EnablePlaceProfile"))
+		if (!LLUI::getInstance()->mSettingGroups["config"]->getBOOL("EnablePlaceProfile"))
 		{
 			LLNotificationsUtil::add("NoPlaceInfo", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
 			return true;

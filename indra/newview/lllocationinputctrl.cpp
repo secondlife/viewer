@@ -666,7 +666,7 @@ void LLLocationInputCtrl::onAgentParcelChange()
 
 void LLLocationInputCtrl::onMaturityButtonClicked()
 {
-	LLUI::sHelpImpl->showTopic(mMaturityHelpTopic);
+	LLUI::getInstance()->mHelpImpl->showTopic(mMaturityHelpTopic);
 }
 
 void LLLocationInputCtrl::onRegionBoundaryCrossed()

@@ -137,7 +137,7 @@
     label="Remember me"
     check_button.bottom="3"
     name="remember_name"
-    tooltip="Already recorded user can be forgotten from preferences."
+    tool_tip="Already recorded user can be forgotten from preferences."
     width="145" />
   <check_box
     control_name="RememberPassword"

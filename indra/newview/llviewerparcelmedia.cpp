@@ -45,31 +45,22 @@
 #include "llviewertexture.h"
 #include "llcorehttputil.h"
 
-// Static Variables
 
-S32 LLViewerParcelMedia::sMediaParcelLocalID = 0;
-LLUUID LLViewerParcelMedia::sMediaRegionID;
-viewer_media_t LLViewerParcelMedia::sMediaImpl;
-
-
-// static
-void LLViewerParcelMedia::initClass()
+LLViewerParcelMedia::LLViewerParcelMedia():
+mMediaParcelLocalID(0)
 {
 	LLMessageSystem* msg = gMessageSystem;
-	msg->setHandlerFunc("ParcelMediaCommandMessage", processParcelMediaCommandMessage );
-	msg->setHandlerFunc("ParcelMediaUpdate", processParcelMediaUpdate );
-	LLViewerParcelMediaAutoPlay::initClass();
+	msg->setHandlerFunc("ParcelMediaCommandMessage", parcelMediaCommandMessageHandler );
+	msg->setHandlerFunc("ParcelMediaUpdate", parcelMediaUpdateHandler );
 }
 
-//static 
-void LLViewerParcelMedia::cleanupClass()
+LLViewerParcelMedia::~LLViewerParcelMedia()
 {
 	// This needs to be destroyed before global destructor time.
-	sMediaImpl = NULL;
+	mMediaImpl = NULL;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-// static
 void LLViewerParcelMedia::update(LLParcel* parcel)
 {
 	if (/*LLViewerMedia::hasMedia()*/ true)
@@ -79,7 +70,7 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 		{
 			if(!gAgent.getRegion())
 			{
-				sMediaRegionID = LLUUID() ;
+				mMediaRegionID = LLUUID() ;
 				stop() ;
 				LL_DEBUGS("Media") << "no agent region, bailing out." << LL_ENDL;
 				return ;				
@@ -89,11 +80,11 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 			S32 parcelid = parcel->getLocalID();						
 
 			LLUUID regionid = gAgent.getRegion()->getRegionID();
-			if (parcelid != sMediaParcelLocalID || regionid != sMediaRegionID)
+			if (parcelid != mMediaParcelLocalID || regionid != mMediaRegionID)
 			{
 				LL_DEBUGS("Media") << "New parcel, parcel id = " << parcelid << ", region id = " << regionid << LL_ENDL;
-				sMediaParcelLocalID = parcelid;
-				sMediaRegionID = regionid;
+				mMediaParcelLocalID = parcelid;
+				mMediaRegionID = regionid;
 			}
 
 			std::string mediaUrl = std::string ( parcel->getMediaURL () );
@@ -108,19 +99,19 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 			LLStringUtil::trim(mediaUrl);
 			
 			// If no parcel media is playing, nothing left to do
-			if(sMediaImpl.isNull())
+			if(mMediaImpl.isNull())
 
 			{
 				return;
 			}
 
 			// Media is playing...has something changed?
-			else if (( sMediaImpl->getMediaURL() != mediaUrl )
-				|| ( sMediaImpl->getMediaTextureID() != parcel->getMediaID() )
-				|| ( sMediaImpl->getMimeType() != parcel->getMediaType() ))
+			else if (( mMediaImpl->getMediaURL() != mediaUrl )
+				|| ( mMediaImpl->getMediaTextureID() != parcel->getMediaID() )
+				|| ( mMediaImpl->getMimeType() != parcel->getMediaType() ))
 			{
 				// Only play if the media types are the same.
-				if(sMediaImpl->getMimeType() == parcel->getMediaType())
+				if(mMediaImpl->getMimeType() == parcel->getMediaType())
 				{
 					play(parcel);
 				}
@@ -176,30 +167,30 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
 	S32 media_width = parcel->getMediaWidth();
 	S32 media_height = parcel->getMediaHeight();
 
-	if(sMediaImpl)
+	if(mMediaImpl)
 	{
 		// If the url and mime type are the same, call play again
-		if(sMediaImpl->getMediaURL() == media_url 
-			&& sMediaImpl->getMimeType() == mime_type
-			&& sMediaImpl->getMediaTextureID() == placeholder_texture_id)
+		if(mMediaImpl->getMediaURL() == media_url 
+			&& mMediaImpl->getMimeType() == mime_type
+			&& mMediaImpl->getMediaTextureID() == placeholder_texture_id)
 		{
 			LL_DEBUGS("Media") << "playing with existing url " << media_url << LL_ENDL;
 
-			sMediaImpl->play();
+			mMediaImpl->play();
 		}
 		// Else if the texture id's are the same, navigate and rediscover type
 		// MBW -- This causes other state from the previous parcel (texture size, autoscale, and looping) to get re-used incorrectly.
 		// It's also not really necessary -- just creating a new instance is fine.
-//		else if(sMediaImpl->getMediaTextureID() == placeholder_texture_id)
+//		else if(mMediaImpl->getMediaTextureID() == placeholder_texture_id)
 //		{
-//			sMediaImpl->navigateTo(media_url, mime_type, true);
+//			mMediaImpl->navigateTo(media_url, mime_type, true);
 //		}
 		else
 		{
 			// Since the texture id is different, we need to generate a new impl
 
 			// Delete the old one first so they don't fight over the texture.
-			sMediaImpl = NULL;
+			mMediaImpl = NULL;
 			
 			// A new impl will be created below.
 		}
@@ -208,19 +199,19 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
 	// Don't ever try to play if the media type is set to "none/none"
 	if(stricmp(mime_type.c_str(), LLMIMETypes::getDefaultMimeType().c_str()) != 0)
 	{
-		if(!sMediaImpl)
+		if(!mMediaImpl)
 		{
 			LL_DEBUGS("Media") << "new media impl with mime type " << mime_type << ", url " << media_url << LL_ENDL;
 
 			// There is no media impl, make a new one
-			sMediaImpl = LLViewerMedia::newMediaImpl(
+			mMediaImpl = LLViewerMedia::getInstance()->newMediaImpl(
 				placeholder_texture_id,
 				media_width, 
 				media_height, 
 				media_auto_scale,
 				media_loop);
-			sMediaImpl->setIsParcelMedia(true);
-			sMediaImpl->navigateTo(media_url, mime_type, true);
+			mMediaImpl->setIsParcelMedia(true);
+			mMediaImpl->navigateTo(media_url, mime_type, true);
 		}
 
 		//LLFirstUse::useMedia();
@@ -232,7 +223,7 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
 // static
 void LLViewerParcelMedia::stop()
 {
-	if(sMediaImpl.isNull())
+	if(mMediaImpl.isNull())
 	{
 		return;
 	}
@@ -241,27 +232,27 @@ void LLViewerParcelMedia::stop()
 	LLViewerMediaFocus::getInstance()->clearFocus();
 
 	// This will unload & kill the media instance.
-	sMediaImpl = NULL;
+	mMediaImpl = NULL;
 }
 
 // static
 void LLViewerParcelMedia::pause()
 {
-	if(sMediaImpl.isNull())
+	if(mMediaImpl.isNull())
 	{
 		return;
 	}
-	sMediaImpl->pause();
+	mMediaImpl->pause();
 }
 
 // static
 void LLViewerParcelMedia::start()
 {
-	if(sMediaImpl.isNull())
+	if(mMediaImpl.isNull())
 	{
 		return;
 	}
-	sMediaImpl->start();
+	mMediaImpl->start();
 
 	//LLFirstUse::useMedia();
 
@@ -271,17 +262,17 @@ void LLViewerParcelMedia::start()
 // static
 void LLViewerParcelMedia::seek(F32 time)
 {
-	if(sMediaImpl.isNull())
+	if(mMediaImpl.isNull())
 	{
 		return;
 	}
-	sMediaImpl->seek(time);
+	mMediaImpl->seek(time);
 }
 
 // static
 void LLViewerParcelMedia::focus(bool focus)
 {
-	sMediaImpl->focus(focus);
+	mMediaImpl->focus(focus);
 }
 
 // static
@@ -289,9 +280,9 @@ LLPluginClassMediaOwner::EMediaStatus LLViewerParcelMedia::getStatus()
 {	
 	LLPluginClassMediaOwner::EMediaStatus result = LLPluginClassMediaOwner::MEDIA_NONE;
 	
-	if(sMediaImpl.notNull() && sMediaImpl->hasMedia())
+	if(mMediaImpl.notNull() && mMediaImpl->hasMedia())
 	{
-		result = sMediaImpl->getMediaPlugin()->getStatus();
+		result = mMediaImpl->getMediaPlugin()->getStatus();
 	}
 	
 	return result;
@@ -300,15 +291,15 @@ LLPluginClassMediaOwner::EMediaStatus LLViewerParcelMedia::getStatus()
 // static
 std::string LLViewerParcelMedia::getMimeType()
 {
-	return sMediaImpl.notNull() ? sMediaImpl->getMimeType() : LLMIMETypes::getDefaultMimeType();
+	return mMediaImpl.notNull() ? mMediaImpl->getMimeType() : LLMIMETypes::getDefaultMimeType();
 }
 
 //static 
 std::string LLViewerParcelMedia::getURL()
 {
 	std::string url;
-	if(sMediaImpl.notNull())
-		url = sMediaImpl->getMediaURL();
+	if(mMediaImpl.notNull())
+		url = mMediaImpl->getMediaURL();
 	
 	if(stricmp(LLViewerParcelMgr::getInstance()->getAgentParcel()->getMediaType().c_str(), LLMIMETypes::getDefaultMimeType().c_str()) != 0)
 	{
@@ -325,19 +316,24 @@ std::string LLViewerParcelMedia::getURL()
 //static 
 std::string LLViewerParcelMedia::getName()
 {
-	if(sMediaImpl.notNull())
-		return sMediaImpl->getName();
+	if(mMediaImpl.notNull())
+		return mMediaImpl->getName();
 	return "";
 }
 
 viewer_media_t LLViewerParcelMedia::getParcelMedia()
 {
-	return sMediaImpl;
+	return mMediaImpl;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
-void LLViewerParcelMedia::processParcelMediaCommandMessage( LLMessageSystem *msg, void ** )
+void LLViewerParcelMedia::parcelMediaCommandMessageHandler(LLMessageSystem *msg, void **)
+{
+    getInstance()->processParcelMediaCommandMessage(msg);
+}
+
+void LLViewerParcelMedia::processParcelMediaCommandMessage( LLMessageSystem *msg)
 {
 	// extract the agent id
 	//	LLUUID agent_id;
@@ -392,7 +388,7 @@ void LLViewerParcelMedia::processParcelMediaCommandMessage( LLMessageSystem *msg
 
 	if (flags & (1<<PARCEL_MEDIA_COMMAND_TIME))
 	{
-		if(sMediaImpl.isNull())
+		if(mMediaImpl.isNull())
 		{
 			LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 			play(parcel);
@@ -403,7 +399,12 @@ void LLViewerParcelMedia::processParcelMediaCommandMessage( LLMessageSystem *msg
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
-void LLViewerParcelMedia::processParcelMediaUpdate( LLMessageSystem *msg, void ** )
+void LLViewerParcelMedia::parcelMediaUpdateHandler(LLMessageSystem *msg, void **)
+{
+    getInstance()->processParcelMediaUpdate(msg);
+}
+
+void LLViewerParcelMedia::processParcelMediaUpdate( LLMessageSystem *msg)
 {
 	LLUUID media_id;
 	std::string media_url;
