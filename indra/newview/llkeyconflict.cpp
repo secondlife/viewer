@@ -36,6 +36,7 @@
 
 #include "llinitparam.h"
 #include "llkeyboard.h"
+#include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llviewerinput.h"
 #include "llviewermenu.h"
@@ -73,7 +74,7 @@ std::string string_from_mask(MASK mask)
     return res;
 }
 
-std::string string_from_mouse(EMouseClickType click)
+std::string string_from_mouse(EMouseClickType click, bool translate)
 {
     std::string res;
     switch (click)
@@ -99,36 +100,12 @@ std::string string_from_mouse(EMouseClickType click)
     default:
         break;
     }
-    return res;
-}
 
-EMouseClickType mouse_from_string(const std::string& input)
-{
-    if (input == "LMB")
+    if (translate && !res.empty())
     {
-        return CLICK_LEFT;
+        res = LLTrans::getString(res);
     }
-    if (input == "MMB")
-    {
-        return CLICK_MIDDLE;
-    }
-    if (input == "RMB")
-    {
-        return CLICK_RIGHT;
-    }
-    if (input == "MB4")
-    {
-        return CLICK_BUTTON4;
-    }
-    if (input == "MB5")
-    {
-        return CLICK_BUTTON5;
-    }
-    if (input == "Double LMB")
-    {
-        return CLICK_DOUBLELEFT;
-    }
-    return CLICK_NONE;
+    return res;
 }
 
 // LLKeyConflictHandler
@@ -266,7 +243,7 @@ std::string LLKeyConflictHandler::getStringFromKeyData(const LLKeyData& keydata)
         result = LLKeyboard::stringFromAccelerator(keydata.mMask);
     }
 
-    result += string_from_mouse(keydata.mMouse);
+    result += string_from_mouse(keydata.mMouse, true);
 
     return result;
 }
@@ -300,7 +277,11 @@ void LLKeyConflictHandler::loadFromSettings(const LLViewerInput::KeyMode& keymod
     {
         KEY key;
         MASK mask;
-        EMouseClickType mouse = it->mouse.isProvided() ? mouse_from_string(it->mouse) : CLICK_NONE;
+        EMouseClickType mouse = CLICK_NONE;
+        if (it->mouse.isProvided())
+        {
+            LLViewerInput::mouseFromString(it->mouse.getValue(), &mouse);
+        }
         if (it->key.getValue().empty())
         {
             key = KEY_NONE;
@@ -528,7 +509,7 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
                     {
                         // set() because 'optional', for compatibility purposes
                         // just copy old keys.xml and rename to key_bindings.xml, it should work
-                        binding.mouse.set(string_from_mouse(data.mMouse), true);
+                        binding.mouse.set(string_from_mouse(data.mMouse, false), true);
                     }
                     binding.command = iter->first;
                     mode.bindings.add(binding);

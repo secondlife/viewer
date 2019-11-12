@@ -922,7 +922,8 @@ LLViewerInput::LLViewerInput()
 	}
 }
 
-BOOL LLViewerInput::modeFromString(const std::string& string, S32 *mode) const
+// static
+BOOL LLViewerInput::modeFromString(const std::string& string, S32 *mode)
 {
 	if (string == "FIRST_PERSON")
 	{
@@ -951,7 +952,8 @@ BOOL LLViewerInput::modeFromString(const std::string& string, S32 *mode) const
 	}
 }
 
-BOOL LLViewerInput::mouseFromString(const std::string& string, EMouseClickType *mode) const
+// static
+BOOL LLViewerInput::mouseFromString(const std::string& string, EMouseClickType *mode)
 {
     if (string == "LMB")
     {
