@@ -119,67 +119,59 @@ namespace {
 	{
 	public:
 		RecordToFile(const std::string& filename):
-			mName(filename),
-			mFile(LLFile::fopen(filename, "a"))
+			mName(filename)
 		{
+			mFile.open(filename.c_str(), std::ios_base::out | std::ios_base::app);
 			if (!mFile)
 			{
-				LL_WARNS() << "Error setting log file to " << filename << LL_ENDL;
+				LL_INFOS() << "Error setting log file to " << filename << LL_ENDL;
 			}
 			else
 			{
-#if LL_DARWIN || LL_LINUX
-				// We use a number of classic-C libraries, some of which write
-				// log output to stderr. The trouble with that is that unless
-				// you launch the viewer from a console, stderr output is
-				// lost. Redirect STDERR_FILENO to write into this log file.
-				// But first, save the original stream in case we want it later.
-				mSavedStderr = ::dup(STDERR_FILENO);
-				::dup2(::fileno(mFile), STDERR_FILENO);
-#endif
+				if (!LLError::getAlwaysFlush())
+				{
+					mFile.sync_with_stdio(false);
+				}
 			}
 		}
 
 		~RecordToFile()
 		{
-#if LL_DARWIN || LL_LINUX
-			// restore stderr to its original fileno so any subsequent output
-			// to stderr goes to original stream
-			::dup2(mSavedStderr, STDERR_FILENO);
-#endif
 			mFile.close();
 		}
 
-		virtual bool enabled() override
-		{
+        virtual bool enabled() override
+        {
 #ifdef LL_RELEASE_FOR_DOWNLOAD
-			return 1;
+            return 1;
 #else
-			return LLError::getEnabledLogTypesMask() & 0x02;
+            return LLError::getEnabledLogTypesMask() & 0x02;
 #endif
-		}
+        }
+        
+        bool okay() const { return mFile.good(); }
 
-		bool okay() const { return bool(mFile); }
+        std::string getFilename() const { return mName; }
 
-		std::string getFilename() const { return mName; }
-
-		virtual void recordMessage(LLError::ELevel level,
-									const std::string& message) override
-		{
-			fwrite(message.c_str(), sizeof(char), message.length(), mFile);
-			if (LLError::getAlwaysFlush())
-			{
-				::fflush(mFile);
-			}
-		}
+        virtual void recordMessage(LLError::ELevel level,
+                                    const std::string& message) override
+        {
+            if (LLError::getAlwaysFlush())
+            {
+                mFile << message << std::endl;
+            }
+            else
+            {
+                mFile << message << "\n";
+            }
+        }
 
 	private:
 		const std::string mName;
-		LLUniqueFile mFile;
-		int mSavedStderr{0};
+		llofstream mFile;
 	};
-
-
+	
+	
 	class RecordToStderr : public LLError::Recorder
 	{
 	public:
