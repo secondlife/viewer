@@ -122,11 +122,11 @@ void LLTempRedirect::reset()
         fhdup2(mOrigTarget, mReference);
         // mOrigTarget has served its purpose
         fhclose(mOrigTarget);
-        // assign these because reset() is also responsible for a "moved from"
-        // instance
-        mOrigTarget = -1;
-        mReference  = -1;
     }
+    // assign these because reset() is also responsible for a "moved from"
+    // instance
+    mOrigTarget = -1;
+    mReference  = -1;
 }
 
 LLTempRedirect& LLTempRedirect::operator=(LLTempRedirect&& other)
