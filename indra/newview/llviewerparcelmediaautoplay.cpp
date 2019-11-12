@@ -169,7 +169,7 @@ void LLViewerParcelMediaAutoPlay::onStartMusicResponse(const LLUUID &region_id, 
         // make sure we are still there
         if (parcel->getLocalID() == parcel_id && gAgent.getRegion()->getRegionID() == region_id)
         {
-            LLViewerParcelMedia::play(parcel);
+            LLViewerParcelMedia::getInstance()->play(parcel);
         }
     }
 }
