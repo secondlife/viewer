@@ -88,6 +88,7 @@
 #include "v3math.h"
 
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llagentcamera.h"
 #include "llagentpicksinfo.h"
 #include "llagentwearables.h"
@@ -3257,6 +3258,12 @@ void apply_udp_blacklist(const std::string& csv)
 bool process_login_success_response()
 {
 	LLSD response = LLLoginInstance::getInstance()->getResponse();
+
+	//LL_INFOS() << "login success response:" << ll_pretty_print_sd(response) << LL_ENDL;
+	if (!LLAgentBenefits::instance().init(response["account_level_benefits"]))
+	{
+		LL_ERRS() << "Benefits error" << LL_ENDL;
+	}
 
 	std::string text(response["udp_blacklist"]);
 	if(!text.empty())
