@@ -333,9 +333,6 @@ private:
 public:
 	virtual void dump() override;
 
-	void addToCreateTexture();
-
-	 // ONLY call from LLViewerTextureList
 	BOOL createTexture(S32 usename = 0);
 	void destroyTexture() ;
 
@@ -353,7 +350,6 @@ public:
 	S32  getDesiredDiscardLevel()			 { return mDesiredDiscardLevel; }
 	void setMinDiscardLevel(S32 discard) 	{ mMinDesiredDiscardLevel = llmin(mMinDesiredDiscardLevel,(S8)discard); }
 
-	bool updateFetch();
 	bool setDebugFetching(S32 debug_level);
 	bool isInDebug() const { return mInDebug; }
 

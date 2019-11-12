@@ -251,7 +251,7 @@ void LLViewerTextureManager::cleanupSingleton()
 
 void LLViewerTextureManager::doPreloadImages()
 {
-    LL_DEBUGS("ViewerImages") << "Preloading images..." << LL_ENDL;
+    LL_DEBUGS("TEXTUREMGR") << "Preloading images..." << LL_ENDL;
 
     FetchParams params;
 
@@ -438,13 +438,18 @@ F32 LLViewerTextureManager::updateCleanDead(F32 timeout)
     {   // only resort if stuff added.
         std::sort(mDeadlist.begin(), mDeadlist.end(), deletion_sort_pred);
         mDeadlistDirty = false;
-        LL_WARNS("RIDER") << "New textures added to deadlist. There are " << mDeadlist.size() << " textures eligible for deletion." << LL_ENDL;
     }
 
-    /*TODO*/ // Test memory here.  Don't need to clean up if there is still lots of space.
+    /*TODO:RIDER*/ // Test memory here.  Don't need to clean up if there is still lots of space?
 
     while (!mDeadlist.empty())
     {   
+        if (timer.hasExpired())
+        {   // we've run out of time!  Come back next time.
+            LL_DEBUGS("TEXTUREMGR") << "Dead texture list clean is over time." << LL_ENDL;
+            break;
+        }
+
         if (mDeadlist.front().use_count() > 2)
         {   // items that shouldn't be on the deletion list are towards the front.. just pop them
             mDeadlist.front()->clearDeadlistTime();
@@ -462,8 +467,15 @@ F32 LLViewerTextureManager::updateCleanDead(F32 timeout)
         mDeadlist.pop_front();
 
         /*TODO:RIDER*/ // test if media texture and delete from correct list.
-        mTextureList.erase(TextureKey(texture->getID(), get_element_type(texture->getBoostLevel())));
-//      mMediaMap.erase(texture->getID());
+
+        if (texture->getType() == LLViewerTexture::MEDIA_TEXTURE)
+        {
+            mMediaMap.erase(texture->getID());
+        }
+        else
+        {
+            mTextureList.erase(TextureKey(texture->getID(), get_element_type(texture->getBoostLevel())));
+        }
 
         if (texture->hasGLTexture())
         {
@@ -475,10 +487,6 @@ F32 LLViewerTextureManager::updateCleanDead(F32 timeout)
 
         /*TODO:RIDER*/ // Test here to see if we've now under budget.  If plenty of space, leave well enough alone.
 
-        if (timer.hasExpired())
-        {   // we've run out of time!  Come back next time.
-            break;
-        }
     }
 
     LL_WARNS_IF((count > 0) || (rescue > 0), "RIDER") << "Dead list contains " << mDeadlist.size() << " textures. " << count << " removed, for " << 
@@ -525,7 +533,7 @@ F32 LLViewerTextureManager::updateAddToDeadlist(F32 timeout)
         if (timer.hasExpired())
             break;
     }
-    LL_WARNS_IF((count != mDeadlist.size()), "RIDER") << "Deadlist now has " << mDeadlist.size() << " textures." << LL_ENDL;
+    LL_DEBUGS_IF((count != mDeadlist.size()), "TEXTUREMGR") << "Deadlist now has " << mDeadlist.size() << " textures." << LL_ENDL;
     return timer.getTimeToExpireF32();
 }
 
@@ -724,26 +732,28 @@ LLViewerFetchedTexture::ptr_t LLViewerTextureManager::getFetchedTexture(const LL
 
     LLViewerFetchedTexture::ptr_t imagep = findFetchedTexture(image_id, tex_type);
 
+    U32 fetch_priority = boostLevelToPriority(boost_priority);
+
     if (!imagep)
     {   // new request
         imagep = createFetchedTexture(image_id, f_type, usemipmaps, boost_priority, texture_type, internal_format, primary_format);
 
         LLUUID fetch_id;
-        fetch_id = LLAssetFetch::instance().requestTexture(f_type, image_id, std::string(), boost_priority, 0, 0, 0, 0, false, 
+        fetch_id = LLAssetFetch::instance().requestTexture(f_type, image_id, std::string(), fetch_priority, 0, 0, 0, 0, false, 
             [this, tex_type](const LLAssetFetch::AssetRequest::ptr_t &request, const LLAssetFetch::TextureInfo &info) {
             onTextureFetchDone(request, info, tex_type);
         });
 
         if (fetch_id.isNull())
         {   
-            LL_WARNS("Texture") << "No request made for texture! " << image_id << LL_ENDL;
+            LL_WARNS("TEXTUREMGR") << "No request made for texture! " << image_id << LL_ENDL;
             return nullptr;
         }
         if (params.mCallback != boost::none)
             imagep->addCallback(params.mCallback.get());
         addTexture(imagep, tex_type);
 
-        LL_WARNS_IF((fetch_id != image_id), "Texture") << "Fetch ID differs from use_id " << fetch_id << " != " << image_id << LL_ENDL;
+        LL_WARNS_IF((fetch_id != image_id), "TEXTUREMGR") << "Fetch ID differs from use_id " << fetch_id << " != " << image_id << LL_ENDL;
 
     }
     else 
@@ -753,9 +763,7 @@ LLViewerFetchedTexture::ptr_t LLViewerTextureManager::getFetchedTexture(const LL
         {   
             if (params.mCallback != boost::none)
                 imagep->addCallback(params.mCallback.get());
-            //LL_WARNS("Texture") << "Adjusting priority by " << boost_priority << LL_ENDL;
-            LLAssetFetch::instance().adjustRequestPriority(image_id, boost_priority);
-
+            LLAssetFetch::instance().adjustRequestPriority(image_id, fetch_priority);
         }
         else
         {
@@ -765,7 +773,7 @@ LLViewerFetchedTexture::ptr_t LLViewerTextureManager::getFetchedTexture(const LL
                 params.mCallback.get()(true, imagep, true);
             }
         }
-        LL_WARNS_IF((f_type > 0) && (f_type != imagep->getFTType()), "TEXTURE") << "FTType mismatch: requested " << f_type << " image has " << imagep->getFTType() << LL_ENDL;
+        LL_WARNS_IF((f_type > 0) && (f_type != imagep->getFTType()), "TEXTUREMGR") << "FTType mismatch: requested " << f_type << " image has " << imagep->getFTType() << LL_ENDL;
     }
 
     if (params.mForceToSaveRaw.get_value_or(false))
@@ -794,7 +802,7 @@ LLViewerFetchedTexture::ptr_t LLViewerTextureManager::getFetchedTextureFromSkin(
     std::string full_path = gDirUtilp->findSkinnedFilename("textures", filename);
     if (full_path.empty())
     {
-        LL_WARNS("Texture") << "Failed to find local image file: " << filename << LL_ENDL;
+        LL_WARNS("TEXTUREMGR") << "Failed to find local image file: " << filename << LL_ENDL;
         FetchParams img_def_params;
         img_def_params.mBoostPriority = LLGLTexture::BOOST_UI;
         img_def_params.mCallback = params.mCallback;
@@ -812,7 +820,7 @@ LLViewerFetchedTexture::ptr_t LLViewerTextureManager::getFetchedTextureFromUrl(c
 {
     if (url.empty())
     {
-        LL_WARNS("Texture") << "URL is missing from HTTP texture fetch." << LL_ENDL;
+        LL_WARNS("TEXTUREMGR") << "URL is missing from HTTP texture fetch." << LL_ENDL;
         FetchParams img_def_params;
         img_def_params.mBoostPriority = LLGLTexture::BOOST_UI;
         img_def_params.mCallback = params.mCallback;
@@ -820,7 +828,7 @@ LLViewerFetchedTexture::ptr_t LLViewerTextureManager::getFetchedTextureFromUrl(c
         return (getFetchedTexture(IMG_DEFAULT, img_def_params));
     }
 
-    LL_WARNS_IF((params.mFTType == boost::none), "Texture") << "Missing mFTType parameter, assuming FTT_DEFAULT" << LL_ENDL;
+    LL_WARNS_IF((params.mFTType == boost::none), "TEXTUREMGR") << "Missing mFTType parameter, assuming FTT_DEFAULT" << LL_ENDL;
 
     FTType f_type(params.mFTType.get_value_or(FTT_DEFAULT));
     bool usemipmaps(params.mUseMipMaps.get_value_or(true));
@@ -838,18 +846,19 @@ LLViewerFetchedTexture::ptr_t LLViewerTextureManager::getFetchedTextureFromUrl(c
     ETexListType tex_type(get_element_type(boost_priority));
 
     LLViewerFetchedTexture::ptr_t imagep = findFetchedTexture(force_id, tex_type);
+    U32 fetch_priority = boostLevelToPriority(boost_priority);
 
     if (imagep)
     {
         if (imagep->getUrl().empty())
         {
-            LL_WARNS("Texture") << "Requested texture " << force_id << " already exists but does not have a URL" << LL_ENDL;
+            LL_WARNS("TEXTUREMGR") << "Requested texture " << force_id << " already exists but does not have a URL" << LL_ENDL;
         }
         else if (imagep->getUrl() != url)
         {
             // This is not an error as long as the images really match -
             // e.g. could be two avatars wearing the same outfit.
-            LL_DEBUGS("Texture") << "Requested texture " << force_id
+            LL_DEBUGS("TEXTUREMGR") << "Requested texture " << force_id
                 << " already exists with a different url, requested: " << url
                 << " current: " << imagep->getUrl() << LL_ENDL;
         }
@@ -858,7 +867,7 @@ LLViewerFetchedTexture::ptr_t LLViewerTextureManager::getFetchedTextureFromUrl(c
         {
             if (params.mCallback != boost::none)
                 imagep->addCallback(params.mCallback.get());
-            LLAssetFetch::instance().adjustRequestPriority(force_id, boost_priority);
+            LLAssetFetch::instance().adjustRequestPriority(force_id, fetch_priority);
         }
         else
         {   
@@ -872,14 +881,14 @@ LLViewerFetchedTexture::ptr_t LLViewerTextureManager::getFetchedTextureFromUrl(c
 
         imagep->setUrl(url);
 
-        LLUUID fetch_id = LLAssetFetch::instance().requestTexture(f_type, force_id, url, boost_priority, 0, 0, 0, 0, false, 
+        LLUUID fetch_id = LLAssetFetch::instance().requestTexture(f_type, force_id, url, fetch_priority, 0, 0, 0, 0, false,
             [this, tex_type](const LLAssetFetch::AssetRequest::ptr_t &request, const LLAssetFetch::TextureInfo &info) {
                 onTextureFetchDone(request, info, tex_type);
             });
 
         if (fetch_id.isNull())
         {
-            LL_WARNS("Texture") << "No request made for texture! " << force_id << "(" << url << ")" << LL_ENDL;
+            LL_WARNS("TEXTUREMGR") << "No request made for texture! " << force_id << "(" << url << ")" << LL_ENDL;
             return nullptr;
         }
 
@@ -887,7 +896,7 @@ LLViewerFetchedTexture::ptr_t LLViewerTextureManager::getFetchedTextureFromUrl(c
         if (params.mCallback != boost::none)
             imagep->addCallback(params.mCallback.get());
 
-        LL_WARNS_IF((fetch_id != force_id), "Texture") << "Fetch ID differs from use_id " << fetch_id << " != " << force_id << LL_ENDL;
+        LL_WARNS_IF((fetch_id != force_id), "TEXTUREMGR") << "Fetch ID differs from use_id " << fetch_id << " != " << force_id << LL_ENDL;
         mOutstandingRequests.insert(fetch_id);
     }
 
@@ -965,7 +974,7 @@ void LLViewerTextureManager::onTextureFetchDone(const LLAssetFetch::AssetRequest
     mOutstandingRequests.erase(fetch_id);
     if (!texture)
     {
-        LL_WARNS("Texture") << "results returned for unknown texture id=" << fetch_id << LL_ENDL;
+        LL_WARNS("TEXTUREMGR") << "results returned for unknown texture id=" << fetch_id << LL_ENDL;
         return;
     }
 
@@ -1027,7 +1036,7 @@ S32Megabytes LLViewerTextureManager::getMaxVideoRamSetting(bool get_recommended,
             max_texmem = (S32Megabytes)128;
         }
 
-        LL_WARNS("Texture") << "VRAM amount not detected, defaulting to " << max_texmem << " MB" << LL_ENDL;
+        LL_WARNS("TEXTUREMGR") << "VRAM amount not detected, defaulting to " << max_texmem << " MB" << LL_ENDL;
     }
 
     S32Megabytes system_ram = gSysMemory.getPhysicalMemoryKB(); // In MB
@@ -1149,13 +1158,13 @@ bool LLViewerTextureManager::createUploadFile(const std::string& filename, const
     if (compressedImage.isNull())
     {
         image->setLastError("Couldn't convert the image to jpeg2000.");
-        LL_WARNS("Texture") << "Couldn't convert to j2c, file : " << filename << LL_ENDL;
+        LL_WARNS("TEXTUREMGR") << "Couldn't convert to j2c, file : " << filename << LL_ENDL;
         return false;
     }
     if (!compressedImage->save(out_filename))
     {
         image->setLastError("Couldn't create the jpeg2000 image for upload.");
-        LL_WARNS("Texture") << "Couldn't create output file : " << out_filename << LL_ENDL;
+        LL_WARNS("TEXTUREMGR") << "Couldn't create output file : " << out_filename << LL_ENDL;
         return false;
     }
     // Test to see if the encode and save worked
@@ -1163,7 +1172,7 @@ bool LLViewerTextureManager::createUploadFile(const std::string& filename, const
     if (!integrity_test->loadAndValidate(out_filename))
     {
         image->setLastError("The created jpeg2000 image is corrupt.");
-        LL_WARNS("Texture") << "Image file : " << out_filename << " is corrupt" << LL_ENDL;
+        LL_WARNS("TEXTUREMGR") << "Image file : " << out_filename << " is corrupt" << LL_ENDL;
         return false;
     }
     return true;
@@ -1179,7 +1188,7 @@ LLPointer<LLImageJ2C> LLViewerTextureManager::convertToUploadFile(LLPointer<LLIm
 
     if (gSavedSettings.getBOOL("LosslessJ2CUpload") &&
         (raw_image->getWidth() * raw_image->getHeight() <= LL_IMAGE_REZ_LOSSLESS_CUTOFF * LL_IMAGE_REZ_LOSSLESS_CUTOFF))
-        compressedImage->setReversible(TRUE);
+        compressedImage->setReversible(true);
 
 
     if (gSavedSettings.getBOOL("Jpeg2000AdvancedCompression"))
@@ -1190,15 +1199,15 @@ LLPointer<LLImageJ2C> LLViewerTextureManager::convertToUploadFile(LLPointer<LLIm
         // Read the blocks and precincts size settings
         S32 block_size = gSavedSettings.getS32("Jpeg2000BlocksSize");
         S32 precinct_size = gSavedSettings.getS32("Jpeg2000PrecinctsSize");
-        LL_DEBUGS("Texture") << "Advanced JPEG2000 Compression: precinct = " << precinct_size << ", block = " << block_size << LL_ENDL;
+        LL_DEBUGS("TEXTUREMGR") << "Advanced JPEG2000 Compression: precinct = " << precinct_size << ", block = " << block_size << LL_ENDL;
         compressedImage->initEncode(*raw_image, block_size, precinct_size, 0);
     }
 
     if (!compressedImage->encode(raw_image, 0.0f))
     {
-        LL_ERRS("Texture") << "convertToUploadFile : encode returns with error!!" << LL_ENDL;
+        LL_ERRS("TEXTUREMGR") << "convertToUploadFile : encode returns with error!!" << LL_ENDL;
         // Clear up the pointer so we don't leak that one
-        compressedImage = NULL;
+        compressedImage = nullptr;
     }
 
     return compressedImage;
@@ -1230,6 +1239,46 @@ LLViewerFetchedTexture::ptr_t LLViewerTextureManager::staticCastToFetchedTexture
     }
 
     return LLViewerFetchedTexture::ptr_t();
+}
+
+namespace
+{
+    const U32 DEFAULT_FETCH_PRIORITY(10);
+    const std::map<LLViewerTexture::EBoostLevel, U32> BOOST_2_FETCH_PRIORITY = {
+        { LLViewerTexture::BOOST_NONE,               10 },
+        { LLViewerTexture::BOOST_ALM,                20 },
+        { LLViewerTexture::BOOST_AVATAR_BAKED,      100 },
+        { LLViewerTexture::BOOST_AVATAR,             90 },
+        { LLViewerTexture::BOOST_CLOUDS,             25 },
+        { LLViewerTexture::BOOST_SCULPTED,          150 },
+        { LLViewerTexture::BOOST_HIGH,              200 },
+        { LLViewerTexture::BOOST_BUMP,              100 },
+        { LLViewerTexture::BOOST_TERRAIN,            50 },
+        { LLViewerTexture::BOOST_SELECTED,          300 },
+        { LLViewerTexture::BOOST_AVATAR_BAKED_SELF, 200 },
+        { LLViewerTexture::BOOST_AVATAR_SELF,       190 },
+        { LLViewerTexture::BOOST_SUPER_HIGH,        200 },
+        { LLViewerTexture::BOOST_HUD,               150 },
+        { LLViewerTexture::BOOST_ICON,               90 },
+        { LLViewerTexture::BOOST_UI,                100 },
+        { LLViewerTexture::BOOST_PREVIEW,            50 },
+        { LLViewerTexture::BOOST_MAP,                75 },
+        { LLViewerTexture::BOOST_MAP_VISIBLE,        80 },
+        { LLViewerTexture::LOCAL,                    90 },
+        { LLViewerTexture::AVATAR_SCRATCH_TEX,      100 },
+        { LLViewerTexture::DYNAMIC_TEX,             125 },
+        { LLViewerTexture::MEDIA,                   100 },
+        { LLViewerTexture::ATLAS,                   100 },
+        { LLViewerTexture::OTHER,                    10 }
+    };
+}
+
+U32 LLViewerTextureManager::boostLevelToPriority(LLViewerTexture::EBoostLevel boost)
+{
+    const auto it = BOOST_2_FETCH_PRIORITY.find(boost);
+    if (it == BOOST_2_FETCH_PRIORITY.end())
+        return DEFAULT_FETCH_PRIORITY;
+    return (*it).second;
 }
 
 //========================================================================

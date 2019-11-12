@@ -165,6 +165,8 @@ protected:
 private:
     static const F32                MAX_INACTIVE_TIME;
 
+    static U32                      boostLevelToPriority(LLViewerTexture::EBoostLevel boost);
+
     struct TextureKey
     {
         TextureKey(const LLUUID &id, ETexListType tex_type) :

@@ -386,6 +386,7 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 // suppressed
 // https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
 // https://docs.microsoft.com/en-us/cpp/preprocessor/variadic-macros?view=vs-2015
+#define LL_DEBUGS_IF(exp, ...)	if (exp) LL_DEBUGS(__VA_ARGS__) << "(" #exp ")"
 #define LL_WARNS_IF(exp, ...)	if (exp) LL_WARNS(__VA_ARGS__) << "(" #exp ")"
 #define LL_ERRS_IF(exp, ...)	if (exp) LL_ERRS(__VA_ARGS__) << "(" #exp ")"
 
