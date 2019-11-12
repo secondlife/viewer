@@ -99,7 +99,9 @@ BOOL LLFloaterForgetUser::postBuild()
     }
 
     bool enable_button = scroll_list->getFirstSelectedIndex() != -1;
-    getChild<LLView>("delete_data")->setEnabled(enable_button);
+    LLCheckBoxCtrl *chk_box = getChild<LLCheckBoxCtrl>("delete_data");
+    chk_box->setEnabled(enable_button);
+    chk_box->set(FALSE);
     LLButton *button = getChild<LLButton>("forget");
     button->setEnabled(enable_button);
     button->setCommitCallback(boost::bind(&LLFloaterForgetUser::onForgetClicked, this));
