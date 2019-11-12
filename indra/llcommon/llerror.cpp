@@ -436,7 +436,7 @@ namespace
 				return false;
 			}
 
-			if (configuration.isUndefined() || !configuration.isMap() || configuration.emptyMap())
+			if (! configuration || !configuration.isMap())
 			{
 				LL_WARNS() << filename() << " missing, ill-formed, or simply undefined"
 							" content; not changing configuration"
