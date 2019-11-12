@@ -112,8 +112,8 @@ public:
 	S32				loadBindingsXML(const std::string& filename);										// returns number bound, 0 on error
 	EKeyboardMode	getMode() const;
 
-	BOOL			modeFromString(const std::string& string, S32 *mode) const;			// False on failure
-	BOOL			mouseFromString(const std::string& string, EMouseClickType *mode) const;// False on failure
+	static BOOL		modeFromString(const std::string& string, S32 *mode);			// False on failure
+	static BOOL		mouseFromString(const std::string& string, EMouseClickType *mode);// False on failure
 
     bool            scanKey(KEY key,
                             BOOL key_down,
