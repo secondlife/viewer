@@ -5923,7 +5923,7 @@ void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
 	case LLDrawPool::POOL_TERRAIN:
 		#ifdef _DEBUG
 			{
-				bool found = mTerrainPools.erase( (uintptr_t)poolp->getTexture() );
+				bool found = mTerrainPools.erase( uintptr_t(poolp->getTexture().get()) );
 				llassert( found );
 			}
 		#else

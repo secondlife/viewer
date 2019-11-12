@@ -125,5 +125,35 @@ LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Ratio);
 LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Triangles);
 LL_DECLARE_UNIT_TYPEDEFS(LLUnits, Kilotriangles);
 
+namespace LLUnits
+{
+    // Small ostream manipulator for streaming memory in the most reasonable unit. 
+    // LL_DEBUGS() << LLUnits::bestfit(memoryvar) << LL_ENDL;
+    class bestfit
+    {
+    public:
+        explicit bestfit(U64Bytes value) :
+            mValue(value)
+        { }
+    private:
+        U64Bytes mValue;
+
+        template <class CHART, class TRAITS>
+        friend std::basic_ostream<CHART, TRAITS>& operator <<(std::basic_ostream<CHART, TRAITS>&os, const bestfit &bf)
+        {
+            if (bf.mValue > U32Gigabytes(1))
+                os << F32Gigabytes(bf.mValue);
+            else if (bf.mValue > U64Megabytes(1))
+                os << F32Megabytes(bf.mValue);
+            else if (bf.mValue > U64Kilobytes(1))
+                os << F32Kilobytes(bf.mValue);
+            else
+                os << bf.mValue;
+
+            return os;
+        }
+    };
+}
+
 
 #endif // LL_LLUNITTYPE_H

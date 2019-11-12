@@ -84,6 +84,8 @@ namespace
     LLTrace::BlockTimerStatHandle FTM_IMAGE_CREATE("Create");
     LLTrace::BlockTimerStatHandle FTM_IMAGE_STATS("Stats");
     LLTrace::BlockTimerStatHandle FTM_UPDATE_TEXTURES("Update Textures");
+
+
 }
 
 namespace
@@ -480,7 +482,7 @@ F32 LLViewerTextureManager::updateCleanDead(F32 timeout)
     }
 
     LL_WARNS_IF((count > 0) || (rescue > 0), "RIDER") << "Dead list contains " << mDeadlist.size() << " textures. " << count << " removed, for " << 
-            F32Kilobytes(recovered) << "(texture memory now: " << F32Kilobytes(LLImageGL::sGlobalTextureMemory) << ". " << rescue << " textures rescued." << LL_ENDL;
+        std::setprecision(2) << LLUnits::bestfit(recovered) << "(texture memory now: " << std::setprecision(2) << LLUnits::bestfit(LLImageGL::sGlobalTextureMemory) << ". " << rescue << " textures rescued." << LL_ENDL;
 //     for (media_map_t::iterator iter = sMediaMap.begin(); iter != sMediaMap.end();)
 //     {
 //         LLViewerMediaTexture::ptr_t &mediap(iter->second);
