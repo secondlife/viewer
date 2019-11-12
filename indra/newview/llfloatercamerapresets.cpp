@@ -58,7 +58,10 @@ void LLFloaterCameraPresets::populateList()
     std::string presets_dir = presetsMgr->getPresetsDir(PRESETS_CAMERA);
     std::list<std::string> preset_names;
 
-    presetsMgr->loadPresetNamesFromDir(presets_dir, preset_names, DEFAULT_TOP);
+    presetsMgr->loadPresetNamesFromDir(presets_dir, preset_names, DEFAULT_VIEWS_HIDE);
+    preset_names.push_back(PRESETS_FRONT_VIEW);
+    preset_names.push_back(PRESETS_REAR_VIEW);
+    preset_names.push_back(PRESETS_SIDE_VIEW);
     for (std::list<std::string>::const_iterator it = preset_names.begin(); it != preset_names.end(); ++it)
     {
         const std::string& name = *it;
@@ -86,10 +89,10 @@ LLCameraPresetFlatItem::~LLCameraPresetFlatItem()
 BOOL LLCameraPresetFlatItem::postBuild()
 {
     mDeleteBtn = getChild<LLButton>("delete_btn");
-    mDeleteBtn->setVisible(!mIsDefaultPrest);
+    mDeleteBtn->setVisible(false);
 
     mResetBtn = getChild<LLButton>("reset_btn");
-    mResetBtn->setVisible(mIsDefaultPrest);
+    mResetBtn->setVisible(false);
 
     LLStyle::Params style;
     LLTextBox* name_text = getChild<LLTextBox>("preset_name");
@@ -100,6 +103,29 @@ BOOL LLCameraPresetFlatItem::postBuild()
     name_text->setText(mPresetName, style);
 
     return true;
+}
+
+void LLCameraPresetFlatItem::onMouseEnter(S32 x, S32 y, MASK mask)
+{
+    mDeleteBtn->setVisible(!mIsDefaultPrest);
+    mResetBtn->setVisible(mIsDefaultPrest);
+    getChildView("hovered_icon")->setVisible(true);
+    LLPanel::onMouseEnter(x, y, mask);
+}
+
+void LLCameraPresetFlatItem::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+    mDeleteBtn->setVisible(false);
+    mResetBtn->setVisible(false);
+    getChildView("hovered_icon")->setVisible(false);
+    LLPanel::onMouseLeave(x, y, mask);
+}
+
+void LLCameraPresetFlatItem::setValue(const LLSD& value)
+{
+    if (!value.isMap()) return;;
+    if (!value.has("selected")) return;
+    getChildView("selected_icon")->setVisible(value["selected"]);
 }
 
 void LLCameraPresetFlatItem::onDeleteBtnClick()

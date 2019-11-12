@@ -1565,7 +1565,7 @@
     <key>CameraPreset</key>
     <map>
       <key>Comment</key>
-      <string>Preset camera position - view (0 - rear, 1 - front, 2 - group)</string>
+      <string>Preset camera position - view (0 - rear, 1 - front, 2 - group, 3 - custom)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

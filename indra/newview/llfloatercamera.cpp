@@ -550,17 +550,17 @@ void LLFloaterCamera::switchToPreset(const std::string& name)
 	if ("rear_view" == name)
 	{
 		gAgentCamera.switchCameraPreset(CAMERA_PRESET_REAR_VIEW);
-		LLPresetsManager::getInstance()->loadPreset(PRESETS_CAMERA, PRESETS_REAR);
+		LLPresetsManager::getInstance()->loadPreset(PRESETS_CAMERA, PRESETS_REAR_VIEW);
 	}
 	else if ("group_view" == name)
 	{
 		gAgentCamera.switchCameraPreset(CAMERA_PRESET_GROUP_VIEW);
-		LLPresetsManager::getInstance()->loadPreset(PRESETS_CAMERA, PRESETS_SIDE);
+		LLPresetsManager::getInstance()->loadPreset(PRESETS_CAMERA, PRESETS_SIDE_VIEW);
 	}
 	else if ("front_view" == name)
 	{
 		gAgentCamera.switchCameraPreset(CAMERA_PRESET_FRONT_VIEW);
-		LLPresetsManager::getInstance()->loadPreset(PRESETS_CAMERA, PRESETS_FRONT);
+		LLPresetsManager::getInstance()->loadPreset(PRESETS_CAMERA, PRESETS_FRONT_VIEW);
 	}
 }
 
@@ -590,6 +590,7 @@ void LLFloaterCamera::populatePresetCombo()
 	{
 		mPresetCombo->setLabel(getString("inactive_combo_text"));
 	}
+	updateItemsSelection();
 }
 
 void LLFloaterCamera::onSavePreset()

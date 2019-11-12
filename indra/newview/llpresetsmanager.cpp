@@ -65,7 +65,13 @@ void LLPresetsManager::createMissingDefault(const std::string& subdirectory)
 {
 	if(gDirUtilp->getLindenUserDir().empty())
 	{
-return;
+		return;
+	}
+
+	if (PRESETS_CAMERA == subdirectory)
+	{
+		createCameraDefaultPresets();
+		return;
 	}
 
 	std::string default_file = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, PRESETS_DIR,
@@ -81,6 +87,13 @@ return;
 	{
 		LL_DEBUGS() << "default preset exists; no-op" << LL_ENDL;
 	}
+}
+
+void LLPresetsManager::createCameraDefaultPresets()
+{
+	createDefaultCameraPreset(PRESETS_REAR_VIEW);
+	createDefaultCameraPreset(PRESETS_FRONT_VIEW);
+	createDefaultCameraPreset(PRESETS_SIDE_VIEW);
 }
 
 void LLPresetsManager::startWatching(const std::string& subdirectory)
@@ -163,6 +176,10 @@ void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir, preset_nam
 			std::string name = LLURI::unescape(gDirUtilp->getBaseFileName(path, /*strip_exten = */ true));
 			LL_DEBUGS() << "  Found preset '" << name << "'" << LL_ENDL;
 
+			if (isTemplateCameraPreset(name))
+			{
+				continue;
+			}
 			if (default_option == DEFAULT_VIEWS_HIDE)
 			{
 				if (isDefaultCameraPreset(name))
@@ -198,6 +215,7 @@ void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir, preset_nam
 }
 
 bool LLPresetsManager::mCameraDirty = false;
+bool LLPresetsManager::mIgnoreChangedSignal = false;
 
 void LLPresetsManager::setCameraDirty(bool dirty)
 {
@@ -215,7 +233,7 @@ void LLPresetsManager::settingChanged()
 
 	static LLCachedControl<std::string> preset_camera_active(gSavedSettings, "PresetCameraActive", "");
 	std::string preset_name = preset_camera_active;
-	if (!preset_name.empty())
+	if (!preset_name.empty() && !mIgnoreChangedSignal)
 	{
 		gSavedSettings.setString("PresetCameraActive", "");
 
@@ -264,6 +282,12 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 	if (!createDefault && name == PRESETS_DEFAULT)
 	{
 		LL_WARNS() << "Should not overwrite default" << LL_ENDL;
+		return false;
+	}
+
+	if (isTemplateCameraPreset(name))
+	{
+		LL_WARNS() << "Should not overwrite template presets" << LL_ENDL;
 		return false;
 	}
 
@@ -434,8 +458,10 @@ void LLPresetsManager::loadPreset(const std::string& subdirectory, std::string n
 
     LL_DEBUGS() << "attempting to load preset '"<<name<<"' from '"<<full_path<<"'" << LL_ENDL;
 
+	mIgnoreChangedSignal = true;
 	if(gSavedSettings.loadFromFile(full_path, false, true) > 0)
 	{
+		mIgnoreChangedSignal = false;
 		if(PRESETS_GRAPHIC == subdirectory)
 		{
 			gSavedSettings.setString("PresetGraphicActive", name);
@@ -453,10 +479,11 @@ void LLPresetsManager::loadPreset(const std::string& subdirectory, std::string n
 			triggerChangeCameraSignal();
 		}
 	}
-    else
-    {
-        LL_WARNS("Presets") << "failed to load preset '"<<name<<"' from '"<<full_path<<"'" << LL_ENDL;
-    }
+	else
+	{
+		mIgnoreChangedSignal = false;
+		LL_WARNS("Presets") << "failed to load preset '"<<name<<"' from '"<<full_path<<"'" << LL_ENDL;
+	}
 }
 
 bool LLPresetsManager::deletePreset(const std::string& subdirectory, std::string name)
@@ -507,12 +534,38 @@ bool LLPresetsManager::deletePreset(const std::string& subdirectory, std::string
 
 bool LLPresetsManager::isDefaultCameraPreset(std::string preset_name)
 {
+	return (preset_name == PRESETS_REAR_VIEW || preset_name == PRESETS_SIDE_VIEW || preset_name == PRESETS_FRONT_VIEW);
+}
+
+bool LLPresetsManager::isTemplateCameraPreset(std::string preset_name)
+{
 	return (preset_name == PRESETS_REAR || preset_name == PRESETS_SIDE || preset_name == PRESETS_FRONT);
 }
 
 void LLPresetsManager::resetCameraPreset(std::string preset_name)
 {
+	if (isDefaultCameraPreset(preset_name))
+	{
+		createDefaultCameraPreset(preset_name, true);
 
+		if (gSavedSettings.getString("PresetCameraActive") == preset_name)
+		{
+			loadPreset(PRESETS_CAMERA, preset_name);
+		}
+	}
+}
+
+void LLPresetsManager::createDefaultCameraPreset(std::string preset_name, bool force_reset)
+{
+	std::string preset_file = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, PRESETS_DIR,
+		PRESETS_CAMERA, LLURI::escape(preset_name) + ".xml");
+	if (!gDirUtilp->fileExists(preset_file) || force_reset)
+	{
+		std::string template_name = preset_name.substr(0, preset_name.size() - PRESETS_VIEW_SUFFIX.size());
+		std::string default_template_file = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, PRESETS_DIR,
+			PRESETS_CAMERA, template_name + ".xml");
+		LLFile::copy(default_template_file, preset_file);
+	}
 }
 
 boost::signals2::connection LLPresetsManager::setPresetListChangeCameraCallback(const preset_list_signal_t::slot_type& cb)

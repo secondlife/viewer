@@ -52,7 +52,11 @@ public:
     LLCameraPresetFlatItem(const std::string &preset_name, bool is_default);
     virtual ~LLCameraPresetFlatItem();
 
+    void setValue(const LLSD& value);
+
     virtual BOOL postBuild();
+    virtual void onMouseEnter(S32 x, S32 y, MASK mask);
+    virtual void onMouseLeave(S32 x, S32 y, MASK mask);
 
 private:
     void onDeleteBtnClick();

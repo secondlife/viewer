@@ -7,6 +7,26 @@
  name="camera_preset_item"
  top="0"
  width="280">
+    <icon
+     follows="top|right|left"
+     height="20"
+     image_name="ListItem_Over"
+     layout="topleft"
+     left="0"
+     name="hovered_icon"
+     top="0"
+     visible="false"
+     width="380" />
+    <icon
+     height="20"
+     follows="top|right|left"
+     image_name="ListItem_Select"
+     layout="topleft"
+     left="0"
+     name="selected_icon"
+     top="0"
+     visible="false"
+     width="380" />
     <text
      follows="left"
      height="20"
