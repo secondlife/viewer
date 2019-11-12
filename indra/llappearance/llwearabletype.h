@@ -42,8 +42,12 @@ public:
 };
 
 
-class LLWearableType
+class LLWearableType : public LLParamSingleton<LLWearableType>
 {
+	LLSINGLETON(LLWearableType, LLTranslationBridge* trans);
+	~LLWearableType();
+	friend struct WearableEntry;
+	void initSingleton();
 public: 
 	enum EType
 	{
@@ -63,15 +67,15 @@ public:
 		WT_ALPHA	  = 13,
 		WT_TATTOO	  = 14,
 		WT_PHYSICS	  = 15,
-		WT_COUNT	  = 16,
+		WT_UNIVERSAL  = 16,
+		WT_COUNT	  = 17,
 
 		WT_INVALID	  = 255,
 		WT_NONE		  = -1,
 	};
 
-	static void			initClass(LLTranslationBridge* trans); // initializes static members
-	static void			cleanupClass(); // initializes static members
-
+	// Most methods are wrappers for dictionary, but if LLWearableType is not initialized,
+	// they will crash. Whole LLWearableType is just wrapper for convinient calls.
 	static const std::string& 			getTypeName(EType type);
 	static const std::string& 			getTypeDefaultNewName(EType type);
 	static const std::string& 			getTypeLabel(EType type);
@@ -80,11 +84,12 @@ public:
 	static LLInventoryType::EIconName 	getIconName(EType type);
 	static BOOL 						getDisableCameraSwitch(EType type);
 	static BOOL 						getAllowMultiwear(EType type);
-    static EType						inventoryFlagsToWearableType(U32 flags);
+
+	static EType						inventoryFlagsToWearableType(U32 flags);
 
 protected:
-	LLWearableType() {}
-	~LLWearableType() {}
+
+	LLTranslationBridge* mTrans;
 };
 
 #endif  // LL_LLWEARABLETYPE_H

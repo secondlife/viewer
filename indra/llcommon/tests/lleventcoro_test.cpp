@@ -506,16 +506,10 @@ namespace tut
             replyName = waiter.getName0();
             errorName = waiter.getName1();
             WrapLLErrs capture;
-            try
-            {
-                result = waiter.suspendWithLog();
-                debug("no exception");
-            }
-            catch (const WrapLLErrs::FatalException& e)
-            {
-                debug(STRINGIZE("exception " << e.what()));
-                threw = e.what();
-            }
+            threw = capture.catch_llerrs([&waiter, &debug](){
+                    result = waiter.suspendWithLog();
+                    debug("no exception");
+                });
         }
         END
     }
@@ -762,18 +756,13 @@ namespace tut
         {
             LLCoroEventPumps waiter;
             WrapLLErrs capture;
-            try
-            {
-                result = waiter.postAndSuspendWithLog(
-                    LLSDMap("value", 31)("fail", LLSD()),
-                    immediateAPI.getPump(), "reply", "error");
-                debug("no exception");
-            }
-            catch (const WrapLLErrs::FatalException& e)
-            {
-                debug(STRINGIZE("exception " << e.what()));
-                threw = e.what();
-            }
+            threw = capture.catch_llerrs(
+                [&waiter, &debug](){
+                    result = waiter.postAndSuspendWithLog(
+                        LLSDMap("value", 31)("fail", LLSD()),
+                        immediateAPI.getPump(), "reply", "error");
+                    debug("no exception");
+                });
         }
         END
     }

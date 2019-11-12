@@ -15,6 +15,7 @@
 	<text_editor name="Notecard Editor">
 		In caricamento...
 	</text_editor>
+	<button label="Modifica..." label_selected="Modifica" name="Edit"/>
 	<button label="Salva" label_selected="Salva" name="Save"/>
 	<button label="Elimina" label_selected="Elimina" name="Delete"/>
 </floater>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="ban_duration" title="Duração do banimento">
+	<text name="duration_textbox">
+		Duração do banimento:
+	</text>
+	<radio_group name="ban_duration_radio">
+		<radio_item label="Sempre" name="always_radio">
+			Sempre
+		</radio_item>
+		<radio_item label="Temporário" name="temporary_radio">
+			Temporário
+		</radio_item>
+	</radio_group>
+	<text name="hours_textbox">
+		horas.
+	</text>
+	<button label="Ok" name="ok_btn"/>
+	<button label="Cancelar" name="cancel_btn"/>
+</floater>

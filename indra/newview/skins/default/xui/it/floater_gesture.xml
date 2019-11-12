@@ -20,7 +20,7 @@
 		<button name="activate_btn" tool_tip="Attiva/Disattiva gesture selezionata"/>
 		<button name="del_btn" tool_tip="Elimina questa gesture"/>
 	</panel>
-	<button label="Modifica" name="edit_btn"/>
-	<button label="Play" name="play_btn"/>
+	<button label="Modifica" name="edit_btn" tool_tip="Apri la finestra per modificare il movimento selezionato."/>
+	<button label="Play" name="play_btn" tool_tip="Esegui il movimento selezionato nel mondo virtuale."/>
 	<button label="Stop" name="stop_btn"/>
 </floater>

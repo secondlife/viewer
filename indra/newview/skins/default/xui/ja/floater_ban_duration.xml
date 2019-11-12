@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="ban_duration" title="禁止期間">
+	<text name="duration_textbox">
+		禁止期間：
+	</text>
+	<radio_group name="ban_duration_radio">
+		<radio_item label="常時" name="always_radio">
+			常時
+		</radio_item>
+		<radio_item label="一時的" name="temporary_radio">
+			一時的
+		</radio_item>
+	</radio_group>
+	<text name="hours_textbox">
+		時間
+	</text>
+	<button label="Ok" name="ok_btn"/>
+	<button label="キャンセル" name="cancel_btn"/>
+</floater>

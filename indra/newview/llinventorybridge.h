@@ -359,6 +359,7 @@ protected:
 
 	void dropToFavorites(LLInventoryItem* inv_item);
 	void dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
+	void dropToMyOutfits(LLInventoryCategory* inv_cat);
 
 	//--------------------------------------------------------------------
 	// Messy hacks for handling folder options
@@ -368,6 +369,7 @@ public:
 	static void staticFolderOptionsMenu();
 
 protected:
+    void outfitFolderCreatedCallback(LLUUID cat_source_id, LLUUID cat_dest_id);
     void callback_pasteFromClipboard(const LLSD& notification, const LLSD& response);
     void perform_pasteFromClipboard();
     void gatherMessage(std::string& message, S32 depth, LLError::ELevel log_level);
@@ -603,23 +605,6 @@ protected:
 	static std::string sPrefix;
 };
 
-
-class LLMeshBridge : public LLItemBridge
-{
-	friend class LLInvFVBridge;
-public:
-	virtual LLUIImagePtr getIcon() const;
-	virtual void openItem();
-	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-
-protected:
-	LLMeshBridge(LLInventoryPanel* inventory, 
-		     LLFolderView* root,
-		     const LLUUID& uuid) :
-                       LLItemBridge(inventory, root, uuid) {}
-};
-
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLInvFVBridgeAction
 //
@@ -648,17 +633,6 @@ protected:
 protected:
 	const LLUUID& mUUID; // item id
 	LLInventoryModel* mModel;
-};
-
-class LLMeshBridgeAction: public LLInvFVBridgeAction
-{
-	friend class LLInvFVBridgeAction;
-public:
-	virtual void	doIt() ;
-	virtual ~LLMeshBridgeAction(){}
-protected:
-	LLMeshBridgeAction(const LLUUID& id,LLInventoryModel* model):LLInvFVBridgeAction(id,model){}
-
 };
 
 

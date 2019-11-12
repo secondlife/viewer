@@ -367,24 +367,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                          show_permissions_granted="true"
                          top="0"
                          width="307" />
-                </accordion_tab>
-              <accordion_tab
-               layout="topleft"
-               height="173"
-               name="tab_suggested_friends"
-               title="People you may want to friend">
-                <avatar_list
-                 ignore_online_status="true"
-                 allow_select="true"
-                 follows="all"
-                 height="173"
-                 layout="topleft"
-                 left="0"
-                 name="suggested_friends"
-                 show_permissions_granted="true"
-                 top="0"
-                 width="307" />
-              </accordion_tab>              
+                </accordion_tab>           
             </accordion>
             <text
              follows="all"

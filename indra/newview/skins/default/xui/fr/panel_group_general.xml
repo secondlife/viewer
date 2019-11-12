@@ -46,7 +46,7 @@ Faites glisser le pointeur de la souris sur les options pour en savoir plus.
 		<check_box label="Inscription ouverte à tous" name="open_enrollement" tool_tip="Indique si ce groupe autorise les nouveaux membres à le rejoindre sans y être invités."/>
 		<check_box label="Inscription payante" name="check_enrollment_fee" tool_tip="Indique s&apos;il faut payer des frais d&apos;inscription pour rejoindre ce groupe"/>
 		<spinner label="L$" name="spin_enrollment_fee" tool_tip="Les nouveaux membres doivent payer ces frais pour rejoindre le groupe quand l&apos;option Frais d&apos;inscription est cochée."/>
-		<combo_box name="group_mature_check" tool_tip="Définit si votre groupe contient des informations de type Modéré" width="195">
+		<combo_box name="group_mature_check" tool_tip="Il s&apos;agit du type de contenu et de comportement autorisé au sein d&apos;un groupe." width="195">
 			<combo_item name="select_mature">
 				- Catégorie de contenu -
 			</combo_item>

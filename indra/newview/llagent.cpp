@@ -24,6 +24,7 @@
  * $/LicenseInfo$
  */
 
+
 #include "llviewerprecompiledheaders.h"
 
 #include "llagent.h" 
@@ -742,7 +743,7 @@ BOOL LLAgent::getFlying() const
 //-----------------------------------------------------------------------------
 // setFlying()
 //-----------------------------------------------------------------------------
-void LLAgent::setFlying(BOOL fly)
+void LLAgent::setFlying(BOOL fly, BOOL fail_sound)
 {
 	if (isAgentAvatarValid())
 	{
@@ -771,7 +772,10 @@ void LLAgent::setFlying(BOOL fly)
 			// parcel doesn't let you start fly
 			// gods can always fly
 			// and it's OK if you're already flying
-			make_ui_sound("UISndBadKeystroke");
+			if (fail_sound)
+			{
+				make_ui_sound("UISndBadKeystroke");
+			}
 			return;
 		}
 		if( !was_flying )
@@ -3704,6 +3708,23 @@ BOOL LLAgent::getHomePosGlobal( LLVector3d* pos_global )
 	from_region_handle( mHomeRegionHandle, &x, &y);
 	pos_global->setVec( x + mHomePosRegion.mV[VX], y + mHomePosRegion.mV[VY], mHomePosRegion.mV[VZ] );
 	return TRUE;
+}
+
+bool LLAgent::isInHomeRegion()
+{
+	if(!mHaveHomePosition)
+	{
+		return false;
+	}
+	if (!getRegion())
+	{
+		return false;
+	}
+	if (getRegion()->getHandle() != mHomeRegionHandle)
+	{
+		return false;
+	}
+	return true;
 }
 
 void LLAgent::clearVisualParams(void *data)

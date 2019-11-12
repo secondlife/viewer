@@ -69,9 +69,6 @@
 /*=======================================*/
 /*  Formal declarations, constants, etc. */
 /*=======================================*/ 
-std::list<LLLocalBitmap*>   LLLocalBitmapMgr::sBitmapList;
-LLLocalBitmapTimer          LLLocalBitmapMgr::sTimer;
-bool                        LLLocalBitmapMgr::sNeedsRebake;
 
 static const F32 LL_LOCAL_TIMER_HEARTBEAT   = 3.0;
 static const BOOL LL_LOCAL_USE_MIPMAPS      = true;
@@ -131,7 +128,7 @@ LLLocalBitmap::~LLLocalBitmap()
 	if(LL_LOCAL_REPLACE_ON_DEL && mValid && gAgentAvatarp) // fix for STORM-1837
 	{
 		replaceIDs(mWorldID, IMG_DEFAULT);
-		LLLocalBitmapMgr::doRebake();
+		LLLocalBitmapMgr::getInstance()->doRebake();
 	}
 
 	// delete self from gimagelist
@@ -381,6 +378,7 @@ void LLLocalBitmap::replaceIDs(LLUUID old_id, LLUUID new_id)
 	updateUserLayers(old_id, new_id, LLWearableType::WT_SKIRT);
 	updateUserLayers(old_id, new_id, LLWearableType::WT_SOCKS);
 	updateUserLayers(old_id, new_id, LLWearableType::WT_TATTOO);
+	updateUserLayers(old_id, new_id, LLWearableType::WT_UNIVERSAL);
 	updateUserLayers(old_id, new_id, LLWearableType::WT_UNDERPANTS);
 	updateUserLayers(old_id, new_id, LLWearableType::WT_UNDERSHIRT);
 }
@@ -512,7 +510,7 @@ void LLLocalBitmap::updateUserVolumes(LLUUID old_id, LLUUID new_id, U32 channel)
 	{
 		LLVOVolume* volobjp = (*old_texture->getVolumeList(channel))[volume_iter];
 		switch (channel)
-		{
+	{
 			case LLRender::LIGHT_TEX:
 			{
 				if (volobjp->getLightTextureID() == old_id)
@@ -526,17 +524,17 @@ void LLLocalBitmap::updateUserVolumes(LLUUID old_id, LLUUID new_id, U32 channel)
 				LLViewerObject* object = (LLViewerObject*)volobjp;
 
 				if (object)
-				{
-					if (object->isSculpted() && object->getVolume() &&
-						object->getVolume()->getParams().getSculptID() == old_id)
-					{
-						LLSculptParams* old_params = (LLSculptParams*)object->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-						LLSculptParams new_params(*old_params);
-						new_params.setSculptTexture(new_id, (*old_params).getSculptType());
-						object->setParameterEntry(LLNetworkData::PARAMS_SCULPT, new_params, TRUE);
-					}
-				}
+		{
+			if (object->isSculpted() && object->getVolume() &&
+				object->getVolume()->getParams().getSculptID() == old_id)
+			{
+				LLSculptParams* old_params = (LLSculptParams*)object->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+				LLSculptParams new_params(*old_params);
+				new_params.setSculptTexture(new_id, (*old_params).getSculptType());
+				object->setParameterEntry(LLNetworkData::PARAMS_SCULPT, new_params, TRUE);
 			}
+		}
+	}
 		}
 	}
 }
@@ -570,7 +568,7 @@ void LLLocalBitmap::updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableTyp
 							gAgentAvatarp->setLocalTexture(reg_texind, gTextureList.getImage(new_id), FALSE, index);
 							gAgentAvatarp->wearableUpdated(type);
 							/* telling the manager to rebake once update cycle is fully done */
-							LLLocalBitmapMgr::setNeedsRebake();
+							LLLocalBitmapMgr::getInstance()->setNeedsRebake();
 						}
 					}
 
@@ -746,7 +744,7 @@ LLAvatarAppearanceDefines::ETextureIndex LLLocalBitmap::getTexIndex(
 
 		case LLWearableType::WT_TATTOO:
 		{
-			switch(baked_texind)
+			switch (baked_texind)
 			{
 				case LLAvatarAppearanceDefines::BAKED_HEAD:
 				{
@@ -764,6 +762,75 @@ LLAvatarAppearanceDefines::ETextureIndex LLLocalBitmap::getTexIndex(
 					result = LLAvatarAppearanceDefines::TEX_UPPER_TATTOO;
 					break;
 				}
+				default:
+				{
+					break;
+				}
+			}
+			break;
+			
+		}
+		case LLWearableType::WT_UNIVERSAL:
+		{
+			switch (baked_texind)
+			{
+				
+				case LLAvatarAppearanceDefines::BAKED_SKIRT:
+				{
+					result = LLAvatarAppearanceDefines::TEX_SKIRT_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_EYES:
+				{
+					result = LLAvatarAppearanceDefines::TEX_EYES_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_HAIR:
+				{
+					result = LLAvatarAppearanceDefines::TEX_HAIR_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_LEFT_ARM:
+				{
+					result = LLAvatarAppearanceDefines::TEX_LEFT_ARM_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_LEFT_LEG:
+				{
+					result = LLAvatarAppearanceDefines::TEX_LEFT_LEG_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_AUX1:
+				{
+					result = LLAvatarAppearanceDefines::TEX_AUX1_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_AUX2:
+				{
+					result = LLAvatarAppearanceDefines::TEX_AUX2_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_AUX3:
+				{
+					result = LLAvatarAppearanceDefines::TEX_AUX3_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_UPPER:
+				{
+					result = LLAvatarAppearanceDefines::TEX_UPPER_UNIVERSAL_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_LOWER:
+				{
+					result = LLAvatarAppearanceDefines::TEX_LOWER_UNIVERSAL_TATTOO;
+					break;
+				}
+				case LLAvatarAppearanceDefines::BAKED_HEAD:
+				{
+					result = LLAvatarAppearanceDefines::TEX_HEAD_UNIVERSAL_TATTOO;
+					break;
+				}
+
 
 				default:
 				{
@@ -835,7 +902,7 @@ bool LLLocalBitmapTimer::isRunning()
 
 BOOL LLLocalBitmapTimer::tick()
 {
-	LLLocalBitmapMgr::doUpdates();
+	LLLocalBitmapMgr::getInstance()->doUpdates();
 	return FALSE;
 }
 
@@ -844,17 +911,12 @@ BOOL LLLocalBitmapTimer::tick()
 /*=======================================*/ 
 LLLocalBitmapMgr::LLLocalBitmapMgr()
 {
-	// The class is all made of static members, should i even bother instantiating?
 }
 
 LLLocalBitmapMgr::~LLLocalBitmapMgr()
 {
-}
-
-void LLLocalBitmapMgr::cleanupClass()
-{
-	std::for_each(sBitmapList.begin(), sBitmapList.end(), DeletePointer());
-	sBitmapList.clear();
+    std::for_each(mBitmapList.begin(), mBitmapList.end(), DeletePointer());
+    mBitmapList.clear();
 }
 
 bool LLLocalBitmapMgr::addUnit()
@@ -864,7 +926,7 @@ bool LLLocalBitmapMgr::addUnit()
 	LLFilePicker& picker = LLFilePicker::instance();
 	if (picker.getMultipleOpenFiles(LLFilePicker::FFLOAD_IMAGE))
 	{
-		sTimer.stopTimer();
+		mTimer.stopTimer();
 
 		std::string filename = picker.getFirstFile();
 		while(!filename.empty())
@@ -879,7 +941,7 @@ bool LLLocalBitmapMgr::addUnit()
 
 			if (unit->getValid())
 			{
-				sBitmapList.push_back(unit);
+				mBitmapList.push_back(unit);
 				add_successful = true;
 			}
 			else
@@ -898,7 +960,7 @@ bool LLLocalBitmapMgr::addUnit()
 			filename = picker.getNextFile();
 		}
 		
-		sTimer.startTimer();
+		mTimer.startTimer();
 	}
 
 	return add_successful;
@@ -937,10 +999,10 @@ bool LLLocalBitmapMgr::checkTextureDimensions(std::string filename)
 
 void LLLocalBitmapMgr::delUnit(LLUUID tracking_id)
 {
-	if (!sBitmapList.empty())
+	if (!mBitmapList.empty())
 	{	
 		std::vector<LLLocalBitmap*> to_delete;
-		for (local_list_iter iter = sBitmapList.begin(); iter != sBitmapList.end(); iter++)
+		for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
 		{   /* finding which ones we want deleted and making a separate list */
 			LLLocalBitmap* unit = *iter;
 			if (unit->getTrackingID() == tracking_id)
@@ -953,7 +1015,7 @@ void LLLocalBitmapMgr::delUnit(LLUUID tracking_id)
 			del_iter != to_delete.end(); del_iter++)
 		{   /* iterating over a temporary list, hence preserving the iterator validity while deleting. */
 			LLLocalBitmap* unit = *del_iter;
-			sBitmapList.remove(unit);
+			mBitmapList.remove(unit);
 			delete unit;
 			unit = NULL;
 		}
@@ -964,7 +1026,7 @@ LLUUID LLLocalBitmapMgr::getWorldID(LLUUID tracking_id)
 {
 	LLUUID world_id = LLUUID::null;
 
-	for (local_list_iter iter = sBitmapList.begin(); iter != sBitmapList.end(); iter++)
+	for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
 	{
 		LLLocalBitmap* unit = *iter;
 		if (unit->getTrackingID() == tracking_id)
@@ -980,7 +1042,7 @@ std::string LLLocalBitmapMgr::getFilename(LLUUID tracking_id)
 {
 	std::string filename = "";
 
-	for (local_list_iter iter = sBitmapList.begin(); iter != sBitmapList.end(); iter++)
+	for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
 	{
 		LLLocalBitmap* unit = *iter;
 		if (unit->getTrackingID() == tracking_id)
@@ -998,10 +1060,10 @@ void LLLocalBitmapMgr::feedScrollList(LLScrollListCtrl* ctrl)
 	{
 		ctrl->clearRows();
 
-		if (!sBitmapList.empty())
+		if (!mBitmapList.empty())
 		{
-			for (local_list_iter iter = sBitmapList.begin();
-				 iter != sBitmapList.end(); iter++)
+			for (local_list_iter iter = mBitmapList.begin();
+				 iter != mBitmapList.end(); iter++)
 			{
 				LLSD element;
 				element["columns"][0]["column"] = "unit_name";
@@ -1022,29 +1084,29 @@ void LLLocalBitmapMgr::feedScrollList(LLScrollListCtrl* ctrl)
 void LLLocalBitmapMgr::doUpdates()
 {
 	// preventing theoretical overlap in cases with huge number of loaded images.
-	sTimer.stopTimer();
-	sNeedsRebake = false;
+	mTimer.stopTimer();
+	mNeedsRebake = false;
 
-	for (local_list_iter iter = sBitmapList.begin(); iter != sBitmapList.end(); iter++)
+	for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
 	{
 		(*iter)->updateSelf();
 	}
 
 	doRebake();
-	sTimer.startTimer();
+	mTimer.startTimer();
 }
 
 void LLLocalBitmapMgr::setNeedsRebake()
 {
-	sNeedsRebake = true;
+	mNeedsRebake = true;
 }
 
 void LLLocalBitmapMgr::doRebake()
 { /* separated that from doUpdates to insure a rebake can be called separately during deletion */
-	if (sNeedsRebake)
+	if (mNeedsRebake)
 	{
 		gAgentAvatarp->forceBakeAllTextures(LL_LOCAL_SLAM_FOR_DEBUG);
-		sNeedsRebake = false;
+		mNeedsRebake = false;
 	}
 }
 

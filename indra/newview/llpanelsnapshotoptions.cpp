@@ -32,7 +32,6 @@
 
 #include "llfloatersnapshot.h" // FIXME: create a snapshot model
 #include "llfloaterreg.h"
-#include "llfloaterfacebook.h"
 #include "llfloaterflickr.h"
 #include "llfloatertwitter.h"
 
@@ -59,7 +58,6 @@ private:
 	void onSaveToEmail();
 	void onSaveToInventory();
 	void onSaveToComputer();
-	void onSendToFacebook();
 	void onSendToTwitter();
 	void onSendToFlickr();
 
@@ -74,7 +72,6 @@ LLPanelSnapshotOptions::LLPanelSnapshotOptions()
 	mCommitCallbackRegistrar.add("Snapshot.SaveToEmail",		boost::bind(&LLPanelSnapshotOptions::onSaveToEmail,		this));
 	mCommitCallbackRegistrar.add("Snapshot.SaveToInventory",	boost::bind(&LLPanelSnapshotOptions::onSaveToInventory,	this));
 	mCommitCallbackRegistrar.add("Snapshot.SaveToComputer",		boost::bind(&LLPanelSnapshotOptions::onSaveToComputer,	this));
-	mCommitCallbackRegistrar.add("Snapshot.SendToFacebook",		boost::bind(&LLPanelSnapshotOptions::onSendToFacebook, this));
 	mCommitCallbackRegistrar.add("Snapshot.SendToTwitter",		boost::bind(&LLPanelSnapshotOptions::onSendToTwitter, this));
 	mCommitCallbackRegistrar.add("Snapshot.SendToFlickr",		boost::bind(&LLPanelSnapshotOptions::onSendToFlickr, this));
 	LLGlobalEconomy::getInstance()->addObserver(this);
@@ -136,18 +133,6 @@ void LLPanelSnapshotOptions::onSaveToInventory()
 void LLPanelSnapshotOptions::onSaveToComputer()
 {
 	openPanel("panel_snapshot_local");
-}
-
-void LLPanelSnapshotOptions::onSendToFacebook()
-{
-	LLFloaterReg::hideInstance("snapshot");
-
-	LLFloaterFacebook* facebook_floater = dynamic_cast<LLFloaterFacebook*>(LLFloaterReg::getInstance("facebook"));
-	if (facebook_floater)
-	{
-		facebook_floater->showPhotoPanel();
-	}
-	LLFloaterReg::showInstance("facebook");
 }
 
 void LLPanelSnapshotOptions::onSendToTwitter()

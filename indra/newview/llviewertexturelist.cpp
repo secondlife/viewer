@@ -512,7 +512,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,
 		if (boost_priority != LLViewerTexture::BOOST_ALM && imagep->getBoostLevel() == LLViewerTexture::BOOST_ALM)
 		{
 			// Workaround: we need BOOST_ALM texture for something, 'rise' to NONE
-			imagep->setDecodePriority(LLViewerTexture::BOOST_NONE);
+			imagep->setBoostLevel(LLViewerTexture::BOOST_NONE);
 		}
 
 		LLViewerFetchedTexture *texture = imagep.get();

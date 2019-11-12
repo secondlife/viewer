@@ -14,6 +14,7 @@
 		<panel label="許可" name="allowed_panel">
 			<panel label="top_panel" name="allowed_search_panel">
 				<filter_editor label="許可されたエージェントを検索" name="allowed_search_input"/>
+				<button label="コピー" name="copy_allowed_list_btn"/>
 			</panel>
 			<text name="allow_resident_label">
 				常に許可：
@@ -27,6 +28,7 @@
 		<panel label="許可されたグループ" name="allowed_groups_panel">
 			<panel label="top_panel" name="allowed_group_search_panel">
 				<filter_editor label="許可されたグループを検索" name="allowed_group_search_input"/>
+				<button label="コピー" name="copy_allowed_group_list_btn"/>
 			</panel>
 			<text name="allow_group_label">
 				常に許可されたグループ：
@@ -40,6 +42,7 @@
 		<panel label="禁止" name="banned_panel">
 			<panel label="top_panel" name="banned_search_panel">
 				<filter_editor label="禁止されたエージェントを検索" name="banned_search_input"/>
+				<button label="コピー" name="copy_banned_list_btn"/>
 			</panel>
 			<text name="ban_resident_label">
 				常に禁止：

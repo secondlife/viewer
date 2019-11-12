@@ -110,7 +110,7 @@ public:
 
 		if (verb == "pay")
 		{
-			if (!LLUI::sSettingGroups["config"]->getBOOL("EnableAvatarPay"))
+			if (!LLUI::getInstance()->mSettingGroups["config"]->getBOOL("EnableAvatarPay"))
 			{
 				LLNotificationsUtil::add("NoAvatarPay", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
 				return true;

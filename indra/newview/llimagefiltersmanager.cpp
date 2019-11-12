@@ -48,7 +48,7 @@ LLImageFiltersManager::~LLImageFiltersManager()
 {
 }
 
-// virtual static
+// virtual
 void LLImageFiltersManager::initSingleton()
 {
 	loadAllFilters();
