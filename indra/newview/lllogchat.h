@@ -79,8 +79,10 @@ public:
 	static void deleteHistory();
 };
 
-class LLLogChat
+class LLLogChat : public LLSingleton<LLLogChat>
 {
+    LLSINGLETON(LLLogChat);
+    ~LLLogChat();
 public:
 	// status values for callback function
 	enum ELogLineType {
@@ -107,7 +109,7 @@ public:
 	static void loadChatHistory(const std::string& file_name, std::list<LLSD>& messages, const LLSD& load_params = LLSD(), bool is_group = false);
 
 	typedef boost::signals2::signal<void ()> save_history_signal_t;
-	static boost::signals2::connection setSaveHistorySignal(const save_history_signal_t::slot_type& cb);
+	boost::signals2::connection setSaveHistorySignal(const save_history_signal_t::slot_type& cb);
 
 	static bool moveTranscripts(const std::string currentDirectory, 
 									const std::string newDirectory, 
@@ -123,21 +125,23 @@ public:
 	static bool isAdHocTranscriptExist(std::string file_name);
 	static bool isTranscriptFileFound(std::string fullname);
 
-	static bool historyThreadsFinished(LLUUID session_id);
-	static LLLoadHistoryThread* getLoadHistoryThread(LLUUID session_id);
-	static LLDeleteHistoryThread* getDeleteHistoryThread(LLUUID session_id);
-	static bool addLoadHistoryThread(LLUUID& session_id, LLLoadHistoryThread* lthread);
-	static bool addDeleteHistoryThread(LLUUID& session_id, LLDeleteHistoryThread* dthread);
-	static void cleanupHistoryThreads();
+	bool historyThreadsFinished(LLUUID session_id);
+	LLLoadHistoryThread* getLoadHistoryThread(LLUUID session_id);
+	LLDeleteHistoryThread* getDeleteHistoryThread(LLUUID session_id);
+	bool addLoadHistoryThread(LLUUID& session_id, LLLoadHistoryThread* lthread);
+	bool addDeleteHistoryThread(LLUUID& session_id, LLDeleteHistoryThread* dthread);
+	void cleanupHistoryThreads();
 
 private:
 	static std::string cleanFileName(std::string filename);
-	static save_history_signal_t * sSaveHistorySignal;
 
-	static std::map<LLUUID,LLLoadHistoryThread *> sLoadHistoryThreads;
-	static std::map<LLUUID,LLDeleteHistoryThread *> sDeleteHistoryThreads;
-	static LLMutex* sHistoryThreadsMutex;
-	static LLMutex* historyThreadsMutex();
+	LLMutex* historyThreadsMutex();
+	void triggerHistorySignal();
+
+	save_history_signal_t * mSaveHistorySignal;
+	std::map<LLUUID,LLLoadHistoryThread *> mLoadHistoryThreads;
+	std::map<LLUUID,LLDeleteHistoryThread *> mDeleteHistoryThreads;
+	LLMutex* mHistoryThreadsMutex;
 };
 
 /**

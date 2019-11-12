@@ -52,20 +52,6 @@ class LLToastAlertPanel
 public:
 	typedef bool (*display_callback_t)(S32 modal);
 
-	class URLLoader
-	{
-	public:
-		virtual void load(const std::string& url, bool force_open_externally = 0) = 0;
-		virtual ~URLLoader()
-		{
-		}
-	};
-
-	static void setURLLoader(URLLoader* loader)
-	{
-		sURLLoader = loader;
-	}
-	
 public:
 	// User's responsibility to call show() after creating these.
 	LLToastAlertPanel( LLNotificationPtr notep, bool is_modal );
@@ -92,7 +78,6 @@ private:
 	BOOL hasTitleBar() const;
 
 private:
-	static URLLoader* sURLLoader;
 	static LLControlGroup* sSettings;
 
 	struct ButtonData

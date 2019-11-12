@@ -30,6 +30,7 @@
 #include "lluuid.h"
 #include "llstring.h"
 #include "llpointer.h"
+#include "llsingleton.h"
 #include "lltrace.h"
 
 const S32 MIN_IMAGE_MIP =  2; // 4x4, only used for expand/contract power of 2
@@ -88,23 +89,25 @@ typedef enum e_image_codec
 //============================================================================
 // library initialization class
 
-class LLImage
+class LLImage : public LLParamSingleton<LLImage>
 {
+	LLSINGLETON(LLImage, bool use_new_byte_range = false, S32 minimal_reverse_byte_range_percent = 75);
+	~LLImage();
 public:
-	static void initClass(bool use_new_byte_range = false, S32 minimal_reverse_byte_range_percent = 75);
-	static void cleanupClass();
 
-	static const std::string& getLastError();
-	static void setLastError(const std::string& message);
-	
-	static bool useNewByteRange() { return sUseNewByteRange; }
-    static S32  getReverseByteRangePercent() { return sMinimalReverseByteRangePercent; }
-	
-protected:
-	static LLMutex* sMutex;
-	static std::string sLastErrorMessage;
-	static bool sUseNewByteRange;
-    static S32  sMinimalReverseByteRangePercent;
+	const std::string& getLastErrorMessage();
+	static const std::string& getLastError() { return getInstance()->getLastErrorMessage(); };
+	void setLastErrorMessage(const std::string& message);
+	static void setLastError(const std::string& message) { getInstance()->setLastErrorMessage(message); }
+
+	bool useNewByteRange() { return mUseNewByteRange; }
+	S32  getReverseByteRangePercent() { return mMinimalReverseByteRangePercent; }
+
+private:
+	LLMutex* mMutex;
+	std::string mLastErrorMessage;
+	bool mUseNewByteRange;
+	S32  mMinimalReverseByteRangePercent;
 };
 
 //============================================================================

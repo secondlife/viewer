@@ -696,7 +696,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                 // The group notice packet does not have an AgentID.  Obtain one from the name cache.
                 // If last name is "Resident" strip it out so the cache name lookup works.
                 std::string legacy_name = gCacheName->buildLegacyName(original_name);
-                agent_id = LLAvatarNameCache::findIdByName(legacy_name);
+                agent_id = LLAvatarNameCache::getInstance()->findIdByName(legacy_name);
 
                 if (agent_id.isNull())
                 {

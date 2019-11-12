@@ -127,7 +127,7 @@ void LLFloaterVoiceVolume::onOpen(const LLSD& data)
 	// Extract appropriate avatar id
 	mAvatarID = data["avatar_id"];
 
-	LLUI::positionViewNearMouse(this);
+	LLUI::getInstance()->positionViewNearMouse(this);
 
 	getChild<LLUICtrl>("avatar_name")->setValue("");
 	updateVolumeControls();

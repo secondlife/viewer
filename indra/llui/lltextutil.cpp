@@ -78,7 +78,7 @@ void LLTextUtil::textboxSetGreyedVal(LLTextBox *txtbox, const LLStyle::Params& n
 
 const std::string& LLTextUtil::formatPhoneNumber(const std::string& phone_str)
 {
-	static const std::string PHONE_SEPARATOR = LLUI::sSettingGroups["config"]->getString("AvalinePhoneSeparator");
+	static const std::string PHONE_SEPARATOR = LLUI::getInstance()->mSettingGroups["config"]->getString("AvalinePhoneSeparator");
 	static const S32 PHONE_PART_LEN = 2;
 
 	static std::string formatted_phone_str;
