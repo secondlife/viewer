@@ -207,15 +207,8 @@ void LLAgentCamera::init()
 	
 	mCameraPreset = (ECameraPreset) gSavedSettings.getU32("CameraPreset");
 
-	mCameraOffsetInitial[CAMERA_PRESET_REAR_VIEW] = gSavedSettings.getControl("CameraOffsetRearView");
-	mCameraOffsetInitial[CAMERA_PRESET_FRONT_VIEW] = gSavedSettings.getControl("CameraOffsetFrontView");
-	mCameraOffsetInitial[CAMERA_PRESET_GROUP_VIEW] = gSavedSettings.getControl("CameraOffsetGroupView");
-	mCameraOffsetInitial[CAMERA_PRESET_CUSTOM] = gSavedSettings.getControl("CameraOffsetCustomPreset");
-
-	mFocusOffsetInitial[CAMERA_PRESET_REAR_VIEW] = gSavedSettings.getControl("FocusOffsetRearView");
-	mFocusOffsetInitial[CAMERA_PRESET_FRONT_VIEW] = gSavedSettings.getControl("FocusOffsetFrontView");
-	mFocusOffsetInitial[CAMERA_PRESET_GROUP_VIEW] = gSavedSettings.getControl("FocusOffsetGroupView");
-	mFocusOffsetInitial[CAMERA_PRESET_CUSTOM] = gSavedSettings.getControl("FocusOffsetCustomPreset");
+	mCameraOffsetInitial = gSavedSettings.getControl("CameraOffsetRearView");
+	mFocusOffsetInitial = gSavedSettings.getControl("FocusOffsetRearView");
 
 	mCameraCollidePlane.clearVec();
 	mCurrentCameraDistance = getCameraOffsetInitial().magVec() * gSavedSettings.getF32("CameraOffsetScale");
@@ -1603,7 +1596,7 @@ LLVector3d LLAgentCamera::calcThirdPersonFocusOffset()
 		agent_rot *= ((LLViewerObject*)(gAgentAvatarp->getParent()))->getRenderRotation();
 	}
 
-	focus_offset = convert_from_llsd<LLVector3d>(mFocusOffsetInitial[mCameraPreset]->get(), TYPE_VEC3D, "");
+	focus_offset = convert_from_llsd<LLVector3d>(mFocusOffsetInitial->get(), TYPE_VEC3D, "");
 	return focus_offset * agent_rot;
 }
 
@@ -1935,32 +1928,12 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 
 LLVector3 LLAgentCamera::getCameraOffsetInitial()
 {
-	return convert_from_llsd<LLVector3>(mCameraOffsetInitial[mCameraPreset]->get(), TYPE_VEC3, "");
+	return convert_from_llsd<LLVector3>(mCameraOffsetInitial->get(), TYPE_VEC3, "");
 }
 
 LLVector3d LLAgentCamera::getFocusOffsetInitial()
 {
-	return convert_from_llsd<LLVector3d>(mFocusOffsetInitial[mCameraPreset]->get(), TYPE_VEC3D, "");
-}
-
-std::string LLAgentCamera::getCameraOffsetCtrlName()
-{
-	return mCameraOffsetInitial[mCameraPreset]->getName();
-}
-
-std::string LLAgentCamera::getCameraOffsetCtrlName(ECameraPreset preset)
-{
-	return mCameraOffsetInitial[preset]->getName();
-}
-
-std::string LLAgentCamera::getFocusOffsetCtrlName()
-{
-	return mFocusOffsetInitial[mCameraPreset]->getName();
-}
-
-std::string LLAgentCamera::getFocusOffsetCtrlName(ECameraPreset preset)
-{
-	return mFocusOffsetInitial[preset]->getName();
+	return convert_from_llsd<LLVector3d>(mFocusOffsetInitial->get(), TYPE_VEC3D, "");
 }
 
 F32 LLAgentCamera::getCameraMaxZoomDistance()

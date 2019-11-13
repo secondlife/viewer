@@ -97,7 +97,6 @@ public:
 	LOG_CLASS(LLPresetsManager);
 
 	void getControlNames(std::vector<std::string>& names);
-	void getOffsetControlNames(std::vector<std::string>& names);
 	static void settingChanged();
 
 	boost::signals2::connection	mCameraChangedSignal;

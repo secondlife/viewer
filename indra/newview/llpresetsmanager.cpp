@@ -102,7 +102,6 @@ void LLPresetsManager::startWatching(const std::string& subdirectory)
 	{
 		std::vector<std::string> name_list;
 		getControlNames(name_list);
-		getOffsetControlNames(name_list);
 
 		for (std::vector<std::string>::iterator it = name_list.begin(); it != name_list.end(); ++it)
 		{
@@ -254,23 +253,10 @@ void LLPresetsManager::getControlNames(std::vector<std::string>& names)
 		("CameraOffsetBuild")
 		("CameraOffsetScale")
 		("TrackFocusObject")
+		("CameraOffsetRearView")
+		("FocusOffsetRearView")
         ;
     names = camera_controls;
-}
-
-void LLPresetsManager::getOffsetControlNames(std::vector<std::string>& names)
-{
-	const std::vector<std::string> offset_controls = boost::assign::list_of
-		("CameraOffsetRearView")
-		("CameraOffsetFrontView")
-		("CameraOffsetGroupView")
-		("CameraOffsetCustomPreset")
-		("FocusOffsetRearView")
-		("FocusOffsetFrontView")
-		("FocusOffsetGroupView")
-		("FocusOffsetCustomPreset")
-		;
-	names.insert(std::end(names), std::begin(offset_controls), std::end(offset_controls));
 }
 
 bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string name, bool createDefault)
@@ -317,8 +303,6 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 		name_list.clear();
 		getControlNames(name_list);
 		name_list.push_back("PresetCameraActive");
-		name_list.push_back(gAgentCamera.getCameraOffsetCtrlName());
-		name_list.push_back(gAgentCamera.getFocusOffsetCtrlName());
 	}
 	else
 	{
@@ -368,18 +352,6 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 		for (std::vector<std::string>::iterator it = name_list.begin(); it != name_list.end(); ++it)
 		{
 			std::string ctrl_name = *it;
-			std::string dest_ctrl_name = ctrl_name;
-			if (IS_CAMERA && new_camera_offsets)
-			{
-				if (ctrl_name == gAgentCamera.getCameraOffsetCtrlName())
-				{
-					dest_ctrl_name = gAgentCamera.getCameraOffsetCtrlName(new_camera_preset);
-				}
-				if (ctrl_name == gAgentCamera.getFocusOffsetCtrlName())
-				{
-					dest_ctrl_name = gAgentCamera.getFocusOffsetCtrlName(new_camera_preset);
-				}
-			}
 
 			LLControlVariable* ctrl = gSavedSettings.getControl(ctrl_name).get();
 			if (ctrl)
@@ -388,10 +360,10 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 				std::string type = LLControlGroup::typeEnumToString(ctrl->type());
 				LLSD value = ctrl->getValue();
 
-				paramsData[dest_ctrl_name]["Comment"] = comment;
-				paramsData[dest_ctrl_name]["Persist"] = 1;
-				paramsData[dest_ctrl_name]["Type"] = type;
-				paramsData[dest_ctrl_name]["Value"] = value;
+				paramsData[ctrl_name]["Comment"] = comment;
+				paramsData[ctrl_name]["Persist"] = 1;
+				paramsData[ctrl_name]["Type"] = type;
+				paramsData[ctrl_name]["Value"] = value;
 			}
 		}
 		if (IS_CAMERA)

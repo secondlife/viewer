@@ -37,7 +37,7 @@
                 <real>6</real>
             </array>
         </map>
-    <key>CameraOffsetGroupView</key>
+    <key>CameraOffsetRearView</key>
         <map>
         <key>Comment</key>
             <string>Initial camera offset from avatar in Side View</string>
@@ -74,7 +74,7 @@
         <key>Value</key>
             <integer>0</integer>
         </map>
-    <key>FocusOffsetGroupView</key>
+    <key>FocusOffsetRearView</key>
         <map>
         <key>Comment</key>
             <string>Initial focus point offset relative to avatar for the camera preset Side View (x-axis is forward)</string>

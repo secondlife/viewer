@@ -73,10 +73,10 @@ void LLFloaterPreferenceViewAdvanced::onCommitSettings()
 	vector.mV[VX] = (F32)getChild<LLUICtrl>("camera_x")->getValue().asReal();
 	vector.mV[VY] = (F32)getChild<LLUICtrl>("camera_y")->getValue().asReal();
 	vector.mV[VZ] = (F32)getChild<LLUICtrl>("camera_z")->getValue().asReal();
-	gSavedSettings.setVector3(gAgentCamera.getCameraOffsetCtrlName(), vector);
+	gSavedSettings.setVector3("CameraOffsetRearView", vector);
 
 	vector3d.mdV[VX] = (F32)getChild<LLUICtrl>("focus_x")->getValue().asReal();
 	vector3d.mdV[VY] = (F32)getChild<LLUICtrl>("focus_y")->getValue().asReal();
 	vector3d.mdV[VZ] = (F32)getChild<LLUICtrl>("focus_z")->getValue().asReal();
-	gSavedSettings.setVector3d(gAgentCamera.getFocusOffsetCtrlName(), vector3d);
+	gSavedSettings.setVector3d("FocusOffsetRearView", vector3d);
 }

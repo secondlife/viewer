@@ -117,10 +117,6 @@ public:
 	/** Determines default focus offset depending on the current camera preset */
 	LLVector3d getFocusOffsetInitial();
 
-	std::string getCameraOffsetCtrlName();
-	std::string getCameraOffsetCtrlName(ECameraPreset preset);
-	std::string getFocusOffsetCtrlName();
-	std::string getFocusOffsetCtrlName(ECameraPreset preset);
 private:
 	/** Determines maximum camera distance from target for mouselook, opposite to LAND_MIN_ZOOM */
 	F32 getCameraMaxZoomDistance();
@@ -128,11 +124,11 @@ private:
 	/** Camera preset in Third Person Mode */
 	ECameraPreset mCameraPreset; 
 
-	/** Initial camera offsets */
-	std::map<ECameraPreset, LLPointer<LLControlVariable> > mCameraOffsetInitial;
+	/** Initial camera offset */
+	LLPointer<LLControlVariable> mCameraOffsetInitial;
 
-	/** Initial focus offsets */
-	std::map<ECameraPreset, LLPointer<LLControlVariable> > mFocusOffsetInitial;
+	/** Initial focus offset */
+	LLPointer<LLControlVariable> mFocusOffsetInitial;
 
 	//--------------------------------------------------------------------
 	// Position
