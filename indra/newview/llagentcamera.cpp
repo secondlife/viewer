@@ -1948,9 +1948,19 @@ std::string LLAgentCamera::getCameraOffsetCtrlName()
 	return mCameraOffsetInitial[mCameraPreset]->getName();
 }
 
+std::string LLAgentCamera::getCameraOffsetCtrlName(ECameraPreset preset)
+{
+	return mCameraOffsetInitial[preset]->getName();
+}
+
 std::string LLAgentCamera::getFocusOffsetCtrlName()
 {
 	return mFocusOffsetInitial[mCameraPreset]->getName();
+}
+
+std::string LLAgentCamera::getFocusOffsetCtrlName(ECameraPreset preset)
+{
+	return mFocusOffsetInitial[preset]->getName();
 }
 
 F32 LLAgentCamera::getCameraMaxZoomDistance()

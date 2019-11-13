@@ -118,7 +118,9 @@ public:
 	LLVector3d getFocusOffsetInitial();
 
 	std::string getCameraOffsetCtrlName();
+	std::string getCameraOffsetCtrlName(ECameraPreset preset);
 	std::string getFocusOffsetCtrlName();
+	std::string getFocusOffsetCtrlName(ECameraPreset preset);
 private:
 	/** Determines maximum camera distance from target for mouselook, opposite to LAND_MIN_ZOOM */
 	F32 getCameraMaxZoomDistance();

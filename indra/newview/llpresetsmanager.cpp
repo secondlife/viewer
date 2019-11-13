@@ -275,6 +275,9 @@ void LLPresetsManager::getOffsetControlNames(std::vector<std::string>& names)
 
 bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string name, bool createDefault)
 {
+	bool IS_CAMERA = (PRESETS_CAMERA == subdirectory);
+	bool IS_GRAPHIC = (PRESETS_GRAPHIC == subdirectory);
+
 	if (LLTrans::getString(PRESETS_DEFAULT) == name)
 	{
 		name = PRESETS_DEFAULT;
@@ -294,7 +297,7 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 	bool saved = false;
 	std::vector<std::string> name_list;
 
-	if(PRESETS_GRAPHIC == subdirectory)
+	if (IS_GRAPHIC)
 	{
 		LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
 		if (instance && !createDefault)
@@ -309,11 +312,13 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 			LL_WARNS("Presets") << "preferences floater instance not found" << LL_ENDL;
 		}
 	}
-	else if(PRESETS_CAMERA == subdirectory)
+	else if (IS_CAMERA)
 	{
 		name_list.clear();
 		getControlNames(name_list);
 		name_list.push_back("PresetCameraActive");
+		name_list.push_back(gAgentCamera.getCameraOffsetCtrlName());
+		name_list.push_back(gAgentCamera.getFocusOffsetCtrlName());
 	}
 	else
 	{
@@ -324,7 +329,7 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 	LLSD paramsData(LLSD::emptyMap());
 
 	// Create a default graphics preset from hw recommended settings 
-	if (createDefault && name == PRESETS_DEFAULT && subdirectory == PRESETS_GRAPHIC)
+	if (IS_GRAPHIC && createDefault && name == PRESETS_DEFAULT)
 	{
 		paramsData = LLFeatureManager::getInstance()->getRecommendedSettingsMap();
 		if (gSavedSettings.getU32("RenderAvatarMaxComplexity") == 0)
@@ -335,25 +340,47 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 	}
 	else
 	{
-		bool custom_camera_offsets = false;
-		if (subdirectory == PRESETS_CAMERA)
+		ECameraPreset new_camera_preset = (ECameraPreset)gSavedSettings.getU32("CameraPreset");
+		bool new_camera_offsets = false;
+		if (IS_CAMERA)
 		{
-			name_list.push_back(gAgentCamera.getCameraOffsetCtrlName());
-			name_list.push_back(gAgentCamera.getFocusOffsetCtrlName());
-			custom_camera_offsets = !isDefaultCameraPreset(name);
+			if (isDefaultCameraPreset(name))
+			{
+				if (PRESETS_REAR_VIEW == name)
+				{
+					new_camera_preset = CAMERA_PRESET_REAR_VIEW;
+				}
+				else if (PRESETS_SIDE_VIEW == name)
+				{
+					new_camera_preset = CAMERA_PRESET_GROUP_VIEW;
+				}
+				else if (PRESETS_FRONT_VIEW == name)
+				{
+					new_camera_preset = CAMERA_PRESET_FRONT_VIEW;
+				}
+			}
+			else 
+			{
+				new_camera_preset = CAMERA_PRESET_CUSTOM;
+			}
+			new_camera_offsets = (!isDefaultCameraPreset(name) || (ECameraPreset)gSavedSettings.getU32("CameraPreset") != new_camera_preset);
 		}
 		for (std::vector<std::string>::iterator it = name_list.begin(); it != name_list.end(); ++it)
 		{
 			std::string ctrl_name = *it;
 			std::string dest_ctrl_name = ctrl_name;
-			if (custom_camera_offsets && ctrl_name == gAgentCamera.getCameraOffsetCtrlName())
+			if (IS_CAMERA && new_camera_offsets)
 			{
-				dest_ctrl_name = "CameraOffsetCustomPreset";
+				if (ctrl_name == gAgentCamera.getCameraOffsetCtrlName())
+				{
+					dest_ctrl_name = gAgentCamera.getCameraOffsetCtrlName(new_camera_preset);
+				}
+				if (ctrl_name == gAgentCamera.getFocusOffsetCtrlName())
+				{
+					dest_ctrl_name = gAgentCamera.getFocusOffsetCtrlName(new_camera_preset);
+				}
 			}
-			if (custom_camera_offsets && ctrl_name == gAgentCamera.getFocusOffsetCtrlName())
-			{
-				dest_ctrl_name = "FocusOffsetCustomPreset";
-			}
+
 			LLControlVariable* ctrl = gSavedSettings.getControl(ctrl_name).get();
 			if (ctrl)
 			{
@@ -366,6 +393,10 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 				paramsData[dest_ctrl_name]["Type"] = type;
 				paramsData[dest_ctrl_name]["Value"] = value;
 			}
+		}
+		if (IS_CAMERA)
+		{
+			gSavedSettings.setU32("CameraPreset", new_camera_preset);
 		}
 	}
 
@@ -385,14 +416,14 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
             
 			LL_DEBUGS() << "saved preset '" << name << "'; " << paramsData.size() << " parameters" << LL_ENDL;
 
-			if (subdirectory == PRESETS_GRAPHIC)
+			if (IS_GRAPHIC)
 			{
 				gSavedSettings.setString("PresetGraphicActive", name);
 				// signal interested parties
 				triggerChangeSignal();
 			}
 
-			if (subdirectory == PRESETS_CAMERA)
+			if (IS_CAMERA)
 			{
 				gSavedSettings.setString("PresetCameraActive", name);
 				setCameraDirty(false);

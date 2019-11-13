@@ -52,7 +52,7 @@ LLPanelPresetsCameraPulldown::LLPanelPresetsCameraPulldown()
 {
 	mHoverTimer.stop();
 
-	mCommitCallbackRegistrar.add("Presets.GoViewPrefs", boost::bind(&LLPanelPresetsCameraPulldown::onViewButtonClick, this, _2));
+	mCommitCallbackRegistrar.add("Presets.toggleCameraFloater", boost::bind(&LLPanelPresetsCameraPulldown::onViewButtonClick, this, _2));
 	mCommitCallbackRegistrar.add("PresetsCamera.RowClick", boost::bind(&LLPanelPresetsCameraPulldown::onRowClick, this, _2));
 
 	buildFromFile( "panel_presets_camera_pulldown.xml");
@@ -205,19 +205,7 @@ void LLPanelPresetsCameraPulldown::onViewButtonClick(const LLSD& user_data)
 	// close the minicontrol, we're bringing up the big one
 	setVisible(FALSE);
 
-	// bring up the prefs floater
-	LLFloater* prefsfloater = LLFloaterReg::showInstance("preferences");
-	if (prefsfloater)
-	{
-		// grab the 'view' panel from the preferences floater and
-		// bring it the front!
-		LLTabContainer* tabcontainer = prefsfloater->getChild<LLTabContainer>("pref core");
-		LLPanel* graphicspanel = prefsfloater->getChild<LLPanel>("view");
-		if (tabcontainer && graphicspanel)
-		{
-			tabcontainer->selectTabPanel(graphicspanel);
-		}
-	}
+	LLFloaterReg::toggleInstanceOrBringToFront("camera");
 }
 
 //virtual
