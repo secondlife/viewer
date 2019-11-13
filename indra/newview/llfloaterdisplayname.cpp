@@ -160,7 +160,7 @@ void LLFloaterDisplayName::onCancel()
 
 void LLFloaterDisplayName::onReset()
 {
-	if (LLAvatarNameCache::hasNameLookupURL())
+    if (LLAvatarNameCache::getInstance()->hasNameLookupURL())
 	{
 		LLViewerDisplayName::set("",boost::bind(&LLFloaterDisplayName::onCacheSetName, this, _1, _2, _3));
 	}	
@@ -194,7 +194,7 @@ void LLFloaterDisplayName::onSave()
 		return;
 	}
 	
-	if (LLAvatarNameCache::hasNameLookupURL())
+    if (LLAvatarNameCache::getInstance()->hasNameLookupURL())
 	{
 		LLViewerDisplayName::set(display_name_utf8,boost::bind(&LLFloaterDisplayName::onCacheSetName, this, _1, _2, _3));	
 	}

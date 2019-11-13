@@ -885,7 +885,7 @@ bool LLScriptEdCore::handleSaveChangesDialog(const LLSD& notification, const LLS
 
 void LLScriptEdCore::onBtnHelp()
 {
-	LLUI::sHelpImpl->showTopic(HELP_LSL_PORTAL_TOPIC);
+	LLUI::getInstance()->mHelpImpl->showTopic(HELP_LSL_PORTAL_TOPIC);
 }
 
 void LLScriptEdCore::onBtnDynamicHelp()

@@ -28,7 +28,7 @@
 
 #include "lltooltip.h"
 #include "llcontrol.h"	// LLCachedControl
-#include "llui.h"		// LLUI::sSettingsGroups
+#include "llui.h"		// LLUI::getInstance()->mSettingsGroups
 #include "llviewermenu.h"
 
 LLInspect::LLInspect(const LLSD& key)
@@ -45,8 +45,8 @@ LLInspect::~LLInspect()
 // virtual
 void LLInspect::draw()
 {
-	static LLCachedControl<F32> FADE_TIME(*LLUI::sSettingGroups["config"], "InspectorFadeTime", 1.f);
-	static LLCachedControl<F32> STAY_TIME(*LLUI::sSettingGroups["config"], "InspectorShowTime", 1.f);
+	static LLCachedControl<F32> FADE_TIME(*LLUI::getInstance()->mSettingGroups["config"], "InspectorFadeTime", 1.f);
+	static LLCachedControl<F32> STAY_TIME(*LLUI::getInstance()->mSettingGroups["config"], "InspectorShowTime", 1.f);
 	if (mOpenTimer.getStarted())
 	{
 		LLFloater::draw();
@@ -113,7 +113,7 @@ BOOL LLInspect::handleToolTip(S32 x, S32 y, MASK mask)
 		params.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
 		params.message = child_handler->getToolTip();
 		//set up delay if there is no visible tooltip at this moment
-		params.delay_time =  LLToolTipMgr::instance().toolTipVisible() ? 0.f : LLUI::sSettingGroups["config"]->getF32( "ToolTipDelay" );
+		params.delay_time =  LLToolTipMgr::instance().toolTipVisible() ? 0.f : LLUI::getInstance()->mSettingGroups["config"]->getF32( "ToolTipDelay" );
 		LLToolTipMgr::instance().show(params);
 		handled = TRUE;
 	}
@@ -137,7 +137,7 @@ bool LLInspect::childHasVisiblePopupMenu()
 		LLRect floater_rc = calcScreenRect();
 		LLRect menu_screen_rc = child_menu->calcScreenRect();
 		S32 mx, my;
-		LLUI::getMousePositionScreen(&mx, &my);
+		LLUI::getInstance()->getMousePositionScreen(&mx, &my);
 
 		// This works wrong if we spawn a menu near Inspector and menu overlaps Inspector.
 		if(floater_rc.overlaps(menu_screen_rc) && menu_screen_rc.pointInRect(mx, my))
@@ -155,11 +155,11 @@ void LLInspect::repositionInspector(const LLSD& data)
 	// See LLToolTipMgr::createToolTip
 	if (data.has("pos"))
 	{
-		LLUI::positionViewNearMouse(this, data["pos"]["x"].asInteger(), data["pos"]["y"].asInteger());
+		LLUI::getInstance()->positionViewNearMouse(this, data["pos"]["x"].asInteger(), data["pos"]["y"].asInteger());
 	}
 	else
 	{
-		LLUI::positionViewNearMouse(this);
+		LLUI::getInstance()->positionViewNearMouse(this);
 	}
 	applyRectControl();
 }
