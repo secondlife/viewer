@@ -38,7 +38,7 @@ class LLInventoryPanel;
 class LLFloater;
 class LLView;
 
-std::string getProfileURL(const std::string& agent_name);
+std::string getProfileURL(const std::string& agent_name, bool feed_only = false);
 
 /**
  * Friend-related actions (add, remove, offer teleport, etc)

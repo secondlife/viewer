@@ -904,16 +904,13 @@ void LLPanelProfileWeb::apply(LLAvatarData* data)
 void LLPanelProfileWeb::updateData()
 {
     LLUUID avatar_id = getAvatarId();
-    if (!getIsLoading() && avatar_id.notNull())
+    if (!getIsLoading() && avatar_id.notNull() && !mURLWebProfile.empty())
     {
         setIsLoading();
 
-        if (!mURLWebProfile.empty())
-        {
-            mWebBrowser->setVisible(TRUE);
-            mPerformanceTimer.start();
-            mWebBrowser->navigateTo(mURLWebProfile, HTTP_CONTENT_TEXT_HTML);
-        }
+        mWebBrowser->setVisible(TRUE);
+        mPerformanceTimer.start();
+        mWebBrowser->navigateTo(mURLWebProfile, HTTP_CONTENT_TEXT_HTML);
     }
 }
 
@@ -931,17 +928,14 @@ void LLPanelProfileWeb::onAvatarNameCache(const LLUUID& agent_id, const LLAvatar
         LLStringUtil::replaceChar(username, ' ', '.');
     }
 
-    mURLWebProfile = getProfileURL(username);
+    mURLWebProfile = getProfileURL(username, true);
     if (mURLWebProfile.empty())
     {
         return;
     }
 
     //if the tab was opened before name was resolved, load the panel now
-    if (getIsLoading())
-    {
-        updateData();
-    }
+    updateData();
 }
 
 void LLPanelProfileWeb::onCommitLoad(LLUICtrl* ctrl)
