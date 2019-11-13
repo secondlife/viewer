@@ -81,12 +81,12 @@ void LLUIImage::draw3D(const LLVector3& origin_agent, const LLVector3& x_axis, c
 		 }
 	}
 
-	LLRender2D::pushMatrix();
+	LLRender2D::getInstance()->pushMatrix();
 	{ 
 		LLVector3 rect_origin = origin_agent + (rect.mLeft * x_axis) + (rect.mBottom * y_axis); 
-		LLRender2D::translate(rect_origin.mV[VX],
-						rect_origin.mV[VY], 
-						rect_origin.mV[VZ]);
+		LLRender2D::getInstance()->translate(rect_origin.mV[VX],
+											rect_origin.mV[VY], 
+											rect_origin.mV[VZ]);
 		gGL.getTexUnit(0)->bind(getImage());
 		gGL.color4fv(color.mV);
 
@@ -103,7 +103,7 @@ void LLUIImage::draw3D(const LLVector3& origin_agent, const LLVector3& x_axis, c
 								rect.getWidth() * x_axis, 
 								rect.getHeight() * y_axis);
 		
-	} LLRender2D::popMatrix();
+	} LLRender2D::getInstance()->popMatrix();
 }
 
 //#include "lluiimage.inl"
@@ -138,7 +138,7 @@ namespace LLInitParam
 			return;
 		}
 
-		LLUIImage* imagep =  LLRender2D::getUIImage(name());
+		LLUIImage* imagep =  LLRender2D::getInstance()->getUIImage(name());
 		if (imagep)
 		{
 			updateValue(imagep);

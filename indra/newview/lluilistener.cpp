@@ -84,8 +84,8 @@ void LLUIListener::getValue(const LLSD&event) const
 {
     LLSD reply = LLSD::emptyMap();
 
-    const LLView* root = LLUI::getRootView();
-    const LLView* view = LLUI::resolvePath(root, event["path"].asString());
+    const LLView* root = LLUI::getInstance()->getRootView();
+    const LLView* view = LLUI::getInstance()->resolvePath(root, event["path"].asString());
     const LLUICtrl* ctrl(dynamic_cast<const LLUICtrl*>(view));
 
     if (ctrl) 

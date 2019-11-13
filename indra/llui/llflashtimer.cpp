@@ -40,10 +40,10 @@ LLFlashTimer::LLFlashTimer(callback_t cb, S32 count, F32 period)
 	// By default use settings from settings.xml to be able change them via Debug settings. See EXT-5973.
 	// Due to Timer is implemented as derived class from EventTimer it is impossible to change period
 	// in runtime. So, both settings are made as required restart.
-	mFlashCount = 2 * ((count > 0) ? count : LLUI::sSettingGroups["config"]->getS32("FlashCount"));
+	mFlashCount = 2 * ((count > 0) ? count : LLUI::getInstance()->mSettingGroups["config"]->getS32("FlashCount"));
 	if (mPeriod <= 0)
 	{
-		mPeriod = LLUI::sSettingGroups["config"]->getF32("FlashPeriod");
+		mPeriod = LLUI::getInstance()->mSettingGroups["config"]->getF32("FlashPeriod");
 	}
 }
 

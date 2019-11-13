@@ -32,7 +32,7 @@ namespace llview
     public:
         /**
          * Construct TargetEvent with the desired target LLView*. (See
-         * LLUI::resolvePath() to obtain an LLView* given a string pathname.)
+         * LLUI::getInstance()->resolvePath() to obtain an LLView* given a string pathname.)
          * This sets up for operator().
          */
         TargetEvent(LLView* view);
