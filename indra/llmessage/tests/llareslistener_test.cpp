@@ -138,15 +138,9 @@ namespace tut
         WrapLLErrs capture;
         LLSD request;
         request["op"] = "foo";
-        std::string threw;
-        try
-        {
-            LLEventPumps::instance().obtain("LLAres").post(request);
-        }
-        catch (const WrapLLErrs::FatalException& e)
-        {
-            threw = e.what();
-        }
+        std::string threw = capture.catch_llerrs([&request](){
+                LLEventPumps::instance().obtain("LLAres").post(request);
+            });
         ensure_contains("LLAresListener bad op", threw, "bad");
     }
 
@@ -157,15 +151,9 @@ namespace tut
         WrapLLErrs capture;
         LLSD request;
         request["op"] = "rewriteURI";
-        std::string threw;
-        try
-        {
-            LLEventPumps::instance().obtain("LLAres").post(request);
-        }
-        catch (const WrapLLErrs::FatalException& e)
-        {
-            threw = e.what();
-        }
+        std::string threw = capture.catch_llerrs([&request](){
+                LLEventPumps::instance().obtain("LLAres").post(request);
+            });
         ensure_contains("LLAresListener bad req", threw, "missing");
         ensure_contains("LLAresListener bad req", threw, "reply");
         ensure_contains("LLAresListener bad req", threw, "uri");
@@ -179,15 +167,9 @@ namespace tut
         LLSD request;
         request["op"] = "rewriteURI";
         request["reply"] = "nonexistent";
-        std::string threw;
-        try
-        {
-            LLEventPumps::instance().obtain("LLAres").post(request);
-        }
-        catch (const WrapLLErrs::FatalException& e)
-        {
-            threw = e.what();
-        }
+        std::string threw = capture.catch_llerrs([&request](){
+                LLEventPumps::instance().obtain("LLAres").post(request);
+            });
         ensure_contains("LLAresListener bad req", threw, "missing");
         ensure_contains("LLAresListener bad req", threw, "uri");
         ensure_does_not_contain("LLAresListener bad req", threw, "reply");
@@ -201,15 +183,9 @@ namespace tut
         LLSD request;
         request["op"] = "rewriteURI";
         request["uri"] = "foo.bar.com";
-        std::string threw;
-        try
-        {
-            LLEventPumps::instance().obtain("LLAres").post(request);
-        }
-        catch (const WrapLLErrs::FatalException& e)
-        {
-            threw = e.what();
-        }
+        std::string threw = capture.catch_llerrs([&request](){
+                LLEventPumps::instance().obtain("LLAres").post(request);
+            });
         ensure_contains("LLAresListener bad req", threw, "missing");
         ensure_contains("LLAresListener bad req", threw, "reply");
         ensure_does_not_contain("LLAresListener bad req", threw, "uri");

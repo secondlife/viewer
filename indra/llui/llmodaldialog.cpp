@@ -105,7 +105,7 @@ void LLModalDialog::onOpen(const LLSD& key)
 	
 		// This is a modal dialog.  It sucks up all mouse and keyboard operations.
 		gFocusMgr.setMouseCapture( this );
-		LLUI::addPopup(this);
+		LLUI::getInstance()->addPopup(this);
 		setFocus(TRUE);
 
 		sModalStack.push_front( this );
@@ -147,7 +147,7 @@ void LLModalDialog::setVisible( BOOL visible )
 			gFocusMgr.setMouseCapture( this );
 
 			// The dialog view is a root view
-			LLUI::addPopup(this);
+			LLUI::getInstance()->addPopup(this);
 			setFocus( TRUE );
 		}
 		else
@@ -165,7 +165,7 @@ BOOL LLModalDialog::handleMouseDown(S32 x, S32 y, MASK mask)
 	if (popup_menu != NULL)
 	{
 		S32 mx, my;
-		LLUI::getMousePositionScreen(&mx, &my);
+		LLUI::getInstance()->getMousePositionScreen(&mx, &my);
 		LLRect menu_screen_rc = popup_menu->calcScreenRect();
 		if(!menu_screen_rc.pointInRect(mx, my))
 		{
@@ -202,7 +202,7 @@ BOOL LLModalDialog::handleHover(S32 x, S32 y, MASK mask)
 	if (popup_menu != NULL)
 	{
 		S32 mx, my;
-		LLUI::getMousePositionScreen(&mx, &my);
+		LLUI::getInstance()->getMousePositionScreen(&mx, &my);
 		LLRect menu_screen_rc = popup_menu->calcScreenRect();
 		if(menu_screen_rc.pointInRect(mx, my))
 		{
@@ -286,7 +286,7 @@ void LLModalDialog::draw()
 
 void LLModalDialog::centerOnScreen()
 {
-	LLVector2 window_size = LLUI::getWindowSize();
+	LLVector2 window_size = LLUI::getInstance()->getWindowSize();
 	centerWithin(LLRect(0, 0, ll_round(window_size.mV[VX]), ll_round(window_size.mV[VY])));
 }
 
@@ -316,7 +316,7 @@ void LLModalDialog::onAppFocusGained()
 		// This is a modal dialog.  It sucks up all mouse and keyboard operations.
 		gFocusMgr.setMouseCapture( instance );
 		instance->setFocus(TRUE);
-		LLUI::addPopup(instance);
+		LLUI::getInstance()->addPopup(instance);
 
 		instance->centerOnScreen();
 	}

@@ -977,7 +977,7 @@ void LLAccordionCtrlTab::drawChild(const LLRect& root_rect,LLView* child)
 		LLRect screen_rect;
 		localRectToScreen(child->getRect(),&screen_rect);
 		
-		if ( root_rect.overlaps(screen_rect)  && LLUI::sDirtyRect.overlaps(screen_rect))
+		if ( root_rect.overlaps(screen_rect)  && LLUI::getInstance()->mDirtyRect.overlaps(screen_rect))
 		{
 			gGL.matrixMode(LLRender::MM_MODELVIEW);
 			LLUI::pushMatrix();

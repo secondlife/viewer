@@ -403,8 +403,11 @@ LLSocks5AuthType LLProxy::getSelectedAuthMethod() const
 //static
 void LLProxy::cleanupClass()
 {
-	getInstance()->stopSOCKSProxy();
-	deleteSingleton();
+    if (instanceExists())
+    {
+        getInstance()->stopSOCKSProxy();
+        deleteSingleton();
+    }
 }
 
 /**

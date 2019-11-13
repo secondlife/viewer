@@ -234,7 +234,7 @@ void LLFloaterWebContent::preCreate(LLFloaterWebContent::Params& p)
 
 void LLFloaterWebContent::open_media(const Params& p)
 {
-	LLViewerMedia::proxyWindowOpened(p.target(), p.id());
+	LLViewerMedia::getInstance()->proxyWindowOpened(p.target(), p.id());
 	mWebBrowser->setHomePageUrl(p.url);
 	mWebBrowser->setTarget(p.target);
 	mWebBrowser->navigateTo(p.url);
@@ -308,7 +308,7 @@ void LLFloaterWebContent::onClose(bool app_quitting)
             LLTwitterConnect::instance().setConnectionState(LLTwitterConnect::TWITTER_CONNECTION_FAILED);
         }
     }
-	LLViewerMedia::proxyWindowClosed(mUUID);
+	LLViewerMedia::getInstance()->proxyWindowClosed(mUUID);
 	destroy();
 }
 

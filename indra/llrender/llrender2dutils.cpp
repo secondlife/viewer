@@ -46,8 +46,6 @@
 // Globals
 //
 const LLColor4 UI_VERTEX_COLOR(1.f, 1.f, 1.f, 1.f);
-/*static*/ LLVector2		LLRender2D::sGLScaleFactor(1.f, 1.f);
-/*static*/ LLImageProviderInterface* LLRender2D::sImageProvider = NULL;
 
 //
 // Functions
@@ -108,10 +106,11 @@ void gl_rect_2d_offset_local( S32 left, S32 top, S32 right, S32 bottom, S32 pixe
 	top += LLFontGL::sCurOrigin.mY;
 
 	gGL.loadUIIdentity();
-	gl_rect_2d(llfloor((F32)left * LLRender2D::sGLScaleFactor.mV[VX]) - pixel_offset,
-				llfloor((F32)top * LLRender2D::sGLScaleFactor.mV[VY]) + pixel_offset,
-				llfloor((F32)right * LLRender2D::sGLScaleFactor.mV[VX]) + pixel_offset,
-				llfloor((F32)bottom * LLRender2D::sGLScaleFactor.mV[VY]) - pixel_offset,
+	LLRender2D *r2d_inst = LLRender2D::getInstance();
+	gl_rect_2d(llfloor((F32)left * r2d_inst->mGLScaleFactor.mV[VX]) - pixel_offset,
+				llfloor((F32)top * r2d_inst->mGLScaleFactor.mV[VY]) + pixel_offset,
+				llfloor((F32)right * r2d_inst->mGLScaleFactor.mV[VX]) + pixel_offset,
+				llfloor((F32)bottom * r2d_inst->mGLScaleFactor.mV[VY]) - pixel_offset,
 				filled);
 	gGL.popUIMatrix();
 }
@@ -800,7 +799,7 @@ void gl_stippled_line_3d( const LLVector3& start, const LLVector3& end, const LL
 	}
 	gGL.end();
 
-	LLRender2D::setLineWidth(1.f);
+	LLRender2D::getInstance()->setLineWidth(1.f);
 }
 
 void gl_arc_2d(F32 center_x, F32 center_y, F32 radius, S32 steps, BOOL filled, F32 start_angle, F32 end_angle)
@@ -967,7 +966,7 @@ void gl_rect_2d_checkerboard(const LLRect& rect, GLfloat alpha)
 	}
 	else
 	{ //polygon stipple is deprecated, use "Checker" texture
-		LLPointer<LLUIImage> img = LLRender2D::getUIImage("Checker");
+		LLPointer<LLUIImage> img = LLRender2D::getInstance()->getUIImage("Checker");
 		gGL.getTexUnit(0)->bind(img->getImage());
 		gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_WRAP);
 		gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
@@ -1567,25 +1566,26 @@ void gl_segmented_rect_3d_tex(const LLRectf& clip_rect, const LLRectf& center_uv
 
 }
 
-// static
-void LLRender2D::initClass(LLImageProviderInterface* image_provider,
-						   const LLVector2* scale_factor)
+LLRender2D::LLRender2D(LLImageProviderInterface* image_provider)
 {
-	sGLScaleFactor = (scale_factor == NULL) ? LLVector2(1.f, 1.f) : *scale_factor;
-	sImageProvider = image_provider;
+	mGLScaleFactor = LLVector2(1.f, 1.f);
+	mImageProvider = image_provider;
+	if(mImageProvider)
+	{
+		mImageProvider->addOnRemovalCallback(resetProvider);
+	}
 }
 
-// static
-void LLRender2D::cleanupClass()
+LLRender2D::~LLRender2D()
 {
-	if(sImageProvider)
+	if(mImageProvider)
 	{
-		sImageProvider->cleanUp();
+		mImageProvider->cleanUp();
+		mImageProvider->deleteOnRemovalCallback(resetProvider);
 	}
 }
 
 
-//static
 void LLRender2D::translate(F32 x, F32 y, F32 z)
 {
 	gGL.translateUI(x,y,z);
@@ -1594,14 +1594,12 @@ void LLRender2D::translate(F32 x, F32 y, F32 z)
 	LLFontGL::sCurDepth += z;
 }
 
-//static
 void LLRender2D::pushMatrix()
 {
 	gGL.pushUIMatrix();
 	LLFontGL::sOriginStack.push_back(std::make_pair(LLFontGL::sCurOrigin, LLFontGL::sCurDepth));
 }
 
-//static
 void LLRender2D::popMatrix()
 {
 	gGL.popUIMatrix();
@@ -1610,7 +1608,6 @@ void LLRender2D::popMatrix()
 	LLFontGL::sOriginStack.pop_back();
 }
 
-//static 
 void LLRender2D::loadIdentity()
 {
 	gGL.loadUIIdentity(); 
@@ -1619,25 +1616,22 @@ void LLRender2D::loadIdentity()
 	LLFontGL::sCurDepth = 0.f;
 }
 
-//static
 void LLRender2D::setScaleFactor(const LLVector2 &scale_factor)
 {
-	sGLScaleFactor = scale_factor;
+	mGLScaleFactor = scale_factor;
 }
 
-//static
 void LLRender2D::setLineWidth(F32 width)
 {
 	gGL.flush();
-	glLineWidth(width * lerp(sGLScaleFactor.mV[VX], sGLScaleFactor.mV[VY], 0.5f));
+	glLineWidth(width * lerp(mGLScaleFactor.mV[VX], mGLScaleFactor.mV[VY], 0.5f));
 }
 
-//static
 LLPointer<LLUIImage> LLRender2D::getUIImageByID(const LLUUID& image_id, S32 priority)
 {
-	if (sImageProvider)
+	if (mImageProvider)
 	{
-		return sImageProvider->getUIImageByID(image_id, priority);
+		return mImageProvider->getUIImageByID(image_id, priority);
 	}
 	else
 	{
@@ -1645,12 +1639,49 @@ LLPointer<LLUIImage> LLRender2D::getUIImageByID(const LLUUID& image_id, S32 prio
 	}
 }
 
-//static 
 LLPointer<LLUIImage> LLRender2D::getUIImage(const std::string& name, S32 priority)
 {
-	if (!name.empty() && sImageProvider)
-		return sImageProvider->getUIImage(name, priority);
+	if (!name.empty() && mImageProvider)
+		return mImageProvider->getUIImage(name, priority);
 	else
 		return NULL;
+}
+
+// static
+void LLRender2D::resetProvider()
+{
+    if (LLRender2D::instanceExists)
+    {
+        LLRender2D::getInstance()->mImageProvider = NULL;
+    }
+}
+
+// class LLImageProviderInterface
+
+LLImageProviderInterface::~LLImageProviderInterface()
+{
+    for (callback_list_t::iterator iter = mCallbackList.begin(); iter != mCallbackList.end();)
+    {
+        callback_list_t::iterator curiter = iter++;
+        (*curiter)();
+    }
+}
+
+void LLImageProviderInterface::addOnRemovalCallback(callback_t func)
+{
+    if (!func)
+    {
+        return;
+    }
+    mCallbackList.push_back(func);
+}
+
+void LLImageProviderInterface::deleteOnRemovalCallback(callback_t func)
+{
+    callback_list_t::iterator iter = std::find(mCallbackList.begin(), mCallbackList.end(), func);
+    if (iter != mCallbackList.end())
+    {
+        mCallbackList.erase(iter);
+    }
 }
 
