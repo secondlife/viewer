@@ -36,6 +36,7 @@
 
 #include "llaccordionctrltab.h"
 #include "llappearancemgr.h"
+#include "llagentbenefits.h"
 #include "lleconomy.h"
 #include "llerror.h"
 #include "llfilepicker.h"
@@ -1205,7 +1206,7 @@ void LLOutfitGallery::uploadOutfitImage(const std::vector<std::string>& filename
             return;
         }
 
-        S32 expected_upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload(); // kinda hack - assumes that unsubclassed LLFloaterNameDesc is only used for uploading chargeable assets, which it is right now (it's only used unsubclassed for the sound upload dialog, and THAT should be a subclass).
+        S32 expected_upload_cost = LLAgentBenefits::instance().getTextureUploadCost();
         void *nruserdata = NULL;
         nruserdata = (void *)&outfit_id;
 

@@ -247,7 +247,6 @@ static std::string gAgentStartLocation = "safe";
 static bool mLoginStatePastUI = false;
 
 const S32 DEFAULT_MAX_AGENT_GROUPS = 42;
-const S32 ALLOWED_MAX_AGENT_GROUPS = 500;
 const F32 STATE_AGENT_WAIT_TIMEOUT = 240; //seconds
 
 boost::scoped_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
@@ -3607,26 +3606,9 @@ bool process_login_success_response()
 		LLViewerMedia::getInstance()->openIDSetup(openid_url, openid_token);
 	}
 
-	gMaxAgentGroups = DEFAULT_MAX_AGENT_GROUPS;
-	if(response.has("max-agent-groups"))
-	{
-		S32 agent_groups = atoi(std::string(response["max-agent-groups"]).c_str());
-		if (agent_groups > 0 && agent_groups <= ALLOWED_MAX_AGENT_GROUPS)
-		{
-			gMaxAgentGroups = agent_groups;
-			LL_INFOS("LLStartup") << "gMaxAgentGroups read from login.cgi: "
-				<< gMaxAgentGroups << LL_ENDL;
-		}
-		else
-		{
-			LL_INFOS("LLStartup") << "Invalid value received, using defaults for gMaxAgentGroups: "
-				<< gMaxAgentGroups << LL_ENDL;
-		}
-	}
-	else {
-		LL_INFOS("LLStartup") << "Missing max-agent-groups, using default value for gMaxAgentGroups: "
-							  << gMaxAgentGroups << LL_ENDL;
-	}
+	gMaxAgentGroups = LLAgentBenefits::instance().getGroupMembershipLimit();
+	LL_INFOS("LLStartup") << "gMaxAgentGroups set from agent benefits: "
+						  << gMaxAgentGroups << LL_ENDL;
 		
 	bool success = false;
 	// JC: gesture loading done below, when we have an asset system

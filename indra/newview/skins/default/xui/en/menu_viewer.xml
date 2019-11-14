@@ -1306,7 +1306,7 @@
                  function="File.EnableUpload" />
                 <menu_item_call.on_visible
                  function="Upload.CalculateCosts"
-                 parameter="Upload Image" />
+                 parameter="Upload Image,texture" />
             </menu_item_call>
             <menu_item_call
              label="Sound (L$[COST])..."
@@ -1319,7 +1319,7 @@
                  function="File.EnableUpload" />
                 <menu_item_call.on_visible
                  function="Upload.CalculateCosts"
-                 parameter="Upload Sound" />
+                 parameter="Upload Sound,sound" />
             </menu_item_call>
             <menu_item_call
              label="Animation (L$[COST])..."
@@ -1332,7 +1332,7 @@
                  function="File.EnableUpload" />
                 <menu_item_call.on_visible
                  function="Upload.CalculateCosts"
-                 parameter="Upload Animation" />
+                 parameter="Upload Animation,animation" />
             </menu_item_call>
             <menu_item_call
            label="Model..."
@@ -1350,6 +1350,9 @@
              label="Bulk (L$[COST] per file)..."
              layout="topleft"
              name="Bulk Upload">
+                <menu_item_call.on_visible
+                 function="Upload.CalculateCosts"
+                 parameter="Bulk Upload,texture" />
                 <menu_item_call.on_click
                  function="File.UploadBulk"
                  parameter="" />

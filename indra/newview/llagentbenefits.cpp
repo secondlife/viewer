@@ -26,7 +26,14 @@
 #include "llviewerprecompiledheaders.h"
 #include "llagentbenefits.h"
 
-LLAgentBenefits::LLAgentBenefits()
+LLAgentBenefits::LLAgentBenefits():
+	m_initalized(false),
+	m_animated_object_limit(-1),
+	m_animation_upload_cost(-1),
+	m_attachment_limit(-1),
+	m_group_membership_limit(-1),
+	m_sound_upload_cost(-1),
+	m_texture_upload_cost(-1)
 {
 }
 
@@ -78,35 +85,43 @@ bool LLAgentBenefits::init(const LLSD& benefits_sd)
 	{
 		return false;
 	}
+
+	m_initalized = true;
 	return true;
 }
 
 S32 LLAgentBenefits::getAnimatedObjectLimit() const
 {
+	//llassert(m_initalized);
 	return m_animated_object_limit;
 }
 
 S32 LLAgentBenefits::getAnimationUploadCost() const
 {
+	//llassert(m_initalized);
 	return m_animation_upload_cost;
 }
 
 S32 LLAgentBenefits::getAttachmentLimit() const
 {
+	//llassert(m_initalized);
 	return m_attachment_limit;
 }
 
 S32 LLAgentBenefits::getGroupMembershipLimit() const
 {
+	//llassert(m_initalized);
 	return m_group_membership_limit;
 }
 
 S32 LLAgentBenefits::getSoundUploadCost() const
 {
+	//llassert(m_initalized);
 	return m_sound_upload_cost;
 }
 
 S32 LLAgentBenefits::getTextureUploadCost() const
 {
+	//llassert(m_initalized);
 	return m_texture_upload_cost;
 }

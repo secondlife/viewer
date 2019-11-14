@@ -62,7 +62,6 @@ public:
     virtual LLSD        prepareUpload();
     virtual LLSD        generatePostBody();
     virtual void        logPreparedUpload();
-    virtual S32         getEconomyUploadCost();
     virtual LLUUID      finishUpload(LLSD &result);
 
     LLTransactionID     getTransactionId() const { return mTransactionId; }
