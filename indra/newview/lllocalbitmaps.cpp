@@ -1040,7 +1040,7 @@ LLUUID LLLocalBitmapMgr::getWorldID(LLUUID tracking_id)
 
 bool LLLocalBitmapMgr::isLocal(const LLUUID world_id)
 {
-    for (local_list_iter iter = sBitmapList.begin(); iter != sBitmapList.end(); iter++)
+    for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
     {
         LLLocalBitmap* unit = *iter;
         if (unit->getWorldID() == world_id)
