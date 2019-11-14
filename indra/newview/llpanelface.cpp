@@ -2912,6 +2912,7 @@ void LLPanelFace::onCopyFaces()
             {
                 LLSD te_data;
 
+                // asLLSD() includes media
                 te_data["te"] = tep->asLLSD();
                 te_data["te"]["glow"] = tep->getGlow();
                 te_data["te"]["shiny"] = tep->getShiny();
@@ -3001,8 +3002,6 @@ void LLPanelFace::onCopyFaces()
 
                     te_data["material"] = mat_data;
                 }
-
-                //*TODO: Media
 
                 mClipboard.append(te_data);
             }
@@ -3116,7 +3115,7 @@ void LLPanelFace::pasteFace(LLViewerObject* objectp, S32 te)
             // Color / Alpha
             if ((mPasteColor || mPasteAlpha) && te_data["te"].has("colors"))
             {
-                LLColor4 color = objectp->getTE(te)->getColor();
+                LLColor4 color = tep->getColor();
 
                 LLColor4 clip_color;
                 clip_color.setValue(te_data["te"]["colors"]);
@@ -3167,19 +3166,20 @@ void LLPanelFace::pasteFace(LLViewerObject* objectp, S32 te)
                 }
             }
 
-           // Media
-            if (mPasteMedia && te_data.has("media")) //te_data["te"]?
+            // Media
+            if (mPasteMedia && te_data["te"].has("media_flags"))
             {
-                //*TODO
+                U8 media_flags = te_data["te"]["media_flags"].asInteger();
+                objectp->setTEMediaFlags(te, media_flags);
+                LLVOVolume *vo = dynamic_cast<LLVOVolume*>(objectp);
+                if (vo && te_data["te"].has(LLTextureEntry::TEXTURE_MEDIA_DATA_KEY))
+                {
+                    vo->syncMediaData(te, te_data["te"][LLTextureEntry::TEXTURE_MEDIA_DATA_KEY], true/*merge*/, true/*ignore_agent*/);
+                }
             }
             else
             {
-                // // Keep media flags on destination unchanged
-                // // Media is handled later
-                // if (te_data["te"].has("media_flags"))
-                // {
-                    // te_data["te"]["media_flags"] = tep->getMediaTexGen();
-                // }
+                // Keep media flags on destination unchanged
             }
         }
 
@@ -3261,13 +3261,66 @@ private:
     LLPanelFace *mPanelFace;
 };
 
+struct LLPanelFaceUpdateFunctor : public LLSelectedObjectFunctor
+{
+    LLPanelFaceUpdateFunctor(bool update_media) : mUpdateMedia(update_media) {}
+    virtual bool apply(LLViewerObject* object)
+    {
+        object->sendTEUpdate();
+        if (mUpdateMedia)
+        {
+            LLVOVolume *vo = dynamic_cast<LLVOVolume*>(object);
+            if (vo && vo->hasMedia())
+            {
+                vo->sendMediaDataUpdate();
+            }
+        }
+        return true;
+    }
+private:
+    bool mUpdateMedia;
+};
+
+struct LLPanelFaceNavigateHomeFunctor : public LLSelectedTEFunctor
+{
+    virtual bool apply(LLViewerObject* objectp, S32 te)
+    {
+        if (objectp && objectp->getTE(te))
+        {
+            LLTextureEntry* tep = objectp->getTE(te);
+            const LLMediaEntry *media_data = tep->getMediaData();
+            if (media_data)
+            {
+                if (media_data->getCurrentURL().empty() && media_data->getAutoPlay())
+                {
+                    viewer_media_t media_impl =
+                        LLViewerMedia::getMediaImplFromTextureID(tep->getMediaData()->getMediaID());
+                    if (media_impl)
+                    {
+                        media_impl->navigateHome();
+                    }
+                }
+            }
+        }
+        return true;
+    }
+};
+
 void LLPanelFace::onPasteFaces()
 {
-    LLPanelFacePasteTexFunctor paste_func(this);
-    LLSelectMgr::getInstance()->getSelection()->applyToTEs(&paste_func);
+    LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
 
-    LLPanelFaceSendFunctor sendfunc;
-    LLSelectMgr::getInstance()->getSelection()->applyToObjects(&sendfunc);
+    LLPanelFacePasteTexFunctor paste_func(this);
+    selected_objects->applyToTEs(&paste_func);
+
+    LLPanelFaceUpdateFunctor sendfunc(mPasteMedia);
+    selected_objects->applyToObjects(&sendfunc);
+
+    if (mPasteMedia)
+    {
+        LLPanelFaceNavigateHomeFunctor navigate_home_func;
+        selected_objects->applyToTEs(&navigate_home_func);
+    }
 }
 
 bool LLPanelFace::pasteCheckMenuItem(const LLSD& userdata)
