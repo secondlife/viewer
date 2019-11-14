@@ -513,8 +513,8 @@ void LLStatusBar::onMouseEnterPresetsCamera()
 	mPanelPresetsCameraPulldown->setShape(pulldown_rect);
 
 	// show the master presets pull-down
-	LLUI::clearPopups();
-	LLUI::addPopup(mPanelPresetsCameraPulldown);
+	LLUI::getInstance()->clearPopups();
+	LLUI::getInstance()->addPopup(mPanelPresetsCameraPulldown);
 	mPanelNearByMedia->setVisible(FALSE);
 	mPanelVolumePulldown->setVisible(FALSE);
 	mPanelPresetsPulldown->setVisible(FALSE);
