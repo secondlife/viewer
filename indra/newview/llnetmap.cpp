@@ -329,7 +329,7 @@ void LLNetMap::draw()
 		S32 local_mouse_x;
 		S32 local_mouse_y;
 		//localMouse(&local_mouse_x, &local_mouse_y);
-		LLUI::getMousePositionLocal(this, &local_mouse_x, &local_mouse_y);
+		LLUI::getInstance()->getMousePositionLocal(this, &local_mouse_x, &local_mouse_y);
 		mClosestAgentToCursor.setNull();
 		F32 closest_dist_squared = F32_MAX; // value will be overridden in the loop
 		F32 min_pick_dist_squared = (mDotRadius * MIN_PICK_SCALE) * (mDotRadius * MIN_PICK_SCALE);
@@ -835,7 +835,7 @@ BOOL LLNetMap::handleMouseUp( S32 x, S32 y, MASK mask )
 			LLRect clip_rect = getRect();
 			clip_rect.stretch(-8);
 			clip_rect.clipPointToRect(mMouseDown.mX, mMouseDown.mY, local_x, local_y);
-			LLUI::setMousePositionLocal(this, local_x, local_y);
+			LLUI::getInstance()->setMousePositionLocal(this, local_x, local_y);
 
 			// finish the pan
 			mPanning = false;

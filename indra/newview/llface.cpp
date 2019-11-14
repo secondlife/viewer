@@ -228,12 +228,6 @@ void LLFace::destroy()
 	mVObjp = NULL;
 }
 
-
-// static
-void LLFace::initClass()
-{
-}
-
 void LLFace::setWorldMatrix(const LLMatrix4 &mat)
 {
 	LL_ERRS() << "Faces on this drawable are not independently modifiable\n" << LL_ENDL;

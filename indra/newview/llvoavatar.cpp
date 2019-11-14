@@ -7363,7 +7363,7 @@ void LLVOAvatar::getOffObject()
 	if (sit_object)
 	{
 		stopMotionFromSource(sit_object->getID());
-		LLFollowCamMgr::setCameraActive(sit_object->getID(), FALSE);
+		LLFollowCamMgr::getInstance()->setCameraActive(sit_object->getID(), FALSE);
 
 		LLViewerObject::const_child_list_t& child_list = sit_object->getChildren();
 		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
@@ -7372,7 +7372,7 @@ void LLVOAvatar::getOffObject()
 			LLViewerObject* child_objectp = *iter;
 
 			stopMotionFromSource(child_objectp->getID());
-			LLFollowCamMgr::setCameraActive(child_objectp->getID(), FALSE);
+			LLFollowCamMgr::getInstance()->setCameraActive(child_objectp->getID(), FALSE);
 		}
 	}
 
