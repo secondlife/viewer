@@ -112,7 +112,7 @@ void LLFloaterSavePrefPreset::onOpen(const LLSD& key)
 void LLFloaterSavePrefPreset::onBtnSave()
 {
 	bool is_saving_new = mSaveRadioGroup->getSelectedIndex() == 0;
-	std::string name = is_saving_new ? mNameEditor->getValue() : mPresetCombo->getSimple();
+	std::string name = is_saving_new ? mNameEditor->getText() : mPresetCombo->getSimple();
 
 	if ((name == LLTrans::getString(PRESETS_DEFAULT)) || (name == PRESETS_DEFAULT))
 	{
