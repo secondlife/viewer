@@ -774,6 +774,10 @@ bool LLAppViewer::init()
 	// Memory will be cleaned up in ::cleanupClass()
 	LLWearableType::initParamSingleton(new LLUITranslationBridge());
 
+    // initialize the LLSettingsType translation bridge.
+    LLTranslationBridge::ptr_t trans = std::make_shared<LLUITranslationBridge>();
+    LLSettingsType::initClass(trans);
+
 	// initialize SSE options
 	LLVector4a::initClass();
 
