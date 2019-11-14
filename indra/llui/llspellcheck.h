@@ -34,10 +34,9 @@
 
 class Hunspell;
 
-class LLSpellChecker : public LLSingleton<LLSpellChecker>, public LLInitClass<LLSpellChecker>
+class LLSpellChecker : public LLSingleton<LLSpellChecker>
 {
 	LLSINGLETON(LLSpellChecker);
-	friend class LLInitClass<LLSpellChecker>;
 	~LLSpellChecker();
 
 public:
@@ -57,26 +56,24 @@ public:
 	bool				isActiveDictionary(const std::string& dict_language) const;
 	void				setSecondaryDictionaries(dict_list_t dict_list);
 
-	static bool				 canRemoveDictionary(const std::string& dict_language);
+	bool					 canRemoveDictionary(const std::string& dict_language);
 	static const std::string getDictionaryAppPath();
 	static const std::string getDictionaryUserPath();
-	static const LLSD		 getDictionaryData(const std::string& dict_language);
-	static const LLSD&		 getDictionaryMap() { return sDictMap; }
+	const LLSD				 getDictionaryData(const std::string& dict_language);
+	const LLSD&				 getDictionaryMap() { return mDictMap; }
 	static bool				 getUseSpellCheck();
-	static bool				 hasDictionary(const std::string& dict_language, bool check_installed = false);
-	static void				 refreshDictionaryMap();
-	static void				 removeDictionary(const std::string& dict_language);
+	bool					 hasDictionary(const std::string& dict_language, bool check_installed = false);
+	void					 refreshDictionaryMap();
+	void					 removeDictionary(const std::string& dict_language);
 	static void				 setUseSpellCheck(const std::string& dict_language);
 protected:
 	static LLSD				 loadUserDictionaryMap();
-	static void				 setDictionaryData(const LLSD& dict_info);
+	void					 setDictionaryData(const LLSD& dict_info);
 	static void				 saveUserDictionaryMap(const LLSD& dict_map);
 
 public:
 	typedef boost::signals2::signal<void()> settings_change_signal_t;
 	static boost::signals2::connection setSettingsChangeCallback(const settings_change_signal_t::slot_type& cb);
-protected:
-	static void initClass();
 
 protected:
 	Hunspell*	mHunspell;
@@ -84,8 +81,8 @@ protected:
 	std::string	mDictFile;
 	dict_list_t	mDictSecondary;
 	std::vector<std::string> mIgnoreList;
+	LLSD mDictMap;
 
-	static LLSD						sDictMap;
 	static settings_change_signal_t	sSettingsChangeSignal;
 };
 

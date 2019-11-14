@@ -68,7 +68,7 @@ LLConsole::LLConsole(const LLConsole::Params& p)
 		setFontSize(p.font_size_index);
 	}
 	mFadeTime = mLinePersistTime - FADE_DURATION;
-	setMaxLines(LLUI::sSettingGroups["config"]->getS32("ConsoleMaxLines"));
+	setMaxLines(LLUI::getInstance()->mSettingGroups["config"]->getS32("ConsoleMaxLines"));
 }
 
 void LLConsole::setLinePersistTime(F32 seconds)
@@ -180,7 +180,7 @@ void LLConsole::draw()
 
 	LLUIImagePtr imagep = LLUI::getUIImage("transparent");
 
-	F32 console_opacity = llclamp(LLUI::sSettingGroups["config"]->getF32("ConsoleBackgroundOpacity"), 0.f, 1.f);
+	F32 console_opacity = llclamp(LLUI::getInstance()->mSettingGroups["config"]->getF32("ConsoleBackgroundOpacity"), 0.f, 1.f);
 	LLColor4 color = LLUIColorTable::instance().getColor("ConsoleBackground");
 	color.mV[VALPHA] *= console_opacity;
 
