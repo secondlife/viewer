@@ -134,10 +134,7 @@ LLCoprocedureManager::LLCoprocedureManager()
 
 LLCoprocedureManager::~LLCoprocedureManager()
 {
-    for(auto & poolEntry : mPoolMap)
-    {
-        poolEntry.second->close();
-    }
+    close();
 }
 
 LLCoprocedureManager::poolPtr_t LLCoprocedureManager::initializePool(const std::string &poolName)
@@ -253,6 +250,14 @@ size_t LLCoprocedureManager::count(const std::string &pool) const
     if (it == mPoolMap.end())
         return 0;
     return it->second->count();
+}
+
+void LLCoprocedureManager::close()
+{
+    for(auto & poolEntry : mPoolMap)
+    {
+        poolEntry.second->close();
+    }
 }
 
 void LLCoprocedureManager::close(const std::string &pool)

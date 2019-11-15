@@ -77,6 +77,7 @@ public:
     size_t count() const;
     size_t count(const std::string &pool) const;
 
+    void close();
     void close(const std::string &pool);
     
 private:

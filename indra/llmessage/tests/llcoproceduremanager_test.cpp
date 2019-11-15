@@ -75,6 +75,11 @@ namespace tut
         coproceduremanager_test()
         {
         }
+
+        ~coproceduremanager_test()
+        {
+            LLCoprocedureManager::instance().close();
+        }
     };
     typedef test_group<coproceduremanager_test> coproceduremanager_t;
     typedef coproceduremanager_t::object coproceduremanager_object_t;
