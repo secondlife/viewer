@@ -3294,7 +3294,7 @@ struct LLPanelFaceNavigateHomeFunctor : public LLSelectedTEFunctor
                 if (media_data->getCurrentURL().empty() && media_data->getAutoPlay())
                 {
                     viewer_media_t media_impl =
-                        LLViewerMedia::getMediaImplFromTextureID(tep->getMediaData()->getMediaID());
+                        LLViewerMedia::getInstance()->getMediaImplFromTextureID(tep->getMediaData()->getMediaID());
                     if (media_impl)
                     {
                         media_impl->navigateHome();
