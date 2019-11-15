@@ -570,9 +570,20 @@ static std::string get_object_log(GLhandleARB ret)
 //dump shader source for debugging
 void LLShaderMgr::dumpShaderSource(U32 shader_code_count, GLcharARB** shader_code_text)
 {	
-	for (GLuint i = 0; i < shader_code_count; i++)
+	for (U32 i = 0; i < shader_code_count; i++)
 	{
+		GLcharARB *line = shader_code_text[i];
+		size_t     len  = strlen( line );
+		char       last = len > 0 ? line[len - 1] : 0;
+
+		// LL_ENDL already outputs a newline so temporarily strip off the end newline to prevent EVERY line outputting an (extra) blank line
+		if (last == '\n')
+		    line[len - 1] = 0;
+
 		LL_SHADER_LOADING_WARNS() << i << ": " << shader_code_text[i] << LL_ENDL;
+
+		if (last == '\n')
+			line[len - 1] = '\n';
 	}
     LL_SHADER_LOADING_WARNS() << LL_ENDL;
 }
