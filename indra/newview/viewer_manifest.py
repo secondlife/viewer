@@ -1201,11 +1201,6 @@ class DarwinManifest(ViewerManifest):
             devfile = re.search("/dev/disk([0-9]+)[^s]", hdi_output).group(0).strip()
             volpath = re.search('HFS\s+(.+)', hdi_output).group(1).strip()
 
-            if devfile != '/dev/disk1':
-                # adding more debugging info based upon nat's hunches to the
-                # logs to help track down 'SetFile -a V' failures -brad
-                print "WARNING: 'SetFile -a V' command below is probably gonna fail"
-
             # Copy everything in to the mounted .dmg
 
             app_name = self.app_name()
@@ -1233,21 +1228,6 @@ class DarwinManifest(ViewerManifest):
             # Hide the background image, DS_Store file, and volume icon file (set their "visible" bit)
             for f in ".VolumeIcon.icns", "background.jpg", ".DS_Store":
                 pathname = os.path.join(volpath, f)
-                # We've observed mysterious "no such file" failures of the SetFile
-                # command, especially on the first file listed above -- yet
-                # subsequent inspection of the target directory confirms it's
-                # there. Timing problem with copy command? Try to handle.
-                for x in xrange(3):
-                    if os.path.exists(pathname):
-                        print "Confirmed existence: %r" % pathname
-                        break
-                    print "Waiting for %s copy command to complete (%s)..." % (f, x+1)
-                    sys.stdout.flush()
-                    time.sleep(1)
-                # If we fall out of the loop above without a successful break, oh
-                # well, possibly we've mistaken the nature of the problem. In any
-                # case, don't hang up the whole build looping indefinitely, let
-                # the original problem manifest by executing the desired command.
                 self.run_command(['SetFile', '-a', 'V', pathname])
 
             # Create the alias file (which is a resource file) from the .r
