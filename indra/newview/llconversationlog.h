@@ -111,7 +111,6 @@ class LLConversationLog : public LLSingleton<LLConversationLog>, LLIMSessionObse
 {
 	LLSINGLETON(LLConversationLog);
 public:
-
 	void removeConversation(const LLConversation& conversation);
 
 	/**
@@ -147,6 +146,12 @@ public:
 
 	bool getIsLoggingEnabled() { return mLoggingEnabled; }
 	bool isLogEmpty() { return mConversations.empty(); }
+
+	/**
+	 * inits connection to per account settings,
+	 * loads saved file and inits enabled state
+	 */
+	void initLoggingState();
 
 	/**
 	 * constructs file name in which conversations log will be saved

@@ -342,3 +342,16 @@ struct AttachmentInfo
 #endif // LL_BUGSPLAT
 
 @end
+
+@implementation LLApplication
+
+- (void)sendEvent:(NSEvent *)event
+{
+    [super sendEvent:event];
+    if ([event type] == NSKeyUp && ([event modifierFlags] & NSCommandKeyMask))
+    {   
+        [[self keyWindow] sendEvent:event];
+    }
+}
+
+@end

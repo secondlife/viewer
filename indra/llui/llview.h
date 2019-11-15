@@ -498,7 +498,7 @@ public:
 	// return query for iterating over focus roots in tab order
 	static const LLViewQuery & getFocusRootsQuery();
 
-	static LLWindow*	getWindow(void) { return LLUI::sWindow; }
+	static LLWindow*	getWindow(void) { return LLUI::getInstance()->mWindow; }
 
 	// Set up params after XML load before calling new(),
 	// usually to adjust layout.

@@ -14,6 +14,7 @@
 		<panel label="PERMITIDO" name="allowed_panel">
 			<panel label="top_panel" name="allowed_search_panel">
 				<filter_editor label="Buscar agentes autorizados" name="allowed_search_input"/>
+				<button label="Copiar" name="copy_allowed_list_btn"/>
 			</panel>
 			<text name="allow_resident_label">
 				Siempre autorizado:
@@ -27,6 +28,7 @@
 		<panel label="GRUPOS AUTORIZADOS:" name="allowed_groups_panel">
 			<panel label="top_panel" name="allowed_group_search_panel">
 				<filter_editor label="Buscar grupos autorizados" name="allowed_group_search_input"/>
+				<button label="Copiar" name="copy_allowed_group_list_btn"/>
 			</panel>
 			<text name="allow_group_label">
 				Grupos siempre autorizados:
@@ -40,6 +42,7 @@
 		<panel label="PROHIBIDO" name="banned_panel">
 			<panel label="top_panel" name="banned_search_panel">
 				<filter_editor label="Buscar agentes prohibidos" name="banned_search_input"/>
+				<button label="Copiar" name="copy_banned_list_btn"/>
 			</panel>
 			<text name="ban_resident_label">
 				Siempre prohibido:

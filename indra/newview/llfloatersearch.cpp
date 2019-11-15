@@ -48,7 +48,7 @@ public:
 	LLSearchHandler() : LLCommandHandler("search", UNTRUSTED_THROTTLE) { }
 	bool handle(const LLSD& tokens, const LLSD& query_map, LLMediaCtrl* web)
 	{
-		if (!LLUI::sSettingGroups["config"]->getBOOL("EnableSearch"))
+		if (!LLUI::getInstance()->mSettingGroups["config"]->getBOOL("EnableSearch"))
 		{
 			LLNotificationsUtil::add("NoSearch", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
 			return true;
@@ -120,6 +120,7 @@ void LLFloaterSearch::onOpen(const LLSD& key)
 	p.allow_address_entry = false;
 
 	LLFloaterWebContent::onOpen(p);
+	mWebBrowser->setFocus(TRUE);
 	search(p.search);
 }
 

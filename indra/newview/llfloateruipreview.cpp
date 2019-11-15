@@ -291,8 +291,8 @@ bool LLPreviewedFloater::sShowRectangles = false;
 // Changes are made here
 LLLocalizationResetForcer::LLLocalizationResetForcer(LLFloaterUIPreview* floater, S32 ID)
 {
-	mSavedLocalization = LLUI::sSettingGroups["config"]->getString("Language");				// save current localization setting
-	LLUI::sSettingGroups["config"]->setString("Language", floater->getLocStr(ID));// hack language to be the one we want to preview floaters in
+	mSavedLocalization = LLUI::getInstance()->mSettingGroups["config"]->getString("Language");				// save current localization setting
+	LLUI::getInstance()->mSettingGroups["config"]->setString("Language", floater->getLocStr(ID));// hack language to be the one we want to preview floaters in
 	// forcibly reset XUI paths with this new language
 	gDirUtilp->setSkinFolder(gDirUtilp->getSkinFolder(), floater->getLocStr(ID));
 }
@@ -301,7 +301,7 @@ LLLocalizationResetForcer::LLLocalizationResetForcer(LLFloaterUIPreview* floater
 // Changes are reversed here
 LLLocalizationResetForcer::~LLLocalizationResetForcer()
 {
-	LLUI::sSettingGroups["config"]->setString("Language", mSavedLocalization);	// reset language to what it was before we changed it
+	LLUI::getInstance()->mSettingGroups["config"]->setString("Language", mSavedLocalization);	// reset language to what it was before we changed it
 	// forcibly reset XUI paths with this new language
 	gDirUtilp->setSkinFolder(gDirUtilp->getSkinFolder(), mSavedLocalization);
 }

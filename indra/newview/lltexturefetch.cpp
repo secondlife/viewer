@@ -2269,6 +2269,10 @@ S32 LLTextureFetchWorker::callbackHttpGet(const LLCore::HttpResponse::ptr_t &res
         setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 	}
 	
+	if (LLViewerStatsRecorder::instanceExists())
+	{
+		// Do not create this instance inside thread
+	}
 	return data_size ;
 }
 

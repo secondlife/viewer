@@ -9,6 +9,12 @@
 	<floater.string name="maturity_icon_adult">
 		&quot;Parcel_R_Dark&quot;
 	</floater.string>
+	<floater.string name="Hours">
+		[HOURS] hrs.
+	</floater.string>
+	<floater.string name="Hour">
+		hr.
+	</floater.string>
 	<floater.string name="Minutes">
 		[MINUTES] min.
 	</floater.string>
@@ -20,6 +26,9 @@
 	</floater.string>
 	<floater.string name="Remaining">
 		restantes
+	</floater.string>
+	<floater.string name="Always">
+		Siempre
 	</floater.string>
 	<tab_container name="landtab">
 		<panel label="GENERAL" name="land_general_panel">
@@ -318,18 +327,18 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 			<text name="allow_label2">
 				Crear objetos:
 			</text>
-			<check_box label="Todos los residentes" name="edit objects check"/>
-			<check_box label="El grupo" name="edit group objects check"/>
+			<check_box label="Todos los residentes" name="edit objects check" tool_tip="Si se selecciona, los residentes pueden crear y colocar objetos en tu tierra."/>
+			<check_box label="El grupo" name="edit group objects check" tool_tip="Si se selecciona, los miembros de un grupo con parcelas pueden crear y colocar objetos en tu tierra."/>
 			<text name="allow_label3">
 				Dejar objetos:
 			</text>
-			<check_box label="Todos los residentes" name="all object entry check"/>
-			<check_box label="El grupo" name="group object entry check"/>
+			<check_box label="Todos los residentes" name="all object entry check" tool_tip="Si se selecciona, los Residentes pueden mover objetos existentes de otras parcelas a esta."/>
+			<check_box label="El grupo" name="group object entry check" tool_tip="Si se selecciona, los miembros de un grupo con parcelas pueden mover objetos existentes de otras parcelas a esta."/>
 			<text name="allow_label4">
 				Ejecutar scripts:
 			</text>
-			<check_box label="Todos los residentes" name="check other scripts"/>
-			<check_box label="El grupo" name="check group scripts"/>
+			<check_box label="Todos los residentes" name="check other scripts" tool_tip="Si se selecciona, los Residentes pueden correr scripts en tu parcela, incluidos adjuntos."/>
+			<check_box label="El grupo" name="check group scripts" tool_tip="Si se selecciona, los miembros de un grupo con parcelas pueden correr scripts en tu parcela, incluidos adjuntos."/>
 			<check_box label="Seguro (sin daño)" name="check safe" tool_tip="Si se marca, convierte el terreno en &apos;seguro&apos;, desactivando el daño en combate. Si no, se activa el daño en combate."/>
 			<check_box label="Sin &apos;empujones&apos;" name="PushRestrictCheck" tool_tip="Previene scripts que empujen. Marcando esta opción prevendrá que en su terreno haya comportamientos destructivos."/>
 			<check_box label="Mostrar el sitio en la búsqueda (30 L$/semana)" name="ShowDirectoryCheck" tool_tip="Let people see this parcel in search results"/>
@@ -353,7 +362,7 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 				Foto:
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Pulse para elegir una imagen"/>
-			<text name="allow_label5" top="170">
+			<text name="allow_see_label">
 				Los avatares de otras parcelas pueden ver a los avatares de esta parcela y chatear con ellos
 			</text>
 			<check_box label="Ver los avatares" name="SeeAvatarsCheck" tool_tip="Permite que los avatares de otras parcelas vean a los avatares de ésta y chateen con ellos, y también que tú puedas verles y chatear con ellos." top="170"/>
@@ -459,9 +468,12 @@ los media:
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="Ban" name="BanCheck">
-					Siempre prohibido ([COUNT], max [MAX])
+					Prohibido ([COUNT], max [MAX])
 				</text>
-				<name_list name="BannedList" tool_tip="([LISTED] listados de un máx. de [MAX])"/>
+				<name_list name="BannedList" tool_tip="([LISTED] listados de un máx. de [MAX])">
+					<columns label="Nombre" name="name"/>
+					<columns label="Duración" name="duration"/>
+				</name_list>
 				<button label="Añadir" name="add_banned"/>
 				<button label="Quitar" label_selected="Quitar" name="remove_banned"/>
 			</panel>

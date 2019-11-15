@@ -3710,6 +3710,23 @@ BOOL LLAgent::getHomePosGlobal( LLVector3d* pos_global )
 	return TRUE;
 }
 
+bool LLAgent::isInHomeRegion()
+{
+	if(!mHaveHomePosition)
+	{
+		return false;
+	}
+	if (!getRegion())
+	{
+		return false;
+	}
+	if (getRegion()->getHandle() != mHomeRegionHandle)
+	{
+		return false;
+	}
+	return true;
+}
+
 void LLAgent::clearVisualParams(void *data)
 {
 	if (isAgentAvatarValid())

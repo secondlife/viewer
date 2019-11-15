@@ -916,10 +916,10 @@ void LLWorld::updateWaterObjects()
 		}
 	}
 
-	for (std::list<LLVOWater*>::iterator iter = mHoleWaterObjects.begin();
+	for (std::list<LLPointer<LLVOWater> >::iterator iter = mHoleWaterObjects.begin();
 		 iter != mHoleWaterObjects.end(); ++ iter)
 	{
-		LLVOWater* waterp = *iter;
+		LLVOWater* waterp = (*iter).get();
 		gObjectList.killObject(waterp);
 	}
 	mHoleWaterObjects.clear();

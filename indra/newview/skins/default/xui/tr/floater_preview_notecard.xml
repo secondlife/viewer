@@ -15,6 +15,7 @@
 	<text_editor name="Notecard Editor">
 		Yükleniyor...
 	</text_editor>
+	<button label="Düzenle..." label_selected="Düzenle" name="Edit"/>
 	<button label="Kaydet" label_selected="Kaydet" name="Save"/>
 	<button label="Sil" label_selected="Sil" name="Delete"/>
 </floater>

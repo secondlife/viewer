@@ -34,7 +34,6 @@ class LLVolumeFace;
 
 namespace LLSkinningUtil
 {
-    void initClass();
     U32 getMaxJointCount();
     U32 getMeshJointCount(const LLMeshSkinInfo *skin);
     void scrubInvalidJoints(LLVOAvatar *avatar, LLMeshSkinInfo* skin);

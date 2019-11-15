@@ -1448,6 +1448,7 @@ Tonya Souther
 	STORM-1905
 	BUG-3875
 	BUG-3968
+	OPEN-345
 Torben Trautman
 TouchaHoney Perhaps
 TraductoresAnonimos Alter
