@@ -1038,6 +1038,20 @@ LLUUID LLLocalBitmapMgr::getWorldID(LLUUID tracking_id)
 	return world_id;
 }
 
+bool LLLocalBitmapMgr::isLocalBitmap(LLUUID texture_id)
+{
+    for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
+    {
+        LLLocalBitmap* unit = *iter;
+        if (unit->getWorldID() == texture_id)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 std::string LLLocalBitmapMgr::getFilename(LLUUID tracking_id)
 {
 	std::string filename = "";

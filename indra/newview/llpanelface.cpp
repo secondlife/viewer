@@ -2923,8 +2923,15 @@ void LLPanelFace::onCopyFaces()
                     // Doesn't support local images!
                     if (id.isNull() || !LLPanelObject::canCopyTexture(id))
                     {
-                        te_data["te"].erase("imageid");
-                        te_data["te"]["imageid"] = LLUUID(gSavedSettings.getString( "DefaultObjectTexture" ));
+                        if (LLLocalBitmapMgr::getInstance()->isLocalBitmap(id))
+                        {
+                            te_data["te"]["imageid"] = id;
+                        }
+                        else
+                        {
+                            te_data["te"].erase("imageid");
+                            te_data["te"]["imageid"] = LLUUID(gSavedSettings.getString("DefaultObjectTexture"));
+                        }
                         te_data["te"]["itemfullperm"] = true;
                     }
                     else
