@@ -80,7 +80,7 @@ public:
 	bool isTemplateCameraPreset(std::string preset_name);
 	bool isDefaultCameraPreset(std::string preset_name);
 	void resetCameraPreset(std::string preset_name);
-	void createDefaultCameraPreset(std::string preset_name, bool force_reset = false);
+	bool createDefaultCameraPreset(std::string preset_name, bool force_reset = false);
 
 	// Emitted when a preset gets loaded, deleted, or saved.
 	boost::signals2::connection setPresetListChangeCameraCallback(const preset_list_signal_t::slot_type& cb);

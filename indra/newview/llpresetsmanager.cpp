@@ -91,9 +91,14 @@ void LLPresetsManager::createMissingDefault(const std::string& subdirectory)
 
 void LLPresetsManager::createCameraDefaultPresets()
 {
-	createDefaultCameraPreset(PRESETS_REAR_VIEW);
-	createDefaultCameraPreset(PRESETS_FRONT_VIEW);
-	createDefaultCameraPreset(PRESETS_SIDE_VIEW);
+	bool is_default_created = createDefaultCameraPreset(PRESETS_REAR_VIEW);
+	is_default_created |= createDefaultCameraPreset(PRESETS_FRONT_VIEW);
+	is_default_created |= createDefaultCameraPreset(PRESETS_SIDE_VIEW);
+
+	if (is_default_created)
+	{
+		triggerChangeCameraSignal();
+	}
 }
 
 void LLPresetsManager::startWatching(const std::string& subdirectory)
@@ -558,7 +563,7 @@ void LLPresetsManager::resetCameraPreset(std::string preset_name)
 	}
 }
 
-void LLPresetsManager::createDefaultCameraPreset(std::string preset_name, bool force_reset)
+bool LLPresetsManager::createDefaultCameraPreset(std::string preset_name, bool force_reset)
 {
 	std::string preset_file = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, PRESETS_DIR,
 		PRESETS_CAMERA, LLURI::escape(preset_name) + ".xml");
@@ -567,8 +572,9 @@ void LLPresetsManager::createDefaultCameraPreset(std::string preset_name, bool f
 		std::string template_name = preset_name.substr(0, preset_name.size() - PRESETS_VIEW_SUFFIX.size());
 		std::string default_template_file = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, PRESETS_DIR,
 			PRESETS_CAMERA, template_name + ".xml");
-		LLFile::copy(default_template_file, preset_file);
+		return LLFile::copy(default_template_file, preset_file);
 	}
+	return false;
 }
 
 boost::signals2::connection LLPresetsManager::setPresetListChangeCameraCallback(const preset_list_signal_t::slot_type& cb)
