@@ -749,7 +749,7 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
     }
     else
     {
-        remember_user = true;
+        remember_user = remember_psswrd; // on panel_login_first "remember_check" is named as 'remember me'
     }
 }
 
