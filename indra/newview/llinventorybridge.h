@@ -359,6 +359,7 @@ protected:
 
 	void dropToFavorites(LLInventoryItem* inv_item);
 	void dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
+	void dropToMyOutfits(LLInventoryCategory* inv_cat);
 
 	//--------------------------------------------------------------------
 	// Messy hacks for handling folder options
@@ -368,6 +369,7 @@ public:
 	static void staticFolderOptionsMenu();
 
 protected:
+    void outfitFolderCreatedCallback(LLUUID cat_source_id, LLUUID cat_dest_id);
     void callback_pasteFromClipboard(const LLSD& notification, const LLSD& response);
     void perform_pasteFromClipboard();
     void gatherMessage(std::string& message, S32 depth, LLError::ELevel log_level);

@@ -20,7 +20,7 @@
 		<button name="activate_btn" tool_tip="Seçilen mimiği Etkinleştir/Devre Dışı Bırak"/>
 		<button name="del_btn" tool_tip="Bu mimiği sil"/>
 	</panel>
-	<button label="Düzenle" name="edit_btn"/>
-	<button label="Oyna" name="play_btn"/>
+	<button label="Düzenle" name="edit_btn" tool_tip="Seçilen mimiği düzenlemek için pencere açın."/>
+	<button label="Oyna" name="play_btn" tool_tip="Seçilen mimiği SL dünyasında uygulayın."/>
 	<button label="Durdur" name="stop_btn"/>
 </floater>

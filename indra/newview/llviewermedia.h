@@ -70,11 +70,14 @@ private:
 
 class LLViewerMediaImpl;
 
-class LLViewerMedia
+class LLViewerMedia: public LLSingleton<LLViewerMedia>
 {
+	LLSINGLETON(LLViewerMedia);
+	~LLViewerMedia();
+	void initSingleton();
 	LOG_CLASS(LLViewerMedia);
+
 public:
-	
 	// String to get/set media autoplay in gSavedSettings
 	static const char* AUTO_PLAY_MEDIA_SETTING;
 	static const char* SHOW_MEDIA_ON_OTHERS_SETTING;
@@ -88,91 +91,93 @@ public:
 	// Special case early init for just web browser component
 	// so we can show login screen.  See .cpp file for details. JC
 	
-	static viewer_media_t newMediaImpl(const LLUUID& texture_id,
+	viewer_media_t newMediaImpl(const LLUUID& texture_id,
 									   S32 media_width = 0, 
 									   S32 media_height = 0, 
 									   U8 media_auto_scale = false,
 									   U8 media_loop = false);
 	
-	static viewer_media_t updateMediaImpl(LLMediaEntry* media_entry, const std::string& previous_url, bool update_from_self);
-	static LLViewerMediaImpl* getMediaImplFromTextureID(const LLUUID& texture_id);
-	static std::string getCurrentUserAgent();
-	static void updateBrowserUserAgent();
-	static bool handleSkinCurrentChanged(const LLSD& /*newvalue*/);
-	static bool textureHasMedia(const LLUUID& texture_id);
-	static void setVolume(F32 volume);
+	viewer_media_t updateMediaImpl(LLMediaEntry* media_entry, const std::string& previous_url, bool update_from_self);
+	LLViewerMediaImpl* getMediaImplFromTextureID(const LLUUID& texture_id);
+	std::string getCurrentUserAgent();
+	void updateBrowserUserAgent();
+	bool handleSkinCurrentChanged(const LLSD& /*newvalue*/);
+	bool textureHasMedia(const LLUUID& texture_id);
+	void setVolume(F32 volume);
 	
 	// Is any media currently "showing"?  Includes Parcel Media.  Does not include media in the UI.
-	static bool isAnyMediaShowing();
+	bool isAnyMediaShowing();
 	// Shows if any media is playing, counts visible non time based media as playing. Does not include media in the UI.
-	static bool isAnyMediaPlaying();
+	bool isAnyMediaPlaying();
 	// Set all media enabled or disabled, depending on val.   Does not include media in the UI.
-	static void setAllMediaEnabled(bool val);
+	void setAllMediaEnabled(bool val);
 	// Set all media paused(stopped for non time based) or playing, depending on val.   Does not include media in the UI.
-	static void setAllMediaPaused(bool val);
+	void setAllMediaPaused(bool val);
 
-	static void updateMedia(void* dummy_arg = NULL);
-	
-	static void initClass();
-	static void cleanupClass();
-	
-	static F32 getVolume();	
-	static void muteListChanged();
-	static bool isInterestingEnough(const LLVOVolume* object, const F64 &object_interest);
+	static void onIdle(void* dummy_arg = NULL); // updateMedia wrapper
+	void updateMedia(void* dummy_arg = NULL);
+
+	F32 getVolume();	
+	void muteListChanged();
+	bool isInterestingEnough(const LLVOVolume* object, const F64 &object_interest);
 	
 	// Returns the priority-sorted list of all media impls.
-	static impl_list &getPriorityList();
+	impl_list &getPriorityList();
 	
 	// This is the comparitor used to sort the list.
 	static bool priorityComparitor(const LLViewerMediaImpl* i1, const LLViewerMediaImpl* i2);
 	
 	// These are just helper functions for the convenience of others working with media
-	static bool hasInWorldMedia();
-	static std::string getParcelAudioURL();
-	static bool hasParcelMedia();
-	static bool hasParcelAudio();
-	static bool isParcelMediaPlaying();
-	static bool isParcelAudioPlaying();
-	
-	static void onAuthSubmit(const LLSD& notification, const LLSD& response);
+	bool hasInWorldMedia();
+	std::string getParcelAudioURL();
+	bool hasParcelMedia();
+	bool hasParcelAudio();
+	bool isParcelMediaPlaying();
+	bool isParcelAudioPlaying();
+
+	static void authSubmitCallback(const LLSD& notification, const LLSD& response);
 
 	// Clear all cookies for all plugins
-	static void clearAllCookies();
+	void clearAllCookies();
 	
 	// Clear all plugins' caches
-	static void clearAllCaches();
+	void clearAllCaches();
 	
 	// Set the "cookies enabled" flag for all loaded plugins
-	static void setCookiesEnabled(bool enabled);
+	void setCookiesEnabled(bool enabled);
 	
 	// Set the proxy config for all loaded plugins
-	static void setProxyConfig(bool enable, const std::string &host, int port);
+	void setProxyConfig(bool enable, const std::string &host, int port);
 	
-	static void openIDSetup(const std::string &openid_url, const std::string &openid_token);
-	static void openIDCookieResponse(const std::string& url, const std::string &cookie);
+	void openIDSetup(const std::string &openid_url, const std::string &openid_token);
+	void openIDCookieResponse(const std::string& url, const std::string &cookie);
 	
-	static void proxyWindowOpened(const std::string &target, const std::string &uuid);
-	static void proxyWindowClosed(const std::string &uuid);
+	void proxyWindowOpened(const std::string &target, const std::string &uuid);
+	void proxyWindowClosed(const std::string &uuid);
 	
-	static void createSpareBrowserMediaSource();
-	static LLPluginClassMedia* getSpareBrowserMediaSource();
+	void createSpareBrowserMediaSource();
+	LLPluginClassMedia* getSpareBrowserMediaSource();
 
-	static void setOnlyAudibleMediaTextureID(const LLUUID& texture_id);
+	void setOnlyAudibleMediaTextureID(const LLUUID& texture_id);
 
-	static LLSD getHeaders();
-    static LLCore::HttpHeaders::ptr_t getHttpHeaders();
+	LLSD getHeaders();
+	LLCore::HttpHeaders::ptr_t getHttpHeaders();
 	
 private:
-	static bool parseRawCookie(const std::string raw_cookie, std::string& name, std::string& value, std::string& path, bool& httponly, bool& secure);
-	static void setOpenIDCookie(const std::string& url);
-	static void onTeleportFinished();
+	void onAuthSubmit(const LLSD& notification, const LLSD& response);
+	bool parseRawCookie(const std::string raw_cookie, std::string& name, std::string& value, std::string& path, bool& httponly, bool& secure);
+	void setOpenIDCookie(const std::string& url);
+	void onTeleportFinished();
 
-    static void openIDSetupCoro(std::string openidUrl, std::string openidToken);
-    static void getOpenIDCookieCoro(std::string url);
+	static void openIDSetupCoro(std::string openidUrl, std::string openidToken);
+	static void getOpenIDCookieCoro(std::string url);
 
-	static LLURL sOpenIDURL;
-	static std::string sOpenIDCookie;
-	static LLPluginClassMedia* sSpareBrowserMediaSource;
+	bool mAnyMediaShowing;
+	bool mAnyMediaPlaying;
+	LLURL mOpenIDURL;
+	std::string mOpenIDCookie;
+	LLPluginClassMedia* mSpareBrowserMediaSource;
+	boost::signals2::connection mTeleportFinishConnection;
 };
 
 // Implementation functions not exported into header file

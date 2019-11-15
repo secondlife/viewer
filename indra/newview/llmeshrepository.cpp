@@ -2277,6 +2277,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 			instance_entry["material"] = LL_MCODE_WOOD;
 			instance_entry["physics_shape_type"] = data.mModel[LLModel::LOD_PHYSICS].notNull() ? (U8)(LLViewerObject::PHYSICS_SHAPE_PRIM) : (U8)(LLViewerObject::PHYSICS_SHAPE_CONVEX_HULL);
 			instance_entry["mesh"] = mesh_index[data.mBaseModel];
+			instance_entry["mesh_name"] = instance.mLabel;
 
 			instance_entry["face_list"] = LLSD::emptyArray();
 

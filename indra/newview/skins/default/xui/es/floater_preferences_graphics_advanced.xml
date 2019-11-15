@@ -43,6 +43,7 @@
 	<check_box label="Filtrado anisotrópico (enlentece el dibujo)" name="ani"/>
 	<check_box initial_value="true" label="Habilitar objetos de búfer de vértices OpenGL" name="vbo" tool_tip="Su activación en un hardware moderno aumenta el rendimiento. No obstante, la ejecución poco eficiente de los VBO en los equipos antiguos puede hacer que se bloquee la aplicación."/>
 	<check_box initial_value="true" label="Activar la compresión de texturas (requiere reiniciar)" name="texture compression" tool_tip="Comprime las texturas en la memoria de vídeo, lo cual permite cargar texturas de una resolución más alta, pero con una cierta pérdida de calidad del color."/>
+	<check_box initial_value="true" label="Activar soporte para visores HiDPI (requiere reiniciar)" name="use HiDPI" tool_tip="Activar OpenGl para Dibujos de alta resolución."/>
 	<text name="antialiasing label">
 		Antialiasing:
 	</text>

@@ -46,6 +46,7 @@ class LLChannelManager : public LLSingleton<LLChannelManager>
 	LLSINGLETON(LLChannelManager);
 	virtual ~LLChannelManager();
 
+	void cleanupSingleton();
 public:
 
 

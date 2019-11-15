@@ -76,7 +76,7 @@
 		<combo_box.item label="Terreno &gt; Invasione &gt; Oggetti o texture" name="Land__Encroachment__Objects_textures"/>
 		<combo_box.item label="Terreno &gt; Invasione &gt; Particelle" name="Land__Encroachment__Particles"/>
 		<combo_box.item label="Terreno &gt; Invasione &gt; Alberi/piante" name="Land__Encroachment__Trees_plants"/>
-		<combo_box.item label="Violazione regole del gioco" name="Wagering_gambling"/>
+		<combo_box.item label="Skill Violazione regole del gioco" name="Wagering_gambling"/>
 		<combo_box.item label="Altro" name="Other"/>
 	</combo_box>
 	<text name="abuser_name_title">
