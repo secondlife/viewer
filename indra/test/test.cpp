@@ -631,8 +631,9 @@ int main(int argc, char **argv)
 	const char* LOGFAIL = getenv("LOGFAIL");
 	boost::shared_ptr<LLReplayLog> replayer;
 	// As described in stream_usage(), LOGFAIL overrides both --debug and
-	// LOGTEST.
-	if (LOGFAIL)
+	// LOGTEST. But allow user to set LOGFAIL empty to revert to LOGTEST
+	// and/or --debug.
+	if (LOGFAIL && *LOGFAIL)
 	{
 		LLError::ELevel level = LLError::decodeLevel(LOGFAIL);
 		replayer.reset(new LLReplayLogReal(level, gAPRPoolp));
