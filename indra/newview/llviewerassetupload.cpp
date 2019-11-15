@@ -36,7 +36,6 @@
 #include "lluploaddialog.h"
 #include "llpreviewscript.h"
 #include "llnotificationsutil.h"
-#include "lleconomy.h"
 #include "llagent.h"
 #include "llfloaterreg.h"
 #include "llfloatersnapshot.h"

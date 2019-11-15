@@ -30,6 +30,7 @@
 
 // project includes
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llagentcamera.h"
 #include "llfilepicker.h"
 #include "llfloaterreg.h"
@@ -67,7 +68,6 @@
 #include "llviewerassetupload.h"
 
 // linden libraries
-#include "lleconomy.h"
 #include "llnotificationsutil.h"
 #include "llsdserialize.h"
 #include "llsdutil.h"
@@ -85,8 +85,6 @@ class LLFileEnableUpload : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
         return true;
-// 		bool new_value = gStatusBar && LLGlobalEconomy::getInstance() && (gStatusBar->getBalance() >= LLGlobalEconomy::getInstance()->getPriceUpload());
-// 		return new_value;
 	}
 };
 
@@ -417,7 +415,8 @@ const void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::
 	//
 	// Also fix single upload to charge first, then refund
 
-	S32 expected_upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload();
+	// FIXME PREMIUM - upload_cost should be per-file, depends on asset type
+	S32 expected_upload_cost = LLAgentBenefits::instance().getTextureUploadCost();
 	for (std::vector<std::string>::const_iterator in_iter = filenames.begin(); in_iter != filenames.end(); ++in_iter)
 	{
 		std::string filename = (*in_iter);

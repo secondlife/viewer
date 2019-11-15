@@ -30,6 +30,7 @@
 
 #include "llavatarnamecache.h"
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llsdparam.h"
 #include "lluictrlfactory.h"
 #include "roles_constants.h"
@@ -339,7 +340,9 @@ bool LLPanelGroupGeneral::apply(std::string& mesg)
 				return false;
 			}
 
-			LLNotificationsUtil::add("CreateGroupCost",  LLSD(), LLSD(), boost::bind(&LLPanelGroupGeneral::createGroupCallback, this, _1, _2));
+			LLSD args;
+			args["COST"] = LLAgentBenefits::instance().getCreateGroupCost();
+			LLNotificationsUtil::add("CreateGroupCost",  args, LLSD(), boost::bind(&LLPanelGroupGeneral::createGroupCallback, this, _1, _2));
 
 			return false;
 		}

@@ -44,7 +44,6 @@
 #include "lldrawable.h"
 #include "llrender.h"
 #include "llface.h"
-#include "lleconomy.h"
 #include "llfocusmgr.h"
 #include "llfloaterperms.h"
 #include "lliconctrl.h"

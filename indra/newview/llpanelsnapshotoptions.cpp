@@ -26,7 +26,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "lleconomy.h"
 #include "llpanel.h"
 #include "llsidetraypanelcontainer.h"
 

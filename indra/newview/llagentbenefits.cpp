@@ -73,6 +73,10 @@ bool LLAgentBenefits::init(const LLSD& benefits_sd)
 	{
 		return false;
 	}
+	if (!get_required_S32(benefits_sd, "create_group_cost", m_create_group_cost))
+	{
+		return false;
+	}
 	if (!get_required_S32(benefits_sd, "group_membership_limit", m_group_membership_limit))
 	{
 		return false;
@@ -86,42 +90,42 @@ bool LLAgentBenefits::init(const LLSD& benefits_sd)
 		return false;
 	}
 
+	// FIXME PREMIUM - either use this field or get rid of it
 	m_initalized = true;
 	return true;
 }
 
 S32 LLAgentBenefits::getAnimatedObjectLimit() const
 {
-	//llassert(m_initalized);
 	return m_animated_object_limit;
 }
 
 S32 LLAgentBenefits::getAnimationUploadCost() const
 {
-	//llassert(m_initalized);
 	return m_animation_upload_cost;
 }
 
 S32 LLAgentBenefits::getAttachmentLimit() const
 {
-	//llassert(m_initalized);
 	return m_attachment_limit;
+}
+
+S32 LLAgentBenefits::getCreateGroupCost() const
+{
+	return m_create_group_cost;
 }
 
 S32 LLAgentBenefits::getGroupMembershipLimit() const
 {
-	//llassert(m_initalized);
 	return m_group_membership_limit;
 }
 
 S32 LLAgentBenefits::getSoundUploadCost() const
 {
-	//llassert(m_initalized);
 	return m_sound_upload_cost;
 }
 
 S32 LLAgentBenefits::getTextureUploadCost() const
 {
-	//llassert(m_initalized);
 	return m_texture_upload_cost;
 }

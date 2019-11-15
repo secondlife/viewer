@@ -80,7 +80,6 @@ typedef enum {
 
 // exported symbols
 extern bool gAgentMovementCompleted;
-extern S32  gMaxAgentGroups;
 extern LLPointer<LLViewerTexture> gStartTexture;
 
 class LLStartUp
