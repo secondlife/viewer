@@ -1230,8 +1230,12 @@ void LLPanelLogin::populateUserList(LLPointer<LLCredential> credential)
     {
         if (credential.notNull())
         {
-            user_combo->add(LLPanelLogin::getUserName(credential), credential->userID(), ADD_BOTTOM, TRUE);
-            setFields(credential);
+            const LLSD &ident = credential->getIdentifier();
+            if (ident.isMap() && ident.has("type"))
+            {
+                user_combo->add(LLPanelLogin::getUserName(credential), credential->userID(), ADD_BOTTOM, TRUE);
+                setFields(credential);
+            }
         }
     }
 }
