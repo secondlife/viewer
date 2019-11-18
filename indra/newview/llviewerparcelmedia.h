@@ -74,7 +74,7 @@ public:
 	void sendMediaNavigateMessage(const std::string& url);
 
 	// inherited from LLViewerMediaObserver
-	virtual void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
+	virtual void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event) override;
 
 private:
 	void processParcelMediaCommandMessage(LLMessageSystem *msg);

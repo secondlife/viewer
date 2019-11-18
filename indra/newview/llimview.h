@@ -509,7 +509,7 @@ public:
 	static void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction, bool ended_by_agent);
 
 private:
-	void initSingleton();
+	virtual void initSingleton() override;
 	void onVoiceChannelChangedInt(const LLUUID &session_id);
 	void onVoiceChannelStateChangedInt(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction, bool ended_by_agent);
 
