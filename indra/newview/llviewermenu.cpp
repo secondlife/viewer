@@ -8669,7 +8669,8 @@ class LLUploadCostCalculator : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::vector<std::string> fields;
-		boost::split(fields, userdata.asString(), boost::is_any_of(","));
+		std::string str = userdata.asString(); 
+		boost::split(fields, str, boost::is_any_of(","));
 		if (fields.size()<1)
 		{
 			return false;
