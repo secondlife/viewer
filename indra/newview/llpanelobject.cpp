@@ -2291,6 +2291,10 @@ void LLPanelObject::onPasteParams()
             F32 b = (F32)mParamsClipboard["light"]["b"].asReal();
             volobjp->setLightColor(LLColor3(r,g,b));
         }
+        else
+        {
+            volobjp->setIsLight(FALSE);
+        }
 
         if (mParamsClipboard.has("spot"))
         {
