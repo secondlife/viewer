@@ -262,30 +262,36 @@ namespace LLError
 	class LL_COMMON_API NoClassInfo { };
 		// used to indicate no class info known for logging
 
-   //LLCallStacks keeps track of call stacks and output the call stacks to log file
-   //when LLAppViewer::handleViewerCrash() is triggered.
-   //
-   //Note: to be simple, efficient and necessary to keep track of correct call stacks, 
-	//LLCallStacks is designed not to be thread-safe.
-   //so try not to use it in multiple parallel threads at same time.
-   //Used in a single thread at a time is fine.
-   class LL_COMMON_API LLCallStacks
-   {
-   private:
-       static char**  sBuffer ;
-	   static S32     sIndex ;
+    //LLCallStacks keeps track of call stacks and output the call stacks to log file
+    //when LLAppViewer::handleViewerCrash() is triggered.
+    //
+    //Note: to be simple, efficient and necessary to keep track of correct call stacks, 
+    //LLCallStacks is designed not to be thread-safe.
+    //so try not to use it in multiple parallel threads at same time.
+    //Used in a single thread at a time is fine.
+    class LL_COMMON_API LLCallStacks
+    {
+    private:
+        static char**  sBuffer ;
+        static S32     sIndex ;
 
-	   static void allocateStackBuffer();
-	   static void freeStackBuffer();
-          
-   public:   
-	   static void push(const char* function, const int line) ;
-	   static std::ostringstream* insert(const char* function, const int line) ;
-       static void print() ;
-       static void clear() ;
-	   static void end(std::ostringstream* _out) ;
-	   static void cleanup();
-   }; 
+        static void allocateStackBuffer();
+        static void freeStackBuffer();
+              
+    public:   
+        static void push(const char* function, const int line) ;
+        static std::ostringstream* insert(const char* function, const int line) ;
+        static void print() ;
+        static void clear() ;
+        static void end(std::ostringstream* _out) ;
+        static void cleanup();
+    };
+
+    // class which, when streamed, inserts the current stack trace
+    struct LLStacktrace
+    {
+        friend std::ostream& operator<<(std::ostream& out, const LLStacktrace&);
+    };
 }
 
 //this is cheaper than llcallstacks if no need to output other variables to call stacks. 

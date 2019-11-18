@@ -53,6 +53,13 @@
 #include "llstl.h"
 #include "lltimer.h"
 
+// On Mac, got:
+// #error "Boost.Stacktrace requires `_Unwind_Backtrace` function. Define
+// `_GNU_SOURCE` macro or `BOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED` if
+// _Unwind_Backtrace is available without `_GNU_SOURCE`."
+#define BOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED
+#include <boost/stacktrace.hpp>
+
 namespace {
 #if LL_WINDOWS
 	void debugger_print(const std::string& s)
@@ -1554,124 +1561,128 @@ namespace LLError
 	S32    LLCallStacks::sIndex  = 0 ;
 
 	//static
-   void LLCallStacks::allocateStackBuffer()
-   {
-	   if(sBuffer == NULL)
-	   {
-		   sBuffer = new char*[512] ;
-		   sBuffer[0] = new char[512 * 128] ;
-		   for(S32 i = 1 ; i < 512 ; i++)
-		   {
-			   sBuffer[i] = sBuffer[i-1] + 128 ;
-		   }
-		   sIndex = 0 ;
-	   }
-   }
+    void LLCallStacks::allocateStackBuffer()
+    {
+        if(sBuffer == NULL)
+        {
+            sBuffer = new char*[512] ;
+            sBuffer[0] = new char[512 * 128] ;
+            for(S32 i = 1 ; i < 512 ; i++)
+            {
+                sBuffer[i] = sBuffer[i-1] + 128 ;
+            }
+            sIndex = 0 ;
+        }
+    }
 
-   void LLCallStacks::freeStackBuffer()
-   {
-	   if(sBuffer != NULL)
-	   {
-		   delete [] sBuffer[0] ;
-		   delete [] sBuffer ;
-		   sBuffer = NULL ;
-	   }
-   }
+    void LLCallStacks::freeStackBuffer()
+    {
+        if(sBuffer != NULL)
+        {
+            delete [] sBuffer[0] ;
+            delete [] sBuffer ;
+            sBuffer = NULL ;
+        }
+    }
 
-   //static
-   void LLCallStacks::push(const char* function, const int line)
-   {
-       LLMutexTrylock lock(getMutex<STACKS_MUTEX>(), 5);
-       if (!lock.isLocked())
-       {
-           return;
-       }
+    //static
+    void LLCallStacks::push(const char* function, const int line)
+    {
+        LLMutexTrylock lock(getMutex<STACKS_MUTEX>(), 5);
+        if (!lock.isLocked())
+        {
+            return;
+        }
 
-	   if(sBuffer == NULL)
-	   {
-		   allocateStackBuffer();
-	   }
+        if(sBuffer == NULL)
+        {
+            allocateStackBuffer();
+        }
 
-	   if(sIndex > 511)
-	   {
-		   clear() ;
-	   }
+        if(sIndex > 511)
+        {
+            clear() ;
+        }
 
-	   strcpy(sBuffer[sIndex], function) ;
-	   sprintf(sBuffer[sIndex] + strlen(function), " line: %d ", line) ;
-	   sIndex++ ;
+        strcpy(sBuffer[sIndex], function) ;
+        sprintf(sBuffer[sIndex] + strlen(function), " line: %d ", line) ;
+        sIndex++ ;
 
-	   return ;
-   }
+        return ;
+    }
 
-	//static
-   std::ostringstream* LLCallStacks::insert(const char* function, const int line)
-   {
-       std::ostringstream* _out = LLError::Log::out();
-	   *_out << function << " line " << line << " " ;
-             
-	   return _out ;
-   }
+    //static
+    std::ostringstream* LLCallStacks::insert(const char* function, const int line)
+    {
+        std::ostringstream* _out = LLError::Log::out();
+        *_out << function << " line " << line << " " ;
+        return _out ;
+    }
 
-   //static
-   void LLCallStacks::end(std::ostringstream* _out)
-   {
-       LLMutexTrylock lock(getMutex<STACKS_MUTEX>(), 5);
-       if (!lock.isLocked())
-       {
-           return;
-       }
+    //static
+    void LLCallStacks::end(std::ostringstream* _out)
+    {
+        LLMutexTrylock lock(getMutex<STACKS_MUTEX>(), 5);
+        if (!lock.isLocked())
+        {
+            return;
+        }
 
-	   if(sBuffer == NULL)
-	   {
-		   allocateStackBuffer();
-	   }
+        if(sBuffer == NULL)
+        {
+            allocateStackBuffer();
+        }
 
-	   if(sIndex > 511)
-	   {
-		   clear() ;
-	   }
+        if(sIndex > 511)
+        {
+            clear() ;
+        }
 
-	   LLError::Log::flush(_out, sBuffer[sIndex++]) ;
-   }
+        LLError::Log::flush(_out, sBuffer[sIndex++]) ;
+    }
 
-   //static
-   void LLCallStacks::print()
-   {
-       LLMutexTrylock lock(getMutex<STACKS_MUTEX>(), 5);
-       if (!lock.isLocked())
-       {
-           return;
-       }
+    //static
+    void LLCallStacks::print()
+    {
+        LLMutexTrylock lock(getMutex<STACKS_MUTEX>(), 5);
+        if (!lock.isLocked())
+        {
+            return;
+        }
 
-       if(sIndex > 0)
-       {
-           LL_INFOS() << " ************* PRINT OUT LL CALL STACKS ************* " << LL_ENDL;
-           while(sIndex > 0)
-           {                  
-			   sIndex-- ;
-               LL_INFOS() << sBuffer[sIndex] << LL_ENDL;
-           }
-           LL_INFOS() << " *************** END OF LL CALL STACKS *************** " << LL_ENDL;
-       }
+        if(sIndex > 0)
+        {
+            LL_INFOS() << " ************* PRINT OUT LL CALL STACKS ************* " << LL_ENDL;
+            while(sIndex > 0)
+            {                  
+                sIndex-- ;
+                LL_INFOS() << sBuffer[sIndex] << LL_ENDL;
+            }
+            LL_INFOS() << " *************** END OF LL CALL STACKS *************** " << LL_ENDL;
+        }
 
-	   if(sBuffer != NULL)
-	   {
-		   freeStackBuffer();
-	   }
-   }
+        if(sBuffer != NULL)
+        {
+            freeStackBuffer();
+        }
+    }
 
-   //static
-   void LLCallStacks::clear()
-   {
-       sIndex = 0 ;
-   }
+    //static
+    void LLCallStacks::clear()
+    {
+        sIndex = 0 ;
+    }
 
-   //static
-   void LLCallStacks::cleanup()
-   {
-	   freeStackBuffer();
-   }
+    //static
+    void LLCallStacks::cleanup()
+    {
+        freeStackBuffer();
+    }
+
+    std::ostream& operator<<(std::ostream& out, const LLStacktrace&)
+    {
+        return out << boost::stacktrace::stacktrace();
+    }
 }
 
 bool debugLoggingEnabled(const std::string& tag)
