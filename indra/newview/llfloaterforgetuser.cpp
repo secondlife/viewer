@@ -54,7 +54,7 @@ LLFloaterForgetUser::~LLFloaterForgetUser()
 
 BOOL LLFloaterForgetUser::postBuild()
 {
-    // Note, storage works per grid, watever is selected currently in login screen or logged in.
+    // Note, storage works per grid, whatever is selected currently in login screen or logged in.
     // Since login screen can change grid, store the value.
     mGrid = LLGridManager::getInstance()->getGrid();
 
@@ -87,14 +87,18 @@ BOOL LLFloaterForgetUser::postBuild()
         LLPointer<LLCredential> cred = gSecAPIHandler->loadCredential(mGrid);
         if (cred.notNull())
         {
-            LLScrollListItem::Params item_params;
-            item_params.value(cred->userID());
-            item_params.columns.add()
-                .value(LLPanelLogin::getUserName(cred))
-                .column("user")
-                .font(LLFontGL::getFontSansSerifSmall());
-            scroll_list->addRow(item_params, ADD_BOTTOM);
-            scroll_list->selectFirstItem();
+            const LLSD &ident = cred->getIdentifier();
+            if (ident.isMap() && ident.has("type"))
+            {
+                LLScrollListItem::Params item_params;
+                item_params.value(cred->userID());
+                item_params.columns.add()
+                    .value(LLPanelLogin::getUserName(cred))
+                    .column("user")
+                    .font(LLFontGL::getFontSansSerifSmall());
+                scroll_list->addRow(item_params, ADD_BOTTOM);
+                scroll_list->selectFirstItem();
+            }
         }
     }
 
