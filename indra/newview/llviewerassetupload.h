@@ -87,6 +87,8 @@ public:
     LLUUID              getItemId() const { return mItemId; }
     LLAssetID           getAssetId() const { return mAssetId; }
 
+	static bool			findAssetTypeAndCodecOfExtension(const std::string& exten, LLAssetType::EType& asset_type, U32& codec);
+
 protected:
     LLResourceUploadInfo(
         std::string name,

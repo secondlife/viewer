@@ -129,3 +129,24 @@ S32 LLAgentBenefits::getTextureUploadCost() const
 {
 	return m_texture_upload_cost;
 }
+
+bool LLAgentBenefits::findUploadCost(LLAssetType::EType& asset_type, S32& cost)
+{
+	bool succ = false;
+	if (asset_type == LLAssetType::AT_TEXTURE)
+	{
+		cost = getTextureUploadCost();
+		succ = true;
+	}
+	else if (asset_type == LLAssetType::AT_SOUND)
+	{
+		cost = getSoundUploadCost();
+		succ = true;
+	}
+	else if (asset_type == LLAssetType::AT_ANIMATION)
+	{
+		cost = getAnimationUploadCost();
+		succ = true;
+	}
+	return succ;
+}

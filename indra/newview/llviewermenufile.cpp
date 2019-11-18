@@ -404,6 +404,70 @@ const void upload_single_file(const std::vector<std::string>& filenames, LLFileP
 	return;
 }
 
+void do_bulk_upload(std::vector<std::string> filenames, const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option != 0)
+	{
+		// Cancel upload
+		return;
+	}
+
+	for (std::vector<std::string>::const_iterator in_iter = filenames.begin(); in_iter != filenames.end(); ++in_iter)
+	{
+		std::string filename = (*in_iter);
+			
+		std::string name = gDirUtilp->getBaseFileName(filename, true);
+		std::string asset_name = name;
+		LLStringUtil::replaceNonstandardASCII(asset_name, '?');
+		LLStringUtil::replaceChar(asset_name, '|', '?');
+		LLStringUtil::stripNonprintable(asset_name);
+		LLStringUtil::trim(asset_name);
+
+		std::string ext = gDirUtilp->getExtension(filename);
+		LLAssetType::EType asset_type;
+		U32 codec;
+		S32 expected_upload_cost;
+		if (LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(ext, asset_type, codec) &&
+			LLAgentBenefits::instance().findUploadCost(asset_type, expected_upload_cost))
+		{
+			LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
+													   filename,
+													   asset_name,
+													   asset_name, 0,
+													   LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+													   LLFloaterPerms::getNextOwnerPerms("Uploads"),
+													   LLFloaterPerms::getGroupPerms("Uploads"),
+													   LLFloaterPerms::getEveryonePerms("Uploads"),
+													   expected_upload_cost));
+			
+			upload_new_resource(uploadInfo, NULL, NULL);
+		}
+	}
+}
+
+bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S32& total_cost)
+{
+	bool succ = true;
+	total_cost = 0;
+	for (std::vector<std::string>::const_iterator in_iter = filenames.begin(); in_iter != filenames.end(); ++in_iter)
+	{
+		std::string filename = (*in_iter);
+		std::string ext = gDirUtilp->getExtension(filename);
+
+		LLAssetType::EType asset_type;
+		U32 codec;
+		S32 cost;
+
+		if (LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(ext, asset_type, codec) &&
+			LLAgentBenefits::instance().findUploadCost(asset_type, cost))
+		{
+			total_cost += cost;
+		}
+	}
+	
+	return succ;
+}
 
 const void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type)
 {
@@ -415,31 +479,25 @@ const void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::
 	//
 	// Also fix single upload to charge first, then refund
 
-	// FIXME PREMIUM - upload_cost should be per-file, depends on asset type
-	S32 expected_upload_cost = LLAgentBenefits::instance().getTextureUploadCost();
+	// FIXME PREMIUM what about known types that can't be bulk uploaded
+	// (bvh)? These will fail in the item by item upload but won't be
+	// mentioned in the notification.
+	std::vector<std::string> filtered_filenames;
 	for (std::vector<std::string>::const_iterator in_iter = filenames.begin(); in_iter != filenames.end(); ++in_iter)
 	{
-		std::string filename = (*in_iter);
-		if (!check_file_extension(filename, type)) continue;
-		
-		std::string name = gDirUtilp->getBaseFileName(filename, true);
-		std::string asset_name = name;
-		LLStringUtil::replaceNonstandardASCII(asset_name, '?');
-		LLStringUtil::replaceChar(asset_name, '|', '?');
-		LLStringUtil::stripNonprintable(asset_name);
-		LLStringUtil::trim(asset_name);
-
-		LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
-			filename,
-			asset_name,
-			asset_name, 0,
-			LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
-			LLFloaterPerms::getNextOwnerPerms("Uploads"),
-			LLFloaterPerms::getGroupPerms("Uploads"),
-			LLFloaterPerms::getEveryonePerms("Uploads"),
-			expected_upload_cost));
-
-		upload_new_resource(uploadInfo, NULL, NULL);
+		const std::string& filename = *in_iter;
+		if (check_file_extension(filename, type))
+		{
+			filtered_filenames.push_back(filename);
+		}
+	}
+	S32 expected_upload_cost;
+	if (get_bulk_upload_expected_cost(filtered_filenames, expected_upload_cost))
+	{
+		LLSD args;
+		args["COST"] = expected_upload_cost;
+		args["COUNT"] = (S32) filtered_filenames.size();
+		LLNotificationsUtil::add("BulkUploadCostConfirmation",  args, LLSD(), boost::bind(do_bulk_upload, filtered_filenames, _1, _2));
 	}
 }
 

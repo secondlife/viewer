@@ -8405,6 +8405,17 @@ Your voice has been muted by moderator.
   
    <notification
     icon="alertmodal.tga"
+    name="BulkUploadCostConfirmation"
+    type="alertmodal">
+This will upload [COUNT] items at a total cost of L$[COST]. Do you wish to continue with the upload?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Upload"/>
+  </notification>
+
+   <notification
+    icon="alertmodal.tga"
     name="UploadCostConfirmation"
     type="alertmodal">
 This upload will cost L$[PRICE], do you wish to continue with the upload?

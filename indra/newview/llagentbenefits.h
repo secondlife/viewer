@@ -28,6 +28,7 @@
 
 #include "llsingleton.h"
 #include "llsd.h"
+#include "llassettype.h"
 
 class LLAgentBenefits: public LLSingleton<LLAgentBenefits>
 {
@@ -45,6 +46,8 @@ public:
 	S32 getGroupMembershipLimit() const;
 	S32 getSoundUploadCost() const;
 	S32 getTextureUploadCost() const;
+
+	bool findUploadCost(LLAssetType::EType& asset_type, S32& cost);
 	
 private:
 	S32 m_animated_object_limit;
