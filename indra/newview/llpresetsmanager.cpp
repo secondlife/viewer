@@ -138,26 +138,6 @@ std::string LLPresetsManager::getPresetsDir(const std::string& subdirectory)
 	if (!gDirUtilp->fileExists(dest_path))
 		LLFile::mkdir(dest_path);
 
-	if (PRESETS_CAMERA == subdirectory)
-	{
-		std::string source_dir = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, PRESETS_CAMERA);
-		LLDirIterator dir_iter(source_dir, "*.xml");
-		bool found = true;
-		while (found)
-		{
-			std::string file;
-			found = dir_iter.next(file);
-
-			if (found)
-			{
-				std::string source = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, PRESETS_CAMERA, file);
-				file = LLURI::escape(file);
-				std::string dest = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, PRESETS_DIR, PRESETS_CAMERA, file);
-				LLFile::copy(source, dest);
-			}
-		}
-	}
-
 	return dest_path;
 }
 
@@ -570,8 +550,7 @@ bool LLPresetsManager::createDefaultCameraPreset(std::string preset_name, bool f
 	if (!gDirUtilp->fileExists(preset_file) || force_reset)
 	{
 		std::string template_name = preset_name.substr(0, preset_name.size() - PRESETS_VIEW_SUFFIX.size());
-		std::string default_template_file = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, PRESETS_DIR,
-			PRESETS_CAMERA, template_name + ".xml");
+		std::string default_template_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, PRESETS_CAMERA, template_name + ".xml");
 		return LLFile::copy(default_template_file, preset_file);
 	}
 	return false;
