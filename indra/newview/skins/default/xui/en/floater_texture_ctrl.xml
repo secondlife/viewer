@@ -93,11 +93,22 @@
      height="14"
      layout="topleft"
      left_delta="12"
+     name="size_lbl"
+     top_pad="4">
+        Size:
+    </text>
+
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="14"
+     layout="topleft"
+     left_delta="0"
      name="unknown"
      top_pad="4">
-        Size: [DIMENSIONS]
+        [DIMENSIONS]
     </text>
-    
 <!--  middle: inventory mode -->
 
     <button
@@ -139,7 +150,7 @@
      image_unselected="eye_button_inactive.tga"
      layout="topleft"
      left_delta="-80"
-     top_delta="-25"
+     top_delta="-10"
      name="Pipette"
      width="28" />
    <text
