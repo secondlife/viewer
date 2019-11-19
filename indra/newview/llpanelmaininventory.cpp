@@ -237,11 +237,6 @@ BOOL LLPanelMainInventory::postBuild()
 		menu->getChild<LLMenuItemGL>("Upload Image")->setLabelArg("[COST]", texture_upload_cost_str);
 		menu->getChild<LLMenuItemGL>("Upload Sound")->setLabelArg("[COST]", sound_upload_cost_str);
 		menu->getChild<LLMenuItemGL>("Upload Animation")->setLabelArg("[COST]", animation_upload_cost_str);
-
-		// FIXME PREMIUM - bulk upload of what? This doesn't work with
-		// mixed items if costs aren't all the same. For now treating
-		// as textures.
-		menu->getChild<LLMenuItemGL>("Bulk Upload")->setLabelArg("[COST]", texture_upload_cost_str);
 	}
 
 	// Trigger callback for focus received so we can deselect items in inbox/outbox
@@ -1519,11 +1514,6 @@ void LLPanelMainInventory::setUploadCostIfNeeded()
 		menu->getChild<LLView>("Upload Image")->setLabelArg("[COST]", texture_upload_cost_str);
 		menu->getChild<LLView>("Upload Sound")->setLabelArg("[COST]", sound_upload_cost_str);
 		menu->getChild<LLView>("Upload Animation")->setLabelArg("[COST]", animation_upload_cost_str);
-
-		// FIXME PREMIUM - bulk upload of what? This doesn't work with
-		// mixed items if costs aren't all the same. For now treating
-		// as textures.
-		menu->getChild<LLView>("Bulk Upload")->setLabelArg("[COST]", texture_upload_cost_str);
 	}
 }
 

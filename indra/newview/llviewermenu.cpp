@@ -516,8 +516,6 @@ void init_menus()
 	gMenuHolder->childSetLabelArg("Upload Image", "[COST]", texture_upload_cost_str);
 	gMenuHolder->childSetLabelArg("Upload Sound", "[COST]", sound_upload_cost_str);
 	gMenuHolder->childSetLabelArg("Upload Animation", "[COST]", animation_upload_cost_str);
-	// FIXME PREMIUM - do we need to handle non-texture bulk uploads?
-	gMenuHolder->childSetLabelArg("Bulk Upload", "[COST]", texture_upload_cost_str);
 	
 	gAttachSubMenu = gMenuBarView->findChildMenuByName("Attach Object", TRUE);
 	gDetachSubMenu = gMenuBarView->findChildMenuByName("Detach Object", TRUE);
@@ -8720,8 +8718,7 @@ class LLToggleUIHints : public view_listener_t
 
 void LLUploadCostCalculator::calculateCost(const std::string& asset_type_str)
 {
-	// FIXME PREMIUM reasonable default?
-	S32 upload_cost = LLAgentBenefits::instance().getTextureUploadCost();
+	S32 upload_cost = -1;
 
 	if (asset_type_str == "texture")
 	{
@@ -8734,6 +8731,10 @@ void LLUploadCostCalculator::calculateCost(const std::string& asset_type_str)
 	else if (asset_type_str == "sound")
 	{
 		upload_cost = LLAgentBenefits::instance().getSoundUploadCost();
+	}
+	if (upload_cost < 0)
+	{
+		LL_WARNS() << "Unable to find upload cost for asset_type_str " << asset_type_str << LL_ENDL;
 	}
 	mCostStr = std::to_string(upload_cost);
 }
@@ -8840,7 +8841,6 @@ void initialize_menus()
 
 	enable.add("displayViewerEventRecorderMenuItems",boost::bind(&LLViewerEventRecorder::displayViewerEventRecorderMenuItems,&LLViewerEventRecorder::instance()));
 
-	// FIXME PREMIUM these need to be distinguished by asset type - see menu_viewer.xml
 	view_listener_t::addEnable(new LLUploadCostCalculator(), "Upload.CalculateCosts");
 
 	enable.add("Conversation.IsConversationLoggingAllowed", boost::bind(&LLFloaterIMContainer::isConversationLoggingAllowed));

@@ -3254,7 +3254,7 @@ bool process_login_success_response()
 {
 	LLSD response = LLLoginInstance::getInstance()->getResponse();
 
-	//LL_INFOS() << "login success response:" << ll_pretty_print_sd(response) << LL_ENDL;
+	LL_DEBUGS("Benefits") << "login success response:" << response << LL_ENDL;
 	if (!LLAgentBenefits::instance().init(response["account_level_benefits"]))
 	{
 		LL_ERRS() << "Benefits error" << LL_ENDL;

@@ -306,6 +306,12 @@ std::string LLResourceUploadInfo::getDisplayName() const
     return (mName.empty()) ? mAssetId.asString() : mName;
 };
 
+bool LLResourceUploadInfo::findAssetTypeOfExtension(const std::string& exten, LLAssetType::EType& asset_type)
+{
+	U32 codec;
+	return findAssetTypeAndCodecOfExtension(exten, asset_type, codec);
+}
+
 // static
 bool LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(const std::string& exten, LLAssetType::EType& asset_type, U32& codec)
 {

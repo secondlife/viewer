@@ -1291,6 +1291,14 @@ Error encoding snapshot.
   
   <notification
    icon="alertmodal.tga"
+   name="ErrorCannotAffordUpload"
+   type="alertmodal">
+    You need L$[COST] to upload this item.
+    <tag>fail</tag>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
    name="ErrorTextureCannotAfford"
    type="alertmodal">
     You need L$[COST] to save a texture to your inventory. You may either buy L$ or save the photo to your computer instead.

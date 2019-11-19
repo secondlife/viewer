@@ -1347,7 +1347,7 @@
             function="File.VisibleUploadModel"/>
             </menu_item_call>
 	   <menu_item_call
-             label="Bulk..."
+             labe="Bulk..."
              layout="topleft"
              name="Bulk Upload">
                 <menu_item_call.on_visible

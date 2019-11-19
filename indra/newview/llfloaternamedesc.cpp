@@ -63,7 +63,7 @@ const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
 //-----------------------------------------------------------------------------
 LLFloaterNameDesc::LLFloaterNameDesc(const LLSD& filename )
 	: LLFloater(filename),
-	  mIsAudio(FALSE)	  
+	  mIsAudio(FALSE)
 {
 	mFilenameAndPath = filename.asString();
 	mFilename = gDirUtilp->getBaseFileName(mFilenameAndPath, false);
@@ -123,12 +123,31 @@ BOOL LLFloaterNameDesc::postBuild()
 	// Cancel button
 	getChild<LLUICtrl>("cancel_btn")->setCommitCallback(boost::bind(&LLFloaterNameDesc::onBtnCancel, this));
 
-	// FIXME PREMIUM - depends - what are we uploading here?
-	getChild<LLUICtrl>("ok_btn")->setLabelArg("[AMOUNT]", llformat("%d", LLAgentBenefits::instance().getTextureUploadCost()));
+	S32 expected_upload_cost = getExpectedUploadCost();
+	getChild<LLUICtrl>("ok_btn")->setLabelArg("[AMOUNT]", llformat("%d", expected_upload_cost));
 	
 	setDefaultBtn("ok_btn");
 	
 	return TRUE;
+}
+
+S32 LLFloaterNameDesc::getExpectedUploadCost() const
+{
+    std::string exten = gDirUtilp->getExtension(mFilename);
+	LLAssetType::EType asset_type;
+	S32 upload_cost = -1;
+	if (LLResourceUploadInfo::findAssetTypeOfExtension(exten, asset_type))
+	{
+		if (!LLAgentBenefits::instance().findUploadCost(asset_type, upload_cost))
+		{
+			LL_WARNS() << "Unable to find upload cost for asset type " << asset_type << LL_ENDL;
+		}
+	}
+	else
+	{
+		LL_WARNS() << "Unable to find upload cost for " << mFilename << LL_ENDL;
+	}
+	return upload_cost;
 }
 
 //-----------------------------------------------------------------------------
@@ -162,10 +181,8 @@ void LLFloaterNameDesc::onBtnOK( )
 {
 	getChildView("ok_btn")->setEnabled(FALSE); // don't allow inadvertent extra uploads
 	
-	// FIXME PREMIUM - upload cost. Need to know which asset type this is, use agent benefits.
 	LLAssetStorage::LLStoreAssetCallback callback = NULL;
-	S32 expected_upload_cost = LLAgentBenefits::instance().getTextureUploadCost(); // kinda hack - assumes that unsubclassed LLFloaterNameDesc is only used for uploading chargeable assets, which it is right now (it's only used unsubclassed for the sound upload dialog, and THAT should be a subclass).
-
+	S32 expected_upload_cost = getExpectedUploadCost();
     if (can_afford_transaction(expected_upload_cost))
     {
         void *nruserdata = NULL;
@@ -187,7 +204,7 @@ void LLFloaterNameDesc::onBtnOK( )
     {
         LLSD args;
         args["COST"] = llformat("%d", expected_upload_cost);
-        LLNotificationsUtil::add("ErrorTextureCannotAfford", args);
+        LLNotificationsUtil::add("ErrorCannotAffordUpload", args);
     }
 
 	closeFloater(false);
