@@ -39,7 +39,6 @@ class LLJointRiggingInfoTab;
 
 namespace LLSkinningUtil
 {
-    void initClass();
     S32 getMaxJointCount();
     U32 getMeshJointCount(const LLMeshSkinInfo *skin);
     void scrubInvalidJoints(LLVOAvatar *avatar, LLMeshSkinInfo* skin);

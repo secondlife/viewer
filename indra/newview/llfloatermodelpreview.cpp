@@ -806,7 +806,7 @@ BOOL LLFloaterModelPreview::handleHover	(S32 x, S32 y, MASK mask)
 
 		mModelPreview->refresh();
 
-		LLUI::setMousePositionLocal(this, mLastMouseX, mLastMouseY);
+		LLUI::getInstance()->setMousePositionLocal(this, mLastMouseX, mLastMouseY);
 	}
 
 	if (!mPreviewRect.pointInRect(x, y) || !mModelPreview)

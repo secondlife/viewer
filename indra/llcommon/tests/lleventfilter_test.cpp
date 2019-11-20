@@ -350,15 +350,9 @@ namespace tut
         // Now let the timer expire.
         filter.forceTimeout();
         // Notice the timeout.
-        std::string threw;
-        try
-        {
-            mainloop.post(17);
-        }
-        catch (const WrapLLErrs::FatalException& e)
-        {
-            threw = e.what();
-        }
+        std::string threw = capture.catch_llerrs([this](){
+                mainloop.post(17);
+            });
         ensure_contains("errorAfter() timeout exception", threw, "timeout");
         // Timing out cancels the timer. Verify that.
         listener0.reset(0);

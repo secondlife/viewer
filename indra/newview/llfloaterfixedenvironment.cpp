@@ -402,12 +402,12 @@ void LLFloaterFixedEnvironment::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
         {
             setting_clone = water->buildClone();
             // LLViewerFetchedTexture and check for FTT_LOCAL_FILE or check LLLocalBitmapMgr
-            if (LLLocalBitmapMgr::isLocal(water->getNormalMapID()))
+            if (LLLocalBitmapMgr::getInstance()->isLocal(water->getNormalMapID()))
             {
                 local_desc = LLTrans::getString("EnvironmentNormalMap");
                 is_local = true;
             }
-            else if (LLLocalBitmapMgr::isLocal(water->getTransparentTextureID()))
+            else if (LLLocalBitmapMgr::getInstance()->isLocal(water->getTransparentTextureID()))
             {
                 local_desc = LLTrans::getString("EnvironmentTransparent");
                 is_local = true;
@@ -420,22 +420,22 @@ void LLFloaterFixedEnvironment::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
         if (sky)
         {
             setting_clone = sky->buildClone();
-            if (LLLocalBitmapMgr::isLocal(sky->getSunTextureId()))
+            if (LLLocalBitmapMgr::getInstance()->isLocal(sky->getSunTextureId()))
             {
                 local_desc = LLTrans::getString("EnvironmentSun");
                 is_local = true;
             }
-            else if (LLLocalBitmapMgr::isLocal(sky->getMoonTextureId()))
+            else if (LLLocalBitmapMgr::getInstance()->isLocal(sky->getMoonTextureId()))
             {
                 local_desc = LLTrans::getString("EnvironmentMoon");
                 is_local = true;
             }
-            else if (LLLocalBitmapMgr::isLocal(sky->getCloudNoiseTextureId()))
+            else if (LLLocalBitmapMgr::getInstance()->isLocal(sky->getCloudNoiseTextureId()))
             {
                 local_desc = LLTrans::getString("EnvironmentCloudNoise");
                 is_local = true;
             }
-            else if (LLLocalBitmapMgr::isLocal(sky->getBloomTextureId()))
+            else if (LLLocalBitmapMgr::getInstance()->isLocal(sky->getBloomTextureId()))
             {
                 local_desc = LLTrans::getString("EnvironmentBloom");
                 is_local = true;

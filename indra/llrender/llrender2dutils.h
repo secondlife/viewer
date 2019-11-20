@@ -121,39 +121,54 @@ inline void gl_rect_2d_offset_local( const LLRect& rect, S32 pixel_offset, BOOL 
 
 class LLImageProviderInterface;
 
-class LLRender2D
+class LLRender2D : public LLParamSingleton<LLRender2D>
 {
+	LLSINGLETON(LLRender2D, LLImageProviderInterface* image_provider);
 	LOG_CLASS(LLRender2D);
+	~LLRender2D();
 public:
-	static void initClass(LLImageProviderInterface* image_provider,
-						  const LLVector2* scale_factor);
-	static void cleanupClass();
+	void pushMatrix();
+	void popMatrix();
+	void loadIdentity();
+	void translate(F32 x, F32 y, F32 z = 0.0f);
 
-	static void pushMatrix();
-	static void popMatrix();
-	static void loadIdentity();
-	static void translate(F32 x, F32 y, F32 z = 0.0f);
+	void setLineWidth(F32 width);
+	void setScaleFactor(const LLVector2& scale_factor);
 
-	static void setLineWidth(F32 width);
-	static void setScaleFactor(const LLVector2& scale_factor);
+	LLPointer<LLUIImage> getUIImageByID(const LLUUID& image_id, S32 priority = 0);
+	LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority = 0);
 
-	static LLPointer<LLUIImage> getUIImageByID(const LLUUID& image_id, S32 priority = 0);
-	static LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority = 0);
+	LLVector2		mGLScaleFactor;
 
-	static LLVector2		sGLScaleFactor;
+protected:
+	// since LLRender2D has no control of image provider's lifecycle
+	// we need a way to tell LLRender2D that provider died and
+	// LLRender2D needs to be updated.
+	static void resetProvider();
+
 private:
-	static LLImageProviderInterface* sImageProvider;
+	LLImageProviderInterface* mImageProvider;
 };
 
 class LLImageProviderInterface
 {
 protected:
 	LLImageProviderInterface() {};
-	virtual ~LLImageProviderInterface() {};
+	virtual ~LLImageProviderInterface();
 public:
 	virtual LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority) = 0;
 	virtual LLPointer<LLUIImage> getUIImageByID(const LLUUID& id, S32 priority) = 0;
 	virtual void cleanUp() = 0;
+
+	// to notify holders when pointer gets deleted
+	typedef void(*callback_t)();
+	void addOnRemovalCallback(callback_t func);
+	void deleteOnRemovalCallback(callback_t func);
+
+private:
+
+	typedef std::list< callback_t >	callback_list_t;
+	callback_list_t mCallbackList;
 };
 
 
