@@ -264,8 +264,7 @@ void main()
     tnorm = vary_normal;
 #endif
 
-    norm.xyz = tnorm;
-    norm.xyz = normalize(norm.xyz);
+    norm.xyz = normalize(tnorm.xyz);
 
     vec2 abnormal   = encode_normal(norm.xyz);
 
@@ -277,7 +276,14 @@ void main()
 
     final_color.a = max(final_color.a, emissive_brightness);
 
-    vec4 final_normal = vec4(encode_normal(normalize(tnorm)), env_intensity, 0.0);
+    // SL-11406 Fullbright: Object > Texture > Shininess > Environment Intensity
+    // We can either modify the output environment intensity
+    //   OR
+    // adjust the final color via
+    //     final_color *= 0.666666;
+    // We remap the environment intensity to simulate what non-EEP is doing.
+    float ei = env_intensity*0.5 + 0.5;
+    vec4 final_normal = vec4(abnormal, ei, 0.0);
     vec4 final_specular = spec;
     
     final_specular.a = specular_color.a;
@@ -316,8 +322,9 @@ void main()
     vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
 
-    float da = dot(normalize(norm.xyz), normalize(light_dir.xyz));
-          da = clamp(da, -1.0, 1.0);
+    float da = dot(norm.xyz, normalize(light_dir.xyz));
+    // Dot product is guaranteed to be in -1 < dot() < +1 range for normalized vectors
+    //    da = clamp(da, -1.0, 1.0);
 
     float final_da = da;
           final_da = clamp(final_da, 0.0, 1.0);
