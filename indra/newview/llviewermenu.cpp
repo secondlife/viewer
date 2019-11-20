@@ -510,9 +510,9 @@ void init_menus()
         LLGridManager::getInstance()->isInProductionGrid());
 
 	// *TODO:Also fix cost in llfolderview.cpp for Inventory menus
-	const std::string texture_upload_cost_str = std::to_string(LLAgentBenefits::instance().getTextureUploadCost());
-	const std::string sound_upload_cost_str = std::to_string(LLAgentBenefits::instance().getSoundUploadCost());
-	const std::string animation_upload_cost_str = std::to_string(LLAgentBenefits::instance().getAnimationUploadCost());
+	const std::string texture_upload_cost_str = std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost());
+	const std::string sound_upload_cost_str = std::to_string(LLAgentBenefitsMgr::current().getSoundUploadCost());
+	const std::string animation_upload_cost_str = std::to_string(LLAgentBenefitsMgr::current().getAnimationUploadCost());
 	gMenuHolder->childSetLabelArg("Upload Image", "[COST]", texture_upload_cost_str);
 	gMenuHolder->childSetLabelArg("Upload Sound", "[COST]", sound_upload_cost_str);
 	gMenuHolder->childSetLabelArg("Upload Animation", "[COST]", animation_upload_cost_str);
@@ -8722,15 +8722,15 @@ void LLUploadCostCalculator::calculateCost(const std::string& asset_type_str)
 
 	if (asset_type_str == "texture")
 	{
-		upload_cost = LLAgentBenefits::instance().getTextureUploadCost();
+		upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
 	}
 	else if (asset_type_str == "animation")
 	{
-		upload_cost = LLAgentBenefits::instance().getAnimationUploadCost();
+		upload_cost = LLAgentBenefitsMgr::current().getAnimationUploadCost();
 	}
 	else if (asset_type_str == "sound")
 	{
-		upload_cost = LLAgentBenefits::instance().getSoundUploadCost();
+		upload_cost = LLAgentBenefitsMgr::current().getSoundUploadCost();
 	}
 	if (upload_cost < 0)
 	{

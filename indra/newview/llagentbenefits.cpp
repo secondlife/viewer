@@ -130,7 +130,7 @@ S32 LLAgentBenefits::getTextureUploadCost() const
 	return m_texture_upload_cost;
 }
 
-bool LLAgentBenefits::findUploadCost(LLAssetType::EType& asset_type, S32& cost)
+bool LLAgentBenefits::findUploadCost(LLAssetType::EType& asset_type, S32& cost) const
 {
 	bool succ = false;
 	if (asset_type == LLAssetType::AT_TEXTURE)
@@ -149,4 +149,71 @@ bool LLAgentBenefits::findUploadCost(LLAssetType::EType& asset_type, S32& cost)
 		succ = true;
 	}
 	return succ;
+}
+
+LLAgentBenefitsMgr::LLAgentBenefitsMgr()
+{
+}
+
+LLAgentBenefitsMgr::~LLAgentBenefitsMgr()
+{
+}
+
+// static
+const LLAgentBenefits& LLAgentBenefitsMgr::current()
+{
+	return instance().mCurrent;
+}
+
+// static
+const LLAgentBenefits& LLAgentBenefitsMgr::get(const std::string& package)
+{
+	if (instance().mPackageMap.find(package) != instance().mPackageMap.end())
+	{
+		return instance().mPackageMap[package];
+	}
+	else
+	{
+		return instance().mDefault;
+	}
+}
+
+// static
+bool LLAgentBenefitsMgr::init(const std::string& package, const LLSD& benefits_sd)
+{
+	LLAgentBenefits benefits;
+	if (!benefits.init(benefits_sd))
+	{
+		LL_WARNS("Benefits") << "Unable to initialize package " << package << " from sd " << benefits_sd << LL_ENDL;
+		return false;
+	}
+	else
+	{
+		instance().mPackageMap[package] = benefits;
+	}
+	return true;
+
+}
+
+// static
+bool LLAgentBenefitsMgr::initCurrent(const std::string& package, const LLSD& benefits_sd)
+{
+	LLAgentBenefits benefits;
+	if (!benefits.init(benefits_sd))
+	{
+		LL_WARNS("Benefits") << "Unable to initialize package " << package << " from sd " << benefits_sd << LL_ENDL;
+		return false;
+	}
+	else
+	{
+		instance().mCurrent = benefits;
+	}
+	return true;
+
+}
+
+// static
+bool LLAgentBenefitsMgr::has(const std::string& package)
+{
+	return instance().mPackageMap.find(package) != instance().mPackageMap.end();
 }

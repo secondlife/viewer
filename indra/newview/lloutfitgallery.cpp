@@ -1205,7 +1205,7 @@ void LLOutfitGallery::uploadOutfitImage(const std::vector<std::string>& filename
             return;
         }
 
-        S32 expected_upload_cost = LLAgentBenefits::instance().getTextureUploadCost();
+        S32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
         void *nruserdata = NULL;
         nruserdata = (void *)&outfit_id;
 

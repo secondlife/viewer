@@ -138,7 +138,7 @@ S32 LLFloaterNameDesc::getExpectedUploadCost() const
 	S32 upload_cost = -1;
 	if (LLResourceUploadInfo::findAssetTypeOfExtension(exten, asset_type))
 	{
-		if (!LLAgentBenefits::instance().findUploadCost(asset_type, upload_cost))
+		if (!LLAgentBenefitsMgr::current().findUploadCost(asset_type, upload_cost))
 		{
 			LL_WARNS() << "Unable to find upload cost for asset type " << asset_type << LL_ENDL;
 		}

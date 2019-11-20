@@ -429,7 +429,7 @@ void do_bulk_upload(std::vector<std::string> filenames, const LLSD& notification
 		U32 codec;
 		S32 expected_upload_cost;
 		if (LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(ext, asset_type, codec) &&
-			LLAgentBenefits::instance().findUploadCost(asset_type, expected_upload_cost))
+			LLAgentBenefitsMgr::current().findUploadCost(asset_type, expected_upload_cost))
 		{
 			LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
 													   filename,
@@ -460,7 +460,7 @@ bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S3
 		S32 cost;
 
 		if (LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(ext, asset_type, codec) &&
-			LLAgentBenefits::instance().findUploadCost(asset_type, cost))
+			LLAgentBenefitsMgr::current().findUploadCost(asset_type, cost))
 		{
 			total_cost += cost;
 		}

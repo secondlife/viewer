@@ -1004,7 +1004,7 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
 			{
 				std::string name = floaterp->getChild<LLUICtrl>("name_form")->getValue().asString();
 				std::string desc = floaterp->getChild<LLUICtrl>("description_form")->getValue().asString();
-				S32 expected_upload_cost = LLAgentBenefits::instance().getAnimationUploadCost();
+				S32 expected_upload_cost = LLAgentBenefitsMgr::current().getAnimationUploadCost();
 
                 LLResourceUploadInfo::ptr_t assetUploadInfo(new LLResourceUploadInfo(
                     floaterp->mTransactionID, LLAssetType::AT_ANIMATION,

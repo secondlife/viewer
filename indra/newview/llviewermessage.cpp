@@ -903,7 +903,7 @@ bool join_group_response(const LLSD& notification, const LLSD& response)
 	if(option == 0 && !group_id.isNull())
 	{
 		// check for promotion or demotion.
-		S32 max_groups = LLAgentBenefits::instance().getGroupMembershipLimit();
+		S32 max_groups = LLAgentBenefitsMgr::current().getGroupMembershipLimit();
 		if(gAgent.isInGroup(group_id)) ++max_groups;
 
 		if(gAgent.mGroups.size() < max_groups)

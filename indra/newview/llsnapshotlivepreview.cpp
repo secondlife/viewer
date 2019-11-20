@@ -1039,7 +1039,7 @@ void LLSnapshotLivePreview::saveTexture(BOOL outfit_snapshot, std::string name)
 		LLAgentUI::buildLocationString(pos_string, LLAgentUI::LOCATION_FORMAT_FULL);
 		std::string who_took_it;
 		LLAgentUI::buildFullname(who_took_it);
-		S32 expected_upload_cost = LLAgentBenefits::instance().getTextureUploadCost();
+		S32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
         std::string res_name = outfit_snapshot ? name : "Snapshot : " + pos_string;
         std::string res_desc = outfit_snapshot ? "" : "Taken by " + who_took_it + " at " + pos_string;
         LLFolderType::EType folder_type = outfit_snapshot ? LLFolderType::FT_NONE : LLFolderType::FT_SNAPSHOT_CATEGORY;

@@ -3250,14 +3250,67 @@ void apply_udp_blacklist(const std::string& csv)
 	
 }
 
+void on_benefits_failed_callback(const LLSD& notification, const LLSD& response)
+{
+	LL_WARNS("Benefits") << "Failed to load benefits information" << LL_ENDL; 
+}
+
+bool init_benefits(LLSD& response)
+{
+	LL_DEBUGS("Benefits") << "login success response:" << response << LL_ENDL;
+
+	bool succ = true;
+
+	std::string package_name = response["account_type"].asString();
+	const LLSD& benefits_sd = response["account_level_benefits"];
+	if (!LLAgentBenefitsMgr::init(package_name, benefits_sd) ||
+		!LLAgentBenefitsMgr::initCurrent(package_name, benefits_sd))
+	{
+		succ = false;
+	}
+	else
+	{
+		LL_DEBUGS("Benefits") << "Initialized current benefits, level " << package_name << " from " << benefits_sd << LL_ENDL;
+	}
+	const LLSD& packages_sd = response["premium_packages"];
+	for(LLSD::map_const_iterator package_iter = packages_sd.beginMap();
+		package_iter != packages_sd.endMap();
+		++package_iter)
+	{
+		std::string package_name = package_iter->first;
+		const LLSD& benefits_sd = package_iter->second["benefits"];
+		if (LLAgentBenefitsMgr::init(package_name, benefits_sd))
+		{
+			LL_DEBUGS("Benefits") << "Initialized benefits for package " << package_name << " from " << benefits_sd << LL_ENDL;
+		}
+		else
+		{
+			LL_WARNS("Benefits") << "Failed init for package " << package_name << " from " << benefits_sd << LL_ENDL;
+			succ = false;
+		}
+	}
+
+	if (!LLAgentBenefitsMgr::has("Base"))
+	{
+		LL_WARNS("Benefits") << "Benefits info did not include required package Base" << LL_ENDL;
+		succ = false;
+	}
+	if (!LLAgentBenefitsMgr::has("Premium"))
+	{
+		LL_WARNS("Benefits") << "Benefits info did not include required package Premium" << LL_ENDL;
+		succ = false;
+	}
+	return succ;
+}
+
 bool process_login_success_response()
 {
 	LLSD response = LLLoginInstance::getInstance()->getResponse();
 
-	LL_DEBUGS("Benefits") << "login success response:" << response << LL_ENDL;
-	if (!LLAgentBenefits::instance().init(response["account_level_benefits"]))
+	bool benefits_ok = init_benefits(response);
+	if (!benefits_ok)
 	{
-		LL_ERRS() << "Benefits error" << LL_ENDL;
+		LLNotificationsUtil::add("FailedToGetBenefits",  LLSD(), LLSD(), boost::bind(on_benefits_failed_callback, _1, _2));
 	}
 
 	std::string text(response["udp_blacklist"]);

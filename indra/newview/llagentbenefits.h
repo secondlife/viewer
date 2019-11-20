@@ -30,13 +30,13 @@
 #include "llsd.h"
 #include "llassettype.h"
 
-class LLAgentBenefits: public LLSingleton<LLAgentBenefits>
+class LLAgentBenefits
 {
-	LLSINGLETON(LLAgentBenefits);
+public:
+	LLAgentBenefits();
 	~LLAgentBenefits();
 	LOG_CLASS(LLAgentBenefits);
 
-public:
 	bool init(const LLSD& benefits_sd);
 
 	S32 getAnimatedObjectLimit() const;
@@ -47,7 +47,7 @@ public:
 	S32 getSoundUploadCost() const;
 	S32 getTextureUploadCost() const;
 
-	bool findUploadCost(LLAssetType::EType& asset_type, S32& cost);
+	bool findUploadCost(LLAssetType::EType& asset_type, S32& cost) const;
 	
 private:
 	S32 m_animated_object_limit;
@@ -60,5 +60,25 @@ private:
 
 	bool m_initalized;
 };
+
+class LLAgentBenefitsMgr: public LLSingleton<LLAgentBenefitsMgr> 
+{
+	LLSINGLETON(LLAgentBenefitsMgr);
+	~LLAgentBenefitsMgr();
+	LOG_CLASS(LLAgentBenefitsMgr);
+
+public:
+	static const LLAgentBenefits& current();
+	static const LLAgentBenefits& get(const std::string& package);
+	static bool init(const std::string& package, const LLSD& benefits_sd);
+	static bool initCurrent(const std::string& package, const LLSD& benefits_sd);
+	static bool has(const std::string& package);
+
+private:
+	LLAgentBenefits mCurrent;
+	LLAgentBenefits mDefault;
+	std::map<std::string, LLAgentBenefits> mPackageMap;
+};
+
 
 #endif

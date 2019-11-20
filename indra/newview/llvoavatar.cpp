@@ -7061,7 +7061,7 @@ U32 LLVOAvatar::getNumAttachments() const
 //-----------------------------------------------------------------------------
 S32 LLVOAvatar::getMaxAttachments() const
 {
-	return LLAgentBenefits::instance().getAttachmentLimit();
+	return LLAgentBenefitsMgr::current().getAttachmentLimit();
 }
 
 //-----------------------------------------------------------------------------
@@ -7095,7 +7095,7 @@ U32 LLVOAvatar::getNumAnimatedObjectAttachments() const
 //-----------------------------------------------------------------------------
 S32 LLVOAvatar::getMaxAnimatedObjectAttachments() const
 {
-	return LLAgentBenefits::instance().getAnimatedObjectLimit();
+	return LLAgentBenefitsMgr::current().getAnimatedObjectLimit();
 }
 
 //-----------------------------------------------------------------------------
