@@ -44,6 +44,7 @@ public:
 	S32 getAttachmentLimit() const;
 	S32 getCreateGroupCost() const;
 	S32 getGroupMembershipLimit() const;
+	S32 getPicksLimit() const;
 	S32 getSoundUploadCost() const;
 	S32 getTextureUploadCost() const;
 
@@ -55,6 +56,7 @@ private:
 	S32 m_attachment_limit;
 	S32 m_create_group_cost;
 	S32 m_group_membership_limit;
+	S32 m_picks_limit;
 	S32 m_sound_upload_cost;
 	S32 m_texture_upload_cost;
 
