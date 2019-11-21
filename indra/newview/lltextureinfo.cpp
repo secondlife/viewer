@@ -40,6 +40,9 @@
 #include "llvocache.h"
 #include "llworld.h"
 
+
+/*TODO:RIDER*/ // This can (should?) all be moved into the new texture manager... 
+
 static LLTrace::CountStatHandle<S32> sTextureDownloadsStarted("texture_downloads_started", "number of texture downloads initiated");
 static LLTrace::CountStatHandle<S32> sTextureDownloadsCompleted("texture_downloads_completed", "number of texture downloads completed");
 static LLTrace::CountStatHandle<S32Bytes > sTextureDataDownloaded("texture_data_downloaded", "amount of texture data downloaded");
@@ -154,7 +157,8 @@ void LLTextureInfo::setRequestCompleteTimeAndLog(const LLUUID& id, U64Microsecon
 
 	if (mLoggingEnabled)
 	{
-		static LLCachedControl<bool> log_to_viewer_log(gSavedSettings, "LogTextureDownloadsToViewerLog", false);
+		//static LLCachedControl<bool> log_to_viewer_log(gSavedSettings, "LogTextureDownloadsToViewerLog", false);
+        bool log_to_viewer_log(true);
 		static LLCachedControl<bool> log_to_simulator(gSavedSettings, "LogTextureDownloadsToSimulator", false);
 		static LLCachedControl<U32> texture_log_threshold(gSavedSettings, "TextureLoggingThreshold", 1);
 

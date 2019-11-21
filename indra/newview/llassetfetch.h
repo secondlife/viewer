@@ -94,6 +94,13 @@ public:
     {
         LOG_CLASS(AssetRequest);
     public:
+        enum FetchType
+        {
+            FETCH_HTTP,
+            FETCH_CACHE,
+            FETCH_FILE
+        };
+
         typedef boost::signals2::connection         connection_t;
         typedef std::shared_ptr<AssetRequest>  ptr_t;
         typedef std::function<void(const ptr_t &)>  signal_cb_t;
@@ -121,6 +128,10 @@ public:
         virtual S32         getRangeSize() const;
         virtual bool        prefetch();
         virtual bool        postfetch(const LLCore::HttpResponse::ptr_t &response);
+        virtual FetchType   getFetchType() const = 0;
+        virtual U64Bytes    getDataSize() const { return mDownloadSize; }
+        U64                 getStartTime() const { return mTotalTime.getLastClockCount(); }
+        U64                 getElapsedTime() const { return mTotalTime.getElapsedTimeF64(); }
 
         virtual bool        needsPostProcess() const;
 

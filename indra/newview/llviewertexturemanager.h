@@ -218,6 +218,8 @@ private:
     list_texture_t                  mImageSaves;    // list of saved textures. 
     media_map_t                     mMediaMap;
 
+    LLTextureInfo::ptr_t            mTextureDownloadInfo;   // stats for HTTP only
+
     void                            doPreloadImages();
 
     LLViewerMediaTexture::ptr_t     createMediaTexture(const LLUUID& id, bool usemipmaps = true, LLImageGL* gl_image = nullptr);

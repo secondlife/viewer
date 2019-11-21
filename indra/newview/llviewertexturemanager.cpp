@@ -124,6 +124,8 @@ void LLViewerTextureManager::initSingleton()
     mIsCleaningUp = false;
     mDeadlistDirty = false;
 
+    mTextureDownloadInfo = std::make_shared<LLTextureInfo>(false);
+
     {
         LLPointer<LLImageRaw> raw = new LLImageRaw(1, 1, 3);
         raw->clear(0x77, 0x77, 0x77, 0xFF);
@@ -983,6 +985,18 @@ void LLViewerTextureManager::onTextureFetchDone(const LLAssetFetch::AssetRequest
     {   // don't keep a record of canceled requests around.
         removeTexture(texture);
     }
+
+    if ((request->getFetchType() == LLAssetFetch::AssetRequest::FETCH_HTTP) && mTextureDownloadInfo)
+    {
+        mTextureDownloadInfo->setRequestStartTime(request->getId(), request->getStartTime());
+        mTextureDownloadInfo->setRequestSize(request->getId(), request->getDataSize().value());
+        mTextureDownloadInfo->setRequestType(request->getId(), LLTextureInfoDetails::REQUEST_TYPE_HTTP);
+        mTextureDownloadInfo->setRequestCompleteTimeAndLog(request->getId(), U64Seconds(request->getElapsedTime()));
+    }
+
+
+//     /*RECORD TEXTURE SPECIFIC here*/
+//     LLTextureInfo::setRequestType()
 }
 
 //========================================================================

@@ -35,6 +35,8 @@
 class LLTextureInfo
 {
 public:
+    typedef std::shared_ptr<LLTextureInfo>  ptr_t;
+
 	LLTextureInfo(bool postponeStartRecoreder = true);
 	~LLTextureInfo();
 

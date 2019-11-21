@@ -91,6 +91,7 @@ public:
 	void stop() { mStarted = FALSE; }
 	void reset();								// Resets the timer
 	void setLastClockCount(U64 current_count);		// Sets the timer so that the next elapsed call will be relative to this time
+    U64  getLastClockCount() const { return mLastClockCount; }
 	void setTimerExpirySec(F32SecondsImplicit expiration);
 	BOOL checkExpirationAndReset(F32 expiration);
 	BOOL hasExpired() const;

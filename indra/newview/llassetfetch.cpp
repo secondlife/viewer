@@ -138,6 +138,7 @@ namespace
 
         virtual bool                postfetch(const LLCore::HttpResponse::ptr_t &response) override;
         virtual bool                execute(U32 priority) override;
+        virtual FetchType           getFetchType() const override { return FetchType::FETCH_HTTP; }
 
     protected:
         virtual U8 *                getFilledDataBuffer() override;
@@ -155,6 +156,7 @@ namespace
                                     TextureCacheReadRequest(LLUUID id, FTType ftype, S32 width, S32 height, S32 components, S32 discard, bool needs_aux);
 
         virtual bool                execute(U32 priority) override;
+        virtual FetchType           getFetchType() const override { return FetchType::FETCH_CACHE; }
 
     protected:
         virtual U8 *                getFilledDataBuffer() override;
@@ -169,6 +171,7 @@ namespace
         TextureFileRequest(LLUUID id, std::string url, FTType ftype, S32 width, S32 height, S32 components, S32 discard, bool needs_aux);
 
         virtual bool                execute(U32 priority) override;
+        virtual FetchType           getFetchType() const override { return FetchType::FETCH_FILE; }
 
     protected:
         virtual U8 *                getFilledDataBuffer() override;
@@ -238,7 +241,6 @@ void LLAssetFetch::initSingleton()
     LLThreadPool::initSingleton_();
     startPool();
 
-//  gAgent.addRegionChangedCallback([this](){ onRegionChanged(); });
     gAgent.addRegionChangedCallback(boost::bind(&LLAssetFetch::onRegionChanged, this));
 
     LLCoros::instance().launch("AssetFetch", [this]() { assetHttpRequestCoro(); });
@@ -567,13 +569,48 @@ void LLAssetFetch::cancelRequests(const uuid_set_t &id_list)
 
 void LLAssetFetch::cancelRequest(const AssetRequest::ptr_t &request)
 {
+    bool put_in_done(true);
+    LLUUID request_id(request->getId());
     if (!request)
         return;
-    LL_DEBUGS("ASSETFETCH") << "Canceling request " << request->getId() << LL_ENDL;
+    LL_WARNS("ASSETFETCH") << "Canceling request " << request->getId() << LL_ENDL;
 
-    LLMutexLock lock(mThreadDoneMtx);
+    FetchState state = request->getFetchState();
     request->setFetchState(RQST_CANCELED);
-    mThreadDone.insert(request);
+    mAssetRequests.erase(request_id);
+
+    switch (state)
+    {
+    case HTTP_QUEUE:
+        mHttpQueue.remove(request_id);
+        break;
+    case HTTP_DOWNLOAD:
+    {
+        LLCore::HttpHandle handle(request->getHTTPHandle());
+        if (handle != LLCORE_HTTP_HANDLE_INVALID)
+        {
+            mHttpRequest->requestCancel(handle, LLCore::HttpHandler::ptr_t());
+        }
+        break;
+    }
+    case THRD_QUEUE:
+    case THRD_EXEC:
+        dropRequest(request_id);
+        break;
+
+    case RQST_DONE:
+    case RQST_CANCELED:
+    case RQST_ERROR:
+    default:
+        //noop
+        break;
+    }
+
+    if (put_in_done)
+    {
+        LLMutexLock lock(mThreadDoneMtx);
+        mThreadDone.insert(request);
+    }
 }
 
 bool LLAssetFetch::isFileRequest(std::string url) const
@@ -1247,7 +1284,7 @@ namespace
         }
 
         mRawImage = new LLImageRaw(mFormattedImage->getWidth(), mFormattedImage->getHeight(), mFormattedImage->getComponents());
-        mAuxImage = mNeedsAux ? new LLImageRaw(mFormattedImage->getWidth(), mFormattedImage->getHeight(), 1) : NULL;
+        mAuxImage = mNeedsAux ? new LLImageRaw(mFormattedImage->getWidth(), mFormattedImage->getHeight(), 1) : nullptr;
 
         //_WARNS("RIDER") << getId() << ": Decoding. Bytes: " << mFormattedImage->getDataSize() << " Discard: " << mFormattedImage->getDiscardLevel() << LL_ENDL;
 
