@@ -9,6 +9,12 @@
 	<floater.string name="maturity_icon_adult">
 		&quot;Parcel_R_Dark&quot;
 	</floater.string>
+	<floater.string name="Hours">
+		[HOURS]小時
+	</floater.string>
+	<floater.string name="Hour">
+		小時
+	</floater.string>
 	<floater.string name="Minutes">
 		[MINUTES] 分鐘
 	</floater.string>
@@ -20,6 +26,9 @@
 	</floater.string>
 	<floater.string name="Remaining">
 		剩餘時間
+	</floater.string>
+	<floater.string name="Always">
+		永遠
 	</floater.string>
 	<tab_container name="landtab">
 		<panel label="一般" name="land_general_panel">
@@ -316,18 +325,18 @@
 			<text name="allow_label2">
 				建造：
 			</text>
-			<check_box label="任何人" name="edit objects check"/>
-			<check_box label="群組" name="edit group objects check"/>
+			<check_box label="任何人" name="edit objects check" tool_tip="如果勾選，居民可在你土地上創建並產生物件。"/>
+			<check_box label="群組" name="edit group objects check" tool_tip="如果勾選，地段群組成員可以在你土地上創建並產生物件。"/>
 			<text name="allow_label3">
 				物件進入：
 			</text>
-			<check_box label="任何人" name="all object entry check"/>
-			<check_box label="群組" name="group object entry check"/>
+			<check_box label="任何人" name="all object entry check" tool_tip="如果勾選，居民可以從別的地段移動物件到本地段。"/>
+			<check_box label="群組" name="group object entry check" tool_tip="如果勾選，地段群組成員可以從別的地段移動物件到本地段。"/>
 			<text name="allow_label4">
 				執行腳本：
 			</text>
-			<check_box label="任何人" name="check other scripts"/>
-			<check_box label="群組" name="check group scripts"/>
+			<check_box label="任何人" name="check other scripts" tool_tip="如果勾選，居民可以在你的地段執行腳本，包括附件。"/>
+			<check_box label="群組" name="check group scripts" tool_tip="如果勾選，地段群組成員可以在你的地段執行腳本，包括附件。"/>
 			<check_box label="安全（無傷害）" name="check safe" tool_tip="若勾選，將把土地設為安全，禁絕傷害性的戰鬥。 若未勾選，則允許傷害性的戰鬥。"/>
 			<check_box label="禁止推撞" name="PushRestrictCheck" tool_tip="禁止使用腳本推撞。 勾選這選項可有效防止你土地上出現滋事行為。"/>
 			<check_box label="將地點刊登顯示在搜尋中（L$30 / 每週）" name="ShowDirectoryCheck" tool_tip="讓其他人可以在搜尋結果中看到這塊地段"/>
@@ -351,7 +360,7 @@
 				快照：
 			</text>
 			<texture_picker name="snapshot_ctrl" tool_tip="點按以挑選圖片"/>
-			<text name="allow_label5">
+			<text name="allow_see_label">
 				其他地段的化身可以看見本地段裡的化身，並與之交談
 			</text>
 			<check_box label="察看化身" name="SeeAvatarsCheck" tool_tip="允許其他地段的化身看到本地段包括你在內的化身，並可互相交談。"/>
@@ -454,9 +463,12 @@
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="禁止" name="BanCheck">
-					永久封鎖（[COUNT]，最多[MAX]）
+					被封鎖（[COUNT]，最多[MAX]）
 				</text>
-				<name_list name="BannedList" tool_tip="（已列入 [LISTED]，最多可列 [MAX]）"/>
+				<name_list name="BannedList" tool_tip="（已列入 [LISTED]，最多可列 [MAX]）">
+					<columns label="名稱" name="name"/>
+					<columns label="歷時" name="duration"/>
+				</name_list>
 				<button label="添加" name="add_banned"/>
 				<button label="移除" label_selected="移除" name="remove_banned"/>
 			</panel>

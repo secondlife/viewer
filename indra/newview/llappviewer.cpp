@@ -100,7 +100,6 @@
 #include "llscenemonitor.h"
 #include "llavatarrenderinfoaccountant.h"
 #include "lllocalbitmaps.h"
-#include "llskinningutil.h"
 
 // Linden library includes
 #include "llavatarnamecache.h"
@@ -773,8 +772,10 @@ bool LLAppViewer::init()
 
 	// initialize LLWearableType translation bridge.
 	// Memory will be cleaned up in ::cleanupClass()
+	LLWearableType::initParamSingleton(new LLUITranslationBridge());
+
+    // initialize the LLSettingsType translation bridge.
     LLTranslationBridge::ptr_t trans = std::make_shared<LLUITranslationBridge>();
-	LLWearableType::initClass(trans);
     LLSettingsType::initClass(trans);
 
 	// initialize SSE options
@@ -798,9 +799,6 @@ bool LLAppViewer::init()
 		return false;
 
 	LL_INFOS("InitInfo") << "Configuration initialized." << LL_ENDL ;
-
-	// initialize skinning util
-	LLSkinningUtil::initClass();
 
 	//set the max heap size.
 	initMaxHeapSize() ;
@@ -849,11 +847,10 @@ bool LLAppViewer::init()
 	settings_map["floater"] = &gSavedSettings; // *TODO: New settings file
 	settings_map["account"] = &gSavedPerAccountSettings;
 
-	LLUI::initClass(settings_map,
+	LLUI::initParamSingleton(settings_map,
 		LLUIImageList::getInstance(),
 		ui_audio_callback,
-		deferred_ui_audio_callback,
-		&LLUI::getScaleFactor());
+		deferred_ui_audio_callback);
 	LL_INFOS("InitInfo") << "UI initialized." << LL_ENDL ;
 
 	// NOW LLUI::getLanguage() should work. gDirUtilp must know the language
@@ -897,8 +894,6 @@ bool LLAppViewer::init()
 	// LLKeyboard relies on LLUI to know what some accelerator keys are called.
 	LLKeyboard::setStringTranslatorFunc( LLTrans::getKeyboardString );
 
-	LLWeb::initClass();			  // do this after LLUI
-
 	// Provide the text fields with callbacks for opening Urls
 	LLUrlAction::setOpenURLCallback(boost::bind(&LLWeb::loadURL, _1, LLStringUtil::null, LLStringUtil::null));
 	LLUrlAction::setOpenURLInternalCallback(boost::bind(&LLWeb::loadURLInternal, _1, LLStringUtil::null, LLStringUtil::null, false));
@@ -906,7 +901,7 @@ bool LLAppViewer::init()
 	LLUrlAction::setExecuteSLURLCallback(&LLURLDispatcher::dispatchFromTextEditor);
 
 	// Let code in llui access the viewer help floater
-	LLUI::sHelpImpl = LLViewerHelp::getInstance();
+	LLUI::getInstance()->mHelpImpl = LLViewerHelp::getInstance();
 
 	LL_INFOS("InitInfo") << "UI initialization is done." << LL_ENDL ;
 
@@ -1211,9 +1206,6 @@ bool LLAppViewer::init()
 	}
 #endif
 
-	LLViewerMedia::initClass();
-	LL_INFOS("InitInfo") << "Viewer media initialized." << LL_ENDL ;
-
 	LLTextUtil::TextHelpers::iconCallbackCreationFunction = create_text_segment_icon_from_url_match;
 
 	//EXT-7013 - On windows for some locale (Japanese) standard
@@ -1253,7 +1245,7 @@ bool LLAppViewer::init()
 	// Note: this is where gLocalSpeakerMgr and gActiveSpeakerMgr used to be instantiated.
 
 	LLVoiceChannel::initClass();
-	LLVoiceClient::getInstance()->init(gServicePump);
+	LLVoiceClient::initParamSingleton(gServicePump);
 	LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLFloaterIMContainer::onCurrentChannelChanged, _1), true);
 
 	joystick = LLViewerJoystick::getInstance();
@@ -1754,8 +1746,6 @@ bool LLAppViewer::cleanup()
 	gTransferManager.cleanup();
 #endif
 
-	SUBSYSTEM_CLEANUP(LLLocalBitmapMgr);
-
 	// Note: this is where gWorldMap used to be deleted.
 
 	// Note: this is where gHUDManager used to be deleted.
@@ -1898,12 +1888,9 @@ bool LLAppViewer::cleanup()
 
  	//end_messaging_system();
 
-	SUBSYSTEM_CLEANUP(LLFollowCamMgr);
-	//SUBSYSTEM_CLEANUP(LLVolumeMgr);
 	LLPrimitive::cleanupVolumeManager();
 	SUBSYSTEM_CLEANUP(LLWorldMapView);
 	SUBSYSTEM_CLEANUP(LLFolderViewItem);
-	SUBSYSTEM_CLEANUP(LLUI);
 
 	//
 	// Shut down the VFS's AFTER the decode manager cleans up (since it cleans up vfiles).
@@ -2053,13 +2040,10 @@ bool LLAppViewer::cleanup()
 	//Note:
 	//SUBSYSTEM_CLEANUP(LLViewerMedia) has to be put before gTextureList.shutdown()
 	//because some new image might be generated during cleaning up media. --bao
-	SUBSYSTEM_CLEANUP(LLViewerMedia);
-	SUBSYSTEM_CLEANUP(LLViewerParcelMedia);
 	gTextureList.shutdown(); // shutdown again in case a callback added something
 	LLUIImageList::getInstance()->cleanUp();
 
 	// This should eventually be done in LLAppViewer
-	SUBSYSTEM_CLEANUP(LLImage);
 	SUBSYSTEM_CLEANUP(LLVFSThread);
 	SUBSYSTEM_CLEANUP(LLLFSThread);
 
@@ -2106,8 +2090,6 @@ bool LLAppViewer::cleanup()
 	LL_INFOS() << "Cleaning up LLProxy." << LL_ENDL;
 	SUBSYSTEM_CLEANUP(LLProxy);
     LLCore::LLHttp::cleanup();
-
-	SUBSYSTEM_CLEANUP(LLWearableType);
 
 	LLMainLoopRepeater::instance().stop();
 
@@ -2167,7 +2149,7 @@ bool LLAppViewer::initThreads()
 {
 	static const bool enable_threads = true;
 
-	LLImage::initClass(gSavedSettings.getBOOL("TextureNewByteRange"),gSavedSettings.getS32("TextureReverseByteRange"));
+	LLImage::initParamSingleton(gSavedSettings.getBOOL("TextureNewByteRange"),gSavedSettings.getS32("TextureReverseByteRange"));
 
 	LLVFSThread::initClass(enable_threads && false);
 	LLLFSThread::initClass(enable_threads && false);
@@ -2886,6 +2868,7 @@ void LLAppViewer::initStrings()
 	if (strings_path_full.empty() || !LLFile::isfile(strings_path_full))
 	{
 		// initial check to make sure files are there failed
+		gDirUtilp->dumpCurrentDirectories(LLError::LEVEL_WARN);
 		LL_ERRS() << "Viewer failed to find localization and UI files. Please reinstall viewer from  https://secondlife.com/support/downloads/ and contact https://support.secondlife.com if issue persists after reinstall." << LL_ENDL;
 	}
 	LLTransUtil::parseStrings(strings_file, default_trans_args);
@@ -3050,7 +3033,7 @@ bool LLAppViewer::initWindow()
 		gViewerWindow->getWindow()->maximize();
 	}
 
-	LLUI::sWindow = gViewerWindow->getWindow();
+	LLUI::getInstance()->mWindow = gViewerWindow->getWindow();
 
 	// Show watch cursor
 	gViewerWindow->setCursor(UI_CURSOR_WAIT);
@@ -4149,7 +4132,7 @@ bool LLAppViewer::initCache()
 	mPurgeCache = false;
 	BOOL read_only = mSecondInstance ? TRUE : FALSE;
 	LLAppViewer::getTextureCache()->setReadOnly(read_only) ;
-	LLVOCache::getInstance()->setReadOnly(read_only);
+	LLVOCache::initParamSingleton(read_only);
 
 	bool texture_cache_mismatch = false;
 	if (gSavedSettings.getS32("LocalCacheVersion") != LLAppViewer::getTextureCacheVersion())
@@ -4221,7 +4204,8 @@ bool LLAppViewer::initCache()
 	S64 extra = LLAppViewer::getTextureCache()->initCache(LL_PATH_CACHE, texture_cache_size, texture_cache_mismatch);
 	texture_cache_size -= extra;
 
-	LLVOCache::getInstance()->initCache(LL_PATH_CACHE, gSavedSettings.getU32("CacheNumberOfRegionsForObjects"), getObjectCacheVersion()) ;
+
+	LLVOCache::getInstance()->initCache(LL_PATH_CACHE, gSavedSettings.getU32("CacheNumberOfRegionsForObjects"), getObjectCacheVersion());
 
 	LLSplashScreen::update(LLTrans::getString("StartupInitializingVFS"));
 
@@ -4508,10 +4492,37 @@ void LLAppViewer::saveFinalSnapshot()
 
 		std::string snap_filename = gDirUtilp->getLindenUserDir();
 		snap_filename += gDirUtilp->getDirDelimiter();
-		snap_filename += SCREEN_LAST_FILENAME;
+		snap_filename += LLStartUp::getScreenLastFilename();
 		// use full pixel dimensions of viewer window (not post-scale dimensions)
-		gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, TRUE);
+		gViewerWindow->saveSnapshot(snap_filename,
+									gViewerWindow->getWindowWidthRaw(),
+									gViewerWindow->getWindowHeightRaw(),
+									FALSE,
+									TRUE,
+									LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
+									LLSnapshotModel::SNAPSHOT_FORMAT_PNG);
 		mSavedFinalSnapshot = TRUE;
+
+		if (gAgent.isInHomeRegion())
+		{
+			LLVector3d home;
+			if (gAgent.getHomePosGlobal(&home) && dist_vec(home, gAgent.getPositionGlobal()) < 10)
+			{
+				// We are at home position or close to it, see if we need to create home screenshot
+				// Notes:
+				// 1. It might be beneficial to also replace home if file is too old
+				// 2. This is far from best way/place to update screenshot since location might be not fully loaded,
+				// but we don't have many options
+				std::string snap_home = gDirUtilp->getLindenUserDir();
+				snap_home += gDirUtilp->getDirDelimiter();
+				snap_home += LLStartUp::getScreenHomeFilename();
+				if (!gDirUtilp->fileExists(snap_home))
+				{
+					// We are at home position yet no home image exist, fix it
+					LLFile::copy(snap_filename, snap_home);
+				}
+			}
+		}
 	}
 }
 
@@ -4524,7 +4535,7 @@ void LLAppViewer::loadNameCache()
 	llifstream name_cache_stream(filename.c_str());
 	if(name_cache_stream.is_open())
 	{
-		if ( ! LLAvatarNameCache::importFile(name_cache_stream))
+		if ( ! LLAvatarNameCache::getInstance()->importFile(name_cache_stream))
         {
             LL_WARNS("AppInit") << "removing invalid '" << filename << "'" << LL_ENDL;
             name_cache_stream.close();
@@ -4551,7 +4562,7 @@ void LLAppViewer::saveNameCache()
 	llofstream name_cache_stream(filename.c_str());
 	if(name_cache_stream.is_open())
 	{
-		LLAvatarNameCache::exportFile(name_cache_stream);
+		LLAvatarNameCache::getInstance()->exportFile(name_cache_stream);
     }
 
     // real names cache
@@ -5157,7 +5168,8 @@ void LLAppViewer::idleNameCache()
 	// granted to neighbor regions before the main agent gets there.  Can't
 	// do it in the move-into-region code because cap not guaranteed to be
 	// granted yet, for example on teleport.
-	bool had_capability = LLAvatarNameCache::hasNameLookupURL();
+	LLAvatarNameCache *name_cache = LLAvatarNameCache::getInstance();
+	bool had_capability = LLAvatarNameCache::getInstance()->hasNameLookupURL();
 	std::string name_lookup_url;
 	name_lookup_url.reserve(128); // avoid a memory allocation below
 	name_lookup_url = region->getCapability("GetDisplayNames");
@@ -5174,12 +5186,12 @@ void LLAppViewer::idleNameCache()
 	    {
 		    name_lookup_url += '/';
 	    }
-		LLAvatarNameCache::setNameLookupURL(name_lookup_url);
+		name_cache->setNameLookupURL(name_lookup_url);
 	}
 	else
 	{
 		// Display names not available on this region
-		LLAvatarNameCache::setNameLookupURL( std::string() );
+		name_cache->setNameLookupURL( std::string() );
 	}
 
 	// Error recovery - did we change state?
@@ -5189,7 +5201,7 @@ void LLAppViewer::idleNameCache()
 		LLVOAvatar::invalidateNameTags();
 	}
 
-	LLAvatarNameCache::idle();
+	name_cache->idle();
 }
 
 //

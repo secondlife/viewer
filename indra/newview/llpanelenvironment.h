@@ -80,6 +80,7 @@ protected:
     static const std::string    PNL_ENVIRONMENT_ALTITUDES;
     static const std::string    PNL_BUTTONS;
     static const std::string    PNL_DISABLED;
+    static const std::string    PNL_REGION_MSG;
     static const std::string    TXT_DISABLED;
     static const std::string    SDT_DROP_TARGET;
 

@@ -19,53 +19,42 @@
     <string name="str_too_small">The parcel must be at least 128 square meters to support an environment.</string>
     <string name="str_empty">(empty)</string>
     <string name="str_region_env">(region environment)</string>
-    <text
-      type="string"
-      length="1"
-      follows="left|top"
-      height="32"
-      layout="topleft"
-      left="10"
-      name="env_help_text"
-      top="14"
-      word_wrap="true">
-       Changes to settings on this tab will affect all regions in the estate.
-    </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     font="SansSerif"
-     height="20"
-     layout="topleft"
-     right="160"
-     name="estate_text"
-     top_pad="2"
-     halign="right"
-     width="140">
-        Estate:
-    </text>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     font="SansSerif"
-     height="20"
-     layout="topleft"
-     top_delta="0"
-     name="estate_name"
-     left_pad="6"
-     width="150">
-        (unknown)
-    </text>
+
     <layout_stack 
             width="530"
             height="400"
             follows="all"
             layout="topleft"
-						left="0"
+            left="0"
             animate="false"
             orientation="vertical">
+        <layout_panel
+                user_resize="false"
+                auto_resize="false"
+                height="20"
+                name="pnl_environment_region_msg"
+                top="0">
+            <text follows="left|top"
+                    font="SansSerif"
+                    height="20"
+                    layout="topleft"
+                    left="10"
+                    name="region_text_lbl"
+                    top="6"
+                    width="100">
+                Region:
+            </text>
+            <text follows="left|top"
+                    font="SansSerif"
+                    height="20"
+                    layout="topleft"
+                    left_delta="50"
+                    name="region_text"
+                    top_delta="0"
+                    width="400">
+                unknown
+            </text>
+        </layout_panel>
         <layout_panel
                 user_resize="false"
                 name="pnl_environment_disabled"
@@ -82,6 +71,7 @@
         <layout_panel
                 user_resize="false"
                 min_height="0"
+                top="0"
                 name="pnl_environment_config"
                 visible="true">
             <layout_stack 

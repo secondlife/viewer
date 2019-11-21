@@ -189,7 +189,7 @@ public:
 	
 	virtual bool isInterestingEnough() const
 		{
-			return LLViewerMedia::isInterestingEnough(mObject, getMediaInterest());
+			return LLViewerMedia::getInstance()->isInterestingEnough(mObject, getMediaInterest());
 		}
 
 	virtual std::string getCapabilityUrl(const std::string &name) const
@@ -2705,7 +2705,7 @@ void LLVOVolume::syncMediaData(S32 texture_index, const LLSD &media_data, bool m
 			LLUUID updating_agent = LLTextureEntry::getAgentIDFromMediaVersionString(getMediaURL());
 			update_from_self = (updating_agent == gAgent.getID());
 		}
-		viewer_media_t media_impl = LLViewerMedia::updateMediaImpl(mep, previous_url, update_from_self);
+		viewer_media_t media_impl = LLViewerMedia::getInstance()->updateMediaImpl(mep, previous_url, update_from_self);
 			
 		addMediaImpl(media_impl, texture_index) ;
 	}

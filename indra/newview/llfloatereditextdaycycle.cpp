@@ -619,12 +619,12 @@ void LLFloaterEditExtDayCycle::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
                 if (water)
                 {
                     // LLViewerFetchedTexture and check for FTT_LOCAL_FILE or check LLLocalBitmapMgr
-                    if (LLLocalBitmapMgr::isLocal(water->getNormalMapID()))
+                    if (LLLocalBitmapMgr::getInstance()->isLocal(water->getNormalMapID()))
                     {
                         desc = LLTrans::getString("EnvironmentNormalMap");
                         is_local = true;
                     }
-                    else if (LLLocalBitmapMgr::isLocal(water->getTransparentTextureID()))
+                    else if (LLLocalBitmapMgr::getInstance()->isLocal(water->getTransparentTextureID()))
                     {
                         desc = LLTrans::getString("EnvironmentTransparent");
                         is_local = true;
@@ -636,22 +636,22 @@ void LLFloaterEditExtDayCycle::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
                 LLSettingsSky::ptr_t sky = std::static_pointer_cast<LLSettingsSky>(iter->second);
                 if (sky)
                 {
-                    if (LLLocalBitmapMgr::isLocal(sky->getSunTextureId()))
+                    if (LLLocalBitmapMgr::getInstance()->isLocal(sky->getSunTextureId()))
                     {
                         desc = LLTrans::getString("EnvironmentSun");
                         is_local = true;
                     }
-                    else if (LLLocalBitmapMgr::isLocal(sky->getMoonTextureId()))
+                    else if (LLLocalBitmapMgr::getInstance()->isLocal(sky->getMoonTextureId()))
                     {
                         desc = LLTrans::getString("EnvironmentMoon");
                         is_local = true;
                     }
-                    else if (LLLocalBitmapMgr::isLocal(sky->getCloudNoiseTextureId()))
+                    else if (LLLocalBitmapMgr::getInstance()->isLocal(sky->getCloudNoiseTextureId()))
                     {
                         desc = LLTrans::getString("EnvironmentCloudNoise");
                         is_local = true;
                     }
-                    else if (LLLocalBitmapMgr::isLocal(sky->getBloomTextureId()))
+                    else if (LLLocalBitmapMgr::getInstance()->isLocal(sky->getBloomTextureId()))
                     {
                         desc = LLTrans::getString("EnvironmentBloom");
                         is_local = true;
@@ -1428,7 +1428,7 @@ LLFloaterEditExtDayCycle::connection_t LLFloaterEditExtDayCycle::setEditCommitSi
     return mCommitSignal.connect(cb);
 }
 
-void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId)
+void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId, bool can_trans)
 {
     if (inventoryId.isNull())
     {
@@ -1471,7 +1471,7 @@ void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId)
     mCanSave = true;
     mCanCopy = mInventoryItem->getPermissions().allowCopyBy(gAgent.getID());
     mCanMod = mInventoryItem->getPermissions().allowModifyBy(gAgent.getID());
-    mCanTrans = mInventoryItem->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
+    mCanTrans = can_trans && mInventoryItem->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
 
     mExpectingAssetId = mInventoryItem->getAssetUUID();
     LLSettingsVOBase::getSettingsAsset(mInventoryItem->getAssetUUID(),
@@ -1799,7 +1799,7 @@ void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID invent
 
 void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID inventory_id)
 {
-
+    bool can_trans = true;
     if (mInventoryItem)
     {
         LLPermissions perms = mInventoryItem->getPermissions();
@@ -1808,6 +1808,7 @@ void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID invent
         
         if (created_item)
         {
+            can_trans = perms.allowOperationBy(PERM_TRANSFER, gAgent.getID());
             created_item->setPermissions(perms);
             created_item->updateServer(false);
         }
@@ -1815,7 +1816,7 @@ void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID invent
 
     clearDirtyFlag();
     setFocus(TRUE);                 // Call back the focus...
-    loadInventoryItem(inventory_id);
+    loadInventoryItem(inventory_id, can_trans);
 }
 
 void LLFloaterEditExtDayCycle::onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results)

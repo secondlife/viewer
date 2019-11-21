@@ -288,7 +288,12 @@ void LLVOGrass::idleUpdate(LLAgent &agent, const F64 &time)
 		// So drones work.
 		return;
 	}
-
+	if (!LLVOTree::isTreeRenderingStopped() && !mNumBlades)//restart grass rendering
+	{
+		mNumBlades = GRASS_MAX_BLADES;
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+		return;
+	}
 	if (mPatch && (mLastPatchUpdateTime != mPatch->getLastUpdateTime()))
 	{
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);

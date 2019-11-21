@@ -850,6 +850,18 @@ void LLFloaterTools::onOpen(const LLSD& key)
 	{
 		mTab->selectTabByName(panel);
 	}
+
+	LLTool* tool = LLToolMgr::getInstance()->getCurrentTool();
+	if (tool == LLToolCompInspect::getInstance()
+		|| tool == LLToolDragAndDrop::getInstance())
+	{
+		// Something called floater up while it was supressed (during drag n drop, inspect),
+		// so it won't be getting any layout or visibility updates, update once
+		// further updates will come from updateLayout()
+		LLCoordGL select_center_screen;
+		MASK	mask = gKeyboard->currentMask(TRUE);
+		updatePopup(select_center_screen, mask);
+	}
 	
 	//gMenuBarView->setItemVisible("BuildTools", TRUE);
 }

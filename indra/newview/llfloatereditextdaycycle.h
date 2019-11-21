@@ -148,7 +148,7 @@ private:
     void                        removeCurrentSliderFrame();
     void                        removeSliderFrame(F32 frame);
 
-    void                        loadInventoryItem(const LLUUID  &inventoryId);
+    void                        loadInventoryItem(const LLUUID  &inventoryId, bool can_trans = true);
     void                        onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status);
 
     void                        doImportFromDisk();

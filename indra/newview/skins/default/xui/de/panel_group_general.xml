@@ -46,7 +46,7 @@ Bewegen Sie die Maus über die Optionen, um weitere Informationen anzuzeigen.
 		<check_box label="Jeder kann beitreten" name="open_enrollement" tool_tip="Festlegen, ob der Gruppenbeitritt ohne Einladung zulässig ist."/>
 		<check_box label="Kosten für Beitritt" name="check_enrollment_fee" tool_tip="Festlegen, ob Neumitglieder eine Beitrittsgebühr zahlen müssen"/>
 		<spinner label="L$" name="spin_enrollment_fee" tool_tip="Wenn Beitrittsgebühr aktiviert ist, müssen neue Mitglieder diesen Betrag zahlen."/>
-		<combo_box name="group_mature_check" tool_tip="Legt fest, ob Ihre Gruppeninformation moderate Inhalte enthält">
+		<combo_box name="group_mature_check" tool_tip="Inhaltseinstufungen kennzeichnen die in einer Gruppe zulässigen Inhalte und Verhaltensweisen">
 			<combo_item name="select_mature">
 				- Inhaltseinstufung auswählen -
 			</combo_item>

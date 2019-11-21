@@ -121,7 +121,7 @@ void LLFlyoutComboBtnCtrl::setMenuItemLabel(const std::string &item, const std::
 void LLFlyoutComboBtnCtrl::onFlyoutButton(LLUICtrl *ctrl, const LLSD &data)
 {
 	S32 x, y;
-	LLUI::getMousePositionLocal(mParent, &x, &y);
+    LLUI::getInstance()->getMousePositionLocal(mParent, &x, &y);
 
 	mFlyoutMenu->updateParent(LLMenuGL::sMenuContainer);
 	LLMenuGL::showPopup(mParent, mFlyoutMenu, x, y);

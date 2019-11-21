@@ -200,8 +200,6 @@ public:
 
     virtual S32         getParcelId() override { return INVALID_PARCEL_ID; }
 
-    static void         updateEstateName(const std::string& name);
-
 protected:
     static const U32    DIRTY_FLAG_OVERRIDE;
 
@@ -607,13 +605,6 @@ LLPanelRegionExperiences* LLFloaterRegionInfo::getPanelExperiences()
 	if (!floater) return NULL;
 	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
 	return (LLPanelRegionExperiences*)tab->getChild<LLPanel>("Experiences");
-}
-
-void LLFloaterRegionInfo::updateEstateName(const std::string& estate_name)
-{
-	LLPanelEstateCovenant::updateEstateName(estate_name);
-	LLPanelEstateInfo::updateEstateName(estate_name);
-	LLPanelRegionEnvironment::updateEstateName(estate_name);
 }
 
 void LLFloaterRegionInfo::disableTabCtrls()
@@ -3773,6 +3764,11 @@ bool LLPanelRegionEnvironment::refreshFromRegion(LLViewerRegion* region)
         setNoSelection(true);
         setControlsEnabled(false);
         mCurEnvVersion = INVALID_PARCEL_ENVIRONMENT_VERSION;
+        getChild<LLUICtrl>("region_text")->setValue(LLSD(""));
+    }
+    else
+    {
+        getChild<LLUICtrl>("region_text")->setValue(LLSD(region->getName()));
     }
     setNoSelection(false);
 
@@ -3830,15 +3826,6 @@ bool LLPanelRegionEnvironment::confirmUpdateEstateEnvironment(const LLSD& notifi
         break;
     }
     return false;
-}
-
-void LLPanelRegionEnvironment::updateEstateName(const std::string& name)
-{
-	LLPanelRegionEnvironment* panelp = LLFloaterRegionInfo::getPanelEnvironment();
-	if (panelp)
-	{
-		panelp->getChildRef<LLTextBox>("estate_name").setText(name);
-	}
 }
 
 void LLPanelRegionEnvironment::onChkAllowOverride(bool value)

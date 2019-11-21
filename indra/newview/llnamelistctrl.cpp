@@ -154,7 +154,7 @@ void	LLNameListCtrl::mouseOverHighlightNthItem( S32 target_index )
 		bool is_mouse_over_name_cell = false;
 
 		S32 mouse_x, mouse_y;
-		LLUI::getMousePositionLocal(this, &mouse_x, &mouse_y);
+		LLUI::getInstance()->getMousePositionLocal(this, &mouse_x, &mouse_y);
 
 		S32 column_index = getColumnIndexFromOffset(mouse_x);
 		LLScrollListItem* hit_item = hitItem(mouse_x, mouse_y);

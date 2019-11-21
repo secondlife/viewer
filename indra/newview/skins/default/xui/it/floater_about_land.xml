@@ -9,6 +9,12 @@
 	<floater.string name="maturity_icon_adult">
 		&quot;Parcel_R_Dark&quot;
 	</floater.string>
+	<floater.string name="Hours">
+		[HOURS] ore.
+	</floater.string>
+	<floater.string name="Hour">
+		ora.
+	</floater.string>
 	<floater.string name="Minutes">
 		[MINUTES] min
 	</floater.string>
@@ -20,6 +26,9 @@
 	</floater.string>
 	<floater.string name="Remaining">
 		rimanenti
+	</floater.string>
+	<floater.string name="Always">
+		Sempre
 	</floater.string>
 	<tab_container name="landtab">
 		<panel label="GENERALE" name="land_general_panel">
@@ -323,18 +332,18 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 			<text name="allow_label2">
 				Creare oggetti:
 			</text>
-			<check_box label="Tutti i residenti" name="edit objects check"/>
-			<check_box label="Gruppo" name="edit group objects check"/>
+			<check_box label="Tutti i residenti" name="edit objects check" tool_tip="Se la casella è spuntata, i Residenti possono creare e rezzare oggetti sul tuo terreno."/>
+			<check_box label="Gruppo" name="edit group objects check" tool_tip="Se la casella è spuntata, i Residenti possono creare e rezzare oggetti sul tuo terreno."/>
 			<text name="allow_label3">
 				Immissione oggetti:
 			</text>
-			<check_box label="Tutti i residenti" name="all object entry check"/>
-			<check_box label="Gruppo" name="group object entry check"/>
+			<check_box label="Tutti i residenti" name="all object entry check" tool_tip="Se la casella è spuntata, i membri del lotto di gruppo possono muovere gli oggetti esistenti da altri lotti a questo."/>
+			<check_box label="Gruppo" name="group object entry check" tool_tip="Se la casella è spuntata, i membri del lotto di gruppo possono muovere gli oggetti esistenti da altri lotti a questo."/>
 			<text name="allow_label4">
 				Avere script attivi:
 			</text>
-			<check_box label="Tutti i residenti" name="check other scripts"/>
-			<check_box label="Gruppo" name="check group scripts"/>
+			<check_box label="Tutti i residenti" name="check other scripts" tool_tip="Se la casella è spuntata, i Residenti possono eseguire script sul tuo lotto, compresi gli allegati."/>
+			<check_box label="Gruppo" name="check group scripts" tool_tip="Se la casella è spuntata, i Residenti possono eseguire script sul tuo lotto, compresi gli allegati."/>
 			<check_box label="Sicuro (senza danno)" name="check safe" tool_tip="Se spuntato, imposta il terreno su &apos;sicuro&apos;, disabilitando i danni da combattimento. Se non spuntato, viene abilitato il combattimento con danni."/>
 			<check_box label="Nessuna spinta" name="PushRestrictCheck" tool_tip="Previeni i colpi. Selezionare questa opzione può essere utile per prevenire comportamenti dannosi sul tuo terreno."/>
 			<check_box label="Mostra luogo nella ricerca (30 L$/settimana)" name="ShowDirectoryCheck" tool_tip="Consenti che il lotto sia visto nei risultati di ricerca"/>
@@ -358,8 +367,8 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 				Fotografia:
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Clicca per scegliere una immagine"/>
-			<text name="allow_label5">
-				Gli avatar su altri lotti possono vedere gli avatar su questo lotto e chattare con loro
+			<text name="allow_see_label">
+				Gli avatar di altri lotti possono vedere gli avatar che si trovano in questo lotto e chattare con loro
 			</text>
 			<check_box label="Vedi avatar" name="SeeAvatarsCheck" tool_tip="Consente ad avatar in altri lotti di vedere e chattare con avatar in questo lotto e viceversa."/>
 			<text name="landing_point">
@@ -464,9 +473,12 @@ Media:
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="Espelli" name="BanCheck">
-					Sempre esclusi ([COUNT], max [MAX])
+					Espulsi ([COUNT], max [MAX])
 				</text>
-				<name_list name="BannedList" tool_tip="([LISTED] in lista, [MAX] max)"/>
+				<name_list name="BannedList" tool_tip="([LISTED] in lista, [MAX] max)">
+					<columns label="Nome" name="name"/>
+					<columns label="Durata" name="duration"/>
+				</name_list>
 				<button label="Aggiungi" name="add_banned"/>
 				<button label="Rimuovi" label_selected="Rimuovi" name="remove_banned"/>
 			</panel>

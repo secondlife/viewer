@@ -40,7 +40,7 @@ public:
 	
 	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
 	{
-		if (!LLUI::sSettingGroups["config"]->getBOOL("EnableAvatarShare"))
+		if (!LLUI::getInstance()->mSettingGroups["config"]->getBOOL("EnableAvatarShare"))
 		{
 			LLNotificationsUtil::add("NoAvatarShare", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
 			return true;
