@@ -2434,6 +2434,7 @@ if (LL_TESTS)
   set_source_files_properties(
     lllogininstance.cpp
     PROPERTIES
+    LL_TEST_ADDITIONAL_SOURCE_FILES llversioninfo.cpp
     LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
   )
 

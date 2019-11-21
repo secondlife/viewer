@@ -309,8 +309,7 @@ LLSingletonBase::vec_t LLSingletonBase::dep_sort()
     // SingletonDeps through the life of the program, dynamically adding and
     // removing LLSingletons as they are created and destroyed, in practice
     // it's less messy to construct it on demand. The overhead of doing so
-    // should happen basically twice: once for cleanupAll(), once for
-    // deleteAll().
+    // should happen basically once: for deleteAll().
     typedef LLDependencies<LLSingletonBase*> SingletonDeps;
     SingletonDeps sdeps;
     list_t& master(get_master());
@@ -342,35 +341,23 @@ LLSingletonBase::vec_t LLSingletonBase::dep_sort()
     return ret;
 }
 
-//static
-void LLSingletonBase::cleanupAll()
+void LLSingletonBase::cleanup_()
 {
-    // It's essential to traverse these in dependency order.
-    BOOST_FOREACH(LLSingletonBase* sp, dep_sort())
+    logdebugs("calling ",
+              demangle(typeid(*this).name()).c_str(), "::cleanupSingleton()");
+    try
     {
-        // Call cleanupSingleton() only if we haven't already done so for this
-        // instance.
-        if (! sp->mCleaned)
-        {
-            sp->mCleaned = true;
-
-            logdebugs("calling ",
-                      classname(sp).c_str(), "::cleanupSingleton()");
-            try
-            {
-                sp->cleanupSingleton();
-            }
-            catch (const std::exception& e)
-            {
-                logwarns("Exception in ", classname(sp).c_str(),
-                         "::cleanupSingleton(): ", e.what());
-            }
-            catch (...)
-            {
-                logwarns("Unknown exception in ", classname(sp).c_str(),
-                         "::cleanupSingleton()");
-            }
-        }
+        cleanupSingleton();
+    }
+    catch (const std::exception& e)
+    {
+        logwarns("Exception in ", demangle(typeid(*this).name()).c_str(),
+                 "::cleanupSingleton(): ", e.what());
+    }
+    catch (...)
+    {
+        logwarns("Unknown exception in ", classname(this).c_str(),
+                 "::cleanupSingleton()");
     }
 }
 

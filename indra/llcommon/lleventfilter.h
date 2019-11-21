@@ -32,6 +32,7 @@
 #include "llevents.h"
 #include "stdtypes.h"
 #include "lltimer.h"
+#include "llsdutil.h"
 #include <boost/function.hpp>
 
 /**
@@ -374,6 +375,56 @@ public:
 
 private:
     std::size_t mBatchSize;
+};
+
+/**
+ * LLStoreListener self-registers on the LLEventPump of interest, and
+ * unregisters on destruction. As long as it exists, a particular element is
+ * extracted from every event that comes through the upstream LLEventPump and
+ * stored into the target variable.
+ *
+ * This is implemented as a subclass of LLEventFilter, though strictly
+ * speaking it isn't really a "filter" at all: it never passes incoming events
+ * to its own listeners, if any.
+ *
+ * TBD: A variant based on output iterators that stores and then increments
+ * the iterator. Useful with boost::coroutine2!
+ */
+template <typename T>
+class LLStoreListener: public LLEventFilter
+{
+public:
+    // pass target and optional path to element
+    LLStoreListener(T& target, const LLSD& path=LLSD(), bool consume=false):
+        LLEventFilter("store"),
+        mTarget(target),
+        mPath(path),
+        mConsume(consume)
+    {}
+    // construct and connect
+    LLStoreListener(LLEventPump& source, T& target, const LLSD& path=LLSD(), bool consume=false):
+        LLEventFilter(source, "store"),
+        mTarget(target),
+        mPath(path),
+        mConsume(consume)
+    {}
+
+    // Calling post() with an LLSD event extracts the element indicated by
+    // path, then stores it to mTarget.
+    virtual bool post(const LLSD& event)
+    {
+        // Extract the element specified by 'mPath' from 'event'. To perform a
+        // generic type-appropriate store through mTarget, construct an
+        // LLSDParam<T> and store that, thus engaging LLSDParam's custom
+        // conversions.
+        mTarget = LLSDParam<T>(llsd::drill(event, mPath));
+        return mConsume;
+    }
+
+private:
+    T& mTarget;
+    const LLSD mPath;
+    const bool mConsume;
 };
 
 #endif /* ! defined(LL_LLEVENTFILTER_H) */

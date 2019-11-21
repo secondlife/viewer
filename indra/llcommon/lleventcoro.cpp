@@ -36,6 +36,7 @@
 // external library headers
 // other Linden headers
 #include "llsdserialize.h"
+#include "llsdutil.h"
 #include "llerror.h"
 #include "llcoros.h"
 #include "llmake.h"
@@ -92,57 +93,16 @@ std::string listenerNameForCoro()
  * In the degenerate case in which @a path is an empty array, @a dest will
  * @em become @a value rather than @em containing it.
  */
-void storeToLLSDPath(LLSD& dest, const LLSD& rawPath, const LLSD& value)
+void storeToLLSDPath(LLSD& dest, const LLSD& path, const LLSD& value)
 {
-    if (rawPath.isUndefined())
+    if (path.isUndefined())
     {
         // no-op case
         return;
     }
 
-    // Arrange to treat rawPath uniformly as an array. If it's not already an
-    // array, store it as the only entry in one.
-    LLSD path;
-    if (rawPath.isArray())
-    {
-        path = rawPath;
-    }
-    else
-    {
-        path.append(rawPath);
-    }
-
-    // Need to indicate a current destination -- but that current destination
-    // needs to change as we step through the path array. Where normally we'd
-    // use an LLSD& to capture a subscripted LLSD lvalue, this time we must
-    // instead use a pointer -- since it must be reassigned.
-    LLSD* pdest = &dest;
-
-    // Now loop through that array
-    for (LLSD::Integer i = 0; i < path.size(); ++i)
-    {
-        if (path[i].isString())
-        {
-            // *pdest is an LLSD map
-            pdest = &((*pdest)[path[i].asString()]);
-        }
-        else if (path[i].isInteger())
-        {
-            // *pdest is an LLSD array
-            pdest = &((*pdest)[path[i].asInteger()]);
-        }
-        else
-        {
-            // What do we do with Real or Array or Map or ...?
-            // As it's a coder error -- not a user error -- rub the coder's
-            // face in it so it gets fixed.
-            LL_ERRS("lleventcoro") << "storeToLLSDPath(" << dest << ", " << rawPath << ", " << value
-                                   << "): path[" << i << "] bad type " << path[i].type() << LL_ENDL;
-        }
-    }
-
-    // Here *pdest is where we should store value.
-    *pdest = value;
+    // Drill down to where we should store 'value'.
+    llsd::drill(dest, path) = value;
 }
 
 /// For LLCoros::Future<LLSD>::make_callback(), the callback has a signature

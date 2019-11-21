@@ -517,9 +517,9 @@ bool idle_startup()
 			if(!start_messaging_system(
 				   message_template_path,
 				   port,
-				   LLVersionInfo::getMajor(),
-				   LLVersionInfo::getMinor(),
-				   LLVersionInfo::getPatch(),
+				   LLVersionInfo::instance().getMajor(),
+				   LLVersionInfo::instance().getMinor(),
+				   LLVersionInfo::instance().getPatch(),
 				   FALSE,
 				   std::string(),
 				   responder,
@@ -2292,13 +2292,29 @@ void login_callback(S32 option, void *userdata)
 void show_release_notes_if_required()
 {
     static bool release_notes_shown = false;
-    if (!release_notes_shown && (LLVersionInfo::getChannelAndVersion() != gLastRunVersion)
-        && LLVersionInfo::getViewerMaturity() != LLVersionInfo::TEST_VIEWER // don't show Release Notes for the test builds
+    // We happen to know that instantiating LLVersionInfo implicitly
+    // instantiates the LLEventMailDrop named "relnotes", which we (might) use
+    // below. If viewer release notes stop working, might be because that
+    // LLEventMailDrop got moved out of LLVersionInfo and hasn't yet been
+    // instantiated.
+    if (!release_notes_shown && (LLVersionInfo::instance().getChannelAndVersion() != gLastRunVersion)
+        && LLVersionInfo::instance().getViewerMaturity() != LLVersionInfo::TEST_VIEWER // don't show Release Notes for the test builds
         && gSavedSettings.getBOOL("UpdaterShowReleaseNotes")
         && !gSavedSettings.getBOOL("FirstLoginThisInstall"))
     {
-        LLSD info(LLAppViewer::instance()->getViewerInfo());
-        LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
+        // Instantiate a "relnotes" listener which assumes any arriving event
+        // is the release notes URL string. Since "relnotes" is an
+        // LLEventMailDrop, this listener will be invoked whether or not the
+        // URL has already been posted. If so, it will fire immediately;
+        // otherwise it will fire whenever the URL is (later) posted. Either
+        // way, it will display the release notes as soon as the URL becomes
+        // available.
+        LLEventPumps::instance().obtain("relnotes").listen(
+            "showrelnotes",
+            [](const LLSD& url){
+                LLWeb::loadURLInternal(url.asString());
+                return false;
+            });
         release_notes_shown = true;
     }
 }
