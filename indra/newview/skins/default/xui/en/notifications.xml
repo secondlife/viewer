@@ -4276,11 +4276,21 @@ You have reached your maximum number of groups. Please leave some group before j
    icon="alert.tga"
    name="GroupLimitInfo"
    type="alert">
-The group limit for base accounts is [MAX_BASIC], and for [https://secondlife.com/premium/ premium]
-accounts is [MAX_PREMIUM].
-If you downgraded your account, you will need to get below [MAX_BASIC] group limit before you can join more.
+Residents with Basic memberships may join up to [MAX_BASIC] groups.
+Premium memberships allow up to [MAX_PREMIUM]. [https://secondlife.com/my/account/membership.php? Learn more or upgrade]
+    <tag>group</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="Close"/>
+  </notification>
 
-[https://secondlife.com/my/account/membership.php Upgrade today!]
+  <notification
+   icon="alert.tga"
+   name="GroupLimitInfoPlus"
+   type="alert">
+Residents with Basic memberships may join up to [MAX_BASIC] groups.
+Premium memberships allow up to [MAX_PREMIUM]. Premium Plus
+memberships allow up to [MAX_PREMIUM_PLUS]. [https://secondlife.com/my/account/membership.php? Learn more or upgrade]
     <tag>group</tag>
     <usetemplate
      name="okbutton"

@@ -1086,10 +1086,19 @@ void LLPanelPeople::onGroupLimitInfo()
 	S32 max_basic = LLAgentBenefitsMgr::get("Base").getGroupMembershipLimit();
 	S32 max_premium = LLAgentBenefitsMgr::get("Premium").getGroupMembershipLimit();
 	
-	args["MAX_BASIC"] = max_basic; 
-	args["MAX_PREMIUM"] = max_premium; 
+	args["MAX_BASIC"] = max_basic;
+	args["MAX_PREMIUM"] = max_premium;
 
-	LLNotificationsUtil::add("GroupLimitInfo", args);
+	if (LLAgentBenefitsMgr::has("PremiumPlus"))
+	{
+		S32 max_premium_plus = LLAgentBenefitsMgr::get("PremiumPlus").getGroupMembershipLimit();
+		args["MAX_PREMIUM"] = max_premium_plus;
+		LLNotificationsUtil::add("GroupLimitInfoPlus", args);
+	}
+	else
+	{
+		LLNotificationsUtil::add("GroupLimitInfo", args);
+	}	
 }
 
 void LLPanelPeople::onTabSelected(const LLSD& param)
