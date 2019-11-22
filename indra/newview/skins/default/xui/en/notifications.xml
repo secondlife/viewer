@@ -686,6 +686,18 @@ Do you want to revoke modify rights for the selected Residents?
 
   <notification
    icon="alertmodal.tga"
+   name="GroupNameLengthWarning"
+   type="alertmodal">
+A group name must be between [MIN_LEN] and [MAX_LEN] characters.
+    <tag>group</tag>
+    <tag>fail</tag>
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
    name="UnableToCreateGroup"
    type="alertmodal">
 Unable to create group.

@@ -217,6 +217,7 @@ bool LLAgentBenefitsMgr::initCurrent(const std::string& package, const LLSD& ben
 	else
 	{
 		instance().mCurrent = benefits;
+		instance().mCurrentName = package;
 	}
 	return true;
 
@@ -226,4 +227,10 @@ bool LLAgentBenefitsMgr::initCurrent(const std::string& package, const LLSD& ben
 bool LLAgentBenefitsMgr::has(const std::string& package)
 {
 	return instance().mPackageMap.find(package) != instance().mPackageMap.end();
+}
+
+//static
+bool LLAgentBenefitsMgr::isCurrent(const std::string& package)
+{
+	return instance().mCurrentName == package;
 }

@@ -137,6 +137,7 @@ LLScrollListCtrl::Params::Params()
 	background_visible("background_visible"),
 	draw_stripes("draw_stripes"),
 	column_padding("column_padding"),
+	row_padding("row_padding", 2),
 	fg_unselected_color("fg_unselected_color"),
 	fg_selected_color("fg_selected_color"),
 	bg_selected_color("bg_selected_color"),
@@ -199,6 +200,7 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 	mHoveredColor(p.hovered_color()),
 	mSearchColumn(p.search_column),
 	mColumnPadding(p.column_padding),
+	mRowPadding(p.row_padding),
 	mContextMenuType(MENU_NONE),
 	mIsFriendSignal(NULL)
 {
@@ -685,8 +687,6 @@ bool LLScrollListCtrl::updateColumnWidths()
 	return width_changed;
 }
 
-const S32 SCROLL_LIST_ROW_PAD = 2;
-
 // Line height is the max height of all the cells in all the items.
 void LLScrollListCtrl::updateLineHeight()
 {
@@ -699,7 +699,7 @@ void LLScrollListCtrl::updateLineHeight()
 		S32 i = 0;
 		for (const LLScrollListCell* cell = itemp->getColumn(i); i < num_cols; cell = itemp->getColumn(++i))
 		{
-			mLineHeight = llmax( mLineHeight, cell->getHeight() + SCROLL_LIST_ROW_PAD );
+			mLineHeight = llmax( mLineHeight, cell->getHeight() + mRowPadding );
 		}
 	}
 }
@@ -711,7 +711,7 @@ void LLScrollListCtrl::updateLineHeightInsert(LLScrollListItem* itemp)
 	S32 i = 0;
 	for (const LLScrollListCell* cell = itemp->getColumn(i); i < num_cols; cell = itemp->getColumn(++i))
 	{
-		mLineHeight = llmax( mLineHeight, cell->getHeight() + SCROLL_LIST_ROW_PAD );
+		mLineHeight = llmax( mLineHeight, cell->getHeight() + mRowPadding );
 	}
 }
 

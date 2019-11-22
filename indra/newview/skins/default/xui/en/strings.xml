@@ -3934,6 +3934,12 @@ Please check http://status.secondlifegrid.net to see if there is a known problem
   <string name="Accounting">Accounting</string>
   <string name="Notices">Notices</string>
   <string name="Chat">Chat</string>
+  
+  <!-- SL Membership -->
+  <string name="BaseMembership">Base</string>
+  <string name="PremiumMembership">Premium</string>
+  <string name="PremiumPlusMembership">Premium Plus</string>
+  <string name="InternalMembership">Internal</string> <!-- No need to translate -->
 
   <!-- Question strings for delete items notifications -->
   <string name="DeleteItems">Delete selected items?</string>
