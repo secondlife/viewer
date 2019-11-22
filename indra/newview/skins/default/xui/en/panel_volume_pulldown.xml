@@ -29,7 +29,7 @@
      top="10"
      volume="true">
         <slider.commit_callback
-         function="Pref.setControlFalse"
+         function="Vol.setControlFalse"
          parameter="MuteAudio" />
     </slider>
     <button
@@ -61,7 +61,7 @@
         top_pad="4"
         volume="true">
     <slider.commit_callback
-        function="Pref.setControlFalse"
+        function="Vol.setControlFalse"
         parameter="MuteUI" />
     </slider>
     <button
@@ -94,7 +94,7 @@
      top_pad="4"
      volume="true">
         <slider.commit_callback
-         function="Pref.setControlFalse"
+         function="Vol.setControlFalse"
          parameter="MuteAmbient" />
     </slider>
     <button
@@ -127,7 +127,7 @@
      top_pad="4"
      volume="true">
         <slider.commit_callback
-         function="Pref.setControlFalse"
+         function="Vol.setControlFalse"
          parameter="MuteSounds" />
     </slider>
     <button
@@ -144,7 +144,7 @@
      tab_stop="false"
      width="16">
       <button.commit_callback
-      function="Pref.SetSounds"/>
+      function="Vol.SetSounds"/>
     </button>
   <check_box
     name="gesture_audio_play_btn"
@@ -173,7 +173,7 @@
      top_pad="4"
      volume="true">
         <slider.commit_callback
-         function="Pref.setControlFalse"
+         function="Vol.setControlFalse"
          parameter="MuteMusic" />
     </slider>
     <button
@@ -199,7 +199,7 @@
         top_delta="2"
         width="350">
         <check_box.commit_callback
-            function="Pref.updateMediaAutoPlayCheckbox"/>
+            function="Vol.updateMediaAutoPlayCheckbox"/>
     </check_box>
     <slider
         control_name="AudioLevelMedia"
@@ -218,7 +218,7 @@
         top_pad="4"
         volume="true">
       <slider.commit_callback
-        function="Pref.setControlFalse"
+        function="Vol.setControlFalse"
         parameter="MuteMedia" />
     </slider>
     <button
@@ -246,7 +246,7 @@
         name="enable_media"
         width="110">
         <check_box.commit_callback
-            function="Pref.updateMediaAutoPlayCheckbox"/>
+            function="Vol.updateMediaAutoPlayCheckbox"/>
     </check_box>
     <slider
         control_name="AudioLevelVoice"
@@ -265,7 +265,7 @@
         show_text="false"
         volume="true">
     <slider.commit_callback
-        function="Pref.setControlFalse"
+        function="Vol.setControlFalse"
         parameter="MuteVoice" />
     </slider>
     <button

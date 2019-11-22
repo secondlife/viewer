@@ -138,6 +138,11 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 	{
 		name = PRESETS_DEFAULT;
 	}
+	if (!createDefault && name == PRESETS_DEFAULT)
+	{
+		LL_WARNS() << "Should not overwrite default" << LL_ENDL;
+		return false;
+	}
 
 	bool saved = false;
 	std::vector<std::string> name_list;

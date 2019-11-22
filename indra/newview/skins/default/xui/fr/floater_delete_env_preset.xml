@@ -25,7 +25,7 @@
 		Impossible de supprimer un préréglage référencé dans un ou plusieurs cycles du jour.
 	</string>
 	<string name="combo_label">
-		-Effectuer une sélection-
+		-Sélectionner un préréglage-
 	</string>
 	<text name="label">
 		Préréglage :

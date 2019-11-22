@@ -3,6 +3,7 @@
 	<menu_item_call label="ブロック解除" name="unblock"/>
 	<menu_item_check label="ボイスをブロック" name="BlockVoice"/>
 	<menu_item_check label="文字をブロック" name="MuteText"/>
+	<menu_item_check label="パーティクルをブロック" name="MuteParticles"/>
 	<menu_item_check label="オブジェクトのサウンドをブロック" name="BlockObjectSounds"/>
 	<menu_item_call label="プロフィール..." name="profile"/>
 </toggleable_menu>

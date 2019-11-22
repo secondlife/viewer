@@ -732,6 +732,16 @@ S32	face_index_from_id(LLFaceID face_ID, const std::vector<LLProfile::Face>& fac
 
 BOOL LLPrimitive::setVolume(const LLVolumeParams &volume_params, const S32 detail, bool unique_volume)
 {
+	if (NO_LOD == detail)
+	{
+		// build the new object
+		setChanged(GEOMETRY);
+		sVolumeManager->unrefVolume(mVolumep);
+		mVolumep = new LLVolume(volume_params, 1, TRUE, TRUE);
+		setNumTEs(mVolumep->getNumFaces());
+		return FALSE;
+	}
+
 	LLVolume *volumep;
 	if (unique_volume)
 	{
@@ -1030,14 +1040,26 @@ S32 LLPrimitive::packTEField(U8 *cur_ptr, U8 *data_ptr, U8 data_size, U8 last_fa
 			}
 			
 			//assign exception faces to cur_ptr
-			if (exception_faces >= (0x1 << 7))
+			if (exception_faces >= ((U64)0x1 << 7))
 			{
-				if (exception_faces >= (0x1 << 14))
+				if (exception_faces >= ((U64)0x1 << 14))
 				{
-					if (exception_faces >= (0x1 << 21))
+					if (exception_faces >= ((U64)0x1 << 21))
 					{
-						if (exception_faces >= (0x1 << 28))
+						if (exception_faces >= ((U64)0x1 << 28))
 						{
+							if (exception_faces >= ((U64)0x1 << 35))
+							{
+								if (exception_faces >= ((U64)0x1 << 42))
+								{
+									if (exception_faces >= ((U64)0x1 << 49))
+									{
+										*cur_ptr++ = (U8)(((exception_faces >> 49) & 0x7F) | 0x80);
+									}
+									*cur_ptr++ = (U8)(((exception_faces >> 42) & 0x7F) | 0x80);
+								}
+								*cur_ptr++ = (U8)(((exception_faces >> 35) & 0x7F) | 0x80);
+							}
 							*cur_ptr++ = (U8)(((exception_faces >> 28) & 0x7F) | 0x80);
 						}
 						*cur_ptr++ = (U8)(((exception_faces >> 21) & 0x7F) | 0x80);
@@ -1046,6 +1068,7 @@ S32 LLPrimitive::packTEField(U8 *cur_ptr, U8 *data_ptr, U8 data_size, U8 last_fa
 				}
 				*cur_ptr++ = (U8)(((exception_faces >> 7) & 0x7F) | 0x80);
 			}
+
 			
 			*cur_ptr++ = (U8)(exception_faces & 0x7F);
 			
@@ -1105,7 +1128,7 @@ S32 LLPrimitive::unpackTEField(U8 *cur_ptr, U8 *buffer_end, U8 *data_ptr, U8 dat
 // Includes information about image ID, color, scale S,T, offset S,T and rotation
 BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 {
-	const U32 MAX_TES = 32;
+	const U32 MAX_TES = 45;
 
 	U8     image_ids[MAX_TES*16];
 	U8     colors[MAX_TES*4];
@@ -1190,7 +1213,7 @@ BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 
 BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 {
-	const U32 MAX_TES = 32;
+	const U32 MAX_TES = 45;
 
 	U8     image_ids[MAX_TES*16];
 	U8     colors[MAX_TES*4];
@@ -1303,6 +1326,8 @@ S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name
 		mesgsys->getBinaryDataFast(block_name, _PREHASH_TextureEntry, tec.packed_buffer, 0, block_num, LLTEContents::MAX_TE_BUFFER);
 	}
 
+	
+
 	tec.face_count = llmin((U32)getNumTEs(),(U32)LLTEContents::MAX_TES);
 
 	U8 *cur_ptr = tec.packed_buffer;
@@ -1375,6 +1400,8 @@ S32 LLPrimitive::applyParsedTEMessage(LLTEContents& tec)
 
 		retval |= setTEColor(i, color);
 
+		
+
 	}
 
 	return retval;
@@ -1393,7 +1420,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 {
 	// use a negative block_num to indicate a single-block read (a non-variable block)
 	S32 retval = 0;
-	const U32 MAX_TES = 32;
+	const U32 MAX_TES = 45;
 
 	// Avoid construction of 32 UUIDs per call
 	static LLUUID image_ids[MAX_TES];
@@ -1570,7 +1597,7 @@ bool LLPrimitive::getTESTAxes(const U8 face, U32* s_axis, U32* t_axis)
 		*s_axis = VY; *t_axis = VZ;
 		return true;
 	}
-	else if (face == 5)
+	else if (face >= 5)
 	{
 		*s_axis = VX; *t_axis = VY;
 		return true;
@@ -1599,6 +1626,8 @@ BOOL LLNetworkData::isValid(U16 param_type, U32 size)
 		return (size == 17);
 	case PARAMS_LIGHT_IMAGE:
 		return (size == 28);
+    case PARAMS_EXTENDED_MESH:
+        return (size == 4);
 	}
 	
 	return FALSE;
@@ -2021,6 +2050,70 @@ bool LLLightImageParams::fromLLSD(LLSD& sd)
 	{
 		setLightTexture( sd["texture"] );
 		setParams( LLVector3( sd["params"] ) );
+		return true;
+	} 
+	
+	return false;
+}
+
+//============================================================================
+
+LLExtendedMeshParams::LLExtendedMeshParams()
+{
+    mType = PARAMS_EXTENDED_MESH;
+	mFlags = 0;
+}
+
+BOOL LLExtendedMeshParams::pack(LLDataPacker &dp) const
+{
+	dp.packU32(mFlags, "flags");
+
+	return TRUE;
+}
+
+BOOL LLExtendedMeshParams::unpack(LLDataPacker &dp)
+{
+	dp.unpackU32(mFlags, "flags");
+	
+	return TRUE;
+}
+
+bool LLExtendedMeshParams::operator==(const LLNetworkData& data) const
+{
+	if (data.mType != PARAMS_EXTENDED_MESH)
+	{
+		return false;
+	}
+	
+	const LLExtendedMeshParams *param = (const LLExtendedMeshParams*)&data;
+	if ( (param->mFlags != mFlags) )
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void LLExtendedMeshParams::copy(const LLNetworkData& data)
+{
+	const LLExtendedMeshParams *param = (LLExtendedMeshParams*)&data;
+	mFlags = param->mFlags;
+}
+
+LLSD LLExtendedMeshParams::asLLSD() const
+{
+	LLSD sd;
+	
+	sd["flags"] = LLSD::Integer(mFlags);
+		
+	return sd;
+}
+
+bool LLExtendedMeshParams::fromLLSD(LLSD& sd)
+{
+	if (sd.has("flags"))
+	{
+		setFlags( sd["flags"].asInteger());
 		return true;
 	} 
 	

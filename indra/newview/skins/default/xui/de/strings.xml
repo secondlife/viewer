@@ -38,8 +38,7 @@
 		Grafikinitialisierung fehlgeschlagen. Bitte aktualisieren Sie Ihren Grafiktreiber.
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) ([CHANNEL])
-[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
+		[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]Bit) [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
 	<string name="BuildConfig">
 		Build-Konfiguration [BUILD_CONFIG]
@@ -66,12 +65,12 @@ Grafikkarte: [GRAPHICS_CARD]
 	</string>
 	<string name="AboutSettings">
 		Fenstergröße: [WINDOW_WIDTH]x[WINDOW_HEIGHT]
-Schriftgrößenanpassung [FONT_SIZE_ADJUSTMENT] Pt
+Schriftgrößenanpassung: [FONT_SIZE_ADJUSTMENT] pt
 UI-Skalierung: [UI_SCALE]
 Sichtweite: [DRAW_DISTANCE] m
 Bandbreite: [NET_BANDWITH] kbit/s
 LOD-Faktor: [LOD_FACTOR]
-Darstellungsqualität: [RENDER_QUALITY] / 7
+Darstellungsqualität: [RENDER_QUALITY]
 Erweitertes Beleuchtungsmodell: [GPU_SHADERS]
 Texturspeicher: [TEXTURE_MEMORY] MB
 Erstellungszeit VFS (Cache): [VFS_TIME]
@@ -79,7 +78,7 @@ Erstellungszeit VFS (Cache): [VFS_TIME]
 	<string name="AboutLibs">
 		J2C-Decoderversion: [J2C_VERSION]
 Audiotreiberversion: [AUDIO_DRIVER_VERSION]
-CEF-Version: [LIBCEF_VERSION]
+[LIBCEF_VERSION]
 LibVLC-Version: [LIBVLC_VERSION]
 Voice-Server-Version: [VOICE_VERSION]
 	</string>
@@ -649,7 +648,7 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 		Versionshinweise
 	</string>
 	<string name="RELEASE_NOTES_BASE_URL">
-		http://wiki.secondlife.com/wiki/Release_Notes/
+		https://releasenotes.secondlife.com/viewer/
 	</string>
 	<string name="LoadingData">
 		Wird geladen...
@@ -1445,6 +1444,9 @@ besuchen Sie bitte http://secondlife.com/support
 	<string name="InventoryNoMatchingItems">
 		Sie haben nicht das Richtige gefunden? Versuchen Sie es mit der [secondlife:///app/search/all/[SEARCH_TERM] Suche].
 	</string>
+	<string name="InventoryNoMatchingRecentItems">
+		Sie haben nicht das Richtige gefunden? Versuchen Sie [secondlife:///app/inventory/filters Show filters].
+	</string>
 	<string name="PlacesNoMatchingItems">
 		Sie haben nicht das Richtige gefunden? Versuchen Sie es mit der [secondlife:///app/search/places/[SEARCH_TERM] Suche].
 	</string>
@@ -2226,6 +2228,18 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich unter http://suppo
 	<string name="RegionInfoListTypeBannedAgents">
 		Immer verbannt
 	</string>
+	<string name="RegionInfoAllEstates">
+		alle Grundbesitze
+	</string>
+	<string name="RegionInfoManagedEstates">
+		verwaltete Grundbesitze
+	</string>
+	<string name="RegionInfoThisEstate">
+		dieser Grundbesitz
+	</string>
+	<string name="AndNMore">
+		und [EXTRA_COUNT] weitere
+	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Parzellenskript-Speicher
 	</string>
@@ -2269,7 +2283,7 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich unter http://suppo
 		Brust
 	</string>
 	<string name="ATTACH_HEAD">
-		Kopf
+		Schädel
 	</string>
 	<string name="ATTACH_LSHOULDER">
 		Linke Schulter
@@ -2290,7 +2304,7 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich unter http://suppo
 		Rechter Fuß
 	</string>
 	<string name="ATTACH_BACK">
-		Hinten
+		Wirbelsäule
 	</string>
 	<string name="ATTACH_PELVIS">
 		Becken
@@ -5737,5 +5751,26 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	</string>
 	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
 		Die Physikform hat keine korrekte Version. Legen Sie die korrekte Version für das Physikmodell fest.
+	</string>
+	<string name="couldnt_resolve_host">
+		Der DNS konnte den Hostnamen ([HOSTNAME]) nicht auflösen Prüfen 
+Sie bitte, ob Sie die Website www.secondlife.com aufrufen können. Wenn Sie die 
+Website aufrufen können, jedoch weiterhin diese Fehlermeldung erhalten, 
+besuchen Sie bitte den Support-Bereich und melden Sie das Problem.
+	</string>
+	<string name="ssl_peer_certificate">
+		Der Anmeldeserver konnte sich nicht per SSL verifizieren. 
+Wenn Sie diese Fehlermeldung weiterhin erhalten, besuchen 
+Sie bitte den Support-Bereich der Website Secondlife.com 
+und melden Sie das Problem.
+	</string>
+	<string name="ssl_connect_error">
+		Die Ursache hierfür ist häufig eine falsch eingestellte Uhrzeit auf Ihrem Computer. 
+Bitte vergewissern Sie sich, dass Datum und Uhrzeit in der Systemsteuerung korrekt 
+eingestellt sind. Überprüfen Sie außerdem, ob Ihre Netzwerk- und Firewall-Einstellungen 
+korrekt sind. Wenn Sie diese Fehlermeldung weiterhin erhalten, besuchen Sie bitte den 
+Support-Bereich der Website Secondlife.com und melden Sie das Problem. 
+
+[https://community.secondlife.com/knowledgebase/english/error-messages-r520/#Section__3 Knowledge-Base]
 	</string>
 </strings>

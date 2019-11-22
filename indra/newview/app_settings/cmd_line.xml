@@ -198,7 +198,7 @@
     <key>logformat</key>
     <map>
       <key>desc</key>
-      <string>Format for performance log, "standard" or "extended"</string>
+      <string>Format for performance log, "standard", "extended" or "arctan"</string>
       <key>count</key>
       <integer>1</integer>
       <key>map-to</key>

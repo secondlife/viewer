@@ -4,6 +4,9 @@
 	<string name="status_parse_error">
 		Ошибка. Проблема при анализе файла DAE – см. подробности в журнале.
 	</string>
+	<string name="status_bind_shape_orientation">
+		Предупреждение: форма матрицы стандартно не ориентирована по координате X.
+	</string>
 	<string name="status_material_mismatch">
 		Ошибка. Материал модели не входит в эталонную модель.
 	</string>

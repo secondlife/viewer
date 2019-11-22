@@ -31,7 +31,7 @@
 	<text name="AvatarPhysicsDetailText">
 		Bajo
 	</text>
-	<text name="ShadersText">
+	<text name="HardwareText">
 		Hardware
 	</text>
 	<slider label="Memoria para texturas (MB):" name="GraphicsCardTextureMemory" tool_tip="Cantidad de memoria asignada a las texturas. Por defecto es la memoria de la tarjeta de vídeo. Reducir esta cantidad puede mejorar el rendimiento, pero también hacer que las texturas se vean borrosas."/>
@@ -56,6 +56,9 @@
 	<text name="antialiasing restart">
 		(requiere reiniciar)
 	</text>
+	<text name="MeshText">
+		Malla
+	</text>
 	<slider label="Detalle de la malla del terreno:" name="TerrainMeshDetail"/>
 	<text name="TerrainMeshDetailText">
 		Bajo
@@ -71,6 +74,9 @@
 	<slider label="Prims flexibles:" name="FlexibleMeshDetail"/>
 	<text name="FlexibleMeshDetailText">
 		Bajo
+	</text>
+	<text name="ShadersText">
+		Shaders
 	</text>
 	<check_box initial_value="true" label="Agua transparente" name="TransparentWater"/>
 	<check_box initial_value="true" label="Efecto de relieve y brillo" name="BumpShiny"/>
@@ -111,5 +117,6 @@
 	<button label="Restablecer la configuración recomendada" name="Defaults"/>
 	<button label="OK" label_selected="OK" name="OK"/>
 	<button label="Cancelar" label_selected="Cancelar" name="Cancel"/>
-	<check_box label="RenderAvatarMaxComplexity" name="RenderAvatarMaxNonImpostors"/>
+	<check_box label="RenderAvatarMaxComplexity" name="RenderAvatarMaxComplexity"/>
+	<check_box label="RenderAvatarMaxNonImpostors" name="RenderAvatarMaxNonImpostors"/>
 </floater>

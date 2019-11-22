@@ -9,7 +9,7 @@
 	</radio_group>
 	<panel name="user_environment_settings">
 		<text name="note">
-			Nota: La configuración personalizada no estará visible para otros usuarios.
+			Nota: Tu configuración personalizada no estará visible para otros usuarios.
 		</text>
 		<text name="water_settings_title">
 			Configuración de agua

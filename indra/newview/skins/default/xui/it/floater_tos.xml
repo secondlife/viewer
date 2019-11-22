@@ -12,9 +12,10 @@
 	<text name="external_tos_required">
 		Per continuare, visita https://my.secondlife.com e accedi per accettare i Termini del servizio. Grazie.
 	</text>
+	<check_box label="" name="agree_chk"/>
 	<text name="agree_list">
-    Ho letto e sono d’accordo con i Termini e le Condizioni di Second Life, le clausole di riservatezza, i Termini del Servizio, compresi i requisiti per la risoluzione delle dispute.
-  </text>
+		Ho letto e accettato i Termini e le Condizioni di Second Life, le clausole di riservatezza e i Termini del Servizio, compresi i requisiti per la risoluzione delle dispute.
+	</text>
 	<button label="Continua" label_selected="Continua" name="Continue"/>
 	<button label="Annulla" label_selected="Annulla" name="Cancel"/>
 </floater>

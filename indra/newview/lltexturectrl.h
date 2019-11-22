@@ -142,6 +142,9 @@ public:
 	void			setAllowNoTexture( BOOL b )					{ mAllowNoTexture = b; }
 	bool			getAllowNoTexture() const					{ return mAllowNoTexture; }
 
+	void			setAllowLocalTexture(BOOL b)					{ mAllowLocalTexture = b; }
+	BOOL			getAllowLocalTexture() const					{ return mAllowLocalTexture; }
+
 	const LLUUID&	getImageItemID() { return mImageItemID; }
 
 	virtual void	setImageAssetName(const std::string& name);
@@ -198,6 +201,8 @@ public:
 
 	LLViewerFetchedTexture* getTexture() { return mTexturep; }
 
+	void setBakeTextureEnabled(BOOL enabled);
+
 private:
 	BOOL allowDrop(LLInventoryItem* item);
 	BOOL doDrop(LLInventoryItem* item);
@@ -222,6 +227,7 @@ private:
 	LLTextBox*				 	mCaption;
 	std::string				 	mLabel;
 	BOOL					 	mAllowNoTexture; // If true, the user can select "none" as an option
+	BOOL						mAllowLocalTexture;
 	PermissionMask			 	mImmediateFilterPermMask;
 	PermissionMask				mDnDFilterPermMask;
 	PermissionMask			 	mNonImmediateFilterPermMask;
@@ -233,6 +239,7 @@ private:
 	BOOL					 	mShowLoadingPlaceholder;
 	std::string				 	mLoadingPlaceholderString;
 	S32						 	mLabelWidth;
+	BOOL						mBakeTextureEnabled;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -322,7 +329,11 @@ public:
 	static void		onBtnUpload(void* userdata);
 	static void		onLocalScrollCommit(LLUICtrl* ctrl, void* userdata);
 
+	static void		onBakeTextureSelect(LLUICtrl* ctrl, void *userdata);
+	static void		onHideBaseMeshRegionCheck(LLUICtrl* ctrl, void *userdata);
+
 	void 			setLocalTextureEnabled(BOOL enabled);
+	void 			setBakeTextureEnabled(BOOL enabled);
 
 protected:
 	LLPointer<LLViewerTexture> mTexturep;
@@ -364,11 +375,14 @@ private:
 	bool mCanPreview;
 	bool mPreviewSettingChanged;
 
+
 	texture_selected_callback mTextureSelectedCallback;
 	floater_close_callback mOnFloaterCloseCallback;
 	floater_commit_callback mOnFloaterCommitCallback;
 	set_image_asset_id_callback mSetImageAssetIDCallback;
 	set_on_update_image_stats_callback mOnUpdateImageStatsCallback;
+
+	BOOL mBakeTextureEnabled;
 };
 
 #endif  // LL_LLTEXTURECTRL_H

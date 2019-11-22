@@ -12,6 +12,9 @@
 	<text name="title_animation">
 		Animasyonlar
 	</text>
+	<text name="title_model">
+		Modeller
+	</text>
 	<text name="upload_help">
 		Bir hedef klasörü değiştirmek için, envanterde o klasöre sağ tıklayın ve şu öğeyi seçin:
 &quot;Şunun için varsayılan olarak kullan:&quot;

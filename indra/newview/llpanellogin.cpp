@@ -204,6 +204,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	// change z sort of clickable text to be behind buttons
 	sendChildToBack(getChildView("forgot_password_text"));
+	sendChildToBack(getChildView("sign_up_text"));
 
 	LLComboBox* favorites_combo = getChild<LLComboBox>("start_location_combo");
 	updateLocationSelectorsVisibility(); // separate so that it can be called from preferences
@@ -271,9 +272,9 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	LLTextBox* forgot_password_text = getChild<LLTextBox>("forgot_password_text");
 	forgot_password_text->setClickedCallback(onClickForgotPassword, NULL);
 
-	LLTextBox* need_help_text = getChild<LLTextBox>("login_help");
-	need_help_text->setClickedCallback(onClickHelp, NULL);
-	
+	LLTextBox* sign_up_text = getChild<LLTextBox>("sign_up_text");
+	sign_up_text->setClickedCallback(onClickSignUp, NULL);
+
 	// get the web browser control
 	LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
 	web_browser->addObserver(this);
@@ -284,6 +285,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	username_combo->setTextChangedCallback(boost::bind(&LLPanelLogin::addFavoritesToStartLocation, this));
 	// STEAM-14: When user presses Enter with this field in focus, initiate login
 	username_combo->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnect, this));
+	username_combo->setKeystrokeOnEsc(TRUE);
 }
 
 void LLPanelLogin::addFavoritesToStartLocation()
@@ -924,12 +926,11 @@ void LLPanelLogin::onClickForgotPassword(void*)
 }
 
 //static
-void LLPanelLogin::onClickHelp(void*)
+void LLPanelLogin::onClickSignUp(void*)
 {
 	if (sInstance)
 	{
-		LLViewerHelp* vhelp = LLViewerHelp::getInstance();
-		vhelp->showTopic(vhelp->preLoginTopic());
+		LLWeb::loadURLExternal(sInstance->getString("sign_up_url"));
 	}
 }
 

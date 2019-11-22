@@ -122,7 +122,7 @@ public:
 			const LLVoiceChannel::EState& old_state,
 			const LLVoiceChannel::EState& new_state);
 
-	void processIMTyping(const LLIMInfo* im_info, BOOL typing);
+	void processIMTyping(const LLUUID& from_id, BOOL typing);
 	void processAgentListUpdates(const LLSD& body);
 	void processSessionUpdate(const LLSD& session_update);
 
@@ -165,10 +165,10 @@ private:
 	void boundVoiceChannel();
 
 	// Add the "User is typing..." indicator.
-	void addTypingIndicator(const LLIMInfo* im_info);
+	void addTypingIndicator(const LLUUID& from_id);
 
 	// Remove the "User is typing..." indicator.
-	void removeTypingIndicator(const LLIMInfo* im_info = NULL);
+	void removeTypingIndicator(const LLUUID& from_id = LLUUID::null);
 
 	static void closeHiddenIMToasts();
 
@@ -199,7 +199,7 @@ private:
 	// connection to voice channel state change signal
 	boost::signals2::connection mVoiceChannelStateChangeConnection;
 
-	const LLIMInfo* mImInfo;
+	LLUUID mImFromId;
 };
 
 #endif  // LL_FLOATERIMSESSION_H

@@ -2182,6 +2182,94 @@
       <key>Value</key>
       <string />
     </map>
+  <key>DebugAnimatedObjects</key>
+  <map>
+    <key>Comment</key>
+    <string>Show info related to animated objects</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>DebugObjectLODs</key>
+  <map>
+    <key>Comment</key>
+    <string>Show info related to lod calculations for attached or animated objects</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>AnimatedObjectsIgnoreLimits</key>
+  <map>
+    <key>Comment</key>
+    <string>Ignore server-enforced limits on animated objects. This is only useful for server testing.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>AnimatedObjectsAllowLeftClick</key>
+  <map>
+    <key>Comment</key>
+    <string>Allow left-click interaction with animated objects. Uncertain how much performance impact this will have.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>AnimatedObjectsGlobalScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Temporary testing: allow an extra scale factor to be forced on animated objects.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.00</real>
+  </map>
+  <key>AnimatedObjectsMaxLegalOffset</key>
+  <map>
+    <key>Comment</key>
+    <string>Max visual offset between object position and rendered position</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>3.0</real>
+  </map>
+  <key>AnimatedObjectsMaxLegalSize</key>
+  <map>
+    <key>Comment</key>
+    <string>Max bounding box size for animated object's rendered position</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>64.0</real>
+  </map>
+  <key>AvatarBoundingBoxComplexity</key>
+  <map>
+    <key>Comment</key>
+    <string>How many aspects to consider for avatar bounding box</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>3</integer>
+  </map>
   <key>DebugAvatarAppearanceMessage</key>
   <map>
     <key>Comment</key>
@@ -3704,13 +3792,13 @@
 	<key>FeatureManagerHTTPTable</key>
       <map>
         <key>Comment</key>
-        <string>Base directory for HTTP feature/gpu table fetches</string>
+        <string>Deprecated</string>
         <key>Persist</key>
-        <integer>1</integer>
+        <integer>0</integer>
         <key>Type</key>
         <string>String</string>
         <key>Value</key>
-        <string>http://viewer-settings.secondlife.com</string>
+        <string></string>
     </map>
     <key>FPSLogFrequency</key>
         <map>
@@ -4317,6 +4405,17 @@
       <key>Value</key>
       <real>96.0</real>
     </map>
+    <key>ForceAddressSize</key>
+    <map>
+      <key>Comment</key>
+      <string>Force Windows update to 32-bit or 64-bit viewer.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>ForceAssetFail</key>
     <map>
       <key>Comment</key>
@@ -4647,6 +4746,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>IgnoreFOVZoomForLODs</key>
+    <map>
+      <key>Comment</key>
+      <string>Ignore zoom effect(CTRL+0) when calculating lods.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>IgnoreAllNotifications</key>
     <map>
       <key>Comment</key>
@@ -4799,7 +4909,7 @@
 		<key>Type</key>
 		<string>Boolean</string>
 		<key>Value</key>
-		<integer>0</integer>
+		<integer>1</integer>
 	</map>
     <key>InventoryOutboxDisplayBoth</key>
     <map>
@@ -5648,7 +5758,7 @@
     <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>arctan</string>
+      <string>standard</string>
     </map>
     <key>LogTextureNetworkTraffic</key>
     <map>
@@ -8642,6 +8752,17 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+   <key>RenderHiDPI</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable support for HiDPI displays, like Retina (MacOS X ONLY, requires restart)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
     <key>RenderPerformanceTest</key>
     <map>
       <key>Comment</key>
@@ -10206,9 +10327,9 @@
   <key>RenderAutoMuteByteLimit</key>
   <map>
     <key>Comment</key>
-    <string>OBSOLETE and UNUSED.</string>
+    <string>If avatar attachment size exceed this value (in bytes) attachment will not be rendered. Excludes attachments worn by own avatar.</string>
     <key>Persist</key>
-    <integer>0</integer>
+    <integer>1</integer>
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
@@ -11277,6 +11398,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>MenuSearch</key>
+    <map>
+      <key>Comment</key>
+      <string>Show/hide 'Search menus' field</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+  </map>
     <key>GroupListShowIcons</key>
     <map>
       <key>Comment</key>
@@ -12182,13 +12314,24 @@
     <key>TextureDiscardLevel</key>
     <map>
       <key>Comment</key>
-      <string>Specify texture resolution (0 = highest, 5 = lowest)</string>
+      <string>Obsolete - use OverrideTextureDiscardLevel. Specify texture resolution (0 = highest, 5 = lowest)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>OverrideTextureDiscardLevel</key>
+    <map>
+      <key>Comment</key>
+      <string>Specify texture resolution (-1 ignore, 0 = highest, 5 = lowest)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>-1</integer>
     </map>
     <key>TextureFetchConcurrency</key>
     <map>
@@ -12375,7 +12518,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>500.0</real>
+      <real>3000.0</real>
     </map>
     <key>UpdaterMaximumBandwidth</key>
     <map>
@@ -13051,7 +13194,7 @@
     <key>LastSystemUIScaleFactor</key>
     <map>
       <key>Comment</key>
-      <string>Size of system UI during last run. On Windows 100% (96 DPI) system setting is 1.0 UI size</string>
+      <string>OBSOLETE: System UI scale factor is now automatically and independently from UIScaleFactor applied</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13524,7 +13667,7 @@
     <key>UpdaterServiceURL</key>
     <map>
       <key>Comment</key>
-      <string>Default location for the updater service.</string>
+      <string>Obsolete; no longer used.</string>
       <key>Persist</key>
       <integer>0</integer>
       <key>Type</key>
@@ -14005,16 +14148,16 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>VerboseLogs</key>
+    <key>RegionCrossingInterpolationTime</key>
     <map>
       <key>Comment</key>
-      <string>Display source file and line number for each log item for debugging purposes</string>
+      <string>How long to extrapolate object motion after crossing regions</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Boolean</string>
+      <string>F32</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>VertexShaderEnable</key>
     <map>
@@ -16197,7 +16340,7 @@
       <string>if true, disables running the GPU benchmark at startup
       (default to class 1)</string>
       <key>Persist</key>
-      <integer>0</integer>
+      <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -16213,6 +16356,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>ResetUIScaleOnFirstRun</key>
+    <map>
+      <key>Comment</key>
+      <string>Resets the UI scale factor on first run due to changed display scaling behavior</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>        
     </map>
 </map>
 </llsd>

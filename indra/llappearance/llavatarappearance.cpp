@@ -190,7 +190,8 @@ LLAvatarAppearance::LLAvatarAppearance(LLWearableData* wearable_data) :
     mNumBones(0),
     mNumCollisionVolumes(0),
     mCollisionVolumes(NULL),
-    mIsBuilt(FALSE)
+    mIsBuilt(FALSE),
+    mInitFlags(0)
 {
 	llassert_always(mWearableData);
 	mBakedTextureDatas.resize(LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
@@ -280,6 +281,8 @@ void LLAvatarAppearance::initInstance()
 	}
 
 	buildCharacter();
+
+    mInitFlags |= 1<<0;
 
 }
 
@@ -1345,9 +1348,9 @@ LLVector3 LLAvatarAppearance::getVolumePos(S32 joint_index, LLVector3& volume_of
 //-----------------------------------------------------------------------------
 // findCollisionVolume()
 //-----------------------------------------------------------------------------
-LLJoint* LLAvatarAppearance::findCollisionVolume(U32 volume_id)
+LLJoint* LLAvatarAppearance::findCollisionVolume(S32 volume_id)
 {
-	if ((S32)volume_id > mNumCollisionVolumes)
+	if ((volume_id < 0) || (volume_id >= mNumCollisionVolumes))
 	{
 		return NULL;
 	}
@@ -1479,6 +1482,21 @@ BOOL LLAvatarAppearance::teToColorParams( ETextureIndex te, U32 *param_name )
 			param_name[0] = 1071; //"tattoo_red";
 			param_name[1] = 1072; //"tattoo_green";
 			param_name[2] = 1073; //"tattoo_blue";
+			break;
+		case TEX_HEAD_UNIVERSAL_TATTOO:
+		case TEX_UPPER_UNIVERSAL_TATTOO:
+		case TEX_LOWER_UNIVERSAL_TATTOO:
+		case TEX_SKIRT_TATTOO:
+		case TEX_HAIR_TATTOO:
+		case TEX_EYES_TATTOO:
+		case TEX_LEFT_ARM_TATTOO:
+		case TEX_LEFT_LEG_TATTOO:
+		case TEX_AUX1_TATTOO:
+		case TEX_AUX2_TATTOO:
+		case TEX_AUX3_TATTOO:
+			param_name[0] = 1238; //"tattoo_universal_red";
+			param_name[1] = 1239; //"tattoo_universal_green";
+			param_name[2] = 1240; //"tattoo_universal_blue";
 			break;	
 
 		default:
@@ -1566,9 +1584,10 @@ BOOL LLAvatarAppearance::allocateCollisionVolumes( U32 num )
         delete_and_clear_array(mCollisionVolumes);
         mNumCollisionVolumes = 0;
 
-        mCollisionVolumes = new LLAvatarJointCollisionVolume[num];
+        mCollisionVolumes = new(std::nothrow) LLAvatarJointCollisionVolume[num];
         if (!mCollisionVolumes)
         {
+            LL_WARNS() << "Failed to allocate collision volumes" << LL_ENDL;
             return FALSE;
         }
         
@@ -1723,7 +1742,7 @@ void LLAvatarAppearance::makeJointAliases(LLAvatarBoneInfo *bone_info)
         }
         mJointAliasMap[*i] = bone_name;
     }
-    
+
     LLAvatarBoneInfo::child_list_t::const_iterator iter;
     for (iter = bone_info->mChildList.begin(); iter != bone_info->mChildList.end(); ++iter)
     {
@@ -1738,13 +1757,34 @@ const LLAvatarAppearance::joint_alias_map_t& LLAvatarAppearance::getJointAliases
     {
         
         LLAvatarSkeletonInfo::bone_info_list_t::const_iterator iter;
-        for (iter = sAvatarSkeletonInfo->mBoneInfoList.begin(); iter != sAvatarSkeletonInfo->mBoneInfoList.end(); ++iter)
+        for (iter = sAvatarSkeletonInfo->mBoneInfoList.begin(); 
+             iter != sAvatarSkeletonInfo->mBoneInfoList.end();
+             ++iter)
         {
             //LLAvatarBoneInfo *bone_info = *iter;
             makeJointAliases( *iter );
         }
+
+        LLAvatarXmlInfo::attachment_info_list_t::iterator attach_iter;
+        for (attach_iter = sAvatarXmlInfo->mAttachmentInfoList.begin();
+             attach_iter != sAvatarXmlInfo->mAttachmentInfoList.end(); 
+             ++attach_iter)
+        {
+            LLAvatarXmlInfo::LLAvatarAttachmentInfo *info = *attach_iter;
+            std::string bone_name = info->mName;
+            
+            // Also accept the name with spaces substituted with
+            // underscores. This gives a mechanism for referencing such joints
+            // in daes, which don't allow spaces.
+            std::string sub_space_to_underscore = bone_name;
+            LLStringUtil::replaceChar(sub_space_to_underscore, ' ', '_');
+            if (sub_space_to_underscore != bone_name)
+            {
+                mJointAliasMap[sub_space_to_underscore] = bone_name;
+            }
+        }
     }
-    
+
     return mJointAliasMap;
 } 
 

@@ -54,6 +54,7 @@
 #include "llhost.h"
 #include "llassetstorage.h"
 #include "roles_constants.h"
+#include "llviewermenufile.h" // LLFilePickerReplyThread
 #include "llviewertexteditor.h"
 #include <boost/tokenizer.hpp>
 
@@ -349,62 +350,58 @@ void LLFloaterAutoReplaceSettings::onDeleteEntry()
 // called when the Import List button is pressed
 void LLFloaterAutoReplaceSettings::onImportList()
 {
-	LLFilePicker& picker = LLFilePicker::instance();
-	if( picker.getOpenFile( LLFilePicker::FFLOAD_XML) )
+	(new LLFilePickerReplyThread(boost::bind(&LLFloaterAutoReplaceSettings::loadListFromFile, this, _1), LLFilePicker::FFLOAD_XML, false))->getFile();
+}
+
+void LLFloaterAutoReplaceSettings::loadListFromFile(const std::vector<std::string>& filenames)
+{
+	llifstream file;
+	file.open(filenames[0].c_str());
+	LLSD newList;
+	if (file.is_open())
 	{
-		llifstream file;
-		file.open(picker.getFirstFile().c_str());
-		LLSD newList;
-		if (file.is_open())
-		{
-			LLSDSerialize::fromXMLDocument(newList, file);
-		}
-		file.close();
-
-		switch ( mSettings.addList(newList) )
-		{
-		case LLAutoReplaceSettings::AddListOk:
-			mSelectedListName = LLAutoReplaceSettings::getListName(newList);
-			
-			updateListNames();
-			updateListNamesControls();
-			updateReplacementsList();
-			break;
-
-		case LLAutoReplaceSettings::AddListDuplicateName:
-			{
-				std::string newName = LLAutoReplaceSettings::getListName(newList);
-				LL_WARNS("AutoReplace")<<"name '"<<newName<<"' is in use; prompting for new name"<<LL_ENDL;
-				LLSD newPayload;
-				newPayload["list"] = newList;
-				LLSD args;
-				args["DUPNAME"] = newName;
-	
-				LLNotificationsUtil::add("RenameAutoReplaceList", args, newPayload,
-										 boost::bind(&LLFloaterAutoReplaceSettings::callbackListNameConflict, this, _1, _2));
-			}
-			break;
-
-		case LLAutoReplaceSettings::AddListInvalidList:
-			LLNotificationsUtil::add("InvalidAutoReplaceList");
-			LL_WARNS("AutoReplace") << "imported list was invalid" << LL_ENDL;
-
-			mSelectedListName.clear();
-			updateListNames();
-			updateListNamesControls();
-			updateReplacementsList();
-			break;
-
-		default:
-			LL_ERRS("AutoReplace") << "invalid AddListResult" << LL_ENDL;
-
-		}
-		
+		LLSDSerialize::fromXMLDocument(newList, file);
 	}
-	else
+	file.close();
+
+	switch ( mSettings.addList(newList) )
 	{
-		LL_DEBUGS("AutoReplace") << "file selection failed for import list" << LL_ENDL;
-	}		
+	case LLAutoReplaceSettings::AddListOk:
+		mSelectedListName = LLAutoReplaceSettings::getListName(newList);
+			
+		updateListNames();
+		updateListNamesControls();
+		updateReplacementsList();
+		break;
+
+	case LLAutoReplaceSettings::AddListDuplicateName:
+		{
+			std::string newName = LLAutoReplaceSettings::getListName(newList);
+			LL_WARNS("AutoReplace")<<"name '"<<newName<<"' is in use; prompting for new name"<<LL_ENDL;
+			LLSD newPayload;
+			newPayload["list"] = newList;
+			LLSD args;
+			args["DUPNAME"] = newName;
+	
+			LLNotificationsUtil::add("RenameAutoReplaceList", args, newPayload,
+										 boost::bind(&LLFloaterAutoReplaceSettings::callbackListNameConflict, this, _1, _2));
+		}
+		break;
+
+	case LLAutoReplaceSettings::AddListInvalidList:
+		LLNotificationsUtil::add("InvalidAutoReplaceList");
+		LL_WARNS("AutoReplace") << "imported list was invalid" << LL_ENDL;
+
+		mSelectedListName.clear();
+		updateListNames();
+		updateListNamesControls();
+		updateReplacementsList();
+		break;
+
+	default:
+		LL_ERRS("AutoReplace") << "invalid AddListResult" << LL_ENDL;
+
+	}	
 }
 
 void LLFloaterAutoReplaceSettings::onNewList()
@@ -539,16 +536,17 @@ void LLFloaterAutoReplaceSettings::onDeleteList()
 void LLFloaterAutoReplaceSettings::onExportList()
 {
 	std::string listName=mListNames->getFirstSelected()->getColumn(0)->getValue().asString();
-	const LLSD* list = mSettings.exportList(listName);
 	std::string listFileName = listName + ".xml";
-	LLFilePicker& picker = LLFilePicker::instance();
-	if( picker.getSaveFile( LLFilePicker::FFSAVE_XML, listFileName) )
-	{
-		llofstream file;
-		file.open(picker.getFirstFile().c_str());
-		LLSDSerialize::toPrettyXML(*list, file);
-		file.close();
-	}
+	(new LLFilePickerReplyThread(boost::bind(&LLFloaterAutoReplaceSettings::saveListToFile, this, _1, listName), LLFilePicker::FFSAVE_XML, listFileName))->getFile();
+}
+
+void LLFloaterAutoReplaceSettings::saveListToFile(const std::vector<std::string>& filenames, std::string listName)
+{
+	llofstream file;
+	const LLSD* list = mSettings.exportList(listName);
+	file.open(filenames[0].c_str());
+	LLSDSerialize::toPrettyXML(*list, file);
+	file.close();
 }
 
 void LLFloaterAutoReplaceSettings::onAddEntry()

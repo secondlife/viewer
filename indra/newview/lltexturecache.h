@@ -179,7 +179,7 @@ private:
 	
 	void openFastCache(bool first_time = false);
 	void closeFastCache(bool forced = false);
-	bool writeToFastCache(S32 id, LLPointer<LLImageRaw> raw, S32 discardlevel);	
+	bool writeToFastCache(LLUUID image_id, S32 cache_id, LLPointer<LLImageRaw> raw, S32 discardlevel);	
 
 private:
 	// Internal
@@ -221,7 +221,7 @@ private:
 	typedef std::map<LLUUID,S32> size_map_t;
 	size_map_t mTexturesSizeMap;
 	S64 mTexturesSizeTotal;
-	LLAtomic32<BOOL> mDoPurge;
+	LLAtomicBool mDoPurge;
 
 	typedef std::map<S32, Entry> idx_entry_map_t;
 	idx_entry_map_t mUpdatedEntryMap;

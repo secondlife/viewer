@@ -425,6 +425,9 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	mKeyVirtualKey = 0;
 	mhDC = NULL;
 	mhRC = NULL;
+	memset(mCurrentGammaRamp, 0, sizeof(mCurrentGammaRamp));
+	memset(mPrevGammaRamp, 0, sizeof(mPrevGammaRamp));
+	mCustomGammaSet = FALSE;
 	
 	if (!SystemParametersInfo(SPI_GETMOUSEVANISH, 0, &mMouseVanish, 0))
 	{
@@ -752,9 +755,6 @@ void LLWindowWin32::close()
 
 	mDragDrop->reset();
 
-	// Make sure cursor is visible and we haven't mangled the clipping state.
-	setMouseClipping(FALSE);
-	showCursor();
 
 	// Go back to screen mode written in the registry.
 	if (mFullscreen)
@@ -762,9 +762,23 @@ void LLWindowWin32::close()
 		resetDisplayResolution();
 	}
 
+	// Don't process events in our mainWindowProc any longer.
+	SetWindowLongPtr(mWindowHandle, GWLP_USERDATA, NULL);
+
+	// Make sure cursor is visible and we haven't mangled the clipping state.
+	showCursor();
+	setMouseClipping(FALSE);
+	if (gKeyboard)
+	{
+		gKeyboard->resetKeys();
+	}
+
 	// Clean up remaining GL state
-	LL_DEBUGS("Window") << "Shutting down GL" << LL_ENDL;
-	gGLManager.shutdownGL();
+	if (gGLManager.mInited)
+	{
+		LL_INFOS("Window") << "Cleaning up GL" << LL_ENDL;
+		gGLManager.shutdownGL();
+	}
 
 	LL_DEBUGS("Window") << "Releasing Context" << LL_ENDL;
 	if (mhRC)
@@ -785,16 +799,16 @@ void LLWindowWin32::close()
 	// Restore gamma to the system values.
 	restoreGamma();
 
-	if (mhDC && !ReleaseDC(mWindowHandle, mhDC))
+	if (mhDC)
 	{
-		LL_WARNS("Window") << "Release of ghDC failed" << LL_ENDL;
+		if (!ReleaseDC(mWindowHandle, mhDC))
+		{
+			LL_WARNS("Window") << "Release of ghDC failed" << LL_ENDL;
+		}
 		mhDC = NULL;
 	}
 
 	LL_DEBUGS("Window") << "Destroying Window" << LL_ENDL;
-	
-	// Don't process events in our mainWindowProc any longer.
-	SetWindowLongPtr(mWindowHandle, GWLP_USERDATA, NULL);
 
 	// Make sure we don't leave a blank toolbar button.
 	ShowWindow(mWindowHandle, SW_HIDE);
@@ -2708,6 +2722,14 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				}
 			}
 			break;
+		default:
+			{
+				if (gDebugWindowProc)
+				{
+					LL_INFOS("Window") << "Unhandled windows message code: " << U32(u_msg) << LL_ENDL;
+				}
+			}
+			break;
 		}
 
 	window_imp->mCallbacks->handlePauseWatchdog(window_imp);	
@@ -2970,12 +2992,33 @@ F32 LLWindowWin32::getGamma()
 
 BOOL LLWindowWin32::restoreGamma()
 {
-	return SetDeviceGammaRamp(mhDC, mPrevGammaRamp);
+	if (mCustomGammaSet != FALSE)
+	{
+        LL_DEBUGS("Window") << "Restoring gamma" << LL_ENDL;
+		mCustomGammaSet = FALSE;
+		return SetDeviceGammaRamp(mhDC, mPrevGammaRamp);
+	}
+	return TRUE;
 }
 
 BOOL LLWindowWin32::setGamma(const F32 gamma)
 {
 	mCurrentGamma = gamma;
+
+	//Get the previous gamma ramp to restore later.
+	if (mCustomGammaSet == FALSE)
+	{
+        if (!gGLManager.mIsIntel) // skip for Intel GPUs (see SL-11341)
+        {
+            LL_DEBUGS("Window") << "Getting the previous gamma ramp to restore later" << LL_ENDL;
+            if(GetDeviceGammaRamp(mhDC, mPrevGammaRamp) == FALSE)
+            {
+                LL_WARNS("Window") << "Failed to get the previous gamma ramp" << LL_ENDL;
+                return FALSE;
+            }
+        }
+		mCustomGammaSet = TRUE;
+	}
 
 	LL_DEBUGS("Window") << "Setting gamma to " << gamma << LL_ENDL;
 
@@ -2988,9 +3031,9 @@ BOOL LLWindowWin32::setGamma(const F32 gamma)
 		if ( value > 0xffff )
 			value = 0xffff;
 
-		mCurrentGammaRamp [ 0 * 256 + i ] = 
-			mCurrentGammaRamp [ 1 * 256 + i ] = 
-				mCurrentGammaRamp [ 2 * 256 + i ] = ( WORD )value;
+		mCurrentGammaRamp[0][i] =
+			mCurrentGammaRamp[1][i] =
+			mCurrentGammaRamp[2][i] = (WORD) value;
 	};
 
 	return SetDeviceGammaRamp ( mhDC, mCurrentGammaRamp );
@@ -3256,8 +3299,10 @@ S32 OSMessageBoxWin32(const std::string& text, const std::string& caption, U32 t
 		break;
 	}
 
-	// HACK! Doesn't properly handle wide strings!
-	int retval_win = MessageBoxA(NULL, text.c_str(), caption.c_str(), uType);
+	int retval_win = MessageBoxW(NULL, // HWND
+								 ll_convert_string_to_wide(text).c_str(),
+								 ll_convert_string_to_wide(caption).c_str(),
+								 uType);
 	S32 retval;
 
 	switch(retval_win)
@@ -3991,7 +4036,7 @@ void LLWindowWin32::setDPIAwareness()
 
 F32 LLWindowWin32::getSystemUISize()
 {
-	float scale_value = 0;
+	F32 scale_value = 1.f;
 	HWND hWnd = (HWND)getPlatformWindow();
 	HDC hdc = GetDC(hWnd);
 	HMONITOR hMonitor;

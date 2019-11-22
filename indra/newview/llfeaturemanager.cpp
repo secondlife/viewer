@@ -62,13 +62,10 @@
 
 #if LL_DARWIN
 const char FEATURE_TABLE_FILENAME[] = "featuretable_mac.txt";
-const char FEATURE_TABLE_VER_FILENAME[] = "featuretable_mac.%s.txt";
 #elif LL_LINUX
 const char FEATURE_TABLE_FILENAME[] = "featuretable_linux.txt";
-const char FEATURE_TABLE_VER_FILENAME[] = "featuretable_linux.%s.txt";
 #else
 const char FEATURE_TABLE_FILENAME[] = "featuretable.txt";
-const char FEATURE_TABLE_VER_FILENAME[] = "featuretable.%s.txt";
 #endif
 
 #if 0                               // consuming code in #if 0 below
@@ -273,33 +270,11 @@ bool LLFeatureManager::loadFeatureTables()
 	app_path += gDirUtilp->getDirDelimiter();
 
 	std::string filename;
-	std::string http_filename; 
 	filename = FEATURE_TABLE_FILENAME;
-	http_filename = llformat(FEATURE_TABLE_VER_FILENAME, LLVersionInfo::getVersion().c_str());
 
 	app_path += filename;
 
-	// second table is downloaded with HTTP - note that this will only be used on the run _after_ it is downloaded
-	std::string http_path = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, http_filename);
-
-	// use HTTP table if it exists
-	std::string path;
-	bool parse_ok = false;
-	if (gDirUtilp->fileExists(http_path))
-	{
-		parse_ok = parseFeatureTable(http_path);
-		if (!parse_ok)
-		{
-			// the HTTP table failed to parse, so delete it
-			LLFile::remove(http_path);
-			LL_WARNS("RenderInit") << "Removed invalid feature table '" << http_path << "'" << LL_ENDL;
-		}
-	}
-
-	if (!parse_ok)
-	{
-		parse_ok = parseFeatureTable(app_path);
-	}
+	bool parse_ok = parseFeatureTable(app_path);
 
 	return parse_ok;
 }
@@ -402,12 +377,62 @@ bool LLFeatureManager::parseFeatureTable(std::string filename)
 
 F32 gpu_benchmark();
 
+#if LL_WINDOWS
+
+static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
+
+U32 exception_benchmark_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop)
+{
+    if (code == STATUS_MSC_EXCEPTION)
+    {
+        // C++ exception, go on
+        return EXCEPTION_CONTINUE_SEARCH;
+    }
+    else
+    {
+        // handle it
+        return EXCEPTION_EXECUTE_HANDLER;
+    }
+}
+
+F32 logExceptionBenchmark()
+{
+    // Todo: make a wrapper/class for SEH exceptions
+    F32 gbps = -1;
+    __try
+    {
+        gbps = gpu_benchmark();
+    }
+    __except (exception_benchmark_filter(GetExceptionCode(), GetExceptionInformation()))
+    {
+        // convert to C++ styled exception
+        char integer_string[32];
+        sprintf(integer_string, "SEH, code: %lu\n", GetExceptionCode());
+        throw std::exception(integer_string);
+    }
+    return gbps;
+}
+#endif
+
 bool LLFeatureManager::loadGPUClass()
 {
 	if (!gSavedSettings.getBOOL("SkipBenchmark"))
 	{
 		//get memory bandwidth from benchmark
-		F32 gbps = gpu_benchmark();
+		F32 gbps;
+		try
+		{
+#if LL_WINDOWS
+			gbps = logExceptionBenchmark();
+#else
+			gbps = gpu_benchmark();
+#endif
+		}
+		catch (const std::exception& e)
+		{
+			gbps = -1.f;
+			LL_WARNS("RenderInit") << "GPU benchmark failed: " << e.what() << LL_ENDL;
+		}
 	
 		if (gbps < 0.f)
 		{ //couldn't bench, use GLVersion
@@ -416,11 +441,11 @@ bool LLFeatureManager::loadGPUClass()
 		LL_WARNS("RenderInit") << "Unable to get an accurate benchmark; defaulting to class 3" << LL_ENDL;
 		mGPUClass = GPU_CLASS_3;
 	#else
-			if (gGLManager.mGLVersion < 2.f)
+			if (gGLManager.mGLVersion <= 2.f)
 			{
 				mGPUClass = GPU_CLASS_0;
 			}
-			else if (gGLManager.mGLVersion < 3.f)
+			else if (gGLManager.mGLVersion <= 3.f)
 			{
 				mGPUClass = GPU_CLASS_1;
 			}
@@ -435,6 +460,11 @@ bool LLFeatureManager::loadGPUClass()
 			else 
 			{
 				mGPUClass = GPU_CLASS_4;
+			}
+			if (gGLManager.mIsIntel && mGPUClass > GPU_CLASS_1)
+			{
+				// Intels are generally weaker then other GPUs despite having advanced features
+				mGPUClass = (EGPUClass)(mGPUClass - 1);
 			}
 	#endif
 		}
@@ -484,70 +514,6 @@ bool LLFeatureManager::loadGPUClass()
 	mGPUSupported = TRUE;
 
 	return true; // indicates that a gpu value was established
-}
-
-void LLFeatureManager::fetchFeatureTableCoro(std::string tableName)
-{
-    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
-    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("FeatureManagerHTTPTable", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-
-    const std::string base = gSavedSettings.getString("FeatureManagerHTTPTable");
-
-
-#if LL_WINDOWS
-    std::string os_string = LLOSInfo::instance().getOSStringSimple();
-    std::string filename;
-
-    if (os_string.find("Microsoft Windows XP") == 0)
-    {
-        filename = llformat(tableName.c_str(), "_xp", LLVersionInfo::getVersion().c_str());
-    }
-    else
-    {
-        filename = llformat(tableName.c_str(), "", LLVersionInfo::getVersion().c_str());
-    }
-#else
-    const std::string filename   = llformat(tableName.c_str(), LLVersionInfo::getVersion().c_str());
-#endif
-
-    std::string url        = base + "/" + filename;
-    // testing url below
-    //url = "http://viewer-settings.secondlife.com/featuretable.2.1.1.208406.txt";
-    const std::string path       = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename);
-
-
-    LL_INFOS() << "LLFeatureManager fetching " << url << " into " << path << LL_ENDL;
-
-    LLSD result = httpAdapter->getRawAndSuspend(httpRequest, url);
-
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-
-    if (status)
-    {   // There was a newer feature table on the server. We've grabbed it and now should write it.
-        // write to file
-        const LLSD::Binary &raw = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
-
-        LL_INFOS() << "writing feature table to " << path << LL_ENDL;
-
-        S32 size = raw.size();
-        if (size > 0)
-        {
-            // write to file
-            LLAPRFile out(path, LL_APR_WB);
-            out.write(raw.data(), size);
-            out.close();
-        }
-    }
-}
-
-// fetch table(s) from a website (S3)
-void LLFeatureManager::fetchHTTPTables()
-{
-    LLCoros::instance().launch("LLFeatureManager::fetchFeatureTableCoro",
-        boost::bind(&LLFeatureManager::fetchFeatureTableCoro, this, FEATURE_TABLE_VER_FILENAME));
 }
 
 void LLFeatureManager::cleanupFeatureTables()

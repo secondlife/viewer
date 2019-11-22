@@ -142,7 +142,6 @@ BlockTimer::~BlockTimer()
 
 bool        BlockTimer::sLog             = false;
 std::string BlockTimer::sLogName         = "";
-bool        BlockTimer::sExtendedLogging = false;
 bool        BlockTimer::sArctanLogging   = false;
 bool        BlockTimer::sMetricLog       = false;
 LLSD        BlockTimer::sExtraLogRecords;
@@ -670,7 +669,7 @@ void BlockTimer::writeLog(std::ostream& os)
 //static
 void BlockTimer::writeHeader(std::ostream& os)
 {
-    if (sExtendedLogging || sArctanLogging)
+    if (sArctanLogging)
     {
         os << "<linden_frame_timer>\n";
     }
@@ -679,7 +678,7 @@ void BlockTimer::writeHeader(std::ostream& os)
 //static
 void BlockTimer::writeFooter(std::ostream& os)
 {
-    if (sExtendedLogging || sArctanLogging)
+    if (sArctanLogging)
     {
         os << "</linden_frame_timer>\n";
     }

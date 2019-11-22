@@ -579,8 +579,15 @@ LLMotion::LLMotionInitStatus LLKeyframeMotion::onInitialize(LLCharacter *charact
 	else
 	{
 		anim_file_size = anim_file->getSize();
-		anim_data = new U8[anim_file_size];
-		success = anim_file->read(anim_data, anim_file_size);	/*Flawfinder: ignore*/
+		anim_data = new(std::nothrow) U8[anim_file_size];
+		if (anim_data)
+		{
+			success = anim_file->read(anim_data, anim_file_size);	/*Flawfinder: ignore*/
+		}
+		else
+		{
+			LL_WARNS() << "Failed to allocate buffer: " << anim_file_size << mID << LL_ENDL;
+		}
 		delete anim_file;
 		anim_file = NULL;
 	}
@@ -1765,6 +1772,13 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id)
 			bin_data[BIN_DATA_LENGTH] = 0; // Ensure null termination
 			str = (char*)bin_data;
 			constraintp->mSourceConstraintVolume = mCharacter->getCollisionVolumeID(str);
+			if (constraintp->mSourceConstraintVolume == -1)
+			{
+				LL_WARNS() << "not a valid source constraint volume " << str
+						   << " for animation " << asset_id << LL_ENDL;
+				delete constraintp;
+				return FALSE;
+			}
 
 			if (!dp.unpackVector3(constraintp->mSourceConstraintOffset, "source_offset"))
 			{
@@ -1801,6 +1815,13 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id)
 			{
 				constraintp->mConstraintTargetType = CONSTRAINT_TARGET_TYPE_BODY;
 				constraintp->mTargetConstraintVolume = mCharacter->getCollisionVolumeID(str);
+				if (constraintp->mTargetConstraintVolume == -1)
+				{
+					LL_WARNS() << "not a valid target constraint volume " << str
+							   << " for animation " << asset_id << LL_ENDL;
+					delete constraintp;
+					return FALSE;
+				}
 			}
 
 			if (!dp.unpackVector3(constraintp->mTargetConstraintOffset, "target_offset"))

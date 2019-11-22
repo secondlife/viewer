@@ -70,6 +70,7 @@ public:
 	static void			initClass();
 	static void			cleanupClass();	// Cleanup data that's only init'd once per class.
 	virtual void 		initInstance(); // Called after construction to initialize the instance.
+    S32					mInitFlags;
 	virtual BOOL		loadSkeletonNode();
 	BOOL				loadMeshNodes();
 	BOOL				loadLayersets();
@@ -92,7 +93,7 @@ public:
 
 	/*virtual*/ const char*		getAnimationPrefix() { return "avatar"; }
 	/*virtual*/ LLVector3		getVolumePos(S32 joint_index, LLVector3& volume_offset);
-	/*virtual*/ LLJoint*		findCollisionVolume(U32 volume_id);
+	/*virtual*/ LLJoint*		findCollisionVolume(S32 volume_id);
 	/*virtual*/ S32				getCollisionVolumeID(std::string &name);
 	/*virtual*/ LLPolyMesh*		getHeadMesh();
 	/*virtual*/ LLPolyMesh*		getUpperBodyMesh();
@@ -227,7 +228,7 @@ protected:
  **                    RENDERING
  **/
 public:
-	BOOL		mIsDummy; // for special views
+	BOOL		mIsDummy; // for special views and animated object controllers; local to viewer
 
 	//--------------------------------------------------------------------
 	// Morph masks

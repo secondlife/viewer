@@ -47,9 +47,9 @@ class LLLeapImpl: public LLLeap
     LOG_CLASS(LLLeap);
 public:
     // Called only by LLLeap::create()
-    LLLeapImpl(const std::string& desc, const std::vector<std::string>& plugin):
+    LLLeapImpl(const LLProcess::Params& cparams):
         // We might reassign mDesc in the constructor body if it's empty here.
-        mDesc(desc),
+        mDesc(cparams.desc),
         // We expect multiple LLLeapImpl instances. Definitely tweak
         // mDonePump's name for uniqueness.
         mDonePump("LLLeap", true),
@@ -67,17 +67,17 @@ public:
         // this class or method name.
         mListener(new LLLeapListener(boost::bind(&LLLeapImpl::connect, this, _1, _2)))
     {
-        // Rule out empty vector
-        if (plugin.empty())
+        // Rule out unpopulated Params block
+        if (! cparams.executable.isProvided())
         {
             LLTHROW(Error("no plugin command"));
         }
 
         // Don't leave desc empty either, but in this case, if we weren't
         // given one, we'll fake one.
-        if (desc.empty())
+        if (mDesc.empty())
         {
-            mDesc = LLProcess::basename(plugin[0]);
+            mDesc = LLProcess::basename(cparams.executable);
             // how about a toLower() variant that returns the transformed string?!
             std::string desclower(mDesc);
             LLStringUtil::toLower(desclower);
@@ -87,9 +87,9 @@ public:
             // notice Python specially: we provide Python LLSD serialization
             // support, so there's a pretty good reason to implement plugins
             // in that language.
-            if (plugin.size() >= 2 && (desclower == "python" || desclower == "python.exe"))
+            if (cparams.args.size() && (desclower == "python" || desclower == "python.exe"))
             {
-                mDesc = LLProcess::basename(plugin[1]);
+                mDesc = LLProcess::basename(cparams.args()[0]);
             }
         }
 
@@ -97,14 +97,10 @@ public:
         mDonePump.listen("LLLeap", boost::bind(&LLLeapImpl::bad_launch, this, _1));
 
         // Okay, launch child.
-        LLProcess::Params params;
+        // Get a modifiable copy of params block to set files and postend.
+        LLProcess::Params params(cparams);
+        // copy our deduced mDesc back into the params block
         params.desc = mDesc;
-        std::vector<std::string>::const_iterator pi(plugin.begin()), pend(plugin.end());
-        params.executable = *pi++;
-        for ( ; pi != pend; ++pi)
-        {
-            params.args.add(*pi);
-        }
         params.files.add(LLProcess::FileParam("pipe")); // stdin
         params.files.add(LLProcess::FileParam("pipe")); // stdout
         params.files.add(LLProcess::FileParam("pipe")); // stderr
@@ -429,22 +425,39 @@ private:
     boost::scoped_ptr<LLLeapListener> mListener;
 };
 
-// This must follow the declaration of LLLeapImpl, so it may as well be last.
-LLLeap* LLLeap::create(const std::string& desc, const std::vector<std::string>& plugin, bool exc)
+// These must follow the declaration of LLLeapImpl, so they may as well be last.
+LLLeap* LLLeap::create(const LLProcess::Params& params, bool exc)
 {
     // If caller is willing to permit exceptions, just instantiate.
     if (exc)
-        return new LLLeapImpl(desc, plugin);
+        return new LLLeapImpl(params);
 
     // Caller insists on suppressing LLLeap::Error. Very well, catch it.
     try
     {
-        return new LLLeapImpl(desc, plugin);
+        return new LLLeapImpl(params);
     }
     catch (const LLLeap::Error&)
     {
         return NULL;
     }
+}
+
+LLLeap* LLLeap::create(const std::string& desc, const std::vector<std::string>& plugin, bool exc)
+{
+    LLProcess::Params params;
+    params.desc = desc;
+    std::vector<std::string>::const_iterator pi(plugin.begin()), pend(plugin.end());
+    // could validate here, but let's rely on LLLeapImpl's constructor
+    if (pi != pend)
+    {
+        params.executable = *pi++;
+    }
+    for ( ; pi != pend; ++pi)
+    {
+        params.args.add(*pi);
+    }
+    return create(params, exc);
 }
 
 LLLeap* LLLeap::create(const std::string& desc, const std::string& plugin, bool exc)

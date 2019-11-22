@@ -53,7 +53,7 @@ UI Scaling: [UI_SCALE]
 Draw distance: [DRAW_DISTANCE]m
 Bandwidth: [NET_BANDWITH]kbit/s
 LOD factor: [LOD_FACTOR]
-Render quality: [RENDER_QUALITY] / 7
+Render quality: [RENDER_QUALITY]
 Advanced Lighting Model: [GPU_SHADERS]
 Texture memory: [TEXTURE_MEMORY]MB
 VFS (cache) creation time: [VFS_TIME]
@@ -324,7 +324,7 @@ Please try logging in again in a minute.</string>
 
 	<string name="ReleaseNotes">Release Notes</string>
 	<!-- Always mark translate="false" for strings that are nothing but URLs, as they don't need translation. -->
-	<string name="RELEASE_NOTES_BASE_URL" translate="false">http://wiki.secondlife.com/wiki/Release_Notes/</string>
+	<string name="RELEASE_NOTES_BASE_URL" translate="false">https://releasenotes.secondlife.com/viewer/</string>
 
 	<!-- Indicates something is being loaded. Maybe should be merged with RetrievingData -->
 	<string name="LoadingData">Loading...</string>
@@ -2209,6 +2209,7 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="skirt">Skirt</string>
 	<string name="alpha">Alpha</string>
 	<string name="tattoo">Tattoo</string>
+  <string name="universal">Universal</string>
   <string name="physics">Physics</string>
   <string name="invalid">invalid</string>
   <string name="none">none</string>
@@ -2225,6 +2226,7 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="skirt_not_worn">Skirt not worn</string>
 	<string name="alpha_not_worn">Alpha not worn</string>
 	<string name="tattoo_not_worn">Tattoo not worn</string>
+  <string name="universal_not_worn">Universal not worn</string>
   <string name="physics_not_worn">Physics not worn</string>
 	<string name="invalid_not_worn">invalid</string>
 
@@ -2244,6 +2246,7 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="create_new_skirt">Create new skirt</string>
 	<string name="create_new_alpha">Create new alpha</string>
 	<string name="create_new_tattoo">Create new tattoo</string>
+  <string name="create_new_universal">Create new universal</string>
   <string name="create_new_physics">Create new physics</string>
 	<string name="create_new_invalid">invalid</string>
 
@@ -2658,6 +2661,10 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="RegionInfoBannedResidents">Always banned: ([BANNEDAGENTS], max [MAXBANNED])</string>
 	<string name="RegionInfoListTypeAllowedAgents">Always allowed</string>
 	<string name="RegionInfoListTypeBannedAgents">Always banned</string>
+	<string name="RegionInfoAllEstates">all estates</string>
+	<string name="RegionInfoManagedEstates">managed estates</string>
+	<string name="RegionInfoThisEstate">this estate</string>
+	<string name="AndNMore">and [EXTRA_COUNT] more</string>
 
 	<!-- script limits floater -->
 	<string name="ScriptLimitsParcelScriptMemory">Parcel Script Memory</string>
@@ -2675,14 +2682,14 @@ If you continue to receive this message, please contact Second Life support for 
 
 	<string name="SITTING_ON">Sitting On</string>
 	<string name="ATTACH_CHEST">Chest</string>
-	<string name="ATTACH_HEAD">Head</string>
+	<string name="ATTACH_HEAD">Skull</string>
 	<string name="ATTACH_LSHOULDER">Left Shoulder</string>
 	<string name="ATTACH_RSHOULDER">Right Shoulder</string>
 	<string name="ATTACH_LHAND">Left Hand</string>
 	<string name="ATTACH_RHAND">Right Hand</string>
 	<string name="ATTACH_LFOOT">Left Foot</string>
 	<string name="ATTACH_RFOOT">Right Foot</string>
-	<string name="ATTACH_BACK">Back</string>
+	<string name="ATTACH_BACK">Spine</string>
 	<string name="ATTACH_PELVIS">Pelvis</string>
 	<string name="ATTACH_MOUTH">Mouth</string>
 	<string name="ATTACH_CHIN">Chin</string>
@@ -2692,16 +2699,16 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="ATTACH_REYE">Right Eye</string>
 	<string name="ATTACH_NOSE">Nose</string>
 	<string name="ATTACH_RUARM">Right Upper Arm</string>
-	<string name="ATTACH_RLARM">Right Lower Arm</string>
+	<string name="ATTACH_RLARM">Right Forearm</string>
 	<string name="ATTACH_LUARM">Left Upper Arm</string>
-	<string name="ATTACH_LLARM">Left Lower Arm</string>
+	<string name="ATTACH_LLARM">Left Forearm</string>
 	<string name="ATTACH_RHIP">Right Hip</string>
 	<string name="ATTACH_RULEG">Right Upper Leg</string>
 	<string name="ATTACH_RLLEG">Right Lower Leg</string>
 	<string name="ATTACH_LHIP">Left Hip</string>
 	<string name="ATTACH_LULEG">Left Upper Leg</string>
 	<string name="ATTACH_LLLEG">Left Lower Leg</string>
-	<string name="ATTACH_BELLY">Belly</string>
+	<string name="ATTACH_BELLY">Stomach</string>
 	<string name="ATTACH_LEFT_PEC">Left Pec</string>
 	<string name="ATTACH_RIGHT_PEC">Right Pec</string>
 	<string name="ATTACH_HUD_CENTER_2">HUD Center 2</string>
@@ -3805,6 +3812,7 @@ Abuse Report</string>
   <string name="New Skirt">New Skirt</string>
   <string name="New Alpha">New Alpha</string>
   <string name="New Tattoo">New Tattoo</string>
+  <string name="New Universal">New Universal</string>
   <string name="New Physics">New Physics</string>
   <string name="Invalid Wearable">Invalid Wearable</string>
   <string name="New Gesture">New Gesture</string>
@@ -4199,8 +4207,7 @@ Try enclosing path to the editor with double quotes.
   <string name="ExperiencePermissionShort10">Control Camera</string>
   <string name="ExperiencePermissionShort11">Teleport</string>
   <string name="ExperiencePermissionShort12">Permission</string>
-  <string name="ExperiencePermissionShortUnknown">Unknown: [Permission]</string>
-  
+
   <!-- Conversation log messages -->
   <string name="logging_calls_disabled_log_empty">
     Conversations are not being logged. To begin keeping a log, choose "Save: Log only" or "Save: Log and transcripts" under Preferences > Chat.
@@ -4232,6 +4239,31 @@ Try enclosing path to the editor with double quotes.
   </string>
   <string name="Mav_Details_MAV_UNKNOWN_VERSION">
       The physics shape does not have correct version. Set the correct version for the physics model.
+  </string>
+
+  <!-- CURL error messages -->
+  <string name="couldnt_resolve_host">
+DNS could not resolve the host name([HOSTNAME]).
+Please verify that you can connect to the www.secondlife.com
+web site.  If you can, but continue to receive this error,
+please go to the support section and report this problem.
+  </string>
+  <string name="ssl_peer_certificate">
+The login server couldn't verify itself via SSL.
+If you continue to receive this error, please go
+to the Support section of the SecondLife.com web site
+and report the problem.
+  </string>
+  <string name="ssl_connect_error">
+Often this means that your computer's clock is set incorrectly.
+Please go to Control Panels and make sure the time and date
+are set correctly.
+Also check that your network and firewall are set up correctly.
+If you continue to receive this error, please go
+to the Support section of the SecondLife.com web site
+and report the problem.
+
+[https://community.secondlife.com/knowledgebase/english/error-messages-r520/#Section__3 Knowledge Base]
   </string>
 
 </strings>

@@ -65,14 +65,9 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	
 	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(p.session_id);
 	mIsGroupMsg = (im_session && im_session->mSessionType == LLIMModel::LLIMSession::GROUP_SESSION);
-	if(mIsGroupMsg)
-	{
-		mAvatarName->setValue(im_session->mName);
-		LLAvatarName avatar_name;
-		LLAvatarNameCache::get(p.avatar_id, &avatar_name);
-		p.message = "[From " + avatar_name.getDisplayName() + "]\n" + p.message;
-	}
-	
+	std::string title = mIsGroupMsg ? im_session->mName : p.from;
+	mAvatarName->setValue(title);
+
 	//Handle IRC styled /me messages.
 	std::string prefix = p.message.substr(0, 4);
 	if (prefix == "/me " || prefix == "/me'")
@@ -88,14 +83,16 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	}
 	else
 	{
+		if (mIsGroupMsg)
+		{
+			LLAvatarName avatar_name;
+			LLAvatarNameCache::get(p.avatar_id, &avatar_name);
+			p.message = "[From " + avatar_name.getDisplayName() + "]\n" + p.message;
+		}
 		style_params.font.style =  "NORMAL";
 		mMessage->setText(p.message, style_params);
 	}
 
-	if(!mIsGroupMsg)
-	{
-	mAvatarName->setValue(p.from);
-	}
 	mTime->setValue(p.time);
 	mSessionID = p.session_id;
 	mAvatarID = p.avatar_id;

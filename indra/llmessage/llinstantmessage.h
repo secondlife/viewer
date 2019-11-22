@@ -177,59 +177,6 @@ extern const std::string INTERACTIVE_SYSTEM_FROM;
 // Number of retry attempts on sending the im.
 extern const S32 IM_TTL;
 
-
-class LLIMInfo : public LLRefCount
-{
-protected:
-	LLIMInfo();
-	~LLIMInfo();
-
-public:
-	LLIMInfo(LLMessageSystem* msg, 
-			S32 ttl = IM_TTL);
-
-	LLIMInfo(
-		const LLUUID& from_id,
-		BOOL from_group,
-		const LLUUID& to_id,
-		EInstantMessage im_type, 
-		const std::string& name,
-		const std::string& message,
-		const LLUUID& id,
-		U32 parent_estate_id,
-		const LLUUID& region_id,
-		const LLVector3& position,
-		LLSD data,
-		U8 offline,
-		U32 timestamp,
-		S32 ttl = IM_TTL);
-
-	void packInstantMessage(LLMessageSystem* msg) const;
-	void packMessageBlock(LLMessageSystem* msg) const;
-	void unpackMessageBlock(LLMessageSystem* msg);
-	LLPointer<LLIMInfo> clone();
-public:
-	LLUUID mFromID;
-	BOOL mFromGroup;
-	LLUUID mToID;
-	U32 mParentEstateID;
-	LLUUID mRegionID;
-	LLVector3 mPosition;
-	U8 mOffline;
-	bool mViewerThinksToIsOnline;
-	EInstantMessage mIMType; 
-	LLUUID mID;
-	U32 mTimeStamp;
-	std::string mName;
-	std::string mMessage;
-	LLSD mData;
-
-	S32 mTTL;
-};
-
-LLPointer<LLIMInfo> llsd_to_im_info(const LLSD& im_info_sd);
-LLSD im_info_to_llsd(LLPointer<LLIMInfo> im_info);
-
 void pack_instant_message(
 	LLMessageSystem* msgsystem,
 	const LLUUID& from_id,

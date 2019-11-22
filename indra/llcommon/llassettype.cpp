@@ -95,6 +95,7 @@ LLAssetDictionary::LLAssetDictionary()
 	addEntry(LLAssetType::AT_MESH,              new AssetEntry("MESH",              "mesh",     "mesh",             false,      false,      false));
 	addEntry(LLAssetType::AT_WIDGET,            new AssetEntry("WIDGET",            "widget",   "widget",           false,      false,      false));
 	addEntry(LLAssetType::AT_PERSON,            new AssetEntry("PERSON",            "person",   "person",           false,      false,      false));
+	addEntry(LLAssetType::AT_UNKNOWN,           new AssetEntry("UNKNOWN",           "invalid",  NULL,               false,      false,      false));
 	addEntry(LLAssetType::AT_NONE, 				new AssetEntry("NONE",				"-1",		NULL,		  		FALSE,		FALSE,		FALSE));
 
 };
@@ -156,7 +157,7 @@ LLAssetType::EType LLAssetType::lookup(const std::string& type_name)
 			return iter->first;
 		}
 	}
-	return AT_NONE;
+	return AT_UNKNOWN;
 }
 
 // static

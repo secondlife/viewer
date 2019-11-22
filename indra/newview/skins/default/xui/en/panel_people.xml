@@ -345,6 +345,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                          left="0"
                          multi_select="true"
                          name="avatars_online"
+                         keep_one_selected="false"
                          show_permissions_granted="true"
                          top="0"
                          width="307" />
@@ -362,6 +363,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                          left="0"
                          multi_select="true"
                          name="avatars_all"
+                         keep_one_selected="false"
                          show_permissions_granted="true"
                          top="0"
                          width="307" />
@@ -517,6 +519,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
              height="388"
              layout="topleft"
              left="3"
+             keep_one_selected="false"
              name="group_list"
              right="-2"
              top_pad="4" />
@@ -631,6 +634,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
              multi_select="true"
              name="avatar_list"
              show_last_interaction_time="true"
+             keep_one_selected="false"
              right="-2"
              top_pad="4" />
         </panel>

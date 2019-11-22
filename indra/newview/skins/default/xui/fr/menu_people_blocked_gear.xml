@@ -3,6 +3,7 @@
 	<menu_item_call label="Ne plus ignorer" name="unblock"/>
 	<menu_item_check label="Bloquer le chat vocal" name="BlockVoice"/>
 	<menu_item_check label="Ignorer le texte" name="MuteText"/>
+	<menu_item_check label="Ignorez les particules" name="MuteParticles"/>
 	<menu_item_check label="Bloquer les sons des objets" name="BlockObjectSounds"/>
 	<menu_item_call label="Profil..." name="profile"/>
 </toggleable_menu>

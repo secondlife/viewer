@@ -105,6 +105,7 @@ BOOL LLFloaterWebContent::postBuild()
 
 	// these buttons are always enabled
 	mBtnReload->setEnabled( true );
+	mBtnReload->setVisible( false );
 	getChildView("popexternal")->setEnabled( true );
 
 	// cache image for secure browsing

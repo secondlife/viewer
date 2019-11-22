@@ -75,6 +75,7 @@ public:
 
 	LLDrawInfo(U16 start, U16 end, U32 count, U32 offset, 
 				LLViewerTexture* image, LLVertexBuffer* buffer, 
+				bool selected,
 				BOOL fullbright = FALSE, U8 bump = 0, BOOL particle = FALSE, F32 part_size = 0);
 	
 
@@ -117,6 +118,7 @@ public:
 	F32  mEnvIntensity;
 	F32  mAlphaMaskCutoff;
 	U8   mDiffuseAlphaMode;
+	bool mSelected;
 
 
 	struct CompareTexture
@@ -466,8 +468,6 @@ public:
 	virtual LLCamera transformCamera(LLCamera& camera);
 	
 	LLDrawable* mDrawable;
-	LLPointer<LLVOAvatar> mAvatar;
-
 };
 
 class LLCullResult 
@@ -646,7 +646,7 @@ class LLVolumeGeometryManager: public LLGeometryManager
 	virtual void rebuildGeom(LLSpatialGroup* group);
 	virtual void rebuildMesh(LLSpatialGroup* group);
 	virtual void getGeometry(LLSpatialGroup* group);
-	void genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace** faces, U32 face_count, BOOL distance_sort = FALSE, BOOL batch_textures = FALSE, BOOL no_materials = FALSE);
+	U32 genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace** faces, U32 face_count, BOOL distance_sort = FALSE, BOOL batch_textures = FALSE, BOOL no_materials = FALSE);
 	void registerFace(LLSpatialGroup* group, LLFace* facep, U32 type);
 
 private:

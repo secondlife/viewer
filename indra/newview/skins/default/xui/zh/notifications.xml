@@ -244,6 +244,10 @@
 		注意：你一旦同意這選項，任何使用這部電腦的人都可看到你有哪些「最愛」地點。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
+	<notification name="AllowMultipleViewers">
+		不支援同時執行多個Second Life瀏覽器。 這麼做可能導致材質快取相互碰撞、毀損，並降低視覺效果及性能。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
 	<notification name="GrantModifyRights">
 		賦予另一居民「修改」權，將允許他更改、刪除或拿取你在虛擬世界裡擁有的任何物件。 賦予這項權限時，敬請慎重考慮。
 你仍要賦予 [NAME] 修改權嗎?
@@ -685,6 +689,9 @@
 		</url>
 		<usetemplate ignoretext="我的電腦硬體並不支援" name="okcancelignore" notext="否" yestext="是"/>
 	</notification>
+	<notification name="RunLauncher">
+		請勿直接執行該瀏覽器可執行程式。 如果有SL_Launcher（SL啓動器）的捷徑，請更新，以便正常使用。
+	</notification>
 	<notification name="OldGPUDriver">
 		你的顯示卡很可能有新版的驅動程式。  更新顯示驅動程式會大幅改善性能。
 
@@ -716,7 +723,7 @@
 	</notification>
 	<notification name="CannotCopyWarning">
 		你沒有權限複製以下項目：
-[ITEMS]
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 如果你將它送人，它將無法續留在收納區。 你確定要送出這些東西嗎？
 		<usetemplate name="okcancelbuttons" notext="否" yestext="是"/>
 	</notification>
@@ -1560,6 +1567,30 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="ProblemAddingEstateManagerBanned">
 		無法把被封鎖的居民加入領地的管理人名單。
 	</notification>
+	<notification name="ProblemBanningEstateManager">
+		無法將領地管理人[AGENT]加入封鎖名單。
+	</notification>
+	<notification name="GroupIsAlreadyInList">
+		&lt;nolink&gt;[GROUP]&lt;/nolink&gt;已在獲准群組名單中。
+	</notification>
+	<notification name="AgentIsAlreadyInList">
+		[AGENT]已在你的[LIST_TYPE]名單。
+	</notification>
+	<notification name="AgentsAreAlreadyInList">
+		[AGENT]已在你的[LIST_TYPE]名單。
+	</notification>
+	<notification name="AgentWasAddedToList">
+		[AGENT]已新增到[ESTATE]的[LIST_TYPE]名單。
+	</notification>
+	<notification name="AgentsWereAddedToList">
+		[AGENT]已新增到[ESTATE]的[LIST_TYPE]名單。
+	</notification>
+	<notification name="AgentWasRemovedFromList">
+		[AGENT]已從[ESTATE]的[LIST_TYPE]名單中被移除。
+	</notification>
+	<notification name="AgentsWereRemovedFromList">
+		[AGENT]已從[ESTATE]的[LIST_TYPE]名單中被移除。
+	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		無法變更外觀，直到服裝與體形下載完畢。
 	</notification>
@@ -1574,153 +1605,30 @@ SHA1 指紋：[MD5_DIGEST]
 		原始地形檔案下載完成：
 [DOWNLOAD_PATH]。
 	</notification>
-	<notification name="DownloadWindowsMandatory">
-		有個新版本的 [APP_NAME] 可供使用。
-[MESSAGE]
-你必須下載這個更新才可使用 [APP_NAME]。
-		<usetemplate name="okcancelbuttons" notext="結束退出" yestext="下載"/>
-	</notification>
-	<notification name="DownloadWindows">
-		一個 [APP_NAME] 更新過的版本已經可用。
-[MESSAGE]
-這個更新並非強制更新，但我們建議你安裝以增強效能及穩定性。
-		<usetemplate name="okcancelbuttons" notext="繼續" yestext="下載"/>
-	</notification>
-	<notification name="DownloadWindowsReleaseForDownload">
-		一個 [APP_NAME] 更新過的版本已經可用。
-[MESSAGE]
-這個更新並非強制更新，但我們建議你安裝以增強效能及穩定性。
-		<usetemplate name="okcancelbuttons" notext="繼續" yestext="下載"/>
-	</notification>
-	<notification name="DownloadLinuxMandatory">
-		有個新版本的 [APP_NAME] 可供使用。
-[MESSAGE]
-你必須下載這個更新才可使用 [APP_NAME]。
-		<usetemplate name="okcancelbuttons" notext="結束退出" yestext="下載"/>
-	</notification>
-	<notification name="DownloadLinux">
-		一個 [APP_NAME] 更新過的版本已經可用。
-[MESSAGE]
-這個更新並非強制更新，但我們建議你安裝以增強效能及穩定性。
-		<usetemplate name="okcancelbuttons" notext="繼續" yestext="下載"/>
-	</notification>
-	<notification name="DownloadLinuxReleaseForDownload">
-		一個 [APP_NAME] 更新過的版本已經可用。
-[MESSAGE]
-這個更新並非強制更新，但我們建議你安裝以增強效能及穩定性。
-		<usetemplate name="okcancelbuttons" notext="繼續" yestext="下載"/>
-	</notification>
-	<notification name="DownloadMacMandatory">
-		有個新版本的 [APP_NAME] 可供使用。
-[MESSAGE]
-你必須下載這個更新才可使用 [APP_NAME]。
-
-下載到 Applications 資料夾？
-		<usetemplate name="okcancelbuttons" notext="結束退出" yestext="下載"/>
-	</notification>
-	<notification name="DownloadMac">
-		一個 [APP_NAME] 更新過的版本已經可用。
-[MESSAGE]
-這個更新並非強制更新，但我們建議你安裝以增強效能及穩定性。
-
-下載到 Applications 資料夾？
-		<usetemplate name="okcancelbuttons" notext="繼續" yestext="下載"/>
-	</notification>
-	<notification name="DownloadMacReleaseForDownload">
-		一個 [APP_NAME] 更新過的版本已經可用。
-[MESSAGE]
-這個更新並非強制更新，但我們建議你安裝以增強效能及穩定性。
-
-下載到 Applications 資料夾？
-		<usetemplate name="okcancelbuttons" notext="繼續" yestext="下載"/>
-	</notification>
-	<notification name="FailedUpdateInstall">
-		安裝更新版 Viewer 時出錯。
-請到 http://secondlife.com/download 下載並安裝最新版 Viewer。
+	<notification name="RequiredUpdate">
+		必須用[VERSION]版本登入。
+請到 http://secondlife.com/support/ 下載更新版
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
-	<notification name="FailedRequiredUpdateInstall">
-		無法安裝必要的更新。 
-除非 [APP_NAME] 更新，你將無法登入。
-
-請到 http://secondlife.com/download 下載並安裝最新版 Viewer。
-		<usetemplate name="okbutton" yestext="結束退出"/>
-	</notification>
-	<notification name="UpdaterServiceNotRunning">
-		你已安裝的第二人生軟體現有一個必要的更新。
-
-你可以到 http://www.secondlife.com/downloads 下載此更新，或者現在立即安裝。
-		<usetemplate name="okcancelbuttons" notext="結束退出第二人生" yestext="立即下載及安裝"/>
-	</notification>
-	<notification name="DownloadBackgroundTip">
-		我們已為你的 [APP_NAME] 軟體下載了更新。
-[VERSION] 版本 [[RELEASE_NOTES_FULL_URL] 關於此更新的資訊]
-		<usetemplate name="okcancelbuttons" notext="稍候..." yestext="立即安裝及重新啟動 [APP_NAME]"/>
-	</notification>
-	<notification name="DownloadBackgroundDialog">
-		我們已為你的 [APP_NAME] 軟體下載了更新。
-[VERSION] 版本 [[RELEASE_NOTES_FULL_URL] 關於此更新的資訊]
-		<usetemplate name="okcancelbuttons" notext="稍候..." yestext="立即安裝及重新啟動 [APP_NAME]"/>
-	</notification>
-	<notification name="RequiredUpdateDownloadedVerboseDialog">
-		我們已下載了一個必要的軟體更新。
-[VERSION] 版本 [[INFO_URL] 關於此更新的資訊]
-
-我門必須重新啟動 [APP_NAME] 以安裝更新。
+	<notification name="PauseForUpdate">
+		必須用[VERSION]版本登入。
+點按「確定」開始下載並安裝。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
-	<notification name="RequiredUpdateDownloadedDialog">
-		我門必須重新啟動 [APP_NAME] 以安裝更新。
-[[INFO_URL] 關於此更新的資訊]
+	<notification name="OptionalUpdateReady">
+		版本[VERSION]已下載，可以開始安裝。
+點按「確定」開始安裝。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
-	<notification name="OtherChannelDownloadBackgroundTip">
-		我們已為你的 [APP_NAME] 軟體下載了更新。
-版本：[VERSION] 
-原本試驗性質的瀏覽器已被 [NEW_CHANNEL] 瀏覽器取代，
-參見[[INFO_URL] 此更新版的詳情]
-		<usetemplate name="okcancelbuttons" notext="稍候..." yestext="立即安裝並重新啟動 [APP_NAME]"/>
+	<notification name="PromptOptionalUpdate">
+		版本[VERSION]已下載，可以開始安裝。
+繼續？
+		<usetemplate canceltext="暫時不要" name="yesnocancelbuttons" notext="略過" yestext="安裝"/>
 	</notification>
-	<notification name="OtherChannelDownloadBackgroundDialog">
-		我們已為你的 [APP_NAME] 軟體下載了更新。
-版本：[VERSION]
-原本試驗性質的瀏覽器已被 [NEW_CHANNEL] 瀏覽器取代，
-參見[[INFO_URL] 介紹此更新版的資訊]
-		<usetemplate name="okcancelbuttons" notext="稍候…" yestext="立即安裝並重新啟動 [APP_NAME]"/>
-	</notification>
-	<notification name="OtherChannelRequiredUpdateDownloadedVerboseDialog">
-		我們已下載了一個必要的軟體更新。
-版本：[VERSION]
-原本試驗性質的瀏覽器已被 [NEW_CHANNEL] 瀏覽器取代，
-參見[[INFO_URL] 介紹此更新版的資訊]
-
-我們必須重新啟動 [APP_NAME] 以便安裝更新。
-		<usetemplate name="okbutton" yestext="確定"/>
-	</notification>
-	<notification name="OtherChannelRequiredUpdateDownloadedDialog">
-		我們必須重新啟動 [APP_NAME] 以便安裝更新。
-原本試驗性質的瀏覽器已被 [NEW_CHANNEL] 瀏覽器取代，
-參見[[INFO_URL] 介紹此更新版的資訊]
-		<usetemplate name="okbutton" yestext="確定"/>
-	</notification>
-	<notification name="UpdateDownloadInProgress">
-		有更新版本！
-正在背景下載中，一完成下載我們會通知你重啟瀏覽器以便安裝。
-		<usetemplate name="okbutton" yestext="確定"/>
-	</notification>
-	<notification name="UpdateDownloadComplete">
-		一個更新版本已經下載完畢。 重啟時將會安裝。
-		<usetemplate name="okbutton" yestext="確定"/>
-	</notification>
-	<notification name="UpdateCheckError">
-		查詢是否有更新時出錯。
-請稍候再試一次。
-		<usetemplate name="okbutton" yestext="確定"/>
-	</notification>
-	<notification name="UpdateViewerUpToDate">
-		你的瀏覽器已是最新版！
-如果你急欲試用最新的功能和修補，請光臨「替代瀏覽器」網頁：http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers。
-		<usetemplate name="okbutton" yestext="確定"/>
+	<notification name="LoginFailedUnknown">
+		抱歉，登入失敗，原因不明。
+如果你一直看到此訊息，請查閱 [SUPPORT_SITE]。
+		<usetemplate name="okbutton" yestext="退出"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
 		讓渡此物件將可讓這個群組：
@@ -1730,10 +1638,6 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="WebLaunchExternalTarget">
 		你確定要開啟網頁瀏覽器去察看這個內容？
 		<usetemplate ignoretext="啟動我的網頁瀏覽器去察看網頁" name="okcancelignore" notext="取消" yestext="確定"/>
-	</notification>
-	<notification name="SystemUIScaleFactorChanged">
-		系統使用者介面的尺寸倍數自從上次執行後已經改變。 你想要開啟使用者介面尺寸調整的設定頁嗎？
-		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="WebLaunchJoinNow">
 		前往你的[http://secondlife.com/account/ 塗鴉牆]以進行管理你的帳戶？
@@ -3181,15 +3085,6 @@ SHA1 指紋：[MD5_DIGEST]
 			<button name="Deny" text="拒絕"/>
 		</form>
 	</notification>
-	<notification name="UnknownScriptQuestion">
-		由 &apos;[NAME]&apos; 所擁有的物件 &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; 正請求某項執行時期腳本權限，但本瀏覽器無法辨識該權限，故不允准。
-
-欲准許此權限，請從 [DOWNLOADURL] 下載並更新為最新版瀏覽器。
-		<form name="form">
-			<button name="Deny" text="確定"/>
-			<button name="Mute" text="封鎖"/>
-		</form>
-	</notification>
 	<notification name="ScriptDialog">
 		[NAME] 的 &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
@@ -3296,14 +3191,20 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="VoiceEffectsExpired">
 		至少一個你訂用的變聲效果已經過期。
 [[URL] 點按這裡] 繼續訂用。
+
+付費用戶請[[PREMIUM_URL] 點按這裡]領取免費變聲工具。
 	</notification>
 	<notification name="VoiceEffectsExpiredInUse">
 		使用中的變聲效果已經過期，已用你平時的聲音設定取代。
-[[URL] 點按這裡] 繼續訂用。
+[[URL] 點按這裡]繼續訂用。
+
+付費用戶請[[PREMIUM_URL] 點按這裡]領取免費變聲工具。
 	</notification>
 	<notification name="VoiceEffectsWillExpire">
 		至少一個你訂用的變聲效果將在 [INTERVAL] 天後到期。
-[[URL] 點按這裡] 繼續訂用。
+[[URL] 點按這裡]繼續訂用。
+
+付費用戶請[[PREMIUM_URL] 點按這裡]領取免費變聲工具。
 	</notification>
 	<notification name="VoiceEffectsNew">
 		新的變聲效果上市了！
@@ -3355,8 +3256,14 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="SnapshotToComputerFailed">
 		將快照儲存於[PATH]時失敗：磁碟已滿。 需要[NEED_MEMORY]KB的空間，但只剩[FREE_MEMORY]KB空間。
 	</notification>
+	<notification name="SnapshotToLocalDirNotExist">
+		將快照儲存於[PATH]時失敗：目錄不存在。
+	</notification>
 	<notification name="PresetNotSaved">
 		儲存預設名稱[NAME]時出錯。
+	</notification>
+	<notification name="DefaultPresetNotSaved">
+		無法覆蓋預先設定。
 	</notification>
 	<notification name="PresetNotDeleted">
 		刪除預設名稱[NAME]時出錯。
@@ -3499,6 +3406,13 @@ SHA1 指紋：[MD5_DIGEST]
 關閉路由器中的SIP ALG(應用層閘道)功能。
 
 將無法用語音溝通。
+		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="NoVoiceConnect-GIAB">
+		試圖連接語音伺服器時出了問題。
+
+將無法用語音溝通。
+請檢查你的網路和防火牆設定。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">
@@ -3838,13 +3752,13 @@ SHA1 指紋：[MD5_DIGEST]
 		你無法在別人的土地上建立樹和草。
 	</notification>
 	<notification name="NoCopyPermsNoObject">
-		複製失敗，你無權複製物件 &apos;[OBJ_NAME]&apos;。
+		複製失敗，你無權複製物件&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;。
 	</notification>
 	<notification name="NoTransPermsNoObject">
-		複製失敗，因為物件 &apos;[OBJ_NAME]&apos; 無法轉移給你。
+		複製失敗，因為物件&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;無法轉移給你。
 	</notification>
 	<notification name="AddToNavMeshNoCopy">
-		複製失敗，因為物件 &apos;[OBJ_NAME]&apos; 對導航網面有貢獻。
+		複製失敗，因為物件&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;對導航網面有貢獻。
 	</notification>
 	<notification name="DupeWithNoRootsSelected">
 		選取了沒有根的重覆物件。
@@ -3889,34 +3803,34 @@ SHA1 指紋：[MD5_DIGEST]
 		「儲存回收納區」功能已被停用。
 	</notification>
 	<notification name="NoExistNoSaveToContents">
-		無法將 &apos;[OBJ_NAME]&apos; 儲存到物件內容，因為產生它的來源物件已不存在。
+		無法將&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;儲存到物件內容，因為產生它的來源物件已不存在。
 	</notification>
 	<notification name="NoModNoSaveToContents">
-		無法儲存 [OBJ_NAME] 到物件內容，你無權修改 &apos;[DEST_NAME]&apos; 物件。
+		無法儲存&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;到物件內容，因爲你無權修改&lt;nolink&gt;&apos;[DEST_NAME]&apos;&lt;/nolink&gt;物件。
 	</notification>
 	<notification name="NoSaveBackToInvDisabled">
-		無法將 &apos;[OBJ_NAME]&apos; 儲存回收納區，此動作已被停用。
+		無法將&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;儲存回收納區，此動作已被停用。
 	</notification>
 	<notification name="NoCopyNoSelCopy">
-		無法複製你所選的，因為你無權複製物件 &apos;[OBJ_NAME]&apos;。
+		無法複製你所選的，因為你無權複製物件&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;。
 	</notification>
 	<notification name="NoTransNoSelCopy">
-		無法選取複製，因為物件 &apos;[OBJ_NAME]&apos; 不可轉移。
+		無法選取複製，因為物件&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;不可轉移。
 	</notification>
 	<notification name="NoTransNoCopy">
-		無法選取複製，因為物件 &apos;[OBJ_NAME]&apos; 不可轉移。
+		無法選取複製，因為物件&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;不可轉移。
 	</notification>
 	<notification name="NoPermsNoRemoval">
-		權限系統不允許從模擬器移除物件 &apos;[OBJ_NAME]&apos;。
+		權限系統不允許從模擬器移除物件&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;。
 	</notification>
 	<notification name="NoModNoSaveSelection">
-		無法儲存你所選的，因為你無權修改 &apos;[OBJ_NAME]&apos; 物件。
+		無法儲存你所選的，因為你無權修改&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;物件。
 	</notification>
 	<notification name="NoCopyNoSaveSelection">
-		無法儲存你所選的，因為物件 &apos;[OBJ_NAME]&apos; 不可複製。
+		無法儲存你所選的，因為物件&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;不可複製。
 	</notification>
 	<notification name="NoModNoTaking">
-		無法拿取你所選的，因為你無權修改 &apos;[OBJ_NAME]&apos; 物件。
+		無法取用你所選的，因為你無權修改物件&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt;。
 	</notification>
 	<notification name="RezDestInternalError">
 		內部錯誤：未知的目的地類型。
@@ -4113,6 +4027,9 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="CantCreateObjectRegionFull">
 		無法建立要求的物件。 地區已滿載。
 	</notification>
+	<notification name="CantCreateAnimatedObjectTooLarge">
+		無法建立所求的動作物件，因為超過架設三角形的限制。
+	</notification>
 	<notification name="CantAttackMultipleObjOneSpot">
 		你不能將多個物件附著到同一個點。
 	</notification>
@@ -4160,6 +4077,21 @@ SHA1 指紋：[MD5_DIGEST]
 	</notification>
 	<notification name="CantChangeShape">
 		你無權變更這個形狀。
+	</notification>
+	<notification name="NoPermsTooManyAttachedAnimatedObjects">
+		操作會導致附著的動作物件數目超過限制。
+	</notification>
+	<notification name="NoPermsLinkAnimatedObjectTooLarge">
+		無法連結這些物件，因為連結後的動作物件會超過架設三角形的限制。
+	</notification>
+	<notification name="NoPermsSetFlagAnimatedObjectTooLarge">
+		無法使這物件變為動作物件，因為會超過架設三角形的限制。
+	</notification>
+	<notification name="CantChangeAnimatedObjectStateInsufficientLand">
+		無法改變這一物件的動作物件狀態，因為會超過地段的限制。
+	</notification>
+	<notification name="ErrorNoMeshData">
+		伺服器出錯：無法完成操作，因為網面資料未載入。
 	</notification>
 	<notification name="NoAccessToClaimObjects">
 		你權限不夠，無法在此收取物件。
@@ -4422,7 +4354,7 @@ SHA1 指紋：[MD5_DIGEST]
 		發生內部錯誤，我們無法如常更新你的瀏覽器。  你瀏覽器顯示的 L$ 餘額或擁有地段，可能和伺服器上的正確數額不一致。
 	</notification>
 	<notification name="LargePrimAgentIntersect">
-		無法建立和其他參與者發生交截的大型幾何元件。  請等其他參與者移開後再試。
+		無法建立和其他居民形成交截的大型幾何元件。  請等其他居民移開原地後再試。
 	</notification>
 	<notification name="PreferenceChatClearLog">
 		這動作將刪除先前交談的記錄，和所有記錄備份。

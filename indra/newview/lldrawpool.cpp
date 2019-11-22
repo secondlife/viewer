@@ -49,6 +49,7 @@
 #include "llviewercamera.h"
 #include "lldrawpoolwlsky.h"
 #include "llglslshader.h"
+#include "llglcommonfunc.h"
 
 S32 LLDrawPool::sNumDrawPools = 0;
 
@@ -140,7 +141,7 @@ LLViewerTexture *LLDrawPool::getDebugTexture()
 	return NULL;
 }
 
-//virtual
+//virtuals
 void LLDrawPool::beginRenderPass( S32 pass )
 {
 }
@@ -504,7 +505,9 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, U32 render_pass_type,
 		{
 			params.mGroup->rebuildMesh();
 		}
-		
+
+		LLGLEnableFunc stencil_test(GL_STENCIL_TEST, params.mSelected, &LLGLCommonFunc::selected_stencil_test);
+	
 		params.mVertexBuffer->setBuffer(mask);
 		params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
 		gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode, render_pass_type);

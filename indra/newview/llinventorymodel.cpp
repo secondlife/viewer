@@ -342,27 +342,6 @@ LLViewerInventoryCategory* LLInventoryModel::getCategory(const LLUUID& id) const
 	return category;
 }
 
-bool LLInventoryModel::isCategoryHidden(const LLUUID& id) const
-{
-	bool res = false;
-	const LLViewerInventoryCategory* category = getCategory(id);
-	if (category)
-	{
-		LLFolderType::EType cat_type = category->getPreferredType();
-		switch (cat_type)
-		{
-			case LLFolderType::FT_INBOX:
-			case LLFolderType::FT_OUTBOX:
-			case LLFolderType::FT_MARKETPLACE_LISTINGS:
-				res = true;
-				break;
-			default:
-				break;
-		}
-	}
-	return res;
-}
-
 S32 LLInventoryModel::getItemCount() const
 {
 	return mItemMap.size();
@@ -925,7 +904,20 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 		new_item = old_item;
 		LLUUID old_parent_id = old_item->getParentUUID();
 		LLUUID new_parent_id = item->getParentUUID();
-			
+		bool update_parent_on_server = false;
+
+		if (new_parent_id.isNull())
+		{
+			// item with null parent will end in random location and then in Lost&Found,
+			// either move to default folder as if it is new item or don't move at all
+			LL_WARNS(LOG_INV) << "Update attempts to reparent item " << item->getUUID()
+				<< " to null folder. Moving to Lost&Found. Old item name: " << old_item->getName()
+				<< ". New name: " << item->getName()
+				<< "." << LL_ENDL;
+			new_parent_id = findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
+			update_parent_on_server = true;
+		}
+
 		if(old_parent_id != new_parent_id)
 		{
 			// need to update the parent-child tree
@@ -938,6 +930,11 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 			item_array = get_ptr_in_map(mParentChildItemTree, new_parent_id);
 			if(item_array)
 			{
+				if (update_parent_on_server)
+				{
+					LLInventoryModel::LLCategoryUpdate update(new_parent_id, 1);
+					gInventory.accountForUpdate(update);
+				}
 				item_array->push_back(old_item);
 			}
 			mask |= LLInventoryObserver::STRUCTURE;
@@ -947,6 +944,12 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 			mask |= LLInventoryObserver::LABEL;
 		}
 		old_item->copyViewerItem(item);
+		if (update_parent_on_server)
+		{
+			// Parent id at server is null, so update server even if item already is in the same folder
+			old_item->setParent(new_parent_id);
+			new_item->updateParentOnServer(FALSE);
+		}
 		mask |= LLInventoryObserver::INTERNAL;
 	}
 	else
@@ -1807,16 +1810,29 @@ void LLInventoryModel::addItem(LLViewerInventoryItem* item)
 	llassert(item);
 	if(item)
 	{
-		// This can happen if assettype enums from llassettype.h ever change.
-		// For example, there is a known backwards compatibility issue in some viewer prototypes prior to when 
-		// the AT_LINK enum changed from 23 to 24.
-		if ((item->getType() == LLAssetType::AT_NONE)
-		    || LLAssetType::lookup(item->getType()) == LLAssetType::badLookup())
+		if (item->getType() <= LLAssetType::AT_NONE)
 		{
 			LL_WARNS(LOG_INV) << "Got bad asset type for item [ name: " << item->getName()
 							  << " type: " << item->getType()
 							  << " inv-type: " << item->getInventoryType() << " ], ignoring." << LL_ENDL;
 			return;
+		}
+
+		if (LLAssetType::lookup(item->getType()) == LLAssetType::badLookup())
+		{
+			if (item->getType() >= LLAssetType::AT_COUNT)
+			{
+				// Not yet supported.
+				LL_DEBUGS(LOG_INV) << "Got unknown asset type for item [ name: " << item->getName()
+					<< " type: " << item->getType()
+					<< " inv-type: " << item->getInventoryType() << " ]." << LL_ENDL;
+			}
+			else
+			{
+				LL_WARNS(LOG_INV) << "Got unknown asset type for item [ name: " << item->getName()
+					<< " type: " << item->getType()
+					<< " inv-type: " << item->getInventoryType() << " ]." << LL_ENDL;
+			}
 		}
 
 		// This condition means that we tried to add a link without the baseobj being in memory.
@@ -2027,6 +2043,7 @@ bool LLInventoryModel::loadSkeleton(
 		update_map_t child_counts;
 		cat_array_t categories;
 		item_array_t items;
+		changed_items_t categories_to_update;
 		item_array_t possible_broken_links;
 		cat_set_t invalid_categories; // Used to mark categories that weren't successfully loaded.
 		std::string inventory_filename = getInvCacheAddres(owner_id);
@@ -2052,7 +2069,7 @@ bool LLInventoryModel::loadSkeleton(
 			}
 		}
 		bool is_cache_obsolete = false;
-		if(loadFromFile(inventory_filename, categories, items, is_cache_obsolete))
+		if (loadFromFile(inventory_filename, categories, items, categories_to_update, is_cache_obsolete))
 		{
 			// We were able to find a cache of files. So, use what we
 			// found to generate a set of categories we should add. We
@@ -2070,6 +2087,12 @@ bool LLInventoryModel::loadSkeleton(
 					continue; // cache corruption?? not sure why this happens -SJB
 				}
 				LLViewerInventoryCategory* tcat = *cit;
+
+				if (categories_to_update.find(tcat->getUUID()) != categories_to_update.end())
+				{
+					tcat->setVersion(NO_VERSION);
+					LL_WARNS() << "folder to update: " << tcat->getName() << LL_ENDL;
+				}
 				
 				// we can safely ignore anything loaded from file, but
 				// not sent down in the skeleton. Must have been removed from inventory.
@@ -2355,7 +2378,11 @@ void LLInventoryModel::buildParentChildMap()
 		}
 		// FIXME note that updateServer() fails with protected
 		// types, so this will not work as intended in that case.
-		cat->updateServer(TRUE);
+		// UpdateServer uses AIS, AIS cat move is not implemented yet
+		// cat->updateServer(TRUE);
+
+		// MoveInventoryFolder message, intentionally per item
+		cat->updateParentOnServer(FALSE);
 		catsp = getUnlockedCatArray(cat->getParentUUID());
 		if(catsp)
 		{
@@ -2618,6 +2645,7 @@ bool LLUUIDAndName::operator>(const LLUUIDAndName& rhs) const
 bool LLInventoryModel::loadFromFile(const std::string& filename,
 									LLInventoryModel::cat_array_t& categories,
 									LLInventoryModel::item_array_t& items,
+									LLInventoryModel::changed_items_t& cats_to_update,
 									bool &is_cache_obsolete)
 {
 	if(filename.empty())
@@ -2692,7 +2720,14 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 				}
 				else
 				{
-					items.push_back(inv_item);
+					if (inv_item->getType() == LLAssetType::AT_UNKNOWN)
+					{
+						cats_to_update.insert(inv_item->getParentUUID());
+					}
+					else
+					{
+						items.push_back(inv_item);
+					}
 				}
 			}
 			else
@@ -2820,7 +2855,6 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account, U32
 	item_array_t items;
 	update_map_t update;
 	S32 count = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
-	LLUUID folder_id;
 	// Does this loop ever execute more than once?
 	for(S32 i = 0; i < count; ++i)
 	{
@@ -2846,10 +2880,6 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account, U32
 		else
 		{
 			++update[titem->getParentUUID()];
-		}
-		if (folder_id.isNull())
-		{
-			folder_id = titem->getParentUUID();
 		}
 	}
 	if(account)

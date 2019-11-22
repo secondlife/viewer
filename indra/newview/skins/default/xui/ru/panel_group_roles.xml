@@ -79,6 +79,11 @@
 		</text>
 		<scroll_list name="member_allowed_actions" tool_tip="Данные о каждой доступной способности см. на вкладке «Способности»"/>
 	</panel>
+	<panel name="members_header">
+		<text_editor name="member_action_description">
+			Это возможность «Исключения участников из группы». Владельца может исключить только другой владелец.
+		</text_editor>
+	</panel>
 	<panel name="roles_footer">
 		<text name="static">
 			Имя роли
@@ -97,6 +102,11 @@
 			Доступные способности
 		</text>
 		<scroll_list name="role_allowed_actions" tool_tip="Данные о каждой доступной способности см. на вкладке «Способности»"/>
+	</panel>
+	<panel name="roles_header">
+		<text_editor name="role_action_description">
+			Это возможность «Исключения участников из группы». Владельца может исключить только другой владелец.
+		</text_editor>
 	</panel>
 	<panel name="actions_footer">
 		<text_editor name="action_description">

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Edit Water Preset" title="Modifica un valore predefinito acqua">
+<floater name="Edit Water Preset" title="Modifica valore predefinito acqua">
 	<string name="title_new">
 		Crea un nuovo valore predefinito per l&apos;acqua
 	</string>
@@ -7,16 +7,16 @@
 		Modifica un valore predefinito per l&apos;acqua
 	</string>
 	<string name="hint_new">
-		Dai un nome al valore predefinito, modifica i controlli per crearlo e fai clic su &quot;Salva&quot;.
+		Dai un nome al valore predefinito, regola i comandi per crearlo e fai clic su &quot;Salva&quot;.
 	</string>
 	<string name="hint_edit">
-		Per modificare il valore predefinito per l&apos;acqua, modifica i controlli e fai clic su &quot;Salva&quot;.
+		Per modificare il valore predefinito per l’acqua, regola i comandi e fai clic su &quot;Salva&quot;.
 	</string>
 	<string name="combo_label">
 		-Seleziona un valore predefinito-
 	</string>
 	<text name="hint">
-		Per modificare i valori predefiniti, modifica i controlli e quindi fai clic su &quot;Salva&quot;
+		Per modificare il valore predefinito, regola i comandi e quindi fai clic su &quot;Salva&quot;
 	</text>
 	<text name="label">
 		Nome predefinito:
@@ -60,7 +60,7 @@
 			Scala wavelet sotto
 		</text>
 		<text name="MaxAltText">
-			Fattore moltiplicativo blu
+			Fattore moltiplicativo sfocatura
 		</text>
 		<text name="BHText3">
 			Mappa normale

@@ -87,7 +87,7 @@ protected:
 	void drawLoop();
 
 private:
-	void hilightParcelOwners();
+	void hilightParcelOwners(bool deferred);
 };
 
 #endif // LL_LLDRAWPOOLSIMPLE_H

@@ -95,7 +95,6 @@ protected:
 	void onBtnCreate();
 	void onBackBtnClick();
 	void onBtnJoin();
-	void onBtnCancel();
 
 	static void onBtnApply(void*);
 	static void onBtnRefresh(void*);

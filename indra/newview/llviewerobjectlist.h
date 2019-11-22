@@ -67,7 +67,7 @@ public:
 	inline LLViewerObject *getObject(const S32 index);
 	
 	inline LLViewerObject *findObject(const LLUUID &id);
-	LLViewerObject *createObjectViewer(const LLPCode pcode, LLViewerRegion *regionp); // Create a viewer-side object
+	LLViewerObject *createObjectViewer(const LLPCode pcode, LLViewerRegion *regionp, S32 flags = 0); // Create a viewer-side object
 	LLViewerObject *createObjectFromCache(const LLPCode pcode, LLViewerRegion *regionp, const LLUUID &uuid, const U32 local_id);
 	LLViewerObject *createObject(const LLPCode pcode, LLViewerRegion *regionp,
 								 const LLUUID &uuid, const U32 local_id, const LLHost &sender);
@@ -142,6 +142,8 @@ public:
 
 	void clearDebugText();
 
+	LLSD getAllObjectsFrameData();
+	
 	////////////////////////////////////////////
 	//
 	// Only accessed by markDead in LLViewerObject

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- height="680"
+ height="750"
  label="Members &amp; Roles"
  layout="topleft"
  left="0"
@@ -284,8 +284,7 @@ clicking on their names.
          width="20" />
         <scroll_list.columns
          label=""
-         name="action"
-         width="270" />
+         name="action" />
       </scroll_list>
     </panel>
     <panel
@@ -451,7 +450,39 @@ clicking on their names.
     </scroll_list>
   </panel>
   <panel
-   height="550"
+   height="90"
+   background_visible="false"
+   bg_alpha_color="FloaterUnfocusBorderColor"
+   layout="topleft"
+   follows="top|left|right"
+   left="0"
+   right="-1"
+   width="313"
+   mouse_opaque="false"
+   name="members_header"
+   top_pad="3"
+   visible="false">
+    <text_editor
+     bg_readonly_color="Transparent"
+     text_readonly_color="EmphasisColor"
+     font="SansSerifSmall"
+     type="string"
+     enabled="false"
+     halign="left"
+     layout="topleft"
+     top_pad="0"
+     follows="left|top|right"
+     left="0"
+     right="-1"
+     height="90"
+     max_length="512"
+     name="member_action_description"
+     word_wrap="true">
+      This Ability is &apos;Eject Members from this Group&apos;. Only an Owner can eject another Owner.
+   </text_editor>
+  </panel>
+  <panel
+   height="460"
    background_visible="false"
    bg_alpha_color="FloaterUnfocusBorderColor"
    layout="topleft"
@@ -599,9 +630,40 @@ clicking on their names.
        width="20" />
       <scroll_list.columns
        label=""
-       name="action"
-       width="270" />
+       name="action" />
     </scroll_list>
+  </panel>
+  <panel
+   height="90"
+   background_visible="false"
+   bg_alpha_color="FloaterUnfocusBorderColor"
+   layout="topleft"
+   follows="top|left|right"
+   left="0"
+   right="-1"
+   width="313"
+   mouse_opaque="false"
+   name="roles_header"
+   top_pad="3"
+   visible="false">
+    <text_editor
+     bg_readonly_color="Transparent"
+     text_readonly_color="EmphasisColor"
+     font="SansSerifSmall"
+     type="string"
+     enabled="false"
+     halign="left"
+     layout="topleft"
+     top_pad="0"
+     follows="left|top|right"
+     left="0"
+     right="-1"
+     height="90"
+     max_length="512"
+     name="role_action_description"
+     word_wrap="true">
+      This Ability is &apos;Eject Members from this Group&apos;. Only an Owner can eject another Owner.
+    </text_editor>
   </panel>
   <panel
     height="424"

@@ -3,6 +3,21 @@
 		<!-- default-level can be ALL, DEBUG, INFO, WARN, ERROR, or NONE -->
 		<key>default-level</key>    <string>INFO</string>
 		<key>print-location</key>   <boolean>false</boolean>
+		<key>log-always-flush</key>   <boolean>true</boolean>
+		<!-- All log types are enabled by default. Can be toggled individually;
+             bitwise-or all the ones you want to enable.
+             Log types and their masks are:
+
+             1  - RecordToSyslog (not used by viewer)
+             2  - RecordToFile (SecondLife.log)
+             4  - RecordToStderr (this will appear in the console window, if there is one)
+             8  - RecordToFixedBuffer (viewer debug console)
+             16 - RecordToWinDebug (on windows, output to VS IDE window)
+
+             For example, value of 10 = 2|8 would enable logging only to SecondLife.log and the viewer debug console.
+             Note: RecordToFile is always enabled in release builds.
+        -->
+		<key>enabled-log-types-mask</key>   <integer>255</integer>
 		<key>settings</key>
 			<array>
 				<!-- Suppress anything but ERROR for some very verbose components -->
@@ -51,6 +66,7 @@
 					<key>tags</key>
 						<array>
 						<!-- sample entry for debugging specific items	
+                             <string>AnimatedObjects</string>
 						     <string>Avatar</string>
 						     <string>Inventory</string>
 						     <string>SceneLoadTiming</string>

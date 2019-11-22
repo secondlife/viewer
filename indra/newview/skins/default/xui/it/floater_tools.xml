@@ -73,9 +73,6 @@
 	<button label="Collegamento" name="link_btn"/>
 	<button label="Scollega" name="unlink_btn"/>
 	<check_box label="Allunga entrambi i lati" name="checkbox uniform"/>
-	<text label="Allunga entrambi i lati" name="checkbox uniform label">
-		Allunga entrambi i lati
-	</text>
 	<check_box initial_value="true" label="Ridimensiona le texture" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Scatto" name="checkbox snap to grid"/>
 	<combo_box name="combobox grid mode" tool_tip="Scegli il tipo di righello per posizionare l&apos;oggetto">
@@ -176,9 +173,11 @@
 			<text name="Name:">
 				Nome:
 			</text>
+			<line_editor name="Object Name" tool_tip="Il nome è limitato a 63 caratteri. Prim con nomi più lunghi verranno accorciati. I nomi possono avere solamente caratteri stampabili facenti parte del codice ASCII-7 (non esteso), con l&apos;eccezione della barra verticale &apos;|&apos;."/>
 			<text name="Description:">
 				Descrizione:
 			</text>
+			<line_editor name="Object Description" tool_tip="Quando la dicitura &quot;Vedi suggerimenti su tutti gli oggetti&quot; è selezionata nelle impostazioni del Viewer, passando il mouse sopra un oggetto si vedrà la sua descrizione. La descrizione dei Prim è limitata a 127 bytes. Se più lunga, verrá troncata."/>
 			<text name="Creator:">
 				Creatore:
 			</text>
@@ -201,17 +200,18 @@
 			<text name="label click action">
 				Fai clic per:
 			</text>
-			<combo_box name="clickaction">
+			<combo_box name="clickaction" tool_tip="Con l&apos;azione &quot;clic singolo&quot; puoi interagire con un oggetto semplicemente cliccandolo una volta. Ogni azione &quot;clic singolo&quot; ha un cursore speciale che indica il suo effetto. Alcune azioni &quot;clic singolo&quot; hanno dei requisiti per funzionare. Ad esempio per il comando &quot;Touch and Pay&quot; sono necessari degli script.">
 				<combo_box.item label="Tocca (predefinito)" name="Touch/grab(default)"/>
 				<combo_box.item label="Siediti sull&apos;oggetto" name="Sitonobject"/>
 				<combo_box.item label="Compra l&apos;oggetto" name="Buyobject"/>
 				<combo_box.item label="Paga l&apos;oggetto" name="Payobject"/>
 				<combo_box.item label="Apri" name="Open"/>
 				<combo_box.item label="Ingrandisci" name="Zoom"/>
+				<combo_box.item label="Nessuno" name="None"/>
 			</combo_box>
-			<check_box label="In vendita:" name="checkbox for sale"/>
-			<spinner label="L$" name="Edit Cost"/>
-			<combo_box name="sale type">
+			<check_box label="In vendita:" name="checkbox for sale" tool_tip="Permette alla gente di comprare questo oggetto, il suo contenuto o la sua copia virtuale ad un prezzo stabilito."/>
+			<spinner label="L$" name="Edit Cost" tool_tip="Costo oggetto."/>
+			<combo_box name="sale type" tool_tip="Decidi se vuoi che il compratore riceva una copia, una copia del contenuto o l&apos;oggetto stesso.">
 				<combo_box.item label="Copia" name="Copy"/>
 				<combo_box.item label="Contenuto" name="Contents"/>
 				<combo_box.item label="Originale" name="Original"/>
@@ -224,14 +224,14 @@
 				<text name="Anyone can:">
 					Chiunque:
 				</text>
-				<check_box label="Sposta" name="checkbox allow everyone move"/>
-				<check_box label="Copia" name="checkbox allow everyone copy"/>
+				<check_box label="Sposta" name="checkbox allow everyone move" tool_tip="Chiunque può muovere l&apos;oggetto."/>
+				<check_box label="Copia" name="checkbox allow everyone copy" tool_tip="Chiunque può prendere una copia di questo oggetto. L&apos;oggetto e tutti i suoi contenuti devono avere il permesso di copia e trasferimento."/>
 				<text name="Next owner can:">
 					Proprietario successivo:
 				</text>
-				<check_box label="Modificare" name="checkbox next owner can modify"/>
-				<check_box label="Copiare" name="checkbox next owner can copy"/>
-				<check_box label="Trasferisci" name="checkbox next owner can transfer" tool_tip="Il prossimo proprietario può regalare o rivendere questo oggetto"/>
+				<check_box label="Modificare" name="checkbox next owner can modify" tool_tip="Il prossimo proprietario può modificare le proprietà dell&apos;oggetto come il nome o la scala."/>
+				<check_box label="Copiare" name="checkbox next owner can copy" tool_tip="Il proprietario successivo può prendere infinite copie di questo oggetto. Le copie mantengono le informazioni sul creatore, e non possono avere permessi maggiori di quelli posseduti dall&apos;oggetto copiato."/>
+				<check_box label="Trasferisci" name="checkbox next owner can transfer" tool_tip="Il prossimo proprietario può regalare o rivendere questo oggetto."/>
 				<text name="B:">
 					B:
 				</text>
@@ -379,6 +379,7 @@
 			<text name="edit_object">
 				Modifica le caratteristiche dell&apos;oggetto:
 			</text>
+			<check_box label="Mesh animato" name="Animated Mesh Checkbox Ctrl" tool_tip="Permetti agli oggetti mesh con rig di essere animati in modo indipendente"/>
 			<check_box label="Flessibilità" name="Flexible1D Checkbox Ctrl" tool_tip="Consenti all&apos;oggetto di flettersi lungo l&apos;asse Z (solo lato client)"/>
 			<spinner label="Morbidezza" name="FlexNumSections"/>
 			<spinner label="Gravità" name="FlexGravity"/>
@@ -415,82 +416,7 @@
 			<spinner label="Densità in 100 kg/m^3" name="Physics Density"/>
 			<spinner label="Restituzione" name="Physics Restitution"/>
 		</panel>
-		<panel label="Texture" name="Texture">
-			<panel.string name="string repeats per meter">
-				Ripetizioni per metro
-			</panel.string>
-			<panel.string name="string repeats per face">
-				Ripetizioni per faccia
-			</panel.string>
-			<texture_picker label="Texture" name="texture control" tool_tip="Clicca per scegliere un&apos;immagine"/>
-			<color_swatch label="Colore" name="colorswatch" tool_tip="Clicca per aprire il selettore dei colori"/>
-			<text name="color trans">
-				Trasparenza %
-			</text>
-			<text name="glow label">
-				Bagliore
-			</text>
-			<check_box label="Massima luminosità" name="checkbox fullbright"/>
-			<text name="tex gen">
-				Applicazione
-			</text>
-			<combo_box name="combobox texgen">
-				<combo_box.item label="Default" name="Default"/>
-				<combo_box.item label="Planare" name="Planar"/>
-			</combo_box>
-			<text name="label shininess">
-				Brillantezza
-			</text>
-			<combo_box name="combobox shininess">
-				<combo_box.item label="Nessuna" name="None"/>
-				<combo_box.item label="Bassa" name="Low"/>
-				<combo_box.item label="Media" name="Medium"/>
-				<combo_box.item label="Alta" name="High"/>
-			</combo_box>
-			<text name="label bumpiness">
-				Rilievo
-			</text>
-			<combo_box name="combobox bumpiness">
-				<combo_box.item label="Nessuna" name="None"/>
-				<combo_box.item label="Luminoso" name="Brightness"/>
-				<combo_box.item label="Scuro" name="Darkness"/>
-				<combo_box.item label="Venature del legno" name="woodgrain"/>
-				<combo_box.item label="Corteccia" name="bark"/>
-				<combo_box.item label="Mattoni" name="bricks"/>
-				<combo_box.item label="Scacchi" name="checker"/>
-				<combo_box.item label="Cemento" name="concrete"/>
-				<combo_box.item label="Mattonella incrostata" name="crustytile"/>
-				<combo_box.item label="Mosaico in pietra" name="cutstone"/>
-				<combo_box.item label="Dischi" name="discs"/>
-				<combo_box.item label="Ghiaia" name="gravel"/>
-				<combo_box.item label="Sassi" name="petridish"/>
-				<combo_box.item label="Listoni" name="siding"/>
-				<combo_box.item label="Mattonelle in pietra" name="stonetile"/>
-				<combo_box.item label="Stucco" name="stucco"/>
-				<combo_box.item label="Cerchi rialzati" name="suction"/>
-				<combo_box.item label="Trama" name="weave"/>
-			</combo_box>
-			<spinner label="Orizzontale (U)" name="TexScaleU"/>
-			<check_box label="Inverti" name="checkbox flip s"/>
-			<spinner label="Verticale (V)" name="TexScaleV"/>
-			<check_box label="Inverti" name="checkbox flip t"/>
-			<spinner label="Rotazione˚" name="TexRot"/>
-			<button label="Applica" label_selected="Applica" name="button apply"/>
-			<text name="tex offset">
-				Bilanciamento della texture
-			</text>
-			<spinner label="Orizzontale (U)" name="TexOffsetU"/>
-			<spinner label="Verticale (V)" name="TexOffsetV"/>
-			<panel name="Add_Media">
-				<text name="media_tex">
-					Multimediale
-				</text>
-				<button name="add_media" tool_tip="Aggiungi media"/>
-				<button name="delete_media" tool_tip="Cancella questa media texture"/>
-				<button name="edit_media" tool_tip="Modifica questo media"/>
-				<button label="Alllinea" label_selected="Allinea media" name="button align" tool_tip="Allinea texture del media (il caricamento deve prima essere completato)"/>
-			</panel>
-		</panel>
+		<panel label="Texture" name="Texture"/>
 		<panel label="Contenuto" name="Contents">
 			<button label="Nuovo Script" label_selected="Nuovo script" name="button new script"/>
 			<button label="Permessi" name="button permissions"/>

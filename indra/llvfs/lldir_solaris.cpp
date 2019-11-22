@@ -29,6 +29,7 @@
 #include "lldir_solaris.h"
 #include "llerror.h"
 #include "llrand.h"
+#include "llstring.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -41,30 +42,28 @@
 
 static std::string getCurrentUserHome(char* fallback)
 {
+	// fwiw this exactly duplicates getCurrentUserHome() in lldir_linux.cpp...
+	// we should either derive both from LLDir_Posix or just axe Solaris.
 	const uid_t uid = getuid();
 	struct passwd *pw;
-	char *result_cstr = fallback;
-	
+
 	pw = getpwuid(uid);
 	if ((pw != NULL) && (pw->pw_dir != NULL))
 	{
-		result_cstr = (char*) pw->pw_dir;
+		return pw->pw_dir;
+	}
+
+	LL_INFOS() << "Couldn't detect home directory from passwd - trying $HOME" << LL_ENDL;
+	auto home_env = LLStringUtil::getoptenv("HOME");
+	if (home_env)
+	{
+		return *home_env;
 	}
 	else
 	{
-		LL_INFOS() << "Couldn't detect home directory from passwd - trying $HOME" << LL_ENDL;
-		const char *const home_env = getenv("HOME");	/* Flawfinder: ignore */ 
-		if (home_env)
-		{
-			result_cstr = (char*) home_env;
-		}
-		else
-		{
-			LL_WARNS() << "Couldn't detect home directory!  Falling back to " << fallback << LL_ENDL;
-		}
+		LL_WARNS() << "Couldn't detect home directory!  Falling back to " << fallback << LL_ENDL;
+		return fallback;
 	}
-	
-	return std::string(result_cstr);
 }
 
 
@@ -135,27 +134,15 @@ LLDir_Solaris::LLDir_Solaris()
 	//NOTE: Why force people to cd into the package directory?
 	//      Look for SECONDLIFE env variable and use it, if set.
 
-	char *dcf = getenv("SECONDLIFE");
-	if(dcf != NULL){
-		(void)strcpy(path, dcf);
-		(void)strcat(path, "/bin");	//NOTE:  make sure we point at the bin
-		mExecutableDir = strdup(path);
+	auto SECONDLIFE(LLDirUtil::getoptenv("SECONDLIFE"));
+	if(SECONDLIFE){
+		mExecutableDir = add(*SECONDLIFE, "bin"); //NOTE:  make sure we point at the bin
 	}else{
-			// plunk a null at last '/' to get exec dir
-		char *s = execpath + strlen(execpath) -1;
-		while(*s != '/' && s != execpath){
-			--s;
-		}
-	
-		if(s != execpath){
-			*s = (char)NULL;
-	
-			mExecutableDir = strdup(execpath);
-			LL_INFOS() << "mExecutableDir = [" << mExecutableDir << "]" << LL_ENDL;
-		}
+		mExecutableDir = getDirName(execpath);
+		LL_INFOS() << "mExecutableDir = [" << mExecutableDir << "]" << LL_ENDL;
 	}
-	
-	mLLPluginDir = mExecutableDir + mDirDelimiter + "llplugin";
+
+	mLLPluginDir = add(mExecutableDir, "llplugin");
 
 	// *TODO: don't use /tmp, use $HOME/.secondlife/tmp or something.
 	mTempDir = "/tmp";
@@ -175,17 +162,18 @@ void LLDir_Solaris::initAppDirs(const std::string &app_name,
 	if (!app_read_only_data_dir.empty())
 	{
 		mAppRODataDir = app_read_only_data_dir;
+		mSkinBaseDir = add(mAppRODataDir, "skins");
 	}
 	mAppName = app_name;
 
 	std::string upper_app_name(app_name);
 	LLStringUtil::toUpper(upper_app_name);
 
-	char* app_home_env = getenv((upper_app_name + "_USER_DIR").c_str());	/* Flawfinder: ignore */ 
+	auto app_home_env(LLStringUtil::getoptenv(upper_app_name + "_USER_DIR"));
 	if (app_home_env)
 	{
 		// user has specified own userappdir i.e. $SECONDLIFE_USER_DIR
-		mOSUserAppDir = app_home_env;
+		mOSUserAppDir = *app_home_env;
 	}
 	else
 	{

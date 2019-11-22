@@ -4,7 +4,6 @@
 		語言：
 	</text>
 	<combo_box name="language_combobox">
-		<combo_box.item label="系統預設" name="System Default Language"/>
 		<combo_box.item label="英語" name="English"/>
 		<combo_box.item label="Dansk（丹麥語）- 試用版" name="Danish"/>
 		<combo_box.item label="Deutsch（德語）- 試用版" name="Deutsch(German)"/>

@@ -35,7 +35,7 @@
 		Inizializzazione grafica non riuscita. Aggiorna il driver della scheda grafica!
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) ([CHANNEL])
+		[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([ADDRESS_SIZE]bit) 
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
 	<string name="BuildConfig">
@@ -62,23 +62,22 @@ Scheda grafica: [GRAPHICS_CARD]
 		Versione OpenGL: [OPENGL_VERSION]
 	</string>
 	<string name="AboutSettings">
-		Dimensione finestra: [WINDOW_WIDTH] x [WINDOW_HEIGHT]
-Regolazione dimensioni carattere: [FONT_SIZE_ADJUSTMENT] punti
+		Dimensione finestra: [WINDOW_WIDTH]x[WINDOW_HEIGHT]
+Regolazione dimensioni carattere: [FONT_SIZE_ADJUSTMENT]pt
 Scala UI: [UI_SCALE]
-Distanza visualizzazione: [DRAW_DISTANCE] m
-Larghezza banda: [NET_BANDWITH] kbit/s
+Distanza visualizzazione: [DRAW_DISTANCE]m
+Larghezza banda: [NET_BANDWITH]kbit/s
 Fattore livello di dettaglio: [LOD_FACTOR]
-Qualità di rendering: [RENDER_QUALITY] / 7
+Qualità di rendering: [RENDER_QUALITY]
 Modello illuminazione avanzato: [GPU_SHADERS]
-Memoria texture: [TEXTURE_MEMORY] MB
+Memoria texture: [TEXTURE_MEMORY]MB
 Data/ora creazione VFS (cache): [VFS_TIME]
 	</string>
 	<string name="AboutLibs">
-		Versione J2C Decoder: [J2C_VERSION]
-Versione Driver audio: [AUDIO_DRIVER_VERSION]
-Versione CEF: [LIBCEF_VERSION]
-Versione LibVLC: [LIBVLC_VERSION]
-Versione Server voice: [VOICE_VERSION]
+		J2C Versione decoder: [J2C_VERSION] 
+Versione del driver audio: [AUDIO_DRIVER_VERSION][LIBCEF_VERSION]
+Versione LibVLC: [LIBVLC_VERSION] 
+Versione server voce: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">
 		Pacchetti perduti: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
@@ -646,7 +645,7 @@ Prova ad accedere nuovamente tra un minuto.
 		Note sulla versione
 	</string>
 	<string name="RELEASE_NOTES_BASE_URL">
-		http://wiki.secondlife.com/wiki/Release_Notes/
+		https://releasenotes.secondlife.com/viewer/
 	</string>
 	<string name="LoadingData">
 		In caricamento...
@@ -1436,6 +1435,9 @@ http://secondlife.com/support per risolvere il problema.
 	<string name="InventoryNoMatchingItems">
 		Non riesci a trovare quello che cerchi? Prova [secondlife:///app/search/all/[SEARCH_TERM] Cerca].
 	</string>
+	<string name="InventoryNoMatchingRecentItems">
+		Non hai trovato ció che cercavi? Prova [secondlife:///app/inventory/filters Show filters].
+	</string>
 	<string name="PlacesNoMatchingItems">
 		Non riesci a trovare quello che cerchi? Prova [secondlife:///app/search/places/[SEARCH_TERM] Cerca].
 	</string>
@@ -1503,7 +1505,7 @@ Se continui a ricevere questo messaggio, contatta l&apos;assistenza Second Life 
 		Trascina le cartelle in questa area per metterle in vendita su [[MARKETPLACE_DASHBOARD_URL] Marketplace].
 	</string>
 	<string name="InventoryItemsCount">
-		( [ITEM_COUNT] oggetti )
+		( [ITEMS_COUNT] oggetti )
 	</string>
 	<string name="Marketplace Validation Warning Stock">
 		la cartella di magazzino deve essere inclusa in una cartella di versione
@@ -2211,6 +2213,18 @@ Se continui a ricevere questo messaggio, contatta l&apos;assistenza Second Life 
 	<string name="RegionInfoListTypeBannedAgents">
 		Sempre esclusi:
 	</string>
+	<string name="RegionInfoAllEstates">
+		tutte le proprietà immobiliari
+	</string>
+	<string name="RegionInfoManagedEstates">
+		proprietà immobiliari che gestisci
+	</string>
+	<string name="RegionInfoThisEstate">
+		questa proprietà immobiliare
+	</string>
+	<string name="AndNMore">
+		e [EXTRA_COUNT] ancora
+	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		Memoria dello script del lotto
 	</string>
@@ -2254,7 +2268,7 @@ Se continui a ricevere questo messaggio, contatta l&apos;assistenza Second Life 
 		Petto
 	</string>
 	<string name="ATTACH_HEAD">
-		Testa
+		Cranio
 	</string>
 	<string name="ATTACH_LSHOULDER">
 		Spalla sinistra
@@ -2275,7 +2289,7 @@ Se continui a ricevere questo messaggio, contatta l&apos;assistenza Second Life 
 		Piede destro
 	</string>
 	<string name="ATTACH_BACK">
-		Indietro
+		Spina dorsale
 	</string>
 	<string name="ATTACH_PELVIS">
 		Pelvi
@@ -2332,7 +2346,7 @@ Se continui a ricevere questo messaggio, contatta l&apos;assistenza Second Life 
 		Polpaccio sinistro
 	</string>
 	<string name="ATTACH_BELLY">
-		Addome
+		Stomaco
 	</string>
 	<string name="ATTACH_LEFT_PEC">
 		Petto sinistro
@@ -5653,5 +5667,26 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	</string>
 	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
 		La versione della forma fisica non è corretta. Imposta la versione corretta per il modello della fisica.
+	</string>
+	<string name="couldnt_resolve_host">
+		Il DNS non ha potuto risolvere il nome dell’host([HOSTNAME]). 
+Verifica di riuscire a connetterti al sito web www.secondlife.com. 
+Se riesci ma continui a ricevere questo errore, visita la sezione 
+Assistenza e segnala il problema.
+	</string>
+	<string name="ssl_peer_certificate">
+		Il server per il login non ha potuto effettuare la verifica tramite SSL. 
+Se continui a ricevere questo errore, visita 
+la sezione Assistenza nel sito SecondLife.com 
+e segnala il problema.
+	</string>
+	<string name="ssl_connect_error">
+		Spesso l’errore è dovuto all’orologio del computer, impostato incorrettamente. 
+Vai al Pannello di Controllo e assicurati che data e ora siano 
+esatte. Controlla anche che il network e il firewall siano impostati 
+correttamente. Se continui a ricevere questo errore, visita la sezione 
+Assistenza nel sito SecondLife.com e segnala il problema. 
+
+[https://community.secondlife.com/knowledgebase/english/error-messages-r520/#Section__3 Base conoscenze]
 	</string>
 </strings>

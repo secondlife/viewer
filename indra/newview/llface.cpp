@@ -36,6 +36,8 @@
 #include "llmatrix4a.h"
 #include "v3color.h"
 
+#include "lldefs.h"
+
 #include "lldrawpoolavatar.h"
 #include "lldrawpoolbump.h"
 #include "llgl.h"
@@ -53,6 +55,7 @@
 #include "llviewershadermgr.h"
 #include "llviewertexture.h"
 #include "llvoavatar.h"
+#include "llsculptidsize.h"
 
 #if LL_LINUX
 // Work-around spurious used before init warning on Vector4a
@@ -330,11 +333,7 @@ void LLFace::dirtyTexture()
 				{
 					vobj->mLODChanged = TRUE;
 
-					LLVOAvatar* avatar = vobj->getAvatar();
-					if (avatar)
-					{ //avatar render cost may have changed
-						avatar->updateVisualComplexity();
-					}
+                    vobj->updateVisualComplexity();
 				}
 				gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_VOLUME, FALSE);
 			}
@@ -604,6 +603,82 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 }
 
 
+void renderFace(LLDrawable* drawable, LLFace *face)
+{
+    LLVOVolume* vobj = drawable->getVOVolume();
+    if (vobj)
+    {
+        LLVolume* volume = NULL;
+
+        if (drawable->isState(LLDrawable::RIGGED))
+        {
+            volume = vobj->getRiggedVolume();
+        }
+        else
+        {
+            volume = vobj->getVolume();
+        }
+
+        if (volume)
+        {
+            const LLVolumeFace& vol_face = volume->getVolumeFace(face->getTEOffset());
+            LLVertexBuffer::drawElements(LLRender::TRIANGLES, vol_face.mPositions, NULL, vol_face.mNumIndices, vol_face.mIndices);
+        }
+    }
+}
+
+void LLFace::renderOneWireframe(const LLColor4 &color, F32 fogCfx, bool wireframe_selection, bool bRenderHiddenSelections, bool shader)
+{
+    if (bRenderHiddenSelections)
+    {
+        gGL.blendFunc(LLRender::BF_SOURCE_COLOR, LLRender::BF_ONE);
+        LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_GEQUAL);
+        if (shader)
+        {
+            gGL.diffuseColor4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.4f);
+            renderFace(mDrawablep, this);
+        }
+        else
+        {
+            LLGLEnable fog(GL_FOG);
+            glFogi(GL_FOG_MODE, GL_LINEAR);
+            float d = (LLViewerCamera::getInstance()->getPointOfInterest() - LLViewerCamera::getInstance()->getOrigin()).magVec();
+            LLColor4 fogCol = color * fogCfx;
+            glFogf(GL_FOG_START, d);
+            glFogf(GL_FOG_END, d*(1 + (LLViewerCamera::getInstance()->getView() / LLViewerCamera::getInstance()->getDefaultFOV())));
+            glFogfv(GL_FOG_COLOR, fogCol.mV);
+
+            gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+            {
+                gGL.diffuseColor4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.4f);
+                renderFace(mDrawablep, this);
+            }
+        }
+    }
+
+    gGL.flush();
+    gGL.setSceneBlendType(LLRender::BT_ALPHA);
+
+    gGL.diffuseColor4f(color.mV[VRED] * 2, color.mV[VGREEN] * 2, color.mV[VBLUE] * 2, color.mV[VALPHA]);
+
+    {
+        LLGLDisable depth(wireframe_selection ? 0 : GL_BLEND);
+        LLGLEnable stencil(wireframe_selection ? 0 : GL_STENCIL_TEST);
+
+        if (!wireframe_selection)
+        { //modify wireframe into outline selection mode
+            glStencilFunc(GL_NOTEQUAL, 2, 0xffff);
+            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        }
+
+        LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
+        glPolygonOffset(3.f, 3.f);
+        glLineWidth(5.f);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        renderFace(mDrawablep, this);
+    }
+}
+
 /* removed in lieu of raycast uv detection
 void LLFace::renderSelectedUV()
 {
@@ -814,17 +889,11 @@ bool less_than_max_mag(const LLVector4a& vec)
 }
 
 BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
-								const LLMatrix4& mat_vert_in, BOOL global_volume)
+                             const LLMatrix4& mat_vert_in, BOOL global_volume)
 {
 	//get bounding box
 	if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION | LLDrawable::REBUILD_RIGGED))
 	{
-		//VECTORIZE THIS
-		LLMatrix4a mat_vert;
-		mat_vert.loadu(mat_vert_in);
-
-		LLVector4a min,max;
-	
 		if (f >= volume.getNumVolumeFaces())
 		{
 			LL_WARNS() << "Generating bounding box for invalid face index!" << LL_ENDL;
@@ -832,77 +901,52 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		}
 
 		const LLVolumeFace &face = volume.getVolumeFace(f);
-		min = face.mExtents[0];
-		max = face.mExtents[1];
 		
-		llassert(less_than_max_mag(min));
-		llassert(less_than_max_mag(max));
+        LL_DEBUGS("RiggedBox") << "updating extents for face " << f 
+                               << " starting extents " << mExtents[0] << ", " << mExtents[1] 
+                               << " starting vf extents " << face.mExtents[0] << ", " << face.mExtents[1] 
+                               << " num verts " << face.mNumVertices << LL_ENDL;
 
-		//min, max are in volume space, convert to drawable render space
+        // MAINT-8264 - stray vertices, especially in low LODs, cause bounding box errors.
+		if (face.mNumVertices < 3) 
+        {
+            LL_DEBUGS("RiggedBox") << "skipping face " << f << ", bad num vertices " 
+                                   << face.mNumVertices << " " << face.mNumIndices << " " << face.mWeights << LL_ENDL;
+            return FALSE;
+        }
+        
+		//VECTORIZE THIS
+		LLMatrix4a mat_vert;
+		mat_vert.loadu(mat_vert_in);
+        LLVector4a new_extents[2];
 
-		//get 8 corners of bounding box
-		LLVector4Logical mask[6];
+		llassert(less_than_max_mag(face.mExtents[0]));
+		llassert(less_than_max_mag(face.mExtents[1]));
 
-		for (U32 i = 0; i < 6; ++i)
-		{
-			mask[i].clear();
-		}
+		matMulBoundBox(mat_vert, face.mExtents, mExtents);
 
-		mask[0].setElement<2>(); //001
-		mask[1].setElement<1>(); //010
-		mask[2].setElement<1>(); //011
-		mask[2].setElement<2>();
-		mask[3].setElement<0>(); //100
-		mask[4].setElement<0>(); //101
-		mask[4].setElement<2>();
-		mask[5].setElement<0>(); //110
-		mask[5].setElement<1>();
-
-		LLVector4a v[8];
-
-		v[6] = min;
-		v[7] = max;
-
-		for (U32 i = 0; i < 6; ++i)
-		{
-			v[i].setSelectWithMask(mask[i], min, max);
-		}
-
-		LLVector4a tv[8];
-
-		//transform bounding box into drawable space
-		for (U32 i = 0; i < 8; ++i)
-		{
-			mat_vert.affineTransform(v[i], tv[i]);
-		}
-	
-		//find bounding box
-		LLVector4a& newMin = mExtents[0];
-		LLVector4a& newMax = mExtents[1];
-
-		newMin = newMax = tv[0];
-
-		for (U32 i = 1; i < 8; ++i)
-		{
-			newMin.setMin(newMin, tv[i]);
-			newMax.setMax(newMax, tv[i]);
-		}
+        LL_DEBUGS("RiggedBox") << "updated extents for face " << f 
+                               << " bbox gave extents " << mExtents[0] << ", " << mExtents[1] << LL_ENDL;
 
 		if (!mDrawablep->isActive())
 		{	// Shift position for region
 			LLVector4a offset;
 			offset.load3(mDrawablep->getRegion()->getOriginAgent().mV);
-			newMin.add(offset);
-			newMax.add(offset);
+			mExtents[0].add(offset);
+			mExtents[1].add(offset);
+            LL_DEBUGS("RiggedBox") << "updating extents for face " << f 
+                                   << " not active, added offset " << offset << LL_ENDL;
 		}
 
+        LL_DEBUGS("RiggedBox") << "updated extents for face " << f 
+                               << " to " << mExtents[0] << ", " << mExtents[1] << LL_ENDL;
 		LLVector4a t;
-		t.setAdd(newMin,newMax);
+		t.setAdd(mExtents[0],mExtents[1]);
 		t.mul(0.5f);
 
 		mCenterLocal.set(t.getF32ptr());
 
-		t.setSub(newMax,newMin);
+		t.setSub(mExtents[1],mExtents[0]);
 		mBoundingSphereRadius = t.getLength3().getF32()*0.5f;
 
 		updateCenterAgent();
@@ -1015,7 +1059,7 @@ void LLFace::getPlanarProjectedParams(LLQuaternion* face_rot, LLVector3* face_po
 
 // Returns the necessary texture transform to align this face's TE to align_to's TE
 bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offset, 
-								 LLVector2* res_st_scale, F32* res_st_rot) const
+								 LLVector2* res_st_scale, F32* res_st_rot, LLRender::eTexIndex map) const
 {
 	if (!align_to)
 	{
@@ -1028,6 +1072,43 @@ bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offs
 		return false;
 	}
 
+    F32 map_rot = 0.f, map_scaleS = 0.f, map_scaleT = 0.f, map_offsS = 0.f, map_offsT = 0.f;
+
+    switch (map)
+    {
+    case LLRender::DIFFUSE_MAP:
+        map_rot = orig_tep->getRotation();
+        map_scaleS = orig_tep->mScaleS;
+        map_scaleT = orig_tep->mScaleT;
+        map_offsS = orig_tep->mOffsetS;
+        map_offsT = orig_tep->mOffsetT;
+        break;
+    case LLRender::NORMAL_MAP:
+        if (orig_tep->getMaterialParams()->getNormalID().isNull())
+        {
+            return false;
+        }
+        map_rot = orig_tep->getMaterialParams()->getNormalRotation();
+        map_scaleS = orig_tep->getMaterialParams()->getNormalRepeatX();
+        map_scaleT = orig_tep->getMaterialParams()->getNormalRepeatY();
+        map_offsS = orig_tep->getMaterialParams()->getNormalOffsetX();
+        map_offsT = orig_tep->getMaterialParams()->getNormalOffsetY();
+        break;
+    case LLRender::SPECULAR_MAP:
+        if (orig_tep->getMaterialParams()->getSpecularID().isNull())
+        {
+            return false;
+        }
+        map_rot = orig_tep->getMaterialParams()->getSpecularRotation();
+        map_scaleS = orig_tep->getMaterialParams()->getSpecularRepeatX();
+        map_scaleT = orig_tep->getMaterialParams()->getSpecularRepeatY();
+        map_offsS = orig_tep->getMaterialParams()->getSpecularOffsetX();
+        map_offsT = orig_tep->getMaterialParams()->getSpecularOffsetY();
+        break;
+    default: /*make compiler happy*/
+        break;
+    }
+
 	LLVector3 orig_pos, this_pos;
 	LLQuaternion orig_face_rot, this_face_rot;
 	F32 orig_proj_scale, this_proj_scale;
@@ -1035,7 +1116,7 @@ bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offs
 	getPlanarProjectedParams(&this_face_rot, &this_pos, &this_proj_scale);
 
 	// The rotation of "this face's" texture:
-	LLQuaternion orig_st_rot = LLQuaternion(orig_tep->getRotation(), LLVector3::z_axis) * orig_face_rot;
+	LLQuaternion orig_st_rot = LLQuaternion(map_rot, LLVector3::z_axis) * orig_face_rot;
 	LLQuaternion this_st_rot = orig_st_rot * ~this_face_rot;
 	F32 x_ang, y_ang, z_ang;
 	this_st_rot.getEulerAngles(&x_ang, &y_ang, &z_ang);
@@ -1043,10 +1124,10 @@ bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offs
 
 	// Offset and scale of "this face's" texture:
 	LLVector3 centers_dist = (this_pos - orig_pos) * ~orig_st_rot;
-	LLVector3 st_scale(orig_tep->mScaleS, orig_tep->mScaleT, 1.f);
+	LLVector3 st_scale(map_scaleS, map_scaleT, 1.f);
 	st_scale *= orig_proj_scale;
 	centers_dist.scaleVec(st_scale);
-	LLVector2 orig_st_offset(orig_tep->mOffsetS, orig_tep->mOffsetT);
+	LLVector2 orig_st_offset(map_offsS, map_offsT);
 
 	*res_st_offset = orig_st_offset + (LLVector2)centers_dist;
 	res_st_offset->mV[VX] -= (S32)res_st_offset->mV[VX];
@@ -1217,6 +1298,12 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 {
 	LL_RECORD_BLOCK_TIME(FTM_FACE_GET_GEOM);
 	llassert(verify());
+
+	if (volume.getNumVolumeFaces() <= f) {
+        LL_WARNS() << "Attempt get volume face out of range! Total Faces: " << volume.getNumVolumeFaces() << " Attempt get access to: " << f << LL_ENDL;
+		return FALSE;
+	}
+
 	const LLVolumeFace &vf = volume.getVolumeFace(f);
 	S32 num_vertices = (S32)vf.mNumVertices;
 	S32 num_indices = (S32) vf.mNumIndices;
@@ -2650,12 +2737,27 @@ LLViewerTexture* LLFace::getTexture(U32 ch) const
 
 void LLFace::setVertexBuffer(LLVertexBuffer* buffer)
 {
+	if (buffer)
+	{
+		LLSculptIDSize::instance().inc(mDrawablep, buffer->getSize() + buffer->getIndicesSize());
+	}
+
+	if (mVertexBuffer)
+	{
+		LLSculptIDSize::instance().dec(mDrawablep);
+	}
+
 	mVertexBuffer = buffer;
 	llassert(verify());
 }
 
 void LLFace::clearVertexBuffer()
 {
+	if (mVertexBuffer)
+	{
+		LLSculptIDSize::instance().dec(mDrawablep);
+	}
+
 	mVertexBuffer = NULL;
 }
 

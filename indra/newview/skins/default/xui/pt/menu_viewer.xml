@@ -9,9 +9,11 @@
 		<menu_item_call label="Lugares..." name="Places"/>
 		<menu_item_call label="Destaques..." name="Picks"/>
 		<menu_item_call label="Experiências..." name="Experiences"/>
+		<menu_item_call label="Meus Scripts..." name="MyScripts"/>
 		<menu_item_call label="Controles da câmera..." name="Camera Controls"/>
 		<menu label="Movimentos" name="Movement">
 			<menu_item_call label="Sentar" name="Sit Down Here"/>
+			<menu_item_call label="Ficar de pé" name="Stand up"/>
 			<menu_item_check label="Voar" name="Fly"/>
 			<menu_item_check label="Correr sempre" name="Always Run"/>
 			<menu_item_call label="Parar minha animação" name="Stop Animating My Avatar"/>
@@ -77,12 +79,12 @@
 			<menu_item_check label="Propriedades do lote" name="Parcel Properties"/>
 			<menu_item_check label="Menu avançado" name="Show Advanced Menu"/>
 		</menu>
-		<menu label="Sol" name="Sun">
-			<menu_item_check label="Amanhecer" name="Sunrise"/>
+		<menu label="Dom" name="Sun">
+			<menu_item_check label="Nascer do sol" name="Sunrise"/>
 			<menu_item_check label="Meio-dia" name="Noon"/>
-			<menu_item_check label="Pôr-do-sol" name="Sunset"/>
+			<menu_item_check label="Pôr do sol" name="Sunset"/>
 			<menu_item_check label="Meia-noite" name="Midnight"/>
-			<menu_item_check label="Usar configurações da região" name="Use Region Settings"/>
+			<menu_item_check label="Usar as configurações da região" name="Use Region Settings"/>
 		</menu>
 		<menu label="Editor de ambientes" name="Environment Editor">
 			<menu_item_call label="Configurações do ambiente..." name="Environment Settings"/>
@@ -273,7 +275,6 @@
 			<menu_item_check label="Mostrar info da textura" name="Show Texture Info"/>
 			<menu_item_check label="Mostrar cor sob o cursor" name="Show Color Under Cursor"/>
 			<menu_item_check label="Mostrar memória" name="Show Memory"/>
-			<menu_item_check label="Exibir informações de memória privadas" name="Show Private Mem Info"/>
 			<menu_item_check label="Mostrar mudanças a objetos" name="Show Updates"/>
 		</menu>
 		<menu label="Force an Error" name="Force Errors">
@@ -298,6 +299,7 @@
 			<menu_item_check label="Formas físicas" name="Physics Shapes"/>
 			<menu_item_check label="Tipo de atualização" name="Update Type"/>
 			<menu_item_check label="Dados LOD" name="LOD Info"/>
+			<menu_item_check label="Contar triângulo" name="Triangle Count"/>
 			<menu_item_check label="Fila de construção" name="Build Queue"/>
 			<menu_item_check label="Partículas" name="Particles"/>
 			<menu_item_check label="Junções" name="Joints"/>
@@ -372,6 +374,7 @@
 			<menu_item_check label="Show Collision Skeleton" name="Show Collision Skeleton"/>
 			<menu_item_check label="Exibir ossos" name="Show Bones"/>
 			<menu_item_check label="Display Agent Target" name="Display Agent Target"/>
+			<menu_item_check label="Mostrar as extensões do impostor" name="Show Impostor Extents"/>
 			<menu_item_call label="Depurar texturas do avatar" name="Debug Avatar Textures"/>
 		</menu>
 		<menu_item_check label="Texturas HTTP" name="HTTP Textures"/>

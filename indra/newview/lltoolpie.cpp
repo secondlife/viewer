@@ -128,7 +128,10 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 BOOL LLToolPie::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	// don't pick transparent so users can't "pay" transparent objects
-	mPick = gViewerWindow->pickImmediate(x, y, /*BOOL pick_transparent*/ FALSE, /*BOOL pick_rigged*/ TRUE, /*BOOL pick_particle*/ TRUE);
+	mPick = gViewerWindow->pickImmediate(x, y,
+                                         /*BOOL pick_transparent*/ FALSE,
+                                         /*BOOL pick_rigged*/ TRUE,
+                                         /*BOOL pick_particle*/ TRUE);
 	mPick.mKeyMask = mask;
 
 	// claim not handled so UI focus stays same
@@ -300,6 +303,8 @@ BOOL LLToolPie::handleLeftClickPick()
 				}
 			}
 			return TRUE;			
+		case CLICK_ACTION_DISABLED:
+			return TRUE;
 		default:
 			// nothing
 			break;
@@ -463,6 +468,8 @@ ECursorType LLToolPie::cursorFromObject(LLViewerObject* object)
 	case CLICK_ACTION_OPEN_MEDIA: 
 		cursor = cursor_from_parcel_media(click_action);
 		break;
+	case CLICK_ACTION_DISABLED: 
+		break;
 	default:
 		break;
 	}
@@ -528,6 +535,8 @@ void LLToolPie::selectionPropertiesReceived()
 			case CLICK_ACTION_OPEN:
 				LLFloaterReg::showInstance("openobject");
 				break;
+			case CLICK_ACTION_DISABLED:
+				break;
 			default:
 				break;
 			}
@@ -538,7 +547,8 @@ void LLToolPie::selectionPropertiesReceived()
 
 BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 {
-	mHoverPick = gViewerWindow->pickImmediate(x, y, FALSE, FALSE);
+    BOOL pick_rigged = false; //gSavedSettings.getBOOL("AnimatedObjectsAllowLeftClick");
+	mHoverPick = gViewerWindow->pickImmediate(x, y, FALSE, pick_rigged);
 	LLViewerObject *parent = NULL;
 	LLViewerObject *object = mHoverPick.getObject();
 	LLSelectMgr::getInstance()->setHoverObject(object, mHoverPick.mObjectFace);
@@ -584,7 +594,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 	else
 	{
 		// perform a separate pick that detects transparent objects since they respond to 1-click actions
-		LLPickInfo click_action_pick = gViewerWindow->pickImmediate(x, y, TRUE, FALSE);
+		LLPickInfo click_action_pick = gViewerWindow->pickImmediate(x, y, TRUE, pick_rigged);
 
 		LLViewerObject* click_action_object = click_action_pick.getObject();
 
@@ -603,8 +613,8 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 			gViewerWindow->setCursor(UI_CURSOR_TOOLGRAB);
 			LL_DEBUGS("UserInput") << "hover handled by LLToolPie (inactive)" << LL_ENDL;
 		}
-		else if ( (object && object->flagHandleTouch()) 
-				  || (parent && parent->flagHandleTouch()))
+		else if ((!object || !object->isAttachment() || object->getClickAction() != CLICK_ACTION_DISABLED)
+				 && ((object && object->flagHandleTouch()) || (parent && parent->flagHandleTouch())))
 		{
 			show_highlight = true;
 			gViewerWindow->setCursor(UI_CURSOR_HAND);
@@ -670,6 +680,7 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
         LLPickInfo savedPick = mPick;
         mPick = gViewerWindow->pickImmediate(savedPick.mMousePt.mX, savedPick.mMousePt.mY,
                                              FALSE /* ignore transparent */,
+                                             FALSE /* ignore rigged */,
                                              FALSE /* ignore particles */);
 
         if (!mPick.mPosGlobal.isExactlyZero()			// valid coordinates for pick
@@ -759,6 +770,7 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
         LLPickInfo savedPick = mPick;
         mPick = gViewerWindow->pickImmediate(savedPick.mMousePt.mX, savedPick.mMousePt.mY,
                                              FALSE /* ignore transparent */,
+                                             FALSE /* ignore rigged */,
                                              FALSE /* ignore particles */);
 
         if(mPick.mPickType == LLPickInfo::PICK_OBJECT)
@@ -843,13 +855,11 @@ static bool needs_tooltip(LLSelectNode* nodep)
 
 BOOL LLToolPie::handleTooltipLand(std::string line, std::string tooltip_msg)
 {
-	LLViewerParcelMgr::getInstance()->setHoverParcel( mHoverPick.mPosGlobal );
-	// 
-	//  Do not show hover for land unless prefs are set to allow it.
-	// 
-	
+	//  Do not show hover for land unless prefs are set to allow it. 
 	if (!gSavedSettings.getBOOL("ShowLandHoverTip")) return TRUE; 
-	
+
+	LLViewerParcelMgr::getInstance()->setHoverParcel( mHoverPick.mPosGlobal );
+
 	// Didn't hit an object, but since we have a land point we
 	// must be hovering over land.
 	
@@ -1751,8 +1761,7 @@ BOOL LLToolPie::handleRightClickPick()
 		gMenuHolder->setObjectSelection(LLSelectMgr::getInstance()->getSelection());
 
 		bool is_other_attachment = (object->isAttachment() && !object->isHUDAttachment() && !object->permYouOwner());
-		if (object->isAvatar() 
-			|| is_other_attachment)
+		if (object->isAvatar() || is_other_attachment)
 		{
 			// Find the attachment's avatar
 			while( object && object->isAttachment())

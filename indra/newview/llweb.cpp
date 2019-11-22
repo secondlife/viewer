@@ -268,6 +268,11 @@ bool LLWeb::useExternalBrowser(const std::string &url)
 		boost::match_results<std::string::const_iterator> matches;
 		return !(boost::regex_search(uri_string, matches, pattern));
 	}
-	return false;
+	else
+	{
+		boost::regex pattern = boost::regex("^mailto:", boost::regex::perl | boost::regex::icase);
+		boost::match_results<std::string::const_iterator> matches;
+		return boost::regex_search(url, matches, pattern);
+	}
 #endif
 }

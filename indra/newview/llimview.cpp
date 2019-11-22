@@ -3432,23 +3432,23 @@ void LLIMMgr::noteMutedUsers(const LLUUID& session_id,
 	}
 }
 
-void LLIMMgr::processIMTypingStart(const LLIMInfo* im_info)
+void LLIMMgr::processIMTypingStart(const LLUUID& from_id, const EInstantMessage im_type)
 {
-	processIMTypingCore(im_info, TRUE);
+	processIMTypingCore(from_id, im_type, TRUE);
 }
 
-void LLIMMgr::processIMTypingStop(const LLIMInfo* im_info)
+void LLIMMgr::processIMTypingStop(const LLUUID& from_id, const EInstantMessage im_type)
 {
-	processIMTypingCore(im_info, FALSE);
+	processIMTypingCore(from_id, im_type, FALSE);
 }
 
-void LLIMMgr::processIMTypingCore(const LLIMInfo* im_info, BOOL typing)
+void LLIMMgr::processIMTypingCore(const LLUUID& from_id, const EInstantMessage im_type, BOOL typing)
 {
-	LLUUID session_id = computeSessionID(im_info->mIMType, im_info->mFromID);
+	LLUUID session_id = computeSessionID(im_type, from_id);
 	LLFloaterIMSession* im_floater = LLFloaterIMSession::findInstance(session_id);
 	if ( im_floater )
 	{
-		im_floater->processIMTyping(im_info, typing);
+		im_floater->processIMTyping(from_id, typing);
 	}
 }
 

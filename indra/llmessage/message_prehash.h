@@ -818,6 +818,7 @@ extern char const* const _PREHASH_StateSave;
 extern char const* const _PREHASH_RoleData;
 extern char const* const _PREHASH_AgentAnimation;
 extern char const* const _PREHASH_AvatarAnimation;
+extern char const* const _PREHASH_ObjectAnimation;
 extern char const* const _PREHASH_LogDwellTime;
 extern char const* const _PREHASH_ParcelGodMarkAsContent;
 extern char const* const _PREHASH_UsePhysics;

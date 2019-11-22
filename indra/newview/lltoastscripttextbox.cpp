@@ -28,6 +28,7 @@
 
 #include "lltoastscripttextbox.h"
 
+#include "lldbstrings.h"
 #include "lllslconstants.h"
 #include "llnotifications.h"
 #include "llstyle.h"
@@ -41,7 +42,8 @@ LLToastScriptTextbox::LLToastScriptTextbox(const LLNotificationPtr& notification
 {
 	buildFromFile( "panel_notify_textbox.xml");
 
-	mInfoText = getChild<LLTextBox>("text_editor_box");
+	mInfoText = getChild<LLTextEditor>("text_editor_box");
+	mInfoText->setMaxTextLength(LLToastPanel::MAX_TEXT_LENGTH);
 	mInfoText->setValue(notification->getMessage());
 
 	getChild<LLButton>("ignore_btn")->setClickedCallback(boost::bind(&LLToastScriptTextbox::onClickIgnore, this));

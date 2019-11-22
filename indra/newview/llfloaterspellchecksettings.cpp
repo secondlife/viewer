@@ -30,12 +30,13 @@
 #include "llfilepicker.h"
 #include "llfloaterreg.h"
 #include "llfloaterspellchecksettings.h"
+#include "llnotificationsutil.h"
 #include "llscrolllistctrl.h"
 #include "llsdserialize.h"
 #include "llspellcheck.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
-#include "llnotificationsutil.h"
+#include "llviewermenufile.h" // LLFilePickerReplyThread
 
 #include <boost/algorithm/string.hpp>
 
@@ -258,13 +259,12 @@ BOOL LLFloaterSpellCheckerImport::postBuild(void)
 
 void LLFloaterSpellCheckerImport::onBtnBrowse()
 {
-	LLFilePicker& file_picker = LLFilePicker::instance();
-	if (!file_picker.getOpenFile(LLFilePicker::FFLOAD_DICTIONARY))
-	{
-		return;
-	}
+	(new LLFilePickerReplyThread(boost::bind(&LLFloaterSpellCheckerImport::importSelectedDictionary, this, _1), LLFilePicker::FFLOAD_DICTIONARY, false))->getFile();
+}
 
-	std::string filepath = file_picker.getFirstFile();
+void LLFloaterSpellCheckerImport::importSelectedDictionary(const std::vector<std::string>& filenames)
+{
+	std::string filepath = filenames[0];
 
 	const std::string extension = gDirUtilp->getExtension(filepath);
 	if ("xcu" == extension)
@@ -277,7 +277,7 @@ void LLFloaterSpellCheckerImport::onBtnBrowse()
 	}
 
 	getChild<LLUICtrl>("dictionary_path")->setValue(filepath);
-	
+
 	mDictionaryDir = gDirUtilp->getDirName(filepath);
 	mDictionaryBasename = gDirUtilp->getBaseFileName(filepath, true);
 	getChild<LLUICtrl>("dictionary_name")->setValue(mDictionaryBasename);

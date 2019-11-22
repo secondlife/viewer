@@ -116,29 +116,27 @@ void LLThread::registerThreadID()
 //
 // Handed to the APR thread creation function
 //
-void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap)
+void LLThread::threadRun()
 {
-    LLThread *threadp = (LLThread *)datap;
-
 #ifdef LL_WINDOWS
-    set_thread_name(-1, threadp->mName.c_str());
+    set_thread_name(-1, mName.c_str());
 #endif
 
     // for now, hard code all LLThreads to report to single master thread recorder, which is known to be running on main thread
-    threadp->mRecorder = new LLTrace::ThreadRecorder(*LLTrace::get_master_thread_recorder());
+    mRecorder = new LLTrace::ThreadRecorder(*LLTrace::get_master_thread_recorder());
 
-    sThreadID = threadp->mID;
+    sThreadID = mID;
 
     // Run the user supplied function
     do 
     {
         try
         {
-            threadp->run();
+            run();
         }
         catch (const LLContinueError &e)
         {
-            LL_WARNS("THREAD") << "ContinueException on thread '" << threadp->mName <<
+            LL_WARNS("THREAD") << "ContinueException on thread '" << mName <<
                 "' reentering run(). Error what is: '" << e.what() << "'" << LL_ENDL;
             //output possible call stacks to log file.
             LLError::LLCallStacks::print();
@@ -153,41 +151,27 @@ void *APR_THREAD_FUNC LLThread::staticRun(apr_thread_t *apr_threadp, void *datap
     //LL_INFOS() << "LLThread::staticRun() Exiting: " << threadp->mName << LL_ENDL;
 
 
-    delete threadp->mRecorder;
-    threadp->mRecorder = NULL;
+    delete mRecorder;
+    mRecorder = NULL;
 
     // We're done with the run function, this thread is done executing now.
     //NB: we are using this flag to sync across threads...we really need memory barriers here
     // Todo: add LLMutex per thread instead of flag?
     // We are using "while (mStatus != STOPPED) {ms_sleep();}" everywhere.
-    threadp->mStatus = STOPPED;
-
-    return NULL;
+    mStatus = STOPPED;
 }
 
 LLThread::LLThread(const std::string& name, apr_pool_t *poolp) :
     mPaused(FALSE),
     mName(name),
-    mAPRThreadp(NULL),
+    mThreadp(NULL),
     mStatus(STOPPED),
     mRecorder(NULL)
 {
 
     mID = ++sIDIter;
-
-    // Thread creation probably CAN be paranoid about APR being initialized, if necessary
-    if (poolp)
-    {
-        mIsLocalPool = FALSE;
-        mAPRPoolp = poolp;
-    }
-    else
-    {
-        mIsLocalPool = TRUE;
-        apr_pool_create(&mAPRPoolp, NULL); // Create a subpool for this thread
-    }
-    mRunCondition = new LLCondition(mAPRPoolp);
-    mDataLock = new LLMutex(mAPRPoolp);
+    mRunCondition = new LLCondition();
+    mDataLock = new LLMutex();
     mLocalAPRFilePoolp = NULL ;
 }
 
@@ -217,7 +201,7 @@ void LLThread::shutdown()
 
     // Warning!  If you somehow call the thread destructor from itself,
     // the thread will die in an unclean fashion!
-    if (mAPRThreadp)
+    if (mThreadp)
     {
         if (!isStopped())
         {
@@ -248,13 +232,19 @@ void LLThread::shutdown()
         {
             // This thread just wouldn't stop, even though we gave it time
             //LL_WARNS() << "LLThread::~LLThread() exiting thread before clean exit!" << LL_ENDL;
-            // Put a stake in its heart.
-            delete mRecorder;
+            // Put a stake in its heart. (A very hostile method to force a thread to quit)
+#if		LL_WINDOWS
+            TerminateThread(mNativeHandle, 0);
+#else
+            pthread_cancel(mNativeHandle);
+#endif
 
-            apr_thread_exit(mAPRThreadp, -1);
+            delete mRecorder;
+            mRecorder = NULL;
+            mStatus = STOPPED;
             return;
         }
-        mAPRThreadp = NULL;
+        mThreadp = NULL;
     }
 
     delete mRunCondition;
@@ -262,12 +252,6 @@ void LLThread::shutdown()
 
     delete mDataLock;
     mDataLock = NULL;
-    
-    if (mIsLocalPool && mAPRPoolp)
-    {
-        apr_pool_destroy(mAPRPoolp);
-        mAPRPoolp = 0;
-    }
 
     if (mRecorder)
     {
@@ -286,19 +270,15 @@ void LLThread::start()
     // Set thread state to running
     mStatus = RUNNING;
 
-    apr_status_t status =
-        apr_thread_create(&mAPRThreadp, NULL, staticRun, (void *)this, mAPRPoolp);
-    
-    if(status == APR_SUCCESS)
-    {   
-        // We won't bother joining
-        apr_thread_detach(mAPRThreadp);
+    try
+    {
+        mThreadp = new std::thread(std::bind(&LLThread::threadRun, this));
+        mNativeHandle = mThreadp->native_handle();
     }
-    else
+    catch (std::system_error& ex)
     {
         mStatus = STOPPED;
-        LL_WARNS() << "failed to start thread " << mName << LL_ENDL;
-        ll_apr_warn_status(status);
+        LL_WARNS() << "failed to start thread " << mName << " " << ex.what() << LL_ENDL;
     }
 
 }
@@ -375,11 +355,7 @@ U32 LLThread::currentID()
 // static
 void LLThread::yield()
 {
-#if LL_LINUX || LL_SOLARIS
-    sched_yield(); // annoyingly, apr_thread_yield  is a noop on linux...
-#else
-    apr_thread_yield();
-#endif
+    std::this_thread::yield();
 }
 
 void LLThread::wake()
@@ -412,7 +388,7 @@ void LLThreadSafeRefCount::initThreadSafeRefCount()
 {
     if (!sMutex)
     {
-        sMutex = new LLMutex(0);
+        sMutex = new LLMutex();
     }
 }
 

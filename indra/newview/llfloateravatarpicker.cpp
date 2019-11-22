@@ -812,7 +812,7 @@ bool LLFloaterAvatarPicker::isSelectBtnEnabled()
 {
 	bool ret_val = visibleItemsSelected();
 
-	if ( ret_val )
+	if ( ret_val && !isMinimized())
 	{
 		std::string acvtive_panel_name;
 		LLScrollListCtrl* list =  NULL;

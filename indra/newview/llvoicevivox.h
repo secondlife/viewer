@@ -73,6 +73,8 @@ public:
 
 	// Returns true if vivox has successfully logged in and is not in error state	
 	virtual bool isVoiceWorking() const;
+	
+	virtual bool singletoneInstanceExists();
 
 	/////////////////////
 	/// @name Tuning
@@ -432,10 +434,10 @@ protected:
 	//----------------------------------
 	// devices
 	void clearCaptureDevices();
-	void addCaptureDevice(const std::string& name);
+	void addCaptureDevice(const LLVoiceDevice& device);
 	void clearRenderDevices();
 	void setDevicesListUpdated(bool state);
-	void addRenderDevice(const std::string& name);	
+	void addRenderDevice(const LLVoiceDevice& device);	
 	void buildSetAudioDevices(std::ostringstream &stream);
 	
 	void getCaptureDevicesSendMessage();

@@ -56,6 +56,9 @@ public:
 	boost::signals2::connection getAll(const LLUUID& region_id, getall_callback_t::slot_type cb);
 	void put(const LLUUID& object_id, const U8 te, const LLMaterial& material);
 	void remove(const LLUUID& object_id, const U8 te);
+	
+	//explicitly add new material to material manager
+	void setLocalMaterial(const LLUUID& region_id, LLMaterialPtr material_ptr);
 
 private:
 	void clearGetQueues(const LLUUID& region_id);
@@ -63,7 +66,8 @@ private:
 	bool isGetAllPending(const LLUUID& region_id) const;
 	void markGetPending(const LLUUID& region_id, const LLMaterialID& material_id);
 	const LLMaterialPtr setMaterial(const LLUUID& region_id, const LLMaterialID& material_id, const LLSD& material_data);
-
+	void setMaterialCallbacks(const LLMaterialID& material_id, const LLMaterialPtr material_ptr);
+	
 	static void onIdle(void*);
 
     static void CapsRecvForRegion(const LLUUID& regionId, LLUUID regionTest, std::string pumpname);

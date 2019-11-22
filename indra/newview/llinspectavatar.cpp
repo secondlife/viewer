@@ -215,7 +215,9 @@ void LLInspectAvatar::onOpen(const LLSD& data)
 	}
 
 	// Generate link to avatar profile.
-	getChild<LLUICtrl>("avatar_profile_link")->setTextArg("[LINK]", LLSLURL("agent", mAvatarID, "about").getSLURLString());
+	LLTextBase* avatar_profile_link = getChild<LLTextBase>("avatar_profile_link");
+	avatar_profile_link->setTextArg("[LINK]", LLSLURL("agent", mAvatarID, "about").getSLURLString());
+	avatar_profile_link->setIsFriendCallback(LLAvatarActions::isFriend);
 
 	// can't call from constructor as widgets are not built yet
 	requestUpdate();

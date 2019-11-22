@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Edit Sky Preset" title="Editar pré-configuração do céu">
+<floater name="Edit Sky Preset" title="Editar predefinição de céu">
 	<string name="title_new">
-		Criar nova pré-configuração de céu
+		Criar uma nova predefinição de céu
 	</string>
 	<string name="title_edit">
-		Editar pré-configuração do céu
+		Editar predefinição de céu
 	</string>
 	<string name="hint_new">
-		Dê um nome à sua pré-configuração, ajuste os controles para criá-la e clique em &quot;Salvar&quot;.
+		Nomeie sua predefinição, ajuste os controles para criá-la e clique em “Salvar”.
 	</string>
 	<string name="hint_edit">
-		Para editar sua pré-configuração do céu, ajuste os controles e clique em &quot;Salvar&quot;.
+		Para editar a sua predefinição de céu, ajuste os controles e clique em “Salvar”.
 	</string>
 	<string name="combo_label">
-		-Selecione uma pré-configuração-
+		-Selecionar uma prefefinição-
 	</string>
 	<text name="hint">
-		Para editar sua pré-configuração do céu, ajuste os controles e clique em &quot;Salvar&quot;.
+		Para editar a sua predefinição, ajuste os controles e clique em “Salvar”.
 	</text>
 	<text name="label">
-		Nome:
+		Nome predefinido:
 	</text>
 	<text name="note">
-		Observação: trocar o nome de uma pré-configuração criará uma nova sem modificar a pré-configuração atual.
+		Note: se você alterar o nome da sua predefinição, você criará uma nova predefinição e a predefinição existente não será alterada.
 	</text>
 	<tab_container name="WindLight Tabs">
 		<panel label="ATMOSFERA" name="Atmosphere">
@@ -30,22 +30,22 @@
 				Horizonte azul
 			</text>
 			<text name="BDensText">
-				Horizonte com névoa
+				Horizonte de neblina
 			</text>
 			<text name="BDensText2">
 				Densidade azul
 			</text>
 			<text name="HDText">
-				Densidade da névoa
+				Densidade da neblina
 			</text>
 			<text name="DensMultText">
-				Multiplicador de densidade
+				Múltipla densidade
 			</text>
 			<text name="WLDistanceMultText">
-				Multiplicador de distância
+				Múltipla distância
 			</text>
 			<text name="MaxAltText">
-				Altitude máxima
+				Altitude máx.
 			</text>
 		</panel>
 		<panel label="ILUMINAÇÃO" name="Lighting">
@@ -58,13 +58,13 @@
 			<text name="SunGlowText">
 				Brilho do sol
 			</text>
-			<slider label="Foco" name="WLGlowB"/>
+			<slider label="Enfocar" name="WLGlowB"/>
 			<slider label="Tamanho" name="WLGlowR"/>
 			<text name="WLStarText">
-				Brilho das estrelas
+				Brilho da estrela
 			</text>
 			<text name="SceneGammaText">
-				Raios gama
+				Gama da cena
 			</text>
 			<text name="TODText">
 				Posição do sol/lua
@@ -86,58 +86,58 @@
 				|
 			</text>
 			<text name="WL12am">
-				24:00
+				12am
 			</text>
 			<text name="WL6am">
-				06:00
+				6am
 			</text>
 			<text name="WL12pmHash">
-				12:00
+				12pm
 			</text>
 			<text name="WL6pm">
-				18:00
+				6pm
 			</text>
 			<text name="WL12am2">
-				24:00
+				12am
 			</text>
-			<time name="WLDayTime" value="06:00"/>
+			<time name="WLDayTime" value="6:00 AM"/>
 			<text name="WLEastAngleText">
 				Ângulo leste
 			</text>
 		</panel>
 		<panel label="NUVENS" name="Clouds">
 			<text name="WLCloudColorText">
-				Cor das nuvens
+				Cor da nuvem
 			</text>
 			<text name="WLCloudColorText2">
-				XY / densidade das nuvens
+				Nuvem XY/Densidade
 			</text>
 			<slider label="X" name="WLCloudX"/>
 			<slider label="Y" name="WLCloudY"/>
 			<slider label="D" name="WLCloudDensity"/>
 			<text name="WLCloudCoverageText">
-				Cobertura das nuvens
+				Cobertura da nuvem
 			</text>
 			<text name="WLCloudScaleText">
-				Escala das nuvens
+				Escala da nuvem
 			</text>
 			<text name="WLCloudDetailText">
-				Detalhe das nuvens (XY / densidade)
+				Detalhe da Nuvem (XY/Densidade)
 			</text>
 			<slider label="X" name="WLCloudDetailX"/>
 			<slider label="Y" name="WLCloudDetailY"/>
 			<slider label="D" name="WLCloudDetailDensity"/>
 			<text name="WLCloudScrollXText">
-				Passagem das nuvens X
+				Rolagem na nuvem X
 			</text>
-			<check_box label="Fixar" name="WLCloudLockX"/>
+			<check_box label="Bloquear" name="WLCloudLockX"/>
 			<text name="WLCloudScrollYText">
-				Passagem das nuvens Y
+				Rolagem na nuvem Y
 			</text>
-			<check_box label="Fixar" name="WLCloudLockY"/>
+			<check_box label="Bloquear" name="WLCloudLockY"/>
 		</panel>
 	</tab_container>
-	<check_box label="Usar esta pré-configuração como meu novo céu" name="make_default_cb"/>
+	<check_box label="Tornar esta predefinição minha nova configuração de céu" name="make_default_cb"/>
 	<button label="Salvar" name="save"/>
 	<button label="Cancelar" name="cancel"/>
 </floater>

@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ border="true"
+ follows="top|left"
+ height="510"
+ help_topic="panel_region_access_tab"
+ label="Access"
+ layout="topleft"
+ left="0"
+ name="Access"
+ top="320"
+ width="530">
+
+
+<tab_container
+ bottom="-10"
+ follows="all"
+ layout="topleft"
+ left="3"
+ name="tabs"
+ tab_min_width="70"
+ tab_height="30"
+ tab_position="top"
+ top="10"
+ halign="center"
+ right="-5">
+    
+<!-- ============================= ESTATE MANAGERS tab ====================== -->
+  <panel
+    background_opaque="true"
+    background_visible="true"
+    bg_alpha_color="DkGray"
+    bg_opaque_color="DkGray"
+    bottom="-1"
+    follows="all"
+    label="ESTATE MANAGERS"
+    layout="topleft"
+    left="0"
+    help_topic="estate_managers_tab"
+    name="estate_managers_panel"
+    right="-1"
+    top="0">
+    <text
+     type="string"
+     length="1"
+     bottom="34"
+     follows="left|top"
+     height="20"
+     layout="topleft"
+     name="estate_manager_label"
+     top_pad="10"
+     left="10"
+     width="200">
+        Estate Managers:
+    </text>
+    <!-- Estate Managers box -->
+    <view_border
+     bevel_style="none"
+     follows="top|left"
+     height="400"
+     layout="topleft"
+     left="10"
+     top_pad="-5"
+     width="498" />
+    <name_list
+     follows="left|top"
+     height="400"
+     layout="topleft"
+     left_delta="0"
+     multi_select="true"
+     draw_heading="true"
+     name="estate_manager_name_list"
+     top_delta="0"
+     width="498">
+        <columns
+         label="Name"
+         name="name"
+         width="498" />
+    </name_list>
+    <!-- Estate Managers buttons -->
+    <button
+     follows="left|top"
+     height="23"
+     label="Add..."
+     layout="topleft"
+     left="10"
+     name="add_estate_manager_btn"
+     top_pad="6"
+     width="114" />
+    <button
+     follows="left|top"
+     height="23"
+     label="Remove..."
+     layout="topleft"
+     name="remove_estate_manager_btn"
+     left_pad="6"
+     width="114" />      
+  </panel>
+        
+        
+<!-- ================================ ALLOWED tab =========================== -->
+  <panel
+    background_opaque="true"
+    background_visible="true"
+    bg_alpha_color="DkGray"
+    bg_opaque_color="DkGray"
+    bottom="-1"
+    follows="all"
+    label="ALLOWED"
+    layout="topleft"
+    left="0"
+    help_topic="allowed_tab"
+    name="allowed_panel"
+    right="-1"
+    top="0">
+       <panel
+        follows="left|top|right"
+        height="27"
+        label="top_panel"
+        layout="topleft"
+        left="0"
+        name="allowed_search_panel"
+        right="-1"
+        top="0">
+           <filter_editor
+            follows="left|top|right"
+            height="23"
+            layout="topleft"
+            left="6"
+            label="Search allowed agents"
+            max_length_chars="300"
+            name="allowed_search_input"
+            text_color="Black"
+            text_pad_left="10"
+            top="4"
+            width="440" />
+           <button
+            follows="left|top"
+            height="23"
+            label="Copy"
+            layout="topleft"
+            left_pad="10"
+            name="copy_allowed_list_btn"
+            width="40" />
+        </panel>
+   <text
+     type="string"
+     length="1"
+     bottom="34"
+     follows="left|top"
+     height="20"
+     layout="topleft"
+     name="allow_resident_label"
+     top_pad="10"
+     left="10"
+     width="200">
+        Always allowed:
+    </text>
+    <!-- Always allowed box -->
+    <view_border
+     bevel_style="none"
+     follows="top|left"
+     height="370"
+     layout="topleft"
+     left="10"
+     top_pad="-5"
+     width="498" />
+    <name_list
+     follows="left|top"
+     height="370"
+     layout="topleft"
+     left_delta="0"
+     multi_select="true"
+     draw_heading="true"
+     name="allowed_avatar_name_list"
+     top_delta="0"
+     width="498">
+        <columns
+         label="Name"
+         name="name"
+         width="498" />
+    </name_list>
+    <!-- Always allowed buttons -->
+    <button
+     follows="left|top"
+     height="23"
+     label="Add..."
+     layout="topleft"
+     left="10"
+     name="add_allowed_avatar_btn"
+     top_pad="6"
+     width="114" />
+    <button
+     follows="left|top"
+     height="23"
+     label="Remove..."
+     layout="topleft"
+     name="remove_allowed_avatar_btn"
+     left_pad="6"
+     width="114" />
+  </panel>
+
+  <!-- ============================= ALLOWED GROUPS tab ======================= -->
+  <panel
+    background_opaque="true"
+    background_visible="true"
+    bg_alpha_color="DkGray"
+    bg_opaque_color="DkGray"
+    bottom="-1"
+    follows="all"
+    label="ALLOWED GROUPS"
+    layout="topleft"
+    left="0"
+    help_topic="allowed_groups_tab"
+    name="allowed_groups_panel"
+    right="-1"
+    top="0">
+       <panel
+        follows="left|top|right"
+        height="27"
+        label="top_panel"
+        layout="topleft"
+        left="0"
+        name="allowed_group_search_panel"
+        right="-1"
+        top="0">
+           <filter_editor
+            follows="left|top|right"
+            height="23"
+            layout="topleft"
+            left="6"
+            label="Search allowed groups"
+            max_length_chars="300"
+            name="allowed_group_search_input"
+            text_color="Black"
+            text_pad_left="10"
+            top="4"
+            width="440" />
+           <button
+            follows="left|top"
+            height="23"
+            label="Copy"
+            layout="topleft"
+            left_pad="10"
+            name="copy_allowed_group_list_btn"
+            width="40" />
+        </panel>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="20"
+     layout="topleft"
+     left="10"
+     name="allow_group_label"
+     top_pad="10"
+     width="200">
+        Groups always allowed:
+    </text>
+    <!-- Groups always allowed box -->
+    <view_border
+     bevel_style="none"
+     follows="top|left"
+     height="370"
+     layout="topleft"
+     left="10"
+     top_pad="-5"
+     width="498" />
+    <name_list
+     follows="left|top"
+     height="370"
+     layout="topleft"
+     left_delta="0"
+     multi_select="true"
+     draw_heading="true"
+     name="allowed_group_name_list"
+     top_delta="0"
+     width="498">
+        <columns
+         label="Name"
+         name="name"
+         width="498" />
+    </name_list>
+    <!-- Groups always allowed buttons -->
+    <button
+     follows="left|top"
+     height="23"
+     label="Add..."
+     layout="topleft"
+     left="10"
+     name="add_allowed_group_btn"
+     top_pad="6"
+     width="114" />
+    <button
+     follows="left|top"
+     height="23"
+     label="Remove..."
+     layout="topleft"
+     name="remove_allowed_group_btn"
+     left_pad="6"
+     top_delta="0"
+     width="114" />
+  </panel>
+
+  <!-- ================================ BANNED tab ============================ -->
+  <panel
+    background_opaque="true"
+    background_visible="true"
+    bg_alpha_color="DkGray"
+    bg_opaque_color="DkGray"
+    bottom="-1"
+    follows="all"
+    label="BANNED"
+    layout="topleft"
+    left="0"
+    help_topic="banned_tab"
+    name="banned_panel"
+    right="-1"
+    top="0">
+       <panel
+        follows="left|top|right"
+        height="27"
+        label="top_panel"
+        layout="topleft"
+        left="0"
+        name="banned_search_panel"
+        right="-1"
+        top="0">
+           <filter_editor
+            follows="left|top|right"
+            height="23"
+            layout="topleft"
+            left="6"
+            label="Search banned agents"
+            max_length_chars="300"
+            name="banned_search_input"
+            text_color="Black"
+            text_pad_left="10"
+            top="4"
+            width="440" />
+               <button
+                follows="left|top"
+                height="23"
+                label="Copy"
+                layout="topleft"
+                left_pad="10"
+                name="copy_banned_list_btn"
+                width="40" />
+        </panel>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="20"
+     layout="topleft"
+     left="10"
+     name="ban_resident_label"
+     top_pad="10"
+     width="200">
+        Always banned:
+    </text>
+    <!-- Always banned box -->
+    <view_border
+     bevel_style="none"
+     follows="top|left"
+     height="370"
+     layout="topleft"
+     left="10"
+     top_pad="-5"
+     width="498" />
+      <name_list
+       follows="left|top"
+       height="370"
+       layout="topleft"
+       left_delta="0"
+       multi_select="true"
+       draw_heading="true"
+       name="banned_avatar_name_list"
+       top_delta="0"
+       width="498">
+          <columns
+            label="Name"
+            name="name"
+            width="140" />
+          <columns
+            label="Last login date"
+            name="last_login_date"
+            width="100" />
+          <columns
+            label="Date banned"
+            name="ban_date"
+            width="100" />
+          <columns
+            label="Banned by"
+            name="bannedby"
+            width="140" />
+      </name_list>
+    <!-- Always banned buttons -->
+    <button
+     follows="left|top"
+     height="23"
+     label="Add..."
+     layout="topleft"
+     left="10"
+     name="add_banned_avatar_btn"
+     top_pad="6"
+     width="114" />
+    <button
+     follows="left|top"
+     height="23"
+     label="Remove..."
+     layout="topleft"
+     name="remove_banned_avatar_btn"
+     left_pad="6"
+     top_delta="0"
+     width="114" />
+  </panel>
+
+
+</tab_container>
+</panel>

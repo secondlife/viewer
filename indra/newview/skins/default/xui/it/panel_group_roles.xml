@@ -82,6 +82,11 @@ cliccando sui loro nomi.
 		</text>
 		<scroll_list name="member_allowed_actions" tool_tip="Per i dettagli di ogni abilità consentita vedi la scheda abilità."/>
 	</panel>
+	<panel name="members_header">
+		<text_editor name="member_action_description">
+			Questa abilità è “Espelli membri da questo gruppo”. Solo un proprietario può espellere un altro proprietario.
+		</text_editor>
+	</panel>
 	<panel name="roles_footer">
 		<text name="static">
 			Nome del ruolo
@@ -103,6 +108,11 @@ cliccando sui loro nomi.
 			Abilità permesse
 		</text>
 		<scroll_list name="role_allowed_actions" tool_tip="Per i dettagli di ogni abilità consentita vedi la scheda abilità."/>
+	</panel>
+	<panel name="roles_header">
+		<text_editor name="role_action_description">
+			Questa abilità è “Espelli membri da questo gruppo”. Solo un proprietario può espellere un altro proprietario.
+		</text_editor>
 	</panel>
 	<panel name="actions_footer">
 		<text_editor name="action_description">

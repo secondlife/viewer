@@ -489,10 +489,6 @@ void LLToolTipMgr::show(const LLToolTip::Params& params)
 		return;
 	}
 	
-	S32 mouse_x;
-	S32 mouse_y;
-	LLUI::getMousePositionLocal(gToolTipView, &mouse_x, &mouse_y);
-
 	// are we ready to show the tooltip?
 	if (!mToolTipsBlocked									// we haven't hit a key, moved the mouse, etc.
 		&& LLUI::getMouseIdleTime() > params_with_defaults.delay_time)	// the mouse has been still long enough
@@ -574,12 +570,12 @@ void LLToolTipMgr::updateToolTipVisibility()
 	}
 
 	// hide existing tooltips if they have timed out
-	S32 mouse_x, mouse_y;
-	LLUI::getMousePositionLocal(gToolTipView, &mouse_x, &mouse_y);
-
 	F32 tooltip_timeout = 0.f;
 	if (toolTipVisible())
 	{
+		S32 mouse_x, mouse_y;
+		LLUI::getMousePositionLocal(gToolTipView, &mouse_x, &mouse_y);
+		
 		// mouse far away from tooltip
 		tooltip_timeout = mLastToolTipParams.visible_time_far;
 		// mouse near rect will only include the tooltip if the 

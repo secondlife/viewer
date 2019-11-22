@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Umgebung" name="panel_env_info">
 	<text name="water_settings_title">
-		Wählen Sie die Wasser- und Himmel-/Tageszykluseinstellungen aus, die alle Besucher Ihrer Region sehen sollen.  Mehr Infos
+		Wählen Sie die Wasser- und Himmel-/Tageszykluseinstellungen aus, die alle Besucher Ihrer Region sehen sollen. Mehr Infos
 	</text>
 	<radio_group name="region_settings_radio_group">
 		<radio_item label="Second Life-Standard verwenden" name="use_sl_default_settings"/>
@@ -15,7 +15,7 @@
 			<combo_box.item label="-Voreinstellung auswählen-" name="item0"/>
 		</combo_box>
 		<text name="sky_dayc_settings_title">
-			Himmel / Tageszyklus
+			Himmel/Tageszyklus
 		</text>
 		<radio_group name="sky_dayc_settings_radio_group">
 			<radio_item label="Fester Himmel" name="my_sky_settings"/>

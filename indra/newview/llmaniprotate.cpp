@@ -283,6 +283,7 @@ void LLManipRotate::render()
 			LLGLEnable cull_face(GL_CULL_FACE);
 			LLGLEnable clip_plane0(GL_CLIP_PLANE0);
 			LLGLDepthTest gls_depth(GL_FALSE);
+			LLGLDisable gls_stencil(GL_STENCIL_TEST);
 
 			// First pass: centers. Second pass: sides.
 			for( S32 i=0; i<2; i++ )

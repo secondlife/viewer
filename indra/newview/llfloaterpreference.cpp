@@ -117,6 +117,8 @@
 #include "llfeaturemanager.h"
 #include "llviewertexturelist.h"
 
+#include "llsearchableui.h"
+
 const F32 BANDWIDTH_UPDATER_TIMEOUT = 0.5f;
 char const* const VISIBILITY_DEFAULT = "default";
 char const* const VISIBILITY_HIDDEN = "hidden";
@@ -135,6 +137,25 @@ static const F32 MAX_ARC_LIMIT = 350000.0f;
 static const F32 MIN_ARC_LOG = log(MIN_ARC_LIMIT);
 static const F32 MAX_ARC_LOG = log(MAX_ARC_LIMIT);
 static const F32 ARC_LIMIT_MAP_SCALE = (MAX_ARC_LOG - MIN_ARC_LOG) / (MAX_INDIRECT_ARC_LIMIT - MIN_INDIRECT_ARC_LIMIT);
+
+struct LabelDef : public LLInitParam::Block<LabelDef>
+{
+    Mandatory<std::string> name;
+    Mandatory<std::string> value;
+
+    LabelDef()
+        : name("name"),
+        value("value")
+    {}
+};
+
+struct LabelTable : public LLInitParam::Block<LabelTable>
+{
+    Multiple<LabelDef> labels;
+    LabelTable()
+        : labels("label")
+    {}
+};
 
 class LLVoiceSetKeyDialog : public LLModalDialog
 {
@@ -393,6 +414,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 
 	mCommitCallbackRegistrar.add("Pref.ClearLog",				boost::bind(&LLConversationLog::onClearLog, &LLConversationLog::instance()));
 	mCommitCallbackRegistrar.add("Pref.DeleteTranscripts",      boost::bind(&LLFloaterPreference::onDeleteTranscripts, this));
+	mCommitCallbackRegistrar.add("UpdateFilter", boost::bind(&LLFloaterPreference::onUpdateFilterTerm, this, false)); // <FS:ND/> Hook up for filtering
 }
 
 void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType type )
@@ -506,7 +528,33 @@ BOOL LLFloaterPreference::postBuild()
 	LLSliderCtrl* fov_slider = getChild<LLSliderCtrl>("camera_fov");
 	fov_slider->setMinValue(LLViewerCamera::getInstance()->getMinView());
 	fov_slider->setMaxValue(LLViewerCamera::getInstance()->getMaxView());
+	
+	// Hook up and init for filtering
+	mFilterEdit = getChild<LLSearchEditor>("search_prefs_edit");
+	mFilterEdit->setKeystrokeCallback(boost::bind(&LLFloaterPreference::onUpdateFilterTerm, this, false));
 
+	// Load and assign label for 'default language'
+	std::string user_filename = gDirUtilp->getExpandedFilename(LL_PATH_DEFAULT_SKIN, "default_languages.xml");
+	std::map<std::string, std::string> labels;
+	if (loadFromFilename(user_filename, labels))
+	{
+		std::string system_lang = gSavedSettings.getString("SystemLanguage");
+		std::map<std::string, std::string>::iterator iter = labels.find(system_lang);
+		if (iter != labels.end())
+		{
+			getChild<LLComboBox>("language_combobox")->add(iter->second, LLSD("default"), ADD_TOP, true);
+		}
+		else
+		{
+			LL_WARNS() << "Language \"" << system_lang << "\" is not in default_languages.xml" << LL_ENDL;
+			getChild<LLComboBox>("language_combobox")->add("System default", LLSD("default"), ADD_TOP, true);
+		}
+	}
+	else
+	{
+		LL_WARNS() << "Failed to load labels from " << user_filename << ". Using default." << LL_ENDL;
+		getChild<LLComboBox>("language_combobox")->add("System default", LLSD("default"), ADD_TOP, true);
+	}
 
 	return TRUE;
 }
@@ -530,13 +578,6 @@ void LLFloaterPreference::onDoNotDisturbResponseChanged()
 
 LLFloaterPreference::~LLFloaterPreference()
 {
-	// clean up user data
-	LLComboBox* ctrl_window_size = getChild<LLComboBox>("windowsize combo");
-	for (S32 i = 0; i < ctrl_window_size->getItemCount(); i++)
-	{
-		ctrl_window_size->setCurrentByIndex(i);
-	}
-
 	LLConversationLog::instance().removeObserver(this);
 }
 
@@ -793,6 +834,13 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	save_btn->setEnabled(started);
 	delete_btn->setEnabled(started);
 	exceptions_btn->setEnabled(started);
+
+	collectSearchableItems();
+	if (!mFilterEdit->getText().empty())
+	{
+		mFilterEdit->setText(LLStringExplicit(""));
+		onUpdateFilterTerm(true);
+	}
 }
 
 void LLFloaterPreference::onVertexShaderEnable()
@@ -1096,16 +1144,15 @@ void LLFloaterPreference::onClickSetCache()
 	
 	std::string proposed_name(cur_name);
 
-	LLDirPicker& picker = LLDirPicker::instance();
-	if (! picker.getDir(&proposed_name ) )
-	{
-		return; //Canceled!
-	}
+	(new LLDirPickerThread(boost::bind(&LLFloaterPreference::changeCachePath, this, _1, _2), proposed_name))->getFile();
+}
 
-	std::string dir_name = picker.getDirName();
-	if (!dir_name.empty() && dir_name != cur_name)
+void LLFloaterPreference::changeCachePath(const std::vector<std::string>& filenames, std::string proposed_name)
+{
+	std::string dir_name = filenames[0];
+	if (!dir_name.empty() && dir_name != proposed_name)
 	{
-		std::string new_top_folder(gDirUtilp->getBaseFileName(dir_name));	
+		std::string new_top_folder(gDirUtilp->getBaseFileName(dir_name));
 		LLNotificationsUtil::add("CacheWillBeMoved");
 		gSavedSettings.setString("NewCacheLocation", dir_name);
 		gSavedSettings.setString("NewCacheLocationTopFolder", new_top_folder);
@@ -1249,6 +1296,8 @@ void LLFloaterPreference::refreshEnabledState()
 
 	// Cannot have floater active until caps have been received
 	getChild<LLButton>("default_creation_permissions")->setEnabled(LLStartUp::getStartupState() < STATE_STARTED ? false : true);
+
+	getChildView("block_list")->setEnabled(LLLoginInstance::getInstance()->authSuccess());
 }
 
 void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
@@ -1383,8 +1432,6 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 
 	// now turn off any features that are unavailable
 	disableUnavailableSettings();
-
-	getChildView("block_list")->setEnabled(LLLoginInstance::getInstance()->authSuccess());
 }
 
 // static
@@ -1744,25 +1791,21 @@ void LLFloaterPreference::onClickLogPath()
 	std::string proposed_name(gSavedPerAccountSettings.getString("InstantMessageLogPath"));	 
 	mPriorInstantMessageLogPath.clear();
 	
-	LLDirPicker& picker = LLDirPicker::instance();
-	//Launches a directory picker and waits for feedback
-	if (!picker.getDir(&proposed_name ) )
-	{
-		return; //Canceled!
-	}
 
-	//Gets the path from the directory picker
-	std::string dir_name = picker.getDirName();
-
-	//Path changed
-	if(proposed_name != dir_name)
-	{
-	gSavedPerAccountSettings.setString("InstantMessageLogPath", dir_name);
-		mPriorInstantMessageLogPath = proposed_name;
-	
-	// enable/disable 'Delete transcripts button
-	updateDeleteTranscriptsButton();
+	(new LLDirPickerThread(boost::bind(&LLFloaterPreference::changeLogPath, this, _1, _2), proposed_name))->getFile();
 }
+
+void LLFloaterPreference::changeLogPath(const std::vector<std::string>& filenames, std::string proposed_name)
+{
+	//Path changed
+	if (proposed_name != filenames[0])
+	{
+		gSavedPerAccountSettings.setString("InstantMessageLogPath", filenames[0]);
+		mPriorInstantMessageLogPath = proposed_name;
+
+		// enable/disable 'Delete transcripts button
+		updateDeleteTranscriptsButton();
+	}
 }
 
 bool LLFloaterPreference::moveTranscriptsAndLog()
@@ -1976,6 +2019,45 @@ void LLFloaterPreference::updateMaxComplexity()
     LLAvatarComplexityControls::updateMax(
         getChild<LLSliderCtrl>("IndirectMaxComplexity"),
         getChild<LLTextBox>("IndirectMaxComplexityText"));
+}
+
+bool LLFloaterPreference::loadFromFilename(const std::string& filename, std::map<std::string, std::string> &label_map)
+{
+    LLXMLNodePtr root;
+
+    if (!LLXMLNode::parseFile(filename, root, NULL))
+    {
+        LL_WARNS() << "Unable to parse file " << filename << LL_ENDL;
+        return false;
+    }
+
+    if (!root->hasName("labels"))
+    {
+        LL_WARNS() << filename << " is not a valid definition file" << LL_ENDL;
+        return false;
+    }
+
+    LabelTable params;
+    LLXUIParser parser;
+    parser.readXUI(root, params, filename);
+
+    if (params.validateBlock())
+    {
+        for (LLInitParam::ParamIterator<LabelDef>::const_iterator it = params.labels.begin();
+            it != params.labels.end();
+            ++it)
+        {
+            LabelDef label_entry = *it;
+            label_map[label_entry.name] = label_entry.value;
+        }
+    }
+    else
+    {
+        LL_WARNS() << filename << " failed to load" << LL_ENDL;
+        return false;
+    }
+
+    return true;
 }
 
 void LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity()
@@ -2328,11 +2410,21 @@ BOOL LLPanelPreference::postBuild()
 	{
 		getChild<LLCheckBoxCtrl>("voice_call_friends_only_check")->setCommitCallback(boost::bind(&showFriendsOnlyWarning, _1, _2));
 	}
+	if (hasChild("allow_multiple_viewer_check", TRUE))
+	{
+		getChild<LLCheckBoxCtrl>("allow_multiple_viewer_check")->setCommitCallback(boost::bind(&showMultipleViewersWarning, _1, _2));
+	}
 	if (hasChild("favorites_on_login_check", TRUE))
 	{
 		getChild<LLCheckBoxCtrl>("favorites_on_login_check")->setCommitCallback(boost::bind(&handleFavoritesOnLoginChanged, _1, _2));
 		bool show_favorites_at_login = LLPanelLogin::getShowFavorites();
 		getChild<LLCheckBoxCtrl>("favorites_on_login_check")->setValue(show_favorites_at_login);
+	}
+	if (hasChild("mute_chb_label", TRUE))
+	{
+		getChild<LLTextBox>("mute_chb_label")->setShowCursorHand(false);
+		getChild<LLTextBox>("mute_chb_label")->setSoundFlags(LLView::MOUSE_UP);
+		getChild<LLTextBox>("mute_chb_label")->setClickedCallback(boost::bind(&toggleMuteWhenMinimized));
 	}
 
 	//////////////////////PanelAdvanced ///////////////////
@@ -2423,6 +2515,14 @@ void LLPanelPreference::saveSettings()
 	}	
 }
 
+void LLPanelPreference::showMultipleViewersWarning(LLUICtrl* checkbox, const LLSD& value)
+{
+    if (checkbox && checkbox->getValue())
+    {
+        LLNotificationsUtil::add("AllowMultipleViewers");
+    }
+}
+
 void LLPanelPreference::showFriendsOnlyWarning(LLUICtrl* checkbox, const LLSD& value)
 {
 	if (checkbox && checkbox->getValue())
@@ -2440,6 +2540,17 @@ void LLPanelPreference::handleFavoritesOnLoginChanged(LLUICtrl* checkbox, const 
 		{
 			LLNotificationsUtil::add("FavoritesOnLogin");
 		}
+	}
+}
+
+void LLPanelPreference::toggleMuteWhenMinimized()
+{
+	std::string mute("MuteWhenMinimized");
+	gSavedSettings.setBOOL(mute, !gSavedSettings.getBOOL(mute));
+	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+	if (instance)
+	{
+		instance->getChild<LLCheckBoxCtrl>("mute_when_minimized")->setBtnFocus();
 	}
 }
 
@@ -2563,18 +2674,6 @@ BOOL LLPanelPreferenceGraphics::postBuild()
 	LLFloaterReg::showInstance("prefs_graphics_advanced");
 	LLFloaterReg::hideInstance("prefs_graphics_advanced");
 
-// Don't do this on Mac as their braindead GL versioning
-// sets this when 8x and 16x are indeed available
-//
-#if !LL_DARWIN
-	if (gGLManager.mIsIntel || gGLManager.mGLVersion < 3.f)
-	{ //remove FSAA settings above "4x"
-		LLComboBox* combo = getChild<LLComboBox>("fsaa");
-		combo->remove("8x");
-		combo->remove("16x");
-	}
-#endif
-
 	resetDirtyChilds();
 	setPresetText();
 
@@ -2600,6 +2699,11 @@ void LLPanelPreferenceGraphics::onPresetsListChange()
 	if (instance && !gSavedSettings.getString("PresetGraphicActive").empty())
 	{
 		instance->saveSettings(); //make cancel work correctly after changing the preset
+	}
+	else
+	{
+		std::string dummy;
+		instance->saveGraphicsPreset(dummy);
 	}
 }
 
@@ -2721,6 +2825,16 @@ void LLPanelPreferenceGraphics::cancel()
 void LLPanelPreferenceGraphics::saveSettings()
 {
 	resetDirtyChilds();
+	std::string preset_graphic_active = gSavedSettings.getString("PresetGraphicActive");
+	if (preset_graphic_active.empty())
+	{
+		LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+		if (instance)
+		{
+			//don't restore previous preset after closing Preferences
+			instance->saveGraphicsPreset(preset_graphic_active);
+		}
+	}
 	LLPanelPreference::saveSettings();
 }
 void LLPanelPreferenceGraphics::setHardwareDefaults()
@@ -2747,6 +2861,26 @@ LLFloaterPreferenceProxy::LLFloaterPreferenceProxy(const LLSD& key)
 	mCommitCallbackRegistrar.add("Proxy.OK",                boost::bind(&LLFloaterPreferenceProxy::onBtnOk, this));
 	mCommitCallbackRegistrar.add("Proxy.Cancel",            boost::bind(&LLFloaterPreferenceProxy::onBtnCancel, this));
 	mCommitCallbackRegistrar.add("Proxy.Change",            boost::bind(&LLFloaterPreferenceProxy::onChangeSocksSettings, this));
+}
+
+BOOL LLFloaterPreferenceGraphicsAdvanced::postBuild()
+{
+    // Don't do this on Mac as their braindead GL versioning
+    // sets this when 8x and 16x are indeed available
+    //
+#if !LL_DARWIN
+    if (gGLManager.mIsIntel || gGLManager.mGLVersion < 3.f)
+    { //remove FSAA settings above "4x"
+        LLComboBox* combo = getChild<LLComboBox>("fsaa");
+        combo->remove("8x");
+        combo->remove("16x");
+    }
+	
+	LLCheckBoxCtrl *use_HiDPI = getChild<LLCheckBoxCtrl>("use HiDPI");
+	use_HiDPI->setVisible(FALSE);
+#endif
+
+    return TRUE;
 }
 
 void LLFloaterPreferenceGraphicsAdvanced::onOpen(const LLSD& key)
@@ -2948,3 +3082,109 @@ void LLFloaterPreferenceProxy::onChangeSocksSettings()
 
 }
 
+void LLFloaterPreference::onUpdateFilterTerm(bool force)
+{
+	LLWString seachValue = utf8str_to_wstring( mFilterEdit->getValue() );
+	LLWStringUtil::toLower( seachValue );
+
+	if( !mSearchData || (mSearchData->mLastFilter == seachValue && !force))
+		return;
+
+	mSearchData->mLastFilter = seachValue;
+
+	if( !mSearchData->mRootTab )
+		return;
+
+	mSearchData->mRootTab->hightlightAndHide( seachValue );
+	LLTabContainer *pRoot = getChild< LLTabContainer >( "pref core" );
+	if( pRoot )
+		pRoot->selectFirstTab();
+}
+
+void collectChildren( LLView const *aView, ll::prefs::PanelDataPtr aParentPanel, ll::prefs::TabContainerDataPtr aParentTabContainer )
+{
+	if( !aView )
+		return;
+
+	llassert_always( aParentPanel || aParentTabContainer );
+
+	LLView::child_list_const_iter_t itr = aView->beginChild();
+	LLView::child_list_const_iter_t itrEnd = aView->endChild();
+
+	while( itr != itrEnd )
+	{
+		LLView *pView = *itr;
+		ll::prefs::PanelDataPtr pCurPanelData = aParentPanel;
+		ll::prefs::TabContainerDataPtr pCurTabContainer = aParentTabContainer;
+		if( !pView )
+			continue;
+		LLPanel const *pPanel = dynamic_cast< LLPanel const *>( pView );
+		LLTabContainer const *pTabContainer = dynamic_cast< LLTabContainer const *>( pView );
+		ll::ui::SearchableControl const *pSCtrl = dynamic_cast< ll::ui::SearchableControl const *>( pView );
+
+		if( pTabContainer )
+		{
+			pCurPanelData.reset();
+
+			pCurTabContainer = ll::prefs::TabContainerDataPtr( new ll::prefs::TabContainerData );
+			pCurTabContainer->mTabContainer = const_cast< LLTabContainer *>( pTabContainer );
+			pCurTabContainer->mLabel = pTabContainer->getLabel();
+			pCurTabContainer->mPanel = 0;
+
+			if( aParentPanel )
+				aParentPanel->mChildPanel.push_back( pCurTabContainer );
+			if( aParentTabContainer )
+				aParentTabContainer->mChildPanel.push_back( pCurTabContainer );
+		}
+		else if( pPanel )
+		{
+			pCurTabContainer.reset();
+
+			pCurPanelData = ll::prefs::PanelDataPtr( new ll::prefs::PanelData );
+			pCurPanelData->mPanel = pPanel;
+			pCurPanelData->mLabel = pPanel->getLabel();
+
+			llassert_always( aParentPanel || aParentTabContainer );
+
+			if( aParentTabContainer )
+				aParentTabContainer->mChildPanel.push_back( pCurPanelData );
+			else if( aParentPanel )
+				aParentPanel->mChildPanel.push_back( pCurPanelData );
+		}
+		else if( pSCtrl && pSCtrl->getSearchText().size() )
+		{
+			ll::prefs::SearchableItemPtr item = ll::prefs::SearchableItemPtr( new ll::prefs::SearchableItem() );
+			item->mView = pView;
+			item->mCtrl = pSCtrl;
+
+			item->mLabel = utf8str_to_wstring( pSCtrl->getSearchText() );
+			LLWStringUtil::toLower( item->mLabel );
+
+			llassert_always( aParentPanel || aParentTabContainer );
+
+			if( aParentPanel )
+				aParentPanel->mChildren.push_back( item );
+			if( aParentTabContainer )
+				aParentTabContainer->mChildren.push_back( item );
+		}
+		collectChildren( pView, pCurPanelData, pCurTabContainer );
+		++itr;
+	}
+}
+
+void LLFloaterPreference::collectSearchableItems()
+{
+	mSearchData.reset( nullptr );
+	LLTabContainer *pRoot = getChild< LLTabContainer >( "pref core" );
+	if( mFilterEdit && pRoot )
+	{
+		mSearchData.reset(new ll::prefs::SearchData() );
+
+		ll::prefs::TabContainerDataPtr pRootTabcontainer = ll::prefs::TabContainerDataPtr( new ll::prefs::TabContainerData );
+		pRootTabcontainer->mTabContainer = pRoot;
+		pRootTabcontainer->mLabel = pRoot->getLabel();
+		mSearchData->mRootTab = pRootTabcontainer;
+
+		collectChildren( this, ll::prefs::PanelDataPtr(), pRootTabcontainer );
+	}
+}

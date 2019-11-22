@@ -254,7 +254,7 @@ public:
 
 	void stateSort(LLCamera& camera, LLCullResult& result);
 	void stateSort(LLSpatialGroup* group, LLCamera& camera);
-	void stateSort(LLSpatialBridge* bridge, LLCamera& camera);
+	void stateSort(LLSpatialBridge* bridge, LLCamera& camera, BOOL fov_changed = FALSE);
 	void stateSort(LLDrawable* drawablep, LLCamera& camera);
 	void postSort(LLCamera& camera);
 	void forAllVisibleDrawables(void (*func)(LLDrawable*));
@@ -330,10 +330,10 @@ public:
 	void addTrianglesDrawn(S32 index_count, U32 render_geom_mode /* = LLRender::TRIANGLES*/, U32 render_pass_type /*= END_RENDER_TYPES*/);
 
 	bool hasRenderDebugFeatureMask(const U32 mask) const	{ return bool(mRenderDebugFeatureMask & mask); }
-	bool hasRenderDebugMask(const U32 mask) const			{ return bool(mRenderDebugMask & mask); }
+	bool hasRenderDebugMask(const U64 mask) const			{ return bool(mRenderDebugMask & mask); }
 	void setAllRenderDebugFeatures() { mRenderDebugFeatureMask = 0xffffffff; }
 	void clearAllRenderDebugFeatures() { mRenderDebugFeatureMask = 0x0; }
-	void setAllRenderDebugDisplays() { mRenderDebugMask = 0xffffffff; }
+	void setAllRenderDebugDisplays() { mRenderDebugMask = 0xffffffffffffffff; }
 	void clearAllRenderDebugDisplays() { mRenderDebugMask = 0x0; }
 
 	bool hasRenderType(const U32 type) const;
@@ -359,11 +359,11 @@ public:
 
 	// For UI control of render features
 	static bool hasRenderTypeControl(U32 data);
-	static void toggleRenderDebug(U32 data);
+	static void toggleRenderDebug(U64 data);
 	static void toggleRenderDebugFeature(U32 data);
 	static void toggleRenderTypeControl(U32 data);
 	static bool toggleRenderTypeControlNegated(S32 data);
-	static bool toggleRenderDebugControl(U32 data);
+	static bool toggleRenderDebugControl(U64 data);
 	static bool toggleRenderDebugFeatureControl(U32 data);
 	static void setRenderDebugFeatureControl(U32 bit, bool value);
 
@@ -502,7 +502,7 @@ public:
 		RENDER_DEBUG_FEATURE_FOOT_SHADOWS		= 0x0100,
 	};
 
-	enum LLRenderDebugMask
+	enum LLRenderDebugMask: U64
 	{
 		RENDER_DEBUG_COMPOSITION		= 0x00000001,
 		RENDER_DEBUG_VERIFY				= 0x00000002,
@@ -535,7 +535,8 @@ public:
 		RENDER_DEBUG_RENDER_COMPLEXITY  = 0x10000000,
 		RENDER_DEBUG_ATTACHMENT_BYTES	= 0x20000000, // not used
 		RENDER_DEBUG_TEXEL_DENSITY		= 0x40000000,
-		RENDER_DEBUG_TRIANGLE_COUNT		= 0x80000000 
+		RENDER_DEBUG_TRIANGLE_COUNT		= 0x80000000, 
+		RENDER_DEBUG_IMPOSTORS			= 0x100000000
 	};
 
 public:
@@ -672,10 +673,10 @@ protected:
 	std::stack<std::string> mRenderTypeEnableStack;
 
 	U32						mRenderDebugFeatureMask;
-	U32						mRenderDebugMask;
+	U64						mRenderDebugMask;
+	U64						mOldRenderDebugMask;
 	std::stack<U32>			mRenderDebugFeatureStack;
 
-	U32						mOldRenderDebugMask;
 	
 	/////////////////////////////////////////////
 	//

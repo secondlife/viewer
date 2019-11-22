@@ -95,10 +95,12 @@ HttpService::~HttpService()
 			if (! mThread->timedJoin(250))
 			{
 				// Failed to join, expect problems ahead so do a hard termination.
-				mThread->cancel();
+				LL_WARNS(LOG_CORE) << "Destroying HttpService with running thread.  Expect problems." << LL_NEWLINE
+									<< "State: " << S32(sState)
+									<< " Last policy: " << U32(mLastPolicy)
+									<< LL_ENDL;
 
-				LL_WARNS(LOG_CORE) << "Destroying HttpService with running thread.  Expect problems."
-								   << LL_ENDL;
+				mThread->cancel();
 			}
 		}
 	}

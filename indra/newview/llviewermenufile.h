@@ -55,7 +55,8 @@ LLUUID upload_new_resource(
     const std::string& display_name,
     LLAssetStorage::LLStoreAssetCallback callback,
     S32 expected_upload_cost,
-    void *userdata);
+    void *userdata,
+    bool show_inventory = true);
 
 void upload_new_resource(
     LLResourceUploadInfo::ptr_t &uploadInfo,
@@ -81,21 +82,49 @@ public:
 	static void cleanupClass();
 	static void clearDead();
 
-	std::string mFile; 
+	std::vector<std::string> mResponses;
+	std::string mProposedName;
 
-	LLFilePicker::ELoadFilter mFilter;
+	LLFilePicker::ELoadFilter mLoadFilter;
+	LLFilePicker::ESaveFilter mSaveFilter;
+	bool mIsSaveDialog;
+	bool mIsGetMultiple;
 
-	LLFilePickerThread(LLFilePicker::ELoadFilter filter)
-		: LLThread("file picker"), mFilter(filter)
+	LLFilePickerThread(LLFilePicker::ELoadFilter filter, bool get_multiple = false)
+		: LLThread("file picker"), mLoadFilter(filter), mIsSaveDialog(false), mIsGetMultiple(get_multiple)
 	{
+	}
 
+	LLFilePickerThread(LLFilePicker::ESaveFilter filter, const std::string &proposed_name)
+		: LLThread("file picker"), mSaveFilter(filter), mIsSaveDialog(true), mProposedName(proposed_name)
+	{
 	}
 
 	void getFile();
 
 	virtual void run();
 
-	virtual void notify(const std::string& filename) = 0;
+	virtual void notify(const std::vector<std::string>& filenames) = 0;
+};
+
+
+class LLFilePickerReplyThread : public LLFilePickerThread
+{
+public:
+
+	typedef boost::signals2::signal<void(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter load_filter, LLFilePicker::ESaveFilter save_filter)> file_picked_signal_t;
+	
+	LLFilePickerReplyThread(const file_picked_signal_t::slot_type& cb, LLFilePicker::ELoadFilter filter, bool get_multiple, const file_picked_signal_t::slot_type& failure_cb = file_picked_signal_t());
+	LLFilePickerReplyThread(const file_picked_signal_t::slot_type& cb, LLFilePicker::ESaveFilter filter, const std::string &proposed_name, const file_picked_signal_t::slot_type& failure_cb = file_picked_signal_t());
+	~LLFilePickerReplyThread();
+
+	virtual void notify(const std::vector<std::string>& filenames);
+
+private:
+	LLFilePicker::ELoadFilter	mLoadFilter;
+	LLFilePicker::ESaveFilter	mSaveFilter;
+	file_picked_signal_t*		mFilePickedSignal;
+	file_picked_signal_t*		mFailureSignal;
 };
 
 

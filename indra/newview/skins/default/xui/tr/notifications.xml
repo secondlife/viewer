@@ -244,6 +244,10 @@ Lütfen sadece bir nesne seçin ve tekrar deneyin.
 		Not: Bu seçeneği etkinleştirdiğinizde, bu bilgisayarı kullanan herkes en sevdiğiniz konumlar listenizi görebilecek.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
+	<notification name="AllowMultipleViewers">
+		Birden çok Second Life görüntüleyiciyi çalıştırma özelliği desteklenmiyor. Bu durum doku önbelleği çakışmalarına, görsellerin bozulmasına ve performansın düşmesine yol açabilir.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
 	<notification name="GrantModifyRights">
 		Başka bir Sakine değişiklik yapma hakkı verdiğinizde, SL dünyasında sahip olduğunuz HERHANGİ BİR nesneyi değiştirebilme, silebilme veya alabilmelerine izin vermiş olursunuz. Bu izni verirken ÇOK dikkatli olun.
 [NAME] adlı kişiye değişiklik yapma hakkı vermek istiyor musunuz?
@@ -685,6 +689,9 @@ Daha fazla bilgi için [_URL] adresini ziyaret etmek ister misiniz?
 		</url>
 		<usetemplate ignoretext="Bilgisayar donanımım desteklenmiyor" name="okcancelignore" notext="Hayır" yestext="Evet"/>
 	</notification>
+	<notification name="RunLauncher">
+		Lütfen çalıştırılabilir görüntüleyiciyi doğrudan çalıştırmayın. SL_Launcher&apos;ı çalıştırmak yerine tüm mevcut kısayolları güncelleyin.
+	</notification>
 	<notification name="OldGPUDriver">
 		Grafik yonganız için muhtemelen daha yeni bir sürücü mevcut.  Grafik sürücüleri güncellemek performansınızı kayda değer şekilde artırabilir.
 
@@ -715,9 +722,9 @@ Grafik Kalitesi, Tercihler &gt; Grafikler sekmesinden yükseltilebilir.
 		[PARCEL] parseli üzerinde yer şekillendirmesi yapma izniniz bulunmuyor.
 	</notification>
 	<notification name="CannotCopyWarning">
-		Aşağıdaki öğeleri kopyalamak için gerekli izne sahip değilsiniz:
-[ITEMS]
-Bu öğeleri verdiğiniz takdirde envanterinizden çıkacaklar. Bu öğeleri teklif etmeyi gerçekten istiyor musunuz?
+		Aşağıdaki öğeleri kopyalama izniniz yok: 
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt; 
+ve bunları elden çıkardığınız takdirde envanterinizden kaybolacaktır. Bu öğeleri sunmayı gerçekten istiyor musunuz?
 		<usetemplate name="okcancelbuttons" notext="Hayır" yestext="Evet"/>
 	</notification>
 	<notification name="CannotGiveItem">
@@ -1567,6 +1574,30 @@ Lütfen sadece bir nesne seçin ve tekrar deneyin.
 	<notification name="ProblemAddingEstateManagerBanned">
 		Engellenmiş sakin, gayrimenkul yöneticisi listesine eklenemez.
 	</notification>
+	<notification name="ProblemBanningEstateManager">
+		Gayrimenkul yöneticisi [AGENT] engellenen listesine eklenemiyor.
+	</notification>
+	<notification name="GroupIsAlreadyInList">
+		&lt;nolink&gt;[GROUP]&lt;/nolink&gt; zaten İzin Verilen Gruplar listesinde yer alıyor.
+	</notification>
+	<notification name="AgentIsAlreadyInList">
+		[AGENT] zaten [LIST_TYPE] listenizde yer alıyor.
+	</notification>
+	<notification name="AgentsAreAlreadyInList">
+		[AGENT] zaten [LIST_TYPE] listenizde yer alıyor.
+	</notification>
+	<notification name="AgentWasAddedToList">
+		[AGENT], [ESTATE] [LIST_TYPE] listesine eklendi.
+	</notification>
+	<notification name="AgentsWereAddedToList">
+		[AGENT], [ESTATE] [LIST_TYPE] listesine eklendi.
+	</notification>
+	<notification name="AgentWasRemovedFromList">
+		[AGENT], [ESTATE] [LIST_TYPE] listesinden kaldırıldı.
+	</notification>
+	<notification name="AgentsWereRemovedFromList">
+		[AGENT], [ESTATE] [LIST_TYPE] listesinden kaldırıldı.
+	</notification>
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		Giysi ve şekil yüklenene kadar görünüm değiştirilemez.
 	</notification>
@@ -1581,156 +1612,29 @@ Nesneyi satılık olarak ayarlayıp tekrar deneyin.
 		İşlenmemiş yüzey dosyasının şu konuma karşıdan yüklenmesi tamamlandı:
 [DOWNLOAD_PATH].
 	</notification>
-	<notification name="DownloadWindowsMandatory">
-		[APP_NAME] uygulamasının yeni bir sürümü mevcut.
-[MESSAGE]
-[APP_NAME] uygulamasını kullanabilmek için bu güncellemeyi karşıdan yüklemelisiniz.
-		<usetemplate name="okcancelbuttons" notext="Çık" yestext="Karşıdan Yükle"/>
-	</notification>
-	<notification name="DownloadWindows">
-		[APP_NAME] uygulamasının güncellenmiş bir sürümü mevcut.
-[MESSAGE]
-Bu güncelleme zorunlu değil, fakat performans ve kararlılığı iyileştirmek için güncellemeyi yüklemenizi öneririz.
-		<usetemplate name="okcancelbuttons" notext="Devam" yestext="Karşıdan Yükle"/>
-	</notification>
-	<notification name="DownloadWindowsReleaseForDownload">
-		[APP_NAME] uygulamasının güncellenmiş bir sürümü mevcut.
-[MESSAGE]
-Bu güncelleme zorunlu değil, fakat performans ve kararlılığı iyileştirmek için güncellemeyi yüklemenizi öneririz.
-		<usetemplate name="okcancelbuttons" notext="Devam" yestext="Karşıdan Yükle"/>
-	</notification>
-	<notification name="DownloadLinuxMandatory">
-		[APP_NAME] uygulamasının yeni bir sürümü mevcut.
-[MESSAGE]
-[APP_NAME] uygulamasını kullanabilmek için bu güncellemeyi karşıdan yüklemelisiniz.
-		<usetemplate name="okcancelbuttons" notext="Çık" yestext="Karşıdan Yükle"/>
-	</notification>
-	<notification name="DownloadLinux">
-		[APP_NAME] uygulamasının güncellenmiş bir sürümü mevcut.
-[MESSAGE]
-Bu güncelleme zorunlu değil, fakat performans ve kararlılığı iyileştirmek için güncellemeyi yüklemenizi öneririz.
-		<usetemplate name="okcancelbuttons" notext="Devam" yestext="Karşıdan Yükle"/>
-	</notification>
-	<notification name="DownloadLinuxReleaseForDownload">
-		[APP_NAME] uygulamasının güncellenmiş bir sürümü mevcut.
-[MESSAGE]
-Bu güncelleme zorunlu değil, fakat performans ve kararlılığı iyileştirmek için güncellemeyi yüklemenizi öneririz.
-		<usetemplate name="okcancelbuttons" notext="Devam" yestext="Karşıdan Yükle"/>
-	</notification>
-	<notification name="DownloadMacMandatory">
-		[APP_NAME] uygulamasının yeni bir sürümü mevcut.
-[MESSAGE]
-[APP_NAME] uygulamasını kullanabilmek için bu güncellemeyi karşıdan yüklemelisiniz.
-
-Uygulamalar klasörünüze karşıdan yüklensin mi?
-		<usetemplate name="okcancelbuttons" notext="Çık" yestext="Karşıdan Yükle"/>
-	</notification>
-	<notification name="DownloadMac">
-		[APP_NAME] uygulamasının güncellenmiş bir sürümü mevcut.
-[MESSAGE]
-Bu güncelleme zorunlu değil, fakat performans ve kararlılığı iyileştirmek için güncellemeyi yüklemenizi öneririz.
-
-Uygulamalar klasörünüze karşıdan yüklensin mi?
-		<usetemplate name="okcancelbuttons" notext="Devam" yestext="Karşıdan Yükle"/>
-	</notification>
-	<notification name="DownloadMacReleaseForDownload">
-		[APP_NAME] uygulamasının güncellenmiş bir sürümü mevcut.
-[MESSAGE]
-Bu güncelleme zorunlu değil, fakat performans ve kararlılığı iyileştirmek için güncellemeyi yüklemenizi öneririz.
-
-Uygulamalar klasörünüze karşıdan yüklensin mi?
-		<usetemplate name="okcancelbuttons" notext="Devam" yestext="Karşıdan Yükle"/>
-	</notification>
-	<notification name="FailedUpdateInstall">
-		Görüntüleyici güncellemesi yüklenirken bir hata oluştu.
-Lütfen en son görüntüleyiciyi şu adresten karşıdan yükleyin ve kurun: 
-http://secondlife.com/download.
+	<notification name="RequiredUpdate">
+		Oturum açmak için [VERSION] sürümü gerekli. 
+Lütfen https://secondlife.com/support/downloads/ adresinden indirin
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
-	<notification name="FailedRequiredUpdateInstall">
-		Gerekli bir güncellemeyi yükleyemedik. 
-[APP_NAME] güncellenene kadar oturum açamayacaksınız.
-
-Lütfen en son görüntüleyiciyi şu adresten karşıdan yükleyin ve kurun: 
-http://secondlife.com/download.
+	<notification name="PauseForUpdate">
+		Oturum açmak için [VERSION] sürümü gerekli. 
+İndirmek ve yüklemek için Tamam&apos;a tıklayın.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="OptionalUpdateReady">
+		[VERSION] sürümü indirildi ve yüklenmeye hazır. 
+Yüklemek için Tamam&apos;a tıklayın.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="PromptOptionalUpdate">
+		[VERSION] sürümü indirildi ve yüklenmeye hazır. 
+Devam edilsin mi?
+		<usetemplate canceltext="Şimdi Değil" name="yesnocancelbuttons" notext="Atla" yestext="Yükle"/>
+	</notification>
+	<notification name="LoginFailedUnknown">
+		Üzgünüz, oturum açma bilinmeyen bir nedenden dolayı başarısız oldu. Bu mesajı almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		<usetemplate name="okbutton" yestext="Çık"/>
-	</notification>
-	<notification name="UpdaterServiceNotRunning">
-		Second Life kurulumunuz için gerekli bir güncelleme var.
-
-Bu güncellemeyi http://www.secondlife.com/downloads adresinden karşıdan yükleyebilir
-veya şimdi kurabilirsiniz.
-		<usetemplate name="okcancelbuttons" notext="Second Life&apos;tan çık" yestext="Karşıdan yükle ve şimdi kur"/>
-	</notification>
-	<notification name="DownloadBackgroundTip">
-		[APP_NAME] kurulumunuz için bir güncellemeyi karşıdan yükledik.
-Sürüm [VERSION] [[RELEASE_NOTES_FULL_URL] Bu güncelleme hakkında ayrıntılı bilgi]
-		<usetemplate name="okcancelbuttons" notext="Sonra..." yestext="Şimdi kur ve [APP_NAME] uygulamasını yeniden başlat"/>
-	</notification>
-	<notification name="DownloadBackgroundDialog">
-		[APP_NAME] kurulumunuz için bir güncellemeyi karşıdan yükledik.
-Sürüm [VERSION] [[RELEASE_NOTES_FULL_URL] Bu güncelleme hakkında ayrıntılı bilgi]
-		<usetemplate name="okcancelbuttons" notext="Sonra..." yestext="Şimdi kur ve [APP_NAME] uygulamasını yeniden başlat"/>
-	</notification>
-	<notification name="RequiredUpdateDownloadedVerboseDialog">
-		Gerekli bir yazılım güncellemesi indirdik.
-Sürüm [VERSION] [[INFO_URL] Bu güncelleme hakkında ayrıntılı bilgi]
-
-Güncellemeyi yüklemek için [APP_NAME] uygulamasını yeniden başlatmalısınız.
-		<usetemplate name="okbutton" yestext="Tamam"/>
-	</notification>
-	<notification name="RequiredUpdateDownloadedDialog">
-		Güncellemeyi yüklemek için [APP_NAME] uygulamasını yeniden başlatmalısınız.
-[[INFO_URL] Bu güncelleme hakkında bilgi]
-		<usetemplate name="okbutton" yestext="Tamam"/>
-	</notification>
-	<notification name="OtherChannelDownloadBackgroundTip">
-		[APP_NAME] kurulumunuz için bir güncelleme indirdik.
-Sürüm [VERSION] 
-Bu deneysel görüntüleyicinin yerini bir [NEW_CHANNEL] görüntüleyici aldı;
-bkz. [bu güncelleme hakkında bilgi için [INFO_URL]]
-		<usetemplate name="okcancelbuttons" notext="Sonra..." yestext="Şimdi yükle ve [APP_NAME] uygulamasını yeniden başlat"/>
-	</notification>
-	<notification name="OtherChannelDownloadBackgroundDialog">
-		[APP_NAME] kurulumunuz için bir güncelleme indirdik.
-Sürüm [VERSION]
-Bu deneysel görüntüleyicinin yerini bir [NEW_CHANNEL] görüntüleyici aldı;
-bkz. [[INFO_URL] Bu güncelleme hakkında bilgi]
-		<usetemplate name="okcancelbuttons" notext="Sonra..." yestext="Şimdi yükle ve [APP_NAME] uygulamasını yeniden başlat"/>
-	</notification>
-	<notification name="OtherChannelRequiredUpdateDownloadedVerboseDialog">
-		Gerekli bir yazılım güncellemesi indirdik.
-Sürüm [VERSION]
-Bu deneysel görüntüleyicinin yerini bir [NEW_CHANNEL] görüntüleyici aldı;
-bkz. [[INFO_URL] Bu güncelleme hakkında bilgi]
-
-Güncellemeyi yüklemek için [APP_NAME] uygulamasını yeniden başlatmalısınız.
-		<usetemplate name="okbutton" yestext="Tamam"/>
-	</notification>
-	<notification name="OtherChannelRequiredUpdateDownloadedDialog">
-		Güncellemeyi yüklemek için [APP_NAME] uygulamasını yeniden başlatmalısınız.
-Bu deneysel görüntüleyicinin yerini bir [NEW_CHANNEL] görüntüleyici aldı;
-bkz. [[INFO_URL] Bu güncelleme hakkında bilgi]
-		<usetemplate name="okbutton" yestext="Tamam"/>
-	</notification>
-	<notification name="UpdateDownloadInProgress">
-		Bir güncelleme mevcut.
-Şu anda arkaplanda indiriliyor ve hazır olduğunda yüklemeyi bitirmek için görüntüleyicinizi yeniden başlatmanız için sizi uyaracağız.
-		<usetemplate name="okbutton" yestext="Tamam"/>
-	</notification>
-	<notification name="UpdateDownloadComplete">
-		Bir güncelleme indirildi. Yeniden başlatma sırasında yüklenecek.
-		<usetemplate name="okbutton" yestext="Tamam"/>
-	</notification>
-	<notification name="UpdateCheckError">
-		Güncelleme kontrolü yapılırken bir hata oluştu.
-Lütfen daha sonra tekrar deneyin.
-		<usetemplate name="okbutton" yestext="Tamam"/>
-	</notification>
-	<notification name="UpdateViewerUpToDate">
-		Görüntüleyiciniz güncel.
-En yeni özellikleri ve düzeltmeleri görmek için sabırsızlanıyorsanız Alternatif Görüntüleyici sayfasına göz atın. http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers.
-		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="DeedObjectToGroup">
 		Bu nesnenin devredilmesi grubun şunu yapmasına sebep olacak:
@@ -1740,10 +1644,6 @@ En yeni özellikleri ve düzeltmeleri görmek için sabırsızlanıyorsanız Alt
 	<notification name="WebLaunchExternalTarget">
 		Bu içeriği görüntülemek için Web tarayıcınızı açmak istiyor musunuz?
 		<usetemplate ignoretext="Bir web sayfasını görüntülemek için tarayıcımı başlat" name="okcancelignore" notext="İptal" yestext="Tamam"/>
-	</notification>
-	<notification name="SystemUIScaleFactorChanged">
-		Sistem kullanıcı arayüzü faktörü son çalıştırmadan bu yana değişti. Kullanıcı arayüzü büyüklük değiştirme ayarları sayfasını açmak istiyor musunuz?
-		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<notification name="WebLaunchJoinNow">
 		Hesabınızı yönetmek için [http://secondlife.com/account/ Kontrol Paneli] adresine gidilsin mi?
@@ -2013,7 +1913,7 @@ Binlerce bölgeyi değiştirecek ve alan sunucusunu kesintiye uğratacaktır.
 		<usetemplate canceltext="İptal" name="yesnocancelbuttons" notext="Tüm Gayrimenkuller" yestext="Bu Gayrimenkul"/>
 	</notification>
 	<notification label="Gayrimenkul seç" name="EstateBannedAgentRemove">
-		Bu Sakin sadece bu gayrimenkul için mi yasaklı listesinden çıkarılsın, yoksa [ALL_ESTATES] için mi?
+		Bu Sakin sadece bu gayrimenkul için mi yoksa [ALL_ESTATES] için mi erişim yasağı listesinden çıkarılsın?
 		<usetemplate canceltext="İptal" name="yesnocancelbuttons" notext="Tüm Gayrimenkuller" yestext="Bu Gayrimenkul"/>
 	</notification>
 	<notification label="Gayrimenkul seç" name="EstateManagerAdd">
@@ -3191,15 +3091,6 @@ Eğer hesabınıza neden erişmek istediğini tam olarak anlamıyorsanız, eriş
 			<button name="Deny" text="Reddet"/>
 		</form>
 	</notification>
-	<notification name="UnknownScriptQuestion">
-		&apos;[NAME]&apos; tarafından sahip olunan bir nesne olan &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos; tarafından istenen çalışma zamanı komut dosyası izni görüntüleyici tarafından tanınmadı ve verilemez.
-
-Bu izni vermek için lütfen [DOWNLOADURL] adresinden görüntüleyicinizi en son sürüme güncelleyin.
-		<form name="form">
-			<button name="Deny" text="Tamam"/>
-			<button name="Mute" text="Engelle"/>
-		</form>
-	</notification>
 	<notification name="ScriptDialog">
 		[NAME] adlı kişiye ait &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
@@ -3304,16 +3195,22 @@ Sohbete katılmak için Kabul Et&apos;i, daveti geri çevirmek için ise Reddet&
 		[VOICE_CHANNEL_NAME] ile bağlantı kurulamadı, lütfen daha sonra tekrar deneyin. Şimdi Yakındaki bir Sesli Sohbete yeniden bağlanılacaksınız.
 	</notification>
 	<notification name="VoiceEffectsExpired">
-		Abone olduğunuz Ses Şekillerinden birinin ya da daha fazlasının süresi dolmuş.
-Aboneliğinizi yenilemek için [[URL] burayı tıklatın].
+		Abone olduğunuz Ses Dönüşümlerinden birinin ya da daha fazlasının süresi dolmuş. 
+Aboneliğinizi yenilemek için [[URL] buraya tıklayın]. 
+
+Özel Üye iseniz, ses dönüştürme özelliğini almak için [[PREMIUM_URL] buraya tıklayın].
 	</notification>
 	<notification name="VoiceEffectsExpiredInUse">
-		Etkin Ses Şeklinin süresi dolmuş, normal ses ayarlarınız uygulandı.
-Aboneliğinizi yenilemek için [[URL] burayı tıklatın].
+		Etkin Ses Dönüşümünün süresi dolmuş, normal ses ayarlarınız uygulandı. 
+Aboneliğinizi yenilemek için [[URL] buraya tıklayın]. 
+
+Özel Üye iseniz, ses dönüştürme özelliğini almak için [[PREMIUM_URL] buraya tıklayın].
 	</notification>
 	<notification name="VoiceEffectsWillExpire">
-		Abone olduğunuz Ses Şekillerinden birinin ya da daha fazlasının süresi [INTERVAL] gün içinde dolacak.
-Aboneliğinizi yenilemek için [[URL] burayı tıklatın].
+		Ses Dönüşümlerinizden birinin ya da daha fazlasının süresi [INTERVAL] günden daha az bir zamanda dolacak. 
+Aboneliğinizi yenilemek için [[URL] buraya tıklayın]. 
+
+Özel Üye iseniz, ses dönüştürme özelliğini almak için [[PREMIUM_URL] buraya tıklayın].
 	</notification>
 	<notification name="VoiceEffectsNew">
 		Yeni Ses Şekilleri kullanılabilir!
@@ -3365,8 +3262,14 @@ Güvenliğiniz için birkaç saniye engellenecek.
 	<notification name="SnapshotToComputerFailed">
 		Anlık görüntü [PATH] yoluna kaydedilemedi: Disk dolu. [NEED_MEMORY]KB gerekli ancak yalnızca [FREE_MEMORY]KB boş.
 	</notification>
+	<notification name="SnapshotToLocalDirNotExist">
+		Anlık görüntü [PATH] yoluna kaydedilemedi: Dizin mevcut değil.
+	</notification>
 	<notification name="PresetNotSaved">
 		Ön ayar ([NAME]) kaydedilirken hata oluştu.
+	</notification>
+	<notification name="DefaultPresetNotSaved">
+		Varsayılan ön ayarın üzerine yazılamıyor.
 	</notification>
 	<notification name="PresetNotDeleted">
 		Ön ayar ([NAME]) silinirken hata oluştu.
@@ -3509,6 +3412,10 @@ Lütfen ağ ve güvenlik duvarı ayarlarınızı kontrol edin.
 Yönlendiricinizdeki her SIP ALG özelliğini devre dışı bırakın. 
 
 Sesli iletişim kullanılamayacak.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="NoVoiceConnect-GIAB">
+		Ses sunucunuz ile bağlantı kurma konusunda sorun yaşıyoruz. Ses bağlantıları kullanılamayacak. Lütfen ağ ve güvenlik duvarı ayarlarınızı kontrol edin.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="AvatarRezLeftNotification">
@@ -3847,13 +3754,13 @@ Girişim iptal edildi.
 		Sahibi olmadığınız arazide ağaçlar ve çimen oluşturamazsınız.
 	</notification>
 	<notification name="NoCopyPermsNoObject">
-		&apos;[OBJ_NAME]&apos; nesnesini kopyalama izniniz olmadığı için kopyalama başarılamadı.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesnesini kopyalama izniniz olmadığından kopyalama başarısız oldu.
 	</notification>
 	<notification name="NoTransPermsNoObject">
-		&apos;[OBJ_NAME]&apos; nesnesi size aktarılamadığı için kopyalama başarılamadı.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesnesi size devredilemediğinden kopyalama başarısız oldu.
 	</notification>
 	<notification name="AddToNavMeshNoCopy">
-		&apos;[OBJ_NAME]&apos; nesnesi navmesh&apos;e katkıda bulunduğu için kopyalama başarılamadı.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesnesi navigasyon örgüsüne katkıda bulunduğundan kopyalama başarısız oldu.
 	</notification>
 	<notification name="DupeWithNoRootsSelected">
 		Kök nesne seçili olmayan kopya.
@@ -3898,34 +3805,34 @@ Lütfen bir dakika sonra tekrar deneyin.
 		Envantere Geri Kaydet devre dışı bırakıldı.
 	</notification>
 	<notification name="NoExistNoSaveToContents">
-		&apos;[OBJ_NAME]&apos; nesne içeriğine kaydedilemedi, çünkü oluşturulurken temel alınan nesne artık mevcut değil.
+		Yeniden canlandırıldığı nesne artık mevcut olmadığından &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesne içeriklerine kaydedilemiyor.
 	</notification>
 	<notification name="NoModNoSaveToContents">
-		&apos;[DEST_NAME]&apos; nesnesini değiştirme izniniz olmadığı için &apos;[OBJ_NAME]&apos; nesne içeriğine kaydedilemedi.
+		&lt;nolink&gt;&apos;[DEST_NAME]&apos;&lt;/nolink&gt; nesnesini değiştirme izniniz olmadığından &lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesne içeriklerine kaydedilemiyor.
 	</notification>
 	<notification name="NoSaveBackToInvDisabled">
-		&apos;[OBJ_NAME]&apos; envantere geri kaydedilemez -- bu işlem devre dışı bırakıldı.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; envantere tekrar kaydedilemiyor -- bu işlem devre dışı bırakılmış.
 	</notification>
 	<notification name="NoCopyNoSelCopy">
-		&apos;[OBJ_NAME]&apos; nesnesini kopyalama izniniz olmadığı için seçiminizi kopyalamayazsınız.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesnesini kopyalama izniniz olmadığından seçiminizi kopyalayamazsınız.
 	</notification>
 	<notification name="NoTransNoSelCopy">
-		&apos;[OBJ_NAME]&apos; nesnesi aktarılamaz olduğu için seçiminizi kopyalayamazsınız.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesnesi devredilebilir olmadığından seçiminizi kopyalayamazsınız.
 	</notification>
 	<notification name="NoTransNoCopy">
-		&apos;[OBJ_NAME]&apos; nesnesi aktarılamaz olduğu için seçiminizi kopyalayamazsınız.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesnesi devredilebilir olmadığından seçiminizi kopyalayamazsınız.
 	</notification>
 	<notification name="NoPermsNoRemoval">
-		Benzeticiden &apos;[OBJ_NAME]&apos; nesnesinin kaldırılmasına izinler sistemi izin vermiyor.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesnesinin simülatörden kaldırılmasına izin sistemi tarafından izin verilmiyor.
 	</notification>
 	<notification name="NoModNoSaveSelection">
-		&apos;[OBJ_NAME]&apos; nesnesini değiştirme izniniz olmadığı için seçiminizi kaydedemezsiniz.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesnesini değiştirme izniniz olmadığından seçiminiz kaydedilemiyor.
 	</notification>
 	<notification name="NoCopyNoSaveSelection">
-		&apos;[OBJ_NAME]&apos; nesnesi kopyalanamaz olduğu için seçiminizi kaydedemezsiniz.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesnesi kopyalanabilir olmadığından seçiminiz kaydedilemiyor.
 	</notification>
 	<notification name="NoModNoTaking">
-		&apos;[OBJ_NAME]&apos; nesnesini değiştirme izniniz olmadığı için seçiminizi alamazsınız.
+		&lt;nolink&gt;&apos;[OBJ_NAME]&apos;&lt;/nolink&gt; nesnesini değiştirme izniniz olmadığından seçiminizi alamazsınız.
 	</notification>
 	<notification name="RezDestInternalError">
 		Dahili Hata: Bilinmeyen hedef türü.
@@ -4122,6 +4029,9 @@ Lütfen bir dakika sonra tekrar deneyin.
 	<notification name="CantCreateObjectRegionFull">
 		Talep edilen nesne oluşturulamıyor. Bölge dolu.
 	</notification>
+	<notification name="CantCreateAnimatedObjectTooLarge">
+		Giydirilmiş üçgen limitini aştığından dolayı istenen animasyonlu nesne oluşturulamıyor.
+	</notification>
 	<notification name="CantAttackMultipleObjOneSpot">
 		Tek bir noktaya birden fazla nesne iliştiremezsiniz.
 	</notification>
@@ -4169,6 +4079,21 @@ Lütfen bir dakika sonra tekrar deneyin.
 	</notification>
 	<notification name="CantChangeShape">
 		Bu şekli değiştirmenize izin verilmiyor.
+	</notification>
+	<notification name="NoPermsTooManyAttachedAnimatedObjects">
+		İşlem, ekli animasyonlu nesne sayısının limiti aşmasına neden olabilir.
+	</notification>
+	<notification name="NoPermsLinkAnimatedObjectTooLarge">
+		Elde edilen animasyonlu nesne giydirilmiş üçgen limitini aşacağından dolayı bu nesneler birleştirilemez.
+	</notification>
+	<notification name="NoPermsSetFlagAnimatedObjectTooLarge">
+		Giydirilmiş üçgen limitini aşacağından dolayı bu nesne bir animasyonlu nesneye dönüştürülemez.
+	</notification>
+	<notification name="CantChangeAnimatedObjectStateInsufficientLand">
+		Parsel limitinin aşılmasına neden olacağından dolayı bu nesnenin animasyonlu nesne durumu değiştirilemez.
+	</notification>
+	<notification name="ErrorNoMeshData">
+		Sunucu hatası: ağ verileri yüklenmediğinden dolayı bu işlem tamamlanamıyor.
 	</notification>
 	<notification name="NoAccessToClaimObjects">
 		Erişim ayrıcalıklarınız burada nesneler üzerinde hak talebinde bulunmanıza izin vermiyor.
@@ -4431,7 +4356,7 @@ Daha küçük bir arazi parçası seçmeyi deneyin.
 		Dahili bir hata nedeniyle görüntüleyicinizi gerektiği gibi güncelleyemedik.  Görüntüleyicinizde gösterilen L$ bakiyesi veya parsel tutarı sunucular üzerinde gerçekteki bakiyenizi yansıtmayabilir.
 	</notification>
 	<notification name="LargePrimAgentIntersect">
-		Başka oyuncularla kesişen büyük primler oluşturulamaz.  Öbür oyuncular hareket ettiğinde lütfen tekrar deneyin.
+		Diğer sakinler ile kesişen büyük primler oluşturulamaz. Lütfen diğer sakinler taşındıktan sonra yeniden deneyin.
 	</notification>
 	<notification name="PreferenceChatClearLog">
 		Bu, geçmiş sohbetlerin günlüklerini ve bu dosyanın tüm yedeklerini silecektir.

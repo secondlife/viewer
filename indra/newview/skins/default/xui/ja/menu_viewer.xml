@@ -9,9 +9,11 @@
 		<menu_item_call label="場所..." name="Places"/>
 		<menu_item_call label="ピック..." name="Picks"/>
 		<menu_item_call label="体験..." name="Experiences"/>
+		<menu_item_call label="スクリプト…" name="MyScripts"/>
 		<menu_item_call label="カメラコントロール..." name="Camera Controls"/>
 		<menu label="ムーブメント" name="Movement">
 			<menu_item_call label="座る" name="Sit Down Here"/>
+			<menu_item_call label="立ち上がる" name="Stand up"/>
 			<menu_item_check label="飛ぶ" name="Fly"/>
 			<menu_item_check label="常に走る" name="Always Run"/>
 			<menu_item_call label="私のアニメーションを停止する" name="Stop Animating My Avatar"/>
@@ -77,11 +79,11 @@
 			<menu_item_check label="区画プロパティ" name="Parcel Properties"/>
 			<menu_item_check label="アドバンスメニュー" name="Show Advanced Menu"/>
 		</menu>
-		<menu label="太陽" name="Sun">
+		<menu label="日" name="Sun">
 			<menu_item_check label="日の出" name="Sunrise"/>
 			<menu_item_check label="正午" name="Noon"/>
 			<menu_item_check label="日没" name="Sunset"/>
-			<menu_item_check label="真夜中" name="Midnight"/>
+			<menu_item_check label="深夜" name="Midnight"/>
 			<menu_item_check label="リージョンの設定を使用" name="Use Region Settings"/>
 		</menu>
 		<menu label="自然環境エディター" name="Environment Editor">
@@ -278,7 +280,6 @@
 			<menu_item_check label="マトリックスを表示する" name="Show Matrices"/>
 			<menu_item_check label="カーソルを乗せた場所の色を表示する" name="Show Color Under Cursor"/>
 			<menu_item_check label="メモリを表示：" name="Show Memory"/>
-			<menu_item_check label="プライベートメモリ情報を表示" name="Show Private Mem Info"/>
 			<menu_item_check label="オブジェクトのアップデートを表示する" name="Show Updates"/>
 		</menu>
 		<menu label="エラー実行" name="Force Errors">
@@ -313,6 +314,7 @@
 			<menu_item_check label="テクスチャの範囲" name="Texture Area"/>
 			<menu_item_check label="側面" name="Face Area"/>
 			<menu_item_check label="LOD 情報" name="LOD Info"/>
+			<menu_item_check label="三角形の数" name="Triangle Count"/>
 			<menu_item_check label="制作キュー" name="Build Queue"/>
 			<menu_item_check label="光" name="Lights"/>
 			<menu_item_check label="パーティクル" name="Particles"/>
@@ -425,6 +427,7 @@
 			<menu_item_check label="骨組みの衝突判定を表示する" name="Show Collision Skeleton"/>
 			<menu_item_check label="骨を表示" name="Show Bones"/>
 			<menu_item_check label="エージェントのターゲットを表示する" name="Display Agent Target"/>
+			<menu_item_check label="インポスターの範囲を表示" name="Show Impostor Extents"/>
 			<menu_item_call label="アタッチメントをダンプ" name="Dump Attachments"/>
 			<menu_item_call label="アバターテクスチャをデバッグ" name="Debug Avatar Textures"/>
 			<menu_item_call label="ローカルテクスチャをダンプ" name="Dump Local Textures"/>

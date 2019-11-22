@@ -12,6 +12,10 @@
     name="forgot_password_url">
     http://secondlife.com/account/request.php
   </panel.string>
+  <panel.string
+    name="sign_up_url">
+    https://join.secondlife.com/
+  </panel.string>
   <layout_stack
     follows="left|right|top|bottom"
     width="1024"
@@ -167,6 +171,17 @@
             top="34"
             width="200">
             Forgotten password
+          </text>
+          <text
+            follows="left|top"
+            font="SansSerifLarge"
+            text_color="EmphasisColor"
+            height="16"
+            name="sign_up_text"
+            left="432"
+            top="34"
+            width="200">
+            Sign up
           </text>
         </layout_panel>
         <layout_panel

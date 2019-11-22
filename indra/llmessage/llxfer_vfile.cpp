@@ -79,8 +79,20 @@ void LLXfer_VFile::init (LLVFS *vfs, const LLUUID &local_id, LLAssetType::EType 
 
 void LLXfer_VFile::cleanup ()
 {
-	LLVFile file(mVFS, mTempID, mType, LLVFile::WRITE);
-	file.remove();
+	if (mTempID.notNull() &&
+		mDeleteTempFile)
+	{
+		if (mVFS->getExists(mTempID, mType))
+		{
+			LLVFile file(mVFS, mTempID, mType, LLVFile::WRITE);
+			file.remove();
+		}
+		else
+		{
+			LL_WARNS("Xfer") << "LLXfer_VFile::cleanup() can't open to delete VFS file " << mTempID << "." << LLAssetType::lookup(mType)		
+				<< ", mRemoteID is " << mRemoteID << LL_ENDL;
+		}
+	}
 
 	delete mVFile;
 	mVFile = NULL;
@@ -118,7 +130,7 @@ S32 LLXfer_VFile::initializeRequest(U64 xfer_id,
 
 	mName = llformat("VFile %s:%s", id_string.c_str(), LLAssetType::lookup(mType));
 
-	LL_INFOS() << "Requesting " << mName << LL_ENDL;
+	LL_INFOS("Xfer") << "Requesting " << mName << LL_ENDL;
 
 	if (mBuffer)
 	{
@@ -131,6 +143,7 @@ S32 LLXfer_VFile::initializeRequest(U64 xfer_id,
 	mBufferLength = 0;
 	mPacketNum = 0;
 	mTempID.generate();
+	mDeleteTempFile = TRUE;
  	mStatus = e_LL_XFER_PENDING;
 	return retval;
 }
@@ -140,7 +153,8 @@ S32 LLXfer_VFile::initializeRequest(U64 xfer_id,
 S32 LLXfer_VFile::startDownload()
 {
  	S32 retval = 0;  // presume success
-	LLVFile file(mVFS, mTempID, mType, LLVFile::APPEND);
+
+	// Don't need to create the file here, it will happen when data arrives
 
 	gMessageSystem->newMessageFast(_PREHASH_RequestXfer);
 	gMessageSystem->nextBlockFast(_PREHASH_XferID);
@@ -184,6 +198,8 @@ S32 LLXfer_VFile::startSend (U64 xfer_id, const LLHost &remote_host)
 
 		if (mVFile->getSize() <= 0)
 		{
+			LL_WARNS("Xfer") << "LLXfer_VFile::startSend() VFS file " << mLocalID << "." << LLAssetType::lookup(mType)		
+				<< " has unexpected file size of " << mVFile->getSize() << LL_ENDL;
 			delete mVFile;
 			mVFile = NULL;
 
@@ -198,6 +214,7 @@ S32 LLXfer_VFile::startSend (U64 xfer_id, const LLHost &remote_host)
 	}
 	else
 	{
+		LL_WARNS("Xfer") << "LLXfer_VFile::startSend() can't read VFS file " << mLocalID << "." << LLAssetType::lookup(mType) << LL_ENDL;
 		retval = LL_ERR_FILE_NOT_FOUND;
 	}
 
@@ -205,6 +222,41 @@ S32 LLXfer_VFile::startSend (U64 xfer_id, const LLHost &remote_host)
 }
 
 ///////////////////////////////////////////////////////////
+
+void LLXfer_VFile::closeFileHandle()
+{
+	if (mVFile)
+	{
+		delete mVFile;
+		mVFile = NULL;
+	}
+}
+
+///////////////////////////////////////////////////////////
+
+S32 LLXfer_VFile::reopenFileHandle()
+{
+	S32 retval = LL_ERR_NOERR;  // presume success
+
+	if (mVFile == NULL)
+	{
+		if (mVFS->getExists(mLocalID, mType))
+		{
+			mVFile = new LLVFile(mVFS, mLocalID, mType, LLVFile::READ);
+		}
+		else
+		{
+			LL_WARNS("Xfer") << "LLXfer_VFile::reopenFileHandle() can't read VFS file " << mLocalID << "." << LLAssetType::lookup(mType) << LL_ENDL;
+			retval = LL_ERR_FILE_NOT_FOUND;
+		}
+	}
+
+	return retval;
+}
+
+
+///////////////////////////////////////////////////////////
+
 void LLXfer_VFile::setXferSize (S32 xfer_size)
 {	
 	LLXfer::setXferSize(xfer_size);
@@ -236,8 +288,8 @@ S32 LLXfer_VFile::suck(S32 start_position)
 		// grab a buffer from the right place in the file
 		if (! mVFile->seek(start_position, 0))
 		{
-			LL_WARNS() << "VFile Xfer Can't seek to position " << start_position << ", file length " << mVFile->getSize() << LL_ENDL;
-			LL_WARNS() << "While sending file " << mLocalID << LL_ENDL;
+			LL_WARNS("Xfer") << "VFile Xfer Can't seek to position " << start_position << ", file length " << mVFile->getSize() << LL_ENDL;
+			LL_WARNS("Xfer") << "While sending file " << mLocalID << LL_ENDL;
 			return -1;
 		}
 		
@@ -288,12 +340,31 @@ S32 LLXfer_VFile::processEOF()
 
 	if (!mCallbackResult)
 	{
-		LLVFile file(mVFS, mTempID, mType, LLVFile::WRITE);
-		if (! file.rename(mLocalID, mType))
+		if (mVFS->getExists(mTempID, mType))
 		{
-			LL_INFOS() << "copy from temp file failed: unable to rename to " << mLocalID << LL_ENDL;
+			LLVFile file(mVFS, mTempID, mType, LLVFile::WRITE);
+			if (!file.rename(mLocalID, mType))
+			{
+				LL_WARNS("Xfer") << "VFS rename of temp file failed: unable to rename " << mTempID << " to " << mLocalID << LL_ENDL;
+			}
+			else
+			{					
+				#ifdef VFS_SPAM
+				// Debugging spam
+				LL_INFOS("Xfer") << "VFS rename of temp file done: renamed " << mTempID << " to " << mLocalID 
+					<< " LLVFile size is " << file.getSize()
+					<< LL_ENDL;
+				#endif				
+				
+				// Rename worked: the original file is gone.   Clear mDeleteTempFile
+				// so we don't attempt to delete the file in cleanup()
+				mDeleteTempFile = FALSE;
+			}
 		}
-
+		else
+		{
+			LL_WARNS("Xfer") << "LLXfer_VFile::processEOF() can't open for renaming VFS file " << mTempID << "." << LLAssetType::lookup(mType) << LL_ENDL;
+		}
 	}
 
 	if (mVFile)
@@ -336,3 +407,4 @@ U32 LLXfer_VFile::getXferTypeTag()
 {
 	return LLXfer::XFER_VFILE;
 }
+

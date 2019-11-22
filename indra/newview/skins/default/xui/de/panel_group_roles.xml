@@ -96,6 +96,11 @@ um mehrere Mitglieder auszuwählen.
 			<scroll_list.columns label="" name="action"/>
 		</scroll_list>
 	</panel>
+	<panel name="members_header">
+		<text_editor name="member_action_description">
+			Diese Fähigkeit wird als „Mitglieder dieser Gruppe verweisen“ bezeichnet. Eigentümer können nur von anderen Eigentümern verwiesen werden.
+		</text_editor>
+	</panel>
 	<panel name="roles_footer">
 		<text name="static">
 			Rolle:
@@ -120,6 +125,11 @@ um mehrere Mitglieder auszuwählen.
 			<scroll_list.columns label="" name="checkbox"/>
 			<scroll_list.columns label="" name="action"/>
 		</scroll_list>
+	</panel>
+	<panel name="roles_header">
+		<text_editor name="role_action_description">
+			Diese Fähigkeit wird als „Mitglieder dieser Gruppe verweisen“ bezeichnet. Eigentümer können nur von anderen Eigentümern verwiesen werden.
+		</text_editor>
 	</panel>
 	<panel name="actions_footer">
 		<text_editor name="action_description">

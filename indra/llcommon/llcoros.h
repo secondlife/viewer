@@ -156,6 +156,9 @@ public:
     /// for delayed initialization
     void setStackSize(S32 stacksize);
 
+    /// for delayed initialization
+    void printActiveCoroutines();
+
     /// get the current coro::self& for those who really really care
     static coro::self& get_self();
 
@@ -170,6 +173,26 @@ public:
      */
     static void set_consuming(bool consuming);
     static bool get_consuming();
+
+    /**
+     * RAII control of the consuming flag
+     */
+    class OverrideConsuming
+    {
+    public:
+        OverrideConsuming(bool consuming):
+            mPrevConsuming(get_consuming())
+        {
+            set_consuming(consuming);
+        }
+        ~OverrideConsuming()
+        {
+            set_consuming(mPrevConsuming);
+        }
+
+    private:
+        bool mPrevConsuming;
+    };
 
     /**
      * Please do NOT directly use boost::dcoroutines::future! It is essential
@@ -228,6 +251,7 @@ private:
         // function signature down to that point -- and of course through every
         // other caller of every such function.
         LLCoros::coro::self* mSelf;
+        F64 mCreationTime; // since epoch
     };
     typedef boost::ptr_map<std::string, CoroData> CoroMap;
     CoroMap mCoros;
