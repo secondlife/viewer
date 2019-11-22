@@ -140,7 +140,7 @@ public:
      * (e.g. if the coroutine was launched by hand rather than using
      * LLCoros::launch()).
      */
-    std::string getName() const;
+    static std::string getName();
 
     /**
      * For delayed initialization. To be clear, this will only affect
@@ -295,7 +295,7 @@ inline
 std::string logname()
 {
     static std::string main("main");
-    std::string name(LLCoros::instance().getName());
+    std::string name(LLCoros::getName());
     return name.empty()? main : name;
 }
 

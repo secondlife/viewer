@@ -148,7 +148,7 @@ void LLLogin::Impl::loginCoro(std::string uri, LLSD login_params)
     }
     try
     {
-    LL_DEBUGS("LLLogin") << "Entering coroutine " << LLCoros::instance().getName()
+    LL_DEBUGS("LLLogin") << "Entering coroutine " << LLCoros::getName()
                         << " with uri '" << uri << "', parameters " << printable_params << LL_ENDL;
 
     LLEventPump& xmlrpcPump(LLEventPumps::instance().obtain("LLXMLRPCTransaction"));
@@ -307,7 +307,7 @@ void LLLogin::Impl::loginCoro(std::string uri, LLSD login_params)
     sendProgressEvent("offline", "fail.login", error_response);
     }
     catch (...) {
-        CRASH_ON_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << LLCoros::instance().getName()
+        CRASH_ON_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << LLCoros::getName()
                                                << "('" << uri << "', " << printable_params << ")"));
     }
 }

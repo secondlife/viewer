@@ -192,7 +192,8 @@ bool LLCoros::kill(const std::string& name)
 }
 |*==========================================================================*/
 
-std::string LLCoros::getName() const
+//static
+std::string LLCoros::getName()
 {
     return get_CoroData("getName()").mName;
 }
@@ -320,11 +321,20 @@ void LLCoros::toplevel(std::string name, callable_t callable)
     }
 }
 
+//static
 void LLCoros::checkStop()
 {
     if (wasDeleted())
     {
         LLTHROW(Shutdown("LLCoros was deleted"));
+    }
+    // do this AFTER the check above, because getName() depends on
+    // get_CoroData(), which depends on the local_ptr in our instance().
+    if (getName().empty())
+    {
+        // Our Stop exception and its subclasses are intended to stop loitering
+        // coroutines. Don't throw it from the main coroutine.
+        return;
     }
     if (LLApp::isStopped())
     {

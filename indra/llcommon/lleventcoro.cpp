@@ -62,7 +62,7 @@ namespace
 std::string listenerNameForCoro()
 {
     // If this coroutine was launched by LLCoros::launch(), find that name.
-    std::string name(LLCoros::instance().getName());
+    std::string name(LLCoros::getName());
     if (! name.empty())
     {
         return name;
