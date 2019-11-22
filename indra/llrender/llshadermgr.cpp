@@ -574,7 +574,7 @@ void LLShaderMgr::dumpShaderSource(U32 shader_code_count, GLcharARB** shader_cod
 	{
 		GLcharARB *line = shader_code_text[i];
 		size_t     len  = strlen( line );
-		char       last = len > 0 ? line[len - 1] : 0;
+		GLcharARB  last = len > 0 ? line[len - 1] : 0;
 
 		// LL_ENDL already outputs a newline so temporarily strip off the end newline to prevent EVERY line outputting an (extra) blank line
 		if (last == '\n')
