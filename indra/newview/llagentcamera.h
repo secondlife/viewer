@@ -262,7 +262,8 @@ public:
 	void			cameraOrbitAround(const F32 radians);	// Rotate camera CCW radians about build focus point
 	void			cameraOrbitOver(const F32 radians);		// Rotate camera forward radians over build focus point
 	void			cameraOrbitIn(const F32 meters);		// Move camera in toward build focus point
-
+	void			resetCameraOrbit();
+	void			resetOrbitDiff();
 	//--------------------------------------------------------------------
 	// Zoom
 	//--------------------------------------------------------------------
@@ -279,8 +280,9 @@ public:
 public:
 	void			cameraPanIn(const F32 meters);
 	void			cameraPanLeft(const F32 meters);
-	void			cameraPanUp(const F32 meters);
-	
+	void			cameraPanUp(const F32 meters);	
+	void			resetCameraPan();
+	void			resetPanDiff();
 	//--------------------------------------------------------------------
 	// View
 	//--------------------------------------------------------------------
@@ -367,6 +369,9 @@ private:
 	F32				mOrbitInKey;
 	F32				mOrbitOutKey;
 
+	F32				mOrbitAroundRadians;
+	F32				mOrbitOverAngle;
+
 	//--------------------------------------------------------------------
 	// Pan
 	//--------------------------------------------------------------------
@@ -393,6 +398,8 @@ private:
 	F32				mPanRightKey;					
 	F32				mPanInKey;
 	F32				mPanOutKey;
+
+	LLVector3d		mPanFocusDiff;
 
 /**                    Keys
  **                                                                            **

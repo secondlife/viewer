@@ -37,6 +37,7 @@
 #include "llui.h"
 #include "llagent.h"
 #include "llagentcamera.h"
+#include "llviewercamera.h"
 #include "llviewertexture.h"
 #include "llviewertexturelist.h"
 #include "llviewerwindow.h"
@@ -53,6 +54,8 @@ static LLDefaultChildRegistry::Register<LLJoystickCameraTrack> r5("joystick_trac
 
 const F32 NUDGE_TIME = 0.25f;		// in seconds
 const F32 ORBIT_NUDGE_RATE = 0.05f; // fraction of normal speed
+
+const S32 CENTER_DOT_RADIUS = 7;
 
 //
 // Public Methods
@@ -138,7 +141,23 @@ bool LLJoystick::pointInCircle(S32 x, S32 y) const
 	//center is x and y coordinates of center of joystick circle, and also its radius
 	int center = this->getLocalRect().getHeight()/2;
 	bool in_circle = (x - center) * (x - center) + (y - center) * (y - center) <= center * center;
+	
 	return in_circle;
+}
+
+bool LLJoystick::pointInCenterDot(S32 x, S32 y, S32 radius) const
+{
+	if (this->getLocalRect().getHeight() != this->getLocalRect().getWidth())
+	{
+		LL_WARNS() << "Joystick shape is not square" << LL_ENDL;
+		return true;
+	}
+
+	S32 center = this->getLocalRect().getHeight() / 2;
+
+	bool in_center_circle = (x - center) * (x - center) + (y - center) * (y - center) <= radius * radius;
+
+	return in_center_circle;
 }
 
 BOOL LLJoystick::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -403,8 +422,11 @@ LLJoystickCameraRotate::LLJoystickCameraRotate(const LLJoystickCameraRotate::Par
 	mInLeft( FALSE ),
 	mInTop( FALSE ),
 	mInRight( FALSE ),
-	mInBottom( FALSE )
-{ }
+	mInBottom( FALSE ),
+	mInCenter( FALSE )
+{ 
+	mCenterImageName = "Cam_Rotate_Center";
+}
 
 
 void LLJoystickCameraRotate::updateSlop()
@@ -434,7 +456,16 @@ BOOL LLJoystickCameraRotate::handleMouseDown(S32 x, S32 y, MASK mask)
 	S32 dx = x - horiz_center;
 	S32 dy = y - vert_center;
 
-	if (dy > dx && dy > -dx)
+	if (pointInCenterDot(x, y, CENTER_DOT_RADIUS))
+	{
+		mInitialOffset.mX = 0;
+		mInitialOffset.mY = 0;
+		mInitialQuadrant = JQ_ORIGIN;
+		mInCenter = TRUE;
+
+		resetJoystickCamera();
+	}
+	else if (dy > dx && dy > -dx)
 	{
 		// top
 		mInitialOffset.mX = 0;
@@ -469,7 +500,18 @@ BOOL LLJoystickCameraRotate::handleMouseDown(S32 x, S32 y, MASK mask)
 BOOL LLJoystickCameraRotate::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	gAgent.setMovementLocked(FALSE);
+	mInCenter = FALSE;
 	return LLJoystick::handleMouseUp(x, y, mask);
+}
+
+BOOL LLJoystickCameraRotate::handleHover(S32 x, S32 y, MASK mask)
+{
+	if (!pointInCenterDot(x, y, CENTER_DOT_RADIUS))
+	{
+		mInCenter = FALSE;
+	}
+
+	return LLJoystick::handleHover(x, y, mask);
 }
 
 void LLJoystickCameraRotate::onHeldDown()
@@ -504,6 +546,11 @@ void LLJoystickCameraRotate::onHeldDown()
 	}
 }
 
+void LLJoystickCameraRotate::resetJoystickCamera()
+{
+	gAgentCamera.resetCameraOrbit();
+}
+
 F32 LLJoystickCameraRotate::getOrbitRate()
 {
 	F32 time = getElapsedHeldDownTime();
@@ -536,24 +583,31 @@ void LLJoystickCameraRotate::draw()
 	getImageUnselected()->draw( 0, 0 );
 	LLPointer<LLUIImage> image = getImageSelected();
 
-	if( mInTop )
+	if (mInCenter)
 	{
-		drawRotatedImage( getImageSelected(), 0 );
+		drawRotatedImage(LLUI::getUIImage(mCenterImageName), 0);
 	}
-
-	if( mInRight )
+	else
 	{
-		drawRotatedImage( getImageSelected(), 1 );
-	}
+		if (mInTop)
+		{
+			drawRotatedImage(getImageSelected(), 0);
+		}
 
-	if( mInBottom )
-	{
-		drawRotatedImage( getImageSelected(), 2 );
-	}
+		if (mInRight)
+		{
+			drawRotatedImage(getImageSelected(), 1);
+		}
 
-	if( mInLeft )
-	{
-		drawRotatedImage( getImageSelected(), 3 );
+		if (mInBottom)
+		{
+			drawRotatedImage(getImageSelected(), 2);
+		}
+
+		if (mInLeft)
+		{
+			drawRotatedImage(getImageSelected(), 3);
+		}
 	}
 }
 
@@ -613,7 +667,9 @@ LLJoystickCameraTrack::Params::Params()
 
 LLJoystickCameraTrack::LLJoystickCameraTrack(const LLJoystickCameraTrack::Params& p)
 :	LLJoystickCameraRotate(p)
-{}
+{
+	mCenterImageName = "Cam_Tracking_Center";
+}
 
 
 void LLJoystickCameraTrack::onHeldDown()
@@ -645,4 +701,9 @@ void LLJoystickCameraTrack::onHeldDown()
 		gAgentCamera.unlockView();
 		gAgentCamera.setPanDownKey(getOrbitRate());
 	}
+}
+
+void LLJoystickCameraTrack::resetJoystickCamera()
+{
+	gAgentCamera.resetCameraPan();
 }

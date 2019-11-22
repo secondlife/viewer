@@ -79,7 +79,8 @@ public:
 	 * Image containing circle is square and this square has adherent points with joystick
 	 * circle. Make sure to change method according to shape other than square. 
 	 */
-	bool			pointInCircle(S32 x, S32 y) const;
+	bool	pointInCircle(S32 x, S32 y) const;
+	bool	pointInCenterDot(S32 x, S32 y, S32 radius) const;
 	
 	static std::string nameFromQuadrant(const EJoystickQuadrant quadrant);
 	static EJoystickQuadrant quadrantFromName(const std::string& name);
@@ -147,7 +148,9 @@ public:
 
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
+	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual void	onHeldDown();
+	virtual void	resetJoystickCamera();
 	virtual void	draw();
 
 protected:
@@ -160,6 +163,9 @@ protected:
 	BOOL			mInTop;
 	BOOL			mInRight;
 	BOOL			mInBottom;
+	BOOL			mInCenter;
+
+	std::string		mCenterImageName;
 };
 
 
@@ -176,6 +182,7 @@ public:
 
 	LLJoystickCameraTrack(const LLJoystickCameraTrack::Params&);
 	virtual void	onHeldDown();
+	virtual void	resetJoystickCamera();
 };
 
 #endif  // LL_LLJOYSTICKBUTTON_H

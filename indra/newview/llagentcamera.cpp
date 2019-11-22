@@ -184,6 +184,9 @@ LLAgentCamera::LLAgentCamera() :
 	clearGeneralKeys();
 	clearOrbitKeys();
 	clearPanKeys();
+
+	resetPanDiff();
+	resetOrbitDiff();
 }
 
 // Requires gSavedSettings to be initialized.
@@ -343,7 +346,8 @@ void LLAgentCamera::resetView(BOOL reset_camera, BOOL change_camera)
 
 		mCameraFOVZoomFactor = 0.f;
 	}
-
+	resetPanDiff();
+	resetOrbitDiff();
 	mHUDTargetZoom = 1.f;
 }
 
@@ -822,6 +826,7 @@ void LLAgentCamera::cameraOrbitAround(const F32 radians)
 	}
 	else
 	{
+		mOrbitAroundRadians += radians;
 		mCameraFocusOffsetTarget.rotVec(radians, 0.f, 0.f, 1.f);
 		
 		cameraZoomIn(1.f);
@@ -853,10 +858,32 @@ void LLAgentCamera::cameraOrbitOver(const F32 angle)
 		LLVector3d left_axis;
 		left_axis.setVec(LLViewerCamera::getInstance()->getLeftAxis());
 		F32 new_angle = llclamp(angle_from_up - angle, 1.f * DEG_TO_RAD, 179.f * DEG_TO_RAD);
+		mOrbitOverAngle += angle_from_up - new_angle;
 		mCameraFocusOffsetTarget.rotVec(angle_from_up - new_angle, left_axis);
 
 		cameraZoomIn(1.f);
 	}
+}
+
+void LLAgentCamera::resetCameraOrbit()
+{
+	LLVector3 camera_offset_unit(mCameraFocusOffsetTarget);
+	camera_offset_unit.normalize();
+
+	LLVector3d left_axis;
+	left_axis.setVec(LLViewerCamera::getInstance()->getLeftAxis());
+	mCameraFocusOffsetTarget.rotVec(-mOrbitOverAngle, left_axis);
+	
+	mCameraFocusOffsetTarget.rotVec(-mOrbitAroundRadians, 0.f, 0.f, 1.f);
+
+	cameraZoomIn(1.f);
+	resetOrbitDiff();
+}
+
+void LLAgentCamera::resetOrbitDiff()
+{
+	mOrbitAroundRadians = 0;
+	mOrbitOverAngle = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -997,6 +1024,8 @@ void LLAgentCamera::cameraPanIn(F32 meters)
 	LLVector3d at_axis;
 	at_axis.setVec(LLViewerCamera::getInstance()->getAtAxis());
 
+	mPanFocusDiff += meters * at_axis;
+
 	mFocusTargetGlobal += meters * at_axis;
 	mFocusGlobal = mFocusTargetGlobal;
 	// don't enforce zoom constraints as this is the only way for users to get past them easily
@@ -1012,6 +1041,8 @@ void LLAgentCamera::cameraPanLeft(F32 meters)
 {
 	LLVector3d left_axis;
 	left_axis.setVec(LLViewerCamera::getInstance()->getLeftAxis());
+
+	mPanFocusDiff += meters * left_axis;
 
 	mFocusTargetGlobal += meters * left_axis;
 	mFocusGlobal = mFocusTargetGlobal;
@@ -1033,6 +1064,8 @@ void LLAgentCamera::cameraPanUp(F32 meters)
 	LLVector3d up_axis;
 	up_axis.setVec(LLViewerCamera::getInstance()->getUpAxis());
 
+	mPanFocusDiff += meters * up_axis;
+
 	mFocusTargetGlobal += meters * up_axis;
 	mFocusGlobal = mFocusTargetGlobal;
 
@@ -1043,6 +1076,26 @@ void LLAgentCamera::cameraPanUp(F32 meters)
 	updateFocusOffset();
 	// NOTE: panning movements expect the camera to move exactly with the focus target, not animated behind -Nyx
 	mCameraSmoothingLastPositionGlobal = calcCameraPositionTargetGlobal();
+}
+
+void LLAgentCamera::resetCameraPan()
+{
+	mFocusTargetGlobal -= mPanFocusDiff;
+
+	mFocusGlobal = mFocusTargetGlobal;
+	mCameraSmoothingStop = true;
+
+	cameraZoomIn(1.f);
+	updateFocusOffset();
+
+	mCameraSmoothingLastPositionGlobal = calcCameraPositionTargetGlobal();
+
+	resetPanDiff();
+}
+
+void LLAgentCamera::resetPanDiff()
+{
+	mPanFocusDiff.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -2329,6 +2382,9 @@ void LLAgentCamera::switchCameraPreset(ECameraPreset preset)
 	mFocusOnAvatar = TRUE;
 
 	mCameraPreset = preset;
+
+	resetPanDiff();
+	resetOrbitDiff();
 
 	gSavedSettings.setU32("CameraPreset", mCameraPreset);
 }
