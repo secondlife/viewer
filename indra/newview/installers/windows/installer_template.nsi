@@ -346,6 +346,11 @@ Call CheckWillUninstallV2		# Check if Second Life is already installed
 StrCmp $DO_UNINSTALL_V2 "" PRESERVE_DONE
 PRESERVE_DONE:
 
+# Viewer had "SLLauncher" for some time and we was seting "IsHostApp" for viewer, make sure to clean it up
+DeleteRegValue HKEY_CLASSES_ROOT "Applications\$VIEWER_EXE" "IsHostApp"
+DeleteRegValue HKEY_CLASSES_ROOT "Applications\$VIEWER_EXE" "NoStartPage"
+ClearErrors
+
 Call RemoveProgFilesOnInst		# Remove existing files to prevent certain errors when running the new version of the viewer
 
 # This placeholder is replaced by the complete list of all the files in the installer, by viewer_manifest.py
@@ -417,7 +422,7 @@ WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info\DefaultIcon" "" '"$INSTDIR\$
 # URL param must be last item passed to viewer, it ignores subsequent params to avoid parameter injection attacks.
 WriteRegExpandStr HKEY_CLASSES_ROOT "x-grid-location-info\shell\open\command" "" '"$INSTDIR\$VIEWER_EXE" -url "%1"'
 
-WriteRegStr HKEY_CLASSES_ROOT "Applications\$VIEWER_EXE" "IsHostApp" ""
+WriteRegStr HKEY_CLASSES_ROOT "Applications\$INSTEXE" "IsHostApp" ""
 ##WriteRegStr HKEY_CLASSES_ROOT "Applications\${VIEWER_EXE}" "NoStartPage" ""
 
 # Write out uninstaller
@@ -464,7 +469,7 @@ DeleteRegKey SHELL_CONTEXT "${INSTNAME_KEY}"
 DeleteRegKey SHELL_CONTEXT "${MSCURRVER_KEY}\Uninstall\$INSTNAME"
 # BUG-2707 Remove entry that disabled SEHOP
 DeleteRegKey SHELL_CONTEXT "${MSNTCURRVER_KEY}\Image File Execution Options\$VIEWER_EXE"
-##DeleteRegKey HKEY_CLASSES_ROOT "Applications\$INSTEXE"
+DeleteRegKey HKEY_CLASSES_ROOT "Applications\$INSTEXE"
 DeleteRegKey HKEY_CLASSES_ROOT "Applications\${VIEWER_EXE}"
 
 # Clean up shortcuts

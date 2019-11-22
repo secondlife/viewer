@@ -40,17 +40,17 @@ LLHintHandler::LLHintHandler()
 
 void LLHintHandler::onAdd(LLNotificationPtr p)
 {
-	LLHints::show(p);
+	LLHints::getInstance()->show(p);
 }
 
 void LLHintHandler::onLoad(LLNotificationPtr p)
 {
-	LLHints::show(p);
+	LLHints::getInstance()->show(p);
 }
 
 void LLHintHandler::onDelete(LLNotificationPtr p)
 {
-	LLHints::hide(p);
+	LLHints::getInstance()->hide(p);
 }
 
 bool LLHintHandler::processNotification(const LLNotificationPtr& p)

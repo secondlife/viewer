@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="ACCESSO" name="Access">
+<panel label="Accesso" name="Access">
 	<tab_container name="tabs">
 		<panel label="GESTORI DELLE PROPRIETÀ IMMOBILIARI" name="estate_managers_panel">
 			<text name="estate_manager_label">
-				Gestori delle proprietà immobiliari
+				Gestori delle proprietà immobiliari:
 			</text>
 			<name_list name="estate_manager_name_list">
 				<columns label="Nome" name="name"/>
@@ -14,9 +14,10 @@
 		<panel label="AMMESSO" name="allowed_panel">
 			<panel label="top_panel" name="allowed_search_panel">
 				<filter_editor label="Cerca agenti ammessi" name="allowed_search_input"/>
+				<button label="Copia" name="copy_allowed_list_btn"/>
 			</panel>
 			<text name="allow_resident_label">
-				Sempre ammesso:
+				Sempre ammessi:
 			</text>
 			<name_list name="allowed_avatar_name_list">
 				<columns label="Nome" name="name"/>
@@ -26,10 +27,11 @@
 		</panel>
 		<panel label="GRUPPI AMMESSI" name="allowed_groups_panel">
 			<panel label="top_panel" name="allowed_group_search_panel">
-				<filter_editor label="Cerca gruppi consentiti" name="allowed_group_search_input"/>
+				<filter_editor label="Cerca gruppi ammessi" name="allowed_group_search_input"/>
+				<button label="Copia" name="copy_allowed_group_list_btn"/>
 			</panel>
 			<text name="allow_group_label">
-				Gruppi sempre consentiti:
+				Gruppi sempre ammessi:
 			</text>
 			<name_list name="allowed_group_name_list">
 				<columns label="Nome" name="name"/>
@@ -40,6 +42,7 @@
 		<panel label="ESPULSI" name="banned_panel">
 			<panel label="top_panel" name="banned_search_panel">
 				<filter_editor label="Cerca agenti espulsi" name="banned_search_input"/>
+				<button label="Copia" name="copy_banned_list_btn"/>
 			</panel>
 			<text name="ban_resident_label">
 				Sempre espulsi:

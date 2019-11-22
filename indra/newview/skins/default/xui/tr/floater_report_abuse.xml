@@ -67,7 +67,7 @@
 		<combo_box.item label="Arazi &gt; Tecavüz &gt; Nesneler veya dokular" name="Land__Encroachment__Objects_textures"/>
 		<combo_box.item label="Arazi &gt; Tecavvüz &gt; Parçacıklar" name="Land__Encroachment__Particles"/>
 		<combo_box.item label="Arazi &gt; Tecavvüz &gt; Ağaçlar/bitkiler" name="Land__Encroachment__Trees_plants"/>
-		<combo_box.item label="Oyun Politikası İhlali" name="Wagering_gambling"/>
+		<combo_box.item label="Yetenek Oyunu Politikası İhlali" name="Wagering_gambling"/>
 		<combo_box.item label="Diğer" name="Other"/>
 	</combo_box>
 	<text name="abuser_name_title">

@@ -89,7 +89,7 @@ BOOL LLPanelExperiencePicker::postBuild()
 	childSetAction(BTN_PROFILE, boost::bind(&LLPanelExperiencePicker::onBtnProfile, this));
 	getChildView(BTN_PROFILE)->setEnabled(FALSE);
 
-	getChild<LLComboBox>(TEXT_MATURITY)->setCurrentByIndex(2);
+	getChild<LLComboBox>(TEXT_MATURITY)->setCurrentByIndex(gSavedPerAccountSettings.getU32("ExperienceSearchMaturity"));
 	getChild<LLComboBox>(TEXT_MATURITY)->setCommitCallback(boost::bind(&LLPanelExperiencePicker::onMaturity, this));
 	getChild<LLUICtrl>(TEXT_EDIT)->setFocus(TRUE);
 
@@ -381,6 +381,7 @@ void LLPanelExperiencePicker::filterContent()
 
 void LLPanelExperiencePicker::onMaturity()
 {
+	gSavedPerAccountSettings.setU32("ExperienceSearchMaturity", getChild<LLComboBox>(TEXT_MATURITY)->getCurrentIndex());
 	if(mResponse.has("experience_keys") && mResponse["experience_keys"].beginArray() != mResponse["experience_keys"].endArray())
 	{
 		filterContent();

@@ -13,16 +13,6 @@
   text_pad_right="4"
   arrow_size="10"
   max_folder_item_overlap="2">
-    <facebook_icon
-      follows="left"
-      height="14"
-      image_name="Facebook_Icon"
-      left="5"
-      bottom="6"
-      name="facebook_icon"
-      tool_tip="Facebook User"
-      visible="false"
-      width="14" />
     <avatar_icon
       follows="left"
       layout="topleft"

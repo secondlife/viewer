@@ -20,7 +20,7 @@
 		<button name="activate_btn" tool_tip="Активировать/деактивировать выбранный жест"/>
 		<button name="del_btn" tool_tip="Удалить этот жест"/>
 	</panel>
-	<button label="Изменить" name="edit_btn"/>
-	<button label="Проиграть" name="play_btn"/>
+	<button label="Изменить" name="edit_btn" tool_tip="Откройте окно для редактирования выбранного жеста."/>
+	<button label="Проиграть" name="play_btn" tool_tip="Выполните выбранный жест в игровом мире."/>
 	<button label="Стоп" name="stop_btn"/>
 </floater>

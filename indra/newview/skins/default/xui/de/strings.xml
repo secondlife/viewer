@@ -75,6 +75,9 @@ Erweitertes Beleuchtungsmodell: [GPU_SHADERS]
 Texturspeicher: [TEXTURE_MEMORY] MB
 Erstellungszeit VFS (Cache): [VFS_TIME]
 	</string>
+	<string name="AboutOSXHiDPI">
+		HiDPI-Anzeigemodus: [HIDPI]
+	</string>
 	<string name="AboutLibs">
 		J2C-Decoderversion: [J2C_VERSION]
 Audiotreiberversion: [AUDIO_DRIVER_VERSION]
@@ -1476,6 +1479,15 @@ besuchen Sie bitte http://secondlife.com/support
 	</string>
 	<string name="MarketplaceURL_LearnMore">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more
+	</string>
+	<string name="InventoryPlayAnimationTooltip">
+		Fenster mit Spieloptionen öffnen.
+	</string>
+	<string name="InventoryPlayGestureTooltip">
+		Ausgewählte Geste inworld ausführen.
+	</string>
+	<string name="InventoryPlaySoundTooltip">
+		Fenster mit Spieloptionen öffnen.
 	</string>
 	<string name="InventoryOutboxNotMerchantTitle">
 		Jeder kann Artikel im Marktplatz verkaufen.
@@ -5398,9 +5410,6 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	<string name="Command_Destinations_Label">
 		Ziele
 	</string>
-	<string name="Command_Facebook_Label">
-		Facebook
-	</string>
 	<string name="Command_Flickr_Label">
 		Flickr
 	</string>
@@ -5493,9 +5502,6 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	</string>
 	<string name="Command_Destinations_Tooltip">
 		Ziele von Interesse
-	</string>
-	<string name="Command_Facebook_Tooltip">
-		Auf Facebook posten
 	</string>
 	<string name="Command_Flickr_Tooltip">
 		Auf Flickr hochladen

@@ -499,22 +499,26 @@ private:
 	LLSD mPendingAgentListUpdates;
 };
 
-class LLCallDialogManager : public LLInitClass<LLCallDialogManager>
+class LLCallDialogManager : public LLSingleton<LLCallDialogManager>
 {
-public:
-	LLCallDialogManager();
+	LLSINGLETON(LLCallDialogManager);
 	~LLCallDialogManager();
-
-	static void initClass();
+public:
+	// static for convinience
 	static void onVoiceChannelChanged(const LLUUID &session_id);
 	static void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction, bool ended_by_agent);
 
+private:
+	void initSingleton();
+	void onVoiceChannelChangedInt(const LLUUID &session_id);
+	void onVoiceChannelStateChangedInt(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction, bool ended_by_agent);
+
 protected:
-	static std::string sPreviousSessionlName;
-	static LLIMModel::LLIMSession::SType sPreviousSessionType;
-	static std::string sCurrentSessionlName;
-	static LLIMModel::LLIMSession* sSession;
-	static LLVoiceChannel::EState sOldState;
+	std::string mPreviousSessionlName;
+	LLIMModel::LLIMSession::SType mPreviousSessionType;
+	std::string mCurrentSessionlName;
+	LLIMModel::LLIMSession* mSession;
+	LLVoiceChannel::EState mOldState;
 };
 
 class LLCallDialog : public LLDockableFloater

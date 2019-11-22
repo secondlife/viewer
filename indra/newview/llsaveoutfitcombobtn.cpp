@@ -56,7 +56,7 @@ LLSaveOutfitComboBtn::LLSaveOutfitComboBtn(LLPanel* parent, bool saveAsDefaultAc
 void LLSaveOutfitComboBtn::showSaveMenu()
 {
 	S32 x, y;
-	LLUI::getMousePositionLocal(mParent, &x, &y);
+	LLUI::getInstance()->getMousePositionLocal(mParent, &x, &y);
 
 	mSaveMenu->updateParent(LLMenuGL::sMenuContainer);
 	LLMenuGL::showPopup(mParent, mSaveMenu, x, y);

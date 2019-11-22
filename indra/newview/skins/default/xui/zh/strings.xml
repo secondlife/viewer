@@ -76,6 +76,9 @@
 材質記憶體：[TEXTURE_MEMORY]MB
 VFS（快取）建立時間：[VFS_TIME]
 	</string>
+	<string name="AboutOSXHiDPI">
+		HiDPI顯示模式：[HIDPI]
+	</string>
 	<string name="AboutLibs">
 		J2C 解碼器版本： [J2C_VERSION]
 音效驅動程式版本： [AUDIO_DRIVER_VERSION]
@@ -1470,6 +1473,15 @@ http://secondlife.com/support 求助解決問題。
 	</string>
 	<string name="MarketplaceURL_LearnMore">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more
+	</string>
+	<string name="InventoryPlayAnimationTooltip">
+		開啟「Play選項」視窗。
+	</string>
+	<string name="InventoryPlayGestureTooltip">
+		在虛擬世界裡執行所選姿勢。
+	</string>
+	<string name="InventoryPlaySoundTooltip">
+		開啟「Play選項」視窗。
 	</string>
 	<string name="InventoryOutboxNotMerchantTitle">
 		任何人都可在第二人生購物市集出售物品。
@@ -5404,9 +5416,6 @@ http://secondlife.com/support 求助解決問題。
 	<string name="Command_Destinations_Label">
 		目的地
 	</string>
-	<string name="Command_Facebook_Label">
-		臉書
-	</string>
 	<string name="Command_Flickr_Label">
 		Flickr
 	</string>
@@ -5499,9 +5508,6 @@ http://secondlife.com/support 求助解決問題。
 	</string>
 	<string name="Command_Destinations_Tooltip">
 		你可能感興趣的目的地
-	</string>
-	<string name="Command_Facebook_Tooltip">
-		發佈到臉書
 	</string>
 	<string name="Command_Flickr_Tooltip">
 		上傳到 Flickr

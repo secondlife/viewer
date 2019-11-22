@@ -39,6 +39,7 @@
            length="1"
            max_length="140"
            name="photo_status"
+           spellcheck="true"
            type="string"
            word_wrap="true">
           </text_editor>

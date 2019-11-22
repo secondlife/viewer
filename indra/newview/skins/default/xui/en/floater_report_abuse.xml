@@ -246,7 +246,7 @@
          name="Land__Encroachment__Objects_textures"
          value="63" />        
         <combo_box.item
-         label="Gaming Policy Violation"
+         label="Skill Gaming Policy Violation"
          name="Wagering_gambling"
          value="67" />       
     </combo_box>

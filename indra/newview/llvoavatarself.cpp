@@ -1208,7 +1208,7 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 		// the simulator should automatically handle permission revocation
 		
 		stopMotionFromSource(attachment_id);
-		LLFollowCamMgr::setCameraActive(viewer_object->getID(), FALSE);
+		LLFollowCamMgr::getInstance()->setCameraActive(viewer_object->getID(), FALSE);
 		
 		LLViewerObject::const_child_list_t& child_list = viewer_object->getChildren();
 		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
@@ -1220,7 +1220,7 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 			// permissions revocation
 			
 			stopMotionFromSource(child_objectp->getID());
-			LLFollowCamMgr::setCameraActive(child_objectp->getID(), FALSE);
+			LLFollowCamMgr::getInstance()->setCameraActive(child_objectp->getID(), FALSE);
 		}
 		
 		// Make sure the inventory is in sync with the avatar.

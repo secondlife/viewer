@@ -126,6 +126,7 @@
      length="1"
      max_length="700"
      name="caption"
+     spellcheck="true"
      width="200"
      top_pad="2"
      type="string"
