@@ -276,7 +276,11 @@ void main()
 
     final_color.a = max(final_color.a, emissive_brightness);
 
-    // SL-11406 Fullbright: Object > Texture > Shininess > Environment Intensity = 1
+    // Texture
+    //     [x] Full Bright Object
+    //     Shininess (specular)
+    //       [X] Texture
+    //       Environment Intensity = 1
     // NOTE: There are two shaders that are used depending on the EI byte value:
     //     EI = 0        fullbright
     //     EI > 0 .. 255 material
@@ -329,9 +333,6 @@ void main()
 
 
     float da = dot(norm.xyz, normalize(light_dir.xyz));
-    // Dot product is guaranteed to be in -1 <= da <= +1 range for normalized vectors
-    //    da = clamp(da, -1.0, 1.0);
-
     float final_da = clamp(da, 0.0, 1.0);
 
     float ambient = da;
