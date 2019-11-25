@@ -159,7 +159,7 @@
      layout="topleft"
      left="8"
      name="preview_disabled"
-     top="266"
+     top="305"
      value="Preview Disabled"
      visible="false"
      width="120" />
