@@ -68,7 +68,8 @@
 const S32 PREVIEW_BORDER_WIDTH = 2;
 const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PREVIEW_BORDER_WIDTH;
 const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
-const S32 PREF_BUTTON_HEIGHT = 16;
+const S32 PREVIEW_VPAD = 35;
+const S32 PREF_BUTTON_HEIGHT = 16 + 35;
 const S32 PREVIEW_TEXTURE_HEIGHT = 300;
 
 const F32 PREVIEW_CAMERA_DISTANCE = 4.f;
@@ -203,7 +204,7 @@ BOOL LLFloaterBvhPreview::postBuild()
 	setDefaultBtn();
 
 	mPreviewRect.set(PREVIEW_HPAD, 
-		PREVIEW_TEXTURE_HEIGHT,
+		PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD,
 		getRect().getWidth() - PREVIEW_HPAD, 
 		PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
 	mPreviewImageRect.set(0.f, 1.f, 1.f, 0.f);
@@ -403,13 +404,13 @@ void LLFloaterBvhPreview::draw()
 		gGL.begin( LLRender::QUADS );
 		{
 			gGL.texCoord2f(0.f, 1.f);
-			gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT);
+			gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD);
 			gGL.texCoord2f(0.f, 0.f);
 			gGL.vertex2i(PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
 			gGL.texCoord2f(1.f, 0.f);
 			gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
 			gGL.texCoord2f(1.f, 1.f);
-			gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT);
+			gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD);
 		}
 		gGL.end();
 

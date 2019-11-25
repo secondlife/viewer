@@ -47,6 +47,7 @@
 #include "lluictrlfactory.h"
 #include "llstring.h"
 #include "llpermissions.h"
+#include "lltrans.h"
 
 // linden includes
 #include "llassetstorage.h"
@@ -125,6 +126,12 @@ BOOL LLFloaterNameDesc::postBuild()
 
 	S32 expected_upload_cost = getExpectedUploadCost();
 	getChild<LLUICtrl>("ok_btn")->setLabelArg("[AMOUNT]", llformat("%d", expected_upload_cost));
+
+	LLTextBox* info_text = getChild<LLTextBox>("info_text");
+	if (info_text)
+	{
+		info_text->setValue(LLTrans::getString("UploadFeeInfo"));
+	}
 	
 	setDefaultBtn("ok_btn");
 	

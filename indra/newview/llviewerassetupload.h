@@ -88,7 +88,7 @@ public:
     LLAssetID           getAssetId() const { return mAssetId; }
 
 	static bool			findAssetTypeOfExtension(const std::string& exten, LLAssetType::EType& asset_type);
-	static bool			findAssetTypeAndCodecOfExtension(const std::string& exten, LLAssetType::EType& asset_type, U32& codec);
+	static bool			findAssetTypeAndCodecOfExtension(const std::string& exten, LLAssetType::EType& asset_type, U32& codec, bool bulk_upload = true);
 
 protected:
     LLResourceUploadInfo(

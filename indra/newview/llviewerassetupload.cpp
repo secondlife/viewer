@@ -309,11 +309,11 @@ std::string LLResourceUploadInfo::getDisplayName() const
 bool LLResourceUploadInfo::findAssetTypeOfExtension(const std::string& exten, LLAssetType::EType& asset_type)
 {
 	U32 codec;
-	return findAssetTypeAndCodecOfExtension(exten, asset_type, codec);
+	return findAssetTypeAndCodecOfExtension(exten, asset_type, codec, false);
 }
 
 // static
-bool LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(const std::string& exten, LLAssetType::EType& asset_type, U32& codec)
+bool LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(const std::string& exten, LLAssetType::EType& asset_type, U32& codec, bool bulk_upload)
 {
 	bool succ = false;
 
@@ -331,6 +331,11 @@ bool LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(const std::string& e
 	else if (exten == "anim")
 	{
 		asset_type = LLAssetType::AT_ANIMATION; 
+		succ = true;
+	}
+	else if (!bulk_upload && (exten == "bvh"))
+	{
+		asset_type = LLAssetType::AT_ANIMATION;
 		succ = true;
 	}
 
