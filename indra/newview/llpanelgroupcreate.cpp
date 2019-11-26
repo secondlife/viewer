@@ -103,7 +103,7 @@ void LLPanelGroupCreate::onOpen(const LLSD& key)
     // populate list
     addMembershipRow("Base");
     addMembershipRow("Premium");
-    addMembershipRow("PremiumPlus");
+    addMembershipRow("Premium Plus");
     addMembershipRow("Internal");// Present only if you are already in one, needed for testing
 
     S32 cost = LLAgentBenefitsMgr::current().getCreateGroupCost();

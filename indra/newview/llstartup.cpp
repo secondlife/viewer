@@ -3300,6 +3300,13 @@ bool init_benefits(LLSD& response)
 		LL_WARNS("Benefits") << "Benefits info did not include required package Premium" << LL_ENDL;
 		succ = false;
 	}
+
+	// FIXME PREMIUM - for testing if login does not yet provide Premium Plus. Should be removed thereafter.
+	//if (succ && !LLAgentBenefitsMgr::has("Premium Plus"))
+	//{
+	//	LLAgentBenefitsMgr::init("Premium Plus", packages_sd["Premium"]["benefits"]);
+	//	llassert(LLAgentBenefitsMgr::has("Premium Plus"));
+	//}
 	return succ;
 }
 

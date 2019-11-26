@@ -617,8 +617,8 @@ BOOL LLPanelPeople::postBuild()
 
 	if(LLAgentBenefitsMgr::current().getGroupMembershipLimit() < max_premium)
 	{
-	    getChild<LLTextBox>("groupcount")->setText(getString("GroupCountWithInfo"));
-	    getChild<LLTextBox>("groupcount")->setURLClickedCallback(boost::bind(&LLPanelPeople::onGroupLimitInfo, this));
+		getChild<LLTextBox>("groupcount")->setText(getString("GroupCountWithInfo"));
+		getChild<LLTextBox>("groupcount")->setURLClickedCallback(boost::bind(&LLPanelPeople::onGroupLimitInfo, this));
 	}
 
 	mTabContainer = getChild<LLTabContainer>("tabs");
@@ -1089,10 +1089,10 @@ void LLPanelPeople::onGroupLimitInfo()
 	args["MAX_BASIC"] = max_basic;
 	args["MAX_PREMIUM"] = max_premium;
 
-	if (LLAgentBenefitsMgr::has("PremiumPlus"))
+	if (LLAgentBenefitsMgr::has("Premium Plus"))
 	{
-		S32 max_premium_plus = LLAgentBenefitsMgr::get("PremiumPlus").getGroupMembershipLimit();
-		args["MAX_PREMIUM"] = max_premium_plus;
+		S32 max_premium_plus = LLAgentBenefitsMgr::get("Premium Plus").getGroupMembershipLimit();
+		args["MAX_PREMIUM_PLUS"] = max_premium_plus;
 		LLNotificationsUtil::add("GroupLimitInfoPlus", args);
 	}
 	else

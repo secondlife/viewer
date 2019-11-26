@@ -3940,7 +3940,7 @@ Please check http://status.secondlifegrid.net to see if there is a known problem
   <!-- SL Membership -->
   <string name="BaseMembership">Base</string>
   <string name="PremiumMembership">Premium</string>
-  <string name="PremiumPlusMembership">Premium Plus</string>
+  <string name="Premium PlusMembership">Premium Plus</string>
   <string name="InternalMembership">Internal</string> <!-- No need to translate -->
 
   <!-- Question strings for delete items notifications -->
