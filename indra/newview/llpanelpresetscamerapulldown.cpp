@@ -33,6 +33,7 @@
 
 #include "llbutton.h"
 #include "lltabcontainer.h"
+#include "llfloatercamera.h"
 #include "llfloaterreg.h"
 #include "llfloaterpreference.h"
 #include "llpresetsmanager.h"
@@ -185,7 +186,7 @@ void LLPanelPresetsCameraPulldown::onRowClick(const LLSD& user_data)
 			std::string name = item->getColumn(1)->getValue().asString();
 
             LL_DEBUGS() << "selected '" << name << "'" << LL_ENDL;
-			LLPresetsManager::getInstance()->loadPreset(PRESETS_CAMERA, name);
+			LLFloaterCamera::switchToPreset(name);
 
 			setVisible(FALSE);
 		}

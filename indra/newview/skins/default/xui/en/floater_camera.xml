@@ -151,7 +151,7 @@
       width="30">
       <panel_camera_item.mousedown_callback
         function="CameraPresets.ChangeView"
-        parameter="front_view" />
+        parameter="Front View" />
       <panel_camera_item.picture
         image_name="Cam_Preset_Front_Off" />
       <panel_camera_item.selected_picture
@@ -164,7 +164,7 @@
       left_pad="4">
       <panel_camera_item.mousedown_callback
         function="CameraPresets.ChangeView"
-        parameter="group_view" />
+        parameter="Side View" />
       <panel_camera_item.picture
         image_name="Cam_Preset_Side_Off" />
       <panel_camera_item.selected_picture
@@ -178,7 +178,7 @@
       <panel_camera_item.mousedown_callback
         function="CameraPresets.ChangeView"
         tool_tip="Rear View"
-        parameter="rear_view" />
+        parameter="Rear View" />
       <panel_camera_item.picture
         image_name="Cam_Preset_Back_Off" />
       <panel_camera_item.selected_picture
