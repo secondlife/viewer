@@ -855,18 +855,39 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             }
             else // IM_TASK_INVENTORY_OFFERED
             {
-                info->mType = (LLAssetType::EType) binary_bucket[0];
-                info->mObjectID = LLUUID::null;
-                info->mFromObject = TRUE;
-            }
+                if (offline == IM_OFFLINE && session_id.isNull() && aux_id.notNull() && binary_bucket_size > sizeof(S8)* 5)
+                {
+                    // cap received offline message
+                    std::string str_bucket = ll_safe_string((char*)binary_bucket, binary_bucket_size);
+                    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+                    boost::char_separator<char> sep("|", "", boost::keep_empty_tokens);
+                    tokenizer tokens(str_bucket, sep);
+                    tokenizer::iterator iter = tokens.begin();
 
-            // In the case of an offline message, the transaction id will be in aux_id and th session_id will be null
-            // (conversely when online the transaction id is passed as session_id)
-            info->mTransactionID = session_id.isNull() ? aux_id : session_id;
+                    info->mType = (LLAssetType::EType)(atoi((*(iter++)).c_str()));
+                    // Note There is more elements in 'tokens' ...
+
+                    info->mObjectID = LLUUID::null;
+                    info->mFromObject = TRUE;
+                }
+                else
+                {
+                    if (sizeof(S8) != binary_bucket_size)
+                    {
+                        LL_WARNS("Messaging") << "Malformed inventory offer from object" << LL_ENDL;
+                        delete info;
+                        break;
+                    }
+                    info->mType = (LLAssetType::EType) binary_bucket[0];
+                    info->mObjectID = LLUUID::null;
+                    info->mFromObject = TRUE;
+                }
+            }
 
             info->mIM = dialog;
             info->mFromID = from_id;
             info->mFromGroup = from_group;
+            info->mTransactionID = session_id;
             info->mFolderID = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(info->mType));
 
             info->mFromName = name;

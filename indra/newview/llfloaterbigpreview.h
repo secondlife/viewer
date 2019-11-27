@@ -1,6 +1,6 @@
 /** 
 * @file   llfloaterbigpreview.h
-* @brief  Display of extended (big) preview for snapshots and SL Share
+* @brief  Display of extended (big) preview for snapshots
 * @author merov@lindenlab.com
 *
 * $LicenseInfo:firstyear=2013&license=viewerlgpl$

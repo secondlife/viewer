@@ -201,21 +201,7 @@ Please try logging in again in a minute.</string>
 	<string name="YouHaveBeenDisconnected">You have been disconnected from the region you were in.</string>
 	<string name="SentToInvalidRegion">You were sent to an invalid region.</string>
 	<string name="TestingDisconnect">Testing viewer disconnect</string>
-
-	<!-- SLShare: Flickr and Twitter -->
-  <string name="SocialFlickrConnecting">Connecting to Flickr...</string>
-  <string name="SocialFlickrPosting">Posting...</string>
-  <string name="SocialFlickrDisconnecting">Disconnecting from Flickr...</string>
-  <string name="SocialFlickrErrorConnecting">Problem connecting to Flickr</string>
-  <string name="SocialFlickrErrorPosting">Problem posting to Flickr</string>
-  <string name="SocialFlickrErrorDisconnecting">Problem disconnecting from Flickr</string>
-  <string name="SocialTwitterConnecting">Connecting to Twitter...</string>
-  <string name="SocialTwitterPosting">Posting...</string>
-  <string name="SocialTwitterDisconnecting">Disconnecting from Twitter...</string>
-  <string name="SocialTwitterErrorConnecting">Problem connecting to Twitter</string>
-  <string name="SocialTwitterErrorPosting">Problem posting to Twitter</string>
-  <string name="SocialTwitterErrorDisconnecting">Problem disconnecting from Twitter</string>
-    
+  
 	<!-- SLShare: User Friendly Filter Names Translation -->
     <string name="BlackAndWhite">Black &amp; White</string>
     <string name="Colors1970">1970&apos;s Colors</string>
@@ -3656,13 +3642,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     Drag items from inventory here
   </string>
 
-  <string name="flickr_post_success">
-    You posted to Flickr.
-  </string>
-  <string name="twitter_post_success">
-    You posted to Twitter.
-  </string>
-
   <string name="no_session_message">
     (IM Session Doesn't Exist)
   </string>
@@ -4088,7 +4067,6 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Conversations_Label">Conversations</string>
   <string name="Command_Compass_Label">Compass</string>
   <string name="Command_Destinations_Label">Destinations</string>
-  <string name="Command_Flickr_Label">Flickr</string>
   <string name="Command_Gestures_Label">Gestures</string>
   <string name="Command_Grid_Status_Label">Grid status</string>
   <string name="Command_HowTo_Label">How to</string>
@@ -4107,7 +4085,6 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Search_Label">Search</string>
   <string name="Command_Snapshot_Label">Snapshot</string>
   <string name="Command_Speak_Label">Speak</string>
-  <string name="Command_Twitter_Label">Twitter</string>
   <string name="Command_View_Label">Camera controls</string>
   <string name="Command_Voice_Label">Voice settings</string>
 
@@ -4119,7 +4096,6 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Conversations_Tooltip">Converse with everyone</string>
   <string name="Command_Compass_Tooltip">Compass</string>
   <string name="Command_Destinations_Tooltip">Destinations of interest</string>
-  <string name="Command_Flickr_Tooltip">Upload to Flickr</string>
   <string name="Command_Gestures_Tooltip">Gestures for your avatar</string>
   <string name="Command_Grid_Status_Tooltip">Show current Grid status</string>
   <string name="Command_HowTo_Tooltip">How to do common tasks</string>
@@ -4138,7 +4114,6 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Search_Tooltip">Find places, events, people</string>
   <string name="Command_Snapshot_Tooltip">Take a picture</string>
   <string name="Command_Speak_Tooltip">Speak with people nearby using your microphone</string>
-  <string name="Command_Twitter_Tooltip">Twitter</string>
   <string name="Command_View_Tooltip">Changing camera angle</string>
   <string name="Command_Voice_Tooltip">Volume controls for calls and people near you in world</string>
 
