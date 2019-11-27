@@ -45,7 +45,7 @@
 		<check_box label="任何人都可以加入" name="open_enrollement" tool_tip="設定這個群組是否允許新成員未受邀請自行加入。"/>
 		<check_box label="加入費用" name="check_enrollment_fee" tool_tip="設定是否要徵收群組加入費"/>
 		<spinner label="L$" name="spin_enrollment_fee" tool_tip="若勾選加入費，新成員必須支付這筆費用才能加入群組。"/>
-		<combo_box name="group_mature_check" tool_tip="設定你的群組是否含有被訂為適度成人分級的資訊">
+		<combo_box name="group_mature_check" tool_tip="內容分級設定群組裡允許的內容類型和行爲">
 			<combo_item name="select_mature">
 				- 選擇內容分級 -
 			</combo_item>

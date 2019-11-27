@@ -2,7 +2,7 @@
  * @file   catch_and_store_what_in.h
  * @author Nat Goodspeed
  * @date   2012-02-15
- * @brief  CATCH_AND_STORE_WHAT_IN() macro
+ * @brief  catch_what() template function, CATCH_AND_STORE_WHAT_IN() macro
  * 
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Copyright (c) 2012, Linden Research, Inc.
@@ -11,6 +11,30 @@
 
 #if ! defined(LL_CATCH_AND_STORE_WHAT_IN_H)
 #define LL_CATCH_AND_STORE_WHAT_IN_H
+
+/**
+ * In the brave new world of lambdas, we can use a nicer C++ idiom for testing
+ * exceptions than CATCH_AND_STORE_WHAT_IN() below, e.g.:
+ *
+ * @code
+ * std::string threw = catch_what<std::runtime_error>(
+ *     [](){ throw std::runtime_error("badness"); });
+ * ensure_equals(threw, "badness");
+ * @endcode
+ */
+template <typename EXCEPTION, typename FUNC>
+std::string catch_what(FUNC func)
+{
+    try
+    {
+        func();
+        return {};
+    }
+    catch (const EXCEPTION& err)
+    {
+        return err.what();
+    }
+}
 
 /**
  * Idiom useful for test programs: catch an expected exception, store its

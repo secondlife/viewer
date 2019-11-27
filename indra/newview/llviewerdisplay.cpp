@@ -42,7 +42,7 @@
 #include "llfeaturemanager.h"
 //#include "llfirstuse.h"
 #include "llhudmanager.h"
-#include "llimagebmp.h"
+#include "llimagepng.h"
 #include "llmemory.h"
 #include "llselectmgr.h"
 #include "llsky.h"
@@ -1508,9 +1508,10 @@ void render_ui_2d()
 
 	if (gSavedSettings.getBOOL("RenderUIBuffer"))
 	{
-		if (LLUI::sDirty)
+		LLUI* ui_inst = LLUI::getInstance();
+		if (ui_inst->mDirty)
 		{
-			LLUI::sDirty = FALSE;
+			ui_inst->mDirty = FALSE;
 			LLRect t_rect;
 
 			gPipeline.mUIScreen.bindTarget();
@@ -1518,25 +1519,25 @@ void render_ui_2d()
 			{
 				static const S32 pad = 8;
 
-				LLUI::sDirtyRect.mLeft -= pad;
-				LLUI::sDirtyRect.mRight += pad;
-				LLUI::sDirtyRect.mBottom -= pad;
-				LLUI::sDirtyRect.mTop += pad;
+				ui_inst->mDirtyRect.mLeft -= pad;
+				ui_inst->mDirtyRect.mRight += pad;
+				ui_inst->mDirtyRect.mBottom -= pad;
+				ui_inst->mDirtyRect.mTop += pad;
 
 				LLGLEnable scissor(GL_SCISSOR_TEST);
-				static LLRect last_rect = LLUI::sDirtyRect;
+				static LLRect last_rect = ui_inst->mDirtyRect;
 
 				//union with last rect to avoid mouse poop
-				last_rect.unionWith(LLUI::sDirtyRect);
+				last_rect.unionWith(ui_inst->mDirtyRect);
 								
-				t_rect = LLUI::sDirtyRect;
-				LLUI::sDirtyRect = last_rect;
+				t_rect = ui_inst->mDirtyRect;
+				ui_inst->mDirtyRect = last_rect;
 				last_rect = t_rect;
 			
-				last_rect.mLeft = LLRect::tCoordType(last_rect.mLeft / LLUI::getScaleFactor().mV[0]);
-				last_rect.mRight = LLRect::tCoordType(last_rect.mRight / LLUI::getScaleFactor().mV[0]);
-				last_rect.mTop = LLRect::tCoordType(last_rect.mTop / LLUI::getScaleFactor().mV[1]);
-				last_rect.mBottom = LLRect::tCoordType(last_rect.mBottom / LLUI::getScaleFactor().mV[1]);
+				last_rect.mLeft = LLRect::tCoordType(last_rect.mLeft / ui_inst->getScaleFactor().mV[0]);
+				last_rect.mRight = LLRect::tCoordType(last_rect.mRight / ui_inst->getScaleFactor().mV[0]);
+				last_rect.mTop = LLRect::tCoordType(last_rect.mTop / ui_inst->getScaleFactor().mV[1]);
+				last_rect.mBottom = LLRect::tCoordType(last_rect.mBottom / ui_inst->getScaleFactor().mV[1]);
 
 				LLRect clip_rect(last_rect);
 				
@@ -1548,7 +1549,7 @@ void render_ui_2d()
 			gPipeline.mUIScreen.flush();
 			gGL.setColorMask(true, false);
 
-			LLUI::sDirtyRect = t_rect;
+			ui_inst->mDirtyRect = t_rect;
 		}
 
 		LLGLDisable cull(GL_CULL_FACE);
@@ -1588,17 +1589,17 @@ void render_disconnected_background()
 		LL_INFOS() << "Loading last bitmap..." << LL_ENDL;
 
 		std::string temp_str;
-		temp_str = gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter() + SCREEN_LAST_FILENAME;
+		temp_str = gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter() + LLStartUp::getScreenLastFilename();
 
-		LLPointer<LLImageBMP> image_bmp = new LLImageBMP;
-		if( !image_bmp->load(temp_str) )
+		LLPointer<LLImagePNG> image_png = new LLImagePNG;
+		if( !image_png->load(temp_str) )
 		{
 			//LL_INFOS() << "Bitmap load failed" << LL_ENDL;
 			return;
 		}
 		
 		LLPointer<LLImageRaw> raw = new LLImageRaw;
-		if (!image_bmp->decode(raw, 0.0f))
+		if (!image_png->decode(raw, 0.0f))
 		{
 			LL_INFOS() << "Bitmap decode failed" << LL_ENDL;
 			gDisconnectedImagep = NULL;
@@ -1606,7 +1607,7 @@ void render_disconnected_background()
 		}
 
 		U8 *rawp = raw->getData();
-		S32 npixels = (S32)image_bmp->getWidth()*(S32)image_bmp->getHeight();
+		S32 npixels = (S32)image_png->getWidth()*(S32)image_png->getHeight();
 		for (S32 i = 0; i < npixels; i++)
 		{
 			S32 sum = 0;

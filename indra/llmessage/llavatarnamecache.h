@@ -29,20 +29,19 @@
 #define LLAVATARNAMECACHE_H
 
 #include "llavatarname.h"	// for convenience
+#include "llsingleton.h"
 #include <boost/signals2.hpp>
+#include <set>
 
 class LLSD;
 class LLUUID;
 
-namespace LLAvatarNameCache
+class LLAvatarNameCache : public LLSingleton<LLAvatarNameCache>
 {
+	LLSINGLETON(LLAvatarNameCache);
+	~LLAvatarNameCache();
+public:
 	typedef boost::signals2::signal<void (void)> use_display_name_signal_t;
-
-	// Until the cache is set running, immediate lookups will fail and
-	// async lookups will be queued.  This allows us to block requests
-	// until we know if the first region supports display names.
-	void initClass(bool running, bool usePeopleAPI);
-	void cleanupClass();
 
 	// Import/export the name cache to file.
 	bool importFile(std::istream& istr);
@@ -55,6 +54,7 @@ namespace LLAvatarNameCache
 	// Do we have a valid lookup URL, i.e. are we trying to use the
 	// more recent display name lookup system?
 	bool hasNameLookupURL();
+	void setUsePeopleAPI(bool use_api);
 	bool usePeopleAPI();
 	
 	// Periodically makes a batch request for display names not already in
@@ -63,7 +63,8 @@ namespace LLAvatarNameCache
 
 	// If name is in cache, returns true and fills in provided LLAvatarName
 	// otherwise returns false.
-	bool get(const LLUUID& agent_id, LLAvatarName *av_name);
+	static bool get(const LLUUID& agent_id, LLAvatarName *av_name);
+	bool getName(const LLUUID& agent_id, LLAvatarName *av_name);
 
 	// Callback types for get() below
 	typedef boost::signals2::signal<
@@ -74,7 +75,8 @@ namespace LLAvatarNameCache
 
 	// Fetches name information and calls callbacks.
 	// If name information is in cache, callbacks will be called immediately.
-	callback_connection_t get(const LLUUID& agent_id, callback_slot_t slot);
+	static callback_connection_t get(const LLUUID& agent_id, callback_slot_t slot);
+	callback_connection_t getNameCallback(const LLUUID& agent_id, callback_slot_t slot);
 
 	// Set display name: flips the switch and triggers the callbacks.
 	void setUseDisplayNames(bool use);
@@ -100,7 +102,83 @@ namespace LLAvatarNameCache
     F64 nameExpirationFromHeaders(const LLSD& headers);
 
 	void addUseDisplayNamesCallback(const use_display_name_signal_t::slot_type& cb);
-}
+
+private:
+    // Handle name response off network.
+    void processName(const LLUUID& agent_id,
+        const LLAvatarName& av_name);
+
+    void requestNamesViaCapability();
+
+    // Legacy name system callbacks
+    static void legacyNameCallback(const LLUUID& agent_id,
+        const std::string& full_name,
+        bool is_group);
+    static void legacyNameFetch(const LLUUID& agent_id,
+        const std::string& full_name,
+        bool is_group);
+
+    void requestNamesViaLegacy();
+
+    // Do a single callback to a given slot
+    void fireSignal(const LLUUID& agent_id,
+        const callback_slot_t& slot,
+        const LLAvatarName& av_name);
+
+    // Is a request in-flight over the network?
+    bool isRequestPending(const LLUUID& agent_id);
+
+    // Erase expired names from cache
+    void eraseUnrefreshed();
+
+    bool expirationFromCacheControl(const LLSD& headers, F64 *expires);
+
+    // This is a coroutine.
+    static void requestAvatarNameCache_(std::string url, std::vector<LLUUID> agentIds);
+
+    void handleAvNameCacheSuccess(const LLSD &data, const LLSD &httpResult);
+
+private:
+
+    use_display_name_signal_t mUseDisplayNamesSignal;
+
+    // Cache starts in a paused state until we can determine if the
+    // current region supports display names.
+    bool mRunning;
+
+    // Use the People API (modern) for fetching name if true. Use the old legacy protocol if false.
+    // For testing, there's a UsePeopleAPI setting that can be flipped (must restart viewer).
+    bool mUsePeopleAPI;
+
+    // Base lookup URL for name service.
+    // On simulator, loaded from indra.xml
+    // On viewer, usually a simulator capability (at People API team's request)
+    // Includes the trailing slash, like "http://pdp60.lindenlab.com:8000/agents/"
+    std::string mNameLookupURL;
+
+    // Accumulated agent IDs for next query against service
+    typedef std::set<LLUUID> ask_queue_t;
+    ask_queue_t mAskQueue;
+
+    // Agent IDs that have been requested, but with no reply.
+    // Maps agent ID to frame time request was made.
+    typedef std::map<LLUUID, F64> pending_queue_t;
+    pending_queue_t mPendingQueue;
+
+    // Callbacks to fire when we received a name.
+    // May have multiple callbacks for a single ID, which are
+    // represented as multiple slots bound to the signal.
+    // Avoid copying signals via pointers.
+    typedef std::map<LLUUID, callback_signal_t*> signal_map_t;
+    signal_map_t mSignalMap;
+
+    // The cache at last, i.e. avatar names we know about.
+    typedef std::map<LLUUID, LLAvatarName> cache_t;
+    cache_t mCache;
+
+    // Time when unrefreshed cached names were checked last.
+    F64 mLastExpireCheck;
+};
 
 // Parse a cache-control header to get the max-age delta-seconds.
 // Returns true if header has max-age param and it parses correctly.

@@ -67,6 +67,9 @@ Modelo de iluminación avanzado: [GPU_SHADERS]
 Memoria de textura: [TEXTURE_MEMORY]MB
 VFS (cache) hora de creación: [VFS_TIME]
 	</string>
+	<string name="AboutOSXHiDPI">
+		Modo de visualización HiDPi: [HIDPI]
+	</string>
 	<string name="AboutLibs">
 		Versión de descodificador J2C: [J2C_VERSION] 
 Versión del controlador audio: [AUDIO_DRIVER_VERSION] 
@@ -1459,6 +1462,15 @@ http://secondlife.com/support para obtener ayuda sobre cómo solucionar este pro
 	</string>
 	<string name="MarketplaceURL_LearnMore">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more
+	</string>
+	<string name="InventoryPlayAnimationTooltip">
+		Abrir la ventana con las opciones del Juego
+	</string>
+	<string name="InventoryPlayGestureTooltip">
+		Realizar gesto seleccionado en el mundo.
+	</string>
+	<string name="InventoryPlaySoundTooltip">
+		Abrir la ventana con las opciones del Juego
 	</string>
 	<string name="InventoryOutboxNotMerchantTitle">
 		Cualquier usuario puede vender objetos en el mercado.
@@ -5309,9 +5321,6 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	<string name="Command_Destinations_Label">
 		Destinos
 	</string>
-	<string name="Command_Facebook_Label">
-		Facebook
-	</string>
 	<string name="Command_Flickr_Label">
 		Flickr
 	</string>
@@ -5404,9 +5413,6 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	</string>
 	<string name="Command_Destinations_Tooltip">
 		Destinos de interés
-	</string>
-	<string name="Command_Facebook_Tooltip">
-		Publicar en Facebook
 	</string>
 	<string name="Command_Flickr_Tooltip">
 		Subir a Flickr

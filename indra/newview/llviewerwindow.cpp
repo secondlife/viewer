@@ -122,7 +122,7 @@
 #include "llhudmanager.h"
 #include "llhudobject.h"
 #include "llhudview.h"
-#include "llimagebmp.h"
+#include "llimage.h"
 #include "llimagej2c.h"
 #include "llimageworker.h"
 #include "llkeyboard.h"
@@ -960,7 +960,7 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 			mWindow->releaseMouse();
 
 		// Indicate mouse was active
-		LLUI::resetMouseIdleTimer();
+		LLUI::getInstance()->resetMouseIdleTimer();
 
 		// Don't let the user move the mouse out of the window until mouse up.
 		if( LLToolMgr::getInstance()->getCurrentTool()->clipMouseWhenDown() )
@@ -1295,7 +1295,7 @@ void LLViewerWindow::handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask
 
 	if (mouse_point != mCurrentMousePoint)
 	{
-		LLUI::resetMouseIdleTimer();
+		LLUI::getInstance()->resetMouseIdleTimer();
 	}
 
 	saveLastMouse(mouse_point);
@@ -1796,8 +1796,6 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	//
 	LL_DEBUGS("Window") << "Loading feature tables." << LL_ENDL;
 
-	LLFeatureManager::getInstance()->init();
-
 	// Initialize OpenGL Renderer
 	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderVBOEnable") ||
 		!gGLManager.mHasVertexBufferObject)
@@ -1852,7 +1850,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	rvp.mouse_opaque(false);
 	rvp.follows.flags(FOLLOWS_NONE);
 	mRootView = LLUICtrlFactory::create<LLRootView>(rvp);
-	LLUI::setRootView(mRootView);
+	LLUI::getInstance()->setRootView(mRootView);
 
 	// Make avatar head look forward at start
 	mCurrentMousePoint.mX = getWindowWidthScaled() / 2;
@@ -2410,7 +2408,7 @@ void LLViewerWindow::setNormalControlsVisible( BOOL visible )
 		gStatusBar->setEnabled( visible );	
 	}
 	
-	LLNavigationBar* navbarp = LLUI::getRootView()->findChild<LLNavigationBar>("navigation_bar");
+	LLNavigationBar* navbarp = LLUI::getInstance()->getRootView()->findChild<LLNavigationBar>("navigation_bar");
 	if (navbarp)
 	{
 		// when it's time to show navigation bar we need to ensure that the user wants to see it
@@ -2520,7 +2518,7 @@ void LLViewerWindow::draw()
 
 	if (!gSavedSettings.getBOOL("RenderUIBuffer"))
 	{
-		LLUI::sDirtyRect = getWindowRectScaled();
+		LLUI::getInstance()->mDirtyRect = getWindowRectScaled();
 	}
 
 	// HACK for timecode debugging
@@ -2920,7 +2918,7 @@ BOOL LLViewerWindow::handleUnicodeChar(llwchar uni_char, MASK mask)
 
 void LLViewerWindow::handleScrollWheel(S32 clicks)
 {
-	LLUI::resetMouseIdleTimer();
+	LLUI::getInstance()->resetMouseIdleTimer();
 	
 	LLMouseHandler* mouse_captor = gFocusMgr.getMouseCapture();
 	if( mouse_captor )
@@ -2999,7 +2997,7 @@ void LLViewerWindow::moveCursorToCenter()
 		S32 x = getWorldViewWidthScaled() / 2;
 		S32 y = getWorldViewHeightScaled() / 2;
 	
-		LLUI::setMousePositionScreen(x, y);
+		LLUI::getInstance()->setMousePositionScreen(x, y);
 		
 		//on a forced move, all deltas get zeroed out to prevent jumping
 		mCurrentMousePoint.set(x,y);
@@ -4487,32 +4485,46 @@ void LLViewerWindow::movieSize(S32 new_width, S32 new_height)
 	}
 }
 
-BOOL LLViewerWindow::saveSnapshot(const std::string& filepath, S32 image_width, S32 image_height, BOOL show_ui, BOOL do_rebuild, LLSnapshotModel::ESnapshotLayerType type)
+BOOL LLViewerWindow::saveSnapshot(const std::string& filepath, S32 image_width, S32 image_height, BOOL show_ui, BOOL do_rebuild, LLSnapshotModel::ESnapshotLayerType type, LLSnapshotModel::ESnapshotFormat format)
 {
-	LL_INFOS() << "Saving snapshot to: " << filepath << LL_ENDL;
+    LL_INFOS() << "Saving snapshot to: " << filepath << LL_ENDL;
 
-	LLPointer<LLImageRaw> raw = new LLImageRaw;
-	BOOL success = rawSnapshot(raw, image_width, image_height, TRUE, FALSE, show_ui, do_rebuild);
+    LLPointer<LLImageRaw> raw = new LLImageRaw;
+    BOOL success = rawSnapshot(raw, image_width, image_height, TRUE, FALSE, show_ui, do_rebuild);
 
-	if (success)
-	{
-		LLPointer<LLImageBMP> bmp_image = new LLImageBMP;
-		success = bmp_image->encode(raw, 0.0f);
-		if( success )
-		{
-			success = bmp_image->save(filepath);
-		}
-		else
-		{
-			LL_WARNS() << "Unable to encode bmp snapshot" << LL_ENDL;
-		}
-	}
-	else
-	{
-		LL_WARNS() << "Unable to capture raw snapshot" << LL_ENDL;
-	}
+    if (success)
+    {
+        U8 image_codec = IMG_CODEC_BMP;
+        switch (format)
+        {
+        case LLSnapshotModel::SNAPSHOT_FORMAT_PNG:
+            image_codec = IMG_CODEC_PNG;
+            break;
+        case LLSnapshotModel::SNAPSHOT_FORMAT_JPEG:
+            image_codec = IMG_CODEC_JPEG;
+            break;
+        default:
+            image_codec = IMG_CODEC_BMP;
+            break;
+        }
 
-	return success;
+        LLPointer<LLImageFormatted> formated_image = LLImageFormatted::createFromType(image_codec);
+        success = formated_image->encode(raw, 0.0f);
+        if (success)
+        {
+            success = formated_image->save(filepath);
+        }
+        else
+        {
+            LL_WARNS() << "Unable to encode snapshot of format " << format << LL_ENDL;
+        }
+    }
+    else
+    {
+        LL_WARNS() << "Unable to capture raw snapshot" << LL_ENDL;
+    }
+
+    return success;
 }
 
 

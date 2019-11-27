@@ -43,7 +43,7 @@ LLStatView::LLStatView(const LLStatView::Params& p)
 	BOOL isopen = getDisplayChildren();
 	if (mSetting.length() > 0)
 	{
-		isopen = LLUI::sSettingGroups["config"]->getBOOL(mSetting);
+		isopen = LLUI::getInstance()->mSettingGroups["config"]->getBOOL(mSetting);
 	}
 	setDisplayChildren(isopen);
 }
@@ -54,7 +54,7 @@ LLStatView::~LLStatView()
 	if (mSetting.length() > 0)
 	{
 		BOOL isopen = getDisplayChildren();
-		LLUI::sSettingGroups["config"]->setBOOL(mSetting, isopen);
+		LLUI::getInstance()->mSettingGroups["config"]->setBOOL(mSetting, isopen);
 	}
 }
 

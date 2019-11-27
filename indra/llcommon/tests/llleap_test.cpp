@@ -23,7 +23,7 @@
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
 #include "../test/catch_and_store_what_in.h"
-#include "wrapllerrs.h"
+#include "wrapllerrs.h"             // CaptureLog
 #include "llevents.h"
 #include "llprocess.h"
 #include "llstring.h"
@@ -290,12 +290,9 @@ namespace tut
     void object::test<6>()
     {
         set_test_name("empty plugin vector");
-        std::string threw;
-        try
-        {
-            LLLeap::create("empty", StringVec());
-        }
-        CATCH_AND_STORE_WHAT_IN(threw, LLLeap::Error)
+        std::string threw = catch_what<LLLeap::Error>([](){
+                LLLeap::create("empty", StringVec());
+            });
         ensure_contains("LLLeap::Error", threw, "no plugin");
         // try the suppress-exception variant
         ensure("bad launch returned non-NULL", ! LLLeap::create("empty", StringVec(), false));
@@ -308,12 +305,9 @@ namespace tut
         // Synthesize bogus executable name
         std::string BADPYTHON(PYTHON.substr(0, PYTHON.length()-1) + "x");
         CaptureLog log;
-        std::string threw;
-        try
-        {
-            LLLeap::create("bad exe", BADPYTHON);
-        }
-        CATCH_AND_STORE_WHAT_IN(threw, LLLeap::Error)
+        std::string threw = catch_what<LLLeap::Error>([&BADPYTHON](){
+                LLLeap::create("bad exe", BADPYTHON);
+            });
         ensure_contains("LLLeap::create() didn't throw", threw, "failed");
         log.messageWith("failed");
         log.messageWith(BADPYTHON);

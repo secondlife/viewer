@@ -9,6 +9,12 @@
 	<floater.string name="maturity_icon_adult">
 		&quot;Parcel_R_Dark&quot;
 	</floater.string>
+	<floater.string name="Hours">
+		\[HOURS] ч
+	</floater.string>
+	<floater.string name="Hour">
+		ч
+	</floater.string>
 	<floater.string name="Minutes">
 		[MINUTES] мин
 	</floater.string>
@@ -20,6 +26,9 @@
 	</floater.string>
 	<floater.string name="Remaining">
 		осталось
+	</floater.string>
+	<floater.string name="Always">
+		Всегда
 	</floater.string>
 	<tab_container name="landtab">
 		<panel label="ОСНОВНЫЕ" name="land_general_panel">
@@ -316,18 +325,18 @@
 			<text name="allow_label2">
 				Строительство:
 			</text>
-			<check_box label="Все" name="edit objects check"/>
-			<check_box label="Группа" name="edit group objects check"/>
+			<check_box label="Все" name="edit objects check" tool_tip="Если установлен флажок, жители могут создавать и выкладывать объекты на вашей земле."/>
+			<check_box label="Группа" name="edit group objects check" tool_tip="Если установлен флажок, то жители могут создавать и выкладывать объекты на вашей земле."/>
 			<text name="allow_label3">
 				Проникновение объектов:
 			</text>
-			<check_box label="Все" name="all object entry check"/>
-			<check_box label="Группа" name="group object entry check"/>
+			<check_box label="Все" name="all object entry check" tool_tip="Если установлен флажок, то жители могут перемещать существующие объекты из других участков на этот участок."/>
+			<check_box label="Группа" name="group object entry check" tool_tip="Если установлен флажок, то члены группы участка могут перемещать существующие объекты из других участков на этот участок."/>
 			<text name="allow_label4">
 				Запускать скрипты:
 			</text>
-			<check_box label="Все" name="check other scripts"/>
-			<check_box label="Группа" name="check group scripts"/>
+			<check_box label="Все" name="check other scripts" tool_tip="Если установлен флажок, то жители могут выполнять скрипты на вашем участке, включая приложения."/>
+			<check_box label="Группа" name="check group scripts" tool_tip="Если установлен флажок, то члены группы могут выполнять скрипты на вашем участке, включая приложения."/>
 			<check_box label="Безопасно (нет повреждений)" name="check safe" tool_tip="Если отмечено, то земля считается безопасной, отключены боевые повреждения. Если не отмечено, то боевые повреждения включены."/>
 			<check_box label="Не толкать" name="PushRestrictCheck" tool_tip="Запрещает скриптам функцию толкания. Этот параметр может оказаться полезным для предотвращения нежелательного поведения на вашей земле."/>
 			<check_box label="Показать место в поиске (L$30/неделя)" name="ShowDirectoryCheck" tool_tip="Позволить людям видеть участок в результатах поиска"/>
@@ -351,7 +360,7 @@
 				Снимок:
 			</text>
 			<texture_picker name="snapshot_ctrl" tool_tip="Щелкните для выбора изображения"/>
-			<text name="allow_label5">
+			<text name="allow_see_label">
 				Аватары с других участков могут видеть аватары на этом участке и общаться с ними
 			</text>
 			<check_box label="Видны аватары" name="SeeAvatarsCheck" tool_tip="Аватары с других участков смогут видеть аватары на этом участке и общаться с ними в чате, а вы также сможете видеть их и общаться с ними."/>
@@ -454,9 +463,12 @@
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="Бан" name="BanCheck">
-					Всегда заблокировано ([COUNT], макс. [MAX])
+					Заблокировано ([COUNT], макс. [MAX])
 				</text>
-				<name_list name="BannedList" tool_tip="([LISTED] в списке, [MAX] максимум)"/>
+				<name_list name="BannedList" tool_tip="([LISTED] в списке, [MAX] максимум)">
+					<columns label="Имя" name="name"/>
+					<columns label="Продолжительность" name="duration"/>
+				</name_list>
 				<button label="Добавить" name="add_banned"/>
 				<button label="Удалить" label_selected="Удалить" name="remove_banned"/>
 			</panel>

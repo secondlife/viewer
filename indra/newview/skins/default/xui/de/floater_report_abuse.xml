@@ -77,7 +77,7 @@ Objekt:
 		<combo_box.item label="Land &gt; Unbefugte Nutzung &gt; Objekte oder Texturen" name="Land__Encroachment__Objects_textures"/>
 		<combo_box.item label="Land &gt; Unbefugte Nutzung &gt; Partikel" name="Land__Encroachment__Particles"/>
 		<combo_box.item label="Land &gt; Unbefugte Nutzung &gt; Bäume/Pflanzen" name="Land__Encroachment__Trees_plants"/>
-		<combo_box.item label="Verstoß gegen die Spielerichtlinie" name="Wagering_gambling"/>
+		<combo_box.item label="Verstoß gegen die Geschicklichkeits-Spielerichtlinie" name="Wagering_gambling"/>
 		<combo_box.item label="Sonstige" name="Other"/>
 	</combo_box>
 	<text name="abuser_name_title">

@@ -38,7 +38,7 @@
 #include "llcallbacklist.h"
 #include "llcheckboxctrl.h"
 #include "llfontgl.h"
-#include "llimagebmp.h"
+#include "llimagepng.h"
 #include "llimagej2c.h"
 #include "llinventory.h"
 #include "llnotificationsutil.h"
@@ -89,7 +89,7 @@
 #include "llcorehttputil.h"
 #include "llviewerassetupload.h"
 
-const std::string SCREEN_PREV_FILENAME = "screen_report_last.bmp";
+const std::string SCREEN_PREV_FILENAME = "screen_report_last.png";
 
 //=========================================================================
 //-----------------------------------------------------------------------------
@@ -872,10 +872,10 @@ void LLFloaterReporter::takeScreenshot(bool use_prev_screenshot)
 	if(!use_prev_screenshot)
 	{
 		std::string screenshot_filename(gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter() + SCREEN_PREV_FILENAME);
-		LLPointer<LLImageBMP> bmp_image = new LLImageBMP;
-		if(bmp_image->encode(mImageRaw, 0.0f))
+		LLPointer<LLImagePNG> png_image = new LLImagePNG;
+		if(png_image->encode(mImageRaw, 0.0f))
 		{
-			bmp_image->save(screenshot_filename);
+			png_image->save(screenshot_filename);
 		}
 	}
 	else
@@ -948,10 +948,10 @@ void LLFloaterReporter::takeNewSnapshot()
 	{
 		std::string screenshot_filename(gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter() + SCREEN_PREV_FILENAME);
 		mPrevImageRaw = new LLImageRaw;
-		LLPointer<LLImageBMP> start_image_bmp = new LLImageBMP;
-		if(start_image_bmp->load(screenshot_filename))
+		LLPointer<LLImagePNG> start_image_png = new LLImagePNG;
+		if(start_image_png->load(screenshot_filename))
 		{
-			if (start_image_bmp->decode(mPrevImageRaw, 0.0f))
+			if (start_image_png->decode(mPrevImageRaw, 0.0f))
 			{
 				LLNotificationsUtil::add("LoadPreviousReportScreenshot", LLSD(), LLSD(), boost::bind(&LLFloaterReporter::onLoadScreenshotDialog,this, _1, _2));
 				return;

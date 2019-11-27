@@ -1377,8 +1377,12 @@ if (DARWIN)
     PROPERTIES
     COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
     # BugsplatMac is a module, imported with @import. That language feature
-    # demands these switches.
-    COMPILE_FLAGS "-fmodules -fcxx-modules"
+    # demands these -f switches.
+    # Xcode 10.2 requires that Objective-C++ headers declare nullability of
+    # pointer variables. As of 2019-06-26, the BugsplatMac version we're using
+    # does not yet do so in its own header files. This -W flag prevents fatal
+    # warnings.
+    COMPILE_FLAGS "-fmodules -fcxx-modules -Wno-nullability-completeness"
     )
 
   find_library(AGL_LIBRARY AGL)
@@ -2117,7 +2121,7 @@ if (DARWIN)
   set(MACOSX_BUNDLE_BUNDLE_VERSION "${VIEWER_SHORT_VERSION}${VIEWER_MACOSX_PHASE}${VIEWER_REVISION}")
   set(MACOSX_BUNDLE_COPYRIGHT "Copyright © Linden Research, Inc. 2018")
   set(MACOSX_BUNDLE_NSMAIN_NIB_FILE "SecondLife.nib")
-  set(MACOSX_BUNDLE_NSPRINCIPAL_CLASS "NSApplication")
+  set(MACOSX_BUNDLE_NSPRINCIPAL_CLASS "LLApplication")
 
   # https://blog.kitware.com/upcoming-in-cmake-2-8-12-osx-rpath-support/
   set(CMAKE_MACOSX_RPATH 1)
