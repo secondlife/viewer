@@ -67,7 +67,6 @@
 #include "llfloaterexperiences.h"
 #include "llfloaterexperiencepicker.h"
 #include "llfloaterevent.h"
-#include "llfloaterflickr.h"
 #include "llfloaterfonttest.h"
 #include "llfloaterforgetuser.h"
 #include "llfloatergesture.h"
@@ -133,7 +132,6 @@
 #include "llfloatertos.h"
 #include "llfloatertoybox.h"
 #include "llfloatertranslationsettings.h"
-#include "llfloatertwitter.h"
 #include "llfloateruipreview.h"
 #include "llfloatervoiceeffect.h"
 #include "llfloaterwebcontent.h"
@@ -354,11 +352,6 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("profile", "floater_web_profile.xml", (LLFloaterBuildFunc)&LLFloaterWebProfile::create);
 	LLFloaterReg::add("how_to", "floater_how_to.xml", (LLFloaterBuildFunc)&LLFloaterWebContent::create);
 
-	LLFloaterReg::add("flickr_web", "floater_fbc_web.xml", (LLFloaterBuildFunc)&LLFloaterWebContent::create);
-	LLFloaterReg::add("twitter_web", "floater_fbc_web.xml", (LLFloaterBuildFunc)&LLFloaterWebContent::create);
-	
-	LLFloaterReg::add("flickr", "floater_flickr.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFlickr>);
-	LLFloaterReg::add("twitter", "floater_twitter.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterTwitter>);
 	LLFloaterReg::add("big_preview", "floater_big_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBigPreview>);
 	
 	LLFloaterUIPreviewUtil::registerFloater();
