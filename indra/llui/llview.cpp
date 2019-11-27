@@ -877,7 +877,7 @@ BOOL LLView::handleToolTip(S32 x, S32 y, MASK mask)
 		              : LLUI::getInstance()->mSettingGroups["config"]->getF32( "ToolTipDelay" );
 
 		// Even if we don't show tooltips, consume the event, nothing below should show tooltip
-		bool allow_ui_tooltips = LLUI::sSettingGroups["config"]->getBOOL( "BasicUITooltips" );
+		bool allow_ui_tooltips = LLUI::getInstance()->mSettingGroups["config"]->getBOOL("BasicUITooltips");
 		if (allow_ui_tooltips)
 		{
 			LLToolTipMgr::instance().show(LLToolTip::Params()
