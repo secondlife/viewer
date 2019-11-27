@@ -54,6 +54,17 @@ enum ETerrainBrushType
 	E_LANDBRUSH_INVALID = 6
 };
 
+enum EMouseClickType{
+    CLICK_NONE = -1,
+    CLICK_LEFT = 0,
+    CLICK_MIDDLE,
+    CLICK_RIGHT,
+    CLICK_BUTTON4,
+    CLICK_BUTTON5,
+    CLICK_DOUBLELEFT,
+    CLICK_COUNT // 'size', CLICK_NONE does not counts
+};
+
 // keys
 // Bit masks for various keyboard modifier keys.
 const MASK MASK_NONE =			0x0000;

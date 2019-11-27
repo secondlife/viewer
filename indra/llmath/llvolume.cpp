@@ -2400,9 +2400,9 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			{ //face has no geometry, continue
 				face.resizeIndices(3);
 				face.resizeVertices(1);
-				memset(face.mPositions, 0, sizeof(LLVector4a));
-				memset(face.mNormals, 0, sizeof(LLVector4a));
-				memset(face.mTexCoords, 0, sizeof(LLVector2));
+				face.mPositions->clear();
+				face.mNormals->clear();
+				face.mTexCoords->setZero();
 				memset(face.mIndices, 0, sizeof(U16)*3);
 				continue;
 			}
@@ -2490,7 +2490,11 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 				}
 				else
 				{
-					memset(norm_out, 0, sizeof(LLVector4a)*num_verts);
+					for (U32 j = 0; j < num_verts; ++j)
+					{
+						norm_out->clear();
+						norm_out++; // or just norm_out[j].clear();
+					}
 				}
 			}
 
@@ -2520,7 +2524,11 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 				}
 				else
 				{
-					memset(tc_out, 0, sizeof(LLVector2)*num_verts);
+					for (U32 j = 0; j < num_verts; j += 2)
+					{
+						tc_out->clear();
+						tc_out++;
+					}
 				}
 			}
 
@@ -5252,7 +5260,7 @@ bool LLVolumeFace::cacheOptimize()
 		triangle_data.resize(mNumIndices / 3);
 		vertex_data.resize(mNumVertices);
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		LL_WARNS("LLVOLUME") << "Resize failed" << LL_ENDL;
 		return false;
@@ -5406,7 +5414,7 @@ bool LLVolumeFace::cacheOptimize()
 	{
 		new_idx.resize(mNumVertices, -1);
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		ll_aligned_free<64>(pos);
 		ll_aligned_free_16(wght);
@@ -6914,11 +6922,16 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 {
     //LLVector4a *tan1 = new LLVector4a[vertexCount * 2];
 	LLVector4a* tan1 = (LLVector4a*) ll_aligned_malloc_16(vertexCount*2*sizeof(LLVector4a));
+	// new(tan1) LLVector4a;
 
     LLVector4a* tan2 = tan1 + vertexCount;
 
-	memset(tan1, 0, vertexCount*2*sizeof(LLVector4a));
-        
+    U32 count = vertexCount * 2;
+    for (U32 i = 0; i < count; i++)
+    {
+        tan1[i].clear();
+    }
+
     for (U32 a = 0; a < triangleCount; a++)
     {
         U32 i1 = *index_array++;

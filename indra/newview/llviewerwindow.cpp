@@ -45,7 +45,8 @@
 #include "llmeshrepository.h"
 #include "llnotificationhandler.h"
 #include "llpanellogin.h"
-#include "llviewerkeyboard.h"
+#include "llsetkeybinddialog.h"
+#include "llviewerinput.h"
 #include "llviewermenu.h"
 
 #include "llviewquery.h"
@@ -173,7 +174,7 @@
 #include "llviewergesture.h"
 #include "llviewertexturelist.h"
 #include "llviewerinventory.h"
-#include "llviewerkeyboard.h"
+#include "llviewerinput.h"
 #include "llviewermedia.h"
 #include "llviewermediafocus.h"
 #include "llviewermenu.h"
@@ -898,7 +899,18 @@ LLViewerWindow::Params::Params()
 {}
 
 
-BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down)
+void LLViewerWindow::handlePieMenu(S32 x, S32 y, MASK mask)
+{
+    if (CAMERA_MODE_CUSTOMIZE_AVATAR != gAgentCamera.getCameraMode() && LLToolMgr::getInstance()->getCurrentTool() != LLToolPie::getInstance() && gAgent.isInitialized())
+    {
+        // If the current tool didn't process the click, we should show
+        // the pie menu.  This can be done by passing the event to the pie
+        // menu tool.
+        LLToolPie::getInstance()->handleRightMouseDown(x, y, mask);
+    }
+}
+
+BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK mask, EMouseClickType clicktype, BOOL down)
 {
 	const char* buttonname = "";
 	const char* buttonstatestr = "";
@@ -922,22 +934,30 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 		
 		switch (clicktype)
 		{
-		case LLMouseHandler::CLICK_LEFT:
+		case CLICK_LEFT:
 			mLeftMouseDown = down;
 			buttonname = "Left";
 			break;
-		case LLMouseHandler::CLICK_RIGHT:
+		case CLICK_RIGHT:
 			mRightMouseDown = down;
 			buttonname = "Right";
 			break;
-		case LLMouseHandler::CLICK_MIDDLE:
+		case CLICK_MIDDLE:
 			mMiddleMouseDown = down;
 			buttonname = "Middle";
 			break;
-		case LLMouseHandler::CLICK_DOUBLELEFT:
+		case CLICK_DOUBLELEFT:
 			mLeftMouseDown = down;
 			buttonname = "Left Double Click";
 			break;
+		case CLICK_BUTTON4:
+			buttonname = "Button 4";
+			break;
+		case CLICK_BUTTON5:
+			buttonname = "Button 5";
+			break;
+		default:
+			break; // COUNT and NONE
 		}
 		
 		LLView::sMouseHandlerMessage.clear();
@@ -988,6 +1008,11 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 				LLViewerEventRecorder::instance().logMouseEvent(std::string(buttonstatestr),std::string(buttonname)); 
 
 			}
+			else if (down && clicktype == CLICK_RIGHT)
+			{
+				handlePieMenu(x, y, mask);
+				r = TRUE;
+			}
 			return r;
 		}
 
@@ -1034,7 +1059,12 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 		return TRUE;
 	}
 
-	
+	if (down && clicktype == CLICK_RIGHT)
+	{
+		handlePieMenu(x, y, mask);
+		return TRUE;
+	}
+
 	// If we got this far on a down-click, it wasn't handled.
 	// Up-clicks, though, are always handled as far as the OS is concerned.
 	BOOL default_rtn = !down;
@@ -1053,7 +1083,8 @@ BOOL LLViewerWindow::handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask
         mMouseDownTimer.reset();
     }    
     BOOL down = TRUE;
-	return handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_LEFT,down);
+    //handleMouse() loops back to LLViewerWindow::handleAnyMouseClick
+    return gViewerInput.handleMouse(window, pos, mask, CLICK_LEFT, down);
 }
 
 BOOL LLViewerWindow::handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask)
@@ -1061,8 +1092,7 @@ BOOL LLViewerWindow::handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK ma
 	// try handling as a double-click first, then a single-click if that
 	// wasn't handled.
 	BOOL down = TRUE;
-	if (handleAnyMouseClick(window, pos, mask,
-				LLMouseHandler::CLICK_DOUBLELEFT, down))
+	if (gViewerInput.handleMouse(window, pos, mask, CLICK_DOUBLELEFT, down))
 	{
 		return TRUE;
 	}
@@ -1076,47 +1106,24 @@ BOOL LLViewerWindow::handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
         mMouseDownTimer.stop();
     }
     BOOL down = FALSE;
-	return handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_LEFT,down);
+    return gViewerInput.handleMouse(window, pos, mask, CLICK_LEFT, down);
 }
-
-
 BOOL LLViewerWindow::handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
-	S32 x = pos.mX;
-	S32 y = pos.mY;
-	x = ll_round((F32)x / mDisplayScale.mV[VX]);
-	y = ll_round((F32)y / mDisplayScale.mV[VY]);
-
 	BOOL down = TRUE;
-	BOOL handle = handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_RIGHT,down);
-	if (handle)
-		return handle;
-
-	// *HACK: this should be rolled into the composite tool logic, not
-	// hardcoded at the top level.
-	if (CAMERA_MODE_CUSTOMIZE_AVATAR != gAgentCamera.getCameraMode() && LLToolMgr::getInstance()->getCurrentTool() != LLToolPie::getInstance() && gAgent.isInitialized())
-	{
-		// If the current tool didn't process the click, we should show
-		// the pie menu.  This can be done by passing the event to the pie
-		// menu tool.
-		LLToolPie::getInstance()->handleRightMouseDown(x, y, mask);
-		// show_context_menu( x, y, mask );
-	}
-
-	return TRUE;
+	return gViewerInput.handleMouse(window, pos, mask, CLICK_RIGHT, down);
 }
 
 BOOL LLViewerWindow::handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	BOOL down = FALSE;
- 	return handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_RIGHT,down);
+ 	return gViewerInput.handleMouse(window, pos, mask, CLICK_RIGHT, down);
 }
 
 BOOL LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	BOOL down = TRUE;
-	LLVoiceClient::getInstance()->middleMouseState(true);
- 	handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_MIDDLE,down);
+ 	gViewerInput.handleMouse(window, pos, mask, CLICK_MIDDLE, down);
   
   	// Always handled as far as the OS is concerned.
 	return TRUE;
@@ -1267,15 +1274,42 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 	
 	return result;
 }
-  
+
 BOOL LLViewerWindow::handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	BOOL down = FALSE;
-	LLVoiceClient::getInstance()->middleMouseState(false);
- 	handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_MIDDLE,down);
+ 	gViewerInput.handleMouse(window, pos, mask, CLICK_MIDDLE, down);
   
   	// Always handled as far as the OS is concerned.
 	return TRUE;
+}
+
+BOOL LLViewerWindow::handleOtherMouse(LLWindow *window, LLCoordGL pos, MASK mask, S32 button, bool down)
+{
+    switch (button)
+    {
+    case 4:
+        gViewerInput.handleMouse(window, pos, mask, CLICK_BUTTON4, down);
+        break;
+    case 5:
+        gViewerInput.handleMouse(window, pos, mask, CLICK_BUTTON5, down);
+        break;
+    default:
+        break;
+    }
+
+    // Always handled as far as the OS is concerned.
+    return TRUE;
+}
+
+BOOL LLViewerWindow::handleOtherMouseDown(LLWindow *window, LLCoordGL pos, MASK mask, S32 button)
+{
+    return handleOtherMouse(window, pos, mask, button, TRUE);
+}
+
+BOOL LLViewerWindow::handleOtherMouseUp(LLWindow *window, LLCoordGL pos, MASK mask, S32 button)
+{
+    return handleOtherMouse(window, pos, mask, button, FALSE);
 }
 
 // WARNING: this is potentially called multiple times per frame
@@ -1404,9 +1438,6 @@ void LLViewerWindow::handleFocusLost(LLWindow *window)
 
 BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
 {
-	// Let the voice chat code check for its PTT key.  Note that this never affects event processing.
-	LLVoiceClient::getInstance()->keyDown(key, mask);
-
 	if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
 	{
 		gAgent.clearAFK();
@@ -1425,14 +1456,12 @@ BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
     		return FALSE;
 	}
 
-	return gViewerKeyboard.handleKey(key, mask, repeated);
+    // remaps, handles ignored cases and returns back to viewer window.
+    return gViewerInput.handleKey(key, mask, repeated);
 }
 
 BOOL LLViewerWindow::handleTranslatedKeyUp(KEY key,  MASK mask)
 {
-	// Let the voice chat code check for its PTT key.  Note that this never affects event processing.
-	LLVoiceClient::getInstance()->keyUp(key, mask);
-
 	// Let the inspect tool code check for ALT key to set LLToolSelectRect active instead LLToolCamera
 	LLToolCompInspect * tool_inspectp = LLToolCompInspect::getInstance();
 	if (LLToolMgr::getInstance()->getCurrentTool() == tool_inspectp)
@@ -1440,13 +1469,13 @@ BOOL LLViewerWindow::handleTranslatedKeyUp(KEY key,  MASK mask)
 		tool_inspectp->keyUp(key, mask);
 	}
 
-	return gViewerKeyboard.handleKeyUp(key, mask);
+	return gViewerInput.handleKeyUp(key, mask);
 }
 
 void LLViewerWindow::handleScanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level)
 {
 	LLViewerJoystick::getInstance()->setCameraNeedsUpdate(true);
-	gViewerKeyboard.scanKey(key, key_down, key_up, key_level);
+	gViewerInput.scanKey(key, key_down, key_up, key_level);
 	return; // Be clear this function returns nothing
 }
 
@@ -1549,6 +1578,11 @@ BOOL LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S
 void LLViewerWindow::handleScrollWheel(LLWindow *window,  S32 clicks)
 {
 	handleScrollWheel( clicks );
+}
+
+void LLViewerWindow::handleScrollHWheel(LLWindow *window,  S32 clicks)
+{
+	handleScrollHWheel(clicks);
 }
 
 void LLViewerWindow::handleWindowBlock(LLWindow *window)
@@ -1951,6 +1985,11 @@ void LLViewerWindow::initBase()
 	LLPanel* panel_holder = main_view->getChild<LLPanel>("toolbar_view_holder");
 	// Load the toolbar view from file 
 	gToolBarView = LLUICtrlFactory::getInstance()->createFromFile<LLToolBarView>("panel_toolbar_view.xml", panel_holder, LLDefaultChildRegistry::instance());
+	if (!gToolBarView)
+	{
+		LL_ERRS() << "Failed to initialize viewer: Viewer couldn't process file panel_toolbar_view.xml, "
+				<< "if this problem happens again, please validate your installation." << LL_ENDL;
+	}
 	gToolBarView->setShape(panel_holder->getLocalRect());
 	// Hide the toolbars for the moment: we'll make them visible after logging in world (see LLViewerWindow::initWorldUI())
 	gToolBarView->setVisible(FALSE);
@@ -2676,6 +2715,14 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	// hide tooltips on keypress
 	LLToolTipMgr::instance().blockToolTips();
 
+    // let menus handle navigation keys for navigation
+    if (LLSetKeyBindDialog::recordKey(key, mask))
+    {
+        LL_DEBUGS() << "Key handled by LLSetKeyBindDialog" << LL_ENDL;
+        LLViewerEventRecorder::instance().logKeyEvent(key,mask);
+        return TRUE;
+    }
+
     LLFocusableElement* keyboard_focus = gFocusMgr.getKeyboardFocus();
 
     if (keyboard_focus
@@ -2836,7 +2883,8 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	// If "Pressing letter keys starts local chat" option is selected, we are not in mouselook, 
 	// no view has keyboard focus, this is a printable character key (and no modifier key is 
 	// pressed except shift), then give focus to nearby chat (STORM-560)
-	if ( gSavedSettings.getS32("LetterKeysFocusChatBar") && !gAgentCamera.cameraMouselook() && 
+	if ( LLStartUp::getStartupState() >= STATE_STARTED && 
+		gSavedSettings.getS32("LetterKeysFocusChatBar") && !gAgentCamera.cameraMouselook() && 
 		!keyboard_focus && key < 0x80 && (mask == MASK_NONE || mask == MASK_SHIFT) )
 	{
 		// Initialize nearby chat if it's missing
@@ -2890,7 +2938,8 @@ BOOL LLViewerWindow::handleUnicodeChar(llwchar uni_char, MASK mask)
 	{
 		if (mask != MASK_ALT)
 		{
-			return gViewerKeyboard.handleKey(KEY_RETURN, mask, gKeyboard->getKeyRepeated(KEY_RETURN));
+			// remaps, handles ignored cases and returns back to viewer window.
+			return gViewerInput.handleKey(KEY_RETURN, mask, gKeyboard->getKeyRepeated(KEY_RETURN));
 		}
 	}
 
@@ -2964,6 +3013,49 @@ void LLViewerWindow::handleScrollWheel(S32 clicks)
 		gAgentCamera.handleScrollWheel(clicks);
 
 	return;
+}
+
+void LLViewerWindow::handleScrollHWheel(S32 clicks)
+{
+    LLUI::resetMouseIdleTimer();
+
+    LLMouseHandler* mouse_captor = gFocusMgr.getMouseCapture();
+    if (mouse_captor)
+    {
+        S32 local_x;
+        S32 local_y;
+        mouse_captor->screenPointToLocal(mCurrentMousePoint.mX, mCurrentMousePoint.mY, &local_x, &local_y);
+        mouse_captor->handleScrollHWheel(local_x, local_y, clicks);
+        if (LLView::sDebugMouseHandling)
+        {
+            LL_INFOS() << "Scroll Horizontal Wheel handled by captor " << mouse_captor->getName() << LL_ENDL;
+        }
+        return;
+    }
+
+    LLUICtrl* top_ctrl = gFocusMgr.getTopCtrl();
+    if (top_ctrl)
+    {
+        S32 local_x;
+        S32 local_y;
+        top_ctrl->screenPointToLocal(mCurrentMousePoint.mX, mCurrentMousePoint.mY, &local_x, &local_y);
+        if (top_ctrl->handleScrollHWheel(local_x, local_y, clicks)) return;
+    }
+
+    if (mRootView->handleScrollHWheel(mCurrentMousePoint.mX, mCurrentMousePoint.mY, clicks))
+    {
+        if (LLView::sDebugMouseHandling)
+        {
+            LL_INFOS() << "Scroll Horizontal Wheel" << LLView::sMouseHandlerMessage << LL_ENDL;
+        }
+        return;
+    }
+    else if (LLView::sDebugMouseHandling)
+    {
+        LL_INFOS() << "Scroll Horizontal Wheel not handled by view" << LL_ENDL;
+    }
+
+    return;
 }
 
 void LLViewerWindow::addPopup(LLView* popup)
@@ -3329,7 +3421,8 @@ void LLViewerWindow::updateUI()
 			LLRect screen_sticky_rect = mRootView->getLocalRect();
 			S32 local_x, local_y;
 
-			if (gSavedSettings.getBOOL("DebugShowXUINames"))
+			static LLCachedControl<bool> debug_show_xui_names(gSavedSettings, "DebugShowXUINames", 0);
+			if (debug_show_xui_names)
 			{
 				LLToolTip::Params params;
 
@@ -4485,12 +4578,12 @@ void LLViewerWindow::movieSize(S32 new_width, S32 new_height)
 	}
 }
 
-BOOL LLViewerWindow::saveSnapshot(const std::string& filepath, S32 image_width, S32 image_height, BOOL show_ui, BOOL do_rebuild, LLSnapshotModel::ESnapshotLayerType type, LLSnapshotModel::ESnapshotFormat format)
+BOOL LLViewerWindow::saveSnapshot(const std::string& filepath, S32 image_width, S32 image_height, BOOL show_ui, BOOL show_hud, BOOL do_rebuild, LLSnapshotModel::ESnapshotLayerType type, LLSnapshotModel::ESnapshotFormat format)
 {
     LL_INFOS() << "Saving snapshot to: " << filepath << LL_ENDL;
 
     LLPointer<LLImageRaw> raw = new LLImageRaw;
-    BOOL success = rawSnapshot(raw, image_width, image_height, TRUE, FALSE, show_ui, do_rebuild);
+    BOOL success = rawSnapshot(raw, image_width, image_height, TRUE, FALSE, show_ui, show_hud, do_rebuild);
 
     if (success)
     {
@@ -4549,16 +4642,16 @@ void LLViewerWindow::resetSnapshotLoc() const
 	gSavedPerAccountSettings.setString("SnapshotBaseDir", std::string());
 }
 
-BOOL LLViewerWindow::thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 preview_height, BOOL show_ui, BOOL do_rebuild, LLSnapshotModel::ESnapshotLayerType type)
+BOOL LLViewerWindow::thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 preview_height, BOOL show_ui, BOOL show_hud, BOOL do_rebuild, LLSnapshotModel::ESnapshotLayerType type)
 {
-	return rawSnapshot(raw, preview_width, preview_height, FALSE, FALSE, show_ui, do_rebuild, type);
+	return rawSnapshot(raw, preview_width, preview_height, FALSE, FALSE, show_ui, show_hud, do_rebuild, type);
 }
 
 // Saves the image from the screen to a raw image
 // Since the required size might be bigger than the available screen, this method rerenders the scene in parts (called subimages) and copy
 // the results over to the final raw image.
 BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_height, 
-	BOOL keep_window_aspect, BOOL is_texture, BOOL show_ui, BOOL do_rebuild, LLSnapshotModel::ESnapshotLayerType type, S32 max_size)
+    BOOL keep_window_aspect, BOOL is_texture, BOOL show_ui, BOOL show_hud, BOOL do_rebuild, LLSnapshotModel::ESnapshotLayerType type, S32 max_size)
 {
 	if (!raw)
 	{
@@ -4592,7 +4685,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		LLPipeline::toggleRenderDebugFeature(LLPipeline::RENDER_DEBUG_FEATURE_UI);
 	}
 
-	BOOL hide_hud = !gSavedSettings.getBOOL("RenderHUDInSnapshot") && LLPipeline::sShowHUDAttachments;
+    BOOL hide_hud = !show_hud && LLPipeline::sShowHUDAttachments;
 	if (hide_hud)
 	{
 		LLPipeline::sShowHUDAttachments = FALSE;
@@ -4632,7 +4725,8 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		if ((image_width <= gGLManager.mGLMaxTextureSize && image_height <= gGLManager.mGLMaxTextureSize) && 
 			(image_width > window_width || image_height > window_height) && LLPipeline::sRenderDeferred && !show_ui)
 		{
-			if (scratch_space.allocate(image_width, image_height, GL_DEPTH_COMPONENT, true, true))
+			U32 color_fmt = type == LLSnapshotModel::SNAPSHOT_TYPE_DEPTH ? GL_DEPTH_COMPONENT : GL_RGBA;
+			if (scratch_space.allocate(image_width, image_height, color_fmt, true, true))
 			{
 				original_width = gPipeline.mDeferredScreen.getWidth();
 				original_height = gPipeline.mDeferredScreen.getHeight();

@@ -741,17 +741,27 @@ void LLWindowWin32::restore()
 	SetFocus(mWindowHandle);
 }
 
+// See SL-12170
+// According to callstack "c0000005 Access violation" happened inside __try block,
+// deep in DestroyWindow and crashed viewer, which shouldn't be possible.
+// I tried manually causing this exception and it was caught without issues, so
+// I'm turning off optimizations for this part to be sure code executes as intended
+// (it is a straw, but I have no idea why else __try can get overruled)
+#pragma optimize("", off)
 bool destroy_window_handler(HWND &hWnd)
 {
+    bool res;
     __try
     {
-        return DestroyWindow(hWnd);
+        res = DestroyWindow(hWnd);
     }
     __except (EXCEPTION_EXECUTE_HANDLER)
     {
-        return false;
+        res = false;
     }
+    return res;
 }
+#pragma optimize("", on)
 
 // close() destroys all OS-specific code associated with a window.
 // Usually called from LLWindowManager::destroyWindow()
@@ -2539,6 +2549,72 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				}
 			}
 			break;
+		case WM_XBUTTONDOWN:
+			{
+				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_MBUTTONDOWN");
+				LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
+				S32 button = GET_XBUTTON_WPARAM(w_param);
+				if (LLWinImm::isAvailable() && window_imp->mPreeditor)
+				{
+					window_imp->interruptLanguageTextInput();
+				}
+
+				// Because we move the cursor position in tllviewerhe app, we need to query
+				// to find out where the cursor at the time the event is handled.
+				// If we don't do this, many clicks could get buffered up, and if the
+				// first click changes the cursor position, all subsequent clicks
+				// will occur at the wrong location.  JC
+				if (window_imp->mMousePositionModified)
+				{
+					LLCoordWindow cursor_coord_window;
+					window_imp->getCursorPosition(&cursor_coord_window);
+					gl_coord = cursor_coord_window.convert();
+				}
+				else
+				{
+					gl_coord = window_coord.convert();
+				}
+				MASK mask = gKeyboard->currentMask(TRUE);
+				// generate move event to update mouse coordinates
+				window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
+				// Windows uses numbers 1 and 2 for buttons, remap to 4, 5
+				if (window_imp->mCallbacks->handleOtherMouseDown(window_imp, gl_coord, mask, button + 3))
+				{
+					return 0;
+				}
+			}
+			break;
+
+		case WM_XBUTTONUP:
+			{
+				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_MBUTTONUP");
+				LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
+				S32 button = GET_XBUTTON_WPARAM(w_param);
+				// Because we move the cursor position in the llviewer app, we need to query
+				// to find out where the cursor at the time the event is handled.
+				// If we don't do this, many clicks could get buffered up, and if the
+				// first click changes the cursor position, all subsequent clicks
+				// will occur at the wrong location.  JC
+				if (window_imp->mMousePositionModified)
+				{
+					LLCoordWindow cursor_coord_window;
+					window_imp->getCursorPosition(&cursor_coord_window);
+					gl_coord = cursor_coord_window.convert();
+				}
+				else
+				{
+					gl_coord = window_coord.convert();
+				}
+				MASK mask = gKeyboard->currentMask(TRUE);
+				// generate move event to update mouse coordinates
+				window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
+				// Windows uses numbers 1 and 2 for buttons, remap to 4, 5
+				if (window_imp->mCallbacks->handleOtherMouseUp(window_imp, gl_coord, mask, button + 3))
+				{
+					return 0;
+				}
+			}
+			break;
 
 		case WM_MOUSEWHEEL:
 			{
@@ -2596,6 +2672,42 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			return 0;
 			}
 			*/
+		case WM_MOUSEHWHEEL:
+			{
+				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_MOUSEHWHEEL");
+				static short h_delta = 0;
+
+				RECT	client_rect;
+
+				// eat scroll events that occur outside our window, since we use mouse position to direct scroll
+				// instead of keyboard focus
+				// NOTE: mouse_coord is in *window* coordinates for scroll events
+				POINT mouse_coord = {(S32)(S16)LOWORD(l_param), (S32)(S16)HIWORD(l_param)};
+
+				if (ScreenToClient(window_imp->mWindowHandle, &mouse_coord)
+					&& GetClientRect(window_imp->mWindowHandle, &client_rect))
+				{
+					// we have a valid mouse point and client rect
+					if (mouse_coord.x < client_rect.left || client_rect.right < mouse_coord.x
+						|| mouse_coord.y < client_rect.top || client_rect.bottom < mouse_coord.y)
+					{
+						// mouse is outside of client rect, so don't do anything
+						return 0;
+					}
+				}
+
+				S16 incoming_h_delta = HIWORD(w_param);
+				h_delta += incoming_h_delta;
+
+				// If the user rapidly spins the wheel, we can get messages with
+				// large deltas, like 480 or so.  Thus we need to scroll more quickly.
+				if (h_delta <= -WHEEL_DELTA || WHEEL_DELTA <= h_delta)
+				{
+					window_imp->mCallbacks->handleScrollHWheel(window_imp, h_delta / WHEEL_DELTA);
+					h_delta = 0;
+				}
+				return 0;
+			}
 			// Handle mouse movement within the window
 		case WM_MOUSEMOVE:
 			{

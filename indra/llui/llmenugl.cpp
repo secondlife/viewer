@@ -213,6 +213,12 @@ LLSD LLMenuItemGL::getValue() const
 }
 
 //virtual
+bool LLMenuItemGL::hasAccelerator(const KEY &key, const MASK &mask) const
+{
+	return (mAcceleratorKey == key) && (mAcceleratorMask == mask);
+}
+
+//virtual
 BOOL LLMenuItemGL::handleAcceleratorKey(KEY key, MASK mask)
 {
 	if( getEnabled() && (!gKeyboard->getKeyRepeated(key) || mAllowKeyRepeat) && (key == mAcceleratorKey) && (mask == (mAcceleratorMask & MASK_NORMALKEYS)) )
@@ -263,13 +269,13 @@ BOOL LLMenuItemGL::handleRightMouseUp(S32 x, S32 y, MASK mask)
 
 // This function checks to see if the accelerator key is already in use;
 // if not, it will be added to the list
-BOOL LLMenuItemGL::addToAcceleratorList(std::list <LLKeyBinding*> *listp)
+BOOL LLMenuItemGL::addToAcceleratorList(std::list <LLMenuKeyboardBinding*> *listp)
 {
-	LLKeyBinding *accelerator = NULL;
+	LLMenuKeyboardBinding *accelerator = NULL;
 
 	if (mAcceleratorKey != KEY_NONE)
 	{
-		std::list<LLKeyBinding*>::iterator list_it;
+		std::list<LLMenuKeyboardBinding*>::iterator list_it;
 		for (list_it = listp->begin(); list_it != listp->end(); ++list_it)
 		{
 			accelerator = *list_it;
@@ -293,7 +299,7 @@ BOOL LLMenuItemGL::addToAcceleratorList(std::list <LLKeyBinding*> *listp)
 		}
 		if (!accelerator)
 		{				
-			accelerator = new LLKeyBinding;
+			accelerator = new LLMenuKeyboardBinding;
 			if (accelerator)
 			{
 				accelerator->mKey = mAcceleratorKey;
@@ -788,6 +794,12 @@ void LLMenuItemCallGL::initFromParams(const Params& p)
 			{
 				setEnabledControlVariable(control);
 			}
+			else
+			{
+				LL_WARNS() << "Failed to assign 'enabled' control variable to menu " << getName()
+							<< ": control " << p.on_enable.control_name()
+							<< " does not exist." << LL_ENDL;
+			}
 		}
 	}
 	if (p.on_click.isProvided())
@@ -1011,6 +1023,11 @@ BOOL LLMenuItemBranchGL::handleMouseUp(S32 x, S32 y, MASK mask)
 	return TRUE;
 }
 
+bool LLMenuItemBranchGL::hasAccelerator(const KEY &key, const MASK &mask) const
+{
+	return getBranch() && getBranch()->hasAccelerator(key, mask);
+}
+
 BOOL LLMenuItemBranchGL::handleAcceleratorKey(KEY key, MASK mask)
 {
 	return getBranch() && getBranch()->handleAcceleratorKey(key, mask);
@@ -1018,7 +1035,7 @@ BOOL LLMenuItemBranchGL::handleAcceleratorKey(KEY key, MASK mask)
 
 // This function checks to see if the accelerator key is already in use;
 // if not, it will be added to the list
-BOOL LLMenuItemBranchGL::addToAcceleratorList(std::list<LLKeyBinding*> *listp)
+BOOL LLMenuItemBranchGL::addToAcceleratorList(std::list<LLMenuKeyboardBinding*> *listp)
 {
 	LLMenuGL* branch = getBranch();
 	if (!branch)
@@ -2993,6 +3010,27 @@ void LLMenuGL::updateParent(LLView* parentp)
 	{
 		(*item_iter)->updateBranchParent(parentp);
 	}
+}
+
+bool LLMenuGL::hasAccelerator(const KEY &key, const MASK &mask) const
+{
+	if (key == KEY_NONE)
+	{
+		return false;
+	}
+	// Note: checking this way because mAccelerators seems to be broken
+	// mAccelerators probably needs to be cleaned up or fixed
+	// It was used for dupplicate accelerator avoidance.
+	item_list_t::const_iterator item_iter;
+	for (item_iter = mItems.begin(); item_iter != mItems.end(); ++item_iter)
+	{
+		LLMenuItemGL* itemp = *item_iter;
+		if (itemp->hasAccelerator(key, mask))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 BOOL LLMenuGL::handleAcceleratorKey(KEY key, MASK mask)

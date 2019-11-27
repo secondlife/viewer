@@ -3494,7 +3494,7 @@
     <key>DoubleClickAutoPilot</key>
     <map>
       <key>Comment</key>
-      <string>Enable double-click auto pilot</string>
+      <string>(Obsolete)Enable double-click auto pilot</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -3505,13 +3505,13 @@
     <key>DoubleClickTeleport</key>
     <map>
       <key>Comment</key>
-      <string>Enable double-click to teleport where allowed</string>
+      <string>Enable double-click to teleport where allowed (afects minimap and people panel)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>DoubleClickShowWorldMap</key>
     <map>
@@ -4913,7 +4913,7 @@
     <key>InventoryOutboxDisplayBoth</key>
     <map>
         <key>Comment</key>
-        <string>Show the legacy Merchant Outbox UI as well as the Marketplace Listings UI</string>
+        <string>(Deprecated) Show the legacy Merchant Outbox UI as well as the Marketplace Listings UI</string>
         <key>Persist</key>
         <integer>1</integer>
         <key>Type</key>
@@ -5304,7 +5304,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>https://secondlife-status.statuspage.io/history.atom</string>
+      <string>https://status.secondlifegrid.net/history.atom</string>
     </map>
     <key>GridStatusUpdateDelay</key>
     <map>
@@ -7494,11 +7494,11 @@
     <key>ParcelMediaAutoPlayEnable</key>
     <map>
       <key>Comment</key>
-      <string>Auto play parcel media when available</string>
+      <string>Auto play parcel media when available. 0 - Do not autoplay; 1- Autoplay; 2 - Ask</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Boolean</string>
+      <string>S32</string>
       <key>Value</key>
       <integer>1</integer>
     </map>
@@ -8184,7 +8184,7 @@
     <key>PushToTalkButton</key>
     <map>
       <key>Comment</key>
-      <string>Which button or keyboard key is used for push-to-talk</string>
+      <string>(Obsolete)Which button or keyboard key is used for push-to-talk</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8427,6 +8427,17 @@
     <map>
       <key>Comment</key>
       <string>Don't allow user to set low heights greater than high</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>RememberUser</key>
+    <map>
+      <key>Comment</key>
+      <string>Keep user name for next login</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9276,7 +9287,7 @@
   <key>RenderShadowResolutionScale</key>
   <map>
     <key>Comment</key>
-    <string>Scale of shadow map resolution vs. screen resolution</string>
+    <string>Scale of shadow map resolution vs. screen resolution (only positivie values are allowed)</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -11219,6 +11230,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>BasicUITooltips</key>
+    <map>
+      <key>Comment</key>
+      <string>Show tooltips for various 2D UI elements like buttons or checkboxes, won't supress tooltips like drag'n'drop, inworld, links or media</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>ShowHoverTips</key>
     <map>
       <key>Comment</key>
@@ -13132,6 +13154,17 @@
       <string>S32</string>
       <key>Value</key>
       <real>3</real>
+    </map>
+    <key>HUDScaleFactor</key>
+    <map>
+    <key>Comment</key>
+      <string>Scale of HUD attachments</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
     </map>
     <key>UIScaleFactor</key>
     <map>
@@ -15331,7 +15364,7 @@
     <key>ClickToWalk</key>
     <map>
       <key>Comment</key>
-      <string>Click in world to walk to location</string>
+      <string>(obsolete)Click in world to walk to location</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

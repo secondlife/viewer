@@ -2180,7 +2180,7 @@ Wrong chunk size in WAV file:
    icon="alertmodal.tga"
    name="SoundFileInvalidTooLong"
    type="alertmodal">
-Audio file is too long (10 second maximum):
+Audio file is too long (30 second maximum):
 [FILE]
   <tag>fail</tag>
   </notification>
@@ -2259,6 +2259,7 @@ Unable to create output file: [FILE]
    icon="alertmodal.tga"
    name="DoNotSupportBulkAnimationUpload"
    type="alertmodal">
+    <unique/>
 [APP_NAME] does not currently support bulk upload of BVH format animation files.
   <tag>fail</tag>
   </notification>
@@ -2477,6 +2478,13 @@ Sorry, but the system was unable to complete your teleport request in a timely f
    type="alertmodal">
    <tag>fail</tag>
 Sorry, but the system was unable to complete your region crossing in a timely fashion. Please try again in a few minutes.
+  </notification>
+  <notification
+   icon="alertmodal.tga"
+   name="preexisting_tport"
+   type="alertmodal">
+   <tag>fail</tag>
+Sorry, but the system was unable to start your teleport. Please try again in a few minutes.
   </notification>
   <notification
    icon="alertmodal.tga"
@@ -3093,6 +3101,29 @@ See https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
 
   <notification
    icon="alertmodal.tga"
+   label="Rename Gesture"
+   name="RenameGesture"
+   type="alertmodal">
+    New gesture name:
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="new_name" type="text" width="300">
+        [NAME]
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
    name="RemoveFromFriends"
    type="alertmodal">
     <tag>friendship</tag>
@@ -3410,6 +3441,9 @@ Display settings have been set to recommended levels because of a change to the 
    icon="alertmodal.tga"
    name="ErrorMessage"
    type="alertmodal">
+    <unique>
+      <context>ERROR_MESSAGE</context>
+    </unique>
 [ERROR_MESSAGE]
   <tag>fail</tag>
     <usetemplate
@@ -3542,6 +3576,30 @@ You can either check your Internet connection and try again in a few minutes, cl
        index="2"
        name="Teleport"
        text="Teleport"/>
+    </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LoginPacketNeverReceivedNoTP"
+   type="alertmodal">
+    <tag>fail</tag>
+We&apos;re having trouble connecting. There may be a problem with your Internet connection or the [SECOND_LIFE_GRID].
+
+You can either check your Internet connection and try again in a few minutes or click Help to view the [SUPPORT_SITE].
+    <url option="1" name="url">
+			http://secondlife.com/support/
+    </url>
+    <form name="form">
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Help"
+       text="Help"/>
     </form>
   </notification>
 
@@ -5999,6 +6057,34 @@ Would you like to turn off Do Not Disturb before completing this transaction?
   </notification>
 
   <notification
+   icon="notify.tga"
+   label="Parcel is Playing Media"
+   name="ParcelPlayingMedia"   
+   persist="false"
+   type="notify">
+This land has media:
+[URL]
+Would you like to play it?
+    <tag>confirm</tag>
+    <form name="form">
+      <ignore name="ignore"
+       checkbox_only="true"
+       text="Always choose this option for this land."/>
+      <button
+       ignore="Play Media"
+       index="1"
+       name="Yes"
+       text="Play"/>
+      <button
+       default="true"
+       ignore="Ignore Media"
+       index="0"
+       name="No"
+       text="Ignore"/>
+    </form>
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="ConfirmDeleteProtectedCategory"
    type="alertmodal">
@@ -6108,6 +6194,20 @@ Are you sure you want to permanently delete the contents of your Lost And Found?
      yestext="Yes"/>
   </notification>
 
+  <notification
+   icon="alertmodal.tga"
+   name="ConfirmReplaceLink"
+   type="alertmodal">
+You're about to replace '[TYPE]' body part link with the item which doesn't match the type.
+Are you sure you want to proceed?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Confirm before I replace link"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
+  
   <notification
    icon="alertmodal.tga"
    name="CopySLURL"
@@ -7026,12 +7126,14 @@ You can only claim public land in the Region you&apos;re in.
   </notification>
 
   <notification
-   icon="notify.tga"
+   icon="alertmodal.tga"
    name="RegionTPAccessBlocked"
-   persist="false"
-   type="notify">
+   type="alertmodal">
    <tag>fail</tag>
     The region you're trying to visit contains content exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
+   <usetemplate
+      name="okbutton"
+      yestext="OK"/>
   </notification>
 
   <notification
@@ -11174,6 +11276,19 @@ Cannot create large prims that intersect other residents.  Please re-try when ot
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="PreferenceControlsDefaults"
+   type="alertmodal">
+    Do you want to restore default values for controls?
+    <tag>confirm</tag>
+    <usetemplate
+       canceltext="Cancel"
+       name="yesnocancelbuttons"
+       notext="Current mode"
+       yestext="All modes"/>
   </notification>
     
   <notification

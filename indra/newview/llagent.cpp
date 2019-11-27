@@ -829,6 +829,17 @@ bool LLAgent::enableFlying()
 	return !sitting;
 }
 
+// static
+bool LLAgent::isSitting()
+{
+    BOOL sitting = FALSE;
+    if (isAgentAvatarValid())
+    {
+        sitting = gAgentAvatarp->isSitting();
+    }
+    return sitting;
+}
+
 void LLAgent::standUp()
 {
 	setControlFlags(AGENT_CONTROL_STAND_UP);
@@ -2022,6 +2033,14 @@ U8 LLAgent::getRenderState()
 //-----------------------------------------------------------------------------
 void LLAgent::endAnimationUpdateUI()
 {
+	if (LLApp::isExiting()
+		|| !gViewerWindow
+		|| !gMenuBarView
+		|| !gToolBarView
+		|| !gStatusBar)
+	{
+		return;
+	}
 	if (gAgentCamera.getCameraMode() == gAgentCamera.getLastCameraMode())
 	{
 		// We're already done endAnimationUpdateUI for this transition.

@@ -49,6 +49,10 @@
 #include "llglheaders.h"
 #include "llglslshader.h"
 
+#if LL_WINDOWS
+#include "lldxhardware.h"
+#endif
+
 #ifdef _DEBUG
 //#define GL_STATE_VERIFY
 #endif
@@ -394,6 +398,8 @@ PFNGLGETACTIVEATTRIBARBPROC glGetActiveAttribARB = NULL;
 PFNGLGETATTRIBLOCATIONARBPROC glGetAttribLocationARB = NULL;
 
 #if LL_WINDOWS
+PFNWGLGETGPUIDSAMDPROC				wglGetGPUIDsAMD = NULL;
+PFNWGLGETGPUINFOAMDPROC				wglGetGPUInfoAMD = NULL;
 PFNWGLSWAPINTERVALEXTPROC			wglSwapIntervalEXT = NULL;
 #endif
 
@@ -413,6 +419,7 @@ LLGLManager::LLGLManager() :
 
 	mHasMultitexture(FALSE),
 	mHasATIMemInfo(FALSE),
+	mHasAMDAssociations(FALSE),
 	mHasNVXMemInfo(FALSE),
 	mNumTextureUnits(1),
 	mHasMipMapGeneration(FALSE),
@@ -497,7 +504,16 @@ void LLGLManager::initWGL()
 	{
 		LL_WARNS("RenderInit") << "No ARB create context extensions" << LL_ENDL;
 	}
-	
+
+	// For retreiving information per AMD adapter, 
+	// because we can't trust curently selected/default one when there are multiple
+	mHasAMDAssociations = ExtensionExists("WGL_AMD_gpu_association", gGLHExts.mSysExts);
+	if (mHasAMDAssociations)
+	{
+		GLH_EXT_NAME(wglGetGPUIDsAMD) = (PFNWGLGETGPUIDSAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUIDsAMD");
+		GLH_EXT_NAME(wglGetGPUInfoAMD) = (PFNWGLGETGPUINFOAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUInfoAMD");
+	}
+
 	if (ExtensionExists("WGL_EXT_swap_control", gGLHExts.mSysExts))
 	{
         GLH_EXT_NAME(wglSwapIntervalEXT) = (PFNWGLSWAPINTERVALEXTPROC)GLH_EXT_GET_PROC_ADDRESS("wglSwapIntervalEXT");
@@ -683,23 +699,78 @@ bool LLGLManager::initGL()
 	stop_glerror();
 
 	S32 old_vram = mVRAM;
+	mVRAM = 0;
 
-	if (mHasATIMemInfo)
+#if LL_WINDOWS
+	if (mHasAMDAssociations)
+	{
+		GLuint gl_gpus_count = wglGetGPUIDsAMD(0, 0);
+		if (gl_gpus_count > 0)
+		{
+			GLuint* ids = new GLuint[gl_gpus_count];
+			wglGetGPUIDsAMD(gl_gpus_count, ids);
+
+			GLuint mem_mb = 0;
+			for (U32 i = 0; i < gl_gpus_count; i++)
+			{
+				wglGetGPUInfoAMD(ids[i],
+					WGL_GPU_RAM_AMD,
+					GL_UNSIGNED_INT,
+					sizeof(GLuint),
+					&mem_mb);
+				if (mVRAM < mem_mb)
+				{
+					// basically pick the best AMD and trust driver/OS to know to switch
+					mVRAM = mem_mb;
+				}
+			}
+		}
+		if (mVRAM != 0)
+		{
+			LL_WARNS("RenderInit") << "VRAM Detected (AMDAssociations):" << mVRAM << LL_ENDL;
+		}
+	}
+#endif
+
+	if (mHasATIMemInfo && mVRAM == 0)
 	{ //ask the gl how much vram is free at startup and attempt to use no more than half of that
 		S32 meminfo[4];
 		glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, meminfo);
 
-		mVRAM = meminfo[0]/1024;
+		mVRAM = meminfo[0] / 1024;
+		LL_WARNS("RenderInit") << "VRAM Detected (ATIMemInfo):" << mVRAM << LL_ENDL;
 	}
-	else if (mHasNVXMemInfo)
+
+	if (mHasNVXMemInfo && mVRAM == 0)
 	{
 		S32 dedicated_memory;
 		glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &dedicated_memory);
 		mVRAM = dedicated_memory/1024;
+		LL_WARNS("RenderInit") << "VRAM Detected (NVXMemInfo):" << mVRAM << LL_ENDL;
 	}
 
+#if LL_WINDOWS
 	if (mVRAM < 256)
-	{ //something likely went wrong using the above extensions, fall back to old method
+	{
+		// Something likely went wrong using the above extensions
+		// try WMI first and fall back to old method (from dxdiag) if all else fails
+		// Function will check all GPUs WMI knows of and will pick up the one with most
+		// memory. We need to check all GPUs because system can switch active GPU to
+		// weaker one, to preserve power when not under load.
+		S32 mem = LLDXHardware::getMBVideoMemoryViaWMI();
+		if (mem != 0)
+		{
+			mVRAM = mem;
+			LL_WARNS("RenderInit") << "VRAM Detected (WMI):" << mVRAM<< LL_ENDL;
+		}
+	}
+#endif
+
+	if (mVRAM < 256 && old_vram > 0)
+	{
+		// fall back to old method
+		// Note: on Windows value will be from LLDXHardware.
+		// Either received via dxdiag or via WMI by id from dxdiag.
 		mVRAM = old_vram;
 	}
 
@@ -961,7 +1032,7 @@ void LLGLManager::initExtensions()
 	mHasTextureRectangle = FALSE;
 #else // LL_MESA_HEADLESS //important, gGLHExts.mSysExts is uninitialized until after glh_init_extensions is called
 	mHasMultitexture = glh_init_extensions("GL_ARB_multitexture");
-	mHasATIMemInfo = ExtensionExists("GL_ATI_meminfo", gGLHExts.mSysExts);
+	mHasATIMemInfo = ExtensionExists("GL_ATI_meminfo", gGLHExts.mSysExts); //Basic AMD method, also see mHasAMDAssociations
 	mHasNVXMemInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
 	mHasSeparateSpecularColor = glh_init_extensions("GL_EXT_separate_specular_color");
 	mHasAnisotropic = glh_init_extensions("GL_EXT_texture_filter_anisotropic");

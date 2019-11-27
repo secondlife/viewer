@@ -107,11 +107,11 @@ BOOL LLGesture::trigger(const std::string& trigger_string)
 // NOT endian-neutral
 U8 *LLGesture::serialize(U8 *buffer) const
 {
-	htonmemcpy(buffer, &mKey, MVT_S8, 1);
+	htolememcpy(buffer, &mKey, MVT_S8, 1);
 	buffer += sizeof(mKey);
-	htonmemcpy(buffer, &mMask, MVT_U32, 4);
+	htolememcpy(buffer, &mMask, MVT_U32, 4);
 	buffer += sizeof(mMask);
-	htonmemcpy(buffer, mSoundItemID.mData, MVT_LLUUID, 16);
+	htolememcpy(buffer, mSoundItemID.mData, MVT_LLUUID, 16);
 	buffer += 16;
 	
 	memcpy(buffer, mTrigger.c_str(), mTrigger.length() + 1);		/* Flawfinder: ignore */
@@ -134,11 +134,11 @@ U8 *LLGesture::deserialize(U8 *buffer, S32 max_size)
 		return buffer;
 	}
 
-	htonmemcpy(&mKey, tmp, MVT_S8, 1);
+	htolememcpy(&mKey, tmp, MVT_S8, 1);
 	tmp += sizeof(mKey);
-	htonmemcpy(&mMask, tmp, MVT_U32, 4);
+	htolememcpy(&mMask, tmp, MVT_U32, 4);
 	tmp += sizeof(mMask);
-	htonmemcpy(mSoundItemID.mData, tmp, MVT_LLUUID, 16);
+	htolememcpy(mSoundItemID.mData, tmp, MVT_LLUUID, 16);
 	tmp += 16;
 	
 	mTrigger.assign((char *)tmp);
@@ -284,7 +284,7 @@ U8 *LLGestureList::serialize(U8 *buffer) const
 {
 	// a single S32 serves as the header that tells us how many to read
 	U32 count = mList.size();
-	htonmemcpy(buffer, &count, MVT_S32, 4);
+	htolememcpy(buffer, &count, MVT_S32, 4);
 	buffer += sizeof(count);
 
 	for (S32 i = 0; i < count; i++)
@@ -310,7 +310,7 @@ U8 *LLGestureList::deserialize(U8 *buffer, S32 max_size)
 		return buffer;
 	}
 
-	htonmemcpy(&count, tmp, MVT_S32, 4);
+	htolememcpy(&count, tmp, MVT_S32, 4);
 
 	if (count > MAX_GESTURES)
 	{

@@ -3,10 +3,10 @@
 	<text name="preset_text">
 		(Keine)
 	</text>
-	<text name="QualitySpeed">
+	<text name="QualitySpeed" top_delta="20">
 		Qualität und Geschwindigkeit:
 	</text>
-	<text name="ShadersPrefText">
+	<text name="ShadersPrefText" top_delta="15">
 		Niedrig
 	</text>
 	<text name="ShadersPrefText2">

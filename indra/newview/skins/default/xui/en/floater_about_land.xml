@@ -1800,7 +1800,7 @@ Only large parcels can be listed in search.
                 Music URL:
             </text>
             <line_editor
-             follows="left|top"
+             follows="left|top|right"
              height="23"
              layout="topleft"
              left="100"

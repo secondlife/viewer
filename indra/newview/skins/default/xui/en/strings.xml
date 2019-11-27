@@ -2637,6 +2637,7 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="Debits">Debits</string>
 	<string name="Total">Total</string>
 	<string name="NoGroupDataFound">No group data found for group </string>
+	<string name="AlreadyInGroup">You are already in this group </string>
 
 	<!-- floater IM bonus_info: When a Linden with Admin/god status receives a new IM this displays the estate (Mainland vs. teen grid) of the source avatar.
 		This is to help Lindens when answering questions. -->
@@ -2820,7 +2821,7 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="BuyingCosts">Buying this costs L$ [AMOUNT]</string>
 	<string name="UnknownFileExtension">
 		Unknown file extension .%s
-Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
+Expected .wav, .tga, .bmp, .jpg, .jpeg, or .anim
 	</string>
   <string name="MuteObject2">Block</string>
   <string name="MuteAvatar">Block</string>
@@ -4068,6 +4069,15 @@ Try enclosing path to the editor with double quotes.
   <string name="Z">Z</string>
   <!-- Key names end -->
 
+  <!-- Mouse button names (short) begin -->
+  <string name="LMB">LMB</string>
+  <string name="MMB">MMB</string>
+  <string name="RMB">RMB</string>
+  <string name="MB4">MB4</string>
+  <string name="MB5">MB5</string>
+  <string name="Double LMB">Double LMB</string>
+  <!-- Mouse button names end -->
+
   <!-- llviewerwindow -->
   <string name="BeaconParticle">Viewing particle beacons (blue)</string>
   <string name="BeaconPhysical">Viewing physical object beacons (green)</string>
@@ -4097,7 +4107,6 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_MarketplaceListings_Label">Marketplace</string>
   <string name="Command_MiniMap_Label">Mini-map</string>
   <string name="Command_Move_Label">Walk / run / fly</string>
-  <string name="Command_Outbox_Label">Merchant outbox</string>
   <string name="Command_People_Label">People</string>
   <string name="Command_Picks_Label">Picks</string>
   <string name="Command_Places_Label">Places</string>
@@ -4129,7 +4138,6 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_MarketplaceListings_Tooltip">Sell your creation</string>
   <string name="Command_MiniMap_Tooltip">Show nearby people</string>
   <string name="Command_Move_Tooltip">Moving your avatar</string>
-  <string name="Command_Outbox_Tooltip">Transfer items to your marketplace for sale</string>
   <string name="Command_People_Tooltip">Friends, groups, and nearby people</string>
   <string name="Command_Picks_Tooltip">Places to show as favorites in your profile</string>
   <string name="Command_Places_Tooltip">Places you've saved</string>

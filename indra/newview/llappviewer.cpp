@@ -61,13 +61,16 @@
 #include "llallocator.h"
 #include "llcalc.h"
 #include "llconversationlog.h"
+#if LL_WINDOWS
 #include "lldxhardware.h"
+#endif
 #include "lltexturestats.h"
 #include "lltrace.h"
 #include "lltracethreadrecorder.h"
 #include "llviewerwindow.h"
 #include "llviewerdisplay.h"
 #include "llviewermedia.h"
+#include "llviewerparcelaskplay.h"
 #include "llviewerparcelmedia.h"
 #include "llviewermediafocus.h"
 #include "llviewermessage.h"
@@ -145,7 +148,7 @@
 #include "llapr.h"
 #include <boost/lexical_cast.hpp>
 
-#include "llviewerkeyboard.h"
+#include "llviewerinput.h"
 #include "lllfsthread.h"
 #include "llworkerthread.h"
 #include "lltexturecache.h"
@@ -994,20 +997,15 @@ bool LLAppViewer::init()
 	gGLManager.getGLInfo(gDebugInfo);
 	gGLManager.printGLInfoString();
 
-	// Load Default bindings
-	std::string key_bindings_file = gDirUtilp->findFile("keys.xml",
-														gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, ""),
-														gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
-
-
-	if (!gViewerKeyboard.loadBindingsXML(key_bindings_file))
+	// Load User's bindings
+	std::string key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "key_bindings.xml");
+	if (!gDirUtilp->fileExists(key_bindings_file) || !gViewerInput.loadBindingsXML(key_bindings_file))
 	{
-		std::string key_bindings_file = gDirUtilp->findFile("keys.ini",
-															gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, ""),
-															gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
-		if (!gViewerKeyboard.loadBindings(key_bindings_file))
+		// Failed to load custom bindings, try default ones
+		key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "key_bindings.xml");
+		if (!gViewerInput.loadBindingsXML(key_bindings_file))
 		{
-			LL_ERRS("InitInfo") << "Unable to open keys.ini" << LL_ENDL;
+			LL_ERRS("InitInfo") << "Unable to open default key bindings from " << key_bindings_file << LL_ENDL;
 		}
 	}
 
@@ -1128,7 +1126,7 @@ bool LLAppViewer::init()
 	try {
 		initializeSecHandler();
 	}
-	catch (LLProtectedDataException ex)
+	catch (LLProtectedDataException&)
 	{
 	  LLNotificationsUtil::add("CorruptedProtectedDataStore");
 	}
@@ -1341,7 +1339,7 @@ bool LLAppViewer::frame()
 		{
 			LOG_UNHANDLED_EXCEPTION("");
 		}
-		catch (std::bad_alloc)
+		catch (std::bad_alloc&)
 		{
 			LLMemory::logMemoryInfo(TRUE);
 			LLFloaterMemLeak* mem_leak_instance = LLFloaterReg::findTypedInstance<LLFloaterMemLeak>("mem_leaking");
@@ -1438,6 +1436,7 @@ bool LLAppViewer::doFrame()
 			{
 				joystick->scanJoystick();
 				gKeyboard->scanKeyboard();
+                gViewerInput.scanMouse();
 			}
 
 			// Update state based on messages, user input, object idle.
@@ -1708,6 +1707,11 @@ bool LLAppViewer::cleanup()
 	disconnectViewer();
 
 	LL_INFOS() << "Viewer disconnected" << LL_ENDL;
+	
+	if (gKeyboard)
+	{
+		gKeyboard->resetKeys();
+	}
 
 	display_cleanup();
 
@@ -1923,6 +1927,11 @@ bool LLAppViewer::cleanup()
 	{
 		gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"), TRUE);
 		LL_INFOS() << "Saved settings" << LL_ENDL;
+
+		if (LLViewerParcelAskPlay::instanceExists())
+		{
+			LLViewerParcelAskPlay::getInstance()->saveSettings();
+		}
 	}
 
 	std::string warnings_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFilename("Default", "Warnings"));
@@ -2124,6 +2133,9 @@ bool LLAppViewer::cleanup()
 void watchdog_llerrs_callback(const std::string &error_string)
 {
 	gLLErrorActivated = true;
+
+	gDebugInfo["FatalMessage"] = error_string;
+	LLAppViewer::instance()->writeDebugInfo();
 
 #ifdef LL_WINDOWS
 	RaiseException(0,0,0,0);
@@ -3962,7 +3974,10 @@ static LLNotificationFunctorRegistration finish_quit_reg("ConfirmQuit", finish_q
 
 void LLAppViewer::userQuit()
 {
-	if (gDisconnected || gViewerWindow->getProgressView()->getVisible())
+	if (gDisconnected
+		|| !gViewerWindow
+		|| !gViewerWindow->getProgressView()
+		|| gViewerWindow->getProgressView()->getVisible())
 	{
 		requestQuit();
 	}
@@ -4492,6 +4507,7 @@ void LLAppViewer::saveFinalSnapshot()
 									gViewerWindow->getWindowWidthRaw(),
 									gViewerWindow->getWindowHeightRaw(),
 									FALSE,
+									gSavedSettings.getBOOL("RenderHUDInSnapshot"),
 									TRUE,
 									LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
 									LLSnapshotModel::SNAPSHOT_FORMAT_PNG);

@@ -208,8 +208,14 @@ public:
 	 * @see cleanup()
 	 */
 	static void destroyClass();
+	static std::string getStoredFavoritesFilename(const std::string &grid);
 	static std::string getStoredFavoritesFilename();
 	static std::string getSavedOrderFileName();
+
+	// Remove record of specified user's favorites from file on disk.
+	static void removeFavoritesRecordOfUser(const std::string &user, const std::string &grid);
+	// Remove record of current user's favorites from file on disk.
+	static void removeFavoritesRecordOfUser();
 
 	BOOL saveFavoritesRecord(bool pref_changed = false);
 	void showFavoritesOnLoginChanged(BOOL show);
@@ -232,9 +238,6 @@ private:
 
 	void load();
 
-	// Remove record of current user's favorites from file on disk.
-	void removeFavoritesRecordOfUser();
-
 	void onLandmarkLoaded(const LLUUID& asset_id, class LLLandmark* landmark);
 	void storeFavoriteSLURL(const LLUUID& asset_id, std::string& slurl);
 
@@ -245,6 +248,7 @@ private:
 	slurls_map_t mSLURLs;
 	std::set<LLUUID> mMissingSLURLs;
 	bool mIsDirty;
+	bool mRecreateFavoriteStorage;
 
 	struct IsNotInFavorites
 	{
@@ -275,7 +279,9 @@ private:
 
 inline
 LLFavoritesOrderStorage::LLFavoritesOrderStorage() :
-	mIsDirty(false), mUpdateRequired(false)
+	mIsDirty(false),
+	mUpdateRequired(false),
+	mRecreateFavoriteStorage(false)
 { load(); }
 
 #endif // LL_LLFAVORITESBARCTRL_H

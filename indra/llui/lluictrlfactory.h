@@ -160,8 +160,8 @@ public:
 			LLXMLNodePtr root_node;
 
 			if (!LLUICtrlFactory::getLayeredXMLNode(filename, root_node))
-				{							
-				LL_WARNS() << "Couldn't parse XUI file: " << instance().getCurFileName() << LL_ENDL;
+			{
+                LL_WARNS() << "Couldn't parse XUI from path: " << instance().getCurFileName() << ", from filename: " << filename << LL_ENDL;
 				goto fail;
 			}
 

@@ -73,9 +73,6 @@
 
 #include "llavatarappearancedefines.h"
 
-static const F32 CONTEXT_CONE_IN_ALPHA = 0.0f;
-static const F32 CONTEXT_CONE_OUT_ALPHA = 1.f;
-static const F32 CONTEXT_FADE_TIME = 0.08f;
 
 static const S32 LOCAL_TRACKING_ID_COLUMN = 1;
 
@@ -442,59 +439,8 @@ BOOL LLFloaterTexturePicker::postBuild()
 // virtual
 void LLFloaterTexturePicker::draw()
 {
-	if (mOwner)
-	{
-		// draw cone of context pointing back to texture swatch	
-		LLRect owner_rect;
-		mOwner->localRectToOtherView(mOwner->getLocalRect(), &owner_rect, this);
-		LLRect local_rect = getLocalRect();
-		if (gFocusMgr.childHasKeyboardFocus(this) && mOwner->isInVisibleChain() && mContextConeOpacity > 0.001f)
-		{
-			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-			LLGLEnable(GL_CULL_FACE);
-			gGL.begin(LLRender::QUADS);
-			{
-				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
-				gGL.vertex2i(owner_rect.mLeft, owner_rect.mTop);
-				gGL.vertex2i(owner_rect.mRight, owner_rect.mTop);
-				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
-				gGL.vertex2i(local_rect.mRight, local_rect.mTop);
-				gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
-
-				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
-				gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
-				gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
-				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
-				gGL.vertex2i(owner_rect.mLeft, owner_rect.mBottom);
-				gGL.vertex2i(owner_rect.mLeft, owner_rect.mTop);
-
-				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
-				gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
-				gGL.vertex2i(local_rect.mRight, local_rect.mTop);
-				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
-				gGL.vertex2i(owner_rect.mRight, owner_rect.mTop);
-				gGL.vertex2i(owner_rect.mRight, owner_rect.mBottom);
-
-
-				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
-				gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
-				gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
-				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
-				gGL.vertex2i(owner_rect.mRight, owner_rect.mBottom);
-				gGL.vertex2i(owner_rect.mLeft, owner_rect.mBottom);
-			}
-			gGL.end();
-		}
-	}
-
-	if (gFocusMgr.childHasMouseCapture(getDragHandle()))
-	{
-		mContextConeOpacity = lerp(mContextConeOpacity, gSavedSettings.getF32("PickerContextOpacity"), LLSmoothInterpolation::getInterpolant(CONTEXT_FADE_TIME));
-	}
-	else
-	{
-		mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLSmoothInterpolation::getInterpolant(CONTEXT_FADE_TIME));
-	}
+    static LLCachedControl<F32> max_opacity(gSavedSettings, "PickerContextOpacity", 0.4f);
+    drawConeToOwner(mContextConeOpacity, max_opacity, mOwner);
 
 	updateImageStats();
 

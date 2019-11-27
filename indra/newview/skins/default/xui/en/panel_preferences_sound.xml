@@ -13,6 +13,14 @@
      name="middle_mouse">
      Middle Mouse
     </panel.string>
+    <panel.string
+     name="button4_mouse">
+     Mouse Button 4
+    </panel.string>
+    <panel.string
+     name="button5_mouse">
+     Mouse Button 5
+    </panel.string>
     <slider
      control_name="AudioLevelMaster"
      follows="left|top"
@@ -314,17 +322,40 @@
 		name="enable_voice_check"
 		width="110"/>
 	<!-- -->
-	<check_box
-		name="media_auto_play_btn"
-		control_name="ParcelMediaAutoPlayEnable"
-		enabled_control="AudioStreamingMedia"
-		value="true"
-		follows="left|bottom|right"
-		height="15"
-		tool_tip="Check this to let media auto-play if it wants"
-		label="Allow Media to auto-play"
-		top_pad="1"
-		left="25"/>
+    <text
+        follows="left|top"
+        layout="topleft"
+        height="15"
+        left="0"
+        top_pad="3"
+        width="120"
+        halign="right"
+        name="media_autoplay_label">
+         Media auto-play
+    </text>
+    <combo_box
+        control_name="ParcelMediaAutoPlayEnable"
+        enabled_control="AudioStreamingMedia"
+        follows="left|top"
+        layout="topleft"
+        height="23"
+        left_pad="7"
+        top_delta="-4"
+        name="media_auto_play_combo"
+        width="100">
+      <item
+          label="Disabled"
+          name="autoplay_disabled"
+          value="0"/>      
+      <item
+          label="Enabled"
+          name="autoplay_enabled"
+          value="1"/>
+      <item
+          label="Ask"
+          name="autoplay_ask"
+          value="2"/>
+    </combo_box>
  	<check_box
 		name="media_show_on_others_btn"
 		control_name="MediaShowOnOthers"
@@ -432,52 +463,13 @@
   enabled_control="EnableVoiceChat"
   control_name="PushToTalkToggle"
   height="15"
-  label="Toggle speak on/off when I press:"
+  label="Toggle speak on/off when I press button in toolbar"
   layout="topleft"
   left="44"
   name="push_to_talk_toggle_check"
   width="237"
   tool_tip="When in toggle mode, press and release the trigger key ONCE to switch your microphone on or off. When not in toggle mode, the microphone broadcasts your voice only while the trigger is being held down."
   top_pad="3"/>
-  <line_editor
-   follows="top|left"
-   control_name="PushToTalkButton"
-   enabled="false"
-   enabled_control="EnableVoiceChat"
-   height="23"
-   left="80"
-   max_length_bytes="200"
-   name="modifier_combo"
-   label="Push-to-Speak trigger"
-   top_pad="3"
-   width="200" />
-  <button
-   layout="topleft"
-   follows="top|left"
-   enabled_control="EnableVoiceChat"
-   height="23"
-   label="Set Key"
-   left_pad="5"
-   name="set_voice_hotkey_button"
-   width="100">
-    <button.commit_callback
-    function="Pref.VoiceSetKey" />
-  </button>
-  <button
-     enabled_control="EnableVoiceChat"
-     follows="top|left"
-     halign="center"
-     height="23"
-     image_overlay="Refresh_Off"
-     layout="topleft"
-     tool_tip="Reset to Middle Mouse Button"
-     mouse_opaque="true"
-     name="set_voice_middlemouse_button"
-     left_pad="5"
-     width="25">
-    <button.commit_callback
-    function="Pref.VoiceSetMiddleMouse" />
-  </button>
   <button
    control_name="ShowDeviceSettings"
    follows="left|top"

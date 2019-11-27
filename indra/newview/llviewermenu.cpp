@@ -401,23 +401,20 @@ void set_merchant_SLM_menu()
 
 void check_merchant_status(bool force)
 {
-    if (!gSavedSettings.getBOOL("InventoryOutboxDisplayBoth"))
+    if (force)
     {
-        if (force)
-        {
-            // Reset the SLM status: we actually want to check again, that's the point of calling check_merchant_status()
-            LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED);
-        }
-        // Hide SLM related menu item
-        gMenuHolder->getChild<LLView>("MarketplaceListings")->setVisible(FALSE);
-        
-        // Also disable the toolbar button for Marketplace Listings
-        LLCommand* command = LLCommandManager::instance().getCommand("marketplacelistings");
-		gToolBarView->enableCommand(command->id(), false);
-        
-        // Launch an SLM test connection to get the merchant status
-        LLMarketplaceData::instance().initializeSLM(boost::bind(&set_merchant_SLM_menu));
+        // Reset the SLM status: we actually want to check again, that's the point of calling check_merchant_status()
+        LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED);
     }
+    // Hide SLM related menu item
+    gMenuHolder->getChild<LLView>("MarketplaceListings")->setVisible(FALSE);
+
+    // Also disable the toolbar button for Marketplace Listings
+    LLCommand* command = LLCommandManager::instance().getCommand("marketplacelistings");
+    gToolBarView->enableCommand(command->id(), false);
+
+    // Launch an SLM test connection to get the merchant status
+    LLMarketplaceData::instance().initializeSLM(boost::bind(&set_merchant_SLM_menu));
 }
 
 void init_menus()
@@ -6672,10 +6669,10 @@ private:
 
 	static void onNearAttachObject(BOOL success, void *user_data);
 	void confirmReplaceAttachment(S32 option, LLViewerJointAttachment* attachment_point);
-
-	struct CallbackData
+	class CallbackData : public LLSelectionCallbackData
 	{
-		CallbackData(LLViewerJointAttachment* point, bool replace) : mAttachmentPoint(point), mReplace(replace) {}
+	public:
+		CallbackData(LLViewerJointAttachment* point, bool replace) : LLSelectionCallbackData(), mAttachmentPoint(point), mReplace(replace) {}
 
 		LLViewerJointAttachment*	mAttachmentPoint;
 		bool						mReplace;
@@ -6716,8 +6713,8 @@ void LLObjectAttachToAvatar::onNearAttachObject(BOOL success, void *user_data)
 			// interpret 0 as "default location"
 			attachment_id = 0;
 		}
-		LLSelectMgr::getInstance()->sendAttach(attachment_id, cb_data->mReplace);
-	}		
+		LLSelectMgr::getInstance()->sendAttach(cb_data->getSelection(), attachment_id, cb_data->mReplace);
+	}
 	LLObjectAttachToAvatar::setObjectSelection(NULL);
 
 	delete cb_data;
@@ -8003,7 +8000,6 @@ BOOL LLViewerMenuHolderGL::hideMenus()
 	
 	if (LLMenuHolderGL::hideMenus())
 	{
-		LLToolPie::instance().blockClickToWalk();
 		handled = TRUE;
 	}
 

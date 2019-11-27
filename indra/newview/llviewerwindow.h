@@ -175,8 +175,9 @@ public:
 	void			initWorldUI();
 	void			setUIVisibility(bool);
 	bool			getUIVisibility();
+	void			handlePieMenu(S32 x, S32 y, MASK mask);
 
-	BOOL handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down);
+	BOOL handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK mask, EMouseClickType clicktype, BOOL down);
 
 	//
 	// LLWindowCallback interface implementation
@@ -192,7 +193,10 @@ public:
 	/*virtual*/ BOOL handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
 	/*virtual*/ BOOL handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
 	/*virtual*/ BOOL handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
-	/*virtual*/ BOOL handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
+	/*virtual*/ BOOL handleMiddleMouseUp(LLWindow *window, LLCoordGL pos, MASK mask);
+	/*virtual*/ BOOL handleOtherMouseDown(LLWindow *window, LLCoordGL pos, MASK mask, S32 button);
+	/*virtual*/ BOOL handleOtherMouseUp(LLWindow *window, LLCoordGL pos, MASK mask, S32 button);
+	BOOL handleOtherMouse(LLWindow *window, LLCoordGL pos, MASK mask, S32 button, bool down);
 	/*virtual*/ LLWindowCallbacks::DragNDropResult handleDragNDrop(LLWindow *window, LLCoordGL pos, MASK mask, LLWindowCallbacks::DragNDropAction action, std::string data);
 				void handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask);
                 void handleMouseDragged(LLWindow *window,  LLCoordGL pos, MASK mask);
@@ -205,6 +209,7 @@ public:
 	/*virtual*/ void handleMenuSelect(LLWindow *window,  S32 menu_item);
 	/*virtual*/ BOOL handlePaint(LLWindow *window,  S32 x,  S32 y,  S32 width,  S32 height);
 	/*virtual*/ void handleScrollWheel(LLWindow *window,  S32 clicks);
+	/*virtual*/ void handleScrollHWheel(LLWindow *window,  S32 clicks);
 	/*virtual*/ BOOL handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask);
 	/*virtual*/ void handleWindowBlock(LLWindow *window);
 	/*virtual*/ void handleWindowUnblock(LLWindow *window);
@@ -323,6 +328,7 @@ public:
 	BOOL			handleKey(KEY key, MASK mask);
 	BOOL			handleKeyUp(KEY key, MASK mask);
 	void			handleScrollWheel	(S32 clicks);
+	void			handleScrollHWheel	(S32 clicks);
 
 	// add and remove views from "popup" layer
 	void			addPopup(LLView* popup);
@@ -347,10 +353,10 @@ public:
 	// snapshot functionality.
 	// perhaps some of this should move to llfloatershapshot?  -MG
 
-	BOOL			saveSnapshot(const std::string&  filename, S32 image_width, S32 image_height, BOOL show_ui = TRUE, BOOL do_rebuild = FALSE, LLSnapshotModel::ESnapshotLayerType type = LLSnapshotModel::SNAPSHOT_TYPE_COLOR, LLSnapshotModel::ESnapshotFormat format = LLSnapshotModel::SNAPSHOT_FORMAT_BMP);
+	BOOL			saveSnapshot(const std::string&  filename, S32 image_width, S32 image_height, BOOL show_ui = TRUE, BOOL show_hud = TRUE, BOOL do_rebuild = FALSE, LLSnapshotModel::ESnapshotLayerType type = LLSnapshotModel::SNAPSHOT_TYPE_COLOR, LLSnapshotModel::ESnapshotFormat format = LLSnapshotModel::SNAPSHOT_FORMAT_BMP);
 	BOOL			rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_height, BOOL keep_window_aspect = TRUE, BOOL is_texture = FALSE,
-		BOOL show_ui = TRUE, BOOL do_rebuild = FALSE, LLSnapshotModel::ESnapshotLayerType type = LLSnapshotModel::SNAPSHOT_TYPE_COLOR, S32 max_size = MAX_SNAPSHOT_IMAGE_SIZE);
-	BOOL			thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 preview_height, BOOL show_ui, BOOL do_rebuild, LLSnapshotModel::ESnapshotLayerType type);
+		BOOL show_ui = TRUE, BOOL show_hud = TRUE, BOOL do_rebuild = FALSE, LLSnapshotModel::ESnapshotLayerType type = LLSnapshotModel::SNAPSHOT_TYPE_COLOR, S32 max_size = MAX_SNAPSHOT_IMAGE_SIZE);
+	BOOL			thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 preview_height, BOOL show_ui, BOOL show_hud, BOOL do_rebuild, LLSnapshotModel::ESnapshotLayerType type);
 	BOOL			isSnapshotLocSet() const;
 	void			resetSnapshotLoc() const;
 

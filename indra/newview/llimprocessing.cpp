@@ -29,6 +29,7 @@
 #include "llimprocessing.h"
 
 #include "llagent.h"
+#include "llappviewer.h"
 #include "llavatarnamecache.h"
 #include "llfirstuse.h"
 #include "llfloaterreg.h"
@@ -60,6 +61,8 @@
 // disable boost::lexical_cast warning
 #pragma warning (disable:4702)
 #endif
+
+extern void on_new_message(const LLSD& msg);
 
 // Strip out "Resident" for display, but only if the message came from a user
 // (rather than a script)
@@ -715,7 +718,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             {
                 info = new LLOfferInfo();
 
-                info->mIM = IM_GROUP_NOTICE;
+                info->mIM = dialog;
                 info->mFromID = from_id;
                 info->mFromGroup = from_group;
                 info->mTransactionID = session_id;
@@ -854,39 +857,18 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             }
             else // IM_TASK_INVENTORY_OFFERED
             {
-                if (offline == IM_OFFLINE && session_id.isNull() && aux_id.notNull() && binary_bucket_size > sizeof(S8)* 5)
-                {
-                    // cap received offline message
-                    std::string str_bucket = ll_safe_string((char*)binary_bucket, binary_bucket_size);
-                    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-                    boost::char_separator<char> sep("|", "", boost::keep_empty_tokens);
-                    tokenizer tokens(str_bucket, sep);
-                    tokenizer::iterator iter = tokens.begin();
-
-                    info->mType = (LLAssetType::EType)(atoi((*(iter++)).c_str()));
-                    // Note There is more elements in 'tokens' ...
-
-                    info->mObjectID = LLUUID::null;
-                    info->mFromObject = TRUE;
-                }
-                else
-                {
-                    if (sizeof(S8) != binary_bucket_size)
-                    {
-                        LL_WARNS("Messaging") << "Malformed inventory offer from object" << LL_ENDL;
-                        delete info;
-                        break;
-                    }
-                    info->mType = (LLAssetType::EType) binary_bucket[0];
-                    info->mObjectID = LLUUID::null;
-                    info->mFromObject = TRUE;
-                }
+                info->mType = (LLAssetType::EType) binary_bucket[0];
+                info->mObjectID = LLUUID::null;
+                info->mFromObject = TRUE;
             }
+
+            // In the case of an offline message, the transaction id will be in aux_id and th session_id will be null
+            // (conversely when online the transaction id is passed as session_id)
+            info->mTransactionID = session_id.isNull() ? aux_id : session_id;
 
             info->mIM = dialog;
             info->mFromID = from_id;
             info->mFromGroup = from_group;
-            info->mTransactionID = session_id;
             info->mFolderID = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(info->mType));
 
             info->mFromName = name;
@@ -896,12 +878,18 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             if (is_muted)
             {
                 // Prefetch the offered item so that it can be discarded by the appropriate observer. (EXT-4331)
-                LLInventoryFetchItemsObserver* fetch_item = new LLInventoryFetchItemsObserver(info->mObjectID);
-                fetch_item->startFetch();
-                delete fetch_item;
-
-                // Same as closing window
-                info->forceResponse(IOR_DECLINE);
+                if (IM_INVENTORY_OFFERED == dialog)
+                {
+                    LLInventoryFetchItemsObserver* fetch_item = new LLInventoryFetchItemsObserver(info->mObjectID);
+                    fetch_item->startFetch();
+                    delete fetch_item;
+                    // Same as closing window
+                    info->forceResponse(IOR_DECLINE);
+                }
+                else
+                {
+                    info->forceResponse(IOR_MUTE);
+                }
             }
             // old logic: busy mode must not affect interaction with objects (STORM-565)
             // new logic: inventory offers from in-world objects should be auto-declined (CHUI-519)
@@ -1021,6 +1009,14 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                 }
 
                 LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
+                if (message != "")
+                {
+                    LLSD msg_notify;
+                    msg_notify["session_id"] = LLUUID();
+                    msg_notify["from_id"] = chat.mFromID;
+                    msg_notify["source_type"] = chat.mSourceType;
+                    on_new_message(msg_notify);
+                }
             }
 
 
@@ -1468,6 +1464,7 @@ void LLIMProcessing::requestOfflineMessages()
     static BOOL requested = FALSE;
     if (!requested
         && gMessageSystem
+        && !gDisconnected
         && LLMuteList::getInstance()->isLoaded()
         && isAgentAvatarValid()
         && gAgent.getRegion()
@@ -1555,7 +1552,7 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
 
     std::vector<U8> data;
     S32 binary_bucket_size = 0;
-    LLHost sender = gAgent.getRegion()->getHost();
+    LLHost sender = gAgent.getRegionHost();
 
     LLSD::array_iterator i = messages.beginArray();
     LLSD::array_iterator iEnd = messages.endArray();

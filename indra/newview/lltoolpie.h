@@ -42,7 +42,7 @@ class LLToolPie : public LLTool, public LLSingleton<LLToolPie>
 public:
 
 	// Virtual functions inherited from LLMouseHandler
-	virtual BOOL		handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktype, BOOL down);
+	virtual BOOL		handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down);
 	virtual BOOL		handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL		handleRightMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL		handleMouseUp(S32 x, S32 y, MASK mask);
@@ -50,6 +50,7 @@ public:
 	virtual BOOL		handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL		handleDoubleClick(S32 x, S32 y, MASK mask);
 	virtual BOOL		handleScrollWheel(S32 x, S32 y, S32 clicks);
+	virtual BOOL		handleScrollHWheel(S32 x, S32 y, S32 clicks);
 	virtual BOOL		handleToolTip(S32 x, S32 y, MASK mask);
 
 	virtual void		render();
@@ -66,8 +67,8 @@ public:
 	LLViewerObject*		getClickActionObject() { return mClickActionObject; }
 	LLObjectSelection*	getLeftClickSelection() { return (LLObjectSelection*)mLeftClickSelection; }
 	void 				resetSelection();
-	void				walkToClickedLocation();
-	void				blockClickToWalk() { mBlockClickToWalk = true; }
+	bool				walkToClickedLocation();
+	bool				teleportToClickedLocation();
 	void				stopClickToWalk();
 	
 	static void			selectionPropertiesReceived();
@@ -109,7 +110,6 @@ private:
 	LLPointer<LLHUDEffectBlob>	mAutoPilotDestination;
 	LLPointer<LLHUDEffectBlob>	mMouseSteerGrabPoint;
 	bool				mClockwise;			
-	bool				mBlockClickToWalk;
 	LLUUID				mMediaMouseCaptureID;
 	LLPickInfo			mPick;
 	LLPickInfo			mHoverPick;
