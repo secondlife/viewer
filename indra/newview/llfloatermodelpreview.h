@@ -94,7 +94,8 @@ public:
 	/*virtual*/ void onClose(bool app_quitting);
 
 	static void onMouseCaptureLostModelPreview(LLMouseHandler*);
-	static void setUploadAmount(S32 amount) { sUploadAmount = amount; }
+    static void setUploadAmount(S32 amount) { sUploadAmount = amount; }
+    static void addStringToLog(const std::string& message, const LLSD& args, bool flash, S32 lod = -1);
 	static void addStringToLog(const std::string& str, bool flash);
 	static void addStringToLog(const std::ostringstream& strm, bool flash);
 
@@ -308,8 +309,9 @@ public:
 	void setRigValidForJointPositionUpload( bool rigValid ) { mRigValidJointUpload = rigValid; }
 
 	//Accessors for the legacy rigs
-	const bool isLegacyRigValid( void ) const { return mLegacyRigValid; }
-	void setLegacyRigValid( bool rigValid ) { mLegacyRigValid = rigValid; }		
+	const bool isLegacyRigValid( void ) const { return mLegacyRigFlags == 0; }
+	U32 getLegacyRigFlags() const { return mLegacyRigFlags; }
+	void setLegacyRigFlags( U32 rigFlags ) { mLegacyRigFlags = rigFlags; }
 
 	static void	textureLoadedCallback( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
     static bool lodQueryCallback();
@@ -423,7 +425,7 @@ private:
 	float		mPelvisZOffset;
 	
 	bool		mRigValidJointUpload;
-	bool		mLegacyRigValid;
+	U32			mLegacyRigFlags;
 
 	bool		mLastJointUpdate;
 

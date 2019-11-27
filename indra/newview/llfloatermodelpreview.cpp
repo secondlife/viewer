@@ -343,6 +343,9 @@ BOOL LLFloaterModelPreview::postBuild()
 	childDisable("upload_joints");
 	childDisable("lock_scale_if_joint_position");
 
+	childSetVisible("skin_too_many_joints", false);
+	childSetVisible("skin_unknown_joint", false);
+
 	initDecompControls();
 
 	LLView* preview_panel = getChild<LLView>("preview_panel");
@@ -1306,6 +1309,34 @@ void LLFloaterModelPreview::onMouseCaptureLostModelPreview(LLMouseHandler* handl
 //-----------------------------------------------------------------------------
 // addStringToLog()
 //-----------------------------------------------------------------------------
+//static
+void LLFloaterModelPreview::addStringToLog(const std::string& message, const LLSD& args, bool flash, S32 lod)
+{
+    if (sInstance && sInstance->hasString(message))
+    {
+        std::string str;
+        switch (lod)
+        {
+        case LLModel::LOD_IMPOSTOR: str = "LOD0 "; break;
+        case LLModel::LOD_LOW:      str = "LOD1 "; break;
+        case LLModel::LOD_MEDIUM:   str = "LOD2 "; break;
+        case LLModel::LOD_PHYSICS:  str = "PHYS "; break;
+        case LLModel::LOD_HIGH:     str = "LOD3 ";   break;
+        default: break;
+        }
+        
+        LLStringUtil::format_map_t args_msg;
+        LLSD::map_const_iterator iter = args.beginMap();
+        LLSD::map_const_iterator end = args.endMap();
+        for (; iter != end; ++iter)
+        {
+            args_msg[iter->first] = iter->second.asString();
+        }
+        str += sInstance->getString(message, args_msg);
+        sInstance->addStringToLogTab(str, flash);
+    }
+}
+
 // static
 void LLFloaterModelPreview::addStringToLog(const std::string& str, bool flash)
 {
@@ -1370,7 +1401,7 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 , mLodsQuery()
 , mLodsWithParsingError()
 , mPelvisZOffset( 0.0f )
-, mLegacyRigValid( false )
+, mLegacyRigFlags( U32_MAX )
 , mRigValidJointUpload( false )
 , mPhysicsSearchLOD( LLModel::LOD_PHYSICS )
 , mResetJoints( false )
@@ -2160,7 +2191,7 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 	// Copy determinations about rig so UI will reflect them
 	//
 	setRigValidForJointPositionUpload(mModelLoader->isRigValidForJointPositionUpload());
-	setLegacyRigValid(mModelLoader->isLegacyRigValid());
+	setLegacyRigFlags(mModelLoader->getLegacyRigFlags());
 
 	mModelLoader->loadTextures() ;
 
@@ -3739,9 +3770,18 @@ void LLModelPreview::loadedCallback(
 	LLModelPreview* pPreview = static_cast< LLModelPreview* >(opaque);
 	if (pPreview && !LLModelPreview::sIgnoreLoadedCallback)
 	{
-		LLFloaterModelPreview::addStringToLog(pPreview->mModelLoader->logOut(), true);
-		pPreview->mModelLoader->clearLog();
-		pPreview->loadModelCallback(lod); // removes mModelLoader in some cases
+        const LLSD out = pPreview->mModelLoader->logOut();
+        LLSD::array_const_iterator iter_out = out.beginArray();
+        LLSD::array_const_iterator end_out = out.endArray();
+        for (; iter_out != end_out; ++iter_out)
+        {
+            if (iter_out->has("Message"))
+            {
+                LLFloaterModelPreview::addStringToLog(iter_out->get("Message"), *iter_out, true, pPreview->mModelLoader->mLod);
+            }
+        }
+        pPreview->mModelLoader->clearLog();
+        pPreview->loadModelCallback(lod); // removes mModelLoader in some cases
 	}
 
 }
@@ -3920,13 +3960,25 @@ BOOL LLModelPreview::render()
 
 	if (has_skin_weights && lodsReady())
 	{ //model has skin weights, enable view options for skin weights and joint positions
-		if (fmp && isLegacyRigValid() )
-		{
-			fmp->enableViewOption("show_skin_weight");
-			fmp->setViewOptionEnabled("show_joint_positions", skin_weight);	
-			mFMP->childEnable("upload_skin");
-			mFMP->childSetValue("show_skin_weight", skin_weight);
-		}
+        U32 flags = getLegacyRigFlags();
+        if (fmp)
+        {
+            if (flags == LEGACY_RIG_OK)
+            {
+                fmp->enableViewOption("show_skin_weight");
+                fmp->setViewOptionEnabled("show_joint_positions", skin_weight);
+                mFMP->childEnable("upload_skin");
+                mFMP->childSetValue("show_skin_weight", skin_weight);
+            }
+            else if ((flags & LEGACY_RIG_FLAG_TOO_MANY_JOINTS) > 0)
+            {
+                mFMP->childSetVisible("skin_too_many_joints", true);
+            }
+            else if ((flags & LEGACY_RIG_FLAG_UNKNOWN_JOINT) > 0)
+            {
+                mFMP->childSetVisible("skin_unknown_joint", true);
+            }
+        }
 	}
 	else
 	{

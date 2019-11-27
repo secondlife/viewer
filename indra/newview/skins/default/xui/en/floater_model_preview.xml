@@ -38,6 +38,12 @@
   <string name="decomposing">Analyzing...</string>
   <string name="simplifying">Simplifying...</string>
   <string name="tbd">TBD</string>
+  
+  <!-- Warnings from model loader-->
+  <string name="TooManyJoint">Skinning disabled due to too many joints: [JOINTS], maximum: [MAX]</string>
+  <string name="UnrecognizedJoint">Rigged to unrecognized joint name [NAME]</string>
+  <string name="UnknownJoints">Skinning disabled due to [COUNT] unknown joints</string>
+  
 
   <panel
     follows="top|left"
@@ -1184,20 +1190,41 @@
              label_text.text_color="White"
              name="upload_skin"
              top_pad="15"/>
+           <text
+             follows="top|left"
+             height="17"
+             left="40"
+             name="skin_too_many_joints"
+             text_color="Orange"
+             top_pad="-2"
+             width="150">
+             Too many skinned joints
+           </text>
+           <text
+             follows="top|left"
+             height="17"
+             left="40"
+             name="skin_unknown_joint"
+             text_color="Orange"
+             top_pad="-17"
+             width="150">
+             Model has an unknown joint(s)
+           </text>
            <check_box
              follows="top|left"
              height="15"
              label="Include joint positions"
              label_text.text_color="White"
              name="upload_joints"
-             top_pad="15"/>
+             left_delta="-20"
+             top_pad="1"/>
            <check_box
              follows="top|left"
              height="15"
              label="Lock scale if joint position defined"
              label_text.text_color="White"
              name="lock_scale_if_joint_position"
-             top_pad="15"/>
+             top_pad="16"/>
            <text
              follows="top|left"
              height="15"
