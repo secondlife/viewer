@@ -86,7 +86,7 @@ BOOL LLProgressView::postBuild()
 	mMediaCtrl->setVisible( false );		// hidden initially
 	mMediaCtrl->addObserver( this );		// watch events
 	
-	LLViewerMedia::setOnlyAudibleMediaTextureID(mMediaCtrl->getTextureID());
+	LLViewerMedia::getInstance()->setOnlyAudibleMediaTextureID(mMediaCtrl->getTextureID());
 
 	mCancelBtn = getChild<LLButton>("cancel_btn");
 	mCancelBtn->setClickedCallback(  LLProgressView::onCancelButtonClicked, NULL );
@@ -263,7 +263,7 @@ void LLProgressView::draw()
 		{
 			mFadeToWorldTimer.stop();
 
-			LLViewerMedia::setOnlyAudibleMediaTextureID(LLUUID::null);
+			LLViewerMedia::getInstance()->setOnlyAudibleMediaTextureID(LLUUID::null);
 
 			// Fade is complete, release focus
 			gFocusMgr.releaseFocusIfNeeded( this );

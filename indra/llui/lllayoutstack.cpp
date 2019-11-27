@@ -209,7 +209,7 @@ LLLayoutStack::Params::Params()
 	open_time_constant("open_time_constant", 0.02f),
 	close_time_constant("close_time_constant", 0.03f),
 	resize_bar_overlap("resize_bar_overlap", 1),
-	border_size("border_size", LLCachedControl<S32>(*LLUI::sSettingGroups["config"], "UIResizeBarHeight", 0)),
+	border_size("border_size", LLCachedControl<S32>(*LLUI::getInstance()->mSettingGroups["config"], "UIResizeBarHeight", 0)),
 	show_drag_handle("show_drag_handle", false),
 	drag_handle_first_indent("drag_handle_first_indent", 0),
 	drag_handle_second_indent("drag_handle_second_indent", 0),

@@ -320,7 +320,7 @@ BOOL LLNavigationBar::postBuild()
 	LLTeleportHistory::getInstance()->setHistoryChangedCallback(
 			boost::bind(&LLNavigationBar::onTeleportHistoryChanged, this));
 
-	LLHints::registerHintTarget("nav_bar", getHandle());
+	LLHints::getInstance()->registerHintTarget("nav_bar", getHandle());
 
 	mNavigationPanel = getChild<LLLayoutPanel>("navigation_layout_panel");
 	mFavoritePanel = getChild<LLLayoutPanel>("favorites_layout_panel");

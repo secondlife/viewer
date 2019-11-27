@@ -485,7 +485,7 @@ void LLSidepanelAppearance::fetchInventory()
 				 attachment_iter != attachment->mAttachedObjects.end();
 				 ++attachment_iter)
 			{
-				LLViewerObject* attached_object = (*attachment_iter);
+				LLViewerObject* attached_object = attachment_iter->get();
 				if (!attached_object) continue;
 				const LLUUID& item_id = attached_object->getAttachmentItemID();
 				if (item_id.isNull()) continue;
