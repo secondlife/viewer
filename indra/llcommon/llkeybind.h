@@ -53,7 +53,7 @@ public:
     EMouseClickType mMouse;
     KEY mKey;
     MASK mMask;
-    // Either to expect exact match or ignore not expected masks
+    // Either to expect exact match or to make sure mMask is inclused and ignore not expected masks
     bool mIgnoreMasks; 
 };
 
