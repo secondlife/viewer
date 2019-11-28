@@ -553,6 +553,8 @@ void LLFloaterModelPreview::loadModel(S32 lod, const std::string& file_name, boo
 
 void LLFloaterModelPreview::onClickCalculateBtn()
 {
+	clearLogTab();
+
 	mModelPreview->rebuildUploadData();
 
 	bool upload_skinweights = childGetValue("upload_skin").asBoolean();
@@ -2410,7 +2412,6 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 	mLoading = false;
 	if (mFMP)
 	{
-		mFMP->getChild<LLCheckBoxCtrl>("confirm_checkbox")->set(FALSE);
 		if (!mBaseModel.empty())
 		{
 			const std::string& model_name = mBaseModel[0]->getName();
@@ -4561,12 +4562,6 @@ void LLModelPreview::setPreviewLOD(S32 lod)
 		combo_box->setCurrentByIndex((NUM_LOD-1)-mPreviewLOD); // combo box list of lods is in reverse order
 		mFMP->childSetValue("lod_file_" + lod_name[mPreviewLOD], mLODFile[mPreviewLOD]);
 
-		LLComboBox* combo_box2 = mFMP->getChild<LLComboBox>("preview_lod_combo2");
-		combo_box2->setCurrentByIndex((NUM_LOD-1)-mPreviewLOD); // combo box list of lods is in reverse order
-		
-		LLComboBox* combo_box3 = mFMP->getChild<LLComboBox>("preview_lod_combo3");
-		combo_box3->setCurrentByIndex((NUM_LOD-1)-mPreviewLOD); // combo box list of lods is in reverse order
-
 		LLColor4 highlight_color = LLUIColorTable::instance().getColor("MeshImportTableHighlightColor");
 		LLColor4 normal_color = LLUIColorTable::instance().getColor("MeshImportTableNormalColor");
 
@@ -4596,8 +4591,10 @@ void LLFloaterModelPreview::onReset(void* user_data)
 {
 	assert_main_thread();
 
+
 	LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) user_data;
 	fmp->childDisable("reset_btn");
+	fmp->clearLogTab();
 	LLModelPreview* mp = fmp->mModelPreview;
 	std::string filename = mp->mLODFile[LLModel::LOD_HIGH]; 
 
@@ -4616,6 +4613,7 @@ void LLFloaterModelPreview::onUpload(void* user_data)
 	assert_main_thread();
 
 	LLFloaterModelPreview* mp = (LLFloaterModelPreview*) user_data;
+	mp->clearLogTab();
 
 	mp->mUploadBtn->setEnabled(false);
 
@@ -4806,6 +4804,13 @@ void LLFloaterModelPreview::resetUploadOptions()
 	}
 	getChild<LLComboBox>("physics_lod_combo")->setCurrentByIndex(0);
 	getChild<LLComboBox>("Cosine%")->setCurrentByIndex(0);
+}
+
+void LLFloaterModelPreview::clearLogTab()
+{
+    mUploadLogText->clear();
+    LLPanel* panel = mTabContainer->getPanelByName("logs_panel");
+    mTabContainer->setTabPanelFlashing(panel, false);
 }
 
 void LLFloaterModelPreview::onModelPhysicsFeeReceived(const LLSD& result, std::string upload_url)

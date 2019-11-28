@@ -224,6 +224,7 @@ private:
 	void resetDisplayOptions();
 
 	void resetUploadOptions();
+	void clearLogTab();
 
 	void createSmoothComboBox(LLComboBox* combo_box, float min, float max);
 

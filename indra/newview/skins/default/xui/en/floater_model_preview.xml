@@ -1548,7 +1548,6 @@ Analysed:
   </panel>
   <panel
     follows="top|left|bottom|right"
-    can_resize="true"
     name="right_panel"
     top="0"
     left="640"
@@ -1565,7 +1564,6 @@ Analysed:
       Preview:
     </text>
     <panel
-      can_resize="false"
       follows="top|left"
       height="20"
       name="right_upper_panel"
@@ -1574,7 +1572,6 @@ Analysed:
       width="315">
       <combo_box
         top_pad="3"
-        can_resize="false"
         follows="top|left"
         height="18"
         layout="topleft"
@@ -1646,7 +1643,6 @@ Analysed:
       layout="topleft"
       left="2"
       name="physics_explode_label"
-      bottom_pad="2"
       width="150">
       Preview Spread:
     </text>
