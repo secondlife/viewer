@@ -363,6 +363,7 @@
         <text_editor
          name="sl_description_edit"
          trusted_content="false"
+         always_show_icons="true"
          enabled="false"
          top="0"
          left="60"

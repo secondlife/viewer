@@ -162,6 +162,7 @@ LLTextBase::Params::Params()
 	font_shadow("font_shadow"),
 	wrap("wrap"),
 	trusted_content("trusted_content", true),
+	always_show_icons("always_show_icons", false),
 	use_ellipses("use_ellipses", false),
 	parse_urls("parse_urls", false),
 	force_urls_external("force_urls_external", false),
@@ -209,6 +210,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mClip(p.clip),
 	mClipPartial(p.clip_partial && !p.allow_scroll),
 	mTrustedContent(p.trusted_content),
+	mAlwaysShowIcons(p.always_show_icons),
 	mTrackEnd( p.track_end ),
 	mScrollIndex(-1),
 	mSelectionStart( 0 ),
@@ -2120,7 +2122,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 		LLUrlMatch match;
 		std::string text = new_text;
 		while ( LLUrlRegistry::instance().findUrl(text, match,
-				boost::bind(&LLTextBase::replaceUrl, this, _1, _2, _3),isContentTrusted()))
+				boost::bind(&LLTextBase::replaceUrl, this, _1, _2, _3),isContentTrusted() || mAlwaysShowIcons))
 		{
 			start = match.getStart();
 			end = match.getEnd()+1;
@@ -2145,7 +2147,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 			}
 
 			// add icon before url if need
-			LLTextUtil::processUrlMatch(&match, this, isContentTrusted() || match.isTrusted());
+			LLTextUtil::processUrlMatch(&match, this, isContentTrusted() || match.isTrusted() || mAlwaysShowIcons);
 			if ((isContentTrusted() || match.isTrusted()) && !match.getIcon().empty() )
 			{
 				setLastSegmentToolTip(LLTrans::getString("TooltipSLIcon"));

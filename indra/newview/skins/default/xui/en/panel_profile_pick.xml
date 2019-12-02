@@ -37,6 +37,7 @@
     <text_editor
      name="pick_desc"
      trusted_content="false"
+     always_show_icons="true"
      enabled="false"
      top_pad="8"
      left="10"
