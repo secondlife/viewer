@@ -58,9 +58,8 @@ LLEventTimer::~LLEventTimer()
 void LLEventTimer::updateClass() 
 {
 	std::list<LLEventTimer*> completed_timers;
-	for (instance_iter iter = beginInstances(); iter != endInstances(); ) 
+	for (auto& timer : instance_snapshot())
 	{
-		LLEventTimer& timer = *iter++;
 		F32 et = timer.mEventTimer.getElapsedTimeF32();
 		if (timer.mEventTimer.getStarted() && et > timer.mPeriod) {
 			timer.mEventTimer.reset();

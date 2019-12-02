@@ -228,13 +228,11 @@ void LLLeapListener::getAPIs(const LLSD& request) const
 {
     Response reply(LLSD(), request);
 
-    for (LLEventAPI::instance_iter eai(LLEventAPI::beginInstances()),
-             eaend(LLEventAPI::endInstances());
-         eai != eaend; ++eai)
+    for (auto& ea : LLEventAPI::instance_snapshot())
     {
         LLSD info;
-        info["desc"] = eai->getDesc();
-        reply[eai->getName()] = info;
+        info["desc"] = ea.getDesc();
+        reply[ea.getName()] = info;
     }
 }
 

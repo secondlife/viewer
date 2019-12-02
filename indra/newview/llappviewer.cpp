@@ -1681,24 +1681,9 @@ bool LLAppViewer::cleanup()
 		gDirUtilp->deleteFilesInDir(logdir, "*-*-*-*-*.dmp");
 	}
 
-	{
-		// Kill off LLLeap objects. We can find them all because LLLeap is derived
-		// from LLInstanceTracker. But collect instances first: LLInstanceTracker
-		// specifically forbids adding/deleting instances while iterating.
-		std::vector<LLLeap*> leaps;
-		leaps.reserve(LLLeap::instanceCount());
-		for (LLLeap::instance_iter li(LLLeap::beginInstances()), lend(LLLeap::endInstances());
-			 li != lend; ++li)
-		{
-			leaps.push_back(&*li);
-		}
-		// Okay, now trash them all. We don't have to NULL or erase the entry
-		// in 'leaps' because the whole vector is going away momentarily.
-		BOOST_FOREACH(LLLeap* leap, leaps)
-		{
-			delete leap;
-		}
-	} // destroy 'leaps'
+	// Kill off LLLeap objects. We can find them all because LLLeap is derived
+	// from LLInstanceTracker.
+	LLLeap::instance_snapshot().deleteAll();
 
 	//flag all elements as needing to be destroyed immediately
 	// to ensure shutdown order
@@ -2858,12 +2843,11 @@ bool LLAppViewer::initConfiguration()
 
 	// Let anyone else who cares know that we've populated our settings
 	// variables.
-	for (LLControlGroup::key_iter ki(LLControlGroup::beginKeys()), kend(LLControlGroup::endKeys());
-		 ki != kend; ++ki)
+	for (const auto& key : LLControlGroup::key_snapshot())
 	{
 		// For each named instance of LLControlGroup, send an event saying
 		// we've initialized an LLControlGroup instance by that name.
-		LLEventPumps::instance().obtain("LLControlGroup").post(LLSDMap("init", *ki));
+		LLEventPumps::instance().obtain("LLControlGroup").post(LLSDMap("init", key));
 	}
 
 	return true; // Config was successful.

@@ -34,18 +34,5 @@
 // external library headers
 // other Linden headers
 
-void LLInstanceTrackerBase::StaticBase::incrementDepth()
-{
-	++sIterationNestDepth;
-}
-
-void LLInstanceTrackerBase::StaticBase::decrementDepth()
-{
-	llassert(sIterationNestDepth);
-	--sIterationNestDepth;
-}
-
-U32 LLInstanceTrackerBase::StaticBase::getDepth()
-{
-	return sIterationNestDepth;
-}
+// This .cpp file is required by our CMake test macro. It contributes no code
+// to the viewer.
