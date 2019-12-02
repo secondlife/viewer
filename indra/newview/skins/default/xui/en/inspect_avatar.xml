@@ -85,6 +85,8 @@
      use_ellipses="true" />
      <text
      follows="left|top|right"
+     trusted_content="false"
+     always_show_icons="true"
      height="35"
      left="8"
      name="user_details"
