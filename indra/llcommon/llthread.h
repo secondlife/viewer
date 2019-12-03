@@ -34,8 +34,6 @@
 #include "llrefcount.h"
 #include <thread>
 
-LL_COMMON_API void assert_main_thread();
-
 namespace LLTrace
 {
     class ThreadRecorder;
@@ -168,5 +166,6 @@ public:
 //============================================================================
 
 extern LL_COMMON_API void assert_main_thread();
+extern LL_COMMON_API bool on_main_thread();
 
 #endif // LL_LLTHREAD_H

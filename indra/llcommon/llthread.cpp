@@ -97,14 +97,34 @@ U32 LL_THREAD_LOCAL sThreadID = 0;
 
 U32 LLThread::sIDIter = 0;
 
+namespace
+{
+
+    U32 main_thread()
+    {
+        // Using a function-static variable to identify the main thread
+        // requires that control reach here from the main thread before it
+        // reaches here from any other thread. We simply trust that whichever
+        // thread gets here first is the main thread.
+        static U32 s_thread_id = LLThread::currentID();
+        return s_thread_id;
+    }
+
+} // anonymous namespace
+
+LL_COMMON_API bool on_main_thread()
+{
+    return (LLThread::currentID() == main_thread());
+}
 
 LL_COMMON_API void assert_main_thread()
 {
-    static U32 s_thread_id = LLThread::currentID();
-    if (LLThread::currentID() != s_thread_id)
+    auto curr = LLThread::currentID();
+    auto main = main_thread();
+    if (curr != main)
     {
-        LL_WARNS() << "Illegal execution from thread id " << (S32) LLThread::currentID()
-            << " outside main thread " << (S32) s_thread_id << LL_ENDL;
+        LL_WARNS() << "Illegal execution from thread id " << curr
+            << " outside main thread " << main << LL_ENDL;
     }
 }
 
