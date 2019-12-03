@@ -57,7 +57,6 @@ protected:
     {
         UNINITIALIZED = 0,          // must be default-initialized state
         CONSTRUCTING,               // within DERIVED_TYPE constructor
-        CONSTRUCTED,                // finished DERIVED_TYPE constructor
         INITIALIZING,               // within DERIVED_TYPE::initSingleton()
         INITIALIZED,                // normal case
         DELETED                     // deleteSingleton() or deleteAll() called
@@ -355,7 +354,6 @@ private:
         {
             sData.mInstance = new DERIVED_TYPE(std::forward<Args>(args)...);
             // we have called constructor, have not yet called initSingleton()
-            sData.mInitState = CONSTRUCTED;
         }
         catch (const std::exception& err)
         {
@@ -373,10 +371,7 @@ private:
             // propagate the exception
             throw;
         }
-    }
 
-    static void finishInitializing()
-    {
         // getInstance() calls are from within initSingleton()
         sData.mInitState = INITIALIZING;
         try
@@ -506,11 +501,6 @@ public:
 
         case UNINITIALIZED:
             constructSingleton();
-            // fall through...
-
-        case CONSTRUCTED:
-            // still have to call initSingleton()
-            finishInitializing();
             break;
 
         case INITIALIZING:
@@ -526,7 +516,6 @@ public:
                      classname<DERIVED_TYPE>().c_str(),
                      " -- creating new instance");
             constructSingleton();
-            finishInitializing();
             break;
         }
 
@@ -625,7 +614,6 @@ public:
         else
         {
             super::constructSingleton(std::forward<Args>(args)...);
-            super::finishInitializing();
         }
     }
 
@@ -646,18 +634,6 @@ public:
             super::logerrs("Tried to access param singleton ",
                            super::template classname<DERIVED_TYPE>().c_str(),
                            " from singleton constructor!");
-            break;
-
-        case super::CONSTRUCTED:
-            // Should never happen!? The CONSTRUCTED state is specifically to
-            // navigate through LLSingleton::SingletonInitializer getting
-            // constructed (once) before LLSingleton::getInstance()'s switch
-            // on mInitState. But our initParamSingleton() method calls
-            // constructSingleton() and then calls finishInitializing(), which
-            // immediately sets INITIALIZING. Why are we here?
-            super::logerrs("Param singleton ",
-                           super::template classname<DERIVED_TYPE>().c_str(),
-                           "::initSingleton() not yet called");
             break;
 
         case super::INITIALIZING:
