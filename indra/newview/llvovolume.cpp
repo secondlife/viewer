@@ -4567,8 +4567,9 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 					{
 						U8 mode = mat->getDiffuseAlphaMode();
 
-						if (mode == LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE ||
-							mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE)
+						if (mode == LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE
+							|| mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE
+							|| (mode == LLMaterial::DIFFUSE_ALPHA_MODE_MASK && mat->getAlphaMaskCutoff() == 0))
 						{
 							ignore_alpha = true;
 						}
