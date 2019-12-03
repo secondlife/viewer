@@ -296,19 +296,11 @@ public:
 
 	F32				calculateRenderComplexity(U32 version = 0) const;
 	
-	void			calculateUpdateRenderComplexity();
 	void			calculateUpdateRenderComplexityLegacy();
-    void			calculateUpdateRenderComplexityLegacy_(); // ARCtan version
-	// FIXME ARC - this doesn't make sense. Gets used as a starting
-	// value and then incremented, so it can't give right results
-	// unless the starting value is 0, so can't pretend it's an
-	// unspecified magic value.
-	static const U32 VISUAL_COMPLEXITY_UNKNOWN;
+
 	void			updateVisualComplexity();
 	
-	U32				getVisualComplexity() const		{ return mVisualComplexity;	};		// Numbers calculated here by rendering AV
-	U32				getVisualComplexityNew() const		{ return mVisualComplexityNew;	};		// Numbers calculated by LLObjectManager path
-    U32				getVisualComplexityArctan() const		{ return mVisualComplexityArctan;	};		// Numbers calculated here by rendering AV w/ Arctan adjustments
+	U32				getVisualComplexity(U32 version = 0) const;
 
 	F32				getAttachmentSurfaceArea() const { return mAttachmentSurfaceArea; };		// estimated surface area of attachments
 
@@ -483,13 +475,10 @@ public:
 	S32  		mNumInitFaces; //number of faces generated when creating the avatar drawable, does not inculde splitted faces due to long vertex buffer.
 
 	LLFrameTimer mVisualComplexityUpdateTimer; // time since last updateVisualComplexity() call, which sets a flag to force recalculation.
-	
-	U32  		mVisualComplexityNew;
-	U32  		mVisualComplexity;
-    U32  		mVisualComplexityArctan;
+
+	std::map<U32, U32> mVisualComplexityValues;
 	bool 		mVisualComplexityStale;
 	U32         mReportedVisualComplexity; // from other viewers through the simulator
-    U32         mReportedVisualComplexityArctan;
 
 	bool		mCachedInMuteList;
 	F64			mCachedMuteListUpdateTime;

@@ -693,17 +693,15 @@ public:
 			{
 				LLVOAvatar* avatar = av_iter->second;
 
-                avatar->calculateUpdateRenderComplexityLegacy_(); // Make sure the numbers are up-to-date
 				avatar->calculateUpdateRenderComplexityLegacy(); // Make sure the numbers are up-to-date
 
 				trunc_name = utf8str_truncate(avatar->getFullname(), 16);
-				addText(xpos, ypos, llformat("%s : %s, complexity %d (new %d), area %.2f -- %d",
-					trunc_name.c_str(),
-                    LLVOAvatar::rezStatusToString(avatar->getRezzedStatus()).c_str(),
-					avatar->getVisualComplexity(),
-					avatar->getVisualComplexityNew(),
-					avatar->getAttachmentSurfaceArea(),
-                    avatar->getVisualComplexityArctan()));
+				addText(xpos, ypos, llformat("%s : %s, complexity v1 %d v2 %d), area %.2f",
+											 trunc_name.c_str(),
+											 LLVOAvatar::rezStatusToString(avatar->getRezzedStatus()).c_str(),
+											 avatar->getVisualComplexity(1),
+											 avatar->getVisualComplexity(2),
+											 avatar->getAttachmentSurfaceArea()));
 				ypos += y_inc;
 				av_iter++;
 			}

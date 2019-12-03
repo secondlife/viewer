@@ -197,18 +197,24 @@ class LLObjectCostManagerImpl
 
 	F32 getStreamingCost(U32 version, const LLVOVolume *vol);
 	F32 getStreamingCostV1(const LLVOVolume *vol);
+	F32 getStreamingCostV2(const LLVOVolume *vol);
 
 	F32 getRenderCost(U32 version, const LLVOVolume *vol);
 	F32 getRenderCostV1(const LLVOVolume *vol);
+	F32 getRenderCostV2(const LLVOVolume *vol);
 
 	F32 getRenderCostLinkset(U32 version, const LLViewerObject *root);
 	F32 getRenderCostLinksetV1(const LLViewerObject *root);
+	F32 getRenderCostLinksetV2(const LLViewerObject *root);
 
 	// Accumulate data for a single prim.
 	void getPrimCostData(const LLVOVolume *vol, LLPrimCostData& cost_data);
 
-	U32 textureCostsV1(const texture_ids_t& ids, U32 multiplier = 1);
+	U32 textureCostsV1(const texture_ids_t& ids);
+	U32 textureCostsV2(const texture_ids_t& ids, U32 multiplier = 1);
+
 	F32 triangleCostsV1(LLPrimCostData& cost_data); 
+	F32 triangleCostsV2(LLPrimCostData& cost_data); 
 };
 
 F32 LLObjectCostManagerImpl::getRenderCostLinkset(U32 version, const LLViewerObject *root)
@@ -225,6 +231,10 @@ F32 LLObjectCostManagerImpl::getRenderCostLinkset(U32 version, const LLViewerObj
 #ifdef VALIDATE_COSTS
 		// FIXME ARC need to rework legacy code to make comparison possible
 #endif
+	}
+	else if (version == 2)
+	{
+		render_cost = getRenderCostLinksetV2(root);
 	}
 	else
 	{
@@ -289,10 +299,58 @@ F32 LLObjectCostManagerImpl::getRenderCostLinksetV1(const LLViewerObject *root)
 	shame += textureCostsV1(all_sculpt_ids);
 	shame += textureCostsV1(all_diffuse_ids);
 
-	// FIXME ARC including material textures here to force ARC to change for logging purposes. This is not the correct formula for V1.
-	shame += textureCostsV1(all_normal_ids, 2);
-	shame += textureCostsV1(all_specular_ids, 3);
+	// Animated Object surcharge
+	const F32 animated_object_surcharge = 1000;
+	if (root->isAnimatedObject())
+	{
+		shame += animated_object_surcharge;
+	}
+
+	return shame;
+}
+
+F32 LLObjectCostManagerImpl::getRenderCostLinksetV2(const LLViewerObject *root)
+{
+	F32 shame = 0.f;
+	texture_ids_t all_sculpt_ids, all_diffuse_ids, all_normal_ids, all_specular_ids;
+
+	const_vol_vec_t volumes;
+	get_volumes_for_linkset(root,volumes);
+
+	for (std::vector<const LLVOVolume*>::const_iterator it = volumes.begin();
+		 it != volumes.end(); ++it)
+	{
+		const LLVOVolume *vol = *it;
+
+		LLPrimCostData cost_data;
+		getPrimCostData(vol, cost_data);
+
+		// Charge for effective triangles
+		shame += triangleCostsV2(cost_data);
+
+		// Accumulate texture ids
+		all_sculpt_ids.insert(cost_data.m_sculpt_ids.begin(), cost_data.m_sculpt_ids.end());
+		all_diffuse_ids.insert(cost_data.m_diffuse_ids.begin(), cost_data.m_diffuse_ids.end());
+
+		all_normal_ids.insert(cost_data.m_normal_ids.begin(), cost_data.m_normal_ids.end());
+		all_specular_ids.insert(cost_data.m_specular_ids.begin(), cost_data.m_specular_ids.end());
+	}
 	
+	// Material textures not included in V1 costs
+	shame += textureCostsV2(all_sculpt_ids);
+	shame += textureCostsV2(all_diffuse_ids);
+
+	// FIXME ARC including material textures here to force ARC to change for logging purposes. This differs from V1
+	shame += textureCostsV2(all_normal_ids, 2);
+	shame += textureCostsV2(all_specular_ids, 3);
+	
+	// Animated Object surcharge
+	const F32 animated_object_surcharge = 1000;
+	if (root->isAnimatedObject())
+	{
+		shame += animated_object_surcharge;
+	}
+
 	return shame;
 }
 
@@ -359,6 +417,11 @@ F32 LLObjectCostManagerImpl::getStreamingCostV1(const LLVOVolume *vol)
 	}
 }
 
+F32 LLObjectCostManagerImpl::getStreamingCostV2(const LLVOVolume *vol)
+{
+	return getStreamingCostV1(vol);
+}
+
 F32 LLObjectCostManagerImpl::getRenderCost(U32 version, const LLVOVolume *vol)
 {
 	F32 render_cost = -1.f;
@@ -370,7 +433,7 @@ F32 LLObjectCostManagerImpl::getRenderCost(U32 version, const LLVOVolume *vol)
 	if (version == 1)
 	{
 
-		F32 render_cost = getRenderCostV1(vol);
+		render_cost = getRenderCostV1(vol);
 
 #ifdef VALIDATE_COSTS
 		LLVOVolume::texture_cost_t textures, material_textures;
@@ -380,6 +443,10 @@ F32 LLObjectCostManagerImpl::getRenderCost(U32 version, const LLVOVolume *vol)
 			LL_WARNS("Arctan") << "render cost mismatch " << render_cost << ", " << render_cost_legacy << LL_ENDL;
 		}
 #endif
+	}
+	else if (version == 2)
+	{
+		render_cost = getRenderCostV2(vol);
 	}
 	else
 	{
@@ -400,6 +467,21 @@ F32 LLObjectCostManagerImpl::getRenderCostV1(const LLVOVolume *vol)
 	// Material textures not included in V1 costs
 	shame += textureCostsV1(cost_data.m_sculpt_ids);
 	shame += textureCostsV1(cost_data.m_diffuse_ids);
+	
+	return shame;
+}
+
+F32 LLObjectCostManagerImpl::getRenderCostV2(const LLVOVolume *vol)
+{
+	LLPrimCostData cost_data;
+	getPrimCostData(vol, cost_data);
+
+	// Charge for effective triangles
+	F32 shame = triangleCostsV2(cost_data);
+
+	// Material textures not included in V1 costs
+	shame += textureCostsV2(cost_data.m_sculpt_ids);
+	shame += textureCostsV2(cost_data.m_diffuse_ids);
 	
 	return shame;
 }
@@ -618,7 +700,36 @@ void LLObjectCostManagerImpl::getPrimCostData(const LLVOVolume *vol, LLPrimCostD
     cost_data.m_triangle_count_high = vol->getLODTriangleCount(LLModel::LOD_HIGH);
 }
 
-U32 LLObjectCostManagerImpl::textureCostsV1(const texture_ids_t& ids, U32 multiplier)
+U32 LLObjectCostManagerImpl::textureCostsV1(const texture_ids_t& ids)
+{
+	U32 cost = 0;
+
+    static const U32 ARC_TEXTURE_COST    = 16; // multiplier for texture resolution - performance tested
+
+	// FIXME ARC Media faces do not give the right dimensions. Old
+	// code uses face texture directly, right value. Here we look up
+	// the corresponding fetched texture, doesn't work (get 0x0 texture).
+	for (texture_ids_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
+	{
+		const LLUUID& id = *it;
+		LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(id);
+		U32 texture_cost = 0;
+		if (texture)
+		{
+			texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f));
+		}
+		else
+		{
+			texture_cost = 1;
+		}
+		LL_DEBUGS("ARCdetail") << "texture " << id << " cost " << texture_cost << LL_ENDL;
+		cost += texture_cost;
+	}
+
+	return cost;
+}
+
+U32 LLObjectCostManagerImpl::textureCostsV2(const texture_ids_t& ids, U32 multiplier)
 {
 	U32 cost = 0;
 
@@ -778,6 +889,133 @@ F32 LLObjectCostManagerImpl::triangleCostsV1(LLPrimCostData& cost_data)
 	return shame;
 }
 		   
+// FIXME ARC - initially same as V1, eventually costs will differ here.
+F32 LLObjectCostManagerImpl::triangleCostsV2(LLPrimCostData& cost_data)
+{
+    /*****************************************************************
+     * This calculation should not be modified by third party viewers,
+     * since it is used to limit rendering and should be uniform for
+     * everyone. If you have suggested improvements, submit them to
+     * the official viewer for consideration.
+     *****************************************************************/
+
+	// per-prim costs
+	static const U32 ARC_PARTICLE_COST = 1; // determined experimentally
+	//static const U32 ARC_PARTICLE_MAX = 2048; // default values
+	//static const U32 ARC_TEXTURE_COST = 16; // multiplier for texture resolution - performance tested
+	static const U32 ARC_LIGHT_COST = 500; // static cost for light-producing prims 
+	static const U32 ARC_MEDIA_FACE_COST = 1500; // static cost per media-enabled face 
+
+
+	// per-prim multipliers
+	static const F32 ARC_GLOW_MULT = 1.5f; // tested based on performance
+	static const F32 ARC_BUMP_MULT = 1.25f; // tested based on performance
+	static const F32 ARC_FLEXI_MULT = 5; // tested based on performance
+	static const F32 ARC_SHINY_MULT = 1.6f; // tested based on performance
+	static const F32 ARC_INVISI_COST = 1.2f; // tested based on performance
+	static const F32 ARC_WEIGHTED_MESH = 1.2f; // tested based on performance
+
+	static const F32 ARC_PLANAR_COST = 1.0f; // tested based on performance to have negligible impact
+	static const F32 ARC_ANIM_TEX_COST = 4.f; // tested based on performance
+	static const F32 ARC_ALPHA_COST = 4.f; // 4x max - based on performance
+
+	F32 shame = 0;
+
+	U32 invisi = (cost_data.m_invisi_faces > 0);
+	U32 shiny = (cost_data.m_shiny_faces > 0);
+	U32 glow = (cost_data.m_glow_faces > 0);
+	U32 alpha = (cost_data.m_alpha_faces > 0);
+	U32 flexi = (cost_data.m_flexi_vols > 0);
+	U32 animtex = (cost_data.m_animtex_faces > 0);
+	U32 particles = (cost_data.m_particle_source_vols > 0);
+	U32 bump = (cost_data.m_bumpmap_faces > 0);
+	U32 planar = (cost_data.m_planar_faces > 0);
+	U32 weighted_mesh = (cost_data.m_weighted_mesh_vols > 0);
+	U32 produces_light = (cost_data.m_produces_light_vols > 0);
+	U32 media_faces = cost_data.m_media_faces;
+
+	U32 num_triangles = cost_data.m_num_triangles_v1;
+	
+	// shame currently has the "base" cost of 1 point per 15 triangles, min 2.
+	shame = num_triangles  * 5.f;
+	shame = shame < 2.f ? 2.f : shame;
+
+	// multiply by per-face modifiers
+	if (planar)
+	{
+		shame *= planar * ARC_PLANAR_COST;
+	}
+
+	if (animtex)
+	{
+		shame *= animtex * ARC_ANIM_TEX_COST;
+	}
+
+	if (alpha)
+	{
+		shame *= alpha * ARC_ALPHA_COST;
+	}
+
+	if(invisi)
+	{
+		shame *= invisi * ARC_INVISI_COST;
+	}
+
+	if (glow)
+	{
+		shame *= glow * ARC_GLOW_MULT;
+	}
+
+	if (bump)
+	{
+		shame *= bump * ARC_BUMP_MULT;
+	}
+
+	if (shiny)
+	{
+		shame *= shiny * ARC_SHINY_MULT;
+	}
+
+
+	// multiply shame by multipliers
+	if (weighted_mesh)
+	{
+		shame *= weighted_mesh * ARC_WEIGHTED_MESH;
+	}
+
+	if (flexi)
+	{
+		shame *= flexi * ARC_FLEXI_MULT;
+	}
+
+
+	// add additional costs
+	if (particles)
+	{
+		shame += cost_data.m_num_particles * cost_data.m_part_size * ARC_PARTICLE_COST;
+	}
+
+	if (produces_light)
+	{
+		shame += ARC_LIGHT_COST;
+	}
+
+	if (media_faces)
+	{
+		shame += media_faces * ARC_MEDIA_FACE_COST;
+	}
+
+    // Streaming cost for animated objects includes a fixed cost
+    // per linkset. Add a corresponding charge here translated into
+    // triangles, but not weighted by any graphics properties.
+    if (cost_data.m_is_animated_object && cost_data.m_is_root_edit) 
+    {
+        shame += (ANIMATED_OBJECT_BASE_COST/0.06) * 5.0f;
+    }
+
+	return shame;
+}
+		   
 LLObjectCostManager::LLObjectCostManager()
 {
 	m_impl = new LLObjectCostManagerImpl;
@@ -791,7 +1029,7 @@ LLObjectCostManager::~LLObjectCostManager()
 
 U32 LLObjectCostManager::getCurrentCostVersion()
 {
-	return 1;
+	return 2;
 }
 
 F32 LLObjectCostManager::getStreamingCost(U32 version, const LLVOVolume *vol)
