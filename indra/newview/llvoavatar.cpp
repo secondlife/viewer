@@ -10283,14 +10283,11 @@ void LLVOAvatar::accountRenderComplexityForObject(
     LLVOVolume::texture_cost_t& textures,
     LLVOVolume::texture_cost_t& material_textures,
     U32& cost,
-    hud_complexity_list_t& hud_complexity_list)
+    hud_complexity_list_t& hud_complexity_list) const
 {
+	// Non-HUD attachment
     if (attached_object && !attached_object->isHUDAttachment())
 	{
-        mAttachmentVisibleTriangleCount += attached_object->recursiveGetTriangleCount();
-        mAttachmentEstTriangleCount += attached_object->recursiveGetEstTrianglesMax();
-        mAttachmentSurfaceArea += attached_object->recursiveGetScaledSurfaceArea();
-
 		textures.clear();
 		material_textures.clear();
 		const LLDrawable* drawable = attached_object->mDrawable;
@@ -10355,6 +10352,8 @@ void LLVOAvatar::accountRenderComplexityForObject(
 			}
 		}
 	}
+
+	// HUD attachment
 	if (isSelf()
 		&& attached_object
 		&& attached_object->isHUDAttachment()
@@ -10363,8 +10362,6 @@ void LLVOAvatar::accountRenderComplexityForObject(
 	{
 		textures.clear();
 		material_textures.clear();
-
-        mAttachmentSurfaceArea += attached_object->recursiveGetScaledSurfaceArea();
 
 		const LLVOVolume* volume = attached_object->mDrawable->getVOVolume();
 		if (volume)
@@ -10414,6 +10411,25 @@ void LLVOAvatar::accountRenderComplexityForObject(
 			}
 			hud_complexity_list.push_back(hud_object_complexity);
 		}
+	}
+}
+
+void LLVOAvatar::accountSurfaceStatisticsForObject(const LLViewerObject *attached_object)
+{
+    if (attached_object && !attached_object->isHUDAttachment())
+	{
+        mAttachmentVisibleTriangleCount += attached_object->recursiveGetTriangleCount();
+        mAttachmentEstTriangleCount += attached_object->recursiveGetEstTrianglesMax();
+        mAttachmentSurfaceArea += attached_object->recursiveGetScaledSurfaceArea();
+	}
+
+	if (isSelf()
+		&& attached_object
+		&& attached_object->isHUDAttachment()
+		&& !attached_object->isTempAttachment()
+		&& attached_object->mDrawable)
+	{
+        mAttachmentSurfaceArea += attached_object->recursiveGetScaledSurfaceArea();
 	}
 }
 
@@ -10539,6 +10555,7 @@ void LLVOAvatar::calculateUpdateRenderComplexityLegacy()
             {
                 accountRenderComplexityForObject(volp, max_attachment_complexity,
                                                  textures, material_textures, cost, hud_complexity_list);
+				accountSurfaceStatisticsForObject(volp);
             }
         }
 
@@ -10555,6 +10572,7 @@ void LLVOAvatar::calculateUpdateRenderComplexityLegacy()
 				const LLViewerObject* attached_object = (*attachment_iter);
                 accountRenderComplexityForObject(attached_object, max_attachment_complexity,
                                                  textures, material_textures, cost, hud_complexity_list);
+				accountSurfaceStatisticsForObject(attached_object);
 			}
 		}
 

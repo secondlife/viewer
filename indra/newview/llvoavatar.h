@@ -292,7 +292,8 @@ public:
                                                      LLVOVolume::texture_cost_t& textures,
                                                      LLVOVolume::texture_cost_t& material_textures,
                                                      U32& cost,
-                                                     hud_complexity_list_t& hud_complexity_list);
+                                                     hud_complexity_list_t& hud_complexity_list) const;
+	void			accountSurfaceStatisticsForObject(const LLViewerObject *attached_object);
 
 	F32				calculateRenderComplexity(U32 version = 0) const;
 	
