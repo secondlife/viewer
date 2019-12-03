@@ -2988,7 +2988,7 @@ void LLPanelFace::onCopyFaces()
                     // Replace no-copy textures, destination texture will get used instead if available
                     if (mat_data.has("NormMap"))
                     {
-                        LLUUID id = te_data["material"]["NormMap"].asUUID();
+                        LLUUID id = mat_data["NormMap"].asUUID();
                         if (id.notNull() && !LLPanelObject::canCopyTexture(id))
                         {
                             mat_data["NormMap"] = LLUUID(gSavedSettings.getString( "DefaultObjectTexture" ));
@@ -2998,7 +2998,7 @@ void LLPanelFace::onCopyFaces()
                     }
                     if (mat_data.has("SpecMap"))
                     {
-                        LLUUID id = te_data["material"]["SpecMap"].asUUID();
+                        LLUUID id = mat_data["SpecMap"].asUUID();
                         if (id.notNull() && !LLPanelObject::canCopyTexture(id))
                         {
                             mat_data["SpecMap"]  = LLUUID(gSavedSettings.getString( "DefaultObjectTexture" ));
