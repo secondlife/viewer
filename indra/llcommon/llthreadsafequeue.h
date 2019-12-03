@@ -30,18 +30,8 @@
 #include "llexception.h"
 #include <deque>
 #include <string>
-
-#if LL_WINDOWS
-#pragma warning (push)
-#pragma warning (disable:4265)
-#endif
-// 'std::_Pad' : class has virtual functions, but destructor is not virtual
-#include <mutex>
+#include "mutex.h"
 #include <condition_variable>
-
-#if LL_WINDOWS
-#pragma warning (pop)
-#endif
 
 //
 // A general queue exception.

@@ -35,16 +35,7 @@
 #include <memory>
 #include <type_traits>
 
-#if LL_WINDOWS
-#pragma warning (push)
-#pragma warning (disable:4265)
-#endif
-// 'std::_Pad' : class has virtual functions, but destructor is not virtual
-#include <mutex>
-
-#if LL_WINDOWS
-#pragma warning (pop)
-#endif
+#include "mutex.h"
 
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
