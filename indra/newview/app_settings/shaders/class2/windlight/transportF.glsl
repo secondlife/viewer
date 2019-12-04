@@ -38,8 +38,9 @@ vec3 atmosTransportFrag(vec3 light, vec3 additive, vec3 atten)
     {
         return light * 2.0;
     }
-    light *= atten.r;
-    light += additive;
+    // fullbright responds minimally to atmos scatter effects 
+    light *= min(15.0 * atten.r, 1.0);
+    light += (0.1 * additive);
     return light * 2.0;
 }
 
