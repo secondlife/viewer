@@ -41,63 +41,19 @@
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/iterator/filter_iterator.hpp>
 
+#include "lockstatic.h"
+
 /*****************************************************************************
-*   LLInstanceTrackerBase
+*   StaticBase
 *****************************************************************************/
-/**
- * Base class manages "class-static" data that must actually have singleton
- * semantics: one instance per process, rather than one instance per module as
- * sometimes happens with data simply declared static.
- */
 namespace LLInstanceTrackerStuff
 {
     struct StaticBase
     {
         // We need to be able to lock static data while manipulating it.
-        typedef std::mutex mutex_t;
-        mutex_t mMutex;
+        std::mutex mMutex;
     };
 } // namespace LLInstanceTrackerStuff
-
-template <class Static>
-class LL_COMMON_API LLInstanceTrackerBase
-{
-protected:
-    typedef Static StaticData;
-
-    // Instantiate this class to obtain a pointer to the canonical static
-    // instance of class Static while holding a lock on that instance. Use of
-    // Static::mMutex presumes either that Static is derived from StaticBase,
-    // or that Static declares some other suitable mMutex.
-    class LockStatic
-    {
-        typedef std::unique_lock<decltype(Static::mMutex)> lock_t;
-    public:
-        LockStatic():
-            mData(getStatic()),
-            mLock(mData->mMutex)
-        {}
-        Static* get() const { return mData; }
-        operator Static*() const { return get(); }
-        Static* operator->() const { return get(); }
-        // sometimes we must explicitly unlock...
-        void unlock()
-        {
-            // but once we do, access is no longer permitted
-            mData = nullptr;
-            mLock.unlock();
-        }
-    protected:
-        Static* mData;
-        lock_t mLock;
-    private:
-        Static* getStatic()
-        {
-            static Static sData;
-            return &sData;
-        }
-    };
-};
 
 /*****************************************************************************
 *   LLInstanceTracker with key
@@ -108,29 +64,20 @@ enum EInstanceTrackerAllowKeyCollisions
     LLInstanceTrackerReplaceOnCollision
 };
 
-namespace LLInstanceTrackerStuff
-{
-    template <typename KEY, typename VALUE>
-    struct StaticMap: public StaticBase
-    {
-        typedef std::map<KEY, VALUE> InstanceMap;
-        InstanceMap mMap;
-    };
-} // LLInstanceTrackerStuff
-
 /// This mix-in class adds support for tracking all instances of the specified class parameter T
 /// The (optional) key associates a value of type KEY with a given instance of T, for quick lookup
 /// If KEY is not provided, then instances are stored in a simple set
 /// @NOTE: see explicit specialization below for default KEY==void case
 template<typename T, typename KEY = void,
          EInstanceTrackerAllowKeyCollisions KEY_COLLISION_BEHAVIOR = LLInstanceTrackerErrorOnCollision>
-class LLInstanceTracker :
-    public LLInstanceTrackerBase<LLInstanceTrackerStuff::StaticMap<KEY, std::shared_ptr<T>>>
+class LLInstanceTracker
 {
-    typedef LLInstanceTrackerBase<LLInstanceTrackerStuff::StaticMap<KEY, std::shared_ptr<T>>> super;
-    using typename super::StaticData;
-    using typename super::LockStatic;
-    typedef typename StaticData::InstanceMap InstanceMap;
+    typedef std::map<KEY, std::shared_ptr<T>> InstanceMap;
+    struct StaticData: public LLInstanceTrackerStuff::StaticBase
+    {
+        InstanceMap mMap;
+    };
+    typedef llthread::LockStatic<StaticData> LockStatic;
 
 public:
     // snapshot of std::pair<const KEY, std::shared_ptr<T>> pairs
@@ -334,16 +281,6 @@ private:
 /*****************************************************************************
 *   LLInstanceTracker without key
 *****************************************************************************/
-namespace LLInstanceTrackerStuff
-{
-    template <typename VALUE>
-    struct StaticSet: public StaticBase
-    {
-        typedef std::set<VALUE> InstanceSet;
-        InstanceSet mSet;
-    };
-} // LLInstanceTrackerStuff
-
 // TODO:
 // - For the case of omitted KEY template parameter, consider storing
 //   std::map<T*, std::shared_ptr<T>> instead of std::set<std::shared_ptr<T>>.
@@ -359,13 +296,14 @@ namespace LLInstanceTrackerStuff
 /// explicit specialization for default case where KEY is void
 /// use a simple std::set<T*>
 template<typename T, EInstanceTrackerAllowKeyCollisions KEY_COLLISION_BEHAVIOR>
-class LLInstanceTracker<T, void, KEY_COLLISION_BEHAVIOR> :
-    public LLInstanceTrackerBase<LLInstanceTrackerStuff::StaticSet<std::shared_ptr<T>>>
+class LLInstanceTracker<T, void, KEY_COLLISION_BEHAVIOR>
 {
-    typedef LLInstanceTrackerBase<LLInstanceTrackerStuff::StaticSet<std::shared_ptr<T>>> super;
-    using typename super::StaticData;
-    using typename super::LockStatic;
-    typedef typename StaticData::InstanceSet InstanceSet;
+    typedef std::set<std::shared_ptr<T>> InstanceSet;
+    struct StaticData: public LLInstanceTrackerStuff::StaticBase
+    {
+        InstanceSet mSet;
+    };
+    typedef llthread::LockStatic<StaticData> LockStatic;
 
 public:
     /**
