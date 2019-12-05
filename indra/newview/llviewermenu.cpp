@@ -7156,7 +7156,7 @@ namespace
 				return true;
 			}
 			scripted = obj->flagScripted();
-			modifiable = obj->permModify();
+			modifiable = obj->permModify() || gAgent.isGodlike();
 
 			if( scripted && modifiable )
 			{
@@ -7524,6 +7524,8 @@ class LLSomethingSelectedNoHUD : public view_listener_t
 
 static bool is_editable_selected()
 {
+    if (gAgent.isGodlike())
+        return (LLSelectMgr::getInstance()->getSelection()->getFirstObject() != NULL);
 	return (LLSelectMgr::getInstance()->getSelection()->getFirstEditableObject() != NULL);
 }
 

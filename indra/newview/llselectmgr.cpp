@@ -7781,7 +7781,7 @@ LLViewerObject* LLObjectSelection::getFirstEditableObject(BOOL get_parent)
 		bool apply(LLSelectNode* node)
 		{
 			LLViewerObject* obj = node->getObject();
-			return obj && obj->permModify();
+			return obj && (obj->permModify() || gAgent.isGodlike());
 		}
 	} func;
 	return getFirstSelectedObject(&func, get_parent);
