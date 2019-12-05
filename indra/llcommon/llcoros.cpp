@@ -212,12 +212,11 @@ void LLCoros::printActiveCoroutines(const std::string& when)
     {
         LL_INFOS("LLCoros") << "-------------- List of active coroutines ------------";
         F64 time = LLTimer::getTotalSeconds();
-        for (auto it(CoroData::beginInstances()), end(CoroData::endInstances());
-             it != end; ++it)
+        for (auto& cd : CoroData::instance_snapshot())
         {
-            F64 life_time = time - it->mCreationTime;
+            F64 life_time = time - cd.mCreationTime;
             LL_CONT << LL_NEWLINE
-                    << it->mName << ' ' << it->mStatus << " life: " << life_time;
+                    << cd.mName << ' ' << cd.mStatus << " life: " << life_time;
         }
         LL_CONT << LL_ENDL;
         LL_INFOS("LLCoros") << "-----------------------------------------------------" << LL_ENDL;
