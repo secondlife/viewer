@@ -286,21 +286,34 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
 	// Pass if this item's type is of the correct filter type
 	if (filterTypes & FILTERTYPE_OBJECT)
 	{
-
-		// If it has no type, pass it, unless it's a link.
-		if (object_type == LLInventoryType::IT_NONE)
-		{
-			if (object && object->getIsLinkType())
-			{
-				return FALSE;
-			}
-		}
-		else if ((1LL << object_type & mFilterOps.mFilterObjectTypes) == U64(0))
-		{
-			return FALSE;
-		}
+        switch (object_type)
+        {
+        case LLInventoryType::IT_NONE:
+            // If it has no type, pass it, unless it's a link.
+            if (object && object->getIsLinkType())
+            {
+                return FALSE;
+            }
+            break;
+        case LLInventoryType::IT_UNKNOWN:
+            {
+                // Unknows are only shown when we show every type. 
+                // Unknows are 255 and won't fit in 64 bits.
+                if (mFilterOps.mFilterObjectTypes != 0xffffffffffffffffULL)
+                {
+                    return FALSE;
+                }
+                break;
+            }
+        default:
+            if ((1LL << object_type & mFilterOps.mFilterObjectTypes) == U64(0))
+            {
+                return FALSE;
+            }
+            break;
+        }
 	}
-	
+
 	if(filterTypes & FILTERTYPE_WORN)
 	{
 		if (!get_is_item_worn(object_id))
@@ -411,18 +424,32 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLInventoryItem* item) cons
 	// Pass if this item's type is of the correct filter type
 	if (filterTypes & FILTERTYPE_OBJECT)
 	{
-		// If it has no type, pass it, unless it's a link.
-		if (object_type == LLInventoryType::IT_NONE)
-		{
-			if (item && item->getIsLinkType())
-			{
-				return false;
-			}
-		}
-		else if ((1LL << object_type & mFilterOps.mFilterObjectTypes) == U64(0))
-		{
-			return false;
-		}
+        switch (object_type)
+        {
+        case LLInventoryType::IT_NONE:
+            // If it has no type, pass it, unless it's a link.
+            if (item && item->getIsLinkType())
+            {
+                return FALSE;
+            }
+            break;
+        case LLInventoryType::IT_UNKNOWN:
+            {
+                // Unknows are only shown when we show every type. 
+                // Unknows are 255 and won't fit in 64 bits.
+                if (mFilterOps.mFilterObjectTypes != 0xffffffffffffffffULL)
+                {
+                    return FALSE;
+                }
+                break;
+            }
+        default:
+            if ((1LL << object_type & mFilterOps.mFilterObjectTypes) == U64(0))
+            {
+                return FALSE;
+            }
+            break;
+        }
 	}
 
 	////////////////////////////////////////////////////////////////////////////////
