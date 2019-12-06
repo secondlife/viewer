@@ -27,12 +27,15 @@
 #include "linden_common.h"
 // associated header
 #include "llinstancetracker.h"
-#include "llapr.h"
-
+#include "llerror.h"
 // STL headers
 // std headers
 // external library headers
 // other Linden headers
 
-// This .cpp file is required by our CMake test macro. It contributes no code
-// to the viewer.
+void LLInstanceTrackerPrivate::logerrs(const char* cls, const std::string& arg1,
+                                       const std::string& arg2, const std::string& arg3)
+{
+    LL_ERRS("LLInstanceTracker") << LLError::Log::demangle(cls)
+                                 << arg1 << arg2 << arg3 << LL_ENDL;
+}

@@ -42,18 +42,21 @@
 #include <boost/iterator/filter_iterator.hpp>
 
 #include "lockstatic.h"
+#include "stringize.h"
 
 /*****************************************************************************
 *   StaticBase
 *****************************************************************************/
-namespace LLInstanceTrackerStuff
+namespace LLInstanceTrackerPrivate
 {
     struct StaticBase
     {
         // We need to be able to lock static data while manipulating it.
         std::mutex mMutex;
     };
-} // namespace LLInstanceTrackerStuff
+
+    void logerrs(const char* cls, const std::string&, const std::string&, const std::string&);
+} // namespace LLInstanceTrackerPrivate
 
 /*****************************************************************************
 *   LLInstanceTracker with key
@@ -73,7 +76,7 @@ template<typename T, typename KEY = void,
 class LLInstanceTracker
 {
     typedef std::map<KEY, std::shared_ptr<T>> InstanceMap;
-    struct StaticData: public LLInstanceTrackerStuff::StaticBase
+    struct StaticData: public LLInstanceTrackerPrivate::StaticBase
     {
         InstanceMap mMap;
     };
@@ -232,7 +235,7 @@ private:
 
     // for logging
     template <typename K>
-    static K report(K key) { return key; }
+    static std::string report(K key) { return stringize(key); }
     static std::string report(const std::string& key) { return "'" + key + "'"; }
     static std::string report(const char* key) { return report(std::string(key)); }
 
@@ -249,8 +252,8 @@ private:
             auto pair = map.emplace(key, ptr);
             if (! pair.second)
             {
-                LL_ERRS("LLInstanceTracker") << "Instance with key " << report(key)
-                                             << " already exists!" << LL_ENDL;
+                LLInstanceTrackerPrivate::logerrs(typeid(*this).name(), " instance with key ",
+                                                  report(key), " already exists!");
             }
             break;
         }
@@ -299,7 +302,7 @@ template<typename T, EInstanceTrackerAllowKeyCollisions KEY_COLLISION_BEHAVIOR>
 class LLInstanceTracker<T, void, KEY_COLLISION_BEHAVIOR>
 {
     typedef std::set<std::shared_ptr<T>> InstanceSet;
-    struct StaticData: public LLInstanceTrackerStuff::StaticBase
+    struct StaticData: public LLInstanceTrackerPrivate::StaticBase
     {
         InstanceSet mSet;
     };
