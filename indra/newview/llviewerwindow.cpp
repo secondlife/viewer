@@ -1378,6 +1378,7 @@ BOOL LLViewerWindow::handleCloseRequest(LLWindow *window)
 
 void LLViewerWindow::handleQuit(LLWindow *window)
 {
+	LL_INFOS() << "Window forced quit" << LL_ENDL;
 	LLAppViewer::instance()->forceQuit();
 }
 

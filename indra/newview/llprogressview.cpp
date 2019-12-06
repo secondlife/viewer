@@ -325,6 +325,7 @@ void LLProgressView::onCancelButtonClicked(void*)
 	// cancel is pressed while teleporting inside region (EXT-4911)
 	if (LLStartUp::getStartupState() < STATE_STARTED)
 	{
+		LL_INFOS() << "User requesting quit during login" << LL_ENDL;
 		LLAppViewer::instance()->requestQuit();
 	}
 	else
