@@ -23,6 +23,9 @@
 #if ! defined(LL_LLMAKE_H)
 #define LL_LLMAKE_H
 
+// If we're using a compiler newer than VS 2013, use variadic llmake().
+#if (! defined(_MSC_VER)) || (_MSC_VER > 1800)
+
 /**
  * Usage: llmake<SomeTemplate>(args...)
  *
@@ -34,6 +37,22 @@ CLASS_TEMPLATE<ARGS...> llmake(ARGS && ... args)
 {
     return CLASS_TEMPLATE<ARGS...>(std::forward<ARGS>(args)...);
 }
+
+#else // older implementation for VS 2013
+
+template <template<typename> class CLASS_TEMPLATE, typename ARG1>
+CLASS_TEMPLATE<ARG1> llmake(const ARG1& arg1)
+{
+    return CLASS_TEMPLATE<ARG1>(arg1);
+}
+
+template <template<typename, typename> class CLASS_TEMPLATE, typename ARG1, typename ARG2>
+CLASS_TEMPLATE<ARG1, ARG2> llmake(const ARG1& arg1, const ARG2& arg2)
+{
+    return CLASS_TEMPLATE<ARG1, ARG2>(arg1, arg2);
+}
+
+#endif // VS 2013 workaround
 
 /// dumb pointer template just in case that's what's wanted
 template <typename T>
