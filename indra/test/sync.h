@@ -41,18 +41,49 @@ public:
         mTimeout(timeout)
     {}
 
-    /// Bump mCond by n steps -- ideally, do this every time a participating
-    /// coroutine wakes up from any suspension. The choice to bump() after
-    /// resumption rather than just before suspending is worth calling out:
-    /// this practice relies on the fact that condition_variable::notify_all()
-    /// merely marks a suspended coroutine ready to run, rather than
-    /// immediately resuming it. This way, though, even if a coroutine exits
-    /// before reaching its next suspend point, the other coroutine isn't
-    /// left waiting forever.
+    /**
+     * Bump mCond by n steps -- ideally, do this every time a participating
+     * coroutine wakes up from any suspension. The choice to bump() after
+     * resumption rather than just before suspending is worth calling out:
+     * this practice relies on the fact that condition_variable::notify_all()
+     * merely marks a suspended coroutine ready to run, rather than
+     * immediately resuming it. This way, though, even if a coroutine exits
+     * before reaching its next suspend point, the other coroutine isn't
+     * left waiting forever.
+     */
     void bump(int n=1)
     {
-        LL_DEBUGS() << llcoro::logname() << " bump(" << n << ") -> " << (mCond.get() + n) << LL_ENDL;
-        mCond.set_all(mCond.get() + n);
+        // Calling mCond.set_all(mCond.get() + n) would be great for
+        // coroutines -- but not so good between kernel threads -- it would be
+        // racy. Make the increment atomic by calling update_all(), which runs
+        // the passed lambda within a mutex lock.
+        int updated;
+        mCond.update_all(
+            [&n, &updated](int& data)
+            {
+                data += n;
+                // Capture the new value for possible logging purposes.
+                updated = data;
+            });
+        // In the multi-threaded case, this log message could be a bit
+        // misleading, as it will be emitted after waiting threads have
+        // already awakened. But emitting the log message within the lock
+        // would seem to hold the lock longer than we really ought.
+        LL_DEBUGS() << llcoro::logname() << " bump(" << n << ") -> " << updated << LL_ENDL;
+    }
+
+    /**
+     * Set mCond to a specific n. Use of bump() and yield() is nicely
+     * maintainable, since you can insert or delete matching operations in a
+     * test function and have the rest of the Sync operations continue to
+     * line up as before. But sometimes you need to get very specific, which
+     * is where set() and yield_until() come in handy: less maintainable,
+     * more precise.
+     */
+    void set(int n)
+    {
+        LL_DEBUGS() << llcoro::logname() << " set(" << n << ")" << LL_ENDL;
+        mCond.set_all(n);
     }
 
     /// suspend until "somebody else" has bumped mCond by n steps
