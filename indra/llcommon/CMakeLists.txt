@@ -189,6 +189,7 @@ set(llcommon_HEADER_FILES
     lllistenerwrapper.h
     llliveappconfig.h
     lllivefile.h
+    llmainthreadtask.h
     llmd5.h
     llmemory.h
     llmemorystream.h
