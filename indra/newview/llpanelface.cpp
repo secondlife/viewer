@@ -2916,6 +2916,9 @@ void LLPanelFace::onCopyFaces()
                 te_data["te"] = tep->asLLSD();
                 te_data["te"]["glow"] = tep->getGlow();
                 te_data["te"]["shiny"] = tep->getShiny();
+                te_data["te"]["bumpmap"] = tep->getBumpmap();
+                te_data["te"]["bumpshiny"] = tep->getBumpShiny();
+                te_data["te"]["bumpfullbright"] = tep->getBumpShinyFullbright();
 
                 if (te_data["te"].has("imageid"))
                 {
@@ -3154,6 +3157,19 @@ void LLPanelFace::pasteFace(LLViewerObject* objectp, S32 te)
             if (mPasteGlow && te_data["te"].has("glow"))
             {
                 objectp->setTEGlow(te, (F32)te_data["te"]["glow"].asReal());
+            }
+
+            if (mPasteNormal && te_data["te"].has("bumpmap"))
+            {
+                objectp->setTEBumpmap(te, (U8)te_data["te"]["bumpmap"].asInteger());
+            }
+            if (mPasteSpecular && te_data["te"].has("bumpshiny"))
+            {
+                objectp->setTEBumpShiny(te, (U8)te_data["te"]["bumpshiny"].asInteger());
+            }
+            if (mPasteSpecular && te_data["te"].has("bumpfullbright"))
+            {
+                objectp->setTEBumpShinyFullbright(te, (U8)te_data["te"]["bumpfullbright"].asInteger());
             }
 
             // Texture map
