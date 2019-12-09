@@ -8452,6 +8452,26 @@ This will upload [COUNT] items at a total cost of L$[COST]. Do you wish to conti
      name="okcancelbuttons"
      notext="Cancel"
      yestext="Upload"/>
+   </notification>
+  
+   <notification
+    icon="alertmodal.tga"
+    name="BulkUploadNoCompatibleFiles"
+    type="alertmodal">
+Selected files can not be bulk-uploaded.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="BulkUploadIncompatibleFiles"
+   type="alertmodal">
+Some of the selected files can not be bulk-uploaded.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
   </notification>
 
    <notification

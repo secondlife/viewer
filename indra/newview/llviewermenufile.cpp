@@ -446,14 +446,20 @@ void do_bulk_upload(std::vector<std::string> filenames, const LLSD& notification
 	}
 }
 
-bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S32& total_cost)
+bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S32& total_cost, S32& file_count, S32& bvh_count)
 {
-	bool succ = true;
 	total_cost = 0;
+	file_count = 0;
+	bvh_count = 0;
 	for (std::vector<std::string>::const_iterator in_iter = filenames.begin(); in_iter != filenames.end(); ++in_iter)
 	{
 		std::string filename = (*in_iter);
 		std::string ext = gDirUtilp->getExtension(filename);
+
+		if (ext == "bvh")
+		{
+			bvh_count++;
+		}
 
 		LLAssetType::EType asset_type;
 		U32 codec;
@@ -463,10 +469,11 @@ bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S3
 			LLAgentBenefitsMgr::current().findUploadCost(asset_type, cost))
 		{
 			total_cost += cost;
+			file_count++;
 		}
 	}
 	
-	return succ;
+    return file_count > 0;
 }
 
 const void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type)
@@ -491,14 +498,38 @@ const void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::
 			filtered_filenames.push_back(filename);
 		}
 	}
+
 	S32 expected_upload_cost;
-	if (get_bulk_upload_expected_cost(filtered_filenames, expected_upload_cost))
+	S32 expected_upload_count;
+	S32 bvh_count;
+	if (get_bulk_upload_expected_cost(filtered_filenames, expected_upload_cost, expected_upload_count, bvh_count))
 	{
 		LLSD args;
 		args["COST"] = expected_upload_cost;
-		args["COUNT"] = (S32) filtered_filenames.size();
+		args["COUNT"] = expected_upload_count;
 		LLNotificationsUtil::add("BulkUploadCostConfirmation",  args, LLSD(), boost::bind(do_bulk_upload, filtered_filenames, _1, _2));
+
+		if (filtered_filenames.size() > expected_upload_count)
+		{
+			if (bvh_count == filtered_filenames.size() - expected_upload_count)
+			{
+				LLNotificationsUtil::add("DoNotSupportBulkAnimationUpload");
+			}
+			else
+			{
+				LLNotificationsUtil::add("BulkUploadIncompatibleFiles");
+			}
+		}
 	}
+	else if (bvh_count == filtered_filenames.size())
+	{
+		LLNotificationsUtil::add("DoNotSupportBulkAnimationUpload");
+	}
+	else
+	{
+		LLNotificationsUtil::add("BulkUploadNoCompatibleFiles");
+	}
+
 }
 
 class LLFileUploadImage : public view_listener_t
