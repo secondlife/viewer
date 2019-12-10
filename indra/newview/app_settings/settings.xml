@@ -10389,6 +10389,17 @@
     <key>Value</key>
     <integer>12</integer>
   </map>
+  <key>RenderControlAVMaxNonImpostors</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum number of animeshes to fully render at one time. Over this limit uses impostor rendering (simplified rendering with less frequent updates), reducing client lag.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>RenderAutoMuteRenderWeightLimit</key>
   <map>
     <key>Comment</key>

@@ -572,6 +572,7 @@ private:
 LLAvatarAppearanceDictionary *LLVOAvatar::sAvatarDictionary = NULL;
 S32 LLVOAvatar::sFreezeCounter = 0;
 U32 LLVOAvatar::sMaxNonImpostors = 12; // overridden based on graphics setting
+U32 LLVOAvatar::sMaxControlAVNonImpostors = 0;
 F32 LLVOAvatar::sRenderDistance = 256.f;
 S32	LLVOAvatar::sNumVisibleAvatars = 0;
 S32	LLVOAvatar::sNumLODChangesThisFrame = 0;
@@ -599,6 +600,7 @@ BOOL LLVOAvatar::sVisibleInFirstPerson = FALSE;
 F32 LLVOAvatar::sLODFactor = 1.f;
 F32 LLVOAvatar::sPhysicsLODFactor = 1.f;
 bool LLVOAvatar::sUseImpostors = false; // overwridden by RenderAvatarMaxNonImpostors
+bool LLVOAvatar::sUseControlAVImpostors = false; // overwridden by RenderAvatarMaxNonImpostors
 BOOL LLVOAvatar::sJointDebug = FALSE;
 F32 LLVOAvatar::sUnbakedTime = 0.f;
 F32 LLVOAvatar::sUnbakedUpdateTime = 0.f;
@@ -2676,7 +2678,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 	BOOL visible = isVisible() || mNeedsAnimUpdate;
 
 	// update attachments positions
-	if (detailed_update || !sUseImpostors)
+	if (detailed_update || !getImpostorsEnabled())
 	{
 		LL_RECORD_BLOCK_TIME(FTM_ATTACHMENT_UPDATE);
 		for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
@@ -3869,7 +3871,7 @@ void LLVOAvatar::computeUpdatePeriod()
         && isVisible() 
         && (!isSelf() || visually_muted)
         && !isUIAvatar()
-        && sUseImpostors
+        && getImpostorsEnabled()
         && !mNeedsAnimUpdate 
         && !sFreezeCounter)
 	{
@@ -9678,6 +9680,7 @@ void LLVOAvatar::cullAvatarsByPixelArea()
 	
 	// Update the avatars that have changed status
 	U32 rank = 2; //1 is reserved for self. 
+	U32 control_rank = 2; // animeshes have own ranks. 
 	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
 		 iter != LLCharacter::sInstances.end(); ++iter)
 	{
@@ -9705,7 +9708,14 @@ void LLVOAvatar::cullAvatarsByPixelArea()
 		}
 		else if (inst->mDrawable.notNull() && inst->mDrawable->isVisible())
 		{
-			inst->setVisibilityRank(rank++);
+            if (inst->isControlAvatar())
+            {
+                inst->setVisibilityRank(control_rank++);
+            }
+            else
+            {
+                inst->setVisibilityRank(rank++);
+            }
 		}
 	}
 
@@ -10006,15 +10016,39 @@ void LLVOAvatar::updateImpostors()
 	LLCharacter::sAllowInstancesChange = TRUE;
 }
 
+bool LLVOAvatar::getImpostorsEnabled() const
+{
+    if (mIsControlAvatar)
+    {
+        return sUseControlAVImpostors;
+    }
+    else
+    {
+        return sUseImpostors;
+    }
+}
+
+U32 LLVOAvatar::getMaxNonImpostors() const
+{
+    if (mIsControlAvatar)
+    {
+        return sMaxControlAVNonImpostors;
+    }
+    else
+    {
+        return sMaxNonImpostors;
+    }
+}
+
 // virtual
 BOOL LLVOAvatar::isImpostor()
 {
-	return sUseImpostors && (isVisuallyMuted() || (mUpdatePeriod >= IMPOSTOR_PERIOD)) ? TRUE : FALSE;
+    return getImpostorsEnabled() && (isVisuallyMuted() || (mUpdatePeriod >= IMPOSTOR_PERIOD)) ? TRUE : FALSE;
 }
 
 BOOL LLVOAvatar::shouldImpostor(const U32 rank_factor) const
 {
-	return (!isSelf() && sUseImpostors && mVisibilityRank > (sMaxNonImpostors * rank_factor));
+    return (!isSelf() && getImpostorsEnabled() && mVisibilityRank > (getMaxNonImpostors() * rank_factor));
 }
 
 BOOL LLVOAvatar::needsImpostorUpdate() const
@@ -10062,7 +10096,7 @@ const U32 LLVOAvatar::IMPOSTORS_OFF = 66; /* Must equal the maximum allowed the 
 										   * slider in panel_preferences_graphics1.xml */
 
 // static
-void LLVOAvatar::updateImpostorRendering(U32 newMaxNonImpostorsValue)
+void LLVOAvatar::updateAvatarImpostorRendering(U32 newMaxNonImpostorsValue)
 {
 	U32  oldmax = sMaxNonImpostors;
 	bool oldflg = sUseImpostors;
@@ -10084,6 +10118,20 @@ void LLVOAvatar::updateImpostorRendering(U32 newMaxNonImpostorsValue)
             << "now " << (sUseImpostors ? "use" : "don't use" ) << " impostors (max " << sMaxNonImpostors << "); "
             << LL_ENDL;
     }
+}
+
+// static
+void LLVOAvatar::updateControlAVImpostorRendering(U32 newMaxCAVNonImpostorsValue)
+{
+    if (IMPOSTORS_OFF <= newMaxCAVNonImpostorsValue)
+    {
+        sMaxControlAVNonImpostors = 0;
+    }
+    else
+    {
+        sMaxControlAVNonImpostors = newMaxCAVNonImpostorsValue;
+    }
+    sUseControlAVImpostors = (0 != sMaxControlAVNonImpostors);
 }
 
 

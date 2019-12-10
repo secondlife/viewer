@@ -394,6 +394,12 @@ static bool handleRepartition(const LLSD&)
 	return true;
 }
 
+static bool handleControlAVImpostorsChanged(const LLSD& newvalue)
+{
+    LLVOAvatar::updateControlAVImpostorRendering(newvalue.asInteger());
+    return true;
+}
+
 static bool handleRenderDynamicLODChanged(const LLSD& newvalue)
 {
 	LLPipeline::sDynamicLOD = newvalue.asBoolean();
@@ -612,6 +618,7 @@ void handleRenderAutoMuteByteLimitChanged(const LLSD& new_value);
 void settings_setup_listeners()
 {
 	gSavedSettings.getControl("FirstPersonAvatarVisible")->getSignal()->connect(boost::bind(&handleRenderAvatarMouselookChanged, _2));
+	gSavedSettings.getControl("RenderControlAVMaxNonImpostors")->getSignal()->connect(boost::bind(&handleControlAVImpostorsChanged, _2));
 	gSavedSettings.getControl("RenderFarClip")->getSignal()->connect(boost::bind(&handleRenderFarClipChanged, _2));
 	gSavedSettings.getControl("RenderTerrainDetail")->getSignal()->connect(boost::bind(&handleTerrainDetailChanged, _2));
 	gSavedSettings.getControl("OctreeStaticObjectSizeFactor")->getSignal()->connect(boost::bind(&handleRepartition, _2));
