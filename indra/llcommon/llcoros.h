@@ -143,6 +143,13 @@ public:
     static std::string getName();
 
     /**
+     * This variation returns a name suitable for log messages: the explicit
+     * name for an explicitly-launched coroutine, or "mainN" for the default
+     * coroutine on a thread.
+     */
+    static std::string logname();
+
+    /**
      * For delayed initialization. To be clear, this will only affect
      * coroutines launched @em after this point. The underlying facility
      * provides no way to alter the stack size of any running coroutine.
@@ -272,6 +279,7 @@ private:
     struct CoroData: public LLInstanceTracker<CoroData, std::string>
     {
         CoroData(const std::string& name);
+        CoroData(int n);
 
         // tweaked name of the current coroutine
         const std::string mName;
@@ -292,12 +300,7 @@ namespace llcoro
 {
 
 inline
-std::string logname()
-{
-    static std::string main("main");
-    std::string name(LLCoros::getName());
-    return name.empty()? main : name;
-}
+std::string logname() { return LLCoros::logname(); }
 
 } // llcoro
 
