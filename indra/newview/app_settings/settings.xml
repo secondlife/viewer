@@ -1562,10 +1562,10 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
-    <key>CameraPreset</key>
+    <key>CameraPreset</key>  <!-- deprecated (see SL-12429) -->
     <map>
       <key>Comment</key>
-      <string>Preset camera position - view (0 - rear, 1 - front, 2 - group, 3 - custom)</string>
+      <string>Preset camera position - view (0 - rear, 1 - front, 2 - group)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -16351,6 +16351,17 @@
     <key>Value</key>
     <string>Rear View</string>
   </map>
+  <key>CameraPresetType</key>
+  <map>
+    <key>Comment</key>
+    <string>Preset camera position - view (0 - rear, 1 - front, 2 - group, 3 - custom)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>0</integer>
+   </map>
     <key>CefVerboseLog</key>
     <map>
       <key>Comment</key>

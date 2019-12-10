@@ -498,7 +498,7 @@ void LLFloaterCamera::updateState()
 
 void LLFloaterCamera::updateItemsSelection()
 {
-	ECameraPreset preset = (ECameraPreset) gSavedSettings.getU32("CameraPreset");
+	ECameraPreset preset = (ECameraPreset) gSavedSettings.getU32("CameraPresetType");
 	LLSD argument;
 	argument["selected"] = (preset == CAMERA_PRESET_REAR_VIEW) && !sFreeCamera;
 	getChild<LLPanelCameraItem>("rear_view")->setValue(argument);
@@ -588,11 +588,11 @@ void LLFloaterCamera::populatePresetCombo()
 	std::string active_preset_name = gSavedSettings.getString("PresetCameraActive");
 	if (active_preset_name.empty())
 	{
-		gSavedSettings.setU32("CameraPreset", CAMERA_PRESET_CUSTOM);
+		gSavedSettings.setU32("CameraPresetType", CAMERA_PRESET_CUSTOM);
 		updateItemsSelection();
 		mPresetCombo->setLabel(getString("inactive_combo_text"));
 	}
-	else if ((ECameraPreset)gSavedSettings.getU32("CameraPreset") == CAMERA_PRESET_CUSTOM)
+	else if ((ECameraPreset)gSavedSettings.getU32("CameraPresetType") == CAMERA_PRESET_CUSTOM)
 	{
 		mPresetCombo->selectByValue(active_preset_name);
 	}
