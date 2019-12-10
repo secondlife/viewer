@@ -135,8 +135,8 @@ public:
         {
             if (! mList)
             {
-                LLTHROW(std::runtime_error("Trying to use LockedInitializing "
-                                           "after cleanup_initializing()"));
+                LLTHROW(LLException("Trying to use LockedInitializing "
+                                    "after cleanup_initializing()"));
             }
             return *mList;
         }
