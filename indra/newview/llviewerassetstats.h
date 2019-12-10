@@ -39,29 +39,6 @@
 #include "lltrace.h"
 #include "llinitparam.h"
 
-namespace LLViewerAssetStatsFF
-{
-	enum EViewerAssetCategories
-	{
-		EVACTextureTempHTTPGet,			//< Texture GETs - temp/baked, HTTP
-		EVACTextureTempUDPGet,			//< Texture GETs - temp/baked, UDP
-		EVACTextureNonTempHTTPGet,		//< Texture GETs - perm, HTTP
-		EVACTextureNonTempUDPGet,		//< Texture GETs - perm, UDP
-		EVACWearableHTTPGet,			//< Wearable GETs HTTP
-		EVACWearableUDPGet,				//< Wearable GETs UDP
-		EVACSoundHTTPGet,				//< Sound GETs HTTP
-		EVACSoundUDPGet,				//< Sound GETs UDP
-		EVACGestureHTTPGet,				//< Gesture GETs HTTP
-		EVACGestureUDPGet,				//< Gesture GETs UDP
-		EVACLandmarkHTTPGet,			//< Landmark GETs HTTP
-		EVACLandmarkUDPGet,				//< Landmark GETs UDP
-		EVACOtherHTTPGet,				//< Other GETs HTTP
-		EVACOtherUDPGet,				//< Other GETs UDP
-
-		EVACCount						// Must be last
-	};
-}
-
 /**
  * @class LLViewerAssetStats
  * @brief Records performance aspects of asset access operations.
@@ -98,9 +75,33 @@ namespace LLViewerAssetStatsFF
  * operations.
  */
 
-class LLViewerAssetStats : public LLStopWatchControlsMixin<LLViewerAssetStats>
+class LLViewerAssetStats : public LLStopWatchControlsMixin<LLViewerAssetStats>,
+    public LLSingleton<LLViewerAssetStats>
 {
+    LLSINGLETON(LLViewerAssetStats);
+
 public:
+    enum EViewerAssetCategories
+    {
+        EVACTextureTempHTTPGet,			//< Texture GETs - temp/baked, HTTP
+        EVACTextureTempUDPGet,			//< Texture GETs - temp/baked, UDP  (deprecated)
+        EVACTextureNonTempHTTPGet,		//< Texture GETs - perm, HTTP
+        EVACTextureNonTempUDPGet,		//< Texture GETs - perm, UDP        (deprecated)
+        EVACWearableHTTPGet,			//< Wearable GETs HTTP
+        EVACWearableUDPGet,				//< Wearable GETs UDP               (deprecated)
+        EVACSoundHTTPGet,				//< Sound GETs HTTP
+        EVACSoundUDPGet,				//< Sound GETs UDP                  (deprecated)
+        EVACGestureHTTPGet,				//< Gesture GETs HTTP
+        EVACGestureUDPGet,				//< Gesture GETs UDP                (deprecated)
+        EVACLandmarkHTTPGet,			//< Landmark GETs HTTP
+        EVACLandmarkUDPGet,				//< Landmark GETs UDP               (deprecated)
+        EVACOtherHTTPGet,				//< Other GETs HTTP
+        EVACOtherUDPGet,				//< Other GETs UDP                  (deprecated)
+
+        EVACCount						// Must be last
+    };
+
+
 	/**
 	 * Type for duration and other time values in the metrics.  Selected
 	 * for compatibility with the pre-existing timestamp on the texture
@@ -110,7 +111,7 @@ public:
 
 	/**
 	 * Type for the region identifier used in stats.  Currently uses
-	 * the region handle's type (a U64) rather than the regions's LLUUID
+	 * the region handle's type (a U64) rather than the region's LLUUID
 	 * as the latter isn't available immediately.
 	 */
 	typedef U64 region_handle_t;
@@ -177,106 +178,68 @@ public:
 		AssetStats();
 	};
 
-public:
-	LLViewerAssetStats();
-	LLViewerAssetStats(const LLViewerAssetStats &);
+    void postStatistics(std::string caps_url, LLUUID session_id, LLUUID agent_id);
 
-	// Default destructor is correct.
-	LLViewerAssetStats & operator=(const LLViewerAssetStats &);			// Not defined
-
-	// Clear all metrics data.  This leaves the currently-active region
+    // Clear all metrics data.  This leaves the currently-active region
 	// in place but with zero'd data for all metrics.  All other regions
 	// are removed from the collection map.
-	void reset();
-
+    void resetStatistics();
+    
 	// Set hidden region argument and establish context for subsequent
 	// collection calls.
 	void setRegion(region_handle_t region_handle);
 
-	// Retrieve current metrics for all visited regions (NULL region UUID/handle excluded)
+	LLSD asLLSD(bool compact_output);
+
+    static duration_t   getTimestamp() { return LLTimer::getTotalTime(); }
+    void                recordEnqueue(LLViewerAssetType::EType at, bool is_temp);
+    void                recordDequeue(LLViewerAssetType::EType at, bool is_temp);
+    void                recordResponse(LLViewerAssetType::EType at, bool is_temp, LLViewerAssetStats::duration_t duration, F64 bytes);
+
+protected:
+    // Retrieve current metrics for all visited regions (NULL region UUID/handle excluded)
     // Uses AssetStats structure seen above
-	void getStats(AssetStats& stats, bool compact_output);
+    void getStats(AssetStats& stats, bool compact_output);
 
     // Retrieve a single asset request type (taken from a single region)
     template <typename T>
-    void getStat(LLTrace::Recording& rec, T& req, LLViewerAssetStatsFF::EViewerAssetCategories cat, bool compact_output);
+    void getStat(LLTrace::Recording& rec, T& req, EViewerAssetCategories cat, bool compact_output);
 
-	LLSD asLLSD(bool compact_output);
 
-protected:
-	void handleStart();
-	void handleStop();
-	void handleReset();
+    static const std::string    KEY_SESSION_ID;
+    static const std::string    KEY_AGENT_ID;
+    static const std::string    KEY_MESSAGE;
+    static const std::string    KEY_SEQUENCE;
+    static const std::string    KEY_INITIAL;
+    static const std::string    KEY_VERSION;
+    static const std::string    KEY_BREAK;
+    static const std::string    KEY_TRUNCATED;
+    static const S32            METRICS_DATA_VERSION;
+
+    S32                         mReportSequence;
+    bool                        mFirstReport;
+
+    LLMutex                     mMutex;
+
+	virtual void handleStart() override;
+	virtual void handleStop() override;
+	virtual void handleReset() override;
 
 	typedef std::map<region_handle_t, LLTrace::Recording > PerRegionRecordingContainer;
 
 	// Region of the currently-active region.  Always valid but may
 	// be zero after construction or when explicitly set.  Unchanged
 	// by a reset() call.
-	region_handle_t mRegionHandle;
+	region_handle_t             mRegionHandle;
 
 	// Pointer to metrics collection for currently-active region.  
 	LLTrace::Recording*			mCurRecording;
 
 	// Metrics data for all regions during one collection cycle
 	PerRegionRecordingContainer mRegionRecordings;
+
+    void    postStatisticsCoro(std::string caps_url, LLUUID session_id, LLUUID agent_id);
+    bool    truncateViewerMetrics(S32 max_regions, LLSD &metrics);
 };
-
-
-/**
- * Global stats collectors one for each independent thread where
- * assets and other statistics are gathered.  The globals are
- * expected to be created at startup time and then picked up by
- * their respective threads afterwards.  A set of free functions
- * are provided to access methods behind the globals while both
- * minimally disrupting visual flow and supplying a description
- * of intent.
- *
- * Expected thread assignments:
- *
- *  - Main:  main() program execution thread
- *  - Thread1:  TextureFetch worker thread
- */
-extern LLViewerAssetStats * gViewerAssetStats;
-
-namespace LLViewerAssetStatsFF
-{
-
-/**
- * @brief Allocation and deallocation of globals.
- *
- * init() should be called before threads are started that will access it though
- * you'll likely get away with calling it afterwards.  cleanup() should only be
- * called after threads are shutdown to prevent races on the global pointers.
- */
-void init();
-
-void cleanup();
-
-/**
- * We have many timers, clocks etc. in the runtime.  This is the
- * canonical timestamp for these metrics which is compatible with
- * the pre-existing timestamping in the texture fetcher.
- */
-inline LLViewerAssetStats::duration_t get_timestamp()
-{
-	return LLTimer::getTotalTime();
-}
-
-/**
- * Region context, event and duration loggers for the Main thread.
- */
-void set_region(LLViewerAssetStats::region_handle_t region_handle);
-
-void record_enqueue(LLViewerAssetType::EType at, bool with_http, bool is_temp);
-
-void record_dequeue(LLViewerAssetType::EType at, bool with_http, bool is_temp);
-
-void record_response(LLViewerAssetType::EType at, bool with_http, bool is_temp,
-                     LLViewerAssetStats::duration_t duration, F64 bytes=0);
-
-void record_avatar_stats();
-
-} // namespace LLViewerAssetStatsFF
 
 #endif // LL_LLVIEWERASSETSTATUS_H

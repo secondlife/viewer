@@ -343,8 +343,8 @@ namespace tut
 	template<> template<>
 	void tst_viewerassetstats_index_object_t::test<4>()
 	{
-		gViewerAssetStats = new LLViewerAssetStats();
-		LLViewerAssetStatsFF::set_region(region1_handle);
+        LLViewerAssetStats &stats(LLViewerAssetStats::instance());
+		stats.setRegion(region1_handle);
 
 		LLViewerAssetStatsFF::record_enqueue(LLViewerAssetType::AT_TEXTURE, false, false);
 		LLViewerAssetStatsFF::record_dequeue(LLViewerAssetType::AT_TEXTURE, false, false);

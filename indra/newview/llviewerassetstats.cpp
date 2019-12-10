@@ -34,6 +34,8 @@
 #include "llsdparam.h"
 #include "llsdutil.h"
 
+#include "llviewercontrol.h"
+
 /*
  * Classes and utility functions for per-thread and per-region
  * asset and experiential metrics to be aggregated grid-wide.
@@ -63,17 +65,6 @@
  * LLViewerAssetStatsFF which *do* implement viewer-native
  * policies about per-thread globals and will do correct
  * defensive tests of same.
- *
- * References
- *
- * Project:
- *   <TBD>
- *
- * Test Plan:
- *   <TBD>
- *
- * Jiras:
- *   <TBD>
  *
  * Unit Tests:
  *   indra/newview/tests/llviewerassetstats_test.cpp
@@ -121,95 +112,104 @@ public:
 
 }
 
-namespace LLViewerAssetStatsFF
+namespace
 {
-	static EViewerAssetCategories asset_type_to_category(const LLViewerAssetType::EType at, bool with_http, bool is_temp)
-	{
-		// For statistical purposes, we divide GETs into several
-		// populations of asset fetches:
-		//  - textures which are de-prioritized in the asset system
-		//  - wearables (clothing, bodyparts) which directly affect
-		//    user experiences when they log in
-		//  - sounds
-		//  - gestures, including animations
-		//  - everything else.
-		//
+    LLViewerAssetStats::EViewerAssetCategories asset_type_to_category(LLViewerAssetType::EType at, bool with_http, bool is_temp)
+    {
+        // For statistical purposes, we divide GETs into several
+        // populations of asset fetches:
+        //  - textures which are de-prioritized in the asset system
+        //  - wearables (clothing, bodyparts) which directly affect
+        //    user experiences when they log in
+        //  - sounds
+        //  - gestures, including animations
+        //  - everything else.
+        //
 
-        EViewerAssetCategories ret;
+        LLViewerAssetStats::EViewerAssetCategories ret;
         switch (at)
         {
-            case LLAssetType::AT_TEXTURE:
-                if (is_temp)
-                    ret = with_http ? EVACTextureTempHTTPGet : EVACTextureTempUDPGet;
-                else
-                    ret = with_http ? EVACTextureNonTempHTTPGet : EVACTextureNonTempUDPGet;
-                break;
-            case LLAssetType::AT_SOUND:
-            case LLAssetType::AT_SOUND_WAV:
-                ret = with_http ? EVACSoundHTTPGet : EVACSoundUDPGet;
-                break;
-            case LLAssetType::AT_CLOTHING:
-            case LLAssetType::AT_BODYPART:
-                ret = with_http ? EVACWearableHTTPGet : EVACWearableUDPGet;
-                break;
-            case LLAssetType::AT_ANIMATION:
-            case LLAssetType::AT_GESTURE:
-                ret = with_http ? EVACGestureHTTPGet : EVACGestureUDPGet;
-                break;
-            case LLAssetType::AT_LANDMARK:
-                ret = with_http ? EVACLandmarkHTTPGet : EVACLandmarkUDPGet;
-                break;
-            default:
-                ret = with_http ? EVACOtherHTTPGet : EVACOtherUDPGet;
-                break;
+        case LLAssetType::AT_TEXTURE:
+            if (is_temp)
+                ret = with_http ? LLViewerAssetStats::EVACTextureTempHTTPGet : LLViewerAssetStats::EVACTextureTempUDPGet;
+            else
+                ret = with_http ? LLViewerAssetStats::EVACTextureNonTempHTTPGet : LLViewerAssetStats::EVACTextureNonTempUDPGet;
+            break;
+        case LLAssetType::AT_SOUND:
+        case LLAssetType::AT_SOUND_WAV:
+            ret = with_http ? LLViewerAssetStats::EVACSoundHTTPGet : LLViewerAssetStats::EVACSoundUDPGet;
+            break;
+        case LLAssetType::AT_CLOTHING:
+        case LLAssetType::AT_BODYPART:
+            ret = with_http ? LLViewerAssetStats::EVACWearableHTTPGet : LLViewerAssetStats::EVACWearableUDPGet;
+            break;
+        case LLAssetType::AT_ANIMATION:
+        case LLAssetType::AT_GESTURE:
+            ret = with_http ? LLViewerAssetStats::EVACGestureHTTPGet : LLViewerAssetStats::EVACGestureUDPGet;
+            break;
+        case LLAssetType::AT_LANDMARK:
+            ret = with_http ? LLViewerAssetStats::EVACLandmarkHTTPGet : LLViewerAssetStats::EVACLandmarkUDPGet;
+            break;
+        default:
+            ret = with_http ? LLViewerAssetStats::EVACOtherHTTPGet : LLViewerAssetStats::EVACOtherUDPGet;
+            break;
         }
-		return ret;
-	}
+        return ret;
+    }
 
-	static LLTrace::DCCountStatHandle<> sEnqueued[EVACCount];
-	static LLTrace::DCCountStatHandle<> sDequeued[EVACCount];
-	static LLTrace::DCEventStatHandle<> sBytesFetched[EVACCount];
-	static LLTrace::DCEventStatHandle<F64Seconds > sResponse[EVACCount];
+    std::array<LLTrace::DCCountStatHandle<>,            LLViewerAssetStats::EVACCount> sEnqueued;
+    std::array<LLTrace::DCCountStatHandle<>,            LLViewerAssetStats::EVACCount> sDequeued;
+    std::array<LLTrace::DCEventStatHandle<U64Bytes>,    LLViewerAssetStats::EVACCount> sBytesFetched;
+    std::array<LLTrace::DCEventStatHandle<F64Seconds>,  LLViewerAssetStats::EVACCount> sResponse;
 }
 
-// ------------------------------------------------------
-// Global data definitions
-// ------------------------------------------------------
-LLViewerAssetStats * gViewerAssetStats(0);
+//========================================================================
+const std::string LLViewerAssetStats::KEY_SESSION_ID("session_id");
+const std::string LLViewerAssetStats::KEY_AGENT_ID("agent_id");
+const std::string LLViewerAssetStats::KEY_MESSAGE("message");
+const std::string LLViewerAssetStats::KEY_SEQUENCE("sequence");
+const std::string LLViewerAssetStats::KEY_INITIAL("initial");
+const std::string LLViewerAssetStats::KEY_VERSION("version");
+const std::string LLViewerAssetStats::KEY_BREAK("break");
+const std::string LLViewerAssetStats::KEY_TRUNCATED("truncated");
+
+const S32 LLViewerAssetStats::METRICS_DATA_VERSION(2);
 
 // ------------------------------------------------------
 // LLViewerAssetStats class definition
 // ------------------------------------------------------
 LLViewerAssetStats::LLViewerAssetStats()
 :	mRegionHandle(U64(0)),
-	mCurRecording(NULL)
+	mCurRecording(nullptr),
+    mReportSequence(0),
+    mFirstReport(true)
 {
 	start();
 }
 
-
-LLViewerAssetStats::LLViewerAssetStats(const LLViewerAssetStats & src)
-:	mRegionHandle(src.mRegionHandle)
-{
-	mRegionRecordings = src.mRegionRecordings;
-
-	mCurRecording = &mRegionRecordings[mRegionHandle];
-	
-	// assume this is being passed to another thread, so make sure we have unique copies of recording data
-	for (PerRegionRecordingContainer::iterator it = mRegionRecordings.begin(), end_it = mRegionRecordings.end();
-		it != end_it;
-		++it)
-	{
-		it->second.stop();
-		it->second.makeUnique();
-	}
-
-	LLStopWatchControlsMixin<LLViewerAssetStats>::setPlayState(src.getPlayState());
-}
+// LLViewerAssetStats::LLViewerAssetStats(const LLViewerAssetStats & src)
+// :	mRegionHandle(src.mRegionHandle)
+// {
+// 	mRegionRecordings = src.mRegionRecordings;
+// 
+// 	mCurRecording = &mRegionRecordings[mRegionHandle];
+// 	
+// 	// assume this is being passed to another thread, so make sure we have unique copies of recording data
+// 	for (PerRegionRecordingContainer::iterator it = mRegionRecordings.begin(), end_it = mRegionRecordings.end();
+// 		it != end_it;
+// 		++it)
+// 	{
+// 		it->second.stop();
+// 		it->second.makeUnique();
+// 	}
+// 
+// 	LLStopWatchControlsMixin<LLViewerAssetStats>::setPlayState(src.getPlayState());
+// }
 
 void LLViewerAssetStats::handleStart()
 {
-	if (mCurRecording)
+    LLMutexLock lock(mMutex);
+    if (mCurRecording)
 	{
 		mCurRecording->start();
 	}
@@ -217,7 +217,8 @@ void LLViewerAssetStats::handleStart()
 
 void LLViewerAssetStats::handleStop()
 {
-	if (mCurRecording)
+    LLMutexLock lock(mMutex);
+    if (mCurRecording)
 	{
 		mCurRecording->stop();
 	}
@@ -225,12 +226,14 @@ void LLViewerAssetStats::handleStop()
 
 void LLViewerAssetStats::handleReset()
 {
-	reset();
+    resetStatistics();
 }
 
 
-void LLViewerAssetStats::reset()
+void LLViewerAssetStats::resetStatistics()
 {
+    LLMutexLock lock(mMutex);
+
 	// Empty the map of all region stats
 	mRegionRecordings.clear();
 
@@ -244,9 +247,9 @@ void LLViewerAssetStats::reset()
 
 void LLViewerAssetStats::setRegion(region_handle_t region_handle)
 {
-	if (region_handle == mRegionHandle)
-	{
-		// Already active, ignore.
+    LLMutexLock lock(mMutex);
+    if (region_handle == mRegionHandle)
+	{   // Already active, ignore.
 		return;
 	}
 
@@ -263,11 +266,37 @@ void LLViewerAssetStats::setRegion(region_handle_t region_handle)
 	mRegionHandle = region_handle;
 }
 
-template <typename T>
-void LLViewerAssetStats::getStat(LLTrace::Recording& rec, T& req, LLViewerAssetStatsFF::EViewerAssetCategories cat, bool compact_output)
+void LLViewerAssetStats::recordEnqueue(LLViewerAssetType::EType at, bool is_temp)
 {
-	using namespace LLViewerAssetStatsFF;
+    LLMutexLock lock(mMutex);
+    static const bool with_http(true);  // All asset downloads are done with HTTP
+    const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
 
+    LLTrace::add(sEnqueued[int(eac)], 1);
+}
+
+void LLViewerAssetStats::recordDequeue(LLViewerAssetType::EType at, bool is_temp)
+{
+    LLMutexLock lock(mMutex);
+    static const bool with_http(true);  // All asset downloads are done with HTTP
+    const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
+
+    LLTrace::add(sDequeued[int(eac)], 1);
+}
+
+void LLViewerAssetStats::recordResponse(LLViewerAssetType::EType at, bool is_temp, LLViewerAssetStats::duration_t duration, F64 bytes)
+{
+    LLMutexLock lock(mMutex);
+    static const bool with_http(true);  // All asset downloads are done with HTTP
+    const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
+
+    LLTrace::record(sResponse[int(eac)], F64Seconds(duration));
+    LLTrace::record(sBytesFetched[int(eac)], bytes);
+}
+
+template <typename T>
+void LLViewerAssetStats::getStat(LLTrace::Recording& rec, T& req, LLViewerAssetStats::EViewerAssetCategories cat, bool compact_output)
+{
     if (!compact_output
         || rec.getSampleCount(sEnqueued[cat]) 
         || rec.getSampleCount(sDequeued[cat])
@@ -279,15 +308,15 @@ void LLViewerAssetStats::getStat(LLTrace::Recording& rec, T& req, LLViewerAssetS
             .resp_min(rec.getMin(sResponse[cat]).value())
             .resp_max(rec.getMax(sResponse[cat]).value())
             .resp_mean(rec.getMean(sResponse[cat]).value())
-            .resp_mean_bytes(rec.getMean(sBytesFetched[cat]));
+            .resp_mean_bytes(rec.getMean(sBytesFetched[cat]).value());
     }
 }
 
 void LLViewerAssetStats::getStats(AssetStats& stats, bool compact_output)
 {
-	using namespace LLViewerAssetStatsFF;
+    LLMutexLock lock(mMutex);
 
-	stats.regions.setProvided();
+    stats.regions.setProvided();
 	
 	for (PerRegionRecordingContainer::iterator it = mRegionRecordings.begin(), end_it = mRegionRecordings.end();
 		it != end_it;
@@ -344,62 +373,91 @@ LLSD LLViewerAssetStats::asLLSD(bool compact_output)
 	return sd;
 }
 
-// ------------------------------------------------------
-// Global free-function definitions (LLViewerAssetStatsFF namespace)
-// ------------------------------------------------------
-
-namespace LLViewerAssetStatsFF
+void LLViewerAssetStats::postStatistics(std::string caps_url, LLUUID session_id, LLUUID agent_id)
 {
-void set_region(LLViewerAssetStats::region_handle_t region_handle)
-{
-	if (! gViewerAssetStats)
-		return;
-
-	gViewerAssetStats->setRegion(region_handle);
+    LLCoros::instance().launch("LLViewerAssetStats::postStatisticsCoro",
+        boost::bind(&LLViewerAssetStats::postStatisticsCoro, this, caps_url, session_id, agent_id));
 }
 
-void record_enqueue(LLViewerAssetType::EType at, bool with_http, bool is_temp)
+void LLViewerAssetStats::postStatisticsCoro(std::string caps_url, LLUUID session_id, LLUUID agent_id)
 {
-	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("AssetStatistics", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(std::make_shared<LLCore::HttpRequest>());
 
-	add(sEnqueued[int(eac)], 1);
+    LLSD body(asLLSD(true));
+
+    body[KEY_SESSION_ID] = session_id;
+    body[KEY_AGENT_ID]  = agent_id;
+    body[KEY_MESSAGE]   = "ViewerAssetMetrics";
+    body[KEY_SEQUENCE]  = mReportSequence++;
+    body[KEY_INITIAL]   = mFirstReport;
+    body[KEY_VERSION]   = METRICS_DATA_VERSION;
+    body[KEY_BREAK]     = false;
+
+    if (mReportSequence == S32_MAX)
+    {
+        mReportSequence = 0;
+    }
+
+    // Limit the size of the stats report if necessary.
+    body[KEY_TRUNCATED] = truncateViewerMetrics(10, body);
+    
+    restart();  // we have collected all the statistics reset for the next round.
+    llcoro::suspend();
+
+    if (gSavedSettings.getBOOL("QAModeMetrics"))
+    {
+        dump_sequential_xml("metric_asset_stats", body);
+    }
+
+    llcoro::suspend();
+
+    if (!caps_url.empty())
+    {
+        httpAdapter->postAndSuspend(httpRequest, caps_url, body);
+    }
+
+    LL_INFOS_IF(gSavedSettings.getBOOL("LogViewerAssetMetrics"), "ViewerAssetMetrics") << "ViewerAssetMetrics as submitted:\n" << body << LL_ENDL;
 }
 
-void record_dequeue(LLViewerAssetType::EType at, bool with_http, bool is_temp)
+bool LLViewerAssetStats::truncateViewerMetrics(S32 max_regions, LLSD & metrics)
 {
-	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
+    static const LLSD::String reg_tag("regions");
+    static const LLSD::String duration_tag("duration");
 
-	add(sDequeued[int(eac)], 1);
+    LLSD & reg_map(metrics[reg_tag]);
+    if (reg_map.size() <= max_regions)
+    {
+        return false;
+    }
+
+    // Build map of region hashes ordered by duration
+    typedef std::multimap<LLSD::Real, int> reg_ordered_list_t;
+    reg_ordered_list_t regions_by_duration;
+
+    int ind(0);
+    LLSD::array_const_iterator it_end(reg_map.endArray());
+    for (LLSD::array_const_iterator it(reg_map.beginArray()); it_end != it; ++it, ++ind)
+    {
+        LLSD::Real duration = (*it)[duration_tag].asReal();
+        regions_by_duration.insert(reg_ordered_list_t::value_type(duration, ind));
+    }
+
+    // Build a replacement regions array with the longest-persistence regions
+    LLSD new_region(LLSD::emptyArray());
+    reg_ordered_list_t::const_reverse_iterator it2_end(regions_by_duration.rend());
+    reg_ordered_list_t::const_reverse_iterator it2(regions_by_duration.rbegin());
+    for (int i(0); i < max_regions && it2_end != it2; ++i, ++it2)
+    {
+        new_region.append(reg_map[it2->second]);
+    }
+    reg_map = new_region;
+
+    return true;
 }
 
-void record_response(LLViewerAssetType::EType at, bool with_http, bool is_temp, LLViewerAssetStats::duration_t duration, F64 bytes)
-{
-	const EViewerAssetCategories eac(asset_type_to_category(at, with_http, is_temp));
-
-	record(sResponse[int(eac)], F64Seconds(duration));
-	record(sBytesFetched[int(eac)], bytes);
-}
-
-void init()
-{
-	if (! gViewerAssetStats)
-	{
-		gViewerAssetStats = new LLViewerAssetStats();
-	}
-}
-
-void
-cleanup()
-{
-	delete gViewerAssetStats;
-	gViewerAssetStats = 0;
-}
-
-
-} // namespace LLViewerAssetStatsFF
-
-
-
+//========================================================================
 LLViewerAssetStats::AssetRequestType::AssetRequestType() 
 :	enqueued("enqueued"),
 	dequeued("dequeued"),

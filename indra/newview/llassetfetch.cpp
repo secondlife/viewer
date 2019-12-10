@@ -139,6 +139,8 @@ namespace
         virtual bool                postfetch(const LLCore::HttpResponse::ptr_t &response) override;
         virtual bool                execute(U32 priority) override;
         virtual FetchType           getFetchType() const override { return FetchType::FETCH_HTTP; }
+        virtual bool                isTemp() const override { return mFTType == FTT_SERVER_BAKE; }
+
 
     protected:
         virtual U8 *                getFilledDataBuffer() override;
@@ -157,6 +159,8 @@ namespace
 
         virtual bool                execute(U32 priority) override;
         virtual FetchType           getFetchType() const override { return FetchType::FETCH_CACHE; }
+        virtual void                recordStatisticsStart() const override { };
+        virtual void                recordStatisticsEnd() const override { };
 
     protected:
         virtual U8 *                getFilledDataBuffer() override;
@@ -172,6 +176,8 @@ namespace
 
         virtual bool                execute(U32 priority) override;
         virtual FetchType           getFetchType() const override { return FetchType::FETCH_FILE; }
+        virtual void                recordStatisticsStart() const override { };
+        virtual void                recordStatisticsEnd() const override { };
 
     protected:
         virtual U8 *                getFilledDataBuffer() override;
@@ -699,6 +705,9 @@ void LLAssetFetch::recordToHTTPRequest(const LLAssetFetch::AssetRequest::ptr_t &
 {
     request->setFetchState(HTTP_QUEUE);
     mHttpQueue.enqueue(request, request->getPriority());
+
+    request->recordStatisticsStart();
+
     LLEventPumps::instance().post(REQUEST_EVENT_PUMP, "new");
 }
 
@@ -748,8 +757,10 @@ void LLAssetFetch::recordRequestDone(const AssetRequest::ptr_t &request)
         if (itm != mAssetRequests.end())
             mAssetRequests.erase(itm);
     }
-}
 
+    request->recordStatisticsEnd();
+
+}
 
 bool LLAssetFetch::makeHTTPRequest(const AssetRequest::ptr_t &request)
 {
@@ -800,7 +811,6 @@ bool LLAssetFetch::makeHTTPRequest(const AssetRequest::ptr_t &request)
 
     return true;
 }
-
 
 void LLAssetFetch::handleHTTPRequest(const LLAssetFetch::AssetRequest::ptr_t &request, const LLCore::HttpResponse::ptr_t &response, LLCore::HttpStatus status)
 {
@@ -857,6 +867,119 @@ F32 LLAssetFetch::updateAllFinishedRequests(F32 timeout)
 
     return timer.getTimeToExpireF32();
 }
+
+#if 0
+//========================================================================
+void LLViewerTextureManager::resetStatistics()
+{
+    /*TODO*/
+}
+
+void LLViewerTextureManager::postStatistics()
+{
+    static const U32 report_priority(1);
+
+    //if (! gViewerAssetStatsThread1)
+    //	return true;
+
+    static volatile bool reporting_started(false);
+    static volatile S32 report_sequence(0);
+
+    // In mStatsSD, we have a copy we own of the LLSD representation
+    // of the asset stats. Add some additional fields and ship it off.
+
+    static const S32 metrics_data_version = 2;
+
+    bool initial_report = !reporting_started;
+    mStatsSD["session_id"] = mSessionID;
+    mStatsSD["agent_id"] = mAgentID;
+    mStatsSD["message"] = "ViewerAssetMetrics";
+    mStatsSD["sequence"] = report_sequence;
+    mStatsSD["initial"] = initial_report;
+    mStatsSD["version"] = metrics_data_version;
+    mStatsSD["break"] = static_cast<bool>(LLTextureFetch::svMetricsDataBreak);
+
+    // Update sequence number
+    if (S32_MAX == ++report_sequence)
+    {
+        report_sequence = 0;
+    }
+    reporting_started = true;
+
+    // Limit the size of the stats report if necessary.
+
+    mStatsSD["truncated"] = truncate_viewer_metrics(10, mStatsSD);
+
+    if (gSavedSettings.getBOOL("QAModeMetrics"))
+    {
+        dump_sequential_xml("metric_asset_stats", mStatsSD);
+    }
+
+    if (!mCapsURL.empty())
+    {
+        // Don't care about handle, this is a fire-and-forget operation.  
+        LLCoreHttpUtil::requestPostWithLLSD(&fetcher->getHttpRequest(),
+            fetcher->getMetricsPolicyClass(),
+            report_priority,
+            mCapsURL,
+            mStatsSD,
+            LLCore::HttpOptions::ptr_t(),
+            fetcher->getMetricsHeaders(),
+            mHandler);
+        LLTextureFetch::svMetricsDataBreak = false;
+    }
+    else
+    {
+        LLTextureFetch::svMetricsDataBreak = true;
+    }
+
+    // In QA mode, Metrics submode, log the result for ease of testing
+    if (fetcher->isQAMode())
+    {
+        LL_INFOS(LOG_TXT) << "ViewerAssetMetrics as submitted\n" << ll_pretty_print_sd(mStatsSD) << LL_ENDL;
+    }
+
+    return true;
+}
+
+
+bool
+truncate_viewer_metrics(int max_regions, LLSD & metrics)
+{
+    static const LLSD::String reg_tag("regions");
+    static const LLSD::String duration_tag("duration");
+
+    LLSD & reg_map(metrics[reg_tag]);
+    if (reg_map.size() <= max_regions)
+    {
+        return false;
+    }
+
+    // Build map of region hashes ordered by duration
+    typedef std::multimap<LLSD::Real, int> reg_ordered_list_t;
+    reg_ordered_list_t regions_by_duration;
+
+    int ind(0);
+    LLSD::array_const_iterator it_end(reg_map.endArray());
+    for (LLSD::array_const_iterator it(reg_map.beginArray()); it_end != it; ++it, ++ind)
+    {
+        LLSD::Real duration = (*it)[duration_tag].asReal();
+        regions_by_duration.insert(reg_ordered_list_t::value_type(duration, ind));
+    }
+
+    // Build a replacement regions array with the longest-persistence regions
+    LLSD new_region(LLSD::emptyArray());
+    reg_ordered_list_t::const_reverse_iterator it2_end(regions_by_duration.rend());
+    reg_ordered_list_t::const_reverse_iterator it2(regions_by_duration.rbegin());
+    for (int i(0); i < max_regions && it2_end != it2; ++i, ++it2)
+    {
+        new_region.append(reg_map[it2->second]);
+    }
+    reg_map = new_region;
+
+    return true;
+}
+#endif
 
 //========================================================================
 LLAssetFetch::AssetRequest::AssetRequest(LLUUID id, LLAssetType::EType asset_type) :
@@ -1116,6 +1239,19 @@ void LLAssetFetch::AssetRequest::dropSignal(LLAssetFetch::AssetRequest::connecti
 void LLAssetFetch::AssetRequest::signalDone()
 {
     mAssetDoneSignal(shared_from_this());
+}
+
+
+void LLAssetFetch::AssetRequest::recordStatisticsStart() const
+{
+    LLViewerAssetStats::instance().recordEnqueue(getType(), isTemp());
+}
+
+void LLAssetFetch::AssetRequest::recordStatisticsEnd() const
+{
+    LLViewerAssetStats::instance().recordDequeue(getType(), isTemp());
+    LLViewerAssetStats::instance().recordResponse(getType(), isTemp(),
+        mTotalTime.getElapsedSeconds(), mDownloadSize);
 }
 
 //========================================================================

@@ -132,6 +132,7 @@ public:
         virtual U64Bytes    getDataSize() const { return mDownloadSize; }
         U64                 getStartTime() const { return mTotalTime.getLastClockCount(); }
         U64                 getElapsedTime() const { return mTotalTime.getElapsedTimeF64(); }
+        virtual bool        isTemp() const { return false; }
 
         virtual bool        needsPostProcess() const;
 
@@ -152,6 +153,9 @@ public:
         ErrorCodes          getErrorCode() const { return mErrorCode; }
         U32                 getErrorSubcode() const { return mErrorSubcode; }
         std::string         getErrorMessage() const { return mErrorMessage; }
+
+        virtual void        recordStatisticsStart() const;
+        virtual void        recordStatisticsEnd() const;
 
     protected:
         LLUUID              mAssetId;
@@ -181,6 +185,8 @@ public:
 
         void                setId(LLUUID id);
         std::string         getBaseURL() const;
+
+        U64Microseconds     mMetricsStartTime;
 
         // Override for LLCore::HttpHandler
         virtual void        onCompleted(LLCore::HttpHandle handle, const LLCore::HttpResponse::ptr_t &response) override;
@@ -219,6 +225,7 @@ public:
     LLUUID                      requestTexture(FTType ftype, const LLUUID &id, S32 priority, S32 width, S32 height, S32 components, S32 discard, bool needs_aux, texture_signal_cb_t cb);
     LLUUID                      requestTexture(FTType ftype, const std::string &url, S32 priority, S32 width, S32 height, S32 components, S32 discard, bool needs_aux, texture_signal_cb_t cb);
     LLUUID                      requestTexture(FTType ftype, const LLUUID &id, const std::string &url, S32 priority, S32 width, S32 height, S32 components, S32 discard, bool needs_aux, texture_signal_cb_t cb);
+    /*TODO*/ // calls for other types of assets here
 
     void                        cancelRequest(const LLUUID &id);
     void                        cancelRequests(const uuid_set_t &id_list);
@@ -226,12 +233,6 @@ public:
     void                        adjustRequestPriority(const LLUUID &id, S32 adjustment);
     U32                         getRequestPriority(const LLUUID &id) const;
 
-    // Note... these are the old interfaces... Free to update them.
-//    bool    createRequest(FTType f_type, const std::string& url, const LLUUID& id, const LLHost& host, F32 priority, S32 w, S32 h, S32 c, S32 desired_discard, bool needs_aux, bool can_use_http);
-//    void    deleteRequest(const LLUUID& id, bool cancel);
-//     bool    getRequestFinished(const LLUUID& id, S32& discard_level, S32& full_w, S32& full_h, LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux, LLCore::HttpStatus& last_http_get_status);
-//     bool    updateRequestPriority(const LLUUID& id, F32 priority);
-//     S32     getFetchState(const LLUUID& id, F32& data_progress_p, F32& requested_priority_p, U32& fetch_priority_p, F32& fetch_dtime_p, F32& request_dtime_p, bool& can_use_http);
     bool                        isAssetInCache(const LLUUID &id);
 
     FetchState                  getFetchState(const LLUUID &id) const;
@@ -240,6 +241,13 @@ public:
 // Used internally... move to private?
     bool                        isInCache(const LLUUID &id, LLAssetType::EType type) const;
     bool                        isInCache(const std::string &url, LLAssetType::EType type) const;
+
+#if 0
+    //-------------------------------------------
+    // Statistics
+    void                        resetStatistics();
+    void                        postStatistics();
+#endif 
 
 protected:
     virtual void                initSingleton() override;

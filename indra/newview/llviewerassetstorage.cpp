@@ -82,10 +82,9 @@ protected:
         {
             // Okay, it appears this request was used for useful things.  Record
             // the expected dequeue and duration of request processing.
-            LLViewerAssetStatsFF::record_dequeue(mType, mWithHTTP, false);
-            LLViewerAssetStatsFF::record_response(mType, mWithHTTP, false,
-                                                  (LLViewerAssetStatsFF::get_timestamp()
-                                                   - mMetricsStartTime),
+            LLViewerAssetStats::instance().recordDequeue(mType, false);
+            LLViewerAssetStats::instance().recordResponse(mType, false,
+                                                  (LLViewerAssetStats::getTimestamp() - mMetricsStartTime),
                                                   mBytesFetched);
             mMetricsStartTime = (U32Seconds)0;
         }
@@ -388,16 +387,15 @@ void LLViewerAssetStorage::queueRequestHttp(
     {
         // Only collect metrics for non-duplicate requests.  Others 
         // are piggy-backing and will artificially lower averages.
-        req->mMetricsStartTime = LLViewerAssetStatsFF::get_timestamp();
+        req->mMetricsStartTime = LLViewerAssetStats::getTimestamp();
     }
     mPendingDownloads.push_back(req);
 
     // This is the same as the current UDP logic - don't re-request a duplicate.
     if (!duplicate)
     {
-        bool with_http = true;
         bool is_temp = false;
-        LLViewerAssetStatsFF::record_enqueue(atype, with_http, is_temp);
+        LLViewerAssetStats::instance().recordEnqueue(atype, is_temp);
 
         LLCoprocedureManager::instance().enqueueCoprocedure("AssetStorage","LLViewerAssetStorage::assetRequestCoro",
             boost::bind(&LLViewerAssetStorage::assetRequestCoro, this, req, uuid, atype, callback, user_data));

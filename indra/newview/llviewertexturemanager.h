@@ -153,9 +153,6 @@ public:
     static bool                     createUploadFile(const std::string& filename, const std::string& out_filename, const U8 codec);
     static LLPointer<LLImageJ2C>    convertToUploadFile(LLPointer<LLImageRaw> &raw_image);
 
-    //-------------------------------------------
-    // Statistics
-    void                            resetStatistics();
 
 protected:
     virtual void                    initSingleton() override;

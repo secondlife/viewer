@@ -828,7 +828,8 @@ bool LLAppViewer::init()
 			app_metrics_qa_mode = true;
 			app_metrics_interval = METRICS_INTERVAL_QA;
 		}
-		LLViewerAssetStatsFF::init();
+
+		LLViewerAssetStats::instance();
 	}
 
 	initThreads();
@@ -2016,7 +2017,6 @@ bool LLAppViewer::cleanup()
 
 	LLWatchdog::getInstance()->cleanup();
 
-	LLViewerAssetStatsFF::cleanup();
 
 	// If we're exiting to launch an URL, do that here so the screen
 	// is at the right resolution before we launch IE.
@@ -5557,7 +5557,7 @@ void LLAppViewer::metricsUpdateRegion(U64 region_handle)
 {
 	if (0 != region_handle)
 	{
-		LLViewerAssetStatsFF::set_region(region_handle);
+        LLViewerAssetStats::instance().setRegion(region_handle);
 	}
 }
 
@@ -5567,8 +5567,10 @@ void LLAppViewer::metricsUpdateRegion(U64 region_handle)
  */
 void LLAppViewer::metricsSend(bool enable_reporting)
 {
-	if (! gViewerAssetStats)
+	if (!LLViewerAssetStats::instanceExists())
 		return;
+
+   
 
     /*TODO*/ // RIDER
 // 	if (LLAppViewer::sTextureFetch)
@@ -5594,9 +5596,19 @@ void LLAppViewer::metricsSend(bool enable_reporting)
 // 		}
 // 	}
 
-	// Reset even if we can't report.  Rather than gather up a huge chunk of
-	// data, we'll keep to our sampling interval and retain the data
-	// resolution in time.
-	gViewerAssetStats->restart();
+    if (enable_reporting && gAgent.getRegion())
+    {
+        std::string	caps_url = gAgent.getRegionCapability("ViewerMetrics");
+
+        if (!caps_url.empty())
+        {
+            LLViewerAssetStats::instance().postStatistics(caps_url, gAgentSessionID, gAgentID);
+        }
+    }
+    // Reset even if we can't report.  Rather than gather up a huge chunk of
+    // data, we'll keep to our sampling interval and retain the data
+    // resolution in time.
+    LLViewerAssetStats::instance().resetStatistics();
+
 }
 

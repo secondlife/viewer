@@ -79,6 +79,7 @@
 #include "llpostprocess.h"
 #include "llscenemonitor.h"
 #include "llviewertexturemanager.h"
+#include "llviewerassetstats.h"
 
 extern LLViewerTexture::ptr_t gStartTexture;
 extern bool gShiftFrame;
@@ -466,7 +467,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gAgent.setTeleportState( LLAgent::TELEPORT_ARRIVING );
 			gAgent.setTeleportMessage(
 				LLAgent::sTeleportProgressMessages["arriving"]);
-            LLViewerTextureManager::instance().resetStatistics();
+            LLViewerAssetStats::instance().resetStatistics();
 			gAgentCamera.resetView(TRUE, TRUE);
 			
 			break;

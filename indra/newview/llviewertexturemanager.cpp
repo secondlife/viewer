@@ -1228,12 +1228,6 @@ LLPointer<LLImageJ2C> LLViewerTextureManager::convertToUploadFile(LLPointer<LLIm
 }
 
 //========================================================================
-void LLViewerTextureManager::resetStatistics()
-{
-    /*TODO*/
-}
-
-//========================================================================
 LLViewerFetchedTexture::ptr_t LLViewerTextureManager::staticCastToFetchedTexture(const LLTexture::ptr_t &tex, bool report_error)
 {
     if (!tex)
