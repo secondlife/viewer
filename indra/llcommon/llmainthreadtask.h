@@ -21,6 +21,34 @@
 #include <type_traits>              // std::result_of
 #include <boost/signals2/dummy_mutex.hpp>
 
+/**
+ * LLMainThreadTask provides a way to perform some task specifically on the
+ * main thread, waiting for it to complete. A task consists of a C++ nullary
+ * invocable (i.e. any callable that requires no arguments) with arbitrary
+ * return type.
+ *
+ * Instead of instantiating LLMainThreadTask, pass your invocable to its
+ * static dispatch() method. dispatch() returns the result of calling your
+ * task. (Or, if your task throws an exception, dispatch() throws that
+ * exception. See std::packaged_task.)
+ *
+ * When you call dispatch() on the main thread (as determined by
+ * on_main_thread() in llthread.h), it simply calls your task and returns the
+ * result.
+ *
+ * When you call dispatch() on a secondary thread, it instantiates an
+ * LLEventTimer subclass scheduled immediately. Next time the main loop calls
+ * LLEventTimer::updateClass(), your task will be run, and LLMainThreadTask
+ * will fulfill a future with its result. Meanwhile the requesting thread
+ * blocks on that future. As soon as it is set, the requesting thread wakes up
+ * with the task result.
+ *
+ * Under some circumstances it's necessary for the calling thread to hold a
+ * lock until the task has been scheduled -- yet important to release the lock
+ * while waiting for the result. If you pass a LockStatic<T> to dispatch(),
+ * a secondary thread will unlock it before blocking on the future. (The main
+ * thread simply holds the lock for the duration of the task.)
+ */
 class LLMainThreadTask
 {
 private:
