@@ -5572,30 +5572,6 @@ void LLAppViewer::metricsSend(bool enable_reporting)
 
    
 
-    /*TODO*/ // RIDER
-// 	if (LLAppViewer::sTextureFetch)
-// 	{
-// 		LLViewerRegion * regionp = gAgent.getRegion();
-// 
-// 		if (enable_reporting && regionp)
-// 		{
-// 			std::string	caps_url = regionp->getCapability("ViewerMetrics");
-// 
-//             LLSD sd = gViewerAssetStats->asLLSD(true);
-// 
-// 			// Send a report request into 'thread1' to get the rest of the data
-// 			// and provide some additional parameters while here.
-// 			LLAppViewer::sTextureFetch->commandSendMetrics(caps_url,
-// 														   gAgentSessionID,
-// 														   gAgentID,
-// 														   sd);
-// 		}
-// 		else
-// 		{
-// 			LLAppViewer::sTextureFetch->commandDataBreak();
-// 		}
-// 	}
-
     if (enable_reporting && gAgent.getRegion())
     {
         std::string	caps_url = gAgent.getRegionCapability("ViewerMetrics");

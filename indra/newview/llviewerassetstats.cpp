@@ -373,6 +373,8 @@ LLSD LLViewerAssetStats::asLLSD(bool compact_output)
 	return sd;
 }
 
+/*TODO:RIDER*/ // take this out of a coroutine.  It is called once while the viewer is shutting down
+// and there may not be coroutine machinery in place..
 void LLViewerAssetStats::postStatistics(std::string caps_url, LLUUID session_id, LLUUID agent_id)
 {
     LLCoros::instance().launch("LLViewerAssetStats::postStatisticsCoro",
