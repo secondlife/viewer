@@ -88,6 +88,12 @@ public:
     bool            pasteCheckMenuItem(const LLSD& userdata);
     void            pasteDoMenuItem(const LLSD& userdata);
     bool            pasteEnabletMenuItem(const LLSD& userdata);
+    static bool     isLibraryTexture(LLUUID image_id);
+
+    // Finds copy-enabled texture with specified asset from inventory
+    // This can be performance unfriendly and doesn't warranty that
+    // the texture is original source of asset
+    static LLUUID   getCopyPermInventoryTextureId(LLUUID image_id);
     static bool     canCopyTexture(LLUUID image_id);
 
 protected:

@@ -2503,32 +2503,31 @@ bool LLPanelObject::pasteEnabletMenuItem(const LLSD& userdata)
     return true;
 }
 
-// Static
-bool LLPanelObject::canCopyTexture(LLUUID image_id)
+//static
+bool LLPanelObject::isLibraryTexture(LLUUID image_id)
 {
-    // User is allowed to copy a texture if:
-    // library asset or default texture,
-    // or copy perm asset exists in user's inventory
-
-    // Library asset or default texture
     if (gInventory.isObjectDescendentOf(image_id, gInventory.getLibraryRootFolderID())
-        || image_id == LLUUID(gSavedSettings.getString( "DefaultObjectTexture" ))
-        || image_id == LLUUID(gSavedSettings.getString( "UIImgWhiteUUID" ))
-        || image_id == LLUUID(gSavedSettings.getString( "UIImgInvisibleUUID" ))
+        || image_id == LLUUID(gSavedSettings.getString("DefaultObjectTexture"))
+        || image_id == LLUUID(gSavedSettings.getString("UIImgWhiteUUID"))
+        || image_id == LLUUID(gSavedSettings.getString("UIImgInvisibleUUID"))
         || image_id == LLUUID(SCULPT_DEFAULT_TEXTURE))
     {
         return true;
     }
+    return false;
+}
 
-    // Search for a copy perm asset
+//static
+LLUUID LLPanelObject::getCopyPermInventoryTextureId(LLUUID image_id)
+{
     LLViewerInventoryCategory::cat_array_t cats;
     LLViewerInventoryItem::item_array_t items;
     LLAssetIDMatches asset_id_matches(image_id);
     gInventory.collectDescendentsIf(LLUUID::null,
-                                    cats,
-                                    items,
-                                    LLInventoryModel::INCLUDE_TRASH,
-                                    asset_id_matches);
+        cats,
+        items,
+        LLInventoryModel::INCLUDE_TRASH,
+        asset_id_matches);
     if (items.size())
     {
         for (S32 i = 0; i < items.size(); i++)
@@ -2541,11 +2540,20 @@ bool LLPanelObject::canCopyTexture(LLUUID image_id)
                     gAgent.getID(),
                     gAgent.getGroupID()))
                 {
-                    return true;
+                    return itemp->getUUID();
                 }
             }
         }
     }
+    return LLUUID::null;
+}
 
-    return false;
+// Static
+bool LLPanelObject::canCopyTexture(LLUUID image_id)
+{
+    // User is allowed to copy a texture if:
+    // library asset or default texture,
+    // or copy perm asset exists in user's inventory
+
+    return isLibraryTexture(image_id) || getCopyPermInventoryTextureId(image_id).notNull();
 }
