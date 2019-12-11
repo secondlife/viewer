@@ -196,7 +196,11 @@ void LLViewerAssetStats::initSingleton()
     mHttpHeaders = std::make_shared<LLCore::HttpHeaders>();
     mHttpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
     
+#ifdef LL_TEST_llviewerassetstats
+    mHttpPolicy = 0;    // Do not pull in the app viewer for the tests.
+#else
     mHttpPolicy = LLAppViewer::instance()->getAppCoreHttp().getPolicy(LLAppCoreHttp::AP_REPORTING);
+#endif
 
     mHttpPriority = 1;
 }
