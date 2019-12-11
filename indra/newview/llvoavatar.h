@@ -317,7 +317,7 @@ public:
 	static const U32 IMPOSTORS_OFF; /* Must equal the maximum allowed the RenderAvatarMaxNonImpostors
 									 * slider in panel_preferences_graphics1.xml */
 	static U32		sMaxNonImpostors; //(affected by control "RenderAvatarMaxNonImpostors")
-    static U32		sMaxControlAVNonImpostors; //(affected by control "RenderControlAVMaxNonImpostors")
+	static U32		sMaxControlAVNonImpostors; //(affected by control "RenderAnimatedObjectMaxNonImpostors")
 	static F32		sRenderDistance; //distance at which avatars will render.
 	static BOOL		sShowAnimationDebug; // show animation debug info
 	static bool		sUseImpostors; //use impostors for far away avatars

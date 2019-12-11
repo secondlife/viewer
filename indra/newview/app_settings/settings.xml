@@ -10389,7 +10389,7 @@
     <key>Value</key>
     <integer>12</integer>
   </map>
-  <key>RenderControlAVMaxNonImpostors</key>
+  <key>RenderAnimatedObjectMaxNonImpostors</key>
   <map>
     <key>Comment</key>
     <string>Maximum number of animeshes to fully render at one time. Over this limit uses impostor rendering (simplified rendering with less frequent updates), reducing client lag.</string>
