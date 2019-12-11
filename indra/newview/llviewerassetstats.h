@@ -197,6 +197,10 @@ public:
     void                recordResponse(LLViewerAssetType::EType at, bool is_temp, LLViewerAssetStats::duration_t duration, F64 bytes);
 
 protected:
+    virtual void        initSingleton() override;
+    virtual void        cleanupSingleton() override;
+
+private:
     // Retrieve current metrics for all visited regions (NULL region UUID/handle excluded)
     // Uses AssetStats structure seen above
     void getStats(AssetStats& stats, bool compact_output);
@@ -230,13 +234,19 @@ protected:
 	// Region of the currently-active region.  Always valid but may
 	// be zero after construction or when explicitly set.  Unchanged
 	// by a reset() call.
-	region_handle_t             mRegionHandle;
+	region_handle_t                 mRegionHandle;
 
 	// Pointer to metrics collection for currently-active region.  
-	LLTrace::Recording*			mCurRecording;
+	LLTrace::Recording*			    mCurRecording;
 
 	// Metrics data for all regions during one collection cycle
-	PerRegionRecordingContainer mRegionRecordings;
+	PerRegionRecordingContainer     mRegionRecordings;
+
+    LLCore::HttpRequest::ptr_t      mHttpRequest;
+    LLCore::HttpOptions::ptr_t      mHttpOptions;
+    LLCore::HttpHeaders::ptr_t      mHttpHeaders;
+    LLCore::HttpRequest::policy_t   mHttpPolicy;
+    U32                             mHttpPriority;
 
     void    postStatisticsCoro(std::string caps_url, LLUUID session_id, LLUUID agent_id);
     bool    truncateViewerMetrics(S32 max_regions, LLSD &metrics);

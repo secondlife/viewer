@@ -35,6 +35,7 @@
 #include "llsdutil.h"
 
 #include "llviewercontrol.h"
+#include "llappviewer.h"
 
 /*
  * Classes and utility functions for per-thread and per-region
@@ -178,13 +179,30 @@ const S32 LLViewerAssetStats::METRICS_DATA_VERSION(2);
 // ------------------------------------------------------
 // LLViewerAssetStats class definition
 // ------------------------------------------------------
-LLViewerAssetStats::LLViewerAssetStats()
-:	mRegionHandle(U64(0)),
+LLViewerAssetStats::LLViewerAssetStats():	
+    mRegionHandle(U64(0)),
 	mCurRecording(nullptr),
     mReportSequence(0),
     mFirstReport(true)
 {
 	start();
+}
+
+void LLViewerAssetStats::initSingleton()
+{
+    mHttpRequest = std::make_shared<LLCore::HttpRequest>();
+    mHttpOptions = std::make_shared<LLCore::HttpOptions>();
+
+    mHttpHeaders = std::make_shared<LLCore::HttpHeaders>();
+    mHttpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
+    
+    mHttpPolicy = LLAppViewer::instance()->getAppCoreHttp().getPolicy(LLAppCoreHttp::AP_REPORTING);
+
+    mHttpPriority = 1;
+}
+
+void LLViewerAssetStats::cleanupSingleton() 
+{
 }
 
 // LLViewerAssetStats::LLViewerAssetStats(const LLViewerAssetStats & src)
@@ -373,20 +391,12 @@ LLSD LLViewerAssetStats::asLLSD(bool compact_output)
 	return sd;
 }
 
-/*TODO:RIDER*/ // take this out of a coroutine.  It is called once while the viewer is shutting down
-// and there may not be coroutine machinery in place..
+// NOTE!  This is not done as a coroutine!
+// This function will be called as the viewer is going down and the coroutine machinery may have 
+// already been shut down.  Also this function needs to take a snapshot of the statistics, we do
+// not want them changing or being reset before it is finished. 
 void LLViewerAssetStats::postStatistics(std::string caps_url, LLUUID session_id, LLUUID agent_id)
 {
-    LLCoros::instance().launch("LLViewerAssetStats::postStatisticsCoro",
-        boost::bind(&LLViewerAssetStats::postStatisticsCoro, this, caps_url, session_id, agent_id));
-}
-
-void LLViewerAssetStats::postStatisticsCoro(std::string caps_url, LLUUID session_id, LLUUID agent_id)
-{
-    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
-    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("AssetStatistics", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(std::make_shared<LLCore::HttpRequest>());
-
     LLSD body(asLLSD(true));
 
     body[KEY_SESSION_ID] = session_id;
@@ -406,21 +416,23 @@ void LLViewerAssetStats::postStatisticsCoro(std::string caps_url, LLUUID session
     body[KEY_TRUNCATED] = truncateViewerMetrics(10, body);
     
     restart();  // we have collected all the statistics reset for the next round.
-    llcoro::suspend();
 
     if (gSavedSettings.getBOOL("QAModeMetrics"))
     {
         dump_sequential_xml("metric_asset_stats", body);
     }
 
-    llcoro::suspend();
-
     if (!caps_url.empty())
     {
-        httpAdapter->postAndSuspend(httpRequest, caps_url, body);
+        LLCore::HttpHandle              http_handle(LLCORE_HTTP_HANDLE_INVALID);
+
+        http_handle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest, mHttpPolicy, mHttpPriority, caps_url, body, LLCore::HttpHandler::ptr_t());
+
+        LLCore::HttpStatus status(mHttpRequest->getStatus());
+        LL_WARNS_IF((http_handle == LLCORE_HTTP_HANDLE_INVALID), "ASSETMETRICS") << "Asset metrics not posted! error was " << status.getMessage() << LL_ENDL;
     }
 
-    LL_INFOS_IF(gSavedSettings.getBOOL("LogViewerAssetMetrics"), "ViewerAssetMetrics") << "ViewerAssetMetrics as submitted:\n" << body << LL_ENDL;
+    LL_INFOS_IF(gSavedSettings.getBOOL("WriteMetricsToLog"), "ViewerAssetMetrics") << "ViewerAssetMetrics as submitted:\n" << body << LL_ENDL;
 }
 
 bool LLViewerAssetStats::truncateViewerMetrics(S32 max_regions, LLSD & metrics)

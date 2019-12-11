@@ -976,7 +976,7 @@ void LLViewerTextureManager::onTextureFetchDone(const LLAssetFetch::AssetRequest
     mOutstandingRequests.erase(fetch_id);
     if (!texture)
     {
-        LL_WARNS("TEXTUREMGR") << "results returned for unknown texture id=" << fetch_id << LL_ENDL;
+        LL_DEBUGS("TEXTUREMGR") << "results returned for unknown texture id=" << fetch_id << LL_ENDL;
         return;
     }
 

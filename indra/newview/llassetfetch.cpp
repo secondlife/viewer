@@ -759,7 +759,6 @@ void LLAssetFetch::recordRequestDone(const AssetRequest::ptr_t &request)
     }
 
     request->recordStatisticsEnd();
-
 }
 
 bool LLAssetFetch::makeHTTPRequest(const AssetRequest::ptr_t &request)
