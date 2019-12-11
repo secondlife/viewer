@@ -873,8 +873,8 @@ void LLViewerFetchedTexture::cleanup()
     if (!mIsFinal && !mAssetDoneSignal.empty())
     {   // We are cleaning up and have outstanding callbacks.  Signal a cancel 
         // (success = false, final = true)
-
-        mAssetDoneSignal(false, getID(), ptr_t(), true);
+        ptr_t dummy;
+        mAssetDoneSignal(false, getID(), dummy, true);
         mAssetDoneSignal.disconnect_all_slots();
     }
 
