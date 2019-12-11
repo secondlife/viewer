@@ -3563,7 +3563,7 @@ U32 LLModelPreview::loadTextures(LLImportMaterial& material, const LLModelPrevie
         params.mBoostPriority = LLGLTexture::BOOST_PREVIEW;
         params.mForceToSaveRaw = true;
         params.mSaveKeepTime = F32_MAX;
-        params.mCallback = [preview](bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done) { LLModelPreview::textureLoadedCallback(success, src_vi, final_done, preview); };
+        params.mCallback = [preview](bool success, LLUUID, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done) { LLModelPreview::textureLoadedCallback(success, src_vi, final_done, preview); };
         material.mTexture = LLViewerTextureManager::instance().getFetchedTextureFromFile(material.mDiffuseMapFilename, params);
         material.setDiffuseMap(material.mTexture->getID()); // record tex ID
 		return 1;

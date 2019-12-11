@@ -635,9 +635,9 @@ protected:
     };
 
 
-    static void		onBakedTextureMasksLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, const LLTextureMaskData::ptr_t &mask_data);
-    static void		onInitialBakedTextureLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, LLUUID avatar_id);
-    static void		onBakedTextureLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, LLUUID avatar_id);
+    static void onBakedTextureMasksLoaded(bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, const LLTextureMaskData::ptr_t &mask_data);
+    static void onInitialBakedTextureLoaded(bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, LLUUID avatar_id);
+    static void onBakedTextureLoaded(bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, LLUUID avatar_id);
 	virtual void	removeMissingBakedTextures();
 	void			useBakedTexture(const LLUUID& id);
 	LLViewerTexLayerSet*  getTexLayerSet(const U32 index) const { return dynamic_cast<LLViewerTexLayerSet*>(mBakedTextureDatas[index].mTexLayerSet);	}

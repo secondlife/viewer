@@ -1113,9 +1113,9 @@ namespace
     LLTrace::BlockTimerStatHandle FTM_BUMP_CREATE_TEXTURE("Create GL Normal Map");
 }
 
-void LLBumpImageList::onSourceStandardLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done)
+void LLBumpImageList::onSourceStandardLoaded(bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done)
 {
-	if (success && LLPipeline::sRenderDeferred)
+	if (success && LLPipeline::sRenderDeferred && src_vi)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_BUMP_SOURCE_STANDARD_LOADED);
         LLPointer<LLImageRaw> src_img(src_vi->getRawImage());

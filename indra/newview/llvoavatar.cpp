@@ -8122,8 +8122,8 @@ void LLVOAvatar::updateMeshTextures()
 				{			
                     LLTextureMaskData::ptr_t mask_data(std::make_shared<LLTextureMaskData>(agent_id));
 
-                    mask_data->mConnection = baked_img->addCallback([mask_data](bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done) {
-                        onBakedTextureMasksLoaded(success, src_vi, final_done, mask_data);
+                    mask_data->mConnection = baked_img->addCallback([mask_data](bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done) {
+                        onBakedTextureMasksLoaded(success, texture_id, src_vi, final_done, mask_data);
                     });
 
                     if (!isSelf())
@@ -8131,8 +8131,8 @@ void LLVOAvatar::updateMeshTextures()
 				}
 
                 LLViewerFetchedTexture::connection_t connection;
-                connection = baked_img->addCallback([agent_id](bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done) {
-                    onBakedTextureLoaded(success, src_vi, final_done, agent_id);
+                connection = baked_img->addCallback([agent_id](bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done) {
+                    onBakedTextureLoaded(success, texture_id, src_vi, final_done, agent_id);
                 });
                 if (!isSelf())
                     mConnections.insert(connection);
@@ -8521,8 +8521,8 @@ void LLVOAvatar::onFirstTEMessageReceived()
 				{
                     LLTextureMaskData::ptr_t mask_data(std::make_shared<LLTextureMaskData>(mID));
 
-                    mask_data->mConnection = image->addCallback([mask_data](bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done) {
-                        onBakedTextureMasksLoaded(success, src_vi, final_done, mask_data);
+                    mask_data->mConnection = image->addCallback([mask_data](bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done) {
+                        onBakedTextureMasksLoaded(success, texture_id, src_vi, final_done, mask_data);
                     });
 
                     if (!isSelf())
@@ -8531,8 +8531,8 @@ void LLVOAvatar::onFirstTEMessageReceived()
 				LL_DEBUGS("Avatar") << avString() << "layer_baked, setting onInitialBakedTextureLoaded as callback" << LL_ENDL;
 
                 LLUUID id(mID);
-                LLViewerFetchedTexture::connection_t connection = image->addCallback([id](bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done) {
-                    onInitialBakedTextureLoaded(success, src_vi, final_done, id);
+                LLViewerFetchedTexture::connection_t connection = image->addCallback([id](bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done) {
+                    onInitialBakedTextureLoaded(success, texture_id, src_vi, final_done, id);
                 });
 
                 if (!isSelf())
@@ -9096,10 +9096,11 @@ void LLVOAvatar::getAnimNames( std::vector<std::string>* names )
 }
 
 // static
-void LLVOAvatar::onBakedTextureMasksLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, const LLTextureMaskData::ptr_t &mask_data)
+void LLVOAvatar::onBakedTextureMasksLoaded(bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, const LLTextureMaskData::ptr_t &mask_data)
 {
-	//LL_INFOS() << "onBakedTextureMasksLoaded: " << src_vi->getID() << LL_ENDL;
-	const LLUUID id = src_vi->getID();
+    if (!src_vi)
+        return;
+    //LL_INFOS() << "onBakedTextureMasksLoaded: " << src_vi->getID() << LL_ENDL;
  
 	LLVOAvatar* self = (LLVOAvatar*) gObjectList.findObject( mask_data->mAvatarID );
 
@@ -9112,7 +9113,7 @@ void LLVOAvatar::onBakedTextureMasksLoaded(bool success, LLViewerFetchedTexture:
 		{
 			if (!aux_src->getData())
 			{
-				LL_ERRS() << "No auxiliary source (morph mask) data for image id " << id << LL_ENDL;
+				LL_ERRS() << "No auxiliary source (morph mask) data for image id " << texture_id << LL_ENDL;
 				return;
 			}
 
@@ -9147,7 +9148,7 @@ void LLVOAvatar::onBakedTextureMasksLoaded(bool success, LLViewerFetchedTexture:
 				{
 					const ETextureIndex texture_index = iter->first;
 					const LLViewerTexture::ptr_t baked_img = self->getImage(texture_index, 0);
-					if (baked_img && id == baked_img->getID())
+					if (baked_img && texture_id == baked_img->getID())
 					{
 						const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
 						self->applyMorphMask(aux_src->getData(), aux_src->getWidth(), aux_src->getHeight(), 1, baked_index);
@@ -9164,7 +9165,7 @@ void LLVOAvatar::onBakedTextureMasksLoaded(bool success, LLViewerFetchedTexture:
 			}
 			if (!found_texture_id)
 			{
-				LL_INFOS() << "unexpected image id: " << id << LL_ENDL;
+				LL_INFOS() << "unexpected image id: " << texture_id << LL_ENDL;
 			}
 			self->dirtyMesh();
 		}
@@ -9172,7 +9173,7 @@ void LLVOAvatar::onBakedTextureMasksLoaded(bool success, LLViewerFetchedTexture:
 		{
             // this can happen when someone uses an old baked texture possibly provided by 
             // viewer-side baked texture caching
-			LL_WARNS() << "Masks loaded callback but NO aux source, id " << id << LL_ENDL;
+			LL_WARNS() << "Masks loaded callback but NO aux source, id " << texture_id << LL_ENDL;
 		}
 	}
 
@@ -9183,8 +9184,11 @@ void LLVOAvatar::onBakedTextureMasksLoaded(bool success, LLViewerFetchedTexture:
 }
 
 // static
-void LLVOAvatar::onInitialBakedTextureLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, LLUUID avatar_id)
+void LLVOAvatar::onInitialBakedTextureLoaded(bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, LLUUID avatar_id)
 {
+    if (!src_vi)
+        return;
+
 	LLVOAvatar *selfp = (LLVOAvatar *)gObjectList.findObject(avatar_id);
 
 	if (selfp)
@@ -9202,11 +9206,13 @@ void LLVOAvatar::onInitialBakedTextureLoaded(bool success, LLViewerFetchedTextur
 }
 
 // Static
-void LLVOAvatar::onBakedTextureLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, LLUUID avatar_id)
+void LLVOAvatar::onBakedTextureLoaded(bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, LLUUID avatar_id)
 {
 	//LL_DEBUGS("Avatar") << "onBakedTextureLoaded: " << src_vi->getID() << LL_ENDL;
 
-	LLUUID id = src_vi->getID();
+    if (!src_vi)
+        return;
+
 	LLVOAvatar *selfp = (LLVOAvatar *)gObjectList.findObject(avatar_id);
 	if (selfp)
 	{	
@@ -9224,7 +9230,7 @@ void LLVOAvatar::onBakedTextureLoaded(bool success, LLViewerFetchedTexture::ptr_
 
 	if( selfp && success && final_done )
 	{
-		selfp->useBakedTexture( id );
+		selfp->useBakedTexture( texture_id );
 	}
 }
 

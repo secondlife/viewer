@@ -151,7 +151,7 @@ public:
 	LLViewerTexture::ptr_t  getBrightnessDarknessImage(const LLViewerFetchedTexture::ptr_t &src_image, U8 bump_code);
 	void		addTextureStats(U8 bump, const LLUUID& base_image_id, F32 virtual_size);
 
-    static void onSourceStandardLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done);
+    static void onSourceStandardLoaded(bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done);
 	static void generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nrm_image);
 
 

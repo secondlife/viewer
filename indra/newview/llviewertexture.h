@@ -246,7 +246,7 @@ class LLViewerFetchedTexture : public LLViewerTexture
 	friend class LLTextureView; // debug info only
 public:
     typedef std::shared_ptr<LLViewerFetchedTexture> ptr_t;
-    typedef std::function<void(bool success, ptr_t &src_vi, bool final_done)>  loaded_cb_fn;
+    typedef std::function<void(bool success, LLUUID texture_id, ptr_t &src_vi, bool final_done)>  loaded_cb_fn;
     typedef boost::signals2::connection     connection_t;
     typedef std::set<connection_t>          connection_list_t;  // convenience for collection multiple connections.
 
@@ -305,7 +305,7 @@ public:
 protected:
         
 private:
-    typedef boost::signals2::signal<void(bool success, ptr_t &src_vi, bool final_done)> texture_done_signal_t;
+    typedef boost::signals2::signal<void(bool success, LLUUID texture_id, ptr_t &src_vi, bool final_done)> texture_done_signal_t;
 
     FTType                      mFTType;            // What category of image is this - map tile, server bake, etc?
     bool                        mIsMissingAsset;    // True if we know that there is no image asset with this image id in the database.		

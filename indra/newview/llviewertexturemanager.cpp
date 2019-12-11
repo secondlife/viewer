@@ -772,7 +772,7 @@ LLViewerFetchedTexture::ptr_t LLViewerTextureManager::getFetchedTexture(const LL
             if (params.mCallback != boost::none)
             {
                 //LL_WARNS("Texture") << "Texture is finished. Executing callbacks." << LL_ENDL;
-                params.mCallback.get()(true, imagep, true);
+                params.mCallback.get()(true, imagep->getID(), imagep, true);
             }
         }
         LL_WARNS_IF((f_type > 0) && (f_type != imagep->getFTType()), "TEXTUREMGR") << "FTType mismatch: requested " << f_type << " image has " << imagep->getFTType() << LL_ENDL;
@@ -874,7 +874,7 @@ LLViewerFetchedTexture::ptr_t LLViewerTextureManager::getFetchedTextureFromUrl(c
         else
         {   
             if (params.mCallback != boost::none)
-                params.mCallback.get()(true, imagep, true);
+                params.mCallback.get()(true, imagep->getID(), imagep, true);
         }
     }
     else 

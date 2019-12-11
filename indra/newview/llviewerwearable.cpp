@@ -130,8 +130,8 @@ LLWearable::EImportResult LLViewerWearable::importStream( std::istream& input_st
 		LLViewerFetchedTexture::ptr_t image = LLViewerTextureManager::instance().getFetchedTexture( textureid );
 		if(gSavedSettings.getBOOL("DebugAvatarLocalTexLoadedTime"))
 		{
-            image->addCallback([textureid, te](bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done) {
-                LLVOAvatarSelf::debugOnTimingLocalTexLoaded(success, src_vi, final_done, textureid, (LLAvatarAppearanceDefines::ETextureIndex)te);
+            image->addCallback([te](bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done) {
+                LLVOAvatarSelf::debugOnTimingLocalTexLoaded(success, texture_id, src_vi, final_done, (LLAvatarAppearanceDefines::ETextureIndex)te);
             });
 		}
 	}

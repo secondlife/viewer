@@ -179,8 +179,8 @@ LLUIImagePtr LLUIImageList::loadUIImage(const LLViewerFetchedTexture::ptr_t &ima
 		datap->mImageScaleRegion = scale_rect;
 		datap->mImageClipRegion = clip_rect;
 
-        datap->mConnection = imagep->addCallback([datap](bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done){
-            onUIImageLoaded(success, src_vi, final_done, datap);
+        datap->mConnection = imagep->addCallback([datap](bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done){
+            onUIImageLoaded(success, texture_id, src_vi, final_done, datap);
         });
 	}
 	return new_imagep;
@@ -200,7 +200,7 @@ LLUIImagePtr LLUIImageList::preloadUIImage(const std::string& name, const std::s
 }
 
 //static 
-void LLUIImageList::onUIImageLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, const LLUIImageLoadData::ptr_t &image_datap)
+void LLUIImageList::onUIImageLoaded(bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, const LLUIImageLoadData::ptr_t &image_datap)
 {
 	if(!success) 
 	{

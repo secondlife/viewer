@@ -874,10 +874,7 @@ void LLViewerFetchedTexture::cleanup()
     {   // We are cleaning up and have outstanding callbacks.  Signal a cancel 
         // (success = false, final = true)
 
-        /*TODO:RIDER*/ // This is bad!  cleanup can get called from the destructor and so getting the shared pointer 
-
-        ptr_t self(getSharedPointer());
-        mAssetDoneSignal(false, self, true);
+        mAssetDoneSignal(false, getID(), ptr_t(), true);
         mAssetDoneSignal.disconnect_all_slots();
     }
 
@@ -1531,8 +1528,8 @@ void LLViewerFetchedTexture::onTextureFetchComplete(const LLAssetFetch::AssetReq
 
     if (!mAssetDoneSignal.empty())
     {
-        ptr_t self(getSharedPointer());
-        mAssetDoneSignal(mSuccess, self, mIsFinal);
+        ptr_t self( (request->getFetchState() == LLAssetFetch::RQST_DONE) ? getSharedPointer() : nullptr);
+        mAssetDoneSignal(mSuccess, getID(), self, mIsFinal);
         if (mIsFinal)
         {   // no more call backs after "final"
             mAssetDoneSignal.disconnect_all_slots();

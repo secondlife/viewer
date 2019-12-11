@@ -1756,10 +1756,9 @@ void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, const LLViewerTexture::
 				else
 				{					
                     LLUUID avatar_id(getID());
-                    /*TACO:TODO*/ // capture the connection so we can disconnect it after the call.
                     LLViewerFetchedTexture::connection_t cntion =  tex->addCallback(
-                        [avatar_id, type](bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done) {
-                            LLVOAvatarSelf::onLocalTextureLoaded(success, src_vi, final_done, avatar_id, type);
+                        [avatar_id, type](bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done) {
+                            LLVOAvatarSelf::onLocalTextureLoaded(success, texture_id, src_vi, final_done, avatar_id, type);
                     });
 				}
 			}
@@ -1850,17 +1849,17 @@ void LLVOAvatarSelf::dumpLocalTextures() const
 //-----------------------------------------------------------------------------
 
 /*static*/ 
-void LLVOAvatarSelf::onLocalTextureLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, LLUUID avatar_id, LLAvatarAppearanceDefines::ETextureIndex index)
+void LLVOAvatarSelf::onLocalTextureLoaded(bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool done_final, LLUUID avatar_id, LLAvatarAppearanceDefines::ETextureIndex index)
 {
     LLVOAvatarSelf *self = (LLVOAvatarSelf *)gObjectList.findObject(avatar_id);
 
     if (self)
     {
         // We should only be handling local textures for ourself
-        self->localTextureLoaded(success, src_vi, final_done, index);
+        self->localTextureLoaded(success, src_vi, done_final, index);
     }
     // ensure data is cleaned up
-    if (final_done || !success)
+    if (done_final || !success)
     {
     }
 
@@ -2006,18 +2005,18 @@ bool LLVOAvatarSelf::getIsCloud() const
 }
 
 /*static*/
-void LLVOAvatarSelf::debugOnTimingLocalTexLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, LLUUID texture_id, LLAvatarAppearanceDefines::ETextureIndex index)
+void LLVOAvatarSelf::debugOnTimingLocalTexLoaded(bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, LLAvatarAppearanceDefines::ETextureIndex index)
 {
 	if (gAgentAvatarp.notNull())
 	{
-		gAgentAvatarp->debugTimingLocalTexLoaded(success, src_vi, final_done, texture_id, index);
+		gAgentAvatarp->debugTimingLocalTexLoaded(success, texture_id, src_vi, final_done, index);
 	}
 }
 
-void LLVOAvatarSelf::debugTimingLocalTexLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, LLUUID texture_id, LLAvatarAppearanceDefines::ETextureIndex index)
+void LLVOAvatarSelf::debugTimingLocalTexLoaded(bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, LLAvatarAppearanceDefines::ETextureIndex index)
 {
 
-	if (index < 0 || index >= TEX_NUM_INDICES)
+	if (index < 0 || index >= TEX_NUM_INDICES || !src_vi)
 	{
 		return;
 	}

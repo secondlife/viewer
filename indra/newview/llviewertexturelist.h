@@ -96,7 +96,7 @@ private:
 	LLPointer<LLUIImage>    loadUIImage(const LLViewerFetchedTexture::ptr_t &imagep, const std::string& name, BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null, const LLRect& clip_rect = LLRect::null, LLUIImage::EScaleStyle = LLUIImage::SCALE_INNER);
 
 
-    static void             onUIImageLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, const LLUIImageLoadData::ptr_t &image_datap);
+    static void onUIImageLoaded(bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, const LLUIImageLoadData::ptr_t &image_datap);
     //
 	//keep a copy of UI textures to prevent them to be deleted.
 	//mGLTexturep of each UI texture equals to some LLUIImage.mImage.

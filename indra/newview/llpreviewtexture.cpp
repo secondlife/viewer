@@ -320,7 +320,7 @@ void LLPreviewTexture::saveTextureToFile(const std::vector<std::string>& filenam
     LLUUID item_id(mItemUUID);
 	mTexture->forceToSaveRawImage(0);//re-fetch the raw image if the old one is removed.
     LLViewerFetchedTexture::connection_t connection = mTexture->addCallback(
-        [item_id](bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done) {
+        [item_id](bool success, LLUUID, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done) {
             LLPreviewTexture::onFileLoadedForSave(success, src_vi, final_done, item_id); 
     });
     mConnections.insert(connection);

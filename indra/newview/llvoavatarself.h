@@ -202,7 +202,7 @@ protected:
 	LLLocalTextureObject* getLocalTextureObject(LLAvatarAppearanceDefines::ETextureIndex i, U32 index) const;
 
 private:
-    static void         onLocalTextureLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool done_final, LLUUID avatar_id, LLAvatarAppearanceDefines::ETextureIndex index);
+    static void onLocalTextureLoaded(bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool done_final, LLUUID avatar_id, LLAvatarAppearanceDefines::ETextureIndex index);
 
 	/*virtual*/	void	setImage(const U8 te, const LLViewerTexture::ptr_t &imagep, const U32 index); 
 	/*virtual*/ LLViewerTexture::ptr_t getImage(const U8 te, const U32 index) const;
@@ -372,7 +372,7 @@ public:
 	void					outputRezTiming(const std::string& msg) const;
 	void					reportAvatarRezTime() const;
 	void 					debugBakedTextureUpload(LLAvatarAppearanceDefines::EBakedTextureIndex index, BOOL finished);
-    static void				debugOnTimingLocalTexLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, LLUUID texture_id, LLAvatarAppearanceDefines::ETextureIndex index);
+    static void debugOnTimingLocalTexLoaded(bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, LLAvatarAppearanceDefines::ETextureIndex index);
 
 	BOOL					isAllLocalTextureDataFinal() const;
 
@@ -388,7 +388,7 @@ private:
 	F32 					mDebugTimeAvatarVisible;
 	F32 					mDebugTextureLoadTimes[LLAvatarAppearanceDefines::TEX_NUM_INDICES][MAX_DISCARD_LEVEL+1]; // load time for each texture at each discard level
 	F32 					mDebugBakedTextureTimes[LLAvatarAppearanceDefines::BAKED_NUM_INDICES][2]; // time to start upload and finish upload of each baked texture
-    void					debugTimingLocalTexLoaded(bool success, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, LLUUID texture_id, LLAvatarAppearanceDefines::ETextureIndex index);
+    void debugTimingLocalTexLoaded(bool success, LLUUID texture_id, LLViewerFetchedTexture::ptr_t &src_vi, bool final_done, LLAvatarAppearanceDefines::ETextureIndex index);
 
     void                    appearanceChangeMetricsCoro(std::string url);
     bool                    mInitialMetric;
