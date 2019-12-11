@@ -143,7 +143,24 @@ public:
                             strong_iterator(mData.end(), strengthen));
         }
 
-        LockStatic mLock;           // lock static data during construction
+        // lock static data during construction
+#if ! LL_WINDOWS
+        LockStatic mLock;
+#else  // LL_WINDOWS
+        // We want to be able to use (e.g.) our instance_snapshot subclass as:
+        // for (auto& inst : T::instance_snapshot()) ...
+        // But when this snapshot base class directly contains LockStatic, as
+        // above, Visual Studio 2017 requires us to code instead:
+        // for (auto& inst : std::move(T::instance_snapshot())) ...
+        // nat thinks this should be unnecessary, as an anonymous class
+        // instance is already a temporary. It shouldn't need to be cast to
+        // rvalue reference (the role of std::move()). clang evidently agrees,
+        // as the short form works fine with Xcode on Mac.
+        // To support the succinct usage, instead of directly storing
+        // LockStatic, store std::shared_ptr<LockStatic>, which is copyable.
+        std::shared_ptr<LockStatic> mLockp{std::make_shared<LockStatic>()};
+        LockStatic& mLock{*mLockp};
+#endif // LL_WINDOWS
         VectorType mData;
     };
 
@@ -373,7 +390,24 @@ public:
                             strong_iterator(mData.end(), strengthen));
         }
 
-        LockStatic mLock;           // lock static data during construction
+        // lock static data during construction
+#if ! LL_WINDOWS
+        LockStatic mLock;
+#else  // LL_WINDOWS
+        // We want to be able to use our instance_snapshot subclass as:
+        // for (auto& inst : T::instance_snapshot()) ...
+        // But when this snapshot base class directly contains LockStatic, as
+        // above, Visual Studio 2017 requires us to code instead:
+        // for (auto& inst : std::move(T::instance_snapshot())) ...
+        // nat thinks this should be unnecessary, as an anonymous class
+        // instance is already a temporary. It shouldn't need to be cast to
+        // rvalue reference (the role of std::move()). clang evidently agrees,
+        // as the short form works fine with Xcode on Mac.
+        // To support the succinct usage, instead of directly storing
+        // LockStatic, store std::shared_ptr<LockStatic>, which is copyable.
+        std::shared_ptr<LockStatic> mLockp{std::make_shared<LockStatic>()};
+        LockStatic& mLock{*mLockp};
+#endif // LL_WINDOWS
         VectorType mData;
     };
 
