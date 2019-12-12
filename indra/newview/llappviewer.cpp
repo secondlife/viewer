@@ -829,7 +829,7 @@ bool LLAppViewer::init()
 			app_metrics_interval = METRICS_INTERVAL_QA;
 		}
 
-		LLViewerAssetStats::instance();
+        LLViewerAssetStats::instance().setStatsPolicy(getAppCoreHttp().getPolicy(LLAppCoreHttp::AP_REPORTING));
 	}
 
 	initThreads();
