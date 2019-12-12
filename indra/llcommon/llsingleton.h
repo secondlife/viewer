@@ -654,20 +654,10 @@ private:
     typedef LLSingleton<DERIVED_TYPE> super;
     using typename super::LockStatic;
 
-public:
-    using super::deleteSingleton;
-    using super::instanceExists;
-    using super::wasDeleted;
-
     // Passes arguments to DERIVED_TYPE's constructor and sets appropriate
-    // states. We'd rather return a reference than a pointer, but the test for
-    // redundant calls makes that awkward. The compiler, unaware that
-    // logerrs() won't return, requires that that alternative return
-    // *something*. But what? It can't be a dummy static instance because
-    // there should be only one instance of any LLSingleton subclass! Easier
-    // to allow that case to return nullptr.
+    // states, returning a pointer to the new instance.
     template <typename... Args>
-    static DERIVED_TYPE* initParamSingleton(Args&&... args)
+    static DERIVED_TYPE* initParamSingleton_(Args&&... args)
     {
         // In case racing threads both call initParamSingleton() at the same
         // time, serialize them. One should initialize; the other should see
@@ -709,12 +699,25 @@ public:
                 [&](){
                     super::loginfos(super::template classname<DERIVED_TYPE>().c_str(),
                                     "::initParamSingleton() on main thread");
-                    return initParamSingleton(std::forward<Args>(args)...);
+                    return initParamSingleton_(std::forward<Args>(args)...);
                 });
             super::loginfos(super::template classname<DERIVED_TYPE>().c_str(),
                             "::initParamSingleton() returning on requesting thread");
             return instance;
         }
+    }
+
+public:
+    using super::deleteSingleton;
+    using super::instanceExists;
+    using super::wasDeleted;
+
+    /// initParamSingleton() constructs the instance, returning a reference.
+    /// Pass whatever arguments are required to construct DERIVED_TYPE.
+    template <typename... Args>
+    static DERIVED_TYPE& initParamSingleton(Args&&... args)
+    {
+        return *initParamSingleton_(std::forward<Args>(args)...);
     }
 
     static DERIVED_TYPE* getInstance()
