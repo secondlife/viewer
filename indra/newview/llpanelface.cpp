@@ -2901,6 +2901,7 @@ void LLPanelFace::onCopyFaces()
     }
 
     mClipboard.clear();
+    std::map<LLUUID, LLUUID> asset_item_map;
 
     S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
     for (S32 te = 0; te < num_tes; ++te)
@@ -2926,14 +2927,23 @@ void LLPanelFace::onCopyFaces()
                     LLUUID id = te_data["te"]["imageid"].asUUID();
                     bool full_perm = LLPanelObject::isLibraryTexture(id) || (objectp->permCopy() && objectp->permTransfer() && objectp->permModify());
 
-                    // todo: fix this, we are often searching same tuxture multiple times (equal to number of faces)
                     if (id.notNull() && !full_perm)
                     {
-                        // What this does is simply searches inventory for item with same asset id,
-                        // as result it is Hightly unreliable, leaves little control to user, borderline hack
-                        // but there are little options to preserve permissions - multiple inventory
-                        // items might reference same asset and inventory search is expensive.
-                        item_id = LLPanelObject::getCopyPermInventoryTextureId(id);
+                        std::map<LLUUID, LLUUID>::iterator iter = asset_item_map.find(id);
+                        if (iter != asset_item_map.end())
+                        {
+                            item_id = iter->second;
+                        }
+                        else
+                        {
+                            // What this does is simply searches inventory for item with same asset id,
+                            // as result it is Hightly unreliable, leaves little control to user, borderline hack
+                            // but there are little options to preserve permissions - multiple inventory
+                            // items might reference same asset and inventory search is expensive.
+                            item_id = LLPanelObject::getCopyPermInventoryTextureId(id);
+                            // record value to avoid repeating inventory search when possible
+                            asset_item_map[id] = item_id;
+                        }
                     }
 
                     if (id.isNull()
