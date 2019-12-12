@@ -192,7 +192,10 @@ public:
 	/*virtual*/ BOOL handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
 	/*virtual*/ BOOL handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
 	/*virtual*/ BOOL handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
-	/*virtual*/ BOOL handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
+	/*virtual*/ BOOL handleMiddleMouseUp(LLWindow *window, LLCoordGL pos, MASK mask);
+	/*virtual*/ BOOL handleOtherMouseDown(LLWindow *window, LLCoordGL pos, MASK mask, S32 button);
+	/*virtual*/ BOOL handleOtherMouseUp(LLWindow *window, LLCoordGL pos, MASK mask, S32 button);
+	BOOL handleOtherMouse(LLWindow *window, LLCoordGL pos, MASK mask, S32 button, bool down);
 	/*virtual*/ LLWindowCallbacks::DragNDropResult handleDragNDrop(LLWindow *window, LLCoordGL pos, MASK mask, LLWindowCallbacks::DragNDropAction action, std::string data);
 				void handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask);
                 void handleMouseDragged(LLWindow *window,  LLCoordGL pos, MASK mask);

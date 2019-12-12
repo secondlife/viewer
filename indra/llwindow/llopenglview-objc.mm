@@ -444,7 +444,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
     NSPoint mPoint = gHiDPISupport ? [self convertPointToBacking:[theEvent locationInWindow]] : [theEvent locationInWindow];
     mMousePos[0] = mPoint.x;
     mMousePos[1] = mPoint.y;
-	callMiddleMouseDown(mMousePos, [theEvent modifierFlags]);
+    callOtherMouseDown(mMousePos, [theEvent modifierFlags], [theEvent buttonNumber]);
 }
 
 - (void) otherMouseUp:(NSEvent *)theEvent
@@ -452,7 +452,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
     NSPoint mPoint = gHiDPISupport ? [self convertPointToBacking:[theEvent locationInWindow]] : [theEvent locationInWindow];
     mMousePos[0] = mPoint.x;
     mMousePos[1] = mPoint.y;
-	callMiddleMouseUp(mMousePos, [theEvent modifierFlags]);
+    callOtherMouseUp(mMousePos, [theEvent modifierFlags], [theEvent buttonNumber]);
 }
 
 - (void) rightMouseDragged:(NSEvent *)theEvent
@@ -816,7 +816,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
     [super setMarkedText:aString selectedRange:selectedRange replacementRange:replacementRange];
     if ([aString length] == 0)      // this means Input Widow becomes empty
     {
-        [_window orderOut:_window];     // Close this to avoid empty Input Window
+        [self.window orderOut:self.window];     // Close this to avoid empty Input Window
     }
 }
 
@@ -840,7 +840,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
         (mKeyPressed >= 0xF700 && mKeyPressed <= 0xF8FF))
     {
         // this is case a) of above comment
-        [_window orderOut:_window];     // to avoid empty Input Window
+        [self.window orderOut:self.window];     // to avoid empty Input Window
     }
 }
 

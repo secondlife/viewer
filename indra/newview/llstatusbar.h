@@ -114,7 +114,8 @@ private:
 	std::unique_ptr< ll::statusbar::SearchData > mSearchData;
 	void collectSearchableItems();
 	void updateMenuSearchVisibility( const LLSD& data );
-	void updateMenuSearchPosition();
+	void updateMenuSearchPosition(); // depends onto balance position
+	void updateBalancePanelPosition();
 
 private:
 	LLTextBox	*mTextTime;
