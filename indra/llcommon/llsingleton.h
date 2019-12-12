@@ -59,6 +59,7 @@ protected:
     typedef enum e_init_state
     {
         UNINITIALIZED = 0,          // must be default-initialized state
+        QUEUED,                     // construction queued, not yet executing
         CONSTRUCTING,               // within DERIVED_TYPE constructor
         INITIALIZING,               // within DERIVED_TYPE::initSingleton()
         INITIALIZED,                // normal case
@@ -552,6 +553,11 @@ public:
                          " -- creating new instance");
                 // fall through
             case UNINITIALIZED:
+            case QUEUED:
+                // QUEUED means some secondary thread has already requested an
+                // instance, but for present purposes that's semantically
+                // identical to UNINITIALIZED: either way, we must ourselves
+                // request an instance.
                 break;
             }
 
@@ -564,10 +570,13 @@ public:
                 capture_dependency(lk->mInstance);
                 return lk->mInstance;
             }
+
+            // Here we need to construct a new instance, but we're on a secondary
+            // thread.
+            lk->mInitState = QUEUED;
         } // unlock 'lk'
 
-        // Here we need to construct a new instance, but we're on a secondary
-        // thread. Per the comment block above, dispatch to the main thread.
+        // Per the comment block above, dispatch to the main thread.
         loginfos(classname<DERIVED_TYPE>().c_str(),
                  "::getInstance() dispatching to main thread");
         auto instance = LLMainThreadTask::dispatch(
@@ -588,7 +597,7 @@ public:
         // suppresses dep tracking when dispatched to the main thread)
         capture_dependency(instance);
         loginfos(classname<DERIVED_TYPE>().c_str(),
-                 "::getInstance() returning on invoking thread");
+                 "::getInstance() returning on requesting thread");
         return instance;
     }
 
@@ -672,10 +681,39 @@ public:
                            " twice!");
             return nullptr;
         }
-        else
+        else if (on_main_thread())
         {
+            // on the main thread, simply construct instance while holding lock
             super::constructSingleton(lk, std::forward<Args>(args)...);
             return lk->mInstance;
+        }
+        else
+        {
+            // on secondary thread, dispatch to main thread --
+            // set state so we catch any other calls before the main thread
+            // picks up the task
+            lk->mInitState = super::QUEUED;
+            // very important to unlock here so main thread can actually process
+            lk.unlock();
+            super::loginfos(super::template classname<DERIVED_TYPE>().c_str(),
+                            "::initParamSingleton() dispatching to main thread");
+            // Normally it would be the height of folly to reference-bind
+            // 'args' into a lambda to be executed on some other thread! By
+            // the time that thread executed the lambda, the references would
+            // all be dangling, and Bad Things would result. But
+            // LLMainThreadTask::dispatch() promises to block until the passed
+            // task has completed. So in this case we know the references will
+            // remain valid until the lambda has run, so we dare to bind
+            // references.
+            auto instance = LLMainThreadTask::dispatch(
+                [&](){
+                    super::loginfos(super::template classname<DERIVED_TYPE>().c_str(),
+                                    "::initParamSingleton() on main thread");
+                    return initParamSingleton(std::forward<Args>(args)...);
+                });
+            super::loginfos(super::template classname<DERIVED_TYPE>().c_str(),
+                            "::initParamSingleton() returning on requesting thread");
+            return instance;
         }
     }
 
@@ -688,6 +726,7 @@ public:
         switch (lk->mInitState)
         {
         case super::UNINITIALIZED:
+        case super::QUEUED:
             super::logerrs("Uninitialized param singleton ",
                            super::template classname<DERIVED_TYPE>().c_str());
             break;
