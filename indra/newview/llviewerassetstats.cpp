@@ -190,19 +190,20 @@ LLViewerAssetStats::LLViewerAssetStats():
 
 void LLViewerAssetStats::initSingleton()
 {
+}
+
+// This initialization is done outside of initSingleton because HTTP core is not initialized 
+// in the testing harness.
+void LLViewerAssetStats::initializeHttpStats(LLCore::HttpRequest::policy_t policy)
+{
     mHttpRequest = std::make_shared<LLCore::HttpRequest>();
     mHttpOptions = std::make_shared<LLCore::HttpOptions>();
 
     mHttpHeaders = std::make_shared<LLCore::HttpHeaders>();
     mHttpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
-    
-    mHttpPolicy = LLCore::HttpRequest::DEFAULT_POLICY_ID;
-    mHttpPriority = 1;
-}
 
-void LLViewerAssetStats::setStatsPolicy(LLCore::HttpRequest::policy_t policy)
-{
     mHttpPolicy = policy;
+    mHttpPriority = 1;
 }
 
 void LLViewerAssetStats::cleanupSingleton() 

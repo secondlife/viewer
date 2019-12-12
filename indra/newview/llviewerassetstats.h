@@ -196,7 +196,7 @@ public:
     void                recordDequeue(LLViewerAssetType::EType at, bool is_temp);
     void                recordResponse(LLViewerAssetType::EType at, bool is_temp, LLViewerAssetStats::duration_t duration, F64 bytes);
 
-    void                setStatsPolicy(LLCore::HttpRequest::policy_t policy);
+    void                initializeHttpStats(LLCore::HttpRequest::policy_t policy);
 
 protected:
     virtual void        initSingleton() override;
