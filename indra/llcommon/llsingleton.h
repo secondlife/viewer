@@ -650,9 +650,15 @@ public:
     using super::instanceExists;
     using super::wasDeleted;
 
-    // Passes arguments to DERIVED_TYPE's constructor and sets appropriate states
+    // Passes arguments to DERIVED_TYPE's constructor and sets appropriate
+    // states. We'd rather return a reference than a pointer, but the test for
+    // redundant calls makes that awkward. The compiler, unaware that
+    // logerrs() won't return, requires that that alternative return
+    // *something*. But what? It can't be a dummy static instance because
+    // there should be only one instance of any LLSingleton subclass! Easier
+    // to allow that case to return nullptr.
     template <typename... Args>
-    static void initParamSingleton(Args&&... args)
+    static DERIVED_TYPE* initParamSingleton(Args&&... args)
     {
         // In case racing threads both call initParamSingleton() at the same
         // time, serialize them. One should initialize; the other should see
@@ -664,10 +670,12 @@ public:
             super::logerrs("Tried to initialize singleton ",
                            super::template classname<DERIVED_TYPE>().c_str(),
                            " twice!");
+            return nullptr;
         }
         else
         {
             super::constructSingleton(lk, std::forward<Args>(args)...);
+            return lk->mInstance;
         }
     }
 
@@ -740,9 +748,9 @@ public:
     using super::instanceExists;
     using super::wasDeleted;
 
-    static void construct()
+    static DT* construct()
     {
-        super::initParamSingleton();
+        return super::initParamSingleton();
     }
 };
 
