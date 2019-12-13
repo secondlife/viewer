@@ -875,10 +875,16 @@ BOOL LLView::handleToolTip(S32 x, S32 y, MASK mask)
 		F32 timeout = LLToolTipMgr::instance().toolTipVisible() 
 		              ? LLUI::getInstance()->mSettingGroups["config"]->getF32( "ToolTipFastDelay" )
 		              : LLUI::getInstance()->mSettingGroups["config"]->getF32( "ToolTipDelay" );
-		LLToolTipMgr::instance().show(LLToolTip::Params()
-		                              .message(tooltip)
-		                              .sticky_rect(calcScreenRect())
-		                              .delay_time(timeout));
+
+		// Even if we don't show tooltips, consume the event, nothing below should show tooltip
+		bool allow_ui_tooltips = LLUI::getInstance()->mSettingGroups["config"]->getBOOL("BasicUITooltips");
+		if (allow_ui_tooltips)
+		{
+			LLToolTipMgr::instance().show(LLToolTip::Params()
+			                              .message(tooltip)
+			                              .sticky_rect(calcScreenRect())
+			                              .delay_time(timeout));
+		}
 		handled = TRUE;
 	}
 

@@ -266,6 +266,7 @@ public:
 	F32				getCameraZoomFraction();				// Get camera zoom as fraction of minimum and maximum zoom
 	void			setCameraZoomFraction(F32 fraction);	// Set camera zoom as fraction of minimum and maximum zoom
 	F32				calcCameraFOVZoomFactor();
+	F32				getAgentHUDTargetZoom();
 
 	//--------------------------------------------------------------------
 	// Pan

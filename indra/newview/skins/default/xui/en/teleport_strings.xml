@@ -39,6 +39,9 @@ Go to &apos;Welcome Island Public&apos; to repeat the tutorial.
 		<message name="expired_region_handoff">
 			Sorry, but the system was unable to complete your region crossing in a timely fashion. Please try again in a few minutes.
 		</message>
+		<message name="preexisting_tport">
+			Sorry, but the system was unable to start your teleport. Please try again in a few minutes.
+		</message>
 		<message name="no_host">
 			Unable to find teleport destination. The destination may be temporarily unavailable or no longer exists. Please try again in a few minutes.
 		</message>
