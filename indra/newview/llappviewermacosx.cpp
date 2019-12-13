@@ -81,7 +81,8 @@ static void exceptionTerminateHandler()
     long *null_ptr;
     null_ptr = 0;
     *null_ptr = 0xDEADBEEF; //Force an exception that will trigger breakpad.
-	//LLAppViewer::handleViewerCrash();
+	LLAppViewer::handleViewerCrash();
+
 	// we've probably been killed-off before now, but...
 	gOldTerminateHandler(); // call old terminate() handler
 }
@@ -99,7 +100,7 @@ void constructViewer()
 	gViewerAppPtr = new LLAppViewerMacOSX();
 
     // install unexpected exception handler
-	gOldTerminateHandler = std::set_terminate(exceptionTerminateHandler);
+	//gOldTerminateHandler = std::set_terminate(exceptionTerminateHandler);
 
 	gViewerAppPtr->setErrorHandler(LLAppViewer::handleViewerCrash);
 }
@@ -241,14 +242,11 @@ bool LLAppViewerMacOSX::init()
 {
 	bool success = LLAppViewer::init();
     
-#if !defined LL_BUGSPLAT && LL_SEND_CRASH_REPORTS
     if (success)
     {
         LLAppViewer* pApp = LLAppViewer::instance();
         pApp->initCrashReporting();
     }
-#endif
-    
     return success;
 }
 
@@ -369,7 +367,10 @@ bool LLAppViewerMacOSX::restoreErrorTrap()
 
 void LLAppViewerMacOSX::initCrashReporting(bool reportFreeze)
 {
-#ifndef LL_BUGSPLAT
+#if defined LL_BUGSPLAT
+    LL_DEBUGS("InitOSX", "Bugsplat") << "using BugSplat crash logger" << LL_ENDL;
+#elif LL_SEND_CRASH_REPORTS
+    LL_DEBUGS("InitOSX") << "Initializing legacy crash logger" << LL_ENDL;
 	std::string command_str = "mac-crash-logger.app";
     
     std::stringstream pid_str;
@@ -382,7 +383,7 @@ void LLAppViewerMacOSX::initCrashReporting(bool reportFreeze)
                << " " << logdir << " " << appname << LL_ENDL;
     launchApplication(&command_str, &args);
 #else
-    LL_DEBUGS("InitOSX") << "using BugSplat instead of legacy crash logger" << LL_ENDL;
+    LL_DEBUGS("InitOSX") << "No crash logger enabled" << LL_ENDL;    
 #endif // ! LL_BUGSPLAT
 }
 
