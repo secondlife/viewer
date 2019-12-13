@@ -75,14 +75,11 @@ namespace tut
         // exceptions it might throw and deliver them via future
         std::packaged_task<void()> thread_work(
             [this, &result](){
-                // lock static data first
-                LockStatic lk;
                 // unblock test<2>()'s yield_until(1)
                 mSync.set(1);
                 // dispatch work to main thread -- should block here
                 bool on_main(
                     LLMainThreadTask::dispatch(
-                        lk, // unlock this before blocking!
                         []()->bool{
                             // have to lock static mutex to set static data
                             LockStatic()->ran = true;
