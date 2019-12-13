@@ -110,15 +110,15 @@ protected:
     // A::initSingleton(), record that A directly depends on B.
     void capture_dependency();
 
-    // delegate LL_ERRS() logging to llsingleton.cpp
+    // delegate logging calls to llsingleton.cpp
     static void logerrs(const char* p1, const char* p2="",
                         const char* p3="", const char* p4="");
-    // delegate LL_WARNS() logging to llsingleton.cpp
     static void logwarns(const char* p1, const char* p2="",
                          const char* p3="", const char* p4="");
-    // delegate LL_INFOS() logging to llsingleton.cpp
     static void loginfos(const char* p1, const char* p2="",
                          const char* p3="", const char* p4="");
+    static void logdebugs(const char* p1, const char* p2="",
+                          const char* p3="", const char* p4="");
     static std::string demangle(const char* mangled);
     template <typename T>
     static std::string classname()       { return demangle(typeid(T).name()); }
@@ -647,6 +647,8 @@ private:
         else if (on_main_thread())
         {
             // on the main thread, simply construct instance while holding lock
+            super::logdebugs(super::template classname<DERIVED_TYPE>().c_str(),
+                             "::initParamSingleton()");
             super::constructSingleton(lk, std::forward<Args>(args)...);
             return lk->mInstance;
         }

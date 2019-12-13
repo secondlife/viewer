@@ -42,8 +42,6 @@ namespace {
 void log(LLError::ELevel level,
          const char* p1, const char* p2, const char* p3, const char* p4);
 
-void logdebugs(const char* p1="", const char* p2="", const char* p3="", const char* p4="");
-
 bool oktolog();
 } // anonymous namespace
 
@@ -486,10 +484,6 @@ void log(LLError::ELevel level,
     }
 }
 
-void logdebugs(const char* p1, const char* p2, const char* p3, const char* p4)
-{
-    log(LLError::LEVEL_DEBUG, p1, p2, p3, p4);
-}
 } // anonymous namespace        
 
 //static
@@ -502,6 +496,12 @@ void LLSingletonBase::logwarns(const char* p1, const char* p2, const char* p3, c
 void LLSingletonBase::loginfos(const char* p1, const char* p2, const char* p3, const char* p4)
 {
     log(LLError::LEVEL_INFO, p1, p2, p3, p4);
+}
+
+//static
+void LLSingletonBase::logdebugs(const char* p1, const char* p2, const char* p3, const char* p4)
+{
+    log(LLError::LEVEL_DEBUG, p1, p2, p3, p4);
 }
 
 //static
