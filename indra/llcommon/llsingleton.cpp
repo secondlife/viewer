@@ -117,7 +117,7 @@ private:
     // stack for every running coroutine. Therefore this stack must be based
     // on a coroutine-local pointer.
     // This local_ptr isn't static because it's a member of an LLSingleton.
-    LLCoros::local_ptr<LLSingletonBase::list_t> mInitializing;
+    LLCoros::local_ptr<list_t> mInitializing;
 
 public:
     // Instantiate this to obtain a reference to the coroutine-specific
