@@ -139,7 +139,7 @@ public:
 	U32 getEntries() { return mHeaderEntriesInfo.mEntries; }
 	U32 getMaxEntries() { return sCacheMaxEntries; };
 	BOOL isInCache(const LLUUID& id) ;
-	BOOL isInLocal(const LLUUID& id) ;
+	BOOL isInLocal(const LLUUID& id) ; //not thread safe at the moment
 
 protected:
 	// Accessed by LLTextureCacheWorker
@@ -155,6 +155,7 @@ private:
 	void readHeaderCache();
 	void clearCorruptedCache();
 	void purgeAllTextures(bool purge_directories);
+	void purgeTexturesLazy(F32 time_limit_sec);
 	void purgeTextures(bool validate);
 	LLAPRFile* openHeaderEntriesFile(bool readonly, S32 offset);
 	void closeHeaderEntriesFile();
@@ -189,6 +190,11 @@ private:
 	LLMutex mFastCacheMutex;
 	LLAPRFile* mHeaderAPRFile;
 	LLVolatileAPRPool* mFastCachePoolp;
+
+	// mLocalAPRFilePoolp is not thread safe and is meant only for workers
+	// howhever mHeaderEntriesFileName is accessed not from workers' threads
+	// so it needs own pool (not thread safe by itself, relies onto header's mutex)
+	LLVolatileAPRPool*   mHeaderAPRFilePoolp;
 	
 	typedef std::map<handle_t, LLTextureCacheWorker*> handle_map_t;
 	handle_map_t mReaders;
@@ -225,6 +231,8 @@ private:
 
 	typedef std::map<S32, Entry> idx_entry_map_t;
 	idx_entry_map_t mUpdatedEntryMap;
+	typedef std::vector<std::pair<S32, Entry> > idx_entry_vector_t;
+	idx_entry_vector_t mPurgeEntryList;
 
 	// Statics
 	static F32 sHeaderCacheVersion;

@@ -347,7 +347,7 @@ void LLCoros::toplevel(coro::self& self, CoroData* data, const callable_t& calla
     // run the code the caller actually wants in the coroutine
     try
     {
-#if LL_WINDOWS
+#if LL_WINDOWS && LL_RELEASE_FOR_DOWNLOAD
         winlevel(callable);
 #else
         callable();

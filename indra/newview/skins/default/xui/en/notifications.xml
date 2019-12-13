@@ -2480,6 +2480,13 @@ Sorry, but the system was unable to complete your region crossing in a timely fa
   </notification>
   <notification
    icon="alertmodal.tga"
+   name="preexisting_tport"
+   type="alertmodal">
+   <tag>fail</tag>
+Sorry, but the system was unable to start your teleport. Please try again in a few minutes.
+  </notification>
+  <notification
+   icon="alertmodal.tga"
    name="no_host"
    type="alertmodal">
    <tag>fail</tag>
@@ -3093,6 +3100,29 @@ See https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
 
   <notification
    icon="alertmodal.tga"
+   label="Rename Gesture"
+   name="RenameGesture"
+   type="alertmodal">
+    New gesture name:
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="new_name" type="text" width="300">
+        [NAME]
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
    name="RemoveFromFriends"
    type="alertmodal">
     <tag>friendship</tag>
@@ -3542,6 +3572,30 @@ You can either check your Internet connection and try again in a few minutes, cl
        index="2"
        name="Teleport"
        text="Teleport"/>
+    </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LoginPacketNeverReceivedNoTP"
+   type="alertmodal">
+    <tag>fail</tag>
+We&apos;re having trouble connecting. There may be a problem with your Internet connection or the [SECOND_LIFE_GRID].
+
+You can either check your Internet connection and try again in a few minutes or click Help to view the [SUPPORT_SITE].
+    <url option="1" name="url">
+			http://secondlife.com/support/
+    </url>
+    <form name="form">
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Help"
+       text="Help"/>
     </form>
   </notification>
 
@@ -6707,20 +6761,6 @@ Please select at least one type of content to search (General, Moderate, or Adul
    persist="true"
    type="notify">
 [MESSAGE]
-  </notification>
-
-  <notification
-   icon="notify.tga"
-   name="FlickrConnect"
-   type="notifytip">
-    [MESSAGE]
-  </notification>
-
-  <notification
-   icon="notify.tga"
-   name="TwitterConnect"
-   type="notifytip">
-    [MESSAGE]
   </notification>
 
   <notification

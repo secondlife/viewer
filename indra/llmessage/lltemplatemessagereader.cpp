@@ -645,15 +645,15 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 						switch(data_size)
 						{
 						case 1:
-							htonmemcpy(&tsizeb, &buffer[decode_pos], MVT_U8, 1);
+							htolememcpy(&tsizeb, &buffer[decode_pos], MVT_U8, 1);
 							tsize = tsizeb;
 							break;
 						case 2:
-							htonmemcpy(&tsizeh, &buffer[decode_pos], MVT_U16, 2);
+							htolememcpy(&tsizeh, &buffer[decode_pos], MVT_U16, 2);
 							tsize = tsizeh;
 							break;
 						case 4:
-							htonmemcpy(&tsize, &buffer[decode_pos], MVT_U32, 4);
+							htolememcpy(&tsize, &buffer[decode_pos], MVT_U32, 4);
 							break;
 						default:
 							LL_ERRS() << "Attempting to read variable field with unknown size of " << data_size << LL_ENDL;
