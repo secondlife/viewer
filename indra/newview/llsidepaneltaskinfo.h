@@ -95,6 +95,7 @@ protected:
 
 	static void	doClickAction(U8 click_action);
 	void disableAll();
+	void disablePermissions();
 
 private:
 	LLNameBox*		mLabelGroupName;		// group name

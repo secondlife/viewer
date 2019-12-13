@@ -2539,6 +2539,72 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				}
 			}
 			break;
+		case WM_XBUTTONDOWN:
+			{
+				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_MBUTTONDOWN");
+				LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
+				S32 button = GET_XBUTTON_WPARAM(w_param);
+				if (LLWinImm::isAvailable() && window_imp->mPreeditor)
+				{
+					window_imp->interruptLanguageTextInput();
+				}
+
+				// Because we move the cursor position in tllviewerhe app, we need to query
+				// to find out where the cursor at the time the event is handled.
+				// If we don't do this, many clicks could get buffered up, and if the
+				// first click changes the cursor position, all subsequent clicks
+				// will occur at the wrong location.  JC
+				if (window_imp->mMousePositionModified)
+				{
+					LLCoordWindow cursor_coord_window;
+					window_imp->getCursorPosition(&cursor_coord_window);
+					gl_coord = cursor_coord_window.convert();
+				}
+				else
+				{
+					gl_coord = window_coord.convert();
+				}
+				MASK mask = gKeyboard->currentMask(TRUE);
+				// generate move event to update mouse coordinates
+				window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
+				// Windows uses numbers 1 and 2 for buttons, remap to 4, 5
+				if (window_imp->mCallbacks->handleOtherMouseDown(window_imp, gl_coord, mask, button + 3))
+				{
+					return 0;
+				}
+			}
+			break;
+
+		case WM_XBUTTONUP:
+			{
+				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_MBUTTONUP");
+				LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
+				S32 button = GET_XBUTTON_WPARAM(w_param);
+				// Because we move the cursor position in the llviewer app, we need to query
+				// to find out where the cursor at the time the event is handled.
+				// If we don't do this, many clicks could get buffered up, and if the
+				// first click changes the cursor position, all subsequent clicks
+				// will occur at the wrong location.  JC
+				if (window_imp->mMousePositionModified)
+				{
+					LLCoordWindow cursor_coord_window;
+					window_imp->getCursorPosition(&cursor_coord_window);
+					gl_coord = cursor_coord_window.convert();
+				}
+				else
+				{
+					gl_coord = window_coord.convert();
+				}
+				MASK mask = gKeyboard->currentMask(TRUE);
+				// generate move event to update mouse coordinates
+				window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
+				// Windows uses numbers 1 and 2 for buttons, remap to 4, 5
+				if (window_imp->mCallbacks->handleOtherMouseUp(window_imp, gl_coord, mask, button + 3))
+				{
+					return 0;
+				}
+			}
+			break;
 
 		case WM_MOUSEWHEEL:
 			{
