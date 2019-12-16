@@ -721,9 +721,14 @@ void LLToolGrabBase::handleHoverActive(S32 x, S32 y, MASK mask)
 			!objectp->isHUDAttachment() && 
 			objectp->getRoot() == gAgentAvatarp->getRoot())
 		{
-			// force focus to point in space where we were looking previously
-			gAgentCamera.setFocusGlobal(gAgentCamera.calcFocusPositionTargetGlobal(), LLUUID::null);
-			gAgentCamera.setFocusOnAvatar(FALSE, ANIMATE);
+			// we are essentially editing object position
+			if (!gSavedSettings.getBOOL("EditCameraMovement"))
+			{
+				// force focus to point in space where we were looking previously
+				// Example of use: follow cam scripts shouldn't affect you when movng objects arouns
+				gAgentCamera.setFocusGlobal(gAgentCamera.calcFocusPositionTargetGlobal(), LLUUID::null);
+				gAgentCamera.setFocusOnAvatar(FALSE, ANIMATE);
+			}
 		}
 		else
 		{

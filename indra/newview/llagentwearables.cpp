@@ -1321,7 +1321,7 @@ void LLAgentWearables::findAttachmentsAddRemoveInfo(LLInventoryModel::item_array
 			 attachment_iter != attachment->mAttachedObjects.end();
 			 ++attachment_iter)
 		{
-			LLViewerObject *objectp = (*attachment_iter);
+			LLViewerObject *objectp = attachment_iter->get();
 			if (objectp)
 			{
 				LLUUID object_item_id = objectp->getAttachmentItemID();
@@ -1385,7 +1385,7 @@ std::vector<LLViewerObject*> LLAgentWearables::getTempAttachments()
 				attachment_iter != attachment->mAttachedObjects.end();
 				++attachment_iter)
 			{
-				LLViewerObject *objectp = (*attachment_iter);
+				LLViewerObject *objectp = attachment_iter->get();
 				if (objectp && objectp->isTempAttachment())
 				{
 					temp_attachs.push_back(objectp);

@@ -143,6 +143,32 @@
    name="ui_scale_slider"
    top_pad="-14"
    width="250" />
+  <text
+  type="string"
+  length="1"
+  follows="left|top"
+  height="12"
+  layout="topleft"
+  left="33"
+  name="HUD Size:"
+  top_pad="20"
+  width="100">
+    HUD Scale:
+  </text>
+  <slider
+   control_name="HUDScaleFactor"
+   decimal_digits="2"
+   follows="left|top"
+   height="17"
+   increment="0.1"
+   initial_value="1"
+   layout="topleft"
+   left_pad="0"
+   max_val="2.0"
+   min_val="1.0"
+   name="ui_scale_slider"
+   top_pad="-14"
+   width="250" />
     <check_box
      control_name="ShowScriptErrors"
      follows="left|top"

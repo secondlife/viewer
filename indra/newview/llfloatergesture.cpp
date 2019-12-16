@@ -41,6 +41,7 @@
 #include "llkeyboard.h"
 #include "llmenugl.h"
 #include "llmultigesture.h"
+#include "llnotificationsutil.h"
 #include "llpreviewgesture.h"
 #include "llscrolllistctrl.h"
 #include "lltrans.h"
@@ -125,6 +126,7 @@ LLFloaterGesture::LLFloaterGesture(const LLSD& key)
 	mCommitCallbackRegistrar.add("Gesture.Action.ShowPreview", boost::bind(&LLFloaterGesture::onClickEdit, this));
 	mCommitCallbackRegistrar.add("Gesture.Action.CopyPaste", boost::bind(&LLFloaterGesture::onCopyPasteAction, this, _2));
 	mCommitCallbackRegistrar.add("Gesture.Action.SaveToCOF", boost::bind(&LLFloaterGesture::addToCurrentOutFit, this));
+	mCommitCallbackRegistrar.add("Gesture.Action.Rename", boost::bind(&LLFloaterGesture::onRenameSelected, this));
 
 	mEnableCallbackRegistrar.add("Gesture.EnableAction", boost::bind(&LLFloaterGesture::isActionEnabled, this, _2));
 }
@@ -430,6 +432,19 @@ bool LLFloaterGesture::isActionEnabled(const LLSD& command)
 	{
 		return	mGestureList->getAllSelected().size() == 1;
 	}
+	else if ("rename_gesture" == command_name)
+	{
+		if (mGestureList->getAllSelected().size() == 1)
+		{
+			LLViewerInventoryItem* item = gInventory.getItem(mGestureList->getCurrentID());
+
+			if (item && item->getPermissions().allowModifyBy(gAgentID))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 	return true;
 }
 
@@ -510,6 +525,44 @@ void LLFloaterGesture::onActivateBtnClick()
 			{
 				gm->activateGesture(*it);
 			}
+		}
+	}
+}
+
+void LLFloaterGesture::onRenameSelected()
+{
+	LLViewerInventoryItem* gesture = gInventory.getItem(mGestureList->getCurrentID());
+	if (!gesture)
+	{
+		return;
+	}
+
+	LLSD args;
+	args["NAME"] = gesture->getName();
+
+	LLSD payload;
+	payload["gesture_id"] = mGestureList->getCurrentID();
+
+	LLNotificationsUtil::add("RenameGesture", args, payload, boost::bind(onGestureRename, _1, _2));
+
+}
+
+void LLFloaterGesture::onGestureRename(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option != 0) return; // canceled
+
+	std::string new_name = response["new_name"].asString();
+	LLInventoryObject::correctInventoryName(new_name);
+	if (!new_name.empty())
+	{
+		LLUUID item_id = notification["payload"]["gesture_id"].asUUID();
+		LLViewerInventoryItem* gesture = gInventory.getItem(item_id);
+		if (gesture && (gesture->getName() != new_name))
+		{
+			LLSD updates;
+			updates["name"] = new_name;
+			update_inventory_item(item_id, updates, NULL);
 		}
 	}
 }

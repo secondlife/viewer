@@ -2131,6 +2131,9 @@ void watchdog_llerrs_callback(const std::string &error_string)
 {
 	gLLErrorActivated = true;
 
+	gDebugInfo["FatalMessage"] = error_string;
+	LLAppViewer::instance()->writeDebugInfo();
+
 #ifdef LL_WINDOWS
 	RaiseException(0,0,0,0);
 #else
