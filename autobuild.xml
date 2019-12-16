@@ -166,9 +166,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4d2bc845faac0e92a1e57568ef1f2aa0</string>
+              <string>1e7a892d237096c0c252dc26bb0bcf1d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/47847/424736/boost-1.67-darwin64-533684.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/48114/427588/boost-1.67-darwin64-533856.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -202,9 +202,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>590c49fdc253ad59249663d3b0b3adf7</string>
+              <string>3fdcf88309a340c5e0b6db7be5182c1a</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/47852/424591/boost-1.67-windows-533684.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/48105/427355/boost-1.67-windows-533856.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -214,9 +214,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a53f7a651ae8c8b5ab71f53bbd6a59b8</string>
+              <string>ba2bd6b732d32b6feff6c329cff67041</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/47848/424582/boost-1.67-windows64-533684.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/48116/427536/boost-1.67-windows64-533856.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -308,9 +308,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5aad6e709fa930e762c4826adc765991</string>
+              <string>ca6bb7108b8cf4bac4c4acac515b9b5f</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/47874/424841/colladadom-2.3.533705-darwin64-533705.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/48135/427607/colladadom-2.3.533872-darwin64-533872.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -344,9 +344,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2aa5ae3604b78e809eadd1eb90b4425c</string>
+              <string>2a0161276047081ac27e2b5c260e61d8</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/47880/424864/colladadom-2.3.533705-windows-533705.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/48138/427646/colladadom-2.3.533872-windows-533872.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -356,16 +356,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>952284bdb45d76a87914e32ae43f30c8</string>
+              <string>b0d938c122f1e3a2ab5fdbb33bae165c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/47875/424857/colladadom-2.3.533705-windows64-533705.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/48134/427621/colladadom-2.3.533872-windows64-533872.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.3.533705</string>
+        <string>2.3.533872</string>
       </map>
       <key>curl</key>
       <map>
@@ -1272,9 +1272,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d9199dac32c05ff324cbde896d367c9b</string>
+              <string>cfa0065ee16facb7e4372bd9be834124</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/47876/424848/googlemock-1.7.0.533706-darwin64-533706.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/48136/427614/googlemock-1.7.0.533873-darwin64-533873.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1308,9 +1308,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cbd0d82ec309e79a43a4c9871f56dca9</string>
+              <string>f36799013f5f5dcc07526b55902f2188</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/47882/424878/googlemock-1.7.0.533706-windows-533706.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/48144/427663/googlemock-1.7.0.533873-windows-533873.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1320,16 +1320,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1470ce12427a5b585038200d14a56ef6</string>
+              <string>9722f105a90eddb6142aef6c7b42eb18</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/47881/424871/googlemock-1.7.0.533706-windows64-533706.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/48141/427655/googlemock-1.7.0.533873-windows64-533873.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.7.0.533706</string>
+        <string>1.7.0.533873</string>
       </map>
       <key>gstreamer</key>
       <map>
