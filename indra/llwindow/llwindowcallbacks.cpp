@@ -98,6 +98,16 @@ BOOL LLWindowCallbacks::handleMiddleMouseUp(LLWindow *window, const LLCoordGL po
 	return FALSE;
 }
 
+BOOL LLWindowCallbacks::handleOtherMouseDown(LLWindow *window, const LLCoordGL pos, MASK mask, S32 button)
+{
+    return FALSE;
+}
+
+BOOL LLWindowCallbacks::handleOtherMouseUp(LLWindow *window, const LLCoordGL pos, MASK mask, S32 button)
+{
+    return FALSE;
+}
+
 BOOL LLWindowCallbacks::handleActivate(LLWindow *window, BOOL activated)
 {
 	return FALSE;

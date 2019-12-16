@@ -1628,7 +1628,14 @@ bool idle_startup()
 		if (!gAgentMovementCompleted && timeout.getElapsedTimeF32() > STATE_AGENT_WAIT_TIMEOUT)
 		{
 			LL_WARNS("AppInit") << "Backing up to login screen!" << LL_ENDL;
-			LLNotificationsUtil::add("LoginPacketNeverReceived", LLSD(), LLSD(), login_alert_status);
+			if (gRememberPassword)
+			{
+				LLNotificationsUtil::add("LoginPacketNeverReceived", LLSD(), LLSD(), login_alert_status);
+			}
+			else
+			{
+				LLNotificationsUtil::add("LoginPacketNeverReceivedNoTP", LLSD(), LLSD(), login_alert_status);
+			}
 			reset_login();
 		}
 		return FALSE;
@@ -2363,7 +2370,14 @@ void use_circuit_callback(void**, S32 result)
 		{
 			// Make sure user knows something bad happened. JC
 			LL_WARNS("AppInit") << "Backing up to login screen!" << LL_ENDL;
-			LLNotificationsUtil::add("LoginPacketNeverReceived", LLSD(), LLSD(), login_alert_status);
+			if (gRememberPassword)
+			{
+				LLNotificationsUtil::add("LoginPacketNeverReceived", LLSD(), LLSD(), login_alert_status);
+			}
+			else
+			{
+				LLNotificationsUtil::add("LoginPacketNeverReceivedNoTP", LLSD(), LLSD(), login_alert_status);
+			}
 			reset_login();
 		}
 		else

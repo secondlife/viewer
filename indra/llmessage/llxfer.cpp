@@ -245,7 +245,7 @@ void LLXfer::sendPacket(S32 packet_num)
 				num_copy);
 		}
 		fdata_size += sizeof(S32);
-		htonmemcpy(fdata_buf,&mXferSize, MVT_S32, sizeof(S32));
+		htolememcpy(fdata_buf,&mXferSize, MVT_S32, sizeof(S32));
 	}
 
 	S32 encoded_packetnum = encodePacketNum(packet_num,last_packet);

@@ -2168,19 +2168,27 @@ bool LLImageFormatted::load(const std::string &filename, int load_size)
 	}
 	bool res;
 	U8 *data = allocateData(load_size);
-	apr_size_t bytes_read = load_size;
-	apr_status_t s = apr_file_read(apr_file, data, &bytes_read); // modifies bytes_read
-	if (s != APR_SUCCESS || (S32) bytes_read != load_size)
+	if (data)
 	{
-		deleteData();
-		setLastError("Unable to read file",filename);
-		res = false;
+		apr_size_t bytes_read = load_size;
+		apr_status_t s = apr_file_read(apr_file, data, &bytes_read); // modifies bytes_read
+		if (s != APR_SUCCESS || (S32) bytes_read != load_size)
+		{
+			deleteData();
+			setLastError("Unable to read file",filename);
+			res = false;
+		}
+		else
+		{
+			res = updateData();
+		}
 	}
 	else
 	{
-		res = updateData();
+		setLastError("Allocation failure", filename);
+		res = false;
 	}
-	
+
 	return res;
 }
 

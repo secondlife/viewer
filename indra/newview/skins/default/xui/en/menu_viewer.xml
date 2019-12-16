@@ -17,9 +17,11 @@
       </menu_item_call>
       <menu_item_call
        label="Appearance..."
-       name="ChangeOutfit">
+       name="ChangeOutfit"
+       shortcut="control|O">
         <menu_item_call.on_click
-         function="CustomizeAvatar" />
+         function="Floater.ToggleOrBringToFront"
+         parameter="appearance" />
         <menu_item_call.on_enable
          function="Edit.EnableCustomizeAvatar" />
       </menu_item_call>
@@ -305,21 +307,6 @@
              function="Floater.Toggle"
              parameter="conversation" />
         </menu_item_check>
-        <menu_item_separator/>
-      <menu_item_call
-        label="Twitter..."
-        name="Twitter">
-        <menu_item_call.on_click
-          function="Floater.Toggle"
-          parameter="twitter"/>
-      </menu_item_call>
-      <menu_item_call
-        label="Flickr..."
-        name="Flickr">
-        <menu_item_call.on_click
-          function="Floater.Toggle"
-          parameter="flickr"/>
-      </menu_item_call>
         <menu_item_separator/>
         <menu
          label="Voice morphing"
