@@ -244,6 +244,7 @@ static std::string gFirstSimSeedCap;
 static LLVector3 gAgentStartLookAt(1.0f, 0.f, 0.f);
 static std::string gAgentStartLocation = "safe";
 static bool mLoginStatePastUI = false;
+static bool mBenefitsSuccessfullyInit = false;
 
 const F32 STATE_AGENT_WAIT_TIMEOUT = 240; //seconds
 
@@ -275,6 +276,7 @@ void general_cert_done(const LLSD& notification, const LLSD& response);
 void trust_cert_done(const LLSD& notification, const LLSD& response);
 void apply_udp_blacklist(const std::string& csv);
 bool process_login_success_response();
+void on_benefits_failed_callback(const LLSD& notification, const LLSD& response);
 void transition_back_to_login_panel(const std::string& emsg);
 
 void callback_cache_name(const LLUUID& id, const std::string& full_name, bool is_group)
@@ -2157,6 +2159,11 @@ bool idle_startup()
 		set_startup_status(1.0, "", "");
 		display_startup();
 
+		if (!mBenefitsSuccessfullyInit)
+		{
+			LLNotificationsUtil::add("FailedToGetBenefits", LLSD(), LLSD(), boost::bind(on_benefits_failed_callback, _1, _2));
+		}
+
 		// Let the map know about the inventory.
 		LLFloaterWorldMap* floater_world_map = LLFloaterWorldMap::getInstance();
 		if(floater_world_map)
@@ -3328,11 +3335,7 @@ bool process_login_success_response()
 {
 	LLSD response = LLLoginInstance::getInstance()->getResponse();
 
-	bool benefits_ok = init_benefits(response);
-	if (!benefits_ok)
-	{
-		LLNotificationsUtil::add("FailedToGetBenefits",  LLSD(), LLSD(), boost::bind(on_benefits_failed_callback, _1, _2));
-	}
+	mBenefitsSuccessfullyInit = init_benefits(response);
 
 	std::string text(response["udp_blacklist"]);
 	if(!text.empty())
