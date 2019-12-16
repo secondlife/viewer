@@ -56,7 +56,7 @@ void LLFloaterSpellCheckerSettings::draw()
 	bool enable_remove = !sel_items.empty();
 	for (std::vector<LLScrollListItem*>::const_iterator sel_it = sel_items.begin(); sel_it != sel_items.end(); ++sel_it)
 	{
-		enable_remove &= LLSpellChecker::canRemoveDictionary((*sel_it)->getValue().asString());
+		enable_remove &= LLSpellChecker::getInstance()->canRemoveDictionary((*sel_it)->getValue().asString());
 	}
 	getChild<LLUICtrl>("spellcheck_remove_btn")->setEnabled(enable_remove);
 }
@@ -121,7 +121,7 @@ void LLFloaterSpellCheckerSettings::onClose(bool app_quitting)
 		for (std::vector<LLScrollListItem*>::const_iterator item_it = list_items.begin(); item_it != list_items.end(); ++item_it)
 		{
 			const std::string language = (*item_it)->getValue().asString();
-			if (LLSpellChecker::hasDictionary(language, true))
+			if (LLSpellChecker::getInstance()->hasDictionary(language, true))
 			{
 				list_dict.push_back(language);
 			}
@@ -164,7 +164,7 @@ void LLFloaterSpellCheckerSettings::refreshDictionaries(bool from_settings)
 	}
 	dict_combo->clearRows();
 
-	const LLSD& dict_map = LLSpellChecker::getDictionaryMap();
+	const LLSD& dict_map = LLSpellChecker::getInstance()->getDictionaryMap();
 	if (dict_map.size())
 	{
 		for (LLSD::array_const_iterator dict_it = dict_map.beginArray(); dict_it != dict_map.endArray(); ++dict_it)
@@ -216,7 +216,7 @@ void LLFloaterSpellCheckerSettings::refreshDictionaries(bool from_settings)
 	for (LLSpellChecker::dict_list_t::const_iterator it = active_list.begin(); it != active_list.end(); ++it)
 	{
 		const std::string language = *it;
-		const LLSD dict = LLSpellChecker::getDictionaryData(language);
+		const LLSD dict = LLSpellChecker::getInstance()->getDictionaryData(language);
 		row["value"] = language;
 		row["columns"][0]["value"] = (!dict["user_installed"].asBoolean()) ? language : language + " " + LLTrans::getString("UserDictionary");
 		active_ctrl->addElement(row);
@@ -380,7 +380,7 @@ void LLFloaterSpellCheckerImport::onBtnOK()
 			custom_file_out.close();
 		}
 
-		LLSpellChecker::refreshDictionaryMap();
+		LLSpellChecker::getInstance()->refreshDictionaryMap();
 	}
 
 	closeFloater(false);

@@ -35,7 +35,7 @@ LLFloaterChatVoiceVolume::LLFloaterChatVoiceVolume(const LLSD& key)
 void LLFloaterChatVoiceVolume::onOpen(const LLSD& key)
 {
 	LLInspect::onOpen(key);
-	LLUI::positionViewNearMouse(this);
+	LLUI::getInstance()->positionViewNearMouse(this);
 }
 
 LLFloaterChatVoiceVolume::~LLFloaterChatVoiceVolume()

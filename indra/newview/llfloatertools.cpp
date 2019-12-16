@@ -514,11 +514,6 @@ void LLFloaterTools::refresh()
 		selection_info << getString("status_selectcount", selection_args);
 
 		getChild<LLTextBox>("selection_count")->setText(selection_info.str());
-
-		bool have_selection = !LLSelectMgr::getInstance()->getSelection()->isEmpty();
-		childSetVisible("selection_count",  have_selection);
-		childSetVisible("remaining_capacity", have_selection);
-		childSetVisible("selection_empty", !have_selection);
 	}
 
 
@@ -854,6 +849,18 @@ void LLFloaterTools::onOpen(const LLSD& key)
 	if (!panel.empty())
 	{
 		mTab->selectTabByName(panel);
+	}
+
+	LLTool* tool = LLToolMgr::getInstance()->getCurrentTool();
+	if (tool == LLToolCompInspect::getInstance()
+		|| tool == LLToolDragAndDrop::getInstance())
+	{
+		// Something called floater up while it was supressed (during drag n drop, inspect),
+		// so it won't be getting any layout or visibility updates, update once
+		// further updates will come from updateLayout()
+		LLCoordGL select_center_screen;
+		MASK	mask = gKeyboard->currentMask(TRUE);
+		updatePopup(select_center_screen, mask);
 	}
 	
 	//gMenuBarView->setItemVisible("BuildTools", TRUE);

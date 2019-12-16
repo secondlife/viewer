@@ -16,7 +16,7 @@
 		(неизвестно)
 	</text>
 	<radio_group name="externally_visible_radio">
-		<radio_item label="Разрешено только жителям и группам, перечисленным на вкладке доступа" name="estate_restricted_access"/>
+		<radio_item label="Разрешено только жителям и группам, перечисленных на вкладке доступа" name="estate_restricted_access"/>
 		<radio_item label="Доступ открыт для всех" name="estate_public_access"/>
 	</radio_group>
 	<check_box label="Должен быть 18 и старше" name="limit_age_verified" tool_tip="Доступ к этому землевладению имеют только жители 18 лет и старше. Более подробная информация находится здесь: [SUPPORT_SITE]."/>

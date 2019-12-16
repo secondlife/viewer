@@ -3,8 +3,8 @@
 # cmake_minimum_required should appear before any
 # other commands to guarantee full compatibility
 # with the version specified
-## prior to 3.4, the Windows manifest handling was missing
-cmake_minimum_required(VERSION 3.4.0 FATAL_ERROR)
+## 3.8 added VS_DEBUGGER_WORKING_DIRECTORY support
+cmake_minimum_required(VERSION 3.8.0 FATAL_ERROR)
 
 set(ROOT_PROJECT_NAME "SecondLife" CACHE STRING
     "The root project/makefile/solution name. Defaults to SecondLife.")
@@ -82,6 +82,12 @@ add_subdirectory(${VIEWER_PREFIX}newview)
 add_dependencies(viewer secondlife-bin)
 
 add_subdirectory(${VIEWER_PREFIX}doxygen EXCLUDE_FROM_ALL)
+
+# sets the 'startup project' for debugging from visual studio.
+set_property(
+    DIRECTORY ${VIEWER_PREFIX}
+    PROPERTY VS_STARTUP_PROJECT secondlife-bin
+    )
 
 if (LL_TESTS)
   # Define after the custom targets are created so

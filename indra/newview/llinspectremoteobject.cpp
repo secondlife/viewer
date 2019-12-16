@@ -116,11 +116,11 @@ void LLInspectRemoteObject::onOpen(const LLSD& data)
 	// See LLToolTipMgr::createToolTip
 	if (data.has("pos"))
 	{
-		LLUI::positionViewNearMouse(this, data["pos"]["x"].asInteger(), data["pos"]["y"].asInteger());
+		LLUI::getInstance()->positionViewNearMouse(this, data["pos"]["x"].asInteger(), data["pos"]["y"].asInteger());
 	}
 	else
 	{
-		LLUI::positionViewNearMouse(this);
+		LLUI::getInstance()->positionViewNearMouse(this);
 	}
 }
 

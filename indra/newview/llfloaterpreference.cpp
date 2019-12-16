@@ -124,7 +124,9 @@ char const* const VISIBILITY_DEFAULT = "default";
 char const* const VISIBILITY_HIDDEN = "hidden";
 
 //control value for middle mouse as talk2push button
-const static std::string MIDDLE_MOUSE_CV = "MiddleMouse";
+const static std::string MIDDLE_MOUSE_CV = "MiddleMouse"; // for voice client and redability
+const static std::string MOUSE_BUTTON_4_CV = "MouseButton4";
+const static std::string MOUSE_BUTTON_5_CV = "MouseButton5";
 
 /// This must equal the maximum value set for the IndirectMaxComplexity slider in panel_preferences_graphics1.xml
 static const U32 INDIRECT_MAX_ARC_OFF = 101; // all the way to the right == disabled
@@ -168,6 +170,7 @@ public:
 	void setParent(LLFloaterPreference* parent) { mParent = parent; }
 	
 	BOOL handleKeyHere(KEY key, MASK mask);
+	BOOL handleAnyMouseClick(S32 x, S32 y, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down);
 	static void onCancel(void* user_data);
 		
 private:
@@ -209,6 +212,25 @@ BOOL LLVoiceSetKeyDialog::handleKeyHere(KEY key, MASK mask)
 	}
 	closeFloater();
 	return result;
+}
+
+BOOL LLVoiceSetKeyDialog::handleAnyMouseClick(S32 x, S32 y, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down)
+{
+    BOOL result = FALSE;
+    if (down
+        && (clicktype == LLMouseHandler::CLICK_MIDDLE || clicktype == LLMouseHandler::CLICK_BUTTON4 || clicktype == LLMouseHandler::CLICK_BUTTON5)
+        && mask == 0)
+    {
+        mParent->setMouse(clicktype);
+        result = TRUE;
+        closeFloater();
+    }
+    else
+    {
+        result = LLMouseHandler::handleAnyMouseClick(x, y, mask, clicktype, down);
+    }
+
+    return result;
 }
 
 //static
@@ -254,8 +276,8 @@ bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response
 	if ( option == 0 ) // YES
 	{
 		// clean web
-		LLViewerMedia::clearAllCaches();
-		LLViewerMedia::clearAllCookies();
+		LLViewerMedia::getInstance()->clearAllCaches();
+		LLViewerMedia::getInstance()->clearAllCookies();
 		
 		// clean nav bar history
 		LLNavigationBar::getInstance()->clearHistoryCache();
@@ -278,13 +300,13 @@ bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response
 
 void handleNameTagOptionChanged(const LLSD& newvalue)
 {
-	LLAvatarNameCache::setUseUsernames(gSavedSettings.getBOOL("NameTagShowUsernames"));
+	LLAvatarNameCache::getInstance()->setUseUsernames(gSavedSettings.getBOOL("NameTagShowUsernames"));
 	LLVOAvatar::invalidateNameTags();
 }
 
 void handleDisplayNamesOptionChanged(const LLSD& newvalue)
 {
-	LLAvatarNameCache::setUseDisplayNames(newvalue.asBoolean());
+	LLAvatarNameCache::getInstance()->setUseDisplayNames(newvalue.asBoolean());
 	LLVOAvatar::invalidateNameTags();
 }
 
@@ -523,7 +545,7 @@ BOOL LLFloaterPreference::postBuild()
 	// set 'enable' property for 'Clear log...' button
 	changed();
 
-	LLLogChat::setSaveHistorySignal(boost::bind(&LLFloaterPreference::onLogChatHistorySaved, this));
+	LLLogChat::getInstance()->setSaveHistorySignal(boost::bind(&LLFloaterPreference::onLogChatHistorySaved, this));
 
 	LLSliderCtrl* fov_slider = getChild<LLSliderCtrl>("camera_fov");
 	fov_slider->setMinValue(LLViewerCamera::getInstance()->getMinView());
@@ -635,14 +657,14 @@ void LLFloaterPreference::apply()
 	std::string cache_location = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
 	setCacheLocation(cache_location);
 	
-	LLViewerMedia::setCookiesEnabled(getChild<LLUICtrl>("cookies_enabled")->getValue());
+	LLViewerMedia::getInstance()->setCookiesEnabled(getChild<LLUICtrl>("cookies_enabled")->getValue());
 	
 	if (hasChild("web_proxy_enabled", TRUE) &&hasChild("web_proxy_editor", TRUE) && hasChild("web_proxy_port", TRUE))
 	{
 		bool proxy_enable = getChild<LLUICtrl>("web_proxy_enabled")->getValue();
 		std::string proxy_address = getChild<LLUICtrl>("web_proxy_editor")->getValue();
 		int proxy_port = getChild<LLUICtrl>("web_proxy_port")->getValue();
-		LLViewerMedia::setProxyConfig(proxy_enable, proxy_address, proxy_port);
+		LLViewerMedia::getInstance()->setProxyConfig(proxy_enable, proxy_address, proxy_port);
 	}
 	
 	if (mGotPersonalInfo)
@@ -1234,7 +1256,7 @@ void LLFloaterPreference::buildPopupLists()
 		{
 			if (ignore == LLNotificationForm::IGNORE_WITH_LAST_RESPONSE)
 			{
-				LLSD last_response = LLUI::sSettingGroups["config"]->getLLSD("Default" + templatep->mName);
+				LLSD last_response = LLUI::getInstance()->mSettingGroups["config"]->getLLSD("Default" + templatep->mName);
 				if (!last_response.isUndefined())
 				{
 					for (LLSD::map_const_iterator it = last_response.beginMap();
@@ -1694,6 +1716,41 @@ void LLFloaterPreference::setKey(KEY key)
 	getChild<LLUICtrl>("modifier_combo")->onCommit();
 }
 
+void LLFloaterPreference::setMouse(LLMouseHandler::EClickType click)
+{
+    std::string bt_name;
+    std::string ctrl_value;
+    switch (click)
+    {
+        case LLMouseHandler::CLICK_MIDDLE:
+            bt_name = "middle_mouse";
+            ctrl_value = MIDDLE_MOUSE_CV;
+            break;
+        case LLMouseHandler::CLICK_BUTTON4:
+            bt_name = "button4_mouse";
+            ctrl_value = MOUSE_BUTTON_4_CV;
+            break;
+        case LLMouseHandler::CLICK_BUTTON5:
+            bt_name = "button5_mouse";
+            ctrl_value = MOUSE_BUTTON_5_CV;
+            break;
+        default:
+            break;
+    }
+
+    if (!ctrl_value.empty())
+    {
+        LLUICtrl* p2t_line_editor = getChild<LLUICtrl>("modifier_combo");
+        // We are using text control names for readability and compatibility with voice
+        p2t_line_editor->setControlValue(ctrl_value);
+        LLPanel* advanced_preferences = dynamic_cast<LLPanel*>(p2t_line_editor->getParent());
+        if (advanced_preferences)
+        {
+            p2t_line_editor->setValue(advanced_preferences->getString(bt_name));
+        }
+    }
+}
+
 void LLFloaterPreference::onClickSetMiddleMouse()
 {
 	LLUICtrl* p2t_line_editor = getChild<LLUICtrl>("modifier_combo");
@@ -1739,7 +1796,7 @@ void LLFloaterPreference::onClickEnablePopup()
 		LLNotificationTemplatePtr templatep = LLNotifications::instance().getTemplate(*(std::string*)((*itor)->getUserdata()));
 		//gSavedSettings.setWarning(templatep->mName, TRUE);
 		std::string notification_name = templatep->mName;
-		LLUI::sSettingGroups["ignores"]->setBOOL(notification_name, TRUE);
+		LLUI::getInstance()->mSettingGroups["ignores"]->setBOOL(notification_name, TRUE);
 	}
 	
 	buildPopupLists();
@@ -2431,9 +2488,18 @@ BOOL LLPanelPreference::postBuild()
 	if (hasChild("modifier_combo", TRUE))
 	{
 		//localizing if push2talk button is set to middle mouse
-		if (MIDDLE_MOUSE_CV == getChild<LLUICtrl>("modifier_combo")->getValue().asString())
+		std::string modifier_value = getChild<LLUICtrl>("modifier_combo")->getValue().asString();
+		if (MIDDLE_MOUSE_CV == modifier_value)
 		{
 			getChild<LLUICtrl>("modifier_combo")->setValue(getString("middle_mouse"));
+		}
+		else if (MOUSE_BUTTON_4_CV == modifier_value)
+		{
+			getChild<LLUICtrl>("modifier_combo")->setValue(getString("button4_mouse"));
+		}
+		else if (MOUSE_BUTTON_5_CV == modifier_value)
+		{
+			getChild<LLUICtrl>("modifier_combo")->setValue(getString("button5_mouse"));
 		}
 	}
 

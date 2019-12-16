@@ -61,57 +61,6 @@
    font="SansSerif"
    halign="left"
    height="22"
-   image_overlay="Snapshot_Facebook"
-   image_overlay_alignment="left"
-   image_top_pad="0"
-   imgoverlay_label_space="10"
-   label="Share to Facebook"
-   layout="topleft"
-   left_delta="0"
-   name="send_to_facebook_btn"
-   top_pad="5">
-    <button.commit_callback
-     function="Snapshot.SendToFacebook"/>
-  </button>
-  <button
-   follows="left|top"
-   font="SansSerif"
-   halign="left"
-   height="22"
-   image_overlay="Command_Twitter_Icon"
-   image_overlay_alignment="left"
-   image_top_pad="0"
-   imgoverlay_label_space="10"
-   label="Share to Twitter"
-   layout="topleft"
-   left_delta="0"
-   name="send_to_twitter_btn"
-   top_pad="5">
-    <button.commit_callback
-     function="Snapshot.SendToTwitter"/>
-  </button>
-  <button
-   follows="left|top"
-   font="SansSerif"
-   halign="left"
-   height="22"
-   image_overlay="Command_Flickr_Icon"
-   image_overlay_alignment="left"
-   image_top_pad="0"
-   imgoverlay_label_space="10"
-   label="Share to Flickr"
-   layout="topleft"
-   left_delta="0"
-   name="send_to_flickr_btn"
-   top_pad="5">
-    <button.commit_callback
-     function="Snapshot.SendToFlickr"/>
-  </button>
-  <button
-   follows="left|top"
-   font="SansSerif"
-   halign="left"
-   height="22"
    image_overlay="Snapshot_Email"
    image_overlay_alignment="left"
    image_top_pad="0"

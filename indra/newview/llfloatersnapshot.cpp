@@ -28,11 +28,7 @@
 
 #include "llfloatersnapshot.h"
 
-#include "llfacebookconnect.h"
 #include "llfloaterreg.h"
-#include "llfloaterfacebook.h"
-#include "llfloaterflickr.h"
-#include "llfloatertwitter.h"
 #include "llimagefiltersmanager.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
@@ -1242,11 +1238,7 @@ BOOL LLFloaterSnapshot::isWaitingState()
 
 BOOL LLFloaterSnapshotBase::ImplBase::updatePreviewList(bool initialized)
 {
-	LLFloaterFacebook* floater_facebook = LLFloaterReg::findTypedInstance<LLFloaterFacebook>("facebook");
-	LLFloaterFlickr* floater_flickr = LLFloaterReg::findTypedInstance<LLFloaterFlickr>("flickr");
-	LLFloaterTwitter* floater_twitter = LLFloaterReg::findTypedInstance<LLFloaterTwitter>("twitter");
-
-	if (!initialized && !floater_facebook && !floater_flickr && !floater_twitter)
+	if (!initialized)
 		return FALSE;
 
 	BOOL changed = FALSE;

@@ -44,7 +44,8 @@ bool LLTransUtil::parseStrings(const std::string& xml_filename, const std::set<s
 	bool success = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root, LLDir::ALL_SKINS);
 	if (!success)
 	{
-		LL_ERRS() << "Couldn't load string table " << xml_filename << LL_ENDL;
+		gDirUtilp->dumpCurrentDirectories(LLError::LEVEL_WARN);
+		LL_ERRS() << "Couldn't load string table " << xml_filename << ". Please reinstall viewer from  https://secondlife.com/support/downloads/ and contact https://support.secondlife.com if issue persists after reinstall." << LL_ENDL;
 		return false;
 	}
 

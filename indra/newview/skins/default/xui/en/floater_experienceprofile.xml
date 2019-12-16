@@ -493,6 +493,7 @@
             layout="topleft"
             left="11"
             name="edit_experience_description"
+            spellcheck="true"
             max_length="2048"
             text_color="black"
             right="-11"

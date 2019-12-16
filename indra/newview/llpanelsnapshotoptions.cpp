@@ -32,9 +32,6 @@
 
 #include "llfloatersnapshot.h" // FIXME: create a snapshot model
 #include "llfloaterreg.h"
-#include "llfloaterfacebook.h"
-#include "llfloaterflickr.h"
-#include "llfloatertwitter.h"
 
 /**
  * Provides several ways to save a snapshot.
@@ -59,9 +56,6 @@ private:
 	void onSaveToEmail();
 	void onSaveToInventory();
 	void onSaveToComputer();
-	void onSendToFacebook();
-	void onSendToTwitter();
-	void onSendToFlickr();
 
 	LLFloaterSnapshotBase* mSnapshotFloater;
 };
@@ -74,9 +68,7 @@ LLPanelSnapshotOptions::LLPanelSnapshotOptions()
 	mCommitCallbackRegistrar.add("Snapshot.SaveToEmail",		boost::bind(&LLPanelSnapshotOptions::onSaveToEmail,		this));
 	mCommitCallbackRegistrar.add("Snapshot.SaveToInventory",	boost::bind(&LLPanelSnapshotOptions::onSaveToInventory,	this));
 	mCommitCallbackRegistrar.add("Snapshot.SaveToComputer",		boost::bind(&LLPanelSnapshotOptions::onSaveToComputer,	this));
-	mCommitCallbackRegistrar.add("Snapshot.SendToFacebook",		boost::bind(&LLPanelSnapshotOptions::onSendToFacebook, this));
-	mCommitCallbackRegistrar.add("Snapshot.SendToTwitter",		boost::bind(&LLPanelSnapshotOptions::onSendToTwitter, this));
-	mCommitCallbackRegistrar.add("Snapshot.SendToFlickr",		boost::bind(&LLPanelSnapshotOptions::onSendToFlickr, this));
+
 	LLGlobalEconomy::getInstance()->addObserver(this);
 }
 
@@ -138,38 +130,3 @@ void LLPanelSnapshotOptions::onSaveToComputer()
 	openPanel("panel_snapshot_local");
 }
 
-void LLPanelSnapshotOptions::onSendToFacebook()
-{
-	LLFloaterReg::hideInstance("snapshot");
-
-	LLFloaterFacebook* facebook_floater = dynamic_cast<LLFloaterFacebook*>(LLFloaterReg::getInstance("facebook"));
-	if (facebook_floater)
-	{
-		facebook_floater->showPhotoPanel();
-	}
-	LLFloaterReg::showInstance("facebook");
-}
-
-void LLPanelSnapshotOptions::onSendToTwitter()
-{
-	LLFloaterReg::hideInstance("snapshot");
-
-	LLFloaterTwitter* twitter_floater = dynamic_cast<LLFloaterTwitter*>(LLFloaterReg::getInstance("twitter"));
-	if (twitter_floater)
-	{
-		twitter_floater->showPhotoPanel();
-	}
-	LLFloaterReg::showInstance("twitter");
-}
-
-void LLPanelSnapshotOptions::onSendToFlickr()
-{
-	LLFloaterReg::hideInstance("snapshot");
-
-	LLFloaterFlickr* flickr_floater = dynamic_cast<LLFloaterFlickr*>(LLFloaterReg::getInstance("flickr"));
-	if (flickr_floater)
-	{
-		flickr_floater->showPhotoPanel();
-	}
-	LLFloaterReg::showInstance("flickr");
-}

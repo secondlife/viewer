@@ -312,12 +312,12 @@ void ll_nvapi_init(NvDRSSessionHandle hSession)
 #if DEBUGGING_SEH_FILTER
 #	define WINMAIN DebuggingWinMain
 #else
-#	define WINMAIN WinMain
+#	define WINMAIN wWinMain
 #endif
 
 int APIENTRY WINMAIN(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
-                     LPSTR     lpCmdLine,
+                     PWSTR     pCmdLine,
                      int       nCmdShow)
 {
 	const S32 MAX_HEAPS = 255;
@@ -356,8 +356,8 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 	// *FIX: global
 	gIconResource = MAKEINTRESOURCE(IDI_LL_ICON);
 
-	LLAppViewerWin32* viewer_app_ptr = new LLAppViewerWin32(lpCmdLine);
-	
+	LLAppViewerWin32* viewer_app_ptr = new LLAppViewerWin32(ll_convert_wide_to_string(pCmdLine).c_str());
+
 	gOldTerminateHandler = std::set_terminate(exceptionTerminateHandler);
 
 	viewer_app_ptr->setErrorHandler(LLAppViewer::handleViewerCrash);
@@ -469,9 +469,9 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 // in a method that uses object destructors. Go figure.
 // This winmain just calls the real winmain inside __try.
 // The __except calls our exception filter function. For debugging purposes.
-int APIENTRY WinMain(HINSTANCE hInstance,
+int APIENTRY wWinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
-                     LPSTR     lpCmdLine,
+                     PWSTR     lpCmdLine,
                      int       nCmdShow)
 {
     __try

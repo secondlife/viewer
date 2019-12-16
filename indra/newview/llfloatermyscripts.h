@@ -36,15 +36,17 @@ public:
 	LLFloaterMyScripts(const LLSD& seed);
 
 	BOOL postBuild();
+	/*virtual*/ void onOpen(const LLSD& key);
 	void setAttachmentDetails(LLSD content);
 	void setAttachmentSummary(LLSD content);
-	BOOL requestAttachmentDetails();
+	bool requestAttachmentDetails();
 	void clearList();
 
 private:
 	void getAttachmentLimitsCoro(std::string url);
 
 	bool mGotAttachmentMemoryUsed;
+	bool mAttachmentDetailsRequested;
 	S32 mAttachmentMemoryMax;
 	S32 mAttachmentMemoryUsed;
 

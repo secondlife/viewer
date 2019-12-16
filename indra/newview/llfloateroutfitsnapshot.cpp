@@ -30,11 +30,7 @@
 #include "llfloateroutfitsnapshot.h"
 
 #include "llagent.h"
-#include "llfacebookconnect.h"
 #include "llfloaterreg.h"
-#include "llfloaterfacebook.h"
-#include "llfloaterflickr.h"
-#include "llfloatertwitter.h"
 #include "llimagefiltersmanager.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"

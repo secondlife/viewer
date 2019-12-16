@@ -1383,7 +1383,11 @@ BOOL LLViewerObjectList::killObject(LLViewerObject *objectp)
 
 	if (objectp)
 	{
-		objectp->markDead(); // does the right thing if object already dead
+		// We are going to cleanup a lot of smart pointers to this object, they might be last,
+		// and object being NULLed while inside it's own function won't be pretty
+		// so create a pointer to make sure object will stay alive untill markDead() finishes
+		LLPointer<LLViewerObject> sp(objectp);
+		sp->markDead(); // does the right thing if object already dead
 		return TRUE;
 	}
 
@@ -1917,7 +1921,7 @@ void LLViewerObjectList::generatePickList(LLCamera &camera)
 						 attachment_iter != attachment->mAttachedObjects.end();
 						 ++attachment_iter)
 					{
-						if (LLViewerObject* attached_object = (*attachment_iter))
+						if (LLViewerObject* attached_object = attachment_iter->get())
 						{
 							mSelectPickList.insert(attached_object);
 							LLViewerObject::const_child_list_t& child_list = attached_object->getChildren();

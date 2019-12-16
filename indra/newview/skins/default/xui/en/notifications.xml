@@ -326,6 +326,16 @@ Initialization with the Marketplace failed because of a system or network error.
         name="okbutton"
         yestext="OK"/>
     </notification>
+  
+    <notification
+        icon="OutboxStatus_Error"
+        name="MyOutfitsPasteFailed"
+        type="alertmodal">
+       One or more items can't be used inside "My outfits"
+      <usetemplate
+        name="okbutton"
+        yestext="OK"/>
+    </notification>
     
     <notification
         icon="OutboxStatus_Error"
@@ -1775,13 +1785,6 @@ Visit [_URL] for more information?
 
   <notification
    icon="alertmodal.tga"
-   name="RunLauncher"
-   type="alertmodal">
-     Please do not directly run the viewer executable. Update any existing shortcuts to run SL_Launcher instead.
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="OldGPUDriver"
    type="alertmodal">
      There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
@@ -2393,6 +2396,7 @@ Your search terms were too short so no search was performed.
    icon="alertmodal.tga"
    name="CouldNotTeleportReason"
    type="alertmodal">
+    <unique/>
 Teleport failed.
 [REASON]
   <tag>fail</tag>
@@ -2473,6 +2477,13 @@ Sorry, but the system was unable to complete your teleport request in a timely f
    type="alertmodal">
    <tag>fail</tag>
 Sorry, but the system was unable to complete your region crossing in a timely fashion. Please try again in a few minutes.
+  </notification>
+  <notification
+   icon="alertmodal.tga"
+   name="preexisting_tport"
+   type="alertmodal">
+   <tag>fail</tag>
+Sorry, but the system was unable to start your teleport. Please try again in a few minutes.
   </notification>
   <notification
    icon="alertmodal.tga"
@@ -3089,6 +3100,29 @@ See https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
 
   <notification
    icon="alertmodal.tga"
+   label="Rename Gesture"
+   name="RenameGesture"
+   type="alertmodal">
+    New gesture name:
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="new_name" type="text" width="300">
+        [NAME]
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
    name="RemoveFromFriends"
    type="alertmodal">
     <tag>friendship</tag>
@@ -3538,6 +3572,30 @@ You can either check your Internet connection and try again in a few minutes, cl
        index="2"
        name="Teleport"
        text="Teleport"/>
+    </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LoginPacketNeverReceivedNoTP"
+   type="alertmodal">
+    <tag>fail</tag>
+We&apos;re having trouble connecting. There may be a problem with your Internet connection or the [SECOND_LIFE_GRID].
+
+You can either check your Internet connection and try again in a few minutes or click Help to view the [SUPPORT_SITE].
+    <url option="1" name="url">
+			http://secondlife.com/support/
+    </url>
+    <form name="form">
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Help"
+       text="Help"/>
     </form>
   </notification>
 
@@ -6705,27 +6763,6 @@ Please select at least one type of content to search (General, Moderate, or Adul
 [MESSAGE]
   </notification>
 
- <notification
-  icon="notify.tga"
-  name="FacebookConnect"
-  type="notifytip">
-[MESSAGE]
- </notification>
-
-  <notification
-   icon="notify.tga"
-   name="FlickrConnect"
-   type="notifytip">
-    [MESSAGE]
-  </notification>
-
-  <notification
-   icon="notify.tga"
-   name="TwitterConnect"
-   type="notifytip">
-    [MESSAGE]
-  </notification>
-
   <notification
    icon="notify.tga"
    name="PaymentReceived"
@@ -8639,6 +8676,7 @@ Please check your network and firewall setup.
    icon="alertmodal.tga"
    name="NoVoiceConnect"
    type="alertmodal">
+    <unique/>
 We are unable to connect to the voice server:
 
 [HOSTID]

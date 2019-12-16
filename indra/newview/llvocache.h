@@ -221,9 +221,9 @@ private:
 //
 //Note: LLVOCache is not thread-safe
 //
-class LLVOCache : public LLSingleton<LLVOCache>
+class LLVOCache : public LLParamSingleton<LLVOCache>
 {
-	LLSINGLETON(LLVOCache);
+	LLSINGLETON(LLVOCache, bool read_only);
 	~LLVOCache() ;
 
 private:
@@ -259,14 +259,13 @@ private:
 	typedef std::map<U64, HeaderEntryInfo*> handle_entry_map_t;
 
 public:
-	void initCache(ELLPath location, U32 size, U32 cache_version) ;
+	// We need this init to be separate from constructor, since we might construct cache, purge it, then init.
+	void initCache(ELLPath location, U32 size, U32 cache_version);
 	void removeCache(ELLPath location, bool started = false) ;
 
 	void readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_entry_map_t& cache_entry_map) ;
 	void writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache, bool removal_enabled);
 	void removeEntry(U64 handle) ;
-
-	void setReadOnly(bool read_only) {mReadOnly = read_only;} 
 
 	U32 getCacheEntries() { return mNumEntries; }
 	U32 getCacheEntriesMax() { return mCacheSize; }

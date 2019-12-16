@@ -96,6 +96,7 @@
 #include "llviewershadermgr.h"
 #include "llpanelface.h"
 #include "llglheaders.h"
+#include "llinventoryobserver.h"
 
 LLViewerObject* getSelectedParentObject(LLViewerObject *object) ;
 //
@@ -151,6 +152,53 @@ struct LLDeRezInfo
 //
 // Imports
 //
+
+//-----------------------------------------------------------------------------
+// ~LLSelectionCallbackData()
+//-----------------------------------------------------------------------------
+
+LLSelectionCallbackData::LLSelectionCallbackData()
+{
+    LLSelectMgr *instance = LLSelectMgr::getInstance();
+    LLObjectSelectionHandle selection = instance->getSelection();
+    if (!selection->getNumNodes())
+    {
+        return;
+    }
+    mSelectedObjects = new LLObjectSelection();
+
+    for (LLObjectSelection::iterator iter = selection->begin();
+        iter != selection->end();)
+    {
+        LLObjectSelection::iterator curiter = iter++;
+
+        LLSelectNode *nodep = *curiter;
+        LLViewerObject* objectp = nodep->getObject();
+
+        if (!objectp)
+        {
+            mSelectedObjects->mSelectType = SELECT_TYPE_WORLD;
+        }
+        else
+        {
+            LLSelectNode* new_nodep = new LLSelectNode(*nodep);
+            mSelectedObjects->addNode(new_nodep);
+
+            if (objectp->isHUDAttachment())
+            {
+                mSelectedObjects->mSelectType = SELECT_TYPE_HUD;
+            }
+            else if (objectp->isAttachment())
+            {
+                mSelectedObjects->mSelectType = SELECT_TYPE_ATTACHMENT;
+            }
+            else
+            {
+                mSelectedObjects->mSelectType = SELECT_TYPE_WORLD;
+            }
+        }
+    }
+}
 
 
 //
@@ -1656,6 +1704,7 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 				// * Can just apply the texture and be done with it.
 				objectp->setTEImage(te, LLViewerTextureManager::getFetchedTexture(mImageID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
 			}
+
 			return true;
 		}
 	};
@@ -1855,6 +1904,7 @@ BOOL LLSelectMgr::selectionRevertTextures()
 					else
 					{
 						object->setTEImage(te, LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
+
 					}
 				}
 			}
@@ -3861,6 +3911,14 @@ BOOL LLSelectMgr::selectGetAggregateTexturePermissions(LLAggregatePermissions& r
 	return TRUE;
 }
 
+BOOL LLSelectMgr::isSelfAvatarSelected()
+{
+	if (mAllowSelectAvatar)
+	{
+		return (getSelection()->getObjectCount() == 1) && (getSelection()->getFirstRootObject() == gAgentAvatarp);
+	}
+	return FALSE;
+}
 
 //--------------------------------------------------------------------
 // Duplicate objects
@@ -3882,6 +3940,17 @@ void LLSelectMgr::selectDuplicate(const LLVector3& offset, BOOL select_copy)
 		//RN: do not duplicate attachments
 		make_ui_sound("UISndInvalidOp");
 		return;
+	}
+	if (!canDuplicate())
+	{
+		LLSelectNode* node = getSelection()->getFirstRootNode(NULL, true);
+		if (node)
+		{
+			LLSD args;
+			args["OBJ_NAME"] = node->mName;
+			LLNotificationsUtil::add("NoCopyPermsNoObject", args);
+			return;
+		}
 	}
 	LLDuplicateData	data;
 
@@ -4097,20 +4166,20 @@ void LLSelectMgr::packMultipleUpdate(LLSelectNode* node, void *user_data)
 
 	if (type & UPD_POSITION)
 	{
-		htonmemcpy(&data[offset], &(object->getPosition().mV), MVT_LLVector3, 12); 
+		htolememcpy(&data[offset], &(object->getPosition().mV), MVT_LLVector3, 12); 
 		offset += 12;
 	}
 	if (type & UPD_ROTATION)
 	{
 		LLQuaternion quat = object->getRotation();
 		LLVector3 vec = quat.packToVector3();
-		htonmemcpy(&data[offset], &(vec.mV), MVT_LLQuaternion, 12); 
+		htolememcpy(&data[offset], &(vec.mV), MVT_LLQuaternion, 12); 
 		offset += 12;
 	}
 	if (type & UPD_SCALE)
 	{
 		//LL_INFOS() << "Sending object scale " << object->getScale() << LL_ENDL;
-		htonmemcpy(&data[offset], &(object->getScale().mV), MVT_LLVector3, 12); 
+		htolememcpy(&data[offset], &(object->getScale().mV), MVT_LLVector3, 12); 
 		offset += 12;
 	}
 	gMessageSystem->addBinaryDataFast(_PREHASH_Data, data, offset);
@@ -4453,9 +4522,19 @@ void LLSelectMgr::selectionSetObjectSaleInfo(const LLSaleInfo& sale_info)
 
 void LLSelectMgr::sendAttach(U8 attachment_point, bool replace)
 {
-	LLViewerObject* attach_object = mSelectedObjects->getFirstRootObject();
+    sendAttach(mSelectedObjects, attachment_point, replace);
+}
 
-	if (!attach_object || !isAgentAvatarValid() || mSelectedObjects->mSelectType != SELECT_TYPE_WORLD)
+void LLSelectMgr::sendAttach(LLObjectSelectionHandle selection_handle, U8 attachment_point, bool replace)
+{
+	if (selection_handle.isNull())
+	{
+		return;
+	}
+
+	LLViewerObject* attach_object = selection_handle->getFirstRootObject();
+
+	if (!attach_object || !isAgentAvatarValid() || selection_handle->mSelectType != SELECT_TYPE_WORLD)
 	{
 		return;
 	}
@@ -4473,6 +4552,7 @@ void LLSelectMgr::sendAttach(U8 attachment_point, bool replace)
 		}
 
 		sendListToRegions(
+			selection_handle,
 			"ObjectAttach",
 			packAgentIDAndSessionAndAttachment, 
 			packObjectIDAndRotation, 
@@ -4484,6 +4564,7 @@ void LLSelectMgr::sendAttach(U8 attachment_point, bool replace)
 			// After "ObjectAttach" server will unsubscribe us from properties updates
 			// so either deselect objects or resend selection after attach packet reaches server
 			// In case of build_mode LLPanelObjectInventory::refresh() will deal with selection
+			// Still unsubscribe even in case selection_handle is not current selection
 			deselectAll();
 		}
 	}
@@ -5025,7 +5106,17 @@ void LLSelectMgr::packPermissions(LLSelectNode* node, void *user_data)
 void LLSelectMgr::sendListToRegions(const std::string& message_name,
 									void (*pack_header)(void *user_data), 
 									void (*pack_body)(LLSelectNode* node, void *user_data), 
-                                    void (*log_func)(LLSelectNode* node, void *user_data), 
+									void (*log_func)(LLSelectNode* node, void *user_data), 
+									void *user_data,
+									ESendType send_type)
+{
+    sendListToRegions(mSelectedObjects, message_name, pack_header, pack_body, log_func, user_data, send_type);
+}
+void LLSelectMgr::sendListToRegions(LLObjectSelectionHandle selected_handle,
+									const std::string& message_name,
+									void (*pack_header)(void *user_data), 
+									void (*pack_body)(LLSelectNode* node, void *user_data), 
+									void (*log_func)(LLSelectNode* node, void *user_data), 
 									void *user_data,
 									ESendType send_type)
 {
@@ -5051,7 +5142,7 @@ void LLSelectMgr::sendListToRegions(const std::string& message_name,
 			return true;
 		}
 	} func;
-	getSelection()->applyToNodes(&func);	
+	selected_handle->applyToNodes(&func);
 
 	std::queue<LLSelectNode*> nodes_to_send;
 
@@ -5094,25 +5185,25 @@ void LLSelectMgr::sendListToRegions(const std::string& message_name,
 	{
 	  case SEND_ONLY_ROOTS:
 		  if(message_name == "ObjectBuy")
-			getSelection()->applyToRootNodes(&pushroots);
+			selected_handle->applyToRootNodes(&pushroots);
 		  else
-			getSelection()->applyToRootNodes(&pushall);
+			selected_handle->applyToRootNodes(&pushall);
 		  
 		break;
 	  case SEND_INDIVIDUALS:
-		getSelection()->applyToNodes(&pushall);
+		selected_handle->applyToNodes(&pushall);
 		break;
 	  case SEND_ROOTS_FIRST:
 		// first roots...
-		getSelection()->applyToNodes(&pushroots);
+		selected_handle->applyToNodes(&pushroots);
 		// then children...
-		getSelection()->applyToNodes(&pushnonroots);
+		selected_handle->applyToNodes(&pushnonroots);
 		break;
 	  case SEND_CHILDREN_FIRST:
 		// first children...
-		getSelection()->applyToNodes(&pushnonroots);
+		selected_handle->applyToNodes(&pushnonroots);
 		// then roots...
-		getSelection()->applyToNodes(&pushroots);
+		selected_handle->applyToNodes(&pushroots);
 		break;
 
 	default:
@@ -6664,8 +6755,7 @@ void LLSelectMgr::updateSelectionCenter()
 		if (mSelectedObjects->mSelectType != SELECT_TYPE_HUD && isAgentAvatarValid())
 		{
 			// reset hud ZOOM
-			gAgentCamera.mHUDTargetZoom = 1.f;
-			gAgentCamera.mHUDCurZoom = 1.f;
+			resetAgentHUDZoom();
 		}
 
 		mShowSelection = FALSE;
@@ -6762,8 +6852,28 @@ void LLSelectMgr::pauseAssociatedAvatars()
 			
         mSelectedObjects->mSelectType = getSelectTypeForObject(object);
 
+        bool is_attached = false;
         if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT && 
-            isAgentAvatarValid() && object->getParent() != NULL)
+            isAgentAvatarValid())
+        {
+            // Selection can be obsolete, confirm that this is an attachment
+            LLViewerObject* parent = (LLViewerObject*)object->getParent();
+            while (parent != NULL)
+            {
+                if (parent->isAvatar())
+                {
+                    is_attached = true;
+                    break;
+                }
+                else
+                {
+                    parent = (LLViewerObject*)parent->getParent();
+                }
+            }
+        }
+
+
+        if (is_attached)
         {
             if (object->isAnimatedObject())
             {
@@ -6781,14 +6891,12 @@ void LLSelectMgr::pauseAssociatedAvatars()
                 mPauseRequests.push_back(gAgentAvatarp->requestPause());
             }
         }
-        else
+        else if (object && object->isAnimatedObject() && object->getControlAvatar())
         {
-            if (object && object->isAnimatedObject() && object->getControlAvatar())
-            {
-                // Is a non-attached animated object. Pause the control avatar.
-                mPauseRequests.push_back(object->getControlAvatar()->requestPause());
-            }
+            // Is a non-attached animated object. Pause the control avatar.
+            mPauseRequests.push_back(object->getControlAvatar()->requestPause());
         }
+
     }
 }
 
@@ -7020,8 +7128,11 @@ BOOL LLSelectMgr::setForceSelection(BOOL force)
 
 void LLSelectMgr::resetAgentHUDZoom()
 {
-	gAgentCamera.mHUDTargetZoom = 1.f;
-	gAgentCamera.mHUDCurZoom = 1.f;
+	if (gAgentCamera.mHUDTargetZoom != 1)
+	{
+		gAgentCamera.mHUDTargetZoom = 1.f;
+		gAgentCamera.mHUDCurZoom = 1.f;
+	}
 }
 
 void LLSelectMgr::getAgentHUDZoom(F32 &target_zoom, F32 &current_zoom) const

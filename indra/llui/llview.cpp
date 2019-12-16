@@ -816,7 +816,7 @@ LLView* LLView::childrenHandleHover(S32 x, S32 y, MASK mask)
 		}
 
 		// This call differentiates this method from childrenHandleMouseEvent().
-		LLUI::sWindow->setCursor(viewp->getHoverCursor());
+		LLUI::getInstance()->mWindow->setCursor(viewp->getHoverCursor());
 
 		if (viewp->handleHover(local_x, local_y, mask)
 			|| viewp->blockMouseEvent(local_x, local_y))
@@ -873,12 +873,18 @@ BOOL LLView::handleToolTip(S32 x, S32 y, MASK mask)
 		// allow "scrubbing" over ui by showing next tooltip immediately
 		// if previous one was still visible
 		F32 timeout = LLToolTipMgr::instance().toolTipVisible() 
-		              ? LLUI::sSettingGroups["config"]->getF32( "ToolTipFastDelay" )
-		              : LLUI::sSettingGroups["config"]->getF32( "ToolTipDelay" );
-		LLToolTipMgr::instance().show(LLToolTip::Params()
-		                              .message(tooltip)
-		                              .sticky_rect(calcScreenRect())
-		                              .delay_time(timeout));
+		              ? LLUI::getInstance()->mSettingGroups["config"]->getF32( "ToolTipFastDelay" )
+		              : LLUI::getInstance()->mSettingGroups["config"]->getF32( "ToolTipDelay" );
+
+		// Even if we don't show tooltips, consume the event, nothing below should show tooltip
+		bool allow_ui_tooltips = LLUI::getInstance()->mSettingGroups["config"]->getBOOL("BasicUITooltips");
+		if (allow_ui_tooltips)
+		{
+			LLToolTipMgr::instance().show(LLToolTip::Params()
+			                              .message(tooltip)
+			                              .sticky_rect(calcScreenRect())
+			                              .delay_time(timeout));
+		}
 		handled = TRUE;
 	}
 
@@ -1142,7 +1148,7 @@ void LLView::drawChildren()
 {
 	if (!mChildList.empty())
 	{
-		LLView* rootp = LLUI::getRootView();		
+		LLView* rootp = LLUI::getInstance()->getRootView();		
 		++sDepth;
 
 		for (child_list_reverse_iter_t child_iter = mChildList.rbegin(); child_iter != mChildList.rend();)  // ++child_iter)
@@ -1158,7 +1164,7 @@ void LLView::drawChildren()
 			if (viewp->getVisible() && viewp->getRect().isValid())
 			{
 				LLRect screen_rect = viewp->calcScreenRect();
-				if ( rootp->getLocalRect().overlaps(screen_rect)  && LLUI::sDirtyRect.overlaps(screen_rect))
+				if ( rootp->getLocalRect().overlaps(screen_rect)  && LLUI::getInstance()->mDirtyRect.overlaps(screen_rect))
 				{
 					LLUI::pushMatrix();
 					{
@@ -1200,7 +1206,7 @@ void LLView::dirtyRect()
 		parent = parent->getParent();
 	}
 
-	LLUI::dirtyRect(cur->calcScreenRect());
+	LLUI::getInstance()->dirtyRect(cur->calcScreenRect());
 }
 
 //Draw a box for debugging.
@@ -2223,9 +2229,9 @@ LLControlVariable *LLView::findControl(const std::string& name)
 		std::string control_group_key = name.substr(0, key_pos);
 		LLControlVariable* control;
 		// check if it's in the control group that name indicated
-		if(LLUI::sSettingGroups[control_group_key])
+		if(LLUI::getInstance()->mSettingGroups[control_group_key])
 		{
-			control = LLUI::sSettingGroups[control_group_key]->getControl(name);
+			control = LLUI::getInstance()->mSettingGroups[control_group_key]->getControl(name);
 			if (control)
 			{
 				return control;
@@ -2233,7 +2239,7 @@ LLControlVariable *LLView::findControl(const std::string& name)
 		}
 	}
 	
-	LLControlGroup& control_group = LLUI::getControlControlGroup(name);
+	LLControlGroup& control_group = LLUI::getInstance()->getControlControlGroup(name);
 	return control_group.getControl(name);	
 }
 

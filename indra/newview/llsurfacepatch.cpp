@@ -99,7 +99,7 @@ void LLSurfacePatch::dirty()
 	}
 	else
 	{
-		LL_WARNS() << "No viewer object for this surface patch!" << LL_ENDL;
+		LL_WARNS("Terrain") << "No viewer object for this surface patch!" << LL_ENDL;
 	}
 
 	mDirtyZStats = TRUE;
@@ -203,7 +203,7 @@ LLVector2 LLSurfacePatch::getTexCoords(const U32 x, const U32 y) const
 void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 *vertex, LLVector3 *normal,
 						  LLVector2 *tex0, LLVector2 *tex1)
 {
-	if (!mSurfacep || !mSurfacep->getRegion() || !mSurfacep->getGridsPerEdge())
+	if (!mSurfacep || !mSurfacep->getRegion() || !mSurfacep->getGridsPerEdge() || !mVObjp)
 	{
 		return; // failsafe
 	}

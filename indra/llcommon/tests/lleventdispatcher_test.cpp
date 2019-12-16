@@ -22,6 +22,7 @@
 #include "llsdutil.h"
 #include "stringize.h"
 #include "tests/wrapllerrs.h"
+#include "../test/catch_and_store_what_in.h"
 
 #include <map>
 #include <string>
@@ -630,16 +631,9 @@ namespace tut
 
         void call_exc(const std::string& func, const LLSD& args, const std::string& exc_frag)
         {
-            std::string threw;
-            try
-            {
-                work(func, args);
-            }
-            catch (const std::runtime_error& e)
-            {
-                cout << "*** " << e.what() << '\n';
-                threw = e.what();
-            }
+            std::string threw = catch_what<std::runtime_error>([this, &func, &args](){
+                    work(func, args);
+                });
             ensure_has(threw, exc_frag);
         }
 
@@ -717,15 +711,9 @@ namespace tut
         LLSD attempts(LLSDArray(17)(LLSDMap("pi", 3.14)("two", 2)));
         foreach(LLSD ae, inArray(attempts))
         {
-            std::string threw;
-            try
-            {
-                work.add("freena_err", "freena", freena, ae);
-            }
-            catch (const std::exception& e)
-            {
-                threw = e.what();
-            }
+            std::string threw = catch_what<std::exception>([this, &ae](){
+                    work.add("freena_err", "freena", freena, ae);
+                });
             ensure_has(threw, "must be an array");
         }
     }
@@ -734,15 +722,9 @@ namespace tut
     void object::test<2>()
     {
         set_test_name("map-style registration with badly-formed defaults");
-        std::string threw;
-        try
-        {
-            work.add("freena_err", "freena", freena, LLSDArray("a")("b"), 17);
-        }
-        catch (const std::exception& e)
-        {
-            threw = e.what();
-        }
+        std::string threw = catch_what<std::exception>([this](){
+                work.add("freena_err", "freena", freena, LLSDArray("a")("b"), 17);
+            });
         ensure_has(threw, "must be a map or an array");
     }
 
@@ -750,17 +732,11 @@ namespace tut
     void object::test<3>()
     {
         set_test_name("map-style registration with too many array defaults");
-        std::string threw;
-        try
-        {
-            work.add("freena_err", "freena", freena,
-                     LLSDArray("a")("b"),
-                     LLSDArray(17)(0.9)("gack"));
-        }
-        catch (const std::exception& e)
-        {
-            threw = e.what();
-        }
+        std::string threw = catch_what<std::exception>([this](){
+                work.add("freena_err", "freena", freena,
+                         LLSDArray("a")("b"),
+                         LLSDArray(17)(0.9)("gack"));
+            });
         ensure_has(threw, "shorter than");
     }
 
@@ -768,17 +744,11 @@ namespace tut
     void object::test<4>()
     {
         set_test_name("map-style registration with too many map defaults");
-        std::string threw;
-        try
-        {
-            work.add("freena_err", "freena", freena,
-                     LLSDArray("a")("b"),
-                     LLSDMap("b", 17)("foo", 3.14)("bar", "sinister"));
-        }
-        catch (const std::exception& e)
-        {
-            threw = e.what();
-        }
+        std::string threw = catch_what<std::exception>([this](){
+                work.add("freena_err", "freena", freena,
+                         LLSDArray("a")("b"),
+                         LLSDMap("b", 17)("foo", 3.14)("bar", "sinister"));
+            });
         ensure_has(threw, "nonexistent params");
         ensure_has(threw, "foo");
         ensure_has(threw, "bar");
@@ -1039,16 +1009,9 @@ namespace tut
         // We don't have a comparable helper function for the one-arg
         // operator() method, and it's not worth building one just for this
         // case. Write it out.
-        std::string threw;
-        try
-        {
-            work(LLSDMap("op", "freek"));
-        }
-        catch (const std::runtime_error& e)
-        {
-            cout << "*** " << e.what() << "\n";
-            threw = e.what();
-        }
+        std::string threw = catch_what<std::runtime_error>([this](){
+                work(LLSDMap("op", "freek"));
+            });
         ensure_has(threw, "bad");
         ensure_has(threw, "op");
         ensure_has(threw, "freek");

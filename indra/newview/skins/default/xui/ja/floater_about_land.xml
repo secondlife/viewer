@@ -9,6 +9,12 @@
 	<floater.string name="maturity_icon_adult">
 		&quot;Parcel_R_Dark&quot;
 	</floater.string>
+	<floater.string name="Hours">
+		[HOURS] 時間
+	</floater.string>
+	<floater.string name="Hour">
+		時間
+	</floater.string>
 	<floater.string name="Minutes">
 		[MINUTES] 分
 	</floater.string>
@@ -20,6 +26,9 @@
 	</floater.string>
 	<floater.string name="Remaining">
 		残り
+	</floater.string>
+	<floater.string name="Always">
+		常時
 	</floater.string>
 	<tab_container name="landtab">
 		<panel label="一般" name="land_general_panel">
@@ -320,18 +329,18 @@
 			<text name="allow_label2">
 				制作：
 			</text>
-			<check_box label="全員" name="edit objects check"/>
-			<check_box label="グループ" name="edit group objects check"/>
+			<check_box label="全員" name="edit objects check" tool_tip="このオプションを選択すると、住人はあなたの土地でオブジェクトの制作や rez ができます。"/>
+			<check_box label="グループ" name="edit group objects check" tool_tip="このオプションを選択すると、区画のグループメンバーは、あなたの土地でオブジェクトの制作や rez ができます。"/>
 			<text name="allow_label3">
 				オブジェクトの進入：
 			</text>
-			<check_box label="全員" name="all object entry check"/>
-			<check_box label="グループ" name="group object entry check"/>
+			<check_box label="全員" name="all object entry check" tool_tip="このオプションを選択すると、住人は他の区画にあるオブジェクトをこの区画に移動することが可能です。"/>
+			<check_box label="グループ" name="group object entry check" tool_tip="このオプションを選択すると、区画のグループメンバーは他の区画にあるオブジェクトをこの区画に移動することが可能です。"/>
 			<text name="allow_label4">
 				スクリプトの実行：
 			</text>
-			<check_box label="全員" name="check other scripts"/>
-			<check_box label="グループ" name="check group scripts"/>
+			<check_box label="全員" name="check other scripts" tool_tip="このオプションを選択すると、住人はアタッチメントなどのスクリプトをあなたの区画で実行できます。"/>
+			<check_box label="グループ" name="check group scripts" tool_tip="このオプションを選択すると、区画のグループメンバーは、アタッチメントなどのスクリプトをあなたの区画で実行できます。"/>
 			<check_box label="安全（ダメージなし）" name="check safe" tool_tip="チェックを入れるとこの土地でのダメージコンバットが無効になり、「安全」に設定されます。 チェックを外すとダメージコンバットが有効になります。"/>
 			<check_box label="プッシュ禁止" name="PushRestrictCheck" tool_tip="スクリプトによるプッシュを禁止します。 このオプションを選択することにより、あなたの土地での破壊的行動を防ぐことができます。"/>
 			<check_box label="検索に区画を表示（週 L$ 30）" name="ShowDirectoryCheck" tool_tip="この区画を検索結果に表示します"/>
@@ -355,8 +364,8 @@
 				スナップショット：
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="写真をクリックして選択"/>
-			<text name="allow_label5">
-				他の区画にいるアバターがこの区画にいるアバターに会ってチャットできる
+			<text name="allow_see_label">
+				他の区画にいるアバターがこの区画にいるアバターに会ってチャットできます
 			</text>
 			<check_box label="アバターを表示" name="SeeAvatarsCheck" tool_tip="他の区画のアバターが、この区画にいるアバターに会ってチャットすることを許可し、あなたもそれらアバターに会ってチャットできるようにします。"/>
 			<text name="landing_point">
@@ -458,9 +467,12 @@
 			</panel>
 			<panel name="Banned_layout_panel">
 				<text label="禁止" name="BanCheck">
-					常に禁止する （[COUNT] 人、最大 [MAX] 人）
+					禁止する （[COUNT] 人、最大 [MAX] 人）
 				</text>
-				<name_list name="BannedList" tool_tip="(合計 [LISTED] 人、最大 [MAX] 人）"/>
+				<name_list name="BannedList" tool_tip="(合計 [LISTED] 人、最大 [MAX] 人）">
+					<columns label="名前" name="name"/>
+					<columns label="期間" name="duration"/>
+				</name_list>
 				<button label="追加" name="add_banned"/>
 				<button label="削除" label_selected="削除" name="remove_banned"/>
 			</panel>

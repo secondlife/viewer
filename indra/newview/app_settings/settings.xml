@@ -5304,7 +5304,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>https://secondlife-status.statuspage.io/history.atom</string>
+      <string>https://status.secondlifegrid.net/history.atom</string>
     </map>
     <key>GridStatusUpdateDelay</key>
     <map>
@@ -11219,6 +11219,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>BasicUITooltips</key>
+    <map>
+      <key>Comment</key>
+      <string>Show tooltips for various 2D UI elements like buttons or checkboxes, won't supress tooltips like drag'n'drop, inworld, links or media</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>ShowHoverTips</key>
     <map>
       <key>Comment</key>
@@ -13132,6 +13143,17 @@
       <string>S32</string>
       <key>Value</key>
       <real>3</real>
+    </map>
+    <key>HUDScaleFactor</key>
+    <map>
+    <key>Comment</key>
+      <string>Scale of HUD attachments</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
     </map>
     <key>UIScaleFactor</key>
     <map>
