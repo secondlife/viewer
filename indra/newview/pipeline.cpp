@@ -1076,7 +1076,8 @@ void LLPipeline::refreshCachedSettings()
 	LLPipeline::sAutoMaskAlphaNonDeferred = gSavedSettings.getBOOL("RenderAutoMaskAlphaNonDeferred");
 	LLPipeline::sUseFarClip = gSavedSettings.getBOOL("RenderUseFarClip");
 	LLVOAvatar::sMaxNonImpostors = gSavedSettings.getU32("RenderAvatarMaxNonImpostors");
-	LLVOAvatar::updateImpostorRendering(LLVOAvatar::sMaxNonImpostors);
+	LLVOAvatar::updateAvatarImpostorRendering(LLVOAvatar::sMaxNonImpostors);
+	LLVOAvatar::updateControlAVImpostorRendering(LLVOAvatar::sMaxControlAVNonImpostors);
 	LLPipeline::sDelayVBUpdate = gSavedSettings.getBOOL("RenderDelayVBUpdate");
 
 	LLPipeline::sUseOcclusion = 
@@ -11196,6 +11197,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	avatar->setImpostorDim(tdim);
 
 	LLVOAvatar::sUseImpostors = (0 != LLVOAvatar::sMaxNonImpostors);
+	LLVOAvatar::sUseControlAVImpostors = (0 != LLVOAvatar::sMaxControlAVNonImpostors);
 	sUseOcclusion = occlusion;
 	sReflectionRender = false;
 	sImpostorRender = false;

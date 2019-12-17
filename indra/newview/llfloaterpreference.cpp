@@ -2028,7 +2028,7 @@ void LLFloaterPreferenceGraphicsAdvanced::updateMaxNonImpostors()
 		value=0;
 	}
 	gSavedSettings.setU32("RenderAvatarMaxNonImpostors", value);
-	LLVOAvatar::updateImpostorRendering(value); // make it effective immediately
+	LLVOAvatar::updateAvatarImpostorRendering(value); // make it effective immediately
 	setMaxNonImpostorsText(value, getChild<LLTextBox>("IndirectMaxNonImpostorsText"));
 }
 
