@@ -186,12 +186,17 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   list(GET LL_BUILD_LIST "${sysroot_idx}" CMAKE_OSX_SYSROOT)
   message(STATUS "CMAKE_OSX_SYSROOT = '${CMAKE_OSX_SYSROOT}'")
 
-  set(XCODE_VERSION 7.0)
-
   set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvm.clang.1_0")
   set(CMAKE_XCODE_ATTRIBUTE_GCC_STRICT_ALIASING NO)
   set(CMAKE_XCODE_ATTRIBUTE_GCC_FAST_MATH NO)
   set(CMAKE_XCODE_ATTRIBUTE_CLANG_X86_VECTOR_INSTRUCTIONS ssse3)
+  # we must hard code this to off for now.  xcode's built in signing does not
+  # handle embedded app bundles such as CEF and others. Any signing for local
+  # development must be done after the build as we do in viewer_manifest.py for
+  # released builds
+  # https://stackoverflow.com/a/54296008
+  # "-" represents "Sign to Run Locally" and empty string represents "Do Not Sign"
+  set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
 
   set(CMAKE_OSX_ARCHITECTURES "${ARCH}")
   string(REPLACE "i686"  "i386"   CMAKE_OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")

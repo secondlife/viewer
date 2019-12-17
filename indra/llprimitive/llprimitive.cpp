@@ -1013,7 +1013,7 @@ S32 LLPrimitive::packTEField(U8 *cur_ptr, U8 *data_ptr, U8 data_size, U8 last_fa
 	U64 exception_faces;
 	U8 *start_loc = cur_ptr;
 
-	htonmemcpy(cur_ptr,data_ptr + (last_face_index * data_size), type, data_size);
+	htolememcpy(cur_ptr,data_ptr + (last_face_index * data_size), type, data_size);
 	cur_ptr += data_size;
 	
 	for (face_index = last_face_index-1; face_index >= 0; face_index--)
@@ -1072,7 +1072,7 @@ S32 LLPrimitive::packTEField(U8 *cur_ptr, U8 *data_ptr, U8 data_size, U8 last_fa
 			
 			*cur_ptr++ = (U8)(exception_faces & 0x7F);
 			
-			htonmemcpy(cur_ptr,data_ptr + (face_index * data_size), type, data_size);
+			htolememcpy(cur_ptr,data_ptr + (face_index * data_size), type, data_size);
 			cur_ptr += data_size;
    		}
 	}
@@ -1083,7 +1083,7 @@ S32 LLPrimitive::unpackTEField(U8 *cur_ptr, U8 *buffer_end, U8 *data_ptr, U8 dat
 {
 	U8 *start_loc = cur_ptr;
 	U64 i;
-	htonmemcpy(data_ptr,cur_ptr, type,data_size);
+	htolememcpy(data_ptr,cur_ptr, type,data_size);
 	cur_ptr += data_size;
 
 	for (i = 1; i < face_count; i++)
@@ -1108,7 +1108,7 @@ S32 LLPrimitive::unpackTEField(U8 *cur_ptr, U8 *buffer_end, U8 *data_ptr, U8 dat
 		{
 			if (i & 0x01)
 			{
-				htonmemcpy(data_ptr+(j*data_size),cur_ptr,type,data_size);
+				htolememcpy(data_ptr+(j*data_size),cur_ptr,type,data_size);
 				LL_DEBUGS("TEFieldDecode") << "Assigning " ;
 				char foo[64];
 				sprintf(foo,"%x %x",*(data_ptr+(j*data_size)), *(data_ptr+(j*data_size)+1));

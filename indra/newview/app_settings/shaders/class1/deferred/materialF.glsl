@@ -264,8 +264,7 @@ void main()
     tnorm = vary_normal;
 #endif
 
-    norm.xyz = tnorm;
-    norm.xyz = normalize(norm.xyz);
+    norm.xyz = normalize(tnorm.xyz);
 
     vec2 abnormal   = encode_normal(norm.xyz);
 
@@ -277,7 +276,28 @@ void main()
 
     final_color.a = max(final_color.a, emissive_brightness);
 
+    // Texture
+    //     [x] Full Bright Object
+    //     Shininess (specular)
+    //       [X] Texture
+    //       Environment Intensity = 1
+    // NOTE: There are two shaders that are used depending on the EI byte value:
+    //     EI = 0        fullbright
+    //     EI > 0 .. 255 material
+    // When it is passed to us it is normalized.
+    // We can either modify the output environment intensity
+    //   OR
+    // adjust the final color via:
+    //     final_color *= 0.666666;
+    // We remap the environment intensity to closely simulate what non-EEP is doing.
+    //    At midnight the brightness is exact.
+    //    At midday the brightness is very close.
+#ifdef HAS_SKIN
     vec4 final_normal = vec4(abnormal, env_intensity, 0.0);
+#else
+    float ei = env_intensity*0.5 + 0.5;
+    vec4 final_normal = vec4(abnormal, ei, 0.0);
+#endif
     vec4 final_specular = spec;
     
     final_specular.a = specular_color.a;
@@ -316,11 +336,8 @@ void main()
     vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
 
-    float da = dot(normalize(norm.xyz), normalize(light_dir.xyz));
-          da = clamp(da, -1.0, 1.0);
-
-    float final_da = da;
-          final_da = clamp(final_da, 0.0, 1.0);
+    float da = dot(norm.xyz, normalize(light_dir.xyz));
+    float final_da = clamp(da, 0.0, 1.0);
 
     float ambient = da;
     ambient *= 0.5;
@@ -457,4 +474,5 @@ vec3 post_atmo = color.rgb;
     frag_data[2] = final_normal; // XY = Normal.  Z = Env. intensity.
 #endif
 }
+
 

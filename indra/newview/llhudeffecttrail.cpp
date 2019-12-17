@@ -87,15 +87,15 @@ void LLHUDEffectSpiral::packData(LLMessageSystem *mesgsys)
 
 	if (mSourceObject)
 	{
-		htonmemcpy(packed_data, mSourceObject->mID.mData, MVT_LLUUID, 16);
+		htolememcpy(packed_data, mSourceObject->mID.mData, MVT_LLUUID, 16);
 	}
 	if (mTargetObject)
 	{
-		htonmemcpy(packed_data + 16, mTargetObject->mID.mData, MVT_LLUUID, 16);
+		htolememcpy(packed_data + 16, mTargetObject->mID.mData, MVT_LLUUID, 16);
 	}
 	if (!mPositionGlobal.isExactlyZero())
 	{
-		htonmemcpy(packed_data + 32, mPositionGlobal.mdV, MVT_LLVector3d, 24);
+		htolememcpy(packed_data + 32, mPositionGlobal.mdV, MVT_LLVector3d, 24);
 	}
 	mesgsys->addBinaryDataFast(_PREHASH_TypeData, packed_data, 56);
 }
@@ -116,9 +116,9 @@ void LLHUDEffectSpiral::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
 	mesgsys->getBinaryDataFast(_PREHASH_Effect, _PREHASH_TypeData, 
 		packed_data, EFFECT_SIZE, blocknum, EFFECT_SIZE);
 	
-	htonmemcpy(object_id.mData, packed_data, MVT_LLUUID, 16);
-	htonmemcpy(target_object_id.mData, packed_data + 16, MVT_LLUUID, 16);
-	htonmemcpy(mPositionGlobal.mdV, packed_data + 32, MVT_LLVector3d, 24);
+	htolememcpy(object_id.mData, packed_data, MVT_LLUUID, 16);
+	htolememcpy(target_object_id.mData, packed_data + 16, MVT_LLUUID, 16);
+	htolememcpy(mPositionGlobal.mdV, packed_data + 32, MVT_LLVector3d, 24);
 
 	LLViewerObject *objp = NULL;
 

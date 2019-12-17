@@ -38,8 +38,9 @@ vec3 atmosTransportFrag(vec3 light, vec3 additive, vec3 atten)
     {
         return light * 2.0;
     }
-    light *= atten.r;
-    light += additive;
+    // fullbright responds minimally to atmos scatter effects 
+    light *= min(15.0 * atten.r, 1.0);
+    light += (0.1 * additive);
     return light * 2.0;
 }
 
@@ -51,14 +52,7 @@ vec3 atmosTransport(vec3 light)
 vec3 fullbrightAtmosTransport(vec3 light)
 {
     float brightness = dot(light.rgb * 0.5, vec3(0.3333)) + 0.1;
-    vec3 attenColor = atmosTransportFrag(light * 0.5, getAdditiveColor() * brightness, getAtmosAttenuation());
-
-    // attenColor is an accurate fog-attenuated result for any brightness
-    // But, the pre-EEP shader included a brightness-indexed lerp to a non-attenuated version
-    // of the color - effectively a fog 'burn-through' for very bright pixels. To more closely
-    // match the pre-EEP behavior, we'll also lerp to the pre-EEP color, based on overall brightness
-    float preEepBright = dot(light.rgb, vec3(0.3333));
-    retun mix(attenColor, (light.rgb + getAdditiveColor().rgb) * (2.0 - preEepBright), preEepBright * preEepBright);
+    return atmosTransportFrag(light * 0.5, getAdditiveColor() * brightness, getAtmosAttenuation());
 }
 
 vec3 fullbrightShinyAtmosTransport(vec3 light)
