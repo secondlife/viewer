@@ -384,7 +384,7 @@ LLSingletonBase::vec_t LLSingletonBase::dep_sort()
     SingletonDeps sdeps;
     // Lock while traversing the master list 
     MasterList::LockedMaster master;
-    BOOST_FOREACH(LLSingletonBase* sp, master.get())
+    for (LLSingletonBase* sp : master.get())
     {
         // Build the SingletonDeps structure by adding, for each
         // LLSingletonBase* sp in the master list, sp itself. It has no
@@ -401,14 +401,14 @@ LLSingletonBase::vec_t LLSingletonBase::dep_sort()
     // extracts just the first (key) element from each sorted_iterator, then
     // uses vec_t's range constructor... but frankly this is more
     // straightforward, as long as we remember the above reserve() call!
-    BOOST_FOREACH(SingletonDeps::sorted_iterator::value_type pair, sdeps.sort())
+    for (const SingletonDeps::sorted_iterator::value_type& pair : sdeps.sort())
     {
         ret.push_back(pair.first);
     }
     // The master list is not itself pushed onto the master list. Add it as
     // the very last entry -- it is the LLSingleton on which ALL others
     // depend! -- so our caller will process it.
-    ret.push_back(MasterList::getInstance());
+    ret.push_back(&master.Lock::get());
     return ret;
 }
 

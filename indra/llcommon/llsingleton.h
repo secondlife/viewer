@@ -428,6 +428,21 @@ protected:
         LLSingleton_manage_master<DERIVED_TYPE>().add(this);
     }
 
+protected:
+    virtual ~LLSingleton()
+    {
+        // This phase of cleanup is performed in the destructor rather than in
+        // deleteSingleton() to defend against manual deletion. When we moved
+        // cleanup to deleteSingleton(), we hit crashes due to dangling
+        // pointers in the MasterList.
+        LockStatic lk;
+        lk->mInstance  = nullptr;
+        lk->mInitState = DELETED;
+
+        // Remove this instance from the master list.
+        LLSingleton_manage_master<DERIVED_TYPE>().remove(this);
+    }
+
 public:
     /**
      * @brief Immediately delete the singleton.
@@ -452,29 +467,16 @@ public:
      */
     static void deleteSingleton()
     {
-        DERIVED_TYPE* lameduck;
-        {
-            LockStatic lk;
-            // Capture the instance and clear SingletonData. This sequence
-            // guards against the chance that the destructor throws, somebody
-            // catches it and there's a subsequent call to getInstance().
-            lameduck = lk->mInstance;
-            lk->mInstance = nullptr;
-            lk->mInitState = DELETED;
-            // At this point we can safely unlock SingletonData during the
-            // remaining cleanup. If another thread calls deleteSingleton() (or
-            // getInstance(), or whatever) it won't find our instance, now
-            // referenced only as 'lameduck'.
-        }
+        // Hold the lock while we call cleanupSingleton() and the destructor.
+        // Our destructor also instantiates LockStatic, requiring a recursive
+        // mutex.
+        LockStatic lk;
         // of course, only cleanup and delete if there's something there
-        if (lameduck)
+        if (lk->mInstance)
         {
-            // remove this instance from the master list BEFORE attempting
-            // cleanup so possible destructor exception won't leave the master
-            // list confused
-            LLSingleton_manage_master<DERIVED_TYPE>().remove(lameduck);
-            lameduck->cleanup_();
-            delete lameduck;
+            lk->mInstance->cleanup_();
+            delete lk->mInstance;
+            // destructor clears mInstance (and mInitState)
         }
     }
 
