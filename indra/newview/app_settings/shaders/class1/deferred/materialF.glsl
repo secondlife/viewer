@@ -277,7 +277,7 @@ void main()
     final_color.a = max(final_color.a, emissive_brightness);
 
     // Texture
-    //     [x] Full Bright (emissive_brightness > 0.0)
+    //     [x] Full Bright (emissive_brightness >= 1.0)
     //     Shininess (specular)
     //       [X] Texture
     //       Environment Intensity = 1
@@ -295,7 +295,7 @@ void main()
     vec4 final_normal = vec4(abnormal, env_intensity, 0.0);
 
 #ifdef HAS_SPECULAR_MAP
-    if( emissive_brightness > 0.0)
+    if( emissive_brightness >= 1.0)
     {
         float ei = env_intensity*0.5 + 0.5;
         final_normal = vec4(abnormal, ei, 0.0);
