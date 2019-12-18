@@ -565,6 +565,7 @@ void LLFloaterCamera::switchToPreset(const std::string& name)
 	{
 		LLPresetsManager::getInstance()->loadPreset(PRESETS_CAMERA, name);
 	}
+	gAgentCamera.setCameraZoomFraction(gSavedSettings.getF32("CameraZoomFraction"));
 
 	LLFloaterCamera* camera_floater = LLFloaterCamera::findInstance();
 	if (camera_floater)

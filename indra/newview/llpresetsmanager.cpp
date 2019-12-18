@@ -236,7 +236,6 @@ void LLPresetsManager::getControlNames(std::vector<std::string>& names)
 		("AppearanceCameraMovement")
 		// From llagentcamera.cpp
 		("CameraOffsetBuild")
-		("CameraOffsetScale")
 		("TrackFocusObject")
 		("CameraOffsetRearView")
 		("FocusOffsetRearView")
@@ -288,6 +287,9 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 		name_list.clear();
 		getControlNames(name_list);
 		name_list.push_back("PresetCameraActive");
+
+		gSavedSettings.setF32("CameraZoomFraction", gAgentCamera.getCameraZoomFraction());
+		name_list.push_back("CameraZoomFraction");
 	}
 	else
 	{
