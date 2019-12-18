@@ -223,7 +223,7 @@ void LLCoros::printActiveCoroutines(const std::string& when)
         {
             F64 life_time = time - cd.mCreationTime;
             LL_CONT << LL_NEWLINE
-                    << cd.mName << ' ' << cd.mStatus << " life: " << life_time;
+                    << cd.getKey() << ' ' << cd.mStatus << " life: " << life_time;
         }
         LL_CONT << LL_ENDL;
         LL_INFOS("LLCoros") << "-----------------------------------------------------" << LL_ENDL;
