@@ -183,7 +183,7 @@ namespace tut
 
         ensure_equals("unreported instance", instances.size(), 0);
     }
-	/*
+
     template<> template<>
     void object::test<5>()
     {
@@ -199,7 +199,7 @@ namespace tut
         // two values to std::ostream
         ensure(snapshot.begin() == snapshot.end());
     }
-	
+
     template<> template<>
     void object::test<6>()
     {
@@ -231,7 +231,7 @@ namespace tut
         // two values to std::ostream
         ensure(snapshot.begin() == snapshot.end());
     }
-	
+
     template<> template<>
     void object::test<8>()
     {
@@ -270,5 +270,5 @@ namespace tut
         {
             ensure("failed to remove instance", existing.find(&ref) != existing.end());
         }
-    }*/
+    }
 } // namespace tut
