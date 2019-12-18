@@ -457,9 +457,8 @@ LLCoordCommon LL_COORD_TYPE_WINDOW::convertToCommon() const
 {
 	const LLCoordWindow& self = LLCoordWindow::getTypedCoords(*this);
 
-	auto windowit = LLWindow::instance_snapshot().begin();
 	LLCoordGL out;
-	windowit->convertCoords(self, &out);
+	LLWindow::instance_snapshot().begin()->convertCoords(self, &out);
 	return out.convert();
 }
 
@@ -467,18 +466,16 @@ void LL_COORD_TYPE_WINDOW::convertFromCommon(const LLCoordCommon& from)
 {
 	LLCoordWindow& self = LLCoordWindow::getTypedCoords(*this);
 
-	auto windowit = LLWindow::instance_snapshot().begin();
 	LLCoordGL from_gl(from);
-	windowit->convertCoords(from_gl, &self);
+	LLWindow::instance_snapshot().begin()->convertCoords(from_gl, &self);
 }
 
 LLCoordCommon LL_COORD_TYPE_SCREEN::convertToCommon() const
 {
 	const LLCoordScreen& self = LLCoordScreen::getTypedCoords(*this);
 
-	auto windowit = LLWindow::instance_snapshot().begin();
 	LLCoordGL out;
-	windowit->convertCoords(self, &out);
+	LLWindow::instance_snapshot().begin()->convertCoords(self, &out);
 	return out.convert();
 }
 
@@ -486,7 +483,6 @@ void LL_COORD_TYPE_SCREEN::convertFromCommon(const LLCoordCommon& from)
 {
 	LLCoordScreen& self = LLCoordScreen::getTypedCoords(*this);
 
-	auto windowit = LLWindow::instance_snapshot().begin();
 	LLCoordGL from_gl(from);
-	windowit->convertCoords(from_gl, &self);
+	LLWindow::instance_snapshot().begin()->convertCoords(from_gl, &self);
 }
