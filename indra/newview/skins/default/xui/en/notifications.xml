@@ -6062,7 +6062,7 @@ Would you like to turn off Do Not Disturb before completing this transaction?
    name="ParcelPlayingMedia"   
    persist="false"
    type="notify">
-This land has media:
+This location plays media:
 [URL]
 Would you like to play it?
     <tag>confirm</tag>
@@ -6080,7 +6080,7 @@ Would you like to play it?
        ignore="Ignore Media"
        index="0"
        name="No"
-       text="Ignore"/>
+       text="Don't play"/>
     </form>
   </notification>
 
