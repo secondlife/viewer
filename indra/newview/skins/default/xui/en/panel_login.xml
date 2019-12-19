@@ -33,7 +33,7 @@
       auto_resize="false"
       follows="left|right|top"
       name="ui_container"
-      width="1000"
+      width="1010"
       left="0"
       top="0"
       height="172">
