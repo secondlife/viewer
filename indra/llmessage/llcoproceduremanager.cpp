@@ -291,7 +291,7 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
                                       << LL_ENDL;
                 // This should ensure that all waiting coprocedures in this
                 // pool will wake up and terminate.
-                pendingCoprocs->pushFront({});
+                pendingCoprocs->close();
             }
             return false;
         });
@@ -323,7 +323,7 @@ LLUUID LLCoprocedurePool::enqueueCoprocedure(const std::string &name, LLCoproced
     LL_INFOS("CoProcMgr") << "Coprocedure(" << name << ") enqueuing with id=" << id.asString() << " in pool \"" << mPoolName << "\" at " << mPending << LL_ENDL;
     auto pushed = mPendingCoprocs->tryPushFront(boost::make_shared<QueuedCoproc>(name, id, proc));
     // We don't really have a lot of good options if tryPushFront() failed,
-    // perhaps because the consuming coroutine is gummed up or something. This
+    // perhaps because the consuming coroutines are gummed up or something. This
     // method is probably called from code called by mainloop. If we toss an
     // llcoro::suspend() call here, we'll circle back for another mainloop
     // iteration, possibly resulting in being re-entered here. Let's avoid that.
@@ -341,13 +341,14 @@ void LLCoprocedurePool::coprocedureInvokerCoro(
     QueuedCoproc::ptr_t coproc;
     for (;;)
     {
+        try
         {
             LLCoros::TempStatus st("waiting for work");
             coproc = pendingCoprocs->popBack();
         }
-        if (! coproc)
+        catch (const LLThreadSafeQueueError&)
         {
-            // close() pushes an empty pointer to signal done
+            // queue is closed
             break;
         }
 
@@ -369,7 +370,7 @@ void LLCoprocedurePool::coprocedureInvokerCoro(
                                               << ") in pool '" << mPoolName << "'"));
             // must NOT omit this or we deplete the pool
             mActiveCoprocs.erase(itActive);
-            throw;
+            continue;
         }
 
         LL_DEBUGS("CoProcMgr") << "Finished coprocedure(" << coproc->mName << ")" << " in pool \"" << mPoolName << "\"" << LL_ENDL;
@@ -380,5 +381,5 @@ void LLCoprocedurePool::coprocedureInvokerCoro(
 
 void LLCoprocedurePool::close()
 {
-    mPendingCoprocs->pushFront({});
+    mPendingCoprocs->close();
 }
