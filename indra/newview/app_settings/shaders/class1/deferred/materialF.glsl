@@ -277,7 +277,7 @@ void main()
     final_color.a = max(final_color.a, emissive_brightness);
 
     // Texture
-    //     [x] Full Bright Object
+    //     [x] Full Bright (emissive_brightness >= 1.0)
     //     Shininess (specular)
     //       [X] Texture
     //       Environment Intensity = 1
@@ -292,11 +292,14 @@ void main()
     // We remap the environment intensity to closely simulate what non-EEP is doing.
     //    At midnight the brightness is exact.
     //    At midday the brightness is very close.
-#ifdef HAS_SKIN
     vec4 final_normal = vec4(abnormal, env_intensity, 0.0);
-#else
-    float ei = env_intensity*0.5 + 0.5;
-    vec4 final_normal = vec4(abnormal, ei, 0.0);
+
+#ifdef HAS_SPECULAR_MAP
+    if( emissive_brightness >= 1.0)
+    {
+        float ei = env_intensity*0.5 + 0.5;
+        final_normal = vec4(abnormal, ei, 0.0);
+    }
 #endif
     vec4 final_specular = spec;
     
