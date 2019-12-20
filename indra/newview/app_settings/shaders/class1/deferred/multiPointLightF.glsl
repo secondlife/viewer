@@ -100,7 +100,9 @@ void main()
 			float fa = light_col[i].a+1.0;
 			float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
 			dist_atten *= dist_atten;
-			dist_atten *= 2.0;
+            
+            // Tweak falloff slightly to match pre-EEP attenuation
+			dist_atten *= 2.2;
 			
 			dist_atten *= noise;
 
