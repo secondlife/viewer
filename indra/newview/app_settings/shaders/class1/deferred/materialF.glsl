@@ -272,6 +272,7 @@ void main()
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_EMISSIVE)
     final_color.a = diffuse_linear.a;
+    final_color.rgb *= 0.5;
 #endif
 
     final_color.a = max(final_color.a, emissive_brightness);
@@ -297,13 +298,16 @@ void main()
 	vec3 color = vec3(0.0);
 	float al   = 0.0;
 
-#ifdef HAS_SPECULAR_MAP
-    if( emissive_brightness >= 1.0)
+    if (emissive_brightness >= 1.0)
     {
+#ifdef HAS_SPECULAR_MAP
         float ei = env_intensity*0.5 + 0.5;
         final_normal = vec4(abnormal, ei, 0.0);
-    }
+
 #endif
+		color.rgb = final_color.rgb;
+		al        = vertex_color.a;
+    }
 
     vec4 final_specular = spec;
 
@@ -316,6 +320,7 @@ void main()
 
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
+	if (emissive_brightness < 1.0)
 	{
 		//forward rendering, output just lit RGBA
 		vec3 pos = vary_position;
@@ -366,7 +371,8 @@ vec3 post_ambient = color.rgb;
 
 vec3 post_sunlight = color.rgb;
 
-		color.rgb *= diffuse_srgb.rgb;
+		//color.rgb *= diffuse_srgb.rgb;
+		color.rgb *= diffuse_linear.rgb; // SL-12006
 
 vec3 post_diffuse = color.rgb;
 
@@ -470,7 +476,7 @@ vec3 post_atmo = color.rgb;
 		color.rgb = temp.rgb;
 		al = temp.a;
 #endif
-	}
+	} // !fullbright
 
     frag_color.rgb = color.rgb;
     frag_color.a   = al;
