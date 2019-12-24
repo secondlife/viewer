@@ -47,142 +47,142 @@ vec3 linear_to_srgb(vec3 cs);
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 
-    #ifdef DEFINE_GL_FRAGCOLOR
-        out vec4 frag_color;
-    #else
-        #define frag_color gl_FragColor
-    #endif
+#ifdef DEFINE_GL_FRAGCOLOR
+    out vec4 frag_color;
+#else
+    #define frag_color gl_FragColor
+#endif
 
-    #ifdef HAS_SUN_SHADOW
+#ifdef HAS_SUN_SHADOW
     float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
-    #endif
+#endif
 
-    uniform samplerCube environmentMap;
-    uniform sampler2D     lightFunc;
+uniform samplerCube environmentMap;
+uniform sampler2D     lightFunc;
 
-    // Inputs
-    uniform vec4 morphFactor;
-    uniform vec3 camPosLocal;
-    uniform mat3 env_mat;
+// Inputs
+uniform vec4 morphFactor;
+uniform vec3 camPosLocal;
+uniform mat3 env_mat;
 
-    uniform vec3 sun_dir;
-    uniform vec3 moon_dir;
-    VARYING vec2 vary_fragcoord;
+uniform vec3 sun_dir;
+uniform vec3 moon_dir;
+VARYING vec2 vary_fragcoord;
 
-    VARYING vec3 vary_position;
+VARYING vec3 vary_position;
 
-    uniform mat4 proj_mat;
-    uniform mat4 inv_proj;
-    uniform vec2 screen_res;
+uniform mat4 proj_mat;
+uniform mat4 inv_proj;
+uniform vec2 screen_res;
 
-    uniform vec4 light_position[8];
-    uniform vec3 light_direction[8];
-    uniform vec4 light_attenuation[8]; 
-    uniform vec3 light_diffuse[8];
+uniform vec4 light_position[8];
+uniform vec3 light_direction[8];
+uniform vec4 light_attenuation[8]; 
+uniform vec3 light_diffuse[8];
 
-    float getAmbientClamp();
+float getAmbientClamp();
 
-    vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spec, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, inout float glare, float ambiance)
+vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spec, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, inout float glare, float ambiance)
+{
+    vec3 col = vec3(0);
+
+    //get light vector
+    vec3 lv = lp.xyz-v;
+
+    //get distance
+    float dist = length(lv);
+    float da = 1.0;
+
+    dist /= la;
+
+    /* clip to projector bounds
+     vec4 proj_tc = proj_mat * lp;
+
+    if (proj_tc.z < 0
+     || proj_tc.z > 1
+     || proj_tc.x < 0
+     || proj_tc.x > 1 
+     || proj_tc.y < 0
+     || proj_tc.y > 1)
     {
-        vec3 col = vec3(0);
+        return col;
+    }*/
 
-        //get light vector
-        vec3 lv = lp.xyz-v;
+    if (dist > 0.0 && la > 0.0)
+    {
+        //normalize light vector
+        lv = normalize(lv);
+    
+        //distance attenuation
+        float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
+        dist_atten *= dist_atten;
+        dist_atten *= 2.0f;
 
-        //get distance
-        float dist = length(lv);
-        float da = 1.0;
-
-        dist /= la;
-
-        /* clip to projector bounds
-         vec4 proj_tc = proj_mat * lp;
-
-        if (proj_tc.z < 0
-         || proj_tc.z > 1
-         || proj_tc.x < 0
-         || proj_tc.x > 1 
-         || proj_tc.y < 0
-         || proj_tc.y > 1)
+        if (dist_atten <= 0.0)
         {
-            return col;
-        }*/
-
-        if (dist > 0.0 && la > 0.0)
-        {
-            //normalize light vector
-            lv = normalize(lv);
-        
-            //distance attenuation
-            float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
-            dist_atten *= dist_atten;
-            dist_atten *= 2.0f;
-
-            if (dist_atten <= 0.0)
-            {
-               return col;
-            }
-
-            // spotlight coefficient.
-            float spot = max(dot(-ln, lv), is_pointlight);
-            da *= spot*spot; // GL_SPOT_EXPONENT=2
-
-            //angular attenuation
-            da *= dot(n, lv);
-
-            float lit = 0.0f;
-
-            float amb_da = ambiance;
-            if (da >= 0)
-            {
-                lit = max(da * dist_atten,0.0);
-                col = lit * light_col * diffuse;
-                amb_da += (da*0.5+0.5) * ambiance;
-            }
-            amb_da += (da*da*0.5 + 0.5) * ambiance;
-            amb_da *= dist_atten;
-            amb_da = min(amb_da, 1.0f - lit);
-
-            // SL-10969 need to see why these are blown out
-            //col.rgb += amb_da * light_col * diffuse;
-
-            if (spec.a > 0.0)
-            {
-                //vec3 ref = dot(pos+lv, norm);
-                vec3 h = normalize(lv+npos);
-                float nh = dot(n, h);
-                float nv = dot(n, npos);
-                float vh = dot(npos, h);
-                float sa = nh;
-                float fres = pow(1 - dot(h, npos), 5)*0.4+0.5;
-
-                float gtdenom = 2 * nh;
-                float gt = max(0, min(gtdenom * nv / vh, gtdenom * da / vh));
-                                    
-                if (nh > 0.0)
-                {
-                    float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
-                    vec3 speccol = lit*scol*light_col.rgb*spec.rgb;
-                    speccol = clamp(speccol, vec3(0), vec3(1));
-                    col += speccol;
-
-                    float cur_glare = max(speccol.r, speccol.g);
-                    cur_glare = max(cur_glare, speccol.b);
-                    glare = max(glare, speccol.r);
-                    glare += max(cur_glare, 0.0);
-                }
-            }
+           return col;
         }
 
-        return max(col, vec3(0.0,0.0,0.0));
+        // spotlight coefficient.
+        float spot = max(dot(-ln, lv), is_pointlight);
+        da *= spot*spot; // GL_SPOT_EXPONENT=2
+
+        //angular attenuation
+        da *= dot(n, lv);
+
+        float lit = 0.0f;
+
+        float amb_da = ambiance;
+        if (da >= 0)
+        {
+            lit = max(da * dist_atten,0.0);
+            col = lit * light_col * diffuse;
+            amb_da += (da*0.5+0.5) * ambiance;
+        }
+        amb_da += (da*da*0.5 + 0.5) * ambiance;
+        amb_da *= dist_atten;
+        amb_da = min(amb_da, 1.0f - lit);
+
+        // SL-10969 need to see why these are blown out
+        //col.rgb += amb_da * light_col * diffuse;
+
+        if (spec.a > 0.0)
+        {
+            //vec3 ref = dot(pos+lv, norm);
+            vec3 h = normalize(lv+npos);
+            float nh = dot(n, h);
+            float nv = dot(n, npos);
+            float vh = dot(npos, h);
+            float sa = nh;
+            float fres = pow(1 - dot(h, npos), 5)*0.4+0.5;
+
+            float gtdenom = 2 * nh;
+            float gt = max(0, min(gtdenom * nv / vh, gtdenom * da / vh));
+                                
+            if (nh > 0.0)
+            {
+                float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
+                vec3 speccol = lit*scol*light_col.rgb*spec.rgb;
+                speccol = clamp(speccol, vec3(0), vec3(1));
+                col += speccol;
+
+                float cur_glare = max(speccol.r, speccol.g);
+                cur_glare = max(cur_glare, speccol.b);
+                glare = max(glare, speccol.r);
+                glare += max(cur_glare, 0.0);
+            }
+        }
     }
 
-    #else
-    #ifdef DEFINE_GL_FRAGCOLOR
-        out vec4 frag_data[3];
-    #else
-        #define frag_data gl_FragData
-    #endif
+    return max(col, vec3(0.0,0.0,0.0));
+}
+
+#else
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 frag_data[3];
+#else
+#define frag_data gl_FragData
+#endif
 #endif
 
 uniform sampler2D diffuseMap;
@@ -358,23 +358,25 @@ void main()
 
         vec3 sun_contrib = min(final_da, shadow) * sunlit;
 
+// vec3 debug_sun_contrib = sun_contrib;
+
 #if !defined(AMBIENT_KILL)
         color.rgb = amblit;
         color.rgb *= ambient;
 #endif
 
-vec3 post_ambient = color.rgb;
+//vec3 debug_post_ambient = color.rgb;
 
 #if !defined(SUNLIGHT_KILL)
         color.rgb += sun_contrib;
 #endif
 
-vec3 post_sunlight = color.rgb;
+//vec3 debug_post_sunlight = color.rgb;
 
         //color.rgb *= diffuse_srgb.rgb;
         color.rgb *= diffuse_linear.rgb; // SL-12006
 
-vec3 post_diffuse = color.rgb;
+//vec3 debug_post_diffuse = color.rgb;
 
         float glare = 0.0;
 
@@ -399,13 +401,13 @@ vec3 post_diffuse = color.rgb;
                 vec3 sp = sun_contrib*scol / 16.0f;
                 sp = clamp(sp, vec3(0), vec3(1));
                 bloom = dot(sp, sp) / 6.0;
-    #if !defined(SUNLIGHT_KILL)
+#if !defined(SUNLIGHT_KILL)
                 color += sp * spec.rgb;
-    #endif
+#endif
             }
         }
 
-    vec3 post_spec = color.rgb;
+//vec3 debug_post_spec = color.rgb;
 
         if (envIntensity > 0.0)
         {
@@ -414,23 +416,23 @@ vec3 post_diffuse = color.rgb;
             
             vec3 reflected_color = textureCube(environmentMap, env_vec).rgb;
 
-    #if !defined(SUNLIGHT_KILL)
+#if !defined(SUNLIGHT_KILL)
             color = mix(color.rgb, reflected_color, envIntensity);
-    #endif
+#endif
             float cur_glare = max(reflected_color.r, reflected_color.g);
             cur_glare = max(cur_glare, reflected_color.b);
             cur_glare *= envIntensity*4.0;
             glare += cur_glare;
         }
 
-vec3 post_env = color.rgb;
+//vec3 debug_post_env = color.rgb;
 
         color = atmosFragLighting(color, additive, atten);
 
         //convert to linear space before adding local lights
         color = srgb_to_linear(color);
 
-vec3 post_atmo = color.rgb;
+//vec3 debug_post_atmo = color.rgb;
 
         vec3 npos = normalize(-pos.xyz);
 
@@ -461,15 +463,15 @@ vec3 post_atmo = color.rgb;
 //color.rgb = amblit;
 //color.rgb = vec3(ambient);
 //color.rgb = sunlit;
-//color.rgb = post_ambient;
+//color.rgb = debug_post_ambient;
 //color.rgb = vec3(final_da);
-//color.rgb = sun_contrib;
-//color.rgb = post_sunlight;
+//color.rgb = debug_sun_contrib;
+//color.rgb = debug_post_sunlight;
 //color.rgb = diffuse_srgb.rgb;
-//color.rgb = post_diffuse;
-//color.rgb = post_spec;
-//color.rgb = post_env;
-//color.rgb = post_atmo;
+//color.rgb = debug_post_diffuse;
+//color.rgb = debug_post_spec;
+//color.rgb = debug_post_env;
+//color.rgb = debug_post_atmo;
 
 #ifdef WATER_FOG
         vec4 temp = applyWaterFogView(pos, vec4(color.rgb, al));
@@ -489,5 +491,4 @@ vec3 post_atmo = color.rgb;
     frag_data[2] = final_normal; // XY = Normal.  Z = Env. intensity.
 #endif
 }
-
 
