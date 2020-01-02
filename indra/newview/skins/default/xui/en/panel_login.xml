@@ -148,9 +148,11 @@
     left="408"
     bottom_delta="0"
     label="Remember password"
+    label_text.word_wrap="true"
+    label_text.width="150"
     check_button.bottom="3"
     name="remember_check"
-    width="145" />
+    width="170" />
   <combo_box
     allow_text_entry="false"
     font="SansSerifTiny"

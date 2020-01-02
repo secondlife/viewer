@@ -441,6 +441,8 @@ public:
 
 	S32						getVPad() { return mVPad; }
 	S32						getHPad() { return mHPad; }
+	F32						getLineSpacingMult() { return mLineSpacingMult; }
+	S32						getLineSpacingPixels() { return mLineSpacingPixels; } // only for multiline
 
 	S32						getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round, bool hit_past_end_of_line = true) const;
 	LLRect					getLocalRectFromDocIndex(S32 pos) const;
