@@ -854,6 +854,11 @@ void LLPanelProfileWeb::onOpen(const LLSD& key)
     resetData();
 
     mAvatarNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), boost::bind(&LLPanelProfileWeb::onAvatarNameCache, this, _1, _2));
+
+    if (mWebBrowser->getMediaPlugin())
+    {
+        mWebBrowser->getMediaPlugin()->setOverrideClickTarget("_navigate");
+    }
 }
 
 BOOL LLPanelProfileWeb::postBuild()
@@ -1000,6 +1005,7 @@ void LLPanelProfileWeb::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent e
             LLStringUtil::format_map_t args;
             args["[TIME]"] = llformat("%.2f", mPerformanceTimer.getElapsedTimeF32());
             childSetValue("status_text", LLSD( getString("LoadTime", args)) );
+            resetLoading();
         }
         break;
 
