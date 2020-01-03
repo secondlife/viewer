@@ -3552,6 +3552,14 @@ If this is your first time using [SECOND_LIFE], you will need to create an accou
 
   <notification
    icon="alertmodal.tga"
+   name="LoginCantRemoveUsername"
+   type="alertmodal">
+    <tag>fail</tag>
+Already remembered user can be forgotten from Me &gt; Preferences &gt; Advanced &gt; Remembered Usernames.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="LoginPacketNeverReceived"
    type="alertmodal">
    <tag>fail</tag>

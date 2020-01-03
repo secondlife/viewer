@@ -560,7 +560,6 @@ void LLPanelLogin::populateFields(LLPointer<LLCredential> credential, bool remem
     {
         sInstance->getChild<LLUICtrl>("remember_name")->setValue(remember_user);
         sInstance->populateUserList(credential);
-        remember_check->setEnabled(remember_user);
     }
 }
 
@@ -1112,14 +1111,22 @@ void LLPanelLogin::onUserListCommit(void*)
 }
 
 // static
+// At the moment only happens if !mFirstLoginThisInstall
 void LLPanelLogin::onRememberUserCheck(void*)
 {
-    if (sInstance)
+    if (sInstance && !sInstance->mFirstLoginThisInstall)
     {
         LLCheckBoxCtrl* remember_name(sInstance->getChild<LLCheckBoxCtrl>("remember_name"));
         LLCheckBoxCtrl* remember_psswrd(sInstance->getChild<LLCheckBoxCtrl>("remember_check"));
+        LLComboBox* user_combo(sInstance->getChild<LLComboBox>("username_combo"));
 
         bool remember = remember_name->getValue().asBoolean();
+        if (user_combo->getCurrentIndex() != -1 && !remember)
+        {
+            remember = true;
+            remember_name->setValue(true);
+            LLNotificationsUtil::add("LoginCantRemoveUsername");
+        }
         remember_psswrd->setEnabled(remember);
     }
 }
@@ -1185,12 +1192,15 @@ void LLPanelLogin::updateLoginButtons()
 
 	login_btn->setEnabled(mUsernameLength != 0 && mPasswordLength != 0);
 
-    if (!mFirstLoginThisInstall)
-    {
-        LLComboBox* user_combo = getChild<LLComboBox>("username_combo");
-        LLCheckBoxCtrl* remember_name = getChild<LLCheckBoxCtrl>("remember_name");
-        remember_name->setEnabled(user_combo->getCurrentIndex() == -1);
-    }
+	if (!mFirstLoginThisInstall)
+	{
+		LLComboBox* user_combo = getChild<LLComboBox>("username_combo");
+		LLCheckBoxCtrl* remember_name = getChild<LLCheckBoxCtrl>("remember_name");
+		if (user_combo->getCurrentIndex() != -1)
+		{
+			remember_name->setValue(true);
+		} // Note: might be good idea to do "else remember_name->setValue(mRememberedState)" but it might behave 'weird' to user
+	}
 }
 
 void LLPanelLogin::populateUserList(LLPointer<LLCredential> credential)
