@@ -417,8 +417,8 @@ public:
 	// PTT key triggering
 	void keyDown(KEY key, MASK mask);
 	void keyUp(KEY key, MASK mask);
-	void middleMouseState(bool down);
-	
+	void updateMouseState(S32 click, bool down);
+
 	boost::signals2::connection MicroChangedCallback(const micro_changed_signal_t::slot_type& cb ) { return mMicroChangedSignal.connect(cb); }
 
 	
@@ -486,7 +486,7 @@ protected:
 	bool		mPTT;
 	
 	bool		mUsePTT;
-	bool		mPTTIsMiddleMouse;
+	S32			mPTTMouseButton;
 	KEY			mPTTKey;
 	bool		mPTTIsToggle;
 	bool		mUserPTTState;

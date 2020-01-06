@@ -474,6 +474,8 @@ public:
 	void updateInventoryLocal(LLInventoryItem* item, U8 key); // Update without messaging.
 	void updateTextureInventory(LLViewerInventoryItem* item, U8 key, bool is_new);
 	LLInventoryObject* getInventoryObject(const LLUUID& item_id);
+
+	// Get content except for root category
 	void getInventoryContents(LLInventoryObject::object_list_t& objects);
 	LLInventoryObject* getInventoryRoot();
 	LLViewerInventoryItem* getInventoryItemByAsset(const LLUUID& asset_id);
@@ -623,8 +625,12 @@ private:
 
 	static void initObjectDataMap();
 
-	// forms task inventory request if none are pending
+	// forms task inventory request if none are pending, marks request as pending
 	void fetchInventoryFromServer();
+
+	// forms task inventory request after some time passed, marks request as pending
+	void fetchInventoryDelayed(const F64 &time_seconds);
+	static void fetchInventoryDelayedCoro(const LLUUID task_inv, const F64 time_seconds);
 
 public:
 	//
@@ -804,12 +810,14 @@ protected:
 	typedef std::list<LLInventoryCallbackInfo*> callback_list_t;
 	callback_list_t mInventoryCallbacks;
 	S16 mInventorySerialNum;
+	S16 mExpectedInventorySerialNum;
 
 	enum EInventoryRequestState
 	{
 		INVENTORY_REQUEST_STOPPED,
-		INVENTORY_REQUEST_PENDING,
-		INVENTORY_XFER
+		INVENTORY_REQUEST_WAIT,    // delay before requesting
+		INVENTORY_REQUEST_PENDING, // just did fetchInventoryFromServer()
+		INVENTORY_XFER             // processed response from 'fetch', now doing an xfer
 	};
 	EInventoryRequestState	mInvRequestState;
 	U64						mInvRequestXFerId;
