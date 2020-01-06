@@ -3560,6 +3560,18 @@ Already remembered user can be forgotten from Me &gt; Preferences &gt; Advanced 
 
   <notification
    icon="alertmodal.tga"
+   name="LoginCantRemoveCurUsername"
+   type="alertmodal">
+    <tag>confirm</tag>
+Forgetting the logged-in user requires you to log out.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Confirm and log out"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="LoginPacketNeverReceived"
    type="alertmodal">
    <tag>fail</tag>

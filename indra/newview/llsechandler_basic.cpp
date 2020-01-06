@@ -1664,6 +1664,19 @@ bool LLSecAPIBasicHandler::hasCredentialMap(const std::string& storage, const st
     return credential.isMap();
 }
 
+// returns true if map is empty or does not exist
+bool LLSecAPIBasicHandler::emptyCredentialMap(const std::string& storage, const std::string& grid)
+{
+    if (storage == DEFAULT_CREDENTIAL_STORAGE)
+    {
+        LL_ERRS() << "Storing maps in default, single-items storage is not allowed" << LL_ENDL;
+    }
+
+    LLSD credential = getProtectedData(storage, grid);
+
+    return !credential.isMap() || credential.emptyMap();
+}
+
 // Load map of credentials from specified credential store, given the grid
 void LLSecAPIBasicHandler::loadCredentialMap(const std::string& storage, const std::string& grid, credential_map_t& credential_map)
 {

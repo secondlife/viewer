@@ -293,6 +293,10 @@ public:
 	virtual bool hasCredentialMap(const std::string& storage,
 								  const std::string& grid);
 
+	// returns true if map is empty or does not exist
+	virtual bool emptyCredentialMap(const std::string& storage,
+									const std::string& grid);
+
 	// load map of credentials from specific storage
 	virtual void loadCredentialMap(const std::string& storage,
 								   const std::string& grid,

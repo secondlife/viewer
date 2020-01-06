@@ -29,6 +29,8 @@
 
 #include "llfloater.h"
 
+class LLScrollListCtrl;
+
 class LLFloaterForgetUser : public LLFloater
 {
 public:
@@ -37,10 +39,15 @@ public:
 
     BOOL postBuild();
     void onForgetClicked();
+    static void forgetUser(const std::string &userid, const std::string &fav_id, const std::string &grid, bool delete_data);
 
 private:
+    static bool onConfirmLogout(const LLSD& notification, const LLSD& response, const std::string &favorites_id);
+    void loadGridToList(const std::string &grid, bool show_grid_name);
+
+    LLScrollListCtrl *mScrollList;
+
     bool mLoginPanelDirty;
-    std::string mGrid;
 };
 
 #endif

@@ -29,11 +29,15 @@
 
 #include "llfloaterforgetuser.h"
 
+#include "llappviewer.h"
 #include "llcheckboxctrl.h"
 #include "llfavoritesbar.h"
+#include "llnotificationsutil.h"
 #include "llpanellogin.h"        // for helper function getUserName() and to repopulate list if nessesary
 #include "llscrolllistctrl.h"
 #include "llsecapi.h"
+#include "llstartup.h"
+#include "llviewercontrol.h"
 #include "llviewernetwork.h"
 
 
@@ -54,55 +58,65 @@ LLFloaterForgetUser::~LLFloaterForgetUser()
 
 BOOL LLFloaterForgetUser::postBuild()
 {
-    // Note, storage works per grid, whatever is selected currently in login screen or logged in.
-    // Since login screen can change grid, store the value.
-    mGrid = LLGridManager::getInstance()->getGrid();
+    mScrollList = getChild<LLScrollListCtrl>("user_list");
 
-    LLScrollListCtrl *scroll_list = getChild<LLScrollListCtrl>("user_list");
-    if (gSecAPIHandler->hasCredentialMap("login_list", mGrid))
+
+    bool show_grid_marks = gSavedSettings.getBOOL("ForceShowGrid");
+    show_grid_marks |= !LLGridManager::getInstance()->isInProductionGrid();
+
+    std::map<std::string, std::string> known_grids = LLGridManager::getInstance()->getKnownGrids();
+
+    if (!show_grid_marks)
     {
-        LLSecAPIHandler::credential_map_t credencials;
-        gSecAPIHandler->loadCredentialMap("login_list", mGrid, credencials);
-
-        LLSecAPIHandler::credential_map_t::iterator cr_iter = credencials.begin();
-        LLSecAPIHandler::credential_map_t::iterator cr_end = credencials.end();
-        while (cr_iter != cr_end)
+        // Figure out if there are records for more than one grid in storage
+        for (std::map<std::string, std::string>::iterator grid_iter = known_grids.begin();
+            grid_iter != known_grids.end();
+            grid_iter++)
         {
-            if (cr_iter->second.notNull()) // basic safety
+            if (!grid_iter->first.empty()
+                && grid_iter->first != MAINGRID) // a workaround since 'mIsInProductionGrid' might not be set
             {
-                LLScrollListItem::Params item_params;
-                item_params.value(cr_iter->first);
-                item_params.columns.add()
-                    .value(LLPanelLogin::getUserName(cr_iter->second))
-                    .column("user")
-                    .font(LLFontGL::getFontSansSerifSmall());
-                scroll_list->addRow(item_params, ADD_BOTTOM);
+                if (!gSecAPIHandler->emptyCredentialMap("login_list", grid_iter->first))
+                {
+                    show_grid_marks = true;
+                    break;
+                }
+
+                // "Legacy" viewer support
+                LLPointer<LLCredential> cred = gSecAPIHandler->loadCredential(grid_iter->first);
+                if (cred.notNull())
+                {
+                    const LLSD &ident = cred->getIdentifier();
+                    if (ident.isMap() && ident.has("type"))
+                    {
+                        show_grid_marks = true;
+                        break;
+                    }
+                }
             }
-            cr_iter++;
         }
-        scroll_list->selectFirstItem();
+    }
+
+    if (!show_grid_marks)
+    {
+        // just load maingrid
+        loadGridToList(MAINGRID, false);
     }
     else
     {
-        LLPointer<LLCredential> cred = gSecAPIHandler->loadCredential(mGrid);
-        if (cred.notNull())
+        for (std::map<std::string, std::string>::iterator grid_iter = known_grids.begin();
+            grid_iter != known_grids.end();
+            grid_iter++)
         {
-            const LLSD &ident = cred->getIdentifier();
-            if (ident.isMap() && ident.has("type"))
+            if (!grid_iter->first.empty())
             {
-                LLScrollListItem::Params item_params;
-                item_params.value(cred->userID());
-                item_params.columns.add()
-                    .value(LLPanelLogin::getUserName(cred))
-                    .column("user")
-                    .font(LLFontGL::getFontSansSerifSmall());
-                scroll_list->addRow(item_params, ADD_BOTTOM);
-                scroll_list->selectFirstItem();
+                loadGridToList(grid_iter->first, true);
             }
         }
     }
 
-    bool enable_button = scroll_list->getFirstSelectedIndex() != -1;
+    mScrollList->selectFirstItem();
+    bool enable_button = mScrollList->getFirstSelectedIndex() != -1;
     LLCheckBoxCtrl *chk_box = getChild<LLCheckBoxCtrl>("delete_data");
     chk_box->setEnabled(enable_button);
     chk_box->set(FALSE);
@@ -117,34 +131,23 @@ void LLFloaterForgetUser::onForgetClicked()
 {
     mLoginPanelDirty = true;
     LLScrollListCtrl *scroll_list = getChild<LLScrollListCtrl>("user_list");
-    std::string user_key = scroll_list->getSelectedValue();
-
-    // remove creds
-    gSecAPIHandler->removeFromCredentialMap("login_list", mGrid, user_key);
-
-    LLPointer<LLCredential> cred = gSecAPIHandler->loadCredential(mGrid);
-    if (cred.notNull() && cred->userID() == user_key)
-    {
-        gSecAPIHandler->deleteCredential(cred);
-    }
-
-    // Clean data
     LLCheckBoxCtrl *chk_box = getChild<LLCheckBoxCtrl>("delete_data");
     BOOL delete_data = chk_box->getValue();
-    if (delete_data)
+    LLSD user_data = scroll_list->getSelectedValue();
+    const std::string user_id = user_data["user_id"];
+    const std::string grid = user_data["grid"];
+    const std::string user_name = user_data["label"]; // for favorites
+
+    if (delete_data && user_id == LLStartUp::getUserId() && grid == LLGridManager::getInstance()->getGrid())
     {
-        // key is edentical to one we use for name of user's folder
-        std::string user_path = gDirUtilp->getOSUserAppDir() + gDirUtilp->getDirDelimiter() + user_key;
-        gDirUtilp->deleteDirAndContents(user_path);
-
-        // Clean favorites, label is edentical to username
-        LLFavoritesOrderStorage::removeFavoritesRecordOfUser(scroll_list->getSelectedItemLabel(), mGrid);
-
-        // Note: we do not clean user-related files from cache because there are id dependent (inventory)
-        // files and cache has separate cleaning mechanism either way.
-        // Also this only cleans user from current grid, not all of them.
+        // we can't delete data for user that is currently logged in
+        LLNotificationsUtil::add("LoginCantRemoveCurUsername", LLSD(), LLSD(), boost::bind(onConfirmLogout, _1, _2, user_name));
+        return;
     }
 
+    // key is used for name of user's folder and in credencials
+    // user_name is edentical to favorite's username
+    forgetUser(user_id, user_name, grid, delete_data);
 
     // Update UI
     scroll_list->deleteSelectedItems();
@@ -154,6 +157,130 @@ void LLFloaterForgetUser::onForgetClicked()
         LLButton *button = getChild<LLButton>("forget");
         button->setEnabled(false);
         chk_box->setEnabled(false);
+    }
+}
+
+//static
+void LLFloaterForgetUser::forgetUser(const std::string &userid, const std::string &fav_id, const std::string &grid, bool delete_data)
+{
+    // Remove creds
+    gSecAPIHandler->removeFromCredentialMap("login_list", grid, userid);
+
+    LLPointer<LLCredential> cred = gSecAPIHandler->loadCredential(grid);
+    if (cred.notNull() && cred->userID() == userid)
+    {
+        gSecAPIHandler->deleteCredential(cred);
+    }
+
+    // Clean data
+    if (delete_data)
+    {
+        std::string user_path = gDirUtilp->getOSUserAppDir() + gDirUtilp->getDirDelimiter() + userid;
+        gDirUtilp->deleteDirAndContents(user_path);
+
+        // Clean favorites
+        LLFavoritesOrderStorage::removeFavoritesRecordOfUser(fav_id, grid);
+
+        // Note: we do not clean user-related files from cache because there are id dependent (inventory)
+        // files and cache has separate cleaning mechanism either way.
+        // Also this only cleans user from current grid, not all of them.
+    }
+}
+
+// static 
+bool LLFloaterForgetUser::onConfirmLogout(const LLSD& notification, const LLSD& response, const std::string &fav_id)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (option == 0)
+    {
+        // Remove creds
+        gSecAPIHandler->removeFromCredentialMap("login_list", LLGridManager::getInstance()->getGrid(), LLStartUp::getUserId());
+
+        LLPointer<LLCredential> cred = gSecAPIHandler->loadCredential(LLGridManager::getInstance()->getGrid());
+        if (cred.notNull() && cred->userID() == LLStartUp::getUserId())
+        {
+            gSecAPIHandler->deleteCredential(cred);
+        }
+
+        // Clean favorites
+        LLFavoritesOrderStorage::removeFavoritesRecordOfUser(fav_id, LLGridManager::getInstance()->getGrid());
+
+        // mark data for removal
+        LLAppViewer::instance()->purgeUserDataOnExit();
+        LLAppViewer::instance()->requestQuit();
+    }
+    return false;
+}
+
+void LLFloaterForgetUser::loadGridToList(const std::string &grid, bool show_grid_name)
+{
+    std::string grid_label;
+    if (show_grid_name)
+    {
+        grid_label = LLGridManager::getInstance()->getGridId(grid); //login id (shortened label)
+    }
+    if (gSecAPIHandler->hasCredentialMap("login_list", grid))
+    {
+        LLSecAPIHandler::credential_map_t credencials;
+        gSecAPIHandler->loadCredentialMap("login_list", grid, credencials);
+
+        LLSecAPIHandler::credential_map_t::iterator cr_iter = credencials.begin();
+        LLSecAPIHandler::credential_map_t::iterator cr_end = credencials.end();
+        while (cr_iter != cr_end)
+        {
+            if (cr_iter->second.notNull()) // basic safety
+            {
+                std::string user_label = LLPanelLogin::getUserName(cr_iter->second);
+                LLSD user_data;
+                user_data["user_id"] = cr_iter->first;
+                user_data["label"] = user_label;
+                user_data["grid"] = grid;
+
+                if (show_grid_name)
+                {
+                    user_label += " (" + grid_label + ")";
+                }
+
+                LLScrollListItem::Params item_params;
+                item_params.value(user_data);
+                item_params.columns.add()
+                    .value(user_label)
+                    .column("user")
+                    .font(LLFontGL::getFontSansSerifSmall());
+                mScrollList->addRow(item_params, ADD_BOTTOM);
+            }
+            cr_iter++;
+        }
+    }
+    else
+    {
+        // "Legacy" viewer support
+        LLPointer<LLCredential> cred = gSecAPIHandler->loadCredential(grid);
+        if (cred.notNull())
+        {
+            const LLSD &ident = cred->getIdentifier();
+            if (ident.isMap() && ident.has("type"))
+            {
+                std::string user_label = LLPanelLogin::getUserName(cred);
+                LLSD user_data;
+                user_data["user_id"] = cred->userID();
+                user_data["label"] = user_label;
+                user_data["grid"] = grid;
+
+                if (show_grid_name)
+                {
+                    user_label += " (" + grid_label + ")";
+                }
+
+                LLScrollListItem::Params item_params;
+                item_params.value(user_data);
+                item_params.columns.add()
+                    .value(user_label)
+                    .column("user")
+                    .font(LLFontGL::getFontSansSerifSmall());
+                mScrollList->addRow(item_params, ADD_BOTTOM);
+            }
+        }
     }
 }
 

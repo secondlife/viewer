@@ -671,7 +671,8 @@ LLAppViewer::LLAppViewer()
 	mReportedCrash(false),
 	mNumSessions(0),
 	mPurgeCache(false),
-	mPurgeOnExit(false),
+	mPurgeCacheOnExit(false),
+	mPurgeUserDataOnExit(false),
 	mSecondInstance(false),
 	mSavedFinalSnapshot(false),
 	mSavePerAccountSettings(false),		// don't save settings on logout unless login succeeded.
@@ -1949,7 +1950,7 @@ bool LLAppViewer::cleanup()
 		LLConversationLog::instance().cache();
 	}
 
-	if (mPurgeOnExit)
+	if (mPurgeCacheOnExit)
 	{
 		LL_INFOS() << "Purging all cache files on exit" << LL_ENDL;
 		gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""), "*.*");
@@ -1989,6 +1990,14 @@ bool LLAppViewer::cleanup()
 			break;
 		}
 	}
+
+    if (mPurgeUserDataOnExit)
+    {
+        // Ideally we should not save anything from this session since it is going to be purged now,
+        // but this is a very 'rare' case (user deleting himself), not worth overcomplicating 'save&cleanup' code
+        std::string user_path = gDirUtilp->getOSUserAppDir() + gDirUtilp->getDirDelimiter() + LLStartUp::getUserId();
+        gDirUtilp->deleteDirAndContents(user_path);
+    }
 
 	// Delete workers first
 	// shotdown all worker threads before deleting them in case of co-dependencies
@@ -4461,7 +4470,7 @@ void LLAppViewer::badNetworkHandler()
 	// Flush all of our caches on exit in the case of disconnect due to
 	// invalid packets.
 
-	mPurgeOnExit = TRUE;
+	mPurgeCacheOnExit = TRUE;
 
 	std::ostringstream message;
 	message <<
