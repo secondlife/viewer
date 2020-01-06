@@ -35,5 +35,5 @@
      name="delete_data"
      top_pad="5"
      width="260"
-     tool_tip="Deletes local files: chat history, last session screenshot, browser cookies, teleport history, toolbar settings, e t c"/>
+     tool_tip="Deletes local files: chat history, last session screenshot, browser cookies, teleport history, toolbar settings, e t c. Some of local files are shared between grids."/>
 </floater>

@@ -138,7 +138,7 @@ void LLFloaterForgetUser::onForgetClicked()
     const std::string grid = user_data["grid"];
     const std::string user_name = user_data["label"]; // for favorites
 
-    if (delete_data && user_id == LLStartUp::getUserId() && grid == LLGridManager::getInstance()->getGrid())
+    if (delete_data && user_id == LLStartUp::getUserId())
     {
         // we can't delete data for user that is currently logged in
         LLNotificationsUtil::add("LoginCantRemoveCurUsername", LLSD(), LLSD(), boost::bind(onConfirmLogout, _1, _2, user_name));
