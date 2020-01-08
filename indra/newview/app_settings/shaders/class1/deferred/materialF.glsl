@@ -48,13 +48,13 @@ vec3 linear_to_srgb(vec3 cs);
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_color;
+    out vec4 frag_color;
 #else
-#define frag_color gl_FragColor
+    #define frag_color gl_FragColor
 #endif
 
 #ifdef HAS_SUN_SHADOW
-float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
+    float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 #endif
 
 uniform samplerCube environmentMap;
@@ -86,12 +86,12 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 {
     vec3 col = vec3(0);
 
-	//get light vector
-	vec3 lv = lp.xyz-v;
+    //get light vector
+    vec3 lv = lp.xyz-v;
 
-	//get distance
-	float dist = length(lv);
-	float da = 1.0;
+    //get distance
+    float dist = length(lv);
+    float da = 1.0;
 
     dist /= la;
 
@@ -108,14 +108,14 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
         return col;
     }*/
 
-	if (dist > 0.0 && la > 0.0)
-	{
-		//normalize light vector
-		lv = normalize(lv);
-	
-		//distance attenuation
-		float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
-		dist_atten *= dist_atten;
+    if (dist > 0.0 && la > 0.0)
+    {
+        //normalize light vector
+        lv = normalize(lv);
+    
+        //distance attenuation
+        float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
+        dist_atten *= dist_atten;
         dist_atten *= 2.0f;
 
         if (dist_atten <= 0.0)
@@ -123,19 +123,19 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
            return col;
         }
 
-		// spotlight coefficient.
-		float spot = max(dot(-ln, lv), is_pointlight);
-		da *= spot*spot; // GL_SPOT_EXPONENT=2
+        // spotlight coefficient.
+        float spot = max(dot(-ln, lv), is_pointlight);
+        da *= spot*spot; // GL_SPOT_EXPONENT=2
 
-		//angular attenuation
-		da *= dot(n, lv);
+        //angular attenuation
+        da *= dot(n, lv);
 
-		float lit = 0.0f;
+        float lit = 0.0f;
 
         float amb_da = ambiance;
         if (da >= 0)
         {
-		    lit = max(da * dist_atten,0.0);
+            lit = max(da * dist_atten,0.0);
             col = lit * light_col * diffuse;
             amb_da += (da*0.5+0.5) * ambiance;
         }
@@ -146,35 +146,35 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
         // SL-10969 need to see why these are blown out
         //col.rgb += amb_da * light_col * diffuse;
 
-		if (spec.a > 0.0)
-		{
-			//vec3 ref = dot(pos+lv, norm);
-			vec3 h = normalize(lv+npos);
-			float nh = dot(n, h);
-			float nv = dot(n, npos);
-			float vh = dot(npos, h);
-			float sa = nh;
-			float fres = pow(1 - dot(h, npos), 5)*0.4+0.5;
+        if (spec.a > 0.0)
+        {
+            //vec3 ref = dot(pos+lv, norm);
+            vec3 h = normalize(lv+npos);
+            float nh = dot(n, h);
+            float nv = dot(n, npos);
+            float vh = dot(npos, h);
+            float sa = nh;
+            float fres = pow(1 - dot(h, npos), 5)*0.4+0.5;
 
-			float gtdenom = 2 * nh;
-			float gt = max(0, min(gtdenom * nv / vh, gtdenom * da / vh));
-								
-			if (nh > 0.0)
-			{
-				float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
-				vec3 speccol = lit*scol*light_col.rgb*spec.rgb;
+            float gtdenom = 2 * nh;
+            float gt = max(0, min(gtdenom * nv / vh, gtdenom * da / vh));
+                                
+            if (nh > 0.0)
+            {
+                float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
+                vec3 speccol = lit*scol*light_col.rgb*spec.rgb;
                 speccol = clamp(speccol, vec3(0), vec3(1));
-				col += speccol;
+                col += speccol;
 
-				float cur_glare = max(speccol.r, speccol.g);
-				cur_glare = max(cur_glare, speccol.b);
-				glare = max(glare, speccol.r);
-				glare += max(cur_glare, 0.0);
-			}
-		}
-	}
+                float cur_glare = max(speccol.r, speccol.g);
+                cur_glare = max(cur_glare, speccol.b);
+                glare = max(glare, speccol.r);
+                glare += max(cur_glare, 0.0);
+            }
+        }
+    }
 
-	return max(col, vec3(0.0,0.0,0.0));	
+    return max(col, vec3(0.0,0.0,0.0));
 }
 
 #else
@@ -218,7 +218,7 @@ VARYING vec2 vary_texcoord0;
 
 vec2 encode_normal(vec3 n);
 
-void main() 
+void main()
 {
     vec2 pos_screen = vary_texcoord0.xy;
 
@@ -272,12 +272,13 @@ void main()
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_EMISSIVE)
     final_color.a = diffuse_linear.a;
+    final_color.rgb *= 0.5;
 #endif
 
     final_color.a = max(final_color.a, emissive_brightness);
 
     // Texture
-    //     [x] Full Bright Object
+    //     [x] Full Bright (emissive_brightness >= 1.0)
     //     Shininess (specular)
     //       [X] Texture
     //       Environment Intensity = 1
@@ -292,14 +293,24 @@ void main()
     // We remap the environment intensity to closely simulate what non-EEP is doing.
     //    At midnight the brightness is exact.
     //    At midday the brightness is very close.
-#ifdef HAS_SKIN
     vec4 final_normal = vec4(abnormal, env_intensity, 0.0);
-#else
-    float ei = env_intensity*0.5 + 0.5;
-    vec4 final_normal = vec4(abnormal, ei, 0.0);
+
+    vec3 color = vec3(0.0);
+    float al   = 0.0;
+
+    if (emissive_brightness >= 1.0)
+    {
+#ifdef HAS_SPECULAR_MAP
+        float ei = env_intensity*0.5 + 0.5;
+        final_normal = vec4(abnormal, ei, 0.0);
+
 #endif
+        color.rgb = final_color.rgb;
+        al        = vertex_color.a;
+    }
+
     vec4 final_specular = spec;
-    
+
     final_specular.a = specular_color.a;
 
 #ifdef HAS_SPECULAR_MAP
@@ -307,172 +318,177 @@ void main()
     final_normal.z *= spec.a;
 #endif
 
-#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
-        //forward rendering, output just lit RGBA
-    vec3 pos = vary_position;
 
-    float shadow = 1.0f;
+#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
+    if (emissive_brightness < 1.0)
+    {
+        //forward rendering, output just lit RGBA
+        vec3 pos = vary_position;
+
+        float shadow = 1.0f;
 
 #ifdef HAS_SUN_SHADOW
-    shadow = sampleDirectionalShadow(pos.xyz, norm.xyz, pos_screen);
+        shadow = sampleDirectionalShadow(pos.xyz, norm.xyz, pos_screen);
 #endif
-    
-    spec = final_specular;
 
-    float envIntensity = final_normal.z;
+        spec = final_specular;
 
-    vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;
+        float envIntensity = final_normal.z;
 
-    vec3 color = vec3(0.0);
+        vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;
 
-    float bloom = 0.0;
-    vec3 sunlit;
-    vec3 amblit;
-    vec3 additive;
-    vec3 atten;
+        float bloom = 0.0;
+        vec3 sunlit;
+        vec3 amblit;
+        vec3 additive;
+        vec3 atten;
 
-    calcAtmosphericVars(pos.xyz, light_dir, 1.0, sunlit, amblit, additive, atten, false);
+        calcAtmosphericVars(pos.xyz, light_dir, 1.0, sunlit, amblit, additive, atten, false);
 
-    vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
+        vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
 
-    float da = dot(norm.xyz, normalize(light_dir.xyz));
-    float final_da = clamp(da, 0.0, 1.0);
+        float da = dot(norm.xyz, normalize(light_dir.xyz));
+        float final_da = clamp(da, 0.0, 1.0);
 
-    float ambient = da;
-    ambient *= 0.5;
-    ambient *= ambient;
-    ambient = (1.0 - ambient);
+        float ambient = da;
+        ambient *= 0.5;
+        ambient *= ambient;
+        ambient = (1.0 - ambient);
 
-    vec3 sun_contrib = min(final_da, shadow) * sunlit;
-   
+        vec3 sun_contrib = min(final_da, shadow) * sunlit;
+
+// vec3 debug_sun_contrib = sun_contrib;
+
 #if !defined(AMBIENT_KILL)
-    color.rgb = amblit;
-    color.rgb *= ambient;
+        color.rgb = amblit;
+        color.rgb *= ambient;
 #endif
 
-vec3 post_ambient = color.rgb;
+//vec3 debug_post_ambient = color.rgb;
 
 #if !defined(SUNLIGHT_KILL)
-    color.rgb += sun_contrib;
+        color.rgb += sun_contrib;
 #endif
 
-vec3 post_sunlight = color.rgb;
+//vec3 debug_post_sunlight = color.rgb;
 
-    color.rgb *= diffuse_srgb.rgb;
- 
-vec3 post_diffuse = color.rgb;
+        //color.rgb *= diffuse_srgb.rgb;
+        color.rgb *= diffuse_linear.rgb; // SL-12006
 
-    float glare = 0.0;
+//vec3 debug_post_diffuse = color.rgb;
 
-    if (spec.a > 0.0) // specular reflection
-    {
-        vec3 npos = -normalize(pos.xyz);
+        float glare = 0.0;
 
-        //vec3 ref = dot(pos+lv, norm);
-        vec3 h = normalize(light_dir.xyz+npos);
-        float nh = dot(norm.xyz, h);
-        float nv = dot(norm.xyz, npos);
-        float vh = dot(npos, h);
-        float sa = nh;
-        float fres = pow(1 - dot(h, npos), 5)*0.4+0.5;
-
-        float gtdenom = 2 * nh;
-        float gt = max(0, min(gtdenom * nv / vh, gtdenom * da / vh));
-                                
-        if (nh > 0.0)
+        if (spec.a > 0.0) // specular reflection
         {
-            float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
-            vec3 sp = sun_contrib*scol / 16.0f;
-            sp = clamp(sp, vec3(0), vec3(1));
-            bloom = dot(sp, sp) / 6.0;
+            vec3 npos = -normalize(pos.xyz);
+
+            //vec3 ref = dot(pos+lv, norm);
+            vec3 h = normalize(light_dir.xyz+npos);
+            float nh = dot(norm.xyz, h);
+            float nv = dot(norm.xyz, npos);
+            float vh = dot(npos, h);
+            float sa = nh;
+            float fres = pow(1 - dot(h, npos), 5)*0.4+0.5;
+
+            float gtdenom = 2 * nh;
+            float gt = max(0, min(gtdenom * nv / vh, gtdenom * da / vh));
+
+            if (nh > 0.0)
+            {
+                float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
+                vec3 sp = sun_contrib*scol / 16.0f;
+                sp = clamp(sp, vec3(0), vec3(1));
+                bloom = dot(sp, sp) / 6.0;
 #if !defined(SUNLIGHT_KILL)
-            color += sp * spec.rgb;
+                color += sp * spec.rgb;
 #endif
+            }
         }
-    }
 
-vec3 post_spec = color.rgb;
+//vec3 debug_post_spec = color.rgb;
 
-    if (envIntensity > 0.0)
-    {
-        //add environmentmap
-        vec3 env_vec = env_mat * refnormpersp;
-        
-        vec3 reflected_color = textureCube(environmentMap, env_vec).rgb;
+        if (envIntensity > 0.0)
+        {
+            //add environmentmap
+            vec3 env_vec = env_mat * refnormpersp;
+            
+            vec3 reflected_color = textureCube(environmentMap, env_vec).rgb;
 
 #if !defined(SUNLIGHT_KILL)
-        color = mix(color.rgb, reflected_color, envIntensity); 
+            color = mix(color.rgb, reflected_color, envIntensity);
 #endif
-        float cur_glare = max(reflected_color.r, reflected_color.g);
-        cur_glare = max(cur_glare, reflected_color.b);
-        cur_glare *= envIntensity*4.0;
-        glare += cur_glare;
-    }
+            float cur_glare = max(reflected_color.r, reflected_color.g);
+            cur_glare = max(cur_glare, reflected_color.b);
+            cur_glare *= envIntensity*4.0;
+            glare += cur_glare;
+        }
 
-vec3 post_env = color.rgb;
+//vec3 debug_post_env = color.rgb;
 
-    color = atmosFragLighting(color, additive, atten);
+        color = atmosFragLighting(color, additive, atten);
 
-    //convert to linear space before adding local lights
-	color = srgb_to_linear(color);
+        //convert to linear space before adding local lights
+        color = srgb_to_linear(color);
 
-vec3 post_atmo = color.rgb;
+//vec3 debug_post_atmo = color.rgb;
 
-    vec3 npos = normalize(-pos.xyz);
-            
-    vec3 light = vec3(0,0,0);
+        vec3 npos = normalize(-pos.xyz);
 
- #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse_linear.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w );
+        vec3 light = vec3(0,0,0);
 
-        LIGHT_LOOP(1)
-        LIGHT_LOOP(2)
-        LIGHT_LOOP(3)
-        LIGHT_LOOP(4)
-        LIGHT_LOOP(5)
-        LIGHT_LOOP(6)
-        LIGHT_LOOP(7)
+#define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse_linear.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w );
 
-    glare = min(glare, 1.0);
-    float al = max(diffuse_linear.a,glare)*vertex_color.a;
+            LIGHT_LOOP(1)
+            LIGHT_LOOP(2)
+            LIGHT_LOOP(3)
+            LIGHT_LOOP(4)
+            LIGHT_LOOP(5)
+            LIGHT_LOOP(6)
+            LIGHT_LOOP(7)
+
+        glare = min(glare, 1.0);
+        al = max(diffuse_linear.a,glare)*vertex_color.a;
 
 #if !defined(LOCAL_LIGHT_KILL)
-    color.rgb += light.rgb;
+        color.rgb += light.rgb;
 #endif
 
-    color = scaleSoftClipFrag(color);
+        color = scaleSoftClipFrag(color);
 
-    // (only) post-deferred needs inline gamma correction
-    color.rgb = linear_to_srgb(color.rgb);
+        // (only) post-deferred needs inline gamma correction
+        color.rgb = linear_to_srgb(color.rgb);
 
 //color.rgb = amblit;
 //color.rgb = vec3(ambient);
 //color.rgb = sunlit;
-//color.rgb = post_ambient;
+//color.rgb = debug_post_ambient;
 //color.rgb = vec3(final_da);
-//color.rgb = sun_contrib;
-//color.rgb = post_sunlight;
+//color.rgb = debug_sun_contrib;
+//color.rgb = debug_post_sunlight;
 //color.rgb = diffuse_srgb.rgb;
-//color.rgb = post_diffuse;
-//color.rgb = post_spec;
-//color.rgb = post_env;
-//color.rgb = post_atmo;
+//color.rgb = debug_post_diffuse;
+//color.rgb = debug_post_spec;
+//color.rgb = debug_post_env;
+//color.rgb = debug_post_atmo;
 
 #ifdef WATER_FOG
-    vec4 temp = applyWaterFogView(pos, vec4(color.rgb, al));
-    color.rgb = temp.rgb;
-    al = temp.a;
+        vec4 temp = applyWaterFogView(pos, vec4(color.rgb, al));
+        color.rgb = temp.rgb;
+        al = temp.a;
 #endif
+    } // !fullbright
 
     frag_color.rgb = color.rgb;
     frag_color.a   = al;
 
-#else
+#else // if DIFFUSE_ALPHA_MODE_BLEND ...
+
     // deferred path
     frag_data[0] = final_color;
     frag_data[1] = final_specular; // XYZ = Specular color. W = Specular exponent.
     frag_data[2] = final_normal; // XY = Normal.  Z = Env. intensity.
 #endif
 }
-
 

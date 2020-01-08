@@ -641,17 +641,17 @@ void LLSettingsVOSky::updateSettings()
     LLVector3 sun_direction  = getSunDirection();
     LLVector3 moon_direction = getMoonDirection();
 
-    F32 dp = getLightDirection() * LLVector3(0.0f, 0.0f, 1.0f);
-	if (dp < 0)
-	{
-		dp = 0;
-	}
-    dp = llmax(dp, 0.1f);
+    // Want the dot prod of sun w/ high noon vector (0,0,1), which is just the z component
+    F32 dp = llmax(sun_direction[2], 0.0f); // clamped to 0 when sun is down
 
-	// Since WL scales everything by 2, there should always be at least a 2:1 brightness ratio
-	// between sunlight and point lights in windlight to normalize point lights.
+    // Since WL scales everything by 2, there should always be at least a 2:1 brightness ratio
+    // between sunlight and point lights in windlight to normalize point lights.
+    //
+    // After some A/B comparison of relesae vs EEP, tweak to allow strength to fall below 2 
+    // at night, for better match. (mSceneLightStrength is a divisor, so lower value means brighter
+    // local lights)
 	F32 sun_dynamic_range = llmax(gSavedSettings.getF32("RenderSunDynamicRange"), 0.0001f);
-    mSceneLightStrength = 2.0f * (1.0f + sun_dynamic_range * dp);
+    mSceneLightStrength = 2.0f * (0.75f + sun_dynamic_range * dp);
 
     gSky.setSunAndMoonDirectionsCFR(sun_direction, moon_direction);
     gSky.setSunTextures(getSunTextureId(), getNextSunTextureId());
