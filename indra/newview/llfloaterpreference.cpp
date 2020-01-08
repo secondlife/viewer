@@ -2678,26 +2678,17 @@ void LLPanelPreference::updateMediaAutoPlayCheckbox(LLUICtrl* ctrl)
 
 void LLPanelPreference::deletePreset(const LLSD& user_data)
 {
-	std::string subdirectory = user_data.asString();
-	LLFloaterReg::hideInstance("load_pref_preset", subdirectory);
-	LLFloaterReg::hideInstance("save_pref_preset", subdirectory);
-	LLFloaterReg::showInstance("delete_pref_preset", subdirectory);
+	LLFloaterReg::showInstance("delete_pref_preset", user_data.asString());
 }
 
 void LLPanelPreference::savePreset(const LLSD& user_data)
 {
-	std::string subdirectory = user_data.asString();
-	LLFloaterReg::hideInstance("delete_pref_preset", subdirectory);
-	LLFloaterReg::hideInstance("load_pref_preset", subdirectory);
-	LLFloaterReg::showInstance("save_pref_preset", subdirectory);
+	LLFloaterReg::showInstance("save_pref_preset", user_data.asString());
 }
 
 void LLPanelPreference::loadPreset(const LLSD& user_data)
 {
-	std::string subdirectory = user_data.asString();
-	LLFloaterReg::hideInstance("delete_pref_preset", subdirectory);
-	LLFloaterReg::hideInstance("save_pref_preset", subdirectory);
-	LLFloaterReg::showInstance("load_pref_preset", subdirectory);
+	LLFloaterReg::showInstance("load_pref_preset", user_data.asString());
 }
 
 void LLPanelPreference::setHardwareDefaults()
