@@ -1674,7 +1674,7 @@ bool LLSecAPIBasicHandler::emptyCredentialMap(const std::string& storage, const 
 
     LLSD credential = getProtectedData(storage, grid);
 
-    return !credential.isMap() || credential.emptyMap();
+    return !credential.isMap() || credential.size() == 0;
 }
 
 // Load map of credentials from specified credential store, given the grid

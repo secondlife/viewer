@@ -491,7 +491,7 @@ public:
 	virtual bool hasCredentialMap(const std::string& storage,
 								  const std::string& grid)=0;
 
-	// returns true im map is empty or does not exist
+	// returns true if map is empty or does not exist
 	virtual bool emptyCredentialMap(const std::string& storage,
 									const std::string& grid)=0;
 
