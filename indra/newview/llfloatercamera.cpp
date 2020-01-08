@@ -610,11 +610,10 @@ void LLFloaterCamera::onSavePreset()
 	LLFloaterReg::hideInstance("load_pref_preset", PRESETS_CAMERA);
 	
 	LLSD key;
-	key["subdirectory"] = PRESETS_CAMERA;
 	std::string current_preset = gSavedSettings.getString("PresetCameraActive");
 	bool is_custom_preset = current_preset != "" && !LLPresetsManager::getInstance()->isDefaultCameraPreset(current_preset);
 	key["index"] = is_custom_preset ? 1 : 0;
-	LLFloaterReg::showInstance("save_pref_preset", key);
+	LLFloaterReg::showInstance("save_camera_preset", key);
 }
 
 void LLFloaterCamera::onCustomPresetSelected()

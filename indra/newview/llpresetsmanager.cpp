@@ -430,7 +430,7 @@ bool LLPresetsManager::setPresetNamesInComboBox(const std::string& subdirectory,
 		else
 		{
 			combo->setLabel(LLTrans::getString("preset_combo_label"));
-			combo->setEnabled(FALSE);
+			combo->setEnabled(PRESETS_CAMERA != subdirectory);
 			sts = false;
 		}
 	}

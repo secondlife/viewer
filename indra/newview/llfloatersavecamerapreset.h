@@ -1,11 +1,11 @@
 /** 
- * @file llfloatersaveprefpreset.h
- * @brief Floater to save a graphics preset
+ * @file llfloatersavecamerapreset.h
+ * @brief Floater to save a camera preset
 
  *
- * $LicenseInfo:firstyear=2014&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2020&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2014, Linden Research, Inc.
+ * Copyright (C) 2020, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,34 +25,36 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERSAVEPREFPRESET_H
-#define LL_LLFLOATERSAVEPREFPRESET_H
+#ifndef LL_LLFLOATERSAVECAMERAPRESET_H
+#define LL_LLFLOATERSAVECAMERAPRESET_H
 
-#include "llfloater.h"
+#include "llmodaldialog.h"
 
 class LLComboBox;
+class LLRadioGroup;
+class LLLineEditor;
 
-class LLFloaterSavePrefPreset : public LLFloater
+class LLFloaterSaveCameraPreset : public LLModalDialog
 {
 
 public:
-	LLFloaterSavePrefPreset(const LLSD &key);
+	LLFloaterSaveCameraPreset(const LLSD &key);
 
 	/*virtual*/	BOOL	postBuild();
 	/*virtual*/ void	onOpen(const LLSD& key);
 
 	void onBtnSave();
 	void onBtnCancel();
+	void onSwitchSaveReplace();
 
 private:
-
+	LLRadioGroup*	mSaveRadioGroup;
+	LLLineEditor*	mNameEditor;
 	LLComboBox*		mPresetCombo;
 	LLButton*		mSaveButton;
 
 	void onPresetsListChange();
 	void onPresetNameEdited();
-
-	std::string mSubdirectory;
 };
 
-#endif // LL_LLFLOATERSAVEPREFPRESET_H
+#endif // LL_LLFLOATERSAVECAMERAPRESET_H
