@@ -26,7 +26,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "LLFloaterSaveCameraPreset.h"
+#include "llfloatersavecamerapreset.h"
 
 #include "llbutton.h"
 #include "llcombobox.h"
