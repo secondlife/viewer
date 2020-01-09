@@ -3625,6 +3625,18 @@ You can either check your Internet connection and try again in a few minutes or 
 
   <notification
    icon="alertmodal.tga"
+   name="LoginRemoveMultiGridUserData"
+   type="alertmodal">
+    <tag>confirm</tag>
+Local Data you are deleting is shared between multiple grids, are you sure you want to delete it?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Confirm"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="WelcomeChooseSex"
    type="alertmodal">
 Your character will appear in a moment.

@@ -97,6 +97,7 @@ BOOL LLFloaterForgetUser::postBuild()
         }
     }
 
+    mUserGridsCount.clear();
     if (!show_grid_marks)
     {
         // just load maingrid
@@ -129,7 +130,60 @@ BOOL LLFloaterForgetUser::postBuild()
 
 void LLFloaterForgetUser::onForgetClicked()
 {
-    mLoginPanelDirty = true;
+    LLScrollListCtrl *scroll_list = getChild<LLScrollListCtrl>("user_list");
+    LLSD user_data = scroll_list->getSelectedValue();
+    const std::string user_id = user_data["user_id"];
+
+    LLCheckBoxCtrl *chk_box = getChild<LLCheckBoxCtrl>("delete_data");
+    BOOL delete_data = chk_box->getValue();
+
+    if (delete_data && mUserGridsCount[user_id] > 1)
+    {
+        // more than 1 grid uses this id
+        LLNotificationsUtil::add("LoginRemoveMultiGridUserData", LLSD(), LLSD(), boost::bind(&LLFloaterForgetUser::onConfirmForget, this, _1, _2));
+        return;
+    }
+
+    processForgetUser();
+}
+
+bool LLFloaterForgetUser::onConfirmForget(const LLSD& notification, const LLSD& response)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (option == 0)
+    {
+        processForgetUser();
+    }
+    return false;
+}
+
+// static 
+bool LLFloaterForgetUser::onConfirmLogout(const LLSD& notification, const LLSD& response, const std::string &fav_id, const std::string &grid)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (option == 0)
+    {
+        // Remove creds
+        gSecAPIHandler->removeFromCredentialMap("login_list", grid, LLStartUp::getUserId());
+
+        LLPointer<LLCredential> cred = gSecAPIHandler->loadCredential(grid);
+        if (cred.notNull() && cred->userID() == LLStartUp::getUserId())
+        {
+            gSecAPIHandler->deleteCredential(cred);
+        }
+
+        // Clean favorites
+        LLFavoritesOrderStorage::removeFavoritesRecordOfUser(fav_id, grid);
+
+        // mark data for removal
+        LLAppViewer::instance()->purgeUserDataOnExit();
+        LLAppViewer::instance()->requestQuit();
+    }
+    return false;
+}
+
+void LLFloaterForgetUser::processForgetUser()
+{
     LLScrollListCtrl *scroll_list = getChild<LLScrollListCtrl>("user_list");
     LLCheckBoxCtrl *chk_box = getChild<LLCheckBoxCtrl>("delete_data");
     BOOL delete_data = chk_box->getValue();
@@ -138,16 +192,26 @@ void LLFloaterForgetUser::onForgetClicked()
     const std::string grid = user_data["grid"];
     const std::string user_name = user_data["label"]; // for favorites
 
-    if (delete_data && user_id == LLStartUp::getUserId())
+    if (delete_data && user_id == LLStartUp::getUserId() && LLStartUp::getStartupState() > STATE_LOGIN_WAIT)
     {
         // we can't delete data for user that is currently logged in
-        LLNotificationsUtil::add("LoginCantRemoveCurUsername", LLSD(), LLSD(), boost::bind(onConfirmLogout, _1, _2, user_name));
+        // we need to pass grid because we are deleting data universal to grids, but specific grid's user
+        LLNotificationsUtil::add("LoginCantRemoveCurUsername", LLSD(), LLSD(), boost::bind(onConfirmLogout, _1, _2, user_name, grid));
         return;
     }
 
     // key is used for name of user's folder and in credencials
     // user_name is edentical to favorite's username
     forgetUser(user_id, user_name, grid, delete_data);
+    mLoginPanelDirty = true;
+    if (delete_data)
+    {
+        mUserGridsCount[user_id] = 0; //no data left to care about
+    }
+    else
+    {
+        mUserGridsCount[user_id]--;
+    }
 
     // Update UI
     scroll_list->deleteSelectedItems();
@@ -187,31 +251,6 @@ void LLFloaterForgetUser::forgetUser(const std::string &userid, const std::strin
     }
 }
 
-// static 
-bool LLFloaterForgetUser::onConfirmLogout(const LLSD& notification, const LLSD& response, const std::string &fav_id)
-{
-    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-    if (option == 0)
-    {
-        // Remove creds
-        gSecAPIHandler->removeFromCredentialMap("login_list", LLGridManager::getInstance()->getGrid(), LLStartUp::getUserId());
-
-        LLPointer<LLCredential> cred = gSecAPIHandler->loadCredential(LLGridManager::getInstance()->getGrid());
-        if (cred.notNull() && cred->userID() == LLStartUp::getUserId())
-        {
-            gSecAPIHandler->deleteCredential(cred);
-        }
-
-        // Clean favorites
-        LLFavoritesOrderStorage::removeFavoritesRecordOfUser(fav_id, LLGridManager::getInstance()->getGrid());
-
-        // mark data for removal
-        LLAppViewer::instance()->purgeUserDataOnExit();
-        LLAppViewer::instance()->requestQuit();
-    }
-    return false;
-}
-
 void LLFloaterForgetUser::loadGridToList(const std::string &grid, bool show_grid_name)
 {
     std::string grid_label;
@@ -248,6 +287,17 @@ void LLFloaterForgetUser::loadGridToList(const std::string &grid, bool show_grid
                     .column("user")
                     .font(LLFontGL::getFontSansSerifSmall());
                 mScrollList->addRow(item_params, ADD_BOTTOM);
+
+                // Add one to grid count
+                std::map<std::string, S32>::iterator found = mUserGridsCount.find(cr_iter->first);
+                if (found != mUserGridsCount.end())
+                {
+                    found->second++;
+                }
+                else
+                {
+                    mUserGridsCount[cr_iter->first] = 1;
+                }
             }
             cr_iter++;
         }
@@ -279,6 +329,17 @@ void LLFloaterForgetUser::loadGridToList(const std::string &grid, bool show_grid
                     .column("user")
                     .font(LLFontGL::getFontSansSerifSmall());
                 mScrollList->addRow(item_params, ADD_BOTTOM);
+
+                // Add one to grid count
+                std::map<std::string, S32>::iterator found = mUserGridsCount.find(cred->userID());
+                if (found != mUserGridsCount.end())
+                {
+                    found->second++;
+                }
+                else
+                {
+                    mUserGridsCount[cred->userID()] = 1;
+                }
             }
         }
     }

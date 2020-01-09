@@ -39,15 +39,18 @@ public:
 
     BOOL postBuild();
     void onForgetClicked();
-    static void forgetUser(const std::string &userid, const std::string &fav_id, const std::string &grid, bool delete_data);
 
 private:
-    static bool onConfirmLogout(const LLSD& notification, const LLSD& response, const std::string &favorites_id);
+    bool onConfirmForget(const LLSD& notification, const LLSD& response);
+    static bool onConfirmLogout(const LLSD& notification, const LLSD& response, const std::string &favorites_id, const std::string &grid);
+    void processForgetUser();
+    static void forgetUser(const std::string &userid, const std::string &fav_id, const std::string &grid, bool delete_data);
     void loadGridToList(const std::string &grid, bool show_grid_name);
 
     LLScrollListCtrl *mScrollList;
 
     bool mLoginPanelDirty;
+    std::map<std::string, S32> mUserGridsCount;
 };
 
 #endif
