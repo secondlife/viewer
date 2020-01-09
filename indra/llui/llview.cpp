@@ -641,6 +641,16 @@ void LLView::onVisibilityChange ( BOOL new_visibility )
 }
 
 // virtual
+void LLView::onChildGotFocus(const LLUICtrl * cntrl)
+{
+    LLView* parent_view = getParent();
+    if (parent_view)
+    {
+        parent_view->onChildGotFocus(cntrl);
+    }
+}
+
+// virtual
 void LLView::translate(S32 x, S32 y)
 {
 	mRect.translate(x, y);
