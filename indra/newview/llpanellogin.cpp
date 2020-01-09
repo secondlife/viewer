@@ -763,7 +763,7 @@ BOOL LLPanelLogin::areCredentialFieldsDirty()
 	else
 	{
 		LLComboBox* combo = sInstance->getChild<LLComboBox>("username_combo");
-		if (combo && combo->getCurrentIndex() == -1 && combo->isDirty())
+		if (combo && combo->getCurrentIndex() == -1 && !combo->getValue().asString().empty())
 		{
 			return true;
 		}
@@ -1249,6 +1249,7 @@ void LLPanelLogin::populateUserList(LLPointer<LLCredential> credential)
         {
             // selection failed, just deselect whatever might be selected
             user_combo->setValue(std::string());
+            getChild<LLUICtrl>("password_edit")->setValue(std::string());
         }
         else
         {
