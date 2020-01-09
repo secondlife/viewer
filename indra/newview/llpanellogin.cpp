@@ -762,11 +762,8 @@ BOOL LLPanelLogin::areCredentialFieldsDirty()
 	}
 	else
 	{
-		std::string username = sInstance->getChild<LLUICtrl>("username_combo")->getValue().asString();
-		LLStringUtil::trim(username);
-		std::string password = sInstance->getChild<LLUICtrl>("password_edit")->getValue().asString();
 		LLComboBox* combo = sInstance->getChild<LLComboBox>("username_combo");
-		if(combo && combo->isDirty())
+		if (combo && combo->getCurrentIndex() == -1 && combo->isDirty())
 		{
 			return true;
 		}
@@ -1155,8 +1152,30 @@ void LLPanelLogin::updateServer()
 		try 
 		{
 			// if they've selected another grid, we should load the credentials
-			// for that grid and set them to the UI.
-			if(!sInstance->areCredentialFieldsDirty())
+			// for that grid and set them to the UI. But if there were any modifications to
+			// fields, modifications should carry over.
+			// Not sure if it should carry over password but it worked like this before login changes
+			// Example: you started typing in and found that your are under wrong grid,
+			// you switch yet don't lose anything
+			if (sInstance->areCredentialFieldsDirty())
+			{
+				// save modified creds
+				LLComboBox* user_combo = sInstance->getChild<LLComboBox>("username_combo");
+				LLLineEditor* pswd_edit = sInstance->getChild<LLLineEditor>("password_edit");
+				std::string username = user_combo->getSimple();
+				LLStringUtil::trim(username);
+				std::string password = pswd_edit->getValue().asString();
+
+				// populate dropbox and setFields
+				// Note: following call is related to initializeLoginInfo()
+				LLPointer<LLCredential> credential = gSecAPIHandler->loadCredential(LLGridManager::getInstance()->getGrid());
+				sInstance->populateUserList(credential);
+
+				// restore creds
+				user_combo->setTextEntry(username);
+				pswd_edit->setValue(password);
+			}
+			else
 			{
 				// populate dropbox and setFields
 				// Note: following call is related to initializeLoginInfo()
