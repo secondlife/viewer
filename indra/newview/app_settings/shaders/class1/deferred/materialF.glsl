@@ -272,7 +272,7 @@ void main()
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_EMISSIVE)
     final_color.a = diffuse_linear.a;
-    final_color.rgb *= 0.5;
+    final_color.rgb = mix( diffuse_linear.rgb, final_color.rgb*0.5, diffuse_tap.a ); // SL-12171: Fix emissive texture portion being twice as bright.
 #endif
 
     final_color.a = max(final_color.a, emissive_brightness);
