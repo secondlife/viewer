@@ -609,15 +609,19 @@ void LLPanelLogin::setFields(LLPointer<LLCredential> credential)
 		    login_id += " ";
 		    login_id += lastname;
 	    }
-		sInstance->getChild<LLComboBox>("username_combo")->setLabel(login_id);	
+		sInstance->getChild<LLComboBox>("username_combo")->setLabel(login_id);
+		sInstance->mUsernameLength = login_id.length();
 	}
 	else if(identifier.has("type") && (std::string)identifier["type"] == "account")
 	{
-		sInstance->getChild<LLComboBox>("username_combo")->setLabel((std::string)identifier["account_name"]);		
+		std::string login_id = identifier["account_name"].asString();
+		sInstance->getChild<LLComboBox>("username_combo")->setLabel(login_id);
+		sInstance->mUsernameLength = login_id.length();
 	}
 	else
 	{
-		sInstance->getChild<LLComboBox>("username_combo")->setLabel(std::string());	
+		sInstance->getChild<LLComboBox>("username_combo")->setLabel(std::string());
+		sInstance->mUsernameLength = 0;
 	}
 
 	sInstance->addFavoritesToStartLocation();
@@ -641,7 +645,8 @@ void LLPanelLogin::setFields(LLPointer<LLCredential> credential)
 	}
 	else
 	{
-		sInstance->getChild<LLUICtrl>("password_edit")->setValue(std::string());		
+		sInstance->getChild<LLUICtrl>("password_edit")->setValue(std::string());
+		sInstance->mPasswordLength = 0;
 	}
 }
 
@@ -1250,6 +1255,9 @@ void LLPanelLogin::populateUserList(LLPointer<LLCredential> credential)
             // selection failed, just deselect whatever might be selected
             user_combo->setValue(std::string());
             getChild<LLUICtrl>("password_edit")->setValue(std::string());
+            mUsernameLength = 0;
+            mPasswordLength = 0;
+            updateLoginButtons();
         }
         else
         {
