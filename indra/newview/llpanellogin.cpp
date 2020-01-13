@@ -664,7 +664,7 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 	LLSD identifier = LLSD::emptyMap();
 	LLSD authenticator = LLSD::emptyMap();
 
-	std::string username = sInstance->getChild<LLComboBox>("username_combo")->getValue().asString();
+	std::string username = sInstance->getChild<LLComboBox>("username_combo")->getSimple();
 	std::string password = sInstance->getChild<LLUICtrl>("password_edit")->getValue().asString();
 	LLStringUtil::trim(username);
 
