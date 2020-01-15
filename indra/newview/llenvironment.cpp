@@ -2532,7 +2532,9 @@ void LLEnvironment::DayInstance::setWater(const LLSettingsWater::ptr_t &pwater)
     mType = TYPE_FIXED;
     mInitialized = false;
 
+    bool different_water = mWater != pwater;
     mWater = pwater;
+    mWater->mReplaced |= different_water;
     mWater->update();
     mBlenderWater.reset();
 }
