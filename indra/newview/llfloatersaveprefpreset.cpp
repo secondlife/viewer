@@ -87,7 +87,10 @@ void LLFloaterSavePrefPreset::onBtnSave()
 {
 	std::string name = mPresetCombo->getSimple();
 
-	if ((name == LLTrans::getString(PRESETS_DEFAULT)) || (name == PRESETS_DEFAULT))
+	std::string upper_name(name);
+	LLStringUtil::toUpper(upper_name);
+
+	if ((name == LLTrans::getString(PRESETS_DEFAULT)) || (upper_name == PRESETS_DEFAULT_UPPER))
 	{
 		LLNotificationsUtil::add("DefaultPresetNotSaved");
 	}
