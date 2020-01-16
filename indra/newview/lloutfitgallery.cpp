@@ -910,6 +910,7 @@ bool LLOutfitGalleryContextMenu::onEnable(LLSD::String param)
 
 bool LLOutfitGalleryContextMenu::onVisible(LLSD::String param)
 {
+	mMenuHandle.get()->getChild<LLUICtrl>("upload_photo")->setLabelArg("[UPLOAD_COST]", std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost()));
     if ("remove_photo" == param)
     {
         LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);

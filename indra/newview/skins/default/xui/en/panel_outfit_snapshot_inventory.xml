@@ -67,7 +67,7 @@
     <button
      follows="left|bottom"
      height="23"
-     label="UPLOAD L$10"
+     label="UPLOAD L$[UPLOAD_COST]"
      layout="topleft"
      left="10"
      name="save_btn"
