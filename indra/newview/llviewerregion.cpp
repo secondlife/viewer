@@ -2969,6 +2969,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("UploadBakedTexture");
     capabilityNames.append("UserInfo");
 	capabilityNames.append("ViewerAsset"); 
+	capabilityNames.append("ViewerBenefits");
 	capabilityNames.append("ViewerMetrics");
 	capabilityNames.append("ViewerStartAuction");
 	capabilityNames.append("ViewerStats");
