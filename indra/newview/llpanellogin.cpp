@@ -1232,6 +1232,8 @@ void LLPanelLogin::populateUserList(LLPointer<LLCredential> credential)
     LLComboBox* user_combo = getChild<LLComboBox>("username_combo");
     user_combo->removeall();
     user_combo->clear();
+    mUsernameLength = 0;
+    mPasswordLength = 0;
 
     if (gSecAPIHandler->hasCredentialMap("login_list", LLGridManager::getInstance()->getGrid()))
     {
@@ -1255,8 +1257,6 @@ void LLPanelLogin::populateUserList(LLPointer<LLCredential> credential)
             // selection failed, just deselect whatever might be selected
             user_combo->setValue(std::string());
             getChild<LLUICtrl>("password_edit")->setValue(std::string());
-            mUsernameLength = 0;
-            mPasswordLength = 0;
             updateLoginButtons();
         }
         else
@@ -1274,6 +1274,14 @@ void LLPanelLogin::populateUserList(LLPointer<LLCredential> credential)
                 user_combo->add(LLPanelLogin::getUserName(credential), credential->userID(), ADD_BOTTOM, TRUE);
                 setFields(credential);
             }
+            else
+            {
+                updateLoginButtons();
+            }
+        }
+        else
+        {
+            updateLoginButtons();
         }
     }
 }
