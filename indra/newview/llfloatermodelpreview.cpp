@@ -404,9 +404,15 @@ BOOL LLFloaterModelPreview::postBuild()
 	mUploadLogText = getChild<LLViewerTextEditor>("log_text");
 	mTabContainer = getChild<LLTabContainer>("import_tab");
 
+    // Disable Overrides tab untill it has something to show and set callbacks
+    LLPanel *panel = mTabContainer->getPanelByName("overrides_panel");
+    S32 index = mTabContainer->getIndexForPanel(panel);
+    mTabContainer->enableTabButton(index, false);
+    panel->getChild<LLScrollListCtrl>("joints_list")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onJointListSelection, this));
+
 	// Disable Logs tab untill it has something to show
-	LLPanel* panel = mTabContainer->getPanelByName("logs_panel");
-	S32 index = mTabContainer->getIndexForPanel(panel);
+	panel = mTabContainer->getPanelByName("logs_panel");
+	index = mTabContainer->getIndexForPanel(panel);
 	mTabContainer->enableTabButton(index, false);
 
 	if (LLConvexDecomposition::getInstance() != NULL)
@@ -563,9 +569,12 @@ void LLFloaterModelPreview::onClickCalculateBtn()
 
     if (upload_joint_positions)
     {
-        // Diagnostic message showing list of joints for which joint offsets are defined.
-        // FIXME - given time, would be much better to put this in the UI, in updateStatusMessages().
-		mModelPreview->getPreviewAvatar()->showAttachmentOverrides();
+        // Todo: this probably should be enabled when checkbox enables, not on calculate
+        populateOverridesTab();
+    }
+    else
+    {
+        disableOverridesTab();
     }
 
 	mUploadModelUrl.clear();
@@ -578,6 +587,89 @@ void LLFloaterModelPreview::onClickCalculateBtn()
 
 	toggleCalculateButton(false);
 	mUploadBtn->setEnabled(false);
+}
+
+void populate_list_with_vectors(LLScrollListCtrl *list, const std::set<LLVector3> &vector_set, const LLVector3 &active)
+{
+    if (vector_set.empty())
+    {
+        return;
+    }
+    S32 count = 0;
+    LLScrollListCell::Params cell_params;
+    cell_params.font = LLFontGL::getFontSansSerif();
+    // Start out right justifying numeric displays
+    cell_params.font_halign = LLFontGL::HCENTER;
+
+    std::set<LLVector3>::const_iterator iter = vector_set.begin();
+    std::set<LLVector3>::const_iterator end = vector_set.end();
+    while (iter != end)
+    {
+        LLScrollListItem::Params item_params;
+        item_params.value = LLSD::Integer(count);
+
+        cell_params.column = "override";
+        if (*iter != active)
+        {
+            cell_params.value = "";
+        }
+        else
+        {
+            cell_params.value = "active"; //todo: localize
+        }
+
+        item_params.columns.add(cell_params);
+
+        cell_params.column = "axis_x";
+        cell_params.value = iter->mV[VX];
+        item_params.columns.add(cell_params);
+
+        cell_params.column = "axis_y";
+        cell_params.value = iter->mV[VY];
+        item_params.columns.add(cell_params);
+
+        cell_params.column = "axis_z";
+        cell_params.value = iter->mV[VZ];
+
+        item_params.columns.add(cell_params);
+
+        list->addRow(item_params);
+        count++;
+        iter++;
+    }
+}
+
+void LLFloaterModelPreview::onJointListSelection()
+{
+    LLPanel *panel = mTabContainer->getPanelByName("overrides_panel");
+    LLScrollListCtrl *joints_list = panel->getChild<LLScrollListCtrl>("joints_list");
+    LLScrollListCtrl *joints_pos = panel->getChild<LLScrollListCtrl>("pos_overrides_list");
+    LLScrollListCtrl *joints_scale = panel->getChild<LLScrollListCtrl>("scale_overrides_list");
+    LLTextBox *joint_pos_descr = panel->getChild<LLTextBox>("pos_overrides_descr");
+    LLTextBox *joint_scale_descr = panel->getChild<LLTextBox>("scale_overrides_descr");
+
+    joints_pos->deleteAllItems();
+    joints_scale->deleteAllItems();
+
+    LLScrollListItem *selected = joints_list->getFirstSelected();
+    if (selected)
+    {
+        std::string label = selected->getValue().asString();
+        LLJointOverrideData *data = &mJointOverrides[label];
+        populate_list_with_vectors(joints_pos, data->mPosOverrides, data->mActivePosOverride);
+        populate_list_with_vectors(joints_scale, data->mScaleOverrides, data->mActiveScaleOverride);
+
+        joint_pos_descr->setTextArg("[JOINT]", label);
+        joint_scale_descr->setTextArg("[JOINT]", label);
+    }
+    else
+    {
+        // temporary value (shouldn't happen)
+        std::string label = "mPelvis";
+        joint_pos_descr->setTextArg("[JOINT]", label);
+        joint_scale_descr->setTextArg("[JOINT]", label);
+    }
+
 }
 
 void LLFloaterModelPreview::onDescriptionKeystroke(LLUICtrl* ctrl)
@@ -3861,7 +3953,7 @@ void LLModelPreview::addEmptyFace( LLModel* pTarget )
 	pTarget->setNumVolumeFaces( faceCnt+1 );	
 	pTarget->setVolumeFaceData( faceCnt+1, pos, norm, tc, index, buff->getNumVerts(), buff->getNumIndices() );
 	
-}	
+}
 
 //-----------------------------------------------------------------------------
 // render()
@@ -4811,6 +4903,43 @@ void LLFloaterModelPreview::clearLogTab()
     mUploadLogText->clear();
     LLPanel* panel = mTabContainer->getPanelByName("logs_panel");
     mTabContainer->setTabPanelFlashing(panel, false);
+}
+
+void LLFloaterModelPreview::populateOverridesTab()
+{
+    mJointOverrides.clear();
+    attach_override_data_map_t attach_not_in_use;
+    mModelPreview->getPreviewAvatar()->getAttachmentOverrides(mJointOverrides, attach_not_in_use);
+
+    if (mJointOverrides.empty())
+    {
+        disableOverridesTab();
+        return;
+    }
+
+    LLPanel *panel = mTabContainer->getPanelByName("overrides_panel");
+    S32 index = mTabContainer->getIndexForPanel(panel);
+    mTabContainer->enableTabButton(index, true);
+
+    LLScrollListCtrl *joints_list = panel->getChild<LLScrollListCtrl>("joints_list");
+    joints_list->deleteAllItems();
+    
+    joint_override_data_map_t::iterator joint_iter = mJointOverrides.begin();
+    joint_override_data_map_t::iterator joint_end = mJointOverrides.end();
+    while (joint_iter != joint_end)
+    {
+        const std::string& listName = joint_iter->first;
+        joints_list->addSimpleElement(listName);
+        joint_iter++;
+    }
+    joints_list->selectFirstItem();
+}
+
+void LLFloaterModelPreview::disableOverridesTab()
+{
+    LLPanel *panel = mTabContainer->getPanelByName("overrides_panel");
+    S32 index = mTabContainer->getIndexForPanel(panel);
+    mTabContainer->enableTabButton(index, false);
 }
 
 void LLFloaterModelPreview::onModelPhysicsFeeReceived(const LLSD& result, std::string upload_url)

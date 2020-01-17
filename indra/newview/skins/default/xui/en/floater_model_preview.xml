@@ -1247,6 +1247,122 @@
              width="80"/>
      </panel>
       <panel
+       label="Overrides"
+       layout="topleft"
+       name="overrides_panel"
+       title="Overrides">
+        <view_border
+         bevel_style="none"
+         follows="top|left"
+         height="275"
+         layout="topleft"
+         left="3"
+         name="log_tab_border"
+         top_pad="0"
+         width="619" />
+        <text
+          layout="topleft"
+          follows="top|left"
+          height="15"
+          left="6"
+          name="joints_descr"
+          top="4"
+          width="300">
+          Joints:
+        </text>
+        <scroll_list
+         layout="topleft"
+         follows="top|left"
+         name="joints_list"
+         column_padding="0"
+         draw_heading="false"
+         draw_stripes="false"
+         commit_on_selection_change="true"
+         heading_height="23"
+         height="253"
+         left="6"
+         top_pad="0"
+         width="150"/>
+        <text
+          layout="topleft"
+          follows="top|left"
+          height="15"
+          left_pad="5"
+          name="pos_overrides_descr"
+          top="4"
+          width="300">
+          Position overrides for joint '[JOINT]':
+        </text>
+        <scroll_list
+         layout="topleft"
+         follows="top|left"
+         name="pos_overrides_list"
+         column_padding="0"
+         draw_heading="true"
+         draw_stripes="false"
+         heading_height="23"
+         height="100"
+         left_delta="0"
+         top_pad="0"
+         width="310">
+          <scroll_list.columns
+           label="*"
+           name="override"
+           relative_width="0.22"  />
+          <scroll_list.columns
+           label="X"
+           name="axis_x"
+           relative_width="0.26"  />
+          <scroll_list.columns
+           label="Y"
+           name="axis_y"
+           relative_width="0.26"  />
+          <scroll_list.columns
+           label="Z"
+           name="axis_z"
+           relative_width="0.26"  />
+        </scroll_list>
+        <text
+          layout="topleft"
+          follows="top|left"
+          height="15"
+          left_delta="0"
+          name="scale_overrides_descr"
+          top_pad="3"
+          width="300">
+          Scale overrides for joint '[JOINT]':
+        </text>
+        <scroll_list
+         layout="topleft"
+         follows="top|left"
+         name="scale_overrides_list"
+         column_padding="0"
+         draw_heading="true"
+         draw_stripes="false"
+         heading_height="23"
+         height="100"
+         left_delta="0"
+         top_pad="0"
+         width="310">
+          <scroll_list.columns
+           label="*"
+           name="override"
+           relative_width="0.22"  />
+          <scroll_list.columns
+           label="X"
+           name="axis_x"
+           relative_width="0.26"  />
+          <scroll_list.columns
+           label="Y"
+           name="axis_y"
+           relative_width="0.26"  />
+          <scroll_list.columns
+           label="Z"
+           name="axis_z"
+           relative_width="0.26"  />
+        </scroll_list>
+      </panel>
+      <panel
        label="Log"
        layout="topleft"
        name="logs_panel"

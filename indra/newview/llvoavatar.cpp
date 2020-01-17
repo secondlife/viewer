@@ -6375,6 +6375,56 @@ void LLVOAvatar::showAttachmentOverrides(bool verbose) const
 }
 
 //-----------------------------------------------------------------------------
+// getAttachmentOverrides
+//-----------------------------------------------------------------------------
+void LLVOAvatar::getAttachmentOverrides(joint_override_data_map_t &joint_overrides, attach_override_data_map_t &attach_overrides) const
+{
+    LLVector3 pos, scale;
+    LLUUID mesh_id;
+    S32 count = 0;
+
+    // Bones
+    for (avatar_joint_list_t::const_iterator iter = mSkeleton.begin();
+        iter != mSkeleton.end(); ++iter)
+    {
+        const LLJoint* pJoint = (*iter);
+        LLJointOverrideData data;
+        bool joint_override = false;
+        if (pJoint && pJoint->hasAttachmentPosOverride(pos, mesh_id))
+        {
+            pJoint->getAllAttachmentPosOverrides(count, data.mPosOverrides);
+            data.mActivePosOverride = pos;
+            joint_override = true;
+        }
+        if (pJoint && pJoint->hasAttachmentScaleOverride(scale, mesh_id))
+        {
+            pJoint->getAllAttachmentScaleOverrides(count, data.mPosOverrides);
+            data.mActiveScaleOverride = scale;
+            joint_override = true;
+        }
+        if (joint_override)
+        {
+            joint_overrides[pJoint->getName()] = data;
+        }
+    }
+
+    // Attachment points
+    for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin();
+        iter != mAttachmentPoints.end();
+        ++iter)
+    {
+        const LLViewerJointAttachment *attachment_pt = (*iter).second;
+        if (attachment_pt && attachment_pt->hasAttachmentPosOverride(pos, mesh_id))
+        {
+            LLAttachmentOverrideData data;
+            attachment_pt->getAllAttachmentPosOverrides(count, data.mPosOverrides);
+            data.mActivePosOverride = pos;
+            attach_overrides[attachment_pt->getName()] = data;
+        }
+    }
+}
+
+//-----------------------------------------------------------------------------
 // removeAttachmentOverridesForObject
 //-----------------------------------------------------------------------------
 void LLVOAvatar::removeAttachmentOverridesForObject(LLViewerObject *vo)

@@ -510,7 +510,7 @@ void LLJoint::clearAttachmentPosOverrides()
 // getAllAttachmentPosOverrides()
 //--------------------------------------------------------------------
 void LLJoint::getAllAttachmentPosOverrides(S32& num_pos_overrides,
-                                           std::set<LLVector3>& distinct_pos_overrides)
+                                           std::set<LLVector3>& distinct_pos_overrides) const
 {
     num_pos_overrides = m_attachmentPosOverrides.count();
     LLVector3OverrideMap::map_type::const_iterator it = m_attachmentPosOverrides.getMap().begin();
@@ -524,7 +524,7 @@ void LLJoint::getAllAttachmentPosOverrides(S32& num_pos_overrides,
 // getAllAttachmentScaleOverrides()
 //--------------------------------------------------------------------
 void LLJoint::getAllAttachmentScaleOverrides(S32& num_scale_overrides,
-                                             std::set<LLVector3>& distinct_scale_overrides)
+                                             std::set<LLVector3>& distinct_scale_overrides) const
 {
     num_scale_overrides = m_attachmentScaleOverrides.count();
     LLVector3OverrideMap::map_type::const_iterator it = m_attachmentScaleOverrides.getMap().begin();
