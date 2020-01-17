@@ -1987,7 +1987,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 
 LLVector3 LLAgentCamera::getCurrentCameraOffset()
 {
-	LLVector3 camera_offset = (LLViewerCamera::getInstance()->getOrigin() - gAgentAvatarp->getRenderPosition() - mThirdPersonHeadOffset) * ~gAgent.getFrameAgent().getQuaternion();
+	LLVector3 camera_offset = (LLViewerCamera::getInstance()->getOrigin() - gAgentAvatarp->mRoot->getWorldPosition() - mThirdPersonHeadOffset) * ~gAgent.getFrameAgent().getQuaternion();
 	return  camera_offset / mCameraZoomFraction / gSavedSettings.getF32("CameraOffsetScale");
 }
 
