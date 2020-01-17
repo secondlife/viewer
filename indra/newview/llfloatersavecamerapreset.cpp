@@ -28,6 +28,7 @@
 
 #include "llfloatersavecamerapreset.h"
 
+#include "llagentcamera.h"
 #include "llbutton.h"
 #include "llcombobox.h"
 #include "llfloaterpreference.h"
@@ -101,6 +102,11 @@ void LLFloaterSaveCameraPreset::onBtnSave()
 	}
 	else 
 	{
+		if (gAgentCamera.isJoystickCameraUsed())
+		{
+			gSavedSettings.setVector3("CameraOffsetRearView", gAgentCamera.getCurrentCameraOffset());
+			gSavedSettings.setVector3d("FocusOffsetRearView", gAgentCamera.getCurrentFocusOffset());
+		}
 		if (is_saving_new)
 		{
 			std::list<std::string> preset_names;

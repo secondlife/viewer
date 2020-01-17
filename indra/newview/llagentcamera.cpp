@@ -1985,6 +1985,22 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 }
 
 
+LLVector3 LLAgentCamera::getCurrentCameraOffset()
+{
+	LLVector3 camera_offset = (LLViewerCamera::getInstance()->getOrigin() - gAgentAvatarp->getRenderPosition() - mThirdPersonHeadOffset) * ~gAgent.getFrameAgent().getQuaternion();
+	return  camera_offset / mCameraZoomFraction / gSavedSettings.getF32("CameraOffsetScale");
+}
+
+LLVector3d LLAgentCamera::getCurrentFocusOffset()
+{
+	return (mFocusTargetGlobal - gAgent.getPositionGlobal()) * ~gAgent.getFrameAgent().getQuaternion();
+}
+
+bool LLAgentCamera::isJoystickCameraUsed()
+{
+	return ((mOrbitAroundRadians != 0) || (mOrbitOverAngle != 0) || !mPanFocusDiff.isNull());
+}
+
 LLVector3 LLAgentCamera::getCameraOffsetInitial()
 {
 	return convert_from_llsd<LLVector3>(mCameraOffsetInitial->get(), TYPE_VEC3, "");

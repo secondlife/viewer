@@ -117,6 +117,10 @@ public:
 	/** Determines default focus offset depending on the current camera preset */
 	LLVector3d getFocusOffsetInitial();
 
+	LLVector3 getCurrentCameraOffset();
+	LLVector3d getCurrentFocusOffset();
+	bool isJoystickCameraUsed();
+
 private:
 	/** Determines maximum camera distance from target for mouselook, opposite to LAND_MIN_ZOOM */
 	F32 getCameraMaxZoomDistance();
