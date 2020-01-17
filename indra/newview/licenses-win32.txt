@@ -4,7 +4,7 @@ Logitech License
 
 End-User License Agreement for Logitech LCD SDK
 
-This End-User License Agreement for Logitech LCD SDK ( “Agreement”) is a legal agreement between you, either an individual or legal entity (“You” or “you”) and Logitech Inc. (“Logitech”) for use of the Logitech LCD software development kit, which includes computer software and related media and documentation (hereinafter “LCD SDK”). By using this LCD SDK, you are agreeing to be bound by the terms and conditions of this Agreement. If you do not agree to the terms and conditions of this Agreement, promptly return the LCD SDK and other items that are part of this product in their original package with your sales receipt to your point of purchase for a full refund, or if you have downloaded this software from a Logitech web site, then you must stop using the software and destroy any copies of the software in your possession or control.
+This End-User License Agreement for Logitech LCD SDK ( "Agreement") is a legal agreement between you, either an individual or legal entity ("You" or "you") and Logitech Inc. ("Logitech") for use of the Logitech LCD software development kit, which includes computer software and related media and documentation (hereinafter "LCD SDK"). By using this LCD SDK, you are agreeing to be bound by the terms and conditions of this Agreement. If you do not agree to the terms and conditions of this Agreement, promptly return the LCD SDK and other items that are part of this product in their original package with your sales receipt to your point of purchase for a full refund, or if you have downloaded this software from a Logitech web site, then you must stop using the software and destroy any copies of the software in your possession or control.
 
 1 Grant of License and Restrictions. 
 This Agreement grants You the following rights provided that You comply with all terms and conditions of this Agreement.
@@ -14,7 +14,7 @@ This Agreement grants You the following rights provided that You comply with all
 (d) In the event Logitech, in its sole discretion, elects to provide copies of the LCD SDK to more than one individual employed by You (if You are not a single individual), each such individual shall be entitled to exercise the rights granted in this Agreement and shall be bound by the terms and conditions herein.
 
 2 Updates. 
-Logitech is not obligated to provide technical support or updates to You for the LCD SDK provided to You pursuant to this Agreement. However, Logitech may, in its sole discretion, provide further pre-release versions, technical support, updates and/or supplements (“Updates”) to You, in which case such Updates shall be deemed to be included in the “LCD SDK” and shall be governed by this Agreement, unless other terms of use are provided in writing by Logitech with such Updates.
+Logitech is not obligated to provide technical support or updates to You for the LCD SDK provided to You pursuant to this Agreement. However, Logitech may, in its sole discretion, provide further pre-release versions, technical support, updates and/or supplements ("Updates") to You, in which case such Updates shall be deemed to be included in the "LCD SDK" and shall be governed by this Agreement, unless other terms of use are provided in writing by Logitech with such Updates.
 
 3 Intellectual Property Rights. 
 The LCD SDK is licensed, not sold, to You for use only under the terms and conditions of this Agreement. Logitech and its suppliers retain title to the LCD SDK and all intellectual property rights therein. The LCD SDK is protected by intellectual property laws and international treaties, including U.S. copyright law and international copyright treaties. All rights not expressly granted by Logitech are reserved.
@@ -564,7 +564,7 @@ Vivox SDK License
 
 RSA Data Security, Inc. MD5 Message-Digest Algorithm 
 
-Audio coding: Polycom® Siren14TM (ITU-T Rec. G.722.1 Annex C) 
+Audio coding: Polycom(R) Siren14TM (ITU-T Rec. G.722.1 Annex C) 
 
 Open Source Software Licensing 
 Each open source software component utilized by this product is subject to its own copyright and licensing terms, as listed below. 
