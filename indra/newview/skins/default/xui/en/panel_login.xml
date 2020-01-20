@@ -151,7 +151,7 @@
     label_text.word_wrap="true"
     label_text.width="150"
     check_button.bottom="3"
-    name="remember_check"
+    name="remember_password"
     width="170" />
   <combo_box
     allow_text_entry="false"

@@ -549,16 +549,19 @@ void LLPanelLogin::populateFields(LLPointer<LLCredential> credential, bool remem
         LL_WARNS() << "Attempted fillFields with no login view shown" << LL_ENDL;
         return;
     }
-    LLUICtrl* remember_check = sInstance->getChild<LLUICtrl>("remember_check");
-    remember_check->setValue(remember_psswrd);
     if (sInstance->mFirstLoginThisInstall)
     {
+        LLUICtrl* remember_check = sInstance->getChild<LLUICtrl>("remember_check");
+        remember_check->setValue(remember_psswrd);
         // no list to populate
         setFields(credential);
     }
     else
     {
         sInstance->getChild<LLUICtrl>("remember_name")->setValue(remember_user);
+        LLUICtrl* remember_password = sInstance->getChild<LLUICtrl>("remember_password");
+        remember_password->setValue(remember_psswrd);
+        remember_password->setEnabled(remember_user);
         sInstance->populateUserList(credential);
     }
 }
@@ -746,13 +749,14 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 		}
 	}
 	credential = gSecAPIHandler->createCredential(LLGridManager::getInstance()->getGrid(), identifier, authenticator);
-	remember_psswrd = sInstance->getChild<LLUICtrl>("remember_check")->getValue();
     if (!sInstance->mFirstLoginThisInstall)
     {
+        remember_psswrd = sInstance->getChild<LLUICtrl>("remember_password")->getValue();
         remember_user = sInstance->getChild<LLUICtrl>("remember_name")->getValue();
     }
     else
     {
+        remember_psswrd = sInstance->getChild<LLUICtrl>("remember_check")->getValue();
         remember_user = remember_psswrd; // on panel_login_first "remember_check" is named as 'remember me'
     }
 }
@@ -1080,6 +1084,7 @@ void LLPanelLogin::onUserNameTextEnty(void*)
 {
     sInstance->mPasswordModified = true;
     sInstance->getChild<LLUICtrl>("password_edit")->setValue(std::string());
+    sInstance->mPasswordLength = 0;
     sInstance->addFavoritesToStartLocation(); //will call updateLoginButtons()
 }
 
@@ -1119,7 +1124,7 @@ void LLPanelLogin::onRememberUserCheck(void*)
     if (sInstance && !sInstance->mFirstLoginThisInstall)
     {
         LLCheckBoxCtrl* remember_name(sInstance->getChild<LLCheckBoxCtrl>("remember_name"));
-        LLCheckBoxCtrl* remember_psswrd(sInstance->getChild<LLCheckBoxCtrl>("remember_check"));
+        LLCheckBoxCtrl* remember_psswrd(sInstance->getChild<LLCheckBoxCtrl>("remember_password"));
         LLComboBox* user_combo(sInstance->getChild<LLComboBox>("username_combo"));
 
         bool remember = remember_name->getValue().asBoolean();
@@ -1179,6 +1184,8 @@ void LLPanelLogin::updateServer()
 				// restore creds
 				user_combo->setTextEntry(username);
 				pswd_edit->setValue(password);
+				sInstance->mUsernameLength = username.length();
+				sInstance->mPasswordLength = password.length();
 			}
 			else
 			{
