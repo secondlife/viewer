@@ -3,7 +3,8 @@
  * @brief Declaration of LLJointOverrideData and LLAttachmentOverrideData
  *
  * $LicenseInfo:firstyear=2020&license=viewerlgpl$
- * Second Life Viewer2020, Linden Research, Inc.
+ * Second Life Viewer Source Code
+ * Copyright (C) 2020, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
