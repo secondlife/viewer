@@ -13,8 +13,11 @@
 		<radio_item label="Inventário" name="inventory" value="0"/>
 		<radio_item label="Local" name="local" value="1"/>
 	</radio_group>
+	<text name="size_lbl">
+		Tamanho:
+	</text>
 	<text name="unknown">
-		Tamanho: [DIMENSÕES]
+		[DIMENSIONS]
 	</text>
 	<button label="Padrão" label_selected="Padrão" name="Default"/>
 	<button label="Branco" label_selected="Branco" name="Blank"/>
