@@ -623,6 +623,7 @@
     top_delta="16"
     width="300" />
 
+  <!-- SL-12594, basic shaders always enabled  
   <check_box
     control_name="VertexShaderEnable"
     height="16"
@@ -637,7 +638,8 @@
     <check_box.commit_callback
       function="Pref.VertexShaderEnable" />
   </check_box>
-
+  -->
+    
   <slider
     control_name="RenderTerrainDetail"
     follows="left|top"
