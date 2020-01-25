@@ -290,9 +290,7 @@ void main()
     //   OR
     // adjust the final color via:
     //     final_color *= 0.666666;
-    // We remap the environment intensity to closely simulate what non-EEP is doing.
-    //    At midnight the brightness is exact.
-    //    At midday the brightness is very close.
+    // We don't remap the environment intensity but adjust the final color to closely simulate what non-EEP is doing.
     vec4 final_normal = vec4(abnormal, env_intensity, 0.0);
 
     vec3 color = vec3(0.0);
@@ -301,9 +299,8 @@ void main()
     if (emissive_brightness >= 1.0)
     {
 #ifdef HAS_SPECULAR_MAP
-        float ei = env_intensity*0.5 + 0.5;
-        final_normal = vec4(abnormal, ei, 0.0);
-
+        // Note: We actually need to adjust all 4 channels not just .rgb
+        final_color *= 0.666666;
 #endif
         color.rgb = final_color.rgb;
         al        = vertex_color.a;
