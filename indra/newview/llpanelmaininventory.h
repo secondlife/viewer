@@ -37,6 +37,7 @@
 class LLComboBox;
 class LLFolderViewItem;
 class LLInventoryPanel;
+class LLInventoryFavoriteItemsPanel;
 class LLSaveFolderState;
 class LLFilterEditor;
 class LLTabContainer;
@@ -136,6 +137,7 @@ private:
 	LLHandle<LLFloater>			mFinderHandle;
 	LLInventoryPanel*			mActivePanel;
 	LLInventoryPanel*			mWornItemsPanel;
+	LLInventoryFavoriteItemsPanel* mFavoriteItemsPanel;
 	bool						mResortActivePanel;
 	LLSaveFolderState*			mSavedFolderState;
 	std::string					mFilterText;

@@ -392,6 +392,17 @@
         <key>Value</key>
         <string></string>
       </map>
+      <key>FavoritesFolder</key>
+      <map>
+        <key>Comment</key>
+        <string>User's chosen folder which will be shown in the Favorites tab (UUID)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string></string>
+      </map>
       <key>SnapshotBaseDir</key>
       <map>
         <key>Comment</key>
