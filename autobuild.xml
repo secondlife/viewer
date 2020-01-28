@@ -3427,7 +3427,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
     <key>package_description</key>
     <map>
       <key>canonical_repo</key>
-      <string>https://bitbucket.org/lindenlab/viewer-release</string>
+      <string>https://bitbucket.org/lindenlab/viewer-dev</string>
       <key>copyright</key>
       <string>Copyright (c) 2014, Linden Research, Inc.</string>
       <key>description</key>
