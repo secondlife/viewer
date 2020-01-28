@@ -371,7 +371,7 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 				Gli avatar di altri lotti possono vedere gli avatar che si trovano in questo lotto e chattare con loro
 			</text>
 			<check_box label="Vedi avatar" top="170" name="SeeAvatarsCheck" tool_tip="Consente ad avatar in altri lotti di vedere e chattare con avatar in questo lotto e viceversa."/>
-			<text name="landing_point">
+			<text name="landing_point" width="225">
 				Punto di atterraggio: [LANDING]
 			</text>
 			<button label="Imposta" label_selected="Imposta" name="Set" tool_tip="Imposta il punto di atterraggio dove arrivano i visitatori. Impostalo nel punto dove si trova il tuo avatar in questo terreno." width="60"/>

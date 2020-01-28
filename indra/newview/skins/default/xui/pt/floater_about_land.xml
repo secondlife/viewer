@@ -366,7 +366,7 @@ Apenas lotes maiores podem ser listados na busca.
 				Avatares em outros lotes podem ver e conversar com avatares neste lote
 			</text>
 			<check_box label="Ver avatares" name="SeeAvatarsCheck" top="170" tool_tip="Permite que os avatares em outros lotes vejam e batam papo com avatares neste lote. Você poderá vê-los e conversar com eles."/>
-			<text name="landing_point">
+			<text name="landing_point" width="225">
 				Ponto de Aterrissagem: [LANDING]
 			</text>
 			<button label="Definir" label_selected="Definir" name="Set" tool_tip="Define o ponto de aterrissagem de visitantes. Define para o ponto em que seu avatar se encontra neste lote."/>

@@ -8685,10 +8685,24 @@ void LLPipeline::renderDeferredLighting()
 					}
 
 					const LLViewerObject *vobj = drawablep->getVObj();
-					if((vobj && vobj->getAvatar() && (vobj->getAvatar()->isTooComplex() || vobj->getAvatar()->isInMuteList()))
-						|| (vobj && dist_vec(vobj->getPosition(), LLViewerCamera::getInstance()->getOrigin()) > RenderFarClip))
+					if (vobj)
 					{
-						continue;
+						LLVOAvatar *av = vobj->getAvatar();
+						if (av)
+						{
+							if (av->isTooComplex() || av->isInMuteList() || dist_vec(av->getPosition(), LLViewerCamera::getInstance()->getOrigin()) > RenderFarClip)
+							{
+								continue;
+							}
+						}
+						else
+						{
+							const LLViewerObject *root_obj = drawablep->getParent() ? drawablep->getParent()->getVObj() : vobj;
+							if (root_obj && dist_vec(root_obj->getPosition(), LLViewerCamera::getInstance()->getOrigin()) > RenderFarClip)
+							{
+								continue;
+							}
+						}
 					}
 
 					LLVector4a center;
