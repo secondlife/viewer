@@ -1601,6 +1601,20 @@ BOOL LLScrollListCtrl::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	return handled;
 }
 
+BOOL LLScrollListCtrl::handleScrollHWheel(S32 x, S32 y, S32 clicks)
+{
+	BOOL handled = FALSE;
+	// Pretend the mouse is over the scrollbar
+	handled = mScrollbar->handleScrollHWheel( 0, 0, clicks );
+
+	if (mMouseWheelOpaque)
+	{
+		return TRUE;
+	}
+
+	return handled;
+}
+
 // *NOTE: Requires a valid row_index and column_index
 LLRect LLScrollListCtrl::getCellRect(S32 row_index, S32 column_index)
 {

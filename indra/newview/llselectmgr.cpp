@@ -5425,7 +5425,7 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 		}
 		else
 		{
-			if (node->mInventorySerial != inv_serial)
+			if (node->mInventorySerial != inv_serial && node->getObject())
 			{
 				node->getObject()->dirtyInventory();
 			}

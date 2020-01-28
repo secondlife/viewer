@@ -1650,7 +1650,7 @@ LLPointer<LLUIImage> LLRender2D::getUIImage(const std::string& name, S32 priorit
 // static
 void LLRender2D::resetProvider()
 {
-    if (LLRender2D::instanceExists)
+    if (LLRender2D::instanceExists())
     {
         LLRender2D::getInstance()->mImageProvider = NULL;
     }

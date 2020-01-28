@@ -208,8 +208,14 @@ public:
 	 * @see cleanup()
 	 */
 	static void destroyClass();
+	static std::string getStoredFavoritesFilename(const std::string &grid);
 	static std::string getStoredFavoritesFilename();
 	static std::string getSavedOrderFileName();
+
+	// Remove record of specified user's favorites from file on disk.
+	static void removeFavoritesRecordOfUser(const std::string &user, const std::string &grid);
+	// Remove record of current user's favorites from file on disk.
+	static void removeFavoritesRecordOfUser();
 
 	BOOL saveFavoritesRecord(bool pref_changed = false);
 	void showFavoritesOnLoginChanged(BOOL show);
@@ -231,9 +237,6 @@ private:
 	const static std::string SORTING_DATA_FILE_NAME;
 
 	void load();
-
-	// Remove record of current user's favorites from file on disk.
-	void removeFavoritesRecordOfUser();
 
 	void onLandmarkLoaded(const LLUUID& asset_id, class LLLandmark* landmark);
 	void storeFavoriteSLURL(const LLUUID& asset_id, std::string& slurl);

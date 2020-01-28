@@ -114,6 +114,7 @@ public:
 	static void saveInitialOutfit();
 
 	static std::string& getInitialOutfitName();
+	static std::string getUserId();
 	
 	static bool dispatchURL();
 		// if we have a SLURL or sim string ("Ahern/123/45") that started
