@@ -335,7 +335,7 @@ public:
     void setSelectCallback(const boost::function<void(const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb);
 
 protected:
-    LLInventoryFavoriteItemsPanel::LLInventoryFavoriteItemsPanel(const Params& params);
+    LLInventoryFavoriteItemsPanel(const Params& params);
     ~LLInventoryFavoriteItemsPanel() { mFolderChangedSignal.disconnect(); }
     void updateFavoritesRootFolder();
 
