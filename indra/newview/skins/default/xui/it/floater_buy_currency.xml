@@ -60,7 +60,7 @@ l&apos;oggetto.
 	</text>
 	<button label="Acquista" name="buy_btn"/>
 	<button label="Annulla" name="cancel_btn"/>
-	<text left="5" name="info_cannot_buy" right="-5">
+	<text name="info_cannot_buy" left="160" font="SansSerifBig">
 		Non in grado di acquistare
 	</text>
 	<button label="Continua sul Web" name="error_web"/>

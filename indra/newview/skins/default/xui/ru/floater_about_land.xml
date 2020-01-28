@@ -338,7 +338,7 @@
 			<check_box label="Все" name="check other scripts" tool_tip="Если установлен флажок, то жители могут выполнять скрипты на вашем участке, включая приложения."/>
 			<check_box label="Группа" name="check group scripts" tool_tip="Если установлен флажок, то члены группы могут выполнять скрипты на вашем участке, включая приложения."/>
 			<check_box label="Безопасно (нет повреждений)" name="check safe" tool_tip="Если отмечено, то земля считается безопасной, отключены боевые повреждения. Если не отмечено, то боевые повреждения включены."/>
-			<check_box label="Не толкать" name="PushRestrictCheck" tool_tip="Запрещает скриптам функцию толкания. Этот параметр может оказаться полезным для предотвращения нежелательного поведения на вашей земле."/>
+			<check_box label="Не толкать" name="PushRestrictCheck" left_pad="44" tool_tip="Запрещает скриптам функцию толкания. Этот параметр может оказаться полезным для предотвращения нежелательного поведения на вашей земле."/>
 			<check_box label="Показать место в поиске (L$30/неделя)" name="ShowDirectoryCheck" tool_tip="Позволить людям видеть участок в результатах поиска"/>
 			<combo_box name="land category">
 				<combo_box.item label="Любая категория" name="item0"/>
@@ -360,11 +360,11 @@
 				Снимок:
 			</text>
 			<texture_picker name="snapshot_ctrl" tool_tip="Щелкните для выбора изображения"/>
-			<text name="allow_see_label">
+			<text name="allow_see_label" left="283">
 				Аватары с других участков могут видеть аватары на этом участке и общаться с ними
 			</text>
-			<check_box label="Видны аватары" name="SeeAvatarsCheck" tool_tip="Аватары с других участков смогут видеть аватары на этом участке и общаться с ними в чате, а вы также сможете видеть их и общаться с ними."/>
-			<text name="landing_point">
+			<check_box label="Видны аватары" left="262" name="SeeAvatarsCheck" tool_tip="Аватары с других участков смогут видеть аватары на этом участке и общаться с ними в чате, а вы также сможете видеть их и общаться с ними."/>
+			<text name="landing_point" width="225">
 				В точку телепортации: [LANDING]
 			</text>
 			<button label="Задать" label_selected="Задать" name="Set" tool_tip="Установить точку телепортации, в которую будут прибывать посетители, Ставится в месте вашего аватара на этом участке."/>
@@ -372,7 +372,7 @@
 			<text name="Teleport Routing: ">
 				Вариант телепортации:
 			</text>
-			<combo_box name="landing type" tool_tip="Вариант телепортации – выберите, каким образом будет производиться телепортация на вашу землю">
+			<combo_box name="landing type" width="150" tool_tip="Вариант телепортации – выберите, каким образом будет производиться телепортация на вашу землю">
 				<combo_box.item label="В черном списке" name="Blocked"/>
 				<combo_box.item label="В точку телепортации" name="LandingPoint"/>
 				<combo_box.item label="В любое место" name="Anywhere"/>
@@ -439,7 +439,7 @@
 			<panel.string name="estate_override">
 				Часть этих параметров установлена на уровне землевладения
 			</panel.string>
-			<check_box label="Доступ открыт для всех (При снятия выделения будет создана запись в строке запрета)" name="public_access"/>
+			<check_box label="Доступ открыт для всех" tool_tip="При снятия выделения будет создана запись в строке запрета" name="public_access"/>
 			<check_box label="Должен быть 18 и старше [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Доступ к этому участку имеют только жители 18 лет и старше. Более подробная информация находится здесь: [SUPPORT_SITE]."/>
 			<check_box label="Информация о платежах должна быть в файле [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Для доступа к этому участку у жителя должна быть зарегистрирована информация об оплате.  Более подробная информация находится здесь: [SUPPORT_SITE]."/>
 			<check_box label="Разрешить группе [GROUP] без всяких ограничений" name="GroupCheck" tool_tip="Группа устанавливается на основной вкладке."/>

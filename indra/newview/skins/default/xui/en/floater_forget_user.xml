@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ height="258"
+ layout="topleft"
+ name="groups"
+ help_topic="forget_username"
+ title="REMEMBERED USERNAMES"
+ width="280">
+    <scroll_list
+     height="173"
+     layout="topleft"
+     left="12"
+     name="user_list"
+     top="24"
+     width="256">
+        <scroll_list.columns
+         name="user"
+         width="248" />
+    </scroll_list>
+    <button
+     height="20"
+     label="Forget"
+     label_selected="Forget"
+     layout="topleft"
+     left_delta="90"
+     name="forget"
+     top_pad="8"
+     width="80" />
+    <check_box
+     height="20"
+     label="Also delete local data for this username"
+     layout="topleft"
+     left="15"
+     name="delete_data"
+     top_pad="5"
+     width="260"
+     tool_tip="Deletes local files: chat history, last session screenshot, browser cookies, teleport history, toolbar settings, e t c. Some of local files are shared between grids."/>
+</floater>
