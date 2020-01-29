@@ -609,7 +609,7 @@
     top_delta="16"
     width="300">
     <check_box.commit_callback
-      function="Pref.VertexShaderEnable" />
+      function="Pref.RenderOptionUpdate" />
   </check_box>
 
   <check_box
@@ -685,7 +685,7 @@
     top_delta="16"
     width="280">
     <check_box.commit_callback
-      function="Pref.VertexShaderEnable" />
+      function="Pref.RenderOptionUpdate" />
   </check_box>
 
   <check_box
@@ -753,7 +753,7 @@
     top_delta="16"
     width="280">
     <check_box.commit_callback
-      function="Pref.VertexShaderEnable" />
+      function="Pref.RenderOptionUpdate" />
   </check_box>
 
   <slider
@@ -802,7 +802,7 @@
     top_delta="16"
     width="260">
     <check_box.commit_callback
-      function="Pref.VertexShaderEnable" />
+      function="Pref.RenderOptionUpdate" />
   </check_box>
 
   <check_box
@@ -816,7 +816,7 @@
     top_delta="16"
     width="240">
     <check_box.commit_callback
-      function="Pref.VertexShaderEnable" />
+      function="Pref.RenderOptionUpdate" />
   </check_box>
 
   <check_box
@@ -830,7 +830,7 @@
     top_delta="16"
     width="240">
     <check_box.commit_callback
-      function="Pref.VertexShaderEnable" />
+      function="Pref.RenderOptionUpdate" />
   </check_box>
 
   <!--
