@@ -197,6 +197,8 @@ const F32 NAMETAG_VERT_OFFSET_WEIGHT = 0.17f;
 const U32 LLVOAvatar::VISUAL_COMPLEXITY_UNKNOWN = 0;
 const F64 HUD_OVERSIZED_TEXTURE_DATA_SIZE = 1024 * 1024;
 
+const F32 MAX_TEXTURE_WAIT_TIME_SEC = 60;
+
 enum ERenderName
 {
 	RENDER_NAME_NEVER,
@@ -663,6 +665,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mFullyLoadedInitialized(FALSE),
 	mVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
 	mLoadedCallbacksPaused(FALSE),
+	mLoadedCallbackTextures(0),
 	mRenderUnloadedAvatar(LLCachedControl<bool>(gSavedSettings, "RenderUnloadedAvatar", false)),
 	mLastRezzedStatus(-1),
 	mIsEditingAppearance(FALSE),
@@ -5327,6 +5330,7 @@ void LLVOAvatar::checkTextureLoading()
 	if(mCallbackTextureList.empty()) //when is self or no callbacks. Note: this list for self is always empty.
 	{
 		mLoadedCallbacksPaused = pause ;
+		mLoadedCallbackTextures = 0;
 		return ; //nothing to check.
 	}
 	
@@ -5334,7 +5338,9 @@ void LLVOAvatar::checkTextureLoading()
 	{
 		return ; //have not been invisible for enough time.
 	}
-	
+
+    mLoadedCallbackTextures = 0;
+
 	for(LLLoadedCallbackEntry::source_callback_list_t::iterator iter = mCallbackTextureList.begin();
 		iter != mCallbackTextureList.end(); ++iter)
 	{
@@ -5356,8 +5362,12 @@ void LLVOAvatar::checkTextureLoading()
 				tex->unpauseLoadedCallbacks(&mCallbackTextureList) ;
 				tex->addTextureStats(START_AREA); //jump start the fetching again
 			}
-		}		
-	}			
+		}
+		if (tex->isFullyLoaded())
+		{
+			mLoadedCallbackTextures++;
+		}
+	}
 	
 	if(!pause)
 	{
@@ -7799,9 +7809,19 @@ BOOL LLVOAvatar::updateIsFullyLoaded()
 {
 	S32 rez_status = getRezzedStatus();
 	bool loading = getIsCloud();
-	if (mFirstFullyVisible && !mIsControlAvatar && rez_status < 3)
+	if (mFirstFullyVisible && !mIsControlAvatar)
 	{
-		loading = ((rez_status < 2) || !isFullyBaked());
+        loading = ((rez_status < 2)
+                   || mMeshTexturesDirty
+                   || mVisualComplexityStale //complexity just updated
+                   // Wait at least 60s for unfinished textures to finish on first load,
+                   // don't wait forever, it might fail. Even if it will eventually load by
+                   // itself and update mLoadedCallbackTextures (or fail and clean the list),
+                   // avatars are more time-sensitive than textures and can't wait that long.
+                   || (mLoadedCallbackTextures != mCallbackTextureList.size() && mLastTexCallbackAddedTime.getElapsedTimeF32() <= MAX_TEXTURE_WAIT_TIME_SEC)
+                   || !mPendingAttachment.empty()
+                   || (rez_status < 3 && !isFullyBaked())
+                  );
 	}
 	updateRezzedStatusTimers(rez_status);
 	updateRuthTimer(loading);
@@ -8185,6 +8205,7 @@ void LLVOAvatar::updateMeshTextures()
 				}
 				baked_img->setLoadedCallback(onBakedTextureLoaded, SWITCH_TO_BAKED_DISCARD, FALSE, FALSE, new LLUUID( mID ), 
 					src_callback_list, paused );
+				mLastTexCallbackAddedTime.reset();
 
 				// this could add paused texture callbacks
 				mLoadedCallbacksPaused |= paused; 
@@ -8578,7 +8599,7 @@ void LLVOAvatar::onFirstTEMessageReceived()
 				LL_DEBUGS("Avatar") << avString() << "layer_baked, setting onInitialBakedTextureLoaded as callback" << LL_ENDL;
 				image->setLoadedCallback( onInitialBakedTextureLoaded, MAX_DISCARD_LEVEL, FALSE, FALSE, new LLUUID( mID ), 
 					src_callback_list, paused );
-
+				mLastTexCallbackAddedTime.reset();
                                // this could add paused texture callbacks
                                mLoadedCallbacksPaused |= paused; 
 			}
@@ -10351,7 +10372,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 	// Diagnostic list of all textures on our avatar
 	static std::set<LLUUID> all_textures;
 
-	if (mVisualComplexityStale)
+    if (mVisualComplexityStale)
 	{
 		U32 cost = VISUAL_COMPLEXITY_UNKNOWN;
 		LLVOVolume::texture_cost_t textures;
