@@ -140,7 +140,7 @@ void LLPanelVolumePulldown::updateMediaAutoPlayCheckbox(LLUICtrl* ctrl)
 		bool music_enabled = getChild<LLCheckBoxCtrl>("enable_music")->get();
 		bool media_enabled = getChild<LLCheckBoxCtrl>("enable_media")->get();
 
-		getChild<LLCheckBoxCtrl>("media_auto_play_btn")->setEnabled(music_enabled || media_enabled);
+		getChild<LLCheckBoxCtrl>("media_auto_play_combo")->setEnabled(music_enabled || media_enabled);
 	}
 }
 

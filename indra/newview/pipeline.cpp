@@ -767,8 +767,8 @@ void LLPipeline::resizeScreenTexture()
             releaseShadowTargets();
 		    allocateScreenBuffer(resX,resY);
             gResizeScreenTexture = FALSE;
-		}
-	}
+				}
+			}
 }
 
 void LLPipeline::allocatePhysicsBuffer()
@@ -986,7 +986,7 @@ bool LLPipeline::allocateShadowBuffer(U32 resX, U32 resY)
 
 		const U32 occlusion_divisor = 3;
 
-		F32 scale = RenderShadowResolutionScale;
+		F32 scale = llmax(0.f,RenderShadowResolutionScale);
 		U32 sun_shadow_map_width  = BlurHappySize(resX, scale);
 		U32 sun_shadow_map_height = BlurHappySize(resY, scale);
 
@@ -1225,7 +1225,7 @@ void LLPipeline::releaseScreenBuffers()
 	mOcclusionDepth.release();
 }
 		
-
+		
 void LLPipeline::releaseShadowTarget(U32 index)
 {
     mShadow[index].release();
@@ -8749,9 +8749,24 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
 					}
 
 					const LLViewerObject *vobj = drawablep->getVObj();
-                    if(vobj && vobj->getAvatar() && vobj->getAvatar()->isInMuteList())
+					if (vobj)
+					{
+						LLVOAvatar *av = vobj->getAvatar();
+						if (av)
+						{
+							if (av->isTooComplex() || av->isInMuteList() || dist_vec(av->getPosition(), LLViewerCamera::getInstance()->getOrigin()) > RenderFarClip)
+							{
+								continue;
+							}
+						}
+						else
+						{
+							const LLViewerObject *root_obj = drawablep->getParent() ? drawablep->getParent()->getVObj() : vobj;
+							if (root_obj && dist_vec(root_obj->getPosition(), LLViewerCamera::getInstance()->getOrigin()) > RenderFarClip)
 					{
 						continue;
+					}
+						}
 					}
 
 					LLVector4a center;

@@ -2180,7 +2180,7 @@ Wrong chunk size in WAV file:
    icon="alertmodal.tga"
    name="SoundFileInvalidTooLong"
    type="alertmodal">
-Audio file is too long (10 second maximum):
+Audio file is too long (30 second maximum):
 [FILE]
   <tag>fail</tag>
   </notification>
@@ -2259,6 +2259,7 @@ Unable to create output file: [FILE]
    icon="alertmodal.tga"
    name="DoNotSupportBulkAnimationUpload"
    type="alertmodal">
+    <unique/>
 [APP_NAME] does not currently support bulk upload of BVH format animation files.
   <tag>fail</tag>
   </notification>
@@ -3440,6 +3441,9 @@ Display settings have been set to recommended levels because of a change to the 
    icon="alertmodal.tga"
    name="ErrorMessage"
    type="alertmodal">
+    <unique>
+      <context>ERROR_MESSAGE</context>
+    </unique>
 [ERROR_MESSAGE]
   <tag>fail</tag>
     <usetemplate
@@ -3548,6 +3552,26 @@ If this is your first time using [SECOND_LIFE], you will need to create an accou
 
   <notification
    icon="alertmodal.tga"
+   name="LoginCantRemoveUsername"
+   type="alertmodal">
+    <tag>fail</tag>
+Already remembered user can be forgotten from Me &gt; Preferences &gt; Advanced &gt; Remembered Usernames.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LoginCantRemoveCurUsername"
+   type="alertmodal">
+    <tag>confirm</tag>
+Forgetting the logged-in user requires you to log out.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Confirm and log out"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="LoginPacketNeverReceived"
    type="alertmodal">
    <tag>fail</tag>
@@ -3597,6 +3621,18 @@ You can either check your Internet connection and try again in a few minutes or 
        name="Help"
        text="Help"/>
     </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LoginRemoveMultiGridUserData"
+   type="alertmodal">
+    <tag>confirm</tag>
+Local Data you are deleting is shared between multiple grids, are you sure you want to delete it?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Confirm"/>
   </notification>
 
   <notification
@@ -6067,6 +6103,34 @@ Would you like to turn off Do Not Disturb before completing this transaction?
   </notification>
 
   <notification
+   icon="notify.tga"
+   label="Parcel is Playing Media"
+   name="ParcelPlayingMedia"   
+   persist="false"
+   type="notify">
+This location plays media:
+[URL]
+Would you like to play it?
+    <tag>confirm</tag>
+    <form name="form">
+      <ignore name="ignore"
+       checkbox_only="true"
+       text="Always choose this option for this land."/>
+      <button
+       ignore="Play Media"
+       index="1"
+       name="Yes"
+       text="Play"/>
+      <button
+       default="true"
+       ignore="Ignore Media"
+       index="0"
+       name="No"
+       text="Don't play"/>
+    </form>
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="ConfirmDeleteProtectedCategory"
    type="alertmodal">
@@ -6176,6 +6240,20 @@ Are you sure you want to permanently delete the contents of your Lost And Found?
      yestext="Yes"/>
   </notification>
 
+  <notification
+   icon="alertmodal.tga"
+   name="ConfirmReplaceLink"
+   type="alertmodal">
+You're about to replace '[TYPE]' body part link with the item which doesn't match the type.
+Are you sure you want to proceed?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Confirm before I replace link"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
+  
   <notification
    icon="alertmodal.tga"
    name="CopySLURL"
