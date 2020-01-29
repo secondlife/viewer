@@ -53,14 +53,14 @@ namespace LLCore
 {
 
 const HttpService::OptionDescriptor HttpService::sOptionDesc[] =
-{ //    isLong     isDynamic  isGlobal    isClass
+{ //    isLong     isDynamic  isGlobal    isClass    isCallback
 	{	true,		true,		true,		true,		false	},		// PO_CONNECTION_LIMIT
 	{	true,		true,		false,		true,		false	},		// PO_PER_HOST_CONNECTION_LIMIT
 	{	false,		false,		true,		false,		false	},		// PO_CA_PATH
 	{	false,		false,		true,		false,		false	},		// PO_CA_FILE
 	{	false,		true,		true,		false,		false	},		// PO_HTTP_PROXY
 	{	true,		true,		true,		false,		false	},		// PO_LLPROXY
-	{	true,		true,		true,		false,		false	},		// PO_TRACE
+	{	true,		true,		true,		true,		false	},		// PO_TRACE
 	{	true,		true,		false,		true,		false	},		// PO_ENABLE_PIPELINING
 	{	true,		true,		false,		true,		false	},		// PO_THROTTLE_RATE
 	{   false,		false,		true,		false,		true	}		// PO_SSL_VERIFY_CALLBACK
@@ -355,7 +355,7 @@ HttpService::ELoopSpeed HttpService::processRequestQueue(ELoopSpeed loop)
 			// Setup for subsequent tracing
 			long tracing(HTTP_TRACE_OFF);
 			mPolicy->getGlobalOptions().get(HttpRequest::PO_TRACE, &tracing);
-			op->mTracing = (std::max)(op->mTracing, int(tracing));
+			op->mTracing = (std::max)(op->mTracing, tracing);
 
 			if (op->mTracing > HTTP_TRACE_OFF)
 			{

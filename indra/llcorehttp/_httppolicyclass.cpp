@@ -37,7 +37,8 @@ HttpPolicyClass::HttpPolicyClass()
 	: mConnectionLimit(HTTP_CONNECTION_LIMIT_DEFAULT),
 	  mPerHostConnectionLimit(HTTP_CONNECTION_LIMIT_DEFAULT),
 	  mPipelining(HTTP_PIPELINING_DEFAULT),
-	  mThrottleRate(HTTP_THROTTLE_RATE_DEFAULT)
+	  mThrottleRate(HTTP_THROTTLE_RATE_DEFAULT),
+      mTrace(0L)
 {}
 
 
@@ -53,6 +54,7 @@ HttpPolicyClass & HttpPolicyClass::operator=(const HttpPolicyClass & other)
 		mPerHostConnectionLimit = other.mPerHostConnectionLimit;
 		mPipelining = other.mPipelining;
 		mThrottleRate = other.mThrottleRate;
+        mTrace = other.mTrace;
 	}
 	return *this;
 }
@@ -62,7 +64,8 @@ HttpPolicyClass::HttpPolicyClass(const HttpPolicyClass & other)
 	: mConnectionLimit(other.mConnectionLimit),
 	  mPerHostConnectionLimit(other.mPerHostConnectionLimit),
 	  mPipelining(other.mPipelining),
-	  mThrottleRate(other.mThrottleRate)
+	  mThrottleRate(other.mThrottleRate),
+      mTrace(other.mTrace)
 {}
 
 
@@ -85,6 +88,10 @@ HttpStatus HttpPolicyClass::set(HttpRequest::EPolicyOption opt, long value)
 	case HttpRequest::PO_THROTTLE_RATE:
 		mThrottleRate = llclamp(value, 0L, 1000000L);
 		break;
+
+    case HttpRequest::PO_TRACE:
+        mTrace = llclamp(value, HTTP_TRACE_MIN, HTTP_TRACE_MAX);
+        break;
 
 	default:
 		return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);
@@ -113,6 +120,10 @@ HttpStatus HttpPolicyClass::get(HttpRequest::EPolicyOption opt, long * value) co
 	case HttpRequest::PO_THROTTLE_RATE:
 		*value = mThrottleRate;
 		break;
+
+    case HttpRequest::PO_TRACE:
+        *value = mTrace;
+        break;
 
 	default:
 		return HttpStatus(HttpStatus::LLCORE, HE_INVALID_ARG);

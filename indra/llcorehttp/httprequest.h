@@ -182,7 +182,7 @@ public:
 		/// individual requests in HttpOptions.  Also be aware that
 		/// tracing tends to impact performance of the viewer.
 		///
-		/// Global only
+		/// Global or per-class
 		PO_TRACE,
 
 		/// If greater than 1, suitable requests are allowed to

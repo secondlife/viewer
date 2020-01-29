@@ -377,8 +377,7 @@ public:
 		
 		switch (curlcode)
 		{
-			case CURLE_SSL_PEER_CERTIFICATE:
-			case CURLE_SSL_CACERT:
+            case CURLE_SSL_PEER_CERTIFICATE:  // also CURLE_SSL_CACERT
                 data["certificate"] = mTransaction->getErrorCertData();
 				break;
 

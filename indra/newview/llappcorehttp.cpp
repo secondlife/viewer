@@ -239,6 +239,8 @@ void LLAppCoreHttp::init()
 		}
 	}
 
+
+
 	// Need a request object to handle dynamic options before setting them
 	mRequest = new LLCore::HttpRequest;
 
@@ -381,6 +383,7 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 	{
 		// Default to true (in ctor) if absent.
 		bool pipelined(gSavedSettings.getBOOL(http_pipelining));
+
 		if (pipelined != mPipelined)
 		{
 			mPipelined = pipelined;
@@ -443,8 +446,8 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 					LL_DEBUGS("Init") << "Changed " << init_data[i].mUsage
 									  << " pipelining.  New value:  " << new_depth
 									  << LL_ENDL;
-					mHttpClasses[app_policy].mPipelined = to_pipeline;
-				}
+                    mHttpClasses[app_policy].mPipelined = to_pipeline;
+                }
 			}
 		}
 		
@@ -517,6 +520,12 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 			}
 		}
 	}
+
+    /*NOIBAT*/
+    //LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_TRACE, AP_TEXTURE, 3, nullptr);
+    //LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_TRACE, AP_MESH2, 3, nullptr);
+
+    /*NOIBAT*/
 }
 
 LLCore::HttpStatus LLAppCoreHttp::sslVerify(const std::string &url, 

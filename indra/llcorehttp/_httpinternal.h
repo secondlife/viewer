@@ -110,13 +110,13 @@ const int HTTP_POLICY_CLASS_LIMIT = 32;
 
 // Debug/informational tracing.  Used both
 // as a global option and in per-request traces.
-const int HTTP_TRACE_OFF = 0;
-const int HTTP_TRACE_LOW = 1;
-const int HTTP_TRACE_CURL_HEADERS = 2;
-const int HTTP_TRACE_CURL_BODIES = 3;
+const long HTTP_TRACE_OFF = 0;
+const long HTTP_TRACE_LOW = 1;
+const long HTTP_TRACE_CURL_HEADERS = 2;
+const long HTTP_TRACE_CURL_BODIES = 3;
 
-const int HTTP_TRACE_MIN = HTTP_TRACE_OFF;
-const int HTTP_TRACE_MAX = HTTP_TRACE_CURL_BODIES;
+const long HTTP_TRACE_MIN = HTTP_TRACE_OFF;
+const long HTTP_TRACE_MAX = HTTP_TRACE_CURL_BODIES;
 
 // Request retry limits
 //

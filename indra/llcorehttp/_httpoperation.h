@@ -188,7 +188,7 @@ public:
 
 	// Tracing, debug and metrics
 	HttpTime					mMetricCreated;
-	int							mTracing;
+	long					    mTracing;
 
 private:
     typedef std::map<HttpHandle, wptr_t>    handleMap_t;

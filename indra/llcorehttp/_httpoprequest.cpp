@@ -448,7 +448,7 @@ void HttpOpRequest::setupCommon(HttpRequest::policy_t policy_id,
 		}
 		mPolicyRetryLimit = options->getRetries();
 		mPolicyRetryLimit = llclamp(mPolicyRetryLimit, HTTP_RETRY_COUNT_MIN, HTTP_RETRY_COUNT_MAX);
-		mTracing = (std::max)(mTracing, llclamp(options->getTrace(), HTTP_TRACE_MIN, HTTP_TRACE_MAX));
+		mTracing = (std::max)(mTracing, llclamp((long)options->getTrace(), HTTP_TRACE_MIN, HTTP_TRACE_MAX));
 
 		mPolicyMinRetryBackoff = llclamp(options->getMinBackoff(), HttpTime(0), HTTP_RETRY_BACKOFF_MAX);
 		mPolicyMaxRetryBackoff = llclamp(options->getMaxBackoff(), mPolicyMinRetryBackoff, HTTP_RETRY_BACKOFF_MAX);
@@ -658,6 +658,8 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
     mCurlHeaders = curl_slist_append(mCurlHeaders, "Keep-alive: 300");
 
 	// Tracing
+    mTracing = std::max(mTracing, cpolicy.mTrace);
+
 	if (mTracing >= HTTP_TRACE_CURL_HEADERS)
 	{
 		check_curl_easy_setopt(mCurlHandle, CURLOPT_VERBOSE, 1);
@@ -742,10 +744,11 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 
 		// Also try requesting HTTP/2.
 /******************************/
+        /*NOIBAT: Once asset servers are set up everywhere remove this check and always use HTTP/2 */
 		// but for test purposes, only if overriding VIEWERASSET
 		if (getenv("VIEWERASSET"))
 /******************************/
-		check_curl_easy_setopt(mCurlHandle, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
+        check_curl_easy_setopt(mCurlHandle, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
 	}
 	// *DEBUG:  Enable following override for timeout handling and "[curl:bugs] #1420" tests
     //if (cpolicy.mPipelining)
