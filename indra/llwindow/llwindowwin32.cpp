@@ -2662,6 +2662,42 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			return 0;
 			}
 			*/
+		case WM_MOUSEHWHEEL:
+			{
+				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_MOUSEHWHEEL");
+				static short h_delta = 0;
+
+				RECT	client_rect;
+
+				// eat scroll events that occur outside our window, since we use mouse position to direct scroll
+				// instead of keyboard focus
+				// NOTE: mouse_coord is in *window* coordinates for scroll events
+				POINT mouse_coord = {(S32)(S16)LOWORD(l_param), (S32)(S16)HIWORD(l_param)};
+
+				if (ScreenToClient(window_imp->mWindowHandle, &mouse_coord)
+					&& GetClientRect(window_imp->mWindowHandle, &client_rect))
+				{
+					// we have a valid mouse point and client rect
+					if (mouse_coord.x < client_rect.left || client_rect.right < mouse_coord.x
+						|| mouse_coord.y < client_rect.top || client_rect.bottom < mouse_coord.y)
+					{
+						// mouse is outside of client rect, so don't do anything
+						return 0;
+					}
+				}
+
+				S16 incoming_h_delta = HIWORD(w_param);
+				h_delta += incoming_h_delta;
+
+				// If the user rapidly spins the wheel, we can get messages with
+				// large deltas, like 480 or so.  Thus we need to scroll more quickly.
+				if (h_delta <= -WHEEL_DELTA || WHEEL_DELTA <= h_delta)
+				{
+					window_imp->mCallbacks->handleScrollHWheel(window_imp, h_delta / WHEEL_DELTA);
+					h_delta = 0;
+				}
+				return 0;
+			}
 			// Handle mouse movement within the window
 		case WM_MOUSEMOVE:
 			{

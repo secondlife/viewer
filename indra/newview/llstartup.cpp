@@ -158,6 +158,7 @@
 #include "llviewermessage.h"
 #include "llviewernetwork.h"
 #include "llviewerobjectlist.h"
+#include "llviewerparcelaskplay.h"
 #include "llviewerparcelmedia.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
@@ -236,7 +237,8 @@ LLSLURL LLStartUp::sStartSLURL;
 
 static LLPointer<LLCredential> gUserCredential;
 static std::string gDisplayName;
-static BOOL gRememberPassword = TRUE;     
+static bool gRememberPassword = true;
+static bool gRememberUser = true;
 
 static U64 gFirstSimHandle = 0;
 static LLHost gFirstSim;
@@ -350,13 +352,6 @@ bool idle_startup()
 	gIdleCallbacks.callFunctions();
 	gViewerWindow->updateUI();
 
-	// There is a crash on updateClass, this is an attempt to get more information
-	if (LLMortician::graveyardCount())
-	{
-		std::stringstream log_stream;
-		LLMortician::logClass(log_stream);
-		LL_INFOS() << log_stream.str() << LL_ENDL;
-	}
 	LLMortician::updateClass();
 
 	const std::string delims (" ");
@@ -701,19 +696,23 @@ bool idle_startup()
 		else if (gSavedSettings.getBOOL("AutoLogin"))  
 		{
 			// Log into last account
-			gRememberPassword = TRUE;
-			gSavedSettings.setBOOL("RememberPassword", TRUE);                                                      
+			gRememberPassword = true;
+			gRememberUser = true;
+			gSavedSettings.setBOOL("RememberPassword", TRUE);
+			gSavedSettings.setBOOL("RememberUser", TRUE);
 			show_connect_box = false;    			
 		}
 		else if (gSavedSettings.getLLSD("UserLoginInfo").size() == 3)
 		{
 			// Console provided login&password
 			gRememberPassword = gSavedSettings.getBOOL("RememberPassword");
+			gRememberUser = gSavedSettings.getBOOL("RememberUser");
 			show_connect_box = false;
 		}
 		else 
 		{
 			gRememberPassword = gSavedSettings.getBOOL("RememberPassword");
+			gRememberUser = gSavedSettings.getBOOL("RememberUser");
 			show_connect_box = TRUE;
 		}
 
@@ -781,10 +780,7 @@ bool idle_startup()
 			// Show the login dialog
 			login_show();
 			// connect dialog is already shown, so fill in the names
-			if (gUserCredential.notNull() && !LLPanelLogin::isCredentialSet())
-			{
-				LLPanelLogin::setFields( gUserCredential, gRememberPassword);
-			}
+			LLPanelLogin::populateFields( gUserCredential, gRememberUser, gRememberPassword);
 			LLPanelLogin::giveFocus();
 
 			// MAINT-3231 Show first run dialog only for Desura viewer
@@ -873,7 +869,7 @@ bool idle_startup()
 		{
 			// TODO if not use viewer auth
 			// Load all the name information out of the login view
-			LLPanelLogin::getFields(gUserCredential, gRememberPassword); 
+			LLPanelLogin::getFields(gUserCredential, gRememberUser, gRememberPassword);
 			// end TODO
 	 
 			// HACK: Try to make not jump on login
@@ -885,14 +881,21 @@ bool idle_startup()
 		// STATE_LOGIN_SHOW state if we've gone backwards
 		mLoginStatePastUI = true;
 
-		// save the credentials                                                                                        
-		std::string userid = "unknown";                                                                                
-		if(gUserCredential.notNull())                                                                                  
-		{  
-			userid = gUserCredential->userID();                                                                    
-			gSecAPIHandler->saveCredential(gUserCredential, gRememberPassword);  
-		}
-		gSavedSettings.setBOOL("RememberPassword", gRememberPassword);                                                 
+		// save the credentials
+		std::string userid = "unknown";
+        if (gUserCredential.notNull())
+        {
+            userid = gUserCredential->userID();
+            if (gRememberUser)
+            {
+                gSecAPIHandler->addToCredentialMap("login_list", gUserCredential, gRememberPassword);
+                // Legacy viewers use this method to store user credentials, newer viewers
+                // reuse it to be compatible and to remember last session
+                gSecAPIHandler->saveCredential(gUserCredential, gRememberPassword);
+            }
+        }
+		gSavedSettings.setBOOL("RememberPassword", gRememberPassword);
+		gSavedSettings.setBOOL("RememberUser", gRememberUser);
 		LL_INFOS("AppInit") << "Attempting login as: " << userid << LL_ENDL;                                           
 		gDebugInfo["LoginName"] = userid;                                                                              
          
@@ -1423,6 +1426,10 @@ bool idle_startup()
 		// create a container's instance for start a controlling conversation windows
 		// by the voice's events
 		LLFloaterIMContainer::getInstance();
+		if (gSavedSettings.getS32("ParcelMediaAutoPlayEnable") == 2)
+		{
+			LLViewerParcelAskPlay::getInstance()->loadSettings();
+		}
 
 		// *Note: this is where gWorldMap used to be initialized.
 
@@ -2706,6 +2713,15 @@ void LLStartUp::saveInitialOutfit()
 std::string& LLStartUp::getInitialOutfitName()
 {
 	return sInitialOutfit;
+}
+
+std::string LLStartUp::getUserId()
+{
+    if (gUserCredential.isNull())
+    {
+        return "";
+    }
+    return gUserCredential->userID();
 }
 
 // Loads a bitmap to display during load

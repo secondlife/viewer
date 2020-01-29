@@ -208,6 +208,7 @@ public:
 	/*virtual*/ void handleMenuSelect(LLWindow *window,  S32 menu_item);
 	/*virtual*/ BOOL handlePaint(LLWindow *window,  S32 x,  S32 y,  S32 width,  S32 height);
 	/*virtual*/ void handleScrollWheel(LLWindow *window,  S32 clicks);
+	/*virtual*/ void handleScrollHWheel(LLWindow *window,  S32 clicks);
 	/*virtual*/ BOOL handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask);
 	/*virtual*/ void handleWindowBlock(LLWindow *window);
 	/*virtual*/ void handleWindowUnblock(LLWindow *window);
@@ -326,6 +327,7 @@ public:
 	BOOL			handleKey(KEY key, MASK mask);
 	BOOL			handleKeyUp(KEY key, MASK mask);
 	void			handleScrollWheel	(S32 clicks);
+	void			handleScrollHWheel	(S32 clicks);
 
 	// add and remove views from "popup" layer
 	void			addPopup(LLView* popup);
