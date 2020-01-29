@@ -547,17 +547,17 @@ void LLPanelPrimMediaControls::updateShape()
 			switch (mScrollState) 
 			{
 				case SCROLL_UP:
-					media_impl->scrollWheel(0, -1, MASK_NONE);
+					media_impl->scrollWheel(0, 0, 0, -1, MASK_NONE);
 					break;
 				case SCROLL_DOWN:
-					media_impl->scrollWheel(0, 1, MASK_NONE);
+					media_impl->scrollWheel(0, 0, 0, 1, MASK_NONE);
 					break;
 				case SCROLL_LEFT:
-					media_impl->scrollWheel(1, 0, MASK_NONE);
+					media_impl->scrollWheel(0, 0, 1, 0, MASK_NONE);
 					//				media_impl->handleKeyHere(KEY_LEFT, MASK_NONE);
 					break;
 				case SCROLL_RIGHT:
-					media_impl->scrollWheel(-1, 0, MASK_NONE);
+					media_impl->scrollWheel(0, 0, -1, 0, MASK_NONE);
 					//				media_impl->handleKeyHere(KEY_RIGHT, MASK_NONE);
 					break;
 				case SCROLL_NONE:
@@ -1134,7 +1134,7 @@ void LLPanelPrimMediaControls::onScrollUp(void* user_data)
 	
 	if(impl)
 	{
-		impl->scrollWheel(0, -1, MASK_NONE);
+		impl->scrollWheel(0, 0, 0, -1, MASK_NONE);
 	}
 }
 void LLPanelPrimMediaControls::onScrollUpHeld(void* user_data)
@@ -1151,7 +1151,7 @@ void LLPanelPrimMediaControls::onScrollRight(void* user_data)
 
 	if(impl)
 	{
-		impl->scrollWheel(-1, 0, MASK_NONE);
+		impl->scrollWheel(0, 0, -1, 0, MASK_NONE);
 //		impl->handleKeyHere(KEY_RIGHT, MASK_NONE);
 	}
 }
@@ -1170,7 +1170,7 @@ void LLPanelPrimMediaControls::onScrollLeft(void* user_data)
 
 	if(impl)
 	{
-		impl->scrollWheel(1, 0, MASK_NONE);
+		impl->scrollWheel(0, 0, 1, 0, MASK_NONE);
 //		impl->handleKeyHere(KEY_LEFT, MASK_NONE);
 	}
 }
@@ -1189,7 +1189,7 @@ void LLPanelPrimMediaControls::onScrollDown(void* user_data)
 	
 	if(impl)
 	{
-		impl->scrollWheel(0, 1, MASK_NONE);
+		impl->scrollWheel(0, 0, 0, 1, MASK_NONE);
 	}
 }
 void LLPanelPrimMediaControls::onScrollDownHeld(void* user_data)

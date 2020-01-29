@@ -103,7 +103,6 @@
          height="100"
          width="280"
          parse_urls="true"	
-         hide_scrollbar="false"
          layout="topleft"
          left="10"
          top_pad="2"

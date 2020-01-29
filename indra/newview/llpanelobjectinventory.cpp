@@ -1596,12 +1596,13 @@ void LLPanelObjectInventory::refresh()
 	//LL_INFOS() << "LLPanelObjectInventory::refresh()" << LL_ENDL;
 	BOOL has_inventory = FALSE;
 	const BOOL non_root_ok = TRUE;
-	LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode(NULL, non_root_ok);
-	if(node)
+	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+	LLSelectNode* node = selection->getFirstRootNode(NULL, non_root_ok);
+	if(node && node->mValid)
 	{
 		LLViewerObject* object = node->getObject();
-		if(object && ((LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() == 1)
-					  || (LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1)))
+		if(object && ((selection->getRootObjectCount() == 1)
+					  || (selection->getObjectCount() == 1)))
 		{
 			// determine if we need to make a request. Start with a
 			// default based on if we have inventory at all.

@@ -52,6 +52,7 @@
 #include "llmachineid.h"
 
 
+static const std::string DEFAULT_CREDENTIAL_STORAGE = "credential";
 
 // 128 bits of salt data...
 #define STORE_SALT_SIZE 16 
@@ -1533,6 +1534,38 @@ void LLSecAPIBasicHandler::setProtectedData(const std::string& data_type,
 	mProtectedDataMap[data_type][data_id] = data; 
 }
 
+// persist data in a protected store's map
+void LLSecAPIBasicHandler::addToProtectedMap(const std::string& data_type,
+											 const std::string& data_id,
+											 const std::string& map_elem,
+											 const LLSD& data)
+{
+    if (!mProtectedDataMap.has(data_type) || !mProtectedDataMap[data_type].isMap()) {
+        mProtectedDataMap[data_type] = LLSD::emptyMap();
+    }
+
+    if (!mProtectedDataMap[data_type].has(data_id) || !mProtectedDataMap[data_type][data_id].isMap()) {
+        mProtectedDataMap[data_type][data_id] = LLSD::emptyMap();
+    }
+
+    mProtectedDataMap[data_type][data_id][map_elem] = data;
+}
+
+// remove data from protected store's map
+void LLSecAPIBasicHandler::removeFromProtectedMap(const std::string& data_type,
+												  const std::string& data_id,
+												  const std::string& map_elem)
+{
+    if (mProtectedDataMap.has(data_type) &&
+        mProtectedDataMap[data_type].isMap() &&
+        mProtectedDataMap[data_type].has(data_id) &&
+        mProtectedDataMap[data_type][data_id].isMap() &&
+        mProtectedDataMap[data_type][data_id].has(map_elem))
+    {
+        mProtectedDataMap[data_type][data_id].erase(map_elem);
+    }
+}
+
 //
 // Create a credential object from an identifier and authenticator.  credentials are
 // per grid.
@@ -1545,10 +1578,10 @@ LLPointer<LLCredential> LLSecAPIBasicHandler::createCredential(const std::string
 	return result;
 }
 
-// Load a credential from the credential store, given the grid
+// Load a credential from default credential store, given the grid
 LLPointer<LLCredential> LLSecAPIBasicHandler::loadCredential(const std::string& grid)
 {
-	LLSD credential = getProtectedData("credential", grid);
+	LLSD credential = getProtectedData(DEFAULT_CREDENTIAL_STORAGE, grid);
 	LLPointer<LLSecAPIBasicCredential> result = new LLSecAPIBasicCredential(grid);
 	if(credential.isMap() && 
 	   credential.has("identifier"))
@@ -1603,7 +1636,7 @@ void LLSecAPIBasicHandler::saveCredential(LLPointer<LLCredential> cred, bool sav
 		credential["authenticator"] = cred->getAuthenticator();
 	}
 	LL_DEBUGS("SECAPI") << "Saving Credential " << cred->getGrid() << ":" << cred->userID() << " " << save_authenticator << LL_ENDL;
-	setProtectedData("credential", cred->getGrid(), credential);
+	setProtectedData(DEFAULT_CREDENTIAL_STORAGE, cred->getGrid(), credential);
 	//*TODO: If we're saving Agni credentials, should we write the
 	// credentials to the legacy password.dat/etc?
 	_writeProtectedData();
@@ -1613,9 +1646,148 @@ void LLSecAPIBasicHandler::saveCredential(LLPointer<LLCredential> cred, bool sav
 void LLSecAPIBasicHandler::deleteCredential(LLPointer<LLCredential> cred)
 {
 	LLSD undefVal;
-	deleteProtectedData("credential", cred->getGrid());
+	deleteProtectedData(DEFAULT_CREDENTIAL_STORAGE, cred->getGrid());
 	cred->setCredentialData(undefVal, undefVal);
 	_writeProtectedData();
+}
+
+// has map of credentials declared as specific storage
+bool LLSecAPIBasicHandler::hasCredentialMap(const std::string& storage, const std::string& grid)
+{
+    if (storage == DEFAULT_CREDENTIAL_STORAGE)
+    {
+        LL_ERRS() << "Storing maps in default, single-items storage is not allowed" << LL_ENDL;
+    }
+
+    LLSD credential = getProtectedData(storage, grid);
+
+    return credential.isMap();
+}
+
+// returns true if map is empty or does not exist
+bool LLSecAPIBasicHandler::emptyCredentialMap(const std::string& storage, const std::string& grid)
+{
+    if (storage == DEFAULT_CREDENTIAL_STORAGE)
+    {
+        LL_ERRS() << "Storing maps in default, single-items storage is not allowed" << LL_ENDL;
+    }
+
+    LLSD credential = getProtectedData(storage, grid);
+
+    return !credential.isMap() || credential.size() == 0;
+}
+
+// Load map of credentials from specified credential store, given the grid
+void LLSecAPIBasicHandler::loadCredentialMap(const std::string& storage, const std::string& grid, credential_map_t& credential_map)
+{
+    if (storage == DEFAULT_CREDENTIAL_STORAGE)
+    {
+        LL_ERRS() << "Storing maps in default, single-items storage is not allowed" << LL_ENDL;
+    }
+
+    LLSD credential = getProtectedData(storage, grid);
+    if (credential.isMap())
+    {
+        LLSD::map_const_iterator crd_it = credential.beginMap();
+        for (; crd_it != credential.endMap(); crd_it++)
+        {
+            LLSD::String name = crd_it->first;
+            const LLSD &link_map = crd_it->second;
+            LLPointer<LLSecAPIBasicCredential> result = new LLSecAPIBasicCredential(grid);
+            if (link_map.has("identifier"))
+            {
+                LLSD identifier = link_map["identifier"];
+                LLSD authenticator;
+                if (link_map.has("authenticator"))
+                {
+                    authenticator = link_map["authenticator"];
+                }
+                result->setCredentialData(identifier, authenticator);
+            }
+            credential_map[name] = result;
+        }
+    }
+}
+
+LLPointer<LLCredential> LLSecAPIBasicHandler::loadFromCredentialMap(const std::string& storage, const std::string& grid, const std::string& userkey)
+{
+    if (storage == DEFAULT_CREDENTIAL_STORAGE)
+    {
+        LL_ERRS() << "Storing maps in default, single-items storage is not allowed" << LL_ENDL;
+    }
+
+    LLPointer<LLSecAPIBasicCredential> result = new LLSecAPIBasicCredential(grid);
+
+    LLSD credential = getProtectedData(storage, grid);
+    if (credential.isMap() && credential.has(userkey) && credential[userkey].has("identifier"))
+    {
+        LLSD identifier = credential[userkey]["identifier"];
+        LLSD authenticator;
+        if (credential[userkey].has("authenticator"))
+        {
+            authenticator = credential[userkey]["authenticator"];
+        }
+        result->setCredentialData(identifier, authenticator);
+    }
+
+    return result;
+}
+
+// add item to map of credentials from specific storage
+void LLSecAPIBasicHandler::addToCredentialMap(const std::string& storage, LLPointer<LLCredential> cred, bool save_authenticator)
+{
+    if (storage == DEFAULT_CREDENTIAL_STORAGE)
+    {
+        LL_ERRS() << "Storing maps in default, single-items storage is not allowed" << LL_ENDL;
+    }
+
+    std::string user_id = cred->userID();
+    LLSD credential = LLSD::emptyMap();
+    credential["identifier"] = cred->getIdentifier();
+    if (save_authenticator)
+    {
+        credential["authenticator"] = cred->getAuthenticator();
+    }
+    LL_DEBUGS("SECAPI") << "Saving Credential " << cred->getGrid() << ":" << cred->userID() << " " << save_authenticator << LL_ENDL;
+    addToProtectedMap(storage, cred->getGrid(), user_id, credential);
+
+    _writeProtectedData();
+}
+
+// remove item from map of credentials from specific storage
+void LLSecAPIBasicHandler::removeFromCredentialMap(const std::string& storage, LLPointer<LLCredential> cred)
+{
+    if (storage == DEFAULT_CREDENTIAL_STORAGE)
+    {
+        LL_ERRS() << "Storing maps in default, single-items storage is not allowed" << LL_ENDL;
+    }
+
+    LLSD undefVal;
+    removeFromProtectedMap(storage, cred->getGrid(), cred->userID());
+    cred->setCredentialData(undefVal, undefVal);
+    _writeProtectedData();
+}
+
+// remove item from map of credentials from specific storage
+void LLSecAPIBasicHandler::removeFromCredentialMap(const std::string& storage, const std::string& grid, const std::string& userkey)
+{
+    if (storage == DEFAULT_CREDENTIAL_STORAGE)
+    {
+        LL_ERRS() << "Storing maps in default, single-items storage is not allowed" << LL_ENDL;
+    }
+
+    LLSD undefVal;
+    LLPointer<LLCredential> cred = loadFromCredentialMap(storage, grid, userkey);
+    removeFromProtectedMap(storage, grid, userkey);
+    cred->setCredentialData(undefVal, undefVal);
+    _writeProtectedData();
+}
+
+// remove item from map of credentials from specific storage
+void LLSecAPIBasicHandler::removeCredentialMap(const std::string& storage, const std::string& grid)
+{
+    deleteProtectedData(storage, grid);
+    _writeProtectedData();
 }
 
 // load the legacy hash for agni, and decrypt it given the 
@@ -1656,15 +1828,18 @@ std::string LLSecAPIBasicCredential::userID() const
 	}
 	else if ((std::string)mIdentifier["type"] == "agent")
 	{
-		return  (std::string)mIdentifier["first_name"] + "_" + (std::string)mIdentifier["last_name"];
+		std::string id = (std::string)mIdentifier["first_name"] + "_" + (std::string)mIdentifier["last_name"];
+		LLStringUtil::toLower(id);
+		return id;
 	}
 	else if ((std::string)mIdentifier["type"] == "account")
 	{
-		return (std::string)mIdentifier["account_name"];
+		std::string id = (std::string)mIdentifier["account_name"];
+		LLStringUtil::toLower(id);
+		return id;
 	}
 
 	return "unknown";
-
 }
 
 // return a printable user identifier

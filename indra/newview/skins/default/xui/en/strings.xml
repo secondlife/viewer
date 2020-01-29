@@ -2833,7 +2833,7 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="BuyingCosts">Buying this costs L$ [AMOUNT]</string>
 	<string name="UnknownFileExtension">
 		Unknown file extension .%s
-Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
+Expected .wav, .tga, .bmp, .jpg, .jpeg, or .anim
 	</string>
   <string name="MuteObject2">Block</string>
   <string name="MuteAvatar">Block</string>
@@ -4111,7 +4111,6 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_MarketplaceListings_Label">Marketplace</string>
   <string name="Command_MiniMap_Label">Mini-map</string>
   <string name="Command_Move_Label">Walk / run / fly</string>
-  <string name="Command_Outbox_Label">Merchant outbox</string>
   <string name="Command_People_Label">People</string>
   <string name="Command_Picks_Label">Picks</string>
   <string name="Command_Places_Label">Places</string>
@@ -4142,7 +4141,6 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_MarketplaceListings_Tooltip">Sell your creation</string>
   <string name="Command_MiniMap_Tooltip">Show nearby people</string>
   <string name="Command_Move_Tooltip">Moving your avatar</string>
-  <string name="Command_Outbox_Tooltip">Transfer items to your marketplace for sale</string>
   <string name="Command_People_Tooltip">Friends, groups, and nearby people</string>
   <string name="Command_Picks_Tooltip">Places to show as favorites in your profile</string>
   <string name="Command_Places_Tooltip">Places you've saved</string>

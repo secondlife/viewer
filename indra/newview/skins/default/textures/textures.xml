@@ -144,7 +144,6 @@ with the same filename but different name
   <texture name="Command_MiniMap_Icon"      file_name="toolbar_icons/mini_map.png"     preload="true" />
   <texture name="Command_Move_Icon"         file_name="toolbar_icons/move.png"         preload="true" />
   <texture name="Command_Environments_Icon" file_name="toolbar_icons/environments.png" preload="true" />
-  <texture name="Command_Outbox_Icon"       file_name="toolbar_icons/outbox.png"       preload="true" />
   <texture name="Command_People_Icon"       file_name="toolbar_icons/people.png"       preload="true" />
   <texture name="Command_Picks_Icon"        file_name="toolbar_icons/picks.png"        preload="true" />
   <texture name="Command_Places_Icon"       file_name="toolbar_icons/places.png"       preload="true" />
@@ -594,7 +593,7 @@ with the same filename but different name
   <texture name="Snapshot_Email" file_name="snapshot_email.png" preload="false" />
   <texture name="Snapshot_Inventory" file_name="toolbar_icons/inventory.png" preload="false" />
   <texture name="Snapshot_Profile" file_name="toolbar_icons/profile.png" preload="false" />
-    <texture name="startup_logo"  file_name="windows/startup_logo.png" preload="true" />
+  <texture name="startup_logo"  file_name="windows/startup_logo.png" preload="true" />
 
   <texture name="login_sl_logo"  file_name="windows/login_sl_logo.png" preload="true" />
   <texture name="login_sl_logo_small"  file_name="windows/login_sl_logo_small.png" preload="true" />
