@@ -623,7 +623,7 @@
     top_delta="16"
     width="300" />
 
-  <!-- SL-12594, basic shaders always enabled  
+  <!-- SL-12594, basic shaders always enabled, no fixed-function GL 
   <check_box
     control_name="VertexShaderEnable"
     height="16"
