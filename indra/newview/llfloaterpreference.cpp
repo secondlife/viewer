@@ -1339,9 +1339,7 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	LLTextBox* reflections_text = getChild<LLTextBox>("ReflectionsText");
 
 	// Reflections
-	BOOL reflections = gSavedSettings.getBOOL("VertexShaderEnable") 
-		&& gGLManager.mHasCubeMap
-		&& LLCubeMap::sUseCubeMaps;
+    BOOL reflections = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps;
 	ctrl_reflections->setEnabled(reflections);
 	reflections_text->setEnabled(reflections);
 	
@@ -1365,15 +1363,14 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 
 	ctrl_avatar_vp->setEnabled(avatar_vp_enabled);
 	
-	if (gSavedSettings.getBOOL("VertexShaderEnable") == FALSE || 
-		gSavedSettings.getBOOL("RenderAvatarVP") == FALSE)
-	{
-		ctrl_avatar_cloth->setEnabled(FALSE);
-	} 
-	else
-	{
-		ctrl_avatar_cloth->setEnabled(TRUE);
-	}
+    if (gSavedSettings.getBOOL("RenderAvatarVP") == FALSE)
+    {
+        ctrl_avatar_cloth->setEnabled(FALSE);
+    } 
+    else
+    {
+        ctrl_avatar_cloth->setEnabled(TRUE);
+    }
 
     // Vertex Shaders, Global Shader Enable
     // SL-12594 Basic shaders are always enabled. DJH TODO clean up now-orphaned state handling code
