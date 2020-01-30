@@ -398,9 +398,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f426c56252c70fe38fcb2251f7c1d762</string>
+              <string>07be5eb51c1937702879fe8d18ef9cfa</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/9265/41615/curl-7.54.1.509254-darwin64-509254.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/50479/456401/curl-7.68.0.535577-darwin64-535577.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -434,11 +434,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4c7a960e1ee518acceac6a0c65495800</string>
+              <string>532426a12966f87d539159564ec28182</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/9268/41606/curl-7.54.1.509254-windows-509254.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/50474/456378/curl-7.68.0.535577-windows-535577.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -448,16 +448,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>32df7cce1658ccec893fb46cd476c024</string>
+              <string>578d8a11bcfce421c8e06df27d3e2344</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/9267/41607/curl-7.54.1.509254-windows64-509254.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/50473/456372/curl-7.68.0.535577-windows64-535577.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>7.54.1.509254</string>
+        <string>7.68.0.535577</string>
       </map>
       <key>db</key>
       <map>
@@ -2346,9 +2346,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f51bcd9245ed4e4ca1fa250ba9b112ce</string>
+              <string>03a7cb32874c845f08eaae39a92fa269</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/9259/41575/nghttp2-1.25.0.509246-darwin64-509246.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/50462/456354/nghttp2-.535571-darwin64-535571.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2382,9 +2382,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8367d6743356ad637e61335ee319f7a7</string>
+              <string>16ee91c98d92c1d134ec99f35515516e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/9261/41597/nghttp2-1.25.0.509246-windows-509246.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/50457/456334/nghttp2-.535571-windows-535571.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2394,9 +2394,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3267acca5dbfe6b8770deeebd548ee6a</string>
+              <string>a19c45ee78b7045255c457d5575bbeaf</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/9260/41591/nghttp2-1.25.0.509246-windows64-509246.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/50458/456336/nghttp2-.535571-windows64-535571.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2405,7 +2405,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>source_type</key>
         <string>hg</string>
         <key>version</key>
-        <string>1.25.0.509246</string>
+        <string>.535571</string>
       </map>
       <key>nvapi</key>
       <map>
