@@ -717,7 +717,7 @@ BOOL LLAgentCamera::calcCameraMinDistance(F32 &obj_min_distance)
 	return TRUE;
 }
 
-F32 LLAgentCamera::getCameraZoomFraction()
+F32 LLAgentCamera::getCameraZoomFraction(bool get_third_person)
 {
 	// 0.f -> camera zoomed all the way out
 	// 1.f -> camera zoomed all the way in
@@ -727,7 +727,7 @@ F32 LLAgentCamera::getCameraZoomFraction()
 		// already [0,1]
 		return mHUDTargetZoom;
 	}
-	else if (mFocusOnAvatar && cameraThirdPerson())
+	else if (get_third_person || (mFocusOnAvatar && cameraThirdPerson()))
 	{
 		return clamp_rescale(mCameraZoomFraction, MIN_ZOOM_FRACTION, MAX_ZOOM_FRACTION, 1.f, 0.f);
 	}
