@@ -5339,7 +5339,7 @@ void LLVOAvatar::checkTextureLoading()
 		return ; //have not been invisible for enough time.
 	}
 
-    mLoadedCallbackTextures = 0;
+    mLoadedCallbackTextures = pause ? mCallbackTextureList.size() : 0;
 
 	for(LLLoadedCallbackEntry::source_callback_list_t::iterator iter = mCallbackTextureList.begin();
 		iter != mCallbackTextureList.end(); ++iter)
@@ -5361,11 +5361,12 @@ void LLVOAvatar::checkTextureLoading()
 
 				tex->unpauseLoadedCallbacks(&mCallbackTextureList) ;
 				tex->addTextureStats(START_AREA); //jump start the fetching again
+
+				if (tex->isFullyLoaded())
+				{
+					mLoadedCallbackTextures++; // consider it loaded
+				}
 			}
-		}
-		if (tex->isFullyLoaded())
-		{
-			mLoadedCallbackTextures++;
 		}
 	}
 	
@@ -7812,13 +7813,11 @@ BOOL LLVOAvatar::updateIsFullyLoaded()
 	if (mFirstFullyVisible && !mIsControlAvatar)
 	{
         loading = ((rez_status < 2)
-                   || mMeshTexturesDirty
-                   || mVisualComplexityStale //complexity just updated
                    // Wait at least 60s for unfinished textures to finish on first load,
                    // don't wait forever, it might fail. Even if it will eventually load by
                    // itself and update mLoadedCallbackTextures (or fail and clean the list),
                    // avatars are more time-sensitive than textures and can't wait that long.
-                   || (mLoadedCallbackTextures != mCallbackTextureList.size() && mLastTexCallbackAddedTime.getElapsedTimeF32() <= MAX_TEXTURE_WAIT_TIME_SEC)
+                   || (mLoadedCallbackTextures < mCallbackTextureList.size() && mLastTexCallbackAddedTime.getElapsedTimeF32() < MAX_TEXTURE_WAIT_TIME_SEC)
                    || !mPendingAttachment.empty()
                    || (rez_status < 3 && !isFullyBaked())
                   );
@@ -8205,7 +8204,14 @@ void LLVOAvatar::updateMeshTextures()
 				}
 				baked_img->setLoadedCallback(onBakedTextureLoaded, SWITCH_TO_BAKED_DISCARD, FALSE, FALSE, new LLUUID( mID ), 
 					src_callback_list, paused );
-				mLastTexCallbackAddedTime.reset();
+				if (!baked_img->isFullyLoaded() && !paused)
+				{
+					mLastTexCallbackAddedTime.reset();
+				}
+				else
+				{
+					mLoadedCallbackTextures++; // consider it loaded
+				}
 
 				// this could add paused texture callbacks
 				mLoadedCallbacksPaused |= paused; 
@@ -8599,7 +8605,14 @@ void LLVOAvatar::onFirstTEMessageReceived()
 				LL_DEBUGS("Avatar") << avString() << "layer_baked, setting onInitialBakedTextureLoaded as callback" << LL_ENDL;
 				image->setLoadedCallback( onInitialBakedTextureLoaded, MAX_DISCARD_LEVEL, FALSE, FALSE, new LLUUID( mID ), 
 					src_callback_list, paused );
-				mLastTexCallbackAddedTime.reset();
+				if (!image->isFullyLoaded() && !paused)
+				{
+					mLastTexCallbackAddedTime.reset();
+				}
+				else
+				{
+					mLoadedCallbackTextures++; // consider it loaded
+				}
                                // this could add paused texture callbacks
                                mLoadedCallbacksPaused |= paused; 
 			}
