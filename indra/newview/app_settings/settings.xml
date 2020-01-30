@@ -14259,6 +14259,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <!-- SL-12594 removes fixed function rendering
     <key>VertexShaderEnable</key>
     <map>
       <key>Comment</key>
@@ -14270,6 +14271,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <-->
     <key>VivoxAutoPostCrashDumps</key>
     <map>
       <key>Comment</key>
