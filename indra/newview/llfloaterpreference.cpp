@@ -1868,6 +1868,14 @@ void LLFloaterPreference::updateMaxComplexity()
     LLAvatarComplexityControls::updateMax(
         getChild<LLSliderCtrl>("IndirectMaxComplexity"),
         getChild<LLTextBox>("IndirectMaxComplexityText"));
+
+    LLFloaterPreferenceGraphicsAdvanced* floater_graphics_advanced = LLFloaterReg::findTypedInstance<LLFloaterPreferenceGraphicsAdvanced>("prefs_graphics_advanced");
+    if (floater_graphics_advanced)
+    {
+        LLAvatarComplexityControls::updateMax(
+            floater_graphics_advanced->getChild<LLSliderCtrl>("IndirectMaxComplexity"),
+            floater_graphics_advanced->getChild<LLTextBox>("IndirectMaxComplexityText"));
+    }
 }
 
 bool LLFloaterPreference::loadFromFilename(const std::string& filename, std::map<std::string, std::string> &label_map)
@@ -1915,6 +1923,14 @@ void LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity()
     LLAvatarComplexityControls::updateMax(
         getChild<LLSliderCtrl>("IndirectMaxComplexity"),
         getChild<LLTextBox>("IndirectMaxComplexityText"));
+
+    LLFloaterPreference* floater_preferences = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+    if (floater_preferences)
+    {
+        LLAvatarComplexityControls::updateMax(
+            floater_preferences->getChild<LLSliderCtrl>("IndirectMaxComplexity"),
+            floater_preferences->getChild<LLTextBox>("IndirectMaxComplexityText"));
+    }
 }
 
 void LLFloaterPreference::onChangeMaturity()
