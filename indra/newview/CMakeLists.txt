@@ -19,6 +19,7 @@ include(DirectX)
 include(DragDrop)
 include(EXPAT)
 include(FMODEX)
+include(FMODSTUDIO)
 include(GLOD)
 include(Hunspell)
 include(JsonCpp)
@@ -66,6 +67,10 @@ endif (NOT HAVOK_TPV)
 if(FMODEX)
   include_directories(${FMODEX_INCLUDE_DIR})
 endif(FMODEX)
+
+if(FMODSTUDIO)
+  include_directories(${FMODSTUDIO_INCLUDE_DIR})
+endif(FMODSTUDIO)
 
 include_directories(
     ${DBUSGLIB_INCLUDE_DIRS}
@@ -1711,8 +1716,13 @@ endif (OPENAL)
 
 if (FMODEX)
   set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_FMODEX")
-  set(FMODWRAPPER_LIBRARY ${FMODEX_LIBRARY})
+  set(FMODEXWRAPPER_LIBRARY ${FMODEX_LIBRARY})
 endif (FMODEX)
+
+if (FMODSTUDIO)
+  set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_FMODSTUDIO")
+  set(FMODWRAPPER_LIBRARY ${FMODSTUDIO_LIBRARY})
+endif (FMODSTUDIO)
 
 set_source_files_properties(llstartup.cpp PROPERTIES COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS}")
 
@@ -1837,6 +1847,14 @@ if (WINDOWS)
           )
     endif (FMODEX)
 
+    if (FMODSTUDIO)
+      list(APPEND COPY_INPUT_DEPENDENCIES
+           ${SHARED_LIB_STAGING_DIR}/Release/fmod.dll
+           ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod.dll
+           ${SHARED_LIB_STAGING_DIR}/Debug/fmodL.dll
+          )
+    endif (FMODSTUDIO)
+
     add_custom_command(
       OUTPUT  ${CMAKE_CFG_INTDIR}/copy_touched.bat
       COMMAND ${PYTHON_EXECUTABLE}
@@ -1846,6 +1864,8 @@ if (WINDOWS)
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
         "--bugsplat=${BUGSPLAT_DB}"
+        "--fmodex=${FMODEX}"
+        "--fmodstudio=${FMODSTUDIO}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
         "--channel=${VIEWER_CHANNEL}"
@@ -1907,6 +1927,8 @@ if (WINDOWS)
           --arch=${ARCH}
           --artwork=${ARTWORK_DIR}
           "--bugsplat=${BUGSPLAT_DB}"
+          "--fmodex=${FMODEX}"
+          "--fmodstudio=${FMODSTUDIO}"
           --build=${CMAKE_CURRENT_BINARY_DIR}
           --buildtype=${CMAKE_BUILD_TYPE}
           "--channel=${VIEWER_CHANNEL}"
@@ -2004,6 +2026,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${BOOST_CONTEXT_LIBRARY}
     ${DBUSGLIB_LIBRARIES}
     ${OPENGL_LIBRARIES}
+    ${FMODEXWRAPPER_LIBRARY} # must come after LLAudio
     ${FMODWRAPPER_LIBRARY} # must come after LLAudio
     ${GLOD_LIBRARIES}
     ${OPENGL_LIBRARIES}
@@ -2052,6 +2075,8 @@ if (LINUX)
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
         "--bugsplat=${BUGSPLAT_DB}"
+        "--fmodex=${FMODEX}"
+        "--fmodstudio=${FMODSTUDIO}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
         "--channel=${VIEWER_CHANNEL}"
@@ -2078,6 +2103,8 @@ if (LINUX)
       --arch=${ARCH}
       --artwork=${ARTWORK_DIR}
       "--bugsplat=${BUGSPLAT_DB}"
+      "--fmodex=${FMODEX}"
+      "--fmodstudio=${FMODSTUDIO}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
       --buildtype=${CMAKE_BUILD_TYPE}
       "--channel=${VIEWER_CHANNEL}"
@@ -2154,6 +2181,8 @@ if (DARWIN)
       --arch=${ARCH}
       --artwork=${ARTWORK_DIR}
       "--bugsplat=${BUGSPLAT_DB}"
+      "--fmodex=${FMODEX}"
+      "--fmodstudio=${FMODSTUDIO}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
       --buildtype=${CMAKE_BUILD_TYPE}
       --bundleid=${MACOSX_BUNDLE_GUI_IDENTIFIER}
@@ -2188,6 +2217,8 @@ if (DARWIN)
           --arch=${ARCH}
           --artwork=${ARTWORK_DIR}
           "--bugsplat=${BUGSPLAT_DB}"
+          "--fmodex=${FMODEX}"
+          "--fmodstudio=${FMODSTUDIO}"
           --build=${CMAKE_CURRENT_BINARY_DIR}
           --buildtype=${CMAKE_BUILD_TYPE}
           "--channel=${VIEWER_CHANNEL}"

@@ -1,13 +1,9 @@
 # -*- cmake -*-
 
-# FMOD can be set when launching the make using the argument -DFMOD:BOOL=ON
-# When building using proprietary binaries though (i.e. having access to LL private servers),
-# we always build with FMODEX.
-# Open source devs should use the -DFMODEX:BOOL=ON then if they want to build with FMOD, whether
+# FMODEX can be set when launching the make using the argument -DFMOD:BOOL=ON
+# No longer used by default, see FMODSTRUDIO.
+# Open source devs should use the -DFMODEX:BOOL=ON then if they want to build with FMODEX, whether
 # they are using USESYSTEMLIBS or not.
-if (INSTALL_PROPRIETARY)
-  set(FMODEX ON CACHE BOOL "Using FMOD Ex sound library.")
-endif (INSTALL_PROPRIETARY)
 
 if (FMODEX)
   if (USESYSTEMLIBS)

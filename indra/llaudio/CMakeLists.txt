@@ -5,6 +5,7 @@ project(llaudio)
 include(00-Common)
 include(LLAudio)
 include(FMODEX)
+include(FMODSTUDIO)
 include(OPENAL)
 include(LLCommon)
 include(LLMath)
@@ -58,6 +59,23 @@ if (FMODEX)
          llstreamingaudio_fmodex.h
          )
 endif (FMODEX)
+
+if (FMODSTUDIO)
+    include_directories(
+        ${FMODSTUDIO_INCLUDE_DIR}
+        )
+    list(APPEND llaudio_SOURCE_FILES
+         llaudioengine_fmodstudio.cpp
+         lllistener_fmodstudio.cpp
+         llstreamingaudio_fmodstudio.cpp
+         )
+
+    list(APPEND llaudio_HEADER_FILES
+         llaudioengine_fmodstudio.h
+         lllistener_fmodstudio.h
+         llstreamingaudio_fmodstudio.h
+         )
+endif (FMODSTUDIO)
 
 if (OPENAL)
   list(APPEND llaudio_SOURCE_FILES

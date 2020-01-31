@@ -40,6 +40,7 @@ set(cmake_SOURCE_FILES
     FindXmlRpcEpi.cmake
     FindZLIB.cmake
     FMODEX.cmake
+    FMODSTUDIO.cmake
     FreeType.cmake
     GLEXT.cmake
     GLH.cmake
