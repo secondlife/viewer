@@ -259,6 +259,23 @@ then
     export additional_packages=
 fi
 
+begin_section "select viewer channel"
+# Look for a branch-specific viewer_channel setting
+#    changeset_branch is set in the sling-buildscripts
+viewer_build_branch=$(echo -n "${changeset_branch:-$(repo_branch ${BUILDSCRIPTS_SRC:-$(pwd)})}" | tr -Cs 'A-Za-z0-9_' '_' | sed -E 's/^_+//; s/_+$//')
+if [ -n "$viewer_build_branch" ] 
+then
+    branch_viewer_channel_var="${viewer_build_branch}_viewer_channel"
+    if [ -n "${!branch_viewer_channel_var}" ]
+    then
+        viewer_channel="${!branch_viewer_channel_var}"
+        record_event "Overriding viewer_channel for branch '$changeset_branch' to '$viewer_channel'"
+    else
+        record_event "No branch-specific viewer_channel for branch '$viewer_build_branch'; to set a branch build channel set '$branch_viewer_channel_var'"
+    fi
+fi
+end_section "select viewer channel"
+
 python_cmd "$helpers/codeticket.py" addinput "Viewer Channel" "${viewer_channel}"
 
 initialize_version # provided by buildscripts build.sh; sets version id

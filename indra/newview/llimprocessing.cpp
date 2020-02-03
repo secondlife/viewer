@@ -1569,6 +1569,12 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
         return;
     }
 
+    if (gAgent.getRegion() == NULL)
+    {
+        LL_WARNS("Messaging") << "Region null while attempting to load messages." << LL_ENDL;
+        return;
+    }
+
     LL_INFOS("Messaging") << "Processing offline messages." << LL_ENDL;
 
     std::vector<U8> data;

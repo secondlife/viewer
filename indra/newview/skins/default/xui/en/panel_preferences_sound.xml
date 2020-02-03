@@ -344,11 +344,11 @@
         name="media_auto_play_combo"
         width="100">
       <item
-          label="Disabled"
+          label="No"
           name="autoplay_disabled"
           value="0"/>      
       <item
-          label="Enabled"
+          label="Yes"
           name="autoplay_enabled"
           value="1"/>
       <item

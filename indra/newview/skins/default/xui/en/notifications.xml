@@ -3552,6 +3552,26 @@ If this is your first time using [SECOND_LIFE], you will need to create an accou
 
   <notification
    icon="alertmodal.tga"
+   name="LoginCantRemoveUsername"
+   type="alertmodal">
+    <tag>fail</tag>
+Already remembered user can be forgotten from Me &gt; Preferences &gt; Advanced &gt; Remembered Usernames.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LoginCantRemoveCurUsername"
+   type="alertmodal">
+    <tag>confirm</tag>
+Forgetting the logged-in user requires you to log out.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Confirm and log out"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="LoginPacketNeverReceived"
    type="alertmodal">
    <tag>fail</tag>
@@ -3601,6 +3621,18 @@ You can either check your Internet connection and try again in a few minutes or 
        name="Help"
        text="Help"/>
     </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LoginRemoveMultiGridUserData"
+   type="alertmodal">
+    <tag>confirm</tag>
+Local Data you are deleting is shared between multiple grids, are you sure you want to delete it?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Confirm"/>
   </notification>
 
   <notification
@@ -6062,7 +6094,7 @@ Would you like to turn off Do Not Disturb before completing this transaction?
    name="ParcelPlayingMedia"   
    persist="false"
    type="notify">
-This land has media:
+This location plays media:
 [URL]
 Would you like to play it?
     <tag>confirm</tag>
@@ -6080,7 +6112,7 @@ Would you like to play it?
        ignore="Ignore Media"
        index="0"
        name="No"
-       text="Ignore"/>
+       text="Don't play"/>
     </form>
   </notification>
 
