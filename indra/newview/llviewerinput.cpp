@@ -783,16 +783,16 @@ bool toggle_sit(EKeystate s)
 bool toggle_pause_media(EKeystate s) // analogue of play/pause button in top bar
 {
     if (KEYSTATE_DOWN != s) return true;
-    bool pause = LLViewerMedia::isAnyMediaPlaying();
-    LLViewerMedia::setAllMediaPaused(pause);
+    bool pause = LLViewerMedia::getInstance()->isAnyMediaPlaying();
+    LLViewerMedia::getInstance()->setAllMediaPaused(pause);
     return true;
 }
 
 bool toggle_enable_media(EKeystate s)
 {
     if (KEYSTATE_DOWN != s) return true;
-    bool pause = LLViewerMedia::isAnyMediaPlaying() || LLViewerMedia::isAnyMediaShowing();
-    LLViewerMedia::setAllMediaEnabled(!pause);
+    bool pause = LLViewerMedia::getInstance()->isAnyMediaPlaying() || LLViewerMedia::getInstance()->isAnyMediaShowing();
+    LLViewerMedia::getInstance()->setAllMediaEnabled(!pause);
     return true;
 }
 

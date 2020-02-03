@@ -487,7 +487,7 @@ void LLViewerObject::markDead()
 
 		if (flagCameraSource())
 		{
-			LLFollowCamMgr::removeFollowCamParams(mID);
+			LLFollowCamMgr::getInstance()->removeFollowCamParams(mID);
 		}
 
 		sNumZombieObjects++;
@@ -2987,6 +2987,7 @@ void LLViewerObject::fetchInventoryFromServer()
 	if (!isInventoryPending())
 	{
 		delete mInventory;
+		mInventory = NULL;
 
 		// Results in processTaskInv
 		LLMessageSystem* msg = gMessageSystem;

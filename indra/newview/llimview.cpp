@@ -83,11 +83,6 @@ void startConfrenceCoro(std::string url, LLUUID tempSessionId, LLUUID creatorId,
 void chatterBoxInvitationCoro(std::string url, LLUUID sessionId, LLIMMgr::EInvitationType invitationType);
 void start_deprecated_conference_chat(const LLUUID& temp_session_id, const LLUUID& creator_id, const LLUUID& other_participant_id, const LLSD& agents_to_invite);
 
-std::string LLCallDialogManager::sPreviousSessionlName = "";
-LLIMModel::LLIMSession::SType LLCallDialogManager::sPreviousSessionType = LLIMModel::LLIMSession::P2P_SESSION;
-std::string LLCallDialogManager::sCurrentSessionlName = "";
-LLIMModel::LLIMSession* LLCallDialogManager::sSession = NULL;
-LLVoiceChannel::EState LLCallDialogManager::sOldState = LLVoiceChannel::STATE_READY;
 const LLUUID LLOutgoingCallDialog::OCD_KEY = LLUUID("7CF78E11-0CFE-498D-ADB9-1417BF03DDB4");
 //
 // Globals
@@ -811,7 +806,7 @@ void LLIMModel::LLIMSession::addMessagesFromHistory(const std::list<LLSD>& histo
 		{
 			// convert it to a legacy name if we have a complete name
 			std::string legacy_name = gCacheName->buildLegacyName(from);
-			from_id = LLAvatarNameCache::findIdByName(legacy_name);
+			from_id = LLAvatarNameCache::getInstance()->findIdByName(legacy_name);
 		}
 
 		std::string timestamp = msg[LL_IM_TIME];
@@ -1795,7 +1790,12 @@ LLIMMgr::onConfirmForceCloseError(
 // Class LLCallDialogManager
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-LLCallDialogManager::LLCallDialogManager()
+LLCallDialogManager::LLCallDialogManager():
+mPreviousSessionlName(""),
+mPreviousSessionType(LLIMModel::LLIMSession::P2P_SESSION),
+mCurrentSessionlName(""),
+mSession(NULL),
+mOldState(LLVoiceChannel::STATE_READY)
 {
 }
 
@@ -1803,39 +1803,45 @@ LLCallDialogManager::~LLCallDialogManager()
 {
 }
 
-void LLCallDialogManager::initClass()
+void LLCallDialogManager::initSingleton()
 {
 	LLVoiceChannel::setCurrentVoiceChannelChangedCallback(LLCallDialogManager::onVoiceChannelChanged);
 }
 
+// static
 void LLCallDialogManager::onVoiceChannelChanged(const LLUUID &session_id)
+{
+    LLCallDialogManager::getInstance()->onVoiceChannelChangedInt(session_id);
+}
+
+void LLCallDialogManager::onVoiceChannelChangedInt(const LLUUID &session_id)
 {
 	LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(session_id);
 	if(!session)
 	{		
-		sPreviousSessionlName = sCurrentSessionlName;
-		sCurrentSessionlName = ""; // Empty string results in "Nearby Voice Chat" after substitution
+		mPreviousSessionlName = mCurrentSessionlName;
+		mCurrentSessionlName = ""; // Empty string results in "Nearby Voice Chat" after substitution
 		return;
 	}
 	
-	if (sSession)
+	if (mSession)
 	{
 		// store previous session type to process Avaline calls in dialogs
-		sPreviousSessionType = sSession->mSessionType;
+		mPreviousSessionType = mSession->mSessionType;
 	}
 
-	sSession = session;
+	mSession = session;
 
 	static boost::signals2::connection prev_channel_state_changed_connection;
 	// disconnect previously connected callback to avoid have invalid sSession in onVoiceChannelStateChanged()
 	prev_channel_state_changed_connection.disconnect();
 	prev_channel_state_changed_connection =
-		sSession->mVoiceChannel->setStateChangedCallback(boost::bind(LLCallDialogManager::onVoiceChannelStateChanged, _1, _2, _3, _4));
+		mSession->mVoiceChannel->setStateChangedCallback(boost::bind(LLCallDialogManager::onVoiceChannelStateChanged, _1, _2, _3, _4));
 
-	if(sCurrentSessionlName != session->mName)
+	if(mCurrentSessionlName != session->mName)
 	{
-		sPreviousSessionlName = sCurrentSessionlName;
-		sCurrentSessionlName = session->mName;
+		mPreviousSessionlName = mCurrentSessionlName;
+		mCurrentSessionlName = session->mName;
 	}
 
 	if (LLVoiceChannel::getCurrentVoiceChannel()->getState() == LLVoiceChannel::STATE_CALL_STARTED &&
@@ -1844,14 +1850,14 @@ void LLCallDialogManager::onVoiceChannelChanged(const LLUUID &session_id)
 		
 		//*TODO get rid of duplicated code
 		LLSD mCallDialogPayload;
-		mCallDialogPayload["session_id"] = sSession->mSessionID;
-		mCallDialogPayload["session_name"] = sSession->mName;
-		mCallDialogPayload["other_user_id"] = sSession->mOtherParticipantID;
-		mCallDialogPayload["old_channel_name"] = sPreviousSessionlName;
-		mCallDialogPayload["old_session_type"] = sPreviousSessionType;
+		mCallDialogPayload["session_id"] = mSession->mSessionID;
+		mCallDialogPayload["session_name"] = mSession->mName;
+		mCallDialogPayload["other_user_id"] = mSession->mOtherParticipantID;
+		mCallDialogPayload["old_channel_name"] = mPreviousSessionlName;
+		mCallDialogPayload["old_session_type"] = mPreviousSessionType;
 		mCallDialogPayload["state"] = LLVoiceChannel::STATE_CALL_STARTED;
-		mCallDialogPayload["disconnected_channel_name"] = sSession->mName;
-		mCallDialogPayload["session_type"] = sSession->mSessionType;
+		mCallDialogPayload["disconnected_channel_name"] = mSession->mName;
+		mCallDialogPayload["session_type"] = mSession->mSessionType;
 
 		LLOutgoingCallDialog* ocd = LLFloaterReg::getTypedInstance<LLOutgoingCallDialog>("outgoing_call", LLOutgoingCallDialog::OCD_KEY);
 		if(ocd)
@@ -1862,26 +1868,32 @@ void LLCallDialogManager::onVoiceChannelChanged(const LLUUID &session_id)
 
 }
 
+// static
 void LLCallDialogManager::onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction, bool ended_by_agent)
+{
+    LLCallDialogManager::getInstance()->onVoiceChannelStateChangedInt(old_state, new_state, direction, ended_by_agent);
+}
+
+void LLCallDialogManager::onVoiceChannelStateChangedInt(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state, const LLVoiceChannel::EDirection& direction, bool ended_by_agent)
 {
 	LLSD mCallDialogPayload;
 	LLOutgoingCallDialog* ocd = NULL;
 
-	if(sOldState == new_state)
+	if(mOldState == new_state)
 	{
 		return;
 	}
 
-	sOldState = new_state;
+	mOldState = new_state;
 
-	mCallDialogPayload["session_id"] = sSession->mSessionID;
-	mCallDialogPayload["session_name"] = sSession->mName;
-	mCallDialogPayload["other_user_id"] = sSession->mOtherParticipantID;
-	mCallDialogPayload["old_channel_name"] = sPreviousSessionlName;
-	mCallDialogPayload["old_session_type"] = sPreviousSessionType;
+	mCallDialogPayload["session_id"] = mSession->mSessionID;
+	mCallDialogPayload["session_name"] = mSession->mName;
+	mCallDialogPayload["other_user_id"] = mSession->mOtherParticipantID;
+	mCallDialogPayload["old_channel_name"] = mPreviousSessionlName;
+	mCallDialogPayload["old_session_type"] = mPreviousSessionType;
 	mCallDialogPayload["state"] = new_state;
-	mCallDialogPayload["disconnected_channel_name"] = sSession->mName;
-	mCallDialogPayload["session_type"] = sSession->mSessionType;
+	mCallDialogPayload["disconnected_channel_name"] = mSession->mName;
+	mCallDialogPayload["session_type"] = mSession->mSessionType;
 	mCallDialogPayload["ended_by_agent"] = ended_by_agent;
 
 	switch(new_state)
@@ -1896,7 +1908,7 @@ void LLCallDialogManager::onVoiceChannelStateChanged(const LLVoiceChannel::EStat
 
 	case LLVoiceChannel::STATE_HUNG_UP:
 		// this state is coming before session is changed, so, put it into payload map
-		mCallDialogPayload["old_session_type"] = sSession->mSessionType;
+		mCallDialogPayload["old_session_type"] = mSession->mSessionType;
 		break;
 
 	case LLVoiceChannel::STATE_CONNECTED :
@@ -1934,7 +1946,7 @@ LLCallDialog::LLCallDialog(const LLSD& payload)
 
 LLCallDialog::~LLCallDialog()
 {
-	LLUI::removePopup(this);
+	LLUI::getInstance()->removePopup(this);
 }
 
 BOOL LLCallDialog::postBuild()
@@ -2011,7 +2023,7 @@ void LLCallDialog::onOpen(const LLSD& key)
 	LLDockableFloater::onOpen(key);
 
 	// it should be over the all floaters. EXT-5116
-	LLUI::addPopup(this);
+	LLUI::getInstance()->addPopup(this);
 }
 
 void LLCallDialog::setIcon(const LLSD& session_id, const LLSD& participant_id)

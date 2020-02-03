@@ -58,15 +58,22 @@ LLChannelManager::LLChannelManager()
 //--------------------------------------------------------------------------
 LLChannelManager::~LLChannelManager()
 {
-	for(std::vector<ChannelElem>::iterator it = mChannelList.begin(); it !=  mChannelList.end(); ++it)
-	{
-		LLScreenChannelBase* channel = it->channel.get();
-		if (!channel) continue;
+}
 
-		delete channel;
-	}
+//--------------------------------------------------------------------------
+void LLChannelManager::cleanupSingleton()
+{
+    // Note: LLScreenChannelBase is a LLUICtrl and depends onto other singletions
+    // not captured by singleton-dependency, so cleanup it here instead of destructor
+    for (std::vector<ChannelElem>::iterator it = mChannelList.begin(); it != mChannelList.end(); ++it)
+    {
+        LLScreenChannelBase* channel = it->channel.get();
+        if (!channel) continue;
 
-	mChannelList.clear();
+        delete channel;
+    }
+
+    mChannelList.clear();
 }
 
 //--------------------------------------------------------------------------

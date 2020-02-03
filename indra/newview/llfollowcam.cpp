@@ -30,12 +30,6 @@
 #include "llagent.h"
 
 //-------------------------------------------------------
-// class statics
-//-------------------------------------------------------
-std::map<LLUUID, LLFollowCamParams*> LLFollowCamMgr::sParamMap;
-std::vector<LLFollowCamParams*> LLFollowCamMgr::sParamStack;
-
-//-------------------------------------------------------
 // constants
 //-------------------------------------------------------
 const F32 FOLLOW_CAM_ZOOM_FACTOR			= 0.1f;
@@ -668,18 +662,20 @@ LLFollowCam::~LLFollowCam()
 //-------------------------------------------------------
 // LLFollowCamMgr
 //-------------------------------------------------------
-//static
-void LLFollowCamMgr::cleanupClass()
+LLFollowCamMgr::LLFollowCamMgr()
 {
-	for (param_map_t::iterator iter = sParamMap.begin(); iter != sParamMap.end(); ++iter)
-	{
-		LLFollowCamParams* params = iter->second;
-		delete params;
-	}
-	sParamMap.clear();
 }
 
-//static
+LLFollowCamMgr::~LLFollowCamMgr()
+{
+    for (param_map_t::iterator iter = mParamMap.begin(); iter != mParamMap.end(); ++iter)
+    {
+        LLFollowCamParams* params = iter->second;
+        delete params;
+    }
+    mParamMap.clear();
+}
+
 void LLFollowCamMgr::setPositionLag( const LLUUID& source, F32 lag)
 {
 	LLFollowCamParams* paramsp = getParamsForID(source);
@@ -689,7 +685,6 @@ void LLFollowCamMgr::setPositionLag( const LLUUID& source, F32 lag)
 	}
 }
 
-//static
 void LLFollowCamMgr::setFocusLag( const LLUUID& source, F32 lag)
 {
 	LLFollowCamParams* paramsp = getParamsForID(source);
@@ -699,7 +694,6 @@ void LLFollowCamMgr::setFocusLag( const LLUUID& source, F32 lag)
 	}
 }
 
-//static
 void LLFollowCamMgr::setFocusThreshold( const LLUUID& source, F32 threshold)
 {
 	LLFollowCamParams* paramsp = getParamsForID(source);
@@ -710,7 +704,6 @@ void LLFollowCamMgr::setFocusThreshold( const LLUUID& source, F32 threshold)
 
 }
 
-//static
 void LLFollowCamMgr::setPositionThreshold( const LLUUID& source, F32 threshold)
 {
 	LLFollowCamParams* paramsp = getParamsForID(source);
@@ -720,7 +713,6 @@ void LLFollowCamMgr::setPositionThreshold( const LLUUID& source, F32 threshold)
 	}
 }
 
-//static
 void LLFollowCamMgr::setDistance( const LLUUID& source, F32 distance)
 {
 	LLFollowCamParams* paramsp = getParamsForID(source);
@@ -730,7 +722,6 @@ void LLFollowCamMgr::setDistance( const LLUUID& source, F32 distance)
 	}
 }
 
-//static
 void LLFollowCamMgr::setPitch( const LLUUID& source, F32 pitch)
 {
 	LLFollowCamParams* paramsp = getParamsForID(source);
@@ -740,7 +731,6 @@ void LLFollowCamMgr::setPitch( const LLUUID& source, F32 pitch)
 	}
 }
 
-//static
 void LLFollowCamMgr::setFocusOffset( const LLUUID& source, const LLVector3& offset)
 {
 	LLFollowCamParams* paramsp = getParamsForID(source);
@@ -750,7 +740,6 @@ void LLFollowCamMgr::setFocusOffset( const LLUUID& source, const LLVector3& offs
 	}
 }
 
-//static
 void LLFollowCamMgr::setBehindnessAngle( const LLUUID& source, F32 angle)
 {
 	LLFollowCamParams* paramsp = getParamsForID(source);
@@ -760,7 +749,6 @@ void LLFollowCamMgr::setBehindnessAngle( const LLUUID& source, F32 angle)
 	}
 }
 
-//static
 void LLFollowCamMgr::setBehindnessLag( const LLUUID& source, F32 force)
 {
 	LLFollowCamParams* paramsp = getParamsForID(source);
@@ -770,7 +758,6 @@ void LLFollowCamMgr::setBehindnessLag( const LLUUID& source, F32 force)
 	}
 }
 
-//static
 void LLFollowCamMgr::setPosition( const LLUUID& source, const LLVector3 position)
 {
 	LLFollowCamParams* paramsp = getParamsForID(source);
@@ -780,7 +767,6 @@ void LLFollowCamMgr::setPosition( const LLUUID& source, const LLVector3 position
 	}
 }
 
-//static
 void LLFollowCamMgr::setFocus( const LLUUID& source, const LLVector3 focus)
 {
 	LLFollowCamParams* paramsp = getParamsForID(source);
@@ -790,7 +776,6 @@ void LLFollowCamMgr::setFocus( const LLUUID& source, const LLVector3 focus)
 	}
 }
 
-//static
 void LLFollowCamMgr::setPositionLocked( const LLUUID& source, bool locked)
 {
 	LLFollowCamParams* paramsp = getParamsForID(source);
@@ -800,7 +785,6 @@ void LLFollowCamMgr::setPositionLocked( const LLUUID& source, bool locked)
 	}
 }
 
-//static
 void LLFollowCamMgr::setFocusLocked( const LLUUID& source, bool locked )
 {
 	LLFollowCamParams* paramsp = getParamsForID(source);
@@ -810,16 +794,15 @@ void LLFollowCamMgr::setFocusLocked( const LLUUID& source, bool locked )
 	}
 }
 
-//static 
 LLFollowCamParams* LLFollowCamMgr::getParamsForID(const LLUUID& source)
 {
 	LLFollowCamParams* params = NULL;
 
-	param_map_t::iterator found_it = sParamMap.find(source);
-	if (found_it == sParamMap.end()) // didn't find it?
+	param_map_t::iterator found_it = mParamMap.find(source);
+	if (found_it == mParamMap.end()) // didn't find it?
 	{
 		params = new LLFollowCamParams();
-		sParamMap[source] = params;
+		mParamMap[source] = params;
 	}
 	else
 	{
@@ -829,56 +812,51 @@ LLFollowCamParams* LLFollowCamMgr::getParamsForID(const LLUUID& source)
 	return params;
 }
 
-//static
 LLFollowCamParams* LLFollowCamMgr::getActiveFollowCamParams()
 {
-	if (sParamStack.empty())
+	if (mParamStack.empty())
 	{
 		return NULL;
 	}
 
-	return sParamStack.back();
+	return mParamStack.back();
 }
 
-//static 
 void LLFollowCamMgr::setCameraActive( const LLUUID& source, bool active )
 {
 	LLFollowCamParams* params = getParamsForID(source);
-	param_stack_t::iterator found_it = std::find(sParamStack.begin(), sParamStack.end(), params);
-	if (found_it != sParamStack.end())
+	param_stack_t::iterator found_it = std::find(mParamStack.begin(), mParamStack.end(), params);
+	if (found_it != mParamStack.end())
 	{
-		sParamStack.erase(found_it);
+		mParamStack.erase(found_it);
 	}
 	// put on top of stack
 	if(active)
 	{
-		sParamStack.push_back(params);
+		mParamStack.push_back(params);
 	}
 }
 
-//static
 void LLFollowCamMgr::removeFollowCamParams(const LLUUID& source)
 {
 	setCameraActive(source, FALSE);
 	LLFollowCamParams* params = getParamsForID(source);
-	sParamMap.erase(source);
+	mParamMap.erase(source);
 	delete params;
 }
 
-//static
 bool LLFollowCamMgr::isScriptedCameraSource(const LLUUID& source)
 {
-	param_map_t::iterator found_it = sParamMap.find(source);
-	return (found_it != sParamMap.end());
+	param_map_t::iterator found_it = mParamMap.find(source);
+	return (found_it != mParamMap.end());
 }
 
-//static 
 void LLFollowCamMgr::dump()
 {
 	S32 param_count = 0;
 	LL_INFOS() << "Scripted camera active stack" << LL_ENDL;
-	for (param_stack_t::iterator param_it = sParamStack.begin();
-		param_it != sParamStack.end();
+	for (param_stack_t::iterator param_it = mParamStack.begin();
+		param_it != mParamStack.end();
 		++param_it)
 	{
 		LL_INFOS() << param_count++ << 

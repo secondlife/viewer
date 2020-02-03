@@ -1622,7 +1622,7 @@ BOOL LLWorldMapView::handleMouseUp( S32 x, S32 y, MASK mask )
 			LLRect clip_rect = getRect();
 			clip_rect.stretch(-8);
 			clip_rect.clipPointToRect(mMouseDownX, mMouseDownY, local_x, local_y);
-			LLUI::setMousePositionLocal(this, local_x, local_y);
+			LLUI::getInstance()->setMousePositionLocal(this, local_x, local_y);
 
 			// finish the pan
 			mPanning = FALSE;

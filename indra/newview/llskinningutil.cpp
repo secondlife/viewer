@@ -83,10 +83,6 @@ void dump_avatar_and_skin_state(const std::string& reason, LLVOAvatar *avatar, c
     }
 }
 
-void LLSkinningUtil::initClass()
-{
-}
-
 U32 LLSkinningUtil::getMaxJointCount()
 {
     U32 result = LL_MAX_JOINTS_PER_MESH_OBJECT;

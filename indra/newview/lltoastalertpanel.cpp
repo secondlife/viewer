@@ -44,6 +44,7 @@
 #include "llrootview.h"
 #include "lltransientfloatermgr.h"
 #include "llviewercontrol.h" // for gSavedSettings
+#include "llweb.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -51,7 +52,6 @@ const S32 MAX_ALLOWED_MSG_WIDTH = 400;
 const F32 DEFAULT_BUTTON_DELAY = 0.5f;
 
 /*static*/ LLControlGroup* LLToastAlertPanel::sSettings = NULL;
-/*static*/ LLToastAlertPanel::URLLoader* LLToastAlertPanel::sURLLoader;
 
 //-----------------------------------------------------------------------------
 // Private methods
@@ -500,9 +500,16 @@ void LLToastAlertPanel::onButtonPressed( const LLSD& data, S32 button )
 	response[button_data->mButton->getName()] = true;
 
 	// If we declared a URL and chose the URL option, go to the url
-	if (!button_data->mURL.empty() && sURLLoader != NULL)
+	if (!button_data->mURL.empty())
 	{
-		sURLLoader->load(button_data->mURL, button_data->mURLExternal);
+		if (button_data->mURLExternal)
+		{
+			LLWeb::loadURLExternal(button_data->mURL);
+		}
+		else
+		{
+			LLWeb::loadURL(button_data->mURL);
+		}
 	}
 
 	mNotification->respond(response); // new notification reponse

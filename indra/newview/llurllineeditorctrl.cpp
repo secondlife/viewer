@@ -66,7 +66,7 @@ void LLURLLineEditor::cut()
 		if( need_to_rollback )
 		{
 			rollback.doRollback( this );
-			LLUI::reportBadKeystroke();
+			LLUI::getInstance()->reportBadKeystroke();
 		}
 		else
 		if( mKeystrokeCallback )

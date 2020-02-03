@@ -148,7 +148,7 @@ public:
 	{
 		// support secondlife:///app/appearance/show, but for now we just
 		// make all secondlife:///app/appearance SLapps behave this way
-		if (!LLUI::sSettingGroups["config"]->getBOOL("EnableAppearance"))
+		if (!LLUI::getInstance()->mSettingGroups["config"]->getBOOL("EnableAppearance"))
 		{
 			LLNotificationsUtil::add("NoAppearance", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
 			return true;
@@ -2929,7 +2929,7 @@ void LLAppearanceMgr::removeAllAttachmentsFromAvatar()
 			 attachment_iter != attachment->mAttachedObjects.end();
 			 ++attachment_iter)
 		{
-			LLViewerObject *attached_object = (*attachment_iter);
+			LLViewerObject *attached_object = attachment_iter->get();
 			if (attached_object)
 			{
 				objects_to_remove.push_back(attached_object);

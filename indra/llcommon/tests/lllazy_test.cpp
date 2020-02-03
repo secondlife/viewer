@@ -38,6 +38,7 @@
 #include <boost/lambda/bind.hpp>
 // other Linden headers
 #include "../test/lltut.h"
+#include "../test/catch_and_store_what_in.h"
 
 namespace bll = boost::lambda;
 
@@ -200,15 +201,9 @@ namespace tut
     void lllazy_object::test<2>()
     {
         TestNeedsTesting tnt;
-        std::string threw;
-        try
-        {
-            tnt.toolate();
-        }
-        catch (const LLLazyCommon::InstanceChange& e)
-        {
-            threw = e.what();
-        }
+        std::string threw = catch_what<LLLazyCommon::InstanceChange>([&tnt](){
+                tnt.toolate();
+            });
         ensure_contains("InstanceChange exception", threw, "replace LLLazy instance");
     }
 
