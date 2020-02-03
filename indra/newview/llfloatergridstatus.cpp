@@ -39,7 +39,7 @@
 #include "llxmltree.h"
 
 std::map<std::string, std::string> LLFloaterGridStatus::sItemsMap;
-const std::string DEFAULT_GRID_STATUS_URL = "http://secondlife-status.statuspage.io/";
+const std::string DEFAULT_GRID_STATUS_URL = "http://status.secondlifegrid.net/";
 
 LLFloaterGridStatus::LLFloaterGridStatus(const Params& key) :
     LLFloaterWebContent(key),

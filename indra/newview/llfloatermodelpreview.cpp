@@ -3341,6 +3341,15 @@ void LLModelPreview::updateStatusMessages()
 		mFMP->childEnable("ok_btn");
 		mFMP->childEnable("calculate_btn");
 	}
+
+    if (mModelNoErrors && mLodsWithParsingError.empty())
+    {
+        mFMP->childEnable("calculate_btn");
+    }
+    else
+    {
+        mFMP->childDisable("calculate_btn");
+    }
 	
 	//add up physics triangles etc
 	S32 phys_tris = 0;

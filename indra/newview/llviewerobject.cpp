@@ -142,6 +142,9 @@ const F32 PHYSICS_TIMESTEP = 1.f / 45.f;
 const U32 MAX_INV_FILE_READ_FAILS = 25;
 const S32 MAX_OBJECT_BINARY_DATA_SIZE = 60 + 16;
 
+const F64 INVENTORY_UPDATE_WAIT_TIME_DESYNC = 5; // seconds
+const F64 INVENTORY_UPDATE_WAIT_TIME_OUTDATED = 1;
+
 static LLTrace::BlockTimerStatHandle FTM_CREATE_OBJECT("Create Object");
 
 // static
@@ -269,6 +272,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mPixelArea(1024.f),
 	mInventory(NULL),
 	mInventorySerialNum(0),
+	mExpectedInventorySerialNum(0),
 	mInvRequestState(INVENTORY_REQUEST_STOPPED),
 	mInvRequestXFerId(0),
 	mInventoryDirty(FALSE),
@@ -1279,7 +1283,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				{
 				case (60 + 16):
 					// pull out collision normal for avatar
-					htonmemcpy(collision_plane.mV, &data[count], MVT_LLVector4, sizeof(LLVector4));
+					htolememcpy(collision_plane.mV, &data[count], MVT_LLVector4, sizeof(LLVector4));
 					((LLVOAvatar*)this)->setFootPlane(collision_plane);
 					count += sizeof(LLVector4);
 					// fall through
@@ -1287,23 +1291,23 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					this_update_precision = 32;
 					// this is a terse update
 					// pos
-					htonmemcpy(new_pos_parent.mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
+					htolememcpy(new_pos_parent.mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
 					count += sizeof(LLVector3);
 					// vel
-					htonmemcpy((void*)getVelocity().mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
+					htolememcpy((void*)getVelocity().mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
 					count += sizeof(LLVector3);
 					// acc
-					htonmemcpy((void*)getAcceleration().mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
+					htolememcpy((void*)getAcceleration().mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
 					count += sizeof(LLVector3);
 					// theta
 					{
 						LLVector3 vec;
-						htonmemcpy(vec.mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
+						htolememcpy(vec.mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
 						new_rot.unpackFromVector3(vec);
 					}
 					count += sizeof(LLVector3);
 					// omega
-					htonmemcpy((void*)new_angv.mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
+					htolememcpy((void*)new_angv.mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
 					if (new_angv.isExactlyZero())
 					{
 						// reset rotation time
@@ -1319,7 +1323,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					break;
 				case(32 + 16):
 					// pull out collision normal for avatar
-					htonmemcpy(collision_plane.mV, &data[count], MVT_LLVector4, sizeof(LLVector4));
+					htolememcpy(collision_plane.mV, &data[count], MVT_LLVector4, sizeof(LLVector4));
 					((LLVOAvatar*)this)->setFootPlane(collision_plane);
 					count += sizeof(LLVector4);
 					// fall through
@@ -1329,7 +1333,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
 					// This is a terse 16 update, so treat data as an array of U16's.
 #ifdef LL_BIG_ENDIAN
-					htonmemcpy(valswizzle, &data[count], MVT_U16Vec3, 6); 
+					htolememcpy(valswizzle, &data[count], MVT_U16Vec3, 6); 
 					val = valswizzle;
 #else
 					val = (U16 *) &data[count];
@@ -1340,7 +1344,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					new_pos_parent.mV[VZ] = U16_to_F32(val[VZ], MIN_HEIGHT, MAX_HEIGHT);
 
 #ifdef LL_BIG_ENDIAN
-					htonmemcpy(valswizzle, &data[count], MVT_U16Vec3, 6); 
+					htolememcpy(valswizzle, &data[count], MVT_U16Vec3, 6); 
 					val = valswizzle;
 #else
 					val = (U16 *) &data[count];
@@ -1351,7 +1355,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 													   U16_to_F32(val[VZ], -size, size)));
 
 #ifdef LL_BIG_ENDIAN
-					htonmemcpy(valswizzle, &data[count], MVT_U16Vec3, 6); 
+					htolememcpy(valswizzle, &data[count], MVT_U16Vec3, 6); 
 					val = valswizzle;
 #else
 					val = (U16 *) &data[count];
@@ -1362,7 +1366,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 														   U16_to_F32(val[VZ], -size, size)));
 
 #ifdef LL_BIG_ENDIAN
-					htonmemcpy(valswizzle, &data[count], MVT_U16Quat, 4); 
+					htolememcpy(valswizzle, &data[count], MVT_U16Quat, 4); 
 					val = valswizzle;
 #else
 					val = (U16 *) &data[count];
@@ -1374,7 +1378,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					new_rot.mQ[VW] = U16_to_F32(val[VW], -1.f, 1.f);
 
 #ifdef LL_BIG_ENDIAN
-					htonmemcpy(valswizzle, &data[count], MVT_U16Vec3, 6); 
+					htolememcpy(valswizzle, &data[count], MVT_U16Vec3, 6); 
 					val = valswizzle;
 #else
 					val = (U16 *) &data[count];
@@ -1570,7 +1574,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				{
 				case(60 + 16):
 					// pull out collision normal for avatar
-					htonmemcpy(collision_plane.mV, &data[count], MVT_LLVector4, sizeof(LLVector4));
+					htolememcpy(collision_plane.mV, &data[count], MVT_LLVector4, sizeof(LLVector4));
 					((LLVOAvatar*)this)->setFootPlane(collision_plane);
 					count += sizeof(LLVector4);
 					// fall through
@@ -1578,23 +1582,23 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					// this is a terse 32 update
 					// pos
 					this_update_precision = 32;
-					htonmemcpy(new_pos_parent.mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
+					htolememcpy(new_pos_parent.mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
 					count += sizeof(LLVector3);
 					// vel
-					htonmemcpy((void*)getVelocity().mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
+					htolememcpy((void*)getVelocity().mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
 					count += sizeof(LLVector3);
 					// acc
-					htonmemcpy((void*)getAcceleration().mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
+					htolememcpy((void*)getAcceleration().mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
 					count += sizeof(LLVector3);
 					// theta
 					{
 						LLVector3 vec;
-						htonmemcpy(vec.mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
+						htolememcpy(vec.mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
 						new_rot.unpackFromVector3(vec);
 					}
 					count += sizeof(LLVector3);
 					// omega
-					htonmemcpy((void*)new_angv.mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
+					htolememcpy((void*)new_angv.mV, &data[count], MVT_LLVector3, sizeof(LLVector3));
 					if (new_angv.isExactlyZero())
 					{
 						// reset rotation time
@@ -1610,7 +1614,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					break;
 				case(32 + 16):
 					// pull out collision normal for avatar
-					htonmemcpy(collision_plane.mV, &data[count], MVT_LLVector4, sizeof(LLVector4));
+					htolememcpy(collision_plane.mV, &data[count], MVT_LLVector4, sizeof(LLVector4));
 					((LLVOAvatar*)this)->setFootPlane(collision_plane);
 					count += sizeof(LLVector4);
 					// fall through
@@ -1620,7 +1624,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					test_pos_parent.quantize16(-0.5f*size, 1.5f*size, MIN_HEIGHT, MAX_HEIGHT);
 
 #ifdef LL_BIG_ENDIAN
-					htonmemcpy(valswizzle, &data[count], MVT_U16Vec3, 6); 
+					htolememcpy(valswizzle, &data[count], MVT_U16Vec3, 6); 
 					val = valswizzle;
 #else
 					val = (U16 *) &data[count];
@@ -1631,7 +1635,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					new_pos_parent.mV[VZ] = U16_to_F32(val[VZ], MIN_HEIGHT, MAX_HEIGHT);
 
 #ifdef LL_BIG_ENDIAN
-					htonmemcpy(valswizzle, &data[count], MVT_U16Vec3, 6); 
+					htolememcpy(valswizzle, &data[count], MVT_U16Vec3, 6); 
 					val = valswizzle;
 #else
 					val = (U16 *) &data[count];
@@ -1642,7 +1646,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 								U16_to_F32(val[VZ], -size, size));
 
 #ifdef LL_BIG_ENDIAN
-					htonmemcpy(valswizzle, &data[count], MVT_U16Vec3, 6); 
+					htolememcpy(valswizzle, &data[count], MVT_U16Vec3, 6); 
 					val = valswizzle;
 #else
 					val = (U16 *) &data[count];
@@ -1653,7 +1657,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 									U16_to_F32(val[VZ], -size, size));
 
 #ifdef LL_BIG_ENDIAN
-					htonmemcpy(valswizzle, &data[count], MVT_U16Quat, 8); 
+					htolememcpy(valswizzle, &data[count], MVT_U16Quat, 8); 
 					val = valswizzle;
 #else
 					val = (U16 *) &data[count];
@@ -1665,7 +1669,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 					new_rot.mQ[VW] = U16_to_F32(val[VW], -1.f, 1.f);
 
 #ifdef LL_BIG_ENDIAN
-					htonmemcpy(valswizzle, &data[count], MVT_U16Vec3, 6); 
+					htolememcpy(valswizzle, &data[count], MVT_U16Vec3, 6); 
 					val = valswizzle;
 #else
 					val = (U16 *) &data[count];
@@ -2802,13 +2806,13 @@ void LLViewerObject::doUpdateInventory(
 			{
 				// best guess.
 				perm.setOwnerAndGroup(LLUUID::null, gAgent.getID(), item->getPermissions().getGroup(), is_atomic);
-				--mInventorySerialNum;
+				--mExpectedInventorySerialNum;
 			}
 			else
 			{
 				// dummy it up.
 				perm.setOwnerAndGroup(LLUUID::null, LLUUID::null, LLUUID::null, is_atomic);
-				--mInventorySerialNum;
+				--mExpectedInventorySerialNum;
 			}
 		}
 		LLViewerInventoryItem* oldItem = item;
@@ -2816,7 +2820,11 @@ void LLViewerObject::doUpdateInventory(
 		new_item->setPermissions(perm);
 		mInventory->push_front(new_item);
 		doInventoryCallback();
-		++mInventorySerialNum;
+		++mExpectedInventorySerialNum;
+	}
+	else if (is_new)
+	{
+		++mExpectedInventorySerialNum;
 	}
 }
 
@@ -2883,7 +2891,7 @@ void LLViewerObject::moveInventory(const LLUUID& folder_id,
 		if(!item->getPermissions().allowCopyBy(gAgent.getID()))
 		{
 			deleteInventoryItem(item_id);
-			++mInventorySerialNum;
+			++mExpectedInventorySerialNum;
 		}
 	}
 }
@@ -2974,6 +2982,8 @@ void LLViewerObject::fetchInventoryFromServer()
 	if (!isInventoryPending())
 	{
 		delete mInventory;
+
+		// Results in processTaskInv
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessageFast(_PREHASH_RequestTaskInventory);
 		msg->nextBlockFast(_PREHASH_AgentData);
@@ -2983,9 +2993,42 @@ void LLViewerObject::fetchInventoryFromServer()
 		msg->addU32Fast(_PREHASH_LocalID, mLocalID);
 		msg->sendReliable(mRegionp->getHost());
 
-		// this will get reset by dirtyInventory or doInventoryCallback
+		// This will get reset by doInventoryCallback or processTaskInv
 		mInvRequestState = INVENTORY_REQUEST_PENDING;
 	}
+}
+
+void LLViewerObject::fetchInventoryDelayed(const F64 &time_seconds)
+{
+    // unless already waiting, drop previous request and shedule an update
+    if (mInvRequestState != INVENTORY_REQUEST_WAIT)
+    {
+        if (mInvRequestXFerId != 0)
+        {
+            // abort download.
+            gXferManager->abortRequestById(mInvRequestXFerId, -1);
+            mInvRequestXFerId = 0;
+        }
+        mInvRequestState = INVENTORY_REQUEST_WAIT; // affects isInventoryPending()
+        LLCoros::instance().launch("LLViewerObject::fetchInventoryDelayedCoro()",
+            boost::bind(&LLViewerObject::fetchInventoryDelayedCoro, mID, time_seconds));
+    }
+}
+
+//static
+void LLViewerObject::fetchInventoryDelayedCoro(const LLUUID task_inv, const F64 time_seconds)
+{
+    llcoro::suspendUntilTimeout(time_seconds);
+    LLViewerObject *obj = gObjectList.findObject(task_inv);
+    if (obj)
+    {
+        // Might be good idea to prolong delay here in case expected serial changed.
+        // As it is, it will get a response with obsolete serial and will delay again.
+
+        // drop waiting state to unlock isInventoryPending()
+        obj->mInvRequestState = INVENTORY_REQUEST_STOPPED;
+        obj->fetchInventoryFromServer();
+    }
 }
 
 LLControlAvatar *LLViewerObject::getControlAvatar()
@@ -3146,74 +3189,97 @@ S32 LLFilenameAndTask::sCount = 0;
 // static
 void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 {
-	LLUUID task_id;
-	msg->getUUIDFast(_PREHASH_InventoryData, _PREHASH_TaskID, task_id);
-	LLViewerObject* object = gObjectList.findObject(task_id);
-	if(!object)
-	{
-		LL_WARNS() << "LLViewerObject::processTaskInv object "
-			<< task_id << " does not exist." << LL_ENDL;
-		return;
-	}
+    LLUUID task_id;
+    msg->getUUIDFast(_PREHASH_InventoryData, _PREHASH_TaskID, task_id);
+    LLViewerObject* object = gObjectList.findObject(task_id);
+    if (!object)
+    {
+        LL_WARNS() << "LLViewerObject::processTaskInv object "
+            << task_id << " does not exist." << LL_ENDL;
+        return;
+    }
 
-	LLFilenameAndTask* ft = new LLFilenameAndTask;
-	ft->mTaskID = task_id;
-	// we can receive multiple task updates simultaneously, make sure we will not rewrite newer with older update
-	msg->getS16Fast(_PREHASH_InventoryData, _PREHASH_Serial, ft->mSerial);
+    LLFilenameAndTask* ft = new LLFilenameAndTask;
+    ft->mTaskID = task_id;
+    // we can receive multiple task updates simultaneously, make sure we will not rewrite newer with older update
+    msg->getS16Fast(_PREHASH_InventoryData, _PREHASH_Serial, ft->mSerial);
 
-	if (ft->mSerial < object->mInventorySerialNum)
-	{
-		// viewer did some changes to inventory that were not saved yet.
-		LL_DEBUGS() << "Task inventory serial might be out of sync, server serial: " << ft->mSerial << " client serial: " << object->mInventorySerialNum << LL_ENDL;
-		object->mInventorySerialNum = ft->mSerial;
-	}
+    if (ft->mSerial == object->mInventorySerialNum
+        && ft->mSerial < object->mExpectedInventorySerialNum)
+    {
+        // Loop Protection.
+        // We received same serial twice.
+        // Viewer did some changes to inventory that couldn't be saved server side
+        // or something went wrong to cause serial to be out of sync.
+        // Drop xfer and restart after some time, assign server's value as expected
+        LL_WARNS() << "Task inventory serial might be out of sync, server serial: " << ft->mSerial << " client expected serial: " << object->mExpectedInventorySerialNum << LL_ENDL;
+        object->mExpectedInventorySerialNum = ft->mSerial;
+        object->fetchInventoryDelayed(INVENTORY_UPDATE_WAIT_TIME_DESYNC);
+    }
+    else if (ft->mSerial < object->mExpectedInventorySerialNum)
+    {
+        // Out of date message, record to current serial for loop protection, but do not load it
+        // Drop xfer and restart after some time
+        if (ft->mSerial < object->mInventorySerialNum)
+        {
+            LL_WARNS() << "Task serial decreased. Potentially out of order packet or desync." << LL_ENDL;
+        }
+        object->mInventorySerialNum = ft->mSerial;
+        object->fetchInventoryDelayed(INVENTORY_UPDATE_WAIT_TIME_OUTDATED);
+    }
+    else if (ft->mSerial >= object->mExpectedInventorySerialNum)
+    {
+        // We received version we expected or newer. Load it.
+        object->mInventorySerialNum = ft->mSerial;
+        object->mExpectedInventorySerialNum = ft->mSerial;
 
-	std::string unclean_filename;
-	msg->getStringFast(_PREHASH_InventoryData, _PREHASH_Filename, unclean_filename);
-	ft->mFilename = LLDir::getScrubbedFileName(unclean_filename);
+        std::string unclean_filename;
+        msg->getStringFast(_PREHASH_InventoryData, _PREHASH_Filename, unclean_filename);
+        ft->mFilename = LLDir::getScrubbedFileName(unclean_filename);
 
-	if(ft->mFilename.empty())
-	{
-		LL_DEBUGS() << "Task has no inventory" << LL_ENDL;
-		// mock up some inventory to make a drop target.
-		if(object->mInventory)
-		{
-			object->mInventory->clear(); // will deref and delete it
-		}
-		else
-		{
-			object->mInventory = new LLInventoryObject::object_list_t();
-		}
-		LLPointer<LLInventoryObject> obj;
-		obj = new LLInventoryObject(object->mID, LLUUID::null,
-									LLAssetType::AT_CATEGORY,
-									"Contents");
-		object->mInventory->push_front(obj);
-		object->doInventoryCallback();
-		delete ft;
-		return;
-	}
-	U64 new_id = gXferManager->requestFile(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ft->mFilename), 
-								ft->mFilename, LL_PATH_CACHE,
-								object->mRegionp->getHost(),
-								TRUE,
-								&LLViewerObject::processTaskInvFile,
-								(void**)ft,
-								LLXferManager::HIGH_PRIORITY);
-	if (object->mInvRequestState == INVENTORY_XFER)
-	{
-		if (new_id > 0 && new_id != object->mInvRequestXFerId)
-		{
-			// we started new download.
-			gXferManager->abortRequestById(object->mInvRequestXFerId, -1);
-			object->mInvRequestXFerId = new_id;
-		}
-	}
-	else
-	{
-		object->mInvRequestState = INVENTORY_XFER;
-		object->mInvRequestXFerId = new_id;
-	}
+        if (ft->mFilename.empty())
+        {
+            LL_DEBUGS() << "Task has no inventory" << LL_ENDL;
+            // mock up some inventory to make a drop target.
+            if (object->mInventory)
+            {
+                object->mInventory->clear(); // will deref and delete it
+            }
+            else
+            {
+                object->mInventory = new LLInventoryObject::object_list_t();
+            }
+            LLPointer<LLInventoryObject> obj;
+            obj = new LLInventoryObject(object->mID, LLUUID::null,
+                LLAssetType::AT_CATEGORY,
+                "Contents");
+            object->mInventory->push_front(obj);
+            object->doInventoryCallback();
+            delete ft;
+            return;
+        }
+        U64 new_id = gXferManager->requestFile(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ft->mFilename),
+            ft->mFilename, LL_PATH_CACHE,
+            object->mRegionp->getHost(),
+            TRUE,
+            &LLViewerObject::processTaskInvFile,
+            (void**)ft,
+            LLXferManager::HIGH_PRIORITY);
+        if (object->mInvRequestState == INVENTORY_XFER)
+        {
+            if (new_id > 0 && new_id != object->mInvRequestXFerId)
+            {
+                // we started new download.
+                gXferManager->abortRequestById(object->mInvRequestXFerId, -1);
+                object->mInvRequestXFerId = new_id;
+            }
+        }
+        else
+        {
+            object->mInvRequestState = INVENTORY_XFER;
+            object->mInvRequestXFerId = new_id;
+        }
+    }
 }
 
 void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code, LLExtStat ext_status)
@@ -3227,6 +3293,13 @@ void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code, LLExtS
 		&& ft->mSerial >= object->mInventorySerialNum)
 	{
 		object->mInventorySerialNum = ft->mSerial;
+		LL_DEBUGS() << "Receiving inventory task file for serial " << object->mInventorySerialNum << " taskid: " << ft->mTaskID << LL_ENDL;
+		if (ft->mSerial < object->mExpectedInventorySerialNum)
+		{
+			// User managed to change something while inventory was loading
+			LL_DEBUGS() << "Processing file that is potentially out of date for task: " << ft->mTaskID << LL_ENDL;
+		}
+
 		if (object->loadTaskInvFile(ft->mFilename))
 		{
 
@@ -3376,7 +3449,7 @@ void LLViewerObject::removeInventory(const LLUUID& item_id)
 	msg->addUUIDFast(_PREHASH_ItemID, item_id);
 	msg->sendReliable(mRegionp->getHost());
 	deleteInventoryItem(item_id);
-	++mInventorySerialNum;
+	++mExpectedInventorySerialNum;
 }
 
 bool LLViewerObject::isTextureInInventory(LLViewerInventoryItem* item)

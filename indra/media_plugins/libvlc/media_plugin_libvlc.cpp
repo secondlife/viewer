@@ -495,6 +495,10 @@ void MediaPluginLibVLC::receiveMessage(const char* message_string)
 			{
 				resetVLC();
 			}
+			else if (message_name == "force_exit")
+			{
+				mDeleteMe = true;
+			}
 			else if (message_name == "shm_added")
 			{
 				SharedSegmentInfo info;
