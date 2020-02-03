@@ -629,6 +629,8 @@ protected:
 
 	LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList ; 
 	BOOL mLoadedCallbacksPaused;
+	S32 mLoadedCallbackTextures; // count of fully loaded textures filled from mCallbackTextureList
+	LLFrameTimer mLastTexCallbackAddedTime;
 	std::set<LLUUID>	mTextureIDs;
 	//--------------------------------------------------------------------
 	// Local Textures

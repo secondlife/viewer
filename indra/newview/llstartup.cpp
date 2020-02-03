@@ -2714,6 +2714,15 @@ std::string& LLStartUp::getInitialOutfitName()
 	return sInitialOutfit;
 }
 
+std::string LLStartUp::getUserId()
+{
+    if (gUserCredential.isNull())
+    {
+        return "";
+    }
+    return gUserCredential->userID();
+}
+
 // Loads a bitmap to display during load
 void init_start_screen(S32 location_id)
 {

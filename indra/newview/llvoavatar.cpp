@@ -197,6 +197,8 @@ const F32 NAMETAG_VERT_OFFSET_WEIGHT = 0.17f;
 const U32 LLVOAvatar::VISUAL_COMPLEXITY_UNKNOWN = 0;
 const F64 HUD_OVERSIZED_TEXTURE_DATA_SIZE = 1024 * 1024;
 
+const F32 MAX_TEXTURE_WAIT_TIME_SEC = 60;
+
 enum ERenderName
 {
 	RENDER_NAME_NEVER,
@@ -663,6 +665,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mFullyLoadedInitialized(FALSE),
 	mVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
 	mLoadedCallbacksPaused(FALSE),
+	mLoadedCallbackTextures(0),
 	mRenderUnloadedAvatar(LLCachedControl<bool>(gSavedSettings, "RenderUnloadedAvatar", false)),
 	mLastRezzedStatus(-1),
 	mIsEditingAppearance(FALSE),
@@ -1378,7 +1381,7 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 				 ++attachment_iter)
 			{
                     // Don't we need to look at children of attached_object as well?
-				const LLViewerObject* attached_object = (*attachment_iter);
+                const LLViewerObject* attached_object = attachment_iter->get();
 				if (attached_object && !attached_object->isHUDAttachment())
 				{
                         const LLVOVolume *vol = dynamic_cast<const LLVOVolume*>(attached_object);
@@ -1801,7 +1804,7 @@ BOOL LLVOAvatar::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 					 attachment_iter != attachment->mAttachedObjects.end();
 					 ++attachment_iter)
 				{
-					LLViewerObject* attached_object = (*attachment_iter);
+					LLViewerObject* attached_object = attachment_iter->get();
 					
 					if (attached_object && !attached_object->isDead() && attachment->getValid())
 					{
@@ -1865,7 +1868,7 @@ LLViewerObject* LLVOAvatar::lineSegmentIntersectRiggedAttachments(const LLVector
 					attachment_iter != attachment->mAttachedObjects.end();
 					++attachment_iter)
 			{
-				LLViewerObject* attached_object = (*attachment_iter);
+				LLViewerObject* attached_object = attachment_iter->get();
 					
 				if (attached_object->lineSegmentIntersect(start, local_end, face, pick_transparent, pick_rigged, face_hit, &local_intersection, tex_coord, normal, tangent))
 				{
@@ -2691,7 +2694,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 				 attachment_iter != attachment->mAttachedObjects.end();
 				 ++attachment_iter)
 			{
-				LLViewerObject* attached_object = (*attachment_iter);
+				LLViewerObject* attached_object = attachment_iter->get();
 				BOOL visibleAttachment = visible || (attached_object && 
 													 !(attached_object->mDrawable->getSpatialBridge() &&
 													   attached_object->mDrawable->getSpatialBridge()->getRadius() < 2.0));
@@ -4572,7 +4575,7 @@ void LLVOAvatar::updateVisibility()
 					 attachment_iter != attachment->mAttachedObjects.end();
 					 ++attachment_iter)
 				{
-					if (LLViewerObject *attached_object = (*attachment_iter))
+					if (LLViewerObject *attached_object = attachment_iter->get())
 					{
 						if(attached_object->mDrawable->isVisible())
 						{
@@ -5336,6 +5339,7 @@ void LLVOAvatar::checkTextureLoading()
 	if(mCallbackTextureList.empty()) //when is self or no callbacks. Note: this list for self is always empty.
 	{
 		mLoadedCallbacksPaused = pause ;
+		mLoadedCallbackTextures = 0;
 		return ; //nothing to check.
 	}
 	
@@ -5343,7 +5347,9 @@ void LLVOAvatar::checkTextureLoading()
 	{
 		return ; //have not been invisible for enough time.
 	}
-	
+
+    mLoadedCallbackTextures = pause ? mCallbackTextureList.size() : 0;
+
 	for(LLLoadedCallbackEntry::source_callback_list_t::iterator iter = mCallbackTextureList.begin();
 		iter != mCallbackTextureList.end(); ++iter)
 	{
@@ -5364,9 +5370,14 @@ void LLVOAvatar::checkTextureLoading()
 
 				tex->unpauseLoadedCallbacks(&mCallbackTextureList) ;
 				tex->addTextureStats(START_AREA); //jump start the fetching again
+
+				if (tex->isFullyLoaded())
+				{
+					mLoadedCallbackTextures++; // consider it loaded
+				}
 			}
-		}		
-	}			
+		}
+	}
 	
 	if(!pause)
 	{
@@ -6005,7 +6016,7 @@ void LLVOAvatar::rebuildAttachmentOverrides()
             for (LLViewerJointAttachment::attachedobjs_vec_t::iterator at_it = attachment_pt->mAttachedObjects.begin();
 				 at_it != attachment_pt->mAttachedObjects.end(); ++at_it)
             {
-                LLViewerObject *vo = *at_it;
+                LLViewerObject *vo = at_it->get();
                 // Attached animated objects affect joints in their control
                 // avs, not the avs to which they are attached.
                 if (vo && !vo->isAnimatedObject())
@@ -6056,7 +6067,7 @@ void LLVOAvatar::updateAttachmentOverrides()
             for (LLViewerJointAttachment::attachedobjs_vec_t::iterator at_it = attachment_pt->mAttachedObjects.begin();
 				 at_it != attachment_pt->mAttachedObjects.end(); ++at_it)
             {
-                LLViewerObject *vo = *at_it;
+                LLViewerObject *vo = at_it->get();
                 // Attached animated objects affect joints in their control
                 // avs, not the avs to which they are attached.
                 if (vo && !vo->isAnimatedObject())
@@ -7159,28 +7170,32 @@ void LLVOAvatar::lazyAttach()
 	for (U32 i = 0; i < mPendingAttachment.size(); i++)
 	{
 		LLPointer<LLViewerObject> cur_attachment = mPendingAttachment[i];
-		if (cur_attachment->mDrawable)
+		// Object might have died while we were waiting for drawable
+		if (!cur_attachment->isDead())
 		{
-			if (isSelf())
+			if (cur_attachment->mDrawable)
 			{
-				const LLUUID& item_id = cur_attachment->getAttachmentItemID();
-				LLViewerInventoryItem *item = gInventory.getItem(item_id);
-				LL_DEBUGS("Avatar") << "ATT attaching object "
-									<< (item ? item->getName() : "UNKNOWN") << " id " << item_id << LL_ENDL;
+				if (isSelf())
+				{
+					const LLUUID& item_id = cur_attachment->getAttachmentItemID();
+					LLViewerInventoryItem *item = gInventory.getItem(item_id);
+					LL_DEBUGS("Avatar") << "ATT attaching object "
+						<< (item ? item->getName() : "UNKNOWN") << " id " << item_id << LL_ENDL;
+				}
+				if (!attachObject(cur_attachment))
+				{	// Drop it
+					LL_WARNS() << "attachObject() failed for "
+						<< cur_attachment->getID()
+						<< " item " << cur_attachment->getAttachmentItemID()
+						<< LL_ENDL;
+					// MAINT-3312 backout
+					//still_pending.push_back(cur_attachment);
+				}
 			}
-			if (!attachObject(cur_attachment))
-			{	// Drop it
-				LL_WARNS() << "attachObject() failed for " 
-					<< cur_attachment->getID()
-					<< " item " << cur_attachment->getAttachmentItemID()
-					<< LL_ENDL;
-				// MAINT-3312 backout
-				//still_pending.push_back(cur_attachment);
+			else
+			{
+				still_pending.push_back(cur_attachment);
 			}
-		}
-		else
-		{
-			still_pending.push_back(cur_attachment);
 		}
 	}
 
@@ -7201,7 +7216,7 @@ void LLVOAvatar::resetHUDAttachments()
 				 attachment_iter != attachment->mAttachedObjects.end();
 				 ++attachment_iter)
 			{
-				const LLViewerObject* attached_object = (*attachment_iter);
+				const LLViewerObject* attached_object = attachment_iter->get();
 				if (attached_object && attached_object->mDrawable.notNull())
 				{
 					gPipeline.markMoved(attached_object->mDrawable);
@@ -7531,7 +7546,7 @@ LLViewerObject *	LLVOAvatar::findAttachmentByID( const LLUUID & target_id ) cons
 			 attachment_iter != attachment->mAttachedObjects.end();
 			 ++attachment_iter)
 		{
-			LLViewerObject *attached_object = (*attachment_iter);
+			LLViewerObject *attached_object = attachment_iter->get();
 			if (attached_object &&
 				attached_object->getID() == target_id)
 			{
@@ -7804,9 +7819,17 @@ BOOL LLVOAvatar::updateIsFullyLoaded()
 {
 	S32 rez_status = getRezzedStatus();
 	bool loading = getIsCloud();
-	if (mFirstFullyVisible && !mIsControlAvatar && rez_status < 3)
+	if (mFirstFullyVisible && !mIsControlAvatar)
 	{
-		loading = ((rez_status < 2) || !isFullyBaked());
+        loading = ((rez_status < 2)
+                   // Wait at least 60s for unfinished textures to finish on first load,
+                   // don't wait forever, it might fail. Even if it will eventually load by
+                   // itself and update mLoadedCallbackTextures (or fail and clean the list),
+                   // avatars are more time-sensitive than textures and can't wait that long.
+                   || (mLoadedCallbackTextures < mCallbackTextureList.size() && mLastTexCallbackAddedTime.getElapsedTimeF32() < MAX_TEXTURE_WAIT_TIME_SEC)
+                   || !mPendingAttachment.empty()
+                   || (rez_status < 3 && !isFullyBaked())
+                  );
 	}
 	updateRezzedStatusTimers(rez_status);
 	updateRuthTimer(loading);
@@ -7966,7 +7989,7 @@ void LLVOAvatar::updateMeshVisibility()
 				attachment_iter != attachment->mAttachedObjects.end();
 				++attachment_iter)
 			{
-				LLViewerObject *objectp = (*attachment_iter);
+				LLViewerObject *objectp = attachment_iter->get();
 				if (objectp)
 				{
 					for (int face_index = 0; face_index < objectp->getNumTEs(); face_index++)
@@ -8190,6 +8213,14 @@ void LLVOAvatar::updateMeshTextures()
 				}
 				baked_img->setLoadedCallback(onBakedTextureLoaded, SWITCH_TO_BAKED_DISCARD, FALSE, FALSE, new LLUUID( mID ), 
 					src_callback_list, paused );
+				if (!baked_img->isFullyLoaded() && !paused)
+				{
+					mLastTexCallbackAddedTime.reset();
+				}
+				else
+				{
+					mLoadedCallbackTextures++; // consider it loaded
+				}
 
 				// this could add paused texture callbacks
 				mLoadedCallbacksPaused |= paused; 
@@ -8283,7 +8314,7 @@ void LLVOAvatar::updateMeshTextures()
 			attachment_iter != attachment->mAttachedObjects.end();
 			++attachment_iter)
 		{
-			LLViewerObject* attached_object = (*attachment_iter);
+			LLViewerObject* attached_object = attachment_iter->get();
 			if (attached_object && !attached_object->isDead())
 			{
 				attached_object->refreshBakeTexture();
@@ -8521,7 +8552,7 @@ LLBBox LLVOAvatar::getHUDBBox() const
 				 attachment_iter != attachment->mAttachedObjects.end();
 				 ++attachment_iter)
 			{
-				const LLViewerObject* attached_object = (*attachment_iter);
+				const LLViewerObject* attached_object = attachment_iter->get();
 				if (attached_object == NULL)
 				{
 					LL_WARNS() << "HUD attached object is NULL!" << LL_ENDL;
@@ -8583,7 +8614,14 @@ void LLVOAvatar::onFirstTEMessageReceived()
 				LL_DEBUGS("Avatar") << avString() << "layer_baked, setting onInitialBakedTextureLoaded as callback" << LL_ENDL;
 				image->setLoadedCallback( onInitialBakedTextureLoaded, MAX_DISCARD_LEVEL, FALSE, FALSE, new LLUUID( mID ), 
 					src_callback_list, paused );
-
+				if (!image->isFullyLoaded() && !paused)
+				{
+					mLastTexCallbackAddedTime.reset();
+				}
+				else
+				{
+					mLoadedCallbackTextures++; // consider it loaded
+				}
                                // this could add paused texture callbacks
                                mLoadedCallbacksPaused |= paused; 
 			}
@@ -9887,7 +9925,7 @@ void LLVOAvatar::getAssociatedVolumes(std::vector<LLVOVolume*>& volumes)
 		for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attach_iter = attachment->mAttachedObjects.begin();
 			 attach_iter != attach_end; ++attach_iter)
 		{
-			LLViewerObject* attached_object =  *attach_iter;
+			LLViewerObject* attached_object =  attach_iter->get();
             LLVOVolume *volume = dynamic_cast<LLVOVolume*>(attached_object);
             if (volume)
             {
@@ -10356,7 +10394,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 	// Diagnostic list of all textures on our avatar
 	static std::set<LLUUID> all_textures;
 
-	if (mVisualComplexityStale)
+    if (mVisualComplexityStale)
 	{
 		U32 cost = VISUAL_COMPLEXITY_UNKNOWN;
 		LLVOVolume::texture_cost_t textures;
@@ -10405,7 +10443,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 				 attachment_iter != attachment->mAttachedObjects.end();
 				 ++attachment_iter)
 			{
-				const LLViewerObject* attached_object = (*attachment_iter);
+                const LLViewerObject* attached_object = attachment_iter->get();
                 accountRenderComplexityForObject(attached_object, max_attachment_complexity,
                                                  textures, cost, hud_complexity_list);
 			}

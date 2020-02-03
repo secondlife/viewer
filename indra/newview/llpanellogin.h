@@ -96,7 +96,7 @@ private:
 	void onSelectServer();
 	void onLocationSLURL();
 
-	static void setFields(LLPointer<LLCredential> credential, bool remember_psswrd);
+	static void setFields(LLPointer<LLCredential> credential);
 
 	static void onClickConnect(void*);
 	static void onClickNewAccount(void*);
@@ -113,7 +113,7 @@ private:
 	boost::scoped_ptr<LLPanelLoginListener> mListener;
 
 	void updateLoginButtons();
-	void populateUserList(LLPointer<LLCredential> credential, bool remember_psswrd);
+	void populateUserList(LLPointer<LLCredential> credential);
 
 	void			(*mCallback)(S32 option, void *userdata);
 	void*			mCallbackData;
