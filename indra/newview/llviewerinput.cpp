@@ -45,6 +45,7 @@
 #include "llvoavatarself.h"
 #include "llfloatercamera.h"
 #include "llinitparam.h"
+#include "llselectmgr.h"
 
 //
 // Constants
