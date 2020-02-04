@@ -18,7 +18,6 @@ include(DBusGlib)
 include(DirectX)
 include(DragDrop)
 include(EXPAT)
-include(FMODEX)
 include(FMODSTUDIO)
 include(GLOD)
 include(Hunspell)
@@ -63,10 +62,6 @@ if (NOT HAVOK_TPV)
    # When using HAVOK_TPV, the library is precompiled, so no need for this
    add_subdirectory(${LLPHYSICSEXTENSIONS_SRC_DIR} llphysicsextensions)
 endif (NOT HAVOK_TPV)
-
-if(FMODEX)
-  include_directories(${FMODEX_INCLUDE_DIR})
-endif(FMODEX)
 
 if(FMODSTUDIO)
   include_directories(${FMODSTUDIO_INCLUDE_DIR})
@@ -1714,11 +1709,6 @@ if (OPENAL)
   set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_OPENAL")
 endif (OPENAL)
 
-if (FMODEX)
-  set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_FMODEX")
-  set(FMODEXWRAPPER_LIBRARY ${FMODEX_LIBRARY})
-endif (FMODEX)
-
 if (FMODSTUDIO)
   set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_FMODSTUDIO")
   set(FMODWRAPPER_LIBRARY ${FMODSTUDIO_LIBRARY})
@@ -1839,14 +1829,6 @@ if (WINDOWS)
             )
     endif (ADDRESS_SIZE EQUAL 64)
 
-    if (FMODEX)
-      list(APPEND COPY_INPUT_DEPENDENCIES
-           ${SHARED_LIB_STAGING_DIR}/Release/fmodex.dll
-           ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmodex.dll
-           ${SHARED_LIB_STAGING_DIR}/Debug/fmodexL.dll
-          )
-    endif (FMODEX)
-
     if (FMODSTUDIO)
       list(APPEND COPY_INPUT_DEPENDENCIES
            ${SHARED_LIB_STAGING_DIR}/Release/fmod.dll
@@ -1864,7 +1846,6 @@ if (WINDOWS)
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
         "--bugsplat=${BUGSPLAT_DB}"
-        "--fmodex=${FMODEX}"
         "--fmodstudio=${FMODSTUDIO}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
@@ -1927,7 +1908,6 @@ if (WINDOWS)
           --arch=${ARCH}
           --artwork=${ARTWORK_DIR}
           "--bugsplat=${BUGSPLAT_DB}"
-          "--fmodex=${FMODEX}"
           "--fmodstudio=${FMODSTUDIO}"
           --build=${CMAKE_CURRENT_BINARY_DIR}
           --buildtype=${CMAKE_BUILD_TYPE}
@@ -2026,7 +2006,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${BOOST_CONTEXT_LIBRARY}
     ${DBUSGLIB_LIBRARIES}
     ${OPENGL_LIBRARIES}
-    ${FMODEXWRAPPER_LIBRARY} # must come after LLAudio
     ${FMODWRAPPER_LIBRARY} # must come after LLAudio
     ${GLOD_LIBRARIES}
     ${OPENGL_LIBRARIES}
@@ -2075,7 +2054,6 @@ if (LINUX)
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
         "--bugsplat=${BUGSPLAT_DB}"
-        "--fmodex=${FMODEX}"
         "--fmodstudio=${FMODSTUDIO}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
@@ -2103,7 +2081,6 @@ if (LINUX)
       --arch=${ARCH}
       --artwork=${ARTWORK_DIR}
       "--bugsplat=${BUGSPLAT_DB}"
-      "--fmodex=${FMODEX}"
       "--fmodstudio=${FMODSTUDIO}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
       --buildtype=${CMAKE_BUILD_TYPE}
@@ -2181,7 +2158,6 @@ if (DARWIN)
       --arch=${ARCH}
       --artwork=${ARTWORK_DIR}
       "--bugsplat=${BUGSPLAT_DB}"
-      "--fmodex=${FMODEX}"
       "--fmodstudio=${FMODSTUDIO}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
       --buildtype=${CMAKE_BUILD_TYPE}
@@ -2217,7 +2193,6 @@ if (DARWIN)
           --arch=${ARCH}
           --artwork=${ARTWORK_DIR}
           "--bugsplat=${BUGSPLAT_DB}"
-          "--fmodex=${FMODEX}"
           "--fmodstudio=${FMODSTUDIO}"
           --build=${CMAKE_CURRENT_BINARY_DIR}
           --buildtype=${CMAKE_BUILD_TYPE}

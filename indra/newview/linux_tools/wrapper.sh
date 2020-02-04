@@ -4,6 +4,8 @@
 ## These options are for self-assisted troubleshooting during this beta
 ## testing phase; you should not usually need to touch them.
 
+## - Avoids using any FMOD STUDIO audio driver.
+#export LL_BAD_FMODSTUDIO_DRIVER=x
 ## - Avoids using any FMOD Ex audio driver.
 #export LL_BAD_FMODEX_DRIVER=x
 ## - Avoids using any OpenAL audio driver.
