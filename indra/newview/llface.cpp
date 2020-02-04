@@ -183,6 +183,7 @@ void LLFace::destroy()
 		if(mTexture[i].notNull())
 		{
 			mTexture[i]->removeFace(i, this) ;
+			mTexture[i] = NULL;
 		}
 	}
 	
@@ -202,7 +203,6 @@ void LLFace::destroy()
 		{
 			mDrawPoolp->removeFace(this);
 		}
-	
 		mDrawPoolp = NULL;
 	}
 
@@ -211,7 +211,7 @@ void LLFace::destroy()
 		delete mTextureMatrix;
 		mTextureMatrix = NULL;
 
-		if (mDrawablep.notNull())
+		if (mDrawablep)
 		{
 			LLSpatialGroup* group = mDrawablep->getSpatialGroup();
 			if (group)
@@ -223,7 +223,7 @@ void LLFace::destroy()
 	}
 	
 	setDrawInfo(NULL);
-		
+
 	mDrawablep = NULL;
 	mVObjp = NULL;
 }
@@ -529,7 +529,7 @@ void LLFace::updateCenterAgent()
 
 void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 {
-	if (mDrawablep->getSpatialGroup() == NULL)
+	if (mDrawablep == NULL || mDrawablep->getSpatialGroup() == NULL)
 	{
 		return;
 	}
@@ -537,7 +537,7 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 	mDrawablep->getSpatialGroup()->rebuildGeom();
 	mDrawablep->getSpatialGroup()->rebuildMesh();
 		
-	if(mDrawablep.isNull() || mVertexBuffer.isNull())
+	if(mVertexBuffer.isNull())
 	{
 		return;
 	}
@@ -2668,7 +2668,7 @@ S32 LLFace::renderElements(const U16 *index_array) const
 
 S32 LLFace::renderIndexed()
 {
-	if(mDrawablep.isNull() || mDrawPoolp == NULL)
+	if(mDrawablep == NULL || mDrawPoolp == NULL)
 	{
 		return 0;
 	}

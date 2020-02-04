@@ -275,8 +275,13 @@ private:
 	LLXformMatrix* mXform;
 
 	LLPointer<LLViewerTexture> mTexture[LLRender::NUM_TEXTURE_CHANNELS];
-	
-	LLPointer<LLDrawable> mDrawablep;
+
+	// mDrawablep is not supposed to be null, don't use LLPointer because
+	// mDrawablep owns LLFace and LLPointer is a good way to either cause a
+	// memory leak or a 'delete each other' situation if something deletes
+	// drawable wrongly.
+	LLDrawable* mDrawablep;
+	// LLViewerObject technically owns drawable, but also it should be strictly managed
 	LLPointer<LLViewerObject> mVObjp;
 	S32			mTEOffset;
 
