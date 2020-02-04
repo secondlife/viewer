@@ -70,4 +70,4 @@ private:
 };
 
 
-#endif // LL_STREAMINGAUDIO_FMODEX_H
+#endif // LL_STREAMINGAUDIO_FMODSTUDIO_H

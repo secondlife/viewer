@@ -27,7 +27,7 @@ if (FMODSTUDIO)
           debug fmodL
           optimized fmod)
     elseif (LINUX)
-      set(FMODEX_LIBRARY
+      set(FMODSTUDIO_LIBRARY
           debug fmodL
           optimized fmod)
     endif (WINDOWS)
