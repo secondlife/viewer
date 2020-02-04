@@ -5362,9 +5362,10 @@ void LLVOAvatar::checkTextureLoading()
 				tex->unpauseLoadedCallbacks(&mCallbackTextureList) ;
 				tex->addTextureStats(START_AREA); //jump start the fetching again
 
-				if (tex->isFullyLoaded())
+				// technically shouldn't need to account for missing, but callback might not have happened yet
+				if (tex->getDiscardLevel() >= 0 || tex->isMissingAsset())
 				{
-					mLoadedCallbackTextures++; // consider it loaded
+					mLoadedCallbackTextures++; // consider it loaded (we have at least some data)
 				}
 			}
 		}
@@ -8204,7 +8205,7 @@ void LLVOAvatar::updateMeshTextures()
 				}
 				baked_img->setLoadedCallback(onBakedTextureLoaded, SWITCH_TO_BAKED_DISCARD, FALSE, FALSE, new LLUUID( mID ), 
 					src_callback_list, paused );
-				if (!baked_img->isFullyLoaded() && !paused)
+				if (baked_img->getDiscardLevel() < 0 && !paused)
 				{
 					mLastTexCallbackAddedTime.reset();
 				}
@@ -8605,7 +8606,7 @@ void LLVOAvatar::onFirstTEMessageReceived()
 				LL_DEBUGS("Avatar") << avString() << "layer_baked, setting onInitialBakedTextureLoaded as callback" << LL_ENDL;
 				image->setLoadedCallback( onInitialBakedTextureLoaded, MAX_DISCARD_LEVEL, FALSE, FALSE, new LLUUID( mID ), 
 					src_callback_list, paused );
-				if (!image->isFullyLoaded() && !paused)
+				if (image->getDiscardLevel() < 0 && !paused)
 				{
 					mLastTexCallbackAddedTime.reset();
 				}
