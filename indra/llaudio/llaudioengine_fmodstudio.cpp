@@ -114,6 +114,76 @@ bool LLAudioEngine_FMODSTUDIO::init(const S32 num_channels, void* userdata)
         fmod_flags |= FMOD_INIT_PROFILE_ENABLE;
     }
 
+#if LL_LINUX
+    bool audio_ok = false;
+
+    if (!audio_ok)
+    {
+        const char* env_string = getenv("LL_BAD_FMOD_PULSEAUDIO");
+        if (NULL == env_string)
+        {
+            LL_DEBUGS("AppInit") << "Trying PulseAudio audio output..." << LL_ENDL;
+            if (mSystem->setOutput(FMOD_OUTPUTTYPE_PULSEAUDIO) == FMOD_OK &&
+                (result = mSystem->init(num_channels + 2, fmod_flags, 0)) == FMOD_OK)
+            {
+                LL_DEBUGS("AppInit") << "PulseAudio output initialized OKAY" << LL_ENDL;
+                audio_ok = true;
+            }
+            else
+            {
+                Check_FMOD_Error(result, "PulseAudio audio output FAILED to initialize");
+            }
+        }
+        else
+        {
+            LL_DEBUGS("AppInit") << "PulseAudio audio output SKIPPED" << LL_ENDL;
+        }
+    }
+    if (!audio_ok)
+    {
+        const char* env_string = getenv("LL_BAD_FMOD_ALSA");
+        if (NULL == env_string)
+        {
+            LL_DEBUGS("AppInit") << "Trying ALSA audio output..." << LL_ENDL;
+            if (mSystem->setOutput(FMOD_OUTPUTTYPE_ALSA) == FMOD_OK &&
+                (result = mSystem->init(num_channels + 2, fmod_flags, 0)) == FMOD_OK)
+            {
+                LL_DEBUGS("AppInit") << "ALSA audio output initialized OKAY" << LL_ENDL;
+                audio_ok = true;
+            }
+            else
+            {
+                Check_FMOD_Error(result, "ALSA audio output FAILED to initialize");
+            }
+        }
+        else
+        {
+            LL_DEBUGS("AppInit") << "ALSA audio output SKIPPED" << LL_ENDL;
+        }
+    }
+    if (!audio_ok)
+    {
+        LL_WARNS("AppInit") << "Overall audio init failure." << LL_ENDL;
+        return false;
+    }
+
+    // We're interested in logging which output method we
+    // ended up with, for QA purposes.
+    FMOD_OUTPUTTYPE output_type;
+    mSystem->getOutput(&output_type);
+    switch (output_type)
+    {
+    case FMOD_OUTPUTTYPE_NOSOUND:
+        LL_INFOS("AppInit") << "Audio output: NoSound" << LL_ENDL; break;
+    case FMOD_OUTPUTTYPE_PULSEAUDIO:
+        LL_INFOS("AppInit") << "Audio output: PulseAudio" << LL_ENDL; break;
+    case FMOD_OUTPUTTYPE_ALSA:
+        LL_INFOS("AppInit") << "Audio output: ALSA" << LL_ENDL; break;
+    default:
+        LL_INFOS("AppInit") << "Audio output: Unknown!" << LL_ENDL; break;
+    };
+#else // LL_LINUX
+
     // initialize the FMOD engine
     // number of channel in this case looks to be identiacal to number of max simultaneously
     // playing objects and we can set practically any number
@@ -124,6 +194,7 @@ bool LLAudioEngine_FMODSTUDIO::init(const S32 num_channels, void* userdata)
         // we can retry with other settings
         return false;
     }
+#endif
 
     // set up our favourite FMOD-native streaming audio implementation if none has already been added
     if (!getStreamingAudioImpl()) // no existing implementation added
