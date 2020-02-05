@@ -1022,14 +1022,7 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 			// try as slurl first
 			if (!LLURLDispatcher::dispatch(url, "clicked", NULL, mTrusted))
 			{
- 				if (self->isOverrideClickTarget() && target == "_navigate")
-				{
-					navigateTo(url, HTTP_CONTENT_TEXT_HTML);
-				}
-				else
-				{
-					LLWeb::loadURL(url, target, uuid);
-				}
+				LLWeb::loadURL(url, target, uuid);
 			}
 
 			// CP: removing this code because we no longer support popups so this breaks the flow.
