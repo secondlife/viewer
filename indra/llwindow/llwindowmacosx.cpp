@@ -356,9 +356,13 @@ void callMouseDragged(float *pos, MASK mask)
     gWindowImplementation->getCallbacks()->handleMouseDragged(gWindowImplementation, outCoords, gKeyboard->currentMask(TRUE));
 }
 
-void callScrollMoved(float delta)
+void callScrollMoved(float deltaX, float deltaY)
 {
-	gWindowImplementation->getCallbacks()->handleScrollWheel(gWindowImplementation, delta);
+	if ( gWindowImplementation && gWindowImplementation->getCallbacks() )
+	{
+		gWindowImplementation->getCallbacks()->handleScrollHWheel(gWindowImplementation, deltaX);
+		gWindowImplementation->getCallbacks()->handleScrollWheel(gWindowImplementation, deltaY);
+	}
 }
 
 void callMouseExit()
