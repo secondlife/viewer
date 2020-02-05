@@ -317,7 +317,7 @@ void main()
 
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
-    if (emissive_brightness < 1.0)
+    if (emissive_brightness <= 1.0)
     {
         //forward rendering, output just lit RGBA
         vec3 pos = vary_position;
