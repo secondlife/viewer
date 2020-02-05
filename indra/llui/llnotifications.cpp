@@ -68,7 +68,8 @@ LLNotificationForm::FormIgnore::FormIgnore()
 	control("control"),
 	invert_control("invert_control", false),
 	save_option("save_option", false),
-	session_only("session_only", false)
+	session_only("session_only", false),
+	checkbox_only("checkbox_only", false)
 {}
 
 LLNotificationForm::FormButton::FormButton()
@@ -195,10 +196,15 @@ LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotifica
 {
 	if (p.ignore.isProvided())
 	{
+		// For all cases but IGNORE_CHECKBOX_ONLY this is name for use in preferences
 		mIgnoreMsg = p.ignore.text;
 
 		LLUI *ui_inst = LLUI::getInstance();
-		if (!p.ignore.save_option)
+		if (p.ignore.checkbox_only)
+		{
+			mIgnore = IGNORE_CHECKBOX_ONLY;
+		}
+		else if (!p.ignore.save_option)
 		{
 			mIgnore = p.ignore.session_only ? IGNORE_WITH_DEFAULT_RESPONSE_SESSION_ONLY : IGNORE_WITH_DEFAULT_RESPONSE;
 		}
@@ -215,7 +221,7 @@ LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotifica
 			mIgnoreSetting = ui_inst->mSettingGroups["config"]->getControl(p.ignore.control);
 			mInvertSetting = p.ignore.invert_control;
 		}
-		else
+		else if (mIgnore > IGNORE_NO)
 		{
 			ui_inst->mSettingGroups["ignores"]->declareBOOL(name, show_notification, "Show notification with this name", LLControlVariable::PERSIST_NONDFT);
 			mIgnoreSetting = ui_inst->mSettingGroups["ignores"]->getControl(name);
@@ -389,13 +395,12 @@ LLControlVariablePtr LLNotificationForm::getIgnoreSetting()
 bool LLNotificationForm::getIgnored()
 {
 	bool show = true;
-	if (mIgnore != LLNotificationForm::IGNORE_NO
+	if (mIgnore > LLNotificationForm::IGNORE_NO
 		&& mIgnoreSetting) 
 	{
 		show = mIgnoreSetting->getValue().asBoolean();
 		if (mInvertSetting) show = !show;
 	}
-
 	return !show;
 }
 
@@ -696,7 +701,7 @@ void LLNotification::respond(const LLSD& response)
 		mTemporaryResponder = false;
 	}
 
-	if (mForm->getIgnoreType() != LLNotificationForm::IGNORE_NO)
+	if (mForm->getIgnoreType() > LLNotificationForm::IGNORE_NO)
 	{
 		mForm->setIgnored(mIgnored);
 		if (mIgnored && mForm->getIgnoreType() == LLNotificationForm::IGNORE_WITH_LAST_RESPONSE)
