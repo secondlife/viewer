@@ -13,66 +13,9 @@
      name="LoadTime"
      value="Load Time: [TIME] seconds"
     />
-    <line_editor
-     name="url_edit"
-     enabled="false"
-     top_pad="5"
-     left="10"
-     height="16"
-     width="400"
-     follows="left|top"
-     layout="topleft"
-     text_pad_left="4"
-     max_length_bytes="254"
-    >
-        (loading..)
-    </line_editor>
-    <flyout_button
-     name="load"
-     label="Load"
-     tool_tip="Load this profile page with embedded web browser."
-     enabled="false"
-     top_pad="5"
-     left="10"
-     height="18"
-     width="80"
-     follows="left|top"
-     layout="topleft"
-    >
-        <flyout_button.item
-         name="open_item"
-         label="Open in-viewer browser"
-         value="popout"
-        />
-        <flyout_button.item
-         name="home_item"
-         label="Open external browser"
-         value="external"
-        />
-    </flyout_button>
-    <loading_indicator
-     name="progress_indicator"
-     left_pad="100"
-     height="23"
-     width="23"
-     follows="top|left"
-     layout="topleft"
-     visible="false"
-    />
-    <button
-     name="web_profile_popout_btn"
-     top_delta="5"
-     right="-10"
-     height="16"
-     width="16"
-     follows="right|top"
-     layout="topleft"
-     image_overlay="tearoffbox.tga"
-     tool_tip="Popout web profile"
-    />
     <web_browser
      name="profile_html"
-     top="48"
+     top="10"
      bottom="-18"
      left="10"
      right="-10"

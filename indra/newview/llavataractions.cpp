@@ -438,16 +438,6 @@ LLFloater* LLAvatarActions::getProfileFloater(const LLUUID& avatar_id)
     return floater;
 }
 
-// static
-void LLAvatarActions::showProfileWeb(const LLUUID& avatar_id)
-{
-    if (avatar_id.notNull())
-    {
-        LLAvatarNameCache::get(avatar_id, boost::bind(&on_avatar_name_show_profile, _1, _2));
-    }
-}
-
-
 //static 
 void LLAvatarActions::hideProfile(const LLUUID& avatar_id)
 {

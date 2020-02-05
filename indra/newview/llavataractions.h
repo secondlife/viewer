@@ -105,7 +105,6 @@ public:
     static bool profileVisible(const LLUUID& avatar_id);
     static bool isPickTabSelected(const LLUUID& avatar_id);
     static LLFloater* getProfileFloater(const LLUUID& avatar_id);
-    static void showProfileWeb(const LLUUID& avatar_id);
 
 	/**
 	 * Show avatar on world map.
