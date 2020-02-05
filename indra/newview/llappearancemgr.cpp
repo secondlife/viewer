@@ -1713,6 +1713,24 @@ void LLAppearanceMgr::slamCategoryLinks(const LLUUID& src_id, const LLUUID& dst_
 	LLInventoryModel::item_array_t* items;
 	LLSD contents = LLSD::emptyArray();
 	gInventory.getDirectDescendentsOf(src_id, cats, items);
+	if (!cats || !items)
+	{
+		// NULL means the call failed -- cats/items map doesn't exist (note: this does NOT mean
+		// that the cat just doesn't have any items or subfolders).
+		LLViewerInventoryCategory* category = gInventory.getCategory(src_id);
+		if (category)
+		{
+			LL_WARNS() << "Category '" << category->getName() << "' descendents corrupted, linking content failed." << LL_ENDL;
+		}
+		else
+		{
+			LL_WARNS() << "Category could not be retrieved, linking content failed." << LL_ENDL;
+		}
+		llassert(cats != NULL && items != NULL);
+
+		return;
+	}
+
 	LL_INFOS() << "copying " << items->size() << " items" << LL_ENDL;
 	for (LLInventoryModel::item_array_t::const_iterator iter = items->begin();
 		 iter != items->end();

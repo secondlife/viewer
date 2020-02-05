@@ -33,7 +33,7 @@
       auto_resize="false"
       follows="left|right|top"
       name="ui_container"
-      width="1000"
+      width="1011"
       left="0"
       top="0"
       height="172">
@@ -57,19 +57,15 @@
     combo_editor.prevalidate_callback="ascii"
     tool_tip="The username you chose when you registered, like bobsmith12 or Steller Sunshine"
     name="username_combo"
-    width="232">
+    width="206">
     <combo_box.combo_editor
       text_pad_left="8" 
       bg_image_always_focused="true"/>
-    <combo_box.combo_button
-      visible="false" />
-    <combo_box.drop_down_button
-      visible="false" />
   </combo_box>
   <line_editor
     follows="left|top"
     height="32"
-    left_pad="-11"
+    left_pad="15"
     max_length_chars="16"
     text_pad_left="8"
     name="password_edit"
@@ -119,36 +115,51 @@
     width="120"
     height="32"
   	left_pad="15"
-    bottom_delta="0" />  
+    bottom_delta="0" />
+  <text
+    follows="left|top"
+    font="SansSerifLarge"
+    font.style="BOLD"
+    text_color="EmphasisColor"
+    height="34"
+    name="sign_up_text"
+    left_pad="10"
+    width="200"
+    valign="center">
+    Sign up
+  </text>
+  <check_box
+    follows="left|top"
+    font="SansSerifMedium"
+    left="185"
+    bottom_delta="21"
+    height="24"
+    label="Remember me"
+    word_wrap="down"
+    check_button.bottom="3"
+    name="remember_name"
+    tool_tip="Already remembered user can be forgotten from Me &gt; Preferences &gt; Advanced &gt; Remembered Usernames."
+    width="198" />
   <check_box
     control_name="RememberPassword"
     follows="left|top"
     font="SansSerifMedium"
-    left="185"
-    bottom_delta="21"  	
-    height="24"
-    label="Remember me"
-    check_button.bottom="3"
-    name="remember_check"
-    width="145" />
-  <text
-    follows="left|top"
-    font="SansSerifMedium"
     text_color="EmphasisColor"
     height="16"
-    name="forgot_password_text"
-    left="408"    
+    left="408"
     bottom_delta="0"
-    width="200">
-    Forgotten password
-  </text> 
+    label="Remember password"
+    word_wrap="down"
+    check_button.bottom="3"
+    name="remember_password"
+    width="165" />
   <combo_box
     allow_text_entry="false"
     font="SansSerifTiny"
     follows="left|top"
     height="26"
   	left="588"
-  	bottom_delta="10"
+  	bottom_delta="8"
     max_chars="128"
     label="Select grid"    
     layout="topleft"
@@ -159,12 +170,13 @@
     font="SansSerifMedium"
     text_color="EmphasisColor"
     height="16"
-    name="sign_up_text"
+    name="forgot_password_text"
     left="778"
-    bottom_delta="-10"
-    width="200">
-    Sign up
-  </text> 
+    bottom_delta="-8"
+    width="120"
+    halign="center">
+    Password help
+  </text>
   </layout_panel>
   <layout_panel
       height="172"
