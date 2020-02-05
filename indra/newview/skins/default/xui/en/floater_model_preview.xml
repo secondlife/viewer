@@ -6,8 +6,8 @@
  can_resize="true"
  height="600"
  min_height="600"
- width="1024"
- min_width="1024"
+ width="980"
+ min_width="980"
  name="Model Preview"
  title="UPLOAD MODEL"
  help_topic="upload_model" >
@@ -1656,121 +1656,121 @@ Analysed:
          width="462"
          visible="false">
          You dont have rights to upload mesh models. [[VURL] Find out how] to get certified.
-       </text>
+       </text> 
        <text text_color="Yellow" layout="topleft" top_pad="-1" left="6" name="status">
 [STATUS]
        </text>
     </panel>
   </panel>
+  
+  <text
+   follows="left|top"
+   layout="topleft"
+   left="640"
+   name="lod_label"
+   text_color="White"
+   top="4"
+   height="15"
+   width="290">
+    Preview:
+  </text>
   <panel
-    follows="top|left|bottom|right"
+   border="true"
+   bevel_style="none"
+   follows="top|left"
+   name="preview_panel"
+   top_pad="4"
+   width="325"
+   height="408"/>
+  <panel
+    follows="all"
+    can_resize="true"
+    height="140"
+    layout="topleft"
     name="right_panel"
-    top="0"
-    left="640"
-    width="375">
-    <text
+    top_pad="5"
+    width="340">
+    <combo_box
+      top_pad="3"
       follows="left|top"
+      height="18"
       layout="topleft"
-      left="0"
-      name="lod_label"
-      text_color="White"
-      top="13"
-      height="15"
-      width="290">
-      Preview:
-    </text>
-    <panel
+      name="preview_lod_combo"
+      width="150"
+      tool_tip="LOD to view in preview render">
+      <combo_item name="high">   High   </combo_item>
+      <combo_item name="medium"> Medium </combo_item>
+      <combo_item name="low">    Low    </combo_item>
+      <combo_item name="lowest"> Lowest </combo_item>
+    </combo_box>
+    <text
       follows="top|left"
-      height="20"
-      name="right_upper_panel"
-      top="8"
-      left="60"
-      width="315">
-      <combo_box
-        top_pad="3"
-        follows="top|left"
-        height="18"
-        layout="topleft"
-        name="preview_lod_combo"
-        width="75"
-        tool_tip="LOD to view in preview render">
-        <combo_item name="high">   High   </combo_item>
-        <combo_item name="medium"> Medium </combo_item>
-        <combo_item name="low">    Low    </combo_item>
-        <combo_item name="lowest"> Lowest </combo_item>
-      </combo_box>
-    </panel>
-  </panel>
-  <panel
-     border="true"
-     bevel_style="none"
-     follows="top|left|right|bottom"
-     layout="topleft"
-     name="preview_panel"
-     top="30"
-     width="375"
-     height="525"/>
-
-   <panel
-     follows="left|right|bottom"
-     layout="topleft"
-     height="40"
-     name="lower_right_panel"
-     top_pad="5"
-     width="375">
-     <check_box
-       follows="right|bottom"
-       label="Edges"
+      layout="topleft"
+      text_color="White"
+      top="5"
+      left_pad="20"
+      name="label_display"
+      width="50">
+      Display...
+    </text>
+    <check_box
+      follows="top|left"
+      label="Edges"
       label_text.text_color="White"
       layout="topleft"
+      left_delta="0"
       name="show_edges"
-      width="70"
-      left="0"
-      top_pad="8"/>
+      top_pad="8">
+    </check_box>
     <check_box
-      follows="right|bottom"
-      left_pad="8"
+      follows="top|left"
       label="Physics"
       label_text.text_color="White"
-      name="show_physics"/>
+      layout="topleft"
+      name="show_physics"
+      top_pad="8">
+    </check_box>
     <check_box
-      follows="right|bottom"
+      follows="top|left"
       label="Textures"
       label_text.text_color="White"
       layout="topleft"
       name="show_textures"
-      left_pad="0"/>
+      top_pad="8">
+    </check_box>
     <check_box
-      follows="right|bottom"
-      label="Weights"
+      follows="top|left"
+      label="Skin weights"
       label_text.text_color="White"
       layout="topleft"
       name="show_skin_weight"
-      left_pad="0"/>
+      top_pad="8">
+    </check_box>
     <check_box
-      follows="right|bottom"
+      follows="top|left"
       label="Joints"
       label_text.text_color="White"
       layout="topleft"
       name="show_joint_positions"
-      left_pad="0"/>
+      top_pad="8">
+    </check_box>
     <text
-      follows="right|bottom"
+      follows="top|left"
       layout="topleft"
       left="2"
       name="physics_explode_label"
+      top="85"
       width="150">
       Preview Spread:
     </text>
     <slider
       name="physics_explode"
-      follows="right|bottom"
-      valign="center"
-      left="105"
-      top_delta="-3"
+      follows="top|left"
+      top="100"
+      left="0"
       min_val="0.0"
       max_val="3.0"
       height="20"
-      width="120"/>
+      width="150"/>
   </panel>
 </floater>
