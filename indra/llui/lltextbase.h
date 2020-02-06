@@ -103,6 +103,7 @@ public:
 	/*virtual*/ BOOL			handleDoubleClick(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL			handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL			handleScrollWheel(S32 x, S32 y, S32 clicks);
+	/*virtual*/ BOOL			handleScrollHWheel(S32 x, S32 y, S32 clicks);
 	/*virtual*/ BOOL			handleToolTip(S32 x, S32 y, MASK mask);
 	/*virtual*/ const std::string&	getName() const;
 	/*virtual*/ void			onMouseCaptureLost();
@@ -440,6 +441,8 @@ public:
 
 	S32						getVPad() { return mVPad; }
 	S32						getHPad() { return mHPad; }
+	F32						getLineSpacingMult() { return mLineSpacingMult; }
+	S32						getLineSpacingPixels() { return mLineSpacingPixels; } // only for multiline
 
 	S32						getDocIndexFromLocalCoord( S32 local_x, S32 local_y, BOOL round, bool hit_past_end_of_line = true) const;
 	LLRect					getLocalRectFromDocIndex(S32 pos) const;

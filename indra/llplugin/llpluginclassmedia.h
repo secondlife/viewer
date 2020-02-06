@@ -118,7 +118,7 @@ public:
 	
 	bool keyEvent(EKeyEventType type, int key_code, MASK modifiers, LLSD native_key_data);
 
-	void scrollEvent(int x, int y, MASK modifiers);
+	void scrollEvent(int x, int y, int clicks_x, int clicks_y, MASK modifiers);
 
 	// enable/disable media plugin debugging messages and info spam
 	void enableMediaPluginDebugging( bool enable );

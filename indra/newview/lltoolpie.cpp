@@ -208,6 +208,11 @@ BOOL LLToolPie::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	return LLViewerMediaFocus::getInstance()->handleScrollWheel(x, y, clicks);
 }
 
+BOOL LLToolPie::handleScrollHWheel(S32 x, S32 y, S32 clicks)
+{
+    return LLViewerMediaFocus::getInstance()->handleScrollWheel(x, y, clicks);
+}
+
 // True if you selected an object.
 BOOL LLToolPie::handleLeftClickPick()
 {

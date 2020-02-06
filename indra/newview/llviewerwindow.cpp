@@ -1587,6 +1587,11 @@ void LLViewerWindow::handleScrollWheel(LLWindow *window,  S32 clicks)
 	handleScrollWheel( clicks );
 }
 
+void LLViewerWindow::handleScrollHWheel(LLWindow *window,  S32 clicks)
+{
+	handleScrollHWheel(clicks);
+}
+
 void LLViewerWindow::handleWindowBlock(LLWindow *window)
 {
 	send_agent_pause();
@@ -3000,6 +3005,49 @@ void LLViewerWindow::handleScrollWheel(S32 clicks)
 		gAgentCamera.handleScrollWheel(clicks);
 
 	return;
+}
+
+void LLViewerWindow::handleScrollHWheel(S32 clicks)
+{
+    LLUI::getInstance()->resetMouseIdleTimer();
+
+    LLMouseHandler* mouse_captor = gFocusMgr.getMouseCapture();
+    if (mouse_captor)
+    {
+        S32 local_x;
+        S32 local_y;
+        mouse_captor->screenPointToLocal(mCurrentMousePoint.mX, mCurrentMousePoint.mY, &local_x, &local_y);
+        mouse_captor->handleScrollHWheel(local_x, local_y, clicks);
+        if (LLView::sDebugMouseHandling)
+        {
+            LL_INFOS() << "Scroll Horizontal Wheel handled by captor " << mouse_captor->getName() << LL_ENDL;
+        }
+        return;
+    }
+
+    LLUICtrl* top_ctrl = gFocusMgr.getTopCtrl();
+    if (top_ctrl)
+    {
+        S32 local_x;
+        S32 local_y;
+        top_ctrl->screenPointToLocal(mCurrentMousePoint.mX, mCurrentMousePoint.mY, &local_x, &local_y);
+        if (top_ctrl->handleScrollHWheel(local_x, local_y, clicks)) return;
+    }
+
+    if (mRootView->handleScrollHWheel(mCurrentMousePoint.mX, mCurrentMousePoint.mY, clicks))
+    {
+        if (LLView::sDebugMouseHandling)
+        {
+            LL_INFOS() << "Scroll Horizontal Wheel" << LLView::sMouseHandlerMessage << LL_ENDL;
+        }
+        return;
+    }
+    else if (LLView::sDebugMouseHandling)
+    {
+        LL_INFOS() << "Scroll Horizontal Wheel not handled by view" << LL_ENDL;
+    }
+
+    return;
 }
 
 void LLViewerWindow::addPopup(LLView* popup)

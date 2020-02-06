@@ -5,15 +5,15 @@
 		<check_box initial_value="true" label="Воспроизводить анимацию ввода текста при общении" name="play_typing_animation"/>
 		<check_box label="Отправлять мне сообщения по почте, когда меня нет в сети" name="send_im_to_email"/>
 		<check_box label="Только друзья и группы могут звонить мне и отправлять IM" name="voice_call_friends_only_check"/>
-		<text name="font_size">
+		<text name="font_size" left="361">
 			Размер шрифта:
 		</text>
-		<combo_box name="chat_font_size">
+		<combo_box name="chat_font_size" left="361">
 			<item label="Мелкий" name="Small" value="0"/>
 			<item label="Средний" name="Medium" value="1"/>
 			<item label="Крупный" name="Large" value="2"/>
 		</combo_box>
-		<check_box label="Чат в пузырьках" name="bubble_text_chat"/>
+		<check_box label="Чат в пузырьках" name="bubble_text_chat" left_delta="19"/>
 	</panel>
 	<panel name="im_notification_settings">
 		<text name="friend_ims">

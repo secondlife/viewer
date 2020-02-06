@@ -144,7 +144,6 @@
          follows="left|top|right"
          height="100"
          width="273"
-         hide_scrollbar="false"
          layout="topleft"
          left="10"
          top_pad="2"

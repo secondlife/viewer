@@ -660,12 +660,18 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			}
 			else if (message_name == "scroll_event")
 			{
-				S32 x = message_in.getValueS32("x");
-				S32 y = message_in.getValueS32("y");
+				// Mouse coordinates for cef to be able to scroll 'containers'
+				//S32 x = message_in.getValueS32("x");
+				//S32 y = message_in.getValueS32("y");
+				// Wheel's clicks
+				S32 delta_x = message_in.getValueS32("clicks_x");
+				S32 delta_y = message_in.getValueS32("clicks_y");
 				const int scaling_factor = 40;
-				y *= -scaling_factor;
+				delta_x *= -scaling_factor;
+				delta_y *= -scaling_factor;
 
-				mCEFLib->mouseWheel(x, y);
+				// mCEFLib->mouseWheel(x, y, delta_x, delta_y);
+				mCEFLib->mouseWheel(delta_x, delta_y);
 			}
 			else if (message_name == "text_event")
 			{
