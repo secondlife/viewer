@@ -337,16 +337,6 @@ static const char* get_profile_floater_name(const LLUUID& avatar_id)
 	return avatar_id == gAgentID ? "my_profile_web" : "profile_web";
 }
 
-static void on_avatar_name_show_profile(const LLUUID& agent_id, const LLAvatarName& av_name)
-{
-	std::string url = getProfileURL(av_name.getAccountName());
-
-	// PROFILES: open in webkit window
-	LLFloaterWebContent::Params p;
-	p.url(url).id(agent_id.asString());
-	LLFloaterReg::showInstance(get_profile_floater_name(agent_id), p);
-}
-
 // static
 void LLAvatarActions::showProfile(const LLUUID& avatar_id)
 {
