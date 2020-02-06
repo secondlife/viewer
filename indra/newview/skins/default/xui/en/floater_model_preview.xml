@@ -1748,11 +1748,21 @@ Analysed:
     </check_box>
     <check_box
       follows="top|left"
+      label="Joint position overrides"
+      label_text.text_color="White"
+      word_wrap="down"
+      width="130"
+      layout="topleft"
+      name="show_joint_overrides"
+      top_pad="8">
+    </check_box>
+    <check_box
+      follows="top|left"
       label="Joints"
       label_text.text_color="White"
       layout="topleft"
       name="show_joint_positions"
-      top_pad="8">
+      top_pad="17">
     </check_box>
     <text
       follows="top|left"

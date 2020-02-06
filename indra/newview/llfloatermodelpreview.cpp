@@ -337,6 +337,7 @@ BOOL LLFloaterModelPreview::postBuild()
 	getChild<LLCheckBoxCtrl>("show_physics")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
 	getChild<LLCheckBoxCtrl>("show_textures")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
 	getChild<LLCheckBoxCtrl>("show_skin_weight")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onShowSkinWeightChecked, this, _1));
+	getChild<LLCheckBoxCtrl>("show_joint_overrides")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
 	getChild<LLCheckBoxCtrl>("show_joint_positions")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onViewOptionChecked, this, _1));
 
 	childDisable("upload_skin");
@@ -2295,7 +2296,7 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 		mBaseScene.clear();
 
 		bool skin_weights = false;
-		bool joint_positions = false;
+		bool joint_overrides = false;
 		bool lock_scale_if_joint_position = false;
 
 		for (S32 lod = 0; lod < LLModel::NUM_LODS; ++lod)
@@ -2342,7 +2343,7 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 
 							if (!list_iter->mModel->mSkinInfo.mAlternateBindMatrix.empty())
 							{
-								joint_positions = true;
+								joint_overrides = true;
 							}
 							if (list_iter->mModel->mSkinInfo.mLockScaleIfJointPosition)
 							{
@@ -2365,8 +2366,10 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 				fmp->childSetValue("upload_skin", true);
 			}
 
-			if (joint_positions)
-			{ 
+			if (joint_overrides)
+			{
+				fmp->enableViewOption("show_joint_overrides");
+				mViewOption["show_joint_overrides"] = true;
 				fmp->enableViewOption("show_joint_positions");
 				mViewOption["show_joint_positions"] = true;
 				fmp->childSetValue("upload_joints", true);
@@ -3977,6 +3980,7 @@ BOOL LLModelPreview::render()
 	bool use_shaders = LLGLSLShader::sNoFixedFunction;
 
 	bool edges = mViewOption["show_edges"];
+	bool joints = mViewOption["show_joint_overrides"];
 	bool joint_positions = mViewOption["show_joint_positions"];
 	bool skin_weight = mViewOption["show_skin_weight"];
 	bool textures = mViewOption["show_textures"];
@@ -4068,6 +4072,7 @@ BOOL LLModelPreview::render()
             if (flags == LEGACY_RIG_OK)
             {
                 fmp->enableViewOption("show_skin_weight");
+                fmp->setViewOptionEnabled("show_joint_overrides", skin_weight);
                 fmp->setViewOptionEnabled("show_joint_positions", skin_weight);
                 mFMP->childEnable("upload_skin");
                 mFMP->childSetValue("show_skin_weight", skin_weight);
@@ -4089,6 +4094,7 @@ BOOL LLModelPreview::render()
 		{
 			mViewOption["show_skin_weight"] = false;
 			fmp->disableViewOption("show_skin_weight");
+			fmp->disableViewOption("show_joint_overrides");
 			fmp->disableViewOption("show_joint_positions");
 
 			skin_weight = false;
@@ -4496,6 +4502,7 @@ BOOL LLModelPreview::render()
 		else
 		{
 			target_pos = getPreviewAvatar()->getPositionAgent();
+			bool pelvis_recalc = false;
 
 			LLViewerCamera::getInstance()->setOriginAndLookAt(
 															  target_pos + ((LLVector3(camera_distance, 0.f, 0.f) + offset) * av_rot),		// camera
@@ -4532,6 +4539,41 @@ BOOL LLModelPreview::render()
 							U32 count = LLSkinningUtil::getMeshJointCount(skin);
                             LLSkinningUtil::initSkinningMatrixPalette((LLMatrix4*)mat, count,
                                                                         skin, getPreviewAvatar());
+                            getPreviewAvatar()->clearAttachmentOverrides();
+                            if (joints)
+                            {
+                                LLUUID fake_mesh_id;
+                                fake_mesh_id.generate();
+                                for (U32 j = 0; j < count; ++j)
+                                {
+                                    LLJoint *joint = getPreviewAvatar()->getJoint(skin->mJointNums[j]);
+                                    if (joint && skin->mAlternateBindMatrix.size() > 0)
+                                    {
+                                        const LLVector3& jointPos = skin->mAlternateBindMatrix[j].getTranslation();
+                                        if (joint->aboveJointPosThreshold(jointPos))
+                                        {
+                                            bool override_changed;
+                                            joint->addAttachmentPosOverride(jointPos, fake_mesh_id, "model", override_changed);
+
+                                            if (override_changed)
+                                            {
+                                                //If joint is a pelvis then handle old/new pelvis to foot values
+                                                if (joint->getName() == "mPelvis")
+                                                {
+                                                    pelvis_recalc = true;
+                                                }
+                                            }
+                                            if (skin->mLockScaleIfJointPosition)
+                                            {
+                                                // Note that unlike positions, there's no threshold check here,
+                                                // just a lock at the default value.
+                                                joint->addAttachmentScaleOverride(joint->getDefaultScale(), fake_mesh_id, "model");
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
                             LLMatrix4a bind_shape_matrix;
                             bind_shape_matrix.loadu(skin->mBindShapeMatrix);
                             U32 max_joints = LLSkinningUtil::getMaxJointCount();
@@ -4601,6 +4643,11 @@ BOOL LLModelPreview::render()
 				}
 			}
 
+            if (pelvis_recalc)
+            {
+                // size/scale recalculation
+                getPreviewAvatar()->postPelvisSetRecalc();
+            }
 		}
 	}
 
@@ -4918,6 +4965,7 @@ void LLFloaterModelPreview::populateOverridesTab()
 {
     mJointOverrides.clear();
     attach_override_data_map_t attach_not_in_use;
+    // Todo: use mAlternateBindMatrix
     mModelPreview->getPreviewAvatar()->getAttachmentOverrides(mJointOverrides, attach_not_in_use);
 
     if (mJointOverrides.empty())
