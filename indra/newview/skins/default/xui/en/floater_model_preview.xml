@@ -1675,16 +1675,17 @@ Analysed:
     Preview:
   </text>
   <panel
+   follows="all"
+   layout="topleft"
    border="true"
    bevel_style="none"
-   follows="top|left"
    name="preview_panel"
    top_pad="4"
    width="325"
    height="408"/>
   <panel
-    follows="all"
-    can_resize="true"
+    follows="right|bottom"
+    can_resize="false"
     height="140"
     layout="topleft"
     name="right_panel"
