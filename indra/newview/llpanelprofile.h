@@ -252,7 +252,6 @@ private:
 	std::string			mURLHome;
 	std::string			mURLWebProfile;
 	LLMediaCtrl*		mWebBrowser;
-	LLButton*			mWebProfileButton;
 
 	LLFrameTimer		mPerformanceTimer;
 	bool				mFirstNavigate;
