@@ -4524,16 +4524,24 @@ BOOL LLModelPreview::render()
 					if (!model->mSkinWeights.empty())
 					{
                         const LLMeshSkinInfo *skin = &model->mSkinInfo;
+                        LLSkinningUtil::initJointNums(&model->mSkinInfo, getPreviewAvatar());// inits skin->mJointNums if nessesary
                         U32 count = LLSkinningUtil::getMeshJointCount(skin);
 
-                        if (joint_overrides)
+                        if (joint_overrides && skin->mAlternateBindMatrix.size() > 0)
                         {
+                            // mesh_id is used to determine which mesh gets to
+                            // set the joint offset, in the event of a conflict. Since
+                            // we don't know the mesh id yet, we can't guarantee that
+                            // joint offsets will be applied with the same priority as
+                            // in the uploaded model. If the file contains multiple
+                            // meshes with conflicting joint offsets, preview may be
+                            // incorrect.
                             LLUUID fake_mesh_id;
                             fake_mesh_id.generate();
                             for (U32 j = 0; j < count; ++j)
                             {
                                 LLJoint *joint = getPreviewAvatar()->getJoint(skin->mJointNums[j]);
-                                if (joint && skin->mAlternateBindMatrix.size() > 0)
+                                if (joint)
                                 {
                                     const LLVector3& jointPos = skin->mAlternateBindMatrix[j].getTranslation();
                                     if (joint->aboveJointPosThreshold(jointPos))
@@ -4544,7 +4552,7 @@ BOOL LLModelPreview::render()
                                         if (override_changed)
                                         {
                                             //If joint is a pelvis then handle old/new pelvis to foot values
-                                            if (joint->getName() == "mPelvis")
+                                            if (joint->getName() == "mPelvis")// or skin->mJointNames[j]
                                             {
                                                 pelvis_recalc = true;
                                             }
