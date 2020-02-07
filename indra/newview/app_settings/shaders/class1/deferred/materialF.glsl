@@ -249,24 +249,25 @@ void main()
     vec4 spec = vec4(specular_color.rgb, 1.0);
 #endif
 
-    vec4 norm = vec4(0,0,0,1.0);
-    vec3 tnorm;
+    vec3 norm = vec3(0);
+    float bmap_specular = 1.0;
 
 #ifdef HAS_NORMAL_MAP
-    norm = texture2D(bumpMap, vary_texcoord1.xy);
-    norm.xyz = norm.xyz * 2 - 1;
+    vec4 bump_sample = texture2D(bumpMap, vary_texcoord1.xy);
+    norm = (bump_sample.xyz * 2) - vec3(1);
+    bmap_specular = bump_sample.w;
 
-    // tangent space norm
-    tnorm = vec3(dot(norm.xyz,vary_mat0),
-                 dot(norm.xyz,vary_mat1),
-                 dot(norm.xyz,vary_mat2));
+    // convert sampled normal to tangent space normal
+    norm = vec3(dot(norm, vary_mat0),
+                dot(norm, vary_mat1),
+                dot(norm, vary_mat2));
 #else
-    tnorm = vary_normal;
+    norm = vary_normal;
 #endif
 
-    norm.xyz = normalize(tnorm.xyz);
+    norm = normalize(norm);
 
-    vec2 abnormal   = encode_normal(norm.xyz);
+    vec2 abnormal   = encode_normal(norm);
 
     vec4 final_color = vec4(diffuse_linear.rgb, 0.0);
 
@@ -311,7 +312,7 @@ void main()
     final_specular.a = specular_color.a;
 
 #ifdef HAS_SPECULAR_MAP
-    final_specular.a *= norm.a;
+    final_specular.a *= bmap_specular;
     final_normal.z *= spec.a;
 #endif
 
@@ -325,7 +326,7 @@ void main()
         float shadow = 1.0f;
 
 #ifdef HAS_SUN_SHADOW
-        shadow = sampleDirectionalShadow(pos.xyz, norm.xyz, pos_screen);
+        shadow = sampleDirectionalShadow(pos.xyz, norm, pos_screen);
 #endif
 
         spec = final_specular;
@@ -342,18 +343,17 @@ void main()
 
         calcAtmosphericVars(pos.xyz, light_dir, 1.0, sunlit, amblit, additive, atten, false);
 
-        vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
+        vec3 refnormpersp = normalize(reflect(pos.xyz, norm));
 
-
-        float da = dot(norm.xyz, normalize(light_dir.xyz));
-        float final_da = clamp(da, 0.0, 1.0);
+        float da = dot(norm, normalize(light_dir));
+        da = clamp(da, 0.0, 1.0);   // No negative light contributions
 
         float ambient = da;
         ambient *= 0.5;
         ambient *= ambient;
         ambient = (1.0 - ambient);
 
-        vec3 sun_contrib = min(final_da, shadow) * sunlit;
+        vec3 sun_contrib = min(da, shadow) * sunlit;
 
 // vec3 debug_sun_contrib = sun_contrib;
 
@@ -383,8 +383,8 @@ void main()
 
             //vec3 ref = dot(pos+lv, norm);
             vec3 h = normalize(light_dir.xyz+npos);
-            float nh = dot(norm.xyz, h);
-            float nv = dot(norm.xyz, npos);
+            float nh = dot(norm, h);
+            float nv = dot(norm, npos);
             float vh = dot(npos, h);
             float sa = nh;
             float fres = pow(1 - dot(h, npos), 5)*0.4+0.5;
@@ -435,7 +435,7 @@ void main()
 
         vec3 light = vec3(0,0,0);
 
-#define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse_linear.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w );
+#define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse_linear.rgb, final_specular, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w );
 
             LIGHT_LOOP(1)
             LIGHT_LOOP(2)
@@ -461,7 +461,7 @@ void main()
 //color.rgb = vec3(ambient);
 //color.rgb = sunlit;
 //color.rgb = debug_post_ambient;
-//color.rgb = vec3(final_da);
+//color.rgb = vec3(da);
 //color.rgb = debug_sun_contrib;
 //color.rgb = debug_post_sunlight;
 //color.rgb = diffuse_srgb.rgb;
