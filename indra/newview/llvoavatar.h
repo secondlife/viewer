@@ -36,25 +36,23 @@
 #include <boost/signals2/trackable.hpp>
 
 #include "llavatarappearance.h"
-#include "llavatarappearancedefines.h"
-#include "llavatarrendernotifier.h"
-#include "llcontrol.h"
-#include "llcharacter.h"
 #include "llchat.h"
 #include "lldrawpoolalpha.h"
-#include "lldriverparam.h"
-#include "lljointoverridedata.h"
-#include "llrendertarget.h"
-#include "llrigginginfo.h"
-#include "lltexglobalcolor.h"
+#include "llviewerobject.h"
+#include "llcharacter.h"
+#include "llcontrol.h"
 #include "llviewerjointmesh.h"
 #include "llviewerjointattachment.h"
-#include "llviewerobject.h"
-#include "llviewerstats.h"
+#include "llrendertarget.h"
+#include "llavatarappearancedefines.h"
+#include "lltexglobalcolor.h"
+#include "lldriverparam.h"
 #include "llviewertexlayer.h"
-#include "llvovolume.h"
-
 #include "material_codes.h"		// LL_MCODE_END
+#include "llrigginginfo.h"
+#include "llviewerstats.h"
+#include "llvovolume.h"
+#include "llavatarrendernotifier.h"
 
 extern const LLUUID ANIM_AGENT_BODY_NOISE;
 extern const LLUUID ANIM_AGENT_BREATHE_ROT;
@@ -217,8 +215,6 @@ public:
 	void					rebuildAttachmentOverrides();
     void					updateAttachmentOverrides();
     void                    showAttachmentOverrides(bool verbose = false) const;
-    void                    getAttachmentOverrides(joint_override_data_map_t& joint_overrides,
-                                                   attach_override_data_map_t& attach_overrides) const;
     void                    getAttachmentOverrideNames(std::set<std::string>& pos_names, 
                                                        std::set<std::string>& scale_names) const;
 
