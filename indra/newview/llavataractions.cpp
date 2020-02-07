@@ -331,12 +331,6 @@ void LLAvatarActions::startConference(const uuid_vec_t& ids, const LLUUID& float
 	make_ui_sound("UISndStartIM");
 }
 
-static const char* get_profile_floater_name(const LLUUID& avatar_id)
-{
-	// Use different floater XML for our profile to be able to save its rect.
-	return avatar_id == gAgentID ? "my_profile_web" : "profile_web";
-}
-
 // static
 void LLAvatarActions::showProfile(const LLUUID& avatar_id)
 {
