@@ -155,9 +155,9 @@ vec3 post_diffuse = color.rgb;
             if (nh > 0.0)
             {
                 float scontrib = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
-                vec3 sp = sun_contrib*scontrib / 16.0;
+                vec3 sp = sun_contrib*scontrib / 6.0;
                 sp = clamp(sp, vec3(0), vec3(1));
-                bloom += dot(sp, sp) / 6.0;
+                bloom += dot(sp, sp) / 4.0;
 #if !defined(SUNLIGHT_KILL)
                 color += sp * spec.rgb;
 #endif
