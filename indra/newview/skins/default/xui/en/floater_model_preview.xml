@@ -1279,10 +1279,20 @@
          draw_stripes="false"
          commit_on_selection_change="true"
          heading_height="23"
-         height="253"
+         height="238"
          left="6"
          top_pad="0"
-         width="150"/>
+         width="200"/>
+        <text
+          layout="topleft"
+          follows="top|left"
+          height="15"
+          left="6"
+          name="conflicts_description"
+          top_pad="2"
+          width="200">
+          [CONFLICTS] conflicts in [JOINTS_COUNT] joints
+        </text>
         <text
           layout="topleft"
           follows="top|left"

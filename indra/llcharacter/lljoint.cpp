@@ -407,7 +407,7 @@ void showJointScaleOverrides( const LLJoint& joint, const std::string& note, con
 bool LLJoint::aboveJointPosThreshold(const LLVector3& pos) const
 {
     LLVector3 diff = pos - getDefaultPosition();
-	const F32 max_joint_pos_offset = 0.0001f; // 0.1 mm
+    const F32 max_joint_pos_offset = LL_JOINT_TRESHOLD_POS_OFFSET; // 0.1 mm
 	return diff.lengthSquared() > max_joint_pos_offset * max_joint_pos_offset;
 }
 
