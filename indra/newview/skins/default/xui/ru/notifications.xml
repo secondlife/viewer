@@ -1612,22 +1612,22 @@
 [DOWNLOAD_PATH].
 	</notification>
 	<notification name="RequiredUpdate">
-		Для входа необходима версия \[VERSION]. 
+		Для входа необходима версия [VERSION]. 
 Скачайте обновление с веб-сайта https://secondlife.com/support/downloads/
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="PauseForUpdate">
-		Для входа необходима версия \[VERSION]. 
+		Для входа необходима версия [VERSION]. 
 Нажмите OK для загрузки и установки.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="OptionalUpdateReady">
-		Версия \[VERSION] загружена и готова к установке. 
+		Версия [VERSION] загружена и готова к установке. 
 Нажмите OK для установки.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="PromptOptionalUpdate">
-		Версия \[VERSION] загружена и готова к установке. 
+		Версия [VERSION] загружена и готова к установке. 
 Продолжить?
 		<usetemplate canceltext="Не сейчас" name="yesnocancelbuttons" notext="Пропустить" yestext="Установить"/>
 	</notification>
