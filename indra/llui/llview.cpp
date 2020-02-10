@@ -875,10 +875,16 @@ BOOL LLView::handleToolTip(S32 x, S32 y, MASK mask)
 		F32 timeout = LLToolTipMgr::instance().toolTipVisible() 
 		              ? LLUI::getInstance()->mSettingGroups["config"]->getF32( "ToolTipFastDelay" )
 		              : LLUI::getInstance()->mSettingGroups["config"]->getF32( "ToolTipDelay" );
-		LLToolTipMgr::instance().show(LLToolTip::Params()
-		                              .message(tooltip)
-		                              .sticky_rect(calcScreenRect())
-		                              .delay_time(timeout));
+
+		// Even if we don't show tooltips, consume the event, nothing below should show tooltip
+		bool allow_ui_tooltips = LLUI::getInstance()->mSettingGroups["config"]->getBOOL("BasicUITooltips");
+		if (allow_ui_tooltips)
+		{
+			LLToolTipMgr::instance().show(LLToolTip::Params()
+			                              .message(tooltip)
+			                              .sticky_rect(calcScreenRect())
+			                              .delay_time(timeout));
+		}
 		handled = TRUE;
 	}
 
@@ -1054,6 +1060,11 @@ BOOL LLView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	return childrenHandleScrollWheel( x, y, clicks ) != NULL;
 }
 
+BOOL LLView::handleScrollHWheel(S32 x, S32 y, S32 clicks)
+{
+	return childrenHandleScrollHWheel( x, y, clicks ) != NULL;
+}
+
 BOOL LLView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	return childrenHandleRightMouseDown( x, y, mask ) != NULL;
@@ -1077,6 +1088,11 @@ BOOL LLView::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
 LLView* LLView::childrenHandleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	return childrenHandleMouseEvent(&LLView::handleScrollWheel, x, y, clicks, false);
+}
+
+LLView* LLView::childrenHandleScrollHWheel(S32 x, S32 y, S32 clicks)
+{
+	return childrenHandleMouseEvent(&LLView::handleScrollHWheel, x, y, clicks, false);
 }
 
 // Called during downward traversal

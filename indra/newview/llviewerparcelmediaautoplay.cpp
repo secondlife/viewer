@@ -24,17 +24,20 @@
  * $/LicenseInfo$
  */
 
+
 #include "llviewerprecompiledheaders.h"
+
 #include "llviewerparcelmediaautoplay.h"
-#include "llviewerparcelmedia.h"
+
+#include "llparcel.h"
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
-#include "llviewerregion.h"
-#include "llparcel.h"
+#include "llviewerparcelaskplay.h"
+#include "llviewerparcelmedia.h"
 #include "llviewerparcelmgr.h"
-#include "lluuid.h"
-#include "message.h"
+#include "llviewerregion.h"
 #include "llviewertexturelist.h"         // for texture stats
+#include "message.h"
 #include "llagent.h"
 #include "llmimetypes.h"
 
@@ -122,11 +125,28 @@ BOOL LLViewerParcelMediaAutoPlay::tick()
 				{
 					if (this_parcel)
 					{
-						if (gSavedSettings.getBOOL("ParcelMediaAutoPlayEnable"))
+						static LLCachedControl<S32> autoplay_mode(gSavedSettings, "ParcelMediaAutoPlayEnable");
+
+						switch (autoplay_mode())
 						{
-							// and last but not least, only play when autoplay is enabled
-							LLViewerParcelMedia::getInstance()->play(this_parcel);
-						}
+							case 0:
+								// Disabled
+								break;
+							case 1:
+								// Play, default value for ParcelMediaAutoPlayEnable
+								LLViewerParcelMedia::getInstance()->play(this_parcel);
+								break;
+							case 2:
+							default:
+							{
+								// Ask
+								LLViewerParcelAskPlay::getInstance()->askToPlay(this_region->getRegionID(),
+																				this_parcel->getLocalID(),
+																				this_parcel->getMediaURL(),
+																				onStartMusicResponse);
+								break;
+  							}
+  						}
 					}
 
 					mPlayed = TRUE;
@@ -139,5 +159,18 @@ BOOL LLViewerParcelMediaAutoPlay::tick()
 	return FALSE; // continue ticking forever please.
 }
 
+//static
+void LLViewerParcelMediaAutoPlay::onStartMusicResponse(const LLUUID &region_id, const S32 &parcel_id, const std::string &url, const bool &play)
+{
+    if (play)
+    {
+        LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 
+        // make sure we are still there
+        if (parcel->getLocalID() == parcel_id && gAgent.getRegion()->getRegionID() == region_id)
+        {
+            LLViewerParcelMedia::getInstance()->play(parcel);
+        }
+    }
+}
 

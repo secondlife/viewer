@@ -208,6 +208,11 @@ BOOL LLToolPie::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	return LLViewerMediaFocus::getInstance()->handleScrollWheel(x, y, clicks);
 }
 
+BOOL LLToolPie::handleScrollHWheel(S32 x, S32 y, S32 clicks)
+{
+    return LLViewerMediaFocus::getInstance()->handleScrollWheel(x, y, clicks);
+}
+
 // True if you selected an object.
 BOOL LLToolPie::handleLeftClickPick()
 {
@@ -874,37 +879,9 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 static bool needs_tooltip(LLSelectNode* nodep)
 {
-	if (!nodep) 
+	if (!nodep || !nodep->mValid) 
 		return false;
-
-	LLViewerObject* object = nodep->getObject();
-	LLViewerObject *parent = (LLViewerObject *)object->getParent();
-	if (object->flagHandleTouch()
-		|| (parent && parent->flagHandleTouch())
-		|| object->flagTakesMoney()
-		|| (parent && parent->flagTakesMoney())
-		|| object->flagAllowInventoryAdd()
-		)
-	{
-		return true;
-	}
-
-	U8 click_action = final_click_action(object);
-	if (click_action != 0)
-	{
-		return true;
-	}
-
-	if (nodep->mValid)
-	{
-		bool anyone_copy = anyone_copy_selection(nodep);
-		bool for_sale = for_sale_selection(nodep);
-		if (anyone_copy || for_sale)
-		{
-			return true;
-		}
-	}
-	return false;
+	return true;
 }
 
 

@@ -2419,7 +2419,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			
 			if (idx.empty() || face.mNumIndices < 3)
 			{ //why is there an empty index list?
-				LL_WARNS() <<"Empty face present!" << LL_ENDL;
+				LL_WARNS() << "Empty face present! Face index: " << i << " Total: " << face_count << LL_ENDL;
 				continue;
 			}
 
@@ -5236,7 +5236,7 @@ bool LLVolumeFace::cacheOptimize()
 
 	LLVCacheLRU cache;
 	
-	if (mNumVertices < 3)
+	if (mNumVertices < 3 || mNumIndices < 3)
 	{ //nothing to do
 		return true;
 	}

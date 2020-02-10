@@ -938,6 +938,12 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 			mLeftMouseDown = down;
 			buttonname = "Left Double Click";
 			break;
+		case LLMouseHandler::CLICK_BUTTON4:
+			buttonname = "Button 4";
+			break;
+		case LLMouseHandler::CLICK_BUTTON5:
+			buttonname = "Button 5";
+			break;
 		}
 		
 		LLView::sMouseHandlerMessage.clear();
@@ -1115,7 +1121,7 @@ BOOL LLViewerWindow::handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK m
 BOOL LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	BOOL down = TRUE;
-	LLVoiceClient::getInstance()->middleMouseState(true);
+	LLVoiceClient::getInstance()->updateMouseState(LLMouseHandler::CLICK_MIDDLE, true);
  	handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_MIDDLE,down);
   
   	// Always handled as far as the OS is concerned.
@@ -1267,15 +1273,45 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 	
 	return result;
 }
-  
+
 BOOL LLViewerWindow::handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	BOOL down = FALSE;
-	LLVoiceClient::getInstance()->middleMouseState(false);
+	LLVoiceClient::getInstance()->updateMouseState(LLMouseHandler::CLICK_MIDDLE, false);
  	handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_MIDDLE,down);
   
   	// Always handled as far as the OS is concerned.
 	return TRUE;
+}
+
+BOOL LLViewerWindow::handleOtherMouse(LLWindow *window, LLCoordGL pos, MASK mask, S32 button, bool down)
+{
+    switch (button)
+    {
+    case 4:
+        LLVoiceClient::getInstance()->updateMouseState(LLMouseHandler::CLICK_BUTTON4, down);
+        handleAnyMouseClick(window, pos, mask, LLMouseHandler::CLICK_BUTTON4, down);
+        break;
+    case 5:
+        LLVoiceClient::getInstance()->updateMouseState(LLMouseHandler::CLICK_BUTTON5, down);
+        handleAnyMouseClick(window, pos, mask, LLMouseHandler::CLICK_BUTTON5, down);
+        break;
+    default:
+        break;
+    }
+
+    // Always handled as far as the OS is concerned.
+    return TRUE;
+}
+
+BOOL LLViewerWindow::handleOtherMouseDown(LLWindow *window, LLCoordGL pos, MASK mask, S32 button)
+{
+    return handleOtherMouse(window, pos, mask, button, TRUE);
+}
+
+BOOL LLViewerWindow::handleOtherMouseUp(LLWindow *window, LLCoordGL pos, MASK mask, S32 button)
+{
+    return handleOtherMouse(window, pos, mask, button, FALSE);
 }
 
 // WARNING: this is potentially called multiple times per frame
@@ -1549,6 +1585,11 @@ BOOL LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S
 void LLViewerWindow::handleScrollWheel(LLWindow *window,  S32 clicks)
 {
 	handleScrollWheel( clicks );
+}
+
+void LLViewerWindow::handleScrollHWheel(LLWindow *window,  S32 clicks)
+{
+	handleScrollHWheel(clicks);
 }
 
 void LLViewerWindow::handleWindowBlock(LLWindow *window)
@@ -2966,6 +3007,49 @@ void LLViewerWindow::handleScrollWheel(S32 clicks)
 	return;
 }
 
+void LLViewerWindow::handleScrollHWheel(S32 clicks)
+{
+    LLUI::getInstance()->resetMouseIdleTimer();
+
+    LLMouseHandler* mouse_captor = gFocusMgr.getMouseCapture();
+    if (mouse_captor)
+    {
+        S32 local_x;
+        S32 local_y;
+        mouse_captor->screenPointToLocal(mCurrentMousePoint.mX, mCurrentMousePoint.mY, &local_x, &local_y);
+        mouse_captor->handleScrollHWheel(local_x, local_y, clicks);
+        if (LLView::sDebugMouseHandling)
+        {
+            LL_INFOS() << "Scroll Horizontal Wheel handled by captor " << mouse_captor->getName() << LL_ENDL;
+        }
+        return;
+    }
+
+    LLUICtrl* top_ctrl = gFocusMgr.getTopCtrl();
+    if (top_ctrl)
+    {
+        S32 local_x;
+        S32 local_y;
+        top_ctrl->screenPointToLocal(mCurrentMousePoint.mX, mCurrentMousePoint.mY, &local_x, &local_y);
+        if (top_ctrl->handleScrollHWheel(local_x, local_y, clicks)) return;
+    }
+
+    if (mRootView->handleScrollHWheel(mCurrentMousePoint.mX, mCurrentMousePoint.mY, clicks))
+    {
+        if (LLView::sDebugMouseHandling)
+        {
+            LL_INFOS() << "Scroll Horizontal Wheel" << LLView::sMouseHandlerMessage << LL_ENDL;
+        }
+        return;
+    }
+    else if (LLView::sDebugMouseHandling)
+    {
+        LL_INFOS() << "Scroll Horizontal Wheel not handled by view" << LL_ENDL;
+    }
+
+    return;
+}
+
 void LLViewerWindow::addPopup(LLView* popup)
 {
 	if (mPopupView)
@@ -3329,7 +3413,8 @@ void LLViewerWindow::updateUI()
 			LLRect screen_sticky_rect = mRootView->getLocalRect();
 			S32 local_x, local_y;
 
-			if (gSavedSettings.getBOOL("DebugShowXUINames"))
+			static LLCachedControl<bool> debug_show_xui_names(gSavedSettings, "DebugShowXUINames", 0);
+			if (debug_show_xui_names)
 			{
 				LLToolTip::Params params;
 

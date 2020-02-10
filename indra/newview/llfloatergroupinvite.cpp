@@ -108,7 +108,7 @@ LLFloaterGroupInvite::~LLFloaterGroupInvite()
 }
 
 // static
-void LLFloaterGroupInvite::showForGroup(const LLUUID& group_id, uuid_vec_t *agent_ids)
+void LLFloaterGroupInvite::showForGroup(const LLUUID& group_id, uuid_vec_t *agent_ids, bool request_update)
 {
 	const LLFloater::Params& floater_params = LLFloater::getDefaultParams();
 	S32 floater_header_size = floater_params.header_height;
@@ -126,9 +126,12 @@ void LLFloaterGroupInvite::showForGroup(const LLUUID& group_id, uuid_vec_t *agen
 											 group_id,
 											 (LLFloaterGroupInvite*)NULL);
 
-	// refresh group information
-	gAgent.sendAgentDataUpdateRequest();
-	LLGroupMgr::getInstance()->clearGroupData(group_id);
+	if (request_update)
+	{
+		// refresh group information
+		gAgent.sendAgentDataUpdateRequest();
+		LLGroupMgr::getInstance()->clearGroupData(group_id);
+	}
 
 
 	if (!fgi)

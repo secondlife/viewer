@@ -148,6 +148,7 @@ public:
 	void onSelectSkin();
 	void onClickSetKey();
 	void setKey(KEY key);
+	void setMouse(LLMouseHandler::EClickType click);
 	void onClickSetMiddleMouse();
 	void onClickSetSounds();
 	void onClickEnablePopup();
@@ -167,7 +168,6 @@ public:
 	
 	void refreshUI();
 
-	void onCommitParcelMediaAutoPlayEnable();
 	void onCommitMediaEnabled();
 	void onCommitMusicEnabled();
 	void applyResolution();
@@ -180,6 +180,7 @@ public:
 	void onClickProxySettings();
 	void onClickTranslationSettings();
 	void onClickPermsDefault();
+	void onClickRememberedUsernames();
 	void onClickAutoReplace();
 	void onClickSpellChecker();
 	void onClickRenderExceptions();
