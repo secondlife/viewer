@@ -139,7 +139,6 @@
    layout="topleft"
    left="3"
    name="offset_scale_sld"
-   tool_tip="Choose name tag opacity"
    width="196" />
   <spinner
    control_name="CameraOffsetScale"
