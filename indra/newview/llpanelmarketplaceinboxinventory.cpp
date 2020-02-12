@@ -150,6 +150,12 @@ void LLInboxFolderViewFolder::draw()
 	setBadgeVisibility(mFresh);
 
 	LLFolderViewFolder::draw();
+
+	if (mFresh)
+	{
+		reshapeBadge(getRect());
+	}
+
 }
 
 BOOL LLInboxFolderViewFolder::handleMouseDown( S32 x, S32 y, MASK mask )
