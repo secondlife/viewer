@@ -1431,6 +1431,8 @@ Thickbrick Sleaford
 	STORM-956
 	STORM-1147
 	STORM-1325
+Thoys Pan
+	SL-12396
 Thraxis Epsilon
 	SVC-371
 	VWR-383
