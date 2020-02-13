@@ -513,14 +513,17 @@ class WindowsManifest(ViewerManifest):
                 print err.message
                 print "Skipping GLOD library (assumming linked statically)"
 
-            # Get fmodex dll, continue if missing
-            try:
-                if(self.address_size == 64):
-                    self.path("fmodex64.dll")
-                else:
-                    self.path("fmodex.dll")
-            except:
-                print "Skipping fmodex audio library(assuming other audio engine)"
+            if self.args['fmodex'] == 'ON':
+                # Get fmodex dll
+               if(self.address_size == 64):
+                   self.path("fmodex64.dll")
+               else:
+                   self.path("fmodex.dll")
+
+            if self.args['openal'] == 'ON':
+                # Get openal dll
+                self.path("OpenAL32.dll")
+                self.path("alut.dll")
 
             # For textures
             self.path("openjpeg.dll")
@@ -1047,17 +1050,18 @@ class DarwinManifest(ViewerManifest):
                     self.path2basename(relpkgdir, libfile)
 
                 # dylibs that vary based on configuration
-                if self.args['configuration'].lower() == 'debug':
-                    for libfile in (
-                                "libfmodexL.dylib",
-                                ):
-                        dylibs += path_optional(os.path.join(debpkgdir, libfile), libfile)
-                else:
-                    for libfile in (
-                                "libfmodex.dylib",
-                                ):
-                        dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
-
+                if self.args['fmodex'] == 'ON':
+                    if self.args['configuration'].lower() == 'debug':
+                        for libfile in (
+                                    "libfmodexL.dylib",
+                                    ):
+                            dylibs += path_optional(os.path.join(debpkgdir, libfile), libfile)
+                    else:
+                        for libfile in (
+                                    "libfmodex.dylib",
+                                    ):
+                            dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
+ 
                 # our apps
                 executable_path = {}
                 for app_bld_dir, app in (("mac_crash_logger", "mac-crash-logger.app"),
@@ -1519,13 +1523,9 @@ class Linux_i686_Manifest(LinuxManifest):
                 print "tcmalloc files not found, skipping"
                 pass
 
-            try:
+            if self.args['fmodex'] == 'ON':
                 self.path("libfmodex-*.so")
                 self.path("libfmodex.so")
-                pass
-            except:
-                print "Skipping libfmodex.so - not found"
-                pass
 
 
         # Vivox runtimes
@@ -1552,9 +1552,12 @@ class Linux_x86_64_Manifest(LinuxManifest):
 ################################################################
 
 if __name__ == "__main__":
+    # fmodex and openal can be used simultaneously and controled by environment
     extra_arguments = [
         dict(name='bugsplat', description="""BugSplat database to which to post crashes,
              if BugSplat crash reporting is desired""", default=''),
+        dict(name='fmodex', description="""Indication that fmodex libraries are needed""", default='OFF'),
+        dict(name='openal', description="""Indication openal libraries are needed""", default='OFF'),
         ]
     try:
         main(extra=extra_arguments)

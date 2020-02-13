@@ -71,6 +71,10 @@ if(WINDOWS)
         endif(ADDRESS_SIZE EQUAL 32)
     endif (FMODEX)
 
+    if (OPENAL)
+        list(APPEND release_files openal32.dll alut.dll)
+    endif (OPENAL)
+
     #*******************************
     # Copy MS C runtime dlls, required for packaging.
     # *TODO - Adapt this to support VC9

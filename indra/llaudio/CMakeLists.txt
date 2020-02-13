@@ -60,6 +60,10 @@ if (FMODEX)
 endif (FMODEX)
 
 if (OPENAL)
+  include_directories(
+    ${OPENAL_LIBRARIES}
+    )
+
   list(APPEND llaudio_SOURCE_FILES
     llaudioengine_openal.cpp
     lllistener_openal.cpp
