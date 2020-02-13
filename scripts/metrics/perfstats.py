@@ -49,7 +49,7 @@ ref_props = ["Avatars.Self.ARCCalculated",
 # for these, we will compute the fraction of triangles affected by the setting
 face_count_props = ["alpha", "glow", "shiny", "bumpmap", "produces_light", "materials"]
 tri_frac_props = [prop + "_frac" for prop in face_count_props]
-print "tri_frac_props", tri_frac_props
+#print "tri_frac_props", tri_frac_props
 
 tri_count_props = [prop + "_count" for prop in face_count_props]
 computed_props = ["raw_triangle_count"]
@@ -300,6 +300,17 @@ def filter_extreme_times(fd, pct):
     times = fd['frame_time']
     extreme = np.percentile(times, pct)
     return fd[fd.frame_time<extreme]
+
+def collect_overview(filename, **kwargs):
+    #print "collect_overview", filename
+    result = dict()
+    if not re.match(".*\.slp", filename):
+        print "filename", filename, "is not a .slp file"
+        return result
+    iter_rec = iter(get_frame_record(filename,**kwargs))
+    first_rec = next(iter_rec)
+    #print "got first_rec, keys", first_rec.keys()
+    return first_rec
     
 def collect_pandas_frame_data(filename, fields, max_records, **kwargs):
     # previously generated csv file?
@@ -695,9 +706,25 @@ if __name__ == "__main__":
     parser.add_argument("--plot_time_series", nargs="+", default=[], help="show timers by frame")
     parser.add_argument("--extract_percent", nargs="+", metavar="blah", help="extract subset based on frame time")
     parser.add_argument("--compare", help="compare infilename to specified file")
+    parser.add_argument("--overview", help="show one-line summary for each stats file", nargs="+")
     parser.add_argument("infilename", help="name of performance or csv file", nargs="?", default="performance.slp")
     args = parser.parse_args()
 
+    if (args.overview):
+        #print "getting overview for", args.overview
+        for filename in args.overview:
+            sd = collect_overview(filename)
+            if sd:
+                print filename,\
+                    "User", sd_extract_field(sd,"Session.DebugInfo.LoginName"),\
+                    "Region", '"' + sd_extract_field(sd,"Session.DebugInfo.CurrentRegion") + '"',\
+                    "StartTime", sd_extract_field(sd,"Session.StartTime")
+                    
+            #except:
+            #    print "Failed to process", filename
+            #    pass
+        sys.exit(0)
+    
     if (args.nested_timers):
         # this specifically requires an slp file, since a pre-processed csv will have discarded timer parent info
         child_info, parent_info, all_timer_keys, reparented_timers, directly_reparented = get_nested_timer_info("performance.slp")

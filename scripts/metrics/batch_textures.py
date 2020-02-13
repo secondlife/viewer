@@ -66,7 +66,7 @@ for res in [128, 256, 1024]:
                     tex_str = ",\n".join(tex_list)
                     #print tex_str
                     (subs_file,ext) = os.path.splitext(args.template)
-                    descr = which_tes + "_res_" + str(res) + "x" + str(res) + "x" + str(channels) + "_batch_" + str(bn)
+                    descr = which_tes + "_n_" + str(args.n) + "_res_" + str(res) + "x" + str(res) + "x" + str(channels) + "_batch_" + str(bn)
                     subs_file += "_" + descr + ext
                     obj_name = descr
                     replace_dict = {"TEXTURE_IDS": tex_str, "WHICH": which_tes, "NAME": obj_name}

@@ -1380,6 +1380,7 @@ LLSD getSessionLogData()
 	session_sd["Platform"] = (LLSD::String) gPlatform;
 	session_sd["OSVersion"] = (LLSD::String) LLOSInfo::instance().getOSVersionString();
 	session_sd["DebugInfo"] = gDebugInfo;
+	session_sd["StartTime"] = (LLSD::String) LLError::utcTime();
 
 	return session_sd;
 }
