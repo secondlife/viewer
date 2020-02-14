@@ -1120,6 +1120,15 @@ void LLGroupMgr::processGroupPropertiesReply(LLMessageSystem* msg, void** data)
 	group_datap->mGroupPropertiesDataComplete = true;
 	group_datap->mChanged = TRUE;
 
+    properties_request_map_t::iterator request = LLGroupMgr::getInstance()->mPropRequests.find(group_id);
+    if (request != LLGroupMgr::getInstance()->mPropRequests.end())
+    {
+        LLGroupMgr::getInstance()->mPropRequests.erase(request);
+    }
+    else
+    {
+        LL_DEBUGS() << "GroupPropertyResponse received with no pending request. Response was slow." << LL_ENDL;
+    }
 	LLGroupMgr::getInstance()->notifyObservers(GC_PROPERTIES);
 }
 
@@ -1489,6 +1498,28 @@ LLGroupMgrGroupData* LLGroupMgr::createGroupData(const LLUUID& id)
 	return group_datap;
 }
 
+bool LLGroupMgr::hasPendingPropertyRequest(const LLUUID & id)
+{
+    properties_request_map_t::iterator existing_req = LLGroupMgr::getInstance()->mPropRequests.find(id);
+    if (existing_req != LLGroupMgr::getInstance()->mPropRequests.end())
+    {
+        if (gFrameTime - existing_req->second < MIN_GROUP_PROPERTY_REQUEST_FREQ)
+        {
+            return true;
+        }
+        else
+        {
+            LLGroupMgr::getInstance()->mPropRequests.erase(existing_req);
+        }
+    }
+    return false;
+}
+
+void LLGroupMgr::addPendingPropertyRequest(const LLUUID& id)
+{
+    LLGroupMgr::getInstance()->mPropRequests[id] = gFrameTime;
+}
+
 void LLGroupMgr::notifyObservers(LLGroupChange gc)
 {
 	for (group_map_t::iterator gi = mGroups.begin(); gi != mGroups.end(); ++gi)
@@ -1570,7 +1601,14 @@ void LLGroupMgr::sendGroupPropertiesRequest(const LLUUID& group_id)
 	LL_DEBUGS() << "LLGroupMgr::sendGroupPropertiesRequest" << LL_ENDL;
 	// This will happen when we get the reply
 	//LLGroupMgrGroupData* group_datap = createGroupData(group_id);
-	
+
+    if (LLGroupMgr::getInstance()->hasPendingPropertyRequest(group_id))
+    {
+        LL_DEBUGS() << "LLGroupMgr::sendGroupPropertiesRequest suppressed repeat for " << group_id << LL_ENDL;
+        return;
+    }
+    LLGroupMgr::getInstance()->addPendingPropertyRequest(group_id);
+
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessage("GroupProfileRequest");
 	msg->nextBlock("AgentData");
