@@ -155,7 +155,7 @@ public:
 		PASS_GLOW,
 		PASS_ALPHA,
 		PASS_ALPHA_MASK,
-		PASS_FULLBRIGHT_ALPHA_MASK,
+		PASS_FULLBRIGHT_ALPHA_MASK,            // Diffuse texture used as alpha mask and fullbright
 		PASS_ALPHA_INVISIBLE,
 		NUM_RENDER_TYPES,
 	};
