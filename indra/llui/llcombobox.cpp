@@ -514,6 +514,14 @@ S32 LLComboBox::getCurrentIndex() const
 	return -1;
 }
 
+void LLComboBox::setEnabledByValue(const LLSD& value, BOOL enabled)
+{
+    LLScrollListItem *found = mList->getItem(value);
+    if (found)
+    {
+        found->setEnabled(enabled);
+    }
+}
 
 void LLComboBox::createLineEditor(const LLComboBox::Params& p)
 {
