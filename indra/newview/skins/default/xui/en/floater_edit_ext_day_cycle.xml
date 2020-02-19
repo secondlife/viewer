@@ -19,7 +19,7 @@
     <string name="hint_edit">To edit your day cycle, adjust the controls below and click "Save".</string>
 
     <!-- Substitutions -->
-    <string name="time_label"> ([HH]:[MM])</string>
+    <string name="time_label">([HH]:[MM])</string>
     <string name="sky_track_label">Sky [ALT]</string>
     <string name="sky_label">Sky</string>
     <string name="water_label">Water</string>
@@ -185,44 +185,44 @@
                                 left="10"
                                 name="p0"
                                 top_pad="5"
-                                value="0%[DSC]"
-                                width="80" />
+                                value="0% [DSC]"
+                                width="90" />
                         <text
                                 follows="left|top|right"
                                 height="15"
                                 layout="topleft"
-                                left_pad="37"
+                                left_delta="117"
                                 name="p1"
                                 top_delta="0"
-                                value="25%[DSC]"
-                                width="80" />
+                                value="25% [DSC]"
+                                width="90" />
                         <text
                                 follows="left|top|right"
                                 height="15"
                                 layout="topleft"
-                                left_pad="42"
+                                left_delta="122"
                                 name="p2"
                                 top_delta="0"
-                                value="50%[DSC]"
-                                width="80" />
+                                value="50% [DSC]"
+                                width="90" />
                         <text
                                 follows="left|top|right"
                                 height="15"
                                 layout="topleft"
-                                left_pad="42"
+                                left_delta="122"
                                 name="p3"
                                 top_delta="0"
-                                value="75%[DSC]"
-                                width="80" />
+                                value="75% [DSC]"
+                                width="90" />
                         <text
                                 follows="left|top|right"
                                 height="15"
                                 layout="topleft"
-                                left_pad="42"
+                                left_delta="122"
                                 name="p4"
                                 top_delta="0"
-                                value="100%[DSC]"
-                                width="80" />
+                                value="100% [DSC]"
+                                width="90" />
                         <multi_slider
                                 decimal_digits="0"
                                 draw_track="false"
@@ -260,13 +260,14 @@
 
                         <text
                                 follows="left|bottom"
-                                height="20"
+                                height="30"
                                 layout="topleft"
                                 left_pad="0"
                                 name="current_time"
-                                value="[PRCNT]%[DSC]"
+                                value="[PRCNT]% [DSC]"
                                 top_delta="-5"
-                                width="70" />
+                                width="56"
+                                word_wrap="true"/>
 
                         <layout_stack
                                 follows="all"
