@@ -255,6 +255,8 @@ private:
     BOOL            mPasteMapping;
     BOOL            mPasteMedia;
 
+    BOOL            mPopulateAllTEs;
+
 	// Update visibility of controls to match current UI mode
 	// (e.g. materials vs media editing)
 	//

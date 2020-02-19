@@ -63,6 +63,8 @@
 #include "lltexturectrl.h"
 #include "lltextureentry.h"
 #include "lltooldraganddrop.h"
+#include "lltoolface.h"
+#include "lltoolmgr.h"
 #include "lltrans.h"
 #include "llui.h"
 #include "llviewercontrol.h"
@@ -332,7 +334,8 @@ LLPanelFace::LLPanelFace()
     mPasteNormal(TRUE),
     mPasteSpecular(TRUE),
     mPasteMapping(TRUE),
-    mPasteMedia(TRUE)
+    mPasteMedia(TRUE),
+    mPopulateAllTEs(TRUE)
 {
 	USE_TEXTURE = LLTrans::getString("use_texture");
 
@@ -2904,6 +2907,7 @@ void LLPanelFace::onCopyFaces()
     std::map<LLUUID, LLUUID> asset_item_map;
 
     S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
+    mPopulateAllTEs = (num_tes != 1) || (LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool());
     for (S32 te = 0; te < num_tes; ++te)
     {
         if (node->isTESelected(te))
@@ -3048,7 +3052,7 @@ void LLPanelFace::onCopyFaces()
 void LLPanelFace::pasteFace(LLViewerObject* objectp, S32 te)
 {
     LLSD te_data;
-    if (mClipboard.size() == 1)
+    if ((mClipboard.size() == 1) && mPopulateAllTEs)
     {
         te_data = *(mClipboard.beginArray());
     }
