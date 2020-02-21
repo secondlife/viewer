@@ -62,7 +62,7 @@
 #include <boost/scoped_ptr.hpp>
 #include <sstream>
 
-const S32 LOGIN_MAX_RETRIES = 3;
+const S32 LOGIN_MAX_RETRIES = 0; // Viewer should not autmatically retry login
 const F32 LOGIN_SRV_TIMEOUT_MIN = 10;
 const F32 LOGIN_SRV_TIMEOUT_MAX = 120;
 const F32 LOGIN_DNS_TIMEOUT_FACTOR = 0.9; // make DNS wait shorter then retry time
