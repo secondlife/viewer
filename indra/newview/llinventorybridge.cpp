@@ -2282,7 +2282,7 @@ public:
 // Can be destroyed (or moved to trash)
 BOOL LLFolderBridge::isItemRemovable() const
 {
-	if (!get_is_category_removable(getInventoryModel(), mUUID) || isMarketplaceListingsFolder())
+	if (!get_is_category_removable(getInventoryModel(), mUUID))
 	{
 		return FALSE;
 	}
@@ -2297,6 +2297,11 @@ BOOL LLFolderBridge::isItemRemovable() const
 		{
 			return FALSE;
 		}
+	}
+
+	if (isMarketplaceListingsFolder() && (!LLMarketplaceData::instance().isSLMDataFetched() || LLMarketplaceData::instance().getActivationState(mUUID)))
+	{
+		return FALSE;
 	}
 
 	return TRUE;

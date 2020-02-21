@@ -1230,6 +1230,8 @@ void LLPanelLogin::updateLoginButtons()
 		if (user_combo->getCurrentIndex() != -1)
 		{
 			remember_name->setValue(true);
+			LLCheckBoxCtrl* remember_pass = getChild<LLCheckBoxCtrl>("remember_password");
+			remember_pass->setEnabled(TRUE);
 		} // Note: might be good idea to do "else remember_name->setValue(mRememberedState)" but it might behave 'weird' to user
 	}
 }
@@ -1239,6 +1241,8 @@ void LLPanelLogin::populateUserList(LLPointer<LLCredential> credential)
     LLComboBox* user_combo = getChild<LLComboBox>("username_combo");
     user_combo->removeall();
     user_combo->clear();
+    user_combo->setValue(std::string());
+    getChild<LLUICtrl>("password_edit")->setValue(std::string());
     mUsernameLength = 0;
     mPasswordLength = 0;
 
@@ -1261,9 +1265,7 @@ void LLPanelLogin::populateUserList(LLPointer<LLCredential> credential)
 
         if (credential.isNull() || !user_combo->setSelectedByValue(LLSD(credential->userID()), true))
         {
-            // selection failed, just deselect whatever might be selected
-            user_combo->setValue(std::string());
-            getChild<LLUICtrl>("password_edit")->setValue(std::string());
+            // selection failed, fields will be mepty
             updateLoginButtons();
         }
         else
@@ -1278,7 +1280,8 @@ void LLPanelLogin::populateUserList(LLPointer<LLCredential> credential)
             const LLSD &ident = credential->getIdentifier();
             if (ident.isMap() && ident.has("type"))
             {
-                user_combo->add(LLPanelLogin::getUserName(credential), credential->userID(), ADD_BOTTOM, TRUE);
+                // this llsd might hold invalid credencial (failed login), so
+                // do not add to the list, just set field.
                 setFields(credential);
             }
             else
