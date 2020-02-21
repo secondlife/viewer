@@ -304,6 +304,27 @@ void LLSelectMgr::updateEffects()
 	}
 }
 
+void LLSelectMgr::resetObjectOverrides()
+{
+    resetObjectOverrides(getSelection());
+}
+
+void LLSelectMgr::resetObjectOverrides(LLObjectSelectionHandle selected_handle)
+{
+    struct f : public LLSelectedNodeFunctor
+    {
+        virtual bool apply(LLSelectNode* node)
+        {
+            node->mLastPositionLocal.setVec(0, 0, 0);
+            node->mLastRotation = LLQuaternion();
+            node->mLastScale.setVec(0, 0, 0);
+            return true;
+        }
+    } func;
+
+    selected_handle->applyToNodes(&func);
+}
+
 void LLSelectMgr::overrideObjectUpdates()
 {
 	//override any position updates from simulator on objects being edited
@@ -5131,18 +5152,27 @@ void LLSelectMgr::sendListToRegions(LLObjectSelectionHandle selected_handle,
 
 	bool link_operation = message_name == "ObjectLink";
 
-	//clear update override data (allow next update through)
-	struct f : public LLSelectedNodeFunctor
-	{
-		virtual bool apply(LLSelectNode* node)
-		{
-			node->mLastPositionLocal.setVec(0,0,0);
-			node->mLastRotation = LLQuaternion();
-			node->mLastScale.setVec(0,0,0);
-			return true;
-		}
-	} func;
-	selected_handle->applyToNodes(&func);
+    if (mAllowSelectAvatar)
+    {
+        if (selected_handle->getObjectCount() == 1
+            && selected_handle->getFirstObject() != NULL
+            && selected_handle->getFirstObject()->isAvatar())
+        {
+            // Server doesn't move avatars at the moment, it is a local debug feature,
+            // but server does update position regularly, so do not drop mLastPositionLocal
+            // Position override for avatar gets reset in LLAgentCamera::resetView().
+        }
+        else
+        {
+            // drop mLastPositionLocal (allow next update through)
+            resetObjectOverrides(selected_handle);
+        }
+    }
+    else
+    {
+        //clear update override data (allow next update through)
+        resetObjectOverrides(selected_handle);
+    }
 
 	std::queue<LLSelectNode*> nodes_to_send;
 
