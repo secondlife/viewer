@@ -3294,8 +3294,6 @@ void on_benefits_failed_callback(const LLSD& notification, const LLSD& response)
 
 bool init_benefits(LLSD& response)
 {
-	LL_DEBUGS("Benefits") << "login success response:" << response << LL_ENDL;
-
 	bool succ = true;
 
 	std::string package_name = response["account_type"].asString();
