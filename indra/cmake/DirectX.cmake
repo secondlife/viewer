@@ -1,8 +1,15 @@
 # -*- cmake -*-
 
 if (WINDOWS)
+  if(ADDRESS_SIZE EQUAL 32)
+    set(PROGRAMFILES_x86 $ENV{PROGRAMFILES})
+  else(ADDRESS_SIZE EQUAL 32)
+    set(PROGRAMFILES_x86 $ENV{PROGRAMFILES\(X86\)})
+  endif(ADDRESS_SIZE EQUAL 32)
+
   find_path(DIRECTX_INCLUDE_DIR dxdiag.h
             "$ENV{DXSDK_DIR}/Include"
+            "${PROGRAMFILES_x86}/Windows Kits/8.1/Include/um"
             "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (June 2010)/Include"
             "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (August 2009)/Include"
             "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (March 2009)/Include"
@@ -26,6 +33,7 @@ if (WINDOWS)
 
   find_path(DIRECTX_LIBRARY_DIR dxguid.lib
             "$ENV{DXSDK_DIR}/Lib/x86"
+            "${PROGRAMFILES_x86}/Windows Kits/8.1/Lib/winv6.3/um/x86"
             "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (June 2010)/Lib/x86"
             "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (August 2009)/Lib/x86"
             "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (March 2009)/Lib/x86"
