@@ -41,7 +41,11 @@ public:
 	/*virtual*/	void update();
 	/*virtual*/ void setGain(const F32 gain);
 
+	void checkCutOffRadius();
+
 private:
+	LLVector3d getPosGlobal() const;
+	bool isInCutOffRadius(LLVector3d pos_global, const F32 cutoff) const;
 	void updateMute();
 
 private:
