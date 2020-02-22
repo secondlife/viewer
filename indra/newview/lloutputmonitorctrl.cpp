@@ -245,11 +245,11 @@ void LLOutputMonitorCtrl::draw()
 // virtual
 BOOL LLOutputMonitorCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	if (mSpeakerId != gAgentID && !mShowParticipantsSpeaking)
+	if (mSpeakerId != gAgentID)
 	{
 		LLFloaterReg::showInstance("floater_voice_volume", LLSD().with("avatar_id", mSpeakerId));
 	}
-	else if(mShowParticipantsSpeaking)
+	else if (mShowParticipantsSpeaking)
 	{
 		LLFloaterReg::showInstance("chat_voice", LLSD());
 	}
