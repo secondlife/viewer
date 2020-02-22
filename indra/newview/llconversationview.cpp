@@ -175,7 +175,7 @@ BOOL LLConversationViewSession::postBuild()
 				LLAvatarIconCtrl* icon = mItemPanel->getChild<LLAvatarIconCtrl>("avatar_icon");
 				icon->setVisible(true);
 				icon->setValue(session->mOtherParticipantID);
-				mSpeakingIndicator->setSpeakerId(gAgentID, session->mSessionID, true);
+				mSpeakingIndicator->setSpeakerId(session->mOtherParticipantID, session->mSessionID, true);
                 mHasArrow = false;
 			}
 			break;

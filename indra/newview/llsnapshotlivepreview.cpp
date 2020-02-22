@@ -63,6 +63,7 @@ F32 SHINE_WIDTH = 0.6f;
 F32 SHINE_OPACITY = 0.3f;
 F32 FALL_TIME = 0.6f;
 S32 BORDER_WIDTH = 6;
+S32 TOP_PANEL_HEIGHT = 30;
 
 const S32 MAX_TEXTURE_SIZE = 512 ; //max upload texture size 512 * 512
 
@@ -293,8 +294,8 @@ void LLSnapshotLivePreview::draw()
 		F32 uv_width = isImageScaled() ? 1.f : llmin((F32)getWidth() / (F32)getCurrentImage()->getWidth(), 1.f);
 		F32 uv_height = isImageScaled() ? 1.f : llmin((F32)getHeight() / (F32)getCurrentImage()->getHeight(), 1.f);
 		gGL.pushMatrix();
-		{
-			gGL.translatef((F32)rect.mLeft, (F32)rect.mBottom, 0.f);
+		{	
+			gGL.translatef((F32)rect.mLeft, (F32)rect.mBottom + TOP_PANEL_HEIGHT, 0.f);
 			gGL.begin(LLRender::QUADS);
 			{
 				gGL.texCoord2f(uv_width, uv_height);
@@ -346,14 +347,15 @@ void LLSnapshotLivePreview::draw()
 			F32 shine_interp = llmin(1.f, mShineAnimTimer.getElapsedTimeF32() / SHINE_TIME);
 
 			// draw "shine" effect
-			LLLocalClipRect clip(getLocalRect());
+			LLRect local_rect(0, getRect().getHeight() + TOP_PANEL_HEIGHT, getRect().getWidth(), 0);
+			LLLocalClipRect clip(local_rect);
 			{
 				// draw diagonal stripe with gradient that passes over screen
 				S32 x1 = gViewerWindow->getWindowWidthScaled() * ll_round((clamp_rescale(shine_interp, 0.f, 1.f, -1.f - SHINE_WIDTH, 1.f)));
 				S32 x2 = x1 + ll_round(gViewerWindow->getWindowWidthScaled() * SHINE_WIDTH);
 				S32 x3 = x2 + ll_round(gViewerWindow->getWindowWidthScaled() * SHINE_WIDTH);
 				S32 y1 = 0;
-				S32 y2 = gViewerWindow->getWindowHeightScaled();
+				S32 y2 = gViewerWindow->getWindowHeightScaled() + TOP_PANEL_HEIGHT;
 
 				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 				gGL.begin(LLRender::QUADS);
@@ -381,36 +383,6 @@ void LLSnapshotLivePreview::draw()
 				mShineAnimTimer.stop();
 			}
 		}
-	}
-
-	// draw framing rectangle
-	{
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		gGL.color4f(1.f, 1.f, 1.f, 1.f);
-		const LLRect& outline_rect = getImageRect();
-		gGL.begin(LLRender::QUADS);
-		{
-			gGL.vertex2i(outline_rect.mLeft - BORDER_WIDTH, outline_rect.mTop + BORDER_WIDTH);
-			gGL.vertex2i(outline_rect.mRight + BORDER_WIDTH, outline_rect.mTop + BORDER_WIDTH);
-			gGL.vertex2i(outline_rect.mRight, outline_rect.mTop);
-			gGL.vertex2i(outline_rect.mLeft, outline_rect.mTop);
-
-			gGL.vertex2i(outline_rect.mLeft, outline_rect.mBottom);
-			gGL.vertex2i(outline_rect.mRight, outline_rect.mBottom);
-			gGL.vertex2i(outline_rect.mRight + BORDER_WIDTH, outline_rect.mBottom - BORDER_WIDTH);
-			gGL.vertex2i(outline_rect.mLeft - BORDER_WIDTH, outline_rect.mBottom - BORDER_WIDTH);
-
-			gGL.vertex2i(outline_rect.mLeft, outline_rect.mTop);
-			gGL.vertex2i(outline_rect.mLeft, outline_rect.mBottom);
-			gGL.vertex2i(outline_rect.mLeft - BORDER_WIDTH, outline_rect.mBottom - BORDER_WIDTH);
-			gGL.vertex2i(outline_rect.mLeft - BORDER_WIDTH, outline_rect.mTop + BORDER_WIDTH);
-
-			gGL.vertex2i(outline_rect.mRight, outline_rect.mBottom);
-			gGL.vertex2i(outline_rect.mRight, outline_rect.mTop);
-			gGL.vertex2i(outline_rect.mRight + BORDER_WIDTH, outline_rect.mTop + BORDER_WIDTH);
-			gGL.vertex2i(outline_rect.mRight + BORDER_WIDTH, outline_rect.mBottom - BORDER_WIDTH);
-		}
-		gGL.end();
 	}
 
 	// draw old image dropping away
