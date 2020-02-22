@@ -235,6 +235,7 @@ private:
 	void modelUpdated(bool calculate_visible);
 
 	// Toggles between "Calculate weights & fee" and "Upload" buttons.
+    void toggleCalculateButton();
 	void toggleCalculateButton(bool visible);
 
 	// resets display options of model preview to their defaults.
