@@ -471,7 +471,7 @@ void LLFloaterModelPreview::initModelPreview()
 	mModelPreview = new LLModelPreview(tex_width, tex_height, this);
 	mModelPreview->setPreviewTarget(16.f);
 	mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelPreview::setDetails, this, _1, _2, _3, _4, _5));
-	mModelPreview->setModelUpdatedCallback(boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this, _1));
+	mModelPreview->setModelUpdatedCallback(boost::bind(&LLFloaterModelPreview::modelUpdated, this, _1));
 }
 
 void LLFloaterModelPreview::onUploadOptionChecked(LLUICtrl* ctrl)
@@ -568,7 +568,15 @@ void LLFloaterModelPreview::onClickCalculateBtn()
 	bool upload_joint_positions = childGetValue("upload_joints").asBoolean();
     bool lock_scale_if_joint_position = childGetValue("lock_scale_if_joint_position").asBoolean();
 
-	mUploadModelUrl.clear();
+    if (upload_joint_positions)
+    {
+        // Diagnostic message showing list of joints for which joint offsets are defined.
+        // FIXME - given time, would be much better to put this in the UI, in updateStatusMessages().
+		mModelPreview->getPreviewAvatar()->showAttachmentOverrides();
+    }
+
+    mUploadModelUrl.clear();
+    mModelPhysicsFee.clear();
 
 	gMeshRepo.uploadModel(mModelPreview->mUploadData, mModelPreview->mPreviewScale,
                           childGetValue("upload_textures").asBoolean(), 
@@ -4992,6 +5000,17 @@ void LLFloaterModelPreview::setStatusMessage(const std::string& msg)
 	mStatusMessage = msg;
 }
 
+void LLFloaterModelPreview::toggleCalculateButton()
+{
+	toggleCalculateButton(true);
+}
+
+void LLFloaterModelPreview::modelUpdated(bool calculate_visible)
+{
+    mModelPhysicsFee.clear();
+    toggleCalculateButton(calculate_visible);
+}
+
 void LLFloaterModelPreview::toggleCalculateButton(bool visible)
 {
 	mCalculateBtn->setVisible(visible);
@@ -5017,7 +5036,10 @@ void LLFloaterModelPreview::toggleCalculateButton(bool visible)
 		childSetTextArg("download_weight", "[ST]", tbd);
 		childSetTextArg("server_weight", "[SIM]", tbd);
 		childSetTextArg("physics_weight", "[PH]", tbd);
-		childSetTextArg("upload_fee", "[FEE]", tbd);
+		if (!mModelPhysicsFee.isMap() || mModelPhysicsFee.emptyMap())
+		{
+			childSetTextArg("upload_fee", "[FEE]", tbd);
+		}
 		std::string dashes = hasString("--") ? getString("--") : "--";
 		childSetTextArg("price_breakdown", "[STREAMING]", dashes);
 		childSetTextArg("price_breakdown", "[PHYSICS]", dashes);
@@ -5129,7 +5151,7 @@ void LLFloaterModelPreview::handleModelPhysicsFeeReceived()
 	mUploadBtn->setEnabled(isModelUploadAllowed());
 }
 
-void LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(S32 status, const std::string& reason)
+void LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(S32 status, const std::string& reason, const LLSD& result)
 {
 	std::ostringstream out;
 	out << "LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(" << status;
@@ -5137,6 +5159,17 @@ void LLFloaterModelPreview::setModelPhysicsFeeErrorStatus(S32 status, const std:
 	LL_WARNS() << out.str() << LL_ENDL;
 	LLFloaterModelPreview::addStringToLog(out, false);
 	doOnIdleOneTime(boost::bind(&LLFloaterModelPreview::toggleCalculateButton, this, true));
+
+    if (result.has("upload_price"))
+    {
+        mModelPhysicsFee = result;
+        childSetTextArg("upload_fee", "[FEE]", llformat("%d", result["upload_price"].asInteger()));
+        childSetVisible("upload_fee", true);
+    }
+    else
+    {
+        mModelPhysicsFee.clear();
+    }
 }
 
 /*virtual*/ 
