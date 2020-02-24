@@ -177,7 +177,6 @@ void LLFloaterPermsDefault::sendInitialPerms()
 	if(!mCapSent)
 	{
 		updateCap();
-		setCapSent(true);
 	}
 }
 
@@ -239,7 +238,7 @@ void LLFloaterPermsDefault::updateCapCoro(std::string url)
         {
             const std::string& reason = status.toString();
             // Do not display the same error more than once in a row
-            if (reason != previousReason)
+            if ((reason != previousReason) && mCapSent)
             {
                 previousReason = reason;
                 LLSD args;
