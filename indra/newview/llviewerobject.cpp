@@ -268,6 +268,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mData(NULL),
 	mAudioSourcep(NULL),
 	mAudioGain(1.f),
+	mSoundCutOffRadius(0.f),
 	mAppAngle(0.f),
 	mPixelArea(1024.f),
 	mInventory(NULL),
@@ -1245,6 +1246,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				LLUUID audio_uuid;
 				LLUUID owner_id;	// only valid if audio_uuid or particle system is not null
 				F32    gain;
+				F32    cutoff;
 				U8     sound_flags;
 
 				mesgsys->getU32Fast( _PREHASH_ObjectData, _PREHASH_CRC, crc, block_num);
@@ -1253,6 +1255,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				// HACK: Owner id only valid if non-null sound id or particle system
 				mesgsys->getUUIDFast(_PREHASH_ObjectData, _PREHASH_OwnerID, owner_id, block_num );
 				mesgsys->getF32Fast( _PREHASH_ObjectData, _PREHASH_Gain, gain, block_num );
+				mesgsys->getF32Fast(  _PREHASH_ObjectData, _PREHASH_Radius, cutoff, block_num );
 				mesgsys->getU8Fast(  _PREHASH_ObjectData, _PREHASH_Flags, sound_flags, block_num );
 				mesgsys->getU8Fast(  _PREHASH_ObjectData, _PREHASH_Material, material, block_num );
 				mesgsys->getU8Fast(  _PREHASH_ObjectData, _PREHASH_ClickAction, click_action, block_num); 
@@ -1261,6 +1264,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_ObjectData, data, length, block_num, MAX_OBJECT_BINARY_DATA_SIZE);
 
 				mTotalCRC = crc;
+				mSoundCutOffRadius = cutoff;
 
 				// Owner ID used for sound muting or particle system muting
 				setAttachedSound(audio_uuid, owner_id, gain, sound_flags);
@@ -1957,6 +1961,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				}
 
 				mTotalCRC = crc;
+				mSoundCutOffRadius = cutoff;
 
 				setAttachedSound(sound_uuid, owner_id, gain, sound_flags);
 
@@ -5913,6 +5918,8 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 		if( gAgent.canAccessMaturityAtGlobal(this->getPositionGlobal()) )
 		{
 			//LL_INFOS() << "Playing attached sound " << audio_uuid << LL_ENDL;
+			// recheck cutoff radius in case this update was an object-update with new value
+			mAudioSourcep->checkCutOffRadius();
 			mAudioSourcep->play(audio_uuid);
 		}
 	}

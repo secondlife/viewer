@@ -204,7 +204,9 @@ public:
     void setDataFetchedSignal(const status_updated_signal_t::slot_type& cb);
     void setSLMDataFetched(U32 status);
     U32 getSLMDataFetched() { return mMarketPlaceDataFetched; }
-    
+
+    bool isSLMDataFetched();
+
     // High level create/delete/set Marketplace data: each method returns true if the function succeeds, false if error
     bool createListing(const LLUUID& folder_id);
     bool activateListing(const LLUUID& folder_id, bool activate, S32 depth = -1);
