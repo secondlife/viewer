@@ -149,6 +149,16 @@ LLMultiSlider::~LLMultiSlider()
 	delete mMouseUpSignal;
 }
 
+F32 LLMultiSlider::getNearestIncrement(F32 value) const
+{
+    value = llclamp(value, mMinValue, mMaxValue);
+
+    // Round to nearest increment (bias towards rounding down)
+    value -= mMinValue;
+    value += mIncrement / 2.0001f;
+    value -= fmod(value, mIncrement);
+    return mMinValue + value;
+}
 
 void LLMultiSlider::setSliderValue(const std::string& name, F32 value, BOOL from_event)
 {
@@ -157,13 +167,7 @@ void LLMultiSlider::setSliderValue(const std::string& name, F32 value, BOOL from
 		return;
 	}
 
-	value = llclamp( value, mMinValue, mMaxValue );
-
-	// Round to nearest increment (bias towards rounding down)
-	value -= mMinValue;
-	value += mIncrement/2.0001f;
-	value -= fmod(value, mIncrement);
-	F32 newValue = mMinValue + value;
+    F32 newValue = getNearestIncrement(value);
 
 	// now, make sure no overlap
 	// if we want that
