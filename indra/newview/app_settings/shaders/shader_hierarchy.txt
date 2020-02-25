@@ -1,3 +1,9 @@
+Class 3 is highest quality / lowest  performance
+Class 2 is medium  quality / medium  performance
+Class 1 is lowest  quality / highest performance
+
+Shaders WILL fall back to "lower" classes for functionality.
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 avatar/avatarV.glsl - gAvatarProgram, gAvatarWaterProgram
 	main() - avatar/avatarV.glsl
