@@ -190,9 +190,8 @@ void LLSkyTex::initEmpty(const S32 tex)
 	createGLImage(tex);
 }
 
-void LLSkyTex::create(const F32 brightness)
+void LLSkyTex::create()
 {
-	/// Brightness ignored for now.
 	U8* data = mImageRaw[sCurrent]->getData();
 	for (S32 i = 0; i < sResolution; ++i)
 	{
@@ -502,8 +501,8 @@ void LLVOSky::init()
 			initSkyTextureDirs(side, tile);
             createSkyTexture(m_atmosphericsVars, side, tile);
 		}
-        mSkyTex[side].create(1.0f);
-        mShinyTex[side].create(1.0f);
+        mSkyTex[side].create();
+        mShinyTex[side].create();
 	}
 
 	initCubeMap();
@@ -764,35 +763,35 @@ bool LLVOSky::updateSky()
         {
             LLImageRaw* raw1 = nullptr;
             LLImageRaw* raw2 = nullptr;
-	
+
             if (!is_alm_wl_sky)
-	{
+            {
                 raw1 = mSkyTex[side].getImageRaw(TRUE);
                 raw2 = mSkyTex[side].getImageRaw(FALSE);
                 raw2->copy(raw1);
                 mSkyTex[side].createGLImage(tex);
-	}
+            }
 
             raw1 = mShinyTex[side].getImageRaw(TRUE);
             raw2 = mShinyTex[side].getImageRaw(FALSE);
             raw2->copy(raw1);
             mShinyTex[side].createGLImage(tex);
-}
+        }
         next_frame = 0;
 
         // update the sky texture
         if (!is_alm_wl_sky)
         {
             for (S32 i = 0; i < NUM_CUBEMAP_FACES; ++i)
-{
-                mSkyTex[i].create(1.0f);
+            {
+                mSkyTex[i].create();
             }
-	}
+        }
 
         for (S32 i = 0; i < NUM_CUBEMAP_FACES; ++i)
-	{
-            mShinyTex[i].create(1.0f);
-	}
+        {
+            mShinyTex[i].create();
+        }
 
         // update the environment map
         initCubeMap();
