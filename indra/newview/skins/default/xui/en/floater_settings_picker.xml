@@ -107,6 +107,7 @@
              max_chars="100"
              mouse_opaque="true"
              name="track_selection"
+             enabled="false"
              top="1"
              width="190"/>
         </layout_panel>
