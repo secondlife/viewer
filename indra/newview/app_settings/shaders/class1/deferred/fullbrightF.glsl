@@ -86,7 +86,6 @@ void main()
 	color.a   = final_alpha;
 #endif
 
-	frag_color.rgb = color.rgb;
-	frag_color.a   = color.a;
+	frag_color = color;
 }
 
