@@ -78,7 +78,7 @@ protected:
 
 	void initEmpty(const S32 tex);
 	
-	void create(F32 brightness);
+	void create();
 
 	void setDir(const LLVector3 &dir, const S32 i, const S32 j)
 	{

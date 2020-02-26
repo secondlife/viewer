@@ -190,9 +190,8 @@ void LLSkyTex::initEmpty(const S32 tex)
 	createGLImage(tex);
 }
 
-void LLSkyTex::create(const F32 brightness)
+void LLSkyTex::create()
 {
-	/// Brightness ignored for now.
 	U8* data = mImageRaw[sCurrent]->getData();
 	for (S32 i = 0; i < sResolution; ++i)
 	{
@@ -502,8 +501,8 @@ void LLVOSky::init()
 			initSkyTextureDirs(side, tile);
             createSkyTexture(m_atmosphericsVars, side, tile);
 		}
-        mSkyTex[side].create(1.0f);
-        mShinyTex[side].create(1.0f);
+        mSkyTex[side].create();
+        mShinyTex[side].create();
 	}
 
 	initCubeMap();
@@ -699,20 +698,20 @@ bool LLVOSky::updateSky()
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
 	if (mDead || !(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY)))
-{
+	{
 		return TRUE;
-}
+	}
 
 	if (mDead)
-{
+	{
 		// It's dead.  Don't update it.
 		return TRUE;
-}
+	}
 
 	if (gGLManager.mIsDisabled)
-{
+	{
 		return TRUE;
-}
+	}
 
 	static S32 next_frame = 0;
 	const S32 total_no_tiles = NUM_CUBEMAP_FACES * NUM_TILES;
@@ -744,15 +743,15 @@ bool LLVOSky::updateSky()
         mNeedUpdate = mNeedUpdate || !same_atmospherics;
 
         if (mNeedUpdate && (mForceUpdateThrottle.hasExpired() || mForceUpdate))
-{
+		{
             // start updating cube map sides
             updateFog(LLViewerCamera::getInstance()->getFar());
             mCubeMapUpdateStage = 0;
             mForceUpdate = FALSE;
-			}
-			}
+		}
+	}
     else if (mCubeMapUpdateStage == NUM_CUBEMAP_FACES)
-			{
+	{
         LL_RECORD_BLOCK_TIME(FTM_VOSKY_UPDATEFORCED);
         LLSkyTex::stepCurrent();
 
@@ -764,35 +763,35 @@ bool LLVOSky::updateSky()
         {
             LLImageRaw* raw1 = nullptr;
             LLImageRaw* raw2 = nullptr;
-	
+
             if (!is_alm_wl_sky)
-	{
+            {
                 raw1 = mSkyTex[side].getImageRaw(TRUE);
                 raw2 = mSkyTex[side].getImageRaw(FALSE);
                 raw2->copy(raw1);
                 mSkyTex[side].createGLImage(tex);
-	}
+            }
 
             raw1 = mShinyTex[side].getImageRaw(TRUE);
             raw2 = mShinyTex[side].getImageRaw(FALSE);
             raw2->copy(raw1);
             mShinyTex[side].createGLImage(tex);
-}
+        }
         next_frame = 0;
 
         // update the sky texture
         if (!is_alm_wl_sky)
         {
             for (S32 i = 0; i < NUM_CUBEMAP_FACES; ++i)
-{
-                mSkyTex[i].create(1.0f);
+            {
+                mSkyTex[i].create();
             }
-	}
+        }
 
         for (S32 i = 0; i < NUM_CUBEMAP_FACES; ++i)
-	{
-            mShinyTex[i].create(1.0f);
-	}
+        {
+            mShinyTex[i].create();
+        }
 
         // update the environment map
         initCubeMap();
@@ -806,9 +805,9 @@ bool LLVOSky::updateSky()
         gPipeline.markRebuild(gSky.mVOGroundp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
 
         if (mDrawable.notNull() && mDrawable->getFace(0) && !mDrawable->getFace(0)->getVertexBuffer())
-	{
-		    gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
-	    }
+        {
+            gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME, TRUE);
+        }
         mCubeMapUpdateStage = -1;
     }
     // run 0 to 5 faces, each face in own frame
@@ -822,11 +821,11 @@ bool LLVOSky::updateSky()
         // (i.e. potentially can be made per tile again, can be moved to thread
         // instead of executing per face, or may be can be moved to shaders)
         for (S32 tile = 0; tile < NUM_TILES; tile++)
-		{
+        {
             createSkyTexture(m_atmosphericsVars, side, tile);
-		}
+        }
         mCubeMapUpdateStage++;
-	}
+    }
 
 	return TRUE;
 }

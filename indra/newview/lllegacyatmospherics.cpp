@@ -208,23 +208,25 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(AtmosphericsVars& vars, const LLVecto
     return calcSkyColorInDir(psky, vars, dir, isShiny);
 }
 
+// This cubemap is used as "environmentMap" in indra/newview/app_settings/shaders/class2/deferred/softenLightF.glsl
 LLColor4 LLAtmospherics::calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, AtmosphericsVars& vars, const LLVector3 &dir, bool isShiny)
 {
-	F32 saturation = 0.3f;
+	F32 sky_saturation = 0.25f;
+	F32 land_saturation = 0.1f;
 
 	if (isShiny && dir.mV[VZ] < -0.02f)
 	{
 		LLColor4 col;
 		LLColor3 desat_fog = LLColor3(mFogColor);
-		F32 brightness = desat_fog.brightness();
+		F32 brightness = desat_fog.brightness();// NOTE: Linear brightness!
 		// So that shiny somewhat shows up at night.
 		if (brightness < 0.15f)
 		{
 			brightness = 0.15f;
 			desat_fog = smear(0.15f);
 		}
-		F32 greyscale_sat = brightness * (1.0f - saturation);
-		desat_fog = desat_fog * saturation + smear(greyscale_sat);
+		F32 greyscale_sat = brightness * (1.0f - land_saturation);
+		desat_fog = desat_fog * land_saturation + smear(greyscale_sat);
 		if (!gPipeline.canUseWindLightShaders())
 		{
 			col = LLColor4(desat_fog, 0.f);
@@ -250,9 +252,9 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, Atm
 	if (isShiny)
 	{
 		F32 brightness = vars.hazeColor.brightness();
-		F32 greyscale_sat = brightness * (1.0f - saturation);
-		LLColor3 sky_color = vars.hazeColor * saturation + smear(greyscale_sat);
-		sky_color *= (0.5f + 0.5f * brightness);
+		F32 greyscale_sat = brightness * (1.0f - sky_saturation);
+		LLColor3 sky_color = vars.hazeColor * sky_saturation + smear(greyscale_sat);
+		//sky_color *= (0.5f + 0.5f * brightness); // SL-12574 EEP sky was too dark dark grey/blue, lighten it slightly
 		return LLColor4(sky_color, 0.0f);
 	}
 

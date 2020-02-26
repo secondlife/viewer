@@ -81,11 +81,7 @@ void main()
     norm.xyz = getNorm(tc);
     
     vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;
-    float da = dot(normalize(norm.xyz), light_dir.xyz);
-          da = clamp(da, -1.0, 1.0);
-
-    float final_da = da;
-          final_da = clamp(final_da, 0.0, 1.0);
+    float da = clamp(dot(normalize(norm.xyz), light_dir.xyz), 0.0, 1.0);
 
     vec4 diffuse_srgb = texture2DRect(diffuseRect, tc);
     vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_srgb.a);
@@ -108,7 +104,7 @@ void main()
         ambient *= ambient;
         ambient = (1.0 - ambient);
 
-        vec3 sun_contrib = final_da * sunlit;
+        vec3 sun_contrib = da * sunlit;
 
 #if !defined(AMBIENT_KILL)
         color.rgb = amblit;
