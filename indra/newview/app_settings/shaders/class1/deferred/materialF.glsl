@@ -164,6 +164,14 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
     return max(col, vec3(0.0,0.0,0.0));
 }
 
+// Q&D approximate RGB-space de-saturation, strength from 0 (no effect) to 1.0 (complete grey-scale)
+vec3 desat(vec3 color, float strength)
+{
+    float primary_value = max(color.r, max(color.g, color.b));
+    vec3 delta = strength * (vec3(primary_value)-color);
+    return color + delta;
+}
+
 #else
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_data[3];
@@ -355,10 +363,14 @@ void main()
 #endif
 
 #if !defined(SUNLIGHT_KILL)
-        color.rgb += eep_bump_gain * sun_contrib;
+        color.rgb += sun_contrib;
 #endif
 
         color.rgb *= diffuse_linear.rgb; // SL-12006
+
+        // ad-hoc brighten and de-saturate (normal-mapped only), to match windlight - SL-12638
+        color.rgb = desat(color.rgb, 0.33 * (eep_bump_gain - 1.0));
+        color.rgb *= eep_bump_gain;
 
         float glare = 0.0;
 
