@@ -512,19 +512,21 @@ void LLPanelSettingsSkySunMoonTab::setEnabled(BOOL enabled)
 
 void LLPanelSettingsSkySunMoonTab::refresh()
 {
-    if (!mSkySettings)
+    if (!mSkySettings || !getCanChangeSettings())
     {
         getChildView(PANEL_SKY_SUN_LAYOUT)->setAllChildrenEnabled(FALSE);
         getChildView(PANEL_SKY_MOON_LAYOUT)->setAllChildrenEnabled(FALSE);
         getChildView(FIELD_SKY_SUN_BEACON)->setEnabled(TRUE);
         getChildView(FIELD_SKY_MOON_BEACON)->setEnabled(TRUE);
-        return;
+        
+        if (!mSkySettings)
+            return;
     }
-
-    setEnabled(getCanChangeSettings());
-    getChildView(PANEL_SKY_SUN_LAYOUT)->setAllChildrenEnabled(getCanChangeSettings());
-    getChildView(PANEL_SKY_MOON_LAYOUT)->setAllChildrenEnabled(getCanChangeSettings());
-    setAllChildrenEnabled(getCanChangeSettings());
+    else
+    {
+        setEnabled(TRUE);
+        setAllChildrenEnabled(TRUE);
+    }
 
     getChild<LLColorSwatchCtrl>(FIELD_SKY_SUN_MOON_COLOR)->set(mSkySettings->getSunlightColor() / SLIDER_SCALE_SUN_AMBIENT);
 
