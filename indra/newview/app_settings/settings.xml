@@ -5752,7 +5752,7 @@
     <key>PerformanceLogFormat</key>
     <map>
       <key>Comment</key>
-      <string>Format for performance analysis log (standard, extended, or arctan)</string>
+      <string>Format for performance analysis log (standard or arctan)</string>
       <key>Persist</key>
       <integer>0</integer>
     <key>Type</key>

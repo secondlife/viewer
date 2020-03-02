@@ -4545,24 +4545,24 @@ F32 LLMeshCostData::getRadiusWeightedTris(F32 radius)
     return weighted_avg;
 }
 
-F32 LLMeshCostData::getEstTrisForStreamingCost()
+F32 LLMeshCostData::getChargedTriangleCount(std::vector<F32>& counts_by_lod)
 {
-    LL_DEBUGS("StreamingCost") << "tris_by_lod: "
-                               << mEstTrisByLOD[0] << ", "
-                               << mEstTrisByLOD[1] << ", "
-                               << mEstTrisByLOD[2] << ", "
-                               << mEstTrisByLOD[3] << LL_ENDL;
+    LL_DEBUGS("StreamingCost") << "counts_by_lod: "
+                               << counts_by_lod[0] << ", "
+                               << counts_by_lod[1] << ", "
+                               << counts_by_lod[2] << ", "
+                               << counts_by_lod[3] << LL_ENDL;
 
-    F32 charged_tris = mEstTrisByLOD[3];
-    F32 allowed_tris = mEstTrisByLOD[3];
+    F32 charged_tris = counts_by_lod[3];
+    F32 allowed_tris = counts_by_lod[3];
     const F32 ENFORCE_FLOOR = 64.0f;
     for (S32 i=2; i>=0; i--)
     {
         // How many tris can we have in this LOD without affecting land impact?
         // - normally an LOD should be at most half the size of the previous one.
         // - once we reach a floor of ENFORCE_FLOOR, don't require LODs to get any smaller.
-        allowed_tris = llclamp(allowed_tris/2.0f,ENFORCE_FLOOR,mEstTrisByLOD[i]);
-        F32 excess_tris = mEstTrisByLOD[i]-allowed_tris;
+        allowed_tris = llclamp(allowed_tris/2.0f,ENFORCE_FLOOR,counts_by_lod[i]);
+        F32 excess_tris = counts_by_lod[i]-allowed_tris;
         if (excess_tris>0.f)
         {
             LL_DEBUGS("StreamingCost") << "excess tris in lod[" << i << "] " << excess_tris << " allowed " << allowed_tris <<  LL_ENDL;
@@ -4570,6 +4570,11 @@ F32 LLMeshCostData::getEstTrisForStreamingCost()
         }
     }
     return charged_tris;
+}
+
+F32 LLMeshCostData::getEstTrisForStreamingCost()
+{
+	return getChargedTriangleCount(mEstTrisByLOD); 
 }
 
 F32 LLMeshCostData::getRadiusBasedStreamingCost(F32 radius)

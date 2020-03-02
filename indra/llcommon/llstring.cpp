@@ -1000,24 +1000,25 @@ std::string LLStringOps::getDatetimeCode (std::string key)
 	}
 }
 
-std::string LLStringOps::getReadableNumber(F64 num)
+std::string LLStringOps::getReadableNumber(F64 num, S32 prec)
 {
+	std::string fmtStr = "%." + std::to_string(prec) + "lf";
     if (fabs(num)>=1e9)
     {
-		return llformat("%.2lfB", num / 1e9);
+		fmtStr += "B";
+		num /= 1e9;
     }
     else if (fabs(num)>=1e6)
     {
-		return llformat("%.2lfM", num / 1e6);
+		fmtStr += "M";
+		num /= 1e6;
     }
     else if (fabs(num)>=1e3)
     {
-		return llformat("%.2lfK", num / 1e3);
+		fmtStr += "K";
+		num /= 1e3;
     }
-    else
-    {
-		return llformat("%.2lf", num);
-    }
+	return llformat(fmtStr.c_str(), num);
 }
 
 namespace LLStringFn

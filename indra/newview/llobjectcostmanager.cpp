@@ -88,6 +88,7 @@ public:
 	U32 m_num_particles;
 	F32 m_part_size;
 	U32 m_num_triangles_v1;
+	U32 m_num_triangles_v2;
 	bool m_is_animated_object;
 	bool m_is_root_edit;
 
@@ -97,6 +98,8 @@ public:
 	U32 m_triangle_count_low;
 	U32 m_triangle_count_medium;
 	U32 m_triangle_count_high;
+
+	F32 m_actual_triangles_charged;
 	
 	// Texture ids
 	texture_ids_t m_diffuse_ids;
@@ -143,6 +146,7 @@ LLPrimCostData::LLPrimCostData():
 	m_num_particles(0),
 	m_part_size(0.f),
 	m_num_triangles_v1(0),
+	m_num_triangles_v2(0),
 	m_is_animated_object(false),
 	m_is_root_edit(false)
 {
@@ -179,6 +183,7 @@ void LLPrimCostData::asLLSD( LLSD& sd ) const
 	sd["m_num_particles"] = (LLSD::Integer) m_num_particles;
 	sd["m_part_size"] = (LLSD::Real) m_part_size;
 	sd["m_num_triangles_v1"] = (LLSD::Integer) m_num_triangles_v1;
+	sd["m_num_triangles_v2"] = (LLSD::Integer) m_num_triangles_v2;
 	sd["m_is_animated_object"] = (LLSD::Boolean) m_is_animated_object;
 	sd["m_is_root_edit"] = (LLSD::Boolean) m_is_root_edit;
 
@@ -270,7 +275,7 @@ void get_volumes_for_linkset(const LLViewerObject *root, const_vol_vec_t& volume
 
 F32 LLObjectCostManagerImpl::getRenderCostLinksetV1(const LLViewerObject *root)
 {
-	F32 shame = 0.f;
+	F32 cost = 0.f;
 	texture_ids_t all_sculpt_ids, all_diffuse_ids, all_normal_ids, all_specular_ids;
 
 	const_vol_vec_t volumes;
@@ -285,7 +290,7 @@ F32 LLObjectCostManagerImpl::getRenderCostLinksetV1(const LLViewerObject *root)
 		getPrimCostData(vol, cost_data);
 
 		// Charge for effective triangles
-		shame += triangleCostsV1(cost_data);
+		cost += triangleCostsV1(cost_data);
 
 		// Accumulate texture ids
 		all_sculpt_ids.insert(cost_data.m_sculpt_ids.begin(), cost_data.m_sculpt_ids.end());
@@ -296,22 +301,22 @@ F32 LLObjectCostManagerImpl::getRenderCostLinksetV1(const LLViewerObject *root)
 	}
 	
 	// Material textures not included in V1 costs
-	shame += textureCostsV1(all_sculpt_ids);
-	shame += textureCostsV1(all_diffuse_ids);
+	cost += textureCostsV1(all_sculpt_ids);
+	cost += textureCostsV1(all_diffuse_ids);
 
 	// Animated Object surcharge
 	const F32 animated_object_surcharge = 1000;
 	if (root->isAnimatedObject())
 	{
-		shame += animated_object_surcharge;
+		cost += animated_object_surcharge;
 	}
 
-	return shame;
+	return cost;
 }
 
 F32 LLObjectCostManagerImpl::getRenderCostLinksetV2(const LLViewerObject *root)
 {
-	F32 shame = 0.f;
+	F32 cost = 0.f;
 	texture_ids_t all_sculpt_ids, all_diffuse_ids, all_normal_ids, all_specular_ids;
 
 	const_vol_vec_t volumes;
@@ -326,7 +331,7 @@ F32 LLObjectCostManagerImpl::getRenderCostLinksetV2(const LLViewerObject *root)
 		getPrimCostData(vol, cost_data);
 
 		// Charge for effective triangles
-		shame += triangleCostsV2(cost_data);
+		cost += triangleCostsV2(cost_data);
 
 		// Accumulate texture ids
 		all_sculpt_ids.insert(cost_data.m_sculpt_ids.begin(), cost_data.m_sculpt_ids.end());
@@ -337,21 +342,21 @@ F32 LLObjectCostManagerImpl::getRenderCostLinksetV2(const LLViewerObject *root)
 	}
 	
 	// Material textures not included in V1 costs
-	shame += textureCostsV2(all_sculpt_ids);
-	shame += textureCostsV2(all_diffuse_ids);
+	cost += textureCostsV2(all_sculpt_ids);
+	cost += textureCostsV2(all_diffuse_ids);
 
 	// FIXME ARC including material textures here to force ARC to change for logging purposes. This differs from V1
-	shame += textureCostsV2(all_normal_ids, 2);
-	shame += textureCostsV2(all_specular_ids, 3);
+	cost += textureCostsV2(all_normal_ids, 2);
+	cost += textureCostsV2(all_specular_ids, 3);
 	
 	// Animated Object surcharge
 	const F32 animated_object_surcharge = 1000;
 	if (root->isAnimatedObject())
 	{
-		shame += animated_object_surcharge;
+		cost += animated_object_surcharge;
 	}
 
-	return shame;
+	return cost;
 }
 
 F32 LLObjectCostManagerImpl::getStreamingCost(U32 version, const LLVOVolume *vol)
@@ -462,13 +467,13 @@ F32 LLObjectCostManagerImpl::getRenderCostV1(const LLVOVolume *vol)
 	getPrimCostData(vol, cost_data);
 
 	// Charge for effective triangles
-	F32 shame = triangleCostsV1(cost_data);
+	F32 cost = triangleCostsV1(cost_data);
 
 	// Material textures not included in V1 costs
-	shame += textureCostsV1(cost_data.m_sculpt_ids);
-	shame += textureCostsV1(cost_data.m_diffuse_ids);
+	cost += textureCostsV1(cost_data.m_sculpt_ids);
+	cost += textureCostsV1(cost_data.m_diffuse_ids);
 	
-	return shame;
+	return cost;
 }
 
 F32 LLObjectCostManagerImpl::getRenderCostV2(const LLVOVolume *vol)
@@ -477,13 +482,13 @@ F32 LLObjectCostManagerImpl::getRenderCostV2(const LLVOVolume *vol)
 	getPrimCostData(vol, cost_data);
 
 	// Charge for effective triangles
-	F32 shame = triangleCostsV2(cost_data);
+	F32 cost = triangleCostsV2(cost_data);
 
 	// Material textures not included in V1 costs
-	shame += textureCostsV2(cost_data.m_sculpt_ids);
-	shame += textureCostsV2(cost_data.m_diffuse_ids);
+	cost += textureCostsV2(cost_data.m_sculpt_ids);
+	cost += textureCostsV2(cost_data.m_diffuse_ids);
 	
-	return shame;
+	return cost;
 }
 
 // Accumulate data for a single prim.
@@ -507,6 +512,7 @@ void LLObjectCostManagerImpl::getPrimCostData(const LLVOVolume *vol, LLPrimCostD
 	LLProfileParams profile_params;
 
 	cost_data.m_num_triangles_v1 = 0;
+	cost_data.m_num_triangles_v2 = 0;
 	
 	if (has_volume)
 	{
@@ -529,6 +535,8 @@ void LLObjectCostManagerImpl::getPrimCostData(const LLVOVolume *vol, LLPrimCostD
                 F32 radius = vol->getScale().length()*0.5f;
                 cost_data.m_num_triangles_v1 = costs.getRadiusWeightedTris(radius);
             }
+			// ARC TODO: here using actual tris, which will be a bit different than the estimation-based formula.
+			cost_data.m_num_triangles_v2 = cost_data.m_actual_triangles_charged;
 		}
 
 		cost_data.m_is_animated_object = vol->isAnimatedObject();
@@ -537,6 +545,7 @@ void LLObjectCostManagerImpl::getPrimCostData(const LLVOVolume *vol, LLPrimCostD
 
 	if (cost_data.m_num_triangles_v1 <= 0)
 	{
+		// Fallback for non-mesh prims
 		cost_data.m_num_triangles_v1 = 4;
 	}
 
@@ -694,10 +703,18 @@ void LLObjectCostManagerImpl::getPrimCostData(const LLVOVolume *vol, LLPrimCostD
 	}
 
     cost_data.m_triangle_count = vol->getTriangleCount();
+
     cost_data.m_triangle_count_lowest = vol->getLODTriangleCount(LLModel::LOD_IMPOSTOR);
     cost_data.m_triangle_count_low = vol->getLODTriangleCount(LLModel::LOD_LOW);
     cost_data.m_triangle_count_medium = vol->getLODTriangleCount(LLModel::LOD_MEDIUM);
     cost_data.m_triangle_count_high = vol->getLODTriangleCount(LLModel::LOD_HIGH);
+
+	std::vector<F32> triangle_counts_by_lod(4);
+	triangle_counts_by_lod[0] = cost_data.m_triangle_count_lowest;
+	triangle_counts_by_lod[1] = cost_data.m_triangle_count_low;
+	triangle_counts_by_lod[2] = cost_data.m_triangle_count_medium;
+	triangle_counts_by_lod[3] = cost_data.m_triangle_count_high;
+	cost_data.m_actual_triangles_charged = LLMeshCostData::getChargedTriangleCount(triangle_counts_by_lod);
 }
 
 U32 LLObjectCostManagerImpl::textureCostsV1(const texture_ids_t& ids)
@@ -792,7 +809,7 @@ F32 LLObjectCostManagerImpl::triangleCostsV1(LLPrimCostData& cost_data)
 	static const F32 ARC_ANIM_TEX_COST = 4.f; // tested based on performance
 	static const F32 ARC_ALPHA_COST = 4.f; // 4x max - based on performance
 
-	F32 shame = 0;
+	F32 cost = 0;
 
 	U32 invisi = (cost_data.m_invisi_faces > 0);
 	U32 shiny = (cost_data.m_shiny_faces > 0);
@@ -809,73 +826,73 @@ F32 LLObjectCostManagerImpl::triangleCostsV1(LLPrimCostData& cost_data)
 
 	U32 num_triangles = cost_data.m_num_triangles_v1;
 	
-	// shame currently has the "base" cost of 1 point per 15 triangles, min 2.
-	shame = num_triangles  * 5.f;
-	shame = shame < 2.f ? 2.f : shame;
+	// cost currently has the "base" cost of 1 point per 15 triangles, min 2.
+	cost = num_triangles  * 5.f;
+	cost = cost < 2.f ? 2.f : cost;
 
 	// multiply by per-face modifiers
 	if (planar)
 	{
-		shame *= planar * ARC_PLANAR_COST;
+		cost *= planar * ARC_PLANAR_COST;
 	}
 
 	if (animtex)
 	{
-		shame *= animtex * ARC_ANIM_TEX_COST;
+		cost *= animtex * ARC_ANIM_TEX_COST;
 	}
 
 	if (alpha)
 	{
-		shame *= alpha * ARC_ALPHA_COST;
+		cost *= alpha * ARC_ALPHA_COST;
 	}
 
 	if(invisi)
 	{
-		shame *= invisi * ARC_INVISI_COST;
+		cost *= invisi * ARC_INVISI_COST;
 	}
 
 	if (glow)
 	{
-		shame *= glow * ARC_GLOW_MULT;
+		cost *= glow * ARC_GLOW_MULT;
 	}
 
 	if (bump)
 	{
-		shame *= bump * ARC_BUMP_MULT;
+		cost *= bump * ARC_BUMP_MULT;
 	}
 
 	if (shiny)
 	{
-		shame *= shiny * ARC_SHINY_MULT;
+		cost *= shiny * ARC_SHINY_MULT;
 	}
 
 
-	// multiply shame by multipliers
+	// multiply cost by multipliers
 	if (weighted_mesh)
 	{
-		shame *= weighted_mesh * ARC_WEIGHTED_MESH;
+		cost *= weighted_mesh * ARC_WEIGHTED_MESH;
 	}
 
 	if (flexi)
 	{
-		shame *= flexi * ARC_FLEXI_MULT;
+		cost *= flexi * ARC_FLEXI_MULT;
 	}
 
 
 	// add additional costs
 	if (particles)
 	{
-		shame += cost_data.m_num_particles * cost_data.m_part_size * ARC_PARTICLE_COST;
+		cost += cost_data.m_num_particles * cost_data.m_part_size * ARC_PARTICLE_COST;
 	}
 
 	if (produces_light)
 	{
-		shame += ARC_LIGHT_COST;
+		cost += ARC_LIGHT_COST;
 	}
 
 	if (media_faces)
 	{
-		shame += media_faces * ARC_MEDIA_FACE_COST;
+		cost += media_faces * ARC_MEDIA_FACE_COST;
 	}
 
     // Streaming cost for animated objects includes a fixed cost
@@ -883,10 +900,10 @@ F32 LLObjectCostManagerImpl::triangleCostsV1(LLPrimCostData& cost_data)
     // triangles, but not weighted by any graphics properties.
     if (cost_data.m_is_animated_object && cost_data.m_is_root_edit) 
     {
-        shame += (ANIMATED_OBJECT_BASE_COST/0.06) * 5.0f;
+        cost += (ANIMATED_OBJECT_BASE_COST/0.06) * 5.0f;
     }
 
-	return shame;
+	return cost;
 }
 		   
 // FIXME ARC - initially same as V1, eventually costs will differ here.
@@ -913,13 +930,16 @@ F32 LLObjectCostManagerImpl::triangleCostsV2(LLPrimCostData& cost_data)
 	static const F32 ARC_FLEXI_MULT = 5; // tested based on performance
 	static const F32 ARC_SHINY_MULT = 1.6f; // tested based on performance
 	static const F32 ARC_INVISI_COST = 1.2f; // tested based on performance
-	static const F32 ARC_WEIGHTED_MESH = 1.2f; // tested based on performance
+	static const F32 ARC_WEIGHTED_MESH = 1.2f; // ARC TODO: review static vs rigged mesh cost
 
 	static const F32 ARC_PLANAR_COST = 1.0f; // tested based on performance to have negligible impact
 	static const F32 ARC_ANIM_TEX_COST = 4.f; // tested based on performance
 	static const F32 ARC_ALPHA_COST = 4.f; // 4x max - based on performance
 
-	F32 shame = 0;
+	// ARC TODO: value TBD by testing, initially using value from v1 Animated Object ARC.
+	static const F32 ARC_V2_TRIANGLE_WEIGHT = ANIMATED_OBJECT_BASE_COST * 0.001 / 0.06;
+	
+	F32 cost = 0;
 
 	U32 invisi = (cost_data.m_invisi_faces > 0);
 	U32 shiny = (cost_data.m_shiny_faces > 0);
@@ -934,75 +954,74 @@ F32 LLObjectCostManagerImpl::triangleCostsV2(LLPrimCostData& cost_data)
 	U32 produces_light = (cost_data.m_produces_light_vols > 0);
 	U32 media_faces = cost_data.m_media_faces;
 
-	U32 num_triangles = cost_data.m_num_triangles_v1;
-	
-	// shame currently has the "base" cost of 1 point per 15 triangles, min 2.
-	shame = num_triangles  * 5.f;
-	shame = shame < 2.f ? 2.f : shame;
+	U32 num_triangles = cost_data.m_num_triangles_v2;
+
+	// ARC TODO: figure out any weighting or clamping
+	cost = ARC_V2_TRIANGLE_WEIGHT * num_triangles; 
 
 	// multiply by per-face modifiers
 	if (planar)
 	{
-		shame *= planar * ARC_PLANAR_COST;
+		cost *= planar * ARC_PLANAR_COST;
 	}
 
 	if (animtex)
 	{
-		shame *= animtex * ARC_ANIM_TEX_COST;
+		cost *= animtex * ARC_ANIM_TEX_COST;
 	}
 
 	if (alpha)
 	{
-		shame *= alpha * ARC_ALPHA_COST;
+		cost *= alpha * ARC_ALPHA_COST;
 	}
 
 	if(invisi)
 	{
-		shame *= invisi * ARC_INVISI_COST;
+		cost *= invisi * ARC_INVISI_COST;
 	}
 
 	if (glow)
 	{
-		shame *= glow * ARC_GLOW_MULT;
+		cost *= glow * ARC_GLOW_MULT;
 	}
 
 	if (bump)
 	{
-		shame *= bump * ARC_BUMP_MULT;
+		cost *= bump * ARC_BUMP_MULT;
 	}
 
 	if (shiny)
 	{
-		shame *= shiny * ARC_SHINY_MULT;
+		cost *= shiny * ARC_SHINY_MULT;
 	}
 
 
-	// multiply shame by multipliers
+	// multiply cost by multipliers
 	if (weighted_mesh)
 	{
-		shame *= weighted_mesh * ARC_WEIGHTED_MESH;
+		cost *= weighted_mesh * ARC_WEIGHTED_MESH;
 	}
 
 	if (flexi)
 	{
-		shame *= flexi * ARC_FLEXI_MULT;
+		cost *= flexi * ARC_FLEXI_MULT;
 	}
 
 
 	// add additional costs
 	if (particles)
 	{
-		shame += cost_data.m_num_particles * cost_data.m_part_size * ARC_PARTICLE_COST;
+		cost += cost_data.m_num_particles * cost_data.m_part_size * ARC_PARTICLE_COST;
 	}
 
 	if (produces_light)
 	{
-		shame += ARC_LIGHT_COST;
+		cost += ARC_LIGHT_COST;
 	}
 
 	if (media_faces)
 	{
-		shame += media_faces * ARC_MEDIA_FACE_COST;
+		cost += media_faces * ARC_MEDIA_FACE_COST;
 	}
 
     // Streaming cost for animated objects includes a fixed cost
@@ -1010,10 +1029,10 @@ F32 LLObjectCostManagerImpl::triangleCostsV2(LLPrimCostData& cost_data)
     // triangles, but not weighted by any graphics properties.
     if (cost_data.m_is_animated_object && cost_data.m_is_root_edit) 
     {
-        shame += (ANIMATED_OBJECT_BASE_COST/0.06) * 5.0f;
+        cost += (ANIMATED_OBJECT_BASE_COST/0.06) * 5.0f;
     }
 
-	return shame;
+	return cost;
 }
 		   
 LLObjectCostManager::LLObjectCostManager()

@@ -213,8 +213,8 @@ public:
 
 	static std::string getDatetimeCode (std::string key);
 
-    // Express a value like 1234567 as "1.23M" 
-    static std::string getReadableNumber(F64 num);
+    // Express a value like 1234567 as "1.23M". prec is digits after decimal. 
+    static std::string getReadableNumber(F64 num, S32 prec = 2);
 };
 
 /**

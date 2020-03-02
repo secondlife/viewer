@@ -10231,8 +10231,12 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 
 		// FIXME ARC - this should normally just show the default complexity value, from getVisualComplexity()
 		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0);
-		info_line = llformat("%d(%d)/%d Complexity", getVisualComplexity(1), getVisualComplexity(99), getVisualComplexity(2));
-
+		info_line = LLStringOps::getReadableNumber(getVisualComplexity(1),1) +
+			"(" +
+			LLStringOps::getReadableNumber(getVisualComplexity(99),1) +
+			")/" + 
+			LLStringOps::getReadableNumber(getVisualComplexity(2),1) +
+			" Complexity";
 		if (max_render_cost != 0) // zero means don't care, so don't bother coloring based on this
 		{
 			green_level = 1.f-llclamp(((F32) getVisualComplexity()-(F32)max_render_cost)/(F32)max_render_cost, 0.f, 1.f);
