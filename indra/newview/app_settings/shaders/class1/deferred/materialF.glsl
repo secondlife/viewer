@@ -95,6 +95,19 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 
     dist /= la;
 
+    /* clip to projector bounds
+     vec4 proj_tc = proj_mat * lp;
+
+    if (proj_tc.z < 0
+     || proj_tc.z > 1
+     || proj_tc.x < 0
+     || proj_tc.x > 1 
+     || proj_tc.y < 0
+     || proj_tc.y > 1)
+    {
+        return col;
+    }*/
+
     if (dist > 0.0 && la > 0.0)
     {
         //normalize light vector
@@ -162,14 +175,6 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
     }
 
     return max(col, vec3(0.0,0.0,0.0));
-}
-
-// Q&D approximate RGB-space de-saturation, strength from 0 (no effect) to 1.0 (complete grey-scale)
-vec3 desat(vec3 color, float strength)
-{
-    float primary_value = max(color.r, max(color.g, color.b));
-    vec3 delta = strength * (vec3(primary_value)-color);
-    return color + delta;
 }
 
 #else
@@ -247,11 +252,7 @@ void main()
     vec3 norm = vec3(0);
     float bmap_specular = 1.0;
 
-    // Non-physical gain, sole purpose to make EEP viewer better match windlight when normal-mapped.
-    float eep_bump_gain = 1.0;
-
 #ifdef HAS_NORMAL_MAP
-    eep_bump_gain = 1.75;
     vec4 bump_sample = texture2D(bumpMap, vary_texcoord1.xy);
     norm = (bump_sample.xyz * 2) - vec3(1);
     bmap_specular = bump_sample.w;
@@ -294,7 +295,7 @@ void main()
     vec4 final_normal = vec4(abnormal, env_intensity, 0.0);
 
     vec3 color = vec3(0.0);
-    float al   = 1.0;
+    float al   = 0.0;
 
     if (emissive_brightness >= 1.0)
     {
@@ -317,12 +318,7 @@ void main()
 
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
-    if (emissive_brightness >= 1.0)
-    {
-        // fullbright = diffuse texture pass-through, no lighting
-        frag_color = diffuse_srgb;
-    }
-    else
+    if (emissive_brightness <= 1.0)
     {
         //forward rendering, output just lit RGBA
         vec3 pos = vary_position;
@@ -352,25 +348,32 @@ void main()
         float da = dot(norm, normalize(light_dir));
         da = clamp(da, 0.0, 1.0);   // No negative light contributions
 
-        // ambient weight varies from 0.75 at max direct light to 1.0 with sun at grazing angle
-        float ambient = 1.0 - (0.25 * da * da);
+        float ambient = da;
+        ambient *= 0.5;
+        ambient *= ambient;
+        ambient = (1.0 - ambient);
 
-        vec3 sun_contrib = additive + (min(da, shadow) * sunlit);
+        vec3 sun_contrib = min(da, shadow) * sunlit;
+
+// vec3 debug_sun_contrib = sun_contrib;
 
 #if !defined(AMBIENT_KILL)
         color.rgb = amblit;
         color.rgb *= ambient;
 #endif
 
+//vec3 debug_post_ambient = color.rgb;
+
 #if !defined(SUNLIGHT_KILL)
         color.rgb += sun_contrib;
 #endif
 
+//vec3 debug_post_sunlight = color.rgb;
+
+        //color.rgb *= diffuse_srgb.rgb;
         color.rgb *= diffuse_linear.rgb; // SL-12006
 
-        // ad-hoc brighten and de-saturate (normal-mapped only), to match windlight - SL-12638
-        color.rgb = desat(color.rgb, 0.33 * (eep_bump_gain - 1.0));
-        color.rgb *= eep_bump_gain;
+//vec3 debug_post_diffuse = color.rgb;
 
         float glare = 0.0;
 
@@ -378,6 +381,7 @@ void main()
         {
             vec3 npos = -normalize(pos.xyz);
 
+            //vec3 ref = dot(pos+lv, norm);
             vec3 h = normalize(light_dir.xyz+npos);
             float nh = dot(norm, h);
             float nv = dot(norm, npos);
@@ -400,6 +404,8 @@ void main()
             }
         }
 
+//vec3 debug_post_spec = color.rgb;
+
         if (envIntensity > 0.0)
         {
             //add environmentmap
@@ -416,10 +422,14 @@ void main()
             glare += cur_glare;
         }
 
+//vec3 debug_post_env = color.rgb;
+
         color = atmosFragLighting(color, additive, atten);
 
         //convert to linear space before adding local lights
         color = srgb_to_linear(color);
+
+//vec3 debug_post_atmo = color.rgb;
 
         vec3 npos = normalize(-pos.xyz);
 
@@ -443,19 +453,32 @@ void main()
 #endif
 
         color = scaleSoftClipFrag(color);
-        
+
         // (only) post-deferred needs inline gamma correction
         color.rgb = linear_to_srgb(color.rgb);
+
+//color.rgb = amblit;
+//color.rgb = vec3(ambient);
+//color.rgb = sunlit;
+//color.rgb = debug_post_ambient;
+//color.rgb = vec3(da);
+//color.rgb = debug_sun_contrib;
+//color.rgb = debug_post_sunlight;
+//color.rgb = diffuse_srgb.rgb;
+//color.rgb = debug_post_diffuse;
+//color.rgb = debug_post_spec;
+//color.rgb = debug_post_env;
+//color.rgb = debug_post_atmo;
 
 #ifdef WATER_FOG
         vec4 temp = applyWaterFogView(pos, vec4(color.rgb, al));
         color.rgb = temp.rgb;
         al = temp.a;
 #endif
+    } // !fullbright
 
-        frag_color.rgb = color.rgb;
-        frag_color.a   = al;
-    }
+    frag_color.rgb = color.rgb;
+    frag_color.a   = al;
 
 #else // if DIFFUSE_ALPHA_MODE_BLEND ...
 
