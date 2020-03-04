@@ -127,7 +127,7 @@ vec3 post_ambient = color.rgb;
 
 vec3 post_sunlight = color.rgb;
 
-        color.rgb *= diffuse_srgb.rgb;
+        color.rgb *= diffuse_linear.rgb;
 
 vec3 post_diffuse = color.rgb;
 
@@ -162,8 +162,10 @@ vec3 post_diffuse = color.rgb;
        
  vec3 post_spec = color.rgb;
  
-#ifndef WATER_FOG
-        color.rgb = mix(color.rgb, diffuse_srgb.rgb, diffuse_srgb.a);
+#ifdef WATER_FOG
+        color.rgb += diffuse_srgb.rgb * diffuse_srgb.a * 0.25;
+#else
+        color.rgb = mix(color.rgb, diffuse_linear.rgb, diffuse_linear.a);
 #endif
 
         if (envIntensity > 0.0)
@@ -206,9 +208,6 @@ vec3 post_atmo = color.rgb;
 //color.rgb = post_env;
 //color.rgb = post_atmo;
 
-// convert to linear as fullscreen lights need to sum in linear colorspace
-// and will be gamma (re)corrected downstream...
-        color.rgb = srgb_to_linear(color.rgb);
     }
 
 // linear debuggables
@@ -217,6 +216,8 @@ vec3 post_atmo = color.rgb;
 //color.rgb = vec3(scol);
 //color.rgb = diffuse_linear.rgb;
 
+        //output linear RGB as lights are summed up in linear space and then gamma corrected prior to the 
+        //post deferred passes
     frag_color.rgb = color.rgb;
     frag_color.a = bloom;
 }

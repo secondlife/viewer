@@ -102,7 +102,8 @@ void main()
 			dist_atten *= dist_atten;
             
             // Tweak falloff slightly to match pre-EEP attenuation
-			dist_atten *= 2.2;
+			// NOTE: this magic number also shows up in a great many other places, search for dist_atten *= to audit
+			dist_atten *= 2.0;
 			
 			dist_atten *= noise;
 
