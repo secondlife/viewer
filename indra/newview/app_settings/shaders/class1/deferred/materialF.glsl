@@ -168,14 +168,6 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
     return max(col, vec3(0.0,0.0,0.0));
 }
 
-// Q&D approximate RGB-space de-saturation, strength from 0 (no effect) to 1.0 (complete grey-scale)
-vec3 desat(vec3 color, float strength)
-{
-    float primary_value = max(color.r, max(color.g, color.b));
-    vec3 delta = strength * (vec3(primary_value)-color);
-    return color + delta;
-}
-
 #else
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_data[3];
@@ -250,11 +242,7 @@ void main()
     vec3 norm = vec3(0);
     float bmap_specular = 1.0;
 
-    // Non-physical gain, sole purpose to make EEP viewer better match windlight when normal-mapped.
-    float eep_bump_gain = 1.0;
-
 #ifdef HAS_NORMAL_MAP
-    eep_bump_gain = 1.75;
     vec4 bump_sample = texture2D(bumpMap, vary_texcoord1.xy);
     norm = (bump_sample.xyz * 2) - vec3(1);
     bmap_specular = bump_sample.w;
@@ -275,7 +263,6 @@ void main()
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_EMISSIVE)
     final_color.a = diffuse_linear.a;
-    final_color.rgb = mix( diffuse_linear.rgb, final_color.rgb*0.5, diffuse_tap.a ); // SL-12171: Fix emissive texture portion being twice as bright.
 #endif
 
     final_color.a = max(final_color.a, emissive_brightness);
@@ -297,17 +284,15 @@ void main()
     vec4 final_normal = vec4(abnormal, env_intensity, 0.0);
 
     vec3 color = vec3(0.0);
-    float al   = 1.0;
+    float al = 0;
 
+#ifdef HAS_SPECULAR_MAP
     if (emissive_brightness >= 1.0)
     {
-/*#ifdef HAS_SPECULAR_MAP
-        // Note: We actually need to adjust all 4 channels not just .rgb
-        final_color *= 0.666666;
-#endif*/
-        color.rgb = final_color.rgb;
-        al        = vertex_color.a;
+        float ei = env_intensity*0.5 + 0.5;
+        final_normal = vec4(abnormal, ei, 0.0);
     }
+#endif
 
     vec4 final_specular = spec;
 
@@ -320,13 +305,6 @@ void main()
 
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
-    if (emissive_brightness >= 1.0)
-    {
-        // fullbright = diffuse texture pass-through, no lighting
-        color = diffuse_linear.rgb;
-        al = diffuse_linear.a;
-    }
-    else
     {
         //forward rendering, output just lit sRGBA
         vec3 pos = vary_position;
@@ -360,7 +338,7 @@ void main()
         ambient *= ambient;
         ambient = (1.0 - ambient);
 
-        vec3 sun_contrib = da * sunlit;
+        vec3 sun_contrib = min(da, shadow) * sunlit;
 
 #if !defined(AMBIENT_KILL)
         color.rgb = amblit;
@@ -371,7 +349,7 @@ void main()
         color.rgb += sun_contrib;
 #endif
 
-        color.rgb *= diffuse_linear.rgb; // SL-12006
+        color.rgb *= diffuse_srgb.rgb;
         
         float glare = 0.0;
 
@@ -379,6 +357,7 @@ void main()
         {
             vec3 npos = -normalize(pos.xyz);
 
+            //vec3 ref = dot(pos+lv, norm);
             vec3 h = normalize(light_dir.xyz+npos);
             float nh = dot(norm, h);
             float nv = dot(norm, npos);
@@ -441,7 +420,7 @@ void main()
 #endif
 
         color = scaleSoftClipFrag(color);
-        
+
 /*#ifdef WATER_FOG
         vec4 temp = applyWaterFogView(pos, vec4(color.rgb, al));
         color.rgb = temp.rgb;
@@ -449,14 +428,13 @@ void main()
 #endif*/
     }
 
-    // (only) post-deferred needs inline gamma correction
+
     color.rgb = linear_to_srgb(color.rgb);
     
     frag_color = vec4(color, al);
 
-    
-#else // if DIFFUSE_ALPHA_MODE_BLEND ...
-    
+#else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer 
+
     // deferred path
     frag_data[0] = vec4(linear_to_srgb(final_color.rgb), final_color.a); //gbuffer is sRGB
     frag_data[1] = final_specular; // XYZ = Specular color. W = Specular exponent.
