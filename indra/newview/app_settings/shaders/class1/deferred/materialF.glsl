@@ -95,19 +95,6 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 
     dist /= la;
 
-    /* clip to projector bounds
-     vec4 proj_tc = proj_mat * lp;
-
-    if (proj_tc.z < 0
-     || proj_tc.z > 1
-     || proj_tc.x < 0
-     || proj_tc.x > 1 
-     || proj_tc.y < 0
-     || proj_tc.y > 1)
-    {
-        return col;
-    }*/
-
     if (dist > 0.0 && la > 0.0)
     {
         //normalize light vector
@@ -273,7 +260,6 @@ void main()
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_EMISSIVE)
     final_color.a = diffuse_linear.a;
-    final_color.rgb = mix( diffuse_linear.rgb, final_color.rgb*0.5, diffuse_tap.a ); // SL-12171: Fix emissive texture portion being twice as bright.
 #endif
 
     final_color.a = max(final_color.a, emissive_brightness);
@@ -295,17 +281,15 @@ void main()
     vec4 final_normal = vec4(abnormal, env_intensity, 0.0);
 
     vec3 color = vec3(0.0);
-    float al   = 0.0;
+    float al = 0;
 
+#ifdef HAS_SPECULAR_MAP
     if (emissive_brightness >= 1.0)
     {
-#ifdef HAS_SPECULAR_MAP
-        // Note: We actually need to adjust all 4 channels not just .rgb
-        final_color *= 0.666666;
-#endif
-        color.rgb = final_color.rgb;
-        al        = vertex_color.a;
+        float ei = env_intensity*0.5 + 0.5;
+        final_normal = vec4(abnormal, ei, 0.0);
     }
+#endif
 
     vec4 final_specular = spec;
 
@@ -318,7 +302,6 @@ void main()
 
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
-    if (emissive_brightness <= 1.0)
     {
         //forward rendering, output just lit RGBA
         vec3 pos = vary_position;
@@ -348,33 +331,22 @@ void main()
         float da = dot(norm, normalize(light_dir));
         da = clamp(da, 0.0, 1.0);   // No negative light contributions
 
-        float ambient = da;
-        ambient *= 0.5;
-        ambient *= ambient;
-        ambient = (1.0 - ambient);
+        // ambient weight varies from 0.75 at max direct light to 1.0 with sun at grazing angle
+        float ambient = 1.0 - (0.25 * da * da);
 
         vec3 sun_contrib = min(da, shadow) * sunlit;
-
-// vec3 debug_sun_contrib = sun_contrib;
 
 #if !defined(AMBIENT_KILL)
         color.rgb = amblit;
         color.rgb *= ambient;
 #endif
 
-//vec3 debug_post_ambient = color.rgb;
-
 #if !defined(SUNLIGHT_KILL)
         color.rgb += sun_contrib;
 #endif
 
-//vec3 debug_post_sunlight = color.rgb;
-
-        //color.rgb *= diffuse_srgb.rgb;
-        color.rgb *= diffuse_linear.rgb; // SL-12006
-
-//vec3 debug_post_diffuse = color.rgb;
-
+        color.rgb *= diffuse_srgb.rgb;
+        
         float glare = 0.0;
 
         if (spec.a > 0.0) // specular reflection
@@ -404,8 +376,6 @@ void main()
             }
         }
 
-//vec3 debug_post_spec = color.rgb;
-
         if (envIntensity > 0.0)
         {
             //add environmentmap
@@ -422,14 +392,10 @@ void main()
             glare += cur_glare;
         }
 
-//vec3 debug_post_env = color.rgb;
-
         color = atmosFragLighting(color, additive, atten);
 
         //convert to linear space before adding local lights
         color = srgb_to_linear(color);
-
-//vec3 debug_post_atmo = color.rgb;
 
         vec3 npos = normalize(-pos.xyz);
 
@@ -457,30 +423,17 @@ void main()
         // (only) post-deferred needs inline gamma correction
         color.rgb = linear_to_srgb(color.rgb);
 
-//color.rgb = amblit;
-//color.rgb = vec3(ambient);
-//color.rgb = sunlit;
-//color.rgb = debug_post_ambient;
-//color.rgb = vec3(da);
-//color.rgb = debug_sun_contrib;
-//color.rgb = debug_post_sunlight;
-//color.rgb = diffuse_srgb.rgb;
-//color.rgb = debug_post_diffuse;
-//color.rgb = debug_post_spec;
-//color.rgb = debug_post_env;
-//color.rgb = debug_post_atmo;
-
 #ifdef WATER_FOG
         vec4 temp = applyWaterFogView(pos, vec4(color.rgb, al));
         color.rgb = temp.rgb;
         al = temp.a;
 #endif
-    } // !fullbright
+    }
 
     frag_color.rgb = color.rgb;
     frag_color.a   = al;
 
-#else // if DIFFUSE_ALPHA_MODE_BLEND ...
+#else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer 
 
     // deferred path
     frag_data[0] = final_color;
