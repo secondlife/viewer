@@ -349,7 +349,7 @@ void main()
         color.rgb += sun_contrib;
 #endif
 
-        color.rgb *= diffuse_srgb.rgb;
+        color.rgb *= diffuse_linear.rgb;
         
         float glare = 0.0;
 
