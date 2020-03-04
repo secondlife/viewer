@@ -1010,8 +1010,8 @@ CURLcode HttpOpRequest::curlSslCtxCallback(CURL *curl, void *sslctx, void *userd
 	if (op->mCallbackSSLVerify)
 	{
 		SSL_CTX * ctx = (SSL_CTX *)sslctx;
-		// disable any default verification for server certs
-		SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
+		// verification for ssl certs
+		SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, NULL);
 		// set the verification callback.
 		SSL_CTX_set_cert_verify_callback(ctx, sslCertVerifyCallback, userdata);
 		// the calls are void
