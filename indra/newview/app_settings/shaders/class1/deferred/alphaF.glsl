@@ -22,7 +22,9 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
+//class1/deferred/alphaF.glsl
+
 #extension GL_ARB_texture_rectangle : enable
 
 /*[EXTRA_CODE_HERE]*/
@@ -51,7 +53,7 @@ VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_norm;
 
 #ifdef USE_VERTEX_COLOR
-VARYING vec4 vertex_color;
+VARYING vec4 vertex_color; //vertex color should be treated as sRGB
 #endif
 
 uniform mat4 proj_mat;
@@ -190,7 +192,7 @@ void main()
 
     float final_alpha = diffuse_srgb.a * vertex_color.a;
     diffuse_srgb.rgb *= vertex_color.rgb;
-    diffuse_linear.rgb *= vertex_color.rgb;
+    diffuse_linear.rgb = srgb_to_linear(diffuse_srgb.rgb); 
     
     // Insure we don't pollute depth with invis pixels in impostor rendering
     //
@@ -207,7 +209,7 @@ void main()
 #ifdef USE_VERTEX_COLOR
     final_alpha *= vertex_color.a;
     diffuse_srgb.rgb *= vertex_color.rgb;
-    diffuse_linear.rgb *= vertex_color.rgb;
+    diffuse_linear.rgb = srgb_to_linear(diffuse_srgb.rgb);
 #endif
 
     vec3 sunlit;
@@ -249,7 +251,7 @@ vec3 post_ambient = color.rgb;
 
 vec3 post_sunlight = color.rgb;
 
-    color.rgb *= diffuse_srgb.rgb;
+    color.rgb *= diffuse_linear.rgb;
 
 vec3 post_diffuse = color.rgb;
 
@@ -258,10 +260,7 @@ vec3 post_diffuse = color.rgb;
 vec3 post_atmo = color.rgb;
 
     vec4 light = vec4(0,0,0,0);
-
-    // to linear!
-    color.rgb = srgb_to_linear(color.rgb);
-
+    
    #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diffuse_linear.rgb, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w);
 
     LIGHT_LOOP(1)
@@ -298,7 +297,7 @@ vec3 post_atmo = color.rgb;
 #endif // WATER_FOG
 
 #endif
-
+    
     frag_color = color;
 }
 
