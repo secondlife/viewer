@@ -117,7 +117,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
         // spotlight coefficient.
         float spot = max(dot(-ln, lv), is_pointlight);
         da *= spot*spot; // GL_SPOT_EXPONENT=2
-
+    
         //angular attenuation
         da *= dot(n, lv);
 
@@ -215,8 +215,7 @@ void main()
 
     vec4 diffuse_tap = texture2D(diffuseMap, vary_texcoord0.xy);
     diffuse_tap.rgb *= vertex_color.rgb;
-    //diffuse_tap = vec4(1,1,1,1);
-
+    
 //#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
     vec4 diffuse_srgb = diffuse_tap;
     vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_srgb.a);
@@ -349,7 +348,7 @@ void main()
         color.rgb += sun_contrib;
 #endif
 
-        color.rgb *= diffuse_linear.rgb;
+        color.rgb *= diffuse_srgb.rgb;
         
         float glare = 0.0;
 
@@ -397,10 +396,14 @@ void main()
         }
 
         color = atmosFragLighting(color, additive, atten);
+        color = scaleSoftClipFrag(color);
 
         vec3 npos = normalize(-pos.xyz);
 
         vec3 light = vec3(0,0,0);
+
+        //convert to linear before adding local lights
+        color.rgb = srgb_to_linear(color.rgb);
 
 #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse_linear.rgb, final_specular, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w );
 
@@ -419,8 +422,9 @@ void main()
         color.rgb += light.rgb;
 #endif
 
-        color = scaleSoftClipFrag(color);
-
+//convert to srgb as this color is being written post gamma correction
+    color.rgb = linear_to_srgb(color.rgb);
+   
 #ifdef WATER_FOG
         vec4 temp = applyWaterFogView(pos, vec4(color.rgb, al));
         color.rgb = temp.rgb;
@@ -429,8 +433,6 @@ void main()
     }
 
     
-    color.rgb = linear_to_srgb(color.rgb);
-   
     frag_color = vec4(color, al);
 
 #else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer 

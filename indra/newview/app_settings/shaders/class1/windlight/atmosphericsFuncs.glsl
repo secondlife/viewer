@@ -46,6 +46,7 @@ float getAmbientClamp()
     return 1.0f;
 }
 
+
 void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao) {
 
     vec3 P = inPositionEye;
@@ -123,7 +124,7 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     temp2.x *= sun_moon_glow_factor;
  
     vec4 amb_color = ambient_color; 
-
+    
     //increase ambient when there are more clouds
     vec4 tmpAmbient = amb_color + (vec4(1.) - amb_color) * cloud_shadow * 0.5;
     

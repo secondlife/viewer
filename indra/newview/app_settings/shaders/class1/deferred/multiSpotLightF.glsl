@@ -163,15 +163,19 @@ void main()
 	proj_tc.xyz /= proj_tc.w;
 	
 	float fa = falloff+1.0;
-	float dist_atten = min(1.0-(dist-1.0*(1.0-fa))/fa, 1.0);
+	float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
 	dist_atten *= dist_atten;
 	dist_atten *= 2.0;
+	
 
 	if (dist_atten <= 0.0)
 	{
 		discard;
 	}
 	
+	float noise = texture2D(noiseMap, frag.xy/128.0).b;
+	dist_atten *= noise;
+
 	lv = proj_origin-pos.xyz;
 	lv = normalize(lv);
 	float da = dot(norm, lv);
@@ -179,12 +183,13 @@ void main()
 		
 	vec3 diff_tex = texture2DRect(diffuseRect, frag.xy).rgb;
     // SL-12005 Projector light pops as we get closer, more objectionable than being in wrong color space.
-    //          We can't switch to linear here unless we do it everywhere
-    //diff_tex.rgb = srgb_to_linear(diff_tex.rgb);
+    //          We can't switch to linear here unless we do it everywhere*
+	// *gbuffer is sRGB, convert to linear whenever sampling from it
+    diff_tex.rgb = srgb_to_linear(diff_tex.rgb);
 
 	vec3 dlit = vec3(0, 0, 0);
 	
-	float noise = texture2D(noiseMap, frag.xy/128.0).b;
+	
 	if (proj_tc.z > 0.0 &&
 		proj_tc.x < 1.0 &&
 		proj_tc.y < 1.0 &&
@@ -203,7 +208,7 @@ void main()
 		
 			dlit = color.rgb * plcol.rgb * plcol.a;
 			
-			lit = da * dist_atten * noise;
+			lit = da * dist_atten;
 			
 			col = dlit*lit*diff_tex;
 			amb_da += (da*0.5)*proj_ambiance;
@@ -245,7 +250,7 @@ void main()
 			col += dlit*scol*spec.rgb;
 			//col += spec.rgb;
 		}
-	}	
+	}
 
 	if (envIntensity > 0.0)
 	{
@@ -277,6 +282,7 @@ void main()
 	}
 #endif
 
+	//output linear, sum of lights will be gamma corrected later	
 	frag_color.rgb = col;	
 	frag_color.a = 0.0;
 }
