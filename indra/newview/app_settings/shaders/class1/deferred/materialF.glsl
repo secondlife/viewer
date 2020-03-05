@@ -421,16 +421,16 @@ void main()
 
         color = scaleSoftClipFrag(color);
 
-/*#ifdef WATER_FOG
+#ifdef WATER_FOG
         vec4 temp = applyWaterFogView(pos, vec4(color.rgb, al));
         color.rgb = temp.rgb;
         al = temp.a;
-#endif*/
+#endif
     }
 
-
-    color.rgb = linear_to_srgb(color.rgb);
     
+    color.rgb = linear_to_srgb(color.rgb);
+   
     frag_color = vec4(color, al);
 
 #else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer 
