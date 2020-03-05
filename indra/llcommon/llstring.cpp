@@ -1000,8 +1000,10 @@ std::string LLStringOps::getDatetimeCode (std::string key)
 	}
 }
 
+// static
 std::string LLStringOps::getReadableNumber(F64 num, S32 prec)
 {
+	prec = llmax(prec,0);
 	std::string fmtStr = "%." + std::to_string(prec) + "lf";
     if (fabs(num)>=1e9)
     {

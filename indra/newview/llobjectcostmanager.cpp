@@ -216,6 +216,8 @@ class LLObjectCostManagerImpl
 	void getPrimCostData(const LLVOVolume *vol, LLPrimCostData& cost_data);
 
 	U32 textureCostsV1(const texture_ids_t& ids);
+	U32 textureCostsV2(const texture_ids_t& all_sculpt_ids, const texture_ids_t& all_diffuse_ids,
+					   const texture_ids_t& all_normal_ids, const texture_ids_t& all_specular_ids);
 	U32 textureCostsV2(const texture_ids_t& ids, U32 multiplier = 1);
 
 	F32 triangleCostsV1(LLPrimCostData& cost_data); 
@@ -340,15 +342,9 @@ F32 LLObjectCostManagerImpl::getRenderCostLinksetV2(const LLViewerObject *root)
 		all_normal_ids.insert(cost_data.m_normal_ids.begin(), cost_data.m_normal_ids.end());
 		all_specular_ids.insert(cost_data.m_specular_ids.begin(), cost_data.m_specular_ids.end());
 	}
-	
-	// Material textures not included in V1 costs
-	cost += textureCostsV2(all_sculpt_ids);
-	cost += textureCostsV2(all_diffuse_ids);
 
-	// FIXME ARC including material textures here to force ARC to change for logging purposes. This differs from V1
-	cost += textureCostsV2(all_normal_ids, 2);
-	cost += textureCostsV2(all_specular_ids, 3);
-	
+	cost += textureCostsV2(all_sculpt_ids, all_diffuse_ids, all_normal_ids, all_specular_ids);
+
 	// Animated Object surcharge
 	const F32 animated_object_surcharge = 1000;
 	if (root->isAnimatedObject())
@@ -505,21 +501,11 @@ void LLObjectCostManagerImpl::getPrimCostData(const LLVOVolume *vol, LLPrimCostD
 
 	bool has_volume = (vol->getVolume() != NULL);
 
-    // Get access to params we'll need at various points.  
-	// Skip if this is object doesn't have a volume (e.g. is an avatar).
-	LLVolumeParams volume_params;
-	LLPathParams path_params;
-	LLProfileParams profile_params;
-
 	cost_data.m_num_triangles_v1 = 0;
 	cost_data.m_num_triangles_v2 = 0;
 	
 	if (has_volume)
 	{
-		volume_params = vol->getVolume()->getParams();
-		path_params = volume_params.getPathParams();
-		profile_params = volume_params.getProfileParams();
-
         LLMeshCostData costs;
 		if (vol->getMeshCostData(costs))
 		{
@@ -535,8 +521,6 @@ void LLObjectCostManagerImpl::getPrimCostData(const LLVOVolume *vol, LLPrimCostD
                 F32 radius = vol->getScale().length()*0.5f;
                 cost_data.m_num_triangles_v1 = costs.getRadiusWeightedTris(radius);
             }
-			// ARC TODO: here using actual tris, which will be a bit different than the estimation-based formula.
-			cost_data.m_num_triangles_v2 = cost_data.m_actual_triangles_charged;
 		}
 
 		cost_data.m_is_animated_object = vol->isAnimatedObject();
@@ -715,6 +699,9 @@ void LLObjectCostManagerImpl::getPrimCostData(const LLVOVolume *vol, LLPrimCostD
 	triangle_counts_by_lod[2] = cost_data.m_triangle_count_medium;
 	triangle_counts_by_lod[3] = cost_data.m_triangle_count_high;
 	cost_data.m_actual_triangles_charged = LLMeshCostData::getChargedTriangleCount(triangle_counts_by_lod);
+
+	// ARC TODO: here using actual tris, which will be a bit different than the estimation-based formula.
+	cost_data.m_num_triangles_v2 = cost_data.m_actual_triangles_charged;
 }
 
 U32 LLObjectCostManagerImpl::textureCostsV1(const texture_ids_t& ids)
@@ -742,6 +729,22 @@ U32 LLObjectCostManagerImpl::textureCostsV1(const texture_ids_t& ids)
 		LL_DEBUGS("ARCdetail") << "texture " << id << " cost " << texture_cost << LL_ENDL;
 		cost += texture_cost;
 	}
+
+	return cost;
+}
+
+U32 LLObjectCostManagerImpl::textureCostsV2(const texture_ids_t& all_sculpt_ids, const texture_ids_t& all_diffuse_ids,
+											const texture_ids_t& all_normal_ids, const texture_ids_t& all_specular_ids)
+{
+	U32 cost = 0;
+
+	// Material textures not included in V1 costs
+	cost += textureCostsV2(all_sculpt_ids);
+	cost += textureCostsV2(all_diffuse_ids);
+
+	// FIXME ARC including material textures here to force ARC to change for logging purposes. This differs from V1
+	cost += textureCostsV2(all_normal_ids, 2);
+	cost += textureCostsV2(all_specular_ids, 3);
 
 	return cost;
 }
@@ -937,7 +940,8 @@ F32 LLObjectCostManagerImpl::triangleCostsV2(LLPrimCostData& cost_data)
 	static const F32 ARC_ALPHA_COST = 4.f; // 4x max - based on performance
 
 	// ARC TODO: value TBD by testing, initially using value from v1 Animated Object ARC.
-	static const F32 ARC_V2_TRIANGLE_WEIGHT = ANIMATED_OBJECT_BASE_COST * 0.001 / 0.06;
+	//static const F32 ARC_V2_TRIANGLE_WEIGHT = ANIMATED_OBJECT_BASE_COST * 0.001 / 0.06;
+	static const F32 ARC_V2_TRIANGLE_WEIGHT = 1.0; // What if we just count tris?
 	
 	F32 cost = 0;
 
@@ -1024,6 +1028,8 @@ F32 LLObjectCostManagerImpl::triangleCostsV2(LLPrimCostData& cost_data)
 		cost += media_faces * ARC_MEDIA_FACE_COST;
 	}
 
+	// FIXME ARC - include this?
+#if 0	
     // Streaming cost for animated objects includes a fixed cost
     // per linkset. Add a corresponding charge here translated into
     // triangles, but not weighted by any graphics properties.
@@ -1031,6 +1037,7 @@ F32 LLObjectCostManagerImpl::triangleCostsV2(LLPrimCostData& cost_data)
     {
         cost += (ANIMATED_OBJECT_BASE_COST/0.06) * 5.0f;
     }
+#endif
 
 	return cost;
 }
@@ -1136,6 +1143,13 @@ LLSD LLObjectCostManager::getFrameDataLinkset(const LLVOVolume *vol)
 	{
 		sd["id"] = (LLSD::UUID) vol->getID();
 		sd["prims"] = LLSD::emptyArray();
+		LLSD linkset_sd; // summary data for the linkset as a whole.
+
+		U32 linkset_num_triangles_v2 = 0;
+		F32 linkset_triangle_costs_v2 = 0;
+		F32 linkset_texture_costs_v2 = 0;
+		U32 linkset_prim_count = 0;
+
 		for (std::vector<const LLVOVolume*>::const_iterator it = volumes.begin();
 			 it != volumes.end(); ++it)
 		{
@@ -1152,7 +1166,24 @@ LLSD LLObjectCostManager::getFrameDataLinkset(const LLVOVolume *vol)
 			all_sculpt_ids.insert(cost_data.m_sculpt_ids.begin(), cost_data.m_sculpt_ids.end());
 			all_normal_ids.insert(cost_data.m_normal_ids.begin(), cost_data.m_normal_ids.end());
 			all_specular_ids.insert(cost_data.m_specular_ids.begin(), cost_data.m_specular_ids.end());
+
+			// Accumulate summary info
+			linkset_num_triangles_v2 += cost_data.m_num_triangles_v2;
+			linkset_triangle_costs_v2 += m_impl->triangleCostsV2(cost_data);
+			linkset_texture_costs_v2 += m_impl->textureCostsV2(all_diffuse_ids, all_sculpt_ids, all_normal_ids, all_specular_ids);
+			linkset_prim_count++;
 		}
+		linkset_sd["num_triangles_v2"] = LLSD::Integer(linkset_num_triangles_v2);
+		linkset_sd["triangle_costs_v2"] = linkset_triangle_costs_v2;
+		linkset_sd["texture_costs_v2"] = linkset_texture_costs_v2;
+		linkset_sd["prim_count"] = LLSD::Integer(linkset_prim_count);
+		linkset_sd["texture_count"]["diffuse"] = LLSD::Integer(all_diffuse_ids.size());
+		linkset_sd["texture_count"]["sculpt"] = LLSD::Integer(all_sculpt_ids.size());
+		linkset_sd["texture_count"]["normal"] = LLSD::Integer(all_normal_ids.size());
+		linkset_sd["texture_count"]["specular"] = LLSD::Integer(all_specular_ids.size());
+
+		sd["linkset_cost_summary"] = linkset_sd;
+		
 		sd["textures"] = LLSD::emptyMap();
 		sd["textures"]["diffuse"] = textures_as_llsd(all_diffuse_ids);
 		sd["textures"]["sculpt"] = textures_as_llsd(all_sculpt_ids);
