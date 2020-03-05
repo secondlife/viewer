@@ -1147,7 +1147,6 @@ LLSD LLObjectCostManager::getFrameDataLinkset(const LLVOVolume *vol)
 
 		U32 linkset_num_triangles_v2 = 0;
 		F32 linkset_triangle_costs_v2 = 0;
-		F32 linkset_texture_costs_v2 = 0;
 		U32 linkset_prim_count = 0;
 
 		for (std::vector<const LLVOVolume*>::const_iterator it = volumes.begin();
@@ -1170,9 +1169,10 @@ LLSD LLObjectCostManager::getFrameDataLinkset(const LLVOVolume *vol)
 			// Accumulate summary info
 			linkset_num_triangles_v2 += cost_data.m_num_triangles_v2;
 			linkset_triangle_costs_v2 += m_impl->triangleCostsV2(cost_data);
-			linkset_texture_costs_v2 += m_impl->textureCostsV2(all_diffuse_ids, all_sculpt_ids, all_normal_ids, all_specular_ids);
 			linkset_prim_count++;
 		}
+		F32 linkset_texture_costs_v2 = m_impl->textureCostsV2(all_diffuse_ids, all_sculpt_ids, all_normal_ids, all_specular_ids);
+
 		linkset_sd["num_triangles_v2"] = LLSD::Integer(linkset_num_triangles_v2);
 		linkset_sd["triangle_costs_v2"] = linkset_triangle_costs_v2;
 		linkset_sd["texture_costs_v2"] = linkset_texture_costs_v2;
