@@ -168,7 +168,8 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	mImportanceToCamera = 0.f ;
 	mBoundingSphereRadius = 0.0f ;
 
-	mHasMedia = FALSE ;
+	mHasMedia = false ;
+	mIsMediaAllowed = true;
 }
 
 void LLFace::destroy()
