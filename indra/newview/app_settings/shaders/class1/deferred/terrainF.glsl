@@ -44,10 +44,6 @@ VARYING vec4 vary_texcoord1;
 
 vec2 encode_normal(vec3 n);
 
-#ifdef WATER_FOG
-vec4 applyWaterFogView(vec3 pos, vec4 c);
-#endif
-
 void main()
 {
     /// Note: This should duplicate the blending functionality currently used for the terrain rendering.
@@ -63,10 +59,6 @@ void main()
     vec4 outColor = mix( mix(color3, color2, alpha2), mix(color1, color0, alpha1), alphaFinal );
    
     outColor.a = 0.0; // yes, downstream atmospherics 
-#ifdef WATER_FOG
-    outColor = applyWaterFogView(pos.xyz, outColor);
-    outColor.a = 1.0; // no downstream atmo
-#endif
     
     frag_data[0] = outColor;
     frag_data[1] = vec4(0.0,0.0,0.0,-1.0);

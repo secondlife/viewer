@@ -154,11 +154,7 @@ vec3 post_diffuse = color.rgb;
        
  vec3 post_spec = color.rgb;
  
-#ifdef WATER_FOG
-        color.rgb += diffuse_srgb.rgb * diffuse_srgb.a * 0.25;
-#else
         color.rgb = mix(color.rgb, diffuse_linear.rgb, diffuse_linear.a);
-#endif
 
         if (envIntensity > 0.0)
         { //add environmentmap
@@ -209,6 +205,7 @@ vec3 post_atmo = color.rgb;
 
     // convert to linear as fullscreen lights need to sum in linear colorspace
     // and will be gamma (re)corrected downstream...
+    
     frag_color.rgb = srgb_to_linear(color.rgb);
-    frag_color.a = 0.0; //bloom;
+    frag_color.a = bloom;
 }
