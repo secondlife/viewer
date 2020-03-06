@@ -94,7 +94,8 @@ void main()
 
     float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
 
-    vec4 diffuse = texture2DRect(diffuseRect, tc); // linear
+    vec4 diffuse = texture2DRect(diffuseRect, tc); // sRGB
+    diffuse.rgb = srgb_to_linear(diffuse.rgb);
 
     vec3 col;
     float bloom = 0.0;
@@ -169,7 +170,8 @@ void main()
             bloom = fogged.a;
         #endif
     }
-    
+
+    //output linear since gamma correction happens down stream
     frag_color.rgb = col;
     frag_color.a = bloom;
 }

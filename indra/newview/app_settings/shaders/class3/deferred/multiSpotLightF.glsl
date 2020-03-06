@@ -183,7 +183,7 @@ void main()
 
     vec3 col = vec3(0,0,0);
         
-    vec3 diff_tex = texture2DRect(diffuseRect, frag.xy).rgb;
+    vec3 diff_tex = srgb_to_linear(texture2DRect(diffuseRect, frag.xy).rgb);
     
     vec4 spec = texture2DRect(specularRect, frag.xy);
 
@@ -285,6 +285,7 @@ void main()
 
     col = scaleDownLight(col);
 
+    //output linear space color as gamma correction happens down stream
     frag_color.rgb = col;   
     frag_color.a = 0.0;
 }

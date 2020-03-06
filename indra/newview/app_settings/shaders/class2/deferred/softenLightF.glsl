@@ -106,7 +106,7 @@ void main()
         vec3 atten;
     
         calcAtmosphericVars(pos.xyz, light_dir, ambocc, sunlit, amblit, additive, atten, true);
-
+        
         float ambient = da;
         ambient *= 0.5;
         ambient *= ambient;
@@ -127,7 +127,7 @@ vec3 post_ambient = color.rgb;
 
 vec3 post_sunlight = color.rgb;
 
-        color.rgb *= diffuse_linear.rgb;
+        color.rgb *= diffuse_srgb.rgb;
 
 vec3 post_diffuse = color.rgb;
 
@@ -162,11 +162,7 @@ vec3 post_diffuse = color.rgb;
        
  vec3 post_spec = color.rgb;
  
-#ifdef WATER_FOG
-        color.rgb += diffuse_srgb.rgb * diffuse_srgb.a * 0.25;
-#else
         color.rgb = mix(color.rgb, diffuse_linear.rgb, diffuse_linear.a);
-#endif
 
         if (envIntensity > 0.0)
         { //add environmentmap
@@ -218,6 +214,6 @@ vec3 post_atmo = color.rgb;
 
         //output linear RGB as lights are summed up in linear space and then gamma corrected prior to the 
         //post deferred passes
-    frag_color.rgb = color.rgb;
+    frag_color.rgb = srgb_to_linear(color.rgb);
     frag_color.a = bloom;
 }
