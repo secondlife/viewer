@@ -331,8 +331,9 @@ void main()
         vec3 refnormpersp = normalize(reflect(pos.xyz, norm));
 
         float da = clamp(dot(normalize(norm.xyz), light_dir.xyz), 0.0, 1.0);
+        da = pow(da, 1.0/1.3);
 
-        float ambient = da;
+        float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
         ambient *= 0.5;
         ambient *= ambient;
         ambient = (1.0 - ambient);
