@@ -82,6 +82,7 @@ void main()
     
     vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;
     float da = clamp(dot(normalize(norm.xyz), light_dir.xyz), 0.0, 1.0);
+    da = pow(da, 1.0/1.3);
 
     vec4 diffuse_srgb = texture2DRect(diffuseRect, tc);
     vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_srgb.a);
@@ -99,7 +100,7 @@ void main()
     
         calcAtmosphericVars(pos.xyz, light_dir, ambocc, sunlit, amblit, additive, atten, false);
 
-        float ambient = da;
+        float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
         ambient *= 0.5;
         ambient *= ambient;
         ambient = (1.0 - ambient);
