@@ -223,6 +223,7 @@ void main()
 
     float da = dot(norm.xyz, light_dir.xyz);
           da = clamp(da, -1.0, 1.0);
+          da = pow(da, 1.0/1.3);
  
     float final_da = da;
           final_da = clamp(final_da, 0.0f, 1.0f);
@@ -231,7 +232,7 @@ void main()
 
     color.a   = final_alpha;
 
-    float ambient = da;
+    float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
     ambient *= 0.5;
     ambient *= ambient;
     ambient = (1.0 - ambient);
@@ -262,7 +263,7 @@ vec3 post_atmo = color.rgb;
     vec4 light = vec4(0,0,0,0);
     
     color.rgb = scaleSoftClipFrag(color.rgb);
-    
+
     //convert to linear before applying local lights
     color.rgb = srgb_to_linear(color.rgb);
 
