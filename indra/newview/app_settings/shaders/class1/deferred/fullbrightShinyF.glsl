@@ -56,7 +56,7 @@ void main()
 	color.rgb *= vertex_color.rgb;
 	
 	vec3 envColor = textureCube(environmentMap, vary_texcoord1.xyz).rgb;	
-	color.rgb = mix(color.rgb, envColor.rgb, vertex_color.a);
+	color.rgb = mix(color.rgb, envColor.rgb, vertex_color.a*0.75); // MAGIC NUMBER SL-12574; ALM: Off, Quality > Low
 
 	color.rgb = pow(color.rgb,vec3(2.2f,2.2f,2.2f));
 	
