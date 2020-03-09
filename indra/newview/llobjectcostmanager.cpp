@@ -26,6 +26,8 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llobjectcostmanager.h"
+#include "llvoavatar.h"
+#include "llappearancemgr.h"
 #include "llviewerobject.h"
 #include "llvovolume.h"
 #include "lldrawable.h"
@@ -1084,16 +1086,6 @@ F32 LLObjectCostManager::getRenderCostLinkset(U32 version, const LLViewerObject 
 	return render_cost;
 }
 
-LLSD LLObjectCostManager::getFrameDataPrim(const LLVOVolume *vol)
-{
-	LLSD sd;
-	LLPrimCostData cost_data;
-
-	m_impl->getPrimCostData(vol, cost_data);
-	cost_data.asLLSD(sd);
-	return sd;
-}
-
 LLSD texture_as_llsd(const LLUUID& id)
 {
 	LLSD texture_sd = LLSD::emptyMap();
@@ -1128,6 +1120,16 @@ LLSD textures_as_llsd(texture_ids_t& ids)
 	}
 	return array_sd;
 
+}
+
+LLSD LLObjectCostManager::getFrameDataPrim(const LLVOVolume *vol)
+{
+	LLSD sd;
+	LLPrimCostData cost_data;
+
+	m_impl->getPrimCostData(vol, cost_data);
+	cost_data.asLLSD(sd);
+	return sd;
 }
 
 LLSD LLObjectCostManager::getFrameDataLinkset(const LLVOVolume *vol)
@@ -1193,3 +1195,85 @@ LLSD LLObjectCostManager::getFrameDataLinkset(const LLVOVolume *vol)
 
 	return sd;
 }
+LLSD LLObjectCostManager::getFrameDataAvatar(const LLVOAvatar *av)
+{
+    LLSD av_sd;
+    av_sd["Name"] = (LLSD::String) av->getFullname();
+    av_sd["Self"] = (LLSD::Boolean) av->isSelf();
+    av_sd["UUID"] = (LLSD::UUID) av->getID();
+	std::string viz_string = LLVOAvatar::rezStatusToString(av->getRezzedStatus());
+    av_sd["RezStatus"] = (LLSD::String) viz_string;
+    av_sd["ARCCalculated"] = (LLSD::Integer) av->getVisualComplexity(); 
+    av_sd["ARCCalculated1"] = (LLSD::Integer) av->getVisualComplexity(1);
+    av_sd["ARCCalculated2"] = (LLSD::Integer) av->getVisualComplexity(2);
+	av_sd["ARCCalculatedOld"] = (LLSD::Integer) av->getVisualComplexity(99); // FIXME ARC remove when old code path goes away
+    av_sd["ARCReported"] = (LLSD::Integer) av->getReportedVisualComplexity();
+    av_sd["AttachmentSurfaceArea"] = (LLSD::Real) av->getAttachmentSurfaceArea();
+    if (av->isSelf())
+    {
+        std::string outfit_name;
+        if (LLAppearanceMgr::instance().getBaseOutfitName(outfit_name))
+        {
+            av_sd["OutfitName"] = (LLSD::String) outfit_name;
+        }
+        else
+        {
+            outfit_name = LLAppearanceMgr::instance().getLastRequestedCategoryName();
+            if (!outfit_name.empty())
+            {
+                av_sd["OutfitName"] = outfit_name;
+            }
+            else
+            {
+                av_sd["OutfitName"] = "Unknown Outfit";
+            }
+        }
+    }
+    LLSD av_attachments = LLSD::emptyArray();
+
+    LLVOVolume::texture_cost_t textures;
+    LLVOVolume::texture_cost_t material_textures;
+
+	U32 av_num_triangles_v2 = 0;
+	F32 av_triangle_costs_v2 = 0;
+	F32 av_texture_costs_v2 = 0;
+	U32 av_attachment_count = 0;
+
+
+    // For each attached volume (top level or child), generate an LLSD record 
+    for (LLVOAvatar::attachment_map_t::const_iterator attachment_point = av->mAttachmentPoints.begin(); 
+         attachment_point != av->mAttachmentPoints.end();
+         ++attachment_point)
+    {
+        LLViewerJointAttachment* attachment = attachment_point->second;
+        for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+             attachment_iter != attachment->mAttachedObjects.end();
+             ++attachment_iter)
+        {
+            const LLViewerObject* attached_object = (*attachment_iter);
+            if (attached_object && !attached_object->isHUDAttachment())
+            {
+				LLSD attachment_sd = attached_object->getFrameDataLinkset();
+				av_attachments.append(attachment_sd);
+
+				av_num_triangles_v2 += attachment_sd["linkset_cost_summary"]["num_triangles_v2"].asInteger();
+				av_triangle_costs_v2 += attachment_sd["linkset_cost_summary"]["triangle_costs_v2"].asReal();
+				av_texture_costs_v2 += attachment_sd["linkset_cost_summary"]["texture_costs_v2"].asReal();
+				av_attachment_count++;
+            }
+        }
+
+    }
+    av_sd["Attachments"] = av_attachments;
+
+	LLSD summary_sd;
+	summary_sd["num_triangles_v2"] = LLSD::Integer(av_num_triangles_v2);
+	summary_sd["triangle_costs_v2"] = LLSD::Real(av_triangle_costs_v2);
+	summary_sd["texture_costs_v2"] = LLSD::Real(av_texture_costs_v2);
+	summary_sd["attachment_count"] = LLSD::Integer(av_attachment_count);
+
+	av_sd["av_cost_summary"] = summary_sd;
+	
+    return av_sd;
+}
+

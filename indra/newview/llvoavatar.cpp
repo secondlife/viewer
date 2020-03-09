@@ -7828,65 +7828,7 @@ LLSD LLVOAvatar::getAllAvatarsFrameData()
 
 LLSD LLVOAvatar::getFrameData() const
 {
-    LLSD av_sd;
-    av_sd["Name"] = (LLSD::String) getFullname();
-    av_sd["Self"] = (LLSD::Boolean) isSelf();
-    av_sd["UUID"] = (LLSD::UUID) getID();
-	std::string viz_string = LLVOAvatar::rezStatusToString(getRezzedStatus());
-    av_sd["RezStatus"] = (LLSD::String) viz_string;
-    av_sd["ARCCalculated"] = (LLSD::Integer) getVisualComplexity(); 
-    av_sd["ARCCalculated1"] = (LLSD::Integer) getVisualComplexity(1);
-    av_sd["ARCCalculated2"] = (LLSD::Integer) getVisualComplexity(2);
-	av_sd["ARCCalculatedOld"] = (LLSD::Integer) getVisualComplexity(99); // FIXME ARC remove when old code path goes away
-    av_sd["ARCReported"] = (LLSD::Integer) getReportedVisualComplexity();
-    av_sd["AttachmentSurfaceArea"] = (LLSD::Real) getAttachmentSurfaceArea();
-    if (isSelf())
-    {
-        std::string outfit_name;
-        if (LLAppearanceMgr::instance().getBaseOutfitName(outfit_name))
-        {
-            av_sd["OutfitName"] = (LLSD::String) outfit_name;
-        }
-        else
-        {
-            outfit_name = LLAppearanceMgr::instance().getLastRequestedCategoryName();
-            if (!outfit_name.empty())
-            {
-                av_sd["OutfitName"] = outfit_name;
-            }
-            else
-            {
-                av_sd["OutfitName"] = "Unknown Outfit";
-            }
-        }
-    }
-    LLSD av_attachments = LLSD::emptyArray();
-
-    LLVOVolume::texture_cost_t textures;
-    LLVOVolume::texture_cost_t material_textures;
-
-    // For each attached volume (top level or child), generate an LLSD record 
-    for (attachment_map_t::const_iterator attachment_point = mAttachmentPoints.begin(); 
-         attachment_point != mAttachmentPoints.end();
-         ++attachment_point)
-    {
-        LLViewerJointAttachment* attachment = attachment_point->second;
-        for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-             attachment_iter != attachment->mAttachedObjects.end();
-             ++attachment_iter)
-        {
-            const LLViewerObject* attached_object = (*attachment_iter);
-            if (attached_object && !attached_object->isHUDAttachment())
-            {
-				LLSD attachment_sd = attached_object->getFrameDataLinkset();
-				av_attachments.append(attachment_sd);
-            }
-        }
-
-    }
-    av_sd["Attachments"] = av_attachments;
-
-    return av_sd;
+	return LLObjectCostManager::instance().getFrameDataAvatar(this);
 }
 
 // call periodically to keep isFullyLoaded up to date.

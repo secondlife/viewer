@@ -31,6 +31,7 @@
 
 class LLVOVolume;
 class LLViewerObject;
+class LLVOAvatar;
 
 class LLObjectCostManagerImpl;
 
@@ -49,6 +50,7 @@ public:
 
 	LLSD getFrameDataPrim(const LLVOVolume *vol);
 	LLSD getFrameDataLinkset(const LLVOVolume *root);
+	LLSD getFrameDataAvatar(const LLVOAvatar *av);
 
 private:
 	LLObjectCostManagerImpl *m_impl;
