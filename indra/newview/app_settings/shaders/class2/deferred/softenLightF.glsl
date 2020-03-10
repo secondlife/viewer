@@ -169,7 +169,7 @@ vec3 post_diffuse = color.rgb;
             vec3 env_vec = env_mat * refnormpersp;
             vec3 reflected_color = textureCube(environmentMap, env_vec).rgb;
 #if !defined(SUNLIGHT_KILL)
-            color = mix(color.rgb, reflected_color, envIntensity); 
+            color = mix(color.rgb, reflected_color, envIntensity*0.75); // MAGIC NUMBER SL-12574; ALM: On, Quality >= High
 #endif
         }
         
