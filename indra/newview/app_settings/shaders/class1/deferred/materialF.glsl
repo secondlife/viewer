@@ -254,7 +254,7 @@ void main()
     vec4 final_color = vec4(diffuse_linear.rgb, 0.0);
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_EMISSIVE)
-    final_color.a = diffuse_linear.a;
+    final_color.a = diffuse_linear.a * 0.5; // SL-12171
 #endif
 
     final_color.a = max(final_color.a, emissive_brightness);
