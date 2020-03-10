@@ -2212,7 +2212,9 @@ void errorCallback(const std::string &error_string)
 	// static info file.
 	LLAppViewer::instance()->writeDebugInfo();
 
+#ifndef SHADER_CRASH_NONFATAL
 	LLError::crashAndLoop(error_string);
+#endif
 }
 
 void LLAppViewer::initLoggingAndGetLastDuration()
