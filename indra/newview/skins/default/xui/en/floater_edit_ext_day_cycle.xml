@@ -260,7 +260,7 @@
 
                         <text
                                 follows="left|bottom"
-                                height="30"
+                                height="25"
                                 layout="topleft"
                                 left_pad="0"
                                 name="current_time"
@@ -273,7 +273,7 @@
                                 follows="all"
                                 height="200"
                                 animate="false"
-                                top_pad="5"
+                                top_pad="0"
                                 left="0"
                                 orientation="horizontal">
                             <layout_panel
