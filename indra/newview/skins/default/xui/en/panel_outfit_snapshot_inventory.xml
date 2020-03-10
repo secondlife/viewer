@@ -41,7 +41,7 @@
     <text
      follows="top|left"
      font="SansSerif"
-     height="56"
+     height="126"
      layout="topleft"
      left="10"
      length="1"
@@ -50,7 +50,9 @@
      width="200"
      type="string"
      word_wrap="true">
-        Uploading an image to your inventory costs L$[UPLOAD_COST].
+Uploading an image to your inventory costs L$[UPLOAD_COST].
+
+Fee is based on your subscription level. Higher levels are charged lower fees.
     </text>
     <button
      follows="right|bottom"

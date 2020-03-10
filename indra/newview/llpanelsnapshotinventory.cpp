@@ -136,7 +136,6 @@ BOOL LLPanelSnapshotInventory::postBuild()
 // virtual
 void LLPanelSnapshotInventory::onOpen(const LLSD& key)
 {
-	getChild<LLUICtrl>("hint_lbl")->setTextArg("[UPLOAD_COST]", llformat("%d", LLAgentBenefitsMgr::current().getTextureUploadCost()));
 	LLPanelSnapshot::onOpen(key);
 }
 
