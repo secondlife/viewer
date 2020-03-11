@@ -3775,7 +3775,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>https://secondlife.com/my/community/events/event.php?id=</string>
+      <string>http://events.secondlife.com/viewer/embed/event/</string>
     </map>
     <key>FastCacheFetchEnabled</key>
     <map>
