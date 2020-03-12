@@ -374,6 +374,11 @@ void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_
 	LL_INFOS("Messaging") << "give_money(" << uuid << "," << amount << ")"<< LL_ENDL;
 	if(can_afford_transaction(amount))
 	{
+		if (uuid.isNull())
+		{
+			LL_WARNS() << "Failed to send L$ gift to to Null UUID." << LL_ENDL;
+			return;
+		}
 //		gStatusBar->debitBalance(amount);
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessageFast(_PREHASH_MoneyTransferRequest);

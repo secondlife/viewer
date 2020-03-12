@@ -133,7 +133,6 @@ bool gShiftFrame = false;
 
 //cached settings
 bool LLPipeline::RenderAvatarVP;
-bool LLPipeline::VertexShaderEnable;
 bool LLPipeline::WindLightUseAtmosShaders;
 bool LLPipeline::RenderDeferred;
 F32 LLPipeline::RenderDeferredSunWash;
@@ -531,7 +530,6 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("RenderAvatarMaxNonImpostors");
 	connectRefreshCachedSettingsSafe("RenderDelayVBUpdate");
 	connectRefreshCachedSettingsSafe("UseOcclusion");
-	connectRefreshCachedSettingsSafe("VertexShaderEnable");
 	connectRefreshCachedSettingsSafe("RenderAvatarVP");
 	connectRefreshCachedSettingsSafe("WindLightUseAtmosShaders");
 	connectRefreshCachedSettingsSafe("RenderDeferred");
@@ -767,8 +765,8 @@ void LLPipeline::resizeScreenTexture()
             releaseShadowTargets();
 		    allocateScreenBuffer(resX,resY);
             gResizeScreenTexture = FALSE;
-		}
-	}
+				}
+			}
 }
 
 void LLPipeline::allocatePhysicsBuffer()
@@ -986,7 +984,7 @@ bool LLPipeline::allocateShadowBuffer(U32 resX, U32 resY)
 
 		const U32 occlusion_divisor = 3;
 
-		F32 scale = RenderShadowResolutionScale;
+		F32 scale = llmax(0.f,RenderShadowResolutionScale);
 		U32 sun_shadow_map_width  = BlurHappySize(resX, scale);
 		U32 sun_shadow_map_height = BlurHappySize(resY, scale);
 
@@ -1057,7 +1055,6 @@ void LLPipeline::updateRenderDeferred()
 					 LLRenderTarget::sUseFBO &&
 					 LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&	 
 					 LLPipeline::sRenderBump &&
-					 VertexShaderEnable && 
 					 RenderAvatarVP &&
 					 WindLightUseAtmosShaders)) &&
 					!gUseWireframe;
@@ -1087,7 +1084,6 @@ void LLPipeline::refreshCachedSettings()
 			&& gSavedSettings.getBOOL("UseOcclusion") 
 			&& gGLManager.mHasOcclusionQuery) ? 2 : 0;
 	
-	VertexShaderEnable = gSavedSettings.getBOOL("VertexShaderEnable");
 	RenderAvatarVP = gSavedSettings.getBOOL("RenderAvatarVP");
 	WindLightUseAtmosShaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders");
 	RenderDeferred = gSavedSettings.getBOOL("RenderDeferred");
@@ -1226,7 +1222,7 @@ void LLPipeline::releaseScreenBuffers()
 	mOcclusionDepth.release();
 }
 		
-
+		
 void LLPipeline::releaseShadowTarget(U32 index)
 {
     mShadow[index].release();
@@ -1408,12 +1404,9 @@ void LLPipeline::restoreGL()
 
 bool LLPipeline::canUseVertexShaders()
 {
-	static const std::string vertex_shader_enable_feature_string = "VertexShaderEnable";
-
 	if (sDisableShaders ||
 		!gGLManager.mHasVertexShader ||
 		!gGLManager.mHasFragmentShader ||
-		!LLFeatureManager::getInstance()->isFeatureAvailable(vertex_shader_enable_feature_string) ||
 		(assertInitialized() && mVertexShadersLoaded != 1) )
 	{
 		return false;
@@ -8753,9 +8746,24 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
 					}
 
 					const LLViewerObject *vobj = drawablep->getVObj();
-                    if(vobj && vobj->getAvatar() && vobj->getAvatar()->isInMuteList())
+					if (vobj)
+					{
+						LLVOAvatar *av = vobj->getAvatar();
+						if (av)
+						{
+							if (av->isTooComplex() || av->isInMuteList() || dist_vec(av->getPosition(), LLViewerCamera::getInstance()->getOrigin()) > RenderFarClip)
+							{
+								continue;
+							}
+						}
+						else
+						{
+							const LLViewerObject *root_obj = drawablep->getParent() ? drawablep->getParent()->getVObj() : vobj;
+							if (root_obj && dist_vec(root_obj->getPosition(), LLViewerCamera::getInstance()->getOrigin()) > RenderFarClip)
 					{
 						continue;
+					}
+						}
 					}
 
 					LLVector4a center;

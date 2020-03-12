@@ -81,11 +81,8 @@ void main()
     norm.xyz = getNorm(tc);
     
     vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;
-    float da = dot(normalize(norm.xyz), light_dir.xyz);
-          da = clamp(da, -1.0, 1.0);
-
-    float final_da = da;
-          final_da = clamp(final_da, 0.0, 1.0);
+    float da = clamp(dot(normalize(norm.xyz), light_dir.xyz), 0.0, 1.0);
+    da = pow(da, 1.0/1.3);
 
     vec4 diffuse_srgb = texture2DRect(diffuseRect, tc);
     vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_srgb.a);
@@ -103,12 +100,12 @@ void main()
     
         calcAtmosphericVars(pos.xyz, light_dir, ambocc, sunlit, amblit, additive, atten, false);
 
-        float ambient = da;
+        float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
         ambient *= 0.5;
         ambient *= ambient;
         ambient = (1.0 - ambient);
 
-        vec3 sun_contrib = final_da * sunlit;
+        vec3 sun_contrib = da * sunlit;
 
 #if !defined(AMBIENT_KILL)
         color.rgb = amblit;
@@ -147,9 +144,9 @@ vec3 post_diffuse = color.rgb;
             if (nh > 0.0)
             {
                 float scontrib = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
-                vec3 sp = sun_contrib*scontrib / 16.0;
+                vec3 sp = sun_contrib*scontrib / 6.0;
                 sp = clamp(sp, vec3(0), vec3(1));
-                bloom += dot(sp, sp) / 6.0;
+                bloom += dot(sp, sp) / 4.0;
 #if !defined(SUNLIGHT_KILL)
                 color += sp * spec.rgb;
 #endif
@@ -158,18 +155,14 @@ vec3 post_diffuse = color.rgb;
        
  vec3 post_spec = color.rgb;
  
-#ifdef WATER_FOG
-        color.rgb += diffuse_srgb.rgb * diffuse_srgb.a * 0.25;
-#else
         color.rgb = mix(color.rgb, diffuse_srgb.rgb, diffuse_srgb.a);
-#endif
 
         if (envIntensity > 0.0)
         { //add environmentmap
             vec3 env_vec = env_mat * refnormpersp;
             vec3 reflected_color = textureCube(environmentMap, env_vec).rgb;
 #if !defined(SUNLIGHT_KILL)
-            color = mix(color.rgb, reflected_color, envIntensity); 
+            color = mix(color.rgb, reflected_color, envIntensity*0.75); // MAGIC NUMBER SL-12574; ALM: On, Quality <= Mid+
 #endif
         }
         
@@ -203,9 +196,6 @@ vec3 post_atmo = color.rgb;
 //color.rgb = post_env;
 //color.rgb = post_atmo;
 
-// convert to linear as fullscreen lights need to sum in linear colorspace
-// and will be gamma (re)corrected downstream...
-        color.rgb = srgb_to_linear(color.rgb);
     }
 
 // linear debuggables
@@ -214,6 +204,9 @@ vec3 post_atmo = color.rgb;
 //color.rgb = vec3(scol);
 //color.rgb = diffuse_linear.rgb;
 
-    frag_color.rgb = color.rgb;
+    // convert to linear as fullscreen lights need to sum in linear colorspace
+    // and will be gamma (re)corrected downstream...
+    
+    frag_color.rgb = srgb_to_linear(color.rgb);
     frag_color.a = bloom;
 }

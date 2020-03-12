@@ -397,8 +397,8 @@ namespace
 
         void removeInjection(const std::string keyname, LLUUID experience, LLSettingsBase::Seconds transition)
         {
-            auto it = mInjections.begin();
-            while (it != mInjections.end())
+            injections_t injections_buf;
+            for (auto it = mInjections.begin(); it != mInjections.end(); it++)
             {
                 if ((keyname.empty() || ((*it)->mKeyName == keyname)) &&
                     (experience.isNull() || (experience == (*it)->mExperience)))
@@ -406,13 +406,16 @@ namespace
                     if (transition != LLEnvironment::TRANSITION_INSTANT)
                     {
                         typename Injection::ptr_t injection = std::make_shared<Injection>(transition, keyname, (*it)->mLastValue, false, LLUUID::null);
-                        mInjections.push_front(injection); // push them in at the front so we don't check them again.
+                        injections_buf.push_front(injection);
                     }
-                    mInjections.erase(it++);
                 }
                 else
-                    ++it;
+                {
+                    injections_buf.push_front(*it);
+                }
             }
+            mInjections.clear();
+            mInjections = injections_buf;
 
             for (auto itexp = mOverrideExps.begin(); itexp != mOverrideExps.end();)
             {
@@ -2532,7 +2535,9 @@ void LLEnvironment::DayInstance::setWater(const LLSettingsWater::ptr_t &pwater)
     mType = TYPE_FIXED;
     mInitialized = false;
 
+    bool different_water = mWater != pwater;
     mWater = pwater;
+    mWater->mReplaced |= different_water;
     mWater->update();
     mBlenderWater.reset();
 }

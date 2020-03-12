@@ -360,10 +360,10 @@ Sadece büyük parseller aramada görünür.
 				Anlık Görüntü:
 			</text>
 			<texture_picker name="snapshot_ctrl" tool_tip="Bir resim seçmek için tıklayın"/>
-			<text name="allow_see_label">
+			<text name="allow_see_label" top="170">
 				Diğer parsellerdeki avatarlar bu parseldeki avatarları görebilir ve onlarla sohbet edebilir
 			</text>
-			<check_box label="Avatarları Gör" name="SeeAvatarsCheck" tool_tip="Diğer parsellerdeki avatarların bu parseldeki avatarları görmesine ve onlarla sohbet etmesine, sizin de onları görüp, onlarla sohbet etmenize imkan tanır."/>
+			<check_box label="Avatarları Gör" name="SeeAvatarsCheck" top="170" tool_tip="Diğer parsellerdeki avatarların bu parseldeki avatarları görmesine ve onlarla sohbet etmesine, sizin de onları görüp, onlarla sohbet etmenize imkan tanır."/>
 			<text name="landing_point">
 				İniş Noktası: [LANDING]
 			</text>

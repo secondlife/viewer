@@ -362,7 +362,7 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 				Foto:
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Pulse para elegir una imagen"/>
-			<text name="allow_see_label">
+			<text name="allow_see_label" top="170">
 				Los avatares de otras parcelas pueden ver a los avatares de esta parcela y chatear con ellos
 			</text>
 			<check_box label="Ver los avatares" name="SeeAvatarsCheck" tool_tip="Permite que los avatares de otras parcelas vean a los avatares de ésta y chateen con ellos, y también que tú puedas verles y chatear con ellos." top="170"/>
@@ -444,7 +444,7 @@ los media:
 			<panel.string name="estate_override">
 				Una o más de esta opciones está configurada a nivel del estado
 			</panel.string>
-			<check_box label="Cualquiera puede visitar (Si no seleccionas esta opción, se crearán líneas de prohibición)" name="public_access"/>
+			<check_box label="Cualquiera puede visitar" name="public_access" tool_tip="Si no seleccionas esta opción, se crearán líneas de prohibición"/>
 			<check_box label="Debe ser mayor de 18 [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Para poder acceder a esta parcela los Residentes deben ser mayores de 18 años. Para más información, consulta [SUPPORT_SITE]."/>
 			<check_box label="Debe haber información archivada sobre el pago [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Para poder acceder a esta parcela los Residentes deben haber aportado información de pago en su cuenta. Para más información, ver [SUPPORT_SITE]."/>
 			<check_box label="Permitir grupo [GROUP] sin restricciones" name="GroupCheck" tool_tip="Elija el grupo en la pestaña General."/>

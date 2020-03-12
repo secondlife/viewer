@@ -77,6 +77,10 @@ protected:
 	friend class LLUICtrlFactory;
 public:
 	virtual ~LLMultiSlider();
+
+    // Multi-slider rounds values to nearest increments (bias towards rounding down)
+    F32					getNearestIncrement(F32 value) const;
+
 	void				setSliderValue(const std::string& name, F32 value, BOOL from_event = FALSE);
 	F32					getSliderValue(const std::string& name) const;
 	F32					getSliderValueFromPos(S32 xpos, S32 ypos) const;

@@ -168,7 +168,8 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	mImportanceToCamera = 0.f ;
 	mBoundingSphereRadius = 0.0f ;
 
-	mHasMedia = FALSE ;
+	mHasMedia = false ;
+	mIsMediaAllowed = true;
 }
 
 void LLFace::destroy()
@@ -461,7 +462,7 @@ void LLFace::setTextureIndex(U8 index)
 		}
 		else
 		{
-			if (mDrawInfo && !mDrawInfo->mTextureList.empty())
+			if (mDrawInfo && mDrawInfo->mTextureList.size() <= 1)
 			{
 				LL_ERRS() << "Face with no texture index references indexed texture draw info." << LL_ENDL;
 			}
@@ -1419,17 +1420,16 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 			if (shiny_in_alpha)
 			{
-
-				static const GLfloat alpha[4] =
+				static const GLfloat SHININESS_TO_ALPHA[4] =
 				{
-					0.00f,
-					0.25f,
-					0.5f,
-					0.75f
+					0.0000f,
+					0.3333f,
+					0.6666f,
+					1.0000f
 				};
 			
 				llassert(tep->getShiny() <= 3);
-				color.mV[3] = U8 (alpha[tep->getShiny()] * 255);
+				color.mV[3] = U8 (SHININESS_TO_ALPHA[tep->getShiny()] * 255);
 			}
 		}
 	}

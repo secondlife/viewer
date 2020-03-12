@@ -22,7 +22,9 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
+//class1/deferred/alphaF.glsl
+
 #extension GL_ARB_texture_rectangle : enable
 
 /*[EXTRA_CODE_HERE]*/
@@ -51,7 +53,7 @@ VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_norm;
 
 #ifdef USE_VERTEX_COLOR
-VARYING vec4 vertex_color;
+VARYING vec4 vertex_color; //vertex color should be treated as sRGB
 #endif
 
 uniform mat4 proj_mat;
@@ -190,7 +192,7 @@ void main()
 
     float final_alpha = diffuse_srgb.a * vertex_color.a;
     diffuse_srgb.rgb *= vertex_color.rgb;
-    diffuse_linear.rgb *= vertex_color.rgb;
+    diffuse_linear.rgb = srgb_to_linear(diffuse_srgb.rgb); 
     
     // Insure we don't pollute depth with invis pixels in impostor rendering
     //
@@ -207,7 +209,7 @@ void main()
 #ifdef USE_VERTEX_COLOR
     final_alpha *= vertex_color.a;
     diffuse_srgb.rgb *= vertex_color.rgb;
-    diffuse_linear.rgb *= vertex_color.rgb;
+    diffuse_linear.rgb = srgb_to_linear(diffuse_srgb.rgb);
 #endif
 
     vec3 sunlit;
@@ -221,6 +223,7 @@ void main()
 
     float da = dot(norm.xyz, light_dir.xyz);
           da = clamp(da, -1.0, 1.0);
+          da = pow(da, 1.0/1.3);
  
     float final_da = da;
           final_da = clamp(final_da, 0.0f, 1.0f);
@@ -229,7 +232,7 @@ void main()
 
     color.a   = final_alpha;
 
-    float ambient = da;
+    float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
     ambient *= 0.5;
     ambient *= ambient;
     ambient = (1.0 - ambient);
@@ -258,8 +261,10 @@ vec3 post_diffuse = color.rgb;
 vec3 post_atmo = color.rgb;
 
     vec4 light = vec4(0,0,0,0);
+    
+    color.rgb = scaleSoftClipFrag(color.rgb);
 
-    // to linear!
+    //convert to linear before applying local lights
     color.rgb = srgb_to_linear(color.rgb);
 
    #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diffuse_linear.rgb, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w);
@@ -276,9 +281,6 @@ vec3 post_atmo = color.rgb;
 #if !defined(LOCAL_LIGHT_KILL)
     color.rgb += light.rgb;
 #endif
-
-    color.rgb = scaleSoftClipFrag(color.rgb);
-
     // back to sRGB as we're going directly to the final RT post-deferred gamma correction
     color.rgb = linear_to_srgb(color.rgb);
 
@@ -298,7 +300,7 @@ vec3 post_atmo = color.rgb;
 #endif // WATER_FOG
 
 #endif
-
+    
     frag_color = color;
 }
 

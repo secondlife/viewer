@@ -724,7 +724,7 @@ bool LLSettingsDay::moveTrackKeyframe(S32 trackno, const LLSettingsBase::TrackPo
         return false;
     }
 
-    if (old_frame == new_frame)
+    if (llabs(old_frame - new_frame) < F_APPROXIMATELY_ZERO)
     {
         return false;
     }

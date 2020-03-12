@@ -367,11 +367,11 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 				Fotografia:
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Clicca per scegliere una immagine"/>
-			<text name="allow_see_label">
+			<text name="allow_see_label" top="170">
 				Gli avatar di altri lotti possono vedere gli avatar che si trovano in questo lotto e chattare con loro
 			</text>
-			<check_box label="Vedi avatar" name="SeeAvatarsCheck" tool_tip="Consente ad avatar in altri lotti di vedere e chattare con avatar in questo lotto e viceversa."/>
-			<text name="landing_point">
+			<check_box label="Vedi avatar" top="170" name="SeeAvatarsCheck" tool_tip="Consente ad avatar in altri lotti di vedere e chattare con avatar in questo lotto e viceversa."/>
+			<text name="landing_point" width="225">
 				Punto di atterraggio: [LANDING]
 			</text>
 			<button label="Imposta" label_selected="Imposta" name="Set" tool_tip="Imposta il punto di atterraggio dove arrivano i visitatori. Impostalo nel punto dove si trova il tuo avatar in questo terreno." width="60"/>
@@ -449,7 +449,7 @@ Media:
 			<panel.string name="estate_override">
 				Una o più di queste impostazioni sono già impostate a livello regionale
 			</panel.string>
-			<check_box label="Chiunque può visitare (Se si rimuove la selezione vengono create linee di espulsione)" name="public_access"/>
+			<check_box label="Chiunque può visitare" tool_tip="Se si rimuove la selezione vengono create linee di espulsione" name="public_access"/>
 			<check_box label="È necessario avere più di 18 anni [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Per poter visitare questo lotto i Residenti devono avere almeno 18 anni. Vedi [SUPPORT_SITE] per maggiori informazioni."/>
 			<check_box label="È necessario aver registrato le informazioni di pagamento [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Per poter visitare questo lotto i Residenti devono aver fornito informazioni di pagamento a Linden Lab.  Vedi [SUPPORT_SITE] per maggiori informazioni."/>
 			<check_box label="Consenti gruppo [GRUPPO] senza restrizioni" name="GroupCheck" tool_tip="Imposta il gruppo nel pannello generale."/>

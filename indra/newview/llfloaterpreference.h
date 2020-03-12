@@ -122,8 +122,8 @@ protected:
 	// callback for defaults
 	void setHardwareDefaults();
 	void setRecommended();
-	// callback for when client turns on shaders
-	void onVertexShaderEnable();
+	// callback for when client modifies a render option
+    void onRenderOptionEnable();
 	// callback for when client turns on impostors
 	void onAvatarImpostorsEnable();
 
@@ -168,7 +168,6 @@ public:
 	
 	void refreshUI();
 
-	void onCommitParcelMediaAutoPlayEnable();
 	void onCommitMediaEnabled();
 	void onCommitMusicEnabled();
 	void applyResolution();
@@ -181,6 +180,7 @@ public:
 	void onClickProxySettings();
 	void onClickTranslationSettings();
 	void onClickPermsDefault();
+	void onClickRememberedUsernames();
 	void onClickAutoReplace();
 	void onClickSpellChecker();
 	void onClickRenderExceptions();
@@ -313,8 +313,8 @@ class LLFloaterPreferenceGraphicsAdvanced : public LLFloater
 	static void setIndirectMaxNonImpostors();
 	static void setIndirectMaxArc();
 	void refresh();
-	// callback for when client turns on shaders
-	void onVertexShaderEnable();
+	// callback for when client modifies a render option
+	void onRenderOptionEnable();
     void onAdvancedAtmosphericsEnable();
 	LOG_CLASS(LLFloaterPreferenceGraphicsAdvanced);
 };

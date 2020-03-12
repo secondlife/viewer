@@ -2253,7 +2253,7 @@ void LLPanelLandOptions::refreshSearch()
 	// effort to reduce search spam from small parcels.  See also
 	// the search crawler "grid-crawl.py" in secondlife.com/doc/app/search/ JC
 	const S32 MIN_PARCEL_AREA_FOR_SEARCH = 128;
-	bool large_enough = parcel->getArea() > MIN_PARCEL_AREA_FOR_SEARCH;
+	bool large_enough = parcel->getArea() >= MIN_PARCEL_AREA_FOR_SEARCH;
 	if (large_enough)
 	{
 		if (can_change)

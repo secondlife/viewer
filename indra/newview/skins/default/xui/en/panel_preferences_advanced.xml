@@ -248,14 +248,27 @@
      top_pad="5"
      width="237"/>
     <button
-     height="20"
-     label="Default Creation Permissions"
+     follows="top|left"
      layout="topleft"
-     name="default_creation_permissions"
+     label="Remembered Usernames"
+     name="remembered_usernames"
+     height="20"
      left="30"
-     top_pad = "20"
-     width="250">
-	<button.commit_callback
-	 function="Pref.PermsDefault" />
+     top_pad="16"
+     width="200">
+    <button.commit_callback
+     function="Pref.RememberedUsernames" />
+  </button>
+  <button
+     follows="top|left"
+     layout="topleft"
+     label="Default Creation Permissions"
+     name="default_creation_permissions"
+     height="20"
+     left="30"
+     top_pad="16"
+     width="200">
+    <button.commit_callback
+     function="Pref.PermsDefault" />
   </button>
 </panel>

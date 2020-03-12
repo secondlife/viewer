@@ -991,13 +991,20 @@ void LLFloaterEditExtDayCycle::onFrameSliderCallback(const LLSD &data)
             }
             else
             {
-                if (mEditDay->moveTrackKeyframe(mCurrentTrack, (*it).second.mFrame, sliderpos) && mCanMod)
+                // slider rounds values to nearest increments, changes can be substanntial (half increment)
+                if (abs(mFramesSlider->getNearestIncrement((*it).second.mFrame) - sliderpos) < F_APPROXIMATELY_ZERO)
+                {
+                    // same value
+                    mFramesSlider->setCurSliderValue((*it).second.mFrame);
+                }
+                else if (mEditDay->moveTrackKeyframe(mCurrentTrack, (*it).second.mFrame, sliderpos) && mCanMod)
                 {
                     (*it).second.mFrame = sliderpos;
                     setDirtyFlag();
                 }
                 else
                 {
+                    // same value, wrong track, no such value, no mod
                     mFramesSlider->setCurSliderValue((*it).second.mFrame);
                 }
 

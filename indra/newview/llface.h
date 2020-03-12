@@ -218,6 +218,9 @@ public:
 	void        setHasMedia(bool has_media)  { mHasMedia = has_media ;}
 	BOOL        hasMedia() const ;
 
+    void        setMediaAllowed(bool is_media_allowed)  { mIsMediaAllowed = is_media_allowed; }
+    BOOL        isMediaAllowed() const { return mIsMediaAllowed; }
+
 	BOOL		switchTexture() ;
 
 	//vertex buffer tracking
@@ -293,6 +296,7 @@ private:
 	F32         mImportanceToCamera ; 
 	F32         mBoundingSphereRadius ;
 	bool        mHasMedia ;
+	bool        mIsMediaAllowed;
 
 	
 protected:

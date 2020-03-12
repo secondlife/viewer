@@ -56,7 +56,7 @@ struct WearableEntry : public LLDictionaryEntry
 	BOOL mAllowMultiwear;
 };
 
-class LLWearableDictionary : public LLParamSingleton<LLWearableDictionary>,
+class LLWearableDictionary : public LLSingleton<LLWearableDictionary>,
 							 public LLDictionary<LLWearableType::EType, WearableEntry>
 {
 	LLSINGLETON(LLWearableDictionary);
@@ -64,6 +64,12 @@ class LLWearableDictionary : public LLParamSingleton<LLWearableDictionary>,
 
 LLWearableDictionary::LLWearableDictionary()
 {
+    if (!LLWearableType::instanceExists())
+    {
+        // LLWearableType is effectively a wrapper around LLWearableDictionary and is used as storage for LLTranslationBridge
+        // Todo: consider merging LLWearableType and LLWearableDictionary
+        LL_WARNS() << "Initing LLWearableDictionary without LLWearableType" << LL_ENDL;
+    }
 	addEntry(LLWearableType::WT_SHAPE,        new WearableEntry("shape",       "New Shape",			LLAssetType::AT_BODYPART, 	LLInventoryType::ICONNAME_BODYPART_SHAPE, FALSE, FALSE));
 	addEntry(LLWearableType::WT_SKIN,         new WearableEntry("skin",        "New Skin",			LLAssetType::AT_BODYPART, 	LLInventoryType::ICONNAME_BODYPART_SKIN, FALSE, FALSE));
 	addEntry(LLWearableType::WT_HAIR,         new WearableEntry("hair",        "New Hair",			LLAssetType::AT_BODYPART, 	LLInventoryType::ICONNAME_BODYPART_HAIR, FALSE, FALSE));
@@ -92,20 +98,13 @@ LLWearableDictionary::LLWearableDictionary()
 
 LLWearableType::LLWearableType(LLTranslationBridge* trans)
 {
+    // LLTranslationBridge exists, but is not ready at this point in time since strings.xml is not yet loaded
     mTrans = trans;
 }
 
 LLWearableType::~LLWearableType()
 {
     delete mTrans;
-}
-
-void LLWearableType::initSingleton()
-{
-    // To make sure all wrapping functions will crash without initing LLWearableType;
-    LLWearableDictionary::initParamSingleton();
-
-    // Todo: consider merging LLWearableType and LLWearableDictionary
 }
 
 // static

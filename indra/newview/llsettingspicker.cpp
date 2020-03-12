@@ -271,7 +271,7 @@ void LLFloaterSettingsPicker::onSelectionChange(const LLFloaterSettingsPicker::i
     }
     bool track_picker_enabled = mTrackMode != TRACK_NONE;
 
-    getChild<LLView>(CMB_TRACK_SELECTION)->setEnabled(track_picker_enabled && mSettingAssetID == asset_id);
+    getChild<LLView>(CMB_TRACK_SELECTION)->setEnabled(is_item && track_picker_enabled && mSettingAssetID == asset_id);
     getChild<LLView>(BTN_SELECT)->setEnabled(is_item && (!track_picker_enabled || mSettingAssetID == asset_id));
     if (track_picker_enabled && asset_id.notNull() && mSettingAssetID != asset_id)
     {

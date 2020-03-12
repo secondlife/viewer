@@ -1277,11 +1277,7 @@ LLColor4 LLSettingsSky::getTotalAmbient() const
 
 LLColor3 LLSettingsSky::getMoonlightColor() const
 {
-    F32 moon_brightness = getIsMoonUp() ? getMoonBrightness() : 0.001f;
-    LLColor3 moonlight_a(0.9, 0.9, 1.32);
-    LLColor3 moonlight_b(0.66, 0.66, 2.0);
-    LLColor3 moonlight = lerp(moonlight_b, moonlight_a, moon_brightness);    
-    return moonlight;
+    return getSunlightColor(); //moon and sun share light color
 }
 
 void LLSettingsSky::clampColor(LLColor3& color, F32 gamma, F32 scale) const

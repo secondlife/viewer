@@ -43,8 +43,10 @@ vec3 linear_to_srgb(vec3 cl);
 
 void main() 
 {
+    //this is the one of the rare spots where diffuseRect contains linear color values (not sRGB)
     vec4 diff = texture2DRect(diffuseRect, vary_fragcoord);
-    diff.rgb = pow(diff.rgb, vec3(display_gamma));
+    //diff.rgb = pow(diff.rgb, vec3(display_gamma));
+    diff.rgb = linear_to_srgb(diff.rgb);
     frag_color = diff;
 }
 
