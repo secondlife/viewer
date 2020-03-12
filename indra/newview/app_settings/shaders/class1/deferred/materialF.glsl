@@ -214,7 +214,7 @@ void main()
     vec2 pos_screen = vary_texcoord0.xy;
 
     vec4 diffuse_srgb = texture2D(diffuseMap, vary_texcoord0.xy);
-    diffuse_srgb.rgb *= vertex_color.rgb;
+    diffuse_srgb *= vertex_color;
     vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_srgb.a);
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_MASK)
