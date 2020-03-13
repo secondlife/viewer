@@ -154,8 +154,6 @@ vec3 post_diffuse = color.rgb;
         }
        
  vec3 post_spec = color.rgb;
- 
-        color.rgb = mix(color.rgb, diffuse_srgb.rgb, diffuse_srgb.a);
 
         if (envIntensity > 0.0)
         { //add environmentmap
@@ -165,7 +163,11 @@ vec3 post_diffuse = color.rgb;
             color = mix(color.rgb, reflected_color, envIntensity*0.75); // MAGIC NUMBER SL-12574; ALM: On, Quality <= Mid+
 #endif
         }
-        
+        else
+        {
+            color.rgb = mix(color.rgb, diffuse_srgb.rgb, diffuse_srgb.a);
+        }
+
 vec3 post_env = color.rgb;
 
         if (norm.w < 1)
