@@ -108,6 +108,10 @@ const double RETAIN_COEFFICIENT = 100;
 // So this const is used as a size of Smooth combobox list.
 const S32 SMOOTH_VALUES_NUMBER = 10;
 
+// mCameraDistance
+// Also see: mCameraZoom
+const F32 MODEL_PREVIEW_CAMERA_DISTANCE = 16.f;
+
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size);
 
 
@@ -431,7 +435,7 @@ void LLFloaterModelPreview::initModelPreview()
 	}
 
 	mModelPreview = new LLModelPreview(512, 512, this );
-	mModelPreview->setPreviewTarget(16.f);
+	mModelPreview->setPreviewTarget(MODEL_PREVIEW_CAMERA_DISTANCE);
 	mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelPreview::setDetails, this, _1, _2, _3, _4, _5));
 	mModelPreview->setModelUpdatedCallback(boost::bind(&LLFloaterModelPreview::modelUpdated, this, _1));
 }
@@ -3780,7 +3784,6 @@ BOOL LLModelPreview::render()
 		target_pos = getPreviewAvatar()->getPositionAgent();
 		z_near = 0.01f;
 		z_far = 1024.f;
-		mCameraDistance = 16.f;
 
 		//render avatar previews every frame
 		refresh();
