@@ -177,9 +177,8 @@ void main()
 	float da = dot(norm, lv);
 		
 	vec3 diff_tex = texture2DRect(diffuseRect, frag.xy).rgb;
-    // SL-12005 Projector light pops as we get closer, more objectionable than being in wrong color space.
-    //          We can't switch to linear here unless we do it everywhere
-    //diff_tex.rgb = srgb_to_linear(diff_tex.rgb);
+	//light shaders output linear and are gamma corrected later in postDeferredGammaCorrectF.glsl
+    diff_tex.rgb = srgb_to_linear(diff_tex.rgb);
 
 	vec4 spec = texture2DRect(specularRect, frag.xy);
 
@@ -274,6 +273,7 @@ void main()
 	}
 #endif
 
+	//col.r = 1.0;
 	frag_color.rgb = col;	
 	frag_color.a = 0.0;
 }
