@@ -44,6 +44,9 @@ vec4 applyWaterFogView(vec3 pos, vec4 color);
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 scaleSoftClipFrag(vec3 l);
 
+vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
+vec3 fullbrightScaleSoftClip(vec3 light);
+
 void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
 
 vec3 srgb_to_linear(vec3 cs);
@@ -320,21 +323,26 @@ void main()
     vec3 atten;
 
     calcAtmosphericVars(pos.xyz, light_dir, 1.0, sunlit, amblit, additive, atten, false);
-
+    
     if (emissive_brightness >= 1.0)	// fullbright, skip lighting calculations
     {
-        // just do atmos attenuation (ad hoc 60% factor to match release viewer)
-        color = atmosFragLighting(diffuse_srgb.rgb, additive, atten*0.6);
-        color = scaleSoftClipFrag(color);
+        color = fullbrightAtmosTransportFrag(diffuse_srgb.rgb, additive, atten);
+        color = fullbrightScaleSoftClip(color);
+
         al = diffuse_srgb.a;
     }
     else // not fullbright, calculate lighting
     {
         vec3 refnormpersp = normalize(reflect(pos.xyz, norm));
 
+        //we're in sRGB space, so gamma correct this dot product so 
+        // lighting from the sun stays sharp
         float da = clamp(dot(normalize(norm.xyz), light_dir.xyz), 0.0, 1.0);
         da = pow(da, 1.0 / 1.3);
 
+        //darken ambient for normals perpendicular to light vector so surfaces in shadow 
+        // and facing away from light still have some definition to them.
+        // do NOT gamma correct this dot product so ambient lighting stays soft
         float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
         ambient *= 0.5;
         ambient *= ambient;
