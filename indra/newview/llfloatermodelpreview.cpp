@@ -3645,10 +3645,9 @@ BOOL LLModelPreview::render()
 	S32 width = getWidth();
 	S32 height = getHeight();
 
-	LLGLSUIDefault def;
+	LLGLSUIDefault def; // GL_BLEND, GL_ALPHA_TEST, GL_CULL_FACE, depth test
 	LLGLDisable no_blend(GL_BLEND);
-	LLGLEnable cull(GL_CULL_FACE);
-	LLGLDepthTest depth(GL_TRUE);
+	LLGLDepthTest depth(GL_FALSE); // SL-12781 disable z-buffer to render background color
 	LLGLDisable fog(GL_FOG);
 
 	{
@@ -3761,7 +3760,7 @@ BOOL LLModelPreview::render()
 
 	F32 explode = mFMP->childGetValue("physics_explode").asReal();
 
-	glClear(GL_DEPTH_BUFFER_BIT);
+	LLGLDepthTest gls_depth(GL_TRUE); // SL-12781 re-enable z-buffer for 3D model preview
 
 	LLRect preview_rect;
 
