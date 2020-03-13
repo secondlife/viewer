@@ -108,6 +108,10 @@ const double RETAIN_COEFFICIENT = 100;
 // So this const is used as a size of Smooth combobox list.
 const S32 SMOOTH_VALUES_NUMBER = 10;
 
+// mCameraDistance
+// Also see: mCameraZoom
+const F32 MODEL_PREVIEW_CAMERA_DISTANCE = 16.f;
+
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size);
 
 
@@ -431,7 +435,7 @@ void LLFloaterModelPreview::initModelPreview()
 	}
 
 	mModelPreview = new LLModelPreview(512, 512, this );
-	mModelPreview->setPreviewTarget(16.f);
+	mModelPreview->setPreviewTarget(MODEL_PREVIEW_CAMERA_DISTANCE);
 	mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelPreview::setDetails, this, _1, _2, _3, _4, _5));
 	mModelPreview->setModelUpdatedCallback(boost::bind(&LLFloaterModelPreview::modelUpdated, this, _1));
 }
@@ -3641,10 +3645,9 @@ BOOL LLModelPreview::render()
 	S32 width = getWidth();
 	S32 height = getHeight();
 
-	LLGLSUIDefault def;
+	LLGLSUIDefault def; // GL_BLEND, GL_ALPHA_TEST, GL_CULL_FACE, depth test
 	LLGLDisable no_blend(GL_BLEND);
-	LLGLEnable cull(GL_CULL_FACE);
-	LLGLDepthTest depth(GL_TRUE);
+	LLGLDepthTest depth(GL_FALSE); // SL-12781 disable z-buffer to render background color
 	LLGLDisable fog(GL_FOG);
 
 	{
@@ -3652,7 +3655,7 @@ BOOL LLModelPreview::render()
 		{
 			gUIProgram.bind();
 		}
-		//clear background to blue
+		//clear background to grey
 		gGL.matrixMode(LLRender::MM_PROJECTION);
 		gGL.pushMatrix();
 		gGL.loadIdentity();
@@ -3757,7 +3760,7 @@ BOOL LLModelPreview::render()
 
 	F32 explode = mFMP->childGetValue("physics_explode").asReal();
 
-	glClear(GL_DEPTH_BUFFER_BIT);
+	LLGLDepthTest gls_depth(GL_TRUE); // SL-12781 re-enable z-buffer for 3D model preview
 
 	LLRect preview_rect;
 
@@ -3780,7 +3783,6 @@ BOOL LLModelPreview::render()
 		target_pos = getPreviewAvatar()->getPositionAgent();
 		z_near = 0.01f;
 		z_far = 1024.f;
-		mCameraDistance = 16.f;
 
 		//render avatar previews every frame
 		refresh();
@@ -3920,9 +3922,9 @@ BOOL LLModelPreview::render()
 			{
 				glClear(GL_DEPTH_BUFFER_BIT);
 				
-				for (U32 i = 0; i < 2; i++)
+				for (U32 pass = 0; pass < 2; pass++)
 				{
-					if (i == 0)
+					if (pass == 0)
 					{ //depth only pass
 						gGL.setColorMask(false, false);
 					}
@@ -3932,7 +3934,7 @@ BOOL LLModelPreview::render()
 					}
 
 					//enable alpha blending on second pass but not first pass
-					LLGLState blend(GL_BLEND, i); 
+					LLGLState blend(GL_BLEND, pass);
 					
 					gGL.blendFunc(LLRender::BF_SOURCE_ALPHA, LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
 
