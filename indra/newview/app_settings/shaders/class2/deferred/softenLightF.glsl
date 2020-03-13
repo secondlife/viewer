@@ -171,7 +171,9 @@ vec3 post_diffuse = color.rgb;
 #endif
         }
         else
+        {
             color.rgb = mix(color.rgb, diffuse_srgb.rgb, diffuse_srgb.a);
+        }
 
 vec3 post_env = color.rgb;
 
