@@ -217,7 +217,16 @@ void main()
     vec2 pos_screen = vary_texcoord0.xy;
 
     vec4 diffuse_srgb = texture2D(diffuseMap, vary_texcoord0.xy);
-    diffuse_srgb *= vertex_color;
+    diffuse_srgb.rgb *= vertex_color.rgb;
+    
+    // For some reason the Transparency slider sets vertex_color.a to 0.0 both for
+    // fully opaque and for fully transparent objects. This code assumes the 0 alpha
+    // is always from the opaque end of the scale. TODO: Remove the conditional once
+    // the root cause of the slider ambiguity is fixed.
+    if (vertex_color.a > 0.0)
+    {
+        diffuse_srgb.a *= vertex_color.a;
+    }
     vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_srgb.a);
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_MASK)
