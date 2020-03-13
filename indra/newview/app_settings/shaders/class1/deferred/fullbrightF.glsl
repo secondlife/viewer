@@ -79,11 +79,9 @@ void main()
 	color.rgb = fogged.rgb;
 	color.a   = fogged.a;
 #else
-    color.rgb = srgb_to_linear(color.rgb);
-	color.rgb = fullbrightAtmosTransport(color.rgb);
+    color.rgb = fullbrightAtmosTransport(color.rgb);
 	color.rgb = fullbrightScaleSoftClip(color.rgb);
-    color.rgb = linear_to_srgb(color.rgb);
-	color.a   = final_alpha;
+    color.a   = final_alpha;
 #endif
 
 	frag_color.rgb = color.rgb;
