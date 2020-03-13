@@ -3920,9 +3920,9 @@ BOOL LLModelPreview::render()
 			{
 				glClear(GL_DEPTH_BUFFER_BIT);
 				
-				for (U32 i = 0; i < 2; i++)
+				for (U32 pass = 0; pass < 2; pass++)
 				{
-					if (i == 0)
+					if (pass == 0)
 					{ //depth only pass
 						gGL.setColorMask(false, false);
 					}
@@ -3932,7 +3932,7 @@ BOOL LLModelPreview::render()
 					}
 
 					//enable alpha blending on second pass but not first pass
-					LLGLState blend(GL_BLEND, i); 
+					LLGLState blend(GL_BLEND, pass);
 					
 					gGL.blendFunc(LLRender::BF_SOURCE_ALPHA, LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
 
