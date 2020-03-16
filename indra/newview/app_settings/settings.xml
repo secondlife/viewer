@@ -16406,6 +16406,17 @@
     <key>Value</key>
     <integer>0</integer>
    </map>
+  <key>HoverHeightAffectsCamera</key>
+  <map>
+    <key>Comment</key>
+    <string>Camera view is affected by Hover Height setting</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+   </map>
     <key>CefVerboseLog</key>
     <map>
       <key>Comment</key>

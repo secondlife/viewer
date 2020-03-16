@@ -147,6 +147,8 @@ public:
 	F32				getCurrentCameraBuildOffset() 	{ return (F32)mCameraFocusOffset.length(); }
 	void			clearCameraLag() { mCameraLag.clearVec(); }
 private:
+	LLVector3		getAvatarRootPosition();
+
 	F32				mCurrentCameraDistance;	 		// Current camera offset from avatar
 	F32				mTargetCameraDistance;			// Target camera offset from avatar
 	F32				mCameraFOVZoomFactor;			// Amount of fov zoom applied to camera when zeroing in on an object

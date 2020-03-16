@@ -1730,7 +1730,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 	F32			camera_land_height;
 	LLVector3d	frame_center_global = !isAgentAvatarValid() ? 
 		gAgent.getPositionGlobal() :
-		gAgent.getPosGlobalFromAgent(gAgentAvatarp->mRoot->getWorldPosition());
+		gAgent.getPosGlobalFromAgent(getAvatarRootPosition());
 	
 	BOOL		isConstrained = FALSE;
 	LLVector3d	head_offset;
@@ -1987,7 +1987,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 
 LLVector3 LLAgentCamera::getCurrentCameraOffset()
 {
-	LLVector3 camera_offset = (LLViewerCamera::getInstance()->getOrigin() - gAgentAvatarp->mRoot->getWorldPosition() - mThirdPersonHeadOffset) * ~gAgent.getFrameAgent().getQuaternion();
+	LLVector3 camera_offset = (LLViewerCamera::getInstance()->getOrigin() - getAvatarRootPosition() - mThirdPersonHeadOffset) * ~gAgent.getFrameAgent().getQuaternion();
 	return  camera_offset / mCameraZoomFraction / gSavedSettings.getF32("CameraOffsetScale");
 }
 
@@ -2019,6 +2019,12 @@ F32 LLAgentCamera::getCameraMaxZoomDistance()
                  LLWorld::getInstance()->getRegionWidthInMeters() - CAMERA_FUDGE_FROM_OBJECT);
 }
 
+LLVector3 LLAgentCamera::getAvatarRootPosition()
+{
+    static LLCachedControl<bool> use_hover_height(gSavedSettings, "HoverHeightAffectsCamera");
+    return use_hover_height ? gAgentAvatarp->mRoot->getWorldPosition() : gAgentAvatarp->mRoot->getWorldPosition() - gAgentAvatarp->getHoverOffset();
+
+}
 //-----------------------------------------------------------------------------
 // handleScrollWheel()
 //-----------------------------------------------------------------------------
