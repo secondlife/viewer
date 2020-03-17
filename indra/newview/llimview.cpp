@@ -2743,7 +2743,7 @@ void LLIMMgr::addMessage(
 			}
 
 			//Play sound for new conversations
-			if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundNewConversation") == TRUE))
+			if (!skip_message & !gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundNewConversation") == TRUE))
 			{
 				make_ui_sound("UISndNewIncomingIMSession");
 			}
