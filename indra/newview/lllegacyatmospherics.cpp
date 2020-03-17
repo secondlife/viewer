@@ -254,7 +254,8 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, Atm
 		F32 brightness = vars.hazeColor.brightness();
 		F32 greyscale_sat = brightness * (1.0f - sky_saturation);
 		LLColor3 sky_color = vars.hazeColor * sky_saturation + smear(greyscale_sat);
-		//sky_color *= (0.5f + 0.5f * brightness); // SL-12574 EEP sky was too dark dark grey/blue, lighten it slightly
+		//sky_color *= (0.5f + 0.5f * brightness);
+		sky_color *= (0.85f + 0.15f*brightness); // SL-12574 EEP sky is being attenuated too much; brighten it slightly until calcSkyColorWLVert() is fixed to match Windlight
 		return LLColor4(sky_color, 0.0f);
 	}
 
