@@ -125,7 +125,7 @@ public:
 
 	/*virtual*/ void onModelPhysicsFeeReceived(const LLSD& result, std::string upload_url);
 				void handleModelPhysicsFeeReceived();
-	/*virtual*/ void setModelPhysicsFeeErrorStatus(S32 status, const std::string& reason);
+	/*virtual*/ void setModelPhysicsFeeErrorStatus(S32 status, const std::string& reason, const LLSD& result);
 
 	/*virtual*/ void onModelUploadSuccess();
 
@@ -207,6 +207,8 @@ private:
 	void toggleCalculateButton();
 
 	void onLoDSourceCommit(S32 lod);
+
+	void modelUpdated(bool calculate_visible);
 
 	// Toggles between "Calculate weights & fee" and "Upload" buttons.
 	void toggleCalculateButton(bool visible);

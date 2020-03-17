@@ -68,6 +68,7 @@
 #include "llviewerwindow.h"
 #include "llviewerdisplay.h"
 #include "llviewermedia.h"
+#include "llviewerparcelaskplay.h"
 #include "llviewerparcelmedia.h"
 #include "llviewermediafocus.h"
 #include "llviewermessage.h"
@@ -668,7 +669,8 @@ LLAppViewer::LLAppViewer()
 	mReportedCrash(false),
 	mNumSessions(0),
 	mPurgeCache(false),
-	mPurgeOnExit(false),
+	mPurgeCacheOnExit(false),
+	mPurgeUserDataOnExit(false),
 	mSecondInstance(false),
 	mSavedFinalSnapshot(false),
 	mSavePerAccountSettings(false),		// don't save settings on logout unless login succeeded.
@@ -1890,6 +1892,11 @@ bool LLAppViewer::cleanup()
 	{
 		gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"), TRUE);
 		LL_INFOS() << "Saved settings" << LL_ENDL;
+
+		if (LLViewerParcelAskPlay::instanceExists())
+		{
+			LLViewerParcelAskPlay::getInstance()->saveSettings();
+		}
 	}
 
 	std::string warnings_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFilename("Default", "Warnings"));
@@ -1910,7 +1917,7 @@ bool LLAppViewer::cleanup()
 		LLConversationLog::instance().cache();
 	}
 
-	if (mPurgeOnExit)
+	if (mPurgeCacheOnExit)
 	{
 		LL_INFOS() << "Purging all cache files on exit" << LL_ENDL;
 		gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""), "*.*");
@@ -1949,6 +1956,14 @@ bool LLAppViewer::cleanup()
 			break;
 		}
 	}
+
+    if (mPurgeUserDataOnExit)
+    {
+        // Ideally we should not save anything from this session since it is going to be purged now,
+        // but this is a very 'rare' case (user deleting himself), not worth overcomplicating 'save&cleanup' code
+        std::string user_path = gDirUtilp->getOSUserAppDir() + gDirUtilp->getDirDelimiter() + LLStartUp::getUserId();
+        gDirUtilp->deleteDirAndContents(user_path);
+    }
 
 	// Delete workers first
 	// shotdown all worker threads before deleting them in case of co-dependencies
@@ -4415,7 +4430,7 @@ void LLAppViewer::badNetworkHandler()
 	// Flush all of our caches on exit in the case of disconnect due to
 	// invalid packets.
 
-	mPurgeOnExit = TRUE;
+	mPurgeCacheOnExit = TRUE;
 
 	std::ostringstream message;
 	message <<

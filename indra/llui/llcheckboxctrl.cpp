@@ -47,10 +47,18 @@ static LLDefaultChildRegistry::Register<LLCheckBoxCtrl> r("check_box");
 template class LLCheckBoxCtrl* LLView::getChild<class LLCheckBoxCtrl>(
 	const std::string& name, BOOL recurse) const;
 
+void LLCheckBoxCtrl::WordWrap::declareValues()
+{
+    declare("none", EWordWrap::WRAP_NONE);
+    declare("down", EWordWrap::WRAP_DOWN);
+    declare("up", EWordWrap::WRAP_UP);
+}
+
 LLCheckBoxCtrl::Params::Params()
 :	initial_value("initial_value", false),
 	label_text("label_text"),
 	check_button("check_button"),
+	word_wrap("word_wrap", EWordWrap::WRAP_NONE),
 	radio_style("radio_style")
 {}
 
@@ -59,14 +67,14 @@ LLCheckBoxCtrl::LLCheckBoxCtrl(const LLCheckBoxCtrl::Params& p)
 :	LLUICtrl(p),
 	mTextEnabledColor(p.label_text.text_color()),
 	mTextDisabledColor(p.label_text.text_readonly_color()),
-	mFont(p.font())
+	mFont(p.font()),
+	mWordWrap(p.word_wrap)
 {
 	mViewModel->setValue(LLSD(p.initial_value));
 	mViewModel->resetDirty();
 	static LLUICachedControl<S32> llcheckboxctrl_spacing ("UICheckboxctrlSpacing", 0);
 	static LLUICachedControl<S32> llcheckboxctrl_hpad ("UICheckboxctrlHPad", 0);
 	static LLUICachedControl<S32> llcheckboxctrl_vpad ("UICheckboxctrlVPad", 0);
-	static LLUICachedControl<S32> llcheckboxctrl_btn_size ("UICheckboxctrlBtnSize", 0);
 
 	// must be big enough to hold all children
 	setUseBoundingRect(TRUE);
@@ -85,20 +93,47 @@ LLCheckBoxCtrl::LLCheckBoxCtrl(const LLCheckBoxCtrl::Params& p)
 	{
 		tbparams.font(p.font);
 	}
-	mLabel = LLUICtrlFactory::create<LLTextBox> (tbparams);
+
+    mLabel = LLUICtrlFactory::create<LLTextBox>(tbparams);
+    if (mWordWrap != WRAP_NONE)
+    {
+        // Not setWordWrap(mWordWrap != WRAP_NONE) because there might be some old lurking code that sets it manually
+        mLabel->setWordWrap(true);
+        S32 new_width = getRect().getWidth() - p.check_button.rect().getWidth() - llcheckboxctrl_hpad;
+        LLRect label_rect = mLabel->getRect();
+        label_rect.mRight = label_rect.mLeft + new_width;
+        mLabel->setRect(label_rect);
+    }
 	mLabel->reshapeToFitText();
-	addChild(mLabel);
 
 	LLRect label_rect = mLabel->getRect();
+	if (mLabel->getLineCount() > 1)
+	{
+        if (mWordWrap == WRAP_DOWN)
+        {
+            // reshapeToFitText uses LLView::reshape() which always reshapes
+            // from bottom to top, but we want to extend the bottom
+            // Note: might be better idea to use getRect().mTop of LLCheckBoxCtrl (+pad) as top point of new rect
+            S32 delta = ll_round((F32)mLabel->getFont()->getLineHeight() * mLabel->getLineSpacingMult()) - label_rect.getHeight();
+            label_rect.translate(0, delta);
+            mLabel->setRect(label_rect);
+        }
+        // else
+        // WRAP_UP is essentially done by reshapeToFitText() (extends from bottom to top)
+        // howhever it doesn't respect rect of checkbox
+        // todo: this should be fixed, but there are at least couple checkboxes that use this feature as is.
+	}
+
+	addChild(mLabel);
 
 	// Button
-	// Note: button cover the label by extending all the way to the right.
+	// Note: button cover the label by extending all the way to the right and down.
 	LLRect btn_rect = p.check_button.rect();
 	btn_rect.setOriginAndSize(
 		btn_rect.mLeft,
-		btn_rect.mBottom,
+		llmin(btn_rect.mBottom, label_rect.mBottom),
 		llmax(btn_rect.mRight, label_rect.mRight - btn_rect.mLeft),
-		llmax( label_rect.getHeight(), btn_rect.mTop));
+		llmax(label_rect.getHeight(), btn_rect.mTop));
 	std::string active_true_id, active_false_id;
 	std::string inactive_true_id, inactive_false_id;
 
@@ -152,17 +187,26 @@ void LLCheckBoxCtrl::clear()
 
 void LLCheckBoxCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
-
+	S32 label_top = mLabel->getRect().mTop;
 	mLabel->reshapeToFitText();
 
 	LLRect label_rect = mLabel->getRect();
+	if (label_top != label_rect.mTop && mWordWrap == WRAP_DOWN)
+	{
+		// reshapeToFitText uses LLView::reshape() which always reshapes
+		// from bottom to top, but we want to extend the bottom so
+		// reposition control
+		S32 delta = label_top - label_rect.mTop;
+		label_rect.translate(0, delta);
+		mLabel->setRect(label_rect);
+	}
 
 	// Button
-	// Note: button cover the label by extending all the way to the right.
+	// Note: button cover the label by extending all the way to the right and down.
 	LLRect btn_rect = mButton->getRect();
 	btn_rect.setOriginAndSize(
 		btn_rect.mLeft,
-		btn_rect.mBottom,
+		llmin(btn_rect.mBottom, label_rect.mBottom),
 		llmax(btn_rect.getWidth(), label_rect.mRight - btn_rect.mLeft),
 		llmax(label_rect.mTop - btn_rect.mBottom, btn_rect.getHeight()));
 	mButton->setShape(btn_rect);

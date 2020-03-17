@@ -366,10 +366,10 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 				Photo :
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Cliquez pour sélectionner une image"/>
-			<text name="allow_see_label">
+			<text name="allow_see_label" top="170">
 				Les avatars sur d&apos;autres parcelles peuvent voir et chatter avec les avatars sur cette parcelle.
 			</text>
-			<check_box label="Voir les avatars" name="SeeAvatarsCheck" tool_tip="Permettre aux avatars présents sur d&apos;autres parcelles de voir et chatter avec les avatars présents sur cette parcelle et à vous de les voir et de chatter avec eux."/>
+			<check_box label="Voir les avatars" name="SeeAvatarsCheck" top="170" tool_tip="Permettre aux avatars présents sur d&apos;autres parcelles de voir et chatter avec les avatars présents sur cette parcelle et à vous de les voir et de chatter avec eux."/>
 			<text name="landing_point">
 				Lieu d&apos;arrivée : [LANDING]
 			</text>
@@ -449,7 +449,7 @@ musique :
 			<panel.string name="estate_override">
 				Au moins une de ces options est définie au niveau du domaine.
 			</panel.string>
-			<check_box label="Tout le monde peut rendre visite (Des lignes d&apos;interdiction seront créées si cette case n&apos;est pas cochée)" name="public_access"/>
+			<check_box label="Tout le monde peut rendre visite" tool_tip="Des lignes d&apos;interdiction seront créées si cette case n&apos;est pas cochée" name="public_access"/>
 			<check_box label="Doit avoir plus de 18 ans [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Pour accéder à cette parcelle, les résidents doivent avoir au moins 18 ans. Consultez le [SUPPORT_SITE] pour plus d&apos;informations."/>
 			<check_box label="Les infos de paiement doivent être enregistrées dans le dossier  [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Pour pouvoir accéder à cette parcelle, les résidents doivent avoir enregistré des informations de paiement. Consultez le [SUPPORT_SITE] pour plus d&apos;informations."/>
 			<check_box label="Autoriser le groupe [GROUP] sans restrictions" name="GroupCheck" tool_tip="Définir le groupe à l&apos;onglet Général."/>

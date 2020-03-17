@@ -57,6 +57,7 @@
 #include "llviewercontrol.h"
 #include "llviewermenufile.h" // LLFilePickerThread
 #include "llviewernetwork.h"
+#include "llviewerparcelaskplay.h"
 #include "llviewerparcelmedia.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
@@ -1019,6 +1020,8 @@ void LLViewerMedia::setAllMediaPaused(bool val)
         }
     }
 
+    LLParcel *agent_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+
     // Also do Parcel Media and Parcel Audio
     if (!val)
     {
@@ -1051,6 +1054,12 @@ void LLViewerMedia::setAllMediaPaused(bool val)
         {
             LLViewerAudio::getInstance()->stopInternetStreamWithAutoFade();
         }
+    }
+
+    // remove play choice for current parcel
+    if (agent_parcel && gAgent.getRegion())
+    {
+        LLViewerParcelAskPlay::getInstance()->resetSetting(gAgent.getRegion()->getRegionID(), agent_parcel->getLocalID());
     }
 }
 
@@ -2286,14 +2295,14 @@ void LLViewerMediaImpl::mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-void LLViewerMediaImpl::scrollWheel(S32 x, S32 y, MASK mask)
+void LLViewerMediaImpl::scrollWheel(S32 x, S32 y, S32 scroll_x, S32 scroll_y, MASK mask)
 {
 	scaleMouse(&x, &y);
 	mLastMouseX = x;
 	mLastMouseY = y;
 	if (mMediaSource)
 	{
-		mMediaSource->scrollEvent(x, y, mask);
+		mMediaSource->scrollEvent(x, y, scroll_x, scroll_y, mask);
 	}
 }
 
@@ -3755,7 +3764,7 @@ void LLViewerMediaImpl::setTextureID(LLUUID id)
 bool LLViewerMediaImpl::isAutoPlayable() const
 {
 	return (mMediaAutoPlay &&
-			gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING) &&
+			gSavedSettings.getS32("ParcelMediaAutoPlayEnable") != 0 &&
 			gSavedSettings.getBOOL("MediaTentativeAutoPlay"));
 }
 

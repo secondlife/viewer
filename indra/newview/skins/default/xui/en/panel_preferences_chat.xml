@@ -99,6 +99,7 @@
         label="Bubble Chat"
         layout="topleft"
         top_pad="4"
+        left_delta="0"
         name="bubble_text_chat"
         width="330">
     </check_box>

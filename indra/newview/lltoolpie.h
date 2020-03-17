@@ -50,6 +50,7 @@ public:
 	virtual BOOL		handleHover(S32 x, S32 y, MASK mask) override;
 	virtual BOOL		handleDoubleClick(S32 x, S32 y, MASK mask) override;
 	virtual BOOL		handleScrollWheel(S32 x, S32 y, S32 clicks) override;
+	virtual BOOL		handleScrollHWheel(S32 x, S32 y, S32 clicks) override;
 	virtual BOOL		handleToolTip(S32 x, S32 y, MASK mask) override;
 
 	virtual void		render() override;

@@ -211,8 +211,9 @@ class LLSecAPIBasicCredential : public LLCredential
 public:
 	LLSecAPIBasicCredential(const std::string& grid) : LLCredential(grid) {} 
 	virtual ~LLSecAPIBasicCredential() {}
-	// return a value representing the user id, (could be guid, name, whatever)
-	virtual std::string userID() const;	
+	// return a value representing the user id, used for server and voice
+	// (could be guid, name in format "name_resident", whatever)
+	virtual std::string userID() const;
 	
 	// printible string identifying the credential.
 	virtual std::string asString() const;
@@ -246,7 +247,10 @@ public:
 	// exists, it'll be loaded.  If not, one will be created (but not
 	// persisted)
 	virtual LLPointer<LLCertificateStore> getCertificateStore(const std::string& store_id);
-	
+
+	// protectedData functions technically should be pretected or private,
+	// they are not because of llsechandler_basic_test imlementation
+
 	// persist data in a protected store
 	virtual void setProtectedData(const std::string& data_type,
 								  const std::string& data_id,
@@ -259,19 +263,68 @@ public:
 	// delete a protected data item from the store
 	virtual void deleteProtectedData(const std::string& data_type,
 									 const std::string& data_id);
-	
+
+	// persist data in a protected store's map
+	virtual void addToProtectedMap(const std::string& data_type,
+								   const std::string& data_id,
+								   const std::string& map_elem,
+								   const LLSD& data);
+
+	// remove data from protected store's map
+	virtual void removeFromProtectedMap(const std::string& data_type,
+										const std::string& data_id,
+										const std::string& map_elem);
+
 	// credential management routines
 	
 	virtual LLPointer<LLCredential> createCredential(const std::string& grid,
 													 const LLSD& identifier, 
 													 const LLSD& authenticator);
-	
+
+	// load single credencial from default storage
 	virtual LLPointer<LLCredential> loadCredential(const std::string& grid);
 
+	// save credencial to default storage
 	virtual void saveCredential(LLPointer<LLCredential> cred, bool save_authenticator);
 	
 	virtual void deleteCredential(LLPointer<LLCredential> cred);
-	
+
+	// has map of credentials declared as specific storage
+	virtual bool hasCredentialMap(const std::string& storage,
+								  const std::string& grid);
+
+	// returns true if map is empty or does not exist
+	virtual bool emptyCredentialMap(const std::string& storage,
+									const std::string& grid);
+
+	// load map of credentials from specific storage
+	virtual void loadCredentialMap(const std::string& storage,
+								   const std::string& grid,
+								   credential_map_t& credential_map);
+
+	// load single username from map of credentials from specific storage
+	virtual LLPointer<LLCredential> loadFromCredentialMap(const std::string& storage,
+														  const std::string& grid,
+														  const std::string& userid);
+
+	// add item to map of credentials from specific storage
+	virtual void addToCredentialMap(const std::string& storage,
+									LLPointer<LLCredential> cred,
+									bool save_authenticator);
+
+	// remove item from map of credentials from specific storage
+	virtual void removeFromCredentialMap(const std::string& storage,
+										 LLPointer<LLCredential> cred);
+
+	// remove item from map of credentials from specific storage
+	virtual void removeFromCredentialMap(const std::string& storage,
+										 const std::string& grid,
+										 const std::string& userid);
+
+	virtual void removeCredentialMap(const std::string& storage,
+									 const std::string& grid);
+
+
 protected:
 	void _readProtectedData();
 	void _writeProtectedData();

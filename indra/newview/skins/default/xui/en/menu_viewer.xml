@@ -154,13 +154,16 @@
           <menu_item_call.on_click
            function="Tools.StopAllAnimations" />
         </menu_item_call>
-        <menu_item_call
+        <menu_item_check
          label="Walk / run / fly..."
          name="WalkRunFly">
-          <menu_item_call.on_click
+          <menu_item_check.on_check
+           function="Floater.Visible"
+           parameter="moveview" />
+          <menu_item_check.on_click
            function="Floater.ToggleOrBringToFront"
            parameter="moveview" />
-        </menu_item_call>
+        </menu_item_check>
       </menu>
 
       <menu
