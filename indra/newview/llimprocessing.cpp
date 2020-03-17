@@ -62,6 +62,8 @@
 #pragma warning (disable:4702)
 #endif
 
+extern void on_new_message(const LLSD& msg);
+
 // Strip out "Resident" for display, but only if the message came from a user
 // (rather than a script)
 static std::string clean_name_from_im(const std::string& name, EInstantMessage type)
@@ -1028,6 +1030,14 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                 }
 
                 LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
+                if (message != "")
+                {
+                    LLSD msg_notify;
+                    msg_notify["session_id"] = LLUUID();
+                    msg_notify["from_id"] = chat.mFromID;
+                    msg_notify["source_type"] = chat.mSourceType;
+                    on_new_message(msg_notify);
+                }
             }
 
 
@@ -1556,6 +1566,12 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
     if (messages.emptyArray())
     {
         // Nothing to process
+        return;
+    }
+
+    if (gAgent.getRegion() == NULL)
+    {
+        LL_WARNS("Messaging") << "Region null while attempting to load messages." << LL_ENDL;
         return;
     }
 

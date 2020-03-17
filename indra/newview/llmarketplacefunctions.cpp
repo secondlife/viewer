@@ -1294,6 +1294,11 @@ void LLMarketplaceData::setSLMDataFetched(U32 status)
     }
 }
 
+bool LLMarketplaceData::isSLMDataFetched()
+{
+    return mMarketPlaceDataFetched == MarketplaceFetchCodes::MARKET_FETCH_DONE;
+}
+
 // Creation / Deletion / Update
 // Methods publicly called
 bool LLMarketplaceData::createListing(const LLUUID& folder_id)
