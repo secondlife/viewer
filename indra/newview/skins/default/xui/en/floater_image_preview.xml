@@ -120,8 +120,8 @@
 Try saving image as 24 bit Targa (.tga).
     </text>
     <check_box
-     control_name="LosslessJ2CUpload"
      enabled="false"
+     initial_value="false"
      follows="bottom|left"
      height="16"
      label="Use lossless compression"
