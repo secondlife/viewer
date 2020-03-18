@@ -686,6 +686,18 @@ Do you want to revoke modify rights for the selected Residents?
 
   <notification
    icon="alertmodal.tga"
+   name="GroupNameLengthWarning"
+   type="alertmodal">
+A group name must be between [MIN_LEN] and [MAX_LEN] characters.
+    <tag>group</tag>
+    <tag>fail</tag>
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
    name="UnableToCreateGroup"
    type="alertmodal">
 Unable to create group.
@@ -920,7 +932,7 @@ You do not have enough L$ to join this group.
    icon="alertmodal.tga"
    name="CreateGroupCost"
    type="alertmodal">
-Creating this group will cost L$100.
+Creating this group will cost L$[COST].
 Groups need more than one member, or they are deleted forever.
 Please invite members within 48 hours.
     <tag>group</tag>
@@ -929,7 +941,7 @@ Please invite members within 48 hours.
      canceltext="Cancel"
      name="okcancelbuttons"
      notext="Cancel"
-     yestext="Create group for L$100"/>
+     yestext="Create group for L$[COST]"/>
   </notification>
 
   <notification
@@ -1286,6 +1298,14 @@ Error encoding snapshot.
    name="ErrorPhotoCannotAfford"
    type="alertmodal">
     You need L$[COST] to save a photo to your inventory. You may either buy L$ or save the photo to your computer instead.
+    <tag>fail</tag>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="ErrorCannotAffordUpload"
+   type="alertmodal">
+    You need L$[COST] to upload this item.
     <tag>fail</tag>
   </notification>
   
@@ -4358,11 +4378,21 @@ You have reached your maximum number of groups. Please leave some group before j
    icon="alert.tga"
    name="GroupLimitInfo"
    type="alert">
-The group limit for base accounts is [MAX_BASIC], and for [https://secondlife.com/premium/ premium]
-accounts is [MAX_PREMIUM].
-If you downgraded your account, you will need to get below [MAX_BASIC] group limit before you can join more.
+Residents with Basic memberships may join up to [MAX_BASIC] groups.
+Premium memberships allow up to [MAX_PREMIUM]. [https://secondlife.com/my/account/membership.php? Learn more or upgrade]
+    <tag>group</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="Close"/>
+  </notification>
 
-[https://secondlife.com/my/account/membership.php Upgrade today!]
+  <notification
+   icon="alert.tga"
+   name="GroupLimitInfoPlus"
+   type="alert">
+Residents with Basic memberships may join up to [MAX_BASIC] groups.
+Premium memberships allow up to [MAX_PREMIUM]. Premium Plus
+memberships allow up to [MAX_PREMIUM_PLUS]. [https://secondlife.com/my/account/membership.php? Learn more or upgrade]
     <tag>group</tag>
     <usetemplate
      name="okbutton"
@@ -8520,7 +8550,48 @@ Your voice has been muted by moderator.
          name="okbutton"
          yestext="OK"/>
     </notification>
+
+    <notification
+        icon="alertmodal.tga"
+        name="FailedToGetBenefits"
+        type="alertmodal">
+      Unfortunately, we were unable to get benefits information for this session. This should not happen in a normal production environment. Please contact support. This session will not work normally and we recommend that you restart.
+      <usetemplate
+          name="okbutton"
+          yestext="OK"/>
+    </notification>
+
+   <notification
+    icon="alertmodal.tga"
+    name="BulkUploadCostConfirmation"
+    type="alertmodal">
+This will upload [COUNT] items at a total cost of L$[COST]. Do you wish to continue with the upload?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Upload"/>
+   </notification>
   
+   <notification
+    icon="alertmodal.tga"
+    name="BulkUploadNoCompatibleFiles"
+    type="alertmodal">
+Selected files can not be bulk-uploaded.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="BulkUploadIncompatibleFiles"
+   type="alertmodal">
+Some of the selected files can not be bulk-uploaded.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
    <notification
     icon="alertmodal.tga"
     name="UploadCostConfirmation"

@@ -73,4 +73,18 @@
     <button.commit_callback
      function="Snapshot.SaveToEmail" />
   </button>
+  <text
+   follows="top|left"
+   font="SansSerif"
+   height="56"
+   layout="topleft"
+   left="10"
+   length="1"
+   name="fee_hint_lbl"
+   top_pad="7"
+   width="200"
+   type="string"
+   word_wrap="true">
+    Fee is based on your subscription level. Higher levels are charged lower fees.
+  </text>
 </panel>
