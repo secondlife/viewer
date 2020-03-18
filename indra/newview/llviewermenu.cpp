@@ -45,6 +45,7 @@
 // newview includes
 #include "llagent.h"
 #include "llagentaccess.h"
+#include "llagentbenefits.h"
 #include "llagentcamera.h"
 #include "llagentui.h"
 #include "llagentwearables.h"
@@ -127,13 +128,13 @@
 #include "lluilistener.h"
 #include "llappearancemgr.h"
 #include "lltrans.h"
-#include "lleconomy.h"
 #include "lltoolgrab.h"
 #include "llwindow.h"
 #include "llpathfindingmanager.h"
 #include "llstartup.h"
 #include "boost/unordered_map.hpp"
 #include <boost/regex.hpp>
+#include <boost/algorithm/string.hpp>
 #include "llcleanup.h"
 
 using namespace LLAvatarAppearanceDefines;
@@ -505,13 +506,13 @@ void init_menus()
     gViewerWindow->setMenuBackgroundColor(false, 
         LLGridManager::getInstance()->isInProductionGrid());
 
-	// Assume L$10 for now, the server will tell us the real cost at login
 	// *TODO:Also fix cost in llfolderview.cpp for Inventory menus
-	const std::string upload_cost("10");
-	gMenuHolder->childSetLabelArg("Upload Image", "[COST]", upload_cost);
-	gMenuHolder->childSetLabelArg("Upload Sound", "[COST]", upload_cost);
-	gMenuHolder->childSetLabelArg("Upload Animation", "[COST]", upload_cost);
-	gMenuHolder->childSetLabelArg("Bulk Upload", "[COST]", upload_cost);
+	const std::string texture_upload_cost_str = std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost());
+	const std::string sound_upload_cost_str = std::to_string(LLAgentBenefitsMgr::current().getSoundUploadCost());
+	const std::string animation_upload_cost_str = std::to_string(LLAgentBenefitsMgr::current().getAnimationUploadCost());
+	gMenuHolder->childSetLabelArg("Upload Image", "[COST]", texture_upload_cost_str);
+	gMenuHolder->childSetLabelArg("Upload Sound", "[COST]", sound_upload_cost_str);
+	gMenuHolder->childSetLabelArg("Upload Animation", "[COST]", animation_upload_cost_str);
 	
 	gAttachSubMenu = gMenuBarView->findChildMenuByName("Attach Object", TRUE);
 	gDetachSubMenu = gMenuBarView->findChildMenuByName("Detach Object", TRUE);
@@ -8662,18 +8663,31 @@ class LLUploadCostCalculator : public view_listener_t
 
 	bool handleEvent(const LLSD& userdata)
 	{
-		std::string menu_name = userdata.asString();
+		std::vector<std::string> fields;
+		std::string str = userdata.asString(); 
+		boost::split(fields, str, boost::is_any_of(","));
+		if (fields.size()<1)
+		{
+			return false;
+		}
+		std::string menu_name = fields[0];
+		std::string asset_type_str = "texture";
+		if (fields.size()>1)
+		{
+			asset_type_str = fields[1];
+		}
+		LL_DEBUGS("Benefits") << "userdata " << userdata << " menu_name " << menu_name << " asset_type_str " << asset_type_str << LL_ENDL;
+		calculateCost(asset_type_str);
 		gMenuHolder->childSetLabelArg(menu_name, "[COST]", mCostStr);
 
 		return true;
 	}
 
-	void calculateCost();
+	void calculateCost(const std::string& asset_type_str);
 
 public:
 	LLUploadCostCalculator()
 	{
-		calculateCost();
 	}
 };
 
@@ -8699,19 +8713,27 @@ class LLToggleUIHints : public view_listener_t
 	}
 };
 
-void LLUploadCostCalculator::calculateCost()
+void LLUploadCostCalculator::calculateCost(const std::string& asset_type_str)
 {
-	S32 upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload();
+	S32 upload_cost = -1;
 
-	// getPriceUpload() returns -1 if no data available yet.
-	if(upload_cost >= 0)
+	if (asset_type_str == "texture")
 	{
-		mCostStr = llformat("%d", upload_cost);
+		upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
 	}
-	else
+	else if (asset_type_str == "animation")
 	{
-		mCostStr = llformat("%d", gSavedSettings.getU32("DefaultUploadCost"));
+		upload_cost = LLAgentBenefitsMgr::current().getAnimationUploadCost();
 	}
+	else if (asset_type_str == "sound")
+	{
+		upload_cost = LLAgentBenefitsMgr::current().getSoundUploadCost();
+	}
+	if (upload_cost < 0)
+	{
+		LL_WARNS() << "Unable to find upload cost for asset_type_str " << asset_type_str << LL_ENDL;
+	}
+	mCostStr = std::to_string(upload_cost);
 }
 
 void show_navbar_context_menu(LLView* ctrl, S32 x, S32 y)
