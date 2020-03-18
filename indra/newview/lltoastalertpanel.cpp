@@ -192,6 +192,11 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 			- 3*VPAD - BTN_HEIGHT;
 	// reshape to calculate real text width and height
 	msg_box->reshape( MAX_ALLOWED_MSG_WIDTH, max_allowed_msg_height );
+
+	if ("GroupLimitInfo" == mNotification->getName() || "GroupLimitInfoPlus" == mNotification->getName())
+	{
+		msg_box->setSkipLinkUnderline(true);
+	}
 	msg_box->setValue(msg);
 
 	S32 pixel_width = msg_box->getTextPixelWidth();
