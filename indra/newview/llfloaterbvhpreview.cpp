@@ -31,13 +31,13 @@
 #include "llbvhloader.h"
 #include "lldatapacker.h"
 #include "lldir.h"
-#include "lleconomy.h"
 #include "llnotificationsutil.h"
 #include "llvfile.h"
 #include "llapr.h"
 #include "llstring.h"
 
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llanimationstates.h"
 #include "llbbox.h"
 #include "llbutton.h"
@@ -68,7 +68,8 @@
 const S32 PREVIEW_BORDER_WIDTH = 2;
 const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PREVIEW_BORDER_WIDTH;
 const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
-const S32 PREF_BUTTON_HEIGHT = 16;
+const S32 PREVIEW_VPAD = 35;
+const S32 PREF_BUTTON_HEIGHT = 16 + 35;
 const S32 PREVIEW_TEXTURE_HEIGHT = 300;
 
 const F32 PREVIEW_CAMERA_DISTANCE = 4.f;
@@ -203,7 +204,7 @@ BOOL LLFloaterBvhPreview::postBuild()
 	setDefaultBtn();
 
 	mPreviewRect.set(PREVIEW_HPAD, 
-		PREVIEW_TEXTURE_HEIGHT,
+		PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD,
 		getRect().getWidth() - PREVIEW_HPAD, 
 		PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
 	mPreviewImageRect.set(0.f, 1.f, 1.f, 0.f);
@@ -403,13 +404,13 @@ void LLFloaterBvhPreview::draw()
 		gGL.begin( LLRender::QUADS );
 		{
 			gGL.texCoord2f(0.f, 1.f);
-			gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT);
+			gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD);
 			gGL.texCoord2f(0.f, 0.f);
 			gGL.vertex2i(PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
 			gGL.texCoord2f(1.f, 0.f);
 			gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
 			gGL.texCoord2f(1.f, 1.f);
-			gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT);
+			gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD);
 		}
 		gGL.end();
 
@@ -1004,16 +1005,18 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
 			{
 				std::string name = floaterp->getChild<LLUICtrl>("name_form")->getValue().asString();
 				std::string desc = floaterp->getChild<LLUICtrl>("description_form")->getValue().asString();
-				S32 expected_upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload();
+				S32 expected_upload_cost = LLAgentBenefitsMgr::current().getAnimationUploadCost();
 
-                LLResourceUploadInfo::ptr_t assetUpdloadInfo(new LLResourceUploadInfo(
+                LLResourceUploadInfo::ptr_t assetUploadInfo(new LLResourceUploadInfo(
                     floaterp->mTransactionID, LLAssetType::AT_ANIMATION,
                     name, desc, 0,
                     LLFolderType::FT_NONE, LLInventoryType::IT_ANIMATION,
-                    LLFloaterPerms::getNextOwnerPerms("Uploads"), LLFloaterPerms::getGroupPerms("Uploads"), LLFloaterPerms::getEveryonePerms("Uploads"),
+                    LLFloaterPerms::getNextOwnerPerms("Uploads"),
+					LLFloaterPerms::getGroupPerms("Uploads"),
+					LLFloaterPerms::getEveryonePerms("Uploads"),
                     expected_upload_cost));
 
-                upload_new_resource(assetUpdloadInfo);
+                upload_new_resource(assetUploadInfo);
 			}
 			else
 			{
