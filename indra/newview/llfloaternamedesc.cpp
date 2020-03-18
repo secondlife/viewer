@@ -46,12 +46,13 @@
 #include "llnotificationsutil.h"
 #include "lluictrlfactory.h"
 #include "llstring.h"
-#include "lleconomy.h"
 #include "llpermissions.h"
+#include "lltrans.h"
 
 // linden includes
 #include "llassetstorage.h"
 #include "llinventorytype.h"
+#include "llagentbenefits.h"
 
 const S32 PREVIEW_LINE_HEIGHT = 19;
 const S32 PREVIEW_BORDER_WIDTH = 2;
@@ -63,7 +64,7 @@ const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
 //-----------------------------------------------------------------------------
 LLFloaterNameDesc::LLFloaterNameDesc(const LLSD& filename )
 	: LLFloater(filename),
-	  mIsAudio(FALSE)	  
+	  mIsAudio(FALSE)
 {
 	mFilenameAndPath = filename.asString();
 	mFilename = gDirUtilp->getBaseFileName(mFilenameAndPath, false);
@@ -123,11 +124,37 @@ BOOL LLFloaterNameDesc::postBuild()
 	// Cancel button
 	getChild<LLUICtrl>("cancel_btn")->setCommitCallback(boost::bind(&LLFloaterNameDesc::onBtnCancel, this));
 
-	getChild<LLUICtrl>("ok_btn")->setLabelArg("[AMOUNT]", llformat("%d", LLGlobalEconomy::getInstance()->getPriceUpload() ));
+	S32 expected_upload_cost = getExpectedUploadCost();
+	getChild<LLUICtrl>("ok_btn")->setLabelArg("[AMOUNT]", llformat("%d", expected_upload_cost));
+
+	LLTextBox* info_text = getChild<LLTextBox>("info_text");
+	if (info_text)
+	{
+		info_text->setValue(LLTrans::getString("UploadFeeInfo"));
+	}
 	
 	setDefaultBtn("ok_btn");
 	
 	return TRUE;
+}
+
+S32 LLFloaterNameDesc::getExpectedUploadCost() const
+{
+    std::string exten = gDirUtilp->getExtension(mFilename);
+	LLAssetType::EType asset_type;
+	S32 upload_cost = -1;
+	if (LLResourceUploadInfo::findAssetTypeOfExtension(exten, asset_type))
+	{
+		if (!LLAgentBenefitsMgr::current().findUploadCost(asset_type, upload_cost))
+		{
+			LL_WARNS() << "Unable to find upload cost for asset type " << asset_type << LL_ENDL;
+		}
+	}
+	else
+	{
+		LL_WARNS() << "Unable to find upload cost for " << mFilename << LL_ENDL;
+	}
+	return upload_cost;
 }
 
 //-----------------------------------------------------------------------------
@@ -162,8 +189,7 @@ void LLFloaterNameDesc::onBtnOK( )
 	getChildView("ok_btn")->setEnabled(FALSE); // don't allow inadvertent extra uploads
 	
 	LLAssetStorage::LLStoreAssetCallback callback = NULL;
-	S32 expected_upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload(); // kinda hack - assumes that unsubclassed LLFloaterNameDesc is only used for uploading chargeable assets, which it is right now (it's only used unsubclassed for the sound upload dialog, and THAT should be a subclass).
-
+	S32 expected_upload_cost = getExpectedUploadCost();
     if (can_afford_transaction(expected_upload_cost))
     {
         void *nruserdata = NULL;
@@ -185,7 +211,7 @@ void LLFloaterNameDesc::onBtnOK( )
     {
         LLSD args;
         args["COST"] = llformat("%d", expected_upload_cost);
-        LLNotificationsUtil::add("ErrorTextureCannotAfford", args);
+        LLNotificationsUtil::add("ErrorCannotAffordUpload", args);
     }
 
 	closeFloater(false);
