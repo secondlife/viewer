@@ -152,6 +152,7 @@ LLTextBase::Params::Params()
 	plain_text("plain_text",false),
 	track_end("track_end", false),
 	read_only("read_only", false),
+	skip_link_underline("skip_link_underline", false),
 	spellcheck("spellcheck", false),
 	v_pad("v_pad", 0),
 	h_pad("h_pad", 0),
@@ -183,6 +184,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mFontShadow(p.font_shadow),
 	mPopupMenuHandle(),
 	mReadOnly(p.read_only),
+	mSkipLinkUnderline(p.skip_link_underline),
 	mSpellCheck(p.spellcheck),
 	mSpellCheckStart(-1),
 	mSpellCheckEnd(-1),
@@ -2289,7 +2291,7 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 			S32 cur_length = getLength();
 			LLStyleConstSP sp(new LLStyle(highlight_params));
 			LLTextSegmentPtr segmentp;
-			if(underline_on_hover_only)
+			if (underline_on_hover_only || mSkipLinkUnderline)
 			{
 				highlight_params.font.style("NORMAL");
 				LLStyleConstSP normal_sp(new LLStyle(highlight_params));
@@ -2313,7 +2315,7 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 		S32 segment_start = old_length;
 		S32 segment_end = old_length + wide_text.size();
 		LLStyleConstSP sp(new LLStyle(style_params));
-		if (underline_on_hover_only)
+		if (underline_on_hover_only || mSkipLinkUnderline)
 		{
 			LLStyle::Params normal_style_params(style_params);
 			normal_style_params.font.style("NORMAL");
@@ -3489,7 +3491,7 @@ F32 LLOnHoverChangeableTextSegment::draw(S32 start, S32 end, S32 selection_start
 /*virtual*/
 BOOL LLOnHoverChangeableTextSegment::handleHover(S32 x, S32 y, MASK mask)
 {
-	mStyle = mHoveredStyle;
+	mStyle = mEditor.getSkipLinkUnderline() ? mNormalStyle : mHoveredStyle;
 	return LLNormalTextSegment::handleHover(x, y, mask);
 }
 
