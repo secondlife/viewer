@@ -30,6 +30,7 @@
 
 // project includes
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llagentcamera.h"
 #include "llfilepicker.h"
 #include "llfloaterreg.h"
@@ -67,7 +68,6 @@
 #include "llviewerassetupload.h"
 
 // linden libraries
-#include "lleconomy.h"
 #include "llnotificationsutil.h"
 #include "llsdserialize.h"
 #include "llsdutil.h"
@@ -85,8 +85,6 @@ class LLFileEnableUpload : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
         return true;
-// 		bool new_value = gStatusBar && LLGlobalEconomy::getInstance() && (gStatusBar->getBalance() >= LLGlobalEconomy::getInstance()->getPriceUpload());
-// 		return new_value;
 	}
 };
 
@@ -406,6 +404,77 @@ const void upload_single_file(const std::vector<std::string>& filenames, LLFileP
 	return;
 }
 
+void do_bulk_upload(std::vector<std::string> filenames, const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option != 0)
+	{
+		// Cancel upload
+		return;
+	}
+
+	for (std::vector<std::string>::const_iterator in_iter = filenames.begin(); in_iter != filenames.end(); ++in_iter)
+	{
+		std::string filename = (*in_iter);
+			
+		std::string name = gDirUtilp->getBaseFileName(filename, true);
+		std::string asset_name = name;
+		LLStringUtil::replaceNonstandardASCII(asset_name, '?');
+		LLStringUtil::replaceChar(asset_name, '|', '?');
+		LLStringUtil::stripNonprintable(asset_name);
+		LLStringUtil::trim(asset_name);
+
+		std::string ext = gDirUtilp->getExtension(filename);
+		LLAssetType::EType asset_type;
+		U32 codec;
+		S32 expected_upload_cost;
+		if (LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(ext, asset_type, codec) &&
+			LLAgentBenefitsMgr::current().findUploadCost(asset_type, expected_upload_cost))
+		{
+			LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
+													   filename,
+													   asset_name,
+													   asset_name, 0,
+													   LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+													   LLFloaterPerms::getNextOwnerPerms("Uploads"),
+													   LLFloaterPerms::getGroupPerms("Uploads"),
+													   LLFloaterPerms::getEveryonePerms("Uploads"),
+													   expected_upload_cost));
+			
+			upload_new_resource(uploadInfo, NULL, NULL);
+		}
+	}
+}
+
+bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S32& total_cost, S32& file_count, S32& bvh_count)
+{
+	total_cost = 0;
+	file_count = 0;
+	bvh_count = 0;
+	for (std::vector<std::string>::const_iterator in_iter = filenames.begin(); in_iter != filenames.end(); ++in_iter)
+	{
+		std::string filename = (*in_iter);
+		std::string ext = gDirUtilp->getExtension(filename);
+
+		if (ext == "bvh")
+		{
+			bvh_count++;
+		}
+
+		LLAssetType::EType asset_type;
+		U32 codec;
+		S32 cost;
+
+		if (LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(ext, asset_type, codec) &&
+			LLAgentBenefitsMgr::current().findUploadCost(asset_type, cost))
+		{
+			total_cost += cost;
+			file_count++;
+		}
+	}
+	
+    return file_count > 0;
+}
 
 const void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type)
 {
@@ -417,31 +486,50 @@ const void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::
 	//
 	// Also fix single upload to charge first, then refund
 
-	S32 expected_upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload();
+	// FIXME PREMIUM what about known types that can't be bulk uploaded
+	// (bvh)? These will fail in the item by item upload but won't be
+	// mentioned in the notification.
+	std::vector<std::string> filtered_filenames;
 	for (std::vector<std::string>::const_iterator in_iter = filenames.begin(); in_iter != filenames.end(); ++in_iter)
 	{
-		std::string filename = (*in_iter);
-		if (!check_file_extension(filename, type)) continue;
-		
-		std::string name = gDirUtilp->getBaseFileName(filename, true);
-		std::string asset_name = name;
-		LLStringUtil::replaceNonstandardASCII(asset_name, '?');
-		LLStringUtil::replaceChar(asset_name, '|', '?');
-		LLStringUtil::stripNonprintable(asset_name);
-		LLStringUtil::trim(asset_name);
-
-		LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
-			filename,
-			asset_name,
-			asset_name, 0,
-			LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
-			LLFloaterPerms::getNextOwnerPerms("Uploads"),
-			LLFloaterPerms::getGroupPerms("Uploads"),
-			LLFloaterPerms::getEveryonePerms("Uploads"),
-			expected_upload_cost));
-
-		upload_new_resource(uploadInfo, NULL, NULL);
+		const std::string& filename = *in_iter;
+		if (check_file_extension(filename, type))
+		{
+			filtered_filenames.push_back(filename);
+		}
 	}
+
+	S32 expected_upload_cost;
+	S32 expected_upload_count;
+	S32 bvh_count;
+	if (get_bulk_upload_expected_cost(filtered_filenames, expected_upload_cost, expected_upload_count, bvh_count))
+	{
+		LLSD args;
+		args["COST"] = expected_upload_cost;
+		args["COUNT"] = expected_upload_count;
+		LLNotificationsUtil::add("BulkUploadCostConfirmation",  args, LLSD(), boost::bind(do_bulk_upload, filtered_filenames, _1, _2));
+
+		if (filtered_filenames.size() > expected_upload_count)
+		{
+			if (bvh_count == filtered_filenames.size() - expected_upload_count)
+			{
+				LLNotificationsUtil::add("DoNotSupportBulkAnimationUpload");
+			}
+			else
+			{
+				LLNotificationsUtil::add("BulkUploadIncompatibleFiles");
+			}
+		}
+	}
+	else if (bvh_count == filtered_filenames.size())
+	{
+		LLNotificationsUtil::add("DoNotSupportBulkAnimationUpload");
+	}
+	else
+	{
+		LLNotificationsUtil::add("BulkUploadNoCompatibleFiles");
+	}
+
 }
 
 class LLFileUploadImage : public view_listener_t
