@@ -310,6 +310,7 @@ public:
 								border_visible,
 								track_end,
 								read_only,
+								skip_link_underline,
 								spellcheck,
 								allow_scroll,
 								plain_text,
@@ -450,6 +451,9 @@ public:
 
 	void					setReadOnly(bool read_only) { mReadOnly = read_only; }
 	bool					getReadOnly() { return mReadOnly; }
+
+	void					setSkipLinkUnderline(bool skip_link_underline) { mSkipLinkUnderline = skip_link_underline; }
+	bool					getSkipLinkUnderline() { return mSkipLinkUnderline;  }
 
 	void					setPlainText(bool value) { mPlainText = value;}
 	bool					getPlainText() const { return mPlainText; }
@@ -693,6 +697,8 @@ protected:
 	bool						mPlainText;			// didn't use Image or Icon segments
 	bool						mAutoIndent;
 	S32							mMaxTextByteLength;	// Maximum length mText is allowed to be in bytes
+
+	bool						mSkipLinkUnderline;
 
 	// support widgets
 	LLHandle<LLContextMenu>		mPopupMenuHandle;

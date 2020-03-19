@@ -41,7 +41,6 @@
 #include "lldeadmantimer.h"
 #include "llfloatermodelpreview.h"
 #include "llfloaterperms.h"
-#include "lleconomy.h"
 #include "llimagej2c.h"
 #include "llhost.h"
 #include "llmath.h"
@@ -2772,7 +2771,7 @@ void LLMeshUploadThread::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResp
 
 			if (observer)
 			{
-				observer->setModelPhysicsFeeErrorStatus(status.toULong(), reason);
+				observer->setModelPhysicsFeeErrorStatus(status.toULong(), reason, body["error"]);
 			}
 		}
 		else
@@ -2805,7 +2804,7 @@ void LLMeshUploadThread::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResp
 
 				if (observer)
 				{
-					observer->setModelPhysicsFeeErrorStatus(status.toULong(), reason);
+					observer->setModelPhysicsFeeErrorStatus(status.toULong(), reason, body["error"]);
 				}
 			}
 		}

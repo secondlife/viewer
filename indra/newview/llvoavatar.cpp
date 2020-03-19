@@ -38,6 +38,7 @@
 #include "raytrace.h"
 
 #include "llagent.h" //  Get state values from here
+#include "llagentbenefits.h"
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llanimationstates.h"
@@ -2045,8 +2046,10 @@ void LLVOAvatar::resetSkeleton(bool reset_animations)
         LL_ERRS() << "Error resetting skeleton" << LL_ENDL;
 	}
 
-    // Reset attachment points (buildSkeleton only does bones and CVs)
-    bool ignore_hud_joints = true;
+    // Reset attachment points
+    // BuildSkeleton only does bones and CVs but we still need to reinit huds
+    // since huds can be animated.
+    bool ignore_hud_joints = !isSelf();
     initAttachmentPoints(ignore_hud_joints);
 
     // Fix up collision volumes
@@ -6576,7 +6579,7 @@ void LLVOAvatar::initAttachmentPoints(bool ignore_hud_joints)
         LLAvatarXmlInfo::LLAvatarAttachmentInfo *info = *iter;
         if (info->mIsHUDAttachment && (!isSelf() || ignore_hud_joints))
         {
-		    //don't process hud joint for other avatars, or when doing a skeleton reset.
+		    //don't process hud joint for other avatars.
             continue;
         }
 
@@ -7061,20 +7064,7 @@ U32 LLVOAvatar::getNumAttachments() const
 //-----------------------------------------------------------------------------
 S32 LLVOAvatar::getMaxAttachments() const
 {
-	const S32 MAX_AGENT_ATTACHMENTS = 38;
-
-	S32 max_attach = MAX_AGENT_ATTACHMENTS;
-	
-	if (gAgent.getRegion())
-	{
-		LLSD features;
-		gAgent.getRegion()->getSimulatorFeatures(features);
-		if (features.has("MaxAgentAttachments"))
-		{
-			max_attach = features["MaxAgentAttachments"].asInteger();
-		}
-	}
-	return max_attach;
+	return LLAgentBenefitsMgr::current().getAttachmentLimit();
 }
 
 //-----------------------------------------------------------------------------
@@ -7108,24 +7098,7 @@ U32 LLVOAvatar::getNumAnimatedObjectAttachments() const
 //-----------------------------------------------------------------------------
 S32 LLVOAvatar::getMaxAnimatedObjectAttachments() const
 {
-    S32 max_attach = 0;
-    if (gSavedSettings.getBOOL("AnimatedObjectsIgnoreLimits"))
-    {
-        max_attach = getMaxAttachments(); 
-    }
-    else
-    {
-        if (gAgent.getRegion())
-        {
-            LLSD features;
-            gAgent.getRegion()->getSimulatorFeatures(features);
-            if (features.has("AnimatedObjects"))
-            {
-                max_attach = features["AnimatedObjects"]["MaxAgentAnimatedObjectAttachments"].asInteger();
-            }
-        }
-    }
-    return max_attach;
+	return LLAgentBenefitsMgr::current().getAnimatedObjectLimit();
 }
 
 //-----------------------------------------------------------------------------
@@ -10335,7 +10308,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 	// Diagnostic list of all textures on our avatar
 	static std::set<LLUUID> all_textures;
 
-	if (mVisualComplexityStale)
+    if (mVisualComplexityStale)
 	{
 		U32 cost = VISUAL_COMPLEXITY_UNKNOWN;
 		LLVOVolume::texture_cost_t textures;
