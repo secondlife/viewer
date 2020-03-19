@@ -55,7 +55,7 @@ LLAudioEngine_FMODSTUDIO::LLAudioEngine_FMODSTUDIO(bool enable_profiler)
     mWindDSP = NULL;
     mSystem = NULL;
     mEnableProfiler = enable_profiler;
-    mWindDSPDesc = new FMOD_DSP_DESCRIPTION();
+    mWindDSPDesc = NULL;
 }
 
 
@@ -285,6 +285,11 @@ LLAudioChannel * LLAudioEngine_FMODSTUDIO::createChannel()
 bool LLAudioEngine_FMODSTUDIO::initWind()
 {
     mNextWindUpdate = 0.0;
+
+    if (!mWindDSPDesc)
+    {
+        mWindDSPDesc = new FMOD_DSP_DESCRIPTION();
+    }
 
     if (!mWindDSP)
     {
