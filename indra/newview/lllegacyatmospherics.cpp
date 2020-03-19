@@ -265,6 +265,10 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, Atm
 	return LLColor4(sky_color, 0.0f);
 }
 
+// NOTE: Keep these in sync!
+//       indra\newview\app_settings\shaders\class1\deferred\skyV.glsl
+//       indra\newview\app_settings\shaders\class1\deferred\cloudsV.glsl
+//       indra\newview\lllegacyatmospherics.cpp
 void LLAtmospherics::calcSkyColorWLVert(const LLSettingsSky::ptr_t &psky, LLVector3 & Pn, AtmosphericsVars& vars)
 {
     LLColor3    blue_density = vars.blue_density;
