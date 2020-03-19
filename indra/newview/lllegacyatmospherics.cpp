@@ -254,8 +254,7 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, Atm
 		F32 brightness = vars.hazeColor.brightness();
 		F32 greyscale_sat = brightness * (1.0f - sky_saturation);
 		LLColor3 sky_color = vars.hazeColor * sky_saturation + smear(greyscale_sat);
-		//sky_color *= (0.5f + 0.5f * brightness);
-		sky_color *= (0.85f + 0.15f*brightness); // SL-12574 EEP sky is being attenuated too much; brighten it slightly until calcSkyColorWLVert() is fixed to match Windlight
+		//sky_color *= (0.5f + 0.5f * brightness); // SL-12574 EEP sky is being attenuated too much
 		return LLColor4(sky_color, 0.0f);
 	}
 
@@ -378,11 +377,15 @@ void LLAtmospherics::calcSkyColorWLVert(const LLSettingsSky::ptr_t &psky, LLVect
 	// Final atmosphere additive
 	componentMultBy(vars.hazeColor, LLColor3::white - temp1);
 
+/*
+	// SL-12574
+
     // Attenuate cloud color by atmosphere
 	temp1 = componentSqrt(temp1);	//less atmos opacity (more transparency) below clouds
 
 	// At horizon, blend high altitude sky color towards the darker color below the clouds
 	vars.hazeColor += componentMult(vars.hazeColorBelowCloud - vars.hazeColor, LLColor3::white - componentSqrt(temp1));
+*/
 }
 
 void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
