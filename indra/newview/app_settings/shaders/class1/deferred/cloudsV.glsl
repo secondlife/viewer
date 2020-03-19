@@ -67,6 +67,10 @@ uniform vec4 cloud_color;
 
 uniform float cloud_scale;
 
+// NOTE: Keep these in sync!
+//       indra\newview\app_settings\shaders\class1\deferred\skyV.glsl
+//       indra\newview\app_settings\shaders\class1\deferred\cloudsV.glsl
+//       indra\newview\lllegacyatmospherics.cpp
 void main()
 {
 

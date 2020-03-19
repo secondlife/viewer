@@ -254,8 +254,7 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, Atm
 		F32 brightness = vars.hazeColor.brightness();
 		F32 greyscale_sat = brightness * (1.0f - sky_saturation);
 		LLColor3 sky_color = vars.hazeColor * sky_saturation + smear(greyscale_sat);
-		//sky_color *= (0.5f + 0.5f * brightness);
-		sky_color *= (0.85f + 0.15f*brightness); // SL-12574 EEP sky is being attenuated too much; brighten it slightly until calcSkyColorWLVert() is fixed to match Windlight
+		//sky_color *= (0.5f + 0.5f * brightness); // SL-12574 EEP sky is being attenuated too much
 		return LLColor4(sky_color, 0.0f);
 	}
 
@@ -265,6 +264,10 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, Atm
 	return LLColor4(sky_color, 0.0f);
 }
 
+// NOTE: Keep these in sync!
+//       indra\newview\app_settings\shaders\class1\deferred\skyV.glsl
+//       indra\newview\app_settings\shaders\class1\deferred\cloudsV.glsl
+//       indra\newview\lllegacyatmospherics.cpp
 void LLAtmospherics::calcSkyColorWLVert(const LLSettingsSky::ptr_t &psky, LLVector3 & Pn, AtmosphericsVars& vars)
 {
     LLColor3    blue_density = vars.blue_density;
@@ -366,19 +369,18 @@ void LLAtmospherics::calcSkyColorWLVert(const LLSettingsSky::ptr_t &psky, LLVect
 	// Haze color below cloud
 	vars.hazeColorBelowCloud = (blue_factor * (sunlight + tmpAmbient) + componentMult(haze_factor, sunlight * temp2.mV[0] + tmpAmbient));	
 
-    LLColor3 final_atten = LLColor3::white - temp1;
-    final_atten.mV[0] = llmax(final_atten.mV[0], 0.0f);
-    final_atten.mV[1] = llmax(final_atten.mV[1], 0.0f);
-    final_atten.mV[2] = llmax(final_atten.mV[2], 0.0f);
-
 	// Final atmosphere additive
 	componentMultBy(vars.hazeColor, LLColor3::white - temp1);
+
+/*
+	// SL-12574
 
     // Attenuate cloud color by atmosphere
 	temp1 = componentSqrt(temp1);	//less atmos opacity (more transparency) below clouds
 
 	// At horizon, blend high altitude sky color towards the darker color below the clouds
 	vars.hazeColor += componentMult(vars.hazeColorBelowCloud - vars.hazeColor, LLColor3::white - componentSqrt(temp1));
+*/
 }
 
 void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
