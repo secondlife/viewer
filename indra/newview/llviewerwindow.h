@@ -309,6 +309,7 @@ public:
 	void			setProgressPercent(const F32 percent);
 	void			setProgressMessage(const std::string& msg);
 	void			setProgressCancelButtonVisible( BOOL b, const std::string& label = LLStringUtil::null );
+	void			setShowLogos(const BOOL show_3p_logos);
 	LLProgressView *getProgressView() const;
 	void			revealIntroPanel();
 	void			setStartupComplete();

@@ -70,6 +70,9 @@ public:
 
 	void setStartupComplete();
 
+	// turns on logos, hides message of the day
+	void setShowLogos(const BOOL logos_visible);
+
 	void setCancelButtonVisible(BOOL b, const std::string& label);
 
 	static void onCancelButtonClicked( void* );

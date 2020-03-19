@@ -190,6 +190,35 @@ void LLViewerTextureList::doPreloadImages()
 		mImagePreloads.insert(image);
 	}
 
+    // Normally images are located in 'skins' folder in working directory,
+    // but 3p images were added from packages and had to stay in separate folder
+    // with path relative to exe.
+
+    std::string full_path = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "3p_icons", "fmod.png");
+    if (full_path.empty())
+    {
+        LL_WARNS() << "Failed to find local image file fmod.png at " << full_path << LL_ENDL;
+    }
+    else if (gDirUtilp->fileExists(full_path))
+    {
+        image = LLViewerTextureManager::getFetchedTextureFromUrl("file://" + full_path, FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI, LLViewerTexture::FETCHED_TEXTURE,
+            0, 0, IMG_LOGO_FMOD);
+        if (image)
+        {
+            image->setAddressMode(LLTexUnit::TAM_WRAP);
+            mImagePreloads.insert(image);
+            // Speed up load (this texture will be used early)
+            image->setKnownDrawSize(364, 98);
+            image->processTextureStats();
+            image->setDecodePriority(LLViewerFetchedTexture::maxDecodePriority());
+            image->updateFetch();
+            // Fmod logo is only needed at startup, if we will get more logos
+            // for startup, might be good idea to save resources and do loading
+            // in scope of llprogressview and then unload everything once no
+            // longer needed
+        }
+    }
+
 	LLPointer<LLImageRaw> img_blak_square_tex(new LLImageRaw(2, 2, 3));
 	memset(img_blak_square_tex->getData(), 0, img_blak_square_tex->getDataSize());
 	LLPointer<LLViewerFetchedTexture> img_blak_square(new LLViewerFetchedTexture(img_blak_square_tex, FTT_DEFAULT, FALSE));
