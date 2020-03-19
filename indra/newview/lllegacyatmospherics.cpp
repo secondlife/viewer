@@ -369,11 +369,6 @@ void LLAtmospherics::calcSkyColorWLVert(const LLSettingsSky::ptr_t &psky, LLVect
 	// Haze color below cloud
 	vars.hazeColorBelowCloud = (blue_factor * (sunlight + tmpAmbient) + componentMult(haze_factor, sunlight * temp2.mV[0] + tmpAmbient));	
 
-    LLColor3 final_atten = LLColor3::white - temp1;
-    final_atten.mV[0] = llmax(final_atten.mV[0], 0.0f);
-    final_atten.mV[1] = llmax(final_atten.mV[1], 0.0f);
-    final_atten.mV[2] = llmax(final_atten.mV[2], 0.0f);
-
 	// Final atmosphere additive
 	componentMultBy(vars.hazeColor, LLColor3::white - temp1);
 
