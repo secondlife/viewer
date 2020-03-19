@@ -55,7 +55,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 	 value="[REGION](Double-click to teleport, shift-drag to pan)"/>
 	<string
 	 name="GroupCountWithInfo"
-	 value="You belong to [COUNT] groups, and can join [REMAINING] more.  [secondlife:/// Want more?]"/>
+	 value="You belong to [COUNT] groups, and can join [REMAINING] more.  [secondlife:/// Raise your limit]"/>
     <tab_container
      bottom="-10"
      follows="all"
@@ -493,6 +493,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                 top_pad="4"
                 left="3"
                 use_ellipses="true"
+                skip_link_underline="true"
                 name="groupcount">
               You belong to [COUNT] groups, and can join [REMAINING] more.
             </text>
