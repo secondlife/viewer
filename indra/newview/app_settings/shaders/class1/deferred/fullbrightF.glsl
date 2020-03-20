@@ -79,8 +79,6 @@ void main()
 	color.rgb = fogged.rgb;
 	color.a   = fogged.a;
 #else
-    color.rgb = fullbrightAtmosTransport(color.rgb);
-	color.rgb = fullbrightScaleSoftClip(color.rgb);
     color.a   = final_alpha;
 #endif
 

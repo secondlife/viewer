@@ -63,6 +63,8 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
 float getAmbientClamp();
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 scaleSoftClipFrag(vec3 l);
+vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
+vec3 fullbrightScaleSoftClip(vec3 light);
 
 vec3 linear_to_srgb(vec3 c);
 vec3 srgb_to_linear(vec3 c);
@@ -162,6 +164,8 @@ vec3 post_diffuse = color.rgb;
        
  vec3 post_spec = color.rgb;
 
+        color.rgb = mix(color.rgb, diffuse_srgb.rgb, diffuse_srgb.a);
+
         if (envIntensity > 0.0)
         { //add environmentmap
             vec3 env_vec = env_mat * refnormpersp;
@@ -170,19 +174,15 @@ vec3 post_diffuse = color.rgb;
             color = mix(color.rgb, reflected_color, envIntensity*0.75); // MAGIC NUMBER SL-12574; ALM: On, Quality >= High
 #endif
         }
-        else
-        {
-            color.rgb = mix(color.rgb, diffuse_srgb.rgb, diffuse_srgb.a);
-        }
 
 vec3 post_env = color.rgb;
 
-        if (norm.w < 1)
+        if (norm.w < 0.5)
         {
 #if !defined(SUNLIGHT_KILL)
             vec3 p = normalize(pos.xyz);
-            color = atmosFragLighting(color, additive, atten);
-            color = scaleSoftClipFrag(color);
+            color = mix(atmosFragLighting(color, additive, atten), fullbrightAtmosTransportFrag(color, additive, atten), diffuse_srgb.a);
+            color = mix(scaleSoftClipFrag(color), fullbrightScaleSoftClip(color), diffuse_srgb.a);
 #endif
         }
 
