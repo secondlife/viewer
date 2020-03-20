@@ -62,7 +62,7 @@ public:
 
 	void update();
 	
-	static void setCameraZoom(LLViewerObject* object, LLVector3 normal, F32 padding_factor, bool zoom_in_only = false);
+	static LLVector3d setCameraZoom(LLViewerObject* object, LLVector3 normal, F32 padding_factor, bool zoom_in_only = false);
 	static F32 getBBoxAspectRatio(const LLBBox& bbox, const LLVector3& normal, F32* height, F32* width, F32* depth);
 
 	bool isFocusedOnFace(LLPointer<LLViewerObject> objectp, S32 face);
