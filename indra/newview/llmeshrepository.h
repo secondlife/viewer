@@ -517,7 +517,7 @@ public:
     // This was called "unscaled_value" in the original getStreamingCost() functions.
     F32 getRadiusWeightedTris(F32 radius);
 
-	static F32 LLMeshCostData::getChargedTriangleCount(std::vector<F32>& counts_by_lod);
+	static F32 getChargedTriangleCount(std::vector<F32>& counts_by_lod);
 
     // Triangle count used by triangle-based cost formula. Based on
     // triangles in highest LOD plus potentially partial charges for
