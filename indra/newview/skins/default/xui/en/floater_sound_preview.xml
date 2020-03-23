@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- height="190"
+ height="180"
  layout="topleft"
  name="Sound Preview"
  help_topic="sound_preview"
@@ -60,9 +60,9 @@
      height="22"
      label="Upload (L$[AMOUNT])"
      layout="topleft"
-     left="45"
+     left="35"
      name="ok_btn"
-     top_pad="60"
+     top_pad="15"
      width="150" />
     <button
      follows="right|bottom"
@@ -73,4 +73,17 @@
      name="cancel_btn"
      left_pad="5"
      width="90" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="35"
+     layout="topleft"
+     left="10"
+     mouse_opaque="false"
+     skip_link_underline="true"
+     name="info_text"
+     word_wrap="true"
+     top_pad="10"
+     width="270"/>
 </floater>

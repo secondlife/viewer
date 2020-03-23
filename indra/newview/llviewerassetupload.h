@@ -62,7 +62,6 @@ public:
     virtual LLSD        prepareUpload();
     virtual LLSD        generatePostBody();
     virtual void        logPreparedUpload();
-    virtual S32         getEconomyUploadCost();
     virtual LLUUID      finishUpload(LLSD &result);
 
     LLTransactionID     getTransactionId() const { return mTransactionId; }
@@ -87,6 +86,9 @@ public:
     LLUUID              getFolderId() const { return mFolderId; }
     LLUUID              getItemId() const { return mItemId; }
     LLAssetID           getAssetId() const { return mAssetId; }
+
+	static bool			findAssetTypeOfExtension(const std::string& exten, LLAssetType::EType& asset_type);
+	static bool			findAssetTypeAndCodecOfExtension(const std::string& exten, LLAssetType::EType& asset_type, U32& codec, bool bulk_upload = true);
 
 protected:
     LLResourceUploadInfo(
