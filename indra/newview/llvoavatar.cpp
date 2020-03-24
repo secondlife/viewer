@@ -2585,6 +2585,7 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 
     if ((LLFrameTimer::getFrameCount() + mID.mData[0]) % compl_upd_freq == 0)
     {
+        LL_RECORD_BLOCK_TIME(FTM_AVATAR_UPDATE_COMPLEXITY);
         idleUpdateRenderComplexity();
     }
     idleUpdateDebugInfo();
@@ -2898,7 +2899,10 @@ F32 LLVOAvatar::calcMorphAmount()
 void LLVOAvatar::idleUpdateLipSync(bool voice_enabled)
 {
 	// Use the Lipsync_Ooh and Lipsync_Aah morphs for lip sync
-	if ( voice_enabled && (LLVoiceClient::getInstance()->lipSyncEnabled()) && LLVoiceClient::getInstance()->getIsSpeaking( mID ) )
+    if ( voice_enabled
+        && mLastRezzedStatus > 0 // no point updating lip-sync for clouds
+        && (LLVoiceClient::getInstance()->lipSyncEnabled())
+        && LLVoiceClient::getInstance()->getIsSpeaking( mID ) )
 	{
 		F32 ooh_morph_amount = 0.0f;
 		F32 aah_morph_amount = 0.0f;
@@ -3896,15 +3900,16 @@ void LLVOAvatar::updateFootstepSounds()
 }
 
 //------------------------------------------------------------------------
-// computeUpdatePeriod()
+// computeUpdatePeriodAndVisibility()
 // Factored out from updateCharacter()
 // Set new value for mUpdatePeriod based on distance and various other factors.
+// Returs true if character needs an update
 //------------------------------------------------------------------------
-void LLVOAvatar::computeUpdatePeriod()
+BOOL LLVOAvatar::computeUpdatePeriodAndVisibility()
 {
 	bool visually_muted = isVisuallyMuted();
-	if (mDrawable.notNull()
-        && isVisible() 
+    BOOL is_visible = isVisible(); // includes drawable check
+    if ( is_visible 
         && (!isSelf() || visually_muted)
         && !isUIAvatar()
         && sUseImpostors
@@ -3932,6 +3937,11 @@ void LLVOAvatar::computeUpdatePeriod()
 		{ //background avatars are REALLY slow updating impostors
 			mUpdatePeriod = 16;
 		}
+		else if (mLastRezzedStatus <= 0)
+		{
+			// Don't update cloud avatars too often
+			mUpdatePeriod = 8;
+		}
 		else if ( shouldImpostor(3) )
 		{ //back 25% of max visible avatars are slow updating impostors
 			mUpdatePeriod = 8;
@@ -3945,10 +3955,12 @@ void LLVOAvatar::computeUpdatePeriod()
 			//nearby avatars, update the impostors more frequently.
 			mUpdatePeriod = 4;
 		}
+		return (LLDrawable::getCurrentFrame() + mID.mData[0]) % mUpdatePeriod == 0 ? TRUE : FALSE;
 	}
 	else
 	{
 		mUpdatePeriod = 1;
+		return is_visible;
 	}
 
 }
@@ -4317,8 +4329,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	// The rest should only be done occasionally for far away avatars.
     // Set mUpdatePeriod and visible based on distance and other criteria.
 	//--------------------------------------------------------------------
-    computeUpdatePeriod();
-    visible = (LLDrawable::getCurrentFrame()+mID.mData[0])%mUpdatePeriod == 0 ? TRUE : FALSE;
+    visible = computeUpdatePeriodAndVisibility();
 
 	//--------------------------------------------------------------------
     // Early out if not visible and not self
