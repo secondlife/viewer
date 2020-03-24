@@ -67,13 +67,28 @@ uniform vec4 cloud_color;
 
 uniform float cloud_scale;
 
+// NOTE: Keep these in sync!
+//       indra\newview\app_settings\shaders\class1\deferred\skyV.glsl
+//       indra\newview\app_settings\shaders\class1\deferred\cloudsV.glsl
+//       indra\newview\lllegacyatmospherics.cpp
 void main()
 {
 
 	// World / view / projection
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
 
+	// Texture coords
 	vary_texcoord0 = texcoord0;
+	vary_texcoord0.xy -= 0.5;
+	vary_texcoord0.xy /= cloud_scale;
+	vary_texcoord0.xy += 0.5;
+
+	vary_texcoord1 = vary_texcoord0;
+	vary_texcoord1.x += lightnorm.x * 0.0125;
+	vary_texcoord1.y += lightnorm.z * 0.0125;
+
+	vary_texcoord2 = vary_texcoord0 * 16.;
+	vary_texcoord3 = vary_texcoord1 * 16.;
 
 	// Get relative position
 	vec3 P = position.xyz - camPosLocal.xyz + vec3(0,50,0);
@@ -87,6 +102,7 @@ void main()
 	}
 	else
 	{
+		altitude_blend_factor = 0; // SL-11589 Fix clouds drooping below horizon
 		P *= (-32000. / P.y);
 	}
 
@@ -174,19 +190,6 @@ void main()
 	// Make a nice cloud density based on the cloud_shadow value that was passed in.
 	vary_CloudDensity = 2. * (cloud_shadow - 0.25);
 
-
-	// Texture coords
-	vary_texcoord0 = texcoord0;
-	vary_texcoord0.xy -= 0.5;
-	vary_texcoord0.xy /= cloud_scale;
-	vary_texcoord0.xy += 0.5;
-
-	vary_texcoord1 = vary_texcoord0;
-	vary_texcoord1.x += lightnorm.x * 0.0125;
-	vary_texcoord1.y += lightnorm.z * 0.0125;
-
-	vary_texcoord2 = vary_texcoord0 * 16.;
-	vary_texcoord3 = vary_texcoord1 * 16.;
 
 	// Combine these to minimize register use
 	vary_CloudColorAmbient += oHazeColorBelowCloud;

@@ -220,7 +220,10 @@ void main()
 	diffcol.rgb *= vertex_color.rgb;
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_MASK)
-    if (diffcol.a < minimum_alpha)
+
+    // Comparing floats cast from 8-bit values, produces acne right at the 8-bit transition points
+    float bias = 0.001953125; // 1/512, or half an 8-bit quantization
+    if (diffuse_linear.a < minimum_alpha-bias)
     {
         discard;
     }
@@ -300,6 +303,10 @@ void main()
 
     calcAtmosphericVars(pos.xyz, light_dir, 1.0, sunlit, amblit, additive, atten, false);
     
+        // This call breaks the Mac GLSL compiler/linker for unknown reasons (17Mar2020)
+        // The call is either a no-op or a pure (pow) gamma adjustment, depending on GPU level
+        // TODO: determine if we want to re-apply the gamma adjustment, and if so understand & fix Mac breakage
+        //color = fullbrightScaleSoftClip(color);
 
     vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 

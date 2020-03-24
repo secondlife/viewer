@@ -400,10 +400,10 @@ void LLGroupActions::createGroup()
 {
 	LLSD params;
 	params["group_id"] = LLUUID::null;
-	params["open_tab_name"] = "panel_group_info_sidetray";
+	params["open_tab_name"] = "panel_group_creation_sidetray";
 	params["action"] = "create";
 
-	LLFloaterSidePanelContainer::showPanel("people", "panel_group_info_sidetray", params);
+	LLFloaterSidePanelContainer::showPanel("people", "panel_group_creation_sidetray", params);
 
 }
 //static
