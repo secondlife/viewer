@@ -2146,8 +2146,10 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		gDeferredFullbrightShinyProgram.mName = "Deferred FullbrightShiny Shader";
 		gDeferredFullbrightShinyProgram.mFeatures.calculatesAtmospherics = true;
+		gDeferredFullbrightShinyProgram.mFeatures.hasAtmospherics = true;
 		gDeferredFullbrightShinyProgram.mFeatures.hasGamma = true;
 		gDeferredFullbrightShinyProgram.mFeatures.hasTransport = true;
+		gDeferredFullbrightShinyProgram.mFeatures.hasSrgb = true;
 		gDeferredFullbrightShinyProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels-1;
 		gDeferredFullbrightShinyProgram.mShaderFiles.clear();
 		gDeferredFullbrightShinyProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightShinyV.glsl", GL_VERTEX_SHADER_ARB));
@@ -2161,6 +2163,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		gDeferredSkinnedFullbrightProgram.mName = "Skinned Fullbright Shader";
 		gDeferredSkinnedFullbrightProgram.mFeatures.calculatesAtmospherics = true;
+		gDeferredSkinnedFullbrightProgram.mFeatures.hasAtmospherics = true;
 		gDeferredSkinnedFullbrightProgram.mFeatures.hasGamma = true;
 		gDeferredSkinnedFullbrightProgram.mFeatures.hasTransport = true;
 		gDeferredSkinnedFullbrightProgram.mFeatures.hasObjectSkinning = true;
@@ -2178,10 +2181,12 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		gDeferredSkinnedFullbrightShinyProgram.mName = "Skinned Fullbright Shiny Shader";
 		gDeferredSkinnedFullbrightShinyProgram.mFeatures.calculatesAtmospherics = true;
+        gDeferredSkinnedFullbrightShinyProgram.mFeatures.hasAtmospherics = true;
 		gDeferredSkinnedFullbrightShinyProgram.mFeatures.hasGamma = true;
 		gDeferredSkinnedFullbrightShinyProgram.mFeatures.hasTransport = true;
 		gDeferredSkinnedFullbrightShinyProgram.mFeatures.hasObjectSkinning = true;
 		gDeferredSkinnedFullbrightShinyProgram.mFeatures.disableTextureIndex = true;
+        gDeferredSkinnedFullbrightShinyProgram.mFeatures.hasSrgb = true;
 		gDeferredSkinnedFullbrightShinyProgram.mShaderFiles.clear();
 		gDeferredSkinnedFullbrightShinyProgram.mShaderFiles.push_back(make_pair("objects/fullbrightShinySkinnedV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredSkinnedFullbrightShinyProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightShinyF.glsl", GL_FRAGMENT_SHADER_ARB));
