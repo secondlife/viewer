@@ -2410,6 +2410,7 @@ S32 LLVOAvatar::setTETexture(const U8 te, const LLUUID& uuid)
 }
 
 static LLTrace::BlockTimerStatHandle FTM_AVATAR_UPDATE("Avatar Update");
+static LLTrace::BlockTimerStatHandle FTM_AVATAR_UPDATE_COMPLEXITY("Avatar Update Complexity");
 static LLTrace::BlockTimerStatHandle FTM_JOINT_UPDATE("Update Joints");
 
 //------------------------------------------------------------------------
@@ -2459,7 +2460,6 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 	}
 
     // Update should be happening max once per frame.
-	const S32 upd_freq = 4; // force update every upd_freq frames.
 	if ((mLastAnimExtents[0]==LLVector3())||
 		(mLastAnimExtents[1])==LLVector3())
 	{
@@ -2467,6 +2467,7 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 	}
 	else
 	{
+		const S32 upd_freq = 4; // force update every upd_freq frames.
 		mNeedsExtentUpdate = ((LLDrawable::getCurrentFrame()+mID.mData[0])%upd_freq==0);
 	}
     
@@ -2551,7 +2552,39 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 	}
 		
 	idleUpdateNameTag( mLastRootPos );
-	idleUpdateRenderComplexity();
+
+    // Complexity has stale mechanics, but updates still can be very rapid
+    // so spread avatar complexity calculations over frames to lesen load from
+    // rapid updates and to make sure all avatars are not calculated at once.
+    S32 compl_upd_freq = 20;
+    if (isControlAvatar())
+    {
+        // animeshes do not (or won't) have impostors nor change outfis,
+        // no need for high frequency
+        compl_upd_freq = 100;
+    }
+    else if (mLastRezzedStatus <= 0) //cloud or  init
+    {
+        compl_upd_freq = 60;
+    }
+    else if (isSelf())
+    {
+        compl_upd_freq = 5;
+    }
+    else if (mLastRezzedStatus == 1) //'grey', not fully loaded
+    {
+        compl_upd_freq = 40;
+    }
+    else if (isInMuteList()) //cheap, buffers value from search
+    {
+        compl_upd_freq = 100;
+    }
+
+    if ((LLFrameTimer::getFrameCount() + mID.mData[0]) % compl_upd_freq == 0)
+    {
+        idleUpdateRenderComplexity();
+    }
+    idleUpdateDebugInfo();
 }
 
 void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
@@ -4345,6 +4378,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	}
 	else
 	{
+		// Might be better to do HIDDEN_UPDATE if cloud
 		updateMotions(LLCharacter::NORMAL_UPDATE);
 	}
 
@@ -10075,7 +10109,10 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 
     // Render Complexity
     calculateUpdateRenderComplexity(); // Update mVisualComplexity if needed	
+}
 
+void LLVOAvatar::idleUpdateDebugInfo()
+{
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_AVATAR_DRAW_INFO))
 	{
 		std::string info_line;
