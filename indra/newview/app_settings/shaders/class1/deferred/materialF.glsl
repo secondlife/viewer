@@ -223,7 +223,7 @@ void main()
 
     // Comparing floats cast from 8-bit values, produces acne right at the 8-bit transition points
     float bias = 0.001953125; // 1/512, or half an 8-bit quantization
-    if (diffuse_linear.a < minimum_alpha-bias)
+    if (diffcol.a < minimum_alpha-bias)
     {
         discard;
     }
