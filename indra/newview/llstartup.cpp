@@ -913,9 +913,9 @@ bool idle_startup()
 		}
 
 		// Set PerAccountSettingsFile to the default value.
-		gSavedSettings.setString("PerAccountSettingsFile",
-			gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, 
-				LLAppViewer::instance()->getSettingsFilename("Default", "PerAccount")));
+		std::string settings_per_account = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, LLAppViewer::instance()->getSettingsFilename("Default", "PerAccount"));
+		gSavedSettings.setString("PerAccountSettingsFile", settings_per_account);
+		gDebugInfo["PerAccountSettingsFilename"] = settings_per_account;
 
 		// Note: can't store warnings files per account because some come up before login
 		
