@@ -24,6 +24,12 @@
  */
 
 // VARYING param funcs
+
+
+uniform vec3 sun_dir;
+uniform vec3 moon_dir;
+uniform int sun_up_factor;
+
 void setSunlitColor(vec3 v);
 void setAmblitColor(vec3 v);
 void setAdditiveColor(vec3 v);
@@ -35,17 +41,16 @@ vec3 getAdditiveColor();
 void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
 
 void calcAtmospherics(vec3 inPositionEye) {
-
     vec3 P = inPositionEye;
     setPositionEye(P);
     vec3 tmpsunlit = vec3(1);
     vec3 tmpamblit = vec3(1);
     vec3 tmpaddlit = vec3(1);
     vec3 tmpattenlit = vec3(1);
-    calcAtmosphericVars(inPositionEye, vec3(0), 1, tmpsunlit, tmpamblit, tmpaddlit, tmpattenlit, false);
+	vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;	
+    calcAtmosphericVars(inPositionEye, light_dir, 1, tmpsunlit, tmpamblit, tmpaddlit, tmpattenlit, false);
     setSunlitColor(tmpsunlit);
     setAmblitColor(tmpamblit);
     setAdditiveColor(tmpaddlit);
     setAtmosAttenuation(tmpattenlit);
 }
-

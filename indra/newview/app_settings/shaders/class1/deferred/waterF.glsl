@@ -164,14 +164,15 @@ void main()
 	
 	color.rgb += spec * specular;
 
-	//color.rgb = atmosTransport(color.rgb);
+	color.rgb = atmosTransport(color.rgb);
 	color.rgb = scaleSoftClip(color.rgb);
     
 	color.a   = spec * sunAngle2;
     
 	vec3 screenspacewavef = normalize((norm_mat*vec4(wavef, 1.0)).xyz);
 
-	frag_data[0] = vec4(color.rgb, color); // diffuse
-	frag_data[1] = vec4(0);		// speccolor, spec
-	frag_data[2] = vec4(encode_normal(screenspacewavef.xyz*0.5+0.5), 0.0, 0);// normalxy, 0, 0
+	//frag_data[0] = color;
+    frag_data[0] = color;
+    frag_data[1] = vec4(0);		// speccolor, spec
+	frag_data[2] = vec4(encode_normal(screenspacewavef.xyz), 0.05, 0);// normalxy, 0, 0
 }

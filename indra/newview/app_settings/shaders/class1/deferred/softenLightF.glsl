@@ -63,6 +63,8 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
 float getAmbientClamp();
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 scaleSoftClipFrag(vec3 l);
+vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
+vec3 fullbrightScaleSoftClip(vec3 light);
 
 vec3 linear_to_srgb(vec3 c);
 vec3 srgb_to_linear(vec3 c);
@@ -81,11 +83,13 @@ void main()
     norm.xyz = getNorm(tc);
     
     vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;
-    float da = clamp(dot(normalize(norm.xyz), light_dir.xyz), 0.0, 1.0);
-    da = pow(da, 1.0/1.3);
+    float da = clamp(dot(norm.xyz, light_dir.xyz), 0.0, 1.0);
+    //da = pow(da, 1.0/1.3);
+    
+    vec4 diffuse = texture2DRect(diffuseRect, tc);
 
-    vec4 diffuse_srgb = texture2DRect(diffuseRect, tc);
-    vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_srgb.a);
+    //convert to gamma space
+    //diffuse.rgb = linear_to_srgb(diffuse.rgb);
 
     vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
     vec3 color = vec3(0);
@@ -100,34 +104,27 @@ void main()
     
         calcAtmosphericVars(pos.xyz, light_dir, ambocc, sunlit, amblit, additive, atten, false);
 
+        color.rgb = amblit;
+
         float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
         ambient *= 0.5;
         ambient *= ambient;
         ambient = (1.0 - ambient);
 
+        color.rgb *= ambient;
+
         vec3 sun_contrib = da * sunlit;
 
-#if !defined(AMBIENT_KILL)
-        color.rgb = amblit;
-        color.rgb *= ambient;
-#endif
-
-vec3 post_ambient = color.rgb;
-
-#if !defined(SUNLIGHT_KILL)
         color.rgb += sun_contrib;
-#endif
 
-vec3 post_sunlight = color.rgb;
-
-        color.rgb *= diffuse_srgb.rgb;
-
-vec3 post_diffuse = color.rgb;
+        color.rgb *= diffuse.rgb;
 
         vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
         if (spec.a > 0.0) // specular reflection
         {
+
+#if 1 //EEP
             vec3 npos = -normalize(pos.xyz);
 
             //vec3 ref = dot(pos+lv, norm);
@@ -140,45 +137,41 @@ vec3 post_diffuse = color.rgb;
 
             float gtdenom = 2 * nh;
             float gt = max(0, min(gtdenom * nv / vh, gtdenom * da / vh));
-                                    
+            
             if (nh > 0.0)
             {
                 float scontrib = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
                 vec3 sp = sun_contrib*scontrib / 6.0;
                 sp = clamp(sp, vec3(0), vec3(1));
                 bloom += dot(sp, sp) / 4.0;
-#if !defined(SUNLIGHT_KILL)
                 color += sp * spec.rgb;
-#endif
             }
+#else //PRODUCTION
+            float sa = dot(refnormpersp, light_dir.xyz);
+            vec3 dumbshiny = sunlit*(texture2D(lightFunc, vec2(sa, spec.a)).r);
+            
+            // add the two types of shiny together
+            vec3 spec_contrib = dumbshiny * spec.rgb;
+            bloom = dot(spec_contrib, spec_contrib) / 6;
+            color.rgb += spec_contrib;
+#endif
+
         }
        
- vec3 post_spec = color.rgb;
+       color.rgb = mix(color.rgb, diffuse.rgb, diffuse.a);
 
         if (envIntensity > 0.0)
         { //add environmentmap
             vec3 env_vec = env_mat * refnormpersp;
             vec3 reflected_color = textureCube(environmentMap, env_vec).rgb;
-#if !defined(SUNLIGHT_KILL)
-            color = mix(color.rgb, reflected_color, envIntensity*0.75); // MAGIC NUMBER SL-12574; ALM: On, Quality <= Mid+
-#endif
+            color = mix(color.rgb, reflected_color, envIntensity);
         }
-        else
+       
+        if (norm.w < 0.5)
         {
-            color.rgb = mix(color.rgb, diffuse_srgb.rgb, diffuse_srgb.a);
+            color = mix(atmosFragLighting(color, additive, atten), fullbrightAtmosTransportFrag(color, additive, atten), diffuse.a);
+            color = mix(scaleSoftClipFrag(color), fullbrightScaleSoftClip(color), diffuse.a);
         }
-
-vec3 post_env = color.rgb;
-
-        if (norm.w < 1)
-        {
-#if !defined(SUNLIGHT_KILL)
-            color = atmosFragLighting(color, additive, atten);
-            color = scaleSoftClipFrag(color);
-#endif
-        }
-
-vec3 post_atmo = color.rgb;
 
         #ifdef WATER_FOG
             vec4 fogged = applyWaterFogView(pos.xyz,vec4(color, bloom));
@@ -186,25 +179,13 @@ vec3 post_atmo = color.rgb;
             bloom = fogged.a;
         #endif
 
-// srgb colorspace debuggables
-//color.rgb = amblit;
-//color.rgb = sunlit;
-//color.rgb = post_ambient;
-//color.rgb = sun_contrib;
-//color.rgb = post_sunlight;
-//color.rgb = diffuse_srgb.rgb;
-//color.rgb = post_diffuse;
-//color.rgb = post_spec;
-//color.rgb = post_env;
-//color.rgb = post_atmo;
-
     }
 
 // linear debuggables
 //color.rgb = vec3(final_da);
 //color.rgb = vec3(ambient);
 //color.rgb = vec3(scol);
-//color.rgb = diffuse_linear.rgb;
+//color.rgb = diffuse_srgb.rgb;
 
     // convert to linear as fullscreen lights need to sum in linear colorspace
     // and will be gamma (re)corrected downstream...

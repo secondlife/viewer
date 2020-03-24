@@ -38,11 +38,19 @@ uniform sampler2D diffuseMap;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_texcoord1;
+VARYING vec4 vary_position;
 
 uniform samplerCube environmentMap;
 
 vec3 fullbrightShinyAtmosTransport(vec3 light);
+vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
 vec3 fullbrightScaleSoftClip(vec3 light);
+
+void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
+
+vec3 linear_to_srgb(vec3 c);
+vec3 srgb_to_linear(vec3 c);
+
 
 void main()
 {
@@ -51,21 +59,29 @@ void main()
 #else
 	vec4 color = texture2D(diffuseMap, vary_texcoord0.xy);
 #endif
-
 	
 	color.rgb *= vertex_color.rgb;
+	vec3 pos = vary_position.xyz/vary_position.w;
+
+	vec3 sunlit;
+	vec3 amblit;
+	vec3 additive;
+	vec3 atten;
+
+	calcAtmosphericVars(pos.xyz, vec3(0), 1.0, sunlit, amblit, additive, atten, false);
 	
 	vec3 envColor = textureCube(environmentMap, vary_texcoord1.xyz).rgb;	
-	color.rgb = mix(color.rgb, envColor.rgb, vertex_color.a*0.75); // MAGIC NUMBER SL-12574; ALM: Off, Quality > Low
+	float env_intensity = vertex_color.a;
+	color.rgb = mix(color.rgb, envColor.rgb, env_intensity);
 
-	color.rgb = pow(color.rgb,vec3(2.2f,2.2f,2.2f));
+	//color.rgb = srgb_to_linear(color.rgb);
 	
-	color.rgb = fullbrightShinyAtmosTransport(color.rgb);
+	color.rgb = fullbrightAtmosTransportFrag(color.rgb, additive, atten);
 	color.rgb = fullbrightScaleSoftClip(color.rgb);
 
 	color.a = 1.0;
 
-	color.rgb = pow(color.rgb, vec3(1.0/2.2));
+	//color.rgb = linear_to_srgb(color.rgb);
 
 	frag_color = color;
 }
