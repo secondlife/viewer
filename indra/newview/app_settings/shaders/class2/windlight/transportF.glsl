@@ -46,8 +46,8 @@ vec3 atmosTransport(vec3 light)
 
 vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten)
 {
-    float brightness = dot(light.rgb * 0.5, vec3(0.3333)) + 0.1;
-    return mix(atmosTransport(light.rgb), light.rgb + additive, brightness * brightness);
+    float brightness = dot(light.rgb * 0.5, vec3(0.3333)) + 0.1;    
+    return mix(atmosTransportFrag(light.rgb, additive, atten), light.rgb + additive, brightness * brightness);
 }
 
 vec3 fullbrightAtmosTransport(vec3 light)

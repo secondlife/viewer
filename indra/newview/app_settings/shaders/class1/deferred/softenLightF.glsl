@@ -84,7 +84,8 @@ void main()
     
     vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;
     float da = clamp(dot(norm.xyz, light_dir.xyz), 0.0, 1.0);
-    //da = pow(da, 1.0/1.3);
+    float light_gamma = 1.0/1.3;
+    da = pow(da, light_gamma);
     
     vec4 diffuse = texture2DRect(diffuseRect, tc);
 
