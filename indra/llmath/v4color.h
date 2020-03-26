@@ -656,6 +656,7 @@ void LLColor4::clamp()
 	}
 }
 
+// Return the given linear space color value in gamma corrected (sRGB) space
 inline const LLColor4 srgbColor4(const LLColor4 &a) {
     LLColor4 srgbColor;
 
@@ -665,6 +666,16 @@ inline const LLColor4 srgbColor4(const LLColor4 &a) {
     srgbColor.mV[3] = a.mV[3];
 
     return srgbColor;
+}
+
+// Return the given gamma corrected (sRGB) color in linear space
+inline const LLColor4 linearColor4(const LLColor4 &a)
+{
+    LLColor4 linearColor;
+    linearColor.mV[0] = sRGBtoLinear(a.mV[0]);
+    linearColor.mV[1] = sRGBtoLinear(a.mV[1]);
+    linearColor.mV[2] = sRGBtoLinear(a.mV[2]);
+    linearColor.mV[3] = a.mV[3];
 }
 
 #endif
