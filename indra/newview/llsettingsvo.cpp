@@ -514,7 +514,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildDefaultSky()
     {
         default_settings = LLSettingsSky::defaults();
 
-        default_settings[SETTING_NAME] = std::string("_default_");
+        default_settings[SETTING_NAME] = DEFAULT_SETTINGS_NAME;
 
         LLSettingsSky::validation_list_t validations = LLSettingsSky::validationList();
         LLSD results = LLSettingsBase::settingValidation(default_settings, validations);
@@ -841,7 +841,7 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildDefaultWater()
     {
         default_settings = LLSettingsWater::defaults();
 
-        default_settings[SETTING_NAME] = std::string("_default_");
+        default_settings[SETTING_NAME] = DEFAULT_SETTINGS_NAME;
 
         LLSettingsWater::validation_list_t validations = LLSettingsWater::validationList();
         LLSD results = LLSettingsWater::settingValidation(default_settings, validations);
@@ -1169,7 +1169,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildDefaultDayCycle()
     if (!default_settings.size())
     {
         default_settings = LLSettingsDay::defaults();
-        default_settings[SETTING_NAME] = std::string("_default_");
+        default_settings[SETTING_NAME] = DEFAULT_SETTINGS_NAME;
 
         LLSettingsDay::validation_list_t validations = LLSettingsDay::validationList();
         LLSD results = LLSettingsDay::settingValidation(default_settings, validations);

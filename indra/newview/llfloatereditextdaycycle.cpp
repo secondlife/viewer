@@ -1715,6 +1715,7 @@ void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where, cons
 
     if (where == ACTION_APPLY_LOCAL)
     {
+        day->setName("Local"); // To distinguish and make sure there is a name. Safe, because this is a copy.
         LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, day);
     }
     else if (where == ACTION_APPLY_PARCEL)

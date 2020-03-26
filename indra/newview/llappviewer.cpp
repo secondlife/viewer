@@ -33,6 +33,7 @@
 #include "llfeaturemanager.h"
 #include "lluictrlfactory.h"
 #include "lltexteditor.h"
+#include "llenvironment.h"
 #include "llerrorcontrol.h"
 #include "lleventtimer.h"
 #include "llviewertexturelist.h"
@@ -1907,6 +1908,12 @@ bool LLAppViewer::cleanup()
 
 	// Store the time of our current logoff
 	gSavedPerAccountSettings.setU32("LastLogoff", time_corrected());
+
+    if (LLEnvironment::instanceExists())
+    {
+        //Store environment settings if nessesary
+        LLEnvironment::getInstance()->saveToSettings();
+    }
 
 	// Must do this after all panels have been deleted because panels that have persistent rects
 	// save their rects on delete.

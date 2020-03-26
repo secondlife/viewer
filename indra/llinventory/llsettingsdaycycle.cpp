@@ -408,7 +408,7 @@ LLSD LLSettingsDay::defaults()
 
     if (dfltsetting.size() == 0)
     {
-        dfltsetting[SETTING_NAME] = "_default_";
+        dfltsetting[SETTING_NAME] = DEFAULT_SETTINGS_NAME;
         dfltsetting[SETTING_TYPE] = "daycycle";
 
         LLSD frames(LLSD::emptyMap());
@@ -421,7 +421,7 @@ LLSD LLSettingsDay::defaults()
         F32 time = 0.0f;
         for (U32 i = 0; i < FRAME_COUNT; i++)
         {
-            std::string name("_default_");
+            std::string name(DEFAULT_SETTINGS_NAME);
             name += ('a' + i);
 
             std::string water_frame_name("water:");

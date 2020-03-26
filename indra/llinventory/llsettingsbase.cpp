@@ -39,6 +39,7 @@ namespace
 }
 
 const LLSettingsBase::TrackPosition LLSettingsBase::INVALID_TRACKPOS(-1.0);
+const std::string LLSettingsBase::DEFAULT_SETTINGS_NAME("_default_");
 
 //=========================================================================
 std::ostream &operator <<(std::ostream& os, LLSettingsBase &settings)

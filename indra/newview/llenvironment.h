@@ -169,6 +169,8 @@ public:
     bool                        getIsSunUp() const;
     bool                        getIsMoonUp() const;
 
+    void                        saveToSettings();
+    bool                        loadFromSettings();
     void                        saveBeaconsState();
     void                        revertBeaconsState();
 
@@ -275,6 +277,7 @@ public:
 
         void                            setFlags(U32 flag) { mAnimateFlags |= flag; }
         void                            clearFlags(U32 flag) { mAnimateFlags &= ~flag; }
+        U32                             getFlags() { return mAnimateFlags; }
 
     protected:
 
