@@ -31,8 +31,8 @@ namespace tut
 {
     struct llmainthreadtask_data
     {
-        // 2-second timeout
-        Sync mSync{F32Milliseconds(2000.0f)};
+        // 5-second timeout
+        Sync mSync{F32Milliseconds(5000.0f)};
 
         llmainthreadtask_data()
         {
