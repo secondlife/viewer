@@ -132,8 +132,7 @@ extern const F32 LIGHT_MAX_CUTOFF;
 class LLLightParams : public LLNetworkData
 {
 protected:
-	LLColor4 mColor; // alpha = intensity
-    LLColor4 mSRGBColor; // Only used in deferred (for now?)
+	LLColor4 mColor; // gamma corrected color (sRGB), alpha = intensity
 	F32 mRadius;
 	F32 mFalloff;
 	F32 mCutoff;
@@ -151,13 +150,20 @@ public:
 	bool fromLLSD(LLSD& sd);
 
 
-    void setColor(const LLColor4& color)	{ mColor = color; mColor.clamp(); mSRGBColor = srgbColor4(mColor); }
+    // set the color 
+    //  color - gamma corrected color value (directly taken from an on-screen color swatch)
+    void setColor(const LLColor4& color)	{ mColor = color; mColor.clamp(); }
 	void setRadius(F32 radius)				{ mRadius = llclamp(radius, LIGHT_MIN_RADIUS, LIGHT_MAX_RADIUS); }
 	void setFalloff(F32 falloff)			{ mFalloff = llclamp(falloff, LIGHT_MIN_FALLOFF, LIGHT_MAX_FALLOFF); }
 	void setCutoff(F32 cutoff)				{ mCutoff = llclamp(cutoff, LIGHT_MIN_CUTOFF, LIGHT_MAX_CUTOFF); }
 
+    // same as getSRGBColor
     LLColor4 getColor() const				{ return mColor; }
-    LLColor4 getSRGBColor() const			{ return mSRGBColor; }
+    // get the sRGB (gamma corrected) color of this light
+    LLColor4 getSRGBColor() const			{ return mColor; }
+    // get the linear space color of this light
+    LLColor4 getLinearColor() const { return linearColor4(mColor); }
+
 	F32 getRadius() const					{ return mRadius; }
 	F32 getFalloff() const					{ return mFalloff; }
 	F32 getCutoff() const					{ return mCutoff; }

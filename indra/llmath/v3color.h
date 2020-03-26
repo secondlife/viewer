@@ -484,4 +484,13 @@ inline const LLColor3 srgbColor3(const LLColor3 &a) {
 	return srgbColor;
 }
 
+inline const LLColor3 linearColor3(const LLColor3 &a) {
+    LLColor3 linearColor;
+    linearColor.mV[0] = sRGBtoLinear(a.mV[0]);
+    linearColor.mV[1] = sRGBtoLinear(a.mV[1]);
+    linearColor.mV[2] = sRGBtoLinear(a.mV[2]);
+
+    return linearColor;
+}
+
 #endif

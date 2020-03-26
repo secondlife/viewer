@@ -3234,17 +3234,11 @@ LLColor3 LLVOVolume::getLightBaseColor() const
 	}
 }
 
-LLColor3 LLVOVolume::getLightColor() const
+LLColor3 LLVOVolume::getLightLinearColor() const
 {
-	const LLLightParams *param_block = (const LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
-	if (param_block)
-	{
-		return LLColor3(param_block->getColor()) * param_block->getColor().mV[3];
-	}
-	else
-	{
-		return LLColor3(1,1,1);
-	}
+    LLColor3 ret = getLightSRGBColor();
+    ret = linearColor3(ret);
+    return ret;
 }
 
 LLColor3 LLVOVolume::getLightSRGBColor() const
