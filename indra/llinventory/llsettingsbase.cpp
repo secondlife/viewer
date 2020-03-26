@@ -67,7 +67,6 @@ const U32 LLSettingsBase::Validator::VALIDATION_PARTIAL(0x01 << 0);
 LLSettingsBase::LLSettingsBase():
     mSettings(LLSD::emptyMap()),
     mDirty(true),
-    mAssetID(),
     mBlendedFactor(0.0)
 {
 }
@@ -75,7 +74,6 @@ LLSettingsBase::LLSettingsBase():
 LLSettingsBase::LLSettingsBase(const LLSD setting) :
     mSettings(setting),
     mDirty(true),
-    mAssetID(),
     mBlendedFactor(0.0)
 {
 }

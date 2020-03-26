@@ -232,13 +232,6 @@ public:
     class DayInstance: public std::enable_shared_from_this<DayInstance>
     {
     public:
-        enum InstanceType_t
-        {
-            TYPE_INVALID,
-            TYPE_FIXED,
-            TYPE_CYCLED
-        };
-
         typedef std::shared_ptr<DayInstance> ptr_t;
 
         static const U32                NO_ANIMATE_SKY;
@@ -291,7 +284,6 @@ public:
         LLSettingsWater::ptr_t      mWater;
         S32                         mSkyTrack;
 
-        InstanceType_t              mType;
         bool                        mInitialized;
 
         LLSettingsDay::Seconds      mDayLength;

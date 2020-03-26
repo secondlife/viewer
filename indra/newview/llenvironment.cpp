@@ -2448,7 +2448,6 @@ LLEnvironment::DayInstance::DayInstance(EnvSelection_t env) :
     mBlenderSky(),
     mBlenderWater(),
     mInitialized(false),
-    mType(TYPE_INVALID),
     mSkyTrack(1),
     mEnv(env),
     mAnimateFlags(0)
@@ -2467,7 +2466,6 @@ LLEnvironment::DayInstance::ptr_t LLEnvironment::DayInstance::clone() const
     environment->mBlenderSky = mBlenderSky;
     environment->mBlenderWater = mBlenderWater;
     environment->mInitialized = mInitialized;
-    environment->mType = mType;
     environment->mSkyTrack = mSkyTrack;
     environment->mAnimateFlags = mAnimateFlags;
 
@@ -2491,7 +2489,6 @@ bool LLEnvironment::DayInstance::applyTimeDelta(const LLSettingsBase::Seconds& d
 
 void LLEnvironment::DayInstance::setDay(const LLSettingsDay::ptr_t &pday, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset)
 {
-    mType = TYPE_CYCLED;
     mInitialized = false;
 
     mAnimateFlags = 0;
@@ -2512,7 +2509,6 @@ void LLEnvironment::DayInstance::setDay(const LLSettingsDay::ptr_t &pday, LLSett
 
 void LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)
 {
-    mType = TYPE_FIXED;
     mInitialized = false;
 
     bool different_sky = mSky != psky;
@@ -2532,7 +2528,6 @@ void LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)
 
 void LLEnvironment::DayInstance::setWater(const LLSettingsWater::ptr_t &pwater)
 {
-    mType = TYPE_FIXED;
     mInitialized = false;
 
     bool different_water = mWater != pwater;
@@ -2554,7 +2549,6 @@ void LLEnvironment::DayInstance::initialize()
 
 void LLEnvironment::DayInstance::clear()
 {
-    mType = TYPE_INVALID;
     mDayCycle.reset();
     mSky.reset();
     mWater.reset();

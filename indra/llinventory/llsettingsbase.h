@@ -359,7 +359,6 @@ protected:
 
     LLSD        mSettings;
     bool        mIsValid;
-    LLAssetID   mAssetID;
 
     LLSD        cloneSettings() const;
 
