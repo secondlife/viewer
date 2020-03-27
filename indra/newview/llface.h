@@ -52,6 +52,7 @@ class LLDrawInfo;
 
 const F32 MIN_ALPHA_SIZE = 1024.f;
 const F32 MIN_TEX_ANIM_SIZE = 512.f;
+const U8 FACE_DO_NOT_BATCH_TEXTURES = 255;
 
 class LLFace : public LLTrace::MemTrackableNonVirtual<LLFace, 16>
 {

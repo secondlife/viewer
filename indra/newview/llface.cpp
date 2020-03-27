@@ -153,7 +153,7 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	}
 
 	mTEOffset		= -1;
-	mTextureIndex = 255;
+	mTextureIndex = FACE_DO_NOT_BATCH_TEXTURES;
 
 	setDrawable(drawablep);
 	mVObjp = objp;
@@ -450,7 +450,7 @@ void LLFace::setTextureIndex(U8 index)
 	{
 		mTextureIndex = index;
 
-		if (mTextureIndex != 255)
+		if (mTextureIndex != FACE_DO_NOT_BATCH_TEXTURES)
 		{
 			mDrawablep->setState(LLDrawable::REBUILD_POSITION);
 		}
@@ -1534,7 +1534,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_VERTEX, mGeomIndex, mGeomCount);
 
-			U8 index = mTextureIndex < 255 ? mTextureIndex : 0;
+			U8 index = mTextureIndex < FACE_DO_NOT_BATCH_TEXTURES ? mTextureIndex : 0;
 
 			S32 val = 0;
 			U8* vp = (U8*) &val;
@@ -2067,7 +2067,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 			LLVector4a texIdx;
 
-			S32 index = mTextureIndex < 255 ? mTextureIndex : 0;
+			S32 index = mTextureIndex < FACE_DO_NOT_BATCH_TEXTURES ? mTextureIndex : 0;
 
 			F32 val = 0.f;
 			S32* vp = (S32*) &val;

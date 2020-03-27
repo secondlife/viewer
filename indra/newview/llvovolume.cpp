@@ -5059,7 +5059,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	}
 
 
-	if (index < 255 && idx >= 0)
+	if (index < FACE_DO_NOT_BATCH_TEXTURES && idx >= 0)
 	{
 		if (mat || draw_vec[idx]->mMaterial)
 		{ //can't batch textures when materials are present (yet)
@@ -5105,7 +5105,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_vec[idx]->mEnd += facep->getGeomCount();
 		draw_vec[idx]->mVSize = llmax(draw_vec[idx]->mVSize, facep->getVirtualSize());
 
-		if (index < 255 && index >= draw_vec[idx]->mTextureList.size())
+		if (index < FACE_DO_NOT_BATCH_TEXTURES && index >= draw_vec[idx]->mTextureList.size())
 		{
 			draw_vec[idx]->mTextureList.resize(index+1);
 			draw_vec[idx]->mTextureList[index] = tex;
@@ -5192,7 +5192,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 			draw_info->mDrawMode = LLRender::TRIANGLE_STRIP;
 		}
 
-		if (index < 255)
+		if (index < FACE_DO_NOT_BATCH_TEXTURES)
 		{ //initialize texture list for texture batching
 			draw_info->mTextureList.resize(index+1);
 			draw_info->mTextureList[index] = tex;
@@ -6319,7 +6319,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 
 					//face has no texture index
 					facep->mDrawInfo = NULL;
-					facep->setTextureIndex(255);
+					facep->setTextureIndex(FACE_DO_NOT_BATCH_TEXTURES);
 
 					if (geom_count + facep->getGeomCount() > max_vertices)
 					{ //cut batches on geom count too big
@@ -6383,7 +6383,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 			facep->setGeomIndex(index_offset);
 			facep->setVertexBuffer(buffer);	
 			
-			if (batch_textures && facep->getTextureIndex() == 255)
+			if (batch_textures && facep->getTextureIndex() == FACE_DO_NOT_BATCH_TEXTURES)
 			{
 				LL_ERRS() << "Invalid texture index." << LL_ENDL;
 			}
