@@ -1583,7 +1583,10 @@ void LLFloaterModelPreview::addStringToLogTab(const std::string& str, bool flash
 
     if (flash && mTabContainer->getCurrentPanel() != panel)
     {
-        mTabContainer->setTabPanelFlashing(panel, true);
+        // This will makes colors pale due to "glow_type = LLRender::BT_ALPHA"
+        // So instead of using "MenuItemFlashBgColor" added stronger color
+        static LLUIColor sFlashBgColor(LLColor4U(255, 99, 0));
+        mTabContainer->setTabPanelFlashing(panel, true, sFlashBgColor);
     }
 }
 

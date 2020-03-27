@@ -260,6 +260,7 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
 	mCustomIconCtrlUsed(p.use_custom_icon_ctrl),
 	mOpenTabsOnDragAndDrop(p.open_tabs_on_drag_and_drop),
 	mTabIconCtrlPad(p.tab_icon_ctrl_pad),
+	mEnableTabsFlashing(p.enable_tabs_flashing),
 	mUseTabEllipses(p.use_ellipses)
 {
 	static LLUICachedControl<S32> tabcntr_vert_tab_min_width ("UITabCntrVertTabMinWidth", 0);
@@ -1639,6 +1640,16 @@ void LLTabContainer::setTabPanelFlashing(LLPanel* child, BOOL state )
 	{
 		tuple->mButton->setFlashing( state );
 	}
+}
+
+void LLTabContainer::setTabPanelFlashing(LLPanel* child, BOOL state, LLUIColor color)
+{
+    LLTabTuple* tuple = getTabByPanel(child);
+    if (tuple)
+    {
+        tuple->mButton->setFlashColor(color);
+        tuple->mButton->setFlashing(state);
+    }
 }
 
 void LLTabContainer::setTabImage(LLPanel* child, std::string image_name, const LLColor4& color)

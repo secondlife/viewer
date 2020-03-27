@@ -111,7 +111,7 @@ public:
 		Optional<bool>						open_tabs_on_drag_and_drop;
 
 		/**
-		 * Open tabs on hover in drag and drop situations
+		 * Enable tab flashing
 		 */
 		Optional<bool>						enable_tabs_flashing;
 		
@@ -203,6 +203,7 @@ public:
 
 	BOOL        getTabPanelFlashing(LLPanel* child);
 	void		setTabPanelFlashing(LLPanel* child, BOOL state);
+	void		setTabPanelFlashing(LLPanel* child, BOOL state, LLUIColor color);
 	void 		setTabImage(LLPanel* child, std::string img_name, const LLColor4& color = LLColor4::white);
 	void 		setTabImage(LLPanel* child, const LLUUID& img_id, const LLColor4& color = LLColor4::white);
 	void		setTabImage(LLPanel* child, LLIconCtrl* icon);
