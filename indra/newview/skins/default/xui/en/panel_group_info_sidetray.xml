@@ -280,17 +280,6 @@ background_visible="true"
 				     left="1"
 				     top="0"
 				     width="90" />
-					<button
-    				 follows="bottom|left|right"
-	                 height="23"
-	                 layout="topleft"
-	                 left="1"
-	                 top="0"
-	                 label="Create Group"
-     				 name="btn_create"
-               		 visible="true"
-                 	 tool_tip="Create a new Group"
-                 	 width="90" />	
 				</layout_panel>
 		   </layout_stack>
   

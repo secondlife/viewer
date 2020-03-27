@@ -118,7 +118,7 @@
      width="200"
      type="string"
      word_wrap="true">
-        Saving an image to your inventory costs L$[UPLOAD_COST]. To save your image as a texture select one of the square formats.
+        To save your image as a texture select one of the square formats.
     </text>
     <button
      follows="right|bottom"

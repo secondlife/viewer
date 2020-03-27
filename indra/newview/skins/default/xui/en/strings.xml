@@ -2351,6 +2351,8 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="MarketplaceNoStock">out of stock</string>
 	<string name="MarketplaceUpdating">updating...</string>
 
+	<string name="UploadFeeInfo">Fee is based on your subscription level. Higher levels are charged lower fees. [https://secondlife.com/my/account/membership.php? Learn more]</string>
+
 	<string name="Open landmarks">Open landmarks</string>
   <string name="Unconstrained">Unconstrained</string>
 
@@ -3914,6 +3916,12 @@ Please check http://status.secondlifegrid.net to see if there is a known problem
   <string name="Accounting">Accounting</string>
   <string name="Notices">Notices</string>
   <string name="Chat">Chat</string>
+  
+  <!-- SL Membership -->
+  <string name="BaseMembership">Base</string>
+  <string name="PremiumMembership">Premium</string>
+  <string name="Premium PlusMembership">Premium Plus</string>
+  <string name="InternalMembership">Internal</string> <!-- No need to translate -->
 
   <!-- Question strings for delete items notifications -->
   <string name="DeleteItems">Delete selected items?</string>
