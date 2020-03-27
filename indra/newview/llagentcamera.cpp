@@ -1987,13 +1987,21 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 
 LLVector3 LLAgentCamera::getCurrentCameraOffset()
 {
-	LLVector3 camera_offset = (LLViewerCamera::getInstance()->getOrigin() - getAvatarRootPosition() - mThirdPersonHeadOffset) * ~gAgent.getFrameAgent().getQuaternion();
+	LLVector3 camera_offset = (LLViewerCamera::getInstance()->getOrigin() - getAvatarRootPosition() - mThirdPersonHeadOffset) * ~getCurrentAvatarRotation();
 	return  camera_offset / mCameraZoomFraction / gSavedSettings.getF32("CameraOffsetScale");
 }
 
 LLVector3d LLAgentCamera::getCurrentFocusOffset()
 {
-	return (mFocusTargetGlobal - gAgent.getPositionGlobal()) * ~gAgent.getFrameAgent().getQuaternion();
+	return (mFocusTargetGlobal - gAgent.getPositionGlobal()) * ~getCurrentAvatarRotation();
+}
+
+LLQuaternion LLAgentCamera::getCurrentAvatarRotation()
+{
+	LLViewerObject* sit_object = (LLViewerObject*)gAgentAvatarp->getParent();
+	LLQuaternion av_rot = gAgent.getFrameAgent().getQuaternion();
+	LLQuaternion obj_rot = sit_object ? sit_object->getRenderRotation() : LLQuaternion::DEFAULT;
+	return av_rot * obj_rot;
 }
 
 bool LLAgentCamera::isJoystickCameraUsed()

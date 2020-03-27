@@ -119,6 +119,7 @@ public:
 
 	LLVector3 getCurrentCameraOffset();
 	LLVector3d getCurrentFocusOffset();
+	LLQuaternion getCurrentAvatarRotation();
 	bool isJoystickCameraUsed();
 
 private:
