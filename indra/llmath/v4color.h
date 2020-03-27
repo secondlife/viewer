@@ -676,6 +676,8 @@ inline const LLColor4 linearColor4(const LLColor4 &a)
     linearColor.mV[1] = sRGBtoLinear(a.mV[1]);
     linearColor.mV[2] = sRGBtoLinear(a.mV[2]);
     linearColor.mV[3] = a.mV[3];
+
+    return linearColor;
 }
 
 #endif
