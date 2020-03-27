@@ -242,7 +242,11 @@ public:
 
 	// For Lights
 	void setIsLight(BOOL is_light);
-	void setLightColor(const LLColor3& color);
+    //set the gamma-corrected (sRGB) color of this light
+	void setLightSRGBColor(const LLColor3& color);
+    //set the linear color of this light
+    void setLightLinearColor(const LLColor3& color);
+
 	void setLightIntensity(F32 intensity);
 	void setLightRadius(F32 radius);
 	void setLightFalloff(F32 falloff);
@@ -254,12 +258,13 @@ public:
 
 
     // Get the light color in sRGB color space NOT scaled by intensity.
-	LLColor3 getLightBaseColor() const; 
-    
-    //same as getLightSRGBColor()
-    LLColor3 getLightColor() const { return getLightSRGBColor(); }
+	LLColor3 getLightSRGBBaseColor() const; 
 
-    // Same as linearColor3(getLightSRGBColor)
+    // Get the light color in linear color space NOT scaled by intensity.
+    LLColor3 getLightLinearBaseColor() const;
+    
+    // Get the light color in linear color space scaled by intensity 
+    //  this is the value that should be fed into shaders
     LLColor3 getLightLinearColor() const;
 
     // Get the light color in sRGB color space scaled by intensity.
