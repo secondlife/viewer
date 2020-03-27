@@ -1370,7 +1370,7 @@ void LLRender::syncMatrices()
 		}
 
 
-		if (shader->mFeatures.hasLighting || shader->mFeatures.calculatesLighting)
+		if (shader->mFeatures.hasLighting || shader->mFeatures.calculatesLighting || shader->mFeatures.calculatesAtmospherics)
 		{ //also sync light state
 			syncLightState();
 		}

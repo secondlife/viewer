@@ -101,6 +101,8 @@ namespace
     const std::string LISTENER_NAME("LLEnvironmentSingleton");
     const std::string PUMP_EXPERIENCE("experience_permission");
 
+    const std::string LOCAL_ENV_STORAGE_FILE("local_environment_data.bin");
+
     //---------------------------------------------------------------------
     LLTrace::BlockTimerStatHandle   FTM_ENVIRONMENT_UPDATE("Update Environment Tick");
     LLTrace::BlockTimerStatHandle   FTM_SHADER_PARAM_UPDATE("Update Shader Parameters");
@@ -849,6 +851,8 @@ void LLEnvironment::initSingleton()
     }
 
     LLEventPumps::instance().obtain(PUMP_EXPERIENCE).listen(LISTENER_NAME, [this](LLSD message) { listenExperiencePump(message); return false; });
+
+    loadFromSettings();
 }
 
 void LLEnvironment::cleanupSingleton()
@@ -2448,7 +2452,6 @@ LLEnvironment::DayInstance::DayInstance(EnvSelection_t env) :
     mBlenderSky(),
     mBlenderWater(),
     mInitialized(false),
-    mType(TYPE_INVALID),
     mSkyTrack(1),
     mEnv(env),
     mAnimateFlags(0)
@@ -2467,7 +2470,6 @@ LLEnvironment::DayInstance::ptr_t LLEnvironment::DayInstance::clone() const
     environment->mBlenderSky = mBlenderSky;
     environment->mBlenderWater = mBlenderWater;
     environment->mInitialized = mInitialized;
-    environment->mType = mType;
     environment->mSkyTrack = mSkyTrack;
     environment->mAnimateFlags = mAnimateFlags;
 
@@ -2491,7 +2493,6 @@ bool LLEnvironment::DayInstance::applyTimeDelta(const LLSettingsBase::Seconds& d
 
 void LLEnvironment::DayInstance::setDay(const LLSettingsDay::ptr_t &pday, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset)
 {
-    mType = TYPE_CYCLED;
     mInitialized = false;
 
     mAnimateFlags = 0;
@@ -2512,7 +2513,6 @@ void LLEnvironment::DayInstance::setDay(const LLSettingsDay::ptr_t &pday, LLSett
 
 void LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)
 {
-    mType = TYPE_FIXED;
     mInitialized = false;
 
     bool different_sky = mSky != psky;
@@ -2532,7 +2532,6 @@ void LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)
 
 void LLEnvironment::DayInstance::setWater(const LLSettingsWater::ptr_t &pwater)
 {
-    mType = TYPE_FIXED;
     mInitialized = false;
 
     bool different_water = mWater != pwater;
@@ -2554,7 +2553,6 @@ void LLEnvironment::DayInstance::initialize()
 
 void LLEnvironment::DayInstance::clear()
 {
-    mType = TYPE_INVALID;
     mDayCycle.reset();
     mSky.reset();
     mWater.reset();
@@ -2690,6 +2688,206 @@ void LLEnvironment::DayTransition::animate()
         else
             setSky(mNextInstance->getSky());
     });
+}
+
+void LLEnvironment::saveToSettings()
+{
+    std::string user_dir = gDirUtilp->getLindenUserDir();
+    if (user_dir.empty())
+    {
+        // not logged in
+        return;
+    }
+    bool has_data = false;
+
+    if (gSavedSettings.getBOOL("EnvironmentPersistAcrossLogin"))
+    {
+        DayInstance::ptr_t environment = getEnvironmentInstance(ENV_LOCAL);
+        if (environment)
+        {
+            // Environment is 'layered'. No data in ENV_LOCAL means we are using parcel/region
+            // Store local environment for next session
+            LLSD env_data;
+
+            LLSettingsDay::ptr_t day = environment->getDayCycle();
+            if (day)
+            {
+                const std::string name = day->getName();
+                const LLUUID asset_id = day->getAssetId();
+                if (asset_id.notNull())
+                {
+                    // just save the id
+                    env_data["day_id"] = asset_id;
+                    env_data["day_length"] = LLSD::Integer(environment->getDayLength());
+                    env_data["day_offset"] = LLSD::Integer(environment->getDayOffset());
+                    has_data = true;
+                }
+                else if (!name.empty() && name != LLSettingsBase::DEFAULT_SETTINGS_NAME)
+                {
+                    // This setting was created locally and was not saved
+                    // The only option is to save the whole thing
+                    env_data["day_llsd"] = day->getSettings();
+                    env_data["day_length"] = LLSD::Integer(environment->getDayLength());
+                    env_data["day_offset"] = LLSD::Integer(environment->getDayOffset());
+                    has_data = true;
+                }
+            }
+
+            LLSettingsSky::ptr_t sky = environment->getSky();
+            if ((environment->getFlags() & DayInstance::NO_ANIMATE_SKY) && sky)
+            {
+                const std::string name = sky->getName();
+                const LLUUID asset_id = sky->getAssetId();
+                if (asset_id.notNull())
+                {
+                    // just save the id
+                    env_data["sky_id"] = asset_id;
+                    has_data = true;
+                }
+                else if (!name.empty() && name != LLSettingsBase::DEFAULT_SETTINGS_NAME)
+                {
+                    // This setting was created locally and was not saved
+                    // The only option is to save the whole thing
+                    env_data["sky_llsd"] = sky->getSettings();
+                    has_data = true;
+                }
+                has_data = true;
+            }
+
+            LLSettingsWater::ptr_t water = environment->getWater();
+            if ((environment->getFlags() & DayInstance::NO_ANIMATE_WATER) && water)
+            {
+                const std::string name = water->getName();
+                const LLUUID asset_id = water->getAssetId();
+                if (asset_id.notNull())
+                {
+                    // just save the id
+                    env_data["water_id"] = asset_id;
+                    has_data = true;
+                }
+                else if (!name.empty() && name != LLSettingsBase::DEFAULT_SETTINGS_NAME)
+                {
+                    // This setting was created locally and was not saved
+                    // The only option is to save the whole thing
+                    env_data["water_llsd"] = water->getSettings();
+                    has_data = true;
+                }
+            }
+
+            std::string user_filepath = user_dir + gDirUtilp->getDirDelimiter() + LOCAL_ENV_STORAGE_FILE;
+            llofstream out(user_filepath.c_str(), std::ios_base::out | std::ios_base::binary);
+            if (out.good())
+            {
+                LLSDSerialize::toBinary(env_data, out);
+                out.close();
+            }
+            else
+            {
+                LL_WARNS("ENVIRONMENT") << "Unable to open " << user_filepath << " for output." << LL_ENDL;
+            }
+        }
+    }
+
+    if (!has_data)
+    {
+        LLFile::remove(user_dir + gDirUtilp->getDirDelimiter() + LOCAL_ENV_STORAGE_FILE, ENOENT);
+    }
+}
+
+bool LLEnvironment::loadFromSettings()
+{
+    if (!gSavedSettings.getBOOL("EnvironmentPersistAcrossLogin"))
+    {
+        return false;
+    }
+
+    std::string user_path = gDirUtilp->getLindenUserDir();
+    if (user_path.empty())
+    {
+        LL_WARNS("ENVIRONMENT") << "Can't load previous environment, Environment was initialized before user logged in" << LL_ENDL;
+        return false;
+    }
+    std::string user_filepath(user_path + gDirUtilp->getDirDelimiter() + LOCAL_ENV_STORAGE_FILE);
+    if (!gDirUtilp->fileExists(user_filepath))
+    {
+        // No previous environment
+        return false;
+    }
+
+    LLSD env_data;
+    llifstream file(user_filepath.c_str(), std::ios_base::in | std::ios_base::binary);
+    if (file.is_open())
+    {
+        LLSDSerialize::fromBinary(env_data, file, LLSDSerialize::SIZE_UNLIMITED);
+        if (env_data.isUndefined())
+        {
+            LL_WARNS("ENVIRONMENT") << "error loading " << user_filepath << LL_ENDL;
+            return false;
+        }
+        else
+        {
+            LL_INFOS("ENVIRONMENT") << "Loaded previous session environment from: " << user_filepath << LL_ENDL;
+        }
+        file.close();
+    }
+    else
+    {
+        LL_INFOS("ENVIRONMENT") << "Unable to open previous session environment file " << user_filepath << LL_ENDL;
+    }
+
+    if (!env_data.isMap() || env_data.emptyMap())
+    {
+        LL_DEBUGS("ENVIRONMENT") << "Empty map loaded from: " << user_filepath << LL_ENDL;
+        return false;
+    }
+
+    bool valid = false;
+
+    if (env_data.has("day_id"))
+    {
+        S32 length = env_data["day_length"].asInteger();
+        S32 offset = env_data["day_offset"].asInteger();
+        setEnvironment(ENV_LOCAL, env_data["day_id"].asUUID(), LLSettingsDay::Seconds(length), LLSettingsDay::Seconds(offset));
+        valid = true;
+    }
+    else if (env_data.has("day_llsd"))
+    {
+        S32 length = env_data["day_length"].asInteger();
+        S32 offset = env_data["day_offset"].asInteger();
+        LLSettingsDay::ptr_t day = std::make_shared<LLSettingsVODay>(env_data["day_llsd"]);
+        setEnvironment(ENV_LOCAL, day, LLSettingsDay::Seconds(length), LLSettingsDay::Seconds(offset));
+        valid = true;
+    }
+
+    if (env_data.has("sky_id"))
+    {
+        setEnvironment(ENV_LOCAL, env_data["sky_id"].asUUID());
+        valid = true;
+    }
+    else if (env_data.has("sky_llsd"))
+    {
+        LLSettingsSky::ptr_t sky = std::make_shared<LLSettingsVOSky>(env_data["sky_llsd"]);
+        setEnvironment(ENV_LOCAL, sky);
+        valid = true;
+    }
+
+    if (env_data.has("water_id"))
+    {
+        setEnvironment(ENV_LOCAL, env_data["water_id"].asUUID());
+        valid = true;
+    }
+    else if (env_data.has("water_llsd"))
+    {
+        LLSettingsWater::ptr_t sky = std::make_shared<LLSettingsVOWater>(env_data["water_llsd"]);
+        setEnvironment(ENV_LOCAL, sky);
+        valid = true;
+    }
+
+    if (valid)
+    {
+        updateEnvironment(TRANSITION_INSTANT, true);
+    }
+    return valid;
 }
 
 void LLEnvironment::saveBeaconsState()

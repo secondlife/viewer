@@ -36,7 +36,6 @@
 #include "lluploaddialog.h"
 #include "llpreviewscript.h"
 #include "llnotificationsutil.h"
-#include "lleconomy.h"
 #include "llagent.h"
 #include "llfloaterreg.h"
 #include "llfloatersnapshot.h"
@@ -175,22 +174,6 @@ void LLResourceUploadInfo::logPreparedUpload()
         "Asset Type: " << LLAssetType::lookup(mAssetType) << LL_ENDL;
 }
 
-S32 LLResourceUploadInfo::getEconomyUploadCost()
-{
-    // Update L$ and ownership credit information
-    // since it probably changed on the server
-    if (getAssetType() == LLAssetType::AT_TEXTURE ||
-        getAssetType() == LLAssetType::AT_SOUND ||
-        getAssetType() == LLAssetType::AT_ANIMATION ||
-        getAssetType() == LLAssetType::AT_MESH)
-    {
-        return LLGlobalEconomy::instance().getPriceUpload();
-    }
-
-    return 0;
-}
-
-
 LLUUID LLResourceUploadInfo::finishUpload(LLSD &result)
 {
     if (getFolderId().isNull())
@@ -327,6 +310,42 @@ std::string LLResourceUploadInfo::getDisplayName() const
     return (mName.empty()) ? mAssetId.asString() : mName;
 };
 
+bool LLResourceUploadInfo::findAssetTypeOfExtension(const std::string& exten, LLAssetType::EType& asset_type)
+{
+	U32 codec;
+	return findAssetTypeAndCodecOfExtension(exten, asset_type, codec, false);
+}
+
+// static
+bool LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(const std::string& exten, LLAssetType::EType& asset_type, U32& codec, bool bulk_upload)
+{
+	bool succ = false;
+
+    codec = LLImageBase::getCodecFromExtension(exten);
+	if (codec != IMG_CODEC_INVALID)
+	{
+		asset_type = LLAssetType::AT_TEXTURE; 
+		succ = true;
+	}
+	else if (exten == "wav")
+	{
+		asset_type = LLAssetType::AT_SOUND; 
+		succ = true;
+	}
+	else if (exten == "anim")
+	{
+		asset_type = LLAssetType::AT_ANIMATION; 
+		succ = true;
+	}
+	else if (!bulk_upload && (exten == "bvh"))
+	{
+		asset_type = LLAssetType::AT_ANIMATION;
+		succ = true;
+	}
+
+	return succ;
+}
+
 //=========================================================================
 LLNewFileResourceUploadInfo::LLNewFileResourceUploadInfo(
     std::string fileName,
@@ -364,9 +383,11 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
     std::string filename = gDirUtilp->getTempFilename();
 
     std::string exten = gDirUtilp->getExtension(getFileName());
-    U32 codec = LLImageBase::getCodecFromExtension(exten);
 
     LLAssetType::EType assetType = LLAssetType::AT_NONE;
+	U32 codec = IMG_CODEC_INVALID;
+	bool found_type = findAssetTypeAndCodecOfExtension(exten, assetType, codec);
+
     std::string errorMessage;
     std::string errorLabel;
 
@@ -383,10 +404,16 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
         errorLabel = "NoFileExtension";
         error = true;
     }
-    else if (codec != IMG_CODEC_INVALID)
+    else if (!found_type)
+    {
+        // Unknown extension
+        errorMessage = llformat(LLTrans::getString("UnknownFileExtension").c_str(), exten.c_str());
+        errorLabel = "ErrorMessage";
+        error = TRUE;;
+    }
+    else if (assetType == LLAssetType::AT_TEXTURE)
     {
         // It's an image file, the upload procedure is the same for all
-        assetType = LLAssetType::AT_TEXTURE;
         if (!LLViewerTextureList::createUploadFile(getFileName(), filename, codec))
         {
             errorMessage = llformat("Problem with file %s:\n\n%s\n",
@@ -395,9 +422,8 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
             error = true;
         }
     }
-    else if (exten == "wav")
+    else if (assetType == LLAssetType::AT_SOUND)
     {
-        assetType = LLAssetType::AT_SOUND;  // tag it as audio
         S32 encodeResult = 0;
 
         LL_INFOS() << "Attempting to encode wav as an ogg file" << LL_ENDL;
@@ -427,7 +453,7 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
         errorLabel = "DoNotSupportBulkAnimationUpload";
         error = true;
     }
-    else if (exten == "anim")
+    else if (assetType == LLAssetType::AT_ANIMATION)
     {
 		// Default unless everything succeeds
 		errorLabel = "ProblemWithFile";
@@ -476,13 +502,6 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
 				}
 			}
 		}
-    }
-    else
-    {
-        // Unknown extension
-        errorMessage = llformat(LLTrans::getString("UnknownFileExtension").c_str(), exten.c_str());
-        errorLabel = "ErrorMessage";
-        error = TRUE;;
     }
 
     if (error)
@@ -793,7 +812,7 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
             result["success"] = LLSD::Boolean((ulstate == "complete") && status);
         }
 
-        S32 uploadPrice = result["upload_price"].asInteger();//uploadInfo->getEconomyUploadCost();
+        S32 uploadPrice = result["upload_price"].asInteger();
 
         if (uploadPrice > 0)
         {

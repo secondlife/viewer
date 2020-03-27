@@ -146,8 +146,6 @@ private:
 
     LLSettingsBase::Seconds     mLastUpdateTime;
 
-    void                        parseFromLLSD(LLSD &data);
-
     static CycleTrack_t::iterator   getEntryAtOrBefore(CycleTrack_t &track, const LLSettingsBase::TrackPosition& keyframe);
     static CycleTrack_t::iterator   getEntryAtOrAfter(CycleTrack_t &track, const LLSettingsBase::TrackPosition& keyframe);
     TrackBound_t                    getBoundingEntries(CycleTrack_t &track, const LLSettingsBase::TrackPosition& keyframe);

@@ -1423,9 +1423,9 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				static const GLfloat SHININESS_TO_ALPHA[4] =
 				{
 					0.0000f,
-					0.3333f,
-					0.6666f,
-					1.0000f
+					0.25f,
+					0.5f,
+					0.75f
 				};
 			
 				llassert(tep->getShiny() <= 3);

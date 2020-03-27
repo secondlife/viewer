@@ -56,7 +56,7 @@
                 function="File.VisibleUploadModel"/>
                 </menu_item_call>
                 <menu_item_call
-                 label="Bulk (L$[COST] per file)..."
+                 label="Bulk..."
                  layout="topleft"
                  name="Bulk Upload">
                     <menu_item_call.on_click
@@ -194,7 +194,7 @@
                      function="Inventory.DoCreate"
                      parameter="tattoo" />
                 </menu_item_call>
-                <menu_item_call
+              <menu_item_call
                  label="New Universal"
                  layout="topleft"
                  name="New Universal">

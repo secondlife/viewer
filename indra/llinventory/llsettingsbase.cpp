@@ -39,6 +39,7 @@ namespace
 }
 
 const LLSettingsBase::TrackPosition LLSettingsBase::INVALID_TRACKPOS(-1.0);
+const std::string LLSettingsBase::DEFAULT_SETTINGS_NAME("_default_");
 
 //=========================================================================
 std::ostream &operator <<(std::ostream& os, LLSettingsBase &settings)
@@ -67,7 +68,6 @@ const U32 LLSettingsBase::Validator::VALIDATION_PARTIAL(0x01 << 0);
 LLSettingsBase::LLSettingsBase():
     mSettings(LLSD::emptyMap()),
     mDirty(true),
-    mAssetID(),
     mBlendedFactor(0.0)
 {
 }
@@ -75,7 +75,6 @@ LLSettingsBase::LLSettingsBase():
 LLSettingsBase::LLSettingsBase(const LLSD setting) :
     mSettings(setting),
     mDirty(true),
-    mAssetID(),
     mBlendedFactor(0.0)
 {
 }

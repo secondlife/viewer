@@ -57,6 +57,10 @@ uniform float sun_moon_glow_factor;
 
 uniform vec4 cloud_color;
 
+// NOTE: Keep these in sync!
+//       indra\newview\app_settings\shaders\class1\deferred\skyV.glsl
+//       indra\newview\app_settings\shaders\class1\deferred\cloudsV.glsl
+//       indra\newview\lllegacyatmospherics.cpp
 void main()
 {
 
