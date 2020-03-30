@@ -328,7 +328,7 @@ void LLPanelVolume::getState( )
 		getChild<LLUICtrl>("Light Focus")->setValue(params.mV[1]);
 		getChild<LLUICtrl>("Light Ambiance")->setValue(params.mV[2]);
 
-		mLightSavedColor = volobjp->getLightSRGBColor();
+		mLightSavedColor = volobjp->getLightSRGBBaseColor();
 	}
 	else
 	{
