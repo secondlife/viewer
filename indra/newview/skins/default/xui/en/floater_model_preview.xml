@@ -39,11 +39,11 @@
   <string name="simplifying">Simplifying...</string>
   <string name="tbd">TBD</string>
   
-  <!-- Warnings from model loader-->
+  <!-- Warnings and info from model loader-->
   <string name="TooManyJoint">Skinning disabled due to too many joints: [JOINTS], maximum: [MAX]</string>
   <string name="UnrecognizedJoint">Rigged to unrecognized joint name [NAME]</string>
   <string name="UnknownJoints">Skinning disabled due to [COUNT] unknown joints</string>
-  
+  <string name="ModelLoaded">Model [MODEL_NAME] loaded</string>
 
   <panel
     follows="top|left"

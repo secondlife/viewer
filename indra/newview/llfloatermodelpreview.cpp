@@ -2625,6 +2625,10 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 			{
 				description_form->setText(model_name);
 			}
+            // Add info to log that loading is complete (purpose: separator between loading and other logs)
+            LLSD args;
+            args["MODEL_NAME"] = model_name; // Teoretically shouldn't be empty, but might be better idea to add filename here
+            LLFloaterModelPreview::addStringToLog("ModelLoaded", args, false, loaded_lod);
 		}
 	}
 	refresh();
