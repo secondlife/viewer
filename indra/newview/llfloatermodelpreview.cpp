@@ -346,6 +346,10 @@ BOOL LLFloaterModelPreview::postBuild()
 	childSetVisible("skin_too_many_joints", false);
 	childSetVisible("skin_unknown_joint", false);
 
+    childSetVisible("warning_title", false);
+    childSetVisible("warning_message", false);
+    childSetVisible("status", false);
+
 	initDecompControls();
 
 	LLView* preview_panel = getChild<LLView>("preview_panel");
@@ -656,6 +660,7 @@ void LLFloaterModelPreview::onJointListSelection()
         joint_pos_descr->setTextArg("[JOINT]", label);
     }
 
+    // Note: We can make a version of renderBones() to highlight selected joint
 }
 
 void LLFloaterModelPreview::onDescriptionKeystroke(LLUICtrl* ctrl)
@@ -1440,21 +1445,22 @@ void LLFloaterModelPreview::clearOverridesTab()
     LLPanel *panel = mTabContainer->getPanelByName("overrides_panel");
     LLScrollListCtrl *joints_list = panel->getChild<LLScrollListCtrl>("joints_list");
     joints_list->deleteAllItems();
+    LLScrollListCtrl *joints_pos = panel->getChild<LLScrollListCtrl>("pos_overrides_list");
+    joints_pos->deleteAllItems();
+
 
     for (U32 i = 0; i < LLModel::NUM_LODS; ++i)
     {
         mJointOverrides[i].clear();
     }
-}
 
-void LLFloaterModelPreview::resetOverridesTab()
-{
-    clearOverridesTab();
+    LLTextBox *joint_total_descr = panel->getChild<LLTextBox>("conflicts_description");
+    joint_total_descr->setTextArg("[CONFLICTS]", llformat("%d", 0));
+    joint_total_descr->setTextArg("[JOINTS_COUNT]", llformat("%d", 0));
 
-    for (U32 i = 0; i < LLModel::NUM_LODS; ++i)
-    {
-        mJointOverrides[i].clear();
-    }
+
+    LLTextBox *joint_pos_descr = panel->getChild<LLTextBox>("pos_overrides_descr");
+    joint_pos_descr->setTextArg("[JOINT]", std::string("mPelvis")); // Might be better to hide it
 }
 
 void LLFloaterModelPreview::updateOverridesTab()
@@ -1507,6 +1513,10 @@ void LLFloaterModelPreview::updateOverridesTab()
     if (joints_list->isEmpty())
     {
         // Populate table
+
+        std::map<std::string, std::string> joint_alias_map;
+        mModelPreview->getJointAliases(joint_alias_map);
+
         S32 conflicts = 0;
         joint_override_data_map_t::iterator joint_iter = mJointOverrides[display_lod].begin();
         joint_override_data_map_t::iterator joint_end = mJointOverrides[display_lod].end();
@@ -1520,8 +1530,14 @@ void LLFloaterModelPreview::updateOverridesTab()
             LLScrollListCell::Params cell_params;
             cell_params.font = LLFontGL::getFontSansSerif();
             cell_params.value = listName;
+            if (joint_alias_map.find(listName) == joint_alias_map.end())
+            {
+                // Missing names
+                cell_params.color = LLColor4::red;
+            }
             if (joint_iter->second.mHasConflicts)
             {
+                // Conflicts
                 cell_params.color = LLColor4::orange;
                 conflicts++;
             }
@@ -1533,9 +1549,9 @@ void LLFloaterModelPreview::updateOverridesTab()
         }
         joints_list->selectFirstItem();
 
-        LLTextBox *joint_pos_descr = panel->getChild<LLTextBox>("conflicts_description");
-        joint_pos_descr->setTextArg("[CONFLICTS]", llformat("%d", conflicts));
-        joint_pos_descr->setTextArg("[JOINTS_COUNT]", llformat("%d", mJointOverrides[display_lod].size()));
+        LLTextBox *joint_conf_descr = panel->getChild<LLTextBox>("conflicts_description");
+        joint_conf_descr->setTextArg("[CONFLICTS]", llformat("%d", conflicts));
+        joint_conf_descr->setTextArg("[JOINTS_COUNT]", llformat("%d", mJointOverrides[display_lod].size()));
     }
 }
 
@@ -2466,7 +2482,7 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 			}
             else
             {
-                fmp->resetOverridesTab();
+                fmp->clearOverridesTab();
             }
 
 			if (lock_scale_if_joint_position)
@@ -4226,7 +4242,7 @@ BOOL LLModelPreview::render()
         mFMP->childSetValue("lock_scale_if_joint_position", false);
         if (fmp)
         {
-            fmp->resetOverridesTab();
+            fmp->clearOverridesTab();
         }
     }
     
@@ -4868,7 +4884,7 @@ void LLFloaterModelPreview::onReset(void* user_data)
 	LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) user_data;
 	fmp->childDisable("reset_btn");
 	fmp->clearLogTab();
-	fmp->resetOverridesTab();
+	fmp->clearOverridesTab();
 	LLModelPreview* mp = fmp->mModelPreview;
 	std::string filename = mp->mLODFile[LLModel::LOD_HIGH]; 
 

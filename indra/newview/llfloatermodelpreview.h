@@ -109,7 +109,6 @@ public:
 	static void addStringToLog(const std::string& str, bool flash);
 	static void addStringToLog(const std::ostringstream& strm, bool flash);
 	void clearOverridesTab(); // clears table
-	void resetOverridesTab(); // clears table and cleans all data
 	void updateOverridesTab(); // populates table and data as nessesary
 
 	void setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost);
