@@ -1169,7 +1169,7 @@
       <panel
        label="Overrides"
        layout="topleft"
-       name="overrides_panel"
+       name="avatar_panel"
        title="Avatar">
         <view_border
          bevel_style="none"
