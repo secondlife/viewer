@@ -211,6 +211,7 @@ LLTrace::EventStatHandle<S64> LLPipeline::sStatBatchSize("renderbatchsize");
 
 const F32 BACKLIGHT_DAY_MAGNITUDE_OBJECT = 0.1f;
 const F32 BACKLIGHT_NIGHT_MAGNITUDE_OBJECT = 0.08f;
+const F32 DEFERRED_LIGHT_FALLOFF = 0.5f;
 const U32 DEFERRED_VB_MASK = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TEXCOORD1;
 
 extern S32 gBoxFrame;
@@ -6363,7 +6364,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
                 continue;
             }
 
-			F32 x = (3.f * (1.f + ((light->getLightFalloff() * 0.5f) * 2.0f))); // why this magic?  probably trying to match a historic behavior.
+			F32 x = (3.f * (1.f + (light->getLightFalloff() * 2.0f))); // why this magic?  probably trying to match a historic behavior.
 			F32 linatten = x / (light_radius); // % of brightness at radius
 
 			mHWLightColors[cur_light] = light_color;
@@ -6376,7 +6377,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			if (sRenderDeferred)
 			{
 				light_state->setLinearAttenuation(size);
-				light_state->setQuadraticAttenuation(light->getLightFalloff() * 0.5f + 1.f); // get falloff to match for forward deferred rendering lights
+				light_state->setQuadraticAttenuation(light->getLightFalloff(DEFERRED_LIGHT_FALLOFF) + 1.f); // get falloff to match for forward deferred rendering lights
 			}
 			else
 			{
@@ -8807,7 +8808,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
 							gDeferredLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
 							gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
 							gDeferredLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
-                            gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
+                            gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff(DEFERRED_LIGHT_FALLOFF));
 							gGL.syncMatrices();
 							
 							mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, center));
@@ -8827,7 +8828,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
 						mat.mult_matrix_vec(tc);
 					
 						fullscreen_lights.push_back(LLVector4(tc.v[0], tc.v[1], tc.v[2], s));
-                        light_colors.push_back(LLVector4(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f));
+                        light_colors.push_back(LLVector4(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff(DEFERRED_LIGHT_FALLOFF)));
 					}
 				}
 				unbindDeferredShader(gDeferredLightProgram);
@@ -8864,7 +8865,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
 					gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
 					gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
 					gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
-                    gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
+                    gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff(DEFERRED_LIGHT_FALLOFF));
 					gGL.syncMatrices();
 										
 					mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, center));
@@ -8939,7 +8940,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
 					LLVector3 center = drawablep->getPositionAgent();
 					F32* c = center.mV;
                     F32 light_size_final = volume->getLightRadius()*1.5f;
-                    F32 light_falloff_final = volume->getLightFalloff()*0.5f;
+                    F32 light_falloff_final = volume->getLightFalloff(DEFERRED_LIGHT_FALLOFF);
 
 					sVisibleLightCount++;
 
