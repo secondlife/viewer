@@ -279,7 +279,7 @@ public:
 	LLViewerTexture* getLightTexture();
 	F32 getLightIntensity() const;
 	F32 getLightRadius() const;
-	F32 getLightFalloff() const;
+	F32 getLightFalloff(const F32 fudge_factor = 1.f) const;
 	F32 getLightCutoff() const;
 	
 	// Flexible Objects
