@@ -3228,7 +3228,7 @@ BOOL LLVOVolume::getIsLight() const
 
 LLColor3 LLVOVolume::getLightSRGBBaseColor() const
 {
-    return srgbColor3(getLightLinearColor());
+    return srgbColor3(getLightLinearBaseColor());
 }
 
 LLColor3 LLVOVolume::getLightLinearBaseColor() const
