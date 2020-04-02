@@ -36,16 +36,16 @@
 #include "../lllogin.h"
 // STL headers
 // std headers
-#include <iostream>
 #include <chrono>
+#include <iostream>
 // external library headers
 // other Linden headers
-#include "llsd.h"
-#include "../../../test/lltut.h"
-#include "../../../test/lltestapp.h"
 #include "../../../test/debug.h"
+#include "../../../test/lltestapp.h"
+#include "../../../test/lltut.h"
 #include "llevents.h"
 #include "lleventcoro.h"
+#include "llsd.h"
 #include "stringize.h"
 
 #if LL_WINDOWS
@@ -96,21 +96,24 @@ public:
 
     size_t getCalls() const { return mCalls; }
 
-    LLSD waitFor(size_t prevcalls, F32 seconds) const
+    // wait for arbitrary predicate to become true
+    template <typename PRED>
+    LLSD waitFor(const std::string& desc, PRED&& pred, double seconds=2.0) const
     {
         // remember when we started waiting
         auto start = std::chrono::system_clock::now();
-        // Break loop when the LLEventPump on which we're listening calls call()
-        while (getCalls() <= prevcalls)
+        // Break loop when the passed predicate returns true
+        while (! std::forward<PRED>(pred)())
         {
             // but if we've been spinning here too long, test failed
             // how long have we been here, anyway?
             auto now = std::chrono::system_clock::now();
             // the default ratio for duration is seconds
-            std::chrono::duration<F32> elapsed = (now - start);
+            std::chrono::duration<double> elapsed = (now - start);
             if (elapsed.count() > seconds)
             {
-                tut::fail("LoginListener::waitFor() timed out");
+                tut::fail(STRINGIZE("LoginListener::waitFor() took more than "
+                                    << seconds << " seconds waiting for " << desc));
             }
             // haven't yet received the new call, nor have we timed out --
             // just wait
@@ -118,6 +121,14 @@ public:
         }
         // oh good, we've gotten at least one new call! Return its event.
         return lastEvent();
+    }
+
+    // wait for any call() calls beyond prevcalls
+    LLSD waitFor(size_t prevcalls, double seconds) const
+    {
+        return waitFor(STRINGIZE("more than " << prevcalls << " calls"),
+                       [this, prevcalls]()->bool{ return getCalls() > prevcalls; },
+                       seconds);
     }
 
     friend std::ostream& operator<<(std::ostream& out, const LoginListener& listener)
@@ -234,9 +245,9 @@ namespace tut
 		credentials["passwd"] = "secret";
 
 		login.connect("login.bar.com", credentials);
-		llcoro::suspend();
-
-		ensure_equals("Online state", listener.lastEvent()["state"].asString(), "online");
+		listener.waitFor(
+			"online state",
+			[&listener]()->bool{ return listener.lastEvent()["state"].asString() == "online"; });
 	}
 
     template<> template<>
