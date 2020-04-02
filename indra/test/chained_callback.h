@@ -12,6 +12,8 @@
 #if ! defined(LL_CHAINED_CALLBACK_H)
 #define LL_CHAINED_CALLBACK_H
 
+#include "lltut.h"
+
 /**
  * Derive your TUT callback from chained_callback instead of tut::callback to
  * ensure that multiple such callbacks can coexist in a given test executable.
