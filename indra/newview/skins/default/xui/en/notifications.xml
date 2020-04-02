@@ -10152,7 +10152,7 @@ Unable to add script!
    name="AssetServerTimeoutObjReturn"
    type="notify">
    <tag>fail</tag>
-Asset server didn't respond in a timely fashion.  Object returned to sim.
+Asset server didn't respond in a timely fashion.  Object returned to the region.
   </notification>
 
   <notification
