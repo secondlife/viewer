@@ -2312,15 +2312,7 @@ void LLAgentCamera::changeCameraToThirdPerson(BOOL animate)
 	}
 
 	// Remove any pitch from the avatar
-	if (isAgentAvatarValid() && gAgentAvatarp->getParent())
-	{
-		LLQuaternion obj_rot = ((LLViewerObject*)gAgentAvatarp->getParent())->getRenderRotation();
-		at_axis = LLViewerCamera::getInstance()->getAtAxis();
-		at_axis.mV[VZ] = 0.f;
-		at_axis.normalize();
-		gAgent.resetAxes(at_axis * ~obj_rot);
-	}
-	else
+	if (!isAgentAvatarValid() || !gAgentAvatarp->getParent())
 	{
 		at_axis = gAgent.getFrameAgent().getAtAxis();
 		at_axis.mV[VZ] = 0.f;
@@ -2691,15 +2683,7 @@ void LLAgentCamera::setFocusOnAvatar(BOOL focus_on_avatar, BOOL animate)
 		if (mCameraMode == CAMERA_MODE_THIRD_PERSON)
 		{
 			LLVector3 at_axis;
-			if (isAgentAvatarValid() && gAgentAvatarp->getParent())
-			{
-				LLQuaternion obj_rot = ((LLViewerObject*)gAgentAvatarp->getParent())->getRenderRotation();
-				at_axis = LLViewerCamera::getInstance()->getAtAxis();
-				at_axis.mV[VZ] = 0.f;
-				at_axis.normalize();
-				gAgent.resetAxes(at_axis * ~obj_rot);
-			}
-			else
+			if (!isAgentAvatarValid() || !gAgentAvatarp->getParent())
 			{
 				at_axis = LLViewerCamera::getInstance()->getAtAxis();
 				at_axis.mV[VZ] = 0.f;
