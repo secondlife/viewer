@@ -39,6 +39,7 @@
 #if !LL_WINDOWS
 # include <syslog.h>
 # include <unistd.h>
+# include <sys/stat.h>
 #endif // !LL_WINDOWS
 #include <vector>
 #include "string.h"
@@ -654,22 +655,38 @@ namespace LLError
 
 namespace
 {
-	bool shouldLogToStderr()
-	{
+    bool shouldLogToStderr()
+    {
 #if LL_DARWIN
-		// On Mac OS X, stderr from apps launched from the Finder goes to the
-		// console log.  It's generally considered bad form to spam too much
-		// there.
-		
-		// If stderr is a tty, assume the user launched from the command line or
-		// debugger and therefore wants to see stderr.  Otherwise, assume we've
-		// been launched from the finder and shouldn't spam stderr.
-		return isatty(STDERR_FILENO);
+        // On Mac OS X, stderr from apps launched from the Finder goes to the
+        // console log.  It's generally considered bad form to spam too much
+        // there. That scenario can be detected by noticing that stderr is a
+        // character device (S_IFCHR).
+
+        // If stderr is a tty or a pipe, assume the user launched from the
+        // command line or debugger and therefore wants to see stderr.
+        if (isatty(STDERR_FILENO))
+            return true;
+        // not a tty, but might still be a pipe -- check
+        struct stat st;
+        if (fstat(STDERR_FILENO, &st) < 0)
+        {
+            // capture errno right away, before engaging any other operations
+            auto errno_save = errno;
+            // this gets called during log-system setup -- can't log yet!
+            std::cerr << "shouldLogToStderr: fstat(" << STDERR_FILENO << ") failed, errno "
+                      << errno_save << std::endl;
+            // if we can't tell, err on the safe side and don't write stderr
+            return false;
+        }
+
+        // fstat() worked: return true only if stderr is a pipe
+        return ((st.st_mode & S_IFMT) == S_IFIFO);
 #else
-		return true;
+        return true;
 #endif
-	}
-	
+    }
+
 	bool stderrLogWantsTime()
 	{
 #if LL_WINDOWS

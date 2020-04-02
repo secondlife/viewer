@@ -544,9 +544,6 @@ int main(int argc, char **argv)
 	// LOGTEST overrides default, but can be overridden by --debug.
 	const char* LOGTEST = getenv("LOGTEST");
 
-    // DELETE
-    LOGTEST = "DEBUG";
-
 	// values used for options parsing
 	apr_status_t apr_err;
 	const char* opt_arg = NULL;
