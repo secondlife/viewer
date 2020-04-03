@@ -1608,11 +1608,8 @@ void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLS
 
 void LLEnvironment::updateShaderUniforms(LLGLSLShader *shader)
 {
-    if (gPipeline.canUseWindLightShaders())
-    {        
-        updateGLVariablesForSettings(shader, mCurrentEnvironment->getWater());
-        updateGLVariablesForSettings(shader, mCurrentEnvironment->getSky());
-    }    
+    updateGLVariablesForSettings(shader, mCurrentEnvironment->getWater());
+    updateGLVariablesForSettings(shader, mCurrentEnvironment->getSky());
 }
 
 void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envinfo, LLSettingsBase::Seconds transition)
