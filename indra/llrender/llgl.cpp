@@ -2562,10 +2562,11 @@ void LLGLSyncFence::wait()
 }
 
 #if LL_WINDOWS
-// Expose desired use of high-performance graphics processor to Optimus driver
+// Expose desired use of high-performance graphics processor to Optimus driver and to AMD driver
 extern "C" 
-{ 
-    _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001; 
+{
+    __declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+    __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 #endif
 
