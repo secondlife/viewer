@@ -120,6 +120,8 @@ protected:
     static void logdebugs(const char* p1, const char* p2="",
                           const char* p3="", const char* p4="");
     static std::string demangle(const char* mangled);
+    // these classname() declarations restate template functions declared in
+    // llerror.h because we avoid #including that here
     template <typename T>
     static std::string classname()       { return demangle(typeid(T).name()); }
     template <typename T>

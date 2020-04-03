@@ -191,9 +191,9 @@ namespace LLError
 		The classes CallSite and Log are used by the logging macros below.
 		They are not intended for general use.
 	*/
-	
+
 	struct CallSite;
-	
+
 	class LL_COMMON_API Log
 	{
 	public:
@@ -202,8 +202,17 @@ namespace LLError
 		static void flush(std::ostringstream* out, char* message);
 		static void flush(std::ostringstream*, const CallSite&);
 		static std::string demangle(const char* mangled);
+		/// classname<TYPE>()
+		template <typename T>
+		static std::string classname()             { return demangle(typeid(T).name()); }
+		/// classname(some_pointer)
+		template <typename T>
+		static std::string classname(const T* ptr) { return demangle(typeid(*ptr).name()); }
+		/// classname(some_reference)
+		template <typename T>
+		static std::string classname(const T& obj) { return demangle(typeid(obj).name()); }
 	};
-	
+
 	struct LL_COMMON_API CallSite
 	{
 		// Represents a specific place in the code where a message is logged

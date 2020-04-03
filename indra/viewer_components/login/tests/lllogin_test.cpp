@@ -43,7 +43,6 @@
 #include "llsd.h"
 #include "../../../test/lltut.h"
 #include "../../../test/lltestapp.h"
-//#define DEBUG_ON
 #include "../../../test/debug.h"
 #include "llevents.h"
 #include "lleventcoro.h"
