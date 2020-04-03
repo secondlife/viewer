@@ -74,13 +74,13 @@ void main()
 	vec3 viewVec = normalize(view.xyz);
 	
 	//get wave normals
-	//get wave normals
-    vec3 wave1_a = texture2D(bumpMap, vec2(refCoord.w, view.w)).xyz*2.0-1.0;
+    vec2 bigwave = vec2(refCoord.w, view.w);
+    vec3 wave1_a = texture2D(bumpMap, bigwave      ).xyz*2.0-1.0;
     vec3 wave2_a = texture2D(bumpMap, littleWave.xy).xyz*2.0-1.0;
     vec3 wave3_a = texture2D(bumpMap, littleWave.zw).xyz*2.0-1.0;
 
 
-    vec3 wave1_b = texture2D(bumpMap2, vec2(refCoord.w, view.w)).xyz*2.0-1.0;
+    vec3 wave1_b = texture2D(bumpMap2, bigwave      ).xyz*2.0-1.0;
     vec3 wave2_b = texture2D(bumpMap2, littleWave.xy).xyz*2.0-1.0;
     vec3 wave3_b = texture2D(bumpMap2, littleWave.zw).xyz*2.0-1.0;
 
