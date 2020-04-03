@@ -6882,51 +6882,26 @@ void LLSelectMgr::pauseAssociatedAvatars()
 			
         mSelectedObjects->mSelectType = getSelectTypeForObject(object);
 
-        bool is_attached = false;
-        if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT && 
-            isAgentAvatarValid())
+        LLVOAvatar* parent_av = NULL;
+        if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT)
         {
             // Selection can be obsolete, confirm that this is an attachment
-            LLViewerObject* parent = (LLViewerObject*)object->getParent();
-            while (parent != NULL)
-            {
-                if (parent->isAvatar())
-                {
-                    is_attached = true;
-                    break;
-                }
-                else
-                {
-                    parent = (LLViewerObject*)parent->getParent();
-                }
-            }
+            // and find parent avatar
+            parent_av = object->getAvatarAncestor();
         }
 
-
-        if (is_attached)
+        // Can be both an attachment and animated object
+        if (parent_av)
         {
-            if (object->isAnimatedObject())
-            {
-                // Is an animated object attachment.
-                // Pause both the control avatar and the avatar it's attached to.
-                if (object->getControlAvatar())
-                {
-                    mPauseRequests.push_back(object->getControlAvatar()->requestPause());
-                }
-                mPauseRequests.push_back(gAgentAvatarp->requestPause());
-            }
-            else
-            {
-                // Is a regular attachment. Pause the avatar it's attached to.
-                mPauseRequests.push_back(gAgentAvatarp->requestPause());
-            }
+            // It's an attachment. Pause the avatar it's attached to.
+            mPauseRequests.push_back(parent_av->requestPause());
         }
-        else if (object && object->isAnimatedObject() && object->getControlAvatar())
+
+        if (object->isAnimatedObject() && object->getControlAvatar())
         {
-            // Is a non-attached animated object. Pause the control avatar.
+            // It's an animated object. Pause the control avatar.
             mPauseRequests.push_back(object->getControlAvatar()->requestPause());
         }
-
     }
 }
 
