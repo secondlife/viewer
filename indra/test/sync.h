@@ -37,7 +37,7 @@ class Sync
     F32Milliseconds mTimeout;
 
 public:
-    Sync(F32Milliseconds timeout=F32Milliseconds(10.0f)):
+    Sync(F32Milliseconds timeout=F32Milliseconds(10000.0f)):
         mTimeout(timeout)
     {}
 
