@@ -1805,7 +1805,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 				at_axis.normalize();
 				gAgent.resetAxes(at_axis * ~parent_rot);
 
-				local_camera_offset = local_camera_offset * gAgent.getFrameAgent().getQuaternion() * parent_rot;
+				local_camera_offset = local_camera_offset * parent_rot;
 			}
 			else
 			{
@@ -1999,9 +1999,7 @@ LLVector3d LLAgentCamera::getCurrentFocusOffset()
 LLQuaternion LLAgentCamera::getCurrentAvatarRotation()
 {
 	LLViewerObject* sit_object = (LLViewerObject*)gAgentAvatarp->getParent();
-	LLQuaternion av_rot = gAgent.getFrameAgent().getQuaternion();
-	LLQuaternion obj_rot = sit_object ? sit_object->getRenderRotation() : LLQuaternion::DEFAULT;
-	return av_rot * obj_rot;
+	return sit_object ? sit_object->getRenderRotation() : gAgent.getFrameAgent().getQuaternion();
 }
 
 bool LLAgentCamera::isJoystickCameraUsed()
