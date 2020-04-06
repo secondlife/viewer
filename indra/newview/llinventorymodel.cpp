@@ -678,17 +678,59 @@ void LLInventoryModel::createNewCategoryCoro(std::string url, LLSD postData, inv
 
     LLUUID categoryId = result["folder_id"].asUUID();
 
-    // Add the category to the internal representation
-    LLPointer<LLViewerInventoryCategory> cat = new LLViewerInventoryCategory(categoryId,
-        result["parent_id"].asUUID(), (LLFolderType::EType)result["type"].asInteger(),
-        result["name"].asString(), gAgent.getID());
+    LLViewerInventoryCategory* folderp = gInventory.getCategory(categoryId);
+    if (!folderp)
+    {
+        // Add the category to the internal representation
+        LLPointer<LLViewerInventoryCategory> cat = new LLViewerInventoryCategory(categoryId,
+            result["parent_id"].asUUID(), (LLFolderType::EType)result["type"].asInteger(),
+            result["name"].asString(), gAgent.getID());
 
-    cat->setVersion(LLViewerInventoryCategory::VERSION_INITIAL - 1); // accountForUpdate() will icrease version by 1
-    cat->setDescendentCount(0);
-    LLInventoryModel::LLCategoryUpdate update(cat->getParentUUID(), 1);
-    
-    accountForUpdate(update);
-    updateCategory(cat);
+        LLInventoryModel::LLCategoryUpdate update(cat->getParentUUID(), 1);
+        accountForUpdate(update);
+
+        cat->setVersion(LLViewerInventoryCategory::VERSION_INITIAL - 1); // accountForUpdate() will icrease version by 1
+        cat->setDescendentCount(0);
+        updateCategory(cat);
+    }
+    else
+    {
+        // bulk processing was faster than coroutine (coro request->processBulkUpdateInventory->coro response)
+        // category already exists, but needs an update
+        if (folderp->getVersion() != LLViewerInventoryCategory::VERSION_INITIAL
+            || folderp->getDescendentCount() != LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN)
+        {
+            LL_WARNS() << "Inventory desync on folder creation. Newly created folder already has descendants or got a version.\n"
+                << "Name: " << folderp->getName()
+                << " Id: " << folderp->getUUID()
+                << " Version: " << folderp->getVersion()
+                << " Descendants: " << folderp->getDescendentCount()
+                << LL_ENDL;
+        }
+        // Recreate category with correct values
+        // Creating it anew just simplifies figuring out needed change-masks
+        // and making all needed updates, see updateCategory
+        LLPointer<LLViewerInventoryCategory> cat = new LLViewerInventoryCategory(categoryId,
+            result["parent_id"].asUUID(), (LLFolderType::EType)result["type"].asInteger(),
+            result["name"].asString(), gAgent.getID());
+
+        if (folderp->getParentUUID() != cat->getParentUUID())
+        {
+            LL_WARNS() << "Inventory desync on folder creation. Newly created folder has wrong parent.\n"
+                << "Name: " << folderp->getName()
+                << " Id: " << folderp->getUUID()
+                << " Expected parent: " << cat->getParentUUID()
+                << " Actual parent: " << folderp->getParentUUID()
+                << LL_ENDL;
+            LLInventoryModel::LLCategoryUpdate update(cat->getParentUUID(), 1);
+            accountForUpdate(update);
+        }
+        // else: Do not update parent, parent is already aware of the change. See processBulkUpdateInventory
+
+        cat->setVersion(LLViewerInventoryCategory::VERSION_INITIAL - 1); // accountForUpdate() will icrease version by 1
+        cat->setDescendentCount(0);
+        updateCategory(cat);
+    }
 
     if (callback)
     {
