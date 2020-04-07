@@ -572,18 +572,7 @@ void LLShaderMgr::dumpShaderSource(U32 shader_code_count, GLcharARB** shader_cod
 {	
 	for (U32 i = 0; i < shader_code_count; i++)
 	{
-		GLcharARB *line = shader_code_text[i];
-		size_t     len  = strlen( line );
-		GLcharARB  last = len > 0 ? line[len - 1] : 0;
-
-		// LL_ENDL already outputs a newline so temporarily strip off the end newline to prevent EVERY line outputting an (extra) blank line
-		if (last == '\n')
-		    line[len - 1] = 0;
-
-		LL_SHADER_LOADING_WARNS() << i+1 << ": " << shader_code_text[i] << LL_ENDL;
-
-		if (last == '\n')
-			line[len - 1] = '\n';
+		fprintf(stderr, "%4d: %s", i+1, shader_code_text[i]);
 	}
     LL_SHADER_LOADING_WARNS() << LL_ENDL;
 }
