@@ -3524,7 +3524,7 @@ bool LLVOAvatar::isVisuallyMuted()
 	return muted;
 }
 
-bool LLVOAvatar::isInMuteList()
+bool LLVOAvatar::isInMuteList() const
 {
 	bool muted = false;
 	F64 now = LLFrameTimer::getTotalSeconds();
@@ -3882,7 +3882,7 @@ void LLVOAvatar::computeUpdatePeriod()
 		
 		F32 impostor_area = 256.f*512.f*(8.125f - LLVOAvatar::sLODFactor*8.f);
 		if (visually_muted)
-		{ // visually muted avatars update at 16 hz
+		{   // visually muted avatars update at every 16 frames
 			mUpdatePeriod = 16;
 		}
 		else if (! shouldImpostor()
@@ -10438,6 +10438,44 @@ void LLVOAvatar::setVisualMuteSettings(VisualMuteSettings set)
     mNeedsImpostorUpdate = TRUE;
 
     LLRenderMuteList::getInstance()->saveVisualMuteSetting(getID(), S32(set));
+}
+
+// Based on isVisuallyMuted(), but has 3 possible results.
+LLVOAvatar::AvatarOverallAppearance LLVOAvatar::getOverallAppearance() const
+{
+	AvatarOverallAppearance result = AOA_NORMAL;
+
+	// Priority order (highest priority first)
+	// * own avatar is always drawn normally
+	// * if on the "always draw normally" list, draw them normally
+	// * if on the "always visually mute" list, show as jellydoll
+	// * if explicitly muted (blocked), show as invisible
+	// * check against the render cost and attachment limits - if too complex, show as jellydoll
+	if (isSelf())
+	{
+		result = AOA_NORMAL;
+	}
+	else // !isSelf()
+	{
+		if (mVisuallyMuteSetting == AV_ALWAYS_RENDER)
+		{
+			result = AOA_NORMAL;
+		}
+		else if (mVisuallyMuteSetting == AV_DO_NOT_RENDER)
+		{	// Always want to see this AV as an impostor
+			result = AOA_JELLYDOLL;
+		}
+		else if (isInMuteList())
+		{
+			result = AOA_INVISIBLE;
+		}
+		else if (isTooComplex())
+		{
+			result = AOA_JELLYDOLL;
+		}
+	}
+
+	return result;
 }
 
 void LLVOAvatar::calcMutedAVColor()
