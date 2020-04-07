@@ -84,7 +84,7 @@ void LLFloaterSaveCameraPreset::onOpen(const LLSD& key)
 		index = key["index"].asInteger();
 	}
 
-	LLPresetsManager::getInstance()->setPresetNamesInComboBox(PRESETS_CAMERA, mPresetCombo, DEFAULT_HIDE);
+	LLPresetsManager::getInstance()->setPresetNamesInComboBox(PRESETS_CAMERA, mPresetCombo, DEFAULT_BOTTOM);
 
 	mSaveRadioGroup->setSelectedIndex(index);
 	onPresetNameEdited();
@@ -110,8 +110,7 @@ void LLFloaterSaveCameraPreset::onBtnSave()
 		if (is_saving_new)
 		{
 			std::list<std::string> preset_names;
-			std::string presets_dir = LLPresetsManager::getInstance()->getPresetsDir(PRESETS_CAMERA);
-			LLPresetsManager::getInstance()->loadPresetNamesFromDir(presets_dir, preset_names, DEFAULT_HIDE);
+			LLPresetsManager::getInstance()->loadPresetNamesFromDir(PRESETS_CAMERA, preset_names, DEFAULT_HIDE);
 			if (std::find(preset_names.begin(), preset_names.end(), name) != preset_names.end())
 			{
 				LLSD args;
@@ -133,7 +132,7 @@ void LLFloaterSaveCameraPreset::onBtnSave()
 
 void LLFloaterSaveCameraPreset::onPresetsListChange()
 {
-	LLPresetsManager::getInstance()->setPresetNamesInComboBox(PRESETS_CAMERA, mPresetCombo, DEFAULT_HIDE);
+	LLPresetsManager::getInstance()->setPresetNamesInComboBox(PRESETS_CAMERA, mPresetCombo, DEFAULT_BOTTOM);
 }
 
 void LLFloaterSaveCameraPreset::onBtnCancel()

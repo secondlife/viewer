@@ -48,7 +48,7 @@ enum EDefaultOptions
 {
 	DEFAULT_SHOW,
 	DEFAULT_TOP,
-	DEFAULT_VIEWS_HIDE,
+	DEFAULT_BOTTOM,
 	DEFAULT_HIDE				// Do not display "Default" in a list
 };
 
@@ -68,7 +68,7 @@ public:
 	void triggerChangeSignal();
 	static std::string getPresetsDir(const std::string& subdirectory);
 	bool setPresetNamesInComboBox(const std::string& subdirectory, LLComboBox* combo, EDefaultOptions default_option);
-	void loadPresetNamesFromDir(const std::string& dir, preset_name_list_t& presets, EDefaultOptions default_option);
+	void loadPresetNamesFromDir(const std::string& subdirectory, preset_name_list_t& presets, EDefaultOptions default_option);
 	bool savePreset(const std::string& subdirectory, std::string name, bool createDefault = false);
 	void loadPreset(const std::string& subdirectory, std::string name);
 	bool deletePreset(const std::string& subdirectory, std::string name);

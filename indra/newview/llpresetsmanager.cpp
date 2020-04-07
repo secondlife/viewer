@@ -141,8 +141,12 @@ std::string LLPresetsManager::getPresetsDir(const std::string& subdirectory)
 	return dest_path;
 }
 
-void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir, preset_name_list_t& presets, EDefaultOptions default_option)
+void LLPresetsManager::loadPresetNamesFromDir(const std::string& subdirectory, preset_name_list_t& presets, EDefaultOptions default_option)
 {
+	bool IS_CAMERA = (PRESETS_CAMERA == subdirectory);
+	bool IS_GRAPHIC = (PRESETS_GRAPHIC == subdirectory);
+
+	std::string dir = LLPresetsManager::getInstance()->getPresetsDir(subdirectory);
 	LL_INFOS("AppInit") << "Loading list of preset names from " << dir << LL_ENDL;
 
 	mPresetNames.clear();
@@ -160,25 +164,31 @@ void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir, preset_nam
 			std::string name = LLURI::unescape(gDirUtilp->getBaseFileName(path, /*strip_exten = */ true));
 			LL_DEBUGS() << "  Found preset '" << name << "'" << LL_ENDL;
 
-			if (isTemplateCameraPreset(name))
+			if (IS_CAMERA)
 			{
-				continue;
-			}
-			if (default_option == DEFAULT_VIEWS_HIDE)
-			{
-				if (isDefaultCameraPreset(name))
+				if (isTemplateCameraPreset(name))
 				{
 					continue;
 				}
-			}
-			if (PRESETS_DEFAULT != name)
-			{
+				if ((default_option == DEFAULT_HIDE) || (default_option == DEFAULT_BOTTOM))
+				{
+					if (isDefaultCameraPreset(name))
+					{
+						continue;
+					}
+				}
 				mPresetNames.push_back(name);
 			}
-			else
+			if (IS_GRAPHIC)
 			{
-				switch (default_option)
+				if (PRESETS_DEFAULT != name)
 				{
+					mPresetNames.push_back(name);
+				}
+				else
+				{
+					switch (default_option)
+					{
 					case DEFAULT_SHOW:
 						mPresetNames.push_back(LLTrans::getString(PRESETS_DEFAULT));
 						break;
@@ -190,9 +200,18 @@ void LLPresetsManager::loadPresetNamesFromDir(const std::string& dir, preset_nam
 					case DEFAULT_HIDE:
 					default:
 						break;
+					}
 				}
 			}
 		}
+	}
+
+	if (IS_CAMERA && (default_option == DEFAULT_BOTTOM))
+	{
+		mPresetNames.sort();
+		mPresetNames.push_back(PRESETS_FRONT_VIEW);
+		mPresetNames.push_back(PRESETS_REAR_VIEW);
+		mPresetNames.push_back(PRESETS_SIDE_VIEW);
 	}
 
 	presets = mPresetNames;
@@ -410,30 +429,24 @@ bool LLPresetsManager::setPresetNamesInComboBox(const std::string& subdirectory,
 	combo->clearRows();
 	combo->setEnabled(TRUE);
 
-	std::string presets_dir = getPresetsDir(subdirectory);
+	std::list<std::string> preset_names;
+	loadPresetNamesFromDir(subdirectory, preset_names, default_option);
 
-	if (!presets_dir.empty())
+	if (preset_names.begin() != preset_names.end())
 	{
-		std::list<std::string> preset_names;
-		loadPresetNamesFromDir(presets_dir, preset_names, default_option);
-
-		std::string preset_graphic_active = gSavedSettings.getString("PresetGraphicActive");
-
-		if (preset_names.begin() != preset_names.end())
+		for (std::list<std::string>::const_iterator it = preset_names.begin(); it != preset_names.end(); ++it)
 		{
-			for (std::list<std::string>::const_iterator it = preset_names.begin(); it != preset_names.end(); ++it)
-			{
-				const std::string& name = *it;
-				combo->add(name, name);
-			}
-		}
-		else
-		{
-			combo->setLabel(LLTrans::getString("preset_combo_label"));
-			combo->setEnabled(PRESETS_CAMERA != subdirectory);
-			sts = false;
+			const std::string& name = *it;
+			combo->add(name, name);
 		}
 	}
+	else
+	{
+		combo->setLabel(LLTrans::getString("preset_combo_label"));
+		combo->setEnabled(PRESETS_CAMERA != subdirectory);
+		sts = false;
+	}
+
 	return sts;
 }
 

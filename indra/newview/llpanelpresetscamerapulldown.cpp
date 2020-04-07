@@ -79,8 +79,7 @@ BOOL LLPanelPresetsCameraPulldown::postBuild()
 
 void LLPanelPresetsCameraPulldown::populatePanel()
 {
-	std::string presets_dir = LLPresetsManager::getInstance()->getPresetsDir(PRESETS_CAMERA);
-	LLPresetsManager::getInstance()->loadPresetNamesFromDir(presets_dir, mPresetNames, DEFAULT_TOP);
+	LLPresetsManager::getInstance()->loadPresetNamesFromDir(PRESETS_CAMERA, mPresetNames, DEFAULT_BOTTOM);
 
 	LLScrollListCtrl* scroll = getChild<LLScrollListCtrl>("preset_camera_list");
 

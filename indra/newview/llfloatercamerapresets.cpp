@@ -55,13 +55,10 @@ void LLFloaterCameraPresets::populateList()
     mPresetList->clear();
 
     LLPresetsManager* presetsMgr = LLPresetsManager::getInstance();
-    std::string presets_dir = presetsMgr->getPresetsDir(PRESETS_CAMERA);
     std::list<std::string> preset_names;
 
-    presetsMgr->loadPresetNamesFromDir(presets_dir, preset_names, DEFAULT_VIEWS_HIDE);
-    preset_names.push_back(PRESETS_FRONT_VIEW);
-    preset_names.push_back(PRESETS_REAR_VIEW);
-    preset_names.push_back(PRESETS_SIDE_VIEW);
+	presetsMgr->loadPresetNamesFromDir(PRESETS_CAMERA, preset_names, DEFAULT_BOTTOM);
+
     for (std::list<std::string>::const_iterator it = preset_names.begin(); it != preset_names.end(); ++it)
     {
         const std::string& name = *it;
