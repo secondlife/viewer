@@ -206,12 +206,15 @@ void LLPresetsManager::loadPresetNamesFromDir(const std::string& subdirectory, p
 		}
 	}
 
-	if (IS_CAMERA && (default_option == DEFAULT_BOTTOM))
+	if (IS_CAMERA)
 	{
-		mPresetNames.sort();
-		mPresetNames.push_back(PRESETS_FRONT_VIEW);
-		mPresetNames.push_back(PRESETS_REAR_VIEW);
-		mPresetNames.push_back(PRESETS_SIDE_VIEW);
+		mPresetNames.sort(); 
+		if (default_option == DEFAULT_BOTTOM)
+		{
+			mPresetNames.push_back(PRESETS_FRONT_VIEW);
+			mPresetNames.push_back(PRESETS_REAR_VIEW);
+			mPresetNames.push_back(PRESETS_SIDE_VIEW);
+		}
 	}
 
 	presets = mPresetNames;
