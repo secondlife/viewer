@@ -234,14 +234,14 @@ void main()
 	diffcol.rgb = srgb_to_linear(diffcol.rgb);
 #endif
 
-#if HAS_SPECULAR_MAP != 0
+#ifdef HAS_SPECULAR_MAP
     vec4 spec = texture2D(specularMap, vary_texcoord2.xy);
     spec.rgb *= specular_color.rgb;
 #else
     vec4 spec = vec4(specular_color.rgb, 1.0);
 #endif
 
-#if HAS_NORMAL_MAP
+#ifdef HAS_NORMAL_MAP
 	vec4 norm = texture2D(bumpMap, vary_texcoord1.xy);
 
 	norm.xyz = norm.xyz * 2 - 1;
@@ -268,7 +268,7 @@ void main()
 
     vec4 final_specular = spec;
     
-#if HAS_SPECULAR_MAP != 0
+#ifdef HAS_SPECULAR_MAP
     vec4 final_normal = vec4(encode_normal(normalize(tnorm)), env_intensity * spec.a, 0.0);
 	final_specular.a = specular_color.a * norm.a;
 #else
