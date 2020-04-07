@@ -580,7 +580,7 @@ void LLShaderMgr::dumpShaderSource(U32 shader_code_count, GLcharARB** shader_cod
 		if (last == '\n')
 		    line[len - 1] = 0;
 
-		LL_SHADER_LOADING_WARNS() << i << ": " << shader_code_text[i] << LL_ENDL;
+		LL_SHADER_LOADING_WARNS() << i+1 << ": " << shader_code_text[i] << LL_ENDL;
 
 		if (last == '\n')
 			line[len - 1] = '\n';
