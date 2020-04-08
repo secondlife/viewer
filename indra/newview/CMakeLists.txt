@@ -1715,6 +1715,8 @@ endif (OPENAL)
 
 if (FMODSTUDIO)
   set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_FMODSTUDIO")
+  # texture list needs to load fmod icon
+  set_source_files_properties(llviewertexturelist.cpp PROPERTIES COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS}")
   set(FMODWRAPPER_LIBRARY ${FMODSTUDIO_LIBRARY})
 endif (FMODSTUDIO)
 
