@@ -402,22 +402,29 @@ bool LLCommandLineParser::parseCommandLineString(const std::string& str)
         }
     }
 
-    // Split the string content into tokens
-    const char* escape_chars = "\\";
-    const char* separator_chars = "\r\n ";
-    const char* quote_chars = "\"'";
-    boost::escaped_list_separator<char> sep(escape_chars, separator_chars, quote_chars);
-    boost::tokenizer< boost::escaped_list_separator<char> > tok(cmd_line_string, sep);
     std::vector<std::string> tokens;
-    // std::copy(tok.begin(), tok.end(), std::back_inserter(tokens));
-    for(boost::tokenizer< boost::escaped_list_separator<char> >::iterator i = tok.begin();
-        i != tok.end();
-        ++i)
+    try
     {
-        if(0 != i->size())
+        // Split the string content into tokens
+        const char* escape_chars = "\\";
+        const char* separator_chars = "\r\n ";
+        const char* quote_chars = "\"'";
+        boost::escaped_list_separator<char> sep(escape_chars, separator_chars, quote_chars);
+        boost::tokenizer< boost::escaped_list_separator<char> > tok(cmd_line_string, sep);
+        // std::copy(tok.begin(), tok.end(), std::back_inserter(tokens));
+        for (boost::tokenizer< boost::escaped_list_separator<char> >::iterator i = tok.begin();
+            i != tok.end();
+            ++i)
         {
-            tokens.push_back(*i);
+            if (0 != i->size())
+            {
+                tokens.push_back(*i);
+            }
         }
+    }
+    catch (...)
+    {
+        CRASH_ON_UNHANDLED_EXCEPTION(STRINGIZE("Unexpected crash while parsing: " << str));
     }
 
     po::command_line_parser clp(tokens);
