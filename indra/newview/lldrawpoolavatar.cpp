@@ -559,9 +559,9 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 
 	BOOL impostor = avatarp->isImpostor();
 	if (impostor 
-		&& LLVOAvatar::AV_DO_NOT_RENDER != avatarp->getVisualMuteSettings()
-		&& LLVOAvatar::AV_ALWAYS_RENDER != avatarp->getVisualMuteSettings())
+		&& LLVOAvatar::AOA_NORMAL != avatarp->getOverallAppearance())
 	{
+		// No shadows for jellydolled or invisible avs.
 		return;
 	}
 	
@@ -1387,7 +1387,8 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 
 	if (( avatarp->isInMuteList() 
 		  || impostor 
-		  || (LLVOAvatar::AV_DO_NOT_RENDER == avatarp->getVisualMuteSettings() && !avatarp->needsImpostorUpdate()) ) && pass != 0)
+		  || (LLVOAvatar::AOA_NORMAL != avatarp->getOverallAppearance() && !avatarp->needsImpostorUpdate()) ) && pass != 0)
+//		  || (LLVOAvatar::AV_DO_NOT_RENDER == avatarp->getVisualMuteSettings() && !avatarp->needsImpostorUpdate()) ) && pass != 0)
 	{ //don't draw anything but the impostor for impostored avatars
 		return;
 	}
@@ -1404,7 +1405,8 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 			LLVOAvatar::sNumVisibleAvatars++;
 		}
 
-		if (impostor || (LLVOAvatar::AV_DO_NOT_RENDER == avatarp->getVisualMuteSettings() && !avatarp->needsImpostorUpdate()))
+//		if (impostor || (LLVOAvatar::AV_DO_NOT_RENDER == avatarp->getVisualMuteSettings() && !avatarp->needsImpostorUpdate()))
+		if (impostor || (LLVOAvatar::AOA_NORMAL != avatarp->getOverallAppearance() && !avatarp->needsImpostorUpdate()))
 		{
 			if (LLPipeline::sRenderDeferred && !LLPipeline::sReflectionRender && avatarp->mImpostor.isComplete()) 
 			{

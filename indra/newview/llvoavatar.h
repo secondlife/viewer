@@ -91,6 +91,7 @@ class LLVOAvatar :
 
 public:
 	friend class LLVOAvatarSelf;
+	friend class LLAvatarCheckImpostorMode;
 
 /********************************************************************************
  **                                                                            **
@@ -439,7 +440,12 @@ public:
 		AV_ALWAYS_RENDER   = 2
 	};
 	void		setVisualMuteSettings(VisualMuteSettings set);
+
+protected:
+	// If you think you need to access this outside LLVOAvatar, you probably want getOverallAppearance()
 	VisualMuteSettings  getVisualMuteSettings()						{ return mVisuallyMuteSetting;	};
+
+public:
 
 	// Overall Appearance is an output. Depending on whether the
 	// avatar is blocked/muted, whether it exceeds the complexity
@@ -467,7 +473,7 @@ public:
 	static void	restoreGL();
 	S32			mSpecialRenderMode; // special lighting
         
-  private:
+private:
 	F32			mAttachmentSurfaceArea; //estimated surface area of attachments
     U32			mAttachmentVisibleTriangleCount;
     F32			mAttachmentEstTriangleCount;

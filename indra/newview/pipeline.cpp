@@ -3125,7 +3125,7 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 						LLVOAvatar* av = vobj->asAvatar();
 						if (av && (av->isImpostor() 
 							|| av->isInMuteList() 
-							|| (LLVOAvatar::AV_DO_NOT_RENDER == av->getVisualMuteSettings() && !av->needsImpostorUpdate()) ))
+							|| (LLVOAvatar::AOA_NORMAL != av->getOverallAppearance() && !av->needsImpostorUpdate()) ))
 						{
 							return;
 						}
