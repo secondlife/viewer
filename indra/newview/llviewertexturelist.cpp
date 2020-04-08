@@ -195,7 +195,14 @@ void LLViewerTextureList::doPreloadImages()
     // with path relative to exe.
 
 #ifdef LL_FMODSTUDIO
+#ifdef LL_WINDOWS
     std::string full_path = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "3p_icons", "fmod.png");
+#elif LL_DARWIN
+    // On MAC use resource directory
+    std::string full_path = gDirUtilp->add(gDirUtilp->getAppRODataDir(), "3p_icons", "fmod.png");
+#else
+    std::string full_path = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "3p_icons", "fmod.png");
+#endif
     image = LLViewerTextureManager::getFetchedTextureFromUrl("file://" + full_path, FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI, LLViewerTexture::FETCHED_TEXTURE,
         0, 0, IMG_LOGO_FMOD);
     if (image)
