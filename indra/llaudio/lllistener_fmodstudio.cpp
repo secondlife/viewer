@@ -82,11 +82,8 @@ void LLListener_FMODSTUDIO::orient(LLVector3 up, LLVector3 at)
 {
     LLListener::orient(up, at);
 
-    // Welcome to the transition between right and left
-    // (coordinate systems, that is)
-    // Leaving the at vector alone results in a L/R reversal
-    // since DX is left-handed and we (LL, OpenGL, OpenAL) are right-handed
-    at = -at;
+    // at = -at; by default Fmod studio is 'left-handed' but we are providing
+    // flag FMOD_INIT_3D_RIGHTHANDED so no correction are needed
 
     mSystem->set3DListenerAttributes(0, NULL, NULL, (FMOD_VECTOR*)at.mV, (FMOD_VECTOR*)up.mV);
 }
@@ -106,14 +103,14 @@ void LLListener_FMODSTUDIO::commitDeferredChanges()
 void LLListener_FMODSTUDIO::setRolloffFactor(F32 factor)
 {
     //An internal FMOD optimization skips 3D updates if there have not been changes to the 3D sound environment.
-    // (this was true for FMODex, looks to be still true for FMOD STUDIO)
+    // (this was true for FMODex, looks to be still true for FMOD STUDIO, but needs a recheck)
     //Sadly, a change in rolloff is not accounted for, thus we must touch the listener properties as well.
     //In short: Changing the position ticks a dirtyflag inside fmod, which makes it not skip 3D processing next update call.
     if (mRolloffFactor != factor)
     {
-        LLVector3 pos = mVelocity - LLVector3(0.f, 0.f, .1f);
+        LLVector3 pos = mPosition - LLVector3(0.f, 0.f, .1f);
         mSystem->set3DListenerAttributes(0, (FMOD_VECTOR*)pos.mV, NULL, NULL, NULL);
-        mSystem->set3DListenerAttributes(0, (FMOD_VECTOR*)mVelocity.mV, NULL, NULL, NULL);
+        mSystem->set3DListenerAttributes(0, (FMOD_VECTOR*)mPosition.mV, NULL, NULL, NULL);
     }
     mRolloffFactor = factor;
     mSystem->set3DSettings(mDopplerFactor, 1.f, mRolloffFactor);
