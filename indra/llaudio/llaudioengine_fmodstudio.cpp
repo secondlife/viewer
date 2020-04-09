@@ -49,19 +49,20 @@ FMOD_RESULT F_CALLBACK windCallback(FMOD_DSP_STATE *dsp_state, float *inbuffer, 
 FMOD::ChannelGroup *LLAudioEngine_FMODSTUDIO::mChannelGroups[LLAudioEngine::AUDIO_TYPE_COUNT] = {0};
 
 LLAudioEngine_FMODSTUDIO::LLAudioEngine_FMODSTUDIO(bool enable_profiler)
+:   mInited(false),
+    mWindGen(NULL),
+    mWindDSP(NULL),
+    mSystem(NULL),
+    mEnableProfiler(enable_profiler),
+    mWindDSPDesc(NULL)
 {
-    mInited = false;
-    mWindGen = NULL;
-    mWindDSP = NULL;
-    mSystem = NULL;
-    mEnableProfiler = enable_profiler;
-    mWindDSPDesc = NULL;
 }
 
 
 LLAudioEngine_FMODSTUDIO::~LLAudioEngine_FMODSTUDIO()
 {
-    delete mWindDSPDesc;
+    // mWindDSPDesc, mWindGen and mWindDSP get cleaned up on cleanupWind in LLAudioEngine::shutdown()
+    // mSystem gets cleaned up at shutdown()
 }
 
 
@@ -400,10 +401,12 @@ void LLAudioEngine_FMODSTUDIO::setInternalGain(F32 gain)
 
     gain = llclamp(gain, 0.0f, 1.0f);
 
-    FMOD::ChannelGroup *master_group;
-    mSystem->getMasterChannelGroup(&master_group);
-
-    master_group->setVolume(gain);
+    FMOD::ChannelGroup* master_group = NULL;
+    if (!Check_FMOD_Error(mSystem->getMasterChannelGroup(&master_group), "FMOD::System::getMasterChannelGroup")
+        && master_group)
+    {
+        master_group->setVolume(gain);
+    }
 
     LLStreamingAudioInterface *saimpl = getStreamingAudioImpl();
     if (saimpl)
@@ -658,12 +661,8 @@ bool LLAudioBufferFMODSTUDIO::loadWAV(const std::string& filename)
     memset(&exinfo, 0, sizeof(exinfo));
     exinfo.cbsize = sizeof(exinfo);
     exinfo.suggestedsoundtype = FMOD_SOUND_TYPE_WAV;	//Hint to speed up loading.
-    // Load up the wav file into an fmod sample
-#if LL_WINDOWS
-    FMOD_RESULT result = getSystem()->createSound((const char*)utf8str_to_utf16str(filename).c_str(), base_mode, &exinfo, &mSoundp);
-#else
+    // Load up the wav file into an fmod sample (since 1.05 fmod studio expects everything in UTF-8)
     FMOD_RESULT result = getSystem()->createSound(filename.c_str(), base_mode, &exinfo, &mSoundp);
-#endif
 
     if (result != FMOD_OK)
     {
