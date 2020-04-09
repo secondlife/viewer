@@ -758,10 +758,11 @@ FMOD_RESULT F_CALLBACK windCallback(FMOD_DSP_STATE *dsp_state, float *originalbu
 	FMOD::DSP *thisdsp = (FMOD::DSP *)dsp_state->instance;
 
 	thisdsp->getUserData((void **)&windgen);
-	S32 channels, configwidth, configheight;
-	thisdsp->getInfo(0, 0, &channels, &configwidth, &configheight);
-	
-	windgen->windGenerate((LLAudioEngine_FMODEX::MIXBUFFERFORMAT *)newbuffer, length);
+
+    if (windgen)
+    {
+        windgen->windGenerate((LLAudioEngine_FMODEX::MIXBUFFERFORMAT *)newbuffer, length);
+    }
 
 	return FMOD_OK;
 }
