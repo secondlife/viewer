@@ -41,9 +41,6 @@
 #include "llscrolllistctrl.h"
 #include "lltrans.h"
 
-/* static */ const F32 LLPanelPresetsCameraPulldown::sAutoCloseFadeStartTimeSec = 2.0f;
-/* static */ const F32 LLPanelPresetsCameraPulldown::sAutoCloseTotalTimeSec = 3.0f;
-
 ///----------------------------------------------------------------------------
 /// Class LLPanelPresetsCameraPulldown
 ///----------------------------------------------------------------------------
@@ -51,8 +48,6 @@
 // Default constructor
 LLPanelPresetsCameraPulldown::LLPanelPresetsCameraPulldown()
 {
-	mHoverTimer.stop();
-
 	mCommitCallbackRegistrar.add("Presets.toggleCameraFloater", boost::bind(&LLPanelPresetsCameraPulldown::onViewButtonClick, this, _2));
 	mCommitCallbackRegistrar.add("PresetsCamera.RowClick", boost::bind(&LLPanelPresetsCameraPulldown::onRowClick, this, _2));
 
@@ -74,7 +69,7 @@ BOOL LLPanelPresetsCameraPulldown::postBuild()
 
 	populatePanel();
 
-	return LLPanel::postBuild();
+	return LLPanelPulldown::postBuild();
 }
 
 void LLPanelPresetsCameraPulldown::populatePanel()
@@ -118,61 +113,6 @@ void LLPanelPresetsCameraPulldown::populatePanel()
 	}
 }
 
-/*virtual*/
-void LLPanelPresetsCameraPulldown::onMouseEnter(S32 x, S32 y, MASK mask)
-{
-	mHoverTimer.stop();
-	LLPanel::onMouseEnter(x,y,mask);
-}
-
-/*virtual*/
-void LLPanelPresetsCameraPulldown::onTopLost()
-{
-	setVisible(FALSE);
-}
-
-/*virtual*/
-BOOL LLPanelPresetsCameraPulldown::handleMouseDown(S32 x, S32 y, MASK mask)
-{
-    LLPanel::handleMouseDown(x,y,mask);
-    return TRUE;
-}
-
-/*virtual*/
-BOOL LLPanelPresetsCameraPulldown::handleRightMouseDown(S32 x, S32 y, MASK mask)
-{
-    LLPanel::handleRightMouseDown(x, y, mask);
-    return TRUE;
-}
-
-/*virtual*/
-BOOL LLPanelPresetsCameraPulldown::handleDoubleClick(S32 x, S32 y, MASK mask)
-{
-    LLPanel::handleDoubleClick(x, y, mask);
-    return TRUE;
-}
-
-/*virtual*/
-void LLPanelPresetsCameraPulldown::onMouseLeave(S32 x, S32 y, MASK mask)
-{
-	mHoverTimer.start();
-	LLPanel::onMouseLeave(x,y,mask);
-}
-
-/*virtual*/ 
-void LLPanelPresetsCameraPulldown::onVisibilityChange ( BOOL new_visibility )
-{
-	if (new_visibility)	
-	{
-		mHoverTimer.start(); // timer will be stopped when mouse hovers over panel
-	}
-	else
-	{
-		mHoverTimer.stop();
-
-	}
-}
-
 void LLPanelPresetsCameraPulldown::onRowClick(const LLSD& user_data)
 {
 	LLScrollListCtrl* scroll = getChild<LLScrollListCtrl>("preset_camera_list");
@@ -206,20 +146,4 @@ void LLPanelPresetsCameraPulldown::onViewButtonClick(const LLSD& user_data)
 	setVisible(FALSE);
 
 	LLFloaterReg::toggleInstanceOrBringToFront("camera");
-}
-
-//virtual
-void LLPanelPresetsCameraPulldown::draw()
-{
-	F32 alpha = mHoverTimer.getStarted() 
-		? clamp_rescale(mHoverTimer.getElapsedTimeF32(), sAutoCloseFadeStartTimeSec, sAutoCloseTotalTimeSec, 1.f, 0.f)
-		: 1.0f;
-	LLViewDrawContext context(alpha);
-
-	LLPanel::draw();
-
-	if (alpha == 0.f)
-	{
-		setVisible(FALSE);
-	}
 }
