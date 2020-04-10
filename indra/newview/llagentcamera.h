@@ -282,6 +282,9 @@ public:
 	F32				calcCameraFOVZoomFactor();
 	F32				getAgentHUDTargetZoom();
 
+	void			resetCameraZoomFraction();
+	F32				getCurrentCameraZoomFraction() { return mCameraZoomFraction; }
+
 	//--------------------------------------------------------------------
 	// Pan
 	//--------------------------------------------------------------------

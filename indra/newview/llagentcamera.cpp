@@ -1987,8 +1987,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 
 LLVector3 LLAgentCamera::getCurrentCameraOffset()
 {
-	LLVector3 camera_offset = (LLViewerCamera::getInstance()->getOrigin() - getAvatarRootPosition() - mThirdPersonHeadOffset) * ~getCurrentAvatarRotation();
-	return  camera_offset / mCameraZoomFraction / gSavedSettings.getF32("CameraOffsetScale");
+	return (LLViewerCamera::getInstance()->getOrigin() - getAvatarRootPosition() - mThirdPersonHeadOffset) * ~getCurrentAvatarRotation();
 }
 
 LLVector3d LLAgentCamera::getCurrentFocusOffset()
@@ -2827,6 +2826,11 @@ BOOL LLAgentCamera::setPointAt(EPointAtType target_type, LLViewerObject *object,
 		mPointAt->setSourceObject(gAgentAvatarp);
 	}
 	return mPointAt->setPointAt(target_type, object, position);
+}
+
+void LLAgentCamera::resetCameraZoomFraction()
+{ 
+	mCameraZoomFraction = INITIAL_ZOOM_FRACTION; 
 }
 
 ELookAtType LLAgentCamera::getLookAtType()

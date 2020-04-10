@@ -309,9 +309,6 @@ bool LLPresetsManager::savePreset(const std::string& subdirectory, std::string n
 		name_list.clear();
 		getControlNames(name_list);
 		name_list.push_back("PresetCameraActive");
-
-		gSavedSettings.setF32("CameraZoomFraction", gAgentCamera.getCameraZoomFraction(true));
-		name_list.push_back("CameraZoomFraction");
 	}
 	else
 	{

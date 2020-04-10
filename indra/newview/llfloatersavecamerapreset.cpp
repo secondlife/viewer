@@ -107,6 +107,12 @@ void LLFloaterSaveCameraPreset::onBtnSave()
 			gSavedSettings.setVector3("CameraOffsetRearView", gAgentCamera.getCurrentCameraOffset());
 			gSavedSettings.setVector3d("FocusOffsetRearView", gAgentCamera.getCurrentFocusOffset());
 		}
+		else
+		{
+			LLVector3 camera_offset = gSavedSettings.getVector3("CameraOffsetRearView") * gAgentCamera.getCurrentCameraZoomFraction();
+			gSavedSettings.setVector3("CameraOffsetRearView", camera_offset);
+			gAgentCamera.resetCameraZoomFraction();
+		}
 		if (is_saving_new)
 		{
 			std::list<std::string> preset_names;
