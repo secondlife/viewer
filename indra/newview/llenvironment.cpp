@@ -2791,6 +2791,37 @@ void LLEnvironment::saveToSettings()
     }
 }
 
+void LLEnvironment::loadSkyWaterFromSettings(const LLSD &env_data, bool &valid, bool &assets_present)
+{
+    if (env_data.has("sky_id"))
+    {
+        // causes asset loaded callback and an update
+        setEnvironment(ENV_LOCAL, env_data["sky_id"].asUUID());
+        valid = true;
+        assets_present = true;
+    }
+    else if (env_data.has("sky_llsd"))
+    {
+        LLSettingsSky::ptr_t sky = std::make_shared<LLSettingsVOSky>(env_data["sky_llsd"]);
+        setEnvironment(ENV_LOCAL, sky);
+        valid = true;
+    }
+
+    if (env_data.has("water_id"))
+    {
+        // causes asset loaded callback and an update
+        setEnvironment(ENV_LOCAL, env_data["water_id"].asUUID());
+        valid = true;
+        assets_present = true;
+    }
+    else if (env_data.has("water_llsd"))
+    {
+        LLSettingsWater::ptr_t sky = std::make_shared<LLSettingsVOWater>(env_data["water_llsd"]);
+        setEnvironment(ENV_LOCAL, sky);
+        valid = true;
+    }
+}
+
 bool LLEnvironment::loadFromSettings()
 {
     if (!gSavedSettings.getBOOL("EnvironmentPersistAcrossLogin"))
@@ -2839,13 +2870,32 @@ bool LLEnvironment::loadFromSettings()
     }
 
     bool valid = false;
+    bool has_assets = false;
 
     if (env_data.has("day_id"))
     {
-        S32 length = env_data["day_length"].asInteger();
-        S32 offset = env_data["day_offset"].asInteger();
-        setEnvironment(ENV_LOCAL, env_data["day_id"].asUUID(), LLSettingsDay::Seconds(length), LLSettingsDay::Seconds(offset));
-        valid = true;
+        LLSettingsDay::Seconds length = LLSettingsDay::Seconds(env_data["day_length"].asInteger());
+        LLSettingsDay::Seconds offset = LLSettingsDay::Seconds(env_data["day_offset"].asInteger());
+        LLUUID assetId = env_data["day_id"].asUUID();
+
+        LLSettingsVOBase::getSettingsAsset(assetId,
+            [this, length, offset, env_data](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat)
+        {
+            // Day should be always applied first,
+            // otherwise it will override sky or water that was set earlier
+            // so wait for asset to load before applying sky/water
+            onSetEnvAssetLoaded(ENV_LOCAL, asset_id, settings, length, offset, TRANSITION_DEFAULT, status, NO_VERSION);
+            bool valid = false, has_assets = false;
+            loadSkyWaterFromSettings(env_data, valid, has_assets);
+            if (!has_assets && valid)
+            {
+                // Settings were loaded from file without having an asset, needs update
+                // otherwise update will be done by asset callback
+                updateEnvironment(TRANSITION_DEFAULT, true);
+            }
+        });
+        // bail early, everything have to be done at callback
+        return true;
     }
     else if (env_data.has("day_llsd"))
     {
@@ -2856,33 +2906,13 @@ bool LLEnvironment::loadFromSettings()
         valid = true;
     }
 
-    if (env_data.has("sky_id"))
-    {
-        setEnvironment(ENV_LOCAL, env_data["sky_id"].asUUID());
-        valid = true;
-    }
-    else if (env_data.has("sky_llsd"))
-    {
-        LLSettingsSky::ptr_t sky = std::make_shared<LLSettingsVOSky>(env_data["sky_llsd"]);
-        setEnvironment(ENV_LOCAL, sky);
-        valid = true;
-    }
+    loadSkyWaterFromSettings(env_data, valid, has_assets);
 
-    if (env_data.has("water_id"))
+    if (valid && !has_assets)
     {
-        setEnvironment(ENV_LOCAL, env_data["water_id"].asUUID());
-        valid = true;
-    }
-    else if (env_data.has("water_llsd"))
-    {
-        LLSettingsWater::ptr_t sky = std::make_shared<LLSettingsVOWater>(env_data["water_llsd"]);
-        setEnvironment(ENV_LOCAL, sky);
-        valid = true;
-    }
-
-    if (valid)
-    {
-        updateEnvironment(TRANSITION_INSTANT, true);
+        // Settings were loaded from file without having an asset, needs update
+        // otherwise update will be done by asset callback
+        updateEnvironment(TRANSITION_DEFAULT, true);
     }
     return valid;
 }
