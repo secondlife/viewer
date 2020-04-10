@@ -74,7 +74,7 @@ static inline bool Check_FMOD_Error(FMOD_RESULT result, const char *string)
     return true;
 }
 
-bool LLAudioEngine_FMODSTUDIO::init(const S32 num_channels, void* userdata)
+bool LLAudioEngine_FMODSTUDIO::init(const S32 num_channels, void* userdata, const std::string &app_title)
 {
     U32 version;
     FMOD_RESULT result;
@@ -86,7 +86,7 @@ bool LLAudioEngine_FMODSTUDIO::init(const S32 num_channels, void* userdata)
         return false;
 
     //will call LLAudioEngine_FMODSTUDIO::allocateListener, which needs a valid mSystem pointer.
-    LLAudioEngine::init(num_channels, userdata);
+    LLAudioEngine::init(num_channels, userdata, app_title);
 
     result = mSystem->getVersion(&version);
     Check_FMOD_Error(result, "FMOD::System::getVersion");
@@ -96,6 +96,8 @@ bool LLAudioEngine_FMODSTUDIO::init(const S32 num_channels, void* userdata)
         LL_WARNS("AppInit") << "FMOD Studio version mismatch, actual: " << version
             << " expected:" << FMOD_VERSION << LL_ENDL;
     }
+
+    // In case we need to force sampling on stereo, use setSoftwareFormat here
 
     // In this case, all sounds, PLUS wind and stream will be software.
     result = mSystem->setSoftwareChannels(num_channels + 2);
@@ -109,6 +111,8 @@ bool LLAudioEngine_FMODSTUDIO::init(const S32 num_channels, void* userdata)
     result = mSystem->setAdvancedSettings(&settings);
     Check_FMOD_Error(result, "FMOD::System::setAdvancedSettings");
 
+    // FMOD_INIT_THREAD_UNSAFE Disables thread safety for API calls.
+    // Only use this if FMOD is being called from a single thread, and if Studio API is not being used.
     U32 fmod_flags = FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED | FMOD_INIT_THREAD_UNSAFE;
     if (mEnableProfiler)
     {
@@ -125,7 +129,7 @@ bool LLAudioEngine_FMODSTUDIO::init(const S32 num_channels, void* userdata)
         {
             LL_DEBUGS("AppInit") << "Trying PulseAudio audio output..." << LL_ENDL;
             if (mSystem->setOutput(FMOD_OUTPUTTYPE_PULSEAUDIO) == FMOD_OK &&
-                (result = mSystem->init(num_channels + 2, fmod_flags, 0)) == FMOD_OK)
+                (result = mSystem->init(num_channels + 2, fmod_flags, const_cast<char*>(app_title.c_str()))) == FMOD_OK)
             {
                 LL_DEBUGS("AppInit") << "PulseAudio output initialized OKAY" << LL_ENDL;
                 audio_ok = true;
@@ -238,7 +242,7 @@ std::string LLAudioEngine_FMODSTUDIO::getDriverName(bool verbose)
             return llformat("FMOD Studio %1x.%02x.%02x", version >> 16, version >> 8 & 0x000000FF, version & 0x000000FF);
         }
     }
-    return "FMODSTUDIO";
+    return "FMOD STUDIO";
 }
 
 
@@ -433,6 +437,13 @@ LLAudioChannelFMODSTUDIO::~LLAudioChannelFMODSTUDIO()
 
 bool LLAudioChannelFMODSTUDIO::updateBuffer()
 {
+    if (!mCurrentSourcep)
+    {
+        // This channel isn't associated with any source, nothing
+        // to be updated
+        return false;
+    }
+
     if (LLAudioChannel::updateBuffer())
     {
         // Base class update returned true, which means that we need to actually
