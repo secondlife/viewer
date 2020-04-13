@@ -106,6 +106,8 @@ void LLFloaterSaveCameraPreset::onBtnSave()
 		{
 			gSavedSettings.setVector3("CameraOffsetRearView", gAgentCamera.getCurrentCameraOffset());
 			gSavedSettings.setVector3d("FocusOffsetRearView", gAgentCamera.getCurrentFocusOffset());
+			gAgentCamera.resetCameraZoomFraction();
+			gAgentCamera.setFocusOnAvatar(TRUE, TRUE, FALSE);
 		}
 		else
 		{

@@ -217,7 +217,7 @@ public:
 	void			validateFocusObject();
 	void			setFocusGlobal(const LLPickInfo& pick);
 	void			setFocusGlobal(const LLVector3d &focus, const LLUUID &object_id = LLUUID::null);
-	void			setFocusOnAvatar(BOOL focus, BOOL animate);
+	void			setFocusOnAvatar(BOOL focus, BOOL animate, BOOL reset_axes = TRUE);
 	void			setCameraPosAndFocusGlobal(const LLVector3d& pos, const LLVector3d& focus, const LLUUID &object_id);
 	void			clearFocusObject();
 	void			setFocusObject(LLViewerObject* object);

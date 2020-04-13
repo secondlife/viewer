@@ -2656,7 +2656,7 @@ void LLAgentCamera::setSitCamera(const LLUUID &object_id, const LLVector3 &camer
 //-----------------------------------------------------------------------------
 // setFocusOnAvatar()
 //-----------------------------------------------------------------------------
-void LLAgentCamera::setFocusOnAvatar(BOOL focus_on_avatar, BOOL animate)
+void LLAgentCamera::setFocusOnAvatar(BOOL focus_on_avatar, BOOL animate, BOOL reset_axes)
 {
 	if (focus_on_avatar != mFocusOnAvatar)
 	{
@@ -2673,7 +2673,7 @@ void LLAgentCamera::setFocusOnAvatar(BOOL focus_on_avatar, BOOL animate)
 	//RN: when focused on the avatar, we're not "looking" at it
 	// looking implies intent while focusing on avatar means
 	// you're just walking around with a camera on you...eesh.
-	if (!mFocusOnAvatar && focus_on_avatar)
+	if (!mFocusOnAvatar && focus_on_avatar && reset_axes)
 	{
 		setFocusGlobal(LLVector3d::zero);
 		mCameraFOVZoomFactor = 0.f;
