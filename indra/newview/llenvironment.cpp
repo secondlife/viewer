@@ -851,8 +851,6 @@ void LLEnvironment::initSingleton()
     }
 
     LLEventPumps::instance().obtain(PUMP_EXPERIENCE).listen(LISTENER_NAME, [this](LLSD message) { listenExperiencePump(message); return false; });
-
-    loadFromSettings();
 }
 
 void LLEnvironment::cleanupSingleton()
