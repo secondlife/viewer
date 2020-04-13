@@ -42,7 +42,6 @@
 #include "llbutton.h"
 #include "llcallbacklist.h"
 #include "llfocusmgr.h"
-#include "lliconctrl.h"
 #include "llnotifications.h"
 #include "llprogressbar.h"
 #include "llstartup.h"
@@ -184,7 +183,6 @@ void LLProgressView::setVisible(BOOL visible)
 	if (getVisible() && !visible)
 	{
 		LLPanel::setVisible(FALSE);
-		setShowLogos(FALSE);
 	}
 	// showing progress view
 	else if (visible && (!getVisible() || mFadeToWorldTimer.getStarted()))
@@ -231,6 +229,33 @@ void LLProgressView::drawStartTexture(F32 alpha)
 	gGL.popMatrix();
 }
 
+void LLProgressView::drawLogos(F32 alpha)
+{
+    if (mLogosList.empty())
+    {
+        return;
+    }
+
+    // logos are tied to label,
+    // due to potential resizes we have to figure offsets out on draw or resize
+    LLTextBox *logos_label = getChild<LLTextBox>("logos_lbl");
+    S32 offset_x, offset_y;
+    logos_label->localPointToScreen(0, 0, &offset_x, &offset_y);
+    std::vector<TextureData>::const_iterator iter = mLogosList.begin();
+    std::vector<TextureData>::const_iterator end = mLogosList.end();
+    for (; iter != end; iter++)
+    {
+        gl_draw_scaled_image_with_border(iter->mDrawRect.mLeft + offset_x,
+                             iter->mDrawRect.mBottom + offset_y,
+                             iter->mDrawRect.getWidth(),
+                             iter->mDrawRect.getHeight(),
+                             iter->mTexturep.get(),
+                             UI_VERTEX_COLOR % alpha,
+                             FALSE,
+                             iter->mClipRect,
+                             iter->mOffsetRect);
+    }
+}
 
 void LLProgressView::draw()
 {
@@ -247,6 +272,7 @@ void LLProgressView::draw()
 		}
 		
 		LLPanel::draw();
+		drawLogos(alpha);
 		return;
 	}
 
@@ -259,6 +285,7 @@ void LLProgressView::draw()
 				
 		drawStartTexture(alpha);
 		LLPanel::draw();
+		drawLogos(alpha);
 
 		// faded out completely - remove panel and reveal world
 		if (mFadeToWorldTimer.getElapsedTimeF32() > FADE_TO_WORLD_TIME )
@@ -285,7 +312,7 @@ void LLProgressView::draw()
 			// FIXME: this causes a crash that i haven't been able to fix
 			mMediaCtrl->unloadMediaSource();	
 
-			gStartTexture = NULL;
+            releaseTextures();
 		}
 		return;
 	}
@@ -293,6 +320,7 @@ void LLProgressView::draw()
 	drawStartTexture(1.0f);
 	// draw children
 	LLPanel::draw();
+	drawLogos(1.0f);
 }
 
 void LLProgressView::setText(const std::string& text)
@@ -311,16 +339,189 @@ void LLProgressView::setMessage(const std::string& msg)
 	getChild<LLUICtrl>("message_text")->setValue(mMessage);
 }
 
-void LLProgressView::setShowLogos(const BOOL logos_visible)
+void LLProgressView::loadLogo(const std::string &path,
+                              const U8 image_codec,
+                              const LLRect &pos_rect,
+                              const LLRectf &clip_rect,
+                              const LLRectf &offset_rect)
 {
-    LLIconCtrl* logo = getChild<LLIconCtrl>("fmod_logo");
-    if (logos_visible)
+    // We need these images very early, so we have to force-load them, otherwise they might not load in time.
+    if (!gDirUtilp->fileExists(path))
     {
-        logo->setValue(IMG_LOGO_FMOD);
+        return;
     }
-    logo->setVisible(logos_visible);
-    getChild<LLUICtrl>("fmod_text")->setVisible(logos_visible);
-    getChild<LLUICtrl>("message_text")->setVisible(!logos_visible);
+
+    LLPointer<LLImageFormatted> start_image_frmted = LLImageFormatted::createFromType(image_codec);
+    if (!start_image_frmted->load(path))
+    {
+        LL_WARNS("AppInit") << "Image load failed: " << path << LL_ENDL;
+        return;
+    }
+
+    LLPointer<LLImageRaw> raw = new LLImageRaw;
+    if (!start_image_frmted->decode(raw, 0.0f))
+    {
+        LL_WARNS("AppInit") << "Image decode failed " << path << LL_ENDL;
+        return;
+    }
+    // HACK: getLocalTexture allows only power of two dimentions
+    raw->expandToPowerOfTwo();
+
+    TextureData data;
+    data.mTexturep = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE);
+    data.mDrawRect = pos_rect;
+    data.mClipRect = clip_rect;
+    data.mOffsetRect = offset_rect;
+    mLogosList.push_back(data);
+}
+
+void LLProgressView::initLogos()
+{
+    mLogosList.clear();
+
+    const U8 image_codec = IMG_CODEC_PNG;
+    const LLRectf default_clip(0.f, 1.f, 1.f, 0.f);
+    const S32 default_height = 24;
+    const S32 default_width = 91;
+    const S32 default_pad = 7;
+
+    // We don't know final screen rect yet, so we can't precalculate position fully
+    LLTextBox *logos_label = getChild<LLTextBox>("logos_lbl");
+    S32 texture_start_x = logos_label->getFont()->getWidthF32(logos_label->getText()) + default_pad;
+    S32 texture_start_y = -3;
+
+    // Normally iamges stay in skins folder, but 3p images come from package instead
+    // of repository and need special handling
+#ifdef LL_WINDOWS
+    std::string temp_str = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "3p_icons");
+#elif LL_DARWIN
+    // On MAC use resource directory
+    std::string temp_str = gDirUtilp->add(gDirUtilp->getAppRODataDir(), "3p_icons");
+#else
+    std::string temp_str = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "3p_icons");
+#endif
+    temp_str += gDirUtilp->getDirDelimiter();
+
+#ifdef LL_FMODSTUDIO
+    const S32 fmod_y_offset = 2;
+    loadLogo(temp_str + "fmod.png",
+        image_codec,
+        LLRect(texture_start_x, texture_start_y + default_height + fmod_y_offset, texture_start_x + default_width + fmod_y_offset, texture_start_y),
+        default_clip,
+        default_clip);
+
+    texture_start_x += default_width + default_pad;
+#endif
+
+    loadLogo(temp_str + "havok_logo.png",
+        image_codec,
+        LLRect(texture_start_x, texture_start_y + default_height, texture_start_x + default_width, texture_start_y),
+        default_clip,
+        default_clip);
+
+    texture_start_x += default_width + default_pad - 2; // offset to compensate for enormous borders for vivox
+
+    const LLRectf vivox_clip(0.0f /*repeats*/, 0.52f /*cut starting from center*/, 0.52f, 0.0f); // non-standard icon, clip it
+    const LLRectf vivox_offset(0.0f, 0.23f, 0.23f, 0.0f); // keeping clipping identical to not mess up scale
+    const S32 vivox_y_offset = -5;
+    loadLogo(temp_str + "vivox_logo.png",
+        image_codec,
+        LLRect(texture_start_x, texture_start_y + default_height + vivox_y_offset, texture_start_x + default_width, texture_start_y + vivox_y_offset),
+        vivox_clip,
+        vivox_offset);
+}
+
+void LLProgressView::initStartTexture(S32 location_id, bool is_in_production)
+{
+    if (gStartTexture.notNull())
+    {
+        gStartTexture = NULL;
+        LL_INFOS("AppInit") << "re-initializing start screen" << LL_ENDL;
+    }
+
+    LL_DEBUGS("AppInit") << "Loading startup bitmap..." << LL_ENDL;
+
+    U8 image_codec = IMG_CODEC_PNG;
+    std::string temp_str = gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter();
+
+    if ((S32)START_LOCATION_ID_LAST == location_id)
+    {
+        temp_str += LLStartUp::getScreenLastFilename();
+    }
+    else
+    {
+        std::string path = temp_str + LLStartUp::getScreenHomeFilename();
+
+        if (!gDirUtilp->fileExists(path) && is_in_production)
+        {
+            // Fallback to old file, can be removed later
+            // Home image only sets when user changes home, so it will take time for users to switch to pngs
+            temp_str += "screen_home.bmp";
+            image_codec = IMG_CODEC_BMP;
+        }
+        else
+        {
+            temp_str = path;
+        }
+    }
+
+    LLPointer<LLImageFormatted> start_image_frmted = LLImageFormatted::createFromType(image_codec);
+
+    // Turn off start screen to get around the occasional readback 
+    // driver bug
+    if (!gSavedSettings.getBOOL("UseStartScreen"))
+    {
+        LL_INFOS("AppInit") << "Bitmap load disabled" << LL_ENDL;
+        return;
+    }
+    else if (!start_image_frmted->load(temp_str))
+    {
+        LL_WARNS("AppInit") << "Bitmap load failed" << LL_ENDL;
+        gStartTexture = NULL;
+    }
+    else
+    {
+        gStartImageWidth = start_image_frmted->getWidth();
+        gStartImageHeight = start_image_frmted->getHeight();
+
+        LLPointer<LLImageRaw> raw = new LLImageRaw;
+        if (!start_image_frmted->decode(raw, 0.0f))
+        {
+            LL_WARNS("AppInit") << "Bitmap decode failed" << LL_ENDL;
+            gStartTexture = NULL;
+        }
+        else
+        {
+            // HACK: getLocalTexture allows only power of two dimentions
+            raw->expandToPowerOfTwo();
+            gStartTexture = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE);
+        }
+    }
+
+    if (gStartTexture.isNull())
+    {
+        gStartTexture = LLViewerTexture::sBlackImagep;
+        gStartImageWidth = gStartTexture->getWidth();
+        gStartImageHeight = gStartTexture->getHeight();
+    }
+}
+
+void LLProgressView::initTextures(S32 location_id, bool is_in_production)
+{
+    initStartTexture(location_id, is_in_production);
+    initLogos();
+
+    LLTextBox *logos_label = getChild<LLTextBox>("logos_lbl");
+    logos_label->setVisible(true);
+}
+
+void LLProgressView::releaseTextures()
+{
+    gStartTexture = NULL;
+    mLogosList.clear();
+
+    LLTextBox *logos_label = getChild<LLTextBox>("logos_lbl");
+    logos_label->setVisible(false);
 }
 
 void LLProgressView::setCancelButtonVisible(BOOL b, const std::string& label)

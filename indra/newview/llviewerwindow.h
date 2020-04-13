@@ -303,13 +303,13 @@ public:
 	BOOL            getCursorHidden() { return mCursorHidden; }
 	void			moveCursorToCenter();								// move to center of window
 													
+	void			initTextures(S32 location_id);
 	void			setShowProgress(const BOOL show);
 	BOOL			getShowProgress() const;
 	void			setProgressString(const std::string& string);
 	void			setProgressPercent(const F32 percent);
 	void			setProgressMessage(const std::string& msg);
 	void			setProgressCancelButtonVisible( BOOL b, const std::string& label = LLStringUtil::null );
-	void			setShowLogos(const BOOL show_3p_logos);
 	LLProgressView *getProgressView() const;
 	void			revealIntroPanel();
 	void			setStartupComplete();

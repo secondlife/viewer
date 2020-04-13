@@ -106,27 +106,20 @@
                      top="145"
                      right="-90"
                      word_wrap="true"/>
-                    <icon
-                     height="24"
-                     width="91"
-                     left="48"
-                     top="190"
-                     name="fmod_logo"
-                     visible ="false"
-                      />
+                    <!--Logos are tied to following label from code-->
                     <text
-                     follows="left|right|top|bottom"
+                     follows="left|right|top"
                      layout="topleft"
                      font_shadow="none"
                      halign="left"
                      height="16"
-                     width="400"
-                     top_delta="10"
-                     left_pad="4"
+                     width="100"
+                     left="48"
+                     top="200"
                      line_spacing.pixels="2"
-                     name="fmod_text"
+                     name="logos_lbl"
                      text_color="LoginProgressBoxTextColor">
-                      Made with FMOD Studio by Firelight Technologies Pty Ltd.
+                      Second Life uses
                     </text>
                 </layout_panel>
                 <layout_panel

@@ -5098,6 +5098,14 @@ void LLViewerWindow::revealIntroPanel()
 	}
 }
 
+void LLViewerWindow::initTextures(S32 location_id)
+{
+    if (mProgressView)
+    {
+        mProgressView->initTextures(location_id, LLGridManager::getInstance()->isInProductionGrid());
+    }
+}
+
 void LLViewerWindow::setShowProgress(const BOOL show)
 {
 	if (mProgressView)
@@ -5149,11 +5157,6 @@ void LLViewerWindow::setProgressCancelButtonVisible( BOOL b, const std::string& 
 	{
 		mProgressView->setCancelButtonVisible( b, label );
 	}
-}
-
-void LLViewerWindow::setShowLogos(const BOOL show_3p_logos)
-{
-    mProgressView->setShowLogos(show_3p_logos);
 }
 
 LLProgressView *LLViewerWindow::getProgressView() const

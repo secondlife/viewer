@@ -501,6 +501,8 @@ class WindowsManifest(ViewerManifest):
         with self.prefix(src=os.path.join(pkgdir, "icons"), dst="3p_icons"):
             if self.args['fmodstudio'] == 'ON':
                 self.path("fmod.png")
+            self.path("havok_logo.png")
+            self.path("vivox_logo.png")
 
         # Plugin host application
         self.path2basename(os.path.join(os.pardir,
@@ -975,6 +977,8 @@ class DarwinManifest(ViewerManifest):
                 with self.prefix(src=os.path.join(pkgdir, "icons"), dst="3p_icons"):
                     if self.args['fmodstudio'] == 'ON':
                         self.path("fmod.png")
+                    self.path("havok_logo.png")
+                    self.path("vivox_logo.png")
 
                 # Translations
                 self.path("English.lproj/language.txt")
@@ -1480,6 +1484,8 @@ class Linux_i686_Manifest(LinuxManifest):
         with self.prefix(src=os.path.join(pkgdir, "icons"), dst="3p_icons"):
             if self.args['fmodstudio'] == 'ON':
                 self.path("fmod.png")
+            self.path("havok_logo.png")
+            self.path("vivox_logo.png")
 
         with self.prefix(src=relpkgdir, dst="lib"):
             self.path("libapr-1.so")
