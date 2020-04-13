@@ -641,12 +641,12 @@ void LLView::onVisibilityChange ( BOOL new_visibility )
 }
 
 // virtual
-void LLView::onChildGotFocus(const LLUICtrl * cntrl)
+void LLView::onUpdateScrollToChild(const LLUICtrl * cntrl)
 {
     LLView* parent_view = getParent();
     if (parent_view)
     {
-        parent_view->onChildGotFocus(cntrl);
+        parent_view->onUpdateScrollToChild(cntrl);
     }
 }
 
