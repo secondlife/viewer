@@ -24,7 +24,6 @@
  */
  
 
-VARYING vec3 vary_SunlitColor;
 VARYING vec3 vary_AdditiveColor;
 VARYING vec3 vary_AtmosAttenuation;
 
