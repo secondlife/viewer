@@ -70,7 +70,7 @@ static inline bool Check_FMOD_Error(FMOD_RESULT result, const char *string)
 {
     if (result == FMOD_OK)
         return false;
-    LL_DEBUGS() << string << " Error: " << FMOD_ErrorString(result) << LL_ENDL;
+    LL_DEBUGS("FMOD") << string << " Error: " << FMOD_ErrorString(result) << LL_ENDL;
     return true;
 }
 
@@ -96,8 +96,6 @@ bool LLAudioEngine_FMODSTUDIO::init(const S32 num_channels, void* userdata, cons
         LL_WARNS("AppInit") << "FMOD Studio version mismatch, actual: " << version
             << " expected:" << FMOD_VERSION << LL_ENDL;
     }
-
-    // In case we need to force sampling on stereo, use setSoftwareFormat here
 
     // In this case, all sounds, PLUS wind and stream will be software.
     result = mSystem->setSoftwareChannels(num_channels + 2);
@@ -193,6 +191,15 @@ bool LLAudioEngine_FMODSTUDIO::init(const S32 num_channels, void* userdata, cons
     // number of channel in this case looks to be identiacal to number of max simultaneously
     // playing objects and we can set practically any number
     result = mSystem->init(num_channels + 2, fmod_flags, 0);
+    if (Check_FMOD_Error(result, "Error initializing FMOD Studio with default settins, retrying with other format"))
+    {
+        result = mSystem->setSoftwareFormat(44100, FMOD_SPEAKERMODE_STEREO, 0/*- ignore*/);
+        if (Check_FMOD_Error(result, "Error setting sotware format. Can't init."))
+        {
+            return false;
+        }
+        result = mSystem->init(num_channels + 2, fmod_flags, 0);
+    }
     if (Check_FMOD_Error(result, "Error initializing FMOD Studio"))
     {
         // If it fails here and (result == FMOD_ERR_OUTPUT_CREATEBUFFER),
@@ -251,7 +258,7 @@ void LLAudioEngine_FMODSTUDIO::allocateListener(void)
     mListenerp = (LLListener *) new LLListener_FMODSTUDIO(mSystem);
     if (!mListenerp)
     {
-        LL_WARNS() << "Listener creation failed" << LL_ENDL;
+        LL_WARNS("FMOD") << "Listener creation failed" << LL_ENDL;
     }
 }
 
@@ -260,16 +267,16 @@ void LLAudioEngine_FMODSTUDIO::shutdown()
 {
     stopInternetStream();
 
-    LL_INFOS() << "About to LLAudioEngine::shutdown()" << LL_ENDL;
+    LL_INFOS("FMOD") << "About to LLAudioEngine::shutdown()" << LL_ENDL;
     LLAudioEngine::shutdown();
 
-    LL_INFOS() << "LLAudioEngine_FMODSTUDIO::shutdown() closing FMOD Studio" << LL_ENDL;
+    LL_INFOS("FMOD") << "LLAudioEngine_FMODSTUDIO::shutdown() closing FMOD Studio" << LL_ENDL;
     if (mSystem)
     {
         mSystem->close();
         mSystem->release();
     }
-    LL_INFOS() << "LLAudioEngine_FMODSTUDIO::shutdown() done closing FMOD Studio" << LL_ENDL;
+    LL_INFOS("FMOD") << "LLAudioEngine_FMODSTUDIO::shutdown() done closing FMOD Studio" << LL_ENDL;
 
     delete mListenerp;
     mListenerp = NULL;

@@ -381,54 +381,50 @@ void LLProgressView::initLogos()
 
     const U8 image_codec = IMG_CODEC_PNG;
     const LLRectf default_clip(0.f, 1.f, 1.f, 0.f);
-    const S32 default_height = 24;
-    const S32 default_width = 91;
+    const S32 default_height = 32;
     const S32 default_pad = 7;
+
+    S32 icon_width;
 
     // We don't know final screen rect yet, so we can't precalculate position fully
     LLTextBox *logos_label = getChild<LLTextBox>("logos_lbl");
     S32 texture_start_x = logos_label->getFont()->getWidthF32(logos_label->getText()) + default_pad;
     S32 texture_start_y = -3;
 
-    // Normally iamges stay in skins folder, but 3p images come from package instead
-    // of repository and need special handling
-#ifdef LL_WINDOWS
-    std::string temp_str = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "3p_icons");
-#elif LL_DARWIN
-    // On MAC use resource directory
-    std::string temp_str = gDirUtilp->add(gDirUtilp->getAppRODataDir(), "3p_icons");
-#else
-    std::string temp_str = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "3p_icons");
-#endif
+    // Normally we would just preload these textures from textures.xml,
+    // and display them via icon control, but they are only needed on
+    // startup and preloaded/UI ones stay forever
+    // (and this code was done already so simply reused it)
+    std::string temp_str = gDirUtilp->getExpandedFilename(LL_PATH_DEFAULT_SKIN, "textures", "3p_icons");
+
     temp_str += gDirUtilp->getDirDelimiter();
 
 #ifdef LL_FMODSTUDIO
-    const S32 fmod_y_offset = 2;
-    loadLogo(temp_str + "fmod.png",
+    icon_width = 89;
+    loadLogo(temp_str + "fmod_logo.png",
         image_codec,
-        LLRect(texture_start_x, texture_start_y + default_height + fmod_y_offset, texture_start_x + default_width + fmod_y_offset, texture_start_y),
+        LLRect(texture_start_x, texture_start_y + default_height, texture_start_x + icon_width, texture_start_y),
         default_clip,
         default_clip);
 
-    texture_start_x += default_width + default_pad;
+    texture_start_x += icon_width + default_pad;
 #endif
 
+    icon_width = 100;
     loadLogo(temp_str + "havok_logo.png",
         image_codec,
-        LLRect(texture_start_x, texture_start_y + default_height, texture_start_x + default_width, texture_start_y),
+        LLRect(texture_start_x, texture_start_y + default_height, texture_start_x + icon_width, texture_start_y),
         default_clip,
         default_clip);
 
-    texture_start_x += default_width + default_pad - 2; // offset to compensate for enormous borders for vivox
+    texture_start_x += icon_width + default_pad;
 
-    const LLRectf vivox_clip(0.0f /*repeats*/, 0.52f /*cut starting from center*/, 0.52f, 0.0f); // non-standard icon, clip it
-    const LLRectf vivox_offset(0.0f, 0.23f, 0.23f, 0.0f); // keeping clipping identical to not mess up scale
-    const S32 vivox_y_offset = -5;
+    icon_width = 87;
     loadLogo(temp_str + "vivox_logo.png",
         image_codec,
-        LLRect(texture_start_x, texture_start_y + default_height + vivox_y_offset, texture_start_x + default_width, texture_start_y + vivox_y_offset),
-        vivox_clip,
-        vivox_offset);
+        LLRect(texture_start_x, texture_start_y + default_height, texture_start_x + icon_width, texture_start_y),
+        default_clip,
+        default_clip);
 }
 
 void LLProgressView::initStartTexture(S32 location_id, bool is_in_production)
@@ -511,8 +507,11 @@ void LLProgressView::initTextures(S32 location_id, bool is_in_production)
     initStartTexture(location_id, is_in_production);
     initLogos();
 
-    LLTextBox *logos_label = getChild<LLTextBox>("logos_lbl");
-    logos_label->setVisible(true);
+    if (!mLogosList.empty())
+    {
+        LLTextBox *logos_label = getChild<LLTextBox>("logos_lbl");
+        logos_label->setVisible(true);
+    }
 }
 
 void LLProgressView::releaseTextures()
