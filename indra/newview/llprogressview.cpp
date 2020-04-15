@@ -382,14 +382,14 @@ void LLProgressView::initLogos()
     const U8 image_codec = IMG_CODEC_PNG;
     const LLRectf default_clip(0.f, 1.f, 1.f, 0.f);
     const S32 default_height = 32;
-    const S32 default_pad = 7;
+    const S32 default_pad = 25;
 
     S32 icon_width;
 
     // We don't know final screen rect yet, so we can't precalculate position fully
     LLTextBox *logos_label = getChild<LLTextBox>("logos_lbl");
     S32 texture_start_x = logos_label->getFont()->getWidthF32(logos_label->getText()) + default_pad;
-    S32 texture_start_y = -3;
+    S32 texture_start_y = -7;
 
     // Normally we would just preload these textures from textures.xml,
     // and display them via icon control, but they are only needed on
@@ -507,11 +507,10 @@ void LLProgressView::initTextures(S32 location_id, bool is_in_production)
     initStartTexture(location_id, is_in_production);
     initLogos();
 
-    if (!mLogosList.empty())
-    {
-        LLTextBox *logos_label = getChild<LLTextBox>("logos_lbl");
-        logos_label->setVisible(true);
-    }
+    childSetVisible("panel_icons", mLogosList.empty() ? FALSE : TRUE);
+    childSetVisible("panel_login", TRUE);
+    childSetVisible("panel_teleport", FALSE);
+    childSetVisible("panel_spacer", FALSE);
 }
 
 void LLProgressView::releaseTextures()
@@ -519,8 +518,10 @@ void LLProgressView::releaseTextures()
     gStartTexture = NULL;
     mLogosList.clear();
 
-    LLTextBox *logos_label = getChild<LLTextBox>("logos_lbl");
-    logos_label->setVisible(false);
+    childSetVisible("panel_login", FALSE);
+    childSetVisible("panel_teleport", TRUE);
+    childSetVisible("panel_spacer", TRUE);
+    childSetVisible("panel_icons", FALSE);
 }
 
 void LLProgressView::setCancelButtonVisible(BOOL b, const std::string& label)
