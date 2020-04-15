@@ -457,6 +457,7 @@ private:
 	JointTransformMap	mJointTransformMap;
 
 	LLPointer<LLVOAvatar>	mPreviewAvatar;
+	LLCachedControl<bool>	mImporterDebug;
 };
 
 #endif  // LL_LLFLOATERMODELPREVIEW_H
