@@ -485,7 +485,8 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
     return success;
 }
 
-BOOL LLGLSLShader::attachVertexObject(std::string object_path) {
+BOOL LLGLSLShader::attachVertexObject(std::string object_path)
+{
     if (LLShaderMgr::instance()->mVertexShaderObjects.count(object_path) > 0)
     {
         stop_glerror();
