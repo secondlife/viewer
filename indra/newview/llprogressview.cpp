@@ -510,7 +510,6 @@ void LLProgressView::initTextures(S32 location_id, bool is_in_production)
     childSetVisible("panel_icons", mLogosList.empty() ? FALSE : TRUE);
     childSetVisible("panel_login", TRUE);
     childSetVisible("panel_teleport", FALSE);
-    childSetVisible("panel_spacer", FALSE);
 }
 
 void LLProgressView::releaseTextures()
@@ -520,7 +519,6 @@ void LLProgressView::releaseTextures()
 
     childSetVisible("panel_login", FALSE);
     childSetVisible("panel_teleport", TRUE);
-    childSetVisible("panel_spacer", TRUE);
     childSetVisible("panel_icons", FALSE);
 }
 

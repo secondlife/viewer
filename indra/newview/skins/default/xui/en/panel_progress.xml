@@ -143,14 +143,6 @@
                       </layout_panel>
                       <layout_panel
                        auto_resize="false"
-                       height="12"
-                       layout="topleft"
-                       min_height="12"
-                       name="panel_spacer"
-                       width="670">
-                      </layout_panel>
-                      <layout_panel
-                       auto_resize="false"
                        height="110"
                        layout="topleft"
                        min_height="110"
