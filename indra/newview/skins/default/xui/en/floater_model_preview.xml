@@ -4,13 +4,14 @@
  can_drag_on_left="false"
  can_minimize="true"
  can_resize="true"
- height="600"
- min_height="600"
+ height="625"
+ min_height="625"
  width="980"
  min_width="980"
  name="Model Preview"
  title="UPLOAD MODEL"
- help_topic="upload_model" >
+ help_topic="upload_model"
+ legacy_header_height="25">
 
   <string name="status_idle"></string>
   <string name="status_parse_error">Error: Dae parsing issue - see log for details.</string>
@@ -51,7 +52,7 @@
     layout="topleft"
     left="3"
     name="left_panel"
-    top_pad="0"
+    top_pad="25"
     width="635">
     <panel
       follows="all"
@@ -1630,7 +1631,7 @@ Analysed:
    left="640"
    name="lod_label"
    text_color="White"
-   top="4"
+   top="29"
    height="15"
    width="290">
     Preview:
