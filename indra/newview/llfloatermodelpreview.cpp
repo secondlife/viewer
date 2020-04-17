@@ -1015,8 +1015,11 @@ BOOL LLFloaterModelPreview::handleScrollWheel(S32 x, S32 y, S32 clicks)
 		mModelPreview->zoom((F32)clicks * -0.2f);
 		mModelPreview->refresh();
 	}
-
-	return TRUE;
+    else
+    {
+        LLFloaterModelUploadBase::handleScrollWheel(x, y, clicks);
+    }
+    return TRUE;
 }
 
 /*virtual*/
