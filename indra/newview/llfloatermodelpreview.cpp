@@ -349,7 +349,6 @@ BOOL LLFloaterModelPreview::postBuild()
 
     childSetVisible("warning_title", false);
     childSetVisible("warning_message", false);
-    childSetVisible("status", false);
 
 	initDecompControls();
 
@@ -1579,23 +1578,41 @@ void LLFloaterModelPreview::addStringToLogTab(const std::string& str, bool flash
         return;
     }
 
-    LLPanel* panel = mTabContainer->getPanelByName("logs_panel");
-
     // Make sure we have space for new string
     S32 editor_text_len = mUploadLogText->getLength();
+    if (editor_max_len < (editor_text_len + add_text_len)
+        && mUploadLogText->getLineCount() <= 0)
+    {
+        mUploadLogText->getTextBoundingRect();// forces a reflow() to fix line count
+    }
     while (editor_max_len < (editor_text_len + add_text_len))
     {
-        editor_text_len -= mUploadLogText->removeFirstLine();
+        S32 shift = mUploadLogText->removeFirstLine();
+        if (shift > 0)
+        {
+            // removed a line
+            editor_text_len -= shift;
+        }
+        else
+        {
+            //nothing to remove?
+            LL_WARNS() << "Failed to clear log lines" << LL_ENDL;
+            break;
+        }
     }
 
     mUploadLogText->appendText(str, true);
 
-    if (flash && mTabContainer->getCurrentPanel() != panel)
+    if (flash)
     {
-        // This will makes colors pale due to "glow_type = LLRender::BT_ALPHA"
-        // So instead of using "MenuItemFlashBgColor" added stronger color
-        static LLUIColor sFlashBgColor(LLColor4U(255, 99, 0));
-        mTabContainer->setTabPanelFlashing(panel, true, sFlashBgColor);
+        LLPanel* panel = mTabContainer->getPanelByName("logs_panel");
+        if (mTabContainer->getCurrentPanel() != panel)
+        {
+            // This will makes colors pale due to "glow_type = LLRender::BT_ALPHA"
+            // So instead of using "MenuItemFlashBgColor" added stronger color
+            static LLUIColor sFlashBgColor(LLColor4U(255, 99, 0));
+            mTabContainer->setTabPanelFlashing(panel, true, sFlashBgColor);
+        }
     }
 }
 
