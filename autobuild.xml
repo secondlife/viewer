@@ -604,16 +604,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3953802ef89f28f746d46cb92d3da91b</string>
+              <string>ce7bd1ff1a6982fb89197a9f35fbbeaa</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/56989/532020/dullahan-1.4.0.202004161913_81.2.16_gdacda4f_chromium-81.0.4044.92-windows64-540330.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/57168/534309/dullahan-1.4.0.202004180043_81.2.17_gb382c62_chromium-81.0.4044.113-windows64-540454.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.4.0.202004161913_81.2.16_gdacda4f_chromium-81.0.4044.92</string>
+        <string>1.4.0.202004180043_81.2.17_gb382c62_chromium-81.0.4044.113</string>
       </map>
       <key>elfio</key>
       <map>
