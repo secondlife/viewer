@@ -90,6 +90,7 @@ private:
 	bool mJavascriptEnabled;
 	bool mDisableGPU;
 	bool mDisableNetworkService;
+	bool mUseMockKeyChain;
 	std::string mUserAgentSubtring;
 	std::string mAuthUsername;
 	std::string mAuthPassword;
@@ -122,6 +123,7 @@ MediaPluginBase(host_send_func, host_user_data)
 	mJavascriptEnabled = true;
 	mDisableGPU = false;
 	mDisableNetworkService = true;
+	mUseMockKeyChain = true;
 	mUserAgentSubtring = "";
 	mAuthUsername = "";
 	mAuthPassword = "";
@@ -528,6 +530,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.disable_gpu = mDisableGPU;
 #if LL_DARWIN
 				settings.disable_network_service = mDisableNetworkService;
+				settings.use_mock_keychain = mUseMockKeyChain;
 #endif
 				settings.flash_enabled = mPluginsEnabled;
 				settings.flip_mouse_y = false;
