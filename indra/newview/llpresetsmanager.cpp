@@ -261,6 +261,7 @@ void LLPresetsManager::getControlNames(std::vector<std::string>& names)
 		("TrackFocusObject")
 		("CameraOffsetRearView")
 		("FocusOffsetRearView")
+		("AvatarSitRotation")
         ;
     names = camera_controls;
 }

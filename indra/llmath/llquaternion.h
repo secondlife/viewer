@@ -28,6 +28,7 @@
 #define LLQUATERNION_H
 
 #include <iostream>
+#include <llsd.h>
 
 #ifndef LLMATH_H //enforce specific include order to avoid tangling inline dependencies
 #error "Please include llmath.h first."
@@ -63,6 +64,29 @@ public:
 	LLQuaternion(const LLVector3 &x_axis,
 				 const LLVector3 &y_axis,
 				 const LLVector3 &z_axis);			// Initializes Quaternion from Matrix3 = [x_axis ; y_axis ; z_axis]
+
+	explicit LLQuaternion(const LLSD& sd)
+	{
+		setValue(sd);
+	}
+
+	void setValue(const LLSD& sd)
+	{
+		mQ[VX] = (F32) sd[0].asReal();
+		mQ[VY] = (F32) sd[1].asReal();
+		mQ[VZ] = (F32) sd[2].asReal();
+		mQ[VS] = (F32) sd[3].asReal();
+	}
+
+	LLSD getValue() const
+	{
+		LLSD ret;
+		ret[0] = mQ[VX];
+		ret[1] = mQ[VY];
+		ret[2] = mQ[VZ];
+		ret[3] = mQ[VS];
+		return ret;
+	}
 
 	BOOL isIdentity() const;
 	BOOL isNotIdentity() const;

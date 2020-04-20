@@ -121,6 +121,8 @@ public:
 	LLVector3d getCurrentFocusOffset();
 	LLQuaternion getCurrentAvatarRotation();
 	bool isJoystickCameraUsed();
+	void setInitSitRot(LLQuaternion sit_rot) { mInitSitRot = sit_rot; };
+	void rotateToInitSitRot();
 
 private:
 	/** Determines maximum camera distance from target for mouselook, opposite to LAND_MIN_ZOOM */
@@ -134,6 +136,8 @@ private:
 
 	/** Initial focus offset */
 	LLPointer<LLControlVariable> mFocusOffsetInitial;
+
+	LLQuaternion mInitSitRot;
 
 	//--------------------------------------------------------------------
 	// Position
