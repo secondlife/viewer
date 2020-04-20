@@ -1539,8 +1539,15 @@ void LLRender::matrixMode(eMatrixMode mode)
 	{
         U32 tex_index = gGL.getCurrentTexUnitIndex();
         // the shaders don't actually reference anything beyond texture_matrix0/1 outside of terrain rendering
-        llassert_always(tex_index <= 3);
+        llassert(tex_index <= 3);
 		mode = eMatrixMode(MM_TEXTURE0 + gGL.getCurrentTexUnitIndex());
+        if (mode > MM_TEXTURE3)
+        {
+            // getCurrentTexUnitIndex() can go as high as 32 (LL_NUM_TEXTURE_LAYERS)
+            // Large value will result in a crash at mMatrix
+            LL_WARNS_ONCE() << "Attempted to assign matrix mode out of bounds: " << mode << LL_ENDL;
+            mode = MM_TEXTURE0;
+        }
 	}
 
 	mMatrixMode = mode;
