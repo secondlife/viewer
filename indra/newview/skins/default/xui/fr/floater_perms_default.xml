@@ -37,6 +37,10 @@
 		<text name="label_12" tool_tip="Définir les droits par défaut pour la création d’habits ou de parties de corps">
 			Articles à porter
 		</text>
+		<text name="label_13" tool_tip="Définir les autorisations par défaut pour la création des paramètres environnementaux">
+			Paramètres
+		</text>
+		<check_box name="env_settings_c" value="true"/>
 	</panel>
 	<button label="OK" label_selected="OK" name="ok"/>
 	<button label="Annuler" label_selected="Annuler" name="cancel"/>

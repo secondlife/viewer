@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="密度" name="panel_settings_sky_density">
+	<layout_stack>
+		<layout_panel>
+			<slider label="レイリー指数項：" name="rayleigh_exponential"/>
+			<slider label="レイリー指数スケール：" name="rayleigh_exponential_scale"/>
+			<slider label="レイリー線形項：" name="rayleigh_linear"/>
+			<slider label="レイリー定数項：" name="rayleigh_constant"/>
+			<slider label="レイリー最大高度：" name="rayleigh_max_altitude"/>
+		</layout_panel>
+		<layout_panel>
+			<slider label="レイリー指数項：" name="mie_exponential"/>
+			<slider label="Mie 指数スケール：" name="mie_exponential_scale"/>
+			<slider label="Mie 線形項：" name="mie_linear"/>
+			<slider label="Mie 定数項：" name="mie_constant"/>
+			<slider label="Mie 不等要素：" name="mie_aniso_factor"/>
+			<slider label="Mie 最大高度：" name="mie_max_altitude"/>
+		</layout_panel>
+		<layout_panel>
+			<slider label="吸収指数項：" name="absorption_exponential"/>
+			<slider label="吸収指数スケール：" name="absorption_exponential_scale"/>
+			<slider label="吸収線形項：" name="absorption_linear"/>
+			<slider label="吸収定数項：" name="absorption_constant"/>
+			<slider label="吸収最大高度：" name="absorption_max_altitude"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

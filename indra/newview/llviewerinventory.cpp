@@ -70,6 +70,7 @@
 #include "llfloaterperms.h"
 #include "llclipboard.h"
 #include "llhttpretrypolicy.h"
+#include "llsettingsvo.h"
 
 // do-nothing ops for use in callbacks.
 void no_op_inventory_func(const LLUUID&) {} 
@@ -1098,7 +1099,7 @@ void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 						   const LLUUID& parent, const LLTransactionID& transaction_id,
 						   const std::string& name,
 						   const std::string& desc, LLAssetType::EType asset_type,
-						   LLInventoryType::EType inv_type, LLWearableType::EType wtype,
+						   LLInventoryType::EType inv_type, U8 subtype,
 						   U32 next_owner_perm,
 						   LLPointer<LLInventoryCallback> cb)
 {
@@ -1133,7 +1134,7 @@ void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 	msg->addU32Fast(_PREHASH_NextOwnerMask, next_owner_perm);
 	msg->addS8Fast(_PREHASH_Type, (S8)asset_type);
 	msg->addS8Fast(_PREHASH_InvType, (S8)inv_type);
-	msg->addU8Fast(_PREHASH_WearableType, (U8)wtype);
+	msg->addU8Fast(_PREHASH_WearableType, (U8)subtype);
 	msg->addStringFast(_PREHASH_Name, server_name);
 	msg->addStringFast(_PREHASH_Description, desc);
 	
@@ -1147,8 +1148,35 @@ void create_inventory_callingcard(const LLUUID& avatar_id, const LLUUID& parent 
 	LLAvatarNameCache::get(avatar_id, &av_name);
 	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
 						  parent, LLTransactionID::tnull, av_name.getUserName(), item_desc, LLAssetType::AT_CALLINGCARD,
-						  LLInventoryType::IT_CALLINGCARD, NOT_WEARABLE, PERM_MOVE | PERM_TRANSFER, cb);
+                          LLInventoryType::IT_CALLINGCARD, NO_INV_SUBTYPE, PERM_MOVE | PERM_TRANSFER, cb);
 }
+
+void create_inventory_wearable(const LLUUID& agent_id, const LLUUID& session_id,
+    const LLUUID& parent, const LLTransactionID& transaction_id,
+    const std::string& name,
+    const std::string& desc, LLAssetType::EType asset_type,
+    LLWearableType::EType wtype,
+    U32 next_owner_perm,
+    LLPointer<LLInventoryCallback> cb)
+{
+    create_inventory_item(agent_id, session_id, parent, transaction_id,
+        name, desc, asset_type, LLInventoryType::IT_WEARABLE, static_cast<U8>(wtype),
+        next_owner_perm, cb);
+}
+
+void create_inventory_settings(const LLUUID& agent_id, const LLUUID& session_id,
+    const LLUUID& parent, const LLTransactionID& transaction_id,
+    const std::string& name,
+    const std::string& desc, 
+    LLSettingsType::type_e settype,
+    U32 next_owner_perm,
+    LLPointer<LLInventoryCallback> cb)
+{
+    create_inventory_item(agent_id, session_id, parent, transaction_id,
+        name, desc, LLAssetType::AT_SETTINGS, LLInventoryType::IT_SETTINGS, 
+        static_cast<U8>(settype), next_owner_perm, cb);
+}
+
 
 void copy_inventory_item(
 	const LLUUID& agent_id,
@@ -1701,7 +1729,7 @@ void create_new_item(const std::string& name,
 						  desc,
 						  asset_type,
 						  inv_type,
-						  NOT_WEARABLE,
+                          NO_INV_SUBTYPE,
 						  next_owner_perm,
 						  cb);
 }	
@@ -1794,6 +1822,32 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLFolderBridge *bridge,
 					  LLInventoryType::IT_GESTURE,
 					  PERM_ALL);	// overridden in create_new_item
 	}
+    else if (("sky" == type_name) || ("water" == type_name) || ("daycycle" == type_name))
+    {
+        LLSettingsType::type_e stype(LLSettingsType::ST_NONE);
+
+        if ("sky" == type_name)
+        {
+            stype = LLSettingsType::ST_SKY;
+        }
+        else if ("water" == type_name)
+        {
+            stype = LLSettingsType::ST_WATER;
+        }
+        else if ("daycycle" == type_name)
+        {
+            stype = LLSettingsType::ST_DAYCYCLE;
+        }
+        else
+        {
+            LL_ERRS(LOG_INV) << "Unknown settings type: '" << type_name << "'" << LL_ENDL;
+            return;
+        }
+
+        LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
+
+        LLSettingsVOBase::createNewInventoryItem(stype, parent_id);
+    }
 	else
 	{
 		// Use for all clothing and body parts.  Adding new wearable types requires updating LLWearableDictionary.
@@ -1974,6 +2028,19 @@ LLWearableType::EType LLViewerInventoryItem::getWearableType() const
 	return LLWearableType::inventoryFlagsToWearableType(getFlags());
 }
 
+bool LLViewerInventoryItem::isSettingsType() const
+{
+    return (getInventoryType() == LLInventoryType::IT_SETTINGS);
+}
+
+LLSettingsType::type_e LLViewerInventoryItem::getSettingsType() const
+{
+    if (!isSettingsType())
+    {
+        return LLSettingsType::ST_NONE;
+    }
+    return LLSettingsType::fromInventoryFlags(getFlags());
+}
 
 time_t LLViewerInventoryItem::getCreationDate() const
 {

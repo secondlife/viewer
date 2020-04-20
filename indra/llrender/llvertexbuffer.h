@@ -179,8 +179,8 @@ public:
 		TYPE_WEIGHT4,
 		TYPE_CLOTHWEIGHT,
 		TYPE_TEXTURE_INDEX,
-		TYPE_MAX,
-		TYPE_INDEX,		
+		TYPE_MAX,   // TYPE_MAX is the size/boundary marker for attributes that go in the vertex buffer
+		TYPE_INDEX,	// TYPE_INDEX is beyond _MAX because it lives in a separate (index) buffer	
 	};
 	enum {
 		MAP_VERTEX = (1<<TYPE_VERTEX),

@@ -37,7 +37,8 @@ public:
 	{
 		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
 							LLVertexBuffer::MAP_NORMAL |
-							LLVertexBuffer::MAP_TEXCOORD0							
+                            LLVertexBuffer::MAP_COLOR  |
+							LLVertexBuffer::MAP_TEXCOORD0
 	};
 
 	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }

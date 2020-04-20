@@ -125,6 +125,8 @@ public:
 	virtual BOOL isMissingAsset() const ;
 	virtual void dump();	// debug info to LL_INFOS()
 	
+    virtual bool isViewerMediaTexture() const { return false; }
+
 	/*virtual*/ bool bindDefaultImage(const S32 stage = 0) ;
 	/*virtual*/ bool bindDebugImage(const S32 stage = 0) ;
 	/*virtual*/ void forceImmediateUpdate() ;
@@ -228,8 +230,8 @@ public:
 	static S8  sCameraMovingDiscardBias;
 	static F32 sCameraMovingBias;
 	static S32 sMaxSculptRez ;
-	static S32 sMinLargeImageSize ;
-	static S32 sMaxSmallImageSize ;
+	static U32 sMinLargeImageSize ;
+	static U32 sMaxSmallImageSize ;
 	static bool sFreezeImageUpdates;
 	static F32  sCurrentTime ;
 
@@ -578,6 +580,8 @@ public:
 	void setPlaying(BOOL playing) ;
 	BOOL isPlaying() const {return mIsPlaying;}
 	void setMediaImpl() ;
+
+    virtual bool isViewerMediaTexture() const { return true; }
 
 	void initVirtualSize() ;	
 	void invalidateMediaImpl() ;

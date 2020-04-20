@@ -1,5 +1,5 @@
 /**
- * @file terrainWaterF.glsl
+ * @file class1\environment\terrainWaterF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -64,4 +64,3 @@ void main()
 	outColor = applyWaterFog(outColor);
 	frag_color = outColor;
 }
-
