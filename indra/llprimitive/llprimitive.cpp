@@ -1659,7 +1659,7 @@ BOOL LLLightParams::unpack(LLDataPacker &dp)
 {
 	LLColor4U color;
 	dp.unpackColor4U(color, "color");
-	setColor(LLColor4(color));
+	setLinearColor(LLColor4(color));
 
 	F32 radius;
 	dp.unpackF32(radius, "radius");
@@ -1707,7 +1707,7 @@ LLSD LLLightParams::asLLSD() const
 {
 	LLSD sd;
 	
-	sd["color"] = ll_sd_from_color4(getColor());
+	sd["color"] = ll_sd_from_color4(getLinearColor());
 	sd["radius"] = getRadius();
 	sd["falloff"] = getFalloff();
 	sd["cutoff"] = getCutoff();
@@ -1721,7 +1721,7 @@ bool LLLightParams::fromLLSD(LLSD& sd)
 	w = "color";
 	if (sd.has(w))
 	{
-		setColor( ll_color4_from_sd(sd["color"]) );
+		setLinearColor( ll_color4_from_sd(sd["color"]) );
 	} else goto fail;
 	w = "radius";
 	if (sd.has(w))

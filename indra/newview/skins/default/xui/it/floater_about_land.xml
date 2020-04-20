@@ -484,5 +484,6 @@ Media:
 			</panel>
 		</panel>
 		<panel label="ESPERIENZE" name="land_experiences_panel"/>
+		<panel label="AMBIENTE" name="land_environment_panel"/>
 	</tab_container>
 </floater>

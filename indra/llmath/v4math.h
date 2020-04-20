@@ -30,6 +30,7 @@
 #include "llerror.h"
 #include "llmath.h"
 #include "v3math.h"
+#include "v2math.h"
 
 class LLMatrix3;
 class LLMatrix4;
@@ -46,8 +47,11 @@ class LLVector4
 		LLVector4();						// Initializes LLVector4 to (0, 0, 0, 1)
 		explicit LLVector4(const F32 *vec);			// Initializes LLVector4 to (vec[0]. vec[1], vec[2], vec[3])
 		explicit LLVector4(const F64 *vec);			// Initialized LLVector4 to ((F32) vec[0], (F32) vec[1], (F32) vec[3], (F32) vec[4]);
+        explicit LLVector4(const LLVector2 &vec);
+        explicit LLVector4(const LLVector2 &vec, F32 z, F32 w);
 		explicit LLVector4(const LLVector3 &vec);			// Initializes LLVector4 to (vec, 1)
 		explicit LLVector4(const LLVector3 &vec, F32 w);	// Initializes LLVector4 to (vec, w)
+        explicit LLVector4(const LLSD &sd);
 		LLVector4(F32 x, F32 y, F32 z);		// Initializes LLVector4 to (x. y, z, 1)
 		LLVector4(F32 x, F32 y, F32 z, F32 w);
 
@@ -60,6 +64,15 @@ class LLVector4
 			ret[3] = mV[3];
 			return ret;
 		}
+
+        void setValue(const LLSD& sd)
+        {
+            mV[0] = sd[0].asReal();
+            mV[1] = sd[1].asReal();
+            mV[2] = sd[2].asReal();
+            mV[3] = sd[3].asReal();
+        }
+
 
 		inline BOOL isFinite() const;									// checks to see if all values of LLVector3 are finite
 
@@ -175,6 +188,22 @@ inline LLVector4::LLVector4(const F64 *vec)
 	mV[VW] = (F32) vec[VW];
 }
 
+inline LLVector4::LLVector4(const LLVector2 &vec)
+{
+    mV[VX] = vec[VX];
+    mV[VY] = vec[VY];
+    mV[VZ] = 0.f;
+    mV[VW] = 0.f;
+}
+
+inline LLVector4::LLVector4(const LLVector2 &vec, F32 z, F32 w)
+{
+    mV[VX] = vec[VX];
+    mV[VY] = vec[VY];
+    mV[VZ] = z;
+    mV[VW] = w;
+}
+
 inline LLVector4::LLVector4(const LLVector3 &vec)
 {
 	mV[VX] = vec.mV[VX];
@@ -189,6 +218,11 @@ inline LLVector4::LLVector4(const LLVector3 &vec, F32 w)
 	mV[VY] = vec.mV[VY];
 	mV[VZ] = vec.mV[VZ];
 	mV[VW] = w;
+}
+
+inline LLVector4::LLVector4(const LLSD &sd)
+{
+    setValue(sd);
 }
 
 
@@ -498,6 +532,18 @@ inline F32		LLVector4::normVec(void)
 		mag = 0;
 	}
 	return (mag);
+}
+
+// Because apparently some parts of the viewer use this for color info.
+inline const LLVector4 srgbVector4(const LLVector4 &a) {
+    LLVector4 srgbColor;
+
+    srgbColor.mV[0] = linearTosRGB(a.mV[0]);
+    srgbColor.mV[1] = linearTosRGB(a.mV[1]);
+    srgbColor.mV[2] = linearTosRGB(a.mV[2]);
+    srgbColor.mV[3] = a.mV[3];
+
+    return srgbColor;
 }
 
 

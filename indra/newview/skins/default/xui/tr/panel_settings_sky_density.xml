@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Yoğunluk" name="panel_settings_sky_density">
+	<layout_stack>
+		<layout_panel>
+			<slider label="Rayleigh Üstel Terim:" name="rayleigh_exponential"/>
+			<slider label="Rayleigh Üstel Skala:" name="rayleigh_exponential_scale"/>
+			<slider label="Rayleigh Lineer Terim:" name="rayleigh_linear"/>
+			<slider label="Rayleigh Sabit Terim:" name="rayleigh_constant"/>
+			<slider label="Rayleigh Maks. İrtifa:" name="rayleigh_max_altitude"/>
+		</layout_panel>
+		<layout_panel>
+			<slider label="Mie Üstel Terim:" name="mie_exponential"/>
+			<slider label="Mie Üstel Skala:" name="mie_exponential_scale"/>
+			<slider label="Mie Lineer Terim:" name="mie_linear"/>
+			<slider label="Mie Sabit Terim:" name="mie_constant"/>
+			<slider label="Mie Anizotropi Faktörü:" name="mie_aniso_factor"/>
+			<slider label="Mie Maks. İrtifa:" name="mie_max_altitude"/>
+		</layout_panel>
+		<layout_panel>
+			<slider label="Absorpsiyon Üstel Terim:" name="absorption_exponential"/>
+			<slider label="Absorpsiyon Üstel Skala:" name="absorption_exponential_scale"/>
+			<slider label="Absorpsiyon Lineer Terim:" name="absorption_linear"/>
+			<slider label="Absorpsiyon Sabit Terim:" name="absorption_constant"/>
+			<slider label="Absorpsiyon Maks. İrtifa:" name="absorption_max_altitude"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

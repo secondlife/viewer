@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<floater
+        positioning="cascading"
+        save_rect="true"
+        single_instance="true"
+        reuse_instance="true"
+        legacy_header_height="18"
+        can_resize="true"
+        height="465"
+        name="my_environments"
+        help_topic="my_environments"
+        title="MY ENVIRONMENTS"
+        background_visible="true"
+        label="Places"
+        layout="topleft"
+        min_height="350"
+        min_width="265"
+        width="313">
+    <layout_stack 
+            follows="all"
+            layout="topleft"
+            left="5"
+            top="20"
+            right="-5"
+            bottom="-5"
+            orientation="vertical">
+        <layout_panel
+                border="true"
+                bevel_style="in"
+                auto_resize="false"
+                tab_group="1"
+                height="54"
+                name="filter_panel"
+                label="Filters"
+                font="SansSerifBold">
+            <icon
+                    height="16"
+                    image_name="Inv_SettingsDay"
+                    layout="topleft"
+                    mouse_opaque="true"
+                    name="icon_settingsdays"
+                    left="4"
+                    width="16" />
+            <check_box
+                    height="16"
+                    label="Days"
+                    layout="topleft"
+                    left_pad="2"
+                    name="chk_days"
+                    top_delta="0"
+                    width="60" />
+            <icon
+                    height="16"
+                    image_name="Inv_SettingsSky"
+                    layout="topleft"
+                    mouse_opaque="true"
+                    name="icon_settingsskies"
+                    left_pad="10"
+                    width="16" />
+            <check_box
+                    height="16"
+                    label="Skies"
+                    layout="topleft"
+                    left_pad="2"
+                    name="chk_skies"
+                    top_delta="0"
+                    width="60" />
+            <icon
+                    height="16"
+                    image_name="Inv_SettingsWater"
+                    layout="topleft"
+                    mouse_opaque="true"
+                    name="icon_settingswater"
+                    left_pad="10"
+                    width="16" />
+            <check_box
+                    height="16"
+                    label="Water"
+                    layout="topleft"
+                    left_pad="2"
+                    name="chk_water"
+                    top_delta="0"
+                    width="60" />
+          <filter_editor
+                  follows="left|top|right"
+                  height="23"
+                  label="Filter Environments"
+                  layout="topleft"
+                  left="4"
+                  name="flt_search"
+                  top_pad="6"
+                  right="-4" />
+        </layout_panel>
+        <layout_panel
+                auto_resize="true"
+                user_resize="true"
+                tab_group="1"
+                name="list_panel"
+                label="Environments"
+                font="SansSerifBold">
+            <panel
+                    name="pnl_inv_wrap"
+                    label="pnl_inv_wrap"
+                    follows="all"
+                    layout="topleft"
+                    left="2"
+                    top="2"
+                    right="-2"
+                    bottom="-2"
+                    background_visible="true"
+                    bg_alpha_color="DkGray2"
+                    border="true">
+                <asset_filtered_inv_panel
+                       left="0"
+                       top="0"
+                       right="-1"
+                       bottom="-1"
+                       allow_multi_select="false"
+                       follows="all"
+                       layout="topleft"
+                       name="pnl_settings"
+                       filter_asset_type="settings"/>
+            </panel>
+        </layout_panel>
+        <layout_panel
+                auto_resize="false"
+                user_resize="false"
+                tab_group="1"
+                height="15">
+            <check_box
+                    follows="left|bottom"
+                    height="14"
+                    initial_value="false"
+                    label="Show All Folders"
+                    layout="topleft"
+                    name="chk_showfolders"
+                    top="2"
+                    left_delta="-1"
+                    width="200" />
+        </layout_panel>
+        <layout_panel
+                auto_resize="false"
+                tab_group="1"
+                height="31"
+                name="pnl_control"
+                font="SansSerifBold">
+            <panel
+                    background_visible="true"
+                    bevel_style="none"
+                    top_pad="1"
+                    follows="top|left|right"
+                    height="30"
+                    label="bottom_panel"
+                    layout="topleft"
+                    left="0"
+                    name="pnl_bottom">
+                <menu_button
+                        follows="bottom|left"
+                        height="18"
+                        image_disabled="OptionsMenu_Disabled"
+                        image_selected="OptionsMenu_Press"
+                        image_unselected="OptionsMenu_Off"
+                        layout="topleft"
+                        left="10"
+                        menu_filename="menu_settings_gear.xml"
+                        name="btn_gear"
+                        top="5"
+                        tool_tip="More options"
+                        width="18" />
+                <menu_button
+                        follows="bottom|left"
+                        font="SansSerifBigBold"
+                        height="18"
+                        image_selected="AddItem_Press"
+                        image_unselected="AddItem_Off"
+                        image_disabled="AddItem_Disabled"
+                        layout="topleft"
+                        left_pad="5"
+                        menu_filename="menu_settings_add.xml"
+                        name="btn_newsettings"
+                        tool_tip="Make new setting"
+                        top_delta="0"
+                        width="18" />
+                <button
+                        follows="bottom|right"
+                        font="SansSerifBigBold"
+                        height="18"
+                        image_selected="TrashItem_Press"
+                        image_unselected="TrashItem_Off"
+                        image_disabled="TrashItem_Disabled"
+                        layout="topleft"
+                        name="btn_del"
+                        right="-5"
+                        tool_tip="Remove selected item"
+                        top_delta="0"
+                        width="18" />
+            </panel>
+        </layout_panel>
+    </layout_stack>
+</floater>
