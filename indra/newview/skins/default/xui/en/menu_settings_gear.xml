@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu
+        layout="topleft"
+        mouse_opaque="false"
+        name="menu_settings_gear"
+        visible="false">
+    <menu_item_call
+            label="Edit"
+            layout="topleft"
+            name="edit_settings">
+        <on_click
+                function="MyEnvironments.DoEdit" />
+        <on_enable
+                function="MyEnvironments.EnableAction"
+                parameter="edit" />
+    </menu_item_call>
+    <menu_item_separator
+            layout="topleft" 
+            name="Separator" />
+    <menu_item_call
+            name="Settings Apply Local"
+            layout="topleft"
+            label="Apply Only To Myself">
+        <menu_item_call.on_click 
+                function="MyEnvironments.DoApply"
+                parameter="local" />
+    </menu_item_call>
+    <menu_item_call
+            name="Settings Apply Parcel"
+            layout="topleft"
+            label="Apply To Parcel">
+        <menu_item_call.on_click 
+                function="MyEnvironments.DoApply"
+                parameter="parcel" />
+        <menu_item_call.on_enable
+                function="MyEnvironments.CanApply" 
+                parameter="parcel"/>
+    </menu_item_call>
+    <menu_item_call
+            name="Settings Apply Region"
+            layout="topleft"
+            label="Apply To Region">
+        <menu_item_call.on_click 
+                function="MyEnvironments.DoApply"
+                parameter="region" />
+        <menu_item_call.on_enable
+                function="MyEnvironments.CanApply" 
+                parameter="region"/>
+    </menu_item_call>
+    <menu_item_separator
+            layout="topleft" 
+            name="Separator" />
+    <menu_item_call
+            label="Copy"
+            layout="topleft"
+            name="copy_settings">
+        <on_click
+                function="MyEnvironments.CopyPaste"
+                parameter="copy" />
+        <on_enable
+                function="MyEnvironments.EnableAction"
+                parameter="copy" />
+    </menu_item_call>
+    <menu_item_call
+            label="Paste"
+            layout="topleft"
+            name="paste_settings">
+        <on_click
+                function="MyEnvironments.CopyPaste"
+                parameter="paste" />
+        <on_enable
+                function="MyEnvironments.EnableAction"
+                parameter="paste" />
+    </menu_item_call>
+    <menu_item_call
+            label="Copy UUID"
+            layout="topleft"
+            name="copy_uuid">
+        <on_click
+                function="MyEnvironments.CopyPaste"
+                parameter="copy_uuid" />
+        <on_enable
+                function="MyEnvironments.EnableAction"
+                parameter="copy_uuid" />
+    </menu_item_call>
+</toggleable_menu>

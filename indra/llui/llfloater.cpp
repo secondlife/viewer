@@ -37,6 +37,7 @@
 #include "lluictrlfactory.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
+#include "llcriticaldamp.h" // LLSmoothInterpolation
 #include "lldir.h"
 #include "lldraghandle.h"
 #include "llfloaterreg.h"
@@ -63,6 +64,10 @@
 
 // use this to control "jumping" behavior when Ctrl-Tabbing
 const S32 TABBED_FLOATER_OFFSET = 0;
+
+const F32 LLFloater::CONTEXT_CONE_IN_ALPHA = 0.0f;
+const F32 LLFloater::CONTEXT_CONE_OUT_ALPHA = 1.f;
+const F32 LLFloater::CONTEXT_CONE_FADE_TIME = 0.08f;
 
 namespace LLInitParam
 {
@@ -2114,6 +2119,70 @@ void LLFloater::updateTitleButtons()
 		localRectToOtherView(buttons_rect, &buttons_rect, mDragHandle);
 		mDragHandle->setButtonsRect(buttons_rect);
 	}
+}
+
+void LLFloater::drawConeToOwner(F32 &context_cone_opacity,
+                                F32 max_cone_opacity,
+                                LLView *owner_view,
+                                F32 fade_time,
+                                F32 contex_cone_in_alpha,
+                                F32 contex_cone_out_alpha)
+{
+    if (owner_view
+        && owner_view->isInVisibleChain()
+        && hasFocus()
+        && context_cone_opacity > 0.001f
+        && gFocusMgr.childHasKeyboardFocus(this))
+    {
+        // draw cone of context pointing back to owner (e.x. texture swatch)
+        LLRect owner_rect;
+        owner_view->localRectToOtherView(owner_view->getLocalRect(), &owner_rect, this);
+        LLRect local_rect = getLocalRect();
+
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        LLGLEnable(GL_CULL_FACE);
+        gGL.begin(LLRender::QUADS);
+        {
+            gGL.color4f(0.f, 0.f, 0.f, contex_cone_in_alpha * context_cone_opacity);
+            gGL.vertex2i(owner_rect.mLeft, owner_rect.mTop);
+            gGL.vertex2i(owner_rect.mRight, owner_rect.mTop);
+            gGL.color4f(0.f, 0.f, 0.f, contex_cone_out_alpha * context_cone_opacity);
+            gGL.vertex2i(local_rect.mRight, local_rect.mTop);
+            gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
+
+            gGL.color4f(0.f, 0.f, 0.f, contex_cone_out_alpha * context_cone_opacity);
+            gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
+            gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
+            gGL.color4f(0.f, 0.f, 0.f, contex_cone_in_alpha * context_cone_opacity);
+            gGL.vertex2i(owner_rect.mLeft, owner_rect.mBottom);
+            gGL.vertex2i(owner_rect.mLeft, owner_rect.mTop);
+
+            gGL.color4f(0.f, 0.f, 0.f, contex_cone_out_alpha * context_cone_opacity);
+            gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
+            gGL.vertex2i(local_rect.mRight, local_rect.mTop);
+            gGL.color4f(0.f, 0.f, 0.f, contex_cone_in_alpha * context_cone_opacity);
+            gGL.vertex2i(owner_rect.mRight, owner_rect.mTop);
+            gGL.vertex2i(owner_rect.mRight, owner_rect.mBottom);
+
+
+            gGL.color4f(0.f, 0.f, 0.f, contex_cone_out_alpha * context_cone_opacity);
+            gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
+            gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
+            gGL.color4f(0.f, 0.f, 0.f, contex_cone_in_alpha * context_cone_opacity);
+            gGL.vertex2i(owner_rect.mRight, owner_rect.mBottom);
+            gGL.vertex2i(owner_rect.mLeft, owner_rect.mBottom);
+        }
+        gGL.end();
+    }
+
+    if (gFocusMgr.childHasMouseCapture(getDragHandle()))
+    {
+        context_cone_opacity = lerp(context_cone_opacity, max_cone_opacity, LLSmoothInterpolation::getInterpolant(fade_time));
+    }
+    else
+    {
+        context_cone_opacity = lerp(context_cone_opacity, 0.f, LLSmoothInterpolation::getInterpolant(fade_time));
+    }
 }
 
 void LLFloater::buildButtons(const Params& floater_params)

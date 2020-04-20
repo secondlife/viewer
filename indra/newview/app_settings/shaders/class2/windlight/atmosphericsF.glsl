@@ -1,5 +1,5 @@
 /** 
- * @file atmosphericsF.glsl
+ * @file class2\wl\atmosphericsF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -22,23 +22,25 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
-
-
-//////////////////////////////////////////////////////////
-// The fragment shader for the terrain atmospherics
-//////////////////////////////////////////////////////////
 
 vec3 getAdditiveColor();
 vec3 getAtmosAttenuation();
+vec3 scaleSoftClipFrag(vec3 light);
 
-uniform sampler2D cloudMap;
-uniform vec4 cloud_pos_density1;
+uniform int no_atmo;
+
+vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten)
+{
+    if (no_atmo == 1)
+    {
+        return light;
+    }
+    light *= atten.r;
+    light += additive;
+    return light * 2.0;
+}
 
 vec3 atmosLighting(vec3 light)
 {
-	light *= getAtmosAttenuation().r;
-	light += getAdditiveColor();
-	return (2.0 * light);
+    return atmosFragLighting(light, getAdditiveColor(), getAtmosAttenuation());
 }
-

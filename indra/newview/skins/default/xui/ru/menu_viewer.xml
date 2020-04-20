@@ -77,30 +77,15 @@
 			<menu_item_check label="Свойства участка" name="Parcel Properties"/>
 			<menu_item_check label="Меню «Дополнительно»" name="Show Advanced Menu"/>
 		</menu>
-		<menu label="Солнце" name="Sun">
+		<menu label="Окружающая среда" name="Environment">
 			<menu_item_check label="Восход" name="Sunrise"/>
 			<menu_item_check label="Полдень" name="Noon"/>
 			<menu_item_check label="Закат" name="Sunset"/>
 			<menu_item_check label="Полночь" name="Midnight"/>
-			<menu_item_check label="Использовать настройки региона" name="Use Region Settings"/>
-		</menu>
-		<menu label="Редактор среды" name="Environment Editor">
-			<menu_item_call label="Настройки среды..." name="Environment Settings"/>
-			<menu label="Настройки воды" name="Water Presets">
-				<menu_item_call label="Новая настройка..." name="new_water_preset"/>
-				<menu_item_call label="Изменить настройку..." name="edit_water_preset"/>
-				<menu_item_call label="Удалить настройку..." name="delete_water_preset"/>
-			</menu>
-			<menu label="Настройки неба" name="Sky Presets">
-				<menu_item_call label="Новая настройка..." name="new_sky_preset"/>
-				<menu_item_call label="Изменить настройку..." name="edit_sky_preset"/>
-				<menu_item_call label="Удалить настройку..." name="delete_sky_preset"/>
-			</menu>
-			<menu label="Суточные настройки" name="Day Presets">
-				<menu_item_call label="Новая настройка..." name="new_day_preset"/>
-				<menu_item_call label="Изменить настройку..." name="edit_day_preset"/>
-				<menu_item_call label="Удалить настройку..." name="delete_day_preset"/>
-			</menu>
+			<menu_item_check label="Использование окружающей среды" name="Use Shared Environment"/>
+			<menu_item_call label="Моя среда…" name="my_environs"/>
+			<menu_item_call label="Личное освещение..." name="adjustment_tool"/>
+			<menu_item_check label="Приостановить движение облаков" name="pause_clouds"/>
 		</menu>
 	</menu>
 	<menu label="Строительство" name="BuildTools">
@@ -343,6 +328,9 @@
 			<menu_item_check label="Автоматические альфа-маски (не отложенные)" name="Automatic Alpha Masks (non-deferred)"/>
 			<menu_item_check label="Текстуры анимаций" name="Animation Textures"/>
 			<menu_item_check label="Отключить текстуры" name="Disable Textures"/>
+			<menu_item_check label="Отключить окружающую среду" name="Disable Ambient"/>
+			<menu_item_check label="Отключить солнечный свет" name="Disable Sunlight"/>
+			<menu_item_check label="Отключить локальный свет" name="Disable Local Lights"/>
 			<menu_item_check label="Текстуры в полном разрешении" name="Rull Res Textures"/>
 			<menu_item_check label="Визуализация присоединенных источников света" name="Render Attached Lights"/>
 			<menu_item_check label="Визуализация присоединенных частиц" name="Render Attached Particles"/>
@@ -480,6 +468,7 @@
 			<menu_item_call label="Юбка" name="Skirt"/>
 			<menu_item_call label="Альфа" name="Alpha"/>
 			<menu_item_call label="Тату" name="Tattoo"/>
+			<menu_item_call label="Универсальные" name="Universal"/>
 			<menu_item_call label="Физика" name="Physics"/>
 			<menu_item_call label="Вся одежда" name="All Clothes"/>
 		</menu>

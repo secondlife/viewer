@@ -37,7 +37,7 @@ uniform vec4 color;
 uniform vec4 object_plane_t;
 uniform vec4 object_plane_s;
 
-vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
+vec4 calcLighting(vec3 pos, vec3 norm, vec4 color);
 void calcAtmospherics(vec3 inPositionEye);
 
 VARYING vec4 vertex_color;
@@ -70,7 +70,7 @@ void main()
 
 	calcAtmospherics(pos.xyz);
 
-	vec4 color = calcLighting(pos.xyz, norm, color, vec4(0.));
+	vec4 color = calcLighting(pos.xyz, norm, color);
 	vertex_color = color;
 
 	

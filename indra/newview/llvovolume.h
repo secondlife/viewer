@@ -242,7 +242,11 @@ public:
 
 	// For Lights
 	void setIsLight(BOOL is_light);
-	void setLightColor(const LLColor3& color);
+    //set the gamma-corrected (sRGB) color of this light
+	void setLightSRGBColor(const LLColor3& color);
+    //set the linear color of this light
+    void setLightLinearColor(const LLColor3& color);
+
 	void setLightIntensity(F32 intensity);
 	void setLightRadius(F32 radius);
 	void setLightFalloff(F32 falloff);
@@ -251,8 +255,21 @@ public:
 	void setSpotLightParams(LLVector3 params);
 
 	BOOL getIsLight() const;
-	LLColor3 getLightBaseColor() const; // not scaled by intensity
-	LLColor3 getLightColor() const; // scaled by intensity
+
+
+    // Get the light color in sRGB color space NOT scaled by intensity.
+	LLColor3 getLightSRGBBaseColor() const; 
+
+    // Get the light color in linear color space NOT scaled by intensity.
+    LLColor3 getLightLinearBaseColor() const;
+    
+    // Get the light color in linear color space scaled by intensity 
+    //  this is the value that should be fed into shaders
+    LLColor3 getLightLinearColor() const;
+
+    // Get the light color in sRGB color space scaled by intensity.
+    LLColor3 getLightSRGBColor() const; 
+
 	LLUUID	getLightTextureID() const;
 	bool isLightSpotlight() const;
 	LLVector3 getSpotLightParams() const;
@@ -262,7 +279,7 @@ public:
 	LLViewerTexture* getLightTexture();
 	F32 getLightIntensity() const;
 	F32 getLightRadius() const;
-	F32 getLightFalloff() const;
+	F32 getLightFalloff(const F32 fudge_factor = 1.f) const;
 	F32 getLightCutoff() const;
 	
 	// Flexible Objects

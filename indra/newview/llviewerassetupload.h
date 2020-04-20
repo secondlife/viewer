@@ -40,7 +40,7 @@
 class LLResourceUploadInfo
 {
 public:
-    typedef boost::shared_ptr<LLResourceUploadInfo> ptr_t;
+    typedef std::shared_ptr<LLResourceUploadInfo> ptr_t;
 
     LLResourceUploadInfo(
         LLTransactionID transactId,
@@ -171,8 +171,8 @@ private:
 class LLBufferedAssetUploadInfo : public LLResourceUploadInfo
 {
 public:
-    typedef boost::function<void(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD response)> invnUploadFinish_f;
-    typedef boost::function<void(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response)> taskUploadFinish_f;
+    typedef std::function<void(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD response)> invnUploadFinish_f;
+    typedef std::function<void(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response)> taskUploadFinish_f;
 
     LLBufferedAssetUploadInfo(LLUUID itemId, LLAssetType::EType assetType, std::string buffer, invnUploadFinish_f finish);
     LLBufferedAssetUploadInfo(LLUUID itemId, LLPointer<LLImageFormatted> image, invnUploadFinish_f finish);

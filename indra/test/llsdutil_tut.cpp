@@ -386,4 +386,49 @@ namespace tut
         lmap["Seattle"] = 72;
         ensure("llsd_equals(superset left map)", ! llsd_equals(lmap, rmap));
     }
+
+    template<> template<> 
+    void llsdutil_object::test<10>()
+    {
+        set_test_name("llsd_hashing");
+
+        {
+            LLSD data_s1 = LLSD::String("The quick brown aardvark jumped over the lazy lemming.");
+            LLSD data_s2 = LLSD::String("The quick brown aardvark jumped over the lazy lemming.");
+
+            ensure("hash: Identical string hashes match.", boost::hash<LLSD>{}(data_s1) == boost::hash<LLSD>{}(data_s2));
+        }
+        {
+            LLSD data_r1 = LLSD::Real(3.0f);
+            LLSD data_i1 = LLSD::Integer(3);
+            ensure("hash: equivalent values but different types do not match.", boost::hash<LLSD>{}(data_r1) != boost::hash<LLSD>{}(data_i1));
+        }
+        {
+            LLSD data_a1 = LLSDArray("A")("B")("C");
+            LLSD data_a2 = LLSDArray("A")("B")("C");
+
+            ensure("hash: identical arrays produce identical results", boost::hash<LLSD>{}(data_a1) == boost::hash<LLSD>{}(data_a2));
+
+            data_a2.append(LLSDArray(1)(2));
+
+            ensure("hash: changing the array changes the hash.", boost::hash<LLSD>{}(data_a1) != boost::hash<LLSD>{}(data_a2));
+
+            data_a1.append(LLSDArray(1)(2));
+            ensure("hash: identical arrays produce identical results with nested arrays", boost::hash<LLSD>{}(data_a1) == boost::hash<LLSD>{}(data_a2));
+        }
+        {
+            LLSD data_m1 = LLSDMap("key1", LLSD::Real(3.0))("key2", "value2")("key3", LLSDArray(1)(2)(3));
+            LLSD data_m2 = LLSDMap("key1", LLSD::Real(3.0))("key2", "value2")("key3", LLSDArray(1)(2)(3));
+
+            ensure("hash: identical maps produce identical results", boost::hash<LLSD>{}(data_m1) == boost::hash<LLSD>{}(data_m2));
+
+            LLSD data_m3 = LLSDMap("key1", LLSD::Real(5.0))("key2", "value2")("key3", LLSDArray(1)(2)(3));
+            ensure("hash: Different values in the map produce different hashes.", boost::hash<LLSD>{}(data_m1) != boost::hash<LLSD>{}(data_m3));
+
+            LLSD data_m4 = LLSDMap("keyA", LLSD::Real(3.0))("key2", "value2")("key3", LLSDArray(1)(2)(3));
+            ensure("hash: Different keys in the map produce different hashes.", boost::hash<LLSD>{}(data_m1) != boost::hash<LLSD>{}(data_m4));
+
+        }
+    }
+
 }

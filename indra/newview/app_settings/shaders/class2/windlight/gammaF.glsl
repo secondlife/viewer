@@ -1,5 +1,5 @@
 /** 
- * @file gammaF.glsl
+ * @file class2\wl\gammaF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -22,23 +22,37 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
-
-
-uniform vec4 gamma;
+uniform float gamma;
+uniform int no_atmo;
 
 vec3 getAtmosAttenuation();
+vec3 getAdditiveColor();
 
-/// Soft clips the light with a gamma correction
-vec3 scaleSoftClip(vec3 light) {
-	//soft clip effect:
-	light = 1. - clamp(light, vec3(0.), vec3(1.));
-	light = 1. - pow(light, gamma.xxx);
-
-	return light;
+vec3 scaleSoftClipFrag(vec3 light)
+{
+    if (no_atmo == 1)
+    {
+        return light;
+    }
+    //soft clip effect:
+    light = 1. - clamp(light, vec3(0.), vec3(1.));
+    light = 1. - pow(light, vec3(gamma)); // s/b inverted already CPU-side
+    return light;
 }
 
-vec3 fullbrightScaleSoftClip(vec3 light) {
-	return mix(scaleSoftClip(light.rgb), light.rgb, getAtmosAttenuation());
+vec3 scaleSoftClip(vec3 light)
+{
+    return scaleSoftClipFrag(light);
+}
+
+vec3 fullbrightScaleSoftClipFrag(vec3 light, vec3 add, vec3 atten)
+{
+    //return mix(scaleSoftClipFrag(light.rgb), add, atten);
+    return scaleSoftClipFrag(light.rgb);
+}
+
+vec3 fullbrightScaleSoftClip(vec3 light)
+{
+    return fullbrightScaleSoftClipFrag(light, getAdditiveColor(), getAtmosAttenuation());
 }
 

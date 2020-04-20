@@ -13,7 +13,7 @@
 		[WIDTH]px x [HEIGHT]px
 	</text>
 	<text name="aspect_ratio">
-		Seitenverhältnis anzeigen
+		Vorschau Seitenverhältnis
 	</text>
 	<combo_box name="combo_aspect_ratio" tool_tip="Mit einem vordefinierten Seitenverhältnis anzeigen">
 		<combo_item name="Unconstrained">

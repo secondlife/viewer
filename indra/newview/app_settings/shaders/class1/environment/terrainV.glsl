@@ -1,5 +1,5 @@
 /**
- * @file terrainV.glsl
+ * @file class1\environment\terrainV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -35,6 +35,7 @@ ATTRIBUTE vec3 position;
 ATTRIBUTE vec3 normal;
 ATTRIBUTE vec2 texcoord0;
 ATTRIBUTE vec2 texcoord1;
+ATTRIBUTE vec4 diffuse_color;
 
 VARYING vec4 vertex_color;
 VARYING vec4 vary_texcoord0;
@@ -42,7 +43,7 @@ VARYING vec4 vary_texcoord1;
 
 void calcAtmospherics(vec3 inPositionEye);
 
-vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
+vec4 calcLighting(vec3 pos, vec3 norm, vec4 color);
 
 vec4 texgen_object(vec4  vpos, vec4 tc, mat4 mat, vec4 tp0, vec4 tp1)
 {
@@ -71,7 +72,7 @@ void main()
 	/// Potentially better without it for water.
 	pos /= pos.w;
 
-	vec4 color = calcLighting(pos.xyz, norm, vec4(1,1,1,1), vec4(0));
+	vec4 color = calcLighting(pos.xyz, norm, /*diffuse_color*/vec4(1));
 	
 	vertex_color = color;
 

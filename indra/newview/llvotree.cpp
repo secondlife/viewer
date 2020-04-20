@@ -536,12 +536,14 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 
 		LLStrider<LLVector3> vertices;
 		LLStrider<LLVector3> normals;
+        LLStrider<LLColor4U> colors;
 		LLStrider<LLVector2> tex_coords;
 		LLStrider<U16> indicesp;
 
 		mReferenceBuffer->getVertexStrider(vertices);
 		mReferenceBuffer->getNormalStrider(normals);
 		mReferenceBuffer->getTexCoord0Strider(tex_coords);
+        mReferenceBuffer->getColorStrider(colors);
 		mReferenceBuffer->getIndexStrider(indicesp);
 				
 		S32 vertex_count = 0;
@@ -551,24 +553,27 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 		*(normals++) =		LLVector3(-SRR2, -SRR2, 0.f);
 		*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_BOTTOM);
 		*(vertices++) =		LLVector3(-0.5f*LEAF_WIDTH, 0.f, 0.f);
+        *(colors++) =       LLColor4U::white;
 		vertex_count++;
 
 		*(normals++) =		LLVector3(SRR3, -SRR3, SRR3);
 		*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_TOP);
 		*(vertices++) =		LLVector3(0.5f*LEAF_WIDTH, 0.f, 1.f);
+        *(colors++) =       LLColor4U::white;
 		vertex_count++;
 
 		*(normals++) =		LLVector3(-SRR3, -SRR3, SRR3);
 		*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_TOP);
 		*(vertices++) =		LLVector3(-0.5f*LEAF_WIDTH, 0.f, 1.f);
+        *(colors++) =       LLColor4U::white;
 		vertex_count++;
 
 		*(normals++) =		LLVector3(SRR2, -SRR2, 0.f);
 		*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_BOTTOM);
 		*(vertices++) =		LLVector3(0.5f*LEAF_WIDTH, 0.f, 0.f);
+        *(colors++) =       LLColor4U::white;
 		vertex_count++;
-
-
+        
 		*(indicesp++) = 0;
 		index_count++;
 		*(indicesp++) = 1;
@@ -587,21 +592,25 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 		*(normals++) =		LLVector3(-SRR2, SRR2, 0.f);
 		*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_BOTTOM);
 		*(vertices++) =		LLVector3(-0.5f*LEAF_WIDTH, 0.f, 0.f);
+        *(colors++) =       LLColor4U::white;
 		vertex_count++;
 
 		*(normals++) =		LLVector3(SRR3, SRR3, SRR3);
 		*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_TOP);
 		*(vertices++) =		LLVector3(0.5f*LEAF_WIDTH, 0.f, 1.f);
+        *(colors++) =       LLColor4U::white;
 		vertex_count++;
 
 		*(normals++) =		LLVector3(-SRR3, SRR3, SRR3);
 		*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_TOP);
 		*(vertices++) =		LLVector3(-0.5f*LEAF_WIDTH, 0.f, 1.f);
+        *(colors++) =       LLColor4U::white;
 		vertex_count++;
 
 		*(normals++) =		LLVector3(SRR2, SRR2, 0.f);
 		*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_BOTTOM);
 		*(vertices++) =		LLVector3(0.5f*LEAF_WIDTH, 0.f, 0.f);
+        *(colors++) =       LLColor4U::white;
 		vertex_count++;
 
 		*(indicesp++) = 4;
@@ -623,21 +632,25 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 		*(normals++) =		LLVector3(SRR2, -SRR2, 0.f);
 		*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_BOTTOM);
 		*(vertices++) =		LLVector3(0.f, -0.5f*LEAF_WIDTH, 0.f);
+        *(colors++) =       LLColor4U::white;
 		vertex_count++;
 
 		*(normals++) =		LLVector3(SRR3, SRR3, SRR3);
 		*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_TOP);
 		*(vertices++) =		LLVector3(0.f, 0.5f*LEAF_WIDTH, 1.f);
+        *(colors++) =       LLColor4U::white;
 		vertex_count++;
 
 		*(normals++) =		LLVector3(SRR3, -SRR3, SRR3);
 		*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_TOP);
 		*(vertices++) =		LLVector3(0.f, -0.5f*LEAF_WIDTH, 1.f);
+        *(colors++) =       LLColor4U::white;
 		vertex_count++;
 
 		*(normals++) =		LLVector3(SRR2, SRR2, 0.f);
 		*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_BOTTOM);
 		*(vertices++) =		LLVector3(0.f, 0.5f*LEAF_WIDTH, 0.f);
+        *(colors++) =       LLColor4U::white;
 		vertex_count++;
 
 		*(indicesp++) = 8;
@@ -659,21 +672,25 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 		*(normals++) =		LLVector3(-SRR2, -SRR2, 0.f);
 		*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_BOTTOM);
 		*(vertices++) =		LLVector3(0.f, -0.5f*LEAF_WIDTH, 0.f);
+        *(colors++) =       LLColor4U::white;
 		vertex_count++;
 
 		*(normals++) =		LLVector3(-SRR3, SRR3, SRR3);
 		*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_TOP);
 		*(vertices++) =		LLVector3(0.f, 0.5f*LEAF_WIDTH, 1.f);
+        *(colors++) =       LLColor4U::white;
 		vertex_count++;
 
 		*(normals++) =		LLVector3(-SRR3, -SRR3, SRR3);
 		*(tex_coords++) =	LLVector2(LEAF_LEFT, LEAF_TOP);
 		*(vertices++) =		LLVector3(0.f, -0.5f*LEAF_WIDTH, 1.f);
+        *(colors++) =       LLColor4U::white;
 		vertex_count++;
 
 		*(normals++) =		LLVector3(-SRR2, SRR2, 0.f);
 		*(tex_coords++) =	LLVector2(LEAF_RIGHT, LEAF_BOTTOM);
 		*(vertices++) =		LLVector3(0.f, 0.5f*LEAF_WIDTH, 0.f);
+        *(colors++) =       LLColor4U::white;
 		vertex_count++;
 
 		*(indicesp++) = 12;
@@ -786,6 +803,7 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 					*(vertices++) =		LLVector3(x1*radius, y1*radius, z);
 					*(normals++) =		LLVector3(x1, y1, 0.f);
 					*(tex_coords++) = tc;
+                    *(colors++) =       LLColor4U::white;
 					vertex_count++;
 				}
 			}
@@ -910,15 +928,17 @@ void LLVOTree::updateMesh()
 	LLStrider<LLVector3> vertices;
 	LLStrider<LLVector3> normals;
 	LLStrider<LLVector2> tex_coords;
+    LLStrider<LLColor4U> colors;
 	LLStrider<U16> indices;
 	U16 idx_offset = 0;
 
 	buff->getVertexStrider(vertices);
 	buff->getNormalStrider(normals);
 	buff->getTexCoord0Strider(tex_coords);
+    buff->getColorStrider(colors);
 	buff->getIndexStrider(indices);
 
-	genBranchPipeline(vertices, normals, tex_coords, indices, idx_offset, scale_mat, mTrunkLOD, stop_depth, mDepth, mTrunkDepth, 1.0, mTwist, droop, mBranches, alpha);
+	genBranchPipeline(vertices, normals, tex_coords, colors, indices, idx_offset, scale_mat, mTrunkLOD, stop_depth, mDepth, mTrunkDepth, 1.0, mTwist, droop, mBranches, alpha);
 	
 	mReferenceBuffer->flush();
 	buff->flush();
@@ -927,6 +947,7 @@ void LLVOTree::updateMesh()
 void LLVOTree::appendMesh(LLStrider<LLVector3>& vertices, 
 						 LLStrider<LLVector3>& normals, 
 						 LLStrider<LLVector2>& tex_coords, 
+                         LLStrider<LLColor4U>& colors, 
 						 LLStrider<U16>& indices,
 						 U16& cur_idx,
 						 LLMatrix4& matrix,
@@ -939,11 +960,13 @@ void LLVOTree::appendMesh(LLStrider<LLVector3>& vertices,
 	LLStrider<LLVector3> v;
 	LLStrider<LLVector3> n;
 	LLStrider<LLVector2> t;
+    LLStrider<LLColor4U> c;
 	LLStrider<U16> idx;
 
 	mReferenceBuffer->getVertexStrider(v);
 	mReferenceBuffer->getNormalStrider(n);
 	mReferenceBuffer->getTexCoord0Strider(t);
+    mReferenceBuffer->getColorStrider(c);
 	mReferenceBuffer->getIndexStrider(idx);
 	
 	//copy/transform vertices into mesh - check
@@ -955,6 +978,7 @@ void LLVOTree::appendMesh(LLStrider<LLVector3>& vertices,
 		norm.normalize();
 		*normals++ = norm;
 		*tex_coords++ = t[index];
+        *colors++ = c[index];
 	}
 
 	//copy offset indices into mesh - check
@@ -972,6 +996,7 @@ void LLVOTree::appendMesh(LLStrider<LLVector3>& vertices,
 void LLVOTree::genBranchPipeline(LLStrider<LLVector3>& vertices, 
 								 LLStrider<LLVector3>& normals, 
 								 LLStrider<LLVector2>& tex_coords, 
+                                 LLStrider<LLColor4U>& colors,
 								 LLStrider<U16>& indices,
 								 U16& index_offset,
 								 LLMatrix4& matrix, 
@@ -1013,7 +1038,7 @@ void LLVOTree::genBranchPipeline(LLStrider<LLVector3>& vertices,
 				LLMatrix4 norm_mat = LLMatrix4(norm.inverse().transpose().m);
 
 				norm_mat.invert();
-				appendMesh(vertices, normals, tex_coords, indices, index_offset, scale_mat, norm_mat, 
+				appendMesh(vertices, normals, tex_coords, colors, indices, index_offset, scale_mat, norm_mat, 
 							sLODVertexOffset[trunk_LOD], sLODVertexCount[trunk_LOD], sLODIndexCount[trunk_LOD], sLODIndexOffset[trunk_LOD]);
 			}
 			
@@ -1032,7 +1057,7 @@ void LLVOTree::genBranchPipeline(LLStrider<LLVector3>& vertices,
 				LLMatrix4 rot_mat(rot);
 				rot_mat *= trans_mat;
 
-				genBranchPipeline(vertices, normals, tex_coords, indices, index_offset, rot_mat, trunk_LOD, stop_level, depth - 1, 0, scale*mScaleStep, twist, droop, branches, alpha);
+				genBranchPipeline(vertices, normals, tex_coords, colors, indices, index_offset, rot_mat, trunk_LOD, stop_level, depth - 1, 0, scale*mScaleStep, twist, droop, branches, alpha);
 			}
 			//  Recurse to continue trunk
 			if (trunk_depth)
@@ -1043,7 +1068,7 @@ void LLVOTree::genBranchPipeline(LLStrider<LLVector3>& vertices,
 
 				LLMatrix4 rot_mat(70.5f*DEG_TO_RAD, LLVector4(0,0,1));
 				rot_mat *= trans_mat; // rotate a bit around Z when ascending 
-				genBranchPipeline(vertices, normals, tex_coords, indices, index_offset, rot_mat, trunk_LOD, stop_level, depth, trunk_depth-1, scale*mScaleStep, twist, droop, branches, alpha);
+				genBranchPipeline(vertices, normals, tex_coords, colors, indices, index_offset, rot_mat, trunk_LOD, stop_level, depth, trunk_depth-1, scale*mScaleStep, twist, droop, branches, alpha);
 			}
 		}
 		else
@@ -1062,7 +1087,7 @@ void LLVOTree::genBranchPipeline(LLStrider<LLVector3>& vertices,
 				glh::matrix4f norm((F32*) scale_mat.mMatrix);
 				LLMatrix4 norm_mat = LLMatrix4(norm.inverse().transpose().m);
 
-				appendMesh(vertices, normals, tex_coords, indices, index_offset, scale_mat, norm_mat, 0, LEAF_VERTICES, LEAF_INDICES, 0);	
+				appendMesh(vertices, normals, tex_coords, colors, indices, index_offset, scale_mat, norm_mat, 0, LEAF_VERTICES, LEAF_INDICES, 0);	
 			}
 		}
 	}

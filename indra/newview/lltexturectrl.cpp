@@ -73,10 +73,6 @@
 
 #include "llavatarappearancedefines.h"
 
-static const F32 CONTEXT_CONE_IN_ALPHA = 0.0f;
-static const F32 CONTEXT_CONE_OUT_ALPHA = 1.f;
-static const F32 CONTEXT_FADE_TIME = 0.08f;
-
 static const S32 LOCAL_TRACKING_ID_COLUMN = 1;
 
 //static const char CURRENT_IMAGE_NAME[] = "Current Texture";
@@ -398,7 +394,7 @@ BOOL LLFloaterTexturePicker::postBuild()
 
 		
 
-		if (!mImageAssetID.isNull())
+		if(!mImageAssetID.isNull())
 		{
 			mInventoryPanel->setSelection(findItemID(mImageAssetID, FALSE), TAKE_FOCUS_NO);
 		}
@@ -442,59 +438,8 @@ BOOL LLFloaterTexturePicker::postBuild()
 // virtual
 void LLFloaterTexturePicker::draw()
 {
-	if (mOwner)
-	{
-		// draw cone of context pointing back to texture swatch	
-		LLRect owner_rect;
-		mOwner->localRectToOtherView(mOwner->getLocalRect(), &owner_rect, this);
-		LLRect local_rect = getLocalRect();
-		if (gFocusMgr.childHasKeyboardFocus(this) && mOwner->isInVisibleChain() && mContextConeOpacity > 0.001f)
-		{
-			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-			LLGLEnable(GL_CULL_FACE);
-			gGL.begin(LLRender::QUADS);
-			{
-				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
-				gGL.vertex2i(owner_rect.mLeft, owner_rect.mTop);
-				gGL.vertex2i(owner_rect.mRight, owner_rect.mTop);
-				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
-				gGL.vertex2i(local_rect.mRight, local_rect.mTop);
-				gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
-
-				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
-				gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
-				gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
-				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
-				gGL.vertex2i(owner_rect.mLeft, owner_rect.mBottom);
-				gGL.vertex2i(owner_rect.mLeft, owner_rect.mTop);
-
-				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
-				gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
-				gGL.vertex2i(local_rect.mRight, local_rect.mTop);
-				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
-				gGL.vertex2i(owner_rect.mRight, owner_rect.mTop);
-				gGL.vertex2i(owner_rect.mRight, owner_rect.mBottom);
-
-
-				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_OUT_ALPHA * mContextConeOpacity);
-				gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
-				gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
-				gGL.color4f(0.f, 0.f, 0.f, CONTEXT_CONE_IN_ALPHA * mContextConeOpacity);
-				gGL.vertex2i(owner_rect.mRight, owner_rect.mBottom);
-				gGL.vertex2i(owner_rect.mLeft, owner_rect.mBottom);
-			}
-			gGL.end();
-		}
-	}
-
-	if (gFocusMgr.childHasMouseCapture(getDragHandle()))
-	{
-		mContextConeOpacity = lerp(mContextConeOpacity, gSavedSettings.getF32("PickerContextOpacity"), LLSmoothInterpolation::getInterpolant(CONTEXT_FADE_TIME));
-	}
-	else
-	{
-		mContextConeOpacity = lerp(mContextConeOpacity, 0.f, LLSmoothInterpolation::getInterpolant(CONTEXT_FADE_TIME));
-	}
+    static LLCachedControl<F32> max_opacity(gSavedSettings, "PickerContextOpacity", 0.4f);
+    drawConeToOwner(mContextConeOpacity, max_opacity, mOwner);
 
 	updateImageStats();
 
@@ -810,27 +755,27 @@ void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem
 void LLFloaterTexturePicker::onModeSelect(LLUICtrl* ctrl, void *userdata)
 {
 	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
-	int mode = self->mModeSelector->getSelectedIndex();
+	int index = self->mModeSelector->getSelectedIndex();
 
-	self->getChild<LLButton>("Default")->setVisible(mode == 0);
-	self->getChild<LLButton>("Blank")->setVisible(mode == 0);
-	self->getChild<LLButton>("None")->setVisible(mode == 0);
-	self->getChild<LLButton>("Pipette")->setVisible(mode == 0);
-	self->getChild<LLFilterEditor>("inventory search editor")->setVisible(mode == 0);
-	self->getChild<LLInventoryPanel>("inventory panel")->setVisible(mode == 0);
+	self->getChild<LLButton>("Default")->setVisible(index == 0 ? TRUE : FALSE);
+	self->getChild<LLButton>("Blank")->setVisible(index == 0 ? TRUE : FALSE);
+	self->getChild<LLButton>("None")->setVisible(index == 0 ? TRUE : FALSE);
+	self->getChild<LLButton>("Pipette")->setVisible(index == 0 ? TRUE : FALSE);
+	self->getChild<LLFilterEditor>("inventory search editor")->setVisible(index == 0 ? TRUE : FALSE);
+	self->getChild<LLInventoryPanel>("inventory panel")->setVisible(index == 0 ? TRUE : FALSE);
 
 	/*self->getChild<LLCheckBox>("show_folders_check")->setVisible(mode);
 	  no idea under which conditions the above is even shown, needs testing. */
 
-	self->getChild<LLButton>("l_add_btn")->setVisible(mode == 1);
-	self->getChild<LLButton>("l_rem_btn")->setVisible(mode == 1);
-	self->getChild<LLButton>("l_upl_btn")->setVisible(mode == 1);
-	self->getChild<LLScrollListCtrl>("l_name_list")->setVisible(mode == 1);
+	self->getChild<LLButton>("l_add_btn")->setVisible(index == 1 ? TRUE : FALSE);
+	self->getChild<LLButton>("l_rem_btn")->setVisible(index == 1 ? TRUE : FALSE);
+	self->getChild<LLButton>("l_upl_btn")->setVisible(index == 1 ? TRUE : FALSE);
+	self->getChild<LLScrollListCtrl>("l_name_list")->setVisible(index == 1 ? TRUE : FALSE);
 
-	self->getChild<LLComboBox>("l_bake_use_texture_combo_box")->setVisible(mode == 2);
-	self->getChild<LLCheckBoxCtrl>("hide_base_mesh_region")->setVisible(false);// mode == 2);
+	self->getChild<LLComboBox>("l_bake_use_texture_combo_box")->setVisible(index == 2 ? TRUE : FALSE);
+	self->getChild<LLCheckBoxCtrl>("hide_base_mesh_region")->setVisible(FALSE);// index == 2 ? TRUE : FALSE);
 
-	if (mode == 2)
+	if (index == 2)
 	{
 		self->stopUsingPipette();
 

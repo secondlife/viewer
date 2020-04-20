@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<joystick_rotate
+<joystick_quat
    image_selected="Cam_Rotate_In"
    image_unselected="Cam_Rotate_Out"
-   scale_image="false"
+   scale_image="true"
    mouse_opaque="false"
    held_down_delay.seconds="0"/>
