@@ -65,7 +65,7 @@ public:
 	LLTexLayerInterface(const LLTexLayerInterface &layer, LLWearable *wearable);
 	virtual ~LLTexLayerInterface() {}
 
-	virtual BOOL			render(S32 x, S32 y, S32 width, S32 height) = 0;
+	virtual BOOL			render(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target) = 0;
 	virtual void			deleteCaches() = 0;
 	virtual BOOL			blendAlphaTexture(S32 x, S32 y, S32 width, S32 height) = 0;
 	virtual BOOL			isInvisibleAlphaMask() const = 0;
@@ -85,7 +85,7 @@ public:
 	BOOL					isMorphValid() const		{ return mMorphMasksValid; }
 
 	void					requestUpdate();
-	virtual void			gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height) = 0;
+	virtual void			gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target) = 0;
 	BOOL					hasAlphaParams() const 		{ return !mParamAlphaList.empty(); }
 
 	ERenderPass				getRenderPass() const;
@@ -121,10 +121,10 @@ public:
 	LLTexLayerTemplate(LLTexLayerSet* const layer_set, LLAvatarAppearance* const appearance);
 	LLTexLayerTemplate(const LLTexLayerTemplate &layer);
 	/*virtual*/ ~LLTexLayerTemplate();
-	/*virtual*/ BOOL		render(S32 x, S32 y, S32 width, S32 height);
+	/*virtual*/ BOOL		render(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target);
 	/*virtual*/ BOOL		setInfo(const LLTexLayerInfo *info, LLWearable* wearable); // This sets mInfo and calls initialization functions
 	/*virtual*/ BOOL		blendAlphaTexture(S32 x, S32 y, S32 width, S32 height); // Multiplies a single alpha texture against the frame buffer
-	/*virtual*/ void		gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height);
+	/*virtual*/ void		gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target);
 	/*virtual*/ void		setHasMorph(BOOL newval);
 	/*virtual*/ void		deleteCaches();
 	/*virtual*/ BOOL		isInvisibleAlphaMask() const;
@@ -152,16 +152,16 @@ public:
 	/*virtual*/ ~LLTexLayer();
 
 	/*virtual*/ BOOL		setInfo(const LLTexLayerInfo *info, LLWearable* wearable); // This sets mInfo and calls initialization functions
-	/*virtual*/ BOOL		render(S32 x, S32 y, S32 width, S32 height);
+	/*virtual*/ BOOL		render(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target);
 
 	/*virtual*/ void		deleteCaches();
 	const U8*				getAlphaData() const;
 
 	BOOL					findNetColor(LLColor4* color) const;
 	/*virtual*/ BOOL		blendAlphaTexture(S32 x, S32 y, S32 width, S32 height); // Multiplies a single alpha texture against the frame buffer
-	/*virtual*/ void		gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height);
-	void					renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLColor4 &layer_color, bool force_render);
-	void					addAlphaMask(U8 *data, S32 originX, S32 originY, S32 width, S32 height);
+	/*virtual*/ void		gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target);
+	void					renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLColor4 &layer_color, LLRenderTarget* bound_target, bool force_render);
+	void					addAlphaMask(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target);
 	/*virtual*/ BOOL		isInvisibleAlphaMask() const;
 
 	void					setLTO(LLLocalTextureObject *lto) 	{ mLocalTextureObject = lto; }
@@ -194,13 +194,13 @@ public:
 	const LLTexLayerSetBuffer* 	getComposite() const; // Do not create one if it doesn't exist.
 	virtual void				createComposite() = 0;
 	void						destroyComposite();
-	void						gatherMorphMaskAlpha(U8 *data, S32 origin_x, S32 origin_y, S32 width, S32 height);
+	void						gatherMorphMaskAlpha(U8 *data, S32 origin_x, S32 origin_y, S32 width, S32 height, LLRenderTarget* bound_target);
 
 	const LLTexLayerSetInfo* 	getInfo() const 			{ return mInfo; }
 	BOOL						setInfo(const LLTexLayerSetInfo *info); // This sets mInfo and calls initialization functions
 
-	BOOL						render(S32 x, S32 y, S32 width, S32 height);
-	void						renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height, bool forceClear = false);
+	BOOL						render(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target = nullptr);
+	void						renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target = nullptr, bool forceClear = false);
 
 	BOOL						isBodyRegion(const std::string& region) const;
 	void						applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components);
@@ -282,7 +282,7 @@ protected:
 	virtual S32				getCompositeOriginY() const = 0;
 	virtual S32				getCompositeWidth() const = 0;
 	virtual S32				getCompositeHeight() const = 0;
-	BOOL					renderTexLayerSet();
+	BOOL					renderTexLayerSet(LLRenderTarget* bound_target);
 
 	LLTexLayerSet* const	mTexLayerSet;
 };

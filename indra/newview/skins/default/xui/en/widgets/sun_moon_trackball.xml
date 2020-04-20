@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<sun_moon_trackball
+    name="virtualtrackball"
+    width="150"
+    height="150"
+    user_resize="false"     
+    increment_angle_mouse="1.5f"
+    increment_angle_btn="1.0f"    
+    image_sphere="VirtualTrackball_Sphere"
+    image_moon_back="VirtualTrackball_Moon_Back"
+    image_moon_front="VirtualTrackball_Moon_Front"
+    image_sun_back="VirtualTrackball_Sun_Back"
+    image_sun_front="VirtualTrackball_Sun_Front">
+
+    <sun_moon_trackball.border
+        visible="true"/>
+
+    <sun_moon_trackball.labelN
+        font="SansSerif"
+        name="labelN"
+        valign="bottom"
+        halign="left"
+        label="N"/>
+    <sun_moon_trackball.labelS
+        font="SansSerif"
+        name="labelS"
+        valign="top"
+        halign="left"
+        label="S"/>
+    <sun_moon_trackball.labelW
+        font="SansSerif"
+        name="labelW"
+        valign="top"
+        halign="right"
+        label="W"/>
+    <sun_moon_trackball.labelE
+        font="SansSerif"
+        name="labelE"
+        valign="top"
+        halign="left"
+        label="E"/>
+
+    <sun_moon_trackball.button_rotate_top
+        name="btn_rotate_top"
+        image_unselected="VirtualTrackball_Rotate_Top"
+        image_selected="VirtualTrackball_Rotate_Top_Active"
+        image_disabled="Blank" />
+
+    <sun_moon_trackball.button_rotate_bottom
+        name="btn_rotate_bottom"
+        image_unselected="VirtualTrackball_Rotate_Bottom"
+        image_selected="VirtualTrackball_Rotate_Bottom_Active"
+        image_disabled="Blank" />
+
+    <sun_moon_trackball.button_rotate_left
+        name="btn_rotate_left"
+        image_unselected="VirtualTrackball_Rotate_Left"
+        image_selected="VirtualTrackball_Rotate_Left_Active"
+        image_disabled="Blank" />
+
+    <sun_moon_trackball.button_rotate_right
+        name="btn_rotate_right"
+        image_unselected="VirtualTrackball_Rotate_Right"
+        image_selected="VirtualTrackball_Rotate_Right_Active"
+        image_disabled="Blank" />
+
+</sun_moon_trackball>
+

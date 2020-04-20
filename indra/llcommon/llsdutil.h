@@ -30,6 +30,7 @@
 #define LL_LLSDUTIL_H
 
 #include "llsd.h"
+#include <boost/functional/hash.hpp>
 
 // U32
 LL_COMMON_API LLSD ll_sd_from_U32(const U32);
@@ -69,6 +70,19 @@ LL_COMMON_API BOOL compare_llsd_with_template(
 	const LLSD& llsd_to_test,
 	const LLSD& template_llsd,
 	LLSD& resultant_llsd);
+
+// filter_llsd_with_template() is a direct clone (copy-n-paste) of 
+// compare_llsd_with_template with the following differences:
+// (1) bool vs BOOL return types
+// (2) A map with the key value "*" is a special value and maps any key in the
+//     test llsd that doesn't have an explicitly matching key in the template.
+// (3) The element of an array with exactly one element is taken as a template
+//     for *all* the elements of the test array.  If the template array is of
+//     different size, compare_llsd_with_template() semantics apply.
+bool filter_llsd_with_template(
+	const LLSD & llsd_to_test,
+	const LLSD & template_llsd,
+	LLSD & resultant_llsd);
 
 /**
  * Recursively determine whether a given LLSD data block "matches" another
@@ -420,5 +434,87 @@ private:
 };
 
 } // namespace llsd
+
+
+// Creates a deep clone of an LLSD object.  Maps, Arrays and binary objects 
+// are duplicated, atomic primitives (Boolean, Integer, Real, etc) simply
+// use a shared reference. 
+// Optionally a filter may be specified to control what is duplicated. The 
+// map takes the form "keyname/boolean".
+// If the value is true the value will be duplicated otherwise it will be skipped 
+// when encountered in a map. A key name of "*" can be specified as a wild card
+// and will specify the default behavior.  If no wild card is given and the clone
+// encounters a name not in the filter, that value will be skipped.
+LLSD llsd_clone(LLSD value, LLSD filter = LLSD());
+
+// Creates a shallow copy of a map or array.  If passed any other type of LLSD 
+// object it simply returns that value.  See llsd_clone for a description of 
+// the filter parameter.
+LLSD llsd_shallow(LLSD value, LLSD filter = LLSD());
+
+
+// Specialization for generating a hash value from an LLSD block. 
+template <>
+struct boost::hash<LLSD>
+{
+    typedef LLSD argument_type;
+    typedef std::size_t result_type;
+    result_type operator()(argument_type const& s) const 
+    {
+        result_type seed(0);
+
+        LLSD::Type stype = s.type();
+        boost::hash_combine(seed, (S32)stype);
+
+        switch (stype)
+        {
+        case LLSD::TypeBoolean:
+            boost::hash_combine(seed, s.asBoolean());
+            break;
+        case LLSD::TypeInteger:
+            boost::hash_combine(seed, s.asInteger());
+            break;
+        case LLSD::TypeReal:
+            boost::hash_combine(seed, s.asReal());
+            break;
+        case LLSD::TypeURI:
+        case LLSD::TypeString:
+            boost::hash_combine(seed, s.asString());
+            break;
+        case LLSD::TypeUUID:
+            boost::hash_combine(seed, s.asUUID());
+            break;
+        case LLSD::TypeDate:
+            boost::hash_combine(seed, s.asDate().secondsSinceEpoch());
+            break;
+        case LLSD::TypeBinary:
+        {
+            const LLSD::Binary &b(s.asBinary());
+            boost::hash_range(seed, b.begin(), b.end());
+            break;
+        }
+        case LLSD::TypeMap:
+        {
+            for (LLSD::map_const_iterator itm = s.beginMap(); itm != s.endMap(); ++itm)
+            {
+                boost::hash_combine(seed, (*itm).first);
+                boost::hash_combine(seed, (*itm).second);
+            }
+            break;
+        }
+        case LLSD::TypeArray:
+            for (LLSD::array_const_iterator ita = s.beginArray(); ita != s.endArray(); ++ita)
+            {
+                boost::hash_combine(seed, (*ita));
+            }
+            break;
+        case LLSD::TypeUndefined:
+        default:
+            break;
+        }
+
+        return seed;
+    }
+};
 
 #endif // LL_LLSDUTIL_H

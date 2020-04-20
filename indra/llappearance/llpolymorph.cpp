@@ -816,8 +816,8 @@ void LLPolyVertexMask::generateMask(U8 *maskTextureData, S32 width, S32 height, 
 		U32 s = llclamp((U32)(uvCoords.mV[VX] * (F32)(width - 1)), (U32)0, (U32)width - 1);
 		U32 t = llclamp((U32)(uvCoords.mV[VY] * (F32)(height - 1)), (U32)0, (U32)height - 1);
 		
-		mWeights[index] = ((F32) maskTextureData[((t * width + s) * num_components) + (num_components - 1)]) / 255.f;
-		
+		mWeights[index] = maskTextureData ? ((F32) maskTextureData[((t * width + s) * num_components) + (num_components - 1)]) / 255.f : 0.0f;
+
 		if (invert) 
 		{
 			mWeights[index] = 1.f - mWeights[index];

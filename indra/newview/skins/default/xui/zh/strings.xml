@@ -635,6 +635,15 @@ http://secondlife.com/viewer-access-faq
 	<string name="BUTTON_HELP">
 		顯示幫助
 	</string>
+	<string name="TooltipNotecardNotAllowedTypeDrop">
+		這種類型的物項不能附著
+到這一區域的記事卡。
+	</string>
+	<string name="TooltipNotecardOwnerRestrictedDrop">
+		唯有「下一所有人」權限
+不受限制的物項才可
+附著到記事卡。
+	</string>
 	<string name="Searching">
 		搜尋中...
 	</string>
@@ -711,6 +720,18 @@ http://secondlife.com/viewer-access-faq
 		上傳要求發生錯誤。  請參見： 
 http://secondlife.com/support 求助解決問題。
 	</string>
+	<string name="SettingValidationError">
+		匯入設定[NAME]時驗證失敗
+	</string>
+	<string name="SettingImportFileError">
+		無法開啟檔案[FILE]
+	</string>
+	<string name="SettingParseFileError">
+		無法開啟檔案[FILE]
+	</string>
+	<string name="SettingTranslateError">
+		無法轉譯舊的風光(windlight)[NAME]
+	</string>
 	<string name="texture">
 		材質
 	</string>
@@ -785,6 +806,9 @@ http://secondlife.com/support 求助解決問題。
 	</string>
 	<string name="symbolic folder link">
 		資料夾聯結
+	</string>
+	<string name="settings blob">
+		設定
 	</string>
 	<string name="mesh">
 		網面
@@ -1116,6 +1140,9 @@ http://secondlife.com/support 求助解決問題。
 	<string name="ForceSitAvatar">
 		強迫你的化身坐下
 	</string>
+	<string name="ChangeEnvSettings">
+		改變你的環境設定
+	</string>
 	<string name="NotConnected">
 		未聯接
 	</string>
@@ -1267,6 +1294,9 @@ http://secondlife.com/support 求助解決問題。
 	<string name="tattoo">
 		刺青
 	</string>
+	<string name="universal">
+		通用值
+	</string>
 	<string name="physics">
 		身體物理
 	</string>
@@ -1308,6 +1338,9 @@ http://secondlife.com/support 求助解決問題。
 	</string>
 	<string name="tattoo_not_worn">
 		刺青未穿
+	</string>
+	<string name="universal_not_worn">
+		未穿戴通用值
 	</string>
 	<string name="physics_not_worn">
 		身體物理未穿
@@ -1359,6 +1392,9 @@ http://secondlife.com/support 求助解決問題。
 	</string>
 	<string name="create_new_tattoo">
 		創造新刺青
+	</string>
+	<string name="create_new_universal">
+		創立新的通用值
 	</string>
 	<string name="create_new_physics">
 		創造新身體物理
@@ -2506,6 +2542,27 @@ http://secondlife.com/support 求助解決問題。
 	</string>
 	<string name="RegionSettings">
 		地區設定
+	</string>
+	<string name="NoEnvironmentSettings">
+		這區域不支援環境設定。
+	</string>
+	<string name="EnvironmentSun">
+		太陽
+	</string>
+	<string name="EnvironmentMoon">
+		月亮
+	</string>
+	<string name="EnvironmentBloom">
+		開花
+	</string>
+	<string name="EnvironmentCloudNoise">
+		雲彩噪度
+	</string>
+	<string name="EnvironmentNormalMap">
+		正常地圖
+	</string>
+	<string name="EnvironmentTransparent">
+		透明
 	</string>
 	<string name="ClassifiedClicksTxt">
 		點按：[TELEPORT] 瞬間傳送，[MAP] 地圖，[PROFILE] 檔案
@@ -4723,6 +4780,9 @@ http://secondlife.com/support 求助解決問題。
 	<string name="New Tattoo">
 		新刺青
 	</string>
+	<string name="New Universal">
+		新通用值
+	</string>
 	<string name="New Physics">
 		新身體物理
 	</string>
@@ -4848,6 +4908,15 @@ http://secondlife.com/support 求助解決問題。
 	</string>
 	<string name="Female - Wow">
 		女性 - 哇塞
+	</string>
+	<string name="New Daycycle">
+		新的日循環
+	</string>
+	<string name="New Water">
+		新的水文
+	</string>
+	<string name="New Sky">
+		新的天空
 	</string>
 	<string name="/bow">
 		/彎腰點頭
@@ -5389,6 +5458,12 @@ http://secondlife.com/support 求助解決問題。
 	<string name="BeaconMedia">
 		檢視媒體的導引（白色）
 	</string>
+	<string name="BeaconSun">
+		檢視太陽方向指標（橘色）
+	</string>
+	<string name="BeaconMoon">
+		檢視月亮方向指標（紫色）
+	</string>
 	<string name="ParticleHiding">
 		隱藏粒子效果
 	</string>
@@ -5415,6 +5490,12 @@ http://secondlife.com/support 求助解決問題。
 	</string>
 	<string name="Command_Destinations_Label">
 		目的地
+	</string>
+	<string name="Command_Environments_Label">
+		我的環境
+	</string>
+	<string name="Command_Facebook_Label">
+		臉書
 	</string>
 	<string name="Command_Flickr_Label">
 		Flickr
@@ -5508,6 +5589,12 @@ http://secondlife.com/support 求助解決問題。
 	</string>
 	<string name="Command_Destinations_Tooltip">
 		你可能感興趣的目的地
+	</string>
+	<string name="Command_Environments_Tooltip">
+		我的環境
+	</string>
+	<string name="Command_Facebook_Tooltip">
+		發佈到臉書
 	</string>
 	<string name="Command_Flickr_Tooltip">
 		上傳到 Flickr
@@ -5704,6 +5791,12 @@ http://secondlife.com/support 求助解決問題。
 	<string name="ExperiencePermission12">
 		自動接受各種體驗權限
 	</string>
+	<string name="ExperiencePermission16">
+		強迫你的化身坐下
+	</string>
+	<string name="ExperiencePermission17">
+		改變你的環境設定
+	</string>
 	<string name="ExperiencePermissionShortUnknown">
 		進行了未知的操作：[Permission]
 	</string>
@@ -5727,6 +5820,12 @@ http://secondlife.com/support 求助解決問題。
 	</string>
 	<string name="ExperiencePermissionShort12">
 		權限
+	</string>
+	<string name="ExperiencePermissionShort16">
+		坐下
+	</string>
+	<string name="ExperiencePermissionShort17">
+		環境
 	</string>
 	<string name="logging_calls_disabled_log_empty">
 		交談未留記錄。 若想開始留記錄，請到「偏好設定 &gt; 聊天」，選擇「儲存：只留歷史記錄」或「儲存：歷史記錄兼交談內容」。

@@ -23,6 +23,8 @@
  * $/LicenseInfo$
  */
 
+/*[EXTRA_CODE_HERE]*/
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_data[3];
 #else
@@ -38,42 +40,6 @@ uniform sampler2D specularMap;
 
 VARYING vec2 vary_texcoord0;
 
-vec3 decode_normal (vec2 enc)
-{
-    vec2 fenc = enc*4-2;
-    float f = dot(fenc,fenc);
-    float g = sqrt(1-f/4);
-    vec3 n;
-    n.xy = fenc*g;
-    n.z = 1-f/2;
-    return n;
-}
-
-vec2 encode_normal(vec3 n)
-{
-	float f = sqrt(8 * n.z + 8);
-	return n.xy / f + 0.5;
-}
-
-vec3 linear_to_srgb(vec3 cl)
-{
-	cl = clamp(cl, vec3(0), vec3(1));
-	vec3 low_range  = cl * 12.92;
-	vec3 high_range = 1.055 * pow(cl, vec3(0.41666)) - 0.055;
-	bvec3 lt = lessThan(cl,vec3(0.0031308));
-
-#ifdef OLD_SELECT
-	vec3 result;
-	result.r = lt.r ? low_range.r : high_range.r;
-	result.g = lt.g ? low_range.g : high_range.g;
-	result.b = lt.b ? low_range.b : high_range.b;
-    return result;
-#else
-	return mix(high_range, low_range, lt);
-#endif
-
-}
-
 void main() 
 {
 	vec4 col = texture2D(diffuseMap, vary_texcoord0.xy);
@@ -85,8 +51,6 @@ void main()
 
 	vec4 norm = texture2D(normalMap,   vary_texcoord0.xy);
 	vec4 spec = texture2D(specularMap, vary_texcoord0.xy);
-
-	col.rgb = linear_to_srgb(col.rgb);
 
 	frag_data[0] = vec4(col.rgb, 0.0);
 	frag_data[1] = spec;

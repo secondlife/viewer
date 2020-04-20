@@ -45,6 +45,9 @@
 	<string name="edit_tattoo_title">
 		Modification du tatouage
 	</string>
+	<string name="edit_universal_title">
+		Modifier l&apos;universel
+	</string>
 	<string name="edit_physics_title">
 		Modification des propriétés physiques
 	</string>
@@ -92,6 +95,9 @@
 	</string>
 	<string name="tattoo_desc_text">
 		Tatouage :
+	</string>
+	<string name="universal_desc_text">
+		Universel :
 	</string>
 	<string name="physics_desc_text">
 		Propriétés physiques :

@@ -38,6 +38,7 @@
 #include "lltooldraganddrop.h"
 #include "lllandmarklist.h"
 #include "llfolderviewitem.h"
+#include "llsettingsbase.h"
 
 class LLInventoryFilter;
 class LLInventoryPanel;
@@ -108,6 +109,7 @@ public:
 	virtual void closeItem() {}
 	virtual void showProperties();
 	virtual BOOL isItemRenameable() const { return TRUE; }
+	virtual BOOL isMultiPreviewAllowed() { return TRUE; }
 	//virtual BOOL renameItem(const std::string& new_name) {}
 	virtual BOOL isItemRemovable() const;
 	virtual BOOL isItemMovable() const;
@@ -136,6 +138,7 @@ public:
 							std::string& tooltip_msg) { return FALSE; }
 	virtual LLInventoryType::EType getInventoryType() const { return mInvType; }
 	virtual LLWearableType::EType getWearableType() const { return LLWearableType::WT_NONE; }
+    virtual LLSettingsType::type_e getSettingsType() const { return LLSettingsType::ST_NONE; }
         EInventorySortGroup getSortGroup()  const { return SG_ITEM; }
 	virtual LLInventoryObject* getInventoryObject() const;
 
@@ -603,6 +606,31 @@ public:
 protected:
 	const LLUUID &getFolderID() const;
 	static std::string sPrefix;
+};
+
+
+class LLSettingsBridge : public LLItemBridge
+{
+public:
+    LLSettingsBridge(LLInventoryPanel* inventory,
+        LLFolderView* root,
+        const LLUUID& uuid,
+        LLSettingsType::type_e settings_type);
+    virtual LLUIImagePtr getIcon() const;
+    virtual void	performAction(LLInventoryModel* model, std::string action);
+    virtual void	openItem();
+    virtual BOOL	isMultiPreviewAllowed() { return FALSE; }
+    virtual void	buildContextMenu(LLMenuGL& menu, U32 flags);
+    virtual BOOL    renameItem(const std::string& new_name);
+    virtual BOOL    isItemRenameable() const;
+    virtual LLSettingsType::type_e getSettingsType() const { return mSettingsType; }
+
+protected:
+    bool            canUpdateRegion() const;
+    bool            canUpdateParcel() const;
+
+    LLSettingsType::type_e mSettingsType;
+
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

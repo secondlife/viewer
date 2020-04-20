@@ -45,6 +45,9 @@
 	<string name="edit_tattoo_title">
 		刺青編輯中
 	</string>
+	<string name="edit_universal_title">
+		編輯通用值
+	</string>
 	<string name="edit_physics_title">
 		身體物理編輯中
 	</string>
@@ -92,6 +95,9 @@
 	</string>
 	<string name="tattoo_desc_text">
 		刺青：
+	</string>
+	<string name="universal_desc_text">
+		通用值：
 	</string>
 	<string name="physics_desc_text">
 		身體物理：
