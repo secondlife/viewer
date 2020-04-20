@@ -298,7 +298,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 				bool bUseVAO = controlp->getName() == "RenderUseVAO";
 				if (bUseVAO)
 				{
-					bool use_shaders = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 0;
+					bool use_shaders = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 0;
 					getChild<LLUICtrl>("boolean_combo")->setEnabled(use_shaders);
 					getChild<LLUICtrl>("TRUE")->setEnabled(use_shaders);
 					getChild<LLUICtrl>("FALSE")->setEnabled(use_shaders);
