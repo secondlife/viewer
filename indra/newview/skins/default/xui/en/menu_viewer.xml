@@ -642,8 +642,8 @@
 
         <menu
          create_jump_keys="true"
-         label="Sun"
-         name="Sun"
+         label="Environment"
+         name="Environment"
          tear_off="true">
             <menu_item_check
              label="Sunrise"
@@ -687,10 +687,9 @@
                  function="World.EnableEnvSettings" 
                  parameter="midnight" />
             </menu_item_check>
-            <menu_item_separator/>
             <menu_item_check
-             label="Use Region Settings"
-             name="Use Region Settings">
+             label="Use Shared Environment"
+             name="Use Shared Environment">
                 <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="region" />
@@ -698,113 +697,105 @@
                  function="World.EnableEnvSettings" 
                  parameter="region" />
             </menu_item_check>
-        </menu>
-	    
-   
+        <menu_item_separator/>
+	     	<menu_item_call
+	     	 label="My Environments..."
+	     	 name="my_environs">
+	     	 	<menu_item_call.on_click
+	     	 	 function="World.EnvSettings"
+                 parameter="my_environs" />
+	     	</menu_item_call>
+	     	
+<menu_item_call
+	     	 	 label="Personal Lighting..."
+	     	 	 name="adjustment_tool">
+	     	 	 	<menu_item_call.on_click
+	     	 	 	function="World.EnvSettings"
+	     	 	 	parameter="adjust_tool" />
+	     	 	</menu_item_call>
+	     	 	<menu_item_separator/>
+	     	 	 <menu_item_check
+	     	 	 label="Pause Clouds"
+	     	 	 name="pause_clouds">
+	     	 	 	<menu_item_check.on_click
+	     	 	 	function="World.EnvSettings"
+	     	 	 	parameter="pause_clouds" />
+	     	 	 	<menu_item_check.on_check
+	     	 	 	function="World.EnableEnvSettings" 
+	     	 	 	parameter="pause_clouds" />
+	     	 	</menu_item_check>
+	     	</menu>
+	     	
+<!--   
 	    <menu
 	     create_jump_keys="true"
 	     label="Environment Editor"
 	     name="Environment Editor"
 	     tear_off="true">
-	     	
-	     	<menu_item_call
+	     	 	 		     	<menu_item_call
 	     	 label="Environment Settings..."
 	     	 name="Environment Settings">
-	     	 	<menu_item_call.on_click
+<menu_item_call.on_click
 	     	 	 function="World.EnvSettings"
                  parameter="editor"/>
 	     	</menu_item_call>
-	     	
-	     	<menu_item_separator/>
-	     	
-	     	<menu
+	     		     	<menu_item_separator/>
+<menu
 	     	 name="Water Presets"
 	     	 label="Water Presets">
-	     	 	<menu_item_call
-	     	 	 label="New preset..."
+<menu_item_call
+label="New preset..."
 	     	 	 name="new_water_preset">
-	     	 	 	<menu_item_call.on_click
-	     	 	 	function="World.EnvPreset"
+<menu_item_call.on_click
+function="World.EnvPreset"
 	     	 	 	parameter="new_water"/>
-	     	 	</menu_item_call>
-	     	 	<menu_item_call
-	     	 	 label="Edit preset..."
+</menu_item_call>
+<menu_item_call
+label="Edit preset..."
 	     	 	 name="edit_water_preset">
-	     	 	 	<menu_item_call.on_click
-	     	 	 	function="World.EnvPreset"
+<menu_item_call.on_click
+function="World.EnvPreset"
 	     	 	 	parameter="edit_water"/>
-	     	 	</menu_item_call>
-	     	 	<menu_item_call
-	     	 	 label="Delete preset..."
-	     	 	 name="delete_water_preset">
-	     	 	 	<menu_item_call.on_click
-	     	 	 	function="World.EnvPreset"
-	     	 	 	parameter="delete_water"/>
-	     	 	 	<menu_item_call.on_enable
-	     	 	 	function="World.EnableEnvPreset"
-	     	 	 	parameter="delete_water"/>
-	     	 	</menu_item_call>
-	     	</menu>
-	     	
-	     	<menu
-	     	 name="Sky Presets"
+</menu_item_call>
+</menu>
+	     	 	 <menu
+name="Sky Presets"
 	     	 label="Sky Presets">
-	     	 	<menu_item_call
-	     	 	 label="New preset..."
+<menu_item_call
+label="New preset..."
 	     	 	 name="new_sky_preset">
-	     	 	 	<menu_item_call.on_click
-	     	 	 	function="World.EnvPreset"
+<menu_item_call.on_click
+function="World.EnvPreset"
 	     	 	 	parameter="new_sky"/>
-	     	 	</menu_item_call>
-	     	 	<menu_item_call
-	     	 	 label="Edit preset..."
+</menu_item_call>
+<menu_item_call
+label="Edit preset..."
 	     	 	 name="edit_sky_preset">
-	     	 	 	<menu_item_call.on_click
-	     	 	 	function="World.EnvPreset"
+<menu_item_call.on_click
+function="World.EnvPreset"
 	     	 	 	parameter="edit_sky"/>
-	     	 	</menu_item_call>
-	     	 	<menu_item_call
-	     	 	 label="Delete preset..."
-	     	 	 name="delete_sky_preset">
-	     	 	 	<menu_item_call.on_click
-	     	 	 	function="World.EnvPreset"
-	     	 	 	parameter="delete_sky"/>
-	     	 	 	<menu_item_call.on_enable
-	     	 	 	function="World.EnableEnvPreset"
-	     	 	 	parameter="delete_sky"/>
-	     	 	</menu_item_call>
-	     	</menu>
-	     	
-	     	<menu
-	     	 name="Day Presets"
+</menu_item_call>
+</menu>
+<menu
+name="Day Presets"
 	     	 label="Day Presets">
-	     	 	<menu_item_call
-	     	 	 label="New preset..."
+<menu_item_call
+label="New preset..."
 	     	 	 name="new_day_preset">
-	     	 	 	<menu_item_call.on_click
-	     	 	 	function="World.EnvPreset"
+<menu_item_call.on_click
+function="World.EnvPreset"
 	     	 	 	parameter="new_day_cycle"/>
-	     	 	</menu_item_call>
-	     	 	<menu_item_call
-	     	 	 label="Edit preset..."
+</menu_item_call>
+<menu_item_call
+label="Edit preset..."
 	     	 	 name="edit_day_preset">
-	     	 	 	<menu_item_call.on_click
-	     	 	 	function="World.EnvPreset"
+<menu_item_call.on_click
+function="World.EnvPreset"
 	     	 	 	parameter="edit_day_cycle"/>
-	     	 	</menu_item_call>
-	     	 	<menu_item_call
-	     	 	 label="Delete preset..."
-	     	 	 name="delete_day_preset">
-	     	 	 	<menu_item_call.on_click
-	     	 	 	function="World.EnvPreset"
-	     	 	 	parameter="delete_day_cycle"/>
-	     	 	 	<menu_item_call.on_enable
-	     	 	 	function="World.EnableEnvPreset"
-	     	 	 	parameter="delete_day_cycle"/>
-	     	 	</menu_item_call>
-	     	</menu>
-	    </menu>
-    
+</menu_item_call>
+</menu>
+</menu>
+-->    
     
     </menu>
     <menu
@@ -1034,8 +1025,7 @@
            shortcut="control|D">
             <menu_item_call.on_click
                function="Object.Duplicate" />
-
-          </menu_item_call>
+                      </menu_item_call>
 		</menu>
         <menu
            create_jump_keys="true"
@@ -2941,6 +2931,36 @@
                  function="ToggleControl"
                  parameter="TextureDisable" />
             </menu_item_check>
+            <menu_item_check
+              label="Disable Ambient"
+             name="Disable Ambient">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="AmbientDisable" />
+            <menu_item_check.on_click
+             function="ToggleShaderControl"
+             parameter="AmbientDisable" />
+          </menu_item_check>
+          <menu_item_check
+             label="Disable Sunlight"
+             name="Disable Sunlight">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="SunlightDisable" />
+            <menu_item_check.on_click
+             function="ToggleShaderControl"
+             parameter="SunlightDisable" />
+          </menu_item_check>
+          <menu_item_check
+             label="Disable Local Lights"
+             name="Disable Local Lights">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="LocalLightDisable" />
+            <menu_item_check.on_click
+             function="ToggleShaderControl"
+             parameter="LocalLightDisable" />
+          </menu_item_check>
             <menu_item_check
               label="Full Res Textures"
              name="Rull Res Textures">

@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_minimize="false"
- height="448"
+ height="488"
  layout="topleft"
  name="Inventory Finder"
  help_topic="inventory_finder"
@@ -195,6 +195,23 @@
      name="check_snapshot"
      top_delta="0"
      width="126" />
+    <icon
+     height="16"
+     image_name="Inv_Settings"
+     layout="topleft"
+     left="8"
+     mouse_opaque="true"
+     name="icon_settings"
+     top="262"
+     width="16" />
+    <check_box
+     height="16"
+     label="Settings"
+     layout="topleft"
+     left_pad="2"
+     name="check_settings"
+     top_delta="0"
+     width="126" />
     <button
      follows="left|top"
      height="20"
@@ -203,7 +220,7 @@
      layout="topleft"
      left="8"
      name="All"
-     top="242"
+     top="282"
      width="100" />
     <button
      height="20"
@@ -257,7 +274,7 @@
      width="260"/>
     <check_box
      height="16"
-     top="332"
+     top="352"
      label="Since Logoff"
      layout="topleft"
      left_delta="0"
@@ -273,7 +290,7 @@
      layout="topleft"
      left_delta="0"
      name="- OR -"
-     top="350"
+     top="370"
      width="144">
         - OR -
     </text>
@@ -281,7 +298,7 @@
      height="16"
      layout="topleft"
      name="date_search_direction"
-     top="368"
+     top="388"
      left="8"
      width="270">
      <radio_item
@@ -351,6 +368,6 @@
      layout="topleft"
      name="Close"
      right="-6"
-     top="414"
+     top="454"
      width="76" />
 </floater>

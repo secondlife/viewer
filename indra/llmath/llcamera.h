@@ -154,6 +154,7 @@ public:
 	
 	bool isChanged(); //check if mAgentPlanes changed since last frame.
 
+    LLPlane getUserClipPlane();
 	void setUserClipPlane(LLPlane& plane);
 	void disableUserClipPlane();
 	virtual void setView(F32 vertical_fov_rads);

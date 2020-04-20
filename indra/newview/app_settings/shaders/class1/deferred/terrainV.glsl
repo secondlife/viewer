@@ -1,5 +1,5 @@
 /** 
- * @file terrainV.glsl
+ * @file class1\environment\terrainV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -33,8 +33,8 @@ ATTRIBUTE vec4 diffuse_color;
 ATTRIBUTE vec2 texcoord0;
 ATTRIBUTE vec2 texcoord1;
 
+VARYING vec3 pos;
 VARYING vec3 vary_normal;
-
 VARYING vec4 vary_texcoord0;
 VARYING vec4 vary_texcoord1;
 
@@ -43,31 +43,35 @@ uniform vec4 object_plane_t;
 
 vec4 texgen_object(vec4  vpos, vec4 tc, mat4 mat, vec4 tp0, vec4 tp1)
 {
-	vec4 tcoord;
-	
-	tcoord.x = dot(vpos, tp0);
-	tcoord.y = dot(vpos, tp1);
-	tcoord.z = tc.z;
-	tcoord.w = tc.w;
-	
-	tcoord = mat * tcoord; 
-	
-	return tcoord; 
+    vec4 tcoord;
+    
+    tcoord.x = dot(vpos, tp0);
+    tcoord.y = dot(vpos, tp1);
+    tcoord.z = tc.z;
+    tcoord.w = tc.w;
+    
+    tcoord = mat * tcoord; 
+    
+    return tcoord; 
 }
 
 void main()
 {
-	//transform vertex
-	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
-			
-	vary_normal = normalize(normal_matrix * normal);
-	
-	// Transform and pass tex coords
- 	vary_texcoord0.xy = texgen_object(vec4(position, 1.0), vec4(texcoord0,0,1), texture_matrix0, object_plane_s, object_plane_t).xy;
-	
-	vec4 t = vec4(texcoord1,0,1);
-	
-	vary_texcoord0.zw = t.xy;
-	vary_texcoord1.xy = t.xy-vec2(2.0, 0.0);
-	vary_texcoord1.zw = t.xy-vec2(1.0, 0.0);
+    //transform vertex
+    vec4 pre_pos = vec4(position.xyz, 1.0);
+    vec4 t_pos = modelview_projection_matrix * pre_pos;
+
+    gl_Position = t_pos;
+    pos = t_pos.xyz;
+
+    vary_normal = normalize(normal_matrix * normal);
+    
+    // Transform and pass tex coords
+    vary_texcoord0.xy = texgen_object(vec4(position, 1.0), vec4(texcoord0,0,1), texture_matrix0, object_plane_s, object_plane_t).xy;
+    
+    vec4 t = vec4(texcoord1,0,1);
+    
+    vary_texcoord0.zw = t.xy;
+    vary_texcoord1.xy = t.xy-vec2(2.0, 0.0);
+    vary_texcoord1.zw = t.xy-vec2(1.0, 0.0);
 }

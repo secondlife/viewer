@@ -112,7 +112,7 @@ void LLViewerJointMesh::uploadJointMatrices()
 	S32 joint_num;
 	LLPolyMesh *reference_mesh = mMesh->getReferenceMesh();
 	LLDrawPool *poolp = mFace ? mFace->getPool() : NULL;
-	BOOL hardware_skinning = (poolp && poolp->getVertexShaderLevel() > 0) ? TRUE : FALSE;
+	BOOL hardware_skinning = (poolp && poolp->getShaderLevel() > 0) ? TRUE : FALSE;
 
 	//calculate joint matrices
 	for (joint_num = 0; joint_num < reference_mesh->mJointRenderData.size(); joint_num++)
@@ -246,7 +246,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 
 	stop_glerror();
 	
-	LLGLSSpecular specular(LLColor4(1.f,1.f,1.f,1.f), (mFace->getPool()->getVertexShaderLevel() > 0 || LLGLSLShader::sNoFixedFunction) ? 0.f : mShiny);
+	LLGLSSpecular specular(LLColor4(1.f,1.f,1.f,1.f), (mFace->getPool()->getShaderLevel() > 0 || LLGLSLShader::sNoFixedFunction) ? 0.f : mShiny);
 
 	//----------------------------------------------------------------
 	// setup current texture
@@ -307,14 +307,14 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 
 	if (mMesh->hasWeights())
 	{
-		if ((mFace->getPool()->getVertexShaderLevel() > 0))
+		if ((mFace->getPool()->getShaderLevel() > 0))
 		{
 			if (first_pass)
 			{
 				uploadJointMatrices();
 			}
 			mask = mask | LLVertexBuffer::MAP_WEIGHT;
-			if (mFace->getPool()->getVertexShaderLevel() > 1)
+			if (mFace->getPool()->getShaderLevel() > 1)
 			{
 				mask = mask | LLVertexBuffer::MAP_CLOTHWEIGHT;
 			}
@@ -390,7 +390,7 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
 	}
 
 	LLDrawPool *poolp = mFace->getPool();
-	BOOL hardware_skinning = (poolp && poolp->getVertexShaderLevel() > 0) ? TRUE : FALSE;
+	BOOL hardware_skinning = (poolp && poolp->getShaderLevel() > 0) ? TRUE : FALSE;
 
 	if (!hardware_skinning && terse_update)
 	{ //no need to do terse updates if we're doing software vertex skinning
@@ -538,7 +538,7 @@ void LLViewerJointMesh::updateJointGeometry()
 		  && mFace
 		  && mMesh->hasWeights()
 		  && mFace->getVertexBuffer()
-		  && LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) == 0))
+		  && LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) == 0))
 	{
 		return;
 	}

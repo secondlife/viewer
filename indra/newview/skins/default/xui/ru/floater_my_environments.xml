@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater label="Места" name="my_environments" title="МОЯ ОКРУЖАЮЩАЯ СРЕДА">
+	<layout_stack>
+		<layout_panel label="Фильтры" name="filter_panel">
+			<check_box label="Дни" name="chk_days"/>
+			<check_box label="Небеса" name="chk_skies"/>
+			<check_box label="Вода" name="chk_water"/>
+			<filter_editor label="Фильтр окружающей среды" name="flt_search"/>
+		</layout_panel>
+		<layout_panel label="Окружающая среда" name="list_panel">
+			<panel label="pnl_inv_wrap" name="pnl_inv_wrap"/>
+		</layout_panel>
+		<layout_panel>
+			<check_box initial_value="false" label="Показать все папки" name="chk_showfolders"/>
+		</layout_panel>
+		<layout_panel name="pnl_control">
+			<panel label="bottom_panel" name="pnl_bottom">
+				<menu_button name="btn_gear" tool_tip="Дополнительные параметры"/>
+				<menu_button name="btn_newsettings" tool_tip="Создать новую настройку"/>
+				<button name="btn_del" tool_tip="Удалить выбранную вещь"/>
+			</panel>
+		</layout_panel>
+	</layout_stack>
+</floater>

@@ -1951,6 +1951,11 @@ Isto mudará milhares de regiões e fará o spaceserver soluçar.
 		Ao desselecionar esta opção, você pode remover as restrições que os proprietários dos terrenos adicionaram para evitar problemas, manter a privacidade ou proteger residentes menores de idade contra conteúdo adulto. Por favor, discuta com os seus proprietários de terreno conforme necessário.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="EstateParcelEnvironmentOverride">
+		Desmarcando esta opção pode remover quaisquer ambientes personalizados que os proprietários tenham adicionado aos seus lotes.. 
+Por favor, discuta com os seus proprietários de terreno conforme necessário. Deseja continuar?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
+	</notification>
 	<notification name="RegionEntryAccessBlocked">
 		A região que você está tentando visitar tem conteúdo que excede suas preferências atuais.  Você pode alterar suas preferências acessando Eu &gt; Preferências &gt; Geral.
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -2431,7 +2436,15 @@ Inclua um link para facilitar o acesso para visitantes. Teste o link na barra de
 		Este arquivo de ciclo de dia se refere a um arquivo de céu faltando: [SKY].
 	</notification>
 	<notification name="WLRegionApplyFail">
-		As configurações não podem ser aplicadas à região.   Talvez sair e votlar à região resolva.   Motivo:  [FAIL_REASON]
+		As configurações não puderam ser aplicadas para a região. Motivo: [FAIL_REASON]
+	</notification>
+	<notification name="WLLocalTextureDayBlock">
+		Uma textura local está em uso no rastreio [TRACK], moldura #[FRAMENO] ([FRAME]%) no campo [FIELD]. 
+As definições não puderam ser salvas usando as texturas locais.
+	</notification>
+	<notification name="WLLocalTextureFixedBlock">
+		Uma textura local está em uso no campo [FIELD]. 
+As definições não puderam ser salvas usando as texturas locais.
 	</notification>
 	<notification name="EnvCannotDeleteLastDayCycleKey">
 		Impossível excluir a última chave do ciclo pois um ciclo não pode ficar vazio.   Modifique a última chave em vez de tentar apagá-la, depois crie uma chave nova.
@@ -4375,5 +4388,77 @@ Tente selecionar uma quantidade menor de terreno.
 	<notification name="OutfitPhotoLoadError">
 		[REASON]
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="FailedToFindSettings">
+		Não pode carregar as configurações para [NAME] da base de dados.
+	</notification>
+	<notification name="FailedToLoadSettingsApply">
+		Não foi possível aplicar aquelas configurações para o ambiente.
+	</notification>
+	<notification name="FailedToBuildSettingsDay">
+		Não foi possível aplicar aquelas configurações para o ambiente.
+	</notification>
+	<notification name="NoEnvironmentSettings">
+		Esta Região não suporta as configurações do ambiente.
+	</notification>
+	<notification label="Salvar visual" name="SaveSettingAs">
+		Salve as configurações do ambiente atual como:
+		<form name="form">
+			<input name="message">
+				[DESC] (novo)
+			</input>
+			<button name="OK" text="OK"/>
+			<button name="Cancel" text="Cancelar"/>
+		</form>
+	</notification>
+	<notification name="WLImportFail">
+		Não foi possível imporar as configurações do vento antigo [NAME] de 
+[FILE]. 
+
+[REASONS]
+	</notification>
+	<notification name="WLParcelApplyFail">
+		Não é possível definir o ambiente para este lote. 
+Inserir ou selecionar um lote que você tem direitos para modificar.
+	</notification>
+	<notification name="SettingsUnsuported">
+		As configurações não são suportadas para esta região. 
+Mude para uma configuração permitida para a região ou tente novamente realizar a ação.
+	</notification>
+	<notification name="SettingsConfirmLoss">
+		Você está prestes a perder as alterações que você fez para este [TYPE] com o nome &quot;[NAME]&quot;. 
+Tem certeza de que deseja continuar?
+		<usetemplate ignoretext="Tem certeza de que deseja perder as alterações?" name="okcancelignore" notext="Não" yestext="Sim"/>
+	</notification>
+	<notification name="SettingsConfirmReset">
+		Você está prestes a remover todas as configurações aplicadas. 
+Tem certeza de que deseja continuar?
+		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
+	</notification>
+	<notification name="PersonalSettingsConfirmReset">
+		Você está prestes a remover todas as configurações de Iluminação pessoal aplicadas. 
+Tem certeza de que deseja continuar?
+		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
+	</notification>
+	<notification name="SettingsMakeNoTrans">
+		Você está prestes a importar configurações não transferíveis para este ciclo de dias. Caso continue, transformará as configurações que você está editando não transferível também. 
+
+Esta alteração não pode ser desfeita. 
+
+Tem certeza de que deseja continuar?
+		<usetemplate ignoretext="Tem certeza de que deseja tornar as configurações não transferível?" name="okcancelignore" notext="Não" yestext="Sim"/>
+	</notification>
+	<notification name="NoEditFromLibrary">
+		Você não pode editar as configurações diretamente da biblioteca. 
+Copie para o seu próprio inventário e tente novamente.
+	</notification>
+	<notification name="EnvironmentApplyFailed">
+		Encontramos problemas com essas configurações. Eles não podem ser salvos ou aplicados desta vez.
+	</notification>
+	<notification name="TrackLoadFailed">
+		Não foi possível carregar o rastreio para [TRACK].
+	</notification>
+	<notification name="TrackLoadMismatch">
+		Não foi possível carregar rastreio de [TRACK1] em [TRACK2].
 	</notification>
 </notifications>

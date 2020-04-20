@@ -617,36 +617,36 @@ void LLFeatureManager::applyFeatures(bool skipFeatures)
 
 void LLFeatureManager::setGraphicsLevel(U32 level, bool skipFeatures)
 {
-	LLViewerShaderMgr::sSkipReload = true;
+    LLViewerShaderMgr::sSkipReload = true;
 
-	applyBaseMasks();
+    applyBaseMasks();
 
-	// if we're passed an invalid level, default to "Low"
-	std::string features(isValidGraphicsLevel(level)? getNameForGraphicsLevel(level) : "Low");
-	if (features == "Low")
-	{
+    // if we're passed an invalid level, default to "Low"
+    std::string features(isValidGraphicsLevel(level)? getNameForGraphicsLevel(level) : "Low");
+    if (features == "Low")
+    {
 #if LL_DARWIN
-		// This Mac-specific change is to insure that we force 'Basic Shaders' for all Mac
-		// systems which support them instead of falling back to fixed-function unnecessarily
-		// MAINT-2157
-		if (gGLManager.mGLVersion < 2.1f)
+        // This Mac-specific change is to insure that we force 'Basic Shaders' for all Mac
+        // systems which support them instead of falling back to fixed-function unnecessarily
+        // MAINT-2157
+        if (gGLManager.mGLVersion < 2.1f)
 #else
-		// only use fixed function by default if GL version < 3.0 or this is an intel graphics chip
-		if (gGLManager.mGLVersion < 3.f || gGLManager.mIsIntel)
+        // only use fixed function by default if GL version < 3.0 or this is an intel graphics chip
+        if (gGLManager.mGLVersion < 3.f || gGLManager.mIsIntel)
 #endif
-		{
+        {
             // same as Low, but with "Basic Shaders" disabled
-			features = "LowFixedFunction";
-		}
-	}
+            features = "LowFixedFunction";
+        }
+    }
 
-	maskFeatures(features);
+    maskFeatures(features);
 
-	applyFeatures(skipFeatures);
+    applyFeatures(skipFeatures);
 
-	LLViewerShaderMgr::sSkipReload = false;
-	LLViewerShaderMgr::instance()->setShaders();
-	gPipeline.refreshCachedSettings();
+    LLViewerShaderMgr::sSkipReload = false;
+    LLViewerShaderMgr::instance()->setShaders();
+    gPipeline.refreshCachedSettings();
 }
 
 void LLFeatureManager::applyBaseMasks()

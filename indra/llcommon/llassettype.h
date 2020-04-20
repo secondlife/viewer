@@ -116,10 +116,19 @@ public:
 		AT_PERSON = 45,
 			// A user uuid  which is not an inventory asset type, used in viewer only for adding a person to a chat via drag and drop.
 
-		AT_MESH = 49,
-			// Mesh data in our proprietary SLM format
-		
-		AT_COUNT = 50,
+        AT_MESH = 49,
+        // Mesh data in our proprietary SLM format
+
+        AT_RESERVED_1 = 50,
+        AT_RESERVED_2 = 51,
+        AT_RESERVED_3 = 52,
+        AT_RESERVED_4 = 53,
+        AT_RESERVED_5 = 54,
+        AT_RESERVED_6 = 55,
+
+        AT_SETTINGS = 56,   // Collection of settings
+            
+		AT_COUNT = 57,
 
 			// +*********************************************************+
 			// |  TO ADD AN ELEMENT TO THIS ENUM:                        |
@@ -153,7 +162,7 @@ public:
 	static bool 				lookupIsAssetFetchByIDAllowed(EType asset_type); // the asset allows direct download
 	static bool 				lookupIsAssetIDKnowable(EType asset_type); // asset data can be known by the viewer
 
-	static const std::string&	badLookup(); // error string when a lookup fails
+    static const std::string    BADLOOKUP;
 
 protected:
 	LLAssetType() {}

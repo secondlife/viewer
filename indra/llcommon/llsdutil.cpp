@@ -322,6 +322,180 @@ BOOL compare_llsd_with_template(
 	return TRUE;
 }
 
+// filter_llsd_with_template() is a direct clone (copy-n-paste) of 
+// compare_llsd_with_template with the following differences:
+// (1) bool vs BOOL return types
+// (2) A map with the key value "*" is a special value and maps any key in the
+//     test llsd that doesn't have an explicitly matching key in the template.
+// (3) The element of an array with exactly one element is taken as a template
+//     for *all* the elements of the test array.  If the template array is of
+//     different size, compare_llsd_with_template() semantics apply.
+bool filter_llsd_with_template(
+	const LLSD & llsd_to_test,
+	const LLSD & template_llsd,
+	LLSD & resultant_llsd)
+{
+	if (llsd_to_test.isUndefined() && template_llsd.isDefined())
+	{
+		resultant_llsd = template_llsd;
+		return true;
+	}
+	else if (llsd_to_test.type() != template_llsd.type())
+	{
+		resultant_llsd = LLSD();
+		return false;
+	}
+
+	if (llsd_to_test.isArray())
+	{
+		//they are both arrays
+		//we loop over all the items in the template
+		//verifying that the to_test has a subset (in the same order)
+		//any shortcoming in the testing_llsd are just taken
+		//to be the rest of the template
+		LLSD data;
+		LLSD::array_const_iterator test_iter;
+		LLSD::array_const_iterator template_iter;
+
+		resultant_llsd = LLSD::emptyArray();
+		test_iter = llsd_to_test.beginArray();
+
+		if (1 == template_llsd.size())
+		{
+			// If the template has a single item, treat it as
+			// the template for *all* items in the test LLSD.
+			template_iter = template_llsd.beginArray();
+
+			for (; test_iter != llsd_to_test.endArray(); ++test_iter)
+			{
+				if (! filter_llsd_with_template(*test_iter, *template_iter, data))
+				{
+					resultant_llsd = LLSD();
+					return false;
+				}
+				else
+				{
+					resultant_llsd.append(data);
+				}
+			}
+		}
+		else
+		{
+			// Traditional compare_llsd_with_template matching
+			
+			for (template_iter = template_llsd.beginArray();
+				 template_iter != template_llsd.endArray() &&
+					 test_iter != llsd_to_test.endArray();
+				 ++template_iter, ++test_iter)
+			{
+				if (! filter_llsd_with_template(*test_iter, *template_iter, data))
+				{
+					resultant_llsd = LLSD();
+					return false;
+				}
+				else
+				{
+					resultant_llsd.append(data);
+				}
+			}
+
+			//so either the test or the template ended
+			//we do another loop now to the end of the template
+			//grabbing the default values
+			for (;
+				 template_iter != template_llsd.endArray();
+				 ++template_iter)
+			{
+				resultant_llsd.append(*template_iter);
+			}
+		}
+	}
+	else if (llsd_to_test.isMap())
+	{
+		resultant_llsd = LLSD::emptyMap();
+		
+		//now we loop over the keys of the two maps
+		//any excess is taken from the template
+		//excess is ignored in the test
+
+		// Special tag for wildcarded LLSD map key templates
+		const LLSD::String wildcard_tag("*");
+
+		const bool template_has_wildcard = template_llsd.has(wildcard_tag);
+		LLSD wildcard_value;
+		LLSD value;
+
+		const LLSD::map_const_iterator template_iter_end(template_llsd.endMap());
+		for (LLSD::map_const_iterator template_iter(template_llsd.beginMap());
+			 template_iter_end != template_iter;
+			 ++template_iter)
+		{
+			if (wildcard_tag == template_iter->first)
+			{
+				wildcard_value = template_iter->second;
+			}
+			else if (llsd_to_test.has(template_iter->first))
+			{
+				//the test LLSD has the same key
+				if (! filter_llsd_with_template(llsd_to_test[template_iter->first],
+												template_iter->second,
+												value))
+				{
+					resultant_llsd = LLSD();
+					return false;
+				}
+				else
+				{
+					resultant_llsd[template_iter->first] = value;
+				}
+			}
+			else if (! template_has_wildcard)
+			{
+				// test llsd doesn't have it...take the
+				// template as default value
+				resultant_llsd[template_iter->first] = template_iter->second;
+			}
+		}
+		if (template_has_wildcard)
+		{
+			LLSD sub_value;
+			LLSD::map_const_iterator test_iter;
+			
+			for (test_iter = llsd_to_test.beginMap();
+				 test_iter != llsd_to_test.endMap();
+				 ++test_iter)
+			{
+				if (resultant_llsd.has(test_iter->first))
+				{
+					// Final value has test key, assume more specific
+					// template matched and we shouldn't modify it again.
+					continue;
+				}
+				else if (! filter_llsd_with_template(test_iter->second,
+													 wildcard_value,
+													 sub_value))
+				{
+					// Test value doesn't match wildcarded template
+					resultant_llsd = LLSD();
+					return false;
+				}
+				else
+				{
+					// Test value matches template, add the actuals.
+					resultant_llsd[test_iter->first] = sub_value;
+				}
+			}
+		}
+	}
+	else
+	{
+		//of same type...take the test llsd's value
+		resultant_llsd = llsd_to_test;
+	}
+
+	return true;
+}
+
 /*****************************************************************************
 *   Helpers for llsd_matches()
 *****************************************************************************/
@@ -680,4 +854,105 @@ bool llsd_equals(const LLSD& lhs, const LLSD& rhs, int bits)
             "unknown type " << lhs.type() << LL_ENDL;
         return false;               // pacify the compiler
     }
+}
+
+// Construct a deep partial clone of of an LLSD object. primitive types share 
+// references, however maps, arrays and binary objects are duplicated. An optional
+// filter may be include to exclude/include keys in a map. 
+LLSD llsd_clone(LLSD value, LLSD filter)
+{
+    LLSD clone;
+    bool has_filter(filter.isMap());
+
+    switch (value.type())
+    {
+    case LLSD::TypeMap:
+        clone = LLSD::emptyMap();
+        for (LLSD::map_const_iterator itm = value.beginMap(); itm != value.endMap(); ++itm)
+        {
+            if (has_filter)
+            {
+                if (filter.has((*itm).first))
+                {
+                    if (!filter[(*itm).first].asBoolean())
+                        continue;
+                }
+                else if (filter.has("*"))
+                {
+                    if (!filter["*"].asBoolean())
+                        continue;
+                }
+                else
+                {
+                    continue;
+                }
+            }
+            clone[(*itm).first] = llsd_clone((*itm).second, filter);
+        }
+        break;
+    case LLSD::TypeArray:
+        clone = LLSD::emptyArray();
+        for (LLSD::array_const_iterator ita = value.beginArray(); ita != value.endArray(); ++ita)
+        {
+            clone.append(llsd_clone(*ita, filter));
+        }
+        break;
+
+    case LLSD::TypeBinary:
+    {
+        LLSD::Binary bin(value.asBinary().begin(), value.asBinary().end());
+        clone = LLSD::Binary(bin);
+        break;
+    }
+    default:
+        clone = value;
+    }
+
+    return clone;
+}
+
+LLSD llsd_shallow(LLSD value, LLSD filter)
+{
+    LLSD shallow;
+    bool has_filter(filter.isMap());
+
+    if (value.isMap())
+    {
+        shallow = LLSD::emptyMap();
+        for (LLSD::map_const_iterator itm = value.beginMap(); itm != value.endMap(); ++itm)
+        {
+            if (has_filter)
+            {
+                if (filter.has((*itm).first))
+                {
+                    if (!filter[(*itm).first].asBoolean())
+                        continue;
+                }
+                else if (filter.has("*"))
+                {
+                    if (!filter["*"].asBoolean())
+                        continue;
+                }
+                else
+                {
+                    continue;
+                }
+            }
+            shallow[(*itm).first] = (*itm).second;
+        }
+    }
+    else if (value.isArray())
+    {
+        shallow = LLSD::emptyArray();
+        for (LLSD::array_const_iterator ita = value.beginArray(); ita != value.endArray(); ++ita)
+        {
+            shallow.append(*ita);
+        }
+    }
+    else
+    {
+        return value;
+    }
+
+    return shallow;
 }

@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Doku" name="Texture">
-	<panel.string name="string repeats per meter">
-		Metrede Kaç Kez Tekrarlandığı
-	</panel.string>
-	<panel.string name="string repeats per face">
-		Bir Yüzde Kaç Kez Tekrarlandığı
-	</panel.string>
 	<text name="color label">
 		Renk
 	</text>
@@ -114,4 +108,5 @@
 	<spinner label="Yatay ofset" name="shinyOffsetU"/>
 	<spinner label="Dikey ofset" name="shinyOffsetV"/>
 	<check_box initial_value="false" label="Planar yüzleri hizala" name="checkbox planar align" tool_tip="Tüm seçili yüzeylerdeki dokuları son seçili yüzdekiyle hizalar. Planar doku eşleştirmesi gerektirir."/>
+	<button label="Hizala" label_selected="Geçerli doku katmanlarına hizala" name="button align textures" tool_tip="Geçerli doku katmanlarına hizala"/>
 </panel>
