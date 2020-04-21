@@ -18,5 +18,7 @@
 		<check_box label="聲音來源" name="sounds"/>
 		<check_box label="例子來源" name="particles"/>
 		<check_box label="媒體來源" name="moapbeacon"/>
+		<check_box label="太陽" name="sun"/>
+		<check_box label="月亮" name="moon"/>
 	</panel>
 </floater>

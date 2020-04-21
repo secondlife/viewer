@@ -1376,6 +1376,9 @@ extern char const* const _PREHASH_RegionDenyAgeUnverified;
 extern char const* const _PREHASH_AgeVerificationBlock;
 extern char const* const _PREHASH_RegionAllowAccessBlock;
 extern char const* const _PREHASH_RegionAllowAccessOverride;
+extern char const* const _PREHASH_ParcelEnvironmentBlock;
+extern char const* const _PREHASH_ParcelEnvironmentVersion;
+extern char const* const _PREHASH_RegionAllowEnvironmentOverride;
 extern char const* const _PREHASH_UCoord;
 extern char const* const _PREHASH_VCoord;
 extern char const* const _PREHASH_FaceIndex;
@@ -1391,4 +1394,6 @@ extern char const* const _PREHASH_AppearanceHover;
 extern char const* const _PREHASH_HoverHeight;
 extern char const* const _PREHASH_Experience;
 extern char const* const _PREHASH_ExperienceID;
+extern char const* const _PREHASH_LargeGenericMessage;
+
 #endif

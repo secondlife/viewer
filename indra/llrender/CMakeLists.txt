@@ -31,6 +31,7 @@ include_directories(SYSTEM
     )
 
 set(llrender_SOURCE_FILES
+    llatmosphere.cpp
     llcubemap.cpp
     llfontbitmapcache.cpp
     llfontfreetype.cpp
@@ -57,6 +58,7 @@ set(llrender_SOURCE_FILES
 set(llrender_HEADER_FILES
     CMakeLists.txt
 
+    llatmosphere.h
     llcubemap.h
     llfontgl.h
     llfontfreetype.h
@@ -78,6 +80,7 @@ set(llrender_HEADER_FILES
     llshadermgr.h
     lltexture.h
     lluiimage.h
+    lluiimage.inl
     llvertexbuffer.h
     llglcommonfunc.h
     )

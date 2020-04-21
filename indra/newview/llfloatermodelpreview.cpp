@@ -4187,11 +4187,9 @@ BOOL LLModelPreview::render()
 	S32 width = getWidth();
 	S32 height = getHeight();
 
-	LLGLSUIDefault def;
+	LLGLSUIDefault def; // GL_BLEND, GL_ALPHA_TEST, GL_CULL_FACE, depth test
 	LLGLDisable no_blend(GL_BLEND);
-
-	LLGLEnable cull(GL_CULL_FACE);
-	LLGLDepthTest depth(GL_TRUE);
+	LLGLDepthTest depth(GL_FALSE); // SL-12781 disable z-buffer to render background color
 	LLGLDisable fog(GL_FOG);
 
 	{
@@ -4199,7 +4197,7 @@ BOOL LLModelPreview::render()
 		{
 			gUIProgram.bind();
 		}
-		//clear background to blue
+		//clear background to grey
 		gGL.matrixMode(LLRender::MM_PROJECTION);
 		gGL.pushMatrix();
 		gGL.loadIdentity();
@@ -4325,7 +4323,7 @@ BOOL LLModelPreview::render()
 
 	F32 explode = mFMP->childGetValue("physics_explode").asReal();
 
-	glClear(GL_DEPTH_BUFFER_BIT);
+	LLGLDepthTest gls_depth(GL_TRUE); // SL-12781 re-enable z-buffer for 3D model preview
 
 	LLRect preview_rect;
 
@@ -4485,6 +4483,7 @@ BOOL LLModelPreview::render()
 			if (physics)
 			{
 				glClear(GL_DEPTH_BUFFER_BIT);
+				
 				for (U32 pass = 0; pass < 2; pass++)
 				{
 					if (pass == 0)
@@ -4597,8 +4596,6 @@ BOOL LLModelPreview::render()
 								}
 							}
 						}
-
-						gGL.popMatrix();
 					}
 
 					// only do this if mDegenerate was set in the preceding mesh checks [Check this if the ordering ever breaks]
@@ -4606,9 +4603,11 @@ BOOL LLModelPreview::render()
 					{
 						glLineWidth(deg_edge_width);
 						glPointSize(deg_point_size);
+                        gPipeline.enableLightsFullbright();
 						//show degenerate triangles
 						LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
 						LLGLDisable cull(GL_CULL_FACE);
+                        gGL.diffuseColor4f(1.f, 0.f, 0.f, 1.f);
 						const LLVector4a scale(0.5f);
 
 						for (LLMeshUploadThread::instance_list::iterator iter = mUploadData.begin(); iter != mUploadData.end(); ++iter)

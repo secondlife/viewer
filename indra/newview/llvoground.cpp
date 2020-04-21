@@ -126,7 +126,7 @@ BOOL LLVOGround::updateGeometry(LLDrawable *drawable)
 	left_dir.normVec();
 
 	// Our center top point
-	LLColor4 ground_color = gSky.getFogColor();
+	LLColor4 ground_color = gSky.getSkyFogColor();
 	ground_color.mV[3] = 1.f;
 	face->setFaceColor(ground_color);
 	

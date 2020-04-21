@@ -56,17 +56,15 @@
 #include "llfloaterchatvoicevolume.h"
 #include "llfloaterconversationlog.h"
 #include "llfloaterconversationpreview.h"
-#include "llfloaterdeleteenvpreset.h"
 #include "llfloaterdeleteprefpreset.h"
 #include "llfloaterdestinations.h"
-#include "llfloatereditdaycycle.h"
-#include "llfloatereditsky.h"
-#include "llfloatereditwater.h"
-#include "llfloaterenvironmentsettings.h"
+#include "llfloatereditextdaycycle.h"
+#include "llfloaterenvironmentadjust.h"
 #include "llfloaterexperienceprofile.h"
 #include "llfloaterexperiences.h"
 #include "llfloaterexperiencepicker.h"
 #include "llfloaterevent.h"
+#include "llfloaterfixedenvironment.h"
 #include "llfloaterfonttest.h"
 #include "llfloaterforgetuser.h"
 #include "llfloatergesture.h"
@@ -91,6 +89,7 @@
 #include "llfloatermemleak.h"
 #include "llfloatermodelpreview.h"
 #include "llfloatermyscripts.h"
+#include "llfloatermyenvironment.h"
 #include "llfloaternamedesc.h"
 #include "llfloaternotificationsconsole.h"
 #include "llfloaternotificationstabbed.h"
@@ -222,11 +221,14 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("destinations", "floater_destinations.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterDestinations>);
 
 	LLFloaterReg::add("env_post_process", "floater_post_process.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPostProcess>);
-	LLFloaterReg::add("env_settings", "floater_environment_settings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEnvironmentSettings>);
-	LLFloaterReg::add("env_delete_preset", "floater_delete_env_preset.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterDeleteEnvPreset>);
-	LLFloaterReg::add("env_edit_sky", "floater_edit_sky_preset.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEditSky>);
-	LLFloaterReg::add("env_edit_water", "floater_edit_water_preset.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEditWater>);
-	LLFloaterReg::add("env_edit_day_cycle", "floater_edit_day_cycle.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEditDayCycle>);
+
+    LLFloaterReg::add("env_fixed_environmentent_water", "floater_fixedenvironment.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFixedEnvironmentWater>);
+    LLFloaterReg::add("env_fixed_environmentent_sky", "floater_fixedenvironment.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFixedEnvironmentSky>);
+
+    LLFloaterReg::add("env_adjust_snapshot", "floater_adjust_environment.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEnvironmentAdjust>);
+
+    LLFloaterReg::add("env_edit_extdaycycle", "floater_edit_ext_day_cycle.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEditExtDayCycle>);
+    LLFloaterReg::add("my_environments", "floater_my_environments.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMyEnvironment>);
 
     LLFloaterReg::add("event", "floater_event.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEvent>);
     LLFloaterReg::add("experiences", "floater_experiences.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterExperiences>);

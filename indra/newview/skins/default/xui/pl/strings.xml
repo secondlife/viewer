@@ -710,6 +710,9 @@ Spróbuj zalogować się ponownie za minutę.
 	<string name="mesh">
 		mesz
 	</string>
+    <string name="settings">
+        ustawień
+    </string>
 	<string name="AvatarEditingAppearance">
 		(Edycja wyglądu)
 	</string>

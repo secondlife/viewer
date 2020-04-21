@@ -258,7 +258,7 @@ void LLPluginProcessChild::sleep(F64 seconds)
 	}
 	else
 	{
-		ms_sleep((int)(seconds * 1000.0f));
+    ms_sleep((int)(seconds * 1000.0f));
 	}
 }
 

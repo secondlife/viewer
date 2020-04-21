@@ -60,7 +60,7 @@ LLUUID upload_new_resource(
 
 void upload_new_resource(
     LLResourceUploadInfo::ptr_t &uploadInfo,
-    LLAssetStorage::LLStoreAssetCallback callback = NULL,
+    LLAssetStorage::LLStoreAssetCallback callback = LLAssetStorage::LLStoreAssetCallback(),
     void *userdata = NULL);
 
 
