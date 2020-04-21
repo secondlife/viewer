@@ -1278,7 +1278,8 @@ void LLFloaterModelPreview::initDecompControls()
 					float max = param[i].mDetails.mRange.mHigh.mFloat;
 					float delta = param[i].mDetails.mRange.mDelta.mFloat;
 
-					if ("Cosine%" == name)
+					bool is_smooth_cb = ("Cosine%" == name);
+					if (is_smooth_cb)
 					{
 						createSmoothComboBox(combo_box, min, max);
 					}
@@ -1290,7 +1291,7 @@ void LLFloaterModelPreview::initDecompControls()
 							combo_box->add(label, value, ADD_BOTTOM, true);
 						}
 					}
-					combo_box->setValue(param[i].mDefault.mFloat);
+					combo_box->setValue(is_smooth_cb ? 0: param[i].mDefault.mFloat);
 					combo_box->setCommitCallback(onPhysicsParamCommit, (void*) &param[i]);
 				}
 			}
