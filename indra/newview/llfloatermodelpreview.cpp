@@ -455,11 +455,11 @@ void LLFloaterModelPreview::initModelPreview()
 	S32 max_width = llmin(gSavedSettings.getS32("PreviewRenderSize"), (S32)gPipeline.mScreenWidth);
 	S32 max_height = llmin(gSavedSettings.getS32("PreviewRenderSize"), (S32)gPipeline.mScreenHeight);
 	
-	while ((tex_width << 1) <= max_width)
+	while ((tex_width << 1) < max_width)
 	{
 		tex_width <<= 1;
 	}
-	while ((tex_height << 1) <= max_height)
+	while ((tex_height << 1) < max_height)
 	{
 		tex_height <<= 1;
 	}
