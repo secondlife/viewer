@@ -58,6 +58,7 @@
 #include "llfloaterconversationpreview.h"
 #include "llfloaterdeleteprefpreset.h"
 #include "llfloaterdestinations.h"
+#include "llfloaterdisplayname.h"
 #include "llfloatereditextdaycycle.h"
 #include "llfloaterenvironmentadjust.h"
 #include "llfloaterexperienceprofile.h"

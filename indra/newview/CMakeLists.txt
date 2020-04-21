@@ -234,6 +234,7 @@ set(viewer_SOURCE_FILES
     llfloaterconversationpreview.cpp
     llfloaterdeleteprefpreset.cpp
     llfloaterdestinations.cpp
+	llfloaterdisplayname.cpp
     llfloatereditextdaycycle.cpp
     llfloaterenvironmentadjust.cpp
     llfloaterevent.cpp
@@ -859,6 +860,7 @@ set(viewer_HEADER_FILES
     llfloaterconversationpreview.h
     llfloaterdeleteprefpreset.h
     llfloaterdestinations.h
+	llfloaterdisplayname.h
     llfloatereditextdaycycle.h
     llfloaterenvironmentadjust.h
     llfloaterevent.h
