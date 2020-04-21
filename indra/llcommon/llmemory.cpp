@@ -77,7 +77,7 @@ void ll_assert_aligned_func(uintptr_t ptr,U32 alignment)
 //static 
 void LLMemory::initMaxHeapSizeGB(F32Gigabytes max_heap_size, BOOL prevent_heap_failure)
 {
-	sMaxHeapSizeInKB = max_heap_size;
+	sMaxHeapSizeInKB = U32Kilobytes::convert(max_heap_size);
 	sEnableMemoryFailurePrevention = prevent_heap_failure ;
 }
 
@@ -93,9 +93,9 @@ void LLMemory::updateMemoryInfo()
 		return ;
 	}
 
-	sAllocatedMemInKB = U64Bytes(counters.WorkingSetSize) ;
+	sAllocatedMemInKB = U32Kilobytes::convert(U64Bytes(counters.WorkingSetSize));
 	sample(sAllocatedMem, sAllocatedMemInKB);
-	sAllocatedPageSizeInKB = U64Bytes(counters.PagefileUsage) ;
+	sAllocatedPageSizeInKB = U32Kilobytes::convert(U64Bytes(counters.PagefileUsage));
 	sample(sVirtualMem, sAllocatedPageSizeInKB);
 
 	U32Kilobytes avail_phys, avail_virtual;

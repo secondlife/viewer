@@ -52,7 +52,7 @@ float calcDirectionalLight(vec3 n, vec3 l)
 }
 
 
-float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float is_pointlight)
+float calcLocalLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float is_pointlight)
 {
 	//get light vector
 	vec3 lv = lp.xyz-v;
@@ -91,8 +91,8 @@ void main()
 
 	// Collect normal lights (need to be divided by two, as we later multiply by 2)
 	col.rgb += light_diffuse[1].rgb * calcDirectionalLight(norm, light_position[1].xyz);
-	col.rgb += light_diffuse[2].rgb*calcPointLightOrSpotLight(pos.xyz, norm, light_position[2], light_direction[2], light_attenuation[2].x, light_attenuation[2].z);
-	col.rgb += light_diffuse[3].rgb*calcPointLightOrSpotLight(pos.xyz, norm, light_position[3], light_direction[3], light_attenuation[3].x, light_attenuation[3].z);
+	col.rgb += light_diffuse[2].rgb*calcLocalLight(pos.xyz, norm, light_position[2], light_direction[2], light_attenuation[2].x, light_attenuation[2].z);
+	col.rgb += light_diffuse[3].rgb*calcLocalLight(pos.xyz, norm, light_position[3], light_direction[3], light_attenuation[3].x, light_attenuation[3].z);
 		
 	vertex_color = col*color;
 }

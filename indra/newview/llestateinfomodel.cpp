@@ -73,6 +73,7 @@ bool LLEstateInfoModel::getDenyAnonymous()			const {	return getFlag(REGION_FLAGS
 bool LLEstateInfoModel::getDenyAgeUnverified()		const {	return getFlag(REGION_FLAGS_DENY_AGEUNVERIFIED);	}
 bool LLEstateInfoModel::getAllowVoiceChat()			const { return getFlag(REGION_FLAGS_ALLOW_VOICE); }
 bool LLEstateInfoModel::getAllowAccessOverride()	const { return getFlag(REGION_FLAGS_ALLOW_ACCESS_OVERRIDE); }
+bool LLEstateInfoModel::getAllowEnvironmentOverride() const { return getFlag(REGION_FLAGS_ALLOW_ENVIRONMENT_OVERRIDE); }
 
 void LLEstateInfoModel::setUseFixedSun(bool val)			{ setFlag(REGION_FLAGS_SUN_FIXED, 				val);	}
 void LLEstateInfoModel::setIsExternallyVisible(bool val)	{ setFlag(REGION_FLAGS_EXTERNALLY_VISIBLE,		val);	}
@@ -81,6 +82,7 @@ void LLEstateInfoModel::setDenyAnonymous(bool val)			{ setFlag(REGION_FLAGS_DENY
 void LLEstateInfoModel::setDenyAgeUnverified(bool val)		{ setFlag(REGION_FLAGS_DENY_AGEUNVERIFIED,		val);	}
 void LLEstateInfoModel::setAllowVoiceChat(bool val)		    { setFlag(REGION_FLAGS_ALLOW_VOICE,				val);	}
 void LLEstateInfoModel::setAllowAccessOverride(bool val)    { setFlag(REGION_FLAGS_ALLOW_ACCESS_OVERRIDE,   val);   }
+void LLEstateInfoModel::setAllowEnvironmentOverride(bool val) { setFlag(REGION_FLAGS_ALLOW_ENVIRONMENT_OVERRIDE, val); }
 
 void LLEstateInfoModel::update(const strings_t& strings)
 {
@@ -222,6 +224,7 @@ std::string LLEstateInfoModel::getInfoDump()
 	dump["deny_age_unverified"  ] = getDenyAgeUnverified();
 	dump["allow_voice_chat"     ] = getAllowVoiceChat();
     dump["override_public_access"] = getAllowAccessOverride();
+    dump["override_environment"] = getAllowEnvironmentOverride();
 
 	std::stringstream dump_str;
 	dump_str << dump;

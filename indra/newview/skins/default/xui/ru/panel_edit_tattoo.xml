@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_tattoo_panel">
-	<panel name="avatar_tattoo_color_panel">
-		<texture_picker label="Тату на голове" name="Head Tattoo" tool_tip="Щелкните картинку, чтобы выбрать ее"/>
-		<texture_picker label="Тату вверху" name="Upper Tattoo" tool_tip="Щелкните картинку, чтобы выбрать ее"/>
-		<texture_picker label="Тату внизу" name="Lower Tattoo" tool_tip="Щелкните картинку, чтобы выбрать ее"/>
-		<color_swatch label="Цвет/оттенок" name="Color/Tint" tool_tip="Щелкните для выбора цвета"/>
-	</panel>
+	<scroll_container name="avatar_tattoo_scroll">
+		<panel name="avatar_tattoo_color_panel">
+			<texture_picker label="Тату на голове" name="Head Tattoo" tool_tip="Щелкнуть для выбора изображения"/>
+			<texture_picker label="Тату на верхних частях тела" name="Upper Tattoo" tool_tip="Щелкнуть для выбора изображения"/>
+			<texture_picker label="Тату на нижних частях тела" name="Lower Tattoo" tool_tip="Щелкнуть для выбора изображения"/>
+			<color_swatch label="Цвет/оттенок" name="Color/Tint" tool_tip="Щелкнуть для появления палитры цветов"/>
+		</panel>
+	</scroll_container>
 </panel>

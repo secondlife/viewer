@@ -130,7 +130,7 @@ BOOL LLFastTimerView::postBuild()
 {
 	LLButton& pause_btn = getChildRef<LLButton>("pause_btn");
 	mScrollBar = getChild<LLScrollbar>("scroll_vert");
-
+	
 	pause_btn.setCommitCallback(boost::bind(&LLFastTimerView::onPause, this));
 	return TRUE;
 }
@@ -361,12 +361,12 @@ BOOL LLFastTimerView::handleScrollWheel(S32 x, S32 y, S32 clicks)
     }
     else
     {
-        setPauseState(true);
-        mScrollIndex = llclamp(mScrollIndex + clicks,
-            0,
-            llmin((S32)mRecording.getNumRecordedPeriods(), (S32)mRecording.getNumRecordedPeriods() - MAX_VISIBLE_HISTORY));
+	setPauseState(true);
+	mScrollIndex = llclamp(	mScrollIndex + clicks,
+							0,
+							llmin((S32)mRecording.getNumRecordedPeriods(), (S32)mRecording.getNumRecordedPeriods() - MAX_VISIBLE_HISTORY));
     }
-    return TRUE;
+	return TRUE;
 }
 
 static BlockTimerStatHandle FTM_RENDER_TIMER("Timers");

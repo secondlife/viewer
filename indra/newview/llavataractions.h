@@ -252,7 +252,7 @@ public:
 	 */
 	static void viewChatHistory(const LLUUID& id);
 
-	static std::set<LLUUID> getInventorySelectedUUIDs();
+	static std::set<LLUUID> getInventorySelectedUUIDs(LLInventoryPanel* active_panel = NULL);
 
 private:
 	static bool callbackAddFriendWithMessage(const LLSD& notification, const LLSD& response);

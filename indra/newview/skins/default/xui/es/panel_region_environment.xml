@@ -1,33 +1,116 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Entorno" name="panel_env_info">
-	<text name="water_settings_title">
-		Selecciona la configuración de agua y cielo/ciclo del día que deseas que vean todos los visitantes de tu región. Más información
-	</text>
-	<radio_group name="region_settings_radio_group">
-		<radio_item label="Usar los valores predeterminados de Second Life" name="use_sl_default_settings"/>
-		<radio_item label="Usar la configuración siguiente" name="use_my_settings"/>
-	</radio_group>
-	<panel name="user_environment_settings">
-		<text name="water_settings_title">
-			Configuración de agua
-		</text>
-		<combo_box name="water_settings_preset_combo">
-			<combo_box.item label="-Selecciona un valor predefinido-" name="item0"/>
-		</combo_box>
-		<text name="sky_dayc_settings_title">
-			Cielo/Ciclo del día
-		</text>
-		<radio_group name="sky_dayc_settings_radio_group">
-			<radio_item label="Cielo invariable" name="my_sky_settings"/>
-			<radio_item label="Ciclo del día" name="my_dayc_settings"/>
-		</radio_group>
-		<combo_box name="sky_settings_preset_combo">
-			<combo_box.item label="-Selecciona un valor predefinido-" name="item0"/>
-		</combo_box>
-		<combo_box name="dayc_settings_preset_combo">
-			<combo_box.item label="-Selecciona un valor predefinido-" name="item0"/>
-		</combo_box>
-	</panel>
-	<button label="Aplicar" name="apply_btn"/>
-	<button label="Cancelar" name="cancel_btn"/>
+	<string name="str_label_use_default">
+		Usar la configuración predeterminada
+	</string>
+	<string name="str_label_use_region">
+		Usar Configuración de la Región
+	</string>
+	<string name="str_altitude_desription">
+		Cielo [INDEX]([ALTITUDE]m)
+	</string>
+	<string name="str_no_parcel">
+		No se ha seleccionado ninguna parcela. Las opciones de entorno están desactivadas.
+	</string>
+	<string name="str_cross_region">
+		Las opciones de entorno no están disponibles en las fronteras de regiones.
+	</string>
+	<string name="str_legacy">
+		La configuración de entorno no está disponible en esta región.
+	</string>
+	<string name="str_disallowed">
+		El administrador del estado no permite cambiar los entornos de parcela en esta región.
+	</string>
+	<string name="str_too_small">
+		La parcela debe tener como mínimo 128 metros cuadrados para ser compatible con un entorno.
+	</string>
+	<string name="str_empty">
+		(vacío)
+	</string>
+	<string name="str_region_env">
+		(entorno de la región)
+	</string>
+	<layout_stack>
+		<layout_panel name="pnl_environment_disabled">
+			<text name="txt_environment_disabled">
+				...
+			</text>
+		</layout_panel>
+		<layout_panel name="pnl_environment_config">
+			<layout_stack>
+				<layout_panel name="pnl_environment_config">
+					<layout_stack>
+						<layout_panel name="pnl_environment_current">
+							<button label="[USEDEFAULT]" name="btn_usedefault"/>
+							<button label="Usar Inventario" name="btn_select_inventory"/>
+							<button label="Personalizar" name="btn_edit"/>
+							<check_box label="Los propietarios de parcelas pueden borrar el entorno" name="chk_allow_override"/>
+						</layout_panel>
+						<layout_panel name="pnl_environment_length">
+							<text name="lbl_apparent_time">
+								[HH]:[MM][AP] ([PRC]%)
+							</text>
+						</layout_panel>
+						<layout_panel name="pnl_environment_buttons"/>
+					</layout_stack>
+				</layout_panel>
+				<layout_panel name="pnl_environment_altitudes">
+					<panel name="pnl_alt1">
+						<text name="txt_alt1">
+							Cielo [INDEX]
+                            [ALTITUDE]m
+						</text>
+						<line_editor name="edt_invname_alt1">
+							Desconocido
+						</line_editor>
+						<settings_drop_target name="sdt_alt1" tool_tip="Mover un parámetro desde el Inventario hasta este recuadro para seleccionarlo como cielo actual."/>
+					</panel>
+					<panel name="pnl_alt2">
+						<text name="txt_alt2">
+							Cielo [INDEX]
+                            [ALTITUDE]m
+						</text>
+						<line_editor name="edt_invname_alt2">
+							Desconocido
+						</line_editor>
+						<settings_drop_target name="sdt_alt2" tool_tip="Mover un parámetro desde el Inventario hasta este recuadro para seleccionarlo como cielo actual."/>
+					</panel>
+					<panel name="pnl_alt3">
+						<text name="txt_alt3">
+							Cielo [INDEX]
+                            [ALTITUDE]m
+						</text>
+						<line_editor name="edt_invname_alt3">
+							Desconocido
+						</line_editor>
+						<settings_drop_target name="sdt_alt3" tool_tip="Mover un parámetro desde el Inventario hasta este recuadro para seleccionarlo como cielo actual."/>
+					</panel>
+					<multi_slider initial_value="0" name="sld_altitudes">
+						<slider name="sld1" value="1000"/>
+						<slider name="sld2" value="2000"/>
+						<slider name="sld3" value="3000"/>
+					</multi_slider>
+					<panel name="pnl_ground">
+						<text name="txt_ground">
+							Terreno
+						</text>
+						<line_editor name="edt_invname_ground">
+							Desconocido
+						</line_editor>
+						<settings_drop_target name="sdt_ground" tool_tip="Mover un parámetro desde el Inventario hasta este recuadro para seleccionarlo como cielo a nivel del terreno."/>
+					</panel>
+					<panel name="pnl_water">
+						<text name="txt_water">
+							Agua
+						</text>
+						<line_editor name="edt_invname_water">
+							Desconocido
+						</line_editor>
+						<settings_drop_target name="sdt_water" tool_tip="Mover un parámetro desde el Inventario hasta este recuadro para seleccionarlo como agua actual."/>
+					</panel>
+					<button label="Restablecer" name="btn_rst_altitudes" tool_tip="Restablecer altitudes predeterminadas"/>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
 </panel>

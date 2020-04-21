@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+        legacy_header_height="18"
+        can_minimize="false"
+        can_resize="true"
+        height="330"
+        layout="topleft"
+        min_height="330"
+        min_width="225"
+        name="settings picker"
+        help_topic="settings_picker"
+        title="PICK: SETTINGS"
+        width="225">
+
+    <!--  top static -->
+    <floater.string
+            name="pick title">
+        Pick:
+    </floater.string>
+    <floater.string
+            name="pick_track">
+        SELECT TRACK
+    </floater.string>
+    <floater.string
+            name="pick_settings">
+        SELECT SETTINGS
+    </floater.string>
+
+    <floater.string
+            name="track_water">
+        Water
+    </floater.string>
+    <floater.string
+            name="track_ground">
+        Ground
+    </floater.string>
+    <floater.string
+            name="track_sky">
+        Sky[NUM]
+    </floater.string>
+
+    <layout_stack name="test_stack"
+            follows="all"
+            animate="false"
+            top="20"
+            left="6"
+            right="-6"
+            bottom="-10"
+            orientation="vertical">
+        <layout_panel name="inv_list"
+                border="false"
+                auto_resize="true"
+                user_resize="false"
+                height="29"
+                min_height="29"
+                bg_alpha_color="blue"
+                background_visible="false">
+            <filter_editor
+                    follows="left|top|right"
+                    height="23"
+                    label="Filter Settings"
+                    layout="topleft"
+                    left="4"
+                    name="flt_inventory_search"
+                    top="4"
+                    right="-2" />
+            <panel
+              name="pnl_inv_wrap"
+              follows="all"
+              layout="topleft"
+              left="2"
+              top="28"
+              right="-2"
+              bottom="-2"
+              background_visible="true"
+              bg_alpha_color="DkGray2">
+                <asset_filtered_inv_panel
+                    allow_multi_select="false"
+                    allow_drag="false"
+                    accepts_drag_and_drop="false"
+                    suppress_folder_menu="true"
+                    bg_visible="true"
+                    bg_alpha_color="DkGray2"
+                    border="false"
+                    follows="all"
+                    layout="topleft"
+                    left_delta="0"
+                    name="pnl_inventory"
+                    top="1"
+                    right="-4"
+                    bottom="-1"
+                    filter_asset_type="settings" />
+            </panel>
+        </layout_panel>
+        <layout_panel name="pnl_combo"
+                border="false"
+                auto_resize="false"
+                user_resize="false"
+                visible="true"
+                height="29"
+                bg_alpha_color="blue"
+                background_visible="false">
+            <combo_box
+             allow_text_entry="false"
+             follows="left|top"
+             height="23"
+             left="10"
+             max_chars="100"
+             mouse_opaque="true"
+             name="track_selection"
+             enabled="false"
+             top="1"
+             width="190"/>
+        </layout_panel>
+        <layout_panel name="temp"
+                border="false"
+                auto_resize="false"
+                user_resize="false"
+                height="29"
+                min_height="29">
+            <button
+                    follows="top|left"
+                    height="20"
+                    label="OK"
+                    label_selected="OK"
+                    layout="topleft"
+                    left="2"
+                    top="2"
+                    name="btn_select"
+                    width="100" />
+            <button
+                    follows="top|left"
+                    height="20"
+                    label="Cancel"
+                    label_selected="Cancel"
+                    layout="topleft"
+                    left_delta="110"
+                    top_delta="0"
+                    name="btn_cancel"
+                    width="100" />
+        </layout_panel>
+    </layout_stack>
+
+    <!--  middle: inventory mode -->
+    <!--
+
+
+-->     
+    <!-- bottom static -->
+    <!--
+     -->
+</floater>

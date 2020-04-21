@@ -395,6 +395,15 @@ protected:
 
 	virtual void	updateTitleButtons();
 
+	// Draws a cone from this floater to parent floater or view (owner)
+	// Modifies context_cone_opacity (interpolates according to fade time and returns new value)
+	void			drawConeToOwner(F32 &context_cone_opacity,
+									F32 max_cone_opacity,
+									LLView *owner_view,
+									F32 context_fade_time = CONTEXT_CONE_FADE_TIME,
+									F32 contex_cone_in_alpha = CONTEXT_CONE_IN_ALPHA,
+									F32 contex_cone_out_alpha = CONTEXT_CONE_OUT_ALPHA);
+
 private:
 	void			setForeground(BOOL b);	// called only by floaterview
 	void			cleanupHandles(); // remove handles to dead floaters
@@ -424,6 +433,10 @@ private:
 	void			updateTransparency(LLView* view, ETypeTransparency transparency_type);
 
 public:
+	static const F32 CONTEXT_CONE_IN_ALPHA;
+	static const F32 CONTEXT_CONE_OUT_ALPHA;
+	static const F32 CONTEXT_CONE_FADE_TIME;
+
 	// Called when floater is opened, passes mKey
 	// Public so external views or floaters can watch for this floater opening
 	commit_signal_t mOpenSignal;

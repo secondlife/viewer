@@ -41,13 +41,16 @@ VARYING vec2 vary_texcoord0;
 VARYING vec2 vary_texcoord1;
 VARYING vec2 vary_texcoord2;
 VARYING vec2 vary_texcoord3;
+VARYING float altitude_blend_factor;
 
 // Inputs
 uniform vec3 camPosLocal;
 
 uniform vec4 lightnorm;
 uniform vec4 sunlight_color;
-uniform vec4 ambient;
+uniform vec4 moonlight_color;
+uniform int sun_up_factor;
+uniform vec4 ambient_color;
 uniform vec4 blue_horizon;
 uniform vec4 blue_density;
 uniform float haze_horizon;
@@ -58,21 +61,39 @@ uniform float density_multiplier;
 uniform float max_y;
 
 uniform vec4 glow;
+uniform float sun_moon_glow_factor;
 
 uniform vec4 cloud_color;
 
 uniform float cloud_scale;
 
+// NOTE: Keep these in sync!
+//       indra\newview\app_settings\shaders\class1\deferred\skyV.glsl
+//       indra\newview\app_settings\shaders\class1\deferred\cloudsV.glsl
+//       indra\newview\lllegacyatmospherics.cpp
 void main()
 {
 
 	// World / view / projection
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
 
+	// Texture coords
 	vary_texcoord0 = texcoord0;
+	vary_texcoord0.xy -= 0.5;
+	vary_texcoord0.xy /= cloud_scale;
+	vary_texcoord0.xy += 0.5;
+
+	vary_texcoord1 = vary_texcoord0;
+	vary_texcoord1.x += lightnorm.x * 0.0125;
+	vary_texcoord1.y += lightnorm.z * 0.0125;
+
+	vary_texcoord2 = vary_texcoord0 * 16.;
+	vary_texcoord3 = vary_texcoord1 * 16.;
 
 	// Get relative position
 	vec3 P = position.xyz - camPosLocal.xyz + vec3(0,50,0);
+
+    altitude_blend_factor = clamp((P.y + 512.0) / max_y, 0.0, 1.0);
 
 	// Set altitude
 	if (P.y > 0.)
@@ -81,6 +102,7 @@ void main()
 	}
 	else
 	{
+		altitude_blend_factor = 0; // SL-11589 Fix clouds drooping below horizon
 		P *= (-32000. / P.y);
 	}
 
@@ -93,16 +115,18 @@ void main()
 	vec4 temp2 = vec4(0.);
 	vec4 blue_weight;
 	vec4 haze_weight;
+	//vec4 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
 	vec4 sunlight = sunlight_color;
 	vec4 light_atten;
 
+    float dens_mul = density_multiplier;
 
 	// Sunlight attenuation effect (hue and brightness) due to atmosphere
 	// this is used later for sunlight modulation at various altitudes
-	light_atten = (blue_density + vec4(haze_density * 0.25)) * (density_multiplier * max_y);
+	light_atten = (blue_density + vec4(haze_density * 0.25)) * (dens_mul * max_y);
 
 	// Calculate relative weights
-	temp1 = blue_density + haze_density;
+	temp1 = abs(blue_density) + vec4(abs(haze_density));
 	blue_weight = blue_density / temp1;
 	haze_weight = haze_density / temp1;
 
@@ -112,7 +136,7 @@ void main()
 	sunlight *= exp( - light_atten * temp2.y);
 
 	// Distance
-	temp2.z = Plen * density_multiplier;
+	temp2.z = Plen * dens_mul;
 
 	// Transparency (-> temp1)
 	// ATI Bugfix -- can't store temp1*temp2.z in a variable because the ati
@@ -131,11 +155,13 @@ void main()
 	temp2.x = pow(temp2.x, glow.z);
 		// glow.z should be negative, so we're doing a sort of (1 / "angle") function
 
+    temp2.x *= sun_moon_glow_factor;
+
 	// Add "minimum anti-solar illumination"
 	temp2.x += .25;
 
 	// Increase ambient when there are more clouds
-	vec4 tmpAmbient = ambient;
+	vec4 tmpAmbient = ambient_color;
 	tmpAmbient += (1. - tmpAmbient) * cloud_shadow * 0.5; 
 
 	// Dim sunlight by cloud shadow percentage
@@ -147,8 +173,6 @@ void main()
 			 );	
 
 	// CLOUDS
-
-	sunlight = sunlight_color;
 	temp2.y = max(0., lightnorm.y * 2.);
 	temp2.y = 1. / temp2.y;
 	sunlight *= exp( - light_atten * temp2.y);
@@ -166,19 +190,6 @@ void main()
 	// Make a nice cloud density based on the cloud_shadow value that was passed in.
 	vary_CloudDensity = 2. * (cloud_shadow - 0.25);
 
-
-	// Texture coords
-	vary_texcoord0 = texcoord0;
-	vary_texcoord0.xy -= 0.5;
-	vary_texcoord0.xy /= cloud_scale;
-	vary_texcoord0.xy += 0.5;
-
-	vary_texcoord1 = vary_texcoord0;
-	vary_texcoord1.x += lightnorm.x * 0.0125;
-	vary_texcoord1.y += lightnorm.z * 0.0125;
-
-	vary_texcoord2 = vary_texcoord0 * 16.;
-	vary_texcoord3 = vary_texcoord1 * 16.;
 
 	// Combine these to minimize register use
 	vary_CloudColorAmbient += oHazeColorBelowCloud;

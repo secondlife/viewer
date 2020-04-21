@@ -1,5 +1,5 @@
 /** 
- * @file gammaF.glsl
+ * @file class1\windlight\gammaF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -23,17 +23,30 @@
  * $/LicenseInfo$
  */
  
+uniform int no_atmo;
 
-
-uniform vec4 gamma;
-
-/// Soft clips the light with a gamma correction
-vec3 scaleSoftClip(vec3 light) {
+vec3 scaleSoftClipFrag(vec3 light)
+{
 	// For compatibility with lower cards. Do nothing.
 	return light;
 }
 
-vec3 fullbrightScaleSoftClip(vec3 light) {
-	return scaleSoftClip(light);
+/// Soft clips the light with a gamma correction
+vec3 scaleSoftClip(vec3 light)
+{
+	// For compatibility with lower cards. Do nothing
+	return light;
+}
+
+vec3 fullbrightScaleSoftClipFrag(vec3 light, vec3 additive, vec3 atten)
+{
+	// For compatibility with lower cards. Do nothing
+	return light;
+}
+
+vec3 fullbrightScaleSoftClip(vec3 light)
+{
+	// For compatibility with lower cards. Do nothing
+    return light;
 }
 

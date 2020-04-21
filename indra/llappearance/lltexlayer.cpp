@@ -137,7 +137,7 @@ void LLTexLayerSetBuffer::postRenderTexLayerSet(BOOL success)
 	popProjection();
 }
 
-BOOL LLTexLayerSetBuffer::renderTexLayerSet()
+BOOL LLTexLayerSetBuffer::renderTexLayerSet(LLRenderTarget* bound_target)
 {
 	// Default color mask for tex layer render
 	gGL.setColorMask(true, true);
@@ -161,7 +161,7 @@ BOOL LLTexLayerSetBuffer::renderTexLayerSet()
 	// Composite the color data
 	LLGLSUIDefault gls_ui;
 	success &= mTexLayerSet->render( getCompositeOriginX(), getCompositeOriginY(), 
-									 getCompositeWidth(), getCompositeHeight() );
+									 getCompositeWidth(), getCompositeHeight(), bound_target );
 	gGL.flush();
 
 	midRenderTexLayerSet(success);
@@ -375,7 +375,7 @@ void LLTexLayerSet::deleteCaches()
 }
 
 
-BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
+BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target )
 {
 	BOOL success = TRUE;
 	mIsVisible = TRUE;
@@ -427,12 +427,12 @@ BOOL LLTexLayerSet::render( S32 x, S32 y, S32 width, S32 height )
 			if (layer->getRenderPass() == LLTexLayer::RP_COLOR)
 			{
 				gGL.flush();
-				success &= layer->render(x, y, width, height);
+				success &= layer->render(x, y, width, height, bound_target);
 				gGL.flush();
 			}
 		}
 		
-		renderAlphaMaskTextures(x, y, width, height, false);
+		renderAlphaMaskTextures(x, y, width, height, bound_target, false);
 	
 		stop_glerror();
 	}
@@ -523,7 +523,7 @@ const LLTexLayerSetBuffer* LLTexLayerSet::getComposite() const
 }
 
 static LLTrace::BlockTimerStatHandle FTM_GATHER_MORPH_MASK_ALPHA("gatherMorphMaskAlpha");
-void LLTexLayerSet::gatherMorphMaskAlpha(U8 *data, S32 origin_x, S32 origin_y, S32 width, S32 height)
+void LLTexLayerSet::gatherMorphMaskAlpha(U8 *data, S32 origin_x, S32 origin_y, S32 width, S32 height, LLRenderTarget* bound_target)
 {
 	LL_RECORD_BLOCK_TIME(FTM_GATHER_MORPH_MASK_ALPHA);
 	memset(data, 255, width * height);
@@ -531,15 +531,15 @@ void LLTexLayerSet::gatherMorphMaskAlpha(U8 *data, S32 origin_x, S32 origin_y, S
 	for( layer_list_t::iterator iter = mLayerList.begin(); iter != mLayerList.end(); iter++ )
 	{
 		LLTexLayerInterface* layer = *iter;
-		layer->gatherAlphaMasks(data, origin_x, origin_y, width, height);
+		layer->gatherAlphaMasks(data, origin_x, origin_y, width, height, bound_target);
 	}
 	
 	// Set alpha back to that of our alpha masks.
-	renderAlphaMaskTextures(origin_x, origin_y, width, height, true);
+	renderAlphaMaskTextures(origin_x, origin_y, width, height, bound_target, true);
 }
 
 static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_MASK_TEXTURES("renderAlphaMaskTextures");
-void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height, bool forceClear)
+void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target, bool forceClear)
 {
 	LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_MASK_TEXTURES);
 	const LLTexLayerSetInfo *info = getInfo();
@@ -1065,7 +1065,7 @@ LLTexLayer::~LLTexLayer()
 		 iter != mAlphaCache.end(); iter++ )
 	{
 		U8* alpha_data = iter->second;
-		delete [] alpha_data;
+		ll_aligned_free_32(alpha_data);
 	}
 
 }
@@ -1124,7 +1124,7 @@ void LLTexLayer::calculateTexLayerColor(const param_color_list_t &param_list, LL
 	}
 }
 
-BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
+BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target)
 {
 	LLGLEnable color_mat(GL_COLOR_MATERIAL);
 	// *TODO: Is this correct?
@@ -1185,7 +1185,7 @@ BOOL LLTexLayer::render(S32 x, S32 y, S32 width, S32 height)
 		}//*/
 
 		const bool force_render = true;
-		renderMorphMasks(x, y, width, height, net_color, force_render);
+		renderMorphMasks(x, y, width, height, net_color, bound_target, force_render);
 		alpha_mask_specified = TRUE;
 		gGL.flush();
 		gGL.blendFunc(LLRender::BF_DEST_ALPHA, LLRender::BF_ONE_MINUS_DEST_ALPHA);
@@ -1428,13 +1428,13 @@ BOOL LLTexLayer::blendAlphaTexture(S32 x, S32 y, S32 width, S32 height)
 	return success;
 }
 
-/*virtual*/ void LLTexLayer::gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height)
+/*virtual*/ void LLTexLayer::gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target)
 {
-	addAlphaMask(data, originX, originY, width, height);
+	addAlphaMask(data, originX, originY, width, height, bound_target);
 }
 
 static LLTrace::BlockTimerStatHandle FTM_RENDER_MORPH_MASKS("renderMorphMasks");
-void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLColor4 &layer_color, bool force_render)
+void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLColor4 &layer_color, LLRenderTarget* bound_target, bool force_render)
 {
 	if (!force_render && !hasMorph())
 	{
@@ -1572,17 +1572,64 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 			{
 				alpha_cache_t::iterator iter2 = mAlphaCache.begin(); // arbitrarily grab the first entry
 				alpha_data = iter2->second;
-				delete [] alpha_data;
+                ll_aligned_free_32(alpha_data);
 				mAlphaCache.erase(iter2);
 			}
-			alpha_data = new U8[width * height];
-			mAlphaCache[cache_index] = alpha_data;
-    
-			// nSight doesn't support use of glReadPixels
-			if (!LLRender::sNsightDebugSupport)
+			
+            // GPUs tend to be very uptight about memory alignment as the DMA used to convey
+            // said data to the card works better when well-aligned so plain old default-aligned heap mem is a no-no
+            //new U8[width * height];
+            size_t bytes_per_pixel = 1; // unsigned byte alpha channel only...
+            size_t row_size        = (width + 3) & ~0x3; // OpenGL 4-byte row align (even for things < 4 bpp...)
+            size_t pixels          = (row_size * height);
+            size_t mem_size        = pixels * bytes_per_pixel;
+
+            alpha_data = (U8*)ll_aligned_malloc_32(mem_size);
+
+            bool skip_readback = LLRender::sNsightDebugSupport; // nSight doesn't support use of glReadPixels
+
+			if (!skip_readback)
 			{
-			glReadPixels(x, y, width, height, GL_ALPHA, GL_UNSIGNED_BYTE, alpha_data);
-		}
+                if (gGLManager.mIsIntel)
+                { // work-around for broken intel drivers which cannot do glReadPixels on an RGBA FBO
+                  // returning only the alpha portion without locking up downstream 
+                    U8* temp = (U8*)ll_aligned_malloc_32(mem_size << 2); // allocate same size, but RGBA
+
+                    if (bound_target)
+                    {
+                        gGL.getTexUnit(0)->bind(bound_target);
+                    }
+                    else
+                    {
+                        gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, 0);
+                    }
+
+                    glGetTexImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_RGBA, GL_UNSIGNED_BYTE, temp);
+
+                    U8* alpha_cursor = alpha_data;
+                    U8* pixel        = temp;
+                    for (int i = 0; i < pixels; i++)
+                    {
+                        *alpha_cursor++ = pixel[3];
+                        pixel += 4;
+                    }
+
+                    gGL.getTexUnit(0)->disable();
+
+                    ll_aligned_free_32(temp);
+                }
+                else
+                { // platforms with working drivers...
+				    glReadPixels(x, y, width, height, GL_ALPHA, GL_UNSIGNED_BYTE, alpha_data);                
+                }
+			}
+            else
+            {
+                ll_aligned_free_32(alpha_data);
+                alpha_data = nullptr;
+            }
+
+            mAlphaCache[cache_index] = alpha_data;
 		}
 		
 		getTexLayerSet()->getAvatarAppearance()->dirtyMesh();
@@ -1593,7 +1640,7 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 }
 
 static LLTrace::BlockTimerStatHandle FTM_ADD_ALPHA_MASK("addAlphaMask");
-void LLTexLayer::addAlphaMask(U8 *data, S32 originX, S32 originY, S32 width, S32 height)
+void LLTexLayer::addAlphaMask(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target)
 {
 	LL_RECORD_BLOCK_TIME(FTM_ADD_ALPHA_MASK);
 	S32 size = width * height;
@@ -1605,7 +1652,7 @@ void LLTexLayer::addAlphaMask(U8 *data, S32 originX, S32 originY, S32 width, S32
 		// TODO: eliminate need for layer morph mask valid flag
 		invalidateMorphMasks();
 		const bool force_render = false;
-		renderMorphMasks(originX, originY, width, height, net_color, force_render);
+		renderMorphMasks(originX, originY, width, height, net_color, bound_target, force_render);
 		alphaData = getAlphaData();
 	}
 	if (alphaData)
@@ -1739,7 +1786,7 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i) const
 	return layer;
 }
 
-/*virtual*/ BOOL LLTexLayerTemplate::render(S32 x, S32 y, S32 width, S32 height)
+/*virtual*/ BOOL LLTexLayerTemplate::render(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bound_target)
 {
 	if(!mInfo)
 	{
@@ -1766,7 +1813,7 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i) const
 		{
 			wearable->writeToAvatar(mAvatarAppearance);
 			layer->setLTO(lto);
-			success &= layer->render(x,y,width,height);
+			success &= layer->render(x, y, width, height, bound_target);
 		}
 	}
 
@@ -1788,14 +1835,14 @@ LLTexLayer* LLTexLayerTemplate::getLayer(U32 i) const
 	return success;
 }
 
-/*virtual*/ void LLTexLayerTemplate::gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height)
+/*virtual*/ void LLTexLayerTemplate::gatherAlphaMasks(U8 *data, S32 originX, S32 originY, S32 width, S32 height, LLRenderTarget* bound_target)
 {
 	U32 num_wearables = updateWearableCache();
 	U32 i = num_wearables - 1; // For rendering morph masks, we only want to use the top wearable
 	LLTexLayer *layer = getLayer(i);
 	if (layer)
 	{
-		layer->addAlphaMask(data, originX, originY, width, height);
+		layer->addAlphaMask(data, originX, originY, width, height, bound_target);
 	}
 }
 
