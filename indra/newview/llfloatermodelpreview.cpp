@@ -4597,7 +4597,8 @@ BOOL LLModelPreview::render()
 								}
 							}
 						}
-					}
+                        gGL.popMatrix();
+                    }
 
 					// only do this if mDegenerate was set in the preceding mesh checks [Check this if the ordering ever breaks]
 					if (pass > 0 && mHasDegenerate)
@@ -4642,8 +4643,7 @@ BOOL LLModelPreview::render()
 										genBuffers(LLModel::LOD_PHYSICS, false);
 									}
 
-									auto num_degenerate = 0;
-									auto num_models = mVertexBuffer[LLModel::LOD_PHYSICS][model].size();
+									U32 num_models = mVertexBuffer[LLModel::LOD_PHYSICS][model].size();
 									for (U32 v = 0; v < num_models; ++v)
 									{
 										LLVertexBuffer* buffer = mVertexBuffer[LLModel::LOD_PHYSICS][model][v];
@@ -4667,7 +4667,6 @@ BOOL LLModelPreview::render()
 
 											if (ll_is_degenerate(v1, v2, v3))
 											{
-												num_degenerate++;
 												glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 												gGL.diffuseColor3fv(deg_edge_col().mV);
 												buffer->drawRange(LLRender::TRIANGLES, 0, 2, 3, indices_offset);
