@@ -886,36 +886,9 @@ void LLFloaterModelPreview::draw()
 	childSetTextArg("prim_cost", "[PRIM_COST]", llformat("%d", mModelPreview->mResourceCost));
 	childSetTextArg("description_label", "[TEXTURES]", llformat("%d", mModelPreview->mTextureSet.size()));
 
-    if (mModelPreview->lodsReady())
+    if (!isMinimized() && mModelPreview->lodsReady())
 	{
-		gGL.color3f(1.f, 1.f, 1.f);
-
-		gGL.getTexUnit(0)->bind(mModelPreview);
-
-
-		LLView* preview_panel = getChild<LLView>("preview_panel");
-
-		LLRect rect = preview_panel->getRect();
-		if (rect != mPreviewRect)
-		{
-			mModelPreview->refresh();
-			mPreviewRect = preview_panel->getRect();
-		}
-
-		gGL.begin( LLRender::QUADS );
-		{
-			gGL.texCoord2f(0.f, 1.f);
-			gGL.vertex2i(mPreviewRect.mLeft, mPreviewRect.mTop-1);
-			gGL.texCoord2f(0.f, 0.f);
-			gGL.vertex2i(mPreviewRect.mLeft, mPreviewRect.mBottom);
-			gGL.texCoord2f(1.f, 0.f);
-			gGL.vertex2i(mPreviewRect.mRight-1, mPreviewRect.mBottom);
-			gGL.texCoord2f(1.f, 1.f);
-			gGL.vertex2i(mPreviewRect.mRight-1, mPreviewRect.mTop-1);
-		}
-		gGL.end();
-
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+		draw3dPreview();
 	}
 }
 
