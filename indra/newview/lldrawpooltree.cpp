@@ -38,6 +38,7 @@
 #include "llrender.h"
 #include "llviewercontrol.h"
 #include "llviewerregion.h"
+#include "llenvironment.h"
 
 S32 LLDrawPoolTree::sDiffTex = 0;
 static LLGLSLShader* shader = NULL;
@@ -57,7 +58,7 @@ LLDrawPool *LLDrawPoolTree::instancePool()
 
 void LLDrawPoolTree::prerender()
 {
-	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
+	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
 }
 
 void LLDrawPoolTree::beginRenderPass(S32 pass)
@@ -96,7 +97,6 @@ void LLDrawPoolTree::render(S32 pass)
 	}
 
 	LLGLState test(GL_ALPHA_TEST, LLGLSLShader::sNoFixedFunction ? 0 : 1);
-	LLOverrideFaceColor color(this, 1.f, 1.f, 1.f, 1.f);
 
 	gGL.getTexUnit(sDiffTex)->bind(mTexturep);
 				
@@ -138,7 +138,7 @@ void LLDrawPoolTree::endRenderPass(S32 pass)
 		shader->unbind();
 	}
 	
-	if (mVertexShaderLevel <= 0)
+	if (mShaderLevel <= 0)
 	{
 		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 	}
@@ -178,7 +178,10 @@ void LLDrawPoolTree::beginShadowPass(S32 pass)
 	glPolygonOffset(gSavedSettings.getF32("RenderDeferredTreeShadowOffset"),
 					gSavedSettings.getF32("RenderDeferredTreeShadowBias"));
 
+    LLEnvironment& environment = LLEnvironment::instance();
+
 	gDeferredTreeShadowProgram.bind();
+    gDeferredTreeShadowProgram.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
 	gDeferredTreeShadowProgram.setMinimumAlpha(0.5f);
 }
 

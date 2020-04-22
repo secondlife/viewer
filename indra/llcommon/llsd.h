@@ -79,7 +79,7 @@
 	an LLSD array).
 	
 	An array is a sequence of zero or more LLSD values.
-	
+
 	Thread Safety
 
 	In general, these LLSD classes offer *less* safety than STL container
@@ -284,6 +284,7 @@ public:
 		
 		bool has(const String&) const;
 		LLSD get(const String&) const;
+		LLSD getKeys() const;				// Return an LLSD array with keys as strings
 		void insert(const String&, const LLSD&);
 		void erase(const String&);
 		LLSD& with(const String&, const LLSD&);
@@ -301,7 +302,7 @@ public:
 		LLSD get(Integer) const;
 		void set(Integer, const LLSD&);
 		void insert(Integer, const LLSD&);
-		void append(const LLSD&);
+		LLSD& append(const LLSD&);
 		void erase(Integer);
 		LLSD& with(Integer, const LLSD&);
 		

@@ -231,6 +231,9 @@ void LLParcel::init(const LLUUID &owner_id,
 	setAllowGroupAVSounds(TRUE);
 	setAllowAnyAVSounds(TRUE);
 	setHaveNewParcelLimitData(FALSE);
+
+    setRegionAllowEnvironmentOverride(FALSE);
+    setParcelEnvironmentVersion(INVALID_PARCEL_ENVIRONMENT_VERSION);
 }
 
 void LLParcel::overrideOwner(const LLUUID& owner_id, BOOL is_group_owned)

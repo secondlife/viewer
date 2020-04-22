@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Dichte" name="panel_settings_sky_density">
+	<layout_stack>
+		<layout_panel>
+			<slider label="Rayleigh-Exponentialterm:" name="rayleigh_exponential"/>
+			<slider label="Rayleigh-Exponentialskala:" name="rayleigh_exponential_scale"/>
+			<slider label="Rayleigh-Linearterm:" name="rayleigh_linear"/>
+			<slider label="Rayleigh-Konstantenterm:" name="rayleigh_constant"/>
+			<slider label="Rayleigh-Maximalhöhe:" name="rayleigh_max_altitude"/>
+		</layout_panel>
+		<layout_panel>
+			<slider label="Mie-Exponentialterm:" name="mie_exponential"/>
+			<slider label="Mie-Exponentialskala:" name="mie_exponential_scale"/>
+			<slider label="Mie-Linearterm:" name="mie_linear"/>
+			<slider label="Mie-Konstantenterm:" name="mie_constant"/>
+			<slider label="Mie-Anisofaktor." name="mie_aniso_factor"/>
+			<slider label="Mie-Maximalhöhe:" name="mie_max_altitude"/>
+		</layout_panel>
+		<layout_panel>
+			<slider label="Absorptions-Exponentialterm:" name="absorption_exponential"/>
+			<slider label="Absorptions-Exponentialskala:" name="absorption_exponential_scale"/>
+			<slider label="Absorptions-Linearterm:" name="absorption_linear"/>
+			<slider label="Absorptions-Konstantenterm:" name="absorption_constant"/>
+			<slider label="Absorptions-Maximalhöhe:" name="absorption_max_altitude"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

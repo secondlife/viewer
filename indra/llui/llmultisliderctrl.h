@@ -51,14 +51,22 @@ public:
 								text_width;
 		Optional<bool>			show_text,
 								can_edit_text;
-		Optional<S32>			decimal_digits;
+		Optional<S32>			decimal_digits,
+								thumb_width;
 		Optional<S32>			max_sliders;	
 		Optional<bool>			allow_overlap,
+								loop_overlap,
 								draw_track,
 								use_triangle;
 
+		Optional<std::string>	orientation,
+								thumb_image;
+
+		Optional<F32>			overlap_threshold;
+
 		Optional<LLUIColor>		text_color,
-								text_disabled_color;
+								text_disabled_color,
+								thumb_highlight_color;
 
 		Optional<CommitCallbackParam>	mouse_down_callback,
 										mouse_up_callback;
@@ -74,7 +82,7 @@ protected:
 public:
 	virtual ~LLMultiSliderCtrl();
 
-	F32				getSliderValue(const std::string& name) const;
+    F32				getSliderValue(const std::string& name) const   { return mMultiSlider->getSliderValue(name); }
 	void			setSliderValue(const std::string& name, F32 v, BOOL from_event = FALSE);
 
 	virtual void	setValue(const LLSD& value );
@@ -84,6 +92,7 @@ public:
 	const std::string& getCurSlider() const					{ return mMultiSlider->getCurSlider(); }
 	F32				getCurSliderValue() const				{ return mCurValue; }
 	void			setCurSlider(const std::string& name);		
+	void			resetCurSlider();
 	void			setCurSliderValue(F32 val, BOOL from_event = false) { setSliderValue(mMultiSlider->getCurSlider(), val, from_event); }
 
 	virtual void	setMinValue(const LLSD& min_value)	{ setMinValue((F32)min_value.asReal()); }
@@ -98,14 +107,27 @@ public:
 	void			setMaxValue(F32 max_value) {mMultiSlider->setMaxValue(max_value);}
 	void			setIncrement(F32 increment) {mMultiSlider->setIncrement(increment);}
 
+	F32				getNearestIncrement(F32 value) const { return mMultiSlider->getNearestIncrement(value); }
+	F32			    getSliderValueFromPos(S32 x, S32 y) const { return mMultiSlider->getSliderValueFromPos(x, y); }
+    LLRect          getSliderThumbRect(const std::string &name) const { return mMultiSlider->getSliderThumbRect(name); }
+
+    void            setSliderThumbImage(const std::string &name) { mMultiSlider->setSliderThumbImage(name); }
+    void            clearSliderThumbImage() { mMultiSlider->clearSliderThumbImage(); }
+
 	/// for adding and deleting sliders
 	const std::string&	addSlider();
 	const std::string&	addSlider(F32 val);
+	bool				addSlider(F32 val, const std::string& name);
 	void			deleteSlider(const std::string& name);
 	void			deleteCurSlider()			{ deleteSlider(mMultiSlider->getCurSlider()); }
 
 	F32				getMinValue() const { return mMultiSlider->getMinValue(); }
 	F32				getMaxValue() const { return mMultiSlider->getMaxValue(); }
+
+	S32				getMaxNumSliders() { return mMultiSlider->getMaxNumSliders(); }
+	S32				getCurNumSliders() { return mMultiSlider->getCurNumSliders(); }
+	F32				getOverlapThreshold() { return mMultiSlider->getOverlapThreshold(); }
+	bool			canAddSliders() { return mMultiSlider->canAddSliders(); }
 
 	void			setLabel(const std::string& label)				{ if (mLabelBox) mLabelBox->setText(label); }
 	void			setLabelColor(const LLColor4& c)			{ mTextEnabledColor = c; }

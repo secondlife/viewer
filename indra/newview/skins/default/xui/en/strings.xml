@@ -300,6 +300,17 @@ Please try logging in again in a minute.</string>
 	<string name="BUTTON_DOCK">Dock</string>
 	<string name="BUTTON_HELP">Show Help</string>
 
+	<!-- ToolTips for notecards -->
+	<string name="TooltipNotecardNotAllowedTypeDrop">
+Items of this type can't be attached
+to notecards on this region.
+	</string>
+	<string name="TooltipNotecardOwnerRestrictedDrop">
+Only items with unrestricted
+'next owner' permissions
+can be attached to notecards.
+	</string>
+
 	<!-- searching - generic -->
 	<string name="Searching">Searching...</string>
 	<string name="NoneFound">None found.</string>
@@ -352,6 +363,11 @@ Error in upload request.  Please visit
 http://secondlife.com/support for help fixing this problem.
 </string>
 
+	<!-- Settings errors -->
+	<string name="SettingValidationError">Validation failed for importing settings [NAME]</string>
+	<string name="SettingImportFileError">Could not open file [FILE]</string>
+	<string name="SettingParseFileError">Could not open file [FILE]</string>
+	<string name="SettingTranslateError">Could not translate legacy windlight [NAME]</string>
 	<!-- Asset Type human readable names:  these will replace variable [TYPE] in notification FailedToFindWearable* -->
 	<!-- Will also replace [OBJECTTYPE] in notifications: UserGiveItem, ObjectGiveItem -->
 	<string name="texture">texture</string>
@@ -379,7 +395,8 @@ http://secondlife.com/support for help fixing this problem.
 	<string name="favorite">favorite</string>
 	<string name="symbolic link">link</string>
 	<string name="symbolic folder link">folder link</string>
-  <string name="mesh">mesh</string>
+	<string name="settings blob">settings</string>
+	<string name="mesh">mesh</string>
 
 	<!-- llvoavatar. Displayed in the avatar chat bubble -->
 	<string name="AvatarEditingAppearance">(Editing Appearance)</string>
@@ -504,6 +521,7 @@ http://secondlife.com/support for help fixing this problem.
 	<string name="ManageEstateSilently">Manage your estates silently</string>
 	<string name="ChangeYourDefaultAnimations">Change your default animations</string>
 	<string name="ForceSitAvatar">Force your avatar to sit</string>
+	<string name="ChangeEnvSettings">Change your environment settings</string>
 	
 	<string name="NotConnected">Not Connected</string>
 	<string name="AgentNameSubst">(You)</string> <!-- Substitution for agent name -->
@@ -2767,6 +2785,14 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="LocalSettings">Local Settings</string>
 	<string name="RegionSettings">Region Settings</string>
 
+	<string name="NoEnvironmentSettings">This Region does not support environmental settings.</string>
+	<string name="EnvironmentSun">Sun</string>
+	<string name="EnvironmentMoon">Moon</string>
+	<string name="EnvironmentBloom">Bloom</string>
+	<string name="EnvironmentCloudNoise">Cloud Noise</string>
+	<string name="EnvironmentNormalMap">Normal Map</string>
+	<string name="EnvironmentTransparent">Transparent</string>
+
 	<!-- panel classified -->
 	<string name="ClassifiedClicksTxt">Clicks: [TELEPORT] teleport, [MAP] map, [PROFILE] profile</string>
 	<string name="ClassifiedUpdateAfterPublish">(will update after publish)</string>
@@ -3839,6 +3865,12 @@ Abuse Report</string>
   <string name="Female - Stick tougue out">Female - Stick tongue out</string>
   <string name="Female - Wow">Female - Wow</string>
 
+<!-- settings -->
+  <string name="New Daycycle">New Daycycle</string>
+  <string name="New Water">New Water</string>
+  <string name="New Sky">New Sky</string>
+  
+
   <string name="/bow">/bow</string>
   <string name="/clap">/clap</string>
   <string name="/count">/count</string>
@@ -4063,6 +4095,8 @@ Try enclosing path to the editor with double quotes.
   <string name="BeaconScriptedTouch">Viewing scripted object with touch function beacons (red)</string>
   <string name="BeaconSound">Viewing sound beacons (yellow)</string>
   <string name="BeaconMedia">Viewing media beacons (white)</string>
+  <string name="BeaconSun">Viewing sun direction beacon (orange)</string>
+  <string name="BeaconMoon">Viewing moon direction beacon (purple)</string>
   <string name="ParticleHiding">Hiding Particles</string>
 
   <!-- commands -->
@@ -4075,6 +4109,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Conversations_Label">Conversations</string>
   <string name="Command_Compass_Label">Compass</string>
   <string name="Command_Destinations_Label">Destinations</string>
+  <string name="Command_Environments_Label">My Environments</string>
   <string name="Command_Gestures_Label">Gestures</string>
   <string name="Command_Grid_Status_Label">Grid status</string>
   <string name="Command_HowTo_Label">How to</string>
@@ -4104,6 +4139,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Conversations_Tooltip">Converse with everyone</string>
   <string name="Command_Compass_Tooltip">Compass</string>
   <string name="Command_Destinations_Tooltip">Destinations of interest</string>
+  <string name="Command_Environments_Tooltip">My Environments</string>
   <string name="Command_Gestures_Tooltip">Gestures for your avatar</string>
   <string name="Command_Grid_Status_Tooltip">Show current Grid status</string>
   <string name="Command_HowTo_Tooltip">How to do common tasks</string>
@@ -4178,6 +4214,8 @@ Try enclosing path to the editor with double quotes.
   <string name="ExperiencePermission10">control your camera</string>
   <string name="ExperiencePermission11">teleport you</string>
   <string name="ExperiencePermission12">automatically accept experience permissions</string>
+  <string name="ExperiencePermission16">force your avatar to sit</string>
+  <string name="ExperiencePermission17">change your environment settings</string>
   <string name="ExperiencePermissionShortUnknown">perform an unknown operation: [Permission]</string>
   <string name="ExperiencePermissionShort1">Take Controls</string>
   <string name="ExperiencePermissionShort3">Trigger Animations</string>
@@ -4186,6 +4224,8 @@ Try enclosing path to the editor with double quotes.
   <string name="ExperiencePermissionShort10">Control Camera</string>
   <string name="ExperiencePermissionShort11">Teleport</string>
   <string name="ExperiencePermissionShort12">Permission</string>
+  <string name="ExperiencePermissionShort16">Sit</string>
+  <string name="ExperiencePermissionShort17">Environment</string>
 
   <!-- Conversation log messages -->
   <string name="logging_calls_disabled_log_empty">

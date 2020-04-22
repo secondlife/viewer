@@ -36,6 +36,7 @@
 #include <boost/signals2.hpp>
 #include "llinitparam.h"
 #include "lltexture.h"
+#include "llrender2dutils.h"
 
 extern const LLColor4 UI_VERTEX_COLOR;
 
@@ -53,35 +54,46 @@ public:
 	LLUIImage(const std::string& name, LLPointer<LLTexture> image);
 	virtual ~LLUIImage();
 
-	void setClipRegion(const LLRectf& region);
-	void setScaleRegion(const LLRectf& region);
-	void setScaleStyle(EScaleStyle style);
+	LL_FORCE_INLINE void setClipRegion(const LLRectf& region)
+    { 
+	    mClipRegion = region; 
+    }
 
-	LLPointer<LLTexture> getImage() { return mImage; }
-	const LLPointer<LLTexture>& getImage() const { return mImage; }
+	LL_FORCE_INLINE void setScaleRegion(const LLRectf& region)
+    { 
+	    mScaleRegion = region; 
+    }
 
-	void draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color = UI_VERTEX_COLOR) const;
-	void draw(S32 x, S32 y, const LLColor4& color = UI_VERTEX_COLOR) const;
-	void draw(const LLRect& rect, const LLColor4& color = UI_VERTEX_COLOR) const { draw(rect.mLeft, rect.mBottom, rect.getWidth(), rect.getHeight(), color); }
+	LL_FORCE_INLINE void setScaleStyle(EScaleStyle style)
+    {
+	    mScaleStyle = style;
+    }
+
+	LL_FORCE_INLINE LLPointer<LLTexture> getImage() { return mImage; }
+	LL_FORCE_INLINE const LLPointer<LLTexture>& getImage() const { return mImage; }
+
+	LL_FORCE_INLINE void draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color = UI_VERTEX_COLOR) const;
+	LL_FORCE_INLINE void draw(S32 x, S32 y, const LLColor4& color = UI_VERTEX_COLOR) const;
+	LL_FORCE_INLINE void draw(const LLRect& rect, const LLColor4& color = UI_VERTEX_COLOR) const { draw(rect.mLeft, rect.mBottom, rect.getWidth(), rect.getHeight(), color); }
 	
-	void drawSolid(S32 x, S32 y, S32 width, S32 height, const LLColor4& color) const;
-	void drawSolid(const LLRect& rect, const LLColor4& color) const { drawSolid(rect.mLeft, rect.mBottom, rect.getWidth(), rect.getHeight(), color); }
-	void drawSolid(S32 x, S32 y, const LLColor4& color) const { drawSolid(x, y, getWidth(), getHeight(), color); }
+	LL_FORCE_INLINE void drawSolid(S32 x, S32 y, S32 width, S32 height, const LLColor4& color) const;
+	LL_FORCE_INLINE void drawSolid(const LLRect& rect, const LLColor4& color) const { drawSolid(rect.mLeft, rect.mBottom, rect.getWidth(), rect.getHeight(), color); }
+	LL_FORCE_INLINE void drawSolid(S32 x, S32 y, const LLColor4& color) const { drawSolid(x, y, getWidth(), getHeight(), color); }
 
-	void drawBorder(S32 x, S32 y, S32 width, S32 height, const LLColor4& color, S32 border_width) const;
-	void drawBorder(const LLRect& rect, const LLColor4& color, S32 border_width) const { drawBorder(rect.mLeft, rect.mBottom, rect.getWidth(), rect.getHeight(), color, border_width); }
-	void drawBorder(S32 x, S32 y, const LLColor4& color, S32 border_width) const { drawBorder(x, y, getWidth(), getHeight(), color, border_width); }
+	LL_FORCE_INLINE void drawBorder(S32 x, S32 y, S32 width, S32 height, const LLColor4& color, S32 border_width) const;
+	LL_FORCE_INLINE void drawBorder(const LLRect& rect, const LLColor4& color, S32 border_width) const { drawBorder(rect.mLeft, rect.mBottom, rect.getWidth(), rect.getHeight(), color, border_width); }
+	LL_FORCE_INLINE void drawBorder(S32 x, S32 y, const LLColor4& color, S32 border_width) const { drawBorder(x, y, getWidth(), getHeight(), color, border_width); }
 
 	void draw3D(const LLVector3& origin_agent, const LLVector3& x_axis, const LLVector3& y_axis, const LLRect& rect, const LLColor4& color);
 
-	const std::string& getName() const { return mName; }
+	LL_FORCE_INLINE const std::string& getName() const { return mName; }
 
 	virtual S32 getWidth() const;
 	virtual S32 getHeight() const;
 
 	// returns dimensions of underlying textures, which might not be equal to ui image portion
-	S32 getTextureWidth() const;
-	S32 getTextureHeight() const;
+	LL_FORCE_INLINE S32 getTextureWidth() const;
+	LL_FORCE_INLINE S32 getTextureHeight() const;
 
 	boost::signals2::connection addLoadedCallback( const image_loaded_signal_t::slot_type& cb );
 
@@ -95,7 +107,11 @@ protected:
 	LLRectf					mClipRegion;
 	LLPointer<LLTexture>	mImage;
 	EScaleStyle				mScaleStyle;
+    mutable S32             mCachedW;
+    mutable S32             mCachedH;
 };
+
+#include "lluiimage.inl"
 
 namespace LLInitParam
 {

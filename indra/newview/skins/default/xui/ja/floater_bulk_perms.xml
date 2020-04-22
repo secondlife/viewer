@@ -30,6 +30,7 @@
 	<icon name="icon_sound" tool_tip="サウンド"/>
 	<check_box label="テクスチャ" name="check_texture"/>
 	<icon name="icon_texture" tool_tip="テクスチャ"/>
+	<icon name="icon_setting" tool_tip="自然環境の設定"/>
 	<button label="すべてに √" label_selected="全て" name="check_all"/>
 	<button label="クリア" label_selected="なし" name="check_none"/>
 	<text name="newperms">

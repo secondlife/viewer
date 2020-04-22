@@ -47,15 +47,22 @@ public:
 		Optional<S32>	max_sliders;
 
 		Optional<bool>	allow_overlap,
+						loop_overlap,
 						draw_track,
 						use_triangle;
 
+		Optional<F32>	overlap_threshold;
+
 		Optional<LLUIColor>	track_color,
 							thumb_disabled_color,
+							thumb_highlight_color,
 							thumb_outline_color,
 							thumb_center_color,
 							thumb_center_selected_color,
 							triangle_color;
+
+		Optional<std::string>	orientation,
+								thumb_image;
 
 		Optional<CommitCallbackParam>	mouse_down_callback,
 										mouse_up_callback;
@@ -70,16 +77,27 @@ protected:
 	friend class LLUICtrlFactory;
 public:
 	virtual ~LLMultiSlider();
+
+    // Multi-slider rounds values to nearest increments (bias towards rounding down)
+    F32					getNearestIncrement(F32 value) const;
+
 	void				setSliderValue(const std::string& name, F32 value, BOOL from_event = FALSE);
 	F32					getSliderValue(const std::string& name) const;
+	F32					getSliderValueFromPos(S32 xpos, S32 ypos) const;
+    LLRect              getSliderThumbRect(const std::string& name) const;
+
+    void                setSliderThumbImage(const std::string &name);
+    void                clearSliderThumbImage();
+
 
 	const std::string&	getCurSlider() const					{ return mCurSlider; }
 	F32					getCurSliderValue() const				{ return getSliderValue(mCurSlider); }
 	void				setCurSlider(const std::string& name);
+	void				resetCurSlider();
 	void				setCurSliderValue(F32 val, BOOL from_event = false) { setSliderValue(mCurSlider, val, from_event); }
 
-	/*virtual*/ void	setValue(const LLSD& value);
-	/*virtual*/ LLSD	getValue() const		{ return mValue; }
+	/*virtual*/ void	setValue(const LLSD& value) override;
+	/*virtual*/ LLSD	getValue() const override { return mValue; }
 
 	boost::signals2::connection setMouseDownCallback( const commit_signal_t::slot_type& cb );
 	boost::signals2::connection setMouseUpCallback(	const commit_signal_t::slot_type& cb );
@@ -87,24 +105,34 @@ public:
 	bool				findUnusedValue(F32& initVal);
 	const std::string&	addSlider();
 	const std::string&	addSlider(F32 val);
-	void				addSlider(F32 val, const std::string& name);
+	bool				addSlider(F32 val, const std::string& name);
 	void				deleteSlider(const std::string& name);
 	void				deleteCurSlider()			{ deleteSlider(mCurSlider); }
-	void				clear();
+	/*virtual*/ void	clear() override;
 
-	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask);
-	/*virtual*/ void	draw();
+	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask) override;
+	/*virtual*/ void	onMouseLeave(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ void	draw() override;
+
+	S32				getMaxNumSliders() { return mMaxNumSliders; }
+	S32				getCurNumSliders() { return mValue.size(); }
+	F32				getOverlapThreshold() { return mOverlapThreshold; }
+	bool			canAddSliders() { return mValue.size() < mMaxNumSliders; }
+
 
 protected:
 	LLSD			mValue;
 	std::string		mCurSlider;
+	std::string		mHoverSlider;
 	static S32		mNameCounter;
 
 	S32				mMaxNumSliders;
 	BOOL			mAllowOverlap;
+	BOOL			mLoopOverlap;
+	F32				mOverlapThreshold;
 	BOOL			mDrawTrack;
 	BOOL			mUseTriangle;			/// hacked in toggle to use a triangle
 
@@ -116,11 +144,15 @@ protected:
 					mThumbRects;
 	LLUIColor		mTrackColor;
 	LLUIColor		mThumbOutlineColor;
+	LLUIColor		mThumbHighlightColor;
 	LLUIColor		mThumbCenterColor;
 	LLUIColor		mThumbCenterSelectedColor;
 	LLUIColor		mDisabledThumbColor;
 	LLUIColor		mTriangleColor;
-	
+	LLUIImagePtr	mThumbImagep; //blimps on the slider, for now no 'disabled' support
+
+	const EOrientation	mOrientation;
+
 	commit_signal_t*	mMouseDownSignal;
 	commit_signal_t*	mMouseUpSignal;
 };

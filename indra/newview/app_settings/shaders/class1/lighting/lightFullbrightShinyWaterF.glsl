@@ -1,5 +1,5 @@
 /** 
- * @file lightFullbrightShinyWaterF.glsl
+ * @file class1\lighting\lightFullbrightShinyWaterF.glsl
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2007, Linden Research, Inc.

@@ -474,5 +474,6 @@ Sadece büyük parseller aramada görünür.
 			</panel>
 		</panel>
 		<panel label="DENEYİMLER" name="land_experiences_panel"/>
+		<panel label="ORTAM" name="land_environment_panel"/>
 	</tab_container>
 </floater>

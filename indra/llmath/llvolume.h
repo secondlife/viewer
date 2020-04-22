@@ -875,6 +875,7 @@ public:
 	void resizeVertices(S32 num_verts);
 	void allocateTangents(S32 num_verts);
 	void allocateWeights(S32 num_verts);
+    void allocateJointIndices(S32 num_verts);
 	void resizeIndices(S32 num_indices);
 	void fillFromLegacyData(std::vector<LLVolumeFace::VertexData>& v, std::vector<U16>& idx);
 
@@ -955,6 +956,11 @@ public:
 	// format is mWeights[vertex_index].mV[influence] = <joint_index>.<weight>
 	// mWeights.size() should be empty or match mVertices.size()  
 	LLVector4a* mWeights;
+
+#if USE_SEPARATE_JOINT_INDICES_AND_WEIGHTS
+    LLVector4a* mJustWeights;
+    U8* mJointIndices;
+#endif
 
     mutable BOOL mWeightsScrubbed;
 

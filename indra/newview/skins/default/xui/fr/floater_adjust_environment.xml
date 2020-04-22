@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="env_adjust_snapshot" title="Éclairage personnel">
+	<layout_stack name="outer_stack">
+		<layout_panel name="env_controls">
+			<layout_stack name="settings_stack">
+				<layout_panel>
+					<button label="Réinitialiser" name="btn_reset" tool_tip="Fermer et réinitialiser vers l&apos;environnement partagé"/>
+					<text name="cloud_map_label">
+						Image du nuage :
+					</text>
+				</layout_panel>
+				<layout_panel>
+					<text name="label">
+						Soleil :
+					</text>
+					<check_box label="Afficher la balise" name="sunbeacon"/>
+				</layout_panel>
+				<layout_panel>
+					<check_box label="Afficher la balise" name="moonbeacon"/>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
+</floater>

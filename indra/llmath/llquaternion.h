@@ -28,6 +28,7 @@
 #define LLQUATERNION_H
 
 #include <iostream>
+#include "llsd.h"
 
 #ifndef LLMATH_H //enforce specific include order to avoid tangling inline dependencies
 #error "Please include llmath.h first."
@@ -63,6 +64,10 @@ public:
 	LLQuaternion(const LLVector3 &x_axis,
 				 const LLVector3 &y_axis,
 				 const LLVector3 &z_axis);			// Initializes Quaternion from Matrix3 = [x_axis ; y_axis ; z_axis]
+    explicit LLQuaternion(const LLSD &sd);          // Initializes Quaternion from LLSD array.
+
+    LLSD getValue() const;
+    void setValue(const LLSD& sd);
 
 	BOOL isIdentity() const;
 	BOOL isNotIdentity() const;
@@ -79,7 +84,8 @@ public:
 	const LLQuaternion&	set(const F32 *q);						// Sets Quaternion to normalize(quat[VX], quat[VY], quat[VZ], quat[VW])
 	const LLQuaternion&	set(const LLMatrix3 &mat);				// Sets Quaternion to mat2quat(mat)
 	const LLQuaternion&	set(const LLMatrix4 &mat);				// Sets Quaternion to mat2quat(mat)
-
+    const LLQuaternion& setFromAzimuthAndAltitude(F32 azimuth, F32 altitude);
+    
 	const LLQuaternion&	setAngleAxis(F32 angle, F32 x, F32 y, F32 z);	// Sets Quaternion to axis_angle2quat(angle, x, y, z)
 	const LLQuaternion&	setAngleAxis(F32 angle, const LLVector3 &vec);	// Sets Quaternion to axis_angle2quat(angle, vec)
 	const LLQuaternion&	setAngleAxis(F32 angle, const LLVector4 &vec);	// Sets Quaternion to axis_angle2quat(angle, vec)
@@ -100,6 +106,7 @@ public:
 	void		getAngleAxis(F32* angle, F32* x, F32* y, F32* z) const;	// returns rotation in radians about axis x,y,z
 	void		getAngleAxis(F32* angle, LLVector3 &vec) const;
 	void		getEulerAngles(F32 *roll, F32* pitch, F32 *yaw) const;
+    void        getAzimuthAndAltitude(F32 &azimuth, F32 &altitude);
 
 	F32	normalize();	// Normalizes Quaternion and returns magnitude
 	F32	normQuat();		// deprecated
@@ -165,6 +172,24 @@ public:
 	// For debugging, only
 	//static U32 mMultCount;
 };
+
+inline LLSD LLQuaternion::getValue() const
+{
+    LLSD ret;
+    ret[0] = mQ[0];
+    ret[1] = mQ[1];
+    ret[2] = mQ[2];
+    ret[3] = mQ[3];
+    return ret;
+}
+
+inline void LLQuaternion::setValue(const LLSD& sd)
+{
+    mQ[0] = sd[0].asReal();
+    mQ[1] = sd[1].asReal();
+    mQ[2] = sd[2].asReal();
+    mQ[3] = sd[3].asReal();
+}
 
 // checker
 inline BOOL	LLQuaternion::isFinite() const

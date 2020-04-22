@@ -46,6 +46,7 @@ LLWLDayCycle::~LLWLDayCycle()
 
 void LLWLDayCycle::loadDayCycle(const LLSD& day_data, LLWLParamKey::EScope scope)
 {
+#if 0
 	LL_DEBUGS() << "Loading day cycle (day_data.size() = " << day_data.size() << ", scope = " << scope << ")" << LL_ENDL;
 	mTimeMap.clear();
 
@@ -88,6 +89,7 @@ void LLWLDayCycle::loadDayCycle(const LLSD& day_data, LLWLParamKey::EScope scope
 		// then add the keyframe
 		addKeyframe((F32)day_data[i][0].asReal(), frame);
 	}
+#endif
 }
 
 void LLWLDayCycle::loadDayCycleFromFile(const std::string & fileName)
@@ -158,35 +160,35 @@ LLSD LLWLDayCycle::asLLSD()
 	return day_data;
 }
 
-bool LLWLDayCycle::getSkyRefs(std::map<LLWLParamKey, LLWLParamSet>& refs) const
-{
-	bool result = true;
-	LLWLParamManager& wl_mgr = LLWLParamManager::instance();
-
-	refs.clear();
-	for (std::map<F32, LLWLParamKey>::const_iterator iter = mTimeMap.begin(); iter != mTimeMap.end(); ++iter)
-	{
-		const LLWLParamKey& key = iter->second;
-		if (!wl_mgr.getParamSet(key, refs[key]))
-		{
-			LL_WARNS() << "Cannot find sky [" << key.name << "] referenced by a day cycle" << LL_ENDL;
-			result = false;
-		}
-	}
-
-	return result;
-}
+// bool LLWLDayCycle::getSkyRefs(std::map<LLWLParamKey, LLWLParamSet>& refs) const
+// {
+// 	bool result = true;
+// 	LLWLParamManager& wl_mgr = LLWLParamManager::instance();
+// 
+// 	refs.clear();
+// 	for (std::map<F32, LLWLParamKey>::const_iterator iter = mTimeMap.begin(); iter != mTimeMap.end(); ++iter)
+// 	{
+// 		const LLWLParamKey& key = iter->second;
+// 		if (!wl_mgr.getParamSet(key, refs[key]))
+// 		{
+// 			LL_WARNS() << "Cannot find sky [" << key.name << "] referenced by a day cycle" << LL_ENDL;
+// 			result = false;
+// 		}
+// 	}
+// 
+// 	return result;
+// }
 
 bool LLWLDayCycle::getSkyMap(LLSD& sky_map) const
 {
-	std::map<LLWLParamKey, LLWLParamSet> refs;
-
-	if (!getSkyRefs(refs))
-	{
-		return false;
-	}
-
-	sky_map = LLWLParamManager::createSkyMap(refs);
+// 	std::map<LLWLParamKey, LLWLParamSet> refs;
+// 
+// 	if (!getSkyRefs(refs))
+// 	{
+// 		return false;
+// 	}
+// 
+// 	sky_map = LLWLParamManager::createSkyMap(refs);
 	return true;
 }
 
@@ -235,23 +237,23 @@ bool LLWLDayCycle::changeKeyframeTime(F32 oldTime, F32 newTime)
 	return addKeyframe(newTime, frame);
 }
 
-bool LLWLDayCycle::changeKeyframeParam(F32 time, LLWLParamKey key)
-{
-	LL_DEBUGS() << "Changing key frame param (" << time << ", " << key.toLLSD() << ")" << LL_ENDL;
-
-	// just remove and add back
-	// make sure param exists
-	LLWLParamSet tmp;
-	bool stat = LLWLParamManager::getInstance()->getParamSet(key, tmp);
-	if(stat == false) 
-	{
-		LL_DEBUGS() << "Failed to change key frame param (" << time << ", " << key.toLLSD() << ")" << LL_ENDL;
-		return stat;
-	}
-
-	mTimeMap[time] = key;
-	return true;
-}
+// bool LLWLDayCycle::changeKeyframeParam(F32 time, LLWLParamKey key)
+// {
+// 	LL_DEBUGS() << "Changing key frame param (" << time << ", " << key.toLLSD() << ")" << LL_ENDL;
+// 
+// 	// just remove and add back
+// 	// make sure param exists
+// 	LLWLParamSet tmp;
+// 	bool stat = LLWLParamManager::getInstance()->getParamSet(key, tmp);
+// 	if(stat == false) 
+// 	{
+// 		LL_DEBUGS() << "Failed to change key frame param (" << time << ", " << key.toLLSD() << ")" << LL_ENDL;
+// 		return stat;
+// 	}
+// 
+// 	mTimeMap[time] = key;
+// 	return true;
+// }
 
 
 bool LLWLDayCycle::removeKeyframe(F32 time)
@@ -285,19 +287,19 @@ bool LLWLDayCycle::getKeytime(LLWLParamKey frame, F32& key_time) const
 	return false;
 }
 
-bool LLWLDayCycle::getKeyedParam(F32 time, LLWLParamSet& param)
-{
-	// just scroll on through till you find it
-	std::map<F32, LLWLParamKey>::iterator mIt = mTimeMap.find(time);
-	if(mIt != mTimeMap.end())
-	{
-		return LLWLParamManager::getInstance()->getParamSet(mIt->second, param);
-	}
-
-	// return error if not found
-	LL_DEBUGS() << "Key " << time << " not found" << LL_ENDL;
-	return false;
-}
+// bool LLWLDayCycle::getKeyedParam(F32 time, LLWLParamSet& param)
+// {
+// 	// just scroll on through till you find it
+// 	std::map<F32, LLWLParamKey>::iterator mIt = mTimeMap.find(time);
+// 	if(mIt != mTimeMap.end())
+// 	{
+// 		return LLWLParamManager::getInstance()->getParamSet(mIt->second, param);
+// 	}
+// 
+// 	// return error if not found
+// 	LL_DEBUGS() << "Key " << time << " not found" << LL_ENDL;
+// 	return false;
+// }
 
 bool LLWLDayCycle::getKeyedParamName(F32 time, std::string & name)
 {

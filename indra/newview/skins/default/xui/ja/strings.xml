@@ -638,6 +638,15 @@ support@secondlife.com にお問い合わせください。
 	<string name="BUTTON_HELP">
 		ヘルプを表示
 	</string>
+	<string name="TooltipNotecardNotAllowedTypeDrop">
+		このタイプのアイテムは、このリージョンのノートカード
+に添付することができません。
+	</string>
+	<string name="TooltipNotecardOwnerRestrictedDrop">
+		制限のない「次の所有者」の
+許可のみノートカードに
+添付できます。
+	</string>
 	<string name="Searching">
 		検索中...
 	</string>
@@ -717,6 +726,18 @@ support@secondlife.com にお問い合わせください。
 		アップロードリクエスト中にエラーが発生しました。問題を解決するには、サポート
 （http://secondlife.com/support）にお問い合わせください。
 	</string>
+	<string name="SettingValidationError">
+		インポートする設定 [NAME] の検証に失敗しました。
+	</string>
+	<string name="SettingImportFileError">
+		ファイル [FILE] を開くことができません
+	</string>
+	<string name="SettingParseFileError">
+		ファイル [FILE] を開くことができません
+	</string>
+	<string name="SettingTranslateError">
+		過去のウインドライト [NAME] を変換できません
+	</string>
 	<string name="texture">
 		テクスチャ
 	</string>
@@ -791,6 +812,9 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="symbolic folder link">
 		フォルダのリンク
+	</string>
+	<string name="settings blob">
+		設定
 	</string>
 	<string name="mesh">
 		メッシュ
@@ -1122,6 +1146,9 @@ support@secondlife.com にお問い合わせください。
 	<string name="ForceSitAvatar">
 		アバターを強制的に座らせる
 	</string>
+	<string name="ChangeEnvSettings">
+		自然環境の設定を変更する
+	</string>
 	<string name="NotConnected">
 		接続されていません
 	</string>
@@ -1273,6 +1300,9 @@ support@secondlife.com にお問い合わせください。
 	<string name="tattoo">
 		タトゥ
 	</string>
+	<string name="universal">
+		ユニバーサル
+	</string>
 	<string name="physics">
 		物理作用
 	</string>
@@ -1314,6 +1344,9 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="tattoo_not_worn">
 		タトゥー未着用
+	</string>
+	<string name="universal_not_worn">
+		ユニバーサルなし
 	</string>
 	<string name="physics_not_worn">
 		物理作用なし
@@ -1365,6 +1398,9 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="create_new_tattoo">
 		新しいタトゥを作成
+	</string>
+	<string name="create_new_universal">
+		新しいユニバーサルを作成
 	</string>
 	<string name="create_new_physics">
 		新しい物理作用を作成
@@ -2511,6 +2547,27 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="RegionSettings">
 		リージョン（地域）の設定
+	</string>
+	<string name="NoEnvironmentSettings">
+		このリージョンは環境設定をサポートしていません。
+	</string>
+	<string name="EnvironmentSun">
+		太陽
+	</string>
+	<string name="EnvironmentMoon">
+		月
+	</string>
+	<string name="EnvironmentBloom">
+		花
+	</string>
+	<string name="EnvironmentCloudNoise">
+		雲の音
+	</string>
+	<string name="EnvironmentNormalMap">
+		ノーマル・マップ
+	</string>
+	<string name="EnvironmentTransparent">
+		Transparent
 	</string>
 	<string name="ClassifiedClicksTxt">
 		クリック数： [TELEPORT] テレポート、 [MAP] 地図、 [PROFILE] プロフィール
@@ -4728,6 +4785,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="New Tattoo">
 		新しいタトゥ
 	</string>
+	<string name="New Universal">
+		新しいユニバーサル
+	</string>
 	<string name="New Physics">
 		新規の物理作用
 	</string>
@@ -4853,6 +4913,15 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Female - Wow">
 		女性 - Wow
+	</string>
+	<string name="New Daycycle">
+		新しいデイサイクル
+	</string>
+	<string name="New Water">
+		新しい水
+	</string>
+	<string name="New Sky">
+		新しい空
 	</string>
 	<string name="/bow">
 		/おじぎする
@@ -5382,6 +5451,12 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="BeaconMedia">
 		メディアビーコン（白）を表示中
 	</string>
+	<string name="BeaconSun">
+		太陽の方角ビーコン（オレンジ）を表示中
+	</string>
+	<string name="BeaconMoon">
+		月の方角ビーコン（紫）を表示中
+	</string>
 	<string name="ParticleHiding">
 		パーティクルを非表示
 	</string>
@@ -5408,6 +5483,12 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Command_Destinations_Label">
 		行き先
+	</string>
+	<string name="Command_Environments_Label">
+		私の環境
+	</string>
+	<string name="Command_Facebook_Label">
+		Facebook
 	</string>
 	<string name="Command_Flickr_Label">
 		Flickr
@@ -5501,6 +5582,12 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Command_Destinations_Tooltip">
 		行ってみたい場所
+	</string>
+	<string name="Command_Environments_Tooltip">
+		私の環境
+	</string>
+	<string name="Command_Facebook_Tooltip">
+		Facebook へ投稿
 	</string>
 	<string name="Command_Flickr_Tooltip">
 		Flickr にアップロード
@@ -5697,6 +5784,12 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="ExperiencePermission12">
 		体験の権限を自動的に承諾
 	</string>
+	<string name="ExperiencePermission16">
+		あなたのアバターを強制的に座らせる
+	</string>
+	<string name="ExperiencePermission17">
+		自然環境の設定を変更する
+	</string>
 	<string name="ExperiencePermissionShortUnknown">
 		が不明な操作を実行しました： [Permission]
 	</string>
@@ -5720,6 +5813,12 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="ExperiencePermissionShort12">
 		権限
+	</string>
+	<string name="ExperiencePermissionShort16">
+		Sit
+	</string>
+	<string name="ExperiencePermissionShort17">
+		環境
 	</string>
 	<string name="logging_calls_disabled_log_empty">
 		会話はログに記録されていません。ログの記録を開始するには、「環境設定」&gt;「チャット」で「保存: ログのみ」または「保存: ログと会話のテキスト」を選択します。
