@@ -639,6 +639,15 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="BUTTON_HELP">
 		Yardımı Göster
 	</string>
+	<string name="TooltipNotecardNotAllowedTypeDrop">
+		Bu türe ait öğeler bu bölgedeki 
+not kartlarına eklenemez.
+	</string>
+	<string name="TooltipNotecardOwnerRestrictedDrop">
+		Sadece kısıtlamasız &apos;sonraki sahip&apos; 
+izinlerini içeren öğeler not 
+kartlarına eklenebilir.
+	</string>
 	<string name="Searching">
 		Arıyor...
 	</string>
@@ -715,6 +724,18 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Karşıya yükleme talebinde hata. Bu sorunu çözmek için lütfen 
 http://secondlife.com/support adresini ziyaret edin.
 	</string>
+	<string name="SettingValidationError">
+		[NAME] ayarlarının içeri aktarılması için doğrulama başarısız oldu
+	</string>
+	<string name="SettingImportFileError">
+		[FILE] dosyası açılamadı
+	</string>
+	<string name="SettingParseFileError">
+		[FILE] dosyası açılamadı
+	</string>
+	<string name="SettingTranslateError">
+		Eski Windlight [NAME] çevrilemedi
+	</string>
 	<string name="texture">
 		doku
 	</string>
@@ -789,6 +810,9 @@ http://secondlife.com/support adresini ziyaret edin.
 	</string>
 	<string name="symbolic folder link">
 		klasör bağlantısı
+	</string>
+	<string name="settings blob">
+		ayarlar
 	</string>
 	<string name="mesh">
 		örgü
@@ -1120,6 +1144,9 @@ http://secondlife.com/support adresini ziyaret edin.
 	<string name="ForceSitAvatar">
 		Avatarınızı oturmaya zorlayın
 	</string>
+	<string name="ChangeEnvSettings">
+		Ortam ayarlarınızı değiştirin
+	</string>
 	<string name="NotConnected">
 		Bağlı Değil
 	</string>
@@ -1271,6 +1298,9 @@ http://secondlife.com/support adresini ziyaret edin.
 	<string name="tattoo">
 		Dövme
 	</string>
+	<string name="universal">
+		Evrensel
+	</string>
 	<string name="physics">
 		Fizik
 	</string>
@@ -1312,6 +1342,9 @@ http://secondlife.com/support adresini ziyaret edin.
 	</string>
 	<string name="tattoo_not_worn">
 		Giyilmemiş dövme
+	</string>
+	<string name="universal_not_worn">
+		Evrensel giyilmiyor
 	</string>
 	<string name="physics_not_worn">
 		Giyilmemiş fizik
@@ -1363,6 +1396,9 @@ http://secondlife.com/support adresini ziyaret edin.
 	</string>
 	<string name="create_new_tattoo">
 		Yeni dövme oluştur
+	</string>
+	<string name="create_new_universal">
+		Yeni evrensel oluştur
 	</string>
 	<string name="create_new_physics">
 		Yeni fizik oluştur
@@ -2510,6 +2546,27 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 	</string>
 	<string name="RegionSettings">
 		Bölge Ayarları
+	</string>
+	<string name="NoEnvironmentSettings">
+		Bu Bölge ortam ayarlarını desteklemiyor.
+	</string>
+	<string name="EnvironmentSun">
+		Güneş
+	</string>
+	<string name="EnvironmentMoon">
+		Ay
+	</string>
+	<string name="EnvironmentBloom">
+		Bahar
+	</string>
+	<string name="EnvironmentCloudNoise">
+		Bulut Gürültüsü
+	</string>
+	<string name="EnvironmentNormalMap">
+		Normal Harita
+	</string>
+	<string name="EnvironmentTransparent">
+		Saydam
 	</string>
 	<string name="ClassifiedClicksTxt">
 		Tıklamalar: [TELEPORT] ışınlama, [MAP] harita, [PROFILE] profil
@@ -4725,6 +4782,9 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	<string name="New Tattoo">
 		Yeni Dövme
 	</string>
+	<string name="New Universal">
+		Yeni Evrensel
+	</string>
 	<string name="New Physics">
 		Yeni Fizik
 	</string>
@@ -4850,6 +4910,15 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	</string>
 	<string name="Female - Wow">
 		Kadın - Vay be
+	</string>
+	<string name="New Daycycle">
+		Yeni Gün döngüsü
+	</string>
+	<string name="New Water">
+		Yeni Su
+	</string>
+	<string name="New Sky">
+		Yeni Gökyüzü
 	</string>
 	<string name="/bow">
 		/selamlama
@@ -5391,6 +5460,12 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	<string name="BeaconMedia">
 		Ortam işaretleri gösteriliyor (beyaz)
 	</string>
+	<string name="BeaconSun">
+		Güneş yönü işareti (turuncu) görüntüleniyor
+	</string>
+	<string name="BeaconMoon">
+		Ay yönü işareti (mor) görüntüleniyor
+	</string>
 	<string name="ParticleHiding">
 		Parçacıklar Gizleniyor
 	</string>
@@ -5417,6 +5492,12 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="Command_Destinations_Label">
 		Hedef Konum
+	</string>
+	<string name="Command_Environments_Label">
+		Ortamlarım
+	</string>
+	<string name="Command_Facebook_Label">
+		Facebook
 	</string>
 	<string name="Command_Flickr_Label">
 		Flickr
@@ -5510,6 +5591,12 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="Command_Destinations_Tooltip">
 		İlgilendiğiniz hedef konumlar
+	</string>
+	<string name="Command_Environments_Tooltip">
+		Ortamlarım
+	</string>
+	<string name="Command_Facebook_Tooltip">
+		Facebook&apos;ta Yayınla
 	</string>
 	<string name="Command_Flickr_Tooltip">
 		Flickr&apos;a yükle
@@ -5706,6 +5793,12 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	<string name="ExperiencePermission12">
 		deneyim izinlerini otomatik olarak kabul et
 	</string>
+	<string name="ExperiencePermission16">
+		avatarınızı oturmaya zorlayın
+	</string>
+	<string name="ExperiencePermission17">
+		ortam ayarlarınızı değiştirin
+	</string>
 	<string name="ExperiencePermissionShortUnknown">
 		bilinmeyen bir işlem gerçekleştirdi: [Permission]
 	</string>
@@ -5729,6 +5822,12 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="ExperiencePermissionShort12">
 		İzin
+	</string>
+	<string name="ExperiencePermissionShort16">
+		Otur
+	</string>
+	<string name="ExperiencePermissionShort17">
+		Ortam
 	</string>
 	<string name="logging_calls_disabled_log_empty">
 		Sohbetlerin günlüğü tutulmuyor. Bir günlük tutmaya başlamak için, Tercihler &gt; Sohbet altında &quot;Kaydet: Sadece günlük&quot; veya &quot;Kaydet: Günlük ve dökümler&quot; seçimini yapın.

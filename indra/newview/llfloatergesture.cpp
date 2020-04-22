@@ -485,7 +485,7 @@ void LLFloaterGesture::onClickNew()
 						  "",
 						  LLAssetType::AT_GESTURE,
 						  LLInventoryType::IT_GESTURE,
-						  NOT_WEARABLE,
+                          NO_INV_SUBTYPE,
 						  PERM_MOVE | LLFloaterPerms::getNextOwnerPerms("Gestures"),
 						  cb);
 }

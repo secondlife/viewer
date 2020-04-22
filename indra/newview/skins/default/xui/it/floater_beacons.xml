@@ -18,5 +18,7 @@
 		<check_box label="Fonti sonore" name="sounds"/>
 		<check_box label="Fonti delle particelle" name="particles"/>
 		<check_box label="Fonti multimedia" name="moapbeacon"/>
+		<check_box label="Sole" name="sun"/>
+		<check_box label="Luna" name="moon"/>
 	</panel>
 </floater>

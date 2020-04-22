@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="雲彩" name="panel_settings_sky_clouds">
+	<layout_stack>
+		<layout_panel>
+			<slider label="X" name="cloud_density_x"/>
+			<slider label="Y" name="cloud_density_y"/>
+			<slider label="D" name="cloud_density_d"/>
+			<slider label="X" name="cloud_detail_x"/>
+			<slider label="Y" name="cloud_detail_y"/>
+			<slider label="D" name="cloud_detail_d"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

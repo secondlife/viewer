@@ -33,6 +33,7 @@
 		<action description="更改音樂和媒體設定" longdescription="在「土地資料」&gt; 媒體頁籤更改串流音樂和影片設定。" name="land change media" value="20"/>
 		<action description="切換「編輯地形」設定" longdescription="切換「編輯地形」設定。 *警告* 「土地資料」&gt; 「選項」頁籤 &gt;「編輯地形」可允許任何人變更你的土地形狀，放置或移動 Linden 植物。 賦予這項能力之前，敬請慎重考慮。 編輯地形可在「土地資料」&gt; 選項頁籤做切換。" name="land edit" value="21"/>
 		<action description="切換各項「土地資料」&gt; 選項設定" longdescription="在「土地資料」&gt; 選項頁籤切換「安全（無傷害）」設定，並允許其他居民在群組所有土地上「編輯地形」、「建製」、「建立地標」、「執行腳本」。" name="land options" value="22"/>
+		<action description="修改環境設定和日循環。" longdescription="從「土地資料」&gt;「環境頁籤」變更環境設定和日循環。" name="land change environment" value="46"/>
 	</action_set>
 	<action_set description="這些能力包括可允許成員在群組所有地段上規避限制。" name="Parcel Powers">
 		<action description="固定允許「編輯地形」" longdescription="身負具此能力的角色的成員可以在群組所有地段上編輯地形，無論這功能在「土地資料」&gt; 選項頁籤裡是否被禁止。" name="land allow edit land" value="23"/>

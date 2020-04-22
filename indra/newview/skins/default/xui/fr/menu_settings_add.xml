@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="menu_settings_add">
+	<menu_item_call label="Nouveau ciel" name="New Sky"/>
+	<menu_item_call label="Nouvelle eau" name="New Water"/>
+	<menu_item_call label="Nouveau cycle du jour" name="New Day Cycle"/>
+</toggleable_menu>

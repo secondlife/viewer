@@ -639,6 +639,15 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="BUTTON_HELP">
 		Afficher l&apos;aide
 	</string>
+	<string name="TooltipNotecardNotAllowedTypeDrop">
+		Les éléments de ce type ne peuvent pas être attachés 
+aux notes de cette région.
+	</string>
+	<string name="TooltipNotecardOwnerRestrictedDrop">
+		Seuls des éléments avec des autorisation 
+illimitées pour le &apos;prochain propriétaire&apos; 
+peuvent être joints aux notes.
+	</string>
 	<string name="Searching">
 		Recherche...
 	</string>
@@ -718,6 +727,18 @@ Veuillez réessayer de vous connecter dans une minute.
 		Erreur dans la demande de chargement. Veuillez consulter le site : 
 http://secondlife.com/support pour vous aider à résoudre ce problème.
 	</string>
+	<string name="SettingValidationError">
+		Échec de la validation pour l&apos;importation des paramètres [NAME]
+	</string>
+	<string name="SettingImportFileError">
+		Impossible d&apos;ouvre le fichier [FILE]
+	</string>
+	<string name="SettingParseFileError">
+		Impossible d&apos;ouvre le fichier [FILE]
+	</string>
+	<string name="SettingTranslateError">
+		Impossible de traduit les paramètres windlight hérités [NAME]
+	</string>
 	<string name="texture">
 		texture
 	</string>
@@ -792,6 +813,9 @@ http://secondlife.com/support pour vous aider à résoudre ce problème.
 	</string>
 	<string name="symbolic folder link">
 		lien du dossier
+	</string>
+	<string name="settings blob">
+		paramètres
 	</string>
 	<string name="mesh">
 		maillage
@@ -1123,6 +1147,9 @@ http://secondlife.com/support pour vous aider à résoudre ce problème.
 	<string name="ForceSitAvatar">
 		Forcez votre avatar à s’asseoir
 	</string>
+	<string name="ChangeEnvSettings">
+		Changer vos paramètres d&apos;environnement
+	</string>
 	<string name="NotConnected">
 		Pas connecté(e)
 	</string>
@@ -1274,6 +1301,9 @@ http://secondlife.com/support pour vous aider à résoudre ce problème.
 	<string name="tattoo">
 		Tatouage
 	</string>
+	<string name="universal">
+		Universel
+	</string>
 	<string name="physics">
 		Propriétés physiques
 	</string>
@@ -1315,6 +1345,9 @@ http://secondlife.com/support pour vous aider à résoudre ce problème.
 	</string>
 	<string name="tattoo_not_worn">
 		Tatouage non porté
+	</string>
+	<string name="universal_not_worn">
+		Universel non porté
 	</string>
 	<string name="physics_not_worn">
 		Propriétés physiques non portées
@@ -1366,6 +1399,9 @@ http://secondlife.com/support pour vous aider à résoudre ce problème.
 	</string>
 	<string name="create_new_tattoo">
 		Créer un nouveau tatouage
+	</string>
+	<string name="create_new_universal">
+		Créer un nouvel environnement universel
 	</string>
 	<string name="create_new_physics">
 		Créer de nouvelles propriétés physiques
@@ -2513,6 +2549,27 @@ Si vous continuez de recevoir ce message, contactez l’assistance Second Life �
 	</string>
 	<string name="RegionSettings">
 		Réglages de la région
+	</string>
+	<string name="NoEnvironmentSettings">
+		Cette région ne prend pas en charge les paramètres environnementaux.
+	</string>
+	<string name="EnvironmentSun">
+		Soleil
+	</string>
+	<string name="EnvironmentMoon">
+		Lune
+	</string>
+	<string name="EnvironmentBloom">
+		Éclat
+	</string>
+	<string name="EnvironmentCloudNoise">
+		Bruit du nuage
+	</string>
+	<string name="EnvironmentNormalMap">
+		Carte normale
+	</string>
+	<string name="EnvironmentTransparent">
+		Transparent
 	</string>
 	<string name="ClassifiedClicksTxt">
 		Clics : [TELEPORT] téléportation, [MAP] carte, [PROFILE] profil
@@ -4730,6 +4787,9 @@ du rapport d&apos;infraction
 	<string name="New Tattoo">
 		Nouveau tatouage
 	</string>
+	<string name="New Universal">
+		Nouvel environnement universel
+	</string>
 	<string name="New Physics">
 		Nouvelles propriétés physiques
 	</string>
@@ -4855,6 +4915,15 @@ du rapport d&apos;infraction
 	</string>
 	<string name="Female - Wow">
 		Femme - Ouah !
+	</string>
+	<string name="New Daycycle">
+		Nouveau cycle du jour
+	</string>
+	<string name="New Water">
+		Nouvelle eau
+	</string>
+	<string name="New Sky">
+		Nouveau ciel
 	</string>
 	<string name="/bow">
 		/s&apos;incliner
@@ -5384,6 +5453,12 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	<string name="BeaconMedia">
 		Affichage des balises de média (blanc)
 	</string>
+	<string name="BeaconSun">
+		Balise de visibilité du soleil (orange)
+	</string>
+	<string name="BeaconMoon">
+		Observation de la balise de direction de la lune (violet)
+	</string>
 	<string name="ParticleHiding">
 		Masquage des particules
 	</string>
@@ -5410,6 +5485,12 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	</string>
 	<string name="Command_Destinations_Label">
 		Destinations
+	</string>
+	<string name="Command_Environments_Label">
+		Mes environnements
+	</string>
+	<string name="Command_Facebook_Label">
+		Facebook
 	</string>
 	<string name="Command_Flickr_Label">
 		Flickr
@@ -5503,6 +5584,12 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	</string>
 	<string name="Command_Destinations_Tooltip">
 		Destinations intéressantes
+	</string>
+	<string name="Command_Environments_Tooltip">
+		Mes environnements
+	</string>
+	<string name="Command_Facebook_Tooltip">
+		Publier sur Facebook
 	</string>
 	<string name="Command_Flickr_Tooltip">
 		Charger sur Flickr
@@ -5699,6 +5786,12 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	<string name="ExperiencePermission12">
 		accepter automatiquement les permissions d’expérience
 	</string>
+	<string name="ExperiencePermission16">
+		forcez votre avatar à s’asseoir
+	</string>
+	<string name="ExperiencePermission17">
+		changer vos paramètres d&apos;environnement
+	</string>
 	<string name="ExperiencePermissionShortUnknown">
 		a effectué une opération inconnue : [Permission]
 	</string>
@@ -5722,6 +5815,12 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	</string>
 	<string name="ExperiencePermissionShort12">
 		Permission
+	</string>
+	<string name="ExperiencePermissionShort16">
+		M&apos;asseoir
+	</string>
+	<string name="ExperiencePermissionShort17">
+		Environnement
 	</string>
 	<string name="logging_calls_disabled_log_empty">
 		Les conversations ne sont pas archivées. Pour commencer à tenir un journal, choisissez Enregistrer : Journal seul ou Enregistrer : Journal et transcriptions sous Préférences &gt; Chat.

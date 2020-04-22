@@ -1959,6 +1959,11 @@
 		При снятии этой опции вы можете удалить ограничения, которые владельцы участка добавили для предотвращения провокационных сообщений, сохранения конфиденциальности и защиты несовершеннолетных жителей от материала для взрослых. При необходимости обсудите со своими владельцами участков.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="EstateParcelEnvironmentOverride">
+		При снятии этой опции вы можете удалить пользовательскую среду, которую владельцы участка добавили для своих участков. При необходимости обсудите со своими владельцами участков. 
+Вы хотите продолжить?
+		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
+	</notification>
 	<notification name="RegionEntryAccessBlocked">
 		Вы пытаетесь посетить регион, контент в котором не соответствует вашим настройкам.  Попробуйте изменить настройки в меню «Я &gt; Настройки &gt; Общие».
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -2438,7 +2443,15 @@
 		Этот файл суточного цикла ссылается на отсутствующий файл неба: [SKY].
 	</notification>
 	<notification name="WLRegionApplyFail">
-		Не удалось применить настройки к региону.  Попробуйте покинуть регион, а затем вернуться в него.  Причина неполадки: [FAIL_REASON]
+		К сожалению настройки не применимы к этому региону. Причина: [FAIL_REASON]
+	</notification>
+	<notification name="WLLocalTextureDayBlock">
+		Местная текстура используется в режиме редактирования [TRACK], № фрейма [FRAMENO] ([FRAMENO]%) на поле [FIELD]. 
+Настройки невозможно сохранить с использованием местных текстур.
+	</notification>
+	<notification name="WLLocalTextureFixedBlock">
+		Местная текстура используется на поле [FIELD]. 
+Настройки невозможно сохранить с использованием местных текстур.
 	</notification>
 	<notification name="EnvCannotDeleteLastDayCycleKey">
 		Невозможно удалить последний ключ в этом суточном цикле: пустой суточный цикл не разрешен.  Следует изменить последний оставшийся ключ, а не удалять его и создавать новый.
@@ -4388,5 +4401,77 @@
 	<notification name="OutfitPhotoLoadError">
 		[REASON]
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="FailedToFindSettings">
+		Не удалось загрузить настройки для [NAME] из базы данных.
+	</notification>
+	<notification name="FailedToLoadSettingsApply">
+		Невозможно применить эти настройки для этой среды.
+	</notification>
+	<notification name="FailedToBuildSettingsDay">
+		Невозможно применить эти настройки для этой среды.
+	</notification>
+	<notification name="NoEnvironmentSettings">
+		Этот регион не поддерживает настройки окружающей среды.
+	</notification>
+	<notification label="Сохранить костюм" name="SaveSettingAs">
+		Сохранить текущие настройки как:
+		<form name="form">
+			<input name="message">
+				[DESC] (новый)
+			</input>
+			<button name="OK" text="OK"/>
+			<button name="Cancel" text="Отмена"/>
+		</form>
+	</notification>
+	<notification name="WLImportFail">
+		Невозможно импортировать устаревшие установки [NAME] для эффекта Windlight из 
+[FILE]. 
+
+[REASONS]
+	</notification>
+	<notification name="WLParcelApplyFail">
+		Невозможно установить настройки среды для этого участка. 
+Ввести или выбрать участок, который вы можете модифицировать.
+	</notification>
+	<notification name="SettingsUnsuported">
+		Настройки окружающей среды не поддерживаются в этом регионе. 
+Перейдите в регион с поддерживаемыми настройками и повторите действие.
+	</notification>
+	<notification name="SettingsConfirmLoss">
+		Вы потеряете изменения, внесенные в этот [TYPE] под именем &quot;[NAME]&quot;. 
+Вы уверены, что хотите продолжить?
+		<usetemplate ignoretext="Вы уверены, что хотите сделать настройки непереносимыми?" name="okcancelignore" notext="Нет" yestext="Да"/>
+	</notification>
+	<notification name="SettingsConfirmReset">
+		Вы собираетесь удалить все примененные настройки. 
+Вы уверены, что хотите продолжить?
+		<usetemplate name="okcancelbuttons" notext="Нет" yestext="Да"/>
+	</notification>
+	<notification name="PersonalSettingsConfirmReset">
+		Вы собираетесь удалить все примененные настройки для личного освещения. 
+Вы уверены, что хотите продолжить?
+		<usetemplate name="okcancelbuttons" notext="Нет" yestext="Да"/>
+	</notification>
+	<notification name="SettingsMakeNoTrans">
+		Вы собираетесь импортировать непереносимые настройки в этот суточный цикл. В случае дальнейшего изменения в этих параметрах они также станут непереносимыми. 
+
+Это изменение не подлежит отмене. 
+
+Вы уверены, что хотите продолжить?
+		<usetemplate ignoretext="Вы уверены, что хотите сделать настройки непереносимыми?" name="okcancelignore" notext="Нет" yestext="Да"/>
+	</notification>
+	<notification name="NoEditFromLibrary">
+		Вы не можете редактировать настройки непосредственно из библиотеки. 
+Скопировать в свой собственный инвентарь и повторить попытку.
+	</notification>
+	<notification name="EnvironmentApplyFailed">
+		Мы столкнулись с проблемой с этими настройками. Их невозможно сохранить или применить в данный момент.
+	</notification>
+	<notification name="TrackLoadFailed">
+		Невозможно загрузить режим редактирования в [TRACK].
+	</notification>
+	<notification name="TrackLoadMismatch">
+		Невозможно загрузить режим редактирования из [TRACK1] в [TRACK2].
 	</notification>
 </notifications>

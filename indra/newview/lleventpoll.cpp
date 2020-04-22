@@ -106,6 +106,7 @@ namespace Details
         LLSD message;
         message["sender"] = mSenderIp;
         message["body"] = content["body"];
+
         LLMessageSystem::dispatch(msg_name, message);
     }
 
@@ -241,7 +242,7 @@ namespace Details
                 !result.get("events") ||
                 !result.get("id"))
             {
-                LL_WARNS("LLEventPollImpl") << " <" << counter << "> received event poll with no events or id key: " << LLSDXMLStreamer(result) << LL_ENDL;
+                LL_WARNS("LLEventPollImpl") << " <" << counter << "> received event poll with no events or id key: " << result << LL_ENDL;
                 continue;
             }
 
@@ -254,7 +255,7 @@ namespace Details
             }
 
             // was LL_INFOS() but now that CoarseRegionUpdate is TCP @ 1/second, it'd be too verbose for viewer logs. -MG
-            LL_DEBUGS("LLEventPollImpl") << " <" << counter << "> " << events.size() << "events (id " << LLSDXMLStreamer(acknowledge) << ")" << LL_ENDL;
+            LL_DEBUGS("LLEventPollImpl") << " <" << counter << "> " << events.size() << "events (id " << acknowledge << ")" << LL_ENDL;
 
             LLSD::array_const_iterator i = events.beginArray();
             LLSD::array_const_iterator end = events.endArray();

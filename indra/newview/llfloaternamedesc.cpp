@@ -64,7 +64,7 @@ const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
 //-----------------------------------------------------------------------------
 LLFloaterNameDesc::LLFloaterNameDesc(const LLSD& filename )
 	: LLFloater(filename),
-	  mIsAudio(FALSE)
+	  mIsAudio(FALSE)	  
 {
 	mFilenameAndPath = filename.asString();
 	mFilename = gDirUtilp->getBaseFileName(mFilenameAndPath, false);
@@ -188,14 +188,14 @@ void LLFloaterNameDesc::onBtnOK( )
 {
 	getChildView("ok_btn")->setEnabled(FALSE); // don't allow inadvertent extra uploads
 	
-	LLAssetStorage::LLStoreAssetCallback callback = NULL;
+	LLAssetStorage::LLStoreAssetCallback callback;
 	S32 expected_upload_cost = getExpectedUploadCost();
     if (can_afford_transaction(expected_upload_cost))
     {
         void *nruserdata = NULL;
         std::string display_name = LLStringUtil::null;
 
-        LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
+        LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLNewFileResourceUploadInfo>(
             mFilenameAndPath,
             getChild<LLUICtrl>("name_form")->getValue().asString(),
             getChild<LLUICtrl>("description_form")->getValue().asString(), 0,

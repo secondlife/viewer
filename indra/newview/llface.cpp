@@ -168,7 +168,8 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	mImportanceToCamera = 0.f ;
 	mBoundingSphereRadius = 0.0f ;
 
-	mHasMedia = FALSE ;
+	mHasMedia = false ;
+	mIsMediaAllowed = true;
 }
 
 void LLFace::destroy()
@@ -300,6 +301,11 @@ void LLFace::setTexture(LLViewerTexture* tex)
 void LLFace::setDiffuseMap(LLViewerTexture* tex)
 {
 	setTexture(LLRender::DIFFUSE_MAP, tex);
+}
+
+void LLFace::setAlternateDiffuseMap(LLViewerTexture* tex)
+{
+    setTexture(LLRender::ALTERNATE_DIFFUSE_MAP, tex);
 }
 
 void LLFace::setNormalMap(LLViewerTexture* tex)
@@ -1414,17 +1420,16 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 			if (shiny_in_alpha)
 			{
-
-				static const GLfloat alpha[4] =
+				static const GLfloat SHININESS_TO_ALPHA[4] =
 				{
-					0.00f,
+					0.0000f,
 					0.25f,
 					0.5f,
 					0.75f
 				};
 			
 				llassert(tep->getShiny() <= 3);
-				color.mV[3] = U8 (alpha[tep->getShiny()] * 255);
+				color.mV[3] = U8 (SHININESS_TO_ALPHA[tep->getShiny()] * 255);
 			}
 		}
 	}
@@ -1710,7 +1715,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				// that emboss mapping always shows up on the upward faces of cubes when 
 				// it's noon (since a lot of builders build with the sun forced to noon).
 				LLVector3   sun_ray  = gSky.mVOSkyp->mBumpSunDir;
-				LLVector3   moon_ray = gSky.getMoonDirection();
+				LLVector3   moon_ray = gSky.mVOSkyp->getMoon().getDirection();
 				LLVector3& primary_light_ray = (sun_ray.mV[VZ] > 0) ? sun_ray : moon_ray;
 
 				bump_s_primary_light_ray.load3((offset_multiple * s_scale * primary_light_ray).mV);
