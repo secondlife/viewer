@@ -41,8 +41,6 @@
 #include "llbutton.h"
 #include "llcombobox.h"
 #include "llfocusmgr.h"
-#include "llmatrix4a.h"
-#include "llmenubutton.h"
 #include "llmeshrepository.h"
 #include "llnotificationsutil.h"
 #include "llsdutil_math.h"
@@ -50,23 +48,17 @@
 #include "lltextbox.h"
 #include "lltoolmgr.h"
 #include "llui.h"
-#include "llvector4a.h"
 #include "llviewerwindow.h"
 #include "pipeline.h"
 #include "llviewercontrol.h"
-#include "llviewermenufile.h"
+#include "llviewermenufile.h" //LLFilePickerThread
 #include "llstring.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
-#include "llradiogroup.h"
-#include "llsdserialize.h"
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
 #include "lltabcontainer.h"
-#include "lltoggleablemenu.h"
 #include "lltrans.h"
-#include "llvfile.h"
-#include "llvfs.h"
 #include "llcallbacklist.h"
 #include "llviewertexteditor.h"
 #include "llviewernetwork.h"
@@ -88,6 +80,8 @@ const double RETAIN_COEFFICIENT = 100;
 // should be represented by Smooth combobox with only 10 values.
 // So this const is used as a size of Smooth combobox list.
 const S32 SMOOTH_VALUES_NUMBER = 10;
+const S32 PREVIEW_RENDER_SIZE = 1024;
+const F32 PREVIEW_CAMERA_DISTANCE = 16.f;
 
 class LLMeshFilePicker : public LLFilePickerThread
 {
@@ -314,9 +308,9 @@ void LLFloaterModelPreview::initModelPreview()
 	S32 tex_width = 512;
 	S32 tex_height = 512;
 
-	S32 max_width = llmin(gSavedSettings.getS32("PreviewRenderSize"), (S32)gPipeline.mScreenWidth);
-	S32 max_height = llmin(gSavedSettings.getS32("PreviewRenderSize"), (S32)gPipeline.mScreenHeight);
-	
+	S32 max_width = llmin(PREVIEW_RENDER_SIZE, (S32)gPipeline.mScreenWidth);
+	S32 max_height = llmin(PREVIEW_RENDER_SIZE, (S32)gPipeline.mScreenHeight);
+
 	while ((tex_width << 1) < max_width)
 	{
 		tex_width <<= 1;
@@ -327,7 +321,7 @@ void LLFloaterModelPreview::initModelPreview()
 	}
 
 	mModelPreview = new LLModelPreview(tex_width, tex_height, this);
-	mModelPreview->setPreviewTarget(16.f);
+    mModelPreview->setPreviewTarget(PREVIEW_CAMERA_DISTANCE);
 	mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelPreview::setDetails, this, _1, _2, _3, _4, _5));
 	mModelPreview->setModelUpdatedCallback(boost::bind(&LLFloaterModelPreview::modelUpdated, this, _1));
 }

@@ -31,6 +31,7 @@
 #include "lldynamictexture.h"
 #include "llfloatermodelpreview.h"
 #include "llmeshrepository.h"
+#include "llmodelloader.h" //NUM_LOD
 #include "llmodel.h"
 
 class LLJoint;

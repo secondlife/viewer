@@ -26,16 +26,11 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llmodelpreview.h"
+
 #include "llmodelloader.h"
 #include "lldaeloader.h"
 #include "llfloatermodelpreview.h"
-
-#include "llmodelpreview.h"
-
-#include "llimagebmp.h"
-#include "llimagetga.h"
-#include "llimagejpeg.h"
-#include "llimagepng.h"
 
 #include "llagent.h"
 #include "llanimationstates.h"
@@ -75,6 +70,22 @@
 #include <boost/algorithm/string.hpp>
 
 bool LLModelPreview::sIgnoreLoadedCallback = false;
+
+// Extra configurability, to be exposed later in xml (LLModelPreview probably
+// should become UI control at some point or get split into preview control)
+static const LLColor4 PREVIEW_CANVAS_COL(0.169f, 0.169f, 0.169f, 1.f);
+static const LLColor4 PREVIEW_EDGE_COL(0.4f, 0.4f, 0.4f, 1.0);
+static const LLColor4 PREVIEW_BASE_COL(1.f, 1.f, 1.f, 1.f);
+static const LLColor3 PREVIEW_BRIGHTNESS(0.9f, 0.9f, 0.9f);
+static const F32 PREVIEW_EDGE_WIDTH(1.f);
+static const LLColor4 PREVIEW_PSYH_EDGE_COL(0.f, 0.25f, 0.5f, 0.25f);
+static const LLColor4 PREVIEW_PSYH_FILL_COL(0.f, 0.5f, 1.0f, 0.5f);
+static const F32 PREVIEW_PSYH_EDGE_WIDTH(1.f);
+static const LLColor4 PREVIEW_DEG_EDGE_COL(1.f, 0.f, 0.f, 1.f);
+static const LLColor4 PREVIEW_DEG_FILL_COL(1.f, 0.f, 0.f, 0.5f);
+static const F32 PREVIEW_DEG_EDGE_WIDTH(3.f);
+static const F32 PREVIEW_DEG_POINT_SIZE(8.f);
+static const F32 PREVIEW_ZOOM_LIMIT(10.f);
 
 const F32 SKIN_WEIGHT_CAMERA_DISTANCE = 16.f;
 
@@ -2677,20 +2688,6 @@ BOOL LLModelPreview::render()
     bool textures = mViewOption["show_textures"];
     bool physics = mViewOption["show_physics"];
 
-    // Extra configurability, to be exposed later as controls?
-    static LLCachedControl<LLColor4> canvas_col(gSavedSettings, "MeshPreviewCanvasColor");
-    static LLCachedControl<LLColor4> edge_col(gSavedSettings, "MeshPreviewEdgeColor");
-    static LLCachedControl<LLColor4> base_col(gSavedSettings, "MeshPreviewBaseColor");
-    static LLCachedControl<LLColor3> brightness(gSavedSettings, "MeshPreviewBrightnessColor");
-    static LLCachedControl<F32> edge_width(gSavedSettings, "MeshPreviewEdgeWidth");
-    static LLCachedControl<LLColor4> phys_edge_col(gSavedSettings, "MeshPreviewPhysicsEdgeColor");
-    static LLCachedControl<LLColor4> phys_fill_col(gSavedSettings, "MeshPreviewPhysicsFillColor");
-    static LLCachedControl<F32> phys_edge_width(gSavedSettings, "MeshPreviewPhysicsEdgeWidth");
-    static LLCachedControl<LLColor4> deg_edge_col(gSavedSettings, "MeshPreviewDegenerateEdgeColor");
-    static LLCachedControl<LLColor4> deg_fill_col(gSavedSettings, "MeshPreviewDegenerateFillColor");
-    static LLCachedControl<F32> deg_edge_width(gSavedSettings, "MeshPreviewDegenerateEdgeWidth");
-    static LLCachedControl<F32> deg_point_size(gSavedSettings, "MeshPreviewDegeneratePointSize");
-
     S32 width = getWidth();
     S32 height = getHeight();
 
@@ -2714,7 +2711,7 @@ BOOL LLModelPreview::render()
         gGL.pushMatrix();
         gGL.loadIdentity();
 
-        gGL.color4fv(static_cast<LLColor4>(canvas_col).mV);
+        gGL.color4fv(PREVIEW_CANVAS_COL.mV);
         gl_rect_2d_simple(width, height);
 
         gGL.matrixMode(LLRender::MM_PROJECTION);
@@ -2884,7 +2881,7 @@ BOOL LLModelPreview::render()
     stop_glerror();
 
     gGL.pushMatrix();
-    gGL.color4fv(edge_col().mV);
+    gGL.color4fv(PREVIEW_EDGE_COL.mV);
 
     const U32 type_mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0;
 
@@ -2969,15 +2966,15 @@ BOOL LLModelPreview::render()
                     }
                     else
                     {
-                        gGL.diffuseColor4fv(static_cast<LLColor4>(base_col).mV);
+                        gGL.diffuseColor4fv(PREVIEW_BASE_COL.mV);
                     }
 
                     buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts() - 1, buffer->getNumIndices(), 0);
                     gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-                    gGL.diffuseColor4fv(static_cast<LLColor4>(edge_col).mV);
+                    gGL.diffuseColor4fv(PREVIEW_EDGE_COL.mV);
                     if (edges)
                     {
-                        glLineWidth(edge_width);
+                        glLineWidth(PREVIEW_EDGE_WIDTH);
                         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                         buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts() - 1, buffer->getNumIndices(), 0);
                         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -3088,13 +3085,13 @@ BOOL LLModelPreview::render()
                                     LLVertexBuffer* buffer = mVertexBuffer[LLModel::LOD_PHYSICS][model][i];
 
                                     gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-                                    gGL.diffuseColor4fv(phys_fill_col().mV);
+                                    gGL.diffuseColor4fv(PREVIEW_PSYH_FILL_COL.mV);
 
                                     buffer->setBuffer(type_mask & buffer->getTypeMask());
                                     buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts() - 1, buffer->getNumIndices(), 0);
 
-                                    gGL.diffuseColor4fv(phys_edge_col().mV);
-                                    glLineWidth(phys_edge_width);
+                                    gGL.diffuseColor4fv(PREVIEW_PSYH_EDGE_COL.mV);
+                                    glLineWidth(PREVIEW_PSYH_EDGE_WIDTH);
                                     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                                     buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts() - 1, buffer->getNumIndices(), 0);
 
@@ -3109,8 +3106,8 @@ BOOL LLModelPreview::render()
                     // only do this if mDegenerate was set in the preceding mesh checks [Check this if the ordering ever breaks]
                     if (pass > 0 && mHasDegenerate)
                     {
-                        glLineWidth(deg_edge_width);
-                        glPointSize(deg_point_size);
+                        glLineWidth(PREVIEW_DEG_EDGE_WIDTH);
+                        glPointSize(PREVIEW_DEG_POINT_SIZE);
                         gPipeline.enableLightsFullbright();
                         //show degenerate triangles
                         LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
@@ -3174,11 +3171,11 @@ BOOL LLModelPreview::render()
                                             if (ll_is_degenerate(v1, v2, v3))
                                             {
                                                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                                                gGL.diffuseColor3fv(deg_edge_col().mV);
+                                                gGL.diffuseColor3fv(PREVIEW_DEG_EDGE_COL.mV);
                                                 buffer->drawRange(LLRender::TRIANGLES, 0, 2, 3, indices_offset);
                                                 buffer->drawRange(LLRender::POINTS, 0, 2, 3, indices_offset);
                                                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                                                gGL.diffuseColor3fv(deg_fill_col().mV);
+                                                gGL.diffuseColor3fv(PREVIEW_DEG_FILL_COL.mV);
                                                 buffer->drawRange(LLRender::TRIANGLES, 0, 2, 3, indices_offset);
                                             }
                                         }
@@ -3326,8 +3323,8 @@ BOOL LLModelPreview::render()
 
                             if (edges)
                             {
-                                gGL.diffuseColor4fv(edge_col().mV);
-                                glLineWidth(edge_width);
+                                gGL.diffuseColor4fv(PREVIEW_EDGE_COL.mV);
+                                glLineWidth(PREVIEW_EDGE_WIDTH);
                                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                                 buffer->draw(LLRender::TRIANGLES, buffer->getNumIndices(), 0);
                                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -3403,8 +3400,7 @@ void LLModelPreview::zoom(F32 zoom_amt)
 {
     F32 new_zoom = mCameraZoom + zoom_amt;
     // TODO: stop clamping in render
-    static LLCachedControl<F32> zoom_limit(gSavedSettings, "MeshPreviewZoomLimit");
-    mCameraZoom = llclamp(new_zoom, 1.f, zoom_limit());
+    mCameraZoom = llclamp(new_zoom, 1.f, PREVIEW_ZOOM_LIMIT);
 }
 
 void LLModelPreview::pan(F32 right, F32 up)
