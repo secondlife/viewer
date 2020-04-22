@@ -4809,7 +4809,8 @@ U32 LLVOAvatar::renderSkinned()
 		{
 			if (!isSelf() || gAgent.needsRenderHead() || LLPipeline::sShadowRender)
 			{
-				if (isTextureVisible(TEX_HEAD_BAKED) || isUIAvatar())
+	
+				if (isTextureVisible(TEX_HEAD_BAKED) || (getOverallAppearance() == AOA_JELLYDOLL && !isControlAvatar()) || isUIAvatar())
 				{
 					LLViewerJoint* head_mesh = getViewerJoint(MESH_ID_HEAD);
 					if (head_mesh)
@@ -4819,7 +4820,7 @@ U32 LLVOAvatar::renderSkinned()
 					first_pass = FALSE;
 				}
 			}
-			if (isTextureVisible(TEX_UPPER_BAKED) || isUIAvatar())
+			if (isTextureVisible(TEX_UPPER_BAKED) || (getOverallAppearance() == AOA_JELLYDOLL && !isControlAvatar()) || isUIAvatar())
 			{
 				LLViewerJoint* upper_mesh = getViewerJoint(MESH_ID_UPPER_BODY);
 				if (upper_mesh)
@@ -4829,7 +4830,7 @@ U32 LLVOAvatar::renderSkinned()
 				first_pass = FALSE;
 			}
 			
-			if (isTextureVisible(TEX_LOWER_BAKED) || isUIAvatar())
+			if (isTextureVisible(TEX_LOWER_BAKED) || (getOverallAppearance() == AOA_JELLYDOLL && !isControlAvatar()) || isUIAvatar())
 			{
 				LLViewerJoint* lower_mesh = getViewerJoint(MESH_ID_LOWER_BODY);
 				if (lower_mesh)
@@ -4934,7 +4935,7 @@ U32 LLVOAvatar::renderRigid()
 		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
 	}
 
-	if (isTextureVisible(TEX_EYES_BAKED)  || isUIAvatar())
+	if (isTextureVisible(TEX_EYES_BAKED) || (getOverallAppearance() == AOA_JELLYDOLL && !isControlAvatar()) || isUIAvatar())
 	{
 		LLViewerJoint* eyeball_left = getViewerJoint(MESH_ID_EYEBALL_LEFT);
 		LLViewerJoint* eyeball_right = getViewerJoint(MESH_ID_EYEBALL_RIGHT);
@@ -7557,9 +7558,15 @@ void LLVOAvatar::onGlobalColorChanged(const LLTexGlobalColor* global_color)
 }
 
 // virtual
+// Do rigged mesh attachments display with this av?
 bool LLVOAvatar::shouldRenderRigged() const
 {
-    return true;
+	if (getOverallAppearance() == AOA_NORMAL)
+	{
+		return true;
+	}
+	// TBD - render for AOA_JELLYDOLL?
+	return false;
 }
 
 // FIXME: We have an mVisible member, set in updateVisibility(), but this
