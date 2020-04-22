@@ -399,6 +399,7 @@ set(viewer_SOURCE_FILES
     llmenuoptionpathfindingrebakenavmesh.cpp
     llmeshrepository.cpp
     llmimetypes.cpp
+    llmodelpreview.cpp
     llmorphview.cpp
     llmoveview.cpp
     llmutelist.cpp
@@ -1025,6 +1026,7 @@ set(viewer_HEADER_FILES
     llmenuoptionpathfindingrebakenavmesh.h
     llmeshrepository.h
     llmimetypes.h
+    llmodelpreview.h
     llmorphview.h
     llmoveview.h
     llmutelist.h
