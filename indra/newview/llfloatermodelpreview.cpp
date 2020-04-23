@@ -473,7 +473,7 @@ void populate_list_with_overrides(LLScrollListCtrl *listp, const LLJointOverride
         return;
     }
 
-    static const LLSD no_override_placeholder("-"); // LLSD to not conflict in '?'
+    static const std::string no_override_placeholder = "-";
 
     S32 count = 0;
     LLScrollListCell::Params cell_params;
@@ -485,13 +485,26 @@ void populate_list_with_overrides(LLScrollListCtrl *listp, const LLJointOverride
     std::map<std::string, LLVector3>::const_iterator map_end = data.mPosOverrides.end();
     while (map_iter != map_end)
     {
-        add_row_to_list(listp,
-                        cell_params,
-                        LLSD::Integer(count),
-                        map_iter->first,
-                        include_overrides ? map_iter->second.mV[VX] : no_override_placeholder,
-                        include_overrides ? map_iter->second.mV[VY] : no_override_placeholder,
-                        include_overrides ? map_iter->second.mV[VZ] : no_override_placeholder);
+        if (include_overrides)
+        {
+            add_row_to_list(listp,
+                cell_params,
+                LLSD::Integer(count),
+                map_iter->first,
+                LLSD::Real(map_iter->second.mV[VX]),
+                LLSD::Real(map_iter->second.mV[VY]),
+                LLSD::Real(map_iter->second.mV[VZ]));
+        }
+        else
+        {
+            add_row_to_list(listp,
+                cell_params,
+                LLSD::Integer(count),
+                map_iter->first,
+                no_override_placeholder,
+                no_override_placeholder,
+                no_override_placeholder);
+        }
         count++;
         map_iter++;
     }
