@@ -1470,6 +1470,12 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 			}
 		}
 
+        U32 bind_count = model->mSkinInfo.mAlternateBindMatrix.size();
+        if (bind_count > 0 && bind_count != jointCnt)
+        {
+            LL_WARNS("Mesh") << "Model " << model->mLabel << " has invalid joint bind matrix list." << LL_ENDL;
+        }
+
 		//grab raw position array
 
 		domVertices* verts = mesh->getVertices();

@@ -2734,6 +2734,10 @@ BOOL LLModelPreview::render()
     if (upload_joints != mLastJointUpdate)
     {
         mLastJointUpdate = upload_joints;
+        if (fmp)
+        {
+            fmp->clearAvatarTab();
+        }
     }
 
     for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)
@@ -2801,22 +2805,27 @@ BOOL LLModelPreview::render()
         upload_joints = false;
     }
 
+    if (fmp)
+    {
+        if (upload_skin)
+        {
+            // will populate list of joints
+            fmp->updateAvatarTab(upload_joints);
+        }
+        else
+        {
+            fmp->clearAvatarTab();
+        }
+    }
+
     if (upload_skin && upload_joints)
     {
         mFMP->childEnable("lock_scale_if_joint_position");
-        if (fmp)
-        {
-            fmp->updateAvatarTab();
-        }
     }
     else
     {
         mFMP->childDisable("lock_scale_if_joint_position");
         mFMP->childSetValue("lock_scale_if_joint_position", false);
-        if (fmp)
-        {
-            fmp->clearAvatarTab();
-        }
     }
 
     //Only enable joint offsets if it passed the earlier critiquing
@@ -3218,9 +3227,12 @@ BOOL LLModelPreview::render()
                     {
                         const LLMeshSkinInfo *skin = &model->mSkinInfo;
                         LLSkinningUtil::initJointNums(&model->mSkinInfo, getPreviewAvatar());// inits skin->mJointNums if nessesary
-                        U32 count = LLSkinningUtil::getMeshJointCount(skin);
+                        U32 joint_count = LLSkinningUtil::getMeshJointCount(skin);
+                        U32 bind_count = skin->mAlternateBindMatrix.size();
 
-                        if (joint_overrides && skin->mAlternateBindMatrix.size() > 0)
+                        if (joint_overrides
+                            && bind_count > 0
+                            && joint_count == bind_count)
                         {
                             // mesh_id is used to determine which mesh gets to
                             // set the joint offset, in the event of a conflict. Since
@@ -3231,7 +3243,7 @@ BOOL LLModelPreview::render()
                             // incorrect.
                             LLUUID fake_mesh_id;
                             fake_mesh_id.generate();
-                            for (U32 j = 0; j < count; ++j)
+                            for (U32 j = 0; j < joint_count; ++j)
                             {
                                 LLJoint *joint = getPreviewAvatar()->getJoint(skin->mJointNums[j]);
                                 if (joint)
@@ -3278,7 +3290,7 @@ BOOL LLModelPreview::render()
                             //build matrix palette
 
                             LLMatrix4a mat[LL_MAX_JOINTS_PER_MESH_OBJECT];
-                            LLSkinningUtil::initSkinningMatrixPalette((LLMatrix4*)mat, count,
+                            LLSkinningUtil::initSkinningMatrixPalette((LLMatrix4*)mat, joint_count,
                                 skin, getPreviewAvatar());
 
                             LLMatrix4a bind_shape_matrix;
