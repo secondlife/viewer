@@ -102,6 +102,7 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 			if(mMediaImpl.isNull())
 
 			{
+				play(parcel);
 				return;
 			}
 
