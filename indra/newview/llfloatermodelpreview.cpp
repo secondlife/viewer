@@ -1361,17 +1361,32 @@ void LLFloaterModelPreview::updateAvatarTab(bool highlight_overrides)
                 {
                     for (U32 j = 0; j < joint_count; ++j)
                     {
-                        const LLVector3& jointPos = skin->mAlternateBindMatrix[j].getTranslation();
+                        const LLVector3& joint_pos = skin->mAlternateBindMatrix[j].getTranslation();
                         LLJointOverrideData &data = mJointOverrides[display_lod][skin->mJointNames[j]];
-                        if (data.mPosOverrides.size() > 0
-                            && (data.mPosOverrides.begin()->second - jointPos).lengthSquared() > (LL_JOINT_TRESHOLD_POS_OFFSET * LL_JOINT_TRESHOLD_POS_OFFSET))
+
+                        LLJoint* pJoint = LLModelPreview::lookupJointByName(skin->mJointNames[j], mModelPreview);
+                        if (pJoint)
                         {
-                            // File contains multiple meshes with conflicting joint offsets
-                            // preview may be incorrect, upload result might wary (depends onto
-                            // mesh_id that hasn't been generated yet).
-                            data.mHasConflicts = true;
+                            // see how voavatar uses aboveJointPosThreshold
+                            if (pJoint->aboveJointPosThreshold(joint_pos))
+                            {
+                                // valid override
+                                if (data.mPosOverrides.size() > 0
+                                    && (data.mPosOverrides.begin()->second - joint_pos).lengthSquared() > (LL_JOINT_TRESHOLD_POS_OFFSET * LL_JOINT_TRESHOLD_POS_OFFSET))
+                                {
+                                    // File contains multiple meshes with conflicting joint offsets
+                                    // preview may be incorrect, upload result might wary (depends onto
+                                    // mesh_id that hasn't been generated yet).
+                                    data.mHasConflicts = true;
+                                }
+                                data.mPosOverrides[model->getName()] = joint_pos;
+                            }
+                            else
+                            {
+                                // default value, it won't be accounted for by avatar
+                                data.mModelsNoOverrides.insert(model->getName());
+                            }
                         }
-                        data.mPosOverrides[model->getName()] = jointPos;
                     }
                 }
                 else
