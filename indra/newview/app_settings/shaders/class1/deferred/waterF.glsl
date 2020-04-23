@@ -152,7 +152,7 @@ void main()
 	spec = pow(spec, 128.0);
 
 	//figure out distortion vector (ripply)   
-	vec2 distort2 = distort+wavef.xy*refScale*0.16/max(dmod*df1, 1.0);
+	vec2 distort2 = distort+wavef.xy*refScale/max(dmod*df1, 1.0);
 		
 	vec4 fb = texture2D(screenTex, distort2);
 	
@@ -172,7 +172,13 @@ void main()
 	vec3 screenspacewavef = normalize((norm_mat*vec4(wavef, 1.0)).xyz);
 
 	//frag_data[0] = color;
-    frag_data[0] = color;
+
+    // TODO: The non-obvious assignment below is copied from the pre-EEP WL shader code
+    //       Unfortunately, fixing it causes a mismatch for EEP, and so it remains...  for now
+    //       SL-12975 (unfix pre-EEP broken alpha)
+    frag_data[0] = vec4(color.rgb, color);  // Effectively, color.rgbr
+
+
     frag_data[1] = vec4(0);		// speccolor, spec
 	frag_data[2] = vec4(encode_normal(screenspacewavef.xyz), 0.05, 0);// normalxy, 0, 0
 }

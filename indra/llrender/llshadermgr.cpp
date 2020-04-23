@@ -569,23 +569,18 @@ static std::string get_object_log(GLhandleARB ret)
 
 //dump shader source for debugging
 void LLShaderMgr::dumpShaderSource(U32 shader_code_count, GLcharARB** shader_code_text)
-{	
+{
+	char num_str[16]; // U32 = max 10 digits
+
+	LL_SHADER_LOADING_WARNS() << "\n";
+
 	for (U32 i = 0; i < shader_code_count; i++)
 	{
-		GLcharARB *line = shader_code_text[i];
-		size_t     len  = strlen( line );
-		GLcharARB  last = len > 0 ? line[len - 1] : 0;
-
-		// LL_ENDL already outputs a newline so temporarily strip off the end newline to prevent EVERY line outputting an (extra) blank line
-		if (last == '\n')
-		    line[len - 1] = 0;
-
-		LL_SHADER_LOADING_WARNS() << i << ": " << shader_code_text[i] << LL_ENDL;
-
-		if (last == '\n')
-			line[len - 1] = '\n';
+		snprintf(num_str, sizeof(num_str), "%4d: ", i+1);
+		std::string line_number(num_str);
+		LL_CONT << line_number << shader_code_text[i];
 	}
-    LL_SHADER_LOADING_WARNS() << LL_ENDL;
+    LL_CONT << LL_ENDL;
 }
 
 void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns, const std::string& filename) 
@@ -599,8 +594,8 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns, const std::string& 
 
 	if (log.length() > 0)
 	{
-        LL_SHADER_LOADING_WARNS() << "Shader loading from " << fname << ":\n" << LL_ENDL;
-        LL_SHADER_LOADING_WARNS() << log << LL_ENDL;
+        LL_SHADER_LOADING_WARNS() << "Shader loading from " << fname << LL_ENDL;
+        LL_SHADER_LOADING_WARNS() << "\n" << log << LL_ENDL;
 	}
  }
 

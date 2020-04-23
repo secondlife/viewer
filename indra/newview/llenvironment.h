@@ -444,6 +444,7 @@ private:
     void                        onSetExperienceEnvAssetLoaded(LLUUID experience_id, LLSettingsBase::ptr_t setting, F32 transition_time, S32 status);
 
     void                        listenExperiencePump(const LLSD &message);
+    void                        loadSkyWaterFromSettings(const LLSD &env_data, bool &valid, bool &assets_present); // for use in loadFromSettings()
 
 };
 
