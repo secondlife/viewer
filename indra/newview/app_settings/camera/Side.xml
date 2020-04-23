@@ -18,7 +18,7 @@
         <key>Persist</key>
         <integer>1</integer>
         <key>Type</key>
-        <string>Quaternion</string>
+        <string>LLSD</string>
         <key>Value</key>
         <array>
           <real>0</real>
