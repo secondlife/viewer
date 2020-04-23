@@ -18,5 +18,7 @@
 		<check_box label="Источники звука" name="sounds"/>
 		<check_box label="Источники частиц" name="particles"/>
 		<check_box label="Источники медиа" name="moapbeacon"/>
+		<check_box label="Солнце" name="sun"/>
+		<check_box label="Луна" name="moon"/>
 	</panel>
 </floater>

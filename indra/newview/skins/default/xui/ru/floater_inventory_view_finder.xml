@@ -12,6 +12,7 @@
 	<check_box label="Звуки" name="check_sound"/>
 	<check_box label="Текстуры" name="check_texture"/>
 	<check_box label="Снимки" name="check_snapshot"/>
+	<check_box label="Настройки" name="check_settings"/>
 	<button label="Все" label_selected="Все" name="All"/>
 	<button label="Нет" label_selected="Нет" name="None"/>
 	<check_box label="Всегда показывать папки" name="check_show_empty"/>

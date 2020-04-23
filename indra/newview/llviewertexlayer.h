@@ -111,7 +111,7 @@ protected:
 	// Pass these along for tex layer rendering.
 	virtual void			preRender(BOOL clear_depth) { preRenderTexLayerSet(); }
 	virtual void			postRender(BOOL success) { postRenderTexLayerSet(success); }
-	virtual BOOL			render() { return renderTexLayerSet(); }
+	virtual BOOL			render() { return renderTexLayerSet(mBoundTarget); }
 	
 	//--------------------------------------------------------------------
 	// Updates

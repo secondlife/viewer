@@ -639,6 +639,15 @@ support@secondlife.com.
 	<string name="BUTTON_HELP">
 		Показать справку
 	</string>
+	<string name="TooltipNotecardNotAllowedTypeDrop">
+		Элементы этого типа не могут быть занесены в 
+карточку для комментариев в этом регионе.
+	</string>
+	<string name="TooltipNotecardOwnerRestrictedDrop">
+		Только элементы с безусловным разрешением 
+‘следующего владельца’ можно внести 
+в карточки для комментариев.
+	</string>
 	<string name="Searching">
 		Поиск...
 	</string>
@@ -715,6 +724,18 @@ support@secondlife.com.
 		Ошибка при запросе на передачу. Для получения помощи в 
 решении этой проблемы пройдите по ссылке http://secondlife.com/support.
 	</string>
+	<string name="SettingValidationError">
+		Не удалось выполнить проверку для импорта настроек [NAME]
+	</string>
+	<string name="SettingImportFileError">
+		Не удалось открыть файл [FILE]
+	</string>
+	<string name="SettingParseFileError">
+		Не удалось открыть файл [FILE]
+	</string>
+	<string name="SettingTranslateError">
+		Не удалось применить устаревший эффект windlight \[NAME]
+	</string>
 	<string name="texture">
 		текстуру
 	</string>
@@ -789,6 +810,9 @@ support@secondlife.com.
 	</string>
 	<string name="symbolic folder link">
 		ссылку на папку
+	</string>
+	<string name="settings blob">
+		настройки
 	</string>
 	<string name="mesh">
 		сетка
@@ -1120,6 +1144,9 @@ support@secondlife.com.
 	<string name="ForceSitAvatar">
 		Заставьте аватар сесть
 	</string>
+	<string name="ChangeEnvSettings">
+		Изменить свои настройки окружающей среды
+	</string>
 	<string name="NotConnected">
 		Нет подключения
 	</string>
@@ -1271,6 +1298,9 @@ support@secondlife.com.
 	<string name="tattoo">
 		Тату
 	</string>
+	<string name="universal">
+		Универсальные
+	</string>
 	<string name="physics">
 		Физические данные
 	</string>
@@ -1312,6 +1342,9 @@ support@secondlife.com.
 	</string>
 	<string name="tattoo_not_worn">
 		Тату не надето
+	</string>
+	<string name="universal_not_worn">
+		Универсальный наряд не надет
 	</string>
 	<string name="physics_not_worn">
 		Физика не учитывается
@@ -1363,6 +1396,9 @@ support@secondlife.com.
 	</string>
 	<string name="create_new_tattoo">
 		Создать тату
+	</string>
+	<string name="create_new_universal">
+		Создать новые универсальные
 	</string>
 	<string name="create_new_physics">
 		Создать физику
@@ -2510,6 +2546,27 @@ support@secondlife.com.
 	</string>
 	<string name="RegionSettings">
 		Региональные настройки
+	</string>
+	<string name="NoEnvironmentSettings">
+		Этот регион не поддерживает настройки окружающей среды.
+	</string>
+	<string name="EnvironmentSun">
+		Солнце
+	</string>
+	<string name="EnvironmentMoon">
+		Луна
+	</string>
+	<string name="EnvironmentBloom">
+		Ореол
+	</string>
+	<string name="EnvironmentCloudNoise">
+		Шум облака
+	</string>
+	<string name="EnvironmentNormalMap">
+		Карта Нормалей
+	</string>
+	<string name="EnvironmentTransparent">
+		Прозрачный
 	</string>
 	<string name="ClassifiedClicksTxt">
 		Щелчки: телепорт [TELEPORT], карта [MAP], профиль [PROFILE]
@@ -4724,6 +4781,9 @@ support@secondlife.com.
 	<string name="New Tattoo">
 		Новое тату
 	</string>
+	<string name="New Universal">
+		Новые универсальные
+	</string>
 	<string name="New Physics">
 		Новая физика
 	</string>
@@ -4849,6 +4909,15 @@ support@secondlife.com.
 	</string>
 	<string name="Female - Wow">
 		Женщина – ух ты!
+	</string>
+	<string name="New Daycycle">
+		Новый суточный цикл
+	</string>
+	<string name="New Water">
+		Новая вода
+	</string>
+	<string name="New Sky">
+		Новое небо
 	</string>
 	<string name="/bow">
 		/поклониться
@@ -5390,6 +5459,12 @@ support@secondlife.com.
 	<string name="BeaconMedia">
 		Просмотр медийных меток (белые)
 	</string>
+	<string name="BeaconSun">
+		Просмотр метки направления солнца (оранжевый)
+	</string>
+	<string name="BeaconMoon">
+		Просмотр метки направления луны (багровый)
+	</string>
 	<string name="ParticleHiding">
 		Частицы скрыты
 	</string>
@@ -5416,6 +5491,12 @@ support@secondlife.com.
 	</string>
 	<string name="Command_Destinations_Label">
 		Пункты
+	</string>
+	<string name="Command_Environments_Label">
+		Моя окружающая среда
+	</string>
+	<string name="Command_Facebook_Label">
+		Facebook
 	</string>
 	<string name="Command_Flickr_Label">
 		Flickr
@@ -5509,6 +5590,12 @@ support@secondlife.com.
 	</string>
 	<string name="Command_Destinations_Tooltip">
 		Интересные места
+	</string>
+	<string name="Command_Environments_Tooltip">
+		Моя окружающая среда
+	</string>
+	<string name="Command_Facebook_Tooltip">
+		Опубликовать в Facebook
 	</string>
 	<string name="Command_Flickr_Tooltip">
 		Загрузить на Flickr
@@ -5705,6 +5792,12 @@ support@secondlife.com.
 	<string name="ExperiencePermission12">
 		автоматически принимать разрешения для приключения
 	</string>
+	<string name="ExperiencePermission16">
+		посадить аватара
+	</string>
+	<string name="ExperiencePermission17">
+		изменить свои настройки окружающей среды
+	</string>
 	<string name="ExperiencePermissionShortUnknown">
 		выполнил неизвестную операцию: [Permission]
 	</string>
@@ -5728,6 +5821,12 @@ support@secondlife.com.
 	</string>
 	<string name="ExperiencePermissionShort12">
 		Разрешение
+	</string>
+	<string name="ExperiencePermissionShort16">
+		Сесть
+	</string>
+	<string name="ExperiencePermissionShort17">
+		Окружающая среда
 	</string>
 	<string name="logging_calls_disabled_log_empty">
 		Разговоры не записываются. Чтобы начать запись разговора, в меню «Настройки &gt; Чат» выберите «Сохранять: только журнал» или «Сохранять: журнал и записи».

@@ -36,7 +36,6 @@ out vec4 frag_color;
 uniform sampler2DRect depthMap;
 uniform sampler2DRect diffuseRect;
 uniform sampler2DRect specularRect;
-uniform sampler2DRect normalMap;
 uniform samplerCube environmentMap;
 uniform sampler2D noiseMap;
 uniform sampler2D lightFunc;
@@ -57,38 +56,17 @@ uniform float far_z;
 
 uniform mat4 inv_proj;
 
-vec2 encode_normal(vec3 n)
-{
-	float f = sqrt(8 * n.z + 8);
-	return n.xy / f + 0.5;
-}
-
-vec3 decode_normal (vec2 enc)
-{
-    vec2 fenc = enc*4-2;
-    float f = dot(fenc,fenc);
-    float g = sqrt(1-f/4);
-    vec3 n;
-    n.xy = fenc*g;
-    n.z = 1-f/2;
-    return n;
-}
-
-vec4 getPosition(vec2 pos_screen)
-{
-	float depth = texture2DRect(depthMap, pos_screen.xy).r;
-	vec2 sc = pos_screen.xy*2.0;
-	sc /= screen_res;
-	sc -= vec2(1.0,1.0);
-	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
-	vec4 pos = inv_proj * ndc;
-	pos /= pos.w;
-	pos.w = 1.0;
-	return pos;
-}
+vec4 getPosition(vec2 pos_screen);
+vec3 getNorm(vec2 pos_screen);
+vec3 srgb_to_linear(vec3 c);
 
 void main() 
 {
+	vec3 out_col = vec3(0,0,0);
+
+#if defined(LOCAL_LIGHT_KILL)
+    discard;
+#else
 	vec2 frag = (vary_fragcoord.xy*0.5+0.5)*screen_res;
 	vec3 pos = getPosition(frag.xy).xyz;
 	if (pos.z < far_z)
@@ -96,14 +74,13 @@ void main()
 		discard;
 	}
 	
-	vec3 norm = texture2DRect(normalMap, frag.xy).xyz;
-	norm = decode_normal(norm.xy); // unpack norm
-	norm = normalize(norm);
+	vec3 norm = getNorm(frag.xy);
+
 	vec4 spec = texture2DRect(specularRect, frag.xy);
 	vec3 diff = texture2DRect(diffuseRect, frag.xy).rgb;
+    diff.rgb = srgb_to_linear(diff.rgb);
 	
 	float noise = texture2D(noiseMap, frag.xy/128.0).b;
-	vec3 out_col = vec3(0,0,0);
 	vec3 npos = normalize(-pos);
 
 	// As of OSX 10.6.7 ATI Apple's crash when using a variable size loop
@@ -123,6 +100,9 @@ void main()
 			float fa = light_col[i].a+1.0;
 			float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
 			dist_atten *= dist_atten;
+            
+            // Tweak falloff slightly to match pre-EEP attenuation
+			// NOTE: this magic number also shows up in a great many other places, search for dist_atten *= to audit
 			dist_atten *= 2.0;
 			
 			dist_atten *= noise;
@@ -159,7 +139,7 @@ void main()
 		}
 	}
 	}
-	
+#endif
 	
 	frag_color.rgb = out_col;
 	frag_color.a = 0.0;

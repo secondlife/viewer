@@ -45,6 +45,11 @@ class LLTextureCache : public LLWorkerThread
 	friend class LLTextureCacheLocalFileWorker;
 
 private:
+
+#if LL_WINDOWS
+#pragma pack(push,1)
+#endif
+
 	// Entries
 	static const U32 sHeaderEncoderStringSize = 32;
 	struct EntriesInfo
@@ -73,7 +78,10 @@ private:
 		U32 mTime; // seconds since 1/1/1970
 	};
 
-	
+#if LL_WINDOWS
+#pragma pack(pop)
+#endif
+
 public:
 
 	class Responder : public LLResponder

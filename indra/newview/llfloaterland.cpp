@@ -79,9 +79,11 @@
 #include "lltrans.h"
 #include "llpanelexperiencelisteditor.h"
 #include "llpanelexperiencepicker.h"
+#include "llpanelenvironment.h"
 #include "llexperiencecache.h"
 
 #include "llgroupactions.h"
+#include "llenvironment.h"
 
 const F64 COVENANT_REFRESH_TIME_SEC = 60.0f;
 
@@ -138,6 +140,38 @@ protected:
 	LLPanelExperienceListEditor* mAllowed;
 	LLPanelExperienceListEditor* mBlocked;
 };
+
+
+class LLPanelLandEnvironment
+    : public LLPanelEnvironmentInfo
+{
+public:
+                        LLPanelLandEnvironment(LLSafeHandle<LLParcelSelection>& parcelp);
+    
+    virtual bool        isRegion() const override { return false; }
+    virtual bool        isLargeEnough() override 
+    { 
+        LLParcel *parcelp = mParcel->getParcel();
+        return ((parcelp) ? (parcelp->getArea() >= MINIMUM_PARCEL_SIZE) : false);
+    }   
+
+    virtual BOOL        postBuild() override;
+    virtual void        refresh() override;
+
+    virtual LLParcel *  getParcel() override;
+
+    virtual bool        canEdit() override;
+    virtual S32         getParcelId() override; 
+
+protected:
+    virtual void        refreshFromSource() override;
+
+    bool                isSameRegion();
+
+    LLSafeHandle<LLParcelSelection> &   mParcel;
+    S32                 mLastParcelId;
+};
+
 
 // inserts maturity info(icon and text) into target textbox 
 // names_floater - pointer to floater which contains strings with maturity icons filenames
@@ -227,7 +261,7 @@ LLPanelLandCovenant* LLFloaterLand::getCurrentPanelLandCovenant()
 // static
 void LLFloaterLand::refreshAll()
 {
-	LLFloaterLand* land_instance = LLFloaterReg::getTypedInstance<LLFloaterLand>("about_land");
+	LLFloaterLand* land_instance = LLFloaterReg::findTypedInstance<LLFloaterLand>("about_land");
 	if(land_instance)
 	{
 		land_instance->refresh();
@@ -278,6 +312,7 @@ LLFloaterLand::LLFloaterLand(const LLSD& seed)
 	mFactoryMap["land_media_panel"] =	LLCallbackMap(createPanelLandMedia, this);
 	mFactoryMap["land_access_panel"] =	LLCallbackMap(createPanelLandAccess, this);
 	mFactoryMap["land_experiences_panel"] =	LLCallbackMap(createPanelLandExperiences, this);
+    mFactoryMap["land_environment_panel"] = LLCallbackMap(createPanelLandEnvironment, this);
 
 	sObserver = new LLParcelSelectionObserver();
 	LLViewerParcelMgr::getInstance()->addObserver( sObserver );
@@ -319,6 +354,7 @@ void LLFloaterLand::refresh()
 	mPanelAccess->refresh();
 	mPanelCovenant->refresh();
 	mPanelExperiences->refresh();
+    mPanelEnvironment->refresh();
 }
 
 
@@ -385,6 +421,14 @@ void* LLFloaterLand::createPanelLandExperiences(void* data)
 	LLFloaterLand* self = (LLFloaterLand*)data;
 	self->mPanelExperiences = new LLPanelLandExperiences(self->mParcel);
 	return self->mPanelExperiences;
+}
+
+//static 
+void* LLFloaterLand::createPanelLandEnvironment(void* data)
+{
+    LLFloaterLand* self = (LLFloaterLand*)data;
+    self->mPanelEnvironment = new LLPanelLandEnvironment(self->mParcel);
+    return self->mPanelEnvironment;
 }
 
 
@@ -3267,4 +3311,145 @@ void LLPanelLandExperiences::refresh()
 {
 	refreshPanel(mAllowed, EXPERIENCE_KEY_TYPE_ALLOWED);
 	refreshPanel(mBlocked, EXPERIENCE_KEY_TYPE_BLOCKED);
+}
+
+//=========================================================================
+
+LLPanelLandEnvironment::LLPanelLandEnvironment(LLParcelSelectionHandle& parcel) :
+    LLPanelEnvironmentInfo(),
+    mParcel(parcel),
+    mLastParcelId(INVALID_PARCEL_ID)
+{
+}
+
+BOOL LLPanelLandEnvironment::postBuild()
+{
+    if (!LLPanelEnvironmentInfo::postBuild())
+        return FALSE;
+
+    getChild<LLUICtrl>(BTN_USEDEFAULT)->setLabelArg("[USEDEFAULT]", getString(STR_LABEL_USEREGION));
+    getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setVisible(FALSE);
+    getChild<LLUICtrl>(PNL_REGION_MSG)->setVisible(FALSE);
+    getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(TRUE);
+
+    return TRUE;
+}
+
+void LLPanelLandEnvironment::refresh()
+{
+    if (gDisconnected)
+        return;
+
+    commitDayLenOffsetChanges(false); // commit unsaved changes if any
+
+    if (!isSameRegion())
+    {
+        setCrossRegion(true);
+        mCurrentEnvironment.reset();
+        mLastParcelId = INVALID_PARCEL_ID;
+        mCurEnvVersion = INVALID_PARCEL_ENVIRONMENT_VERSION;
+        setControlsEnabled(false);
+        return;
+    }
+
+    if (mLastParcelId != getParcelId())
+    {
+        mCurEnvVersion = INVALID_PARCEL_ENVIRONMENT_VERSION;
+        mCurrentEnvironment.reset();
+    }
+
+    if (!mCurrentEnvironment && mCurEnvVersion <= INVALID_PARCEL_ENVIRONMENT_VERSION)
+    {
+        refreshFromSource();
+        return;
+    }
+
+    LLPanelEnvironmentInfo::refresh();
+}
+
+void LLPanelLandEnvironment::refreshFromSource()
+{
+    LLParcel *parcel = getParcel();
+
+    if (!LLEnvironment::instance().isExtendedEnvironmentEnabled())
+    {
+        setNoEnvironmentSupport(true);
+        setControlsEnabled(false);
+        mCurEnvVersion = INVALID_PARCEL_ENVIRONMENT_VERSION;
+        return;
+    }
+    setNoEnvironmentSupport(false);
+
+    if (!parcel)
+    {
+        setNoSelection(true);
+        setControlsEnabled(false);
+        mCurEnvVersion = INVALID_PARCEL_ENVIRONMENT_VERSION;
+        return;
+    }
+
+    setNoSelection(false);
+    if (isSameRegion())
+    {
+        LL_DEBUGS("ENVIRONMENT") << "Requesting environment for parcel " << parcel->getLocalID() << ", known version " << mCurEnvVersion << LL_ENDL;
+        setCrossRegion(false);
+
+        LLHandle<LLPanel> that_h = getHandle();
+
+        if (mCurEnvVersion < UNSET_PARCEL_ENVIRONMENT_VERSION)
+        {
+            // to mark as requesting
+            mCurEnvVersion = parcel->getParcelEnvironmentVersion();
+        }
+        mLastParcelId = parcel->getLocalID();
+
+        LLEnvironment::instance().requestParcel(parcel->getLocalID(),
+            [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) 
+            {  
+                LLPanelLandEnvironment *that = (LLPanelLandEnvironment*)that_h.get();
+                if (!that) return;
+                that->mLastParcelId = parcel_id; 
+                that->onEnvironmentReceived(parcel_id, envifo); 
+            });
+    }
+    else
+    {
+        setCrossRegion(true);
+        mCurrentEnvironment.reset();
+        mLastParcelId = INVALID_PARCEL_ID;
+        mCurEnvVersion = INVALID_PARCEL_ENVIRONMENT_VERSION;
+    }
+    setControlsEnabled(false);
+}
+
+
+bool LLPanelLandEnvironment::isSameRegion()
+{
+    LLViewerRegion* regionp = LLViewerParcelMgr::instance().getSelectionRegion();
+
+    return (!regionp || (regionp->getRegionID() == gAgent.getRegion()->getRegionID()));
+}
+
+LLParcel *LLPanelLandEnvironment::getParcel()
+{
+    return mParcel->getParcel();
+}
+
+
+bool LLPanelLandEnvironment::canEdit()
+{
+    LLParcel *parcel = getParcel();
+    if (!parcel)
+        return false;
+
+    return LLEnvironment::instance().canAgentUpdateParcelEnvironment(parcel) && mAllowOverride;
+}
+
+S32 LLPanelLandEnvironment::getParcelId() 
+{
+    LLParcel *parcel = getParcel();
+    if (!parcel)
+        return INVALID_PARCEL_ID;
+
+    return parcel->getLocalID();
 }

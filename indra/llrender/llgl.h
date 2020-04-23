@@ -118,6 +118,7 @@ public:
 	BOOL mHasDebugOutput;
 	BOOL mHassRGBTexture;
 	BOOL mHassRGBFramebuffer;
+    BOOL mHasTexturesRGBDecode;
 
 	// Vendor-specific extensions
 	BOOL mIsATI;
@@ -348,6 +349,7 @@ public:
 	~LLGLUserClipPlane();
 
 	void setPlane(F32 a, F32 b, F32 c, F32 d);
+    void disable();
 
 private:
 	bool mApply;
@@ -360,14 +362,17 @@ private:
   Modify and load projection matrix to push depth values to far clip plane.
 
   Restores projection matrix on destruction.
-  GL_MODELVIEW_MATRIX is active whenever program execution
-  leaves this class.
+  Saves/restores matrix mode around projection manipulation.
   Does not stack.
 */
 class LLGLSquashToFarClip
 {
 public:
-	LLGLSquashToFarClip(glh::matrix4f projection, U32 layer = 0);
+    LLGLSquashToFarClip();
+	LLGLSquashToFarClip(glh::matrix4f& projection, U32 layer = 0);
+
+    void setProjectionMatrix(glh::matrix4f& projection, U32 layer);
+
 	~LLGLSquashToFarClip();
 };
 

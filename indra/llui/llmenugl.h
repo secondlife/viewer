@@ -468,6 +468,8 @@ public:
 	void setEnabledSubMenus(BOOL enable);
 
 	void setItemVisible( const std::string& name, BOOL visible);
+
+    void setItemLabel(const std::string &name, const std::string &label);
 	
 	// sets the left,bottom corner of menu, useful for popups
 	void setLeftAndBottom(S32 left, S32 bottom);
@@ -498,6 +500,7 @@ public:
 	void			setItemLastSelected(LLMenuItemGL* item);	// must be in menu
 	U32				getItemCount();				// number of menu items
 	LLMenuItemGL*	getItem(S32 number);		// 0 = first item
+    LLMenuItemGL*   getItem(std::string name);
 	LLMenuItemGL*	getHighlightedItem();				
 
 	LLMenuItemGL*	highlightNextItem(LLMenuItemGL* cur_item, BOOL skip_disabled = TRUE);

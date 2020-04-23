@@ -61,7 +61,7 @@ public:
 	/*virtual*/ void endRenderPass(S32 pass);
 	void setSkyTex(LLSkyTex* const st) { mSkyTex = st; }
 
-	void renderSkyCubeFace(U8 side);
+	void renderSkyFace(U8 index);
 	void renderHeavenlyBody(U8 hb, LLFace* face);
 	void renderSunHalo(LLFace* face);
 

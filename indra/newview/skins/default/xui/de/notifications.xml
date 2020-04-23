@@ -1976,6 +1976,11 @@ Tausende Regionen werden verändert und der Spaceserver wird dadurch stark belas
 		Durch Deaktivieren dieser Option können Einstellungen der Parzellenbesitzer zum Schutz vor Belästigungen, zur Aufrechterhaltung der Privatsphäre oder zum Schutz von Minderjährigen vor nicht altersgemäßen Inhalten aufgehoben werden. Bitte sprechen Sie mit den Parzellenbesitzern, falls erforderlich.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="EstateParcelEnvironmentOverride">
+		Durch Deaktivieren dieser Option werden jegliche benutzerdefinierten Umgebungen entfernt, die von den Parzelleneigentümern zu ihren Parzellen hinzugefügt wurden. Bitte sprechen Sie mit den Parzellenbesitzern, falls erforderlich. 
+Fortfahren?
+		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
+	</notification>
 	<notification name="RegionEntryAccessBlocked">
 		Die Region, die Sie besuchen möchten, enthält Inhalte, die Ihre aktuellen Einstellungen überschreiten. Sie können Ihre Einstellungen unter „Ich“ &gt; „Einstellungen“ &gt; „Allgemein“ ändern.
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -2455,7 +2460,15 @@ Von einer Webseite zu diesem Formular linken, um anderen leichten Zugang zu dies
 		Diese Tageszyklusdatei verweist auf eine fehlende Himmel-Datei: [SKY].
 	</notification>
 	<notification name="WLRegionApplyFail">
-		Die Einstellungen konnten nicht auf die Region angewendet werden.  Verlassen Sie die Region und kehren Sie zurück, um das Problem zu beheben.  Angegebener Grund: [FAIL_REASON]
+		Die Einstellungen konnten nicht auf die Region angewendet werden. Grund: [FAIL_REASON]
+	</notification>
+	<notification name="WLLocalTextureDayBlock">
+		Eine lokale Textur wird im Pfad [TRACK], Frame #[FRAMENO] ([FRAME]%) im Feld [FIELD] verwendet. 
+Die Einstellungen können nicht mit lokalen Texturen gespeichert werden.
+	</notification>
+	<notification name="WLLocalTextureFixedBlock">
+		Im Feld [FIELD] wird eine lokale Textur verwendet. 
+Die Einstellungen können nicht mit lokalen Texturen gespeichert werden.
 	</notification>
 	<notification name="EnvCannotDeleteLastDayCycleKey">
 		Der letzte Schlüssel in diesem Tageszyklus kann nicht gelöscht werden, da ein Tageszyklus nicht leer sein kann.  Statt den letzten verbleibenden Schlüssel zu löschen, versuchen Sie stattdessen, ihn zu modifizieren und dann einen neuen zu erstellen.
@@ -4403,5 +4416,77 @@ Wählen Sie eine kleinere Landfläche aus.
 	<notification name="OutfitPhotoLoadError">
 		[REASON]
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="FailedToFindSettings">
+		Die Einstellungen für [NAME] konnten nicht aus der Datenbank geladen werden.
+	</notification>
+	<notification name="FailedToLoadSettingsApply">
+		Diese Einstellungen können nicht auf die Umgebung angewendet werden.
+	</notification>
+	<notification name="FailedToBuildSettingsDay">
+		Diese Einstellungen können nicht auf die Umgebung angewendet werden.
+	</notification>
+	<notification name="NoEnvironmentSettings">
+		Diese Region unterstützt keine Umgebungseinstellungen.
+	</notification>
+	<notification label="Outfit speichern" name="SaveSettingAs">
+		Aktuelle Umgebungseinstellungen speichern unter:
+		<form name="form">
+			<input name="message">
+				[DESC] (neu)
+			</input>
+			<button name="OK" text="OK"/>
+			<button name="Cancel" text="Abbrechen"/>
+		</form>
+	</notification>
+	<notification name="WLImportFail">
+		Alte Windlight-Einstellungen [NAME] konnten nicht aus 
+[FILE] geladen werden. 
+
+[REASONS]
+	</notification>
+	<notification name="WLParcelApplyFail">
+		Die Umgebung für diese Parzelle kann nicht eingestellt werden. 
+Bitte eine Parzelle eingeben oder auswählen, für die Sie die Änderungsrechte besitzen.
+	</notification>
+	<notification name="SettingsUnsuported">
+		Einstellungen werden von dieser Region nicht unterstützt. 
+Bitte wechseln sie zu einer Region mit aktivierten Einstellungsmöglichkeiten und versuchen Sie es erneut.
+	</notification>
+	<notification name="SettingsConfirmLoss">
+		Sie werden die Änderungen an diesem [TYPE] mit der Bezeichnung &quot;[NAME]&quot; verlieren. 
+Möchten Sie diesen Vorgang wirklich fortsetzen?
+		<usetemplate ignoretext="Sind Sie sicher, dass Sie die Änderungen verlieren möchten?" name="okcancelignore" notext="Nein" yestext="Ja"/>
+	</notification>
+	<notification name="SettingsConfirmReset">
+		Sie sind dabei, alle angewendeten Einstellungen zu entfernen. 
+Möchten Sie diesen Vorgang wirklich fortsetzen?
+		<usetemplate name="okcancelbuttons" notext="Nein" yestext="Ja"/>
+	</notification>
+	<notification name="PersonalSettingsConfirmReset">
+		Sie sind dabei, alle angewendeten persönlichen Beleuchtungseinstellungen zu entfernen. 
+Möchten Sie diesen Vorgang wirklich fortsetzen?
+		<usetemplate name="okcancelbuttons" notext="Nein" yestext="Ja"/>
+	</notification>
+	<notification name="SettingsMakeNoTrans">
+		Sie versuchen, nicht transferierbare Einstellungen in diesen Tageszyklus zu importieren. Wenn Sie fortfahren, verlieren die von Ihnen bearbeiteten Einstellungen ebenfalls ihre Transferierbarkeit. 
+
+Diese Änderung kann nicht rückgängig gemacht werden. 
+
+Möchten Sie diesen Vorgang wirklich fortsetzen?
+		<usetemplate ignoretext="Sind Sie sicher, dass Sie die Transferierbarkeit der Einstellungen aufgeben möchten?" name="okcancelignore" notext="Nein" yestext="Ja"/>
+	</notification>
+	<notification name="NoEditFromLibrary">
+		Sie können Einstellungen aus der Bibliothek nicht direkt bearbeiten. 
+Bitte kopieren Sie diese in Ihr Inventar und versuchen Sie es erneut.
+	</notification>
+	<notification name="EnvironmentApplyFailed">
+		Bei diesen Einstellungen wurde ein Problem festgestellt. Sie können momentan nicht gespeichert oder angewendet werden.
+	</notification>
+	<notification name="TrackLoadFailed">
+		Pfad konnte nicht in [TRACK] geladen werden.
+	</notification>
+	<notification name="TrackLoadMismatch">
+		Der Pfad konnte nicht aus [TRACK1] in [TRACK2] geladen werden.
 	</notification>
 </notifications>

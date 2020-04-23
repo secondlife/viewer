@@ -242,7 +242,7 @@
     top_delta="24"
     width="280">
     <check_box.commit_callback
-      function="Pref.VertexShaderEnable" />
+      function="Pref.RenderOptionUpdate" />
   </check_box>
 
   <check_box
@@ -256,7 +256,7 @@
     top_delta="24"
     width="256">
     <check_box.commit_callback
-      function="Pref.VertexShaderEnable" />
+      function="Pref.RenderOptionUpdate" />
   </check_box>
   
   <slider

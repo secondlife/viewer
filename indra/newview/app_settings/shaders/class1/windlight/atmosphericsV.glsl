@@ -1,5 +1,5 @@
 /** 
- * @file atmosphericsV.glsl 
+ * @file class1\windlight\atmosphericsV.glsl 
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -29,7 +29,7 @@ void setPositionEye(vec3 v);
 
 void calcAtmospherics(vec3 inPositionEye)
 {
-	/* stub function for fallback compatibility on class1 hardware */
-	setPositionEye(inPositionEye);
+    /* stub function for fallback compatibility on class1 hardware */
+    setPositionEye(inPositionEye);
 }
 

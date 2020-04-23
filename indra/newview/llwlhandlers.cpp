@@ -30,15 +30,15 @@
 
 #include "llagent.h"
 #include "llviewerregion.h"
-#include "llenvmanager.h"
 #include "llnotificationsutil.h"
 #include "llcorehttputil.h"
 
+#include "llparcel.h"
 /****
  * LLEnvironmentRequest
  ****/
 // static
-bool LLEnvironmentRequest::initiate()
+bool LLEnvironmentRequest::initiate(LLEnvironment::environment_apply_fn cb)
 {
 	LLViewerRegion* cur_region = gAgent.getRegion();
 
@@ -51,15 +51,15 @@ bool LLEnvironmentRequest::initiate()
 	if (!cur_region->capabilitiesReceived())
 	{
 		LL_INFOS("WindlightCaps") << "Deferring windlight settings request until we've got region caps" << LL_ENDL;
-		cur_region->setCapabilitiesReceivedCallback(boost::bind(&LLEnvironmentRequest::onRegionCapsReceived, _1));
+        cur_region->setCapabilitiesReceivedCallback([cb](LLUUID region_id) { LLEnvironmentRequest::onRegionCapsReceived(region_id, cb); });
 		return false;
 	}
 
-	return doRequest();
+	return doRequest(cb);
 }
 
 // static
-void LLEnvironmentRequest::onRegionCapsReceived(const LLUUID& region_id)
+void LLEnvironmentRequest::onRegionCapsReceived(const LLUUID& region_id, LLEnvironment::environment_apply_fn cb)
 {
 	if (region_id != gAgent.getRegion()->getRegionID())
 	{
@@ -68,23 +68,26 @@ void LLEnvironmentRequest::onRegionCapsReceived(const LLUUID& region_id)
 	}
 
 	LL_DEBUGS("WindlightCaps") << "Received region capabilities" << LL_ENDL;
-	doRequest();
+	doRequest(cb);
 }
 
 // static
-bool LLEnvironmentRequest::doRequest()
+bool LLEnvironmentRequest::doRequest(LLEnvironment::environment_apply_fn cb)
 {
 	std::string url = gAgent.getRegionCapability("EnvironmentSettings");
 	if (url.empty())
 	{
 		LL_INFOS("WindlightCaps") << "Skipping windlight setting request - we don't have this capability" << LL_ENDL;
 		// region is apparently not capable of this; don't respond at all
+        // (there shouldn't be any regions where this is the case... but
+        LL_INFOS("ENVIRONMENT") << "No legacy windlight caps... just set the region to be the default day." << LL_ENDL;
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_REGION, LLSettingsDay::GetDefaultAssetId());
 		return false;
 	}
 
     std::string coroname =
         LLCoros::instance().launch("LLEnvironmentRequest::environmentRequestCoro",
-        boost::bind(&LLEnvironmentRequest::environmentRequestCoro, url));
+        [url, cb]() { LLEnvironmentRequest::environmentRequestCoro(url, cb); });
 
     LL_INFOS("WindlightCaps") << "Requesting region windlight settings via " << url << LL_ENDL;
     return true;
@@ -93,7 +96,7 @@ bool LLEnvironmentRequest::doRequest()
 S32 LLEnvironmentRequest::sLastRequest = 0;
 
 //static 
-void LLEnvironmentRequest::environmentRequestCoro(std::string url)
+void LLEnvironmentRequest::environmentRequestCoro(std::string url, LLEnvironment::environment_apply_fn cb)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     S32 requestId = ++LLEnvironmentRequest::sLastRequest;
@@ -102,6 +105,8 @@ void LLEnvironmentRequest::environmentRequestCoro(std::string url)
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
     LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
+
+    LL_WARNS("WindlightCaps") << "Using legacy Windlight caps." << LL_ENDL;
 
     if (requestId != LLEnvironmentRequest::sLastRequest)
     {
@@ -114,11 +119,12 @@ void LLEnvironmentRequest::environmentRequestCoro(std::string url)
     if (!status)
     {
         LL_WARNS("WindlightCaps") << "Got an error, not using region windlight... " << LL_ENDL;
-        LLEnvManagerNew::getInstance()->onRegionSettingsResponse(LLSD());
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_REGION, LLSettingsDay::GetDefaultAssetId());
+
         return;
     }
     result = result["content"];
-    LL_INFOS("WindlightCaps") << "Received region windlight settings" << LL_ENDL;
+    LL_INFOS("WindlightCaps") << "Received region legacy  windlight settings" << LL_ENDL;
 
     LLUUID regionId;
     if (gAgent.getRegion())
@@ -134,7 +140,12 @@ void LLEnvironmentRequest::environmentRequestCoro(std::string url)
         return;
     }
 
-    LLEnvManagerNew::getInstance()->onRegionSettingsResponse(result);
+    if (cb)
+    {
+        LLEnvironment::EnvironmentInfo::ptr_t pinfo = LLEnvironment::EnvironmentInfo::extractLegacy(result);
+
+        cb(INVALID_PARCEL_ID, pinfo);
+    }
 }
 
 
@@ -146,7 +157,7 @@ clock_t LLEnvironmentApply::UPDATE_WAIT_SECONDS = clock_t(3.f);
 clock_t LLEnvironmentApply::sLastUpdate = clock_t(0.f);
 
 // static
-bool LLEnvironmentApply::initiateRequest(const LLSD& content)
+bool LLEnvironmentApply::initiateRequest(const LLSD& content, LLEnvironment::environment_apply_fn cb)
 {
 	clock_t current = clock();
 
@@ -162,7 +173,7 @@ bool LLEnvironmentApply::initiateRequest(const LLSD& content)
 	sLastUpdate = current;
 
 	// Send update request.
-	std::string url = gAgent.getRegionCapability("EnvironmentSettings");
+	std::string url = gAgent.getRegionCapability("ExtEnvironment");
 	if (url.empty())
 	{
 		LL_WARNS("WindlightCaps") << "Applying windlight settings not supported" << LL_ENDL;
@@ -174,11 +185,11 @@ bool LLEnvironmentApply::initiateRequest(const LLSD& content)
 
     std::string coroname =
         LLCoros::instance().launch("LLEnvironmentApply::environmentApplyCoro",
-        boost::bind(&LLEnvironmentApply::environmentApplyCoro, url, content));
+        [url, content, cb]() { LLEnvironmentApply::environmentApplyCoro(url, content, cb); });
 	return true;
 }
 
-void LLEnvironmentApply::environmentApplyCoro(std::string url, LLSD content)
+void LLEnvironmentApply::environmentApplyCoro(std::string url, LLSD content, LLEnvironment::environment_apply_fn cb)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -242,13 +253,11 @@ void LLEnvironmentApply::environmentApplyCoro(std::string url, LLSD content)
         }
 
         LL_DEBUGS("WindlightCaps") << "Success in applying windlight settings to region " << result["regionID"].asUUID() << LL_ENDL;
-        LLEnvManagerNew::instance().onRegionSettingsApplyResponse(true);
 
     } while (false);
 
     if (!notify.isUndefined())
     {
         LLNotificationsUtil::add("WLRegionApplyFail", notify);
-        LLEnvManagerNew::instance().onRegionSettingsApplyResponse(false);
     }
 }

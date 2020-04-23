@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="menu_settings_gear">
+	<menu_item_call label="編集" name="edit_settings"/>
+	<menu_item_call label="自分にのみ適用" name="Settings Apply Local"/>
+	<menu_item_call label="区画に適用" name="Settings Apply Parcel"/>
+	<menu_item_call label="リージョンに適用" name="Settings Apply Region"/>
+	<menu_item_call label="コピー" name="copy_settings"/>
+	<menu_item_call label="貼り付け" name="paste_settings"/>
+	<menu_item_call label="UUID をコピー" name="copy_uuid"/>
+</toggleable_menu>

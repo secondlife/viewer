@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="env_edit_extdaycycle" title="Modifica ciclo giornata">
+	<string name="title_new">
+		Crea un nuovo ciclo giornata
+	</string>
+	<string name="title_edit">
+		Modifica ciclo giornata
+	</string>
+	<string name="hint_new">
+		Dai un nome al ciclo della giornata, regola i comandi per crearlo e fai clic su &quot;Salva&quot;.
+	</string>
+	<string name="hint_edit">
+		Per modificare il ciclo della giornata, regola i comandi seguenti e fai clic su &quot;Salva&quot;.
+	</string>
+	<string name="time_label">
+		([HH]:[MM])
+	</string>
+	<string name="sky_track_label">
+		Cielo [ALT]
+	</string>
+	<string name="sky_label">
+		Cielo
+	</string>
+	<string name="water_label">
+		Acqua
+	</string>
+	<string name="commit_parcel">
+		Applica al lotto
+	</string>
+	<string name="commit_region">
+		Applica alla regione
+	</string>
+	<layout_stack name="outer_stack">
+		<layout_panel name="name_and_import">
+			<text name="label">
+				Nome ciclo giornata:
+			</text>
+			<button label="Importa" name="btn_import" tool_tip="Importa impostazioni legacy dal disco."/>
+		</layout_panel>
+		<layout_panel name="content">
+			<layout_stack name="content_stack">
+				<layout_panel name="timeline_track_selection">
+					<panel name="timeline_layers">
+						<button label="Cielo 4:" name="sky4_track"/>
+						<button label="Cielo 3:" name="sky3_track"/>
+						<button label="Cielo 2:" name="sky2_track"/>
+						<button label="Suolo" name="sky1_track"/>
+						<button label="Acqua" name="water_track"/>
+					</panel>
+					<panel name="timeline">
+						<text name="p0" value="0%[DSC]"/>
+						<text name="p1" value="25%[DSC]"/>
+						<text name="p2" value="50%[DSC]"/>
+						<text name="p3" value="75%[DSC]"/>
+						<text name="p4" value="100%[DSC]"/>
+						<multi_slider initial_value="0" name="WLTimeSlider"/>
+						<multi_slider initial_value="0" name="WLDayCycleFrames"/>
+						<text name="current_time" value="[PRCNT]%[DSC]"/>
+						<layout_stack>
+							<layout_panel>
+								<button label="Clona Percorso Da" name="copy_track"/>
+								<button label="Carica Percorso Da" name="load_track"/>
+								<button label="Cancella Percorso" name="clear_track"/>
+							</layout_panel>
+							<layout_panel>
+								<layout_stack name="progress_control">
+									<layout_panel name="skip_back">
+										<button name="skip_back_btn" tool_tip="Passo indietro"/>
+									</layout_panel>
+									<layout_panel name="skip_forward">
+										<button name="skip_forward_btn" tool_tip="Passo avanti"/>
+									</layout_panel>
+								</layout_stack>
+							</layout_panel>
+							<layout_panel>
+								<button label="Aggiungi [FRAME]" name="add_frame"/>
+								<button label="Carica [FRAME]" name="btn_load_frame"/>
+								<button label="Elimina [FRAME]" name="delete_frame"/>
+							</layout_panel>
+						</layout_stack>
+					</panel>
+				</layout_panel>
+				<layout_panel name="frame_edit_controls">
+					<text name="icn_lock_edit">
+						Seleziona un fotogramma chiave dalla cronologia degli eventi qui sopra per modificare le impostazioni.
+					</text>
+				</layout_panel>
+				<layout_panel name="frame_settings_water">
+					<tab_container name="water_tabs">
+						<panel label="Acqua" name="water_panel"/>
+					</tab_container>
+				</layout_panel>
+				<layout_panel name="frame_settings_sky">
+					<tab_container name="sky_tabs">
+						<panel label="Atmosfera e illuminazione" name="atmosphere_panel"/>
+						<panel label="Nuvole" name="clouds_panel"/>
+						<panel label="Sole e Luna" name="moon_panel"/>
+					</tab_container>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="buttons">
+			<button label="Salva" name="save_btn"/>
+			<button label="Annulla" name="cancel_btn"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

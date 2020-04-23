@@ -1,5 +1,5 @@
 /** 
- * @file terrainF.glsl
+ * @file class1\deferred\terrainF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -23,6 +23,8 @@
  * $/LicenseInfo$
  */
  
+/*[EXTRA_CODE_HERE]*/
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_data[3];
 #else
@@ -35,33 +37,32 @@ uniform sampler2D detail_2;
 uniform sampler2D detail_3;
 uniform sampler2D alpha_ramp;
 
+VARYING vec3 pos;
 VARYING vec3 vary_normal;
 VARYING vec4 vary_texcoord0;
 VARYING vec4 vary_texcoord1;
 
-vec2 encode_normal(vec3 n)
-{
-	float f = sqrt(8 * n.z + 8);
-	return n.xy / f + 0.5;
-}
+vec2 encode_normal(vec3 n);
 
 void main()
 {
-	/// Note: This should duplicate the blending functionality currently used for the terrain rendering.
-	
-	vec4 color0 = texture2D(detail_0, vary_texcoord0.xy);
-	vec4 color1 = texture2D(detail_1, vary_texcoord0.xy);
-	vec4 color2 = texture2D(detail_2, vary_texcoord0.xy);
-	vec4 color3 = texture2D(detail_3, vary_texcoord0.xy);
+    /// Note: This should duplicate the blending functionality currently used for the terrain rendering.
+    
+    vec4 color0 = texture2D(detail_0, vary_texcoord0.xy);
+    vec4 color1 = texture2D(detail_1, vary_texcoord0.xy);
+    vec4 color2 = texture2D(detail_2, vary_texcoord0.xy);
+    vec4 color3 = texture2D(detail_3, vary_texcoord0.xy);
 
-	float alpha1 = texture2D(alpha_ramp, vary_texcoord0.zw).a;
-	float alpha2 = texture2D(alpha_ramp,vary_texcoord1.xy).a;
-	float alphaFinal = texture2D(alpha_ramp, vary_texcoord1.zw).a;
-	vec4 outColor = mix( mix(color3, color2, alpha2), mix(color1, color0, alpha1), alphaFinal );
-	
-	frag_data[0] = vec4(outColor.rgb, 0.0);
-	frag_data[1] = vec4(0,0,0,0);
-	vec3 nvn = normalize(vary_normal);
-	frag_data[2] = vec4(encode_normal(nvn.xyz), 0.0, 0.0);
+    float alpha1 = texture2D(alpha_ramp, vary_texcoord0.zw).a;
+    float alpha2 = texture2D(alpha_ramp,vary_texcoord1.xy).a;
+    float alphaFinal = texture2D(alpha_ramp, vary_texcoord1.zw).a;
+    vec4 outColor = mix( mix(color3, color2, alpha2), mix(color1, color0, alpha1), alphaFinal );
+   
+    outColor.a = 0.0; // yes, downstream atmospherics 
+    
+    frag_data[0] = outColor;
+    frag_data[1] = vec4(0.0,0.0,0.0,-1.0);
+    vec3 nvn = normalize(vary_normal);
+    frag_data[2] = vec4(encode_normal(nvn.xyz), 0.0, 0.0);
 }
 
