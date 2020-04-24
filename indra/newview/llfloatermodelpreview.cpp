@@ -413,7 +413,7 @@ void LLFloaterModelPreview::loadModel(S32 lod, const std::string& file_name, boo
 void LLFloaterModelPreview::onClickCalculateBtn()
 {
 	clearLogTab();
-
+	addStringToLog("Calculating model data.", false);
 	mModelPreview->rebuildUploadData();
 
 	bool upload_skinweights = childGetValue("upload_skin").asBoolean();
