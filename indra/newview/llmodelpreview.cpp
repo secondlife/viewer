@@ -599,6 +599,10 @@ void LLModelPreview::rebuildUploadData()
                         setLoadState(LLModelLoader::WARNING_BIND_SHAPE_ORIENTATION);
                     }
                 }
+                else if (getLoadState() == LLModelLoader::WARNING_BIND_SHAPE_ORIENTATION)
+                {
+                    setLoadState(LLModelLoader::DONE);
+                }
             }
             instance.mTransform = mat;
             mUploadData.push_back(instance);

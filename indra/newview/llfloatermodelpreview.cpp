@@ -180,7 +180,6 @@ BOOL LLFloaterModelPreview::postBuild()
 
 	childSetCommitCallback("preview_lod_combo", onPreviewLODCommit, this);
 
-	childSetCommitCallback("upload_skin", onUploadSkinCommit, this);
 	childSetCommitCallback("upload_joints", onUploadJointsCommit, this);
 	childSetCommitCallback("lock_scale_if_joint_position", onUploadJointsCommit, this);
 
@@ -331,7 +330,11 @@ void LLFloaterModelPreview::onUploadOptionChecked(LLUICtrl* ctrl)
 	if (mModelPreview)
 	{
 		auto name = ctrl->getName();
-		mModelPreview->mViewOption[name] = !mModelPreview->mViewOption[name];
+        mModelPreview->mViewOption[name] = !mModelPreview->mViewOption[name];
+        mModelPreview->refresh();
+        mModelPreview->resetPreviewTarget();
+        mModelPreview->clearBuffers();
+        mModelPreview->mDirty = true;
 	}
 	toggleCalculateButton(true);
 }
@@ -613,20 +616,6 @@ void LLFloaterModelPreview::onUploadJointsCommit(LLUICtrl*,void* userdata)
 	}
 
 	fp->mModelPreview->refresh();
-}
-
-//static
-void LLFloaterModelPreview::onUploadSkinCommit(LLUICtrl*,void* userdata)
-{
-	LLFloaterModelPreview *fp =(LLFloaterModelPreview *)userdata;
-
-	if (!fp->mModelPreview)
-	{
-		return;
-	}
-	fp->mModelPreview->refresh();
-	fp->mModelPreview->resetPreviewTarget();
-	fp->mModelPreview->clearBuffers();
 }
 
 //static

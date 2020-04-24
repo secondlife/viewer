@@ -140,7 +140,6 @@ protected:
 	static void		onImportScaleCommit(LLUICtrl*, void*);
 	static void		onPelvisOffsetCommit(LLUICtrl*, void*);
 	static void		onUploadJointsCommit(LLUICtrl*,void*);
-	static void		onUploadSkinCommit(LLUICtrl*,void*);
 
 	static void		onPreviewLODCommit(LLUICtrl*,void*);
 	
