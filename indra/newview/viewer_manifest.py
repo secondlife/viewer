@@ -489,6 +489,10 @@ class WindowsManifest(ViewerManifest):
                 # include the compiled launcher scripts so that it gets included in the file_list
                 self.path('SLVersionChecker.exe')
 
+            with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
+                # include the dullahan host process so we can code sign it later
+                self.path('dullahan_host.exe')
+
             with self.prefix(dst="vmp_icons"):
                 with self.prefix(src=self.icon_path()):
                     self.path("secondlife.ico")
@@ -792,7 +796,7 @@ class WindowsManifest(ViewerManifest):
         for exe in (
             self.final_exe(),
             "SLVersionChecker.exe",
-            "dullahan_host.exe",
+            #"dullahan_host.exe",
             ):
             self.sign(exe)
             
@@ -832,7 +836,7 @@ class WindowsManifest(ViewerManifest):
             print "about to run signing of: ", dst_path
             self.run_command([python, sign_py, dst_path])
         else:
-            print "Skipping code signing of %s: %s not found" % (exe, sign_py)
+            print "Skipping code signing of %s %s: %s not found" % (self.dst_path_of(exe), exe, sign_py)
 
     def escape_slashes(self, path):
         return path.replace('\\', '\\\\\\\\')
