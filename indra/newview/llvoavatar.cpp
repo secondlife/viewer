@@ -655,6 +655,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mNeedsSkin(FALSE),
 	mLastSkinTime(0.f),
 	mUpdatePeriod(1),
+	mOverallAppearance(AOA_INVISIBLE),
 	mVisualComplexityStale(true),
 	mVisuallyMuteSetting(AV_RENDER_NORMALLY),
 	mMutedAVColor(LLColor4::white /* used for "uninitialize" */),
@@ -2071,13 +2072,13 @@ void LLVOAvatar::resetSkeleton(bool reset_animations)
     // Reset tweakable params to preserved state
     if (mLastProcessedAppearance)
     {
-    bool slam_params = true;
-    applyParsedAppearanceMessage(*mLastProcessedAppearance, slam_params);
+		bool slam_params = true;
+		applyParsedAppearanceMessage(*mLastProcessedAppearance, slam_params);
     }
     updateVisualParams();
 
     // Restore attachment pos overrides
-    updateAttachmentOverrides();
+	updateAttachmentOverrides();
 
     // Animations
     if (reset_animations)
@@ -2776,14 +2777,15 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 
     if (mDrawable.notNull())
     {
-	mDrawable->movePartition();
+		mDrawable->movePartition();
 	
-	//force a move if sitting on an active object
-	if (getParent() && ((LLViewerObject*) getParent())->mDrawable->isActive())
-	{
-		gPipeline.markMoved(mDrawable, TRUE);
-	}
+		//force a move if sitting on an active object
+		if (getParent() && ((LLViewerObject*) getParent())->mDrawable->isActive())
+		{
+			gPipeline.markMoved(mDrawable, TRUE);
+		}
     }
+	updateOverallAppearance();
 }
 
 void LLVOAvatar::idleUpdateAppearanceAnimation()
@@ -3601,9 +3603,32 @@ void LLVOAvatar::updateAppearanceMessageDebugText()
         LLVector3 pelvis_pos = mPelvisp->getPosition();
         debug_line += llformat(" rp %.3f pp %.3f", root_pos[2], pelvis_pos[2]);
 
-    S32 is_visible = (S32) isVisible();
-    S32 is_m_visible = (S32) mVisible;
-    debug_line += llformat(" v %d/%d", is_visible, is_m_visible);
+		S32 is_visible = (S32) isVisible();
+		S32 is_m_visible = (S32) mVisible;
+		debug_line += llformat(" v %d/%d", is_visible, is_m_visible);
+
+		AvatarOverallAppearance aoa = getOverallAppearance();
+		if (aoa == AOA_NORMAL)
+		{
+			debug_line += " N";
+		}
+		else if (aoa == AOA_JELLYDOLL)
+		{
+			debug_line += " J";
+		}
+		else
+		{
+			debug_line += " I";
+		}
+
+		if (mMeshValid)
+		{
+			debug_line += "m";
+		}
+		else
+		{
+			debug_line += "-";
+		}
 
 		addDebugText(debug_line);
 }
@@ -6140,6 +6165,11 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LL
 	}
 
     LLScopedContextString str("addAttachmentOverridesForObject " + getFullname());
+
+	if (getOverallAppearance() != AOA_NORMAL)
+	{
+		return;
+	}
     
     LL_DEBUGS("AnimatedObjects") << "adding" << LL_ENDL;
     dumpStack("AnimatedObjectsStack");
@@ -10445,6 +10475,16 @@ void LLVOAvatar::setVisualMuteSettings(VisualMuteSettings set)
     mNeedsImpostorUpdate = TRUE;
 
     LLRenderMuteList::getInstance()->saveVisualMuteSetting(getID(), S32(set));
+}
+
+void LLVOAvatar::updateOverallAppearance()
+{
+	AvatarOverallAppearance new_val = getOverallAppearance();
+	if (new_val != mOverallAppearance)
+	{
+		updateAttachmentOverrides();
+	}
+	mOverallAppearance = new_val;
 }
 
 // Based on isVisuallyMuted(), but has 3 possible results.

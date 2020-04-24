@@ -460,6 +460,7 @@ public:
 		AOA_INVISIBLE
 	};
 	AvatarOverallAppearance getOverallAppearance() const;
+	void updateOverallAppearance();
 	
 	U32 		renderRigid();
 	U32 		renderSkinned();
@@ -474,6 +475,7 @@ public:
 	S32			mSpecialRenderMode; // special lighting
         
 private:
+	AvatarOverallAppearance mOverallAppearance;
 	F32			mAttachmentSurfaceArea; //estimated surface area of attachments
     U32			mAttachmentVisibleTriangleCount;
     F32			mAttachmentEstTriangleCount;
