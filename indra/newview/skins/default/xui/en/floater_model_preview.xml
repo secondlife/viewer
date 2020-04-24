@@ -90,7 +90,10 @@
       width="635"
       name="import_tab"
       tab_position="top"
-      enable_tabs_flashing="true">
+      enable_tabs_flashing="true"
+      tabs_flashing_color="MenuItemFlashBgColor">
+      <last_tab
+        tab_top_image_flash="TabTop_Right_Flashing"/> <!-- for log tab -->
       <!-- LOD PANEL -->
         <panel
          help_topic="upload_model_lod"

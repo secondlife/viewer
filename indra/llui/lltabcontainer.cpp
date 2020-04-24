@@ -221,6 +221,7 @@ LLTabContainer::Params::Params()
 	use_custom_icon_ctrl("use_custom_icon_ctrl", false),
 	open_tabs_on_drag_and_drop("open_tabs_on_drag_and_drop", false),
 	enable_tabs_flashing("enable_tabs_flashing", false),
+	tabs_flashing_color("tabs_flashing_color"),
 	tab_icon_ctrl_pad("tab_icon_ctrl_pad", 0),
 	use_ellipses("use_ellipses"),
 	font_halign("halign")
@@ -261,6 +262,7 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
 	mOpenTabsOnDragAndDrop(p.open_tabs_on_drag_and_drop),
 	mTabIconCtrlPad(p.tab_icon_ctrl_pad),
 	mEnableTabsFlashing(p.enable_tabs_flashing),
+	mTabsFlashingColor(p.tabs_flashing_color),
 	mUseTabEllipses(p.use_ellipses)
 {
 	static LLUICachedControl<S32> tabcntr_vert_tab_min_width ("UITabCntrVertTabMinWidth", 0);
@@ -281,6 +283,11 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
 		// tab containers
 		mMinTabWidth = tabcntr_vert_tab_min_width;
 	}
+
+    if (p.tabs_flashing_color.isProvided())
+    {
+        mEnableTabsFlashing = true;
+    }
 
 	initButtons( );
 }
@@ -1107,6 +1114,7 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 
 		// inits flash timer
 		p.button_flash_enable = mEnableTabsFlashing;
+		p.flash_color = mTabsFlashingColor;
 		
 		// *TODO : It seems wrong not to use p in both cases considering the way p is initialized
 		if (mCustomIconCtrlUsed)
@@ -1640,16 +1648,6 @@ void LLTabContainer::setTabPanelFlashing(LLPanel* child, BOOL state )
 	{
 		tuple->mButton->setFlashing( state );
 	}
-}
-
-void LLTabContainer::setTabPanelFlashing(LLPanel* child, BOOL state, LLUIColor color)
-{
-    LLTabTuple* tuple = getTabByPanel(child);
-    if (tuple)
-    {
-        tuple->mButton->setFlashColor(color);
-        tuple->mButton->setFlashing(state);
-    }
 }
 
 void LLTabContainer::setTabImage(LLPanel* child, std::string image_name, const LLColor4& color)
