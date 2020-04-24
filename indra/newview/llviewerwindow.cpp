@@ -709,32 +709,32 @@ public:
 		}
 		if (gSavedSettings.getBOOL("DebugShowRenderMatrices"))
 		{
-			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLProjection[12], gGLProjection[13], gGLProjection[14], gGLProjection[15]));
+			addText(xpos, ypos, llformat("%.4f    %.4f    %.4f    %.4f", gGLProjection[12], gGLProjection[13], gGLProjection[14], gGLProjection[15]));
 			ypos += y_inc;
 
-			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLProjection[8], gGLProjection[9], gGLProjection[10], gGLProjection[11]));
+			addText(xpos, ypos, llformat("%.4f    %.4f    %.4f    %.4f", gGLProjection[8], gGLProjection[9], gGLProjection[10], gGLProjection[11]));
 			ypos += y_inc;
 
-			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLProjection[4], gGLProjection[5], gGLProjection[6], gGLProjection[7]));
+			addText(xpos, ypos, llformat("%.4f    %.4f    %.4f    %.4f", gGLProjection[4], gGLProjection[5], gGLProjection[6], gGLProjection[7]));
 			ypos += y_inc;
 
-			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLProjection[0], gGLProjection[1], gGLProjection[2], gGLProjection[3]));
+			addText(xpos, ypos, llformat("%.4f    %.4f    %.4f    %.4f", gGLProjection[0], gGLProjection[1], gGLProjection[2], gGLProjection[3]));
 			ypos += y_inc;
 
 			addText(xpos, ypos, "Projection Matrix");
 			ypos += y_inc;
 
 
-			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLModelView[12], gGLModelView[13], gGLModelView[14], gGLModelView[15]));
+			addText(xpos, ypos, llformat("%.4f    %.4f    %.4f    %.4f", gGLModelView[12], gGLModelView[13], gGLModelView[14], gGLModelView[15]));
 			ypos += y_inc;
 
-			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLModelView[8], gGLModelView[9], gGLModelView[10], gGLModelView[11]));
+			addText(xpos, ypos, llformat("%.4f    %.4f    %.4f    %.4f", gGLModelView[8], gGLModelView[9], gGLModelView[10], gGLModelView[11]));
 			ypos += y_inc;
 
-			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLModelView[4], gGLModelView[5], gGLModelView[6], gGLModelView[7]));
+			addText(xpos, ypos, llformat("%.4f    %.4f    %.4f    %.4f", gGLModelView[4], gGLModelView[5], gGLModelView[6], gGLModelView[7]));
 			ypos += y_inc;
 
-			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLModelView[0], gGLModelView[1], gGLModelView[2], gGLModelView[3]));
+			addText(xpos, ypos, llformat("%.4f    %.4f    %.4f    %.4f", gGLModelView[0], gGLModelView[1], gGLModelView[2], gGLModelView[3]));
 			ypos += y_inc;
 
 			addText(xpos, ypos, "View Matrix");
