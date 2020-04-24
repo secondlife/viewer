@@ -792,6 +792,7 @@ class WindowsManifest(ViewerManifest):
         for exe in (
             self.final_exe(),
             "SLVersionChecker.exe",
+            "dullahan_host.exe",
             ):
             self.sign(exe)
             
