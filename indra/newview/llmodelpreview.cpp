@@ -361,6 +361,7 @@ void LLModelPreview::rebuildUploadData()
     F32 max_scale = 0.f;
 
     BOOL legacyMatching = gSavedSettings.getBOOL("ImporterLegacyMatching");
+    U32 load_state = 0;
 
     for (LLModelLoader::scene::iterator iter = mBaseScene.begin(); iter != mBaseScene.end(); ++iter)
     { //for each transform in scene
@@ -563,7 +564,7 @@ void LLModelPreview::rebuildUploadData()
             if (!high_lod_model)
             {
                 LLFloaterModelPreview::addStringToLog("Model " + instance.mLabel + " has no High Lod (LOD3).", true);
-                setLoadState(LLModelLoader::ERROR_MATERIALS);
+                load_state = LLModelLoader::ERROR_MATERIALS;
                 mFMP->childDisable("calculate_btn");
             }
             else
@@ -576,7 +577,7 @@ void LLModelPreview::rebuildUploadData()
                     if (instance.mLOD[i] && !instance.mLOD[i]->matchMaterialOrder(high_lod_model, refFaceCnt, modelFaceCnt))
                     {
                         LLFloaterModelPreview::addStringToLog("Model " + instance.mLabel + " has mismatching materials between lods." , true);
-                        setLoadState(LLModelLoader::ERROR_MATERIALS);
+                        load_state = LLModelLoader::ERROR_MATERIALS;
                         mFMP->childDisable("calculate_btn");
                     }
                 }
@@ -588,6 +589,8 @@ void LLModelPreview::rebuildUploadData()
                     LLQuaternion identity;
                     if (!bind_rot.isEqualEps(identity, 0.01))
                     {
+                        // Bind shape matrix is not in standard X-forward orientation.
+                        // Might be good idea to only show this once. It can be spammy.
                         std::ostringstream out;
                         out << "non-identity bind shape rot. mat is ";
                         out << high_lod_model->mSkinInfo.mBindShapeMatrix;
@@ -596,12 +599,8 @@ void LLModelPreview::rebuildUploadData()
                         LL_WARNS() << out.str() << LL_ENDL;
 
                         LLFloaterModelPreview::addStringToLog(out, getLoadState() != LLModelLoader::WARNING_BIND_SHAPE_ORIENTATION);
-                        setLoadState(LLModelLoader::WARNING_BIND_SHAPE_ORIENTATION);
+                        load_state = LLModelLoader::WARNING_BIND_SHAPE_ORIENTATION;
                     }
-                }
-                else if (getLoadState() == LLModelLoader::WARNING_BIND_SHAPE_ORIENTATION)
-                {
-                    setLoadState(LLModelLoader::DONE);
                 }
             }
             instance.mTransform = mat;
@@ -634,10 +633,25 @@ void LLModelPreview::rebuildUploadData()
                     LL_INFOS() << out.str() << LL_ENDL;
                     LLFloaterModelPreview::addStringToLog(out, true);
                 }
-                setLoadState(LLModelLoader::ERROR_MATERIALS);
+                load_state = LLModelLoader::ERROR_MATERIALS;
                 mFMP->childDisable("calculate_btn");
             }
         }
+    }
+
+    // Update state for notifications
+    if (load_state > 0)
+    {
+        // encountered issues
+        setLoadState(load_state);
+    }
+    else if (getLoadState() == LLModelLoader::ERROR_MATERIALS
+             || getLoadState() == LLModelLoader::WARNING_BIND_SHAPE_ORIENTATION)
+    {
+        // This is only valid for these two error types because they are 
+        // only used inside rebuildUploadData() and updateStatusMessages()
+        // updateStatusMessages() is called after rebuildUploadData()
+        setLoadState(LLModelLoader::DONE);
     }
 
     F32 max_import_scale = (DEFAULT_MAX_PRIM_SCALE - 0.1f) / max_scale;

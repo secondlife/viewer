@@ -166,6 +166,7 @@ BOOL LLFloaterModelPreview::postBuild()
 		getChild<LLSpinCtrl>("lod_triangle_limit_" + lod_name[lod])->setCommitCallback(boost::bind(&LLFloaterModelPreview::onLODParamCommit, this, lod, true));
 	}
 
+	// Upload/avatar options, they need to refresh errors/notifications
 	childSetCommitCallback("upload_skin", boost::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), NULL);
 	childSetCommitCallback("upload_joints", boost::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), NULL);
 	childSetCommitCallback("lock_scale_if_joint_position", boost::bind(&LLFloaterModelPreview::onUploadOptionChecked, this, _1), NULL);
@@ -179,9 +180,6 @@ BOOL LLFloaterModelPreview::postBuild()
 	childSetAction("reset_btn", onReset, this);
 
 	childSetCommitCallback("preview_lod_combo", onPreviewLODCommit, this);
-
-	childSetCommitCallback("upload_joints", onUploadJointsCommit, this);
-	childSetCommitCallback("lock_scale_if_joint_position", onUploadJointsCommit, this);
 
 	childSetCommitCallback("import_scale", onImportScaleCommit, this);
 	childSetCommitCallback("pelvis_offset", onPelvisOffsetCommit, this);
@@ -330,12 +328,15 @@ void LLFloaterModelPreview::onUploadOptionChecked(LLUICtrl* ctrl)
 	if (mModelPreview)
 	{
 		auto name = ctrl->getName();
+        // update the option and notifications
+        // (this is a bit convoluted, because of the current structure of mModelPreview)
         mModelPreview->mViewOption[name] = !mModelPreview->mViewOption[name];
-        mModelPreview->refresh();
-        mModelPreview->resetPreviewTarget();
+        mModelPreview->refresh(); // a 'dirty' flag for render
+        mModelPreview->resetPreviewTarget(); 
         mModelPreview->clearBuffers();
         mModelPreview->mDirty = true;
-	}
+    }
+    // set the button visible, it will be refreshed later
 	toggleCalculateButton(true);
 }
 
@@ -601,19 +602,6 @@ void LLFloaterModelPreview::onPelvisOffsetCommit( LLUICtrl*, void* userdata )
 	fp->mModelPreview->mDirty = true;
 
 	fp->toggleCalculateButton(true);
-
-	fp->mModelPreview->refresh();
-}
-
-//static
-void LLFloaterModelPreview::onUploadJointsCommit(LLUICtrl*,void* userdata)
-{
-	LLFloaterModelPreview *fp =(LLFloaterModelPreview *)userdata;
-
-	if (!fp->mModelPreview)
-	{
-		return;
-	}
 
 	fp->mModelPreview->refresh();
 }
