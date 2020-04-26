@@ -2953,7 +2953,7 @@ void LLPanelFace::onCopyFaces()
                     if (id.isNull()
                         || (!full_perm && item_id.isNull()))
                     {
-                        if (!LLLocalBitmapMgr::getInstance()->isLocalBitmap(id))
+                        if (!LLLocalBitmapMgr::getInstance()->isLocal(id))
                         {
                             te_data["te"].erase("imageid");
                             te_data["te"]["imageid"] = LLUUID(gSavedSettings.getString("DefaultObjectTexture"));
