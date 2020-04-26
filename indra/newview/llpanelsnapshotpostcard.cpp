@@ -170,14 +170,16 @@ void LLPanelSnapshotPostcard::sendPostcard()
     std::string url = gAgent.getRegion()->getCapability("SendPostcard");
     if (!url.empty())
     {
-        LLResourceUploadInfo::ptr_t uploadInfo(new LLPostcardUploadInfo(
+        LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLPostcardUploadInfo>(
             getChild<LLUICtrl>("name_form")->getValue().asString(),
             getChild<LLUICtrl>("to_form")->getValue().asString(),
             getChild<LLUICtrl>("subject_form")->getValue().asString(),
             getChild<LLUICtrl>("msg_form")->getValue().asString(),
             mSnapshotFloater->getPosTakenGlobal(),
             mSnapshotFloater->getImageData(),
-            boost::bind(&LLPanelSnapshotPostcard::sendPostcardFinished, _4)));
+            [](LLUUID, LLUUID, LLUUID, LLSD response) {
+                LLPanelSnapshotPostcard::sendPostcardFinished(response);
+            }));
 
         LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
     }

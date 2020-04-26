@@ -10,7 +10,6 @@
 	<menu_item_call label="Attiva" name="Marketplace Activate"/>
 	<menu_item_call label="Disattiva" name="Marketplace Deactivate"/>
 	<menu_item_call label="Condividi" name="Share"/>
-	<menu_item_call label="Compra" name="Task Buy"/>
 	<menu_item_call label="Apri" name="Task Open"/>
 	<menu_item_call label="Esegui" name="Task Play"/>
 	<menu_item_call label="Proprietà" name="Task Properties"/>
@@ -34,6 +33,7 @@
 		<menu_item_call label="Nuove mutande" name="New Underpants"/>
 		<menu_item_call label="Nuovo Alfa Mask" name="New Alpha Mask"/>
 		<menu_item_call label="Nuovo tatuaggio" name="New Tattoo"/>
+		<menu_item_call label="Nuovo Universale" name="New Universal"/>
 		<menu_item_call label="Nuova fisica" name="New Physics"/>
 	</menu>
 	<menu label="Nuove parti del corpo" name="New Body Parts">
@@ -41,6 +41,11 @@
 		<menu_item_call label="Nuova pelle" name="New Skin"/>
 		<menu_item_call label="Nuovi capelli" name="New Hair"/>
 		<menu_item_call label="Nuovi occhi" name="New Eyes"/>
+	</menu>
+	<menu label="Nuove impostazioni" name="New Settings">
+		<menu_item_call label="Nuovo cielo" name="New Sky"/>
+		<menu_item_call label="Nuova acqua" name="New Water"/>
+		<menu_item_call label="Nuovo ciclo giornata" name="New Day Cycle"/>
 	</menu>
 	<menu label="Usa come impostazione predefinita per" name="upload_def">
 		<menu_item_call label="Caricamenti immagini" name="Image uploads"/>
@@ -103,6 +108,8 @@
 	<menu_item_call label="Modifica" name="Wearable Edit"/>
 	<menu_item_call label="Aggiungi" name="Wearable Add"/>
 	<menu_item_call label="Togli" name="Take Off"/>
+	<menu_item_call label="Applica solo a me stesso" name="Settings Apply Local"/>
+	<menu_item_call label="Applica al lotto" name="Settings Apply Parcel"/>
 	<menu_item_call label="Copia negli annunci Marketplace" name="Marketplace Copy"/>
 	<menu_item_call label="Sposta negli annunci Marketplace" name="Marketplace Move"/>
 	<menu_item_call label="--nessuna opzione--" name="--no options--"/>

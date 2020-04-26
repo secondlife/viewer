@@ -61,10 +61,11 @@ public:
 	typedef enum
 	{
 		TT_TEXTURE = 0,			// Standard 2D Texture
-		TT_RECT_TEXTURE,	// Non power of 2 texture
-		TT_CUBE_MAP,		// 6-sided cube map texture
+		TT_RECT_TEXTURE,	    // Non power of 2 texture
+		TT_CUBE_MAP,		    // 6-sided cube map texture
 		TT_MULTISAMPLE_TEXTURE, // see GL_ARB_texture_multisample
-		TT_NONE 		// No texture type is currently enabled
+        TT_TEXTURE_3D,          // standard 3D Texture
+		TT_NONE, 		        // No texture type is currently enabled        
 	} eTextureType;
 
 	typedef enum
@@ -130,6 +131,12 @@ public:
 		TBS_ONE_MINUS_CONST_ALPHA
 	} eTextureBlendSrc;
 
+    typedef enum
+    {
+        TCS_LINEAR = 0,
+        TCS_SRGB
+    } eTextureColorSpace;
+
 	LLTexUnit(S32 index);
 
 	// Refreshes renderer state of the texture unit to the cached values
@@ -152,7 +159,7 @@ public:
 	// Binds the LLImageGL to this texture unit 
 	// (automatically enables the unit for the LLImageGL's texture type)
 	bool bind(LLImageGL* texture, bool for_rendering = false, bool forceBind = false);
-	bool bind(LLTexture* texture, bool for_rendering = false, bool forceBind = false);
+    bool bind(LLTexture* texture, bool for_rendering = false, bool forceBind = false);
 
 	// Binds a cubemap to this texture unit 
 	// (automatically enables the texture unit for cubemaps)
@@ -197,6 +204,10 @@ public:
 
 	void setHasMipMaps(bool hasMips) { mHasMipMaps = hasMips; }
 
+    void setTextureColorSpace(eTextureColorSpace space);
+
+    eTextureColorSpace getCurrColorSpace() { return mTexColorSpace; }
+
 protected:
 	const S32			mIndex;
 	U32					mCurrTexture;
@@ -208,6 +219,7 @@ protected:
 	eTextureBlendOp		mCurrAlphaOp;
 	eTextureBlendSrc	mCurrAlphaSrc1;
 	eTextureBlendSrc	mCurrAlphaSrc2;
+    eTextureColorSpace  mTexColorSpace;
 	S32					mCurrColorScale;
 	S32					mCurrAlphaScale;
 	bool				mHasMipMaps;
@@ -228,6 +240,7 @@ public:
 	void enable();
 	void disable();
 	void setDiffuse(const LLColor4& diffuse);
+    void setDiffuseB(const LLColor4& diffuse);
 	void setAmbient(const LLColor4& ambient);
 	void setSpecular(const LLColor4& specular);
 	void setPosition(const LLVector4& position);
@@ -237,6 +250,7 @@ public:
 	void setSpotExponent(const F32& exponent);
 	void setSpotCutoff(const F32& cutoff);
 	void setSpotDirection(const LLVector3& direction);
+    void setSunPrimary(bool v);
 
 protected:
 	friend class LLRender;
@@ -244,6 +258,8 @@ protected:
 	S32 mIndex;
 	bool mEnabled;
 	LLColor4 mDiffuse;
+    LLColor4 mDiffuseB;
+    bool     mSunIsPrimary;
 	LLColor4 mAmbient;
 	LLColor4 mSpecular;
 	LLVector4 mPosition;
@@ -264,10 +280,11 @@ public:
 
 	enum eTexIndex
 	{
-		DIFFUSE_MAP = 0,
-		NORMAL_MAP,
-		SPECULAR_MAP,
-		NUM_TEXTURE_CHANNELS,
+		DIFFUSE_MAP           = 0,
+        ALTERNATE_DIFFUSE_MAP = 1,
+		NORMAL_MAP            = 1,
+		SPECULAR_MAP          = 2,        
+		NUM_TEXTURE_CHANNELS  = 3,
 	};
 
 	enum eVolumeTexIndex
@@ -360,8 +377,8 @@ public:
 	void loadMatrix(const GLfloat* m);
 	void loadIdentity();
 	void multMatrix(const GLfloat* m);
-	void matrixMode(U32 mode);	
-	U32 getMatrixMode();
+	void matrixMode(eMatrixMode mode);	
+	eMatrixMode getMatrixMode();
 
 	const glh::matrix4f& getModelviewMatrix();
 	const glh::matrix4f& getProjectionMatrix();
@@ -450,7 +467,7 @@ public:
 private:
 	friend class LLLightState;
 
-	U32 mMatrixMode;
+	eMatrixMode mMatrixMode;
 	U32 mMatIdx[NUM_MATRIX_MODES];
 	U32 mMatHash[NUM_MATRIX_MODES];
 	glh::matrix4f mMatrix[NUM_MATRIX_MODES][LL_MATRIX_STACK_DEPTH];
@@ -494,5 +511,34 @@ extern F32 gGLProjection[16];
 extern S32 gGLViewport[4];
 
 extern LLRender gGL;
+
+// This rotation matrix moves the default OpenGL reference frame 
+// (-Z at, Y up) to Cory's favorite reference frame (X at, Z up)
+const F32 OGL_TO_CFR_ROTATION[16] = {  0.f,  0.f, -1.f,  0.f, 	// -Z becomes X
+									  -1.f,  0.f,  0.f,  0.f, 	// -X becomes Y
+									   0.f,  1.f,  0.f,  0.f,	//  Y becomes Z
+									   0.f,  0.f,  0.f,  1.f };
+
+glh::matrix4f copy_matrix(F32* src);
+glh::matrix4f get_current_modelview();
+glh::matrix4f get_current_projection();
+glh::matrix4f get_last_modelview();
+glh::matrix4f get_last_projection();
+
+void copy_matrix(const glh::matrix4f& src, F32* dst);
+void set_current_modelview(const glh::matrix4f& mat);
+void set_current_projection(glh::matrix4f& mat);
+
+glh::matrix4f gl_ortho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat znear, GLfloat zfar);
+glh::matrix4f gl_perspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar);
+glh::matrix4f gl_lookat(LLVector3 eye, LLVector3 center, LLVector3 up);
+
+#if LL_RELEASE_FOR_DOWNLOAD
+    #define LL_SHADER_LOADING_WARNS(...) LL_WARNS_ONCE("ShaderLoading")
+    #define LL_SHADER_UNIFORM_ERRS(...)  LL_WARNS_ONCE("Shader")
+#else
+    #define LL_SHADER_LOADING_WARNS(...) LL_WARNS()
+    #define LL_SHADER_UNIFORM_ERRS(...)  LL_ERRS("Shader")    
+#endif
 
 #endif

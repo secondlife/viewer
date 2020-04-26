@@ -53,6 +53,7 @@ LLInventoryFilter::FilterOps::FilterOps(const Params& p)
 :	mFilterObjectTypes(p.object_types),
 	mFilterCategoryTypes(p.category_types),
 	mFilterWearableTypes(p.wearable_types),
+    mFilterSettingsTypes(p.settings_types),
 	mMinDate(p.date_range.min_date),
 	mMaxDate(p.date_range.max_date),
 	mHoursAgo(p.hours_ago),
@@ -357,7 +358,21 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
 	if (filterTypes & FILTERTYPE_WEARABLE)
 	{
 		LLWearableType::EType type = listener->getWearableType();
-		if ((0x1LL << type & mFilterOps.mFilterWearableTypes) == 0)
+        if ((object_type == LLInventoryType::IT_WEARABLE) &&
+                (((0x1LL << type) & mFilterOps.mFilterWearableTypes) == 0))
+		{
+			return FALSE;
+		}
+	}
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // FILTERTYPE_SETTINGS
+    // Pass if this item is a setting of the appropriate type
+    if (filterTypes & FILTERTYPE_SETTINGS)
+    {
+        LLSettingsType::type_e type = listener->getSettingsType();
+        if ((object_type == LLInventoryType::IT_SETTINGS) &&
+            (((0x1LL << type) & mFilterOps.mFilterSettingsTypes) == 0))
 		{
 			return FALSE;
 		}
@@ -656,6 +671,12 @@ void LLInventoryFilter::setFilterWearableTypes(U64 types)
 {
 	updateFilterTypes(types, mFilterOps.mFilterWearableTypes);
 	mFilterOps.mFilterTypes |= FILTERTYPE_WEARABLE;
+}
+
+void LLInventoryFilter::setFilterSettingsTypes(U64 types)
+{
+    updateFilterTypes(types, mFilterOps.mFilterSettingsTypes);
+    mFilterOps.mFilterTypes |= FILTERTYPE_SETTINGS;
 }
 
 void LLInventoryFilter::setFilterEmptySystemFolders()
@@ -1309,6 +1330,11 @@ U64 LLInventoryFilter::getFilterCategoryTypes() const
 U64 LLInventoryFilter::getFilterWearableTypes() const
 {
 	return mFilterOps.mFilterWearableTypes;
+}
+
+U64 LLInventoryFilter::getFilterSettingsTypes() const
+{
+    return mFilterOps.mFilterSettingsTypes;
 }
 
 bool LLInventoryFilter::hasFilterString() const

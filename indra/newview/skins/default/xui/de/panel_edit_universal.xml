@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_universal_panel">
+	<scroll_container name="avatar_universal_scroll">
+		<panel name="avatar_universal_color_panel">
+			<texture_picker label="Kopf-Tattoo" name="Head Universal Tattoo" tool_tip="Klicken, um ein Bild auszuwählen"/>
+			<texture_picker label="Oberes Tattoo" name="Upper Universal Tattoo" tool_tip="Klicken, um ein Bild auszuwählen"/>
+			<texture_picker label="Unteres Tattoo" name="Lower Universal Tattoo" tool_tip="Klicken, um ein Bild auszuwählen"/>
+			<texture_picker label="Rock-Tattoo" name="Skirt Tattoo" tool_tip="Klicken, um ein Bild auszuwählen"/>
+			<texture_picker label="Haar-Tattoo" name="Hair Tattoo" tool_tip="Klicken, um ein Bild auszuwählen"/>
+			<texture_picker label="Augen-Tattoo" name="Eyes Tattoo" tool_tip="Klicken, um ein Bild auszuwählen"/>
+			<texture_picker label="Tattoo linker Arm" name="Left Arm Tattoo" tool_tip="Klicken, um ein Bild auszuwählen"/>
+			<texture_picker label="Tattoo linkes Bein" name="Left Leg Tattoo" tool_tip="Klicken, um ein Bild auszuwählen"/>
+			<texture_picker label="Aux1-Tattoo" name="Aux1 Tattoo" tool_tip="Klicken, um ein Bild auszuwählen"/>
+			<texture_picker label="Aux2-Tattoo" name="Aux2 Tattoo" tool_tip="Klicken, um ein Bild auszuwählen"/>
+			<texture_picker label="Aux3-Tattoo" name="Aux3 Tattoo" tool_tip="Klicken, um ein Bild auszuwählen"/>
+			<color_swatch label="Farbe/Ton" name="Color/Tint" tool_tip="Klicken Sie hier, um die Farbauswahl zu öffnen"/>
+		</panel>
+	</scroll_container>
+</panel>

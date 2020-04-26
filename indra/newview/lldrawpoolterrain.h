@@ -78,6 +78,8 @@ public:
 	static F32 sDetailScale; // meters per texture
 
 protected:
+    void boostTerrainDetailTextures();
+
 	void renderSimple();
 	void renderOwnership();
 

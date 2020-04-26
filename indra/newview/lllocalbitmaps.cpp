@@ -1038,17 +1038,16 @@ LLUUID LLLocalBitmapMgr::getWorldID(LLUUID tracking_id)
 	return world_id;
 }
 
-bool LLLocalBitmapMgr::isLocalBitmap(LLUUID texture_id)
+bool LLLocalBitmapMgr::isLocal(const LLUUID world_id)
 {
     for (local_list_iter iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
     {
         LLLocalBitmap* unit = *iter;
-        if (unit->getWorldID() == texture_id)
+        if (unit->getWorldID() == world_id)
         {
             return true;
         }
     }
-
     return false;
 }
 

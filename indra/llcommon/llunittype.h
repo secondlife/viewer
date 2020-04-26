@@ -132,22 +132,33 @@ struct LLUnit
 		return mValue;
 	}
 
-	LL_FORCE_INLINE void value(storage_t value)
+	LL_FORCE_INLINE void value(const storage_t& value)
 	{
 		mValue = value;
 	}
 
 	template<typename NEW_UNITS> 
-	storage_t valueInUnits()
+	storage_t valueInUnits() const
 	{
 		return LLUnit<storage_t, NEW_UNITS>(*this).value();
 	}
 
 	template<typename NEW_UNITS> 
-	void valueInUnits(storage_t value)
+	void valueInUnits(const storage_t& value) const
 	{
 		*this = LLUnit<storage_t, NEW_UNITS>(value);
 	}
+
+    LL_FORCE_INLINE operator storage_t() const
+    {
+        return value();
+    }
+
+    /*LL_FORCE_INLINE self_t& operator= (storage_t v)
+	{
+		value(v);
+        return *this;
+	}*/
 
 	LL_FORCE_INLINE void operator += (self_t other)
 	{
@@ -159,60 +170,60 @@ struct LLUnit
 		mValue -= convert(other).mValue;
 	}
 
-	LL_FORCE_INLINE void operator *= (storage_t multiplicand)
+	LL_FORCE_INLINE void operator *= (const storage_t& multiplicand)
 	{
 		mValue *= multiplicand;
 	}
 
-	LL_FORCE_INLINE void operator *= (self_t multiplicand)
+	LL_FORCE_INLINE void operator *= (const self_t& multiplicand)
 	{
 		// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
 		LL_BAD_TEMPLATE_INSTANTIATION(STORAGE_TYPE, "Multiplication of unit types not supported.");
 	}
 
-	LL_FORCE_INLINE void operator /= (storage_t divisor)
+	LL_FORCE_INLINE void operator /= (const storage_t& divisor)
 	{
 		mValue /= divisor;
 	}
 
-	void operator /= (self_t divisor)
+	void operator /= (const self_t& divisor)
 	{
 		// spurious use of dependent type to stop gcc from triggering the static assertion before instantiating the template
 		LL_BAD_TEMPLATE_INSTANTIATION(STORAGE_TYPE, "Illegal in-place division of unit types.");
 	}
 
 	template<typename OTHER_STORAGE_TYPE, typename OTHER_UNITS>
-	LL_FORCE_INLINE bool operator == (LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS> other) const
+	LL_FORCE_INLINE bool operator == (const LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS>& other) const
 	{
 		return mValue == convert(other).value();
 	}
 
 	template<typename OTHER_STORAGE_TYPE, typename OTHER_UNITS>
-	LL_FORCE_INLINE bool operator != (LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS> other) const
+	LL_FORCE_INLINE bool operator != (const LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS>& other) const
 	{
 		return mValue != convert(other).value();
 	}
 
 	template<typename OTHER_STORAGE_TYPE, typename OTHER_UNITS>
-	LL_FORCE_INLINE bool operator < (LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS> other) const
+	LL_FORCE_INLINE bool operator < (const LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS>& other) const
 	{
 		return mValue < convert(other).value();
 	}
 
 	template<typename OTHER_STORAGE_TYPE, typename OTHER_UNITS>
-	LL_FORCE_INLINE bool operator <= (LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS> other) const
+	LL_FORCE_INLINE bool operator <= (const LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS>& other) const
 	{
 		return mValue <= convert(other).value();
 	}
 
 	template<typename OTHER_STORAGE_TYPE, typename OTHER_UNITS>
-	LL_FORCE_INLINE bool operator > (LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS> other) const
+	LL_FORCE_INLINE bool operator > (const LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS>& other) const
 	{
 		return mValue > convert(other).value();
 	}
 
 	template<typename OTHER_STORAGE_TYPE, typename OTHER_UNITS>
-	LL_FORCE_INLINE bool operator >= (LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS> other) const
+	LL_FORCE_INLINE bool operator >= (const LLUnit<OTHER_STORAGE_TYPE, OTHER_UNITS>& other) const
 	{
 		return mValue >= convert(other).value();
 	}

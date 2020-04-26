@@ -156,7 +156,20 @@
      name="icon_texture"
      tool_tip="Textures"
      left_pad="2" />
-
+  <check_box
+    control_name="BulkChangeIncludeSettings"
+    height="16"
+    name="check_settings"
+    left="245"
+    top="25"
+    width="16" />
+  <icon
+    height="16"
+    image_name="Inv_Settings"
+    mouse_opaque="true"
+    name="icon_setting"
+    tool_tip="Environment settings"
+    left_pad="2" />
     <button
       height="23"
     layout="topleft"

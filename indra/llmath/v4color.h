@@ -114,9 +114,11 @@ class LLColor4
 		friend LLColor4 operator-(const LLColor4 &a, const LLColor4 &b);	// Return vector a minus b
 		friend LLColor4 operator*(const LLColor4 &a, const LLColor4 &b);	// Return component wise a * b
 		friend LLColor4 operator*(const LLColor4 &a, F32 k);				// Return rgb times scaler k (no alpha change)
+        friend LLColor4 operator/(const LLColor4 &a, F32 k);                // Return rgb divided by scalar k (no alpha change)
 		friend LLColor4 operator*(F32 k, const LLColor4 &a);				// Return rgb times scaler k (no alpha change)
 		friend LLColor4 operator%(const LLColor4 &a, F32 k);				// Return alpha times scaler k (no rgb change)
 		friend LLColor4 operator%(F32 k, const LLColor4 &a);				// Return alpha times scaler k (no rgb change)
+
 		friend bool operator==(const LLColor4 &a, const LLColor4 &b);		// Return a == b
 		friend bool operator!=(const LLColor4 &a, const LLColor4 &b);		// Return a != b
 		
@@ -477,6 +479,15 @@ inline LLColor4 operator*(const LLColor4 &a, F32 k)
 		a.mV[VW]);
 }
 
+inline LLColor4 operator/(const LLColor4 &a, F32 k)
+{
+    return LLColor4(
+        a.mV[VX] / k,
+        a.mV[VY] / k,
+        a.mV[VZ] / k,
+        a.mV[VW]);
+}
+
 inline LLColor4 operator*(F32 k, const LLColor4 &a)
 {
 	// only affects rgb (not a!)
@@ -643,6 +654,30 @@ void LLColor4::clamp()
 	{
 		mV[3] = 1.f;
 	}
+}
+
+// Return the given linear space color value in gamma corrected (sRGB) space
+inline const LLColor4 srgbColor4(const LLColor4 &a) {
+    LLColor4 srgbColor;
+
+    srgbColor.mV[0] = linearTosRGB(a.mV[0]);
+    srgbColor.mV[1] = linearTosRGB(a.mV[1]);
+    srgbColor.mV[2] = linearTosRGB(a.mV[2]);
+    srgbColor.mV[3] = a.mV[3];
+
+    return srgbColor;
+}
+
+// Return the given gamma corrected (sRGB) color in linear space
+inline const LLColor4 linearColor4(const LLColor4 &a)
+{
+    LLColor4 linearColor;
+    linearColor.mV[0] = sRGBtoLinear(a.mV[0]);
+    linearColor.mV[1] = sRGBtoLinear(a.mV[1]);
+    linearColor.mV[2] = sRGBtoLinear(a.mV[2]);
+    linearColor.mV[3] = a.mV[3];
+
+    return linearColor;
 }
 
 #endif
