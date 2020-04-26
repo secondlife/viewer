@@ -1,5 +1,5 @@
 /** 
- * @file lightFullbrightShinyF.glsl
+ * @file class1\lighting\lightFullbrightShinyF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -44,7 +44,7 @@ void fullbright_shiny_lighting()
 	color.rgb *= vertex_color.rgb;
 	
 	vec3 envColor = textureCube(environmentMap, vary_texcoord1.xyz).rgb;	
-	color.rgb = mix(color.rgb, envColor.rgb, vertex_color.a);
+	color.rgb = mix(color.rgb, envColor.rgb, vertex_color.a*0.75); // MAGIC NUMBER SL-12574; ALM: Off, Quality > Low
 
 	color.rgb = fullbrightShinyAtmosTransport(color.rgb);
 

@@ -21,6 +21,7 @@
 	<icon name="icon_script" tool_tip="Komut Dosyaları"/>
 	<icon name="icon_sound" tool_tip="Sesler"/>
 	<icon name="icon_texture" tool_tip="Dokular"/>
+	<icon name="icon_setting" tool_tip="Ortam ayarları"/>
 	<button label="√ Tümü" name="check_all"/>
 	<button label="Temizle" label_selected="Hiçbiri" name="check_none"/>
 	<text name="newperms">

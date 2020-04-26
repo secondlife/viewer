@@ -111,9 +111,11 @@ LLXmlTreeNode::~LLXmlTreeNode()
 	attribute_map_t::iterator iter;
 	for (iter=mAttributes.begin(); iter != mAttributes.end(); iter++)
 		delete iter->second;
-	child_list_t::iterator child_iter;
-	for (child_iter=mChildList.begin(); child_iter != mChildList.end(); child_iter++)
-		delete *child_iter;
+        for(LLXmlTreeNode* node : mChildren)
+        {
+            delete node;
+        }
+        mChildren.clear();
 }
  
 void LLXmlTreeNode::dump( const std::string& prefix )
@@ -149,15 +151,15 @@ void LLXmlTreeNode::addAttribute(const std::string& name, const std::string& val
 
 LLXmlTreeNode*	LLXmlTreeNode::getFirstChild()
 {
-	mChildListIter = mChildList.begin();
+	mChildrenIter = mChildren.begin();
 	return getNextChild();
 }
 LLXmlTreeNode*	LLXmlTreeNode::getNextChild()
 {
-	if (mChildListIter == mChildList.end())
+	if (mChildrenIter == mChildren.end())
 		return 0;
 	else
-		return *mChildListIter++;
+		return *mChildrenIter++;
 }
 
 LLXmlTreeNode* LLXmlTreeNode::getChildByName(const std::string& name)
@@ -184,7 +186,7 @@ void LLXmlTreeNode::appendContents(const std::string& str)
 void LLXmlTreeNode::addChild(LLXmlTreeNode* child)
 {
 	llassert( child );
-	mChildList.push_back( child );
+	mChildren.push_back( child );
 
 	// Add a name mapping to this node
 	LLStdStringHandle tableptr = mTree->mNodeNames.insert(child->mName);

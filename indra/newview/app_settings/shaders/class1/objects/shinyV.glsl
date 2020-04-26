@@ -39,7 +39,7 @@ VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_texcoord1;
 
-vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
+vec4 calcLighting(vec3 pos, vec3 norm, vec4 color);
 
 void calcAtmospherics(vec3 inPositionEye);
 
@@ -61,5 +61,5 @@ void main()
 
 	calcAtmospherics(pos.xyz);
 
-	vertex_color = calcLighting(pos.xyz, norm, diffuse_color, vec4(0.0));	
+	vertex_color = calcLighting(pos.xyz, norm, diffuse_color);	
 }

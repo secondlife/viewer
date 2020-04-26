@@ -3747,6 +3747,7 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 {
 	LLVector3 sun_direction;
+    LLVector3 moon_direction;
 	LLVector3 sun_ang_velocity;
 	F32 phase;
 	U64	space_time_usec;
@@ -3768,12 +3769,10 @@ void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 
 	LL_DEBUGS("WindlightSync") << "Sun phase: " << phase << " rad = " << fmodf(phase / F_TWO_PI + 0.25, 1.f) * 24.f << " h" << LL_ENDL;
 
-	gSky.setSunPhase(phase);
-	gSky.setSunTargetDirection(sun_direction, sun_ang_velocity);
-	if ( !(gSavedSettings.getBOOL("SkyOverrideSimSunPosition") || gSky.getOverrideSun()) )
-	{
-		gSky.setSunDirection(sun_direction, sun_ang_velocity);
-	}
+	/* LAPRAS
+        We decode these parts of the message but ignore them
+        as the real values are provided elsewhere. */
+    (void)sun_direction, (void)moon_direction, (void)phase;
 }
 
 void process_sound_trigger(LLMessageSystem *msg, void **)

@@ -30,6 +30,7 @@
 #include "llbutton.h"
 #include "llcoord.h"
 #include "llviewertexture.h"
+#include "llquaternion.h"
 
 typedef enum e_joystick_quadrant
 {
@@ -183,6 +184,49 @@ public:
 	LLJoystickCameraTrack(const LLJoystickCameraTrack::Params&);
 	virtual void	onHeldDown();
 	virtual void	resetJoystickCamera();
+};
+
+// 
+class LLJoystickQuaternion :
+    public LLJoystick
+{
+public:
+    struct Params :
+        public LLInitParam::Block<Params, LLJoystick::Params>
+    {
+        Params();
+    };
+
+    LLJoystickQuaternion(const LLJoystickQuaternion::Params &);
+
+    virtual void	setToggleState(BOOL left, BOOL top, BOOL right, BOOL bottom);
+
+    virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual void	onHeldDown();
+    virtual void	draw();
+
+    void            setRotation(const LLQuaternion &value);
+    LLQuaternion    getRotation() const;
+
+protected:
+    F32				getOrbitRate();
+    virtual void	updateSlop();
+    void			drawRotatedImage(LLPointer<LLUIImage> image, S32 rotations);
+
+    BOOL			mInLeft;
+    BOOL			mInTop;
+    BOOL			mInRight;
+    BOOL			mInBottom;
+
+    S32             mXAxisIndex;
+    S32             mYAxisIndex;
+    S32             mZAxisIndex;
+
+    LLVector3       mVectorZero;
+    LLQuaternion    mRotation;
+    LLVector3       mUpDnAxis;
+    LLVector3       mLfRtAxis;
 };
 
 #endif  // LL_LLJOYSTICKBUTTON_H

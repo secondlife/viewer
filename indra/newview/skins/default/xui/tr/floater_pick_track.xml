@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="track picker" title="SEÇİM: ROTA">
+	<layout_stack name="adjuster">
+		<layout_panel name="pnl_desc">
+			<text name="select_description">
+				Kaynak gökyüzünü seç
+			</text>
+		</layout_panel>
+		<layout_panel name="pnl_traks">
+			<radio_group name="track_selection">
+				<radio_item label="Gökyüzü 4 [ALT]" name="radio_sky4" value="4"/>
+				<radio_item label="Gökyüzü 3 [ALT]" name="radio_sky3" value="3"/>
+				<radio_item label="Gökyüzü 2 [ALT]" name="radio_sky2" value="2"/>
+				<radio_item label="Zemin" name="radio_sky1" value="1"/>
+			</radio_group>
+		</layout_panel>
+		<layout_panel name="pnl_ok_cancel">
+			<button label="Tamam" label_selected="Tamam" name="btn_select"/>
+			<button label="İptal Et" label_selected="İptal Et" name="btn_cancel"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

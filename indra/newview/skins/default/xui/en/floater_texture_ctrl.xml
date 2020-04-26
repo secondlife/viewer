@@ -93,11 +93,22 @@
      height="14"
      layout="topleft"
      left_delta="12"
+     name="size_lbl"
+     top_pad="4">
+        Size:
+    </text>
+
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="14"
+     layout="topleft"
+     left_delta="0"
      name="unknown"
      top_pad="4">
-        Size: [DIMENSIONS]
+        [DIMENSIONS]
     </text>
-    
 <!--  middle: inventory mode -->
 
     <button
@@ -139,19 +150,20 @@
      image_unselected="eye_button_inactive.tga"
      layout="topleft"
      left_delta="-80"
-     top_delta="-25"
+     top_delta="-10"
      name="Pipette"
      width="28" />
    <text
      follows="left|bottom"
-     height="20"
+     height="40"
      layout="topleft"
      left="8"
      name="preview_disabled"
-     top="266"
+     top="285"
      value="Preview Disabled"
+     word_wrap="true"
      visible="false"
-     width="120" />
+     width="87" />
     <filter_editor
      follows="left|top|right"
      height="23"
@@ -161,7 +173,7 @@
      name="inventory search editor"
      top="20"
      width="231" />
-    <inventory_panel
+    <asset_filtered_inv_panel
      allow_multi_select="false"
      bg_visible="true"
      bg_alpha_color="DkGray2"
@@ -172,7 +184,8 @@
      left_delta="0"
      name="inventory panel"
      top_pad="4"
-     width="231" />
+     width="231"
+     filter_asset_type="texture"/>
      <check_box
      height="14"
      initial_value="false"
@@ -301,7 +314,8 @@
      height="20"
      initial_value="false"
      label="Hide Base Mesh Region"
-     layout="topleft"
+     
+layout="topleft"
      name="hide_base_mesh_region"
      left_delta="0"
      top_pad="10"

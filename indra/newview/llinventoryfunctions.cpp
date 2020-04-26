@@ -2395,10 +2395,29 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 
 	if (("task_open" == action  || "open" == action) && selected_items.size() > 1)
 	{
-		multi_previewp = new LLMultiPreview();
-		gFloaterView->addChild(multi_previewp);
+		bool open_multi_preview = true;
 
-		LLFloater::setFloaterHost(multi_previewp);
+		for (std::set<LLFolderViewItem*>::iterator set_iter = selected_items.begin(); set_iter != selected_items.end(); ++set_iter)
+		{
+			LLFolderViewItem* folder_item = *set_iter;
+			if (folder_item)
+			{
+				LLInvFVBridge* bridge = dynamic_cast<LLInvFVBridge*>(folder_item->getViewModelItem());
+				if (!bridge || !bridge->isMultiPreviewAllowed())
+				{
+					open_multi_preview = false;
+					break;
+				}
+			}
+		}
+
+		if (open_multi_preview)
+		{
+			multi_previewp = new LLMultiPreview();
+			gFloaterView->addChild(multi_previewp);
+
+			LLFloater::setFloaterHost(multi_previewp);
+		}
 
 	}
 	else if (("task_properties" == action || "properties" == action) && selected_items.size() > 1)

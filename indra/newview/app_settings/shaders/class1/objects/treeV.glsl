@@ -31,8 +31,9 @@ uniform mat4 modelview_projection_matrix;
 ATTRIBUTE vec3 position;
 ATTRIBUTE vec2 texcoord0;
 ATTRIBUTE vec3 normal;
+ATTRIBUTE vec4 diffuse_color;
 
-vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
+vec4 calcLighting(vec3 pos, vec3 norm, vec4 color);
 void calcAtmospherics(vec3 inPositionEye);
 
 VARYING vec4 vertex_color;
@@ -53,8 +54,6 @@ void main()
 
 	calcAtmospherics(pos.xyz);
 
-	vec4 color = calcLighting(pos.xyz, norm, vec4(1,1,1,1), vec4(0.));
+	vec4 color = calcLighting(pos.xyz, norm, diffuse_color);
 	vertex_color = color;
-
-	
 }

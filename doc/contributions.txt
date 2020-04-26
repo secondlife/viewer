@@ -485,6 +485,16 @@ Geenz Spad
 	STORM-1900
 	STORM-1905
 	NORSPEC-229
+	BUG-226611
+	BUG-226617
+	BUG-226618
+	BUG-226646
+	BUG-226647
+	BUG-226648
+	OPEN-339
+	BUG-226620
+	OPEN-340
+	OPEN-343
 Gene Frostbite
 GeneJ Composer
 Geneko Nemeth
@@ -1074,6 +1084,7 @@ Nicky Dasmijn
 	SL-10291
 	SL-10293
 	SL-11061
+    SL-11072
 Nicky Perian
 	OPEN-1
 	STORM-1087
@@ -1325,6 +1336,7 @@ Sovereign Engineer
     STORM-2148
     MAINT-7343
     SL-11079
+    OPEN-343
 SpacedOut Frye
 	VWR-34
 	VWR-45
