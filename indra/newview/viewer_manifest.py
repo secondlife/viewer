@@ -796,7 +796,7 @@ class WindowsManifest(ViewerManifest):
         for exe in (
             self.final_exe(),
             "SLVersionChecker.exe",
-            #"dullahan_host.exe",
+            "llplugin/dullahan_host.exe",
             ):
             self.sign(exe)
             
@@ -830,7 +830,7 @@ class WindowsManifest(ViewerManifest):
 
     def sign(self, exe):
         sign_py = os.environ.get('SIGN', r'C:\buildscripts\code-signing\sign.py')
-        python  = os.environ.get('PYTHON', 'python')
+        python  = os.environ.get('PYTHON', sys.executable)
         if os.path.exists(sign_py):
             dst_path = self.dst_path_of(exe)
             print "about to run signing of: ", dst_path
