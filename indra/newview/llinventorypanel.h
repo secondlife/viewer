@@ -325,8 +325,15 @@ protected:
 	static LLUIColor			sLibraryColor;
 	static LLUIColor			sLinkColor;
 	
-	virtual LLFolderViewItem*	buildNewViews(const LLUUID& id);
-	LLFolderViewItem*			buildNewViews(const LLUUID& id, LLInventoryObject const* objectp);
+	LLFolderViewItem*			buildNewViews(const LLUUID& id);
+    LLFolderViewItem*			buildNewViews(const LLUUID& id,
+                                              LLInventoryObject const* objectp);
+    LLFolderViewItem*			buildNewViews(const LLUUID& id,
+                                              LLInventoryObject const* objectp,
+                                              LLFolderViewItem *target_view);
+    // if certain types are not allowed, no reason to create views
+    virtual bool				typedViewsFilter(const LLUUID& id, LLInventoryObject const* objectp) { return true; }
+
 	virtual void				itemChanged(const LLUUID& item_id, U32 mask, const LLInventoryObject* model_item);
 	BOOL				getIsHiddenFolderType(LLFolderType::EType folder_type) const;
 	
@@ -334,6 +341,14 @@ protected:
 	virtual LLFolderViewFolder*	createFolderViewFolder(LLInvFVBridge * bridge, bool allow_drop);
 	virtual LLFolderViewItem*	createFolderViewItem(LLInvFVBridge * bridge);
 private:
+    // buildViewsTree does not include some checks and is meant
+    // for recursive use, use buildNewViews() for first call
+    LLFolderViewItem*			buildViewsTree(const LLUUID& id,
+                                              const LLUUID& parent_id,
+                                              LLInventoryObject const* objectp,
+                                              LLFolderViewItem *target_view,
+                                              LLFolderViewFolder *parent_folder_view);
+
 	bool				mBuildDefaultHierarchy; // default inventory hierarchy should be created in postBuild()
 	bool				mViewsInitialized; // Views have been generated
 };
