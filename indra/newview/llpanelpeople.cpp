@@ -47,6 +47,7 @@
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llavataractions.h"
 #include "llavatarlist.h"
 #include "llavatarlistitem.h"
@@ -84,11 +85,6 @@ static const std::string GROUP_TAB_NAME		= "groups_panel";
 static const std::string RECENT_TAB_NAME	= "recent_panel";
 static const std::string BLOCKED_TAB_NAME	= "blocked_panel"; // blocked avatars
 static const std::string COLLAPSED_BY_USER  = "collapsed_by_user";
-
-const S32 BASE_MAX_AGENT_GROUPS = 42;
-const S32 PREMIUM_MAX_AGENT_GROUPS = 60;
-
-extern S32 gMaxAgentGroups;
 
 /** Comparator for comparing avatar items by last interaction date */
 class LLAvatarItemRecentComparator : public LLAvatarItemComparator
@@ -612,26 +608,17 @@ void LLPanelPeople::removePicker()
 
 BOOL LLPanelPeople::postBuild()
 {
-	S32 max_premium = PREMIUM_MAX_AGENT_GROUPS; 
-	if (gAgent.getRegion())
-	{
-		LLSD features;
-		gAgent.getRegion()->getSimulatorFeatures(features);
-		if (features.has("MaxAgentGroupsPremium"))
-		{
-			max_premium = features["MaxAgentGroupsPremium"].asInteger();
-		}
-	}
+	S32 max_premium = LLAgentBenefitsMgr::get("Premium").getGroupMembershipLimit();
 
 	getChild<LLFilterEditor>("nearby_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
 	getChild<LLFilterEditor>("friends_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
 	getChild<LLFilterEditor>("groups_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
 	getChild<LLFilterEditor>("recent_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
 
-	if(gMaxAgentGroups < max_premium)
+	if(LLAgentBenefitsMgr::current().getGroupMembershipLimit() < max_premium)
 	{
-	    getChild<LLTextBox>("groupcount")->setText(getString("GroupCountWithInfo"));
-	    getChild<LLTextBox>("groupcount")->setURLClickedCallback(boost::bind(&LLPanelPeople::onGroupLimitInfo, this));
+		getChild<LLTextBox>("groupcount")->setText(getString("GroupCountWithInfo"));
+		getChild<LLTextBox>("groupcount")->setURLClickedCallback(boost::bind(&LLPanelPeople::onGroupLimitInfo, this));
 	}
 
 	mTabContainer = getChild<LLTabContainer>("tabs");
@@ -876,9 +863,10 @@ void LLPanelPeople::updateButtons()
 		groups_panel->getChildView("minus_btn")->setEnabled(item_selected && selected_id.notNull()); // a real group selected
 
 		U32 groups_count = gAgent.mGroups.size();
-		U32 groups_ramaining = gMaxAgentGroups > groups_count ? gMaxAgentGroups - groups_count : 0;
+		S32 max_groups = LLAgentBenefitsMgr::current().getGroupMembershipLimit();
+		U32 groups_remaining = max_groups > groups_count ? max_groups - groups_count : 0;
 		groups_panel->getChild<LLUICtrl>("groupcount")->setTextArg("[COUNT]", llformat("%d", groups_count));
-		groups_panel->getChild<LLUICtrl>("groupcount")->setTextArg("[REMAINING]", llformat("%d", groups_ramaining));
+		groups_panel->getChild<LLUICtrl>("groupcount")->setTextArg("[REMAINING]", llformat("%d", groups_remaining));
 	}
 	else
 	{
@@ -1095,25 +1083,22 @@ void LLPanelPeople::onGroupLimitInfo()
 {
 	LLSD args;
 
-	S32 max_basic = BASE_MAX_AGENT_GROUPS;
-	S32 max_premium = PREMIUM_MAX_AGENT_GROUPS;
-	if (gAgent.getRegion())
-	{
-		LLSD features;
-		gAgent.getRegion()->getSimulatorFeatures(features);
-		if (features.has("MaxAgentGroupsBasic"))
-		{
-			max_basic = features["MaxAgentGroupsBasic"].asInteger();
-		}
-		if (features.has("MaxAgentGroupsPremium"))
-		{
-			max_premium = features["MaxAgentGroupsPremium"].asInteger();
-		}
-	}
-	args["MAX_BASIC"] = max_basic; 
-	args["MAX_PREMIUM"] = max_premium; 
+	S32 max_basic = LLAgentBenefitsMgr::get("Base").getGroupMembershipLimit();
+	S32 max_premium = LLAgentBenefitsMgr::get("Premium").getGroupMembershipLimit();
+	
+	args["MAX_BASIC"] = max_basic;
+	args["MAX_PREMIUM"] = max_premium;
 
-	LLNotificationsUtil::add("GroupLimitInfo", args);
+	if (LLAgentBenefitsMgr::has("Premium Plus"))
+	{
+		S32 max_premium_plus = LLAgentBenefitsMgr::get("Premium Plus").getGroupMembershipLimit();
+		args["MAX_PREMIUM_PLUS"] = max_premium_plus;
+		LLNotificationsUtil::add("GroupLimitInfoPlus", args);
+	}
+	else
+	{
+		LLNotificationsUtil::add("GroupLimitInfo", args);
+	}	
 }
 
 void LLPanelPeople::onTabSelected(const LLSD& param)

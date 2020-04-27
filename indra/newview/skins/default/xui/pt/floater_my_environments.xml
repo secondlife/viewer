@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater label="Lugares" name="my_environments" title="MEUS AMBIENTES">
+	<layout_stack>
+		<layout_panel label="Filtros" name="filter_panel">
+			<check_box label="Dias" name="chk_days"/>
+			<check_box label="Céus" name="chk_skies"/>
+			<check_box label="Água" name="chk_water"/>
+			<filter_editor label="Filtrar Ambientes" name="flt_search"/>
+		</layout_panel>
+		<layout_panel label="Ambientes" name="list_panel">
+			<panel label="pnl_inv_wrap" name="pnl_inv_wrap"/>
+		</layout_panel>
+		<layout_panel>
+			<check_box initial_value="false" label="Exibir todas as pastas" name="chk_showfolders"/>
+		</layout_panel>
+		<layout_panel name="pnl_control">
+			<panel label="bottom_panel" name="pnl_bottom">
+				<menu_button name="btn_gear" tool_tip="Mais opções"/>
+				<menu_button name="btn_newsettings" tool_tip="Criar nova configuração"/>
+				<button name="btn_del" tool_tip="Remover item selecionado"/>
+			</panel>
+		</layout_panel>
+	</layout_stack>
+</floater>

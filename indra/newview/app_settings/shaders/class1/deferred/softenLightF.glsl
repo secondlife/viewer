@@ -1,5 +1,5 @@
 /** 
- * @file softenLightF.glsl
+ * @file class1/deferred/softenLightF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -36,442 +36,161 @@ out vec4 frag_color;
 
 uniform sampler2DRect diffuseRect;
 uniform sampler2DRect specularRect;
-uniform sampler2DRect positionMap;
 uniform sampler2DRect normalMap;
 uniform sampler2DRect lightMap;
 uniform sampler2DRect depthMap;
 uniform samplerCube environmentMap;
-uniform sampler2D	  lightFunc;
+uniform sampler2D     lightFunc;
 
 uniform float blur_size;
 uniform float blur_fidelity;
 
 // Inputs
-uniform vec4 morphFactor;
-uniform vec3 camPosLocal;
-//uniform vec4 camPosWorld;
-uniform vec4 gamma;
-uniform vec4 lightnorm;
-uniform vec4 sunlight_color;
-uniform vec4 ambient;
-uniform vec4 blue_horizon;
-uniform vec4 blue_density;
-uniform float haze_horizon;
-uniform float haze_density;
-uniform float cloud_shadow;
-uniform float density_multiplier;
-uniform float distance_multiplier;
-uniform float max_y;
-uniform vec4 glow;
-uniform float global_gamma;
-uniform float scene_light_strength;
 uniform mat3 env_mat;
-uniform mat3 ssao_effect_mat;
 
 uniform vec3 sun_dir;
+uniform vec3 moon_dir;
+uniform int sun_up_factor;
 VARYING vec2 vary_fragcoord;
-
-vec3 vary_PositionEye;
-
-vec3 vary_SunlitColor;
-vec3 vary_AmblitColor;
-vec3 vary_AdditiveColor;
-vec3 vary_AtmosAttenuation;
 
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
-vec3 srgb_to_linear(vec3 cs)
-{
-	vec3 low_range = cs / vec3(12.92);
-	vec3 high_range = pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
-	bvec3 lte = lessThanEqual(cs,vec3(0.04045));
+vec3 getNorm(vec2 pos_screen);
+vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 
-#ifdef OLD_SELECT
-	vec3 result;
-	result.r = lte.r ? low_range.r : high_range.r;
-	result.g = lte.g ? low_range.g : high_range.g;
-	result.b = lte.b ? low_range.b : high_range.b;
-    return result;
-#else
-	return mix(high_range, low_range, lte);
-#endif
+void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
+float getAmbientClamp();
+vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
+vec3 scaleSoftClipFrag(vec3 l);
+vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
+vec3 fullbrightScaleSoftClip(vec3 light);
 
-}
-
-vec3 linear_to_srgb(vec3 cl)
-{
-	vec3 low_range  = cl * 12.92;
-	vec3 high_range = 1.055 * pow(cl, vec3(0.41666)) - 0.055;
-	bvec3 lt = lessThan(cl,vec3(0.0031308));
-
-#ifdef OLD_SELECT
-	vec3 result;
-	result.r = lt.r ? low_range.r : high_range.r;
-	result.g = lt.g ? low_range.g : high_range.g;
-	result.b = lt.b ? low_range.b : high_range.b;
-    return result;
-#else
-	return mix(high_range, low_range, lt);
-#endif
-
-}
-
-
-vec3 decode_normal (vec2 enc)
-{
-    vec2 fenc = enc*4-2;
-    float f = dot(fenc,fenc);
-    float g = sqrt(1-f/4);
-    vec3 n;
-    n.xy = fenc*g;
-    n.z = 1-f/2;
-    return n;
-}
-
-vec4 getPosition_d(vec2 pos_screen, float depth)
-{
-	vec2 sc = pos_screen.xy*2.0;
-	sc /= screen_res;
-	sc -= vec2(1.0,1.0);
-	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
-	vec4 pos = inv_proj * ndc;
-	pos /= pos.w;
-	pos.w = 1.0;
-	return pos;
-}
-
-vec4 getPosition(vec2 pos_screen)
-{ //get position in screen space (world units) given window coordinate and depth map
-	float depth = texture2DRect(depthMap, pos_screen.xy).a;
-	return getPosition_d(pos_screen, depth);
-}
-
-vec3 getPositionEye()
-{
-	return vary_PositionEye;
-}
-vec3 getSunlitColor()
-{
-	return vary_SunlitColor;
-}
-vec3 getAmblitColor()
-{
-	return vary_AmblitColor;
-}
-vec3 getAdditiveColor()
-{
-	return vary_AdditiveColor;
-}
-vec3 getAtmosAttenuation()
-{
-	return vary_AtmosAttenuation;
-}
-
-void setPositionEye(vec3 v)
-{
-	vary_PositionEye = v;
-}
-
-void setSunlitColor(vec3 v)
-{
-	vary_SunlitColor = v;
-}
-
-void setAmblitColor(vec3 v)
-{
-	vary_AmblitColor = v;
-}
-
-void setAdditiveColor(vec3 v)
-{
-	vary_AdditiveColor = v;
-}
-
-void setAtmosAttenuation(vec3 v)
-{
-	vary_AtmosAttenuation = v;
-}
-
+vec3 linear_to_srgb(vec3 c);
+vec3 srgb_to_linear(vec3 c);
 
 #ifdef WATER_FOG
-uniform vec4 waterPlane;
-uniform vec4 waterFogColor;
-uniform float waterFogDensity;
-uniform float waterFogKS;
-
-vec4 applyWaterFogDeferred(vec3 pos, vec4 color)
-{
-	//normalize view vector
-	vec3 view = normalize(pos);
-	float es = -(dot(view, waterPlane.xyz));
-
-	//find intersection point with water plane and eye vector
-	
-	//get eye depth
-	float e0 = max(-waterPlane.w, 0.0);
-	
-	vec3 int_v = waterPlane.w > 0.0 ? view * waterPlane.w/es : vec3(0.0, 0.0, 0.0);
-	
-	//get object depth
-	float depth = length(pos - int_v);
-		
-	//get "thickness" of water
-	float l = max(depth, 0.1);
-
-	float kd = waterFogDensity;
-	float ks = waterFogKS;
-	vec4 kc = waterFogColor;
-	
-	float F = 0.98;
-	
-	float t1 = -kd * pow(F, ks * e0);
-	float t2 = kd + ks * es;
-	float t3 = pow(F, t2*l) - 1.0;
-	
-	float L = min(t1/t2*t3, 1.0);
-	
-	float D = pow(0.98, l*kd);
-	
-	color.rgb = color.rgb * D + kc.rgb * L;
-	color.a = kc.a + color.a;
-	
-	return color;
-}
+vec4 applyWaterFogView(vec3 pos, vec4 color);
 #endif
-
-void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
-
-	vec3 P = inPositionEye;
-	setPositionEye(P);
-	
-	vec3 tmpLightnorm = lightnorm.xyz;
-
-	vec3 Pn = normalize(P);
-	float Plen = length(P);
-
-	vec4 temp1 = vec4(0);
-	vec3 temp2 = vec3(0);
-	vec4 blue_weight;
-	vec4 haze_weight;
-	vec4 sunlight = sunlight_color;
-	vec4 light_atten;
-
-	//sunlight attenuation effect (hue and brightness) due to atmosphere
-	//this is used later for sunlight modulation at various altitudes
-	light_atten = (blue_density + vec4(haze_density * 0.25)) * (density_multiplier * max_y);
-		//I had thought blue_density and haze_density should have equal weighting,
-		//but attenuation due to haze_density tends to seem too strong
-
-	temp1 = blue_density + vec4(haze_density);
-	blue_weight = blue_density / temp1;
-	haze_weight = vec4(haze_density) / temp1;
-
-	//(TERRAIN) compute sunlight from lightnorm only (for short rays like terrain)
-	temp2.y = max(0.0, tmpLightnorm.y);
-	temp2.y = 1. / temp2.y;
-	sunlight *= exp( - light_atten * temp2.y);
-
-	// main atmospheric scattering line integral
-	temp2.z = Plen * density_multiplier;
-
-	// Transparency (-> temp1)
-	// ATI Bugfix -- can't store temp1*temp2.z*distance_multiplier in a variable because the ati
-	// compiler gets confused.
-	temp1 = exp(-temp1 * temp2.z * distance_multiplier);
-
-	//final atmosphere attenuation factor
-	setAtmosAttenuation(temp1.rgb);
-	
-	//compute haze glow
-	//(can use temp2.x as temp because we haven't used it yet)
-	temp2.x = dot(Pn, tmpLightnorm.xyz);
-	temp2.x = 1. - temp2.x;
-		//temp2.x is 0 at the sun and increases away from sun
-	temp2.x = max(temp2.x, .03);	//was glow.y
-		//set a minimum "angle" (smaller glow.y allows tighter, brighter hotspot)
-	temp2.x *= glow.x;
-		//higher glow.x gives dimmer glow (because next step is 1 / "angle")
-	temp2.x = pow(temp2.x, glow.z);
-		//glow.z should be negative, so we're doing a sort of (1 / "angle") function
-
-	//add "minimum anti-solar illumination"
-	temp2.x += .25;
-	
-	//increase ambient when there are more clouds
-	vec4 tmpAmbient = ambient + (vec4(1.) - ambient) * cloud_shadow * 0.5;
-	
-	/*  decrease value and saturation (that in HSV, not HSL) for occluded areas
-	 * // for HSV color/geometry used here, see http://gimp-savvy.com/BOOK/index.html?node52.html
-	 * // The following line of code performs the equivalent of:
-	 * float ambAlpha = tmpAmbient.a;
-	 * float ambValue = dot(vec3(tmpAmbient), vec3(0.577)); // projection onto <1/rt(3), 1/rt(3), 1/rt(3)>, the neutral white-black axis
-	 * vec3 ambHueSat = vec3(tmpAmbient) - vec3(ambValue);
-	 * tmpAmbient = vec4(RenderSSAOEffect.valueFactor * vec3(ambValue) + RenderSSAOEffect.saturationFactor *(1.0 - ambFactor) * ambHueSat, ambAlpha);
-	 */
-	tmpAmbient = vec4(mix(ssao_effect_mat * tmpAmbient.rgb, tmpAmbient.rgb, ambFactor), tmpAmbient.a);
-
-	//haze color
-	setAdditiveColor(
-		vec3(blue_horizon * blue_weight * (sunlight*(1.-cloud_shadow) + tmpAmbient)
-	  + (haze_horizon * haze_weight) * (sunlight*(1.-cloud_shadow) * temp2.x
-		  + tmpAmbient)));
-
-	//brightness of surface both sunlight and ambient
-	setSunlitColor(vec3(sunlight * .5));
-	setAmblitColor(vec3(tmpAmbient * .25));
-	setAdditiveColor(getAdditiveColor() * vec3(1.0 - temp1));
-}
-
-vec3 atmosLighting(vec3 light)
-{
-	light *= getAtmosAttenuation().r;
-	light += getAdditiveColor();
-	return (2.0 * light);
-}
-
-vec3 atmosTransport(vec3 light) {
-	light *= getAtmosAttenuation().r;
-	light += getAdditiveColor() * 2.0;
-	return light;
-}
-
-vec3 fullbrightAtmosTransport(vec3 light) {
-	float brightness = dot(light.rgb, vec3(0.33333));
-
-	return mix(atmosTransport(light.rgb), light.rgb + getAdditiveColor().rgb, brightness * brightness);
-}
-
-
-
-vec3 atmosGetDiffuseSunlightColor()
-{
-	return getSunlitColor();
-}
-
-vec3 scaleDownLight(vec3 light)
-{
-	return (light / scene_light_strength );
-}
-
-vec3 scaleUpLight(vec3 light)
-{
-	return (light * scene_light_strength);
-}
-
-vec3 atmosAmbient(vec3 light)
-{
-	return getAmblitColor() + light / 2.0;
-}
-
-vec3 atmosAffectDirectionalLight(float lightIntensity)
-{
-	return getSunlitColor() * lightIntensity;
-}
-
-vec3 scaleSoftClip(vec3 light)
-{
-	//soft clip effect:
-	light = 1. - clamp(light, vec3(0.), vec3(1.));
-	light = 1. - pow(light, gamma.xxx);
-
-	return light;
-}
-
-
-vec3 fullbrightScaleSoftClip(vec3 light)
-{
-	//soft clip effect:
-	return light;
-}
 
 void main() 
 {
-	vec2 tc = vary_fragcoord.xy;
-	float depth = texture2DRect(depthMap, tc.xy).r;
-	vec3 pos = getPosition_d(tc, depth).xyz;
-	vec4 norm = texture2DRect(normalMap, tc);
-	float envIntensity = norm.z;
-	norm.xyz = decode_normal(norm.xy); // unpack norm
-		
-	float da = dot(norm.xyz, sun_dir.xyz);
+    vec2 tc = vary_fragcoord.xy;
+    float depth = texture2DRect(depthMap, tc.xy).r;
+    vec4 pos = getPositionWithDepth(tc, depth);
+    vec4 norm = texture2DRect(normalMap, tc);
+    float envIntensity = norm.z;
+    norm.xyz = getNorm(tc);
+    
+    vec3 light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;
+    float da = clamp(dot(norm.xyz, light_dir.xyz), 0.0, 1.0);
+    float light_gamma = 1.0/1.3;
+    da = pow(da, light_gamma);
+    
+    vec4 diffuse = texture2DRect(diffuseRect, tc);
 
-	float final_da = max(0.0,da);
-          final_da = min(final_da, 1.0f);
-	      final_da = pow(final_da, 1.0/1.3);
+    //convert to gamma space
+    //diffuse.rgb = linear_to_srgb(diffuse.rgb);
 
-	vec4 diffuse = texture2DRect(diffuseRect, tc);
+    vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
+    vec3 color = vec3(0);
+    float bloom = 0.0;
+    {
+        float ambocc = 1.0; // no AO...
 
-	//convert to gamma space
-	diffuse.rgb = linear_to_srgb(diffuse.rgb);
+        vec3 sunlit;
+        vec3 amblit;
+        vec3 additive;
+        vec3 atten;
+    
+        calcAtmosphericVars(pos.xyz, light_dir, ambocc, sunlit, amblit, additive, atten, false);
 
-	vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
-	vec3 col;
-	float bloom = 0.0;
-	{
-		calcAtmospherics(pos.xyz, 1.0);
-	
-		col = atmosAmbient(vec3(0));
-		float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
-		ambient *= 0.5;
-		ambient *= ambient;
-		ambient = (1.0-ambient);
+        color.rgb = amblit;
 
-		col.rgb *= ambient;
+        float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
+        ambient *= 0.5;
+        ambient *= ambient;
+        ambient = (1.0 - ambient);
 
-		col += atmosAffectDirectionalLight(final_da);	
-	
-		col *= diffuse.rgb;
-	
-		vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
+        color.rgb *= ambient;
 
-		if (spec.a > 0.0) // specular reflection
-		{
-			// the old infinite-sky shiny reflection
-			//
-			
-			float sa = dot(refnormpersp, sun_dir.xyz);
-			vec3 dumbshiny = vary_SunlitColor*(texture2D(lightFunc, vec2(sa, spec.a)).r);
-			
-			// add the two types of shiny together
-			vec3 spec_contrib = dumbshiny * spec.rgb;
-			bloom = dot(spec_contrib, spec_contrib) / 6;
-			col += spec_contrib;
-		}
-		
-		
-		col = mix(col.rgb, diffuse.rgb, diffuse.a);
-				
-		if (envIntensity > 0.0)
-		{ //add environmentmap
-			vec3 env_vec = env_mat * refnormpersp;
-			
-			
-			vec3 refcol = textureCube(environmentMap, env_vec).rgb;
+        vec3 sun_contrib = da * sunlit;
 
-			col = mix(col.rgb, refcol, 
-				envIntensity);  
-		}
-				
-		if (norm.w < 0.5)
-		{
-			col = mix(atmosLighting(col), fullbrightAtmosTransport(col), diffuse.a);
-			col = mix(scaleSoftClip(col), fullbrightScaleSoftClip(col), diffuse.a);
-		}
+        color.rgb += sun_contrib;
 
-		#ifdef WATER_FOG
-			vec4 fogged = applyWaterFogDeferred(pos,vec4(col, bloom));
-			col = fogged.rgb;
-			bloom = fogged.a;
-		#endif
+        color.rgb *= diffuse.rgb;
 
-		col = srgb_to_linear(col);
+        vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
-		//col = vec3(1,0,1);
-		//col.g = envIntensity;
-	}
+        if (spec.a > 0.0) // specular reflection
+        {
 
-	frag_color.rgb = col.rgb;
-	frag_color.a = bloom;
+#if 1 //EEP
+            vec3 npos = -normalize(pos.xyz);
+
+            //vec3 ref = dot(pos+lv, norm);
+            vec3 h = normalize(light_dir.xyz+npos);
+            float nh = dot(norm.xyz, h);
+            float nv = dot(norm.xyz, npos);
+            float vh = dot(npos, h);
+            float sa = nh;
+            float fres = pow(1 - dot(h, npos), 5)*0.4+0.5;
+
+            float gtdenom = 2 * nh;
+            float gt = max(0, min(gtdenom * nv / vh, gtdenom * da / vh));
+            
+            if (nh > 0.0)
+            {
+                float scontrib = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
+                vec3 sp = sun_contrib*scontrib / 6.0;
+                sp = clamp(sp, vec3(0), vec3(1));
+                bloom += dot(sp, sp) / 4.0;
+                color += sp * spec.rgb;
+            }
+#else //PRODUCTION
+            float sa = dot(refnormpersp, light_dir.xyz);
+            vec3 dumbshiny = sunlit*(texture2D(lightFunc, vec2(sa, spec.a)).r);
+            
+            // add the two types of shiny together
+            vec3 spec_contrib = dumbshiny * spec.rgb;
+            bloom = dot(spec_contrib, spec_contrib) / 6;
+            color.rgb += spec_contrib;
+#endif
+
+        }
+       
+       color.rgb = mix(color.rgb, diffuse.rgb, diffuse.a);
+
+        if (envIntensity > 0.0)
+        { //add environmentmap
+            vec3 env_vec = env_mat * refnormpersp;
+            vec3 reflected_color = textureCube(environmentMap, env_vec).rgb;
+            color = mix(color.rgb, reflected_color, envIntensity);
+        }
+       
+        if (norm.w < 0.5)
+        {
+            color = mix(atmosFragLighting(color, additive, atten), fullbrightAtmosTransportFrag(color, additive, atten), diffuse.a);
+            color = mix(scaleSoftClipFrag(color), fullbrightScaleSoftClip(color), diffuse.a);
+        }
+
+        #ifdef WATER_FOG
+            vec4 fogged = applyWaterFogView(pos.xyz,vec4(color, bloom));
+            color = fogged.rgb;
+            bloom = fogged.a;
+        #endif
+
+    }
+
+// linear debuggables
+//color.rgb = vec3(final_da);
+//color.rgb = vec3(ambient);
+//color.rgb = vec3(scol);
+//color.rgb = diffuse_srgb.rgb;
+
+    // convert to linear as fullscreen lights need to sum in linear colorspace
+    // and will be gamma (re)corrected downstream...
+    
+    frag_color.rgb = srgb_to_linear(color.rgb);
+    frag_color.a = bloom;
 }
-

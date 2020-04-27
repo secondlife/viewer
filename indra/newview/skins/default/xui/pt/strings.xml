@@ -595,6 +595,15 @@ Aguarde um minuto antes que tentar logar-se novamente.
 	<string name="BUTTON_HELP">
 		Mostrar ajuda
 	</string>
+	<string name="TooltipNotecardNotAllowedTypeDrop">
+		Os itens deste tipo não podem ser anexados 
+às anotações desta região.
+	</string>
+	<string name="TooltipNotecardOwnerRestrictedDrop">
+		Somente itens com permissões irrestritas 
+do &apos;próximo proprietário’ pode 
+ser anexado às anotações.
+	</string>
 	<string name="Searching">
 		Buscando...
 	</string>
@@ -671,6 +680,18 @@ Aguarde um minuto antes que tentar logar-se novamente.
 		Erro na solicitação de upload. Acesso 
 http://secondlife.com/support para ajuda ao resolver este problema.
 	</string>
+	<string name="SettingValidationError">
+		Falha na validação para importação das configurações [NAME]
+	</string>
+	<string name="SettingImportFileError">
+		Não foi possível abrir o arquivo [FILE]
+	</string>
+	<string name="SettingParseFileError">
+		Não foi possível abrir o arquivo [FILE]
+	</string>
+	<string name="SettingTranslateError">
+		Não foi possível traduzir o vento antigo [NAME]
+	</string>
 	<string name="texture">
 		textura
 	</string>
@@ -745,6 +766,9 @@ http://secondlife.com/support para ajuda ao resolver este problema.
 	</string>
 	<string name="symbolic folder link">
 		link da pasta
+	</string>
+	<string name="settings blob">
+		configurações
 	</string>
 	<string name="mesh">
 		mesh
@@ -1076,6 +1100,9 @@ http://secondlife.com/support para ajuda ao resolver este problema.
 	<string name="ForceSitAvatar">
 		Forçar o avatar a sentar
 	</string>
+	<string name="ChangeEnvSettings">
+		Alterar sua configurações de ambiente
+	</string>
 	<string name="AgentNameSubst">
 		(Você)
 	</string>
@@ -1224,6 +1251,9 @@ http://secondlife.com/support para ajuda ao resolver este problema.
 	<string name="tattoo">
 		Tatuagem
 	</string>
+	<string name="universal">
+		Universal
+	</string>
 	<string name="physics">
 		Físico
 	</string>
@@ -1265,6 +1295,9 @@ http://secondlife.com/support para ajuda ao resolver este problema.
 	</string>
 	<string name="tattoo_not_worn">
 		Tatuagem não usada
+	</string>
+	<string name="universal_not_worn">
+		Universal não usado
 	</string>
 	<string name="physics_not_worn">
 		Físico não usado
@@ -1316,6 +1349,9 @@ http://secondlife.com/support para ajuda ao resolver este problema.
 	</string>
 	<string name="create_new_tattoo">
 		Criar nova tatuagem
+	</string>
+	<string name="create_new_universal">
+		Criar um novo universal
 	</string>
 	<string name="create_new_physics">
 		Criar novo físico
@@ -2451,6 +2487,27 @@ Se você continuar a receber essa mensagem, entre em contato com o suporte do Se
 	</string>
 	<string name="RegionSettings">
 		Configurações da região
+	</string>
+	<string name="NoEnvironmentSettings">
+		Esta Região não suporta as configurações do ambiente.
+	</string>
+	<string name="EnvironmentSun">
+		Dom
+	</string>
+	<string name="EnvironmentMoon">
+		Lua
+	</string>
+	<string name="EnvironmentBloom">
+		Florescer
+	</string>
+	<string name="EnvironmentCloudNoise">
+		Ruído na nuvem
+	</string>
+	<string name="EnvironmentNormalMap">
+		Mapa normal
+	</string>
+	<string name="EnvironmentTransparent">
+		Transparente
 	</string>
 	<string name="ClassifiedClicksTxt">
 		Cliques: [TELEPORT] teletransporte, [MAP] mapa, [PROFILE] perfil
@@ -4604,6 +4661,9 @@ Denunciar abuso
 	<string name="New Tattoo">
 		Nova tatuagem
 	</string>
+	<string name="New Universal">
+		Novo universal
+	</string>
 	<string name="New Physics">
 		Novo físico
 	</string>
@@ -4729,6 +4789,15 @@ Denunciar abuso
 	</string>
 	<string name="Female - Wow">
 		Wow - feminino
+	</string>
+	<string name="New Daycycle">
+		Novo ciclo de dias
+	</string>
+	<string name="New Water">
+		Nova água
+	</string>
+	<string name="New Sky">
+		Novo céu
 	</string>
 	<string name="/bow">
 		/reverência
@@ -5258,6 +5327,12 @@ Tente colocar o caminho do editor entre aspas.
 	<string name="BeaconMedia">
 		Vendo balizas de mídia (branco)
 	</string>
+	<string name="BeaconSun">
+		Visualizando farol de direção do sol (alaranjado)
+	</string>
+	<string name="BeaconMoon">
+		Visualizando farol de direção da lua (roxo)
+	</string>
 	<string name="ParticleHiding">
 		Ocultar partículas
 	</string>
@@ -5284,6 +5359,12 @@ Tente colocar o caminho do editor entre aspas.
 	</string>
 	<string name="Command_Destinations_Label">
 		Destinos
+	</string>
+	<string name="Command_Environments_Label">
+		Meus ambientes
+	</string>
+	<string name="Command_Facebook_Label">
+		Facebook
 	</string>
 	<string name="Command_Flickr_Label">
 		Flickr
@@ -5377,6 +5458,12 @@ Tente colocar o caminho do editor entre aspas.
 	</string>
 	<string name="Command_Destinations_Tooltip">
 		Destinos de interesse
+	</string>
+	<string name="Command_Environments_Tooltip">
+		Meus ambientes
+	</string>
+	<string name="Command_Facebook_Tooltip">
+		Publicar no Facebook
 	</string>
 	<string name="Command_Flickr_Tooltip">
 		Carregar no Flickr
@@ -5573,6 +5660,12 @@ Tente colocar o caminho do editor entre aspas.
 	<string name="ExperiencePermission12">
 		aceitar automaticamente permissões de experiência
 	</string>
+	<string name="ExperiencePermission16">
+		forçar o avatar a sentar
+	</string>
+	<string name="ExperiencePermission17">
+		alterar sua configurações de ambiente
+	</string>
 	<string name="ExperiencePermissionShortUnknown">
 		realizar uma operação desconhecida: [Permission]
 	</string>
@@ -5596,6 +5689,12 @@ Tente colocar o caminho do editor entre aspas.
 	</string>
 	<string name="ExperiencePermissionShort12">
 		Autorização
+	</string>
+	<string name="ExperiencePermissionShort16">
+		Sentar
+	</string>
+	<string name="ExperiencePermissionShort17">
+		Ambiente
 	</string>
 	<string name="logging_calls_disabled_log_empty">
 		As conversas não estão sendo registradas. Para começar a manter um registro, selecione &quot;Salvar: apenas registro&quot; ou &quot;Salvar: registro e transcrições&quot; em Preferências&gt; Bate-papo.

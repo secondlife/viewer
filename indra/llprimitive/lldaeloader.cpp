@@ -1784,7 +1784,7 @@ void LLDAELoader::extractTranslationViaElement( daeElement* pTranslateElement, L
 {
 	if ( pTranslateElement )
 	{
-		domTranslate* pTranslateChild = dynamic_cast<domTranslate*>( pTranslateElement );
+		domTranslate* pTranslateChild = static_cast<domTranslate*>( pTranslateElement );
 		domFloat3 translateChild = pTranslateChild->getValue();
 		LLVector3 singleJointTranslation( translateChild[0], translateChild[1], translateChild[2] );
 		transform.setTranslation( singleJointTranslation );

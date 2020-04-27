@@ -1,5 +1,5 @@
 /**
- * @file atmosphericsHelpersV.glsl
+ * @file class2\wl\atmosphericsHelpersV.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -33,29 +33,31 @@ vec3 getAtmosAttenuation();
 vec3 getPositionEye();
 
 uniform float scene_light_strength;
+uniform int no_atmo;
 
-vec3 atmosAmbient(vec3 light)
+vec3 atmosAmbient()
 {
-	return getAmblitColor() + light / 2.0;
+    if (no_atmo == 1) return vec3(0.16);
+    return getAmblitColor();
 }
 
 vec3 atmosAffectDirectionalLight(float lightIntensity)
 {
-	return getSunlitColor() * lightIntensity;
+    return getSunlitColor() * lightIntensity;
 }
 
 vec3 atmosGetDiffuseSunlightColor()
 {
-	return getSunlitColor();
+    return getSunlitColor();
 }
 
 vec3 scaleDownLight(vec3 light)
 {
-	return (light / scene_light_strength );
+    return (light / scene_light_strength );
 }
 
 vec3 scaleUpLight(vec3 light)
 {
-	return (light * scene_light_strength);
+    return (light * scene_light_strength);
 }
 

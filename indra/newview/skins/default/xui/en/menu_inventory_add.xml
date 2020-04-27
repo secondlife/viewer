@@ -56,7 +56,7 @@
                 function="File.VisibleUploadModel"/>
                 </menu_item_call>
                 <menu_item_call
-                 label="Bulk (L$[COST] per file)..."
+                 label="Bulk..."
                  layout="topleft"
                  name="Bulk Upload">
                     <menu_item_call.on_click
@@ -253,4 +253,41 @@
                      parameter="eyes" />
                 </menu_item_call>
             </menu>
+    <menu
+            label="New Settings"
+            layout="topleft"
+            name="New Settings">
+        <menu_item_call
+                label="New Sky"
+                layout="topleft"
+                name="New Sky">
+            <menu_item_call.on_click
+                    function="Inventory.DoCreate"
+                    parameter="sky"/>
+            <menu_item_call.on_enable
+                    function="Inventory.EnvironmentEnabled" />
+
+        </menu_item_call>
+        <menu_item_call
+                label="New Water"
+                layout="topleft"
+                name="New Water">
+            <menu_item_call.on_click
+                    function="Inventory.DoCreate"
+                    parameter="water"/>
+            <menu_item_call.on_enable
+                    function="Inventory.EnvironmentEnabled" />
+
+        </menu_item_call>
+        <menu_item_call
+                label="New Day Cycle"
+                layout="topleft"
+                name="New Day Cycle">
+            <menu_item_call.on_click
+                    function="Inventory.DoCreate"
+                    parameter="daycycle"/>
+            <menu_item_call.on_enable
+                    function="Inventory.EnvironmentEnabled" />
+        </menu_item_call>
+    </menu>
 </menu>

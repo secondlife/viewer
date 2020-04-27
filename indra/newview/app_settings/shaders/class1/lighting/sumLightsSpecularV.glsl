@@ -1,5 +1,5 @@
 /**
- * @file sumLightsSpecularV.glsl
+ * @file class1\lighting\sumLightsSpecularV.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -26,7 +26,7 @@
 
 
 float calcDirectionalLightSpecular(inout vec4 specular, vec3 view, vec3 n, vec3 l, vec3 lightCol, float da);
-vec3 atmosAmbient(vec3 light);
+vec3 atmosAmbient();
 vec3 atmosAffectDirectionalLight(float lightIntensity);
 vec3 atmosGetDiffuseSunlightColor();
 vec3 scaleDownLight(vec3 light);
@@ -34,7 +34,7 @@ vec3 scaleDownLight(vec3 light);
 uniform vec4 light_position[8];
 uniform vec3 light_diffuse[8];
 
-vec4 sumLightsSpecular(vec3 pos, vec3 norm, vec4 color, inout vec4 specularColor, vec4 baseCol)
+vec4 sumLightsSpecular(vec3 pos, vec3 norm, vec4 color, inout vec4 specularColor)
 {
 	vec4 col = vec4(0,0,0, color.a);
 		
@@ -45,8 +45,8 @@ vec4 sumLightsSpecular(vec3 pos, vec3 norm, vec4 color, inout vec4 specularColor
 
 	col.rgb += light_diffuse[1].rgb * calcDirectionalLightSpecular(specularColor, view, norm, light_position[1].xyz,light_diffuse[1].rgb, 1.0);
 	col.rgb = scaleDownLight(col.rgb);
-	col.rgb += atmosAmbient(baseCol.rgb);
-	col.rgb += atmosAffectDirectionalLight(calcDirectionalLightSpecular(specularSum, view, norm, light_position[0].xyz,atmosGetDiffuseSunlightColor()*baseCol.a, 1.0));
+	col.rgb += atmosAmbient();
+	col.rgb += atmosAffectDirectionalLight(calcDirectionalLightSpecular(specularSum, view, norm, light_position[0].xyz, atmosGetDiffuseSunlightColor(), 1.0));
 
 	col.rgb = min(col.rgb * color.rgb, 1.0);
 	specularColor.rgb = min(specularColor.rgb * specularSum.rgb, 1.0);

@@ -474,5 +474,6 @@
 			</panel>
 		</panel>
 		<panel label="ПРИКЛЮЧЕНИЯ" name="land_experiences_panel"/>
+		<panel label="ОКРУЖАЮЩАЯ СРЕДА" name="land_environment_panel"/>
 	</tab_container>
 </floater>

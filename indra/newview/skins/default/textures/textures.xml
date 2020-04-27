@@ -143,6 +143,7 @@ with the same filename but different name
   <texture name="Command_MiniCart_Icon"     file_name="toolbar_icons/mini_cart.png"    preload="true" />
   <texture name="Command_MiniMap_Icon"      file_name="toolbar_icons/mini_map.png"     preload="true" />
   <texture name="Command_Move_Icon"         file_name="toolbar_icons/move.png"         preload="true" />
+  <texture name="Command_Environments_Icon" file_name="toolbar_icons/environments.png" preload="true" />
   <texture name="Command_People_Icon"       file_name="toolbar_icons/people.png"       preload="true" />
   <texture name="Command_Picks_Icon"        file_name="toolbar_icons/picks.png"        preload="true" />
   <texture name="Command_Places_Icon"       file_name="toolbar_icons/places.png"       preload="true" />
@@ -318,6 +319,11 @@ with the same filename but different name
   <texture name="Inv_Underpants" file_name="icons/Inv_Underpants.png" preload="false" />
   <texture name="Inv_Undershirt" file_name="icons/Inv_Undershirt.png" preload="false" />
   <texture name="Inv_Link" file_name="icons/Inv_Link.png" preload="false" />
+    <texture name="Inv_Settings" file_name="icons/Inv_Settings.png" preload="false" />
+  <texture name="Inv_SettingsSky" file_name="icons/Inv_SettingsSky.png" preload="false" />
+  <texture name="Inv_SettingsWater" file_name="icons/Inv_SettingsWater.png" preload="false" />
+  <texture name="Inv_SettingsDay" file_name="icons/Inv_SettingsDay.png" preload="false" />
+
   <texture name="Inv_Invalid" file_name="icons/Inv_Invalid.png" preload="false" />
   <texture name="Inv_Unknown" file_name="icons/Inv_UnknownObject.png" preload="false" />
   <texture name="Inv_VersionFolderClosed" file_name="icons/Inv_VersionFolderClosed.png" preload="false" />
@@ -587,7 +593,6 @@ with the same filename but different name
   <texture name="Snapshot_Email" file_name="snapshot_email.png" preload="false" />
   <texture name="Snapshot_Inventory" file_name="toolbar_icons/inventory.png" preload="false" />
   <texture name="Snapshot_Profile" file_name="toolbar_icons/profile.png" preload="false" />
-
   <texture name="startup_logo"  file_name="windows/startup_logo.png" preload="true" />
 
   <texture name="login_sl_logo"  file_name="windows/login_sl_logo.png" preload="true" />
@@ -678,6 +683,20 @@ with the same filename but different name
   
   <texture name="Vertical Drag Handle" file_name="widgets/vertical_drag_handle.png" scale.left="2" scale.right="7" scale.bottom="8" scale.top="120"  scale_type="scale_outer"/>
 
+    <texture name="VirtualTrackball_Moon_Back" file_name="widgets/track_control_moon_back.png" />
+  <texture name="VirtualTrackball_Moon_Front" file_name="widgets/track_control_moon_front.png" />
+  <texture name="VirtualTrackball_Rotate_Bottom" file_name="widgets/track_control_rotate_bottom.png" />
+  <texture name="VirtualTrackball_Rotate_Left" file_name="widgets/track_control_rotate_left_side.png" />
+  <texture name="VirtualTrackball_Rotate_Right" file_name="widgets/track_control_rotate_right_side.png" />
+  <texture name="VirtualTrackball_Rotate_Top" file_name="widgets/track_control_rotate_top.png" />
+  <texture name="VirtualTrackball_Rotate_Bottom_Active" file_name="widgets/track_control_rotate_bottom_active.png" />
+  <texture name="VirtualTrackball_Rotate_Left_Active" file_name="widgets/track_control_rotate_left_side_active.png" />
+  <texture name="VirtualTrackball_Rotate_Right_Active" file_name="widgets/track_control_rotate_right_side_active.png" />
+  <texture name="VirtualTrackball_Rotate_Top_Active" file_name="widgets/track_control_rotate_top_active.png" />
+  <texture name="VirtualTrackball_Sphere" file_name="widgets/track_control_sphere.png" />
+  <texture name="VirtualTrackball_Sun_Back" file_name="widgets/track_control_sun_back.png" />
+  <texture name="VirtualTrackball_Sun_Front" file_name="widgets/track_control_sun_front.png" />
+    
     <texture name="Volume_Background" file_name="windows/Volume_Background.png" preload="false"
            scale.left="6" scale.top="33" scale.right="63" scale.bottom="10" />
 

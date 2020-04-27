@@ -686,6 +686,18 @@ Do you want to revoke modify rights for the selected Residents?
 
   <notification
    icon="alertmodal.tga"
+   name="GroupNameLengthWarning"
+   type="alertmodal">
+A group name must be between [MIN_LEN] and [MAX_LEN] characters.
+    <tag>group</tag>
+    <tag>fail</tag>
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
    name="UnableToCreateGroup"
    type="alertmodal">
 Unable to create group.
@@ -920,7 +932,7 @@ You do not have enough L$ to join this group.
    icon="alertmodal.tga"
    name="CreateGroupCost"
    type="alertmodal">
-Creating this group will cost L$100.
+Creating this group will cost L$[COST].
 Groups need more than one member, or they are deleted forever.
 Please invite members within 48 hours.
     <tag>group</tag>
@@ -929,7 +941,7 @@ Please invite members within 48 hours.
      canceltext="Cancel"
      name="okcancelbuttons"
      notext="Cancel"
-     yestext="Create group for L$100"/>
+     yestext="Create group for L$[COST]"/>
   </notification>
 
   <notification
@@ -1286,6 +1298,14 @@ Error encoding snapshot.
    name="ErrorPhotoCannotAfford"
    type="alertmodal">
     You need L$[COST] to save a photo to your inventory. You may either buy L$ or save the photo to your computer instead.
+    <tag>fail</tag>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="ErrorCannotAffordUpload"
+   type="alertmodal">
+    You need L$[COST] to upload this item.
     <tag>fail</tag>
   </notification>
   
@@ -4358,11 +4378,21 @@ You have reached your maximum number of groups. Please leave some group before j
    icon="alert.tga"
    name="GroupLimitInfo"
    type="alert">
-The group limit for base accounts is [MAX_BASIC], and for [https://secondlife.com/premium/ premium]
-accounts is [MAX_PREMIUM].
-If you downgraded your account, you will need to get below [MAX_BASIC] group limit before you can join more.
+Residents with Basic memberships may join up to [MAX_BASIC] groups.
+Premium memberships allow up to [MAX_PREMIUM]. [https://secondlife.com/my/account/membership.php? Learn more or upgrade]
+    <tag>group</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="Close"/>
+  </notification>
 
-[https://secondlife.com/my/account/membership.php Upgrade today!]
+  <notification
+   icon="alert.tga"
+   name="GroupLimitInfoPlus"
+   type="alert">
+Residents with Basic memberships may join up to [MAX_BASIC] groups.
+Premium memberships allow up to [MAX_PREMIUM]. Premium Plus
+memberships allow up to [MAX_PREMIUM_PLUS]. [https://secondlife.com/my/account/membership.php? Learn more or upgrade]
     <tag>group</tag>
     <usetemplate
      name="okbutton"
@@ -4986,6 +5016,20 @@ Unchecking this option may remove restrictions that parcel owners have added to 
      yestext="OK"/>
   </notification>
 
+  <notification
+   icon="alertmodal.tga"
+   name="EstateParcelEnvironmentOverride"
+   type="alertmodal">
+(Estate-wide change: [ESTATENAME]) Unchecking this option will remove any custom environments that parcel owners have added to their parcels. Please discuss with your parcel owners as needed.
+Do you wish to proceed?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+  
+  
   <notification
    icon="alertmodal.tga"
    name="RegionEntryAccessBlocked"
@@ -6287,7 +6331,23 @@ This day cycle file references a missing sky file: [SKY].
    icon="alertmodal.tga"
    name="WLRegionApplyFail"
    type="alertmodal">
-Sorry, the settings couldn't be applied to the region.  Leaving the region and then returning may help rectify the problem.  The reason given was: [FAIL_REASON]
+Sorry, the settings couldn't be applied to the region. Reason: [FAIL_REASON]
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="WLLocalTextureDayBlock"
+   type="alertmodal">
+A Local texture is in use on track [TRACK], frame #[FRAMENO] ([FRAME]%) in field [FIELD].
+Settings may not be saved using local textures.
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="WLLocalTextureFixedBlock"
+   type="alertmodal">
+A local texture is in use in field [FIELD].
+Settings may not be saved using local textures.
   </notification>
 
   <notification
@@ -8520,7 +8580,48 @@ Your voice has been muted by moderator.
          name="okbutton"
          yestext="OK"/>
     </notification>
+
+    <notification
+        icon="alertmodal.tga"
+        name="FailedToGetBenefits"
+        type="alertmodal">
+      Unfortunately, we were unable to get benefits information for this session. This should not happen in a normal production environment. Please contact support. This session will not work normally and we recommend that you restart.
+      <usetemplate
+          name="okbutton"
+          yestext="OK"/>
+    </notification>
+
+   <notification
+    icon="alertmodal.tga"
+    name="BulkUploadCostConfirmation"
+    type="alertmodal">
+This will upload [COUNT] items at a total cost of L$[COST]. Do you wish to continue with the upload?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Upload"/>
+   </notification>
   
+   <notification
+    icon="alertmodal.tga"
+    name="BulkUploadNoCompatibleFiles"
+    type="alertmodal">
+Selected files can not be bulk-uploaded.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="BulkUploadIncompatibleFiles"
+   type="alertmodal">
+Some of the selected files can not be bulk-uploaded.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
    <notification
     icon="alertmodal.tga"
     name="UploadCostConfirmation"
@@ -11351,4 +11452,190 @@ Cannot create large prims that intersect other residents.  Please re-try when ot
      yestext="OK"/>
   </notification>
 
+  <notification
+   icon="notify.tga"
+   name="FailedToFindSettings"
+   persist="true"
+   type="alertmodal">
+Could not load the settings for [NAME] from the database.
+  <tag>fail</tag>
+  </notification>
+  
+  <notification
+   icon="notify.tga"
+   name="FailedToLoadSettingsApply"
+   persist="true"
+   type="alertmodal">
+Unable to apply those settings to the environment.
+  <tag>fail</tag>
+  </notification>
+  
+  <notification
+   icon="notify.tga"
+   name="FailedToBuildSettingsDay"
+   persist="true"
+   type="alertmodal">
+Unable to apply those settings to the environment.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="NoEnvironmentSettings"
+   persist="true"
+   type="alertmodal">
+This Region does not support environmental settings.
+  <tag>fail</tag>
+  </notification>
+ 
+  <notification
+   icon="alertmodal.tga"
+   label="Save Outfit"
+   name="SaveSettingAs"
+   type="alertmodal">
+    <unique/>
+    Save current environmental settings as:
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="message" type="text">
+        [DESC] (new)
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="WLImportFail"
+   persist="true"
+   type="alertmodal">
+Unable to import legacy Windlight settings [NAME] from 
+[FILE].
+
+[REASONS]
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="WLParcelApplyFail"
+   persist="true"
+   type="alertmodal">
+Unable to set the environment for this parcel.
+Please enter or select a parcel that you have rights to modify.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="SettingsUnsuported"
+   persist="true"
+   type="alertmodal">
+Settings are not supported on this region. 
+Please move to a settings enabled region and retry your action.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SettingsConfirmLoss"
+   type="alertmodal">
+You are about to lose the changes you have made to this [TYPE] named "[NAME]".
+Are you sure you want to continue?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Are you sure you want to lose changes?"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SettingsConfirmReset"
+   type="alertmodal">
+You are about to remove all applied settings.
+Are you sure you want to continue?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ name="PersonalSettingsConfirmReset"
+ type="alertmodal">
+You are about to remove all applied Personal lighting settings.
+Are you sure you want to continue?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SettingsMakeNoTrans"
+   type="alertmodal">
+You are about to import non-transferable settings into this daycycle. Continuing will cause the settings you are editing to become non-transferable also. 
+
+This change can not be undone.
+
+Are you sure you want to continue?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Are you sure you want to make settings non-transferable?"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
+  
+  <notification
+   icon="notify.tga"
+   name="NoEditFromLibrary"
+   persist="true"
+   type="alertmodal">
+You may not edit settings directly from the libary.  
+Please copy to your own inventory and try again.
+  <tag>fail</tag>
+  </notification>
+
+    <notification
+   icon="notify.tga"
+   name="EnvironmentApplyFailed"
+   persist="true"
+   type="alertmodal">
+We have encountered an issue with these settings.  They can not be saved or applied at this time.
+  <tag>fail</tag>
+  </notification>
+
+    <notification
+   icon="notify.tga"
+   name="TrackLoadFailed"
+   persist="true"
+   type="alertmodal">
+Unable to load the track into [TRACK].
+  <tag>fail</tag>
+  </notification>
+
+    <notification
+   icon="notify.tga"
+   name="TrackLoadMismatch"
+   persist="true"
+   type="alertmodal">
+Unable to load the track from [TRACK1] into [TRACK2].
+  <tag>fail</tag>
+  </notification>
+  
 </notifications>

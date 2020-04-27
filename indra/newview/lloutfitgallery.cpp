@@ -36,7 +36,7 @@
 
 #include "llaccordionctrltab.h"
 #include "llappearancemgr.h"
-#include "lleconomy.h"
+#include "llagentbenefits.h"
 #include "llerror.h"
 #include "llfilepicker.h"
 #include "llfloaterperms.h"
@@ -910,6 +910,7 @@ bool LLOutfitGalleryContextMenu::onEnable(LLSD::String param)
 
 bool LLOutfitGalleryContextMenu::onVisible(LLSD::String param)
 {
+	mMenuHandle.get()->getChild<LLUICtrl>("upload_photo")->setLabelArg("[UPLOAD_COST]", std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost()));
     if ("remove_photo" == param)
     {
         LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
@@ -1205,7 +1206,7 @@ void LLOutfitGallery::uploadOutfitImage(const std::vector<std::string>& filename
             return;
         }
 
-        S32 expected_upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload(); // kinda hack - assumes that unsubclassed LLFloaterNameDesc is only used for uploading chargeable assets, which it is right now (it's only used unsubclassed for the sound upload dialog, and THAT should be a subclass).
+        S32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
         void *nruserdata = NULL;
         nruserdata = (void *)&outfit_id;
 
@@ -1215,7 +1216,6 @@ void LLOutfitGallery::uploadOutfitImage(const std::vector<std::string>& filename
         checkRemovePhoto(outfit_id);
         std::string upload_pending_name = outfit_id.asString();
         std::string upload_pending_desc = "";
-        LLAssetStorage::LLStoreAssetCallback callback = NULL;
         LLUUID photo_id = upload_new_resource(filename, // file
             upload_pending_name,
             upload_pending_desc,
@@ -1223,7 +1223,7 @@ void LLOutfitGallery::uploadOutfitImage(const std::vector<std::string>& filename
             LLFloaterPerms::getNextOwnerPerms("Uploads"),
             LLFloaterPerms::getGroupPerms("Uploads"),
             LLFloaterPerms::getEveryonePerms("Uploads"),
-            upload_pending_name, callback, expected_upload_cost, nruserdata, false);
+            upload_pending_name, LLAssetStorage::LLStoreAssetCallback(), expected_upload_cost, nruserdata, false);
         mOutfitLinkPending = outfit_id;
     }
     delete unit;

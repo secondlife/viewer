@@ -484,5 +484,6 @@ musique :
 			</panel>
 		</panel>
 		<panel label="EXPÉRIENCES" name="land_experiences_panel"/>
+		<panel label="ENVIRONNEMENT" name="land_environment_panel"/>
 	</tab_container>
 </floater>
