@@ -489,10 +489,6 @@ class WindowsManifest(ViewerManifest):
                 # include the compiled launcher scripts so that it gets included in the file_list
                 self.path('SLVersionChecker.exe')
 
-            with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
-                # include the dullahan host process so we can code sign it later
-                self.path('dullahan_host.exe')
-
             with self.prefix(dst="vmp_icons"):
                 with self.prefix(src=self.icon_path()):
                     self.path("secondlife.ico")
