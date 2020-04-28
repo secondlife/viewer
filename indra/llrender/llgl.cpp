@@ -2632,6 +2632,7 @@ LLGLSPipelineBlendSkyBox::LLGLSPipelineBlendSkyBox(bool depth_test, bool depth_w
 
 #if LL_WINDOWS
 // Expose desired use of high-performance graphics processor to Optimus driver
+// https://docs.nvidia.com/gameworks/content/technologies/desktop/optimus.htm
 extern "C" 
 { 
     _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001; 
