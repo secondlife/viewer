@@ -30,9 +30,15 @@
 
 #include "llinventorytype.h"
 #include "llinvtranslationbrdg.h"
+#include "llsingleton.h"
 
-class LLSettingsType
+class LLSettingsType : public LLParamSingleton<LLSettingsType>
 {
+    LLSINGLETON(LLSettingsType, LLTranslationBridge::ptr_t &trans);
+    ~LLSettingsType();
+
+    friend struct SettingsEntry;
+
 public:
     enum type_e
     {
@@ -48,8 +54,9 @@ public:
     static LLInventoryType::EIconName getIconName(type_e type);
     static std::string getDefaultName(type_e type);
 
-    static void initClass(LLTranslationBridge::ptr_t &trans);
-    static void cleanupClass();
+protected:
+
+    LLTranslationBridge::ptr_t mTranslator;
 };
 
 

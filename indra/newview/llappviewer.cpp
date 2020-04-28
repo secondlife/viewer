@@ -779,7 +779,7 @@ bool LLAppViewer::init()
 
     // initialize the LLSettingsType translation bridge.
     LLTranslationBridge::ptr_t trans = std::make_shared<LLUITranslationBridge>();
-    LLSettingsType::initClass(trans);
+    LLSettingsType::initParamSingleton(trans);
 
 	// initialize SSE options
 	LLVector4a::initClass();
