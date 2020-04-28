@@ -208,7 +208,7 @@ void LLPresetsManager::loadPresetNamesFromDir(const std::string& subdirectory, p
 
 	if (IS_CAMERA)
 	{
-		mPresetNames.sort(); 
+		mPresetNames.sort(LLStringUtil::precedesDict);
 		if (default_option == DEFAULT_BOTTOM)
 		{
 			mPresetNames.push_back(PRESETS_FRONT_VIEW);
