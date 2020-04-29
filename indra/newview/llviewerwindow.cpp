@@ -965,7 +965,6 @@ public:
 											 LLFontGL::LEFT, LLFontGL::TOP,
 											 LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE);
 		}
-		mLineList.clear();
 	}
 
 };
