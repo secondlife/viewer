@@ -4821,7 +4821,7 @@ U32 LLVOAvatar::renderSkinned()
 					LLViewerJoint* head_mesh = getViewerJoint(MESH_ID_HEAD);
 					if (head_mesh)
 					{
-						num_indices += head_mesh->render(LLRenderPass::PASS_UNKNOWN, mAdjustedPixelArea, TRUE, mIsDummy);
+						num_indices += head_mesh->render(mAdjustedPixelArea, TRUE, mIsDummy);
 					}
 					first_pass = FALSE;
 				}
@@ -4831,7 +4831,7 @@ U32 LLVOAvatar::renderSkinned()
 				LLViewerJoint* upper_mesh = getViewerJoint(MESH_ID_UPPER_BODY);
 				if (upper_mesh)
 				{
-					num_indices += upper_mesh->render(LLRenderPass::PASS_UNKNOWN, mAdjustedPixelArea, first_pass, mIsDummy);
+					num_indices += upper_mesh->render(mAdjustedPixelArea, first_pass, mIsDummy);
 				}
 				first_pass = FALSE;
 			}
@@ -4841,7 +4841,7 @@ U32 LLVOAvatar::renderSkinned()
 				LLViewerJoint* lower_mesh = getViewerJoint(MESH_ID_LOWER_BODY);
 				if (lower_mesh)
 				{
-					num_indices += lower_mesh->render(LLRenderPass::PASS_UNKNOWN, mAdjustedPixelArea, first_pass, mIsDummy);
+					num_indices += lower_mesh->render(mAdjustedPixelArea, first_pass, mIsDummy);
 				}
 				first_pass = FALSE;
 			}
@@ -4871,7 +4871,7 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 		LLViewerJoint* skirt_mesh = getViewerJoint(MESH_ID_SKIRT);
 		if (skirt_mesh)
 		{
-			num_indices += skirt_mesh->render(LLRenderPass::PASS_UNKNOWN, mAdjustedPixelArea, false, false);
+			num_indices += skirt_mesh->render(mAdjustedPixelArea, false, false);
 		}
 		first_pass = FALSE;
 		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
@@ -4889,7 +4889,7 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 			LLViewerJoint* eyelash_mesh = getViewerJoint(MESH_ID_EYELASH);
 			if (eyelash_mesh)
 			{
-				num_indices += eyelash_mesh->render(LLRenderPass::PASS_UNKNOWN, mAdjustedPixelArea, first_pass, mIsDummy);
+				num_indices += eyelash_mesh->render(mAdjustedPixelArea, first_pass, mIsDummy);
 			}
 			first_pass = FALSE;
 		}
@@ -4898,7 +4898,7 @@ U32 LLVOAvatar::renderTransparent(BOOL first_pass)
 			LLViewerJoint* hair_mesh = getViewerJoint(MESH_ID_HAIR);
 			if (hair_mesh)
 			{
-				num_indices += hair_mesh->render(LLRenderPass::PASS_UNKNOWN, mAdjustedPixelArea, first_pass, mIsDummy);
+				num_indices += hair_mesh->render(mAdjustedPixelArea, first_pass, mIsDummy);
 			}
 			first_pass = FALSE;
 		}
@@ -4947,11 +4947,11 @@ U32 LLVOAvatar::renderRigid()
 		LLViewerJoint* eyeball_right = getViewerJoint(MESH_ID_EYEBALL_RIGHT);
 		if (eyeball_left)
 		{
-			num_indices += eyeball_left->render(LLRenderPass::PASS_UNKNOWN, mAdjustedPixelArea, TRUE, mIsDummy);
+			num_indices += eyeball_left->render(mAdjustedPixelArea, TRUE, mIsDummy);
 		}
 		if(eyeball_right)
 		{
-			num_indices += eyeball_right->render(LLRenderPass::PASS_UNKNOWN, mAdjustedPixelArea, TRUE, mIsDummy);
+			num_indices += eyeball_right->render(mAdjustedPixelArea, TRUE, mIsDummy);
 		}
 	}
 

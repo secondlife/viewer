@@ -143,7 +143,7 @@ void LLDrawPoolSky::renderSkyFace(U8 index)
             llassert(mSkyTex);
 	        mSkyTex[index].bindTexture(false); // bind the "other" texture
 		    gGL.diffuseColor4f(1, 1, 1, interp_val); // lighting is disabled
-		    face->renderIndexed();
+			face->renderIndexed();
 	    }
     }
     else // heavenly body faces, no interp...
@@ -154,7 +154,7 @@ void LLDrawPoolSky::renderSkyFace(U8 index)
         if (tex)
         {
             gGL.getTexUnit(0)->bind(tex, true);
-            face->renderIndexed();
+			face->renderIndexed();
         }
     }
 }

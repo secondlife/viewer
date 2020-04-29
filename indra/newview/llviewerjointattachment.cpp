@@ -79,10 +79,8 @@ BOOL LLViewerJointAttachment::isTransparent()
 //-----------------------------------------------------------------------------
 // drawShape()
 //-----------------------------------------------------------------------------
-U32 LLViewerJointAttachment::drawShape(U32 render_pass_type, F32 pixelArea, bool first_pass, bool is_dummy )
+U32 LLViewerJointAttachment::drawShape(F32 pixelArea, bool first_pass, bool is_dummy )
 {
-    (void)render_pass_type;
-
 	if (LLVOAvatar::sShowAttachmentPoints)
 	{
 		LLGLDisable cull_face(GL_CULL_FACE);

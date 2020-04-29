@@ -67,7 +67,7 @@ LLViewerJoint::~LLViewerJoint()
 //--------------------------------------------------------------------
 // render()
 //--------------------------------------------------------------------
-U32 LLViewerJoint::render(U32 render_pass_type, F32 pixelArea, bool first_pass, bool is_dummy )
+U32 LLViewerJoint::render(F32 pixelArea, bool first_pass, bool is_dummy )
 {
 	stop_glerror();
 
@@ -86,11 +86,11 @@ U32 LLViewerJoint::render(U32 render_pass_type, F32 pixelArea, bool first_pass, 
 		//----------------------------------------------------------------
 		if ( is_dummy )
 		{
-			triangle_count += drawShape(render_pass_type, pixelArea, first_pass, is_dummy );
+			triangle_count += drawShape(pixelArea, first_pass, is_dummy );
 		}
 		else if (LLPipeline::sShadowRender)
 		{
-			triangle_count += drawShape(render_pass_type, pixelArea, first_pass, is_dummy );
+			triangle_count += drawShape(pixelArea, first_pass, is_dummy );
 		}
 		else if ( isTransparent() && !LLPipeline::sReflectionRender)
 		{
@@ -102,18 +102,18 @@ U32 LLViewerJoint::render(U32 render_pass_type, F32 pixelArea, bool first_pass, 
 				// first pass renders without writing to the z buffer
 				{
 					LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-					triangle_count += drawShape(render_pass_type, pixelArea, first_pass, is_dummy );
+					triangle_count += drawShape(pixelArea, first_pass, is_dummy );
 				}
 				// second pass writes to z buffer only
 				gGL.setColorMask(false, false);
 				{
-					triangle_count += drawShape(render_pass_type, pixelArea, FALSE, is_dummy  );
+					triangle_count += drawShape(pixelArea, FALSE, is_dummy  );
 				}
 				// third past respects z buffer and writes color
 				gGL.setColorMask(true, false);
 				{
 					LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-					triangle_count += drawShape(render_pass_type, pixelArea, FALSE, is_dummy  );
+					triangle_count += drawShape(pixelArea, FALSE, is_dummy  );
 				}
 			}
 			else
@@ -122,19 +122,19 @@ U32 LLViewerJoint::render(U32 render_pass_type, F32 pixelArea, bool first_pass, 
 				glCullFace(GL_FRONT);
 				{
 					LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-					triangle_count += drawShape(render_pass_type, pixelArea, first_pass, is_dummy  );
+					triangle_count += drawShape(pixelArea, first_pass, is_dummy  );
 				}
 				// Render Outside (write to the Z buffer)
 				glCullFace(GL_BACK);
 				{
-					triangle_count += drawShape(render_pass_type, pixelArea, FALSE, is_dummy  );
+					triangle_count += drawShape(pixelArea, FALSE, is_dummy  );
 				}
 			}
 		}
 		else
 		{
 			// set up render state
-			triangle_count += drawShape(render_pass_type, pixelArea, first_pass, false);
+			triangle_count += drawShape(pixelArea, first_pass, false);
 		}
 	}
 
@@ -147,7 +147,7 @@ U32 LLViewerJoint::render(U32 render_pass_type, F32 pixelArea, bool first_pass, 
 		F32 jointLOD = joint ? joint->getLOD() : 0;
 		if (pixelArea >= jointLOD || sDisableLOD)
 		{
-			triangle_count += joint->render(render_pass_type, pixelArea, TRUE, is_dummy );
+			triangle_count += joint->render(pixelArea, TRUE, is_dummy );
 
 			if (jointLOD != DEFAULT_AVATAR_JOINT_LOD)
 			{
@@ -162,7 +162,7 @@ U32 LLViewerJoint::render(U32 render_pass_type, F32 pixelArea, bool first_pass, 
 //--------------------------------------------------------------------
 // drawShape()
 //--------------------------------------------------------------------
-U32 LLViewerJoint::drawShape(U32 render_pass_type, F32 pixelArea, bool first_pass, bool is_dummy )
+U32 LLViewerJoint::drawShape(F32 pixelArea, bool first_pass, bool is_dummy )
 {
 	return 0;
 }

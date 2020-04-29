@@ -356,7 +356,7 @@ void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
 				}
 				params.mVertexBuffer->setBuffer(mask);
 				params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
-				gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode, LLPipeline::RENDER_TYPE_PASS_ALPHA);
+				gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
 			}
 		}
 	}

@@ -74,7 +74,7 @@ void LLDrawPoolGround::render(S32 pass)
 	LLFace *facep = mDrawFace[0];
 
 	LLOverrideFaceColor col(this, gSky.mVOSkyp->getGLFogColor());
-	facep->renderIndexed(LLRenderPass::POOL_GROUND);
+	facep->renderIndexed();
 	
 	gGL.popMatrix();
 }

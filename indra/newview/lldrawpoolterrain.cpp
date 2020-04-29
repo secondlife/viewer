@@ -310,7 +310,7 @@ void LLDrawPoolTerrain::drawLoop()
 				gPipeline.mMatrixOpCount++;
 			}
 
-			facep->renderIndexed(LLRenderPass::POOL_TERRAIN);
+			facep->renderIndexed();
 		}
 	}
 }

@@ -2319,7 +2319,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);		
 			}
 
-			gPipeline.addTrianglesDrawn(count, LLRender::TRIANGLES, type);
+			gPipeline.addTrianglesDrawn(count, LLRender::TRIANGLES);
 		}
 	}
 }

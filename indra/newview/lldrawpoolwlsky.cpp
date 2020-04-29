@@ -521,7 +521,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
                 sun_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);
                 sun_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 
-                face->renderIndexed();
+				face->renderIndexed();
 
                 gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
                 gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);

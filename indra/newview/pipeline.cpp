@@ -4815,7 +4815,7 @@ void LLPipeline::renderGeomShadow(LLCamera& camera)
 	gGL.loadMatrix(gGLModelView);
 }
 
-void LLPipeline::addTrianglesDrawn(S32 index_count, U32 render_geom_mode, U32 render_pass_type)
+void LLPipeline::addTrianglesDrawn(S32 index_count, U32 render_geom_mode)
 {
 	assertInitialized();
 	S32 count = 0;
@@ -4832,11 +4832,11 @@ void LLPipeline::addTrianglesDrawn(S32 index_count, U32 render_geom_mode, U32 re
 
 	add(LLStatViewer::TRIANGLES_DRAWN, LLUnits::Triangles::fromValue(count));
 
-    if (render_pass_type != LLPipeline::END_RENDER_TYPES)
-    {
-        llassert(render_pass_type < LLRenderPass::NUM_RENDER_TYPES);
-        add(LLStatViewer::TRIANGLES_DRAWN_BY_PASS_TYPE[render_pass_type], LLUnits::Triangles::fromValue(count));
-    }
+    // if (render_pass_type != LLPipeline::END_RENDER_TYPES)
+    // {
+    //     llassert(render_pass_type < LLRenderPass::NUM_RENDER_TYPES);
+    //     add(LLStatViewer::TRIANGLES_DRAWN_BY_PASS_TYPE[render_pass_type], LLUnits::Triangles::fromValue(count));
+    // }
 
 	if (LLPipeline::sRenderFrameTest)
 	{

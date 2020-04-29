@@ -648,7 +648,7 @@ void LLDrawPoolBump::renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL
 		}
 		params.mVertexBuffer->setBuffer(mask);
 		params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
-		gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode, type);
+		gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
 	}
 }
 
@@ -1495,7 +1495,7 @@ void LLDrawPoolBump::renderBump(U32 type, U32 mask)
 	}
 }
 
-void LLDrawPoolBump::pushBatch(LLDrawInfo& params, U32 mask, U32 render_pass_type, BOOL texture, BOOL batch_textures)
+void LLDrawPoolBump::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures)
 {
 	applyModelMatrix(params);
 
@@ -1561,7 +1561,7 @@ void LLDrawPoolBump::pushBatch(LLDrawInfo& params, U32 mask, U32 render_pass_typ
 	}
 	params.mVertexBuffer->setBuffer(mask);
 	params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
-	gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode, render_pass_type);
+	gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
 	if (tex_setup)
 	{
 		if (mShiny)

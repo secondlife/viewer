@@ -418,7 +418,7 @@ void LLRenderPass::pushBatches(U32 type, U32 mask, BOOL texture, BOOL batch_text
 		LLDrawInfo* pparams = *i;
 		if (pparams) 
 		{
-			pushBatch(*pparams, mask, type, texture, batch_textures);
+			pushBatch(*pparams, mask, texture, batch_textures);
 		}
 	}
 }
@@ -439,7 +439,7 @@ void LLRenderPass::pushMaskBatches(U32 type, U32 mask, BOOL texture, BOOL batch_
 				gGL.setAlphaRejectSettings(LLRender::CF_GREATER, pparams->mAlphaMaskCutoff);
 			}
 			
-			pushBatch(*pparams, mask, type, texture, batch_textures);
+			pushBatch(*pparams, mask, texture, batch_textures);
 		}
 	}
 }
@@ -459,7 +459,7 @@ void LLRenderPass::applyModelMatrix(const LLDrawInfo& params)
 	}
 }
 
-void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, U32 render_pass_type, BOOL texture, BOOL batch_textures)
+void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures)
 {
     if (!params.mCount)
     {
@@ -515,7 +515,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, U32 render_pass_type,
 	
 		params.mVertexBuffer->setBuffer(mask);
 		params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
-		gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode, render_pass_type);
+		gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
 	}
 
 	if (tex_setup)

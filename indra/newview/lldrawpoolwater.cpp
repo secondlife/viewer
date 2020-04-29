@@ -260,7 +260,7 @@ void LLDrawPoolWater::render(S32 pass)
 			continue;
 		}
 		gGL.getTexUnit(0)->bind(face->getTexture());
-		face->renderIndexed(LLRenderPass::POOL_WATER);
+		face->renderIndexed();
 	}
 
 	// Now, disable texture coord generation on texture state 1
@@ -314,7 +314,7 @@ void LLDrawPoolWater::render(S32 pass)
 
 			if (face->getGeomCount() > 0)
 			{					
-				face->renderIndexed(LLRenderPass::POOL_WATER);
+				face->renderIndexed();
 			}
 		}
 
@@ -432,7 +432,7 @@ void LLDrawPoolWater::renderOpaqueLegacyWater()
 			continue;
 		}
 
-		face->renderIndexed(LLRenderPass::POOL_WATER);
+		face->renderIndexed();
 	}
 
 	stop_glerror();
@@ -474,7 +474,7 @@ void LLDrawPoolWater::renderReflection(LLFace* face)
 	gGL.getTexUnit(0)->bind((dr == 0) ? voskyp->getSunTex() : voskyp->getMoonTex());
 
 	LLOverrideFaceColor override(this, LLColor4(face->getFaceColor().mV));
-	face->renderIndexed(LLRenderPass::POOL_WATER);
+	face->renderIndexed();
 }
 
 void LLDrawPoolWater::shade2(bool edge, LLGLSLShader* shader, const LLColor3& light_diffuse, const LLVector3& light_dir, F32 light_exp)
