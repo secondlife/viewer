@@ -393,7 +393,11 @@ private:
 	typedef std::vector<Line> line_list_t;
 	line_list_t mLineList;
 	LLColor4 mTextColor;
-	
+
+	LLColor4 mBackColor;
+	LLRect mBackRectCamera1;
+	LLRect mBackRectCamera2;
+
 	void addText(S32 x, S32 y, const std::string &text) 
 	{
 		mLineList.push_back(Line(text, x, y));
@@ -429,10 +433,21 @@ public:
 		mTextColor = LLColor4( 0.86f, 0.86f, 0.86f, 1.f );
 
 		// Draw stuff growing up from right lower corner of screen
-		S32 xpos = mWindow->getWorldViewWidthScaled() - 400;
+		S32 x_right = mWindow->getWorldViewWidthScaled();
+		S32 xpos = x_right - 400;
 		xpos = llmax(xpos, 0);
 		S32 ypos = 64;
 		const S32 y_inc = 20;
+
+		// Camera matrix text is hard to see again a white background
+		// Add a dark background underneath the matrices for readability (contrast)
+		mBackRectCamera1.mLeft   = xpos;
+		mBackRectCamera1.mRight  = x_right;
+		mBackRectCamera1.mTop    = -1;
+		mBackRectCamera1.mBottom = -1;
+		mBackRectCamera2 = mBackRectCamera1;
+
+		mBackColor = LLUIColorTable::instance().getColor( "MenuDefaultBgColor" );
 
 		clearText();
 		
@@ -775,10 +790,11 @@ public:
 
 			// Projection last column is always <0,0,-1,0>
 			// Projection last row is <0,0,x>
+			mBackRectCamera1.mBottom = ypos - y_inc;
 			MATRIX_ROW_N32_TO_STR(gGLProjection, 12); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc;
 			MATRIX_ROW_N32_TO_STR(gGLProjection,  8); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc;
-			MATRIX_ROW_N32_TO_STR(gGLProjection,  4); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc;
-			MATRIX_ROW_N32_TO_STR(gGLProjection,  0); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc;
+			MATRIX_ROW_N32_TO_STR(gGLProjection,  4); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc; mBackRectCamera1.mTop    = ypos;
+			MATRIX_ROW_N32_TO_STR(gGLProjection,  0); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc; mBackRectCamera2.mBottom = ypos;
 
 			addText(xpos, ypos, "Projection Matrix");
 			ypos += y_inc;
@@ -786,7 +802,7 @@ public:
 			// View last column is always <0,0,0,1>
 			MATRIX_ROW_F32_TO_STR(gGLModelView, 12); addText(xpos, ypos, llformat("%s  ""%s  ""%s", x_str, y_str, z_str)); ypos += y_inc;
 			MATRIX_ROW_N32_TO_STR(gGLModelView,  8); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc;
-			MATRIX_ROW_N32_TO_STR(gGLModelView,  4); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc;
+			MATRIX_ROW_N32_TO_STR(gGLModelView,  4); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc; mBackRectCamera2.mTop = ypos;
 			MATRIX_ROW_N32_TO_STR(gGLModelView,  0); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc;
 
 			addText(xpos, ypos, "View Matrix");
@@ -929,6 +945,18 @@ public:
 	void draw()
 	{
 		LL_RECORD_BLOCK_TIME(FTM_DISPLAY_DEBUG_TEXT);
+
+		// Camera matrix text is hard to see again a white background
+		// Add a dark background underneath the matrices for readability (contrast)
+		if (mBackRectCamera1.mTop >= 0)
+		{
+			mBackColor.setAlpha( 0.75f );
+			gl_rect_2d(mBackRectCamera1, mBackColor, true);
+
+			mBackColor.setAlpha( 0.66f );
+			gl_rect_2d(mBackRectCamera2, mBackColor, true);
+		}
+
 		for (line_list_t::iterator iter = mLineList.begin();
 			 iter != mLineList.end(); ++iter)
 		{
