@@ -313,6 +313,66 @@ RecordToChatConsole::RecordToChatConsole():
 
 ////////////////////////////////////////////////////////////////////////////
 //
+// Print Utility
+//
+
+// Convert a normalized float (-1.0 <= x <= +1.0) to a fixed 1.4 format string:
+//
+//    s#.####
+//
+// Where:
+//    s  sign character; space if x is positiv, minus if negative
+//    #  decimal digits
+//
+// This is similar to printf("%+.4f") except positive numbers are NOT cluttered with a leading '+' sign.
+void normalized_float_to_string(const float x, char *out_str)
+{
+    static const unsigned char DECIMAL_BCD2[] =
+    {
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
+        0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19,
+        0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29,
+        0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39,
+        0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49,
+        0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59,
+        0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69,
+        0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79,
+        0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89,
+        0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99
+    };
+
+    int neg = (x < 0);
+    int rem = neg
+            ? (int)(x * -10000.)
+            : (int)(x *  10000.);
+
+    int d10 = rem % 100; rem /= 100;
+    int d32 = rem % 100; rem /= 100;
+
+    out_str[7] = 0;
+    out_str[6] = '0' + ((DECIMAL_BCD2[ d10 ] >> 0) & 0xF);
+    out_str[5] = '0' + ((DECIMAL_BCD2[ d10 ] >> 4) & 0xF);
+    out_str[4] = '0' + ((DECIMAL_BCD2[ d32 ] >> 0) & 0xF);
+    out_str[3] = '0' + ((DECIMAL_BCD2[ d32 ] >> 4) & 0xF);
+    out_str[2] = '.';
+    out_str[1] = '0' + (rem & 1);
+    out_str[0] = " -"[neg]; // Could always show '+' for positive but this clutters up the common case
+}
+
+// normalized float
+#define MATRIX_ROW_N32_TO_STR( matrix_row, i )            \
+    normalized_float_to_string( matrix_row[i+0], x_str ); \
+    normalized_float_to_string( matrix_row[i+1], y_str ); \
+    normalized_float_to_string( matrix_row[i+2], z_str );
+
+// regular float
+#define MATRIX_ROW_F32_TO_STR( matrix_row, i )  \
+    sprintf(x_str, "%-9.2f", matrix_row[i+0] ); \
+    sprintf(y_str, "%-9.2f", matrix_row[i+1] ); \
+    sprintf(z_str, "%-9.2f", matrix_row[i+2] );
+
+////////////////////////////////////////////////////////////////////////////
+//
 // LLDebugText
 //
 
@@ -709,34 +769,25 @@ public:
 		}
 		if (gSavedSettings.getBOOL("DebugShowRenderMatrices"))
 		{
-            // Projection last column is always <0,0,-1,0>
-			addText(xpos, ypos, llformat("%.4f    %.4f    %.4f", gGLProjection[12], gGLProjection[13], gGLProjection[14]));
-			ypos += y_inc;
+			char x_str[16];
+			char y_str[16];
+			char z_str[16];
 
-			addText(xpos, ypos, llformat("%.4f    %.4f    %.4f", gGLProjection[8], gGLProjection[9], gGLProjection[10]));
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("%.4f    %.4f    %.4f", gGLProjection[4], gGLProjection[5], gGLProjection[6]));
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("%.4f    %.4f    %.4f", gGLProjection[0], gGLProjection[1], gGLProjection[2]));
-			ypos += y_inc;
+			// Projection last column is always <0,0,-1,0>
+			// Projection last row is <0,0,x>
+			MATRIX_ROW_N32_TO_STR(gGLProjection, 12); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc;
+			MATRIX_ROW_N32_TO_STR(gGLProjection,  8); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc;
+			MATRIX_ROW_N32_TO_STR(gGLProjection,  4); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc;
+			MATRIX_ROW_N32_TO_STR(gGLProjection,  0); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc;
 
 			addText(xpos, ypos, "Projection Matrix");
 			ypos += y_inc;
 
-            // View last column is always <0,0,0,1>
-			addText(xpos, ypos, llformat("%.4f    %.4f    %.4f", gGLModelView[12], gGLModelView[13], gGLModelView[14]));
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("%.4f    %.4f    %.4f", gGLModelView[8], gGLModelView[9], gGLModelView[10]));
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("%.4f    %.4f    %.4f", gGLModelView[4], gGLModelView[5], gGLModelView[6]));
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("%.4f    %.4f    %.4f", gGLModelView[0], gGLModelView[1], gGLModelView[2]));
-			ypos += y_inc;
+			// View last column is always <0,0,0,1>
+			MATRIX_ROW_F32_TO_STR(gGLModelView, 12); addText(xpos, ypos, llformat("%s  ""%s  ""%s", x_str, y_str, z_str)); ypos += y_inc;
+			MATRIX_ROW_N32_TO_STR(gGLModelView,  8); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc;
+			MATRIX_ROW_N32_TO_STR(gGLModelView,  4); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc;
+			MATRIX_ROW_N32_TO_STR(gGLModelView,  0); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc;
 
 			addText(xpos, ypos, "View Matrix");
 			ypos += y_inc;
