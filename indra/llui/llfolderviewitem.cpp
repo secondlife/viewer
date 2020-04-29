@@ -122,6 +122,7 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 :	LLView(p),
 	mLabelWidth(0),
 	mLabelWidthDirty(false),
+    mLabelNeedsRefresh(false),
     mLabelPaddingRight(DEFAULT_LABEL_PADDING_RIGHT),
 	mParentFolder( NULL ),
 	mIsSelected( FALSE ),
@@ -181,10 +182,15 @@ LLFolderViewItem::~LLFolderViewItem()
 
 BOOL LLFolderViewItem::postBuild()
 {
-	refresh();
+    LLFolderViewModelItem& vmi = *getViewModelItem();
+    mLabel = vmi.getDisplayName(); // slightly expensive, but only first time
+    setToolTip(vmi.getName());
+
+    // Dirty the filter flag of the model from the view (CHUI-849)
+    mLabelNeedsRefresh = true;
+    mLabelWidthDirty = true;
 	return TRUE;
 }
-
 
 LLFolderView* LLFolderViewItem::getRoot()
 {
@@ -282,22 +288,28 @@ void LLFolderViewItem::refresh()
 {
 	LLFolderViewModelItem& vmi = *getViewModelItem();
 
+    // getDisplayName() is slightly expensive on first run
 	mLabel = vmi.getDisplayName();
-
 	setToolTip(vmi.getName());
+
+    // icons are slightly expensive to get, can be optimized
+    // see LLInventoryIcon::getIcon()
 	mIcon = vmi.getIcon();
 	mIconOpen = vmi.getIconOpen();
 	mIconOverlay = vmi.getIconOverlay();
 
 	if (mRoot->useLabelSuffix())
 	{
+        // Very Expensive!
+        // Can do a number of expensive checks, like checking active motions, wearables or friend list
 		mLabelStyle = vmi.getLabelStyle();
 		mLabelSuffix = vmi.getLabelSuffix();
 	}
 
-	mLabelWidthDirty = true;
     // Dirty the filter flag of the model from the view (CHUI-849)
 	vmi.dirtyFilter();
+    mLabelWidthDirty = true;
+    mLabelNeedsRefresh = false;
 }
 
 // Utility function for LLFolderView
@@ -348,6 +360,10 @@ S32 LLFolderViewItem::arrange( S32* width, S32* height )
 		: 0;
 	if (mLabelWidthDirty)
 	{
+        if (mLabelNeedsRefresh)
+        {
+            refresh();
+        }
 		mLabelWidth = getLabelXPos() + getLabelFontForStyle(mLabelStyle)->getWidth(mLabel) + getLabelFontForStyle(mLabelStyle)->getWidth(mLabelSuffix) + mLabelPaddingRight; 
 		mLabelWidthDirty = false;
 	}

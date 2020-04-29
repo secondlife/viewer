@@ -545,7 +545,9 @@ BOOL LLConversationViewParticipant::postBuild()
     }
 
     updateChildren();
-	return LLFolderViewItem::postBuild();
+	LLFolderViewItem::postBuild();
+    refresh();
+    return TRUE;
 }
 
 void LLConversationViewParticipant::draw()

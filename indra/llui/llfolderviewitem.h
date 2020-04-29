@@ -90,6 +90,7 @@ protected:
 	std::string					mLabel;
 	S32							mLabelWidth;
 	bool						mLabelWidthDirty;
+	bool						mLabelNeedsRefresh;
     S32                         mLabelPaddingRight;
 	LLFolderViewFolder*			mParentFolder;
 	LLPointer<LLFolderViewModelItem> mViewModelItem;
@@ -266,7 +267,8 @@ public:
 	virtual BOOL	passedFilter(S32 filter_generation = -1);
 	virtual BOOL	isPotentiallyVisible(S32 filter_generation = -1);
 
-	// refresh information from the object being viewed.
+    // refresh information from the object being viewed.
+    // refreshes, label, sufixes and sets icons. Expensive!
 	virtual void refresh();
 
 	// LLView functionality
