@@ -1959,6 +1959,11 @@ Cette action modifiera des milliers de régions et sera difficile à digérer po
 		Le fait de décocher cette option est susceptible de lever les restrictions que les propriétaires des parcelles ont ajouté pour éviter tout différend, maintenir la confidentialité ou protéger les jeunes résidents contre tout contenu réservé aux adultes. Veuillez discuter avec les propriétaires du terrain si nécessaire.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
+	<notification name="EstateParcelEnvironmentOverride">
+		Si vous décochez cette option, tous les environnements personnalisés que les propriétaires de parcelles ont ajoutés à leurs parcelles seront supprimés. Veuillez discuter avec les propriétaires de votre parcelle si nécessaire. 
+Souhaitez-vous continuer ?
+		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
+	</notification>
 	<notification name="RegionEntryAccessBlocked">
 		La région que vous essayez de visiter comporte du contenu dont le niveau dépasse celui de vos préférences actuelles. Vous pouvez modifier vos préférences en accédant à Moi &gt; Préférences &gt; Général.
 		<usetemplate name="okbutton" yestext="OK"/>
@@ -2439,7 +2444,15 @@ Liez-la à partir d&apos;une page web pour permettre aux autres résidents d&apo
 		Une dossier semble manquer au Cycle du jour : [SKY].
 	</notification>
 	<notification name="WLRegionApplyFail">
-		Impossible d&apos;appliquer les réglages à la région. Le problème est parfois résolu en quittant la région puis en y revenant. Motif fourni : [FAIL_REASON]
+		Impossible d&apos;appliquer les réglages à la région. Raison : [FAIL_REASON]
+	</notification>
+	<notification name="WLLocalTextureDayBlock">
+		Une texture locale est utilisée sur la piste [TRACK], le cadre n° [FRAMENO] ([FRAME]%) dans le champ [FIELD]. 
+Les paramètres ne seront peut-être pas enregistrés en utilisant les textures locales
+	</notification>
+	<notification name="WLLocalTextureFixedBlock">
+		Une texture locale est utilisée dans le champ [FIELD]. 
+Les paramètres ne seront peut-être pas enregistrés en utilisant les textures locales
 	</notification>
 	<notification name="EnvCannotDeleteLastDayCycleKey">
 		Impossible de supprimer la dernière clé de ce cycle du jour car ce dernier ne peut pas être vide. Modifiez la dernière clé restante au lieu d&apos;essayer de la supprimer puis d&apos;en créer une nouvelle.
@@ -4388,5 +4401,77 @@ Veuillez sélectionner un terrain plus petit.
 	<notification name="OutfitPhotoLoadError">
 		[REASON]
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="FailedToFindSettings">
+		Impossible de charger les paramètres de [NOM] à partir de la base de données.
+	</notification>
+	<notification name="FailedToLoadSettingsApply">
+		Impossible d&apos;appliquer ces paramètres à l&apos;environnement.
+	</notification>
+	<notification name="FailedToBuildSettingsDay">
+		Impossible d&apos;appliquer ces paramètres à l&apos;environnement.
+	</notification>
+	<notification name="NoEnvironmentSettings">
+		Cette région ne prend pas en charge les paramètres environnementaux.
+	</notification>
+	<notification label="Enregistrer la tenue" name="SaveSettingAs">
+		Enregistrer les paramètres environnementaux actuels sous :
+		<form name="form">
+			<input name="message">
+				[DESC] (nouv.)
+			</input>
+			<button name="OK" text="OK"/>
+			<button name="Cancel" text="Annuler"/>
+		</form>
+	</notification>
+	<notification name="WLImportFail">
+		Impossible d&apos;importer les paramètres Windlight [NAME] hérités de 
+[FILE]. 
+
+[REASONS]
+	</notification>
+	<notification name="WLParcelApplyFail">
+		Impossible de définir l&apos;environnement pour cette parcelle. 
+Veuillez entrer ou sélectionner une parcelle que vous avez le droit de modifier.
+	</notification>
+	<notification name="SettingsUnsuported">
+		Les paramètres ne sont pas pris en charge dans cette région. 
+Veuillez vous déplacer dans une région où les paramètres sont activés et relancer votre action.
+	</notification>
+	<notification name="SettingsConfirmLoss">
+		Vous êtes sur le point de perdre les modifications que vous avez apportées à ce [TYPE] nommé &quot;[NAME]&quot;. 
+Voulez-vous vraiment continuer ?
+		<usetemplate ignoretext="Voulez-vous vraiment perdre les modifications ?" name="okcancelignore" notext="Non" yestext="Oui"/>
+	</notification>
+	<notification name="SettingsConfirmReset">
+		Vous êtes sur le point de supprimer tous les paramètres appliqués. 
+Voulez-vous vraiment continuer ?
+		<usetemplate name="okcancelbuttons" notext="Non" yestext="Oui"/>
+	</notification>
+	<notification name="PersonalSettingsConfirmReset">
+		Vous êtes sur le point de supprimer tous les paramètres d&apos;éclairage personnel appliqués. 
+Voulez-vous vraiment continuer ?
+		<usetemplate name="okcancelbuttons" notext="Non" yestext="Oui"/>
+	</notification>
+	<notification name="SettingsMakeNoTrans">
+		Vous êtes sur le point d&apos;importer des paramètres non transférables dans ce cycle de jour. Si vous continuez, les paramètres que vous modifiez deviennent également non transférables. 
+
+Cette modification ne peut être être annulée. 
+
+Voulez-vous vraiment continuer ?
+		<usetemplate ignoretext="Voulez-vous vraiment que ces paramètres soient non transférables ?" name="okcancelignore" notext="Non" yestext="Oui"/>
+	</notification>
+	<notification name="NoEditFromLibrary">
+		Vous ne pouvez pas modifier les paramètres directement à partir de la bibliothèque. 
+Veuillez copier vers votre inventaire puis réessayer
+	</notification>
+	<notification name="EnvironmentApplyFailed">
+		Nous avons rencontré un problème avec ces paramètres. Ils ne peuvent pas être enregistres ou appliqués pour l&apos;instant.
+	</notification>
+	<notification name="TrackLoadFailed">
+		Impossible de charger la piste dans [TRACK].
+	</notification>
+	<notification name="TrackLoadMismatch">
+		Impossible de charger la piste de [TRACK1] dans [TRACK2].
 	</notification>
 </notifications>

@@ -105,29 +105,12 @@ public:
         def(CURLE_UNSUPPORTED_PROTOCOL);    /* 1 */
         def(CURLE_FAILED_INIT);             /* 2 */
         def(CURLE_URL_MALFORMAT);           /* 3 */
-        def(CURLE_URL_MALFORMAT_USER);      /* 4 - NOT USED */
         def(CURLE_COULDNT_RESOLVE_PROXY);   /* 5 */
         def(CURLE_COULDNT_RESOLVE_HOST);    /* 6 */
         def(CURLE_COULDNT_CONNECT);         /* 7 */
-        def(CURLE_FTP_WEIRD_SERVER_REPLY);  /* 8 */
-        def(CURLE_FTP_ACCESS_DENIED);       /* 9 a service was denied by the FTP server
-                                          due to lack of access - when login fails
-                                          this is not returned. */
-        def(CURLE_FTP_USER_PASSWORD_INCORRECT); /* 10 - NOT USED */
-        def(CURLE_FTP_WEIRD_PASS_REPLY);    /* 11 */
-        def(CURLE_FTP_WEIRD_USER_REPLY);    /* 12 */
-        def(CURLE_FTP_WEIRD_PASV_REPLY);    /* 13 */
-        def(CURLE_FTP_WEIRD_227_FORMAT);    /* 14 */
-        def(CURLE_FTP_CANT_GET_HOST);       /* 15 */
-        def(CURLE_FTP_CANT_RECONNECT);      /* 16 */
-        def(CURLE_FTP_COULDNT_SET_BINARY);  /* 17 */
         def(CURLE_PARTIAL_FILE);            /* 18 */
-        def(CURLE_FTP_COULDNT_RETR_FILE);   /* 19 */
-        def(CURLE_FTP_WRITE_ERROR);         /* 20 */
-        def(CURLE_FTP_QUOTE_ERROR);         /* 21 */
         def(CURLE_HTTP_RETURNED_ERROR);     /* 22 */
         def(CURLE_WRITE_ERROR);             /* 23 */
-        def(CURLE_MALFORMAT_USER);          /* 24 - NOT USED */
         def(CURLE_UPLOAD_FAILED);           /* 25 - failed upload "command" */
         def(CURLE_READ_ERROR);              /* 26 - could open/read from file */
         def(CURLE_OUT_OF_MEMORY);           /* 27 */
@@ -135,29 +118,18 @@ public:
                  instead of a memory allocation error if CURL_DOES_CONVERSIONS
                  is defined
         */
-        def(CURLE_OPERATION_TIMEOUTED);     /* 28 - the timeout time was reached */
-        def(CURLE_FTP_COULDNT_SET_ASCII);   /* 29 - TYPE A failed */
-        def(CURLE_FTP_PORT_FAILED);         /* 30 - FTP PORT operation failed */
-        def(CURLE_FTP_COULDNT_USE_REST);    /* 31 - the REST command failed */
-        def(CURLE_FTP_COULDNT_GET_SIZE);    /* 32 - the SIZE command failed */
+        def(CURLE_OPERATION_TIMEDOUT);     /* 28 - the timeout time was reached */
         def(CURLE_HTTP_RANGE_ERROR);        /* 33 - RANGE "command" didn't work */
         def(CURLE_HTTP_POST_ERROR);         /* 34 */
         def(CURLE_SSL_CONNECT_ERROR);       /* 35 - wrong when connecting with SSL */
         def(CURLE_BAD_DOWNLOAD_RESUME);     /* 36 - couldn't resume download */
         def(CURLE_FILE_COULDNT_READ_FILE);  /* 37 */
-        def(CURLE_LDAP_CANNOT_BIND);        /* 38 */
-        def(CURLE_LDAP_SEARCH_FAILED);      /* 39 */
         def(CURLE_LIBRARY_NOT_FOUND);       /* 40 */
         def(CURLE_FUNCTION_NOT_FOUND);      /* 41 */
         def(CURLE_ABORTED_BY_CALLBACK);     /* 42 */
         def(CURLE_BAD_FUNCTION_ARGUMENT);   /* 43 */
-        def(CURLE_BAD_CALLING_ORDER);       /* 44 - NOT USED */
         def(CURLE_INTERFACE_FAILED);        /* 45 - CURLOPT_INTERFACE failed */
-        def(CURLE_BAD_PASSWORD_ENTERED);    /* 46 - NOT USED */
         def(CURLE_TOO_MANY_REDIRECTS );     /* 47 - catch endless re-direct loops */
-        def(CURLE_UNKNOWN_TELNET_OPTION);   /* 48 - User specified an unknown option */
-        def(CURLE_TELNET_OPTION_SYNTAX );   /* 49 - Malformed telnet option */
-        def(CURLE_OBSOLETE);                /* 50 - NOT USED */
         def(CURLE_SSL_PEER_CERTIFICATE);    /* 51 - peer's certificate wasn't ok */
         def(CURLE_GOT_NOTHING);             /* 52 - when this is a specific error */
         def(CURLE_SSL_ENGINE_NOTFOUND);     /* 53 - SSL crypto engine not found */
@@ -165,26 +137,19 @@ public:
                                           default */
         def(CURLE_SEND_ERROR);              /* 55 - failed sending network data */
         def(CURLE_RECV_ERROR);              /* 56 - failure in receiving network data */
-        def(CURLE_SHARE_IN_USE);            /* 57 - share is in use */
+
         def(CURLE_SSL_CERTPROBLEM);         /* 58 - problem with the local certificate */
         def(CURLE_SSL_CIPHER);              /* 59 - couldn't use specified cipher */
         def(CURLE_SSL_CACERT);              /* 60 - problem with the CA cert (path?) */
         def(CURLE_BAD_CONTENT_ENCODING);    /* 61 - Unrecognized transfer encoding */
-        def(CURLE_LDAP_INVALID_URL);        /* 62 - Invalid LDAP URL */
+
         def(CURLE_FILESIZE_EXCEEDED);       /* 63 - Maximum file size exceeded */
-        def(CURLE_FTP_SSL_FAILED);          /* 64 - Requested FTP SSL level failed */
+
         def(CURLE_SEND_FAIL_REWIND);        /* 65 - Sending the data requires a rewind
                                           that failed */
         def(CURLE_SSL_ENGINE_INITFAILED);   /* 66 - failed to initialise ENGINE */
         def(CURLE_LOGIN_DENIED);            /* 67 - user); password or similar was not
                                           accepted and we failed to login */
-        def(CURLE_TFTP_NOTFOUND);           /* 68 - file not found on server */
-        def(CURLE_TFTP_PERM);               /* 69 - permission problem on server */
-        def(CURLE_TFTP_DISKFULL);           /* 70 - out of disk space on server */
-        def(CURLE_TFTP_ILLEGAL);            /* 71 - Illegal TFTP operation */
-        def(CURLE_TFTP_UNKNOWNID);          /* 72 - Unknown transfer ID */
-        def(CURLE_TFTP_EXISTS);             /* 73 - File already exists */
-        def(CURLE_TFTP_NOSUCHUSER);         /* 74 - No such user */
         def(CURLE_CONV_FAILED);             /* 75 - conversion failed */
         def(CURLE_CONV_REQD);               /* 76 - caller must register conversion
                                           callbacks using curl_easy_setopt options

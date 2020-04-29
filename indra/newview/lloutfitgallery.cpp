@@ -1216,7 +1216,6 @@ void LLOutfitGallery::uploadOutfitImage(const std::vector<std::string>& filename
         checkRemovePhoto(outfit_id);
         std::string upload_pending_name = outfit_id.asString();
         std::string upload_pending_desc = "";
-        LLAssetStorage::LLStoreAssetCallback callback = NULL;
         LLUUID photo_id = upload_new_resource(filename, // file
             upload_pending_name,
             upload_pending_desc,
@@ -1224,7 +1223,7 @@ void LLOutfitGallery::uploadOutfitImage(const std::vector<std::string>& filename
             LLFloaterPerms::getNextOwnerPerms("Uploads"),
             LLFloaterPerms::getGroupPerms("Uploads"),
             LLFloaterPerms::getEveryonePerms("Uploads"),
-            upload_pending_name, callback, expected_upload_cost, nruserdata, false);
+            upload_pending_name, LLAssetStorage::LLStoreAssetCallback(), expected_upload_cost, nruserdata, false);
         mOutfitLinkPending = outfit_id;
     }
     delete unit;

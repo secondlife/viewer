@@ -79,30 +79,15 @@
 			<menu_item_check label="Proprietà del lotto" name="Parcel Properties"/>
 			<menu_item_check label="Menu Avanzato" name="Show Advanced Menu"/>
 		</menu>
-		<menu label="Dom" name="Sun">
+		<menu label="Ambiente" name="Environment">
 			<menu_item_check label="Alba" name="Sunrise"/>
 			<menu_item_check label="Mezzogiorno" name="Noon"/>
 			<menu_item_check label="Tramonto" name="Sunset"/>
 			<menu_item_check label="Mezzanotte" name="Midnight"/>
-			<menu_item_check label="Usa impostazioni regione" name="Use Region Settings"/>
-		</menu>
-		<menu label="Editor ambiente" name="Environment Editor">
-			<menu_item_call label="Impostazioni ambiente..." name="Environment Settings"/>
-			<menu label="Valori predefiniti acqua" name="Water Presets">
-				<menu_item_call label="Nuovo valore predefinito..." name="new_water_preset"/>
-				<menu_item_call label="Modifica valore predefinito..." name="edit_water_preset"/>
-				<menu_item_call label="Elimina valore predefinito..." name="delete_water_preset"/>
-			</menu>
-			<menu label="Valori predefiniti cielo" name="Sky Presets">
-				<menu_item_call label="Nuovo valore predefinito..." name="new_sky_preset"/>
-				<menu_item_call label="Modifica valore predefinito..." name="edit_sky_preset"/>
-				<menu_item_call label="Elimina valore predefinito..." name="delete_sky_preset"/>
-			</menu>
-			<menu label="Valori predefiniti giorno" name="Day Presets">
-				<menu_item_call label="Nuovo valore predefinito..." name="new_day_preset"/>
-				<menu_item_call label="Modifica valore predefinito..." name="edit_day_preset"/>
-				<menu_item_call label="Elimina valore predefinito..." name="delete_day_preset"/>
-			</menu>
+			<menu_item_check label="Utilizza ambienti condivisi" name="Use Shared Environment"/>
+			<menu_item_call label="I miei ambienti..." name="my_environs"/>
+			<menu_item_call label="Illuminazione personale..." name="adjustment_tool"/>
+			<menu_item_check label="Ferma nuvole" name="pause_clouds"/>
 		</menu>
 	</menu>
 	<menu label="Costruisci" name="BuildTools">
@@ -323,6 +308,9 @@
 			<menu_item_check label="Maschera alfa automatica (non differita)" name="Automatic Alpha Masks (non-deferred)"/>
 			<menu_item_check label="Texture delle animazioni" name="Animation Textures"/>
 			<menu_item_check label="Disabilita texture" name="Disable Textures"/>
+			<menu_item_check label="Disattiva Ambiente" name="Disable Ambient"/>
+			<menu_item_check label="Disattiva luce del sole" name="Disable Sunlight"/>
+			<menu_item_check label="Disattiva Luci locali" name="Disable Local Lights"/>
 			<menu_item_check label="Rendering delle luci unite" name="Render Attached Lights"/>
 			<menu_item_check label="Rendering particelle unite" name="Render Attached Particles"/>
 			<menu_item_check label="Gli oggetti brillano quando sono sotto il cursore" name="Hover Glow Objects"/>
@@ -413,6 +401,7 @@
 	</menu>
 	<menu label="Admin" name="Deprecated">
 		<menu label="Take Off Clothing" name="Take Off Clothing">
+			<menu_item_call label="Universale" name="Universal"/>
 			<menu_item_call label="Fisica" name="Physics"/>
 		</menu>
 		<menu label="Guida" name="DeprecatedHelp">

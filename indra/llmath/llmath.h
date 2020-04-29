@@ -537,6 +537,35 @@ inline void ll_remove_outliers(std::vector<VEC_TYPE>& data, F32 k)
 	}
 }
 
+// Converts given value from a linear RGB floating point value (0..1) to a gamma corrected (sRGB) value.
+// Some shaders require color values in linear space, while others require color values in gamma corrected (sRGB) space.
+// Note: in our code, values labeled as sRGB are ALWAYS gamma corrected linear values, NOT linear values with monitor gamma applied
+// Note: stored color values should always be gamma corrected linear (i.e. the values returned from an on-screen color swatch)
+// Note: DO NOT cache the conversion.  This leads to error prone synchronization and is actually slower in the typical case due to cache misses
+inline float linearTosRGB(const float val) {
+    if (val < 0.0031308f) {
+        return val * 12.92f;
+    }
+    else {
+        return 1.055f * pow(val, 1.0f / 2.4f) - 0.055f;
+    }
+}
+
+// Converts given value from a gamma corrected (sRGB) floating point value (0..1) to a linear color value.
+// Some shaders require color values in linear space, while others require color values in gamma corrected (sRGB) space.
+// Note: In our code, values labeled as sRGB are gamma corrected linear values, NOT linear values with monitor gamma applied
+// Note: Stored color values should generally be gamma corrected sRGB.  
+//       If you're serializing the return value of this function, you're probably doing it wrong.
+// Note: DO NOT cache the conversion.  This leads to error prone synchronization and is actually slower in the typical case due to cache misses.
+inline float sRGBtoLinear(const float val) {
+    if (val < 0.04045f) {
+        return val / 12.92f;
+    }
+    else {
+        return pow((val + 0.055f) / 1.055f, 2.4f);
+    }
+}
+
 // Include simd math header
 #include "llsimdmath.h"
 

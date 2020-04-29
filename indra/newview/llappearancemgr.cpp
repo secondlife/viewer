@@ -1029,14 +1029,13 @@ void LLWearableHoldingPattern::recoverMissingWearable(LLWearableType::EType type
 	const LLUUID lost_and_found_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
 	LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(recovered_item_cb,_1,type,wearable,this));
 
-	create_inventory_item(gAgent.getID(),
+    create_inventory_wearable(gAgent.getID(),
 						  gAgent.getSessionID(),
 						  lost_and_found_id,
 						  wearable->getTransactionID(),
 						  wearable->getName(),
 						  wearable->getDescription(),
 						  wearable->getAssetType(),
-						  LLInventoryType::IT_WEARABLE,
 						  wearable->getType(),
 						  wearable->getPermissions().getMaskNextOwner(),
 						  cb);

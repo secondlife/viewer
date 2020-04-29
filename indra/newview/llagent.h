@@ -189,6 +189,8 @@ private:
  	// Position
 	//--------------------------------------------------------------------
 public:
+    typedef boost::signals2::signal<void(const LLVector3 &position_local, const LLVector3d &position_global)> position_signal_t;
+
 	LLVector3		getPosAgentFromGlobal(const LLVector3d &pos_global) const;
 	LLVector3d		getPosGlobalFromAgent(const LLVector3 &pos_agent) const;	
 	const LLVector3d &getPositionGlobal() const;
@@ -196,10 +198,16 @@ public:
 	// Call once per frame to update position, angles (radians).
 	void			updateAgentPosition(const F32 dt, const F32 yaw, const S32 mouse_x, const S32 mouse_y);	
 	void			setPositionAgent(const LLVector3 &center);
+
+    boost::signals2::connection whenPositionChanged(position_signal_t::slot_type fn);
+
 protected:
 	void			propagate(const F32 dt); // ! BUG ! Should roll into updateAgentPosition
 private:
 	mutable LLVector3d mPositionGlobal;
+
+    position_signal_t   mOnPositionChanged;
+    LLVector3d          mLastTestGlobal;
 
   	//--------------------------------------------------------------------
  	// Velocity

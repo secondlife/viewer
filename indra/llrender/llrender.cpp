@@ -59,7 +59,8 @@ static const GLenum sGLTextureType[] =
 	GL_TEXTURE_2D,
 	GL_TEXTURE_RECTANGLE_ARB,
 	GL_TEXTURE_CUBE_MAP_ARB,
-	GL_TEXTURE_2D_MULTISAMPLE
+	GL_TEXTURE_2D_MULTISAMPLE,
+    GL_TEXTURE_3D
 };
 
 static const GLint sGLAddressMode[] =
@@ -104,7 +105,7 @@ LLTexUnit::LLTexUnit(S32 index)
 	mCurrColorOp(TBO_MULT), mCurrAlphaOp(TBO_MULT),
 	mCurrColorSrc1(TBS_TEX_COLOR), mCurrColorSrc2(TBS_PREV_COLOR),
 	mCurrAlphaSrc1(TBS_TEX_ALPHA), mCurrAlphaSrc2(TBS_PREV_ALPHA),
-	mCurrColorScale(1), mCurrAlphaScale(1), mCurrTexture(0),
+    mCurrColorScale(1), mCurrAlphaScale(1), mCurrTexture(0), mTexColorSpace(TCS_LINEAR),
 	mHasMipMaps(false),
 	mIndex(index)
 {
@@ -161,6 +162,8 @@ void LLTexUnit::refreshState(void)
 		setTextureCombiner(mCurrColorOp, mCurrColorSrc1, mCurrColorSrc2, false);
 		setTextureCombiner(mCurrAlphaOp, mCurrAlphaSrc1, mCurrAlphaSrc2, true);
 	}
+
+    setTextureColorSpace(mTexColorSpace);
 }
 
 void LLTexUnit::activate(void)
@@ -218,6 +221,8 @@ void LLTexUnit::disable(void)
 		{
 			glDisable(sGLTextureType[mCurrTexType]);
 		}
+
+        setTextureColorSpace(TCS_LINEAR);
 		
 		mCurrTexType = TT_NONE;
 	}
@@ -254,7 +259,8 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
 						gl_tex->mTexOptionsDirty = false;
 						setTextureAddressMode(gl_tex->mAddressMode);
 						setTextureFilteringOption(gl_tex->mFilterOption);
-					}
+                    }
+                    setTextureColorSpace(mTexColorSpace);
 				}
 			}
 			else
@@ -329,6 +335,7 @@ bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind)
 			setTextureFilteringOption(texture->mFilterOption);
 			stop_glerror();
 		}
+        setTextureColorSpace(mTexColorSpace);
 	}
 
 	stop_glerror();
@@ -354,7 +361,7 @@ bool LLTexUnit::bind(LLCubeMap* cubeMap)
 		{
 			activate();
 			enable(LLTexUnit::TT_CUBE_MAP);
-			mCurrTexture = cubeMap->mImages[0]->getTexName();
+            mCurrTexture = cubeMap->mImages[0]->getTexName();
 			glBindTexture(GL_TEXTURE_CUBE_MAP_ARB, mCurrTexture);
 			mHasMipMaps = cubeMap->mImages[0]->mHasMipMaps;
 			cubeMap->mImages[0]->updateBindStats(cubeMap->mImages[0]->mTextureMemory);
@@ -363,7 +370,8 @@ bool LLTexUnit::bind(LLCubeMap* cubeMap)
 				cubeMap->mImages[0]->mTexOptionsDirty = false;
 				setTextureAddressMode(cubeMap->mImages[0]->mAddressMode);
 				setTextureFilteringOption(cubeMap->mImages[0]->mFilterOption);
-			}
+            }
+            setTextureColorSpace(mTexColorSpace);
 			return true;
 		}
 		else
@@ -414,7 +422,8 @@ bool LLTexUnit::bindManual(eTextureType type, U32 texture, bool hasMips)
 		enable(type);
 		mCurrTexture = texture;
 		glBindTexture(sGLTextureType[type], texture);
-		mHasMipMaps = hasMips;
+        mHasMipMaps = hasMips;
+        setTextureColorSpace(mTexColorSpace);
 	}
 	return true;
 }
@@ -434,6 +443,9 @@ void LLTexUnit::unbind(eTextureType type)
 	if (mCurrTexType == type)
 	{
 		mCurrTexture = 0;
+
+        // Always make sure our texture color space is reset to linear.  SRGB sampling should be opt-in in the vast majority of cases.  Also prevents color space "popping".
+        mTexColorSpace = TCS_LINEAR;
 		if (LLGLSLShader::sNoFixedFunction && type == LLTexUnit::TT_TEXTURE)
 		{
 			glBindTexture(sGLTextureType[type], sWhiteTexture);
@@ -837,6 +849,28 @@ void LLTexUnit::debugTextureUnit(void)
 	}
 }
 
+void LLTexUnit::setTextureColorSpace(eTextureColorSpace space) {
+    mTexColorSpace = space;
+
+#if USE_SRGB_DECODE
+    if (gGLManager.mHasTexturesRGBDecode) {
+
+        if (space == TCS_SRGB) {
+            glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_SRGB_DECODE_EXT, GL_DECODE_EXT);
+        }
+        else {
+            glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_SRGB_DECODE_EXT, GL_SKIP_DECODE_EXT);
+        }
+
+        if (gDebugGL) {
+            assert_glerror();
+        }
+    }
+#endif
+    glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_SRGB_DECODE_EXT, GL_SKIP_DECODE_EXT);
+
+}
+
 LLLightState::LLLightState(S32 index)
 : mIndex(index),
   mEnabled(false),
@@ -849,8 +883,11 @@ LLLightState::LLLightState(S32 index)
 	if (mIndex == 0)
 	{
 		mDiffuse.set(1,1,1,1);
+        mDiffuseB.set(0,0,0,0);
 		mSpecular.set(1,1,1,1);
 	}
+
+    mSunIsPrimary = true;
 
 	mAmbient.set(0,0,0,1);
 	mPosition.set(0,0,1,0);
@@ -892,6 +929,24 @@ void LLLightState::setDiffuse(const LLColor4& diffuse)
 			glLightfv(GL_LIGHT0+mIndex, GL_DIFFUSE, mDiffuse.mV);
 		}
 	}
+}
+
+void LLLightState::setDiffuseB(const LLColor4& diffuse)
+{
+    if (mDiffuseB != diffuse)
+	{
+		++gGL.mLightHash;
+		mDiffuseB = diffuse;
+	}
+}
+
+void LLLightState::setSunPrimary(bool v)
+{
+    if (mSunIsPrimary != v)
+    {
+        ++gGL.mLightHash;
+		mSunIsPrimary = v;
+    }
 }
 
 void LLLightState::setAmbient(const LLColor4& ambient)
@@ -1150,8 +1205,10 @@ void LLRender::syncLightState()
 
 		LLVector4 position[8];
 		LLVector3 direction[8];
-		LLVector3 attenuation[8];
+		LLVector4 attenuation[8];
 		LLVector3 diffuse[8];
+        LLVector3 diffuse_b[8];
+        bool      sun_primary[8];
 
 		for (U32 i = 0; i < 8; i++)
 		{
@@ -1159,17 +1216,21 @@ void LLRender::syncLightState()
 
 			position[i] = light->mPosition;
 			direction[i] = light->mSpotDirection;
-			attenuation[i].set(light->mLinearAtten, light->mQuadraticAtten, light->mSpecular.mV[3]);
+            attenuation[i].set(light->mLinearAtten, light->mQuadraticAtten, light->mSpecular.mV[2], light->mSpecular.mV[3]);
 			diffuse[i].set(light->mDiffuse.mV);
+            diffuse_b[i].set(light->mDiffuseB.mV);
+            sun_primary[i] = light->mSunIsPrimary;
 		}
 
 		shader->uniform4fv(LLShaderMgr::LIGHT_POSITION, 8, position[0].mV);
 		shader->uniform3fv(LLShaderMgr::LIGHT_DIRECTION, 8, direction[0].mV);
-		shader->uniform3fv(LLShaderMgr::LIGHT_ATTENUATION, 8, attenuation[0].mV);
+		shader->uniform4fv(LLShaderMgr::LIGHT_ATTENUATION, 8, attenuation[0].mV);
 		shader->uniform3fv(LLShaderMgr::LIGHT_DIFFUSE, 8, diffuse[0].mV);
 		shader->uniform4fv(LLShaderMgr::LIGHT_AMBIENT, 1, mAmbientLightColor.mV);
-		//HACK -- duplicate sunlight color for compatibility with drivers that can't deal with multiple shader objects referencing the same uniform
-		shader->uniform4fv(LLShaderMgr::SUNLIGHT_COLOR, 1, diffuse[0].mV);
+        shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_primary[0] ? 1 : 0);
+        shader->uniform4fv(LLShaderMgr::AMBIENT, 1, mAmbientLightColor.mV);
+        shader->uniform4fv(LLShaderMgr::SUNLIGHT_COLOR, 1, diffuse[0].mV);
+        shader->uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, diffuse_b[0].mV);
 	}
 }
 
@@ -1190,6 +1251,7 @@ void LLRender::syncMatrices()
 	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 
 	static glh::matrix4f cached_mvp;
+    static glh::matrix4f cached_inv_mdv;
 	static U32 cached_mvp_mdv_hash = 0xFFFFFFFF;
 	static U32 cached_mvp_proj_hash = 0xFFFFFFFF;
 	
@@ -1203,12 +1265,18 @@ void LLRender::syncMatrices()
 		bool mvp_done = false;
 
 		U32 i = MM_MODELVIEW;
-		if (mMatHash[i] != shader->mMatHash[i])
+		if (mMatHash[MM_MODELVIEW] != shader->mMatHash[MM_MODELVIEW])
 		{ //update modelview, normal, and MVP
-			glh::matrix4f& mat = mMatrix[i][mMatIdx[i]];
+			glh::matrix4f& mat = mMatrix[MM_MODELVIEW][mMatIdx[MM_MODELVIEW]];
 
-			shader->uniformMatrix4fv(name[i], 1, GL_FALSE, mat.m);
-			shader->mMatHash[i] = mMatHash[i];
+            // if MDV has changed, update the cached inverse as well
+            if (cached_mvp_mdv_hash != mMatHash[MM_MODELVIEW])
+            {
+                cached_inv_mdv = mat.inverse();
+            }
+
+			shader->uniformMatrix4fv(name[MM_MODELVIEW], 1, GL_FALSE, mat.m);
+			shader->mMatHash[MM_MODELVIEW] = mMatHash[MM_MODELVIEW];
 
 			//update normal matrix
 			S32 loc = shader->getUniformLocation(LLShaderMgr::NORMAL_MATRIX);
@@ -1216,7 +1284,7 @@ void LLRender::syncMatrices()
 			{
 				if (cached_normal_hash != mMatHash[i])
 				{
-					cached_normal = mat.inverse().transpose();
+					cached_normal = cached_inv_mdv.transpose();
 					cached_normal_hash = mMatHash[i];
 				}
 
@@ -1231,6 +1299,11 @@ void LLRender::syncMatrices()
 
 				shader->uniformMatrix3fv(LLShaderMgr::NORMAL_MATRIX, 1, GL_FALSE, norm_mat);
 			}
+
+            if (shader->getUniformLocation(LLShaderMgr::INVERSE_MODELVIEW_MATRIX))
+            {                
+	            shader->uniformMatrix4fv(LLShaderMgr::INVERSE_MODELVIEW_MATRIX, 1, GL_FALSE, cached_inv_mdv.m); 
+            }
 
 			//update MVP matrix
 			mvp_done = true;
@@ -1251,14 +1324,21 @@ void LLRender::syncMatrices()
 			}
 		}
 
-
 		i = MM_PROJECTION;
-		if (mMatHash[i] != shader->mMatHash[i])
+		if (mMatHash[MM_PROJECTION] != shader->mMatHash[MM_PROJECTION])
 		{ //update projection matrix, normal, and MVP
-			glh::matrix4f& mat = mMatrix[i][mMatIdx[i]];
+			glh::matrix4f& mat = mMatrix[MM_PROJECTION][mMatIdx[MM_PROJECTION]];
 
-			shader->uniformMatrix4fv(name[i], 1, GL_FALSE, mat.m);
-			shader->mMatHash[i] = mMatHash[i];
+            // it would be nice to have this automatically track the state of the proj matrix
+            // but certain render paths (deferred lighting) require it to be mismatched *sigh*
+            //if (shader->getUniformLocation(LLShaderMgr::INVERSE_PROJECTION_MATRIX))
+            //{
+	        //    glh::matrix4f inv_proj = mat.inverse();
+	        //    shader->uniformMatrix4fv(LLShaderMgr::INVERSE_PROJECTION_MATRIX, 1, FALSE, inv_proj.m);
+            //}
+
+			shader->uniformMatrix4fv(name[MM_PROJECTION], 1, GL_FALSE, mat.m);
+			shader->mMatHash[MM_PROJECTION] = mMatHash[MM_PROJECTION];
 
 			if (!mvp_done)
 			{
@@ -1266,7 +1346,7 @@ void LLRender::syncMatrices()
 				S32 loc = shader->getUniformLocation(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX);
 				if (loc > -1)
 				{
-					if (cached_mvp_mdv_hash != mMatHash[i] || cached_mvp_proj_hash != mMatHash[MM_PROJECTION])
+					if (cached_mvp_mdv_hash != mMatHash[MM_PROJECTION] || cached_mvp_proj_hash != mMatHash[MM_PROJECTION])
 					{
 						U32 mdv = MM_MODELVIEW;
 						cached_mvp = mat;
@@ -1290,7 +1370,7 @@ void LLRender::syncMatrices()
 		}
 
 
-		if (shader->mFeatures.hasLighting || shader->mFeatures.calculatesLighting)
+		if (shader->mFeatures.hasLighting || shader->mFeatures.calculatesLighting || shader->mFeatures.calculatesAtmospherics)
 		{ //also sync light state
 			syncLightState();
 		}
@@ -1307,7 +1387,7 @@ void LLRender::syncMatrices()
 			GL_TEXTURE,
 		};
 
-		for (U32 i = 0; i < 2; ++i)
+		for (U32 i = 0; i < MM_TEXTURE0; ++i)
 		{
 			if (mMatHash[i] != mCurMatHash[i])
 			{
@@ -1317,11 +1397,11 @@ void LLRender::syncMatrices()
 			}
 		}
 
-		for (U32 i = 2; i < NUM_MATRIX_MODES; ++i)
+		for (U32 i = MM_TEXTURE0; i < NUM_MATRIX_MODES; ++i)
 		{
 			if (mMatHash[i] != mCurMatHash[i])
 			{
-				gGL.getTexUnit(i-2)->activate();
+				gGL.getTexUnit(i-MM_TEXTURE0)->activate();
 				glMatrixMode(mode[i]);
 				glLoadMatrixf(mMatrix[i][mMatIdx[i]].m);
 				mCurMatHash[i] = mMatHash[i];
@@ -1453,18 +1533,21 @@ void LLRender::multMatrix(const GLfloat* m)
 	}
 }
 
-void LLRender::matrixMode(U32 mode)
+void LLRender::matrixMode(eMatrixMode mode)
 {
 	if (mode == MM_TEXTURE)
 	{
-		mode = MM_TEXTURE0 + gGL.getCurrentTexUnitIndex();
+        U32 tex_index = gGL.getCurrentTexUnitIndex();
+        // the shaders don't actually reference anything beyond texture_matrix0/1 outside of terrain rendering
+        llassert_always(tex_index <= 3);
+		mode = eMatrixMode(MM_TEXTURE0 + gGL.getCurrentTexUnitIndex());
 	}
 
 	llassert(mode < NUM_MATRIX_MODES);
 	mMatrixMode = mode;
 }
 
-U32 LLRender::getMatrixMode()
+LLRender::eMatrixMode LLRender::getMatrixMode()
 {
 	if (mMatrixMode >= MM_TEXTURE0 && mMatrixMode <= MM_TEXTURE3)
 	{ //always return MM_TEXTURE if current matrix mode points at any texture matrix
@@ -2331,3 +2414,85 @@ void LLRender::debugTexUnits(void)
 	LL_INFOS("TextureUnit") << "Active TexUnit Enabled : " << active_enabled << LL_ENDL;
 }
 
+
+
+glh::matrix4f copy_matrix(F32* src)
+{
+	glh::matrix4f ret;
+	ret.set_value(src);
+	return ret;
+}
+
+glh::matrix4f get_current_modelview()
+{
+	return copy_matrix(gGLModelView);
+}
+
+glh::matrix4f get_current_projection()
+{
+	return copy_matrix(gGLProjection);
+}
+
+glh::matrix4f get_last_modelview()
+{
+	return copy_matrix(gGLLastModelView);
+}
+
+glh::matrix4f get_last_projection()
+{
+	return copy_matrix(gGLLastProjection);
+}
+
+void copy_matrix(const glh::matrix4f& src, F32* dst)
+{
+	for (U32 i = 0; i < 16; i++)
+	{
+		dst[i] = src.m[i];
+	}
+}
+
+void set_current_modelview(const glh::matrix4f& mat)
+{
+	copy_matrix(mat, gGLModelView);
+}
+
+void set_current_projection(glh::matrix4f& mat)
+{
+	copy_matrix(mat, gGLProjection);
+}
+
+glh::matrix4f gl_ortho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat znear, GLfloat zfar)
+{
+	glh::matrix4f ret(
+		2.f/(right-left), 0.f, 0.f, -(right+left)/(right-left),
+		0.f, 2.f/(top-bottom), 0.f, -(top+bottom)/(top-bottom),
+		0.f, 0.f, -2.f/(zfar-znear),  -(zfar+znear)/(zfar-znear),
+		0.f, 0.f, 0.f, 1.f);
+
+	return ret;
+}
+
+glh::matrix4f gl_perspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar)
+{
+	GLfloat f = 1.f/tanf(DEG_TO_RAD*fovy/2.f);
+
+	return glh::matrix4f(f/aspect, 0, 0, 0,
+						 0, f, 0, 0,
+						 0, 0, (zFar+zNear)/(zNear-zFar), (2.f*zFar*zNear)/(zNear-zFar),
+						 0, 0, -1.f, 0);
+}
+
+glh::matrix4f gl_lookat(LLVector3 eye, LLVector3 center, LLVector3 up)
+{
+	LLVector3 f = center-eye;
+	f.normVec();
+	up.normVec();
+	LLVector3 s = f % up;
+	LLVector3 u = s % f;
+
+	return glh::matrix4f(s[0], s[1], s[2], 0,
+					  u[0], u[1], u[2], 0,
+					  -f[0], -f[1], -f[2], 0,
+					  0, 0, 0, 1);
+	
+}

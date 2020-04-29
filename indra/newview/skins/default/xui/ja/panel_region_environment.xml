@@ -1,33 +1,116 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="環境" name="panel_env_info">
-	<text name="water_settings_title">
-		あなたのリージョンを訪れるユーザーに見せたい、水と空/デイサイクルの設定を選択します。詳細
-	</text>
-	<radio_group name="region_settings_radio_group">
-		<radio_item label="Second Life のデフォルト設定を使用" name="use_sl_default_settings"/>
-		<radio_item label="次の設定を使用" name="use_my_settings"/>
-	</radio_group>
-	<panel name="user_environment_settings">
-		<text name="water_settings_title">
-			水の設定
-		</text>
-		<combo_box name="water_settings_preset_combo">
-			<combo_box.item label="- 事前設定を選択 -" name="item0"/>
-		</combo_box>
-		<text name="sky_dayc_settings_title">
-			空 / デイサイクル
-		</text>
-		<radio_group name="sky_dayc_settings_radio_group">
-			<radio_item label="空の固定" name="my_sky_settings"/>
-			<radio_item label="デイサイクル" name="my_dayc_settings"/>
-		</radio_group>
-		<combo_box name="sky_settings_preset_combo">
-			<combo_box.item label="- 事前設定を選択 -" name="item0"/>
-		</combo_box>
-		<combo_box name="dayc_settings_preset_combo">
-			<combo_box.item label="- 事前設定を選択 -" name="item0"/>
-		</combo_box>
-	</panel>
-	<button label="適用" name="apply_btn"/>
-	<button label="キャンセル" name="cancel_btn"/>
+	<string name="str_label_use_default">
+		既定の設定を使用
+	</string>
+	<string name="str_label_use_region">
+		リージョンの設定を使用
+	</string>
+	<string name="str_altitude_desription">
+		空 [INDEX]([ALTITUDE]m)
+	</string>
+	<string name="str_no_parcel">
+		区画が選択されていません。環境設定が無効になっています。
+	</string>
+	<string name="str_cross_region">
+		リージョンの境界では環境設定ができません。
+	</string>
+	<string name="str_legacy">
+		このリージョンで環境設定はできません。
+	</string>
+	<string name="str_disallowed">
+		不動産マネージャーが、このリージョンで区画の環境を変更することを許可していません。
+	</string>
+	<string name="str_too_small">
+		環境をサポートするには、最低でも 128 平方メートルの区画が必要です。
+	</string>
+	<string name="str_empty">
+		(空)
+	</string>
+	<string name="str_region_env">
+		（リージョンの環境）
+	</string>
+	<layout_stack>
+		<layout_panel name="pnl_environment_disabled">
+			<text name="txt_environment_disabled">
+				...
+			</text>
+		</layout_panel>
+		<layout_panel name="pnl_environment_config">
+			<layout_stack>
+				<layout_panel name="pnl_environment_config">
+					<layout_stack>
+						<layout_panel name="pnl_environment_current">
+							<button label="[USEDEFAULT]" name="btn_usedefault"/>
+							<button label="持ち物を使う" name="btn_select_inventory"/>
+							<button label="カスタマイズ" name="btn_edit"/>
+							<check_box label="区画所有者が環境を上書きすることがあります" name="chk_allow_override"/>
+						</layout_panel>
+						<layout_panel name="pnl_environment_length">
+							<text name="lbl_apparent_time">
+								[HH]:[MM][AP] ([PRC]%)
+							</text>
+						</layout_panel>
+						<layout_panel name="pnl_environment_buttons"/>
+					</layout_stack>
+				</layout_panel>
+				<layout_panel name="pnl_environment_altitudes">
+					<panel name="pnl_alt1">
+						<text name="txt_alt1">
+							空 [INDEX]
+                            [ALTITUDE]m
+						</text>
+						<line_editor name="edt_invname_alt1">
+							不明
+						</line_editor>
+						<settings_drop_target name="sdt_alt1" tool_tip="持ち物から設定をこのターゲットボックスにドラッグし、現在の空として選択する"/>
+					</panel>
+					<panel name="pnl_alt2">
+						<text name="txt_alt2">
+							空 [INDEX]
+                            [ALTITUDE]m
+						</text>
+						<line_editor name="edt_invname_alt2">
+							不明
+						</line_editor>
+						<settings_drop_target name="sdt_alt2" tool_tip="持ち物から設定をこのターゲットボックスにドラッグし、現在の空として選択する"/>
+					</panel>
+					<panel name="pnl_alt3">
+						<text name="txt_alt3">
+							空 [INDEX]
+                            [ALTITUDE]m
+						</text>
+						<line_editor name="edt_invname_alt3">
+							不明
+						</line_editor>
+						<settings_drop_target name="sdt_alt3" tool_tip="持ち物から設定をこのターゲットボックスにドラッグし、現在の空として選択する"/>
+					</panel>
+					<multi_slider initial_value="0" name="sld_altitudes">
+						<slider name="sld1" value="1000"/>
+						<slider name="sld2" value="2000"/>
+						<slider name="sld3" value="3000"/>
+					</multi_slider>
+					<panel name="pnl_ground">
+						<text name="txt_ground">
+							地面
+						</text>
+						<line_editor name="edt_invname_ground">
+							不明
+						</line_editor>
+						<settings_drop_target name="sdt_ground" tool_tip="持ち物から設定をこのターゲットボックスにドラッグし、地表レベルの空として選択します。"/>
+					</panel>
+					<panel name="pnl_water">
+						<text name="txt_water">
+							水
+						</text>
+						<line_editor name="edt_invname_water">
+							不明
+						</line_editor>
+						<settings_drop_target name="sdt_water" tool_tip="持ち物から設定をこのターゲットボックスにドラッグし、現在の水として選択する"/>
+					</panel>
+					<button label="リセット" name="btn_rst_altitudes" tool_tip="デフォルトの高度にリセット"/>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
 </panel>
