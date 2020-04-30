@@ -430,7 +430,11 @@ void LLConversationViewSession::refresh()
 	// Refresh the session view from its model data
 	LLConversationItem* vmi = dynamic_cast<LLConversationItem*>(getViewModelItem());
 	vmi->resetRefresh();
-	
+
+    mLabel = vmi->getDisplayName(); // needs a filter reset
+    setToolTip(vmi->getName());
+    vmi->dirtyFilter();
+
 	if (mSessionTitle)
 	{
 		mSessionTitle->setText(vmi->getDisplayName());
@@ -621,7 +625,11 @@ void LLConversationViewParticipant::refresh()
 	
 	// *TODO: We should also do something with vmi->isModerator() to echo that state in the UI somewhat
 	mSpeakingIndicator->setIsModeratorMuted(participant_model->isModeratorMuted());
-	
+
+    mLabel = participant_model->getDisplayName(); // needs a filter reset
+    setToolTip(participant_model->getName());
+    participant_model->dirtyFilter();
+
 	// Do the regular upstream refresh
 	LLFolderViewItem::refresh();
 }

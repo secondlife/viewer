@@ -268,7 +268,7 @@ public:
 	virtual BOOL	isPotentiallyVisible(S32 filter_generation = -1);
 
     // refresh information from the object being viewed.
-    // refreshes, label, sufixes and sets icons. Expensive!
+    // refreshes sufixes and sets icons. Expensive!
 	virtual void refresh();
 
 	// LLView functionality

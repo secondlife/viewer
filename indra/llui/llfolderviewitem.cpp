@@ -183,10 +183,13 @@ LLFolderViewItem::~LLFolderViewItem()
 BOOL LLFolderViewItem::postBuild()
 {
     LLFolderViewModelItem& vmi = *getViewModelItem();
-    mLabel = vmi.getDisplayName(); // slightly expensive, but only first time
+    // getDisplayName() is slightly expensive and requires a filter reset
+    mLabel = vmi.getDisplayName();
     setToolTip(vmi.getName());
 
     // Dirty the filter flag of the model from the view (CHUI-849)
+    vmi.dirtyFilter();
+
     mLabelNeedsRefresh = true;
     mLabelWidthDirty = true;
 	return TRUE;
@@ -288,10 +291,6 @@ void LLFolderViewItem::refresh()
 {
 	LLFolderViewModelItem& vmi = *getViewModelItem();
 
-    // getDisplayName() is slightly expensive on first run
-	mLabel = vmi.getDisplayName();
-	setToolTip(vmi.getName());
-
     // icons are slightly expensive to get, can be optimized
     // see LLInventoryIcon::getIcon()
 	mIcon = vmi.getIcon();
@@ -306,8 +305,6 @@ void LLFolderViewItem::refresh()
 		mLabelSuffix = vmi.getLabelSuffix();
 	}
 
-    // Dirty the filter flag of the model from the view (CHUI-849)
-	vmi.dirtyFilter();
     mLabelWidthDirty = true;
     mLabelNeedsRefresh = false;
 }
@@ -362,6 +359,8 @@ S32 LLFolderViewItem::arrange( S32* width, S32* height )
 	{
         if (mLabelNeedsRefresh)
         {
+            // Expensive. But despite refreshing label,
+            // it is purely visual, so it is fine to do at our laisure
             refresh();
         }
 		mLabelWidth = getLabelXPos() + getLabelFontForStyle(mLabelStyle)->getWidth(mLabel) + getLabelFontForStyle(mLabelStyle)->getWidth(mLabelSuffix) + mLabelPaddingRight; 
