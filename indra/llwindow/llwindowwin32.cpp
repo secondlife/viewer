@@ -741,17 +741,27 @@ void LLWindowWin32::restore()
 	SetFocus(mWindowHandle);
 }
 
+// See SL-12170
+// According to callstack "c0000005 Access violation" happened inside __try block,
+// deep in DestroyWindow and crashed viewer, which shouldn't be possible.
+// I tried manually causing this exception and it was caught without issues, so
+// I'm turning off optimizations for this part to be sure code executes as intended
+// (it is a straw, but I have no idea why else __try can get overruled)
+#pragma optimize("", off)
 bool destroy_window_handler(HWND &hWnd)
 {
+    bool res;
     __try
     {
-        return DestroyWindow(hWnd);
+        res = DestroyWindow(hWnd);
     }
     __except (EXCEPTION_EXECUTE_HANDLER)
     {
-        return false;
+        res = false;
     }
+    return res;
 }
+#pragma optimize("", on)
 
 // close() destroys all OS-specific code associated with a window.
 // Usually called from LLWindowManager::destroyWindow()

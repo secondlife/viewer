@@ -198,6 +198,8 @@ const F32 NAMETAG_VERT_OFFSET_WEIGHT = 0.17f;
 const U32 LLVOAvatar::VISUAL_COMPLEXITY_UNKNOWN = 0;
 const F64 HUD_OVERSIZED_TEXTURE_DATA_SIZE = 1024 * 1024;
 
+const F32 MAX_TEXTURE_WAIT_TIME_SEC = 60;
+
 enum ERenderName
 {
 	RENDER_NAME_NEVER,
@@ -664,6 +666,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mFullyLoadedInitialized(FALSE),
 	mVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
 	mLoadedCallbacksPaused(FALSE),
+	mLoadedCallbackTextures(0),
 	mRenderUnloadedAvatar(LLCachedControl<bool>(gSavedSettings, "RenderUnloadedAvatar", false)),
 	mLastRezzedStatus(-1),
 	mIsEditingAppearance(FALSE),
@@ -884,8 +887,9 @@ BOOL LLVOAvatar::hasGray() const
 S32 LLVOAvatar::getRezzedStatus() const
 {
 	if (getIsCloud()) return 0;
-	if (isFullyTextured() && allBakedTexturesCompletelyDownloaded()) return 3;
-	if (isFullyTextured()) return 2;
+	bool textured = isFullyTextured();
+	if (textured && allBakedTexturesCompletelyDownloaded()) return 3;
+	if (textured) return 2;
 	llassert(hasGray());
 	return 1; // gray
 }
@@ -4807,6 +4811,15 @@ U32 LLVOAvatar::renderSkinned()
 		BOOL first_pass = TRUE;
 		if (!LLDrawPoolAvatar::sSkipOpaque)
 		{
+			if (isUIAvatar() && mIsDummy)
+			{
+				LLViewerJoint* hair_mesh = getViewerJoint(MESH_ID_HAIR);
+				if (hair_mesh)
+				{
+					num_indices += hair_mesh->render(mAdjustedPixelArea, first_pass, mIsDummy);
+				}
+				first_pass = FALSE;
+			}
 			if (!isSelf() || gAgent.needsRenderHead() || LLPipeline::sShadowRender)
 			{
 				if (isTextureVisible(TEX_HEAD_BAKED) || isUIAvatar())
@@ -4814,7 +4827,7 @@ U32 LLVOAvatar::renderSkinned()
 					LLViewerJoint* head_mesh = getViewerJoint(MESH_ID_HEAD);
 					if (head_mesh)
 					{
-						num_indices += head_mesh->render(mAdjustedPixelArea, TRUE, mIsDummy);
+						num_indices += head_mesh->render(mAdjustedPixelArea, first_pass, mIsDummy);
 					}
 					first_pass = FALSE;
 				}
@@ -5321,12 +5334,28 @@ void LLVOAvatar::checkTextureLoading()
 	}
 	if(mLoadedCallbacksPaused == pause)
 	{
+        if (!pause && mFirstFullyVisible && mLoadedCallbackTextures < mCallbackTextureList.size())
+        {
+            // We still need to update 'loaded' textures count to decide on 'cloud' visibility
+            // Alternatively this can be done on TextureLoaded callbacks, but is harder to properly track
+            mLoadedCallbackTextures = 0;
+            for (LLLoadedCallbackEntry::source_callback_list_t::iterator iter = mCallbackTextureList.begin();
+                iter != mCallbackTextureList.end(); ++iter)
+            {
+                LLViewerFetchedTexture* tex = gTextureList.findImage(*iter);
+                if (tex && (tex->getDiscardLevel() >= 0 || tex->isMissingAsset()))
+                {
+                    mLoadedCallbackTextures++;
+                }
+            }
+        }
 		return ; 
 	}
 	
 	if(mCallbackTextureList.empty()) //when is self or no callbacks. Note: this list for self is always empty.
 	{
 		mLoadedCallbacksPaused = pause ;
+		mLoadedCallbackTextures = 0;
 		return ; //nothing to check.
 	}
 	
@@ -5334,7 +5363,9 @@ void LLVOAvatar::checkTextureLoading()
 	{
 		return ; //have not been invisible for enough time.
 	}
-	
+
+	mLoadedCallbackTextures = pause ? mCallbackTextureList.size() : 0;
+
 	for(LLLoadedCallbackEntry::source_callback_list_t::iterator iter = mCallbackTextureList.begin();
 		iter != mCallbackTextureList.end(); ++iter)
 	{
@@ -5355,9 +5386,15 @@ void LLVOAvatar::checkTextureLoading()
 
 				tex->unpauseLoadedCallbacks(&mCallbackTextureList) ;
 				tex->addTextureStats(START_AREA); //jump start the fetching again
+
+				// technically shouldn't need to account for missing, but callback might not have happened yet
+				if (tex->getDiscardLevel() >= 0 || tex->isMissingAsset())
+				{
+					mLoadedCallbackTextures++; // consider it loaded (we have at least some data)
+				}
 			}
-		}		
-	}			
+		}
+	}
 	
 	if(!pause)
 	{
@@ -7591,14 +7628,13 @@ bool LLVOAvatar::getIsCloud() const
 			);
 }
 
-void LLVOAvatar::updateRezzedStatusTimers()
+void LLVOAvatar::updateRezzedStatusTimers(S32 rez_status)
 {
 	// State machine for rezzed status. Statuses are -1 on startup, 0
 	// = cloud, 1 = gray, 2 = downloading, 3 = full.
 	// Purpose is to collect time data for each it takes avatar to reach
 	// various loading landmarks: gray, textured (partial), textured fully.
 
-	S32 rez_status = getRezzedStatus();
 	if (rez_status != mLastRezzedStatus)
 	{
 		LL_DEBUGS("Avatar") << avString() << "rez state change: " << mLastRezzedStatus << " -> " << rez_status << LL_ENDL;
@@ -7768,8 +7804,21 @@ void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapse
 // returns true if the value has changed.
 BOOL LLVOAvatar::updateIsFullyLoaded()
 {
-	const bool loading = getIsCloud();
-	updateRezzedStatusTimers();
+	S32 rez_status = getRezzedStatus();
+	bool loading = getIsCloud();
+	if (mFirstFullyVisible && !mIsControlAvatar)
+	{
+        loading = ((rez_status < 2)
+                   // Wait at least 60s for unfinished textures to finish on first load,
+                   // don't wait forever, it might fail. Even if it will eventually load by
+                   // itself and update mLoadedCallbackTextures (or fail and clean the list),
+                   // avatars are more time-sensitive than textures and can't wait that long.
+                   || (mLoadedCallbackTextures < mCallbackTextureList.size() && mLastTexCallbackAddedTime.getElapsedTimeF32() < MAX_TEXTURE_WAIT_TIME_SEC)
+                   || !mPendingAttachment.empty()
+                   || (rez_status < 3 && !isFullyBaked())
+                  );
+	}
+	updateRezzedStatusTimers(rez_status);
 	updateRuthTimer(loading);
 	return processFullyLoadedChange(loading);
 }
@@ -7805,13 +7854,22 @@ void LLVOAvatar::updateRuthTimer(bool loading)
 
 BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
 {
-	// we wait a little bit before giving the all clear,
-	// to let textures settle down
-	const F32 PAUSE = 1.f;
+	// We wait a little bit before giving the 'all clear', to let things to
+	// settle down (models to snap into place, textures to get first packets)
+	const F32 LOADED_DELAY = 1.f;
+	const F32 FIRST_USE_DELAY = 3.f;
+
 	if (loading)
 		mFullyLoadedTimer.reset();
-	
-	mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > PAUSE);
+
+	if (mFirstFullyVisible)
+	{
+		mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > FIRST_USE_DELAY);
+	}
+	else
+	{
+		mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > LOADED_DELAY);
+	}
 
 	if (!mPreviousFullyLoaded && !loading && mFullyLoaded)
 	{
@@ -8101,6 +8159,7 @@ void LLVOAvatar::updateMeshTextures()
 		LLViewerTexLayerSet* layerset = getTexLayerSet(i);
 		if (use_lkg_baked_layer[i] && !isUsingLocalAppearance() )
 		{
+			// use last known good layer (no new one)
 			LLViewerFetchedTexture* baked_img = LLViewerTextureManager::getFetchedTexture(mBakedTextureDatas[i].mLastTextureID);
 			mBakedTextureDatas[i].mIsUsed = TRUE;
 
@@ -8119,6 +8178,7 @@ void LLVOAvatar::updateMeshTextures()
 		}
 		else if (!isUsingLocalAppearance() && is_layer_baked[i])
 		{
+			// use new layer
 			LLViewerFetchedTexture* baked_img =
 				LLViewerTextureManager::staticCastToFetchedTexture(
 					getImage( mBakedTextureDatas[i].mTextureIndex, 0 ), TRUE) ;
@@ -8138,10 +8198,15 @@ void LLVOAvatar::updateMeshTextures()
 					 ((i == BAKED_HEAD) || (i == BAKED_UPPER) || (i == BAKED_LOWER)) )
 				{			
 					baked_img->setLoadedCallback(onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, TRUE, new LLTextureMaskData( mID ), 
-						src_callback_list, paused);	
+						src_callback_list, paused);
 				}
 				baked_img->setLoadedCallback(onBakedTextureLoaded, SWITCH_TO_BAKED_DISCARD, FALSE, FALSE, new LLUUID( mID ), 
 					src_callback_list, paused );
+				if (baked_img->getDiscardLevel() < 0 && !paused)
+				{
+					// mLoadedCallbackTextures will be updated by checkTextureLoading() below
+					mLastTexCallbackAddedTime.reset();
+				}
 
 				// this could add paused texture callbacks
 				mLoadedCallbacksPaused |= paused; 
@@ -8535,13 +8600,16 @@ void LLVOAvatar::onFirstTEMessageReceived()
 				LL_DEBUGS("Avatar") << avString() << "layer_baked, setting onInitialBakedTextureLoaded as callback" << LL_ENDL;
 				image->setLoadedCallback( onInitialBakedTextureLoaded, MAX_DISCARD_LEVEL, FALSE, FALSE, new LLUUID( mID ), 
 					src_callback_list, paused );
-
+				if (image->getDiscardLevel() < 0 && !paused)
+				{
+					mLastTexCallbackAddedTime.reset();
+				}
                                // this could add paused texture callbacks
                                mLoadedCallbacksPaused |= paused; 
 			}
 		}
 
-		mMeshTexturesDirty = TRUE;
+        mMeshTexturesDirty = TRUE;
 		gPipeline.markGLRebuild(this);
 	}
 }
@@ -9188,8 +9256,6 @@ void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerFetchedTexture
 // static
 void LLVOAvatar::onInitialBakedTextureLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata )
 {
-
-	
 	LLUUID *avatar_idp = (LLUUID *)userdata;
 	LLVOAvatar *selfp = (LLVOAvatar *)gObjectList.findObject(*avatar_idp);
 

@@ -2036,6 +2036,14 @@ U8 LLAgent::getRenderState()
 //-----------------------------------------------------------------------------
 void LLAgent::endAnimationUpdateUI()
 {
+	if (LLApp::isExiting()
+		|| !gViewerWindow
+		|| !gMenuBarView
+		|| !gToolBarView
+		|| !gStatusBar)
+	{
+		return;
+	}
 	if (gAgentCamera.getCameraMode() == gAgentCamera.getLastCameraMode())
 	{
 		// We're already done endAnimationUpdateUI for this transition.
