@@ -1513,7 +1513,7 @@ Go to the [SECOND_LIFE] events web page?
     <tag>confirm</tag>
     <url option="0" name="url">
 
-			http://secondlife.com/events/
+			https://secondlife.com/my/community/events
     </url>
     <usetemplate
      name="okcancelbuttons"
