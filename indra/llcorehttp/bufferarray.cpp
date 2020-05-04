@@ -147,7 +147,7 @@ size_t BufferArray::append(const void * src, size_t len)
         {
             block = Block::alloc(BLOCK_ALLOC_SIZE);
         }
-        catch (std::bad_alloc)
+        catch (std::bad_alloc&)
         {
             LLMemory::logMemoryInfo(TRUE);
 

@@ -110,7 +110,7 @@ void LLFloaterEvent::setEventID(const U32 event_id)
         // get the search URL and expand all of the substitutions                                                       
         // (also adds things like [LANGUAGE], [VERSION], [OS], etc.)                                                    
 		std::ostringstream url;
-		url <<  gSavedSettings.getString("EventURL") << event_id << "/" << std::endl;
+		url <<  gSavedSettings.getString("EventURL") << event_id << std::endl;
 		// and load the URL in the web view                                                                             
         mBrowser->navigateTo(url.str());
 		

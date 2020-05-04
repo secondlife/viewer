@@ -158,6 +158,9 @@ class LLSettingsVODay : public LLSettingsDay
 public:
     typedef std::function<void(LLSettingsDay::ptr_t day)>  asset_built_fn;
 
+    // Todo: find a way to make this cnstructor private
+    // It shouldn't be used outside shared_prt and LLSettingsVODay
+    // outside of settings only use buildDay(settings)
     LLSettingsVODay(const LLSD &data);
 
     static ptr_t    buildDay(LLSD settings);
