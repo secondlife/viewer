@@ -61,7 +61,7 @@ typedef BOOL ( WINAPI* PfnCoSetProxyBlanket )( IUnknown* pProxy, DWORD dwAuthnSv
                                                OLECHAR* pServerPrincName, DWORD dwAuthnLevel, DWORD dwImpLevel,
                                                RPC_AUTH_IDENTITY_HANDLE pAuthInfo, DWORD dwCapabilities );
 
-HRESULT GetVideoMemoryViaWMI( WCHAR* strInputDeviceID, DWORD* pdwAdapterRam )
+HRESULT GetVideoMemoryViaWMI(WCHAR* strInputDeviceID, DWORD* pdwAdapterRam)
 {
     HRESULT hr;
     bool bGotMemory = false;
@@ -149,21 +149,26 @@ HRESULT GetVideoMemoryViaWMI( WCHAR* strInputDeviceID, DWORD* pdwAdapterRam )
                         if ( !pVideoControllers[iController] )
                             continue;
 
-                        pPropName = SysAllocString( L"PNPDeviceID" );
-                        hr = pVideoControllers[iController]->Get( pPropName, 0L, &var, nullptr, nullptr );
-#ifdef PRINTF_DEBUGGING
-                        if( FAILED( hr ) )
-                            wprintf( L"WMI: pVideoControllers[iController]->Get PNPDeviceID failed: 0x%0.8x\n", hr );
-#endif
-                        if( SUCCEEDED( hr ) )
+                        // if strInputDeviceID is set find this specific device and return memory or specific device
+                        // if strInputDeviceID is not set return the best device
+                        if (strInputDeviceID)
                         {
-                            if( wcsstr( var.bstrVal, strInputDeviceID ) != 0 )
-                                bFound = true;
+                            pPropName = SysAllocString( L"PNPDeviceID" );
+                            hr = pVideoControllers[iController]->Get( pPropName, 0L, &var, nullptr, nullptr );
+#ifdef PRINTF_DEBUGGING
+                            if( FAILED( hr ) )
+                                wprintf( L"WMI: pVideoControllers[iController]->Get PNPDeviceID failed: 0x%0.8x\n", hr );
+#endif
+                            if( SUCCEEDED( hr ) && strInputDeviceID)
+                            {
+                                if( wcsstr( var.bstrVal, strInputDeviceID ) != 0 )
+                                    bFound = true;
+                            }
+                            VariantClear( &var );
+                            if( pPropName ) SysFreeString( pPropName );
                         }
-                        VariantClear( &var );
-                        if( pPropName ) SysFreeString( pPropName );
 
-                        if( bFound )
+                        if( bFound || !strInputDeviceID )
                         {
                             pPropName = SysAllocString( L"AdapterRAM" );
                             hr = pVideoControllers[iController]->Get( pPropName, 0L, &var, nullptr, nullptr );
@@ -175,13 +180,18 @@ HRESULT GetVideoMemoryViaWMI( WCHAR* strInputDeviceID, DWORD* pdwAdapterRam )
                             if( SUCCEEDED( hr ) )
                             {
                                 bGotMemory = true;
-                                *pdwAdapterRam = var.ulVal;
+                                *pdwAdapterRam = llmax(var.ulVal, *pdwAdapterRam);
                             }
                             VariantClear( &var );
                             if( pPropName ) SysFreeString( pPropName );
+                        }
+
+                        SAFE_RELEASE( pVideoControllers[iController] );
+
+                        if (bFound)
+                        {
                             break;
                         }
-                        SAFE_RELEASE( pVideoControllers[iController] );
                     }
                 }
             }
@@ -205,6 +215,17 @@ HRESULT GetVideoMemoryViaWMI( WCHAR* strInputDeviceID, DWORD* pdwAdapterRam )
         return S_OK;
     else
         return E_FAIL;
+}
+
+//static
+S32 LLDXHardware::getMBVideoMemoryViaWMI()
+{
+	DWORD vram = 0;
+	if (SUCCEEDED(GetVideoMemoryViaWMI(NULL, &vram)))
+	{
+		return vram / (1024 * 1024);;
+	}
+	return 0;
 }
 
 //Getting the version of graphics controller driver via WMI
@@ -615,6 +636,8 @@ BOOL LLDXHardware::getInfo(BOOL vram_only)
 	IDxDiagContainer *driver_containerp = NULL;
 	DWORD dw_device_count;
 
+	mVRAM = 0;
+
     // CoCreate a IDxDiagProvider*
 	LL_DEBUGS("AppInit") << "CoCreateInstance IID_IDxDiagProvider" << LL_ENDL;
     hr = CoCreateInstance(CLSID_DxDiagProvider,
@@ -677,6 +700,8 @@ BOOL LLDXHardware::getInfo(BOOL vram_only)
         }
 
 		// Get device 0
+		// By default 0 device is the primary one, howhever in case of various hybrid graphics
+		// like itegrated AMD and PCI AMD GPUs system might switch.
 		LL_DEBUGS("AppInit") << "devices_containerp->GetChildContainer" << LL_ENDL;
 		hr = devices_containerp->GetChildContainer(L"0", &device_containerp);
 		if(FAILED(hr) || !device_containerp)
@@ -689,12 +714,27 @@ BOOL LLDXHardware::getInfo(BOOL vram_only)
 		WCHAR deviceID[512];
 
 		get_wstring(device_containerp, L"szDeviceID", deviceID, 512);
-		
+		// Example: searches id like 1F06 in pnp string (aka VEN_10DE&DEV_1F06)
+		// doesn't seem to work on some systems since format is unrecognizable
+		// but in such case keyDeviceID works
 		if (SUCCEEDED(GetVideoMemoryViaWMI(deviceID, &vram))) 
 		{
 			mVRAM = vram/(1024*1024);
 		}
 		else
+		{
+			get_wstring(device_containerp, L"szKeyDeviceID", deviceID, 512);
+			LL_WARNS() << "szDeviceID" << deviceID << LL_ENDL;
+			// '+9' to avoid ENUM\\PCI\\ prefix
+			// Returns string like Enum\\PCI\\VEN_10DE&DEV_1F06&SUBSYS...
+			// and since GetVideoMemoryViaWMI searches by PNPDeviceID it is sufficient
+			if (SUCCEEDED(GetVideoMemoryViaWMI(deviceID + 9, &vram)))
+			{
+				mVRAM = vram / (1024 * 1024);
+			}
+		}
+		
+		if (mVRAM == 0)
 		{ // Get the English VRAM string
 		  std::string ram_str = get_string(device_containerp, L"szDisplayMemoryEnglish");
 

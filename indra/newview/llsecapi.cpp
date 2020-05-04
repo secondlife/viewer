@@ -64,7 +64,7 @@ void initializeSecHandler()
 		{
 			handler->init();
 		}
-		catch (LLProtectedDataException e)
+		catch (LLProtectedDataException& e)
 		{
 			exception_msg = e.what();
 		}

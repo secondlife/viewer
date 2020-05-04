@@ -1579,7 +1579,7 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
 
     std::vector<U8> data;
     S32 binary_bucket_size = 0;
-    LLHost sender = gAgent.getRegion()->getHost();
+    LLHost sender = gAgent.getRegionHost();
 
     LLSD::array_iterator i = messages.beginArray();
     LLSD::array_iterator iEnd = messages.endArray();

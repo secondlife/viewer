@@ -53,7 +53,7 @@ class LLRecentPeople: public LLSingleton<LLRecentPeople>, public LLOldEvents::LL
 	LLSINGLETON_EMPTY_CTOR(LLRecentPeople);
 	LOG_CLASS(LLRecentPeople);
 public:
-	typedef std::map <LLUUID, F32> id_to_time_map_t;
+	typedef std::map <LLUUID, F64> id_to_time_map_t;
 	typedef boost::signals2::signal<void ()> signal_t;
 	
 	/**
