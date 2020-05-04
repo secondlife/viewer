@@ -192,6 +192,11 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 			- 3*VPAD - BTN_HEIGHT;
 	// reshape to calculate real text width and height
 	msg_box->reshape( MAX_ALLOWED_MSG_WIDTH, max_allowed_msg_height );
+
+	if ("GroupLimitInfo" == mNotification->getName() || "GroupLimitInfoPlus" == mNotification->getName())
+	{
+		msg_box->setSkipLinkUnderline(true);
+	}
 	msg_box->setValue(msg);
 
 	S32 pixel_width = msg_box->getTextPixelWidth();
@@ -266,14 +271,15 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 			mLineEditor->setMaxTextChars(edit_text_max_chars);
 			mLineEditor->setText(edit_text_contents);
 
-			if("SaveOutfitAs"  == mNotification->getName())
+			std::string notif_name = mNotification->getName();
+			if (("SaveOutfitAs" == notif_name) || ("SaveSettingAs" == notif_name))
 			{
 				mLineEditor->setPrevalidate(&LLTextValidate::validateASCII);
 			}
 
 			// decrease limit of line editor of teleport offer dialog to avoid truncation of
 			// location URL in invitation message, see EXT-6891
-			if ("OfferTeleport" == mNotification->getName())
+			if ("OfferTeleport" == notif_name)
 			{
 				mLineEditor->setMaxTextLength(gSavedSettings.getS32(
 						"teleport_offer_invitation_max_length"));

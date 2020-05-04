@@ -2140,5 +2140,17 @@ Only large parcels can be listed in search.
             class="land_experiences_panel"
           filename="panel_region_experiences.xml">
        </panel>
+    <panel
+          border="true"
+          follows="all"
+          label="ENVIRONMENT"
+          layout="topleft"
+          left="0"
+          top="0"
+          help_topic="land_environment_tab"
+          name="land_environment_panel"
+          class="land_environment_panel"
+          filename="panel_region_environment.xml">
+       </panel>
     </tab_container>
 </floater>

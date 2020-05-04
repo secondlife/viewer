@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_minimize="false"
- height="460"
+ height="495"
  layout="topleft"
  name="Image Preview"
  help_topic="image_preview"
@@ -148,4 +148,17 @@ Try saving image as 24 bit Targa (.tga).
      name="ok_btn"
      top_delta="0"
      width="125" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="35"
+     layout="topleft"
+     left="10"
+     mouse_opaque="false"
+     skip_link_underline="true"
+     name="info_text"
+     word_wrap="true"
+     top_pad="10"
+     width="270"/>
 </floater>

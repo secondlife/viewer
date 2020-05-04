@@ -32,7 +32,9 @@ out vec4 frag_color;
 vec3 scaleSoftClip(vec3 inColor);
 vec3 atmosTransport(vec3 inColor);
 
-uniform sampler2D bumpMap;   
+uniform sampler2D bumpMap;
+uniform sampler2D bumpMap2;
+uniform float     blend_factor;
 uniform sampler2D screenTex;
 uniform sampler2D refTex;
 
@@ -55,6 +57,13 @@ VARYING vec4 refCoord;
 VARYING vec4 littleWave;
 VARYING vec4 view;
 
+vec3 BlendNormal(vec3 bump1, vec3 bump2)
+{
+    vec3 n = mix(bump1, bump2, blend_factor);
+    return n;
+}
+
+
 void main() 
 {
 	vec4 color;
@@ -65,9 +74,21 @@ void main()
 	vec3 viewVec = normalize(view.xyz);
 	
 	//get wave normals
-	vec3 wave1 = texture2D(bumpMap, vec2(refCoord.w, view.w)).xyz*2.0-1.0;
-	vec3 wave2 = texture2D(bumpMap, littleWave.xy).xyz*2.0-1.0;
-	vec3 wave3 = texture2D(bumpMap, littleWave.zw).xyz*2.0-1.0;
+    vec2 bigwave = vec2(refCoord.w, view.w);
+    vec3 wave1_a = texture2D(bumpMap, bigwave      ).xyz*2.0-1.0;
+    vec3 wave2_a = texture2D(bumpMap, littleWave.xy).xyz*2.0-1.0;
+    vec3 wave3_a = texture2D(bumpMap, littleWave.zw).xyz*2.0-1.0;
+
+
+    vec3 wave1_b = texture2D(bumpMap2, bigwave      ).xyz*2.0-1.0;
+    vec3 wave2_b = texture2D(bumpMap2, littleWave.xy).xyz*2.0-1.0;
+    vec3 wave3_b = texture2D(bumpMap2, littleWave.zw).xyz*2.0-1.0;
+
+    vec3 wave1 = BlendNormal(wave1_a, wave1_b);
+    vec3 wave2 = BlendNormal(wave2_a, wave2_b);
+    vec3 wave3 = BlendNormal(wave3_a, wave3_b);
+
+
 	//get base fresnel components	
 	
 	vec3 df = vec3(
@@ -136,6 +157,12 @@ void main()
 	color.rgb = atmosTransport(color.rgb);
 	color.rgb = scaleSoftClip(color.rgb);
 	color.a = spec * sunAngle2;
-
+	
 	frag_color = color;
+
+#if defined(WATER_EDGE)
+    gl_FragDepth = 0.9999847f;
+#endif
+	
 }
+

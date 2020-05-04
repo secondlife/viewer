@@ -261,7 +261,10 @@ void LLVOVolume::markDead()
 {
 	if (!mDead)
 	{
-		LLSculptIDSize::instance().rem(getVolume()->getParams().getSculptID());
+        if (getVolume())
+        {
+            LLSculptIDSize::instance().rem(getVolume()->getParams().getSculptID());
+        }
 
 		if(getMDCImplCount() > 0)
 		{
@@ -3147,14 +3150,19 @@ void LLVOVolume::setIsLight(BOOL is_light)
 	}
 }
 
-void LLVOVolume::setLightColor(const LLColor3& color)
+void LLVOVolume::setLightSRGBColor(const LLColor3& color)
+{
+    setLightLinearColor(linearColor3(color));
+}
+
+void LLVOVolume::setLightLinearColor(const LLColor3& color)
 {
 	LLLightParams *param_block = (LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
 	if (param_block)
 	{
-		if (param_block->getColor() != color)
+		if (param_block->getLinearColor() != color)
 		{
-			param_block->setColor(LLColor4(color, param_block->getColor().mV[3]));
+			param_block->setLinearColor(LLColor4(color, param_block->getLinearColor().mV[3]));
 			parameterChanged(LLNetworkData::PARAMS_LIGHT, true);
 			gPipeline.markTextured(mDrawable);
 			mFaceMappingChanged = TRUE;
@@ -3167,9 +3175,9 @@ void LLVOVolume::setLightIntensity(F32 intensity)
 	LLLightParams *param_block = (LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
 	if (param_block)
 	{
-		if (param_block->getColor().mV[3] != intensity)
+		if (param_block->getLinearColor().mV[3] != intensity)
 		{
-			param_block->setColor(LLColor4(LLColor3(param_block->getColor()), intensity));
+			param_block->setLinearColor(LLColor4(LLColor3(param_block->getLinearColor()), intensity));
 			parameterChanged(LLNetworkData::PARAMS_LIGHT, true);
 		}
 	}
@@ -3221,12 +3229,17 @@ BOOL LLVOVolume::getIsLight() const
 	return getParameterEntryInUse(LLNetworkData::PARAMS_LIGHT);
 }
 
-LLColor3 LLVOVolume::getLightBaseColor() const
+LLColor3 LLVOVolume::getLightSRGBBaseColor() const
+{
+    return srgbColor3(getLightLinearBaseColor());
+}
+
+LLColor3 LLVOVolume::getLightLinearBaseColor() const
 {
 	const LLLightParams *param_block = (const LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
 	if (param_block)
 	{
-		return LLColor3(param_block->getColor());
+		return LLColor3(param_block->getLinearColor());
 	}
 	else
 	{
@@ -3234,17 +3247,24 @@ LLColor3 LLVOVolume::getLightBaseColor() const
 	}
 }
 
-LLColor3 LLVOVolume::getLightColor() const
+LLColor3 LLVOVolume::getLightLinearColor() const
 {
-	const LLLightParams *param_block = (const LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
-	if (param_block)
-	{
-		return LLColor3(param_block->getColor()) * param_block->getColor().mV[3];
-	}
-	else
-	{
-		return LLColor3(1,1,1);
-	}
+    const LLLightParams *param_block = (const LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+    if (param_block)
+    {
+        return LLColor3(param_block->getLinearColor()) * param_block->getLinearColor().mV[3];
+    }
+    else
+    {
+        return LLColor3(1, 1, 1);
+    }
+}
+
+LLColor3 LLVOVolume::getLightSRGBColor() const
+{
+    LLColor3 ret = getLightLinearColor();
+    ret = srgbColor3(ret);
+    return ret;
 }
 
 LLUUID LLVOVolume::getLightTextureID() const
@@ -3283,18 +3303,16 @@ F32 LLVOVolume::getSpotLightPriority() const
 
 void LLVOVolume::updateSpotLightPriority()
 {
+    F32 r = getLightRadius();
 	LLVector3 pos = mDrawable->getPositionAgent();
+
 	LLVector3 at(0,0,-1);
 	at *= getRenderRotation();
-
-	F32 r = getLightRadius()*0.5f;
-
 	pos += at * r;
 
 	at = LLViewerCamera::getInstance()->getAtAxis();
-
 	pos -= at * r;
-	
+
 	mSpotLightPriority = gPipeline.calcPixelArea(pos, LLVector3(r,r,r), *LLViewerCamera::getInstance());
 
 	if (mLightTexture.notNull())
@@ -3340,7 +3358,7 @@ F32 LLVOVolume::getLightIntensity() const
 	const LLLightParams *param_block = (const LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
 	if (param_block)
 	{
-		return param_block->getColor().mV[3];
+		return param_block->getLinearColor().mV[3];
 	}
 	else
 	{
@@ -3361,12 +3379,12 @@ F32 LLVOVolume::getLightRadius() const
 	}
 }
 
-F32 LLVOVolume::getLightFalloff() const
+F32 LLVOVolume::getLightFalloff(const F32 fudge_factor) const
 {
 	const LLLightParams *param_block = (const LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
 	if (param_block)
 	{
-		return param_block->getFalloff();
+		return param_block->getFalloff() * fudge_factor;
 	}
 	else
 	{
@@ -4576,12 +4594,10 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 					}
 				}
 
+                BOOL no_texture = !face->getTexture() || !face->getTexture()->hasGLTexture();
+                BOOL mask       = no_texture ? FALSE : face->getTexture()->getMask(face->surfaceToTexture(tc, p, n));
 				if (face &&
-					(ignore_alpha ||
-					pick_transparent || 
-					!face->getTexture() || 
-					!face->getTexture()->hasGLTexture() || 
-					face->getTexture()->getMask(face->surfaceToTexture(tc, p, n))))
+					(ignore_alpha || pick_transparent || no_texture || mask))
 				{
 					local_end = p;
 					if (face_hitp != NULL)
@@ -4786,18 +4802,44 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
                 U32 max_joints = LLSkinningUtil::getMaxJointCount();
                 rigged_vert_count += dst_face.mNumVertices;
                 rigged_face_count++;
-				for (U32 j = 0; j < dst_face.mNumVertices; ++j)
-				{
-					LLMatrix4a final_mat;
-                    LLSkinningUtil::getPerVertexSkinMatrix(weight[j].getF32ptr(), mat, false, final_mat, max_joints);
+
+            #if USE_SEPARATE_JOINT_INDICES_AND_WEIGHTS
+                if (vol_face.mJointIndices) // fast path with preconditioned joint indices
+                {
+                    LLMatrix4a src[4];
+                    U8* joint_indices_cursor = vol_face.mJointIndices;
+                    LLVector4a* just_weights = vol_face.mJustWeights;
+                    for (U32 j = 0; j < dst_face.mNumVertices; ++j)
+				    {
+					    LLMatrix4a final_mat;
+                        F32* w = just_weights[j].getF32ptr();
+                        LLSkinningUtil::getPerVertexSkinMatrixWithIndices(w, joint_indices_cursor, mat, final_mat, src);
+                        joint_indices_cursor += 4;
+
+					    LLVector4a& v = vol_face.mPositions[j];
+					    LLVector4a t;
+					    LLVector4a dst;
+					    bind_shape_matrix.affineTransform(v, t);
+					    final_mat.affineTransform(t, dst);
+					    pos[j] = dst;
+				    }
+                }
+                else
+            #endif
+                {
+				    for (U32 j = 0; j < dst_face.mNumVertices; ++j)
+				    {
+					    LLMatrix4a final_mat;
+                        LLSkinningUtil::getPerVertexSkinMatrix(weight[j].getF32ptr(), mat, false, final_mat, max_joints);
 				
-					LLVector4a& v = vol_face.mPositions[j];
-					LLVector4a t;
-					LLVector4a dst;
-					bind_shape_matrix.affineTransform(v, t);
-					final_mat.affineTransform(t, dst);
-					pos[j] = dst;
-				}
+					    LLVector4a& v = vol_face.mPositions[j];
+					    LLVector4a t;
+					    LLVector4a dst;
+					    bind_shape_matrix.affineTransform(v, t);
+					    final_mat.affineTransform(t, dst);
+					    pos[j] = dst;
+				    }
+                }
 
 				//update bounding box
 				// VFExtents change
@@ -4978,7 +5020,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	if (   type == LLRenderPass::PASS_ALPHA 
 		&& facep->getTextureEntry()->getMaterialParams().notNull() 
 		&& !facep->getVertexBuffer()->hasDataType(LLVertexBuffer::TYPE_TANGENT)
-		&& LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 1)
+		&& LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 1)
 	{
 		LL_WARNS_ONCE("RenderMaterials") << "Oh no! No binormals for this alpha blended face!" << LL_ENDL;
 	}
@@ -5513,6 +5555,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						LLViewerTexture* tex = facep->getTexture();
 						U32 type = gPipeline.getPoolTypeFromTE(te, tex);
 
+                        F32 te_alpha = te->getColor().mV[3];
 
 						if (te->getGlow())
 						{
@@ -5520,6 +5563,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						}
 
 						LLMaterial* mat = te->getMaterialParams().get();
+                        bool fullbright = te->getFullbright();
 
 						if (mat && LLPipeline::sRenderDeferred)
 						{
@@ -5527,14 +5571,18 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 							bool is_alpha = type == LLDrawPool::POOL_ALPHA &&
 								(alpha_mode == LLMaterial::DIFFUSE_ALPHA_MODE_BLEND ||
-								te->getColor().mV[3] < 0.999f);
+								te_alpha < 0.999f);
 
 							if (is_alpha)
 							{ //this face needs alpha blending, override alpha mode
 								alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
 							}
 
-							if (!is_alpha || te->getColor().mV[3] > 0.f)  // //only add the face if it will actually be visible
+                            if (fullbright && (alpha_mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE))
+                            {
+                                pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT);
+                            }
+							else if (!is_alpha || te_alpha > 0.f)  // //only add the face if it will actually be visible
 							{ 
 								U32 mask = mat->getShaderMask(alpha_mode);
 								pool->addRiggedFace(facep, mask);
@@ -5546,8 +5594,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 							}
 						}
 						else if (mat)
-						{
-							bool fullbright = te->getFullbright();
+						{							
 							bool is_alpha = type == LLDrawPool::POOL_ALPHA;
 							U8 mode = mat->getDiffuseAlphaMode();
 							bool can_be_shiny = mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE ||
@@ -5884,7 +5931,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		spec_mask = spec_mask | LLVertexBuffer::MAP_EMISSIVE;
 	}
 
-	BOOL batch_textures = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 1;
+	BOOL batch_textures = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 1;
 
 	if (batch_textures)
 	{
@@ -6452,8 +6499,12 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 								mode == LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE;
 			}
 
+            F32 te_alpha = te->getColor().mV[3]; 
 			bool use_legacy_bump = te->getBumpmap() && (te->getBumpmap() < 18) && (!mat || mat->getNormalID().isNull());
-			bool opaque = te->getColor().mV[3] >= 0.999f;
+			bool opaque = te_alpha >= 0.999f;
+            bool transparent = te_alpha < 0.999f;
+
+            is_alpha = (is_alpha || transparent) ? TRUE : FALSE;
 
 			if (mat && LLPipeline::sRenderDeferred && !hud_group)
 			{
@@ -6482,14 +6533,20 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 					}
 					else
 					{
-						if (mat->getEnvironmentIntensity() > 0 ||
-							te->getShiny() > 0)
+						if (mat->getEnvironmentIntensity() > 0 || te->getShiny() > 0)
 						{
 							material_pass = true;
 						}
 						else
 						{
-							registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT);
+                            if (opaque)
+						    {
+							    registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT);
+                            }
+                            else
+                            {
+                                registerFace(group, facep, LLRenderPass::PASS_ALPHA);
+                            }
 						}
 					}
 				}
@@ -6497,7 +6554,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 				{
 					registerFace(group, facep, LLRenderPass::PASS_SIMPLE);
 				}
-				else if (te->getColor().mV[3] < 0.999f)
+				else if (transparent)
 				{
 					registerFace(group, facep, LLRenderPass::PASS_ALPHA);
 				}
@@ -6545,7 +6602,10 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 			else if (mat)
 			{
 				U8 mode = mat->getDiffuseAlphaMode();
-				if (te->getColor().mV[3] < 0.999f)
+
+                is_alpha = (is_alpha || (mode == LLMaterial::DIFFUSE_ALPHA_MODE_BLEND));
+
+				if (is_alpha)
 				{
 					mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
 				}
@@ -6554,7 +6614,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 				{
 					registerFace(group, facep, fullbright ? LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK : LLRenderPass::PASS_ALPHA_MASK);
 				}
-				else if (is_alpha || (te->getColor().mV[3] < 0.999f))
+				else if (is_alpha )
 				{
 					registerFace(group, facep, LLRenderPass::PASS_ALPHA);
 				}
@@ -6670,7 +6730,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 						{
 							registerFace(group, facep, LLRenderPass::PASS_SIMPLE);
 						}
-				}
+				    }
 				}
 				
 				

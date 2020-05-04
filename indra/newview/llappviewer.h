@@ -393,8 +393,6 @@ extern LLVector3 gRelativeWindVec;
 extern U32	gPacketsIn;
 extern BOOL gPrintMessagesThisFrame;
 
-extern LLUUID gSunTextureID;
-extern LLUUID gMoonTextureID;
 extern LLUUID gBlackSquareID;
 
 extern BOOL gRandomizeFramerate;

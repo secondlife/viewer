@@ -208,11 +208,27 @@ public:
 class LLGLSPipelineSkyBox
 { 
 protected:
-	LLGLDisable mAlphaTest, mCullFace, mFog;
+	LLGLDisable mAlphaTest;
+    LLGLDisable mCullFace;
+    LLGLSquashToFarClip mSquashClip;
 public:
-	LLGLSPipelineSkyBox()
-		: mAlphaTest(GL_ALPHA_TEST), mCullFace(GL_CULL_FACE), mFog(GL_FOG)
-	{ }
+	LLGLSPipelineSkyBox();
+   ~LLGLSPipelineSkyBox();
+};
+
+class LLGLSPipelineDepthTestSkyBox : public LLGLSPipelineSkyBox
+{ 
+public:
+	LLGLSPipelineDepthTestSkyBox(bool depth_test, bool depth_write);
+
+    LLGLDepthTest mDepth;
+};
+
+class LLGLSPipelineBlendSkyBox : public LLGLSPipelineDepthTestSkyBox 
+{ 
+public:
+	LLGLSPipelineBlendSkyBox(bool depth_test, bool depth_write);
+    LLGLEnable mBlend;    
 };
 
 class LLGLSTracker

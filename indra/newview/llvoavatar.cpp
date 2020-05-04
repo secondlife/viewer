@@ -38,6 +38,7 @@
 #include "raytrace.h"
 
 #include "llagent.h" //  Get state values from here
+#include "llagentbenefits.h"
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llanimationstates.h"
@@ -2996,7 +2997,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 void LLVOAvatar::idleUpdateWindEffect()
 {
 	// update wind effect
-	if ((LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) >= LLDrawPoolAvatar::SHADER_LEVEL_CLOTH))
+	if ((LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) >= LLDrawPoolAvatar::SHADER_LEVEL_CLOTH))
 	{
 		F32 hover_strength = 0.f;
 		F32 time_delta = mRippleTimer.getElapsedTimeF32() - mRippleTimeLast;
@@ -4706,7 +4707,7 @@ U32 LLVOAvatar::renderSkinned()
 		}
 	}
 
-	if (LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) <= 0)
+	if (LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) <= 0)
 	{
 		if (mNeedsSkin)
 		{
@@ -5378,6 +5379,21 @@ void LLVOAvatar::checkTextureLoading()
 	}
 	if(mLoadedCallbacksPaused == pause)
 	{
+        if (!pause && mFirstFullyVisible && mLoadedCallbackTextures < mCallbackTextureList.size())
+        {
+            // We still need to update 'loaded' textures count to decide on 'cloud' visibility
+            // Alternatively this can be done on TextureLoaded callbacks, but is harder to properly track
+            mLoadedCallbackTextures = 0;
+            for (LLLoadedCallbackEntry::source_callback_list_t::iterator iter = mCallbackTextureList.begin();
+                iter != mCallbackTextureList.end(); ++iter)
+            {
+                LLViewerFetchedTexture* tex = gTextureList.findImage(*iter);
+                if (tex && (tex->getDiscardLevel() >= 0 || tex->isMissingAsset()))
+                {
+                    mLoadedCallbackTextures++;
+                }
+            }
+        }
 		return ; 
 	}
 	
@@ -5393,7 +5409,7 @@ void LLVOAvatar::checkTextureLoading()
 		return ; //have not been invisible for enough time.
 	}
 
-    mLoadedCallbackTextures = pause ? mCallbackTextureList.size() : 0;
+	mLoadedCallbackTextures = pause ? mCallbackTextureList.size() : 0;
 
 	for(LLLoadedCallbackEntry::source_callback_list_t::iterator iter = mCallbackTextureList.begin();
 		iter != mCallbackTextureList.end(); ++iter)
@@ -5416,9 +5432,10 @@ void LLVOAvatar::checkTextureLoading()
 				tex->unpauseLoadedCallbacks(&mCallbackTextureList) ;
 				tex->addTextureStats(START_AREA); //jump start the fetching again
 
-				if (tex->isFullyLoaded())
+				// technically shouldn't need to account for missing, but callback might not have happened yet
+				if (tex->getDiscardLevel() >= 0 || tex->isMissingAsset())
 				{
-					mLoadedCallbackTextures++; // consider it loaded
+					mLoadedCallbackTextures++; // consider it loaded (we have at least some data)
 				}
 			}
 		}
@@ -7129,20 +7146,7 @@ U32 LLVOAvatar::getNumAttachments() const
 //-----------------------------------------------------------------------------
 S32 LLVOAvatar::getMaxAttachments() const
 {
-	const S32 MAX_AGENT_ATTACHMENTS = 38;
-
-	S32 max_attach = MAX_AGENT_ATTACHMENTS;
-	
-	if (gAgent.getRegion())
-	{
-		LLSD features;
-		gAgent.getRegion()->getSimulatorFeatures(features);
-		if (features.has("MaxAgentAttachments"))
-		{
-			max_attach = features["MaxAgentAttachments"].asInteger();
-		}
-	}
-	return max_attach;
+	return LLAgentBenefitsMgr::current().getAttachmentLimit();
 }
 
 //-----------------------------------------------------------------------------
@@ -7176,24 +7180,7 @@ U32 LLVOAvatar::getNumAnimatedObjectAttachments() const
 //-----------------------------------------------------------------------------
 S32 LLVOAvatar::getMaxAnimatedObjectAttachments() const
 {
-    S32 max_attach = 0;
-    if (gSavedSettings.getBOOL("AnimatedObjectsIgnoreLimits"))
-    {
-        max_attach = getMaxAttachments(); 
-    }
-    else
-    {
-        if (gAgent.getRegion())
-        {
-            LLSD features;
-            gAgent.getRegion()->getSimulatorFeatures(features);
-            if (features.has("AnimatedObjects"))
-            {
-                max_attach = features["AnimatedObjects"]["MaxAgentAnimatedObjectAttachments"].asInteger();
-            }
-        }
-    }
-    return max_attach;
+	return LLAgentBenefitsMgr::current().getAnimatedObjectLimit();
 }
 
 //-----------------------------------------------------------------------------
@@ -8217,6 +8204,7 @@ void LLVOAvatar::updateMeshTextures()
 		LLViewerTexLayerSet* layerset = getTexLayerSet(i);
 		if (use_lkg_baked_layer[i] && !isUsingLocalAppearance() )
 		{
+			// use last known good layer (no new one)
 			LLViewerFetchedTexture* baked_img = LLViewerTextureManager::getFetchedTexture(mBakedTextureDatas[i].mLastTextureID);
 			mBakedTextureDatas[i].mIsUsed = TRUE;
 
@@ -8235,6 +8223,7 @@ void LLVOAvatar::updateMeshTextures()
 		}
 		else if (!isUsingLocalAppearance() && is_layer_baked[i])
 		{
+			// use new layer
 			LLViewerFetchedTexture* baked_img =
 				LLViewerTextureManager::staticCastToFetchedTexture(
 					getImage( mBakedTextureDatas[i].mTextureIndex, 0 ), TRUE) ;
@@ -8254,17 +8243,14 @@ void LLVOAvatar::updateMeshTextures()
 					 ((i == BAKED_HEAD) || (i == BAKED_UPPER) || (i == BAKED_LOWER)) )
 				{			
 					baked_img->setLoadedCallback(onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, TRUE, new LLTextureMaskData( mID ), 
-						src_callback_list, paused);	
+						src_callback_list, paused);
 				}
 				baked_img->setLoadedCallback(onBakedTextureLoaded, SWITCH_TO_BAKED_DISCARD, FALSE, FALSE, new LLUUID( mID ), 
 					src_callback_list, paused );
-				if (!baked_img->isFullyLoaded() && !paused)
+				if (baked_img->getDiscardLevel() < 0 && !paused)
 				{
+					// mLoadedCallbackTextures will be updated by checkTextureLoading() below
 					mLastTexCallbackAddedTime.reset();
-				}
-				else
-				{
-					mLoadedCallbackTextures++; // consider it loaded
 				}
 
 				// this could add paused texture callbacks
@@ -8659,20 +8645,16 @@ void LLVOAvatar::onFirstTEMessageReceived()
 				LL_DEBUGS("Avatar") << avString() << "layer_baked, setting onInitialBakedTextureLoaded as callback" << LL_ENDL;
 				image->setLoadedCallback( onInitialBakedTextureLoaded, MAX_DISCARD_LEVEL, FALSE, FALSE, new LLUUID( mID ), 
 					src_callback_list, paused );
-				if (!image->isFullyLoaded() && !paused)
+				if (image->getDiscardLevel() < 0 && !paused)
 				{
 					mLastTexCallbackAddedTime.reset();
-				}
-				else
-				{
-					mLoadedCallbackTextures++; // consider it loaded
 				}
                                // this could add paused texture callbacks
                                mLoadedCallbacksPaused |= paused; 
 			}
 		}
 
-		mMeshTexturesDirty = TRUE;
+        mMeshTexturesDirty = TRUE;
 		gPipeline.markGLRebuild(this);
 	}
 }
@@ -9319,8 +9301,6 @@ void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerFetchedTexture
 // static
 void LLVOAvatar::onInitialBakedTextureLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata )
 {
-
-	
 	LLUUID *avatar_idp = (LLUUID *)userdata;
 	LLVOAvatar *selfp = (LLVOAvatar *)gObjectList.findObject(*avatar_idp);
 

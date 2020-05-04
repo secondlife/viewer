@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="save_settings_menu">
+	<menu_item_check label="Speichern" name="save_settings"/>
+	<menu_item_check label="Speichern unter" name="save_as_new_settings"/>
+	<menu_item_check label="Festlegen" name="commit_changes"/>
+	<menu_item_check label="Nur auf mich anwenden" name="apply_local"/>
+	<menu_item_check label="Auf Parzelle anwenden" name="apply_parcel"/>
+	<menu_item_check label="Auf Region anwenden" name="apply_region"/>
+</toggleable_menu>

@@ -12,6 +12,7 @@
 	<check_box label="Suoni" name="check_sound"/>
 	<check_box label="Texture" name="check_texture"/>
 	<check_box label="Fotografie" name="check_snapshot"/>
+	<check_box label="Impostazioni" name="check_settings"/>
 	<button label="Tutto" label_selected="Tutto" name="All"/>
 	<button label="Nulla" label_selected="Nulla" name="None"/>
 	<check_box label="Mostra sempre le cartelle" name="check_show_empty"/>

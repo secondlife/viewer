@@ -4800,7 +4800,7 @@ LLViewerTexture* LLViewerObject::getBakedTextureForMagicId(const LLUUID& id)
 	}
 
 	LLVOAvatar* avatar = getAvatar();
-	if (avatar)
+	if (avatar && isRiggedMesh() && !isHUDAttachment())
 	{
 		LLAvatarAppearanceDefines::EBakedTextureIndex texIndex = LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::assetIdToBakedTextureIndex(id);
 		LLViewerTexture* bakedTexture = avatar->getBakedTexture(texIndex);

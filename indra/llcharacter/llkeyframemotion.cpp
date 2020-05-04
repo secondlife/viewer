@@ -2321,7 +2321,7 @@ void LLKeyframeMotion::onLoadComplete(LLVFS *vfs,
 	LLCharacter* character = *char_iter;
 
 	// look for an existing instance of this motion
-	LLKeyframeMotion* motionp = dynamic_cast<LLKeyframeMotion*> (character->findMotion(asset_uuid));
+	LLKeyframeMotion* motionp = static_cast<LLKeyframeMotion*> (character->findMotion(asset_uuid));
 	if (motionp)
 	{
 		if (0 == status)

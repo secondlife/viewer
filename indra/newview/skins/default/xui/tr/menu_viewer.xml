@@ -77,30 +77,15 @@
 			<menu_item_check label="Parsel Özellikleri" name="Parcel Properties"/>
 			<menu_item_check label="Gelişmiş Menü" name="Show Advanced Menu"/>
 		</menu>
-		<menu label="Güneş" name="Sun">
+		<menu label="Ortam" name="Environment">
 			<menu_item_check label="Gün doğumu" name="Sunrise"/>
 			<menu_item_check label="Öğle" name="Noon"/>
 			<menu_item_check label="Gün batımı" name="Sunset"/>
 			<menu_item_check label="Gece yarısı" name="Midnight"/>
-			<menu_item_check label="Bölge Ayarlarını Kullan" name="Use Region Settings"/>
-		</menu>
-		<menu label="Ortam Düzenleyici" name="Environment Editor">
-			<menu_item_call label="Ortam Ayarları..." name="Environment Settings"/>
-			<menu label="Su Ön Ayarları" name="Water Presets">
-				<menu_item_call label="Yeni ön ayar..." name="new_water_preset"/>
-				<menu_item_call label="Ön ayarı düzenle..." name="edit_water_preset"/>
-				<menu_item_call label="Ön ayarı sil..." name="delete_water_preset"/>
-			</menu>
-			<menu label="Gökyüzü Ön Ayarları" name="Sky Presets">
-				<menu_item_call label="Yeni ön ayar..." name="new_sky_preset"/>
-				<menu_item_call label="Ön ayarı düzenle..." name="edit_sky_preset"/>
-				<menu_item_call label="Ön ayarı sil..." name="delete_sky_preset"/>
-			</menu>
-			<menu label="Gün Ön Ayarları" name="Day Presets">
-				<menu_item_call label="Yeni ön ayar..." name="new_day_preset"/>
-				<menu_item_call label="Ön ayarı düzenle..." name="edit_day_preset"/>
-				<menu_item_call label="Ön ayarı sil..." name="delete_day_preset"/>
-			</menu>
+			<menu_item_check label="Ortak Ortam Kullan" name="Use Shared Environment"/>
+			<menu_item_call label="Ortamlarım..." name="my_environs"/>
+			<menu_item_call label="Kişisel Aydınlatma..." name="adjustment_tool"/>
+			<menu_item_check label="Bulutları Duraklat" name="pause_clouds"/>
 		</menu>
 	</menu>
 	<menu label="İnşa Et" name="BuildTools">
@@ -344,6 +329,9 @@
 			<menu_item_check label="Otomatik Alfa Maskeleri (ertelenmemiş)" name="Automatic Alpha Masks (non-deferred)"/>
 			<menu_item_check label="Animasyon Dokuları" name="Animation Textures"/>
 			<menu_item_check label="Dokuları Devre Dışı Bırak" name="Disable Textures"/>
+			<menu_item_check label="Ortamı Devre Dışı Bırak" name="Disable Ambient"/>
+			<menu_item_check label="Güneş Işığını Devre Dışı Bırak" name="Disable Sunlight"/>
+			<menu_item_check label="Yerel Işıkları Devre Dışı Bırak" name="Disable Local Lights"/>
 			<menu_item_check label="Tam Çöz. Dokular" name="Rull Res Textures"/>
 			<menu_item_check label="Eklenmiş Işıkları İşle" name="Render Attached Lights"/>
 			<menu_item_check label="Eklenmiş Parçacıkları İşle" name="Render Attached Particles"/>
@@ -481,6 +469,7 @@
 			<menu_item_call label="Etek" name="Skirt"/>
 			<menu_item_call label="Alfa" name="Alpha"/>
 			<menu_item_call label="Dövme" name="Tattoo"/>
+			<menu_item_call label="Evrensel" name="Universal"/>
 			<menu_item_call label="Fizik" name="Physics"/>
 			<menu_item_call label="Tüm Giysiler" name="All Clothes"/>
 		</menu>

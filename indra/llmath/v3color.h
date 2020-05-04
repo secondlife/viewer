@@ -100,6 +100,23 @@ public:
 
 	const LLColor3&	operator=(const LLColor4 &a);
 	
+    LL_FORCE_INLINE LLColor3 divide(const LLColor3 &col2)
+    {
+        return LLColor3(
+                mV[0] / col2.mV[0],
+                mV[1] / col2.mV[1],
+                mV[2] / col2.mV[2] );
+    }
+
+    LL_FORCE_INLINE LLColor3 color_norm()
+    {
+        F32 l = length();
+        return LLColor3(
+                mV[0] / l,
+                mV[1] / l,
+                mV[2] / l );
+    }
+
 	friend std::ostream&	 operator<<(std::ostream& s, const LLColor3 &a);		// Print a
 	friend LLColor3 operator+(const LLColor3 &a, const LLColor3 &b);	// Return vector a + b
 	friend LLColor3 operator-(const LLColor3 &a, const LLColor3 &b);	// Return vector a minus b
@@ -458,5 +475,22 @@ inline LLColor3 lerp(const LLColor3 &a, const LLColor3 &b, F32 u)
 		a.mV[VZ] + (b.mV[VZ] - a.mV[VZ]) * u);
 }
 
+inline const LLColor3 srgbColor3(const LLColor3 &a) {
+	LLColor3 srgbColor;
+	srgbColor.mV[0] = linearTosRGB(a.mV[0]);
+	srgbColor.mV[1] = linearTosRGB(a.mV[1]);
+	srgbColor.mV[2] = linearTosRGB(a.mV[2]);
+
+	return srgbColor;
+}
+
+inline const LLColor3 linearColor3(const LLColor3 &a) {
+    LLColor3 linearColor;
+    linearColor.mV[0] = sRGBtoLinear(a.mV[0]);
+    linearColor.mV[1] = sRGBtoLinear(a.mV[1]);
+    linearColor.mV[2] = sRGBtoLinear(a.mV[2]);
+
+    return linearColor;
+}
 
 #endif

@@ -55,6 +55,7 @@ static const S32 UNZIP_LLSD_MAX_DEPTH = 96;
 static const char LEGACY_NON_HEADER[] = "<llsd>";
 const std::string LLSD_BINARY_HEADER("LLSD/Binary");
 const std::string LLSD_XML_HEADER("LLSD/XML");
+const std::string LLSD_NOTATION_HEADER("llsd/notation");
 
 //used to deflate a gzipped asset (currently used for navmeshes)
 #define windowBits 15
@@ -80,6 +81,11 @@ void LLSDSerialize::serialize(const LLSD& sd, std::ostream& str, ELLSD_Serialize
 		str << "<? " << LLSD_XML_HEADER << " ?>\n";
 		f = new LLSDXMLFormatter;
 		break;
+
+    case LLSD_NOTATION:
+        str << "<? " << LLSD_NOTATION_HEADER << " ?>\n";
+        f = new LLSDNotationFormatter;
+        break;
 
 	default:
 		LL_WARNS() << "serialize request for unknown ELLSD_Serialize" << LL_ENDL;
@@ -168,6 +174,10 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, S32 max_bytes)
 	{
 		p = new LLSDXMLParser;
 	}
+    else if (header == LLSD_NOTATION_HEADER)
+    {
+        p = new LLSDNotationParser;
+    }
 	else
 	{
 		LL_WARNS() << "deserialize request for unknown ELLSD_Serialize" << LL_ENDL;

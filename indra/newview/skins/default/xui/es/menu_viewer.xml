@@ -79,30 +79,15 @@
 			<menu_item_check label="Propiedades de la parcela" name="Parcel Properties"/>
 			<menu_item_check label="Menú Avanzado" name="Show Advanced Menu"/>
 		</menu>
-		<menu label="Dom" name="Sun">
+		<menu label="Entorno" name="Environment">
 			<menu_item_check label="Amanecer" name="Sunrise"/>
 			<menu_item_check label="Mediodía" name="Noon"/>
 			<menu_item_check label="Atardecer" name="Sunset"/>
 			<menu_item_check label="Medianoche" name="Midnight"/>
-			<menu_item_check label="Usar Configuración de la Región" name="Use Region Settings"/>
-		</menu>
-		<menu label="Editor de entorno" name="Environment Editor">
-			<menu_item_call label="Configuración del entorno..." name="Environment Settings"/>
-			<menu label="Agua predefinida" name="Water Presets">
-				<menu_item_call label="Nuevo predefinido..." name="new_water_preset"/>
-				<menu_item_call label="Editar predefinido..." name="edit_water_preset"/>
-				<menu_item_call label="Eliminar predefinido..." name="delete_water_preset"/>
-			</menu>
-			<menu label="Cielos predefinidos" name="Sky Presets">
-				<menu_item_call label="Nuevo predefinido..." name="new_sky_preset"/>
-				<menu_item_call label="Editar predefinido..." name="edit_sky_preset"/>
-				<menu_item_call label="Eliminar predefinido..." name="delete_sky_preset"/>
-			</menu>
-			<menu label="Días predefinidos" name="Day Presets">
-				<menu_item_call label="Nuevo predefinido..." name="new_day_preset"/>
-				<menu_item_call label="Editar predefinido..." name="edit_day_preset"/>
-				<menu_item_call label="Eliminar predefinido..." name="delete_day_preset"/>
-			</menu>
+			<menu_item_check label="Usar entorno compartido" name="Use Shared Environment"/>
+			<menu_item_call label="Mis entornos..." name="my_environs"/>
+			<menu_item_call label="Iluminación personal..." name="adjustment_tool"/>
+			<menu_item_check label="Pausar Nubes" name="pause_clouds"/>
 		</menu>
 	</menu>
 	<menu label="Construir" name="BuildTools">
@@ -323,6 +308,9 @@
 			<menu_item_check label="Capas alfa automáticas (no deferidas)" name="Automatic Alpha Masks (non-deferred)"/>
 			<menu_item_check label="Animation Textures" name="Animation Textures"/>
 			<menu_item_check label="Disable Textures" name="Disable Textures"/>
+			<menu_item_check label="Desactivar ambiente" name="Disable Ambient"/>
+			<menu_item_check label="Desactivar luz del sol" name="Disable Sunlight"/>
+			<menu_item_check label="Desactivar luces locales" name="Disable Local Lights"/>
 			<menu_item_check label="Render Attached Lights" name="Render Attached Lights"/>
 			<menu_item_check label="Render Attached Particles" name="Render Attached Particles"/>
 			<menu_item_check label="Hover Glow Objects" name="Hover Glow Objects"/>
@@ -406,6 +394,7 @@
 	</menu>
 	<menu label="Admin" name="Deprecated">
 		<menu label="Take Off Clothing" name="Take Off Clothing">
+			<menu_item_call label="Universal" name="Universal"/>
 			<menu_item_call label="Física" name="Physics"/>
 		</menu>
 		<menu label="Ayuda" name="DeprecatedHelp">
