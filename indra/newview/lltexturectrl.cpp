@@ -755,7 +755,7 @@ void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem
 void LLFloaterTexturePicker::onModeSelect(LLUICtrl* ctrl, void *userdata)
 {
 	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
-	int index = self->mModeSelector->getSelectedIndex();
+    int index = self->mModeSelector->getValue().asInteger();
 
 	self->getChild<LLButton>("Default")->setVisible(index == 0 ? TRUE : FALSE);
 	self->getChild<LLButton>("Blank")->setVisible(index == 0 ? TRUE : FALSE);
