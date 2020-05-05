@@ -1836,41 +1836,7 @@ LLInventoryRecentItemsPanel::LLInventoryRecentItemsPanel( const Params& params)
 
 /************************************************************************/
 /* Asset Pre-Filtered Inventory Panel related class                     */
-/* Exchanges filter's flexibility for speed of generation and           */
-/* improved performance                                                 */
 /************************************************************************/
-class LLAssetFilteredInventoryPanel : public LLInventoryPanel
-{
-public:
-    struct Params
-        : public LLInitParam::Block<Params, LLInventoryPanel::Params>
-    {
-        Mandatory<std::string>	filter_asset_type;
-
-        Params() : filter_asset_type("filter_asset_type") {}
-    };
-
-    void initFromParams(const Params& p);
-protected:
-    LLAssetFilteredInventoryPanel(const Params& p) : LLInventoryPanel(p) {}
-    friend class LLUICtrlFactory;
-public:
-    ~LLAssetFilteredInventoryPanel() {}
-
-    /*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
-                                       EDragAndDropType cargo_type,
-                                       void* cargo_data,
-                                       EAcceptance* accept,
-                                       std::string& tooltip_msg) override;
-
-protected:
-    /*virtual*/ bool				typedViewsFilter(const LLUUID& id, LLInventoryObject const* objectp) override;
-    /*virtual*/ void				itemChanged(const LLUUID& item_id, U32 mask, const LLInventoryObject* model_item) override;
-
-private:
-    LLAssetType::EType mAssetType;
-};
-
 
 void LLAssetFilteredInventoryPanel::initFromParams(const Params& p)
 {
