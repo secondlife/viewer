@@ -62,7 +62,9 @@
 #include "llallocator.h"
 #include "llcalc.h"
 #include "llconversationlog.h"
+#if LL_WINDOWS
 #include "lldxhardware.h"
+#endif
 #include "lltexturestats.h"
 #include "lltrace.h"
 #include "lltracethreadrecorder.h"
@@ -1139,7 +1141,7 @@ bool LLAppViewer::init()
 	try {
 		initializeSecHandler();
 	}
-	catch (LLProtectedDataException ex)
+	catch (LLProtectedDataException&)
 	{
 	  LLNotificationsUtil::add("CorruptedProtectedDataStore");
 	}
@@ -1452,7 +1454,7 @@ bool LLAppViewer::frame()
 		{
 			LOG_UNHANDLED_EXCEPTION("");
 		}
-		catch (std::bad_alloc)
+		catch (std::bad_alloc&)
 		{
 			LLMemory::logMemoryInfo(TRUE);
 			LLFloaterMemLeak* mem_leak_instance = LLFloaterReg::findTypedInstance<LLFloaterMemLeak>("mem_leaking");
@@ -1876,6 +1878,11 @@ bool LLAppViewer::cleanup()
 	disconnectViewer();
 
 	LL_INFOS() << "Viewer disconnected" << LL_ENDL;
+	
+	if (gKeyboard)
+	{
+		gKeyboard->resetKeys();
+	}
 
 	display_cleanup();
 
@@ -4161,7 +4168,10 @@ static LLNotificationFunctorRegistration finish_quit_reg("ConfirmQuit", finish_q
 
 void LLAppViewer::userQuit()
 {
-	if (gDisconnected || gViewerWindow->getProgressView()->getVisible())
+	if (gDisconnected
+		|| !gViewerWindow
+		|| !gViewerWindow->getProgressView()
+		|| gViewerWindow->getProgressView()->getVisible())
 	{
 		requestQuit();
 	}
