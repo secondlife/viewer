@@ -125,7 +125,7 @@ void LLHTTPNode::get(LLHTTPNode::ResponsePtr response, const LLSD& context) cons
 	{
 		response->result(simpleGet());
 	}
-	catch (NotImplemented)
+	catch (NotImplemented&)
 	{
 		response->methodNotAllowed();
 	}
@@ -138,7 +138,7 @@ void LLHTTPNode::put(LLHTTPNode::ResponsePtr response, const LLSD& context, cons
 	{
 		response->result(simplePut(input));
 	}
-	catch (NotImplemented)
+	catch (NotImplemented&)
 	{
 		response->methodNotAllowed();
 	}
@@ -151,7 +151,7 @@ void LLHTTPNode::post(LLHTTPNode::ResponsePtr response, const LLSD& context, con
 	{
 		response->result(simplePost(input));
 	}
-	catch (NotImplemented)
+	catch (NotImplemented&)
 	{
 		response->methodNotAllowed();
 	}
@@ -164,7 +164,7 @@ void LLHTTPNode::del(LLHTTPNode::ResponsePtr response, const LLSD& context) cons
     {
 	response->result(simpleDel(context));
     }
-    catch (NotImplemented)
+    catch (NotImplemented&)
     {
 	response->methodNotAllowed();
     }
