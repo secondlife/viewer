@@ -90,12 +90,12 @@ protected:
 	std::string					mLabel;
 	S32							mLabelWidth;
 	bool						mLabelWidthDirty;
-	bool						mLabelNeedsRefresh;
     S32                         mLabelPaddingRight;
 	LLFolderViewFolder*			mParentFolder;
 	LLPointer<LLFolderViewModelItem> mViewModelItem;
 	LLFontGL::StyleFlags		mLabelStyle;
 	std::string					mLabelSuffix;
+	bool						mSuffixNeedsRefresh; //suffix and icons
 	LLUIImagePtr				mIcon,
 								mIconOpen,
 								mIconOverlay;
@@ -268,8 +268,12 @@ public:
 	virtual BOOL	isPotentiallyVisible(S32 filter_generation = -1);
 
     // refresh information from the object being viewed.
-    // refreshes sufixes and sets icons. Expensive!
-	virtual void refresh();
+    // refreshes label, suffixes and sets icons. Expensive!
+    // Causes filter update
+    virtual void refresh();
+    // refreshes suffixes and sets icons. Expensive!
+    // Does not need filter update
+	virtual void refreshSuffix();
 
 	// LLView functionality
 	virtual BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
