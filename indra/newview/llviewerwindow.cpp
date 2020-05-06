@@ -325,6 +325,7 @@ RecordToChatConsole::RecordToChatConsole():
 //    #  decimal digits
 //
 // This is similar to printf("%+.4f") except positive numbers are NOT cluttered with a leading '+' sign.
+// NOTE: This does NOT null terminate the output
 void normalized_float_to_string(const float x, char *out_str)
 {
     static const unsigned char DECIMAL_BCD2[] =
@@ -349,7 +350,6 @@ void normalized_float_to_string(const float x, char *out_str)
     int d10 = rem % 100; rem /= 100;
     int d32 = rem % 100; rem /= 100;
 
-    out_str[7] = 0;
     out_str[6] = '0' + ((DECIMAL_BCD2[ d10 ] >> 0) & 0xF);
     out_str[5] = '0' + ((DECIMAL_BCD2[ d10 ] >> 4) & 0xF);
     out_str[4] = '0' + ((DECIMAL_BCD2[ d32 ] >> 0) & 0xF);
@@ -360,16 +360,49 @@ void normalized_float_to_string(const float x, char *out_str)
 }
 
 // normalized float
-#define MATRIX_ROW_N32_TO_STR( matrix_row, i )            \
-    normalized_float_to_string( matrix_row[i+0], x_str ); \
-    normalized_float_to_string( matrix_row[i+1], y_str ); \
-    normalized_float_to_string( matrix_row[i+2], z_str );
+//    printf("%-.4f    %-.4f    %-.4f")
+// Params:
+//   float  &matrix_row[4]
+//   int    matrix_cell_index
+//   string out_buffer (size 32)
+// Note: The buffer is assumed to be pre-filled with spaces
+#define MATRIX_ROW_N32_TO_STR(matrix_row, i, out_buffer)          \
+    normalized_float_to_string(matrix_row[i+0], out_buffer +  0); \
+    normalized_float_to_string(matrix_row[i+1], out_buffer + 11); \
+    normalized_float_to_string(matrix_row[i+2], out_buffer + 22); \
+    out_buffer[31] = 0;
+
 
 // regular float
-#define MATRIX_ROW_F32_TO_STR( matrix_row, i )  \
-    sprintf(x_str, "%-9.2f", matrix_row[i+0] ); \
-    sprintf(y_str, "%-9.2f", matrix_row[i+1] ); \
-    sprintf(z_str, "%-9.2f", matrix_row[i+2] );
+//    sprintf(buffer, "%-8.2f  %-8.2f  %-8.2f", matrix_row[i+0], matrix_row[i+1], matrix_row[i+2]);
+// Params:
+//   float  &matrix_row[4]
+//   int    matrix_cell_index
+//   char   out_buffer[32]
+// Note: The buffer is assumed to be pre-filled with spaces
+#define MATRIX_ROW_F32_TO_STR(matrix_row, i, out_buffer) {                       \
+    static const char *format[3] = {                                             \
+        "%-8.2f"  ,  /* 0 */                                                     \
+        ">  99K  ",  /* 1 */                                                     \
+        "< -99K  "   /* 2 */                                                     \
+    };                                                                           \
+                                                                                 \
+    F32 temp_0 = matrix_row[i+0];                                                \
+    F32 temp_1 = matrix_row[i+1];                                                \
+    F32 temp_2 = matrix_row[i+2];                                                \
+                                                                                 \
+    U8 flag_0 = (((U8)(temp_0 < -99999.99)) << 1) | ((U8)(temp_0 > 99999.99));   \
+    U8 flag_1 = (((U8)(temp_1 < -99999.99)) << 1) | ((U8)(temp_1 > 99999.99));   \
+    U8 flag_2 = (((U8)(temp_2 < -99999.99)) << 1) | ((U8)(temp_2 > 99999.99));   \
+                                                                                 \
+    if (temp_0 < 0.f) out_buffer[ 0] = '-';                                      \
+    if (temp_1 < 0.f) out_buffer[11] = '-';                                      \
+    if (temp_2 < 0.f) out_buffer[22] = '-';                                      \
+                                                                                 \
+    sprintf(out_buffer+ 1,format[flag_0],fabsf(temp_0)); out_buffer[ 1+8] = ' '; \
+    sprintf(out_buffer+12,format[flag_1],fabsf(temp_1)); out_buffer[12+8] = ' '; \
+    sprintf(out_buffer+23,format[flag_2],fabsf(temp_2)); out_buffer[23+8] =  0 ; \
+}
 
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -784,26 +817,25 @@ public:
 		}
 		if (gSavedSettings.getBOOL("DebugShowRenderMatrices"))
 		{
-			char x_str[16];
-			char y_str[16];
-			char z_str[16];
+			char camera_lines[8][32];
+			memset(camera_lines, ' ', sizeof(camera_lines));
 
-			// Projection last column is always <0,0,-1,0>
-			// Projection last row is <0,0,x>
-			mBackRectCamera1.mBottom = ypos - y_inc;
-			MATRIX_ROW_N32_TO_STR(gGLProjection, 12); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc;
-			MATRIX_ROW_N32_TO_STR(gGLProjection,  8); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc;
-			MATRIX_ROW_N32_TO_STR(gGLProjection,  4); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc; mBackRectCamera1.mTop    = ypos;
-			MATRIX_ROW_N32_TO_STR(gGLProjection,  0); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc; mBackRectCamera2.mBottom = ypos;
+			// Projection last column is always <0,0,-1.0001,0>
+			// Projection last row is always <0,0,-0.2>
+			mBackRectCamera1.mBottom = ypos - y_inc + 2;
+			MATRIX_ROW_N32_TO_STR(gGLProjection, 12,camera_lines[7]); addText(xpos, ypos, std::string(camera_lines[7])); ypos += y_inc;
+			MATRIX_ROW_N32_TO_STR(gGLProjection,  8,camera_lines[6]); addText(xpos, ypos, std::string(camera_lines[6])); ypos += y_inc;
+			MATRIX_ROW_N32_TO_STR(gGLProjection,  4,camera_lines[5]); addText(xpos, ypos, std::string(camera_lines[5])); ypos += y_inc; mBackRectCamera1.mTop    = ypos + 2;
+			MATRIX_ROW_N32_TO_STR(gGLProjection,  0,camera_lines[4]); addText(xpos, ypos, std::string(camera_lines[4])); ypos += y_inc; mBackRectCamera2.mBottom = ypos + 2;
 
 			addText(xpos, ypos, "Projection Matrix");
 			ypos += y_inc;
 
 			// View last column is always <0,0,0,1>
-			MATRIX_ROW_F32_TO_STR(gGLModelView, 12); addText(xpos, ypos, llformat("%s  ""%s  ""%s", x_str, y_str, z_str)); ypos += y_inc;
-			MATRIX_ROW_N32_TO_STR(gGLModelView,  8); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc;
-			MATRIX_ROW_N32_TO_STR(gGLModelView,  4); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc; mBackRectCamera2.mTop = ypos;
-			MATRIX_ROW_N32_TO_STR(gGLModelView,  0); addText(xpos, ypos, llformat("%s    %s    %s", x_str, y_str, z_str)); ypos += y_inc;
+			MATRIX_ROW_F32_TO_STR(gGLModelView, 12,camera_lines[3]); addText(xpos, ypos, std::string(camera_lines[3])); ypos += y_inc;
+			MATRIX_ROW_N32_TO_STR(gGLModelView,  8,camera_lines[2]); addText(xpos, ypos, std::string(camera_lines[2])); ypos += y_inc;
+			MATRIX_ROW_N32_TO_STR(gGLModelView,  4,camera_lines[1]); addText(xpos, ypos, std::string(camera_lines[1])); ypos += y_inc; mBackRectCamera2.mTop = ypos + 2;
+			MATRIX_ROW_N32_TO_STR(gGLModelView,  0,camera_lines[0]); addText(xpos, ypos, std::string(camera_lines[0])); ypos += y_inc;
 
 			addText(xpos, ypos, "View Matrix");
 			ypos += y_inc;
