@@ -588,16 +588,22 @@ void send_stats()
     // False-positives and false-negatives are possible, but unlikely. We'll get a good
     // approximation of Vulkan capability within current user systems from this. More
     // detailed information on versions and extensions can come later.
-    HMODULE vulkanDll = LoadLibraryExA("vulkan-1.dll", NULL, LOAD_LIBRARY_AS_DATAFILE);
-    if (NULL == vulkanDll)
+    static bool vulkan_oneshot = false;
+    static bool vulkan_detected = false;
+
+    if (!vulkan_oneshot)
     {
-        misc["string_1"] = llformat("No Vulkan driver detected");
+        HMODULE vulkan_loader = LoadLibraryExA("vulkan-1.dll", NULL, LOAD_LIBRARY_AS_DATAFILE);
+        if (NULL != vulkan_loader)
+        {
+            vulkan_detected = true;
+            FreeLibrary(vulkan_loader);
+        }
+        vulkan_oneshot = true;
     }
-    else
-    {
-        misc["string_1"] = llformat("Vulkan driver is detected");
-        FreeLibrary(vulkanDll);
-    }
+
+    misc["string_1"] = vulkan_detected ? llformat("Vulkan driver is detected") : llformat("No Vulkan driver detected");
+
 #else
     misc["string_1"] = llformat("Unused");
 #endif // LL_WINDOWS
