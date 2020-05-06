@@ -459,9 +459,16 @@ public:
 		AOA_JELLYDOLL,
 		AOA_INVISIBLE
 	};
+
 	AvatarOverallAppearance getOverallAppearance() const;
+	void setOverallAppearanceNormal();
+	void setOverallAppearanceJellyDoll();
+	void setOverallAppearanceInvisible();
+		
 	void updateOverallAppearance();
-	
+
+	std::set<LLUUID> mJellyAnims;
+
 	U32 		renderRigid();
 	U32 		renderSkinned();
 	F32			getLastSkinTime() { return mLastSkinTime; }

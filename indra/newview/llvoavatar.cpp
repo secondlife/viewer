@@ -3731,7 +3731,7 @@ void LLVOAvatar::updateAnimationDebugText()
 									}
 									else if (object->isAttachment())
 									{
-										name += "(" + getAttachmentItemName() + ")";
+										name += "(att:" + getAttachmentItemName() + ")";
 									}
 									else
 									{
@@ -10477,14 +10477,70 @@ void LLVOAvatar::setVisualMuteSettings(VisualMuteSettings set)
     LLRenderMuteList::getInstance()->saveVisualMuteSetting(getID(), S32(set));
 }
 
+void LLVOAvatar::setOverallAppearanceNormal()
+{
+	resetSkeleton(false);
+	for (auto it = mJellyAnims.begin(); it !=  mJellyAnims.end(); ++it)
+	{
+		bool is_playing = (mPlayingAnimations.find(*it) != mPlayingAnimations.end());
+		LL_DEBUGS("Avatar") << "jelly anim " << *it << " " << is_playing << LL_ENDL;
+		if (!is_playing)
+		{
+			// Anim was not requested for this av by sim, but may be playing locally
+			stopMotion(*it);
+		}
+	}
+	mJellyAnims.clear();
+}
+
+void LLVOAvatar::setOverallAppearanceJellyDoll()
+{
+	resetSkeleton(false);
+	// stop current animations
+	{
+		for ( LLVOAvatar::AnimIterator anim_it= mPlayingAnimations.begin();
+			  anim_it != mPlayingAnimations.end();
+			  ++anim_it)
+		{
+			if (anim_it->first != ANIM_AGENT_STAND)
+			{
+				stopMotion(anim_it->first);
+			}
+		}
+	}
+	// start the default stand
+	bool stand_is_playing = (mPlayingAnimations.find(ANIM_AGENT_STAND) != mPlayingAnimations.end());
+	if (!stand_is_playing)
+	{
+		startMotion(ANIM_AGENT_STAND, 5.0f);
+		mJellyAnims.insert(ANIM_AGENT_STAND);
+	}
+	processAnimationStateChanges();
+}
+
+void LLVOAvatar::setOverallAppearanceInvisible()
+{
+}
+
 void LLVOAvatar::updateOverallAppearance()
 {
-	AvatarOverallAppearance new_val = getOverallAppearance();
-	if (new_val != mOverallAppearance)
+	AvatarOverallAppearance new_overall = getOverallAppearance();
+	if (new_overall != mOverallAppearance)
 	{
-		updateAttachmentOverrides();
+		switch(new_overall)
+		{
+			case AOA_NORMAL:
+				setOverallAppearanceNormal();
+				break;
+			case AOA_JELLYDOLL:
+				setOverallAppearanceJellyDoll();
+				break;
+			case AOA_INVISIBLE:
+				setOverallAppearanceInvisible();
+				break;
+		}
+		mOverallAppearance = new_overall;
 	}
-	mOverallAppearance = new_val;
 }
 
 // Based on isVisuallyMuted(), but has 3 possible results.
