@@ -547,6 +547,16 @@ LLSD llsd_clone(LLSD value, LLSD filter = LLSD());
 // the filter parameter.
 LLSD llsd_shallow(LLSD value, LLSD filter = LLSD());
 
+namespace llsd
+{
+
+// llsd namespace aliases
+inline
+LLSD clone  (LLSD value, LLSD filter=LLSD()) { return llsd_clone  (value, filter); }
+inline
+LLSD shallow(LLSD value, LLSD filter=LLSD()) { return llsd_shallow(value, filter); }
+
+} // namespace llsd
 
 // Specialization for generating a hash value from an LLSD block. 
 template <>
