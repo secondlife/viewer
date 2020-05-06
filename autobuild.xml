@@ -580,9 +580,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>423116407f3b4e3683154e939415aaf3</string>
+              <string>4dfb2c207a8373abcda5f3af0d6fd956</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/59087/555372/dullahan-1.6.5.202005051404_81.2.15_ge07275d_chromium-81.0.4044.92-darwin64-541711.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/59195/556595/dullahan-1.6.5.202005061023_81.2.15_ge07275d_chromium-81.0.4044.92-darwin64-541803.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -592,9 +592,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0e46583be666b554badc18e69d214996</string>
+              <string>a3dee0ea6e8b4059d91acde51ba291b1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/59089/555381/dullahan-1.6.5.202005052105_81.2.17_gb382c62_chromium-81.0.4044.113-windows-541711.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/59196/556604/dullahan-1.6.5.202005061726_81.2.17_gb382c62_chromium-81.0.4044.113-windows-541803.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -604,16 +604,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>edcfba2ab9d1a56ba8f837f9dcb5e47d</string>
+              <string>95dd825266e9c53f5fcb49b0818f0485</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/59088/555382/dullahan-1.6.5.202005052105_81.2.17_gb382c62_chromium-81.0.4044.113-windows64-541711.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/59197/556609/dullahan-1.6.5.202005061726_81.2.17_gb382c62_chromium-81.0.4044.113-windows64-541803.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.6.5.202005052105_81.2.17_gb382c62_chromium-81.0.4044.113</string>
+        <string>1.6.5.202005061726_81.2.17_gb382c62_chromium-81.0.4044.113</string>
       </map>
       <key>elfio</key>
       <map>
