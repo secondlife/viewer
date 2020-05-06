@@ -39,6 +39,7 @@
 #include "llagent.h"
 #include "llagentui.h"
 #include "lllandmarkactions.h"
+#include "llparcel.h"
 #include "llslurl.h"
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
@@ -101,6 +102,9 @@ void LLPanelLandmarkInfo::resetLocation()
 	mLandmarkTitle->setText(LLStringUtil::null);
 	mLandmarkTitleEditor->setText(LLStringUtil::null);
 	mNotesEditor->setText(LLStringUtil::null);
+
+    mParcelOwner->setVisible(FALSE);
+    getChild<LLUICtrl>("parcel_owner_label")->setVisible(FALSE);
 }
 
 // virtual
@@ -126,7 +130,8 @@ void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 			mNotesEditor->setEnabled(TRUE);
 
 			LLViewerParcelMgr* parcel_mgr = LLViewerParcelMgr::getInstance();
-			std::string name = parcel_mgr->getAgentParcelName();
+			LLParcel* parcel = parcel_mgr->getAgentParcel();
+			std::string name = parcel->getName();
 			LLVector3 agent_pos = gAgent.getPositionAgent();
 			
 			std::string desc;
@@ -158,6 +163,27 @@ void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 			{
 				mLandmarkTitleEditor->setText(name);
 			}
+
+            mParcelOwner->setVisible(TRUE);
+            getChild<LLUICtrl>("parcel_owner_label")->setVisible(TRUE);
+            LLUUID owner_id = parcel->getOwnerID();
+            if (owner_id.notNull())
+            {
+                if (parcel->getIsGroupOwned())
+                {
+                    std::string owner_name = LLSLURL("group", parcel->getGroupID(), "inspect").getSLURLString();
+                    mParcelOwner->setText(owner_name);
+                }
+                else
+                {
+                    std::string owner_name = LLSLURL("agent", owner_id, "inspect").getSLURLString();
+                    mParcelOwner->setText(owner_name);
+                }
+            }
+            else
+            {
+                mParcelOwner->setText(getString("public"));
+            }
 
 			// Moved landmark creation here from LLPanelLandmarkInfo::processParcelInfo()
 			// because we use only agent's current coordinates instead of waiting for
@@ -209,6 +235,17 @@ void LLPanelLandmarkInfo::processParcelInfo(const LLParcelData& parcel_data)
 		mMaturityRatingIcon->setValue(icon_pg);
 		mMaturityRatingText->setText(LLViewerRegion::accessToString(SIM_ACCESS_PG));
 	}
+
+    if (parcel_data.owner_id.notNull())
+    {
+        // not suported and ivisible due to missing isGroupOwned flag
+    }
+    else
+    {
+        mParcelOwner->setVisible(TRUE);
+        mParcelOwner->setText(getString("public"));
+        getChild<LLUICtrl>("parcel_owner_label")->setVisible(FALSE);
+    }
 
 	LLSD info;
 	info["update_verbs"] = true;
@@ -264,7 +301,8 @@ void LLPanelLandmarkInfo::displayItemInfo(const LLInventoryItem* pItem)
 	}
 	else
 	{
-		mOwner->setText(getString("public"));
+		std::string public_str = getString("public");
+		mOwner->setText(public_str);
 	}
 
 	//////////////////
@@ -357,7 +395,7 @@ void LLPanelLandmarkInfo::createLandmark(const LLUUID& folder_id)
 		// If no parcel exists use the region name instead.
 		if (name.empty())
 		{
-			name = mRegionName->getText();
+			name = mRegionTitle;
 		}
 	}
 
