@@ -1,5 +1,5 @@
 /** 
- * @file lightAlphaMaskF.glsl
+ * @file class1\lighting\lightAlphaMaskF.glsl
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code

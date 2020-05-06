@@ -81,8 +81,8 @@ public:
 	LLAvatarBoneInfo() : mIsJoint(FALSE) {}
 	~LLAvatarBoneInfo()
 	{
-		std::for_each(mChildList.begin(), mChildList.end(), DeletePointer());
-		mChildList.clear();
+		std::for_each(mChildren.begin(), mChildren.end(), DeletePointer());
+		mChildren.clear();
 	}
 	BOOL parseXml(LLXmlTreeNode* node);
 	
@@ -96,8 +96,8 @@ private:
 	LLVector3 mRot;
 	LLVector3 mScale;
 	LLVector3 mPivot;
-	typedef std::vector<LLAvatarBoneInfo*> child_list_t;
-	child_list_t mChildList;
+	typedef std::vector<LLAvatarBoneInfo*> bones_t;
+	bones_t mChildren;
 };
 
 //------------------------------------------------------------------------
@@ -679,8 +679,8 @@ BOOL LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent
 
 
 	// setup children
-	LLAvatarBoneInfo::child_list_t::const_iterator iter;
-	for (iter = info->mChildList.begin(); iter != info->mChildList.end(); ++iter)
+	LLAvatarBoneInfo::bones_t::const_iterator iter;
+	for (iter = info->mChildren.begin(); iter != info->mChildren.end(); ++iter)
 	{
 		LLAvatarBoneInfo *child_info = *iter;
 		if (!setupBone(child_info, joint, volume_num, joint_num))
@@ -1684,7 +1684,7 @@ BOOL LLAvatarBoneInfo::parseXml(LLXmlTreeNode* node)
 			delete child_info;
 			return FALSE;
 		}
-		mChildList.push_back(child_info);
+		mChildren.push_back(child_info);
 	}
 	return TRUE;
 }
@@ -1743,10 +1743,9 @@ void LLAvatarAppearance::makeJointAliases(LLAvatarBoneInfo *bone_info)
         mJointAliasMap[*i] = bone_name;
     }
 
-    LLAvatarBoneInfo::child_list_t::const_iterator iter;
-    for (iter = bone_info->mChildList.begin(); iter != bone_info->mChildList.end(); ++iter)
+    for (LLAvatarBoneInfo* bone : bone_info->mChildren)
     {
-        makeJointAliases( *iter );
+        makeJointAliases(bone);
     }
 }
 

@@ -1116,10 +1116,6 @@ void LLOcclusionCullingGroup::checkOcclusion()
 					LL_RECORD_BLOCK_TIME(FTM_OCCLUSION_WAIT);
 					while (!available && max_loop-- > 0)
 					{
-						//do some usefu work while we wait
-						F32 max_time = llmin(gFrameIntervalSeconds.value()*10.f, 1.f);
-						LLAppViewer::instance()->updateTextureThreads(max_time);
-						
 						glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
 					}
 				}
@@ -1272,7 +1268,7 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
 						{
 							LL_RECORD_BLOCK_TIME(FTM_OCCLUSION_DRAW_WATER);
 
-							LLGLSquashToFarClip squash(glh_get_current_projection(), 1);
+							LLGLSquashToFarClip squash;
 							if (camera->getOrigin().isExactlyZero())
 							{ //origin is invalid, draw entire box
 								gPipeline.mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, 0);

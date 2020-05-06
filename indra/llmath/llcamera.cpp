@@ -93,6 +93,11 @@ F32 LLCamera::getMaxView() const
 		: MAX_FIELD_OF_VIEW; // narrow views
 }
 
+LLPlane LLCamera::getUserClipPlane()
+{
+    return mAgentPlanes[AGENT_PLANE_USER_CLIP];
+}
+
 // ---------------- LLCamera::setFoo() member functions ----------------
 
 void LLCamera::setUserClipPlane(LLPlane& plane)

@@ -184,6 +184,6 @@ BOOL LLWearableType::getAllowMultiwear(LLWearableType::EType type)
 // static
 LLWearableType::EType LLWearableType::inventoryFlagsToWearableType(U32 flags)
 {
-    return  (LLWearableType::EType)(flags & LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK);
+    return  (LLWearableType::EType)(flags & LLInventoryItemFlags::II_FLAGS_SUBTYPE_MASK);
 }
 

@@ -82,7 +82,6 @@
 	<check_box initial_value="true" label="透明な水" name="TransparentWater"/>
 	<check_box initial_value="true" label="バンプマッピングと光沢" name="BumpShiny"/>
 	<check_box initial_value="true" label="近くの光" name="LocalLights"/>
-	<check_box initial_value="true" label="基本シェーダー" name="BasicShaders" tool_tip="このオプションを無効にすると、グラフィックカードのドライバの種類によっては、クラッシュするのを防ぎます。"/>
 	<slider label="地形詳細：" name="TerrainDetail"/>
 	<text name="TerrainDetailText">
 		低

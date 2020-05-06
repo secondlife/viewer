@@ -315,7 +315,7 @@ bool LLImageJPEG::decode(LLImageRaw* raw_image, F32 decode_time)
 		jpeg_destroy_decompress(&cinfo);
 	}
 
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		setLastError( "Out of memory");
 		jpeg_destroy_decompress(&cinfo);

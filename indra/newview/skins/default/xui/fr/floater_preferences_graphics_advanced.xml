@@ -82,7 +82,6 @@
 	<check_box initial_value="true" label="Eau transparente" name="TransparentWater"/>
 	<check_box initial_value="true" label="Placage de relief et brillance" name="BumpShiny"/>
 	<check_box initial_value="true" label="Lumières locales" name="LocalLights"/>
-	<check_box initial_value="true" label="Effets de base" name="BasicShaders" tool_tip="La désactivation de cette option peut éviter le plantage de certains pilotes de cartes graphiques"/>
 	<slider label="Rendu du terrain :" name="TerrainDetail"/>
 	<text name="TerrainDetailText">
 		Faible

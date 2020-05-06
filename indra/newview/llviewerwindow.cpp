@@ -360,6 +360,8 @@ public:
 		static const std::string beacon_scripted_touch = LLTrans::getString("BeaconScriptedTouch");
 		static const std::string beacon_sound = LLTrans::getString("BeaconSound");
 		static const std::string beacon_media = LLTrans::getString("BeaconMedia");
+		static const std::string beacon_sun = LLTrans::getString("BeaconSun");
+		static const std::string beacon_moon = LLTrans::getString("BeaconMoon");
 		static const std::string particle_hiding = LLTrans::getString("ParticleHiding");
 
 		// Draw the statistics in a light gray
@@ -604,7 +606,7 @@ public:
 			addText(xpos, ypos, llformat("%d Unique Textures", LLImageGL::sUniqueCount));
 			ypos += y_inc;
 
-			addText(xpos, ypos, llformat("%d Render Calls", last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize)));
+			addText(xpos, ypos, llformat("%d Render Calls", (U32)last_frame_recording.getSampleCount(LLPipeline::sStatBatchSize)));
             ypos += y_inc;
 
 			addText(xpos, ypos, llformat("%d/%d Objects Active", gObjectList.getNumActiveObjects(), gObjectList.getNumObjects()));
@@ -792,6 +794,20 @@ public:
 				addText(xpos, ypos, "Viewing physical object beacons (green)");
 				ypos += y_inc;
 			}
+		}
+
+		static LLUICachedControl<bool> show_sun_beacon("sunbeacon", false);
+		static LLUICachedControl<bool> show_moon_beacon("moonbeacon", false);
+
+		if (show_sun_beacon)
+		{
+			addText(xpos, ypos, beacon_sun);
+			ypos += y_inc;
+		}
+		if (show_moon_beacon)
+		{
+			addText(xpos, ypos, beacon_moon);
+			ypos += y_inc;
 		}
 
 		if(log_texture_traffic)
@@ -1992,6 +2008,11 @@ void LLViewerWindow::initBase()
 	LLPanel* panel_holder = main_view->getChild<LLPanel>("toolbar_view_holder");
 	// Load the toolbar view from file 
 	gToolBarView = LLUICtrlFactory::getInstance()->createFromFile<LLToolBarView>("panel_toolbar_view.xml", panel_holder, LLDefaultChildRegistry::instance());
+	if (!gToolBarView)
+	{
+		LL_ERRS() << "Failed to initialize viewer: Viewer couldn't process file panel_toolbar_view.xml, "
+				<< "if this problem happens again, please validate your installation." << LL_ENDL;
+	}
 	gToolBarView->setShape(panel_holder->getLocalRect());
 	// Hide the toolbars for the moment: we'll make them visible after logging in world (see LLViewerWindow::initWorldUI())
 	gToolBarView->setVisible(FALSE);
@@ -2877,7 +2898,8 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	// If "Pressing letter keys starts local chat" option is selected, we are not in mouselook, 
 	// no view has keyboard focus, this is a printable character key (and no modifier key is 
 	// pressed except shift), then give focus to nearby chat (STORM-560)
-	if ( gSavedSettings.getS32("LetterKeysFocusChatBar") && !gAgentCamera.cameraMouselook() && 
+	if ( LLStartUp::getStartupState() >= STATE_STARTED && 
+		gSavedSettings.getS32("LetterKeysFocusChatBar") && !gAgentCamera.cameraMouselook() && 
 		!keyboard_focus && key < 0x80 && (mask == MASK_NONE || mask == MASK_SHIFT) )
 	{
 		// Initialize nearby chat if it's missing
@@ -3855,7 +3877,7 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 						F32 scale = vovolume->getLightRadius();
 						gGL.scalef(scale, scale, scale);
 
-						LLColor4 color(vovolume->getLightColor(), .5f);
+						LLColor4 color(vovolume->getLightSRGBColor(), .5f);
 						gGL.color4fv(color.mV);
 					
 						//F32 pixel_area = 100000.f;
@@ -4832,7 +4854,6 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 				{
 					// Required for showing the GUI in snapshots and performing bloom composite overlay
 					// Call even if show_ui is FALSE
-					LL_RECORD_BLOCK_TIME(FTM_RENDER_UI);
 					render_ui(scale_factor, subfield);
 					swap();
 				}

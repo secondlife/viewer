@@ -36,6 +36,7 @@
 #include "llsys.h"
 
 #include "llgl.h"
+#include "llglstates.h"
 #include "llrender.h"
 
 #include "llerror.h"
@@ -48,6 +49,10 @@
 
 #include "llglheaders.h"
 #include "llglslshader.h"
+
+#if LL_WINDOWS
+#include "lldxhardware.h"
+#endif
 
 #ifdef _DEBUG
 //#define GL_STATE_VERIFY
@@ -394,6 +399,8 @@ PFNGLGETACTIVEATTRIBARBPROC glGetActiveAttribARB = NULL;
 PFNGLGETATTRIBLOCATIONARBPROC glGetAttribLocationARB = NULL;
 
 #if LL_WINDOWS
+PFNWGLGETGPUIDSAMDPROC				wglGetGPUIDsAMD = NULL;
+PFNWGLGETGPUINFOAMDPROC				wglGetGPUInfoAMD = NULL;
 PFNWGLSWAPINTERVALEXTPROC			wglSwapIntervalEXT = NULL;
 #endif
 
@@ -413,6 +420,7 @@ LLGLManager::LLGLManager() :
 
 	mHasMultitexture(FALSE),
 	mHasATIMemInfo(FALSE),
+	mHasAMDAssociations(FALSE),
 	mHasNVXMemInfo(FALSE),
 	mNumTextureUnits(1),
 	mHasMipMapGeneration(FALSE),
@@ -497,7 +505,16 @@ void LLGLManager::initWGL()
 	{
 		LL_WARNS("RenderInit") << "No ARB create context extensions" << LL_ENDL;
 	}
-	
+
+	// For retreiving information per AMD adapter, 
+	// because we can't trust curently selected/default one when there are multiple
+	mHasAMDAssociations = ExtensionExists("WGL_AMD_gpu_association", gGLHExts.mSysExts);
+	if (mHasAMDAssociations)
+	{
+		GLH_EXT_NAME(wglGetGPUIDsAMD) = (PFNWGLGETGPUIDSAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUIDsAMD");
+		GLH_EXT_NAME(wglGetGPUInfoAMD) = (PFNWGLGETGPUINFOAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUInfoAMD");
+	}
+
 	if (ExtensionExists("WGL_EXT_swap_control", gGLHExts.mSysExts))
 	{
         GLH_EXT_NAME(wglSwapIntervalEXT) = (PFNWGLSWAPINTERVALEXTPROC)GLH_EXT_GET_PROC_ADDRESS("wglSwapIntervalEXT");
@@ -683,23 +700,78 @@ bool LLGLManager::initGL()
 	stop_glerror();
 
 	S32 old_vram = mVRAM;
+	mVRAM = 0;
 
-	if (mHasATIMemInfo)
+#if LL_WINDOWS
+	if (mHasAMDAssociations)
+	{
+		GLuint gl_gpus_count = wglGetGPUIDsAMD(0, 0);
+		if (gl_gpus_count > 0)
+		{
+			GLuint* ids = new GLuint[gl_gpus_count];
+			wglGetGPUIDsAMD(gl_gpus_count, ids);
+
+			GLuint mem_mb = 0;
+			for (U32 i = 0; i < gl_gpus_count; i++)
+			{
+				wglGetGPUInfoAMD(ids[i],
+					WGL_GPU_RAM_AMD,
+					GL_UNSIGNED_INT,
+					sizeof(GLuint),
+					&mem_mb);
+				if (mVRAM < mem_mb)
+				{
+					// basically pick the best AMD and trust driver/OS to know to switch
+					mVRAM = mem_mb;
+				}
+			}
+		}
+		if (mVRAM != 0)
+		{
+			LL_WARNS("RenderInit") << "VRAM Detected (AMDAssociations):" << mVRAM << LL_ENDL;
+		}
+	}
+#endif
+
+	if (mHasATIMemInfo && mVRAM == 0)
 	{ //ask the gl how much vram is free at startup and attempt to use no more than half of that
 		S32 meminfo[4];
 		glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, meminfo);
 
-		mVRAM = meminfo[0]/1024;
+		mVRAM = meminfo[0] / 1024;
+		LL_WARNS("RenderInit") << "VRAM Detected (ATIMemInfo):" << mVRAM << LL_ENDL;
 	}
-	else if (mHasNVXMemInfo)
+
+	if (mHasNVXMemInfo && mVRAM == 0)
 	{
 		S32 dedicated_memory;
 		glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &dedicated_memory);
 		mVRAM = dedicated_memory/1024;
+		LL_WARNS("RenderInit") << "VRAM Detected (NVXMemInfo):" << mVRAM << LL_ENDL;
 	}
 
+#if LL_WINDOWS
 	if (mVRAM < 256)
-	{ //something likely went wrong using the above extensions, fall back to old method
+	{
+		// Something likely went wrong using the above extensions
+		// try WMI first and fall back to old method (from dxdiag) if all else fails
+		// Function will check all GPUs WMI knows of and will pick up the one with most
+		// memory. We need to check all GPUs because system can switch active GPU to
+		// weaker one, to preserve power when not under load.
+		S32 mem = LLDXHardware::getMBVideoMemoryViaWMI();
+		if (mem != 0)
+		{
+			mVRAM = mem;
+			LL_WARNS("RenderInit") << "VRAM Detected (WMI):" << mVRAM<< LL_ENDL;
+		}
+	}
+#endif
+
+	if (mVRAM < 256 && old_vram > 0)
+	{
+		// fall back to old method
+		// Note: on Windows value will be from LLDXHardware.
+		// Either received via dxdiag or via WMI by id from dxdiag.
 		mVRAM = old_vram;
 	}
 
@@ -961,7 +1033,7 @@ void LLGLManager::initExtensions()
 	mHasTextureRectangle = FALSE;
 #else // LL_MESA_HEADLESS //important, gGLHExts.mSysExts is uninitialized until after glh_init_extensions is called
 	mHasMultitexture = glh_init_extensions("GL_ARB_multitexture");
-	mHasATIMemInfo = ExtensionExists("GL_ATI_meminfo", gGLHExts.mSysExts);
+	mHasATIMemInfo = ExtensionExists("GL_ATI_meminfo", gGLHExts.mSysExts); //Basic AMD method, also see mHasAMDAssociations
 	mHasNVXMemInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
 	mHasSeparateSpecularColor = glh_init_extensions("GL_EXT_separate_specular_color");
 	mHasAnisotropic = glh_init_extensions("GL_EXT_texture_filter_anisotropic");
@@ -998,6 +1070,12 @@ void LLGLManager::initExtensions()
 	mHassRGBFramebuffer = ExtensionExists("GL_EXT_framebuffer_sRGB", gGLHExts.mSysExts);
 #endif
 	
+#ifdef GL_EXT_texture_sRGB_decode
+    mHasTexturesRGBDecode = ExtensionExists("GL_EXT_texture_sRGB_decode", gGLHExts.mSysExts);
+#else
+    mHasTexturesRGBDecode = ExtensionExists("GL_ARB_texture_sRGB_decode", gGLHExts.mSysExts);
+#endif
+
 	mHasMipMapGeneration = mHasFramebufferObject || mGLVersion >= 1.4f;
 
 	mHasDrawBuffers = ExtensionExists("GL_ARB_draw_buffers", gGLHExts.mSysExts);
@@ -2044,7 +2122,8 @@ LLGLState::LLGLState(LLGLenum state, S32 enabled) :
 	if (mState)
 	{
 		mWasEnabled = sStateMap[state];
-		llassert(mWasEnabled == glIsEnabled(state));
+        // we can't actually assert on this as queued changes to state are not reflected by glIsEnabled
+		//llassert(mWasEnabled == glIsEnabled(state));
 		setEnabled(enabled);
 		stop_glerror();
 	}
@@ -2267,6 +2346,17 @@ LLGLUserClipPlane::LLGLUserClipPlane(const LLPlane& p, const glh::matrix4f& mode
 	}
 }
 
+void LLGLUserClipPlane::disable()
+{
+    if (mApply)
+	{
+		gGL.matrixMode(LLRender::MM_PROJECTION);
+		gGL.popMatrix();
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
+	}
+    mApply = false;
+}
+
 void LLGLUserClipPlane::setPlane(F32 a, F32 b, F32 c, F32 d)
 {
 	glh::matrix4f& P = mProjection;
@@ -2295,12 +2385,7 @@ void LLGLUserClipPlane::setPlane(F32 a, F32 b, F32 c, F32 d)
 
 LLGLUserClipPlane::~LLGLUserClipPlane()
 {
-	if (mApply)
-	{
-		gGL.matrixMode(LLRender::MM_PROJECTION);
-		gGL.popMatrix();
-		gGL.matrixMode(LLRender::MM_MODELVIEW);
-	}
+	disable();
 }
 
 LLGLNamePool::LLGLNamePool()
@@ -2476,27 +2561,45 @@ void LLGLDepthTest::checkState()
 	}
 }
 
-LLGLSquashToFarClip::LLGLSquashToFarClip(glh::matrix4f P, U32 layer)
+LLGLSquashToFarClip::LLGLSquashToFarClip()
+{
+    glh::matrix4f proj = get_current_projection();
+    setProjectionMatrix(proj, 0);
+}
+
+LLGLSquashToFarClip::LLGLSquashToFarClip(glh::matrix4f& P, U32 layer)
+{
+    setProjectionMatrix(P, layer);
+}
+
+
+void LLGLSquashToFarClip::setProjectionMatrix(glh::matrix4f& projection, U32 layer)
 {
 
 	F32 depth = 0.99999f - 0.0001f * layer;
 
 	for (U32 i = 0; i < 4; i++)
 	{
-		P.element(2, i) = P.element(3, i) * depth;
+		projection.element(2, i) = projection.element(3, i) * depth;
 	}
+
+    LLRender::eMatrixMode last_matrix_mode = gGL.getMatrixMode();
 
 	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.pushMatrix();
-	gGL.loadMatrix(P.m);
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.loadMatrix(projection.m);
+
+	gGL.matrixMode(last_matrix_mode);
 }
 
 LLGLSquashToFarClip::~LLGLSquashToFarClip()
 {
+    LLRender::eMatrixMode last_matrix_mode = gGL.getMatrixMode();
+
 	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.popMatrix();
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
+
+	gGL.matrixMode(last_matrix_mode);
 }
 
 
@@ -2557,6 +2660,43 @@ void LLGLSyncFence::wait()
 		}
 	}
 #endif
+}
+
+LLGLSPipelineSkyBox::LLGLSPipelineSkyBox()
+: mAlphaTest(GL_ALPHA_TEST)
+, mCullFace(GL_CULL_FACE)
+, mSquashClip()
+{ 
+    if (!LLGLSLShader::sNoFixedFunction)
+    {
+        glDisable(GL_LIGHTING);
+        glDisable(GL_FOG);
+        glDisable(GL_CLIP_PLANE0);
+    }
+}
+
+LLGLSPipelineSkyBox::~LLGLSPipelineSkyBox()
+{
+    if (!LLGLSLShader::sNoFixedFunction)
+    {
+        glEnable(GL_LIGHTING);
+        glEnable(GL_FOG);
+        glEnable(GL_CLIP_PLANE0);
+    }
+}
+
+LLGLSPipelineDepthTestSkyBox::LLGLSPipelineDepthTestSkyBox(bool depth_test, bool depth_write)
+: LLGLSPipelineSkyBox()
+, mDepth(depth_test ? GL_TRUE : GL_FALSE, depth_write ? GL_TRUE : GL_FALSE, GL_LEQUAL)
+{
+
+}
+
+LLGLSPipelineBlendSkyBox::LLGLSPipelineBlendSkyBox(bool depth_test, bool depth_write)
+: LLGLSPipelineDepthTestSkyBox(depth_test, depth_write)    
+, mBlend(GL_BLEND)
+{ 
+    gGL.setSceneBlendType(LLRender::BT_ALPHA);
 }
 
 #if LL_WINDOWS

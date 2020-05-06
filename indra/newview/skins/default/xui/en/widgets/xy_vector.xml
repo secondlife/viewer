@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xy_vector
+    name="xyvector"
+    width="120"
+    height="140"
+    decimal_digits="1"
+    label_width="16"
+    padding="4"
+    edit_bar_height="18"
+    user_resize="false">
+    
+    <xy_vector.border
+        visible="true"/>
+
+    <xy_vector.x_entry
+        name="XEntry"
+        tab_stop="true"
+        label="X:"/>
+    <xy_vector.y_entry
+        name="YEntry"
+        tab_stop="true"
+        label="Y:"/>
+    
+    <xy_vector.touch_area
+        name="TouchArea"
+        bevel_style="in"
+        border_visible="true"/>
+
+</xy_vector>

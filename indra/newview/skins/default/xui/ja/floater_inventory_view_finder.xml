@@ -12,6 +12,7 @@
 	<check_box label="サウンド" name="check_sound"/>
 	<check_box label="テクスチャ" name="check_texture"/>
 	<check_box label="スナップショット" name="check_snapshot"/>
+	<check_box label="設定" name="check_settings"/>
 	<button label="すべて" label_selected="すべて" name="All"/>
 	<button label="なし" label_selected="なし" name="None"/>
 	<check_box label="常にフォルダを表示" name="check_show_empty"/>
