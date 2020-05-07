@@ -1221,7 +1221,7 @@ void LLEnvironment::onSetEnvAssetLoaded(EnvSelection_t env,
     if (!settings || status)
     {
         LLSD args;
-        args["DESC"] = asset_id.asString();
+        args["NAME"] = asset_id.asString();
         LLNotificationsUtil::add("FailedToFindSettings", args);
         return;
     }
@@ -2361,7 +2361,7 @@ void LLEnvironment::onSetExperienceEnvAssetLoaded(LLUUID experience_id, LLSettin
     if (!settings || status)
     {
         LLSD args;
-        args["DESC"] = experience_id.asString();
+        args["NAME"] = experience_id.asString();
         LLNotificationsUtil::add("FailedToFindSettings", args);
         return;
     }
