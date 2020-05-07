@@ -1,46 +1,32 @@
 # -*- cmake -*-
 
 if (WINDOWS)
-  find_path(DIRECTX_INCLUDE_DIR dxdiag.h
-            "$ENV{DXSDK_DIR}/Include"
-            "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (June 2010)/Include"
-            "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (August 2009)/Include"
-            "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (March 2009)/Include"
-            "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (August 2008)/Include"
-            "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (June 2008)/Include"
-            "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (March 2008)/Include"
-            "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (November 2007)/Include"
-            "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (August 2007)/Include"
-            "C:/DX90SDK/Include"
-            "$ENV{PROGRAMFILES}/DX90SDK/Include"
-            )
+  find_path(DIRECTX_INCLUDE_DIR dxdiag.h)
   if (DIRECTX_INCLUDE_DIR)
-    include_directories(${DIRECTX_INCLUDE_DIR})
-    if (DIRECTX_FIND_QUIETLY)
+    if (NOT DIRECTX_FIND_QUIETLY)
       message(STATUS "Found DirectX include: ${DIRECTX_INCLUDE_DIR}")
-    endif (DIRECTX_FIND_QUIETLY)
+    endif (NOT DIRECTX_FIND_QUIETLY)
   else (DIRECTX_INCLUDE_DIR)
     message(FATAL_ERROR "Could not find DirectX SDK Include")
   endif (DIRECTX_INCLUDE_DIR)
 
-
-  find_path(DIRECTX_LIBRARY_DIR dxguid.lib
-            "$ENV{DXSDK_DIR}/Lib/x86"
-            "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (June 2010)/Lib/x86"
-            "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (August 2009)/Lib/x86"
-            "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (March 2009)/Lib/x86"
-            "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (August 2008)/Lib/x86"
-            "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (June 2008)/Lib/x86"
-            "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (March 2008)/Lib/x86"
-            "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (November 2007)/Lib/x86"
-            "$ENV{PROGRAMFILES}/Microsoft DirectX SDK (August 2007)/Lib/x86"
-            "C:/DX90SDK/Lib"
-            "$ENV{PROGRAMFILES}/DX90SDK/Lib"
-            )
+  # dxhint isn't meant to be the hard-coded DIRECTX_LIBRARY_DIR, we're just
+  # suggesting it as a hint to the next find_path(). The version is embedded
+  # in the DIRECTX_INCLUDE_DIR path string after Include and Lib, which is why
+  # we don't just append a relative path: if there are multiple versions
+  # installed on the host, we need to be sure we're using THE SAME version.
+  string(REPLACE "/Include/" "/Lib/" dxhint "${DIRECTX_INCLUDE_DIR}")
+  if (ADDRESS_SIZE EQUAL 32)
+    set(archdir x86)
+  else()
+    set(archdir x64)
+  endif()
+  string(APPEND dxhint "/${archdir}")
+  find_path(DIRECTX_LIBRARY_DIR dxguid.lib HINTS "${dxhint}")
   if (DIRECTX_LIBRARY_DIR)
-    if (DIRECTX_FIND_QUIETLY)
-      message(STATUS "Found DirectX include: ${DIRECTX_LIBRARY_DIR}")
-    endif (DIRECTX_FIND_QUIETLY)
+    if (NOT DIRECTX_FIND_QUIETLY)
+      message(STATUS "Found DirectX library: ${DIRECTX_LIBRARY_DIR}")
+    endif (NOT DIRECTX_FIND_QUIETLY)
   else (DIRECTX_LIBRARY_DIR)
     message(FATAL_ERROR "Could not find DirectX SDK Libraries")
   endif (DIRECTX_LIBRARY_DIR)
