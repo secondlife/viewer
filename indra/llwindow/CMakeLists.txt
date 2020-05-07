@@ -148,6 +148,11 @@ if (WINDOWS)
        comdlg32     # Common Dialogs for ChooseColor
        ole32
        )
+  set_source_files_properties(
+       llwindowwin32.cpp
+       PROPERTIES
+       COMPILE_FLAGS "/showIncludes"
+       )
 endif (WINDOWS)
 
 if (SOLARIS)
