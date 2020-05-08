@@ -1037,6 +1037,7 @@ BOOL LLTextBase::handleMouseDown(S32 x, S32 y, MASK mask)
 				line_start = it->mDocIndexStart;
 			}
 			line_end = it->mDocIndexEnd;
+			line_end = llclamp(line_end, 0, getLength());
 		}
 
 		if (line_start == -1)
