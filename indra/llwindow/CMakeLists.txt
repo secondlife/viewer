@@ -138,6 +138,14 @@ if (WINDOWS)
        llkeyboardwin32.cpp
        lldragdropwin32.cpp
        )
+  set_source_files_properties(
+       llwindowwin32.cpp
+       lldxhardware.cpp
+       llkeyboardwin32.cpp
+       lldragdropwin32.cpp
+       PROPERTIES
+       COMPILE_FLAGS "/showIncludes"
+       )
   list(APPEND llwindow_HEADER_FILES
        llwindowwin32.h
        lldxhardware.h
@@ -147,11 +155,6 @@ if (WINDOWS)
   list(APPEND llwindow_LINK_LIBRARIES
        comdlg32     # Common Dialogs for ChooseColor
        ole32
-       )
-  set_source_files_properties(
-       llwindowwin32.cpp
-       PROPERTIES
-       COMPILE_FLAGS "/showIncludes"
        )
 endif (WINDOWS)
 
