@@ -138,11 +138,6 @@ if (WINDOWS)
        llkeyboardwin32.cpp
        lldragdropwin32.cpp
        )
-  set_source_files_properties(
-       ${llwindow_SOURCE_FILES}
-       PROPERTIES
-       COMPILE_FLAGS "/showIncludes"
-       )
   list(APPEND llwindow_HEADER_FILES
        llwindowwin32.h
        lldxhardware.h
