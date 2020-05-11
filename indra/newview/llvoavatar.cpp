@@ -2074,11 +2074,14 @@ void LLVOAvatar::resetSkeleton(bool reset_animations)
     }
 
     // Reset tweakable params to preserved state
-    if (mLastProcessedAppearance)
-    {
-		bool slam_params = true;
-		applyParsedAppearanceMessage(*mLastProcessedAppearance, slam_params);
-    }
+	if (getOverallAppearance() == AOA_NORMAL)
+	{
+		if (mLastProcessedAppearance)
+		{
+			bool slam_params = true;
+			applyParsedAppearanceMessage(*mLastProcessedAppearance, slam_params);
+		}
+	}
     updateVisualParams();
 
     // Restore attachment pos overrides
@@ -5602,8 +5605,8 @@ void LLVOAvatar::processAnimationStateChanges()
 		stopMotion(ANIM_AGENT_TARGET);
         if (mEnableDefaultMotions)
         {
-		startMotion(ANIM_AGENT_BODY_NOISE);
-	}
+			startMotion(ANIM_AGENT_BODY_NOISE);
+		}
 	}
 	
 	// clear all current animations
@@ -5623,6 +5626,12 @@ void LLVOAvatar::processAnimationStateChanges()
 		++anim_it;
 	}
 
+	// if jellydolled, shelve all playing animations
+	if (getOverallAppearance() != AOA_NORMAL)
+	{
+		mPlayingAnimations.clear();
+	}
+	
 	// start up all new anims
 	for (anim_it = mSignaledAnimations.begin(); anim_it != mSignaledAnimations.end();)
 	{
@@ -5631,11 +5640,14 @@ void LLVOAvatar::processAnimationStateChanges()
 		// signaled but not playing, or different sequence id, start motion
 		if (found_anim == mPlayingAnimations.end() || found_anim->second != anim_it->second)
 		{
-			if (processSingleAnimationStateChange(anim_it->first, TRUE))
+			if (getOverallAppearance() == AOA_NORMAL)
 			{
-				mPlayingAnimations[anim_it->first] = anim_it->second;
-				++anim_it;
-				continue;
+				if (processSingleAnimationStateChange(anim_it->first, TRUE))
+				{
+					mPlayingAnimations[anim_it->first] = anim_it->second;
+					++anim_it;
+					continue;
+				}
 			}
 		}
 
