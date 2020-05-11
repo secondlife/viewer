@@ -6385,6 +6385,10 @@ void LLObjectBridge::performAction(LLInventoryModel* model, std::string action)
 	{
 		LLAppearanceMgr::instance().wearItemOnAvatar(mUUID, true, false); // Don't replace if adding.
 	}
+	else if ("edit" == action)
+	{
+		handle_attachment_edit(mUUID);
+	}
 	else if (isRemoveAction(action))
 	{
 		LLAppearanceMgr::instance().removeItemFromAvatar(mUUID);
@@ -6535,6 +6539,13 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			if( get_is_item_worn( mUUID ) )
 			{
 				items.push_back(std::string("Wearable And Object Separator"));
+
+				items.push_back(std::string("Wearable Edit"));
+				if ( ((flags & FIRST_SELECTED_ITEM) == 0) || !get_is_item_editable(mUUID) )
+				{
+					disabled_items.push_back(std::string("Wearable Edit"));
+				}
+
 				items.push_back(std::string("Detach From Yourself"));
 			}
 			else if (!isItemInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing() && !isCOFFolder())

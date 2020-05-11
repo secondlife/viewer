@@ -2777,7 +2777,6 @@ class LLObjectBuild : public view_listener_t
 	}
 };
 
-
 void handle_object_edit()
 {
 	LLViewerParcelMgr::getInstance()->deselectLand();
@@ -2820,6 +2819,20 @@ void handle_object_edit()
 	// Could be first use
 	//LLFirstUse::useBuild();
 	return;
+}
+
+void handle_attachment_edit(const LLUUID& inv_item_id)
+{
+	if (isAgentAvatarValid())
+	{
+		if (LLViewerObject* attached_obj = gAgentAvatarp->getWornAttachment(inv_item_id))
+		{
+			LLSelectMgr::getInstance()->deselectAll();
+			LLSelectMgr::getInstance()->selectObjectAndFamily(attached_obj);
+
+			handle_object_edit();
+		}
+	}
 }
 
 void handle_object_inspect()
