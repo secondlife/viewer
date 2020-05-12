@@ -206,6 +206,8 @@ protected:
     static LLJoint*	lookupJointByName(const std::string&, void* opaque);
     static U32			loadTextures(LLImportMaterial& material, void* opaque);
 
+    void lookupLODModelFiles(S32 lod);
+
 private:
     //Utility function for controller vertex compare
     bool verifyCount(int expected, int result);
@@ -243,6 +245,7 @@ protected:
     U32			mLoadState;
     bool		mResetJoints;
     bool		mModelNoErrors;
+    bool		mLookUpLodFiles;
 
     std::map<std::string, bool> mViewOption;
 

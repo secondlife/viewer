@@ -395,6 +395,12 @@ void LLFloaterModelPreview::disableViewOption(const std::string& option)
 	setViewOptionEnabled(option, false);
 }
 
+void LLFloaterModelPreview::loadHighLodModel()
+{
+	mModelPreview->mLookUpLodFiles = true;
+	loadModel(3);
+}
+
 void LLFloaterModelPreview::loadModel(S32 lod)
 {
 	mModelPreview->mLoading = true;
@@ -1591,6 +1597,26 @@ LLFloaterModelPreview::DecompRequest::DecompRequest(const std::string& stage, LL
 
 	//copy out positions and indices
 	assignData(mdl) ;	
+}
+
+void LLFloaterModelPreview::setCtrlLoadFromFile(S32 lod)
+{
+    if (lod == LLModel::LOD_PHYSICS)
+    {
+        LLComboBox* lod_combo = findChild<LLComboBox>("physics_lod_combo");
+        if (lod_combo)
+        {
+            lod_combo->setCurrentByIndex(5);
+        }
+    }
+    else
+    {
+        LLComboBox* lod_combo = findChild<LLComboBox>("lod_source_" + lod_name[lod]);
+        if (lod_combo)
+        {
+            lod_combo->setCurrentByIndex(0);
+        }
+    }
 }
 
 void LLFloaterModelPreview::setStatusMessage(const std::string& msg)

@@ -102,6 +102,8 @@ public:
 	
 	void			loadModel(S32 lod);
 	void 			loadModel(S32 lod, const std::string& file_name, bool force_disable_slm = false);
+
+	void			loadHighLodModel();
 	
 	void onViewOptionChecked(LLUICtrl* ctrl);
 	void onUploadOptionChecked(LLUICtrl* ctrl);
@@ -173,6 +175,8 @@ protected:
     // the UI element.
     void setStatusMessage(const std::string& msg);
     void addStringToLogTab(const std::string& str, bool flash);
+
+    void setCtrlLoadFromFile(S32 lod);
 
 	LLModelPreview*	mModelPreview;
 	
