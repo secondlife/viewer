@@ -3133,7 +3133,7 @@ BOOL LLModelPreview::render()
                     }
 
                     // only do this if mDegenerate was set in the preceding mesh checks [Check this if the ordering ever breaks]
-                    if (pass > 0 && mHasDegenerate)
+                    if (mHasDegenerate)
                     {
                         glLineWidth(PREVIEW_DEG_EDGE_WIDTH);
                         glPointSize(PREVIEW_DEG_POINT_SIZE);
@@ -3179,7 +3179,6 @@ BOOL LLModelPreview::render()
                                     for (U32 v = 0; v < num_models; ++v)
                                     {
                                         LLVertexBuffer* buffer = mVertexBuffer[LLModel::LOD_PHYSICS][model][v];
-                                        if (buffer->getNumVerts() < 3)continue;
 
                                         buffer->setBuffer(type_mask & buffer->getTypeMask());
 
@@ -3190,22 +3189,16 @@ BOOL LLModelPreview::render()
                                         LLStrider<U16> idx;
                                         buffer->getIndexStrider(idx, 0);
 
-                                        LLVector4a v1, v2, v3;
-                                        for (U32 indices_offset = 0; indices_offset < buffer->getNumIndices(); indices_offset += 3)
+                                        for (U32 i = 0; i < buffer->getNumIndices(); i += 3)
                                         {
-                                            v1.setMul(pos[*idx++], scale);
-                                            v2.setMul(pos[*idx++], scale);
-                                            v3.setMul(pos[*idx++], scale);
+                                            LLVector4a v1; v1.setMul(pos[*idx++], scale);
+                                            LLVector4a v2; v2.setMul(pos[*idx++], scale);
+                                            LLVector4a v3; v3.setMul(pos[*idx++], scale);
 
                                             if (ll_is_degenerate(v1, v2, v3))
                                             {
-                                                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                                                gGL.diffuseColor3fv(PREVIEW_DEG_EDGE_COL.mV);
-                                                buffer->drawRange(LLRender::TRIANGLES, 0, 2, 3, indices_offset);
-                                                buffer->drawRange(LLRender::POINTS, 0, 2, 3, indices_offset);
-                                                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                                                gGL.diffuseColor3fv(PREVIEW_DEG_FILL_COL.mV);
-                                                buffer->drawRange(LLRender::TRIANGLES, 0, 2, 3, indices_offset);
+                                                buffer->draw(LLRender::LINE_LOOP, 3, i);
+                                                buffer->draw(LLRender::POINTS, 3, i);
                                             }
                                         }
                                     }
