@@ -407,6 +407,7 @@ public:
     void                initAttachmentPoints(bool ignore_hud_joints = false);
 	/*virtual*/ void	buildCharacter();
     void                resetVisualParams();
+	void				applyDefaultParams();
     void				resetSkeleton(bool reset_animations);
 
 	LLVector3			mCurRootToHeadOffset;

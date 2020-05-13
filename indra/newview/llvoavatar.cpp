@@ -2012,6 +2012,42 @@ void LLVOAvatar::resetVisualParams()
 	}
 }
 
+void LLVOAvatar::applyDefaultParams()
+{
+	// force params to intermediate vals
+	S32 num_blocks = 253;
+	LLVisualParam* param = getFirstVisualParam();
+	llassert(param); // if this ever fires, we should do the same as when num_blocks<=1
+	if (!param)
+	{
+		LL_WARNS() << "No visual params!" << LL_ENDL;
+	}
+	else
+	{
+		for( S32 i = 0; i < num_blocks; i++ )
+		{
+			while( param && ((param->getGroup() != VISUAL_PARAM_GROUP_TWEAKABLE) && 
+							 (param->getGroup() != VISUAL_PARAM_GROUP_TRANSMIT_NOT_TWEAKABLE)) ) // should not be any of group VISUAL_PARAM_GROUP_TWEAKABLE_NO_TRANSMIT
+			{
+				param = getNextVisualParam();
+			}
+						
+			if( !param )
+			{
+				// more visual params supplied than expected - just process what we know about
+				break;
+			}
+
+			U8 value = 127;
+			F32 newWeight = U8_to_F32(value, param->getMinWeight(), param->getMaxWeight());
+			param->setWeight(newWeight);
+
+			param = getNextVisualParam();
+		}
+	}
+
+}
+
 //-----------------------------------------------------------------------------
 // resetSkeleton()
 //-----------------------------------------------------------------------------
@@ -2081,6 +2117,10 @@ void LLVOAvatar::resetSkeleton(bool reset_animations)
 			bool slam_params = true;
 			applyParsedAppearanceMessage(*mLastProcessedAppearance, slam_params);
 		}
+	}
+	else
+	{
+		applyDefaultParams();
 	}
     updateVisualParams();
 
@@ -8998,7 +9038,11 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
     mLastProcessedAppearance = contents;
 
     bool slam_params = false;
-    applyParsedAppearanceMessage(*contents, slam_params);
+	applyParsedAppearanceMessage(*contents, slam_params);
+	if (getOverallAppearance() != AOA_NORMAL)
+	{
+		resetSkeleton(false);
+	}
 }
 
 void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& contents, bool slam_params)
@@ -10574,6 +10618,7 @@ void LLVOAvatar::setOverallAppearanceNormal()
 void LLVOAvatar::setOverallAppearanceJellyDoll()
 {
 	resetSkeleton(false);
+
 	// stop current animations
 	{
 		for ( LLVOAvatar::AnimIterator anim_it= mPlayingAnimations.begin();
