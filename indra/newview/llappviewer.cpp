@@ -1131,7 +1131,10 @@ bool LLAppViewer::init()
 	gSimLastTime = gRenderStartTime.getElapsedTimeF32();
 	gSimFrames = (F32)gFrameCount;
 
-	LLViewerJoystick::getInstance()->init(false);
+    if (gSavedSettings.getBOOL("JoystickEnabled"))
+    {
+        LLViewerJoystick::getInstance()->init(false);
+    }
 
 	try {
 		initializeSecHandler();
