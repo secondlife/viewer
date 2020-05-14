@@ -264,7 +264,7 @@ public:
 	virtual void	updateDebugText();
 	virtual BOOL 	updateCharacter(LLAgent &agent);
     void			updateFootstepSounds();
-    BOOL			computeUpdatePeriodAndVisibility();
+    void			computeUpdatePeriod();
     void			updateOrientation(LLAgent &agent, F32 speed, F32 delta_time);
     void			updateTimeStep();
     void			updateRootPositionAndRotation(LLAgent &agent, F32 speed, bool was_sit_ground_constrained);
