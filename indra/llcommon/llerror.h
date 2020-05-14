@@ -207,7 +207,7 @@ namespace LLError
 		static std::string classname()             { return demangle(typeid(T).name()); }
 		/// classname(some_pointer)
 		template <typename T>
-		static std::string classname(const T* ptr) { return demangle(typeid(*ptr).name()); }
+		static std::string classname(T* const ptr) { return ptr? demangle(typeid(*ptr).name()) : "nullptr"; }
 		/// classname(some_reference)
 		template <typename T>
 		static std::string classname(const T& obj) { return demangle(typeid(obj).name()); }
