@@ -1423,6 +1423,10 @@ S32 LLSDNotationFormatter::format_impl(const LLSD& data, std::ostream& ostr,
 			{
 				std::ios_base::fmtflags old_flags = ostr.flags();
 				ostr.setf( std::ios::hex, std::ios::basefield );
+				// It shouldn't strictly matter whether the emitted hex digits
+				// are uppercase; LLSDNotationParser handles either; but as of
+				// 2020-05-13, Python's llbase.llsd requires uppercase hex.
+				ostr << std::uppercase;
 				auto oldfill(ostr.fill('0'));
 				auto oldwidth(ostr.width());
 				for (int i = 0; i < buffer.size(); i++)
