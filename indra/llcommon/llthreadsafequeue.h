@@ -31,7 +31,8 @@
 #include <deque>
 #include <string>
 #include "mutex.h"
-#include <boost/fiber/condition_variable.hpp>
+#include "llcoros.h"
+#include LLCOROS_CONDVAR_HEADER
 
 //
 // A general queue exception.
@@ -119,10 +120,10 @@ private:
 	U32 mCapacity;
 	bool mClosed;
 
-	boost::fibers::mutex mLock;
-	typedef std::unique_lock<decltype(mLock)> lock_t;
-	boost::fibers::condition_variable mCapacityCond;
-	boost::fibers::condition_variable mEmptyCond;
+	LLCoros::Mutex mLock;
+	typedef LLCoros::LockType lock_t;
+	LLCoros::ConditionVariable mCapacityCond;
+	LLCoros::ConditionVariable mEmptyCond;
 };
 
 // LLThreadSafeQueue

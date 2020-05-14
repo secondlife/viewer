@@ -33,10 +33,23 @@
 #include <boost/fiber/fss.hpp>
 #include <boost/fiber/future/promise.hpp>
 #include <boost/fiber/future/future.hpp>
+#include "mutex.h"
 #include "llsingleton.h"
 #include "llinstancetracker.h"
 #include <boost/function.hpp>
 #include <string>
+
+// e.g. #include LLCOROS_MUTEX_HEADER
+#define LLCOROS_MUTEX_HEADER   <boost/fiber/mutex.hpp>
+#define LLCOROS_CONDVAR_HEADER <boost/fiber/condition_variable.hpp>
+
+namespace boost {
+    namespace fibers {
+        class mutex;
+        enum class cv_status;
+        class condition_variable;
+    }
+}
 
 /**
  * Registry of named Boost.Coroutine instances
@@ -259,6 +272,12 @@ public:
     using Future = boost::fibers::future<T>;
     template <typename T>
     static Future<T> getFuture(Promise<T>& promise) { return promise.get_future(); }
+
+    // use mutex, lock, condition_variable suitable for coroutines
+    using Mutex = boost::fibers::mutex;
+    using LockType = std::unique_lock<Mutex>;
+    using cv_status = boost::fibers::cv_status;
+    using ConditionVariable = boost::fibers::condition_variable;
 
     /// for data local to each running coroutine
     template <typename T>

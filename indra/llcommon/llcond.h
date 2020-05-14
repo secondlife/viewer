@@ -15,8 +15,9 @@
 #define LL_LLCOND_H
 
 #include "llunits.h"
-#include <boost/fiber/condition_variable.hpp>
-#include <mutex>
+#include "llcoros.h"
+#include LLCOROS_MUTEX_HEADER
+#include "mutex.h"
 #include <chrono>
 
 /**
@@ -32,7 +33,7 @@
  * For a scalar DATA type, consider LLScalarCond instead. For specifically
  * bool, consider LLBoolCond.
  *
- * Use of boost::fibers::condition_variable makes LLCond work between
+ * Use of LLCoros::ConditionVariable makes LLCond work between
  * coroutines as well as between threads.
  */
 template <typename DATA>
@@ -45,13 +46,13 @@ private:
     // This is the DATA controlled by the condition_variable.
     value_type mData;
     // condition_variable must be used in conjunction with a mutex. Use
-    // boost::fibers::mutex instead of std::mutex because the latter blocks
+    // LLCoros::Mutex instead of std::mutex because the latter blocks
     // the entire calling thread, whereas the former blocks only the current
-    // coroutine within the calling thread. Yet boost::fiber::mutex is safe to
+    // coroutine within the calling thread. Yet LLCoros::Mutex is safe to
     // use across threads as well: it subsumes std::mutex functionality.
-    boost::fibers::mutex mMutex;
-    // Use boost::fibers::condition_variable for the same reason.
-    boost::fibers::condition_variable mCond;
+    LLCoros::Mutex mMutex;
+    // Use LLCoros::ConditionVariable for the same reason.
+    LLCoros::ConditionVariable mCond;
 
 public:
     /// LLCond can be explicitly initialized with a specific value for mData if
@@ -82,7 +83,7 @@ public:
     void update_one(MODIFY modify)
     {
         { // scope of lock can/should end before notify_one()
-            std::unique_lock<boost::fibers::mutex> lk(mMutex);
+            LLCoros::LockType lk(mMutex);
             modify(mData);
         }
         mCond.notify_one();
@@ -101,7 +102,7 @@ public:
     void update_all(MODIFY modify)
     {
         { // scope of lock can/should end before notify_all()
-            std::unique_lock<boost::fibers::mutex> lk(mMutex);
+            LLCoros::LockType lk(mMutex);
             modify(mData);
         }
         mCond.notify_all();
@@ -117,7 +118,7 @@ public:
     template <typename Pred>
     void wait(Pred pred)
     {
-        std::unique_lock<boost::fibers::mutex> lk(mMutex);
+        LLCoros::LockType lk(mMutex);
         // We must iterate explicitly since the predicate accepted by
         // condition_variable::wait() requires a different signature:
         // condition_variable::wait() calls its predicate with no arguments.
@@ -204,14 +205,14 @@ private:
     template <typename Clock, typename Duration, typename Pred>
     bool wait_until(const std::chrono::time_point<Clock, Duration>& timeout_time, Pred pred)
     {
-        std::unique_lock<boost::fibers::mutex> lk(mMutex);
+        LLCoros::LockType lk(mMutex);
         // We advise the caller to pass a predicate accepting (const DATA&).
         // But what if they instead pass a predicate accepting non-const
         // (DATA&)? Such a predicate could modify mData, which would be Bad.
         // Forbid that.
         while (! pred(const_cast<const value_type&>(mData)))
         {
-            if (boost::fibers::cv_status::timeout == mCond.wait_until(lk, timeout_time))
+            if (LLCoros::cv_status::timeout == mCond.wait_until(lk, timeout_time))
             {
                 // It's possible that wait_until() timed out AND the predicate
                 // became true more or less simultaneously. Even though
