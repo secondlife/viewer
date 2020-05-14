@@ -1182,7 +1182,8 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
 		{
 			U32 partition_type = mSpatialBridge->asPartition()->mPartitionType;
 			bool is_hud = mVObjp->isHUDAttachment();
-			bool is_attachment = mVObjp->isAttachment() && !is_hud;
+			bool is_animesh = mVObjp->isAnimatedObject() && mVObjp->getControlAvatar() != NULL;
+			bool is_attachment = mVObjp->isAttachment() && !is_hud && !is_animesh;
 			if ((partition_type == LLViewerRegion::PARTITION_HUD) != is_hud)
 			{
 				// Was/became HUD
@@ -1190,7 +1191,7 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
 				mSpatialBridge->markDead();
 				setSpatialBridge(NULL);
 			}
-			else if ((partition_type == LLViewerRegion::PARTITION_CONTROL_AV) != (mVObjp->isAnimatedObject() && mVObjp->getControlAvatar() != NULL))
+			else if ((partition_type == LLViewerRegion::PARTITION_CONTROL_AV) != is_animesh)
 			{
 				// Was/became part of animesh
 				// remove obsolete bridge
