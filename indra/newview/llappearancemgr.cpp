@@ -3278,6 +3278,50 @@ void update_base_outfit_after_ordering()
 	bool copy_folder_links = false;
 	app_mgr.slamCategoryLinks(app_mgr.getCOF(), base_outfit_id, copy_folder_links, dirty_state_updater);
 
+    if (base_outfit_id.notNull())
+    {
+        LLIsValidItemLink collector;
+
+        LLInventoryModel::cat_array_t cof_cats;
+        LLInventoryModel::item_array_t cof_item_array;
+        gInventory.collectDescendentsIf(app_mgr.getCOF(), cof_cats, cof_item_array,
+            LLInventoryModel::EXCLUDE_TRASH, collector);
+
+        for (U32 i = 0; i < outfit_item_array.size(); ++i)
+        {
+            LLViewerInventoryItem* linked_item = outfit_item_array.at(i)->getLinkedItem();
+            if (linked_item != NULL && linked_item->getActualType() == LLAssetType::AT_TEXTURE)
+            {
+                outfit_item_array.erase(outfit_item_array.begin() + i);
+                break;
+            }
+        }
+
+        if (outfit_item_array.size() != cof_item_array.size())
+        {
+            return;
+        }
+
+        std::sort(cof_item_array.begin(), cof_item_array.end(), sort_by_linked_uuid);
+        std::sort(outfit_item_array.begin(), outfit_item_array.end(), sort_by_linked_uuid);
+
+        for (U32 i = 0; i < cof_item_array.size(); ++i)
+        {
+            LLViewerInventoryItem *cof_it = cof_item_array.at(i);
+            LLViewerInventoryItem *base_it = outfit_item_array.at(i);
+
+            if (cof_it->getActualDescription() != base_it->getActualDescription())
+            {
+                if (cof_it->getLinkedUUID() == base_it->getLinkedUUID())
+                {
+                    base_it->setDescription(cof_it->getActualDescription());
+                    gInventory.updateItem(base_it);
+                }
+            }
+        }
+        LLAppearanceMgr::getInstance()->updateIsDirty();
+    }
+
 }
 
 // Save COF changes - update the contents of the current base outfit
