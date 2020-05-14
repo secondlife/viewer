@@ -1799,13 +1799,9 @@ void LLDrawPoolAvatar::getRiggedGeometry(
 	{
 		face->setPoolType(LLDrawPool::POOL_ALPHA);
 	}
-	else if (type == LLDrawPool::POOL_CONTROL_AV)
-	{
-		face->setPoolType(LLDrawPool::POOL_CONTROL_AV);
-	}
 	else
 	{
-		face->setPoolType(LLDrawPool::POOL_AVATAR);
+		face->setPoolType(mType); // either POOL_AVATAR or POOL_CONTROL_AV
 	}
 
 	//LL_INFOS() << "Rebuilt face " << face->getTEOffset() << " of " << face->getDrawable() << " at " << gFrameTimeSeconds << LL_ENDL;
