@@ -5250,37 +5250,40 @@ void LLAppViewer::idleNetwork()
 		const S64 frame_count = gFrameCount;  // U32->S64
 		F32 total_time = 0.0f;
 
-		while (gMessageSystem->checkAllMessages(frame_count, gServicePump))
 		{
-			if (gDoDisconnect)
+			LockMessageChecker lmc(gMessageSystem);
+			while (lmc.checkAllMessages(frame_count, gServicePump))
 			{
-				// We're disconnecting, don't process any more messages from the server
-				// We're usually disconnecting due to either network corruption or a
-				// server going down, so this is OK.
-				break;
-			}
+				if (gDoDisconnect)
+				{
+					// We're disconnecting, don't process any more messages from the server
+					// We're usually disconnecting due to either network corruption or a
+					// server going down, so this is OK.
+					break;
+				}
 
-			total_decoded++;
-			gPacketsIn++;
+				total_decoded++;
+				gPacketsIn++;
 
-			if (total_decoded > MESSAGE_MAX_PER_FRAME)
-			{
-				break;
-			}
+				if (total_decoded > MESSAGE_MAX_PER_FRAME)
+				{
+					break;
+				}
 
 #ifdef TIME_THROTTLE_MESSAGES
-			// Prevent slow packets from completely destroying the frame rate.
-			// This usually happens due to clumps of avatars taking huge amount
-			// of network processing time (which needs to be fixed, but this is
-			// a good limit anyway).
-			total_time = check_message_timer.getElapsedTimeF32();
-			if (total_time >= CheckMessagesMaxTime)
-				break;
+				// Prevent slow packets from completely destroying the frame rate.
+				// This usually happens due to clumps of avatars taking huge amount
+				// of network processing time (which needs to be fixed, but this is
+				// a good limit anyway).
+				total_time = check_message_timer.getElapsedTimeF32();
+				if (total_time >= CheckMessagesMaxTime)
+					break;
 #endif
-		}
+			}
 
-		// Handle per-frame message system processing.
-		gMessageSystem->processAcks(gSavedSettings.getF32("AckCollectTime"));
+			// Handle per-frame message system processing.
+			lmc.processAcks(gSavedSettings.getF32("AckCollectTime"));
+		}
 
 #ifdef TIME_THROTTLE_MESSAGES
 		if (total_time >= CheckMessagesMaxTime)

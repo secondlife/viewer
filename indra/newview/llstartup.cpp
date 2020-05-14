@@ -1534,12 +1534,14 @@ bool idle_startup()
 		{
 			LLStartUp::setStartupState( STATE_AGENT_SEND );
 		}
-		LLMessageSystem* msg = gMessageSystem;
-		while (msg->checkAllMessages(gFrameCount, gServicePump))
 		{
-			display_startup();
+			LockMessageChecker lmc(gMessageSystem);
+			while (lmc.checkAllMessages(gFrameCount, gServicePump))
+			{
+				display_startup();
+			}
+			lmc.processAcks();
 		}
-		msg->processAcks();
 		display_startup();
 		return FALSE;
 	}
@@ -1589,25 +1591,27 @@ bool idle_startup()
 	//---------------------------------------------------------------------
 	if (STATE_AGENT_WAIT == LLStartUp::getStartupState())
 	{
-		LLMessageSystem* msg = gMessageSystem;
-		while (msg->checkAllMessages(gFrameCount, gServicePump))
 		{
-			if (gAgentMovementCompleted)
+			LockMessageChecker lmc(gMessageSystem);
+			while (lmc.checkAllMessages(gFrameCount, gServicePump))
 			{
-				// Sometimes we have more than one message in the
-				// queue. break out of this loop and continue
-				// processing. If we don't, then this could skip one
-				// or more login steps.
-				break;
+				if (gAgentMovementCompleted)
+				{
+					// Sometimes we have more than one message in the
+					// queue. break out of this loop and continue
+					// processing. If we don't, then this could skip one
+					// or more login steps.
+					break;
+				}
+				else
+				{
+					LL_DEBUGS("AppInit") << "Awaiting AvatarInitComplete, got "
+										 << gMessageSystem->getMessageName() << LL_ENDL;
+				}
+				display_startup();
 			}
-			else
-			{
-				LL_DEBUGS("AppInit") << "Awaiting AvatarInitComplete, got "
-				<< msg->getMessageName() << LL_ENDL;
-			}
-			display_startup();
+			lmc.processAcks();
 		}
-		msg->processAcks();
 
 		display_startup();
 
