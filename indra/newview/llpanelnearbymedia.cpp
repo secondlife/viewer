@@ -66,9 +66,6 @@ extern LLControlGroup gSavedSettings;
 static const LLUUID PARCEL_MEDIA_LIST_ITEM_UUID = LLUUID("CAB5920F-E484-4233-8621-384CF373A321");
 static const LLUUID PARCEL_AUDIO_LIST_ITEM_UUID = LLUUID("DF4B020D-8A24-4B95-AB5D-CA970D694822");
 
-const F32 AUTO_CLOSE_FADE_TIME_START= 2.0f;
-const F32 AUTO_CLOSE_FADE_TIME_END = 3.0f;
-
 //
 // LLPanelNearByMedia
 //
@@ -82,8 +79,6 @@ LLPanelNearByMedia::LLPanelNearByMedia()
 	  mParcelMediaItem(NULL),
 	  mParcelAudioItem(NULL)
 {
-	mHoverTimer.stop();
-
     // This is just an initial value, mParcelAudioAutoStart does not affect ParcelMediaAutoPlayEnable
     mParcelAudioAutoStart = gSavedSettings.getS32("ParcelMediaAutoPlayEnable") != 0
                             && gSavedSettings.getBOOL("MediaTentativeAutoPlay");
@@ -111,7 +106,7 @@ LLPanelNearByMedia::~LLPanelNearByMedia()
 
 BOOL LLPanelNearByMedia::postBuild()
 {
-	LLPanel::postBuild();
+	LLPanelPulldown::postBuild();
 
 	const S32 RESIZE_BAR_THICKNESS = 6;
 	LLResizeBar::Params p;
@@ -194,44 +189,9 @@ void LLPanelNearByMedia::handleMediaAutoPlayChanged(const LLSD& newvalue)
 }
 
 /*virtual*/
-void LLPanelNearByMedia::onMouseEnter(S32 x, S32 y, MASK mask)
-{
-	mHoverTimer.stop();
-	LLPanel::onMouseEnter(x,y,mask);
-}
-
-
-/*virtual*/
-void LLPanelNearByMedia::onMouseLeave(S32 x, S32 y, MASK mask)
-{
-	mHoverTimer.start();
-	LLPanel::onMouseLeave(x,y,mask);
-}
-
-/*virtual*/ 
-void LLPanelNearByMedia::onTopLost()
-{
-	setVisible(FALSE);
-}
-
-
-/*virtual*/ 
-void LLPanelNearByMedia::onVisibilityChange ( BOOL new_visibility )
-{
-	if (new_visibility)	
-	{
-		mHoverTimer.start(); // timer will be stopped when mouse hovers over panel
-	}
-	else
-	{
-		mHoverTimer.stop();
-	}
-}
-
-/*virtual*/
 void LLPanelNearByMedia::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
-	LLPanel::reshape(width, height, called_from_parent);
+	LLPanelPulldown::reshape(width, height, called_from_parent);
 
 	LLButton* more_btn = findChild<LLButton>("more_btn");
 	if (more_btn && more_btn->getValue().asBoolean())
@@ -255,24 +215,14 @@ void LLPanelNearByMedia::draw()
 
 	refreshList();
 	updateControls();
-	
-	F32 alpha = mHoverTimer.getStarted() 
-		? clamp_rescale(mHoverTimer.getElapsedTimeF32(), AUTO_CLOSE_FADE_TIME_START, AUTO_CLOSE_FADE_TIME_END, 1.f, 0.f)
-		: 1.0f;
-	LLViewDrawContext context(alpha);
 
-	LLPanel::draw();
-
-	if (alpha == 0.f)
-	{
-		setVisible(false);
-	}
+	LLPanelPulldown::draw();
 }
 
 /*virtual*/
 BOOL LLPanelNearByMedia::handleHover(S32 x, S32 y, MASK mask)
 {
-	LLPanel::handleHover(x, y, mask);
+	LLPanelPulldown::handleHover(x, y, mask);
 	
 	// If we are hovering over this panel, make sure to clear any hovered media
 	// ID.  Note that the more general solution would be to clear this ID when
