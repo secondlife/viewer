@@ -2260,6 +2260,70 @@
         <key>version</key>
         <string>1.0.538972</string>
       </map>
+      <key>llphysicsextensions_tpv</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2010, Linden Research, Inc.</string>
+        <key>license</key>
+        <string>internal</string>
+        <key>license_file</key>
+        <string>LICENSES/HavokSublicense.pdf</string>
+        <key>name</key>
+        <string>llphysicsextensions_tpv</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>2aa4ec0d72bbe4b755730f1bf92b39e7</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/30340/257304/llphysicsextensions_tpv-1.0.542327-darwin64-542327.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>711f4ec769e4b5f59ba25ee43c11bcbc</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4724/14846/llphysicsextensions_stub-1.0.504712-linux64-504712.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>ad9aba5e2c43a37b6530a0d2de64df1c</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/30341/257307/llphysicsextensions_tpv-1.0.542327-windows-542327.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>46689ff1442a8eccac3a7f3258308e1e</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/30341/257307/llphysicsextensions_tpv-1.0.542327-windows64-542327.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>1.0.542327</string>
+      </map>
       <key>llphysicsextensions_stub</key>
       <map>
         <key>copyright</key>
