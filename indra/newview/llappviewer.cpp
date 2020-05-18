@@ -1516,8 +1516,10 @@ bool LLAppViewer::doFrame()
 			}
 
 			// yield cooperatively when not running as foreground window
-			if (   (gViewerWindow && !gViewerWindow->getWindow()->getVisible())
-					|| !gFocusMgr.getAppHasFocus())
+			// and when not quiting (causes trouble at mac's cleanup stage)
+			if (!LLApp::isExiting()
+				&& ((gViewerWindow && !gViewerWindow->getWindow()->getVisible())
+					|| !gFocusMgr.getAppHasFocus()))
 			{
 				// Sleep if we're not rendering, or the window is minimized.
 				static LLCachedControl<S32> s_bacground_yeild_time(gSavedSettings, "BackgroundYieldTime", 40);
