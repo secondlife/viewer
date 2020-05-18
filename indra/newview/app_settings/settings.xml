@@ -1510,6 +1510,21 @@
         <real>0.5</real>
       </array>
     </map>
+    <key>CameraOffsetCustomPreset</key>
+    <map>
+      <key>Comment</key>
+      <string>Initial camera offset from avatar for the custom camera preset</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+        <real>-3.0</real>
+        <real>0.0</real>
+        <real>0.75</real>
+      </array>
+    </map>
     <key>CameraOffsetScale</key>
     <map>
       <key>Comment</key>
@@ -1520,6 +1535,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>1.0</real>
+    </map>
+    <key>CameraZoomFraction</key>
+    <map>
+      <key>Comment</key>
+      <string>Mousewheel driven fraction of zoom</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.9</real>
     </map>
     <key>CameraPosOnLogout</key>
     <map>
@@ -1558,7 +1584,7 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
-    <key>CameraPreset</key>
+    <key>CameraPreset</key>  <!-- deprecated (see SL-12429) -->
     <map>
       <key>Comment</key>
       <string>Preset camera position - view (0 - rear, 1 - front, 2 - group)</string>
@@ -4376,6 +4402,37 @@
         <real>1.5</real>
         <real>0.7</real>
         <real>1.0</real>
+      </array>
+    </map>
+    <key>FocusOffsetCustomPreset</key>
+    <map>
+      <key>Comment</key>
+      <string>Initial focus point offset relative to avatar for the custom camera preset (x-axis is forward)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3D</string>
+      <key>Value</key>
+      <array>
+        <real>1.0</real>
+        <real>0.0</real>
+        <real>1.0</real>
+      </array>
+    </map>
+    <key>AvatarSitRotation</key>
+    <map>
+      <key>Comment</key>
+      <string>Avatar real sitting rotation used in preset</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>LLSD</string>
+      <key>Value</key>
+      <array>
+        <real>0</real>
+        <real>0</real>
+        <real>0</real>
+        <real>1</real>
       </array>
     </map>
     <key>FocusPosOnLogout</key>
@@ -16492,6 +16549,50 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>CameraOpacity</key>
+  <map>
+    <key>Comment</key>
+    <string>Opacity of the Camera Controls floater</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.0</real>
+  </map>
+  <key>PresetCameraActive</key>
+  <map>
+    <key>Comment</key>
+    <string>Name of currently selected preference</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>Rear View</string>
+  </map>
+  <key>CameraPresetType</key>
+  <map>
+    <key>Comment</key>
+    <string>Preset camera position - view (0 - rear, 1 - front, 2 - group, 3 - custom)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>0</integer>
+   </map>
+  <key>HoverHeightAffectsCamera</key>
+  <map>
+    <key>Comment</key>
+    <string>Camera view is affected by Hover Height setting</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+   </map>
     <key>CefVerboseLog</key>
     <map>
       <key>Comment</key>

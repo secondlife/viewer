@@ -40,9 +40,6 @@
 #include "llscrolllistctrl.h"
 #include "lltrans.h"
 
-/* static */ const F32 LLPanelPresetsPulldown::sAutoCloseFadeStartTimeSec = 2.0f;
-/* static */ const F32 LLPanelPresetsPulldown::sAutoCloseTotalTimeSec = 3.0f;
-
 ///----------------------------------------------------------------------------
 /// Class LLPanelPresetsPulldown
 ///----------------------------------------------------------------------------
@@ -63,17 +60,16 @@ BOOL LLPanelPresetsPulldown::postBuild()
 	LLPresetsManager* presetsMgr = LLPresetsManager::getInstance();
     presetsMgr->setPresetListChangeCallback(boost::bind(&LLPanelPresetsPulldown::populatePanel, this));
 	// Make sure there is a default preference file
-    presetsMgr->createMissingDefault();
+    presetsMgr->createMissingDefault(PRESETS_GRAPHIC);
 
 	populatePanel();
 
-	return LLPanel::postBuild();
+	return LLPanelPulldown::postBuild();
 }
 
 void LLPanelPresetsPulldown::populatePanel()
 {
-	std::string presets_dir = LLPresetsManager::getInstance()->getPresetsDir(PRESETS_GRAPHIC);
-	LLPresetsManager::getInstance()->loadPresetNamesFromDir(presets_dir, mPresetNames, DEFAULT_TOP);
+	LLPresetsManager::getInstance()->loadPresetNamesFromDir(PRESETS_GRAPHIC, mPresetNames, DEFAULT_TOP);
 
 	LLScrollListCtrl* scroll = getChild<LLScrollListCtrl>("preset_list");
 
@@ -109,61 +105,6 @@ void LLPanelPresetsPulldown::populatePanel()
 			LLScrollListItem* new_item = scroll->addElement(row);
 			new_item->setSelected(is_selected_preset);
 		}
-	}
-}
-
-/*virtual*/
-void LLPanelPresetsPulldown::onMouseEnter(S32 x, S32 y, MASK mask)
-{
-	mHoverTimer.stop();
-	LLPanel::onMouseEnter(x,y,mask);
-}
-
-/*virtual*/
-void LLPanelPresetsPulldown::onTopLost()
-{
-	setVisible(FALSE);
-}
-
-/*virtual*/
-BOOL LLPanelPresetsPulldown::handleMouseDown(S32 x, S32 y, MASK mask)
-{
-    LLPanel::handleMouseDown(x,y,mask);
-    return TRUE;
-}
-
-/*virtual*/
-BOOL LLPanelPresetsPulldown::handleRightMouseDown(S32 x, S32 y, MASK mask)
-{
-    LLPanel::handleRightMouseDown(x, y, mask);
-    return TRUE;
-}
-
-/*virtual*/
-BOOL LLPanelPresetsPulldown::handleDoubleClick(S32 x, S32 y, MASK mask)
-{
-    LLPanel::handleDoubleClick(x, y, mask);
-    return TRUE;
-}
-
-/*virtual*/
-void LLPanelPresetsPulldown::onMouseLeave(S32 x, S32 y, MASK mask)
-{
-	mHoverTimer.start();
-	LLPanel::onMouseLeave(x,y,mask);
-}
-
-/*virtual*/ 
-void LLPanelPresetsPulldown::onVisibilityChange ( BOOL new_visibility )
-{
-	if (new_visibility)	
-	{
-		mHoverTimer.start(); // timer will be stopped when mouse hovers over panel
-	}
-	else
-	{
-		mHoverTimer.stop();
-
 	}
 }
 
@@ -211,21 +152,5 @@ void LLPanelPresetsPulldown::onGraphicsButtonClick(const LLSD& user_data)
 		{
 			tabcontainer->selectTabPanel(graphicspanel);
 		}
-	}
-}
-
-//virtual
-void LLPanelPresetsPulldown::draw()
-{
-	F32 alpha = mHoverTimer.getStarted() 
-		? clamp_rescale(mHoverTimer.getElapsedTimeF32(), sAutoCloseFadeStartTimeSec, sAutoCloseTotalTimeSec, 1.f, 0.f)
-		: 1.0f;
-	LLViewDrawContext context(alpha);
-
-	LLPanel::draw();
-
-	if (alpha == 0.f)
-	{
-		setVisible(FALSE);
 	}
 }
