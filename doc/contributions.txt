@@ -347,6 +347,7 @@ Charles Courtois
 Charlie Sazaland
 Chaser Zaks
     BUG-225599
+    BUG-227485
 Cherry Cheevers
 ChickyBabes Zuzu
 Christopher  Organiser

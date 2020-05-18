@@ -318,7 +318,7 @@ void HttpService::threadRun(LLCoreInt::HttpThread * thread)
         {
             LOG_UNHANDLED_EXCEPTION("");
         }
-        catch (std::bad_alloc)
+        catch (std::bad_alloc&)
         {
             LLMemory::logMemoryInfo(TRUE);
 
