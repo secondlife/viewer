@@ -38,6 +38,7 @@
 #include "llfloaterbuycurrency.h"
 #include "llbuycurrencyhtml.h"
 #include "llpanelnearbymedia.h"
+#include "llpanelpresetscamerapulldown.h"
 #include "llpanelpresetspulldown.h"
 #include "llpanelvolumepulldown.h"
 #include "llfloaterregioninfo.h"
@@ -172,8 +173,11 @@ BOOL LLStatusBar::postBuild()
 	mBoxBalance = getChild<LLTextBox>("balance");
 	mBoxBalance->setClickedCallback( &LLStatusBar::onClickBalance, this );
 
-	mIconPresets = getChild<LLIconCtrl>( "presets_icon" );
-	mIconPresets->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterPresets, this));
+	mIconPresetsCamera = getChild<LLIconCtrl>( "presets_icon_camera" );
+	mIconPresetsCamera->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterPresetsCamera, this));
+
+	mIconPresetsGraphic = getChild<LLIconCtrl>( "presets_icon_graphic" );
+	mIconPresetsGraphic->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterPresets, this));
 
 	mBtnVolume = getChild<LLButton>( "volume_btn" );
 	mBtnVolume->setClickedCallback( onClickVolume, this );
@@ -227,6 +231,11 @@ BOOL LLStatusBar::postBuild()
 
 	mSGPacketLoss = LLUICtrlFactory::create<LLStatGraph>(pgp);
 	addChild(mSGPacketLoss);
+
+	mPanelPresetsCameraPulldown = new LLPanelPresetsCameraPulldown();
+	addChild(mPanelPresetsCameraPulldown);
+	mPanelPresetsCameraPulldown->setFollows(FOLLOWS_TOP|FOLLOWS_RIGHT);
+	mPanelPresetsCameraPulldown->setVisible(FALSE);
 
 	mPanelPresetsPulldown = new LLPanelPresetsPulldown();
 	addChild(mPanelPresetsPulldown);
@@ -344,7 +353,8 @@ void LLStatusBar::setVisibleForMouselook(bool visible)
 	mSGPacketLoss->setVisible(visible);
 	mSearchPanel->setVisible(visible && gSavedSettings.getBOOL("MenuSearch"));
 	setBackgroundVisible(visible);
-	mIconPresets->setVisible(visible);
+	mIconPresetsCamera->setVisible(visible);
+	mIconPresetsGraphic->setVisible(visible);
 }
 
 void LLStatusBar::debitBalance(S32 debit)
@@ -485,10 +495,34 @@ void LLStatusBar::onClickBuyCurrency()
 	LLFirstUse::receiveLindens(false);
 }
 
+void LLStatusBar::onMouseEnterPresetsCamera()
+{
+	LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
+	LLIconCtrl* icon =  getChild<LLIconCtrl>( "presets_icon_camera" );
+	LLRect icon_rect = icon->getRect();
+	LLRect pulldown_rect = mPanelPresetsCameraPulldown->getRect();
+	pulldown_rect.setLeftTopAndSize(icon_rect.mLeft -
+	     (pulldown_rect.getWidth() - icon_rect.getWidth()),
+			       icon_rect.mBottom,
+			       pulldown_rect.getWidth(),
+			       pulldown_rect.getHeight());
+
+	pulldown_rect.translate(popup_holder->getRect().getWidth() - pulldown_rect.mRight, 0);
+	mPanelPresetsCameraPulldown->setShape(pulldown_rect);
+
+	// show the master presets pull-down
+	LLUI::getInstance()->clearPopups();
+	LLUI::getInstance()->addPopup(mPanelPresetsCameraPulldown);
+	mPanelNearByMedia->setVisible(FALSE);
+	mPanelVolumePulldown->setVisible(FALSE);
+	mPanelPresetsPulldown->setVisible(FALSE);
+	mPanelPresetsCameraPulldown->setVisible(TRUE);
+}
+
 void LLStatusBar::onMouseEnterPresets()
 {
 	LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
-	LLIconCtrl* icon =  getChild<LLIconCtrl>( "presets_icon" );
+	LLIconCtrl* icon =  getChild<LLIconCtrl>( "presets_icon_graphic" );
 	LLRect icon_rect = icon->getRect();
 	LLRect pulldown_rect = mPanelPresetsPulldown->getRect();
 	pulldown_rect.setLeftTopAndSize(icon_rect.mLeft -
@@ -527,6 +561,7 @@ void LLStatusBar::onMouseEnterVolume()
 	// show the master volume pull-down
 	LLUI::getInstance()->clearPopups();
 	LLUI::getInstance()->addPopup(mPanelVolumePulldown);
+	mPanelPresetsCameraPulldown->setVisible(FALSE);
 	mPanelPresetsPulldown->setVisible(FALSE);
 	mPanelNearByMedia->setVisible(FALSE);
 	mPanelVolumePulldown->setVisible(TRUE);
@@ -551,6 +586,7 @@ void LLStatusBar::onMouseEnterNearbyMedia()
 	LLUI::getInstance()->clearPopups();
 	LLUI::getInstance()->addPopup(mPanelNearByMedia);
 
+	mPanelPresetsCameraPulldown->setVisible(FALSE);
 	mPanelPresetsPulldown->setVisible(FALSE);
 	mPanelVolumePulldown->setVisible(FALSE);
 	mPanelNearByMedia->setVisible(TRUE);
