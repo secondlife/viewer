@@ -64,6 +64,7 @@
 #include "llstring.h"
 #include "llurlaction.h"
 #include "llviewercontrol.h"
+#include "llviewermenu.h"
 #include "llviewerobjectlist.h"
 
 static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
