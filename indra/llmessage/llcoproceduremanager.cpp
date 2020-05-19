@@ -346,7 +346,6 @@ void LLCoprocedurePool::coprocedureInvokerCoro(
     boost::fibers::channel_op_status status;
     for (;;)
     {
-        try
         {
             LLCoros::TempStatus st("waiting for work for 10s");
             status = pendingCoprocs->pop_wait_for(coproc, std::chrono::seconds(10));
