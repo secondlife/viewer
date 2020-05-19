@@ -65,6 +65,7 @@ public:
 	virtual void		setString(const std::string&  name, const std::string& val) {}
 	virtual void		setVector3(const std::string& name, const LLVector3 &val) {}
 	virtual void		setVector3d(const std::string& name, const LLVector3d &val) {}
+	virtual void		setQuaternion(const std::string& name, const LLQuaternion &val) {}
 	virtual void		setRect(const std::string& name, const LLRect &val) {}
 	virtual void		setColor4(const std::string& name, const LLColor4 &val) {}
 	virtual void    	setLLSD(const std::string& name, const LLSD& val) {}
