@@ -2277,9 +2277,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>14f15f5036d74e23e509bb149b44c07e</string>
+              <string>f290b000b31f9e36f2489946cbc99f5e</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/30340/257304/llphysicsextensions_stub-1.0.523488-darwin64-523488.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/59995/563653/llphysicsextensions_stub-1.0.542456-darwin64-542456.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2301,16 +2301,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ffc23a44ff33696e623c811364abff7c</string>
+              <string>2e5f1f7046a49d8b0bc295aa878116bc</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/30341/257307/llphysicsextensions_stub-1.0.523488-windows-523488.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/60043/564063/llphysicsextensions_stub-1.0.542456-windows-542456.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.504712</string>
+        <string>1.0.542456</string>
       </map>
       <key>mesa</key>
       <map>
