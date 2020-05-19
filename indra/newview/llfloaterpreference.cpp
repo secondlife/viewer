@@ -725,7 +725,7 @@ void LLFloaterPreference::cancel()
 	// hide spellchecker settings folder
 	LLFloaterReg::hideInstance("prefs_spellchecker");
 
-	// hide advancede floater
+	// hide advanced graphics floater
 	LLFloaterReg::hideInstance("prefs_graphics_advanced");
 	
 	// reverts any changes to current skin
@@ -844,7 +844,8 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	saveSettings();
 
 	// Make sure there is a default preference file
-	LLPresetsManager::getInstance()->createMissingDefault();
+	LLPresetsManager::getInstance()->createMissingDefault(PRESETS_CAMERA);
+	LLPresetsManager::getInstance()->createMissingDefault(PRESETS_GRAPHIC);
 
 	bool started = (LLStartUp::getStartupState() == STATE_STARTED);
 
@@ -853,12 +854,15 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	LLButton* delete_btn = findChild<LLButton>("PrefDeleteButton");
 	LLButton* exceptions_btn = findChild<LLButton>("RenderExceptionsButton");
 
-	load_btn->setEnabled(started);
-	save_btn->setEnabled(started);
-	delete_btn->setEnabled(started);
-	exceptions_btn->setEnabled(started);
+	if (load_btn && save_btn && delete_btn && exceptions_btn)
+	{
+		load_btn->setEnabled(started);
+		save_btn->setEnabled(started);
+		delete_btn->setEnabled(started);
+		exceptions_btn->setEnabled(started);
+	}
 
-	collectSearchableItems();
+    collectSearchableItems();
 	if (!mFilterEdit->getText().empty())
 	{
 		mFilterEdit->setText(LLStringExplicit(""));
@@ -2633,20 +2637,17 @@ void LLPanelPreference::updateMediaAutoPlayCheckbox(LLUICtrl* ctrl)
 
 void LLPanelPreference::deletePreset(const LLSD& user_data)
 {
-	std::string subdirectory = user_data.asString();
-	LLFloaterReg::showInstance("delete_pref_preset", subdirectory);
+	LLFloaterReg::showInstance("delete_pref_preset", user_data.asString());
 }
 
 void LLPanelPreference::savePreset(const LLSD& user_data)
 {
-	std::string subdirectory = user_data.asString();
-	LLFloaterReg::showInstance("save_pref_preset", subdirectory);
+	LLFloaterReg::showInstance("save_pref_preset", user_data.asString());
 }
 
 void LLPanelPreference::loadPreset(const LLSD& user_data)
 {
-	std::string subdirectory = user_data.asString();
-	LLFloaterReg::showInstance("load_pref_preset", subdirectory);
+	LLFloaterReg::showInstance("load_pref_preset", user_data.asString());
 }
 
 void LLPanelPreference::setHardwareDefaults()
@@ -2704,7 +2705,7 @@ BOOL LLPanelPreferenceGraphics::postBuild()
 
 	LLPresetsManager* presetsMgr = LLPresetsManager::getInstance();
     presetsMgr->setPresetListChangeCallback(boost::bind(&LLPanelPreferenceGraphics::onPresetsListChange, this));
-    presetsMgr->createMissingDefault(); // a no-op after the first time, but that's ok
+    presetsMgr->createMissingDefault(PRESETS_GRAPHIC); // a no-op after the first time, but that's ok
     
 	return LLPanelPreference::postBuild();
 }
@@ -2724,11 +2725,6 @@ void LLPanelPreferenceGraphics::onPresetsListChange()
 	if (instance && !gSavedSettings.getString("PresetGraphicActive").empty())
 	{
 		instance->saveSettings(); //make cancel work correctly after changing the preset
-	}
-	else
-	{
-		std::string dummy;
-		instance->saveGraphicsPreset(dummy);
 	}
 }
 

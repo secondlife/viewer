@@ -8534,6 +8534,18 @@ Can not overwrite default preset.
   </notification>
 
   <notification
+    icon="alertmodal.tga"
+    name="PresetAlreadyExists"
+    type="alertmodal">
+&apos;[NAME]&apos; is in use. You may replace
+this preset or choose another name.
+    <tag>fail</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
     icon="notifytip.tga"
     name="PresetNotDeleted"
     type="notifytip">
