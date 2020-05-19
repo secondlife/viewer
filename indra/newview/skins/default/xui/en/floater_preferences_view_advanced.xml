@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ height="190"
+ layout="topleft"
+ name="floaterpreferencesviewadvanced"
+ help_topic="floaterviewadvanced"
+ title="CAMERA POSITION"
+ save_rect="true"
+ width="280">
+
+  <text
+    follows="top|left|right"
+    name="camera_offset_lbl"
+    height="16"
+    layout="topleft"
+    left="10"
+    top="10"
+    width="100">
+      Camera offset:
+  </text>
+
+  <spinner
+   height="20"
+   label="X"
+   label_width="12"
+   follows="top|left"
+   left="10"
+   name="camera_x"
+   top_pad="5"
+   min_val="-1e+007"
+   max_val="1e+007"
+   width="70">
+    <spinner.commit_callback
+     function="CommitSettings" />
+  </spinner>
+
+  <spinner
+   height="20"
+   label="Y"
+   label_width="12"
+   follows="top|left"
+   name="camera_y"
+   left_pad="20"
+   min_val="-1e+007"
+   max_val="1e+007"
+   width="70">
+    <spinner.commit_callback
+     function="CommitSettings" />
+  </spinner>
+
+  <spinner
+   height="20"
+   label="Z"
+   label_width="12"
+   follows="top|left"
+   name="camera_z"
+   left_pad="20"
+   min_val="-1e+007"
+   max_val="1e+007"
+   width="70">
+    <spinner.commit_callback
+     function="CommitSettings" />
+  </spinner>
+
+  <text
+    follows="top|left|right"
+    name="focus_offset_lbl"
+    height="16"
+    layout="topleft"
+    left="10"
+    top_pad="20"
+    width="100">
+      Focus offset:
+  </text>
+
+  <spinner
+   height="20"
+   label="X"
+   label_width="12"
+   follows="top|left"
+   left="10"
+   name="focus_x"
+   top_pad="5"
+   min_val="-1e+007"
+   max_val="1e+007"
+   width="70">
+    <spinner.commit_callback
+     function="CommitSettings" />
+  </spinner>
+
+  <spinner
+   height="20"
+   label="Y"
+   label_width="12"
+   follows="top|left"
+   name="focus_y"
+   left_pad="20"
+   min_val="-1e+007"
+   max_val="1e+007"
+   width="70">
+    <spinner.commit_callback
+     function="CommitSettings" />
+  </spinner>
+
+  <spinner
+   height="20"
+   label="Z"
+   label_width="12"
+   follows="top|left"
+   name="focus_z"
+   left_pad="20"
+   min_val="-1e+007"
+   max_val="1e+007"
+   width="70">
+    <spinner.commit_callback
+     function="CommitSettings" />
+  </spinner>
+
+   <text
+    follows="top|left|right"
+    name="offset_scale_lbl"
+    height="16"
+    layout="topleft"
+    left="10"
+    top_pad="20"
+    width="140">
+      Camera offset scale:
+  </text>
+
+  <slider
+   control_name="CameraOffsetScale"
+   follows="top|left|right"
+   height="16"
+   top_pad="5"
+   increment="0.1"
+   min_val="-3"
+   max_val="5"
+   show_text="false"
+   layout="topleft"
+   left="3"
+   name="offset_scale_sld"
+   width="196" />
+  <spinner
+   control_name="CameraOffsetScale"
+   height="20"
+   follows="top|left|right"
+   left_pad="5"
+   name="offset_scale_ctrl"
+   min_val="-3"
+   max_val="5"
+   width="58">
+    <spinner.commit_callback
+     function="CommitSettings" />
+  </spinner>
+
+</floater>

@@ -7373,7 +7373,8 @@ void LLVOAvatar::sitOnObject(LLViewerObject *sit_object)
 	mRoot->updateWorldMatrixChildren();
 
 	stopMotion(ANIM_AGENT_BODY_NOISE);
-
+	
+	gAgentCamera.setInitSitRot(gAgent.getFrameAgent().getQuaternion());
 }
 
 //-----------------------------------------------------------------------------

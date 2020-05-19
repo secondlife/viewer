@@ -42,7 +42,8 @@ LLFloaterLoadPrefPreset::LLFloaterLoadPrefPreset(const LLSD &key)
 
 // virtual
 BOOL LLFloaterLoadPrefPreset::postBuild()
-{	LLFloaterPreference* preferences = LLFloaterReg::getTypedInstance<LLFloaterPreference>("preferences");
+{
+	LLFloaterPreference* preferences = LLFloaterReg::getTypedInstance<LLFloaterPreference>("preferences");
 	if (preferences)
 	{
 		preferences->addDependentFloater(this);
