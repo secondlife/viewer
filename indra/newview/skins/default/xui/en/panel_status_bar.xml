@@ -75,7 +75,7 @@
   </panel>
   <panel
     height="18"
-    left="-416"
+    left="-458"
     width="185"
     top="1"
     follows="right|top" 
@@ -148,11 +148,19 @@
     <icon
      follows="right|top"
      height="16"
-     image_name="Presets_Icon"
+     image_name="Cam_FreeCam_Off"
      left_pad="8"
      top="2"
-     name="presets_icon"
+     name="presets_icon_camera"
      width="18" />
+    <icon
+     follows="right|top"
+     height="13"
+     image_name="Presets_Icon"
+     left_pad="8"
+     top="4"
+     name="presets_icon_graphic"
+     width="16" />
     <button
      follows="right|top"
      height="16"
