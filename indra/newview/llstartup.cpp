@@ -71,6 +71,7 @@
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llpersistentnotificationstorage.h"
+#include "llpresetsmanager.h"
 #include "llteleporthistory.h"
 #include "llregionhandle.h"
 #include "llsd.h"
@@ -1964,6 +1965,8 @@ bool idle_startup()
 		// TODO: Put this into RegisterNewAgent
 		// JC - 7/20/2002
 		gViewerWindow->sendShapeToSim();
+
+		LLPresetsManager::getInstance()->createMissingDefault(PRESETS_CAMERA);
 
 		// The reason we show the alert is because we want to
 		// reduce confusion for when you log in and your provided

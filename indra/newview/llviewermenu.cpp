@@ -4104,8 +4104,7 @@ void handle_reset_view()
 		// switching to outfit selector should automagically save any currently edited wearable
 		LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "my_outfits"));
 	}
-
-	gAgentCamera.switchCameraPreset(CAMERA_PRESET_REAR_VIEW);
+	
 	reset_view_final( TRUE );
 	LLFloaterCamera::resetCameraMode();
 }
