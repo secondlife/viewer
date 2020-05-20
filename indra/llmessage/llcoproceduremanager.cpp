@@ -325,16 +325,22 @@ LLUUID LLCoprocedurePool::enqueueCoprocedure(const std::string &name, LLCoproced
 
     LL_INFOS("CoProcMgr") << "Coprocedure(" << name << ") enqueuing with id=" << id.asString() << " in pool \"" << mPoolName << "\" at " << mPending << LL_ENDL;
     auto pushed = mPendingCoprocs->try_push(boost::make_shared<QueuedCoproc>(name, id, proc));
-    // We don't really have a lot of good options if try_push() failed,
-    // perhaps because the consuming coroutine is gummed up or something. This
-    // method is probably called from code called by mainloop. If we toss an
-    // llcoro::suspend() call here, we'll circle back for another mainloop
-    // iteration, possibly resulting in being re-entered here. Let's avoid that.
-    LL_ERRS_IF(pushed != boost::fibers::channel_op_status::success, "CoProcMgr")
-        << "Enqueue failed because queue is " << int(pushed) << LL_ENDL;
-    ++mPending;
+    if (pushed == boost::fibers::channel_op_status::success)
+    {
+        ++mPending;
+        return id;
+    }
 
-    return id;
+    // Here we didn't succeed in pushing. Shutdown could be the reason.
+    if (pushed == boost::fibers::channel_op_status::closed)
+    {
+        LL_WARNS("CoProcMgr") << "Discarding coprocedure '" << name << "' because shutdown" << LL_ENDL;
+        return {};
+    }
+
+    // The queue should never fill up.
+    LL_ERRS("CoProcMgr") << "Enqueue failed (" << unsigned(pushed) << ")" << LL_ENDL;
+    return {};                      // never executed, pacify the compiler
 }
 
 //-------------------------------------------------------------------------
@@ -344,6 +350,23 @@ void LLCoprocedurePool::coprocedureInvokerCoro(
 {
     for (;;)
     {
+        // It is VERY IMPORTANT that we instantiate a new ptr_t just before
+        // the pop_wait_for() call below. When this ptr_t was declared at
+        // function scope (outside the for loop), NickyD correctly diagnosed a
+        // mysterious hang condition due to:
+        // - the second time through the loop, the ptr_t held the last pointer
+        //   to the previous QueuedCoproc, which indirectly held the last
+        //   LLPointer to an LLInventoryCallback instance
+        // - while holding the lock on pendingCoprocs, pop_wait_for() assigned
+        //   the popped value to the ptr_t variable
+        // - assignment destroyed the previous value of that variable, which
+        //   indirectly destroyed the LLInventoryCallback
+        // - whose destructor called ~LLRequestServerAppearanceUpdateOnDestroy()
+        // - which called LLAppearanceMgr::requestServerAppearanceUpdate()
+        // - which called enqueueCoprocedure()
+        // - which tried to acquire the lock on pendingCoprocs... alas.
+        // Using a fresh, clean ptr_t ensures that no previous value is
+        // destroyed during pop_wait_for().
         QueuedCoproc::ptr_t coproc;
         boost::fibers::channel_op_status status;
         {
@@ -357,7 +380,7 @@ void LLCoprocedurePool::coprocedureInvokerCoro(
 
         if(status == boost::fibers::channel_op_status::timeout)
         {
-            LL_INFOS_ONCE() << "pool '" << mPoolName << "' stalled." << LL_ENDL;
+            LL_DEBUGS_ONCE("CoProcMgr") << "pool '" << mPoolName << "' waiting." << LL_ENDL;
             continue;
         }
         // we actually popped an item
