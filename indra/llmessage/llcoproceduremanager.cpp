@@ -342,10 +342,10 @@ void LLCoprocedurePool::coprocedureInvokerCoro(
     CoprocQueuePtr pendingCoprocs,
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter)
 {
-    QueuedCoproc::ptr_t coproc;
-    boost::fibers::channel_op_status status;
     for (;;)
     {
+        QueuedCoproc::ptr_t coproc;
+        boost::fibers::channel_op_status status;
         {
             LLCoros::TempStatus st("waiting for work for 10s");
             status = pendingCoprocs->pop_wait_for(coproc, std::chrono::seconds(10));
