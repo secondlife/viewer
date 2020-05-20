@@ -3651,6 +3651,8 @@ void LLVOAvatar::updateAppearanceMessageDebugText()
         LLVector3 pelvis_pos = mPelvisp->getPosition();
         debug_line += llformat(" rp %.3f pp %.3f", root_pos[2], pelvis_pos[2]);
 
+		const LLVector3& scale = getScale();
+		debug_line += llformat(" scale-z %.3f", scale[2]);
 		S32 is_visible = (S32) isVisible();
 		S32 is_m_visible = (S32) mVisible;
 		debug_line += llformat(" v %d/%d", is_visible, is_m_visible);
@@ -4258,6 +4260,10 @@ void LLVOAvatar::updateRootPositionAndRotation(LLAgent& agent, F32 speed, bool w
 		if (!isSitting() && !was_sit_ground_constrained)
 		{
 			root_pos += LLVector3d(getHoverOffset());
+			if (getOverallAppearance() == AOA_JELLYDOLL)
+			{
+				root_pos[2] -= 0.5 * (getScale()[VZ] - mBodySize.mV[VZ]);
+			}
 		}
 
         LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(this);
