@@ -1608,7 +1608,7 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
             message_data["to_agent_id"].asUUID(),
             IM_OFFLINE,
             (EInstantMessage)message_data["dialog"].asInteger(),
-            LLUUID::null, // session id, since there is none we can only use frienship/group invite caps
+            message_data["session_id"].asUUID(),
             message_data["timestamp"].asInteger(),
             message_data["from_agent_name"].asString(),
             message_data["message"].asString(),
