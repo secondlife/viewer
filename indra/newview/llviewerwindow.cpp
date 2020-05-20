@@ -841,16 +841,21 @@ public:
 			ypos += y_inc;
 		}
 		// disable use of glReadPixels which messes up nVidia nSight graphics debugging
-		if (gSavedSettings.getBOOL("DebugShowColor") && !LLRender::sNsightDebugSupport)
-		{
-			U8 color[4];
-			LLCoordGL coord = gViewerWindow->getCurrentMouse();
-			glReadPixels(coord.mX, coord.mY, 1,1,GL_RGBA, GL_UNSIGNED_BYTE, color);
-			addText(xpos, ypos, llformat("%d %d %d %d", color[0], color[1], color[2], color[3]));
-			ypos += y_inc;
-		}
+        if (gSavedSettings.getBOOL("DebugShowColor") && !LLRender::sNsightDebugSupport)
+        {
+            U8 color[4];
+            LLCoordGL coord = gViewerWindow->getCurrentMouse();
 
-		// only display these messages if we are actually rendering beacons at this moment
+            // Convert x,y to raw pixel coords
+            S32 x_raw = llround(coord.mX * gViewerWindow->getWindowWidthRaw() / (F32) gViewerWindow->getWindowWidthScaled());
+            S32 y_raw = llround(coord.mY * gViewerWindow->getWindowHeightRaw() / (F32) gViewerWindow->getWindowHeightScaled());
+            
+            glReadPixels(x_raw, y_raw, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, color);
+            addText(xpos, ypos, llformat("Pixel <%1d, %1d> R:%1d G:%1d B:%1d A:%1d", x_raw, y_raw, color[0], color[1], color[2], color[3]));
+            ypos += y_inc;
+        }
+
+        // only display these messages if we are actually rendering beacons at this moment
 		if (LLPipeline::getRenderBeacons() && LLFloaterReg::instanceVisible("beacons"))
 		{
 			if (LLPipeline::getRenderMOAPBeacons())
