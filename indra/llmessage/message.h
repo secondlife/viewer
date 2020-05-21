@@ -256,14 +256,16 @@ private:
 class LockMessageReader
 {
 public:
-    // Because LockMessageReader contains LLCoros::LockType, it is already
-    // move-only. No need to delete the copy constructor or copy assignment.
     LockMessageReader(LLMessageReaderPointer& var, LLMessageReader* instance):
         mVar(var.mPtr),
         mLock(var.mMutex)
     {
         mVar = instance;
     }
+    // Some compilers reportedly fail to suppress generating implicit copy
+    // operations even though we have a move-only LockType data member.
+    LockMessageReader(const LockMessageReader&) = delete;
+    LockMessageReader& operator=(const LockMessageReader&) = delete;
     ~LockMessageReader()
     {
         mVar = nullptr;
