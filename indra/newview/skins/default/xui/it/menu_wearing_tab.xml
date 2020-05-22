@@ -2,7 +2,7 @@
 <context_menu name="Wearing">
 	<menu_item_call label="Togli" name="take_off"/>
 	<menu_item_call label="Stacca" name="detach"/>
-	<menu_item_call label="Modifica vestiario" name="edit"/>
+	<menu_item_call label="Modifica vestiario" name="edit_outfit"/>
 	<menu_item_call label="Modifica" name="edit_item"/>
 	<menu_item_call label="Mostra originale" name="show_original"/>
 </context_menu>
