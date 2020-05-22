@@ -235,7 +235,8 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 	mLastFetchedMediaVersion = -1;
 	memset(&mIndexInTex, 0, sizeof(S32) * LLRender::NUM_VOLUME_TEXTURE_CHANNELS);
 	mMDCImplCount = 0;
-    mLastRiggingInfoLOD = -1;
+	mLastRiggingInfoLOD = -1;
+	mResetDebugText = false;
 }
 
 LLVOVolume::~LLVOVolume()
@@ -1388,6 +1389,15 @@ BOOL LLVOVolume::calcLOD()
         {
             std::string debug_object_text = get_debug_object_lod_text(this);
             setDebugText(debug_object_text);
+            mResetDebugText = true;
+        }
+    }
+    else
+    {
+        if (mResetDebugText)
+        {
+            restoreHudText();
+            mResetDebugText = false;
         }
     }
 
