@@ -159,6 +159,12 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
 	if (!gSavedSettings.getBOOL("AudioStreamingMedia"))
 		return;
 
+	// This test appears all over the code and really should be facotred out into a single 
+	// call that returns true/false (with option ask dialog) but that is outside of scope
+	// for this work so we'll just directly.
+	if (gSavedSettings.getS32("ParcelMediaAutoPlayEnable") == 0 )
+		return;
+
 	std::string media_url = parcel->getMediaURL();
 	std::string media_current_url = parcel->getMediaCurrentURL();
 	std::string mime_type = parcel->getMediaType();
