@@ -78,7 +78,7 @@ BOOL LLPanelLandmarkInfo::postBuild()
 	mCreator = getChild<LLTextBox>("creator");
 	mCreated = getChild<LLTextBox>("created");
 
-	mLandmarkTitle = getChild<LLTextBox>("title_value");
+	mLandmarkTitle = getChild<LLLineEditor>("title_value");
 	mLandmarkTitleEditor = getChild<LLLineEditor>("title_editor");
 	mNotesEditor = getChild<LLTextEditor>("notes_editor");
 	mFolderCombo = getChild<LLComboBox>("folder_combo");
@@ -117,6 +117,7 @@ void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 	landmark_info_panel->setVisible(type == LANDMARK);
 
 	getChild<LLTextBox>("folder_label")->setVisible(is_info_type_create_landmark);
+    getChild<LLButton>("edit_btn")->setVisible(!is_info_type_create_landmark);
 	mFolderCombo->setVisible(is_info_type_create_landmark);
 
 	switch(type)
@@ -134,10 +135,6 @@ void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 			std::string name = parcel->getName();
 			LLVector3 agent_pos = gAgent.getPositionAgent();
 			
-			std::string desc;
-			LLAgentUI::buildLocationString(desc, LLAgentUI::LOCATION_FORMAT_FULL, agent_pos);
-			mNotesEditor->setText(desc);			
-
 			if (name.empty())
 			{
 				S32 region_x = ll_round(agent_pos.mV[VX]);
@@ -152,6 +149,7 @@ void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 				}
 				else
 				{
+					std::string desc;
 					LLAgentUI::buildLocationString(desc, LLAgentUI::LOCATION_FORMAT_NORMAL, agent_pos);
 					region_name = desc;
 				}
@@ -349,6 +347,7 @@ void LLPanelLandmarkInfo::toggleLandmarkEditMode(BOOL enabled)
 		mNotesEditor->setReadOnly(!enabled);
 		mFolderCombo->setVisible(enabled);
 		getChild<LLTextBox>("folder_label")->setVisible(enabled);
+		getChild<LLButton>("edit_btn")->setVisible(!enabled);
 
 		// HACK: To change the text color in a text editor
 		// when it was enabled/disabled we set the text once again.

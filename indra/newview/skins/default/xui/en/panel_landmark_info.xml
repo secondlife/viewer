@@ -277,9 +277,13 @@
                  top_pad="10"
                  value="Title:"
                  width="290" />
-                <text
+                <line_editor
+                 text_readonly_color="white"
+                 enabled="false"
+                 use_bg_color="true"
+                 bg_color="DkGray0"
                  parse_urls="false"
-                 follows="left|top"
+                 follows="left|top|right"
                  height="22"
                  layout="topleft"
                  left="0"
@@ -309,7 +313,7 @@
                  value="My notes:"
                  width="290" />
                 <text_editor
-                 bg_readonly_color="DkGray2"
+                 bg_readonly_color="DkGray0"
                  follows="all"
                  height="75"
                  layout="topleft"
@@ -340,6 +344,17 @@
                  name="folder_combo"
                  top_pad="5"
                  width="200" />
+                <button
+                 follows="bottom|left|right"
+                 height="23"
+                 label="Edit"
+                 layout="topleft"
+                 left="0"
+                 mouse_opaque="false"
+                 name="edit_btn"
+                 tool_tip="Edit landmark information"
+                 top_pad="-42"
+                 width="100" />
             </panel>
         </panel>
     </scroll_container>
