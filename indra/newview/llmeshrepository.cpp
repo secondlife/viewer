@@ -1902,6 +1902,12 @@ EMeshProcessingResult LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_p
 			{
 				LLMutexLock lock(mMutex);
 				mLoadedQ.push(mesh);
+				// LLPointer is not thread safe, since we added this pointer into
+				// threaded list, make sure counter gets decreased inside mutex lock
+				// and won't affect mLoadedQ processing
+				volume = NULL;
+				// might be good idea to turn mesh into pointer to avoid making a copy
+				mesh.mVolume = NULL;
 			}
 			return MESH_OK;
 		}
@@ -2829,12 +2835,12 @@ void LLMeshRepoThread::notifyLoadedMeshes()
 			mMutex->unlock();
 			break;
 		}
-		LoadedMesh mesh = mLoadedQ.front();
+		LoadedMesh mesh = mLoadedQ.front(); // make sure nothing else owns volume pointer by this point
 		mLoadedQ.pop();
 		mMutex->unlock();
 		
 		update_metrics = true;
-		if (mesh.mVolume && mesh.mVolume->getNumVolumeFaces() > 0)
+		if (mesh.mVolume->getNumVolumeFaces() > 0)
 		{
 			gMeshRepo.notifyMeshLoaded(mesh.mMeshParams, mesh.mVolume);
 		}
