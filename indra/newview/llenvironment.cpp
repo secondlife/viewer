@@ -1000,7 +1000,7 @@ bool LLEnvironment::canAgentUpdateRegionEnvironment() const
     if (gAgent.isGodlike())
         return true;
 
-    return gAgent.getRegion()->canManageEstate();
+    return gAgent.canManageEstate();
 }
 
 bool LLEnvironment::isExtendedEnvironmentEnabled() const
@@ -1056,7 +1056,8 @@ F32 LLEnvironment::getCamHeight() const
 
 F32 LLEnvironment::getWaterHeight() const
 {
-    return gAgent.getRegion()->getWaterHeight();
+    LLViewerRegion* cur_region = gAgent.getRegion();
+    return cur_region ? cur_region->getWaterHeight() : DEFAULT_WATER_HEIGHT;
 }
 
 bool LLEnvironment::getIsSunUp() const
