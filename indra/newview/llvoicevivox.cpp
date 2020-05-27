@@ -338,15 +338,15 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mPlayRequestCount(0),
 
 	mAvatarNameCacheConnection(),
-    mIsInTuningMode(false),
-    mIsInChannel(false),
-    mIsJoiningSession(false),
-    mIsWaitingForFonts(false),
-    mIsLoggingIn(false),
-    mIsLoggedIn(false),
-    mIsProcessingChannels(false),
-    mIsCoroutineActive(false),
-    mVivoxPump("vivoxClientPump")
+	mIsInTuningMode(false),
+	mIsInChannel(false),
+	mIsJoiningSession(false),
+	mIsWaitingForFonts(false),
+	mIsLoggingIn(false),
+	mIsLoggedIn(false),
+	mIsProcessingChannels(false),
+	mIsCoroutineActive(false),
+	mVivoxPump("vivoxClientPump")
 {	
 	mSpeakerVolume = scale_speaker_volume(0);
 
@@ -1255,15 +1255,22 @@ void LLVivoxVoiceClient::logoutOfVivox(bool wait)
         if (wait)
         {
             LLSD timeoutResult(LLSDMap("logout", "timeout"));
+            LLSD result;
 
-            LL_DEBUGS("Voice")
-                << "waiting for logout response on "
-                << mVivoxPump.getName()
-                << LL_ENDL;
+            do
+            {
+                LL_DEBUGS("Voice")
+                    << "waiting for logout response on "
+                    << mVivoxPump.getName()
+                    << LL_ENDL;
 
-            LLSD result = llcoro::suspendUntilEventOnWithTimeout(mVivoxPump, LOGOUT_ATTEMPT_TIMEOUT, timeoutResult);
+                result = llcoro::suspendUntilEventOnWithTimeout(mVivoxPump, LOGOUT_ATTEMPT_TIMEOUT, timeoutResult);
 
-            LL_DEBUGS("Voice") << "event=" << ll_stream_notation_sd(result) << LL_ENDL;
+                LL_DEBUGS("Voice") << "event=" << ll_stream_notation_sd(result) << LL_ENDL;
+                // Don't get confused by prior queued events -- note that it's
+                // very important that mVivoxPump is an LLEventMailDrop, which
+                // does queue events.
+            } while (! result["logout"]);
         }
         else
         {
