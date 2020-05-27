@@ -560,7 +560,7 @@ void LLPanelLogin::populateFields(LLPointer<LLCredential> credential, bool remem
     {
         sInstance->getChild<LLUICtrl>("remember_name")->setValue(remember_user);
         LLUICtrl* remember_password = sInstance->getChild<LLUICtrl>("remember_password");
-        remember_password->setValue(remember_psswrd);
+        remember_password->setValue(remember_user && remember_psswrd);
         remember_password->setEnabled(remember_user);
         sInstance->populateUserList(credential);
     }
@@ -1142,7 +1142,11 @@ void LLPanelLogin::onRememberUserCheck(void*)
             remember_name->setValue(true);
             LLNotificationsUtil::add("LoginCantRemoveUsername");
         }
-        remember_psswrd->setEnabled(remember);
+        if (!remember)
+        {
+            remember_psswrd->setValue(false);
+        }
+        remember_psswrd->setEnabled(remember);        
     }
 }
 
