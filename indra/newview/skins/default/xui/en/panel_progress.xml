@@ -44,15 +44,15 @@
                  width="670" />
                 <layout_panel
                  auto_resize="false"
-                 height="250"
+                 height="275"
                  layout="topleft"
-                 min_height="250"
+                 min_height="275"
                  name="panel4"
                  width="670">
                     <icon
                      color="LoginProgressBoxCenterColor"
                      follows="left|right|bottom|top"
-                     height="250"
+                     height="275"
                      image_name="Rounded_Square"
                      layout="topleft"
                      left="0"
@@ -60,7 +60,7 @@
                      width="670" />
                     <layout_stack
                      follows="left|right|top|bottom"
-                     height="250"
+                     height="275"
                      layout="topleft"
                      left="0"
                      orientation="vertical"
@@ -70,9 +70,17 @@
                      width="670">
                       <layout_panel
                        auto_resize="false"
-                       height="60"
+                       height="30"
                        layout="topleft"
-                       min_height="60"
+                       min_height="30"
+                       name="panel_top_spacer"
+                       width="670">
+                      </layout_panel>
+                      <layout_panel
+                       auto_resize="false"
+                       height="100"
+                       layout="topleft"
+                       min_height="100"
                        name="panel_login"
                        width="670">
                         <text
@@ -84,28 +92,6 @@
                          height="20"
                          left="47"
                          top="32"
-                         right="-47"
-                         name="login_text"
-                         text_color="LoginProgressBoxTextColor">
-                          Logging in...
-                        </text>
-                      </layout_panel>
-                      <layout_panel
-                       auto_resize="false"
-                       height="100"
-                       layout="topleft"
-                       min_height="100"
-                       name="panel_teleport"
-                       width="670">
-                        <text
-                         follows="left|right|top"
-                         layout="topleft"
-                         font="SansSerifHuge"
-                         font_shadow="none"
-                         halign="left"
-                         height="20"
-                         left="47"
-                         top="50"
                          right="-47"
                          name="title_text"
                          text_color="LoginProgressBoxTextColor"/>
@@ -122,14 +108,6 @@
                          name="progress_text"
                          text_color="LoginProgressBoxTextColor"
                          word_wrap="true"/>
-                      </layout_panel>
-                      <layout_panel
-                       auto_resize="false"
-                       height="19"
-                       layout="topleft"
-                       min_height="19"
-                       name="panel_progress"
-                       width="670">
                         <progress_bar
                          color_bar="1 0.314 0 0.96"
                          follows="left|right|top"
@@ -137,7 +115,7 @@
                          image_fill="ProgressBarSolid"
                          height="16"
                          left="45"
-                         top="2"
+                         top_pad="5"
                          name="login_progress_bar"
                          right="-45" />
                       </layout_panel>
