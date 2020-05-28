@@ -418,9 +418,10 @@ void LLProgressView::initLogos()
     // plus internal padding, so it gets slightly more height than desired 32
     icon_width = 100;
     icon_height = 33;
+    pad_y = -1;
     loadLogo(temp_str + "havok_logo.png",
         image_codec,
-        LLRect(texture_start_x, texture_start_y + icon_height, texture_start_x + icon_width, texture_start_y),
+        LLRect(texture_start_x, texture_start_y + pad_y + icon_height, texture_start_x + icon_width, texture_start_y + pad_y),
         default_clip,
         default_clip);
 
