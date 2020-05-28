@@ -384,7 +384,7 @@ void LLProgressView::initLogos()
     const S32 default_height = 32;
     const S32 default_pad = 25;
 
-    S32 icon_width;
+    S32 icon_width, icon_height;
 
     // We don't know final screen rect yet, so we can't precalculate position fully
     LLTextBox *logos_label = getChild<LLTextBox>("logos_lbl");
@@ -400,20 +400,27 @@ void LLProgressView::initLogos()
     temp_str += gDirUtilp->getDirDelimiter();
 
 #ifdef LL_FMODSTUDIO
-    icon_width = 89;
+    // original image size is 264x96, it is on longer side but
+    // with no internal paddings so it gets additional padding
+    icon_width = 87;
+    icon_height = 23;
+    S32 pad_y = 5;
+    texture_start_x++;
     loadLogo(temp_str + "fmod_logo.png",
         image_codec,
-        LLRect(texture_start_x, texture_start_y + default_height, texture_start_x + icon_width, texture_start_y),
+        LLRect(texture_start_x, texture_start_y + pad_y + icon_height, texture_start_x + icon_width, texture_start_y + pad_y),
         default_clip,
         default_clip);
 
-    texture_start_x += icon_width + default_pad;
+    texture_start_x += icon_width + default_pad + 1;
 #endif
-
-    icon_width = 100;
+    // original image size is 342x113, central element is on a larger side
+    // plus internal padding, so it gets slightly more height than desired 32
+    icon_width = 103;
+    icon_height = 34;
     loadLogo(temp_str + "havok_logo.png",
         image_codec,
-        LLRect(texture_start_x, texture_start_y + default_height, texture_start_x + icon_width, texture_start_y),
+        LLRect(texture_start_x, texture_start_y + icon_height, texture_start_x + icon_width, texture_start_y - 1),
         default_clip,
         default_clip);
 
