@@ -467,6 +467,7 @@ public:
 	void setOverallAppearanceInvisible();
 		
 	void updateOverallAppearance();
+	void updateOverallAppearanceAnimations();
 
 	std::set<LLUUID> mJellyAnims;
 

@@ -5680,14 +5680,14 @@ void LLVOAvatar::processAnimationStateChanges()
 	}
 	
 	// start up all new anims
-	for (anim_it = mSignaledAnimations.begin(); anim_it != mSignaledAnimations.end();)
+	if (getOverallAppearance() == AOA_NORMAL)
 	{
-		AnimIterator found_anim = mPlayingAnimations.find(anim_it->first);
-
-		// signaled but not playing, or different sequence id, start motion
-		if (found_anim == mPlayingAnimations.end() || found_anim->second != anim_it->second)
+		for (anim_it = mSignaledAnimations.begin(); anim_it != mSignaledAnimations.end();)
 		{
-			if (getOverallAppearance() == AOA_NORMAL)
+			AnimIterator found_anim = mPlayingAnimations.find(anim_it->first);
+
+			// signaled but not playing, or different sequence id, start motion
+			if (found_anim == mPlayingAnimations.end() || found_anim->second != anim_it->second)
 			{
 				if (processSingleAnimationStateChange(anim_it->first, TRUE))
 				{
@@ -5696,9 +5696,9 @@ void LLVOAvatar::processAnimationStateChanges()
 					continue;
 				}
 			}
-		}
 
-		++anim_it;
+			++anim_it;
+		}
 	}
 
 	// clear source information for animations which have been stopped
@@ -10607,8 +10607,12 @@ void LLVOAvatar::setVisualMuteSettings(VisualMuteSettings set)
     LLRenderMuteList::getInstance()->saveVisualMuteSetting(getID(), S32(set));
 }
 
+
 void LLVOAvatar::setOverallAppearanceNormal()
 {
+	if (isControlAvatar())
+		return;
+
 	resetSkeleton(false);
 	for (auto it = mJellyAnims.begin(); it !=  mJellyAnims.end(); ++it)
 	{
@@ -10621,10 +10625,14 @@ void LLVOAvatar::setOverallAppearanceNormal()
 		}
 	}
 	mJellyAnims.clear();
+	//processAnimationStateChanges();
 }
 
 void LLVOAvatar::setOverallAppearanceJellyDoll()
 {
+	if (isControlAvatar())
+		return;
+
 	resetSkeleton(false);
 
 	// stop current animations
@@ -10633,18 +10641,10 @@ void LLVOAvatar::setOverallAppearanceJellyDoll()
 			  anim_it != mPlayingAnimations.end();
 			  ++anim_it)
 		{
-			if (anim_it->first != ANIM_AGENT_STAND)
 			{
 				stopMotion(anim_it->first);
 			}
 		}
-	}
-	// start the default stand
-	bool stand_is_playing = (mPlayingAnimations.find(ANIM_AGENT_STAND) != mPlayingAnimations.end());
-	if (!stand_is_playing)
-	{
-		startMotion(ANIM_AGENT_STAND, 5.0f);
-		mJellyAnims.insert(ANIM_AGENT_STAND);
 	}
 	processAnimationStateChanges();
 }
@@ -10671,6 +10671,52 @@ void LLVOAvatar::updateOverallAppearance()
 				break;
 		}
 		mOverallAppearance = new_overall;
+	}
+
+	// This needs to be done even if overall appearance has not
+	// changed, since sit/stand status can be different.
+	updateOverallAppearanceAnimations();
+}
+
+void LLVOAvatar::updateOverallAppearanceAnimations()
+{
+	if (isControlAvatar())
+		return;
+
+	if (getOverallAppearance() == AOA_JELLYDOLL)
+	{
+		LLUUID motion_id;
+		if (isSitting() && getParent()) // sitting on object
+		{
+			motion_id = ANIM_AGENT_SIT_FEMALE; 
+		}
+		else if (isSitting()) // sitting on ground
+		{
+			motion_id = ANIM_AGENT_SIT_GROUND_CONSTRAINED;
+		}
+		else // standing
+		{
+			motion_id = ANIM_AGENT_STAND;
+		}
+		if (mJellyAnims.find(motion_id) == mJellyAnims.end())
+		{
+			for (auto it = mJellyAnims.begin(); it !=  mJellyAnims.end(); ++it)
+			{
+				bool is_playing = (mPlayingAnimations.find(*it) != mPlayingAnimations.end());
+				LL_DEBUGS("Avatar") << "jelly anim " << *it << " " << is_playing << LL_ENDL;
+				if (!is_playing)
+				{
+					// Anim was not requested for this av by sim, but may be playing locally
+					stopMotion(*it);
+				}
+			}
+			mJellyAnims.clear();
+
+			startMotion(motion_id);
+			mJellyAnims.insert(motion_id);
+
+			processAnimationStateChanges();
+		}
 	}
 }
 
