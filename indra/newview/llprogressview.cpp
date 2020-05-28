@@ -381,8 +381,8 @@ void LLProgressView::initLogos()
 
     const U8 image_codec = IMG_CODEC_PNG;
     const LLRectf default_clip(0.f, 1.f, 1.f, 0.f);
-    const S32 default_height = 32;
-    const S32 default_pad = 25;
+    const S32 default_height = 28;
+    const S32 default_pad = 15;
 
     S32 icon_width, icon_height;
 
@@ -402,9 +402,9 @@ void LLProgressView::initLogos()
 #ifdef LL_FMODSTUDIO
     // original image size is 264x96, it is on longer side but
     // with no internal paddings so it gets additional padding
-    icon_width = 87;
-    icon_height = 23;
-    S32 pad_y = 5;
+    icon_width = 77;
+    icon_height = 21;
+    S32 pad_y = 4;
     texture_start_x++;
     loadLogo(temp_str + "fmod_logo.png",
         image_codec,
@@ -416,8 +416,8 @@ void LLProgressView::initLogos()
 #endif
     // original image size is 342x113, central element is on a larger side
     // plus internal padding, so it gets slightly more height than desired 32
-    icon_width = 100;
-    icon_height = 33;
+    icon_width = 88;
+    icon_height = 29;
     pad_y = -1;
     loadLogo(temp_str + "havok_logo.png",
         image_codec,
@@ -427,7 +427,8 @@ void LLProgressView::initLogos()
 
     texture_start_x += icon_width + default_pad;
 
-    icon_width = 87;
+    // 108x41
+    icon_width = 74;
     loadLogo(temp_str + "vivox_logo.png",
         image_codec,
         LLRect(texture_start_x, texture_start_y + default_height, texture_start_x + icon_width, texture_start_y),
