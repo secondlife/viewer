@@ -375,20 +375,6 @@ void initialize_menus();
 // Break up groups of more than 6 items with separators
 //-----------------------------------------------------------------------------
 
-void set_underclothes_menu_options()
-{
-	if (gMenuHolder && gAgent.isTeen())
-	{
-		gMenuHolder->getChild<LLView>("Self Underpants")->setVisible(FALSE);
-		gMenuHolder->getChild<LLView>("Self Undershirt")->setVisible(FALSE);
-	}
-	if (gMenuBarView && gAgent.isTeen())
-	{
-		gMenuBarView->getChild<LLView>("Menu Underpants")->setVisible(FALSE);
-		gMenuBarView->getChild<LLView>("Menu Undershirt")->setVisible(FALSE);
-	}
-}
-
 void set_merchant_SLM_menu()
 {
     // All other cases (new merchant, not merchant, migrated merchant): show the new Marketplace Listings menu and enable the tool

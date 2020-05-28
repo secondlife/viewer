@@ -82,7 +82,6 @@ void handle_detach(void*);
 BOOL enable_god_full(void* user_data);
 BOOL enable_god_liaison(void* user_data);
 BOOL enable_god_basic(void* user_data);
-void set_underclothes_menu_options();
 void check_merchant_status(bool force = false);
 
 void exchange_callingcard(const LLUUID& dest_id);
