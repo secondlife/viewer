@@ -23,6 +23,12 @@
          function="Wearable.Add" />
     </menu_item_call>
     <menu_item_call
+     label="Touch"
+     layout="topleft"
+     name="touch"
+     on_click.function="Attachment.Touch"
+     />
+    <menu_item_call
      label="Edit"
      layout="topleft"
      name="edit"

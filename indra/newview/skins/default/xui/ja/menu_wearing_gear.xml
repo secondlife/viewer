@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="Gear Wearing">
+	<menu_item_call label="触る" name="touch"/>
 	<menu_item_call label="編集" name="edit_item"/>
 	<menu_item_call label="アウトフットの編集" name="edit_outfit"/>
 	<menu_item_call label="取り外す" name="takeoff"/>

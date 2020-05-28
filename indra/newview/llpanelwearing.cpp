@@ -64,6 +64,7 @@ public:
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
+		registrar.add("Gear.TouchAttach", boost::bind(&LLWearingGearMenu::handleMultiple, this, handle_attachment_touch));
 		registrar.add("Gear.EditItem", boost::bind(&LLWearingGearMenu::handleMultiple, this, handle_item_edit));
 		registrar.add("Gear.EditOutfit", boost::bind(&edit_outfit));
 		registrar.add("Gear.TakeOff", boost::bind(&LLPanelWearing::onRemoveItem, mPanelWearing));
@@ -103,6 +104,7 @@ protected:
 	{
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 
+		registrar.add("Wearing.TouchAttach", boost::bind(handleMultiple, handle_attachment_touch, mUUIDs));
 		registrar.add("Wearing.EditItem", boost::bind(handleMultiple, handle_item_edit, mUUIDs));
 		registrar.add("Wearing.EditOutfit", boost::bind(&edit_outfit));
 		registrar.add("Wearing.ShowOriginal", boost::bind(show_item_original, mUUIDs.front()));
@@ -150,15 +152,18 @@ protected:
 		}
 
 		// Enable/disable some menu items depending on the selection.
+		bool show_touch = !bp_selected && !clothes_selected && attachments_selected;
 		bool show_edit = bp_selected || clothes_selected || attachments_selected;
 		bool allow_detach = !bp_selected && !clothes_selected && attachments_selected;
 		bool allow_take_off = !bp_selected && clothes_selected && !attachments_selected;
 
+		menu->setItemVisible("touch_attach",       show_touch);
+		menu->setItemEnabled("touch_attach",       1 == mUUIDs.size() && enable_attachment_touch(mUUIDs.front()));
 		menu->setItemVisible("edit_item",          show_edit);
 		menu->setItemEnabled("edit_item",          1 == mUUIDs.size() && get_is_item_editable(mUUIDs.front()));
 		menu->setItemVisible("take_off",	allow_take_off);
 		menu->setItemVisible("detach",		allow_detach);
-		menu->setItemVisible("edit_outfit_separator", show_edit | allow_take_off || allow_detach);
+		menu->setItemVisible("edit_outfit_separator", show_touch | show_edit | allow_take_off || allow_detach);
 		menu->setItemVisible("show_original", mUUIDs.size() == 1);
 	}
 };
@@ -187,6 +192,8 @@ protected:
 
 	void updateMenuItemsVisibility(LLContextMenu* menu)
 	{
+		menu->setItemVisible("touch_attach", TRUE);
+		menu->setItemEnabled("touch_attach", 1 == mUUIDs.size());
 		menu->setItemVisible("edit_item", TRUE);
 		menu->setItemEnabled("edit_item", 1 == mUUIDs.size());
 		menu->setItemVisible("take_off", FALSE);
@@ -368,7 +375,11 @@ bool LLPanelWearing::isActionEnabled(const LLSD& userdata)
 	uuid_vec_t selected_uuids;
 	getSelectedItemsUUIDs(selected_uuids);
 
-	if (command_name == "edit_item")
+	if (command_name == "touch_attach")
+	{
+		return (1 == selected_uuids.size()) && (enable_attachment_touch(selected_uuids.front()));
+	}
+	else if (command_name == "edit_item")
 	{
 		return (1 == selected_uuids.size()) && (get_is_item_editable(selected_uuids.front()));
 	}
