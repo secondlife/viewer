@@ -2116,6 +2116,7 @@ bool LLAppViewer::cleanup()
 		LLWeb::loadURLExternal( gLaunchFileOnQuit, false );
 		LL_INFOS() << "File launched." << LL_ENDL;
 	}
+	// make sure nothing uses applyProxySettings by this point.
 	LL_INFOS() << "Cleaning up LLProxy." << LL_ENDL;
 	SUBSYSTEM_CLEANUP(LLProxy);
     LLCore::LLHttp::cleanup();
