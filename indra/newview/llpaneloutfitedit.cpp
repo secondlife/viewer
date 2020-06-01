@@ -1282,6 +1282,7 @@ void LLPanelOutfitEdit::showFilteredWearablesListView(LLWearableType::EType type
 
 	//e_list_view_item_type implicitly contains LLWearableType::EType starting from LVIT_SHAPE
 	applyListViewFilter(static_cast<EListViewItemType>(LVIT_SHAPE + type));
+	mWearableItemsList->setMenuWearableType(type);
 }
 
 static void update_status_widget_rect(LLView * widget, S32 right_border)
