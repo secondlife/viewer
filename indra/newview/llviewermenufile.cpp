@@ -683,7 +683,8 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 		S32 width = gViewerWindow->getWindowWidthRaw();
 		S32 height = gViewerWindow->getWindowHeightRaw();
 
-		if (gSavedSettings.getBOOL("HighResSnapshot"))
+		BOOL high_res = gSavedSettings.getBOOL("HighResSnapshot");
+		if (high_res)
 		{
 			width *= 2;
 			height *= 2;
@@ -695,7 +696,9 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 									   TRUE,
 									   FALSE,
 									   gSavedSettings.getBOOL("RenderUIInSnapshot"),
-									   FALSE))
+									   FALSE,
+									   LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
+									   high_res ? S32_MAX : MAX_SNAPSHOT_IMAGE_SIZE)) //per side
 		{
 			LLPointer<LLImageFormatted> formatted;
             LLSnapshotModel::ESnapshotFormat fmt = (LLSnapshotModel::ESnapshotFormat) gSavedSettings.getS32("SnapshotFormat");
