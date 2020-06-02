@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_minimize="false"
- height="488"
+ height="466"
  layout="topleft"
  name="Inventory Finder"
  help_topic="inventory_finder"
@@ -202,7 +202,7 @@
      left="8"
      mouse_opaque="true"
      name="icon_settings"
-     top="262"
+     top="242"
      width="16" />
     <check_box
      height="16"
@@ -220,7 +220,7 @@
      layout="topleft"
      left="8"
      name="All"
-     top="282"
+     top="262"
      width="100" />
     <button
      height="20"
@@ -368,6 +368,6 @@
      layout="topleft"
      name="Close"
      right="-6"
-     top="454"
+     top="434"
      width="76" />
 </floater>
