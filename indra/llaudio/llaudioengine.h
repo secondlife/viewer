@@ -99,7 +99,7 @@ public:
 	virtual ~LLAudioEngine();
 
 	// initialization/startup/shutdown
-	virtual bool init(const S32 num_channels, void *userdata);
+	virtual bool init(const S32 num_channels, void *userdata, const std::string &app_title);
 	virtual std::string getDriverName(bool verbose) = 0;
 	virtual void shutdown();
 
