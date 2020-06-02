@@ -500,6 +500,10 @@ void LLAppViewerWin32::disableWinErrorReporting()
 }
 
 const S32 MAX_CONSOLE_LINES = 500;
+// Only defined in newer SDKs than we currently use
+#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 4
+#endif
 
 namespace {
 
@@ -507,13 +511,11 @@ FILE* set_stream(const char* which, DWORD handle_id, const char* mode);
 
 bool create_console()
 {
-	CONSOLE_SCREEN_BUFFER_INFO coninfo;
-	FILE *fp;
-
 	// allocate a console for this app
 	const bool isConsoleAllocated = AllocConsole();
 
 	// set the screen buffer to be big enough to let us scroll text
+	CONSOLE_SCREEN_BUFFER_INFO coninfo;
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &coninfo);
 	coninfo.dwSize.Y = MAX_CONSOLE_LINES;
 	SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coninfo.dwSize);
@@ -542,19 +544,24 @@ bool create_console()
 	return isConsoleAllocated;
 }
 
-FILE* set_stream(const char* which, DWORD handle_id, const char* mode)
+FILE* set_stream(const char* desc, DWORD handle_id, const char* mode)
 {
-	long l_std_handle = (long)GetStdHandle(handle_id);
-	int h_con_handle = _open_osfhandle(l_std_handle, _O_TEXT);
+	auto l_std_handle = GetStdHandle(handle_id);
+	int h_con_handle = _open_osfhandle(reinterpret_cast<intptr_t>(l_std_handle), _O_TEXT);
 	if (h_con_handle == -1)
 	{
-		LL_WARNS() << "create_console() failed to open " << which << " handle" << LL_ENDL;
+		LL_WARNS() << "create_console() failed to open " << desc << " handle" << LL_ENDL;
 		return nullptr;
 	}
 	else
 	{
 		FILE* fp = _fdopen( h_con_handle, mode );
 		setvbuf( fp, NULL, _IONBF, 0 );
+		// Enable color processing on Windows 10 console windows.
+		DWORD dwMode = 0;
+		GetConsoleMode(l_std_handle, &dwMode);
+		dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+		SetConsoleMode(l_std_handle, dwMode);
 		return fp;
 	}
 }
