@@ -187,8 +187,8 @@ The 'secondlife' script which launches Second Life contains some
 configuration options for advanced troubleshooters.
 
 * AUDIO - Edit the 'secondlife' script and you will see these audio
-  options: LL_BAD_OPENAL_DRIVER, LL_BAD_FMOD_ESD, LL_BAD_FMOD_OSS, and
-  LL_BAD_FMOD_ALSA.  Second Life tries to use OpenAL, ESD, OSS, then ALSA
+  options: LL_BAD_OPENAL_DRIVER, LL_BAD_FMODSTUDIO_DRIVER.
+  Second Life tries to use OpenAL, FMODSTUDIO (PULSEAUDIO, ALSA)
   audio drivers in this order; you may uncomment the corresponding LL_BAD_*
   option to skip an audio driver which you believe may be causing you trouble.
 
