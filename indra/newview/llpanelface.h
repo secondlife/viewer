@@ -115,6 +115,13 @@ public:
 	LLRender::eTexIndex getTextureChannelToEdit();
 
     void            pasteFace(LLViewerObject* object, S32 te);
+    static bool     isLibraryTexture(LLUUID image_id);
+
+    // Finds copy-enabled texture with specified asset from inventory
+    // This can be performance unfriendly and doesn't warranty that
+    // the texture is original source of asset
+    static LLUUID   getCopyPermInventoryTextureId(LLUUID image_id);
+    static bool     canCopyTexture(LLUUID image_id);
 
 protected:
 	void			getState();

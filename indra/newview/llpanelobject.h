@@ -37,7 +37,6 @@ class LLCheckBoxCtrl;
 class LLTextBox;
 class LLUICtrl;
 class LLButton;
-class LLMenuButton;
 class LLViewerObject;
 class LLComboBox;
 class LLColorSwatchCtrl;
@@ -73,9 +72,6 @@ public:
     void            onPasteSize();
     void            onCopyRot();
     void            onPasteRot();
-    void            onCopyParams();
-    void            onPasteParams();
-
 	static void 	onCommitParametric(LLUICtrl* ctrl, void* userdata);
 
 
@@ -84,17 +80,6 @@ public:
 	void     		onSelectSculpt(const LLSD& data);
 	BOOL     		onDropSculpt(LLInventoryItem* item);
 	static void     onCommitSculptType(    LLUICtrl *ctrl, void* userdata);
-
-    bool            pasteCheckMenuItem(const LLSD& userdata);
-    void            pasteDoMenuItem(const LLSD& userdata);
-    bool            pasteEnabletMenuItem(const LLSD& userdata);
-    static bool     isLibraryTexture(LLUUID image_id);
-
-    // Finds copy-enabled texture with specified asset from inventory
-    // This can be performance unfriendly and doesn't warranty that
-    // the texture is original source of asset
-    static LLUUID   getCopyPermInventoryTextureId(LLUUID image_id);
-    static bool     canCopyTexture(LLUUID image_id);
 
 protected:
 	void			getState();
@@ -168,16 +153,6 @@ protected:
 	LLSpinCtrl*		mCtrlRotY;
 	LLSpinCtrl*		mCtrlRotZ;
 
-    LLButton        *mBtnCopyPos;
-    LLButton        *mBtnPastePos;
-    LLButton        *mBtnCopySize;
-    LLButton        *mBtnPasteSize;
-    LLButton        *mBtnCopyRot;
-    LLButton        *mBtnPasteRot;
-    LLButton        *mBtnCopyParams;
-    LLButton        *mBtnPasteParams;
-    LLMenuButton    *mBtnPasteMenu;
-
 	LLCheckBoxCtrl	*mCheckLock;
 	LLCheckBoxCtrl	*mCheckPhysics;
 	LLCheckBoxCtrl	*mCheckTemporary;
@@ -205,15 +180,6 @@ protected:
     BOOL            mHasPosClipboard;
     BOOL            mHasSizeClipboard;
     BOOL            mHasRotClipboard;
-
-    LLSD            mParamsClipboard;
-    LLVolumeParams  mClipboardVolumeParams;
-    BOOL            mHasParamsClipboard;
-    
-    BOOL            mPasteParametric;
-    BOOL            mPasteFlexible;
-    BOOL            mPastePhysics;
-    BOOL            mPasteLight;
 
 	LLPointer<LLViewerObject> mObject;
 	LLPointer<LLViewerObject> mRootObject;

@@ -1397,18 +1397,6 @@ even though the user gets a free copy.
          name="Object"
          top="16"
          width="295">
-            <panel.string name="paste_position">
-Paste Position
-[VALUE]
-            </panel.string>
-            <panel.string name="paste_size">
-Paste Size
-[VALUE]
-            </panel.string>
-            <panel.string name="paste_rotation">
-Paste Rotation
-[VALUE]
-            </panel.string>
             <check_box
              height="19"
              label="Locked"
@@ -1468,21 +1456,6 @@ Paste Rotation
              text_enabled_color="1 0 0.3 .7"
              top_pad="5"
              width="87" />
-            <button
-             top_delta="0"
-             left_pad="5"
-             height="19"
-             width="20"
-             follows="top|right"
-             layout="topleft"
-             tab_stop="false"
-             image_bottom_pad="1"
-             image_overlay="Copy"
-             image_hover_unselected="Toolbar_Middle_Over"
-             image_selected="Toolbar_Middle_Selected"
-             image_unselected="Toolbar_Middle_Off"
-             name="copy_pos_btn"
-             tool_tip="Copy Position" />
             <spinner
              follows="left|top"
              height="19"
@@ -1491,28 +1464,13 @@ Paste Rotation
              label="Y"
              label_width="10"
              layout="topleft"
-             left="10"
+             left_delta="0"
              max_val="512"
              min_val="-256"
              name="Pos Y"
              text_enabled_color="EmphasisColor"
              top_pad="3"
              width="87" />
-            <button
-             top_delta="0"
-             left_pad="5"
-             height="19"
-             width="20"
-             follows="top|right"
-             layout="topleft"
-             tab_stop="false"
-             image_bottom_pad="1"
-             image_overlay="Paste"
-             image_hover_unselected="Toolbar_Middle_Over"
-             image_selected="Toolbar_Middle_Selected"
-             image_unselected="Toolbar_Middle_Off"
-             name="paste_pos_btn"
-             tool_tip="Paste Position" />
             <spinner
              follows="left|top"
              height="19"
@@ -1521,7 +1479,7 @@ Paste Rotation
              label="Z"
              label_width="10"
              layout="topleft"
-             left="10"
+             left_delta="0"
              max_val="4096"
              name="Pos Z"
              text_enabled_color="0 0.8 1 .65"
@@ -1554,21 +1512,6 @@ Paste Rotation
              text_enabled_color="1 1 1 1"
              top_pad="5"
              width="87" />
-            <button
-             top_delta="0"
-             left_pad="5"
-             height="19"
-             width="20"
-             follows="top|right"
-             layout="topleft"
-             tab_stop="false"
-             image_bottom_pad="1"
-             image_overlay="Copy"
-             image_hover_unselected="Toolbar_Middle_Over"
-             image_selected="Toolbar_Middle_Selected"
-             image_unselected="Toolbar_Middle_Off"
-             name="copy_size_btn"
-             tool_tip="Copy Size" />
             <spinner
              follows="left|top"
              height="19"
@@ -1577,28 +1520,13 @@ Paste Rotation
              label="Y"
              label_width="10"
              layout="topleft"
-             left="10"
+             left_delta="0"
              max_val="64"
              min_val="0.01"
              name="Scale Y"
              text_enabled_color="1 1 1 1"
              top_pad="3"
              width="87" />
-            <button
-             top_delta="0"
-             left_pad="5"
-             height="19"
-             width="20"
-             follows="top|right"
-             layout="topleft"
-             tab_stop="false"
-             image_bottom_pad="1"
-             image_overlay="Paste"
-             image_hover_unselected="Toolbar_Middle_Over"
-             image_selected="Toolbar_Middle_Selected"
-             image_unselected="Toolbar_Middle_Off"
-             name="paste_size_btn"
-             tool_tip="Paste Size" />
             <spinner
              follows="left|top"
              height="19"
@@ -1607,7 +1535,7 @@ Paste Rotation
              label="Z"
              label_width="10"
              layout="topleft"
-             left="10"
+             left_delta="0"
              max_val="64"
              min_val="0.01"
              name="Scale Z"
@@ -1642,21 +1570,6 @@ Paste Rotation
              text_enabled_color="1 1 1 1"
              top_pad="5"
              width="87" />
-            <button
-             top_delta="0"
-             left_pad="5"
-             height="19"
-             width="20"
-             follows="top|right"
-             layout="topleft"
-             tab_stop="false"
-             image_bottom_pad="1"
-             image_overlay="Copy"
-             image_hover_unselected="Toolbar_Middle_Over"
-             image_selected="Toolbar_Middle_Selected"
-             image_unselected="Toolbar_Middle_Off"
-             name="copy_rot_btn"
-             tool_tip="Copy Rotation" />
             <spinner
              decimal_digits="2"
              follows="left|top"
@@ -1666,28 +1579,13 @@ Paste Rotation
              label="Y"
              label_width="10"
              layout="topleft"
-             left="10"
+             left_delta="0"
              max_val="9999"
              min_val="-9999"
              name="Rot Y"
              text_enabled_color="1 1 1 1"
              top_pad="3"
              width="87" />
-            <button
-             top_delta="0"
-             left_pad="5"
-             height="19"
-             width="20"
-             follows="top|right"
-             layout="topleft"
-             tab_stop="false"
-             image_bottom_pad="1"
-             image_overlay="Paste"
-             image_hover_unselected="Toolbar_Middle_Over"
-             image_selected="Toolbar_Middle_Selected"
-             image_unselected="Toolbar_Middle_Off"
-             name="paste_rot_btn"
-             tool_tip="Paste Rotation" />
             <spinner
              decimal_digits="2"
              follows="left|top"
@@ -1697,7 +1595,7 @@ Paste Rotation
              label="Z"
              label_width="10"
              layout="topleft"
-             left="10"
+             left_delta="0"
              max_val="9999"
              min_val="-9999"
              name="Rot Z"
@@ -1710,52 +1608,18 @@ Paste Rotation
              follows="left|top"
              height="10"
              layout="topleft"
-             left="135"
+             left="125"
              name="label basetype"
              top="5"
              width="150">
                 Prim Type
             </text>-->
-    		<button
-    		 follows="top|right"
-    		 height="23"
-    		 label="Copy"
-    		 layout="topleft"
-    		 left="135"
-    		 name="copy_params_btn"
-    		 tool_tip="Copy Parameters to Clipboard"
-             top="6"
-    		 width="53">
-    		</button>
-    		<button
-    		 follows="top|right"
-    		 height="23"
-    		 label="Paste"
-    		 layout="topleft"
-    		 left_pad="5"
-    		 name="paste_params_btn"
-    		 tool_tip="Paste Parameters from Clipboard"
-    		 width="53">
-    		</button>
-            <menu_button
-             menu_filename="menu_build_paste.xml"
-             follows="top|left"
-             height="23"
-             image_hover_unselected="Toolbar_Middle_Over"
-             image_overlay="OptionsMenu_Off"
-             image_selected="Toolbar_Middle_Selected"
-             image_unselected="Toolbar_Middle_Off"
-             layout="topleft"
-             left_pad="5"
-             name="paste_gear_btn"
-             tool_tip="Paste options"
-             width="31"/>
             <combo_box
              height="19"
              layout="topleft"
              name="comboBaseType"
-             top_pad="5"
-             left="135"
+             top="6"
+             left="125"
              width="150">
                 <combo_box.item
                  label="Box"
@@ -1834,7 +1698,7 @@ Paste Rotation
              follows="left|top"
              height="10"
              layout="topleft"
-             left="135"
+             left="125"
              name="text hollow"
              top_pad="6"
              width="68">
@@ -1858,7 +1722,7 @@ Paste Rotation
              increment="5"
              initial_value="0"
              layout="topleft"
-             left="135"
+             left="125"
              max_val="95"
              name="Scale 1"
              top_pad="4"
@@ -1882,7 +1746,7 @@ Paste Rotation
              follows="left|top"
              height="15"
              layout="topleft"
-             left="135"
+             left="125"
              name="Hollow Shape"
              top_pad="4"
              width="150">
@@ -1960,7 +1824,7 @@ Paste Rotation
              follows="left|top"
              height="10"
              layout="topleft"
-             left="135"
+             left="125"
              name="scale_taper"
              top_pad="3"
              width="150">
@@ -2013,7 +1877,7 @@ Paste Rotation
              follows="left|top"
              height="10"
              layout="topleft"
-             left="135"
+             left="125"
              name="text topshear"
              top_pad="3"
              width="141">
@@ -2056,7 +1920,7 @@ Paste Rotation
              follows="left|top"
              height="10"
              layout="topleft"
-             left="135"
+             left="125"
              name="advanced_cut"
              top_pad="3"
              width="150">
@@ -2120,7 +1984,7 @@ Paste Rotation
              follows="left|top"
              height="10"
              layout="topleft"
-             left="135"
+             left="125"
              name="text taper2"
              top_pad="3"
              width="150">
@@ -2163,7 +2027,7 @@ Paste Rotation
              follows="left|top"
              height="10"
              layout="topleft"
-             left="135"
+             left="125"
              name="text radius delta"
              top_pad="2"
              width="78">
@@ -2188,7 +2052,7 @@ Paste Rotation
              increment="0.05"
              initial_value="0"
              layout="topleft"
-             left="135"
+             left="125"
              min_val="-1"
              name="Radius Offset"
              top_pad="4"
@@ -2213,7 +2077,7 @@ Paste Rotation
              height="141"
              label="Sculpt Texture"
              layout="topleft"
-             left="135"
+             left="125"
              name="sculpt texture control"
              tool_tip="Click to choose a picture"
              top="70"
@@ -2671,7 +2535,7 @@ Paste Rotation
              top_pad="8"
              width="132" />
         </panel>
-        <panel
+         <panel
          label="Texture"
          help_topic="toolbox_texture_tab"
          name="Texture"
