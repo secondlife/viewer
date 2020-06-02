@@ -501,11 +501,12 @@ void LLAppViewerWin32::disableWinErrorReporting()
 
 const S32 MAX_CONSOLE_LINES = 500;
 
-static bool create_console()
-{
-	int h_con_handle;
-	intptr_t l_std_handle;
+namespace {
 
+FILE* set_stream(const char* which, DWORD handle_id, const char* mode);
+
+bool create_console()
+{
 	CONSOLE_SCREEN_BUFFER_INFO coninfo;
 	FILE *fp;
 
@@ -518,49 +519,47 @@ static bool create_console()
 	SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coninfo.dwSize);
 
 	// redirect unbuffered STDOUT to the console
-	l_std_handle = reinterpret_cast<decltype(l_std_handle)>(GetStdHandle(STD_OUTPUT_HANDLE));
-	h_con_handle = _open_osfhandle(l_std_handle, _O_TEXT);
-	if (h_con_handle == -1)
+	FILE* fp = set_stream("stdout", STD_OUTPUT_HANDLE, "w");
+	if (fp)
 	{
-		LL_WARNS() << "create_console() failed to open stdout handle" << LL_ENDL;
-	}
-	else
-	{
-		fp = _fdopen( h_con_handle, "w" );
 		*stdout = *fp;
-		setvbuf( stdout, NULL, _IONBF, 0 );
 	}
 
 	// redirect unbuffered STDIN to the console
-	l_std_handle = reinterpret_cast<decltype(l_std_handle)>(GetStdHandle(STD_INPUT_HANDLE));
-	h_con_handle = _open_osfhandle(l_std_handle, _O_TEXT);
-	if (h_con_handle == -1)
+	fp = set_stream("stdin", STD_INPUT_HANDLE, "r");
+	if (fp)
 	{
-		LL_WARNS() << "create_console() failed to open stdin handle" << LL_ENDL;
-	}
-	else
-	{
-		fp = _fdopen( h_con_handle, "r" );
 		*stdin = *fp;
-		setvbuf( stdin, NULL, _IONBF, 0 );
 	}
 
 	// redirect unbuffered STDERR to the console
-	l_std_handle = reinterpret_cast<decltype(l_std_handle)>(GetStdHandle(STD_ERROR_HANDLE));
-	h_con_handle = _open_osfhandle(l_std_handle, _O_TEXT);
+	fp = set_stream("stderr", STD_ERROR_HANDLE, "w");
+	if (fp)
+	{
+		*stderr = *fp;
+	}
+
+	return isConsoleAllocated;
+}
+
+FILE* set_stream(const char* which, DWORD handle_id, const char* mode)
+{
+	long l_std_handle = (long)GetStdHandle(handle_id);
+	int h_con_handle = _open_osfhandle(l_std_handle, _O_TEXT);
 	if (h_con_handle == -1)
 	{
-		LL_WARNS() << "create_console() failed to open stderr handle" << LL_ENDL;
+		LL_WARNS() << "create_console() failed to open " << which << " handle" << LL_ENDL;
+		return nullptr;
 	}
 	else
 	{
-		fp = _fdopen( h_con_handle, "w" );
-		*stderr = *fp;
-		setvbuf( stderr, NULL, _IONBF, 0 );
+		FILE* fp = _fdopen( h_con_handle, mode );
+		setvbuf( fp, NULL, _IONBF, 0 );
+		return fp;
 	}
-
-    return isConsoleAllocated;
 }
+
+} // anonymous namespace
 
 LLAppViewerWin32::LLAppViewerWin32(const char* cmd_line) :
 	mCmdLine(cmd_line),
