@@ -1430,6 +1430,18 @@ even though the user gets a free copy.
              tool_tip="Causes object to not collide with other objects or avatars"
              top_pad="0"
              width="123" />
+            <menu_button
+             menu_filename="menu_copy_paste_pos.xml"
+             follows="top|left"
+             height="11"
+             image_disabled="OptionsMenu_Disabled"
+             image_selected="OptionsMenu_Press"
+             image_unselected="OptionsMenu_Off"
+             layout="topleft"
+             top_pad="10"
+             name="paste_pos_btn"
+             tool_tip="Paste options"
+             width="19"/>
         <text
              type="string"
              length="1"
@@ -1437,9 +1449,11 @@ even though the user gets a free copy.
              height="10"
              layout="topleft"
              name="label position"
-             top_pad="10"
+             tool_tip="Position (meters)"
+             left_pad="3"
+             top_delta="0"
              width="121">
-                Position (meters)
+                Position
             </text>
             <spinner
              follows="left|top"
@@ -1449,7 +1463,7 @@ even though the user gets a free copy.
              label="X"
              label_width="10"
              layout="topleft"
-             left_delta="0"
+             left_delta="-22"
              max_val="512"
              min_val="-256"
              name="Pos X"
@@ -1485,17 +1499,31 @@ even though the user gets a free copy.
              text_enabled_color="0 0.8 1 .65"
              top_pad="3"
              width="87" />
+            <menu_button
+             menu_filename="menu_copy_paste_size.xml"
+             follows="top|left"
+             height="11"
+             image_disabled="OptionsMenu_Disabled"
+             image_selected="OptionsMenu_Press"
+             image_unselected="OptionsMenu_Off"
+             layout="topleft"
+             left_delta="0"
+             top_pad="10"
+             name="paste_size_btn"
+             tool_tip="Paste options"
+             width="19"/>
             <text
              type="string"
              length="1"
              follows="left|top"
              height="10"
              layout="topleft"
-             left_delta="0"
+             left_pad="3"
+             top_delta="0"
              name="label size"
-             top_pad="6"
+             tool_tip="Size (meters)"
              width="121">
-                Size (meters)
+                Size
             </text>
             <spinner
              follows="left|top"
@@ -1505,7 +1533,7 @@ even though the user gets a free copy.
              label="X"
              label_width="10"
              layout="topleft"
-             left_delta="0"
+             left_delta="-22"
              max_val="64"
              min_val="0.01"
              name="Scale X"
@@ -1542,17 +1570,31 @@ even though the user gets a free copy.
              text_enabled_color="1 1 1 1"
              top_pad="3"
              width="87" />
+            <menu_button
+             menu_filename="menu_copy_paste_rot.xml"
+             follows="top|left"
+             height="11"
+             image_disabled="OptionsMenu_Disabled"
+             image_selected="OptionsMenu_Press"
+             image_unselected="OptionsMenu_Off"
+             layout="topleft"
+             left_delta="0"
+             top_pad="10"
+             name="paste_rot_btn"
+             tool_tip="Paste options"
+             width="19"/>
             <text
              type="string"
              length="1"
              follows="left|top"
              height="10"
              layout="topleft"
-             left_delta="0"
+             left_pad="3"
+             top_delta="0"
              name="label rotation"
-             top_pad="10"
+             tool_tip="Rotation (degrees)"
              width="121">
-                Rotation (degrees)
+                Rotation
             </text>
             <spinner
              decimal_digits="2"
@@ -1563,7 +1605,7 @@ even though the user gets a free copy.
              label="X"
              label_width="10"
              layout="topleft"
-             left_delta="0"
+             left_delta="-22"
              max_val="9999"
              min_val="-9999"
              name="Rot X"

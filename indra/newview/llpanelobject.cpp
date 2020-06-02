@@ -118,8 +118,9 @@ BOOL	LLPanelObject::postBuild()
 	// Phantom checkbox
 	mCheckPhantom = getChild<LLCheckBoxCtrl>("Phantom Checkbox Ctrl");
 	childSetCommitCallback("Phantom Checkbox Ctrl",onCommitPhantom,this);
-       
+
 	// Position
+	mMenuPastePos = getChild<LLMenuButton>("paste_pos_btn");
 	mLabelPosition = getChild<LLTextBox>("label position");
 	mCtrlPosX = getChild<LLSpinCtrl>("Pos X");
 	childSetCommitCallback("Pos X",onCommitPosition,this);
@@ -129,6 +130,7 @@ BOOL	LLPanelObject::postBuild()
 	childSetCommitCallback("Pos Z",onCommitPosition,this);
 
 	// Scale
+	mMenuPasteSize = getChild<LLMenuButton>("paste_size_btn");
 	mLabelSize = getChild<LLTextBox>("label size");
 	mCtrlScaleX = getChild<LLSpinCtrl>("Scale X");
 	childSetCommitCallback("Scale X",onCommitScale,this);
@@ -142,6 +144,7 @@ BOOL	LLPanelObject::postBuild()
 	childSetCommitCallback("Scale Z",onCommitScale,this);
 
 	// Rotation
+	mMenuPasteRot = getChild<LLMenuButton>("paste_rot_btn");
 	mLabelRotation = getChild<LLTextBox>("label rotation");
 	mCtrlRotX = getChild<LLSpinCtrl>("Rot X");
 	childSetCommitCallback("Rot X",onCommitRotation,this);
@@ -291,6 +294,8 @@ LLPanelObject::LLPanelObject()
     mHasRotClipboard(FALSE),
 	mSizeChanged(FALSE)
 {
+    mCommitCallbackRegistrar.add("PanelObject.menuDoToSelected", boost::bind(&LLPanelObject::menuDoToSelected, this, _2));
+    mEnableCallbackRegistrar.add("PanelObject.menuEnable", boost::bind(&LLPanelObject::menuEnableItem, this, _2));
 }
 
 
@@ -377,7 +382,7 @@ void LLPanelObject::getState( )
 		calcp->clearVar(LLCalc::Z_POS);
 	}
 
-
+	mMenuPastePos->setEnabled(enable_move);
 	mLabelPosition->setEnabled( enable_move );
 	mCtrlPosX->setEnabled(enable_move);
 	mCtrlPosY->setEnabled(enable_move);
@@ -403,6 +408,7 @@ void LLPanelObject::getState( )
 		calcp->setVar(LLCalc::Z_SCALE, 0.f);
 	}
 
+	mMenuPasteSize->setEnabled(enable_scale);
 	mLabelSize->setEnabled( enable_scale );
 	mCtrlScaleX->setEnabled( enable_scale );
 	mCtrlScaleY->setEnabled( enable_scale );
@@ -434,6 +440,7 @@ void LLPanelObject::getState( )
 		calcp->clearVar(LLCalc::Z_ROT);
 	}
 
+	mMenuPasteRot->setEnabled(enable_rotate);
 	mLabelRotation->setEnabled( enable_rotate );
 	mCtrlRotX->setEnabled( enable_rotate );
 	mCtrlRotY->setEnabled( enable_rotate );
@@ -1648,6 +1655,8 @@ void LLPanelObject::sendPosition(BOOL btn_down)
 	LLVector3 newpos(mCtrlPosX->get(), mCtrlPosY->get(), mCtrlPosZ->get());
 	LLViewerRegion* regionp = mObject->getRegion();
 
+	if (!regionp) return;
+
 	// Clamp the Z height
 	const F32 height = newpos.mV[VZ];
 	const F32 min_height = LLWorld::getInstance()->getMinAllowedZ(mObject, mObject->getPositionGlobal());
@@ -2005,6 +2014,57 @@ void LLPanelObject::onCommitSculptType(LLUICtrl *ctrl, void* userdata)
 	self->sendSculpt();
 }
 
+void LLPanelObject::menuDoToSelected(const LLSD& userdata)
+{
+    std::string command = userdata.asString();
+
+    // paste
+    if (command == "pos_paste")
+    {
+        onPastePos();
+    }
+    else if (command == "size_paste")
+    {
+        onPasteSize();
+    }
+    else if (command == "rot_paste")
+    {
+        onPasteRot();
+    }
+    // copy
+    else if (command == "pos_copy")
+    {
+        onCopyPos();
+    }
+    else if (command == "size_copy")
+    {
+        onCopySize();
+    }
+    else if (command == "rot_copy")
+    {
+        onCopyRot();
+    }
+}
+
+bool LLPanelObject::menuEnableItem(const LLSD& userdata)
+{
+    std::string command = userdata.asString();
+
+    if (command == "pos_paste")
+    {
+        return mHasPosClipboard;
+    }
+    else if (command == "size_paste")
+    {
+        return mHasSizeClipboard;
+    }
+    else if (command == "rot_paste")
+    {
+        return mHasRotClipboard;
+    }
+    return false;
+}
+
 void LLPanelObject::onCopyPos()
 {
     mClipboardPos = LLVector3(mCtrlPosX->get(), mCtrlPosY->get(), mCtrlPosZ->get());
@@ -2037,14 +2097,20 @@ void LLPanelObject::onCopyRot()
 
 void LLPanelObject::onPastePos()
 {
-    if(!mHasPosClipboard) return;
+    if (!mHasPosClipboard) return;
+    if (mObject.isNull()) return;
+
+    LLViewerRegion* regionp = mObject->getRegion();
+    if (!regionp) return;
+
 
     // Clamp pos on non-attachments, just keep the prims within the region
     if (!mObject->isAttachment())
     {
-        mClipboardPos.mV[VX] = llclamp( mClipboardPos.mV[VX], 0.f, 256.f);
-        mClipboardPos.mV[VY] = llclamp( mClipboardPos.mV[VY], 0.f, 256.f);
-        //height will get properly clammed by sendPosition
+        F32 max_width = regionp->getWidth(); // meters
+        mClipboardPos.mV[VX] = llclamp(mClipboardPos.mV[VX], 0.f, max_width);
+        mClipboardPos.mV[VY] = llclamp(mClipboardPos.mV[VY], 0.f, max_width);
+        //height will get properly clamped by sendPosition
     }
 
     mCtrlPosX->set( mClipboardPos.mV[VX] );
@@ -2056,7 +2122,7 @@ void LLPanelObject::onPastePos()
 
 void LLPanelObject::onPasteSize()
 {
-    if(!mHasSizeClipboard) return;
+    if (!mHasSizeClipboard) return;
 
     mClipboardSize.mV[VX] = llclamp(mClipboardSize.mV[VX], MIN_PRIM_SCALE, DEFAULT_MAX_PRIM_SCALE);
     mClipboardSize.mV[VY] = llclamp(mClipboardSize.mV[VY], MIN_PRIM_SCALE, DEFAULT_MAX_PRIM_SCALE);
@@ -2071,7 +2137,7 @@ void LLPanelObject::onPasteSize()
 
 void LLPanelObject::onPasteRot()
 {
-    if(!mHasRotClipboard) return;
+    if (!mHasRotClipboard) return;
 
     mCtrlRotX->set( mClipboardRot.mV[VX] );
     mCtrlRotY->set( mClipboardRot.mV[VY] );

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu
+ layout="topleft"
+ name="Copy Paste Size Menu">
+    <menu_item_call
+     label="Copy Size"
+     layout="topleft"
+     name="size_copy"
+     visible="true">
+        <on_click function="PanelObject.menuDoToSelected" parameter="size_copy" />
+    </menu_item_call>
+    <menu_item_call
+     label="Paste Size"
+     layout="topleft"
+     name="size_paste"
+     visible="true">
+      <on_click function="PanelObject.menuDoToSelected" parameter="size_paste" />
+      <on_enable function="PanelObject.menuEnable" parameter="size_paste" />
+    </menu_item_call>
+</toggleable_menu>
+

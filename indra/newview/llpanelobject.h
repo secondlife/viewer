@@ -37,6 +37,7 @@ class LLCheckBoxCtrl;
 class LLTextBox;
 class LLUICtrl;
 class LLButton;
+class LLMenuButton;
 class LLViewerObject;
 class LLComboBox;
 class LLColorSwatchCtrl;
@@ -80,6 +81,9 @@ public:
 	void     		onSelectSculpt(const LLSD& data);
 	BOOL     		onDropSculpt(LLInventoryItem* item);
 	static void     onCommitSculptType(    LLUICtrl *ctrl, void* userdata);
+
+    void            menuDoToSelected(const LLSD& userdata);
+    bool            menuEnableItem(const LLSD& userdata);
 
 protected:
 	void			getState();
@@ -137,17 +141,20 @@ protected:
 	LLTextBox*		mLabelRevolutions;
 	LLSpinCtrl*		mSpinRevolutions;
 
+    LLMenuButton*   mMenuPastePos;
 	LLTextBox*		mLabelPosition;
 	LLSpinCtrl*		mCtrlPosX;
 	LLSpinCtrl*		mCtrlPosY;
 	LLSpinCtrl*		mCtrlPosZ;
 
+    LLMenuButton*   mMenuPasteSize;
 	LLTextBox*		mLabelSize;
 	LLSpinCtrl*		mCtrlScaleX;
 	LLSpinCtrl*		mCtrlScaleY;
 	LLSpinCtrl*		mCtrlScaleZ;
 	BOOL			mSizeChanged;
 
+    LLMenuButton*   mMenuPasteRot;
 	LLTextBox*		mLabelRotation;
 	LLSpinCtrl*		mCtrlRotX;
 	LLSpinCtrl*		mCtrlRotY;
