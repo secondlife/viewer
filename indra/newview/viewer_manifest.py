@@ -516,12 +516,12 @@ class WindowsManifest(ViewerManifest):
                 print err.message
                 print "Skipping GLOD library (assumming linked statically)"
 
-            if self.args['fmodex'] == 'ON':
-                # Get fmodex dll
-               if(self.address_size == 64):
-                   self.path("fmodex64.dll")
-               else:
-                   self.path("fmodex.dll")
+            # Get fmodstudio dll if needed
+            if self.args['fmodstudio'] == 'ON':
+                if(self.args['configuration'].lower() == 'debug'):
+                    self.path("fmodL.dll")
+                else:
+                    self.path("fmod.dll")
 
             if self.args['openal'] == 'ON':
                 # Get openal dll
@@ -1052,6 +1052,11 @@ class DarwinManifest(ViewerManifest):
                                 ):
                     self.path2basename(relpkgdir, libfile)
 
+                # Fmod studio dylibs (vary based on configuration)
+                if self.args['fmodstudio'] == 'ON':
+                    if self.args['configuration'].lower() == 'debug':
+                        for libfile in (
+                                    "libfmodL.dylib",
                 # dylibs that vary based on configuration
                 if self.args['fmodex'] == 'ON':
                     if self.args['configuration'].lower() == 'debug':
@@ -1061,6 +1066,10 @@ class DarwinManifest(ViewerManifest):
                             dylibs += path_optional(os.path.join(debpkgdir, libfile), libfile)
                     else:
                         for libfile in (
+                                    "libfmod.dylib",
+                                    ):
+                            dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
+
                                     "libfmodex.dylib",
                                     ):
                             dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
@@ -1526,6 +1535,15 @@ class Linux_i686_Manifest(LinuxManifest):
                 print "tcmalloc files not found, skipping"
                 pass
 
+            if self.args['fmodstudio'] == 'ON':
+                try:
+                    self.path("libfmod.so.11.7")
+                    self.path("libfmod.so.11")
+                    self.path("libfmod.so")
+                    pass
+                except:
+                    print "Skipping libfmod.so - not found"
+                    pass
             if self.args['fmodex'] == 'ON':
                 self.path("libfmodex-*.so")
                 self.path("libfmodex.so")
@@ -1559,6 +1577,7 @@ if __name__ == "__main__":
     extra_arguments = [
         dict(name='bugsplat', description="""BugSplat database to which to post crashes,
              if BugSplat crash reporting is desired""", default=''),
+        dict(name='fmodstudio', description="""Indication if fmod studio libraries are needed""", default='OFF'),
         dict(name='fmodex', description="""Indication that fmodex libraries are needed""", default='OFF'),
         dict(name='openal', description="""Indication openal libraries are needed""", default='OFF'),
         ]
