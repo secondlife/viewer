@@ -1057,20 +1057,11 @@ class DarwinManifest(ViewerManifest):
                     if self.args['configuration'].lower() == 'debug':
                         for libfile in (
                                     "libfmodL.dylib",
-                # dylibs that vary based on configuration
-                if self.args['fmodex'] == 'ON':
-                    if self.args['configuration'].lower() == 'debug':
-                        for libfile in (
-                                    "libfmodexL.dylib",
                                     ):
                             dylibs += path_optional(os.path.join(debpkgdir, libfile), libfile)
                     else:
                         for libfile in (
                                     "libfmod.dylib",
-                                    ):
-                            dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
-
-                                    "libfmodex.dylib",
                                     ):
                             dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
  
