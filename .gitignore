@@ -3,6 +3,7 @@
 *.bak
 *.diff
 *.orig
+*.patch
 *.pyc
 *.rej
 *.swp

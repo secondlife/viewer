@@ -516,14 +516,12 @@ class WindowsManifest(ViewerManifest):
                 print err.message
                 print "Skipping GLOD library (assumming linked statically)"
 
-            # Get fmodex dll, continue if missing
-            try:
-                if(self.address_size == 64):
-                    self.path("fmodex64.dll")
+            # Get fmodstudio dll if needed
+            if self.args['fmodstudio'] == 'ON':
+                if(self.args['configuration'].lower() == 'debug'):
+                    self.path("fmodL.dll")
                 else:
-                    self.path("fmodex.dll")
-            except:
-                print "Skipping fmodex audio library(assuming other audio engine)"
+                    self.path("fmod.dll")
 
             # For textures
             self.path("openjpeg.dll")
@@ -1045,17 +1043,18 @@ class DarwinManifest(ViewerManifest):
                                 ):
                     self.path2basename(relpkgdir, libfile)
 
-                # dylibs that vary based on configuration
-                if self.args['configuration'].lower() == 'debug':
-                    for libfile in (
-                                "libfmodexL.dylib",
-                                ):
-                        dylibs += path_optional(os.path.join(debpkgdir, libfile), libfile)
-                else:
-                    for libfile in (
-                                "libfmodex.dylib",
-                                ):
-                        dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
+                # Fmod studio dylibs (vary based on configuration)
+                if self.args['fmodstudio'] == 'ON':
+                    if self.args['configuration'].lower() == 'debug':
+                        for libfile in (
+                                    "libfmodL.dylib",
+                                    ):
+                            dylibs += path_optional(os.path.join(debpkgdir, libfile), libfile)
+                    else:
+                        for libfile in (
+                                    "libfmod.dylib",
+                                    ):
+                            dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
 
                 # our apps
                 executable_path = {}
@@ -1498,13 +1497,15 @@ class Linux_i686_Manifest(LinuxManifest):
                 print "tcmalloc files not found, skipping"
                 pass
 
-            try:
-                self.path("libfmodex-*.so")
-                self.path("libfmodex.so")
-                pass
-            except:
-                print "Skipping libfmodex.so - not found"
-                pass
+            if self.args['fmodstudio'] == 'ON':
+                try:
+                    self.path("libfmod.so.11.7")
+                    self.path("libfmod.so.11")
+                    self.path("libfmod.so")
+                    pass
+                except:
+                    print "Skipping libfmod.so - not found"
+                    pass
 
 
         # Vivox runtimes
@@ -1539,6 +1540,7 @@ if __name__ == "__main__":
     extra_arguments = [
         dict(name='bugsplat', description="""BugSplat database to which to post crashes,
              if BugSplat crash reporting is desired""", default=''),
+        dict(name='fmodstudio', description="""Indication if fmod studio libraries are needed""", default='OFF'),
         ]
     try:
         main(extra=extra_arguments)
