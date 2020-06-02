@@ -16381,7 +16381,7 @@
   <key>FMODExProfilerEnable</key>
   <map>
     <key>Comment</key>
-    <string>Enable profiler tool if using FMOD Ex</string>
+    <string>Enable profiler tool if using FMOD Ex or FMOD Studio</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -16392,7 +16392,7 @@
   <key>FMODExDecodeBufferSize</key>
   <map>
     <key>Comment</key>
-    <string>Sets the streaming decode buffer size (in milliseconds)</string>
+    <string>Sets the streaming decode buffer size (in milliseconds) for FMOD Ex or FMOD Studio</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -16403,7 +16403,7 @@
   <key>FMODExStreamBufferSize</key>
   <map>
     <key>Comment</key>
-    <string>Sets the streaming buffer size (in milliseconds)</string>
+    <string>Sets the streaming buffer size (in milliseconds) for FMOD Ex or FMOD Studio</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>

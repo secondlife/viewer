@@ -1902,7 +1902,8 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
                     // If there is a new music URL and it's valid, play it.
                     if (music_url.size() > 12)
                     {
-                        if (music_url.substr(0, 7) == "http://")
+                        if (music_url.substr(0, 7) == "http://"
+                            || music_url.substr(0, 8) == "https://")
                         {
                             LLViewerRegion *region = LLWorld::getInstance()->getRegion(msg->getSender());
                             optionally_start_music(music_url, parcel->mLocalID, region->getRegionID());
