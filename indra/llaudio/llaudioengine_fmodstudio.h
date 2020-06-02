@@ -1,11 +1,11 @@
 /** 
- * @file audioengine_fmodex.h
+ * @file audioengine_fmodstudio.h
  * @brief Definition of LLAudioEngine class abstracting the audio 
- * support as a FMODEX implementation
+ * support as a FMODSTUDIO implementation
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2020&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2014, Linden Research, Inc.
+ * Copyright (C) 2020, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,14 +25,14 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_AUDIOENGINE_FMODEX_H
-#define LL_AUDIOENGINE_FMODEX_H
+#ifndef LL_AUDIOENGINE_FMODSTUDIO_H
+#define LL_AUDIOENGINE_FMODSTUDIO_H
 
 #include "llaudioengine.h"
 #include "llwindgen.h"
 
 //Stubs
-class LLAudioStreamManagerFMODEX;
+class LLAudioStreamManagerFMODSTUDIO;
 namespace FMOD
 {
 	class System;
@@ -44,14 +44,14 @@ namespace FMOD
 typedef struct FMOD_DSP_DESCRIPTION FMOD_DSP_DESCRIPTION;
 
 //Interfaces
-class LLAudioEngine_FMODEX : public LLAudioEngine 
+class LLAudioEngine_FMODSTUDIO : public LLAudioEngine 
 {
 public:
-	LLAudioEngine_FMODEX(bool enable_profiler);
-	virtual ~LLAudioEngine_FMODEX();
+	LLAudioEngine_FMODSTUDIO(bool enable_profiler);
+	virtual ~LLAudioEngine_FMODSTUDIO();
 
 	// initialization/startup/shutdown
-	virtual bool init(const S32 num_channels, void *user_data);
+	virtual bool init(const S32 num_channels, void *user_data, const std::string &app_title);
 	virtual std::string getDriverName(bool verbose);
 	virtual void allocateListener();
 
@@ -85,11 +85,11 @@ public:
 };
 
 
-class LLAudioChannelFMODEX : public LLAudioChannel
+class LLAudioChannelFMODSTUDIO : public LLAudioChannel
 {
 public:
-	LLAudioChannelFMODEX(FMOD::System *audioengine);
-	virtual ~LLAudioChannelFMODEX();
+    LLAudioChannelFMODSTUDIO(FMOD::System *audioengine);
+    virtual ~LLAudioChannelFMODSTUDIO();
 
 protected:
 	/*virtual*/ void play();
@@ -110,15 +110,15 @@ protected:
 };
 
 
-class LLAudioBufferFMODEX : public LLAudioBuffer
+class LLAudioBufferFMODSTUDIO : public LLAudioBuffer
 {
 public:
-	LLAudioBufferFMODEX(FMOD::System *audioengine);
-	virtual ~LLAudioBufferFMODEX();
+    LLAudioBufferFMODSTUDIO(FMOD::System *audioengine);
+    virtual ~LLAudioBufferFMODSTUDIO();
 
 	/*virtual*/ bool loadWAV(const std::string& filename);
 	/*virtual*/ U32 getLength();
-	friend class LLAudioChannelFMODEX;
+	friend class LLAudioChannelFMODSTUDIO;
 protected:
 	FMOD::System *getSystem()	const {return mSystemp;}
 	FMOD::System *mSystemp;
@@ -127,4 +127,4 @@ protected:
 };
 
 
-#endif // LL_AUDIOENGINE_FMODEX_H
+#endif // LL_AUDIOENGINE_FMODSTUDIO_H

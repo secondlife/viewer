@@ -729,38 +729,28 @@
         <key>version</key>
         <string>2.1.1.500375</string>
       </map>
-      <key>fmodex</key>
+      <key>fmodstudio</key>
       <map>
         <key>copyright</key>
-        <string>COPYRIGHT 2014 FIRELIGHT TECHNOLOGIES PTY LTD. ALL RIGHTS RESERVED</string>
+        <string>FMOD Studio by Firelight Technologies Pty Ltd.</string>
+        <key>description</key>
+        <string>FMOD Studio API</string>
         <key>license</key>
-        <string>fmodex</string>
+        <string>fmod</string>
         <key>license_file</key>
-        <string>LICENSES/fmodex.txt</string>
+        <string>LICENSES/fmodstudio.txt</string>
         <key>name</key>
-        <string>fmodex</string>
+        <string>fmodstudio</string>
         <key>platforms</key>
         <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>ed0d8767652aecd65a7fef3e28645bad</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/fmodex_3p-update-fmodex/rev/297261/arch/Darwin/installer/fmodex-4.44.31.297261-darwin-297261.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
           <key>darwin64</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>93257fce19120c01751362775a01b925</string>
+              <string>dc4c9122de8bf77f34cfc8227d10a272</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1545/3481/fmodex-4.44.64.501533-darwin64-501533.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/59038/554626/fmodstudio-2.00.07.541681-darwin64-541681.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -770,9 +760,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b847ec838da1ad1dd646df9d74e9b395</string>
+              <string>c491bdc1690f3d920c66be509ccc6ef2</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/p64_3p-fmodex/rev/314207/arch/Linux/installer/fmodex-4.44.61.314207-linux-314207.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/59039/554632/fmodstudio-2.00.07.541681-linux-541681.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -782,9 +772,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>89a75d8719f7b2cbe1e54cd8407bb992</string>
+              <string>ae75cdb1cc9da824c9e270bf97bfdd6c</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1544/3476/fmodex-4.44.64.501533-linux64-501533.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/54589/506866/fmodstudio-2.00.07.538806-linux64-538806.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -794,9 +784,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>601c2fc41a18812a45678ef9a87ef772</string>
+              <string>7f0294b038eab2d89ecc73bbf08b6d94</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1546/3486/fmodex-4.44.64.501533-windows-501533.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/59042/554668/fmodstudio-2.00.07.541681-windows-541681.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -806,16 +796,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e5cde35ae26ebfa256cfe670986e152e</string>
+              <string>da2e8e2b809d8fe635ee437baa2a7386</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/1547/3487/fmodex-4.44.64.501533-windows64-501533.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/59041/554656/fmodstudio-2.00.07.541681-windows64-541681.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.44.64.501533</string>
+        <string>2.00.07.541681</string>
       </map>
       <key>fontconfig</key>
       <map>
