@@ -1460,10 +1460,10 @@ even though the user gets a free copy.
              layout="topleft"
              name="label position"
              tool_tip="Position (meters)"
-             left_pad="3"
+             left_pad="8"
              top_delta="0"
              width="121">
-                Position
+                Position (m)
             </text>
             <spinner
              follows="left|top"
@@ -1473,7 +1473,7 @@ even though the user gets a free copy.
              label="X"
              label_width="10"
              layout="topleft"
-             left_delta="-22"
+             left_delta="-27"
              max_val="512"
              min_val="-256"
              name="Pos X"
@@ -1528,12 +1528,12 @@ even though the user gets a free copy.
              follows="left|top"
              height="10"
              layout="topleft"
-             left_pad="3"
+             left_pad="8"
              top_delta="0"
              name="label size"
              tool_tip="Size (meters)"
              width="121">
-                Size
+                Size (m)
             </text>
             <spinner
              follows="left|top"
@@ -1543,7 +1543,7 @@ even though the user gets a free copy.
              label="X"
              label_width="10"
              layout="topleft"
-             left_delta="-22"
+             left_delta="-27"
              max_val="64"
              min_val="0.01"
              name="Scale X"
@@ -1599,12 +1599,12 @@ even though the user gets a free copy.
              follows="left|top"
              height="10"
              layout="topleft"
-             left_pad="3"
+             left_pad="8"
              top_delta="0"
              name="label rotation"
              tool_tip="Rotation (degrees)"
              width="121">
-                Rotation
+                Rotation (°)
             </text>
             <spinner
              decimal_digits="2"
@@ -1615,7 +1615,7 @@ even though the user gets a free copy.
              label="X"
              label_width="10"
              layout="topleft"
-             left_delta="-22"
+             left_delta="-27"
              max_val="9999"
              min_val="-9999"
              name="Rot X"
