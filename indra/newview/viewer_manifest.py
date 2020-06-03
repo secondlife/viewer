@@ -1064,7 +1064,7 @@ class DarwinManifest(ViewerManifest):
                                     "libfmod.dylib",
                                     ):
                             dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
- 
+
                 # our apps
                 executable_path = {}
                 for app_bld_dir, app in (("mac_crash_logger", "mac-crash-logger.app"),
@@ -1535,10 +1535,6 @@ class Linux_i686_Manifest(LinuxManifest):
                 except:
                     print "Skipping libfmod.so - not found"
                     pass
-            if self.args['fmodex'] == 'ON':
-                self.path("libfmodex-*.so")
-                self.path("libfmodex.so")
-
 
         # Vivox runtimes
         with self.prefix(src=relpkgdir, dst="bin"):
@@ -1564,12 +1560,11 @@ class Linux_x86_64_Manifest(LinuxManifest):
 ################################################################
 
 if __name__ == "__main__":
-    # fmodex and openal can be used simultaneously and controled by environment
+    # fmodstudio and openal can be used simultaneously and controled by environment
     extra_arguments = [
         dict(name='bugsplat', description="""BugSplat database to which to post crashes,
              if BugSplat crash reporting is desired""", default=''),
         dict(name='fmodstudio', description="""Indication if fmod studio libraries are needed""", default='OFF'),
-        dict(name='fmodex', description="""Indication that fmodex libraries are needed""", default='OFF'),
         dict(name='openal', description="""Indication openal libraries are needed""", default='OFF'),
         ]
     try:

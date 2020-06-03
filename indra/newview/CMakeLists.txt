@@ -1939,7 +1939,6 @@ if (WINDOWS)
           --artwork=${ARTWORK_DIR}
           "--bugsplat=${BUGSPLAT_DB}"
           "--fmodstudio=${FMODSTUDIO}"
-          "--fmodex=${FMODEX}"
           "--openal=${OPENAL}"
           --build=${CMAKE_CURRENT_BINARY_DIR}
           --buildtype=${CMAKE_BUILD_TYPE}
@@ -2087,7 +2086,6 @@ if (LINUX)
         --artwork=${ARTWORK_DIR}
         "--bugsplat=${BUGSPLAT_DB}"
         "--fmodstudio=${FMODSTUDIO}"
-        "--fmodex=${FMODEX}"
         "--openal=${OPENAL}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
@@ -2116,7 +2114,6 @@ if (LINUX)
       --artwork=${ARTWORK_DIR}
       "--bugsplat=${BUGSPLAT_DB}"
       "--fmodstudio=${FMODSTUDIO}"
-      "--fmodex=${FMODEX}"
       "--openal=${OPENAL}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
       --buildtype=${CMAKE_BUILD_TYPE}
@@ -2195,7 +2192,6 @@ if (DARWIN)
       --artwork=${ARTWORK_DIR}
       "--bugsplat=${BUGSPLAT_DB}"
       "--fmodstudio=${FMODSTUDIO}"
-      "--fmodex=${FMODEX}"
       "--openal=${OPENAL}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
       --buildtype=${CMAKE_BUILD_TYPE}
@@ -2232,7 +2228,6 @@ if (DARWIN)
           --artwork=${ARTWORK_DIR}
           "--bugsplat=${BUGSPLAT_DB}"
           "--fmodstudio=${FMODSTUDIO}"
-          "--fmodex=${FMODEX}"
           "--openal=${OPENAL}"
           --build=${CMAKE_CURRENT_BINARY_DIR}
           --buildtype=${CMAKE_BUILD_TYPE}
