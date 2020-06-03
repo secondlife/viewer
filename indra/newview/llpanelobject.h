@@ -141,20 +141,20 @@ protected:
 	LLTextBox*		mLabelRevolutions;
 	LLSpinCtrl*		mSpinRevolutions;
 
-    LLMenuButton*   mMenuPastePos;
+	LLMenuButton*   mMenuClipboardPos;
 	LLTextBox*		mLabelPosition;
 	LLSpinCtrl*		mCtrlPosX;
 	LLSpinCtrl*		mCtrlPosY;
 	LLSpinCtrl*		mCtrlPosZ;
 
-    LLMenuButton*   mMenuPasteSize;
+	LLMenuButton*   mMenuClipboardSize;
 	LLTextBox*		mLabelSize;
 	LLSpinCtrl*		mCtrlScaleX;
 	LLSpinCtrl*		mCtrlScaleY;
 	LLSpinCtrl*		mCtrlScaleZ;
 	BOOL			mSizeChanged;
 
-    LLMenuButton*   mMenuPasteRot;
+	LLMenuButton*   mMenuClipboardRot;
 	LLTextBox*		mLabelRotation;
 	LLSpinCtrl*		mCtrlRotX;
 	LLSpinCtrl*		mCtrlRotY;

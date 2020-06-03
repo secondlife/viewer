@@ -438,6 +438,10 @@ with the same filename but different name
   <texture name="OptionsMenu_Off" file_name="icons/OptionsMenu_Off.png" preload="false" />
   <texture name="OptionsMenu_Press" file_name="icons/OptionsMenu_Press.png" preload="false" />
 
+  <texture name="ClipboardSmallMenu_Disabled" file_name="icons/ClipboardSmallMenu_Disabled.png" preload="false" />
+  <texture name="ClipboardSmallMenu_Off" file_name="icons/ClipboardSmallMenu_Off.png" preload="false" />
+  <texture name="ClipboardSmallMenu_Press" file_name="icons/ClipboardSmallMenu_Press.png" preload="false" />
+
   <texture name="OutboxStatus_Success" file_name="green_checkmark.png" preload="false" />
   <texture name="OutboxStatus_Warning" file_name="icons/pop_up_caution.png" preload="false" />
   <texture name="OutboxStatus_Error" file_name="red_x.png" preload="false" />

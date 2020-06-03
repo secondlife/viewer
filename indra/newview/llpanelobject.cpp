@@ -120,7 +120,7 @@ BOOL	LLPanelObject::postBuild()
 	childSetCommitCallback("Phantom Checkbox Ctrl",onCommitPhantom,this);
 
 	// Position
-	mMenuPastePos = getChild<LLMenuButton>("paste_pos_btn");
+	mMenuClipboardPos = getChild<LLMenuButton>("clipboard_pos_btn");
 	mLabelPosition = getChild<LLTextBox>("label position");
 	mCtrlPosX = getChild<LLSpinCtrl>("Pos X");
 	childSetCommitCallback("Pos X",onCommitPosition,this);
@@ -130,7 +130,7 @@ BOOL	LLPanelObject::postBuild()
 	childSetCommitCallback("Pos Z",onCommitPosition,this);
 
 	// Scale
-	mMenuPasteSize = getChild<LLMenuButton>("paste_size_btn");
+	mMenuClipboardSize = getChild<LLMenuButton>("clipboard_size_btn");
 	mLabelSize = getChild<LLTextBox>("label size");
 	mCtrlScaleX = getChild<LLSpinCtrl>("Scale X");
 	childSetCommitCallback("Scale X",onCommitScale,this);
@@ -144,7 +144,7 @@ BOOL	LLPanelObject::postBuild()
 	childSetCommitCallback("Scale Z",onCommitScale,this);
 
 	// Rotation
-	mMenuPasteRot = getChild<LLMenuButton>("paste_rot_btn");
+	mMenuClipboardRot = getChild<LLMenuButton>("clipboard_rot_btn");
 	mLabelRotation = getChild<LLTextBox>("label rotation");
 	mCtrlRotX = getChild<LLSpinCtrl>("Rot X");
 	childSetCommitCallback("Rot X",onCommitRotation,this);
@@ -382,7 +382,7 @@ void LLPanelObject::getState( )
 		calcp->clearVar(LLCalc::Z_POS);
 	}
 
-	mMenuPastePos->setEnabled(enable_move);
+	mMenuClipboardPos->setEnabled(enable_move);
 	mLabelPosition->setEnabled( enable_move );
 	mCtrlPosX->setEnabled(enable_move);
 	mCtrlPosY->setEnabled(enable_move);
@@ -408,7 +408,7 @@ void LLPanelObject::getState( )
 		calcp->setVar(LLCalc::Z_SCALE, 0.f);
 	}
 
-	mMenuPasteSize->setEnabled(enable_scale);
+	mMenuClipboardSize->setEnabled(enable_scale);
 	mLabelSize->setEnabled( enable_scale );
 	mCtrlScaleX->setEnabled( enable_scale );
 	mCtrlScaleY->setEnabled( enable_scale );
@@ -440,7 +440,7 @@ void LLPanelObject::getState( )
 		calcp->clearVar(LLCalc::Z_ROT);
 	}
 
-	mMenuPasteRot->setEnabled(enable_rotate);
+	mMenuClipboardRot->setEnabled(enable_rotate);
 	mLabelRotation->setEnabled( enable_rotate );
 	mCtrlRotX->setEnabled( enable_rotate );
 	mCtrlRotY->setEnabled( enable_rotate );

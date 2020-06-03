@@ -1430,19 +1430,29 @@ even though the user gets a free copy.
              tool_tip="Causes object to not collide with other objects or avatars"
              top_pad="0"
              width="123" />
+            <view_border
+             bevel_style="none"
+             follows="top|left"
+             height="0"
+             layout="topleft"
+             left_delta="0"
+             name="lod_tab_border"
+             top_pad="10"
+             width="95" />
             <menu_button
              menu_filename="menu_copy_paste_pos.xml"
              follows="top|left"
              height="11"
-             image_disabled="OptionsMenu_Disabled"
-             image_selected="OptionsMenu_Press"
-             image_unselected="OptionsMenu_Off"
+             image_disabled="ClipboardSmallMenu_Disabled"
+             image_selected="ClipboardSmallMenu_Press"
+             image_unselected="ClipboardSmallMenu_Off"
              layout="topleft"
-             top_pad="10"
-             name="paste_pos_btn"
+             left_delta="0"
+             top_pad="13"
+             name="clipboard_pos_btn"
              tool_tip="Paste options"
              width="19"/>
-        <text
+            <text
              type="string"
              length="1"
              follows="left|top"
@@ -1468,7 +1478,7 @@ even though the user gets a free copy.
              min_val="-256"
              name="Pos X"
              text_enabled_color="1 0 0.3 .7"
-             top_pad="5"
+             top_pad="8"
              width="87" />
             <spinner
              follows="left|top"
@@ -1503,13 +1513,13 @@ even though the user gets a free copy.
              menu_filename="menu_copy_paste_size.xml"
              follows="top|left"
              height="11"
-             image_disabled="OptionsMenu_Disabled"
-             image_selected="OptionsMenu_Press"
-             image_unselected="OptionsMenu_Off"
+             image_disabled="ClipboardSmallMenu_Disabled"
+             image_selected="ClipboardSmallMenu_Press"
+             image_unselected="ClipboardSmallMenu_Off"
              layout="topleft"
              left_delta="0"
-             top_pad="10"
-             name="paste_size_btn"
+             top_pad="13"
+             name="clipboard_size_btn"
              tool_tip="Paste options"
              width="19"/>
             <text
@@ -1538,7 +1548,7 @@ even though the user gets a free copy.
              min_val="0.01"
              name="Scale X"
              text_enabled_color="1 1 1 1"
-             top_pad="5"
+             top_pad="8"
              width="87" />
             <spinner
              follows="left|top"
@@ -1574,13 +1584,13 @@ even though the user gets a free copy.
              menu_filename="menu_copy_paste_rot.xml"
              follows="top|left"
              height="11"
-             image_disabled="OptionsMenu_Disabled"
-             image_selected="OptionsMenu_Press"
-             image_unselected="OptionsMenu_Off"
+             image_disabled="ClipboardSmallMenu_Disabled"
+             image_selected="ClipboardSmallMenu_Press"
+             image_unselected="ClipboardSmallMenu_Off"
              layout="topleft"
              left_delta="0"
-             top_pad="10"
-             name="paste_rot_btn"
+             top_pad="13"
+             name="clipboard_rot_btn"
              tool_tip="Paste options"
              width="19"/>
             <text
@@ -1610,7 +1620,7 @@ even though the user gets a free copy.
              min_val="-9999"
              name="Rot X"
              text_enabled_color="1 1 1 1"
-             top_pad="5"
+             top_pad="8"
              width="87" />
             <spinner
              decimal_digits="2"
