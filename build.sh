@@ -137,7 +137,7 @@ pre_build()
     fi
     set -x
 
-    "$autobuild" configure --quiet -c $variant -- \
+    if ! "$autobuild" configure --quiet -c $variant -- \
      -DPACKAGE:BOOL=ON \
      -DHAVOK:BOOL="$HAVOK" \
      -DRELEASE_CRASH_REPORTING:BOOL="$RELEASE_CRASH_REPORTING" \
@@ -147,7 +147,12 @@ pre_build()
      -DGRID:STRING="\"$viewer_grid\"" \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url \
      "${SIGNING[@]}" \
-    || fatal "$variant configuration failed"
+       ;
+    then
+        echo "autobuild configure failed; saving CMakeOutput.log as an output" 1>&2
+        python_cmd "$helpers/codeticket.py" addoutput "CMakeOutput.log" "$build_dir/CMakeFiles/CMakeOutput.log" --mimetype text/plain
+        fatal "$variant configuration failed"
+    fi
 
   end_section "Configure $variant"
 }
