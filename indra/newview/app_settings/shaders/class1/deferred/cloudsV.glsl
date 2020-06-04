@@ -70,7 +70,9 @@ uniform float cloud_scale;
 // NOTE: Keep these in sync!
 //       indra\newview\app_settings\shaders\class1\deferred\skyV.glsl
 //       indra\newview\app_settings\shaders\class1\deferred\cloudsV.glsl
+//       indra\newview\app-settings\shaders\class2\windlight\cloudsV.glsl
 //       indra\newview\lllegacyatmospherics.cpp
+//       indra\newview\llsettingsvo.cpp
 void main()
 {
 
@@ -79,11 +81,7 @@ void main()
 
 	// Texture coords
     // SL-13084 EEP added support for custom cloud textures -- flip them horizontally to match the preview of Clouds > Cloud Scroll
-    // Keep in Sync!
-    // * indra\newview\llsettingsvo.cpp
-    // * indra\newview\app_settings\shaders\class2\windlight\cloudsV.glsl
-    // * indra\newview\app_settings\shaders\class1\deferred\cloudsV.glsl
-	vary_texcoord0 = vec2( -texcoord0.x, texcoord0.y );
+	vary_texcoord0 = vec2( -texcoord0.x, texcoord0.y ); // See: LLSettingsVOSky::applySpecial
 
 	vary_texcoord0.xy -= 0.5;
 	vary_texcoord0.xy /= cloud_scale;
