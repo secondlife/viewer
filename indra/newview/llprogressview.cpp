@@ -385,6 +385,7 @@ void LLProgressView::initLogos()
     const S32 default_pad = 15;
 
     S32 icon_width, icon_height;
+    S32 pad_y = 0;
 
     // We don't know final screen rect yet, so we can't precalculate position fully
     LLTextBox *logos_label = getChild<LLTextBox>("logos_lbl");
@@ -404,7 +405,7 @@ void LLProgressView::initLogos()
     // with no internal paddings so it gets additional padding
     icon_width = 77;
     icon_height = 21;
-    S32 pad_y = 4;
+    pad_y = 4;
     texture_start_x++;
     loadLogo(temp_str + "fmod_logo.png",
         image_codec,
