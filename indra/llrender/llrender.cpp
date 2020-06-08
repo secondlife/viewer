@@ -849,26 +849,32 @@ void LLTexUnit::debugTextureUnit(void)
 	}
 }
 
-void LLTexUnit::setTextureColorSpace(eTextureColorSpace space) {
+void LLTexUnit::setTextureColorSpace(eTextureColorSpace space)
+{
     mTexColorSpace = space;
 
 #if USE_SRGB_DECODE
-    if (gGLManager.mHasTexturesRGBDecode) {
-
-        if (space == TCS_SRGB) {
+    if (gGLManager.mHasTexturesRGBDecode)
+    {
+        if (space == TCS_SRGB)
+        {
             glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_SRGB_DECODE_EXT, GL_DECODE_EXT);
         }
-        else {
+        else
+        {
             glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_SRGB_DECODE_EXT, GL_SKIP_DECODE_EXT);
         }
 
-        if (gDebugGL) {
+        if (gDebugGL)
+        {
             assert_glerror();
         }
     }
+    else
 #endif
-    glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_SRGB_DECODE_EXT, GL_SKIP_DECODE_EXT);
-
+    {
+        glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_SRGB_DECODE_EXT, GL_SKIP_DECODE_EXT);
+    }
 }
 
 LLLightState::LLLightState(S32 index)
