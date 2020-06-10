@@ -78,16 +78,16 @@ static const char *tm_status[ TMERR_INIT_NETWORKING_FAILED + 1 ] =
 
 void telemetry_shutdown()
 {
-	#if LL_WINDOWS
-		if (gTelemetryPtr)
-		{
-			tmClose(0);
-			tmShutdown();
+    #if LL_WINDOWS
+        if (gTelemetryPtr)
+        {
+            tmClose(0);
+            tmShutdown();
 
-			delete[] gTelemetryPtr;
-			gTelemetryPtr = NULL;
-		}
-	#endif
+            delete[] gTelemetryPtr;
+            gTelemetryPtr = NULL;
+        }
+    #endif
 }
 
 void telemetry_startup()
