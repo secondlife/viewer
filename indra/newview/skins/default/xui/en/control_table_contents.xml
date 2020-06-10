@@ -340,7 +340,7 @@
          font="SansSerif"
          halign="left"
          name="lst_action"
-         value="Camera Spin Over" />
+         value="Camera Spin Over Sitting" />
     </rows>
     <rows
      name="spin_under_sitting"
@@ -350,7 +350,7 @@
          font="SansSerif"
          halign="left"
          name="lst_action"
-         value="Camera Spin Under" />
+         value="Camera Spin Under Sitting" />
     </rows>
     <rows
      name="pan_up"
