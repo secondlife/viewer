@@ -33,7 +33,6 @@
     <binding key="DIVIDE" mask="NONE" command="start_gesture"/>
 
     <binding key="" mask="NONE" mouse="MMB" command="toggle_voice"/>
-    <binding key="" mask="NONE" mouse="LMB" command="walk_to"/>
   </first_person>
   <third_person>
     <binding key="A" mask="NONE" command="turn_left"/>
