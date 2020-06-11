@@ -157,6 +157,7 @@ void LLStreamingAudio_FMODSTUDIO::update()
     }
     else if (open_state == FMOD_OPENSTATE_ERROR)
     {
+        LL_INFOS() << "getOpenState returned FMOD_OPENSTATE_ERROR" << LL_ENDL;
         stop();
         return;
     }
