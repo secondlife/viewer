@@ -125,8 +125,9 @@ private:
     void resetToDefaultAndResolve(const std::string &control_name, bool ignore_conflicts);
     void resetToDefaults(ESourceMode mode);
 
-    // at the moment these kind of control is not savable, but takes part will take part in conflict resolution
+    // at the moment these kind of control is not savable, but takes part in conflict resolution
     void registerTemporaryControl(const std::string &control_name, EMouseClickType mouse_ind, KEY key, MASK mask, U32 conflict_mask);
+    void registerTemporaryControl(const std::string &control_name);
 
     typedef std::map<std::string, LLKeyConflict> control_map_t;
     void loadFromSettings(const LLViewerInput::KeyMode& keymode, control_map_t *destination);
