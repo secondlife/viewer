@@ -2768,32 +2768,34 @@ void LLPanelPreferenceControls::populateControlTable()
     }
     addControlTableColumns(filename);
 
-    switch ((LLKeyConflictHandler::ESourceMode)mEditingMode)
+
+    if (mEditingMode == LLKeyConflictHandler::MODE_FIRST_PERSON)
     {
-    case LLKeyConflictHandler::MODE_FIRST_PERSON:
         addControlTableRows("control_table_contents_movement.xml");
         addControlTableSeparator();
         addControlTableRows("control_table_contents_media.xml");
-        break;
-    case LLKeyConflictHandler::MODE_THIRD_PERSON:
-    case LLKeyConflictHandler::MODE_EDIT_AVATAR:
-    case LLKeyConflictHandler::MODE_SITTING:
+    }
+    // MODE_THIRD_PERSON; MODE_EDIT_AVATAR; MODE_SITTING
+    else if (mEditingMode < LLKeyConflictHandler::MODE_SAVED_SETTINGS)
+    {
+        // In case of 'sitting' mode, movements still apply due to vehicles
         addControlTableRows("control_table_contents_movement.xml");
         addControlTableSeparator();
 
-        // contains couple 'sitting' options, might be good idea to recheck
-        // those and move to own group with sitting/spinning icon
-        addControlTableRows("control_table_contents_camera.xml"); 
+        addControlTableRows("control_table_contents_camera.xml");
+        if (mEditingMode == LLKeyConflictHandler::MODE_SITTING)
+        {
+            addControlTableRows("control_table_contents_camera_sitting.xml");
+        }
         addControlTableSeparator();
 
-        // Do we need this outside of MODE_EDIT_AVATAR?
         addControlTableRows("control_table_contents_editing.xml");
         addControlTableSeparator();
 
         addControlTableRows("control_table_contents_media.xml");
-        break;
-    default:
-        // 'saved settings' mode doesn't have UI or actual settings yet
+    }
+    else
+    {
         LL_INFOS() << "Unimplemented mode" << LL_ENDL;
         return;
     }

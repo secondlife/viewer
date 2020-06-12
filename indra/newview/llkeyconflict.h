@@ -127,7 +127,7 @@ private:
 
     // at the moment these kind of control is not savable, but takes part in conflict resolution
     void registerTemporaryControl(const std::string &control_name, EMouseClickType mouse_ind, KEY key, MASK mask, U32 conflict_mask);
-    void registerTemporaryControl(const std::string &control_name);
+    void registerTemporaryControl(const std::string &control_name, U32 conflict_mask = 0);
 
     typedef std::map<std::string, LLKeyConflict> control_map_t;
     void loadFromSettings(const LLViewerInput::KeyMode& keymode, control_map_t *destination);
