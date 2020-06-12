@@ -621,7 +621,7 @@ public:
 
 	LLFastTimerLogThread(std::string& test_name) : LLThread("fast timer log")
  	{
-		std::string file_name = test_name + std::string(".slp");
+		std::string file_name = test_name;
 		mFile = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, file_name);
 	}
 
@@ -2834,7 +2834,12 @@ bool LLAppViewer::initConfiguration()
             LLTrace::BlockTimer::sArctanLogging = true;
             g_unique_session_id.generate();
             LLTrace::BlockTimer::sLogName += "_" + g_unique_session_id.asString();
+			LLTrace::BlockTimer::sLogName += ".atp";
         }
+		else
+		{
+            LLTrace::BlockTimer::sLogName += ".slp";
+		}
 	}
 	
 	std::string test_name(gSavedSettings.getString("LogMetrics"));

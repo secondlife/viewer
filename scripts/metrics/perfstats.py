@@ -304,8 +304,8 @@ def filter_extreme_times(fd, pct):
 def collect_overview(filename, **kwargs):
     #print "collect_overview", filename
     result = dict()
-    if not re.match(".*\.slp", filename):
-        print "filename", filename, "is not a .slp file"
+    if not re.match(".*\.atp", filename):
+        print "filename", filename, "is not a .atp file"
         return result
     iter_rec = iter(get_frame_record(filename,**kwargs))
     first_rec = next(iter_rec)
@@ -320,7 +320,7 @@ def collect_pandas_frame_data(filename, fields, max_records, **kwargs):
         else:
             return pd.read_csv(filename, index_col=0)
 
-    # otherwise assume we're processing a .slp file
+    # otherwise assume we're processing a .atp file
     frame_data = []
     frame_count = 0
     header = sorted(fields)
@@ -696,7 +696,6 @@ if __name__ == "__main__":
     parser.add_argument("--summarize", action="store_true", help="show summary of results")
     parser.add_argument("--fields", help="specify fields to be extracted or calculated", nargs="+", default=[])
     parser.add_argument("--timers", help="specify timer keys to be added to fields", nargs="+", default=[])
-    parser.add_argument("--nested_timers", help="support nested timers", action="store_true", default=False)
     parser.add_argument("--filter_csv", action="store_true", help="restrict to requested fields/timers when reading csv files too")
     parser.add_argument("--child_timers", help="include children of specified timer keys in fields", nargs="+", default=[])
     parser.add_argument("--no_reparented", action="store_true", help="ignore timers that have been reparented directly or indirectly")
@@ -707,7 +706,7 @@ if __name__ == "__main__":
     parser.add_argument("--extract_percent", nargs="+", metavar="blah", help="extract subset based on frame time")
     parser.add_argument("--compare", help="compare infilename to specified file")
     parser.add_argument("--overview", help="show one-line summary for each stats file", nargs="+")
-    parser.add_argument("infilename", help="name of performance or csv file", nargs="?", default="performance.slp")
+    parser.add_argument("infilename", help="name of performance or csv file", nargs="?", default="performance.atp")
     args = parser.parse_args()
 
     if (args.overview):
@@ -725,14 +724,9 @@ if __name__ == "__main__":
             #    pass
         sys.exit(0)
     
-    if (args.nested_timers):
-        # this specifically requires an slp file, since a pre-processed csv will have discarded timer parent info
-        child_info, parent_info, all_timer_keys, reparented_timers, directly_reparented = get_nested_timer_info("performance.slp")
-        all_self_timers = sorted(["Derived.SelfTimers." + key for key in all_timer_keys])
-    else:
-        all_timer_keys = ["Frame"]
-        all_self_timers = None
-        child_info = None
+    all_timer_keys = ["Frame"]
+    all_self_timers = None
+    child_info = None
 
     if args.no_reparented:
         print len(reparented_timers),"are reparented, of which",len(directly_reparented),"reparented directly"

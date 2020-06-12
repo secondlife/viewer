@@ -26,11 +26,13 @@ Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 $/LicenseInfo$
 """
 
-# Convert a "classic" (non-arctan) format performance log (normally
-# performance.slp) into a csv file.
+# Convert a "classic" (non-arctan) format performance log (normally performance.slp) into a csv file.
+# The result contains columns for all the times, followed by columns for all the call counts.
 # To minimize confusion, this is broken out from perfstats.py, which deals with arctan-format logs.
 # To minimize overhead, this is based on brute-force regex munging with no parsing of the LLSD.
-# If the format of .slp files ever changes, this will fail hard.
+# If the format of .slp files ever changes, this will fail utterly. 
+
+# TODO: to support more formats, probably easiest to stick the results in a pandas frame and save that.
 
 import re
 import argparse
@@ -50,11 +52,9 @@ with open(args.infilename,"r") as f:
         if not l:
             break
         count += 1
-        #print "got a line"
         calls = dict()
         times = dict()
         for m in re.finditer( r'<key>(.*?)</key><map><key>Calls</key><integer>(.*?)</integer><key>Time</key><real>(.*?)</real></map>', l ):
-            #print "match found", m.groups()
             (key,call,time) = m.groups()
             if count == 1:
                 keys.add(key)
