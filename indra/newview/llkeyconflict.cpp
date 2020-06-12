@@ -294,8 +294,9 @@ void LLKeyConflictHandler::loadFromSettings(const LLViewerInput::KeyMode& keymod
         LLKeyboard::maskFromString(it->mask, &mask);
         // Note: it->command is also the name of UI element, howhever xml we are loading from
         // might not know all the commands, so UI will have to know what to fill by its own
+        // Assumes U32_MAX conflict mask, and is assignable by default,
+        // but assignability might have been overriden by generatePlaceholders.
         LLKeyConflict &type_data = (*destination)[it->command];
-        type_data.mAssignable = true;
         type_data.mKeyBind.addKeyData(mouse, key, mask, true);
     }
 }
@@ -777,12 +778,8 @@ void LLKeyConflictHandler::generatePlaceholders(ESourceMode load_mode)
         registerTemporaryControl("move_backward");
         registerTemporaryControl("move_forward_fast");
         registerTemporaryControl("move_backward_fast");
-        registerTemporaryControl("move_forward_sitting");
-        registerTemporaryControl("move_backward_sitting");
         registerTemporaryControl("spin_over");
         registerTemporaryControl("spin_under");
-        registerTemporaryControl("spin_over_sitting");
-        registerTemporaryControl("spin_under_sitting");
         registerTemporaryControl("pan_up");
         registerTemporaryControl("pan_down");
         registerTemporaryControl("pan_left");
@@ -791,8 +788,6 @@ void LLKeyConflictHandler::generatePlaceholders(ESourceMode load_mode)
         registerTemporaryControl("pan_out");
         registerTemporaryControl("spin_around_ccw");
         registerTemporaryControl("spin_around_cw");
-        registerTemporaryControl("spin_around_ccw_sitting");
-        registerTemporaryControl("spin_around_cw_sitting");
 
         // control_table_contents_editing.xml
         registerTemporaryControl("edit_avatar_spin_ccw");
@@ -801,6 +796,16 @@ void LLKeyConflictHandler::generatePlaceholders(ESourceMode load_mode)
         registerTemporaryControl("edit_avatar_spin_under");
         registerTemporaryControl("edit_avatar_move_forward");
         registerTemporaryControl("edit_avatar_move_backward");
+    }
+
+    if (load_mode != MODE_SITTING)
+    {
+        registerTemporaryControl("move_forward_sitting");
+        registerTemporaryControl("move_backward_sitting");
+        registerTemporaryControl("spin_over_sitting");
+        registerTemporaryControl("spin_under_sitting");
+        registerTemporaryControl("spin_around_ccw_sitting");
+        registerTemporaryControl("spin_around_cw_sitting");
     }
 }
 
@@ -853,11 +858,11 @@ void LLKeyConflictHandler::registerTemporaryControl(const std::string &control_n
     type_data->mKeyBind.addKeyData(mouse, key, mask, false);
 }
 
-void LLKeyConflictHandler::registerTemporaryControl(const std::string &control_name)
+void LLKeyConflictHandler::registerTemporaryControl(const std::string &control_name, U32 conflict_mask)
 {
     LLKeyConflict *type_data = &mControlsMap[control_name];
     type_data->mAssignable = false;
-    type_data->mConflictMask = 0;
+    type_data->mConflictMask = conflict_mask;
 }
 
 bool LLKeyConflictHandler::clearUnsavedChanges()

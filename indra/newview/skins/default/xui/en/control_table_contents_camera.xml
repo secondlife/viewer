@@ -74,26 +74,6 @@
          value="Camera Backward Fast" />
     </rows>
     <rows
-     name="move_forward_sitting"
-     value="move_forward_sitting">
-        <columns
-         column="lst_action"
-         font="SansSerif"
-         halign="left"
-         name="lst_action"
-         value="Camera Forward Sitting" />
-    </rows>
-    <rows
-     name="move_backward_sitting"
-     value="move_backward_sitting">
-        <columns
-         column="lst_action"
-         font="SansSerif"
-         halign="left"
-         name="lst_action"
-         value="Camera Backward Sitting" />
-    </rows>
-    <rows
      name="spin_over"
      value="spin_over">
         <columns
@@ -112,26 +92,6 @@
          halign="left"
          name="lst_action"
          value="Camera Spin Under" />
-    </rows>
-    <rows
-     name="spin_over_sitting"
-     value="spin_over_sitting">
-        <columns
-         column="lst_action"
-         font="SansSerif"
-         halign="left"
-         name="lst_action"
-         value="Camera Spin Over Sitting" />
-    </rows>
-    <rows
-     name="spin_under_sitting"
-     value="spin_under_sitting">
-        <columns
-         column="lst_action"
-         font="SansSerif"
-         halign="left"
-         name="lst_action"
-         value="Camera Spin Under Sitting" />
     </rows>
     <rows
      name="pan_up"
@@ -214,27 +174,5 @@
          name="lst_action"
          tool_tip="Camera spin around clockwise"
          value="Clockwise" />
-    </rows>
-    <rows
-     name="spin_around_ccw_sitting"
-     value="spin_around_ccw_sitting">
-        <columns
-         column="lst_action"
-         font="SansSerif"
-         halign="left"
-         name="lst_action"
-         tool_tip="Camera spin around counterclockwise sitting"
-         value="Counterclockwise Sitting" />
-    </rows>
-    <rows
-     name="spin_around_cw_sitting"
-     value="spin_around_cw_sitting">
-        <columns
-         column="lst_action"
-         font="SansSerif"
-         halign="left"
-         name="lst_action"
-         tool_tip="Camera spin around clockwise sitting"
-         value="Clockwise Sitting" />
     </rows>
 </contents>
