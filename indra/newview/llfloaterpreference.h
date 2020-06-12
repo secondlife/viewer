@@ -312,8 +312,14 @@ private:
 	// reloads settings, discards current changes, updates table
 	void regenerateControls();
 
+	// These fuctions do not clean previous content
+	bool addControlTableColumns(const std::string &filename);
+	bool addControlTableRows(const std::string &filename);
+	void addControlTableSeparator();
+
+	// Cleans content and then adds content from xml files according to current mEditingMode
 	void populateControlTable();
-	void addSeparator();
+	// Updates keybindings from storage to table
 	void updateTable();
 
 	LLScrollListCtrl* pControlsTable;
