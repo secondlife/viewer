@@ -86,8 +86,8 @@ public:
     // @control_name - see REGISTER_KEYBOARD_ACTION in llviewerinput for avaliable options,
     // usually this is just name of the function
     // @data_index - single control (function) can have multiple key combinations trigering
-    // it, this index indicates combination function will change/add note that preferences
-    // floater can only display up to 3 options, but data_index can be bigger then that
+    // it, this index indicates combination function will change/add; Note that preferences
+    // floater can only display up to 3 options, but data_index can be bigger than that
     // @mouse_ind - mouse action (middle click, MB5 etc)
     // @key - keyboard key action
     // @mask - shift/ctrl/alt flags
@@ -95,6 +95,7 @@ public:
     // is active) or ignore not expected masks as long as expected mask is present
     // (ctrl+K will be triggered if ctrl+shift+K is active)
     bool registerControl(const std::string &control_name, U32 data_index, EMouseClickType mouse_ind, KEY key, MASK mask, bool ignore_mask); //todo: return conflicts?
+    bool clearControl(const std::string &control_name, U32 data_index);
 
     LLKeyData getControl(const std::string &control_name, U32 data_index);
 
