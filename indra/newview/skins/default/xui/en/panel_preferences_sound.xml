@@ -322,17 +322,40 @@
 		name="enable_voice_check"
 		width="110"/>
 	<!-- -->
-	<check_box
-		name="media_auto_play_btn"
-		control_name="ParcelMediaAutoPlayEnable"
-		enabled_control="AudioStreamingMedia"
-		value="true"
-		follows="left|bottom|right"
-		height="15"
-		tool_tip="Check this to let media auto-play if it wants"
-		label="Allow Media to auto-play"
-		top_pad="1"
-		left="25"/>
+    <text
+        follows="left|top"
+        layout="topleft"
+        height="15"
+        left="0"
+        top_pad="3"
+        width="120"
+        halign="right"
+        name="media_autoplay_label">
+         Media auto-play
+    </text>
+    <combo_box
+        control_name="ParcelMediaAutoPlayEnable"
+        enabled_control="AudioStreamingMedia"
+        follows="left|top"
+        layout="topleft"
+        height="23"
+        left_pad="7"
+        top_delta="-4"
+        name="media_auto_play_combo"
+        width="100">
+      <item
+          label="No"
+          name="autoplay_disabled"
+          value="0"/>      
+      <item
+          label="Yes"
+          name="autoplay_enabled"
+          value="1"/>
+      <item
+          label="Ask"
+          name="autoplay_ask"
+          value="2"/>
+    </combo_box>
  	<check_box
 		name="media_show_on_others_btn"
 		control_name="MediaShowOnOthers"

@@ -71,70 +71,14 @@ uniform vec2 screen_res;
 
 uniform mat4 inv_proj;
 
-vec2 encode_normal(vec3 n)
-{
-	float f = sqrt(8 * n.z + 8);
-	return n.xy / f + 0.5;
-}
-
-vec3 decode_normal (vec2 enc)
-{
-    vec2 fenc = enc*4-2;
-    float f = dot(fenc,fenc);
-    float g = sqrt(1-f/4);
-    vec3 n;
-    n.xy = fenc*g;
-    n.z = 1-f/2;
-    return n;
-}
-
-vec3 srgb_to_linear(vec3 cs)
-{
-	vec3 low_range = cs / vec3(12.92);
-	vec3 high_range = pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
-	bvec3 lte = lessThanEqual(cs,vec3(0.04045));
-
-#ifdef OLD_SELECT
-	vec3 result;
-	result.r = lte.r ? low_range.r : high_range.r;
-	result.g = lte.g ? low_range.g : high_range.g;
-	result.b = lte.b ? low_range.b : high_range.b;
-    return result;
-#else
-	return mix(high_range, low_range, lte);
-#endif
-
-}
-
-vec3 linear_to_srgb(vec3 cl)
-{
-	cl = clamp(cl, vec3(0), vec3(1));
-	vec3 low_range  = cl * 12.92;
-	vec3 high_range = 1.055 * pow(cl, vec3(0.41666)) - 0.055;
-	bvec3 lt = lessThan(cl,vec3(0.0031308));
-
-#ifdef OLD_SELECT
-	vec3 result;
-	result.r = lt.r ? low_range.r : high_range.r;
-	result.g = lt.g ? low_range.g : high_range.g;
-	result.b = lt.b ? low_range.b : high_range.b;
-    return result;
-#else
-	return mix(high_range, low_range, lt);
-#endif
-
-}
-
-vec4 correctWithGamma(vec4 col)
-{
-	return vec4(srgb_to_linear(col.rgb), col.a);
-}
+vec3 getNorm(vec2 pos_screen);
+vec3 srgb_to_linear(vec3 c);
 
 vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
 	ret.rgb = srgb_to_linear(ret.rgb);
-	
+
 	vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
 	
 	float det = min(lod/(proj_lod*0.5), 1.0);
@@ -153,7 +97,7 @@ vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
 vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
-	ret = correctWithGamma(ret);
+	ret.rgb = srgb_to_linear(ret.rgb);
 	
 	vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
 	
@@ -171,7 +115,7 @@ vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
 vec4 texture2DLodAmbient(sampler2D projectionMap, vec2 tc, float lod)
 {
 	vec4 ret = texture2DLod(projectionMap, tc, lod);
-	ret = correctWithGamma(ret);
+	ret.rgb = srgb_to_linear(ret.rgb);
 	
 	vec2 dist = tc-vec2(0.5);
 	
@@ -182,22 +126,15 @@ vec4 texture2DLodAmbient(sampler2D projectionMap, vec2 tc, float lod)
 	return ret;
 }
 
-
-vec4 getPosition(vec2 pos_screen)
-{
-	float depth = texture2DRect(depthMap, pos_screen.xy).r;
-	vec2 sc = pos_screen.xy*2.0;
-	sc /= screen_res;
-	sc -= vec2(1.0,1.0);
-	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
-	vec4 pos = inv_proj * ndc;
-	pos /= pos.w;
-	pos.w = 1.0;
-	return pos;
-}
+vec4 getPosition(vec2 pos_screen);
 
 void main() 
 {
+	vec3 col = vec3(0,0,0);
+
+#if defined(LOCAL_LIGHT_KILL)
+    discard;
+#else
 	vec4 frag = vary_fragcoord;
 	frag.xyz /= frag.w;
 	frag.xyz = frag.xyz*0.5+0.5;
@@ -206,26 +143,26 @@ void main()
 	vec3 pos = getPosition(frag.xy).xyz;
 	vec3 lv = trans_center.xyz-pos.xyz;
 	float dist = length(lv);
+
+    if (dist >= size)
+    {
+        discard;
+    }
 	dist /= size;
-	if (dist > 1.0)
-	{
-		discard;
-	}
-	
+
 	float shadow = 1.0;
 	
 	if (proj_shadow_idx >= 0)
 	{
 		vec4 shd = texture2DRect(lightMap, frag.xy);
-		float sh[2];
-		sh[0] = shd.b;
-		sh[1] = shd.a;
-		shadow = min(sh[proj_shadow_idx]+shadow_fade, 1.0);
+        shadow = (proj_shadow_idx == 0) ? shd.b : shd.a;
+        shadow += shadow_fade;
+		shadow = clamp(shadow, 0.0, 1.0);        
 	}
 	
 	vec3 norm = texture2DRect(normalMap, frag.xy).xyz;
 	float envIntensity = norm.z;
-	norm = decode_normal(norm.xy);
+	norm = getNorm(frag.xy);
 	
 	norm = normalize(norm);
 	float l_dist = -dot(lv, proj_n);
@@ -252,12 +189,8 @@ void main()
 	lv = normalize(lv);
 	float da = dot(norm, lv);
 		
-	vec3 col = vec3(0,0,0);
-		
-	vec3 diff_tex = texture2DRect(diffuseRect, frag.xy).rgb;
-		
+	vec3 diff_tex = srgb_to_linear(texture2DRect(diffuseRect, frag.xy).rgb);
 	vec4 spec = texture2DRect(specularRect, frag.xy);
-
 	vec3 dlit = vec3(0, 0, 0);
 
 	float noise = texture2D(noiseMap, frag.xy/128.0).b;
@@ -280,23 +213,21 @@ void main()
 			vec4 plcol = texture2DLodDiffuse(projectionMap, proj_tc.xy, lod);
 		
 			dlit = color.rgb * plcol.rgb * plcol.a;
-			
+		
 			col = dlit*lit*diff_tex*shadow;
-			amb_da += (da*0.5)*(1.0-shadow)*proj_ambiance;
+
+			amb_da += (da*0.5+0.5) /* * (1.0-shadow) */ * proj_ambiance;
 		}
 		
 		//float diff = clamp((proj_range-proj_focus)/proj_range, 0.0, 1.0);
 		vec4 amb_plcol = texture2DLodAmbient(projectionMap, proj_tc.xy, proj_lod);
 							
-		amb_da += (da*da*0.5+0.5)*proj_ambiance;
-				
+		amb_da += (da*da*0.5+0.5) /* * (1.0-shadow) */ * proj_ambiance;
 		amb_da *= dist_atten * noise;
-			
 		amb_da = min(amb_da, 1.0-lit);
-			
-		col += amb_da*color.rgb*diff_tex.rgb*amb_plcol.rgb*amb_plcol.a;
-	}
 	
+	    col += amb_da*color.rgb*diff_tex.rgb*amb_plcol.rgb*amb_plcol.a;
+	}
 
 	if (spec.a > 0.0)
 	{
@@ -317,14 +248,11 @@ void main()
 		if (nh > 0.0)
 		{
 			float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
-			col += dlit*scol*spec.rgb*shadow;
-			//col += spec.rgb;
+			vec3 speccol = dlit*scol*spec.rgb*shadow;
+            speccol = clamp(speccol, vec3(0), vec3(1));
+			col += speccol;
 		}
 	}	
-	
-	
-	
-	
 
 	if (envIntensity > 0.0)
 	{
@@ -354,10 +282,12 @@ void main()
 			}
 		}
 	}
+#endif
 	
 	//not sure why, but this line prevents MATBUG-194
 	col = max(col, vec3(0.0));
 
+	//output linear colors as gamma correction happens down stream
 	frag_color.rgb = col;	
 	frag_color.a = 0.0;
 }

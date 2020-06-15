@@ -32,6 +32,8 @@
 #include "llagent.h"
 #include "llappearancemgr.h"
 #include "lllineeditor.h"
+#include "llnotificationsutil.h"
+#include "llnotifications.h"
 #include "lltextbox.h"
 #include "llviewercontrol.h"
 
@@ -142,37 +144,72 @@ void LLFloaterLinkReplace::onStartClicked()
 		LL_WARNS() << "Cannot replace. Source and target are identical." << LL_ENDL;
 		return;
 	}
+	
+	const LLUUID& source_item_id = gInventory.getLinkedItemID(mSourceUUID);
+	LLViewerInventoryItem *source_item = gInventory.getItem(source_item_id);
+	const LLUUID& target_item_id = gInventory.getLinkedItemID(mTargetUUID);
+	LLViewerInventoryItem *target_item = gInventory.getItem(target_item_id);
 
-	LLInventoryModel::cat_array_t cat_array;
-	LLLinkedItemIDMatches is_linked_item_match(mSourceUUID);
-	gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
-									cat_array,
-									mRemainingInventoryItems,
-									LLInventoryModel::INCLUDE_TRASH,
-									is_linked_item_match);
-	LL_INFOS() << "Found " << mRemainingInventoryItems.size() << " inventory links that need to be replaced." << LL_ENDL;
 
-	if (mRemainingInventoryItems.size() > 0)
+	LLNotification::Params params("ConfirmReplaceLink");
+	params.functor.function(boost::bind(&LLFloaterLinkReplace::onStartClickedResponse, this, _1, _2));
+	if (source_item && source_item->isWearableType() && source_item->getWearableType() <= LLWearableType::WT_EYES)
 	{
-		LLViewerInventoryItem* target_item = gInventory.getItem(mTargetUUID);
-		if (target_item)
+		if(target_item && target_item->isWearableType() && source_item->getWearableType() == target_item->getWearableType())
 		{
-			mRemainingItems = (U32)mRemainingInventoryItems.size();
-
-			LLStringUtil::format_map_t args;
-			args["NUM"] = llformat("%d", mRemainingItems);
-			mStatusText->setText(getString("ItemsRemaining", args));
-
-			mStartBtn->setEnabled(FALSE);
-			mRefreshBtn->setEnabled(FALSE);
-
-			mEventTimer.start();
-			tick();
+			LLNotifications::instance().forceResponse(params, 0);
 		}
 		else
 		{
-			mStatusText->setText(getString("TargetNotFound"));
-			LL_WARNS() << "Link replace target not found." << LL_ENDL;
+			LLSD args;
+			args["TYPE"] = LLWearableType::getTypeName(source_item->getWearableType());
+			params.substitutions(args);
+			LLNotifications::instance().add(params);
+		}
+	}
+	else
+	{		
+		LLNotifications::instance().forceResponse(params, 0);
+	}
+}
+
+void LLFloaterLinkReplace::onStartClickedResponse(const LLSD& notification, const LLSD& response)
+{
+
+	if (LLNotificationsUtil::getSelectedOption(notification, response) == 0)
+	{
+	
+		LLInventoryModel::cat_array_t cat_array;
+		LLLinkedItemIDMatches is_linked_item_match(mSourceUUID);
+		gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
+			cat_array,
+			mRemainingInventoryItems,
+			LLInventoryModel::INCLUDE_TRASH,
+			is_linked_item_match);
+		LL_INFOS() << "Found " << mRemainingInventoryItems.size() << " inventory links that need to be replaced." << LL_ENDL;
+
+		if (mRemainingInventoryItems.size() > 0)
+		{
+			LLViewerInventoryItem* target_item = gInventory.getItem(mTargetUUID);
+			if (target_item)
+			{
+				mRemainingItems = (U32)mRemainingInventoryItems.size();
+
+				LLStringUtil::format_map_t args;
+				args["NUM"] = llformat("%d", mRemainingItems);
+				mStatusText->setText(getString("ItemsRemaining", args));
+
+				mStartBtn->setEnabled(FALSE);
+				mRefreshBtn->setEnabled(FALSE);
+
+				mEventTimer.start();
+				tick();
+			}
+			else
+			{
+				mStatusText->setText(getString("TargetNotFound"));
+				LL_WARNS() << "Link replace target not found." << LL_ENDL;
+			}
 		}
 	}
 }

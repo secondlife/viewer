@@ -122,8 +122,8 @@ protected:
 	// callback for defaults
 	void setHardwareDefaults();
 	void setRecommended();
-	// callback for when client turns on shaders
-	void onVertexShaderEnable();
+	// callback for when client modifies a render option
+    void onRenderOptionEnable();
 	// callback for when client turns on impostors
 	void onAvatarImpostorsEnable();
 
@@ -168,7 +168,6 @@ public:
 	
 	void refreshUI();
 
-	void onCommitParcelMediaAutoPlayEnable();
 	void onCommitMediaEnabled();
 	void onCommitMusicEnabled();
 	void applyResolution();
@@ -181,6 +180,7 @@ public:
 	void onClickProxySettings();
 	void onClickTranslationSettings();
 	void onClickPermsDefault();
+	void onClickRememberedUsernames();
 	void onClickAutoReplace();
 	void onClickSpellChecker();
 	void onClickRenderExceptions();
@@ -191,6 +191,7 @@ public:
 	void buildPopupLists();
 	static void refreshSkin(void* data);
 	void selectPanel(const LLSD& name);
+	void saveCameraPreset(std::string& preset);
 	void saveGraphicsPreset(std::string& preset);
 
 private:
@@ -214,6 +215,7 @@ private:
 	std::string mDirectoryVisibility;
 	
 	LLAvatarData mAvatarProperties;
+	std::string mSavedCameraPreset;
 	std::string mSavedGraphicsPreset;
 	LOG_CLASS(LLFloaterPreference);
 
@@ -288,7 +290,6 @@ protected:
 	bool hasDirtyChilds();
 
 private:
-
 	void onPresetsListChange();
 	LOG_CLASS(LLPanelPreferenceGraphics);
 };
@@ -313,8 +314,9 @@ class LLFloaterPreferenceGraphicsAdvanced : public LLFloater
 	static void setIndirectMaxNonImpostors();
 	static void setIndirectMaxArc();
 	void refresh();
-	// callback for when client turns on shaders
-	void onVertexShaderEnable();
+	// callback for when client modifies a render option
+	void onRenderOptionEnable();
+    void onAdvancedAtmosphericsEnable();
 	LOG_CLASS(LLFloaterPreferenceGraphicsAdvanced);
 };
 

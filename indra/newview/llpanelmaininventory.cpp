@@ -28,12 +28,12 @@
 #include "llpanelmaininventory.h"
 
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llagentcamera.h"
 #include "llavataractions.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "lldndbutton.h"
-#include "lleconomy.h"
 #include "llfilepicker.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
@@ -58,6 +58,7 @@
 #include "llsidepanelinventory.h"
 #include "llfolderview.h"
 #include "llradiogroup.h"
+#include "llenvironment.h"
 
 const std::string FILTERS_FILENAME("filters.xml");
 
@@ -127,6 +128,9 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
 	mCommitCallbackRegistrar.add("Inventory.ResetFilters", boost::bind(&LLPanelMainInventory::resetFilters, this));
 	mCommitCallbackRegistrar.add("Inventory.SetSortBy", boost::bind(&LLPanelMainInventory::setSortBy, this, _2));
 	mCommitCallbackRegistrar.add("Inventory.Share",  boost::bind(&LLAvatarActions::shareWithAvatars, this));
+
+    mEnableCallbackRegistrar.add("Inventory.EnvironmentEnabled", [](LLUICtrl *, const LLSD &) { return LLPanelMainInventory::hasSettingsInventory(); });
+
 
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
@@ -227,16 +231,16 @@ BOOL LLPanelMainInventory::postBuild()
 
 	initListCommandsHandlers();
 
-	// *TODO:Get the cost info from the server
-	const std::string upload_cost("10");
+	const std::string texture_upload_cost_str = std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost());
+	const std::string sound_upload_cost_str = std::to_string(LLAgentBenefitsMgr::current().getSoundUploadCost());
+	const std::string animation_upload_cost_str = std::to_string(LLAgentBenefitsMgr::current().getAnimationUploadCost());
 
 	LLMenuGL* menu = (LLMenuGL*)mMenuAddHandle.get();
 	if (menu)
 	{
-		menu->getChild<LLMenuItemGL>("Upload Image")->setLabelArg("[COST]", upload_cost);
-		menu->getChild<LLMenuItemGL>("Upload Sound")->setLabelArg("[COST]", upload_cost);
-		menu->getChild<LLMenuItemGL>("Upload Animation")->setLabelArg("[COST]", upload_cost);
-		menu->getChild<LLMenuItemGL>("Bulk Upload")->setLabelArg("[COST]", upload_cost);
+		menu->getChild<LLMenuItemGL>("Upload Image")->setLabelArg("[COST]", texture_upload_cost_str);
+		menu->getChild<LLMenuItemGL>("Upload Sound")->setLabelArg("[COST]", sound_upload_cost_str);
+		menu->getChild<LLMenuItemGL>("Upload Animation")->setLabelArg("[COST]", animation_upload_cost_str);
 	}
 
 	// Trigger callback for focus received so we can deselect items in inbox/outbox
@@ -904,6 +908,7 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
 	getChild<LLUICtrl>("check_sound")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_SOUND));
 	getChild<LLUICtrl>("check_texture")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_TEXTURE));
 	getChild<LLUICtrl>("check_snapshot")->setValue((S32) (filter_types & 0x1 << LLInventoryType::IT_SNAPSHOT));
+    getChild<LLUICtrl>("check_settings")->setValue((S32)(filter_types & 0x1 << LLInventoryType::IT_SETTINGS));
 	getChild<LLUICtrl>("check_show_empty")->setValue(show_folders == LLInventoryFilter::SHOW_ALL_FOLDERS);
 
 	getChild<LLUICtrl>("check_created_by_me")->setValue(show_created_by_me);
@@ -989,6 +994,12 @@ void LLFloaterInventoryFinder::draw()
 		filter &= ~(0x1 << LLInventoryType::IT_SNAPSHOT);
 		filtered_by_all_types = FALSE;
 	}
+
+    if (!getChild<LLUICtrl>("check_settings")->getValue())
+    {
+        filter &= ~(0x1 << LLInventoryType::IT_SETTINGS);
+        filtered_by_all_types = FALSE;
+    }
 
 	if (!filtered_by_all_types || (mPanelMainInventory->getPanel()->getFilter().getFilterTypes() & LLInventoryFilter::FILTERTYPE_DATE))
 	{
@@ -1107,6 +1118,7 @@ void LLFloaterInventoryFinder::selectAllTypes(void* user_data)
 	self->getChild<LLUICtrl>("check_sound")->setValue(TRUE);
 	self->getChild<LLUICtrl>("check_texture")->setValue(TRUE);
 	self->getChild<LLUICtrl>("check_snapshot")->setValue(TRUE);
+    self->getChild<LLUICtrl>("check_settings")->setValue(TRUE);
 }
 
 //static
@@ -1126,6 +1138,7 @@ void LLFloaterInventoryFinder::selectNoTypes(void* user_data)
 	self->getChild<LLUICtrl>("check_sound")->setValue(FALSE);
 	self->getChild<LLUICtrl>("check_texture")->setValue(FALSE);
 	self->getChild<LLUICtrl>("check_snapshot")->setValue(FALSE);
+    self->getChild<LLUICtrl>("check_settings")->setValue(FALSE);
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -1504,37 +1517,22 @@ bool LLPanelMainInventory::handleDragAndDropToTrash(BOOL drop, EDragAndDropType 
 
 void LLPanelMainInventory::setUploadCostIfNeeded()
 {
-	// *NOTE dzaporozhan
-	// Upload cost is set in process_economy_data() (llviewermessage.cpp). But since we
-	// have two instances of Inventory panel at the moment(and two instances of context menu),
-	// call to gMenuHolder->childSetLabelArg() sets upload cost only for one of the instances.
-
 	LLMenuGL* menu = (LLMenuGL*)mMenuAddHandle.get();
 	if(mNeedUploadCost && menu)
 	{
-		LLMenuItemBranchGL* upload_menu = menu->findChild<LLMenuItemBranchGL>("upload");
-		if(upload_menu)
-		{
-			S32 upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload();
-			std::string cost_str;
+		const std::string texture_upload_cost_str = std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost());
+		const std::string sound_upload_cost_str = std::to_string(LLAgentBenefitsMgr::current().getSoundUploadCost());
+		const std::string animation_upload_cost_str = std::to_string(LLAgentBenefitsMgr::current().getAnimationUploadCost());
 
-			// getPriceUpload() returns -1 if no data available yet.
-			if(upload_cost >= 0)
-			{
-				mNeedUploadCost = false;
-				cost_str = llformat("%d", upload_cost);
-			}
-			else
-			{
-				cost_str = llformat("%d", gSavedSettings.getU32("DefaultUploadCost"));
-			}
-
-			upload_menu->getChild<LLView>("Upload Image")->setLabelArg("[COST]", cost_str);
-			upload_menu->getChild<LLView>("Upload Sound")->setLabelArg("[COST]", cost_str);
-			upload_menu->getChild<LLView>("Upload Animation")->setLabelArg("[COST]", cost_str);
-			upload_menu->getChild<LLView>("Bulk Upload")->setLabelArg("[COST]", cost_str);
-		}
+		menu->getChild<LLView>("Upload Image")->setLabelArg("[COST]", texture_upload_cost_str);
+		menu->getChild<LLView>("Upload Sound")->setLabelArg("[COST]", sound_upload_cost_str);
+		menu->getChild<LLView>("Upload Animation")->setLabelArg("[COST]", animation_upload_cost_str);
 	}
+}
+
+bool LLPanelMainInventory::hasSettingsInventory()
+{
+    return LLEnvironment::instance().isInventoryEnabled();
 }
 
 // List Commands                                                              //

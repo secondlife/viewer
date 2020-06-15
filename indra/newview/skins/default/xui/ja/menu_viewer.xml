@@ -79,30 +79,15 @@
 			<menu_item_check label="区画プロパティ" name="Parcel Properties"/>
 			<menu_item_check label="アドバンスメニュー" name="Show Advanced Menu"/>
 		</menu>
-		<menu label="日" name="Sun">
+		<menu label="環境" name="Environment">
 			<menu_item_check label="日の出" name="Sunrise"/>
 			<menu_item_check label="正午" name="Noon"/>
 			<menu_item_check label="日没" name="Sunset"/>
 			<menu_item_check label="深夜" name="Midnight"/>
-			<menu_item_check label="リージョンの設定を使用" name="Use Region Settings"/>
-		</menu>
-		<menu label="自然環境エディター" name="Environment Editor">
-			<menu_item_call label="自然環境の設定..." name="Environment Settings"/>
-			<menu label="水の事前設定" name="Water Presets">
-				<menu_item_call label="新しい事前設定..." name="new_water_preset"/>
-				<menu_item_call label="事前設定を編集..." name="edit_water_preset"/>
-				<menu_item_call label="事前設定を削除..." name="delete_water_preset"/>
-			</menu>
-			<menu label="空の事前設定" name="Sky Presets">
-				<menu_item_call label="新しい事前設定..." name="new_sky_preset"/>
-				<menu_item_call label="事前設定を編集..." name="edit_sky_preset"/>
-				<menu_item_call label="事前設定を削除..." name="delete_sky_preset"/>
-			</menu>
-			<menu label="デイの事前設定" name="Day Presets">
-				<menu_item_call label="新しい事前設定..." name="new_day_preset"/>
-				<menu_item_call label="事前設定を編集..." name="edit_day_preset"/>
-				<menu_item_call label="事前設定を削除..." name="delete_day_preset"/>
-			</menu>
+			<menu_item_check label="共有された環境を使用" name="Use Shared Environment"/>
+			<menu_item_call label="私の環境…" name="my_environs"/>
+			<menu_item_call label="個人的な照明…" name="adjustment_tool"/>
+			<menu_item_check label="雲を一時停止" name="pause_clouds"/>
 		</menu>
 	</menu>
 	<menu label="制作" name="BuildTools">
@@ -346,6 +331,9 @@
 			<menu_item_check label="自動アルファマスク（遅延なし）" name="Automatic Alpha Masks (non-deferred)"/>
 			<menu_item_check label="アニメーションテクスチャ" name="Animation Textures"/>
 			<menu_item_check label="テクスチャを無効にする" name="Disable Textures"/>
+			<menu_item_check label="アンビエントを無効にする" name="Disable Ambient"/>
+			<menu_item_check label="日の出を無効にする" name="Disable Sunlight"/>
+			<menu_item_check label="近くの光を無効にする" name="Disable Local Lights"/>
 			<menu_item_check label="フル解像度テクスチャ" name="Rull Res Textures"/>
 			<menu_item_check label="装着された光源を描画する" name="Render Attached Lights"/>
 			<menu_item_check label="取り付けられたパーティクルを描画する" name="Render Attached Particles"/>
@@ -483,6 +471,7 @@
 			<menu_item_call label="スカート" name="Skirt"/>
 			<menu_item_call label="アルファ" name="Alpha"/>
 			<menu_item_call label="タトゥ" name="Tattoo"/>
+			<menu_item_call label="ユニバーサル" name="Universal"/>
 			<menu_item_call label="物理作用" name="Physics"/>
 			<menu_item_call label="すべての衣類" name="All Clothes"/>
 		</menu>

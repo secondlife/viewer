@@ -64,7 +64,8 @@ public:
 		IT_MESH = 22,
 		IT_WIDGET = 23,
 		IT_PERSON = 24,
-		IT_COUNT = 25,
+        IT_SETTINGS = 25,
+		IT_COUNT = 26,
 
 		IT_UNKNOWN = 255,
 		IT_NONE = -1
@@ -112,6 +113,11 @@ public:
 		ICONNAME_LINKFOLDER,
 		ICONNAME_MESH,
 
+        ICONNAME_SETTINGS,
+        ICONNAME_SETTINGS_SKY,
+        ICONNAME_SETTINGS_WATER,
+        ICONNAME_SETTINGS_DAY,
+
 		ICONNAME_INVALID,
 		ICONNAME_UNKNOWN,
 		ICONNAME_COUNT,
@@ -130,6 +136,8 @@ public:
 
 	// true if this type cannot have restricted permissions.
 	static bool cannotRestrictPermissions(EType type);
+
+    static bool showInWorldPermissions(EType type);
 
 private:
 	// don't instantiate or derive one of these objects

@@ -35,8 +35,8 @@
 #include "llhost.h"
 #include "llpanel.h"
 #include "llextendedstatus.h"
+#include "llpanelenvironment.h"
 
-#include "llenvmanager.h" // for LLEnvironmentSettings
 #include "lleventcoro.h"
 
 class LLAvatarName;
@@ -66,13 +66,9 @@ class LLPanelExperienceListEditor;
 class LLPanelExperiences;
 class LLPanelRegionExperiences;
 class LLPanelEstateAccess;
+class LLPanelRegionEnvironment;
 
 class LLEventTimer;
-class LLEnvironmentSettings;
-class LLWLParamManager;
-class LLWaterParamManager;
-class LLWLParamSet;
-class LLWaterParamSet;
 
 class LLFloaterRegionInfo : public LLFloater
 {
@@ -100,10 +96,12 @@ public:
 	static LLPanelRegionTerrainInfo* getPanelRegionTerrain();
 	static LLPanelRegionExperiences* getPanelExperiences();
 	static LLPanelRegionGeneralInfo* getPanelGeneral();
+	static LLPanelRegionEnvironment* getPanelEnvironment();
 
 	// from LLPanel
 	virtual void refresh();
 	
+	void onRegionChanged();
 	void requestRegionInfo();
 	void requestMeshRezInfo();
 	void enableTopButtons();
@@ -124,12 +122,13 @@ protected:
 	LLTabContainer* mTab;
 	typedef std::vector<LLPanelRegionInfo*> info_panels_t;
 	info_panels_t mInfoPanels;
-	//static S32 sRequestSerial;	// serial # of last EstateOwnerRequest
+    LLPanelRegionEnvironment *mEnvironmentPanel;
+    //static S32 sRequestSerial;	// serial # of last EstateOwnerRequest
 	static LLUUID sRequestInvoice;
 
 private:
-	LLAgent::god_level_change_slot_t   mGodLevelChangeSlot;
-
+    LLAgent::god_level_change_slot_t   mGodLevelChangeSlot;
+    boost::signals2::connection mRegionChangedCallback;
 };
 
 
@@ -398,69 +397,10 @@ protected:
 
 /////////////////////////////////////////////////////////////////////////////
 
-class LLPanelEnvironmentInfo : public LLPanelRegionInfo
-{
-	LOG_CLASS(LLPanelEnvironmentInfo);
-
-public:
-	LLPanelEnvironmentInfo();
-
-	// LLPanel
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
-
-	// LLView
-	/*virtual*/ void onVisibilityChange(BOOL new_visibility);
-
-	// LLPanelRegionInfo
-	/*virtual*/ bool refreshFromRegion(LLViewerRegion* region);
-
-private:
-	void refresh();
-	void setControlsEnabled(bool enabled);
-	void setApplyProgress(bool started);
-	void setDirty(bool dirty);
-
-	void sendRegionSunUpdate();
-	void fixEstateSun();
-
-	void populateWaterPresetsList();
-	void populateSkyPresetsList();
-	void populateDayCyclesList();
-
-	bool getSelectedWaterParams(LLSD& water_params);
-	bool getSelectedSkyParams(LLSD& sky_params, std::string& preset_name);
-	bool getSelectedDayCycleParams(LLSD& day_cycle, LLSD& sky_map, short& scope);
-
-	void onSwitchRegionSettings();
-	void onSwitchDayCycle();
-
-	void onSelectWaterPreset();
-	void onSelectSkyPreset();
-	void onSelectDayCycle();
-
-	void onBtnApply();
-	void onBtnCancel();
-
-	void onRegionSettingschange();
-	void onRegionSettingsApplied(bool ok);
-
-	/// New environment settings that are being applied to the region.
-	LLEnvironmentSettings	mNewRegionSettings;
-
-	bool			mEnableEditing;
-
-	LLRadioGroup*	mRegionSettingsRadioGroup;
-	LLRadioGroup*	mDayCycleSettingsRadioGroup;
-
-	LLComboBox*		mWaterPresetCombo;
-	LLComboBox*		mSkyPresetCombo;
-	LLComboBox*		mDayCyclePresetCombo;
-};
 
 class LLPanelRegionExperiences : public LLPanelRegionInfo
 {
-	LOG_CLASS(LLPanelEnvironmentInfo);
+    LOG_CLASS(LLPanelRegionExperiences);
 
 public:
 	LLPanelRegionExperiences(){}
@@ -493,7 +433,7 @@ private:
 
 class LLPanelEstateAccess : public LLPanelRegionInfo
 {
-	LOG_CLASS(LLPanelEnvironmentInfo);
+	LOG_CLASS(LLPanelEstateAccess);
 
 public:
 	LLPanelEstateAccess();

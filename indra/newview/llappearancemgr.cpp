@@ -1029,14 +1029,13 @@ void LLWearableHoldingPattern::recoverMissingWearable(LLWearableType::EType type
 	const LLUUID lost_and_found_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
 	LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(recovered_item_cb,_1,type,wearable,this));
 
-	create_inventory_item(gAgent.getID(),
+    create_inventory_wearable(gAgent.getID(),
 						  gAgent.getSessionID(),
 						  lost_and_found_id,
 						  wearable->getTransactionID(),
 						  wearable->getName(),
 						  wearable->getDescription(),
 						  wearable->getAssetType(),
-						  LLInventoryType::IT_WEARABLE,
 						  wearable->getType(),
 						  wearable->getPermissions().getMaskNextOwner(),
 						  cb);
@@ -1713,6 +1712,24 @@ void LLAppearanceMgr::slamCategoryLinks(const LLUUID& src_id, const LLUUID& dst_
 	LLInventoryModel::item_array_t* items;
 	LLSD contents = LLSD::emptyArray();
 	gInventory.getDirectDescendentsOf(src_id, cats, items);
+	if (!cats || !items)
+	{
+		// NULL means the call failed -- cats/items map doesn't exist (note: this does NOT mean
+		// that the cat just doesn't have any items or subfolders).
+		LLViewerInventoryCategory* category = gInventory.getCategory(src_id);
+		if (category)
+		{
+			LL_WARNS() << "Category '" << category->getName() << "' descendents corrupted, linking content failed." << LL_ENDL;
+		}
+		else
+		{
+			LL_WARNS() << "Category could not be retrieved, linking content failed." << LL_ENDL;
+		}
+		llassert(cats != NULL && items != NULL);
+
+		return;
+	}
+
 	LL_INFOS() << "copying " << items->size() << " items" << LL_ENDL;
 	for (LLInventoryModel::item_array_t::const_iterator iter = items->begin();
 		 iter != items->end();

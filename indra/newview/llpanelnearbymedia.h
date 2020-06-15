@@ -27,7 +27,7 @@
 #ifndef LL_LLPANELNEARBYMEDIA_H
 #define LL_LLPANELNEARBYMEDIA_H
 
-#include "llpanel.h"
+#include "llpanelpulldown.h"
 
 class LLPanelNearbyMedia;
 class LLButton;
@@ -39,16 +39,12 @@ class LLTextBox;
 class LLComboBox;
 class LLViewerMediaImpl;
 
-class LLPanelNearByMedia : public LLPanel
+class LLPanelNearByMedia : public LLPanelPulldown
 {
 public:
 	
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void draw();
-	/*virtual*/ void onMouseEnter(S32 x, S32 y, MASK mask);
-	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
-	/*virtual*/ void onTopLost();
-	/*virtual*/ void onVisibilityChange ( BOOL new_visibility );
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent);
 	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
 
@@ -173,7 +169,6 @@ private:
 	
 	LLRect				mMoreRect;
 	LLRect				mLessRect;
-	LLFrameTimer		mHoverTimer;
 	LLScrollListItem*	mParcelMediaItem;
 	LLScrollListItem*	mParcelAudioItem;
 };

@@ -28,11 +28,13 @@
      name="scroll_content_panel"
      follows="left|top"
      min_height="300"
+     min_width="300"
      layout="topleft"
      top="0"
      background_visible="false"
      left="0"
-	 height="680">
+     height="1165"
+     width="1015">
     <text
      type="string"
      length="1"
@@ -102,6 +104,14 @@ Textures
      name="hair_alpha"
      top_delta="0"
      width="92" />
+    <texture_picker
+     height="103"
+     label="Hair Tattoo"
+     layout="topleft"
+     left_pad="7"
+     name="hair_tattoo"
+     top_delta="0"
+     width="92" />
 
     <texture_picker
      height="103"
@@ -135,6 +145,14 @@ Textures
      name="head_tattoo"
      top_delta="0"
      width="92" />
+    <texture_picker
+     height="103"
+     label="Head Unv Tattoo"
+     layout="topleft"
+     left_pad="7"
+     name="head_universal_tattoo"
+     top_delta="0"
+     width="92" />
 
     <texture_picker
      height="103"
@@ -158,6 +176,14 @@ Textures
      layout="topleft"
      left_pad="7"
      name="eyes_alpha"
+     top_delta="0"
+     width="92" />
+    <texture_picker
+     height="103"
+     label="Eyes Tattoo"
+     layout="topleft"
+     left_pad="7"
+     name="eyes_tattoo"
      top_delta="0"
      width="92" />
 
@@ -223,6 +249,14 @@ Textures
      layout="topleft"
      left_pad="7"
      name="upper_tattoo"
+     top_delta="0"
+     width="92" />
+    <texture_picker
+     height="103"
+     label="Upper Unv Tattoo"
+     layout="topleft"
+     left_pad="7"
+     name="upper_universal_tattoo"
      top_delta="0"
      width="92" />
 
@@ -298,6 +332,14 @@ Textures
      name="lower_tattoo"
      top_delta="0"
      width="92" />
+    <texture_picker
+     height="103"
+     label="Lower Unv Tattoo"
+     layout="topleft"
+     left_pad="7"
+     name="lower_universal_tattoo"
+     top_delta="0"
+     width="92" />
 
     <texture_picker
      height="103"
@@ -313,6 +355,99 @@ Textures
      layout="topleft"
      left_pad="21"
      name="skirt"
+     top_delta="0"
+     width="92" />
+    <texture_picker
+     height="103"
+     label="Skirt Tattoo"
+     layout="topleft"
+     left_pad="7"
+     name="skirt_tattoo"
+     top_delta="0"
+     width="92" />
+
+    <texture_picker
+     height="103"
+     label="Left Arm"
+     layout="topleft"
+     left="10"
+     name="leftarm-baked"
+     top_delta="100"
+     width="92" />
+    <texture_picker
+     height="103"
+     label="Left Arm Tattoo"
+     layout="topleft"
+     left_pad="21"
+     name="leftarm_tattoo"
+     top_delta="0"
+     width="92" />
+
+    <texture_picker
+     height="103"
+     label="Left Leg"
+     layout="topleft"
+     left="10"
+     name="leftleg-baked"
+     top_delta="100"
+     width="92" />
+    <texture_picker
+     height="103"
+     label="Left Leg Tattoo"
+     layout="topleft"
+     left_pad="21"
+     name="leftleg_tattoo"
+     top_delta="0"
+     width="92" />
+
+    <texture_picker
+     height="103"
+     label="AUX 1"
+     layout="topleft"
+     left="10"
+     name="aux1-baked"
+     top_delta="100"
+     width="92" />
+    <texture_picker
+     height="103"
+     label="AUX 1 Tattoo"
+     layout="topleft"
+     left_pad="21"
+     name="aux1_tattoo"
+     top_delta="0"
+     width="92" />
+
+    <texture_picker
+     height="103"
+     label="AUX 2"
+     layout="topleft"
+     left="10"
+     name="aux2-baked"
+     top_delta="100"
+     width="92" />
+    <texture_picker
+     height="103"
+     label="AUX 2 Tattoo"
+     layout="topleft"
+     left_pad="21"
+     name="aux2_tattoo"
+     top_delta="0"
+     width="92" />
+
+    <texture_picker
+     height="103"
+     label="AUX 3"
+     layout="topleft"
+     left="10"
+     name="aux3-baked"
+     top_delta="100"
+     width="92" />
+    <texture_picker
+     height="103"
+     label="AUX 3 Tattoo"
+     layout="topleft"
+     left_pad="21"
+     name="aux3_tattoo"
      top_delta="0"
      width="92" />
 </panel>

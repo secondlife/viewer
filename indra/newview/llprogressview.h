@@ -35,6 +35,7 @@
 class LLImageRaw;
 class LLButton;
 class LLProgressBar;
+class LLViewerTexture;
 
 class LLProgressView : 
 	public LLPanel,
@@ -51,6 +52,7 @@ public:
 
 	/*virtual*/ void draw();
 	void drawStartTexture(F32 alpha);
+	void drawLogos(F32 alpha);
 
 	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
@@ -69,6 +71,10 @@ public:
 	void revealIntroPanel();
 
 	void setStartupComplete();
+
+	// we have to preload local textures to make sure they won't be grey
+	void initTextures(S32 location_id, bool is_in_production);
+	void releaseTextures();
 
 	void setCancelButtonVisible(BOOL b, const std::string& label);
 
@@ -95,6 +101,25 @@ protected:
 
 	bool handleUpdate(const LLSD& event_data);
 	static void onIdle(void* user_data);
+    void loadLogo(const std::string &path, const U8 image_codec, const LLRect &pos_rect, const LLRectf &clip_rect, const LLRectf &offset_rect);
+    // logos have unusual location and need to be preloaded to not appear grey, then deleted
+    void initLogos();
+    // Loads a bitmap to display during load
+    void initStartTexture(S32 location_id, bool is_in_production);
+
+private:
+    // We need to draw textures on login, but only once.
+    // So this vector gets filled up for textures to render and gets cleaned later
+    // Some textures have unusual requirements, so we are rendering directly
+    class TextureData
+    {
+    public:
+        LLPointer<LLViewerTexture> mTexturep;
+        LLRect mDrawRect;
+        LLRectf mClipRect;
+        LLRectf mOffsetRect;
+    };
+    std::vector<TextureData> mLogosList;
 };
 
 #endif // LL_LLPROGRESSVIEW_H

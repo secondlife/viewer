@@ -10,12 +10,12 @@
 		Описание:
 	</text>
 	<text name="dimensions">
-		[WIDTH]x[HEIGHT] пикселей
+		[WIDTH]пикселей x [HEIGHT]пикселей
 	</text>
 	<text name="aspect_ratio">
-		Соотношение сторон
+		Просмотр изображения с соотношением сторон
 	</text>
-	<combo_box name="combo_aspect_ratio" tool_tip="Просмотр изображения с другим соотношением сторон">
+	<combo_box name="combo_aspect_ratio" tool_tip="Просмотр изображения с фиксированным соотношением сторон">
 		<combo_item name="Unconstrained">
 			Без ограничения
 		</combo_item>
@@ -42,6 +42,6 @@
 		</combo_item>
 	</combo_box>
 	<button label="OK" name="Keep"/>
-	<button label="Удалить" name="Discard"/>
+	<button label="Отменить" name="Discard"/>
 	<button label="Сохранить как" name="save_tex_btn"/>
 </floater>

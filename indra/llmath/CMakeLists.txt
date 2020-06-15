@@ -91,6 +91,7 @@ set(llmath_HEADER_FILES
     raytrace.h
     v2math.h
     v3color.h
+    v3colorutil.h
     v3dmath.h
     v3math.h
     v4color.h

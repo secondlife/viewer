@@ -29,6 +29,7 @@
 #include "llimprocessing.h"
 
 #include "llagent.h"
+#include "llappviewer.h"
 #include "llavatarnamecache.h"
 #include "llfirstuse.h"
 #include "llfloaterreg.h"
@@ -60,6 +61,8 @@
 // disable boost::lexical_cast warning
 #pragma warning (disable:4702)
 #endif
+
+extern void on_new_message(const LLSD& msg);
 
 // Strip out "Resident" for display, but only if the message came from a user
 // (rather than a script)
@@ -1027,6 +1030,14 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                 }
 
                 LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
+                if (message != "")
+                {
+                    LLSD msg_notify;
+                    msg_notify["session_id"] = LLUUID();
+                    msg_notify["from_id"] = chat.mFromID;
+                    msg_notify["source_type"] = chat.mSourceType;
+                    on_new_message(msg_notify);
+                }
             }
 
 
@@ -1474,6 +1485,7 @@ void LLIMProcessing::requestOfflineMessages()
     static BOOL requested = FALSE;
     if (!requested
         && gMessageSystem
+        && !gDisconnected
         && LLMuteList::getInstance()->isLoaded()
         && isAgentAvatarValid()
         && gAgent.getRegion()
@@ -1557,11 +1569,17 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
         return;
     }
 
+    if (gAgent.getRegion() == NULL)
+    {
+        LL_WARNS("Messaging") << "Region null while attempting to load messages." << LL_ENDL;
+        return;
+    }
+
     LL_INFOS("Messaging") << "Processing offline messages." << LL_ENDL;
 
     std::vector<U8> data;
     S32 binary_bucket_size = 0;
-    LLHost sender = gAgent.getRegion()->getHost();
+    LLHost sender = gAgent.getRegionHost();
 
     LLSD::array_iterator i = messages.beginArray();
     LLSD::array_iterator iEnd = messages.endArray();

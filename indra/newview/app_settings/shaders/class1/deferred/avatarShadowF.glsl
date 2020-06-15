@@ -22,7 +22,9 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
+/*[EXTRA_CODE_HERE]*/ 
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
@@ -31,7 +33,7 @@ out vec4 frag_color;
 
 uniform sampler2D diffuseMap;
 
-#if !DEPTH_CLAMP
+#if !defined(DEPTH_CLAMP)
 VARYING vec4 post_pos;
 #endif
 
@@ -39,7 +41,7 @@ void main()
 {
 	frag_color = vec4(1,1,1,1);
 
-#if !DEPTH_CLAMP
+#if !defined(DEPTH_CLAMP)
 	gl_FragDepth = max(post_pos.z/post_pos.w*0.5+0.5, 0.0);
 #endif
 }

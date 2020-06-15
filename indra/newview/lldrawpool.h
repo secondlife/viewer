@@ -107,7 +107,7 @@ public:
 	virtual void prerender() = 0;
 	virtual U32 getVertexDataMask() = 0;
 	virtual BOOL verify() const { return TRUE; }		// Verify that all data in the draw pool is correct!
-	virtual S32 getVertexShaderLevel() const { return mVertexShaderLevel; }
+	virtual S32 getShaderLevel() const { return mShaderLevel; }
 	
 	static LLDrawPool* createPool(const U32 type, LLViewerTexture *tex0 = NULL);
 	virtual LLDrawPool *instancePool() = 0;	// Create an empty new instance of the pool.
@@ -116,7 +116,7 @@ public:
 	virtual void resetDrawOrders() = 0;
 
 protected:
-	S32 mVertexShaderLevel;
+	S32 mShaderLevel;
 	S32	mId;
 	U32 mType;				// Type of draw pool
 	BOOL mSkipRender;
@@ -174,7 +174,7 @@ public:
 	virtual void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures = FALSE);
 	virtual void renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
 	virtual void renderGroups(U32 type, U32 mask, BOOL texture = TRUE);
-	virtual void renderTexture(U32 type, U32 mask);
+	virtual void renderTexture(U32 type, U32 mask, BOOL batch_textures = TRUE);
 
 };
 

@@ -42,6 +42,7 @@
 // Viewer includes
 #include "llagent.h"
 #include "llagentaccess.h"
+#include "llviewerparcelaskplay.h"
 #include "llviewerwindow.h"
 #include "llviewercontrol.h"
 //#include "llfirstuse.h"
@@ -68,6 +69,8 @@
 #include "llweb.h"
 #include "llvieweraudio.h"
 #include "llcorehttputil.h"
+
+#include "llenvironment.h"
 
 const F32 PARCEL_COLLISION_DRAW_SECS = 1.f;
 
@@ -643,6 +646,31 @@ LLParcelSelectionHandle LLViewerParcelMgr::getFloatingParcelSelection() const
 LLParcel *LLViewerParcelMgr::getAgentParcel() const
 {
 	return mAgentParcel;
+}
+
+
+LLParcel * LLViewerParcelMgr::getAgentOrSelectedParcel() const
+{
+    LLParcel *parcel(nullptr);
+
+    LLParcelSelectionHandle sel_handle(getFloatingParcelSelection());
+    if (sel_handle)
+    {
+        LLParcelSelection *selection(sel_handle.get());
+        if (selection)
+        {
+            parcel = selection->getParcel();
+            if (parcel && (parcel->getLocalID() == INVALID_PARCEL_ID))
+            {
+                parcel = NULL;
+            }
+        }
+    }
+
+    if (!parcel)
+        parcel = LLViewerParcelMgr::instance().getAgentParcel();
+
+    return parcel;
 }
 
 // Return whether the agent can build on the land they are on
@@ -1285,6 +1313,13 @@ const std::string& LLViewerParcelMgr::getAgentParcelName() const
 }
 
 
+const S32 LLViewerParcelMgr::getAgentParcelId() const
+{
+    if (mAgentParcel)
+        return mAgentParcel->getLocalID();
+    return INVALID_PARCEL_ID;
+}
+
 void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel, bool use_agent_region)
 {
 	if(!parcel) 
@@ -1515,6 +1550,8 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
     BOOL	region_deny_transacted_override = false; // Deprecated
     BOOL	region_deny_age_unverified_override = false;
     BOOL    region_allow_access_override = true;
+    BOOL    region_allow_environment_override = true;
+    S32     parcel_environment_version = 0;
     BOOL	agent_parcel_update = false; // updating previous(existing) agent parcel
 
     S32		other_clean_time = 0;
@@ -1605,6 +1642,12 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
         msg->getBOOLFast(_PREHASH_RegionAllowAccessBlock, _PREHASH_RegionAllowAccessOverride, region_allow_access_override);
     }
 
+    if (msg->getNumberOfBlocks(_PREHASH_ParcelEnvironmentBlock))
+    {
+        msg->getS32Fast(_PREHASH_ParcelEnvironmentBlock, _PREHASH_ParcelEnvironmentVersion, parcel_environment_version);
+        msg->getBOOLFast(_PREHASH_ParcelEnvironmentBlock, _PREHASH_RegionAllowEnvironmentOverride, region_allow_environment_override);
+    }
+
 	msg->getS32("ParcelData", "OtherCleanTime", other_clean_time );
 
 	LL_DEBUGS("ParcelMgr") << "Processing parcel " << local_id << " update, target(sequence): " << sequence_id << LL_ENDL;
@@ -1623,6 +1666,9 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
                 agent_parcel_update = true;
             }
         }
+
+        S32 cur_parcel_environment_version = parcel->getParcelEnvironmentVersion();
+        bool environment_changed = (cur_parcel_environment_version != parcel_environment_version);
 
 		parcel->init(owner_id,
 			FALSE, FALSE, FALSE,
@@ -1649,6 +1695,9 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 		parcel->setRegionDenyAnonymousOverride(region_deny_anonymous_override);
 		parcel->setRegionDenyAgeUnverifiedOverride(region_deny_age_unverified_override);
         parcel->setRegionAllowAccessOverride(region_allow_access_override);
+        parcel->setParcelEnvironmentVersion(cur_parcel_environment_version);
+        parcel->setRegionAllowEnvironmentOverride(region_allow_environment_override);
+
 		parcel->unpackMessage(msg);
 
 		if (parcel == parcel_mgr.mAgentParcel)
@@ -1682,12 +1731,23 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 					instance->mTeleportFinishedSignal(instance->mTeleportInProgressPosition, false);
 				}
 			}
-		}
-		else if (agent_parcel_update)
-		{
-			// updated agent parcel
-			parcel_mgr.mAgentParcel->unpackMessage(msg);
-		}
+            parcel->setParcelEnvironmentVersion(parcel_environment_version);
+            LL_DEBUGS("ENVIRONMENT") << "Parcel environment version is " << parcel->getParcelEnvironmentVersion() << LL_ENDL;
+            // Notify anything that wants to know when the agent changes parcels
+            gAgent.changeParcels();
+            instance->mTeleportInProgress = FALSE;
+        }
+        else if (agent_parcel_update)
+        {
+            parcel->setParcelEnvironmentVersion(parcel_environment_version);
+            // updated agent parcel
+            parcel_mgr.mAgentParcel->unpackMessage(msg);
+            if ((LLEnvironment::instance().isExtendedEnvironmentEnabled() && environment_changed))
+            {
+                LL_DEBUGS("ENVIRONMENT") << "Parcel environment version is " << parcel->getParcelEnvironmentVersion() << LL_ENDL;
+                LLEnvironment::instance().requestParcel(local_id);
+            }
+        }
 	}
 
 	// Handle updating selections, if necessary.
@@ -1832,6 +1892,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
                 // Only update stream if parcel changed (recreated) or music is playing (enabled)
                 if (!agent_parcel_update || gSavedSettings.getBOOL("MediaTentativeAutoPlay"))
                 {
+                    LLViewerParcelAskPlay::getInstance()->cancelNotification();
                     std::string music_url_raw = parcel->getMusicURL();
 
                     // Trim off whitespace from front and back
@@ -1841,9 +1902,11 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
                     // If there is a new music URL and it's valid, play it.
                     if (music_url.size() > 12)
                     {
-                        if (music_url.substr(0, 7) == "http://")
+                        if (music_url.substr(0, 7) == "http://"
+                            || music_url.substr(0, 8) == "https://")
                         {
-                            optionally_start_music(music_url);
+                            LLViewerRegion *region = LLWorld::getInstance()->getRegion(msg->getSender());
+                            optionally_start_music(music_url, parcel->mLocalID, region->getRegionID());
                         }
                         else
                         {
@@ -1864,25 +1927,61 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 			else
 			{
 				// Public land has no music
+				LLViewerParcelAskPlay::getInstance()->cancelNotification();
 				LLViewerAudio::getInstance()->stopInternetStreamWithAutoFade();
 			}
 		}//if gAudiop
 	};
 }
 
-void LLViewerParcelMgr::optionally_start_music(const std::string& music_url)
+//static
+void LLViewerParcelMgr::onStartMusicResponse(const LLUUID &region_id, const S32 &parcel_id, const std::string &url, const bool &play)
 {
-	if (gSavedSettings.getBOOL("AudioStreamingMusic"))
+    if (play)
+    {
+        LL_INFOS("ParcelMgr") << "Starting parcel music " << url << LL_ENDL;
+        LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(url);
+    }
+}
+
+void LLViewerParcelMgr::optionally_start_music(const std::string &music_url, const S32 &local_id, const LLUUID &region_id)
+{
+	static LLCachedControl<bool> streaming_music(gSavedSettings, "AudioStreamingMusic", true);
+	if (streaming_music)
 	{
+		static LLCachedControl<S32> autoplay_mode(gSavedSettings, "ParcelMediaAutoPlayEnable", 1);
+		static LLCachedControl<bool> tentative_autoplay(gSavedSettings, "MediaTentativeAutoPlay", true);
 		// only play music when you enter a new parcel if the UI control for this
 		// was not *explicitly* stopped by the user. (part of SL-4878)
 		LLPanelNearByMedia* nearby_media_panel = gStatusBar->getNearbyMediaPanel();
-		if ((nearby_media_panel &&
-		     nearby_media_panel->getParcelAudioAutoStart()) ||
-		    // or they have expressed no opinion in the UI, but have autoplay on...
-		    (!nearby_media_panel &&
-		     gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING) &&
-			 gSavedSettings.getBOOL("MediaTentativeAutoPlay")))
+
+        // ask mode //todo constants
+        if (autoplay_mode == 2)
+        {
+            // stop previous stream
+            LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLStringUtil::null);
+
+            // if user set media to play - ask
+            if ((nearby_media_panel && nearby_media_panel->getParcelAudioAutoStart())
+                || (!nearby_media_panel && tentative_autoplay))
+            {
+                LLViewerParcelAskPlay::getInstance()->askToPlay(region_id,
+                    local_id,
+                    music_url,
+                    onStartMusicResponse);
+            }
+            else
+            {
+                LLViewerParcelAskPlay::getInstance()->cancelNotification();
+            }
+        }
+        // autoplay
+        else if ((nearby_media_panel
+                  && nearby_media_panel->getParcelAudioAutoStart())
+                  // or they have expressed no opinion in the UI, but have autoplay on...
+                 || (!nearby_media_panel
+                     && autoplay_mode == 1
+                     && tentative_autoplay))
 		{
 			LL_INFOS("ParcelMgr") << "Starting parcel music " << music_url << LL_ENDL;
 			LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(music_url);
@@ -2576,4 +2675,10 @@ void LLViewerParcelMgr::onTeleportFinished(bool local, const LLVector3d& new_pos
 void LLViewerParcelMgr::onTeleportFailed()
 {
 	mTeleportFailedSignal();
+}
+
+bool  LLViewerParcelMgr::getTeleportInProgress()
+{
+    return mTeleportInProgress // case where parcel data arrives after teleport
+        || gAgent.getTeleportState() > LLAgent::TELEPORT_NONE; // For LOCAL, no mTeleportInProgress
 }

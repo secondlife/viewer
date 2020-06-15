@@ -788,6 +788,12 @@ void LLMenuItemCallGL::initFromParams(const Params& p)
 			{
 				setEnabledControlVariable(control);
 			}
+			else
+			{
+				LL_WARNS() << "Failed to assign 'enabled' control variable to menu " << getName()
+							<< ": control " << p.on_enable.control_name()
+							<< " does not exist." << LL_ENDL;
+			}
 		}
 	}
 	if (p.on_click.isProvided())
@@ -2717,6 +2723,15 @@ void LLMenuGL::setItemVisible( const std::string& name, BOOL visible )
 	}
 }
 
+
+void LLMenuGL::setItemLabel(const std::string &name, const std::string &label)
+{
+    LLMenuItemGL *item = getItem(name);
+
+    if (item)
+        item->setLabel(label);
+}
+
 void LLMenuGL::setItemLastSelected(LLMenuItemGL* item)
 {
 	if (getVisible())
@@ -2759,6 +2774,19 @@ LLMenuItemGL* LLMenuGL::getItem(S32 number)
 		}
 	}
 	return NULL;
+}
+
+LLMenuItemGL* LLMenuGL::getItem(std::string name)
+{
+    item_list_t::iterator item_iter;
+    for (item_iter = mItems.begin(); item_iter != mItems.end(); ++item_iter)
+    {
+        if ((*item_iter)->getName() == name)
+        {
+            return (*item_iter);
+        }
+    }
+    return NULL;
 }
 
 LLMenuItemGL* LLMenuGL::getHighlightedItem()

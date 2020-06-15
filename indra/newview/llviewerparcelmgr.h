@@ -154,6 +154,7 @@ public:
 
 	//LLParcel *getParcelSelection() const;
 	LLParcel *getAgentParcel() const;
+    LLParcel *getAgentOrSelectedParcel() const;
 
 	BOOL	inAgentParcel(const LLVector3d &pos_global) const;
 
@@ -262,13 +263,15 @@ public:
 
 	// accessors for mAgentParcel
 	const std::string& getAgentParcelName() const;
+    const S32 getAgentParcelId() const;
 
 	// Create a landmark at the "appropriate" location for the
 	// currently selected parcel.
 	// *NOTE: Taken out 2005-03-21. Phoenix.
 	//void makeLandmarkAtSelection();
 
-	static void optionally_start_music(const std::string& music_url);
+	static void onStartMusicResponse(const LLUUID &region_id, const S32 &parcel_id, const std::string &url, const bool &play);
+	static void optionally_start_music(const std::string &music_url, const S32 &local_id, const LLUUID &region_id);
 
 	static void processParcelOverlay(LLMessageSystem *msg, void **user_data);
 	static void processParcelProperties(LLMessageSystem *msg, void **user_data);
@@ -285,6 +288,7 @@ public:
 	boost::signals2::connection setTeleportFailedCallback(teleport_failed_callback_t cb);
 	void onTeleportFinished(bool local, const LLVector3d& new_pos);
 	void onTeleportFailed();
+	bool getTeleportInProgress();
 
 	static BOOL isParcelOwnedByAgent(const LLParcel* parcelp, U64 group_proxy_power);
 	static BOOL isParcelModifiableByAgent(const LLParcel* parcelp, U64 group_proxy_power);

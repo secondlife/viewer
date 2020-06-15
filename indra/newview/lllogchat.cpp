@@ -67,6 +67,8 @@ const std::string LL_IM_FROM("from");
 const std::string LL_IM_FROM_ID("from_id");
 const std::string LL_TRANSCRIPT_FILE_EXTENSION("txt");
 
+const std::string GROUP_CHAT_SUFFIX(" (group)");
+
 const static char IM_SYMBOL_SEPARATOR(':');
 const static std::string IM_SEPARATOR(std::string() + IM_SYMBOL_SEPARATOR + " ");
 const static std::string NEW_LINE("\n");
@@ -355,7 +357,7 @@ void LLLogChat::saveHistory(const std::string& filename,
 }
 
 // static
-void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& messages, const LLSD& load_params)
+void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& messages, const LLSD& load_params, bool is_group)
 {
 	if (file_name.empty())
 	{
@@ -368,10 +370,25 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
 	LLFILE* fptr = LLFile::fopen(LLLogChat::makeLogFileName(file_name), "r");/*Flawfinder: ignore*/
 	if (!fptr)
 	{
-		fptr = LLFile::fopen(LLLogChat::oldLogFileName(file_name), "r");/*Flawfinder: ignore*/
+		if (is_group)
+		{
+			std::string old_name(file_name);
+			old_name.erase(old_name.size() - GROUP_CHAT_SUFFIX.size());
+			fptr = LLFile::fopen(LLLogChat::makeLogFileName(old_name), "r");
+			if (fptr)
+			{
+				fclose(fptr);
+				LLFile::copy(LLLogChat::makeLogFileName(old_name), LLLogChat::makeLogFileName(file_name));
+			}
+			fptr = LLFile::fopen(LLLogChat::makeLogFileName(file_name), "r");
+		}
 		if (!fptr)
 		{
-			return;						//No previous conversation with this name.
+			fptr = LLFile::fopen(LLLogChat::oldLogFileName(file_name), "r");/*Flawfinder: ignore*/
+			if (!fptr)
+			{
+				return;						//No previous conversation with this name.
+			}
 		}
 	}
 
@@ -1053,12 +1070,28 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
 
 	if (!fptr)
 	{
-		fptr = LLFile::fopen(LLLogChat::oldLogFileName(file_name), "r");/*Flawfinder: ignore*/
+		bool is_group = load_params.has("is_group") ? load_params["is_group"].asBoolean() : false;
+		if (is_group)
+		{
+			std::string old_name(file_name);
+			old_name.erase(old_name.size() - GROUP_CHAT_SUFFIX.size());
+			fptr = LLFile::fopen(LLLogChat::makeLogFileName(old_name), "r");
+			if (fptr)
+			{
+				fclose(fptr);
+				LLFile::copy(LLLogChat::makeLogFileName(old_name), LLLogChat::makeLogFileName(file_name));
+			}
+			fptr = LLFile::fopen(LLLogChat::makeLogFileName(file_name), "r");
+		}
 		if (!fptr)
 		{
-			mNewLoad = false;
-			(*mLoadEndSignal)(messages, file_name);
-			return;						//No previous conversation with this name.
+			fptr = LLFile::fopen(LLLogChat::oldLogFileName(file_name), "r");/*Flawfinder: ignore*/
+			if (!fptr)
+			{
+				mNewLoad = false;
+				(*mLoadEndSignal)(messages, file_name);
+				return;						//No previous conversation with this name.
+			}
 		}
 	}
 

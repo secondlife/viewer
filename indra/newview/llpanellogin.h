@@ -55,9 +55,9 @@ public:
 		void (*callback)(S32 option, void* user_data), 
 		void* callback_data);
 
-	static void setFields(LLPointer<LLCredential> credential, BOOL remember);
-  
-	static void getFields(LLPointer<LLCredential>& credential, BOOL& remember);
+	static void populateFields(LLPointer<LLCredential> credential, bool remember_user, bool remember_psswrd);
+	static void resetFields();
+	static void getFields(LLPointer<LLCredential>& credential, bool& remember_user, bool& remember_psswrd);
 
 	static BOOL isCredentialSet() { return sCredentialSet; }
 
@@ -71,8 +71,6 @@ public:
 	static void closePanel();
 
 	void setSiteIsAlive( bool alive );
-
-	void showLoginWidgets();
 
 	static void loadLoginPage();	
 	static void giveFocus();
@@ -88,6 +86,9 @@ public:
 	// called from prefs when initializing panel
 	static bool getShowFavorites();
 
+	// extract name from cred in a format apropriate for username field
+	static std::string getUserName(LLPointer<LLCredential> &cred);
+
 private:
 	friend class LLPanelLoginListener;
 	void addFavoritesToStartLocation();
@@ -95,11 +96,16 @@ private:
 	void onSelectServer();
 	void onLocationSLURL();
 
+	static void setFields(LLPointer<LLCredential> credential);
+
 	static void onClickConnect(void*);
 	static void onClickNewAccount(void*);
 	static void onClickVersion(void*);
 	static void onClickForgotPassword(void*);
 	static void onClickSignUp(void*);
+	static void onUserNameTextEnty(void*);
+	static void onUserListCommit(void*);
+	static void onRememberUserCheck(void*);
 	static void onPassKey(LLLineEditor* caller, void* user_data);
 	static void updateServerCombo();
 
@@ -107,6 +113,7 @@ private:
 	boost::scoped_ptr<LLPanelLoginListener> mListener;
 
 	void updateLoginButtons();
+	void populateUserList(LLPointer<LLCredential> credential);
 
 	void			(*mCallback)(S32 option, void *userdata);
 	void*			mCallbackData;

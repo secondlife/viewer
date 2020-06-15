@@ -635,6 +635,15 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="BUTTON_HELP">
 		Mostra Aiuto
 	</string>
+	<string name="TooltipNotecardNotAllowedTypeDrop">
+		Oggetti di questo tipo non possono essere allegati ai 
+biglietti in questa regione.
+	</string>
+	<string name="TooltipNotecardOwnerRestrictedDrop">
+		Solamente gli oggetti con autorizzazioni 
+illimitate al “proprietario successivo” 
+possono essere allegati ai biglietti.
+	</string>
 	<string name="Searching">
 		Ricerca in corso...
 	</string>
@@ -711,6 +720,18 @@ Prova ad accedere nuovamente tra un minuto.
 		Errore nella richiesta di caricamento. Vai alla pagina 
 http://secondlife.com/support per risolvere il problema.
 	</string>
+	<string name="SettingValidationError">
+		Impossibile convalidare le impostazioni importate [NAME]
+	</string>
+	<string name="SettingImportFileError">
+		Impossibile aprire il file [FILE]
+	</string>
+	<string name="SettingParseFileError">
+		Impossibile aprire il file [FILE]
+	</string>
+	<string name="SettingTranslateError">
+		Impossibile tradurre la legacy vento e luce [NAME]
+	</string>
 	<string name="texture">
 		texture
 	</string>
@@ -785,6 +806,9 @@ http://secondlife.com/support per risolvere il problema.
 	</string>
 	<string name="symbolic folder link">
 		link alla cartella
+	</string>
+	<string name="settings blob">
+		impostazioni
 	</string>
 	<string name="mesh">
 		reticolo
@@ -1116,6 +1140,9 @@ http://secondlife.com/support per risolvere il problema.
 	<string name="ForceSitAvatar">
 		Forza l&apos;avatar a sedersi
 	</string>
+	<string name="ChangeEnvSettings">
+		Cambia le impostazioni dell’ambiente
+	</string>
 	<string name="AgentNameSubst">
 		(Tu)
 	</string>
@@ -1264,6 +1291,9 @@ http://secondlife.com/support per risolvere il problema.
 	<string name="tattoo">
 		Tatuaggio
 	</string>
+	<string name="universal">
+		Universale
+	</string>
 	<string name="physics">
 		Fisica
 	</string>
@@ -1305,6 +1335,9 @@ http://secondlife.com/support per risolvere il problema.
 	</string>
 	<string name="tattoo_not_worn">
 		Tatuaggio non portato
+	</string>
+	<string name="universal_not_worn">
+		Universale non indossato
 	</string>
 	<string name="physics_not_worn">
 		Fisica non indossata
@@ -1356,6 +1389,9 @@ http://secondlife.com/support per risolvere il problema.
 	</string>
 	<string name="create_new_tattoo">
 		Crea un nuovo tatuaggio
+	</string>
+	<string name="create_new_universal">
+		Crea nuovo universale
 	</string>
 	<string name="create_new_physics">
 		Crea nuova fisica
@@ -2491,6 +2527,27 @@ Se continui a ricevere questo messaggio, contatta l&apos;assistenza Second Life 
 	</string>
 	<string name="RegionSettings">
 		Impostazioni regione
+	</string>
+	<string name="NoEnvironmentSettings">
+		Questa regione non supporta le impostazioni per l’ambiente.
+	</string>
+	<string name="EnvironmentSun">
+		Sole
+	</string>
+	<string name="EnvironmentMoon">
+		Luna
+	</string>
+	<string name="EnvironmentBloom">
+		Fioritura
+	</string>
+	<string name="EnvironmentCloudNoise">
+		Rumore nuvole
+	</string>
+	<string name="EnvironmentNormalMap">
+		Mappa normale
+	</string>
+	<string name="EnvironmentTransparent">
+		Transparent
 	</string>
 	<string name="ClassifiedClicksTxt">
 		Clicca: [TELEPORT] teleport, [MAP] mappa, [PROFILE] profilo
@@ -4645,6 +4702,9 @@ Segnala abuso
 	<string name="New Tattoo">
 		Nuovo tatuaggio
 	</string>
+	<string name="New Universal">
+		Nuovo Universale
+	</string>
 	<string name="New Physics">
 		Nuova fisica
 	</string>
@@ -4770,6 +4830,15 @@ Segnala abuso
 	</string>
 	<string name="Female - Wow">
 		Femmina - Accipicchia
+	</string>
+	<string name="New Daycycle">
+		Nuovo ciclo giornata
+	</string>
+	<string name="New Water">
+		Nuova acqua
+	</string>
+	<string name="New Sky">
+		Nuovo cielo
 	</string>
 	<string name="/bow">
 		/inchino
@@ -5299,6 +5368,12 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	<string name="BeaconMedia">
 		Visualizzazione marcatori multimedia (bianco)
 	</string>
+	<string name="BeaconSun">
+		Marcatore visualizza direzione sole (arancione)
+	</string>
+	<string name="BeaconMoon">
+		Marcatore visualizza direzione luna (viola)
+	</string>
 	<string name="ParticleHiding">
 		Particelle nascoste
 	</string>
@@ -5325,6 +5400,12 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	</string>
 	<string name="Command_Destinations_Label">
 		Destinazioni
+	</string>
+	<string name="Command_Environments_Label">
+		I miei ambienti
+	</string>
+	<string name="Command_Facebook_Label">
+		Facebook
 	</string>
 	<string name="Command_Flickr_Label">
 		Flickr
@@ -5418,6 +5499,12 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	</string>
 	<string name="Command_Destinations_Tooltip">
 		Destinazioni interessanti
+	</string>
+	<string name="Command_Environments_Tooltip">
+		I miei ambienti
+	</string>
+	<string name="Command_Facebook_Tooltip">
+		Pubblica su Facebook
 	</string>
 	<string name="Command_Flickr_Tooltip">
 		Carica su Flickr
@@ -5614,6 +5701,12 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	<string name="ExperiencePermission12">
 		accettazione automatica delle autorizzazioni per le esperienze
 	</string>
+	<string name="ExperiencePermission16">
+		obbliga l&apos;avatar a sedersi
+	</string>
+	<string name="ExperiencePermission17">
+		cambia le impostazioni dell’ambiente
+	</string>
 	<string name="ExperiencePermissionShortUnknown">
 		ha eseguito un&apos;operazione sconosciuta: [Permission]
 	</string>
@@ -5637,6 +5730,12 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	</string>
 	<string name="ExperiencePermissionShort12">
 		Autorizzazione
+	</string>
+	<string name="ExperiencePermissionShort16">
+		Siediti
+	</string>
+	<string name="ExperiencePermissionShort17">
+		Ambiente
 	</string>
 	<string name="logging_calls_disabled_log_empty">
 		Le conversazioni non vengono registrate. Per iniziare a registrare, seleziona &quot;Salva: Solo registro&quot; oppure &quot;Salva: Registri e trascrizioni&quot; in Preferenze &gt; Chat.

@@ -35,7 +35,6 @@
 #include "llcachename.h"
 #include "llavatarnamecache.h"
 #include "lldbstrings.h"
-#include "lleconomy.h"
 #include "llgl.h"
 #include "llmediaentry.h"
 #include "llrender.h"
@@ -5426,7 +5425,7 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 		}
 		else
 		{
-			if (node->mInventorySerial != inv_serial)
+			if (node->mInventorySerial != inv_serial && node->getObject())
 			{
 				node->getObject()->dirtyInventory();
 			}

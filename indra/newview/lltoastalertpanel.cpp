@@ -34,7 +34,6 @@
 #include "llfontgl.h"
 #include "lltextbox.h"
 #include "llbutton.h"
-#include "llcheckboxctrl.h"
 #include "llkeyboard.h"
 #include "llfocusmgr.h"
 #include "lliconctrl.h"
@@ -62,9 +61,8 @@ static const S32 HPAD = 25;
 static const S32 BTN_HPAD = 8;
 
 LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal)
-	  : LLToastPanel(notification),
+	  : LLCheckBoxToastPanel(notification),
 		mDefaultOption( 0 ),
-		mCheck(NULL),
 		mCaution(notification->getPriority() >= NOTIFICATION_PRIORITY_HIGH),
 		mLabel(notification->getName()),
 		mLineEditor(NULL)
@@ -194,6 +192,11 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 			- 3*VPAD - BTN_HEIGHT;
 	// reshape to calculate real text width and height
 	msg_box->reshape( MAX_ALLOWED_MSG_WIDTH, max_allowed_msg_height );
+
+	if ("GroupLimitInfo" == mNotification->getName() || "GroupLimitInfoPlus" == mNotification->getName())
+	{
+		msg_box->setSkipLinkUnderline(true);
+	}
 	msg_box->setValue(msg);
 
 	S32 pixel_width = msg_box->getTextPixelWidth();
@@ -268,14 +271,15 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 			mLineEditor->setMaxTextChars(edit_text_max_chars);
 			mLineEditor->setText(edit_text_contents);
 
-			if("SaveOutfitAs"  == mNotification->getName())
+			std::string notif_name = mNotification->getName();
+			if (("SaveOutfitAs" == notif_name) || ("SaveSettingAs" == notif_name))
 			{
 				mLineEditor->setPrevalidate(&LLTextValidate::validateASCII);
 			}
 
 			// decrease limit of line editor of teleport offer dialog to avoid truncation of
 			// location URL in invitation message, see EXT-6891
-			if ("OfferTeleport" == mNotification->getName())
+			if ("OfferTeleport" == notif_name)
 			{
 				mLineEditor->setMaxTextLength(gSavedSettings.getS32(
 						"teleport_offer_invitation_max_length"));
@@ -347,20 +351,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 		button_left += button_width + BTN_HPAD;
 	}
 
-	std::string ignore_label;
-
-	if (form->getIgnoreType() == LLNotificationForm::IGNORE_WITH_DEFAULT_RESPONSE)
-	{
-		setCheckBox(LLNotifications::instance().getGlobalString("skipnexttime"), ignore_label);
-	}
-	if (form->getIgnoreType() == LLNotificationForm::IGNORE_WITH_DEFAULT_RESPONSE_SESSION_ONLY)
-	{
-		setCheckBox(LLNotifications::instance().getGlobalString("skipnexttimesessiononly"), ignore_label);
-	}
-	else if (form->getIgnoreType() == LLNotificationForm::IGNORE_WITH_LAST_RESPONSE)
-	{
-		setCheckBox(LLNotifications::instance().getGlobalString("alwayschoose"), ignore_label);
-	}
+	setCheckBoxes(HPAD, VPAD);
 
 	// *TODO: check necessity of this code
 	//gFloaterView->adjustToFitScreen(this, FALSE);
@@ -378,46 +369,6 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 
 	LLTransientFloaterMgr::instance().addControlView(
 			LLTransientFloaterMgr::GLOBAL, this);
-}
-
-bool LLToastAlertPanel::setCheckBox( const std::string& check_title, const std::string& check_control )
-{
-	mCheck = LLUICtrlFactory::getInstance()->createFromFile<LLCheckBoxCtrl>("alert_check_box.xml", this, LLPanel::child_registry_t::instance());
-
-	if(!mCheck)
-	{
-		return false;
-	}
-
-	const LLFontGL* font =  mCheck->getFont();
-	const S32 LINE_HEIGHT = font->getLineHeight();
-
-	std::vector<std::string> lines;
-	boost::split(lines, check_title, boost::is_any_of("\n"));
-	
-	// Extend dialog for "check next time"
-	S32 max_msg_width = LLToastPanel::getRect().getWidth() - 2 * HPAD;
-	S32 check_width = S32(font->getWidth(lines[0]) + 0.99f) + 16; // use width of the first line
-	max_msg_width = llmax(max_msg_width, check_width);
-	S32 dialog_width = max_msg_width + 2 * HPAD;
-
-	S32 dialog_height = LLToastPanel::getRect().getHeight();
-	dialog_height += LINE_HEIGHT * lines.size();
-	dialog_height += LINE_HEIGHT / 2;
-
-	LLToastPanel::reshape( dialog_width, dialog_height, FALSE );
-
-	S32 msg_x = (LLToastPanel::getRect().getWidth() - max_msg_width) / 2;
-
-	// set check_box's attributes
-	LLRect check_rect;
-	mCheck->setRect(check_rect.setOriginAndSize(msg_x, VPAD+BTN_HEIGHT+LINE_HEIGHT/2, max_msg_width, LINE_HEIGHT*lines.size()));
-	mCheck->setLabel(check_title);
-	mCheck->setCommitCallback(boost::bind(&LLToastAlertPanel::onClickIgnore, this, _1));
-	
-	LLToastPanel::addChild(mCheck);
-
-	return true;
 }
 
 void LLToastAlertPanel::setVisible( BOOL visible )
@@ -568,17 +519,4 @@ void LLToastAlertPanel::onButtonPressed( const LLSD& data, S32 button )
 	}
 
 	mNotification->respond(response); // new notification reponse
-}
-
-void LLToastAlertPanel::onClickIgnore(LLUICtrl* ctrl)
-{
-	// checkbox sometimes means "hide and do the default" and
-	// other times means "warn me again".  Yuck. JC
-	BOOL check = ctrl->getValue().asBoolean();
-	if (mNotification->getForm()->getIgnoreType() == LLNotificationForm::IGNORE_SHOW_AGAIN)
-	{
-		// question was "show again" so invert value to get "ignore"
-		check = !check;
-	}
-	mNotification->setIgnored(check);
 }

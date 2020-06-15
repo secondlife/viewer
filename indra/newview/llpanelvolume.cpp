@@ -31,7 +31,6 @@
 
 // linden library includes
 #include "llclickaction.h"
-#include "lleconomy.h"
 #include "llerror.h"
 #include "llfontgl.h"
 #include "llflexibleobject.h"
@@ -82,8 +81,11 @@
 
 #include <boost/bind.hpp>
 
-// "Features" Tab
 
+const F32 DEFAULT_GRAVITY_MULTIPLIER = 1.f;
+const F32 DEFAULT_DENSITY = 1000.f;
+
+// "Features" Tab
 BOOL	LLPanelVolume::postBuild()
 {
 	// Flexible Objects Parameters
@@ -298,7 +300,7 @@ void LLPanelVolume::getState( )
 		{
 			LightColorSwatch->setEnabled( TRUE );
 			LightColorSwatch->setValid( TRUE );
-			LightColorSwatch->set(volobjp->getLightBaseColor());
+			LightColorSwatch->set(volobjp->getLightSRGBBaseColor());
 		}
 
 		LLTextureCtrl* LightTextureCtrl = getChild<LLTextureCtrl>("light texture control");
@@ -326,7 +328,7 @@ void LLPanelVolume::getState( )
 		getChild<LLUICtrl>("Light Focus")->setValue(params.mV[1]);
 		getChild<LLUICtrl>("Light Ambiance")->setValue(params.mV[2]);
 
-		mLightSavedColor = volobjp->getLightColor();
+		mLightSavedColor = volobjp->getLightSRGBBaseColor();
 	}
 	else
 	{
@@ -583,7 +585,7 @@ void LLPanelVolume::refresh()
 		mRootObject = NULL;
 	}
 
-	BOOL visible = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_DEFERRED) > 0 ? TRUE : FALSE;
+	BOOL visible = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_DEFERRED) > 0 ? TRUE : FALSE;
 
 	getChildView("Light FOV")->setVisible( visible);
 	getChildView("Light Focus")->setVisible( visible);
@@ -805,7 +807,7 @@ void LLPanelVolume::onLightSelectColor(const LLSD& data)
 	{
 		LLColor4	clr = LightColorSwatch->get();
 		LLColor3	clr3( clr );
-		volobjp->setLightColor(clr3);
+		volobjp->setLightSRGBColor(clr3);
 		mLightSavedColor = clr;
 	}
 }
@@ -830,7 +832,7 @@ void LLPanelVolume::onLightSelectTexture(const LLSD& data)
 // static
 void LLPanelVolume::onCommitMaterial( LLUICtrl* ctrl, void* userdata )
 {
-	//LLPanelObject* self = (LLPanelObject*) userdata;
+	LLPanelVolume* self = (LLPanelVolume*)userdata;
 	LLComboBox* box = (LLComboBox*) ctrl;
 
 	if (box)
@@ -841,6 +843,19 @@ void LLPanelVolume::onCommitMaterial( LLUICtrl* ctrl, void* userdata )
 		if (material_name != LEGACY_FULLBRIGHT_DESC)
 		{
 			U8 material_code = LLMaterialTable::basic.getMCode(material_name);
+			if (self)
+			{
+				LLViewerObject* objectp = self->mObject;
+				if (objectp)
+				{
+					objectp->setPhysicsGravity(DEFAULT_GRAVITY_MULTIPLIER);
+					objectp->setPhysicsFriction(LLMaterialTable::basic.getFriction(material_code));
+					//currently density is always set to 1000 serverside regardless of chosen material,
+					//actual material density should be used here, if this behavior change
+					objectp->setPhysicsDensity(DEFAULT_DENSITY);
+					objectp->setPhysicsRestitution(LLMaterialTable::basic.getRestitution(material_code));
+				}
+			}
 			LLSelectMgr::getInstance()->selectionSetMaterial(material_code);
 		}
 	}
@@ -866,7 +881,7 @@ void LLPanelVolume::onCommitLight( LLUICtrl* ctrl, void* userdata )
 	if(LightColorSwatch)
 	{
 		LLColor4	clr = LightColorSwatch->get();
-		volobjp->setLightColor(LLColor3(clr));
+		volobjp->setLightSRGBColor(LLColor3(clr));
 	}
 
 	LLTextureCtrl*	LightTextureCtrl = self->getChild<LLTextureCtrl>("light texture control");

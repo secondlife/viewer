@@ -29,7 +29,6 @@
 		<check_box initial_value="true" label="Gennemsigtig vand" name="TransparentWater"/>
 		<check_box initial_value="true" label="Glatte flader og skin" name="BumpShiny"/>
 		<check_box initial_value="true" label="Lokale lys" name="LocalLights"/>
-		<check_box initial_value="true" label="Basale flader" name="BasicShaders" tool_tip="Ved at slå dette valg fra, kan det forhindres at visse grafikkort drivere crasher."/>
 		<check_box initial_value="true" label="Atmosfæriske flader" name="WindLightUseAtmosShaders"/>
 		<check_box initial_value="true" label="Lys og skygger" name="UseLightShaders"/>
 		<check_box initial_value="true" label="&quot;Ambient Occlusion&quot;" name="UseSSAO"/>

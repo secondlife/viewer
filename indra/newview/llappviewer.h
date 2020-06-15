@@ -190,6 +190,7 @@ public:
 
 	void addOnIdleCallback(const boost::function<void()>& cb); // add a callback to fire (once) when idle
 
+	void purgeUserDataOnExit() { mPurgeUserDataOnExit = true; }
 	void purgeCache(); // Clear the local cache. 
 	void purgeCacheImmediate(); //clear local cache immediately.
 	S32  updateTextureThreads(F32 max_time);
@@ -281,7 +282,8 @@ private:
 
 	std::string mSerialNumber;
 	bool mPurgeCache;
-    bool mPurgeOnExit;
+	bool mPurgeCacheOnExit;
+	bool mPurgeUserDataOnExit;
 	LLViewerJoystick* joystick;
 
 	bool mSavedFinalSnapshot;
@@ -391,8 +393,6 @@ extern LLVector3 gRelativeWindVec;
 extern U32	gPacketsIn;
 extern BOOL gPrintMessagesThisFrame;
 
-extern LLUUID gSunTextureID;
-extern LLUUID gMoonTextureID;
 extern LLUUID gBlackSquareID;
 
 extern BOOL gRandomizeFramerate;

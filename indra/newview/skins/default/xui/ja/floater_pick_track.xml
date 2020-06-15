@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="track picker" title="選択：トラック">
+	<layout_stack name="adjuster">
+		<layout_panel name="pnl_desc">
+			<text name="select_description">
+				空のソースを選択：
+			</text>
+		</layout_panel>
+		<layout_panel name="pnl_traks">
+			<radio_group name="track_selection">
+				<radio_item label="空 4 [ALT]" name="radio_sky4" value="4"/>
+				<radio_item label="空 3 [ALT]" name="radio_sky3" value="3"/>
+				<radio_item label="空 2 [ALT]" name="radio_sky2" value="2"/>
+				<radio_item label="地面" name="radio_sky1" value="1"/>
+			</radio_group>
+		</layout_panel>
+		<layout_panel name="pnl_ok_cancel">
+			<button label="OK" label_selected="OK" name="btn_select"/>
+			<button label="キャンセル" label_selected="キャンセル" name="btn_cancel"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

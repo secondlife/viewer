@@ -60,7 +60,7 @@ no el objeto.
 	</text>
 	<button label="Comprar ahora" name="buy_btn"/>
 	<button label="Cancelar" name="cancel_btn"/>
-	<text left="5" name="info_cannot_buy" right="-5">
+	<text name="info_cannot_buy" left="150" font="SansSerifBig">
 		No se pudo hacer la compra
 	</text>
 	<button label="Ir a la web" name="error_web"/>

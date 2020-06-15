@@ -23,6 +23,8 @@
  * $/LicenseInfo$
  */
 
+/*[EXTRA_CODE_HERE]*/
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
@@ -31,19 +33,25 @@ out vec4 frag_color;
 
 uniform sampler2D diffuseMap;
 
-#if !DEPTH_CLAMP
-VARYING float pos_zd2;
-#endif
-
-VARYING float pos_w;
-
+VARYING vec4 post_pos;
 VARYING float target_pos_x;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
+uniform float minimum_alpha;
 
 void main() 
 {
-	float alpha = diffuseLookup(vary_texcoord0.xy).a * vertex_color.a;
+	float alpha = diffuseLookup(vary_texcoord0.xy).a;
+
+    // mask cutoff 0 -> no shadow SL-11051
+    if (minimum_alpha == 0)
+    {
+        discard;
+    }
+
+#if !defined(IS_FULLBRIGHT)
+    alpha *= vertex_color.a;
+#endif
 
 	if (alpha < 0.05) // treat as totally transparent
 	{
@@ -52,7 +60,7 @@ void main()
 
 	if (alpha < 0.88) // treat as semi-transparent
 	{
-	  if (fract(0.5*floor(target_pos_x / pos_w )) < 0.25)
+	  if (fract(0.5*floor(target_pos_x / post_pos.w )) < 0.25)
 	  {
 	    discard;
 	  }
@@ -60,7 +68,7 @@ void main()
 
 	frag_color = vec4(1,1,1,1);
 	
-#if !DEPTH_CLAMP
-	gl_FragDepth = max(pos_zd2/pos_w+0.5, 0.0);
+#if !defined(DEPTH_CLAMP)
+	gl_FragDepth = max(post_pos.z/post_pos.w*0.5+0.5, 0.0);
 #endif
 }

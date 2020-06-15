@@ -12,6 +12,7 @@
 	<check_box label="Sounds" name="check_sound"/>
 	<check_box label="Texturen" name="check_texture"/>
 	<check_box label="Fotos" name="check_snapshot"/>
+	<check_box label="Einstellungen" name="check_settings"/>
 	<button label="Alle" label_selected="Alle" name="All"/>
 	<button label="Keine" label_selected="Keine" name="None"/>
 	<check_box label="Ordner immer anzeigen" name="check_show_empty"/>

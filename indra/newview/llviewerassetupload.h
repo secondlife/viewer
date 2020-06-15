@@ -40,7 +40,7 @@
 class LLResourceUploadInfo
 {
 public:
-    typedef boost::shared_ptr<LLResourceUploadInfo> ptr_t;
+    typedef std::shared_ptr<LLResourceUploadInfo> ptr_t;
 
     LLResourceUploadInfo(
         LLTransactionID transactId,
@@ -62,7 +62,6 @@ public:
     virtual LLSD        prepareUpload();
     virtual LLSD        generatePostBody();
     virtual void        logPreparedUpload();
-    virtual S32         getEconomyUploadCost();
     virtual LLUUID      finishUpload(LLSD &result);
 
     LLTransactionID     getTransactionId() const { return mTransactionId; }
@@ -87,6 +86,9 @@ public:
     LLUUID              getFolderId() const { return mFolderId; }
     LLUUID              getItemId() const { return mItemId; }
     LLAssetID           getAssetId() const { return mAssetId; }
+
+	static bool			findAssetTypeOfExtension(const std::string& exten, LLAssetType::EType& asset_type);
+	static bool			findAssetTypeAndCodecOfExtension(const std::string& exten, LLAssetType::EType& asset_type, U32& codec, bool bulk_upload = true);
 
 protected:
     LLResourceUploadInfo(
@@ -169,8 +171,8 @@ private:
 class LLBufferedAssetUploadInfo : public LLResourceUploadInfo
 {
 public:
-    typedef boost::function<void(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD response)> invnUploadFinish_f;
-    typedef boost::function<void(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response)> taskUploadFinish_f;
+    typedef std::function<void(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD response)> invnUploadFinish_f;
+    typedef std::function<void(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response)> taskUploadFinish_f;
 
     LLBufferedAssetUploadInfo(LLUUID itemId, LLAssetType::EType assetType, std::string buffer, invnUploadFinish_f finish);
     LLBufferedAssetUploadInfo(LLUUID itemId, LLPointer<LLImageFormatted> image, invnUploadFinish_f finish);

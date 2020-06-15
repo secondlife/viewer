@@ -345,6 +345,7 @@ void camera_spin_around_ccw_sitting( EKeystate s )
 	else
 	{
 		//change camera but do not send keystrokes
+		gAgentCamera.unlockView();
 		gAgentCamera.setOrbitLeftKey( get_orbit_rate() );
 	}
 }
@@ -361,6 +362,7 @@ void camera_spin_around_cw_sitting( EKeystate s )
 	else
 	{
 		//change camera but do not send keystrokes
+		gAgentCamera.unlockView();
 		gAgentCamera.setOrbitRightKey( get_orbit_rate() );
 	}
 }
@@ -986,6 +988,11 @@ EKeyboardMode LLViewerKeyboard::getMode()
 // Called from scanKeyboard.
 void LLViewerKeyboard::scanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level)
 {
+	if (LLApp::isExiting())
+	{
+		return;
+	}
+
 	S32 mode = getMode();
 	// Consider keyboard scanning as NOT mouse event. JC
 	MASK mask = gKeyboard->currentMask(FALSE);

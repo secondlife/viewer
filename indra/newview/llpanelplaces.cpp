@@ -675,6 +675,12 @@ void LLPanelPlaces::onShowOnMapButtonClicked()
 		}
 		else if (mPlaceInfoType == LANDMARK_INFO_TYPE)
 		{
+			if (mItem.isNull())
+			{
+				LL_WARNS() << "NULL landmark item" << LL_ENDL;
+				llassert(mItem.notNull());
+				return;
+			}
 			LLLandmark* landmark = gLandmarkList.getAsset(mItem->getAssetUUID());
 			if (!landmark)
 				return;

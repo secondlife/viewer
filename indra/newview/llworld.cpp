@@ -873,6 +873,57 @@ void LLWorld::waterHeightRegionInfo(std::string const& sim_name, F32 water_heigh
 	}
 }
 
+void LLWorld::precullWaterObjects(LLCamera& camera, LLCullResult* cull, bool include_void_water)
+{
+	if (!gAgent.getRegion())
+	{
+		return;
+	}
+
+	if (mRegionList.empty())
+	{
+		LL_WARNS() << "No regions!" << LL_ENDL;
+		return;
+	}
+
+	for (region_list_t::iterator iter = mRegionList.begin();
+		 iter != mRegionList.end(); ++iter)
+	{
+		LLViewerRegion* regionp = *iter;
+		LLVOWater* waterp = regionp->getLand().getWaterObj();
+		if (waterp && waterp->mDrawable)
+		{
+			waterp->mDrawable->setVisible(camera);
+		    cull->pushDrawable(waterp->mDrawable);
+		}
+	}
+
+    if (include_void_water)
+    {
+		for (std::list<LLPointer<LLVOWater> >::iterator iter = mHoleWaterObjects.begin();
+			 iter != mHoleWaterObjects.end(); ++ iter)
+		{
+			LLVOWater* waterp = (*iter).get();
+		    if (waterp && waterp->mDrawable)
+            {
+                waterp->mDrawable->setVisible(camera);
+		        cull->pushDrawable(waterp->mDrawable);
+            }
+	    }
+    }
+
+	S32 dir;
+	for (dir = 0; dir < 8; dir++)
+	{
+		LLVOWater* waterp = mEdgeWaterObjects[dir];
+		if (waterp && waterp->mDrawable)
+		{
+            waterp->mDrawable->setVisible(camera);
+		    cull->pushDrawable(waterp->mDrawable);
+		}
+	}
+}
+
 void LLWorld::updateWaterObjects()
 {
 	if (!gAgent.getRegion())

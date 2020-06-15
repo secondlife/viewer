@@ -359,16 +359,19 @@ void update_statistics()
 	record(LLStatViewer::REBUILD_STACKTIME, last_frame_recording.getSum(*stat_type_t::getInstance("Sort Draw State")));
 	record(LLStatViewer::RENDER_STACKTIME, last_frame_recording.getSum(*stat_type_t::getInstance("Render Geometry")));
 		
-	LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(gAgent.getRegion()->getHost());
-	if (cdp)
+	if (gAgent.getRegion() && isAgentAvatarValid())
 	{
-		sample(LLStatViewer::SIM_PING, F64Milliseconds (cdp->getPingDelay()));
-		gAvgSimPing = ((gAvgSimPing * gSimPingCount) + cdp->getPingDelay()) / (gSimPingCount + 1);
-		gSimPingCount++;
-	}
-	else
-	{
-		sample(LLStatViewer::SIM_PING, U32Seconds(10));
+		LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(gAgent.getRegion()->getHost());
+		if (cdp)
+		{
+			sample(LLStatViewer::SIM_PING, F64Milliseconds(cdp->getPingDelay()));
+			gAvgSimPing = ((gAvgSimPing * gSimPingCount) + cdp->getPingDelay()) / (gSimPingCount + 1);
+			gSimPingCount++;
+		}
+		else
+		{
+			sample(LLStatViewer::SIM_PING, U32Seconds(10));
+		}
 	}
 
 	if (LLViewerStats::instance().getRecording().getSum(LLStatViewer::FPS))

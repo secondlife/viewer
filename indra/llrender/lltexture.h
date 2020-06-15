@@ -58,21 +58,21 @@ public:
 	//
 	//interfaces to access LLGLTexture
 	//
-	virtual S8         getType() const = 0 ;
-	virtual void       setKnownDrawSize(S32 width, S32 height) = 0 ;
-	virtual bool       bindDefaultImage(const S32 stage = 0) = 0 ;
-	virtual bool       bindDebugImage(const S32 stage = 0) = 0;
-	virtual void       forceImmediateUpdate() = 0 ;
-	virtual void       setActive() = 0 ;
-	virtual S32	       getWidth(S32 discard_level = -1) const = 0 ;
-	virtual S32	       getHeight(S32 discard_level = -1) const = 0 ;
-	virtual bool       isActiveFetching() = 0;
+	virtual S8         getType() const;
+	virtual void       setKnownDrawSize(S32 width, S32 height);
+	virtual bool       bindDefaultImage(const S32 stage = 0);
+	virtual bool       bindDebugImage(const S32 stage = 0);
+	virtual void       forceImmediateUpdate();
+	virtual void       setActive();
+	virtual S32	       getWidth(S32 discard_level = -1) const;
+	virtual S32	       getHeight(S32 discard_level = -1) const;
+	virtual bool       isActiveFetching();
 
 private:
 	//note: do not make this function public.
-	virtual LLImageGL* getGLTexture() const = 0 ;
+	virtual LLImageGL* getGLTexture() const;
 
-	virtual void updateBindStatsForTester() = 0 ;
+	virtual void updateBindStatsForTester();
 };
 #endif
 
