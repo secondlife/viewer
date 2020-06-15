@@ -1126,6 +1126,12 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 	mPostQuit = FALSE;
 
 	// create window
+    LL_DEBUGS("Window") << "Creating window with X: " << window_rect.left
+        << " Y: " << window_rect.top
+        << " Width: " << (window_rect.right - window_rect.left)
+        << " Height: " << (window_rect.bottom - window_rect.top)
+        << " Fullscreen: " << mFullscreen
+        << LL_ENDL;
 	DestroyWindow(mWindowHandle);
 	mWindowHandle = CreateWindowEx(dw_ex_style,
 		mWindowClassName,
