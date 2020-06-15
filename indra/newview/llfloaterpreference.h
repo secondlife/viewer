@@ -106,6 +106,8 @@ public:
 	void selectPrivacyPanel();
 	void selectChatPanel();
 	void getControlNames(std::vector<std::string>& names);
+	// updates click/double-click action controls depending on values from settings.xml
+	void updateClickActionViews();
 
 protected:	
 	void		onBtnOK(const LLSD& userdata);
@@ -130,6 +132,11 @@ protected:
     void onRenderOptionEnable();
 	// callback for when client turns on impostors
 	void onAvatarImpostorsEnable();
+
+	// callback for commit in the "Single click on land" and "Double click on land" comboboxes.
+	void onClickActionChange();
+	// updates click/double-click action keybindngs depending on view values
+	void updateClickActionControls();
 
 public:
 	// This function squirrels away the current values of the controls so that
@@ -304,9 +311,20 @@ public:
 	void onModeCommit();
 	void onRestoreDefaultsBtn();
 	void onRestoreDefaultsResponse(const LLSD& notification, const LLSD& response);
+
+    // Bypass to let Move & view read values without need to create own key binding handler
+    // Todo: consider a better way to share access to keybindings
+    bool canKeyBindHandle(const std::string &control, EMouseClickType click, KEY key, MASK mask);
+    // Bypasses to let Move & view modify values without need to create own key binding handler
+    void setKeyBind(const std::string &control, EMouseClickType click, KEY key, MASK mask, bool set /*set or reset*/ );
+
+    // from interface
 	/*virtual*/ bool onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool all_modes);
     /*virtual*/ void onDefaultKeyBind(bool all_modes);
-	/*virtual*/ void onCancelKeyBind();
+    /*virtual*/ void onCancelKeyBind();
+
+    // Updates keybindings from storage to table
+    void updateTable();
 
 private:
 	// reloads settings, discards current changes, updates table
@@ -319,8 +337,6 @@ private:
 
 	// Cleans content and then adds content from xml files according to current mEditingMode
 	void populateControlTable();
-	// Updates keybindings from storage to table
-	void updateTable();
 
 	LLScrollListCtrl* pControlsTable;
 	LLComboBox *pKeyModeBox;

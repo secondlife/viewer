@@ -217,6 +217,22 @@ bool LLKeyConflictHandler::registerControl(const std::string &control_name, U32 
     return false;
 }
 
+bool LLKeyConflictHandler::clearControl(const std::string &control_name, U32 data_index)
+{
+    if (control_name.empty())
+    {
+        return false;
+    }
+    LLKeyConflict &type_data = mControlsMap[control_name];
+    if (!type_data.mAssignable)
+    {
+        // Example: user tried to assign camera spin to all modes, but first person mode doesn't support it
+        return false;
+    }
+    type_data.mKeyBind.resetKeyData(data_index);
+    return true;
+}
+
 LLKeyData LLKeyConflictHandler::getControl(const std::string &control_name, U32 index)
 {
     if (control_name.empty())
