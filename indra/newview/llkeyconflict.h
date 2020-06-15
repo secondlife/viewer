@@ -82,6 +82,18 @@ public:
     bool canAssignControl(const std::string &control_name);
     static bool isReservedByMenu(const KEY &key, const MASK &mask);
     static bool isReservedByMenu(const LLKeyData &data);
+
+    // @control_name - see REGISTER_KEYBOARD_ACTION in llviewerinput for avaliable options,
+    // usually this is just name of the function
+    // @data_index - single control (function) can have multiple key combinations trigering
+    // it, this index indicates combination function will change/add note that preferences
+    // floater can only display up to 3 options, but data_index can be bigger then that
+    // @mouse_ind - mouse action (middle click, MB5 etc)
+    // @key - keyboard key action
+    // @mask - shift/ctrl/alt flags
+    // @ignore_mask - Either to expect exact match (ctrl+K will not trigger if ctrl+shift+K
+    // is active) or ignore not expected masks as long as expected mask is present
+    // (ctrl+K will be triggered if ctrl+shift+K is active)
     bool registerControl(const std::string &control_name, U32 data_index, EMouseClickType mouse_ind, KEY key, MASK mask, bool ignore_mask); //todo: return conflicts?
 
     LLKeyData getControl(const std::string &control_name, U32 data_index);
@@ -101,6 +113,10 @@ public:
     // 'temporary' does not support gSavedSettings, those are handled
     // by preferences, so 'temporary' is such case will simply not
     // reset mHasUnsavedChanges
+    //
+    // 'temporary' exists to support ability of live-editing settings in
+    // preferences: temporary for testing changes 'live' without saving them,
+    // then hitting ok/cancel and save/discard values permanently.
     void saveToSettings(bool apply_temporary = false);
 
     LLKeyData getDefaultControl(const std::string &control_name, U32 data_index);
