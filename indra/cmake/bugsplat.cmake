@@ -13,8 +13,8 @@ if (USE_BUGSPLAT)
                 ${ARCH_PREBUILT_DIRS_RELEASE}/bugsplat.lib
                 )
         elseif (DARWIN)
-            find_library(BUGSPLAT_LIBRARIES BugsplatMac
-                PATHS "${ARCH_PREBUILT_DIRS_RELEASE}")
+            find_library(BUGSPLAT_LIBRARIES BugsplatMac REQUIRED
+                NO_DEFAULT_PATH PATHS "${ARCH_PREBUILT_DIRS_RELEASE}")
         else (WINDOWS)
             message(FATAL_ERROR "BugSplat is not supported; add -DUSE_BUGSPLAT=OFF")
         endif (WINDOWS)

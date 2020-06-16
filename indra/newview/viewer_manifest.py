@@ -1063,7 +1063,7 @@ class DarwinManifest(ViewerManifest):
                 # our apps
                 executable_path = {}
                 embedded_apps = [ (os.path.join("llplugin", "slplugin"), "SLPlugin.app") ]
-                if bugsplat_db:
+                if not bugsplat_db:
                     embedded_apps.append(("mac_crash_logger", "mac-crash-logger.app"))
                 for app_bld_dir, app in embedded_apps:
                     self.path2basename(os.path.join(os.pardir,
