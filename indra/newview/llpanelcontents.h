@@ -53,6 +53,7 @@ public:
 
 	static void		onClickNewScript(void*);
 	static void		onClickPermissions(void*);
+	static void		onClickResetScripts(void*);
 	
     // Key suffix for "tentative" fields
     static const char* TENTATIVE_SUFFIX;

@@ -110,6 +110,8 @@ void handle_object_return();
 void handle_object_delete();
 void handle_object_edit();
 
+void handle_selected_script_action(const std::string& action);
+
 void handle_buy_land();
 
 // Takes avatar UUID, or if no UUID passed, uses last selected object

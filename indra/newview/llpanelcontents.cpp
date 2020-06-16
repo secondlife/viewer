@@ -54,6 +54,7 @@
 #include "lltrans.h"
 #include "llviewerassettype.h"
 #include "llviewerinventory.h"
+#include "llviewermenu.h"
 #include "llviewerobject.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
@@ -82,6 +83,7 @@ BOOL LLPanelContents::postBuild()
 
 	childSetAction("button new script",&LLPanelContents::onClickNewScript, this);
 	childSetAction("button permissions",&LLPanelContents::onClickPermissions, this);
+	childSetAction("btn_reset_scripts", &LLPanelContents::onClickResetScripts, this);
 
 	mPanelInventoryObject = getChild<LLPanelObjectInventory>("contents_inventory");
 
@@ -106,6 +108,7 @@ void LLPanelContents::getState(LLViewerObject *objectp )
 	if( !objectp )
 	{
 		getChildView("button new script")->setEnabled(FALSE);
+		getChildView("btn_reset_scripts")->setEnabled(FALSE);
 		return;
 	}
 
@@ -124,6 +127,8 @@ void LLPanelContents::getState(LLViewerObject *objectp )
 		all_volume &&
 		((LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() == 1)
 			|| (LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1)));
+
+	getChildView("btn_reset_scripts")->setEnabled(editable);
 
 	getChildView("button permissions")->setEnabled(!objectp->isPermanentEnforced());
 	mPanelInventoryObject->setEnabled(!objectp->isPermanentEnforced());
@@ -205,4 +210,10 @@ void LLPanelContents::onClickPermissions(void *userdata)
 {
 	LLPanelContents* self = (LLPanelContents*)userdata;
 	gFloaterView->getParentFloater(self)->addDependentFloater(LLFloaterReg::showInstance("bulk_perms"));
+}
+
+// static
+void LLPanelContents::onClickResetScripts(void *userdata)
+{
+	handle_selected_script_action("reset");
 }
