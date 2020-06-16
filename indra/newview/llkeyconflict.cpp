@@ -610,12 +610,6 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
         }
     }
 
-    if (!temporary)
-    {
-        // will remove any temporary file if there were any
-        clearUnsavedChanges();
-    }
-
 #if 1
     // Legacy support
     // Remove #if-#endif section half a year after DRTVWR-501 releases.
@@ -624,16 +618,13 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
     // more than one mode.
     // We are saving this even if we are in temporary mode - preferences
     // will restore values on cancel
-    if (mLoadMode == MODE_THIRD_PERSON)
+    if (mLoadMode == MODE_THIRD_PERSON && mHasUnsavedChanges)
     {
         bool value = canHandleMouse("walk_to", CLICK_DOUBLELEFT, MASK_NONE);
         gSavedSettings.setBOOL("DoubleClickAutoPilot", value);
 
         value = canHandleMouse("walk_to", CLICK_LEFT, MASK_NONE);
         gSavedSettings.setBOOL("ClickToWalk", value);
-
-        value = canHandleMouse("teleport_to", CLICK_DOUBLELEFT, MASK_NONE);
-        gSavedSettings.setBOOL("DoubleClickTeleport", value);
 
         // new method can save both toggle and push-to-talk values simultaneously,
         // but legacy one can save only one. It also doesn't support mask.
@@ -680,6 +671,22 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
         }
     }
 #endif
+
+    if (mLoadMode == MODE_THIRD_PERSON && mHasUnsavedChanges)
+    {
+        // Map floater should react to doubleclick if doubleclick for teleport is set
+        // Todo: Seems conterintuitive for map floater to share inworld controls
+        // after these changes release, discuss with UI UX engineer if this should just
+        // be set to 1 by default (before release this also doubles as legacy support)
+        bool value = canHandleMouse("teleport_to", CLICK_DOUBLELEFT, MASK_NONE);
+        gSavedSettings.setBOOL("DoubleClickTeleport", value);
+    }
+
+    if (!temporary)
+    {
+        // will remove any temporary file if there were any
+        clearUnsavedChanges();
+    }
 }
 
 LLKeyData LLKeyConflictHandler::getDefaultControl(const std::string &control_name, U32 index)
