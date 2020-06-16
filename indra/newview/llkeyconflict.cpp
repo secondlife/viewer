@@ -230,6 +230,7 @@ bool LLKeyConflictHandler::clearControl(const std::string &control_name, U32 dat
         return false;
     }
     type_data.mKeyBind.resetKeyData(data_index);
+    mHasUnsavedChanges = true;
     return true;
 }
 

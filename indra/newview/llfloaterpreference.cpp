@@ -2083,7 +2083,7 @@ void LLFloaterPreference::updateClickActionControls()
                               MASK_NONE,
                               double_clk_action == 2);
 
-            panel->updateTable();
+            panel->updateAndApply();
         }
     }
 }
@@ -3150,6 +3150,13 @@ void LLPanelPreferenceControls::setKeyBind(const std::string &control, EMouseCli
             }
         }
     }
+}
+
+void LLPanelPreferenceControls::updateAndApply()
+{
+    S32 mode = LLKeyConflictHandler::MODE_THIRD_PERSON;
+    mConflictHandler[mode].saveToSettings(true);
+    updateTable();
 }
 
 // from LLSetKeybindDialog's interface
