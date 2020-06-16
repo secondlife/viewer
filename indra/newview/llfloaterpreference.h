@@ -317,14 +317,12 @@ public:
     bool canKeyBindHandle(const std::string &control, EMouseClickType click, KEY key, MASK mask);
     // Bypasses to let Move & view modify values without need to create own key binding handler
     void setKeyBind(const std::string &control, EMouseClickType click, KEY key, MASK mask, bool set /*set or reset*/ );
+    void updateAndApply();
 
     // from interface
 	/*virtual*/ bool onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool all_modes);
     /*virtual*/ void onDefaultKeyBind(bool all_modes);
     /*virtual*/ void onCancelKeyBind();
-
-    // Updates keybindings from storage to table
-    void updateTable();
 
 private:
 	// reloads settings, discards current changes, updates table
@@ -336,7 +334,10 @@ private:
 	void addControlTableSeparator();
 
 	// Cleans content and then adds content from xml files according to current mEditingMode
-	void populateControlTable();
+    void populateControlTable();
+
+    // Updates keybindings from storage to table
+    void updateTable();
 
 	LLScrollListCtrl* pControlsTable;
 	LLComboBox *pKeyModeBox;

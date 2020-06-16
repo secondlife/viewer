@@ -1014,8 +1014,8 @@ bool LLAppViewer::init()
     // Also part of backward compatibility is present in LLKeyConflictHandler to modify
     // legacy variables on changes in new system (to make sure we won't enforce
     // legacy values again if user dropped to defaults in new system)
-    if (mIsFirstRun
-        && !gDirUtilp->fileExists(key_bindings_file)) // if file is missing, assume that there were no changes by user yet
+    if (LLVersionInfo::getChannelAndVersion() != gLastRunVersion
+        || !gDirUtilp->fileExists(key_bindings_file)) // if file is missing, assume that there were no changes by user yet
     {
         // copy mouse actions and voice key changes to new file
         LL_INFOS("InitInfo") << "Converting legacy mouse bindings to new format" << LL_ENDL;
