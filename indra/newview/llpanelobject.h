@@ -73,6 +73,8 @@ public:
     void            onPasteSize();
     void            onCopyRot();
     void            onPasteRot();
+    void            onCopyParams();
+    void            onPasteParams();
 	static void 	onCommitParametric(LLUICtrl* ctrl, void* userdata);
 
 
@@ -102,6 +104,7 @@ protected:
 protected:
 	// Per-object options
 	LLComboBox*		mComboBaseType;
+	LLMenuButton*	mMenuClipboardParams;
 
 	LLTextBox*		mLabelCut;
 	LLSpinCtrl*		mSpinCutBegin;
@@ -183,10 +186,12 @@ protected:
     LLVector3       mClipboardPos;
     LLVector3       mClipboardSize;
     LLVector3       mClipboardRot;
+    LLSD            mClipboardParams;
 
-    BOOL            mHasPosClipboard;
-    BOOL            mHasSizeClipboard;
-    BOOL            mHasRotClipboard;
+    bool            mHasClipboardPos;
+    bool            mHasClipboardSize;
+    bool            mHasClipboardRot;
+    bool            mHasClipboardParams;
 
 	LLPointer<LLViewerObject> mObject;
 	LLPointer<LLViewerObject> mRootObject;

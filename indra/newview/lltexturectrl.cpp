@@ -79,6 +79,61 @@ static const S32 LOCAL_TRACKING_ID_COLUMN = 1;
 //static const char WHITE_IMAGE_NAME[] = "Blank Texture";
 //static const char NO_IMAGE_NAME[] = "None";
 
+
+
+//static
+bool get_is_library_texture(LLUUID image_id)
+{
+    if (gInventory.isObjectDescendentOf(image_id, gInventory.getLibraryRootFolderID())
+        || image_id == LLUUID(gSavedSettings.getString("DefaultObjectTexture"))
+        || image_id == LLUUID(gSavedSettings.getString("UIImgWhiteUUID"))
+        || image_id == LLUUID(gSavedSettings.getString("UIImgInvisibleUUID"))
+        || image_id == LLUUID(SCULPT_DEFAULT_TEXTURE))
+    {
+        return true;
+    }
+    return false;
+}
+
+LLUUID get_copy_free_item_by_asset_id(LLUUID image_id)
+{
+    LLViewerInventoryCategory::cat_array_t cats;
+    LLViewerInventoryItem::item_array_t items;
+    LLAssetIDMatches asset_id_matches(image_id);
+    gInventory.collectDescendentsIf(LLUUID::null,
+        cats,
+        items,
+        LLInventoryModel::INCLUDE_TRASH,
+        asset_id_matches);
+    if (items.size())
+    {
+        for (S32 i = 0; i < items.size(); i++)
+        {
+            LLViewerInventoryItem* itemp = items[i];
+            if (itemp)
+            {
+                LLPermissions item_permissions = itemp->getPermissions();
+                if (item_permissions.allowOperationBy(PERM_COPY,
+                    gAgent.getID(),
+                    gAgent.getGroupID()))
+                {
+                    return itemp->getUUID();
+                }
+            }
+        }
+    }
+    return LLUUID::null;
+}
+
+bool get_can_copy_texture(LLUUID image_id)
+{
+    // User is allowed to copy a texture if:
+    // library asset or default texture,
+    // or copy perm asset exists in user's inventory
+
+    return get_is_library_texture(image_id) || get_copy_free_item_by_asset_id(image_id).notNull();
+}
+
 LLFloaterTexturePicker::LLFloaterTexturePicker(	
 	LLView* owner,
 	LLUUID image_asset_id,

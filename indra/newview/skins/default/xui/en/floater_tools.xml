@@ -1436,7 +1436,7 @@ even though the user gets a free copy.
              height="0"
              layout="topleft"
              left_delta="0"
-             name="lod_tab_border"
+             name="object_horizontal"
              top_pad="10"
              width="95" />
             <menu_button
@@ -1666,13 +1666,23 @@ even though the user gets a free copy.
              width="150">
                 Prim Type
             </text>-->
+
+            <view_border
+             bevel_style="none"
+             follows="top|left"
+             layout="topleft"
+             name="object_vertical"
+             left="117"
+             top="6"
+             height="500"
+             width="0"/>
             <combo_box
              height="19"
              layout="topleft"
              name="comboBaseType"
              top="6"
              left="125"
-             width="150">
+             width="125">
                 <combo_box.item
                  label="Box"
                  name="Box"
@@ -1706,15 +1716,28 @@ even though the user gets a free copy.
                  name="Sculpted"
                  value="Sculpted" />
             </combo_box>
+            <menu_button
+              menu_filename="menu_copy_paste_generic.xml"
+              follows="top|left"
+              height="15"
+              image_disabled="ClipboardMenu_Disabled"
+              image_selected="ClipboardMenu_Press"
+              image_unselected="ClipboardMenu_Off"
+              layout="topleft"
+              left_pad="8"
+              top_delta="2"
+              name="clipboard_params_btn"
+              tool_tip="Paste options"
+              width="22"/>
             <text
              type="string"
              length="1"
              follows="left|top"
              height="10"
              layout="topleft"
-             left_delta="0"
+             left="125"
              name="text cut"
-             top_pad="5"
+             top_pad="7"
              width="150">
                 Path Cut (begin/end)
             </text>

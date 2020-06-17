@@ -4379,6 +4379,7 @@ void LLModelPreview::textureLoadedCallback(
 
 	if(final && preview->mModelLoader)
 	{
+		// for areTexturesReady()
 		if(preview->mModelLoader->mNumOfFetchingTextures > 0)
 		{
 			preview->mModelLoader->mNumOfFetchingTextures-- ;

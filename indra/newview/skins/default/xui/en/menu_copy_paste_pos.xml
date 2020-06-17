@@ -3,19 +3,35 @@
  layout="topleft"
  name="Copy Paste Position Menu">
     <menu_item_call
-     label="Copy Position"
+     label="Copy all"
+     layout="topleft"
+     name="psr_copy"
+     visible="true">
+       <on_click function="PanelObject.menuDoToSelected" parameter="psr_copy" />
+       <on_enable function="PanelObject.menuEnable" parameter="psr_copy" />
+    </menu_item_call>
+    <menu_item_call
+     label="Copy position"
      layout="topleft"
      name="pos_copy"
      visible="true">
-        <on_click function="PanelObject.menuDoToSelected" parameter="pos_copy" />
+       <on_click function="PanelObject.menuDoToSelected" parameter="pos_copy" />
     </menu_item_call>
     <menu_item_call
-     label="Paste Position"
+     label="Paste all"
+     layout="topleft"
+     name="psr_paste"
+     visible="true">
+       <on_click function="PanelObject.menuDoToSelected" parameter="psr_paste" />
+       <on_enable function="PanelObject.menuEnable" parameter="psr_paste" />
+    </menu_item_call>
+    <menu_item_call
+     label="Paste position"
      layout="topleft"
      name="pos_paste"
      visible="true">
-      <on_click function="PanelObject.menuDoToSelected" parameter="pos_paste" />
-      <on_enable function="PanelObject.menuEnable" parameter="pos_paste" />
+       <on_click function="PanelObject.menuDoToSelected" parameter="pos_paste" />
+       <on_enable function="PanelObject.menuEnable" parameter="pos_paste" />
     </menu_item_call>
 </toggleable_menu>
 

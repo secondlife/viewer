@@ -54,7 +54,6 @@
 #include "llmediaentry.h"
 #include "llmenubutton.h"
 #include "llnotificationsutil.h"
-#include "llpanelobject.h" // LLPanelObject::canCopyTexture
 #include "llradiogroup.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
@@ -2929,7 +2928,7 @@ void LLPanelFace::onCopyFaces()
                 {
                     LLUUID item_id;
                     LLUUID id = te_data["te"]["imageid"].asUUID();
-                    bool full_perm = LLPanelFace::isLibraryTexture(id) || (objectp->permCopy() && objectp->permTransfer() && objectp->permModify());
+                    bool full_perm = get_is_library_texture(id) || (objectp->permCopy() && objectp->permTransfer() && objectp->permModify());
 
                     if (id.notNull() && !full_perm)
                     {
@@ -2944,7 +2943,7 @@ void LLPanelFace::onCopyFaces()
                             // as result it is Hightly unreliable, leaves little control to user, borderline hack
                             // but there are little options to preserve permissions - multiple inventory
                             // items might reference same asset and inventory search is expensive.
-                            item_id = LLPanelFace::getCopyPermInventoryTextureId(id);
+                            item_id = get_copy_free_item_by_asset_id(id);
                             // record value to avoid repeating inventory search when possible
                             asset_item_map[id] = item_id;
                         }
@@ -3022,7 +3021,7 @@ void LLPanelFace::onCopyFaces()
                     if (mat_data.has("NormMap"))
                     {
                         LLUUID id = mat_data["NormMap"].asUUID();
-                        if (id.notNull() && !LLPanelFace::canCopyTexture(id))
+                        if (id.notNull() && !get_can_copy_texture(id))
                         {
                             mat_data["NormMap"] = LLUUID(gSavedSettings.getString( "DefaultObjectTexture" ));
                             mat_data["NormMapNoCopy"] = true;
@@ -3032,7 +3031,7 @@ void LLPanelFace::onCopyFaces()
                     if (mat_data.has("SpecMap"))
                     {
                         LLUUID id = mat_data["SpecMap"].asUUID();
-                        if (id.notNull() && !LLPanelFace::canCopyTexture(id))
+                        if (id.notNull() && !get_can_copy_texture(id))
                         {
                             mat_data["SpecMap"]  = LLUUID(gSavedSettings.getString( "DefaultObjectTexture" ));
                             mat_data["SpecMapNoCopy"] = true;
@@ -3503,59 +3502,4 @@ bool LLPanelFace::pasteEnabletMenuItem(const LLSD& userdata)
     }
 
     return true;
-}
-
-//static
-bool LLPanelFace::isLibraryTexture(LLUUID image_id)
-{
-    if (gInventory.isObjectDescendentOf(image_id, gInventory.getLibraryRootFolderID())
-        || image_id == LLUUID(gSavedSettings.getString("DefaultObjectTexture"))
-        || image_id == LLUUID(gSavedSettings.getString("UIImgWhiteUUID"))
-        || image_id == LLUUID(gSavedSettings.getString("UIImgInvisibleUUID"))
-        || image_id == LLUUID(SCULPT_DEFAULT_TEXTURE))
-    {
-        return true;
-    }
-    return false;
-}
-
-//static
-LLUUID LLPanelFace::getCopyPermInventoryTextureId(LLUUID image_id)
-{
-    LLViewerInventoryCategory::cat_array_t cats;
-    LLViewerInventoryItem::item_array_t items;
-    LLAssetIDMatches asset_id_matches(image_id);
-    gInventory.collectDescendentsIf(LLUUID::null,
-        cats,
-        items,
-        LLInventoryModel::INCLUDE_TRASH,
-        asset_id_matches);
-    if (items.size())
-    {
-        for (S32 i = 0; i < items.size(); i++)
-        {
-            LLViewerInventoryItem* itemp = items[i];
-            if (itemp)
-            {
-                LLPermissions item_permissions = itemp->getPermissions();
-                if (item_permissions.allowOperationBy(PERM_COPY,
-                    gAgent.getID(),
-                    gAgent.getGroupID()))
-                {
-                    return itemp->getUUID();
-                }
-            }
-        }
-    }
-    return LLUUID::null;
-}
-
-// Static
-bool LLPanelFace::canCopyTexture(LLUUID image_id)
-{
-    // User is allowed to copy a texture if:
-    // library asset or default texture,
-    // or copy perm asset exists in user's inventory
-
-    return isLibraryTexture(image_id) || getCopyPermInventoryTextureId(image_id).notNull();
 }
