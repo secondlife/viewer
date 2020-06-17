@@ -2934,7 +2934,8 @@ void LLPanelPreferenceControls::cancel()
             mConflictHandler[i].clear();
         }
     }
-    pControlsTable->clear();
+    pControlsTable->clearRows();
+    pControlsTable->clearColumns();
 }
 
 void LLPanelPreferenceControls::saveSettings()
