@@ -4374,7 +4374,20 @@ void LLModelPreview::textureLoadedCallback(
     BOOL final,
     void* userdata )
 {
-	LLModelPreview* preview = (LLModelPreview*) userdata;
+    if (!LLFloaterModelPreview::sInstance)
+    {
+        return;
+    }
+
+    // there is a chance that user will manage to open floater second
+    // time right after closing it, while textures are still loading
+    // this needs a reliable method to check validity of userdata
+    LLModelPreview* preview = (LLModelPreview*) userdata;
+    if (preview != LLFloaterModelPreview::sInstance->mModelPreview)
+    {
+        return;
+    }
+
 	preview->refresh();
 
 	if(final && preview->mModelLoader)
