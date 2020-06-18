@@ -35,20 +35,30 @@ VARYING vec3 vary_texcoord1;
 
 uniform samplerCube environmentMap;
 
+// render_hud_attachments() -> HUD objects set LLShaderMgr::NO_ATMO; used in LLDrawPoolAlpha::beginRenderPass()
+uniform int no_atmo;
+
 vec3 fullbrightShinyAtmosTransport(vec3 light);
 vec3 fullbrightScaleSoftClip(vec3 light);
 
+// See:
+//   class1\deferred\fullbrightShinyF.glsl
+//   class1\lighting\lightFullbrightShinyF.glsl
 void fullbright_shiny_lighting()
 {
 	vec4 color = diffuseLookup(vary_texcoord0.xy);
 	color.rgb *= vertex_color.rgb;
-	
-	vec3 envColor = textureCube(environmentMap, vary_texcoord1.xyz).rgb;	
-	color.rgb = mix(color.rgb, envColor.rgb, vertex_color.a*0.75); // MAGIC NUMBER SL-12574; ALM: Off, Quality > Low
 
-	color.rgb = fullbrightShinyAtmosTransport(color.rgb);
+	// SL-9632 HUDs are affected by Atmosphere
+	if (no_atmo == 0)
+	{
+		vec3 envColor = textureCube(environmentMap, vary_texcoord1.xyz).rgb;
+		color.rgb = mix(color.rgb, envColor.rgb, vertex_color.a*0.75); // MAGIC NUMBER SL-12574; ALM: Off, Quality > Low
 
-	color.rgb = fullbrightScaleSoftClip(color.rgb);
+		color.rgb = fullbrightShinyAtmosTransport(color.rgb);
+
+		color.rgb = fullbrightScaleSoftClip(color.rgb);
+	}
 
 	color.a = 1.0;
 
