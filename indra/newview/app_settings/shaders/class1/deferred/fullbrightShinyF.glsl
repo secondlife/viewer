@@ -42,6 +42,9 @@ VARYING vec4 vary_position;
 
 uniform samplerCube environmentMap;
 
+// render_hud_attachments() -> HUD objects set LLShaderMgr::NO_ATMO; used in LLDrawPoolAlpha::beginRenderPass()
+uniform int no_atmo;
+
 vec3 fullbrightShinyAtmosTransport(vec3 light);
 vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
 vec3 fullbrightScaleSoftClip(vec3 light);
@@ -51,7 +54,9 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
 vec3 linear_to_srgb(vec3 c);
 vec3 srgb_to_linear(vec3 c);
 
-
+// See:
+//   class1\deferred\fullbrightShinyF.glsl
+//   class1\lighting\lightFullbrightShinyF.glsl
 void main()
 {
 #ifdef HAS_DIFFUSE_LOOKUP
@@ -59,25 +64,28 @@ void main()
 #else
 	vec4 color = texture2D(diffuseMap, vary_texcoord0.xy);
 #endif
-	
+
 	color.rgb *= vertex_color.rgb;
-	vec3 pos = vary_position.xyz/vary_position.w;
 
-	vec3 sunlit;
-	vec3 amblit;
-	vec3 additive;
-	vec3 atten;
+	// SL-9632 HUDs are affected by Atmosphere
+	if (no_atmo == 0)
+	{
+		vec3 sunlit;
+		vec3 amblit;
+		vec3 additive;
+		vec3 atten;
+		vec3 pos = vary_position.xyz/vary_position.w;
 
-	calcAtmosphericVars(pos.xyz, vec3(0), 1.0, sunlit, amblit, additive, atten, false);
-	
-	vec3 envColor = textureCube(environmentMap, vary_texcoord1.xyz).rgb;	
-	float env_intensity = vertex_color.a;
-	color.rgb = mix(color.rgb, envColor.rgb, env_intensity);
+		calcAtmosphericVars(pos.xyz, vec3(0), 1.0, sunlit, amblit, additive, atten, false);
+
+		vec3 envColor = textureCube(environmentMap, vary_texcoord1.xyz).rgb;
+		float env_intensity = vertex_color.a;
 
 	//color.rgb = srgb_to_linear(color.rgb);
-	
-	color.rgb = fullbrightAtmosTransportFrag(color.rgb, additive, atten);
-	color.rgb = fullbrightScaleSoftClip(color.rgb);
+		color.rgb = mix(color.rgb, envColor.rgb, env_intensity);
+		color.rgb = fullbrightAtmosTransportFrag(color.rgb, additive, atten);
+		color.rgb = fullbrightScaleSoftClip(color.rgb);
+	}
 
 	color.a = 1.0;
 
