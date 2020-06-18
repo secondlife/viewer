@@ -53,7 +53,8 @@ void main()
 
 	passTextureIndex();
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0, 0, 1)).xy;
-	
+
+	// SL-9632 HUDs are affected by Atmosphere
 	if (no_atmo == 1)
 	{
 		vertex_color = diffuse_color;
