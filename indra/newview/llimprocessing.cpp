@@ -1628,6 +1628,7 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
             bin_bucket.size(),
             sender,
             message_data["asset_id"].asUUID());
+
     }
 }
 
