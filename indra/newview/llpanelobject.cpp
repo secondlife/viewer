@@ -159,7 +159,7 @@ BOOL	LLPanelObject::postBuild()
 	mComboBaseType = getChild<LLComboBox>("comboBaseType");
 	childSetCommitCallback("comboBaseType",onCommitParametric,this);
 
-	mMenuClipboardParams = getChild<LLMenuButton>("clipboard_params_btn");
+	mMenuClipboardParams = getChild<LLMenuButton>("clipboard_obj_params_btn");
 
 	// Cut
 	mLabelCut = getChild<LLTextBox>("text cut");
@@ -294,7 +294,6 @@ LLPanelObject::LLPanelObject()
     mHasClipboardPos(false),
     mHasClipboardSize(false),
     mHasClipboardRot(false),
-    mHasClipboardParams(false),
 	mSizeChanged(FALSE)
 {
     mCommitCallbackRegistrar.add("PanelObject.menuDoToSelected", boost::bind(&LLPanelObject::menuDoToSelected, this, _2));
@@ -2109,7 +2108,7 @@ bool LLPanelObject::menuEnableItem(const LLSD& userdata)
     }
     else if (command == "params_paste")
     {
-        return mHasClipboardParams;
+        return mClipboardParams.isMap() && !mClipboardParams.emptyMap();
     }
     // copy options
     else if (command == "psr_copy")
@@ -2218,7 +2217,7 @@ void LLPanelObject::onPasteRot()
 void LLPanelObject::onCopyParams()
 {
     LLViewerObject* objectp = mObject;
-    if (!objectp)
+    if (!objectp || objectp->isMesh())
     {
         return;
     }
@@ -2226,42 +2225,34 @@ void LLPanelObject::onCopyParams()
     mClipboardParams.clear();
 
     // Parametrics
-    if (!objectp->isMesh())
-    {
-        LLVolumeParams params;
-        getVolumeParams(params);
-        mClipboardParams["volume_params"] = params.asLLSD();
-    }
+    LLVolumeParams params;
+    getVolumeParams(params);
+    mClipboardParams["volume_params"] = params.asLLSD();
 
     // Sculpted Prim
     if (objectp->getParameterEntryInUse(LLNetworkData::PARAMS_SCULPT))
     {
         LLSculptParams *sculpt_params = (LLSculptParams *)objectp->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
 
-        if (!objectp->isMesh())
+        LLUUID texture_id = sculpt_params->getSculptTexture();
+        if (get_can_copy_texture(texture_id))
         {
-            LLUUID texture_id = sculpt_params->getSculptTexture();
-            if (get_can_copy_texture(texture_id))
-            {
-                LL_DEBUGS("FloaterTools") << "Recording texture" << LL_ENDL;
-                mClipboardParams["sculpt"]["id"] = texture_id;
-            }
-            else
-            {
-                mClipboardParams["sculpt"]["id"] = LLUUID(SCULPT_DEFAULT_TEXTURE);
-            }
-
-            mClipboardParams["sculpt"]["type"] = sculpt_params->getSculptType();
+            LL_DEBUGS("FloaterTools") << "Recording texture" << LL_ENDL;
+            mClipboardParams["sculpt"]["id"] = texture_id;
         }
-    }
+        else
+        {
+            mClipboardParams["sculpt"]["id"] = LLUUID(SCULPT_DEFAULT_TEXTURE);
+        }
 
-    mHasClipboardParams = TRUE;
+        mClipboardParams["sculpt"]["type"] = sculpt_params->getSculptType();
+    }
 }
 
 void LLPanelObject::onPasteParams()
 {
     LLViewerObject* objectp = mObject;
-    if (!objectp || !mHasClipboardParams)
+    if (!objectp)
     {
         return;
     }

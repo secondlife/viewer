@@ -1717,7 +1717,7 @@ even though the user gets a free copy.
                  value="Sculpted" />
             </combo_box>
             <menu_button
-              menu_filename="menu_copy_paste_generic.xml"
+              menu_filename="menu_copy_paste_object.xml"
               follows="top|left"
               height="15"
               image_disabled="ClipboardMenu_Disabled"
@@ -1726,7 +1726,7 @@ even though the user gets a free copy.
               layout="topleft"
               left_pad="8"
               top_delta="2"
-              name="clipboard_params_btn"
+              name="clipboard_obj_params_btn"
               tool_tip="Paste options"
               width="22"/>
             <text
@@ -2232,6 +2232,19 @@ even though the user gets a free copy.
 	<panel.string name="None">None</panel.string>
 	<panel.string name="Prim">Prim</panel.string>
 	<panel.string name="Convex Hull">Convex Hull</panel.string>
+            <menu_button
+              menu_filename="menu_copy_paste_features.xml"
+              follows="top|left"
+              height="15"
+              image_disabled="ClipboardMenu_Disabled"
+              image_selected="ClipboardMenu_Press"
+              image_unselected="ClipboardMenu_Off"
+              layout="topleft"
+              left="258"
+              top="8"
+              name="clipboard_features_params_btn"
+              tool_tip="Paste options"
+              width="22"/>
             <text
              type="string"
              length="1"
@@ -2384,6 +2397,15 @@ even though the user gets a free copy.
              name="FlexForceZ"
              top_pad="4"
              width="128" />
+            <view_border
+             bevel_style="none"
+             follows="top|left"
+             height="0"
+             layout="topleft"
+             left="8"
+             name="object_horizontal"
+             top_pad="10"
+             width="278" />
 
             <check_box
              height="16"
@@ -2392,7 +2414,7 @@ even though the user gets a free copy.
              left="10"
              name="Light Checkbox Ctrl"
              tool_tip="Causes object to emit light"
-             top_pad="15"
+             top_pad="8"
              width="60" />
             <color_swatch
              can_apply_immediately="true"
@@ -2419,6 +2441,19 @@ even though the user gets a free copy.
             name="light texture control"
             tool_tip="Click to choose a projection image (only has effect with deferred rendering enabled)"
             width="32" />
+         <menu_button
+              menu_filename="menu_copy_paste_light.xml"
+              follows="top|left"
+              height="15"
+              image_disabled="ClipboardMenu_Disabled"
+              image_selected="ClipboardMenu_Press"
+              image_unselected="ClipboardMenu_Off"
+              layout="topleft"
+              left="258"
+              top_delta="0"
+              name="clipboard_light_params_btn"
+              tool_tip="Paste options"
+              width="22"/>
           <spinner
              follows="left|top"
              height="19"
@@ -2428,7 +2463,7 @@ even though the user gets a free copy.
              layout="topleft"
              left="10"
              name="Light Intensity"
-             top_pad="3"
+             top_pad="26"
              width="128" />
           <spinner bottom_delta="0"
                    decimal_digits="3"

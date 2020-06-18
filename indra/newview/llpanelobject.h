@@ -191,7 +191,6 @@ protected:
     bool            mHasClipboardPos;
     bool            mHasClipboardSize;
     bool            mHasClipboardRot;
-    bool            mHasClipboardParams;
 
 	LLPointer<LLViewerObject> mObject;
 	LLPointer<LLViewerObject> mRootObject;

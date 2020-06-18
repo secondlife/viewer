@@ -37,6 +37,7 @@ class LLCheckBoxCtrl;
 class LLTextBox;
 class LLUICtrl;
 class LLButton;
+class LLMenuButton;
 class LLViewerObject;
 class LLComboBox;
 class LLColorSwatchCtrl;
@@ -73,6 +74,13 @@ public:
 	void		onLightCancelTexture(const LLSD& data); 
 	void		onLightSelectTexture(const LLSD& data);
 
+    void            onCopyFeatures();
+    void            onPasteFeatures();
+    void            onCopyLight();
+    void            onPasteLight();
+ 
+    void        menuDoToSelected(const LLSD& userdata);
+    bool        menuEnableItem(const LLSD& userdata);
 
 protected:
 	void			getState();
@@ -120,6 +128,11 @@ protected:
 	LLSpinCtrl*     mSpinPhysicsFriction;
 	LLSpinCtrl*     mSpinPhysicsDensity;
 	LLSpinCtrl*     mSpinPhysicsRestitution;
+
+    LLMenuButton*   mMenuClipboardFeatures;
+    LLMenuButton*   mMenuClipboardLight;
+
+    LLSD            mClipboardParams;
 };
 
 #endif
