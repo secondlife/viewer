@@ -547,10 +547,23 @@ bool LLToolPie::walkToClickedLocation()
     }
 
     LLPickInfo saved_pick = mPick;
-    mPick = gViewerWindow->pickImmediate(mHoverPick.mMousePt.mX, mHoverPick.mMousePt.mY,
-        FALSE /* ignore transparent */,
-        FALSE /* ignore rigged */,
-        FALSE /* ignore particles */);
+    if (gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK)
+    {
+        mPick = gViewerWindow->pickImmediate(mHoverPick.mMousePt.mX, mHoverPick.mMousePt.mY,
+            FALSE /* ignore transparent */,
+            FALSE /* ignore rigged */,
+            FALSE /* ignore particles */);
+    }
+    else
+    {
+        // We do not handle hover in mouselook as we do in other modes, so
+        // use croshair's position to do a pick
+        mPick = gViewerWindow->pickImmediate(gViewerWindow->getWorldViewRectScaled().getWidth() / 2,
+            gViewerWindow->getWorldViewRectScaled().getHeight() / 2,
+            FALSE /* ignore transparent */,
+            FALSE /* ignore rigged */,
+            FALSE /* ignore particles */);
+    }
 
     if (mPick.mPickType == LLPickInfo::PICK_OBJECT)
     {
@@ -609,6 +622,16 @@ bool LLToolPie::walkToClickedLocation()
 
 bool LLToolPie::teleportToClickedLocation()
 {
+    if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK)
+    {
+        // We do not handle hover in mouselook as we do in other modes, so
+        // use croshair's position to do a pick
+        BOOL pick_rigged = false;
+        mHoverPick = gViewerWindow->pickImmediate(gViewerWindow->getWorldViewRectScaled().getWidth() / 2,
+                                                  gViewerWindow->getWorldViewRectScaled().getHeight() / 2,
+                                                  FALSE,
+                                                  pick_rigged);
+    }
     LLViewerObject* objp = mHoverPick.getObject();
     LLViewerObject* parentp = objp ? objp->getRootEdit() : NULL;
 
