@@ -43,7 +43,7 @@
              follows="left|top"
              height="10"
              layout="topleft"
-             left_pad="10"
+             left_pad="15"
              name="color trans"
              text_readonly_color="LabelDisabledColor"
              top="6"
@@ -68,7 +68,7 @@
              follows="left|top"
              height="10"
              layout="topleft"
-             left_pad="13"
+             left_pad="15"
              name="glow label"
              text_readonly_color="LabelDisabledColor"
              top="6"
@@ -84,7 +84,7 @@
              left_delta="0"
              name="glow"
              top_pad="4"
-             width="50" />
+             width="80" />
             <check_box
              height="19"
              label="Full Bright"
@@ -93,47 +93,12 @@
              name="checkbox fullbright"
              top_pad="4"
              width="81" />
-            <button
-             follows="top|right"
-             height="23"
-             label="Copy"
-             layout="topleft"
-             left="240"
-             name="copy_face_btn"
-             tool_tip="Copy Parameters to Clipboard"
-             top="6"
-             width="53">
-            </button>
-            <button
-             follows="top|right"
-             height="23"
-             label="Paste"
-             layout="topleft"
-             name="paste_face_btn"
-             tool_tip="Paste Parameters from Clipboard"
-             top_pad="5"
-             width="53">
-            </button>
-            <menu_button
-             menu_filename="menu_texture_paste.xml"
-             follows="top|left"
-             height="23"
-             image_hover_unselected="Toolbar_Middle_Over"
-             image_overlay="OptionsMenu_Off"
-             image_selected="Toolbar_Middle_Selected"
-             image_unselected="Toolbar_Middle_Off"
-             layout="topleft"
-             left_delta="20"
-             name="paste_face_gear_btn"
-             tool_tip="Paste options"
-             top_pad="5"
-             width="31"/>
             <combo_box
              height="23"
              layout="topleft"
              left="10"
              name="combobox matmedia"
-             top="70"
+             top_pad="5"
              width="100">
                 <combo_box.item
                  label="Materials"
@@ -148,10 +113,10 @@
             control_name="ComboMaterialType"
             height="50"
             layout="topleft"
-            left_pad="5"
+            left_pad="20"
             top_delta="-10"
             width="150"
-            visible = "true"
+            visible = "false"
             name="radio_material_type">
                 <radio_item
                 label="Texture (diffuse)"
@@ -174,7 +139,7 @@
                 layout="topleft"
                 top_pad="1"
                 value="2"/>
-            </radio_group>
+            </radio_group> 
             <check_box
              control_name="SyncMaterialSettings"
              follows="top|left"
@@ -193,7 +158,7 @@
              fallback_image="materials_ui_x_24.png"
              follows="left|top"
              height="80"
-             label="Texture"
+             label="Texture       "
              layout="topleft"
              left="10"
              name="texture control"
@@ -270,7 +235,7 @@
              fallback_image="materials_ui_x_24.png"
              follows="left|top"
              height="80"
-             label="Texture"
+             label="Texture       "
              layout="topleft"
              left="10"
              name="bumpytexture control"
@@ -384,7 +349,7 @@
              fallback_image="materials_ui_x_24.png"
              follows="left|top"
              height="80"
-             label="Texture"
+             label="Texture       "
              layout="topleft"
              left="10"
              name="shinytexture control"
