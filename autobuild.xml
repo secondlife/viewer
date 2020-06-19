@@ -2989,6 +2989,62 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>version</key>
         <string>4.10.0000.32327.5fc3fe7c.531581</string>
       </map>
+      <key>sqlite</key>
+      <map>
+        <key>canonical_repo</key>
+        <string>https://bitbucket.org/lindenlab/3p-sqlite</string>
+        <key>copyright</key>
+        <string>Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler</string>
+        <key>description</key>
+        <string>SQLite is a C-language library that implements a small, fast, self-contained, high-reliability, full-featured, SQL database engine.</string>
+        <key>license</key>
+        <string>Public Domain</string>
+        <key>license_file</key>
+        <string>LICENSES/sqlite_copyright.html</string>
+        <key>name</key>
+        <string>sqlite</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>bd93318a46ad292ca5f0065722f7e6e3</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/61946/582854/sqlite-3.32.2-darwin64-543837.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>288f0bc13b4e04145a70ecfe904bf784</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/61948/582865/sqlite-3.32.2-windows-543837.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>c6e350ffe7cb6c000ec734822f74e565</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/61947/582866/sqlite-3.32.2-windows64-543837.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>3.32.2</string>
+      </map>
       <key>tut</key>
       <map>
         <key>copyright</key>
