@@ -4,7 +4,7 @@
  name="Attachment Pie">
     <menu_item_call
      enabled="false"
-     label="Touch"
+     label="Touch item"
      layout="topleft"
      name="Attachment Object Touch">
         <menu_item_call.on_click
@@ -13,19 +13,9 @@
          function="Object.EnableTouch"
          name="EnableTouch"/>
     </menu_item_call>
-    <!--menu_item_call
-     label="Stand Up"
-     layout="topleft"
-     name="Stand Up">
-        <menu_item_call.on_click
-         function="Self.StandUp"
-         parameter="" />
-        <menu_item_call.on_enable
-         function="Self.EnableStandUp" />
-    </menu_item_call-->
     <menu_item_call
      enabled="false"
-     label="Edit"
+     label="Edit item"
      layout="topleft"
      name="Edit...">
         <menu_item_call.on_click
@@ -35,7 +25,7 @@
     </menu_item_call>
     <menu_item_call
      enabled="false"
-     label="Detach"
+     label="Detach item"
      layout="topleft"
      name="Detach">
         <menu_item_call.on_click
@@ -46,36 +36,15 @@
   <menu_item_separator
     layout="topleft" />
 
-    <menu_item_call
-     label="Sit Down"
-     layout="topleft"
-     name="Sit Down Here">
-        <menu_item_call.on_click
-         function="Self.SitDown"
-         parameter="" />
-        <menu_item_call.on_enable
-         function="Self.EnableSitDown" />
-    </menu_item_call>
-
   <menu_item_call
-label="Stand Up"
-layout="topleft"
-name="Stand Up">
-    <menu_item_call.on_click
-     function="Self.StandUp"
-     parameter="" />
-    <menu_item_call.on_enable
-     function="Self.EnableStandUp" />
-  </menu_item_call>
-  <menu_item_call
-  label="My Appearance"
+  label="Outfits..."
   name="Change Outfit">
     <menu_item_call.on_click
      function="CustomizeAvatar" />
     <menu_item_call.on_enable
      function="Edit.EnableCustomizeAvatar" />
   </menu_item_call>
-  <menu_item_call label="Edit My Outfit"
+  <menu_item_call label="Edit current outfit..."
 layout="topleft"
 name="Edit Outfit">
     <menu_item_call.on_click
@@ -83,7 +52,7 @@ name="Edit Outfit">
     <menu_item_call.on_enable
      function="Edit.EnableCustomizeAvatar" />
   </menu_item_call>
-  <menu_item_call label="Edit My Shape"
+  <menu_item_call label="Shape..."
     layout="topleft"
     name="Edit My Shape">
     <menu_item_call.on_click
@@ -91,7 +60,7 @@ name="Edit Outfit">
     <menu_item_call.on_enable
      function="Edit.EnableEditShape" />
   </menu_item_call>
-  <menu_item_call label="Hover Height"
+  <menu_item_call label="Hover height..."
      layout="topleft"
      name="Hover Height">
      <menu_item_call.on_click
@@ -99,42 +68,42 @@ name="Edit Outfit">
      <menu_item_call.on_enable
       function="Edit.EnableHoverHeight" />
   </menu_item_call>
-  <menu_item_call label="Reset Skeleton"
+  <menu_item_separator/>
+  <menu_item_call
+    label="Sit / stand"
+    layout="topleft"
+    name="Sit stand">
+    <menu_item_call.on_click
+     function="Self.ToggleSitStand"/>
+    <menu_item_call.on_enable
+     function="Self.EnableSitStand" />
+  </menu_item_call>
+  <menu_item_call
+     label="Fly / land"
+     name="Fly land">
+    <menu_item_call.on_click
+     function="Agent.toggleFlying" />
+    <menu_item_call.on_enable
+     function="Agent.enableFlyLand" />
+  </menu_item_call>
+  <menu_item_call
+     label="Stop animations"
+     name="Stop Animating My Avatar">
+    <menu_item_call.on_click
+     function="Tools.StopAllAnimations" />
+  </menu_item_call>
+  <menu_item_separator/>
+  <menu_item_call label="Reset skeleton"
        layout="topleft"
        name="Reset Skeleton">
        <menu_item_call.on_click
         function="Avatar.ResetSkeleton" />
   </menu_item_call>
-  <menu_item_call label="Reset Skeleton And Animations"
+  <menu_item_call label="Reset skeleton and animations"
        layout="topleft"
        name="Reset Skeleton And Animations">
        <menu_item_call.on_click
         function="Avatar.ResetSkeletonAndAnimations" />
-  </menu_item_call>
-
-  <menu_item_call
-    label="My Friends"
-    layout="topleft"
-    name="Friends...">
-    <menu_item_call.on_click
-     function="SideTray.PanelPeopleTab"
-     parameter="friends_panel" />
-  </menu_item_call>
-  <menu_item_call
-   label="My Groups"
-   layout="topleft"
-   name="Groups...">
-    <menu_item_call.on_click
-     function="SideTray.PanelPeopleTab"
-     parameter="groups_panel" />
-  </menu_item_call>
-  <menu_item_call
-    label="My Profile"
-    layout="topleft"
-    name="Profile...">
-    <menu_item_call.on_click
-     function="ShowAgentProfile"
-     parameter="agent" />
   </menu_item_call>
   <menu_item_call
  label="Debug Textures"
@@ -152,27 +121,13 @@ name="Edit Outfit">
             <menu_item_call.on_visible
              function="Advanced.EnableAppearanceToXML"/>
     </menu_item_call>
-  <menu_item_separator
-  layout="topleft" />
-  <menu_item_call
- enabled="false"
- label="Drop"
- layout="topleft"
- name="Drop">
-    <menu_item_call.on_click
-     function="Attachment.Drop" />
-    <menu_item_call.on_enable
-     function="Attachment.EnableDrop" />
-  </menu_item_call>
-  <menu_item_separator
-       layout="topleft" />
   <menu_item_call
      enabled="false"
      label="Block Particle Owner"
      name="Mute Particle">
     <menu_item_call.on_click
      function="Particle.Mute" />
-    <menu_item_call.on_enable
+    <menu_item_call.on_visible
      function="EnableMuteParticle" />
   </menu_item_call>
 </context_menu>

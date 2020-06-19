@@ -15,24 +15,6 @@
          function="ShowAgentProfile"
          parameter="agent" />
       </menu_item_call>
-      <menu_item_call
-       label="Appearance..."
-       name="ChangeOutfit"
-       shortcut="control|O">
-        <menu_item_call.on_click
-         function="Floater.ToggleOrBringToFront"
-         parameter="appearance" />
-        <menu_item_call.on_enable
-         function="Edit.EnableCustomizeAvatar" />
-      </menu_item_call>
-      <menu_item_call
-       label="Choose an avatar..."
-       name="Avatar Picker">
-        <menu_item_call.on_click
-         function="Floater.ToggleOrBringToFront"
-         parameter="avatar" />
-      </menu_item_call>
-      <menu_item_separator/>
       <menu_item_check
          label="Inventory..."
          name="Inventory"
@@ -76,119 +58,29 @@
           parameter="experiences"/>
       </menu_item_call>
       <menu_item_call
-        label="My Scripts..."
-        name="MyScripts">
-        <menu_item_call.on_click
-          function="Floater.ToggleOrBringToFront"
-          parameter="my_scripts"/>
-      </menu_item_call>
-      <menu_item_separator/>
-      <menu_item_call
        label="Camera Controls..."
        name="Camera Controls">
         <menu_item_call.on_click
          function="Floater.ToggleOrBringToFront"
          parameter="camera" />
       </menu_item_call>
-      <menu
-       create_jump_keys="true"
-       label="Movement"
-       name="Movement"
-       tear_off="true">
-        <menu_item_call
-         label="Sit Down"
-         layout="topleft"
-         shortcut="alt|shift|S"
-         name="Sit Down Here">
-          <menu_item_call.on_click
-           function="Self.SitDown"/>
-          <menu_item_call.on_visible
-           function="Self.ShowSitDown"/>
-          <menu_item_call.on_enable
-           function="Self.EnableSitDown" />
-        </menu_item_call>
-        <menu_item_call
-         label="Stand Up"
-         layout="topleft"
-         shortcut="alt|shift|S"
-         name="Stand up">
-          <menu_item_call.on_click
-           function="Self.StandUp"/>
-          <menu_item_call.on_visible
-           function="Self.EnableStandUp"/>
-          <menu_item_call.on_enable
-           function="Self.EnableStandUp" />
-        </menu_item_call>
-        <menu_item_check
-         label="Fly"
-         name="Fly"
-         shortcut="HOME">
-          <menu_item_check.on_check
-           function="Agent.getFlying" />
-          <menu_item_check.on_click
-           function="Agent.toggleFlying" />
-          <menu_item_check.on_enable
-           function="Agent.enableFlying" />
-        </menu_item_check>
-        <menu_item_call
-         label="Stop flying"
-         name="Stop flying"
-         shortcut="HOME">
-          <menu_item_call.on_click
-           function="Agent.toggleFlying" />
-          <menu_item_call.on_enable
-           function="Agent.getFlying" />
-        </menu_item_call>	
-        <menu_item_check
-         label="Always Run"
-         name="Always Run"
-         shortcut="control|R">
-          <menu_item_check.on_check
-           function="World.CheckAlwaysRun" />
-          <menu_item_check.on_click
-           function="World.AlwaysRun" />
-        </menu_item_check>
-        <menu_item_call
-         label="Stop Animating Me"
-         name="Stop Animating My Avatar">
-          <menu_item_call.on_click
-           function="Tools.StopAllAnimations" />
-        </menu_item_call>
-        <menu_item_check
-         label="Walk / run / fly..."
-         name="WalkRunFly">
-          <menu_item_check.on_check
-           function="Floater.Visible"
-           parameter="moveview" />
-          <menu_item_check.on_click
-           function="Floater.ToggleOrBringToFront"
-           parameter="moveview" />
-        </menu_item_check>
-      </menu>
-
-      <menu
-       create_jump_keys="true"
-       label="Status"
-       name="Status"
-       tear_off="true">
-        <menu_item_check
-         name="Away"
-         label="Away">
-          <menu_item_check.on_check
-           function="View.Status.CheckAway" />
-          <menu_item_check.on_click
-           function="World.SetAway" />
-        </menu_item_check>
-        <menu_item_check
-         name="Do Not Disturb"
-         label="Do Not Disturb">
-          <menu_item_check.on_check
-           function="View.Status.CheckDoNotDisturb" />
-          <menu_item_check.on_click
-           function="World.SetDoNotDisturb"/>
-        </menu_item_check>
-      
-    </menu>
+      <menu_item_separator/>
+      <menu_item_check
+       name="Away"
+       label="Away">
+        <menu_item_check.on_check
+         function="View.Status.CheckAway" />
+        <menu_item_check.on_click
+         function="World.SetAway" />
+      </menu_item_check>
+      <menu_item_check
+       name="Do Not Disturb"
+       label="Do Not Disturb">
+        <menu_item_check.on_check
+         function="View.Status.CheckDoNotDisturb" />
+        <menu_item_check.on_click
+         function="World.SetDoNotDisturb"/>
+      </menu_item_check>
 
       <menu_item_separator/>
 
@@ -257,6 +149,143 @@
             <menu_item_call.on_click
              function="File.Quit" />
         </menu_item_call>
+    </menu>
+    <menu
+     create_jump_keys="true"
+     label="Avatar"
+     name="Avatar"
+     tear_off="true">
+       <menu_item_call
+         label="Complete avatars..."
+         name="Avatar Picker">
+            <menu_item_call.on_click
+             function="Floater.ToggleOrBringToFront"
+             parameter="avatar" />
+       </menu_item_call>
+       <menu_item_call
+         label="Outfits..."
+         name="ChangeOutfit"
+         shortcut="control|O">
+            <menu_item_call.on_click
+             function="Floater.ToggleOrBringToFront"
+             parameter="appearance" />
+            <menu_item_call.on_enable
+             function="Edit.EnableCustomizeAvatar" />
+       </menu_item_call>
+       <menu_item_call 
+         label="Current outfit..."
+         layout="topleft"
+         name="Edit Outfit">
+            <menu_item_call.on_click
+             function="EditOutfit" />
+            <menu_item_call.on_enable
+             function="Edit.EnableCustomizeAvatar" />
+       </menu_item_call>
+       <menu_item_call 
+         label="Shape..."
+         layout="topleft"
+         name="Edit My Shape">
+            <menu_item_call.on_click
+             function="EditShape" />
+            <menu_item_call.on_enable
+             function="Edit.EnableEditShape" />
+      </menu_item_call>
+       <menu_item_call label="Hover height..."
+         layout="topleft"
+         name="Hover Height">
+            <menu_item_call.on_click
+             function="HoverHeight" />
+            <menu_item_call.on_enable
+             function="Edit.EnableHoverHeight" />
+      </menu_item_call>
+      <menu_item_separator/>
+
+       <menu_item_call
+         label="Sit / stand"
+         layout="topleft"
+         shortcut="alt|shift|S"
+         name="Sit stand">
+          <menu_item_call.on_click
+           function="Self.ToggleSitStand"/>
+          <menu_item_call.on_enable
+           function="Self.EnableSitStand" />
+        </menu_item_call>
+        <menu_item_call
+         label="Fly / land"
+         name="Fly land"
+         shortcut="HOME">
+          <menu_item_call.on_click
+           function="Agent.toggleFlying" />
+          <menu_item_call.on_enable
+           function="Agent.enableFlyLand" />
+        </menu_item_call>       
+        <menu_item_call
+         label="Stop animation"
+         name="Stop Animating My Avatar">
+          <menu_item_call.on_click
+           function="Tools.StopAllAnimations" />
+        </menu_item_call>
+        <menu_item_check
+          label="Walk / run / fly..."
+          name="WalkRunFly">
+          <menu_item_check.on_check
+           function="Floater.Visible"
+           parameter="moveview" />
+          <menu_item_check.on_click
+           function="Floater.ToggleOrBringToFront"
+           parameter="moveview" />
+        </menu_item_check>
+        <menu_item_check
+          label="Always run"
+          name="Always Run"
+          shortcut="control|R">
+          <menu_item_check.on_check
+           function="World.CheckAlwaysRun" />
+          <menu_item_check.on_click
+           function="World.AlwaysRun" />
+        </menu_item_check>
+      <menu_item_separator/>
+      <menu_item_check
+       label="Gestures..."
+       name="Gestures"
+       shortcut="control|G">
+        <menu_item_check.on_check
+         function="Floater.Visible"
+         parameter="gestures" />
+        <menu_item_check.on_click
+         function="Floater.Toggle"
+         parameter="gestures" />
+      </menu_item_check>
+      <menu_item_separator/>
+      <menu_item_call 
+       label="Reset skeleton"
+       layout="topleft"
+       name="Reset Skeleton">
+        <menu_item_call.on_click
+         function="Avatar.ResetSkeleton" />
+      </menu_item_call>
+      <menu_item_call 
+       label="Reset skeleton and animations"
+       layout="topleft"
+       name="Reset Skeleton And Animations">
+        <menu_item_call.on_click
+         function="Avatar.ResetSkeletonAndAnimations" />
+      </menu_item_call>
+      <menu_item_call
+       label="Attachment scripts..."
+       name="MyScripts">
+        <menu_item_call.on_click
+         function="Floater.ToggleOrBringToFront"
+         parameter="my_scripts"/>
+      </menu_item_call>
+      <menu_item_separator/>
+      <menu_item_call
+     label="Help with avatars..."
+     name="Help with avatars">
+        <menu_item_call.on_click
+            function="Advanced.ShowURL"
+            parameter="https://community.secondlife.com/search/?q=avatar"/>
+      </menu_item_call>
     </menu>
     <menu
      create_jump_keys="true"
