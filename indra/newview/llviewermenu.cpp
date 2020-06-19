@@ -677,19 +677,6 @@ class LLAdvancedCheckHUDInfo : public view_listener_t
 };
 
 
-//////////////
-// FLYING   //
-//////////////
-
-class LLAdvancedAgentFlyingInfo : public view_listener_t
-{
-	bool handleEvent(const LLSD&)
-	{
-		return gAgent.getFlying();
-	}
-};
-
-
 ///////////////////////
 // CLEAR GROUP CACHE //
 ///////////////////////
@@ -3741,6 +3728,35 @@ bool show_sitdown_self()
 bool enable_sitdown_self()
 {
 	return show_sitdown_self() && !gAgentAvatarp->isEditingAppearance() && !gAgent.getFlying();
+}
+
+class LLSelfToggleSitStand : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		if (isAgentAvatarValid())
+		{
+			if (gAgentAvatarp->isSitting())
+			{
+				gAgent.standUp();
+			}
+			else
+			{
+				gAgent.sitDown();
+			}
+		}
+		return true;
+	}
+};
+
+bool enable_sit_stand()
+{
+	return enable_sitdown_self() || enable_standup_self();
+}
+
+bool enable_fly_land()
+{
+	return gAgent.getFlying() || LLAgent::enableFlying();
 }
 
 class LLCheckPanelPeopleTab : public view_listener_t
@@ -8948,7 +8964,7 @@ void initialize_menus()
 
 	// Agent
 	commit.add("Agent.toggleFlying", boost::bind(&LLAgent::toggleFlying));
-	enable.add("Agent.enableFlying", boost::bind(&LLAgent::enableFlying));
+	enable.add("Agent.enableFlyLand", boost::bind(&enable_fly_land));
 	commit.add("Agent.PressMicrophone", boost::bind(&LLAgent::pressMicrophone, _2));
 	commit.add("Agent.ReleaseMicrophone", boost::bind(&LLAgent::releaseMicrophone, _2));
 	commit.add("Agent.ToggleMicrophone", boost::bind(&LLAgent::toggleMicrophone, _2));
@@ -8996,9 +9012,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLViewStatusDoNotDisturb(), "View.Status.CheckDoNotDisturb");
 	view_listener_t::addMenu(new LLViewCheckHUDAttachments(), "View.CheckHUDAttachments");
 	
-	// Me > Movement
-	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
-
 	//Communicate Nearby chat
 	view_listener_t::addMenu(new LLCommunicateNearbyChat(), "Communicate.NearbyChat");
 
@@ -9263,11 +9276,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdminOnSaveState(), "Admin.OnSaveState");
 
 	// Self context menu
-	view_listener_t::addMenu(new LLSelfStandUp(), "Self.StandUp");
-	enable.add("Self.EnableStandUp", boost::bind(&enable_standup_self));
-	view_listener_t::addMenu(new LLSelfSitDown(), "Self.SitDown");
-	enable.add("Self.EnableSitDown", boost::bind(&enable_sitdown_self)); 
-	enable.add("Self.ShowSitDown", boost::bind(&show_sitdown_self));
+	view_listener_t::addMenu(new LLSelfToggleSitStand(), "Self.ToggleSitStand");
+	enable.add("Self.EnableSitStand", boost::bind(&enable_sit_stand));
 	view_listener_t::addMenu(new LLSelfRemoveAllAttachments(), "Self.RemoveAllAttachments");
 
 	view_listener_t::addMenu(new LLSelfEnableRemoveAllAttachments(), "Self.EnableRemoveAllAttachments");

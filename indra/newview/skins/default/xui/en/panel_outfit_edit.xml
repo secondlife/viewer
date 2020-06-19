@@ -81,7 +81,7 @@
             name="title"
             text_color="LtGray"
             top="0"
-            value="Edit Outfit"
+            value="Current Outfit"
             use_ellipses="true"
             width="275" />
 
