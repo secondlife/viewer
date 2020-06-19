@@ -11,6 +11,19 @@
          name="Texture"
          top="0"
          width="295">
+            <menu_button
+             menu_filename="menu_copy_paste_color.xml"
+             follows="top|left"
+             height="15"
+             image_disabled="ClipboardMenu_Disabled"
+             image_selected="ClipboardMenu_Press"
+             image_unselected="ClipboardMenu_Off"
+             layout="topleft"
+             left="258"
+             top="8"
+             name="clipboard_color_params_btn"
+             tool_tip="Paste options"
+             width="22"/>
             <text
              type="string"
              length="1"
@@ -36,7 +49,7 @@
              name="colorswatch"
              tool_tip="Click to open color picker"
              top="20"
-             width="64" />
+             width="54" />
             <text
              type="string"
              length="1"
@@ -84,7 +97,7 @@
              left_delta="0"
              name="glow"
              top_pad="4"
-             width="80" />
+             width="77" />
             <check_box
              height="19"
              label="Full Bright"
@@ -93,13 +106,22 @@
              name="checkbox fullbright"
              top_pad="4"
              width="81" />
+            <view_border
+             bevel_style="none"
+             follows="top|left"
+             height="0"
+             layout="topleft"
+             left="8"
+             name="object_horizontal"
+             top_pad="4"
+             width="278" />
             <combo_box
              height="23"
              layout="topleft"
              left="10"
              name="combobox matmedia"
-             top_pad="5"
-             width="100">
+             top_pad="17"
+             width="90">
                 <combo_box.item
                  label="Materials"
                  name="Materials"
@@ -113,7 +135,7 @@
             control_name="ComboMaterialType"
             height="50"
             layout="topleft"
-            left_pad="20"
+            left_pad="5"
             top_delta="-10"
             width="150"
             visible = "false"
@@ -139,7 +161,20 @@
                 layout="topleft"
                 top_pad="1"
                 value="2"/>
-            </radio_group> 
+            </radio_group>
+            <menu_button
+                menu_filename="menu_copy_paste_texture.xml"
+                follows="top|left"
+                height="15"
+                image_disabled="ClipboardMenu_Disabled"
+                image_selected="ClipboardMenu_Press"
+                image_unselected="ClipboardMenu_Off"
+                layout="topleft"
+                left="258"
+                top_delta="0"
+                name="clipboard_texture_params_btn"
+                tool_tip="Paste options"
+                width="22"/>
             <check_box
              control_name="SyncMaterialSettings"
              follows="top|left"
@@ -150,7 +185,7 @@
              left="8"
              name="checkbox_sync_settings"
              tool_tip="Adjust all maps repeats simultaneously"
-             top_pad="-16"
+             top_pad="19"
              width="160" />
             <texture_picker
              can_apply_immediately="true"
@@ -774,7 +809,7 @@
        follows="left|top"
        layout="topleft"
 			 left="9"
-			 top="192"
+			 top="204"
 			 height="20"
 			 label="Align"
 			 label_selected="Align current texture layers"

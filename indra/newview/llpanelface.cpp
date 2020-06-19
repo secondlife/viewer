@@ -45,9 +45,11 @@
 #include "llcombobox.h"
 #include "lldrawpoolbump.h"
 #include "llface.h"
+#include "llinventorymodel.h" // gInventory
 #include "lllineeditor.h"
 #include "llmaterialmgr.h"
 #include "llmediaentry.h"
+#include "llmenubutton.h"
 #include "llnotificationsutil.h"
 #include "llradiogroup.h"
 #include "llresmgr.h"
@@ -300,7 +302,9 @@ BOOL	LLPanelFace::postBuild()
 	{
 		mCtrlGlow->setCommitCallback(LLPanelFace::onCommitGlow, this);
 	}
-	
+
+    mMenuClipboardColor = getChild<LLMenuButton>("clipboard_color_params_btn");
+    mMenuClipboardTexture = getChild<LLMenuButton>("clipboard_texture_params_btn");
 
 	clearCtrls();
 
@@ -311,7 +315,9 @@ LLPanelFace::LLPanelFace()
 :	LLPanel(),
 	mIsAlpha(false)
 {
-	USE_TEXTURE = LLTrans::getString("use_texture");
+    USE_TEXTURE = LLTrans::getString("use_texture");
+    mCommitCallbackRegistrar.add("PanelFace.menuDoToSelected", boost::bind(&LLPanelFace::menuDoToSelected, this, _2));
+    mEnableCallbackRegistrar.add("PanelFace.menuEnable", boost::bind(&LLPanelFace::menuEnableItem, this, _2));
 }
 
 
@@ -1536,6 +1542,10 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 				}
 			}
 		}
+        S32 selected_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
+        BOOL single_volume = (selected_count == 1);
+        mMenuClipboardColor->setEnabled(editable && single_volume);
+        mMenuClipboardTexture->setEnabled(editable && single_volume);
 
 		// Set variable values for numeric expressions
 		LLCalc* calcp = LLCalc::getInstance();
@@ -2564,6 +2574,625 @@ void LLPanelFace::onAlignTexture(void* userdata)
 {
     LLPanelFace* self = (LLPanelFace*)userdata;
     self->alignTestureLayer();
+}
+
+void LLPanelFace::onCopyColor()
+{
+    LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+    LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
+    S32 selected_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
+    if (!objectp || !node
+        || objectp->getPCode() != LL_PCODE_VOLUME
+        || !objectp->permModify()
+        || objectp->isPermanentEnforced()
+        || selected_count > 1)
+    {
+        return;
+    }
+
+    if (mClipboardParams.has("color"))
+    {
+        mClipboardParams["color"].clear();
+    }
+    else
+    {
+        mClipboardParams["color"] = LLSD::emptyArray();
+    }
+
+    std::map<LLUUID, LLUUID> asset_item_map;
+
+    // a way to resolve situations where source and target have different amount of faces
+    S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
+    mClipboardParams["color_all_tes"] = (num_tes != 1) || (LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool());
+    for (S32 te = 0; te < num_tes; ++te)
+    {
+        if (node->isTESelected(te))
+        {
+            LLTextureEntry* tep = objectp->getTE(te);
+            if (tep)
+            {
+                LLSD te_data;
+
+                // asLLSD() includes media
+                te_data["te"] = tep->asLLSD(); // Note: includes a lot more than just color/alpha/glow
+
+                mClipboardParams["color"].append(te_data);
+            }
+        }
+    }
+}
+
+void LLPanelFace::onPasteColor(LLViewerObject* objectp, S32 te)
+{
+    if (!mClipboardParams.has("color"))
+    {
+        return;
+    }
+    LLSD te_data;
+    LLSD &clipboard = mClipboardParams["color"]; // array
+    if ((clipboard.size() == 1) && mClipboardParams["color_all_tes"].asBoolean())
+    {
+        te_data = *(clipboard.beginArray());
+    }
+    else if (clipboard[te])
+    {
+        te_data = clipboard[te];
+    }
+    else
+    {
+        return;
+    }
+
+    LLTextureEntry* tep = objectp->getTE(te);
+    if (tep)
+    {
+        if (te_data.has("te"))
+        {
+            // Color / Alpha
+            if (te_data["te"].has("colors"))
+            {
+                LLColor4 color = tep->getColor();
+
+                LLColor4 clip_color;
+                clip_color.setValue(te_data["te"]["colors"]);
+
+                // Color
+                color.mV[VRED] = clip_color.mV[VRED];
+                color.mV[VGREEN] = clip_color.mV[VGREEN];
+                color.mV[VBLUE] = clip_color.mV[VBLUE];
+
+                // Alpha
+                color.mV[VALPHA] = clip_color.mV[VALPHA];
+
+                objectp->setTEColor(te, color);
+            }
+
+            // Color/fullbright
+            if (te_data["te"].has("fullbright"))
+            {
+                objectp->setTEFullbright(te, te_data["te"]["fullbright"].asInteger());
+            }
+
+            // Glow
+            if (te_data["te"].has("glow"))
+            {
+                objectp->setTEGlow(te, (F32)te_data["te"]["glow"].asReal());
+            }
+        }
+    }
+}
+
+void LLPanelFace::onCopyTexture()
+{
+
+    LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+    LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode();
+    S32 selected_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
+    if (!objectp || !node
+        || objectp->getPCode() != LL_PCODE_VOLUME
+        || !objectp->permModify()
+        || objectp->isPermanentEnforced()
+        || selected_count > 1)
+    {
+        return;
+    }
+
+    if (mClipboardParams.has("texture"))
+    {
+        mClipboardParams["texture"].clear();
+    }
+    else
+    {
+        mClipboardParams["texture"] = LLSD::emptyArray();
+    }
+
+    std::map<LLUUID, LLUUID> asset_item_map;
+
+    // a way to resolve situations where source and target have different amount of faces
+    S32 num_tes = llmin((S32)objectp->getNumTEs(), (S32)objectp->getNumFaces());
+    mClipboardParams["texture_all_tes"] = (num_tes != 1) || (LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool());
+    for (S32 te = 0; te < num_tes; ++te)
+    {
+        if (node->isTESelected(te))
+        {
+            LLTextureEntry* tep = objectp->getTE(te);
+            if (tep)
+            {
+                LLSD te_data;
+
+                // asLLSD() includes media
+                te_data["te"] = tep->asLLSD();
+                te_data["te"]["shiny"] = tep->getShiny();
+                te_data["te"]["bumpmap"] = tep->getBumpmap();
+                te_data["te"]["bumpshiny"] = tep->getBumpShiny();
+                te_data["te"]["bumpfullbright"] = tep->getBumpShinyFullbright();
+
+                if (te_data["te"].has("imageid"))
+                {
+                    LLUUID item_id;
+                    LLUUID id = te_data["te"]["imageid"].asUUID();
+                    bool full_perm = get_is_library_texture(id) || (objectp->permCopy() && objectp->permTransfer() && objectp->permModify());
+
+                    if (id.notNull() && !full_perm)
+                    {
+                        std::map<LLUUID, LLUUID>::iterator iter = asset_item_map.find(id);
+                        if (iter != asset_item_map.end())
+                        {
+                            item_id = iter->second;
+                        }
+                        else
+                        {
+                            // What this does is simply searches inventory for item with same asset id,
+                            // as result it is Hightly unreliable, leaves little control to user, borderline hack
+                            // but there are little options to preserve permissions - multiple inventory
+                            // items might reference same asset and inventory search is expensive.
+                            item_id = get_copy_free_item_by_asset_id(id);
+                            // record value to avoid repeating inventory search when possible
+                            asset_item_map[id] = item_id;
+                        }
+                    }
+
+                    if (id.isNull()
+                        || (!full_perm && item_id.isNull()))
+                    {
+                        if (!LLLocalBitmapMgr::getInstance()->isLocal(id))
+                        {
+                            te_data["te"].erase("imageid");
+                            te_data["te"]["imageid"] = LLUUID(gSavedSettings.getString("DefaultObjectTexture"));
+                        }
+                        te_data["te"]["itemfullperm"] = true;
+                    }
+                    else
+                    {
+                        te_data["te"]["itemfullperm"] = full_perm;
+                        // If full permission object, texture is free to copy,
+                        // but otherwise we need to check inventory and extract permissions
+                        //
+                        // Normally we care only about restrictions for current user and objects
+                        // don't inherit any 'next owner' permissions from texture, so there is
+                        // no need to record item id if full_perm==true
+                        if (!full_perm && item_id.notNull())
+                        {
+                            //Todo:
+                            // also same thing probably needs to be present in object and volume panels for sculpt and projector images
+                            /*
+                            LLViewerInventoryItem* itemp = gInventory.getItem(item_id);
+                            if (itemp)
+                            {
+                                LLPermissions item_permissions = itemp->getPermissions();
+                                if (item_permissions.allowOperationBy(PERM_COPY,
+                                    gAgent.getID(),
+                                    gAgent.getGroupID()))
+                                {
+                                    te_data["te"]["imageitemid"] = item_id;
+                                    te_data["te"]["itemfullperm"] = itemp->getIsFullPerm();
+                                    if (!itemp->isFinished())
+                                    {
+                                        // needed for dropTextureAllFaces
+                                        LLInventoryModelBackgroundFetch::instance().start(item_id, false);
+                                    }
+                                }
+                            }
+                            */
+                        }
+                    }
+                }
+
+                LLMaterialPtr material_ptr = tep->getMaterialParams();
+                if (!material_ptr.isNull())
+                {
+                    LLSD mat_data;
+
+                    mat_data["NormMap"] = material_ptr->getNormalID();
+                    mat_data["SpecMap"] = material_ptr->getSpecularID();
+
+                    mat_data["NormRepX"] = material_ptr->getNormalRepeatX();
+                    mat_data["NormRepY"] = material_ptr->getNormalRepeatY();
+                    mat_data["NormOffX"] = material_ptr->getNormalOffsetX();
+                    mat_data["NormOffY"] = material_ptr->getNormalOffsetY();
+                    mat_data["NormRot"] = material_ptr->getNormalRotation();
+
+                    mat_data["SpecRepX"] = material_ptr->getSpecularRepeatX();
+                    mat_data["SpecRepY"] = material_ptr->getSpecularRepeatY();
+                    mat_data["SpecOffX"] = material_ptr->getSpecularOffsetX();
+                    mat_data["SpecOffY"] = material_ptr->getSpecularOffsetY();
+                    mat_data["SpecRot"] = material_ptr->getSpecularRotation();
+
+                    mat_data["SpecColor"] = material_ptr->getSpecularLightColor().getValue();
+                    mat_data["SpecExp"] = material_ptr->getSpecularLightExponent();
+                    mat_data["EnvIntensity"] = material_ptr->getEnvironmentIntensity();
+                    mat_data["AlphaMaskCutoff"] = material_ptr->getAlphaMaskCutoff();
+                    mat_data["DiffuseAlphaMode"] = material_ptr->getDiffuseAlphaMode();
+
+                    // Replace no-copy textures, destination texture will get used instead if available
+                    if (mat_data.has("NormMap"))
+                    {
+                        LLUUID id = mat_data["NormMap"].asUUID();
+                        if (id.notNull() && !get_can_copy_texture(id))
+                        {
+                            mat_data["NormMap"] = LLUUID(gSavedSettings.getString("DefaultObjectTexture"));
+                            mat_data["NormMapNoCopy"] = true;
+                        }
+
+                    }
+                    if (mat_data.has("SpecMap"))
+                    {
+                        LLUUID id = mat_data["SpecMap"].asUUID();
+                        if (id.notNull() && !get_can_copy_texture(id))
+                        {
+                            mat_data["SpecMap"] = LLUUID(gSavedSettings.getString("DefaultObjectTexture"));
+                            mat_data["SpecMapNoCopy"] = true;
+                        }
+
+                    }
+
+                    te_data["material"] = mat_data;
+                }
+
+                mClipboardParams["texture"].append(te_data);
+            }
+        }
+    }
+}
+
+void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
+{
+    if (!mClipboardParams.has("texture"))
+    {
+        return;
+    }
+    LLSD te_data;
+    LLSD &clipboard = mClipboardParams["texture"]; // array
+    if ((clipboard.size() == 1) && mClipboardParams["texture_all_tes"].asBoolean())
+    {
+        te_data = *(clipboard.beginArray());
+    }
+    else if (clipboard[te])
+    {
+        te_data = clipboard[te];
+    }
+    else
+    {
+        return;
+    }
+
+    LLTextureEntry* tep = objectp->getTE(te);
+    if (tep)
+    {
+        if (te_data.has("te"))
+        {
+            // Texture
+            bool full_perm = te_data["te"].has("itemfullperm") && te_data["te"]["itemfullperm"].asBoolean();
+            if (te_data["te"].has("imageid"))
+            {
+                const LLUUID& imageid = te_data["te"]["imageid"].asUUID(); //texture or asset id
+                LLViewerInventoryItem* itemp_res = NULL;
+
+                if (te_data["te"].has("imageitemid"))
+                {
+                    LLUUID item_id = te_data["te"]["imageitemid"].asUUID();
+                    if (item_id.notNull())
+                    {
+                        LLViewerInventoryItem* itemp = gInventory.getItem(item_id);
+                        if (itemp && itemp->isFinished())
+                        {
+                            // dropTextureAllFaces will fail if incomplete
+                            itemp_res = itemp;
+                        }
+                    }
+                }
+                //todo:
+                // for case when item got removed from inventory after we pressed 'copy'
+                /*if (!itemp_res && !full_perm)
+                {
+                    // todo: fix this, we are often searching same tuxter multiple times (equal to number of faces)
+                    LLViewerInventoryCategory::cat_array_t cats;
+                    LLViewerInventoryItem::item_array_t items;
+                    LLAssetIDMatches asset_id_matches(imageid);
+                    gInventory.collectDescendentsIf(LLUUID::null,
+                        cats,
+                        items,
+                        LLInventoryModel::INCLUDE_TRASH,
+                        asset_id_matches);
+
+                    // Extremely unreliable and perfomance unfriendly.
+                    // But we need this to check permissions and it is how texture control finds items
+                    for (S32 i = 0; i < items.size(); i++)
+                    {
+                        LLViewerInventoryItem* itemp = items[i];
+                        if (itemp && itemp->isFinished())
+                        {
+                            // dropTextureAllFaces will fail if incomplete
+                            LLPermissions item_permissions = itemp->getPermissions();
+                            if (item_permissions.allowOperationBy(PERM_COPY,
+                                gAgent.getID(),
+                                gAgent.getGroupID()))
+                            {
+                                itemp_res = itemp;
+                                break; // first match
+                            }
+                        }
+                    }
+                }*/
+
+                if (itemp_res)
+                {
+                    if (te == -1) // all faces
+                    {
+                        LLToolDragAndDrop::dropTextureAllFaces(objectp,
+                            itemp_res,
+                            LLToolDragAndDrop::SOURCE_AGENT,
+                            LLUUID::null);
+                    }
+                    else // one face
+                    {
+                        LLToolDragAndDrop::dropTextureOneFace(objectp,
+                            te,
+                            itemp_res,
+                            LLToolDragAndDrop::SOURCE_AGENT,
+                            LLUUID::null);
+                    }
+                }
+                // not an inventory item or no complete items
+                else if (full_perm)
+                {
+                    // Either library, local or existed as fullperm when user made a copy
+                    LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(imageid, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+                    objectp->setTEImage(U8(te), image);
+                }
+            }
+
+            if (te_data["te"].has("bumpmap"))
+            {
+                objectp->setTEBumpmap(te, (U8)te_data["te"]["bumpmap"].asInteger());
+            }
+            if (te_data["te"].has("bumpshiny"))
+            {
+                objectp->setTEBumpShiny(te, (U8)te_data["te"]["bumpshiny"].asInteger());
+            }
+            if (te_data["te"].has("bumpfullbright"))
+            {
+                objectp->setTEBumpShinyFullbright(te, (U8)te_data["te"]["bumpfullbright"].asInteger());
+            }
+
+            // Texture map
+            if (te_data["te"].has("scales") && te_data["te"].has("scalet"))
+            {
+                objectp->setTEScale(te, (F32)te_data["te"]["scales"].asReal(), (F32)te_data["te"]["scalet"].asReal());
+            }
+            if (te_data["te"].has("offsets") && te_data["te"].has("offsett"))
+            {
+                objectp->setTEOffset(te, (F32)te_data["te"]["offsets"].asReal(), (F32)te_data["te"]["offsett"].asReal());
+            }
+            if (te_data["te"].has("imagerot"))
+            {
+                objectp->setTERotation(te, (F32)te_data["te"]["imagerot"].asReal());
+            }
+
+            // Media
+            if (te_data["te"].has("media_flags"))
+            {
+                U8 media_flags = te_data["te"]["media_flags"].asInteger();
+                objectp->setTEMediaFlags(te, media_flags);
+                LLVOVolume *vo = dynamic_cast<LLVOVolume*>(objectp);
+                if (vo && te_data["te"].has(LLTextureEntry::TEXTURE_MEDIA_DATA_KEY))
+                {
+                    vo->syncMediaData(te, te_data["te"][LLTextureEntry::TEXTURE_MEDIA_DATA_KEY], true/*merge*/, true/*ignore_agent*/);
+                }
+            }
+            else
+            {
+                // Keep media flags on destination unchanged
+            }
+        }
+
+        if (te_data.has("material"))
+        {
+            LLUUID object_id = objectp->getID();
+
+            LLSelectedTEMaterial::setAlphaMaskCutoff(this, (U8)te_data["material"]["SpecRot"].asInteger(), te, object_id);
+
+            // Normal
+                // Replace placeholders with target's
+            if (te_data["material"].has("NormMapNoCopy"))
+            {
+                LLMaterialPtr material = tep->getMaterialParams();
+                if (material.notNull())
+                {
+                    LLUUID id = material->getNormalID();
+                    if (id.notNull())
+                    {
+                        te_data["material"]["NormMap"] = id;
+                    }
+                }
+            }
+            LLSelectedTEMaterial::setNormalID(this, te_data["material"]["NormMap"].asUUID(), te, object_id);
+            LLSelectedTEMaterial::setNormalRepeatX(this, (F32)te_data["material"]["NormRepX"].asReal(), te, object_id);
+            LLSelectedTEMaterial::setNormalRepeatY(this, (F32)te_data["material"]["NormRepY"].asReal(), te, object_id);
+            LLSelectedTEMaterial::setNormalOffsetX(this, (F32)te_data["material"]["NormOffX"].asReal(), te, object_id);
+            LLSelectedTEMaterial::setNormalOffsetY(this, (F32)te_data["material"]["NormOffY"].asReal(), te, object_id);
+            LLSelectedTEMaterial::setNormalRotation(this, (F32)te_data["material"]["NormRot"].asReal(), te, object_id);
+
+            // Specular
+                // Replace placeholders with target's
+            if (te_data["material"].has("SpecMapNoCopy"))
+            {
+                LLMaterialPtr material = tep->getMaterialParams();
+                if (material.notNull())
+                {
+                    LLUUID id = material->getSpecularID();
+                    if (id.notNull())
+                    {
+                        te_data["material"]["SpecMap"] = id;
+                    }
+                }
+            }
+            LLSelectedTEMaterial::setSpecularID(this, te_data["material"]["SpecMap"].asUUID(), te, object_id);
+            LLSelectedTEMaterial::setSpecularRepeatX(this, (F32)te_data["material"]["SpecRepX"].asReal(), te, object_id);
+            LLSelectedTEMaterial::setSpecularRepeatY(this, (F32)te_data["material"]["SpecRepY"].asReal(), te, object_id);
+            LLSelectedTEMaterial::setSpecularOffsetX(this, (F32)te_data["material"]["SpecOffX"].asReal(), te, object_id);
+            LLSelectedTEMaterial::setSpecularOffsetY(this, (F32)te_data["material"]["SpecOffY"].asReal(), te, object_id);
+            LLSelectedTEMaterial::setSpecularRotation(this, (F32)te_data["material"]["SpecRot"].asReal(), te, object_id);
+            LLColor4 spec_color(te_data["material"]["SpecColor"]);
+            LLSelectedTEMaterial::setSpecularLightColor(this, spec_color, te);
+            LLSelectedTEMaterial::setSpecularLightExponent(this, (U8)te_data["material"]["SpecExp"].asInteger(), te, object_id);
+            LLSelectedTEMaterial::setEnvironmentIntensity(this, (U8)te_data["material"]["EnvIntensity"].asInteger(), te, object_id);
+            LLSelectedTEMaterial::setDiffuseAlphaMode(this, (U8)te_data["material"]["SpecRot"].asInteger(), te, object_id);
+            if (te_data.has("te") && te_data["te"].has("shiny"))
+            {
+                objectp->setTEShiny(te, (U8)te_data["te"]["shiny"].asInteger());
+            }
+        }
+    }
+}
+
+enum EPasteMode
+{
+    PASTE_COLOR,
+    PASTE_TEXTURE
+};
+
+struct LLPanelFacePasteTexFunctor : public LLSelectedTEFunctor
+{
+    LLPanelFacePasteTexFunctor(LLPanelFace* panel, EPasteMode mode) :
+        mPanelFace(panel), mMode(mode) {}
+
+    virtual bool apply(LLViewerObject* objectp, S32 te)
+    {
+        switch (mMode)
+        {
+        case PASTE_COLOR:
+            mPanelFace->onPasteColor(objectp, te);
+            break;
+        case PASTE_TEXTURE:
+            mPanelFace->onPasteTexture(objectp, te);
+            break;
+        }
+        return true;
+    }
+private:
+    LLPanelFace *mPanelFace;
+    EPasteMode mMode;
+};
+
+struct LLPanelFaceUpdateFunctor : public LLSelectedObjectFunctor
+{
+    LLPanelFaceUpdateFunctor(bool update_media) : mUpdateMedia(update_media) {}
+    virtual bool apply(LLViewerObject* object)
+    {
+        object->sendTEUpdate();
+        if (mUpdateMedia)
+        {
+            LLVOVolume *vo = dynamic_cast<LLVOVolume*>(object);
+            if (vo && vo->hasMedia())
+            {
+                vo->sendMediaDataUpdate();
+            }
+        }
+        return true;
+    }
+private:
+    bool mUpdateMedia;
+};
+
+struct LLPanelFaceNavigateHomeFunctor : public LLSelectedTEFunctor
+{
+    virtual bool apply(LLViewerObject* objectp, S32 te)
+    {
+        if (objectp && objectp->getTE(te))
+        {
+            LLTextureEntry* tep = objectp->getTE(te);
+            const LLMediaEntry *media_data = tep->getMediaData();
+            if (media_data)
+            {
+                if (media_data->getCurrentURL().empty() && media_data->getAutoPlay())
+                {
+                    viewer_media_t media_impl =
+                        LLViewerMedia::getInstance()->getMediaImplFromTextureID(tep->getMediaData()->getMediaID());
+                    if (media_impl)
+                    {
+                        media_impl->navigateHome();
+                    }
+                }
+            }
+        }
+        return true;
+    }
+};
+
+void LLPanelFace::menuDoToSelected(const LLSD& userdata)
+{
+    std::string command = userdata.asString();
+
+    // paste
+    if (command == "color_paste")
+    {
+        LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
+
+        LLPanelFacePasteTexFunctor paste_func(this, PASTE_COLOR);
+        selected_objects->applyToTEs(&paste_func);
+
+        LLPanelFaceUpdateFunctor sendfunc(false);
+        selected_objects->applyToObjects(&sendfunc);
+    }
+    else if (command == "texture_paste")
+    {
+        LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
+
+        LLPanelFacePasteTexFunctor paste_func(this, PASTE_TEXTURE);
+        selected_objects->applyToTEs(&paste_func);
+
+        LLPanelFaceUpdateFunctor sendfunc(true);
+        selected_objects->applyToObjects(&sendfunc);
+
+        LLPanelFaceNavigateHomeFunctor navigate_home_func;
+        selected_objects->applyToTEs(&navigate_home_func);
+    }
+    // copy
+    else if (command == "color_copy")
+    {
+        onCopyColor();
+    }
+    else if (command == "texture_copy")
+    {
+        onCopyTexture();
+    }
+}
+
+bool LLPanelFace::menuEnableItem(const LLSD& userdata)
+{
+    std::string command = userdata.asString();
+
+    // paste options
+    if (command == "color_paste")
+    {
+        return mClipboardParams.has("color");
+    }
+    else if (command == "texture_paste")
+    {
+        return mClipboardParams.has("texture");
+    }
+    return false;
 }
 
 

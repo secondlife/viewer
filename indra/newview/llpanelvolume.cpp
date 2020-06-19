@@ -670,9 +670,6 @@ void LLPanelVolume::clearCtrls()
 	mSpinPhysicsRestitution->setEnabled(FALSE);
 
 	mComboMaterial->setEnabled( FALSE );
-
-    mMenuClipboardFeatures->setEnabled(false);
-    mMenuClipboardLight->setEnabled(false);
 }
 
 //

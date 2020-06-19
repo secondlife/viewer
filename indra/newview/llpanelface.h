@@ -47,6 +47,7 @@ class LLUICtrl;
 class LLViewerObject;
 class LLFloater;
 class LLMaterialID;
+class LLMenuButton;
 
 // Represents an edit for use in replicating the op across one or more materials in the selection set.
 //
@@ -204,6 +205,16 @@ protected:
 	static void		onCommitRepeatsPerMeter(	LLUICtrl* ctrl, void* userinfo);
 	static void		onClickAutoFix(void*);
     static void		onAlignTexture(void*);
+
+public: // needs to be accessible to selection manager
+    void            onCopyColor(); // records all selected faces
+    void            onPasteColor(LLViewerObject* objectp, S32 te); // to specific face
+    void            onCopyTexture();
+    void            onPasteTexture(LLViewerObject* objectp, S32 te);
+
+protected:
+    void            menuDoToSelected(const LLSD& userdata);
+    bool            menuEnableItem(const LLSD& userdata);
 
 	static F32     valueGlow(LLViewerObject* object, S32 face);
 
@@ -400,7 +411,10 @@ private:
 	 * If agent selects texture which is not allowed to be applied for the currently selected object,
 	 * all controls of the floater texture picker which allow to apply the texture will be disabled.
 	 */
-	void onTextureSelectionChanged(LLInventoryItem* itemp);
+    void onTextureSelectionChanged(LLInventoryItem* itemp);
+
+    LLMenuButton*   mMenuClipboardColor;
+    LLMenuButton*   mMenuClipboardTexture;
 
 	bool mIsAlpha;
 	
@@ -415,7 +429,9 @@ private:
 	 * up-arrow on a spinner, and avoids running afoul of its throttle.
 	 */
 	bool mUpdateInFlight;
-	bool mUpdatePending;
+    bool mUpdatePending;
+
+    LLSD            mClipboardParams;
 
 public:
 	#if defined(DEF_GET_MAT_STATE)
