@@ -38,6 +38,7 @@
 #include "llfontgl.h"
 
 // project includes
+#include "llagent.h"
 #include "llagentdata.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
@@ -45,7 +46,9 @@
 #include "llcombobox.h"
 #include "lldrawpoolbump.h"
 #include "llface.h"
+#include "llinventoryfunctions.h"
 #include "llinventorymodel.h" // gInventory
+#include "llinventorymodelbackgroundfetch.h"
 #include "lllineeditor.h"
 #include "llmaterialmgr.h"
 #include "llmediaentry.h"
@@ -2773,9 +2776,6 @@ void LLPanelFace::onCopyTexture()
                         // no need to record item id if full_perm==true
                         if (!full_perm && item_id.notNull())
                         {
-                            //Todo:
-                            // also same thing probably needs to be present in object and volume panels for sculpt and projector images
-                            /*
                             LLViewerInventoryItem* itemp = gInventory.getItem(item_id);
                             if (itemp)
                             {
@@ -2793,7 +2793,6 @@ void LLPanelFace::onCopyTexture()
                                     }
                                 }
                             }
-                            */
                         }
                     }
                 }
@@ -2901,11 +2900,12 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
                         }
                     }
                 }
-                //todo:
                 // for case when item got removed from inventory after we pressed 'copy'
-                /*if (!itemp_res && !full_perm)
+                // or texture got pasted into previous object
+                if (!itemp_res && !full_perm)
                 {
-                    // todo: fix this, we are often searching same tuxter multiple times (equal to number of faces)
+                    // Todo: fix this, we are often searching same texture multiple times (equal to number of faces)
+                    // Perhaps just mPanelFace->onPasteTexture(objectp, te, &asset_to_item_id_map); ? Not pretty, but will work
                     LLViewerInventoryCategory::cat_array_t cats;
                     LLViewerInventoryItem::item_array_t items;
                     LLAssetIDMatches asset_id_matches(imageid);
@@ -2933,7 +2933,7 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
                             }
                         }
                     }
-                }*/
+                }
 
                 if (itemp_res)
                 {
@@ -3013,7 +3013,7 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
             LLSelectedTEMaterial::setAlphaMaskCutoff(this, (U8)te_data["material"]["SpecRot"].asInteger(), te, object_id);
 
             // Normal
-                // Replace placeholders with target's
+            // Replace placeholders with target's
             if (te_data["material"].has("NormMapNoCopy"))
             {
                 LLMaterialPtr material = tep->getMaterialParams();
