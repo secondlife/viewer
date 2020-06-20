@@ -72,6 +72,7 @@ include_directories(
     ${DBUSGLIB_INCLUDE_DIRS}
     ${JSONCPP_INCLUDE_DIR}
     ${GLOD_INCLUDE_DIR}
+    ${SQLITE_INCLUDE_DIR}
     ${LLAUDIO_INCLUDE_DIRS}
     ${LLCHARACTER_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
@@ -103,12 +104,6 @@ if (BUGSPLAT_DB)
     ${BUGSPLAT_INCLUDE_DIR}
     )
 endif (BUGSPLAT_DB)
-
-if (SQLITE)
-  include_directories(
-    ${SQLITE_INCLUDE_DIR}
-    )
-endif (SQLITE)
 
 include_directories(SYSTEM
     ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
