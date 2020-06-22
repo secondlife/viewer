@@ -103,7 +103,6 @@ void LLPanelLandmarkInfo::resetLocation()
 	mLandmarkTitleEditor->setText(LLStringUtil::null);
 	mNotesEditor->setText(LLStringUtil::null);
 
-    mParcelOwner->setVisible(FALSE);
     getChild<LLUICtrl>("parcel_owner_label")->setVisible(FALSE);
 }
 
@@ -162,7 +161,6 @@ void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 				mLandmarkTitleEditor->setText(name);
 			}
 
-            mParcelOwner->setVisible(TRUE);
             getChild<LLUICtrl>("parcel_owner_label")->setVisible(TRUE);
             LLUUID owner_id = parcel->getOwnerID();
             if (owner_id.notNull())
@@ -236,11 +234,19 @@ void LLPanelLandmarkInfo::processParcelInfo(const LLParcelData& parcel_data)
 
     if (parcel_data.owner_id.notNull())
     {
-        // not suported and ivisible due to missing isGroupOwned flag
+        if (parcel_data.flags & 0x4) // depends onto DRTSIM-453
+        {
+            std::string owner_name = LLSLURL("group", parcel_data.owner_id, "inspect").getSLURLString();
+            mParcelOwner->setText(owner_name);
+        }
+        else
+        {
+            std::string owner_name = LLSLURL("agent", parcel_data.owner_id, "inspect").getSLURLString();
+            mParcelOwner->setText(owner_name);
+        }
     }
     else
     {
-        mParcelOwner->setVisible(TRUE);
         mParcelOwner->setText(getString("public"));
         getChild<LLUICtrl>("parcel_owner_label")->setVisible(FALSE);
     }
