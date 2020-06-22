@@ -1594,7 +1594,7 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
         }
 
         LLIMProcessing::processNewMessage(
-            message_data["from_id"].asUUID(),
+            message_data["from_agent_id"].asUUID(),
             message_data["from_group"].asBoolean(),
             message_data["to_agent_id"].asUUID(),
             static_cast<U8>(message_data["offline"].asInteger()),
