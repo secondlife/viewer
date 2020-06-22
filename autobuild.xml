@@ -3010,9 +3010,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3e9c3d09e8f7b216da9373dccf52cdc8</string>
+              <string>ddec4a9611bc6bafc3a3f22e96a556f3</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/62005/583708/sqlite-3.32.2-darwin64-543878.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/62075/584874/sqlite-3.32.2-darwin64-543927.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3022,9 +3022,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>30c8ef9e1edad5d896f3fedfc636c419</string>
+              <string>f48036ccfd5beb60c4db95dc26a20eb0</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/62004/583697/sqlite-3.32.2-windows-543878.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/62076/584881/sqlite-3.32.2-windows-543927.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3034,9 +3034,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>27575084834b1f54738854bb11184860</string>
+              <string>7013d2e289e1ec4cbe5b4c02684d9cd1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/62003/583687/sqlite-3.32.2-windows64-543878.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/62079/584896/sqlite-3.32.2-windows64-543927.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
