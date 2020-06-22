@@ -857,33 +857,15 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             }
             else // IM_TASK_INVENTORY_OFFERED
             {
-                if (offline)
+                if (sizeof(S8) != binary_bucket_size)
                 {
-                    // cap received offline message
-                    std::string str_bucket = ll_safe_string((char*)binary_bucket, binary_bucket_size);
-                    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-                    boost::char_separator<char> sep("|", "", boost::keep_empty_tokens);
-                    tokenizer tokens(str_bucket, sep);
-                    tokenizer::iterator iter = tokens.begin();
-
-                    info->mType = (LLAssetType::EType)(atoi((*(iter++)).c_str()));
-                    // Note There is more elements in 'tokens' ...
-
-                    info->mObjectID = LLUUID::null;
-                    info->mFromObject = TRUE;
+                    LL_WARNS("Messaging") << "Malformed inventory offer from object" << LL_ENDL;
+                    delete info;
+                    break;
                 }
-                else
-                {
-                    if (sizeof(S8) != binary_bucket_size)
-                    {
-                        LL_WARNS("Messaging") << "Malformed inventory offer from object" << LL_ENDL;
-                        delete info;
-                        break;
-                    }
-                    info->mType = (LLAssetType::EType) binary_bucket[0];
-                    info->mObjectID = LLUUID::null;
-                    info->mFromObject = TRUE;
-                }
+                info->mType = (LLAssetType::EType) binary_bucket[0];
+                info->mObjectID = LLUUID::null;
+                info->mFromObject = TRUE;
             }
 
             info->mIM = dialog;
