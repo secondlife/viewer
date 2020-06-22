@@ -7,15 +7,15 @@
      layout="topleft"
      name="params_copy"
      visible="true">
-       <on_click function="PanelVolume.menuDoToSelected" parameter="texture_copy" />
+       <on_click function="PanelFace.menuDoToSelected" parameter="texture_copy" />
     </menu_item_call>
     <menu_item_call
      label="Paste"
      layout="topleft"
      name="params_paste"
      visible="true">
-       <on_click function="PanelVolume.menuDoToSelected" parameter="texture_paste" />
-       <on_enable function="PanelVolume.menuEnable" parameter="texture_paste" />
+       <on_click function="PanelFace.menuDoToSelected" parameter="texture_paste" />
+       <on_enable function="PanelFace.menuEnable" parameter="texture_paste" />
     </menu_item_call>
 </toggleable_menu>
 

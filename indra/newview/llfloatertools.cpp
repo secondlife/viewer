@@ -480,30 +480,61 @@ void LLFloaterTools::refresh()
 	else
 #endif
 	{
-		F32 link_cost  = LLSelectMgr::getInstance()->getSelection()->getSelectedLinksetCost();
-		S32 link_count = LLSelectMgr::getInstance()->getSelection()->getRootObjectCount();
+        LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+        F32 link_cost = selection->getSelectedLinksetCost();
+        S32 link_count = selection->getRootObjectCount();
+        S32 object_count = selection->getObjectCount();
 
-		LLCrossParcelFunctor func;
-		if (LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func, true))
-		{
-			// Selection crosses parcel bounds.
-			// We don't display remaining land capacity in this case.
-			const LLStringExplicit empty_str("");
-			childSetTextArg("remaining_capacity", "[CAPACITY_STRING]", empty_str);
-		}
-		else
-		{
-			LLViewerObject* selected_object = mObjectSelection->getFirstObject();
-			if (selected_object)
-			{
-				// Select a parcel at the currently selected object's position.
-				LLViewerParcelMgr::getInstance()->selectParcelAt(selected_object->getPositionGlobal());
-			}
-			else
-			{
-				LL_WARNS() << "Failed to get selected object" << LL_ENDL;
-			}
-		}
+        LLCrossParcelFunctor func;
+        if (!LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func, true))
+        {
+            // Unless multiple parcels selected, higlight parcel object is at.
+            LLViewerObject* selected_object = mObjectSelection->getFirstObject();
+            if (selected_object)
+            {
+                // Select a parcel at the currently selected object's position.
+                LLViewerParcelMgr::getInstance()->selectParcelAt(selected_object->getPositionGlobal());
+            }
+            else
+            {
+                LL_WARNS() << "Failed to get selected object" << LL_ENDL;
+            }
+        }
+
+        if (object_count == 1)
+        {
+            // "selection_faces" shouldn't be visible if not LLToolFace::getInstance()
+            // But still need to be populated in case user switches
+
+            std::string faces_str = "";
+
+            for (LLObjectSelection::iterator iter = selection->begin(); iter != selection->end();)
+            {
+                LLObjectSelection::iterator nextiter = iter++; // not strictly needed, we have only one object
+                LLSelectNode* node = *nextiter;
+                LLViewerObject* object = (*nextiter)->getObject();
+                if (!object)
+                    continue;
+                S32 num_tes = llmin((S32)object->getNumTEs(), (S32)object->getNumFaces());
+                for (S32 te = 0; te < num_tes; ++te)
+                {
+                    if (node->isTESelected(te))
+                    {
+                        if (!faces_str.empty())
+                        {
+                            faces_str += ", ";
+                        }
+                        faces_str += llformat("%d", te);
+                    }
+                }
+            }
+
+            childSetTextArg("selection_faces", "[FACES_STRING]", faces_str);
+        }
+
+        bool show_faces = (object_count == 1)
+                          && LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool();
+        getChildView("selection_faces")->setVisible(show_faces);
 
 		LLStringUtil::format_map_t selection_args;
 		selection_args["OBJ_COUNT"] = llformat("%.1d", link_count);
@@ -824,7 +855,8 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 	bool have_selection = !LLSelectMgr::getInstance()->getSelection()->isEmpty();
 
 	getChildView("selection_count")->setVisible(!land_visible && have_selection);
-	getChildView("remaining_capacity")->setVisible(!land_visible && have_selection);
+    getChildView("selection_faces")->setVisible(LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool()
+                                                && LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1);
 	getChildView("selection_empty")->setVisible(!land_visible && !have_selection);
 	
 	mTab->setVisible(!land_visible);
@@ -1180,26 +1212,6 @@ void LLFloaterTools::updateLandImpacts()
 	{
 		return;
 	}
-
-	S32 rezzed_prims = parcel->getSimWidePrimCount();
-	S32 total_capacity = parcel->getSimWideMaxPrimCapacity();
-	LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
-	if (region)
-	{
-		S32 max_tasks_per_region = (S32)region->getMaxTasks();
-		total_capacity = llmin(total_capacity, max_tasks_per_region);
-	}
-	std::string remaining_capacity_str = "";
-
-	bool show_mesh_cost = gMeshRepo.meshRezEnabled();
-	if (show_mesh_cost)
-	{
-		LLStringUtil::format_map_t remaining_capacity_args;
-		remaining_capacity_args["LAND_CAPACITY"] = llformat("%d", total_capacity - rezzed_prims);
-		remaining_capacity_str = getString("status_remaining_capacity", remaining_capacity_args);
-	}
-
-	childSetTextArg("remaining_capacity", "[CAPACITY_STRING]", remaining_capacity_str);
 
 	// Update land impacts info in the weights floater
 	LLFloaterObjectWeights* object_weights_floater = LLFloaterReg::findTypedInstance<LLFloaterObjectWeights>("object_weights");

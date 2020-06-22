@@ -68,7 +68,7 @@
     </floater.string>
     <floater.string
      name="status_selectcount">
-        [OBJ_COUNT] objects selected, land impact [LAND_IMPACT]
+        [OBJ_COUNT] objects selected, land impact [LAND_IMPACT] [secondlife:///app/openfloater/object_weights More info]
     </floater.string>
     <floater.string
      name="status_remaining_capacity">
@@ -763,11 +763,12 @@
 	  font="SansSerifSmall"
 	  layout="topleft"
 	  left="10"
-	  name="selection_count"
+	  name="selection_faces"
 	  top_delta="0"
 	  visible="false"
 	  width="280">
-	</text>
+    Faces selected: [FACES_STRING]
+  </text>
 	<text
 	 text_color="LtGray_50"
 	  type="string"
@@ -777,11 +778,10 @@
 	  font="SansSerifSmall"
 	  layout="topleft"
 	  left="10"
-	  name="remaining_capacity"
+	  name="selection_count"
 	  top_pad="0"
 	  visible="false"
 	  width="280">
-	  [CAPACITY_STRING] [secondlife:///app/openfloater/object_weights More info]
 	</text>
     <!-- <text -->
     <!-- text_color="LtGray_50" -->
