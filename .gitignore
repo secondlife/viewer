@@ -68,6 +68,7 @@ indra/web/doc/asset-upload/plugins/verify-texture
 installed.xml
 libraries
 tarfile_tmp
+trivial_change_force_build
 web/config.*
 web/locale.*
 web/secondlife.com.*
