@@ -354,21 +354,23 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 	mVoiceVersion.serverType = VOICE_SERVER_TYPE;
 	
 	//  gMuteListp isn't set up at this point, so we defer this until later.
-//	gMuteListp->addObserver(&mutelist_listener);
+    //	gMuteListp->addObserver(&mutelist_listener);
 
 	
 #if LL_DARWIN || LL_LINUX || LL_SOLARIS
-		// HACK: THIS DOES NOT BELONG HERE
-		// When the vivox daemon dies, the next write attempt on our socket generates a SIGPIPE, which kills us.
-		// This should cause us to ignore SIGPIPE and handle the error through proper channels.
-		// This should really be set up elsewhere.  Where should it go?
-		signal(SIGPIPE, SIG_IGN);
-		
-		// Since we're now launching the gateway with fork/exec instead of system(), we need to deal with zombie processes.
-		// Ignoring SIGCHLD should prevent zombies from being created.  Alternately, we could use wait(), but I'd rather not do that.
-		signal(SIGCHLD, SIG_IGN);
-#endif
+    // HACK: THIS DOES NOT BELONG HERE
+    // When the vivox daemon dies, the next write attempt on our socket generates a SIGPIPE, which kills us.
+    // This should cause us to ignore SIGPIPE and handle the error through proper channels.
+    // This should really be set up elsewhere.  Where should it go?
+    signal(SIGPIPE, SIG_IGN);
 
+    // Since we're now launching the gateway with fork/exec instead of system(), we need to deal with zombie processes.
+    // Ignoring SIGCHLD should prevent zombies from being created.  Alternately, we could use wait(), but I'd rather not do that.
+    signal(SIGCHLD, SIG_IGN);
+#endif
+    
+    // Disable Automatic Voice Activity Detection - possible fix for VOICE-84
+    setenv("VIVOX_FORCE_NO_AUTOVAD","1", true /* overwrite any existing value */);
 
 	gIdleCallbacks.addFunction(idle, this);
 }
