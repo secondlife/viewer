@@ -580,9 +580,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>23aeaf23e7db2484a1850017141860dd</string>
+              <string>350866eec6be17ffc265904b91dcfe6b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/34069/283470/dullahan-1.1.1320_3.3626.1895.g7001d56-darwin64-525361.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/60900/572290/dullahan-1.7.0.202005311125_81.3.10_gb223419_chromium-81.0.4044.138-darwin64-543086.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -592,9 +592,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>71fa66203326aca918796e874976c080</string>
+              <string>aa4faf9ef9057362d63f8d57092506b3</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/34070/283477/dullahan-1.1.1320_3.3626.1895.g7001d56-windows-525361.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/60902/572301/dullahan-1.7.0.202005311828_81.3.10_gb223419_chromium-81.0.4044.138-windows-543086.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -604,16 +604,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c7162e4805f50a3609f5dc63d0cf2bc0</string>
+              <string>6e29ea2ccdad80dcf1b5dc974932c1f6</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/34071/283480/dullahan-1.1.1320_3.3626.1895.g7001d56-windows64-525361.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/60901/572302/dullahan-1.7.0.202005311828_81.3.10_gb223419_chromium-81.0.4044.138-windows64-543086.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.1.1320_3.3626.1895.g7001d56</string>
+        <string>1.7.0.202005311828_81.3.10_gb223419_chromium-81.0.4044.138</string>
       </map>
       <key>elfio</key>
       <map>

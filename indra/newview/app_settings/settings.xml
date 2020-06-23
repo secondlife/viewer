@@ -3542,7 +3542,7 @@
     <key>DoubleClickAutoPilot</key>
     <map>
       <key>Comment</key>
-      <string>(Obsolete)Enable double-click auto pilot</string>
+      <string>Enable double-click auto pilot</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -3553,13 +3553,13 @@
     <key>DoubleClickTeleport</key>
     <map>
       <key>Comment</key>
-      <string>Enable double-click to teleport where allowed (afects minimap and people panel)</string>
+      <string>Enable double-click to teleport where allowed</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>DoubleClickShowWorldMap</key>
     <map>
@@ -8274,7 +8274,7 @@
     <key>PushToTalkButton</key>
     <map>
       <key>Comment</key>
-      <string>(Obsolete)Which button or keyboard key is used for push-to-talk</string>
+      <string>Which button or keyboard key is used for push-to-talk</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8434,7 +8434,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.125</real>
+    <real>0.02</real>
   </map>
   <key>MediaRollOffMin</key>
   <map>
@@ -8445,7 +8445,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>10.0</real>
+    <real>40.0</real>
   </map>
   <key>MediaRollOffMax</key>
   <map>
@@ -8456,7 +8456,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>30.0</real>
+    <real>80.0</real>
   </map>
   <key>RecentItemsSortOrder</key>
     <map>
@@ -15559,7 +15559,7 @@
     <key>ClickToWalk</key>
     <map>
       <key>Comment</key>
-      <string>(obsolete)Click in world to walk to location</string>
+      <string>Click in world to walk to location</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

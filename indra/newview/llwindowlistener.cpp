@@ -37,7 +37,7 @@
 #include "llview.h"
 #include "llviewinject.h"
 #include "llviewerwindow.h"
-#include "llviewerinput.h"
+#include "llviewerkeyboard.h"
 #include "llrootview.h"
 #include "llsdutil.h"
 #include "stringize.h"
@@ -279,7 +279,7 @@ void LLWindowListener::keyDown(LLSD const & evt)
 			response.setResponse(target_view->getInfo());
 			
 			gFocusMgr.setKeyboardFocus(target_view);
-			gViewerInput.handleKey(key, mask, false);
+			gViewerKeyboard.handleKey(key, mask, false);
 			if(key < 0x80) mWindow->handleUnicodeChar(key, mask);
 		}
 		else 
@@ -291,7 +291,7 @@ void LLWindowListener::keyDown(LLSD const & evt)
 	}
 	else 
 	{
-		gViewerInput.handleKey(key, mask, false); 
+		gViewerKeyboard.handleKey(key, mask, false); 
 		if(key < 0x80) mWindow->handleUnicodeChar(key, mask);
 	}
 }

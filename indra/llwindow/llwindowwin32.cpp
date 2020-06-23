@@ -714,6 +714,7 @@ LLWindowWin32::~LLWindowWin32()
 
 void LLWindowWin32::show()
 {
+    LL_DEBUGS("Window") << "Setting window to show" << LL_ENDL;
 	ShowWindow(mWindowHandle, SW_SHOW);
 	SetForegroundWindow(mWindowHandle);
 	SetFocus(mWindowHandle);
@@ -1126,6 +1127,12 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 	mPostQuit = FALSE;
 
 	// create window
+    LL_DEBUGS("Window") << "Creating window with X: " << window_rect.left
+        << " Y: " << window_rect.top
+        << " Width: " << (window_rect.right - window_rect.left)
+        << " Height: " << (window_rect.bottom - window_rect.top)
+        << " Fullscreen: " << mFullscreen
+        << LL_ENDL;
 	DestroyWindow(mWindowHandle);
 	mWindowHandle = CreateWindowEx(dw_ex_style,
 		mWindowClassName,

@@ -59,8 +59,7 @@ public:
 									visible;
 
 		Optional<void*>				userdata;
-		Optional<LLSD>				value; // state of checkbox, icon id/name, date
-		Optional<std::string>		label; // description or text
+		Optional<LLSD>				value;
 		Optional<std::string>		tool_tip;
 
 		Optional<const LLFontGL*>	font;
@@ -76,7 +75,6 @@ public:
 			enabled("enabled", true),
 			visible("visible", true),
 			value("value"),
-			label("label"),
 			tool_tip("tool_tip", ""),
 			font("font", LLFontGL::getFontSansSerifSmall()),
 			font_color("font_color", LLColor4::black),
@@ -154,12 +152,11 @@ public:
 	void			setText(const LLStringExplicit& text);
 	void			setFontStyle(const U8 font_style);
 
-protected:
+private:
 	LLUIString		mText;
 	S32				mTextWidth;
 	const LLFontGL*	mFont;
 	LLColor4		mColor;
-	LLColor4		mHighlightColor;
 	U8				mUseColor;
 	LLFontGL::HAlign mFontAlignment;
 	BOOL			mVisible;
@@ -172,7 +169,7 @@ protected:
 };
 
 /*
- * Cell displaying an image. AT the moment, this is specifically UI image
+ * Cell displaying an image.
  */
 class LLScrollListIcon : public LLScrollListCell
 {
@@ -224,28 +221,6 @@ public:
 
 private:
 	LLDate		mDate;
-};
-
-/*
-* Cell displaying icon and text.
-*/
-
-class LLScrollListIconText : public LLScrollListText
-{
-public:
-    LLScrollListIconText(const LLScrollListCell::Params& p);
-    /*virtual*/ ~LLScrollListIconText();
-    /*virtual*/ void	draw(const LLColor4& color, const LLColor4& highlight_color) const;
-    /*virtual*/ const LLSD		getValue() const;
-    /*virtual*/ void	setValue(const LLSD& value);
-
-
-    S32					getIconWidth() const;
-    /*virtual*/ void	setWidth(S32 width);/* { LLScrollListCell::setWidth(width); mTextWidth = width - ; }*/
-
-private:
-    LLPointer<LLUIImage>	mIcon;
-    S32						mPad;
 };
 
 #endif

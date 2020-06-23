@@ -373,13 +373,26 @@ BOOL LLViewerMediaFocus::handleUnicodeChar(llwchar uni_char, BOOL called_from_pa
 		media_impl->handleUnicodeCharHere(uni_char);
 	return true;
 }
-BOOL LLViewerMediaFocus::handleScrollWheel(S32 x, S32 y, S32 clicks)
+
+BOOL LLViewerMediaFocus::handleScrollWheel(const LLVector2& texture_coords, S32 clicks_x, S32 clicks_y)
+{
+    BOOL retval = FALSE;
+    LLViewerMediaImpl* media_impl = getFocusedMediaImpl();
+    if (media_impl && media_impl->hasMedia())
+    {
+        media_impl->scrollWheel(texture_coords, clicks_x, clicks_y, gKeyboard->currentMask(TRUE));
+        retval = TRUE;
+    }
+    return retval;
+}
+
+BOOL LLViewerMediaFocus::handleScrollWheel(S32 x, S32 y, S32 clicks_x, S32 clicks_y)
 {
 	BOOL retval = FALSE;
 	LLViewerMediaImpl* media_impl = getFocusedMediaImpl();
 	if(media_impl && media_impl->hasMedia())
 	{
-		media_impl->scrollWheel(x, y, 0, clicks, gKeyboard->currentMask(TRUE));
+		media_impl->scrollWheel(x, y, clicks_x, clicks_y, gKeyboard->currentMask(TRUE));
 		retval = TRUE;
 	}
 	return retval;

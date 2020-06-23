@@ -2294,6 +2294,18 @@ void LLViewerMediaImpl::mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::scrollWheel(const LLVector2& texture_coords, S32 scroll_x, S32 scroll_y, MASK mask)
+{
+    if (mMediaSource)
+    {
+        S32 x, y;
+        scaleTextureCoords(texture_coords, &x, &y);
+
+        scrollWheel(x, y, scroll_x, scroll_y, mask);
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::scrollWheel(S32 x, S32 y, S32 scroll_x, S32 scroll_y, MASK mask)
 {
 	scaleMouse(&x, &y);

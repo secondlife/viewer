@@ -58,7 +58,8 @@ public:
 	/*virtual*/ BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent);
 	/*virtual*/ BOOL	handleKeyUp(KEY key, MASK mask, BOOL called_from_parent);
 	/*virtual*/ BOOL	handleUnicodeChar(llwchar uni_char, BOOL called_from_parent);
-	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
+	BOOL handleScrollWheel(const LLVector2& texture_coords, S32 clicks_x, S32 clicks_y);
+	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks_x, S32 clicks_y);
 
 	void update();
 	
@@ -67,7 +68,8 @@ public:
 
 	bool isFocusedOnFace(LLPointer<LLViewerObject> objectp, S32 face);
 	bool isHoveringOverFace(LLPointer<LLViewerObject> objectp, S32 face);
-	
+	bool isHoveringOverFocused() { return mFocusedObjectID == mHoverObjectID && mFocusedObjectFace == mHoverObjectFace; };
+
 	// These look up (by uuid) and return the values that were set with setFocusFace.  They will return null if the objects have been destroyed.
 	LLViewerMediaImpl* getFocusedMediaImpl();
 	LLViewerObject* getFocusedObject();

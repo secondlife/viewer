@@ -253,6 +253,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 	if (gWindowResized)
 	{ //skip render on frames where window has been resized
+		LL_DEBUGS("Window") << "Resizing window" << LL_ENDL;
 		LL_RECORD_BLOCK_TIME(FTM_RESIZE_WINDOW);
 		gGL.flush();
 		glClear(GL_COLOR_BUFFER_BIT);

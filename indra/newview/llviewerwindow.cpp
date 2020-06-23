@@ -45,8 +45,7 @@
 #include "llmeshrepository.h"
 #include "llnotificationhandler.h"
 #include "llpanellogin.h"
-#include "llsetkeybinddialog.h"
-#include "llviewerinput.h"
+#include "llviewerkeyboard.h"
 #include "llviewermenu.h"
 
 #include "llviewquery.h"
@@ -174,7 +173,7 @@
 #include "llviewergesture.h"
 #include "llviewertexturelist.h"
 #include "llviewerinventory.h"
-#include "llviewerinput.h"
+#include "llviewerkeyboard.h"
 #include "llviewermedia.h"
 #include "llviewermediafocus.h"
 #include "llviewermenu.h"
@@ -915,18 +914,7 @@ LLViewerWindow::Params::Params()
 {}
 
 
-void LLViewerWindow::handlePieMenu(S32 x, S32 y, MASK mask)
-{
-    if (CAMERA_MODE_CUSTOMIZE_AVATAR != gAgentCamera.getCameraMode() && LLToolMgr::getInstance()->getCurrentTool() != LLToolPie::getInstance() && gAgent.isInitialized())
-    {
-        // If the current tool didn't process the click, we should show
-        // the pie menu.  This can be done by passing the event to the pie
-        // menu tool.
-        LLToolPie::getInstance()->handleRightMouseDown(x, y, mask);
-    }
-}
-
-BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK mask, EMouseClickType clicktype, BOOL down)
+BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down)
 {
 	const char* buttonname = "";
 	const char* buttonstatestr = "";
@@ -950,30 +938,28 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK m
 		
 		switch (clicktype)
 		{
-		case CLICK_LEFT:
+		case LLMouseHandler::CLICK_LEFT:
 			mLeftMouseDown = down;
 			buttonname = "Left";
 			break;
-		case CLICK_RIGHT:
+		case LLMouseHandler::CLICK_RIGHT:
 			mRightMouseDown = down;
 			buttonname = "Right";
 			break;
-		case CLICK_MIDDLE:
+		case LLMouseHandler::CLICK_MIDDLE:
 			mMiddleMouseDown = down;
 			buttonname = "Middle";
 			break;
-		case CLICK_DOUBLELEFT:
+		case LLMouseHandler::CLICK_DOUBLELEFT:
 			mLeftMouseDown = down;
 			buttonname = "Left Double Click";
 			break;
-		case CLICK_BUTTON4:
+		case LLMouseHandler::CLICK_BUTTON4:
 			buttonname = "Button 4";
 			break;
-		case CLICK_BUTTON5:
+		case LLMouseHandler::CLICK_BUTTON5:
 			buttonname = "Button 5";
 			break;
-		default:
-			break; // COUNT and NONE
 		}
 		
 		LLView::sMouseHandlerMessage.clear();
@@ -1024,11 +1010,6 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK m
 				LLViewerEventRecorder::instance().logMouseEvent(std::string(buttonstatestr),std::string(buttonname)); 
 
 			}
-			else if (down && clicktype == CLICK_RIGHT)
-			{
-				handlePieMenu(x, y, mask);
-				r = TRUE;
-			}
 			return r;
 		}
 
@@ -1075,12 +1056,7 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK m
 		return TRUE;
 	}
 
-	if (down && clicktype == CLICK_RIGHT)
-	{
-		handlePieMenu(x, y, mask);
-		return TRUE;
-	}
-
+	
 	// If we got this far on a down-click, it wasn't handled.
 	// Up-clicks, though, are always handled as far as the OS is concerned.
 	BOOL default_rtn = !down;
@@ -1099,8 +1075,7 @@ BOOL LLViewerWindow::handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask
         mMouseDownTimer.reset();
     }    
     BOOL down = TRUE;
-    //handleMouse() loops back to LLViewerWindow::handleAnyMouseClick
-    return gViewerInput.handleMouse(window, pos, mask, CLICK_LEFT, down);
+	return handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_LEFT,down);
 }
 
 BOOL LLViewerWindow::handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask)
@@ -1108,7 +1083,8 @@ BOOL LLViewerWindow::handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK ma
 	// try handling as a double-click first, then a single-click if that
 	// wasn't handled.
 	BOOL down = TRUE;
-	if (gViewerInput.handleMouse(window, pos, mask, CLICK_DOUBLELEFT, down))
+	if (handleAnyMouseClick(window, pos, mask,
+				LLMouseHandler::CLICK_DOUBLELEFT, down))
 	{
 		return TRUE;
 	}
@@ -1122,24 +1098,47 @@ BOOL LLViewerWindow::handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
         mMouseDownTimer.stop();
     }
     BOOL down = FALSE;
-    return gViewerInput.handleMouse(window, pos, mask, CLICK_LEFT, down);
+	return handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_LEFT,down);
 }
+
+
 BOOL LLViewerWindow::handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
+	S32 x = pos.mX;
+	S32 y = pos.mY;
+	x = ll_round((F32)x / mDisplayScale.mV[VX]);
+	y = ll_round((F32)y / mDisplayScale.mV[VY]);
+
 	BOOL down = TRUE;
-	return gViewerInput.handleMouse(window, pos, mask, CLICK_RIGHT, down);
+	BOOL handle = handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_RIGHT,down);
+	if (handle)
+		return handle;
+
+	// *HACK: this should be rolled into the composite tool logic, not
+	// hardcoded at the top level.
+	if (CAMERA_MODE_CUSTOMIZE_AVATAR != gAgentCamera.getCameraMode() && LLToolMgr::getInstance()->getCurrentTool() != LLToolPie::getInstance() && gAgent.isInitialized())
+	{
+		// If the current tool didn't process the click, we should show
+		// the pie menu.  This can be done by passing the event to the pie
+		// menu tool.
+		LLToolPie::getInstance()->handleRightMouseDown(x, y, mask);
+		// show_context_menu( x, y, mask );
+	}
+
+	return TRUE;
 }
 
 BOOL LLViewerWindow::handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	BOOL down = FALSE;
- 	return gViewerInput.handleMouse(window, pos, mask, CLICK_RIGHT, down);
+ 	return handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_RIGHT,down);
 }
 
 BOOL LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	BOOL down = TRUE;
- 	gViewerInput.handleMouse(window, pos, mask, CLICK_MIDDLE, down);
+	LLVoiceClient::getInstance()->updateMouseState(LLMouseHandler::CLICK_MIDDLE, true);
+ 	handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_MIDDLE,down);
   
   	// Always handled as far as the OS is concerned.
 	return TRUE;
@@ -1294,7 +1293,8 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 BOOL LLViewerWindow::handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
 	BOOL down = FALSE;
- 	gViewerInput.handleMouse(window, pos, mask, CLICK_MIDDLE, down);
+	LLVoiceClient::getInstance()->updateMouseState(LLMouseHandler::CLICK_MIDDLE, false);
+ 	handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_MIDDLE,down);
   
   	// Always handled as far as the OS is concerned.
 	return TRUE;
@@ -1305,10 +1305,12 @@ BOOL LLViewerWindow::handleOtherMouse(LLWindow *window, LLCoordGL pos, MASK mask
     switch (button)
     {
     case 4:
-        gViewerInput.handleMouse(window, pos, mask, CLICK_BUTTON4, down);
+        LLVoiceClient::getInstance()->updateMouseState(LLMouseHandler::CLICK_BUTTON4, down);
+        handleAnyMouseClick(window, pos, mask, LLMouseHandler::CLICK_BUTTON4, down);
         break;
     case 5:
-        gViewerInput.handleMouse(window, pos, mask, CLICK_BUTTON5, down);
+        LLVoiceClient::getInstance()->updateMouseState(LLMouseHandler::CLICK_BUTTON5, down);
+        handleAnyMouseClick(window, pos, mask, LLMouseHandler::CLICK_BUTTON5, down);
         break;
     default:
         break;
@@ -1455,6 +1457,9 @@ void LLViewerWindow::handleFocusLost(LLWindow *window)
 
 BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
 {
+	// Let the voice chat code check for its PTT key.  Note that this never affects event processing.
+	LLVoiceClient::getInstance()->keyDown(key, mask);
+
 	if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
 	{
 		gAgent.clearAFK();
@@ -1473,12 +1478,14 @@ BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
     		return FALSE;
 	}
 
-    // remaps, handles ignored cases and returns back to viewer window.
-    return gViewerInput.handleKey(key, mask, repeated);
+	return gViewerKeyboard.handleKey(key, mask, repeated);
 }
 
 BOOL LLViewerWindow::handleTranslatedKeyUp(KEY key,  MASK mask)
 {
+	// Let the voice chat code check for its PTT key.  Note that this never affects event processing.
+	LLVoiceClient::getInstance()->keyUp(key, mask);
+
 	// Let the inspect tool code check for ALT key to set LLToolSelectRect active instead LLToolCamera
 	LLToolCompInspect * tool_inspectp = LLToolCompInspect::getInstance();
 	if (LLToolMgr::getInstance()->getCurrentTool() == tool_inspectp)
@@ -1486,13 +1493,13 @@ BOOL LLViewerWindow::handleTranslatedKeyUp(KEY key,  MASK mask)
 		tool_inspectp->keyUp(key, mask);
 	}
 
-	return gViewerInput.handleKeyUp(key, mask);
+	return gViewerKeyboard.handleKeyUp(key, mask);
 }
 
 void LLViewerWindow::handleScanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level)
 {
 	LLViewerJoystick::getInstance()->setCameraNeedsUpdate(true);
-	gViewerInput.scanKey(key, key_down, key_up, key_level);
+	gViewerKeyboard.scanKey(key, key_down, key_up, key_level);
 	return; // Be clear this function returns nothing
 }
 
@@ -2732,14 +2739,6 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	// hide tooltips on keypress
 	LLToolTipMgr::instance().blockToolTips();
 
-    // let menus handle navigation keys for navigation
-    if (LLSetKeyBindDialog::recordKey(key, mask))
-    {
-        LL_DEBUGS() << "Key handled by LLSetKeyBindDialog" << LL_ENDL;
-        LLViewerEventRecorder::instance().logKeyEvent(key,mask);
-        return TRUE;
-    }
-
     LLFocusableElement* keyboard_focus = gFocusMgr.getKeyboardFocus();
 
     if (keyboard_focus
@@ -2955,8 +2954,7 @@ BOOL LLViewerWindow::handleUnicodeChar(llwchar uni_char, MASK mask)
 	{
 		if (mask != MASK_ALT)
 		{
-			// remaps, handles ignored cases and returns back to viewer window.
-			return gViewerInput.handleKey(KEY_RETURN, mask, gKeyboard->getKeyRepeated(KEY_RETURN));
+			return gViewerKeyboard.handleKey(KEY_RETURN, mask, gKeyboard->getKeyRepeated(KEY_RETURN));
 		}
 	}
 

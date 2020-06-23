@@ -29,7 +29,6 @@
 
 #include "linden_common.h"
 #include "llrect.h"
-#include "indra_constants.h"
 
 // Mostly-abstract interface.
 // Intended for use via multiple inheritance. 
@@ -47,7 +46,16 @@ public:
 		SHOW_ALWAYS,
 	} EShowToolTip;
 
-	virtual BOOL	handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down);
+	typedef enum {
+		CLICK_LEFT,
+		CLICK_MIDDLE,
+		CLICK_RIGHT,
+		CLICK_BUTTON4,
+		CLICK_BUTTON5,
+		CLICK_DOUBLELEFT
+	} EClickType;
+
+	virtual BOOL	handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktype, BOOL down);
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask) = 0;
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask) = 0;
 	virtual BOOL	handleMiddleMouseDown(S32 x, S32 y, MASK mask) = 0;
