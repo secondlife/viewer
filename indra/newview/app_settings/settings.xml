@@ -8431,7 +8431,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.125</real>
+    <real>0.02</real>
   </map>
   <key>MediaRollOffMin</key>
   <map>
@@ -8442,7 +8442,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>10.0</real>
+    <real>40.0</real>
   </map>
   <key>MediaRollOffMax</key>
   <map>
@@ -8453,7 +8453,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>30.0</real>
+    <real>80.0</real>
   </map>
   <key>RecentItemsSortOrder</key>
     <map>

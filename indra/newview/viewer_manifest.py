@@ -594,13 +594,11 @@ class WindowsManifest(ViewerManifest):
             config = 'debug' if self.args['configuration'].lower() == 'debug' else 'release'
             with self.prefix(src=os.path.join(pkgdir, 'bin', config)):
                 self.path("chrome_elf.dll")
-                self.path("d3dcompiler_43.dll")
                 self.path("d3dcompiler_47.dll")
                 self.path("libcef.dll")
                 self.path("libEGL.dll")
                 self.path("libGLESv2.dll")
                 self.path("dullahan_host.exe")
-                self.path("natives_blob.bin")
                 self.path("snapshot_blob.bin")
                 self.path("v8_context_snapshot.bin")
 
@@ -795,6 +793,7 @@ class WindowsManifest(ViewerManifest):
         for exe in (
             self.final_exe(),
             "SLVersionChecker.exe",
+            "llplugin/dullahan_host.exe",
             ):
             self.sign(exe)
             
@@ -828,13 +827,13 @@ class WindowsManifest(ViewerManifest):
 
     def sign(self, exe):
         sign_py = os.environ.get('SIGN', r'C:\buildscripts\code-signing\sign.py')
-        python  = os.environ.get('PYTHON', 'python')
+        python  = os.environ.get('PYTHON', sys.executable)
         if os.path.exists(sign_py):
             dst_path = self.dst_path_of(exe)
             print "about to run signing of: ", dst_path
             self.run_command([python, sign_py, dst_path])
         else:
-            print "Skipping code signing of %s: %s not found" % (exe, sign_py)
+            print "Skipping code signing of %s %s: %s not found" % (self.dst_path_of(exe), exe, sign_py)
 
     def escape_slashes(self, path):
         return path.replace('\\', '\\\\\\\\')
@@ -1105,46 +1104,55 @@ class DarwinManifest(ViewerManifest):
                     # $viewer_app/Contents/Frameworks/Chromium Embedded Framework.framework
                     SLPlugin_framework = self.relsymlinkf(CEF_framework, catch=False)
 
-                    # copy DullahanHelper.app
-                    self.path2basename(relpkgdir, 'DullahanHelper.app')
+                    # for all the multiple CEF/Dullahan (as of CEF 76) helper app bundles we need:
+                    for helper in (
+                        "DullahanHelper",
+                        "DullahanHelper (GPU)",
+                        "DullahanHelper (Renderer)",
+                        "DullahanHelper (Plugin)",
+                    ):
+                        # app is the directory name of the app bundle, with app/Contents/MacOS/helper as the executable
+                        app = helper + ".app"
 
-                    # and fix that up with a Frameworks/CEF symlink too
-                    with self.prefix(dst=os.path.join(
-                        'DullahanHelper.app', 'Contents', 'Frameworks')):
-                        # from Dullahan Helper.app/Contents/Frameworks/Chromium Embedded
-                        # Framework.framework back to
-                        # SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework
-                        # Since SLPlugin_framework is itself a
-                        # symlink, don't let relsymlinkf() resolve --
-                        # explicitly call relpath(symlink=True) and
-                        # create that symlink here.
-                        DullahanHelper_framework = \
-                            self.symlinkf(self.relpath(SLPlugin_framework, symlink=True),
-                                          catch=False)
+                        # copy DullahanHelper.app
+                        self.path2basename(relpkgdir, app)
 
-                    # change_command includes install_name_tool, the
-                    # -change subcommand and the old framework rpath
-                    # stamped into the executable. To use it with
-                    # run_command(), we must still append the new
-                    # framework path and the pathname of the
-                    # executable to change.
-                    change_command = [
-                        'install_name_tool', '-change',
-                        '@rpath/Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework']
+                        # and fix that up with a Frameworks/CEF symlink too
+                        with self.prefix(dst=os.path.join(
+                                app, 'Contents', 'Frameworks')):
+                            # from Dullahan Helper *.app/Contents/Frameworks/Chromium Embedded
+                            # Framework.framework back to
+                            # SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework
+                            # Since SLPlugin_framework is itself a
+                            # symlink, don't let relsymlinkf() resolve --
+                            # explicitly call relpath(symlink=True) and
+                            # create that symlink here.
+                            helper_framework = \
+                            self.symlinkf(self.relpath(SLPlugin_framework, symlink=True), catch=False)
 
-                    with self.prefix(dst=os.path.join(
-                        'DullahanHelper.app', 'Contents', 'MacOS')):
-                        # Now self.get_dst_prefix() is, at runtime,
-                        # @executable_path. Locate the helper app
-                        # framework (which is a symlink) from here.
-                        newpath = os.path.join(
-                            '@executable_path',
-                            self.relpath(DullahanHelper_framework, symlink=True),
-                            frameworkname)
-                        # and restamp the DullahanHelper executable
-                        self.run_command(
-                            change_command +
-                            [newpath, self.dst_path_of('DullahanHelper')])
+                        # change_command includes install_name_tool, the
+                        # -change subcommand and the old framework rpath
+                        # stamped into the executable. To use it with
+                        # run_command(), we must still append the new
+                        # framework path and the pathname of the
+                        # executable to change.
+                        change_command = [
+                            'install_name_tool', '-change',
+                            '@rpath/Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework']
+
+                        with self.prefix(dst=os.path.join(
+                                app, 'Contents', 'MacOS')):
+                            # Now self.get_dst_prefix() is, at runtime,
+                            # @executable_path. Locate the helper app
+                            # framework (which is a symlink) from here.
+                            newpath = os.path.join(
+                                '@executable_path',
+                                    self.relpath(helper_framework, symlink=True),
+                                frameworkname)
+                                # and restamp the Dullahan Helper executable itself
+                            self.run_command(
+                                change_command +
+                                    [newpath, self.dst_path_of(helper)])
 
                 # SLPlugin plugins
                 with self.prefix(dst="llplugin"):
