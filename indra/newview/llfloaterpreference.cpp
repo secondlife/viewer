@@ -2801,20 +2801,34 @@ bool LLPanelPreferenceControls::addControlTableRows(const std::string &filename)
         std::string control = row_it->value.getValue().asString();
         if (!control.empty() && control != "menu_separator")
         {
-            // At the moment viewer is hardcoded to assume that there are 4 collumns
-            LLScrollListItem::Params item_params(*row_it);
+            bool show = true;
             bool enabled = mConflictHandler[mEditingMode].canAssignControl(control);
-            item_params.enabled.setValue(enabled);
-            cell_params.column = "lst_ctrl1";
-            cell_params.value = mConflictHandler[mEditingMode].getControlString(control, 0);
-            item_params.columns.add(cell_params);
-            cell_params.column = "lst_ctrl2";
-            cell_params.value = mConflictHandler[mEditingMode].getControlString(control, 1);
-            item_params.columns.add(cell_params);
-            cell_params.column = "lst_ctrl3";
-            cell_params.value = mConflictHandler[mEditingMode].getControlString(control, 2);
-            item_params.columns.add(cell_params);
-            pControlsTable->addRow(item_params, EAddPosition::ADD_BOTTOM);
+            if (!enabled)
+            {
+                // If empty: this is a placeholder to make sure user won't assign
+                // value by accident, don't show it
+                // If not empty: predefined control combination user should see
+                // to know that combination is reserved
+                show = !mConflictHandler[mEditingMode].isControlEmpty(control);
+                // example: teleport_to and walk_to in first person view, and
+                // sitting related functions, see generatePlaceholders()
+            }
+
+            if (show)
+            {
+                // At the moment viewer is hardcoded to assume that columns are named as lst_ctrl%d
+                LLScrollListItem::Params item_params(*row_it);
+                item_params.enabled.setValue(enabled);
+
+                S32 num_columns = pControlsTable->getNumColumns();
+                for (S32 col = 1; col < num_columns; col++)
+                {
+                    cell_params.column = llformat("lst_ctrl%d", col);
+                    cell_params.value = mConflictHandler[mEditingMode].getControlString(control, col - 1);
+                    item_params.columns.add(cell_params);
+                }
+                pControlsTable->addRow(item_params, EAddPosition::ADD_BOTTOM);
+            }
         }
         else
         {
@@ -2825,7 +2839,8 @@ bool LLPanelPreferenceControls::addControlTableRows(const std::string &filename)
             //   type = "icon"
             //   color = "0 0 0 0.7"
             //   halign = "center"
-            //   value = "menu_separator" />
+            //   value = "menu_separator"
+            //   column = "lst_action" / >
             //</rows>
             pControlsTable->addRow(*row_it, EAddPosition::ADD_BOTTOM);
         }
@@ -2835,7 +2850,16 @@ bool LLPanelPreferenceControls::addControlTableRows(const std::string &filename)
 
 void LLPanelPreferenceControls::addControlTableSeparator()
 {
-    pControlsTable->addSeparator(EAddPosition::ADD_BOTTOM);
+    LLScrollListItem::Params separator_params;
+    separator_params.enabled(false);
+    LLScrollListCell::Params column_params;
+    column_params.type = "icon";
+    column_params.value = "menu_separator";
+    column_params.column = "lst_action";
+    column_params.color = LLColor4(0.f, 0.f, 0.f, 0.7f);
+    column_params.font_halign = LLFontGL::HCENTER;
+    separator_params.columns.add(column_params);
+    pControlsTable->addRow(separator_params, EAddPosition::ADD_BOTTOM);
 }
 
 void LLPanelPreferenceControls::populateControlTable()
@@ -2843,7 +2867,7 @@ void LLPanelPreferenceControls::populateControlTable()
     pControlsTable->clearRows();
     pControlsTable->clearColumns();
 
-    // add columns
+    // Add columns
     std::string filename;
     switch ((LLKeyConflictHandler::ESourceMode)mEditingMode)
     {
@@ -2861,9 +2885,11 @@ void LLPanelPreferenceControls::populateControlTable()
     }
     addControlTableColumns(filename);
 
-
+    // Add rows.
+    // Each file represents individual visual group (movement/camera/media...)
     if (mEditingMode == LLKeyConflictHandler::MODE_FIRST_PERSON)
     {
+        // Don't display whole camera and editing groups
         addControlTableRows("control_table_contents_movement.xml");
         addControlTableSeparator();
         addControlTableRows("control_table_contents_media.xml");
@@ -2872,14 +2898,11 @@ void LLPanelPreferenceControls::populateControlTable()
     else if (mEditingMode < LLKeyConflictHandler::MODE_SAVED_SETTINGS)
     {
         // In case of 'sitting' mode, movements still apply due to vehicles
+        // but walk_to is not supported and will be hidden by addControlTableRows
         addControlTableRows("control_table_contents_movement.xml");
         addControlTableSeparator();
 
         addControlTableRows("control_table_contents_camera.xml");
-        if (mEditingMode == LLKeyConflictHandler::MODE_SITTING)
-        {
-            addControlTableRows("control_table_contents_camera_sitting.xml");
-        }
         addControlTableSeparator();
 
         addControlTableRows("control_table_contents_editing.xml");
@@ -2903,12 +2926,14 @@ void LLPanelPreferenceControls::updateTable()
         std::string control = list[i]->getValue();
         if (!control.empty())
         {
-            LLScrollListCell* cell = list[i]->getColumn(1);
-            cell->setValue(mConflictHandler[mEditingMode].getControlString(control, 0));
-            cell = list[i]->getColumn(2);
-            cell->setValue(mConflictHandler[mEditingMode].getControlString(control, 1));
-            cell = list[i]->getColumn(3);
-            cell->setValue(mConflictHandler[mEditingMode].getControlString(control, 2));
+            LLScrollListCell* cell = NULL;
+
+            S32 num_columns = pControlsTable->getNumColumns();
+            for (S32 col = 1; col < num_columns; col++)
+            {
+                cell = list[i]->getColumn(col);
+                cell->setValue(mConflictHandler[mEditingMode].getControlString(control, col - 1));
+            }
         }
     }
     pControlsTable->deselectAllItems();

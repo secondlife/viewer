@@ -1021,6 +1021,7 @@ bool LLAppViewer::init()
         LL_INFOS("InitInfo") << "Converting legacy mouse bindings to new format" << LL_ENDL;
         // Load settings from file
         LLKeyConflictHandler third_person_view(LLKeyConflictHandler::MODE_THIRD_PERSON);
+        LLKeyConflictHandler sitting_view(LLKeyConflictHandler::MODE_SITTING);
 
         // Since we are only modifying keybindings if personal file doesn't exist yet,
         // it should be safe to just overwrite the value
@@ -1050,6 +1051,14 @@ bool LLAppViewer::init()
                                           MASK_NONE,
                                           value);
 
+        // sitting also supports teleport
+        sitting_view.registerControl("teleport_to",
+            0,
+            value ? EMouseClickType::CLICK_DOUBLELEFT : EMouseClickType::CLICK_NONE,
+            KEY_NONE,
+            MASK_NONE,
+            value);
+
         std::string key_string = gSavedSettings.getString("PushToTalkButton");
         EMouseClickType mouse = EMouseClickType::CLICK_NONE;
         KEY key = KEY_NONE;
@@ -1073,6 +1082,7 @@ bool LLAppViewer::init()
         value = gSavedSettings.getBOOL("PushToTalkToggle");
         std::string control_name = value ? "toggle_voice" : "voice_follow_key";
         third_person_view.registerControl(control_name, 0, mouse, key, MASK_NONE, true);
+        sitting_view.registerControl(control_name, 0, mouse, key, MASK_NONE, true);
 
         if (third_person_view.hasUnsavedChanges())
         {
@@ -1080,12 +1090,18 @@ bool LLAppViewer::init()
             third_person_view.saveToSettings();
         }
 
-        // in case of voice we need to repeat this in other modes (teleports and
-        // autopilot are not entirely practical when sitting or editing)
+        if (sitting_view.hasUnsavedChanges())
+        {
+            // calls loadBindingsXML()
+            sitting_view.saveToSettings();
+        }
+
+        // in case of voice we need to repeat this in other modes
 
         for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
         {
-            if (i != LLKeyConflictHandler::MODE_THIRD_PERSON)
+            // edit and first person modes; MODE_SAVED_SETTINGS not in use at the moment
+            if (i != LLKeyConflictHandler::MODE_THIRD_PERSON && i != LLKeyConflictHandler::MODE_SITTING)
             {
                 LLKeyConflictHandler handler((LLKeyConflictHandler::ESourceMode)i);
 

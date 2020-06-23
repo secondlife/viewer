@@ -243,6 +243,15 @@ LLKeyData LLKeyConflictHandler::getControl(const std::string &control_name, U32 
     return mControlsMap[control_name].getKeyData(index);
 }
 
+bool LLKeyConflictHandler::isControlEmpty(const std::string &control_name)
+{
+    if (control_name.empty())
+    {
+        return true;
+    }
+    return mControlsMap[control_name].mKeyBind.isEmpty();
+}
+
 // static
 std::string LLKeyConflictHandler::getStringFromKeyData(const LLKeyData& keydata)
 {
@@ -885,10 +894,27 @@ void LLKeyConflictHandler::generatePlaceholders(ESourceMode load_mode)
         registerTemporaryControl("edit_avatar_spin_under");
         registerTemporaryControl("edit_avatar_move_forward");
         registerTemporaryControl("edit_avatar_move_backward");
+
+        // no autopilot or teleport
+        registerTemporaryControl("walk_to");
+        registerTemporaryControl("teleport_to");
     }
 
-    if (load_mode != MODE_SITTING)
+    if (load_mode == MODE_EDIT_AVATAR)
     {
+        // no autopilot or teleport
+        registerTemporaryControl("walk_to");
+        registerTemporaryControl("teleport_to");
+    }
+
+    if (load_mode == MODE_SITTING)
+    {
+        // no autopilot
+        registerTemporaryControl("walk_to");
+    }
+    else 
+    {
+        // sitting related functions should only be avaliable in sitting mode
         registerTemporaryControl("move_forward_sitting");
         registerTemporaryControl("move_backward_sitting");
         registerTemporaryControl("spin_over_sitting");

@@ -98,6 +98,7 @@ public:
     bool clearControl(const std::string &control_name, U32 data_index);
 
     LLKeyData getControl(const std::string &control_name, U32 data_index);
+    bool isControlEmpty(const std::string &control_name);
 
     // localized string
     static std::string getStringFromKeyData(const LLKeyData& keydata);
