@@ -11,6 +11,15 @@
          name="Texture"
          top="0"
          width="295">
+            <panel.string
+             name="paste_error_face_selection_mismatch">
+              When multiple faces are copied, the target object must have the same number of faces selected.
+            </panel.string>
+            <panel.string
+             name="paste_error_object_face_count_mismatch">
+              When all faces of an object are copied, the target object must have the same number of faces.
+            </panel.string>
+
             <menu_button
              menu_filename="menu_copy_paste_color.xml"
              follows="top|left"

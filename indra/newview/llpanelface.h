@@ -208,8 +208,10 @@ protected:
 
 public: // needs to be accessible to selection manager
     void            onCopyColor(); // records all selected faces
+    void            onPasteColor(); // to specific face
     void            onPasteColor(LLViewerObject* objectp, S32 te); // to specific face
     void            onCopyTexture();
+    void            onPasteTexture();
     void            onPasteTexture(LLViewerObject* objectp, S32 te);
 
 protected:
