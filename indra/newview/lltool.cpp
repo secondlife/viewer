@@ -60,7 +60,7 @@ LLTool::~LLTool()
 	}
 }
 
-BOOL LLTool::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down)
+BOOL LLTool::handleAnyMouseClick(S32 x, S32 y, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down)
 {
 	BOOL result = LLMouseHandler::handleAnyMouseClick(x, y, mask, clicktype, down);
 	
@@ -83,9 +83,9 @@ BOOL LLTool::handleMouseDown(S32 x, S32 y, MASK mask)
 		LL_INFOS() << "LLTool left mouse down" << LL_ENDL;
 	}
 	// by default, didn't handle it
-	// AGENT_CONTROL_LBUTTON_DOWN is handled by scanMouse() and scanKey()
 	// LL_INFOS() << "LLTool::handleMouseDown" << LL_ENDL;
-	return FALSE;
+	gAgent.setControlFlags(AGENT_CONTROL_LBUTTON_DOWN);
+	return TRUE;
 }
 
 BOOL LLTool::handleMouseUp(S32 x, S32 y, MASK mask)
@@ -95,8 +95,8 @@ BOOL LLTool::handleMouseUp(S32 x, S32 y, MASK mask)
 		LL_INFOS() << "LLTool left mouse up" << LL_ENDL;
 	}
 	// by default, didn't handle it
-	// AGENT_CONTROL_LBUTTON_UP is handled by scanMouse() and scanKey()
 	// LL_INFOS() << "LLTool::handleMouseUp" << LL_ENDL;
+	gAgent.setControlFlags(AGENT_CONTROL_LBUTTON_UP);
 	return TRUE;
 }
 
