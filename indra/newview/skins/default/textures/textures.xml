@@ -98,7 +98,7 @@ with the same filename but different name
   <texture name="BuyArrow_Over" file_name="navbar/BuyArrow_Over.png" preload="true" scale.left="0" scale.top="1" scale.right="0" scale.bottom="0"  />
   <texture name="BuyArrow_Press" file_name="navbar/BuyArrow_Press.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0"  />
 
-  <texture name="Cam_Avatar_Off" file_name="bottomtray/Cam_Avatar_Off.png" preload="false" />
+  <texture name="Cam_Avatar_Off" file_name="bottomtray/Cam_Avatar_Off.png" preload="true" />
   <texture name="Cam_FreeCam_Off" file_name="bottomtray/Cam_FreeCam_Off.png" preload="false" />
   <texture name="Cam_Orbit_Off" file_name="bottomtray/Cam_Orbit_Off.png" preload="false" />
   <texture name="Cam_Pan_Off" file_name="bottomtray/Cam_Pan_Off.png" preload="false" />
@@ -113,8 +113,10 @@ with the same filename but different name
 
   <texture name="Cam_Rotate_In" file_name="bottomtray/Cam_Rotate_In.png" preload="false" />
   <texture name="Cam_Rotate_Out" file_name="bottomtray/Cam_Rotate_Out.png" preload="false" />
+  <texture name="Cam_Rotate_Center" file_name="bottomtray/Cam_Rotate_Center.png" preload="false" />
   <texture name="Cam_Tracking_In" file_name="bottomtray/Cam_Tracking_In.png" preload="false" />
   <texture name="Cam_Tracking_Out" file_name="bottomtray/Cam_Tracking_Out.png" preload="false" />
+  <texture name="Cam_Tracking_Center" file_name="bottomtray/Cam_Tracking_Center.png" preload="false" />
 
   <texture name="Checkbox_Off_Disabled" file_name="widgets/Checkbox_Disabled.png" preload="true" />
   <texture name="Checkbox_On_Disabled" file_name="widgets/Checkbox_On_Disabled.png" preload="true" />
@@ -204,7 +206,9 @@ with the same filename but different name
 
   <texture name="Presets_Icon" file_name="icons/Presets_Icon.png" preload="true" />
 
-  <texture name="Favorite_Star_Active" file_name="navbar/Favorite_Star_Active.png" preload="false" />
+  <texture name="Presets_Icon" file_name="icons/Presets_Icon.png" preload="true" />
+  <texture name="Presets_Icon_Graphic" file_name="icons/Presets_Icon_Graphic.png" preload="true" />
+ <texture name="Favorite_Star_Active" file_name="navbar/Favorite_Star_Active.png" preload="false" />
   <texture name="Favorite_Star_Off" file_name="navbar/Favorite_Star_Off.png" preload="false" />
   <texture name="Favorite_Star_Press" file_name="navbar/Favorite_Star_Press.png" preload="false" />
   <texture name="Favorite_Star_Over" file_name="navbar/Favorite_Star_Over.png" preload="false" />
@@ -253,6 +257,7 @@ with the same filename but different name
   <texture name="Icon_Gear_Background" file_name="windows/Icon_Gear_Background.png" preload="false" />
   <texture name="Icon_Gear_Foreground" file_name="windows/Icon_Gear_Foreground.png" preload="false" />
   <texture name="Icon_Gear_Press" file_name="windows/Icon_Gear_Press.png" preload="false" />
+  <texture name="Icon_Gear" file_name="windows/Icon_Gear.png" preload="false" />
 
   <texture name="Icon_Help_Foreground" file_name="windows/Icon_Help_Foreground.png" preload="true" />
   <texture name="Icon_Help_Press" file_name="windows/Icon_Help_Press.png" preload="true" />
@@ -492,6 +497,7 @@ with the same filename but different name
   <texture name="Play_Press" file_name="icons/Play_Press.png" preload="false" />
   
   <texture name="ProgressBar" file_name="widgets/ProgressBar.png" preload="true" scale.left="4" scale.top="11" scale.right="48" scale.bottom="3" />
+  <texture name="ProgressBarSolid" file_name="widgets/ProgressBarSolid.png" preload="true" scale.left="4" scale.top="11" scale.right="48" scale.bottom="3" />
   <texture name="ProgressTrack" file_name="widgets/ProgressTrack.png" preload="true" scale.left="4" scale.top="13" scale.right="148" scale.bottom="2" />
 
   <texture name="PushButton_Disabled" file_name="widgets/PushButton_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />

@@ -1,0 +1,142 @@
+<llsd>
+    <map>
+    <key>AppearanceCameraMovement</key>
+        <map>
+        <key>Comment</key>
+            <string>When entering appearance editing mode, camera zooms in on currently selected portion of avatar</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>1</integer>
+        </map>
+    <key>AvatarSitRotation</key>
+    <map>
+        <key>Comment</key>
+        <string>Avatar real sitting rotation used in preset</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>LLSD</string>
+        <key>Value</key>
+        <array>
+          <real>0</real>
+          <real>0</real>
+          <real>0</real>
+          <real>1</real>
+        </array>
+    </map>
+    <key>CameraAngle</key>
+        <map>
+        <key>Comment</key>
+            <string>Camera field of view angle (Radians)</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>1.047197551</real>
+        </map>
+    <key>CameraOffsetBuild</key>
+        <map>
+        <key>Comment</key>
+            <string>Default camera position relative to focus point when entering build mode</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Vector3</string>
+        <key>Value</key>
+            <array>
+                <real>-6</real>
+                <real>0</real>
+                <real>6</real>
+            </array>
+        </map>
+    <key>CameraOffsetRearView</key>
+        <map>
+        <key>Comment</key>
+            <string>Initial camera offset from avatar in Side View</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Vector3</string>
+        <key>Value</key>
+            <array>
+                <real>-1.0</real>
+                <real>0.7</real>
+                <real>0.5</real>
+            </array>
+        </map>
+    <key>CameraOffsetScale</key>
+        <map>
+        <key>Comment</key>
+            <string>Scales the default offset</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>1</real>
+        </map>
+    <key>CameraZoomFraction</key>
+        <map>
+        <key>Comment</key>
+            <string>Mousewheel driven fraction of zoom</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>F32</string>
+        <key>Value</key>
+            <real>0.90322577953338623</real>
+        </map>
+    <key>EditCameraMovement</key>
+        <map>
+        <key>Comment</key>
+            <string>When entering build mode, camera moves up above avatar</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+        </map>
+    <key>FocusOffsetRearView</key>
+        <map>
+        <key>Comment</key>
+            <string>Initial focus point offset relative to avatar for the camera preset Side View (x-axis is forward)</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Vector3D</string>
+        <key>Value</key>
+            <array>
+                <real>1.5</real>
+                <real>0.7</real>
+                <real>1.0</real>
+            </array>
+        </map>
+    <key>PresetCameraActive</key>
+        <map>
+        <key>Comment</key>
+            <string>Name of currently selected preference</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>String</string>
+        <key>Value</key>
+            <string>Default</string>
+        </map>
+    <key>TrackFocusObject</key>
+        <map>
+        <key>Comment</key>
+            <string>Camera tracks last object zoomed on</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>1</integer>
+        </map>
+    </map>
+</llsd>
