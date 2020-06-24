@@ -82,24 +82,23 @@ static const S32 LOCAL_TRACKING_ID_COLUMN = 1;
 
 
 //static
-bool get_is_library_texture(LLUUID image_id)
+bool get_is_predefined_texture(LLUUID asset_id)
 {
-    if (gInventory.isObjectDescendentOf(image_id, gInventory.getLibraryRootFolderID())
-        || image_id == LLUUID(gSavedSettings.getString("DefaultObjectTexture"))
-        || image_id == LLUUID(gSavedSettings.getString("UIImgWhiteUUID"))
-        || image_id == LLUUID(gSavedSettings.getString("UIImgInvisibleUUID"))
-        || image_id == LLUUID(SCULPT_DEFAULT_TEXTURE))
+    if (asset_id == LLUUID(gSavedSettings.getString("DefaultObjectTexture"))
+        || asset_id == LLUUID(gSavedSettings.getString("UIImgWhiteUUID"))
+        || asset_id == LLUUID(gSavedSettings.getString("UIImgInvisibleUUID"))
+        || asset_id == LLUUID(SCULPT_DEFAULT_TEXTURE))
     {
         return true;
     }
     return false;
 }
 
-LLUUID get_copy_free_item_by_asset_id(LLUUID image_id)
+LLUUID get_copy_free_item_by_asset_id(LLUUID asset_id)
 {
     LLViewerInventoryCategory::cat_array_t cats;
     LLViewerInventoryItem::item_array_t items;
-    LLAssetIDMatches asset_id_matches(image_id);
+    LLAssetIDMatches asset_id_matches(asset_id);
     gInventory.collectDescendentsIf(LLUUID::null,
         cats,
         items,
@@ -125,13 +124,13 @@ LLUUID get_copy_free_item_by_asset_id(LLUUID image_id)
     return LLUUID::null;
 }
 
-bool get_can_copy_texture(LLUUID image_id)
+bool get_can_copy_texture(LLUUID asset_id)
 {
     // User is allowed to copy a texture if:
     // library asset or default texture,
     // or copy perm asset exists in user's inventory
 
-    return get_is_library_texture(image_id) || get_copy_free_item_by_asset_id(image_id).notNull();
+    return get_is_predefined_texture(asset_id) || get_copy_free_item_by_asset_id(asset_id).notNull();
 }
 
 LLFloaterTexturePicker::LLFloaterTexturePicker(	

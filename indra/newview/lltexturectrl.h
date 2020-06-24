@@ -54,7 +54,7 @@ typedef boost::function<BOOL (LLUICtrl*, LLInventoryItem*)> drag_n_drop_callback
 typedef boost::function<void (LLInventoryItem*)> texture_selected_callback;
 
 // Helper functions for UI that work with picker
-bool get_is_library_texture(LLUUID image_id);
+bool get_is_predefined_texture(LLUUID asset_id);
 
 // texture picker works by asset ids since objects normaly do
 // not retain inventory ids as result these functions are looking
