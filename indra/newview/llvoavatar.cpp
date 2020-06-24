@@ -663,6 +663,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mNeedsSkin(FALSE),
 	mLastSkinTime(0.f),
 	mUpdatePeriod(1),
+	mOverallAppearance(AOA_INVISIBLE),
 	mVisualComplexityStale(true),
     mFrameDataStale(true),
 	mVisuallyMuteSetting(AV_RENDER_NORMALLY),
@@ -2018,6 +2019,38 @@ void LLVOAvatar::resetVisualParams()
 	}
 }
 
+void LLVOAvatar::applyDefaultParams()
+{
+	// These are params from avs with newly created copies of shape,
+	// skin, hair, eyes, plus gender set as noted. Run arche_tool.py
+	// to get params from some other xml appearance dump.
+	std::map<S32, U8> male_params = {
+		{1,33}, {2,61}, {4,85}, {5,23}, {6,58}, {7,127}, {8,63}, {10,85}, {11,63}, {12,42}, {13,0}, {14,85}, {15,63}, {16,36}, {17,85}, {18,95}, {19,153}, {20,63}, {21,34}, {22,0}, {23,63}, {24,109}, {25,88}, {27,132}, {31,63}, {33,136}, {34,81}, {35,85}, {36,103}, {37,136}, {38,127}, {80,255}, {93,203}, {98,0}, {99,0}, {105,127}, {108,0}, {110,0}, {111,127}, {112,0}, {113,0}, {114,127}, {115,0}, {116,0}, {117,0}, {119,127}, {130,114}, {131,127}, {132,99}, {133,63}, {134,127}, {135,140}, {136,127}, {137,127}, {140,0}, {141,0}, {142,0}, {143,191}, {150,0}, {155,104}, {157,0}, {162,0}, {163,0}, {165,0}, {166,0}, {167,0}, {168,0}, {169,0}, {177,0}, {181,145}, {182,216}, {183,133}, {184,0}, {185,127}, {192,0}, {193,127}, {196,170}, {198,0}, {503,0}, {505,127}, {506,127}, {507,109}, {508,85}, {513,127}, {514,127}, {515,63}, {517,85}, {518,42}, {603,100}, {604,216}, {605,214}, {606,204}, {607,204}, {608,204}, {609,51}, {616,25}, {617,89}, {619,76}, {624,204}, {625,0}, {629,127}, {637,0}, {638,0}, {646,144}, {647,85}, {649,127}, {650,132}, {652,127}, {653,85}, {654,0}, {656,127}, {659,127}, {662,127}, {663,127}, {664,127}, {665,127}, {674,59}, {675,127}, {676,85}, {678,127}, {682,127}, {683,106}, {684,47}, {685,79}, {690,127}, {692,127}, {693,204}, {700,63}, {701,0}, {702,0}, {703,0}, {704,0}, {705,127}, {706,127}, {707,0}, {708,0}, {709,0}, {710,0}, {711,127}, {712,0}, {713,159}, {714,0}, {715,0}, {750,178}, {752,127}, {753,36}, {754,85}, {755,131}, {756,127}, {757,127}, {758,127}, {759,153}, {760,95}, {762,0}, {763,140}, {764,74}, {765,27}, {769,127}, {773,127}, {775,0}, {779,214}, {780,204}, {781,198}, {785,0}, {789,0}, {795,63}, {796,30}, {799,127}, {800,226}, {801,255}, {802,198}, {803,255}, {804,255}, {805,255}, {806,255}, {807,255}, {808,255}, {812,255}, {813,255}, {814,255}, {815,204}, {816,0}, {817,255}, {818,255}, {819,255}, {820,255}, {821,255}, {822,255}, {823,255}, {824,255}, {825,255}, {826,255}, {827,255}, {828,0}, {829,255}, {830,255}, {834,255}, {835,255}, {836,255}, {840,0}, {841,127}, {842,127}, {844,255}, {848,25}, {858,100}, {859,255}, {860,255}, {861,255}, {862,255}, {863,84}, {868,0}, {869,0}, {877,0}, {879,51}, {880,132}, {921,255}, {922,255}, {923,255}, {10000,0}, {10001,0}, {10002,25}, {10003,0}, {10004,25}, {10005,23}, {10006,51}, {10007,0}, {10008,25}, {10009,23}, {10010,51}, {10011,0}, {10012,0}, {10013,25}, {10014,0}, {10015,25}, {10016,23}, {10017,51}, {10018,0}, {10019,0}, {10020,25}, {10021,0}, {10022,25}, {10023,23}, {10024,51}, {10025,0}, {10026,25}, {10027,23}, {10028,51}, {10029,0}, {10030,25}, {10031,23}, {10032,51}, {11000,1}, {11001,127}
+	};
+	std::map<S32, U8> female_params = {
+		{1,33}, {2,61}, {4,85}, {5,23}, {6,58}, {7,127}, {8,63}, {10,85}, {11,63}, {12,42}, {13,0}, {14,85}, {15,63}, {16,36}, {17,85}, {18,95}, {19,153}, {20,63}, {21,34}, {22,0}, {23,63}, {24,109}, {25,88}, {27,132}, {31,63}, {33,136}, {34,81}, {35,85}, {36,103}, {37,136}, {38,127}, {80,0}, {93,203}, {98,0}, {99,0}, {105,127}, {108,0}, {110,0}, {111,127}, {112,0}, {113,0}, {114,127}, {115,0}, {116,0}, {117,0}, {119,127}, {130,114}, {131,127}, {132,99}, {133,63}, {134,127}, {135,140}, {136,127}, {137,127}, {140,0}, {141,0}, {142,0}, {143,191}, {150,0}, {155,104}, {157,0}, {162,0}, {163,0}, {165,0}, {166,0}, {167,0}, {168,0}, {169,0}, {177,0}, {181,145}, {182,216}, {183,133}, {184,0}, {185,127}, {192,0}, {193,127}, {196,170}, {198,0}, {503,0}, {505,127}, {506,127}, {507,109}, {508,85}, {513,127}, {514,127}, {515,63}, {517,85}, {518,42}, {603,100}, {604,216}, {605,214}, {606,204}, {607,204}, {608,204}, {609,51}, {616,25}, {617,89}, {619,76}, {624,204}, {625,0}, {629,127}, {637,0}, {638,0}, {646,144}, {647,85}, {649,127}, {650,132}, {652,127}, {653,85}, {654,0}, {656,127}, {659,127}, {662,127}, {663,127}, {664,127}, {665,127}, {674,59}, {675,127}, {676,85}, {678,127}, {682,127}, {683,106}, {684,47}, {685,79}, {690,127}, {692,127}, {693,204}, {700,63}, {701,0}, {702,0}, {703,0}, {704,0}, {705,127}, {706,127}, {707,0}, {708,0}, {709,0}, {710,0}, {711,127}, {712,0}, {713,159}, {714,0}, {715,0}, {750,178}, {752,127}, {753,36}, {754,85}, {755,131}, {756,127}, {757,127}, {758,127}, {759,153}, {760,95}, {762,0}, {763,140}, {764,74}, {765,27}, {769,127}, {773,127}, {775,0}, {779,214}, {780,204}, {781,198}, {785,0}, {789,0}, {795,63}, {796,30}, {799,127}, {800,226}, {801,255}, {802,198}, {803,255}, {804,255}, {805,255}, {806,255}, {807,255}, {808,255}, {812,255}, {813,255}, {814,255}, {815,204}, {816,0}, {817,255}, {818,255}, {819,255}, {820,255}, {821,255}, {822,255}, {823,255}, {824,255}, {825,255}, {826,255}, {827,255}, {828,0}, {829,255}, {830,255}, {834,255}, {835,255}, {836,255}, {840,0}, {841,127}, {842,127}, {844,255}, {848,25}, {858,100}, {859,255}, {860,255}, {861,255}, {862,255}, {863,84}, {868,0}, {869,0}, {877,0}, {879,51}, {880,132}, {921,255}, {922,255}, {923,255}, {10000,0}, {10001,0}, {10002,25}, {10003,0}, {10004,25}, {10005,23}, {10006,51}, {10007,0}, {10008,25}, {10009,23}, {10010,51}, {10011,0}, {10012,0}, {10013,25}, {10014,0}, {10015,25}, {10016,23}, {10017,51}, {10018,0}, {10019,0}, {10020,25}, {10021,0}, {10022,25}, {10023,23}, {10024,51}, {10025,0}, {10026,25}, {10027,23}, {10028,51}, {10029,0}, {10030,25}, {10031,23}, {10032,51}, {11000,1}, {11001,127}
+	};
+	std::map<S32, U8> *params = NULL;
+	if (getSex() == SEX_MALE)
+		params = &male_params;
+	else
+		params = &female_params;
+			
+	for( auto it = params->begin(); it != params->end(); ++it)
+	{
+		LLVisualParam* param = getVisualParam(it->first);
+		if( !param )
+		{
+			// invalid id
+			break;
+		}
+
+		U8 value = it->second;
+		F32 newWeight = U8_to_F32(value, param->getMinWeight(), param->getMaxWeight());
+		param->setWeight(newWeight);
+	}
+}
+
 //-----------------------------------------------------------------------------
 // resetSkeleton()
 //-----------------------------------------------------------------------------
@@ -2080,15 +2113,22 @@ void LLVOAvatar::resetSkeleton(bool reset_animations)
     }
 
     // Reset tweakable params to preserved state
-    if (mLastProcessedAppearance)
-    {
-    bool slam_params = true;
-    applyParsedAppearanceMessage(*mLastProcessedAppearance, slam_params);
-    }
+	if (getOverallAppearance() == AOA_NORMAL)
+	{
+		if (mLastProcessedAppearance)
+		{
+			bool slam_params = true;
+			applyParsedAppearanceMessage(*mLastProcessedAppearance, slam_params);
+		}
+	}
+	else
+	{
+		applyDefaultParams();
+	}
     updateVisualParams();
 
     // Restore attachment pos overrides
-    updateAttachmentOverrides();
+	updateAttachmentOverrides();
 
     // Animations
     if (reset_animations)
@@ -2787,14 +2827,15 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 
     if (mDrawable.notNull())
     {
-	mDrawable->movePartition();
+		mDrawable->movePartition();
 	
-	//force a move if sitting on an active object
-	if (getParent() && ((LLViewerObject*) getParent())->mDrawable->isActive())
-	{
-		gPipeline.markMoved(mDrawable, TRUE);
-	}
+		//force a move if sitting on an active object
+		if (getParent() && ((LLViewerObject*) getParent())->mDrawable->isActive())
+		{
+			gPipeline.markMoved(mDrawable, TRUE);
+		}
     }
+	updateOverallAppearance();
 }
 
 void LLVOAvatar::idleUpdateAppearanceAnimation()
@@ -3535,7 +3576,7 @@ bool LLVOAvatar::isVisuallyMuted()
 	return muted;
 }
 
-bool LLVOAvatar::isInMuteList()
+bool LLVOAvatar::isInMuteList() const
 {
 	bool muted = false;
 	F64 now = LLFrameTimer::getTotalSeconds();
@@ -3597,8 +3638,13 @@ void LLVOAvatar::updateAppearanceMessageDebugText()
 		if (hover_offset[2] != 0.0)
 		{
 			debug_line += llformat(" hov_z: %.3f", hover_offset[2]);
-        debug_line += llformat(" %s", (isSitting() ? "S" : "T"));
+			debug_line += llformat(" %s", (isSitting() ? "S" : "T"));
 			debug_line += llformat("%s", (isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED) ? "G" : "-"));
+		}
+		if (mInAir)
+		{
+			debug_line += " A";
+			
 		}
 
         LLVector3 ankle_right_pos_agent = mFootRightp->getWorldPosition();
@@ -3612,9 +3658,34 @@ void LLVOAvatar::updateAppearanceMessageDebugText()
         LLVector3 pelvis_pos = mPelvisp->getPosition();
         debug_line += llformat(" rp %.3f pp %.3f", root_pos[2], pelvis_pos[2]);
 
-    S32 is_visible = (S32) isVisible();
-    S32 is_m_visible = (S32) mVisible;
-    debug_line += llformat(" v %d/%d", is_visible, is_m_visible);
+		const LLVector3& scale = getScale();
+		debug_line += llformat(" scale-z %.3f", scale[2]);
+		S32 is_visible = (S32) isVisible();
+		S32 is_m_visible = (S32) mVisible;
+		debug_line += llformat(" v %d/%d", is_visible, is_m_visible);
+
+		AvatarOverallAppearance aoa = getOverallAppearance();
+		if (aoa == AOA_NORMAL)
+		{
+			debug_line += " N";
+		}
+		else if (aoa == AOA_JELLYDOLL)
+		{
+			debug_line += " J";
+		}
+		else
+		{
+			debug_line += " I";
+		}
+
+		if (mMeshValid)
+		{
+			debug_line += "m";
+		}
+		else
+		{
+			debug_line += "-";
+		}
 
 		addDebugText(debug_line);
 }
@@ -3717,7 +3788,7 @@ void LLVOAvatar::updateAnimationDebugText()
 									}
 									else if (object->isAttachment())
 									{
-										name += "(" + getAttachmentItemName() + ")";
+										name += "(att:" + getAttachmentItemName() + ")";
 									}
 									else
 									{
@@ -3893,7 +3964,7 @@ void LLVOAvatar::computeUpdatePeriod()
 		
 		F32 impostor_area = 256.f*512.f*(8.125f - LLVOAvatar::sLODFactor*8.f);
 		if (visually_muted)
-		{ // visually muted avatars update at 16 hz
+		{   // visually muted avatars update at every 16 frames
 			mUpdatePeriod = 16;
 		}
 		else if (! shouldImpostor()
@@ -4196,6 +4267,10 @@ void LLVOAvatar::updateRootPositionAndRotation(LLAgent& agent, F32 speed, bool w
 		if (!isSitting() && !was_sit_ground_constrained)
 		{
 			root_pos += LLVector3d(getHoverOffset());
+			if (getOverallAppearance() == AOA_JELLYDOLL)
+			{
+				root_pos[2] -= 0.5 * (getScale()[VZ] - mBodySize.mV[VZ]);
+			}
 		}
 
         LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(this);
@@ -4829,7 +4904,8 @@ U32 LLVOAvatar::renderSkinned()
 			}
 			if (!isSelf() || gAgent.needsRenderHead() || LLPipeline::sShadowRender)
 			{
-				if (isTextureVisible(TEX_HEAD_BAKED) || isUIAvatar())
+	
+				if (isTextureVisible(TEX_HEAD_BAKED) || (getOverallAppearance() == AOA_JELLYDOLL && !isControlAvatar()) || isUIAvatar())
 				{
 					LLViewerJoint* head_mesh = getViewerJoint(MESH_ID_HEAD);
 					if (head_mesh)
@@ -4839,7 +4915,7 @@ U32 LLVOAvatar::renderSkinned()
 					first_pass = FALSE;
 				}
 			}
-			if (isTextureVisible(TEX_UPPER_BAKED) || isUIAvatar())
+			if (isTextureVisible(TEX_UPPER_BAKED) || (getOverallAppearance() == AOA_JELLYDOLL && !isControlAvatar()) || isUIAvatar())
 			{
 				LLViewerJoint* upper_mesh = getViewerJoint(MESH_ID_UPPER_BODY);
 				if (upper_mesh)
@@ -4849,7 +4925,7 @@ U32 LLVOAvatar::renderSkinned()
 				first_pass = FALSE;
 			}
 			
-			if (isTextureVisible(TEX_LOWER_BAKED) || isUIAvatar())
+			if (isTextureVisible(TEX_LOWER_BAKED) || (getOverallAppearance() == AOA_JELLYDOLL && !isControlAvatar()) || isUIAvatar())
 			{
 				LLViewerJoint* lower_mesh = getViewerJoint(MESH_ID_LOWER_BODY);
 				if (lower_mesh)
@@ -4954,7 +5030,7 @@ U32 LLVOAvatar::renderRigid()
 		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
 	}
 
-	if (isTextureVisible(TEX_EYES_BAKED)  || isUIAvatar())
+	if (isTextureVisible(TEX_EYES_BAKED) || (getOverallAppearance() == AOA_JELLYDOLL && !isControlAvatar()) || isUIAvatar())
 	{
 		LLViewerJoint* eyeball_left = getViewerJoint(MESH_ID_EYEBALL_LEFT);
 		LLViewerJoint* eyeball_right = getViewerJoint(MESH_ID_EYEBALL_RIGHT);
@@ -5583,8 +5659,8 @@ void LLVOAvatar::processAnimationStateChanges()
 		stopMotion(ANIM_AGENT_TARGET);
         if (mEnableDefaultMotions)
         {
-		startMotion(ANIM_AGENT_BODY_NOISE);
-	}
+			startMotion(ANIM_AGENT_BODY_NOISE);
+		}
 	}
 	
 	// clear all current animations
@@ -5604,23 +5680,32 @@ void LLVOAvatar::processAnimationStateChanges()
 		++anim_it;
 	}
 
-	// start up all new anims
-	for (anim_it = mSignaledAnimations.begin(); anim_it != mSignaledAnimations.end();)
+	// if jellydolled, shelve all playing animations
+	if (getOverallAppearance() != AOA_NORMAL)
 	{
-		AnimIterator found_anim = mPlayingAnimations.find(anim_it->first);
-
-		// signaled but not playing, or different sequence id, start motion
-		if (found_anim == mPlayingAnimations.end() || found_anim->second != anim_it->second)
+		mPlayingAnimations.clear();
+	}
+	
+	// start up all new anims
+	if (getOverallAppearance() == AOA_NORMAL)
+	{
+		for (anim_it = mSignaledAnimations.begin(); anim_it != mSignaledAnimations.end();)
 		{
-			if (processSingleAnimationStateChange(anim_it->first, TRUE))
-			{
-				mPlayingAnimations[anim_it->first] = anim_it->second;
-				++anim_it;
-				continue;
-			}
-		}
+			AnimIterator found_anim = mPlayingAnimations.find(anim_it->first);
 
-		++anim_it;
+			// signaled but not playing, or different sequence id, start motion
+			if (found_anim == mPlayingAnimations.end() || found_anim->second != anim_it->second)
+			{
+				if (processSingleAnimationStateChange(anim_it->first, TRUE))
+				{
+					mPlayingAnimations[anim_it->first] = anim_it->second;
+					++anim_it;
+					continue;
+				}
+			}
+
+			++anim_it;
+		}
 	}
 
 	// clear source information for animations which have been stopped
@@ -6183,6 +6268,11 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LL
 	}
 
     LLScopedContextString str("addAttachmentOverridesForObject " + getFullname());
+
+	if (getOverallAppearance() != AOA_NORMAL)
+	{
+		return;
+	}
     
     LL_DEBUGS("AnimatedObjects") << "adding" << LL_ENDL;
     dumpStack("AnimatedObjectsStack");
@@ -7602,9 +7692,15 @@ void LLVOAvatar::onGlobalColorChanged(const LLTexGlobalColor* global_color)
 }
 
 // virtual
+// Do rigged mesh attachments display with this av?
 bool LLVOAvatar::shouldRenderRigged() const
 {
-    return true;
+	if (getOverallAppearance() == AOA_NORMAL)
+	{
+		return true;
+	}
+	// TBD - render for AOA_JELLYDOLL?
+	return false;
 }
 
 // FIXME: We have an mVisible member, set in updateVisibility(), but this
@@ -8988,7 +9084,11 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
     mLastProcessedAppearance = contents;
 
     bool slam_params = false;
-    applyParsedAppearanceMessage(*contents, slam_params);
+	applyParsedAppearanceMessage(*contents, slam_params);
+	if (getOverallAppearance() != AOA_NORMAL)
+	{
+		resetSkeleton(false);
+	}
 }
 
 void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& contents, bool slam_params)
@@ -10687,6 +10787,157 @@ void LLVOAvatar::setVisualMuteSettings(VisualMuteSettings set)
     LLRenderMuteList::getInstance()->saveVisualMuteSetting(getID(), S32(set));
 }
 
+
+void LLVOAvatar::setOverallAppearanceNormal()
+{
+	if (isControlAvatar())
+		return;
+
+	resetSkeleton(false);
+	for (auto it = mJellyAnims.begin(); it !=  mJellyAnims.end(); ++it)
+	{
+		bool is_playing = (mPlayingAnimations.find(*it) != mPlayingAnimations.end());
+		LL_DEBUGS("Avatar") << "jelly anim " << *it << " " << is_playing << LL_ENDL;
+		if (!is_playing)
+		{
+			// Anim was not requested for this av by sim, but may be playing locally
+			stopMotion(*it);
+		}
+	}
+	mJellyAnims.clear();
+	//processAnimationStateChanges();
+}
+
+void LLVOAvatar::setOverallAppearanceJellyDoll()
+{
+	if (isControlAvatar())
+		return;
+
+	resetSkeleton(false);
+
+	// stop current animations
+	{
+		for ( LLVOAvatar::AnimIterator anim_it= mPlayingAnimations.begin();
+			  anim_it != mPlayingAnimations.end();
+			  ++anim_it)
+		{
+			{
+				stopMotion(anim_it->first);
+			}
+		}
+	}
+	processAnimationStateChanges();
+}
+
+void LLVOAvatar::setOverallAppearanceInvisible()
+{
+}
+
+void LLVOAvatar::updateOverallAppearance()
+{
+	AvatarOverallAppearance new_overall = getOverallAppearance();
+	if (new_overall != mOverallAppearance)
+	{
+		switch(new_overall)
+		{
+			case AOA_NORMAL:
+				setOverallAppearanceNormal();
+				break;
+			case AOA_JELLYDOLL:
+				setOverallAppearanceJellyDoll();
+				break;
+			case AOA_INVISIBLE:
+				setOverallAppearanceInvisible();
+				break;
+		}
+		mOverallAppearance = new_overall;
+	}
+
+	// This needs to be done even if overall appearance has not
+	// changed, since sit/stand status can be different.
+	updateOverallAppearanceAnimations();
+}
+
+void LLVOAvatar::updateOverallAppearanceAnimations()
+{
+	if (isControlAvatar())
+		return;
+
+	if (getOverallAppearance() == AOA_JELLYDOLL)
+	{
+		LLUUID motion_id;
+		if (isSitting() && getParent()) // sitting on object
+		{
+			motion_id = ANIM_AGENT_SIT_FEMALE; 
+		}
+		else if (isSitting()) // sitting on ground
+		{
+			motion_id = ANIM_AGENT_SIT_GROUND_CONSTRAINED;
+		}
+		else // standing
+		{
+			motion_id = ANIM_AGENT_STAND;
+		}
+		if (mJellyAnims.find(motion_id) == mJellyAnims.end())
+		{
+			for (auto it = mJellyAnims.begin(); it !=  mJellyAnims.end(); ++it)
+			{
+				bool is_playing = (mPlayingAnimations.find(*it) != mPlayingAnimations.end());
+				LL_DEBUGS("Avatar") << "jelly anim " << *it << " " << is_playing << LL_ENDL;
+				if (!is_playing)
+				{
+					// Anim was not requested for this av by sim, but may be playing locally
+					stopMotion(*it);
+				}
+			}
+			mJellyAnims.clear();
+
+			startMotion(motion_id);
+			mJellyAnims.insert(motion_id);
+
+			processAnimationStateChanges();
+		}
+	}
+}
+
+// Based on isVisuallyMuted(), but has 3 possible results.
+LLVOAvatar::AvatarOverallAppearance LLVOAvatar::getOverallAppearance() const
+{
+	AvatarOverallAppearance result = AOA_NORMAL;
+
+	// Priority order (highest priority first)
+	// * own avatar is always drawn normally
+	// * if on the "always draw normally" list, draw them normally
+	// * if on the "always visually mute" list, show as jellydoll
+	// * if explicitly muted (blocked), show as invisible
+	// * check against the render cost and attachment limits - if too complex, show as jellydoll
+	if (isSelf())
+	{
+		result = AOA_NORMAL;
+	}
+	else // !isSelf()
+	{
+		if (mVisuallyMuteSetting == AV_ALWAYS_RENDER)
+		{
+			result = AOA_NORMAL;
+		}
+		else if (mVisuallyMuteSetting == AV_DO_NOT_RENDER)
+		{	// Always want to see this AV as an impostor
+			result = AOA_JELLYDOLL;
+		}
+		else if (isInMuteList())
+		{
+			result = AOA_INVISIBLE;
+		}
+		else if (isTooComplex())
+		{
+			result = AOA_JELLYDOLL;
+		}
+	}
+
+	return result;
+}
+
 void LLVOAvatar::calcMutedAVColor()
 {
     LLColor4 new_color(mMutedAVColor);
@@ -10696,8 +10947,8 @@ void LLVOAvatar::calcMutedAVColor()
     if (getVisualMuteSettings() == AV_DO_NOT_RENDER)
     {
         // explicitly not-rendered avatars are light grey
-        new_color = LLColor4::grey3;
-        change_msg = " not rendered: color is grey3";
+        new_color = LLColor4::grey4;
+        change_msg = " not rendered: color is grey4";
     }
     else if (LLMuteList::getInstance()->isMuted(av_id)) // the user blocked them
     {
@@ -10710,26 +10961,31 @@ void LLVOAvatar::calcMutedAVColor()
         new_color = LLColor4::white;
         change_msg = " simple imposter ";
     }
+#ifdef COLORIZE_JELLYDOLLS
     else if ( mMutedAVColor == LLColor4::white || mMutedAVColor == LLColor4::grey3 || mMutedAVColor == LLColor4::grey4 )
-    {
+	{
         // select a color based on the first byte of the agents uuid so any muted agent is always the same color
         F32 color_value = (F32) (av_id.mData[0]);
-        F32 spectrum = (color_value / 256.0);		// spectrum is between 0 and 1.f
+        F32 spectrum = (color_value / 256.0);          // spectrum is between 0 and 1.f
 
-        // Array of colors.  These are arranged so only one RGB color changes between each step, 
+        // Array of colors.  These are arranged so only one RGB color changes between each step,
         // and it loops back to red so there is an even distribution.  It is not a heat map
-        const S32 NUM_SPECTRUM_COLORS = 7;              
+        const S32 NUM_SPECTRUM_COLORS = 7;
         static LLColor4 * spectrum_color[NUM_SPECTRUM_COLORS] = { &LLColor4::red, &LLColor4::magenta, &LLColor4::blue, &LLColor4::cyan, &LLColor4::green, &LLColor4::yellow, &LLColor4::red };
- 
-        spectrum = spectrum * (NUM_SPECTRUM_COLORS - 1);		// Scale to range of number of colors
-        S32 spectrum_index_1  = floor(spectrum);				// Desired color will be after this index
-        S32 spectrum_index_2  = spectrum_index_1 + 1;			//    and before this index (inclusive)
-        F32 fractBetween = spectrum - (F32)(spectrum_index_1);  // distance between the two indexes (0-1)
- 
-        new_color = lerp(*spectrum_color[spectrum_index_1], *spectrum_color[spectrum_index_2], fractBetween);
-        new_color.normalize();
-        new_color *= 0.28f;		// Tone it down
 
+        spectrum = spectrum * (NUM_SPECTRUM_COLORS - 1);               // Scale to range of number of colors
+        S32 spectrum_index_1  = floor(spectrum);                               // Desired color will be after this index
+        S32 spectrum_index_2  = spectrum_index_1 + 1;                  //    and before this index (inclusive)
+        F32 fractBetween = spectrum - (F32)(spectrum_index_1);  // distance between the two indexes (0-1)
+
+        new_color = lerp(*spectrum_color[spectrum_index_1], *spectrum_color[spectrum_index_2], fractBetween);
+		new_color.normalize();
+        new_color *= 0.28f;            // Tone it down
+	}
+#endif
+    else
+    {
+		new_color = LLColor4::grey4;
         change_msg = " over limit color ";
     }
 

@@ -91,6 +91,7 @@ class LLVOAvatar :
 
 public:
 	friend class LLVOAvatarSelf;
+	friend class LLAvatarCheckImpostorMode;
 
 /********************************************************************************
  **                                                                            **
@@ -416,6 +417,7 @@ public:
     void                initAttachmentPoints(bool ignore_hud_joints = false);
 	/*virtual*/ void	buildCharacter();
     void                resetVisualParams();
+	void				applyDefaultParams();
     void				resetSkeleton(bool reset_animations);
 
 	LLVector3			mCurRootToHeadOffset;
@@ -436,9 +438,12 @@ public:
 public:
 	U32 		renderImpostor(LLColor4U color = LLColor4U(255,255,255,255), S32 diffuse_channel = 0);
 	bool		isVisuallyMuted();
-	bool 		isInMuteList();
+	bool 		isInMuteList() const;
 	void		forceUpdateVisualMuteSettings();
 
+	// Visual Mute Setting is an input. Does not necessarily determine
+	// what the avatar looks like, because it interacts with other
+	// settings like muting, complexity threshold. Should be private or protected.
 	enum VisualMuteSettings
 	{
 		AV_RENDER_NORMALLY = 0,
@@ -446,7 +451,35 @@ public:
 		AV_ALWAYS_RENDER   = 2
 	};
 	void		setVisualMuteSettings(VisualMuteSettings set);
+
+protected:
+	// If you think you need to access this outside LLVOAvatar, you probably want getOverallAppearance()
 	VisualMuteSettings  getVisualMuteSettings()						{ return mVisuallyMuteSetting;	};
+
+public:
+
+	// Overall Appearance is an output. Depending on whether the
+	// avatar is blocked/muted, whether it exceeds the complexity
+	// threshold, etc, avatar will want to be displayed in one of
+	// these ways. Rendering code that wants to know how to display an
+	// avatar should be looking at this value, NOT the visual mute
+	// settings
+	enum AvatarOverallAppearance
+	{
+		AOA_NORMAL,
+		AOA_JELLYDOLL,
+		AOA_INVISIBLE
+	};
+
+	AvatarOverallAppearance getOverallAppearance() const;
+	void setOverallAppearanceNormal();
+	void setOverallAppearanceJellyDoll();
+	void setOverallAppearanceInvisible();
+		
+	void updateOverallAppearance();
+	void updateOverallAppearanceAnimations();
+
+	std::set<LLUUID> mJellyAnims;
 
 	U32 		renderRigid();
 	U32 		renderSkinned();
@@ -463,7 +496,8 @@ public:
     // FrameData is used for detailed logging of avatar state in performance log. Track whether stale to avoid excess overhead.
     bool 		mFrameDataStale;
         
-  private:
+private:
+	AvatarOverallAppearance mOverallAppearance;
 	F32			mAttachmentSurfaceArea; //estimated surface area of attachments
     U32			mAttachmentVisibleTriangleCount;
     F32			mAttachmentEstTriangleCount;
@@ -481,8 +515,8 @@ public:
 	bool 		mVisualComplexityStale;
 	U32         mReportedVisualComplexity; // from other viewers through the simulator
 
-	bool		mCachedInMuteList;
-	F64			mCachedMuteListUpdateTime;
+	mutable bool		mCachedInMuteList;
+	mutable F64			mCachedMuteListUpdateTime;
 
 	VisualMuteSettings		mVisuallyMuteSetting;			// Always or never visually mute this AV
 
