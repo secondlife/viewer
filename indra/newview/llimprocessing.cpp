@@ -1474,7 +1474,7 @@ void LLIMProcessing::requestOfflineMessages()
         && gAgent.getRegion()
         && gAgent.getRegion()->capabilitiesReceived())
     {
-        std::string cap_url = gAgent.getRegionCapability("ReadOfflineMsgs");
+        std::string cap_url; // = gAgent.getRegionCapability("ReadOfflineMsgs");
 
         // Auto-accepted inventory items may require the avatar object
         // to build a correct name.  Likewise, inventory offers from
