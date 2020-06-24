@@ -1138,6 +1138,10 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 			mDebugMessageLevel = message.getValue("message_level");
 			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_DEBUG_MESSAGE);
 		}
+		else if (message_name == "tooltip_text")
+		{
+			mHoverText = message.getValue("tooltip");
+		}
 		else
 		{
 			LL_WARNS("Plugin") << "Unknown " << message_name << " class message: " << message_name << LL_ENDL;

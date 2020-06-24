@@ -829,8 +829,32 @@ void LLPanelPrimMediaControls::draw()
 
 BOOL LLPanelPrimMediaControls::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	mInactivityTimer.start();
-	return LLViewerMediaFocus::getInstance()->handleScrollWheel(x, y, clicks);
+    mInactivityTimer.start();
+    BOOL res = FALSE;
+
+    // Unlike other mouse events, we need to handle scroll here otherwise
+    // it will be intercepted by camera and won't reach toolpie
+    if (LLViewerMediaFocus::getInstance()->isHoveringOverFocused())
+    {
+        // either let toolpie handle this or expose mHoverPick.mUVCoords in some way
+        res = LLToolPie::getInstance()->handleScrollWheel(x, y, clicks);
+    }
+
+    return res;
+}
+
+BOOL LLPanelPrimMediaControls::handleScrollHWheel(S32 x, S32 y, S32 clicks)
+{
+    mInactivityTimer.start();
+    BOOL res = FALSE;
+
+    if (LLViewerMediaFocus::getInstance()->isHoveringOverFocused())
+    {
+        // either let toolpie handle this or expose mHoverPick.mUVCoords in some way
+        res = LLToolPie::getInstance()->handleScrollHWheel(x, y, clicks);
+    }
+
+    return res;
 }
 
 BOOL LLPanelPrimMediaControls::handleMouseDown(S32 x, S32 y, MASK mask)
