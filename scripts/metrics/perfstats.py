@@ -669,6 +669,12 @@ def extract_percent(df, key="frame_time", low=0.0, high=100.0, filename="extract
     result = result[result[key] > result[key].quantile(low/100.0)]
     result = result[result[key] < result[key].quantile(high/100.0)]
     result.to_csv(filename)
+
+def show_usage():
+    print """
+    % perfstats.py --export some_file.atp   # convert some_file.atp to some_file.csv
+    % perfstats.py --by_outfit some_file.{atp,csv}    # show stats breakdown by time spans of constant outfit and ARC
+    """
     
 if __name__ == "__main__":
 
@@ -691,7 +697,7 @@ if __name__ == "__main__":
     default_fields.extend(["Derived.Avatar.Attachments." + key for key in tri_frac_props])
     default_fields.extend(["Derived.Avatar.Attachments." + key for key in texture_props])
 
-    parser = argparse.ArgumentParser(description="analyze viewer performance files")
+    parser = argparse.ArgumentParser(description="analyze viewer performance files, use --usage for details")
     parser.add_argument("--verbose", action="store_true", help="verbose flag")
     parser.add_argument("--summarize", action="store_true", help="show summary of results")
     parser.add_argument("--fields", help="specify fields to be extracted or calculated", nargs="+", default=[])
@@ -706,9 +712,14 @@ if __name__ == "__main__":
     parser.add_argument("--extract_percent", nargs="+", metavar="blah", help="extract subset based on frame time")
     parser.add_argument("--compare", help="compare infilename to specified file")
     parser.add_argument("--overview", help="show one-line summary for each stats file", nargs="+")
+    parser.add_argument("--usage", action="store_true", help="show typical usage examples")
     parser.add_argument("infilename", help="name of performance or csv file", nargs="?", default="performance.atp")
     args = parser.parse_args()
 
+    if (args.usage):
+        show_usage()
+        sys.exit(0)
+        
     if (args.overview):
         #print "getting overview for", args.overview
         for filename in args.overview:
