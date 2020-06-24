@@ -1,6 +1,5 @@
 Second Life Viewer
 ====================
-
 This project manages the source code for the
 [Second Life](https://www.secondlife.com) Viewer.
 
