@@ -2870,7 +2870,7 @@ void LLPanelFace::onCopyTexture()
                     LLUUID item_id;
                     LLUUID id = te_data["te"]["imageid"].asUUID();
                     bool from_library = get_is_predefined_texture(id);
-                    bool full_perm = from_library || (objectp->permCopy() && objectp->permTransfer() && objectp->permModify());
+                    bool full_perm = from_library;
 
                     if (id.notNull() && !full_perm)
                     {
@@ -2911,8 +2911,6 @@ void LLPanelFace::onCopyTexture()
                     else
                     {
                         te_data["te"]["itemfullperm"] = full_perm;
-                        // from_library is unreliable since we don't get texture item if source object
-                        // is fullperm but it merely means additional checks when assigning texture
                         te_data["te"]["fromlibrary"] = from_library; 
 
                         // If full permission object, texture is free to copy,
@@ -2921,7 +2919,7 @@ void LLPanelFace::onCopyTexture()
                         // Normally we care only about restrictions for current user and objects
                         // don't inherit any 'next owner' permissions from texture, so there is
                         // no need to record item id if full_perm==true
-                        if (!full_perm && item_id.notNull())
+                        if (!full_perm && !from_library && item_id.notNull())
                         {
                             LLViewerInventoryItem* itemp = gInventory.getItem(item_id);
                             if (itemp)
@@ -3193,8 +3191,6 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
 
                 if (itemp_res)
                 {
-                    // from_library is unreliable since we don't get texture item if object is
-                    // fullperm but it merely means additional checks when assigning texture
                     if (te == -1) // all faces
                     {
                         LLToolDragAndDrop::dropTextureAllFaces(objectp,
