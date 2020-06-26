@@ -124,7 +124,11 @@ void llcoro::suspendUntilTimeout(float seconds)
     // Wait for an event on a bogus LLEventPump on which nobody ever posts
     // events. Don't make it static because that would force instantiation of
     // the LLEventPumps LLSingleton registry at static initialization time.
-    LLEventStream bogus("xyzzy"); // could use an LLUUID if it matters
+    // DO allow tweaking the name for uniqueness, this definitely gets
+    // re-entered on multiple coroutines!
+    // We could use an LLUUID if it were important to actively prohibit anyone
+    // from ever posting on this LLEventPump.
+    LLEventStream bogus("xyzzy", true);
     // Timeout is the NORMAL case for this call!
     static LLSD timedout;
     // Deliver, but ignore, timedout when (as usual) we did not receive any
