@@ -116,12 +116,21 @@ void llcoro::suspend()
 void llcoro::suspendUntilTimeout(float seconds)
 {
     LLCoros::checkStop();
-    // The fact that we accept non-integer seconds means we should probably
-    // use granularity finer than one second. However, given the overhead of
-    // the rest of our processing, it seems silly to use granularity finer
-    // than a millisecond.
-    LLCoros::TempStatus st(STRINGIZE("waiting for " << seconds << "s"));
-    boost::this_fiber::sleep_for(std::chrono::milliseconds(long(seconds * 1000)));
+    // We used to call boost::this_fiber::sleep_for(). But some coroutines
+    // (e.g. LLExperienceCache::idleCoro()) sit in a suspendUntilTimeout()
+    // loop, in which case a sleep_for() call risks sleeping through shutdown.
+    // So instead, listen for "LLApp" state-changing events -- which
+    // fortunately is handled for us by suspendUntilEventOnWithTimeout().
+    // Wait for an event on a bogus LLEventPump on which nobody ever posts
+    // events. Don't make it static because that would force instantiation of
+    // the LLEventPumps LLSingleton registry at static initialization time.
+    LLEventStream bogus("xyzzy"); // could use an LLUUID if it matters
+    // Timeout is the NORMAL case for this call!
+    static LLSD timedout;
+    // Deliver, but ignore, timedout when (as usual) we did not receive any
+    // "LLApp" event. The point is that suspendUntilEventOnWithTimeout() will
+    // itself throw Stopping when "LLApp" starts broadcasting shutdown events.
+    suspendUntilEventOnWithTimeout(bogus, seconds, timedout);
 }
 
 namespace
@@ -276,6 +285,10 @@ LLSD llcoro::postAndSuspendWithTimeout(const LLSD& event,
     {
         LLCoros::TempStatus st(STRINGIZE("waiting for " << replyPump.getPump().getName()
                                          << " for " << timeout << "s"));
+        // The fact that we accept non-integer seconds means we should probably
+        // use granularity finer than one second. However, given the overhead of
+        // the rest of our processing, it seems silly to use granularity finer
+        // than a millisecond.
         status = future.wait_for(std::chrono::milliseconds(long(timeout * 1000)));
     }
     // if the future is NOT yet ready, return timeoutResult instead
