@@ -83,9 +83,20 @@ void main()
 
 	//color.rgb = srgb_to_linear(color.rgb);
 		color.rgb = mix(color.rgb, envColor.rgb, env_intensity);
+
 		color.rgb = fullbrightAtmosTransportFrag(color.rgb, additive, atten);
 		color.rgb = fullbrightScaleSoftClip(color.rgb);
 	}
+
+/*
+	// NOTE: HUD objects will be full bright. Uncomment if you want "some" environment lighting effecting these HUD objects.
+	else
+	{
+		vec3  envColor = textureCube(environmentMap, vary_texcoord1.xyz).rgb;
+		float env_intensity = vertex_color.a;
+		color.rgb = mix(color.rgb, envColor.rgb, env_intensity);
+	}
+*/
 
 	color.a = 1.0;
 
