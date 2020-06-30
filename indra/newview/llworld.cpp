@@ -1222,7 +1222,9 @@ static LLTrace::BlockTimerStatHandle FTM_DISABLE_REGION("Disable Region");
 // Called in response to "DisableSimulator" message.
 void process_disable_simulator(LLMessageSystem *mesgsys, void **user_data)
 {
-    LL_RECORD_BLOCK_TIME(FTM_DISABLE_REGION);	LLHost host = mesgsys->getSender();
+    LL_RECORD_BLOCK_TIME(FTM_DISABLE_REGION);
+
+    LLHost host = mesgsys->getSender();
 
 	//LL_INFOS() << "Disabling simulator with message from " << host << LL_ENDL;
 	LLWorld::getInstance()->removeRegion(host);
