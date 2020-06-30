@@ -151,6 +151,10 @@ void display_startup()
 	{
 		LLViewerDynamicTexture::updateAllInstances();
 	}
+    else
+    {
+        LL_DEBUGS("Window") << "First display_startup frame" << LL_ENDL;
+    }
 
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
