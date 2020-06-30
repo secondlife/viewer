@@ -56,9 +56,16 @@ void fullbright_shiny_lighting()
 		color.rgb = mix(color.rgb, envColor.rgb, vertex_color.a*0.75); // MAGIC NUMBER SL-12574; ALM: Off, Quality > Low
 
 		color.rgb = fullbrightShinyAtmosTransport(color.rgb);
-
 		color.rgb = fullbrightScaleSoftClip(color.rgb);
 	}
+/*
+	// NOTE: HUD objects will be full bright. Uncomment if you want "some" environment lighting effecting these HUD objects.
+	else
+	{
+		vec3 envColor = textureCube(environmentMap, vary_texcoord1.xyz).rgb;
+		color.rgb = mix(color.rgb, envColor.rgb, vertex_color.a*0.75); // MAGIC NUMBER SL-12574; ALM: Off, Quality > Low
+	}
+*/
 
 	color.a = 1.0;
 
