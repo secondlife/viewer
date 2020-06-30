@@ -32,6 +32,9 @@ out vec4 frag_color;
 uniform float minimum_alpha;
 uniform float texture_gamma;
 
+// render_hud_attachments() -> HUD objects set LLShaderMgr::NO_ATMO; used in LLDrawPoolAlpha::beginRenderPass()
+uniform int no_atmo;
+
 vec3 fullbrightAtmosTransport(vec3 light);
 vec3 fullbrightScaleSoftClip(vec3 light);
 
@@ -50,9 +53,13 @@ void fullbright_lighting()
 	color.rgb *= vertex_color.rgb;
 
 	color.rgb = pow(color.rgb, vec3(texture_gamma));
-	color.rgb = fullbrightAtmosTransport(color.rgb);
-	
-	color.rgb = fullbrightScaleSoftClip(color.rgb);
+
+	// SL-9632 HUDs are affected by Atmosphere
+	if (no_atmo == 0)
+	{
+		color.rgb = fullbrightAtmosTransport(color.rgb);
+		color.rgb = fullbrightScaleSoftClip(color.rgb);
+	}
 
 	frag_color = color;
 }
