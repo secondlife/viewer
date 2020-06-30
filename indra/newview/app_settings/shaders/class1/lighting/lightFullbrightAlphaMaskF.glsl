@@ -30,7 +30,7 @@ out vec4 frag_color;
 #endif
 
 uniform float minimum_alpha;
-uniform float texture_gamma;
+uniform float texture_gamma; // either 1.0 or 2.2; see: "::TEXTURE_GAMMA"
 
 // render_hud_attachments() -> HUD objects set LLShaderMgr::NO_ATMO; used in LLDrawPoolAlpha::beginRenderPass()
 uniform int no_atmo;
@@ -60,6 +60,10 @@ void fullbright_lighting()
 		color.rgb = fullbrightAtmosTransport(color.rgb);
 		color.rgb = fullbrightScaleSoftClip(color.rgb);
 	}
+
+	//*TODO: Are we missing an inverse pow() here?
+	// class1\lighting\lightFullbrightF.glsl has:
+    //     color.rgb = pow(color.rgb, vec3(1.0/texture_gamma));
 
 	frag_color = color;
 }
