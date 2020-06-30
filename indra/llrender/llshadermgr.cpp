@@ -1180,7 +1180,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 
 	llassert(mReservedUniforms.size() == LLShaderMgr::MULTI_LIGHT_FAR_Z+1);
 
-
+    //NOTE: MUST match order in eGLSLReservedUniforms
 	mReservedUniforms.push_back("proj_mat");
 	mReservedUniforms.push_back("proj_near");
 	mReservedUniforms.push_back("proj_p");

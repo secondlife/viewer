@@ -23,6 +23,9 @@
  * $/LicenseInfo$
  */
 
+// Lambert Azimuthal Equal-Area projection
+// See: https://aras-p.info/texts/CompactNormalStorage.html
+// Also see: A_bit_more_deferred_-_CryEngine3.ppt
 vec2 encode_normal(vec3 n)
 {
 	float f = sqrt(8 * n.z + 8);
