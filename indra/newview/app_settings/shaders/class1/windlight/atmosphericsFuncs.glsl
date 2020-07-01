@@ -47,13 +47,13 @@ float getAmbientClamp()
 }
 
 
-void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao) {
-
+void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao)
+{
     vec3 P = inPositionEye;
    
     //(TERRAIN) limit altitude
-    if (P.y > max_y) P *= (max_y / P.y);
-    if (P.y < -max_y) P *= (-max_y / P.y); 
+    if (P.y >  max_y) P *= ( max_y / P.y);
+    if (P.y < -max_y) P *= (-max_y / P.y);
 
     vec3 tmpLightnorm = lightnorm.xyz;
 
