@@ -2734,7 +2734,7 @@ void LLIMMgr::addMessage(
 			if (LLMuteList::getInstance()->isMuted(other_participant_id, LLMute::flagTextChat) && !from_linden)
 			{
 				LL_WARNS() << "Leaving IM session from initiating muted resident " << from << LL_ENDL;
-				if (!gIMMgr->leaveSession(new_session_id))
+				if (!gIMMgr->leaveSession(new_session_id, !session->isGroupSessionType()))
 				{
 					LL_INFOS() << "Session " << new_session_id << " does not exist." << LL_ENDL;
 				}
@@ -2964,12 +2964,15 @@ LLUUID LLIMMgr::addSession(
 	return session_id;
 }
 
-bool LLIMMgr::leaveSession(const LLUUID& session_id)
+bool LLIMMgr::leaveSession(const LLUUID& session_id, bool send_leave_msg)
 {
 	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(session_id);
 	if (!im_session) return false;
 
-	LLIMModel::getInstance()->sendLeaveSession(session_id, im_session->mOtherParticipantID);
+	if (send_leave_msg)
+	{
+		LLIMModel::getInstance()->sendLeaveSession(session_id, im_session->mOtherParticipantID);
+	}
 	gIMMgr->removeSession(session_id);
 	return true;
 }

@@ -380,7 +380,7 @@ public:
 	 * to the server and removes all associated session data
 	 * @return false if the session with specified id was not exist
 	 */
-	bool leaveSession(const LLUUID& session_id);
+	bool leaveSession(const LLUUID& session_id, bool send_leave_msg = true);
 
 	void inviteToSession(
 		const LLUUID& session_id, 
