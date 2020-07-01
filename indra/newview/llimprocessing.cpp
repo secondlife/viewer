@@ -857,13 +857,28 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             }
             else // IM_TASK_INVENTORY_OFFERED
             {
-                if (sizeof(S8) != binary_bucket_size)
+                if (sizeof(S8) == binary_bucket_size)
                 {
-                    LL_WARNS("Messaging") << "Malformed inventory offer from object" << LL_ENDL;
-                    delete info;
-                    break;
+                    info->mType = (LLAssetType::EType) binary_bucket[0];
                 }
-                info->mType = (LLAssetType::EType) binary_bucket[0];
+                else
+                {
+                    /*RIDER*/ // The previous version of the protocol returned the wrong binary bucket... we 
+                    // still might be able to figure out the type... even though the offer is not retrievable. 
+                    std::string str_bucket(reinterpret_cast<char *>(binary_bucket));
+                    std::string str_type(str_bucket.substr(0, str_bucket.find('|')));
+
+                    std::stringstream type_convert(str_type);
+
+                    S32 type;
+                    type_convert >> type;
+
+                    // We could try AT_UNKNOWN which would be more accurate, but that causes an auto decline
+                    info->mType = static_cast<LLAssetType::EType>(type);
+                    // Don't break in the case of a bad binary bucket.  Go ahead and show the 
+                    // accept/decline popup even though it will not do anything.
+                    LL_WARNS("Messaging") << "Malformed inventory offer from object, type might be " << info->mType << LL_ENDL;
+                }
                 info->mObjectID = LLUUID::null;
                 info->mFromObject = TRUE;
             }
@@ -1601,8 +1616,8 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
             static_cast<EInstantMessage>(message_data["dialog"].asInteger()),
             message_data["transaction-id"].asUUID(),
             static_cast<U32>(message_data["timestamp"].asInteger()),
-            message_data["from_name"].asString(),
-            (message_data.has("message")) ? message_data["message"].asString() : std::string(),
+            message_data["from_agent_name"].asString(),
+            message_data["message"].asString(),
             static_cast<U32>((message_data.has("parent_estate_id")) ? message_data["parent_estate_id"].asInteger() : 1), // 1 - IMMainland
             message_data["region_id"].asUUID(),
             position,
