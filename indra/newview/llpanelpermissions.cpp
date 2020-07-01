@@ -1009,7 +1009,7 @@ void LLPanelPermissions::updateOwnerName(const LLUUID& owner_id, const LLAvatarN
 		mOwnerCacheConnection.disconnect();
 	}
 	std::string name = owner_name.getCompleteName();
-	shorten_name(name, style_params, mLabelOwnerName->getTextPixelWidth());
+	shorten_name(name, style_params, mLabelOwnerName->getVisibleTextRect().getWidth());
 	mLabelOwnerName->setText(name, style_params);
 }
 
@@ -1020,7 +1020,7 @@ void LLPanelPermissions::updateCreatorName(const LLUUID& creator_id, const LLAva
 		mCreatorCacheConnection.disconnect();
 	}
 	std::string name = creator_name.getCompleteName();
-	shorten_name(name, style_params, mLabelCreatorName->getTextPixelWidth());
+	shorten_name(name, style_params, mLabelCreatorName->getVisibleTextRect().getWidth());
 	mLabelCreatorName->setText(name, style_params);
 }
 
