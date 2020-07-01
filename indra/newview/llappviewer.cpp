@@ -107,6 +107,7 @@
 
 // Linden library includes
 #include "llavatarnamecache.h"
+#include "lldiskcache.h"
 #include "lldiriterator.h"
 #include "llexperiencecache.h"
 #include "llimagej2c.h"
@@ -595,7 +596,7 @@ static void settings_to_globals()
 	gDebugWindowProc = gSavedSettings.getBOOL("DebugWindowProc");
 	gShowObjectUpdates = gSavedSettings.getBOOL("ShowObjectUpdates");
 	LLWorldMapView::sMapScale = gSavedSettings.getF32("MapScale");
-	
+
 #if LL_DARWIN
 	gHiDPISupport = gSavedSettings.getBOOL("RenderHiDPI");
 #endif
@@ -1143,7 +1144,7 @@ bool LLAppViewer::init()
 
 	gGLActive = FALSE;
 
-#if LL_RELEASE_FOR_DOWNLOAD 
+#if LL_RELEASE_FOR_DOWNLOAD
     if (!gSavedSettings.getBOOL("CmdLineSkipUpdater"))
     {
 	LLProcess::Params updater;
@@ -1362,7 +1363,7 @@ bool LLAppViewer::frame()
 		}
 	}
 	else
-	{ 
+	{
 		try
 		{
 			ret = doFrame();
@@ -1719,7 +1720,7 @@ bool LLAppViewer::cleanup()
 	disconnectViewer();
 
 	LL_INFOS() << "Viewer disconnected" << LL_ENDL;
-	
+
 	if (gKeyboard)
 	{
 		gKeyboard->resetKeys();
@@ -3239,6 +3240,15 @@ LLSD LLAppViewer::getViewerInfo() const
 	info["LIBCEF_VERSION"] = cef_ver_codec.str();
 #else
 	info["LIBCEF_VERSION"] = "Undefined";
+#endif
+
+#if !LL_LINUX
+	std::ostringstream sqlite_ver_codec;
+	sqlite_ver_codec << "SQLite: ";
+	sqlite_ver_codec << SQLITE_VERSION;
+	info["SQLITE_VERSION"] = sqlite_ver_codec.str();
+#else
+	info["SQLITE_VERSION"] = "Undefined";
 #endif
 
 #if !LL_LINUX
