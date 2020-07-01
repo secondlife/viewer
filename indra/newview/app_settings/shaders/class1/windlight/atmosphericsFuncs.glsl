@@ -136,11 +136,13 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
         tmpAmbient = vec4(mix(ssao_effect_mat * tmpAmbient.rgb, tmpAmbient.rgb, ambFactor), tmpAmbient.a);
     }
 
+    // Similar/Shared Algorithms:
+    //     indra\llinventory\llsettingssky.cpp                                        -- LLSettingsSky::calculateLightSettings()
+    //     indra\newview\app_settings\shaders\class1\windlight\atmosphericsFuncs.glsl -- calcAtmosphericVars()
     //haze color
-        additive =
-        vec3(blue_horizon * blue_weight * (sunlight*(1.-cloud_shadow) + tmpAmbient)
-      + (haze_horizon * haze_weight) * (sunlight*(1.-cloud_shadow) * temp2.x
-          + tmpAmbient));
+        vec3 cs  = sunlight.rgb * (1.-cloud_shadow);
+        additive = (blue_horizon.rgb * blue_weight.rgb) * (cs           + tmpAmbient.rgb)
+                 + (haze_horizon     * haze_weight.rgb) * (cs * temp2.x + tmpAmbient.rgb);
 
     //brightness of surface both sunlight and ambient
     sunlit = sunlight.rgb * 0.5;
