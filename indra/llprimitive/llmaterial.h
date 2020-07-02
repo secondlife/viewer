@@ -115,8 +115,17 @@ public:
     void        setSpecularLightExponent(U8 exponent);
     U8          getEnvironmentIntensity() const;
     void        setEnvironmentIntensity(U8 intensity);
+
+    // getDiffuseAlphaModeRender takes into account if image supports alpha
+    // and returns value apropriate for render
+    // getDiffuseAlphaMode() returns value as is
+    U8          getDiffuseAlphaModeRender() const;
     U8          getDiffuseAlphaMode() const;
     void        setDiffuseAlphaMode(U8 alpha_mode);
+    U32         getDiffuseFormatPrimary() const;
+    void        setDiffuseFormatPrimary(U32 format_primary);
+    bool        getIsDiffuseBaked() const;
+    void        setDiffuseBaked(bool baked);
     U8          getAlphaMaskCutoff() const;
     void        setAlphaMaskCutoff(U8 cutoff);
 
@@ -147,6 +156,8 @@ protected:
     U8          mSpecularLightExponent;
     U8          mEnvironmentIntensity;
     U8          mDiffuseAlphaMode;
+    U32         mDiffuseFormatPrimary; // value from texture, LLGLenum, is not included in fromLLSD/asLLSD
+    bool        mDiffuseBaked; // is not included in fromLLSD/asLLSD
     U8          mAlphaMaskCutoff;
 };
 
