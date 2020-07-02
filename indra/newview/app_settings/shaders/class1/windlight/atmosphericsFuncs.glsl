@@ -100,7 +100,8 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     temp2.x = dot(Pn, tmpLightnorm.xyz);
 
     // dampen sun additive contrib when not facing it...
-    if (length(light_dir) > 0.01)
+	// SL-13539: This "if" clause causes an "additive" white artifact at roughly 77 degreees.
+    //    if (length(light_dir) > 0.01)
     {
         temp2.x *= max(0.0f, dot(light_dir, Pn));
     }
