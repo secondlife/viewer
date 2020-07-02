@@ -8062,47 +8062,25 @@ void LLVOAvatar::updateMeshVisibility()
 	bool bake_flag[BAKED_NUM_INDICES];
 	memset(bake_flag, 0, BAKED_NUM_INDICES*sizeof(bool));
 
-	for (attachment_map_t::iterator iter = mAttachmentPoints.begin();
-		iter != mAttachmentPoints.end();
-		++iter)
+	if (getOverallAppearance() == AOA_NORMAL)
 	{
-		LLViewerJointAttachment* attachment = iter->second;
-		if (attachment)
+		for (attachment_map_t::iterator iter = mAttachmentPoints.begin();
+			 iter != mAttachmentPoints.end();
+			 ++iter)
 		{
-			for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-				attachment_iter != attachment->mAttachedObjects.end();
-				++attachment_iter)
+			LLViewerJointAttachment* attachment = iter->second;
+			if (attachment)
 			{
-				LLViewerObject *objectp = attachment_iter->get();
-				if (objectp)
+				for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+					 attachment_iter != attachment->mAttachedObjects.end();
+					 ++attachment_iter)
 				{
-					for (int face_index = 0; face_index < objectp->getNumTEs(); face_index++)
+					LLViewerObject *objectp = attachment_iter->get();
+					if (objectp)
 					{
-						LLTextureEntry* tex_entry = objectp->getTE(face_index);
-						bake_flag[BAKED_HEAD] |= (tex_entry->getID() == IMG_USE_BAKED_HEAD);
-						bake_flag[BAKED_EYES] |= (tex_entry->getID() == IMG_USE_BAKED_EYES);
-						bake_flag[BAKED_HAIR] |= (tex_entry->getID() == IMG_USE_BAKED_HAIR);
-						bake_flag[BAKED_LOWER] |= (tex_entry->getID() == IMG_USE_BAKED_LOWER);
-						bake_flag[BAKED_UPPER] |= (tex_entry->getID() == IMG_USE_BAKED_UPPER);
-						bake_flag[BAKED_SKIRT] |= (tex_entry->getID() == IMG_USE_BAKED_SKIRT);
-						bake_flag[BAKED_LEFT_ARM] |= (tex_entry->getID() == IMG_USE_BAKED_LEFTARM);
-						bake_flag[BAKED_LEFT_LEG] |= (tex_entry->getID() == IMG_USE_BAKED_LEFTLEG);
-						bake_flag[BAKED_AUX1] |= (tex_entry->getID() == IMG_USE_BAKED_AUX1);
-						bake_flag[BAKED_AUX2] |= (tex_entry->getID() == IMG_USE_BAKED_AUX2);
-						bake_flag[BAKED_AUX3] |= (tex_entry->getID() == IMG_USE_BAKED_AUX3);
-					}
-				}
-
-				LLViewerObject::const_child_list_t& child_list = objectp->getChildren();
-				for (LLViewerObject::child_list_t::const_iterator iter1 = child_list.begin();
-					iter1 != child_list.end(); ++iter1)
-				{
-					LLViewerObject* objectchild = *iter1;
-					if (objectchild)
-					{
-						for (int face_index = 0; face_index < objectchild->getNumTEs(); face_index++)
+						for (int face_index = 0; face_index < objectp->getNumTEs(); face_index++)
 						{
-							LLTextureEntry* tex_entry = objectchild->getTE(face_index);
+							LLTextureEntry* tex_entry = objectp->getTE(face_index);
 							bake_flag[BAKED_HEAD] |= (tex_entry->getID() == IMG_USE_BAKED_HEAD);
 							bake_flag[BAKED_EYES] |= (tex_entry->getID() == IMG_USE_BAKED_EYES);
 							bake_flag[BAKED_HAIR] |= (tex_entry->getID() == IMG_USE_BAKED_HAIR);
@@ -8114,6 +8092,31 @@ void LLVOAvatar::updateMeshVisibility()
 							bake_flag[BAKED_AUX1] |= (tex_entry->getID() == IMG_USE_BAKED_AUX1);
 							bake_flag[BAKED_AUX2] |= (tex_entry->getID() == IMG_USE_BAKED_AUX2);
 							bake_flag[BAKED_AUX3] |= (tex_entry->getID() == IMG_USE_BAKED_AUX3);
+						}
+					}
+
+					LLViewerObject::const_child_list_t& child_list = objectp->getChildren();
+					for (LLViewerObject::child_list_t::const_iterator iter1 = child_list.begin();
+						 iter1 != child_list.end(); ++iter1)
+					{
+						LLViewerObject* objectchild = *iter1;
+						if (objectchild)
+						{
+							for (int face_index = 0; face_index < objectchild->getNumTEs(); face_index++)
+							{
+								LLTextureEntry* tex_entry = objectchild->getTE(face_index);
+								bake_flag[BAKED_HEAD] |= (tex_entry->getID() == IMG_USE_BAKED_HEAD);
+								bake_flag[BAKED_EYES] |= (tex_entry->getID() == IMG_USE_BAKED_EYES);
+								bake_flag[BAKED_HAIR] |= (tex_entry->getID() == IMG_USE_BAKED_HAIR);
+								bake_flag[BAKED_LOWER] |= (tex_entry->getID() == IMG_USE_BAKED_LOWER);
+								bake_flag[BAKED_UPPER] |= (tex_entry->getID() == IMG_USE_BAKED_UPPER);
+								bake_flag[BAKED_SKIRT] |= (tex_entry->getID() == IMG_USE_BAKED_SKIRT);
+								bake_flag[BAKED_LEFT_ARM] |= (tex_entry->getID() == IMG_USE_BAKED_LEFTARM);
+								bake_flag[BAKED_LEFT_LEG] |= (tex_entry->getID() == IMG_USE_BAKED_LEFTLEG);
+								bake_flag[BAKED_AUX1] |= (tex_entry->getID() == IMG_USE_BAKED_AUX1);
+								bake_flag[BAKED_AUX2] |= (tex_entry->getID() == IMG_USE_BAKED_AUX2);
+								bake_flag[BAKED_AUX3] |= (tex_entry->getID() == IMG_USE_BAKED_AUX3);
+							}
 						}
 					}
 				}
@@ -10671,6 +10674,7 @@ void LLVOAvatar::updateOverallAppearance()
 				break;
 		}
 		mOverallAppearance = new_overall;
+		updateMeshVisibility();
 	}
 
 	// This needs to be done even if overall appearance has not
