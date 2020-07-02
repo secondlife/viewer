@@ -2872,6 +2872,20 @@ void LLPanelFace::onCopyTexture()
                     bool from_library = get_is_predefined_texture(id);
                     bool full_perm = from_library;
 
+                    if (!full_perm
+                        && objectp->permCopy()
+                        && objectp->permTransfer()
+                        && objectp->permModify())
+                    {
+                        // If agent created this object and nothing is limiting permissions, mark as full perm
+                        // If agent was granted permission to edit objects owned and created by somebody else, mark full perm
+                        // This check is not perfect since we can't figure out whom textures belong to so this ended up restrictive
+                        std::string creator_app_link;
+                        LLUUID creator_id;
+                        LLSelectMgr::getInstance()->selectGetCreator(creator_id, creator_app_link);
+                        full_perm = objectp->mOwnerID == creator_id;
+                    }
+
                     if (id.notNull() && !full_perm)
                     {
                         std::map<LLUUID, LLUUID>::iterator iter = asset_item_map.find(id);
@@ -3056,7 +3070,7 @@ void LLPanelFace::onPasteTexture()
         return;
     }
 
-    bool full_perm = true;
+    bool full_perm_object = true;
     LLSD::array_const_iterator iter = clipboard.beginArray();
     LLSD::array_const_iterator end = clipboard.endArray();
     for (; iter != end; ++iter)
@@ -3064,8 +3078,9 @@ void LLPanelFace::onPasteTexture()
         const LLSD& te_data = *iter;
         if (te_data.has("te"))
         {
-            full_perm &= te_data["te"].has("itemfullperm") && te_data["te"]["itemfullperm"].asBoolean();
-            if (te_data["te"].has("imageitemid"))
+            bool full_perm = te_data["te"].has("itemfullperm") && te_data["te"]["itemfullperm"].asBoolean();
+            full_perm_object &= full_perm;
+            if (!full_perm && te_data["te"].has("imageitemid"))
             {
                 LLUUID item_id = te_data["te"]["imageitemid"].asUUID();
                 if (item_id.notNull())
@@ -3085,7 +3100,7 @@ void LLPanelFace::onPasteTexture()
         }
     }
 
-    if (!full_perm)
+    if (!full_perm_object)
     {
         LLNotificationsUtil::add("FacePasteTexturePermissions");
     }
