@@ -2911,18 +2911,6 @@ void LLPanelFace::onCopyTexture()
                         from_library = true;
                     }
 
-                    if (id.isNull()
-                        || (!full_perm && item_id.isNull()))
-                    {
-                        if (!LLLocalBitmapMgr::getInstance()->isLocal(id))
-                        {
-                            te_data["te"].erase("imageid");
-                            te_data["te"]["imageid"] = LLUUID(gSavedSettings.getString("DefaultObjectTexture"));
-                        }
-                        te_data["te"]["itemfullperm"] = true;
-                        te_data["te"]["fromlibrary"] = true;
-                    }
-                    else
                     {
                         te_data["te"]["itemfullperm"] = full_perm;
                         te_data["te"]["fromlibrary"] = from_library; 
@@ -3076,25 +3064,39 @@ void LLPanelFace::onPasteTexture()
     for (; iter != end; ++iter)
     {
         const LLSD& te_data = *iter;
-        if (te_data.has("te"))
+        if (te_data.has("te") && te_data["te"].has("imageid"))
         {
             bool full_perm = te_data["te"].has("itemfullperm") && te_data["te"]["itemfullperm"].asBoolean();
             full_perm_object &= full_perm;
-            if (!full_perm && te_data["te"].has("imageitemid"))
+            if (!full_perm)
             {
-                LLUUID item_id = te_data["te"]["imageitemid"].asUUID();
-                if (item_id.notNull())
+                if (te_data["te"].has("imageitemid"))
                 {
-                    LLViewerInventoryItem* itemp = gInventory.getItem(item_id);
-                    if (!itemp)
+                    LLUUID item_id = te_data["te"]["imageitemid"].asUUID();
+                    if (item_id.notNull())
                     {
-                        // image might be in object's inventory, but it can be not up to date
-                        LLSD notif_args;
-                        static std::string reason = getString("paste_error_inventory_not_found");
-                        notif_args["REASON"] = reason;
-                        LLNotificationsUtil::add("FacePasteFailed", notif_args);
-                        return;
+                        LLViewerInventoryItem* itemp = gInventory.getItem(item_id);
+                        if (!itemp)
+                        {
+                            // image might be in object's inventory, but it can be not up to date
+                            LLSD notif_args;
+                            static std::string reason = getString("paste_error_inventory_not_found");
+                            notif_args["REASON"] = reason;
+                            LLNotificationsUtil::add("FacePasteFailed", notif_args);
+                            return;
+                        }
                     }
+                }
+                else
+                {
+                    // Item was not found on 'copy' stage
+                    // Since this happened at copy, might be better to either show this
+                    // at copy stage or to drop clipboard here
+                    LLSD notif_args;
+                    static std::string reason = getString("paste_error_inventory_not_found");
+                    notif_args["REASON"] = reason;
+                    LLNotificationsUtil::add("FacePasteFailed", notif_args);
+                    return;
                 }
             }
         }
