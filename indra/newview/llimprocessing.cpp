@@ -865,6 +865,8 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                 {
                     /*RIDER*/ // The previous version of the protocol returned the wrong binary bucket... we 
                     // still might be able to figure out the type... even though the offer is not retrievable. 
+
+                    // Should be safe to remove once DRTSIM-451 fully deploys
                     std::string str_bucket(reinterpret_cast<char *>(binary_bucket));
                     std::string str_type(str_bucket.substr(0, str_bucket.find('|')));
 
@@ -1575,8 +1577,6 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
 
     LL_INFOS("Messaging") << "Processing offline messages." << LL_ENDL;
 
-//     std::vector<U8> data;
-//     S32 binary_bucket_size = 0;
     LLHost sender = gAgent.getRegionHost();
 
     LLSD::array_iterator i = messages.beginArray();
@@ -1608,11 +1608,22 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
             bin_bucket.push_back(0);
         }
 
+        // Todo: once drtsim-451 releases, remove the string option
+        BOOL from_group;
+        if (message_data["from_group"].isInteger())
+        {
+            from_group = message_data["from_group"].asInteger();
+        }
+        else
+        {
+            from_group = message_data["from_group"].asString() == "Y";
+        }
+
         LLIMProcessing::processNewMessage(
             message_data["from_agent_id"].asUUID(),
-            message_data["from_group"].asBoolean(),
+            from_group,
             message_data["to_agent_id"].asUUID(),
-            static_cast<U8>(message_data["offline"].asInteger()),
+            message_data.has("offline") ? static_cast<U8>(message_data["offline"].asInteger()) : IM_OFFLINE,
             static_cast<EInstantMessage>(message_data["dialog"].asInteger()),
             message_data["transaction-id"].asUUID(),
             static_cast<U32>(message_data["timestamp"].asInteger()),
