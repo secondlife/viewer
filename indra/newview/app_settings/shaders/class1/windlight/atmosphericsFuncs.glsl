@@ -47,13 +47,13 @@ float getAmbientClamp()
 }
 
 
-void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao) {
-
+void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao)
+{
     vec3 P = inPositionEye;
    
     //(TERRAIN) limit altitude
-    if (P.y > max_y) P *= (max_y / P.y);
-    if (P.y < -max_y) P *= (-max_y / P.y); 
+    if (P.y >  max_y) P *= ( max_y / P.y);
+    if (P.y < -max_y) P *= (-max_y / P.y);
 
     vec3 tmpLightnorm = lightnorm.xyz;
 
@@ -81,13 +81,8 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     haze_weight = vec4(haze_density) / temp1;
 
     //(TERRAIN) compute sunlight from lightnorm only (for short rays like terrain)
-    temp2.y = max(0.0, tmpLightnorm.y);
-    if (abs(temp2.y) > 0.000001f)
-    {
-        temp2.y = 1. / abs(temp2.y);
-    }
-    temp2.y = max(0.0000001f, temp2.y);
-    sunlight *= exp(-light_atten * temp2.y);
+    // SL-12978: temp2.y = 1; optimized away
+    sunlight *= exp(-light_atten);
 
     // main atmospheric scattering line integral
     temp2.z = Plen * dens_mul;
@@ -141,11 +136,13 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
         tmpAmbient = vec4(mix(ssao_effect_mat * tmpAmbient.rgb, tmpAmbient.rgb, ambFactor), tmpAmbient.a);
     }
 
+    // Similar/Shared Algorithms:
+    //     indra\llinventory\llsettingssky.cpp                                        -- LLSettingsSky::calculateLightSettings()
+    //     indra\newview\app_settings\shaders\class1\windlight\atmosphericsFuncs.glsl -- calcAtmosphericVars()
     //haze color
-        additive =
-        vec3(blue_horizon * blue_weight * (sunlight*(1.-cloud_shadow) + tmpAmbient)
-      + (haze_horizon * haze_weight) * (sunlight*(1.-cloud_shadow) * temp2.x
-          + tmpAmbient));
+        vec3 cs  = sunlight.rgb * (1.-cloud_shadow);
+        additive = (blue_horizon.rgb * blue_weight.rgb) * (cs           + tmpAmbient.rgb)
+                 + (haze_horizon     * haze_weight.rgb) * (cs * temp2.x + tmpAmbient.rgb);
 
     //brightness of surface both sunlight and ambient
     sunlit = sunlight.rgb * 0.5;
