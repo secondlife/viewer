@@ -27,10 +27,6 @@
 #ifndef _LLDISKCACHE
 #define _LLDISKCACHE
 
-#if (defined(LL_WINDOWS) || defined(LL_LINUX)  || defined(LL_DARWIN))
-#include "llviewerprecompiledheaders.h"
-#endif
-
 #include <iostream>
 #include <string>
 

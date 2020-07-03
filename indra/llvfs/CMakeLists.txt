@@ -4,16 +4,19 @@ project(llvfs)
 
 include(00-Common)
 include(LLCommon)
+include(SQLite)
 include(UnixInstall)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    ${SQLITE_INCLUDE_DIR}
     )
 
 set(llvfs_SOURCE_FILES
     lldir.cpp
     lldiriterator.cpp
+    lldiskcache.cpp
     lllfsthread.cpp
     llpidlock.cpp
     llvfile.cpp
@@ -27,6 +30,7 @@ set(llvfs_HEADER_FILES
     lldir.h
     lldirguard.h
     lldiriterator.h
+    lldiskcache.h
     lllfsthread.h
     llpidlock.h
     llvfile.h
@@ -73,6 +77,7 @@ set(vfs_BOOST_LIBRARIES
 target_link_libraries(llvfs
     ${LLCOMMON_LIBRARIES}
     ${vfs_BOOST_LIBRARIES}
+    ${SQLITE_LIBRARIES}
     )
 
 if (DARWIN)

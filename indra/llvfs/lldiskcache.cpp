@@ -24,13 +24,17 @@
  * $/LicenseInfo$
  */
 
+#if (defined(LL_WINDOWS) || defined(LL_LINUX)  || defined(LL_DARWIN))
+#include "linden_common.h"
+#endif
+
+#include "lldiskcache.h"
+
 #include <string>
 #include <sstream>
 #include <random>
 #include <algorithm>
 #include <fstream>
-
-#include "lldiskcache.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -67,7 +71,7 @@ bool llDiskCache::open(const std::string db_folder, const std::string db_filenam
                 nullptr // Name of VFS module to use
             ) != SQLITE_OK)
     {
-        printError(__func__, "open_v2", true);
+        printError(__FUNCDNAME__ , "open_v2", true);
         close();
         return false;
     }
@@ -78,7 +82,7 @@ bool llDiskCache::open(const std::string db_folder, const std::string db_filenam
     // interspersed in the logic code. They are all prefixed with
     // 'sqlCompose' and followed by a short description.
     const std::string stmt = sqlComposeCreateTable();
-    if (! sqliteExec(stmt, __func__))
+    if (! sqliteExec(stmt, __FUNCDNAME__ ))
     {
         // Not sure if we need close here - if open fails, then we
         // perhaps don't need to close it - TODO: look in SQLite docs
@@ -98,13 +102,13 @@ bool llDiskCache::exists(const std::string id, bool& exists)
 {
     if (!mDb)
     {
-        printError(__func__, "mDb is invalid", false);
+        printError(__FUNCDNAME__ , "mDb is invalid", false);
         return false;
     }
 
     if (id.empty())
     {
-        printError(__func__, "id is empty", false);
+        printError(__FUNCDNAME__ , "id is empty", false);
         return false;
     }
 
@@ -113,7 +117,7 @@ bool llDiskCache::exists(const std::string id, bool& exists)
     // SQLite "prepared statement" has been factored out into its own
     // function and used in several other functions.
     const std::string stmt = sqlComposeExists(id);
-    sqlite3_stmt* prepared_statement = sqlitePrepareStep(__func__, stmt, SQLITE_ROW);
+    sqlite3_stmt* prepared_statement = sqlitePrepareStep(__FUNCDNAME__ , stmt, SQLITE_ROW);
     if (! prepared_statement)
     {
         return false;
@@ -123,7 +127,7 @@ bool llDiskCache::exists(const std::string id, bool& exists)
     int result_count = sqlite3_column_int(prepared_statement, result_column_index);
     if (sqlite3_finalize(prepared_statement) != SQLITE_OK)
     {
-        printError(__func__, "sqlite3_finalize()", true);
+        printError(__FUNCDNAME__ , "sqlite3_finalize()", true);
         return false;
     }
 
@@ -145,20 +149,20 @@ bool llDiskCache::put(const std::string id,
 {
     if (!mDb)
     {
-        printError(__func__, "mDb is invalid", false);
+        printError(__FUNCDNAME__ , "mDb is invalid", false);
         return false;
     }
 
     if (id.empty())
     {
-        printError(__func__, "id is empty", false);
+        printError(__FUNCDNAME__ , "id is empty", false);
         return false;
     }
 
     // < 0 is obvious but we assert the data must be at least 1 byte long
     if (binary_data_size <= 0)
     {
-        printError(__func__, "size of binary file to write is invalid", false);
+        printError(__FUNCDNAME__ , "size of binary file to write is invalid", false);
         return false;
     }
 
@@ -176,7 +180,7 @@ bool llDiskCache::put(const std::string id,
     {
         std::ostringstream error;
         error << "Unable to open " << filepath << " for writing";
-        printError(__func__, error.str(), false);
+        printError(__FUNCDNAME__ , error.str(), false);
         return false;
     }
 
@@ -192,7 +196,7 @@ bool llDiskCache::put(const std::string id,
         std::ostringstream error;
         error << "Unable to write " << binary_data_size;
         error << " bytes to " << filepath;
-        printError(__func__, error.str(), false);
+        printError(__FUNCDNAME__ , error.str(), false);
 
         return false;
     }
@@ -200,7 +204,7 @@ bool llDiskCache::put(const std::string id,
     // this is where the filename/size is written to the database along
     // with the current date/time for the created/last access times
     const std::string stmt = sqlComposePut(id, filename, binary_data_size);
-    if (! sqlitePrepareStep(__func__, stmt, SQLITE_DONE))
+    if (! sqlitePrepareStep(__FUNCDNAME__ , stmt, SQLITE_DONE))
     {
         return false;
     }
@@ -237,18 +241,18 @@ const bool llDiskCache::get(const std::string id,
 
     if (!mDb)
     {
-        printError(__func__, "mDb is invalid", false);
+        printError(__FUNCDNAME__ , "mDb is invalid", false);
         return false;
     }
 
     if (id.empty())
     {
-        printError(__func__, "id is empty", false);
+        printError(__FUNCDNAME__ , "id is empty", false);
         return false;
     }
 
     const std::string stmt_select = sqlComposeGetSelect(id);
-    sqlite3_stmt* prepared_statement = sqlitePrepareStep(__func__, stmt_select, SQLITE_ROW);
+    sqlite3_stmt* prepared_statement = sqlitePrepareStep(__FUNCDNAME__ , stmt_select, SQLITE_ROW);
     if (! prepared_statement)
     {
         return false;
@@ -258,7 +262,7 @@ const bool llDiskCache::get(const std::string id,
     const unsigned char* text = sqlite3_column_text(prepared_statement, result_column_index);
     if (text == nullptr)
     {
-        printError(__func__, "filename is nullptr", true);
+        printError(__FUNCDNAME__ , "filename is nullptr", true);
         return false;
     }
     const std::string filename = std::string(reinterpret_cast<const char*>(text));
@@ -268,13 +272,13 @@ const bool llDiskCache::get(const std::string id,
     int filesize_db = sqlite3_column_int(prepared_statement, result_column_index);
     if (filesize_db <= 0)
     {
-        printError(__func__, "filesize is invalid", true);
+        printError(__FUNCDNAME__ , "filesize is invalid", true);
         return false;
     }
 
     if (sqlite3_finalize(prepared_statement) != SQLITE_OK)
     {
-        printError(__func__, "sqlite3_finalize()", true);
+        printError(__FUNCDNAME__ , "sqlite3_finalize()", true);
         return false;
     }
 
@@ -284,7 +288,7 @@ const bool llDiskCache::get(const std::string id,
     {
         std::ostringstream error;
         error << "Unable to open " << filepath << " for reading";
-        printError(__func__, error.str(), false);
+        printError(__FUNCDNAME__ , error.str(), false);
         return false;
     }
 
@@ -299,7 +303,7 @@ const bool llDiskCache::get(const std::string id,
         error << " and ";
         error << "file size from file (" << filesize_file << ")";
         error << " in file " << filepath << " are different";
-        printError(__func__, error.str(), false);
+        printError(__FUNCDNAME__ , error.str(), false);
 
         return false;
     }
@@ -322,7 +326,7 @@ const bool llDiskCache::get(const std::string id,
         std::ostringstream error;
         error << "Unable to read " << filesize;
         error << " bytes from " << filepath;
-        printError(__func__, error.str(), false);
+        printError(__FUNCDNAME__ , error.str(), false);
 
         return false;
     }
@@ -336,7 +340,7 @@ const bool llDiskCache::get(const std::string id,
     // in the database and that us used to determine what is purged
     // in an LRU fashion when the purge function is called.
     const std::string stmt_update = sqlComposeGetUpdate(id);
-    if (! sqliteExec(stmt_update, __func__))
+    if (! sqliteExec(stmt_update, __FUNCDNAME__ ))
     {
         return false;
     }
@@ -355,7 +359,7 @@ bool llDiskCache::purge(int num_entries)
 {
     if (num_entries < 0)
     {
-        printError(__func__, "number of entries to purge is invalid", false);
+        printError(__FUNCDNAME__ , "number of entries to purge is invalid", false);
         return false;
     }
 
@@ -364,7 +368,7 @@ bool llDiskCache::purge(int num_entries)
 
     // delete oldest entries leaving the correct number in place
     const std::string stmt = sqlComposePurge(num_entries);
-    if (! sqliteExec(stmt, __func__))
+    if (! sqliteExec(stmt, __FUNCDNAME__ ))
     {
         return false;
     }
@@ -479,7 +483,7 @@ void llDiskCache::printError(const std::string funcname,
     std::ostringstream err_msg;
 
     err_msg << "llDiskCache error in ";
-    err_msg << __func__ << "(...) ";
+    err_msg << __FUNCDNAME__  << "(...) ";
     err_msg << desc;
 
     if (is_sqlite_err)
@@ -502,7 +506,7 @@ void llDiskCache::printError(const std::string funcname,
 bool llDiskCache::beginTransaction()
 {
     const std::string stmt("BEGIN TRANSACTION");
-    if (! sqliteExec(stmt, __func__))
+    if (! sqliteExec(stmt, __FUNCDNAME__ ))
     {
         return false;
     }
@@ -516,7 +520,7 @@ bool llDiskCache::beginTransaction()
 bool llDiskCache::endTransaction()
 {
     const std::string stmt("COMMIT");
-    if (! sqliteExec(stmt, __func__))
+    if (! sqliteExec(stmt, __FUNCDNAME__ ))
     {
         return false;
     }

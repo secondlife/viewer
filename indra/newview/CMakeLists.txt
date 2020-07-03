@@ -49,7 +49,6 @@ include(OPENAL)
 include(OpenGL)
 include(OpenSSL)
 include(PNG)
-include(SQLite)
 include(TemplateCheck)
 include(UI)
 include(UnixInstall)
@@ -72,7 +71,6 @@ include_directories(
     ${DBUSGLIB_INCLUDE_DIRS}
     ${JSONCPP_INCLUDE_DIR}
     ${GLOD_INCLUDE_DIR}
-    ${SQLITE_INCLUDE_DIR}
     ${LLAUDIO_INCLUDE_DIRS}
     ${LLCHARACTER_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
@@ -178,7 +176,6 @@ set(viewer_SOURCE_FILES
     lldeferredsounds.cpp
     lldelayedgestureerror.cpp
     lldirpicker.cpp
-    lldiskcache.cpp
     lldonotdisturbnotificationstorage.cpp
     lldndbutton.cpp
     lldrawable.cpp
@@ -809,7 +806,6 @@ set(viewer_HEADER_FILES
     lldeferredsounds.h
     lldelayedgestureerror.h
     lldirpicker.h
-    lldiskcache.h
     lldonotdisturbnotificationstorage.h
     lldndbutton.h
     lldrawable.h
@@ -2040,7 +2036,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLPHYSICS_LIBRARIES}
     ${LLPHYSICSEXTENSIONS_LIBRARIES}
     ${LLAPPEARANCE_LIBRARIES}
-    ${SQLITE_LIBRARIES}
     )
 
 if (BUGSPLAT_DB)

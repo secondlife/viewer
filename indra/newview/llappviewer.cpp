@@ -107,7 +107,6 @@
 
 // Linden library includes
 #include "llavatarnamecache.h"
-#include "lldiskcache.h"
 #include "lldiriterator.h"
 #include "llexperiencecache.h"
 #include "llimagej2c.h"
@@ -3243,10 +3242,10 @@ LLSD LLAppViewer::getViewerInfo() const
 #endif
 
 #if !LL_LINUX
-	std::ostringstream sqlite_ver_codec;
-	sqlite_ver_codec << "SQLite: ";
-	sqlite_ver_codec << SQLITE_VERSION;
-	info["SQLITE_VERSION"] = sqlite_ver_codec.str();
+	//std::ostringstream sqlite_ver_codec;
+	//sqlite_ver_codec << "SQLite: ";
+	//sqlite_ver_codec << SQLITE_VERSION;
+	//info["SQLITE_VERSION"] = sqlite_ver_codec.str();
 #else
 	info["SQLITE_VERSION"] = "Undefined";
 #endif
