@@ -41,9 +41,6 @@
 
 #include "llsdserialize.h"
 #include "llsys.h"
-#include "llvfs.h"
-#include "llvfile.h"
-#include "llvfsthread.h"
 #include "llxmltree.h"
 #include "message.h"
 

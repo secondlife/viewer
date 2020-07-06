@@ -269,7 +269,6 @@ bool login_alert_status(const LLSD& notification, const LLSD& response);
 void login_packet_failed(void**, S32 result);
 void use_circuit_callback(void**, S32 result);
 void register_viewer_callbacks(LLMessageSystem* msg);
-void asset_callback_nothing(LLVFS*, const LLUUID&, LLAssetType::EType, void*, S32);
 bool callback_choose_gender(const LLSD& notification, const LLSD& response);
 void init_start_screen(S32 location_id);
 void release_start_screen();
@@ -2562,11 +2561,6 @@ void register_viewer_callbacks(LLMessageSystem* msg)
     msg->setHandlerFunc("LargeGenericMessage", process_large_generic_message);
 
 	msg->setHandlerFuncFast(_PREHASH_FeatureDisabled, process_feature_disabled_message);
-}
-
-void asset_callback_nothing(LLVFS*, const LLUUID&, LLAssetType::EType, void*, S32)
-{
-	// nothing
 }
 
 const S32 OPT_CLOSED_WINDOW = -1;
