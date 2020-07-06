@@ -2693,6 +2693,14 @@ void LLIMMgr::addMessage(
 	bool new_session = !hasSession(new_session_id);
 	if (new_session)
 	{
+		// Group chat session was initiated by muted resident, do not start this session viewerside
+		// do not send leave msg either, so we are able to get group messages from other participants
+		if ((IM_SESSION_INVITE == dialog) && gAgent.isInGroup(new_session_id) &&
+			LLMuteList::getInstance()->isMuted(other_participant_id, LLMute::flagTextChat) && !from_linden)
+		{
+			return;
+		}
+
 		LLAvatarName av_name;
 		if (LLAvatarNameCache::get(other_participant_id, &av_name) && !name_is_setted)
 		{
@@ -2734,7 +2742,7 @@ void LLIMMgr::addMessage(
 			if (LLMuteList::getInstance()->isMuted(other_participant_id, LLMute::flagTextChat) && !from_linden)
 			{
 				LL_WARNS() << "Leaving IM session from initiating muted resident " << from << LL_ENDL;
-				if (!gIMMgr->leaveSession(new_session_id, !session->isGroupSessionType()))
+				if (!gIMMgr->leaveSession(new_session_id))
 				{
 					LL_INFOS() << "Session " << new_session_id << " does not exist." << LL_ENDL;
 				}
@@ -2964,15 +2972,12 @@ LLUUID LLIMMgr::addSession(
 	return session_id;
 }
 
-bool LLIMMgr::leaveSession(const LLUUID& session_id, bool send_leave_msg)
+bool LLIMMgr::leaveSession(const LLUUID& session_id)
 {
 	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(session_id);
 	if (!im_session) return false;
 
-	if (send_leave_msg)
-	{
-		LLIMModel::getInstance()->sendLeaveSession(session_id, im_session->mOtherParticipantID);
-	}
+	LLIMModel::getInstance()->sendLeaveSession(session_id, im_session->mOtherParticipantID);
 	gIMMgr->removeSession(session_id);
 	return true;
 }
