@@ -50,6 +50,7 @@ class LLViewerJoystick : public LLSingleton<LLViewerJoystick>
 
 public:
 	void init(bool autoenable);
+	void initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/);
 	void terminate();
 
 	void updateStatus();

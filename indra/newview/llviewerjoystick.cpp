@@ -36,9 +36,21 @@
 #include "lltoolmgr.h"
 #include "llselectmgr.h"
 #include "llviewermenu.h"
+#include "llviewerwindow.h"
+#include "llwindow.h"
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llfocusmgr.h"
+
+#if LL_WINDOWS && !LL_MESA_HEADLESS
+// Require DirectInput version 8
+#define DIRECTINPUT_VERSION 0x0800
+
+//#include <InitGuid.h>
+//#pragma comment(lib, "dinput8")
+//#pragma comment(lib, "dxguid.lib")
+#include <dinput.h>
+#endif
 
 
 // ----------------------------------------------------------------------------
@@ -61,6 +73,152 @@ F32  LLViewerJoystick::sDelta[] = {0,0,0,0,0,0,0};
 // values in the [-3000, 3000] range.
 #define MAX_SPACENAVIGATOR_INPUT  3000.0f
 #define MAX_JOYSTICK_INPUT_VALUE  MAX_SPACENAVIGATOR_INPUT
+
+#if LL_WINDOWS && !LL_MESA_HEADLESS
+
+// took this from ndofdev_win.cpp
+BOOL CALLBACK EnumNDOFObjectsCallback(const DIDEVICEOBJECTINSTANCE* inst,
+    VOID* user_data)
+{
+    if (inst->dwType & DIDFT_AXIS)
+    {
+        HRESULT hr = DI_OK;
+        LPDIRECTINPUTDEVICE8 device = *((LPDIRECTINPUTDEVICE8 *)user_data);
+        DIPROPRANGE diprg;
+        diprg.diph.dwSize = sizeof(DIPROPRANGE);
+        diprg.diph.dwHeaderSize = sizeof(DIPROPHEADER);
+        diprg.diph.dwHow = DIPH_BYID;
+        diprg.diph.dwObj = inst->dwType; // specify the enumerated axis
+
+        // Set the range for the axis
+        diprg.lMin = (long)-MAX_JOYSTICK_INPUT_VALUE;
+        diprg.lMax = (long)+MAX_JOYSTICK_INPUT_VALUE;
+        hr = device->SetProperty(DIPROP_RANGE, &diprg.diph);
+        assert(hr == DI_OK);
+
+
+        if (FAILED(hr))
+            return DIENUM_STOP;
+    }
+
+    return DIENUM_CONTINUE;
+}
+
+//   vvvv Product ID
+// 0xC62B046D
+//       ^^^^ Vendor ID
+//     0x046D Logitech's Vendor ID
+//     0x256F 3Dconnexion's Vendor ID
+//
+// See:
+//    https://github.com/janoc/libndofdev/blob/master/ndofdev.c
+//    http://spacemice.org/index.php?title=Dev
+//    https://www.3dconnexion.com/nc/service/faq/faq/how-can-i-check-if-my-usb-3d-mouse-is-recognized-by-windows.html
+bool is_space_mouse(const U16 product_id, const U16 vendor_id)
+{
+    if (vendor_id == 0x046d)      // Logitech's Vendor ID
+    {
+        if (false
+            || (product_id == 0xc603) // SpaceMouse Plus USB, SpaceMouse Plus XT USB
+            || (product_id == 0xc605) // CadMan: USB
+            || (product_id == 0xc606) // SpaceMouse Classic USB
+            || (product_id == 0xc621) // SpaceBall 5000 USB
+            || (product_id == 0xc623) // SpaceTraveler: USB
+            || (product_id == 0xc625) // SpacePilot: USB
+            || (product_id == 0xc626) // SpaceNavigator: USB
+            || (product_id == 0xc627) // SpaceExplorer: USB
+            || (product_id == 0xc628) // SpaceNavigator for Notebooks: USB
+            || (product_id == 0xc629) // SpacePilot Pro: USB
+            || (product_id == 0xc62b) // SpaceMouse Pro: USB
+            )
+        {
+            return true;
+        }
+    }
+    else
+        if (vendor_id == 0x256F)     // 3Dconnexion's Vendor ID
+        {
+            if (false
+                || (product_id == 0xc62E) // SpaceMouse Wireless (cabled)
+                || (product_id == 0xc62F) // SpaceMouse Wireless Receiver
+                || (product_id == 0xc631) // Spacemouse Wireless (cabled)
+                || (product_id == 0xc632) // SpacemousePro Wireless Receiver
+                || (product_id == 0xc633) // SpaceMouse Enterprise
+                || (product_id == 0xc635) // Spacemouse Compact
+                || (product_id == 0xc650) // CadMouse
+                || (product_id == 0xc651) // CadMouse Wireless
+                || (product_id == 0xc652) // Universal Receiver
+                || (product_id == 0xc654) // CadMouse Pro Wireless
+                || (product_id == 0xc657) // CadMouse Pro Wireless Left
+                )
+            {
+                return true;
+            }
+        }
+
+    return false;
+}
+
+BOOL CALLBACK di8_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr, LPVOID pvRef)
+{
+    // Note: If a single device can function as more than one DirectInput
+    // device type, it is enumerated as each device type that it supports.
+    // Capable of detecting devices like Oculus Rift
+    if (device_instance_ptr && pvRef)
+    {
+        std::string product_name = utf16str_to_utf8str(llutf16string(device_instance_ptr->tszProductName));
+
+        LL_DEBUGS("Joystick") << "DirectInput8 Devices: " << product_name << LL_ENDL;
+
+        U16 product_id = (device_instance_ptr->guidProduct.Data1 >> 16) & 0xFFFF;
+        U16 vendor_id = (device_instance_ptr->guidProduct.Data1 >> 0) & 0xFFFF;
+
+        if (!LLViewerJoystick::getInstance()->isJoystickInitialized())
+        {
+            bool found_space_mouse = is_space_mouse(product_id, vendor_id);
+
+            if (found_space_mouse)
+            {
+                LL_DEBUGS("Joystick") << "Found device that matches criteria: " << product_name << LL_ENDL;
+                LPDIRECTINPUT8       di8_interface = (LPDIRECTINPUT8)pvRef;
+                LPDIRECTINPUTDEVICE8 device = NULL;
+
+                HRESULT status = di8_interface->CreateDevice(
+                    device_instance_ptr->guidInstance, // REFGUID rguid,
+                    &device,                           // LPDIRECTINPUTDEVICE * lplpDirectInputDevice,
+                    NULL                               // LPUNKNOWN pUnkOuter
+                    );
+
+                if (status == DI_OK)
+                {
+                    // prerequisite for aquire()
+                    LL_DEBUGS("Joystick") << "Device created" << LL_ENDL;
+                    status = device->SetDataFormat(&c_dfDIJoystick); // c_dfDIJoystick2
+                }
+
+                if (status == DI_OK)
+                {
+                    // set properties
+                    LL_DEBUGS("Joystick") << "Format set" << LL_ENDL;
+                    status = device->EnumObjects(EnumNDOFObjectsCallback, &device, DIDFT_ALL);
+                }
+
+                // todo: record device name, ndof won't fill it from passed device
+                // strncpy(mNdofDev->product, inst->tszProductName, sizeof(mNdofDev->product));
+                // strncpy(mNdofDev->product, product_name.c_str(), sizeof(mNdofDev->product));
+
+                if (status == DI_OK)
+                {
+                    LL_DEBUGS("Joystick") << "Properties updated" << LL_ENDL;
+                    LLViewerJoystick::getInstance()->initDevice(&device);
+                    return DIENUM_STOP;
+                }
+            }
+        }
+    }
+    return DIENUM_CONTINUE;
+}
+#endif
 
 // -----------------------------------------------------------------------------
 void LLViewerJoystick::updateEnabled(bool autoenable)
@@ -175,7 +333,7 @@ void LLViewerJoystick::init(bool autoenable)
 		// Note: The HotPlug callbacks are not actually getting called on Windows
 		if (ndof_libinit(HotPlugAddCallback, 
 						 HotPlugRemovalCallback, 
-						 NULL))
+						 gViewerWindow->getWindow()->getDirectInput8()))
 		{
 			mDriverState = JDS_UNINITIALIZED;
 		}
@@ -192,35 +350,34 @@ void LLViewerJoystick::init(bool autoenable)
 	if (libinit)
 	{
 		if (mNdofDev)
-		{
-			// Different joysticks will return different ranges of raw values.
-			// Since we want to handle every device in the same uniform way, 
-			// we initialize the mNdofDev struct and we set the range 
-			// of values we would like to receive. 
-			// 
-			// HACK: On Windows, libndofdev passes our range to DI with a 
-			// SetProperty call. This works but with one notable exception, the
-			// SpaceNavigator, who doesn't seem to care about the SetProperty
-			// call. In theory, we should handle this case inside libndofdev. 
-			// However, the range we're setting here is arbitrary anyway, 
-			// so let's just use the SpaceNavigator range for our purposes. 
-			mNdofDev->axes_min = (long)-MAX_JOYSTICK_INPUT_VALUE;
-			mNdofDev->axes_max = (long)+MAX_JOYSTICK_INPUT_VALUE;
+        {
+            // di8_devices_callback callback is immediate and happens in scope of getInputDevices()
+#if LL_WINDOWS && !LL_MESA_HEADLESS
+            // space navigator is marked as DI8DEVCLASS_GAMECTRL in ndof lib
+            U32 device_type = DI8DEVCLASS_GAMECTRL;
+            void* callback = &di8_devices_callback;
+#elif
+            // MAC doesn't support device search yet
+            // On MAC there is an ndof_idsearch and it is possible to specify product
+            // and manufacturer in NDOF_Device for ndof_init_first to pick specific one
+            U32 device_type = 0;
+            void* callback = NULL;
+#endif
+            if (!gViewerWindow->getWindow()->getInputDevices(device_type, callback))
+            {
+                LL_INFOS() << "Failed to gather devices from window. Falling back to ndof's init" << LL_ENDL;
+                // Failed to gather devices from windows, init first suitable one
+                void *preffered_device = NULL;
+                initDevice(preffered_device);
+            }
 
-			// libndofdev could be used to return deltas.  Here we choose to
-			// just have the absolute values instead.
-			mNdofDev->absolute = 1;
-
-			// init & use the first suitable NDOF device found on the USB chain
-			if (ndof_init_first(mNdofDev, NULL))
-			{
-				mDriverState = JDS_UNINITIALIZED;
-				LL_WARNS() << "ndof_init_first FAILED" << LL_ENDL;
-			}
-			else
-			{
-				mDriverState = JDS_INITIALIZED;
-			}
+            // make sure a device was found:
+            if (mDriverState == JDS_INITIALIZING)
+            {
+                LL_INFOS() << "Found no suitable devices. Trying ndof's default init" << LL_ENDL;
+                void *preffered_device = NULL;
+                initDevice(preffered_device);
+            }
 		}
 		else
 		{
@@ -261,6 +418,40 @@ void LLViewerJoystick::init(bool autoenable)
 	
 	LL_INFOS() << "ndof: mDriverState=" << mDriverState << "; mNdofDev=" 
 			<< mNdofDev << "; libinit=" << libinit << LL_ENDL;
+#endif
+}
+
+void LLViewerJoystick::initDevice(void * preffered_device /* LPDIRECTINPUTDEVICE8* */)
+{
+#if LIB_NDOF
+    // Different joysticks will return different ranges of raw values.
+    // Since we want to handle every device in the same uniform way, 
+    // we initialize the mNdofDev struct and we set the range 
+    // of values we would like to receive. 
+    // 
+    // HACK: On Windows, libndofdev passes our range to DI with a 
+    // SetProperty call. This works but with one notable exception, the
+    // SpaceNavigator, who doesn't seem to care about the SetProperty
+    // call. In theory, we should handle this case inside libndofdev. 
+    // However, the range we're setting here is arbitrary anyway, 
+    // so let's just use the SpaceNavigator range for our purposes. 
+    mNdofDev->axes_min = (long)-MAX_JOYSTICK_INPUT_VALUE;
+    mNdofDev->axes_max = (long)+MAX_JOYSTICK_INPUT_VALUE;
+
+    // libndofdev could be used to return deltas.  Here we choose to
+    // just have the absolute values instead.
+    mNdofDev->absolute = 1;
+    // init & use the first suitable NDOF device found on the USB chain
+    // On windows preffered_device needs to be a pointer to LPDIRECTINPUTDEVICE8
+    if (ndof_init_first(mNdofDev, preffered_device))
+    {
+        mDriverState = JDS_UNINITIALIZED;
+        LL_WARNS() << "ndof_init_first FAILED" << LL_ENDL;
+    }
+    else
+    {
+        mDriverState = JDS_INITIALIZED;
+    }
 #endif
 }
 
