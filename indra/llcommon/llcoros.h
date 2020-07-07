@@ -232,6 +232,11 @@ public:
     };
 
     /// thrown by checkStop()
+    // It may sound ironic that Stop is derived from LLContinueError, but the
+    // point is that LLContinueError is the category of exception that should
+    // not immediately crash the viewer. Stop and its subclasses are to notify
+    // coroutines that the viewer intends to shut down. The expected response
+    // is to terminate the coroutine, rather than abort the viewer.
     struct Stop: public LLContinueError
     {
         Stop(const std::string& what): LLContinueError(what) {}
