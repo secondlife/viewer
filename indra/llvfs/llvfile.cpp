@@ -124,45 +124,6 @@ BOOL LLVFile::read(U8 *buffer, S32 bytes, BOOL async, F32 priority)
 	return success;
 }
 
-//static
-U8* LLVFile::readFile(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type, S32* bytes_read)
-{
-	U8 *data;
-	LLVFile file(vfs, uuid, type, LLVFile::READ);
-	S32 file_size = file.getSize();
-	if (file_size == 0)
-	{
-		// File is empty.
-		data = NULL;
-	}
-	else
-	{		
-		data = (U8*) ll_aligned_malloc<16>(file_size);
-		file.read(data, file_size);	/* Flawfinder: ignore */ 
-		
-		if (file.getLastBytesRead() != (S32)file_size)
-		{
-			ll_aligned_free<16>(data);
-			data = NULL;
-			file_size = 0;
-		}
-	}
-	if (bytes_read)
-	{
-		*bytes_read = file_size;
-	}
-	return data;
-}
-	
-void LLVFile::setReadPriority(const F32 priority)
-{
-	mPriority = priority;
-	if (mHandle != LLVFSThread::nullHandle())
-	{
-		sVFSThread->setPriority(mHandle, threadPri());
-	}
-}
-
 BOOL LLVFile::isReadComplete()
 {
 	BOOL res = TRUE;
