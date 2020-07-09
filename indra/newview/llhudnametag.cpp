@@ -439,17 +439,19 @@ void LLHUDNameTag::addLine(const std::string &text_utf8,
             U32 line_length = 0;
             if (use_ellipses)
             {
-                // "QualityAssuranceAssuresQuality 1" will end up like "QualityAssuranceAssuresQual..."
-                // "QualityAssurance AssuresQuality 1" will be split into two lines "QualityAssurance" and "AssuresQuality 1"
+                // "QualityAssuranceAssuresQuality1" will end up like "QualityAssuranceAssuresQual..."
+                // "QualityAssuranceAssuresQuality QualityAssuranceAssuresQuality" will end up like "QualityAssuranceAssuresQual..."
+                // "QualityAssurance AssuresQuality1" will end up as "QualityAssurance AssuresQua..." because we are enforcing single line
                 do
                 {
-                    S32 segment_length = font->maxDrawableChars(iter->substr(line_length).c_str(), max_pixels, wline.length(), LLFontGL::ONLY_WORD_BOUNDARIES);
-                    if (segment_length == 0)
+                    S32 segment_length = font->maxDrawableChars(iter->substr(line_length).c_str(), max_pixels, wline.length(), LLFontGL::ANYWHERE);
+                    if (segment_length + line_length < wline.length()) // since we only draw one string, line_length should be 0
                     {
-                        // First word in segment (not nessesary first line) does not fit, need to draw "...".
+                        // token does does not fit into signle line, need to draw "...".
                         // Use four dots for ellipsis width to generate padding
                         const LLWString dots_pad(utf8str_to_wstring(std::string("....")));
                         S32 elipses_width = font->getWidthF32(dots_pad.c_str());
+                        // truncated string length
                         segment_length = font->maxDrawableChars(iter->substr(line_length).c_str(), max_pixels - elipses_width, wline.length(), LLFontGL::ANYWHERE);
                         const LLWString dots(utf8str_to_wstring(std::string("...")));
                         LLHUDTextSegment segment(iter->substr(line_length, segment_length) + dots, style, color, font);
@@ -458,6 +460,7 @@ void LLHUDNameTag::addLine(const std::string &text_utf8,
                     }
                     else
                     {
+                        // token fits fully into string
                         LLHUDTextSegment segment(iter->substr(line_length, segment_length), style, color, font);
                         mTextSegments.push_back(segment);
                         line_length += segment_length;
