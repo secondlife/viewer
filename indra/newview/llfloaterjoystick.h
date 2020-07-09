@@ -31,6 +31,7 @@
 #include "llstatview.h"
 
 class LLCheckBoxCtrl;
+class LLComboBox;
 
 class LLFloaterJoystick : public LLFloater
 {
@@ -47,6 +48,7 @@ public:
 
 protected:
 
+	void refreshListOfDevices();
 	void onClose(bool app_quitting);
 	void onClickCloseBtn(bool app_quitting);
 
@@ -85,8 +87,10 @@ private:
 	F32 mFlycamFeathering;
 
 	// Controls that can disable the flycam
-	LLCheckBoxCtrl	*mCheckJoystickEnabled;
 	LLCheckBoxCtrl	*mCheckFlycamEnabled;
+	LLComboBox		*mJoysticksCombo;
+
+    bool mHasDeviceList;
 
 	// stats view 
 	LLStatBar* mAxisStatsBar[6];

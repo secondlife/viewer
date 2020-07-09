@@ -41,6 +41,7 @@
 #include "llappviewer.h"
 #include "llviewerjoystick.h"
 #include "llcheckboxctrl.h"
+#include "llcombobox.h"
 
 static LLTrace::SampleStatHandle<>	sJoystickAxis0("Joystick axis 0"),
 									sJoystickAxis1("Joystick axis 1"),
@@ -59,7 +60,8 @@ static LLTrace::SampleStatHandle<>* sJoystickAxes[6] =
 };
 
 LLFloaterJoystick::LLFloaterJoystick(const LLSD& data)
-	: LLFloater(data)
+	: LLFloater(data),
+    mHasDeviceList(false)
 {
     if (!LLViewerJoystick::getInstance()->isJoystickInitialized())
     {
@@ -71,14 +73,13 @@ LLFloaterJoystick::LLFloaterJoystick(const LLSD& data)
 
 void LLFloaterJoystick::draw()
 {
-	bool joystick_inited = LLViewerJoystick::getInstance()->isJoystickInitialized();
-	getChildView("enable_joystick")->setEnabled(joystick_inited);
-	getChildView("joystick_type")->setEnabled(joystick_inited);
-	std::string desc = LLViewerJoystick::getInstance()->getDescription();
-	if (desc.empty()) desc = getString("NoDevice");
-	getChild<LLUICtrl>("joystick_type")->setValue(desc);
+    LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
+    bool joystick_inited = joystick->isJoystickInitialized();
+    if (joystick_inited != mHasDeviceList)
+    {
+        refreshListOfDevices();
+    }
 
-	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
 	for (U32 i = 0; i < 6; i++)
 	{
 		F32 value = joystick->getJoystickAxis(i);
@@ -115,8 +116,8 @@ BOOL LLFloaterJoystick::postBuild()
 		}
 	}
 	
-	mCheckJoystickEnabled = getChild<LLCheckBoxCtrl>("enable_joystick");
-	childSetCommitCallback("enable_joystick",onCommitJoystickEnabled,this);
+	mJoysticksCombo = getChild<LLComboBox>("joystick_combo");
+	childSetCommitCallback("joystick_combo",onCommitJoystickEnabled,this);
 	mCheckFlycamEnabled = getChild<LLCheckBoxCtrl>("JoystickFlycamEnabled");
 	childSetCommitCallback("JoystickFlycamEnabled",onCommitJoystickEnabled,this);
 
@@ -125,6 +126,7 @@ BOOL LLFloaterJoystick::postBuild()
 	childSetAction("ok_btn", onClickOK, this);
 
 	refresh();
+	refreshListOfDevices();
 	return TRUE;
 }
 
@@ -210,7 +212,34 @@ void LLFloaterJoystick::initFromSettings()
 void LLFloaterJoystick::refresh()
 {
 	LLFloater::refresh();
+
 	initFromSettings();
+}
+
+void LLFloaterJoystick::refreshListOfDevices()
+{
+    mJoysticksCombo->removeall();
+    mJoysticksCombo->add(getString("JoystickDisabled"), LLSD(LLSD::Integer(0)), ADD_BOTTOM, 1);
+
+    mHasDeviceList = false;
+    std::string desc = LLViewerJoystick::getInstance()->getDescription();
+    if (!desc.empty())
+    {
+        mJoysticksCombo->add(desc, LLSD(LLSD::Integer(1)), ADD_BOTTOM, 1);
+        mHasDeviceList = true;
+    }
+
+    //todo: load list of devices
+
+    if (gSavedSettings.getBOOL("JoystickEnabled") && mHasDeviceList)
+    {
+        // todo: select device according to data from LLViewerJoystick
+        mJoysticksCombo->selectByValue(LLSD::Integer(1));
+    }
+    else
+    {
+        mJoysticksCombo->selectByValue(LLSD::Integer(0));
+    }
 }
 
 void LLFloaterJoystick::cancel()
@@ -285,7 +314,21 @@ void LLFloaterJoystick::cancel()
 void LLFloaterJoystick::onCommitJoystickEnabled(LLUICtrl*, void *joy_panel)
 {
 	LLFloaterJoystick* self = (LLFloaterJoystick*)joy_panel;
-	BOOL joystick_enabled = self->mCheckJoystickEnabled->get();
+
+    LLSD value = self->mJoysticksCombo->getValue();
+    bool joystick_enabled = true;
+    if (value.isInteger())
+    {
+        joystick_enabled = value.asInteger();
+        // ndof already has a device selected, we are just setting it enabled or disabled
+    }
+    else
+    {
+        // else joystick is enabled, because combobox holds id of device
+        joystick_enabled = true;
+        // todo: make LLViewerJoystick select a device based on value
+    }
+    gSavedSettings.setBOOL("JoystickEnabled", joystick_enabled);
 	BOOL flycam_enabled = self->mCheckFlycamEnabled->get();
 
 	if (!joystick_enabled || !flycam_enabled)
@@ -297,6 +340,8 @@ void LLFloaterJoystick::onCommitJoystickEnabled(LLUICtrl*, void *joy_panel)
 			joystick->toggleFlycam();
 		}
 	}
+
+    self->refreshListOfDevices();
 }
 
 void LLFloaterJoystick::onClickRestoreSNDefaults(void *joy_panel)
