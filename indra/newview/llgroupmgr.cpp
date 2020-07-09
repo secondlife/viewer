@@ -944,9 +944,13 @@ static void formatDateString(std::string &date_string)
 	}
 }
 
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_GROUP_MEMBERS_REPLY("Process Group Members");
+
 // static
 void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 {
+    LL_RECORD_BLOCK_TIME(FTM_PROCESS_GROUP_MEMBERS_REPLY);
+
 	LL_DEBUGS() << "LLGroupMgr::processGroupMembersReply" << LL_ENDL;
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
@@ -1050,9 +1054,13 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 	LLGroupMgr::getInstance()->notifyObservers(GC_MEMBER_DATA);
 }
 
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_GROUP_PROPERTIES_REPLY("Process Group Properties");
+
 //static 
 void LLGroupMgr::processGroupPropertiesReply(LLMessageSystem* msg, void** data)
 {
+    LL_RECORD_BLOCK_TIME(FTM_PROCESS_GROUP_PROPERTIES_REPLY);
+
 	LL_DEBUGS() << "LLGroupMgr::processGroupPropertiesReply" << LL_ENDL;
 	if (!msg)
 	{
@@ -1122,9 +1130,12 @@ void LLGroupMgr::processGroupPropertiesReply(LLMessageSystem* msg, void** data)
 	LLGroupMgr::getInstance()->notifyObservers(GC_PROPERTIES);
 }
 
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_GROUP_ROLE_DATA_REPLY("Process Group Role Data");
 // static
 void LLGroupMgr::processGroupRoleDataReply(LLMessageSystem* msg, void** data)
 {
+    LL_RECORD_BLOCK_TIME(FTM_PROCESS_GROUP_ROLE_DATA_REPLY);
+
 	LL_DEBUGS() << "LLGroupMgr::processGroupRoleDataReply" << LL_ENDL;
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
@@ -1207,9 +1218,12 @@ void LLGroupMgr::processGroupRoleDataReply(LLMessageSystem* msg, void** data)
 	LLGroupMgr::getInstance()->notifyObservers(GC_ROLE_DATA);
 }
 
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_GROUP_ROLE_MEMBERS_REPLY("Process Group Role Members");
 // static
 void LLGroupMgr::processGroupRoleMembersReply(LLMessageSystem* msg, void** data)
 {
+    LL_RECORD_BLOCK_TIME(FTM_PROCESS_GROUP_ROLE_MEMBERS_REPLY);
+
 	LL_DEBUGS() << "LLGroupMgr::processGroupRoleMembersReply" << LL_ENDL;
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );

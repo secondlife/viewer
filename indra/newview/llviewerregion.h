@@ -232,6 +232,9 @@ public:
 
 	F32	getWidth() const						{ return mWidth; }
 
+	// regions are expensive to release, this function gradually releases cache from memory
+	static void idleCleanup(F32 max_update_time);
+
 	void idleUpdate(F32 max_update_time);
 	void lightIdleUpdate();
 	bool addVisibleGroup(LLViewerOctreeGroup* group);
@@ -549,6 +552,9 @@ private:
 	caps_received_signal_t mSimulatorFeaturesReceivedSignal;		
 
 	LLSD mSimulatorFeatures;
+
+    typedef std::map<U32, LLPointer<LLVOCacheEntry> >	   vocache_entry_map_t;
+    static vocache_entry_map_t sRegionCacheCleanup;
 
 	// the materials capability throttle
 	LLFrameTimer mMaterialsCapThrottleTimer;
