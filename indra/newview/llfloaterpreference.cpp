@@ -2938,6 +2938,7 @@ void LLFloaterPreferenceGraphicsAdvanced::onClickCloseBtn(bool app_quitting)
 	{
 		instance->cancel();
 	}
+	updateMaxComplexity();
 }
 
 LLFloaterPreferenceProxy::~LLFloaterPreferenceProxy()
