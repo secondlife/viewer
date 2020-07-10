@@ -4181,7 +4181,7 @@ void* LLWindowWin32::getDirectInput8()
     return &gDirectInput8;
 }
 
-bool LLWindowWin32::getInputDevices(U32 device_type_filter, void * di8_devices_callback)
+bool LLWindowWin32::getInputDevices(U32 device_type_filter, void * di8_devices_callback, void* userdata)
 {
     if (gDirectInput8 != NULL)
     {
@@ -4189,7 +4189,7 @@ bool LLWindowWin32::getInputDevices(U32 device_type_filter, void * di8_devices_c
         HRESULT status = gDirectInput8->EnumDevices(
             (DWORD) device_type_filter,        // DWORD dwDevType,
             (LPDIENUMDEVICESCALLBACK)di8_devices_callback,  // LPDIENUMDEVICESCALLBACK lpCallback, // BOOL DIEnumDevicesCallback( LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef ) // BOOL CALLBACK DinputDevice::DevicesCallback
-            (LPVOID*)gDirectInput8, // LPVOID pvRef
+            (LPVOID*)userdata, // LPVOID pvRef
             DIEDFL_ATTACHEDONLY       // DWORD dwFlags
             );
 

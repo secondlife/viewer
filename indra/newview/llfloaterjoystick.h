@@ -46,6 +46,8 @@ public:
 	virtual void draw();
 	static  void setSNDefaults();
 
+    void addDevice(std::string &name, LLSD& value);
+
 protected:
 
 	void refreshListOfDevices();

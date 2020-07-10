@@ -40,8 +40,20 @@
 #include "llviewercontrol.h"
 #include "llappviewer.h"
 #include "llviewerjoystick.h"
+#include "llviewerwindow.h"
+#include "llwindow.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
+
+#if LL_WINDOWS && !LL_MESA_HEADLESS
+// Require DirectInput version 8
+#define DIRECTINPUT_VERSION 0x0800
+
+//#include <InitGuid.h>
+//#pragma comment(lib, "dinput8")
+//#pragma comment(lib, "dxguid.lib")
+#include <dinput.h>
+#endif
 
 static LLTrace::SampleStatHandle<>	sJoystickAxis0("Joystick axis 0"),
 									sJoystickAxis1("Joystick axis 1"),
@@ -58,6 +70,29 @@ static LLTrace::SampleStatHandle<>* sJoystickAxes[6] =
 	&sJoystickAxis4,
 	&sJoystickAxis5
 };
+
+
+#if LL_WINDOWS && !LL_MESA_HEADLESS
+
+BOOL CALLBACK di8_list_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr, LPVOID pvRef)
+{
+    // Note: If a single device can function as more than one DirectInput
+    // device type, it is enumerated as each device type that it supports.
+    // Capable of detecting devices like Oculus Rift
+    if (device_instance_ptr && pvRef)
+    {
+        std::string product_name = utf16str_to_utf8str(llutf16string(device_instance_ptr->tszProductName));
+        S32 size = sizeof(GUID);
+        LLSD::Binary data; //just an std::vector
+        data.resize(size);
+        memcpy(&data[0], &device_instance_ptr->guidInstance /*POD _GUID*/, size);
+
+        LLFloaterJoystick * floater = (LLFloaterJoystick*)pvRef;
+        floater->addDevice(product_name, LLSD(data));
+    }
+    return DIENUM_CONTINUE;
+}
+#endif
 
 LLFloaterJoystick::LLFloaterJoystick(const LLSD& data)
 	: LLFloater(data),
@@ -216,25 +251,62 @@ void LLFloaterJoystick::refresh()
 	initFromSettings();
 }
 
+void LLFloaterJoystick::addDevice(std::string &name, LLSD& value)
+{
+    mJoysticksCombo->add(name, value, ADD_BOTTOM, 1);
+}
+
 void LLFloaterJoystick::refreshListOfDevices()
 {
     mJoysticksCombo->removeall();
-    mJoysticksCombo->add(getString("JoystickDisabled"), LLSD(LLSD::Integer(0)), ADD_BOTTOM, 1);
+    std::string no_device = getString("JoystickDisabled");
+    addDevice(no_device, LLSD(LLSD::Integer(0)));
 
     mHasDeviceList = false;
-    std::string desc = LLViewerJoystick::getInstance()->getDescription();
-    if (!desc.empty())
+    
+    // di8_devices_callback callback is immediate and happens in scope of getInputDevices()
+#if LL_WINDOWS && !LL_MESA_HEADLESS
+    // space navigator is marked as DI8DEVCLASS_GAMECTRL in ndof lib
+    U32 device_type = DI8DEVCLASS_GAMECTRL;
+    void* callback = &di8_list_devices_callback;
+#elif
+    // MAC doesn't support device search yet
+    // On MAC there is an ndof_idsearch and it is possible to specify product
+    // and manufacturer in NDOF_Device for ndof_init_first to pick specific one
+    U32 device_type = 0;
+    void* callback = NULL;
+#endif
+    if (gViewerWindow->getWindow()->getInputDevices(device_type, callback, this))
     {
-        mJoysticksCombo->add(desc, LLSD(LLSD::Integer(1)), ADD_BOTTOM, 1);
         mHasDeviceList = true;
     }
 
-    //todo: load list of devices
+    LLSD guid = LLViewerJoystick::getInstance()->getDeviceUUID();
+
+    if (LLViewerJoystick::getInstance()->isJoystickInitialized() &&
+        (!mHasDeviceList || !guid.isBinary()))
+    {
+#if LL_WINDOWS && !LL_MESA_HEADLESS
+        LL_WARNS() << "NDOF connected to device without using SL provided handle" << LL_ENDL;
+#endif
+        std::string desc = LLViewerJoystick::getInstance()->getDescription();
+        if (!desc.empty())
+        {
+            addDevice(desc, LLSD(LLSD::Integer(1)));
+            mHasDeviceList = true;
+        }
+    }
 
     if (gSavedSettings.getBOOL("JoystickEnabled") && mHasDeviceList)
     {
-        // todo: select device according to data from LLViewerJoystick
-        mJoysticksCombo->selectByValue(LLSD::Integer(1));
+        if (guid.isBinary())
+        {
+            mJoysticksCombo->selectByValue(guid);
+        }
+        else
+        {
+            mJoysticksCombo->selectByValue(LLSD::Integer(1));
+        }
     }
     else
     {
@@ -324,6 +396,7 @@ void LLFloaterJoystick::onCommitJoystickEnabled(LLUICtrl*, void *joy_panel)
     }
     else
     {
+        LLViewerJoystick::getInstance()->initDevice(value);
         // else joystick is enabled, because combobox holds id of device
         joystick_enabled = true;
         // todo: make LLViewerJoystick select a device based on value

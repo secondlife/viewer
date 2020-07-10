@@ -164,56 +164,66 @@ BOOL CALLBACK di8_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr, LPVO
     // Note: If a single device can function as more than one DirectInput
     // device type, it is enumerated as each device type that it supports.
     // Capable of detecting devices like Oculus Rift
-    if (device_instance_ptr && pvRef)
+    if (device_instance_ptr)
     {
         std::string product_name = utf16str_to_utf8str(llutf16string(device_instance_ptr->tszProductName));
 
-        LL_DEBUGS("Joystick") << "DirectInput8 Devices: " << product_name << LL_ENDL;
+        LLSD guid = LLViewerJoystick::getInstance()->getDeviceUUID();
 
-        U16 product_id = (device_instance_ptr->guidProduct.Data1 >> 16) & 0xFFFF;
-        U16 vendor_id = (device_instance_ptr->guidProduct.Data1 >> 0) & 0xFFFF;
-
-        if (!LLViewerJoystick::getInstance()->isJoystickInitialized())
+        bool init_device = false;
+        if (guid.isBinary())
         {
-            bool found_space_mouse = is_space_mouse(product_id, vendor_id);
+            std::vector<U8> bin_bucket = guid.asBinary();
+            init_device = memcmp(&bin_bucket[0], &device_instance_ptr->guidInstance, sizeof(GUID)) == 0;
+        }
+        else
+        {
+            // It might be better to init space navigator here, but if system doesn't has one,
+            // ndof will pick a random device, it is simpler to pick device now
+            init_device = true;
+        }
 
-            if (found_space_mouse)
+        if (init_device)
+        {
+            LL_DEBUGS("Joystick") << "Found and attempting to use device: " << product_name << LL_ENDL;
+            LPDIRECTINPUT8       di8_interface = *((LPDIRECTINPUT8 *)gViewerWindow->getWindow()->getDirectInput8());
+            LPDIRECTINPUTDEVICE8 device = NULL;
+
+            HRESULT status = di8_interface->CreateDevice(
+                device_instance_ptr->guidInstance, // REFGUID rguid,
+                &device,                           // LPDIRECTINPUTDEVICE * lplpDirectInputDevice,
+                NULL                               // LPUNKNOWN pUnkOuter
+                );
+
+            if (status == DI_OK)
             {
-                LL_DEBUGS("Joystick") << "Found device that matches criteria: " << product_name << LL_ENDL;
-                LPDIRECTINPUT8       di8_interface = (LPDIRECTINPUT8)pvRef;
-                LPDIRECTINPUTDEVICE8 device = NULL;
-
-                HRESULT status = di8_interface->CreateDevice(
-                    device_instance_ptr->guidInstance, // REFGUID rguid,
-                    &device,                           // LPDIRECTINPUTDEVICE * lplpDirectInputDevice,
-                    NULL                               // LPUNKNOWN pUnkOuter
-                    );
-
-                if (status == DI_OK)
-                {
-                    // prerequisite for aquire()
-                    LL_DEBUGS("Joystick") << "Device created" << LL_ENDL;
-                    status = device->SetDataFormat(&c_dfDIJoystick); // c_dfDIJoystick2
-                }
-
-                if (status == DI_OK)
-                {
-                    // set properties
-                    LL_DEBUGS("Joystick") << "Format set" << LL_ENDL;
-                    status = device->EnumObjects(EnumNDOFObjectsCallback, &device, DIDFT_ALL);
-                }
-
-                // todo: record device name, ndof won't fill it from passed device
-                // strncpy(mNdofDev->product, inst->tszProductName, sizeof(mNdofDev->product));
-                // strncpy(mNdofDev->product, product_name.c_str(), sizeof(mNdofDev->product));
-
-                if (status == DI_OK)
-                {
-                    LL_DEBUGS("Joystick") << "Properties updated" << LL_ENDL;
-                    LLViewerJoystick::getInstance()->initDevice(&device);
-                    return DIENUM_STOP;
-                }
+                // prerequisite for aquire()
+                LL_DEBUGS("Joystick") << "Device created" << LL_ENDL;
+                status = device->SetDataFormat(&c_dfDIJoystick); // c_dfDIJoystick2
             }
+
+            if (status == DI_OK)
+            {
+                // set properties
+                LL_DEBUGS("Joystick") << "Format set" << LL_ENDL;
+                status = device->EnumObjects(EnumNDOFObjectsCallback, &device, DIDFT_ALL);
+            }
+
+            if (status == DI_OK)
+            {
+                LL_DEBUGS("Joystick") << "Properties updated" << LL_ENDL;
+
+                S32 size = sizeof(GUID);
+                LLSD::Binary data; //just an std::vector
+                data.resize(size);
+                memcpy(&data[0], &device_instance_ptr->guidInstance /*POD _GUID*/, size);
+                LLViewerJoystick::getInstance()->initDevice(&device, product_name, LLSD(data));
+                return DIENUM_STOP;
+            }
+        }
+        else
+        {
+            LL_DEBUGS("Joystick") << "Found device: " << product_name << LL_ENDL;
         }
     }
     return DIENUM_CONTINUE;
@@ -310,6 +320,8 @@ LLViewerJoystick::LLViewerJoystick()
 
 	// factor in bandwidth? bandwidth = gViewerStats->mKBitStat
 	mPerfScale = 4000.f / gSysCPU.getMHz(); // hmm.  why?
+
+    mLastDeviceUUID = LLSD::Integer(1);
 }
 
 // -----------------------------------------------------------------------------
@@ -327,6 +339,7 @@ void LLViewerJoystick::init(bool autoenable)
 #if LIB_NDOF
 	static bool libinit = false;
 	mDriverState = JDS_INITIALIZING;
+    //todo: load mLastDeviceUUID from settings
 
 	if (libinit == false)
 	{
@@ -363,10 +376,11 @@ void LLViewerJoystick::init(bool autoenable)
             U32 device_type = 0;
             void* callback = NULL;
 #endif
-            if (!gViewerWindow->getWindow()->getInputDevices(device_type, callback))
+            if (!gViewerWindow->getWindow()->getInputDevices(device_type, callback, NULL))
             {
                 LL_INFOS() << "Failed to gather devices from window. Falling back to ndof's init" << LL_ENDL;
                 // Failed to gather devices from windows, init first suitable one
+                mLastDeviceUUID = LLSD::Integer(1);
                 void *preffered_device = NULL;
                 initDevice(preffered_device);
             }
@@ -375,6 +389,7 @@ void LLViewerJoystick::init(bool autoenable)
             if (mDriverState == JDS_INITIALIZING)
             {
                 LL_INFOS() << "Found no suitable devices. Trying ndof's default init" << LL_ENDL;
+                mLastDeviceUUID = LLSD::Integer(1);
                 void *preffered_device = NULL;
                 initDevice(preffered_device);
             }
@@ -421,6 +436,47 @@ void LLViewerJoystick::init(bool autoenable)
 #endif
 }
 
+void LLViewerJoystick::initDevice(LLSD &guid)
+{
+#if LIB_NDOF
+    mLastDeviceUUID = guid;
+    // todo: should we Unacquire old one?
+
+#if LL_WINDOWS && !LL_MESA_HEADLESS
+    // space navigator is marked as DI8DEVCLASS_GAMECTRL in ndof lib
+    U32 device_type = DI8DEVCLASS_GAMECTRL;
+    void* callback = &di8_devices_callback;
+#elif
+    // MAC doesn't support device search yet
+    // On MAC there is an ndof_idsearch and it is possible to specify product
+    // and manufacturer in NDOF_Device for ndof_init_first to pick specific one
+    U32 device_type = 0;
+    void* callback = NULL;
+#endif
+
+    if (!gViewerWindow->getWindow()->getInputDevices(device_type, callback, NULL))
+    {
+        LL_INFOS() << "Failed to gather devices from window. Falling back to ndof's init" << LL_ENDL;
+        // Failed to gather devices from windows, init first suitable one
+        void *preffered_device = NULL;
+        mLastDeviceUUID = LLSD::Integer(1);
+        initDevice(preffered_device);
+    }
+#endif
+}
+
+void LLViewerJoystick::initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, std::string &name, LLSD &guid)
+{
+#if LIB_NDOF
+    mLastDeviceUUID = guid;
+
+    strncpy(mNdofDev->product, name.c_str(), sizeof(mNdofDev->product));
+    mNdofDev->manufacturer[0] = '\0';
+
+    initDevice(preffered_device);
+#endif
+}
+
 void LLViewerJoystick::initDevice(void * preffered_device /* LPDIRECTINPUTDEVICE8* */)
 {
 #if LIB_NDOF
@@ -452,6 +508,8 @@ void LLViewerJoystick::initDevice(void * preffered_device /* LPDIRECTINPUTDEVICE
     {
         mDriverState = JDS_INITIALIZED;
     }
+
+    //todo: save mLastDeviceUUID to settings
 #endif
 }
 
@@ -1249,6 +1307,12 @@ void LLViewerJoystick::scanJoystick()
 	{
 		moveAvatar();
 	}
+}
+
+// -----------------------------------------------------------------------------
+LLSD LLViewerJoystick::getDeviceUUID()
+{
+    return mLastDeviceUUID;
 }
 
 // -----------------------------------------------------------------------------

@@ -1380,18 +1380,34 @@ BOOL LLScrollListCtrl::setSelectedByValue(const LLSD& value, BOOL selected)
 	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem* item = *iter;
-		if (item->getEnabled() && (item->getValue().asString() == value.asString()))
+		if (item->getEnabled())
 		{
-			if (selected)
-			{
-				selectItem(item);
-			}
-			else
-			{
-				deselectItem(item);
-			}
-			found = TRUE;
-			break;
+            if (value.isBinary())
+            {
+                if (item->getValue().isBinary())
+                {
+                    LLSD::Binary data1 = value.asBinary();
+                    LLSD::Binary data2 = item->getValue().asBinary();
+                    found = std::equal(data1.begin(), data1.end(), data2.begin()) ? TRUE : FALSE;
+                }
+            }
+            else
+            {
+                found = item->getValue().asString() == value.asString() ? TRUE : FALSE;
+            }
+
+            if (found)
+            {
+                if (selected)
+                {
+                    selectItem(item);
+                }
+                else
+                {
+                    deselectItem(item);
+                }
+                break;
+            }
 		}
 	}
 
