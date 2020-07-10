@@ -732,7 +732,7 @@ public:
 
 	LLPermissions* findObjectPermissions(const LLViewerObject* object);
 
-	BOOL isSelfAvatarSelected();
+	BOOL isMovableAvatarSelected();
 
 	void selectDelete();							// Delete on simulator
 	void selectForceDelete();			// just delete, no into trash

@@ -3931,11 +3931,11 @@ BOOL LLSelectMgr::selectGetAggregateTexturePermissions(LLAggregatePermissions& r
 	return TRUE;
 }
 
-BOOL LLSelectMgr::isSelfAvatarSelected()
+BOOL LLSelectMgr::isMovableAvatarSelected()
 {
 	if (mAllowSelectAvatar)
 	{
-		return (getSelection()->getObjectCount() == 1) && (getSelection()->getFirstRootObject() == gAgentAvatarp);
+		return (getSelection()->getObjectCount() == 1) && (getSelection()->getFirstRootObject()->isAvatar()) && getSelection()->getFirstMoveableNode(TRUE);
 	}
 	return FALSE;
 }
