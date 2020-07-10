@@ -56,8 +56,7 @@
       </menu_item_call>
       <menu_item_call
        label="Places..."
-       name="Places"
-       shortcut="control|L">
+       name="Places">
         <menu_item_call.on_click
          function="Floater.ToggleOrBringToFront"
          parameter="places" />
@@ -86,21 +85,10 @@
       <menu_item_separator/>
       <menu_item_call
        label="Camera Controls..."
-       name="Camera Controls"
-       shortcut="control|K">
+       name="Camera Controls">
         <menu_item_call.on_click
          function="Floater.ToggleOrBringToFront"
          parameter="camera" />
-      </menu_item_call>
-      <menu_item_call
-       label="Hover Height"
-       name="HoverHeight"
-       shortcut="alt|control|H"
-       visible="false">
-        <menu_item_call.on_click
-         function="HoverHeight"/>
-        <menu_item_call.on_enable
-         function="Edit.EnableHoverHeight"/>
       </menu_item_call>
       <menu
        create_jump_keys="true"
@@ -162,8 +150,7 @@
         </menu_item_check>
         <menu_item_call
          label="Stop Animating Me"
-         name="Stop Animating My Avatar"
-         shortcut="alt|shift|A">
+         name="Stop Animating My Avatar">
           <menu_item_call.on_click
            function="Tools.StopAllAnimations" />
         </menu_item_call>
@@ -471,8 +458,7 @@
         </menu_item_check>
         <menu_item_call
              label="Events"
-             name="Events"
-             shortcut="control|E">
+             name="Events">
             <menu_item_call.on_click
              function="Advanced.ShowURL"
              parameter="https://secondlife.com/my/community/events"/>
@@ -661,8 +647,7 @@
          tear_off="true">
             <menu_item_check
              label="Sunrise"
-             name="Sunrise"
-             shortcut="control|shift|O">
+             name="Sunrise">
                 <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="sunrise" />
@@ -694,8 +679,7 @@
             </menu_item_check>
             <menu_item_check
              label="Midnight"
-             name="Midnight"
-             shortcut="control|shift|Z">
+             name="Midnight">
                 <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="midnight" />
@@ -1333,8 +1317,7 @@ function="World.EnvPreset"
             <menu_item_call
            label="Model..."
            layout="topleft"
-           name="Upload Model"
-           shortcut="alt|control|U">
+           name="Upload Model">
             <menu_item_call.on_click
              function="File.UploadModel"
              parameter="" />
