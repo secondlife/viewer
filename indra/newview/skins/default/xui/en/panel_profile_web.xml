@@ -31,5 +31,6 @@
      follows="bottom|left|right"
      layout="topleft"
      halign="center"
+     parse_urls="false"
     />
 </panel>
