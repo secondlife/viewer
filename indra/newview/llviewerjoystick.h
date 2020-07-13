@@ -71,7 +71,9 @@ public:
 	void setOverrideCamera(bool val);
 	bool toggleFlycam();
 	void setSNDefaults();
-	LLSD getDeviceUUID();
+	bool isDeviceUUIDSet();
+	LLSD getDeviceUUID(); //unconverted, OS dependent value wrapped into LLSD, for comparison/search
+	std::string getDeviceUUIDString(); // converted readable value for settings
 	std::string getDescription();
 
 protected:
@@ -84,6 +86,7 @@ protected:
 	void agentYaw(F32 yaw_inc);
 	void agentJump();
 	void resetDeltas(S32 axis[]);
+	void loadDeviceIdFromSettings();
 #if LIB_NDOF
 	static NDOF_HotPlugResult HotPlugAddCallback(NDOF_Device *dev);
 	static void HotPlugRemovalCallback(NDOF_Device *dev);
@@ -99,7 +102,7 @@ private:
 	bool					mCameraUpdated;
 	bool 					mOverrideCamera;
 	U32						mJoystickRun;
-	LLSD					mLastDeviceUUID; // _UUID as U8 binary map, integer 1 for no device/ndof's device
+	LLSD					mLastDeviceUUID; // _GUID as U8 binary map, integer 1 for no device/ndof's device
 	
 	static F32				sLastDelta[7];
 	static F32				sDelta[7];

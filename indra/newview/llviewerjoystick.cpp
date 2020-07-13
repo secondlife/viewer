@@ -46,9 +46,6 @@
 // Require DirectInput version 8
 #define DIRECTINPUT_VERSION 0x0800
 
-//#include <InitGuid.h>
-//#pragma comment(lib, "dinput8")
-//#pragma comment(lib, "dxguid.lib")
 #include <dinput.h>
 #endif
 
@@ -76,13 +73,11 @@ F32  LLViewerJoystick::sDelta[] = {0,0,0,0,0,0,0};
 
 #if LL_WINDOWS && !LL_MESA_HEADLESS
 
-// took this from ndofdev_win.cpp
-BOOL CALLBACK EnumNDOFObjectsCallback(const DIDEVICEOBJECTINSTANCE* inst,
-    VOID* user_data)
+// this should reflect ndof and set axises, see ndofdev_win.cpp from ndof package
+BOOL CALLBACK EnumObjectsCallback(const DIDEVICEOBJECTINSTANCE* inst, VOID* user_data)
 {
     if (inst->dwType & DIDFT_AXIS)
     {
-        HRESULT hr = DI_OK;
         LPDIRECTINPUTDEVICE8 device = *((LPDIRECTINPUTDEVICE8 *)user_data);
         DIPROPRANGE diprg;
         diprg.diph.dwSize = sizeof(DIPROPRANGE);
@@ -93,70 +88,15 @@ BOOL CALLBACK EnumNDOFObjectsCallback(const DIDEVICEOBJECTINSTANCE* inst,
         // Set the range for the axis
         diprg.lMin = (long)-MAX_JOYSTICK_INPUT_VALUE;
         diprg.lMax = (long)+MAX_JOYSTICK_INPUT_VALUE;
-        hr = device->SetProperty(DIPROP_RANGE, &diprg.diph);
-        assert(hr == DI_OK);
-
+        HRESULT hr = device->SetProperty(DIPROP_RANGE, &diprg.diph);
 
         if (FAILED(hr))
+        {
             return DIENUM_STOP;
+        }
     }
 
     return DIENUM_CONTINUE;
-}
-
-//   vvvv Product ID
-// 0xC62B046D
-//       ^^^^ Vendor ID
-//     0x046D Logitech's Vendor ID
-//     0x256F 3Dconnexion's Vendor ID
-//
-// See:
-//    https://github.com/janoc/libndofdev/blob/master/ndofdev.c
-//    http://spacemice.org/index.php?title=Dev
-//    https://www.3dconnexion.com/nc/service/faq/faq/how-can-i-check-if-my-usb-3d-mouse-is-recognized-by-windows.html
-bool is_space_mouse(const U16 product_id, const U16 vendor_id)
-{
-    if (vendor_id == 0x046d)      // Logitech's Vendor ID
-    {
-        if (false
-            || (product_id == 0xc603) // SpaceMouse Plus USB, SpaceMouse Plus XT USB
-            || (product_id == 0xc605) // CadMan: USB
-            || (product_id == 0xc606) // SpaceMouse Classic USB
-            || (product_id == 0xc621) // SpaceBall 5000 USB
-            || (product_id == 0xc623) // SpaceTraveler: USB
-            || (product_id == 0xc625) // SpacePilot: USB
-            || (product_id == 0xc626) // SpaceNavigator: USB
-            || (product_id == 0xc627) // SpaceExplorer: USB
-            || (product_id == 0xc628) // SpaceNavigator for Notebooks: USB
-            || (product_id == 0xc629) // SpacePilot Pro: USB
-            || (product_id == 0xc62b) // SpaceMouse Pro: USB
-            )
-        {
-            return true;
-        }
-    }
-    else
-        if (vendor_id == 0x256F)     // 3Dconnexion's Vendor ID
-        {
-            if (false
-                || (product_id == 0xc62E) // SpaceMouse Wireless (cabled)
-                || (product_id == 0xc62F) // SpaceMouse Wireless Receiver
-                || (product_id == 0xc631) // Spacemouse Wireless (cabled)
-                || (product_id == 0xc632) // SpacemousePro Wireless Receiver
-                || (product_id == 0xc633) // SpaceMouse Enterprise
-                || (product_id == 0xc635) // Spacemouse Compact
-                || (product_id == 0xc650) // CadMouse
-                || (product_id == 0xc651) // CadMouse Wireless
-                || (product_id == 0xc652) // Universal Receiver
-                || (product_id == 0xc654) // CadMouse Pro Wireless
-                || (product_id == 0xc657) // CadMouse Pro Wireless Left
-                )
-            {
-                return true;
-            }
-        }
-
-    return false;
 }
 
 BOOL CALLBACK di8_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr, LPVOID pvRef)
@@ -179,7 +119,7 @@ BOOL CALLBACK di8_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr, LPVO
         else
         {
             // It might be better to init space navigator here, but if system doesn't has one,
-            // ndof will pick a random device, it is simpler to pick device now
+            // ndof will pick a random device, it is simpler to pick first device now to have an id
             init_device = true;
         }
 
@@ -206,7 +146,7 @@ BOOL CALLBACK di8_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr, LPVO
             {
                 // set properties
                 LL_DEBUGS("Joystick") << "Format set" << LL_ENDL;
-                status = device->EnumObjects(EnumNDOFObjectsCallback, &device, DIDFT_ALL);
+                status = device->EnumObjects(EnumObjectsCallback, &device, DIDFT_ALL);
             }
 
             if (status == DI_OK)
@@ -228,6 +168,27 @@ BOOL CALLBACK di8_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr, LPVO
     }
     return DIENUM_CONTINUE;
 }
+
+// Windows guids
+// This is GUID2 so teoretically it can be memcpy copied into LLUUID
+void guid_from_string(GUID &guid, const std::string &input)
+{
+    CLSIDFromString(utf8str_to_utf16str(input).c_str(), &guid);
+}
+
+std::string string_from_guid(const GUID &guid)
+{
+    OLECHAR* guidString; //wchat
+    StringFromCLSID(guid, &guidString);
+
+    // use guidString...
+
+    std::string res = utf16str_to_utf8str(llutf16string(guidString));
+    // ensure memory is freed
+    ::CoTaskMemFree(guidString);
+
+    return res;
+}
 #endif
 
 // -----------------------------------------------------------------------------
@@ -239,7 +200,8 @@ void LLViewerJoystick::updateEnabled(bool autoenable)
 	}
 	else
 	{
-		if (isLikeSpaceNavigator() && autoenable)
+		// autoenable if user specifically chose this device
+		if (autoenable && (isLikeSpaceNavigator() || isDeviceUUIDSet())) 
 		{
 			gSavedSettings.setBOOL("JoystickEnabled", TRUE );
 		}
@@ -275,7 +237,7 @@ NDOF_HotPlugResult LLViewerJoystick::HotPlugAddCallback(NDOF_Device *dev)
 	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
 	if (joystick->mDriverState == JDS_UNINITIALIZED)
 	{
-        LL_INFOS() << "HotPlugAddCallback: will use device:" << LL_ENDL;
+        LL_INFOS("Joystick") << "HotPlugAddCallback: will use device:" << LL_ENDL;
 		ndof_dump(dev);
 		joystick->mNdofDev = dev;
         joystick->mDriverState = JDS_INITIALIZED;
@@ -293,7 +255,7 @@ void LLViewerJoystick::HotPlugRemovalCallback(NDOF_Device *dev)
 	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
 	if (joystick->mNdofDev == dev)
 	{
-        LL_INFOS() << "HotPlugRemovalCallback: joystick->mNdofDev=" 
+        LL_INFOS("Joystick") << "HotPlugRemovalCallback: joystick->mNdofDev="
 				<< joystick->mNdofDev << "; removed device:" << LL_ENDL;
 		ndof_dump(dev);
 		joystick->mDriverState = JDS_UNINITIALIZED;
@@ -339,7 +301,8 @@ void LLViewerJoystick::init(bool autoenable)
 #if LIB_NDOF
 	static bool libinit = false;
 	mDriverState = JDS_INITIALIZING;
-    //todo: load mLastDeviceUUID from settings
+
+    loadDeviceIdFromSettings();
 
 	if (libinit == false)
 	{
@@ -369,7 +332,7 @@ void LLViewerJoystick::init(bool autoenable)
             // space navigator is marked as DI8DEVCLASS_GAMECTRL in ndof lib
             U32 device_type = DI8DEVCLASS_GAMECTRL;
             void* callback = &di8_devices_callback;
-#elif
+#else
             // MAC doesn't support device search yet
             // On MAC there is an ndof_idsearch and it is possible to specify product
             // and manufacturer in NDOF_Device for ndof_init_first to pick specific one
@@ -378,20 +341,17 @@ void LLViewerJoystick::init(bool autoenable)
 #endif
             if (!gViewerWindow->getWindow()->getInputDevices(device_type, callback, NULL))
             {
-                LL_INFOS() << "Failed to gather devices from window. Falling back to ndof's init" << LL_ENDL;
+                LL_INFOS("Joystick") << "Failed to gather devices from window. Falling back to ndof's init" << LL_ENDL;
                 // Failed to gather devices from windows, init first suitable one
-                mLastDeviceUUID = LLSD::Integer(1);
+                mLastDeviceUUID = LLSD();
                 void *preffered_device = NULL;
                 initDevice(preffered_device);
             }
 
-            // make sure a device was found:
             if (mDriverState == JDS_INITIALIZING)
             {
-                LL_INFOS() << "Found no suitable devices. Trying ndof's default init" << LL_ENDL;
-                mLastDeviceUUID = LLSD::Integer(1);
-                void *preffered_device = NULL;
-                initDevice(preffered_device);
+                LL_INFOS("Joystick") << "Found no matching joystick devices." << LL_ENDL;
+                mDriverState = JDS_UNINITIALIZED;
             }
 		}
 		else
@@ -431,7 +391,7 @@ void LLViewerJoystick::init(bool autoenable)
 		// No device connected, don't change any settings
 	}
 	
-	LL_INFOS() << "ndof: mDriverState=" << mDriverState << "; mNdofDev=" 
+    LL_INFOS("Joystick") << "ndof: mDriverState=" << mDriverState << "; mNdofDev="
 			<< mNdofDev << "; libinit=" << libinit << LL_ENDL;
 #endif
 }
@@ -440,13 +400,12 @@ void LLViewerJoystick::initDevice(LLSD &guid)
 {
 #if LIB_NDOF
     mLastDeviceUUID = guid;
-    // todo: should we Unacquire old one?
 
 #if LL_WINDOWS && !LL_MESA_HEADLESS
     // space navigator is marked as DI8DEVCLASS_GAMECTRL in ndof lib
     U32 device_type = DI8DEVCLASS_GAMECTRL;
     void* callback = &di8_devices_callback;
-#elif
+#else
     // MAC doesn't support device search yet
     // On MAC there is an ndof_idsearch and it is possible to specify product
     // and manufacturer in NDOF_Device for ndof_init_first to pick specific one
@@ -454,13 +413,20 @@ void LLViewerJoystick::initDevice(LLSD &guid)
     void* callback = NULL;
 #endif
 
+    mDriverState = JDS_INITIALIZING; 
     if (!gViewerWindow->getWindow()->getInputDevices(device_type, callback, NULL))
     {
-        LL_INFOS() << "Failed to gather devices from window. Falling back to ndof's init" << LL_ENDL;
+        LL_INFOS("Joystick") << "Failed to gather devices from window. Falling back to ndof's init" << LL_ENDL;
         // Failed to gather devices from windows, init first suitable one
         void *preffered_device = NULL;
-        mLastDeviceUUID = LLSD::Integer(1);
+        mLastDeviceUUID = LLSD();
         initDevice(preffered_device);
+    }
+
+    if (mDriverState == JDS_INITIALIZING)
+    {
+        LL_INFOS("Joystick") << "Found no matching joystick devices." << LL_ENDL;
+        mDriverState = JDS_UNINITIALIZED;
     }
 #endif
 }
@@ -508,8 +474,6 @@ void LLViewerJoystick::initDevice(void * preffered_device /* LPDIRECTINPUTDEVICE
     {
         mDriverState = JDS_INITIALIZED;
     }
-
-    //todo: save mLastDeviceUUID to settings
 #endif
 }
 
@@ -519,7 +483,7 @@ void LLViewerJoystick::terminate()
 #if LIB_NDOF
 
 	ndof_libcleanup();
-	LL_INFOS() << "Terminated connection with NDOF device." << LL_ENDL;
+	LL_INFOS("Joystick") << "Terminated connection with NDOF device." << LL_ENDL;
 	mDriverState = JDS_UNINITIALIZED;
 #endif
 }
@@ -1310,9 +1274,71 @@ void LLViewerJoystick::scanJoystick()
 }
 
 // -----------------------------------------------------------------------------
+bool LLViewerJoystick::isDeviceUUIDSet()
+{
+#if LL_WINDOWS && !LL_MESA_HEADLESS
+    // for ease of comparison and to dial less with platform specific variables, we store id as LLSD binary
+    return mLastDeviceUUID.isBinary();
+#else
+    return false;
+#endif
+}
+
 LLSD LLViewerJoystick::getDeviceUUID()
 {
     return mLastDeviceUUID;
+}
+
+std::string LLViewerJoystick::getDeviceUUIDString()
+{
+#if LL_WINDOWS && !LL_MESA_HEADLESS
+    // Might be simpler to just convert _GUID into string everywhere, store and compare as string
+    if (mLastDeviceUUID.isBinary())
+    {
+        S32 size = sizeof(GUID);
+        LLSD::Binary data = mLastDeviceUUID.asBinary();
+        GUID guid;
+        memcpy(&guid, &data[0], size);
+        return string_from_guid(guid);
+    }
+    else
+    {
+        return std::string();
+    }
+#else
+    return std::string();
+    // return mLastDeviceUUID;
+#endif
+}
+
+void LLViewerJoystick::loadDeviceIdFromSettings()
+{
+#if LL_WINDOWS && !LL_MESA_HEADLESS
+    // We can't save binary data to gSavedSettings, somebody editing the file will corrupt it,
+    // so _GUID data gets converted to string (we probably can convert it to LLUUID with memcpy)
+    // and here we need to convert it back to binary from string
+    std::string device_string = gSavedSettings.getString("JoystickDeviceUUID");
+    if (device_string.empty())
+    {
+        mLastDeviceUUID = LLSD();
+    }
+    else
+    {
+        LL_DEBUGS("Joystick") << "Looking for device by id: " << device_string << LL_ENDL;
+        GUID guid;
+        guid_from_string(guid, device_string);
+        S32 size = sizeof(GUID);
+        LLSD::Binary data; //just an std::vector
+        data.resize(size);
+        memcpy(&data[0], &guid /*POD _GUID*/, size);
+        // We store this data in LLSD since LLSD is versatile and will be able to handle both GUID2
+        // and any data MAC will need for device selection
+        mLastDeviceUUID = LLSD(data);
+    }
+#else
+    mLastDeviceUUID = LLSD();
+    //mLastDeviceUUID = gSavedSettings.getLLSD("JoystickDeviceUUID");
+#endif
 }
 
 // -----------------------------------------------------------------------------

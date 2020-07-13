@@ -49,9 +49,6 @@
 // Require DirectInput version 8
 #define DIRECTINPUT_VERSION 0x0800
 
-//#include <InitGuid.h>
-//#pragma comment(lib, "dinput8")
-//#pragma comment(lib, "dxguid.lib")
 #include <dinput.h>
 #endif
 
@@ -88,7 +85,8 @@ BOOL CALLBACK di8_list_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr,
         memcpy(&data[0], &device_instance_ptr->guidInstance /*POD _GUID*/, size);
 
         LLFloaterJoystick * floater = (LLFloaterJoystick*)pvRef;
-        floater->addDevice(product_name, LLSD(data));
+        LLSD value = data;
+        floater->addDevice(product_name, value);
     }
     return DIENUM_CONTINUE;
 }
@@ -178,6 +176,7 @@ void LLFloaterJoystick::apply()
 void LLFloaterJoystick::initFromSettings()
 {
 	mJoystickEnabled = gSavedSettings.getBOOL("JoystickEnabled");
+	mJoystickId = gSavedSettings.getLLSD("JoystickDeviceUUID");
 
 	mJoystickAxis[0] = gSavedSettings.getS32("JoystickAxis0");
 	mJoystickAxis[1] = gSavedSettings.getS32("JoystickAxis1");
@@ -260,7 +259,8 @@ void LLFloaterJoystick::refreshListOfDevices()
 {
     mJoysticksCombo->removeall();
     std::string no_device = getString("JoystickDisabled");
-    addDevice(no_device, LLSD(LLSD::Integer(0)));
+    LLSD value = LLSD::Integer(0);
+    addDevice(no_device, value);
 
     mHasDeviceList = false;
     
@@ -269,7 +269,7 @@ void LLFloaterJoystick::refreshListOfDevices()
     // space navigator is marked as DI8DEVCLASS_GAMECTRL in ndof lib
     U32 device_type = DI8DEVCLASS_GAMECTRL;
     void* callback = &di8_list_devices_callback;
-#elif
+#else
     // MAC doesn't support device search yet
     // On MAC there is an ndof_idsearch and it is possible to specify product
     // and manufacturer in NDOF_Device for ndof_init_first to pick specific one
@@ -281,10 +281,10 @@ void LLFloaterJoystick::refreshListOfDevices()
         mHasDeviceList = true;
     }
 
-    LLSD guid = LLViewerJoystick::getInstance()->getDeviceUUID();
+    bool is_device_id_set = LLViewerJoystick::getInstance()->isDeviceUUIDSet();
 
     if (LLViewerJoystick::getInstance()->isJoystickInitialized() &&
-        (!mHasDeviceList || !guid.isBinary()))
+        (!mHasDeviceList || !is_device_id_set))
     {
 #if LL_WINDOWS && !LL_MESA_HEADLESS
         LL_WARNS() << "NDOF connected to device without using SL provided handle" << LL_ENDL;
@@ -292,15 +292,17 @@ void LLFloaterJoystick::refreshListOfDevices()
         std::string desc = LLViewerJoystick::getInstance()->getDescription();
         if (!desc.empty())
         {
-            addDevice(desc, LLSD(LLSD::Integer(1)));
+            LLSD value = LLSD::Integer(0);
+            addDevice(desc, value);
             mHasDeviceList = true;
         }
     }
 
     if (gSavedSettings.getBOOL("JoystickEnabled") && mHasDeviceList)
     {
-        if (guid.isBinary())
+        if (is_device_id_set)
         {
+            LLSD guid = LLViewerJoystick::getInstance()->getDeviceUUID();
             mJoysticksCombo->selectByValue(guid);
         }
         else
@@ -317,6 +319,7 @@ void LLFloaterJoystick::refreshListOfDevices()
 void LLFloaterJoystick::cancel()
 {
 	gSavedSettings.setBOOL("JoystickEnabled", mJoystickEnabled);
+	gSavedSettings.setLLSD("JoystickDeviceUUID", mJoystickId);
 
 	gSavedSettings.setS32("JoystickAxis0", mJoystickAxis[0]);
 	gSavedSettings.setS32("JoystickAxis1", mJoystickAxis[1]);
@@ -391,15 +394,14 @@ void LLFloaterJoystick::onCommitJoystickEnabled(LLUICtrl*, void *joy_panel)
     bool joystick_enabled = true;
     if (value.isInteger())
     {
-        joystick_enabled = value.asInteger();
         // ndof already has a device selected, we are just setting it enabled or disabled
+        joystick_enabled = value.asInteger();
     }
     else
     {
         LLViewerJoystick::getInstance()->initDevice(value);
         // else joystick is enabled, because combobox holds id of device
         joystick_enabled = true;
-        // todo: make LLViewerJoystick select a device based on value
     }
     gSavedSettings.setBOOL("JoystickEnabled", joystick_enabled);
 	BOOL flycam_enabled = self->mCheckFlycamEnabled->get();
@@ -413,6 +415,10 @@ void LLFloaterJoystick::onCommitJoystickEnabled(LLUICtrl*, void *joy_panel)
 			joystick->toggleFlycam();
 		}
 	}
+
+    std::string device_id = LLViewerJoystick::getInstance()->getDeviceUUIDString();
+    gSavedSettings.setString("JoystickDeviceUUID", device_id);
+    LL_DEBUGS("Joystick") << "Selected " << device_id << " as joystick." << LL_ENDL;
 
     self->refreshListOfDevices();
 }

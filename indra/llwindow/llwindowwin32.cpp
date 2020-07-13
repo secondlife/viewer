@@ -59,9 +59,7 @@
 
 #include <dinput.h>
 #include <Dbt.h.>
-#include <InitGuid.h>
 #pragma comment(lib, "dinput8")
-#pragma comment(lib, "dxguid.lib")
 
 const S32	MAX_MESSAGE_PER_UPDATE = 20;
 const S32	BITS_PER_PIXEL = 32;
