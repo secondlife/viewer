@@ -207,6 +207,8 @@ enum ERenderName
 	RENDER_NAME_FADE
 };
 
+#define JELLYDOLLS_SHOULD_IMPOSTOR
+
 //-----------------------------------------------------------------------------
 // Callback data
 //-----------------------------------------------------------------------------
@@ -2828,7 +2830,6 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 			gPipeline.markMoved(mDrawable, TRUE);
 		}
     }
-	updateOverallAppearance();
 }
 
 void LLVOAvatar::idleUpdateAppearanceAnimation()
@@ -3553,8 +3554,13 @@ bool LLVOAvatar::isVisuallyMuted()
 			muted = false;
 		}
 		else if (mVisuallyMuteSetting == AV_DO_NOT_RENDER)
-		{	// Always want to see this AV as an impostor
+		{
+#ifdef JELLYDOLLS_SHOULD_IMPOSTOR
 			muted = true;
+			// Always want to see this AV as an impostor
+#else
+			muted = false;
+#endif
 		}
         else if (isInMuteList())
         {
@@ -3989,7 +3995,6 @@ void LLVOAvatar::computeUpdatePeriod()
 	{
 		mUpdatePeriod = 1;
 	}
-
 }
 
 //------------------------------------------------------------------------
@@ -4262,9 +4267,31 @@ void LLVOAvatar::updateRootPositionAndRotation(LLAgent& agent, F32 speed, bool w
 			root_pos += LLVector3d(getHoverOffset());
 			if (getOverallAppearance() == AOA_JELLYDOLL)
 			{
-				root_pos[2] -= 0.5 * (getScale()[VZ] - mBodySize.mV[VZ]);
+				F32 offz = -0.5 * (getScale()[VZ] - mBodySize.mV[VZ]);
+				root_pos[2] += offz;
+				// if (!isSelf() && !isControlAvatar())
+				// {
+				// 	LL_DEBUGS("Avatar") << "av " << getFullname() 
+				// 						<< " frame " << LLFrameTimer::getFrameCount()
+				// 						<< " root adjust offz " << offz
+				// 						<< " scalez " << getScale()[VZ]
+				// 						<< " bsz " << mBodySize.mV[VZ]
+				// 						<< LL_ENDL;
+				// }
 			}
 		}
+		// if (!isSelf() && !isControlAvatar())
+		// {
+		// 	LL_DEBUGS("Avatar") << "av " << getFullname() << " aoa " << (S32) getOverallAppearance()
+		// 						<< " frame " << LLFrameTimer::getFrameCount()
+		// 						<< " scalez " << getScale()[VZ]
+		// 						<< " bsz " << mBodySize.mV[VZ]
+		// 						<< " root pos " << root_pos[2]
+		// 						<< " curr rootz " << mRoot->getPosition()[2] 
+		// 						<< " pp-z " << mPelvisp->getPosition()[2]
+		// 						<< " renderpos " << getRenderPosition()
+		// 						<< LL_ENDL;
+		// }
 
         LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(this);
         if (cav)
@@ -4275,6 +4302,14 @@ void LLVOAvatar::updateRootPositionAndRotation(LLAgent& agent, F32 speed, bool w
         else
         {
             LLVector3 newPosition = gAgent.getPosAgentFromGlobal(root_pos);
+			// if (!isSelf() && !isControlAvatar())
+			// {
+			// 	LL_DEBUGS("Avatar") << "av " << getFullname() 
+			// 						<< " frame " << LLFrameTimer::getFrameCount()
+			// 						<< " newPosition " << newPosition
+			// 						<< " renderpos " << getRenderPosition()
+			// 						<< LL_ENDL;
+			// }
             if (newPosition != mRoot->getXform()->getWorldPosition())
             {		
                 mRoot->touch();
@@ -4375,6 +4410,12 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		return FALSE;
 	}
 
+	//--------------------------------------------------------------------
+	// Handle transitions between regular rendering, jellydoll, or invisible.
+	// Can trigger skeleton reset or animation changes
+	//--------------------------------------------------------------------
+	updateOverallAppearance();
+	
 	//--------------------------------------------------------------------
 	// change animation time quanta based on avatar render load
 	//--------------------------------------------------------------------
@@ -4722,6 +4763,15 @@ U32 LLVOAvatar::renderSkinned()
 		return num_indices;
     }
 
+	// if (!isSelf() && !isControlAvatar())
+	// {
+	// 	LL_DEBUGS("Avatar") << "renderSkinned: av " << getFullname() 
+	// 						<< " frame " << LLFrameTimer::getFrameCount()
+	// 						<< " worldPos " << mRoot->getXform()->getWorldPosition()
+	// 						<< " renderpos " << getRenderPosition()
+	// 						<< LL_ENDL;
+	// }
+	
 	LLFace* face = mDrawable->getFace(0);
 
 	bool needs_rebuild = !face || !face->getVertexBuffer() || mDrawable->isState(LLDrawable::REBUILD_GEOMETRY);
@@ -10139,7 +10189,14 @@ void LLVOAvatar::updateImpostors()
 		LLVOAvatar* avatar = (LLVOAvatar*) *iter;
 		if (!avatar->isDead() && avatar->isVisible()
 			&& (
-                (avatar->isImpostor() || LLVOAvatar::AV_DO_NOT_RENDER == avatar->getVisualMuteSettings()) && avatar->needsImpostorUpdate())
+#ifdef JELLYDOLLS_SHOULD_IMPOSTOR
+				(avatar->isImpostor() || LLVOAvatar::AV_DO_NOT_RENDER == avatar->getVisualMuteSettings())
+				&& avatar->needsImpostorUpdate())
+#else
+                (avatar->isImpostor())
+				&& avatar->needsImpostorUpdate()
+				)
+#endif
             )
 		{
             avatar->calcMutedAVColor();
@@ -10616,7 +10673,10 @@ void LLVOAvatar::setOverallAppearanceNormal()
 	if (isControlAvatar())
 		return;
 
+    LLVector3 pelvis_pos = getJoint("mPelvis")->getPosition();
 	resetSkeleton(false);
+    getJoint("mPelvis")->setPosition(pelvis_pos);
+
 	for (auto it = mJellyAnims.begin(); it !=  mJellyAnims.end(); ++it)
 	{
 		bool is_playing = (mPlayingAnimations.find(*it) != mPlayingAnimations.end());
@@ -10628,6 +10688,7 @@ void LLVOAvatar::setOverallAppearanceNormal()
 		}
 	}
 	mJellyAnims.clear();
+
 	//processAnimationStateChanges();
 }
 
@@ -10636,7 +10697,9 @@ void LLVOAvatar::setOverallAppearanceJellyDoll()
 	if (isControlAvatar())
 		return;
 
+    LLVector3 pelvis_pos = getJoint("mPelvis")->getPosition();
 	resetSkeleton(false);
+    getJoint("mPelvis")->setPosition(pelvis_pos);
 
 	// stop current animations
 	{
@@ -10661,7 +10724,7 @@ void LLVOAvatar::updateOverallAppearance()
 	AvatarOverallAppearance new_overall = getOverallAppearance();
 	if (new_overall != mOverallAppearance)
 	{
-		switch(new_overall)
+		switch (new_overall)
 		{
 			case AOA_NORMAL:
 				setOverallAppearanceNormal();
