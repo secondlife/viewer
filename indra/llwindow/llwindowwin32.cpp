@@ -59,6 +59,8 @@
 
 #include <dinput.h>
 #include <Dbt.h.>
+#include <InitGuid.h> // needed for llurlentry test to build on some systems
+#pragma comment(lib, "dxguid.lib") // needed for llurlentry test to build on some systems
 #pragma comment(lib, "dinput8")
 
 const S32	MAX_MESSAGE_PER_UPDATE = 20;
