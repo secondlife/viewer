@@ -203,6 +203,7 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
     mBuildQueueMode = GLOD_QUEUE_GREEDY;
     mBuildBorderMode = GLOD_BORDER_UNLOCK;
     mBuildOperator = GLOD_OPERATOR_EDGE_COLLAPSE;
+    mUVGuideTexture = LLViewerTextureManager::getFetchedTextureFromFile(gSavedSettings.getString("MeshPreviewUVGuideFile"), FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_PREVIEW);
 
     for (U32 i = 0; i < LLModel::NUM_LODS; ++i)
     {
@@ -218,6 +219,8 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
 
     mViewOption["show_textures"] = false;
 
+    mViewOption["verbose_logging"] = mImporterDebug;// initialise verbose logging from debug
+    fmp->childSetValue("verbose_logging", LLSD(mImporterDebug));
     mFMP = fmp;
 
     mHasPivot = false;
@@ -2124,14 +2127,34 @@ void LLModelPreview::updateStatusMessages()
                 mViewOption["show_physics"] = true;
                 fmp->childSetValue("show_physics", true);
             }
+
+            if (phys_hulls > 0)
+            {
+                fmp->enableViewOption("physics_explode");
+                fmp->enableViewOption("exploder_label");
+                fmp->childSetVisible("physics_explode", true);
+                fmp->childSetVisible("exploder_label", true);
+            }
+            else
+            {
+                fmp->disableViewOption("physics_explode");
+                fmp->disableViewOption("exploder_label");
+                fmp->childSetVisible("physics_explode", false);
+                fmp->childSetVisible("exploder_label", false);
+            }
         }
         else
         {
             fmp->disableViewOption("show_physics");
+            fmp->childSetVisible("physics_explode", false);
+            fmp->disableViewOption("physics_explode");
+            fmp->childSetVisible("exploder_label", false);
+            fmp->disableViewOption("exploder_label");
             mViewOption["show_physics"] = false;
             fmp->childSetValue("show_physics", false);
 
         }
+        // </FS:Beq>
 
         //bool use_hull = fmp->childGetValue("physics_use_hull").asBoolean();
 
@@ -2715,6 +2738,12 @@ BOOL LLModelPreview::render()
     assert_main_thread();
 
     LLMutexLock lock(this);
+    // enable the import debug importer debug control
+    if(mNeedsUpdate)
+    {
+        bool verbose_logging = mViewOption["verbose_logging"];
+        gSavedSettings.setBOOL("ImporterDebug",verbose_logging);
+    }    
     mNeedsUpdate = FALSE;
 
     bool use_shaders = LLGLSLShader::sNoFixedFunction;
@@ -2725,6 +2754,7 @@ BOOL LLModelPreview::render()
     bool skin_weight = mViewOption["show_skin_weight"];
     bool textures = mViewOption["show_textures"];
     bool physics = mViewOption["show_physics"];
+    bool uv_guide = mViewOption["show_uv_guide"];
 
     S32 width = getWidth();
     S32 height = getHeight();
@@ -2804,6 +2834,9 @@ BOOL LLModelPreview::render()
                 fmp->setViewOptionEnabled("show_joint_positions", skin_weight);
                 mFMP->childEnable("upload_skin");
                 mFMP->childSetValue("show_skin_weight", skin_weight);
+            // auto enable weight upload if weights are present
+                mViewOption["show_skin_weight"] = true;
+                fmp->childSetValue("upload_skin", true);                
             }
             else if ((flags & LEGACY_RIG_FLAG_TOO_MANY_JOINTS) > 0)
             {
@@ -3010,6 +3043,17 @@ BOOL LLModelPreview::render()
                                 mTextureSet.insert(tex);
                             }
                         }
+                    }
+                    else if (uv_guide)
+                    {
+                        if(mUVGuideTexture)
+                        {
+                            if (mUVGuideTexture->getDiscardLevel() > -1)
+                            {
+                                gGL.getTexUnit(0)->bind(mUVGuideTexture, true);
+                            }
+                        }
+                        gGL.diffuseColor4fv(PREVIEW_BASE_COL.mV);
                     }
                     else
                     {

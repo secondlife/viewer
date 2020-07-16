@@ -226,6 +226,7 @@ protected:
 
     LLFloater*  mFMP;
 
+    LLPointer<LLViewerFetchedTexture> mUVGuideTexture;
     BOOL        mNeedsUpdate;
     bool		mDirty;
     bool		mGenLOD;

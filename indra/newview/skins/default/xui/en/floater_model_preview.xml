@@ -4,14 +4,13 @@
  can_drag_on_left="false"
  can_minimize="true"
  can_resize="true"
- height="625"
+ height="590"
  min_height="625"
- width="980"
- min_width="980"
+ width="960"
+ min_width="960"
  name="Model Preview"
- title="UPLOAD MODEL"
- help_topic="upload_model"
- legacy_header_height="25">
+ title="Upload Model"
+ help_topic="upload_model">
 
   <string name="status_idle"></string>
   <string name="status_parse_error">Error: Dae parsing issue - see log for details.</string>
@@ -52,7 +51,7 @@
     layout="topleft"
     left="3"
     name="left_panel"
-    top_pad="25"
+    top_pad="0"
     width="635">
     <panel
       follows="all"
@@ -65,7 +64,7 @@
           follows="top|left"
           layout="topleft"
           height="15"
-          left="15"
+          left="2"
           name="name_label"
           text_color="White"
           top="0"
@@ -84,7 +83,7 @@
     </panel>
     <tab_container
       follows="top|left"
-      top_pad="10"
+      top_pad="0"
       left="0"
       height="330"
       width="635"
@@ -109,7 +108,7 @@
              left="3"
              name="lod_tab_border"
              top_pad="0"
-             width="628" />
+             width="619" />
           <text
            follows="left|top"
            height="18"
@@ -700,7 +699,7 @@
              left="10"
              name="lod_tab_border"
              top_pad="20"
-             width="614" />
+             width="605" />
             <check_box
              follows="top|left"
              height="15"
@@ -747,7 +746,7 @@
               left="3"
               name="physics_tab_border"
               top_pad="0"
-              width="628"/>
+              width="619"/>
                 <panel
                   bg_alpha_color="0 0 0 0"
                   bg_opaque_color="0 0 0 0.3"
@@ -769,7 +768,7 @@
                       top_pad="0"
                       width="210"
                       valign="center">
-                      Step 1: Pick a physics model :
+                      Step 1: Pick a physics model
                     </text>
                     <combo_box
                       follows="left|top"
@@ -1101,11 +1100,12 @@
                       width="16" />
                      <text
                       follows="left|top"
-                      height="15"
+                      height="35"
                       layout="topleft"
                       left_pad="2"
                       name="physics_status_message_text"
                       width="573"
+                      word_wrap="true"
                       top_delta="3"/>
                 </panel>
         </panel>
@@ -1122,7 +1122,7 @@
           left="3"
           name="border"
           top_pad="0"
-          width="628"/>
+          width="619"/>
            <text
              follows="top|left"
              height="16"
@@ -1183,7 +1183,7 @@
          left="3"
          name="avatar_tab_border"
          top_pad="0"
-         width="628" />
+         width="619" />
         <check_box
           follows="top|left"
           height="15"
@@ -1191,7 +1191,7 @@
           label_text.text_color="White"
           name="upload_skin"
           top="8"
-          left="20"/>
+          left="10"/>
         <check_box
           follows="top|left"
           height="15"
@@ -1205,13 +1205,15 @@
           height="15"
           label="Lock scale if joint position defined"
           label_text.text_color="White"
+          label_text.wrap="true"
+          label_text.width="180"
           name="lock_scale_if_joint_position"
-          top_pad="7"/>
+          top_pad="17"/>
         <text
           follows="top|left"
           height="15"
           layout="topleft"
-          left="220"
+          left="225"
           name="pelvis_offset_label"
           text_color="White"
           top="8"
@@ -1253,7 +1255,7 @@
           layout="topleft"
           follows="top|left"
           height="15"
-          left="20"
+          left="10"
           name="joints_descr"
           top="73"
           width="150">
@@ -1271,7 +1273,7 @@
          height="199"
          left_delta="0"
          top_pad="0"
-         width="200"/>
+         width="205"/>
         <text
           layout="topleft"
           follows="top|left"
@@ -1279,14 +1281,14 @@
           left_delta="0"
           name="conflicts_description"
           top_pad="2"
-          width="200">
+          width="205">
           [CONFLICTS] conflicts in [JOINTS_COUNT] joints
         </text>
         <text
           layout="topleft"
           follows="top|left"
           height="15"
-          left_pad="5"
+          left_pad="10"
           name="pos_overrides_descr"
           top="73"
           width="300">
@@ -1333,9 +1335,18 @@
          height="306"
          layout="topleft"
          left="3"
+         ignore_tab="false"
+         right="-21"
          name="log_tab_border"
          top_pad="0"
-         width="628" />
+         width="619" />
+        <check_box
+         follows="top|left"
+         top_delta="12"
+         left="4"
+         width="70"
+         label="Show detailed logging"
+         name="verbose_logging"/>
         <text_editor
          type="string"
          length="1"
@@ -1344,10 +1355,10 @@
          font="SansSerif"
          ignore_tab="false"
          layout="topleft"
-         height="306"
+         height="267"
          left="4"
-         top="0"
-         right="-1"
+         top="24"
+         right="-22"
          max_length="65536"
          name="log_text"
          parse_urls="true"
@@ -1365,7 +1376,7 @@
      border="true"
      name="weights_and_warning_panel"
      top_pad="3"
-     width="629">
+     width="619">
        <button
          follows="top|left"
          label="Calculate weights &amp; fee"
@@ -1472,7 +1483,8 @@
         height="100">
         <text
           layout="topleft"
-          left="3">
+          left="3"
+          name="price_breakdown_title">
           Price Breakdown
         </text>
         <view_border
@@ -1548,12 +1560,13 @@ Lowest:
       <panel
         border="true"
         layout="topleft"
-        left_pad="265"
+        left_pad="15"
         name="physics_costs_panel"
         width="120"
         height="100">
         <text
           layout="topleft"
+          name="physics_breakdown_title"
           left="3">
           Physics Costs
         </text>
@@ -1563,7 +1576,7 @@ Lowest:
           height="0"
           layout="topleft"
           left="3"
-          name="price_breakdown_border"
+          name="physics_breakdown_border"
           top_pad="5"
           width="110"/>
         <text
@@ -1592,161 +1605,178 @@ Analysed:
 [PHU]
         </text>-->
       </panel>
-      <!-- ========== NOTE MESSAGE ========== -->
+      <panel
+        follows="top|left"
+        layout="topleft"
+        left_pad="92"
+        height="100"
+        border="true"
+        name="preview_controls_panel"
+        width="260">
+        <panel
+          name="preview_controls_inner_panel"
+          height="18" >
+          <text
+            height="18"
+            layout="topleft"
+            name="preview_controls_title"
+            left="3"
+            width="150">
+            Preview controls
+          </text>
+          <combo_box
+              can_resize="false"
+              follows="top|left"
+            left="-85"
+            top_delta="-2"
+              height="18"
+              layout="topleft"
+              name="preview_lod_combo"
+              width="80"
+              tool_tip="LOD to view in preview render">
+              <combo_item name="high">   High   </combo_item>
+              <combo_item name="medium"> Medium </combo_item>
+              <combo_item name="low">    Low    </combo_item>
+              <combo_item name="lowest"> Lowest </combo_item>
+            </combo_box>
+        </panel>
+    <view_border
+      bevel_style="none"
+      follows="top|left"
+      height="0"
+      layout="topleft"
+      left="3"
+      name="preview_controls_border"
+      top_pad="5"
+      halign="center"
+      width="250"/>
+      <check_box
+        follows="top|left"
+        label="Edges"
+        layout="topleft"
+        name="show_edges"
+        width="70"
+        left="0"
+        top_pad="10"/>
+      <check_box
+        follows="top|left"
+        label="Textures"
+        layout="topleft"
+        name="show_textures"
+        left_pad="0"/>
+      <check_box
+        follows="top|left"
+        label="UV guide"
+        layout="topleft"
+        name="show_uv_guide"
+        left_pad="0"/>
+      <check_box
+        follows="top|left"
+        top_pad="10"
+        left="0"
+        width="70"
+        label="Physics"
+        name="show_physics"/>
       <text
-         font="SansSerif"
-         layout="topleft"
-         left="6"
-         name="warning_title"
-         top_pad="5"
-         text_color="DrYellow"
-         visible="true"
-         width="40">
-         NOTE:
-       </text>
-       <text
-         text_color="White"
-         height="20"
-         layout="topleft"
-         left_pad="1"
-         name="warning_message"
-         parse_urls="true"
-         top_delta="1"
-         wrap="true"
-         width="462"
-         visible="true">
-         You dont have rights to upload mesh models. [[VURL] Find out how] to get certified.
-       </text> 
-       <text
-         text_color="Yellow"
-         layout="topleft"
-         top_pad="-2"
-         left="6"
-         name="status">
-[STATUS]
-       </text>
+        layout="topleft"
+        follows="top|left"
+        left_pad="2"
+        height="16"
+        width="80"
+        name="exploder_label">
+            Explode hulls
+      </text>
+      <slider
+        name="physics_explode"
+        show_text="false"
+        top_delta="1"
+        follows="top|left"
+        valign="center"
+        left_pad="2"
+        min_val="0.0"
+        max_val="3.0"
+        width="100"/>
+      <check_box
+        follows="top|left"
+        top_pad="15"
+        label="Weights"
+        layout="topleft"
+        width="70"
+        name="show_skin_weight"
+        left="0"/>
+      <check_box
+        follows="top|left"
+        label="Joint Positions"
+        height="0"
+        layout="topleft"
+        name="show_joint_positions"
+        word_wrap="down"
+        left_pad="0"
+        width="65"/>
+        <check_box
+        follows="top|left"
+        label="Joint Pos. Overrides"
+        word_wrap="down"
+        layout="topleft"
+        name="show_joint_overrides"
+        left_pad="5"
+        width="100">
+      </check_box>
     </panel>
+    <!-- ========== NOTE MESSAGE ========== -->
+    <text
+      font="SansSerif"
+      layout="topleft"
+      left="6"
+      name="warning_title"
+      top_pad="5"
+      text_color="DrYellow"
+      visible="true"
+      width="40">
+      NOTE:
+    </text>
+    <text
+      text_color="White"
+      height="20"
+      layout="topleft"
+      left_pad="1"
+      name="warning_message"
+      parse_urls="true"
+      top_delta="0"
+      wrap="true"
+      width="530"
+      visible="true">
+      You dont have rights to upload mesh models. [[VURL] Find out how] to get certified.
+    </text>
+    <text
+      text_color="Yellow"
+      layout="topleft"
+      top_pad="-2"
+      left="6"
+      name="status">
+    [STATUS]
+    </text>
   </panel>
-  
-  <text
-   follows="left|top"
-   layout="topleft"
-   left="640"
-   name="lod_label"
-   text_color="White"
-   top="29"
-   height="15"
-   width="290">
-    Preview:
-  </text>
-  <panel
-   follows="all"
-   layout="topleft"
+</panel>
+<text
+follows="left|top"
+layout="topleft"
+left="630"
+name="lod_label"
+text_color="White"
+top="4"
+height="15"
+width="290">
+Preview:
+</text>
+<panel
    border="true"
    bevel_style="none"
+   follows="top|left|right|bottom"
+   layout="topleft"
    name="preview_panel"
-   top_pad="4"
-   width="325"
-   height="408"/>
-  <panel
-    follows="right|bottom"
-    can_resize="false"
-    height="140"
-    layout="topleft"
-    name="right_panel"
-    top_pad="5"
-    width="340">
-    <combo_box
-      top_pad="3"
-      follows="left|top"
-      height="18"
-      layout="topleft"
-      name="preview_lod_combo"
-      width="150"
-      tool_tip="LOD to view in preview render">
-      <combo_item name="high">   High   </combo_item>
-      <combo_item name="medium"> Medium </combo_item>
-      <combo_item name="low">    Low    </combo_item>
-      <combo_item name="lowest"> Lowest </combo_item>
-    </combo_box>
-    <text
-      follows="top|left"
-      layout="topleft"
-      text_color="White"
-      top="5"
-      left_pad="20"
-      name="label_display"
-      width="50">
-      Display...
-    </text>
-    <check_box
-      follows="top|left"
-      label="Edges"
-      label_text.text_color="White"
-      layout="topleft"
-      left_delta="0"
-      name="show_edges"
-      top_pad="8">
-    </check_box>
-    <check_box
-      follows="top|left"
-      label="Physics"
-      label_text.text_color="White"
-      layout="topleft"
-      name="show_physics"
-      top_pad="8">
-    </check_box>
-    <check_box
-      follows="top|left"
-      label="Textures"
-      label_text.text_color="White"
-      layout="topleft"
-      name="show_textures"
-      top_pad="8">
-    </check_box>
-    <check_box
-      follows="top|left"
-      label="Skin weights"
-      label_text.text_color="White"
-      layout="topleft"
-      name="show_skin_weight"
-      top_pad="8">
-    </check_box>
-    <check_box
-      follows="top|left"
-      label="Joint position overrides"
-      label_text.text_color="White"
-      word_wrap="down"
-      width="130"
-      layout="topleft"
-      name="show_joint_overrides"
-      top_pad="8">
-    </check_box>
-    <check_box
-      follows="top|left"
-      label="Joints"
-      label_text.text_color="White"
-      layout="topleft"
-      name="show_joint_positions"
-      top_pad="17">
-    </check_box>
-    <text
-      follows="top|left"
-      layout="topleft"
-      left="2"
-      name="physics_explode_label"
-      top="85"
-      width="150">
-      Preview Spread:
-    </text>
-    <slider
-      name="physics_explode"
-      follows="top|left"
-      top="100"
-      left="0"
-      min_val="0.0"
-      max_val="3.0"
-      height="20"
-      width="150"/>
-  </panel>
+   top="20"
+   height="560"
+   width="320"
+/>
 </floater>
