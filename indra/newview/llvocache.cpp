@@ -347,36 +347,24 @@ void LLVOCacheEntry::dump() const
 
 BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
 {
-	BOOL success;
-	success = check_write(apr_file, (void*)&mLocalID, sizeof(U32));
-	if(success)
-	{
-		success = check_write(apr_file, (void*)&mCRC, sizeof(U32));
-	}
-	if(success)
-	{
-		success = check_write(apr_file, (void*)&mHitCount, sizeof(S32));
-	}
-	if(success)
-	{
-		success = check_write(apr_file, (void*)&mDupeCount, sizeof(S32));
-	}
-	if(success)
-	{
-		success = check_write(apr_file, (void*)&mCRCChangeCount, sizeof(S32));
-	}
-	if(success)
-	{
-		S32 size = mDP.getBufferSize();
-		success = check_write(apr_file, (void*)&size, sizeof(S32));
-	
-		if(success)
-		{
-			success = check_write(apr_file, (void*)mBuffer, size);
-		}
-	}
+    static const S32 data_buffer_size = 6 * sizeof(S32);
+    static U8 data_buffer[data_buffer_size];
+    S32 size = mDP.getBufferSize();
 
-	return success ;
+    memcpy(data_buffer, &mLocalID, sizeof(U32));
+    memcpy(data_buffer + sizeof(U32), &mCRC, sizeof(U32));
+    memcpy(data_buffer + (2 * sizeof(U32)), &mHitCount, sizeof(S32));
+    memcpy(data_buffer + (3 * sizeof(U32)), &mDupeCount, sizeof(S32));
+    memcpy(data_buffer + (4 * sizeof(U32)), &mCRCChangeCount, sizeof(S32));
+    memcpy(data_buffer + (5 * sizeof(U32)), &size, sizeof(S32));
+
+    BOOL success = check_write(apr_file, (void*)data_buffer, data_buffer_size);
+    if (success)
+    {
+        success = check_write(apr_file, (void*)mBuffer, size);
+    }
+
+    return success;
 }
 
 //static 
@@ -1537,7 +1525,8 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 		{
 			S32 num_entries = cache_entry_map.size() ;
 			success = check_write(&apr_file, &num_entries, sizeof(S32));
-	
+
+			// This can have a lot of entries, so might be better to dump them into buffer first and write in one go.
 			for (LLVOCacheEntry::vocache_entry_map_t::const_iterator iter = cache_entry_map.begin(); success && iter != cache_entry_map.end(); ++iter)
 			{
 				if(!removal_enabled || iter->second->isValid())
