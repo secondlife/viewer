@@ -114,6 +114,7 @@ public:
 
 	LLWindowCallbacks::DragNDropResult completeDragNDropRequest( const LLCoordGL gl_coord, const MASK mask, LLWindowCallbacks::DragNDropAction action, const std::string url );
 
+	static std::vector<std::string> getDisplaysResolutionList();
 	static std::vector<std::string> getDynamicFallbackFontList();
 	static void setDPIAwareness();
 protected:

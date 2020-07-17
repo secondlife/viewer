@@ -400,6 +400,39 @@ LLWinImm::~LLWinImm()
 }
 
 
+class LLMonitorInfo
+{
+public:
+
+	std::vector<std::string> getResolutionsList() { return mResList; }
+
+	LLMonitorInfo()
+	{
+		EnumDisplayMonitors(0, 0, MonitorEnum, (LPARAM)this);
+	}
+
+private:
+
+	static BOOL CALLBACK MonitorEnum(HMONITOR hMon, HDC hdc, LPRECT lprcMonitor, LPARAM pData)
+	{
+		int monitor_width = lprcMonitor->right - lprcMonitor->left;
+		int monitor_height = lprcMonitor->bottom - lprcMonitor->top;
+		
+		std::ostringstream sstream;
+		sstream << monitor_width << "x" << monitor_height;;
+		std::string res = sstream.str();
+
+		LLMonitorInfo* pThis = reinterpret_cast<LLMonitorInfo*>(pData);
+		pThis->mResList.push_back(res);
+
+		return TRUE;
+	}
+
+	std::vector<std::string> mResList;
+};
+
+static LLMonitorInfo sMonitorInfo;
+
 LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 							 const std::string& title, const std::string& name, S32 x, S32 y, S32 width,
 							 S32 height, U32 flags, 
@@ -4216,6 +4249,12 @@ F32 LLWindowWin32::getSystemUISize()
 
 	ReleaseDC(hWnd, hdc);
 	return scale_value;
+}
+
+//static
+std::vector<std::string> LLWindowWin32::getDisplaysResolutionList()
+{ 
+	return sMonitorInfo.getResolutionsList();
 }
 
 //static
