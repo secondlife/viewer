@@ -125,7 +125,6 @@ namespace {
 }
 
 //=========================================================================
-const std::string LLFloaterEditExtDayCycle::KEY_INVENTORY_ID("inventory_id");
 const std::string LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT("edit_context");
 const std::string LLFloaterEditExtDayCycle::KEY_DAY_LENGTH("day_length");
 const std::string LLFloaterEditExtDayCycle::KEY_CANMOD("canmod");
@@ -133,7 +132,7 @@ const std::string LLFloaterEditExtDayCycle::KEY_CANMOD("canmod");
 const std::string LLFloaterEditExtDayCycle::VALUE_CONTEXT_INVENTORY("inventory");
 const std::string LLFloaterEditExtDayCycle::VALUE_CONTEXT_PARCEL("parcel");
 const std::string LLFloaterEditExtDayCycle::VALUE_CONTEXT_REGION("region");
-
+/*
 //=========================================================================
 
 class LLDaySettingCopiedCallback : public LLInventoryCallback
@@ -156,12 +155,12 @@ public:
 
 private:
     LLHandle<LLFloater> mHandle;
-};
+};*/
 
 //=========================================================================
 
 LLFloaterEditExtDayCycle::LLFloaterEditExtDayCycle(const LLSD &key) :
-    LLFloater(key),
+    LLFloaterEditEnvironmentBase(key),
     mFlyoutControl(nullptr),
     mDayLength(0),
     mCurrentTrack(1),
@@ -170,19 +169,12 @@ LLFloaterEditExtDayCycle::LLFloaterEditExtDayCycle(const LLSD &key) :
     mFramesSlider(nullptr),
     mCurrentTimeLabel(nullptr),
     mImportButton(nullptr),
-    mInventoryId(),
-    mInventoryItem(nullptr),
     mLoadFrame(nullptr),
     mSkyBlender(),
     mWaterBlender(),
     mScratchSky(),
     mScratchWater(),
     mIsPlaying(false),
-    mIsDirty(false),
-    mCanSave(false),
-    mCanCopy(false),
-    mCanMod(false),
-    mCanTrans(false),
     mCloneTrack(nullptr),
     mLoadTrack(nullptr),
     mClearTrack(nullptr)
@@ -425,19 +417,6 @@ void LLFloaterEditExtDayCycle::onClose(bool app_quitting)
     }
 }
 
-void LLFloaterEditExtDayCycle::onFocusReceived()
-{
-    if (isInVisibleChain())
-    {
-        updateEditEnvironment();
-        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_FAST);
-    }
-}
-
-void LLFloaterEditExtDayCycle::onFocusLost()
-{
-}
-
 
 void LLFloaterEditExtDayCycle::onVisibilityChange(BOOL new_visibility)
 {
@@ -488,6 +467,10 @@ void LLFloaterEditExtDayCycle::refresh()
     LLFloater::refresh();
 }
 
+void LLFloaterEditExtDayCycle::setEditSettingsAndUpdate(const LLSettingsBase::ptr_t &settings)
+{
+    setEditDayCycle(std::dynamic_pointer_cast<LLSettingsDay>(settings));
+}
 
 void LLFloaterEditExtDayCycle::setEditDayCycle(const LLSettingsDay::ptr_t &pday)
 {
@@ -698,63 +681,6 @@ void LLFloaterEditExtDayCycle::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
     {
         LL_WARNS("ENVDAYEDIT") << "Unknown settings action '" << ctrl_action << "'" << LL_ENDL;
     }
-}
-
-void LLFloaterEditExtDayCycle::onSaveAsCommit(const LLSD& notification, const LLSD& response, const LLSettingsDay::ptr_t &day)
-{
-    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-    if (0 == option)
-    {
-        std::string settings_name = response["message"].asString();
-
-        LLInventoryObject::correctInventoryName(settings_name);
-        if (settings_name.empty())
-        {
-            // Ideally notification should disable 'OK' button if name won't fit our requirements,
-            // for now either display notification, or use some default name
-            settings_name = "Unnamed";
-        }
-
-        if (mCanMod)
-        {
-            doApplyCreateNewInventory(day, settings_name);
-        }
-        else if (mInventoryItem)
-        {
-            const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
-            LLUUID parent_id = mInventoryItem->getParentUUID();
-            if (marketplacelistings_id == parent_id)
-            {
-                parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
-            }
-
-            LLPointer<LLInventoryCallback> cb = new LLDaySettingCopiedCallback(getHandle());
-            copy_inventory_item(
-                gAgent.getID(),
-                mInventoryItem->getPermissions().getOwner(),
-                mInventoryItem->getUUID(),
-                parent_id,
-                settings_name,
-                cb);
-        }
-        else
-        {
-            LL_WARNS() << "Failed to copy day setting" << LL_ENDL;
-        }
-    }
-}
-
-void LLFloaterEditExtDayCycle::onClickCloseBtn(bool app_quitting /*= false*/)
-{
-    if (!app_quitting)
-        checkAndConfirmSettingsLoss([this](){ closeFloater(); clearDirtyFlag(); });
-    else
-        closeFloater();
-}
-
-void LLFloaterEditExtDayCycle::onButtonImport()
-{
-    checkAndConfirmSettingsLoss([this]() { doImportFromDisk(); });
 }
 
 void LLFloaterEditExtDayCycle::onButtonLoadFrame()
@@ -1051,35 +977,6 @@ void LLFloaterEditExtDayCycle::onFrameSliderMouseUp(S32 x, S32 y, MASK mask)
 
     mTimeSlider->setCurSliderValue(sliderpos);
     selectFrame(sliderpos, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR);
-}
-
-
-void LLFloaterEditExtDayCycle::onPanelDirtyFlagChanged(bool value)
-{
-    if (value)
-        setDirtyFlag();
-}
-
-void LLFloaterEditExtDayCycle::checkAndConfirmSettingsLoss(on_confirm_fn cb)
-{
-    if (isDirty())
-    {
-        LLSD args(LLSDMap("TYPE", mEditDay->getSettingsType())
-            ("NAME", mEditDay->getName()));
-
-        // create and show confirmation textbox
-        LLNotificationsUtil::add("SettingsConfirmLoss", args, LLSD(),
-            [cb](const LLSD&notif, const LLSD&resp)
-            {
-                S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
-                if (opt == 0)
-                    cb();
-            });
-    }
-    else if (cb)
-    {
-        cb();
-    }
 }
 
 void LLFloaterEditExtDayCycle::onTimeSliderCallback()
@@ -1435,106 +1332,6 @@ LLFloaterEditExtDayCycle::connection_t LLFloaterEditExtDayCycle::setEditCommitSi
     return mCommitSignal.connect(cb);
 }
 
-void LLFloaterEditExtDayCycle::loadInventoryItem(const LLUUID  &inventoryId, bool can_trans)
-{
-    if (inventoryId.isNull())
-    {
-        mInventoryItem = nullptr;
-        mInventoryId.setNull();
-        mCanSave = true;
-        mCanCopy = true;
-        mCanMod = true;
-        mCanTrans = true;
-        return;
-    }
-
-    mInventoryId = inventoryId;
-    LL_INFOS("ENVDAYEDIT") << "Setting edit inventory item to " << mInventoryId << "." << LL_ENDL;
-    mInventoryItem = gInventory.getItem(mInventoryId);
-
-    if (!mInventoryItem)
-    {
-        LL_WARNS("ENVDAYEDIT") << "Could not find inventory item with Id = " << mInventoryId << LL_ENDL;
-
-        LLNotificationsUtil::add("CantFindInvItem");
-        closeFloater();
-        mInventoryId.setNull();
-        mInventoryItem = nullptr;
-        return;
-    }
-
-    if (mInventoryItem->getAssetUUID().isNull())
-    {
-        LL_WARNS("ENVDAYEDIT") << "Asset ID in inventory item is NULL (" << mInventoryId << ")" <<  LL_ENDL;
-
-        LLNotificationsUtil::add("UnableEditItem");
-        closeFloater();
-
-        mInventoryId.setNull();
-        mInventoryItem = nullptr;
-        return;
-    }
-
-    mCanSave = true;
-    mCanCopy = mInventoryItem->getPermissions().allowCopyBy(gAgent.getID());
-    mCanMod = mInventoryItem->getPermissions().allowModifyBy(gAgent.getID());
-    mCanTrans = can_trans && mInventoryItem->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
-
-    mExpectingAssetId = mInventoryItem->getAssetUUID();
-    LLSettingsVOBase::getSettingsAsset(mInventoryItem->getAssetUUID(),
-        [this](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat) { onAssetLoaded(asset_id, settings, status); });
-}
-
-void LLFloaterEditExtDayCycle::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status)
-{
-    if (asset_id != mExpectingAssetId)
-    {
-        LL_WARNS("ENVDAYEDIT") << "Expecting {" << mExpectingAssetId << "} got {" << asset_id << "} - throwing away." << LL_ENDL;
-        return;
-    }
-    mExpectingAssetId.setNull();
-    clearDirtyFlag();
-
-    if (!settings || status)
-    {
-        LLSD args;
-        args["NAME"] = (mInventoryItem) ? mInventoryItem->getName() : "Unknown";
-        LLNotificationsUtil::add("FailedToFindSettings", args);
-        closeFloater();
-        return;
-    }
-
-    if (settings->getFlag(LLSettingsBase::FLAG_NOSAVE))
-    {
-        mCanSave = false;
-        mCanCopy = false;
-        mCanMod = false;
-        mCanTrans = false;
-    }
-    else
-    {
-        if (mCanCopy)
-            settings->clearFlag(LLSettingsBase::FLAG_NOCOPY);
-        else
-            settings->setFlag(LLSettingsBase::FLAG_NOCOPY);
-
-        if (mCanMod)
-            settings->clearFlag(LLSettingsBase::FLAG_NOMOD);
-        else
-            settings->setFlag(LLSettingsBase::FLAG_NOMOD);
-
-        if (mCanTrans)
-            settings->clearFlag(LLSettingsBase::FLAG_NOTRANS);
-        else
-            settings->setFlag(LLSettingsBase::FLAG_NOTRANS);
-
-        if (mInventoryItem)
-            settings->setName(mInventoryItem->getName());
-    }
-
-    setEditDayCycle(std::dynamic_pointer_cast<LLSettingsDay>(settings));
-}
-
 void LLFloaterEditExtDayCycle::updateEditEnvironment(void)
 {
     if (!mEditDay)
@@ -1670,93 +1467,6 @@ void LLFloaterEditExtDayCycle::reblendSettings()
     mWaterBlender->setPosition(position);    
 }
 
-void LLFloaterEditExtDayCycle::doApplyCreateNewInventory(const LLSettingsDay::ptr_t &day, std::string settings_name)
-{
-    if (mInventoryItem)
-    {
-        LLUUID parent_id = mInventoryItem->getParentUUID();
-        U32 next_owner_perm = mInventoryItem->getPermissions().getMaskNextOwner();
-        LLSettingsVOBase::createInventoryItem(day, next_owner_perm, parent_id, settings_name,
-            [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
-    }
-    else
-    {
-        LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
-        // This method knows what sort of settings object to create.
-        LLSettingsVOBase::createInventoryItem(day, parent_id, settings_name,
-            [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
-    }
-}
-
-void LLFloaterEditExtDayCycle::doApplyUpdateInventory(const LLSettingsDay::ptr_t &day)
-{
-    if (mInventoryId.isNull())
-        LLSettingsVOBase::createInventoryItem(day, gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS), std::string(),
-                [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryCreated(asset_id, inventory_id, results); });
-    else
-        LLSettingsVOBase::updateInventoryItem(day, mInventoryId,
-                [this](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results) { onInventoryUpdated(asset_id, inventory_id, results); });
-}
-
-void LLFloaterEditExtDayCycle::doApplyEnvironment(const std::string &where, const LLSettingsDay::ptr_t &day)
-{
-    U32 flags(0);
-
-    if (mInventoryItem)
-    {
-        if (!mInventoryItem->getPermissions().allowOperationBy(PERM_MODIFY, gAgent.getID()))
-            flags |= LLSettingsBase::FLAG_NOMOD;
-        if (!mInventoryItem->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
-            flags |= LLSettingsBase::FLAG_NOTRANS;
-    }
-
-    flags |= day->getFlags();
-    day->setFlag(flags);
-
-    if (where == ACTION_APPLY_LOCAL)
-    {
-        day->setName("Local"); // To distinguish and make sure there is a name. Safe, because this is a copy.
-        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, day);
-    }
-    else if (where == ACTION_APPLY_PARCEL)
-    {
-        LLParcel *parcel(LLViewerParcelMgr::instance().getAgentOrSelectedParcel());
-
-        if ((!parcel) || (parcel->getLocalID() == INVALID_PARCEL_ID))
-        {
-            LL_WARNS("ENVDAYEDIT") << "Can not identify parcel. Not applying." << LL_ENDL;
-            LLNotificationsUtil::add("WLParcelApplyFail");
-            return;
-        }
-
-        if (mInventoryItem && !isDirty())
-        {
-            LLEnvironment::instance().updateParcel(parcel->getLocalID(), mInventoryItem->getAssetUUID(), mInventoryItem->getName(), LLEnvironment::NO_TRACK, -1, -1, flags);
-        }
-        else
-        {
-            LLEnvironment::instance().updateParcel(parcel->getLocalID(), day, -1, -1);
-        }
-    }
-    else if (where == ACTION_APPLY_REGION)
-    {
-        if (mInventoryItem && !isDirty())
-        {
-            LLEnvironment::instance().updateRegion(mInventoryItem->getAssetUUID(), mInventoryItem->getName(), LLEnvironment::NO_TRACK, -1, -1, flags);
-        }
-        else
-        {
-            LLEnvironment::instance().updateRegion(day, -1, -1);
-        }
-    }
-    else
-    {
-        LL_WARNS("ENVDAYEDIT") << "Unknown apply '" << where << "'" << LL_ENDL;
-        return;
-    }
-
-}
-
 void LLFloaterEditExtDayCycle::doApplyCommit(LLSettingsDay::ptr_t day)
 {
     if (!mCommitSignal.empty())
@@ -1793,51 +1503,6 @@ bool LLFloaterEditExtDayCycle::isAddingFrameAllowed()
     return mFramesSlider->canAddSliders();
 }
 
-void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results)
-{
-    LL_INFOS("ENVDAYEDIT") << "Inventory item " << inventory_id << " has been created with asset " << asset_id << " results are:" << results << LL_ENDL;
-
-    if (inventory_id.isNull() || !results["success"].asBoolean())
-    {
-        LLNotificationsUtil::add("CantCreateInventory");
-        return;
-    }
-    onInventoryCreated(asset_id, inventory_id);
-}
-
-void LLFloaterEditExtDayCycle::onInventoryCreated(LLUUID asset_id, LLUUID inventory_id)
-{
-    bool can_trans = true;
-    if (mInventoryItem)
-    {
-        LLPermissions perms = mInventoryItem->getPermissions();
-
-        LLInventoryItem *created_item = gInventory.getItem(mInventoryId);
-        
-        if (created_item)
-        {
-            can_trans = perms.allowOperationBy(PERM_TRANSFER, gAgent.getID());
-            created_item->setPermissions(perms);
-            created_item->updateServer(false);
-        }
-    }
-
-    clearDirtyFlag();
-    setFocus(TRUE);                 // Call back the focus...
-    loadInventoryItem(inventory_id, can_trans);
-}
-
-void LLFloaterEditExtDayCycle::onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results)
-{
-    LL_WARNS("ENVDAYEDIT") << "Inventory item " << inventory_id << " has been updated with asset " << asset_id << " results are:" << results << LL_ENDL;
-
-    clearDirtyFlag();
-    if (inventory_id != mInventoryId)
-    {
-        loadInventoryItem(inventory_id);
-    }
-}
-
 void LLFloaterEditExtDayCycle::doImportFromDisk()
 {   // Load a a legacy Windlight XML from disk.
     (new LLFilePickerReplyThread(boost::bind(&LLFloaterEditExtDayCycle::loadSettingFromFile, this, _1), LLFilePicker::FFLOAD_XML, false))->getFile();
@@ -1862,21 +1527,6 @@ void LLFloaterEditExtDayCycle::loadSettingFromFile(const std::vector<std::string
     mCurrentTrack = 1;
     setDirtyFlag();
     setEditDayCycle(legacyday);
-}
-
-bool LLFloaterEditExtDayCycle::canUseInventory() const
-{
-    return LLEnvironment::instance().isInventoryEnabled();
-}
-
-bool LLFloaterEditExtDayCycle::canApplyRegion() const
-{
-    return gAgent.canManageEstate();
-}
-
-bool LLFloaterEditExtDayCycle::canApplyParcel() const
-{
-    return LLEnvironment::instance().canAgentUpdateParcelEnvironment();
 }
 
 void LLFloaterEditExtDayCycle::startPlay()
@@ -1983,14 +1633,8 @@ void LLFloaterEditExtDayCycle::doCloseTrackFloater(bool quitting)
     }
 }
 
-void LLFloaterEditExtDayCycle::onPickerCommitTrackId(U32 track_id)
+LLFloaterSettingsPicker * LLFloaterEditExtDayCycle::getSettingsPicker()
 {
-    cloneTrack(track_id, mCurrentTrack);
-}
-
-void LLFloaterEditExtDayCycle::doOpenInventoryFloater(LLSettingsType::type_e type, LLUUID curritem)
-{
-//  LLUI::sWindow->setCursor(UI_CURSOR_WAIT);
     LLFloaterSettingsPicker *picker = static_cast<LLFloaterSettingsPicker *>(mInventoryFloater.get());
 
     // Show the dialog
@@ -2003,7 +1647,17 @@ void LLFloaterEditExtDayCycle::doOpenInventoryFloater(LLSettingsType::type_e typ
 
         picker->setCommitCallback([this](LLUICtrl *, const LLSD &data){ onPickerCommitSetting(data["ItemId"].asUUID(), data["Track"].asInteger()); });
     }
+    return picker;
+}
 
+void LLFloaterEditExtDayCycle::onPickerCommitTrackId(U32 track_id)
+{
+    cloneTrack(track_id, mCurrentTrack);
+}
+
+void LLFloaterEditExtDayCycle::doOpenInventoryFloater(LLSettingsType::type_e type, LLUUID curritem)
+{
+    LLFloaterSettingsPicker *picker = getSettingsPicker();
     picker->setSettingsFilter(type);
     picker->setSettingsItemId(curritem);
     if (type == LLSettingsType::ST_DAYCYCLE)
@@ -2016,16 +1670,6 @@ void LLFloaterEditExtDayCycle::doOpenInventoryFloater(LLSettingsType::type_e typ
     }
     picker->openFloater();
     picker->setFocus(TRUE);
-}
-
-void LLFloaterEditExtDayCycle::doCloseInventoryFloater(bool quitting)
-{
-    LLFloater* floaterp = mInventoryFloater.get();
-
-    if (floaterp)
-    {
-        floaterp->closeFloater(quitting);
-    }
 }
 
 void LLFloaterEditExtDayCycle::onPickerCommitSetting(LLUUID item_id, S32 track)
@@ -2118,7 +1762,9 @@ void LLFloaterEditExtDayCycle::onAssetLoadedForInsertion(LLUUID item_id, LLUUID 
 
     LLInventoryItem *inv_item = gInventory.getItem(item_id);
 
-    if (inv_item && !inv_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+    if (inv_item
+        && (!inv_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID())
+            || !inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID())))
     {
         // Need to check if item is already no-transfer, otherwise make it no-transfer
         bool no_transfer = false;
