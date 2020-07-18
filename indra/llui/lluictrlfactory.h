@@ -174,7 +174,7 @@ public:
 				{
 					LL_WARNS() << "Widget in " << filename << " was of type " << typeid(view).name() << " instead of expected type " << typeid(T).name() << LL_ENDL;
 
-#if LL_DARWIN
+#ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdelete-incomplete"
 					delete view;
