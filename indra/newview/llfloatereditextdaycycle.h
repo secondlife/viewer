@@ -146,7 +146,7 @@ private:
     void                        removeCurrentSliderFrame();
     void                        removeSliderFrame(F32 frame);
 
-    void                        doImportFromDisk();
+    virtual void                doImportFromDisk() override;
     void                        loadSettingFromFile(const std::vector<std::string>& filenames);
     void                        doApplyCommit(LLSettingsDay::ptr_t day);
     void                        onInventoryCreated(LLUUID asset_id, LLUUID inventory_id);

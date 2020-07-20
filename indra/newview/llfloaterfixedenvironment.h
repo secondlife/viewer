@@ -79,9 +79,8 @@ protected:
     void                    onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
     void                    onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
 
-    bool                    getIsDirty() const  { return mIsDirty; }
-    void                    setDirtyFlag()      { mIsDirty = true; }
-    virtual void            clearDirtyFlag();
+    virtual void            clearDirtyFlag() override;
+    void                    updatePermissionFlags();
 
     void                    doSelectFromInventory();
 
