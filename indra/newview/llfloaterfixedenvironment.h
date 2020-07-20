@@ -71,8 +71,6 @@ protected:
 
     LLSettingsBase::ptr_t   mSettings;
 
-    virtual void            doImportFromDisk() = 0;
-
     LLFlyoutComboBtnCtrl *      mFlyoutControl;
 
     void                    onInventoryCreated(LLUUID asset_id, LLUUID inventory_id);
