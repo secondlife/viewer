@@ -247,11 +247,13 @@ public:
 protected:
 	/*virtual*/ void updateButtons();
 	void onCommitLoad(LLUICtrl* ctrl);
+    void onCommitWebProfileSettings();
 
 private:
 	std::string			mURLHome;
 	std::string			mURLWebProfile;
 	LLMediaCtrl*		mWebBrowser;
+    LLUICtrl*           mSettingsBtn;
 
 	LLFrameTimer		mPerformanceTimer;
 	bool				mFirstNavigate;

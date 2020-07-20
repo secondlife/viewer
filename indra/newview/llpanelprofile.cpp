@@ -858,6 +858,9 @@ void LLPanelProfileWeb::onOpen(const LLSD& key)
 
 BOOL LLPanelProfileWeb::postBuild()
 {
+    mSettingsBtn = getChild<LLButton>("profile_web_settings_btn");
+    mSettingsBtn->setCommitCallback(boost::bind(&LLPanelProfileWeb::onCommitWebProfileSettings, this));
+
     mWebBrowser = getChild<LLMediaCtrl>("profile_html");
     mWebBrowser->addObserver(this);
     mWebBrowser->setHomePageUrl("about:blank");
@@ -985,7 +988,14 @@ void LLPanelProfileWeb::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent e
 
 void LLPanelProfileWeb::updateButtons()
 {
+    mSettingsBtn->setVisible(getSelfProfile() && !getEmbedded());
     LLPanelProfileTab::updateButtons();
+}
+
+void LLPanelProfileWeb::onCommitWebProfileSettings()
+{    
+    std::string url = getProfileURL("") + "/settings/privacy";
+    LLWeb::loadURLInternal(url);
 }
 
 //////////////////////////////////////////////////////////////////////////
