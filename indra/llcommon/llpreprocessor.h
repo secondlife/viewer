@@ -232,4 +232,11 @@
 #define LL_COMPILE_TIME_MESSAGE(msg)
 #endif
 
+// __FUNCTION__ works on all the platforms we care about, but...
+#if LL_WINDOWS
+#define LL_PRETTY_FUNCTION __FUNCSIG__
+#else
+#define LL_PRETTY_FUNCTION __PRETTY_FUNCTION__
+#endif
+
 #endif	//	not LL_LINDEN_PREPROCESSOR_H

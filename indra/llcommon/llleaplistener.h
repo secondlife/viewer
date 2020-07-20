@@ -40,7 +40,6 @@ public:
 
 private:
     void newpump(const LLSD&);
-    void killpump(const LLSD&);
     void listen(const LLSD&);
     void stoplistening(const LLSD&);
     void ping(const LLSD&) const;
@@ -64,10 +63,6 @@ private:
     // and listener name.
     typedef std::map<std::pair<std::string, std::string>, LLBoundListener> ListenersMap;
     ListenersMap mListeners;
-    // Similar lifespan reasoning applies to LLEventPumps instantiated by
-    // newpump() operations.
-    typedef boost::ptr_map<std::string, LLEventPump> EventPumpsMap;
-    EventPumpsMap mEventPumps;
 };
 
 #endif /* ! defined(LL_LLLEAPLISTENER_H) */

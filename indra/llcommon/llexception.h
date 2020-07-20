@@ -67,9 +67,29 @@ struct LLContinueError: public LLException
  * enriches the exception's diagnostic_information() with the source file,
  * line and containing function of the LLTHROW() macro.
  */
-// Currently we implement that using BOOST_THROW_EXCEPTION(). Wrap it in
-// LLTHROW() in case we ever want to revisit that implementation decision.
-#define LLTHROW(x) BOOST_THROW_EXCEPTION(x)
+#define LLTHROW(x)                                                      \
+do {                                                                    \
+    /* Capture the exception object 'x' by value. (Exceptions must */   \
+    /* be copyable.) It might seem simpler to use                  */   \
+    /* BOOST_THROW_EXCEPTION(annotate_exception_(x)) instead of    */   \
+    /* three separate statements, but:                             */   \
+    /* - We want to throw 'x' with its original type, not just a   */   \
+    /*   reference to boost::exception.                            */   \
+    /* - To return x's original type, annotate_exception_() would  */   \
+    /*   have to be a template function.                           */   \
+    /* - We want annotate_exception_() to be opaque.               */   \
+    /* We also might consider embedding BOOST_THROW_EXCEPTION() in */   \
+    /* our helper function, but we want the filename and line info */   \
+    /* embedded by BOOST_THROW_EXCEPTION() to be the throw point   */   \
+    /* rather than always indicating the same line in              */   \
+    /* llexception.cpp.                                            */   \
+    auto exc{x};                                                        \
+    annotate_exception_(exc);                                           \
+    BOOST_THROW_EXCEPTION(exc);                                         \
+    /* Use the classic 'do { ... } while (0)' macro trick to wrap  */   \
+    /* our multiple statements.                                    */   \
+} while (0)
+void annotate_exception_(boost::exception& exc);
 
 /// Call this macro from a catch (...) clause
 #define CRASH_ON_UNHANDLED_EXCEPTION(CONTEXT) \

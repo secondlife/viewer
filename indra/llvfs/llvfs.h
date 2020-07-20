@@ -31,6 +31,7 @@
 #include "lluuid.h"
 #include "llassettype.h"
 #include "llthread.h"
+#include "llmutex.h"
 
 enum EVFSValid 
 {
