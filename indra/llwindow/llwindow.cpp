@@ -268,6 +268,8 @@ std::vector<std::string> LLWindow::getDisplaysResolutionList()
 {
 #if LL_WINDOWS
 	return LLWindowWin32::getDisplaysResolutionList();
+#elif LL_DARWIN
+	return LLWindowMacOSX::getDisplaysResolutionList();
 #else
 	return std::vector<std::string>();
 #endif
