@@ -1127,7 +1127,7 @@ bool LLAppViewer::init()
 
 	// Save the current version to the prefs file
 	gSavedSettings.setString("LastRunVersion",
-							 LLVersionInfo::getChannelAndVersion());
+							 LLVersionInfo::instance().getChannelAndVersion());
 
 	gSimLastTime = gRenderStartTime.getElapsedTimeF32();
 	gSimFrames = (F32)gFrameCount;
@@ -1166,7 +1166,7 @@ bool LLAppViewer::init()
 	// UpdaterServiceSettings
 	updater.args.add(stringize(gSavedSettings.getU32("UpdaterServiceSetting")));
 	// channel
-	updater.args.add(LLVersionInfo::getChannel());
+	updater.args.add(LLVersionInfo::instance().getChannel());
 	// testok
 	updater.args.add(stringize(gSavedSettings.getBOOL("UpdaterWillingToTest")));
 	// ForceAddressSize
@@ -1430,6 +1430,8 @@ bool LLAppViewer::doFrame()
 
 		// canonical per-frame event
 		mainloop.post(newFrame);
+		// give listeners a chance to run
+		llcoro::suspend();
 
 		if (!LLApp::isExiting())
 		{
@@ -1693,24 +1695,9 @@ bool LLAppViewer::cleanup()
 		gDirUtilp->deleteFilesInDir(logdir, "*-*-*-*-*.dmp");
 	}
 
-	{
-		// Kill off LLLeap objects. We can find them all because LLLeap is derived
-		// from LLInstanceTracker. But collect instances first: LLInstanceTracker
-		// specifically forbids adding/deleting instances while iterating.
-		std::vector<LLLeap*> leaps;
-		leaps.reserve(LLLeap::instanceCount());
-		for (LLLeap::instance_iter li(LLLeap::beginInstances()), lend(LLLeap::endInstances());
-			 li != lend; ++li)
-		{
-			leaps.push_back(&*li);
-		}
-		// Okay, now trash them all. We don't have to NULL or erase the entry
-		// in 'leaps' because the whole vector is going away momentarily.
-		BOOST_FOREACH(LLLeap* leap, leaps)
-		{
-			delete leap;
-		}
-	} // destroy 'leaps'
+	// Kill off LLLeap objects. We can find them all because LLLeap is derived
+	// from LLInstanceTracker.
+	LLLeap::instance_snapshot().deleteAll();
 
 	//flag all elements as needing to be destroyed immediately
 	// to ensure shutdown order
@@ -2131,25 +2118,19 @@ bool LLAppViewer::cleanup()
 
 	removeMarkerFiles();
 
-	// It's not at first obvious where, in this long sequence, generic cleanup
-	// calls OUGHT to go. So let's say this: as we migrate cleanup from
+	// It's not at first obvious where, in this long sequence, a generic cleanup
+	// call OUGHT to go. So let's say this: as we migrate cleanup from
 	// explicit hand-placed calls into the generic mechanism, eventually
-	// all cleanup will get subsumed into the generic calls. So the calls you
+	// all cleanup will get subsumed into the generic call. So the calls you
 	// still see above are calls that MUST happen before the generic cleanup
 	// kicks in.
-
-	// This calls every remaining LLSingleton's cleanupSingleton() method.
-	// This method should perform any cleanup that might take significant
-	// realtime, or might throw an exception.
-	LLSingletonBase::cleanupAll();
 
 	// The logging subsystem depends on an LLSingleton. Any logging after
 	// LLSingletonBase::deleteAll() won't be recorded.
 	LL_INFOS() << "Goodbye!" << LL_ENDL;
 
-	// This calls every remaining LLSingleton's deleteSingleton() method.
-	// No class destructor should perform any cleanup that might take
-	// significant realtime, or throw an exception.
+	// This calls every remaining LLSingleton's cleanupSingleton() and
+	// deleteSingleton() methods.
 	LLSingletonBase::deleteAll();
 
 	removeDumpDir();
@@ -2662,7 +2643,7 @@ bool LLAppViewer::initConfiguration()
 	std::string CmdLineChannel(gSavedSettings.getString("CmdLineChannel"));
 	if(! CmdLineChannel.empty())
     {
-		LLVersionInfo::resetChannel(CmdLineChannel);
+		LLVersionInfo::instance().resetChannel(CmdLineChannel);
 	}
 
 	// If we have specified crash on startup, set the global so we'll trigger the crash at the right time
@@ -2883,12 +2864,11 @@ bool LLAppViewer::initConfiguration()
 
 	// Let anyone else who cares know that we've populated our settings
 	// variables.
-	for (LLControlGroup::key_iter ki(LLControlGroup::beginKeys()), kend(LLControlGroup::endKeys());
-		 ki != kend; ++ki)
+	for (const auto& key : LLControlGroup::key_snapshot())
 	{
 		// For each named instance of LLControlGroup, send an event saying
 		// we've initialized an LLControlGroup instance by that name.
-		LLEventPumps::instance().obtain("LLControlGroup").post(LLSDMap("init", *ki));
+		LLEventPumps::instance().obtain("LLControlGroup").post(LLSDMap("init", key));
 	}
 
 	return true; // Config was successful.
@@ -3108,16 +3088,12 @@ LLSD LLAppViewer::getViewerInfo() const
 	// is available to a getInfo() caller as to the user opening
 	// LLFloaterAbout.
 	LLSD info;
-	LLSD version;
-	version.append(LLVersionInfo::getMajor());
-	version.append(LLVersionInfo::getMinor());
-	version.append(LLVersionInfo::getPatch());
-	version.append(LLVersionInfo::getBuild());
-	info["VIEWER_VERSION"] = version;
-	info["VIEWER_VERSION_STR"] = LLVersionInfo::getVersion();
-	info["CHANNEL"] = LLVersionInfo::getChannel();
+	auto& versionInfo(LLVersionInfo::instance());
+	info["VIEWER_VERSION"] = LLSDArray(versionInfo.getMajor())(versionInfo.getMinor())(versionInfo.getPatch())(versionInfo.getBuild());
+	info["VIEWER_VERSION_STR"] = versionInfo.getVersion();
+	info["CHANNEL"] = versionInfo.getChannel();
     info["ADDRESS_SIZE"] = ADDRESS_SIZE;
-    std::string build_config = LLVersionInfo::getBuildConfig();
+    std::string build_config = versionInfo.getBuildConfig();
     if (build_config != "Release")
     {
         info["BUILD_CONFIG"] = build_config;
@@ -3125,12 +3101,8 @@ LLSD LLAppViewer::getViewerInfo() const
 
 	// return a URL to the release notes for this viewer, such as:
 	// https://releasenotes.secondlife.com/viewer/2.1.0.123456.html
-	std::string url = LLTrans::getString("RELEASE_NOTES_BASE_URL");
-	if (! LLStringUtil::endsWith(url, "/"))
-		url += "/";
-	url += LLURI::escape(LLVersionInfo::getVersion()) + ".html";
-
-	info["VIEWER_RELEASE_NOTES_URL"] = url;
+	std::string url = versionInfo.getReleaseNotes();
+	info["VIEWER_RELEASE_NOTES_URL"] = url.empty()? LLTrans::getString("RetrievingData") : url;
 
 	// Position
 	LLViewerRegion* region = gAgent.getRegion();
@@ -3423,12 +3395,12 @@ void LLAppViewer::writeSystemInfo()
     gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.old");  //LLError::logFileName();
 #endif
 
-	gDebugInfo["ClientInfo"]["Name"] = LLVersionInfo::getChannel();
-	gDebugInfo["ClientInfo"]["MajorVersion"] = LLVersionInfo::getMajor();
-	gDebugInfo["ClientInfo"]["MinorVersion"] = LLVersionInfo::getMinor();
-	gDebugInfo["ClientInfo"]["PatchVersion"] = LLVersionInfo::getPatch();
-	gDebugInfo["ClientInfo"]["BuildVersion"] = LLVersionInfo::getBuild();
-	gDebugInfo["ClientInfo"]["AddressSize"] = LLVersionInfo::getAddressSize();
+	gDebugInfo["ClientInfo"]["Name"] = LLVersionInfo::instance().getChannel();
+	gDebugInfo["ClientInfo"]["MajorVersion"] = LLVersionInfo::instance().getMajor();
+	gDebugInfo["ClientInfo"]["MinorVersion"] = LLVersionInfo::instance().getMinor();
+	gDebugInfo["ClientInfo"]["PatchVersion"] = LLVersionInfo::instance().getPatch();
+	gDebugInfo["ClientInfo"]["BuildVersion"] = LLVersionInfo::instance().getBuild();
+	gDebugInfo["ClientInfo"]["AddressSize"] = LLVersionInfo::instance().getAddressSize();
 
 	gDebugInfo["CAFilename"] = gDirUtilp->getCAFile();
 
@@ -3471,7 +3443,7 @@ void LLAppViewer::writeSystemInfo()
 
 	// Dump some debugging info
 	LL_INFOS("SystemInfo") << "Application: " << LLTrans::getString("APP_NAME") << LL_ENDL;
-	LL_INFOS("SystemInfo") << "Version: " << LLVersionInfo::getChannelAndVersion() << LL_ENDL;
+	LL_INFOS("SystemInfo") << "Version: " << LLVersionInfo::instance().getChannelAndVersion() << LL_ENDL;
 
 	// Dump the local time and time zone
 	time_t now;
@@ -3693,7 +3665,7 @@ void LLAppViewer::handleViewerCrash()
 // static
 void LLAppViewer::recordMarkerVersion(LLAPRFile& marker_file)
 {
-	std::string marker_version(LLVersionInfo::getChannelAndVersion());
+	std::string marker_version(LLVersionInfo::instance().getChannelAndVersion());
 	if ( marker_version.length() > MAX_MARKER_LENGTH )
 	{
 		LL_WARNS_ONCE("MarkerFile") << "Version length ("<< marker_version.length()<< ")"
@@ -3710,7 +3682,7 @@ bool LLAppViewer::markerIsSameVersion(const std::string& marker_name) const
 {
 	bool sameVersion = false;
 
-	std::string my_version(LLVersionInfo::getChannelAndVersion());
+	std::string my_version(LLVersionInfo::instance().getChannelAndVersion());
 	char marker_version[MAX_MARKER_LENGTH];
 	S32  marker_version_length;
 
@@ -4670,6 +4642,9 @@ void LLAppViewer::idle()
 	LLFrameTimer::updateFrameTime();
 	LLFrameTimer::updateFrameCount();
 	LLEventTimer::updateClass();
+	// LLApp::stepFrame() performs the above three calls plus mRunner.run().
+	// Not sure why we don't call stepFrame() here, except that LLRunner seems
+	// completely redundant with LLEventTimer.
 	LLNotificationsUI::LLToast::updateClass();
 	LLSmoothInterpolation::updateInterpolants();
 	LLMortician::updateClass();
@@ -5282,37 +5257,40 @@ void LLAppViewer::idleNetwork()
 		const S64 frame_count = gFrameCount;  // U32->S64
 		F32 total_time = 0.0f;
 
-		while (gMessageSystem->checkAllMessages(frame_count, gServicePump))
 		{
-			if (gDoDisconnect)
+			LockMessageChecker lmc(gMessageSystem);
+			while (lmc.checkAllMessages(frame_count, gServicePump))
 			{
-				// We're disconnecting, don't process any more messages from the server
-				// We're usually disconnecting due to either network corruption or a
-				// server going down, so this is OK.
-				break;
-			}
+				if (gDoDisconnect)
+				{
+					// We're disconnecting, don't process any more messages from the server
+					// We're usually disconnecting due to either network corruption or a
+					// server going down, so this is OK.
+					break;
+				}
 
-			total_decoded++;
-			gPacketsIn++;
+				total_decoded++;
+				gPacketsIn++;
 
-			if (total_decoded > MESSAGE_MAX_PER_FRAME)
-			{
-				break;
-			}
+				if (total_decoded > MESSAGE_MAX_PER_FRAME)
+				{
+					break;
+				}
 
 #ifdef TIME_THROTTLE_MESSAGES
-			// Prevent slow packets from completely destroying the frame rate.
-			// This usually happens due to clumps of avatars taking huge amount
-			// of network processing time (which needs to be fixed, but this is
-			// a good limit anyway).
-			total_time = check_message_timer.getElapsedTimeF32();
-			if (total_time >= CheckMessagesMaxTime)
-				break;
+				// Prevent slow packets from completely destroying the frame rate.
+				// This usually happens due to clumps of avatars taking huge amount
+				// of network processing time (which needs to be fixed, but this is
+				// a good limit anyway).
+				total_time = check_message_timer.getElapsedTimeF32();
+				if (total_time >= CheckMessagesMaxTime)
+					break;
 #endif
-		}
+			}
 
-		// Handle per-frame message system processing.
-		gMessageSystem->processAcks(gSavedSettings.getF32("AckCollectTime"));
+			// Handle per-frame message system processing.
+			lmc.processAcks(gSavedSettings.getF32("AckCollectTime"));
+		}
 
 #ifdef TIME_THROTTLE_MESSAGES
 		if (total_time >= CheckMessagesMaxTime)
@@ -5570,12 +5548,12 @@ void LLAppViewer::handleLoginComplete()
 	initMainloopTimeout("Mainloop Init");
 
 	// Store some data to DebugInfo in case of a freeze.
-	gDebugInfo["ClientInfo"]["Name"] = LLVersionInfo::getChannel();
+	gDebugInfo["ClientInfo"]["Name"] = LLVersionInfo::instance().getChannel();
 
-	gDebugInfo["ClientInfo"]["MajorVersion"] = LLVersionInfo::getMajor();
-	gDebugInfo["ClientInfo"]["MinorVersion"] = LLVersionInfo::getMinor();
-	gDebugInfo["ClientInfo"]["PatchVersion"] = LLVersionInfo::getPatch();
-	gDebugInfo["ClientInfo"]["BuildVersion"] = LLVersionInfo::getBuild();
+	gDebugInfo["ClientInfo"]["MajorVersion"] = LLVersionInfo::instance().getMajor();
+	gDebugInfo["ClientInfo"]["MinorVersion"] = LLVersionInfo::instance().getMinor();
+	gDebugInfo["ClientInfo"]["PatchVersion"] = LLVersionInfo::instance().getPatch();
+	gDebugInfo["ClientInfo"]["BuildVersion"] = LLVersionInfo::instance().getBuild();
 
 	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if ( parcel && parcel->getMusicURL()[0])

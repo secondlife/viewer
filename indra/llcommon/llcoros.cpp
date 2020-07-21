@@ -26,15 +26,30 @@
  * $/LicenseInfo$
  */
 
+#include "llwin32headers.h"
+
 // Precompiled header
 #include "linden_common.h"
 // associated header
 #include "llcoros.h"
 // STL headers
 // std headers
+#include <atomic>
 // external library headers
 #include <boost/bind.hpp>
+#include <boost/fiber/fiber.hpp>
+#ifndef BOOST_DISABLE_ASSERTS
+#define UNDO_BOOST_DISABLE_ASSERTS
+// with Boost 1.65.1, needed for Mac with this specific header
+#define BOOST_DISABLE_ASSERTS
+#endif
+#include <boost/fiber/protected_fixedsize_stack.hpp>
+#ifdef UNDO_BOOST_DISABLE_ASSERTS
+#undef UNDO_BOOST_DISABLE_ASSERTS
+#undef BOOST_DISABLE_ASSERTS
+#endif
 // other Linden headers
+#include "llapp.h"
 #include "lltimer.h"
 #include "llevents.h"
 #include "llerror.h"
@@ -45,85 +60,43 @@
 #include <excpt.h>
 #endif
 
-namespace {
-void no_op() {}
-} // anonymous namespace
-
-// Do nothing, when we need nothing done. This is a static member of LLCoros
-// because CoroData is a private nested class.
-void LLCoros::no_cleanup(CoroData*) {}
-
-// CoroData for the currently-running coroutine. Use a thread_specific_ptr
-// because each thread potentially has its own distinct pool of coroutines.
-LLCoros::Current::Current()
-{
-    // Use a function-static instance so this thread_specific_ptr is
-    // instantiated on demand. Since we happen to know it's consumed by
-    // LLSingleton, this is likely to happen before the runtime has finished
-    // initializing module-static data. For the same reason, we can't package
-    // this pointer in an LLSingleton.
-
-    // This thread_specific_ptr does NOT own the CoroData object! That's owned
-    // by LLCoros::mCoros. It merely identifies it. For this reason we
-    // instantiate it with a no-op cleanup function.
-    static boost::thread_specific_ptr<LLCoros::CoroData> sCurrent(LLCoros::no_cleanup);
-
-    // If this is the first time we're accessing sCurrent for the running
-    // thread, its get() will be NULL. This could be a problem, in that
-    // llcoro::get_id() would return the same (NULL) token value for the "main
-    // coroutine" in every thread, whereas what we really want is a distinct
-    // value for every distinct stack in the process. So if get() is NULL,
-    // give it a heap CoroData: this ensures that llcoro::get_id() will return
-    // distinct values.
-    // This tactic is "leaky": sCurrent explicitly does not destroy any
-    // CoroData to which it points, and we do NOT enter these "main coroutine"
-    // CoroData instances in the LLCoros::mCoros map. They are dummy entries,
-    // and they will leak at process shutdown: one CoroData per thread.
-    if (! sCurrent.get())
-    {
-        // It's tempting to provide a distinct name for each thread's "main
-        // coroutine." But as getName() has always returned the empty string
-        // to mean "not in a coroutine," empty string should suffice here --
-        // and truthfully the additional (thread-safe!) machinery to ensure
-        // uniqueness just doesn't feel worth the trouble.
-        // We use a no-op callable and a minimal stack size because, although
-        // CoroData's constructor in fact initializes its mCoro with a
-        // coroutine with that stack size, no one ever actually enters it by
-        // calling mCoro().
-        sCurrent.reset(new CoroData(0,  // no prev
-                                    "", // not a named coroutine
-                                    no_op,  // no-op callable
-                                    1024)); // stacksize moot
-    }
-
-    mCurrent = &sCurrent;
-}
-
-//static
+// static
 LLCoros::CoroData& LLCoros::get_CoroData(const std::string& caller)
 {
-    CoroData* current = Current();
-    // With the dummy CoroData set in LLCoros::Current::Current(), this
-    // pointer should never be NULL.
-    llassert_always(current);
+    CoroData* current{ nullptr };
+    // be careful about attempted accesses in the final throes of app shutdown
+    if (! wasDeleted())
+    {
+        current = instance().mCurrent.get();
+    }
+    // For the main() coroutine, the one NOT explicitly launched by launch(),
+    // we never explicitly set mCurrent. Use a static CoroData instance with
+    // canonical values.
+    if (! current)
+    {
+        static std::atomic<int> which_thread(0);
+        // Use alternate CoroData constructor.
+        static thread_local CoroData sMain(which_thread++);
+        // We need not reset() the local_ptr to this instance; we'll simply
+        // find it again every time we discover that current is null.
+        current = &sMain;
+    }
     return *current;
 }
 
 //static
-LLCoros::coro::self& LLCoros::get_self()
+LLCoros::coro::id LLCoros::get_self()
 {
-    CoroData& current = get_CoroData("get_self()");
-    if (! current.mSelf)
-    {
-        LL_ERRS("LLCoros") << "Calling get_self() from non-coroutine context!" << LL_ENDL;
-    }
-    return *current.mSelf;
+    return boost::this_fiber::get_id();
 }
 
 //static
 void LLCoros::set_consuming(bool consuming)
 {
-    get_CoroData("set_consuming()").mConsuming = consuming;
+    CoroData& data(get_CoroData("set_consuming()"));
+    // DO NOT call this on the main() coroutine.
+    llassert_always(! data.mName.empty());
+    data.mConsuming = consuming;
 }
 
 //static
@@ -132,89 +105,59 @@ bool LLCoros::get_consuming()
     return get_CoroData("get_consuming()").mConsuming;
 }
 
-llcoro::Suspending::Suspending()
+// static
+void LLCoros::setStatus(const std::string& status)
 {
-    LLCoros::Current current;
-    // Remember currently-running coroutine: we're about to suspend it.
-    mSuspended = current;
-    // Revert Current to the value it had at the moment we last switched
-    // into this coroutine.
-    current.reset(mSuspended->mPrev);
+    get_CoroData("setStatus()").mStatus = status;
 }
 
-llcoro::Suspending::~Suspending()
+// static
+std::string LLCoros::getStatus()
 {
-    LLCoros::Current current;
-    // Okay, we're back, update our mPrev
-    mSuspended->mPrev = current;
-    // and reinstate our Current.
-    current.reset(mSuspended);
+    return get_CoroData("getStatus()").mStatus;
 }
 
 LLCoros::LLCoros():
     // MAINT-2724: default coroutine stack size too small on Windows.
     // Previously we used
     // boost::context::guarded_stack_allocator::default_stacksize();
-    // empirically this is 64KB on Windows and Linux. Try quadrupling.
+    // empirically this is insufficient.
 #if ADDRESS_SIZE == 64
-    mStackSize(512*1024)
+    mStackSize(512*1024),
 #else
-    mStackSize(256*1024)
+    mStackSize(256*1024),
 #endif
+    // mCurrent does NOT own the current CoroData instance -- it simply
+    // points to it. So initialize it with a no-op deleter.
+    mCurrent{ [](CoroData*){} }
 {
-    // Register our cleanup() method for "mainloop" ticks
-    LLEventPumps::instance().obtain("mainloop").listen(
-        "LLCoros", boost::bind(&LLCoros::cleanup, this, _1));
 }
 
-bool LLCoros::cleanup(const LLSD&)
+LLCoros::~LLCoros()
 {
-    static std::string previousName;
-    static int previousCount = 0;
-    // Walk the mCoros map, checking and removing completed coroutines.
-    for (CoroMap::iterator mi(mCoros.begin()), mend(mCoros.end()); mi != mend; )
+    printActiveCoroutines("at entry to ~LLCoros()");
+    // Other LLApp status-change listeners do things like close
+    // work queues and inject the Stop exception into pending
+    // promises, to force coroutines waiting on those things to
+    // notice and terminate. The only problem is that by the time
+    // LLApp sets "quitting" status, the main loop has stopped
+    // pumping the fiber scheduler with yield() calls. A waiting
+    // coroutine still might not wake up until after resources on
+    // which it depends have been freed. Pump it a few times
+    // ourselves. Of course, stop pumping as soon as the last of
+    // the coroutines has terminated.
+    for (size_t count = 0; count < 10 && CoroData::instanceCount() > 0; ++count)
     {
-        // Has this coroutine exited (normal return, exception, exit() call)
-        // since last tick?
-        if (mi->second->mCoro.exited())
-        {
-            if (previousName != mi->first)
-            { 
-                previousName = mi->first;
-                previousCount = 1;
-            }
-            else
-            {
-                ++previousCount;
-            }
-               
-            if ((previousCount < 5) || !(previousCount % 50))
-            {
-                if (previousCount < 5)
-                    LL_DEBUGS("LLCoros") << "LLCoros: cleaning up coroutine " << mi->first << LL_ENDL;
-                else
-                    LL_DEBUGS("LLCoros") << "LLCoros: cleaning up coroutine " << mi->first << "("<< previousCount << ")" << LL_ENDL;
-
-            }
-            // The erase() call will invalidate its passed iterator value --
-            // so increment mi FIRST -- but pass its original value to
-            // erase(). This is what postincrement is all about.
-            mCoros.erase(mi++);
-        }
-        else
-        {
-            // Still live, just skip this entry as if incrementing at the top
-            // of the loop as usual.
-            ++mi;
-        }
+        // don't use llcoro::suspend() because that module depends
+        // on this one
+        boost::this_fiber::yield();
     }
-    return false;
+    printActiveCoroutines("after pumping");
 }
 
 std::string LLCoros::generateDistinctName(const std::string& prefix) const
 {
-    static std::string previousName;
-    static int previousCount = 0;
+    static int unique = 0;
 
     // Allowing empty name would make getName()'s not-found return ambiguous.
     if (prefix.empty())
@@ -225,37 +168,15 @@ std::string LLCoros::generateDistinctName(const std::string& prefix) const
     // If the specified name isn't already in the map, just use that.
     std::string name(prefix);
 
-    // Find the lowest numeric suffix that doesn't collide with an existing
-    // entry. Start with 2 just to make it more intuitive for any interested
-    // parties: e.g. "joe", "joe2", "joe3"...
-    for (int i = 2; ; name = STRINGIZE(prefix << i++))
+    // Until we find an unused name, append a numeric suffix for uniqueness.
+    while (CoroData::getInstance(name))
     {
-        if (mCoros.find(name) == mCoros.end())
-        {
-            if (previousName != name)
-            {
-                previousName = name;
-                previousCount = 1;
-            }
-            else
-            {
-                ++previousCount;
-            }
-
-            if ((previousCount < 5) || !(previousCount % 50))
-            {
-                if (previousCount < 5)
-                    LL_DEBUGS("LLCoros") << "LLCoros: launching coroutine " << name << LL_ENDL;
-                else
-                    LL_DEBUGS("LLCoros") << "LLCoros: launching coroutine " << name << "(" << previousCount << ")" << LL_ENDL;
-
-            }
-
-            return name;
-        }
+        name = STRINGIZE(prefix << unique++);
     }
+    return name;
 }
 
+/*==========================================================================*|
 bool LLCoros::kill(const std::string& name)
 {
     CoroMap::iterator found = mCoros.find(name);
@@ -269,10 +190,19 @@ bool LLCoros::kill(const std::string& name)
     mCoros.erase(found);
     return true;
 }
+|*==========================================================================*/
 
-std::string LLCoros::getName() const
+//static
+std::string LLCoros::getName()
 {
-    return Current()->mName;
+    return get_CoroData("getName()").mName;
+}
+
+//static
+std::string LLCoros::logname()
+{
+    LLCoros::CoroData& data(get_CoroData("logname()"));
+    return data.mName.empty()? data.getKey() : data.mName;
 }
 
 void LLCoros::setStackSize(S32 stacksize)
@@ -281,23 +211,44 @@ void LLCoros::setStackSize(S32 stacksize)
     mStackSize = stacksize;
 }
 
-void LLCoros::printActiveCoroutines()
+void LLCoros::printActiveCoroutines(const std::string& when)
 {
-    LL_INFOS("LLCoros") << "Number of active coroutines: " << (S32)mCoros.size() << LL_ENDL;
-    if (mCoros.size() > 0)
+    LL_INFOS("LLCoros") << "Number of active coroutines " << when
+                        << ": " << CoroData::instanceCount() << LL_ENDL;
+    if (CoroData::instanceCount() > 0)
     {
         LL_INFOS("LLCoros") << "-------------- List of active coroutines ------------";
-        CoroMap::iterator iter;
-        CoroMap::iterator end = mCoros.end();
         F64 time = LLTimer::getTotalSeconds();
-        for (iter = mCoros.begin(); iter != end; iter++)
+        for (auto& cd : CoroData::instance_snapshot())
         {
-            F64 life_time = time - iter->second->mCreationTime;
-            LL_CONT << LL_NEWLINE << "Name: " << iter->first << " life: " << life_time;
+            F64 life_time = time - cd.mCreationTime;
+            LL_CONT << LL_NEWLINE
+                    << cd.getKey() << ' ' << cd.mStatus << " life: " << life_time;
         }
         LL_CONT << LL_ENDL;
         LL_INFOS("LLCoros") << "-----------------------------------------------------" << LL_ENDL;
     }
+}
+
+std::string LLCoros::launch(const std::string& prefix, const callable_t& callable)
+{
+    std::string name(generateDistinctName(prefix));
+    // 'dispatch' means: enter the new fiber immediately, returning here only
+    // when the fiber yields for whatever reason.
+    // std::allocator_arg is a flag to indicate that the following argument is
+    // a StackAllocator.
+    // protected_fixedsize_stack sets a guard page past the end of the new
+    // stack so that stack underflow will result in an access violation
+    // instead of weird, subtle, possibly undiagnosed memory stomps.
+    boost::fibers::fiber newCoro(boost::fibers::launch::dispatch,
+                                 std::allocator_arg,
+                                 boost::fibers::protected_fixedsize_stack(mStackSize),
+                                 [this, &name, &callable](){ toplevel(name, callable); });
+    // You have two choices with a fiber instance: you can join() it or you
+    // can detach() it. If you try to destroy the instance before doing
+    // either, the program silently terminates. We don't need this handle.
+    newCoro.detach();
+    return name;
 }
 
 #if LL_WINDOWS
@@ -337,13 +288,16 @@ void LLCoros::winlevel(const callable_t& callable)
 
 #endif
 
-// Top-level wrapper around caller's coroutine callable. This function accepts
-// the coroutine library's implicit coro::self& parameter and saves it, but
-// does not pass it down to the caller's callable.
-void LLCoros::toplevel(coro::self& self, CoroData* data, const callable_t& callable)
+// Top-level wrapper around caller's coroutine callable.
+// Normally we like to pass strings and such by const reference -- but in this
+// case, we WANT to copy both the name and the callable to our local stack!
+void LLCoros::toplevel(std::string name, callable_t callable)
 {
-    // capture the 'self' param in CoroData
-    data->mSelf = &self;
+    // keep the CoroData on this top-level function's stack frame
+    CoroData corodata(name);
+    // set it as current
+    mCurrent.reset(&corodata);
+
     // run the code the caller actually wants in the coroutine
     try
     {
@@ -353,75 +307,69 @@ void LLCoros::toplevel(coro::self& self, CoroData* data, const callable_t& calla
         callable();
 #endif
     }
+    catch (const Stop& exc)
+    {
+        LL_INFOS("LLCoros") << "coroutine " << name << " terminating because "
+                            << exc.what() << LL_ENDL;
+    }
     catch (const LLContinueError&)
     {
         // Any uncaught exception derived from LLContinueError will be caught
         // here and logged. This coroutine will terminate but the rest of the
         // viewer will carry on.
-        LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << data->mName));
+        LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << name));
     }
     catch (...)
     {
         // Any OTHER kind of uncaught exception will cause the viewer to
         // crash, hopefully informatively.
-        CRASH_ON_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << data->mName));
+        CRASH_ON_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << name));
     }
-    // This cleanup isn't perfectly symmetrical with the way we initially set
-    // data->mPrev, but this is our last chance to reset Current.
-    Current().reset(data->mPrev);
 }
 
-/*****************************************************************************
-*   MUST BE LAST
-*****************************************************************************/
-// Turn off MSVC optimizations for just LLCoros::launch() -- see
-// DEV-32777. But MSVC doesn't support push/pop for optimization flags as it
-// does for warning suppression, and we really don't want to force
-// optimization ON for other code even in Debug or RelWithDebInfo builds.
+//static
+void LLCoros::checkStop()
+{
+    if (wasDeleted())
+    {
+        LLTHROW(Shutdown("LLCoros was deleted"));
+    }
+    // do this AFTER the check above, because getName() depends on
+    // get_CoroData(), which depends on the local_ptr in our instance().
+    if (getName().empty())
+    {
+        // Our Stop exception and its subclasses are intended to stop loitering
+        // coroutines. Don't throw it from the main coroutine.
+        return;
+    }
+    if (LLApp::isStopped())
+    {
+        LLTHROW(Stopped("viewer is stopped"));
+    }
+    if (! LLApp::isRunning())
+    {
+        LLTHROW(Stopping("viewer is stopping"));
+    }
+}
 
-#if LL_MSVC
-// work around broken optimizations
-#pragma warning(disable: 4748)
-#pragma warning(disable: 4355) // 'this' used in initializer list: yes, intentionally
-#pragma optimize("", off)
-#endif // LL_MSVC
-
-LLCoros::CoroData::CoroData(CoroData* prev, const std::string& name,
-                            const callable_t& callable, S32 stacksize):
-    mPrev(prev),
+LLCoros::CoroData::CoroData(const std::string& name):
+    LLInstanceTracker<CoroData, std::string>(name),
     mName(name),
-    // Wrap the caller's callable in our toplevel() function so we can manage
-    // Current appropriately at startup and shutdown of each coroutine.
-    mCoro(boost::bind(toplevel, _1, this, callable), stacksize),
     // don't consume events unless specifically directed
     mConsuming(false),
-    mSelf(0),
     mCreationTime(LLTimer::getTotalSeconds())
 {
 }
 
-std::string LLCoros::launch(const std::string& prefix, const callable_t& callable)
+LLCoros::CoroData::CoroData(int n):
+    // This constructor is used for the thread_local instance belonging to the
+    // default coroutine on each thread. We must give each one a different
+    // LLInstanceTracker key because LLInstanceTracker's map spans all
+    // threads, but we want the default coroutine on each thread to have the
+    // empty string as its visible name because some consumers test for that.
+    LLInstanceTracker<CoroData, std::string>("main" + stringize(n)),
+    mName(),
+    mConsuming(false),
+    mCreationTime(LLTimer::getTotalSeconds())
 {
-    std::string name(generateDistinctName(prefix));
-    Current current;
-    // pass the current value of Current as previous context
-    CoroData* newCoro = new(std::nothrow) CoroData(current, name, callable, mStackSize);
-    if (newCoro == NULL)
-    {
-        // Out of memory?
-        printActiveCoroutines();
-        LL_ERRS("LLCoros") << "Failed to start coroutine: " << name << " Stacksize: " << mStackSize << " Total coroutines: " << mCoros.size() << LL_ENDL;
-    }
-    // Store it in our pointer map
-    mCoros.insert(name, newCoro);
-    // also set it as current
-    current.reset(newCoro);
-    /* Run the coroutine until its first wait, then return here */
-    (newCoro->mCoro)(std::nothrow);
-    return name;
 }
-
-#if LL_MSVC
-// reenable optimizations
-#pragma optimize("", on)
-#endif // LL_MSVC
