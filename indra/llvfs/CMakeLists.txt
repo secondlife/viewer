@@ -106,4 +106,38 @@ if (LL_TESTS)
 
     # TODO: Some of these need refactoring to be proper Unit tests rather than Integration tests.
     LL_ADD_INTEGRATION_TEST(lldir "" "${test_libs}")
+    
 endif (LL_TESTS)
+
+### TODO: Move it back inside LL_TESTS block eventually
+    ####################################################################################
+    # LLVFS perf/stress app
+    SET(llvfs_TEST_SOURCE_FILES
+      tests/llvfs_perftest.cpp
+    )
+    add_executable(llvfs_perf_test
+      ${llvfs_TEST_SOURCE_FILES}
+    )
+    set_target_properties(llvfs_perf_test
+      PROPERTIES
+      RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}"
+    )
+    target_link_libraries(llvfs_perf_test
+      ${LLCOMMON_LIBRARIES}
+      llvfs
+      ${vfs_BOOST_LIBRARIES}
+      ${SQLITE_LIBRARIES}
+    )
+    target_include_directories(
+      llvfs_perf_test
+      PUBLIC
+      ${LIBS_OPEN_DIR}/llvfs
+    )
+    if (WINDOWS)
+      set_target_properties(llvfs_perf_test
+        PROPERTIES
+        LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:CONSOLE"
+        LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
+        LINK_FLAGS_RELEASE ""
+      )
+    endif (WINDOWS)
