@@ -28,8 +28,9 @@
 
 #include <boost/noncopyable.hpp>
 #include <boost/intrusive_ptr.hpp>
-#include "llmutex.h"
 #include "llatomic.h"
+
+class LLMutex;
 
 //----------------------------------------------------------------------------
 // RefCount objects should generally only be accessed by way of LLPointer<>'s

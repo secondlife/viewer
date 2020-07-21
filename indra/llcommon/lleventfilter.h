@@ -32,7 +32,11 @@
 #include "llevents.h"
 #include "stdtypes.h"
 #include "lltimer.h"
+#include "llsdutil.h"
 #include <boost/function.hpp>
+
+class LLEventTimer;
+class LLDate;
 
 /**
  * Generic base class
@@ -210,6 +214,19 @@ public:
     LLEventTimeout();
     LLEventTimeout(LLEventPump& source);
 
+    /// using LLEventTimeout as namespace for free functions
+    /// Post event to specified LLEventPump every period seconds. Delete
+    /// returned LLEventTimer* to cancel.
+    static LLEventTimer* post_every(F32 period, const std::string& pump, const LLSD& data);
+    /// Post event to specified LLEventPump at specified future time. Call
+    /// LLEventTimer::getInstance(returned pointer) to check whether it's still
+    /// pending; if so, delete the pointer to cancel.
+    static LLEventTimer* post_at(const LLDate& time, const std::string& pump, const LLSD& data);
+    /// Post event to specified LLEventPump after specified interval. Call
+    /// LLEventTimer::getInstance(returned pointer) to check whether it's still
+    /// pending; if so, delete the pointer to cancel.
+    static LLEventTimer* post_after(F32 interval, const std::string& pump, const LLSD& data);
+
 protected:
     virtual void setCountdown(F32 seconds);
     virtual bool countdownElapsed() const;
@@ -374,6 +391,151 @@ public:
 
 private:
     std::size_t mBatchSize;
+};
+
+/**
+ * LLStoreListener self-registers on the LLEventPump of interest, and
+ * unregisters on destruction. As long as it exists, a particular element is
+ * extracted from every event that comes through the upstream LLEventPump and
+ * stored into the target variable.
+ *
+ * This is implemented as a subclass of LLEventFilter, though strictly
+ * speaking it isn't really a "filter" at all: it never passes incoming events
+ * to its own listeners, if any.
+ *
+ * TBD: A variant based on output iterators that stores and then increments
+ * the iterator. Useful with boost::coroutine2!
+ */
+template <typename T>
+class LLStoreListener: public LLEventFilter
+{
+public:
+    // pass target and optional path to element
+    LLStoreListener(T& target, const LLSD& path=LLSD(), bool consume=false):
+        LLEventFilter("store"),
+        mTarget(target),
+        mPath(path),
+        mConsume(consume)
+    {}
+    // construct and connect
+    LLStoreListener(LLEventPump& source, T& target, const LLSD& path=LLSD(), bool consume=false):
+        LLEventFilter(source, "store"),
+        mTarget(target),
+        mPath(path),
+        mConsume(consume)
+    {}
+
+    // Calling post() with an LLSD event extracts the element indicated by
+    // path, then stores it to mTarget.
+    virtual bool post(const LLSD& event)
+    {
+        // Extract the element specified by 'mPath' from 'event'. To perform a
+        // generic type-appropriate store through mTarget, construct an
+        // LLSDParam<T> and store that, thus engaging LLSDParam's custom
+        // conversions.
+        mTarget = LLSDParam<T>(llsd::drill(event, mPath));
+        return mConsume;
+    }
+
+private:
+    T& mTarget;
+    const LLSD mPath;
+    const bool mConsume;
+};
+
+/*****************************************************************************
+*   LLEventLogProxy
+*****************************************************************************/
+/**
+ * LLEventLogProxy is a little different than the other LLEventFilter
+ * subclasses declared in this header file, in that it completely wraps the
+ * passed LLEventPump (both input and output) instead of simply processing its
+ * output. Of course, if someone directly posts to the wrapped LLEventPump by
+ * looking up its string name in LLEventPumps, LLEventLogProxy can't intercept
+ * that post() call. But as long as consuming code is willing to access the
+ * LLEventLogProxy instance instead of the wrapped LLEventPump, all event data
+ * both post()ed and received is logged.
+ *
+ * The proxy role means that LLEventLogProxy intercepts more of LLEventPump's
+ * API than a typical LLEventFilter subclass.
+ */
+class LLEventLogProxy: public LLEventFilter
+{
+    typedef LLEventFilter super;
+public:
+    /**
+     * Construct LLEventLogProxy, wrapping the specified LLEventPump.
+     * Unlike a typical LLEventFilter subclass, the name parameter is @emph
+     * not optional because typically you want LLEventLogProxy to completely
+     * replace the wrapped LLEventPump. So you give the subject LLEventPump
+     * some other name and give the LLEventLogProxy the name that would have
+     * been used for the subject LLEventPump.
+     */
+    LLEventLogProxy(LLEventPump& source, const std::string& name, bool tweak=false);
+
+    /// register a new listener
+    LLBoundListener listen_impl(const std::string& name, const LLEventListener& target,
+                                const NameList& after, const NameList& before);
+
+    /// Post an event to all listeners
+    virtual bool post(const LLSD& event) /* override */;
+
+private:
+    /// This method intercepts each call to any target listener. We pass it
+    /// the listener name and the caller's intended target listener plus the
+    /// posted LLSD event.
+    bool listener(const std::string& name,
+                  const LLEventListener& target,
+                  const LLSD& event) const;
+
+    LLEventPump& mPump;
+    LLSD::Integer mCounter{0};
+};
+
+/**
+ * LLEventPumpHolder<T> is a helper for LLEventLogProxyFor<T>. It simply
+ * stores an instance of T, presumably a subclass of LLEventPump. We derive
+ * LLEventLogProxyFor<T> from LLEventPumpHolder<T>, ensuring that
+ * LLEventPumpHolder's contained mWrappedPump is fully constructed before
+ * passing it to LLEventLogProxyFor's LLEventLogProxy base class constructor.
+ * But since LLEventPumpHolder<T> presents none of the LLEventPump API,
+ * LLEventLogProxyFor<T> inherits its methods unambiguously from
+ * LLEventLogProxy.
+ */
+template <class T>
+class LLEventPumpHolder
+{
+protected:
+    LLEventPumpHolder(const std::string& name, bool tweak=false):
+        mWrappedPump(name, tweak)
+    {}
+    T mWrappedPump;
+};
+
+/**
+ * LLEventLogProxyFor<T> is a wrapper around any of the LLEventPump subclasses.
+ * Instantiating an LLEventLogProxy<T> instantiates an internal T. Otherwise
+ * it behaves like LLEventLogProxy.
+ */
+template <class T>
+class LLEventLogProxyFor: private LLEventPumpHolder<T>, public LLEventLogProxy
+{
+    // We derive privately from LLEventPumpHolder because it's an
+    // implementation detail of LLEventLogProxyFor. The only reason it's a
+    // base class at all is to guarantee that it's constructed first so we can
+    // pass it to our LLEventLogProxy base class constructor.
+    typedef LLEventPumpHolder<T> holder;
+    typedef LLEventLogProxy super;
+
+public:
+    LLEventLogProxyFor(const std::string& name, bool tweak=false):
+        // our wrapped LLEventPump subclass instance gets a name suffix
+        // because that's not the LLEventPump we want consumers to obtain when
+        // they ask LLEventPumps for this name
+        holder(name + "-", tweak),
+        // it's our LLEventLogProxy that gets the passed name
+        super(holder::mWrappedPump, name, tweak)
+    {}
 };
 
 #endif /* ! defined(LL_LLEVENTFILTER_H) */

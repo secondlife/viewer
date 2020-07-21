@@ -41,17 +41,7 @@
 
 #include "llstring.h"
 
-#if LL_WINDOWS
-#pragma warning (push)
-#pragma warning (disable:4265)
-#endif
-// warning C4265: 'std::_Pad' : class has virtual functions, but destructor is not virtual
-
-#include <mutex>
-
-#if LL_WINDOWS
-#pragma warning (pop)
-#endif
+#include "mutex.h"
 
 struct apr_dso_handle_t;
 /**
