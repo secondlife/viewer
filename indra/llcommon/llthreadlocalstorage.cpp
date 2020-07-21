@@ -93,11 +93,9 @@ void LLThreadLocalPointerBase::initAllThreadLocalStorage()
 {
 	if (!sInitialized)
 	{
-		for (LLInstanceTracker<LLThreadLocalPointerBase>::instance_iter it = beginInstances(), end_it = endInstances();
-			it != end_it;
-			++it)
+		for (auto& base : instance_snapshot())
 		{
-			(*it).initStorage();
+			base.initStorage();
 		}
 		sInitialized = true;
 	}
@@ -108,11 +106,9 @@ void LLThreadLocalPointerBase::destroyAllThreadLocalStorage()
 {
 	if (sInitialized)
 	{
-		//for (LLInstanceTracker<LLThreadLocalPointerBase>::instance_iter it = beginInstances(), end_it = endInstances();
-		//	it != end_it;
-		//	++it)
+		//for (auto& base : instance_snapshot())
 		//{
-		//	(*it).destroyStorage();
+		//	base.destroyStorage();
 		//}
 		sInitialized = false;
 	}

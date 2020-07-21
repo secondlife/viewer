@@ -71,8 +71,46 @@ F32  LLViewerJoystick::sDelta[] = {0,0,0,0,0,0,0};
 #define MAX_SPACENAVIGATOR_INPUT  3000.0f
 #define MAX_JOYSTICK_INPUT_VALUE  MAX_SPACENAVIGATOR_INPUT
 
-#if LL_WINDOWS && !LL_MESA_HEADLESS
 
+#if LIB_NDOF
+std::ostream& operator<<(std::ostream& out, NDOF_Device* ptr)
+{
+    if (! ptr)
+    {
+        return out << "nullptr";
+    }
+    out << "NDOF_Device{ ";
+    out << "axes [";
+    const char* delim = "";
+    for (short axis = 0; axis < ptr->axes_count; ++axis)
+    {
+        out << delim << ptr->axes[axis];
+        delim = ", ";
+    }
+    out << "]";
+    out << ", buttons [";
+    delim = "";
+    for (short button = 0; button < ptr->btn_count; ++button)
+    {
+        out << delim << ptr->buttons[button];
+        delim = ", ";
+    }
+    out << "]";
+    out << ", range " << ptr->axes_min << ':' << ptr->axes_max;
+    // If we don't coerce these to unsigned, they're streamed as characters,
+    // e.g. ctrl-A or nul.
+    out << ", absolute " << unsigned(ptr->absolute);
+    out << ", valid " << unsigned(ptr->valid);
+    out << ", manufacturer '" << ptr->manufacturer << "'";
+    out << ", product '" << ptr->product << "'";
+    out << ", private " << ptr->private_data;
+    out << " }";
+    return out;
+}
+#endif // LIB_NDOF
+
+
+#if LL_WINDOWS && !LL_MESA_HEADLESS
 // this should reflect ndof and set axises, see ndofdev_win.cpp from ndof package
 BOOL CALLBACK EnumObjectsCallback(const DIDEVICEOBJECTINSTANCE* inst, VOID* user_data)
 {
@@ -237,11 +275,11 @@ NDOF_HotPlugResult LLViewerJoystick::HotPlugAddCallback(NDOF_Device *dev)
 	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
 	if (joystick->mDriverState == JDS_UNINITIALIZED)
 	{
-        LL_INFOS("Joystick") << "HotPlugAddCallback: will use device:" << LL_ENDL;
-		ndof_dump(dev);
+		LL_INFOS("Joystick") << "HotPlugAddCallback: will use device:" << LL_ENDL;
+		ndof_dump(stderr, dev);
 		joystick->mNdofDev = dev;
-        joystick->mDriverState = JDS_INITIALIZED;
-        res = NDOF_KEEP_HOTPLUGGED;
+		joystick->mDriverState = JDS_INITIALIZED;
+		res = NDOF_KEEP_HOTPLUGGED;
 	}
 	joystick->updateEnabled(true);
     return res;
@@ -257,7 +295,7 @@ void LLViewerJoystick::HotPlugRemovalCallback(NDOF_Device *dev)
 	{
         LL_INFOS("Joystick") << "HotPlugRemovalCallback: joystick->mNdofDev="
 				<< joystick->mNdofDev << "; removed device:" << LL_ENDL;
-		ndof_dump(dev);
+		ndof_dump(stderr, dev);
 		joystick->mDriverState = JDS_UNINITIALIZED;
 	}
 	joystick->updateEnabled(true);
@@ -390,8 +428,8 @@ void LLViewerJoystick::init(bool autoenable)
 	{
 		// No device connected, don't change any settings
 	}
-	
-    LL_INFOS("Joystick") << "ndof: mDriverState=" << mDriverState << "; mNdofDev="
+
+	LL_INFOS("Joystick") << "ndof: mDriverState=" << mDriverState << "; mNdofDev=" 
 			<< mNdofDev << "; libinit=" << libinit << LL_ENDL;
 #endif
 }
@@ -1356,7 +1394,7 @@ std::string LLViewerJoystick::getDescription()
 
 bool LLViewerJoystick::isLikeSpaceNavigator() const
 {
-#if LIB_NDOF	
+#if LIB_NDOF
 	return (isJoystickInitialized() 
 			&& (strncmp(mNdofDev->product, "SpaceNavigator", 14) == 0
 				|| strncmp(mNdofDev->product, "SpaceExplorer", 13) == 0
@@ -1380,10 +1418,10 @@ void LLViewerJoystick::setSNDefaults()
 	const float platformScaleAvXZ = 2.f;
 	const bool is_3d_cursor = true;
 #endif
-	
+
 	//gViewerWindow->alertXml("CacheWillClear");
-	LL_INFOS() << "restoring SpaceNavigator defaults..." << LL_ENDL;
-	
+	LL_INFOS("Joystick") << "restoring SpaceNavigator defaults..." << LL_ENDL;
+
 	gSavedSettings.setS32("JoystickAxis0", 1); // z (at)
 	gSavedSettings.setS32("JoystickAxis1", 0); // x (slide)
 	gSavedSettings.setS32("JoystickAxis2", 2); // y (up)
@@ -1391,11 +1429,11 @@ void LLViewerJoystick::setSNDefaults()
 	gSavedSettings.setS32("JoystickAxis4", 3); // roll 
 	gSavedSettings.setS32("JoystickAxis5", 5); // yaw
 	gSavedSettings.setS32("JoystickAxis6", -1);
-	
+
 	gSavedSettings.setBOOL("Cursor3D", is_3d_cursor);
 	gSavedSettings.setBOOL("AutoLeveling", true);
 	gSavedSettings.setBOOL("ZoomDirect", false);
-	
+
 	gSavedSettings.setF32("AvatarAxisScale0", 1.f * platformScaleAvXZ);
 	gSavedSettings.setF32("AvatarAxisScale1", 1.f * platformScaleAvXZ);
 	gSavedSettings.setF32("AvatarAxisScale2", 1.f);

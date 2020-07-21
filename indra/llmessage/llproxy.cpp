@@ -126,9 +126,9 @@ S32 LLProxy::proxyHandshake(LLHost proxy)
 		U32 request_size = socks_username.size() + socks_password.size() + 3;
 		char * password_auth = new char[request_size];
 		password_auth[0] = 0x01;
-		password_auth[1] = socks_username.size();
+		password_auth[1] = (char)(socks_username.size());
 		memcpy(&password_auth[2], socks_username.c_str(), socks_username.size());
-		password_auth[socks_username.size() + 2] = socks_password.size();
+		password_auth[socks_username.size() + 2] = (char)(socks_password.size());
 		memcpy(&password_auth[socks_username.size() + 3], socks_password.c_str(), socks_password.size());
 
 		authmethod_password_reply_t password_reply;

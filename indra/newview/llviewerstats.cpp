@@ -473,7 +473,7 @@ void send_stats()
 
 	// send fps only for time app spends in foreground
 	agent["fps"] = (F32)gForegroundFrameCount / gForegroundTime.getElapsedTimeF32();
-	agent["version"] = LLVersionInfo::getChannelAndVersion();
+	agent["version"] = LLVersionInfo::instance().getChannelAndVersion();
 	std::string language = LLUI::getLanguage();
 	agent["language"] = language;
 	

@@ -86,6 +86,69 @@ public:
 	static  const char * tmpdir();
 };
 
+/// RAII class
+class LLUniqueFile
+{
+public:
+    // empty
+    LLUniqueFile(): mFileHandle(nullptr) {}
+    // wrap (e.g.) result of LLFile::fopen()
+    LLUniqueFile(LLFILE* f): mFileHandle(f) {}
+    // no copy
+    LLUniqueFile(const LLUniqueFile&) = delete;
+    // move construction
+    LLUniqueFile(LLUniqueFile&& other)
+    {
+        mFileHandle = other.mFileHandle;
+        other.mFileHandle = nullptr;
+    }
+    // The point of LLUniqueFile is to close on destruction.
+    ~LLUniqueFile()
+    {
+        close();
+    }
+
+    // simple assignment
+    LLUniqueFile& operator=(LLFILE* f)
+    {
+        close();
+        mFileHandle = f;
+        return *this;
+    }
+    // copy assignment deleted
+    LLUniqueFile& operator=(const LLUniqueFile&) = delete;
+    // move assignment
+    LLUniqueFile& operator=(LLUniqueFile&& other)
+    {
+        close();
+        std::swap(mFileHandle, other.mFileHandle);
+        return *this;
+    }
+
+    // explicit close operation
+    void close()
+    {
+        if (mFileHandle)
+        {
+            // in case close() throws, set mFileHandle null FIRST
+            LLFILE* h{nullptr};
+            std::swap(h, mFileHandle);
+            LLFile::close(h);
+        }
+    }
+
+    // detect whether the wrapped LLFILE is open or not
+    explicit operator bool() const { return bool(mFileHandle); }
+    bool operator!() { return ! mFileHandle; }
+
+    // LLUniqueFile should be usable for any operation that accepts LLFILE*
+    // (or FILE* for that matter)
+    operator LLFILE*() const { return mFileHandle; }
+
+private:
+    LLFILE* mFileHandle;
+};
+
 #if LL_WINDOWS
 /**
  *  @brief  Controlling input for files.

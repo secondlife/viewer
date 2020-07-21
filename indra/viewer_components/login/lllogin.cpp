@@ -23,6 +23,7 @@
  * $/LicenseInfo$
  */
 
+#include "llwin32headers.h"
 #include "linden_common.h"
 #include "llsd.h"
 #include "llsdutil.h"
@@ -147,167 +148,170 @@ void LLLogin::Impl::loginCoro(std::string uri, LLSD login_params)
     }
     try
     {
-    LL_DEBUGS("LLLogin") << "Entering coroutine " << LLCoros::instance().getName()
-                        << " with uri '" << uri << "', parameters " << printable_params << LL_ENDL;
+        LL_DEBUGS("LLLogin") << "Entering coroutine " << LLCoros::getName()
+                             << " with uri '" << uri << "', parameters " << printable_params << LL_ENDL;
 
-    LLEventPump& xmlrpcPump(LLEventPumps::instance().obtain("LLXMLRPCTransaction"));
-    // EXT-4193: use a DIFFERENT reply pump than for the SRV request. We used
-    // to share them -- but the EXT-3934 fix made it possible for an abandoned
-    // SRV response to arrive just as we were expecting the XMLRPC response.
-    LLEventStream loginReplyPump("loginreply", true);
+        LLEventPump& xmlrpcPump(LLEventPumps::instance().obtain("LLXMLRPCTransaction"));
+        // EXT-4193: use a DIFFERENT reply pump than for the SRV request. We used
+        // to share them -- but the EXT-3934 fix made it possible for an abandoned
+        // SRV response to arrive just as we were expecting the XMLRPC response.
+        LLEventStream loginReplyPump("loginreply", true);
 
-    LLSD::Integer attempts = 0;
+        LLSD::Integer attempts = 0;
 
-    LLSD request(login_params);
-    request["reply"] = loginReplyPump.getName();
-    request["uri"] = uri;
-    std::string status;
+        LLSD request(login_params);
+        request["reply"] = loginReplyPump.getName();
+        request["uri"] = uri;
+        std::string status;
 
-    // Loop back to here if login attempt redirects to a different
-    // request["uri"]
-    for (;;)
-    {
-        ++attempts;
-        LLSD progress_data;
-        progress_data["attempt"] = attempts;
-        progress_data["request"] = request;
-        if (progress_data["request"].has("params")
-            && progress_data["request"]["params"].has("passwd"))
+        // Loop back to here if login attempt redirects to a different
+        // request["uri"]
+        for (;;)
         {
-            progress_data["request"]["params"]["passwd"] = "*******";
-        }
-        sendProgressEvent("offline", "authenticating", progress_data);
-
-        // We expect zero or more "Downloading" status events, followed by
-        // exactly one event with some other status. Use postAndSuspend() the
-        // first time, because -- at least in unit-test land -- it's
-        // possible for the reply to arrive before the post() call
-        // returns. Subsequent responses, of course, must be awaited
-        // without posting again.
-        for (mAuthResponse = validateResponse(loginReplyPump.getName(),
-                    llcoro::postAndSuspend(request, xmlrpcPump, loginReplyPump, "reply"));
-                mAuthResponse["status"].asString() == "Downloading";
-                mAuthResponse = validateResponse(loginReplyPump.getName(),
-                                                llcoro::suspendUntilEventOn(loginReplyPump)))
-        {
-            // Still Downloading -- send progress update.
-            sendProgressEvent("offline", "downloading");
-        }
-
-        LL_DEBUGS("LLLogin") << "Auth Response: " << mAuthResponse << LL_ENDL;
-        status = mAuthResponse["status"].asString();
-
-        // Okay, we've received our final status event for this
-        // request. Unless we got a redirect response, break the retry
-        // loop for the current rewrittenURIs entry.
-        if (!(status == "Complete" &&
-                mAuthResponse["responses"]["login"].asString() == "indeterminate"))
-        {
-            break;
-        }
-
-        sendProgressEvent("offline", "indeterminate", mAuthResponse["responses"]);
-
-        // Here the login service at the current URI is redirecting us
-        // to some other URI ("indeterminate" -- why not "redirect"?).
-        // The response should contain another uri to try, with its
-        // own auth method.
-        request["uri"] = mAuthResponse["responses"]["next_url"].asString();
-        request["method"] = mAuthResponse["responses"]["next_method"].asString();
-    } // loop back to try the redirected URI
-
-    // Here we're done with redirects.
-    if (status == "Complete")
-    {
-        // StatusComplete does not imply auth success. Check the
-        // actual outcome of the request. We've already handled the
-        // "indeterminate" case in the loop above.
-        if (mAuthResponse["responses"]["login"].asString() == "true")
-        {
-            sendProgressEvent("online", "connect", mAuthResponse["responses"]);
-        }
-        else
-        {
-            // Synchronize here with the updater. We synchronize here rather
-            // than in the fail.login handler, which actually examines the
-            // response from login.cgi, because here we are definitely in a
-            // coroutine and can definitely use suspendUntilBlah(). Whoever's
-            // listening for fail.login might not be.
-
-            // If the reason for login failure is that we must install a
-            // required update, we definitely want to pass control to the
-            // updater to manage that for us. We'll handle any other login
-            // failure ourselves, as usual. We figure that no matter where you
-            // are in the world, or what kind of network you're on, we can
-            // reasonably expect the Viewer Version Manager to respond more or
-            // less as quickly as login.cgi. This synchronization is only
-            // intended to smooth out minor races between the two services.
-            // But what if the updater crashes? Use a timeout so that
-            // eventually we'll tire of waiting for it and carry on as usual.
-            // Given the above, it can be a fairly short timeout, at least
-            // from a human point of view.
-
-            // Since sSyncPoint is an LLEventMailDrop, we DEFINITELY want to
-            // consume the posted event.
-            LLCoros::OverrideConsuming oc(true);
-            // Timeout should produce the isUndefined() object passed here.
-            LL_DEBUGS("LLLogin") << "Login failure, waiting for sync from updater" << LL_ENDL;
-            LLSD updater = llcoro::suspendUntilEventOnWithTimeout(sSyncPoint, 10, LLSD());
-            if (updater.isUndefined())
+            ++attempts;
+            LLSD progress_data;
+            progress_data["attempt"] = attempts;
+            progress_data["request"] = request;
+            if (progress_data["request"].has("params")
+                && progress_data["request"]["params"].has("passwd"))
             {
-                LL_WARNS("LLLogin") << "Failed to hear from updater, proceeding with fail.login"
-                                    << LL_ENDL;
+                progress_data["request"]["params"]["passwd"] = "*******";
+            }
+            sendProgressEvent("offline", "authenticating", progress_data);
+
+            // We expect zero or more "Downloading" status events, followed by
+            // exactly one event with some other status. Use postAndSuspend() the
+            // first time, because -- at least in unit-test land -- it's
+            // possible for the reply to arrive before the post() call
+            // returns. Subsequent responses, of course, must be awaited
+            // without posting again.
+            for (mAuthResponse = validateResponse(loginReplyPump.getName(),
+                                                  llcoro::postAndSuspend(request, xmlrpcPump, loginReplyPump, "reply"));
+                 mAuthResponse["status"].asString() == "Downloading";
+                 mAuthResponse = validateResponse(loginReplyPump.getName(),
+                                                  llcoro::suspendUntilEventOn(loginReplyPump)))
+            {
+                // Still Downloading -- send progress update.
+                sendProgressEvent("offline", "downloading");
+            }
+
+            LL_DEBUGS("LLLogin") << "Auth Response: " << mAuthResponse << LL_ENDL;
+            status = mAuthResponse["status"].asString();
+
+            // Okay, we've received our final status event for this
+            // request. Unless we got a redirect response, break the retry
+            // loop for the current rewrittenURIs entry.
+            if (!(status == "Complete" &&
+                  mAuthResponse["responses"]["login"].asString() == "indeterminate"))
+            {
+                break;
+            }
+
+            sendProgressEvent("offline", "indeterminate", mAuthResponse["responses"]);
+
+            // Here the login service at the current URI is redirecting us
+            // to some other URI ("indeterminate" -- why not "redirect"?).
+            // The response should contain another uri to try, with its
+            // own auth method.
+            request["uri"] = mAuthResponse["responses"]["next_url"].asString();
+            request["method"] = mAuthResponse["responses"]["next_method"].asString();
+        } // loop back to try the redirected URI
+
+        // Here we're done with redirects.
+        if (status == "Complete")
+        {
+            // StatusComplete does not imply auth success. Check the
+            // actual outcome of the request. We've already handled the
+            // "indeterminate" case in the loop above.
+            if (mAuthResponse["responses"]["login"].asString() == "true")
+            {
+                sendProgressEvent("online", "connect", mAuthResponse["responses"]);
             }
             else
             {
-                LL_DEBUGS("LLLogin") << "Got responses from updater and login.cgi" << LL_ENDL;
+                // Synchronize here with the updater. We synchronize here rather
+                // than in the fail.login handler, which actually examines the
+                // response from login.cgi, because here we are definitely in a
+                // coroutine and can definitely use suspendUntilBlah(). Whoever's
+                // listening for fail.login might not be.
+
+                // If the reason for login failure is that we must install a
+                // required update, we definitely want to pass control to the
+                // updater to manage that for us. We'll handle any other login
+                // failure ourselves, as usual. We figure that no matter where you
+                // are in the world, or what kind of network you're on, we can
+                // reasonably expect the Viewer Version Manager to respond more or
+                // less as quickly as login.cgi. This synchronization is only
+                // intended to smooth out minor races between the two services.
+                // But what if the updater crashes? Use a timeout so that
+                // eventually we'll tire of waiting for it and carry on as usual.
+                // Given the above, it can be a fairly short timeout, at least
+                // from a human point of view.
+
+                // Since sSyncPoint is an LLEventMailDrop, we DEFINITELY want to
+                // consume the posted event.
+                LLCoros::OverrideConsuming oc(true);
+                // Timeout should produce the isUndefined() object passed here.
+                LL_DEBUGS("LLLogin") << "Login failure, waiting for sync from updater" << LL_ENDL;
+                LLSD updater = llcoro::suspendUntilEventOnWithTimeout(sSyncPoint, 10, LLSD());
+                if (updater.isUndefined())
+                {
+                    LL_WARNS("LLLogin") << "Failed to hear from updater, proceeding with fail.login"
+                                        << LL_ENDL;
+                }
+                else
+                {
+                    LL_DEBUGS("LLLogin") << "Got responses from updater and login.cgi" << LL_ENDL;
+                }
+                // Let the fail.login handler deal with empty updater response.
+                LLSD responses(mAuthResponse["responses"]);
+                responses["updater"] = updater;
+                sendProgressEvent("offline", "fail.login", responses);
             }
-            // Let the fail.login handler deal with empty updater response.
-            LLSD responses(mAuthResponse["responses"]);
-            responses["updater"] = updater;
-            sendProgressEvent("offline", "fail.login", responses);
+            return;             // Done!
         }
-        return;             // Done!
-    }
 
-//  /* Sometimes we end with "Started" here. Slightly slow server?
-//   * Seems to be ok to just skip it. Otherwise we'd error out and crash in the if below.
-//   */
-//  if( status == "Started")
-//  {
-//      LL_DEBUGS("LLLogin") << mAuthResponse << LL_ENDL;
-//      continue;
-//  }
+/*==========================================================================*|
+        // Sometimes we end with "Started" here. Slightly slow server? Seems
+        // to be ok to just skip it. Otherwise we'd error out and crash in the
+        // if below.
+        if( status == "Started")
+        {
+            LL_DEBUGS("LLLogin") << mAuthResponse << LL_ENDL;
+            continue;
+        }
+|*==========================================================================*/
 
-    // If we don't recognize status at all, trouble
-    if (! (status == "CURLError"
-            || status == "XMLRPCError"
-            || status == "OtherError"))
-    {
-        LL_ERRS("LLLogin") << "Unexpected status from " << xmlrpcPump.getName() << " pump: "
-                            << mAuthResponse << LL_ENDL;
-        return;
-    }
+        // If we don't recognize status at all, trouble
+        if (! (status == "CURLError"
+               || status == "XMLRPCError"
+               || status == "OtherError"))
+        {
+            LL_ERRS("LLLogin") << "Unexpected status from " << xmlrpcPump.getName() << " pump: "
+                               << mAuthResponse << LL_ENDL;
+            return;
+        }
 
-    // Here status IS one of the errors tested above.
-    // Tell caller this didn't work out so well.
+        // Here status IS one of the errors tested above.
+        // Tell caller this didn't work out so well.
 
-    // *NOTE: The response from LLXMLRPCListener's Poller::poll method returns an
-    // llsd with no "responses" node. To make the output from an incomplete login symmetrical 
-    // to success, add a data/message and data/reason fields.
-    LLSD error_response(LLSDMap
-                        ("reason",    mAuthResponse["status"])
-                        ("errorcode", mAuthResponse["errorcode"])
-                        ("message",   mAuthResponse["error"]));
-    if(mAuthResponse.has("certificate"))
-    {
-        error_response["certificate"] = mAuthResponse["certificate"];
-    }
-    sendProgressEvent("offline", "fail.login", error_response);
+        // *NOTE: The response from LLXMLRPCListener's Poller::poll method returns an
+        // llsd with no "responses" node. To make the output from an incomplete login symmetrical 
+        // to success, add a data/message and data/reason fields.
+        LLSD error_response(LLSDMap
+                            ("reason",    mAuthResponse["status"])
+                            ("errorcode", mAuthResponse["errorcode"])
+                            ("message",   mAuthResponse["error"]));
+        if(mAuthResponse.has("certificate"))
+        {
+            error_response["certificate"] = mAuthResponse["certificate"];
+        }
+        sendProgressEvent("offline", "fail.login", error_response);
     }
     catch (...) {
-        CRASH_ON_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << LLCoros::instance().getName()
-                                               << "('" << uri << "', " << printable_params << ")"));
+        LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << LLCoros::getName()
+                                          << "('" << uri << "', " << printable_params << ")"));
+        throw;
     }
 }
 
