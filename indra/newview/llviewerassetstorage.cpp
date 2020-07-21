@@ -168,7 +168,7 @@ void LLViewerAssetStorage::storeAssetData(
                 delete req;
                 if (callback)
                 {
-                    callback(asset_id, user_data, LL_ERR_ASSET_REQUEST_FAILED, LLExtStat::LL_EXSTAT_VFS_CORRUPT);
+                    callback(asset_id, user_data, LL_ERR_ASSET_REQUEST_FAILED, LLExtStat::VFS_CORRUPT);
                 }
                 return;
             }
@@ -209,7 +209,7 @@ void LLViewerAssetStorage::storeAssetData(
 
                     if (callback)
                     {
-                        callback(asset_id, user_data, LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE, LLExtStat::LL_EXSTAT_VFS_CORRUPT);
+                        callback(asset_id, user_data, LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE, LLExtStat::VFS_CORRUPT);
                     }
                     return;
                 }
@@ -236,7 +236,7 @@ void LLViewerAssetStorage::storeAssetData(
             reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file didn't exist or was zero length (VFS - can't tell which)" );
             if (callback)
             {
-                callback(asset_id, user_data,  LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE, LLExtStat::LL_EXSTAT_NONEXISTENT_FILE);
+                callback(asset_id, user_data,  LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE, LLExtStat::NONEXISTENT_FILE);
             }
         }
     }
@@ -247,7 +247,7 @@ void LLViewerAssetStorage::storeAssetData(
         reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_NO_UPSTREAM, __FILE__, __LINE__, "No upstream provider" );
         if (callback)
         {
-            callback(asset_id, user_data, LL_ERR_CIRCUIT_GONE, LLExtStat::LL_EXSTAT_NO_UPSTREAM);
+            callback(asset_id, user_data, LL_ERR_CIRCUIT_GONE, LLExtStat::NO_UPSTREAM);
         }
     }
 }
@@ -333,7 +333,7 @@ void LLViewerAssetStorage::storeAssetData(
         }
         if (callback)
         {
-            callback(asset_id, user_data, LL_ERR_CANNOT_OPEN_FILE, LLExtStat::LL_EXSTAT_BLOCKED_FILE);
+            callback(asset_id, user_data, LL_ERR_CANNOT_OPEN_FILE, LLExtStat::BLOCKED_FILE);
         }
     }
 }
@@ -444,13 +444,13 @@ void LLViewerAssetStorage::assetRequestCoro(
     mCountStarted++;
     
     S32 result_code = LL_ERR_NOERR;
-    LLExtStat ext_status = LLExtStat::LL_EXSTAT_NONE;
+    LLExtStat ext_status = LLExtStat::NONE;
 
     if (!gAgent.getRegion())
     {
         LL_WARNS_ONCE("ViewerAsset") << "Asset request fails: no region set" << LL_ENDL;
         result_code = LL_ERR_ASSET_REQUEST_FAILED;
-        ext_status = LLExtStat::LL_EXSTAT_NONE;
+        ext_status = LLExtStat::NONE;
         removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status);
 		return;
     }
@@ -475,7 +475,7 @@ void LLViewerAssetStorage::assetRequestCoro(
     {
         LL_WARNS_ONCE("ViewerAsset") << "asset request fails: caps received but no viewer asset cap found" << LL_ENDL;
         result_code = LL_ERR_ASSET_REQUEST_FAILED;
-        ext_status = LLExtStat::LL_EXSTAT_NONE;
+        ext_status = LLExtStat::NONE;
         removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status);
 		return;
     }
@@ -504,7 +504,7 @@ void LLViewerAssetStorage::assetRequestCoro(
     {
         LL_DEBUGS("ViewerAsset") << "request failed, status " << status.toTerseString() << LL_ENDL;
         result_code = LL_ERR_ASSET_REQUEST_FAILED;
-        ext_status = LLExtStat::LL_EXSTAT_NONE;
+        ext_status = LLExtStat::NONE;
     }
     else
     {
@@ -530,13 +530,13 @@ void LLViewerAssetStorage::assetRequestCoro(
                 // TODO asset-http: handle error
                 LL_WARNS("ViewerAsset") << "Failure in vf.write()" << LL_ENDL;
                 result_code = LL_ERR_ASSET_REQUEST_FAILED;
-                ext_status = LLExtStat::LL_EXSTAT_VFS_CORRUPT;
+                ext_status = LLExtStat::VFS_CORRUPT;
             }
             else if (!vf.rename(uuid, atype))
             {
                 LL_WARNS("ViewerAsset") << "rename failed" << LL_ENDL;
                 result_code = LL_ERR_ASSET_REQUEST_FAILED;
-                ext_status = LLExtStat::LL_EXSTAT_VFS_CORRUPT;
+                ext_status = LLExtStat::VFS_CORRUPT;
             }
             else
             {
@@ -548,7 +548,7 @@ void LLViewerAssetStorage::assetRequestCoro(
             // TODO asset-http: handle invalid size case
 			LL_WARNS("ViewerAsset") << "bad size" << LL_ENDL;
             result_code = LL_ERR_ASSET_REQUEST_FAILED;
-            ext_status = LLExtStat::LL_EXSTAT_NONE;
+            ext_status = LLExtStat::NONE;
         }
     }
 
