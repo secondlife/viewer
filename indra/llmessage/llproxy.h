@@ -32,6 +32,7 @@
 #include "llmemory.h"
 #include "llsingleton.h"
 #include "llthread.h"
+#include "llmutex.h"
 #include <curl/curl.h>
 #include <string>
 

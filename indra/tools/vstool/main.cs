@@ -556,7 +556,7 @@ namespace VSTool
                         break;
 
                     case "12.00":
-                        version = "VC120";
+                        version = "VC150";
                         break;
 
                     default:
@@ -601,6 +601,10 @@ namespace VSTool
 
                 case "VC120":
                     progid = "VisualStudio.DTE.12.0";
+                    break;
+
+                case "VC150":
+                    progid = "VisualStudio.DTE.15.0";
                     break;
 
                 default:

@@ -32,6 +32,7 @@
 #include "llcoros.h"
 #include "llcorehttputil.h"
 #include "lluuid.h"
+#include <boost/smart_ptr/shared_ptr.hpp>
 
 class LLCoprocedurePool;
 
@@ -57,11 +58,7 @@ public:
     /// Cancel a coprocedure. If the coprocedure is already being actively executed 
     /// this method calls cancelYieldingOperation() on the associated HttpAdapter
     /// If it has not yet been dequeued it is simply removed from the queue.
-    void cancelCoprocedure(const LLUUID &id);
-
-    /// Requests a shutdown of the upload manager. Passing 'true' will perform 
-    /// an immediate kill on the upload coroutine.
-    void shutdown(bool hardShutdown = false);
+    //void cancelCoprocedure(const LLUUID &id);
 
     void setPropertyMethods(SettingQuery_t queryfn, SettingUpdate_t updatefn);
 
@@ -80,6 +77,9 @@ public:
     size_t count() const;
     size_t count(const std::string &pool) const;
 
+    void close();
+    void close(const std::string &pool);
+    
 private:
 
     typedef boost::shared_ptr<LLCoprocedurePool> poolPtr_t;

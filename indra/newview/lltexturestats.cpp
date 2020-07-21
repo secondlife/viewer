@@ -46,8 +46,8 @@ void send_texture_stats_to_sim(const LLSD &texture_stats)
 	LLUUID agent_id = gAgent.getID();
 	texture_stats_report["agent_id"] = agent_id;
 	texture_stats_report["region_id"] = gAgent.getRegion()->getRegionID();
-	texture_stats_report["viewer_channel"] = LLVersionInfo::getChannel();
-	texture_stats_report["viewer_version"] = LLVersionInfo::getVersion();
+	texture_stats_report["viewer_channel"] = LLVersionInfo::instance().getChannel();
+	texture_stats_report["viewer_version"] = LLVersionInfo::instance().getVersion();
 	texture_stats_report["stats_data"] = texture_stats;
 
 	std::string texture_cap_url = gAgent.getRegion()->getCapability("TextureStats");
