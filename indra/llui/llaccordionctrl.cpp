@@ -338,7 +338,7 @@ void LLAccordionCtrl::addCollapsibleCtrl(LLView* view)
 		addChild(accordion_tab);
 	mAccordionTabs.push_back(accordion_tab);
 
-	accordion_tab->setDropDownStateChangedCallback( boost::bind(&LLAccordionCtrl::onCollapseCtrlCloseOpen, this, mAccordionTabs.size() - 1) );
+	accordion_tab->setDropDownStateChangedCallback( boost::bind(&LLAccordionCtrl::onCollapseCtrlCloseOpen, this, (S16)(mAccordionTabs.size() - 1)) );
 	arrange();	
 }
 

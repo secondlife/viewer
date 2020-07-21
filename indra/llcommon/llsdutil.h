@@ -143,6 +143,16 @@ LL_COMMON_API std::string llsd_matches(const LLSD& prototype, const LLSD& data, 
 /// equality rather than bitwise equality, pass @a bits as for
 /// is_approx_equal_fraction().
 LL_COMMON_API bool llsd_equals(const LLSD& lhs, const LLSD& rhs, int bits=-1);
+/// If you don't care about LLSD::Real equality
+inline bool operator==(const LLSD& lhs, const LLSD& rhs)
+{
+    return llsd_equals(lhs, rhs);
+}
+inline bool operator!=(const LLSD& lhs, const LLSD& rhs)
+{
+    // operator!=() should always be the negation of operator==()
+    return ! (lhs == rhs);
+}
 
 // Simple function to copy data out of input & output iterators if
 // there is no need for casting.
@@ -154,6 +164,31 @@ template<typename Input> LLSD llsd_copy_array(Input iter, Input end)
 		dest.append(*iter);
 	}
 	return dest;
+}
+
+namespace llsd
+{
+
+/**
+ * Drill down to locate an element in 'blob' according to 'path', where 'path'
+ * is one of the following:
+ *
+ * - LLSD::String: 'blob' is an LLSD::Map. Find the entry with key 'path'.
+ * - LLSD::Integer: 'blob' is an LLSD::Array. Find the entry with index 'path'.
+ * - Any other 'path' type will be interpreted as LLSD::Array, and 'blob' is a
+ *   nested structure. For each element of 'path':
+ *   - If it's an LLSD::Integer, select the entry with that index from an
+ *     LLSD::Array at that level.
+ *   - If it's an LLSD::String, select the entry with that key from an
+ *     LLSD::Map at that level.
+ *   - Anything else is an error.
+ *
+ * By implication, if path.isUndefined() or otherwise equivalent to an empty
+ * LLSD::Array, drill() returns 'blob' as is.
+ */
+LLSD  drill(const LLSD& blob, const LLSD& path);
+LLSD& drill(      LLSD& blob, const LLSD& path);
+
 }
 
 /*****************************************************************************
@@ -225,6 +260,36 @@ private:
     LLSD _data;
 };
 
+namespace llsd
+{
+
+/**
+ * Construct an LLSD::Array inline, using modern C++ variadic arguments.
+ */
+
+// recursion tail
+inline
+void array_(LLSD&) {}
+
+// recursive call
+template <typename T0, typename... Ts>
+void array_(LLSD& data, T0&& v0, Ts&&... vs)
+{
+    data.append(std::forward<T0>(v0));
+    array_(data, std::forward<Ts>(vs)...);
+}
+
+// public interface
+template <typename... Ts>
+LLSD array(Ts&&... vs)
+{
+    LLSD data;
+    array_(data, std::forward<Ts>(vs)...);
+    return data;
+}
+
+} // namespace llsd
+
 /*****************************************************************************
 *   LLSDMap
 *****************************************************************************/
@@ -268,6 +333,36 @@ public:
 private:
     LLSD _data;
 };
+
+namespace llsd
+{
+
+/**
+ * Construct an LLSD::Map inline, using modern C++ variadic arguments.
+ */
+
+// recursion tail
+inline
+void map_(LLSD&) {}
+
+// recursive call
+template <typename T0, typename... Ts>
+void map_(LLSD& data, const LLSD::String& k0, T0&& v0, Ts&&... vs)
+{
+    data[k0] = v0;
+    map_(data, std::forward<Ts>(vs)...);
+}
+
+// public interface
+template <typename... Ts>
+LLSD map(Ts&&... vs)
+{
+    LLSD data;
+    map_(data, std::forward<Ts>(vs)...);
+    return data;
+}
+
+} // namespace llsd
 
 /*****************************************************************************
 *   LLSDParam
@@ -452,6 +547,16 @@ LLSD llsd_clone(LLSD value, LLSD filter = LLSD());
 // the filter parameter.
 LLSD llsd_shallow(LLSD value, LLSD filter = LLSD());
 
+namespace llsd
+{
+
+// llsd namespace aliases
+inline
+LLSD clone  (LLSD value, LLSD filter=LLSD()) { return llsd_clone  (value, filter); }
+inline
+LLSD shallow(LLSD value, LLSD filter=LLSD()) { return llsd_shallow(value, filter); }
+
+} // namespace llsd
 
 // Specialization for generating a hash value from an LLSD block. 
 template <>

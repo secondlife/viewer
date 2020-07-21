@@ -40,6 +40,7 @@
 #include <sstream>
 #if SAFE_SSL
 #include <openssl/crypto.h>
+#include <functional>               // std::hash
 #endif
 
 
@@ -369,7 +370,8 @@ void ssl_locking_callback(int mode, int type, const char *file, int line)
 //static
 unsigned long ssl_thread_id(void)
 {
-    return LLThread::currentID();
+    // std::thread::id is very deliberately opaque, but we can hash it
+    return std::hash<LLThread::id_t>()(LLThread::currentID());
 }
 #endif
 
