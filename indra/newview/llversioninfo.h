@@ -28,8 +28,14 @@
 #ifndef LL_LLVERSIONINFO_H
 #define LL_LLVERSIONINFO_H
 
-#include <string>
 #include "stdtypes.h"
+#include "llsingleton.h"
+#include <string>
+#include <memory>
+
+class LLEventMailDrop;
+template <typename T>
+class LLStoreListener;
 
 ///
 /// This API provides version information for the viewer.  This
@@ -38,42 +44,46 @@
 /// viewer code that wants to query the current version should 
 /// use this API.
 ///
-class LLVersionInfo
+class LLVersionInfo: public LLSingleton<LLVersionInfo>
 {
+	LLSINGLETON(LLVersionInfo);
+	void initSingleton();
 public:
-	/// return the major verion number as an integer
-	static S32 getMajor();
+	~LLVersionInfo();
 
-	/// return the minor verion number as an integer
-	static S32 getMinor();
+	/// return the major version number as an integer
+	S32 getMajor();
 
-	/// return the patch verion number as an integer
-	static S32 getPatch();
+	/// return the minor version number as an integer
+	S32 getMinor();
+
+	/// return the patch version number as an integer
+	S32 getPatch();
 
 	/// return the build number as an integer
-	static S32 getBuild();
+	S32 getBuild();
 
 	/// return the full viewer version as a string like "2.0.0.200030"
-	static const std::string &getVersion();
+	std::string getVersion();
 
 	/// return the viewer version as a string like "2.0.0"
-	static const std::string &getShortVersion();
+	std::string getShortVersion();
 
 	/// return the viewer version and channel as a string
 	/// like "Second Life Release 2.0.0.200030"
-	static const std::string &getChannelAndVersion();
+	std::string getChannelAndVersion();
 
 	/// return the channel name, e.g. "Second Life"
-	static const std::string &getChannel();
+	std::string getChannel();
 	
     /// return the CMake build type
-    static const std::string &getBuildConfig();
+    std::string getBuildConfig();
 
 	/// reset the channel name used by the viewer.
-	static void resetChannel(const std::string& channel);
+	void resetChannel(const std::string& channel);
 
     /// return the bit width of an address
-    static const S32 getAddressSize() { return ADDRESS_SIZE; }
+    S32 getAddressSize() { return ADDRESS_SIZE; }
 
     typedef enum
     {
@@ -82,7 +92,31 @@ public:
         BETA_VIEWER,
         RELEASE_VIEWER
     } ViewerMaturity;
-    static ViewerMaturity getViewerMaturity();
+    ViewerMaturity getViewerMaturity();
+
+	/// get the release-notes URL, once it becomes available -- until then,
+	/// return empty string
+	std::string getReleaseNotes();
+
+private:
+	std::string version;
+	std::string short_version;
+	/// Storage of the channel name the viewer is using.
+	//  The channel name is set by hardcoded constant, 
+	//  or by calling resetChannel()
+	std::string mWorkingChannelName;
+	// Storage for the "version and channel" string.
+	// This will get reset too.
+	std::string mVersionChannel;
+	std::string build_configuration;
+	std::string mReleaseNotes;
+	// Store unique_ptrs to the next couple things so we don't have to explain
+	// to every consumer of this header file all the details of each.
+	// mPump is the LLEventMailDrop on which we listen for SLVersionChecker to
+	// post the release-notes URL from the Viewer Version Manager.
+	std::unique_ptr<LLEventMailDrop> mPump;
+	// mStore is an adapter that stores the release-notes URL in mReleaseNotes.
+	std::unique_ptr<LLStoreListener<std::string>> mStore;
 };
 
 #endif
