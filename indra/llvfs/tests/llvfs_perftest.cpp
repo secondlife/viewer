@@ -38,6 +38,20 @@ void init()
 		std::cout << "    unable to create LLVFS" << std::endl;
 	}
 
+	BOOL valid_vfs = gVFS->isValid();
+	if (valid_vfs)
+	{
+		std::cout << "LLVFS is valid" << std::endl;
+	}
+	else
+	{
+		std::cout << "LLVFS is NOT valid" << std::endl;
+	}
+
+	std::cout << "---------- begin VFS file list ----------" << std::endl;
+	gVFS->listFiles();
+	std::cout << "-----------------------------------------" << std::endl;
+
 	// TODO: is order important here - does this need to happen before LLVFS is initialized?
 	std::cout << "LLVFile::initClass()" << std::endl;
 	LLVFile::initClass();
@@ -64,17 +78,19 @@ BOOL write_asset()
 	LLUUID asset_id;
 	asset_id.generate();
 
-	static std::string script_data("This is a dummy LSL script");
+	static std::string script_data("2\n170\n0\n\n\n1\n0\nDance2\n928cae18-e31d-76fd-9cc9-2f55160ff818\n0");  // gesture
 
-	LLVFile file(gVFS, asset_id, LLAssetType::AT_LSL_TEXT, LLVFile::WRITE);
+	LLVFile file(gVFS, asset_id, LLAssetType::AT_GESTURE, LLVFile::WRITE);
 
 	S32 offset = 0;
 	S32 size = script_data.length();
 
-	// TODO: what is this test for?
-	if (file.getSize() >= offset + size)
-	{
-	}
+	////S32 file_size = file.getSize();
+	//std::cout << "file.getSize() = " << file.getSize() << std::endl;
+	//// TODO: what is this test for?
+	////if (file.getSize() >= offset + size)
+	////{
+	////}
 
 	std::cout << "Writing dummy LSL script with ID " << asset_id << "and size " << size << " bytes to VFS" << std::endl;
 
