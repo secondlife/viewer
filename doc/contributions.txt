@@ -1462,6 +1462,7 @@ Tonya Souther
 	BUG-3875
 	BUG-3968
 	OPEN-345
+	SL-13082
 Torben Trautman
 TouchaHoney Perhaps
 TraductoresAnonimos Alter
