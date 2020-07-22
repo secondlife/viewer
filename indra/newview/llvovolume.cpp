@@ -2063,7 +2063,7 @@ void LLVOVolume::setNumTEs(const U8 num_tes)
 	}
 	else if(old_num_tes > num_tes && mMediaImplList.size() > num_tes) //old faces removed
 	{
-		U8 end = mMediaImplList.size() ;
+		U8 end = (U8)(mMediaImplList.size()) ;
 		for(U8 i = num_tes; i < end ; i++)
 		{
 			removeMediaImpl(i) ;				
