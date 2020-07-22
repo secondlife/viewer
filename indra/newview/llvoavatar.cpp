@@ -4763,15 +4763,6 @@ U32 LLVOAvatar::renderSkinned()
 		return num_indices;
     }
 
-	// if (!isSelf() && !isControlAvatar())
-	// {
-	// 	LL_DEBUGS("Avatar") << "renderSkinned: av " << getFullname() 
-	// 						<< " frame " << LLFrameTimer::getFrameCount()
-	// 						<< " worldPos " << mRoot->getXform()->getWorldPosition()
-	// 						<< " renderpos " << getRenderPosition()
-	// 						<< LL_ENDL;
-	// }
-	
 	LLFace* face = mDrawable->getFace(0);
 
 	bool needs_rebuild = !face || !face->getVertexBuffer() || mDrawable->isState(LLDrawable::REBUILD_GEOMETRY);
@@ -8024,12 +8015,14 @@ BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
 	}
 
 	// did our loading state "change" from last call?
-	// runway - why are we updating every 30 calls even if nothing has changed?
+	// FIXME runway - why are we updating every 30 calls even if nothing has changed?
+	// This causes updateLOD() to run every 30 frames, among other things.
 	const S32 UPDATE_RATE = 30;
 	BOOL changed =
 		((mFullyLoaded != mPreviousFullyLoaded) ||         // if the value is different from the previous call
 		 (!mFullyLoadedInitialized) ||                     // if we've never been called before
 		 (mFullyLoadedFrameCounter % UPDATE_RATE == 0));   // every now and then issue a change
+	BOOL fully_loaded_changed = (mFullyLoaded != mPreviousFullyLoaded);
 
 	mPreviousFullyLoaded = mFullyLoaded;
 	mFullyLoadedInitialized = TRUE;
@@ -8040,7 +8033,12 @@ BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
         // to know about outfit switching
         LLAvatarRenderNotifier::getInstance()->updateNotificationState();
     }
-	
+
+	if (fully_loaded_changed && !isSelf() && mFullyLoaded && isImpostor())
+	{
+		// Fix for jellydoll initially invisible
+		mNeedsImpostorUpdate = TRUE;
+	}	
 	return changed;
 }
 
@@ -10187,17 +10185,10 @@ void LLVOAvatar::updateImpostors()
 		iter != instances_copy.end(); ++iter)
 	{
 		LLVOAvatar* avatar = (LLVOAvatar*) *iter;
-		if (!avatar->isDead() && avatar->isVisible()
-			&& (
-#ifdef JELLYDOLLS_SHOULD_IMPOSTOR
-				(avatar->isImpostor() || LLVOAvatar::AV_DO_NOT_RENDER == avatar->getVisualMuteSettings())
-				&& avatar->needsImpostorUpdate())
-#else
-                (avatar->isImpostor())
-				&& avatar->needsImpostorUpdate()
-				)
-#endif
-            )
+		if (!avatar->isDead()
+			&& avatar->isVisible()
+			&& avatar->isImpostor()
+			&& avatar->needsImpostorUpdate())
 		{
             avatar->calcMutedAVColor();
 			gPipeline.generateImpostor(avatar);
@@ -10737,6 +10728,10 @@ void LLVOAvatar::updateOverallAppearance()
 				break;
 		}
 		mOverallAppearance = new_overall;
+		if (!isSelf())
+		{
+			mNeedsImpostorUpdate = TRUE;
+		}
 		updateMeshVisibility();
 	}
 
