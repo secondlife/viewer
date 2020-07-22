@@ -37,6 +37,8 @@
 #include "llimview.h"
 #include "llnotificationsutil.h"
 
+#include <boost/regex.hpp>
+
 using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
@@ -143,7 +145,19 @@ bool LLOfferHandler::processNotification(const LLNotificationPtr& notification)
 		{
 			// log only to file if notif panel can be embedded to IM and IM is opened
 			bool file_only = add_notif_to_im && LLHandlerUtil::isIMFloaterOpened(notification);
-			LLHandlerUtil::logToIMP2P(notification, file_only);
+			if ((notification->getName() == "TeleportOffered"
+				|| notification->getName() == "TeleportOffered_MaturityExceeded"
+				|| notification->getName() == "TeleportOffered_MaturityBlocked"))
+			{
+				boost::regex r("<icon\\s*>\\s*([^<]*)?\\s*</icon\\s*>( - )?",
+					boost::regex::perl|boost::regex::icase);
+				std::string stripped_msg = boost::regex_replace(notification->getMessage(), r, "");
+				LLHandlerUtil::logToIMP2P(notification->getPayload()["from_id"], stripped_msg,file_only);
+			}
+			else
+			{
+				LLHandlerUtil::logToIMP2P(notification, file_only);
+			}
 		}
 	}
 
