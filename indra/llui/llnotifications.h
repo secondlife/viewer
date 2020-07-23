@@ -746,42 +746,24 @@ public:
 	virtual ~LLNotificationChannelBase() {}
 	// you can also connect to a Channel, so you can be notified of
 	// changes to this channel
-	template <typename LISTENER>
-    LLBoundListener connectChanged(const LISTENER& slot)
+    LLBoundListener connectChanged(const LLEventListener& slot)
     {
-        // Examine slot to see if it binds an LLEventTrackable subclass, or a
-        // boost::shared_ptr to something, or a boost::weak_ptr to something.
         // Call this->connectChangedImpl() to actually connect it.
-        return LLEventDetail::visit_and_connect(slot,
-                                  boost::bind(&LLNotificationChannelBase::connectChangedImpl,
-                                              this,
-                                              _1));
+        return connectChangedImpl(slot);
     }
-	template <typename LISTENER>
-    LLBoundListener connectAtFrontChanged(const LISTENER& slot)
+    LLBoundListener connectAtFrontChanged(const LLEventListener& slot)
     {
-        return LLEventDetail::visit_and_connect(slot,
-                                  boost::bind(&LLNotificationChannelBase::connectAtFrontChangedImpl,
-                                              this,
-                                              _1));
+        return connectAtFrontChangedImpl(slot);
     }
-    template <typename LISTENER>
-	LLBoundListener connectPassedFilter(const LISTENER& slot)
+    LLBoundListener connectPassedFilter(const LLEventListener& slot)
     {
         // see comments in connectChanged()
-        return LLEventDetail::visit_and_connect(slot,
-                                  boost::bind(&LLNotificationChannelBase::connectPassedFilterImpl,
-                                              this,
-                                              _1));
+        return connectPassedFilterImpl(slot);
     }
-    template <typename LISTENER>
-	LLBoundListener connectFailedFilter(const LISTENER& slot)
+    LLBoundListener connectFailedFilter(const LLEventListener& slot)
     {
         // see comments in connectChanged()
-        return LLEventDetail::visit_and_connect(slot,
-                                  boost::bind(&LLNotificationChannelBase::connectFailedFilterImpl,
-                                              this,
-                                              _1));
+        return connectFailedFilterImpl(slot);
     }
 
 	// use this when items change or to add a new one

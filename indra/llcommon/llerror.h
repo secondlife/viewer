@@ -191,9 +191,9 @@ namespace LLError
 		The classes CallSite and Log are used by the logging macros below.
 		They are not intended for general use.
 	*/
-	
+
 	struct CallSite;
-	
+
 	class LL_COMMON_API Log
 	{
 	public:
@@ -202,8 +202,17 @@ namespace LLError
 		static void flush(std::ostringstream* out, char* message);
 		static void flush(std::ostringstream*, const CallSite&);
 		static std::string demangle(const char* mangled);
+		/// classname<TYPE>()
+		template <typename T>
+		static std::string classname()             { return demangle(typeid(T).name()); }
+		/// classname(some_pointer)
+		template <typename T>
+		static std::string classname(T* const ptr) { return ptr? demangle(typeid(*ptr).name()) : "nullptr"; }
+		/// classname(some_reference)
+		template <typename T>
+		static std::string classname(const T& obj) { return demangle(typeid(obj).name()); }
 	};
-	
+
 	struct LL_COMMON_API CallSite
 	{
 		// Represents a specific place in the code where a message is logged
@@ -262,30 +271,36 @@ namespace LLError
 	class LL_COMMON_API NoClassInfo { };
 		// used to indicate no class info known for logging
 
-   //LLCallStacks keeps track of call stacks and output the call stacks to log file
-   //when LLAppViewer::handleViewerCrash() is triggered.
-   //
-   //Note: to be simple, efficient and necessary to keep track of correct call stacks, 
-	//LLCallStacks is designed not to be thread-safe.
-   //so try not to use it in multiple parallel threads at same time.
-   //Used in a single thread at a time is fine.
-   class LL_COMMON_API LLCallStacks
-   {
-   private:
-       static char**  sBuffer ;
-	   static S32     sIndex ;
+    //LLCallStacks keeps track of call stacks and output the call stacks to log file
+    //when LLAppViewer::handleViewerCrash() is triggered.
+    //
+    //Note: to be simple, efficient and necessary to keep track of correct call stacks, 
+    //LLCallStacks is designed not to be thread-safe.
+    //so try not to use it in multiple parallel threads at same time.
+    //Used in a single thread at a time is fine.
+    class LL_COMMON_API LLCallStacks
+    {
+    private:
+        static char**  sBuffer ;
+        static S32     sIndex ;
 
-	   static void allocateStackBuffer();
-	   static void freeStackBuffer();
-          
-   public:   
-	   static void push(const char* function, const int line) ;
-	   static std::ostringstream* insert(const char* function, const int line) ;
-       static void print() ;
-       static void clear() ;
-	   static void end(std::ostringstream* _out) ;
-	   static void cleanup();
-   }; 
+        static void allocateStackBuffer();
+        static void freeStackBuffer();
+              
+    public:   
+        static void push(const char* function, const int line) ;
+        static std::ostringstream* insert(const char* function, const int line) ;
+        static void print() ;
+        static void clear() ;
+        static void end(std::ostringstream* _out) ;
+        static void cleanup();
+    };
+
+    // class which, when streamed, inserts the current stack trace
+    struct LLStacktrace
+    {
+        friend std::ostream& operator<<(std::ostream& out, const LLStacktrace&);
+    };
 }
 
 //this is cheaper than llcallstacks if no need to output other variables to call stacks. 
@@ -381,8 +396,13 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 #define LL_WARNS(...)	lllog(LLError::LEVEL_WARN, false, ##__VA_ARGS__)
 #define LL_ERRS(...)	lllog(LLError::LEVEL_ERROR, false, ##__VA_ARGS__)
 // alternative to llassert_always that prints explanatory message
-#define LL_WARNS_IF(exp, ...)	if (exp) LL_WARNS(##__VA_ARGS__) << "(" #exp ")"
-#define LL_ERRS_IF(exp, ...)	if (exp) LL_ERRS(##__VA_ARGS__) << "(" #exp ")"
+// note ## token paste operator hack used above will only work in gcc following
+// a comma and is completely unnecessary in VS since the comma is automatically
+// suppressed
+// https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
+// https://docs.microsoft.com/en-us/cpp/preprocessor/variadic-macros?view=vs-2015
+#define LL_WARNS_IF(exp, ...)	if (exp) LL_WARNS(__VA_ARGS__) << "(" #exp ")"
+#define LL_ERRS_IF(exp, ...)	if (exp) LL_ERRS(__VA_ARGS__) << "(" #exp ")"
 
 // Only print the log message once (good for warnings or infos that would otherwise
 // spam the log file over and over, such as tighter loops).

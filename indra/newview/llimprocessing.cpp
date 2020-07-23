@@ -880,10 +880,10 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                     // Don't break in the case of a bad binary bucket.  Go ahead and show the 
                     // accept/decline popup even though it will not do anything.
                     LL_WARNS("Messaging") << "Malformed inventory offer from object, type might be " << info->mType << LL_ENDL;
+                    }
+                    info->mObjectID = LLUUID::null;
+                    info->mFromObject = TRUE;
                 }
-                info->mObjectID = LLUUID::null;
-                info->mFromObject = TRUE;
-            }
 
             info->mIM = dialog;
             info->mFromID = from_id;
@@ -1404,10 +1404,8 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             payload["sender"] = sender.getIPandPort();
 
             bool add_notification = true;
-            for (LLToastNotifyPanel::instance_iter ti(LLToastNotifyPanel::beginInstances())
-                , tend(LLToastNotifyPanel::endInstances()); ti != tend; ++ti)
+            for (auto& panel : LLToastNotifyPanel::instance_snapshot())
             {
-                LLToastNotifyPanel& panel = *ti;
                 const std::string& notification_name = panel.getNotificationName();
                 if (notification_name == "OfferFriendship" && panel.isControlPanelEnabled())
                 {

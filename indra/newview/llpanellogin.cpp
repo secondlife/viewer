@@ -338,10 +338,10 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	LLButton* def_btn = getChild<LLButton>("connect_btn");
 	setDefaultBtn(def_btn);
 
-	std::string channel = LLVersionInfo::getChannel();
+	std::string channel = LLVersionInfo::instance().getChannel();
 	std::string version = llformat("%s (%d)",
-								   LLVersionInfo::getShortVersion().c_str(),
-								   LLVersionInfo::getBuild());
+								   LLVersionInfo::instance().getShortVersion().c_str(),
+								   LLVersionInfo::instance().getBuild());
 	
 	LLTextBox* forgot_password_text = getChild<LLTextBox>("forgot_password_text");
 	forgot_password_text->setClickedCallback(onClickForgotPassword, NULL);
@@ -943,9 +943,9 @@ void LLPanelLogin::loadLoginPage()
 
 	// Channel and Version
 	params["version"] = llformat("%s (%d)",
-								 LLVersionInfo::getShortVersion().c_str(),
-								 LLVersionInfo::getBuild());
-	params["channel"] = LLVersionInfo::getChannel();
+								 LLVersionInfo::instance().getShortVersion().c_str(),
+								 LLVersionInfo::instance().getBuild());
+	params["channel"] = LLVersionInfo::instance().getChannel();
 
 	// Grid
 	params["grid"] = LLGridManager::getInstance()->getGridId();

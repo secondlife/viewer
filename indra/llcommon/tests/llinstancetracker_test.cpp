@@ -41,7 +41,6 @@
 #include <boost/scoped_ptr.hpp>
 // other Linden headers
 #include "../test/lltut.h"
-#include "wrapllerrs.h"
 
 struct Badness: public std::runtime_error
 {
@@ -112,24 +111,22 @@ namespace tut
     void object::test<2>()
     {
         ensure_equals(Unkeyed::instanceCount(), 0);
-        Unkeyed* dangling = NULL;
+        std::weak_ptr<Unkeyed> dangling;
         {
             Unkeyed one;
             ensure_equals(Unkeyed::instanceCount(), 1);
-            Unkeyed* found = Unkeyed::getInstance(&one);
-            ensure_equals(found, &one);
+            std::weak_ptr<Unkeyed> found = one.getWeak();
+            ensure(! found.expired());
             {
                 boost::scoped_ptr<Unkeyed> two(new Unkeyed);
                 ensure_equals(Unkeyed::instanceCount(), 2);
-                Unkeyed* found = Unkeyed::getInstance(two.get());
-                ensure_equals(found, two.get());
             }
             ensure_equals(Unkeyed::instanceCount(), 1);
-            // store an unwise pointer to a temp Unkeyed instance
-            dangling = &one;
+            // store a weak pointer to a temp Unkeyed instance
+            dangling = found;
         } // make that instance vanish
         // check the now-invalid pointer to the destroyed instance
-        ensure("getInstance(T*) failed to track destruction", ! Unkeyed::getInstance(dangling));
+        ensure("weak_ptr<Unkeyed> failed to track destruction", dangling.expired());
         ensure_equals(Unkeyed::instanceCount(), 0);
     }
 
@@ -142,7 +139,8 @@ namespace tut
         // reimplement LLInstanceTracker using, say, a hash map instead of a
         // std::map. We DO insist that every key appear exactly once.
         typedef std::vector<std::string> StringVector;
-        StringVector keys(Keyed::beginKeys(), Keyed::endKeys());
+        auto snap = Keyed::key_snapshot();
+        StringVector keys(snap.begin(), snap.end());
         std::sort(keys.begin(), keys.end());
         StringVector::const_iterator ki(keys.begin());
         ensure_equals(*ki++, "one");
@@ -153,17 +151,15 @@ namespace tut
         ensure("didn't reach end", ki == keys.end());
 
         // Use a somewhat different approach to order independence with
-        // beginInstances(): explicitly capture the instances we know in a
+        // instance_snapshot(): explicitly capture the instances we know in a
         // set, and delete them as we iterate through.
         typedef std::set<Keyed*> InstanceSet;
         InstanceSet instances;
         instances.insert(&one);
         instances.insert(&two);
         instances.insert(&three);
-        for (Keyed::instance_iter ii(Keyed::beginInstances()), iend(Keyed::endInstances());
-             ii != iend; ++ii)
+        for (auto& ref : Keyed::instance_snapshot())
         {
-            Keyed& ref = *ii;
             ensure_equals("spurious instance", instances.erase(&ref), 1);
         }
         ensure_equals("unreported instance", instances.size(), 0);
@@ -180,11 +176,10 @@ namespace tut
         instances.insert(&two);
         instances.insert(&three);
 
-		for (Unkeyed::instance_iter ii(Unkeyed::beginInstances()), iend(Unkeyed::endInstances()); ii != iend; ++ii)
-		{
-			Unkeyed& ref = *ii;
-			ensure_equals("spurious instance", instances.erase(&ref), 1);
-		}
+        for (auto& ref : Unkeyed::instance_snapshot())
+        {
+            ensure_equals("spurious instance", instances.erase(&ref), 1);
+        }
 
         ensure_equals("unreported instance", instances.size(), 0);
     }
@@ -192,49 +187,49 @@ namespace tut
     template<> template<>
     void object::test<5>()
     {
-        set_test_name("delete Keyed with outstanding instance_iter");
-        std::string what;
-        Keyed* keyed = new Keyed("delete Keyed with outstanding instance_iter");
-        {
-            WrapLLErrs wrapper;
-            Keyed::instance_iter i(Keyed::beginInstances());
-            what = wrapper.catch_llerrs([&keyed](){
-                    delete keyed;
-                });
-        }
-        ensure(! what.empty());
+        std::string desc("delete Keyed with outstanding instance_snapshot");
+        set_test_name(desc);
+        Keyed* keyed = new Keyed(desc);
+        // capture a snapshot but do not yet traverse it
+        auto snapshot = Keyed::instance_snapshot();
+        // delete the one instance
+        delete keyed;
+        // traversing the snapshot should reflect the deletion
+        // avoid ensure_equals() because it requires the ability to stream the
+        // two values to std::ostream
+        ensure(snapshot.begin() == snapshot.end());
     }
 
     template<> template<>
     void object::test<6>()
     {
-        set_test_name("delete Keyed with outstanding key_iter");
-        std::string what;
-        Keyed* keyed = new Keyed("delete Keyed with outstanding key_it");
-        {
-            WrapLLErrs wrapper;
-            Keyed::key_iter i(Keyed::beginKeys());
-            what = wrapper.catch_llerrs([&keyed](){
-                    delete keyed;
-                });
-        }
-        ensure(! what.empty());
+        std::string desc("delete Keyed with outstanding key_snapshot");
+        set_test_name(desc);
+        Keyed* keyed = new Keyed(desc);
+        // capture a snapshot but do not yet traverse it
+        auto snapshot = Keyed::key_snapshot();
+        // delete the one instance
+        delete keyed;
+        // traversing the snapshot should reflect the deletion
+        // avoid ensure_equals() because it requires the ability to stream the
+        // two values to std::ostream
+        ensure(snapshot.begin() == snapshot.end());
     }
 
     template<> template<>
     void object::test<7>()
     {
-        set_test_name("delete Unkeyed with outstanding instance_iter");
+        set_test_name("delete Unkeyed with outstanding instance_snapshot");
         std::string what;
         Unkeyed* unkeyed = new Unkeyed;
-        {
-            WrapLLErrs wrapper;
-            Unkeyed::instance_iter i(Unkeyed::beginInstances());
-            what = wrapper.catch_llerrs([&unkeyed](){
-                    delete unkeyed;
-                });
-        }
-        ensure(! what.empty());
+        // capture a snapshot but do not yet traverse it
+        auto snapshot = Unkeyed::instance_snapshot();
+        // delete the one instance
+        delete unkeyed;
+        // traversing the snapshot should reflect the deletion
+        // avoid ensure_equals() because it requires the ability to stream the
+        // two values to std::ostream
+        ensure(snapshot.begin() == snapshot.end());
     }
 
     template<> template<>
@@ -246,11 +241,9 @@ namespace tut
         // We can't use the iterator-range InstanceSet constructor because
         // beginInstances() returns an iterator that dereferences to an
         // Unkeyed&, not an Unkeyed*.
-        for (Unkeyed::instance_iter uki(Unkeyed::beginInstances()),
-                                    ukend(Unkeyed::endInstances());
-             uki != ukend; ++uki)
+        for (auto& ref : Unkeyed::instance_snapshot())
         {
-            existing.insert(&*uki);
+            existing.insert(&ref);
         }
         try
         {
@@ -273,11 +266,9 @@ namespace tut
         // instances was also present in the original set. If that's not true,
         // it's because our new Unkeyed ended up in the updated set despite
         // its constructor exception.
-        for (Unkeyed::instance_iter uki(Unkeyed::beginInstances()),
-                                    ukend(Unkeyed::endInstances());
-             uki != ukend; ++uki)
+        for (auto& ref : Unkeyed::instance_snapshot())
         {
-            ensure("failed to remove instance", existing.find(&*uki) != existing.end());
+            ensure("failed to remove instance", existing.find(&ref) != existing.end());
         }
     }
 } // namespace tut

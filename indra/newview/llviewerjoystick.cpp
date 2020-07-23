@@ -62,6 +62,43 @@ F32  LLViewerJoystick::sDelta[] = {0,0,0,0,0,0,0};
 #define MAX_SPACENAVIGATOR_INPUT  3000.0f
 #define MAX_JOYSTICK_INPUT_VALUE  MAX_SPACENAVIGATOR_INPUT
 
+#if LIB_NDOF
+std::ostream& operator<<(std::ostream& out, NDOF_Device* ptr)
+{
+    if (! ptr)
+    {
+        return out << "nullptr";
+    }
+    out << "NDOF_Device{ ";
+    out << "axes [";
+    const char* delim = "";
+    for (short axis = 0; axis < ptr->axes_count; ++axis)
+    {
+        out << delim << ptr->axes[axis];
+        delim = ", ";
+    }
+    out << "]";
+    out << ", buttons [";
+    delim = "";
+    for (short button = 0; button < ptr->btn_count; ++button)
+    {
+        out << delim << ptr->buttons[button];
+        delim = ", ";
+    }
+    out << "]";
+    out << ", range " << ptr->axes_min << ':' << ptr->axes_max;
+    // If we don't coerce these to unsigned, they're streamed as characters,
+    // e.g. ctrl-A or nul.
+    out << ", absolute " << unsigned(ptr->absolute);
+    out << ", valid " << unsigned(ptr->valid);
+    out << ", manufacturer '" << ptr->manufacturer << "'";
+    out << ", product '" << ptr->product << "'";
+    out << ", private " << ptr->private_data;
+    out << " }";
+    return out;
+}
+#endif // LIB_NDOF
+
 // -----------------------------------------------------------------------------
 void LLViewerJoystick::updateEnabled(bool autoenable)
 {
@@ -107,11 +144,11 @@ NDOF_HotPlugResult LLViewerJoystick::HotPlugAddCallback(NDOF_Device *dev)
 	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
 	if (joystick->mDriverState == JDS_UNINITIALIZED)
 	{
-        LL_INFOS() << "HotPlugAddCallback: will use device:" << LL_ENDL;
-		ndof_dump(dev);
+		LL_INFOS("joystick") << "HotPlugAddCallback: will use device:" << LL_ENDL;
+		ndof_dump(stderr, dev);
 		joystick->mNdofDev = dev;
-        joystick->mDriverState = JDS_INITIALIZED;
-        res = NDOF_KEEP_HOTPLUGGED;
+		joystick->mDriverState = JDS_INITIALIZED;
+		res = NDOF_KEEP_HOTPLUGGED;
 	}
 	joystick->updateEnabled(true);
     return res;
@@ -125,9 +162,9 @@ void LLViewerJoystick::HotPlugRemovalCallback(NDOF_Device *dev)
 	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
 	if (joystick->mNdofDev == dev)
 	{
-        LL_INFOS() << "HotPlugRemovalCallback: joystick->mNdofDev=" 
+		LL_INFOS("joystick") << "HotPlugRemovalCallback: joystick->mNdofDev=" 
 				<< joystick->mNdofDev << "; removed device:" << LL_ENDL;
-		ndof_dump(dev);
+		ndof_dump(stderr, dev);
 		joystick->mDriverState = JDS_UNINITIALIZED;
 	}
 	joystick->updateEnabled(true);
@@ -193,6 +230,7 @@ void LLViewerJoystick::init(bool autoenable)
 	{
 		if (mNdofDev)
 		{
+			LL_DEBUGS("joystick") << "ndof_create() returned: " << mNdofDev << LL_ENDL;
 			// Different joysticks will return different ranges of raw values.
 			// Since we want to handle every device in the same uniform way, 
 			// we initialize the mNdofDev struct and we set the range 
@@ -211,16 +249,19 @@ void LLViewerJoystick::init(bool autoenable)
 			// just have the absolute values instead.
 			mNdofDev->absolute = 1;
 
+			LL_DEBUGS("joystick") << "ndof_init_first() received: " << mNdofDev << LL_ENDL;
 			// init & use the first suitable NDOF device found on the USB chain
 			if (ndof_init_first(mNdofDev, NULL))
 			{
 				mDriverState = JDS_UNINITIALIZED;
-				LL_WARNS() << "ndof_init_first FAILED" << LL_ENDL;
+				LL_WARNS("joystick") << "ndof_init_first FAILED" << LL_ENDL;
+				ndof_dump_list(stderr);
 			}
 			else
 			{
 				mDriverState = JDS_INITIALIZED;
 			}
+			LL_DEBUGS("joystick") << "ndof_init_first() left: " << mNdofDev << LL_ENDL;
 		}
 		else
 		{
@@ -258,8 +299,8 @@ void LLViewerJoystick::init(bool autoenable)
 	{
 		// No device connected, don't change any settings
 	}
-	
-	LL_INFOS() << "ndof: mDriverState=" << mDriverState << "; mNdofDev=" 
+
+	LL_INFOS("joystick") << "ndof: mDriverState=" << mDriverState << "; mNdofDev=" 
 			<< mNdofDev << "; libinit=" << libinit << LL_ENDL;
 #endif
 }
@@ -270,7 +311,7 @@ void LLViewerJoystick::terminate()
 #if LIB_NDOF
 
 	ndof_libcleanup();
-	LL_INFOS() << "Terminated connection with NDOF device." << LL_ENDL;
+	LL_INFOS("joystick") << "Terminated connection with NDOF device." << LL_ENDL;
 	mDriverState = JDS_UNINITIALIZED;
 #endif
 }
@@ -1075,7 +1116,7 @@ std::string LLViewerJoystick::getDescription()
 
 bool LLViewerJoystick::isLikeSpaceNavigator() const
 {
-#if LIB_NDOF	
+#if LIB_NDOF
 	return (isJoystickInitialized() 
 			&& (strncmp(mNdofDev->product, "SpaceNavigator", 14) == 0
 				|| strncmp(mNdofDev->product, "SpaceExplorer", 13) == 0
@@ -1099,10 +1140,10 @@ void LLViewerJoystick::setSNDefaults()
 	const float platformScaleAvXZ = 2.f;
 	const bool is_3d_cursor = true;
 #endif
-	
+
 	//gViewerWindow->alertXml("CacheWillClear");
-	LL_INFOS() << "restoring SpaceNavigator defaults..." << LL_ENDL;
-	
+	LL_INFOS("joystick") << "restoring SpaceNavigator defaults..." << LL_ENDL;
+
 	gSavedSettings.setS32("JoystickAxis0", 1); // z (at)
 	gSavedSettings.setS32("JoystickAxis1", 0); // x (slide)
 	gSavedSettings.setS32("JoystickAxis2", 2); // y (up)
@@ -1110,11 +1151,11 @@ void LLViewerJoystick::setSNDefaults()
 	gSavedSettings.setS32("JoystickAxis4", 3); // roll 
 	gSavedSettings.setS32("JoystickAxis5", 5); // yaw
 	gSavedSettings.setS32("JoystickAxis6", -1);
-	
+
 	gSavedSettings.setBOOL("Cursor3D", is_3d_cursor);
 	gSavedSettings.setBOOL("AutoLeveling", true);
 	gSavedSettings.setBOOL("ZoomDirect", false);
-	
+
 	gSavedSettings.setF32("AvatarAxisScale0", 1.f * platformScaleAvXZ);
 	gSavedSettings.setF32("AvatarAxisScale1", 1.f * platformScaleAvXZ);
 	gSavedSettings.setF32("AvatarAxisScale2", 1.f);
