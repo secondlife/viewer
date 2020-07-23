@@ -39,6 +39,9 @@
 #if !LL_WINDOWS
 # include <syslog.h>
 # include <unistd.h>
+# include <sys/stat.h>
+#else
+# include <io.h>
 #endif // !LL_WINDOWS
 #include <vector>
 #include "string.h"
@@ -52,6 +55,13 @@
 #include "llsingleton.h"
 #include "llstl.h"
 #include "lltimer.h"
+
+// On Mac, got:
+// #error "Boost.Stacktrace requires `_Unwind_Backtrace` function. Define
+// `_GNU_SOURCE` macro or `BOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED` if
+// _Unwind_Backtrace is available without `_GNU_SOURCE`."
+#define BOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED
+#include <boost/stacktrace.hpp>
 
 namespace {
 #if LL_WINDOWS
@@ -118,27 +128,28 @@ namespace {
 	class RecordToFile : public LLError::Recorder
 	{
 	public:
-		RecordToFile(const std::string& filename)
+		RecordToFile(const std::string& filename):
+			mName(filename)
 		{
 			mFile.open(filename.c_str(), std::ios_base::out | std::ios_base::app);
 			if (!mFile)
 			{
 				LL_INFOS() << "Error setting log file to " << filename << LL_ENDL;
 			}
-            else
-            {
-                if (!LLError::getAlwaysFlush())
-                {
-                    mFile.sync_with_stdio(false);
-                }
-            }
+			else
+			{
+				if (!LLError::getAlwaysFlush())
+				{
+					mFile.sync_with_stdio(false);
+				}
+			}
 		}
-		
+
 		~RecordToFile()
 		{
 			mFile.close();
 		}
-		
+
         virtual bool enabled() override
         {
 #ifdef LL_RELEASE_FOR_DOWNLOAD
@@ -148,11 +159,13 @@ namespace {
 #endif
         }
         
-		bool okay() { return mFile.good(); }
-		
-		virtual void recordMessage(LLError::ELevel level,
-									const std::string& message) override
-		{
+        bool okay() const { return mFile.good(); }
+
+        std::string getFilename() const { return mName; }
+
+        virtual void recordMessage(LLError::ELevel level,
+                                    const std::string& message) override
+        {
             if (LLError::getAlwaysFlush())
             {
                 mFile << message << std::endl;
@@ -161,9 +174,10 @@ namespace {
             {
                 mFile << message << "\n";
             }
-		}
-	
+        }
+
 	private:
+		const std::string mName;
 		llofstream mFile;
 	};
 	
@@ -171,7 +185,7 @@ namespace {
 	class RecordToStderr : public LLError::Recorder
 	{
 	public:
-		RecordToStderr(bool timestamp) : mUseANSI(ANSI_PROBE) 
+		RecordToStderr(bool timestamp) : mUseANSI(checkANSI()) 
 		{
             this->showMultiline(true);
 		}
@@ -193,14 +207,12 @@ namespace {
 
 		virtual void recordMessage(LLError::ELevel level,
 					   const std::string& message) override
-		{            
+		{
             static std::string s_ansi_error = createANSI("31"); // red
             static std::string s_ansi_warn  = createANSI("34"); // blue
             static std::string s_ansi_debug = createANSI("35"); // magenta
 
-            mUseANSI = (ANSI_PROBE == mUseANSI) ? (checkANSI() ? ANSI_YES : ANSI_NO) : mUseANSI;
-
-			if (ANSI_YES == mUseANSI)
+			if (mUseANSI)
 			{
                 writeANSI((level == LLError::LEVEL_ERROR) ? s_ansi_error :
                           (level == LLError::LEVEL_WARN)  ? s_ansi_warn :
@@ -213,12 +225,7 @@ namespace {
 		}
 	
 	private:
-		enum ANSIState 
-		{
-			ANSI_PROBE, 
-			ANSI_YES, 
-			ANSI_NO
-		}					mUseANSI;
+		bool mUseANSI;
 
         LL_FORCE_INLINE void writeANSI(const std::string& ansi_code, const std::string& message)
 		{
@@ -229,16 +236,13 @@ namespace {
 			fprintf(stderr, "%s%s%s\n%s", s_ansi_bold.c_str(), ansi_code.c_str(), message.c_str(), s_ansi_reset.c_str() );
 		}
 
-		bool checkANSI(void)
+		static bool checkANSI(void)
 		{
-#if LL_LINUX || LL_DARWIN
 			// Check whether it's okay to use ANSI; if stderr is
 			// a tty then we assume yes.  Can be turned off with
 			// the LL_NO_ANSI_COLOR env var.
 			return (0 != isatty(2)) &&
 				(NULL == getenv("LL_NO_ANSI_COLOR"));
-#endif // LL_LINUX
-            return FALSE; // works in a cygwin shell... ;)
 		}
 	};
 
@@ -308,28 +312,35 @@ namespace LLError
 	{
 #ifdef __GNUC__
 		// GCC: type_info::name() returns a mangled class name,st demangle
-        // passing nullptr, 0 forces allocation of a unique buffer we can free
-        // fixing MAINT-8724 on OSX 10.14
+		// passing nullptr, 0 forces allocation of a unique buffer we can free
+		// fixing MAINT-8724 on OSX 10.14
 		int status = -1;
 		char* name = abi::__cxa_demangle(mangled, nullptr, 0, &status);
-        std::string result(name ? name : mangled);
-        free(name);
-        return result;
+		std::string result(name ? name : mangled);
+		free(name);
+		return result;
+
 #elif LL_WINDOWS
-		// DevStudio: type_info::name() includes the text "class " at the start
-
-		static const std::string class_prefix = "class ";
+		// Visual Studio: type_info::name() includes the text "class " at the start
 		std::string name = mangled;
-		if (0 != name.compare(0, class_prefix.length(), class_prefix))
+		for (const auto& prefix : std::vector<std::string>{ "class ", "struct " })
 		{
-			LL_DEBUGS() << "Did not see '" << class_prefix << "' prefix on '"
-					   << name << "'" << LL_ENDL;
-			return name;
+			if (0 == name.compare(0, prefix.length(), prefix))
+			{
+				return name.substr(prefix.length());
+			}
 		}
+		// huh, that's odd, we should see one or the other prefix -- but don't
+		// try to log unless logging is already initialized
+		if (is_available())
+		{
+			// in Python, " or ".join(vector) -- but in C++, a PITB
+			LL_DEBUGS() << "Did not see 'class' or 'struct' prefix on '"
+				<< name << "'" << LL_ENDL;
+		}
+		return name;
 
-		return name.substr(class_prefix.length());
-
-#else
+#else  // neither GCC nor Visual Studio
 		return mangled;
 #endif
 	}
@@ -408,7 +419,7 @@ namespace
 				return false;
 			}
 
-			if (configuration.isUndefined() || !configuration.isMap() || configuration.emptyMap())
+			if (! configuration || !configuration.isMap())
 			{
 				LL_WARNS() << filename() << " missing, ill-formed, or simply undefined"
 							" content; not changing configuration"
@@ -490,14 +501,11 @@ namespace LLError
 		
 		LLError::FatalFunction              mCrashFunction;
 		LLError::TimeFunction               mTimeFunction;
-		
+
 		Recorders                           mRecorders;
-		RecorderPtr                         mFileRecorder;
-		RecorderPtr                         mFixedBufferRecorder;
-		std::string                         mFileRecorderFileName;
-		
-		int									mShouldLogCallCounter;
-		
+
+		int                                 mShouldLogCallCounter;
+
 	private:
 		SettingsConfig();
 	};
@@ -531,9 +539,6 @@ namespace LLError
 		mCrashFunction(NULL),
 		mTimeFunction(NULL),
 		mRecorders(),
-		mFileRecorder(),
-		mFixedBufferRecorder(),
-		mFileRecorderFileName(),
 		mShouldLogCallCounter(0)
 	{
 	}
@@ -656,22 +661,38 @@ namespace LLError
 
 namespace
 {
-	bool shouldLogToStderr()
-	{
+    bool shouldLogToStderr()
+    {
 #if LL_DARWIN
-		// On Mac OS X, stderr from apps launched from the Finder goes to the
-		// console log.  It's generally considered bad form to spam too much
-		// there.
-		
-		// If stdin is a tty, assume the user launched from the command line and
-		// therefore wants to see stderr.  Otherwise, assume we've been launched
-		// from the finder and shouldn't spam stderr.
-		return isatty(0);
+        // On Mac OS X, stderr from apps launched from the Finder goes to the
+        // console log.  It's generally considered bad form to spam too much
+        // there. That scenario can be detected by noticing that stderr is a
+        // character device (S_IFCHR).
+
+        // If stderr is a tty or a pipe, assume the user launched from the
+        // command line or debugger and therefore wants to see stderr.
+        if (isatty(STDERR_FILENO))
+            return true;
+        // not a tty, but might still be a pipe -- check
+        struct stat st;
+        if (fstat(STDERR_FILENO, &st) < 0)
+        {
+            // capture errno right away, before engaging any other operations
+            auto errno_save = errno;
+            // this gets called during log-system setup -- can't log yet!
+            std::cerr << "shouldLogToStderr: fstat(" << STDERR_FILENO << ") failed, errno "
+                      << errno_save << std::endl;
+            // if we can't tell, err on the safe side and don't write stderr
+            return false;
+        }
+
+        // fstat() worked: return true only if stderr is a pipe
+        return ((st.st_mode & S_IFMT) == S_IFIFO);
 #else
-		return true;
+        return true;
 #endif
-	}
-	
+    }
+
 	bool stderrLogWantsTime()
 	{
 #if LL_WINDOWS
@@ -685,20 +706,19 @@ namespace
 	void commonInit(const std::string& user_dir, const std::string& app_dir, bool log_to_stderr = true)
 	{
 		LLError::Settings::getInstance()->reset();
-		
+
 		LLError::setDefaultLevel(LLError::LEVEL_INFO);
-        LLError::setAlwaysFlush(true);
-        LLError::setEnabledLogTypesMask(0xFFFFFFFF);
+		LLError::setAlwaysFlush(true);
+		LLError::setEnabledLogTypesMask(0xFFFFFFFF);
 		LLError::setFatalFunction(LLError::crashAndLoop);
 		LLError::setTimeFunction(LLError::utcTime);
 
 		// log_to_stderr is only false in the unit and integration tests to keep builds quieter
 		if (log_to_stderr && shouldLogToStderr())
 		{
-			LLError::RecorderPtr recordToStdErr(new RecordToStderr(stderrLogWantsTime()));
-			LLError::addRecorder(recordToStdErr);
+			LLError::logToStderr();
 		}
-		
+
 #if LL_WINDOWS
 		LLError::RecorderPtr recordToWinDebug(new RecordToWinDebug());
 		LLError::addRecorder(recordToWinDebug);
@@ -996,49 +1016,110 @@ namespace LLError
 		s->mRecorders.erase(std::remove(s->mRecorders.begin(), s->mRecorders.end(), recorder),
 							s->mRecorders.end());
 	}
+
+    // Find an entry in SettingsConfig::mRecorders whose RecorderPtr points to
+    // a Recorder subclass of type RECORDER. Return, not a RecorderPtr (which
+    // points to the Recorder base class), but a shared_ptr<RECORDER> which
+    // specifically points to the concrete RECORDER subclass instance, along
+    // with a Recorders::iterator indicating the position of that entry in
+    // mRecorders. The shared_ptr might be empty (operator!() returns true) if
+    // there was no such RECORDER subclass instance in mRecorders.
+    template <typename RECORDER>
+    std::pair<boost::shared_ptr<RECORDER>, Recorders::iterator>
+    findRecorderPos()
+    {
+        SettingsConfigPtr s = Settings::instance().getSettingsConfig();
+        // Since we promise to return an iterator, use a classic iterator
+        // loop.
+        auto end{s->mRecorders.end()};
+        for (Recorders::iterator it{s->mRecorders.begin()}; it != end; ++it)
+        {
+            // *it is a RecorderPtr, a shared_ptr<Recorder>. Use a
+            // dynamic_pointer_cast to try to downcast to test if it's also a
+            // shared_ptr<RECORDER>.
+            auto ptr = boost::dynamic_pointer_cast<RECORDER>(*it);
+            if (ptr)
+            {
+                // found the entry we want
+                return { ptr, it };
+            }
+        }
+        // dropped out of the loop without finding any such entry -- instead
+        // of default-constructing Recorders::iterator (which might or might
+        // not be valid), return a value that is valid but not dereferenceable.
+        return { {}, end };
+    }
+
+    // Find an entry in SettingsConfig::mRecorders whose RecorderPtr points to
+    // a Recorder subclass of type RECORDER. Return, not a RecorderPtr (which
+    // points to the Recorder base class), but a shared_ptr<RECORDER> which
+    // specifically points to the concrete RECORDER subclass instance. The
+    // shared_ptr might be empty (operator!() returns true) if there was no
+    // such RECORDER subclass instance in mRecorders.
+    template <typename RECORDER>
+    boost::shared_ptr<RECORDER> findRecorder()
+    {
+        return findRecorderPos<RECORDER>().first;
+    }
+
+    // Remove an entry from SettingsConfig::mRecorders whose RecorderPtr
+    // points to a Recorder subclass of type RECORDER. Return true if there
+    // was one and we removed it, false if there wasn't one to start with.
+    template <typename RECORDER>
+    bool removeRecorder()
+    {
+        auto found = findRecorderPos<RECORDER>();
+        if (found.first)
+        {
+            SettingsConfigPtr s = Settings::instance().getSettingsConfig();
+            s->mRecorders.erase(found.second);
+        }
+        return bool(found.first);
+    }
 }
 
 namespace LLError
 {
 	void logToFile(const std::string& file_name)
 	{
-		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
+		// remove any previous Recorder filling this role
+		removeRecorder<RecordToFile>();
 
-		removeRecorder(s->mFileRecorder);
-		s->mFileRecorder.reset();
-		s->mFileRecorderFileName.clear();
-		
 		if (!file_name.empty())
 		{
-            RecorderPtr recordToFile(new RecordToFile(file_name));
-            if (boost::dynamic_pointer_cast<RecordToFile>(recordToFile)->okay())
-            {
-                s->mFileRecorderFileName = file_name;
-                s->mFileRecorder = recordToFile;
-                addRecorder(recordToFile);
-            }
+			boost::shared_ptr<RecordToFile> recordToFile(new RecordToFile(file_name));
+			if (recordToFile->okay())
+			{
+				addRecorder(recordToFile);
+			}
 		}
-	}
-	
-	void logToFixedBuffer(LLLineBuffer* fixedBuffer)
-	{
-		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
-
-		removeRecorder(s->mFixedBufferRecorder);
-		s->mFixedBufferRecorder.reset();
-		
-		if (fixedBuffer)
-		{
-            RecorderPtr recordToFixedBuffer(new RecordToFixedBuffer(fixedBuffer));
-            s->mFixedBufferRecorder = recordToFixedBuffer;
-            addRecorder(recordToFixedBuffer);
-        }
 	}
 
 	std::string logFileName()
 	{
-		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
-		return s->mFileRecorderFileName;
+		auto found = findRecorder<RecordToFile>();
+		return found? found->getFilename() : std::string();
+	}
+
+    void logToStderr()
+    {
+        if (! findRecorder<RecordToStderr>())
+        {
+            RecorderPtr recordToStdErr(new RecordToStderr(stderrLogWantsTime()));
+            addRecorder(recordToStdErr);
+        }
+    }
+
+	void logToFixedBuffer(LLLineBuffer* fixedBuffer)
+	{
+		// remove any previous Recorder filling this role
+		removeRecorder<RecordToFixedBuffer>();
+
+		if (fixedBuffer)
+		{
+			RecorderPtr recordToFixedBuffer(new RecordToFixedBuffer(fixedBuffer));
+			addRecorder(recordToFixedBuffer);
+		}
 	}
 }
 
@@ -1154,8 +1235,25 @@ namespace
 }
 
 namespace {
-	LLMutex gLogMutex;
-	LLMutex gCallStacksLogMutex;
+	// We need a couple different mutexes, but we want to use the same mechanism
+	// for both. Make getMutex() a template function with different instances
+	// for different MutexDiscriminator values.
+	enum MutexDiscriminator
+	{
+		LOG_MUTEX,
+		STACKS_MUTEX
+	};
+	// Some logging calls happen very early in processing -- so early that our
+	// module-static variables aren't yet initialized. getMutex() wraps a
+	// function-static LLMutex so that early calls can still have a valid
+	// LLMutex instance.
+	template <MutexDiscriminator MTX>
+	LLMutex* getMutex()
+	{
+		// guaranteed to be initialized the first time control reaches here
+		static LLMutex sMutex;
+		return &sMutex;
+	}
 
 	bool checkLevelMap(const LevelMap& map, const std::string& key,
 						LLError::ELevel& level)
@@ -1203,7 +1301,7 @@ namespace LLError
 
 	bool Log::shouldLog(CallSite& site)
 	{
-		LLMutexTrylock lock(&gLogMutex, 5);
+		LLMutexTrylock lock(getMutex<LOG_MUTEX>(), 5);
 		if (!lock.isLocked())
 		{
 			return false;
@@ -1254,7 +1352,7 @@ namespace LLError
 
 	std::ostringstream* Log::out()
 	{
-		LLMutexTrylock lock(&gLogMutex,5);
+		LLMutexTrylock lock(getMutex<LOG_MUTEX>(),5);
 		// If we hit a logging request very late during shutdown processing,
 		// when either of the relevant LLSingletons has already been deleted,
 		// DO NOT resurrect them.
@@ -1274,7 +1372,7 @@ namespace LLError
 
 	void Log::flush(std::ostringstream* out, char* message)
 	{
-		LLMutexTrylock lock(&gLogMutex,5);
+		LLMutexTrylock lock(getMutex<LOG_MUTEX>(),5);
 		if (!lock.isLocked())
 		{
 			return;
@@ -1314,7 +1412,7 @@ namespace LLError
 
 	void Log::flush(std::ostringstream* out, const CallSite& site)
 	{
-		LLMutexTrylock lock(&gLogMutex,5);
+		LLMutexTrylock lock(getMutex<LOG_MUTEX>(),5);
 		if (!lock.isLocked())
 		{
 			return;
@@ -1486,129 +1584,133 @@ namespace LLError
 	S32    LLCallStacks::sIndex  = 0 ;
 
 	//static
-   void LLCallStacks::allocateStackBuffer()
-   {
-	   if(sBuffer == NULL)
-	   {
-		   sBuffer = new char*[512] ;
-		   sBuffer[0] = new char[512 * 128] ;
-		   for(S32 i = 1 ; i < 512 ; i++)
-		   {
-			   sBuffer[i] = sBuffer[i-1] + 128 ;
-		   }
-		   sIndex = 0 ;
-	   }
-   }
+    void LLCallStacks::allocateStackBuffer()
+    {
+        if(sBuffer == NULL)
+        {
+            sBuffer = new char*[512] ;
+            sBuffer[0] = new char[512 * 128] ;
+            for(S32 i = 1 ; i < 512 ; i++)
+            {
+                sBuffer[i] = sBuffer[i-1] + 128 ;
+            }
+            sIndex = 0 ;
+        }
+    }
 
-   void LLCallStacks::freeStackBuffer()
-   {
-	   if(sBuffer != NULL)
-	   {
-		   delete [] sBuffer[0] ;
-		   delete [] sBuffer ;
-		   sBuffer = NULL ;
-	   }
-   }
+    void LLCallStacks::freeStackBuffer()
+    {
+        if(sBuffer != NULL)
+        {
+            delete [] sBuffer[0] ;
+            delete [] sBuffer ;
+            sBuffer = NULL ;
+        }
+    }
 
-   //static
-   void LLCallStacks::push(const char* function, const int line)
-   {
-       LLMutexTrylock lock(&gCallStacksLogMutex, 5);
-       if (!lock.isLocked())
-       {
-           return;
-       }
+    //static
+    void LLCallStacks::push(const char* function, const int line)
+    {
+        LLMutexTrylock lock(getMutex<STACKS_MUTEX>(), 5);
+        if (!lock.isLocked())
+        {
+            return;
+        }
 
-	   if(sBuffer == NULL)
-	   {
-		   allocateStackBuffer();
-	   }
+        if(sBuffer == NULL)
+        {
+            allocateStackBuffer();
+        }
 
-	   if(sIndex > 511)
-	   {
-		   clear() ;
-	   }
+        if(sIndex > 511)
+        {
+            clear() ;
+        }
 
-	   strcpy(sBuffer[sIndex], function) ;
-	   sprintf(sBuffer[sIndex] + strlen(function), " line: %d ", line) ;
-	   sIndex++ ;
+        strcpy(sBuffer[sIndex], function) ;
+        sprintf(sBuffer[sIndex] + strlen(function), " line: %d ", line) ;
+        sIndex++ ;
 
-	   return ;
-   }
+        return ;
+    }
 
-	//static
-   std::ostringstream* LLCallStacks::insert(const char* function, const int line)
-   {
-       std::ostringstream* _out = LLError::Log::out();
-	   *_out << function << " line " << line << " " ;
-             
-	   return _out ;
-   }
+    //static
+    std::ostringstream* LLCallStacks::insert(const char* function, const int line)
+    {
+        std::ostringstream* _out = LLError::Log::out();
+        *_out << function << " line " << line << " " ;
+        return _out ;
+    }
 
-   //static
-   void LLCallStacks::end(std::ostringstream* _out)
-   {
-       LLMutexTrylock lock(&gCallStacksLogMutex, 5);
-       if (!lock.isLocked())
-       {
-           return;
-       }
+    //static
+    void LLCallStacks::end(std::ostringstream* _out)
+    {
+        LLMutexTrylock lock(getMutex<STACKS_MUTEX>(), 5);
+        if (!lock.isLocked())
+        {
+            return;
+        }
 
-	   if(sBuffer == NULL)
-	   {
-		   allocateStackBuffer();
-	   }
+        if(sBuffer == NULL)
+        {
+            allocateStackBuffer();
+        }
 
-	   if(sIndex > 511)
-	   {
-		   clear() ;
-	   }
+        if(sIndex > 511)
+        {
+            clear() ;
+        }
 
-	   LLError::Log::flush(_out, sBuffer[sIndex++]) ;	   
-   }
+        LLError::Log::flush(_out, sBuffer[sIndex++]) ;
+    }
 
-   //static
-   void LLCallStacks::print()
-   {
-       LLMutexTrylock lock(&gCallStacksLogMutex, 5);
-       if (!lock.isLocked())
-       {
-           return;
-       }
+    //static
+    void LLCallStacks::print()
+    {
+        LLMutexTrylock lock(getMutex<STACKS_MUTEX>(), 5);
+        if (!lock.isLocked())
+        {
+            return;
+        }
 
-       if(sIndex > 0)
-       {
-           LL_INFOS() << " ************* PRINT OUT LL CALL STACKS ************* " << LL_ENDL;
-           while(sIndex > 0)
-           {                  
-			   sIndex-- ;
-               LL_INFOS() << sBuffer[sIndex] << LL_ENDL;
-           }
-           LL_INFOS() << " *************** END OF LL CALL STACKS *************** " << LL_ENDL;
-       }
+        if(sIndex > 0)
+        {
+            LL_INFOS() << " ************* PRINT OUT LL CALL STACKS ************* " << LL_ENDL;
+            while(sIndex > 0)
+            {                  
+                sIndex-- ;
+                LL_INFOS() << sBuffer[sIndex] << LL_ENDL;
+            }
+            LL_INFOS() << " *************** END OF LL CALL STACKS *************** " << LL_ENDL;
+        }
 
-	   if(sBuffer != NULL)
-	   {
-		   freeStackBuffer();
-	   }
-   }
+        if(sBuffer != NULL)
+        {
+            freeStackBuffer();
+        }
+    }
 
-   //static
-   void LLCallStacks::clear()
-   {
-       sIndex = 0 ;
-   }
+    //static
+    void LLCallStacks::clear()
+    {
+        sIndex = 0 ;
+    }
 
-   //static
-   void LLCallStacks::cleanup()
-   {
-	   freeStackBuffer();
-   }
+    //static
+    void LLCallStacks::cleanup()
+    {
+        freeStackBuffer();
+    }
+
+    std::ostream& operator<<(std::ostream& out, const LLStacktrace&)
+    {
+        return out << boost::stacktrace::stacktrace();
+    }
 }
 
 bool debugLoggingEnabled(const std::string& tag)
 {
-    LLMutexTrylock lock(&gLogMutex, 5);
+    LLMutexTrylock lock(getMutex<LOG_MUTEX>(), 5);
     if (!lock.isLocked())
     {
         return false;

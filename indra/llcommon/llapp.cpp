@@ -49,6 +49,8 @@
 #include "google_breakpad/exception_handler.h"
 #include "stringize.h"
 #include "llcleanup.h"
+#include "llevents.h"
+#include "llsdutil.h"
 
 //
 // Signal handling
@@ -561,10 +563,42 @@ void LLApp::runErrorHandler()
 	LLApp::setStopped();
 }
 
+namespace
+{
+
+static std::map<LLApp::EAppStatus, const char*> statusDesc
+{
+    { LLApp::APP_STATUS_RUNNING,  "running" },
+    { LLApp::APP_STATUS_QUITTING, "quitting" },
+    { LLApp::APP_STATUS_STOPPED,  "stopped" },
+    { LLApp::APP_STATUS_ERROR,    "error" }
+};
+
+} // anonymous namespace
+
 // static
 void LLApp::setStatus(EAppStatus status)
 {
-	sStatus = status;
+    sStatus = status;
+
+    // This can also happen very late in the application lifecycle -- don't
+    // resurrect a deleted LLSingleton
+    if (! LLEventPumps::wasDeleted())
+    {
+        // notify interested parties of status change
+        LLSD statsd;
+        auto found = statusDesc.find(status);
+        if (found != statusDesc.end())
+        {
+            statsd = found->second;
+        }
+        else
+        {
+            // unknown status? at least report value
+            statsd = LLSD::Integer(status);
+        }
+        LLEventPumps::instance().obtain("LLApp").post(llsd::map("status", statsd));
+    }
 }
 
 

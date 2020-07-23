@@ -49,24 +49,28 @@ const size_t BUFFERED_LENGTH = 1023*1024; // try wrangling just under a megabyte
 
 #endif
 
-void waitfor(const std::vector<LLLeap*>& instances, int timeout=60)
+// capture std::weak_ptrs to LLLeap instances so we can tell when they expire
+typedef std::vector<std::weak_ptr<LLLeap>> LLLeapVector;
+
+void waitfor(const LLLeapVector& instances, int timeout=60)
 {
     int i;
     for (i = 0; i < timeout; ++i)
     {
         // Every iteration, test whether any of the passed LLLeap instances
         // still exist (are still running).
-        std::vector<LLLeap*>::const_iterator vli(instances.begin()), vlend(instances.end());
-        for ( ; vli != vlend; ++vli)
+        bool found = false;
+        for (auto& ptr : instances)
         {
-            // getInstance() returns NULL if it's terminated/gone, non-NULL if
-            // it's still running
-            if (LLLeap::getInstance(*vli))
+            if (! ptr.expired())
+            {
+                found = true;
                 break;
+            }
         }
         // If we made it through all of 'instances' without finding one that's
         // still running, we're done.
-        if (vli == vlend)
+        if (! found)
         {
 /*==========================================================================*|
             std::cout << instances.size() << " LLLeap instances terminated in "
@@ -86,8 +90,8 @@ void waitfor(const std::vector<LLLeap*>& instances, int timeout=60)
 
 void waitfor(LLLeap* instance, int timeout=60)
 {
-    std::vector<LLLeap*> instances;
-    instances.push_back(instance);
+    LLLeapVector instances;
+    instances.push_back(instance->getWeak());
     waitfor(instances, timeout);
 }
 
@@ -218,11 +222,11 @@ namespace tut
         NamedTempFile script("py",
                              "import time\n"
                              "time.sleep(1)\n");
-        std::vector<LLLeap*> instances;
+        LLLeapVector instances;
         instances.push_back(LLLeap::create(get_test_name(),
-                                           sv(list_of(PYTHON)(script.getName()))));
+                                           sv(list_of(PYTHON)(script.getName())))->getWeak());
         instances.push_back(LLLeap::create(get_test_name(),
-                                           sv(list_of(PYTHON)(script.getName()))));
+                                           sv(list_of(PYTHON)(script.getName())))->getWeak());
         // In this case we're simply establishing that two LLLeap instances
         // can coexist without throwing exceptions or bombing in any other
         // way. Wait for them to terminate.

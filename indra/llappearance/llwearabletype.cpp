@@ -32,7 +32,8 @@
 
 struct WearableEntry : public LLDictionaryEntry
 {
-	WearableEntry(const std::string &name,
+	WearableEntry(LLWearableType& wtype,
+				  const std::string &name,
 				  const std::string& default_new_name,
 				  LLAssetType::EType assetType,
 				  LLInventoryType::EIconName iconName,
@@ -41,7 +42,7 @@ struct WearableEntry : public LLDictionaryEntry
 		LLDictionaryEntry(name),
 		mAssetType(assetType),
 		mDefaultNewName(default_new_name),
-		mLabel(LLWearableType::getInstance()->mTrans->getString(name)),
+		mLabel(wtype.mTrans->getString(name)),
 		mIconName(iconName),
 		mDisableCameraSwitch(disable_camera_switch),
 		mAllowMultiwear(allow_multiwear)
@@ -56,41 +57,35 @@ struct WearableEntry : public LLDictionaryEntry
 	BOOL mAllowMultiwear;
 };
 
-class LLWearableDictionary : public LLSingleton<LLWearableDictionary>,
+class LLWearableDictionary : public LLParamSingleton<LLWearableDictionary>,
 							 public LLDictionary<LLWearableType::EType, WearableEntry>
 {
-	LLSINGLETON(LLWearableDictionary);
+	LLSINGLETON(LLWearableDictionary, LLWearableType&);
 };
 
-LLWearableDictionary::LLWearableDictionary()
+LLWearableDictionary::LLWearableDictionary(LLWearableType& wtype)
 {
-    if (!LLWearableType::instanceExists())
-    {
-        // LLWearableType is effectively a wrapper around LLWearableDictionary and is used as storage for LLTranslationBridge
-        // Todo: consider merging LLWearableType and LLWearableDictionary
-        LL_WARNS() << "Initing LLWearableDictionary without LLWearableType" << LL_ENDL;
-    }
-	addEntry(LLWearableType::WT_SHAPE,        new WearableEntry("shape",       "New Shape",			LLAssetType::AT_BODYPART, 	LLInventoryType::ICONNAME_BODYPART_SHAPE, FALSE, FALSE));
-	addEntry(LLWearableType::WT_SKIN,         new WearableEntry("skin",        "New Skin",			LLAssetType::AT_BODYPART, 	LLInventoryType::ICONNAME_BODYPART_SKIN, FALSE, FALSE));
-	addEntry(LLWearableType::WT_HAIR,         new WearableEntry("hair",        "New Hair",			LLAssetType::AT_BODYPART, 	LLInventoryType::ICONNAME_BODYPART_HAIR, FALSE, FALSE));
-	addEntry(LLWearableType::WT_EYES,         new WearableEntry("eyes",        "New Eyes",			LLAssetType::AT_BODYPART, 	LLInventoryType::ICONNAME_BODYPART_EYES, FALSE, FALSE));
-	addEntry(LLWearableType::WT_SHIRT,        new WearableEntry("shirt",       "New Shirt",			LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_SHIRT, FALSE, TRUE));
-	addEntry(LLWearableType::WT_PANTS,        new WearableEntry("pants",       "New Pants",			LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_PANTS, FALSE, TRUE));
-	addEntry(LLWearableType::WT_SHOES,        new WearableEntry("shoes",       "New Shoes",			LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_SHOES, FALSE, TRUE));
-	addEntry(LLWearableType::WT_SOCKS,        new WearableEntry("socks",       "New Socks",			LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_SOCKS, FALSE, TRUE));
-	addEntry(LLWearableType::WT_JACKET,       new WearableEntry("jacket",      "New Jacket",		LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_JACKET, FALSE, TRUE));
-	addEntry(LLWearableType::WT_GLOVES,       new WearableEntry("gloves",      "New Gloves",		LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_GLOVES, FALSE, TRUE));
-	addEntry(LLWearableType::WT_UNDERSHIRT,   new WearableEntry("undershirt",  "New Undershirt",	LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_UNDERSHIRT, FALSE, TRUE));
-	addEntry(LLWearableType::WT_UNDERPANTS,   new WearableEntry("underpants",  "New Underpants",	LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_UNDERPANTS, FALSE, TRUE));
-	addEntry(LLWearableType::WT_SKIRT,        new WearableEntry("skirt",       "New Skirt",			LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_SKIRT, FALSE, TRUE));
-	addEntry(LLWearableType::WT_ALPHA,        new WearableEntry("alpha",       "New Alpha",			LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_ALPHA, FALSE, TRUE));
-	addEntry(LLWearableType::WT_TATTOO,       new WearableEntry("tattoo",      "New Tattoo",		LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_TATTOO, FALSE, TRUE));
-	addEntry(LLWearableType::WT_UNIVERSAL,    new WearableEntry("universal",   "New Universal",     LLAssetType::AT_CLOTHING,   LLInventoryType::ICONNAME_CLOTHING_UNIVERSAL, FALSE, TRUE));
+	addEntry(LLWearableType::WT_SHAPE,        new WearableEntry(wtype, "shape",       "New Shape",			LLAssetType::AT_BODYPART, 	LLInventoryType::ICONNAME_BODYPART_SHAPE, FALSE, FALSE));
+	addEntry(LLWearableType::WT_SKIN,         new WearableEntry(wtype, "skin",        "New Skin",			LLAssetType::AT_BODYPART, 	LLInventoryType::ICONNAME_BODYPART_SKIN, FALSE, FALSE));
+	addEntry(LLWearableType::WT_HAIR,         new WearableEntry(wtype, "hair",        "New Hair",			LLAssetType::AT_BODYPART, 	LLInventoryType::ICONNAME_BODYPART_HAIR, FALSE, FALSE));
+	addEntry(LLWearableType::WT_EYES,         new WearableEntry(wtype, "eyes",        "New Eyes",			LLAssetType::AT_BODYPART, 	LLInventoryType::ICONNAME_BODYPART_EYES, FALSE, FALSE));
+	addEntry(LLWearableType::WT_SHIRT,        new WearableEntry(wtype, "shirt",       "New Shirt",			LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_SHIRT, FALSE, TRUE));
+	addEntry(LLWearableType::WT_PANTS,        new WearableEntry(wtype, "pants",       "New Pants",			LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_PANTS, FALSE, TRUE));
+	addEntry(LLWearableType::WT_SHOES,        new WearableEntry(wtype, "shoes",       "New Shoes",			LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_SHOES, FALSE, TRUE));
+	addEntry(LLWearableType::WT_SOCKS,        new WearableEntry(wtype, "socks",       "New Socks",			LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_SOCKS, FALSE, TRUE));
+	addEntry(LLWearableType::WT_JACKET,       new WearableEntry(wtype, "jacket",      "New Jacket",		LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_JACKET, FALSE, TRUE));
+	addEntry(LLWearableType::WT_GLOVES,       new WearableEntry(wtype, "gloves",      "New Gloves",		LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_GLOVES, FALSE, TRUE));
+	addEntry(LLWearableType::WT_UNDERSHIRT,   new WearableEntry(wtype, "undershirt",  "New Undershirt",	LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_UNDERSHIRT, FALSE, TRUE));
+	addEntry(LLWearableType::WT_UNDERPANTS,   new WearableEntry(wtype, "underpants",  "New Underpants",	LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_UNDERPANTS, FALSE, TRUE));
+	addEntry(LLWearableType::WT_SKIRT,        new WearableEntry(wtype, "skirt",       "New Skirt",			LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_SKIRT, FALSE, TRUE));
+	addEntry(LLWearableType::WT_ALPHA,        new WearableEntry(wtype, "alpha",       "New Alpha",			LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_ALPHA, FALSE, TRUE));
+	addEntry(LLWearableType::WT_TATTOO,       new WearableEntry(wtype, "tattoo",      "New Tattoo",		LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_TATTOO, FALSE, TRUE));
+	addEntry(LLWearableType::WT_UNIVERSAL,    new WearableEntry(wtype, "universal",   "New Universal",     LLAssetType::AT_CLOTHING,   LLInventoryType::ICONNAME_CLOTHING_UNIVERSAL, FALSE, TRUE));
 
-	addEntry(LLWearableType::WT_PHYSICS,      new WearableEntry("physics",     "New Physics",		LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_PHYSICS, TRUE, TRUE));
+	addEntry(LLWearableType::WT_PHYSICS,      new WearableEntry(wtype, "physics",     "New Physics",		LLAssetType::AT_CLOTHING, 	LLInventoryType::ICONNAME_CLOTHING_PHYSICS, TRUE, TRUE));
 
-	addEntry(LLWearableType::WT_INVALID,      new WearableEntry("invalid",     "Invalid Wearable", 	LLAssetType::AT_NONE, 		LLInventoryType::ICONNAME_UNKNOWN, FALSE, FALSE));
-	addEntry(LLWearableType::WT_NONE,      	  new WearableEntry("none",        "Invalid Wearable", 	LLAssetType::AT_NONE, 		LLInventoryType::ICONNAME_NONE, FALSE, FALSE));
+	addEntry(LLWearableType::WT_INVALID,      new WearableEntry(wtype, "invalid",     "Invalid Wearable", 	LLAssetType::AT_NONE, 		LLInventoryType::ICONNAME_UNKNOWN, FALSE, FALSE));
+	addEntry(LLWearableType::WT_NONE,      	  new WearableEntry(wtype, "none",        "Invalid Wearable", 	LLAssetType::AT_NONE, 		LLInventoryType::ICONNAME_NONE, FALSE, FALSE));
 }
 
 
@@ -105,6 +100,14 @@ LLWearableType::LLWearableType(LLTranslationBridge* trans)
 LLWearableType::~LLWearableType()
 {
     delete mTrans;
+}
+
+void LLWearableType::initSingleton()
+{
+    // To make sure all wrapping functions will crash without initing LLWearableType;
+    LLWearableDictionary::initParamSingleton(*this);
+
+    // Todo: consider merging LLWearableType and LLWearableDictionary
 }
 
 // static
