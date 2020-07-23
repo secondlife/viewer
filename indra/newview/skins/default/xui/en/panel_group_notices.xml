@@ -59,6 +59,7 @@ Maximum 200 per group daily
         <scroll_list.columns
          label="Date"
          name="date"
+         sort_column="sort"
          width="100" />
         <scroll_list.columns
          name="sort"
