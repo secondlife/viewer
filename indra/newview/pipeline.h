@@ -139,7 +139,7 @@ public:
 	void resetVertexBuffers(LLDrawable* drawable);
 	void generateImpostor(LLVOAvatar* avatar);
 	void bindScreenToTexture();
-	void renderBloom(bool for_snapshot, F32 zoom_factor = 1.f, int subfield = 0);
+	void renderPost(bool for_snapshot, F32 zoom_factor = 1.f, int subfield = 0);
 
 	void init();
 	void cleanup();
