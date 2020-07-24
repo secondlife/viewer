@@ -10688,10 +10688,6 @@ void LLVOAvatar::setOverallAppearanceJellyDoll()
 	if (isControlAvatar())
 		return;
 
-    LLVector3 pelvis_pos = getJoint("mPelvis")->getPosition();
-	resetSkeleton(false);
-    getJoint("mPelvis")->setPosition(pelvis_pos);
-
 	// stop current animations
 	{
 		for ( LLVOAvatar::AnimIterator anim_it= mPlayingAnimations.begin();
@@ -10699,11 +10695,19 @@ void LLVOAvatar::setOverallAppearanceJellyDoll()
 			  ++anim_it)
 		{
 			{
-				stopMotion(anim_it->first);
+				stopMotion(anim_it->first, TRUE);
 			}
 		}
 	}
 	processAnimationStateChanges();
+
+	// Start any needed anims for jellydoll
+	updateOverallAppearanceAnimations();
+	
+    LLVector3 pelvis_pos = getJoint("mPelvis")->getPosition();
+	resetSkeleton(false);
+    getJoint("mPelvis")->setPosition(pelvis_pos);
+
 }
 
 void LLVOAvatar::setOverallAppearanceInvisible()
@@ -10769,7 +10773,7 @@ void LLVOAvatar::updateOverallAppearanceAnimations()
 				if (!is_playing)
 				{
 					// Anim was not requested for this av by sim, but may be playing locally
-					stopMotion(*it);
+					stopMotion(*it, TRUE);
 				}
 			}
 			mJellyAnims.clear();
