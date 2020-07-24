@@ -705,9 +705,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLGLState::checkTextureChannels();
 		LLGLState::checkClientArrays();
 
-		BOOL to_texture = gPipeline.canUseVertexShaders() &&
-						LLPipeline::sRenderGlow;
-
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Swap");
 		
 		{ 
@@ -914,31 +911,28 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 		stop_glerror();
 
-		if (to_texture)
-		{
-			gGL.setColorMask(true, true);
-					
-			if (LLPipeline::sRenderDeferred)
-			{
-				gPipeline.mDeferredScreen.bindTarget();
-				glClearColor(1,0,1,1);
-				gPipeline.mDeferredScreen.clear();
-			}
-			else
-			{
-				gPipeline.mScreen.bindTarget();
-				if (LLPipeline::sUnderWaterRender && !gPipeline.canUseWindLightShaders())
-				{
-					const LLColor4 &col = LLEnvironment::instance().getCurrentWater()->getWaterFogColor();
-					glClearColor(col.mV[0], col.mV[1], col.mV[2], 0.f);
-				}
-				gPipeline.mScreen.clear();
-			}
-			
-			gGL.setColorMask(true, false);
-		}
-		
-		LLAppViewer::instance()->pingMainloopTimeout("Display:RenderGeom");
+        gGL.setColorMask(true, true);
+
+        if (LLPipeline::sRenderDeferred)
+        {
+            gPipeline.mDeferredScreen.bindTarget();
+            glClearColor(1, 0, 1, 1);
+            gPipeline.mDeferredScreen.clear();
+        }
+        else
+        {
+            gPipeline.mScreen.bindTarget();
+            if (LLPipeline::sUnderWaterRender && !gPipeline.canUseWindLightShaders())
+            {
+                const LLColor4 &col = LLEnvironment::instance().getCurrentWater()->getWaterFogColor();
+                glClearColor(col.mV[0], col.mV[1], col.mV[2], 0.f);
+            }
+            gPipeline.mScreen.clear();
+        }
+
+        gGL.setColorMask(true, false);
+
+        LLAppViewer::instance()->pingMainloopTimeout("Display:RenderGeom");
 		
 		if (!(LLAppViewer::instance()->logoutRequestSent() && LLAppViewer::instance()->hasSavedFinalSnapshot())
 				&& !gRestoreGL)
@@ -1000,38 +994,20 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			}
 		}
 
-		LLAppViewer::instance()->pingMainloopTimeout("Display:RenderFlush");		
-		
-		if (to_texture)
-		{
-			if (LLPipeline::sRenderDeferred)
-			{
-				gPipeline.mDeferredScreen.flush();
-				if(LLRenderTarget::sUseFBO)
-				{
-					LLRenderTarget::copyContentsToFramebuffer(gPipeline.mDeferredScreen, 0, 0, gPipeline.mDeferredScreen.getWidth(), 
-															  gPipeline.mDeferredScreen.getHeight(), 0, 0, 
-															  gPipeline.mDeferredScreen.getWidth(), 
-															  gPipeline.mDeferredScreen.getHeight(), 
-															  GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
-				}
-			}
-			else
-			{
-				gPipeline.mScreen.flush();
-				if(LLRenderTarget::sUseFBO)
-				{				
-					LLRenderTarget::copyContentsToFramebuffer(gPipeline.mScreen, 0, 0, gPipeline.mScreen.getWidth(), 
-															  gPipeline.mScreen.getHeight(), 0, 0, 
-															  gPipeline.mScreen.getWidth(), 
-															  gPipeline.mScreen.getHeight(), 
-															  GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
-				}
-			}
-		}
+		LLAppViewer::instance()->pingMainloopTimeout("Display:RenderFlush");
 
-		if (LLPipeline::sRenderDeferred)
-		{
+        LLRenderTarget &rt = (gPipeline.sRenderDeferred ? gPipeline.mDeferredScreen : gPipeline.mScreen);
+        rt.flush();
+
+        if (rt.sUseFBO)
+        {
+            LLRenderTarget::copyContentsToFramebuffer(rt, 0, 0, rt.getWidth(), rt.getHeight(), 0, 0, rt.getWidth(),
+                                                      rt.getHeight(), GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT,
+                                                      GL_NEAREST);
+        }
+
+        if (LLPipeline::sRenderDeferred)
+        {
 			gPipeline.renderDeferredLighting(&gPipeline.mScreen);
 		}
 
@@ -1295,19 +1271,12 @@ void render_ui(F32 zoom_factor, int subfield)
 		gGL.popMatrix();
 	}
 
-	{
-		BOOL to_texture = gPipeline.canUseVertexShaders() &&
-							LLPipeline::sRenderGlow;
+    // Finalize scene
+    gPipeline.renderFinalize();
 
-		if (to_texture)
-		{
-			gPipeline.renderBloom(gSnapshot, zoom_factor, subfield);
-		}
-		
-		LL_RECORD_BLOCK_TIME(FTM_RENDER_HUD);
-		render_hud_elements();
-		render_hud_attachments();
-	}
+    LL_RECORD_BLOCK_TIME(FTM_RENDER_HUD);
+    render_hud_elements();
+	render_hud_attachments();
 
 	LLGLSDefault gls_default;
 	LLGLSUIDefault gls_ui;
