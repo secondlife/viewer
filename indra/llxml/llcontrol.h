@@ -202,8 +202,6 @@ public:
 	LLControlGroup(const std::string& name);
 	~LLControlGroup();
 	void cleanup();
-	
-	typedef LLInstanceTracker<LLControlGroup, std::string>::instance_iter instance_iter;
 
 	LLControlVariablePtr getControl(const std::string& name);
 

@@ -493,14 +493,18 @@ namespace tut
         }
 //      std::cout << "child done: rv = " << rv << " (" << manager.strerror(rv) << "), why = " << why << ", rc = " << rc << '\n';
         aprchk_("apr_proc_wait(wi->child, &wi->rc, &wi->why, APR_NOWAIT)", wi.rv, APR_CHILD_DONE);
-        ensure_equals_(wi.why, APR_PROC_EXIT);
-        ensure_equals_(wi.rc, 0);
 
         // Beyond merely executing all the above successfully, verify that we
         // obtained expected output -- and that we duly got control while
         // waiting, proving the non-blocking nature of these pipes.
         try
         {
+            // Perform these ensure_equals_() within this try/catch so that if
+            // we don't get expected results, we'll dump whatever we did get
+            // to help diagnose.
+            ensure_equals_(wi.why, APR_PROC_EXIT);
+            ensure_equals_(wi.rc, 0);
+
             unsigned i = 0;
             ensure("blocking I/O on child pipe (0)", history[i].tries);
             ensure_equals_(history[i].which, "out");

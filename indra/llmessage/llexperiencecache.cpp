@@ -338,10 +338,10 @@ void LLExperienceCache::requestExperiences()
 	F64 now = LLFrameTimer::getTotalSeconds();
 
     const U32 EXP_URL_SEND_THRESHOLD = 3000;
-    const U32 PAGE_SIZE = EXP_URL_SEND_THRESHOLD / UUID_STR_LENGTH;
+    const U32 PAGE_SIZE1 = EXP_URL_SEND_THRESHOLD / UUID_STR_LENGTH;
 
     std::ostringstream ostr;
-    ostr << urlBase << "?page_size=" << PAGE_SIZE;
+    ostr << urlBase << "?page_size=" << PAGE_SIZE1;
     RequestQueue_t  requests;
 
     while (!mRequestQueue.empty())
@@ -360,7 +360,7 @@ void LLExperienceCache::requestExperiences()
                 boost::bind(&LLExperienceCache::requestExperiencesCoro, this, _1, ostr.str(), requests) );
 
             ostr.str(std::string());
-            ostr << urlBase << "?page_size=" << PAGE_SIZE;
+            ostr << urlBase << "?page_size=" << PAGE_SIZE1;
             requests.clear();
         }
     }

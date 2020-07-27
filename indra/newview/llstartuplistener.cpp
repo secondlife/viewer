@@ -35,7 +35,7 @@
 // external library headers
 // other Linden headers
 #include "llstartup.h"
-
+#include "stringize.h"
 
 LLStartupListener::LLStartupListener(/* LLStartUp* instance */):
     LLEventAPI("LLStartUp", "Access e.g. LLStartup::postStartupState()") /* ,
@@ -43,9 +43,33 @@ LLStartupListener::LLStartupListener(/* LLStartUp* instance */):
 {
     add("postStartupState", "Refresh \"StartupState\" listeners with current startup state",
         &LLStartupListener::postStartupState);
+    add("getStateTable", "Reply with array of EStartupState string names",
+        &LLStartupListener::getStateTable);
 }
 
 void LLStartupListener::postStartupState(const LLSD&) const
 {
     LLStartUp::postStartupState();
+}
+
+void LLStartupListener::getStateTable(const LLSD& event) const
+{
+    Response response(LLSD(), event);
+
+    // This relies on our knowledge that STATE_STARTED is the very last
+    // EStartupState value. If that ever stops being true, we're going to lie
+    // without realizing it. I can think of no reliable way to test whether
+    // the enum has been extended *beyond* STATE_STARTED. We could, of course,
+    // test whether stuff has been inserted before it, by testing its
+    // numerical value against the constant value as of the last time we
+    // looked; but that's pointless, as values inserted before STATE_STARTED
+    // will continue to work fine. The bad case is if new symbols get added
+    // *after* it.
+    LLSD table;
+    // note <= comparison: we want to *include* STATE_STARTED.
+    for (LLSD::Integer istate{0}; istate <= LLSD::Integer(STATE_STARTED); ++istate)
+    {
+        table.append(LLStartUp::startupStateToString(EStartupState(istate)));
+    }
+    response["table"] = table;
 }

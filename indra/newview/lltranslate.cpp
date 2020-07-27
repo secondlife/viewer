@@ -134,11 +134,11 @@ void LLTranslationAPIHandler::verifyKeyCoro(LLTranslate::EService service, std::
 
 
     std::string user_agent = llformat("%s %d.%d.%d (%d)",
-        LLVersionInfo::getChannel().c_str(),
-        LLVersionInfo::getMajor(),
-        LLVersionInfo::getMinor(),
-        LLVersionInfo::getPatch(),
-        LLVersionInfo::getBuild());
+        LLVersionInfo::instance().getChannel().c_str(),
+        LLVersionInfo::instance().getMajor(),
+        LLVersionInfo::instance().getMinor(),
+        LLVersionInfo::instance().getPatch(),
+        LLVersionInfo::instance().getBuild());
 
     httpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_TEXT_PLAIN);
     httpHeaders->append(HTTP_OUT_HEADER_USER_AGENT, user_agent);
@@ -177,11 +177,11 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
 
 
     std::string user_agent = llformat("%s %d.%d.%d (%d)",
-        LLVersionInfo::getChannel().c_str(),
-        LLVersionInfo::getMajor(),
-        LLVersionInfo::getMinor(),
-        LLVersionInfo::getPatch(),
-        LLVersionInfo::getBuild());
+        LLVersionInfo::instance().getChannel().c_str(),
+        LLVersionInfo::instance().getMajor(),
+        LLVersionInfo::instance().getMinor(),
+        LLVersionInfo::instance().getPatch(),
+        LLVersionInfo::instance().getBuild());
 
     httpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_TEXT_PLAIN);
     httpHeaders->append(HTTP_OUT_HEADER_USER_AGENT, user_agent);
