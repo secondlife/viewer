@@ -1173,8 +1173,8 @@
       <panel
        label="Overrides"
        layout="topleft"
-       name="avatar_panel"
-       title="Avatar">
+       name="rigging_panel"
+       title="Rigging">
         <view_border
          bevel_style="none"
          follows="top|left"
