@@ -708,7 +708,7 @@ const std::string llDiskCache::sqlComposeGetSelect(const std::string id)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// SQL atatement to update the date/time of last access as well as the
+// SQL statement to update the date/time of last access as well as the
 // count of number of times the file has been accessed.
 // Note: the more accurate representation of date/time is used to
 // ensure ms accuracy vs the standard INTEGER days since epoch approach

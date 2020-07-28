@@ -10,6 +10,9 @@
 #include "llvfsthread.h"
 #include "lldir.h"
 
+#include "llsd.h"
+#include "llthreadsafequeue.h"
+
 void init()
 {
 	// needed for APR initialization
@@ -114,7 +117,7 @@ void main_loop()
 	}
 }
 
-int main(int argc, char* argv[])
+int main2(int argc, char* argv[])
 {
 
 	init();
@@ -135,4 +138,159 @@ int main(int argc, char* argv[])
 	cleanup();
 
 	std::cout << "VFS Perf/stress test finished" << std::endl;
+
+    return 1;
 }
+
+struct result
+{
+    U32 id;
+    bool ok;
+};
+
+//typedef struct result;
+typedef std::function<result()> callable; // internal to this impl
+typedef std::function<void(void*, bool)> vfs_callback; // used in public VFS API
+typedef void* vfs_callback_data;
+
+struct request 
+{
+    vfs_callback cb;
+    vfs_callback_data cbd;
+};
+
+typedef std::map<U32, request> request_map;
+
+
+
+void worker_thread(LLThreadSafeQueue<callable>& in, LLThreadSafeQueue<result>& out)
+{
+    while( ! in.isClosed())
+    {
+        // consider API call to test as well as pop to avoid a second lock
+        auto item = in.popBack();
+
+        auto res = item();
+
+        out.pushFront(res);
+    }
+
+    out.close();
+}
+
+//result read()
+//{
+//    std::cout << "Running on thread" << std::endl;
+//
+//    return result{
+//        5674,
+//        true
+//    };
+//}
+
+
+
+
+void per_tick(request_map& rm, LLThreadSafeQueue<result>& out)
+{
+    result res;
+    while(out.tryPopBack((res)))
+    {
+        // TODO: consider changing to inspect queue for empty or counter too high or LLTimer in this function too long
+
+        std::cout << "Working: thread returned " << res.ok << " with id = " << res.id << std::endl;
+
+        // note: no need to lock the map because it's only access on main thread
+        auto found = rm.find(res.id);
+        if (found != rm.end())
+        {
+            found->second.cb(found->second.cbd, res.ok);    
+            rm.erase(found);
+        }
+        else
+        {
+            std::cout << "Working: result came back with unknown id" << std::endl;
+        }
+    }
+}
+
+// will be class vars
+LLThreadSafeQueue<callable> in;
+request_map req_map;
+
+void add_read(std::string filename, vfs_callback cb, vfs_callback_data cbd)
+{
+    static U32 id = 0;
+
+    ++id;
+
+    req_map.emplace(id, request{ cb, cbd } );
+
+    in.pushFront([filename]() {
+
+        std::cout << "Running on thread - processing filename: " << filename << std::endl;
+
+        Sleep(2000);
+
+        return result{
+            id,
+            true
+        };
+    });
+}
+
+void cb_func(void* data, bool ok)
+{
+    std::cout << "I got a callback - ok = " << ok << std::endl;
+}
+
+int main(int argc, char* argv[])
+{
+    LLThreadSafeQueue<result> out;
+
+    std::cout << "About to start worker thread" << std::endl;
+
+    // like JS, need this.
+    std::thread worker([&out]() { 
+        worker_thread(in, out); 
+    });
+
+    //in.pushFront(read);
+
+    //in.pushFront([]() {
+
+    //    std::cout << "Running on thread" << std::endl;
+
+    //    return result{
+    //        5674,
+    //        true
+    //    };
+    //});
+
+    add_read("foo.txt", cb_func, nullptr);
+
+    // flush input queue and close it
+    in.close();
+
+    std::cout << "About to start main loop" << std::endl;
+
+    //const F32 period = 1.0;
+    //LLEventTimer::run_every(period, [&req_map, &out]() {
+    //    per_tick(req_map, out);
+    //});
+
+    while( ! out.isClosed())
+    {
+        std::cout << ".";
+        per_tick(req_map, out);
+
+    }
+
+    //    //in.pushFront(...)
+    //    //in.close(); // on shutdown
+
+    // wait and block until thread completes
+    // goes in cleanup class eventually
+    worker.join();
+}
+
