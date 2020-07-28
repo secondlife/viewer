@@ -230,7 +230,7 @@ void add_read(std::string filename, vfs_callback cb, vfs_callback_data cbd)
 
         std::cout << "Running on thread - processing filename: " << filename << std::endl;
 
-        Sleep(2000);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         return result{
             id,
