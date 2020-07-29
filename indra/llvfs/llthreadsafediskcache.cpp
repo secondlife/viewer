@@ -1,7 +1,33 @@
 /**
  * @file llthreadsafedisk.cpp
- * @brief Worker thread to read/write from/to disk
- *        in a thread safe manner
+ * @brief Cache items by reading/writing them to / from
+ *        disk using a worker thread. 
+ *
+ * There are 2 interesting components to this class:
+ * 1/ The work (reading/writing) from disk happens in its
+ *    own thread to avoid stalling the main loop. To do
+ *    some work on this thread, you construct a request with
+ *    the appropriate parameters and add it to the input queue
+ *    which is implemented using LLThreadSafeQuue. At some point
+ *    later, the result (id, payload, result code) appears on a
+ *    second queue (also implemented as an LLThreadSafeQueue).
+ *    The advantage of this approach is that so long as the 
+ *    LLThreadSafeQueue works correctly, there is no locking/mutex
+ *    control needed as the queues behave like thread boundaries.
+ *    Similarly, since all the file access is done in a single
+ *    (other) thread sequentially, there is no file level locking
+ *    required either. There may be a small performance increase
+ *    by implementing N queues and the LLThreadSafe code would 
+ *    take care of managing the callable functions but since you
+ *    would have to take account of the possibility of reading and/or 
+ *    writing the same file (it's a cache so that's a possibility)
+ *    from multiple threads, the code complexity would rise
+ *    dramatically. The assertion is that this code will be plenty 
+ *    fast enough and is very straightforward.
+ * 2/ The caching mechanism... TODO: describe cache here...
+ *
+ *
+ *
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -33,10 +59,24 @@
 //
 llThreadSafeDiskCache::llThreadSafeDiskCache()
 {
+    // holy weird syntax batman!
+    mWorkerThread = std::thread([=] { requestThread(mInQueue, mOutQueue); });
+
+    //mWorkerThread([&out]() {
+//    requestThread(in, out);
+//});
+
 }
 
 llThreadSafeDiskCache::~llThreadSafeDiskCache()
 {
+    // join the worker request thread back to the main
+    // loop before we exit
+    // TODO: under what circumstances is it not joinable() ?
+    if (mWorkerThread.joinable())
+    {
+        mWorkerThread.join();
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -44,9 +84,8 @@ llThreadSafeDiskCache::~llThreadSafeDiskCache()
 void llThreadSafeDiskCache::initClass()
 {
     LL_INFOS() << "llThreadSafeDiskCache::initClass()" << LL_ENDL;
-    //mWorkerThread([&out]() {
-    //    requestThread(in, out);
-    //});
+
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -54,11 +93,6 @@ void llThreadSafeDiskCache::initClass()
 void llThreadSafeDiskCache::cleanupClass()
 {
     LL_INFOS() << "llThreadSafeDiskCache::cleanupClass()" << LL_ENDL;
-
-    //if (mWorkerThread.joinable())
-    //{
-    //    mWorkerThread.join();
-    //}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
