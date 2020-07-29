@@ -133,7 +133,7 @@
 #include <boost/algorithm/string.hpp>
 #include "llcleanup.h"
 #include "llviewershadermgr.h"
-#include "llthreadsafediskcache.h"
+#include "lldiskcache.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -3675,7 +3675,7 @@ void simulate_cache_access(void*)
 {
     LL_INFOS() << "Simulating disk cache access" << LL_ENDL;
 
-    llThreadSafeDiskCache::vfs_callback_t cb([](void*, llThreadSafeDiskCache::shared_payload_t payload, bool)
+    llDiskCache::vfs_callback_t cb([](void*, llDiskCache::shared_payload_t payload, bool)
     {
         if (! payload)
         {
@@ -3693,8 +3693,8 @@ void simulate_cache_access(void*)
     });
 
     const std::string filename("anything");
-    llThreadSafeDiskCache::vfs_callback_data_t cbd = nullptr;
-    llThreadSafeDiskCache::instance().addReadRequest(filename, cb, cbd);
+    llDiskCache::vfs_callback_data_t cbd = nullptr;
+    llDiskCache::instance().addReadRequest(filename, cb, cbd);
 }
 
 void handle_dump_focus()

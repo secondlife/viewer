@@ -1,7 +1,7 @@
 /**
- * @file llthreadsafedisk.cpp
+ * @file lldiskcache.cpp
  * @brief Cache items by reading/writing them to / from
- *        disk using a worker thread. 
+ *        disk using a worker thread.
  *
  * There are 2 interesting components to this class:
  * 1/ The work (reading/writing) from disk happens in its
@@ -11,18 +11,18 @@
  *    which is implemented using LLThreadSafeQuue. At some point
  *    later, the result (id, payload, result code) appears on a
  *    second queue (also implemented as an LLThreadSafeQueue).
- *    The advantage of this approach is that so long as the 
+ *    The advantage of this approach is that so long as the
  *    LLThreadSafeQueue works correctly, there is no locking/mutex
  *    control needed as the queues behave like thread boundaries.
  *    Similarly, since all the file access is done sequentially
  *    in a single thread, there is no file level locking required.
- *    There may be a small performance increase to be gained 
+ *    There may be a small performance increase to be gained
  *    by implementing N queues and the LLThreadSafe code would take
  *    care of managing the callable functions. However, since you
- *    would have to take account of the possibility of reading and/or 
+ *    would have to take account of the possibility of reading and/or
  *    writing the same file (it's a cache so that's a possibility)
  *    from multiple threads, the code complexity would rise
- *    dramatically. The assertion is that this code will be plenty 
+ *    dramatically. The assertion is that this code will be plenty
  *    fast enough and is very straightforward.
  * 2/ The caching mechanism... TODO: describe cache here...
  *
@@ -53,11 +53,11 @@
 
 #include "linden_common.h"
 
-#include "llthreadsafediskcache.h"
+#include "lldiskcache.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-llThreadSafeDiskCache::llThreadSafeDiskCache()
+llDiskCache::llDiskCache()
 {
     mWorkerThread = std::thread([this]()
     {
@@ -65,8 +65,8 @@ llThreadSafeDiskCache::llThreadSafeDiskCache()
     });
 
     // TODO: reduce this,p perhaps as far as 0.0 (every tick)
-    const F32 period = 1.0f;
-    ticker.reset(LLEventTimer::run_every(period, [this]() 
+    const F32 period = 0.05f;
+    ticker.reset(LLEventTimer::run_every(period, [this]()
     {
         perTick();
     }));
@@ -74,13 +74,13 @@ llThreadSafeDiskCache::llThreadSafeDiskCache()
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-llThreadSafeDiskCache::~llThreadSafeDiskCache()
+llDiskCache::~llDiskCache()
 {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-void llThreadSafeDiskCache::cleanupSingleton()
+void llDiskCache::cleanupSingleton()
 {
     // TODO: comment why cleanup is here and not in dtor
     // see comments in llsingleton.h
@@ -91,16 +91,16 @@ void llThreadSafeDiskCache::cleanupSingleton()
     // TODO: comment why we don't need joinable
 //    if (mWorkerThread.joinable())
 //    {
-        mWorkerThread.join();
+    mWorkerThread.join();
 //    }
 
     // TODO: note the possibility that there are remaining items
-    // in this queue for now 
+    // in this queue for now
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-void llThreadSafeDiskCache::requestThread()
+void llDiskCache::requestThread()
 {
     while (!mInQueue.isClosed())
     {
@@ -124,7 +124,7 @@ void llThreadSafeDiskCache::requestThread()
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-void llThreadSafeDiskCache::perTick(/*request_map_t& rm, LLThreadSafeQueue<result>& out*/)
+void llDiskCache::perTick(/*request_map_t& rm, LLThreadSafeQueue<result>& out*/)
 {
     result res;
     while (mOutQueue.tryPopBack((res)))
@@ -153,7 +153,7 @@ void llThreadSafeDiskCache::perTick(/*request_map_t& rm, LLThreadSafeQueue<resul
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-void llThreadSafeDiskCache::addReadRequest(std::string filename, vfs_callback_t cb, vfs_callback_data_t cbd)
+void llDiskCache::addReadRequest(std::string filename, vfs_callback_t cb, vfs_callback_data_t cbd)
 {
     static U32 id = 0;
 
@@ -161,19 +161,16 @@ void llThreadSafeDiskCache::addReadRequest(std::string filename, vfs_callback_t 
 
     mRequestMap.emplace(id, request{ cb, cbd });
 
-    // TODO: add a comment about what to consider if the code that runs on the 
-    // request thread here can throw an exception - this needs to be accounted 
+    // TODO: add a comment about what to consider if the code that runs on the
+    // request thread here can throw an exception - this needs to be accounted
     // and Nat has a sugestion using std::packaged_task(..)
 
-    mInQueue.pushFront([filename]() {
+    mInQueue.pushFront([filename]()
+    {
 
         std::cout << "Running on thread - processing filename: " << filename << std::endl;
 
-        // simulate doing some work
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
         bool success = true;
-        std::string payload("This will eventually be the contents of the file we read");
 
         U32 filesize = 12;
 

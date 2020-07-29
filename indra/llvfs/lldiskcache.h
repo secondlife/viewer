@@ -1,5 +1,5 @@
 /**
- * @file llthreadsafedisk.h
+ * @file lldiskcache.h
  * @brief Worker thread to read/write from/to disk
  *        in a thread safe manner
  *
@@ -25,21 +25,18 @@
  * $/LicenseInfo$
  */
 
-#ifndef _LLTHREADSAFEDISKCACHE
-#define _LLTHREADSAFEDISKCACHE
+#ifndef _LLDISKCACHE
+#define _LLDISKCACHE
 
 #include "llthreadsafequeue.h"
 
-// todo: better name
-
-
-class llThreadSafeDiskCache :
-    public LLSingleton<llThreadSafeDiskCache>
+class llDiskCache :
+    public LLSingleton<llDiskCache>
 {
-    LLSINGLETON(llThreadSafeDiskCache);
+        LLSINGLETON(llDiskCache);
 
     public:
-        virtual ~llThreadSafeDiskCache();
+        virtual ~llDiskCache();
 
         void cleanupSingleton() override;
 
@@ -81,4 +78,4 @@ class llThreadSafeDiskCache :
         void perTick(/*request_map_t& rm, LLThreadSafeQueue<result>& out*/);
 };
 
-#endif // _LLTHREADSAFEDISKCACHE
+#endif // _LLDISKCACHE
