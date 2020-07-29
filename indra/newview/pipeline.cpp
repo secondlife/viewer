@@ -7592,33 +7592,36 @@ void LLPipeline::renderFinalize()
         gGlowExtractProgram.uniform3f(LLShaderMgr::GLOW_WARMTH_WEIGHTS, warmthWeights.mV[0], warmthWeights.mV[1],
                                       warmthWeights.mV[2]);
         gGlowExtractProgram.uniform1f(LLShaderMgr::GLOW_WARMTH_AMOUNT, warmthAmount);
-        LLGLEnable blend_on(GL_BLEND);
-        LLGLEnable test(GL_ALPHA_TEST);
+        
+        {
+            LLGLEnable blend_on(GL_BLEND);
+            LLGLEnable test(GL_ALPHA_TEST);
 
-        gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
+            gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
 
-        mScreen.bindTexture(0, 0, LLTexUnit::TFO_POINT);
+            mScreen.bindTexture(0, 0, LLTexUnit::TFO_POINT);
 
-        gGL.color4f(1, 1, 1, 1);
-        gPipeline.enableLightsFullbright();
-        gGL.begin(LLRender::TRIANGLE_STRIP);
-        gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
-        gGL.vertex2f(-1, -1);
+            gGL.color4f(1, 1, 1, 1);
+            gPipeline.enableLightsFullbright();
+            gGL.begin(LLRender::TRIANGLE_STRIP);
+            gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
+            gGL.vertex2f(-1, -1);
 
-        gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
-        gGL.vertex2f(-1, 3);
+            gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
+            gGL.vertex2f(-1, 3);
 
-        gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
-        gGL.vertex2f(3, -1);
+            gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
+            gGL.vertex2f(3, -1);
 
-        gGL.end();
+            gGL.end();
 
-        gGL.getTexUnit(0)->unbind(mScreen.getUsage());
+            gGL.getTexUnit(0)->unbind(mScreen.getUsage());
 
-        mGlow[2].flush();
+            mGlow[2].flush();
 
-        tc1.setVec(0, 0);
-        tc2.setVec(2, 2);
+            tc1.setVec(0, 0);
+            tc2.setVec(2, 2); 
+        }
 
         // power of two between 1 and 1024
         U32 glowResPow = RenderGlowResolutionPow;
