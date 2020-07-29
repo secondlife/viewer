@@ -17,6 +17,7 @@ set(llvfs_SOURCE_FILES
     lldir.cpp
     lldiriterator.cpp
     lldiskcache.cpp
+    llthreadsafediskcache.cpp
     lllfsthread.cpp
     llpidlock.cpp
     llvfile.cpp
@@ -26,11 +27,11 @@ set(llvfs_SOURCE_FILES
 
 set(llvfs_HEADER_FILES
     CMakeLists.txt
-
     lldir.h
     lldirguard.h
     lldiriterator.h
     lldiskcache.h
+    llthreadsafediskcache.h
     lllfsthread.h
     llpidlock.h
     llvfile.h

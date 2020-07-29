@@ -116,6 +116,7 @@
 #include "llurlentry.h"
 #include "llvfile.h"
 #include "llvfsthread.h"
+#include "llthreadsafediskcache.h"
 #include "llvolumemgr.h"
 #include "llxfermanager.h"
 #include "llphysicsextensions.h"
@@ -2087,6 +2088,8 @@ bool LLAppViewer::cleanup()
 
 	LLViewerAssetStatsFF::cleanup();
 
+    SUBSYSTEM_CLEANUP(llThreadSafeDiskCache);
+
 	// If we're exiting to launch an URL, do that here so the screen
 	// is at the right resolution before we launch IE.
 	if (!gLaunchFileOnQuit.empty())
@@ -2166,6 +2169,8 @@ bool LLAppViewer::initThreads()
 
 	LLVFSThread::initClass(enable_threads && false);
 	LLLFSThread::initClass(enable_threads && false);
+
+    llThreadSafeDiskCache::initClass();
 
 	// Image decoding
 	LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);

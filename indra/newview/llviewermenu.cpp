@@ -321,6 +321,7 @@ void handle_debug_avatar_textures(void*);
 void handle_grab_baked_texture(void*);
 BOOL enable_grab_baked_texture(void*);
 void handle_dump_region_object_cache(void*);
+void simulate_cache_access(void*);
 
 BOOL enable_save_into_task_inventory(void*);
 
@@ -1277,6 +1278,15 @@ class LLAdvancedDumpRegionObjectCache : public view_listener_t
 		handle_dump_region_object_cache(NULL);
 		return true;
 	}
+};
+
+class LLSimulateCacheAccess : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        simulate_cache_access(NULL);
+        return true;
+    }
 };
 
 class LLAdvancedBuyCurrencyTest : public view_listener_t
@@ -3653,11 +3663,16 @@ void handle_dump_capabilities_info(void *)
 
 void handle_dump_region_object_cache(void*)
 {
-	LLViewerRegion* regionp = gAgent.getRegion();
-	if (regionp)
-	{
-		regionp->dumpCache();
-	}
+    LLViewerRegion* regionp = gAgent.getRegion();
+    if (regionp)
+    {
+        regionp->dumpCache();
+    }
+}
+
+void simulate_cache_access(void*)
+{
+    LL_INFOS() << "Simulating disk cache access" << LL_ENDL;
 }
 
 void handle_dump_focus()
@@ -9067,7 +9082,8 @@ void initialize_menus()
 
 	// Advanced > World
 	view_listener_t::addMenu(new LLAdvancedDumpScriptedCamera(), "Advanced.DumpScriptedCamera");
-	view_listener_t::addMenu(new LLAdvancedDumpRegionObjectCache(), "Advanced.DumpRegionObjectCache");
+    view_listener_t::addMenu(new LLAdvancedDumpRegionObjectCache(), "Advanced.DumpRegionObjectCache");
+	view_listener_t::addMenu(new LLSimulateCacheAccess(), "Advanced.SimulateCacheAccess");
 
 	// Advanced > UI
 	commit.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test,	_2));	// sigh! this one opens the MEDIA browser
