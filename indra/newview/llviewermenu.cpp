@@ -133,6 +133,7 @@
 #include <boost/algorithm/string.hpp>
 #include "llcleanup.h"
 #include "llviewershadermgr.h"
+#include "llthreadsafediskcache.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -3673,6 +3674,27 @@ void handle_dump_region_object_cache(void*)
 void simulate_cache_access(void*)
 {
     LL_INFOS() << "Simulating disk cache access" << LL_ENDL;
+
+    llThreadSafeDiskCache::vfs_callback_t cb([](void*, llThreadSafeDiskCache::shared_payload_t payload, bool)
+    {
+        if (! payload)
+        {
+            LL_INFOS() << "Payload is empty" << LL_ENDL;
+        }
+        else
+        {
+            LL_INFOS() << "Payload size is " << payload->size() << " and contains " << LL_ENDL;
+            for(auto p = 0; p < payload->size(); ++p)
+            {
+                std::cout << payload->data()[p];
+            }
+            LL_INFOS() << "" << LL_ENDL;
+        }
+    });
+
+    const std::string filename("anything");
+    llThreadSafeDiskCache::vfs_callback_data_t cbd = nullptr;
+    llThreadSafeDiskCache::instance().addReadRequest(filename, cb, cbd);
 }
 
 void handle_dump_focus()

@@ -14,11 +14,11 @@
  *    The advantage of this approach is that so long as the 
  *    LLThreadSafeQueue works correctly, there is no locking/mutex
  *    control needed as the queues behave like thread boundaries.
- *    Similarly, since all the file access is done in a single
- *    (other) thread sequentially, there is no file level locking
- *    required either. There may be a small performance increase
- *    by implementing N queues and the LLThreadSafe code would 
- *    take care of managing the callable functions but since you
+ *    Similarly, since all the file access is done sequentially
+ *    in a single thread, there is no file level locking required.
+ *    There may be a small performance increase to be gained 
+ *    by implementing N queues and the LLThreadSafe code would take
+ *    care of managing the callable functions. However, since you
  *    would have to take account of the possibility of reading and/or 
  *    writing the same file (it's a cache so that's a possibility)
  *    from multiple threads, the code complexity would rise
@@ -59,51 +59,53 @@
 //
 llThreadSafeDiskCache::llThreadSafeDiskCache()
 {
-    // holy weird syntax batman!
-    mWorkerThread = std::thread([=] { requestThread(mInQueue, mOutQueue); });
-
-    //mWorkerThread([&out]() {
-//    requestThread(in, out);
-//});
-
-}
-
-llThreadSafeDiskCache::~llThreadSafeDiskCache()
-{
-    // join the worker request thread back to the main
-    // loop before we exit
-    // TODO: under what circumstances is it not joinable() ?
-    if (mWorkerThread.joinable())
+    mWorkerThread = std::thread([this]()
     {
-        mWorkerThread.join();
-    }
-}
+        requestThread();
+    });
 
-///////////////////////////////////////////////////////////////////////////////
-// static
-void llThreadSafeDiskCache::initClass()
-{
-    LL_INFOS() << "llThreadSafeDiskCache::initClass()" << LL_ENDL;
-
-
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// static
-void llThreadSafeDiskCache::cleanupClass()
-{
-    LL_INFOS() << "llThreadSafeDiskCache::cleanupClass()" << LL_ENDL;
+    // TODO: reduce this,p perhaps as far as 0.0 (every tick)
+    const F32 period = 1.0f;
+    ticker.reset(LLEventTimer::run_every(period, [this]() 
+    {
+        perTick();
+    }));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-void llThreadSafeDiskCache::requestThread(LLThreadSafeQueue<callable_t>& in, 
-                                          LLThreadSafeQueue<result>& out)
+llThreadSafeDiskCache::~llThreadSafeDiskCache()
 {
-    while (!in.isClosed())
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+void llThreadSafeDiskCache::cleanupSingleton()
+{
+    // TODO: comment why cleanup is here and not in dtor
+    // see comments in llsingleton.h
+
+
+    mInQueue.close();
+
+    // TODO: comment why we don't need joinable
+//    if (mWorkerThread.joinable())
+//    {
+        mWorkerThread.join();
+//    }
+
+    // TODO: note the possibility that there are remaining items
+    // in this queue for now 
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+void llThreadSafeDiskCache::requestThread()
+{
+    while (!mInQueue.isClosed())
     {
         // consider API call to test as well as pop to avoid a second lock
-        auto item = in.popBack();
+        auto item = mInQueue.popBack();
 
         // when we have N kinds of requests (initially READ/WRITE but based
         // on existing API, we might need APPEND too, add an enum with
@@ -113,19 +115,19 @@ void llThreadSafeDiskCache::requestThread(LLThreadSafeQueue<callable_t>& in,
         auto res = item();
 
         // put the result out to the outbound results queue
-        out.pushFront(res);
+        mOutQueue.pushFront(res);
     }
 
     // TODO: comment and be precise about what close() does
-    out.close();
+    mOutQueue.close();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-void llThreadSafeDiskCache::perTick(request_map_t& rm, LLThreadSafeQueue<result>& out)
+void llThreadSafeDiskCache::perTick(/*request_map_t& rm, LLThreadSafeQueue<result>& out*/)
 {
     result res;
-    while (out.tryPopBack((res)))
+    while (mOutQueue.tryPopBack((res)))
     {
         // TODO: add comment - consider changing to inspect queue for (empty or counter too high or LLTimer expiration)
         // to avoid spending to long here
@@ -135,11 +137,11 @@ void llThreadSafeDiskCache::perTick(request_map_t& rm, LLThreadSafeQueue<result>
         std::cout << " and a payload of " << res.payload << std::endl;
 
         // note: no need to lock the map because it's only accessed on main thread
-        auto found = rm.find(res.id);
-        if (found != rm.end())
+        auto found = mRequestMap.find(res.id);
+        if (found != mRequestMap.end())
         {
-            found->second.cb(found->second.cbd, res.ok);
-            rm.erase(found);
+            found->second.cb(found->second.cbd, res.payload, res.ok);
+            mRequestMap.erase(found);
         }
         else
         {
@@ -173,6 +175,12 @@ void llThreadSafeDiskCache::addReadRequest(std::string filename, vfs_callback_t 
         bool success = true;
         std::string payload("This will eventually be the contents of the file we read");
 
-        return result{ id, payload, success };
+        U32 filesize = 12;
+
+        // TODO: comment why this is a great idiom
+        shared_payload_t file_contents = std::make_shared<std::vector<U8>>(filesize);
+        memset(file_contents->data(), 'A', file_contents->size());
+
+        return result{ id, file_contents, success };
     });
 }

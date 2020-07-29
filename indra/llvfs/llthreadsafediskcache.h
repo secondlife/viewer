@@ -30,36 +30,42 @@
 
 #include "llthreadsafequeue.h"
 
-// todo: where to put this? shouldn't be in global scope
-typedef std::function<void(void*, bool)> vfs_callback_t;
-typedef void* vfs_callback_data_t;
-
 // todo: better name
-struct result
-{
-    U32 id;
-    std::string payload;
-    bool ok;
-};
 
-// todo: better name
-struct request
-{
-    vfs_callback_t cb;
-    vfs_callback_data_t cbd;
-};
 
-class llThreadSafeDiskCache
+class llThreadSafeDiskCache :
+    public LLSingleton<llThreadSafeDiskCache>
 {
+    LLSINGLETON(llThreadSafeDiskCache);
+
     public:
-        llThreadSafeDiskCache();
         virtual ~llThreadSafeDiskCache();
 
-        static void initClass();
-	    static void cleanupClass();
+        void cleanupSingleton() override;
+
+        typedef std::shared_ptr<std::vector<U8>> shared_payload_t;
+        typedef std::function<void(void*, shared_payload_t, bool)> vfs_callback_t;
+        typedef void* vfs_callback_data_t;
+
+        void addReadRequest(std::string filename, vfs_callback_t cb, vfs_callback_data_t cbd);
 
     private:
         std::thread mWorkerThread;
+
+        // todo: better name
+        struct result
+        {
+            U32 id;
+            shared_payload_t payload;
+            bool ok;
+        };
+
+        // todo: better name
+        struct request
+        {
+            vfs_callback_t cb;
+            vfs_callback_data_t cbd;
+        };
 
         typedef std::function<result()> callable_t;
         LLThreadSafeQueue<callable_t> mInQueue;
@@ -68,10 +74,11 @@ class llThreadSafeDiskCache
         typedef std::map<U32, request> request_map_t;
         request_map_t mRequestMap;
 
+        std::unique_ptr<LLEventTimer> ticker;
+
     private:
-        void requestThread(LLThreadSafeQueue<callable_t>& in, LLThreadSafeQueue<result>& out);
-        void perTick(request_map_t& rm, LLThreadSafeQueue<result>& out);
-        void addReadRequest(std::string filename, vfs_callback_t cb, vfs_callback_data_t cbd);
+        void requestThread();
+        void perTick(/*request_map_t& rm, LLThreadSafeQueue<result>& out*/);
 };
 
 #endif // _LLTHREADSAFEDISKCACHE
