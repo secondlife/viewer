@@ -16,7 +16,6 @@ include_directories(
 set(llvfs_SOURCE_FILES
     lldir.cpp
     lldiriterator.cpp
-    lldiskcache.cpp
     llthreadsafediskcache.cpp
     lllfsthread.cpp
     llpidlock.cpp
@@ -30,7 +29,6 @@ set(llvfs_HEADER_FILES
     lldir.h
     lldirguard.h
     lldiriterator.h
-    lldiskcache.h
     llthreadsafediskcache.h
     lllfsthread.h
     llpidlock.h
