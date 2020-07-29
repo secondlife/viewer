@@ -3691,10 +3691,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   Also there are some other places where "generic" is used.
   So, let add string with name="generic" with the same value as "generic_request_error" -->
   <string name="generic">
-    Error making request, please try again later.
+    Please close and reopen the conversation, or relog and try again.
   </string>
   <string name="generic_request_error">
-    Error making request, please try again later.
+    Please close and reopen the conversation, or relog and try again.
   </string>
   <string name="insufficient_perms_error">
     You do not have sufficient permissions.
