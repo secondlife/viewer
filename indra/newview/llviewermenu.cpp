@@ -3692,7 +3692,7 @@ void simulate_cache_access(void*)
         }
     });
 
-    const std::string filename("anything");
+    const std::string filename("flasm.j4k");
     llDiskCache::vfs_callback_data_t cbd = nullptr;
     llDiskCache::instance().addReadRequest(filename, cb, cbd);
 }

@@ -1,7 +1,8 @@
 /**
  * @file lldiskcache.h
  * @brief Worker thread to read/write from/to disk
- *        in a thread safe manner
+ *        in a thread safe manner. See the implementation
+ *        file for a description of how it works
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -36,7 +37,7 @@ class llDiskCache :
         LLSINGLETON(llDiskCache);
 
     public:
-        virtual ~llDiskCache();
+        virtual ~llDiskCache() = default;
 
         void cleanupSingleton() override;
 
@@ -75,7 +76,7 @@ class llDiskCache :
 
     private:
         void requestThread();
-        void perTick(/*request_map_t& rm, LLThreadSafeQueue<result>& out*/);
+        void perTick();
 };
 
 #endif // _LLDISKCACHE
