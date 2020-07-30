@@ -49,7 +49,7 @@
 /// LLViewerAssetRequest
 ///----------------------------------------------------------------------------
 
-static const std::string VIEWER_ASSET_STROTRAGE_CORO_POOL = "VAssetStorage";
+static const std::string VIEWER_ASSET_STORAGE_CORO_POOL = "VAssetStorage";
 
 /**
  * @brief Local class to encapsulate asset fetch requests with a timestamp.
@@ -134,7 +134,7 @@ LLViewerAssetStorage::~LLViewerAssetStorage()
     if (!LLCoprocedureManager::wasDeleted())
     {
         // This class has dedicated coroutine pool, clean it up, otherwise coroutines will crash later. 
-        LLCoprocedureManager::instance().close(VIEWER_ASSET_STROTRAGE_CORO_POOL);
+        LLCoprocedureManager::instance().close(VIEWER_ASSET_STORAGE_CORO_POOL);
     }
 }
 
@@ -410,7 +410,7 @@ void LLViewerAssetStorage::queueRequestHttp(
         bool is_temp = false;
         LLViewerAssetStatsFF::record_enqueue(atype, with_http, is_temp);
 
-        LLCoprocedureManager::instance().enqueueCoprocedure(VIEWER_ASSET_STROTRAGE_CORO_POOL,"LLViewerAssetStorage::assetRequestCoro",
+        LLCoprocedureManager::instance().enqueueCoprocedure(VIEWER_ASSET_STORAGE_CORO_POOL,"LLViewerAssetStorage::assetRequestCoro",
             boost::bind(&LLViewerAssetStorage::assetRequestCoro, this, req, uuid, atype, callback, user_data));
     }
 }
