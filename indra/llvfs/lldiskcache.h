@@ -41,11 +41,20 @@ class llDiskCache :
 
         void cleanupSingleton() override;
 
+        // TODO: not shared_payload_t -> something else
         typedef std::shared_ptr<std::vector<U8>> shared_payload_t;
-        typedef std::function<void(void*, shared_payload_t, bool)> vfs_callback_t;
+        typedef std::unique_ptr<U8> write_payload_t;
+        typedef std::function<void(void*, shared_payload_t, bool)> vfs_callback_t;  // TODO: no VFS in name
         typedef void* vfs_callback_data_t;
 
-        void addReadRequest(std::string filename, vfs_callback_t cb, vfs_callback_data_t cbd);
+        void addReadRequest(std::string filename,
+                            vfs_callback_t cb,
+                            vfs_callback_data_t cbd);
+
+        void addWriteRequest(std::string filename,
+                             shared_payload_t buffer,
+                             vfs_callback_t cb,
+                             vfs_callback_data_t cbd);
 
     private:
         std::thread mWorkerThread;
@@ -73,6 +82,8 @@ class llDiskCache :
         request_map_t mRequestMap;
 
         std::unique_ptr<LLEventTimer> ticker;
+
+        U32 mRequestId;
 
     private:
         void requestThread();

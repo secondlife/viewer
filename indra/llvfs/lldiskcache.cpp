@@ -57,7 +57,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-llDiskCache::llDiskCache()
+llDiskCache::llDiskCache() :
+    mRequestId(0)
 {
     // Create the worker thread and worker function
     mWorkerThread = std::thread([this]()
@@ -82,9 +83,9 @@ llDiskCache::llDiskCache()
 void llDiskCache::cleanupSingleton()
 {
     // We do cleanup here vs the destructor based on recommendations found
-    // in the llsingleton.h comments: Any cleanup logic that might take 
+    // in the llsingleton.h comments: Any cleanup logic that might take
     // significant real time -- or throw an exception -- must not be placed
-    // in your LLSingleton's destructor, but rather in its cleanupSingleton() 
+    // in your LLSingleton's destructor, but rather in its cleanupSingleton()
     // method, which is called implicitly by deleteSingleton().
 
     // we won't be putting anything else onto the outbound request queue
@@ -111,11 +112,11 @@ void llDiskCache::cleanupSingleton()
 void llDiskCache::requestThread()
 {
     // We used to use while (!mInQueue.isClosed()) test for this loop
-    // but there is an issue with LLThreadSafeQueue whereby the queue 
+    // but there is an issue with LLThreadSafeQueue whereby the queue
     // has not yet been closed so isClosed() returns false. After we
     // make the call to popBack() the queue does get closed and the
     // next time through it throws an LLThreadSafeQueueInterrupt
-    // exception.  The solution for the moment is to catch the exception
+    // exception. The solution for the moment is to catch the exception
     // and do nothing with it.
     try
     {
@@ -154,7 +155,7 @@ void llDiskCache::perTick()
         // Here will pull all outstanding results off of the output
         // queue and call their callbacks to that the consumer can
         // retrieve the result of the operation they requested.
-        // Depending on how this code evolves, we might consider 
+        // Depending on how this code evolves, we might consider
         // adding a throttle here so that the full contents of the
         // queue is not read each time. Instead, we might only
         // taken N items off, or taken items for M milliseconds
@@ -191,39 +192,38 @@ void llDiskCache::perTick()
 // TODO: This is test code that (kind of) adds a read request. Next is we must
 // decide whether to have a single add_request function and pass in the type
 // such as READ, WRITE, APPEND etc. or have separate functions for each..
-void llDiskCache::addReadRequest(std::string filename, vfs_callback_t cb, vfs_callback_data_t cbd)
+void llDiskCache::addReadRequest(std::string filename,
+                                 vfs_callback_t cb,
+                                 vfs_callback_data_t cbd)
 {
     // This is an ID we pass in to our worker function so we can match up
     // requests and results by comparing the id.
-    // TODO: if we have separate functions for each READ/WRITE etc. we should make
-    // this ID a class member and have each different function modify it
-    static U32 id = 0;
-    ++id;
+    mRequestId++;
 
-    // record the ID in a map - used to compare against results queue in update 
+    // record the ID in a map - used to compare against results queue in update
     // (per tick) function
-    mRequestMap.emplace(id, request{ cb, cbd });
+    mRequestMap.emplace(mRequestId, request{ cb, cbd });
 
     // In the future, we should consider if the code that runs on the
     // request thread here can throw an exception - this needs to be accounted
-    // and @Nat has a sugestion around using std::packaged_task(..). We do not 
+    // and @Nat has a sugestion around using std::packaged_task(..). We do not
     // need it for this use case - we assert this code will not throw but
     // other, more complex code in the future might
-    mInQueue.pushFront([filename]()
+    mInQueue.pushFront([this, filename]()
     {
-        // TODO: This is a place holder for doing some work on the worker 
-        // thread - eventually, for this use case, it will be used to 
+        // TODO: This is a place holder for doing some work on the worker
+        // thread - eventually, for this use case, it will be used to
         // read and write cache files and update their meta data
-        std::cout << "Running on thread - processing filename: " << filename << std::endl;
+        std::cout << "READ running on worker thread and reading from " << filename << std::endl;
         bool success = true;
         U32 filesize = 12;
 
         // This is an interesting idiom. We will be passing back the contents of files
-        // we read and an std::vector<U8> is suitable for that.  However, that means
+        // we read and an std::vector<U8> is suitable for that. However, that means
         // we will typically be moving or copying it around and that is inefficient.
         // Adding a smart (shared) pointer into the mix means we can pass that around
         // and the consumer can either hang onto it (its ref count is incremented) or
-        // just look and ignore it - when no one has a reference to it anymore, the 
+        // just look and ignore it - when no one has a reference to it anymore, the
         // C++ mechanics will automatically delete it.
         shared_payload_t file_contents = std::make_shared<std::vector<U8>>(filesize);
 
@@ -233,7 +233,52 @@ void llDiskCache::addReadRequest(std::string filename, vfs_callback_t cb, vfs_ca
         // We pass back the ID (for lookup), the contents of the file we read
         // (in our use case) and a flag indicating success/failure. We might
         // also consider using file_contents and comparing with ! vs a
-        // separate bool.  This is okay for now though.
-        return result{ id, file_contents, success };
+        // separate bool. This is okay for now though.
+        return result{ mRequestId, file_contents, success };
+    });
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// TODO: This is test code that (kind of) adds a write request.
+void llDiskCache::addWriteRequest(std::string filename,
+                                  shared_payload_t buffer,
+                                  vfs_callback_t cb,
+                                  vfs_callback_data_t cbd)
+{
+    // This is an ID we pass in to our worker function so we can match up
+    // requests and results by comparing the id.
+    mRequestId++;
+
+    // record the ID in a map - used to compare against results queue in update
+    // (per tick) function
+    mRequestMap.emplace(mRequestId, request{ cb, cbd });
+
+    // In the future, we should consider if the code that runs on the
+    // request thread here can throw an exception - this needs to be accounted
+    // and @Nat has a sugestion around using std::packaged_task(..). We do not
+    // need it for this use case - we assert this code will not throw but
+    // other, more complex code in the future might
+    mInQueue.pushFront([this, filename, buffer]()
+    {
+        std::cout << "WRITE running on worker thread and writing buffer to " << filename << std::endl;
+
+        LL_INFOS() << "Buffer to write to disk is of size " << buffer->size() << " and contains " << LL_ENDL;
+        for (auto p = 0; p < buffer->size(); ++p)
+        {
+            std::cout << buffer->data()[p];
+        }
+        LL_INFOS() << "" << LL_ENDL;
+
+
+        // we don't send anything back when we are writing - result goes back as a bool
+        shared_payload_t file_contents = nullptr;
+
+        bool success = true;
+
+        // We pass back the ID (for lookup), the contents of the file we read
+        // (in our use case) and a flag indicating success/failure. We might
+        // also consider using file_contents and comparing with ! vs a
+        // separate bool. This is okay for now though.
+        return result{ mRequestId, file_contents, success };
     });
 }

@@ -248,10 +248,16 @@
          parameter="http://duckduckgo.com"/>
       </menu_item_call>
       <menu_item_call
-       label="Simulate Cache Access"
-       name="Simulate Cache Access">
+       label="Simulate Cache Read Access"
+       name="Simulate Cache Read Access">
         <menu_item_call.on_click
-         function="Advanced.SimulateCacheAccess"/>
+         function="Advanced.SimulateCacheReadAccess"/>
+      </menu_item_call>
+      <menu_item_call
+       label="Simulate Cache Write Access"
+       name="Simulate Cache Write Access">
+        <menu_item_call.on_click
+         function="Advanced.SimulateCacheWriteAccess"/>
       </menu_item_call>
       <menu
        create_jump_keys="true"

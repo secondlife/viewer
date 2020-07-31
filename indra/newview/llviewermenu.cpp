@@ -322,7 +322,8 @@ void handle_debug_avatar_textures(void*);
 void handle_grab_baked_texture(void*);
 BOOL enable_grab_baked_texture(void*);
 void handle_dump_region_object_cache(void*);
-void simulate_cache_access(void*);
+void simulate_cache_read_access(void*);
+void simulate_cache_write_access(void*);
 
 BOOL enable_save_into_task_inventory(void*);
 
@@ -1281,11 +1282,20 @@ class LLAdvancedDumpRegionObjectCache : public view_listener_t
 	}
 };
 
-class LLSimulateCacheAccess : public view_listener_t
+class LLSimulateCacheReadAccess : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        simulate_cache_access(NULL);
+        simulate_cache_read_access(NULL);
+        return true;
+    }
+};
+
+class LLSimulateCacheWriteAccess : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        simulate_cache_write_access(NULL);
         return true;
     }
 };
@@ -3671,9 +3681,9 @@ void handle_dump_region_object_cache(void*)
     }
 }
 
-void simulate_cache_access(void*)
+void simulate_cache_read_access(void*)
 {
-    LL_INFOS() << "Simulating disk cache access" << LL_ENDL;
+    LL_INFOS() << "Simulating disk cache READ access" << LL_ENDL;
 
     llDiskCache::vfs_callback_t cb([](void*, llDiskCache::shared_payload_t payload, bool)
     {
@@ -3692,9 +3702,39 @@ void simulate_cache_access(void*)
         }
     });
 
-    const std::string filename("flasm.j4k");
+    const std::string filename("read.flasm.j4k");
     llDiskCache::vfs_callback_data_t cbd = nullptr;
     llDiskCache::instance().addReadRequest(filename, cb, cbd);
+}
+
+void simulate_cache_write_access(void*)
+{
+    LL_INFOS() << "Simulating disk cache WRITE access" << LL_ENDL;
+
+    llDiskCache::vfs_callback_t cb([](void*, llDiskCache::shared_payload_t payload, bool)
+    {
+        if (!payload)
+        {
+            LL_INFOS() << "Payload is empty" << LL_ENDL;
+        }
+        else
+        {
+            LL_INFOS() << "Payload size is " << payload->size() << " and contains " << LL_ENDL;
+            for (auto p = 0; p < payload->size(); ++p)
+            {
+                std::cout << payload->data()[p];
+            }
+            LL_INFOS() << "" << LL_ENDL;
+        }
+    });
+
+    const std::string filename("write.gesture.txt");
+    llDiskCache::vfs_callback_data_t cbd = nullptr;
+    const U32 filesize = 24;
+    llDiskCache::shared_payload_t file_contents = std::make_shared<std::vector<U8>>(filesize);
+    memset(file_contents->data(), 'Z', file_contents->size());
+
+    llDiskCache::instance().addWriteRequest(filename, file_contents, cb, cbd);
 }
 
 void handle_dump_focus()
@@ -9105,7 +9145,8 @@ void initialize_menus()
 	// Advanced > World
 	view_listener_t::addMenu(new LLAdvancedDumpScriptedCamera(), "Advanced.DumpScriptedCamera");
     view_listener_t::addMenu(new LLAdvancedDumpRegionObjectCache(), "Advanced.DumpRegionObjectCache");
-	view_listener_t::addMenu(new LLSimulateCacheAccess(), "Advanced.SimulateCacheAccess");
+    view_listener_t::addMenu(new LLSimulateCacheReadAccess(), "Advanced.SimulateCacheReadAccess");
+    view_listener_t::addMenu(new LLSimulateCacheWriteAccess(), "Advanced.SimulateCacheWriteAccess");
 
 	// Advanced > UI
 	commit.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test,	_2));	// sigh! this one opens the MEDIA browser
