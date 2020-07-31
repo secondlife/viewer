@@ -398,6 +398,23 @@ void LLConversationLog::deleteBackupLogs()
 	}
 }
 
+void LLConversationLog::verifyFilename(const LLUUID& session_id, const std::string &expected_filename)
+{
+    conversations_vec_t::iterator conv_it = mConversations.begin();
+    for (; conv_it != mConversations.end(); ++conv_it)
+    {
+        if (conv_it->getSessionID() == session_id)
+        {
+            if (conv_it->getHistoryFileName() != expected_filename)
+            {
+                LLLogChat::renameLogFile(conv_it->getHistoryFileName(), expected_filename);
+                conv_it->updateHistoryFileName(expected_filename);
+            }
+            break;
+        }
+    }
+}
+
 bool LLConversationLog::moveLog(const std::string &originDirectory, const std::string &targetDirectory)
 {
 

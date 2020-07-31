@@ -59,7 +59,7 @@ public:
 						getTime()				const	{ return mTime; }
 	bool				hasOfflineMessages()	const	{ return mHasOfflineIMs; }
 
-	void setConversationName(std::string conv_name) { mConversationName = conv_name; }
+	void setConversationName(const std::string &conv_name) { mConversationName = conv_name; }
 	void setOfflineMessages(bool new_messages) { mHasOfflineIMs = new_messages; }
 	bool isOlderThan(U32Days days) const;
 
@@ -67,6 +67,8 @@ public:
 	 * updates last interaction time
 	 */
 	void updateTimestamp();
+
+    void updateHistoryFileName(const std::string &new_name) { mHistoryFileName = new_name; }
 
 	/*
 	 * Resets flag of unread offline message to false when im floater with this conversation is opened.
@@ -137,6 +139,8 @@ public:
 	 * public method which is called on viewer exit to save conversation log
 	 */
 	void cache();
+    // will check if current name is edentical with the one on disk and will rename the one on disk if it isn't
+	void verifyFilename(const LLUUID& session_id, const std::string &expected_filename);
 	bool moveLog(const std::string &originDirectory, const std::string &targetDirectory);
 	void getListOfBackupLogs(std::vector<std::string>& list_of_backup_logs);
 	void deleteBackupLogs();

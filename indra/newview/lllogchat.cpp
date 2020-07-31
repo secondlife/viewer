@@ -271,6 +271,28 @@ std::string LLLogChat::makeLogFileName(std::string filename)
 	return filename;
 }
 
+//static
+void LLLogChat::renameLogFile(const std::string& old_filename, const std::string& new_filename)
+{
+    std::string new_name = cleanFileName(new_filename);
+    std::string old_name = cleanFileName(old_filename);
+    new_name = gDirUtilp->getExpandedFilename(LL_PATH_PER_ACCOUNT_CHAT_LOGS, new_name);
+    old_name = gDirUtilp->getExpandedFilename(LL_PATH_PER_ACCOUNT_CHAT_LOGS, old_name);
+
+    if (new_name.empty() || old_name.empty())
+    {
+        return;
+    }
+
+    new_name += '.' + LL_TRANSCRIPT_FILE_EXTENSION;
+    old_name += '.' + LL_TRANSCRIPT_FILE_EXTENSION;
+
+    if (!LLFile::isfile(new_name) && LLFile::isfile(old_name))
+    {
+        LLFile::rename(old_name, new_name);
+    }
+}
+
 std::string LLLogChat::cleanFileName(std::string filename)
 {
 	std::string invalidChars = "\"\'\\/?*:.<>|[]{}~"; // Cannot match glob or illegal filename chars
