@@ -227,8 +227,21 @@ void llDiskCache::addReadRequest(std::string filename,
         // C++ mechanics will automatically delete it.
         shared_payload_t file_contents = std::make_shared<std::vector<U8>>(filesize);
 
-        // TODO: more place holder code
-        memset(file_contents->data(), 'A', file_contents->size());
+        std::ifstream ifs(filename);
+        if (!ifs.is_open())
+        {
+            success = false;
+        }
+        else
+        {
+            std::string contents;
+            if (std::getline(ifs, contents))
+            {
+                ifs.close();
+                memcpy(file_contents->data(), contents.c_str(), file_contents->size());
+                success = true;
+            }
+        }
 
         // We pass back the ID (for lookup), the contents of the file we read
         // (in our use case) and a flag indicating success/failure. We might
@@ -262,18 +275,28 @@ void llDiskCache::addWriteRequest(std::string filename,
     {
         std::cout << "WRITE running on worker thread and writing buffer to " << filename << std::endl;
 
-        LL_INFOS() << "Buffer to write to disk is of size " << buffer->size() << " and contains " << LL_ENDL;
-        for (auto p = 0; p < buffer->size(); ++p)
+        bool success;
+        std::ofstream ofs(filename);
+        if (ofs)
         {
-            std::cout << buffer->data()[p];
+            ofs << *buffer;
+            ofs.close();
+            success = true;
         }
-        LL_INFOS() << "" << LL_ENDL;
+        else
+        {
+            success = false;
+        }
 
+        //LL_INFOS() << "Buffer to write to disk is of size " << buffer->size() << " and contains " << LL_ENDL;
+        //for (auto p = 0; p < buffer->size(); ++p)
+        //{
+        //    std::cout << buffer->data()[p];
+        //}
+        //LL_INFOS() << "" << LL_ENDL;
 
-        // we don't send anything back when we are writing - result goes back as a bool
+        // we don't send anything back when we are writing - task result goes back as a bool
         shared_payload_t file_contents = nullptr;
-
-        bool success = true;
 
         // We pass back the ID (for lookup), the contents of the file we read
         // (in our use case) and a flag indicating success/failure. We might

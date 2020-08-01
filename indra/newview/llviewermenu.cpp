@@ -3702,7 +3702,7 @@ void simulate_cache_read_access(void*)
         }
     });
 
-    const std::string filename("read.flasm.j4k");
+    const std::string filename("read_flasm.txt");
     llDiskCache::vfs_callback_data_t cbd = nullptr;
     llDiskCache::instance().addReadRequest(filename, cb, cbd);
 }
@@ -3728,7 +3728,7 @@ void simulate_cache_write_access(void*)
         }
     });
 
-    const std::string filename("write.gesture.txt");
+    const std::string filename("C:\\work\\write.gesture.txt");
     llDiskCache::vfs_callback_data_t cbd = nullptr;
     const U32 filesize = 24;
     llDiskCache::shared_payload_t file_contents = std::make_shared<std::vector<U8>>(filesize);
