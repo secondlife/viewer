@@ -580,9 +580,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a6af5d12440c2ec4d15d268dae5c017a</string>
+              <string>cc26af2ebfa241891caca829a6e46b88</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/63772/599587/dullahan-1.7.0.202007170815_81.3.10_gb223419_chromium-81.0.4044.138-darwin64-545143.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/65005/607316/dullahan-1.7.0.202008031101_81.3.10_gb223419_chromium-81.0.4044.138-darwin64-546064.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -592,9 +592,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1f1c8b2850da982dfa876cb9b55707d7</string>
+              <string>4e5b9e2fe65d94e30a4f3d831c767199</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/63774/599578/dullahan-1.7.0.202007171514_81.3.10_gb223419_chromium-81.0.4044.138-windows-545143.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/65004/607304/dullahan-1.7.0.202008031759_81.3.10_gb223419_chromium-81.0.4044.138-windows-546064.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -604,16 +604,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>73bce404b3a8c4f252eeca4400c4bc19</string>
+              <string>6f7bf7f915f3d75dbdad08a2d41ca74e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/63773/599579/dullahan-1.7.0.202007171514_81.3.10_gb223419_chromium-81.0.4044.138-windows64-545143.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/65003/607308/dullahan-1.7.0.202008031800_81.3.10_gb223419_chromium-81.0.4044.138-windows64-546064.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.7.0.202007171514_81.3.10_gb223419_chromium-81.0.4044.138</string>
+        <string>1.7.0.202008031800_81.3.10_gb223419_chromium-81.0.4044.138</string>
       </map>
       <key>elfio</key>
       <map>
