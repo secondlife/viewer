@@ -56,6 +56,7 @@
 #include "llcallbacklist.h"
 #include "llvoavatarself.h"
 #include "llgesturemgr.h"
+#include "llsdserialize.h"
 #include "llsdutil.h"
 #include "bufferarray.h"
 #include "bufferstream.h"
@@ -76,8 +77,8 @@ BOOL LLInventoryModel::sFirstTimeInViewer2 = TRUE;
 ///----------------------------------------------------------------------------
 
 //BOOL decompress_file(const char* src_filename, const char* dst_filename);
-static const char PRODUCTION_CACHE_FORMAT_STRING[] = "%s.inv";
-static const char GRID_CACHE_FORMAT_STRING[] = "%s.%s.inv";
+static const char PRODUCTION_CACHE_FORMAT_STRING[] = "%s.inv.llsd";
+static const char GRID_CACHE_FORMAT_STRING[] = "%s.%s.inv.llsd";
 static const char * const LOG_INV("Inventory");
 
 struct InventoryIDPtrLess
@@ -2690,29 +2691,37 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 {
 	if(filename.empty())
 	{
-		LL_ERRS(LOG_INV) << "Filename is Null!" << LL_ENDL;
+		LL_ERRS(LOG_INV) << "filename is Null!" << LL_ENDL;
 		return false;
 	}
-	LL_INFOS(LOG_INV) << "LLInventoryModel::loadFromFile(" << filename << ")" << LL_ENDL;
-	LLFILE* file = LLFile::fopen(filename, "rb");		/*Flawfinder: ignore*/
-	if(!file)
+	LL_INFOS(LOG_INV) << "loading inventory from: (" << filename << ")" << LL_ENDL;
+
+	llifstream file(filename.c_str());
+
+	if (!file.is_open())
 	{
 		LL_INFOS(LOG_INV) << "unable to load inventory from: " << filename << LL_ENDL;
 		return false;
 	}
-	// *NOTE: This buffer size is hard coded into scanf() below.
-	char buffer[MAX_STRING];		/*Flawfinder: ignore*/
-	char keyword[MAX_STRING];		/*Flawfinder: ignore*/
-	char value[MAX_STRING];			/*Flawfinder: ignore*/
-	is_cache_obsolete = true;  		// Obsolete until proven current
-	while(!feof(file) && fgets(buffer, MAX_STRING, file)) 
+
+	is_cache_obsolete = true; // Obsolete until proven current
+
+	std::string line;
+	LLPointer<LLSDParser> parser = new LLSDNotationParser();
+	while (std::getline(file, line)) 
 	{
-		sscanf(buffer, " %126s %126s", keyword, value);	/* Flawfinder: ignore */
-		if(0 == strcmp("inv_cache_version", keyword))
+		LLSD s_item;
+		std::istringstream iss(line);
+		if (parser->parse(iss, s_item, line.length()) == LLSDParser::PARSE_FAILURE)
 		{
-			S32 version;
-			int succ = sscanf(value,"%d",&version);
-			if ((1 == succ) && (version == sCurrentInvCacheVersion))
+			LL_INFOS(LOG_INV)<< "Parsing inventory cache failed" << LL_ENDL;
+			break;
+		}
+
+		if (s_item.has("inv_cache_version"))
+		{
+			S32 version = s_item["inv_cache_version"].asInteger();
+			if (version == sCurrentInvCacheVersion)
 			{
 				// Cache is up to date
 				is_cache_obsolete = false;
@@ -2720,43 +2729,33 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 			}
 			else
 			{
-				// Cache is out of date
+				LL_INFOS(LOG_INV)<< "Inventory cache is out of date" << LL_ENDL;
 				break;
 			}
 		}
-		else if(0 == strcmp("inv_category", keyword))
+		else if (s_item.has("cat_id"))
 		{
 			if (is_cache_obsolete)
 				break;
-			
+
 			LLPointer<LLViewerInventoryCategory> inv_cat = new LLViewerInventoryCategory(LLUUID::null);
-			if(inv_cat->importFileLocal(file))
+			if(inv_cat->importLLSD(s_item))
 			{
 				categories.push_back(inv_cat);
 			}
-			else
-			{
-				LL_WARNS(LOG_INV) << "loadInventoryFromFile().  Ignoring invalid inventory category: " << inv_cat->getName() << LL_ENDL;
-				//delete inv_cat; // automatic when inv_cat is reassigned or destroyed
-			}
 		}
-		else if(0 == strcmp("inv_item", keyword))
+		else if (s_item.has("item_id"))
 		{
 			if (is_cache_obsolete)
 				break;
 
 			LLPointer<LLViewerInventoryItem> inv_item = new LLViewerInventoryItem;
-			if( inv_item->importFileLocal(file) )
+			if( inv_item->fromLLSD(s_item) )
 			{
-				// *FIX: Need a better solution, this prevents the
-				// application from freezing, but breaks inventory
-				// caching.
 				if(inv_item->getUUID().isNull())
 				{
-					//delete inv_item; // automatic when inv_cat is reassigned or destroyed
 					LL_WARNS(LOG_INV) << "Ignoring inventory with null item id: "
-									  << inv_item->getName() << LL_ENDL;
-						
+						<< inv_item->getName() << LL_ENDL;
 				}
 				else
 				{
@@ -2769,44 +2768,40 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 						items.push_back(inv_item);
 					}
 				}
-			}
-			else
-			{
-				LL_WARNS(LOG_INV) << "loadInventoryFromFile().  Ignoring invalid inventory item: " << inv_item->getName() << LL_ENDL;
-				//delete inv_item; // automatic when inv_cat is reassigned or destroyed
-			}
-		}
-		else
-		{
-			LL_WARNS(LOG_INV) << "Unknown token in inventory file '" << keyword << "'"
-							  << LL_ENDL;
+			}	
 		}
 	}
-	fclose(file);
-	if (is_cache_obsolete)
-		return false;
-	return true;
+
+	file.close();
+
+	return !is_cache_obsolete;	
 }
 
 // static
 bool LLInventoryModel::saveToFile(const std::string& filename,
-								  const cat_array_t& categories,
-								  const item_array_t& items)
+	const cat_array_t& categories,
+	const item_array_t& items)
 {
-	if(filename.empty())
+	if (filename.empty())
 	{
 		LL_ERRS(LOG_INV) << "Filename is Null!" << LL_ENDL;
 		return false;
 	}
-	LL_INFOS(LOG_INV) << "LLInventoryModel::saveToFile(" << filename << ")" << LL_ENDL;
-	LLFILE* file = LLFile::fopen(filename, "wb");		/*Flawfinder: ignore*/
-	if(!file)
+
+	LL_INFOS(LOG_INV) << "saving inventory to: (" << filename << ")" << LL_ENDL;
+
+	llofstream fileXML(filename.c_str());
+	if (!fileXML.is_open())
 	{
 		LL_WARNS(LOG_INV) << "unable to save inventory to: " << filename << LL_ENDL;
 		return false;
 	}
 
-	fprintf(file, "\tinv_cache_version\t%d\n",sCurrentInvCacheVersion);
+	LLSD cache_ver;
+	cache_ver["inv_cache_version"] = sCurrentInvCacheVersion;
+
+	fileXML << LLSDOStreamer<LLSDNotationFormatter>(cache_ver) << std::endl;
+
 	S32 count = categories.size();
 	S32 i;
 	for(i = 0; i < count; ++i)
@@ -2814,17 +2809,18 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
 		LLViewerInventoryCategory* cat = categories[i];
 		if(cat->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN)
 		{
-			cat->exportFileLocal(file);
+			fileXML << LLSDOStreamer<LLSDNotationFormatter>(cat->exportLLSD()) << std::endl;
 		}
 	}
 
 	count = items.size();
 	for(i = 0; i < count; ++i)
 	{
-		items[i]->exportFile(file);
+		fileXML << LLSDOStreamer<LLSDNotationFormatter>(items[i]->asLLSD()) << std::endl;
 	}
 
-	fclose(file);
+	fileXML.close();
+
 	return true;
 }
 
