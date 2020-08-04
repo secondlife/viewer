@@ -457,6 +457,11 @@ void LLViewerAssetStorage::assetRequestCoro(
     S32 result_code = LL_ERR_NOERR;
     LLExtStat ext_status = LLExtStat::NONE;
 
+    if (!gAssetStorage)
+    {
+        LL_WARNS_ONCE("ViewerAsset") << "Asset request fails: asset storage no longer exists" << LL_ENDL;
+        return;
+    }
     if (!gAgent.getRegion())
     {
         LL_WARNS_ONCE("ViewerAsset") << "Asset request fails: no region set" << LL_ENDL;
@@ -501,7 +506,7 @@ void LLViewerAssetStorage::assetRequestCoro(
 
     LLSD result = httpAdapter->getRawAndSuspend(httpRequest, url, httpOpts);
 
-    if (LLApp::isQuitting())
+    if (LLApp::isQuitting() || !gAssetStorage)
     {
         // Bail out if result arrives after shutdown has been started.
         return;
