@@ -3101,15 +3101,7 @@ LLSD LLAppViewer::getViewerInfo() const
 
 	// return a URL to the release notes for this viewer, such as:
 	// https://releasenotes.secondlife.com/viewer/2.1.0.123456.html
-	std::string url = versionInfo.getReleaseNotes(); // VVM supplied
-    if (url.empty())
-    {
-        url = LLTrans::getString("RELEASE_NOTES_BASE_URL");
-        if (!LLStringUtil::endsWith(url, "/"))
-            url += "/";
-        url += LLURI::escape(versionInfo.getVersion()) + ".html";
-    }
-	info["VIEWER_RELEASE_NOTES_URL"] = url;
+	info["VIEWER_RELEASE_NOTES_URL"] = versionInfo.getReleaseNotes();;
 
 	// Position
 	LLViewerRegion* region = gAgent.getRegion();
