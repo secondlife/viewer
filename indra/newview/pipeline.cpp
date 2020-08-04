@@ -6435,13 +6435,6 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			F32 x = 3.f;
 		float linatten = x / (light_radius); // % of brightness at radius
 
-		if (LLPipeline::sRenderDeferred)
-		{
-			/*light_color.mV[0] = powf(light_color.mV[0], 2.2f);
-			light_color.mV[1] = powf(light_color.mV[1], 2.2f);
-			light_color.mV[2] = powf(light_color.mV[2], 2.2f);*/
-		}
-
 		mHWLightColors[2] = light_color;
 		LLLightState* light = gGL.getLight(2);
 
@@ -8813,6 +8806,19 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget* screen_target)
                         light_colors.push_back(LLVector4(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff(DEFERRED_LIGHT_FALLOFF)));
 					}
 				}
+
+                // If we're in avatar editing mode (3), add an avatar appearance light at the camera position 
+                if (gAgentAvatarp && gAgentAvatarp->mSpecialRenderMode == 3)
+                {
+                    // Cam coords (post-transform) are 0,0,0, with radius 15m
+                    fullscreen_lights.push_back(LLVector4(0.f, 0.f, 0.f, 15.0f));
+
+                    // Use a white light
+                    LLVector4 white_light(LLColor4::white.mV);
+                    white_light.mV[3] = 0.0f;
+                    light_colors.push_back(white_light);
+                }
+
 				unbindDeferredShader(gDeferredLightProgram);
 			}
 
