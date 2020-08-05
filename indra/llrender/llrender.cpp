@@ -1209,12 +1209,12 @@ void LLRender::syncLightState()
 	{
 		shader->mLightHash = mLightHash;
 
-		LLVector4 position[8];
-		LLVector3 direction[8];
-		LLVector4 attenuation[8];
-		LLVector3 diffuse[8];
-        LLVector3 diffuse_b[8];
-        bool      sun_primary[8];
+		LLVector4 position[LL_NUM_LIGHT_UNITS];
+		LLVector3 direction[LL_NUM_LIGHT_UNITS];
+		LLVector4 attenuation[LL_NUM_LIGHT_UNITS];
+		LLVector3 diffuse[LL_NUM_LIGHT_UNITS];
+        LLVector3 diffuse_b[LL_NUM_LIGHT_UNITS];
+        bool      sun_primary[LL_NUM_LIGHT_UNITS];
 
 		for (U32 i = 0; i < LL_NUM_LIGHT_UNITS; i++)
 		{
@@ -1228,10 +1228,10 @@ void LLRender::syncLightState()
             sun_primary[i] = light->mSunIsPrimary;
 		}
 
-		shader->uniform4fv(LLShaderMgr::LIGHT_POSITION, 8, position[0].mV);
-		shader->uniform3fv(LLShaderMgr::LIGHT_DIRECTION, 8, direction[0].mV);
-		shader->uniform4fv(LLShaderMgr::LIGHT_ATTENUATION, 8, attenuation[0].mV);
-		shader->uniform3fv(LLShaderMgr::LIGHT_DIFFUSE, 8, diffuse[0].mV);
+		shader->uniform4fv(LLShaderMgr::LIGHT_POSITION, LL_NUM_LIGHT_UNITS, position[0].mV);
+		shader->uniform3fv(LLShaderMgr::LIGHT_DIRECTION, LL_NUM_LIGHT_UNITS, direction[0].mV);
+		shader->uniform4fv(LLShaderMgr::LIGHT_ATTENUATION, LL_NUM_LIGHT_UNITS, attenuation[0].mV);
+		shader->uniform3fv(LLShaderMgr::LIGHT_DIFFUSE, LL_NUM_LIGHT_UNITS, diffuse[0].mV);
 		shader->uniform4fv(LLShaderMgr::LIGHT_AMBIENT, 1, mAmbientLightColor.mV);
         shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_primary[0] ? 1 : 0);
         shader->uniform4fv(LLShaderMgr::AMBIENT, 1, mAmbientLightColor.mV);
