@@ -3698,37 +3698,36 @@ void simulate_cache_read_access(void*)
             {
                 std::cout << payload->data()[p];
             }
-            LL_INFOS() << "" << LL_ENDL;
+            LL_INFOS() << LL_ENDL;
         }
     });
 
-    const std::string filename("read_flasm.txt");
+    const std::string filename = gDirUtilp->getExecutableDir() + 
+                                 gDirUtilp->getDirDelimiter() + 
+                                 "read.payload.txt";
     llDiskCache::vfs_callback_data_t cbd = nullptr;
     llDiskCache::instance().addReadRequest(filename, cb, cbd);
 }
 
 void simulate_cache_write_access(void*)
 {
-    LL_INFOS() << "Simulating disk cache WRITE access" << LL_ENDL;
+    LL_INFOS() << "Simulating disk cache WRITE..." << LL_ENDL;
 
-    llDiskCache::vfs_callback_t cb([](void*, llDiskCache::shared_payload_t payload, bool)
+    llDiskCache::vfs_callback_t cb([](void*, llDiskCache::shared_payload_t, bool result)
     {
-        if (!payload)
+        if (result)
         {
-            LL_INFOS() << "Payload is empty" << LL_ENDL;
+            LL_INFOS() << "File written successfully"  << LL_ENDL;
         }
         else
         {
-            LL_INFOS() << "Payload size is " << payload->size() << " and contains " << LL_ENDL;
-            for (auto p = 0; p < payload->size(); ++p)
-            {
-                std::cout << payload->data()[p];
-            }
-            LL_INFOS() << "" << LL_ENDL;
+            LL_INFOS() << "Unable to write file" << LL_ENDL;
         }
     });
 
-    const std::string filename("C:\\work\\write.gesture.txt");
+    const std::string filename = gDirUtilp->getExecutableDir() + 
+                                 gDirUtilp->getDirDelimiter() + 
+                                 "write.payload.txt";
     llDiskCache::vfs_callback_data_t cbd = nullptr;
     const U32 filesize = 24;
     llDiskCache::shared_payload_t file_contents = std::make_shared<std::vector<U8>>(filesize);

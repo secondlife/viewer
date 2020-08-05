@@ -216,7 +216,6 @@ void llDiskCache::addReadRequest(std::string filename,
         // read and write cache files and update their meta data
         std::cout << "READ running on worker thread and reading from " << filename << std::endl;
         bool success = true;
-        U32 filesize = 12;
 
         // This is an interesting idiom. We will be passing back the contents of files
         // we read and an std::vector<U8> is suitable for that. However, that means
@@ -225,7 +224,7 @@ void llDiskCache::addReadRequest(std::string filename,
         // and the consumer can either hang onto it (its ref count is incremented) or
         // just look and ignore it - when no one has a reference to it anymore, the
         // C++ mechanics will automatically delete it.
-        shared_payload_t file_contents = std::make_shared<std::vector<U8>>(filesize);
+        shared_payload_t file_contents = nullptr;
 
         std::ifstream ifs(filename);
         if (!ifs.is_open())
@@ -238,6 +237,9 @@ void llDiskCache::addReadRequest(std::string filename,
             if (std::getline(ifs, contents))
             {
                 ifs.close();
+
+                const U32 filesize = contents.length();
+                file_contents = std::make_shared<std::vector<U8>>(filesize);
                 memcpy(file_contents->data(), contents.c_str(), file_contents->size());
                 success = true;
             }
@@ -279,7 +281,7 @@ void llDiskCache::addWriteRequest(std::string filename,
         std::ofstream ofs(filename);
         if (ofs)
         {
-            ofs << *buffer;
+            ofs << buffer->data();
             ofs.close();
             success = true;
         }
@@ -287,13 +289,6 @@ void llDiskCache::addWriteRequest(std::string filename,
         {
             success = false;
         }
-
-        //LL_INFOS() << "Buffer to write to disk is of size " << buffer->size() << " and contains " << LL_ENDL;
-        //for (auto p = 0; p < buffer->size(); ++p)
-        //{
-        //    std::cout << buffer->data()[p];
-        //}
-        //LL_INFOS() << "" << LL_ENDL;
 
         // we don't send anything back when we are writing - task result goes back as a bool
         shared_payload_t file_contents = nullptr;
