@@ -28,7 +28,6 @@
 #include "llviewerprecompiledheaders.h"
 #include "llevents.h"
 #include "lleventfilter.h"
-#include "lltrans.h"
 #include "llversioninfo.h"
 #include "stringize.h"
 #include <boost/regex.hpp>
@@ -174,14 +173,5 @@ std::string LLVersionInfo::getBuildConfig()
 
 std::string LLVersionInfo::getReleaseNotes()
 {
-    if (mReleaseNotes.empty())
-    {
-        std::string url = mReleaseNotes;
-        url = LLTrans::getString("RELEASE_NOTES_BASE_URL");
-        if (!LLStringUtil::endsWith(url, "/"))
-            url += "/";
-        url += LLURI::escape(getVersion()) + ".html";
-        return url;
-    }
-    return mReleaseNotes; // VVM supplied
+    return mReleaseNotes;
 }
