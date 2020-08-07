@@ -58,8 +58,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 llDiskCache::llDiskCache() :
-    mTimerPeriod(0.05f),
-    LLEventTimer(mTimerPeriod)
+    LLEventTimer(0.05)
 {
     // Create the worker thread and worker function
     mWorkerThread = std::thread([this]()
@@ -68,7 +67,7 @@ llDiskCache::llDiskCache() :
     });
 
     // start the timer that will drive the request queue
-    // (mTimerPeriod, initialized above defines the time in
+    // (LLEventTimer initialized above defines the time in
     // seconds between each tick or set to 0.0 for every frame)
     mEventTimer.start();
 }
@@ -144,7 +143,7 @@ void llDiskCache::requestThread()
 //
 BOOL llDiskCache::tick()
 {
-    result res;
+    mResult res;
     while (mResultQueue.tryPopBack((res)))
     {
         // Here will pull all outstanding results off of the output
@@ -170,7 +169,7 @@ BOOL llDiskCache::tick()
         {
             // execute the callback and pass the payload/result status
             // back to the consumer
-            found->second.cb(found->second.cbd, res.payload, res.ok);
+            found->second.cb(res.payload, res.ok);
 
             // we have processed this entry in the queue so delete it
             mRequestMap.erase(found);
@@ -190,8 +189,7 @@ BOOL llDiskCache::tick()
 // decide whether to have a single add_request function and pass in the type
 // such as READ, WRITE, APPEND etc. or have separate functions for each..
 void llDiskCache::addReadRequest(std::string filename,
-                                 vfs_callback_t cb,
-                                 vfs_callback_data_t cbd)
+                                 request_callback_t cb)
 {
     // This is an ID we pass in to our worker function so we can match up
     // requests and results by comparing the id.
@@ -199,7 +197,7 @@ void llDiskCache::addReadRequest(std::string filename,
 
     // record the ID in a map - used to compare against results queue in update
     // (per tick) function
-    mRequestMap.emplace(request_id, request{ cb, cbd });
+    mRequestMap.emplace(request_id, mRequest{ cb });
 
     // In the future, we should consider if the code that runs on the
     // request thread here can throw an exception - this needs to be accounted
@@ -221,7 +219,7 @@ void llDiskCache::addReadRequest(std::string filename,
         // and the consumer can either hang onto it (its ref count is incremented) or
         // just look and ignore it - when no one has a reference to it anymore, the
         // C++ mechanics will automatically delete it.
-        shared_payload_t file_contents = nullptr;
+        request_payload_t file_contents = nullptr;
 
         std::ifstream ifs(filename);
         if (!ifs.is_open())
@@ -246,16 +244,15 @@ void llDiskCache::addReadRequest(std::string filename,
         // (in our use case) and a flag indicating success/failure. We might
         // also consider using file_contents and comparing with ! vs a
         // separate bool. This is okay for now though.
-        return result{ request_id, file_contents, success };
+        return mResult{ request_id, file_contents, success };
     });
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // TODO: This is test code that (kind of) adds a write request.
 void llDiskCache::addWriteRequest(std::string filename,
-                                  shared_payload_t buffer,
-                                  vfs_callback_t cb,
-                                  vfs_callback_data_t cbd)
+                                  request_payload_t buffer,
+                                  request_callback_t cb)
 {
     // This is an ID we pass in to our worker function so we can match up
     // requests and results by comparing the id.
@@ -263,7 +260,7 @@ void llDiskCache::addWriteRequest(std::string filename,
 
     // record the ID in a map - used to compare against results queue in update
     // (per tick) function
-    mRequestMap.emplace(request_id, request{ cb, cbd });
+    mRequestMap.emplace(request_id, mRequest{ cb });
 
     // In the future, we should consider if the code that runs on the
     // request thread here can throw an exception - this needs to be accounted
@@ -288,12 +285,12 @@ void llDiskCache::addWriteRequest(std::string filename,
         }
 
         // we don't send anything back when we are writing - task result goes back as a bool
-        shared_payload_t file_contents = nullptr;
+        request_payload_t file_contents = nullptr;
 
         // We pass back the ID (for lookup), the contents of the file we read
         // (in our use case) and a flag indicating success/failure. We might
         // also consider using file_contents and comparing with ! vs a
         // separate bool. This is okay for now though.
-        return result{ request_id, file_contents, success };
+        return mResult{ request_id, file_contents, success };
     });
 }

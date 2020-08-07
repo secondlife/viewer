@@ -3685,7 +3685,7 @@ void simulate_cache_read_access(void*)
 {
     LL_INFOS() << "Simulating disk cache READ access" << LL_ENDL;
 
-    llDiskCache::vfs_callback_t cb([](void*, llDiskCache::shared_payload_t payload, bool)
+    llDiskCache::request_callback_t cb([](llDiskCache::request_payload_t payload, bool)
     {
         if (! payload)
         {
@@ -3705,15 +3705,15 @@ void simulate_cache_read_access(void*)
     const std::string filename = gDirUtilp->getExecutableDir() + 
                                  gDirUtilp->getDirDelimiter() + 
                                  "read.payload.txt";
-    llDiskCache::vfs_callback_data_t cbd = nullptr;
-    llDiskCache::instance().addReadRequest(filename, cb, cbd);
+
+    llDiskCache::instance().addReadRequest(filename, cb);
 }
 
 void simulate_cache_write_access(void*)
 {
     LL_INFOS() << "Simulating disk cache WRITE..." << LL_ENDL;
 
-    llDiskCache::vfs_callback_t cb([](void*, llDiskCache::shared_payload_t, bool result)
+    llDiskCache::request_callback_t cb([](llDiskCache::request_payload_t, bool result)
     {
         if (result)
         {
@@ -3728,12 +3728,11 @@ void simulate_cache_write_access(void*)
     const std::string filename = gDirUtilp->getExecutableDir() + 
                                  gDirUtilp->getDirDelimiter() + 
                                  "write.payload.txt";
-    llDiskCache::vfs_callback_data_t cbd = nullptr;
     const U32 filesize = 24;
-    llDiskCache::shared_payload_t file_contents = std::make_shared<std::vector<U8>>(filesize);
+    llDiskCache::request_payload_t file_contents = std::make_shared<std::vector<U8>>(filesize);
     memset(file_contents->data(), 'Z', file_contents->size());
 
-    llDiskCache::instance().addWriteRequest(filename, file_contents, cb, cbd);
+    llDiskCache::instance().addWriteRequest(filename, file_contents, cb);
 }
 
 void handle_dump_focus()

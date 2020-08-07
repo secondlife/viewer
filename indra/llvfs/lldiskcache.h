@@ -44,47 +44,38 @@ class llDiskCache :
 
         void cleanupSingleton() override;
 
-        // TODO: not shared_payload_t -> something else
-        typedef std::shared_ptr<std::vector<U8>> shared_payload_t;
-        typedef std::unique_ptr<U8> write_payload_t;
-        typedef std::function<void(void*, shared_payload_t, bool)> vfs_callback_t;  // TODO: no VFS in name
-        typedef void* vfs_callback_data_t;
+        typedef std::shared_ptr<std::vector<U8>> request_payload_t;
+        typedef std::function<void(request_payload_t, bool)> request_callback_t;
 
         void addReadRequest(std::string filename,
-                            vfs_callback_t cb,
-                            vfs_callback_data_t cbd);
+                            request_callback_t cb);
 
         void addWriteRequest(std::string filename,
-                             shared_payload_t buffer,
-                             vfs_callback_t cb,
-                             vfs_callback_data_t cbd);
+                             request_payload_t buffer,
+                             request_callback_t cb);
 
     private:
         std::thread mWorkerThread;
 
-        // todo: better name
-        struct result
+        struct mResult
         {
             U32 id;
-            shared_payload_t payload;
+            request_payload_t payload;
             bool ok;
         };
 
-        // todo: better name
-        struct request
+        struct mRequest
         {
-            vfs_callback_t cb;
-            vfs_callback_data_t cbd;
+            request_callback_t cb;
         };
 
         BOOL tick() override;
-        const F32 mTimerPeriod;
 
-        typedef std::function<result()> callable_t;
+        typedef std::function<mResult()> callable_t;
         LLThreadSafeQueue<callable_t> mITaskQueue;
-        LLThreadSafeQueue<result> mResultQueue;
+        LLThreadSafeQueue<mResult> mResultQueue;
 
-        typedef std::map<U32, request> request_map_t;
+        typedef std::map<U32, mRequest> request_map_t;
         request_map_t mRequestMap;
 
         U32 mRequestId{ 0 };
