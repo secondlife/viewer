@@ -30,9 +30,12 @@
 #define _LLDISKCACHE
 
 #include "llthreadsafequeue.h"
+#include "lleventtimer.h"
+#include "llsingleton.h"
 
 class llDiskCache :
-    public LLSingleton<llDiskCache>
+    public LLSingleton<llDiskCache>,
+    public LLEventTimer
 {
         LLSINGLETON(llDiskCache);
 
@@ -74,20 +77,20 @@ class llDiskCache :
             vfs_callback_data_t cbd;
         };
 
+        BOOL tick() override;
+        const F32 mTimerPeriod;
+
         typedef std::function<result()> callable_t;
-        LLThreadSafeQueue<callable_t> mInQueue;
-        LLThreadSafeQueue<result> mOutQueue;
+        LLThreadSafeQueue<callable_t> mITaskQueue;
+        LLThreadSafeQueue<result> mResultQueue;
 
         typedef std::map<U32, request> request_map_t;
         request_map_t mRequestMap;
 
-        std::unique_ptr<LLEventTimer> ticker;
-
-        U32 mRequestId;
+        U32 mRequestId{ 0 };
 
     private:
         void requestThread();
-        void perTick();
 };
 
 #endif // _LLDISKCACHE

@@ -58,7 +58,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 llDiskCache::llDiskCache() :
-    mRequestId(0)
+    mTimerPeriod(0.05f),
+    LLEventTimer(mTimerPeriod)
 {
     // Create the worker thread and worker function
     mWorkerThread = std::thread([this]()
@@ -66,15 +67,10 @@ llDiskCache::llDiskCache() :
         requestThread();
     });
 
-    // Run the update function periodically. If the period is 0 (seconds),
-    // then the update function is called every frame. We don't want
-    // to saturate the main loop so keep above 0 for now but consider
-    // reducing once the code is more complete.
-    const F32 period = 0.05f;
-    ticker.reset(LLEventTimer::run_every(period, [this]()
-    {
-        perTick();
-    }));
+    // start the timer that will drive the request queue
+    // (mTimerPeriod, initialized above defines the time in
+    // seconds between each tick or set to 0.0 for every frame)
+    mEventTimer.start();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -90,7 +86,7 @@ void llDiskCache::cleanupSingleton()
 
     // we won't be putting anything else onto the outbound request queue
     // so we close it to indicate to the worker function that we are finished
-    mInQueue.close();
+    mITaskQueue.close();
 
     // Some idioms have a test here for std::thread::joinable() before the
     // call to join() is made but we don't need it here. There are a very
@@ -111,7 +107,7 @@ void llDiskCache::cleanupSingleton()
 // the result out to the output queue
 void llDiskCache::requestThread()
 {
-    // We used to use while (!mInQueue.isClosed()) test for this loop
+    // We used to use while (!mITaskQueue.isClosed()) test for this loop
     // but there is an issue with LLThreadSafeQueue whereby the queue
     // has not yet been closed so isClosed() returns false. After we
     // make the call to popBack() the queue does get closed and the
@@ -122,17 +118,16 @@ void llDiskCache::requestThread()
     {
         while (true)
         {
-            // We might consider using LLThreadSafeQueue::tryPopBack() to
-            // inspect the queue first before we try to call popBack();
-            // This might be slightly more efficient but probably not significant
-            auto item = mInQueue.popBack();
+
+            // grab a request off the queue to process
+            auto request = mITaskQueue.popBack();
 
             // This is where the real work happens. The callable we pulled off
             // of the input queue is executed here and the result captured.
-            auto res = item();
+            auto result = request();
 
             // Push the result out to the outbound results queue
-            mOutQueue.pushFront(res);
+            mResultQueue.pushFront(result);
         }
     }
     catch (const LLThreadSafeQueueInterrupt&)
@@ -142,15 +137,15 @@ void llDiskCache::requestThread()
     // Calling close() here indicates that we are finished with the output queue
     // the it can be closed. See the note about potentially losing the last few
     // items in the queue under some circumstances elsewhere in this file
-    mOutQueue.close();
+    mResultQueue.close();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-void llDiskCache::perTick()
+BOOL llDiskCache::tick()
 {
     result res;
-    while (mOutQueue.tryPopBack((res)))
+    while (mResultQueue.tryPopBack((res)))
     {
         // Here will pull all outstanding results off of the output
         // queue and call their callbacks to that the consumer can
@@ -186,6 +181,8 @@ void llDiskCache::perTick()
             // and decide whether to do nothing, assert or something else
         }
     }
+
+    return FALSE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -198,18 +195,18 @@ void llDiskCache::addReadRequest(std::string filename,
 {
     // This is an ID we pass in to our worker function so we can match up
     // requests and results by comparing the id.
-    mRequestId++;
+    auto request_id = mRequestId++;
 
     // record the ID in a map - used to compare against results queue in update
     // (per tick) function
-    mRequestMap.emplace(mRequestId, request{ cb, cbd });
+    mRequestMap.emplace(request_id, request{ cb, cbd });
 
     // In the future, we should consider if the code that runs on the
     // request thread here can throw an exception - this needs to be accounted
     // and @Nat has a sugestion around using std::packaged_task(..). We do not
     // need it for this use case - we assert this code will not throw but
     // other, more complex code in the future might
-    mInQueue.pushFront([this, filename]()
+    mITaskQueue.pushFront([request_id, filename]()
     {
         // TODO: This is a place holder for doing some work on the worker
         // thread - eventually, for this use case, it will be used to
@@ -249,7 +246,7 @@ void llDiskCache::addReadRequest(std::string filename,
         // (in our use case) and a flag indicating success/failure. We might
         // also consider using file_contents and comparing with ! vs a
         // separate bool. This is okay for now though.
-        return result{ mRequestId, file_contents, success };
+        return result{ request_id, file_contents, success };
     });
 }
 
@@ -262,18 +259,18 @@ void llDiskCache::addWriteRequest(std::string filename,
 {
     // This is an ID we pass in to our worker function so we can match up
     // requests and results by comparing the id.
-    mRequestId++;
+    auto request_id = mRequestId++;
 
     // record the ID in a map - used to compare against results queue in update
     // (per tick) function
-    mRequestMap.emplace(mRequestId, request{ cb, cbd });
+    mRequestMap.emplace(request_id, request{ cb, cbd });
 
     // In the future, we should consider if the code that runs on the
     // request thread here can throw an exception - this needs to be accounted
     // and @Nat has a sugestion around using std::packaged_task(..). We do not
     // need it for this use case - we assert this code will not throw but
     // other, more complex code in the future might
-    mInQueue.pushFront([this, filename, buffer]()
+    mITaskQueue.pushFront([request_id, filename, buffer]()
     {
         std::cout << "WRITE running on worker thread and writing buffer to " << filename << std::endl;
 
@@ -297,6 +294,6 @@ void llDiskCache::addWriteRequest(std::string filename,
         // (in our use case) and a flag indicating success/failure. We might
         // also consider using file_contents and comparing with ! vs a
         // separate bool. This is okay for now though.
-        return result{ mRequestId, file_contents, success };
+        return result{ request_id, file_contents, success };
     });
 }
