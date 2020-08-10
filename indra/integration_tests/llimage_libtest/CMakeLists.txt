@@ -64,6 +64,7 @@ endif (DARWIN)
 # Libraries on which this application depends on
 # Sort by high-level to low-level
 target_link_libraries(llimage_libtest
+    ${LEGACY_STDIO_LIBS}
     ${LLCOMMON_LIBRARIES}
     ${LLVFS_LIBRARIES}
     ${LLMATH_LIBRARIES}

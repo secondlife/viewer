@@ -69,7 +69,7 @@ target_link_libraries(linux-crash-logger
     ${LLMATH_LIBRARIES}
     ${LLCOREHTTP_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
-    ${BOOST_COROUTINE_LIBRARY}
+    ${BOOST_FIBER_LIBRARY}
     ${BOOST_CONTEXT_LIBRARY}
     ${UI_LIBRARIES}
     ${DB_LIBRARIES}
