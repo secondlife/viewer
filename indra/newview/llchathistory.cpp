@@ -1344,10 +1344,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				// We don't want multiple friendship offers to appear, this code checks if there are previous offers
 				// by iterating though all panels.
 				// Note: it might be better to simply add a "pending offer" flag somewhere
-				for (LLToastNotifyPanel::instance_iter ti(LLToastNotifyPanel::beginInstances())
-					, tend(LLToastNotifyPanel::endInstances()); ti != tend; ++ti)
+				for (auto& panel : LLToastNotifyPanel::instance_snapshot())
 				{
-					LLToastNotifyPanel& panel = *ti;
 					LLIMToastNotifyPanel * imtoastp = dynamic_cast<LLIMToastNotifyPanel *>(&panel);
 					const std::string& notification_name = panel.getNotificationName();
 					if (notification_name == "OfferFriendship"

@@ -68,11 +68,11 @@ list(APPEND
     ${win_crash_logger_RESOURCE_FILES}
     )
 
-find_library(DXGUID_LIBRARY dxguid ${DIRECTX_LIBRARY_DIR})
-
 add_executable(windows-crash-logger WIN32 ${win_crash_logger_SOURCE_FILES})
 
+
 target_link_libraries(windows-crash-logger
+    ${LEGACY_STDIO_LIBS}
     ${BREAKPAD_EXCEPTION_HANDLER_LIBRARIES}
     ${LLCRASHLOGGER_LIBRARIES}
     ${LLWINDOW_LIBRARIES}
@@ -83,9 +83,9 @@ target_link_libraries(windows-crash-logger
     ${LLCOREHTTP_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
     ${BOOST_CONTEXT_LIBRARY}
-    ${BOOST_COROUTINE_LIBRARY}
+    ${BOOST_FIBER_LIBRARY}
     ${WINDOWS_LIBRARIES}
-    ${DXGUID_LIBRARY}
+    dxguid
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     user32
     gdi32

@@ -40,6 +40,7 @@ public:
 
 private:
     void postStartupState(const LLSD&) const;
+    void getStateTable(const LLSD&) const;
 
     //LLStartup* mStartup;
 };

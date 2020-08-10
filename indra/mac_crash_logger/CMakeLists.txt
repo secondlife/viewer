@@ -77,7 +77,7 @@ target_link_libraries(mac-crash-logger
     ${LLCOREHTTP_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
     ${BOOST_CONTEXT_LIBRARY}
-    ${BOOST_COROUTINE_LIBRARY}
+    ${BOOST_FIBER_LIBRARY}
     )
 
 add_custom_command(
