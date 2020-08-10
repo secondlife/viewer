@@ -460,7 +460,6 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			}
 			else if (message_name == "cleanup")
 			{
-				mVolumeCatcher.setVolume(0); // Hack: masks CEF exit issues
 				mCEFLib->requestExit();
 			}
 			else if (message_name == "force_exit")
