@@ -81,11 +81,6 @@ static const char * const LOG_INV("Inventory");
 static const char * const LOG_LOCAL("InventoryLocalize");
 static const char * const LOG_NOTECARD("copy_inventory_from_notecard");
 
-static const std::string INV_CAT_ID("cat_id");
-static const std::string INV_PARENT_ID("parent_id");
-static const std::string INV_ASSET_TYPE("type");
-static const std::string INV_PREFERRED_TYPE("pref_type");
-static const std::string INV_NAME("name");
 static const std::string INV_OWNER_ID("owner_id");
 static const std::string INV_VERSION("version");
 
@@ -696,12 +691,7 @@ S32 LLViewerInventoryCategory::getViewerDescendentCount() const
 
 LLSD LLViewerInventoryCategory::exportLLSD() const
 {
-	LLSD cat_data;
-	cat_data[INV_CAT_ID] = mUUID;
-	cat_data[INV_PARENT_ID] = mParentUUID;
-	cat_data[INV_ASSET_TYPE] = LLAssetType::lookup(mType);
-	cat_data[INV_PREFERRED_TYPE] = LLFolderType::lookup(mPreferredType);
-	cat_data[INV_NAME] = mName;
+	LLSD cat_data = LLInventoryCategory::exportLLSD();
 	cat_data[INV_OWNER_ID] = mOwnerID;
 	cat_data[INV_VERSION] = mVersion;
 
@@ -710,28 +700,7 @@ LLSD LLViewerInventoryCategory::exportLLSD() const
 
 bool LLViewerInventoryCategory::importLLSD(const LLSD& cat_data)
 {
-	if (cat_data.has(INV_CAT_ID))
-	{
-		setUUID(cat_data[INV_CAT_ID].asUUID());
-	}
-	if (cat_data.has(INV_PARENT_ID))
-	{
-		setParent(cat_data[INV_PARENT_ID].asUUID());
-	}
-	if (cat_data.has(INV_ASSET_TYPE))
-	{
-		setType(LLAssetType::lookup(cat_data[INV_ASSET_TYPE].asString()));
-	}
-	if (cat_data.has(INV_PREFERRED_TYPE))
-	{
-		setPreferredType(LLFolderType::lookup(cat_data[INV_PREFERRED_TYPE].asString()));
-	}
-	if (cat_data.has(INV_NAME))
-	{
-		mName = cat_data[INV_NAME].asString();
-		LLStringUtil::replaceNonstandardASCII(mName, ' ');
-		LLStringUtil::replaceChar(mName, '|', ' ');
-	}
+	LLInventoryCategory::importLLSD(cat_data);
 	if (cat_data.has(INV_OWNER_ID))
 	{
 		mOwnerID = cat_data[INV_OWNER_ID].asUUID();

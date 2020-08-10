@@ -41,7 +41,7 @@
 /// Exported functions
 ///----------------------------------------------------------------------------
 static const std::string INV_ITEM_ID_LABEL("item_id");
-static const std::string INV_FOLDER_ID_LABEL("folder_id");
+static const std::string INV_FOLDER_ID_LABEL("cat_id");
 static const std::string INV_PARENT_ID_LABEL("parent_id");
 static const std::string INV_ASSET_TYPE_LABEL("type");
 static const std::string INV_PREFERRED_TYPE_LABEL("preferred_type");
@@ -1317,6 +1317,45 @@ BOOL LLInventoryCategory::exportLegacyStream(std::ostream& output_stream, BOOL) 
 	return TRUE;
 }
 
+LLSD LLInventoryCategory::exportLLSD() const
+{
+	LLSD cat_data;
+	cat_data[INV_FOLDER_ID_LABEL] = mUUID;
+	cat_data[INV_PARENT_ID_LABEL] = mParentUUID;
+	cat_data[INV_ASSET_TYPE_LABEL] = LLAssetType::lookup(mType);
+	cat_data[INV_PREFERRED_TYPE_LABEL] = LLFolderType::lookup(mPreferredType);
+	cat_data[INV_NAME_LABEL] = mName;
+
+	return cat_data;
+}
+
+bool LLInventoryCategory::importLLSD(const LLSD& cat_data)
+{
+	if (cat_data.has(INV_FOLDER_ID_LABEL))
+	{
+		setUUID(cat_data[INV_FOLDER_ID_LABEL].asUUID());
+	}
+	if (cat_data.has(INV_PARENT_ID_LABEL))
+	{
+		setParent(cat_data[INV_PARENT_ID_LABEL].asUUID());
+	}
+	if (cat_data.has(INV_ASSET_TYPE_LABEL))
+	{
+		setType(LLAssetType::lookup(cat_data[INV_ASSET_TYPE_LABEL].asString()));
+	}
+	if (cat_data.has(INV_PREFERRED_TYPE_LABEL))
+	{
+		setPreferredType(LLFolderType::lookup(cat_data[INV_PREFERRED_TYPE_LABEL].asString()));
+	}
+	if (cat_data.has(INV_NAME_LABEL))
+	{
+		mName = cat_data[INV_NAME_LABEL].asString();
+		LLStringUtil::replaceNonstandardASCII(mName, ' ');
+		LLStringUtil::replaceChar(mName, '|', ' ');
+	}
+
+	return true;
+}
 ///----------------------------------------------------------------------------
 /// Local function definitions
 ///----------------------------------------------------------------------------

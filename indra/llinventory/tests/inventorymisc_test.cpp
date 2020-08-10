@@ -478,7 +478,7 @@ namespace tut
 		}
 
 		LLPointer<LLInventoryCategory> src1 = create_random_inventory_cat();
-		fileXML << LLSDOStreamer<LLSDNotationFormatter>(ll_create_sd_from_inventory_category(src1)) << std::endl;
+		fileXML << LLSDOStreamer<LLSDNotationFormatter>(src1->exportLLSD()) << std::endl;
 		fileXML.close();
 
 		llifstream file(filename.c_str());
@@ -500,7 +500,8 @@ namespace tut
 
 		file.close();
 
-		LLPointer<LLInventoryCategory> src2 = ll_create_category_from_sd(s_item);
+		LLPointer<LLInventoryCategory> src2 = new LLInventoryCategory();
+		src2->importLLSD(s_item);
 
 		ensure_equals("1.item id::getUUID() failed", src1->getUUID(), src2->getUUID());
 		ensure_equals("2.parent::getParentUUID() failed", src1->getParentUUID(), src2->getParentUUID());
