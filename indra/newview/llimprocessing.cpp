@@ -1404,10 +1404,8 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             payload["sender"] = sender.getIPandPort();
 
             bool add_notification = true;
-            for (LLToastNotifyPanel::instance_iter ti(LLToastNotifyPanel::beginInstances())
-                , tend(LLToastNotifyPanel::endInstances()); ti != tend; ++ti)
+            for (auto& panel : LLToastNotifyPanel::instance_snapshot())
             {
-                LLToastNotifyPanel& panel = *ti;
                 const std::string& notification_name = panel.getNotificationName();
                 if (notification_name == "OfferFriendship" && panel.isControlPanelEnabled())
                 {
@@ -1618,6 +1616,7 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
         {
             from_group = message_data["from_group"].asString() == "Y";
         }
+
 
         LLIMProcessing::processNewMessage(
             message_data["from_agent_id"].asUUID(),

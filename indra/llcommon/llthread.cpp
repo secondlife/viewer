@@ -92,26 +92,39 @@ void set_thread_name( DWORD dwThreadID, const char* threadName)
 // }
 // 
 //----------------------------------------------------------------------------
+namespace
+{
 
-U32 LL_THREAD_LOCAL sThreadID = 0;
+    LLThread::id_t main_thread()
+    {
+        // Using a function-static variable to identify the main thread
+        // requires that control reach here from the main thread before it
+        // reaches here from any other thread. We simply trust that whichever
+        // thread gets here first is the main thread.
+        static LLThread::id_t s_thread_id = LLThread::currentID();
+        return s_thread_id;
+    }
 
-U32 LLThread::sIDIter = 0;
+} // anonymous namespace
 
+LL_COMMON_API bool on_main_thread()
+{
+    return (LLThread::currentID() == main_thread());
+}
 
 LL_COMMON_API void assert_main_thread()
 {
-    static U32 s_thread_id = LLThread::currentID();
-    if (LLThread::currentID() != s_thread_id)
+    auto curr = LLThread::currentID();
+    auto main = main_thread();
+    if (curr != main)
     {
-        LL_WARNS() << "Illegal execution from thread id " << (S32) LLThread::currentID()
-            << " outside main thread " << (S32) s_thread_id << LL_ENDL;
+        LL_WARNS() << "Illegal execution from thread id " << curr
+            << " outside main thread " << main << LL_ENDL;
     }
 }
 
-void LLThread::registerThreadID()
-{
-    sThreadID = ++sIDIter;
-}
+// this function has become moot
+void LLThread::registerThreadID() {}
 
 //
 // Handed to the APR thread creation function
@@ -122,10 +135,11 @@ void LLThread::threadRun()
     set_thread_name(-1, mName.c_str());
 #endif
 
+    // this is the first point at which we're actually running in the new thread
+    mID = currentID();
+
     // for now, hard code all LLThreads to report to single master thread recorder, which is known to be running on main thread
     mRecorder = new LLTrace::ThreadRecorder(*LLTrace::get_master_thread_recorder());
-
-    sThreadID = mID;
 
     // Run the user supplied function
     do 
@@ -168,8 +182,6 @@ LLThread::LLThread(const std::string& name, apr_pool_t *poolp) :
     mStatus(STOPPED),
     mRecorder(NULL)
 {
-
-    mID = ++sIDIter;
     mRunCondition = new LLCondition();
     mDataLock = new LLMutex();
     mLocalAPRFilePoolp = NULL ;
@@ -347,9 +359,9 @@ void LLThread::setQuitting()
 }
 
 // static
-U32 LLThread::currentID()
+LLThread::id_t LLThread::currentID()
 {
-    return sThreadID;
+    return std::this_thread::get_id();
 }
 
 // static
@@ -374,6 +386,16 @@ void LLThread::wakeLocked()
     {
         mRunCondition->signal();
     }
+}
+
+void LLThread::lockData()
+{
+    mDataLock->lock();
+}
+
+void LLThread::unlockData()
+{
+    mDataLock->unlock();
 }
 
 //============================================================================

@@ -43,6 +43,7 @@
 
 // other Linden headers
 #include "llerror.h"
+#include "lleventcoro.h"
 #include "stringize.h"
 #include "llxmlrpctransaction.h"
 #include "llsecapi.h"
@@ -100,7 +101,7 @@ public:
     {
         // from curl.h
 // skip the "CURLE_" prefix for each of these strings
-#define def(sym) (mMap[sym] = #sym + 6)
+#define def(sym) (mMap[sym] = &#sym[6])
         def(CURLE_OK);
         def(CURLE_UNSUPPORTED_PROTOCOL);    /* 1 */
         def(CURLE_FAILED_INIT);             /* 2 */
@@ -366,6 +367,8 @@ public:
 
         // whether successful or not, send reply on requested LLEventPump
         replyPump.post(data);
+        // need to wake up the loginCoro now
+        llcoro::suspend();
 
         // Because mTransaction is a boost::scoped_ptr, deleting this object
         // frees our LLXMLRPCTransaction object.

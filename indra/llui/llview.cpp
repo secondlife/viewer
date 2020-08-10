@@ -86,6 +86,11 @@ template class LLView* LLView::getChild<class LLView>(
 
 static LLDefaultChildRegistry::Register<LLView> r("view");
 
+void deleteView(LLView *aView)
+{
+	delete aView;
+}
+
 namespace LLInitParam
 {
 	void TypeValues<LLView::EOrientation>::declareValues()

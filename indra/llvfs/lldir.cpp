@@ -1090,7 +1090,7 @@ LLDir::SepOff LLDir::needSep(const std::string& path, const std::string& name) c
 	{
 		// But if BOTH path and name bring a separator, we need not add one.
 		// Moreover, we should actually skip the leading separator of 'name'.
-		return SepOff(false, seplen);
+		return SepOff(false, (unsigned short)seplen);
 	}
 	// Here we know that either path_ends_sep or name_starts_sep is true --
 	// but not both. So don't add a separator, and don't skip any characters:
