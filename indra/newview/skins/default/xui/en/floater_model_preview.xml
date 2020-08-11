@@ -1331,7 +1331,7 @@
         <view_border
          bevel_style="none"
          follows="top|left"
-         height="306"
+         height="289"
          layout="topleft"
          left="3"
          name="log_tab_border"
@@ -1345,7 +1345,7 @@
          font="SansSerif"
          ignore_tab="false"
          layout="topleft"
-         height="306"
+         height="289"
          left="4"
          top="0"
          right="-1"
@@ -1356,6 +1356,14 @@
          read_only="true"
          word_wrap="true">
         </text_editor>
+        <check_box
+         control_name="ImporterDebug"
+         follows="top|left"
+         top_pad="9"
+         left="6"
+         width="70"
+         label="Enable detailed logging"
+         name="verbose_logging"/>
       </panel>
     </tab_container>
     <panel
