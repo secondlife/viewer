@@ -2535,7 +2535,8 @@ bool LLDAELoader::createVolumeFacesFromDomMesh(LLModel* pModel, domMesh* mesh)
 	{
 		pModel->ClearFacesAndMaterials();
 
-		addVolumeFacesFromDomMesh(pModel, mesh);
+		LLSD placeholder;
+		addVolumeFacesFromDomMesh(pModel, mesh, placeholder);
 
 		if (pModel->getNumVolumeFaces() > 0)
 		{
