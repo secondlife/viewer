@@ -280,11 +280,14 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
     mHTTPPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
     mCoroMapping()
 {
-    // store in our LLTempBoundListener so that when the LLCoprocedurePool is
-    // destroyed, we implicitly disconnect from this LLEventPump
-    mStatusListener = LLEventPumps::instance().obtain("LLApp").listen(
-        poolName,
-        [pendingCoprocs=mPendingCoprocs, poolName](const LLSD& status)
+    try
+    {
+        // store in our LLTempBoundListener so that when the LLCoprocedurePool is
+        // destroyed, we implicitly disconnect from this LLEventPump
+        // Monitores application status
+        mStatusListener = LLEventPumps::instance().obtain("LLApp").listen(
+            poolName + "_pool", // Make sure it won't repeat names from lleventcoro
+            [pendingCoprocs = mPendingCoprocs, poolName](const LLSD& status)
         {
             auto& statsd = status["status"];
             if (statsd.asString() != "running")
@@ -298,6 +301,19 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
             }
             return false;
         });
+    }
+    catch (const LLEventPump::DupListenerName &)
+    {
+        // This shounldn't be possible since LLCoprocedurePool is supposed to have unique names,
+        // yet it somehow did happen, as result pools got '_pool' suffix and this catch.
+        //
+        // If this somehow happens again it is better to crash later on shutdown due to pump
+        // not stopping coroutine and see warning in logs than on startup or during login.
+        LL_WARNS("CoProcMgr") << "Attempted to register dupplicate listener name: " << poolName
+                              << "_pool. Failed to start listener." << LL_ENDL;
+
+        llassert(0); // Fix Me! Ignoring missing listener!
+    }
 
     for (size_t count = 0; count < mPoolSize; ++count)
     {
