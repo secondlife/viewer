@@ -91,7 +91,11 @@ void LLWatchdogEntry::start()
 
 void LLWatchdogEntry::stop()
 {
-	LLWatchdog::getInstance()->remove(this);
+    // this can happen very late in the shutdown sequence
+    if (! LLWatchdog::wasDeleted())
+    {
+        LLWatchdog::getInstance()->remove(this);
+    }
 }
 
 // LLWatchdogTimeout

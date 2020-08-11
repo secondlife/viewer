@@ -30,7 +30,6 @@
 
 #include <iostream>
 
-#include "test_allocator.h"
 #include "llsd.h"
 #include "llsdserialize.h"
 
@@ -45,7 +44,6 @@ struct BufferStreamTestData
 {
 	// the test objects inherit from this so the member functions and variables
 	// can be referenced directly inside of the test functions.
-	size_t mMemTotal;
 };
 
 typedef test_group<BufferStreamTestData> BufferStreamTestGroupType;
@@ -59,12 +57,8 @@ void BufferStreamTestObjectType::test<1>()
 {
 	set_test_name("BufferArrayStreamBuf construction with NULL BufferArray");
 
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
-
 	// create a new ref counted object with an implicit reference
 	BufferArrayStreamBuf * bsb = new BufferArrayStreamBuf(NULL);
-	ensure("Memory being used", mMemTotal < GetMemTotal());
 
 	// Not much will work with a NULL
 	ensure("underflow() on NULL fails", tst_traits_t::eof() == bsb->underflow());
@@ -78,9 +72,6 @@ void BufferStreamTestObjectType::test<1>()
 	// release the implicit reference, causing the object to be released
 	delete bsb;
 	bsb = NULL;
-
-	// make sure we didn't leak any memory
-	ensure("Allocated memory returned", mMemTotal == GetMemTotal());
 }
 
 
@@ -89,12 +80,8 @@ void BufferStreamTestObjectType::test<2>()
 {
 	set_test_name("BufferArrayStream construction with NULL BufferArray");
 
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
-
 	// create a new ref counted object with an implicit reference
 	BufferArrayStream * bas = new BufferArrayStream(NULL);
-	ensure("Memory being used", mMemTotal < GetMemTotal());
 
 	// Not much will work with a NULL here
 	ensure("eof() is false on NULL", ! bas->eof());
@@ -104,9 +91,6 @@ void BufferStreamTestObjectType::test<2>()
 	// release the implicit reference, causing the object to be released
 	delete bas;
 	bas = NULL;
-
-	// make sure we didn't leak any memory
-	ensure("Allocated memory returned", mMemTotal == GetMemTotal());
 }
 
 
@@ -115,13 +99,9 @@ void BufferStreamTestObjectType::test<3>()
 {
 	set_test_name("BufferArrayStreamBuf construction with empty BufferArray");
 
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
-
 	// create a new ref counted BufferArray with implicit reference
 	BufferArray * ba = new BufferArray;
 	BufferArrayStreamBuf * bsb = new BufferArrayStreamBuf(ba);
-	ensure("Memory being used", mMemTotal < GetMemTotal());
 
 	// I can release my ref on the BA
 	ba->release();
@@ -130,9 +110,6 @@ void BufferStreamTestObjectType::test<3>()
 	// release the implicit reference, causing the object to be released
 	delete bsb;
 	bsb = NULL;
-
-	// make sure we didn't leak any memory
-	ensure("Allocated memory returned", mMemTotal == GetMemTotal());
 }
 
 
@@ -141,24 +118,17 @@ void BufferStreamTestObjectType::test<4>()
 {
 	set_test_name("BufferArrayStream construction with empty BufferArray");
 
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
-
 	// create a new ref counted BufferArray with implicit reference
 	BufferArray * ba = new BufferArray;
 
 	{
 		// create a new ref counted object with an implicit reference
 		BufferArrayStream bas(ba);
-		ensure("Memory being used", mMemTotal < GetMemTotal());
 	}
 
 	// release the implicit reference, causing the object to be released
 	ba->release();
 	ba = NULL;
-	
-	// make sure we didn't leak any memory
-	ensure("Allocated memory returned", mMemTotal == GetMemTotal());
 }
 
 
@@ -166,9 +136,6 @@ template <> template <>
 void BufferStreamTestObjectType::test<5>()
 {
 	set_test_name("BufferArrayStreamBuf construction with real BufferArray");
-
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
 
 	// create a new ref counted BufferArray with implicit reference
 	BufferArray * ba = new BufferArray;
@@ -178,7 +145,6 @@ void BufferStreamTestObjectType::test<5>()
 
 	// Creat an adapter for the BufferArray
 	BufferArrayStreamBuf * bsb = new BufferArrayStreamBuf(ba);
-	ensure("Memory being used", mMemTotal < GetMemTotal());
 
 	// I can release my ref on the BA
 	ba->release();
@@ -206,9 +172,6 @@ void BufferStreamTestObjectType::test<5>()
 	// release the implicit reference, causing the object to be released
 	delete bsb;
 	bsb = NULL;
-
-	// make sure we didn't leak any memory
-	ensure("Allocated memory returned", mMemTotal == GetMemTotal());
 }
 
 
@@ -216,9 +179,6 @@ template <> template <>
 void BufferStreamTestObjectType::test<6>()
 {
 	set_test_name("BufferArrayStream construction with real BufferArray");
-
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
 
 	// create a new ref counted BufferArray with implicit reference
 	BufferArray * ba = new BufferArray;
@@ -229,7 +189,6 @@ void BufferStreamTestObjectType::test<6>()
 	{
 		// Creat an adapter for the BufferArray
 		BufferArrayStream bas(ba);
-		ensure("Memory being used", mMemTotal < GetMemTotal());
 
 		// Basic operations
 		bas << "Hello" << 27 << ".";
@@ -243,10 +202,6 @@ void BufferStreamTestObjectType::test<6>()
 	// release the implicit reference, causing the object to be released
 	ba->release();
 	ba = NULL;
-
-	// make sure we didn't leak any memory
-	// ensure("Allocated memory returned", mMemTotal == GetMemTotal());
-	// static U64 mem = GetMemTotal();
 }
 
 
@@ -255,16 +210,12 @@ void BufferStreamTestObjectType::test<7>()
 {
 	set_test_name("BufferArrayStream with LLSD serialization");
 
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
-
 	// create a new ref counted BufferArray with implicit reference
 	BufferArray * ba = new BufferArray;
 
 	{
 		// Creat an adapter for the BufferArray
 		BufferArrayStream bas(ba);
-		ensure("Memory being used", mMemTotal < GetMemTotal());
 
 		// LLSD
 		LLSD llsd = LLSD::emptyMap();
@@ -292,9 +243,6 @@ void BufferStreamTestObjectType::test<7>()
 	// release the implicit reference, causing the object to be released
 	ba->release();
 	ba = NULL;
-
-	// make sure we didn't leak any memory
-	// ensure("Allocated memory returned", mMemTotal == GetMemTotal());
 }
 
 
