@@ -34,6 +34,7 @@
 #include "llfasttimer.h"
 #include "llmemory.h"
 #include "llvfs.h"
+#include "lldiskcache.h"
 
 const S32 LLVFile::READ			= 0x00000001;
 const S32 LLVFile::WRITE		= 0x00000002;
@@ -87,6 +88,8 @@ LLVFile::~LLVFile()
 
 BOOL LLVFile::read(U8 *buffer, S32 bytes, BOOL async, F32 priority)
 {
+    std::cout << "===> LLVFile::read() - bytes = " << (int)bytes << std::endl;
+
 	if (! (mMode & READ))
 	{
 		LL_WARNS() << "Attempt to read from file " << mFileID << " opened with mode " << std::hex << mMode << std::dec << LL_ENDL;
@@ -108,10 +111,13 @@ BOOL LLVFile::read(U8 *buffer, S32 bytes, BOOL async, F32 priority)
 	// *FIX: (?)
 	if (async)
 	{
+        std::cout << "    ===> LLVFile::read() ASYNC" << std::endl;
+
 		mHandle = sVFSThread->read(mVFS, mFileID, mFileType, buffer, mPosition, bytes, threadPri());
 	}
 	else
 	{
+        std::cout << "    ===> LLVFile::read() SYNCHRONOUS - type = " << mFileType << std::endl;
 		// We can't do a read while there are pending async writes on this file
 		mBytesRead = sVFSThread->readImmediate(mVFS, mFileID, mFileType, buffer, mPosition, bytes);
 		mPosition += mBytesRead;
@@ -126,6 +132,8 @@ BOOL LLVFile::read(U8 *buffer, S32 bytes, BOOL async, F32 priority)
 
 BOOL LLVFile::isReadComplete()
 {
+    std::cout << "    ===> LLVFile::isReadComplete()" << std::endl;
+
 	BOOL res = TRUE;
 	if (mHandle != LLVFSThread::nullHandle())
 	{
@@ -158,6 +166,8 @@ BOOL LLVFile::eof()
 
 BOOL LLVFile::write(const U8 *buffer, S32 bytes)
 {
+    std::cout << "===> LLVFile::write() - bytes = " << bytes << std::endl;
+
 	if (! (mMode & WRITE))
 	{
 		LL_WARNS() << "Attempt to write to file " << mFileID << " opened with mode " << std::hex << mMode << std::dec << LL_ENDL;
@@ -172,7 +182,9 @@ BOOL LLVFile::write(const U8 *buffer, S32 bytes)
 	// *FIX: allow async writes? potential problem wit mPosition...
 	if (mMode == APPEND) // all appends are async (but WRITEs are not)
 	{	
-		U8* writebuf = new U8[bytes];
+        std::cout << "    ===> Mode is APPEND" << std::endl;
+
+        U8* writebuf = new U8[bytes];
 		memcpy(writebuf, buffer, bytes);
 		S32 offset = -1;
 		mHandle = sVFSThread->write(mVFS, mFileID, mFileType,
@@ -182,12 +194,15 @@ BOOL LLVFile::write(const U8 *buffer, S32 bytes)
 	}
 	else
 	{
+        std::cout << "    ===> Mode is NOT APPEND" << std::endl;
+
 		// We can't do a write while there are pending reads or writes on this file
 		waitForLock(VFSLOCK_READ);
 		waitForLock(VFSLOCK_APPEND);
 
 		S32 pos = (mMode & APPEND) == APPEND ? -1 : mPosition;
 
+        std::cout << "    ===> writeImmediate to fileID: " << mFileID << " and type " << (LLAssetType::EType)mFileType << std::endl;
 		S32 wrote = sVFSThread->writeImmediate(mVFS, mFileID, mFileType, (U8*)buffer, pos, bytes);
 
 		mPosition += wrote;
@@ -198,6 +213,27 @@ BOOL LLVFile::write(const U8 *buffer, S32 bytes)
 
 			success = FALSE;
 		}
+
+        llDiskCache::request_callback_t cb([](llDiskCache::request_payload_t, bool result)
+        {
+            if (result)
+            {
+                LL_INFOS() << "LLDiskCache -> File written successfully" << LL_ENDL;
+            }
+            else
+            {
+                LL_INFOS() << "LLDiskCache -> Unable to write file" << LL_ENDL;
+            }
+        });
+
+        const U32 filesize = bytes;
+        llDiskCache::request_payload_t file_contents = std::make_shared<std::vector<U8>>(filesize);
+        memcpy(file_contents->data(), (U8*)buffer, file_contents->size());
+        const std::string id = mFileID.asString();
+
+        LL_INFOS() << "@@@@ LLDiskCache -> Adding " << id << " to write list with size: " << bytes << LL_ENDL;
+
+        llDiskCache::instance().addWriteRequest(id, mFileType, file_contents, cb);
 	}
 	return success;
 }
@@ -205,6 +241,9 @@ BOOL LLVFile::write(const U8 *buffer, S32 bytes)
 //static
 BOOL LLVFile::writeFile(const U8 *buffer, S32 bytes, LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type)
 {
+    std::cout << "-----> LLVFile::writeFile() type=" << type << std::endl;
+
+
 	LLVFile file(vfs, uuid, type, LLVFile::WRITE);
 	file.setMaxSize(bytes);
 	return file.write(buffer, bytes);

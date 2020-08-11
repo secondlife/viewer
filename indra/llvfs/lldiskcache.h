@@ -30,6 +30,7 @@
 #define _LLDISKCACHE
 
 #include "llthreadsafequeue.h"
+#include "llassettype.h"
 #include "lleventtimer.h"
 #include "llsingleton.h"
 
@@ -47,10 +48,11 @@ class llDiskCache :
         typedef std::shared_ptr<std::vector<U8>> request_payload_t;
         typedef std::function<void(request_payload_t, bool)> request_callback_t;
 
-        void addReadRequest(std::string filename,
+        void addReadRequest(std::string id,
                             request_callback_t cb);
 
-        void addWriteRequest(std::string filename,
+        void addWriteRequest(std::string id,
+                             LLAssetType::EType at,
                              request_payload_t buffer,
                              request_callback_t cb);
 
@@ -82,6 +84,8 @@ class llDiskCache :
 
     private:
         void requestThread();
+        const std::string assetTypeToString(LLAssetType::EType at);
+        const std::string idToFilepath(const std::string id, LLAssetType::EType at);
 };
 
 #endif // _LLDISKCACHE

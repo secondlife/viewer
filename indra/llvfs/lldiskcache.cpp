@@ -52,6 +52,7 @@
  */
 
 #include "linden_common.h"
+#include "lldir.h"
 
 #include "lldiskcache.h"
 
@@ -188,7 +189,7 @@ BOOL llDiskCache::tick()
 // TODO: This is test code that (kind of) adds a read request. Next is we must
 // decide whether to have a single add_request function and pass in the type
 // such as READ, WRITE, APPEND etc. or have separate functions for each..
-void llDiskCache::addReadRequest(std::string filename,
+void llDiskCache::addReadRequest(std::string id,
                                  request_callback_t cb)
 {
     // This is an ID we pass in to our worker function so we can match up
@@ -204,12 +205,14 @@ void llDiskCache::addReadRequest(std::string filename,
     // and @Nat has a sugestion around using std::packaged_task(..). We do not
     // need it for this use case - we assert this code will not throw but
     // other, more complex code in the future might
-    mITaskQueue.pushFront([request_id, filename]()
+    mITaskQueue.pushFront([this, request_id, id]()
     {
+        const std::string filename = idToFilepath(id, LLAssetType::AT_UNKNOWN);
+
         // TODO: This is a place holder for doing some work on the worker
         // thread - eventually, for this use case, it will be used to
         // read and write cache files and update their meta data
-        std::cout << "READ running on worker thread and reading from " << filename << std::endl;
+        std::cout << "READ running on worker thread and reading from " << filename<< std::endl;
         bool success = true;
 
         // This is an interesting idiom. We will be passing back the contents of files
@@ -250,7 +253,8 @@ void llDiskCache::addReadRequest(std::string filename,
 
 ///////////////////////////////////////////////////////////////////////////////
 // TODO: This is test code that (kind of) adds a write request.
-void llDiskCache::addWriteRequest(std::string filename,
+void llDiskCache::addWriteRequest(std::string id,
+                                  LLAssetType::EType at,
                                   request_payload_t buffer,
                                   request_callback_t cb)
 {
@@ -267,16 +271,17 @@ void llDiskCache::addWriteRequest(std::string filename,
     // and @Nat has a sugestion around using std::packaged_task(..). We do not
     // need it for this use case - we assert this code will not throw but
     // other, more complex code in the future might
-    mITaskQueue.pushFront([request_id, filename, buffer]()
+    mITaskQueue.pushFront([this, request_id, id, at, buffer]()
     {
+        const std::string filename = idToFilepath(id, at);
+
         std::cout << "WRITE running on worker thread and writing buffer to " << filename << std::endl;
 
         bool success;
-        std::ofstream ofs(filename);
+        std::ofstream ofs(filename, std::ios::binary);
         if (ofs)
         {
-            ofs << buffer->data();
-            ofs.close();
+            ofs.write(reinterpret_cast<char*>(buffer->data()), buffer->size());
             success = true;
         }
         else
@@ -293,4 +298,79 @@ void llDiskCache::addWriteRequest(std::string filename,
         // separate bool. This is okay for now though.
         return mResult{ request_id, file_contents, success };
     });
+}
+
+const std::string llDiskCache::assetTypeToString(LLAssetType::EType at)
+{
+    switch (at)
+    {
+        case LLAssetType::AT_TEXTURE:
+            return "TEXTURE";
+        case LLAssetType::AT_SOUND:
+            return "SOUND";
+        case LLAssetType::AT_CALLINGCARD:
+            return "CALLINGCARD";
+        case LLAssetType::AT_LANDMARK:
+            return "LANDMARK";
+        case LLAssetType::AT_SCRIPT:
+            return "SCRIPT";
+        case LLAssetType::AT_CLOTHING:
+            return "CLOTHING";
+        case LLAssetType::AT_OBJECT:
+            return "OBJECT";
+        case LLAssetType::AT_NOTECARD:
+            return "NOTECARD";
+        case LLAssetType::AT_CATEGORY:
+            return "CATEGORY";
+        case LLAssetType::AT_LSL_TEXT:
+            return "LSL_TEXT";
+        case LLAssetType::AT_LSL_BYTECODE:
+            return "LSL_BYTECODE";
+        case LLAssetType::AT_TEXTURE_TGA:
+            return "TEXTURE_TGA";
+        case LLAssetType::AT_BODYPART:
+            return "BODYPART";
+        case LLAssetType::AT_SOUND_WAV:
+            return "SOUND_WAV";
+        case LLAssetType::AT_IMAGE_TGA:
+            return "IMAGE_TGA";
+        case LLAssetType::AT_IMAGE_JPEG:
+            return "IMAGE_JPEG";
+        case LLAssetType::AT_ANIMATION:
+            return "ANIMATION";
+        case LLAssetType::AT_GESTURE:
+            return "GESTURE";
+        case LLAssetType::AT_SIMSTATE:
+            return "SIMSTATE";
+        case LLAssetType::AT_LINK:
+            return "LINK";
+        case LLAssetType::AT_LINK_FOLDER:
+            return "LINK_FOLDER";
+        case LLAssetType::AT_MARKETPLACE_FOLDER:
+            return "MARKETPLACE_FOLDER";
+        case LLAssetType::AT_WIDGET:
+            return "WIDGET";
+        case LLAssetType::AT_PERSON:
+            return "PERSON";
+        case LLAssetType::AT_MESH:
+            return "MESH";
+        default:
+            return "UNKNOWN";
+    }
+}
+
+const std::string llDiskCache::idToFilepath(const std::string id, LLAssetType::EType at)
+{
+    std::ostringstream ss;
+
+    const std::string root_folder = "C:\\users\\callum\\desktop\\cache";
+    ss << root_folder;
+    //ss << gDirUtilp->getExecutableDir();
+    ss << gDirUtilp->getDirDelimiter();
+    ss << id;
+    ss << "_";
+    ss << assetTypeToString(at);
+    ss << ".txt";
+
+    return ss.str();
 }

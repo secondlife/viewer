@@ -3732,7 +3732,7 @@ void simulate_cache_write_access(void*)
     llDiskCache::request_payload_t file_contents = std::make_shared<std::vector<U8>>(filesize);
     memset(file_contents->data(), 'Z', file_contents->size());
 
-    llDiskCache::instance().addWriteRequest(filename, file_contents, cb);
+    llDiskCache::instance().addWriteRequest(filename, LLAssetType::AT_UNKNOWN, file_contents, cb);
 }
 
 void handle_dump_focus()
