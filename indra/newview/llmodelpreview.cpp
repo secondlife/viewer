@@ -180,6 +180,7 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
     , mResetJoints(false)
     , mModelNoErrors(true)
     , mLastJointUpdate(false)
+    , mFirstSkinUpdate(true)
     , mHasDegenerate(false)
     , mImporterDebug(LLCachedControl<bool>(gSavedSettings, "ImporterDebug", false))
 {
@@ -2799,11 +2800,22 @@ BOOL LLModelPreview::render()
         {
             if (flags == LEGACY_RIG_OK)
             {
+                if (mFirstSkinUpdate)
+                {
+                    // auto enable weight upload if weights are present
+                    // (note: all these UI updates need to be somewhere that is not render)
+                    mViewOption["show_skin_weight"] = true;
+                    skin_weight = true;
+                    fmp->childSetValue("upload_skin", true);
+                    mFirstSkinUpdate = false;
+                }
+
                 fmp->enableViewOption("show_skin_weight");
                 fmp->setViewOptionEnabled("show_joint_overrides", skin_weight);
                 fmp->setViewOptionEnabled("show_joint_positions", skin_weight);
                 mFMP->childEnable("upload_skin");
                 mFMP->childSetValue("show_skin_weight", skin_weight);
+
             }
             else if ((flags & LEGACY_RIG_FLAG_TOO_MANY_JOINTS) > 0)
             {
