@@ -39,6 +39,7 @@ class LLProgressBar;
 class LLSliderCtrl;
 class LLViewerMediaImpl;
 class LLWindowShade;
+class LLLineEditor;
 
 class LLPanelPrimMediaControls : public LLPanel
 {
@@ -162,7 +163,7 @@ private:
 	LLPanel  *mMediaProgressPanel;
 	LLProgressBar *mMediaProgressBar;
 	LLUICtrl *mMediaAddressCtrl;
-	LLUICtrl *mMediaAddress;
+	LLLineEditor *mMediaAddress;
 	LLUICtrl *mMediaPlaySliderPanel;
 	LLUICtrl *mMediaPlaySliderCtrl;
 	LLUICtrl *mVolumeCtrl;

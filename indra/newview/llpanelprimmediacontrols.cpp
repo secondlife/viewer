@@ -73,6 +73,8 @@ bool get_hud_matrices(glh::matrix4f &proj, glh::matrix4f &model);
 const LLPanelPrimMediaControls::EZoomLevel LLPanelPrimMediaControls::kZoomLevels[] = { ZOOM_NONE, ZOOM_MEDIUM };
 const int LLPanelPrimMediaControls::kNumZoomLevels = 2;
 
+const S32 ADDR_LEFT_PAD = 3;
+
 //
 // LLPanelPrimMediaControls
 //
@@ -154,7 +156,7 @@ BOOL LLPanelPrimMediaControls::postBuild()
 	mMediaProgressPanel		= getChild<LLPanel>("media_progress_indicator");
 	mMediaProgressBar		= getChild<LLProgressBar>("media_progress_bar");
 	mMediaAddressCtrl		= getChild<LLUICtrl>("media_address");
-	mMediaAddress			= getChild<LLUICtrl>("media_address_url");
+	mMediaAddress			= getChild<LLLineEditor>("media_address_url");
 	mMediaPlaySliderPanel	= getChild<LLUICtrl>("media_play_position");
 	mMediaPlaySliderCtrl	= getChild<LLUICtrl>("media_play_slider");
 	mSkipFwdCtrl			= getChild<LLUICtrl>("skip_forward");
@@ -498,8 +500,10 @@ void LLPanelPrimMediaControls::updateShape()
 			std::string test_prefix = mCurrentURL.substr(0, prefix.length());
 			LLStringUtil::toLower(test_prefix);
             mSecureURL = has_focus && (test_prefix == prefix);
-            mCurrentURL = (mSecureURL ? "      " + mCurrentURL : mCurrentURL);
-			
+
+			S32 left_pad = mSecureURL ? mSecureLockIcon->getRect().getWidth() : ADDR_LEFT_PAD;
+			mMediaAddress->setTextPadding(left_pad, 0);
+
 			if(mCurrentURL!=mPreviousURL)
 			{
 				setCurrentURL();
