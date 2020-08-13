@@ -50,38 +50,55 @@ translate_attribs = [
     "longdescription"
 ]
 
-def codify(val):
+def codify_for_print(val):
     if isinstance(val, unicode):
         return val.encode("utf-8")
     else:
         return unicode(val, 'utf-8').encode("utf-8")
 
+# Returns a dict of { name => xml_node }
+def read_xml_elements(blob):
+    try:
+        contents = blob.data_stream.read()
+    except:
+        contents = '<?xml version="1.0" encoding="utf-8" standalone="yes" ?><strings></strings>'
+    xml = ET.fromstring(contents)
+    elts = {}
+    for child in xml.iter():
+        if "name" in child.attrib:
+            name = child.attrib['name']
+            elts[name] = child
+    return elts
+
 def failure(*msg):
     print(*msg)
     sys.exit(1)
-    
+
+def can_translate(val):
+    if val is None:
+        return False
+    if val.isspace():
+        return False
+    val = val.strip()
+    if val.isdigit():
+        return False
+    return True
+        
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="analyze viewer xui files")
-    parser.add_argument("--verbose", action="store_true", help="verbose flag")
+    parser.add_argument("-v","--verbose", action="store_true", help="verbose flag")
     parser.add_argument("--rev", help="revision with modified strings, default HEAD", default="HEAD")
     parser.add_argument("--rev_base", help="previous revision to compare against, default master", default="master")
     parser.add_argument("--base_lang", help="base language, default en (useful only for testing)", default="en")
     parser.add_argument("--lang", help="target language, default fr", default="fr")
-    #parser.add_argument("infilename", help="name of input file", nargs="?")
     args = parser.parse_args()
-
-    #root = ET.parse(args.infilename)
-
-    #for child in root.iter("string"):
-    #    print child.attrib["name"], "\t", unicode(child.text, 'utf-8').encode("utf-8")
-    #    #print unicode(child.text, 'utf-8')
-    #    #print u'\u0420\u043e\u0441\u0441\u0438\u044f'.encode("utf-8")
 
     if args.rev == args.rev_base:
         failure("Revs are the same, nothing to compare")
 
     print("Finding changes in", args.rev, "not present in", args.rev_base)
+    sys.stdout.flush()
 
     cwd = os.getcwd()
     rootdir = Git(cwd).rev_parse("--show-toplevel")
@@ -98,61 +115,69 @@ if __name__ == "__main__":
     mod_tree = mod_commit.tree
     base_tree = base_commit.tree
 
-    all_attrib = set()
-
+    xui_path = "indra/newview/skins/default/xui/{}".format(args.base_lang)
     try:
-        mod_xui_tree = mod_tree["indra/newview/skins/default/xui/{}".format(args.base_lang)]
+        mod_xui_tree = mod_tree[xui_path]
     except:
-        print("xui tree not found for language", args.base_lang)
-        sys.exit(1)
+        failure("xui tree not found for language", args.base_lang)
 
     data = []
     # For all files to be checked for translations
     for mod_blob in mod_xui_tree.traverse():
-        print(mod_blob.path)
         filename = mod_blob.path
         if mod_blob.type == "tree": # directory, skip
             continue
 
-        mod_contents = mod_blob.data_stream.read()
+        if args.verbose:
+            print(filename)
         try:
             base_blob = base_tree[filename]
-            base_contents = base_blob.data_stream.read()
         except:
-            print("No matching base file found for", filename)
-            base_contents = '<?xml version="1.0" encoding="utf-8" standalone="yes" ?><strings></strings>'
+            if args.verbose:
+                print("No matching base file found for", filename)
+            base_blob = None
 
-        mod_xml = ET.fromstring(mod_contents)
-        base_xml = ET.fromstring(base_contents)
-        
-        mod_dict = {}
-        for child in mod_xml.iter():
-            if "name" in child.attrib:
-                name = child.attrib['name']
-                mod_dict[name] = child
-        base_dict = {}
-        for child in base_xml.iter():
-            if "name" in child.attrib:
-                name = child.attrib['name']
-                base_dict[name] = child
+        try:
+            transl_filename = filename.replace(args.base_lang, args.lang)
+            transl_blob = mod_tree[transl_filename]
+        except:
+            if args.verbose:
+                print("No matching translation file found at", transl_filename)
+            transl_blob = None
+
+        mod_dict = read_xml_elements(mod_blob)
+        base_dict = read_xml_elements(base_blob)
+        transl_dict = read_xml_elements(transl_blob)
+
+        rows = 0
         for name in mod_dict.keys():
             if not name in base_dict or mod_dict[name].text != base_dict[name].text:
-                data.append([filename, name, "text", mod_dict[name].text,""])
-                #print("   ", name, "text", codify(mod_dict[name].text))
-            all_attrib = all_attrib.union(set(mod_dict[name].attrib.keys()))
+                val = mod_dict[name].text
+                if can_translate(val):
+                    transl_val = "--"
+                    if name in transl_dict:
+                        transl_val = transl_dict[name].text
+                    data.append([filename, name, "text", val, transl_val, ""])
+                    rows += 1
             for attr in translate_attribs:
                 if attr in mod_dict[name].attrib:
-                    if name not in base_dict or attr not in base_dict[name] or mod_dict[name].attrib[attr] != base_dict[name].attrib[attr]:
+                    if name not in base_dict or attr not in base_dict[name].attrib or mod_dict[name].attrib[attr] != base_dict[name].attrib[attr]:
                         val = mod_dict[name].attrib[attr]
-                        data.append([filename, name, attr, mod_dict[name].attrib[attr],""])
-                        #print("   ", name, attr, codify(val))
+                        if can_translate(val):
+                            transl_val = "--"
+                            if name in transl_dict and attr in transl_dict[name].attrib:
+                                transl_val = transl_dict[name].attrib[attr]
+                            data.append([filename, name, attr, val, transl_val, ""])
+                            rows += 1
+        if args.verbose and rows>0:
+            print("    ",rows,"rows added")
 
-    cols = ["File", "Element", "Field", "EN", "Translation ({})".format(args.lang)]
+    outfile = "SL_Translations_{}.xlsx".format(args.lang.upper())
+    cols = ["File", "Element", "Field", "EN", "Previous Translation ({})".format(args.lang.upper()), "ENTER NEW TRANSLATION ({})".format(args.lang.upper())]
+    num_translations = len(data)
     df = pd.DataFrame(data, columns=cols)
-    df.to_excel("SL_Translations_{}.xlsx".format(args.lang.upper()), index=False)
-
-    #print "all_attrib", all_attrib
-                            
-            
-        
-    
+    df.to_excel(outfile, index=False)
+    if num_translations>0:
+        print("Wrote", num_translations, "rows to file", outfile)
+    else:
+        print("Nothing to translate,", outfile, "is empty")
