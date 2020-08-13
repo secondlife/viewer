@@ -248,16 +248,22 @@
          parameter="http://duckduckgo.com"/>
       </menu_item_call>
       <menu_item_call
-       label="Simulate Cache Read Access"
-       name="Simulate Cache Read Access">
+       label="Simulate Cache Synchnronous Read Access"
+       name="Simulate Cache Synchronous Read Access">
         <menu_item_call.on_click
-         function="Advanced.SimulateCacheReadAccess"/>
+         function="Advanced.SimulateCacheSynchronousReadAccess"/>
       </menu_item_call>
       <menu_item_call
-       label="Simulate Cache Write Access"
-       name="Simulate Cache Write Access">
+       label="Simulate Cache Asynchnronous Read Access"
+       name="Simulate Cache Asynchronous Read Access">
         <menu_item_call.on_click
-         function="Advanced.SimulateCacheWriteAccess"/>
+         function="Advanced.SimulateCacheAsynchronousReadAccess"/>
+      </menu_item_call>
+      <menu_item_call
+       label="Simulate Cache Asynchronous Write Access"
+       name="Simulate Cache Asynchronous Write Access">
+        <menu_item_call.on_click
+         function="Advanced.SimulateCacheAsynchronousWriteAccess"/>
       </menu_item_call>
       <menu
        create_jump_keys="true"

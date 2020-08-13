@@ -1,57 +1,59 @@
 /**
- * @file lldiskcache.cpp
- * @brief Cache items by reading/writing them to / from
- *        disk using a worker thread.
- *
- * There are 2 interesting components to this class:
- * 1/ The work (reading/writing) from disk happens in its
- *    own thread to avoid stalling the main loop. To do
- *    some work on this thread, you construct a request with
- *    the appropriate parameters and add it to the input queue
- *    which is implemented using LLThreadSafeQuue. At some point
- *    later, the result (id, payload, result code) appears on a
- *    second queue (also implemented as an LLThreadSafeQueue).
- *    The advantage of this approach is that so long as the
- *    LLThreadSafeQueue works correctly, there is no locking/mutex
- *    control needed as the queues behave like thread boundaries.
- *    Similarly, since all the file access is done sequentially
- *    in a single thread, there is no file level locking required.
- *    There may be a small performance increase to be gained
- *    by implementing N queues and the LLThreadSafe code would take
- *    care of managing the callable functions. However, since you
- *    would have to take account of the possibility of reading and/or
- *    writing the same file (it's a cache so that's a possibility)
- *    from multiple threads, the code complexity would rise
- *    dramatically. The assertion is that this code will be plenty
- *    fast enough and is very straightforward.
- * 2/ The caching mechanism... TODO: describe cache here...
- *
- *
- *
- *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
- * Second Life Viewer Source Code
- * Copyright (C) 2020, Linden Research, Inc.
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
- * $/LicenseInfo$
- */
+  * @file lldiskcache.cpp
+  * @brief Cache items by reading/writing them to / from
+  *        disk using a worker thread.
+  *
+  * There are 2 interesting components to this class:
+  * 1/ The work (reading/writing) from disk happens in its
+  *    own thread to avoid stalling the main loop. To do
+  *    some work on this thread, you construct a request with
+  *    the appropriate parameters and add it to the input queue
+  *    which is implemented using LLThreadSafeQuue. At some point
+  *    later, the result (id, payload, result code) appears on a
+  *    second queue (also implemented as an LLThreadSafeQueue).
+  *    The advantage of this approach is that so long as the
+  *    LLThreadSafeQueue works correctly, there is no locking/mutex
+  *    control needed as the queues behave like thread boundaries.
+  *    Similarly, since all the file access is done sequentially
+  *    in a single thread, there is no file level locking required.
+  *    There may be a small performance increase to be gained
+  *    by implementing N queues and the LLThreadSafe code would take
+  *    care of managing the callable functions. However, since you
+  *    would have to take account of the possibility of reading and/or
+  *    writing the same file (it's a cache so that's a possibility)
+  *    from multiple threads, the code complexity would rise
+  *    dramatically. The assertion is that this code will be plenty
+  *    fast enough and is very straightforward.
+  * 2/ The caching mechanism... TODO: describe cache here...
+  *
+  *
+  *
+  *
+  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+  * Second Life Viewer Source Code
+  * Copyright (C) 2020, Linden Research, Inc.
+  *
+  * This library is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU Lesser General Public
+  * License as published by the Free Software Foundation;
+  * version 2.1 of the License only.
+  *
+  * This library is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  * Lesser General Public License for more details.
+  *
+  * You should have received a copy of the GNU Lesser General Public
+  * License along with this library; if not, write to the Free Software
+  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+  *
+  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+  * $/LicenseInfo$
+  */
 
 #include "linden_common.h"
+#include "llcoros.h"
+#include "lleventcoro.h"
 #include "lldir.h"
 
 #include "lldiskcache.h"
@@ -59,7 +61,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
 llDiskCache::llDiskCache() :
-    LLEventTimer(0.05)
+    LLEventTimer(mTimePeriod)
 {
     // Create the worker thread and worker function
     mWorkerThread = std::thread([this]()
@@ -73,9 +75,11 @@ llDiskCache::llDiskCache() :
     mEventTimer.start();
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Overrides the LLSingleton class - used to clean up after ourselves
-// here vs making use of the regular C++ destructor mechanism
+/**
+  * Overrides the LLSingleton method that cleans up after we
+  * are all finished - this idiom is now preferred over the
+  * regular use of our own class destructor
+  */
 void llDiskCache::cleanupSingleton()
 {
     // We do cleanup here vs the destructor based on recommendations found
@@ -207,12 +211,14 @@ void llDiskCache::addReadRequest(std::string id,
     // other, more complex code in the future might
     mITaskQueue.pushFront([this, request_id, id]()
     {
-        const std::string filename = idToFilepath(id, LLAssetType::AT_UNKNOWN);
+        /*const*/ std::string filename = idToFilepath(id, LLAssetType::AT_UNKNOWN);
+        // disable for testing via LLViewerMenu
+        filename = id;
 
         // TODO: This is a place holder for doing some work on the worker
         // thread - eventually, for this use case, it will be used to
         // read and write cache files and update their meta data
-        std::cout << "READ running on worker thread and reading from " << filename<< std::endl;
+        std::cout << "READ running on worker thread and reading from " << filename << std::endl;
         bool success = true;
 
         // This is an interesting idiom. We will be passing back the contents of files
@@ -249,6 +255,74 @@ void llDiskCache::addReadRequest(std::string id,
         // separate bool. This is okay for now though.
         return mResult{ request_id, file_contents, success };
     });
+}
+
+
+// TODO: add llviewermenu test code to:
+// launch a coroutine with LLCoros::laubch() and makes code in else block run
+llDiskCache::request_payload_t llDiskCache::waitForReadComplete(std::string id)
+{
+    // TODO Comment: the main coroutine returns an empty string as the name
+    if (LLCoros::getName().empty())
+    {
+        request_payload_t payload_out;
+        bool succeeded = false;
+        bool done = false;
+        addReadRequest(id, [&done, &succeeded, &payload_out](llDiskCache::request_payload_t payload_in, bool result)
+        {
+            succeeded = result;
+            done = true;
+            payload_out = payload_in;
+        });
+
+        while (!done)
+        {
+            // TODO comment
+            llcoro::suspend();
+
+            // TODO: comment
+            tick();
+        }
+
+        if (! succeeded)
+        {
+            // TODO: define a real exception eventually in the class header
+            // look in llexception.h - llcoros.cpp, example derrived from llexception
+
+            // TODO : brimg filename into request and display here
+            throw ReadError("READ FAILED");
+        }
+
+        return payload_out;
+    }
+    else
+        // not on the main coroutine so we are allowed to block
+    {
+        LLCoros::Promise<request_payload_t> promise;
+
+        auto future = LLCoros::getFuture(promise);
+
+        // Promise is not copyable so we assert we are moving it instead.
+        // We may have considered a reference but
+
+// TODO: Comment - we wanted to use std::move(promise) to move the promiwse into the lamda but VS 2017 didn't
+        // allow us to use the syntax that C++14 specifies so we revert to a reference which inm this case is
+        // okay because the lifetime of the promise is gated by future.get()
+
+//        : TODO:
+        // todo: comment we pass in a promise and that is used in the body of the lambda so we need
+        // the mutable keyword to indicate we are allowing the lambda body to make non-const method calls
+        //addReadRequest(id, [promise = std::move(promise)](request_payload_t payload, bool result) mutable
+        addReadRequest(id, [&promise](request_payload_t payload, bool result) mutable
+        {
+            // TODO: ultimately we will deal with result = false but not now
+            // consider using promise.set_exception(std:::make_exception_ptr()) to make futre.get() throw
+
+            promise.set_value(payload);
+        });
+
+        return future.get();
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -300,77 +374,74 @@ void llDiskCache::addWriteRequest(std::string id,
     });
 }
 
+/**
+  * Utility function to return the name of an asset type as
+  * a string given an LLAssetType enum. This is useful for
+  * debugging and might be useful elsewhere too.
+  */
 const std::string llDiskCache::assetTypeToString(LLAssetType::EType at)
 {
-    switch (at)
+    /**
+      * Make use of the C++17 (or is it 14) feature that allows
+      * for inline initialization of an std::map<>
+      */
+    typedef std::map<LLAssetType::EType, std::string> asset_type_to_name_t;
+    asset_type_to_name_t asset_type_to_name =
     {
-        case LLAssetType::AT_TEXTURE:
-            return "TEXTURE";
-        case LLAssetType::AT_SOUND:
-            return "SOUND";
-        case LLAssetType::AT_CALLINGCARD:
-            return "CALLINGCARD";
-        case LLAssetType::AT_LANDMARK:
-            return "LANDMARK";
-        case LLAssetType::AT_SCRIPT:
-            return "SCRIPT";
-        case LLAssetType::AT_CLOTHING:
-            return "CLOTHING";
-        case LLAssetType::AT_OBJECT:
-            return "OBJECT";
-        case LLAssetType::AT_NOTECARD:
-            return "NOTECARD";
-        case LLAssetType::AT_CATEGORY:
-            return "CATEGORY";
-        case LLAssetType::AT_LSL_TEXT:
-            return "LSL_TEXT";
-        case LLAssetType::AT_LSL_BYTECODE:
-            return "LSL_BYTECODE";
-        case LLAssetType::AT_TEXTURE_TGA:
-            return "TEXTURE_TGA";
-        case LLAssetType::AT_BODYPART:
-            return "BODYPART";
-        case LLAssetType::AT_SOUND_WAV:
-            return "SOUND_WAV";
-        case LLAssetType::AT_IMAGE_TGA:
-            return "IMAGE_TGA";
-        case LLAssetType::AT_IMAGE_JPEG:
-            return "IMAGE_JPEG";
-        case LLAssetType::AT_ANIMATION:
-            return "ANIMATION";
-        case LLAssetType::AT_GESTURE:
-            return "GESTURE";
-        case LLAssetType::AT_SIMSTATE:
-            return "SIMSTATE";
-        case LLAssetType::AT_LINK:
-            return "LINK";
-        case LLAssetType::AT_LINK_FOLDER:
-            return "LINK_FOLDER";
-        case LLAssetType::AT_MARKETPLACE_FOLDER:
-            return "MARKETPLACE_FOLDER";
-        case LLAssetType::AT_WIDGET:
-            return "WIDGET";
-        case LLAssetType::AT_PERSON:
-            return "PERSON";
-        case LLAssetType::AT_MESH:
-            return "MESH";
-        default:
-            return "UNKNOWN";
+        { LLAssetType::AT_TEXTURE, "TEXTURE" },
+        { LLAssetType::AT_SOUND, "SOUND" },
+        { LLAssetType::AT_CALLINGCARD, "CALLINGCARD" },
+        { LLAssetType::AT_LANDMARK, "LANDMARK" },
+        { LLAssetType::AT_SCRIPT, "SCRIPT" },
+        { LLAssetType::AT_CLOTHING, "CLOTHING" },
+        { LLAssetType::AT_OBJECT, "OBJECT" },
+        { LLAssetType::AT_NOTECARD, "NOTECARD" },
+        { LLAssetType::AT_CATEGORY, "CATEGORY" },
+        { LLAssetType::AT_LSL_TEXT, "LSL_TEXT" },
+        { LLAssetType::AT_LSL_BYTECODE, "LSL_BYTECODE" },
+        { LLAssetType::AT_TEXTURE_TGA, "TEXTURE_TGA" },
+        { LLAssetType::AT_BODYPART, "BODYPART" },
+        { LLAssetType::AT_SOUND_WAV, "SOUND_WAV" },
+        { LLAssetType::AT_IMAGE_TGA, "IMAGE_TGA" },
+        { LLAssetType::AT_IMAGE_JPEG, "IMAGE_JPEG" },
+        { LLAssetType::AT_ANIMATION, "ANIMATION" },
+        { LLAssetType::AT_GESTURE, "GESTURE" },
+        { LLAssetType::AT_SIMSTATE, "SIMSTATE" },
+        { LLAssetType::AT_LINK, "LINK" },
+        { LLAssetType::AT_LINK_FOLDER, "LINK_FOLDER" },
+        { LLAssetType::AT_MARKETPLACE_FOLDER, "MARKETPLACE_FOLDER" },
+        { LLAssetType::AT_WIDGET, "WIDGET" },
+        { LLAssetType::AT_PERSON, "PERSON" },
+        { LLAssetType::AT_MESH, "MESH" },
+        { LLAssetType::AT_UNKNOWN, "UNKNOWN" }
+    };
+
+    asset_type_to_name_t::iterator iter = asset_type_to_name.find(at);
+    if (iter != asset_type_to_name.end())
+    {
+        return iter->second;
     }
+
+    return std::string("UNKNOWN");
 }
 
+/**
+  * Utility function to construct a fully qualified file/path based
+  * on an ID (typically a UUID) that is passed in. If you pass in
+  * something other than a UUID (I.E. not unique) then there may
+  * be a logical file collision (no attempt to 'uniquify' the file
+  * is made)
+  */
 const std::string llDiskCache::idToFilepath(const std::string id, LLAssetType::EType at)
 {
+    // for the moment this is just {UUID}_{ASSET_TYPE}.txt but of couse will be expanded upon
     std::ostringstream ss;
-
-    const std::string root_folder = "C:\\users\\callum\\desktop\\cache";
-    ss << root_folder;
-    //ss << gDirUtilp->getExecutableDir();
-    ss << gDirUtilp->getDirDelimiter();
     ss << id;
     ss << "_";
     ss << assetTypeToString(at);
     ss << ".txt";
 
-    return ss.str();
+    const std::string filepath = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ss.str());
+
+    return filepath;
 }

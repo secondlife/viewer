@@ -322,8 +322,9 @@ void handle_debug_avatar_textures(void*);
 void handle_grab_baked_texture(void*);
 BOOL enable_grab_baked_texture(void*);
 void handle_dump_region_object_cache(void*);
-void simulate_cache_read_access(void*);
-void simulate_cache_write_access(void*);
+void simulate_cache_asynchronous_read_access(void*);
+void simulate_cache_synchronous_read_access(void*);
+void simulate_cache_asynchronous_write_access(void*);
 
 BOOL enable_save_into_task_inventory(void*);
 
@@ -1282,20 +1283,29 @@ class LLAdvancedDumpRegionObjectCache : public view_listener_t
 	}
 };
 
-class LLSimulateCacheReadAccess : public view_listener_t
+class LLSimulateCacheSynchronousReadAccess : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        simulate_cache_read_access(NULL);
+        simulate_cache_synchronous_read_access(NULL);
         return true;
     }
 };
 
-class LLSimulateCacheWriteAccess : public view_listener_t
+class LLSimulateCacheAsynchronousReadAccess : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        simulate_cache_write_access(NULL);
+        simulate_cache_asynchronous_read_access(NULL);
+        return true;
+    }
+};
+
+class LLSimulateCacheAsynchronousWriteAccess : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        simulate_cache_asynchronous_write_access(NULL);
         return true;
     }
 };
@@ -3681,9 +3691,32 @@ void handle_dump_region_object_cache(void*)
     }
 }
 
-void simulate_cache_read_access(void*)
+void simulate_cache_synchronous_read_access(void*)
 {
-    LL_INFOS() << "Simulating disk cache READ access" << LL_ENDL;
+    LL_INFOS() << "Simulating cache synchronous READ..." << LL_ENDL;
+
+    const std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "read_sync.payload.txt");
+
+    llDiskCache::request_payload_t payload = llDiskCache::instance().waitForReadComplete(filename);
+
+    try
+    {
+        LL_INFOS() << "Payload size is " << payload->size() << " and contains " << LL_ENDL;
+        for (auto p = 0; p < payload->size(); ++p)
+        {
+            std::cout << payload->data()[p];
+        }
+        LL_INFOS() << LL_ENDL;
+    }
+    catch(const llDiskCache::ReadError &exc)
+    {
+        LL_INFOS() << "Payload is empty: result string is " << exc.what() << LL_ENDL;
+    }
+}
+
+void simulate_cache_asynchronous_read_access(void*)
+{
+    LL_INFOS() << "Simulating cache asynchronous READ..." << LL_ENDL;
 
     llDiskCache::request_callback_t cb([](llDiskCache::request_payload_t payload, bool)
     {
@@ -3702,16 +3735,14 @@ void simulate_cache_read_access(void*)
         }
     });
 
-    const std::string filename = gDirUtilp->getExecutableDir() + 
-                                 gDirUtilp->getDirDelimiter() + 
-                                 "read.payload.txt";
+    const std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "read_async.payload.txt");
 
     llDiskCache::instance().addReadRequest(filename, cb);
 }
 
-void simulate_cache_write_access(void*)
+void simulate_cache_asynchronous_write_access(void*)
 {
-    LL_INFOS() << "Simulating disk cache WRITE..." << LL_ENDL;
+    LL_INFOS() << "Simulating cache asynchronous WRITE..." << LL_ENDL;
 
     llDiskCache::request_callback_t cb([](llDiskCache::request_payload_t, bool result)
     {
@@ -3725,9 +3756,7 @@ void simulate_cache_write_access(void*)
         }
     });
 
-    const std::string filename = gDirUtilp->getExecutableDir() + 
-                                 gDirUtilp->getDirDelimiter() + 
-                                 "write.payload.txt";
+    const std::string filename = "write_async.payload";
     const U32 filesize = 24;
     llDiskCache::request_payload_t file_contents = std::make_shared<std::vector<U8>>(filesize);
     memset(file_contents->data(), 'Z', file_contents->size());
@@ -9143,8 +9172,9 @@ void initialize_menus()
 	// Advanced > World
 	view_listener_t::addMenu(new LLAdvancedDumpScriptedCamera(), "Advanced.DumpScriptedCamera");
     view_listener_t::addMenu(new LLAdvancedDumpRegionObjectCache(), "Advanced.DumpRegionObjectCache");
-    view_listener_t::addMenu(new LLSimulateCacheReadAccess(), "Advanced.SimulateCacheReadAccess");
-    view_listener_t::addMenu(new LLSimulateCacheWriteAccess(), "Advanced.SimulateCacheWriteAccess");
+    view_listener_t::addMenu(new LLSimulateCacheSynchronousReadAccess(), "Advanced.SimulateCacheSynchronousReadAccess");
+    view_listener_t::addMenu(new LLSimulateCacheAsynchronousReadAccess(), "Advanced.SimulateCacheAsynchronousReadAccess");
+    view_listener_t::addMenu(new LLSimulateCacheAsynchronousWriteAccess(), "Advanced.SimulateCacheAsynchronousWriteAccess");
 
 	// Advanced > UI
 	commit.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test,	_2));	// sigh! this one opens the MEDIA browser
