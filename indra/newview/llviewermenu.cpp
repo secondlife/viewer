@@ -3695,7 +3695,7 @@ void simulate_cache_synchronous_read_access(void*)
 {
     LL_INFOS() << "Simulating cache synchronous READ..." << LL_ENDL;
 
-    const std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "read_sync.payload.txt");
+    const std::string filename = "read_sync.payload";
 
     llDiskCache::request_payload_t payload = llDiskCache::instance().waitForReadComplete(filename);
 
@@ -3735,7 +3735,7 @@ void simulate_cache_asynchronous_read_access(void*)
         }
     });
 
-    const std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "read_async.payload.txt");
+    const std::string filename = "read_async.payload";
 
     llDiskCache::instance().addReadRequest(filename, cb);
 }

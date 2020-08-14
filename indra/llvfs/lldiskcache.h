@@ -1,30 +1,32 @@
 /**
-  * @file lldiskcache.h
-  * @brief Worker thread to read/write from/to disk
-  *        in a thread safe manner. See the implementation
-  *        file for a description of how it works
-  *
-  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
-  * Second Life Viewer Source Code
-  * Copyright (C) 2020, Linden Research, Inc.
-  *
-  * This library is free software; you can redistribute it and/or
-  * modify it under the terms of the GNU Lesser General Public
-  * License as published by the Free Software Foundation;
-  * version 2.1 of the License only.
-  *
-  * This library is distributed in the hope that it will be useful,
-  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  * Lesser General Public License for more details.
-  *
-  * You should have received a copy of the GNU Lesser General Public
-  * License along with this library; if not, write to the Free Software
-  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-  *
-  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
-  * $/LicenseInfo$
-  */
+ * @file lldiskcache.h
+ * @brief Use a worker thread read/write from/to disk
+ *        via a thread safe request queue and avoid the
+ *        need for complex code or file locking.
+ *        See the implementation file for a description of 
+ *        how it works and how to use it.
+ *
+ * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * Second Life Viewer Source Code
+ * Copyright (C) 2020, Linden Research, Inc.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation;
+ * version 2.1 of the License only.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * $/LicenseInfo$
+ */
 
 #ifndef _LLDISKCACHE
 #define _LLDISKCACHE
@@ -48,7 +50,6 @@ class llDiskCache :
         typedef std::shared_ptr<std::vector<U8>> request_payload_t;
         typedef std::function<void(request_payload_t, bool)> request_callback_t;
 
-// TODO: describe the bool status - no exception
         void addReadRequest(std::string id,
                             request_callback_t cb);
 
@@ -57,7 +58,6 @@ class llDiskCache :
                              request_payload_t buffer,
                              request_callback_t cb);
 
-// TODO: describe no bool status - uses exception
         request_payload_t waitForReadComplete(std::string id);
 
         struct ReadError : public LLContinueError
@@ -89,13 +89,15 @@ class llDiskCache :
         typedef std::map<U32, mRequest> request_map_t;
         request_map_t mRequestMap;
 
-        // This is the time period in seconds to run for.
-        // It can set this to 0 which means run every time
-        // through the main event loop.
-        // All this extra decoration is required because of
-        // the interesting C++ class initialization rules
-        // in action when we initialize the LLEventTimer base
-        // within the constructor for this class.
+        /**
+         * This is the time period in seconds to run for.
+         * It can set this to 0 which means run every time
+         * through the main event loop.
+         * All this extra decoration is required because of
+         * the interesting C++ class initialization rules
+         * in action when we initialize the LLEventTimer base
+         * within the constructor for this class.
+         */
         static constexpr F32 mTimePeriod = 0.05;
 
         U32 mRequestId{ 0 };
