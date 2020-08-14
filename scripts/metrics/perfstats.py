@@ -2,7 +2,7 @@
 
 """\
 
-This module contains tools for manipulating and validating the avatar skeleton file.
+This script is used for analyzing Second Life performance data.
 
 $LicenseInfo:firstyear=2016&license=viewerlgpl$
 Second Life Viewer Source Code
