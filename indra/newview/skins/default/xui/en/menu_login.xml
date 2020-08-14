@@ -254,6 +254,12 @@
          function="Advanced.SimulateCacheSynchronousReadAccess"/>
       </menu_item_call>
       <menu_item_call
+       label="Simulate Cache Synchnronous Read Coroutine Access"
+       name="Simulate Cache Synchronous Read Coroutine Access">
+        <menu_item_call.on_click
+         function="Advanced.SimulateCacheSynchronousReadCoroutineAccess"/>
+      </menu_item_call>
+      <menu_item_call
        label="Simulate Cache Asynchnronous Read Access"
        name="Simulate Cache Asynchronous Read Access">
         <menu_item_call.on_click

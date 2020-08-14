@@ -266,8 +266,6 @@ void llDiskCache::addReadRequest(std::string id,
          */
         const std::string filename = idToFilepath(id, LLAssetType::AT_UNKNOWN);
 
-        std::cout << "Reading from " << filename << std::endl;
-
         /**
          * This is an interesting idiom. We will be passing back the contents of files
          * we read and an std::vector<U8> is suitable for that. However, that means
@@ -295,11 +293,10 @@ void llDiskCache::addReadRequest(std::string id,
             std::string contents;
             if (std::getline(ifs, contents))
             {
-                ifs.close();
-
                 const U32 filesize = contents.length();
-                file_contents = std::make_shared<std::vector<U8>>(filesize);
-                memcpy(file_contents->data(), contents.c_str(), file_contents->size());
+                file_contents = std::make_shared<std::vector<U8>>(filesize + 1);
+                memset(file_contents->data(), 0, filesize + 1);
+                memcpy(file_contents->data(), contents.c_str(), filesize);
                 success = true;
             }
         }

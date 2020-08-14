@@ -324,6 +324,7 @@ BOOL enable_grab_baked_texture(void*);
 void handle_dump_region_object_cache(void*);
 void simulate_cache_asynchronous_read_access(void*);
 void simulate_cache_synchronous_read_access(void*);
+void simulate_cache_synchronous_read_access_coroutine(void*);
 void simulate_cache_asynchronous_write_access(void*);
 
 BOOL enable_save_into_task_inventory(void*);
@@ -1288,6 +1289,15 @@ class LLSimulateCacheSynchronousReadAccess : public view_listener_t
     bool handleEvent(const LLSD& userdata)
     {
         simulate_cache_synchronous_read_access(NULL);
+        return true;
+    }
+};
+
+class LLSimulateCacheSynchronousReadAccessCoroutine : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        simulate_cache_synchronous_read_access_coroutine(NULL);
         return true;
     }
 };
@@ -3690,6 +3700,29 @@ void handle_dump_region_object_cache(void*)
         regionp->dumpCache();
     }
 }
+void simulate_cache_synchronous_read_access_coroutine(void*)
+{
+    LL_INFOS() << "Simulating cache synchronous READ from non-main coroutine..." << LL_ENDL;
+
+    LLCoros::instance().launch("DiskCache::testReadFromCoroutine",
+        []()
+        { 
+            const std::string filename = "read_sync_coroutine.payload";
+
+            llDiskCache::request_payload_t payload = llDiskCache::instance().waitForReadComplete(filename);
+
+            try
+            {
+                const std::string payload_str((char*)payload->data(), payload->size());
+                LL_INFOS() << "Payload size is " << payload->size() << " and contains " << payload_str << LL_ENDL;
+            }
+            catch (const llDiskCache::ReadError &exc)
+            {
+                LL_INFOS() << "Payload is empty: result string is " << exc.what() << LL_ENDL;
+            }
+
+        });
+}
 
 void simulate_cache_synchronous_read_access(void*)
 {
@@ -3701,12 +3734,8 @@ void simulate_cache_synchronous_read_access(void*)
 
     try
     {
-        LL_INFOS() << "Payload size is " << payload->size() << " and contains " << LL_ENDL;
-        for (auto p = 0; p < payload->size(); ++p)
-        {
-            std::cout << payload->data()[p];
-        }
-        LL_INFOS() << LL_ENDL;
+        const std::string payload_str((char*)payload->data(), payload->size());
+        LL_INFOS() << "Payload size is " << payload->size() << " and contains " << payload_str << LL_ENDL;
     }
     catch(const llDiskCache::ReadError &exc)
     {
@@ -3726,12 +3755,8 @@ void simulate_cache_asynchronous_read_access(void*)
         }
         else
         {
-            LL_INFOS() << "Payload size is " << payload->size() << " and contains " << LL_ENDL;
-            for(auto p = 0; p < payload->size(); ++p)
-            {
-                std::cout << payload->data()[p];
-            }
-            LL_INFOS() << LL_ENDL;
+            const std::string payload_str((char*)payload->data(), payload->size());
+            LL_INFOS() << "Payload size is " << payload->size() << " and contains " << payload_str << LL_ENDL;
         }
     });
 
@@ -9173,6 +9198,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedDumpScriptedCamera(), "Advanced.DumpScriptedCamera");
     view_listener_t::addMenu(new LLAdvancedDumpRegionObjectCache(), "Advanced.DumpRegionObjectCache");
     view_listener_t::addMenu(new LLSimulateCacheSynchronousReadAccess(), "Advanced.SimulateCacheSynchronousReadAccess");
+    view_listener_t::addMenu(new LLSimulateCacheSynchronousReadAccessCoroutine(), "Advanced.SimulateCacheSynchronousReadCoroutineAccess");
     view_listener_t::addMenu(new LLSimulateCacheAsynchronousReadAccess(), "Advanced.SimulateCacheAsynchronousReadAccess");
     view_listener_t::addMenu(new LLSimulateCacheAsynchronousWriteAccess(), "Advanced.SimulateCacheAsynchronousWriteAccess");
 

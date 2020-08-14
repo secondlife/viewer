@@ -3,7 +3,7 @@
  * @brief Use a worker thread read/write from/to disk
  *        via a thread safe request queue and avoid the
  *        need for complex code or file locking.
- *        See the implementation file for a description of 
+ *        See the implementation file for a description of
  *        how it works and how to use it.
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
