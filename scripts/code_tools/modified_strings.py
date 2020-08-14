@@ -1,6 +1,7 @@
+#!/usr/bin/env python
 """\
 
-This module contains tools for scanning the SL codebase for translation-related strings.
+This script scans the SL codebase for translation-related strings.
 
 $LicenseInfo:firstyear=2020&license=viewerlgpl$
 Second Life Viewer Source Code
@@ -25,8 +26,6 @@ $/LicenseInfo$
 """
 
 from __future__ import print_function
-
-# packages required include: gitpython, pandas
 
 import xml.etree.ElementTree as ET
 import argparse
@@ -61,6 +60,8 @@ def read_xml_elements(blob):
     try:
         contents = blob.data_stream.read()
     except:
+        # default - pretend we read a file with no elements of interest.
+        # Parser will complain if it gets no elements at all.
         contents = '<?xml version="1.0" encoding="utf-8" standalone="yes" ?><strings></strings>'
     xml = ET.fromstring(contents)
     elts = {}
@@ -83,22 +84,36 @@ def can_translate(val):
     if val.isdigit():
         return False
     return True
-        
+
+usage_msg="""%(prog)s [options]
+
+Analyze the XUI configuration files to find text that may need to
+be translated. Works by comparing two specified revisions, one
+specified by --rev (default HEAD) and one specified by --rev_base
+(default master). The script works by comparing xui contents of the
+two revisions, and outputs a spreadsheet listing any areas of
+difference. The target language must be specified using the --lang
+option. Output is an excel file, which can be used as-is or imported
+into google sheets.
+
+If the --rev revision already contains a translation for the text, it
+will be included in the spreadsheet for reference.
+    
+Normally you would want --rev_base to be the last revision to have
+translations added, and --rev to be the tip of the current
+project.
+
+"""
+
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description="analyze viewer xui files")
+    parser = argparse.ArgumentParser(description="analyze viewer xui files for needed translations", usage=usage_msg)
     parser.add_argument("-v","--verbose", action="store_true", help="verbose flag")
     parser.add_argument("--rev", help="revision with modified strings, default HEAD", default="HEAD")
     parser.add_argument("--rev_base", help="previous revision to compare against, default master", default="master")
     parser.add_argument("--base_lang", help="base language, default en (useful only for testing)", default="en")
-    parser.add_argument("--lang", help="target language, default fr", default="fr")
+    parser.add_argument("--lang", help="target language")
     args = parser.parse_args()
-
-    if args.rev == args.rev_base:
-        failure("Revs are the same, nothing to compare")
-
-    print("Finding changes in", args.rev, "not present in", args.rev_base)
-    sys.stdout.flush()
 
     cwd = os.getcwd()
     rootdir = Git(cwd).rev_parse("--show-toplevel")
@@ -115,11 +130,23 @@ if __name__ == "__main__":
     mod_tree = mod_commit.tree
     base_tree = base_commit.tree
 
-    xui_path = "indra/newview/skins/default/xui/{}".format(args.base_lang)
+    xui_base = "indra/newview/skins/default/xui"
+    xui_base_tree = mod_tree[xui_base]
+    valid_langs = [tree.name.lower() for tree in xui_base_tree if tree.name.lower() != args.base_lang.lower()]
+    if not args.lang or not args.lang.lower() in valid_langs:
+        failure("Please specify a target language using --lang. Valid values are", ",".join(sorted(valid_langs)))
+
+    xui_path = "{}/{}".format(xui_base, args.base_lang)
     try:
         mod_xui_tree = mod_tree[xui_path]
     except:
-        failure("xui tree not found for language", args.base_lang)
+        failure("xui tree not found for base language", args.base_lang)
+
+    if args.rev == args.rev_base:
+        failure("Revs are the same, nothing to compare")
+
+    print("Finding changes in", args.rev, "not present in", args.rev_base)
+    sys.stdout.flush()
 
     data = []
     # For all files to be checked for translations
@@ -130,6 +157,7 @@ if __name__ == "__main__":
 
         if args.verbose:
             print(filename)
+
         try:
             base_blob = base_tree[filename]
         except:
@@ -138,11 +166,11 @@ if __name__ == "__main__":
             base_blob = None
 
         try:
-            transl_filename = filename.replace(args.base_lang, args.lang)
+            transl_filename = filename.replace("/xui/{}/".format(args.base_lang), "/xui/{}/".format(args.lang))
             transl_blob = mod_tree[transl_filename]
         except:
             if args.verbose:
-                print("No matching translation file found at", transl_filename)
+                failure("No matching translation file found at", transl_filename)
             transl_blob = None
 
         mod_dict = read_xml_elements(mod_blob)
