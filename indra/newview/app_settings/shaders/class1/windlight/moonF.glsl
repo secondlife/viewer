@@ -56,9 +56,9 @@ void main()
     // mix factor which blends when sunlight is brighter
     // and shows true moon color at night
     vec3 luma_weights = vec3(0.3, 0.5, 0.3);
-    float mix = 1.0f - dot(normalize(sunlight_color.rgb), luma_weights);
+    float blend = 1.0f - dot(normalize(sunlight_color.rgb), luma_weights);
 
-    vec3 exp = vec3(1.0 - mix * moon_brightness) * 2.0 - 1.0;
+    vec3 exp = vec3(1.0 - blend * moon_brightness) * 2.0 - 1.0;
     c.rgb = pow(c.rgb, exp);
     //c.rgb *= moonlight_color.rgb;
 
