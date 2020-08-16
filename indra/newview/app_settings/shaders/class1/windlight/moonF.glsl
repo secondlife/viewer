@@ -44,6 +44,9 @@ uniform sampler2D altDiffuseMap;
 uniform float blend_factor; // interp factor between moon A/B
 VARYING vec2 vary_texcoord0;
 
+vec3 getAdditiveColor();
+vec3 scaleSoftClip(vec3 light);
+
 void main() 
 {
     vec4 moonA = texture2D(diffuseMap, vary_texcoord0.xy);
@@ -58,6 +61,12 @@ void main()
     vec3 exp = vec3(1.0 - mix * moon_brightness) * 2.0 - 1.0;
     c.rgb = pow(c.rgb, exp);
     //c.rgb *= moonlight_color.rgb;
+
+    // Partial atmospherics calculation
+    vec3 ac = getAdditiveColor();
+    c.rgb += ac;
+
+    c.rgb = scaleSoftClip(c.rgb);
 
     frag_color = vec4(c.rgb, c.a);
 }
