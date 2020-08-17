@@ -140,6 +140,12 @@ LLCoprocedureManager::~LLCoprocedureManager()
     close();
 }
 
+void LLCoprocedureManager::initSingleton()
+{
+    // workaround until we get mutex into initializePool
+    initializePool("VAssetStorage");
+}
+
 LLCoprocedureManager::poolPtr_t LLCoprocedureManager::initializePool(const std::string &poolName)
 {
     // Attempt to look up a pool size in the configuration.  If found use that

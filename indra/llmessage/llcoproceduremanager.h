@@ -40,6 +40,7 @@ class LLCoprocedureManager : public LLSingleton < LLCoprocedureManager >
 {
     LLSINGLETON(LLCoprocedureManager);
     virtual ~LLCoprocedureManager();
+    /*virtual*/ void initSingleton();
 
 public:
     typedef boost::function<U32(const std::string &)> SettingQuery_t;
