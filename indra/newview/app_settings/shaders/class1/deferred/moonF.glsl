@@ -45,6 +45,12 @@ uniform float blend_factor; // interp factor between moon A/B
 VARYING vec2 vary_texcoord0;
 
 vec3 srgb_to_linear(vec3 c);
+
+vec3 getAdditiveColor();
+
+/// Soft clips the light with a gamma correction
+vec3 scaleSoftClip(vec3 light);
+
 void main() 
 {
     vec4 moonA = texture2D(diffuseMap, vary_texcoord0.xy);
@@ -58,12 +64,18 @@ void main()
     vec3 luma_weights = vec3(0.3, 0.5, 0.3);
 
     vec4 light_color = max(sunlight_color, moonlight_color);
-    float mix = 1.0 - dot(normalize(light_color.rgb), luma_weights);
+    float blend = 1.0 - dot(normalize(light_color.rgb), luma_weights);
 
-    vec3 exp = vec3(1.0 - mix * moon_brightness) * 2.0  - 1.0;
+    vec3 exp = vec3(1.0 - blend * moon_brightness) * 2.0  - 1.0;
     c.rgb = pow(c.rgb, exp);
 
     //c.rgb *= moonlight_color.rgb;
+
+    // Partial atmospherics calculation
+    vec3 ac = getAdditiveColor();
+    c.rgb += ac;
+
+    c.rgb = scaleSoftClip(c.rgb);
 
     frag_data[0] = vec4(c.rgb, c.a);
     frag_data[1] = vec4(0.0);
