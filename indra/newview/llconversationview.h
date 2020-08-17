@@ -35,6 +35,7 @@
 
 class LLTextBox;
 class LLFloaterIMContainer;
+class LLConversationItem;
 class LLConversationViewSession;
 class LLConversationViewParticipant;
 
@@ -91,6 +92,8 @@ public:
 
 	LLFloater* getSessionFloater();
 	bool isInActiveVoiceChannel() { return mIsInActiveVoiceChannel; }
+
+	bool highlightFriendTitle(LLConversationItem* vmi);
 
 private:
 

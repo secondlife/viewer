@@ -31,6 +31,7 @@
 
 #include <boost/bind.hpp>
 #include "llagentdata.h"
+#include "llavataractions.h"
 #include "llconversationmodel.h"
 #include "llfloaterimsession.h"
 #include "llfloaterimnearbychat.h"
@@ -432,8 +433,13 @@ void LLConversationViewSession::refresh()
 	vmi->resetRefresh();
 	
 	if (mSessionTitle)
-	{
-		mSessionTitle->setText(vmi->getDisplayName());
+	{		
+		if (!highlightFriendTitle(vmi))
+		{
+			LLStyle::Params title_style;
+			title_style.color = LLUIColorTable::instance().getColor("LabelTextColor");
+			mSessionTitle->setText(vmi->getDisplayName(), title_style);
+		}
 	}
 
 	// Update all speaking indicators
@@ -476,6 +482,22 @@ void LLConversationViewSession::onCurrentVoiceSessionChanged(const LLUUID& sessi
 			refresh();
 		}
 	}
+}
+
+bool LLConversationViewSession::highlightFriendTitle(LLConversationItem* vmi)
+{
+	if(vmi->getType() == LLConversationItem::CONV_PARTICIPANT || vmi->getType() == LLConversationItem::CONV_SESSION_1_ON_1)
+	{
+		LLIMModel::LLIMSession* session=  LLIMModel::instance().findIMSession(vmi->getUUID());
+		if (session && LLAvatarActions::isFriend(session->mOtherParticipantID))
+		{
+			LLStyle::Params title_style;
+			title_style.color = LLUIColorTable::instance().getColor("ConversationFriendColor");
+			mSessionTitle->setText(vmi->getDisplayName(), title_style);
+			return true;
+		}
+	}
+	return false;
 }
 
 //
@@ -576,7 +598,14 @@ void LLConversationViewParticipant::draw()
 	}
 	else
 	{
-		color = mIsSelected ? sHighlightFgColor : sFgColor;
+		if (LLAvatarActions::isFriend(mUUID))
+		{
+			color = LLUIColorTable::instance().getColor("ConversationFriendColor");
+		}
+		else
+		{
+			color = mIsSelected ? sHighlightFgColor : sFgColor;
+		}
 	}
 
 	LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(getViewModelItem());

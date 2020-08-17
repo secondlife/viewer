@@ -334,6 +334,9 @@
      name="ContextSilhouetteColor"
      reference="EmphasisColor" />
     <color
+     name="ConversationFriendColor"
+     value="0.42 0.85 0.71 1" />
+    <color
      name="DefaultHighlightDark"
      reference="White_10" />
     <color
