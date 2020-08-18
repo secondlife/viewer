@@ -1026,7 +1026,7 @@ void LLViewerMedia::setAllMediaPaused(bool val)
     {
         if (!LLViewerMedia::isParcelMediaPlaying() && LLViewerMedia::hasParcelMedia())
         {
-            LLViewerParcelMedia::getInstance()->play(LLViewerParcelMgr::getInstance()->getAgentParcel());
+            LLViewerParcelMedia::getInstance()->play(agent_parcel);
         }
 
         static LLCachedControl<bool> audio_streaming_music(gSavedSettings, "AudioStreamingMusic", true);

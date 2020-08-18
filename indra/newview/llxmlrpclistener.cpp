@@ -101,7 +101,7 @@ public:
     {
         // from curl.h
 // skip the "CURLE_" prefix for each of these strings
-#define def(sym) (mMap[sym] = #sym + 6)
+#define def(sym) (mMap[sym] = &#sym[6])
         def(CURLE_OK);
         def(CURLE_UNSUPPORTED_PROTOCOL);    /* 1 */
         def(CURLE_FAILED_INIT);             /* 2 */
