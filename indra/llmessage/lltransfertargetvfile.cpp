@@ -227,7 +227,7 @@ void LLTransferTargetVFile::completionCallback(const LLTSCode status)
                 mParams.getAssetID(),
                 mParams.getAssetType(),
                 mParams.mRequestDatap,
-                LL_EXSTAT_NONE);
+				LLExtStat::NONE);
         }
         delete mParams.mRequestDatap;
         mParams.mRequestDatap = NULL;
