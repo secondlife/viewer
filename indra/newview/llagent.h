@@ -344,6 +344,7 @@ public:
 	static void		toggleFlying();
 	static bool		enableFlying();
 	BOOL			canFly(); 			// Does this parcel allow you to fly?
+	static bool		isSitting();
 
 	//--------------------------------------------------------------------
 	// Voice

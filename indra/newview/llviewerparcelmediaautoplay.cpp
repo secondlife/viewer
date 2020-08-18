@@ -143,7 +143,7 @@ BOOL LLViewerParcelMediaAutoPlay::tick()
 								LLViewerParcelAskPlay::getInstance()->askToPlay(this_region->getRegionID(),
 																				this_parcel->getLocalID(),
 																				this_parcel->getMediaURL(),
-																				onStartMusicResponse);
+																				onStartMediaResponse);
 								break;
   							}
   						}
@@ -160,7 +160,7 @@ BOOL LLViewerParcelMediaAutoPlay::tick()
 }
 
 //static
-void LLViewerParcelMediaAutoPlay::onStartMusicResponse(const LLUUID &region_id, const S32 &parcel_id, const std::string &url, const bool &play)
+void LLViewerParcelMediaAutoPlay::onStartMediaResponse(const LLUUID &region_id, const S32 &parcel_id, const std::string &url, const bool &play)
 {
     if (play)
     {
