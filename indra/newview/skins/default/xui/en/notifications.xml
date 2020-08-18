@@ -4016,8 +4016,6 @@ Finished download of raw terrain file to:
 [DOWNLOAD_PATH].
   </notification>
 
-  <!-- RequiredUpdate does not display release notes URL because we don't get
-       that from login.cgi's login failure message. -->
   <notification
    icon="alertmodal.tga"
    name="RequiredUpdate"
@@ -4035,7 +4033,6 @@ Please download from https://secondlife.com/support/downloads/
    name="PauseForUpdate"
    type="alertmodal">
 Version [VERSION] is required for login.
-Release notes: [URL]
 Click OK to download and install.
     <tag>confirm</tag>
     <usetemplate
@@ -4048,7 +4045,6 @@ Click OK to download and install.
    name="OptionalUpdateReady"
    type="alertmodal">
 Version [VERSION] has been downloaded and is ready to install.
-Release notes: [URL]
 Click OK to install.
     <tag>confirm</tag>
     <usetemplate
@@ -4061,7 +4057,6 @@ Click OK to install.
    name="PromptOptionalUpdate"
    type="alertmodal">
 Version [VERSION] has been downloaded and is ready to install.
-Release notes: [URL]
 Proceed?
     <tag>confirm</tag>
     <usetemplate
@@ -7209,12 +7204,14 @@ You can only claim public land in the Region you&apos;re in.
   </notification>
 
   <notification
-   icon="notify.tga"
+   icon="alertmodal.tga"
    name="RegionTPAccessBlocked"
-   persist="false"
-   type="notify">
+   type="alertmodal">
    <tag>fail</tag>
     The region you're trying to visit contains content exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
+   <usetemplate
+      name="okbutton"
+      yestext="OK"/>
   </notification>
 
   <notification
