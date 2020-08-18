@@ -1616,10 +1616,6 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
         {
             from_group = message_data["from_group"].asString() == "Y";
         }
-        else
-        {
-            from_group = message_data["from_group"].asString() == "Y";
-        }
 
 
         LLIMProcessing::processNewMessage(

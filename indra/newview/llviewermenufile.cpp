@@ -688,9 +688,6 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 		{
 			width *= 2;
 			height *= 2;
-			// not compatible wirh UI/HUD
-			render_ui = false;
-			render_hud = false;
 		}
 
 		if (gViewerWindow->rawSnapshot(raw,
@@ -700,6 +697,7 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 									   FALSE,
 									   gSavedSettings.getBOOL("RenderUIInSnapshot"),
 									   FALSE,
+                                       FALSE,
 									   LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
 									   high_res ? S32_MAX : MAX_SNAPSHOT_IMAGE_SIZE)) //per side
 		{
