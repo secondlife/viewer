@@ -253,6 +253,7 @@ private:
 	slurls_map_t mSLURLs;
 	std::set<LLUUID> mMissingSLURLs;
 	bool mIsDirty;
+	bool mRecreateFavoriteStorage;
 
 	struct IsNotInFavorites
 	{
@@ -283,7 +284,9 @@ private:
 
 inline
 LLFavoritesOrderStorage::LLFavoritesOrderStorage() :
-	mIsDirty(false), mUpdateRequired(false)
+	mIsDirty(false),
+	mUpdateRequired(false),
+	mRecreateFavoriteStorage(false)
 { load(); }
 
 #endif // LL_LLFAVORITESBARCTRL_H
