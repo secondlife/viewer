@@ -319,7 +319,7 @@ S32 LLXfer::processEOF()
 
 	if (mCallback)
 	{
-		mCallback(mCallbackDataHandle,mCallbackResult,LL_EXSTAT_NONE);
+		mCallback(mCallbackDataHandle,mCallbackResult, LLExtStat::NONE);
 	}
 
 	return(retval);

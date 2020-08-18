@@ -329,7 +329,7 @@ void LLSettingsVOBase::onAssetDownloadComplete(LLVFS *vfs, const LLUUID &asset_i
     }
     else
     {
-        LL_WARNS("SETTINGS") << "Error retrieving asset " << asset_id << ". Status code=" << status << "(" << LLAssetStorage::getErrorString(status) << ") ext_status=" << ext_status << LL_ENDL;
+        LL_WARNS("SETTINGS") << "Error retrieving asset " << asset_id << ". Status code=" << status << "(" << LLAssetStorage::getErrorString(status) << ") ext_status=" << (U32)ext_status << LL_ENDL;
     }
     if (callback)
         callback(asset_id, settings, status, ext_status);
