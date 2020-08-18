@@ -112,7 +112,7 @@ S32 LLXfer_Mem::processEOF()
 
 	if (mCallback)
 	{
-		mCallback((void *)mBuffer,mBufferLength,mCallbackDataHandle,mCallbackResult,LL_EXSTAT_NONE);
+		mCallback((void *)mBuffer,mBufferLength,mCallbackDataHandle,mCallbackResult, LLExtStat::NONE);
 	}
 
 	return(retval);
