@@ -98,7 +98,8 @@
        shortcut="alt|control|H"
        visible="false">
         <menu_item_call.on_click
-         function="HoverHeight"/>
+         function="Floater.ToggleOrBringToFront"
+         parameter="edit_hover_height"/>
         <menu_item_call.on_enable
          function="Edit.EnableHoverHeight"/>
       </menu_item_call>
