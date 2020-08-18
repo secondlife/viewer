@@ -37,6 +37,7 @@
 #include "llheteromap.h"
 
 class LLView;
+void deleteView(LLView*); // Inside LLView.cpp, avoid having to potentially delete an incomplete type here.
 
 // lookup widget constructor funcs by widget name
 template <typename DERIVED_TYPE>
@@ -160,8 +161,8 @@ public:
 			LLXMLNodePtr root_node;
 
 			if (!LLUICtrlFactory::getLayeredXMLNode(filename, root_node))
-				{							
-				LL_WARNS() << "Couldn't parse XUI file: " << instance().getCurFileName() << LL_ENDL;
+			{
+                LL_WARNS() << "Couldn't parse XUI from path: " << instance().getCurFileName() << ", from filename: " << filename << LL_ENDL;
 				goto fail;
 			}
 
@@ -174,14 +175,7 @@ public:
 				{
 					LL_WARNS() << "Widget in " << filename << " was of type " << typeid(view).name() << " instead of expected type " << typeid(T).name() << LL_ENDL;
 
-#if LL_DARWIN
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdelete-incomplete"
-					delete view;
-#pragma clang diagnostic pop
-#else
-					delete view;
-#endif
+					deleteView(view);
 					view = NULL;
 				}
 			}

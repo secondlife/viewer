@@ -304,14 +304,13 @@ template<typename ElementT>
 bool LLThreadSafeQueue<ElementT>::isClosed()
 {
     lock_t lock(mLock);
-    return mClosed;
+    return mClosed && mStorage.size() == 0;
 }
 
 template<typename ElementT>
 LLThreadSafeQueue<ElementT>::operator bool()
 {
-    lock_t lock(mLock);
-    return ! mClosed;
+    return ! isClosed();
 }
 
 #endif
