@@ -140,12 +140,6 @@ LLCoprocedureManager::~LLCoprocedureManager()
     close();
 }
 
-void LLCoprocedureManager::initSingleton()
-{
-    // workaround until we get mutex into initializePool
-    initializePool("VAssetStorage");
-}
-
 LLCoprocedureManager::poolPtr_t LLCoprocedureManager::initializePool(const std::string &poolName)
 {
     // Attempt to look up a pool size in the configuration.  If found use that
@@ -197,8 +191,13 @@ LLUUID LLCoprocedureManager::enqueueCoprocedure(const std::string &pool, const s
 
 void LLCoprocedureManager::setPropertyMethods(SettingQuery_t queryfn, SettingUpdate_t updatefn)
 {
+    // functions to discover and store the pool sizes
     mPropertyQueryFn = queryfn;
     mPropertyDefineFn = updatefn;
+
+    // workaround until we get mutex into initializePool
+    initializePool("VAssetStorage");
+    initializePool("Upload");
 }
 
 //-------------------------------------------------------------------------
