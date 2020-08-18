@@ -62,9 +62,9 @@ bool is_addr_in_use(apr_status_t status)
 #endif
 }
 
-#if LL_LINUX
+#if ! LL_WINDOWS
 // Define this to see the actual file descriptors being tossed around.
-//#define LL_DEBUG_SOCKET_FILE_DESCRIPTORS 1
+#define LL_DEBUG_SOCKET_FILE_DESCRIPTORS 1
 #if LL_DEBUG_SOCKET_FILE_DESCRIPTORS
 #include "apr_portable.h"
 #endif
@@ -77,7 +77,7 @@ void ll_debug_socket(const char* msg, apr_socket_t* apr_sock)
 #if LL_DEBUG_SOCKET_FILE_DESCRIPTORS
 	if(!apr_sock)
 	{
-		LL_DEBUGS() << "Socket -- " << (msg?msg:"") << ": no socket." << LL_ENDL;
+		LL_DEBUGS("Socket") << "Socket -- " << (msg?msg:"") << ": no socket." << LL_ENDL;
 		return;
 	}
 	// *TODO: Why doesn't this work?
@@ -85,12 +85,12 @@ void ll_debug_socket(const char* msg, apr_socket_t* apr_sock)
 	int os_sock;
 	if(APR_SUCCESS == apr_os_sock_get(&os_sock, apr_sock))
 	{
-		LL_DEBUGS() << "Socket -- " << (msg?msg:"") << " on fd " << os_sock
+		LL_DEBUGS("Socket") << "Socket -- " << (msg?msg:"") << " on fd " << os_sock
 			<< " at " << apr_sock << LL_ENDL;
 	}
 	else
 	{
-		LL_DEBUGS() << "Socket -- " << (msg?msg:"") << " no fd "
+		LL_DEBUGS("Socket") << "Socket -- " << (msg?msg:"") << " no fd "
 			<< " at " << apr_sock << LL_ENDL;
 	}
 #endif
@@ -144,6 +144,9 @@ LLSocket::ptr_t LLSocket::create(apr_pool_t* pool, EType type, U16 port, const c
 		if(new_pool) apr_pool_destroy(new_pool);
 		return rv;
 	}
+	// At this point, the new LLSocket instance takes ownership of new_pool,
+	// which is why no early return below this call explicitly destroys it: it
+	// is instead cleaned up by ~LLSocket().
 	rv = ptr_t(new LLSocket(socket, new_pool));
 	if(port > 0)
 	{
@@ -186,7 +189,7 @@ LLSocket::ptr_t LLSocket::create(apr_pool_t* pool, EType type, U16 port, const c
 			}
 		}
 	}
-	else
+	else // port <= 0
 	{
 		// we need to indicate that we have an ephemeral port if the
 		// previous calls were successful. It will

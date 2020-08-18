@@ -856,6 +856,74 @@ bool llsd_equals(const LLSD& lhs, const LLSD& rhs, int bits)
     }
 }
 
+/*****************************************************************************
+*   llsd::drill()
+*****************************************************************************/
+namespace llsd
+{
+
+LLSD& drill(LLSD& blob, const LLSD& rawPath)
+{
+    // Treat rawPath uniformly as an array. If it's not already an array,
+    // store it as the only entry in one. (But let's say Undefined means an
+    // empty array.)
+    LLSD path;
+    if (rawPath.isArray() || rawPath.isUndefined())
+    {
+        path = rawPath;
+    }
+    else
+    {
+        path.append(rawPath);
+    }
+
+    // Need to indicate a current destination -- but that current destination
+    // must change as we step through the path array. Where normally we'd use
+    // an LLSD& to capture a subscripted LLSD lvalue, this time we must
+    // instead use a pointer -- since it must be reassigned.
+    // Start by pointing to the input blob exactly as is.
+    LLSD* located{&blob};
+
+    // Extract the element of interest by walking path. Use an explicit index
+    // so that, in case of a bogus type in path, we can identify the specific
+    // path entry that's bad.
+    for (LLSD::Integer i = 0; i < path.size(); ++i)
+    {
+        const LLSD& key{path[i]};
+        if (key.isString())
+        {
+            // a string path element is a map key
+            located = &((*located)[key.asString()]);
+        }
+        else if (key.isInteger())
+        {
+            // an integer path element is an array index
+            located = &((*located)[key.asInteger()]);
+        }
+        else
+        {
+            // What do we do with Real or Array or Map or ...?
+            // As it's a coder error -- not a user error -- rub the coder's
+            // face in it so it gets fixed.
+            LL_ERRS("llsdutil") << "drill(" << blob << ", " << rawPath
+                                << "): path[" << i << "] bad type "
+                                << sTypes.lookup(key.type()) << LL_ENDL;
+        }
+    }
+
+    // dereference the pointer to return a reference to the element we found
+    return *located;
+}
+
+LLSD drill(const LLSD& blob, const LLSD& path)
+{
+    // non-const drill() does exactly what we want. Temporarily cast away
+    // const-ness and use that.
+    return drill(const_cast<LLSD&>(blob), path);
+}
+
+} // namespace llsd
+
 // Construct a deep partial clone of of an LLSD object. primitive types share 
 // references, however maps, arrays and binary objects are duplicated. An optional
 // filter may be include to exclude/include keys in a map. 

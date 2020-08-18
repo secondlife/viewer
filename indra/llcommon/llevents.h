@@ -37,6 +37,7 @@
 #include <set>
 #include <vector>
 #include <deque>
+#include <functional>
 #if LL_WINDOWS
 	#pragma warning (push)
 	#pragma warning (disable : 4263) // boost::signals2::expired_slot::what() has const mismatch
@@ -55,7 +56,6 @@
 #include <boost/visit_each.hpp>
 #include <boost/ref.hpp>            // reference_wrapper
 #include <boost/type_traits/is_pointer.hpp>
-#include <boost/function.hpp>
 #include <boost/static_assert.hpp>
 #include "llsd.h"
 #include "llsingleton.h"
@@ -211,8 +211,7 @@ public:
     /// exception if you try to call when empty
     struct Empty: public LLException
     {
-        Empty(const std::string& what):
-            LLException(std::string("LLListenerOrPumpName::Empty: ") + what) {}
+        Empty(const std::string& what): LLException("LLListenerOrPumpName::Empty: " + what) {}
     };
 
 private:
@@ -247,6 +246,30 @@ public:
      */
     LLEventPump& obtain(const std::string& name);
 
+    /// exception potentially thrown by make()
+    struct BadType: public LLException
+    {
+        BadType(const std::string& what): LLException("BadType: " + what) {}
+    };
+
+    /**
+     * Create an LLEventPump with suggested name (optionally of specified
+     * LLEventPump subclass type). As with obtain(), LLEventPumps owns the new
+     * instance.
+     *
+     * As with LLEventPump's constructor, make() could throw
+     * LLEventPump::DupPumpName unless you pass tweak=true.
+     *
+     * As with a hand-constructed LLEventPump subclass, if you pass
+     * tweak=true, the tweaked name can be obtained by LLEventPump::getName().
+     *
+     * Pass empty type to get the default LLEventStream.
+     *
+     * If you pass an unrecognized type string, make() throws BadType.
+     */
+    LLEventPump& make(const std::string& name, bool tweak=false,
+                      const std::string& type=std::string());
+
     /**
      * Find the named LLEventPump instance. If it exists post the message to it.
      * If the pump does not exist, do nothing.
@@ -262,6 +285,11 @@ public:
      * Flush all known LLEventPump instances
      */
     void flush();
+
+    /**
+     * Disconnect listeners from all known LLEventPump instances
+     */
+    void clear();
 
     /**
      * Reset all known LLEventPump instances
@@ -298,42 +326,20 @@ testable:
     // destroyed.
     typedef std::set<LLEventPump*> PumpSet;
     PumpSet mOurPumps;
-    // LLEventPump names that should be instantiated as LLEventQueue rather
-    // than as LLEventStream
-    typedef std::set<std::string> PumpNames;
-    PumpNames mQueueNames;
+    // for make(), map string type name to LLEventPump subclass factory function
+    typedef std::map<std::string, std::function<LLEventPump*(const std::string&, bool)>> PumpFactories;
+    // Data used by make().
+    // One might think mFactories and mTypes could reasonably be static. So
+    // they could -- if not for the fact that make() or obtain() might be
+    // called before this module's static variables have been initialized.
+    // This is why we use singletons in the first place.
+    PumpFactories mFactories;
+
+    // for obtain(), map desired string instance name to string type when
+    // obtain() must create the instance
+    typedef std::map<std::string, std::string> InstanceTypes;
+    InstanceTypes mTypes;
 };
-
-/*****************************************************************************
-*   details
-*****************************************************************************/
-namespace LLEventDetail
-{
-    /// Any callable capable of connecting an LLEventListener to an
-    /// LLStandardSignal to produce an LLBoundListener can be mapped to this
-    /// signature.
-    typedef boost::function<LLBoundListener(const LLEventListener&)> ConnectFunc;
-
-    /// overload of visit_and_connect() when we have a string identifier available
-    template <typename LISTENER>
-    LLBoundListener visit_and_connect(const std::string& name,
-                                      const LISTENER& listener,
-                                      const ConnectFunc& connect_func);
-    /**
-     * Utility template function to use Visitor appropriately
-     *
-     * @param listener Callable to connect, typically a boost::bind()
-     * expression. This will be visited by Visitor using boost::visit_each().
-     * @param connect_func Callable that will connect() @a listener to an
-     * LLStandardSignal, returning LLBoundListener.
-     */
-    template <typename LISTENER>
-    LLBoundListener visit_and_connect(const LISTENER& listener,
-                                      const ConnectFunc& connect_func)
-    {
-        return visit_and_connect("", listener, connect_func);
-    }
-} // namespace LLEventDetail
 
 /*****************************************************************************
 *   LLEventTrackable
@@ -369,11 +375,6 @@ namespace LLEventDetail
  *     instance, it attempts to dereference the <tt>Foo*</tt> pointer that was
  *     <tt>delete</tt>d but not zeroed.)
  *   - Undefined behavior results.
- * If you suspect you may encounter any such scenario, you're better off
- * managing the lifespan of your object with <tt>boost::shared_ptr</tt>.
- * Passing <tt>LLEventPump::listen()</tt> a <tt>boost::bind()</tt> expression
- * involving a <tt>boost::weak_ptr<Foo></tt> is recognized specially, engaging
- * thread-safe Boost.Signals2 machinery.
  */
 typedef boost::signals2::trackable LLEventTrackable;
 
@@ -382,7 +383,7 @@ typedef boost::signals2::trackable LLEventTrackable;
 *****************************************************************************/
 /**
  * LLEventPump is the base class interface through which we access the
- * concrete subclasses LLEventStream and LLEventQueue.
+ * concrete subclasses such as LLEventStream.
  *
  * @NOTE
  * LLEventPump derives from LLEventTrackable so that when you "chain"
@@ -403,8 +404,7 @@ public:
      */
     struct DupPumpName: public LLException
     {
-        DupPumpName(const std::string& what):
-            LLException(std::string("DupPumpName: ") + what) {}
+        DupPumpName(const std::string& what): LLException("DupPumpName: " + what) {}
     };
 
     /**
@@ -440,9 +440,7 @@ public:
      */
     struct DupListenerName: public ListenError
     {
-        DupListenerName(const std::string& what):
-            ListenError(std::string("DupListenerName: ") + what)
-        {}
+        DupListenerName(const std::string& what): ListenError("DupListenerName: " + what) {}
     };
     /**
      * exception thrown by listen(). The order dependencies specified for your
@@ -454,7 +452,7 @@ public:
      */
     struct Cycle: public ListenError
     {
-        Cycle(const std::string& what): ListenError(std::string("Cycle: ") + what) {}
+        Cycle(const std::string& what): ListenError("Cycle: " + what) {}
     };
     /**
      * exception thrown by listen(). This one means that your new listener
@@ -475,7 +473,7 @@ public:
      */
     struct OrderChange: public ListenError
     {
-        OrderChange(const std::string& what): ListenError(std::string("OrderChange: ") + what) {}
+        OrderChange(const std::string& what): ListenError("OrderChange: " + what) {}
     };
 
     /// used by listen()
@@ -512,44 +510,13 @@ public:
      * the result be assigned to a LLTempBoundListener or the listener is 
      * manually disconnected when no longer needed since there will be no
      * way to later find and disconnect this listener manually.
-     *
-     * If (as is typical) you pass a <tt>boost::bind()</tt> expression as @a
-     * listener, listen() will inspect the components of that expression. If a
-     * bound object matches any of several cases, the connection will
-     * automatically be disconnected when that object is destroyed.
-     *
-     * * You bind a <tt>boost::weak_ptr</tt>.
-     * * Binding a <tt>boost::shared_ptr</tt> that way would ensure that the
-     *   referenced object would @em never be destroyed, since the @c
-     *   shared_ptr stored in the LLEventPump would remain an outstanding
-     *   reference. Use the weaken() function to convert your @c shared_ptr to
-     *   @c weak_ptr. Because this is easy to forget, binding a @c shared_ptr
-     *   will produce a compile error (@c BOOST_STATIC_ASSERT failure).
-     * * You bind a simple pointer or reference to an object derived from
-     *   <tt>boost::enable_shared_from_this</tt>. (UNDER CONSTRUCTION)
-     * * You bind a simple pointer or reference to an object derived from
-     *   LLEventTrackable. Unlike the cases described above, though, this is
-     *   vulnerable to a couple of cross-thread race conditions, as described
-     *   in the LLEventTrackable documentation.
      */
-    template <typename LISTENER>
-    LLBoundListener listen(const std::string& name, const LISTENER& listener,
+    LLBoundListener listen(const std::string& name,
+                           const LLEventListener& listener,
                            const NameList& after=NameList(),
                            const NameList& before=NameList())
     {
-        // Examine listener, using our listen_impl() method to make the
-        // actual connection.
-        // This is why listen() is a template. Conversion from boost::bind()
-        // to LLEventListener performs type erasure, so it's important to look
-        // at the boost::bind object itself before that happens.
-        return LLEventDetail::visit_and_connect(name,
-                                                listener,
-                                                boost::bind(&LLEventPump::listen_invoke,
-                                                            this,
-                                                            name,
-                                                            _1,
-                                                            after,
-                                                            before));
+        return listen_impl(name, listener, after, before);
     }
 
     /// Get the LLBoundListener associated with the passed name (dummy
@@ -587,19 +554,12 @@ public:
 
 private:
     friend class LLEventPumps;
-
+    virtual void clear();
     virtual void reset();
 
 
 
 private:
-    LLBoundListener listen_invoke(const std::string& name, const LLEventListener& listener,
-        const NameList& after,
-        const NameList& before)
-    {
-        return this->listen_impl(name, listener, after, before);
-    }
-
     // must precede mName; see LLEventPump::LLEventPump()
     LLHandle<LLEventPumps> mRegistry;
 
@@ -663,11 +623,10 @@ public:
  * event *must* eventually reach a listener that will consume it, else the
  * queue will grow to arbitrary length.
  * 
- * @NOTE: When using an LLEventMailDrop (or LLEventQueue) with a LLEventTimeout or
+ * @NOTE: When using an LLEventMailDrop with an LLEventTimeout or
  * LLEventFilter attaching the filter downstream, using Timeout's constructor will
  * cause the MailDrop to discharge any of its stored events. The timeout should 
  * instead be connected upstream using its listen() method.  
- * See llcoro::suspendUntilEventOnWithTimeout() for an example.
  */
 class LL_COMMON_API LLEventMailDrop : public LLEventStream
 {
@@ -679,7 +638,8 @@ public:
     virtual bool post(const LLSD& event) override;
     
     /// Remove any history stored in the mail drop.
-    virtual void flush() override { mEventHistory.clear(); LLEventStream::flush(); };
+    void discard();
+
 protected:
     virtual LLBoundListener listen_impl(const std::string& name, const LLEventListener&,
                                         const NameList& after,
@@ -688,30 +648,6 @@ protected:
 private:
     typedef std::list<LLSD> EventList;
     EventList mEventHistory;
-};
-
-/*****************************************************************************
-*   LLEventQueue
-*****************************************************************************/
-/**
- * LLEventQueue is a LLEventPump whose post() method defers calling registered
- * listeners until flush() is called.
- */
-class LL_COMMON_API LLEventQueue: public LLEventPump
-{
-public:
-    LLEventQueue(const std::string& name, bool tweak=false): LLEventPump(name, tweak) {}
-    virtual ~LLEventQueue() {}
-
-    /// Post an event to all listeners
-    virtual bool post(const LLSD& event);
-
-    /// flush queued events
-    virtual void flush();
-
-private:
-    typedef std::deque<LLSD> EventQueue;
-    EventQueue mEventQueue;
 };
 
 /*****************************************************************************
@@ -809,329 +745,6 @@ private:
 LL_COMMON_API bool sendReply(const LLSD& reply, const LLSD& request,
                              const std::string& replyKey="reply");
 
-/**
- * Base class for LLListenerWrapper. See visit_and_connect() and llwrap(). We
- * provide virtual @c accept_xxx() methods, customization points allowing a
- * subclass access to certain data visible at LLEventPump::listen() time.
- * Example subclass usage:
- *
- * @code
- * myEventPump.listen("somename",
- *                    llwrap<MyListenerWrapper>(boost::bind(&MyClass::method, instance, _1)));
- * @endcode
- *
- * Because of the anticipated usage (note the anonymous temporary
- * MyListenerWrapper instance in the example above), the @c accept_xxx()
- * methods must be @c const.
- */
-class LL_COMMON_API LLListenerWrapperBase
-{
-public:
-    /// New instance. The accept_xxx() machinery makes it important to use
-    /// shared_ptrs for our data. Many copies of this object are made before
-    /// the instance that actually ends up in the signal, yet accept_xxx()
-    /// will later be called on the @em original instance. All copies of the
-    /// same original instance must share the same data.
-    LLListenerWrapperBase():
-        mName(new std::string),
-        mConnection(new LLBoundListener)
-    {
-    }
-
-    /// Copy constructor. Copy shared_ptrs to original instance data.
-    LLListenerWrapperBase(const LLListenerWrapperBase& that):
-        mName(that.mName),
-        mConnection(that.mConnection)
-    {
-    }
-    virtual ~LLListenerWrapperBase() {}
-
-    /// Ask LLEventPump::listen() for the listener name
-    virtual void accept_name(const std::string& name) const
-    {
-        *mName = name;
-    }
-
-    /// Ask LLEventPump::listen() for the new connection
-    virtual void accept_connection(const LLBoundListener& connection) const
-    {
-        *mConnection = connection;
-    }
-
-protected:
-    /// Listener name.
-    boost::shared_ptr<std::string> mName;
-    /// Connection.
-    boost::shared_ptr<LLBoundListener> mConnection;
-};
-
-/*****************************************************************************
-*   Underpinnings
-*****************************************************************************/
-/**
- * We originally provided a suite of overloaded
- * LLEventTrackable::listenTo(LLEventPump&, ...) methods that would call
- * LLEventPump::listen(...) and then pass the returned LLBoundListener to
- * LLEventTrackable::track(). This was workable but error-prone: the coder
- * must remember to call listenTo() rather than the more straightforward
- * listen() method.
- *
- * Now we publish only the single canonical listen() method, so there's a
- * uniform mechanism. Having a single way to do this is good, in that there's
- * no question in the coder's mind which of several alternatives to choose.
- *
- * To support automatic connection management, we use boost::visit_each
- * (http://www.boost.org/doc/libs/1_37_0/doc/html/boost/visit_each.html) to
- * inspect each argument of a boost::bind expression. (Although the visit_each
- * mechanism was first introduced with the original Boost.Signals library, it
- * was only later documented.)
- *
- * Cases:
- * * At least one of the function's arguments is a boost::weak_ptr<T>. Pass
- *   the corresponding shared_ptr to slot_type::track(). Ideally that would be
- *   the object whose method we want to call, but in fact we do the same for
- *   any weak_ptr we might find among the bound arguments. If we're passing
- *   our bound method a weak_ptr to some object, wouldn't the destruction of
- *   that object invalidate the call? So we disconnect automatically when any
- *   such object is destroyed. This is the mechanism preferred by boost::
- *   signals2.
- * * One of the functions's arguments is a boost::shared_ptr<T>. This produces
- *   a compile error: the bound copy of the shared_ptr stored in the
- *   boost_bind object stored in the signal object would make the referenced
- *   T object immortal. We provide a weaken() function. Pass
- *   weaken(your_shared_ptr) instead. (We can inspect, but not modify, the
- *   boost::bind object. Otherwise we'd replace the shared_ptr with weak_ptr
- *   implicitly and just proceed.)
- * * One of the function's arguments is a plain pointer/reference to an object
- *   derived from boost::enable_shared_from_this. We assume that this object
- *   is managed using boost::shared_ptr, so we implicitly extract a shared_ptr
- *   and track that. (UNDER CONSTRUCTION)
- * * One of the function's arguments is derived from LLEventTrackable. Pass
- *   the LLBoundListener to its LLEventTrackable::track(). This is vulnerable
- *   to a couple different race conditions, as described in LLEventTrackable
- *   documentation. (NOTE: Now that LLEventTrackable is a typedef for
- *   boost::signals2::trackable, the Signals2 library handles this itself, so
- *   our visitor needs no special logic for this case.)
- * * Any other argument type is irrelevant to automatic connection management.
- */
-
-namespace LLEventDetail
-{
-    template <typename F>
-    const F& unwrap(const F& f) { return f; }
-
-    template <typename F>
-    const F& unwrap(const boost::reference_wrapper<F>& f) { return f.get(); }
-
-    // Most of the following is lifted from the Boost.Signals use of
-    // visit_each.
-    template<bool Cond> struct truth {};
-
-    /**
-     * boost::visit_each() Visitor, used on a template argument <tt>const F&
-     * f</tt> as follows (see visit_and_connect()):
-     * @code
-     * LLEventListener listener(f);
-     * Visitor visitor(listener); // bind listener so it can track() shared_ptrs
-     * using boost::visit_each;   // allow unqualified visit_each() call for ADL
-     * visit_each(visitor, unwrap(f));
-     * @endcode
-     */
-    class Visitor
-    {
-    public:
-        /**
-         * Visitor binds a reference to LLEventListener so we can track() any
-         * shared_ptrs we find in the argument list.
-         */
-        Visitor(LLEventListener& listener):
-            mListener(listener)
-        {
-        }
-
-        /**
-         * boost::visit_each() calls this method for each component of a
-         * boost::bind() expression.
-         */
-        template <typename T>
-        void operator()(const T& t) const
-        {
-            decode(t, 0);
-        }
-
-    private:
-        // decode() decides between a reference wrapper and anything else
-        // boost::ref() variant
-        template<typename T>
-        void decode(const boost::reference_wrapper<T>& t, int) const
-        {
-//          add_if_trackable(t.get_pointer());
-        }
-
-        // decode() anything else
-        template<typename T>
-        void decode(const T& t, long) const
-        {
-            typedef truth<(boost::is_pointer<T>::value)> is_a_pointer;
-            maybe_get_pointer(t, is_a_pointer());
-        }
-
-        // maybe_get_pointer() decides between a pointer and a non-pointer
-        // plain pointer variant
-        template<typename T>
-        void maybe_get_pointer(const T& t, truth<true>) const
-        {
-//          add_if_trackable(t);
-        }
-
-        // shared_ptr variant
-        template<typename T>
-        void maybe_get_pointer(const boost::shared_ptr<T>& t, truth<false>) const
-        {
-            // If we have a shared_ptr to this object, it doesn't matter
-            // whether the object is derived from LLEventTrackable, so no
-            // further analysis of T is needed.
-//          mListener.track(t);
-
-            // Make this case illegal. Passing a bound shared_ptr to
-            // slot_type::track() is useless, since the bound shared_ptr will
-            // keep the object alive anyway! Force the coder to cast to weak_ptr.
-
-            // Trivial as it is, make the BOOST_STATIC_ASSERT() condition
-            // dependent on template param so the macro is only evaluated if
-            // this method is in fact instantiated, as described here:
-            // http://www.boost.org/doc/libs/1_34_1/doc/html/boost_staticassert.html
-
-            // ATTENTION: Don't bind a shared_ptr<anything> using
-            // LLEventPump::listen(boost::bind()). Doing so captures a copy of
-            // the shared_ptr, making the referenced object effectively
-            // immortal. Use the weaken() function, e.g.:
-            // somepump.listen(boost::bind(...weaken(my_shared_ptr)...));
-            // This lets us automatically disconnect when the referenced
-            // object is destroyed.
-            BOOST_STATIC_ASSERT(sizeof(T) == 0);
-        }
-
-        // weak_ptr variant
-        template<typename T>
-        void maybe_get_pointer(const boost::weak_ptr<T>& t, truth<false>) const
-        {
-            // If we have a weak_ptr to this object, it doesn't matter
-            // whether the object is derived from LLEventTrackable, so no
-            // further analysis of T is needed.
-            mListener.track(t);
-//          std::cout << "Found weak_ptr<" << typeid(T).name() << ">!\n";
-        }
-
-#if 0
-        // reference to anything derived from boost::enable_shared_from_this
-        template <typename T>
-        inline void maybe_get_pointer(const boost::enable_shared_from_this<T>& ct,
-                                      truth<false>) const
-        {
-            // Use the slot_type::track(shared_ptr) mechanism. Cast away
-            // const-ness because (in our code base anyway) it's unusual
-            // to find shared_ptr<const T>.
-            boost::enable_shared_from_this<T>&
-                t(const_cast<boost::enable_shared_from_this<T>&>(ct));
-            std::cout << "Capturing shared_from_this()" << std::endl;
-            boost::shared_ptr<T> sp(t.shared_from_this());
-/*==========================================================================*|
-            std::cout << "Capturing weak_ptr" << std::endl;
-            boost::weak_ptr<T> wp(sp);
-|*==========================================================================*/
-            std::cout << "Tracking shared__ptr" << std::endl;
-            mListener.track(sp);
-        }
-#endif
-
-        // non-pointer variant
-        template<typename T>
-        void maybe_get_pointer(const T& t, truth<false>) const
-        {
-            // Take the address of this object, because the object itself may be
-            // trackable
-//          add_if_trackable(boost::addressof(t));
-        }
-
-/*==========================================================================*|
-        // add_if_trackable() adds LLEventTrackable objects to mTrackables
-        inline void add_if_trackable(const LLEventTrackable* t) const
-        {
-            if (t)
-            {
-            }
-        }
-
-        // pointer to anything not an LLEventTrackable subclass
-        inline void add_if_trackable(const void*) const
-        {
-        }
-
-        // pointer to free function
-        // The following construct uses the preprocessor to generate
-        // add_if_trackable() overloads accepting pointer-to-function taking
-        // 0, 1, ..., LLEVENTS_LISTENER_ARITY parameters of arbitrary type.
-#define BOOST_PP_LOCAL_MACRO(n)                                     \
-        template <typename R                                        \
-                  BOOST_PP_COMMA_IF(n)                              \
-                  BOOST_PP_ENUM_PARAMS(n, typename T)>              \
-        inline void                                                 \
-        add_if_trackable(R (*)(BOOST_PP_ENUM_PARAMS(n, T))) const   \
-        {                                                           \
-        }
-#define BOOST_PP_LOCAL_LIMITS (0, LLEVENTS_LISTENER_ARITY)
-#include BOOST_PP_LOCAL_ITERATE()
-#undef  BOOST_PP_LOCAL_MACRO
-#undef  BOOST_PP_LOCAL_LIMITS
-|*==========================================================================*/
-
-        /// Bind a reference to the LLEventListener to call its track() method.
-        LLEventListener& mListener;
-    };
-
-    /**
-     * Utility template function to use Visitor appropriately
-     *
-     * @param raw_listener Callable to connect, typically a boost::bind()
-     * expression. This will be visited by Visitor using boost::visit_each().
-     * @param connect_funct Callable that will connect() @a raw_listener to an
-     * LLStandardSignal, returning LLBoundListener.
-     */
-    template <typename LISTENER>
-    LLBoundListener visit_and_connect(const std::string& name,
-                                      const LISTENER& raw_listener,
-                                      const ConnectFunc& connect_func)
-    {
-        // Capture the listener
-        LLEventListener listener(raw_listener);
-        // Define our Visitor, binding the listener so we can call
-        // listener.track() if we discover any shared_ptr<Foo>.
-        LLEventDetail::Visitor visitor(listener);
-        // Allow unqualified visit_each() call for ADL
-        using boost::visit_each;
-        // Visit each component of a boost::bind() expression. Pass
-        // 'raw_listener', our template argument, rather than 'listener' from
-        // which type details have been erased. unwrap() comes from
-        // Boost.Signals, in case we were passed a boost::ref().
-        visit_each(visitor, LLEventDetail::unwrap(raw_listener));
-        // Make the connection using passed function.
-        LLBoundListener connection(connect_func(listener));
-        // If the LISTENER is an LLListenerWrapperBase subclass, pass it the
-        // desired information. It's important that we pass the raw_listener
-        // so the compiler can make decisions based on its original type.
-        const LLListenerWrapperBase* lwb =
-            ll_template_cast<const LLListenerWrapperBase*>(&raw_listener);
-        if (lwb)
-        {
-            lwb->accept_name(name);
-            lwb->accept_connection(connection);
-        }
-        // In any case, show new connection to caller.
-        return connection;
-    }
-} // namespace LLEventDetail
-
 // Somewhat to my surprise, passing boost::bind(...boost::weak_ptr<T>...) to
 // listen() fails in Boost code trying to instantiate LLEventListener (i.e.
 // LLStandardSignal::slot_type) because the boost::get_pointer() utility function isn't
@@ -1140,14 +753,6 @@ namespace boost
 {
     template <typename T>
     T* get_pointer(const weak_ptr<T>& ptr) { return shared_ptr<T>(ptr).get(); }
-}
-
-/// Since we forbid use of listen(boost::bind(...shared_ptr<T>...)), provide an
-/// easy way to cast to the corresponding weak_ptr.
-template <typename T>
-boost::weak_ptr<T> weaken(const boost::shared_ptr<T>& ptr)
-{
-    return boost::weak_ptr<T>(ptr);
 }
 
 #endif /* ! defined(LL_LLEVENTS_H) */

@@ -30,11 +30,8 @@
 #include "llapp.h"
 #include "llapr.h"
 #include "boost/intrusive_ptr.hpp"
-#include "llmutex.h"
 #include "llrefcount.h"
 #include <thread>
-
-LL_COMMON_API void assert_main_thread();
 
 namespace LLTrace
 {
@@ -45,7 +42,6 @@ class LL_COMMON_API LLThread
 {
 private:
     friend class LLMutex;
-    static U32 sIDIter;
 
 public:
     typedef enum e_thread_status
@@ -55,6 +51,7 @@ public:
         QUITTING= 2,    // Someone wants this thread to quit
         CRASHED = -1    // An uncaught exception was thrown by the thread
     } EThreadStatus;
+    typedef std::thread::id id_t;
 
     LLThread(const std::string& name, apr_pool_t *poolp = NULL);
     virtual ~LLThread(); // Warning!  You almost NEVER want to destroy a thread unless it's in the STOPPED state.
@@ -64,7 +61,7 @@ public:
     bool isStopped() const { return (STOPPED == mStatus) || (CRASHED == mStatus); }
     bool isCrashed() const { return (CRASHED == mStatus); } 
     
-    static U32 currentID(); // Return ID of current thread
+    static id_t currentID(); // Return ID of current thread
     static void yield(); // Static because it can be called by the main thread, which doesn't have an LLThread data structure.
     
 public:
@@ -88,7 +85,7 @@ public:
 
     LLVolatileAPRPool* getLocalAPRFilePool() { return mLocalAPRFilePoolp ; }
 
-    U32 getID() const { return mID; }
+    id_t getID() const { return mID; }
 
     // Called by threads *not* created via LLThread to register some
     // internal state used by LLMutex.  You must call this once early
@@ -109,7 +106,7 @@ protected:
 
     std::thread        *mThreadp;
     EThreadStatus       mStatus;
-    U32                 mID;
+    id_t                mID;
     LLTrace::ThreadRecorder* mRecorder;
 
     //a local apr_pool for APRFile operations in this thread. If it exists, LLAPRFile::sAPRFilePoolp should not be used.
@@ -126,8 +123,8 @@ protected:
     virtual bool runCondition(void);
 
     // Lock/Unlock Run Condition -- use around modification of any variable used in runCondition()
-    inline void lockData();
-    inline void unlockData();
+    void lockData();
+    void unlockData();
     
     // This is the predicate that decides whether the thread should sleep.  
     // It should only be called with mDataLock locked, since the virtual runCondition() function may need to access
@@ -140,17 +137,6 @@ protected:
     //     mRunCondition->signal();
     // mDataLock->unlock();
 };
-
-
-void LLThread::lockData()
-{
-    mDataLock->lock();
-}
-
-void LLThread::unlockData()
-{
-    mDataLock->unlock();
-}
 
 
 //============================================================================
@@ -168,5 +154,6 @@ public:
 //============================================================================
 
 extern LL_COMMON_API void assert_main_thread();
+extern LL_COMMON_API bool on_main_thread();
 
 #endif // LL_LLTHREAD_H

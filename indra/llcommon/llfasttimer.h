@@ -31,6 +31,10 @@
 #include "lltrace.h"
 #include "lltreeiterators.h"
 
+#if LL_WINDOWS
+#include <intrin.h>
+#endif
+
 #define LL_FAST_TIMER_ON 1
 #define LL_FASTTIMER_USE_RDTSC 1
 
@@ -84,6 +88,8 @@ public:
 	//{
 	//	return __rdtsc();
 	//}
+
+	
 
 	// shift off lower 8 bits for lower resolution but longer term timing
 	// on 1Ghz machine, a 32-bit word will hold ~1000 seconds of timing
@@ -189,7 +195,6 @@ public:
 
 	// call this once a frame to periodically log timers
 	static void logStats();
-	static void logStatsExtended();
     static void logStatsArctan();
 
 	// dumps current cumulative frame stats to log

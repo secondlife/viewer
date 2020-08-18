@@ -271,10 +271,10 @@ namespace tut
 		LLSD w;
 		mParser->reset();	// reset() call is needed since test code re-uses mParser
 		mParser->parse(stream, w, stream.str().size());
-		
+
 		try
 		{
-			ensure_equals(msg.c_str(), w, v);
+			ensure_equals(msg, w, v);
 		}
 		catch (...)
 		{
@@ -432,6 +432,7 @@ namespace tut
 		
 		const char source[] = "it must be a blue moon again";
 		std::vector<U8> data;
+		// note, includes terminating '\0'
 		copy(&source[0], &source[sizeof(source)], back_inserter(data));
 		
 		v = data;
@@ -468,28 +469,36 @@ namespace tut
 		checkRoundTrip(msg + " many nested maps", v);
 	}
 	
-	typedef tut::test_group<TestLLSDSerializeData> TestLLSDSerialzeGroup;
-	typedef TestLLSDSerialzeGroup::object TestLLSDSerializeObject;
-	TestLLSDSerialzeGroup gTestLLSDSerializeGroup("llsd serialization");
+	typedef tut::test_group<TestLLSDSerializeData> TestLLSDSerializeGroup;
+	typedef TestLLSDSerializeGroup::object TestLLSDSerializeObject;
+	TestLLSDSerializeGroup gTestLLSDSerializeGroup("llsd serialization");
 
 	template<> template<> 
 	void TestLLSDSerializeObject::test<1>()
 	{
-		mFormatter = new LLSDNotationFormatter();
+		mFormatter = new LLSDNotationFormatter(false, "", LLSDFormatter::OPTIONS_PRETTY_BINARY);
 		mParser = new LLSDNotationParser();
-		doRoundTripTests("notation serialization");
+		doRoundTripTests("pretty binary notation serialization");
 	}
-	
+
 	template<> template<> 
 	void TestLLSDSerializeObject::test<2>()
+	{
+		mFormatter = new LLSDNotationFormatter(false, "", LLSDFormatter::OPTIONS_NONE);
+		mParser = new LLSDNotationParser();
+		doRoundTripTests("raw binary notation serialization");
+	}
+
+	template<> template<> 
+	void TestLLSDSerializeObject::test<3>()
 	{
 		mFormatter = new LLSDXMLFormatter();
 		mParser = new LLSDXMLParser();
 		doRoundTripTests("xml serialization");
 	}
-	
+
 	template<> template<> 
-	void TestLLSDSerializeObject::test<3>()
+	void TestLLSDSerializeObject::test<4>()
 	{
 		mFormatter = new LLSDBinaryFormatter();
 		mParser = new LLSDBinaryParser();

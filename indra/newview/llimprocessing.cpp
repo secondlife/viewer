@@ -857,40 +857,40 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             }
             else // IM_TASK_INVENTORY_OFFERED
             {
-                if (offline == IM_OFFLINE && session_id.isNull() && aux_id.notNull() && binary_bucket_size > sizeof(S8)* 5)
+                if (sizeof(S8) == binary_bucket_size)
                 {
-                    // cap received offline message
-                    std::string str_bucket = ll_safe_string((char*)binary_bucket, binary_bucket_size);
-                    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-                    boost::char_separator<char> sep("|", "", boost::keep_empty_tokens);
-                    tokenizer tokens(str_bucket, sep);
-                    tokenizer::iterator iter = tokens.begin();
-
-                    info->mType = (LLAssetType::EType)(atoi((*(iter++)).c_str()));
-                    // Note There is more elements in 'tokens' ...
-
-                    info->mObjectID = LLUUID::null;
-                    info->mFromObject = TRUE;
+                    info->mType = (LLAssetType::EType) binary_bucket[0];
                 }
                 else
                 {
-                    if (sizeof(S8) != binary_bucket_size)
-                    {
-                        LL_WARNS("Messaging") << "Malformed inventory offer from object" << LL_ENDL;
-                        delete info;
-                        break;
-                    }
-                    info->mType = (LLAssetType::EType) binary_bucket[0];
-                    info->mObjectID = LLUUID::null;
-                    info->mFromObject = TRUE;
+                    /*RIDER*/ // The previous version of the protocol returned the wrong binary bucket... we 
+                    // still might be able to figure out the type... even though the offer is not retrievable. 
+
+                    // Should be safe to remove once DRTSIM-451 fully deploys
+                    std::string str_bucket(reinterpret_cast<char *>(binary_bucket));
+                    std::string str_type(str_bucket.substr(0, str_bucket.find('|')));
+
+                    std::stringstream type_convert(str_type);
+
+                    S32 type;
+                    type_convert >> type;
+
+                    // We could try AT_UNKNOWN which would be more accurate, but that causes an auto decline
+                    info->mType = static_cast<LLAssetType::EType>(type);
+                    // Don't break in the case of a bad binary bucket.  Go ahead and show the 
+                    // accept/decline popup even though it will not do anything.
+                    LL_WARNS("Messaging") << "Malformed inventory offer from object, type might be " << info->mType << LL_ENDL;
                 }
+                info->mObjectID = LLUUID::null;
+                info->mFromObject = TRUE;
             }
 
             info->mIM = dialog;
             info->mFromID = from_id;
             info->mFromGroup = from_group;
-            info->mTransactionID = session_id;
             info->mFolderID = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(info->mType));
+
+            info->mTransactionID = session_id.notNull() ? session_id : aux_id;
 
             info->mFromName = name;
             info->mDesc = message;
@@ -1404,10 +1404,8 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             payload["sender"] = sender.getIPandPort();
 
             bool add_notification = true;
-            for (LLToastNotifyPanel::instance_iter ti(LLToastNotifyPanel::beginInstances())
-                , tend(LLToastNotifyPanel::endInstances()); ti != tend; ++ti)
+            for (auto& panel : LLToastNotifyPanel::instance_snapshot())
             {
-                LLToastNotifyPanel& panel = *ti;
                 const std::string& notification_name = panel.getNotificationName();
                 if (notification_name == "OfferFriendship" && panel.isControlPanelEnabled())
                 {
@@ -1569,7 +1567,7 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
         return;
     }
 
-    if (gAgent.getRegion() == NULL)
+    if (!gAgent.getRegion())
     {
         LL_WARNS("Messaging") << "Region null while attempting to load messages." << LL_ENDL;
         return;
@@ -1577,8 +1575,6 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
 
     LL_INFOS("Messaging") << "Processing offline messages." << LL_ENDL;
 
-    std::vector<U8> data;
-    S32 binary_bucket_size = 0;
     LLHost sender = gAgent.getRegionHost();
 
     LLSD::array_iterator i = messages.beginArray();
@@ -1587,12 +1583,30 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
     {
         const LLSD &message_data(*i);
 
-        LLVector3 position(message_data["local_x"].asReal(), message_data["local_y"].asReal(), message_data["local_z"].asReal());
-        data = message_data["binary_bucket"].asBinary();
-        binary_bucket_size = data.size(); // message_data["count"] always 0
-        U32 parent_estate_id = message_data.has("parent_estate_id") ? message_data["parent_estate_id"].asInteger() : 1; // 1 - IMMainland
+        /* RIDER: Many fields in this message are using a '_' rather than the standard '-'.  This 
+         * should be changed but would require tight coordination with the simulator. 
+         */
+        LLVector3 position;
+        if (message_data.has("position"))
+        {
+            position.setValue(message_data["position"]);
+        }
+        else
+        {
+            position.set(message_data["local_x"].asReal(), message_data["local_y"].asReal(), message_data["local_z"].asReal());
+        }
 
-        // Todo: once dirtsim-369 releases, remove one of the int/str options
+        std::vector<U8> bin_bucket;
+        if (message_data.has("binary_bucket"))
+        {
+            bin_bucket = message_data["binary_bucket"].asBinary();
+        }
+        else
+        {
+            bin_bucket.push_back(0);
+        }
+
+        // Todo: once drtsim-451 releases, remove the string option
         BOOL from_group;
         if (message_data["from_group"].isInteger())
         {
@@ -1603,22 +1617,24 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
             from_group = message_data["from_group"].asString() == "Y";
         }
 
-        LLIMProcessing::processNewMessage(message_data["from_agent_id"].asUUID(),
+        LLIMProcessing::processNewMessage(
+            message_data["from_agent_id"].asUUID(),
             from_group,
             message_data["to_agent_id"].asUUID(),
-            IM_OFFLINE,
-            (EInstantMessage)message_data["dialog"].asInteger(),
-            LLUUID::null, // session id, since there is none we can only use frienship/group invite caps
-            message_data["timestamp"].asInteger(),
+            message_data.has("offline") ? static_cast<U8>(message_data["offline"].asInteger()) : IM_OFFLINE,
+            static_cast<EInstantMessage>(message_data["dialog"].asInteger()),
+            message_data["transaction-id"].asUUID(),
+            static_cast<U32>(message_data["timestamp"].asInteger()),
             message_data["from_agent_name"].asString(),
             message_data["message"].asString(),
-            parent_estate_id,
+            static_cast<U32>((message_data.has("parent_estate_id")) ? message_data["parent_estate_id"].asInteger() : 1), // 1 - IMMainland
             message_data["region_id"].asUUID(),
             position,
-            &data[0],
-            binary_bucket_size,
+            bin_bucket.data(),
+            bin_bucket.size(),
             sender,
-            message_data["asset_id"].asUUID()); // not necessarily an asset
+            message_data["asset_id"].asUUID());
+
     }
 }
 

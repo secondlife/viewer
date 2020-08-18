@@ -281,28 +281,27 @@ TimeBlockTreeNode& BlockTimerStatHandle::getTreeNode() const
 
 void BlockTimer::bootstrapTimerTree()
 {
-    for (BlockTimerStatHandle::instance_tracker_t::instance_iter it = BlockTimerStatHandle::instance_tracker_t::beginInstances(), end_it = BlockTimerStatHandle::instance_tracker_t::endInstances(); 
-         it != end_it; 
-         ++it)
-    {
-        BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(*it);
-        if (&timer == &BlockTimer::getRootTimeBlock()) continue;
+	for (auto& base : BlockTimerStatHandle::instance_snapshot())
+	{
+		// because of indirect derivation from LLInstanceTracker, have to downcast
+		BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(base);
+		if (&timer == &BlockTimer::getRootTimeBlock()) continue;
 
-        // bootstrap tree construction by attaching to last timer to be on stack
-        // when this timer was called
-        if (timer.getParent() == &BlockTimer::getRootTimeBlock())
-        {
-            TimeBlockAccumulator& accumulator = timer.getCurrentAccumulator();
+		// bootstrap tree construction by attaching to last timer to be on stack
+		// when this timer was called
+		if (timer.getParent() == &BlockTimer::getRootTimeBlock())
+		{
+			TimeBlockAccumulator& accumulator = timer.getCurrentAccumulator();
 
-            if (accumulator.mLastCaller)
-            {
-                timer.setParent(accumulator.mLastCaller);
-                accumulator.mParent = accumulator.mLastCaller;
-            }
-            // no need to push up tree on first use, flag can be set spuriously
-            accumulator.mMoveUpTree = false;
-        }
-    }
+			if (accumulator.mLastCaller)
+			{
+				timer.setParent(accumulator.mLastCaller);
+				accumulator.mParent = accumulator.mLastCaller;
+			}
+			// no need to push up tree on first use, flag can be set spuriously
+			accumulator.mMoveUpTree = false;
+		}
+	}
 }
 
 // bump timers up tree if they have been flagged as being in the wrong place
@@ -398,14 +397,12 @@ void BlockTimer::processTimes()
 
     updateTimes();
 
-    // reset for next frame
-    for (BlockTimerStatHandle::instance_tracker_t::instance_iter it = BlockTimerStatHandle::instance_tracker_t::beginInstances(),
-            end_it = BlockTimerStatHandle::instance_tracker_t::endInstances();
-        it != end_it;
-        ++it)
-    {
-        BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(*it);
-        TimeBlockAccumulator& accumulator = timer.getCurrentAccumulator();
+	// reset for next frame
+	for (auto& base : BlockTimerStatHandle::instance_snapshot())
+	{
+		// because of indirect derivation from LLInstanceTracker, have to downcast
+		BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(base);
+		TimeBlockAccumulator& accumulator = timer.getCurrentAccumulator();
 
         accumulator.mLastCaller = NULL;
         accumulator.mMoveUpTree = false;
@@ -436,51 +433,47 @@ bool BlockTimerStatHandle::hasChildren()
 // static
 void BlockTimer::logStats()
 {
-    // get ready for next frame
-    if (sLog)
-    { //output current frame counts to performance log
+	// get ready for next frame
+	if (sLog)
+	{ //output current frame counts to performance log
 
-        static S32 call_count = 0;
-        if (call_count % 100 == 0)
-        {
-            LL_DEBUGS("FastTimers") << "countsPerSecond: " << countsPerSecond() << LL_ENDL;
-            LL_DEBUGS("FastTimers") << "LLProcessorInfo().getCPUFrequency() " << LLProcessorInfo().getCPUFrequency() << LL_ENDL;
-            LL_DEBUGS("FastTimers") << "getCPUClockCount32() " << getCPUClockCount32() << LL_ENDL;
-            LL_DEBUGS("FastTimers") << "getCPUClockCount64() " << getCPUClockCount64() << LL_ENDL;
-            LL_DEBUGS("FastTimers") << "elapsed sec " << ((F64)getCPUClockCount64() / (F64HertzImplicit)LLProcessorInfo().getCPUFrequency()) << LL_ENDL;
-        }
-        call_count++;
+		static S32 call_count = 0;
+		if (call_count % 100 == 0)
+		{
+			LL_DEBUGS("FastTimers") << "countsPerSecond: " << countsPerSecond() << LL_ENDL;
+			LL_DEBUGS("FastTimers") << "LLProcessorInfo().getCPUFrequency() " << LLProcessorInfo().getCPUFrequency() << LL_ENDL;
+			LL_DEBUGS("FastTimers") << "getCPUClockCount32() " << getCPUClockCount32() << LL_ENDL;
+			LL_DEBUGS("FastTimers") << "getCPUClockCount64() " << getCPUClockCount64() << LL_ENDL;
+			LL_DEBUGS("FastTimers") << "elapsed sec " << ((F64)getCPUClockCount64() / (F64HertzImplicit)LLProcessorInfo().getCPUFrequency()) << LL_ENDL;
+		}
+		call_count++;
 
-        S32 num_stats = 0;
-        F64Seconds total_time(0);
-        LLSD sd;
+		F64Seconds total_time(0);
+		LLSD sd;
 
-        {
-            for (BlockTimerStatHandle::instance_tracker_t::instance_iter it = BlockTimerStatHandle::instance_tracker_t::beginInstances(), 
-                end_it = BlockTimerStatHandle::instance_tracker_t::endInstances(); 
-                it != end_it; 
-            ++it)
-            {
-                num_stats++;
-                BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(*it);
-                LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
-                sd[timer.getName()]["Time"] = (LLSD::Real) (frame_recording.getLastRecording().getSum(timer).value());  
-                sd[timer.getName()]["Calls"] = (LLSD::Integer) (frame_recording.getLastRecording().getSum(timer.callCount()));
-                
-                // computing total time here because getting the root timer's getCountHistory
-                // doesn't work correctly on the first frame
-                total_time += frame_recording.getLastRecording().getSum(timer);
-            }
-        }
+		{
+			for (auto& base : BlockTimerStatHandle::instance_snapshot())
+			{
+				// because of indirect derivation from LLInstanceTracker, have to downcast
+				BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(base);
+				LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
+				sd[timer.getName()]["Time"] = (LLSD::Real) (frame_recording.getLastRecording().getSum(timer).value());	
+				sd[timer.getName()]["Calls"] = (LLSD::Integer) (frame_recording.getLastRecording().getSum(timer.callCount()));
+				
+				// computing total time here because getting the root timer's getCountHistory
+				// doesn't work correctly on the first frame
+				total_time += frame_recording.getLastRecording().getSum(timer);
+			}
+		}
 
-        sd["Total"]["Time"] = (LLSD::Real) total_time.value();
-        sd["Total"]["Calls"] = (LLSD::Integer) 1;
+		sd["Total"]["Time"] = (LLSD::Real) total_time.value();
+		sd["Total"]["Calls"] = (LLSD::Integer) 1;
 
-        {       
-            LLMutexLock lock(sLogLock);
-            sLogQueue.push(sd);
-        }
-    }
+		{		
+			LLMutexLock lock(sLogLock);
+			sLogQueue.push(sd);
+		}
+	}
 }
 
 // static
@@ -489,6 +482,7 @@ void BlockTimer::logStatsArctan()
     // get ready for next frame
     if (sLog)
     {   //output current frame counts to performance log
+#if 0
         LLSD sd;
         {
             for (BlockTimerStatHandle::instance_tracker_t::instance_iter it = BlockTimerStatHandle::instance_tracker_t::beginInstances(), 
@@ -509,97 +503,26 @@ void BlockTimer::logStatsArctan()
                 sd[timer.getName()]["Time"] = (LLSD::Real) time_val;
             }
         }
+#endif
+		LLSD sd;
 
-        LLSD sdtop;
-        sdtop["Timers"] = sd;
-        
-        if (sExtraLogRecords.size() > 0)
-        {
-            for (LLSD::map_const_iterator it=sExtraLogRecords.beginMap(); it != sExtraLogRecords.endMap(); ++it)
-            {
-                sdtop[it->first] = it->second;
-            }
-            sExtraLogRecords.clear();
-        }
-        
-        {
-            LLMutexLock lock(sLogLock);
-            sLogQueue.push(sdtop);
-        }
-    }
-}
-
-// static
-void BlockTimer::logStatsExtended()
-{
-    // get ready for next frame
-    if (sLog)
-    {   //output current frame counts to performance log
-
-        static S32 call_count = 0;
-        if (call_count % 100 == 0)
-        {
-            LL_DEBUGS("FastTimers") << "countsPerSecond: " << countsPerSecond() << LL_ENDL;
-            LL_DEBUGS("FastTimers") << "LLProcessorInfo().getCPUFrequency() " << LLProcessorInfo().getCPUFrequency() << LL_ENDL;
-            LL_DEBUGS("FastTimers") << "getCPUClockCount32() " << getCPUClockCount32() << LL_ENDL;
-            LL_DEBUGS("FastTimers") << "getCPUClockCount64() " << getCPUClockCount64() << LL_ENDL;
-            LL_DEBUGS("FastTimers") << "elapsed sec " << ((F64)getCPUClockCount64() / (F64HertzImplicit)LLProcessorInfo().getCPUFrequency()) << LL_ENDL;
-        }
-
-        S32 num_stats = 0;
-        F64Seconds total_time(0);
-        LLSD sd;
-
-        {
-            for (BlockTimerStatHandle::instance_tracker_t::instance_iter it = BlockTimerStatHandle::instance_tracker_t::beginInstances(), 
-                end_it = BlockTimerStatHandle::instance_tracker_t::endInstances(); 
-                it != end_it; 
-            ++it)
-            {
-                num_stats++;
-                BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(*it);
-                LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
-                F32 time_val = frame_recording.getLastRecording().getSum(timer).value();  
-                static F32 negligible_time = 0.0001;
-                if (call_count == 0 || time_val > negligible_time)
+		{
+			for (auto& base : BlockTimerStatHandle::instance_snapshot())
+			{
+				// because of indirect derivation from LLInstanceTracker, have to downcast
+				BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(base);
+                if (timer.getName() != "Frame")
                 {
-                    const std::string& name = timer.getName();
-                    // ARCTAN terser form
-                    if (name != "Frame" && name != "Render")
-                    {
-                        continue;
-                    }
-
-                    sd[timer.getName()]["Time"] = (LLSD::Real) time_val;
-                    sd[timer.getName()]["Calls"] = (LLSD::Integer) (frame_recording.getLastRecording().getSum(timer.callCount()));
-
-                    if (call_count == 0)
-                    {
-                        BlockTimerStatHandle *parent = timer.getParent();
-                        if (parent)
-                        {
-                            sd[timer.getName()]["Parent"] = (LLSD::String) parent->getName();;
-                        }
-                        else
-                        {
-                            sd[timer.getName()]["Parent"] = LLSD::String();
-                        }
-                        sd[timer.getName()]["EverReparented"] = (LLSD::Boolean) timer.mEverReparented;
-                    }
+                    continue;
                 }
-                
-                // computing total time here because getting the root timer's getCountHistory
-                // doesn't work correctly on the first frame
-                total_time += frame_recording.getLastRecording().getSum(timer);
-            }
-        }
 
-        sd["Total"]["Time"] = (LLSD::Real) total_time.value();
-        sd["Total"]["Calls"] = (LLSD::Integer) 1;
+				LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
+				sd[timer.getName()]["Time"] = (LLSD::Real) (frame_recording.getLastRecording().getSum(timer).value());	
+			}
+		}
+
 
         LLSD sdtop;
-        sdtop["Summary"]["NumStats"] = (LLSD::Integer) num_stats;
-        sdtop["Summary"]["Timestamp"] = (LLSD::String) LLError::utcTime();
         sdtop["Timers"] = sd;
         
         if (sExtraLogRecords.size() > 0)
@@ -615,8 +538,6 @@ void BlockTimer::logStatsExtended()
             LLMutexLock lock(sLogLock);
             sLogQueue.push(sdtop);
         }
-
-        call_count++;
     }
 }
 
