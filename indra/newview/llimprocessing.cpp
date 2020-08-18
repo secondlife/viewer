@@ -880,10 +880,10 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                     // Don't break in the case of a bad binary bucket.  Go ahead and show the 
                     // accept/decline popup even though it will not do anything.
                     LL_WARNS("Messaging") << "Malformed inventory offer from object, type might be " << info->mType << LL_ENDL;
-                    }
-                    info->mObjectID = LLUUID::null;
-                    info->mFromObject = TRUE;
                 }
+                info->mObjectID = LLUUID::null;
+                info->mFromObject = TRUE;
+            }
 
             info->mIM = dialog;
             info->mFromID = from_id;
@@ -1616,6 +1616,7 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
         {
             from_group = message_data["from_group"].asString() == "Y";
         }
+
 
         LLIMProcessing::processNewMessage(
             message_data["from_agent_id"].asUUID(),
