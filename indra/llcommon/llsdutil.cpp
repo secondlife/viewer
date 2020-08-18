@@ -506,7 +506,7 @@ struct Data
     const char* name;
 } typedata[] =
 {
-#define def(type) { LLSD::type, #type + 4 }
+#define def(type) { LLSD::type, &#type[4] }
     def(TypeUndefined),
     def(TypeBoolean),
     def(TypeInteger),

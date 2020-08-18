@@ -688,6 +688,9 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 		{
 			width *= 2;
 			height *= 2;
+			// not compatible wirh UI/HUD
+			render_ui = false;
+			render_hud = false;
 		}
 
 		if (gViewerWindow->rawSnapshot(raw,

@@ -519,10 +519,13 @@ void LLViewerJoystick::initDevice(void * preffered_device /* LPDIRECTINPUTDEVICE
 void LLViewerJoystick::terminate()
 {
 #if LIB_NDOF
-
-	ndof_libcleanup();
-	LL_INFOS("Joystick") << "Terminated connection with NDOF device." << LL_ENDL;
-	mDriverState = JDS_UNINITIALIZED;
+    if (mNdofDev != NULL)
+    {
+        ndof_libcleanup(); // frees alocated memory in mNdofDev
+        mDriverState = JDS_UNINITIALIZED;
+        mNdofDev = NULL;
+        LL_INFOS("Joystick") << "Terminated connection with NDOF device." << LL_ENDL;
+    }
 #endif
 }
 
