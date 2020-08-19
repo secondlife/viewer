@@ -61,6 +61,11 @@ static LLTrace::SampleStatHandle<>* sJoystickAxes[6] =
 LLFloaterJoystick::LLFloaterJoystick(const LLSD& data)
 	: LLFloater(data)
 {
+    if (!LLViewerJoystick::getInstance()->isJoystickInitialized())
+    {
+        LLViewerJoystick::getInstance()->init(false);
+    }
+
 	initFromSettings();
 }
 

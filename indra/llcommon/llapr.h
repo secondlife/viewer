@@ -170,9 +170,6 @@ public:
 	S32 write(const void* buf, S32 nbytes);
 	
 	apr_file_t* getFileHandle() {return mFile;}	
-
-private:
-	apr_pool_t* getAPRFilePool(apr_pool_t* pool) ;	
 	
 //
 //*******************************************************************************************************************************
@@ -182,8 +179,8 @@ public:
 	static LLVolatileAPRPool *sAPRFilePoolp ; //a global apr_pool for APRFile, which is used only when local pool does not exist.
 
 private:
-	static apr_file_t* open(const std::string& filename, LLVolatileAPRPool* pool, apr_int32_t flags);
-	static apr_status_t close(apr_file_t* file, LLVolatileAPRPool* pool) ;
+	static apr_file_t* open(const std::string& filename, apr_pool_t* apr_pool, apr_int32_t flags);
+	static apr_status_t close(apr_file_t* file) ;
 	static S32 seek(apr_file_t* file, apr_seek_where_t where, S32 offset);
 public:
 	// returns false if failure:
