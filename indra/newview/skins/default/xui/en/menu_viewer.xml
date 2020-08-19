@@ -95,6 +95,7 @@
        label="Hover Height"
        name="HoverHeight"
        shortcut="alt|control|H"
+       use_mac_ctrl="true"
        visible="false">
         <menu_item_call.on_click
          function="Floater.ToggleOrBringToFront"
