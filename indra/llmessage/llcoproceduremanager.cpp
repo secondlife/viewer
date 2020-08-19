@@ -415,6 +415,14 @@ void LLCoprocedurePool::coprocedureInvokerCoro(
         {
             coproc->mProc(httpAdapter, coproc->mId);
         }
+        catch (const LLCoros::Stop &)
+        {
+            LL_INFOS("CoProcMgr") << "Viewer is shutting Down. Stopping coprocedure('" << coproc->mName
+                                   << "', id=" << coproc->mId.asString()
+                                   << ") in pool '" << mPoolName << "'" << LL_ENDL;
+            mActiveCoprocs.erase(itActive);
+            throw; // let toplevel handle this as LLContinueError
+        }
         catch (...)
         {
             LOG_UNHANDLED_EXCEPTION(STRINGIZE("Coprocedure('" << coproc->mName
