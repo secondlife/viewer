@@ -346,11 +346,37 @@ void LLFloaterModelPreview::onUploadOptionChecked(LLUICtrl* ctrl)
 	if (mModelPreview)
 	{
 		auto name = ctrl->getName();
+        bool value = ctrl->getValue().asBoolean();
         // update the option and notifications
         // (this is a bit convoluted, because of the current structure of mModelPreview)
-        // FIX ME! mViewOption is malfunctioning here! mViewOption doesn't have values like "upload_skin"!
-        // This needs to translate values like "upload_skin" into "show_skin_weights"
-        mModelPreview->mViewOption[name] = !mModelPreview->mViewOption[name];
+        if (name == "upload_skin")
+        {
+            childSetValue("show_skin_weight", value);
+            mModelPreview->mViewOption["show_skin_weight"] = value;
+            if (!value)
+            {
+                mModelPreview->mViewOption["show_joint_overrides"] = false;
+                mModelPreview->mViewOption["show_joint_positions"] = false;
+            }
+        }
+        else if (name == "upload_joints")
+        {
+            if (mModelPreview->mViewOption["show_skin_weight"])
+            {
+                childSetValue("show_joint_overrides", value);
+                mModelPreview->mViewOption["show_joint_overrides"] = value;
+            }
+        }
+        else if (name == "upload_textures")
+        {
+            childSetValue("show_textures", value);
+            mModelPreview->mViewOption["show_textures"] = value;
+        }
+        else if (name == "lock_scale_if_joint_position")
+        {
+            mModelPreview->mViewOption["lock_scale_if_joint_position"] = value;
+        }
+
         mModelPreview->refresh(); // a 'dirty' flag for render
         mModelPreview->resetPreviewTarget(); 
         mModelPreview->clearBuffers();
