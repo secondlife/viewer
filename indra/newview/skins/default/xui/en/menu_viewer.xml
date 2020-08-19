@@ -164,6 +164,7 @@
         <menu_item_call
          label="Stop Animating Me"
          name="Stop Animating My Avatar"
+         allow_key_repeat="true"
          shortcut="alt|shift|A">
           <menu_item_call.on_click
            function="Tools.StopAllAnimations" />
