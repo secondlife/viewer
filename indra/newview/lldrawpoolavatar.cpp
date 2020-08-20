@@ -1474,7 +1474,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 		return;
 	}
 
-	LLVOAvatar *avatarp;
+	LLVOAvatar *avatarp = NULL;
 
 	if (single_avatar)
 	{
