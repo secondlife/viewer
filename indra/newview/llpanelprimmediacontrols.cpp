@@ -258,7 +258,7 @@ void LLPanelPrimMediaControls::focusOnTarget()
 	LLViewerMediaImpl* media_impl = getTargetMediaImpl();
 	if(media_impl)
 	{
-		if (!media_impl->hasFocus() || isZoomDistExceeding())
+		if (!media_impl->hasFocus())
 		{	
 			// The current target doesn't have media focus -- focus on it.
 			LLViewerObject* objectp = getTargetObject();
