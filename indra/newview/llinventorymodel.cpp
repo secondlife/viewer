@@ -2714,7 +2714,7 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 		std::istringstream iss(line);
 		if (parser->parse(iss, s_item, line.length()) == LLSDParser::PARSE_FAILURE)
 		{
-			LL_INFOS(LOG_INV)<< "Parsing inventory cache failed" << LL_ENDL;
+			LL_WARNS(LOG_INV)<< "Parsing inventory cache failed" << LL_ENDL;
 			break;
 		}
 
@@ -2729,7 +2729,7 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 			}
 			else
 			{
-				LL_INFOS(LOG_INV)<< "Inventory cache is out of date" << LL_ENDL;
+				LL_WARNS(LOG_INV)<< "Inventory cache is out of date" << LL_ENDL;
 				break;
 			}
 		}
