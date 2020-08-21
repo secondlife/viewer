@@ -411,6 +411,7 @@ void LLVivoxVoiceClient::terminate()
 	}
 	else
 	{
+		mRelogRequested = false;
 		killGateway();
 	}
 }
@@ -660,10 +661,16 @@ void LLVivoxVoiceClient::voiceControlCoro()
 
     U32 retry = 0;
 
-    while (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE)
+    while (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE && !LLApp::isExiting())
     {
         LL_DEBUGS("Voice") << "Suspending voiceControlCoro() momentarily for teleport. Tuning: " << mTuningMode << ". Relog: " << mRelogRequested << LL_ENDL;
         llcoro::suspendUntilTimeout(1.0);
+    }
+
+    if (LLApp::isExiting())
+    {
+        mIsCoroutineActive = false;
+        return;
     }
 
     do
