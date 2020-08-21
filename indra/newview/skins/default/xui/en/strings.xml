@@ -2416,6 +2416,7 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="Scripts"       value=" Scripts," />
 	<string name="Sounds"        value=" Sounds," />
 	<string name="Textures"      value=" Textures," />
+	<string name="Settings"      value=" Settings," />
 	<string name="Snapshots"     value=" Snapshots," />
 	<string name="No Filters"    value="No " />
 	<string name="Since Logoff"  value=" - Since Logoff" />
