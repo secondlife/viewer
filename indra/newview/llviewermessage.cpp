@@ -777,7 +777,6 @@ void response_group_invitation_coro(std::string url, LLUUID group_id, bool notif
             LL_DEBUGS("GroupInvite") << "Successfully sent response to group " << group_id << " invitation" << LL_ENDL;
             if (notify_and_update)
             {
-                LLNotificationsUtil::add("JoinGroupSuccess");
                 gAgent.sendAgentDataUpdateRequest();
 
                 LLGroupMgr::getInstance()->clearGroupData(group_id);
