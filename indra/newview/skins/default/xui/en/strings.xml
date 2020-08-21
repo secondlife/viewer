@@ -108,6 +108,7 @@ Voice Server Version: [VOICE_VERSION]
 	<string name="CertKeyUsage">The certificate returned by the server could not be used for SSL.  Please contact your Grid administrator.</string>
 	<string name="CertBasicConstraints">Too many certificates were in the servers Certificate chain.  Please contact your Grid administrator.</string>
 	<string name="CertInvalidSignature">The certificate signature returned by the Grid server could not be verified.  Please contact your Grid administrator.</string>
+	<string name="CertAllocationFailure">Failed to allocate openssl memory for certificate.</string>
 
 	<string name="LoginFailedNoNetwork">Network error: Could not establish connection, please check your network connection.</string>
 	<string name="LoginFailed">Login failed.</string>

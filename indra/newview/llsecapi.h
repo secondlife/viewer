@@ -345,6 +345,16 @@ protected:
 	LLSD mCertData;
 };
 
+class LLAllocationCertException : public LLCertException
+{
+public:
+    LLAllocationCertException(const LLSD& cert_data) : LLCertException(cert_data, "CertAllocationFailure")
+    {
+    }
+    virtual ~LLAllocationCertException() throw() {}
+protected:
+};
+
 class LLInvalidCertificate : public LLCertException
 {
 public:
