@@ -108,7 +108,6 @@
 //#include "llfirstuse.h"
 #include "llfloaterhud.h"
 #include "llfloaterland.h"
-#include "llfloaterpreference.h"
 #include "llfloatertopobjects.h"
 #include "llfloaterworldmap.h"
 #include "llgesturemgr.h"
@@ -512,9 +511,9 @@ bool idle_startup()
 			if(!start_messaging_system(
 				   message_template_path,
 				   port,
-				   LLVersionInfo::getMajor(),
-				   LLVersionInfo::getMinor(),
-				   LLVersionInfo::getPatch(),
+				   LLVersionInfo::instance().getMajor(),
+				   LLVersionInfo::instance().getMinor(),
+				   LLVersionInfo::instance().getPatch(),
 				   FALSE,
 				   std::string(),
 				   responder,
@@ -812,6 +811,7 @@ bool idle_startup()
 		show_debug_menus();
 
 		// Hide the splash screen
+		LL_DEBUGS("AppInit") << "Hide the splash screen and show window" << LL_ENDL;
 		LLSplashScreen::hide();
 		// Push our window frontmost
 		gViewerWindow->getWindow()->show();
@@ -819,9 +819,12 @@ bool idle_startup()
 		// DEV-16927.  The following code removes errant keystrokes that happen while the window is being 
 		// first made visible.
 #ifdef _WIN32
+        LL_DEBUGS("AppInit") << "Processing PeekMessage" << LL_ENDL;
 		MSG msg;
 		while( PeekMessage( &msg, /*All hWnds owned by this thread */ NULL, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE ) )
-		{ }
+        {
+        }
+        LL_DEBUGS("AppInit") << "PeekMessage processed" << LL_ENDL;
 #endif
         display_startup();
         timeout.reset();
@@ -1534,12 +1537,14 @@ bool idle_startup()
 		{
 			LLStartUp::setStartupState( STATE_AGENT_SEND );
 		}
-		LLMessageSystem* msg = gMessageSystem;
-		while (msg->checkAllMessages(gFrameCount, gServicePump))
 		{
-			display_startup();
+			LockMessageChecker lmc(gMessageSystem);
+			while (lmc.checkAllMessages(gFrameCount, gServicePump))
+			{
+				display_startup();
+			}
+			lmc.processAcks();
 		}
-		msg->processAcks();
 		display_startup();
 		return FALSE;
 	}
@@ -1589,25 +1594,27 @@ bool idle_startup()
 	//---------------------------------------------------------------------
 	if (STATE_AGENT_WAIT == LLStartUp::getStartupState())
 	{
-		LLMessageSystem* msg = gMessageSystem;
-		while (msg->checkAllMessages(gFrameCount, gServicePump))
 		{
-			if (gAgentMovementCompleted)
+			LockMessageChecker lmc(gMessageSystem);
+			while (lmc.checkAllMessages(gFrameCount, gServicePump))
 			{
-				// Sometimes we have more than one message in the
-				// queue. break out of this loop and continue
-				// processing. If we don't, then this could skip one
-				// or more login steps.
-				break;
+				if (gAgentMovementCompleted)
+				{
+					// Sometimes we have more than one message in the
+					// queue. break out of this loop and continue
+					// processing. If we don't, then this could skip one
+					// or more login steps.
+					break;
+				}
+				else
+				{
+					LL_DEBUGS("AppInit") << "Awaiting AvatarInitComplete, got "
+										 << gMessageSystem->getMessageName() << LL_ENDL;
+				}
+				display_startup();
 			}
-			else
-			{
-				LL_DEBUGS("AppInit") << "Awaiting AvatarInitComplete, got "
-				<< msg->getMessageName() << LL_ENDL;
-			}
-			display_startup();
+			lmc.processAcks();
 		}
-		msg->processAcks();
 
 		display_startup();
 
@@ -2297,8 +2304,8 @@ void login_callback(S32 option, void *userdata)
 void show_release_notes_if_required()
 {
     static bool release_notes_shown = false;
-    if (!release_notes_shown && (LLVersionInfo::getChannelAndVersion() != gLastRunVersion)
-        && LLVersionInfo::getViewerMaturity() != LLVersionInfo::TEST_VIEWER // don't show Release Notes for the test builds
+    if (!release_notes_shown && (LLVersionInfo::instance().getChannelAndVersion() != gLastRunVersion)
+        && LLVersionInfo::instance().getViewerMaturity() != LLVersionInfo::TEST_VIEWER // don't show Release Notes for the test builds
         && gSavedSettings.getBOOL("UpdaterShowReleaseNotes")
         && !gSavedSettings.getBOOL("FirstLoginThisInstall"))
     {

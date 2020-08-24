@@ -1,4 +1,3 @@
-
 # -*- cmake -*-
 
 project(llcommon)
@@ -45,7 +44,6 @@ set(llcommon_SOURCE_FILES
     llcleanup.cpp
     llcommon.cpp
     llcommonutils.cpp
-    llcoro_get_id.cpp
     llcoros.cpp
     llcrc.cpp
     llcriticaldamp.cpp
@@ -107,6 +105,7 @@ set(llcommon_SOURCE_FILES
     llstring.cpp
     llstringtable.cpp
     llsys.cpp
+    lltempredirect.cpp
     llthread.cpp
     llthreadlocalstorage.cpp
     llthreadsafequeue.cpp
@@ -147,7 +146,7 @@ set(llcommon_HEADER_FILES
     llcleanup.h
     llcommon.h
     llcommonutils.h
-    llcoro_get_id.h
+    llcond.h
     llcoros.h
     llcrc.h
     llcriticaldamp.h
@@ -187,9 +186,9 @@ set(llcommon_HEADER_FILES
     llkeythrottle.h
     llleap.h
     llleaplistener.h
-    lllistenerwrapper.h
     llliveappconfig.h
     lllivefile.h
+    llmainthreadtask.h
     llmd5.h
     llmemory.h
     llmemorystream.h
@@ -231,6 +230,7 @@ set(llcommon_HEADER_FILES
     llstaticstringtable.h
     llstatsaccumulator.h
     llsys.h
+    lltempredirect.h
     llthread.h
     llthreadlocalstorage.h
     llthreadsafequeue.h
@@ -248,6 +248,7 @@ set(llcommon_HEADER_FILES
     llwin32headers.h
     llwin32headerslean.h
     llworkerthread.h
+    lockstatic.h
     stdtypes.h
     stringize.h
     timer.h
@@ -292,7 +293,7 @@ target_link_libraries(
     ${JSONCPP_LIBRARIES}
     ${ZLIB_LIBRARIES}
     ${WINDOWS_LIBRARIES}
-    ${BOOST_COROUTINE_LIBRARY}
+    ${BOOST_FIBER_LIBRARY}
     ${BOOST_CONTEXT_LIBRARY}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
     ${BOOST_REGEX_LIBRARY}
@@ -321,13 +322,14 @@ if (LL_TESTS)
       ${LLCOMMON_LIBRARIES} 
       ${WINDOWS_LIBRARIES} 
       ${GOOGLEMOCK_LIBRARIES} 
-      ${BOOST_COROUTINE_LIBRARY} 
+      ${BOOST_FIBER_LIBRARY} 
       ${BOOST_CONTEXT_LIBRARY} 
       ${BOOST_THREAD_LIBRARY} 
       ${BOOST_SYSTEM_LIBRARY})
   LL_ADD_INTEGRATION_TEST(commonmisc "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(bitpack "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llbase64 "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llcond "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lldate "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lldeadmantimer "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lldependencies "" "${test_libs}")
@@ -339,6 +341,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llheteromap "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llinstancetracker "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llleap "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llmainthreadtask "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llpounceable "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llprocess "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llprocessor "" "${test_libs}")

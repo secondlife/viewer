@@ -28,7 +28,7 @@ build_dir_Linux()
 
 build_dir_CYGWIN()
 {
-  echo build-vc120-${AUTOBUILD_ADDRSIZE}
+  echo build-vc${AUTOBUILD_VSVER:-120}-${AUTOBUILD_ADDRSIZE}
 }
 
 viewer_channel_suffix()

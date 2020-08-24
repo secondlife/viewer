@@ -412,7 +412,7 @@ std::string LLViewerMedia::getCurrentUserAgent()
 
 	// Just in case we need to check browser differences in A/B test
 	// builds.
-	std::string channel = LLVersionInfo::getChannel();
+	std::string channel = LLVersionInfo::instance().getChannel();
 
 	// append our magic version number string to the browser user agent id
 	// See the HTTP 1.0 and 1.1 specifications for allowed formats:
@@ -422,7 +422,7 @@ std::string LLViewerMedia::getCurrentUserAgent()
 	// http://www.mozilla.org/build/revised-user-agent-strings.html
 	std::ostringstream codec;
 	codec << "SecondLife/";
-	codec << LLVersionInfo::getVersion();
+	codec << LLVersionInfo::instance().getVersion();
 	codec << " (" << channel << "; " << skin_name << " skin)";
 	LL_INFOS() << codec.str() << LL_ENDL;
 
@@ -1026,7 +1026,7 @@ void LLViewerMedia::setAllMediaPaused(bool val)
     {
         if (!LLViewerMedia::isParcelMediaPlaying() && LLViewerMedia::hasParcelMedia())
         {
-            LLViewerParcelMedia::getInstance()->play(LLViewerParcelMgr::getInstance()->getAgentParcel());
+            LLViewerParcelMedia::getInstance()->play(agent_parcel);
         }
 
         static LLCachedControl<bool> audio_streaming_music(gSavedSettings, "AudioStreamingMusic", true);
@@ -2291,6 +2291,18 @@ void LLViewerMediaImpl::mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button)
 	{
 		mMediaSource->mouseEvent(LLPluginClassMedia::MOUSE_EVENT_DOUBLE_CLICK, button, x, y, mask);
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::scrollWheel(const LLVector2& texture_coords, S32 scroll_x, S32 scroll_y, MASK mask)
+{
+    if (mMediaSource)
+    {
+        S32 x, y;
+        scaleTextureCoords(texture_coords, &x, &y);
+
+        scrollWheel(x, y, scroll_x, scroll_y, mask);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

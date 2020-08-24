@@ -7204,12 +7204,14 @@ You can only claim public land in the Region you&apos;re in.
   </notification>
 
   <notification
-   icon="notify.tga"
+   icon="alertmodal.tga"
    name="RegionTPAccessBlocked"
-   persist="false"
-   type="notify">
+   type="alertmodal">
    <tag>fail</tag>
     The region you're trying to visit contains content exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
+   <usetemplate
+      name="okbutton"
+      yestext="OK"/>
   </notification>
 
   <notification

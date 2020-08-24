@@ -16,6 +16,11 @@ include(Variables)
 include(bugsplat)
 include(BuildVersion)
 
+set(LEGACY_STDIO_LIBS)
+if (WINDOWS)
+      set(LEGACY_STDIO_LIBS legacy_stdio_definitions)
+endif (WINDOWS)
+
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
       "Build type.  One of: Debug Release RelWithDebInfo" FORCE)
