@@ -84,7 +84,7 @@ BOOL LLFloaterConversationPreview::postBuild()
 		file = "chat";
 	}
 	mChatHistoryFileName = file;
-	if (mIsGroup)
+	if (mIsGroup && !LLStringUtil::endsWith(mChatHistoryFileName, GROUP_CHAT_SUFFIX))
 	{
 		mChatHistoryFileName += GROUP_CHAT_SUFFIX;
 	}
