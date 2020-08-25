@@ -276,7 +276,7 @@ std::string LLURI::escapePathAndData(const std::string &str)
             std::string fragment;
 
             size_t fragment_pos = str.find('#');
-            if (fragment_pos != std::string::npos)
+            if ((fragment_pos != std::string::npos) && (fragment_pos > delim_pos))
             {
                 query = str.substr(path_size, fragment_pos - path_size);
                 fragment = str.substr(fragment_pos);
