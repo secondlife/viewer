@@ -3747,8 +3747,10 @@ void simulate_cache_asynchronous_read_access(void*)
 {
     LL_INFOS() << "Simulating cache asynchronous READ..." << LL_ENDL;
 
-    llDiskCache::request_callback_t cb([](llDiskCache::request_payload_t payload, bool)
+    llDiskCache::request_callback_t cb([](llDiskCache::request_payload_t payload, std::string filename, bool)
     {
+        LL_INFOS() << "Reading from " << filename << LL_ENDL;
+
         if (! payload)
         {
             LL_INFOS() << "Payload is empty" << LL_ENDL;
@@ -3769,8 +3771,10 @@ void simulate_cache_asynchronous_write_access(void*)
 {
     LL_INFOS() << "Simulating cache asynchronous WRITE..." << LL_ENDL;
 
-    llDiskCache::request_callback_t cb([](llDiskCache::request_payload_t, bool result)
+    llDiskCache::request_callback_t cb([](llDiskCache::request_payload_t, std::string filename, bool result)
     {
+        LL_INFOS() << "Reading from " << filename << LL_ENDL;
+
         if (result)
         {
             LL_INFOS() << "File written successfully"  << LL_ENDL;

@@ -191,7 +191,7 @@ BOOL llDiskCache::tick()
         /**
          * Optional debugging messages
          */
-        LL_INFOS("DiskCache") << "Working: thread returned " << res.ok << " and id " << res.id << LL_ENDL;
+        //LL_INFOS("DiskCache") << "Working: thread returned " << res.ok << " and id " << res.id << LL_ENDL;
 
         /**
          * Note:
@@ -205,7 +205,7 @@ BOOL llDiskCache::tick()
              * Execute the callback and pass the payload/result status
              * back to the consumer
              */
-            found->second.cb(res.payload, res.ok);
+            found->second.cb(res.payload, res.filename, res.ok);
 
             /**
              * We have processed this entry in the queue so delete it
@@ -307,7 +307,7 @@ void llDiskCache::addReadRequest(std::string id,
          * also consider using file_contents and comparing with ! vs a
          * separate bool. This is okay for now though.
          */
-        return mResult{ request_id, file_contents, success };
+        return mResult{ request_id, file_contents, filename, success };
     });
 }
 
@@ -356,10 +356,17 @@ llDiskCache::request_payload_t llDiskCache::waitForReadComplete(std::string id)
         bool done = false;
 
         /**
+         * The filename being read that is returned
+         * to consumer if a read error occurs
+         */
+        std::string filename_out;
+
+        /**
          * Add an asynchronous read request to the request queue
          * running in our worker thread
          */
-        addReadRequest(id, [&done, &succeeded, &payload_out](llDiskCache::request_payload_t payload_in, bool result)
+        addReadRequest(id, [&done, &succeeded, &payload_out, &filename_out]
+                       (llDiskCache::request_payload_t payload_in, std::string filename_in, bool result)
         {
             /**
              * Note the result of the operation
@@ -370,6 +377,12 @@ llDiskCache::request_payload_t llDiskCache::waitForReadComplete(std::string id)
              * Note that the operation is complete
              */
             done = true;
+
+            /**
+             * Record the name of the file that was being read
+             * so we can return it via the exception if read fails
+             */
+            filename_out = filename_in;
 
             /**
              * Save the payload we received in the callback so we
@@ -402,10 +415,11 @@ llDiskCache::request_payload_t llDiskCache::waitForReadComplete(std::string id)
         {
             /**
              * Throw an exception indicating that the read operation failed.
-             * TODO: Consider returning the filename here so it's easier to
-             * ascertain which file was trying to be read
+             * Include a helpful message and the name of the file being read
              */
-            throw ReadError("READ FAILED");
+            const std::string exc_msg = "Unable to read from: " + filename_out;
+
+            throw ReadError(exc_msg);
         }
 
         /**
@@ -444,7 +458,7 @@ llDiskCache::request_payload_t llDiskCache::waitForReadComplete(std::string id)
          * We have to use the mutable keyboard in the addReadRequest() expression to indicate
          * we are allowing the lambda body to make non-const method calls (normally, all const)
          */
-        addReadRequest(id, [&promise](request_payload_t payload, bool result) mutable
+        addReadRequest(id, [&promise](request_payload_t payload, std::string filename, bool result) mutable
         {
             /**
              * Note:
@@ -541,7 +555,7 @@ void llDiskCache::addWriteRequest(std::string id,
          * also consider using file_contents and comparing with ! vs a
          * separate bool. This is okay for now though.
          */
-        return mResult{ request_id, file_contents, success };
+        return mResult{ request_id, file_contents, filename, success };
     });
 }
 
@@ -610,6 +624,7 @@ const std::string llDiskCache::idToFilepath(const std::string id, LLAssetType::E
      * course,  will be greatly expanded upon
      */
     std::ostringstream ss;
+    ss << "cp_";
     ss << id;
     ss << "_";
     ss << assetTypeToString(at);

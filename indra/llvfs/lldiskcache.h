@@ -48,7 +48,7 @@ class llDiskCache :
         void cleanupSingleton() override;
 
         typedef std::shared_ptr<std::vector<U8>> request_payload_t;
-        typedef std::function<void(request_payload_t, bool)> request_callback_t;
+        typedef std::function<void(request_payload_t, std::string, bool)> request_callback_t;
 
         void addReadRequest(std::string id,
                             request_callback_t cb);
@@ -72,6 +72,7 @@ class llDiskCache :
         {
             U32 id;
             request_payload_t payload;
+            std::string filename;
             bool ok;
         };
 

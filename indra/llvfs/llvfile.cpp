@@ -88,7 +88,7 @@ LLVFile::~LLVFile()
 
 BOOL LLVFile::read(U8 *buffer, S32 bytes, BOOL async, F32 priority)
 {
-    std::cout << "===> LLVFile::read() - bytes = " << (int)bytes << std::endl;
+    //std::cout << "===> LLVFile::read() - bytes = " << (int)bytes << std::endl;
 
 	if (! (mMode & READ))
 	{
@@ -111,13 +111,30 @@ BOOL LLVFile::read(U8 *buffer, S32 bytes, BOOL async, F32 priority)
 	// *FIX: (?)
 	if (async)
 	{
-        std::cout << "    ===> LLVFile::read() ASYNC" << std::endl;
+        //std::cout << "    ===> LLVFile::read() ASYNC" << std::endl;
 
 		mHandle = sVFSThread->read(mVFS, mFileID, mFileType, buffer, mPosition, bytes, threadPri());
 	}
 	else
 	{
-        std::cout << "    ===> LLVFile::read() SYNCHRONOUS - type = " << mFileType << std::endl;
+        std::string id;
+        mFileID.toString(id);
+        try
+        {
+            llDiskCache::request_payload_t payload = llDiskCache::instance().waitForReadComplete(id);
+
+            //const std::string payload_str((char*)payload->data(), payload->size());
+            //LL_INFOS() << "@@@ Payload size is " << payload->size() << LL_ENDL;
+        }
+        catch (const llDiskCache::ReadError &exc)
+        {
+            LL_INFOS() << "Unable to read file: " << exc.what() << LL_ENDL;
+        }
+
+
+
+
+        //std::cout << "    ===> LLVFile::read() SYNCHRONOUS - type = " << mFileType << std::endl;
 		// We can't do a read while there are pending async writes on this file
 		mBytesRead = sVFSThread->readImmediate(mVFS, mFileID, mFileType, buffer, mPosition, bytes);
 		mPosition += mBytesRead;
@@ -132,7 +149,7 @@ BOOL LLVFile::read(U8 *buffer, S32 bytes, BOOL async, F32 priority)
 
 BOOL LLVFile::isReadComplete()
 {
-    std::cout << "    ===> LLVFile::isReadComplete()" << std::endl;
+    //std::cout << "    ===> LLVFile::isReadComplete()" << std::endl;
 
 	BOOL res = TRUE;
 	if (mHandle != LLVFSThread::nullHandle())
@@ -166,7 +183,7 @@ BOOL LLVFile::eof()
 
 BOOL LLVFile::write(const U8 *buffer, S32 bytes)
 {
-    std::cout << "===> LLVFile::write() - bytes = " << bytes << std::endl;
+    //std::cout << "===> LLVFile::write() - bytes = " << bytes << std::endl;
 
 	if (! (mMode & WRITE))
 	{
@@ -182,7 +199,7 @@ BOOL LLVFile::write(const U8 *buffer, S32 bytes)
 	// *FIX: allow async writes? potential problem wit mPosition...
 	if (mMode == APPEND) // all appends are async (but WRITEs are not)
 	{	
-        std::cout << "    ===> Mode is APPEND" << std::endl;
+        //std::cout << "    ===> Mode is APPEND" << std::endl;
 
         U8* writebuf = new U8[bytes];
 		memcpy(writebuf, buffer, bytes);
@@ -194,7 +211,7 @@ BOOL LLVFile::write(const U8 *buffer, S32 bytes)
 	}
 	else
 	{
-        std::cout << "    ===> Mode is NOT APPEND" << std::endl;
+        //std::cout << "    ===> Mode is NOT APPEND" << std::endl;
 
 		// We can't do a write while there are pending reads or writes on this file
 		waitForLock(VFSLOCK_READ);
@@ -202,7 +219,7 @@ BOOL LLVFile::write(const U8 *buffer, S32 bytes)
 
 		S32 pos = (mMode & APPEND) == APPEND ? -1 : mPosition;
 
-        std::cout << "    ===> writeImmediate to fileID: " << mFileID << " and type " << (LLAssetType::EType)mFileType << std::endl;
+        //std::cout << "    ===> writeImmediate to fileID: " << mFileID << " and type " << (LLAssetType::EType)mFileType << std::endl;
 		S32 wrote = sVFSThread->writeImmediate(mVFS, mFileID, mFileType, (U8*)buffer, pos, bytes);
 
 		mPosition += wrote;
@@ -214,15 +231,15 @@ BOOL LLVFile::write(const U8 *buffer, S32 bytes)
 			success = FALSE;
 		}
 
-        llDiskCache::request_callback_t cb([](llDiskCache::request_payload_t, bool result)
+        llDiskCache::request_callback_t cb([](llDiskCache::request_payload_t, std::string filename, bool result)
         {
             if (result)
             {
-                LL_INFOS() << "LLDiskCache -> File written successfully" << LL_ENDL;
+                //LL_INFOS() << "LLDiskCache -> File written successfully" << LL_ENDL;
             }
             else
             {
-                LL_INFOS() << "LLDiskCache -> Unable to write file" << LL_ENDL;
+                LL_INFOS() << "LLDiskCache -> Unable to write file: " << filename << LL_ENDL;
             }
         });
 
@@ -231,7 +248,7 @@ BOOL LLVFile::write(const U8 *buffer, S32 bytes)
         memcpy(file_contents->data(), (U8*)buffer, file_contents->size());
         const std::string id = mFileID.asString();
 
-        LL_INFOS() << "@@@@ LLDiskCache -> Adding " << id << " to write list with size: " << bytes << LL_ENDL;
+        //LL_INFOS() << "@@@@ LLDiskCache -> Adding " << id << " to write list with size: " << bytes << LL_ENDL;
 
         llDiskCache::instance().addWriteRequest(id, mFileType, file_contents, cb);
 	}
@@ -241,7 +258,7 @@ BOOL LLVFile::write(const U8 *buffer, S32 bytes)
 //static
 BOOL LLVFile::writeFile(const U8 *buffer, S32 bytes, LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type)
 {
-    std::cout << "-----> LLVFile::writeFile() type=" << type << std::endl;
+    //std::cout << "-----> LLVFile::writeFile() type=" << type << std::endl;
 
 
 	LLVFile file(vfs, uuid, type, LLVFile::WRITE);
@@ -322,7 +339,7 @@ BOOL LLVFile::setMaxSize(S32 size)
 		{
 			if (count % 100 == 0)
 			{
-				LL_INFOS() << "VFS catching up... Pending: " << sVFSThread->getPending() << LL_ENDL;
+				//LL_INFOS() << "VFS catching up... Pending: " << sVFSThread->getPending() << LL_ENDL;
 			}
 			if (sVFSThread->isPaused())
 			{
