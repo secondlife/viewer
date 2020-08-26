@@ -490,12 +490,14 @@ llDiskCache::request_payload_t llDiskCache::waitForReadComplete(std::string id)
  * for testing in any event. The id is used as the basis for
  * generating a filename - see idToFilepath() for more details on
  * how the final file/path is created. The callback cb is triggered
- * once the request is processed
+ * once the request is processed. If append parameter is true,
+ * the contents is written to the end of the file in question.
  */
 void llDiskCache::addWriteRequest(std::string id,
                                   LLAssetType::EType at,
                                   request_payload_t buffer,
-                                  request_callback_t cb)
+                                  request_callback_t cb,
+                                  bool append)
 {
     /**
      * This is an ID we pass in to our worker function so
@@ -516,15 +518,25 @@ void llDiskCache::addWriteRequest(std::string id,
      * need it for this use case - we assert this code will not throw but
      * other, more complex code that uses this pattern in the future might
      */
-    mITaskQueue.pushFront([this, request_id, id, at, buffer]()
+    mITaskQueue.pushFront([this, request_id, id, at, buffer, append]()
     {
         /**
          * Munge the ID we get into a full file/path name. This might change
          * once we decide how to actually store the files we read - on
          * disk directly? In a database? Pointed to be a database?
-         * TODO: This works for now but will need to revisit
+         * TODO: This works for now but will need to revisit.
          */
         const std::string filename = idToFilepath(id, at);
+
+        /**
+         * Open the file in write or append mode depending on
+         * what we have been asked to do.
+         */
+        std::ios_base::openmode write_mode = std::ios::binary;
+        if (append)
+        {
+            write_mode = write_mode | std::ios::app;
+        }
 
         /**
          * TODO: This is a place holder for doing some work on the worker
@@ -532,7 +544,7 @@ void llDiskCache::addWriteRequest(std::string id,
          * read and write cache files and update their meta data
          */
         bool success;
-        std::ofstream ofs(filename, std::ios::binary);
+        std::ofstream ofs(filename, write_mode);
         if (ofs)
         {
             ofs.write(reinterpret_cast<char*>(buffer->data()), buffer->size());

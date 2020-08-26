@@ -56,7 +56,8 @@ class llDiskCache :
         void addWriteRequest(std::string id,
                              LLAssetType::EType at,
                              request_payload_t buffer,
-                             request_callback_t cb);
+                             request_callback_t cb,
+                             bool append);
 
         request_payload_t waitForReadComplete(std::string id);
 
