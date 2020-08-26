@@ -3930,7 +3930,7 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 						draw_handles = FALSE;
 					}
 
-					if (tool == LLToolCompRotate::getInstance() && !all_selected_objects_move)
+					if (tool == LLToolCompRotate::getInstance() && !all_selected_objects_move && !LLSelectMgr::getInstance()->isMovableAvatarSelected())
 					{
 						draw_handles = FALSE;
 					}
