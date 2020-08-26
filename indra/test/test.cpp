@@ -77,8 +77,14 @@
 
 LLError::ErrFatalHookResult wouldHaveCrashed(const std::string& message)
 {
+#if LL_MSVC
+#pragma warning (push)
+#pragma warning (disable : 4702) // warning C4702: unreachable code
 	tut::fail("fatal error message: " + message);
     return LLError::ERR_DO_NOT_CRASH;
+#if LL_MSVC
+#pragma warning (pop)
+#endif
 }
 
 namespace tut
