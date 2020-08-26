@@ -88,8 +88,6 @@ LLVFile::~LLVFile()
 
 BOOL LLVFile::read(U8 *buffer, S32 bytes, BOOL async, F32 priority)
 {
-    //std::cout << "===> LLVFile::read() - bytes = " << (int)bytes << std::endl;
-
 	if (! (mMode & READ))
 	{
 		LL_WARNS() << "Attempt to read from file " << mFileID << " opened with mode " << std::hex << mMode << std::dec << LL_ENDL;
@@ -111,30 +109,10 @@ BOOL LLVFile::read(U8 *buffer, S32 bytes, BOOL async, F32 priority)
 	// *FIX: (?)
 	if (async)
 	{
-        //std::cout << "    ===> LLVFile::read() ASYNC" << std::endl;
-
 		mHandle = sVFSThread->read(mVFS, mFileID, mFileType, buffer, mPosition, bytes, threadPri());
 	}
 	else
 	{
-        std::string id;
-        mFileID.toString(id);
-        try
-        {
-            llDiskCache::request_payload_t payload = llDiskCache::instance().waitForReadComplete(id);
-
-            //const std::string payload_str((char*)payload->data(), payload->size());
-            //LL_INFOS() << "@@@ Payload size is " << payload->size() << LL_ENDL;
-        }
-        catch (const llDiskCache::ReadError &exc)
-        {
-            LL_INFOS() << "Unable to read file: " << exc.what() << LL_ENDL;
-        }
-
-
-
-
-        //std::cout << "    ===> LLVFile::read() SYNCHRONOUS - type = " << mFileType << std::endl;
 		// We can't do a read while there are pending async writes on this file
 		mBytesRead = sVFSThread->readImmediate(mVFS, mFileID, mFileType, buffer, mPosition, bytes);
 		mPosition += mBytesRead;
@@ -142,15 +120,66 @@ BOOL LLVFile::read(U8 *buffer, S32 bytes, BOOL async, F32 priority)
 		{
 			success = FALSE;
 		}
-	}
+
+        std::string id;
+        mFileID.toString(id);
+        try
+        {
+            llDiskCache::request_payload_t payload = llDiskCache::instance().waitForReadComplete(id, mFileType);
+
+            //const std::string payload_str((char*)payload->data(), payload->size());
+            //LL_INFOS() << "@@@ Payload size is " << payload->size() << LL_ENDL;
+        }
+        catch (const llDiskCache::ReadError &exc)
+        {
+            LL_INFOS() << "Bytes read in old way is " << mBytesRead << " new way was unable to read file: " << exc.what() << LL_ENDL;
+        }
+    }
 
 	return success;
 }
 
+//static
+U8* LLVFile::readFile(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type, S32* bytes_read)
+{
+	U8 *data;
+	LLVFile file(vfs, uuid, type, LLVFile::READ);
+	S32 file_size = file.getSize();
+	if (file_size == 0)
+	{
+		// File is empty.
+		data = NULL;
+	}
+	else
+	{		
+		data = (U8*) ll_aligned_malloc<16>(file_size);
+		file.read(data, file_size);	/* Flawfinder: ignore */ 
+		
+		if (file.getLastBytesRead() != (S32)file_size)
+		{
+			ll_aligned_free<16>(data);
+			data = NULL;
+			file_size = 0;
+		}
+	}
+	if (bytes_read)
+	{
+		*bytes_read = file_size;
+	}
+	return data;
+}
+	
+void LLVFile::setReadPriority(const F32 priority)
+{
+	mPriority = priority;
+	if (mHandle != LLVFSThread::nullHandle())
+	{
+		sVFSThread->setPriority(mHandle, threadPri());
+	}
+}
+
 BOOL LLVFile::isReadComplete()
 {
-    //std::cout << "    ===> LLVFile::isReadComplete()" << std::endl;
-
 	BOOL res = TRUE;
 	if (mHandle != LLVFSThread::nullHandle())
 	{
@@ -183,8 +212,6 @@ BOOL LLVFile::eof()
 
 BOOL LLVFile::write(const U8 *buffer, S32 bytes)
 {
-    //std::cout << "===> LLVFile::write() - bytes = " << bytes << std::endl;
-
 	if (! (mMode & WRITE))
 	{
 		LL_WARNS() << "Attempt to write to file " << mFileID << " opened with mode " << std::hex << mMode << std::dec << LL_ENDL;
@@ -199,9 +226,7 @@ BOOL LLVFile::write(const U8 *buffer, S32 bytes)
 	// *FIX: allow async writes? potential problem wit mPosition...
 	if (mMode == APPEND) // all appends are async (but WRITEs are not)
 	{	
-        //std::cout << "    ===> Mode is APPEND" << std::endl;
-
-        U8* writebuf = new U8[bytes];
+		U8* writebuf = new U8[bytes];
 		memcpy(writebuf, buffer, bytes);
 		S32 offset = -1;
 		mHandle = sVFSThread->write(mVFS, mFileID, mFileType,
@@ -211,15 +236,12 @@ BOOL LLVFile::write(const U8 *buffer, S32 bytes)
 	}
 	else
 	{
-        //std::cout << "    ===> Mode is NOT APPEND" << std::endl;
-
 		// We can't do a write while there are pending reads or writes on this file
 		waitForLock(VFSLOCK_READ);
 		waitForLock(VFSLOCK_APPEND);
 
 		S32 pos = (mMode & APPEND) == APPEND ? -1 : mPosition;
 
-        //std::cout << "    ===> writeImmediate to fileID: " << mFileID << " and type " << (LLAssetType::EType)mFileType << std::endl;
 		S32 wrote = sVFSThread->writeImmediate(mVFS, mFileID, mFileType, (U8*)buffer, pos, bytes);
 
 		mPosition += wrote;
@@ -250,7 +272,8 @@ BOOL LLVFile::write(const U8 *buffer, S32 bytes)
 
         //LL_INFOS() << "@@@@ LLDiskCache -> Adding " << id << " to write list with size: " << bytes << LL_ENDL;
 
-        llDiskCache::instance().addWriteRequest(id, mFileType, file_contents, cb);
+        const bool append = (mMode == APPEND);
+        llDiskCache::instance().addWriteRequest(id, mFileType, file_contents, cb, append);
 	}
 	return success;
 }
@@ -258,9 +281,6 @@ BOOL LLVFile::write(const U8 *buffer, S32 bytes)
 //static
 BOOL LLVFile::writeFile(const U8 *buffer, S32 bytes, LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type)
 {
-    //std::cout << "-----> LLVFile::writeFile() type=" << type << std::endl;
-
-
 	LLVFile file(vfs, uuid, type, LLVFile::WRITE);
 	file.setMaxSize(bytes);
 	return file.write(buffer, bytes);
@@ -339,7 +359,7 @@ BOOL LLVFile::setMaxSize(S32 size)
 		{
 			if (count % 100 == 0)
 			{
-				//LL_INFOS() << "VFS catching up... Pending: " << sVFSThread->getPending() << LL_ENDL;
+				LL_INFOS() << "VFS catching up... Pending: " << sVFSThread->getPending() << LL_ENDL;
 			}
 			if (sVFSThread->isPaused())
 			{

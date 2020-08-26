@@ -51,6 +51,7 @@ class llDiskCache :
         typedef std::function<void(request_payload_t, std::string, bool)> request_callback_t;
 
         void addReadRequest(std::string id,
+                            LLAssetType::EType at,
                             request_callback_t cb);
 
         void addWriteRequest(std::string id,
@@ -59,7 +60,8 @@ class llDiskCache :
                              request_callback_t cb,
                              bool append);
 
-        request_payload_t waitForReadComplete(std::string id);
+        request_payload_t waitForReadComplete(std::string id,
+                                              LLAssetType::EType at);
 
         struct ReadError : public LLContinueError
         {

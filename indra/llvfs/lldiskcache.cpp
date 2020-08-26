@@ -235,6 +235,7 @@ BOOL llDiskCache::tick()
  * once the request is processed
  */
 void llDiskCache::addReadRequest(std::string id,
+                                 LLAssetType::EType at,
                                  request_callback_t cb)
 {
     /**
@@ -256,7 +257,7 @@ void llDiskCache::addReadRequest(std::string id,
      * need it for this use case - we assert this code will not throw but
      * other, more complex code that uses this pattern in the future might
      */
-    mITaskQueue.pushFront([this, request_id, id]()
+    mITaskQueue.pushFront([this, request_id, id, at]()
     {
         /**
          * Munge the ID we get into a full file/path name. This might change
@@ -264,7 +265,7 @@ void llDiskCache::addReadRequest(std::string id,
          * disk directly? In a database? Pointed to be a database?
          * TODO: This works for now but will need to revisit
          */
-        const std::string filename = idToFilepath(id, LLAssetType::AT_UNKNOWN);
+        const std::string filename = idToFilepath(id, at);
 
         /**
          * This is an interesting idiom. We will be passing back the contents of files
@@ -321,7 +322,7 @@ void llDiskCache::addReadRequest(std::string id,
  * how the final file/path is created. The callback cb is triggered
  * once the request is processed
  */
-llDiskCache::request_payload_t llDiskCache::waitForReadComplete(std::string id)
+llDiskCache::request_payload_t llDiskCache::waitForReadComplete(std::string id, LLAssetType::EType at)
 {
     /**
      * There are two cases to consider for the synchronous case. One is when
@@ -365,7 +366,7 @@ llDiskCache::request_payload_t llDiskCache::waitForReadComplete(std::string id)
          * Add an asynchronous read request to the request queue
          * running in our worker thread
          */
-        addReadRequest(id, [&done, &succeeded, &payload_out, &filename_out]
+        addReadRequest(id, at, [&done, &succeeded, &payload_out, &filename_out]
                        (llDiskCache::request_payload_t payload_in, std::string filename_in, bool result)
         {
             /**
@@ -458,7 +459,7 @@ llDiskCache::request_payload_t llDiskCache::waitForReadComplete(std::string id)
          * We have to use the mutable keyboard in the addReadRequest() expression to indicate
          * we are allowing the lambda body to make non-const method calls (normally, all const)
          */
-        addReadRequest(id, [&promise](request_payload_t payload, std::string filename, bool result) mutable
+        addReadRequest(id, at, [&promise](request_payload_t payload, std::string filename, bool result) mutable
         {
             /**
              * Note:
@@ -470,7 +471,7 @@ llDiskCache::request_payload_t llDiskCache::waitForReadComplete(std::string id)
 
             /**
              * When the callback is triggered, we update the promise with the payload
-             * containing the result of the read reqest
+             * containing the result of the read request
              */
             promise.set_value(payload);
         });

@@ -3709,7 +3709,7 @@ void simulate_cache_synchronous_read_access_coroutine(void*)
         { 
             const std::string filename = "read_sync_coroutine.payload";
 
-            llDiskCache::request_payload_t payload = llDiskCache::instance().waitForReadComplete(filename);
+            llDiskCache::request_payload_t payload = llDiskCache::instance().waitForReadComplete(filename, LLAssetType::AT_UNKNOWN);
 
             try
             {
@@ -3730,7 +3730,7 @@ void simulate_cache_synchronous_read_access(void*)
 
     const std::string filename = "read_sync.payload";
 
-    llDiskCache::request_payload_t payload = llDiskCache::instance().waitForReadComplete(filename);
+    llDiskCache::request_payload_t payload = llDiskCache::instance().waitForReadComplete(filename, LLAssetType::AT_UNKNOWN);
 
     try
     {
@@ -3764,7 +3764,7 @@ void simulate_cache_asynchronous_read_access(void*)
 
     const std::string filename = "read_async.payload";
 
-    llDiskCache::instance().addReadRequest(filename, cb);
+    llDiskCache::instance().addReadRequest(filename, LLAssetType::AT_UNKNOWN, cb);
 }
 
 void simulate_cache_asynchronous_write_access(void*)
@@ -3790,7 +3790,8 @@ void simulate_cache_asynchronous_write_access(void*)
     llDiskCache::request_payload_t file_contents = std::make_shared<std::vector<U8>>(filesize);
     memset(file_contents->data(), 'Z', file_contents->size());
 
-    llDiskCache::instance().addWriteRequest(filename, LLAssetType::AT_UNKNOWN, file_contents, cb);
+    const bool append = false;
+    llDiskCache::instance().addWriteRequest(filename, LLAssetType::AT_UNKNOWN, file_contents, cb, append);
 }
 
 void handle_dump_focus()
