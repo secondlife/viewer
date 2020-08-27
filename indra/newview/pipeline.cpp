@@ -9288,6 +9288,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		
 		gPipeline.pushRenderTypeMask();
 
+        glh::matrix4f current    = get_current_modelview();
         glh::matrix4f projection = get_current_projection();
 		glh::matrix4f mat;
 
@@ -9327,8 +9328,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			//disable occlusion culling for reflection map for now
 			LLPipeline::sUseOcclusion = 0;
 
-        glh::matrix4f current = get_current_modelview();
-
         if (!camera_is_underwater)
         {   //generate planar reflection map
 
@@ -9337,15 +9336,10 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
             gGL.matrixMode(LLRender::MM_MODELVIEW);
             gGL.pushMatrix();
 
-            glh::matrix4f mat;
-            camera.getOpenGLTransform(mat.m);
+            mat.set_scale(glh::vec3f(1, 1, -1));
+            mat.set_translate(glh::vec3f(0,0,water_height*2.f));
+            mat = current * mat;
 
-            glh::matrix4f scal;
-            scal.set_scale(glh::vec3f(1, 1, -1));
-            mat = scal * mat;
-
-            // convert from CFR to OGL coord sys...
-            mat = glh::matrix4f((GLfloat*) OGL_TO_CFR_ROTATION) * mat;
 
             mReflectionModelView = mat;
 
@@ -9353,6 +9347,12 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			gGL.loadMatrix(mat.m);
 
 			LLViewerCamera::updateFrustumPlanes(camera, FALSE, TRUE);
+
+            glh::vec3f    origin(0, 0, 0);
+            glh::matrix4f inv_mat = mat.inverse();
+            inv_mat.mult_matrix_vec(origin);
+
+            camera.setOrigin(origin.v);
 
 			glCullFace(GL_FRONT);
 
