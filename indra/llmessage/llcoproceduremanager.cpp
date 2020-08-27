@@ -414,8 +414,10 @@ void LLCoprocedurePool::coprocedureInvokerCoro(
         {
             coproc->mProc(httpAdapter, coproc->mId);
         }
-        catch (const LLCoros::Stop &)
+        catch (const LLCoros::Stop &e)
         {
+            LL_INFOS("LLCoros") << "coprocedureInvokerCoro terminating because "
+                << e.what() << LL_ENDL;
             throw; // let toplevel handle this as LLContinueError
         }
         catch (...)
