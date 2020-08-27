@@ -1134,11 +1134,11 @@ bool idle_startup()
                         }
                         catch (LLCertException &cert_exception)
                         {
-                            LL_WARNS("LLStartup", "SECAPI") << "Caught " << cert_exception.what() << " certificate expception on getCertificate()" << LL_ENDL;
+                            LL_WARNS("LLStartup", "SECAPI") << "Caught " << cert_exception.what() << " certificate expception on getCertificate("<< response["certificate"] << ")" << LL_ENDL;
                             LLSD args;
                             args["REASON"] = LLTrans::getString(cert_exception.what());
 
-                            LLNotificationsUtil::add("GeneralCertificateError", args, response,
+                            LLNotificationsUtil::add("GeneralCertificateErrorShort", args, response,
                                 general_cert_done);
 
                             reset_login();
