@@ -9288,8 +9288,8 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		
 		gPipeline.pushRenderTypeMask();
 
-        glh::matrix4f current    = get_current_modelview();
-        glh::matrix4f projection = get_current_projection();
+        glh::matrix4f saved_modelview  = get_current_modelview();
+        glh::matrix4f saved_projection = get_current_projection();
 		glh::matrix4f mat;
 
         S32 detail = RenderReflectionDetail;
@@ -9338,7 +9338,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
             mat.set_scale(glh::vec3f(1, 1, -1));
             mat.set_translate(glh::vec3f(0,0,water_height*2.f));
-            mat = current * mat;
+            mat = saved_modelview * mat;
 
 
             mReflectionModelView = mat;
@@ -9406,7 +9406,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 						}
 					}
 
-                    LLGLUserClipPlane clip_plane(plane, mReflectionModelView, projection);
+                    LLGLUserClipPlane clip_plane(plane, mReflectionModelView, saved_projection);
 					LLGLDisable cull(GL_CULL_FACE);
                     updateCull(camera, mReflectedObjects, -water_clip, &plane);
                     stateSort(camera, mReflectedObjects);
@@ -9420,7 +9420,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
             gGL.matrixMode(LLRender::MM_MODELVIEW);
 			gGL.popMatrix();
             
-            set_current_modelview(current);         
+            set_current_modelview(saved_modelview);
 		}
 
         //LLPipeline::sUseOcclusion = occlusion;
@@ -9476,7 +9476,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                 //clip out geometry on the same side of water as the camera w/ enough margin to not include the water geo itself,
                 // but not so much as to clip out parts of avatars that should be seen under the water in the distortion map
                 LLPlane plane(-pnorm, water_dist);
-                LLGLUserClipPlane clip_plane(plane, current, projection);
+                LLGLUserClipPlane clip_plane(plane, saved_modelview, saved_projection);
 
 				gGL.setColorMask(true, true);
 				mWaterDis.clear();
