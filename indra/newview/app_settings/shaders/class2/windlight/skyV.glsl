@@ -66,77 +66,69 @@ void main()
 	gl_Position = pos;
 	
 	// Get relative position
-	vec3 P = position.xyz - camPosLocal.xyz + vec3(0,50,0);
+	vec3 rel_pos = position.xyz - camPosLocal.xyz + vec3(0,50,0);
 
 	// Set altitude
-	if (P.y > 0.)
+	if (rel_pos.y > 0.)
 	{
-		P *= (max_y / P.y);
+		rel_pos *= (max_y / rel_pos.y);
 	}
 	else
 	{
-		P *= (-32000. / P.y);
+		rel_pos *= (-32000. / rel_pos.y);
 	}
 
 	// Can normalize then
-	vec3 Pn = normalize(P);
+	vec3 rel_pos_norm = normalize(rel_pos);
 
-	float Plen = length(P);
+	float rel_pos_len = length(rel_pos);
 
 	// Initialize temp variables
-	vec4 temp1 = vec4(0.);
-	vec4 temp2 = vec4(0.);
-	vec4 blue_weight;
-	vec4 haze_weight;
 	vec4 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
 	vec4 light_atten;
 
-    float dens_mul = density_multiplier;
-
 	// Sunlight attenuation effect (hue and brightness) due to atmosphere
 	// this is used later for sunlight modulation at various altitudes
-	light_atten = (blue_density + vec4(haze_density * 0.25)) * (dens_mul * max_y);
+	light_atten = (blue_density + vec4(haze_density * 0.25)) * (density_multiplier * max_y);
 
 	// Calculate relative weights
-	temp1 = abs(blue_density) + vec4(abs(haze_density));
-	blue_weight = blue_density / temp1;
-	haze_weight = haze_density / temp1;
+	vec4 combined_haze = abs(blue_density) + vec4(abs(haze_density));
+	vec4 blue_weight = blue_density / combined_haze;
+    vec4 haze_weight = haze_density / combined_haze;
 
-	// Compute sunlight from P & lightnorm (for long rays like sky)
-    temp2.y = max(0., max(0., Pn.y) * 1.0 + lightnorm.y );
-    temp2.y = 1. / temp2.y;
-    sunlight *= exp( - light_atten * temp2.y);
+	// Compute sunlight from rel_pos & lightnorm (for long rays like sky)
+    float off_axis = 1.0 / max(1e-6, max(0., rel_pos_norm.y) + lightnorm.y); 
+    sunlight *= exp( - light_atten * off_axis);
 
 	// Distance
-	temp2.z = Plen * dens_mul;
+	float density_dist = rel_pos_len * density_multiplier;
 
-	// Transparency (-> temp1)
-    // ATI Bugfix -- can't store temp1*temp2.z in a variable because the ati
+	// Transparency (-> combined_haze)
+    // ATI Bugfix -- can't store combined_haze*density_dist in a variable because the ati
     // compiler gets confused.
-    temp1 = exp(-temp1 * temp2.z);
+    combined_haze = exp(-combined_haze * density_dist);
 
 	// Compute haze glow
-	temp2.x = dot(Pn, lightnorm.xyz);
-	temp2.x = 1. - temp2.x;
-		// temp2.x is 0 at the sun and increases away from sun
-	temp2.x = max(temp2.x, .001);	
+    float haze_glow = 1.0 - dot(rel_pos_norm, lightnorm.xyz);
+    // haze_glow is 0 at the sun and increases away from sun
+	haze_glow = max(haze_glow, .001);	
 		// Set a minimum "angle" (smaller glow.y allows tighter, brighter hotspot)
-	temp2.x *= glow.x;
+	haze_glow *= glow.x;
 		// Higher glow.x gives dimmer glow (because next step is 1 / "angle")
-	temp2.x = pow(temp2.x, glow.z);
+	haze_glow = pow(haze_glow, glow.z);
 		// glow.z should be negative, so we're doing a sort of (1 / "angle") function
 
 	// Add "minimum anti-solar illumination"
     // For sun, add to glow.  For moon, remove glow entirely. SL-13768
-    temp2.x = (sun_moon_glow_factor < 1.0) ? 0.0 : (temp2.x + 0.25);
+    haze_glow = (sun_moon_glow_factor < 1.0) ? 0.0 : (haze_glow + 0.25);
 
     vec4 color = (    blue_horizon * blue_weight * (sunlight + ambient_color)
-                + (haze_horizon * haze_weight) * (sunlight * temp2.x + ambient_color)
+                + (haze_horizon * haze_weight) * (sunlight * haze_glow + ambient_color)
              );
 
 
     // Final atmosphere additive
-    color *= (1. - temp1);
+    color *= (1. - combined_haze);
 
 	// Increase ambient when there are more clouds
 	vec4 tmpAmbient = ambient_color;
@@ -147,14 +139,14 @@ void main()
 
 	// Haze color below cloud
 	vec4 additiveColorBelowCloud = (	  blue_horizon * blue_weight * (sunlight + tmpAmbient)
-				+ (haze_horizon * haze_weight) * (sunlight * temp2.x + tmpAmbient)
+				+ (haze_horizon * haze_weight) * (sunlight * haze_glow + tmpAmbient)
 			 );	
 
 	// Attenuate cloud color by atmosphere
-	temp1 = sqrt(temp1);	//less atmos opacity (more transparency) below clouds
+	combined_haze = sqrt(combined_haze);	//less atmos opacity (more transparency) below clouds
 
 	// At horizon, blend high altitude sky color towards the darker color below the clouds
-	color += (additiveColorBelowCloud - color) * (1. - sqrt(temp1));
+	color += (additiveColorBelowCloud - color) * (1. - sqrt(combined_haze));
 
     // Haze color above cloud
     vary_HazeColor = color;
