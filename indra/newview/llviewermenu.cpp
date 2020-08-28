@@ -3709,7 +3709,14 @@ void simulate_cache_synchronous_read_access_coroutine(void*)
         { 
             const std::string filename = "read_sync_coroutine.payload";
 
-            llDiskCache::request_payload_t payload = llDiskCache::instance().waitForReadComplete(filename, LLAssetType::AT_UNKNOWN);
+            const unsigned long pos = 0;
+            const unsigned long bytes = 0; // read whole file
+
+            llDiskCache::request_payload_t payload = 
+                llDiskCache::instance().waitForReadComplete(filename,
+                                                            LLAssetType::AT_UNKNOWN,
+                                                            pos,
+                                                            bytes);
 
             try
             {
@@ -3730,7 +3737,11 @@ void simulate_cache_synchronous_read_access(void*)
 
     const std::string filename = "read_sync.payload";
 
-    llDiskCache::request_payload_t payload = llDiskCache::instance().waitForReadComplete(filename, LLAssetType::AT_UNKNOWN);
+    const unsigned long pos = 0;
+    const unsigned long bytes = 0; // read whole file
+
+    llDiskCache::request_payload_t payload = 
+        llDiskCache::instance().waitForReadComplete(filename, LLAssetType::AT_UNKNOWN, pos, bytes);
 
     try
     {
@@ -3764,7 +3775,10 @@ void simulate_cache_asynchronous_read_access(void*)
 
     const std::string filename = "read_async.payload";
 
-    llDiskCache::instance().addReadRequest(filename, LLAssetType::AT_UNKNOWN, cb);
+    const unsigned long pos = 0;
+    const unsigned long bytes = 0; // read whole file
+
+    llDiskCache::instance().addReadRequest(filename, LLAssetType::AT_UNKNOWN, pos, bytes, cb);
 }
 
 void simulate_cache_asynchronous_write_access(void*)

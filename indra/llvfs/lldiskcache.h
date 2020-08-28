@@ -52,7 +52,14 @@ class llDiskCache :
 
         void addReadRequest(std::string id,
                             LLAssetType::EType at,
+                            unsigned long pos,
+                            unsigned long bytes,
                             request_callback_t cb);
+
+        request_payload_t waitForReadComplete(std::string id,
+                                              LLAssetType::EType at,
+                                              unsigned long pos,
+                                              unsigned long bytes);
 
         void addWriteRequest(std::string id,
                              LLAssetType::EType at,
@@ -60,8 +67,15 @@ class llDiskCache :
                              request_callback_t cb,
                              bool append);
 
-        request_payload_t waitForReadComplete(std::string id,
-                                              LLAssetType::EType at);
+        void addRenameRequest(std::string old_id,
+                              LLAssetType::EType old_at,
+                              std::string new_id,
+                              LLAssetType::EType new_at,
+                              request_callback_t cb);
+
+        void addRemoveRequest(std::string id,
+                              LLAssetType::EType at,
+                              request_callback_t cb);
 
         struct ReadError : public LLContinueError
         {

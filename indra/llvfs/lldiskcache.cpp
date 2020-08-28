@@ -236,6 +236,8 @@ BOOL llDiskCache::tick()
  */
 void llDiskCache::addReadRequest(std::string id,
                                  LLAssetType::EType at,
+                                 unsigned long pos,
+                                 unsigned long bytes,
                                  request_callback_t cb)
 {
     /**
@@ -257,7 +259,7 @@ void llDiskCache::addReadRequest(std::string id,
      * need it for this use case - we assert this code will not throw but
      * other, more complex code that uses this pattern in the future might
      */
-    mITaskQueue.pushFront([this, request_id, id, at]()
+    mITaskQueue.pushFront([this, request_id, id, at, pos, bytes]() mutable
     {
         /**
          * Munge the ID we get into a full file/path name. This might change
@@ -279,27 +281,41 @@ void llDiskCache::addReadRequest(std::string id,
         request_payload_t file_contents = nullptr;
 
         /**
-         * TODO: This is a place holder for doing some work on the worker
-         * thread - eventually, for this use case, it will be used to
-         * read and write cache files and update their meta data
+         * TODO:
          */
         bool success = true;
-        std::ifstream ifs(filename);
-        if (!ifs.is_open())
+        std::ifstream file(filename, std::ios::binary);
+        if (file.is_open())
         {
-            success = false;
+            file.seekg(0, std::ios::end);
+            std::streampos file_size = file.tellg();
+
+            file.seekg(pos, std::ios::beg);
+
+            /**
+             * Special case - pass in 0 for number of bytes to
+             * read and the whole file will be read. This implies
+             * that the file seek position is 0 of course.
+             */
+            if (bytes == 0)
+            {
+                bytes = file_size;
+            }
+
+            if (file_size >= (long)pos + bytes)
+            {
+                file_contents = std::make_shared<std::vector<U8>>(bytes);
+                file.read((char*)file_contents->data(), bytes);
+                success = true;
+            }
+            else
+            {
+                success = false;
+            }
         }
         else
         {
-            std::string contents;
-            if (std::getline(ifs, contents))
-            {
-                const U32 filesize = contents.length();
-                file_contents = std::make_shared<std::vector<U8>>(filesize + 1);
-                memset(file_contents->data(), 0, filesize + 1);
-                memcpy(file_contents->data(), contents.c_str(), filesize);
-                success = true;
-            }
+            success = false;
         }
 
         /**
@@ -322,7 +338,11 @@ void llDiskCache::addReadRequest(std::string id,
  * how the final file/path is created. The callback cb is triggered
  * once the request is processed
  */
-llDiskCache::request_payload_t llDiskCache::waitForReadComplete(std::string id, LLAssetType::EType at)
+llDiskCache::request_payload_t
+llDiskCache::waitForReadComplete(std::string id,
+                                 LLAssetType::EType at,
+                                 unsigned long pos,
+                                 unsigned long bytes)
 {
     /**
      * There are two cases to consider for the synchronous case. One is when
@@ -366,7 +386,7 @@ llDiskCache::request_payload_t llDiskCache::waitForReadComplete(std::string id, 
          * Add an asynchronous read request to the request queue
          * running in our worker thread
          */
-        addReadRequest(id, at, [&done, &succeeded, &payload_out, &filename_out]
+        addReadRequest(id, at, pos, bytes, [&done, &succeeded, &payload_out, &filename_out]
                        (llDiskCache::request_payload_t payload_in, std::string filename_in, bool result)
         {
             /**
@@ -459,7 +479,7 @@ llDiskCache::request_payload_t llDiskCache::waitForReadComplete(std::string id, 
          * We have to use the mutable keyboard in the addReadRequest() expression to indicate
          * we are allowing the lambda body to make non-const method calls (normally, all const)
          */
-        addReadRequest(id, at, [&promise](request_payload_t payload, std::string filename, bool result) mutable
+        addReadRequest(id, at, pos, bytes, [&promise](request_payload_t payload, std::string filename, bool result) mutable
         {
             /**
              * Note:
@@ -565,6 +585,139 @@ void llDiskCache::addWriteRequest(std::string id,
         /**
          * We pass back the ID (for lookup), the contents of the file we read
          * (in our use case) and a flag indicating success/failure. We might
+         * also consider using file_contents and comparing with ! vs a
+         * separate bool. This is okay for now though.
+         */
+        return mResult{ request_id, file_contents, filename, success };
+    });
+}
+
+/**
+ * Adds a request to rename a file asynchronously to
+ * the request queue and activate a callback containing the
+ * status of the operation when it is complete.
+ * The id is used as the basis for generating a filename -
+ * see idToFilepath() for more details on how the final
+ * file/path is created. The callback cb is triggered
+ * once the request is processed.
+ */
+void llDiskCache::addRenameRequest(std::string old_id,
+                                   LLAssetType::EType old_at,
+                                   std::string new_id,
+                                   LLAssetType::EType new_at,
+                                   request_callback_t cb)
+{
+    /**
+     * This is an ID we pass in to our worker function so
+     * we can match up requests and results by comparing the id
+     */
+    auto request_id = mRequestId++;
+
+    /**
+     * Record the ID in a map - used to compare against results
+     * queue in update (per tick) function
+     */
+    mRequestMap.emplace(request_id, mRequest{ cb });
+
+    /**
+     * In the future, we should consider if the code that runs on the
+     * request thread here can throw an exception - this needs to be accounted
+     * and @Nat has a sugestion around using std::packaged_task(..). We do not
+     * need it for this use case - we assert this code will not throw but
+     * other, more complex code that uses this pattern in the future might
+     */
+    mITaskQueue.pushFront([this, request_id, old_id, old_at, new_id, new_at]()
+    {
+        /**
+         * Munge the IDs we get into a full file/path name. This might change
+         * once we decide how to actually store the files we read - on
+         * disk directly? In a database? Pointed to be a database?
+         * TODO: This works for now but will need to revisit.
+         */
+        const std::string old_filename = idToFilepath(old_id, old_at);
+        const std::string new_filename = idToFilepath(new_id, new_at);
+
+        bool success = true;
+
+        if (rename(old_filename.c_str(), new_filename.c_str()))
+        {
+            success = false;
+        }
+
+        /**
+         * We don't send anything back when we are renaming. In
+         * this case, the request result is returned as a bool
+         */
+        request_payload_t file_contents = nullptr;
+
+        /**
+         * We pass back the ID (for lookup), the name of the new file
+         * we renamed to and a flag indicating success/failure. We might
+         * also consider using file_contents and comparing with ! vs a
+         * separate bool. This is okay for now though.
+         */
+        return mResult{ request_id, file_contents, new_filename, success };
+    });
+}
+
+/**
+ * Adds a request to remove a file asynchronously to
+ * the request queue and activate a callback containing the
+ * status of the operation when it is complete.
+ * The id is used as the basis for generating a filename -
+ * see idToFilepath() for more details on how the final
+ * file/path is created. The callback cb is triggered
+ * once the request is processed.
+ */
+void llDiskCache::addRemoveRequest(std::string id,
+                                   LLAssetType::EType at,
+                                   request_callback_t cb)
+{
+    /**
+     * This is an ID we pass in to our worker function so
+     * we can match up requests and results by comparing the id
+     */
+    auto request_id = mRequestId++;
+
+    /**
+     * Record the ID in a map - used to compare against results
+     * queue in update (per tick) function
+     */
+    mRequestMap.emplace(request_id, mRequest{ cb });
+
+    /**
+     * In the future, we should consider if the code that runs on the
+     * request thread here can throw an exception - this needs to be accounted
+     * and @Nat has a sugestion around using std::packaged_task(..). We do not
+     * need it for this use case - we assert this code will not throw but
+     * other, more complex code that uses this pattern in the future might
+     */
+    mITaskQueue.pushFront([this, request_id, id, at]()
+    {
+        /**
+         * Munge the IDs we get into a full file/path name. This might change
+         * once we decide how to actually store the files we read - on
+         * disk directly? In a database? Pointed to be a database?
+         * TODO: This works for now but will need to revisit.
+         */
+        const std::string filename = idToFilepath(id, at);
+
+        bool success = true;
+
+        if (remove(filename.c_str()))
+        {
+            success = false;
+        }
+
+        /**
+         * We don't send anything back when we are renaming. In
+         * this case, the request result is returned as a bool
+         */
+        request_payload_t file_contents = nullptr;
+
+        /**
+         * We pass back the ID (for lookup), the name of the file
+         * we removed to and a flag indicating success/failure. We might
          * also consider using file_contents and comparing with ! vs a
          * separate bool. This is okay for now though.
          */

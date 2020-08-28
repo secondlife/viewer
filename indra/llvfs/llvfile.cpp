@@ -125,48 +125,22 @@ BOOL LLVFile::read(U8 *buffer, S32 bytes, BOOL async, F32 priority)
         mFileID.toString(id);
         try
         {
-            llDiskCache::request_payload_t payload = llDiskCache::instance().waitForReadComplete(id, mFileType);
+            llDiskCache::request_payload_t payload =
+                llDiskCache::instance().waitForReadComplete(id, mFileType, mPosition, bytes);
+
+            success = TRUE;
 
             //const std::string payload_str((char*)payload->data(), payload->size());
             //LL_INFOS() << "@@@ Payload size is " << payload->size() << LL_ENDL;
         }
         catch (const llDiskCache::ReadError &exc)
         {
+            success = FALSE;
             LL_INFOS() << "Bytes read in old way is " << mBytesRead << " new way was unable to read file: " << exc.what() << LL_ENDL;
         }
     }
 
 	return success;
-}
-
-//static
-U8* LLVFile::readFile(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type, S32* bytes_read)
-{
-	U8 *data;
-	LLVFile file(vfs, uuid, type, LLVFile::READ);
-	S32 file_size = file.getSize();
-	if (file_size == 0)
-	{
-		// File is empty.
-		data = NULL;
-	}
-	else
-	{		
-		data = (U8*) ll_aligned_malloc<16>(file_size);
-		file.read(data, file_size);	/* Flawfinder: ignore */ 
-		
-		if (file.getLastBytesRead() != (S32)file_size)
-		{
-			ll_aligned_free<16>(data);
-			data = NULL;
-			file_size = 0;
-		}
-	}
-	if (bytes_read)
-	{
-		*bytes_read = file_size;
-	}
-	return data;
 }
 	
 void LLVFile::setReadPriority(const F32 priority)
