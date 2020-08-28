@@ -161,7 +161,8 @@ void main()
     temp2.x *= sun_moon_glow_factor;
 
 	// Add "minimum anti-solar illumination"
-	temp2.x += .25;
+    // For sun, add to glow.  For moon, remove glow entirely. SL-13768
+    temp2.x = (sun_moon_glow_factor < 1.0) ? 0.0 : (temp2.x + 0.25);
 
 	// Increase ambient when there are more clouds
 	vec4 tmpAmbient = ambient_color;
