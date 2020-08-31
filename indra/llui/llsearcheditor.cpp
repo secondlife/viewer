@@ -34,7 +34,11 @@
 LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
 :	LLUICtrl(p),
 	mSearchButton(NULL),
-	mClearButton(NULL)
+	mClearButton(NULL),
+	mEditorImage(p.background_image),
+	mEditorImageFocused(p.background_image_focused),
+	mEditorSearchImage(p.background_image_highlight),
+	mHighlightTextField(p.highlight_text_field)
 {
 	S32 srch_btn_top = p.search_button.top_pad + p.search_button.rect.height;
 	S32 srch_btn_right = p.search_button.rect.width + p.search_button.left_pad;
@@ -57,6 +61,8 @@ LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
 	// Set up line editor.
 	LLLineEditor::Params line_editor_params(p);
 	line_editor_params.name("filter edit box");
+	line_editor_params.background_image(p.background_image);
+	line_editor_params.background_image_focused(p.background_image_focused);
 	line_editor_params.rect(getLocalRect());
 	line_editor_params.follows.flags(FOLLOWS_ALL);
 	line_editor_params.text_pad_left(text_pad_left);
@@ -103,6 +109,20 @@ void LLSearchEditor::draw()
 {
 	if (mClearButton)
 		mClearButton->setVisible(!mSearchEditor->getWText().empty());
+
+	if (mHighlightTextField)
+	{	
+		if (!mSearchEditor->getWText().empty())
+		{
+			mSearchEditor->setBgImage(mEditorSearchImage);
+			mSearchEditor->setBgImageFocused(mEditorSearchImage);
+		}
+		else
+		{
+			mSearchEditor->setBgImage(mEditorImage);
+			mSearchEditor->setBgImageFocused(mEditorImageFocused);
+		}
+	}
 
 	LLUICtrl::draw();
 }

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu
+ bottom="806"
+ layout="topleft"
+ left="0"
+ mouse_opaque="false"
+ name="menu_search_visibility"
+ visible="false">
+  <menu_item_check
+   label="Search Trash"
+   layout="topleft"
+   name="search_trash">
+    <on_click
+     function="Inventory.GearDefault.Custom.Action"
+     parameter="toggle_search_trash" />
+    <on_check
+     function="Inventory.GearDefault.Check"
+     parameter="toggle_search_trash" />
+  </menu_item_check>
+  <menu_item_check
+   label="Search Library"
+   layout="topleft"
+   name="search_library">
+    <on_click
+     function="Inventory.GearDefault.Custom.Action"
+     parameter="toggle_search_library" />
+    <on_check
+     function="Inventory.GearDefault.Check"
+     parameter="toggle_search_library" />
+  </menu_item_check>
+  <menu_item_separator
+   layout="topleft" />
+  <menu_item_check
+   label="Include links"
+   layout="topleft"
+   name="include_links">
+    <on_click
+     function="Inventory.GearDefault.Custom.Action"
+     parameter="include_links" />
+    <on_check
+     function="Inventory.GearDefault.Check"
+     parameter="include_links" />         
+  </menu_item_check>    
+</toggleable_menu>
