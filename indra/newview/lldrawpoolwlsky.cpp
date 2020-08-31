@@ -216,10 +216,11 @@ void LLDrawPoolWLSky::renderSkyHaze(const LLVector3& camPosLocal, F32 camHeightL
 
 	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY))
 	{
+        LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
         LLGLSPipelineDepthTestSkyBox sky(true, false);
         sky_shader->bind();
         sky_shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, 1);
-        sky_shader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, 1.0f);
+        sky_shader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, psky->getSunMoonGlowFactor());
         renderDome(origin, camHeightLocal, sky_shader);	
 		sky_shader->unbind();
     }
