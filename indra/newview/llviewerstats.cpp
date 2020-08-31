@@ -622,7 +622,7 @@ void send_viewer_stats(bool include_preferences)
 	// Preferences
 	if (include_preferences)
 	{
-		bool diffs_only = true; // only log preferences that differ from default
+		bool diffs_only = true; // only log preferences that differ from default?
 		body["preferences"]["settings"] = gSavedSettings.asLLSD(diffs_only);
 		body["preferences"]["settings_per_account"] = gSavedPerAccountSettings.asLLSD(diffs_only);
 	}

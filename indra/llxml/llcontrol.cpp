@@ -649,7 +649,7 @@ LLSD LLControlGroup::asLLSD(bool diffs_only)
 		 iter != mNameTable.end(); iter++)
 	{
 		LLControlVariable *control = iter->second;
-		if (!control || (diffs_only && control->isDefault()))
+		if (!control || control->isType(TYPE_STRING) || (diffs_only && control->isDefault()))
 		{
 			continue;
 		}
