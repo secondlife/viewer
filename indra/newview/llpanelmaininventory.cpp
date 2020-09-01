@@ -1168,6 +1168,7 @@ void LLPanelMainInventory::initListCommandsHandlers()
 
 	mMenuVisibility = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_inventory_search_visibility.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mVisibilityMenuButton->setMenu(mMenuVisibility);
+	mVisibilityMenuButton->setMenuPosition(LLMenuButton::MP_BOTTOM_LEFT);
 
 	// Update the trash button when selected item(s) get worn or taken off.
 	LLOutfitObserver::instance().addCOFChangedCallback(boost::bind(&LLPanelMainInventory::updateListCommands, this));
