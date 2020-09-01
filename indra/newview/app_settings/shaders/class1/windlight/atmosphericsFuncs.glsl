@@ -46,78 +46,63 @@ float getAmbientClamp()
     return 1.0f;
 }
 
-
 void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao)
 {
-    vec3 P = inPositionEye;
+    vec3 rel_pos = inPositionEye;
    
     //(TERRAIN) limit altitude
-    if (P.y >  max_y) P *= ( max_y / P.y);
-    if (P.y < -max_y) P *= (-max_y / P.y);
+    rel_pos.y = clamp(rel_pos.y, -max_y, max_y);
 
-    vec3 tmpLightnorm = lightnorm.xyz;
-
-    vec3 Pn = normalize(P);
-    float Plen = length(P);
-
-    vec4 temp1 = vec4(0);
-    vec3 temp2 = vec3(0);
-    vec4 blue_weight;
-    vec4 haze_weight;
+    vec3 rel_pos_norm = normalize(rel_pos);
+    float rel_pos_len = length(rel_pos);
     vec4 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
-    vec4 light_atten;
-
-    float dens_mul = density_multiplier;
-    float dist_mul = distance_multiplier;
 
     //sunlight attenuation effect (hue and brightness) due to atmosphere
     //this is used later for sunlight modulation at various altitudes
-    light_atten = (blue_density + vec4(haze_density * 0.25)) * (dens_mul * max_y);
+    vec4 light_atten = (blue_density + vec4(haze_density * 0.25)) * (density_multiplier * max_y);
         //I had thought blue_density and haze_density should have equal weighting,
         //but attenuation due to haze_density tends to seem too strong
 
-    temp1 = blue_density + vec4(haze_density);
-    blue_weight = blue_density / temp1;
-    haze_weight = vec4(haze_density) / temp1;
+    vec4 combined_haze = blue_density + vec4(haze_density);
+    vec4 blue_weight = blue_density / combined_haze;
+    vec4 haze_weight = vec4(haze_density) / combined_haze;
 
     //(TERRAIN) compute sunlight from lightnorm z component, roughly cosine(sun elevation) (for short rays like terrain)
-    float above_horizon_angle = abs(tmpLightnorm.z);
+    float above_horizon_angle = abs(lightnorm.z);
     sunlight *= exp(-light_atten * above_horizon_angle);    // for atten and angle in [0..1], this maps to something like [0.3..1]
 
     // main atmospheric scattering line integral
-    temp2.z = Plen * dens_mul;
+    float density_dist = rel_pos_len * density_multiplier;
 
-    // Transparency (-> temp1)
-    // ATI Bugfix -- can't store temp1*temp2.z*dist_mul in a variable because the ati
+    // Transparency (-> combined_haze)
+    // ATI Bugfix -- can't store combined_haze*density_dist*distance_multiplier in a variable because the ati
     // compiler gets confused.
-    temp1 = exp(-temp1 * temp2.z * dist_mul);
+    combined_haze = exp(-combined_haze * density_dist * distance_multiplier);
 
     //final atmosphere attenuation factor
-    atten = temp1.rgb;
+    atten = combined_haze.rgb;
     
     //compute haze glow
-    //(can use temp2.x as temp because we haven't used it yet)
-    temp2.x = dot(Pn, tmpLightnorm.xyz);
+    float haze_glow = dot(rel_pos_norm, lightnorm.xyz);
 
     // dampen sun additive contrib when not facing it...
 	// SL-13539: This "if" clause causes an "additive" white artifact at roughly 77 degreees.
     //    if (length(light_dir) > 0.01)
-    {
-        temp2.x *= max(0.0f, dot(light_dir, Pn));
-    }
-    temp2.x = 1. - temp2.x;
-        //temp2.x is 0 at the sun and increases away from sun
-    temp2.x = max(temp2.x, .001);    //was glow.y
+    haze_glow *= max(0.0f, dot(light_dir, rel_pos_norm));
+ 
+    haze_glow = 1. - haze_glow;
+        //haze_glow is 0 at the sun and increases away from sun
+    haze_glow = max(haze_glow, .001);    //was glow.y
         //set a minimum "angle" (smaller glow.y allows tighter, brighter hotspot)
-    temp2.x *= glow.x;
+    haze_glow *= glow.x;
         //higher glow.x gives dimmer glow (because next step is 1 / "angle")
-    temp2.x = pow(temp2.x, glow.z);
+    haze_glow = pow(haze_glow, glow.z);
         //glow.z should be negative, so we're doing a sort of (1 / "angle") function
 
     //add "minimum anti-solar illumination"
-    temp2.x += .25;
+    haze_glow += .25;
 
-    temp2.x *= sun_moon_glow_factor;
+    haze_glow *= sun_moon_glow_factor;
  
     vec4 amb_color = ambient_color; 
     
@@ -143,10 +128,11 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     //haze color
         vec3 cs  = sunlight.rgb * (1.-cloud_shadow);
         additive = (blue_horizon.rgb * blue_weight.rgb) * (cs           + tmpAmbient.rgb)
-                 + (haze_horizon     * haze_weight.rgb) * (cs * temp2.x + tmpAmbient.rgb);
+                 + (haze_horizon     * haze_weight.rgb) * (cs * haze_glow + tmpAmbient.rgb);
 
     //brightness of surface both sunlight and ambient
     sunlit = sunlight.rgb * 0.5;
     amblit = tmpAmbient.rgb * .25;
-    additive *= vec3(1.0 - temp1);
+    additive *= vec3(1.0 - combined_haze);
 }
+
