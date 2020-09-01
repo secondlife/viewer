@@ -358,8 +358,9 @@ llDiskCache::waitForReadComplete(std::string id,
 
     /**
      * Here we are on the same coroutine/fiber as tick()
+     * Namely, the main coroutine on the main thread
      */
-    if (LLCoros::getName().empty())
+    if (LLCoros::getName().empty() && on_main_thread())
     {
         /**
          * The payload we will return containing the result of the read request
@@ -451,8 +452,8 @@ llDiskCache::waitForReadComplete(std::string id,
     }
     else
         /**
-         * This is the case where we are NOT on same coroutine/fiber as tick()
-         * so we are allowed to block
+         * This is the case where we are NOT on same (main) thread and 
+         * coroutine/fiber as tick() so we are allowed to block
          */
     {
         /**
