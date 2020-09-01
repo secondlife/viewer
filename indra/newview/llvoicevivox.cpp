@@ -919,10 +919,12 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
     //---------------------------------------------------------------------
     llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
 
+    bool quiting = LLAppViewer::isExiting();
+
     LL_DEBUGS("Voice") << "Connecting to vivox daemon:" << mDaemonHost << LL_ENDL;
 
     LLVoiceVivoxStats::getInstance()->reset();
-    while (!mConnected)
+    while (!mConnected && !quiting)
     {
         LLVoiceVivoxStats::getInstance()->connectionAttemptStart();
         LL_DEBUGS("Voice") << "Attempting to connect to vivox daemon: " << mDaemonHost << LL_ENDL;
@@ -937,10 +939,16 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
         if (!mConnected)
         {
             llcoro::suspendUntilTimeout(DAEMON_CONNECT_THROTTLE_SECONDS);
+            quiting = LLAppViewer::isExiting();
         }
     }
     
     //---------------------------------------------------------------------
+    if (quiting && !mConnected)
+    {
+        return false;
+    }
+
     llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
 
     while (!mPump)
@@ -977,11 +985,13 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
 {
     LL_INFOS("Voice") << "Provisioning voice account." << LL_ENDL;
 
-    while (!gAgent.getRegion() || !gAgent.getRegion()->capabilitiesReceived())
+    bool quiting = LLApp::isExiting();
+    while ((!gAgent.getRegion() || !gAgent.getRegion()->capabilitiesReceived()) && !quiting)
     {
         LL_DEBUGS("Voice") << "no capabilities for voice provisioning; waiting " << LL_ENDL;
         // *TODO* Pump a message for wake up.
         llcoro::suspend();
+        quiting = LLApp::isExiting();
     }
 
     std::string url = gAgent.getRegionCapability("ProvisionVoiceAccountRequest");
@@ -1001,6 +1011,7 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
     {
         LLVoiceVivoxStats::getInstance()->provisionAttemptStart();
         result = httpAdapter->postAndSuspend(httpRequest, url, LLSD(), httpOpts);
+        quiting = LLApp::isExiting();
 
         LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
         LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -1010,6 +1021,7 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
             F32 timeout = pow(PROVISION_RETRY_TIMEOUT, static_cast<float>(retryCount));
             LL_WARNS("Voice") << "Provision CAP 404.  Retrying in " << timeout << " seconds." << LL_ENDL;
             llcoro::suspendUntilTimeout(timeout);
+            quiting = LLApp::isExiting();
         }
         else if (!status)
         {
@@ -1021,10 +1033,15 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
         {
             provisioned = true;
         }        
-    } while (!provisioned && retryCount <= PROVISION_RETRY_MAX);
+    } while (!provisioned && retryCount <= PROVISION_RETRY_MAX && !quiting);
+
+    if (quiting && !provisioned)
+    {
+        return false;
+    }
 
     LLVoiceVivoxStats::getInstance()->provisionAttemptEnd(provisioned);
-    if (! provisioned )
+    if (!provisioned)
     {
         LL_WARNS("Voice") << "Could not access voice provision cap after " << retryCount << " attempts." << LL_ENDL;
         return false;
@@ -1069,6 +1086,7 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
     LLSD result;
     bool connected(false);
     bool giving_up(false);
+    bool quiting = LLApp::isExiting();
     int retries = 0;
     LL_INFOS("Voice") << "Requesting connection to voice service" << LL_ENDL;
 
@@ -1077,6 +1095,7 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
     do
     {
         result = llcoro::suspendUntilEventOn(mVivoxPump);
+        quiting = LLApp::isExiting();
         LL_DEBUGS("Voice") << "event=" << ll_stream_notation_sd(result) << LL_ENDL;
 
         if (result.has("connector"))
@@ -1085,12 +1104,13 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
             connected = LLSD::Boolean(result["connector"]);
             if (!connected)
             {
-                if (result.has("retry") && ++retries <= CONNECT_RETRY_MAX)
+                if (result.has("retry") && ++retries <= CONNECT_RETRY_MAX && !quiting)
                 {
                     F32 timeout = LLSD::Real(result["retry"]);
                     timeout *= retries;
                     LL_INFOS("Voice") << "Retry connection to voice service in " << timeout << " seconds" << LL_ENDL;
                     llcoro::suspendUntilTimeout(timeout);
+                    quiting = LLApp::isExiting();
 
                     if (mVoiceEnabled) // user may have switched it off
                     {
@@ -1113,7 +1133,7 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
         LL_DEBUGS("Voice") << (connected ? "" : "not ") << "connected, "
                            << (giving_up ? "" : "not ") << "giving up"
                            << LL_ENDL;
-    } while (!connected && !giving_up);
+    } while (!connected && !giving_up && !quiting);
 
     if (giving_up)
     {
@@ -1183,6 +1203,7 @@ bool LLVivoxVoiceClient::loginToVivox()
     bool response_ok(false);
     bool account_login(false);
     bool send_login(true);
+    bool quiting = LLApp::isExiting();
 
     do 
     {
@@ -1194,13 +1215,14 @@ bool LLVivoxVoiceClient::loginToVivox()
         }
         
         LLSD result = llcoro::suspendUntilEventOnWithTimeout(mVivoxPump, LOGIN_ATTEMPT_TIMEOUT, timeoutResult);
+        quiting = LLApp::isExiting();
         LL_DEBUGS("Voice") << "event=" << ll_stream_notation_sd(result) << LL_ENDL;
 
         if (result.has("login"))
         {
             std::string loginresp = result["login"];
 
-            if ((loginresp == "retry") || (loginresp == "timeout"))
+            if (((loginresp == "retry") || (loginresp == "timeout")) && !quiting)
             {
                 LL_WARNS("Voice") << "login failed with status '" << loginresp << "' "
                                   << " count " << loginRetryCount << "/" << LOGIN_RETRY_MAX
@@ -1228,6 +1250,7 @@ bool LLVivoxVoiceClient::loginToVivox()
                 LL_WARNS("Voice") << "login " << loginresp << " will retry login in " << timeout << " seconds." << LL_ENDL;
                     
                 llcoro::suspendUntilTimeout(timeout);
+                quiting = LLApp::isExiting();
             }
             else if (loginresp == "failed")
             {
@@ -1242,9 +1265,14 @@ bool LLVivoxVoiceClient::loginToVivox()
             {
                 account_login = true;
             }
+            else if (quiting)
+            {
+                mIsLoggingIn = false;
+                return false;
+            }
         }
 
-    } while (!response_ok || !account_login);
+    } while ((!response_ok || !account_login) && !quiting);
 
     mRelogRequested = false;
     mIsLoggedIn = true;
