@@ -108,7 +108,8 @@ const U8 AGENT_STATE_EDITING =  0x10;
 // Autopilot constants
 const F32 AUTOPILOT_HEIGHT_ADJUST_DISTANCE = 8.f;			// meters
 const F32 AUTOPILOT_MIN_TARGET_HEIGHT_OFF_GROUND = 1.f;	// meters
-const F32 AUTOPILOT_MAX_TIME_NO_PROGRESS = 1.5f;		// seconds
+const F32 AUTOPILOT_MAX_TIME_NO_PROGRESS_WALK = 1.5f;		// seconds
+const F32 AUTOPILOT_MAX_TIME_NO_PROGRESS_FLY = 2.5f;		// seconds. Flying is less presize, needs a bit more time
 
 const F32 MAX_VELOCITY_AUTO_LAND_SQUARED = 4.f * 4.f;
 const F64 CHAT_AGE_FAST_RATE = 3.0;
@@ -1518,6 +1519,12 @@ void LLAgent::startAutoPilotGlobal(
 	{
 		return;
 	}
+
+    if (target_global.isExactlyZero())
+    {
+        LL_WARNS() << "Canceling attempt to start autopilot towards invalid position" << LL_ENDL;
+        return;
+    }
 	
 	// Are there any pending callbacks from previous auto pilot requests?
 	if (mAutoPilotFinishedCallback)
@@ -1733,7 +1740,16 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 		if (target_dist >= mAutoPilotTargetDist)
 		{
 			mAutoPilotNoProgressFrameCount++;
-			if (mAutoPilotNoProgressFrameCount > AUTOPILOT_MAX_TIME_NO_PROGRESS * gFPSClamped)
+            bool out_of_time = false;
+            if (getFlying())
+            {
+                out_of_time = mAutoPilotNoProgressFrameCount > AUTOPILOT_MAX_TIME_NO_PROGRESS_FLY * gFPSClamped;
+            }
+            else
+            {
+                out_of_time = mAutoPilotNoProgressFrameCount > AUTOPILOT_MAX_TIME_NO_PROGRESS_WALK * gFPSClamped;
+            }
+			if (out_of_time)
 			{
 				stopAutoPilot();
 				return;
@@ -1782,7 +1798,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 		F32 slow_distance;
 		if (getFlying())
 		{
-			slow_distance = llmax(6.f, mAutoPilotStopDistance + 5.f);
+			slow_distance = llmax(8.f, mAutoPilotStopDistance + 5.f);
 		}
 		else
 		{
@@ -1826,14 +1842,41 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 		}
 		else if (mAutoPilotTargetDist > mAutoPilotStopDistance)
 		{
-			// walking/flying slow
+            // walking/flying slow
+            U32 movement_flag = 0;
+
 			if (at * direction > 0.9f)
 			{
-				setControlFlags(AGENT_CONTROL_AT_POS);
-			}
-			else if (at * direction < -0.9f)
-			{
-				setControlFlags(AGENT_CONTROL_AT_NEG);
+                movement_flag = AGENT_CONTROL_AT_POS;
+            }
+            else if (at * direction < -0.9f)
+            {
+                movement_flag = AGENT_CONTROL_AT_NEG;
+            }
+
+            if (getFlying())
+            {
+                // flying is too fast and has high inertia, artificially slow it down
+                // Don't update flags too often, server might not react
+                static U64 last_time_microsec = 0;
+                U64 time_microsec = LLTimer::getTotalTime();
+                U64 delta = time_microsec - last_time_microsec;
+                // fly during ~0-40 ms, stop during ~40-250 ms
+                if (delta > 250000) // 250ms
+                {
+                    // reset even if !movement_flag
+                    last_time_microsec = time_microsec;
+                }
+                else if (delta > 40000) // 40 ms
+                {
+                    clearControlFlags(AGENT_CONTROL_AT_POS | AGENT_CONTROL_AT_POS);
+                    movement_flag = 0;
+                }
+            }
+
+            if (movement_flag)
+            {
+                setControlFlags(movement_flag);
 			}
 		}
 
