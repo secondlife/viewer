@@ -65,9 +65,9 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     vec4 blue_weight   = blue_density / combined_haze;
     vec4 haze_weight   = vec4(haze_density) / combined_haze;
 
-    //(TERRAIN) compute sunlight from lightnorm z component, roughly cosine(sun elevation) (for short rays like terrain)
-    float above_horizon_angle = abs(lightnorm.z);
-    sunlight *= exp(-light_atten * above_horizon_angle);  // for atten and angle in [0..1], this maps to something like [0.3..1]
+    //(TERRAIN) compute sunlight from lightnorm y component. Factor is roughly cosecant(sun elevation) (for short rays like terrain)
+    float above_horizon_factor = 1.0 / max(1e-6, lightnorm.y);
+    sunlight *= exp(-light_atten * above_horizon_factor);  // for sun [horizon..overhead] this maps to an exp curve [0..1]
 
     // main atmospheric scattering line integral
     float density_dist = rel_pos_len * density_multiplier;
