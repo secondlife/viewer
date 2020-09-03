@@ -32,6 +32,8 @@
 #include "llcurrencyuimanager.h"
 #include "llfloater.h"
 #include "llfloaterreg.h"
+#include "lllayoutstack.h"
+#include "lliconctrl.h"
 #include "llnotificationsutil.h"
 #include "llstatusbar.h"
 #include "lltextbox.h"
@@ -60,6 +62,7 @@ public:
 	bool		mHasTarget;
 	std::string	mTargetName;
 	S32			mTargetPrice;
+	S32			mRequiredAmount;
 	
 public:
 	void noTarget();
@@ -68,6 +71,7 @@ public:
 	virtual BOOL postBuild();
 	
 	void updateUI();
+	void collapsePanels(bool collapse);
 
 	virtual void draw();
 	virtual BOOL canClose();
@@ -92,7 +96,9 @@ LLFloater* LLFloaterBuyCurrency::buildFloater(const LLSD& key)
 LLFloaterBuyCurrencyUI::LLFloaterBuyCurrencyUI(const LLSD& key)
 :	LLFloater(key),
 	mChildren(*this),
-	mManager(*this)
+	mManager(*this),
+	mHasTarget(false),
+	mTargetPrice(0)
 {
 }
 
@@ -104,7 +110,8 @@ LLFloaterBuyCurrencyUI::~LLFloaterBuyCurrencyUI()
 void LLFloaterBuyCurrencyUI::noTarget()
 {
 	mHasTarget = false;
-	mManager.setAmount(STANDARD_BUY_AMOUNT);
+	mTargetPrice = 0;
+	mManager.setAmount(0);
 }
 
 void LLFloaterBuyCurrencyUI::target(const std::string& name, S32 price)
@@ -120,7 +127,8 @@ void LLFloaterBuyCurrencyUI::target(const std::string& name, S32 price)
 		need = 0;
 	}
 	
-	mManager.setAmount(need + MINIMUM_BALANCE_AMOUNT);
+	mRequiredAmount = need + MINIMUM_BALANCE_AMOUNT;
+	mManager.setAmount(0);
 }
 
 
@@ -175,7 +183,6 @@ void LLFloaterBuyCurrencyUI::updateUI()
 	getChildView("purchase_warning_repurchase")->setVisible(FALSE);
 	getChildView("purchase_warning_notenough")->setVisible(FALSE);
 	getChildView("contacting")->setVisible(FALSE);
-	getChildView("buy_action")->setVisible(FALSE);
 
 	if (hasError)
 	{
@@ -208,8 +215,8 @@ void LLFloaterBuyCurrencyUI::updateUI()
 		{
 			if (mHasTarget)
 			{
-				getChildView("buy_action")->setVisible( true);
-				getChild<LLUICtrl>("buy_action")->setTextArg("[ACTION]", mTargetName);
+				getChild<LLUICtrl>("target_price")->setTextArg("[AMT]", llformat("%d", mTargetPrice));
+				getChild<LLUICtrl>("required_amount")->setTextArg("[AMT]", llformat("%d", mRequiredAmount));
 			}
 		}
 		
@@ -230,18 +237,40 @@ void LLFloaterBuyCurrencyUI::updateUI()
 
 		if (mHasTarget)
 		{
-			if (total >= mTargetPrice)
-			{
-				getChildView("purchase_warning_repurchase")->setVisible( true);
-			}
-			else
-			{
-				getChildView("purchase_warning_notenough")->setVisible( true);
-			}
+			getChildView("purchase_warning_repurchase")->setVisible( !getChildView("currency_links")->getVisible());
 		}
 	}
 
-	getChildView("getting_data")->setVisible( !mManager.canBuy() && !hasError);
+	getChildView("getting_data")->setVisible( !mManager.canBuy() && !hasError && !getChildView("currency_est")->getVisible());
+}
+
+void LLFloaterBuyCurrencyUI::collapsePanels(bool collapse)
+{
+	LLLayoutPanel* price_panel = getChild<LLLayoutPanel>("layout_panel_price");
+	
+	if (price_panel->isCollapsed() == collapse)
+		return;
+	
+	LLLayoutStack* outer_stack = getChild<LLLayoutStack>("outer_stack");	
+	LLLayoutPanel* required_panel = getChild<LLLayoutPanel>("layout_panel_required");
+	LLLayoutPanel* msg_panel = getChild<LLLayoutPanel>("layout_panel_msg");
+
+	S32 delta_height = price_panel->getRect().getHeight() + required_panel->getRect().getHeight() + msg_panel->getRect().getHeight();
+	delta_height *= (collapse ? -1 : 1);
+
+	LLIconCtrl* icon = getChild<LLIconCtrl>("normal_background");
+	LLRect rect = icon->getRect();
+	icon->setRect(rect.setOriginAndSize(rect.mLeft, rect.mBottom - delta_height, rect.getWidth(), rect.getHeight() + delta_height));
+
+	outer_stack->collapsePanel(price_panel, collapse);
+	outer_stack->collapsePanel(required_panel, collapse);
+	outer_stack->collapsePanel(msg_panel, collapse);
+
+	outer_stack->updateLayout();
+
+	LLRect floater_rect = getRect();
+	floater_rect.mBottom -= delta_height;
+	setShape(floater_rect, false);
 }
 
 void LLFloaterBuyCurrencyUI::onClickBuy()
@@ -265,6 +294,7 @@ void LLFloaterBuyCurrency::buyCurrency()
 	LLFloaterBuyCurrencyUI* ui = LLFloaterReg::showTypedInstance<LLFloaterBuyCurrencyUI>("buy_currency");
 	ui->noTarget();
 	ui->updateUI();
+	ui->collapsePanels(true);
 }
 
 // static
@@ -273,6 +303,7 @@ void LLFloaterBuyCurrency::buyCurrency(const std::string& name, S32 price)
 	LLFloaterBuyCurrencyUI* ui = LLFloaterReg::showTypedInstance<LLFloaterBuyCurrencyUI>("buy_currency");
 	ui->target(name, price);
 	ui->updateUI();
+	ui->collapsePanels(false);
 }
 
 

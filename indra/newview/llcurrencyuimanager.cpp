@@ -454,7 +454,7 @@ void LLCurrencyUIManager::Impl::updateUI()
 		
 		if (!mUserEnteredCurrencyBuy)
 		{
-			if (!mZeroMessage.empty() && mUserCurrencyBuy == 0)
+			if (mUserCurrencyBuy == 0)
 			{
 				lindenAmount->setText(LLStringUtil::null);
 			}
@@ -467,8 +467,9 @@ void LLCurrencyUIManager::Impl::updateUI()
 		}
 	}
 
-	mPanel.getChild<LLUICtrl>("currency_est")->setTextArg("[LOCALAMOUNT]", getLocalEstimate());
-	mPanel.getChildView("currency_est")->setVisible( hasEstimate() && mUserCurrencyBuy > 0);
+	std::string estimated = (mUserCurrencyBuy == 0) ? mPanel.getString("estimated_zero") : getLocalEstimate();
+	mPanel.getChild<LLUICtrl>("currency_est")->setTextArg("[LOCALAMOUNT]", estimated);
+	mPanel.getChildView("currency_est")->setVisible( hasEstimate() || mUserCurrencyBuy == 0);
 
 	mPanel.getChildView("currency_links")->setVisible( mSupportsInternationalBilling);
 	mPanel.getChildView("exchange_rate_note")->setVisible( mSupportsInternationalBilling);
