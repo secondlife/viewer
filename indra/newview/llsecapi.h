@@ -335,11 +335,7 @@ std::ostream& operator <<(std::ostream& s, const LLCredential& cred);
 class LLCertException: public LLException
 {
 public:
-	LLCertException(const LLSD& cert_data, const std::string& msg): LLException(msg),
-        mCertData(cert_data)
-	{
-		LL_WARNS("SECAPI") << "Certificate Error: " << msg << LL_ENDL;
-	}
+    LLCertException(const LLSD& cert_data, const std::string& msg);
 	virtual ~LLCertException() throw() {}
 	LLSD getCertData() const { return mCertData; }
 protected:
