@@ -75,6 +75,7 @@
 
 #define CERT_EXTENDED_KEY_USAGE "extendedKeyUsage"
 #define CERT_EKU_SERVER_AUTH SN_server_auth
+#define CERT_EKU_TLS_SERVER_AUTH LN_server_auth
 
 #define CERT_SUBJECT_KEY_IDENTFIER "subjectKeyIdentifier"
 #define CERT_AUTHORITY_KEY_IDENTIFIER "authorityKeyIdentifier"

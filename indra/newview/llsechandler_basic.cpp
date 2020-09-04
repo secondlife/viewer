@@ -925,8 +925,11 @@ void _validateCert(int validation_policy,
 		}
 		// only validate EKU if the cert has it
 		if(current_cert_info.has(CERT_EXTENDED_KEY_USAGE) && current_cert_info[CERT_EXTENDED_KEY_USAGE].isArray() &&	   
-		   (!_LLSDArrayIncludesValue(current_cert_info[CERT_EXTENDED_KEY_USAGE], 
-									LLSD((std::string)CERT_EKU_SERVER_AUTH))))
+		   (  (!_LLSDArrayIncludesValue(current_cert_info[CERT_EXTENDED_KEY_USAGE], 
+                                         LLSD((std::string)CERT_EKU_SERVER_AUTH)))
+           || (!_LLSDArrayIncludesValue(current_cert_info[CERT_EXTENDED_KEY_USAGE], 
+                                        LLSD((std::string)CERT_EKU_TLS_SERVER_AUTH)))
+            ))
 		{
 			LLTHROW(LLCertKeyUsageValidationException(current_cert_info));
 		}
