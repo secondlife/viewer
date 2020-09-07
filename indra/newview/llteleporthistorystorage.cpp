@@ -201,6 +201,12 @@ void LLTeleportHistoryStorage::load()
 	std::string line;
 	while (std::getline(file, line))
 	{
+		if (line.empty())
+		{
+			LL_WARNS() << "Teleport history contains empty line."<< LL_ENDL;
+			continue;
+		}
+		
 		LLSD s_item;
 		std::istringstream iss(line);
 		if (parser->parse(iss, s_item, line.length()) == LLSDParser::PARSE_FAILURE)
