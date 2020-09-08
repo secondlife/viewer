@@ -241,8 +241,6 @@ public:
 	void dumpSelectionInformation();
 
 	virtual S32	notify(const LLSD& info) ;
-
-	void setShowEmptyMessage(bool show_msg) { mShowEmptyMessage = show_msg; }
 	
 	bool useLabelSuffix() { return mUseLabelSuffix; }
 	virtual void updateMenu();

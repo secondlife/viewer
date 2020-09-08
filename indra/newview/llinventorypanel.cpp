@@ -179,7 +179,6 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	mCommitCallbackRegistrar.add("Inventory.BeginIMSession", boost::bind(&LLInventoryPanel::beginIMSession, this));
 	mCommitCallbackRegistrar.add("Inventory.Share",  boost::bind(&LLAvatarActions::shareWithAvatars, this));
 	mCommitCallbackRegistrar.add("Inventory.FileUploadLocation", boost::bind(&LLInventoryPanel::fileUploadLocation, this, _2));
-	mCommitCallbackRegistrar.add("Inventory.SetFavoritesFolder", boost::bind(&LLInventoryPanel::setFavoritesFolder, this, _2));
 }
 
 LLFolderView * LLInventoryPanel::createFolderRoot(LLUUID root_id )
@@ -1375,11 +1374,6 @@ void LLInventoryPanel::fileUploadLocation(const LLSD& userdata)
     }
 }
 
-void LLInventoryPanel::setFavoritesFolder(const LLSD& userdata)
-{
-    gSavedPerAccountSettings.setString("FavoritesFolder", LLFolderBridge::sSelf.get()->getUUID().asString());
-}
-
 void LLInventoryPanel::purgeSelectedItems()
 {
     if (!mFolderRoot.get()) return;
@@ -1759,95 +1753,6 @@ LLInventoryRecentItemsPanel::LLInventoryRecentItemsPanel( const Params& params)
 	mInvFVBridgeBuilder = &RECENT_ITEMS_BUILDER;
 }
 
-static LLDefaultChildRegistry::Register<LLInventoryFavoriteItemsPanel> t_favorites_inventory_panel("favorites_inventory_panel");
-
-LLInventoryFavoriteItemsPanel::LLInventoryFavoriteItemsPanel(const Params& params)
-    : LLInventoryPanel(params)
-{
-    std::string ctrl_name = "FavoritesFolder";
-    if (gSavedPerAccountSettings.controlExists(ctrl_name))
-    {
-        LLPointer<LLControlVariable> cntrl_ptr = gSavedPerAccountSettings.getControl(ctrl_name);
-        if (cntrl_ptr.notNull())
-        {
-            mFolderChangedSignal = cntrl_ptr->getCommitSignal()->connect(boost::bind(&LLInventoryFavoriteItemsPanel::updateFavoritesRootFolder, this));
-        }
-    }
-}
-
-void LLInventoryFavoriteItemsPanel::setSelectCallback(const boost::function<void(const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb)
-{
-    if (mFolderRoot.get())
-    {
-        mFolderRoot.get()->setSelectCallback(cb);
-        mSelectionCallback = cb;
-    }
-}
-
-void LLInventoryFavoriteItemsPanel::initFromParams(const Params& p)
-{
-    Params fav_params(p);
-    fav_params.start_folder.id = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_FAVORITE);
-    LLInventoryPanel::initFromParams(fav_params);
-    updateFavoritesRootFolder();
-}
-
-void LLInventoryFavoriteItemsPanel::updateFavoritesRootFolder()
-{
-    const LLUUID& folder_id = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_FAVORITE);
-
-    bool is_favorites_set = (folder_id != gInventory.findCategoryUUIDForTypeInRoot(LLFolderType::FT_FAVORITE, true, gInventory.getRootFolderID()));
-
-    if (!is_favorites_set || folder_id != getRootFolderID())
-    {
-        LLUUID root_id = folder_id;
-        if (mFolderRoot.get())
-        {
-            removeItemID(getRootFolderID());
-            mFolderRoot.get()->destroyView();
-        }
-
-        mCommitCallbackRegistrar.pushScope();
-        {
-            LLFolderView* folder_view = createFolderRoot(root_id);
-            mFolderRoot = folder_view->getHandle();
-
-            addItemID(root_id, mFolderRoot.get());
-
-
-            LLRect scroller_view_rect = getRect();
-            scroller_view_rect.translate(-scroller_view_rect.mLeft, -scroller_view_rect.mBottom);
-            LLScrollContainer::Params scroller_params(mParams.scroll());
-            scroller_params.rect(scroller_view_rect);
-
-            if (mScroller)
-            {
-                removeChild(mScroller);
-                delete mScroller;
-                mScroller = NULL;
-            }
-            mScroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroller_params);
-            addChild(mScroller);
-            mScroller->addChild(mFolderRoot.get());
-            mFolderRoot.get()->setScrollContainer(mScroller);
-            mFolderRoot.get()->setFollowsAll();
-            mFolderRoot.get()->addChild(mFolderRoot.get()->mStatusTextBox);
-
-            if (!mSelectionCallback.empty())
-            {
-                mFolderRoot.get()->setSelectCallback(mSelectionCallback);
-            }
-        }
-        mCommitCallbackRegistrar.popScope();
-        mFolderRoot.get()->setCallbackRegistrar(&mCommitCallbackRegistrar);
-
-        if (is_favorites_set)
-        {
-            buildNewViews(folder_id);
-        }
-        mFolderRoot.get()->setShowEmptyMessage(!is_favorites_set);
-    }
-}
 /************************************************************************/
 /* Asset Pre-Filtered Inventory Panel related class                     */
 /************************************************************************/
