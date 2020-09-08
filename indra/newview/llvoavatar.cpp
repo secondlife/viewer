@@ -10680,7 +10680,7 @@ void LLVOAvatar::setOverallAppearanceNormal()
 	}
 	mJellyAnims.clear();
 
-	//processAnimationStateChanges();
+	processAnimationStateChanges();
 }
 
 void LLVOAvatar::setOverallAppearanceJellyDoll()
