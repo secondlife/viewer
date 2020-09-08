@@ -39,8 +39,8 @@ public:
 	~LLVFile();
 
 	BOOL read(U8 *buffer, S32 bytes, BOOL async = FALSE, F32 priority = 128.f);	/* Flawfinder: ignore */ 
-	static U8* readFile(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type, S32* bytes_read = 0);
-	void setReadPriority(const F32 priority);
+	//CP static U8* readFile(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type, S32* bytes_read = 0);
+	//CP void setReadPriority(const F32 priority);
 	BOOL isReadComplete();
 	S32  getLastBytesRead();
 	BOOL eof();
@@ -61,12 +61,12 @@ public:
 	
 	static void initClass(LLVFSThread* vfsthread = NULL);
 	static void cleanupClass();
-	static LLVFSThread* getVFSThread() { return sVFSThread; }
+	//CP static LLVFSThread* getVFSThread() { return sVFSThread; }
 
 protected:
-	static LLVFSThread* sVFSThread;
-	static BOOL sAllocdVFSThread;
-	U32 threadPri() { return LLVFSThread::PRIORITY_NORMAL + llmin((U32)mPriority,(U32)0xfff); }
+	//CP static LLVFSThread* sVFSThread;
+	//CP static BOOL sAllocdVFSThread;
+	//CP U32 threadPri() { return LLVFSThread::PRIORITY_NORMAL + llmin((U32)mPriority,(U32)0xfff); }
 	
 public:
 	static const S32 READ;
@@ -77,14 +77,15 @@ public:
 protected:
 	LLAssetType::EType mFileType;
 
+    BOOL    mReadComplete;
 	LLUUID	mFileID;
 	S32		mPosition;
 	S32		mMode;
-	LLVFS	*mVFS;
-	F32		mPriority;
+	//CP LLVFS	*mVFS;
+	//CP F32		mPriority;
 
 	S32		mBytesRead;
-	LLVFSThread::handle_t mHandle;
+	//CP LLVFSThread::handle_t mHandle;
 };
 
 #endif
