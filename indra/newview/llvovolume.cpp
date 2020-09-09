@@ -3976,7 +3976,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
                 S8 type = img->getType();
                 if (type == LLViewerTexture::FETCHED_TEXTURE || type == LLViewerTexture::LOD_TEXTURE)
                 {
-                    const LLViewerFetchedTexture* fetched_texturep = dynamic_cast<const LLViewerFetchedTexture*>(img);
+                    const LLViewerFetchedTexture* fetched_texturep = static_cast<const LLViewerFetchedTexture*>(img);
                     if (fetched_texturep
                         && fetched_texturep->getFTType() == FTT_LOCAL_FILE
                         && (img->getID() == IMG_ALPHA_GRAD_2D || img->getID() == IMG_ALPHA_GRAD)

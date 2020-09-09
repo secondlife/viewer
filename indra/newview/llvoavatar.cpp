@@ -10288,7 +10288,8 @@ void LLVOAvatar::accountRenderComplexityForObject(
                             LL_DEBUGS("ARCdetail") << "Attachment costs " << attached_object->getAttachmentItemID()
                                                    << " total: " << attachment_total_cost
                                                    << ", volume: " << attachment_volume_cost
-                                                   << ", textures: " << attachment_texture_cost
+                                                   << ", " << textures.size()
+                                                   << " textures: " << attachment_texture_cost
                                                    << ", " << volume->numChildren()
                                                    << " children: " << attachment_children_cost
                                                    << LL_ENDL;
