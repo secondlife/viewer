@@ -582,10 +582,10 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	{
 		return;
 	}
-
+	LLVOAvatar::AvatarOverallAppearance oa = avatarp->getOverallAppearance();
 	BOOL impostor = avatarp->isImpostor();
-	if (impostor 
-		&& LLVOAvatar::AOA_NORMAL != avatarp->getOverallAppearance())
+	if (oa == LLVOAvatar::AOA_INVISIBLE ||
+		(impostor && oa == LLVOAvatar::AOA_JELLYDOLL))
 	{
 		// No shadows for jellydolled or invisible avs.
 		return;
