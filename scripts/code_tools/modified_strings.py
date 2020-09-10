@@ -169,7 +169,8 @@ def make_translation_spreadsheet(mod_tree, base_tree, lang, args):
                         new_val = "(DUPLICATE)"
                     else:
                         new_val = ""
-                    data.append([filename, name, "text", val, transl_val, new_val])
+                    field = "text"
+                    data.append([val, transl_val, new_val, filename, name, field])
                     all_en_strings.add(val)
                     rows += 1
             for attr in translate_attribs:
@@ -178,9 +179,12 @@ def make_translation_spreadsheet(mod_tree, base_tree, lang, args):
                     or attr not in base_dict[name].attrib \
                     or mod_dict[name].attrib[attr] != base_dict[name].attrib[attr] \
                     or (args.missing and (not name in transl_dict or not attr in transl_dict[name].attrib)):
-                        val = mod_dict[name].attrib[attr]
+                        elt = mod_dict[name]
+                        val = elt.attrib[attr]
+                        #if attr == "value" and elt.tag not in ["string","text"]:
+                        #    print("skipping value attribute", val, "tag", elt.tag, "in", filename)
+                        #    continue
                         if should_translate(filename, val):
-                            show_val = val
                             transl_val = "--"
                             if name in transl_dict and attr in transl_dict[name].attrib:
                                 transl_val = transl_dict[name].attrib[attr]
@@ -188,14 +192,15 @@ def make_translation_spreadsheet(mod_tree, base_tree, lang, args):
                                 new_val = "(DUPLICATE)"
                             else:
                                 new_val = ""
-                            data.append([filename, name, attr, show_val, transl_val, new_val])
+                            field = attr
+                            data.append([val, transl_val, new_val, filename, name, field])
                             all_en_strings.add(val)
                             rows += 1
         if args.verbose and rows>0:
             print("    ",rows,"rows added")
 
     outfile = "SL_Translations_{}.xlsx".format(lang.upper())
-    cols = ["File", "Element", "Field", "EN", "Previous Translation ({})".format(lang.upper()), "ENTER NEW TRANSLATION ({})".format(lang.upper())]
+    cols = ["EN", "Previous Translation ({})".format(lang.upper()), "ENTER NEW TRANSLATION ({})".format(lang.upper()), "File", "Element", "Field"]
     num_translations = len(data)
     df = pd.DataFrame(data, columns=cols)
     df.to_excel(outfile, index=False)
