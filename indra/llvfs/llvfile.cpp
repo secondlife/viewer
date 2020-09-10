@@ -529,8 +529,10 @@ BOOL LLVFile::rename(const LLUUID &new_id, const LLAssetType::EType new_type)
 
     if (std::rename(old_filename.c_str(), new_filename.c_str()))
     {
-        return false;
-
+        // We would like to return FALSE here indicating the operation
+        // failed but the original code does not and doing so seems to
+        // break a lot of things so we go with the flow... 
+        //return FALSE;
     }
     mFileID = new_id;
     mFileType = new_type;
