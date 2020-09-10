@@ -33,6 +33,7 @@ import os
 import sys
 from git import Repo, Git # requires the gitpython package
 import pandas as pd
+import re
 
 translate_attribs = [
     "title",
@@ -75,13 +76,22 @@ def failure(*msg):
     print(*msg)
     sys.exit(1)
 
-def can_translate(val):
+def should_translate(filename, val):
     if val is None:
+        return False
+    if "floater_test" in filename:
+        return False
+    if "TestString PleaseIgnore" in val:
+        return False
+    if len(val) == 0:
         return False
     if val.isspace():
         return False
     val = val.strip()
     if val.isdigit():
+        return False
+    if re.match(r"^\s*\d*\s*x\s*\d*\s*$", val):
+        print(val, "matches resolution string, will ignore")
         return False
     return True
 
@@ -105,36 +115,7 @@ project.
 
 """
 
-if __name__ == "__main__":
-
-    parser = argparse.ArgumentParser(description="analyze viewer xui files for needed translations", usage=usage_msg)
-    parser.add_argument("-v","--verbose", action="store_true", help="verbose flag")
-    parser.add_argument("--rev", help="revision with modified strings, default HEAD", default="HEAD")
-    parser.add_argument("--rev_base", help="previous revision to compare against, default master", default="master")
-    parser.add_argument("--base_lang", help="base language, default en (useful only for testing)", default="en")
-    parser.add_argument("--lang", help="target language")
-    args = parser.parse_args()
-
-    cwd = os.getcwd()
-    rootdir = Git(cwd).rev_parse("--show-toplevel")
-    repo = Repo(rootdir)
-    try:
-        mod_commit = repo.commit(args.rev)
-    except:
-        failure(args.rev,"is not a valid commit")
-    try:
-        base_commit = repo.commit(args.rev_base)
-    except:
-        failure(args.rev_base,"is not a valid commit")
-
-    mod_tree = mod_commit.tree
-    base_tree = base_commit.tree
-
-    xui_base = "indra/newview/skins/default/xui"
-    xui_base_tree = mod_tree[xui_base]
-    valid_langs = [tree.name.lower() for tree in xui_base_tree if tree.name.lower() != args.base_lang.lower()]
-    if not args.lang or not args.lang.lower() in valid_langs:
-        failure("Please specify a target language using --lang. Valid values are", ",".join(sorted(valid_langs)))
+def make_translation_spreadsheet(mod_tree, base_tree, lang, args):
 
     xui_path = "{}/{}".format(xui_base, args.base_lang)
     try:
@@ -145,11 +126,10 @@ if __name__ == "__main__":
     if args.rev == args.rev_base:
         failure("Revs are the same, nothing to compare")
 
-    print("Finding changes in", args.rev, "not present in", args.rev_base)
-    sys.stdout.flush()
 
     data = []
     # For all files to be checked for translations
+    all_en_strings = set()
     for mod_blob in mod_xui_tree.traverse():
         filename = mod_blob.path
         if mod_blob.type == "tree": # directory, skip
@@ -166,7 +146,7 @@ if __name__ == "__main__":
             base_blob = None
 
         try:
-            transl_filename = filename.replace("/xui/{}/".format(args.base_lang), "/xui/{}/".format(args.lang))
+            transl_filename = filename.replace("/xui/{}/".format(args.base_lang), "/xui/{}/".format(lang))
             transl_blob = mod_tree[transl_filename]
         except:
             if args.verbose:
@@ -179,29 +159,43 @@ if __name__ == "__main__":
 
         rows = 0
         for name in mod_dict.keys():
-            if not name in base_dict or mod_dict[name].text != base_dict[name].text:
+            if not name in base_dict or mod_dict[name].text != base_dict[name].text or (args.missing and not name in transl_dict):
                 val = mod_dict[name].text
-                if can_translate(val):
+                if should_translate(filename, val):
                     transl_val = "--"
                     if name in transl_dict:
                         transl_val = transl_dict[name].text
-                    data.append([filename, name, "text", val, transl_val, ""])
+                    if val in all_en_strings:
+                        new_val = "(DUPLICATE)"
+                    else:
+                        new_val = ""
+                    data.append([filename, name, "text", val, transl_val, new_val])
+                    all_en_strings.add(val)
                     rows += 1
             for attr in translate_attribs:
                 if attr in mod_dict[name].attrib:
-                    if name not in base_dict or attr not in base_dict[name].attrib or mod_dict[name].attrib[attr] != base_dict[name].attrib[attr]:
+                    if name not in base_dict \
+                    or attr not in base_dict[name].attrib \
+                    or mod_dict[name].attrib[attr] != base_dict[name].attrib[attr] \
+                    or (args.missing and (not name in transl_dict or not attr in transl_dict[name].attrib)):
                         val = mod_dict[name].attrib[attr]
-                        if can_translate(val):
+                        if should_translate(filename, val):
+                            show_val = val
                             transl_val = "--"
                             if name in transl_dict and attr in transl_dict[name].attrib:
                                 transl_val = transl_dict[name].attrib[attr]
-                            data.append([filename, name, attr, val, transl_val, ""])
+                            if val in all_en_strings:
+                                new_val = "(DUPLICATE)"
+                            else:
+                                new_val = ""
+                            data.append([filename, name, attr, show_val, transl_val, new_val])
+                            all_en_strings.add(val)
                             rows += 1
         if args.verbose and rows>0:
             print("    ",rows,"rows added")
 
-    outfile = "SL_Translations_{}.xlsx".format(args.lang.upper())
-    cols = ["File", "Element", "Field", "EN", "Previous Translation ({})".format(args.lang.upper()), "ENTER NEW TRANSLATION ({})".format(args.lang.upper())]
+    outfile = "SL_Translations_{}.xlsx".format(lang.upper())
+    cols = ["File", "Element", "Field", "EN", "Previous Translation ({})".format(lang.upper()), "ENTER NEW TRANSLATION ({})".format(lang.upper())]
     num_translations = len(data)
     df = pd.DataFrame(data, columns=cols)
     df.to_excel(outfile, index=False)
@@ -209,3 +203,55 @@ if __name__ == "__main__":
         print("Wrote", num_translations, "rows to file", outfile)
     else:
         print("Nothing to translate,", outfile, "is empty")
+    
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description="analyze viewer xui files for needed translations", usage=usage_msg)
+    parser.add_argument("-v","--verbose", action="store_true", help="verbose flag")
+    parser.add_argument("--missing", action="store_true", default = False, help="include all fields for which a translation does not exist")
+    parser.add_argument("--rev", help="revision with modified strings, default HEAD", default="HEAD")
+    parser.add_argument("--rev_base", help="previous revision to compare against, default master", default="master")
+    parser.add_argument("--base_lang", help="base language, default en (normally leave unchanged - other values are only useful for testing)", default="en")
+    parser.add_argument("--lang", help="target languages, or all", nargs="+")
+    args = parser.parse_args()
+
+    cwd = os.getcwd()
+    rootdir = Git(cwd).rev_parse("--show-toplevel")
+    repo = Repo(rootdir)
+    try:
+        mod_commit = repo.commit(args.rev)
+    except:
+        failure(args.rev,"is not a valid commit")
+    try:
+        base_commit = repo.commit(args.rev_base)
+    except:
+        failure(args.rev_base,"is not a valid commit")
+
+    print("Will identify changes in", args.rev, "not present in", args.rev_base)
+    if args.missing:
+        print("Will also include any text for which no corresponding translation exists, regardless of when it was added")
+    sys.stdout.flush()
+
+    mod_tree = mod_commit.tree
+    base_tree = base_commit.tree
+
+    xui_base = "indra/newview/skins/default/xui"
+    xui_base_tree = mod_tree[xui_base]
+    valid_langs = [tree.name.lower() for tree in xui_base_tree if tree.name.lower() != args.base_lang.lower()]
+    langs = [l.lower() for l in args.lang]
+    if "all" in args.lang:
+        langs = valid_langs
+
+    for lang in langs:
+          if not lang in valid_langs:
+              failure("Unknown target language {}. Valid values are {} or all".format(lang,",".join(sorted(valid_langs))))
+          
+    print("Target language(s) are", ",".join(sorted(langs)))
+    sys.stdout.flush()
+
+    for lang in langs:
+        print("Creating spreadsheet for language", lang)
+        sys.stdout.flush()
+    
+        make_translation_spreadsheet(mod_tree, base_tree, lang, args)
+
