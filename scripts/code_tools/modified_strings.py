@@ -76,13 +76,24 @@ def failure(*msg):
     print(*msg)
     sys.exit(1)
 
-def should_translate(filename, val):
+# return True iff any element of lis is "in" thing
+def has_any(thing,lis):
+    for l in lis:
+        if l in thing:
+            return True
+    return False
+
+def should_translate(filename, elt, field, val):
     if val is None:
         return False
-    if "floater_test" in filename:
+    # Should translate apply recursively?
+    if "translate" in elt.attrib and elt.attrib["translate"] == "false":
+        return False
+    if has_any(filename,["floater_test","floater_aaa","floater_ui_preview"]):
         return False
     if "TestString PleaseIgnore" in val:
         return False
+    val = re.sub(r"\[.*?\]","",val)
     if len(val) == 0:
         return False
     if val.isspace():
@@ -90,9 +101,22 @@ def should_translate(filename, val):
     val = val.strip()
     if val.isdigit():
         return False
-    if re.match(r"^\s*\d*\s*x\s*\d*\s*$", val):
-        print(val, "matches resolution string, will ignore")
+    if not re.search('\w+', val):
         return False
+    if re.match(r"^\s*\d*\s*x\s*\d*\s*$", val):
+        #print(val, "matches resolution string, will ignore")
+        return False
+    # "value" is a hairball, mostly used to encode non-display info but a few exceptions
+    if field == "value":
+        if elt.text is not None and len(elt.text) > 0:
+            #print("value has text, ignoring", ET.tostring(elt))
+            return False
+        if has_any(elt.attrib,["label"]):
+            return False
+        if elt.tag in ["string","text"]:
+            return True
+        #print("including value attribute", val, "tag", elt.tag,"in", ET.tostring(elt))
+        return True
     return True
 
 usage_msg="""%(prog)s [options]
@@ -150,7 +174,7 @@ def make_translation_spreadsheet(mod_tree, base_tree, lang, args):
             transl_blob = mod_tree[transl_filename]
         except:
             if args.verbose:
-                failure("No matching translation file found at", transl_filename)
+                print("No matching translation file found at", transl_filename)
             transl_blob = None
 
         mod_dict = read_xml_elements(mod_blob)
@@ -160,8 +184,10 @@ def make_translation_spreadsheet(mod_tree, base_tree, lang, args):
         rows = 0
         for name in mod_dict.keys():
             if not name in base_dict or mod_dict[name].text != base_dict[name].text or (args.missing and not name in transl_dict):
-                val = mod_dict[name].text
-                if should_translate(filename, val):
+                elt = mod_dict[name]
+                val = elt.text
+                field = "text"
+                if should_translate(filename, elt, field, val):
                     transl_val = "--"
                     if name in transl_dict:
                         transl_val = transl_dict[name].text
@@ -169,7 +195,6 @@ def make_translation_spreadsheet(mod_tree, base_tree, lang, args):
                         new_val = "(DUPLICATE)"
                     else:
                         new_val = ""
-                    field = "text"
                     data.append([val, transl_val, new_val, filename, name, field])
                     all_en_strings.add(val)
                     rows += 1
@@ -181,10 +206,7 @@ def make_translation_spreadsheet(mod_tree, base_tree, lang, args):
                     or (args.missing and (not name in transl_dict or not attr in transl_dict[name].attrib)):
                         elt = mod_dict[name]
                         val = elt.attrib[attr]
-                        #if attr == "value" and elt.tag not in ["string","text"]:
-                        #    print("skipping value attribute", val, "tag", elt.tag, "in", filename)
-                        #    continue
-                        if should_translate(filename, val):
+                        if should_translate(filename, elt, attr, val):
                             transl_val = "--"
                             if name in transl_dict and attr in transl_dict[name].attrib:
                                 transl_val = transl_dict[name].attrib[attr]
@@ -192,8 +214,8 @@ def make_translation_spreadsheet(mod_tree, base_tree, lang, args):
                                 new_val = "(DUPLICATE)"
                             else:
                                 new_val = ""
-                            field = attr
-                            data.append([val, transl_val, new_val, filename, name, field])
+                            #attr = attr + ":" + ET.tostring(elt)
+                            data.append([val, transl_val, new_val, filename, name, attr])
                             all_en_strings.add(val)
                             rows += 1
         if args.verbose and rows>0:
