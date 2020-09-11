@@ -144,6 +144,7 @@ void LLTranslationAPIHandler::verifyKeyCoro(LLTranslate::EService service, std::
     httpHeaders->append(HTTP_OUT_HEADER_USER_AGENT, user_agent);
 
     httpOpts->setFollowRedirects(true);
+    httpOpts->setSSLVerifyPeer(false);
 
     std::string url = this->getKeyVerificationURL(key);
     if (url.empty())
@@ -185,6 +186,7 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
 
     httpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_TEXT_PLAIN);
     httpHeaders->append(HTTP_OUT_HEADER_USER_AGENT, user_agent);
+    httpOpts->setSSLVerifyPeer(false);
 
     std::string url = this->getTranslateURL(fromTo.first, fromTo.second, msg);
     if (url.empty())
