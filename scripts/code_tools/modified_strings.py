@@ -106,7 +106,7 @@ def should_translate(filename, elt, field, val):
     if re.match(r"^\s*\d*\s*x\s*\d*\s*$", val):
         #print(val, "matches resolution string, will ignore")
         return False
-    # "value" is a hairball, mostly used to encode non-display info but a few exceptions
+    # "value" attribute is a hairball, mostly used to encode non-display info but a few exceptions
     if field == "value":
         if elt.text is not None and len(elt.text) > 0:
             #print("value has text, ignoring", ET.tostring(elt))
@@ -218,18 +218,40 @@ def make_translation_spreadsheet(mod_tree, base_tree, lang, args):
                             data.append([val, transl_val, new_val, filename, name, attr])
                             all_en_strings.add(val)
                             rows += 1
-        if args.verbose and rows>0:
-            print("    ",rows,"rows added")
 
+    save_as_excel(data, lang)
+
+    
+def save_as_excel(data, lang):
+        
     outfile = "SL_Translations_{}.xlsx".format(lang.upper())
-    cols = ["EN", "Previous Translation ({})".format(lang.upper()), "ENTER NEW TRANSLATION ({})".format(lang.upper()), "File", "Element", "Field"]
     num_translations = len(data)
+    cols = ["EN", "Previous Translation ({})".format(lang.upper()), "ENTER NEW TRANSLATION ({})".format(lang.upper()), "File", "Element", "Field"]
     df = pd.DataFrame(data, columns=cols)
-    df.to_excel(outfile, index=False)
+
+    writer = pd.ExcelWriter(outfile, engine='xlsxwriter')
+    df.to_excel(writer, index=False, sheet_name = "Sheet1")
+
+    workbook = writer.book
+    worksheet = writer.sheets['Sheet1']
+
+    cell_format = workbook.add_format({'text_wrap': True})
+
+    # Translators primarily care about columns A-C
+    worksheet.set_column('A:C', 100, cell_format)
+    worksheet.set_column('D:D', 50, cell_format, {'hidden': True})
+    worksheet.set_column('E:F', 30, cell_format, {'hidden': True})
+
+    # Lock the column header in place while scrolling
+    worksheet.freeze_panes(1, 0)
+
+    writer.save()
+
     if num_translations>0:
         print("Wrote", num_translations, "rows to file", outfile)
     else:
         print("Nothing to translate,", outfile, "is empty")
+
     
 if __name__ == "__main__":
 
