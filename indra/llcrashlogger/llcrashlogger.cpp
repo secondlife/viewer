@@ -411,7 +411,6 @@ bool LLCrashLogger::runCrashLogPost(std::string host, LLSD data, std::string msg
     LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     httpOpts->setTimeout(timeout);
-    httpOpts->setSSLVerifyPeer(false);
 
 	for(int i = 0; i < retries; ++i)
 	{

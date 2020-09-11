@@ -32,7 +32,6 @@
 namespace LLCore
 {
 
-    bool HttpOptions::sDefaultVerifyPeer = false;
 
 HttpOptions::HttpOptions() :
     mWantHeaders(false),
@@ -44,7 +43,7 @@ HttpOptions::HttpOptions() :
     mMaxRetryBackoff(HTTP_RETRY_BACKOFF_MAX_DEFAULT),
     mUseRetryAfter(HTTP_USE_RETRY_AFTER_DEFAULT),
     mFollowRedirects(true),
-    mVerifyPeer(sDefaultVerifyPeer),
+    mVerifyPeer(false),
     mVerifyHost(false),
     mDNSCacheTimeout(-1L),
     mNoBody(false)
@@ -123,15 +122,7 @@ void HttpOptions::setHeadersOnly(bool nobody)
 {
     mNoBody = nobody;
     if (mNoBody)
-    {
         setWantHeaders(true);
-        setSSLVerifyPeer(false);
-    }
-}
-
-void HttpOptions::setDefaultSSLVerifyPeer(bool verify)
-{
-    sDefaultVerifyPeer = verify;
 }
 
 }   // end namespace LLCore

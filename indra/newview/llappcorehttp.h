@@ -256,7 +256,6 @@ private:
 	HttpClass					mHttpClasses[AP_COUNT];
 	bool						mPipelined;				// Global setting
 	boost::signals2::connection	mPipelinedSignal;		// Signal for 'HttpPipelining' setting
-	boost::signals2::connection	mSSLNoVerifySignal;		// Signal for 'NoVerifySSLCert' setting
 
 	static LLCore::HttpStatus	sslVerify(const std::string &uri, const LLCore::HttpHandler::ptr_t &handler, void *appdata);
 };

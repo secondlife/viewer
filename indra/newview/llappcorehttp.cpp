@@ -116,7 +116,6 @@ static const struct
 };
 
 static void setting_changed();
-static void ssl_verification_changed();
 
 
 LLAppCoreHttp::HttpClass::HttpClass()
@@ -195,23 +194,6 @@ void LLAppCoreHttp::init()
 	{
 		LL_WARNS("Init") << "Failed to set SSL Verification.  Reason:  " << status.toString() << LL_ENDL;
 	}
-
-    // Set up Default SSL Verification option.
-    const std::string no_verify_ssl("NoVerifySSLCert");
-    if (gSavedSettings.controlExists(no_verify_ssl))
-    {
-        LLPointer<LLControlVariable> cntrl_ptr = gSavedSettings.getControl(no_verify_ssl);
-        if (cntrl_ptr.isNull())
-        {
-            LL_WARNS("Init") << "Unable to set signal on global setting '" << no_verify_ssl
-                << "'" << LL_ENDL;
-        }
-        else
-        {
-            mSSLNoVerifySignal = cntrl_ptr->getCommitSignal()->connect(boost::bind(&ssl_verification_changed));
-            LLCore::HttpOptions::setDefaultSSLVerifyPeer(!cntrl_ptr->getValue().asBoolean());
-        }
-    }
 
 	// Tracing levels for library & libcurl (note that 2 & 3 are beyond spammy):
 	// 0 - None
@@ -314,11 +296,6 @@ void setting_changed()
 	LLAppViewer::instance()->getAppCoreHttp().refreshSettings(false);
 }
 
-void ssl_verification_changed()
-{
-    LLCore::HttpOptions::setDefaultSSLVerifyPeer(!gSavedSettings.getBOOL("NoVerifySSLCert"));
-}
-
 namespace
 {
     // The NoOpDeletor is used when wrapping LLAppCoreHttp in a smart pointer below for
@@ -378,7 +355,6 @@ void LLAppCoreHttp::cleanup()
 	{
 		mHttpClasses[i].mSettingsSignal.disconnect();
 	}
-    mSSLNoVerifySignal.disconnect();
 	mPipelinedSignal.disconnect();
 	
 	delete mRequest;

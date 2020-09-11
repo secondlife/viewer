@@ -95,7 +95,6 @@ void LLFloaterGridStatus::getGridStatusRSSCoro()
     LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
     LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
 
-    httpOpts->setSSLVerifyPeer(false); // We want this data even if SSL fails
     httpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_TEXT_XML);
     std::string url = gSavedSettings.getString("GridStatusRSS");
 
