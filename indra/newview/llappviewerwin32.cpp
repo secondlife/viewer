@@ -499,7 +499,7 @@ void LLAppViewerWin32::disableWinErrorReporting()
 	}
 }
 
-const S32 MAX_CONSOLE_LINES = 500;
+const S32 MAX_CONSOLE_LINES = 7500;
 // Only defined in newer SDKs than we currently use
 #ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
 #define ENABLE_VIRTUAL_TERMINAL_PROCESSING 4

@@ -382,7 +382,7 @@ void update_statistics()
 	F64Bits layer_bits = gVLManager.getLandBits() + gVLManager.getWindBits() + gVLManager.getCloudBits();
 	add(LLStatViewer::LAYERS_NETWORK_DATA_RECEIVED, layer_bits);
 	add(LLStatViewer::OBJECT_NETWORK_DATA_RECEIVED, gObjectData);
-	sample(LLStatViewer::PENDING_VFS_OPERATIONS, LLVFile::getVFSThread()->getPending());
+	//sample(LLStatViewer::PENDING_VFS_OPERATIONS, LLVFile::getVFSThread()->getPending());
 	add(LLStatViewer::ASSET_UDP_DATA_RECEIVED, F64Bits(gTransferManager.getTransferBitsIn(LLTCT_ASSET)));
 	gTransferManager.resetTransferBitsIn(LLTCT_ASSET);
 

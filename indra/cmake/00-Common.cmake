@@ -63,8 +63,14 @@ if (WINDOWS)
   # Without PreferredToolArchitecture=x64, as of 2020-06-26 the 32-bit
   # compiler on our TeamCity build hosts has started running out of virtual
   # memory for the precompiled header file.
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /p:PreferredToolArchitecture=x64")
-
+  # CP changed to only append the flag for 32bit builds - on 64bit builds,
+  # locally at least, the build output is spammed with 1000s of 'D9002'
+  # warnings about this switch being ignored.
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+  if( ADDRESS_SIZE EQUAL 32 )
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /p:PreferredToolArchitecture=x64")  
+  endif()
+  
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO 
       "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Zo"
       CACHE STRING "C++ compiler release-with-debug options" FORCE)
