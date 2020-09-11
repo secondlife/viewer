@@ -76,9 +76,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d670d00aa732b97d105d287b62582762</string>
+              <string>9b8bcc3be6dbe40a04c9c81c313f70dc</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/55065/512118/apr_suite-1.4.5.539073-darwin64-539073.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/68333/658209/apr_suite-1.4.5.548882-darwin64-548882.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -112,9 +112,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>83b4a047db5f7ee462753d91e6277cba</string>
+              <string>6bdf460c18ee004b41a46afc80041a92</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/55143/512317/apr_suite-1.4.5.539073-windows-539073.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/68334/658225/apr_suite-1.4.5.548882-windows-548882.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -124,16 +124,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b3bbf168b39e25c08cc1febddeb33332</string>
+              <string>83104bfa4dabb77cd70d185e38a95b49</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/55139/512304/apr_suite-1.4.5.539073-windows64-539073.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/68332/658215/apr_suite-1.4.5.548882-windows64-548882.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.4.5.539073</string>
+        <string>1.4.5.548882</string>
       </map>
       <key>boost</key>
       <map>
