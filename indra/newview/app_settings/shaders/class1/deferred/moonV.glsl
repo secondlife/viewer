@@ -37,8 +37,7 @@ void calcAtmospherics(vec3 eye_pos);
 void main()
 {
     //transform vertex
-    vec3 offset = vec3(0, 0, 50);
-    vec4 vert = vec4(position.xyz - offset, 1.0);
+    vec4 vert = vec4(position.xyz, 1.0);
     vec4 pos = (modelview_matrix * vert);
 
     gl_Position = modelview_projection_matrix*vert;
