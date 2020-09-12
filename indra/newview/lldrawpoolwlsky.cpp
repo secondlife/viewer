@@ -532,8 +532,6 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
         }
 	}
 
-    blend_factor = LLEnvironment::instance().getCurrentSky()->getBlendFactor();
-
 	face = gSky.mVOSkyp->mFace[LLVOSky::FACE_MOON];
 
 	if (gSky.mVOSkyp->getMoon().getDraw() && face && face->getTexture(LLRender::DIFFUSE_MAP) && face->getGeomCount() && moon_shader)
@@ -551,17 +549,17 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
             {
                 // Bind current and next sun textures
                 moon_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
-                blend_factor = 0;
+                //blend_factor = 0;
             }
             else if (tex_b && !tex_a)
             {
                 moon_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
-                blend_factor = 0;
+                //blend_factor = 0;
             }
             else if (tex_b != tex_a)
             {
                 moon_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
-                moon_shader->bindTexture(LLShaderMgr::ALTERNATE_DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
+                //moon_shader->bindTexture(LLShaderMgr::ALTERNATE_DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
             }
 
             LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
@@ -571,7 +569,8 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
             moon_shader->uniform1f(LLShaderMgr::MOON_BRIGHTNESS, moon_brightness);
             moon_shader->uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, gSky.mVOSkyp->getMoon().getColor().mV);
             moon_shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, color.mV);
-            moon_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
+            //moon_shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
+            moon_shader->uniform3fv(LLShaderMgr::DEFERRED_MOON_DIR, 1, psky->getMoonDirection().mV); // shader: moon_dir
 
             face->renderIndexed();
 
