@@ -235,14 +235,18 @@ def save_as_excel(data, lang):
     workbook = writer.book
     worksheet = writer.sheets['Sheet1']
 
-    cell_format = workbook.add_format({'text_wrap': True})
+    wrap_format = workbook.add_format({'text_wrap': True})
+    wrap_unlocked_format = workbook.add_format({'text_wrap': True, 'locked': False})
 
-    # Translators primarily care about columns A-C
-    worksheet.set_column('A:C', 100, cell_format)
-    worksheet.set_column('D:D', 50, cell_format, {'hidden': True})
-    worksheet.set_column('E:F', 30, cell_format, {'hidden': True})
+    # Translators primarily care about columns A-C, and should write
+    # only in column C. Can hide the others. Set widths.
+    worksheet.protect()
+    worksheet.set_column('A:B', 100, wrap_format)
+    worksheet.set_column('C:C', 100, wrap_unlocked_format)
+    worksheet.set_column('D:D', 50, wrap_format, {'hidden': True})
+    worksheet.set_column('E:F', 30, wrap_format, {'hidden': True})
 
-    # Lock the column header in place while scrolling
+    # Lock the top row (column headers) in place while scrolling
     worksheet.freeze_panes(1, 0)
 
     writer.save()
