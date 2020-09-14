@@ -122,8 +122,7 @@ void LLFloaterURLEntry::headerFetchComplete(S32 status, const std::string& mime_
 		}
 
 	}
-	// Decrement the cursor
-	getWindow()->decBusyCount();
+
 	getChildView("loading_label")->setVisible( false);
 	closeFloater();
 }
@@ -301,4 +300,10 @@ bool LLFloaterURLEntry::callback_clear_url_list(const LLSD& notification, const 
 		getChildView("clear_btn")->setEnabled(false );
 	}
 	return false;
+}
+
+void LLFloaterURLEntry::onClose( bool app_quitting )
+{
+    // Decrement the cursor
+    getWindow()->decBusyCount();
 }
