@@ -166,9 +166,7 @@ bool compareGalleryItem(LLOutfitGalleryItem* item1, LLOutfitGalleryItem* item2)
         std::string name1 = item1->getItemName();
         std::string name2 = item2->getItemName();
 
-        LLStringUtil::toUpper(name1);
-        LLStringUtil::toUpper(name2);
-        return name1 < name2;
+        return (LLStringUtil::compareDict(name1, name2) < 0);
     }
     else
     {
