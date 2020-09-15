@@ -153,9 +153,8 @@ void main()
         // glow.z should be negative, so we're doing a sort of (1 / "angle") function
 
     // Add "minimum anti-solar illumination"
-    temp2.x += .25;
-
-    temp2.x *= sun_moon_glow_factor;
+    // For sun, add to glow.  For moon, remove glow entirely. SL-13768
+    temp2.x = (sun_moon_glow_factor < 1.0) ? 0.0 : (sun_moon_glow_factor * (temp2.x + 0.25));
 
     // Haze color above cloud
     vec4 color = (    blue_horizon * blue_weight * (sunlight + ambient_color)
