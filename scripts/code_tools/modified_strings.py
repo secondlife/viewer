@@ -139,7 +139,7 @@ project.
 
 """
 
-def make_translation_spreadsheet(mod_tree, base_tree, lang, args):
+def make_translation_table(mod_tree, base_tree, lang, args):
 
     xui_path = "{}/{}".format(xui_base, args.base_lang)
     try:
@@ -195,7 +195,7 @@ def make_translation_spreadsheet(mod_tree, base_tree, lang, args):
                         new_val = "(DUPLICATE)"
                     else:
                         new_val = ""
-                    data.append([val, transl_val, new_val, filename, name, field])
+                    data.append([val, transl_val, new_val, "", "", filename, name, field])
                     all_en_strings.add(val)
                     rows += 1
             for attr in translate_attribs:
@@ -215,48 +215,47 @@ def make_translation_spreadsheet(mod_tree, base_tree, lang, args):
                             else:
                                 new_val = ""
                             #attr = attr + ":" + ET.tostring(elt)
-                            data.append([val, transl_val, new_val, filename, name, attr])
+                            data.append([val, transl_val, new_val, "", "", filename, name, attr])
                             all_en_strings.add(val)
                             rows += 1
+    return data
 
-    save_as_excel(data, lang)
+def save_translation_file(all_data, outfile):
 
-    
-def save_as_excel(data, lang):
-        
-    outfile = "SL_Translations_{}.xlsx".format(lang.upper())
-    num_translations = len(data)
-    cols = ["EN", "Previous Translation ({})".format(lang.upper()), "ENTER NEW TRANSLATION ({})".format(lang.upper()), "File", "Element", "Field"]
-    df = pd.DataFrame(data, columns=cols)
+    langs = sorted(all_data.keys())
+    print("Saving languages", ",".join(langs),"as",outfile)
 
     writer = pd.ExcelWriter(outfile, engine='xlsxwriter')
-    df.to_excel(writer, index=False, sheet_name = "Sheet1")
 
     workbook = writer.book
-    worksheet = writer.sheets['Sheet1']
-
     wrap_format = workbook.add_format({'text_wrap': True})
     wrap_unlocked_format = workbook.add_format({'text_wrap': True, 'locked': False})
 
-    # Translators primarily care about columns A-C, and should write
-    # only in column C. Can hide the others. Set widths.
-    worksheet.protect()
-    worksheet.set_column('A:B', 100, wrap_format)
-    worksheet.set_column('C:C', 100, wrap_unlocked_format)
-    worksheet.set_column('D:D', 50, wrap_format, {'hidden': True})
-    worksheet.set_column('E:F', 30, wrap_format, {'hidden': True})
+    for lang in langs:
+        data = all_data[lang]
+        num_translations = len(data)
+        cols = ["EN", "Previous Translation ({})".format(lang.upper()), "ENTER NEW TRANSLATION ({})".format(lang.upper()), "Translator Questions", "Notes", "File", "Element", "Field"]
+        df = pd.DataFrame(data, columns=cols)
+        df.to_excel(writer, index=False, sheet_name = lang.upper())
 
-    # Lock the top row (column headers) in place while scrolling
-    worksheet.freeze_panes(1, 0)
+        worksheet = writer.sheets[lang.upper()]
 
+        # Translators primarily care about columns A-C, and should write
+        # only in column C. Hide the others. Set widths.
+        worksheet.protect()
+        worksheet.set_column('A:B', 60, wrap_format)
+        worksheet.set_column('C:C', 60, wrap_unlocked_format)
+        worksheet.set_column('D:E', 40, wrap_unlocked_format)
+        worksheet.set_column('F:F', 50, wrap_format, {'hidden': True})
+        worksheet.set_column('G:H', 30, wrap_format, {'hidden': True})
+
+        # Lock the top row (column headers) in place while scrolling
+        worksheet.freeze_panes(1, 0)
+        print("Added", num_translations, "rows for language", lang)
+
+    print("Writing", outfile)
     writer.save()
 
-    if num_translations>0:
-        print("Wrote", num_translations, "rows to file", outfile)
-    else:
-        print("Nothing to translate,", outfile, "is empty")
-
-    
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="analyze viewer xui files for needed translations", usage=usage_msg)
@@ -290,21 +289,33 @@ if __name__ == "__main__":
 
     xui_base = "indra/newview/skins/default/xui"
     xui_base_tree = mod_tree[xui_base]
+
+    # Find target languages
     valid_langs = [tree.name.lower() for tree in xui_base_tree if tree.name.lower() != args.base_lang.lower()]
     langs = [l.lower() for l in args.lang]
     if "all" in args.lang:
         langs = valid_langs
-
+    langs = sorted(langs)
     for lang in langs:
           if not lang in valid_langs:
               failure("Unknown target language {}. Valid values are {} or all".format(lang,",".join(sorted(valid_langs))))
-          
     print("Target language(s) are", ",".join(sorted(langs)))
     sys.stdout.flush()
 
+    outfile = "SL_Translations.xlsx"
+    try:
+        f = open(outfile,"a+")
+        f.close()
+    except:
+        failure("Can't write to output file",outfile,". Is it already open?")
+
+    all_data = {}
     for lang in langs:
         print("Creating spreadsheet for language", lang)
         sys.stdout.flush()
     
-        make_translation_spreadsheet(mod_tree, base_tree, lang, args)
+        all_data[lang] = make_translation_table(mod_tree, base_tree, lang, args)
+
+    print("Saving output file", outfile)
+    save_translation_file(all_data, outfile)
 
