@@ -184,7 +184,6 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
 
         ((LLSettingsVOSky*)psky.get())->updateShader(sky_shader);
 
-        bool is_sun_up      = psky->getIsSunUp();
         F32 moisture_level  = (float)psky->getSkyMoistureLevel();
         F32 droplet_radius  = (float)psky->getSkyDropletRadius();
         F32 ice_level       = (float)psky->getSkyIceLevel();
@@ -200,9 +199,9 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
         sky_shader->uniform1f(LLShaderMgr::DROPLET_RADIUS, droplet_radius);
         sky_shader->uniform1f(LLShaderMgr::ICE_LEVEL, ice_level);
 
-        sky_shader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, is_sun_up ? psky->getSunMoonGlowFactor() : 0.0f ); // SL-13768
+        sky_shader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, psky->getSunMoonGlowFactor());
 
-        sky_shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, is_sun_up ? 1 : 0);
+        sky_shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, psky->getIsSunUp() ? 1 : 0);
 
         /// Render the skydome
         renderDome(origin, camHeightLocal, sky_shader);	
