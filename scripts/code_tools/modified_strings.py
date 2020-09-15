@@ -34,6 +34,30 @@ import sys
 from git import Repo, Git # requires the gitpython package
 import pandas as pd
 import re
+from datetime import datetime
+
+usage_msg="""%(prog)s [options]
+
+Analyze the XUI configuration files to find text that may need to
+be translated. Works by comparing two specified revisions, one
+specified by --rev (default HEAD) and one specified by --rev_base
+(default master). The script works by comparing xui contents of the
+two revisions, and outputs a spreadsheet listing any areas of
+difference. The target language must be specified using the --lang
+option. Output is an excel file, which can be used as-is or imported
+into google sheets.
+
+If the --rev revision already contains a translation for the text, it
+will be included in the spreadsheet for reference.
+    
+Normally you would want --rev_base to be the last revision to have
+translations added, and --rev to be the tip of the current
+project. You can find the last commit with translation work using "git log --grep INTL- | head"
+
+The --missing argument can be used to find all text with missing
+translations, regardless of when it was added. If translations are being kept
+reasonably current, you will normally not need this argument.
+"""
 
 translate_attribs = [
     "title",
@@ -119,26 +143,6 @@ def should_translate(filename, elt, field, val):
         return True
     return True
 
-usage_msg="""%(prog)s [options]
-
-Analyze the XUI configuration files to find text that may need to
-be translated. Works by comparing two specified revisions, one
-specified by --rev (default HEAD) and one specified by --rev_base
-(default master). The script works by comparing xui contents of the
-two revisions, and outputs a spreadsheet listing any areas of
-difference. The target language must be specified using the --lang
-option. Output is an excel file, which can be used as-is or imported
-into google sheets.
-
-If the --rev revision already contains a translation for the text, it
-will be included in the spreadsheet for reference.
-    
-Normally you would want --rev_base to be the last revision to have
-translations added, and --rev to be the tip of the current
-project.
-
-"""
-
 def make_translation_table(mod_tree, base_tree, lang, args):
 
     xui_path = "{}/{}".format(xui_base, args.base_lang)
@@ -220,19 +224,20 @@ def make_translation_table(mod_tree, base_tree, lang, args):
                             rows += 1
     return data
 
-def save_translation_file(all_data, outfile):
+def save_translation_file(per_lang_data, aux_data, outfile):
 
-    langs = sorted(all_data.keys())
+    langs = sorted(per_lang_data.keys())
     print("Saving languages", ",".join(langs),"as",outfile)
 
     writer = pd.ExcelWriter(outfile, engine='xlsxwriter')
 
     workbook = writer.book
     wrap_format = workbook.add_format({'text_wrap': True})
+    bold_wrap_format = workbook.add_format({'text_wrap': True, 'bold': True})
     wrap_unlocked_format = workbook.add_format({'text_wrap': True, 'locked': False})
 
     for lang in langs:
-        data = all_data[lang]
+        data = per_lang_data[lang]
         num_translations = len(data)
         cols = ["EN", "Previous Translation ({})".format(lang.upper()), "ENTER NEW TRANSLATION ({})".format(lang.upper()), "Translator Questions", "Notes", "File", "Element", "Field"]
         df = pd.DataFrame(data, columns=cols)
@@ -253,6 +258,14 @@ def save_translation_file(all_data, outfile):
         worksheet.freeze_panes(1, 0)
         print("Added", num_translations, "rows for language", lang)
 
+    # Reference info, not for translation
+    for aux, data in aux_data.items():
+        df = pd.DataFrame(data, columns = ["Key", "Value"]) 
+        df.to_excel(writer, index=False, sheet_name=aux)
+        worksheet = writer.sheets[aux]
+        worksheet.set_column('A:A', 50, bold_wrap_format)
+        worksheet.set_column('B:B', 80, wrap_format)
+        
     print("Writing", outfile)
     writer.save()
 
@@ -309,13 +322,18 @@ if __name__ == "__main__":
     except:
         failure("Can't write to output file",outfile,". Is it already open?")
 
-    all_data = {}
+    aux_data = { "REFERENCE": [["Command", " ".join(sys.argv)],
+                               ["Date", str(datetime.now())],
+                               ["Mod Commit", mod_commit.hexsha],
+                               ["Base Commit", base_commit.hexsha],
+                              ] }
+    per_lang_data = {}
     for lang in langs:
         print("Creating spreadsheet for language", lang)
         sys.stdout.flush()
     
-        all_data[lang] = make_translation_table(mod_tree, base_tree, lang, args)
+        per_lang_data[lang] = make_translation_table(mod_tree, base_tree, lang, args)
 
     print("Saving output file", outfile)
-    save_translation_file(all_data, outfile)
+    save_translation_file(per_lang_data, aux_data, outfile)
 
