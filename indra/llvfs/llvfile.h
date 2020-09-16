@@ -58,6 +58,8 @@ public:
 
 	bool isLocked(EVFSLock lock);
 	void waitForLock(EVFSLock lock);
+
+	static bool getExists(const LLUUID &file_id, const LLAssetType::EType file_type);
 	
 	static void initClass(LLVFSThread* vfsthread = NULL);
 	static void cleanupClass();

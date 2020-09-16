@@ -443,7 +443,7 @@ void LLAssetStorage::_cleanupRequests(BOOL all, S32 error)
 
 BOOL LLAssetStorage::hasLocalAsset(const LLUUID &uuid, const LLAssetType::EType type)
 {
-    return mStaticVFS->getExists(uuid, type) || mVFS->getExists(uuid, type);
+    return LLVFile::getExists(uuid, type);
 }
 
 bool LLAssetStorage::findInStaticVFSAndInvokeCallback(const LLUUID& uuid, LLAssetType::EType type,

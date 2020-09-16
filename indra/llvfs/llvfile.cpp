@@ -124,6 +124,7 @@ const std::string assetTypeToString(LLAssetType::EType at)
         { LLAssetType::AT_WIDGET, "WIDGET" },
         { LLAssetType::AT_PERSON, "PERSON" },
         { LLAssetType::AT_MESH, "MESH" },
+        { LLAssetType::AT_SETTINGS, "SETTINGS" },
         { LLAssetType::AT_UNKNOWN, "UNKNOWN" }
     };
 
@@ -152,6 +153,21 @@ const std::string idToFilepath(const std::string id, LLAssetType::EType at)
     const std::string filepath = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ss.str());
 
     return filepath;
+}
+
+bool LLVFile::getExists(const LLUUID &file_id, const LLAssetType::EType file_type)
+{
+	std::string id_str;
+	file_id.toString(id_str);
+	const std::string filename = idToFilepath(id_str, file_type);
+
+	std::ifstream file(filename, std::ios::binary);
+	if (file.is_open())
+	{
+		file.seekg(0, std::ios::end);
+		return file.tellg() > 0;
+	}
+	return false;
 }
 
 BOOL LLVFile::read(U8 *buffer, S32 bytes, BOOL async, F32 priority)
