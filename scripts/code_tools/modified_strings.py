@@ -277,7 +277,7 @@ if __name__ == "__main__":
     parser.add_argument("--rev", help="revision with modified strings, default HEAD", default="HEAD")
     parser.add_argument("--rev_base", help="previous revision to compare against, default master", default="master")
     parser.add_argument("--base_lang", help="base language, default en (normally leave unchanged - other values are only useful for testing)", default="en")
-    parser.add_argument("--lang", help="target languages, or all", nargs="+")
+    parser.add_argument("--lang", help="target languages, or all", nargs="+", default = ["all"])
     args = parser.parse_args()
 
     cwd = os.getcwd()
@@ -305,9 +305,10 @@ if __name__ == "__main__":
 
     # Find target languages
     valid_langs = [tree.name.lower() for tree in xui_base_tree if tree.name.lower() != args.base_lang.lower()]
+    supported_langs = ["fr", "es", "it", "pt", "ja", "de"]
     langs = [l.lower() for l in args.lang]
     if "all" in args.lang:
-        langs = valid_langs
+        langs = supported_langs
     langs = sorted(langs)
     for lang in langs:
           if not lang in valid_langs:
