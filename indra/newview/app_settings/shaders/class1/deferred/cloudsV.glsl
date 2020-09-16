@@ -99,11 +99,11 @@ void main()
     altitude_blend_factor = clamp((rel_pos.y + 512.0) / max_y, 0.0, 1.0);
 
     // Set altitude
-    if (rel_pos.y > 0.)
+    if (rel_pos.y > 0)
     {
         rel_pos *= (max_y / rel_pos.y);
     }
-    else
+    if (rel_pos.y < 0)
     {
         altitude_blend_factor = 0;  // SL-11589 Fix clouds drooping below horizon
         rel_pos *= (-32000. / rel_pos.y);

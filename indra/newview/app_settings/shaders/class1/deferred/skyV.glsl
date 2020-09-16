@@ -71,12 +71,12 @@ void main()
     // Get relative position
     vec3 rel_pos = position.xyz - camPosLocal.xyz + vec3(0, 50, 0);
 
-    // Set altitude
-    if (rel_pos.y > 0.)
+    // Adj position vector to clamp altitude
+    if (rel_pos.y > 0)
     {
         rel_pos *= (max_y / rel_pos.y);
     }
-    else
+    if (rel_pos.y < 0)
     {
         rel_pos *= (-32000. / rel_pos.y);
     }

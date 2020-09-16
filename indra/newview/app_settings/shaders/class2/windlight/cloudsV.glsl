@@ -99,12 +99,12 @@ void main()
     // fade clouds beyond a certain point so the bottom of the sky dome doesn't look silly at high altitude
     altitude_blend_factor = clamp((rel_pos.y + 512.0) / max_y, 0.0, 1.0);
 
-    // Set altitude
+    // Adj position vector to clamp altitude
     if (rel_pos.y > 0.)
     {
         rel_pos *= (max_y / rel_pos.y);
     }
-    else
+    if (rel_pos.y < 0.)
     {
         rel_pos *= (-32000. / rel_pos.y);
     }
