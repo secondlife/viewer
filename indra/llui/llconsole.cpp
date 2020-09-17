@@ -180,7 +180,9 @@ void LLConsole::draw()
 
 	LLUIImagePtr imagep = LLUI::getUIImage("transparent");
 
-	F32 console_opacity = llclamp(LLUI::getInstance()->mSettingGroups["config"]->getF32("ConsoleBackgroundOpacity"), 0.f, 1.f);
+	static LLCachedControl<F32> console_bg_opacity(*LLUI::getInstance()->mSettingGroups["config"], "ConsoleBackgroundOpacity", 0.7f);
+	F32 console_opacity = llclamp((F32)console_bg_opacity, 0.f, 1.f);
+
 	LLColor4 color = LLUIColorTable::instance().getColor("ConsoleBackground");
 	color.mV[VALPHA] *= console_opacity;
 

@@ -176,7 +176,7 @@ void LLUrlEntryBase::callObservers(const std::string &id,
 bool LLUrlEntryBase::isLinkDisabled() const
 {
 	// this allows us to have a global setting to turn off text hyperlink highlighting/action
-	bool globally_disabled = LLUI::getInstance()->mSettingGroups["config"]->getBOOL("DisableTextHyperlinkActions");
+	static LLCachedControl<bool> globally_disabled(*LLUI::getInstance()->mSettingGroups["config"], "DisableTextHyperlinkActions", false);
 
 	return globally_disabled;
 }

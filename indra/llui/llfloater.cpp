@@ -378,13 +378,15 @@ void LLFloater::layoutDragHandle()
 // static
 void LLFloater::updateActiveFloaterTransparency()
 {
-    sActiveControlTransparency = LLUI::getInstance()->mSettingGroups["config"]->getF32("ActiveFloaterTransparency");
+    static LLCachedControl<F32> active_transparency(*LLUI::getInstance()->mSettingGroups["config"], "ActiveFloaterTransparency", 1.f);
+    sActiveControlTransparency = active_transparency;
 }
 
 // static
 void LLFloater::updateInactiveFloaterTransparency()
 {
-    sInactiveControlTransparency = LLUI::getInstance()->mSettingGroups["config"]->getF32("InactiveFloaterTransparency");
+    static LLCachedControl<F32> inactive_transparency(*LLUI::getInstance()->mSettingGroups["config"], "InactiveFloaterTransparency", 0.95f);
+    sInactiveControlTransparency = inactive_transparency;
 }
 
 void LLFloater::addResizeCtrls()
