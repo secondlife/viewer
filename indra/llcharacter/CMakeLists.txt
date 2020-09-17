@@ -6,14 +6,14 @@ include(00-Common)
 include(LLCommon)
 include(LLMath)
 include(LLMessage)
-include(LLCache)
+include(LLFileSystem)
 include(LLXML)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}
-    ${LLCACHE_INCLUDE_DIRS}
+    ${LLFILESYSTEM_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
     )
 include_directories(SYSTEM
@@ -85,6 +85,6 @@ target_link_libraries(
     ${LLCOMMON_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
-    ${LLCACHE_LIBRARIES}
+    ${LLFILESYSTEM_LIBRARIES}
     ${LLXML_LIBRARIES}
     )

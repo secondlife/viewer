@@ -8,7 +8,7 @@ include(LLCoreHttp)
 include(LLCrashLogger)
 include(LLMath)
 include(LLMessage)
-include(LLCache)
+include(LLFilesystem)
 include(LLXML)
 include(Linking)
 include(LLSharedLibs)
@@ -19,7 +19,7 @@ include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLCRASHLOGGER_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
-    ${LLCACHE_INCLUDE_DIRS}
+    ${LLFILESYSTEM_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
     )
 include_directories(SYSTEM
@@ -68,7 +68,7 @@ find_library(COCOA_LIBRARY Cocoa)
 
 target_link_libraries(mac-crash-logger
     ${LLCRASHLOGGER_LIBRARIES}
-    ${LLCACHE_LIBRARIES}
+    ${LLFILESYSTEM_LIBRARIES}
     ${COCOA_LIBRARIES}
     ${LLXML_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
