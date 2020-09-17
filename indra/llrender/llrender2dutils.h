@@ -127,18 +127,15 @@ class LLRender2D : public LLParamSingleton<LLRender2D>
 	LOG_CLASS(LLRender2D);
 	~LLRender2D();
 public:
-	void pushMatrix();
-	void popMatrix();
-	void loadIdentity();
-	void translate(F32 x, F32 y, F32 z = 0.0f);
+	static void pushMatrix();
+	static void popMatrix();
+	static void loadIdentity();
+	static void translate(F32 x, F32 y, F32 z = 0.0f);
 
-	void setLineWidth(F32 width);
-	void setScaleFactor(const LLVector2& scale_factor);
+	static void setLineWidth(F32 width);
 
 	LLPointer<LLUIImage> getUIImageByID(const LLUUID& image_id, S32 priority = 0);
 	LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority = 0);
-
-	LLVector2		mGLScaleFactor;
 
 protected:
 	// since LLRender2D has no control of image provider's lifecycle

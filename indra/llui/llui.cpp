@@ -510,6 +510,18 @@ const LLView* LLUI::resolvePath(const LLView* context, const std::string& path)
 	return context;
 }
 
+//static
+LLVector2& LLUI::getScaleFactor()
+{
+    return LLRender::sUIGLScaleFactor;
+}
+
+//static
+void LLUI::setScaleFactor(const LLVector2& scale_factor)
+{
+    LLRender::sUIGLScaleFactor = scale_factor;
+}
+
 
 // LLLocalClipRect and LLScreenClipRect moved to lllocalcliprect.h/cpp
 

@@ -150,6 +150,7 @@ protected:
 	LLUIColor		mDisabledThumbColor;
 	LLUIColor		mTriangleColor;
 	LLUIImagePtr	mThumbImagep; //blimps on the slider, for now no 'disabled' support
+    LLUIImagePtr	mRoundedSquareImgp; //blimps on the slider, for now no 'disabled' support
 
 	const EOrientation	mOrientation;
 

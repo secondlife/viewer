@@ -313,14 +313,14 @@ public:
 	void positionViewNearMouse(LLView* view,	S32 spawn_x = S32_MAX, S32 spawn_y = S32_MAX);
 
 	// LLRender2D wrappers
-	static void pushMatrix() { LLRender2D::getInstance()->pushMatrix(); }
-	static void popMatrix() { LLRender2D::getInstance()->popMatrix(); }
-	static void loadIdentity() { LLRender2D::getInstance()->loadIdentity(); }
-	static void translate(F32 x, F32 y, F32 z = 0.0f) { LLRender2D::getInstance()->translate(x, y, z); }
+	static void pushMatrix() { LLRender2D::pushMatrix(); }
+	static void popMatrix() { LLRender2D::popMatrix(); }
+	static void loadIdentity() { LLRender2D::loadIdentity(); }
+	static void translate(F32 x, F32 y, F32 z = 0.0f) { LLRender2D::translate(x, y, z); }
 
-	static LLVector2& getScaleFactor() { return LLRender2D::getInstance()->mGLScaleFactor; }
-	static void setScaleFactor(const LLVector2& scale_factor) { LLRender2D::getInstance()->setScaleFactor(scale_factor); }
-	static void setLineWidth(F32 width) { LLRender2D::getInstance()->setLineWidth(width); }
+    static LLVector2& getScaleFactor();
+    static void setScaleFactor(const LLVector2& scale_factor);
+	static void setLineWidth(F32 width) { LLRender2D::setLineWidth(width); }
 	static LLPointer<LLUIImage> getUIImageByID(const LLUUID& image_id, S32 priority = 0)
 		{ return LLRender2D::getInstance()->getUIImageByID(image_id, priority); }
 	static LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority = 0)
