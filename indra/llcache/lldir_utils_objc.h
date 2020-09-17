@@ -1,10 +1,10 @@
 /** 
- * @file mac_crash_logger.cpp
- * @brief Mac OSX crash logger implementation
+ * @file lldir_utils_objc.h
+ * @brief Definition of directory utilities class for Mac OS X
  *
- * $LicenseInfo:firstyear=2003&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2020&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2020, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,36 +22,22 @@
  * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
- */
+ */ 
 
-#include "linden_common.h"
-#include "llcrashloggermac.h"
-#include "indra_constants.h"
+#if !LL_DARWIN
+#error This header must not be included when compiling for any target other than Mac OS. Consider including lldir.h instead.
+#endif // !LL_DARWIN
+
+#ifndef LL_LLDIR_UTILS_OBJC_H
+#define LL_LLDIR_UTILS_OBJC_H
 
 #include <iostream>
-    
-int main(int argc, char **argv)
-{
-	LLCrashLoggerMac app;
-	app.parseCommandOptions(argc, argv);
 
-    LLSD options = LLApp::instance()->getOptionData(
-                        LLApp::PRIORITY_COMMAND_LINE);
-    
-	if (! app.init())
-	{
-		LL_WARNS() << "Unable to initialize application." << LL_ENDL;
-		return 1;
-	}
+std::string* getSystemTempFolder();
+std::string* getSystemCacheFolder();
+std::string* getSystemApplicationSupportFolder();
+std::string* getSystemResourceFolder();
+std::string* getSystemExecutableFolder();
 
-    if (app.getCrashBehavior() != CRASH_BEHAVIOR_ALWAYS_SEND)
-    {
-//        return NSApplicationMain(argc, (const char **)argv);
-    }
-	app.frame();
-	app.cleanup();
 
-	LL_INFOS() << "Crash reporter finished normally." << LL_ENDL;
-    
-	return 0;
-}
+#endif // LL_LLDIR_UTILS_OBJC_H

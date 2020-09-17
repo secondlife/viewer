@@ -29,6 +29,8 @@ set(llcache_HEADER_FILES
     )
 
 if (DARWIN)
+  LIST(APPEND llcache_SOURCE_FILES lldir_utils_objc.mm)
+  LIST(APPEND llcache_SOURCE_FILES lldir_utils_objc.h)
   LIST(APPEND llcache_SOURCE_FILES lldir_mac.cpp)
   LIST(APPEND llcache_HEADER_FILES lldir_mac.h)
 endif (DARWIN)
