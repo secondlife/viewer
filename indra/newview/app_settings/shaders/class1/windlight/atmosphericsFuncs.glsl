@@ -49,7 +49,7 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     vec3 rel_pos = inPositionEye;
 
     //(TERRAIN) limit altitude
-    rel_pos.y = clamp(rel_pos.y, -max_y, max_y);
+    if (abs(rel_pos.y) > max_y) rel_pos *= (max_y / rel_pos.y);
 
     vec3  rel_pos_norm = normalize(rel_pos);
     float rel_pos_len  = length(rel_pos);
