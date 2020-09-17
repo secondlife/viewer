@@ -15,8 +15,7 @@ set(llcache_SOURCE_FILES
     lldir.cpp
     lldiriterator.cpp
     lllfsthread.cpp
-    llpidlock.cpp
-    llvfile.cpp
+    lldiskcache.cpp
     )
 
 set(llcache_HEADER_FILES
@@ -26,8 +25,7 @@ set(llcache_HEADER_FILES
     lldirguard.h
     lldiriterator.h
     lllfsthread.h
-    llpidlock.h
-    llvfile.h
+    lldiskcache.h
     )
 
 if (DARWIN)

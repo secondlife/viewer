@@ -31,7 +31,7 @@
 #include "llagent.h"
 #include "llimagej2c.h"
 #include "llnotificationsutil.h"
-#include "llvfile.h"
+#include "lldiskcache.h"
 #include "llviewerregion.h"
 #include "llglslshader.h"
 #include "llvoavatarself.h"

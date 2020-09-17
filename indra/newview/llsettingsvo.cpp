@@ -57,7 +57,7 @@
 
 #include "llinventorymodel.h"
 #include "llassetstorage.h"
-#include "llvfile.h"
+#include "lldiskcache.h"
 #include "lldrawpoolwater.h"
 
 #include <boost/algorithm/string/replace.hpp>
@@ -303,7 +303,7 @@ void LLSettingsVOBase::onAssetDownloadComplete(const LLUUID &asset_id, S32 statu
     LLSettingsBase::ptr_t settings;
     if (!status)
     {
-        LLVFile file(asset_id, LLAssetType::AT_SETTINGS, LLVFile::READ);
+        LLDiskCache file(asset_id, LLAssetType::AT_SETTINGS, LLDiskCache::READ);
         S32 size = file.getSize();
 
         std::string buffer(size + 1, '\0');

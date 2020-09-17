@@ -51,7 +51,7 @@
 #include "llsdserialize.h"
 #include "llslider.h"
 #include "lltooldraganddrop.h"
-#include "llvfile.h"
+#include "lldiskcache.h"
 
 #include "llagent.h"
 #include "llmenugl.h"
@@ -1715,7 +1715,7 @@ void LLPreviewLSL::onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType t
 	{
 		if(0 == status)
 		{
-			LLVFile file(asset_uuid, type);
+			LLDiskCache file(asset_uuid, type);
 			S32 file_length = file.getSize();
 
 			std::vector<char> buffer(file_length+1);
@@ -2020,7 +2020,7 @@ void LLLiveLSLEditor::onLoadComplete(const LLUUID& asset_id,
 
 void LLLiveLSLEditor::loadScriptText(const LLUUID &uuid, LLAssetType::EType type)
 {
-	LLVFile file(uuid, type);
+	LLDiskCache file(uuid, type);
 	S32 file_length = file.getSize();
 	std::vector<char> buffer(file_length + 1);
 	file.read((U8*)&buffer[0], file_length);

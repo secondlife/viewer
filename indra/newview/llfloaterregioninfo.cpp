@@ -36,7 +36,7 @@
 #include "llglheaders.h"
 #include "llregionflags.h"
 #include "llstl.h"
-#include "llvfile.h"
+#include "lldiskcache.h"
 #include "llxfermanager.h"
 #include "indra_constants.h"
 #include "message.h"
@@ -2239,7 +2239,7 @@ void LLPanelEstateCovenant::onLoadComplete(const LLUUID& asset_uuid,
 	{
 		if(0 == status)
 		{
-			LLVFile file(asset_uuid, type, LLVFile::READ);
+			LLDiskCache file(asset_uuid, type, LLDiskCache::READ);
 
 			S32 file_length = file.getSize();
 

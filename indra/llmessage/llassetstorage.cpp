@@ -42,7 +42,7 @@
 // this library includes
 #include "message.h"
 #include "llxfermanager.h"
-#include "llvfile.h"
+#include "lldiskcache.h"
 #include "lldbstrings.h"
 
 #include "lltransfersourceasset.h"
@@ -438,7 +438,7 @@ void LLAssetStorage::_cleanupRequests(BOOL all, S32 error)
 
 BOOL LLAssetStorage::hasLocalAsset(const LLUUID &uuid, const LLAssetType::EType type)
 {
-    return LLVFile::getExists(uuid, type);
+    return LLDiskCache::getExists(uuid, type);
 }
 
 bool LLAssetStorage::findInCacheAndInvokeCallback(const LLUUID& uuid, LLAssetType::EType type,
@@ -450,10 +450,10 @@ bool LLAssetStorage::findInCacheAndInvokeCallback(const LLUUID& uuid, LLAssetTyp
         llassert(callback != NULL);
     }
 
-    BOOL exists = LLVFile::getExists(uuid, type);
+    BOOL exists = LLDiskCache::getExists(uuid, type);
     if (exists)
     {
-        LLVFile file(uuid, type);
+        LLDiskCache file(uuid, type);
         U32 size = file.getSize();
         if (size > 0)
         {
@@ -523,8 +523,8 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
         return;
     }
 
-    BOOL exists = LLVFile::getExists(uuid, type);
-    LLVFile file(uuid, type);
+    BOOL exists = LLDiskCache::getExists(uuid, type);
+    LLDiskCache file(uuid, type);
     U32 size = exists ? file.getSize() : 0;
 
     if (size > 0)
@@ -664,7 +664,7 @@ void LLAssetStorage::downloadCompleteCallback(
     if (LL_ERR_NOERR == result)
     {
         // we might have gotten a zero-size file
-        LLVFile vfile(callback_id, callback_type);
+        LLDiskCache vfile(callback_id, callback_type);
         if (vfile.getSize() <= 0)
         {
             LL_WARNS("AssetStorage") << "downloadCompleteCallback has non-existent or zero-size asset " << callback_id << LL_ENDL;
@@ -724,8 +724,8 @@ void LLAssetStorage::getEstateAsset(
         return;
     }
     
-    BOOL exists = LLVFile::getExists(asset_id, atype);
-    LLVFile file(asset_id, atype);
+    BOOL exists = LLDiskCache::getExists(asset_id, atype);
+    LLDiskCache file(asset_id, atype);
     U32 size = exists ? file.getSize() : 0;
 
     if (size > 0)
@@ -818,7 +818,7 @@ void LLAssetStorage::downloadEstateAssetCompleteCallback(
     if (LL_ERR_NOERR == result)
     {
         // we might have gotten a zero-size file
-        LLVFile vfile(req->getUUID(), req->getAType());
+        LLDiskCache vfile(req->getUUID(), req->getAType());
         if (vfile.getSize() <= 0)
         {
             LL_WARNS("AssetStorage") << "downloadCompleteCallback has non-existent or zero-size asset!" << LL_ENDL;
@@ -860,8 +860,8 @@ void LLAssetStorage::getInvItemAsset(
             return;
         }
 
-        exists = LLVFile::getExists(asset_id, atype);
-        LLVFile file(asset_id, atype);
+        exists = LLDiskCache::getExists(asset_id, atype);
+        LLDiskCache file(asset_id, atype);
         size = exists ? file.getSize() : 0;
         if(exists && size < 1)
         {
@@ -961,7 +961,7 @@ void LLAssetStorage::downloadInvItemCompleteCallback(
     if (LL_ERR_NOERR == result)
     {
         // we might have gotten a zero-size file
-        LLVFile vfile(req->getUUID(), req->getType());
+        LLDiskCache vfile(req->getUUID(), req->getType());
         if (vfile.getSize() <= 0)
         {
             LL_WARNS("AssetStorage") << "downloadCompleteCallback has non-existent or zero-size asset!" << LL_ENDL;
@@ -1396,7 +1396,7 @@ void LLAssetStorage::legacyGetDataCallback(const LLUUID &uuid,
     if ( !status
          && !toxic )
     {
-        LLVFile file(uuid, type);
+        LLDiskCache file(uuid, type);
 
         std::string uuid_str;
 

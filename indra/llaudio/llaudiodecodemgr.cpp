@@ -29,7 +29,7 @@
 
 #include "llaudioengine.h"
 #include "lllfsthread.h"
-#include "llvfile.h"
+#include "lldiskcache.h"
 #include "llstring.h"
 #include "lldir.h"
 #include "llendianswizzle.h"
@@ -93,14 +93,14 @@ protected:
 	std::string mOutFilename;
 	LLLFSThread::handle_t mFileHandle;
 	
-	LLVFile *mInFilep;
+	LLDiskCache *mInFilep;
 	OggVorbis_File mVF;
 	S32 mCurrentSection;
 };
 
 size_t cache_read(void *ptr, size_t size, size_t nmemb, void *datasource)
 {
-	LLVFile *file = (LLVFile *)datasource;
+	LLDiskCache *file = (LLDiskCache *)datasource;
 
 	if (file->read((U8*)ptr, (S32)(size * nmemb)))	/*Flawfinder: ignore*/
 	{
@@ -115,7 +115,7 @@ size_t cache_read(void *ptr, size_t size, size_t nmemb, void *datasource)
 
 S32 cache_seek(void *datasource, ogg_int64_t offset, S32 whence)
 {
-	LLVFile *file = (LLVFile *)datasource;
+	LLDiskCache *file = (LLDiskCache *)datasource;
 
 	// cache has 31-bit files
 	if (offset > S32_MAX)
@@ -151,14 +151,14 @@ S32 cache_seek(void *datasource, ogg_int64_t offset, S32 whence)
 
 S32 cache_close (void *datasource)
 {
-	LLVFile *file = (LLVFile *)datasource;
+	LLDiskCache *file = (LLDiskCache *)datasource;
 	delete file;
 	return 0;
 }
 
 long cache_tell (void *datasource)
 {
-	LLVFile *file = (LLVFile *)datasource;
+	LLDiskCache *file = (LLDiskCache *)datasource;
 	return file->tell();
 }
 
@@ -198,7 +198,7 @@ BOOL LLVorbisDecodeState::initDecode()
 
 	LL_DEBUGS("AudioEngine") << "Initing decode from vfile: " << mUUID << LL_ENDL;
 
-	mInFilep = new LLVFile(mUUID, LLAssetType::AT_SOUND);
+	mInFilep = new LLDiskCache(mUUID, LLAssetType::AT_SOUND);
 	if (!mInFilep || !mInFilep->getSize())
 	{
 		LL_WARNS("AudioEngine") << "unable to open vorbis source vfile for reading" << LL_ENDL;

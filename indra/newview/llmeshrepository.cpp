@@ -49,7 +49,7 @@
 #include "llsdutil_math.h"
 #include "llsdserialize.h"
 #include "llthread.h"
-#include "llvfile.h"
+#include "lldiskcache.h"
 #include "llviewercontrol.h"
 #include "llviewerinventory.h"
 #include "llviewermenufile.h"
@@ -1335,7 +1335,7 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 		if (version <= MAX_MESH_VERSION && offset >= 0 && size > 0)
 		{
 			//check cache for mesh skin info
-			LLVFile file(mesh_id, LLAssetType::AT_MESH);
+			LLDiskCache file(mesh_id, LLAssetType::AT_MESH);
 			if (file.getSize() >= offset+size)
 			{
 				U8* buffer = new(std::nothrow) U8[size];
@@ -1431,7 +1431,7 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 		if (version <= MAX_MESH_VERSION && offset >= 0 && size > 0)
 		{
 			//check cache for mesh skin info
-			LLVFile file(mesh_id, LLAssetType::AT_MESH);
+			LLDiskCache file(mesh_id, LLAssetType::AT_MESH);
 			if (file.getSize() >= offset+size)
 			{
 				U8* buffer = new(std::nothrow) U8[size];
@@ -1528,7 +1528,7 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 		if (version <= MAX_MESH_VERSION && offset >= 0 && size > 0)
 		{
 			//check cache for mesh physics shape info
-			LLVFile file(mesh_id, LLAssetType::AT_MESH);
+			LLDiskCache file(mesh_id, LLAssetType::AT_MESH);
 			if (file.getSize() >= offset+size)
 			{
 				LLMeshRepository::sCacheBytesRead += size;
@@ -1633,7 +1633,7 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params, bool c
 
 	{
 		//look for mesh in asset in cache
-		LLVFile file(mesh_params.getSculptID(), LLAssetType::AT_MESH);
+		LLDiskCache file(mesh_params.getSculptID(), LLAssetType::AT_MESH);
 			
 		S32 size = file.getSize();
 
@@ -1712,7 +1712,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
 		{
 
 			//check cache for mesh asset
-			LLVFile file(mesh_id, LLAssetType::AT_MESH);
+			LLDiskCache file(mesh_id, LLAssetType::AT_MESH);
 			if (file.getSize() >= offset+size)
 			{
 				U8* buffer = new(std::nothrow) U8[size];
@@ -3200,7 +3200,7 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* b
 			// only allocate as much space in the cache as is needed for the local cache
 			data_size = llmin(data_size, bytes);
 
-			LLVFile file(mesh_id, LLAssetType::AT_MESH, LLVFile::WRITE);
+			LLDiskCache file(mesh_id, LLAssetType::AT_MESH, LLDiskCache::WRITE);
 			if (file.getMaxSize() >= bytes || file.setMaxSize(bytes))
 			{
 				LLMeshRepository::sCacheBytesWritten += data_size;
@@ -3272,7 +3272,7 @@ void LLMeshLODHandler::processData(LLCore::BufferArray * /* body */, S32 /* body
 		if (result == MESH_OK)
 		{
 			// good fetch from sim, write to cache
-			LLVFile file(mMeshParams.getSculptID(), LLAssetType::AT_MESH, LLVFile::WRITE);
+			LLDiskCache file(mMeshParams.getSculptID(), LLAssetType::AT_MESH, LLDiskCache::WRITE);
 
 			S32 offset = mOffset;
 			S32 size = mRequestedBytes;
@@ -3336,7 +3336,7 @@ void LLMeshSkinInfoHandler::processData(LLCore::BufferArray * /* body */, S32 /*
 		&& gMeshRepo.mThread->skinInfoReceived(mMeshID, data, data_size))
 	{
 		// good fetch from sim, write to cache
-		LLVFile file(mMeshID, LLAssetType::AT_MESH, LLVFile::WRITE);
+		LLDiskCache file(mMeshID, LLAssetType::AT_MESH, LLDiskCache::WRITE);
 
 		S32 offset = mOffset;
 		S32 size = mRequestedBytes;
@@ -3384,7 +3384,7 @@ void LLMeshDecompositionHandler::processData(LLCore::BufferArray * /* body */, S
 		&& gMeshRepo.mThread->decompositionReceived(mMeshID, data, data_size))
 	{
 		// good fetch from sim, write to cache
-		LLVFile file(mMeshID, LLAssetType::AT_MESH, LLVFile::WRITE);
+		LLDiskCache file(mMeshID, LLAssetType::AT_MESH, LLDiskCache::WRITE);
 
 		S32 offset = mOffset;
 		S32 size = mRequestedBytes;
@@ -3431,7 +3431,7 @@ void LLMeshPhysicsShapeHandler::processData(LLCore::BufferArray * /* body */, S3
 		&& gMeshRepo.mThread->physicsShapeReceived(mMeshID, data, data_size))
 	{
 		// good fetch from sim, write to cache for caching
-		LLVFile file(mMeshID, LLAssetType::AT_MESH, LLVFile::WRITE);
+		LLDiskCache file(mMeshID, LLAssetType::AT_MESH, LLDiskCache::WRITE);
 
 		S32 offset = mOffset;
 		S32 size = mRequestedBytes;

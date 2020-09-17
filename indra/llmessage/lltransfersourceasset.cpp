@@ -32,7 +32,7 @@
 #include "message.h"
 #include "lldatapacker.h"
 #include "lldir.h"
-#include "llvfile.h"
+#include "lldiskcache.h"
 
 LLTransferSourceAsset::LLTransferSourceAsset(const LLUUID &request_id, const F32 priority) :
 	LLTransferSource(LLTST_ASSET, request_id, priority),
@@ -99,7 +99,7 @@ LLTSCode LLTransferSourceAsset::dataCallback(const S32 packet_id,
 		return LLTS_SKIP;
 	}
 
-	LLVFile vf(mParams.getAssetID(), mParams.getAssetType(), LLVFile::READ);
+	LLDiskCache vf(mParams.getAssetID(), mParams.getAssetType(), LLDiskCache::READ);
 
 	if (!vf.getSize())
 	{
@@ -198,7 +198,7 @@ void LLTransferSourceAsset::responderCallback(const LLUUID& uuid, LLAssetType::E
 	if (LL_ERR_NOERR == result)
 	{
 		// Everything's OK.
-		LLVFile vf(uuid, type, LLVFile::READ);
+		LLDiskCache vf(uuid, type, LLDiskCache::READ);
 		tsap->mSize = vf.getSize();
 		status = LLTS_OK;
 	}

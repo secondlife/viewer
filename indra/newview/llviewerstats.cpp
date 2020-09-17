@@ -33,7 +33,7 @@
 #include "llfloaterreg.h"
 #include "llmemory.h"
 #include "lltimer.h"
-#include "llvfile.h"
+#include "lldiskcache.h"
 
 #include "llappviewer.h"
 

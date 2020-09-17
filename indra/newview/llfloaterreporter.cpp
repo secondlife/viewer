@@ -44,7 +44,7 @@
 #include "llnotificationsutil.h"
 #include "llstring.h"
 #include "llsys.h"
-#include "llvfile.h"
+#include "lldiskcache.h"
 #include "mean_collision_data.h"
 #include "message.h"
 #include "v3math.h"
@@ -899,7 +899,7 @@ void LLFloaterReporter::takeScreenshot(bool use_prev_screenshot)
 	mResourceDatap->mAssetInfo.setDescription("screenshot_descr");
 
 	// store in cache
-	LLVFile::writeFile(upload_data->getData(), 
+	LLDiskCache::writeFile(upload_data->getData(), 
 						upload_data->getDataSize(), 
 						mResourceDatap->mAssetInfo.mUuid, 
 						mResourceDatap->mAssetInfo.mType);

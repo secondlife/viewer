@@ -1,5 +1,5 @@
 /** 
- * @file llvfile.cpp
+ * @file lldiskcache.cpp
  * @brief Implementation of virtual file
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
@@ -26,7 +26,7 @@
 
 #include "linden_common.h"
 
-#include "llvfile.h"
+#include "lldiskcache.h"
 
 #include "llerror.h"
 #include "llthread.h"
@@ -37,14 +37,14 @@
 #include <fstream>
 #include "lldir.h"
 
-const S32 LLVFile::READ			= 0x00000001;
-const S32 LLVFile::WRITE		= 0x00000002;
-const S32 LLVFile::READ_WRITE	= 0x00000003;  // LLVFile::READ & LLVFile::WRITE
-const S32 LLVFile::APPEND		= 0x00000006;  // 0x00000004 & LLVFile::WRITE
+const S32 LLDiskCache::READ			= 0x00000001;
+const S32 LLDiskCache::WRITE		= 0x00000002;
+const S32 LLDiskCache::READ_WRITE	= 0x00000003;  // LLDiskCache::READ & LLDiskCache::WRITE
+const S32 LLDiskCache::APPEND		= 0x00000006;  // 0x00000004 & LLDiskCache::WRITE
 
 static LLTrace::BlockTimerStatHandle FTM_VFILE_WAIT("VFile Wait");
 
-LLVFile::LLVFile(const LLUUID &file_id, const LLAssetType::EType file_type, S32 mode)
+LLDiskCache::LLDiskCache(const LLUUID &file_id, const LLAssetType::EType file_type, S32 mode)
 {
 	mFileType =	file_type;
 	mFileID = file_id;
@@ -54,7 +54,7 @@ LLVFile::LLVFile(const LLUUID &file_id, const LLAssetType::EType file_type, S32 
 	mMode = mode;
 }
 
-LLVFile::~LLVFile()
+LLDiskCache::~LLDiskCache()
 {
 }
 
@@ -124,7 +124,7 @@ const std::string idToFilepath(const std::string id, LLAssetType::EType at)
 }
 
 // static
-bool LLVFile::getExists(const LLUUID &file_id, const LLAssetType::EType file_type)
+bool LLDiskCache::getExists(const LLUUID &file_id, const LLAssetType::EType file_type)
 {
 	std::string id_str;
 	file_id.toString(id_str);
@@ -140,7 +140,7 @@ bool LLVFile::getExists(const LLUUID &file_id, const LLAssetType::EType file_typ
 }
 
 // static
-bool LLVFile::removeFile(const LLUUID &file_id, const LLAssetType::EType file_type)
+bool LLDiskCache::removeFile(const LLUUID &file_id, const LLAssetType::EType file_type)
 {
     std::string id_str;
     file_id.toString(id_str);
@@ -152,7 +152,7 @@ bool LLVFile::removeFile(const LLUUID &file_id, const LLAssetType::EType file_ty
 }
 
 // static
-bool LLVFile::renameFile(const LLUUID &old_file_id, const LLAssetType::EType old_file_type,
+bool LLDiskCache::renameFile(const LLUUID &old_file_id, const LLAssetType::EType old_file_type,
                          const LLUUID &new_file_id, const LLAssetType::EType new_file_type)
 {
     std::string old_id_str;
@@ -175,7 +175,7 @@ bool LLVFile::renameFile(const LLUUID &old_file_id, const LLAssetType::EType old
 }
 
 // static
-S32 LLVFile::getFileSize(const LLUUID &file_id, const LLAssetType::EType file_type)
+S32 LLDiskCache::getFileSize(const LLUUID &file_id, const LLAssetType::EType file_type)
 {
     std::string id_str;
     file_id.toString(id_str);
@@ -192,7 +192,7 @@ S32 LLVFile::getFileSize(const LLUUID &file_id, const LLAssetType::EType file_ty
     return file_size;
 }
 
-BOOL LLVFile::read(U8 *buffer, S32 bytes, BOOL async, F32 priority)
+BOOL LLDiskCache::read(U8 *buffer, S32 bytes, BOOL async, F32 priority)
 {
 	BOOL success = TRUE;
 
@@ -232,7 +232,7 @@ BOOL LLVFile::read(U8 *buffer, S32 bytes, BOOL async, F32 priority)
     return success;
 }
 
-BOOL LLVFile::isReadComplete()
+BOOL LLDiskCache::isReadComplete()
 {
     if (mReadComplete)
     {
@@ -242,17 +242,17 @@ BOOL LLVFile::isReadComplete()
     return FALSE;
 }
 
-S32 LLVFile::getLastBytesRead()
+S32 LLDiskCache::getLastBytesRead()
 {
 	return mBytesRead;
 }
 
-BOOL LLVFile::eof()
+BOOL LLDiskCache::eof()
 {
 	return mPosition >= getSize();
 }
 
-BOOL LLVFile::write(const U8 *buffer, S32 bytes)
+BOOL LLDiskCache::write(const U8 *buffer, S32 bytes)
 {
     std::string id_str;
     mFileID.toString(id_str);
@@ -287,14 +287,14 @@ BOOL LLVFile::write(const U8 *buffer, S32 bytes)
 }
 
 //static
-BOOL LLVFile::writeFile(const U8 *buffer, S32 bytes, const LLUUID &uuid, LLAssetType::EType type)
+BOOL LLDiskCache::writeFile(const U8 *buffer, S32 bytes, const LLUUID &uuid, LLAssetType::EType type)
 {
-	LLVFile file(uuid, type, LLVFile::WRITE);
+	LLDiskCache file(uuid, type, LLDiskCache::WRITE);
 	file.setMaxSize(bytes);
 	return file.write(buffer, bytes);
 }
 
-BOOL LLVFile::seek(S32 offset, S32 origin)
+BOOL LLDiskCache::seek(S32 offset, S32 origin)
 {
 	if (-1 == origin)
 	{
@@ -324,32 +324,32 @@ BOOL LLVFile::seek(S32 offset, S32 origin)
 	return TRUE;
 }
 
-S32 LLVFile::tell() const
+S32 LLDiskCache::tell() const
 {
 	return mPosition;
 }
 
-S32 LLVFile::getSize()
+S32 LLDiskCache::getSize()
 {
-    return LLVFile::getFileSize(mFileID, mFileType);
+    return LLDiskCache::getFileSize(mFileID, mFileType);
 }
 
-S32 LLVFile::getMaxSize()
+S32 LLDiskCache::getMaxSize()
 {
     // offer up a huge size since we don't care what the max is 
     return INT_MAX;
 }
 
-BOOL LLVFile::setMaxSize(S32 size)
+BOOL LLDiskCache::setMaxSize(S32 size)
 {
     // we don't care what the max size is so we do nothing
     // and return true to indicate all was okay
     return TRUE;
 }
 
-BOOL LLVFile::rename(const LLUUID &new_id, const LLAssetType::EType new_type)
+BOOL LLDiskCache::rename(const LLUUID &new_id, const LLAssetType::EType new_type)
 {
-    LLVFile::renameFile(mFileID, mFileType, new_id, new_type);
+    LLDiskCache::renameFile(mFileID, mFileType, new_id, new_type);
 
     mFileID = new_id;
     mFileType = new_type;
@@ -357,31 +357,31 @@ BOOL LLVFile::rename(const LLUUID &new_id, const LLAssetType::EType new_type)
     return TRUE;
 }
 
-BOOL LLVFile::remove()
+BOOL LLDiskCache::remove()
 {
-    LLVFile::removeFile(mFileID, mFileType);
+    LLDiskCache::removeFile(mFileID, mFileType);
 
     return TRUE;
 }
 
 // static
-void LLVFile::initClass()
+void LLDiskCache::initClass()
 {
 }
 
 // static
-void LLVFile::cleanupClass()
+void LLDiskCache::cleanupClass()
 {
 }
 
-bool LLVFile::isLocked()
+bool LLDiskCache::isLocked()
 {
     // I don't think we care about this test since there is no locking
     // TODO: remove this function and calling sites?
     return FALSE;
 }
 
-void LLVFile::waitForLock()
+void LLDiskCache::waitForLock()
 {
     // TODO: remove this function and calling sites?
 }

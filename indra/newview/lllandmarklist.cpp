@@ -33,7 +33,7 @@
 
 #include "llappviewer.h"
 #include "llagent.h"
-#include "llvfile.h"
+#include "lldiskcache.h"
 #include "llviewerstats.h"
 
 // Globals
@@ -105,7 +105,7 @@ void LLLandmarkList::processGetAssetReply(
 {
 	if( status == 0 )
 	{
-		LLVFile file(uuid, type);
+		LLDiskCache file(uuid, type);
 		S32 file_length = file.getSize();
 
 		std::vector<char> buffer(file_length + 1);

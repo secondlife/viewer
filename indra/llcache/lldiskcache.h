@@ -1,5 +1,5 @@
 /** 
- * @file llvfile.h
+ * @file lldiskcacke.h
  * @brief Definition of virtual file
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
@@ -24,17 +24,17 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVFILE_H
-#define LL_LLVFILE_H
+#ifndef LL_LLDISKCACHE_H
+#define LL_LLDISKCACHE_H
 
 #include "lluuid.h"
 #include "llassettype.h"
 
-class LLVFile
+class LLDiskCache
 {
 public:
-	LLVFile(const LLUUID &file_id, const LLAssetType::EType file_type, S32 mode = LLVFile::READ);
-	~LLVFile();
+	LLDiskCache(const LLUUID &file_id, const LLAssetType::EType file_type, S32 mode = LLDiskCache::READ);
+	~LLDiskCache();
 
 	BOOL read(U8 *buffer, S32 bytes, BOOL async = FALSE, F32 priority = 128.f);	/* Flawfinder: ignore */ 
 	BOOL isReadComplete();
@@ -79,4 +79,4 @@ protected:
 	S32		mBytesRead;
 };
 
-#endif
+#endif  // LL_LLDISKCACHE_H

@@ -30,7 +30,7 @@
 #include "llxfer.h"
 #include "llassetstorage.h"
 
-class LLVFile;
+class LLDiskCache;
 
 class LLXfer_VFile : public LLXfer
 {
@@ -40,7 +40,7 @@ class LLXfer_VFile : public LLXfer
 	LLUUID mTempID;
 	LLAssetType::EType mType;
 	
-	LLVFile *mVFile;
+	LLDiskCache *mVFile;
 
 	std::string mName;
 

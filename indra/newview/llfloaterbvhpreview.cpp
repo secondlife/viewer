@@ -32,7 +32,7 @@
 #include "lldatapacker.h"
 #include "lldir.h"
 #include "llnotificationsutil.h"
-#include "llvfile.h"
+#include "lldiskcache.h"
 #include "llapr.h"
 #include "llstring.h"
 
@@ -997,7 +997,7 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
 		LLDataPackerBinaryBuffer dp(buffer, file_size);
 		if (motionp->serialize(dp))
 		{
-			LLVFile file(motionp->getID(), LLAssetType::AT_ANIMATION, LLVFile::APPEND);
+			LLDiskCache file(motionp->getID(), LLAssetType::AT_ANIMATION, LLDiskCache::APPEND);
 
 			S32 size = dp.getCurrentSize();
 			file.setMaxSize(size);
