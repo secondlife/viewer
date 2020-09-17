@@ -45,7 +45,6 @@
 #include "llstring.h"
 #include "llsys.h"
 #include "llvfile.h"
-#include "llvfs.h"
 #include "mean_collision_data.h"
 #include "message.h"
 #include "v3math.h"
@@ -899,10 +898,9 @@ void LLFloaterReporter::takeScreenshot(bool use_prev_screenshot)
 	mResourceDatap->mAssetInfo.setName("screenshot_name");
 	mResourceDatap->mAssetInfo.setDescription("screenshot_descr");
 
-	// store in VFS
+	// store in cache
 	LLVFile::writeFile(upload_data->getData(), 
 						upload_data->getDataSize(), 
-						gVFS, 
 						mResourceDatap->mAssetInfo.mUuid, 
 						mResourceDatap->mAssetInfo.mType);
 

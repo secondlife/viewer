@@ -784,7 +784,7 @@ LLSD HttpCoroutineAdapter::postFileAndSuspend(LLCore::HttpRequest::ptr_t request
     // scoping for our streams so that they go away when we no longer need them.
     {
         LLCore::BufferArrayStream outs(fileData.get());
-        LLVFile vfile(gVFS, assetId, assetType, LLVFile::READ);
+        LLVFile vfile(assetId, assetType, LLVFile::READ);
 
         S32 fileSize = vfile.getSize();
         U8* fileBuffer;

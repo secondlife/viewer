@@ -1704,8 +1704,8 @@ void LLPreviewLSL::saveIfNeeded(bool sync /*= true*/)
 }
 
 // static
-void LLPreviewLSL::onLoadComplete( LLVFS *vfs, const LLUUID& asset_uuid, LLAssetType::EType type,
-								   void* user_data, S32 status, LLExtStat ext_status)
+void LLPreviewLSL::onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType type,
+								  void* user_data, S32 status, LLExtStat ext_status)
 {
 	LL_DEBUGS() << "LLPreviewLSL::onLoadComplete: got uuid " << asset_uuid
 		 << LL_ENDL;
@@ -1715,7 +1715,7 @@ void LLPreviewLSL::onLoadComplete( LLVFS *vfs, const LLUUID& asset_uuid, LLAsset
 	{
 		if(0 == status)
 		{
-			LLVFile file(vfs, asset_uuid, type);
+			LLVFile file(asset_uuid, type);
 			S32 file_length = file.getSize();
 
 			std::vector<char> buffer(file_length+1);
@@ -1978,7 +1978,7 @@ void LLLiveLSLEditor::loadAsset()
 }
 
 // static
-void LLLiveLSLEditor::onLoadComplete(LLVFS *vfs, const LLUUID& asset_id,
+void LLLiveLSLEditor::onLoadComplete(const LLUUID& asset_id,
 									 LLAssetType::EType type,
 									 void* user_data, S32 status, LLExtStat ext_status)
 {
@@ -1992,7 +1992,7 @@ void LLLiveLSLEditor::onLoadComplete(LLVFS *vfs, const LLUUID& asset_id,
 	{
 		if( LL_ERR_NOERR == status )
 		{
-			instance->loadScriptText(vfs, asset_id, type);
+			instance->loadScriptText(asset_id, type);
 			instance->mScriptEd->setEnableEditing(TRUE);
 			instance->mAssetStatus = PREVIEW_ASSET_LOADED;
 		}
@@ -2018,9 +2018,9 @@ void LLLiveLSLEditor::onLoadComplete(LLVFS *vfs, const LLUUID& asset_id,
 	delete floater_key;
 }
 
-void LLLiveLSLEditor::loadScriptText(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type)
+void LLLiveLSLEditor::loadScriptText(const LLUUID &uuid, LLAssetType::EType type)
 {
-	LLVFile file(vfs, uuid, type);
+	LLVFile file(uuid, type);
 	S32 file_length = file.getSize();
 	std::vector<char> buffer(file_length + 1);
 	file.read((U8*)&buffer[0], file_length);

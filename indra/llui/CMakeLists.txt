@@ -13,7 +13,7 @@ include(LLCoreHttp)
 include(LLRender)
 include(LLWindow)
 include(LLCoreHttp)
-include(LLVFS)
+include(LLCache)
 include(LLXML)
 
 include_directories(
@@ -25,7 +25,7 @@ include_directories(
     ${LLMESSAGE_INCLUDE_DIRS}
     ${LLRENDER_INCLUDE_DIRS}
     ${LLWINDOW_INCLUDE_DIRS}
-    ${LLVFS_INCLUDE_DIRS}
+    ${LLCACHE_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
     ${LIBS_PREBUILD_DIR}/include/hunspell
     )
@@ -283,7 +283,7 @@ target_link_libraries(llui
     ${LLINVENTORY_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
     ${LLCOREHTTP_LIBRARIES}
-    ${LLVFS_LIBRARIES}    # ugh, just for LLDir
+    ${LLCACHE_LIBRARIES}    # ugh, just for LLDir
     ${LLXUIXML_LIBRARIES}
     ${LLXML_LIBRARIES}
     ${LLMATH_LIBRARIES}

@@ -35,7 +35,7 @@
 
 #include "sound_ids.h"  // temporary hack for min/max distances
 
-#include "llvfs.h"
+#include "llvfile.h"
 #include "lldir.h"
 #include "llaudiodecodemgr.h"
 #include "llassetstorage.h"
@@ -684,12 +684,8 @@ bool LLAudioEngine::preloadSound(const LLUUID &uuid)
 		return true;
 	}
 
-	// At some point we need to have the audio/asset system check the static VFS
-	// before it goes off and fetches stuff from the server.
-	//LL_WARNS() << "Used internal preload for non-local sound" << LL_ENDL;
 	return false;
 }
-
 
 bool LLAudioEngine::isWindEnabled()
 {
@@ -1018,12 +1014,11 @@ bool LLAudioEngine::hasDecodedFile(const LLUUID &uuid)
 
 bool LLAudioEngine::hasLocalFile(const LLUUID &uuid)
 {
-	// See if it's in the VFS.
-	bool have_local = gVFS->getExists(uuid, LLAssetType::AT_SOUND);
-	LL_DEBUGS("AudioEngine") << "sound uuid "<<uuid<<" exists in VFS"<<LL_ENDL;
+	// See if it's in the cache.
+	bool have_local = LLVFile::getExists(uuid, LLAssetType::AT_SOUND);
+	LL_DEBUGS("AudioEngine") << "sound uuid " << uuid << " exists in cache" << LL_ENDL;
 	return have_local;
 }
-
 
 void LLAudioEngine::startNextTransfer()
 {
@@ -1225,7 +1220,7 @@ void LLAudioEngine::startNextTransfer()
 
 
 // static
-void LLAudioEngine::assetCallback(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type, void *user_data, S32 result_code, LLExtStat ext_status)
+void LLAudioEngine::assetCallback(const LLUUID &uuid, LLAssetType::EType type, void *user_data, S32 result_code, LLExtStat ext_status)
 {
 	if (!gAudiop)
 	{

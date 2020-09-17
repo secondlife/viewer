@@ -90,17 +90,15 @@ protected:
 	LLUUID mUUID;
 
 	std::vector<U8> mWAVBuffer;
-#if !defined(USE_WAV_VFILE)
 	std::string mOutFilename;
 	LLLFSThread::handle_t mFileHandle;
-#endif
 	
 	LLVFile *mInFilep;
 	OggVorbis_File mVF;
 	S32 mCurrentSection;
 };
 
-size_t vfs_read(void *ptr, size_t size, size_t nmemb, void *datasource)
+size_t cache_read(void *ptr, size_t size, size_t nmemb, void *datasource)
 {
 	LLVFile *file = (LLVFile *)datasource;
 
@@ -115,11 +113,11 @@ size_t vfs_read(void *ptr, size_t size, size_t nmemb, void *datasource)
 	}
 }
 
-S32 vfs_seek(void *datasource, ogg_int64_t offset, S32 whence)
+S32 cache_seek(void *datasource, ogg_int64_t offset, S32 whence)
 {
 	LLVFile *file = (LLVFile *)datasource;
 
-	// vfs has 31-bit files
+	// cache has 31-bit files
 	if (offset > S32_MAX)
 	{
 		return -1;
@@ -137,7 +135,7 @@ S32 vfs_seek(void *datasource, ogg_int64_t offset, S32 whence)
 		origin = -1;
 		break;
 	default:
-		LL_ERRS("AudioEngine") << "Invalid whence argument to vfs_seek" << LL_ENDL;
+		LL_ERRS("AudioEngine") << "Invalid whence argument to cache_seek" << LL_ENDL;
 		return -1;
 	}
 
@@ -151,14 +149,14 @@ S32 vfs_seek(void *datasource, ogg_int64_t offset, S32 whence)
 	}
 }
 
-S32 vfs_close (void *datasource)
+S32 cache_close (void *datasource)
 {
 	LLVFile *file = (LLVFile *)datasource;
 	delete file;
 	return 0;
 }
 
-long vfs_tell (void *datasource)
+long cache_tell (void *datasource)
 {
 	LLVFile *file = (LLVFile *)datasource;
 	return file->tell();
@@ -172,11 +170,10 @@ LLVorbisDecodeState::LLVorbisDecodeState(const LLUUID &uuid, const std::string &
 	mUUID = uuid;
 	mInFilep = NULL;
 	mCurrentSection = 0;
-#if !defined(USE_WAV_VFILE)
 	mOutFilename = out_filename;
 	mFileHandle = LLLFSThread::nullHandle();
-#endif
-	// No default value for mVF, it's an ogg structure?
+
+    // No default value for mVF, it's an ogg structure?
 	// Hey, let's zero it anyway, for predictability.
 	memset(&mVF, 0, sizeof(mVF));
 }
@@ -193,15 +190,15 @@ LLVorbisDecodeState::~LLVorbisDecodeState()
 
 BOOL LLVorbisDecodeState::initDecode()
 {
-	ov_callbacks vfs_callbacks;
-	vfs_callbacks.read_func = vfs_read;
-	vfs_callbacks.seek_func = vfs_seek;
-	vfs_callbacks.close_func = vfs_close;
-	vfs_callbacks.tell_func = vfs_tell;
+	ov_callbacks cache_callbacks;
+	cache_callbacks.read_func = cache_read;
+	cache_callbacks.seek_func = cache_seek;
+	cache_callbacks.close_func = cache_close;
+	cache_callbacks.tell_func = cache_tell;
 
 	LL_DEBUGS("AudioEngine") << "Initing decode from vfile: " << mUUID << LL_ENDL;
 
-	mInFilep = new LLVFile(gVFS, mUUID, LLAssetType::AT_SOUND);
+	mInFilep = new LLVFile(mUUID, LLAssetType::AT_SOUND);
 	if (!mInFilep || !mInFilep->getSize())
 	{
 		LL_WARNS("AudioEngine") << "unable to open vorbis source vfile for reading" << LL_ENDL;
@@ -210,7 +207,7 @@ BOOL LLVorbisDecodeState::initDecode()
 		return FALSE;
 	}
 
-	S32 r = ov_open_callbacks(mInFilep, &mVF, NULL, 0, vfs_callbacks);
+	S32 r = ov_open_callbacks(mInFilep, &mVF, NULL, 0, cache_callbacks);
 	if(r < 0) 
 	{
 		LL_WARNS("AudioEngine") << r << " Input to vorbis decode does not appear to be an Ogg bitstream: " << mUUID << LL_ENDL;
@@ -370,7 +367,7 @@ BOOL LLVorbisDecodeState::decodeSection()
 {
 	if (!mInFilep)
 	{
-		LL_WARNS("AudioEngine") << "No VFS file to decode in vorbis!" << LL_ENDL;
+		LL_WARNS("AudioEngine") << "No cache file to decode in vorbis!" << LL_ENDL;
 		return TRUE;
 	}
 	if (mDone)
@@ -420,9 +417,7 @@ BOOL LLVorbisDecodeState::finishDecode()
 		return TRUE; // We've finished
 	}
 
-#if !defined(USE_WAV_VFILE)	
 	if (mFileHandle == LLLFSThread::nullHandle())
-#endif
 	{
 		ov_clear(&mVF);
   
@@ -495,11 +490,9 @@ BOOL LLVorbisDecodeState::finishDecode()
 			mValid = FALSE;
 			return TRUE; // we've finished
 		}
-#if !defined(USE_WAV_VFILE)
 		mBytesRead = -1;
 		mFileHandle = LLLFSThread::sLocal->write(mOutFilename, &mWAVBuffer[0], 0, mWAVBuffer.size(),
 							 new WriteResponder(this));
-#endif
 	}
 
 	if (mFileHandle != LLLFSThread::nullHandle())
@@ -521,11 +514,6 @@ BOOL LLVorbisDecodeState::finishDecode()
 	
 	mDone = TRUE;
 
-#if defined(USE_WAV_VFILE)
-	// write the data.
-	LLVFile output(gVFS, mUUID, LLAssetType::AT_SOUND_WAV);
-	output.write(&mWAVBuffer[0], mWAVBuffer.size());
-#endif
 	LL_DEBUGS("AudioEngine") << "Finished decode for " << getUUID() << LL_ENDL;
 
 	return TRUE;
@@ -535,7 +523,7 @@ void LLVorbisDecodeState::flushBadFile()
 {
 	if (mInFilep)
 	{
-		LL_WARNS("AudioEngine") << "Flushing bad vorbis file from VFS for " << mUUID << LL_ENDL;
+		LL_WARNS("AudioEngine") << "Flushing bad vorbis file from cache for " << mUUID << LL_ENDL;
 		mInFilep->remove();
 	}
 }

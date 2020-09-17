@@ -11,7 +11,7 @@ include(LLMath)
 include(LLMessage)
 include(LLCoreHttp)
 include(LLRender)
-include(LLVFS)
+include(LLCache)
 include(LLWindow)
 include(LLXML)
 include(Linking)
@@ -23,7 +23,7 @@ include_directories(
     ${LLINVENTORY_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
     ${LLRENDER_INCLUDE_DIRS}
-    ${LLVFS_INCLUDE_DIRS}
+    ${LLCACHE_INCLUDE_DIRS}
     ${LLWINDOW_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
     )
@@ -83,7 +83,7 @@ target_link_libraries(llappearance
     ${LLINVENTORY_LIBRARIES}
     ${LLIMAGE_LIBRARIES}
     ${LLRENDER_LIBRARIES}
-    ${LLVFS_LIBRARIES}
+    ${LLCACHE_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${LLXML_LIBRARIES}
     ${LLMATH_LIBRARIES}
@@ -100,7 +100,7 @@ if (BUILD_HEADLESS)
       ${LLINVENTORY_LIBRARIES}
       ${LLIMAGE_LIBRARIES}
       ${LLRENDERHEADLESS_LIBRARIES}
-      ${LLVFS_LIBRARIES}
+      ${LLCACHE_LIBRARIES}
       ${LLMATH_LIBRARIES}
       ${LLXML_LIBRARIES}
       ${LLMATH_LIBRARIES}

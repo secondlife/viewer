@@ -1134,7 +1134,6 @@ void LLVOAvatar::initInstance()
 	//-------------------------------------------------------------------------
 	if (LLCharacter::sInstances.size() == 1)
 	{
-		LLKeyframeMotion::setVFS(gStaticVFS);
 		registerMotion( ANIM_AGENT_DO_NOT_DISTURB,					LLNullMotion::create );
 		registerMotion( ANIM_AGENT_CROUCH,					LLKeyframeStandMotion::create );
 		registerMotion( ANIM_AGENT_CROUCHWALK,				LLKeyframeWalkMotion::create );

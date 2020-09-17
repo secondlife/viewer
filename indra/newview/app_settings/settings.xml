@@ -2835,17 +2835,6 @@
       <key>Value</key>
       <integer>-1</integer>
     </map>
-    <key>DebugStatModeVFSPendingOps</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
     <key>DebugStatModeTimeDialation</key>
     <map>
       <key>Comment</key>
@@ -3637,17 +3626,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>4</integer>
-    </map>
-    <key>DumpVFSCaches</key>
-    <map>
-      <key>Comment</key>
-      <string>Dump VFS caches on startup.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>DynamicCameraStrength</key>
     <map>
@@ -14249,28 +14227,6 @@
       <string>LLSD</string>
       <key>Value</key>
       <string/>
-    </map>
-    <key>VFSOldSize</key>
-    <map>
-      <key>Comment</key>
-      <string>[DO NOT MODIFY] Controls resizing of local file cache</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>VFSSalt</key>
-    <map>
-      <key>Comment</key>
-      <string>[DO NOT MODIFY] Controls local file caching behavior</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>1</integer>
     </map>
     <key>VelocityInterpolate</key>
     <map>

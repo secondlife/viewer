@@ -17,7 +17,6 @@
 	<string name="StartupLoading">Loading [APP_NAME]...</string>
 	<string name="StartupClearingCache">Clearing cache...</string>
 	<string name="StartupInitializingTextureCache">Initializing texture cache...</string>
-	<string name="StartupInitializingVFS">Initializing VFS...</string>
 	<string name="StartupRequireDriverUpdate">Graphics initialization failed. Please update your graphics driver!</string>
 
 	<!-- about dialog/support string-->
@@ -56,7 +55,6 @@ LOD factor: [LOD_FACTOR]
 Render quality: [RENDER_QUALITY]
 Advanced Lighting Model: [GPU_SHADERS]
 Texture memory: [TEXTURE_MEMORY]MB
-VFS (cache) creation time: [VFS_TIME]
 	</string>
 	<string name="AboutOSXHiDPI">
 HiDPI display mode: [HIDPI]

@@ -29,7 +29,6 @@
 #include "llpostcard.h"
 
 #include "llvfile.h"
-#include "llvfs.h"
 #include "llviewerregion.h"
 
 #include "message.h"

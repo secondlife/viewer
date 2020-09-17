@@ -30,7 +30,7 @@
 #include "llagent.h"
 #include "llanimstatelabels.h"
 #include "llanimationstates.h"
-#include "llappviewer.h"			// gVFS
+#include "llappviewer.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "lldatapacker.h"
@@ -841,10 +841,9 @@ void LLPreviewGesture::loadAsset()
 
 
 // static
-void LLPreviewGesture::onLoadComplete(LLVFS *vfs,
-									   const LLUUID& asset_uuid,
-									   LLAssetType::EType type,
-									   void* user_data, S32 status, LLExtStat ext_status)
+void LLPreviewGesture::onLoadComplete(const LLUUID& asset_uuid,
+									  LLAssetType::EType type,
+									  void* user_data, S32 status, LLExtStat ext_status)
 {
 	LLUUID* item_idp = (LLUUID*)user_data;
 
@@ -853,7 +852,7 @@ void LLPreviewGesture::onLoadComplete(LLVFS *vfs,
 	{
 		if (0 == status)
 		{
-			LLVFile file(vfs, asset_uuid, type, LLVFile::READ);
+			LLVFile file(asset_uuid, type, LLVFile::READ);
 			S32 size = file.getSize();
 
 			std::vector<char> buffer(size+1);
@@ -1138,7 +1137,7 @@ void LLPreviewGesture::saveIfNeeded()
             tid.generate();
             assetId = tid.makeAssetID(gAgent.getSecureSessionID());
 
-            LLVFile file(gVFS, assetId, LLAssetType::AT_GESTURE, LLVFile::APPEND);
+            LLVFile file(assetId, LLAssetType::AT_GESTURE, LLVFile::APPEND);
 
             S32 size = dp.getCurrentSize();
             file.setMaxSize(size);

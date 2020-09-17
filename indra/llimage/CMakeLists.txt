@@ -6,7 +6,7 @@ include(00-Common)
 include(LLCommon)
 include(LLImage)
 include(LLMath)
-include(LLVFS)
+include(LLCache)
 include(LLKDU)
 include(LLImageJ2COJ)
 include(ZLIB)
@@ -17,7 +17,7 @@ include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
-    ${LLVFS_INCLUDE_DIRS}
+    ${LLCACHE_INCLUDE_DIRS}
     ${PNG_INCLUDE_DIRS}
     ${ZLIB_INCLUDE_DIRS}
     )
@@ -68,7 +68,7 @@ else (USE_KDU)
 endif (USE_KDU)
 
 target_link_libraries(llimage
-    ${LLVFS_LIBRARIES}
+    ${LLCACHE_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
     ${JPEG_LIBRARIES}

@@ -326,8 +326,7 @@ void LLPreviewNotecard::loadAsset()
 }
 
 // static
-void LLPreviewNotecard::onLoadComplete(LLVFS *vfs,
-									   const LLUUID& asset_uuid,
+void LLPreviewNotecard::onLoadComplete(const LLUUID& asset_uuid,
 									   LLAssetType::EType type,
 									   void* user_data, S32 status, LLExtStat ext_status)
 {
@@ -338,7 +337,7 @@ void LLPreviewNotecard::onLoadComplete(LLVFS *vfs,
 	{
 		if(0 == status)
 		{
-			LLVFile file(vfs, asset_uuid, type, LLVFile::READ);
+			LLVFile file(asset_uuid, type, LLVFile::READ);
 
 			S32 file_length = file.getSize();
 
@@ -445,7 +444,7 @@ void LLPreviewNotecard::finishInventoryUpload(LLUUID itemId, LLUUID newAssetId, 
     LLPreviewNotecard* nc = LLFloaterReg::findTypedInstance<LLPreviewNotecard>("preview_notecard", LLSD(itemId));
     if (nc)
     {
-        // *HACK: we have to delete the asset in the VFS so
+        // *HACK: we have to delete the asset in the cache so
         // that the viewer will redownload it. This is only
         // really necessary if the asset had to be modified by
         // the uploader, so this can be optimized away in some
@@ -453,7 +452,7 @@ void LLPreviewNotecard::finishInventoryUpload(LLUUID itemId, LLUUID newAssetId, 
         // script actually changed the asset.
         if (nc->hasEmbeddedInventory())
         {
-            gVFS->removeFile(newAssetId, LLAssetType::AT_NOTECARD);
+            LLVFile::removeFile(newAssetId, LLAssetType::AT_NOTECARD);
         }
         if (newItemId.isNull())
         {
@@ -478,7 +477,7 @@ void LLPreviewNotecard::finishTaskUpload(LLUUID itemId, LLUUID newAssetId, LLUUI
     {
         if (nc->hasEmbeddedInventory())
         {
-            gVFS->removeFile(newAssetId, LLAssetType::AT_NOTECARD);
+            LLVFile::removeFile(newAssetId, LLAssetType::AT_NOTECARD);
         }
         nc->setAssetId(newAssetId);
         nc->refreshFromInventory();
@@ -557,7 +556,7 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem, bool sync)
                 tid.generate();
                 asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
 
-                LLVFile file(gVFS, asset_id, LLAssetType::AT_NOTECARD, LLVFile::APPEND);
+                LLVFile file(asset_id, LLAssetType::AT_NOTECARD, LLVFile::APPEND);
 
 
 				LLSaveNotecardInfo* info = new LLSaveNotecardInfo(this, mItemUUID, mObjectUUID,

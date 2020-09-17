@@ -29,24 +29,20 @@
 
 #include "lluuid.h"
 #include "llassettype.h"
-#include "llvfs.h"
-#include "llvfsthread.h"
 
 class LLVFile
 {
 public:
-	LLVFile(LLVFS *vfs, const LLUUID &file_id, const LLAssetType::EType file_type, S32 mode = LLVFile::READ);
+	LLVFile(const LLUUID &file_id, const LLAssetType::EType file_type, S32 mode = LLVFile::READ);
 	~LLVFile();
 
 	BOOL read(U8 *buffer, S32 bytes, BOOL async = FALSE, F32 priority = 128.f);	/* Flawfinder: ignore */ 
-	//CP static U8* readFile(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type, S32* bytes_read = 0);
-	//CP void setReadPriority(const F32 priority);
 	BOOL isReadComplete();
 	S32  getLastBytesRead();
 	BOOL eof();
 
 	BOOL write(const U8 *buffer, S32 bytes);
-	static BOOL writeFile(const U8 *buffer, S32 bytes, LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type);
+	static BOOL writeFile(const U8 *buffer, S32 bytes, const LLUUID &uuid, LLAssetType::EType type);
 	BOOL seek(S32 offset, S32 origin = -1);
 	S32  tell() const;
 
@@ -56,20 +52,18 @@ public:
 	BOOL rename(const LLUUID &new_id, const LLAssetType::EType new_type);
 	BOOL remove();
 
-	bool isLocked(EVFSLock lock);
-	void waitForLock(EVFSLock lock);
+	bool isLocked();
+	void waitForLock();
 
-	static bool getExists(const LLUUID &file_id, const LLAssetType::EType file_type);
+    static bool getExists(const LLUUID &file_id, const LLAssetType::EType file_type);
+    static bool removeFile(const LLUUID &file_id, const LLAssetType::EType file_type);
+    static bool renameFile(const LLUUID &old_file_id, const LLAssetType::EType old_file_type,
+                           const LLUUID &new_file_id, const LLAssetType::EType new_file_type);
+    static S32 getFileSize(const LLUUID &file_id, const LLAssetType::EType file_type);
 	
-	static void initClass(LLVFSThread* vfsthread = NULL);
+	static void initClass();
 	static void cleanupClass();
-	//CP static LLVFSThread* getVFSThread() { return sVFSThread; }
 
-protected:
-	//CP static LLVFSThread* sVFSThread;
-	//CP static BOOL sAllocdVFSThread;
-	//CP U32 threadPri() { return LLVFSThread::PRIORITY_NORMAL + llmin((U32)mPriority,(U32)0xfff); }
-	
 public:
 	static const S32 READ;
 	static const S32 WRITE;
@@ -78,16 +72,11 @@ public:
 	
 protected:
 	LLAssetType::EType mFileType;
-
     BOOL    mReadComplete;
 	LLUUID	mFileID;
 	S32		mPosition;
 	S32		mMode;
-	//CP LLVFS	*mVFS;
-	//CP F32		mPriority;
-
 	S32		mBytesRead;
-	//CP LLVFSThread::handle_t mHandle;
 };
 
 #endif

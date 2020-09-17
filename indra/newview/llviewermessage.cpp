@@ -45,7 +45,6 @@
 #include "lltoastnotifypanel.h"
 #include "lltransactionflags.h"
 #include "llvfile.h"
-#include "llvfs.h"
 #include "llxfermanager.h"
 #include "mean_collision_data.h"
 
@@ -6809,16 +6808,15 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	}
 }
 
-void onCovenantLoadComplete(LLVFS *vfs,
-					const LLUUID& asset_uuid,
-					LLAssetType::EType type,
-					void* user_data, S32 status, LLExtStat ext_status)
+void onCovenantLoadComplete(const LLUUID& asset_uuid,
+							LLAssetType::EType type,
+							void* user_data, S32 status, LLExtStat ext_status)
 {
 	LL_DEBUGS("Messaging") << "onCovenantLoadComplete()" << LL_ENDL;
 	std::string covenant_text;
 	if(0 == status)
 	{
-		LLVFile file(vfs, asset_uuid, type, LLVFile::READ);
+		LLVFile file(asset_uuid, type, LLVFile::READ);
 		
 		S32 file_length = file.getSize();
 		

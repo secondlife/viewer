@@ -2229,10 +2229,9 @@ void LLPanelEstateCovenant::loadInvItem(LLInventoryItem *itemp)
 }
 
 // static
-void LLPanelEstateCovenant::onLoadComplete(LLVFS *vfs,
-									   const LLUUID& asset_uuid,
-									   LLAssetType::EType type,
-									   void* user_data, S32 status, LLExtStat ext_status)
+void LLPanelEstateCovenant::onLoadComplete(const LLUUID& asset_uuid,
+									       LLAssetType::EType type,
+									       void* user_data, S32 status, LLExtStat ext_status)
 {
 	LL_INFOS() << "LLPanelEstateCovenant::onLoadComplete()" << LL_ENDL;
 	LLPanelEstateCovenant* panelp = (LLPanelEstateCovenant*)user_data;
@@ -2240,7 +2239,7 @@ void LLPanelEstateCovenant::onLoadComplete(LLVFS *vfs,
 	{
 		if(0 == status)
 		{
-			LLVFile file(vfs, asset_uuid, type, LLVFile::READ);
+			LLVFile file(asset_uuid, type, LLVFile::READ);
 
 			S32 file_length = file.getSize();
 

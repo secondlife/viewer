@@ -997,7 +997,7 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
 		LLDataPackerBinaryBuffer dp(buffer, file_size);
 		if (motionp->serialize(dp))
 		{
-			LLVFile file(gVFS, motionp->getID(), LLAssetType::AT_ANIMATION, LLVFile::APPEND);
+			LLVFile file(motionp->getID(), LLAssetType::AT_ANIMATION, LLVFile::APPEND);
 
 			S32 size = dp.getCurrentSize();
 			file.setMaxSize(size);

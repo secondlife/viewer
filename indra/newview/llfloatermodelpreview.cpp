@@ -78,7 +78,6 @@
 #include "lltoggleablemenu.h"
 #include "lltrans.h"
 #include "llvfile.h"
-#include "llvfs.h"
 #include "llcallbacklist.h"
 #include "llviewerobjectlist.h"
 #include "llanimationstates.h"

@@ -33,7 +33,6 @@
 #include "llimagetga.h"
 #include "llparcel.h"
 #include "llvfile.h"
-#include "llvfs.h"
 #include "llwindow.h"
 #include "message.h"
 
@@ -202,7 +201,7 @@ void LLFloaterAuction::onClickSnapshot(void* data)
 
 		LLPointer<LLImageTGA> tga = new LLImageTGA;
 		tga->encode(raw);
-		LLVFile::writeFile(tga->getData(), tga->getDataSize(), gVFS, self->mImageID, LLAssetType::AT_IMAGE_TGA);
+		LLVFile::writeFile(tga->getData(), tga->getDataSize(), self->mImageID, LLAssetType::AT_IMAGE_TGA);
 		
 		raw->biasedScaleToPowerOfTwo(LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT);
 
@@ -210,7 +209,7 @@ void LLFloaterAuction::onClickSnapshot(void* data)
 
 		LLPointer<LLImageJ2C> j2c = new LLImageJ2C;
 		j2c->encode(raw, 0.0f);
-		LLVFile::writeFile(j2c->getData(), j2c->getDataSize(), gVFS, self->mImageID, LLAssetType::AT_TEXTURE);
+		LLVFile::writeFile(j2c->getData(), j2c->getDataSize(), self->mImageID, LLAssetType::AT_TEXTURE);
 
 		self->mImage = LLViewerTextureManager::getLocalTexture((LLImageRaw*)raw, FALSE);
 		gGL.getTexUnit(0)->bind(self->mImage);

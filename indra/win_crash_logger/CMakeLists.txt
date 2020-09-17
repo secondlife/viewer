@@ -8,7 +8,7 @@ include(LLCoreHttp)
 include(LLCrashLogger)
 include(LLMath)
 include(LLMessage)
-include(LLVFS)
+include(LLCache)
 include(LLWindow)
 include(LLXML)
 include(Linking)
@@ -23,7 +23,7 @@ include_directories(
     ${LLMATH_INCLUDE_DIRS}
     ${LLWINDOW_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
-    ${LLVFS_INCLUDE_DIRS}
+    ${LLCACHE_INCLUDE_DIRS}
     ${BREAKPAD_INCLUDE_DIRECTORIES}
     )
 include_directories(SYSTEM
@@ -76,7 +76,7 @@ target_link_libraries(windows-crash-logger
     ${BREAKPAD_EXCEPTION_HANDLER_LIBRARIES}
     ${LLCRASHLOGGER_LIBRARIES}
     ${LLWINDOW_LIBRARIES}
-    ${LLVFS_LIBRARIES}
+    ${LLCACHE_LIBRARIES}
     ${LLXML_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
     ${LLMATH_LIBRARIES}

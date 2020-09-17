@@ -34,7 +34,6 @@
 #include "llimagetga.h"
 #include "lldir.h"
 #include "llvfile.h"
-#include "llvfs.h"
 #include "lltexlayerparams.h"
 #include "lltexturemanagerbridge.h"
 #include "lllocaltextureobject.h"

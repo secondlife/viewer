@@ -48,7 +48,6 @@ struct 	LLEntryAndEdCore;
 class LLMenuBarGL;
 class LLFloaterScriptSearch;
 class LLKeywordToken;
-class LLVFS;
 class LLViewerInventoryItem;
 class LLScriptEdContainer;
 class LLFloaterGotoLine;
@@ -235,7 +234,7 @@ protected:
 	static void onLoad(void* userdata);
 	static void onSave(void* userdata, BOOL close_after_save);
 	
-	static void onLoadComplete(LLVFS *vfs, const LLUUID& uuid,
+	static void onLoadComplete(const LLUUID& uuid,
 							   LLAssetType::EType type,
 							   void* user_data, S32 status, LLExtStat ext_status);
 
@@ -296,13 +295,13 @@ private:
 	static void onLoad(void* userdata);
 	static void onSave(void* userdata, BOOL close_after_save);
 
-	static void onLoadComplete(LLVFS *vfs, const LLUUID& asset_uuid,
+	static void onLoadComplete(const LLUUID& asset_uuid,
 							   LLAssetType::EType type,
 							   void* user_data, S32 status, LLExtStat ext_status);
 	static void onRunningCheckboxClicked(LLUICtrl*, void* userdata);
 	static void onReset(void* userdata);
 
-	void loadScriptText(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type);
+	void loadScriptText(const LLUUID &uuid, LLAssetType::EType type);
 
 	static void onErrorList(LLUICtrl*, void* user_data);
 

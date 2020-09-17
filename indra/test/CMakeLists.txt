@@ -8,7 +8,7 @@ include(LLCoreHttp)
 include(LLInventory)
 include(LLMath)
 include(LLMessage)
-include(LLVFS)
+include(LLCache)
 include(LLXML)
 include(Linking)
 include(Tut)
@@ -23,7 +23,7 @@ include_directories(
     ${LLMATH_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}
     ${LLINVENTORY_INCLUDE_DIRS}
-    ${LLVFS_INCLUDE_DIRS}
+    ${LLCACHE_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
     ${LSCRIPT_INCLUDE_DIRS}
     ${GOOGLEMOCK_INCLUDE_DIRS}
@@ -89,7 +89,7 @@ target_link_libraries(lltest
     ${LLINVENTORY_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
     ${LLMATH_LIBRARIES}
-    ${LLVFS_LIBRARIES}
+    ${LLCACHE_LIBRARIES}
     ${LLXML_LIBRARIES}
     ${LSCRIPT_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
