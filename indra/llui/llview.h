@@ -656,6 +656,9 @@ public:
 	// Draw debug rectangles around widgets to help with alignment and spacing
 	static bool	sDebugRects;
 
+    static bool sIsRectDirty;
+    static LLRect sDirtyRect;
+
 	// Draw widget names and sizes when drawing debug rectangles, turning this
 	// off is useful to make the rectangles themselves easier to see.
 	static bool sDebugRectsShowNames;

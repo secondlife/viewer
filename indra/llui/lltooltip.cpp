@@ -359,7 +359,7 @@ void LLToolTip::draw()
 	if (mFadeTimer.getStarted())
 	{
 		static LLCachedControl<F32> tool_tip_fade_time(*LLUI::getInstance()->mSettingGroups["config"], "ToolTipFadeTime", 0.2f);
-		alpha = clamp_rescale(mFadeTimer.getElapsedTimeF32(), 0.f, (F32)tool_tip_fade_time, 1.f, 0.f);
+		alpha = clamp_rescale(mFadeTimer.getElapsedTimeF32(), 0.f, tool_tip_fade_time(), 1.f, 0.f);
 		if (alpha == 0.f)
 		{
 			// finished fading out, so hide ourselves

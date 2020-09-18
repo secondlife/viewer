@@ -245,10 +245,6 @@ public:
 
 	void setPopupFuncs(const add_popup_t& add_popup, const remove_popup_t&, const clear_popups_t& );
 
-	LLRect	mDirtyRect;
-	BOOL		mDirty;
-	void		dirtyRect(LLRect rect);
-
 	// Return the ISO639 language name ("en", "ko", etc.) for the viewer UI.
 	// http://www.loc.gov/standards/iso639-2/php/code_list.php
 	std::string getUILanguage();
