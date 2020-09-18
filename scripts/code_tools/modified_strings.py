@@ -149,7 +149,7 @@ def make_translation_table(mod_tree, base_tree, lang, args):
     try:
         mod_xui_tree = mod_tree[xui_path]
     except:
-        failure("xui tree not found for base language", args.base_lang)
+        failure("xui tree not found for base language", args.base_lang,"or target lang", lang)
 
     if args.rev == args.rev_base:
         failure("Revs are the same, nothing to compare")
@@ -222,8 +222,56 @@ def make_translation_table(mod_tree, base_tree, lang, args):
                             data.append([val, transl_val, new_val, "", "", filename, name, attr])
                             all_en_strings.add(val)
                             rows += 1
+
     return data
 
+def find_deletions(mod_tree, base_tree, lang, args, f):
+
+    transl_xui_path = "{}/{}".format(xui_base, lang)
+    try:
+        transl_xui_tree = mod_tree[transl_xui_path]
+    except:
+        failure("xui tree not found for base language", args.base_lang,"or target lang", lang)
+
+    for transl_blob in transl_xui_tree.traverse():
+        if transl_blob.type == "tree": # directory, skip
+            continue
+        transl_filename = transl_blob.path
+        mod_filename = transl_filename.replace("/xui/{}/".format(lang), "/xui/{}/".format(args.base_lang))
+        #print("checking",transl_filename,"against",mod_filename)
+        try:
+            mod_blob = mod_tree[mod_filename] 
+        except:
+            print("  delete file", transl_filename, file=f)
+            continue
+        mod_dict = read_xml_elements(mod_blob)
+        if len(mod_dict) == 0:
+            print("  delete file", transl_filename, file=f)
+            continue
+        transl_dict = read_xml_elements(transl_blob)
+        #print("mod vs transl", len(mod_dict), len(transl_dict))
+        lines = 0
+        for elt_key in transl_dict:
+            if not elt_key in mod_dict:
+                if lines == 0:
+                    print("  in file", transl_filename, file=f)
+                lines += 1   
+                print("    delete element", elt_key, file=f)
+            else:
+                transl_elt = transl_dict[elt_key]
+                mod_elt = mod_dict[elt_key]
+                for a in transl_elt.attrib:
+                    if not a in mod_elt.attrib:
+                        if lines == 0:
+                            print("  in file", transl_filename, file=f)
+                        lines += 1   
+                        print("    delete attribute", a, "from", elt_key, file=f)
+                if transl_elt.text and (not mod_elt.text):
+                    if lines == 0:
+                        print("  in file", transl_filename, file=f)
+                    lines += 1   
+                    print("    delete text from", elt_key, file=f)
+    
 def save_translation_file(per_lang_data, aux_data, outfile):
 
     langs = sorted(per_lang_data.keys())
@@ -274,10 +322,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="analyze viewer xui files for needed translations", usage=usage_msg)
     parser.add_argument("-v","--verbose", action="store_true", help="verbose flag")
     parser.add_argument("--missing", action="store_true", default = False, help="include all fields for which a translation does not exist")
+    parser.add_argument("--deleted", action="store_true", default = False, help="show all translated entities which don't exist in english")
+    parser.add_argument("--skip_spreadsheet", action="store_true", default = False, help="skip creating the translation spreadsheet")
     parser.add_argument("--rev", help="revision with modified strings, default HEAD", default="HEAD")
     parser.add_argument("--rev_base", help="previous revision to compare against, default master", default="master")
     parser.add_argument("--base_lang", help="base language, default en (normally leave unchanged - other values are only useful for testing)", default="en")
-    parser.add_argument("--lang", help="target languages, or all", nargs="+", default = ["all"])
+    parser.add_argument("--lang", help="target languages, or 'all_valid' or 'supported'; default is 'supported'", nargs="+", default = ["supported"])
     args = parser.parse_args()
 
     cwd = os.getcwd()
@@ -304,15 +354,19 @@ if __name__ == "__main__":
     xui_base_tree = mod_tree[xui_base]
 
     # Find target languages
+    # all languages present in the codebase
     valid_langs = [tree.name.lower() for tree in xui_base_tree if tree.name.lower() != args.base_lang.lower()]
+    # offically supported languages
     supported_langs = ["fr", "es", "it", "pt", "ja", "de"]
     langs = [l.lower() for l in args.lang]
-    if "all" in args.lang:
+    if "supported" in args.lang:
         langs = supported_langs
+    if "all_valid" in args.lang:
+        langs = valid_langs
     langs = sorted(langs)
     for lang in langs:
           if not lang in valid_langs:
-              failure("Unknown target language {}. Valid values are {} or all".format(lang,",".join(sorted(valid_langs))))
+              failure("Unknown target language {}. Valid values are {}".format(lang,", ".join(sorted(valid_langs) + ["all_valid","supported"])))
     print("Target language(s) are", ",".join(sorted(langs)))
     sys.stdout.flush()
 
@@ -328,13 +382,22 @@ if __name__ == "__main__":
                                ["Mod Commit", mod_commit.hexsha],
                                ["Base Commit", base_commit.hexsha],
                               ] }
-    per_lang_data = {}
-    for lang in langs:
-        print("Creating spreadsheet for language", lang)
-        sys.stdout.flush()
-    
-        per_lang_data[lang] = make_translation_table(mod_tree, base_tree, lang, args)
 
-    print("Saving output file", outfile)
-    save_translation_file(per_lang_data, aux_data, outfile)
+    if not args.skip_spreadsheet:
+        per_lang_data = {}
+        for lang in langs:
+            print("Creating spreadsheet for language", lang)
+            sys.stdout.flush()
+
+            per_lang_data[lang] = make_translation_table(mod_tree, base_tree, lang, args)
+
+        print("Saving output file", outfile)
+        save_translation_file(per_lang_data, aux_data, outfile)
+
+    if args.deleted:
+        deletion_file = "Translate_deletions.txt"
+        print("Saving deletion info to", deletion_file)
+        with open(deletion_file,"w") as f:
+            for lang in langs:
+                find_deletions(mod_tree, base_tree, lang, args, f)
 
