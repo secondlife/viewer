@@ -946,16 +946,29 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 		LLUUID new_parent_id = item->getParentUUID();
 		bool update_parent_on_server = false;
 
-		if (new_parent_id.isNull())
+		if (new_parent_id.isNull() && !LLApp::isExiting())
 		{
-			// item with null parent will end in random location and then in Lost&Found,
-			// either move to default folder as if it is new item or don't move at all
-			LL_WARNS(LOG_INV) << "Update attempts to reparent item " << item->getUUID()
-				<< " to null folder. Moving to Lost&Found. Old item name: " << old_item->getName()
-				<< ". New name: " << item->getName()
-				<< "." << LL_ENDL;
-			new_parent_id = findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
-			update_parent_on_server = true;
+            if (old_parent_id.isNull())
+            {
+                // Item with null parent will end in random location and then in Lost&Found,
+                // either move to default folder as if it is new item or don't move at all
+                LL_WARNS(LOG_INV) << "Update attempts to reparent item " << item->getUUID()
+                                  << " to null folder. Moving to Lost&Found. Old item name: " << old_item->getName()
+                                  << ". New name: " << item->getName()
+                                  << "." << LL_ENDL;
+                new_parent_id = findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
+                update_parent_on_server = true;
+            }
+            else
+            {
+                // Probably not the best way to handle this, we might encounter real case of 'lost&found' at some point
+                LL_WARNS(LOG_INV) << "Update attempts to reparent item " << item->getUUID()
+                                  << " to null folder. Old parent not null. Moving to old parent. Old item name: " << old_item->getName()
+                                  << ". New name: " << item->getName()
+                                  << "." << LL_ENDL;
+                new_parent_id = old_parent_id;
+                update_parent_on_server = true;
+            }
 		}
 
 		if(old_parent_id != new_parent_id)
