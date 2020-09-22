@@ -27,15 +27,34 @@
 #ifndef LL_LLFLOATERBUYCURRENCY_H
 #define LL_LLFLOATERBUYCURRENCY_H
 
+#include "llavatarpropertiesprocessor.h"
 #include "stdtypes.h"
-
+#include "llagent.h"
 class LLFloater;
+
+class LLFetchAvatarPaymentInfo : public LLAvatarPropertiesObserver
+{
+public:
+	LLFetchAvatarPaymentInfo(bool has_target, const std::string& name = std::string(), S32 price = 0);
+	~LLFetchAvatarPaymentInfo();
+
+	void processProperties(void* data, EAvatarProcessorType type);
+
+private:
+	LLUUID mAvatarID;
+	bool mHasTarget;
+	std::string mName;
+    S32 mPrice;
+};
+
 
 class LLFloaterBuyCurrency
 {
 public:
 	static void buyCurrency();
 	static void buyCurrency(const std::string& name, S32 price);
+
+		static void handleBuyCurrency(bool has_piof, bool has_target, const std::string& name, S32 price);
 		/* name should be a noun phrase of the object or service being bought:
 				"That object costs"
 				"Trying to give"
@@ -44,7 +63,8 @@ public:
 		*/
 	
 	static LLFloater* buildFloater(const LLSD& key);
-};
 
+	static LLFetchAvatarPaymentInfo* sPropertiesRequest;
+};
 
 #endif

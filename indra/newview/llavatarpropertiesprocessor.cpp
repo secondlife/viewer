@@ -253,6 +253,19 @@ std::string LLAvatarPropertiesProcessor::paymentInfo(const LLAvatarData* avatar_
 	return LLTrans::getString(payment_text);
 }
 
+//static
+bool LLAvatarPropertiesProcessor::hasPaymentInfoOnFile(const LLAvatarData* avatar_data)
+{
+	// Special accounts like M Linden don't have payment info revealed.
+	if (!avatar_data->caption_text.empty()) return true;
+
+	// Linden employees don't have payment info revealed
+	const S32 LINDEN_EMPLOYEE_INDEX = 3;
+	if (avatar_data->caption_index == LINDEN_EMPLOYEE_INDEX) return true;
+
+	return ((avatar_data->flags & AVATAR_TRANSACTED) || (avatar_data->flags & AVATAR_IDENTIFIED));
+}
+
 void LLAvatarPropertiesProcessor::processAvatarPropertiesReply(LLMessageSystem* msg, void**)
 {
 	LLAvatarData avatar_data;

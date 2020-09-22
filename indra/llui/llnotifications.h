@@ -191,6 +191,7 @@ public:
 		Mandatory<std::string>	text;
 		Optional<std::string>	ignore;
 		Optional<bool>			is_default;
+		Optional<S32>			width;
 
 		Mandatory<std::string>	type;
 

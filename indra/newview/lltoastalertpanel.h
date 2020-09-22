@@ -85,6 +85,7 @@ private:
 		LLButton* mButton;
 		std::string mURL;
 		U32 mURLExternal;
+		S32 mWidth;
 	};
 	std::vector<ButtonData> mButtonData;
 

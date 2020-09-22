@@ -290,22 +290,72 @@ void LLFloaterBuyCurrencyUI::onClickCancel()
 	LLStatusBar::sendMoneyBalanceRequest();
 }
 
+LLFetchAvatarPaymentInfo* LLFloaterBuyCurrency::sPropertiesRequest = NULL;
+
 // static
 void LLFloaterBuyCurrency::buyCurrency()
 {
-	LLFloaterBuyCurrencyUI* ui = LLFloaterReg::showTypedInstance<LLFloaterBuyCurrencyUI>("buy_currency");
-	ui->noTarget();
-	ui->updateUI();
-	ui->collapsePanels(true);
+	delete sPropertiesRequest;
+	sPropertiesRequest = new LLFetchAvatarPaymentInfo(false);
 }
 
 // static
 void LLFloaterBuyCurrency::buyCurrency(const std::string& name, S32 price)
 {
-	LLFloaterBuyCurrencyUI* ui = LLFloaterReg::showTypedInstance<LLFloaterBuyCurrencyUI>("buy_currency");
-	ui->target(name, price);
-	ui->updateUI();
-	ui->collapsePanels(false);
+	delete sPropertiesRequest;
+	sPropertiesRequest = new LLFetchAvatarPaymentInfo(true, name, price);
 }
 
+// static
+void LLFloaterBuyCurrency::handleBuyCurrency(bool has_piof, bool has_target, const std::string& name, S32 price)
+{
+	delete sPropertiesRequest;
+	sPropertiesRequest = NULL;
 
+	if (has_piof)
+	{
+		LLFloaterBuyCurrencyUI* ui = LLFloaterReg::showTypedInstance<LLFloaterBuyCurrencyUI>("buy_currency");
+		if (has_target)
+		{
+			ui->target(name, price);
+		}
+		else
+		{
+			ui->noTarget();			
+		}
+		ui->updateUI();
+		ui->collapsePanels(!has_target);
+	}
+	else
+	{
+		LLFloaterReg::showInstance("add_payment_method");
+	}
+}
+
+LLFetchAvatarPaymentInfo::LLFetchAvatarPaymentInfo(bool has_target, const std::string& name, S32 price)
+:	mAvatarID(gAgent.getID()),
+	mHasTarget(has_target),
+	mPrice(price),
+	mName(name)
+{
+	LLAvatarPropertiesProcessor* processor = LLAvatarPropertiesProcessor::getInstance();
+	// register ourselves as an observer
+	processor->addObserver(mAvatarID, this);
+	// send a request (duplicates will be suppressed inside the avatar
+	// properties processor)
+	processor->sendAvatarPropertiesRequest(mAvatarID);
+}
+
+LLFetchAvatarPaymentInfo::~LLFetchAvatarPaymentInfo()
+{
+	LLAvatarPropertiesProcessor::getInstance()->removeObserver(mAvatarID, this);
+}
+
+void LLFetchAvatarPaymentInfo::processProperties(void* data, EAvatarProcessorType type)
+{
+	if (data && type == APT_PROPERTIES)
+	{
+		LLAvatarData* avatar_data = static_cast<LLAvatarData*>(data);
+		LLFloaterBuyCurrency::handleBuyCurrency(LLAvatarPropertiesProcessor::hasPaymentInfoOnFile(avatar_data), mHasTarget, mName, mPrice);
+	}
+}
