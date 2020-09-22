@@ -258,6 +258,8 @@ Beansy Twine
 Benja Kepler
 	VWR-746
 Benjamin Bigdipper
+Beq Janus
+	BUG-227094
 Beth Walcher
 Bezilon Kasei
 Biancaluce Robbiani
@@ -829,6 +831,7 @@ Khyota Wulluf
 Kimar Coba
 Kithrak Kirkorian
 Kitty Barnett
+	BUG-228665
 	VWR-19699
 	STORM-288
 	STORM-799
@@ -1301,6 +1304,7 @@ Shyotl Kuhr
 	MAINT-2334
 	MAINT-6913
 	STORM-2143
+	SL-11625
 Siana Gearz
 	STORM-960
 	STORM-1088
@@ -1340,6 +1344,7 @@ Sovereign Engineer
     MAINT-7343
     SL-11079
     OPEN-343
+	SL-11625
 SpacedOut Frye
 	VWR-34
 	VWR-45
@@ -1445,6 +1450,8 @@ Thickbrick Sleaford
 	STORM-956
 	STORM-1147
 	STORM-1325
+Thoys Pan
+	SL-12396
 Thraxis Epsilon
 	SVC-371
 	VWR-383

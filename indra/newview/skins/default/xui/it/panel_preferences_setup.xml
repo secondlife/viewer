@@ -35,5 +35,5 @@
 	<text name="Proxy Settings:">
 		Impostazioni proxy:
 	</text>
-	<button label="Regola impostazioni proxy" label_selected="Sfoglia" name="set_proxy"/>
+	<button label="Regola impostazioni proxy" label_selected="Sfoglia" name="set_proxy" width="160"/>
 </panel>

@@ -447,6 +447,7 @@ BOOL LLManipRotate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
 	}
 
 	mMouseCur = mMouseDown;
+	mAgentSelfAtAxis = gAgent.getAtAxis(); // no point checking if avatar was selected, just save the value
 
 	// Route future Mouse messages here preemptively.  (Release on mouse up.)
 	setMouseCapture( TRUE );
@@ -610,6 +611,26 @@ void LLManipRotate::drag( S32 x, S32 y )
 			else
 			{
 				object->setRotation(new_rot, damped);
+                LLVOAvatar* avatar = object->asAvatar();
+                if (avatar && avatar->isSelf()
+                    && LLSelectMgr::getInstance()->mAllowSelectAvatar
+                    && !object->getParent())
+                {
+                    // Normal avatars use object's orienttion, but self uses
+                    // separate LLCoordFrame
+                    // See LVOAvatar::updateOrientation()
+                    if (gAgentCamera.getFocusOnAvatar())
+                    {
+                        //Don't rotate camera with avatar
+                        gAgentCamera.setFocusOnAvatar(false, false, false);
+                    }
+
+                    LLVector3 at_axis = mAgentSelfAtAxis;
+                    at_axis *= mRotation;
+                    at_axis.mV[VZ] = 0.f;
+                    at_axis.normalize();
+                    gAgent.resetAxes(at_axis);
+                }
 				rebuild(object);
 			}
 
@@ -717,7 +738,7 @@ void LLManipRotate::drag( S32 x, S32 y )
 		LLViewerObject *root_object = (cur == NULL) ? NULL : cur->getRootEdit();
 		if( cur->permModify() && cur->permMove() && !cur->isPermanentEnforced() &&
 			((root_object == NULL) || !root_object->isPermanentEnforced()) &&
-			!cur->isAvatar())
+			(!cur->isAvatar() || LLSelectMgr::getInstance()->mAllowSelectAvatar))
 		{
 			selectNode->mLastRotation = cur->getRotation();
 			selectNode->mLastPositionLocal = cur->getPosition();

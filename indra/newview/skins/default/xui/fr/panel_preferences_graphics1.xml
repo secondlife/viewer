@@ -32,10 +32,10 @@
 	</text>
 	<check_box initial_value="true" label="Toujours effectuer le rendu des amis" name="AlwaysRenderFriends"/>
 	<button label="Exceptions..." name="RenderExceptionsButton"/>
-	<button label="Enregistrer les paramètres comme préréglage..." name="PrefSaveButton"/>
-	<button label="Charger un préréglage..." name="PrefLoadButton"/>
+	<button label="Enregistrer les paramètres comme préréglage" name="PrefSaveButton" width="260" />
+	<button label="Charger un préréglage" name="PrefLoadButton" width="132"/>
 	min_val=&quot;0,125&quot;
-	<button label="Supprimer un préréglage..." name="PrefDeleteButton"/>
-	<button label="Réinitialiser les paramètres recommandés" name="Defaults"/>
+	<button label="Supprimer un préréglage" name="PrefDeleteButton" width="148" top_delta="30" left_pad="-220"/>
+	<button label="Réinitialiser les paramètres recommandés" name="Defaults" width="255" top_delta="35"/>
 	<button label="Paramètres avancés" name="AdvancedSettings"/>
 </panel>

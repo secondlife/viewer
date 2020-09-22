@@ -41,6 +41,7 @@ struct CrashMetadata
 {
     std::string logFilePathname;
     std::string userSettingsPathname;
+    std::string accountSettingsPathname;
     std::string staticDebugPathname;
     std::string OSInfo;
     std::string agentFullname;
