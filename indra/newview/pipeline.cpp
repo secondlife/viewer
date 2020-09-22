@@ -6421,34 +6421,9 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 		light->setAmbient(LLColor4::black);
 		light->setSpecular(LLColor4::black);
 	}
-	if (gAgentAvatarp &&
-		gAgentAvatarp->mSpecialRenderMode == 3)
-	{
-		LLColor4  light_color = LLColor4::white;
-		light_color.mV[3] = 0.0f;
 
-		LLVector3 light_pos(LLViewerCamera::getInstance()->getOrigin());
-		LLVector4 light_pos_gl(light_pos, 1.0f);
-
-		F32 light_radius = 16.f;
-
-			F32 x = 3.f;
-		float linatten = x / (light_radius); // % of brightness at radius
-
-		mHWLightColors[2] = light_color;
-		LLLightState* light = gGL.getLight(2);
-
-		light->setPosition(light_pos_gl);
-		light->setDiffuse(light_color);
-        light->setDiffuseB(light_color * 0.25f);
-		light->setAmbient(LLColor4::black);
-		light->setSpecular(LLColor4::black);
-		light->setQuadraticAttenuation(0.f);
-		light->setConstantAttenuation(0.f);
-		light->setLinearAttenuation(linatten);
-		light->setSpotExponent(0.f);
-		light->setSpotCutoff(180.f);
-	}
+    // Bookmark comment to allow searching for mSpecialRenderMode == 3 (avatar edit mode),
+    // prev site of forward (non-deferred) character light injection, removed by SL-13522 09/20
 
 	// Init GL state
 	if (!LLGLSLShader::sNoFixedFunction)
@@ -8813,17 +8788,8 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
                     }
                 }
 
-                // If we're in avatar editing mode (3), add an avatar appearance light at the camera position
-                if (gAgentAvatarp && gAgentAvatarp->mSpecialRenderMode == 3)
-                {
-                    // Cam coords (post-transform) are 0,0,0, with radius 15m
-                    fullscreen_lights.push_back(LLVector4(0.f, 0.f, 0.f, 15.0f));
-
-                    // Use a white light
-                    LLVector4 white_light(LLColor4::white.mV);
-                    white_light.mV[3] = 0.0f;
-                    light_colors.push_back(white_light);
-                }
+                // Bookmark comment to allow searching for mSpecialRenderMode == 3 (avatar edit mode),
+                // prev site of appended deferred character light, removed by SL-13522 09/20
 
                 unbindDeferredShader(gDeferredLightProgram);
             }
