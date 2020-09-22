@@ -2109,13 +2109,11 @@ bool LLAppViewer::cleanup()
 	// still see above are calls that MUST happen before the generic cleanup
 	// kicks in.
 
-	// The logging subsystem depends on an LLSingleton. Any logging after
-	// LLSingletonBase::deleteAll() won't be recorded.
-	LL_INFOS() << "Goodbye!" << LL_ENDL;
-
 	// This calls every remaining LLSingleton's cleanupSingleton() and
 	// deleteSingleton() methods.
 	LLSingletonBase::deleteAll();
+
+    LL_INFOS() << "Goodbye!" << LL_ENDL;
 
 	removeDumpDir();
 
