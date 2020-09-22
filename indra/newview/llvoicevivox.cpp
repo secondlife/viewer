@@ -1111,7 +1111,6 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
                     timeout *= retries;
                     LL_INFOS("Voice") << "Retry connection to voice service in " << timeout << " seconds" << LL_ENDL;
                     llcoro::suspendUntilTimeout(timeout);
-                    quiting = LLApp::isExiting();
 
                     if (mVoiceEnabled) // user may have switched it off
                     {
