@@ -448,12 +448,18 @@ private:
 	void notifyObserver(const LLUUID& group_id, LLGroupChange gc);
 	void addGroup(LLGroupMgrGroupData* group_datap);
 	LLGroupMgrGroupData* createGroupData(const LLUUID &id);
+	bool hasPendingPropertyRequest(const LLUUID& id);
+	void addPendingPropertyRequest(const LLUUID& id);
 
 	typedef std::multimap<LLUUID,LLGroupMgrObserver*> observer_multimap_t;
 	observer_multimap_t mObservers;
 
 	typedef std::map<LLUUID, LLGroupMgrGroupData*> group_map_t;
 	group_map_t mGroups;
+
+	const U64MicrosecondsImplicit MIN_GROUP_PROPERTY_REQUEST_FREQ = 100000;//100ms between requests should be enough to avoid spamming.
+	typedef std::map<LLUUID, U64MicrosecondsImplicit> properties_request_map_t;
+	properties_request_map_t mPropRequests;
 
 	typedef std::set<LLParticularGroupObserver*> observer_set_t;
 	typedef std::map<LLUUID,observer_set_t> observer_map_t;

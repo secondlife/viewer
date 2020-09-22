@@ -124,6 +124,14 @@ S32 LLMachineID::getUniqueID(unsigned char *unique_id, size_t len)
 S32 LLMachineID::init() { return 1; }
 	
 
+LLCertException::LLCertException(const LLSD& cert_data, const std::string& msg)
+    : LLException(msg),
+    mCertData(cert_data)
+{
+    LL_WARNS("SECAPI") << "Certificate Error: " << msg << LL_ENDL;
+}
+
+
 // -------------------------------------------------------------------------------------------
 // TUT
 // -------------------------------------------------------------------------------------------

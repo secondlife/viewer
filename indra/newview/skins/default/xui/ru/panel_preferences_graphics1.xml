@@ -32,7 +32,7 @@
 	</text>
 	<check_box initial_value="true" label="Всегда рисовать друзей" name="AlwaysRenderFriends"/>
 	<button label="Исключения..." name="RenderExceptionsButton"/>
-	<button label="Сохранить настройки как пресет..." name="PrefSaveButton"/>
+	<button label="Сохранить настройки как пресет..." name="PrefSaveButton" width="210"/>
 	<button label="Загрузить пресет..." name="PrefLoadButton"/>
 	min_val=&quot;0,125&quot;
 	<button label="Удалить пресет..." name="PrefDeleteButton"/>

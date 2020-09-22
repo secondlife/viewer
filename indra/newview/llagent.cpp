@@ -867,9 +867,7 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 	if (mRegionp != regionp)
 	{
 
-		std::string ip = regionp->getHost().getString();
-		LL_INFOS("AgentLocation") << "Moving agent into region: " << regionp->getName()
-				<< " located at " << ip << LL_ENDL;
+		LL_INFOS("AgentLocation") << "Moving agent into region: " << regionp->getName() << LL_ENDL;
 		if (mRegionp)
 		{
 			// We've changed regions, we're now going to change our agent coordinate frame.

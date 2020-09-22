@@ -93,9 +93,20 @@ void LLPanelExperiences::setExperienceList( const LLSD& experiences )
 
         item->init(public_key);
         mExperiencesList->addItem(item, public_key);
+
+        const LLSD& experience_details = LLExperienceCache::instance().get(public_key);
+        if (experience_details.isUndefined())
+        {
+            LLExperienceCache::instance().get(public_key, boost::bind(&LLPanelExperiences::sortExperiencesList, this));
+        }
     }
 
-	mExperiencesList->sort();
+    sortExperiencesList();
+}
+
+void LLPanelExperiences::sortExperiencesList()
+{
+    mExperiencesList->sort();
 }
 
 void LLPanelExperiences::getExperienceIdsList(std::vector<LLUUID>& result)
