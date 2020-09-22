@@ -761,8 +761,8 @@ bool LLLogChat::isTranscriptExist(const LLUUID& avatar_id, bool is_group)
 	{
 		std::string file_name;
 		gCacheName->getGroupName(avatar_id, file_name);
-		file_name = makeLogFileName(file_name);
-		return isTranscriptFileFound(makeLogFileName(file_name));
+		file_name = makeLogFileName(file_name + GROUP_CHAT_SUFFIX);
+		return isTranscriptFileFound(file_name);
 	}
 	return false;
 }

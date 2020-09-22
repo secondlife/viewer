@@ -95,6 +95,7 @@ private:
 	
 	LLVector3			mMouseDown;
 	LLVector3			mMouseCur;
+	LLVector3			mAgentSelfAtAxis; // Own agent uses separate rotation method
 	F32					mRadiusMeters;
 	
 	LLVector3			mCenterToCam;

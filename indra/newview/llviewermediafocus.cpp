@@ -205,8 +205,9 @@ bool LLViewerMediaFocus::getFocus()
 }
 
 // This function selects an ideal viewing distance based on the focused object, pick normal, and padding value
-void LLViewerMediaFocus::setCameraZoom(LLViewerObject* object, LLVector3 normal, F32 padding_factor, bool zoom_in_only)
+LLVector3d LLViewerMediaFocus::setCameraZoom(LLViewerObject* object, LLVector3 normal, F32 padding_factor, bool zoom_in_only)
 {
+	LLVector3d camera_pos;
 	if (object)
 	{
 		gAgentCamera.setFocusOnAvatar(FALSE, ANIMATE);
@@ -254,7 +255,7 @@ void LLViewerMediaFocus::setCameraZoom(LLViewerObject* object, LLVector3 normal,
 		distance += depth * 0.5;
 
 		// Finally animate the camera to this new position and focal point
-		LLVector3d camera_pos, target_pos;
+		LLVector3d target_pos;
 		// The target lookat position is the center of the selection (in global coords)
 		target_pos = center;
 		// Target look-from (camera) position is "distance" away from the target along the normal 
@@ -287,7 +288,7 @@ void LLViewerMediaFocus::setCameraZoom(LLViewerObject* object, LLVector3 normal,
 		if (zoom_in_only &&
 		    (dist_vec_squared(gAgentCamera.getCameraPositionGlobal(), target_pos) < dist_vec_squared(camera_pos, target_pos)))
 		{
-			return;
+			return camera_pos;
 		}
 
 		gAgentCamera.setCameraPosAndFocusGlobal(camera_pos, target_pos, object->getID() );
@@ -298,6 +299,7 @@ void LLViewerMediaFocus::setCameraZoom(LLViewerObject* object, LLVector3 normal,
 		// If we have no object, focus back on the avatar.
 		gAgentCamera.setFocusOnAvatar(TRUE, ANIMATE);
 	}
+	return camera_pos;
 }
 void LLViewerMediaFocus::onFocusReceived()
 {

@@ -75,6 +75,7 @@
 
 #define CERT_EXTENDED_KEY_USAGE "extendedKeyUsage"
 #define CERT_EKU_SERVER_AUTH SN_server_auth
+#define CERT_EKU_TLS_SERVER_AUTH LN_server_auth
 
 #define CERT_SUBJECT_KEY_IDENTFIER "subjectKeyIdentifier"
 #define CERT_AUTHORITY_KEY_IDENTIFIER "authorityKeyIdentifier"
@@ -334,15 +335,21 @@ std::ostream& operator <<(std::ostream& s, const LLCredential& cred);
 class LLCertException: public LLException
 {
 public:
-	LLCertException(const LLSD& cert_data, const std::string& msg): LLException(msg),
-        mCertData(cert_data)
-	{
-		LL_WARNS("SECAPI") << "Certificate Error: " << msg << LL_ENDL;
-	}
+    LLCertException(const LLSD& cert_data, const std::string& msg);
 	virtual ~LLCertException() throw() {}
 	LLSD getCertData() const { return mCertData; }
 protected:
 	LLSD mCertData;
+};
+
+class LLAllocationCertException : public LLCertException
+{
+public:
+    LLAllocationCertException(const LLSD& cert_data) : LLCertException(cert_data, "CertAllocationFailure")
+    {
+    }
+    virtual ~LLAllocationCertException() throw() {}
+protected:
 };
 
 class LLInvalidCertificate : public LLCertException

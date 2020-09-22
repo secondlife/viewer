@@ -347,6 +347,13 @@ void LLFloaterCompileQueue::processExperienceIdResults(LLSD result, LLUUID paren
 bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloater,
     const LLPointer<LLViewerObject> &object, LLInventoryObject* inventory, LLEventPump &pump)
 {
+    if (LLApp::isQuitting())
+    {
+        // Reply from coroutine came on shutdown
+        // We are quiting, don't start any more coroutines!
+        return true;
+    }
+
     LLSD result;
     LLCheckedHandle<LLFloaterCompileQueue> floater(hfloater);
     // Dereferencing floater may fail. If they do they throw LLExeceptionStaleHandle.
@@ -381,6 +388,8 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
         result = llcoro::suspendUntilEventOnWithTimeout(pump, fetch_timeout,
             LLSDMap("timeout", LLSD::Boolean(true)));
 
+        floater.check();
+
         if (result.has("timeout"))
         {   // A timeout filed in the result will always be true if present.
             LLStringUtil::format_map_t args;
@@ -402,6 +411,12 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
             }
         }
 
+    }
+
+    if (!gAssetStorage)
+    {
+        // viewer likely is shutting down
+        return true;
     }
 
     {
@@ -467,6 +482,8 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
     }
 
     result = llcoro::suspendUntilEventOnWithTimeout(pump, fetch_timeout, LLSDMap("timeout", LLSD::Boolean(true)));
+
+    floater.check();
 
     if (result.has("timeout"))
     { // A timeout filed in the result will always be true if present.
@@ -797,6 +814,7 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
                 // but offers no guarantee of doing so.
                 llcoro::suspend();
             }
+            floater.check();
         }
 
         floater->addStringMessage("Done");
