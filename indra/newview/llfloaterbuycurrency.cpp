@@ -74,7 +74,6 @@ public:
 
 	void onClickBuy();
 	void onClickCancel();
-	void onClickErrorWeb();
 };
 
 LLFloater* LLFloaterBuyCurrency::buildFloater(const LLSD& key)
@@ -132,7 +131,6 @@ BOOL LLFloaterBuyCurrencyUI::postBuild()
 	
 	getChild<LLUICtrl>("buy_btn")->setCommitCallback( boost::bind(&LLFloaterBuyCurrencyUI::onClickBuy, this));
 	getChild<LLUICtrl>("cancel_btn")->setCommitCallback( boost::bind(&LLFloaterBuyCurrencyUI::onClickCancel, this));
-	getChild<LLUICtrl>("error_web")->setCommitCallback( boost::bind(&LLFloaterBuyCurrencyUI::onClickErrorWeb, this));
 	
 	center();
 	
@@ -173,7 +171,6 @@ void LLFloaterBuyCurrencyUI::updateUI()
 
 	// hide most widgets - we'll turn them on as needed next
 	getChildView("info_buying")->setVisible(FALSE);
-	getChildView("info_cannot_buy")->setVisible(FALSE);
 	getChildView("info_need_more")->setVisible(FALSE);	
 	getChildView("purchase_warning_repurchase")->setVisible(FALSE);
 	getChildView("purchase_warning_notenough")->setVisible(FALSE);
@@ -183,32 +180,16 @@ void LLFloaterBuyCurrencyUI::updateUI()
 	if (hasError)
 	{
 		// display an error from the server
-		getChildView("normal_background")->setVisible(FALSE);
-		getChildView("error_background")->setVisible(TRUE);
-		getChildView("info_cannot_buy")->setVisible(TRUE);
-		getChildView("cannot_buy_message")->setVisible(TRUE);
-		getChildView("balance_label")->setVisible(FALSE);
-		getChildView("balance_amount")->setVisible(FALSE);
-		getChildView("buying_label")->setVisible(FALSE);
-		getChildView("buying_amount")->setVisible(FALSE);
-		getChildView("total_label")->setVisible(FALSE);
-		getChildView("total_amount")->setVisible(FALSE);
-
-        LLTextBox* message = getChild<LLTextBox>("cannot_buy_message");
-        if (message)
-		{
-			message->setText(mManager.errorMessage());
-		}
-
-		getChildView("error_web")->setVisible( !mManager.errorURI().empty());
+		LLSD args;
+		args["TITLE"] = getString("info_cannot_buy");
+		args["MESSAGE"] = mManager.errorMessage();
+		LLNotificationsUtil::add("CouldNotBuyCurrency", args);
+		closeFloater();
 	}
 	else
 	{
 		// display the main Buy L$ interface
 		getChildView("normal_background")->setVisible(TRUE);
-		getChildView("error_background")->setVisible(FALSE);
-		getChildView("cannot_buy_message")->setVisible(FALSE);
-		getChildView("error_web")->setVisible(FALSE);
 
 		if (mHasTarget)
 		{
@@ -273,14 +254,6 @@ void LLFloaterBuyCurrencyUI::onClickBuy()
 
 void LLFloaterBuyCurrencyUI::onClickCancel()
 {
-	closeFloater();
-	// Update L$ balance
-	LLStatusBar::sendMoneyBalanceRequest();
-}
-
-void LLFloaterBuyCurrencyUI::onClickErrorWeb()
-{
-	LLWeb::loadURL(mManager.errorURI());
 	closeFloater();
 	// Update L$ balance
 	LLStatusBar::sendMoneyBalanceRequest();

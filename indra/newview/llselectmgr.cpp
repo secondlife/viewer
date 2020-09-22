@@ -303,6 +303,27 @@ void LLSelectMgr::updateEffects()
 	}
 }
 
+void LLSelectMgr::resetObjectOverrides()
+{
+    resetObjectOverrides(getSelection());
+}
+
+void LLSelectMgr::resetObjectOverrides(LLObjectSelectionHandle selected_handle)
+{
+    struct f : public LLSelectedNodeFunctor
+    {
+        virtual bool apply(LLSelectNode* node)
+        {
+            node->mLastPositionLocal.setVec(0, 0, 0);
+            node->mLastRotation = LLQuaternion();
+            node->mLastScale.setVec(0, 0, 0);
+            return true;
+        }
+    } func;
+
+    selected_handle->applyToNodes(&func);
+}
+
 void LLSelectMgr::overrideObjectUpdates()
 {
 	//override any position updates from simulator on objects being edited
@@ -3910,11 +3931,11 @@ BOOL LLSelectMgr::selectGetAggregateTexturePermissions(LLAggregatePermissions& r
 	return TRUE;
 }
 
-BOOL LLSelectMgr::isSelfAvatarSelected()
+BOOL LLSelectMgr::isMovableAvatarSelected()
 {
 	if (mAllowSelectAvatar)
 	{
-		return (getSelection()->getObjectCount() == 1) && (getSelection()->getFirstRootObject() == gAgentAvatarp);
+		return (getSelection()->getObjectCount() == 1) && (getSelection()->getFirstRootObject()->isAvatar()) && getSelection()->getFirstMoveableNode(TRUE);
 	}
 	return FALSE;
 }
@@ -5130,18 +5151,27 @@ void LLSelectMgr::sendListToRegions(LLObjectSelectionHandle selected_handle,
 
 	bool link_operation = message_name == "ObjectLink";
 
-	//clear update override data (allow next update through)
-	struct f : public LLSelectedNodeFunctor
-	{
-		virtual bool apply(LLSelectNode* node)
-		{
-			node->mLastPositionLocal.setVec(0,0,0);
-			node->mLastRotation = LLQuaternion();
-			node->mLastScale.setVec(0,0,0);
-			return true;
-		}
-	} func;
-	selected_handle->applyToNodes(&func);
+    if (mAllowSelectAvatar)
+    {
+        if (selected_handle->getObjectCount() == 1
+            && selected_handle->getFirstObject() != NULL
+            && selected_handle->getFirstObject()->isAvatar())
+        {
+            // Server doesn't move avatars at the moment, it is a local debug feature,
+            // but server does update position regularly, so do not drop mLastPositionLocal
+            // Position override for avatar gets reset in LLAgentCamera::resetView().
+        }
+        else
+        {
+            // drop mLastPositionLocal (allow next update through)
+            resetObjectOverrides(selected_handle);
+        }
+    }
+    else
+    {
+        //clear update override data (allow next update through)
+        resetObjectOverrides(selected_handle);
+    }
 
 	std::queue<LLSelectNode*> nodes_to_send;
 
@@ -6851,51 +6881,26 @@ void LLSelectMgr::pauseAssociatedAvatars()
 			
         mSelectedObjects->mSelectType = getSelectTypeForObject(object);
 
-        bool is_attached = false;
-        if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT && 
-            isAgentAvatarValid())
+        LLVOAvatar* parent_av = NULL;
+        if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT)
         {
             // Selection can be obsolete, confirm that this is an attachment
-            LLViewerObject* parent = (LLViewerObject*)object->getParent();
-            while (parent != NULL)
-            {
-                if (parent->isAvatar())
-                {
-                    is_attached = true;
-                    break;
-                }
-                else
-                {
-                    parent = (LLViewerObject*)parent->getParent();
-                }
-            }
+            // and find parent avatar
+            parent_av = object->getAvatarAncestor();
         }
 
-
-        if (is_attached)
+        // Can be both an attachment and animated object
+        if (parent_av)
         {
-            if (object->isAnimatedObject())
-            {
-                // Is an animated object attachment.
-                // Pause both the control avatar and the avatar it's attached to.
-                if (object->getControlAvatar())
-                {
-                    mPauseRequests.push_back(object->getControlAvatar()->requestPause());
-                }
-                mPauseRequests.push_back(gAgentAvatarp->requestPause());
-            }
-            else
-            {
-                // Is a regular attachment. Pause the avatar it's attached to.
-                mPauseRequests.push_back(gAgentAvatarp->requestPause());
-            }
+            // It's an attachment. Pause the avatar it's attached to.
+            mPauseRequests.push_back(parent_av->requestPause());
         }
-        else if (object && object->isAnimatedObject() && object->getControlAvatar())
+
+        if (object->isAnimatedObject() && object->getControlAvatar())
         {
-            // Is a non-attached animated object. Pause the control avatar.
+            // It's an animated object. Pause the control avatar.
             mPauseRequests.push_back(object->getControlAvatar()->requestPause());
         }
-
     }
 }
 

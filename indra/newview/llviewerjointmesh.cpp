@@ -253,7 +253,6 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 	//----------------------------------------------------------------
 	llassert( !(mTexture.notNull() && mLayerSet) );  // mutually exclusive
 
-	LLTexUnit::eTextureAddressMode old_mode = LLTexUnit::TAM_WRAP;
 	LLViewerTexLayerSet *layerset = dynamic_cast<LLViewerTexLayerSet*>(mLayerSet);
 	if (mTestImageName)
 	{
@@ -280,21 +279,14 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 			gGL.getTexUnit(diffuse_channel)->bind(LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT));
 		}
 	}
-	else
-	if ( !is_dummy && mTexture.notNull() )
+	else if ( !is_dummy && mTexture.notNull() )
 	{
-		if(mTexture->hasGLTexture())
-		{
-			old_mode = mTexture->getAddressMode();
-		}
 		gGL.getTexUnit(diffuse_channel)->bind(mTexture);
-		gGL.getTexUnit(diffuse_channel)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 	}
 	else
 	{
 		gGL.getTexUnit(diffuse_channel)->bind(LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT));
 	}
-	
 	
 	U32 mask = sRenderMask;
 
@@ -339,12 +331,6 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 	if (mTestImageName)
 	{
 		gGL.getTexUnit(diffuse_channel)->setTextureBlendType(LLTexUnit::TB_MULT);
-	}
-
-	if (mTexture.notNull() && !is_dummy)
-	{
-		gGL.getTexUnit(diffuse_channel)->bind(mTexture);
-		gGL.getTexUnit(diffuse_channel)->setTextureAddressMode(old_mode);
 	}
 
 	return triangle_count;

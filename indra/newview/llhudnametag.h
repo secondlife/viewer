@@ -92,7 +92,7 @@ public:
 	void clearString();
 
 	// Add text a line at a time, allowing custom formatting
-	void addLine(const std::string &text_utf8, const LLColor4& color, const LLFontGL::StyleFlags style = LLFontGL::NORMAL, const LLFontGL* font = NULL);
+	void addLine(const std::string &text_utf8, const LLColor4& color, const LLFontGL::StyleFlags style = LLFontGL::NORMAL, const LLFontGL* font = NULL, const bool use_ellipses = false);
 
 	// For bubble chat, set the part above the chat text
 	void setLabel(const std::string& label_utf8);

@@ -60,8 +60,7 @@ no el objeto.
 	</text>
 	<button label="Comprar ahora" name="buy_btn"/>
 	<button label="Cancelar" name="cancel_btn"/>
-	<text name="info_cannot_buy" left="150" font="SansSerifBig">
+	<floater.string name="info_cannot_buy">
 		No se pudo hacer la compra
-	</text>
-	<button label="Ir a la web" name="error_web"/>
+	</floater.string>
 </floater>
