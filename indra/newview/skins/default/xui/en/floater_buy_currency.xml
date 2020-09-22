@@ -13,6 +13,10 @@
      name="buy_currency">
         Buy L$ [LINDENS] for approx. [LOCALAMOUNT]
     </floater.string>
+    <floater.string
+     name="info_cannot_buy">
+        Unable to Buy
+    </floater.string>
     <icon
      height="215"
      image_name="Linden_Dollar_Background"
@@ -286,42 +290,4 @@ Re-enter amount to see the latest exchange rate.
      left_pad="10"
      name="cancel_btn"
      width="90"/>
-    <icon
-     height="215"
-     image_name="Linden_Dollar_Alert"
-     layout="topleft"
-     left="0"
-     name="error_background"
-     top="15"
-     use_draw_context_alpha="false"
-     width="350"/>
-    <text
-     type="string"
-     font="SansSerifHuge"
-     left="165"
-     width="360"
-     height="25"
-     top="25"
-     name="info_cannot_buy">
-        Unable to Buy
-    </text>
-     <text
-      type="string"
-      width="176"
-      height="125"
-      top="60"
-      left="165"
-      word_wrap="true"
-      follows="bottom|right"
-      name="cannot_buy_message">
-     </text>
-     <button
-      follows="bottom|left"
-      height="20"
-      label="Continue to the Web"
-      layout="topleft"
-      left="170"
-      name="error_web"
-      top="200"
-      width="160"/>
 </floater>

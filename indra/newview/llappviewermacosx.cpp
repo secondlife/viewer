@@ -199,10 +199,11 @@ CrashMetadataSingleton::CrashMetadataSingleton()
     else
     {
         LL_INFOS() << "Metadata from '" << staticDebugPathname << "':" << LL_ENDL;
-        logFilePathname      = get_metadata(info, "SLLog");
-        userSettingsPathname = get_metadata(info, "SettingsFilename");
-        OSInfo               = get_metadata(info, "OSInfo");
-        agentFullname        = get_metadata(info, "LoginName");
+        logFilePathname         = get_metadata(info, "SLLog");
+        userSettingsPathname    = get_metadata(info, "SettingsFilename");
+        accountSettingsPathname = get_metadata(info, "PerAccountSettingsFilename");
+        OSInfo                  = get_metadata(info, "OSInfo");
+        agentFullname           = get_metadata(info, "LoginName");
         // Translate underscores back to spaces
         LLStringUtil::replaceChar(agentFullname, '_', ' ');
         regionName           = get_metadata(info, "CurrentRegion");

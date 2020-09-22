@@ -159,6 +159,7 @@ public:
 	 * Raises notifyParent event with "child_visibility_change" = new_visibility
 	 */
 	void onVisibilityChange(BOOL new_visibility);
+	virtual void onUpdateScrollToChild(const LLUICtrl * cntrl);
 
 	// Changes expand/collapse state and triggers expand/collapse callbacks
 	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);

@@ -46,6 +46,7 @@ public:
 	bool hasBadgeHolderParent() const { return mHasBadgeHolderParent; };
 	void setBadgeVisibility(bool visible);
 	void setDrawBadgeAtTop(bool draw_at_top);
+	void reshapeBadge(const LLRect& new_rect);
 
 private:
 
