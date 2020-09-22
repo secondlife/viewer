@@ -52,6 +52,7 @@ class LLDrawInfo;
 
 const F32 MIN_ALPHA_SIZE = 1024.f;
 const F32 MIN_TEX_ANIM_SIZE = 512.f;
+const U8 FACE_DO_NOT_BATCH_TEXTURES = 255;
 
 class LLFace : public LLTrace::MemTrackableNonVirtual<LLFace, 16>
 {
@@ -279,8 +280,13 @@ private:
 	LLXformMatrix* mXform;
 
 	LLPointer<LLViewerTexture> mTexture[LLRender::NUM_TEXTURE_CHANNELS];
-	
-	LLPointer<LLDrawable> mDrawablep;
+
+	// mDrawablep is not supposed to be null, don't use LLPointer because
+	// mDrawablep owns LLFace and LLPointer is a good way to either cause a
+	// memory leak or a 'delete each other' situation if something deletes
+	// drawable wrongly.
+	LLDrawable* mDrawablep;
+	// LLViewerObject technically owns drawable, but also it should be strictly managed
 	LLPointer<LLViewerObject> mVObjp;
 	S32			mTEOffset;
 

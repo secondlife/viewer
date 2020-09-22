@@ -405,6 +405,7 @@ public:
         std::string& tooltip_msg) override;
 
 protected:
+    /*virtual*/ LLFolderViewItem*	buildNewViews(const LLUUID& id) override;
     /*virtual*/ bool				typedViewsFilter(const LLUUID& id, LLInventoryObject const* objectp) override;
     /*virtual*/ void				itemChanged(const LLUUID& item_id, U32 mask, const LLInventoryObject* model_item) override;
 

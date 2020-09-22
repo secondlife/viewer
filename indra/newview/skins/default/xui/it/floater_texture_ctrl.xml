@@ -9,14 +9,10 @@
 	<text name="Multiple">
 		Texture multiple
 	</text>
-	<radio_group name="mode_selection">
-		<radio_item label="Inventario" name="inventory" value="0"/>
-		<radio_item label="Locale" name="local" value="1"/>
-		<radio_item label="Effettua il bake" name="bake" value="2"/>
-	</radio_group>
-	<text name="unknown">
-		Dimensioni: [DIMENSIONS]
-	</text>
+	<combo_box name="mode_selection">
+		<combo_box.item label="Inventario" name="inventory" value="0"/>
+		<combo_box.item label="Locale" name="local" value="1"/>
+	</combo_box>
 	<button label="Default" label_selected="Default" name="Default"/>
 	<button label="Vuoto" label_selected="Vuoto" name="Blank"/>
 	<button label="Niente" label_selected="Niente" name="None"/>

@@ -59,8 +59,7 @@
 	</text>
 	<button label="Jetzt kaufen" name="buy_btn"/>
 	<button label="Abbrechen" name="cancel_btn"/>
-	<text name="info_cannot_buy">
+  <floater.string name="info_cannot_buy">
 		Kaufabbruch
-	</text>
-	<button label="Weiter zur Kontoseite" name="error_web"/>
+	</floater.string>
 </floater>

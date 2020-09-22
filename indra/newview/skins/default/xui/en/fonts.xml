@@ -12,6 +12,7 @@
       <file>msyh.ttc</file>
       <file load_collection="true">Cambria.ttc</file>
       <file>malgun.ttf</file>
+      <file>micross.ttf</file>
     </os>
     <os name="Mac">
       <file>ヒラギノ角ゴシック W3.ttc</file>  
@@ -25,6 +26,7 @@
       <file>华文细黑.ttf</file>
       <file>PingFang.ttc</file>
       <file>STIXGeneral.otf</file>
+      <file>Thonburi.ttc</file>
     </os>
   </font>
 
