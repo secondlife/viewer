@@ -10315,6 +10315,88 @@ void LLVOAvatar::updateImpostorRendering(U32 newMaxNonImpostorsValue)
     }
 }
 
+void LLVOAvatar::updateRenderComplexityDebugText()
+{
+	std::string info_line;
+	F32 red_level;
+	F32 green_level;
+	LLColor4 info_color;
+	LLFontGL::StyleFlags info_style;
+		
+	if ( !mText )
+	{
+		initHudText();
+		mText->setFadeDistance(20.0, 5.0); // limit clutter in large crowds
+	}
+	else
+	{
+		mText->clearString(); // clear debug text
+	}
+
+	/*
+	 * NOTE: the logic for whether or not each of the values below
+	 * controls muting MUST match that in the isVisuallyMuted and isTooComplex methods.
+	 */
+
+	// FIXME ARC - this should normally just show the default complexity value, from getVisualComplexity()
+	static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0);
+	info_line = LLStringOps::getReadableNumber(getVisualComplexity(1),1) +
+		"(" +
+		LLStringOps::getReadableNumber(getVisualComplexity(99),1) +
+		")/" + 
+		LLStringOps::getReadableNumber(getVisualComplexity(2),1) +
+		" Complexity";
+	if (max_render_cost != 0) // zero means don't care, so don't bother coloring based on this
+	{
+		green_level = 1.f-llclamp(((F32) getVisualComplexity()-(F32)max_render_cost)/(F32)max_render_cost, 0.f, 1.f);
+		red_level   = llmin((F32) getVisualComplexity()/(F32)max_render_cost, 1.f);
+		info_color.set(red_level, green_level, 0.0, 1.0);
+		info_style = (  getVisualComplexity() > max_render_cost
+						? LLFontGL::BOLD : LLFontGL::NORMAL );
+	}
+	else
+	{
+		info_color.set(LLColor4::grey);
+		info_style = LLFontGL::NORMAL;
+	}
+	mText->addLine(info_line, info_color, info_style);
+
+	// Visual rank
+	info_line = llformat("%d rank", mVisibilityRank);
+	// Use grey for imposters, white for normal rendering or no impostors
+	info_color.set(isImpostor() ? LLColor4::grey : (isControlAvatar() ? LLColor4::yellow : LLColor4::white));
+	info_style = LLFontGL::NORMAL;
+	mText->addLine(info_line, info_color, info_style);
+
+	// Triangle count
+	mText->addLine(std::string("VisTris ") + LLStringOps::getReadableNumber(mAttachmentVisibleTriangleCount), 
+				   info_color, info_style);
+	mText->addLine(std::string("EstMaxTris ") + LLStringOps::getReadableNumber(mAttachmentEstTriangleCount), 
+				   info_color, info_style);
+
+	// Attachment Surface Area
+	static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 1000.0f);
+	info_line = llformat("%.0f m^2", mAttachmentSurfaceArea);
+
+	if (max_render_cost != 0 && max_attachment_area != 0) // zero means don't care, so don't bother coloring based on this
+	{
+		green_level = 1.f-llclamp((mAttachmentSurfaceArea-max_attachment_area)/max_attachment_area, 0.f, 1.f);
+		red_level   = llmin(mAttachmentSurfaceArea/max_attachment_area, 1.f);
+		info_color.set(red_level, green_level, 0.0, 1.0);
+		info_style = (  mAttachmentSurfaceArea > max_attachment_area
+						? LLFontGL::BOLD : LLFontGL::NORMAL );
+
+	}
+	else
+	{
+		info_color.set(LLColor4::grey);
+		info_style = LLFontGL::NORMAL;
+	}
+
+	mText->addLine(info_line, info_color, info_style);
+
+	updateText(); // corrects position
+}
 
 void LLVOAvatar::idleUpdateRenderComplexity()
 {
@@ -10339,85 +10421,7 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_AVATAR_DRAW_INFO))
 	{
-		std::string info_line;
-		F32 red_level;
-		F32 green_level;
-		LLColor4 info_color;
-		LLFontGL::StyleFlags info_style;
-		
-		if ( !mText )
-		{
-			initHudText();
-			mText->setFadeDistance(20.0, 5.0); // limit clutter in large crowds
-		}
-		else
-		{
-			mText->clearString(); // clear debug text
-		}
-
-		/*
-		 * NOTE: the logic for whether or not each of the values below
-		 * controls muting MUST match that in the isVisuallyMuted and isTooComplex methods.
-		 */
-
-		// FIXME ARC - this should normally just show the default complexity value, from getVisualComplexity()
-		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0);
-		info_line = LLStringOps::getReadableNumber(getVisualComplexity(1),1) +
-			"(" +
-			LLStringOps::getReadableNumber(getVisualComplexity(99),1) +
-			")/" + 
-			LLStringOps::getReadableNumber(getVisualComplexity(2),1) +
-			" Complexity";
-		if (max_render_cost != 0) // zero means don't care, so don't bother coloring based on this
-		{
-			green_level = 1.f-llclamp(((F32) getVisualComplexity()-(F32)max_render_cost)/(F32)max_render_cost, 0.f, 1.f);
-			red_level   = llmin((F32) getVisualComplexity()/(F32)max_render_cost, 1.f);
-			info_color.set(red_level, green_level, 0.0, 1.0);
-			info_style = (  getVisualComplexity() > max_render_cost
-						  ? LLFontGL::BOLD : LLFontGL::NORMAL );
-		}
-		else
-		{
-			info_color.set(LLColor4::grey);
-			info_style = LLFontGL::NORMAL;
-		}
-		mText->addLine(info_line, info_color, info_style);
-
-		// Visual rank
-		info_line = llformat("%d rank", mVisibilityRank);
-		// Use grey for imposters, white for normal rendering or no impostors
-		info_color.set(isImpostor() ? LLColor4::grey : (isControlAvatar() ? LLColor4::yellow : LLColor4::white));
-		info_style = LLFontGL::NORMAL;
-		mText->addLine(info_line, info_color, info_style);
-
-        // Triangle count
-        mText->addLine(std::string("VisTris ") + LLStringOps::getReadableNumber(mAttachmentVisibleTriangleCount), 
-                       info_color, info_style);
-        mText->addLine(std::string("EstMaxTris ") + LLStringOps::getReadableNumber(mAttachmentEstTriangleCount), 
-                       info_color, info_style);
-
-		// Attachment Surface Area
-		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 1000.0f);
-		info_line = llformat("%.0f m^2", mAttachmentSurfaceArea);
-
-		if (max_render_cost != 0 && max_attachment_area != 0) // zero means don't care, so don't bother coloring based on this
-		{
-			green_level = 1.f-llclamp((mAttachmentSurfaceArea-max_attachment_area)/max_attachment_area, 0.f, 1.f);
-			red_level   = llmin(mAttachmentSurfaceArea/max_attachment_area, 1.f);
-			info_color.set(red_level, green_level, 0.0, 1.0);
-			info_style = (  mAttachmentSurfaceArea > max_attachment_area
-						  ? LLFontGL::BOLD : LLFontGL::NORMAL );
-
-		}
-		else
-		{
-			info_color.set(LLColor4::grey);
-			info_style = LLFontGL::NORMAL;
-		}
-
-		mText->addLine(info_line, info_color, info_style);
-
-		updateText(); // corrects position
+		updateRenderComplexityDebugText();
 	}
 }
 
@@ -10596,7 +10600,7 @@ F32 LLVOAvatar::calculateRenderComplexity(U32 version) const
 
 // TODO ARC - this is the old complexity calc. Remove when superseded.
 // TODO ARC hud_complexity_list is still being computed in legacy, needs to be moved into modern code if still useful.
-F32 LLVOAvatar::calculateRenderComplexityLegacy(hud_complexity_list_t& hud_complexity_list)
+F32 LLVOAvatar::calculateRenderComplexityLegacy(hud_complexity_list_t& hud_complexity_list) const
 {
     /*****************************************************************
      * This calculation should not be modified by third party viewers,
@@ -10631,14 +10635,10 @@ F32 LLVOAvatar::calculateRenderComplexityLegacy(hud_complexity_list_t& hud_compl
 	}
 	LL_DEBUGS("ARCdetail") << "Avatar body parts complexity: " << legacy_cost << LL_ENDL;
 
-	mAttachmentVisibleTriangleCount = 0;
-	mAttachmentEstTriangleCount = 0.f;
-	mAttachmentSurfaceArea = 0.f;
-        
 	// A standalone animated object needs to be accounted for
 	// using its associated volume. Attached animated objects
 	// will be covered by the subsequent loop over attachments.
-	LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(this);
+	const LLControlAvatar *control_av = dynamic_cast<const LLControlAvatar*>(this);
 	if (control_av)
 	{
 		LLVOVolume *volp = control_av->mRootVolp;
@@ -10646,7 +10646,6 @@ F32 LLVOAvatar::calculateRenderComplexityLegacy(hud_complexity_list_t& hud_compl
 		{
 			accountRenderComplexityForObject(volp, max_attachment_complexity,
 											 textures, material_textures, legacy_cost, hud_complexity_list);
-			accountSurfaceStatisticsForObject(volp);
 		}
 	}
 
@@ -10663,7 +10662,6 @@ F32 LLVOAvatar::calculateRenderComplexityLegacy(hud_complexity_list_t& hud_compl
 			const LLViewerObject* attached_object = attachment_iter->get();
 			accountRenderComplexityForObject(attached_object, max_attachment_complexity,
 											 textures, material_textures, legacy_cost, hud_complexity_list);
-			accountSurfaceStatisticsForObject(attached_object);
 		}
 	}
 
@@ -10708,6 +10706,35 @@ F32 LLVOAvatar::calculateRenderComplexityLegacy(hud_complexity_list_t& hud_compl
 	return legacy_cost;
 }
 
+void LLVOAvatar::updateSurfaceStatistics()
+{
+	mAttachmentVisibleTriangleCount = 0;
+	mAttachmentEstTriangleCount = 0.f;
+	mAttachmentSurfaceArea = 0.f;
+        
+	LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(this);
+	if (control_av)
+	{
+		LLVOVolume *volp = control_av->mRootVolp;
+		if (volp && !volp->isAttachment())
+		{
+			accountSurfaceStatisticsForObject(volp);
+		}
+	}
+	for (attachment_map_t::const_iterator attachment_point = mAttachmentPoints.begin(); 
+		 attachment_point != mAttachmentPoints.end();
+		 ++attachment_point)
+	{
+		LLViewerJointAttachment* attachment = attachment_point->second;
+		for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+			 attachment_iter != attachment->mAttachedObjects.end();
+			 ++attachment_iter)
+		{
+			const LLViewerObject* attached_object = attachment_iter->get();
+			accountSurfaceStatisticsForObject(attached_object);
+		}
+	}
+}
 
 // Calculations for visual complexity value
 // TODO ARC: currently this computes costs several ways. Eventually we want to just compute using the current cost version and remove the legacy code. 
@@ -10720,6 +10747,7 @@ void LLVOAvatar::calculateAndUpdateRenderComplexity()
 		
 		F32 v1_cost = calculateRenderComplexity(1);
 		F32 v2_cost = calculateRenderComplexity(2);
+
 		U32 unew_cost = (U32) v1_cost;
 		if (unew_cost != legacy_cost)
 		{
@@ -10741,6 +10769,10 @@ void LLVOAvatar::calculateAndUpdateRenderComplexity()
                                       << " reported " << mReportedVisualComplexity
                                       << LL_ENDL;
         }
+
+		// Attachment surface area etc may have also changed.
+		updateSurfaceStatistics();
+		
 		// FIXME ARC - using new cost here for logging, may not precisely match the V1 ARC formula
 		mVisualComplexityValues[1] = v1_cost;
 		mVisualComplexityValues[2] = v2_cost;

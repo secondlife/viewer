@@ -287,7 +287,9 @@ public:
 	static void		invalidateNameTags();
 	void			addNameTagLine(const std::string& line, const LLColor4& color, S32 style, const LLFontGL* font);
 
+	void			updateRenderComplexityDebugText();
 	void 			idleUpdateRenderComplexity();
+
     void 			accountRenderComplexityForObject(const LLViewerObject *attached_object,
                                                      const F32 max_attachment_complexity,
                                                      LLVOVolume::texture_cost_t& textures,
@@ -295,9 +297,10 @@ public:
                                                      U32& cost,
                                                      hud_complexity_list_t& hud_complexity_list) const;
 	void			accountSurfaceStatisticsForObject(const LLViewerObject *attached_object);
+	void			updateSurfaceStatistics();
 
 	F32				calculateRenderComplexity(U32 version = 0) const;
-	F32				calculateRenderComplexityLegacy(hud_complexity_list_t& hud_complexity_list);
+	F32				calculateRenderComplexityLegacy(hud_complexity_list_t& hud_complexity_list) const;
 	void			calculateAndUpdateRenderComplexity();
 
 	void			flagVisualComplexityStale();
