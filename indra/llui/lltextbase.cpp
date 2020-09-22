@@ -1017,7 +1017,38 @@ BOOL LLTextBase::handleMouseDown(S32 x, S32 y, MASK mask)
 	// handle triple click
 	if (!mTripleClickTimer.hasExpired())
 	{
-		selectAll();
+		S32 real_line = getLineNumFromDocIndex(mCursorPos, false);
+		S32 line_start = -1;
+		S32 line_end = -1;
+		for (line_list_t::const_iterator it = mLineInfoList.begin(), end_it = mLineInfoList.end();
+				it != end_it;
+				++it)
+		{
+			if (it->mLineNum < real_line)
+			{
+				continue;
+			}
+			if (it->mLineNum > real_line)
+			{
+				break;
+			}
+			if (line_start == -1)
+			{
+				line_start = it->mDocIndexStart;
+			}
+			line_end = it->mDocIndexEnd;
+			line_end = llclamp(line_end, 0, getLength());
+		}
+
+		if (line_start == -1)
+		{
+			return TRUE;
+		}
+
+		mSelectionEnd = line_start;
+		mSelectionStart = line_end;
+		setCursorPos(line_start);
+
 		return TRUE;
 	}
 

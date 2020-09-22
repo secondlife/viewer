@@ -13,7 +13,7 @@
  width="400">
     <floater.string
      name="timeStamp">
-        [wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+        [wkday,datetime,slt] [mth,datetime,slt] [day,datetime,slt] [hour,datetime,slt]:[min,datetime,slt]:[second,datetime,slt] [year,datetime,slt]
     </floater.string>
     <scroll_list
      bottom="268"

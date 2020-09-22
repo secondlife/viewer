@@ -60,6 +60,8 @@ public:
     void setExperienceList(const LLSD& experiences);
     void getExperienceIdsList(std::vector<LLUUID>& result);
 
+    void sortExperiencesList();
+
     LLExperienceItem* getSelectedExperienceItem();
     void removeExperiences( const LLSD& ids );
     void removeExperience( const LLUUID& id);

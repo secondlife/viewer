@@ -1094,6 +1094,7 @@ void LLFloaterPreference::onBtnCancel(const LLSD& userdata)
 	if (userdata.asString() == "closeadvanced")
 	{
 		LLFloaterReg::hideInstance("prefs_graphics_advanced");
+		updateMaxComplexity();
 	}
 	else
 	{
@@ -1926,6 +1927,8 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	getChildView("log_path_button")->setEnabled(TRUE);
 	getChildView("chat_font_size")->setEnabled(TRUE);
 	getChildView("conversation_log_combo")->setEnabled(TRUE);
+	getChild<LLUICtrl>("voice_call_friends_only_check")->setEnabled(TRUE);
+	getChild<LLUICtrl>("voice_call_friends_only_check")->setValue(gSavedPerAccountSettings.getBOOL("VoiceCallsFriendsOnly"));
 }
 
 
@@ -2034,6 +2037,14 @@ void LLFloaterPreference::updateMaxComplexity()
     LLAvatarComplexityControls::updateMax(
         getChild<LLSliderCtrl>("IndirectMaxComplexity"),
         getChild<LLTextBox>("IndirectMaxComplexityText"));
+
+    LLFloaterPreferenceGraphicsAdvanced* floater_graphics_advanced = LLFloaterReg::findTypedInstance<LLFloaterPreferenceGraphicsAdvanced>("prefs_graphics_advanced");
+    if (floater_graphics_advanced)
+    {
+        LLAvatarComplexityControls::updateMax(
+            floater_graphics_advanced->getChild<LLSliderCtrl>("IndirectMaxComplexity"),
+            floater_graphics_advanced->getChild<LLTextBox>("IndirectMaxComplexityText"));
+    }
 }
 
 bool LLFloaterPreference::loadFromFilename(const std::string& filename, std::map<std::string, std::string> &label_map)
@@ -2081,6 +2092,14 @@ void LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity()
     LLAvatarComplexityControls::updateMax(
         getChild<LLSliderCtrl>("IndirectMaxComplexity"),
         getChild<LLTextBox>("IndirectMaxComplexityText"));
+
+    LLFloaterPreference* floater_preferences = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+    if (floater_preferences)
+    {
+        LLAvatarComplexityControls::updateMax(
+            floater_preferences->getChild<LLSliderCtrl>("IndirectMaxComplexity"),
+            floater_preferences->getChild<LLTextBox>("IndirectMaxComplexityText"));
+    }
 }
 
 void LLFloaterPreference::onChangeMaturity()
@@ -2554,9 +2573,13 @@ void LLPanelPreference::showMultipleViewersWarning(LLUICtrl* checkbox, const LLS
 
 void LLPanelPreference::showFriendsOnlyWarning(LLUICtrl* checkbox, const LLSD& value)
 {
-	if (checkbox && checkbox->getValue())
+	if (checkbox)
 	{
-		LLNotificationsUtil::add("FriendsAndGroupsOnly");
+		gSavedPerAccountSettings.setBOOL("VoiceCallsFriendsOnly", checkbox->getValue().asBoolean());
+		if (checkbox->getValue())
+		{
+			LLNotificationsUtil::add("FriendsAndGroupsOnly");
+		}
 	}
 }
 
@@ -2659,7 +2682,6 @@ class LLPanelPreferencePrivacy : public LLPanelPreference
 public:
 	LLPanelPreferencePrivacy()
 	{
-		mAccountIndependentSettings.push_back("VoiceCallsFriendsOnly");
 		mAccountIndependentSettings.push_back("AutoDisengageMic");
 	}
 
@@ -2916,6 +2938,7 @@ void LLFloaterPreferenceGraphicsAdvanced::onClickCloseBtn(bool app_quitting)
 	{
 		instance->cancel();
 	}
+	updateMaxComplexity();
 }
 
 LLFloaterPreferenceProxy::~LLFloaterPreferenceProxy()

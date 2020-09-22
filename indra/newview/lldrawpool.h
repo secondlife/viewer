@@ -138,24 +138,24 @@ public:
 		PASS_POST_BUMP,
 		PASS_MATERIAL,
 		PASS_MATERIAL_ALPHA,
-		PASS_MATERIAL_ALPHA_MASK,
+		PASS_MATERIAL_ALPHA_MASK,              // Diffuse texture used as alpha mask
 		PASS_MATERIAL_ALPHA_EMISSIVE,
 		PASS_SPECMAP,
 		PASS_SPECMAP_BLEND,
-		PASS_SPECMAP_MASK,
+		PASS_SPECMAP_MASK,                     // Diffuse texture used as alpha mask and specular texture(map)
 		PASS_SPECMAP_EMISSIVE,
 		PASS_NORMMAP,
 		PASS_NORMMAP_BLEND,
-		PASS_NORMMAP_MASK,
+		PASS_NORMMAP_MASK,                     // Diffuse texture used as alpha mask and normal map
 		PASS_NORMMAP_EMISSIVE,
 		PASS_NORMSPEC,
 		PASS_NORMSPEC_BLEND,
-		PASS_NORMSPEC_MASK,
+		PASS_NORMSPEC_MASK,                    // Diffuse texture used as alpha mask with normal and specular map
 		PASS_NORMSPEC_EMISSIVE,
 		PASS_GLOW,
 		PASS_ALPHA,
 		PASS_ALPHA_MASK,
-		PASS_FULLBRIGHT_ALPHA_MASK,
+		PASS_FULLBRIGHT_ALPHA_MASK,            // Diffuse texture used as alpha mask and fullbright
 		PASS_ALPHA_INVISIBLE,
 		NUM_RENDER_TYPES,
 	};

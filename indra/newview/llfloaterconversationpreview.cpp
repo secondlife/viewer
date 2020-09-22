@@ -84,10 +84,7 @@ BOOL LLFloaterConversationPreview::postBuild()
 		file = "chat";
 	}
 	mChatHistoryFileName = file;
-	if (mIsGroup)
-	{
-		mChatHistoryFileName += GROUP_CHAT_SUFFIX;
-	}
+
 	LLStringUtil::format_map_t args;
 	args["[NAME]"] = name;
 	std::string title = getString("Title", args);
