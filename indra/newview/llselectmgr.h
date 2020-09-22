@@ -458,6 +458,13 @@ public:
 	void clearSelections();
 	void update();
 	void updateEffects(); // Update HUD effects
+
+	// When we edit object's position/rotation/scale we set local
+	// overrides and ignore any updates (override received valeus).
+	// When we send data to server, we send local values and reset
+	// overrides
+	void resetObjectOverrides();
+	void resetObjectOverrides(LLObjectSelectionHandle selected_handle);
 	void overrideObjectUpdates();
 
 	// Returns the previous value of mForceSelection
@@ -725,7 +732,7 @@ public:
 
 	LLPermissions* findObjectPermissions(const LLViewerObject* object);
 
-	BOOL isSelfAvatarSelected();
+	BOOL isMovableAvatarSelected();
 
 	void selectDelete();							// Delete on simulator
 	void selectForceDelete();			// just delete, no into trash

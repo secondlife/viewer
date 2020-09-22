@@ -32,10 +32,10 @@
 	</text>
 	<check_box initial_value="true" label="Freunde immer darstellen" name="AlwaysRenderFriends"/>
 	<button label="Ausnahmen..." name="RenderExceptionsButton"/>
-	<button label="Einstellungen als Voreinstellung speichern..." name="PrefSaveButton"/>
-	<button label="Voreinstellung laden..." name="PrefLoadButton"/>
+	<button label="Einstellungen als Voreinstellung speichern" name="PrefSaveButton" width="235" left="5"/>
+	<button label="Voreinstellung laden" name="PrefLoadButton" width="120"/>
 	min_val=&quot;0.125&quot;
-	<button label="Voreinstellung löschen..." name="PrefDeleteButton"/>
-	<button label="Auf empfohlene Einstellungen zurücksetzen" name="Defaults"/>
+	<button label="Voreinstellung löschen" name="PrefDeleteButton" width="130"/>
+	<button label="Auf empfohlene Einstellungen zurücksetzen" name="Defaults" width="248"/>
 	<button label="Erweiterte Einstellungen..." name="AdvancedSettings"/>
 </panel>

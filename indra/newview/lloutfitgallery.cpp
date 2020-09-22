@@ -1047,6 +1047,7 @@ void LLOutfitGallery::updateSnapshotFolderObserver()
 void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
 {
     LLViewerInventoryCategory* category = gInventory.getCategory(category_id);
+    if (category)
     {
         bool photo_loaded = false;
         LLInventoryModel::cat_array_t sub_cat_array;

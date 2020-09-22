@@ -48,42 +48,28 @@
     </text>
 	
 	<!-- mode selector -->
-	   <radio_group
+    <combo_box
      control_name="mode_selection"
      height="20"
      layout="topleft"
-     left="0"
-     top_pad="80"
+     left="6"
+     top_pad="77"
      name="mode_selection"
-     follows="left|top">
-        <radio_item
+     follows="left|top"
+     width="120">
+      <combo_box.item
          label="Inventory"
          name="inventory"
-         top_delta="20" 
-         layout="topleft"
-         height="16" 
-         left="0" 
-         value="0"
-         width="70" />
-        <radio_item
+         value="0" />
+      <combo_box.item
          label="Local"
-         left_pad="0"
-         layout="topleft"
-         top_delta="0" 
-         height="16" 
          name="local"
-         value="1"
-         width="50" />
-       <radio_item
+         value="1" />
+      <combo_box.item
          label="Bake"
-         left_pad="0"
-         layout="topleft"
-         top_delta="0"
-         height="16"
          name="bake"
-         value="2"
-         width="50" />
-    </radio_group>
+         value="2" />
+    </combo_box>
 	<!-- -->
 	
     <text
@@ -92,20 +78,8 @@
      follows="left|top"
      height="14"
      layout="topleft"
-     left_delta="12"
+     left="8"
      name="size_lbl"
-     top_pad="4">
-        Size:
-    </text>
-
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="14"
-     layout="topleft"
-     left_delta="0"
-     name="unknown"
      top_pad="4">
         [DIMENSIONS]
     </text>
@@ -149,8 +123,8 @@
      image_selected="eye_button_active.tga"
      image_unselected="eye_button_inactive.tga"
      layout="topleft"
-     left_delta="-80"
-     top_delta="-10"
+     left="18"
+     top_delta="-23"
      name="Pipette"
      width="28" />
    <text
@@ -329,7 +303,7 @@ layout="topleft"
      label="OK"
      label_selected="OK"
      layout="topleft"
-     left="95"
+     left="176"
      top="-30"
      name="Select"
      width="100" />
@@ -352,5 +326,5 @@ layout="topleft"
      left="6"
      name="apply_immediate_check"
      top_delta="0"
-     width="120" />
+     width="150" />
 </floater>
