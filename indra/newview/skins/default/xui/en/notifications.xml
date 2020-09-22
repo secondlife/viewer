@@ -1343,6 +1343,18 @@ You must agree to the Second Life Terms and Conditions, Privacy Policy, and Term
 
   <notification
    icon="alertmodal.tga"
+   name="CouldNotBuyCurrency"
+   type="alertmodal">
+[TITLE]
+[MESSAGE]
+   <tag>fail</tag>
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
    name="CouldNotPutOnOutfit"
    type="alertmodal">
 Could not put on outfit.
@@ -3674,6 +3686,17 @@ Please choose the male or female avatar. You can change your mind later.
 		type="alertmodal">
 Could not teleport to [SLURL] as it's on a different grid ([GRID]) than the current grid ([CURRENT_GRID]).  Please close your viewer and try again.
   <tag>fail</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification icon="alertmodal.tga"
+		name="GeneralCertificateErrorShort"
+		type="alertmodal">
+Could not connect to the server.
+[REASON]
+    <tag>fail</tag>
     <usetemplate
      name="okbutton"
      yestext="OK"/>

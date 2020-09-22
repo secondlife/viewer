@@ -359,10 +359,10 @@ attributedStringInfo getSegments(NSAttributedString *str)
         callRightMouseDown(mMousePos, [theEvent modifierFlags]);
         mSimulatedRightClick = true;
     } else {
-        if ([theEvent clickCount] >= 2)
+        if ([theEvent clickCount] == 2)
         {
             callDoubleClick(mMousePos, [theEvent modifierFlags]);
-        } else if ([theEvent clickCount] == 1) {
+        } else if ([theEvent clickCount] >= 1) {
             callLeftMouseDown(mMousePos, [theEvent modifierFlags]);
         }
     }

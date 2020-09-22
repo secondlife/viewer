@@ -158,6 +158,8 @@ public:
 	BOOL			setCurrentByIndex( S32 index );
 	S32				getCurrentIndex() const;
 
+	void			setEnabledByValue(const LLSD& value, BOOL enabled);
+
 	void			createLineEditor(const Params&);
 
 	//========================================================================

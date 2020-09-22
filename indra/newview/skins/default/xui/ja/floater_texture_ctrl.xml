@@ -9,14 +9,10 @@
 	<text name="Multiple">
 		複数のテクスチャ
 	</text>
-	<radio_group name="mode_selection">
-		<radio_item label="インベントリ" name="inventory" value="0"/>
-		<radio_item label="ローカル" name="local" value="1"/>
-		<radio_item label="構築（ベーク）" name="bake" value="2"/>
-	</radio_group>
-	<text name="unknown">
-		サイズ： [DIMENSIONS]
-	</text>
+	<combo_box name="mode_selection">
+		<combo_box.item label="インベントリ" name="inventory" value="0"/>
+		<combo_box.item label="ローカル" name="local" value="1"/>
+	</combo_box>
 	<button label="デフォルト" label_selected="デフォルト" name="Default"/>
 	<button label="ブランク" label_selected="ブランク" name="Blank"/>
 	<button label="なし" label_selected="なし" name="None"/>

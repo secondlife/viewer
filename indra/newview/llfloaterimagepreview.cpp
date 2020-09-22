@@ -35,6 +35,7 @@
 
 #include "llagent.h"
 #include "llbutton.h"
+#include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "lldrawable.h"
 #include "lldrawpoolavatar.h"
@@ -115,8 +116,14 @@ BOOL LLFloaterImagePreview::postBuild()
 		mSculptedPreview = new LLImagePreviewSculpted(256, 256);
 		mSculptedPreview->setPreviewTarget(mRawImagep, 2.0f);
 
-		if (mRawImagep->getWidth() * mRawImagep->getHeight () <= LL_IMAGE_REZ_LOSSLESS_CUTOFF * LL_IMAGE_REZ_LOSSLESS_CUTOFF)
-			getChildView("lossless_check")->setEnabled(TRUE);
+        if (mRawImagep->getWidth() * mRawImagep->getHeight() <= LL_IMAGE_REZ_LOSSLESS_CUTOFF * LL_IMAGE_REZ_LOSSLESS_CUTOFF)
+        {
+            // We want "lossless_check" to be unchecked when it is disabled, regardless of
+            // LosslessJ2CUpload state, so only assign control when enabling checkbox
+            LLCheckBoxCtrl* check_box = getChild<LLCheckBoxCtrl>("lossless_check");
+            check_box->setEnabled(TRUE);
+            check_box->setControlVariable(gSavedSettings.getControl("LosslessJ2CUpload"));
+        }
 	}
 	else
 	{

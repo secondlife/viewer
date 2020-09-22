@@ -164,7 +164,7 @@ private:
     void doToSelectedGroup(const LLSD& userdata);
 
 	static void confirmMuteAllCallback(const LLSD& notification, const LLSD& response);
-	bool enableModerateContextMenuItem(const std::string& userdata);
+	bool enableModerateContextMenuItem(const std::string& userdata, bool is_self = false);
 	LLSpeaker * getSpeakerOfSelectedParticipant(LLSpeakerMgr * speaker_managerp);
 	LLSpeakerMgr * getSpeakerMgrForSelectedParticipant();
 	bool isGroupModerator();
