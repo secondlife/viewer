@@ -130,6 +130,7 @@
 #if !LL_LINUX
 #include "cef/dullahan_version.h"
 #include "vlc/libvlc_version.h"
+#include "sqlite3.h"
 #endif // LL_LINUX
 
 // Third party library includes
@@ -3176,6 +3177,15 @@ LLSD LLAppViewer::getViewerInfo() const
 	info["LIBCEF_VERSION"] = cef_ver_codec.str();
 #else
 	info["LIBCEF_VERSION"] = "Undefined";
+#endif
+
+#if !LL_LINUX
+    std::ostringstream sqlite_ver_codec;
+    sqlite_ver_codec << "SQLite: ";
+    sqlite_ver_codec << SQLITE_VERSION;
+    info["SQLITE_VERSION"] = sqlite_ver_codec.str();
+#else
+    info["SQLITE_VERSION"] = "Undefined";
 #endif
 
 #if !LL_LINUX
