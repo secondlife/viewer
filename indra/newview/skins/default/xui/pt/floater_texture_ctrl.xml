@@ -9,14 +9,10 @@
 	<text name="Multiple">
 		Multiplas texturas
 	</text>
-	<radio_group name="mode_selection">
-		<radio_item label="Inventário" name="inventory" value="0"/>
-		<radio_item label="Local" name="local" value="1"/>
-		<radio_item label="Assar" name="bake" value="2"/>
-	</radio_group>
-	<text name="unknown">
-		Tamanho: [DIMENSÕES]
-	</text>
+	<combo_box name="mode_selection">
+		<combo_box.item label="Inventário" name="inventory" value="0"/>
+		<combo_box.item label="Local" name="local" value="1"/>
+	</combo_box>
 	<button label="Padrão" label_selected="Padrão" name="Default"/>
 	<button label="Branco" label_selected="Branco" name="Blank"/>
 	<button label="Nenhum" label_selected="Nenhum" name="None"/>

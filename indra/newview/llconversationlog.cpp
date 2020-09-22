@@ -482,6 +482,10 @@ bool LLConversationLog::saveToFile(const std::string& filename)
 		conv_it->getSessionID().toString(conversation_id);
 		conv_it->getParticipantID().toString(participant_id);
 
+		bool is_adhoc = (conv_it->getConversationType() == LLIMModel::LLIMSession::ADHOC_SESSION);
+		std::string conv_name = is_adhoc ? conv_it->getConversationName() : LLURI::escape(conv_it->getConversationName());
+		std::string file_name = is_adhoc ? conv_it->getHistoryFileName() : LLURI::escape(conv_it->getHistoryFileName());
+
 		// examples of two file entries
 		// [1343221177] 0 1 0 John Doe| 7e4ec5be-783f-49f5-71dz-16c58c64c145 4ec62a74-c246-0d25-2af6-846beac2aa55 john.doe|
 		// [1343222639] 2 0 0 Ad-hoc Conference| c3g67c89-c479-4c97-b21d-32869bcfe8rc 68f1c33e-4135-3e3e-a897-8c9b23115c09 Ad-hoc Conference hash597394a0-9982-766d-27b8-c75560213b9a|
@@ -490,10 +494,10 @@ bool LLConversationLog::saveToFile(const std::string& filename)
 				(S32)conv_it->getConversationType(),
 				(S32)0,
 				(S32)conv_it->hasOfflineMessages(),
-				LLURI::escape(conv_it->getConversationName()).c_str(),
+				conv_name.c_str(),
 				participant_id.c_str(),
 				conversation_id.c_str(),
-				LLURI::escape(conv_it->getHistoryFileName()).c_str());
+				file_name.c_str());
 	}
 	fclose(fp);
 	return true;
@@ -541,14 +545,18 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 				conv_id_buffer,
 				history_file_name);
 
+		bool is_adhoc = ((SessionType)stype == LLIMModel::LLIMSession::ADHOC_SESSION);
+		std::string conv_name = is_adhoc ? conv_name_buffer : LLURI::unescape(conv_name_buffer);
+		std::string file_name = is_adhoc ? history_file_name : LLURI::unescape(history_file_name);
+
 		ConversationParams params;
 		params.time(LLUnits::Seconds::fromValue(time))
 			.conversation_type((SessionType)stype)
 			.has_offline_ims(has_offline_ims)
-			.conversation_name(LLURI::unescape(conv_name_buffer))
+			.conversation_name(conv_name)
 			.participant_id(LLUUID(part_id_buffer))
 			.session_id(LLUUID(conv_id_buffer))
-			.history_filename(LLURI::unescape(history_file_name));
+			.history_filename(file_name);
 
 		LLConversation conversation(params);
 

@@ -142,7 +142,7 @@ private:
     LLFrameTimer    mEraseExpiredTimer;    // Periodically clean out expired entries from the cache
     CapabilityQuery_t mCapability;
     std::string     mCacheFileName;
-    bool            mShutdown;
+    static bool     sShutdown; // control for coroutines, they exist out of LLExperienceCache's scope, so they need a static control
 
     void idleCoro();
 	void eraseExpired();

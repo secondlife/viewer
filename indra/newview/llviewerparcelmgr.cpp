@@ -1906,7 +1906,10 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
                             || music_url.substr(0, 8) == "https://")
                         {
                             LLViewerRegion *region = LLWorld::getInstance()->getRegion(msg->getSender());
-                            optionally_start_music(music_url, parcel->mLocalID, region->getRegionID());
+                            if (region)
+                            {
+                                optionally_start_music(music_url, parcel->mLocalID, region->getRegionID());
+                            }
                         }
                         else
                         {

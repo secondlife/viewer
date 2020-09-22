@@ -33,6 +33,7 @@
 #include <map>
 
 static const std::string PRESETS_DEFAULT = "Default";
+static const std::string PRESETS_DEFAULT_UPPER = "DEFAULT";
 static const std::string PRESETS_DIR = "presets";
 static const std::string PRESETS_GRAPHIC = "graphic";
 static const std::string PRESETS_CAMERA = "camera";
