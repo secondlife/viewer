@@ -27,6 +27,8 @@
 #include "llviewerprecompiledheaders.h"
 #include "llobjectcostmanager.h"
 #include "llvoavatar.h"
+#include "llcontrolavatar.h"
+#include "llavatarappearancedefines.h"
 #include "llappearancemgr.h"
 #include "llviewerobject.h"
 #include "llvovolume.h"
@@ -41,6 +43,8 @@
 #include <set>
 
 #define VALIDATE_COSTS
+
+using namespace LLAvatarAppearanceDefines;
 
 typedef std::set<LLUUID> texture_ids_t;
 
@@ -211,6 +215,7 @@ class LLObjectCostManagerImpl
 	F32 getRenderCostV2(const LLVOVolume *vol);
 
 	F32 getRenderCostLinkset(U32 version, const LLViewerObject *root);
+	F32 getRenderCostAvatar(U32 version, const LLVOAvatar *av);
 	F32 getRenderCostLinksetV1(const LLViewerObject *root);
 	F32 getRenderCostLinksetV2(const LLViewerObject *root);
 
@@ -251,6 +256,70 @@ F32 LLObjectCostManagerImpl::getRenderCostLinkset(U32 version, const LLViewerObj
 	}
 
 	return render_cost;
+}
+
+F32 LLObjectCostManagerImpl::getRenderCostAvatar(U32 version, const LLVOAvatar *av)
+{
+    /*****************************************************************
+     * This calculation should not be modified by third party viewers,
+     * since it is used to limit rendering and should be uniform for
+     * everyone. If you have suggested improvements, submit them to
+     * the official viewer for consideration.
+     *****************************************************************/
+	static const U32 COMPLEXITY_BODY_PART_COST = 200;
+
+	U32 cost = 0;
+	LLVOVolume::texture_cost_t textures;
+	LLVOVolume::texture_cost_t material_textures;
+	hud_complexity_list_t hud_complexity_list;
+
+	for (U8 baked_index = 0; baked_index <= LLAvatarAppearanceDefines::BAKED_HAIR; baked_index++)
+	{
+		const LLAvatarAppearanceDictionary::BakedEntry *baked_dict
+			= LLAvatarAppearanceDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)baked_index);
+		ETextureIndex tex_index = baked_dict->mTextureIndex;
+		if ((tex_index != TEX_SKIRT_BAKED) || (av->isWearingWearableType(LLWearableType::WT_SKIRT)))
+		{
+			if (av->isTextureVisible(tex_index))
+			{
+				cost += COMPLEXITY_BODY_PART_COST;
+			}
+		}
+	}
+	LL_DEBUGS("ARCdetail") << "Avatar body parts complexity: " << cost << LL_ENDL;
+
+	// A standalone animated object needs to be accounted for
+	// using its associated volume. Attached animated objects
+	// will be covered by the subsequent loop over attachments.
+	const LLControlAvatar *control_av = dynamic_cast<const LLControlAvatar*>(av);
+	if (control_av)
+	{
+		LLVOVolume *volp = control_av->mRootVolp;
+		if (volp && !volp->isAttachment())
+		{
+			cost += LLObjectCostManager::instance().getRenderCostLinkset(version, volp); 
+		}
+	}
+
+	// Account for complexity of all attachments.
+	for (LLVOAvatar::attachment_map_t::const_iterator attachment_point = av->mAttachmentPoints.begin(); 
+		 attachment_point != av-> mAttachmentPoints.end();
+		 ++attachment_point)
+	{
+		LLViewerJointAttachment* attachment = attachment_point->second;
+		for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+			 attachment_iter != attachment->mAttachedObjects.end();
+			 ++attachment_iter)
+		{
+			const LLViewerObject* attached_object = (*attachment_iter);
+			if (attached_object && !attached_object->isHUDAttachment() && attached_object->mDrawable && attached_object->mDrawable->getVOVolume())
+			{
+				cost += LLObjectCostManager::instance().getRenderCostLinkset(version, attached_object);
+			}
+		}
+	}
+
+	return cost;
 }
 
 typedef std::vector<const LLVOVolume*> const_vol_vec_t;
@@ -1083,6 +1152,12 @@ F32 LLObjectCostManager::getRenderCostLinkset(U32 version, const LLViewerObject 
 	{
 		render_cost = m_impl->getRenderCostLinkset(version, root);
 	}
+	return render_cost;
+}
+
+F32 LLObjectCostManager::getRenderCostAvatar(U32 version, const LLVOAvatar *av)
+{
+	F32 render_cost = m_impl->getRenderCostAvatar(version, av);
 	return render_cost;
 }
 

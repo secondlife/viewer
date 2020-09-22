@@ -333,7 +333,7 @@ void LLFace::dirtyTexture()
 				{
 					vobj->mLODChanged = TRUE;
 
-                    vobj->updateVisualComplexity();
+                    vobj->flagVisualComplexityStale();
 				}
 				gPipeline.markRebuild(drawablep, LLDrawable::REBUILD_VOLUME, FALSE);
 			}

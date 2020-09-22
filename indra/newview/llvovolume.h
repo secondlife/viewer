@@ -358,7 +358,7 @@ public:
 	LLVector3 getApproximateFaceNormal(U8 face_id);
 
     // Flag any corresponding avatars as needing update.
-    void updateVisualComplexity();
+    void flagVisualComplexityStale();
     
 	void notifyMeshLoaded();
 	

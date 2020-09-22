@@ -548,7 +548,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
     if (getAvatar())
     {
         // ARCTAN
-        getAvatar()->updateVisualComplexity();
+        getAvatar()->flagVisualComplexityStale();
     }
 	return retval;
 }
@@ -1148,17 +1148,17 @@ void LLVOVolume::updateSculptTexture()
 	
 }
 
-void LLVOVolume::updateVisualComplexity()
+void LLVOVolume::flagVisualComplexityStale()
 {
     LLVOAvatar* avatar = getAvatarAncestor();
     if (avatar)
     {
-        avatar->updateVisualComplexity();
+        avatar->flagVisualComplexityStale();
     }
     LLVOAvatar* rigged_avatar = getAvatar();
     if(rigged_avatar && (rigged_avatar != avatar))
     {
-        rigged_avatar->updateVisualComplexity();
+        rigged_avatar->flagVisualComplexityStale();
     }
 	getRootEdit()->mFrameDataStale = true;
 }
@@ -1176,7 +1176,7 @@ void LLVOVolume::notifyMeshLoaded()
     {
         getControlAvatar()->addAttachmentOverridesForObject(this);
     }
-    updateVisualComplexity();
+    flagVisualComplexityStale();
 }
 
 // sculpt replaces generate() for sculpted surfaces
@@ -1903,7 +1903,7 @@ bool LLVOVolume::lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled)
 	{
         if (mDrawable->isState(LLDrawable::RIGGED))
         {
-            updateVisualComplexity();
+            flagVisualComplexityStale();
         }
 
 		compiled = TRUE;
@@ -3613,7 +3613,7 @@ void LLVOVolume::onSetExtendedMeshFlags(U32 flags)
     }
     if (isAttachment() && getAvatarAncestor())
     {
-        updateVisualComplexity();
+        flagVisualComplexityStale();
         if (flags & LLExtendedMeshParams::ANIMATED_MESH_ENABLED_FLAG)
         {
             // Making a rigged mesh into an animated object
@@ -5927,7 +5927,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	}
     if (vol_obj)
     {
-        vol_obj->updateVisualComplexity();
+        vol_obj->flagVisualComplexityStale();
     }
 
 	group->mGeometryBytes = 0;

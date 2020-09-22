@@ -47,6 +47,7 @@ public:
 
 	F32 getRenderCost(U32 version, const LLVOVolume *vol);
 	F32 getRenderCostLinkset(U32 version, const LLViewerObject *root);
+	F32 getRenderCostAvatar(U32 version, const LLVOAvatar *av);
 
 	LLSD getFrameDataPrim(const LLVOVolume *vol);
 	LLSD getFrameDataLinkset(const LLVOVolume *root);

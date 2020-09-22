@@ -297,10 +297,10 @@ public:
 	void			accountSurfaceStatisticsForObject(const LLViewerObject *attached_object);
 
 	F32				calculateRenderComplexity(U32 version = 0) const;
-	
-	void			calculateUpdateRenderComplexityLegacy();
+	F32				calculateRenderComplexityLegacy(hud_complexity_list_t& hud_complexity_list);
+	void			calculateAndUpdateRenderComplexity();
 
-	void			updateVisualComplexity();
+	void			flagVisualComplexityStale();
 	
 	U32				getVisualComplexity(U32 version = 0) const;
 
@@ -509,7 +509,7 @@ private:
 	S32	 		mUpdatePeriod;
 	S32  		mNumInitFaces; //number of faces generated when creating the avatar drawable, does not inculde splitted faces due to long vertex buffer.
 
-	LLFrameTimer mVisualComplexityUpdateTimer; // time since last updateVisualComplexity() call, which sets a flag to force recalculation.
+	LLFrameTimer mVisualComplexityUpdateTimer; // time since last flagVisualComplexityStale() call, which sets a flag to force recalculation.
 
 	std::map<U32, U32> mVisualComplexityValues;
 	bool 		mVisualComplexityStale;

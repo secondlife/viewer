@@ -7191,7 +7191,7 @@ const LLViewerJointAttachment *LLVOAvatar::attachObject(LLViewerObject *viewer_o
         updateAttachmentOverrides();
     }
 
-	updateVisualComplexity();
+	flagVisualComplexityStale();
 
 	if (viewer_object->isSelected())
 	{
@@ -7400,7 +7400,7 @@ BOOL LLVOAvatar::detachObject(LLViewerObject *viewer_object)
 		
 		if (attachment->isObjectAttached(viewer_object))
 		{
-            updateVisualComplexity();
+            flagVisualComplexityStale();
             bool is_animated_object = viewer_object->isAnimatedObject();
 			cleanupAttachedMesh(viewer_object);
 
@@ -7816,7 +7816,7 @@ void LLVOAvatar::updateRezzedStatusTimers(S32 rez_status)
 				selfStopPhase("wear_inventory_category", false);
 				selfStopPhase("process_initial_wearables_update", false);
 
-                updateVisualComplexity();
+                flagVisualComplexityStale();
 			}
 		}
 		mLastRezzedStatus = rez_status;
@@ -9149,7 +9149,7 @@ void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& conte
 
     if (applyParsedTEMessage(contents.mTEContents) > 0 && isChanged(TEXTURE))
     {
-        updateVisualComplexity();
+        flagVisualComplexityStale();
     }
 
 	// prevent the overwriting of valid baked textures with invalid baked textures
@@ -10333,9 +10333,9 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 	const F32 force_complexity_update_interval = 10.0; // update every 10 seconds regardless
 	if (isSelf() &&  mVisualComplexityUpdateTimer.getElapsedTimeF32() > force_complexity_update_interval)
 	{
-		updateVisualComplexity();
+		flagVisualComplexityStale();
 	}
-    calculateUpdateRenderComplexityLegacy(); // Update visual complexity if needed	
+    calculateAndUpdateRenderComplexity();
 
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_AVATAR_DRAW_INFO))
 	{
@@ -10421,7 +10421,7 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 	}
 }
 
-void LLVOAvatar::updateVisualComplexity()
+void LLVOAvatar::flagVisualComplexityStale()
 {
 	LL_DEBUGS("AvatarRender") << "avatar " << getID() << " appearance changed" << LL_ENDL;
 	// Set the cache time to in the past so it's updated ASAP
@@ -10588,75 +10588,15 @@ void LLVOAvatar::accountSurfaceStatisticsForObject(const LLViewerObject *attache
 	}
 }
 
+// ARC this is the new version-aware complexity, using the object cost manager
 F32 LLVOAvatar::calculateRenderComplexity(U32 version) const
 {
-    /*****************************************************************
-     * This calculation should not be modified by third party viewers,
-     * since it is used to limit rendering and should be uniform for
-     * everyone. If you have suggested improvements, submit them to
-     * the official viewer for consideration.
-     *****************************************************************/
-	static const U32 COMPLEXITY_BODY_PART_COST = 200;
-	static LLCachedControl<F32> max_complexity_setting(gSavedSettings,"MaxAttachmentComplexity");
-	F32 max_attachment_complexity = max_complexity_setting;
-	max_attachment_complexity = llmax(max_attachment_complexity, DEFAULT_MAX_ATTACHMENT_COMPLEXITY);
-
-	U32 cost = 0;
-	LLVOVolume::texture_cost_t textures;
-	LLVOVolume::texture_cost_t material_textures;
-	hud_complexity_list_t hud_complexity_list;
-
-	for (U8 baked_index = 0; baked_index <= BAKED_HAIR; baked_index++)
-	{
-		const LLAvatarAppearanceDictionary::BakedEntry *baked_dict
-			= LLAvatarAppearanceDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)baked_index);
-		ETextureIndex tex_index = baked_dict->mTextureIndex;
-		if ((tex_index != TEX_SKIRT_BAKED) || (isWearingWearableType(LLWearableType::WT_SKIRT)))
-		{
-			if (isTextureVisible(tex_index))
-			{
-				cost += COMPLEXITY_BODY_PART_COST;
-			}
-		}
-	}
-	LL_DEBUGS("ARCdetail") << "Avatar body parts complexity: " << cost << LL_ENDL;
-
-	// A standalone animated object needs to be accounted for
-	// using its associated volume. Attached animated objects
-	// will be covered by the subsequent loop over attachments.
-	const LLControlAvatar *control_av = dynamic_cast<const LLControlAvatar*>(this);
-	if (control_av)
-	{
-		LLVOVolume *volp = control_av->mRootVolp;
-		if (volp && !volp->isAttachment())
-		{
-			cost += LLObjectCostManager::instance().getRenderCostLinkset(version, volp); 
-		}
-	}
-
-	// Account for complexity of all attachments.
-	for (attachment_map_t::const_iterator attachment_point = mAttachmentPoints.begin(); 
-		 attachment_point != mAttachmentPoints.end();
-		 ++attachment_point)
-	{
-		LLViewerJointAttachment* attachment = attachment_point->second;
-		for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-			 attachment_iter != attachment->mAttachedObjects.end();
-			 ++attachment_iter)
-		{
-			const LLViewerObject* attached_object = (*attachment_iter);
-			if (attached_object && !attached_object->isHUDAttachment() && attached_object->mDrawable && attached_object->mDrawable->getVOVolume())
-			{
-				cost += LLObjectCostManager::instance().getRenderCostLinkset(version, attached_object);
-			}
-		}
-	}
-
-	return cost;
+	return LLObjectCostManager::instance().getRenderCostAvatar(version, this);
 }
 
-// Calculations for visual complexity value
-void LLVOAvatar::calculateUpdateRenderComplexityLegacy()
+// TODO ARC - this is the old complexity calc. Remove when superseded.
+// TODO ARC hud_complexity_list is still being computed in legacy, needs to be moved into modern code if still useful.
+F32 LLVOAvatar::calculateRenderComplexityLegacy(hud_complexity_list_t& hud_complexity_list)
 {
     /*****************************************************************
      * This calculation should not be modified by third party viewers,
@@ -10672,111 +10612,118 @@ void LLVOAvatar::calculateUpdateRenderComplexityLegacy()
 	// Diagnostic list of all textures on our avatar
 	static std::set<LLUUID> all_textures;
 
+	U32 legacy_cost = 0;
+	LLVOVolume::texture_cost_t textures;
+	LLVOVolume::texture_cost_t material_textures;
+
+	for (U8 baked_index = 0; baked_index <= BAKED_HAIR; baked_index++)
+	{
+		const LLAvatarAppearanceDictionary::BakedEntry *baked_dict
+			= LLAvatarAppearanceDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)baked_index);
+		ETextureIndex tex_index = baked_dict->mTextureIndex;
+		if ((tex_index != TEX_SKIRT_BAKED) || (isWearingWearableType(LLWearableType::WT_SKIRT)))
+		{
+			if (isTextureVisible(tex_index))
+			{
+				legacy_cost += COMPLEXITY_BODY_PART_COST;
+			}
+		}
+	}
+	LL_DEBUGS("ARCdetail") << "Avatar body parts complexity: " << legacy_cost << LL_ENDL;
+
+	mAttachmentVisibleTriangleCount = 0;
+	mAttachmentEstTriangleCount = 0.f;
+	mAttachmentSurfaceArea = 0.f;
+        
+	// A standalone animated object needs to be accounted for
+	// using its associated volume. Attached animated objects
+	// will be covered by the subsequent loop over attachments.
+	LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(this);
+	if (control_av)
+	{
+		LLVOVolume *volp = control_av->mRootVolp;
+		if (volp && !volp->isAttachment())
+		{
+			accountRenderComplexityForObject(volp, max_attachment_complexity,
+											 textures, material_textures, legacy_cost, hud_complexity_list);
+			accountSurfaceStatisticsForObject(volp);
+		}
+	}
+
+	// Account for complexity of all attachments.
+	for (attachment_map_t::const_iterator attachment_point = mAttachmentPoints.begin(); 
+		 attachment_point != mAttachmentPoints.end();
+		 ++attachment_point)
+	{
+		LLViewerJointAttachment* attachment = attachment_point->second;
+		for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+			 attachment_iter != attachment->mAttachedObjects.end();
+			 ++attachment_iter)
+		{
+			const LLViewerObject* attached_object = attachment_iter->get();
+			accountRenderComplexityForObject(attached_object, max_attachment_complexity,
+											 textures, material_textures, legacy_cost, hud_complexity_list);
+			accountSurfaceStatisticsForObject(attached_object);
+		}
+	}
+
+	// Diagnostic output to identify all avatar-related textures.
+	// Does not affect rendering cost calculation.
+	// Could be wrapped in a debug option if output becomes problematic.
+	if (isSelf())
+	{
+		// print any attachment textures we didn't already know about.
+		for (LLVOVolume::texture_cost_t::iterator it = textures.begin(); it != textures.end(); ++it)
+		{
+			LLUUID image_id = it->first;
+			if( ! (image_id.isNull() || image_id == IMG_DEFAULT || image_id == IMG_DEFAULT_AVATAR)
+				&& (all_textures.find(image_id) == all_textures.end()))
+			{
+				// attachment texture not previously seen.
+				LL_DEBUGS("ARCdetail") << "attachment_texture: " << image_id.asString() << LL_ENDL;
+				all_textures.insert(image_id);
+			}
+		}
+
+		// print any avatar textures we didn't already know about
+		for (LLAvatarAppearanceDictionary::Textures::const_iterator iter = LLAvatarAppearanceDictionary::getInstance()->getTextures().begin();
+			 iter != LLAvatarAppearanceDictionary::getInstance()->getTextures().end();
+			 ++iter)
+		{
+			const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = iter->second;
+			// TODO: MULTI-WEARABLE: handle multiple textures for self
+			const LLViewerTexture* te_image = getImage(iter->first,0);
+			if (!te_image)
+				continue;
+			LLUUID image_id = te_image->getID();
+			if( image_id.isNull() || image_id == IMG_DEFAULT || image_id == IMG_DEFAULT_AVATAR)
+				continue;
+			if (all_textures.find(image_id) == all_textures.end())
+			{
+				LL_DEBUGS("ARCdetail") << "local_texture: " << texture_dict->mName << ": " << image_id << LL_ENDL;
+				all_textures.insert(image_id);
+			}
+		}
+	}
+	return legacy_cost;
+}
+
+
+// Calculations for visual complexity value
+// TODO ARC: currently this computes costs several ways. Eventually we want to just compute using the current cost version and remove the legacy code. 
+void LLVOAvatar::calculateAndUpdateRenderComplexity()
+{
     if (mVisualComplexityStale)
 	{
-
-		U32 cost = 0;
-		LLVOVolume::texture_cost_t textures;
-		LLVOVolume::texture_cost_t material_textures;
 		hud_complexity_list_t hud_complexity_list;
-
-		for (U8 baked_index = 0; baked_index <= BAKED_HAIR; baked_index++)
-		{
-		    const LLAvatarAppearanceDictionary::BakedEntry *baked_dict
-				= LLAvatarAppearanceDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)baked_index);
-			ETextureIndex tex_index = baked_dict->mTextureIndex;
-			if ((tex_index != TEX_SKIRT_BAKED) || (isWearingWearableType(LLWearableType::WT_SKIRT)))
-			{
-				if (isTextureVisible(tex_index))
-				{
-					cost += COMPLEXITY_BODY_PART_COST;
-				}
-			}
-		}
-        LL_DEBUGS("ARCdetail") << "Avatar body parts complexity: " << cost << LL_ENDL;
-
-        mAttachmentVisibleTriangleCount = 0;
-        mAttachmentEstTriangleCount = 0.f;
-        mAttachmentSurfaceArea = 0.f;
-        
-        // A standalone animated object needs to be accounted for
-        // using its associated volume. Attached animated objects
-        // will be covered by the subsequent loop over attachments.
-        LLControlAvatar *control_av = dynamic_cast<LLControlAvatar*>(this);
-        if (control_av)
-        {
-            LLVOVolume *volp = control_av->mRootVolp;
-            if (volp && !volp->isAttachment())
-            {
-                accountRenderComplexityForObject(volp, max_attachment_complexity,
-                                                 textures, material_textures, cost, hud_complexity_list);
-				accountSurfaceStatisticsForObject(volp);
-            }
-        }
-
-        // Account for complexity of all attachments.
-		for (attachment_map_t::const_iterator attachment_point = mAttachmentPoints.begin(); 
-			 attachment_point != mAttachmentPoints.end();
-			 ++attachment_point)
-		{
-			LLViewerJointAttachment* attachment = attachment_point->second;
-			for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-				 attachment_iter != attachment->mAttachedObjects.end();
-				 ++attachment_iter)
-			{
-                const LLViewerObject* attached_object = attachment_iter->get();
-                accountRenderComplexityForObject(attached_object, max_attachment_complexity,
-                                                 textures, material_textures, cost, hud_complexity_list);
-				accountSurfaceStatisticsForObject(attached_object);
-			}
-		}
-
-		// Diagnostic output to identify all avatar-related textures.
-		// Does not affect rendering cost calculation.
-		// Could be wrapped in a debug option if output becomes problematic.
-		if (isSelf())
-		{
-			// print any attachment textures we didn't already know about.
-			for (LLVOVolume::texture_cost_t::iterator it = textures.begin(); it != textures.end(); ++it)
-			{
-				LLUUID image_id = it->first;
-				if( ! (image_id.isNull() || image_id == IMG_DEFAULT || image_id == IMG_DEFAULT_AVATAR)
-				   && (all_textures.find(image_id) == all_textures.end()))
-				{
-					// attachment texture not previously seen.
-					LL_DEBUGS("ARCdetail") << "attachment_texture: " << image_id.asString() << LL_ENDL;
-					all_textures.insert(image_id);
-				}
-			}
-
-			// print any avatar textures we didn't already know about
-		    for (LLAvatarAppearanceDictionary::Textures::const_iterator iter = LLAvatarAppearanceDictionary::getInstance()->getTextures().begin();
-			 iter != LLAvatarAppearanceDictionary::getInstance()->getTextures().end();
-				 ++iter)
-			{
-			    const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = iter->second;
-				// TODO: MULTI-WEARABLE: handle multiple textures for self
-				const LLViewerTexture* te_image = getImage(iter->first,0);
-				if (!te_image)
-					continue;
-				LLUUID image_id = te_image->getID();
-				if( image_id.isNull() || image_id == IMG_DEFAULT || image_id == IMG_DEFAULT_AVATAR)
-					continue;
-				if (all_textures.find(image_id) == all_textures.end())
-				{
-					LL_DEBUGS("ARCdetail") << "local_texture: " << texture_dict->mName << ": " << image_id << LL_ENDL;
-					all_textures.insert(image_id);
-				}
-			}
-		}
-
-		// At this point, cost has been computed using the legacy code. Compare to the objectmanager equivalent.
+		F32 legacy_cost = calculateRenderComplexityLegacy(hud_complexity_list);
+		
 		F32 v1_cost = calculateRenderComplexity(1);
 		F32 v2_cost = calculateRenderComplexity(2);
 		U32 unew_cost = (U32) v1_cost;
-		if (unew_cost != cost)
+		if (unew_cost != legacy_cost)
 		{
-			LL_WARNS("Arctan") << "Avatar cost mismatch, old " << cost << ", new " << unew_cost << LL_ENDL;
+			LL_WARNS("Arctan") << "Avatar cost mismatch, old " << legacy_cost << ", new " << unew_cost << LL_ENDL;
 		}
 		
         if ( unew_cost != getVisualComplexity(1) )
@@ -10797,7 +10744,7 @@ void LLVOAvatar::calculateUpdateRenderComplexityLegacy()
 		// FIXME ARC - using new cost here for logging, may not precisely match the V1 ARC formula
 		mVisualComplexityValues[1] = v1_cost;
 		mVisualComplexityValues[2] = v2_cost;
-		mVisualComplexityValues[99] = cost; // FIXME ARC remove when old code path goes away
+		mVisualComplexityValues[99] = legacy_cost; // FIXME ARC remove when old code path goes away
 		mVisualComplexityStale = false;
 
         static LLCachedControl<U32> show_my_complexity_changes(gSavedSettings, "ShowMyComplexityChanges", 20);

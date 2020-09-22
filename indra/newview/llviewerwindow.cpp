@@ -695,7 +695,7 @@ public:
 			{
 				LLVOAvatar* avatar = av_iter->second;
 
-				avatar->calculateUpdateRenderComplexityLegacy(); // Make sure the numbers are up-to-date
+				avatar->calculateAndUpdateRenderComplexity();
 
 				trunc_name = utf8str_truncate(avatar->getFullname(), 16);
 				addText(xpos, ypos, llformat("%s : %s, complexity v1 %d v2 %d), area %.2f",
