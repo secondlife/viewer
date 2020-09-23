@@ -47,23 +47,14 @@ public:
 		Optional<LLButton::Params>	search_button, 
 									clear_button;
 		Optional<bool>				search_button_visible, 
-									clear_button_visible,
-									highlight_text_field;
+									clear_button_visible;
 		Optional<commit_callback_t> keystroke_callback;
-
-		Optional<LLUIImage*>		background_image,
-									background_image_focused,
-									background_image_highlight;
 
 		Params()
 		:	search_button("search_button"),
 			search_button_visible("search_button_visible"),
 			clear_button("clear_button"), 
-			clear_button_visible("clear_button_visible"),
-			highlight_text_field("highlight_text_field"),
-			background_image("background_image"),
-			background_image_focused("background_image_focused"),
-			background_image_highlight("background_image_highlight")
+			clear_button_visible("clear_button_visible")
 		{}
 	};
 
@@ -102,13 +93,6 @@ protected:
 	LLLineEditor* mSearchEditor;
 	LLButton* mSearchButton;
 	LLButton* mClearButton;
-
-	LLPointer<LLUIImage> mEditorImage;
-	LLPointer<LLUIImage> mEditorImageFocused;
-	LLPointer<LLUIImage> mEditorSearchImage;
-	LLPointer<LLUIImage> mEditorSearchImageFocused;
-
-	bool mHighlightTextField;
 };
 
 #endif  // LL_SEARCHEDITOR_H

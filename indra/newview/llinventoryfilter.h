@@ -99,14 +99,6 @@ public:
 		FILTERCREATOR_OTHERS
 	};
 
-	enum ESearchVisibility
-	{
-		VISIBILITY_NONE = 0,
-		VISIBILITY_TRASH = 0x1 << 0,
-		VISIBILITY_LIBRARY = 0x1 << 1,
-		VISIBILITY_LINKS	= 0x1 << 2
-	};
-
 	struct FilterOps
 	{
 		struct DateRange : public LLInitParam::Block<DateRange>
@@ -162,7 +154,6 @@ public:
 						mFilterWearableTypes,
                         mFilterSettingsTypes, // for _SETTINGS
 						mFilterLinks,
-						mSearchVisibility,
 						mFilterCategoryTypes; // For _CATEGORY
 		LLUUID      	mFilterUUID; 		  // for UUID
 
@@ -202,8 +193,7 @@ public:
 	U64 				getFilterObjectTypes() const;
 	U64					getFilterCategoryTypes() const;
 	U64					getFilterWearableTypes() const;
-	U64					getFilterSettingsTypes() const;
-	U64					getSearchVisibilityTypes() const;
+    U64                 getFilterSettingsTypes() const;
 
 	bool 				isFilterObjectTypesWith(LLInventoryType::EType t) const;
 	void 				setFilterObjectTypes(U64 types);
@@ -222,10 +212,6 @@ public:
 	void 				setSearchType(ESearchType type);
 	ESearchType			getSearchType() { return mSearchType; }
 	void 				setFilterCreator(EFilterCreatorType type);
-
-	void				toggleSearchVisibilityLinks();
-	void				toggleSearchVisibilityTrash();
-	void				toggleSearchVisibilityLibrary();
 
 	void 				setFilterSubString(const std::string& string);
 	const std::string& 	getFilterSubString(BOOL trim = FALSE) const;
@@ -323,7 +309,6 @@ private:
 	bool 				checkAgainstPermissions(const LLInventoryItem* item) const;
 	bool 				checkAgainstFilterLinks(const class LLFolderViewModelItemInventory* listener) const;
 	bool 				checkAgainstCreator(const class LLFolderViewModelItemInventory* listener) const;
-	bool				checkAgainstSearchVisibility(const class LLFolderViewModelItemInventory* listener) const;
 	bool				checkAgainstClipboard(const LLUUID& object_id) const;
 
 	FilterOps				mFilterOps;
