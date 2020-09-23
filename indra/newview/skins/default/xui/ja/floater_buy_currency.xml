@@ -59,7 +59,8 @@
 	</text>
 	<button label="購入する" name="buy_btn"/>
 	<button label="取り消し" name="cancel_btn"/>
-	<floater.string name="info_cannot_buy">
+	<text name="info_cannot_buy">
 		購入できません
-	</floater.string>
+	</text>
+	<button label="Web サイトに移動" name="error_web" width="140"/>
 </floater>

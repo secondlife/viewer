@@ -60,7 +60,8 @@ l&apos;oggetto.
 	</text>
 	<button label="Acquista" name="buy_btn"/>
 	<button label="Annulla" name="cancel_btn"/>
-	<floater.string name="info_cannot_buy" left="160" font="SansSerifBig">
+	<text name="info_cannot_buy" left="160" font="SansSerifBig">
 		Non in grado di acquistare
-	</floater.string>
+	</text>
+	<button label="Continua sul Web" name="error_web"/>
 </floater>

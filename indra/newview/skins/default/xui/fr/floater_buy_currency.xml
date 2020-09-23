@@ -60,7 +60,8 @@ le Lindex...
 	</text>
 	<button label="Acheter" name="buy_btn"/>
 	<button label="Annuler" name="cancel_btn"/>
-	<floater.string name="info_cannot_buy" left="160" width="200">
+	<text name="info_cannot_buy" left="160" width="200">
 		Achat impossible
-	</floater.string>
+	</text>
+	<button label="Accéder au Web" name="error_web"/>
 </floater>

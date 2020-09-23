@@ -50,7 +50,8 @@
 	</text>
 	<button label="Kup teraz" name="buy_btn" />
 	<button label="Anuluj" name="cancel_btn" />
-	<floater.string name="info_cannot_buy">
+	<text name="info_cannot_buy">
 		Nie można kupić
-	</floater.string>
+	</text>
+	<button label="Odwiedź stronę WWW" name="error_web" />
 </floater>
