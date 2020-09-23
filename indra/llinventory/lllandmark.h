@@ -60,7 +60,7 @@ public:
 
 	// constructs a new LLLandmark from a string
 	// return NULL if there's an error
-	static LLLandmark* constructFromString(const char *buffer);
+	static LLLandmark* constructFromString(const char *buffer, const S32 buffer_size);
 
 	// register callbacks that this class handles
 	static void registerCallbacks(LLMessageSystem* msg);

@@ -109,36 +109,39 @@ void LLLandmarkList::processGetAssetReply(
 		LLVFile file(vfs, uuid, type);
 		S32 file_length = file.getSize();
 
-		std::vector<char> buffer(file_length + 1);
-		file.read( (U8*)&buffer[0], file_length);
-		buffer[ file_length ] = 0;
+        if (file_length > 0)
+        {
+            std::vector<char> buffer(file_length + 1);
+            file.read((U8*)&buffer[0], file_length);
+            buffer[file_length] = 0;
 
-		LLLandmark* landmark = LLLandmark::constructFromString(&buffer[0]);
-		if (landmark)
-		{
-			gLandmarkList.mList[ uuid ] = landmark;
-			gLandmarkList.mRequestedList.erase(uuid);
-			
-			LLVector3d pos;
-			if(!landmark->getGlobalPos(pos))
-			{
-				LLUUID region_id;
-				if(landmark->getRegionID(region_id))
-				{
-					LLLandmark::requestRegionHandle(
-						gMessageSystem,
-						gAgent.getRegionHost(),
-						region_id,
-						boost::bind(&LLLandmarkList::onRegionHandle, &gLandmarkList, uuid));
-				}
+            LLLandmark* landmark = LLLandmark::constructFromString(&buffer[0], buffer.size());
+            if (landmark)
+            {
+                gLandmarkList.mList[uuid] = landmark;
+                gLandmarkList.mRequestedList.erase(uuid);
 
-				// the callback will be called when we get the region handle.
-			}
-			else
-			{
-				gLandmarkList.makeCallbacks(uuid);
-			}
-		}
+                LLVector3d pos;
+                if (!landmark->getGlobalPos(pos))
+                {
+                    LLUUID region_id;
+                    if (landmark->getRegionID(region_id))
+                    {
+                        LLLandmark::requestRegionHandle(
+                            gMessageSystem,
+                            gAgent.getRegionHost(),
+                            region_id,
+                            boost::bind(&LLLandmarkList::onRegionHandle, &gLandmarkList, uuid));
+                    }
+
+                    // the callback will be called when we get the region handle.
+                }
+                else
+                {
+                    gLandmarkList.makeCallbacks(uuid);
+                }
+            }
+        }
 	}
 	else
 	{

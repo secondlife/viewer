@@ -103,60 +103,100 @@ LLVector3 LLLandmark::getRegionPos() const
 
 
 // static
-LLLandmark* LLLandmark::constructFromString(const char *buffer)
+LLLandmark* LLLandmark::constructFromString(const char *buffer, const S32 buffer_size)
 {
-	const char* cur = buffer;
 	S32 chars_read = 0;
+	S32 chars_read_total = 0;
 	S32 count = 0;
 	U32 version = 0;
 
+    bool bad_block = false;
+    LLLandmark* result = NULL;
+
 	// read version 
-	count = sscanf( cur, "Landmark version %u\n%n", &version, &chars_read );
-	if(count != 1)
-	{
-		goto error;
-	}
+	count = sscanf( buffer, "Landmark version %u\n%n", &version, &chars_read );
 
-	if(version == 1)
-	{
-		LLVector3d pos;
-		cur += chars_read;
-		// read position
-		count = sscanf( cur, "position %lf %lf %lf\n%n", pos.mdV+VX, pos.mdV+VY, pos.mdV+VZ, &chars_read );
-		if( count != 3 )
-		{
-			goto error;
-		}
-		cur += chars_read;
-		// LL_INFOS() << "Landmark read: " << pos << LL_ENDL;
-		
-		return new LLLandmark(pos);
-	}
-	else if(version == 2)
-	{
-		// *NOTE: Changing the buffer size will require changing the
-		// scanf call below.
-		char region_id_str[MAX_STRING];	/* Flawfinder: ignore */
-		LLVector3 pos;
-		cur += chars_read;
-		count = sscanf(	/* Flawfinder: ignore */
-			cur,
-			"region_id %254s\n%n",
-			region_id_str, &chars_read);
-		if(count != 1) goto error;
-		cur += chars_read;
-		count = sscanf(cur, "local_pos %f %f %f\n%n", pos.mV+VX, pos.mV+VY, pos.mV+VZ, &chars_read);
-		if(count != 3) goto error;
-		cur += chars_read;
-		LLLandmark* lm = new LLLandmark;
-		lm->mRegionID.set(region_id_str);
-		lm->mRegionPos = pos;
-		return lm;
-	}
+    if (count != 1)
+    {
+        bad_block = true;
+    }
 
- error:
-	LL_INFOS() << "Bad Landmark Asset: bad _DATA_ block." << LL_ENDL;
-	return NULL;
+    chars_read_total += chars_read;
+
+    if (chars_read_total >= buffer_size)
+    {
+        // either file was truncated or data in file was damaged
+        bad_block = true;
+    }
+
+    if (!bad_block)
+    {
+        switch (version)
+        {
+            case 1:
+            {
+                LLVector3d pos;
+                // read position
+                count = sscanf(buffer + chars_read_total, "position %lf %lf %lf\n%n", pos.mdV + VX, pos.mdV + VY, pos.mdV + VZ, &chars_read);
+                if (count != 3)
+                {
+                    bad_block = true;
+                }
+                else
+                {
+                    LL_DEBUGS("Landmark") << "Landmark read: " << pos << LL_ENDL;
+                    result = new LLLandmark(pos);
+                }
+                break;
+            }
+            case 2:
+            {
+                // *NOTE: Changing the buffer size will require changing the
+                // scanf call below.
+                char region_id_str[MAX_STRING];
+                LLVector3 pos;
+                count = sscanf( buffer + chars_read_total,
+                                "region_id %254s\n%n",
+                                region_id_str,
+                                &chars_read);
+                if (count != 1)
+                {
+                    bad_block = true;
+                }
+                chars_read_total += chars_read;
+                if (chars_read_total >= buffer_size)
+                {
+                    bad_block = true;
+                }
+                if (!bad_block)
+                {
+                    count = sscanf(buffer + chars_read_total, "local_pos %f %f %f\n%n", pos.mV + VX, pos.mV + VY, pos.mV + VZ, &chars_read);
+                    if (count != 3)
+                    {
+                        bad_block = true;
+                    }
+                    else
+                    {
+                        result = new LLLandmark;
+                        result->mRegionID.set(region_id_str);
+                        result->mRegionPos = pos;
+                    }
+                }
+                break;
+            }
+            default:
+            {
+                LL_INFOS("Landmark") << "Encountered Unknown landmark version " << version << LL_ENDL;
+                break;
+            }
+        }
+    }
+
+    if (bad_block)
+    {
+        LL_INFOS("Landmark") << "Bad Landmark Asset: bad _DATA_ block." << LL_ENDL;
+    }
+    return result;
 }
 
 
@@ -176,7 +216,7 @@ void LLLandmark::requestRegionHandle(
 	if(region_id.isNull())
 	{
 		// don't bother with checking - it's 0.
-		LL_DEBUGS() << "requestRegionHandle: null" << LL_ENDL;
+		LL_DEBUGS("Landmark") << "requestRegionHandle: null" << LL_ENDL;
 		if(callback)
 		{
 			const U64 U64_ZERO = 0;
@@ -187,7 +227,7 @@ void LLLandmark::requestRegionHandle(
 	{
 		if(region_id == mLocalRegion.first)
 		{
-			LL_DEBUGS() << "requestRegionHandle: local" << LL_ENDL;
+			LL_DEBUGS("Landmark") << "requestRegionHandle: local" << LL_ENDL;
 			if(callback)
 			{
 				callback(region_id, mLocalRegion.second);
@@ -198,13 +238,13 @@ void LLLandmark::requestRegionHandle(
 			region_map_t::iterator it = mRegions.find(region_id);
 			if(it == mRegions.end())
 			{
-				LL_DEBUGS() << "requestRegionHandle: upstream" << LL_ENDL;
+				LL_DEBUGS("Landmark") << "requestRegionHandle: upstream" << LL_ENDL;
 				if(callback)
 				{
 					region_callback_map_t::value_type vt(region_id, callback);
 					sRegionCallbackMap.insert(vt);
 				}
-				LL_DEBUGS() << "Landmark requesting information about: "
+				LL_DEBUGS("Landmark") << "Landmark requesting information about: "
 						 << region_id << LL_ENDL;
 				msg->newMessage("RegionHandleRequest");
 				msg->nextBlock("RequestBlock");
@@ -214,7 +254,7 @@ void LLLandmark::requestRegionHandle(
 			else if(callback)
 			{
 				// we have the answer locally - just call the callack.
-				LL_DEBUGS() << "requestRegionHandle: ready" << LL_ENDL;
+				LL_DEBUGS("Landmark") << "requestRegionHandle: ready" << LL_ENDL;
 				callback(region_id, (*it).second.mRegionHandle);
 			}
 		}
