@@ -73,6 +73,7 @@ bool get_hud_matrices(glh::matrix4f &proj, glh::matrix4f &model);
 const LLPanelPrimMediaControls::EZoomLevel LLPanelPrimMediaControls::kZoomLevels[] = { ZOOM_NONE, ZOOM_MEDIUM };
 const int LLPanelPrimMediaControls::kNumZoomLevels = 2;
 
+const F32 EXCEEDING_ZOOM_DISTANCE = 0.5f;
 //
 // LLPanelPrimMediaControls
 //
@@ -93,6 +94,7 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
 	mZoomObjectID(LLUUID::null),
 	mZoomObjectFace(0),
 	mVolumeSliderVisible(0),
+	mZoomedCameraPos(),
 	mWindowShade(NULL),
 	mHideImmediately(false),
     mSecureURL(false),
@@ -256,7 +258,7 @@ void LLPanelPrimMediaControls::focusOnTarget()
 	LLViewerMediaImpl* media_impl = getTargetMediaImpl();
 	if(media_impl)
 	{
-		if(!media_impl->hasFocus())
+		if (!media_impl->hasFocus())
 		{	
 			// The current target doesn't have media focus -- focus on it.
 			LLViewerObject* objectp = getTargetObject();
@@ -307,7 +309,8 @@ void LLPanelPrimMediaControls::updateShape()
 
 	bool can_navigate = parcel->getMediaAllowNavigate();
 	bool enabled = false;
-	bool is_zoomed = (mCurrentZoom != ZOOM_NONE) && (mTargetObjectID == mZoomObjectID) && (mTargetObjectFace == mZoomObjectFace);
+	bool is_zoomed = (mCurrentZoom != ZOOM_NONE) && (mTargetObjectID == mZoomObjectID) && (mTargetObjectFace == mZoomObjectFace) && !isZoomDistExceeding();
+	
 	// There is no such thing as "has_focus" being different from normal controls set
 	// anymore (as of user feedback from bri 10/09).  So we cheat here and force 'has_focus'
 	// to 'true' (or, actually, we use a setting)
@@ -1141,7 +1144,7 @@ void LLPanelPrimMediaControls::updateZoom()
 	if (zoom_padding > 0.0f)
 	{	
 		// since we only zoom into medium for now, always set zoom_in constraint to true
-		LLViewerMediaFocus::setCameraZoom(getTargetObject(), mTargetObjectNormal, zoom_padding, true);
+		mZoomedCameraPos = LLViewerMediaFocus::setCameraZoom(getTargetObject(), mTargetObjectNormal, zoom_padding, true);
 	}
 	
 	// Remember the object ID/face we zoomed into, so we can update the zoom icon appropriately
@@ -1401,6 +1404,10 @@ bool LLPanelPrimMediaControls::shouldVolumeSliderBeVisible()
 	return mVolumeSliderVisible > 0;
 }
 
+bool LLPanelPrimMediaControls::isZoomDistExceeding()
+{
+	return (gAgentCamera.getCameraPositionGlobal() - mZoomedCameraPos).normalize() >= EXCEEDING_ZOOM_DISTANCE;
+}
 
 void LLPanelPrimMediaControls::clearFaceOnFade()
 {

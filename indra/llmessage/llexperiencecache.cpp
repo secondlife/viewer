@@ -85,15 +85,15 @@ const F64 LLExperienceCache::DEFAULT_EXPIRATION	= 600.0;
 const S32 LLExperienceCache::DEFAULT_QUOTA			= 128; // this is megabytes
 const int LLExperienceCache::SEARCH_PAGE_SIZE     = 30;
 
+bool LLExperienceCache::sShutdown = false;
+
 //=========================================================================
-LLExperienceCache::LLExperienceCache():
-    mShutdown(false)
+LLExperienceCache::LLExperienceCache()
 {
 }
 
 LLExperienceCache::~LLExperienceCache()
 {
-
 }
 
 void LLExperienceCache::initSingleton()
@@ -122,7 +122,7 @@ void LLExperienceCache::cleanup()
     {
         cache_stream << (*this);
     }
-    mShutdown = true;
+    sShutdown = true;
 }
 
 //-------------------------------------------------------------------------
@@ -344,7 +344,7 @@ void LLExperienceCache::requestExperiences()
     ostr << urlBase << "?page_size=" << PAGE_SIZE1;
     RequestQueue_t  requests;
 
-    while (!mRequestQueue.empty())
+    while (!mRequestQueue.empty() && !sShutdown)
     {
         RequestQueue_t::iterator it = mRequestQueue.begin();
         LLUUID key = (*it);
@@ -398,8 +398,6 @@ void LLExperienceCache::idleCoro()
     LL_INFOS("ExperienceCache") << "Launching Experience cache idle coro." << LL_ENDL;
     do 
     {
-        llcoro::suspendUntilTimeout(SECS_BETWEEN_REQUESTS);
-
         if (mEraseExpiredTimer.checkExpirationAndReset(ERASE_EXPIRED_TIMEOUT))
         {
             eraseExpired();
@@ -410,7 +408,9 @@ void LLExperienceCache::idleCoro()
             requestExperiences();
         }
 
-    } while (!mShutdown);
+        llcoro::suspendUntilTimeout(SECS_BETWEEN_REQUESTS);
+
+    } while (!sShutdown);
 
     // The coroutine system will likely be shut down by the time we get to this point
     // (or at least no further cycling will occur on it since the user has decided to quit.)
