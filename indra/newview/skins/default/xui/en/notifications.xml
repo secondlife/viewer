@@ -4214,6 +4214,13 @@ Leave Group?
      yestext="OK"/>
   </notification>
 
+  <notification
+   icon="notify.tga"
+   name="GroupDepart"
+   type="notify">
+You have left the group &apos;&lt;nolink&gt;[group_name]&lt;/nolink&gt;&apos;.
+    <tag>group</tag>
+  </notification>
 
   <notification
    icon="alertmodal.tga"
