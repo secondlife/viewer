@@ -125,10 +125,6 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 			{
 				data.mWidth = (*it)["width"].asInteger();
 			}
-			else
-			{
-				data.mWidth = 0;
-			}
 
 			mButtonData.push_back(data);
 			option_index++;

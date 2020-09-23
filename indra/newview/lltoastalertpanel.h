@@ -82,6 +82,10 @@ private:
 
 	struct ButtonData
 	{
+		ButtonData()
+		: mWidth(0)
+		{}
+		
 		LLButton* mButton;
 		std::string mURL;
 		U32 mURLExternal;
