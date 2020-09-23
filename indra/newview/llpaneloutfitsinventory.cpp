@@ -55,6 +55,7 @@ LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 	mMyOutfitsPanel(NULL),
 	mCurrentOutfitPanel(NULL),
 	mActivePanel(NULL),
+	mAppearanceTabs(NULL),
 	mInitialized(false)
 {
 	gAgentWearables.addLoadedCallback(boost::bind(&LLPanelOutfitsInventory::onWearablesLoaded, this));
@@ -312,6 +313,7 @@ void LLPanelOutfitsInventory::initTabPanels()
 
 void LLPanelOutfitsInventory::onTabChange()
 {
+	if (!mAppearanceTabs) return;
 	mActivePanel = dynamic_cast<LLPanelAppearanceTab*>(mAppearanceTabs->getCurrentPanel());
 	if (!mActivePanel) return;
 

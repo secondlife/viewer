@@ -77,12 +77,12 @@ public:
     ///
     inline size_t countActive() const
     {
-        return mActiveCoprocs.size();
+        return mActiveCoprocsCount;
     }
 
     /// Returns the total number of coprocedures either queued or in active processing.
     ///
-    inline size_t count() const
+    inline S32 count() const
     {
         return countPending() + countActive();
     }
@@ -113,12 +113,10 @@ private:
     // because the consuming coroutine might outlive this LLCoprocedurePool
     // instance.
     typedef boost::shared_ptr<CoprocQueue_t> CoprocQueuePtr;
-    typedef std::map<LLUUID, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t> ActiveCoproc_t;
 
     std::string     mPoolName;
-    size_t          mPoolSize, mPending{0};
+    size_t          mPoolSize, mActiveCoprocsCount, mPending;
     CoprocQueuePtr  mPendingCoprocs;
-    ActiveCoproc_t  mActiveCoprocs;
     LLTempBoundListener mStatusListener;
 
     typedef std::map<std::string, LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t> CoroAdapterMap_t;
@@ -191,8 +189,13 @@ LLUUID LLCoprocedureManager::enqueueCoprocedure(const std::string &pool, const s
 
 void LLCoprocedureManager::setPropertyMethods(SettingQuery_t queryfn, SettingUpdate_t updatefn)
 {
+    // functions to discover and store the pool sizes
     mPropertyQueryFn = queryfn;
     mPropertyDefineFn = updatefn;
+
+    // workaround until we get mutex into initializePool
+    initializePool("VAssetStorage");
+    initializePool("Upload");
 }
 
 //-------------------------------------------------------------------------
@@ -276,6 +279,8 @@ void LLCoprocedureManager::close(const std::string &pool)
 LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
     mPoolName(poolName),
     mPoolSize(size),
+    mActiveCoprocsCount(0),
+    mPending(0),
     mPendingCoprocs(boost::make_shared<CoprocQueue_t>(DEFAULT_QUEUE_SIZE)),
     mHTTPPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
     mCoroMapping()
@@ -401,8 +406,7 @@ void LLCoprocedurePool::coprocedureInvokerCoro(
         }
         // we actually popped an item
         --mPending;
-
-        ActiveCoproc_t::iterator itActive = mActiveCoprocs.insert(ActiveCoproc_t::value_type(coproc->mId, httpAdapter)).first;
+        mActiveCoprocsCount++;
 
         LL_DEBUGS("CoProcMgr") << "Dequeued and invoking coprocedure(" << coproc->mName << ") with id=" << coproc->mId.asString() << " in pool \"" << mPoolName << "\" (" << mPending << " left)" << LL_ENDL;
 
@@ -410,19 +414,25 @@ void LLCoprocedurePool::coprocedureInvokerCoro(
         {
             coproc->mProc(httpAdapter, coproc->mId);
         }
+        catch (const LLCoros::Stop &e)
+        {
+            LL_INFOS("LLCoros") << "coprocedureInvokerCoro terminating because "
+                << e.what() << LL_ENDL;
+            throw; // let toplevel handle this as LLContinueError
+        }
         catch (...)
         {
             LOG_UNHANDLED_EXCEPTION(STRINGIZE("Coprocedure('" << coproc->mName
                                               << "', id=" << coproc->mId.asString()
                                               << ") in pool '" << mPoolName << "'"));
             // must NOT omit this or we deplete the pool
-            mActiveCoprocs.erase(itActive);
+            mActiveCoprocsCount--;
             continue;
         }
 
         LL_DEBUGS("CoProcMgr") << "Finished coprocedure(" << coproc->mName << ")" << " in pool \"" << mPoolName << "\"" << LL_ENDL;
 
-        mActiveCoprocs.erase(itActive);
+        mActiveCoprocsCount--;
     }
 }
 

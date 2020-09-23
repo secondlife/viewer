@@ -49,6 +49,7 @@
 /// LLViewerAssetRequest
 ///----------------------------------------------------------------------------
 
+ // There is also PoolSizeVAssetStorage value in setting that should mirror this name
 static const std::string VIEWER_ASSET_STORAGE_CORO_POOL = "VAssetStorage";
 
 /**
