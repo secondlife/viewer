@@ -1024,6 +1024,18 @@ The group no longer has open enrollment.
 
   <notification
    icon="alertmodal.tga"
+   name="JoinGroupSuccess"
+   type="alertmodal">
+You have been added to the group
+    <tag>group_id</tag>
+    <tag>success</tag>
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
    name="JoinGroupInsufficientFunds"
    type="alertmodal">
 Unable to transfer the required L$ [membership_fee] membership fee.
