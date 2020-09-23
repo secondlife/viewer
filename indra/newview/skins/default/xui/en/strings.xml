@@ -2833,6 +2833,7 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="AcquiredItems">Acquired Items</string>
 	<string name="Cancel">Cancel</string>
 	<string name="UploadingCosts">Uploading [NAME] costs L$ [AMOUNT]</string>
+	<string name="BuyingCosts">Buying this costs L$ [AMOUNT]</string>
 	<string name="UnknownFileExtension">
 		Unknown file extension .%s
 Expected .wav, .tga, .bmp, .jpg, .jpeg, or .anim
@@ -3788,12 +3789,11 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="to upload">to upload</string>
   <string name="to publish a classified ad">to publish a classified ad</string>
 
+  <string name="giving">Giving L$ [AMOUNT]</string>
   <string name="uploading_costs">Uploading costs L$ [AMOUNT]</string>
   <string name="this_costs">This costs L$ [AMOUNT]</string>
-  
-  <string name="buying_selected_land">This land costs</string>
-  <string name="this_object_costs">This item costs</string>
-  <string name="giving">You want to give</string>
+  <string name="buying_selected_land">Buying selected land for L$ [AMOUNT]</string>
+  <string name="this_object_costs">This object costs L$ [AMOUNT]</string>
 
   <string name="group_role_everyone">Everyone</string>
   <string name="group_role_officers">Officers</string>
