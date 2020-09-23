@@ -357,6 +357,8 @@ void LLFloaterModelPreview::onUploadOptionChecked(LLUICtrl* ctrl)
             {
                 mModelPreview->mViewOption["show_joint_overrides"] = false;
                 mModelPreview->mViewOption["show_joint_positions"] = false;
+                childSetValue("show_joint_overrides", false);
+                childSetValue("show_joint_positions", false);
             }
         }
         else if (name == "upload_joints")
