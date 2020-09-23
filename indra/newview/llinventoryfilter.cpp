@@ -1230,18 +1230,6 @@ const std::string& LLInventoryFilter::getFilterText()
 		filtered_by_all_types = FALSE;
 	}
 
-	if (isFilterObjectTypesWith(LLInventoryType::IT_SETTINGS))
-	{
-		filtered_types +=  LLTrans::getString("Settings");
-		filtered_by_type = TRUE;
-		num_filter_types++;
-	}
-	else
-	{
-		not_filtered_types +=  LLTrans::getString("Settings");
-		filtered_by_all_types = FALSE;
-	}
-
 	if (!LLInventoryModelBackgroundFetch::instance().folderFetchActive()
 		&& filtered_by_type
 		&& !filtered_by_all_types)
