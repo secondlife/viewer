@@ -18,16 +18,17 @@ set(llfilesystem_SOURCE_FILES
     lldiriterator.cpp
     lllfsthread.cpp
     lldiskcache.cpp
+    llfilesystem.cpp
     )
 
 set(llfilesystem_HEADER_FILES
     CMakeLists.txt
-
     lldir.h
     lldirguard.h
     lldiriterator.h
     lllfsthread.h
     lldiskcache.h
+    llfilesystem.h
     )
 
 if (DARWIN)

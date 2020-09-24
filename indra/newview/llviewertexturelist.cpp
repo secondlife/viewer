@@ -41,7 +41,7 @@
 
 #include "llsdserialize.h"
 #include "llsys.h"
-#include "lldiskcache.h"
+#include "llfilesystem.h"
 #include "llxmltree.h"
 #include "message.h"
 

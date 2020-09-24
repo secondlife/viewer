@@ -52,7 +52,7 @@
 #include "lldir.h"
 #include "llnotificationsutil.h"
 #include "llviewerstats.h"
-#include "lldiskcache.h"
+#include "llfilesystem.h"
 #include "lluictrlfactory.h"
 #include "lltrans.h"
 

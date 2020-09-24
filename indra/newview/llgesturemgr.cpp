@@ -42,7 +42,7 @@
 #include "llnotificationsutil.h"
 #include "llstl.h"
 #include "llstring.h"	// todo: remove
-#include "lldiskcache.h"
+#include "llfilesystem.h"
 #include "message.h"
 
 // newview
@@ -1055,7 +1055,7 @@ void LLGestureMgr::onLoadComplete(const LLUUID& asset_uuid,
 
 	if (0 == status)
 	{
-		LLDiskCache file(asset_uuid, type, LLDiskCache::READ);
+		LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
 		S32 size = file.getSize();
 
 		std::vector<char> buffer(size+1);

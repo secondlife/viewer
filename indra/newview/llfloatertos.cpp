@@ -40,7 +40,7 @@
 #include "lltextbox.h"
 #include "llui.h"
 #include "lluictrlfactory.h"
-#include "lldiskcache.h"
+#include "llfilesystem.h"
 #include "message.h"
 #include "llstartup.h"              // login_alert_done
 #include "llcorehttputil.h"

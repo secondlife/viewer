@@ -28,7 +28,7 @@
 
 #include "llviewerassetstorage.h"
 
-#include "lldiskcache.h"
+#include "llfilesystem.h"
 #include "message.h"
 
 #include "llagent.h"
@@ -152,13 +152,13 @@ void LLViewerAssetStorage::storeAssetData(
     
     if (mUpstreamHost.isOk())
     {
-        if (LLDiskCache::getExists(asset_id, asset_type))
+        if (LLFileSystem::getExists(asset_id, asset_type))
         {
             // Pack data into this packet if we can fit it.
             U8 buffer[MTUBYTES];
             buffer[0] = 0;
 
-            LLDiskCache vfile(asset_id, asset_type, LLDiskCache::READ);
+            LLFileSystem vfile(asset_id, asset_type, LLFileSystem::READ);
             S32 asset_size = vfile.getSize();
 
             LLAssetRequest *req = new LLAssetRequest(asset_id, asset_type);
@@ -180,7 +180,7 @@ void LLViewerAssetStorage::storeAssetData(
             else
             {
                 // LLAssetStorage metric: Successful Request
-                S32 size = LLDiskCache::getFileSize(asset_id, asset_type);
+                S32 size = LLFileSystem::getFileSize(asset_id, asset_type);
                 const char *message = "Added to upload queue";
                 reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, size, MR_OKAY, __FILE__, __LINE__, message );
 
@@ -291,7 +291,7 @@ void LLViewerAssetStorage::storeAssetData(
         legacy->mUpCallback = callback;
         legacy->mUserData = user_data;
 
-        LLDiskCache file(asset_id, asset_type, LLDiskCache::WRITE);
+        LLFileSystem file(asset_id, asset_type, LLFileSystem::WRITE);
 
         file.setMaxSize(size);
 
@@ -527,7 +527,7 @@ void LLViewerAssetStorage::assetRequestCoro(
 			// case.
             LLUUID temp_id;
             temp_id.generate();
-            LLDiskCache vf(temp_id, atype, LLDiskCache::WRITE);
+            LLFileSystem vf(temp_id, atype, LLFileSystem::WRITE);
             vf.setMaxSize(size);
             req->mBytesFetched = size;
             if (!vf.write(raw.data(),size))

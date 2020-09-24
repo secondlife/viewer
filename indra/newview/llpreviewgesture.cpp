@@ -47,7 +47,7 @@
 #include "llradiogroup.h"
 #include "llresmgr.h"
 #include "lltrans.h"
-#include "lldiskcache.h"
+#include "llfilesystem.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
@@ -852,7 +852,7 @@ void LLPreviewGesture::onLoadComplete(const LLUUID& asset_uuid,
 	{
 		if (0 == status)
 		{
-			LLDiskCache file(asset_uuid, type, LLDiskCache::READ);
+			LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
 			S32 size = file.getSize();
 
 			std::vector<char> buffer(size+1);
@@ -1137,7 +1137,7 @@ void LLPreviewGesture::saveIfNeeded()
             tid.generate();
             assetId = tid.makeAssetID(gAgent.getSecureSessionID());
 
-            LLDiskCache file(assetId, LLAssetType::AT_GESTURE, LLDiskCache::APPEND);
+            LLFileSystem file(assetId, LLAssetType::AT_GESTURE, LLFileSystem::APPEND);
 
             S32 size = dp.getCurrentSize();
             file.setMaxSize(size);

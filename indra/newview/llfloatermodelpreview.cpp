@@ -77,7 +77,7 @@
 #include "llspinctrl.h"
 #include "lltoggleablemenu.h"
 #include "lltrans.h"
-#include "lldiskcache.h"
+#include "llfilesystem.h"
 #include "llcallbacklist.h"
 #include "llviewerobjectlist.h"
 #include "llanimationstates.h"

@@ -1,6 +1,9 @@
 /** 
- * @file lldiskcache.cpp
- * @brief Implementation of virtual file
+ * @file filesystem.h
+ * @brief Simulate local file system operations.
+ * @Note The initial implementation does actually use standard C++
+ *       file operations but eventually, there will be another
+ *       layer that caches and manages file meta data too.
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -26,25 +29,21 @@
 
 #include "linden_common.h"
 
+#include "lldir.h"
+#include "llfilesystem.h"
+#include "llfasttimer.h"
 #include "lldiskcache.h"
 
-#include "llerror.h"
-#include "llthread.h"
-#include "lltimer.h"
-#include "llfasttimer.h"
-#include "llmemory.h"
-
 #include <fstream>
-#include "lldir.h"
 
-const S32 LLDiskCache::READ			= 0x00000001;
-const S32 LLDiskCache::WRITE		= 0x00000002;
-const S32 LLDiskCache::READ_WRITE	= 0x00000003;  // LLDiskCache::READ & LLDiskCache::WRITE
-const S32 LLDiskCache::APPEND		= 0x00000006;  // 0x00000004 & LLDiskCache::WRITE
+const S32 LLFileSystem::READ		= 0x00000001;
+const S32 LLFileSystem::WRITE		= 0x00000002;
+const S32 LLFileSystem::READ_WRITE	= 0x00000003;  // LLFileSystem::READ & LLFileSystem::WRITE
+const S32 LLFileSystem::APPEND		= 0x00000006;  // 0x00000004 & LLFileSystem::WRITE
 
 static LLTrace::BlockTimerStatHandle FTM_VFILE_WAIT("VFile Wait");
 
-LLDiskCache::LLDiskCache(const LLUUID &file_id, const LLAssetType::EType file_type, S32 mode)
+LLFileSystem::LLFileSystem(const LLUUID &file_id, const LLAssetType::EType file_type, S32 mode)
 {
 	mFileType =	file_type;
 	mFileID = file_id;
@@ -54,7 +53,7 @@ LLDiskCache::LLDiskCache(const LLUUID &file_id, const LLAssetType::EType file_ty
 	mMode = mode;
 }
 
-LLDiskCache::~LLDiskCache()
+LLFileSystem::~LLFileSystem()
 {
 }
 
@@ -124,7 +123,7 @@ const std::string idToFilepath(const std::string id, LLAssetType::EType at)
 }
 
 // static
-bool LLDiskCache::getExists(const LLUUID &file_id, const LLAssetType::EType file_type)
+bool LLFileSystem::getExists(const LLUUID &file_id, const LLAssetType::EType file_type)
 {
 	std::string id_str;
 	file_id.toString(id_str);
@@ -140,7 +139,7 @@ bool LLDiskCache::getExists(const LLUUID &file_id, const LLAssetType::EType file
 }
 
 // static
-bool LLDiskCache::removeFile(const LLUUID &file_id, const LLAssetType::EType file_type)
+bool LLFileSystem::removeFile(const LLUUID &file_id, const LLAssetType::EType file_type)
 {
     std::string id_str;
     file_id.toString(id_str);
@@ -152,7 +151,7 @@ bool LLDiskCache::removeFile(const LLUUID &file_id, const LLAssetType::EType fil
 }
 
 // static
-bool LLDiskCache::renameFile(const LLUUID &old_file_id, const LLAssetType::EType old_file_type,
+bool LLFileSystem::renameFile(const LLUUID &old_file_id, const LLAssetType::EType old_file_type,
                          const LLUUID &new_file_id, const LLAssetType::EType new_file_type)
 {
     std::string old_id_str;
@@ -175,7 +174,7 @@ bool LLDiskCache::renameFile(const LLUUID &old_file_id, const LLAssetType::EType
 }
 
 // static
-S32 LLDiskCache::getFileSize(const LLUUID &file_id, const LLAssetType::EType file_type)
+S32 LLFileSystem::getFileSize(const LLUUID &file_id, const LLAssetType::EType file_type)
 {
     std::string id_str;
     file_id.toString(id_str);
@@ -192,7 +191,7 @@ S32 LLDiskCache::getFileSize(const LLUUID &file_id, const LLAssetType::EType fil
     return file_size;
 }
 
-BOOL LLDiskCache::read(U8 *buffer, S32 bytes, BOOL async, F32 priority)
+BOOL LLFileSystem::read(U8 *buffer, S32 bytes, BOOL async, F32 priority)
 {
 	BOOL success = TRUE;
 
@@ -232,7 +231,7 @@ BOOL LLDiskCache::read(U8 *buffer, S32 bytes, BOOL async, F32 priority)
     return success;
 }
 
-BOOL LLDiskCache::isReadComplete()
+BOOL LLFileSystem::isReadComplete()
 {
     if (mReadComplete)
     {
@@ -242,17 +241,17 @@ BOOL LLDiskCache::isReadComplete()
     return FALSE;
 }
 
-S32 LLDiskCache::getLastBytesRead()
+S32 LLFileSystem::getLastBytesRead()
 {
 	return mBytesRead;
 }
 
-BOOL LLDiskCache::eof()
+BOOL LLFileSystem::eof()
 {
 	return mPosition >= getSize();
 }
 
-BOOL LLDiskCache::write(const U8 *buffer, S32 bytes)
+BOOL LLFileSystem::write(const U8 *buffer, S32 bytes)
 {
     std::string id_str;
     mFileID.toString(id_str);
@@ -287,14 +286,14 @@ BOOL LLDiskCache::write(const U8 *buffer, S32 bytes)
 }
 
 //static
-BOOL LLDiskCache::writeFile(const U8 *buffer, S32 bytes, const LLUUID &uuid, LLAssetType::EType type)
+BOOL LLFileSystem::writeFile(const U8 *buffer, S32 bytes, const LLUUID &uuid, LLAssetType::EType type)
 {
-	LLDiskCache file(uuid, type, LLDiskCache::WRITE);
+	LLFileSystem file(uuid, type, LLFileSystem::WRITE);
 	file.setMaxSize(bytes);
 	return file.write(buffer, bytes);
 }
 
-BOOL LLDiskCache::seek(S32 offset, S32 origin)
+BOOL LLFileSystem::seek(S32 offset, S32 origin)
 {
 	if (-1 == origin)
 	{
@@ -324,32 +323,32 @@ BOOL LLDiskCache::seek(S32 offset, S32 origin)
 	return TRUE;
 }
 
-S32 LLDiskCache::tell() const
+S32 LLFileSystem::tell() const
 {
 	return mPosition;
 }
 
-S32 LLDiskCache::getSize()
+S32 LLFileSystem::getSize()
 {
-    return LLDiskCache::getFileSize(mFileID, mFileType);
+    return LLFileSystem::getFileSize(mFileID, mFileType);
 }
 
-S32 LLDiskCache::getMaxSize()
+S32 LLFileSystem::getMaxSize()
 {
     // offer up a huge size since we don't care what the max is 
     return INT_MAX;
 }
 
-BOOL LLDiskCache::setMaxSize(S32 size)
+BOOL LLFileSystem::setMaxSize(S32 size)
 {
     // we don't care what the max size is so we do nothing
     // and return true to indicate all was okay
     return TRUE;
 }
 
-BOOL LLDiskCache::rename(const LLUUID &new_id, const LLAssetType::EType new_type)
+BOOL LLFileSystem::rename(const LLUUID &new_id, const LLAssetType::EType new_type)
 {
-    LLDiskCache::renameFile(mFileID, mFileType, new_id, new_type);
+    LLFileSystem::renameFile(mFileID, mFileType, new_id, new_type);
 
     mFileID = new_id;
     mFileType = new_type;
@@ -357,31 +356,31 @@ BOOL LLDiskCache::rename(const LLUUID &new_id, const LLAssetType::EType new_type
     return TRUE;
 }
 
-BOOL LLDiskCache::remove()
+BOOL LLFileSystem::remove()
 {
-    LLDiskCache::removeFile(mFileID, mFileType);
+    LLFileSystem::removeFile(mFileID, mFileType);
 
     return TRUE;
 }
 
 // static
-void LLDiskCache::initClass()
+void LLFileSystem::initClass()
 {
 }
 
 // static
-void LLDiskCache::cleanupClass()
+void LLFileSystem::cleanupClass()
 {
 }
 
-bool LLDiskCache::isLocked()
+bool LLFileSystem::isLocked()
 {
     // I don't think we care about this test since there is no locking
     // TODO: remove this function and calling sites?
     return FALSE;
 }
 
-void LLDiskCache::waitForLock()
+void LLFileSystem::waitForLock()
 {
     // TODO: remove this function and calling sites?
 }

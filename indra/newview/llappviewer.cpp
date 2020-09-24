@@ -114,7 +114,7 @@
 #include "llprimitive.h"
 #include "llurlaction.h"
 #include "llurlentry.h"
-#include "lldiskcache.h"
+#include "llfilesystem.h"
 #include "llvolumemgr.h"
 #include "llxfermanager.h"
 #include "llphysicsextensions.h"
@@ -1876,7 +1876,7 @@ bool LLAppViewer::cleanup()
 	SUBSYSTEM_CLEANUP(LLFolderViewItem);
 
 	LL_INFOS() << "Cleaning up disk cache" << LL_ENDL;
-	SUBSYSTEM_CLEANUP(LLDiskCache);
+	SUBSYSTEM_CLEANUP(LLFileSystem);
 
 	LL_INFOS() << "Saving Data" << LL_ENDL;
 
@@ -4160,7 +4160,7 @@ bool LLAppViewer::initCache()
 
 	LLVOCache::getInstance()->initCache(LL_PATH_CACHE, gSavedSettings.getU32("CacheNumberOfRegionsForObjects"), getObjectCacheVersion());
 
-	LLDiskCache::initClass();
+	LLFileSystem::initClass();
 
     return true;
 }

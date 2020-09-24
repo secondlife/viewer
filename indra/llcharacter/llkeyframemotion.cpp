@@ -39,9 +39,9 @@
 #include "llendianswizzle.h"
 #include "llkeyframemotion.h"
 #include "llquantize.h"
-#include "lldiskcache.h"
 #include "m3math.h"
 #include "message.h"
+#include "llfilesystem.h"
 
 //-----------------------------------------------------------------------------
 // Static Definitions
@@ -559,7 +559,7 @@ LLMotion::LLMotionInitStatus LLKeyframeMotion::onInitialize(LLCharacter *charact
 	S32 anim_file_size;
 
 	BOOL success = FALSE;
-	LLDiskCache* anim_file = new LLDiskCache(mID, LLAssetType::AT_ANIMATION);
+	LLFileSystem* anim_file = new LLFileSystem(mID, LLAssetType::AT_ANIMATION);
 	if (!anim_file || !anim_file->getSize())
 	{
 		delete anim_file;
@@ -2324,7 +2324,7 @@ void LLKeyframeMotion::onLoadComplete(const LLUUID& asset_uuid,
 				// asset already loaded
 				return;
 			}
-			LLDiskCache file(asset_uuid, type, LLDiskCache::READ);
+			LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
 			S32 size = file.getSize();
 			
 			U8* buffer = new U8[size];

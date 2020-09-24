@@ -35,7 +35,7 @@
 
 #include "sound_ids.h"  // temporary hack for min/max distances
 
-#include "lldiskcache.h"
+#include "llfilesystem.h"
 #include "lldir.h"
 #include "llaudiodecodemgr.h"
 #include "llassetstorage.h"
@@ -1015,7 +1015,7 @@ bool LLAudioEngine::hasDecodedFile(const LLUUID &uuid)
 bool LLAudioEngine::hasLocalFile(const LLUUID &uuid)
 {
 	// See if it's in the cache.
-	bool have_local = LLDiskCache::getExists(uuid, LLAssetType::AT_SOUND);
+	bool have_local = LLFileSystem::getExists(uuid, LLAssetType::AT_SOUND);
 	LL_DEBUGS("AudioEngine") << "sound uuid " << uuid << " exists in cache" << LL_ENDL;
 	return have_local;
 }

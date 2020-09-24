@@ -29,9 +29,9 @@
 
 #include "lltransfermanager.h"
 #include "llassetstorage.h"
-#include "lldiskcache.h"
+#include "llfilesystem.h"
 
-class LLDiskCache;
+class LLFileSystem;
 
 // Lame, an S32 for now until I figure out the deal with how we want to do
 // error codes.

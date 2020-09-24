@@ -45,7 +45,7 @@
 #include "llviewerassetupload.h"
 #include "llappviewer.h"
 #include "llviewerstats.h"
-#include "lldiskcache.h"
+#include "llfilesystem.h"
 #include "llgesturemgr.h"
 #include "llpreviewnotecard.h"
 #include "llpreviewgesture.h"
@@ -472,7 +472,7 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
     infile.open(filename, LL_APR_RB, NULL, &file_size);
     if (infile.getFileHandle())
     {
-        LLDiskCache file(getAssetId(), assetType, LLDiskCache::WRITE);
+        LLFileSystem file(getAssetId(), assetType, LLFileSystem::WRITE);
 
         file.setMaxSize(file_size);
 
@@ -565,7 +565,7 @@ LLSD LLBufferedAssetUploadInfo::prepareUpload()
     if (getAssetId().isNull())
         generateNewAssetId();
 
-    LLDiskCache file(getAssetId(), getAssetType(), LLDiskCache::APPEND);
+    LLFileSystem file(getAssetId(), getAssetType(), LLFileSystem::APPEND);
 
     S32 size = mContents.length() + 1;
     file.setMaxSize(size);
@@ -597,7 +597,7 @@ LLUUID LLBufferedAssetUploadInfo::finishUpload(LLSD &result)
     if (mStoredToCache)
     {
         LLAssetType::EType assetType(getAssetType());
-        LLDiskCache::renameFile(getAssetId(), assetType, newAssetId, assetType);
+        LLFileSystem::renameFile(getAssetId(), assetType, newAssetId, assetType);
     }
 
     if (mTaskUpload)

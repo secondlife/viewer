@@ -1,6 +1,9 @@
 /** 
- * @file lldiskcacke.h
- * @brief Definition of virtual file
+ * @file filesystem.h
+ * @brief Simulate local file system operations.
+ * @Note The initial implementation does actually use standard C++
+ *       file operations but eventually, there will be another
+ *       layer that caches and manages file meta data too.
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,17 +27,17 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLDISKCACHE_H
-#define LL_LLDISKCACHE_H
+#ifndef LL_FILESYSTEM_H
+#define LL_FILESYSTEM_H
 
 #include "lluuid.h"
 #include "llassettype.h"
 
-class LLDiskCache
+class LLFileSystem
 {
 public:
-	LLDiskCache(const LLUUID &file_id, const LLAssetType::EType file_type, S32 mode = LLDiskCache::READ);
-	~LLDiskCache();
+	LLFileSystem(const LLUUID &file_id, const LLAssetType::EType file_type, S32 mode = LLFileSystem::READ);
+	~LLFileSystem();
 
 	BOOL read(U8 *buffer, S32 bytes, BOOL async = FALSE, F32 priority = 128.f);	/* Flawfinder: ignore */ 
 	BOOL isReadComplete();
@@ -79,4 +82,4 @@ protected:
 	S32		mBytesRead;
 };
 
-#endif  // LL_LLDISKCACHE_H
+#endif  // LL_FILESYSTEM_H

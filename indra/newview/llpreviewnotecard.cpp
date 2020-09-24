@@ -46,7 +46,7 @@
 #include "llselectmgr.h"
 #include "lltrans.h"
 #include "llviewertexteditor.h"
-#include "lldiskcache.h"
+#include "llfilesystem.h"
 #include "llviewerinventory.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
@@ -337,7 +337,7 @@ void LLPreviewNotecard::onLoadComplete(const LLUUID& asset_uuid,
 	{
 		if(0 == status)
 		{
-			LLDiskCache file(asset_uuid, type, LLDiskCache::READ);
+			LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
 
 			S32 file_length = file.getSize();
 
@@ -452,7 +452,7 @@ void LLPreviewNotecard::finishInventoryUpload(LLUUID itemId, LLUUID newAssetId, 
         // script actually changed the asset.
         if (nc->hasEmbeddedInventory())
         {
-            LLDiskCache::removeFile(newAssetId, LLAssetType::AT_NOTECARD);
+            LLFileSystem::removeFile(newAssetId, LLAssetType::AT_NOTECARD);
         }
         if (newItemId.isNull())
         {
@@ -477,7 +477,7 @@ void LLPreviewNotecard::finishTaskUpload(LLUUID itemId, LLUUID newAssetId, LLUUI
     {
         if (nc->hasEmbeddedInventory())
         {
-            LLDiskCache::removeFile(newAssetId, LLAssetType::AT_NOTECARD);
+            LLFileSystem::removeFile(newAssetId, LLAssetType::AT_NOTECARD);
         }
         nc->setAssetId(newAssetId);
         nc->refreshFromInventory();
@@ -556,7 +556,7 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem, bool sync)
                 tid.generate();
                 asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
 
-                LLDiskCache file(asset_id, LLAssetType::AT_NOTECARD, LLDiskCache::APPEND);
+                LLFileSystem file(asset_id, LLAssetType::AT_NOTECARD, LLFileSystem::APPEND);
 
 
 				LLSaveNotecardInfo* info = new LLSaveNotecardInfo(this, mItemUUID, mObjectUUID,

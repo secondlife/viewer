@@ -30,7 +30,7 @@
 #include "lluuid.h"
 #include "llerror.h"
 #include "llmath.h"
-#include "lldiskcache.h"
+#include "llfilesystem.h"
 #include "lldir.h"
 
 // size of chunks read from/written to disk
@@ -79,9 +79,9 @@ void LLXfer_VFile::cleanup ()
 	if (mTempID.notNull() &&
 		mDeleteTempFile)
 	{
-		if (LLDiskCache::getExists(mTempID, mType))
+		if (LLFileSystem::getExists(mTempID, mType))
 		{
-			LLDiskCache file(mTempID, mType, LLDiskCache::WRITE);
+			LLFileSystem file(mTempID, mType, LLFileSystem::WRITE);
 			file.remove();
 		}
 		else
@@ -187,9 +187,9 @@ S32 LLXfer_VFile::startSend (U64 xfer_id, const LLHost &remote_host)
 	
 	delete mVFile;
 	mVFile = NULL;
-	if(LLDiskCache::getExists(mLocalID, mType))
+	if(LLFileSystem::getExists(mLocalID, mType))
 	{
-		mVFile = new LLDiskCache(mLocalID, mType, LLDiskCache::READ);
+		mVFile = new LLFileSystem(mLocalID, mType, LLFileSystem::READ);
 
 		if (mVFile->getSize() <= 0)
 		{
@@ -235,9 +235,9 @@ S32 LLXfer_VFile::reopenFileHandle()
 
 	if (mVFile == NULL)
 	{
-		if (LLDiskCache::getExists(mLocalID, mType))
+		if (LLFileSystem::getExists(mLocalID, mType))
 		{
-			mVFile = new LLDiskCache(mLocalID, mType, LLDiskCache::READ);
+			mVFile = new LLFileSystem(mLocalID, mType, LLFileSystem::READ);
 		}
 		else
 		{
@@ -260,7 +260,7 @@ void LLXfer_VFile::setXferSize (S32 xfer_size)
 	// It would be nice if LLXFers could tell which end of the pipe they were
 	if (! mVFile)
 	{
-		LLDiskCache file(mTempID, mType, LLDiskCache::APPEND);
+		LLFileSystem file(mTempID, mType, LLFileSystem::APPEND);
 		file.setMaxSize(xfer_size);
 	}
 }
@@ -315,7 +315,7 @@ S32 LLXfer_VFile::flush()
 	S32 retval = 0;
 	if (mBufferLength)
 	{
-		LLDiskCache file(mTempID, mType, LLDiskCache::APPEND);
+		LLFileSystem file(mTempID, mType, LLFileSystem::APPEND);
 
 		file.write((U8*)mBuffer, mBufferLength);
 			
@@ -335,9 +335,9 @@ S32 LLXfer_VFile::processEOF()
 
 	if (!mCallbackResult)
 	{
-		if (LLDiskCache::getExists(mTempID, mType))
+		if (LLFileSystem::getExists(mTempID, mType))
 		{
-			LLDiskCache file(mTempID, mType, LLDiskCache::WRITE);
+			LLFileSystem file(mTempID, mType, LLFileSystem::WRITE);
 			if (!file.rename(mLocalID, mType))
 			{
 				LL_WARNS("Xfer") << "Cache rename of temp file failed: unable to rename " << mTempID << " to " << mLocalID << LL_ENDL;

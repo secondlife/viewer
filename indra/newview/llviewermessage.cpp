@@ -44,7 +44,7 @@
 #include "llteleportflags.h"
 #include "lltoastnotifypanel.h"
 #include "lltransactionflags.h"
-#include "lldiskcache.h"
+#include "llfilesystem.h"
 #include "llxfermanager.h"
 #include "mean_collision_data.h"
 
@@ -6816,7 +6816,7 @@ void onCovenantLoadComplete(const LLUUID& asset_uuid,
 	std::string covenant_text;
 	if(0 == status)
 	{
-		LLDiskCache file(asset_uuid, type, LLDiskCache::READ);
+		LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
 		
 		S32 file_length = file.getSize();
 		

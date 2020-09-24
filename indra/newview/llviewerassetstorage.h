@@ -30,7 +30,7 @@
 #include "llassetstorage.h"
 #include "llcorehttputil.h"
 
-class LLDiskCache;
+class LLFileSystem;
 
 class LLViewerAssetRequest;
 
