@@ -3646,7 +3646,7 @@ BOOL LLModelPreview::render()
 
 	LLGLSUIDefault def; // GL_BLEND, GL_ALPHA_TEST, GL_CULL_FACE, depth test
 	LLGLDisable no_blend(GL_BLEND);
-    LLGLEnable cull(GL_CULL_FACE);
+	LLGLEnable cull(GL_CULL_FACE);
 	LLGLDepthTest depth(GL_FALSE); // SL-12781 disable z-buffer to render background color
 	LLGLDisable fog(GL_FOG);
 
