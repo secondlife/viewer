@@ -229,6 +229,17 @@ BOOL LLPanelMainInventory::postBuild()
 				recent_items_panel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::RECENTITEMS_SORT_ORDER));
 			}
 		}
+		if(mActivePanel)
+		{
+			if(savedFilterState.has(mActivePanel->getFilter().getName()))
+			{
+				LLSD items = savedFilterState.get(mActivePanel->getFilter().getName());
+				LLInventoryFilter::Params p;
+				LLParamSDParser parser;
+				parser.readSD(items, p);
+				mActivePanel->getFilter().setSearchVisibilityTypes(p);
+			}
+		}
 
 	}
 
@@ -265,6 +276,9 @@ BOOL LLPanelMainInventory::postBuild()
 LLPanelMainInventory::~LLPanelMainInventory( void )
 {
 	// Save the filters state.
+	// Some params types cannot be saved this way
+	// for example, LLParamSDParser doesn't know about U64,
+	// so some FilterOps params should be revised.
 	LLSD filterRoot;
 	LLInventoryPanel* all_items_panel = getChild<LLInventoryPanel>("All Items");
 	if (all_items_panel)

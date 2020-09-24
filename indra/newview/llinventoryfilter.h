@@ -124,11 +124,13 @@ public:
 
 		struct Params : public LLInitParam::Block<Params>
 		{
-			Optional<U32>				types;
+			Optional<U32>				types,
+										search_visibility;
 			Optional<U64>				object_types,
 										wearable_types,
                                         settings_types,
 										category_types;
+										
 			Optional<EFilterLink>		links;
 			Optional<LLUUID>			uuid;
 			Optional<DateRange>			date_range;
@@ -145,6 +147,7 @@ public:
                 settings_types("settings_types", 0xffffFFFFffffFFFFULL),
 				category_types("category_types", 0xffffFFFFffffFFFFULL),
 				links("links", FILTERLINK_INCLUDE_LINKS),
+				search_visibility("search_visibility", 0xFFFFFFFF),
 				uuid("uuid"),
 				date_range("date_range"),
 				hours_ago("hours_ago", 0),
@@ -157,12 +160,12 @@ public:
 
 		FilterOps(const Params& = Params());
 
-		U32 			mFilterTypes;
+		U32 			mFilterTypes,
+						mSearchVisibility;
 		U64				mFilterObjectTypes,   // For _OBJECT
 						mFilterWearableTypes,
                         mFilterSettingsTypes, // for _SETTINGS
 						mFilterLinks,
-						mSearchVisibility,
 						mFilterCategoryTypes; // For _CATEGORY
 		LLUUID      	mFilterUUID; 		  // for UUID
 
@@ -226,6 +229,8 @@ public:
 	void				toggleSearchVisibilityLinks();
 	void				toggleSearchVisibilityTrash();
 	void				toggleSearchVisibilityLibrary();
+	void 				setSearchVisibilityTypes(U32 types);
+	void 				setSearchVisibilityTypes(const Params& params);
 
 	void 				setFilterSubString(const std::string& string);
 	const std::string& 	getFilterSubString(BOOL trim = FALSE) const;
