@@ -115,17 +115,11 @@ LLLandmark* LLLandmark::constructFromString(const char *buffer, const S32 buffer
 
 	// read version 
 	count = sscanf( buffer, "Landmark version %u\n%n", &version, &chars_read );
-
-    if (count != 1)
-    {
-        bad_block = true;
-    }
-
     chars_read_total += chars_read;
 
-    if (chars_read_total >= buffer_size)
+    if (count != 1
+        || chars_read_total >= buffer_size)
     {
-        // either file was truncated or data in file was damaged
         bad_block = true;
     }
 
@@ -155,19 +149,29 @@ LLLandmark* LLLandmark::constructFromString(const char *buffer, const S32 buffer
                 // scanf call below.
                 char region_id_str[MAX_STRING];
                 LLVector3 pos;
+                LLUUID region_id;
                 count = sscanf( buffer + chars_read_total,
                                 "region_id %254s\n%n",
                                 region_id_str,
                                 &chars_read);
-                if (count != 1)
-                {
-                    bad_block = true;
-                }
                 chars_read_total += chars_read;
-                if (chars_read_total >= buffer_size)
+
+                if (count != 1
+                    || chars_read_total >= buffer_size
+                    || !LLUUID::validate(region_id_str))
                 {
                     bad_block = true;
                 }
+
+                if (!bad_block)
+                {
+                    region_id.set(region_id_str);
+                    if (region_id.isNull())
+                    {
+                        bad_block = true;
+                    }
+                }
+
                 if (!bad_block)
                 {
                     count = sscanf(buffer + chars_read_total, "local_pos %f %f %f\n%n", pos.mV + VX, pos.mV + VY, pos.mV + VZ, &chars_read);
@@ -178,7 +182,7 @@ LLLandmark* LLLandmark::constructFromString(const char *buffer, const S32 buffer
                     else
                     {
                         result = new LLLandmark;
-                        result->mRegionID.set(region_id_str);
+                        result->mRegionID = region_id;
                         result->mRegionPos = pos;
                     }
                 }
