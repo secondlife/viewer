@@ -2100,8 +2100,6 @@ bool LLAppViewer::cleanup()
 
 	LLError::LLCallStacks::cleanup();
 
-	removeMarkerFiles();
-
 	// It's not at first obvious where, in this long sequence, a generic cleanup
 	// call OUGHT to go. So let's say this: as we migrate cleanup from
 	// explicit hand-placed calls into the generic mechanism, eventually
