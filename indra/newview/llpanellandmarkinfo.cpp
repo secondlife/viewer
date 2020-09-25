@@ -102,8 +102,6 @@ void LLPanelLandmarkInfo::resetLocation()
 	mLandmarkTitle->setText(LLStringUtil::null);
 	mLandmarkTitleEditor->setText(LLStringUtil::null);
 	mNotesEditor->setText(LLStringUtil::null);
-
-    getChild<LLUICtrl>("parcel_owner_label")->setVisible(FALSE);
 }
 
 // virtual
@@ -161,7 +159,6 @@ void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 				mLandmarkTitleEditor->setText(name);
 			}
 
-            getChild<LLUICtrl>("parcel_owner_label")->setVisible(TRUE);
             LLUUID owner_id = parcel->getOwnerID();
             if (owner_id.notNull())
             {
@@ -248,7 +245,6 @@ void LLPanelLandmarkInfo::processParcelInfo(const LLParcelData& parcel_data)
     else
     {
         mParcelOwner->setText(getString("public"));
-        getChild<LLUICtrl>("parcel_owner_label")->setVisible(FALSE);
     }
 
 	LLSD info;
