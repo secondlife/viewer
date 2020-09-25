@@ -343,7 +343,6 @@ public:
 	bool skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
 	bool decompositionReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
 	EMeshProcessingResult physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
-	LLSD& getMeshHeader(const LLUUID& mesh_id);
 	bool hasPhysicsShapeInHeader(const LLUUID& mesh_id);
 
 	void notifyLoadedMeshes();
