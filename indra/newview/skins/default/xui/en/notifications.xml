@@ -3186,7 +3186,7 @@ Do you want to remove multiple friends from your Friends list?
    type="alertmodal">
 Are you sure you want to delete all scripted objects owned by
 ** [AVATAR_NAME] **
-on all others land in this sim?
+on all others land in this region?
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -3200,7 +3200,7 @@ on all others land in this sim?
    type="alertmodal">
 Are you sure you want to DELETE ALL scripted objects owned by
 ** [AVATAR_NAME] **
-on ALL LAND in this sim?
+on ALL LAND in this region?
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -3214,7 +3214,7 @@ on ALL LAND in this sim?
    type="alertmodal">
 Are you sure you want to DELETE ALL objects (scripted or not) owned by
 ** [AVATAR_NAME] **
-on ALL LAND in this sim?
+on ALL LAND in this region?
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
