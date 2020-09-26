@@ -526,7 +526,8 @@ bool	create_text_segment_icon_from_url_match(LLUrlMatch* match,LLTextBase* base)
 
 	LLIconCtrl* icon;
 
-	if(gAgent.isInGroup(match_id, TRUE))
+	if( match->getMenuName() == "menu_url_group.xml" // See LLUrlEntryGroup constructor
+		|| gAgent.isInGroup(match_id, TRUE)) //This check seems unfiting, urls are either /agent or /group
 	{
 		LLGroupIconCtrl::Params icon_params;
 		icon_params.group_id = match_id;
