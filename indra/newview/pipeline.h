@@ -139,7 +139,7 @@ public:
 	void resetVertexBuffers(LLDrawable* drawable);
 	void generateImpostor(LLVOAvatar* avatar);
 	void bindScreenToTexture();
-	void renderBloom(bool for_snapshot, F32 zoom_factor = 1.f, int subfield = 0);
+	void renderFinalize();
 
 	void init();
 	void cleanup();
@@ -453,6 +453,7 @@ public:
 		RENDER_TYPE_BUMP						= LLDrawPool::POOL_BUMP,
 		RENDER_TYPE_MATERIALS					= LLDrawPool::POOL_MATERIALS,
 		RENDER_TYPE_AVATAR						= LLDrawPool::POOL_AVATAR,
+		RENDER_TYPE_CONTROL_AV					= LLDrawPool::POOL_CONTROL_AV, // Animesh
 		RENDER_TYPE_TREE						= LLDrawPool::POOL_TREE,
 		RENDER_TYPE_INVISIBLE					= LLDrawPool::POOL_INVISIBLE,
 		RENDER_TYPE_VOIDWATER					= LLDrawPool::POOL_VOIDWATER,

@@ -2667,11 +2667,6 @@ void LLVOAvatarSelf::onCustomizeStart(bool disable_camera_switch)
 		{
 			gAgentCamera.changeCameraToCustomizeAvatar();
 		}
-
-#if 0
-		gAgentAvatarp->clearVisualParamWeights();
-		gAgentAvatarp->idleUpdateAppearanceAnimation();
-#endif
 		
 		gAgentAvatarp->invalidateAll(); // mark all bakes as dirty, request updates
 		gAgentAvatarp->updateMeshTextures(); // make sure correct textures are applied to the avatar mesh.

@@ -78,16 +78,16 @@ LLBasicCertificate::LLBasicCertificate(const std::string& pem_cert,
 	BIO * pem_bio = BIO_new_mem_buf((void*)pem_cert.c_str(), pem_cert.length());
 	if(pem_bio == NULL)
 	{
-		LL_WARNS("SECAPI") << "Could not allocate an openssl memory BIO." << LL_ENDL;
-		LLTHROW(LLInvalidCertificate(LLSD::emptyMap()));
+        LL_WARNS("SECAPI") << "Could not allocate an openssl memory BIO." << LL_ENDL;
+        LLTHROW(LLAllocationCertException(LLSD::emptyMap()));
 	}
 	mCert = NULL;
 	PEM_read_bio_X509(pem_bio, &mCert, 0, NULL);
 	BIO_free(pem_bio);
 	if (!mCert)
 	{
-		LL_WARNS("SECAPI") << "Could not decode certificate to x509." << LL_ENDL;
-		LLTHROW(LLInvalidCertificate(LLSD::emptyMap()));
+        LL_WARNS("SECAPI") << "Could not decode certificate to x509." << LL_ENDL;
+        LLTHROW(LLInvalidCertificate(LLSD::emptyMap()));
 	}
 }
 
@@ -924,9 +924,13 @@ void _validateCert(int validation_policy,
 			LLTHROW(LLCertKeyUsageValidationException(current_cert_info));
 		}
 		// only validate EKU if the cert has it
-		if(current_cert_info.has(CERT_EXTENDED_KEY_USAGE) && current_cert_info[CERT_EXTENDED_KEY_USAGE].isArray() &&	   
-		   (!_LLSDArrayIncludesValue(current_cert_info[CERT_EXTENDED_KEY_USAGE], 
-									LLSD((std::string)CERT_EKU_SERVER_AUTH))))
+        if(current_cert_info.has(CERT_EXTENDED_KEY_USAGE)
+           && current_cert_info[CERT_EXTENDED_KEY_USAGE].isArray()
+           && (!_LLSDArrayIncludesValue(current_cert_info[CERT_EXTENDED_KEY_USAGE],
+                                         LLSD((std::string)CERT_EKU_TLS_SERVER_AUTH)))
+           && (!_LLSDArrayIncludesValue(current_cert_info[CERT_EXTENDED_KEY_USAGE], 
+                                         LLSD((std::string)CERT_EKU_SERVER_AUTH)))
+           )
 		{
 			LLTHROW(LLCertKeyUsageValidationException(current_cert_info));
 		}

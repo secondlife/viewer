@@ -73,6 +73,7 @@
 #include "llviewermedia.h"
 #include "llviewerparcelaskplay.h"
 #include "llviewerparcelmedia.h"
+#include "llviewershadermgr.h"
 #include "llviewermediafocus.h"
 #include "llviewermessage.h"
 #include "llviewerobjectlist.h"
@@ -688,8 +689,7 @@ LLAppViewer::LLAppViewer()
 	mPeriodicSlowFrame(LLCachedControl<bool>(gSavedSettings,"Periodic Slow Frame", FALSE)),
 	mFastTimerLogThread(NULL),
 	mSettingsLocationList(NULL),
-	mIsFirstRun(false),
-	mMinMicroSecPerFrame(0.f)
+	mIsFirstRun(false)
 {
 	if(NULL != sInstance)
 	{
@@ -1258,10 +1258,6 @@ bool LLAppViewer::init()
 
 	joystick = LLViewerJoystick::getInstance();
 	joystick->setNeedsReset(true);
-	/*----------------------------------------------------------------------*/
-
-	gSavedSettings.getControl("FramePerSecondLimit")->getSignal()->connect(boost::bind(&LLAppViewer::onChangeFrameLimit, this, _2));
-	onChangeFrameLimit(gSavedSettings.getLLSD("FramePerSecondLimit"));
 
 	return true;
 }
@@ -1480,21 +1476,6 @@ bool LLAppViewer::doFrame()
 				gGLActive = TRUE;
 
 				display();
-
-				static U64 last_call = 0;
-				if (!gTeleportDisplay || gGLManager.mIsIntel) // SL-10625...throttle early, throttle often with Intel
-				{
-					// Frame/draw throttling
-					U64 elapsed_time = LLTimer::getTotalTime() - last_call;
-					if (elapsed_time < mMinMicroSecPerFrame)
-					{
-						LL_RECORD_BLOCK_TIME(FTM_SLEEP);
-						// llclamp for when time function gets funky
-						U64 sleep_time = llclamp(mMinMicroSecPerFrame - elapsed_time, (U64)1, (U64)1e6);
-						micro_sleep(sleep_time, 0);
-					}
-				}
-				last_call = LLTimer::getTotalTime();
 
 				pingMainloopTimeout("Main:Snapshot");
 				LLFloaterSnapshot::update(); // take snapshots
@@ -3122,8 +3103,9 @@ LLSD LLAppViewer::getViewerInfo() const
 		info["POSITION"] = ll_sd_from_vector3d(pos);
 		info["POSITION_LOCAL"] = ll_sd_from_vector3(gAgent.getPosAgentFromGlobal(pos));
 		info["REGION"] = gAgent.getRegion()->getName();
-		info["HOSTNAME"] = gAgent.getRegion()->getHost().getHostName();
-		info["HOSTIP"] = gAgent.getRegion()->getHost().getString();
+
+		boost::regex regex("\\.(secondlife|lindenlab)\\..*");
+		info["HOSTNAME"] = boost::regex_replace(gAgent.getRegion()->getHost().getHostName(), regex, "");
 		info["SERVER_VERSION"] = gLastVersionChannel;
 		LLSLURL slurl;
 		LLAgentUI::buildSLURL(slurl);
@@ -3991,6 +3973,7 @@ static LLNotificationFunctorRegistration finish_quit_reg("ConfirmQuit", finish_q
 
 void LLAppViewer::userQuit()
 {
+	LL_INFOS() << "User requested quit" << LL_ENDL;
 	if (gDisconnected
 		|| !gViewerWindow
 		|| !gViewerWindow->getProgressView()
@@ -4851,12 +4834,13 @@ void LLAppViewer::idle()
     {
 		return;
     }
+
+    gViewerWindow->updateUI();
+
 	if (gTeleportDisplay)
     {
 		return;
     }
-
-	gViewerWindow->updateUI();
 
 	///////////////////////////////////////
 	// Agent and camera movement
@@ -5431,19 +5415,6 @@ void LLAppViewer::disconnectViewer()
 	// Pass the connection state to LLUrlEntryParcel not to attempt
 	// parcel info requests while disconnected.
 	LLUrlEntryParcel::setDisconnected(gDisconnected);
-}
-
-bool LLAppViewer::onChangeFrameLimit(LLSD const & evt)
-{
-	if (evt.asInteger() > 0)
-	{
-		mMinMicroSecPerFrame = (U64)(1000000.0f / F32(evt.asInteger()));
-	}
-	else
-	{
-		mMinMicroSecPerFrame = 0;
-	}
-	return false;
 }
 
 void LLAppViewer::forceErrorLLError()
