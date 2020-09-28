@@ -60,6 +60,7 @@ public:
 		POOL_GRASS,
 		POOL_INVISIBLE, // see below *
 		POOL_AVATAR,
+		POOL_CONTROL_AV, // Animesh
 		POOL_VOIDWATER,
 		POOL_WATER,
 		POOL_GLOW,
@@ -110,7 +111,6 @@ public:
 	virtual S32 getShaderLevel() const { return mShaderLevel; }
 	
 	static LLDrawPool* createPool(const U32 type, LLViewerTexture *tex0 = NULL);
-	virtual LLDrawPool *instancePool() = 0;	// Create an empty new instance of the pool.
 	virtual LLViewerTexture* getTexture() = 0;
 	virtual BOOL isFacePool() { return FALSE; }
 	virtual void resetDrawOrders() = 0;
@@ -162,7 +162,6 @@ public:
 
 	LLRenderPass(const U32 type);
 	virtual ~LLRenderPass();
-	/*virtual*/ LLDrawPool* instancePool();
 	/*virtual*/ LLViewerTexture* getDebugTexture() { return NULL; }
 	LLViewerTexture* getTexture() { return NULL; }
 	BOOL isDead() { return FALSE; }

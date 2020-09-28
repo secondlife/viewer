@@ -70,7 +70,6 @@ if (WINDOWS)
   if( ADDRESS_SIZE EQUAL 32 )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /p:PreferredToolArchitecture=x64")  
   endif()
-  
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO 
       "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Zo"
       CACHE STRING "C++ compiler release-with-debug options" FORCE)

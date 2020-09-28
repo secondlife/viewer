@@ -46,11 +46,6 @@ LLDrawPoolGround::LLDrawPoolGround() :
 {
 }
 
-LLDrawPool *LLDrawPoolGround::instancePool()
-{
-	return new LLDrawPoolGround();
-}
-
 void LLDrawPoolGround::prerender()
 {
 	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT);

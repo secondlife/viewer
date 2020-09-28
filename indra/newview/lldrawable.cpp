@@ -1178,11 +1178,33 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
 	}
 	else if (isRoot())
 	{
-		if (mSpatialBridge && (mSpatialBridge->asPartition()->mPartitionType == LLViewerRegion::PARTITION_HUD) != mVObjp->isHUDAttachment())
+		if (mSpatialBridge)
 		{
-			// remove obsolete bridge
-			mSpatialBridge->markDead();
-			setSpatialBridge(NULL);
+			U32 partition_type = mSpatialBridge->asPartition()->mPartitionType;
+			bool is_hud = mVObjp->isHUDAttachment();
+			bool is_animesh = mVObjp->isAnimatedObject() && mVObjp->getControlAvatar() != NULL;
+			bool is_attachment = mVObjp->isAttachment() && !is_hud && !is_animesh;
+			if ((partition_type == LLViewerRegion::PARTITION_HUD) != is_hud)
+			{
+				// Was/became HUD
+				// remove obsolete bridge
+				mSpatialBridge->markDead();
+				setSpatialBridge(NULL);
+			}
+			else if ((partition_type == LLViewerRegion::PARTITION_CONTROL_AV) != is_animesh)
+			{
+				// Was/became part of animesh
+				// remove obsolete bridge
+				mSpatialBridge->markDead();
+				setSpatialBridge(NULL);
+			}
+			else if ((partition_type == LLViewerRegion::PARTITION_AVATAR) != is_attachment)
+			{
+				// Was/became part of avatar
+				// remove obsolete bridge
+				mSpatialBridge->markDead();
+				setSpatialBridge(NULL);
+			}
 		}
 		//must be an active volume
 		if (!mSpatialBridge)
@@ -1190,6 +1212,15 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
 			if (mVObjp->isHUDAttachment())
 			{
 				setSpatialBridge(new LLHUDBridge(this, getRegion()));
+			}
+			else if (mVObjp->isAnimatedObject() && mVObjp->getControlAvatar())
+			{
+				setSpatialBridge(new LLControlAVBridge(this, getRegion()));
+			}
+			// check HUD first, because HUD is also attachment
+			else if (mVObjp->isAttachment())
+			{
+				setSpatialBridge(new LLAvatarBridge(this, getRegion()));
 			}
 			else
 			{
@@ -1698,10 +1729,24 @@ void LLDrawable::updateFaceSize(S32 idx)
 LLBridgePartition::LLBridgePartition(LLViewerRegion* regionp)
 : LLSpatialPartition(0, FALSE, 0, regionp) 
 { 
-	mDrawableType = LLPipeline::RENDER_TYPE_AVATAR; 
+	mDrawableType = LLPipeline::RENDER_TYPE_VOLUME; 
 	mPartitionType = LLViewerRegion::PARTITION_BRIDGE;
 	mLODPeriod = 16;
 	mSlopRatio = 0.25f;
+}
+
+LLAvatarPartition::LLAvatarPartition(LLViewerRegion* regionp)
+	: LLBridgePartition(regionp)
+{
+	mDrawableType = LLPipeline::RENDER_TYPE_AVATAR;
+	mPartitionType = LLViewerRegion::PARTITION_AVATAR;
+}
+
+LLControlAVPartition::LLControlAVPartition(LLViewerRegion* regionp)
+	: LLBridgePartition(regionp)
+{
+	mDrawableType = LLPipeline::RENDER_TYPE_CONTROL_AV;
+	mPartitionType = LLViewerRegion::PARTITION_CONTROL_AV;
 }
 
 LLHUDBridge::LLHUDBridge(LLDrawable* drawablep, LLViewerRegion* regionp)
