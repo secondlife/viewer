@@ -49,8 +49,6 @@ public:
 	LLDrawPoolTerrain(LLViewerTexture *texturep);
 	virtual ~LLDrawPoolTerrain();
 
-	/*virtual*/ LLDrawPool *instancePool();
-
 	/*virtual*/ S32 getNumDeferredPasses() { return 1; }
 	/*virtual*/ void beginDeferredPass(S32 pass);
 	/*virtual*/ void endDeferredPass(S32 pass);
