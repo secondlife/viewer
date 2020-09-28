@@ -1,9 +1,9 @@
 /** 
- * @file moonF.glsl
+ * @file class1\deferred\moonF.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2005, Linden Research, Inc.
+ * Copyright (C) 2005, 2020 Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -36,34 +36,33 @@ out vec4 frag_data[3];
 uniform vec4 color;
 uniform vec4 sunlight_color;
 uniform vec4 moonlight_color;
-uniform vec3 lumWeights;
+uniform vec3 moon_dir;
 uniform float moon_brightness;
-uniform float minLuminance;
 uniform sampler2D diffuseMap;
-uniform sampler2D altDiffuseMap;
-uniform float blend_factor; // interp factor between moon A/B
+
 VARYING vec2 vary_texcoord0;
 
 vec3 srgb_to_linear(vec3 c);
+
+/// Soft clips the light with a gamma correction
+vec3 scaleSoftClip(vec3 light);
+
 void main() 
 {
-    vec4 moonA = texture2D(diffuseMap, vary_texcoord0.xy);
-    vec4 moonB = texture2D(altDiffuseMap, vary_texcoord0.xy);
-    vec4 c     = mix(moonA, moonB, blend_factor);
+    // Restore Pre-EEP alpha fade moon near horizon
+    float fade = 1.0;
+    if( moon_dir.z > 0 )
+        fade = clamp( moon_dir.z*moon_dir.z*4.0, 0.0, 1.0 );
 
-    c.rgb = srgb_to_linear(c.rgb);
+    vec4 c      = texture2D(diffuseMap, vary_texcoord0.xy);
+//       c.rgb  = srgb_to_linear(c.rgb);
+         c.rgb *= moonlight_color.rgb;
+         c.rgb *= moon_brightness;
 
-    // mix factor which blends when sunlight is brighter
-    // and shows true moon color at night
-    vec3 luma_weights = vec3(0.3, 0.5, 0.3);
+         c.rgb *= fade;
+         c.a   *= fade;
 
-    vec4 light_color = max(sunlight_color, moonlight_color);
-    float mix = 1.0 - dot(normalize(light_color.rgb), luma_weights);
-
-    vec3 exp = vec3(1.0 - mix * moon_brightness) * 2.0  - 1.0;
-    c.rgb = pow(c.rgb, exp);
-
-    //c.rgb *= moonlight_color.rgb;
+         c.rgb  = scaleSoftClip(c.rgb);
 
     frag_data[0] = vec4(c.rgb, c.a);
     frag_data[1] = vec4(0.0);

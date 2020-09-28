@@ -106,8 +106,8 @@ S32 cube_channel = -1;
 
 static LLTrace::BlockTimerStatHandle FTM_SHADOW_AVATAR("Avatar Shadow");
 
-LLDrawPoolAvatar::LLDrawPoolAvatar() : 
-	LLFacePool(POOL_AVATAR)	
+LLDrawPoolAvatar::LLDrawPoolAvatar(U32 type) : 
+	LLFacePool(type)	
 {
 }
 
@@ -136,15 +136,6 @@ BOOL LLDrawPoolAvatar::isDead()
     }
     return TRUE;
 }
- 
-//-----------------------------------------------------------------------------
-// instancePool()
-//-----------------------------------------------------------------------------
-LLDrawPool *LLDrawPoolAvatar::instancePool()
-{
-	return new LLDrawPoolAvatar();
-}
-
 
 S32 LLDrawPoolAvatar::getShaderLevel() const
 {
@@ -1815,7 +1806,7 @@ void LLDrawPoolAvatar::getRiggedGeometry(
 	}
 	else
 	{
-		face->setPoolType(LLDrawPool::POOL_AVATAR);
+		face->setPoolType(mType); // either POOL_AVATAR or POOL_CONTROL_AV
 	}
 
 	//LL_INFOS() << "Rebuilt face " << face->getTEOffset() << " of " << face->getDrawable() << " at " << gFrameTimeSeconds << LL_ENDL;
@@ -2499,7 +2490,7 @@ LLColor3 LLDrawPoolAvatar::getDebugColor() const
 void LLDrawPoolAvatar::addRiggedFace(LLFace* facep, U32 type)
 {
     llassert (facep->isState(LLFace::RIGGED));
-    llassert(getType() == LLDrawPool::POOL_AVATAR);
+    llassert(getType() == LLDrawPool::POOL_AVATAR || getType() == LLDrawPool::POOL_CONTROL_AV);
     if (facep->getPool() && facep->getPool() != this)
     {
         LL_ERRS() << "adding rigged face that's already in another pool" << LL_ENDL;
@@ -2521,7 +2512,7 @@ void LLDrawPoolAvatar::addRiggedFace(LLFace* facep, U32 type)
 void LLDrawPoolAvatar::removeRiggedFace(LLFace* facep)
 {
     llassert (facep->isState(LLFace::RIGGED));
-    llassert(getType() == LLDrawPool::POOL_AVATAR);
+    llassert(getType() == LLDrawPool::POOL_AVATAR || getType() == LLDrawPool::POOL_CONTROL_AV);
     if (facep->getPool() != this)
     {
         LL_ERRS() << "Tried to remove a rigged face from the wrong pool" << LL_ENDL;
