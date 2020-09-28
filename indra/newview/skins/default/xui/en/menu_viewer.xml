@@ -1733,6 +1733,16 @@ function="World.EnvPreset"
                  parameter="character" />
             </menu_item_check>
             <menu_item_check
+             label="Animeshes"
+             name="Rendering Type Control Avatar">
+                <menu_item_check.on_check
+                 function="Advanced.CheckRenderType"
+                 parameter="controlAV" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleRenderType"
+                 parameter="controlAV" />
+            </menu_item_check>
+            <menu_item_check
              label="Surface Patch"
              name="Rendering Type Surface Patch"
              shortcut="control|alt|shift|5">
