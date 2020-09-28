@@ -639,14 +639,17 @@ bool LLScriptEdCore::writeToFile(const std::string& filename)
 
 void LLScriptEdCore::sync()
 {
-	// Sync with external editor.
-	std::string tmp_file = mContainer->getTmpFileName();
-	llstat s;
-	if (LLFile::stat(tmp_file, &s) == 0) // file exists
-	{
-		if (mLiveFile) mLiveFile->ignoreNextUpdate();
-		writeToFile(tmp_file);
-	}
+    // Sync with external editor.
+    if (mLiveFile)
+    {
+        std::string tmp_file = mLiveFile->filename();
+        llstat s;
+        if (LLFile::stat(tmp_file, &s) == 0) // file exists
+        {
+            mLiveFile->ignoreNextUpdate();
+            writeToFile(tmp_file);
+        }
+    }
 }
 
 bool LLScriptEdCore::hasChanged()
@@ -1032,9 +1035,25 @@ void LLScriptEdCore::openInExternalEditor()
 {
 	delete mLiveFile; // deletes file
 
-	// Save the script to a temporary file.
-	std::string filename = mContainer->getTmpFileName();
-	writeToFile(filename);
+	// Generate a suitable filename
+    std::string script_name = mScriptName;
+    std::string forbidden_chars = "<>:\"\\/|?*";
+    for (std::string::iterator c = forbidden_chars.begin(); c != forbidden_chars.end(); c++)
+    {
+        script_name.erase(std::remove(script_name.begin(), script_name.end(), *c), script_name.end());
+    }
+	std::string filename = mContainer->getTmpFileName(script_name);
+
+    // Save the script to a temporary file.
+    if (!writeToFile(filename))
+    {
+        // In case some characters from script name are forbidden
+        // and not accounted for, name is too long or some other issue,
+        // try file that doesn't include script name
+        script_name.clear();
+        filename = mContainer->getTmpFileName(script_name);
+        writeToFile(filename);
+    }
 
 	// Start watching file changes.
 	mLiveFile = new LLLiveLSLFile(filename, boost::bind(&LLScriptEdContainer::onExternalChange, mContainer, _1));
@@ -1424,7 +1443,7 @@ LLScriptEdContainer::LLScriptEdContainer(const LLSD& key) :
 {
 }
 
-std::string LLScriptEdContainer::getTmpFileName()
+std::string LLScriptEdContainer::getTmpFileName(const std::string& script_name)
 {
 	// Take script inventory item id (within the object inventory)
 	// to consideration so that it's possible to edit multiple scripts
@@ -1436,7 +1455,14 @@ std::string LLScriptEdContainer::getTmpFileName()
 	LLMD5 script_id_hash((const U8 *)script_id.c_str());
 	script_id_hash.hex_digest(script_id_hash_str);
 
-	return std::string(LLFile::tmpdir()) + "sl_script_" + script_id_hash_str + ".lsl";
+    if (script_name.empty())
+    {
+        return std::string(LLFile::tmpdir()) + "sl_script_" + script_id_hash_str + ".lsl";
+    }
+    else
+    {
+        return std::string(LLFile::tmpdir()) + "sl_script_" + script_name + "_" + script_id_hash_str + ".lsl";
+    }
 }
 
 bool LLScriptEdContainer::onExternalChange(const std::string& filename)

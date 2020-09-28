@@ -206,7 +206,7 @@ public:
 	LLScriptEdContainer(const LLSD& key, const bool live);
 
 protected:
-	std::string		getTmpFileName();
+	std::string		getTmpFileName(const std::string& script_name);
 	bool			onExternalChange(const std::string& filename);
 	virtual void	saveIfNeeded(bool sync = true) = 0;
 
