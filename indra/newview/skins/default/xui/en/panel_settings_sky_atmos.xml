@@ -203,10 +203,10 @@
                         Ice Level:
                     </text>
                     <slider
-                            decimal_digits="1"
+                            decimal_digits="3"
                             follows="left|top"
                             height="14"
-                            increment="0.1"
+                            increment="0.001"
                             initial_value="0"
                             left_delta="5"
                             top_delta="20"

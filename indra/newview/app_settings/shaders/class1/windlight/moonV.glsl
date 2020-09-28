@@ -3,7 +3,7 @@
  *
   * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2007, 2020 Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -30,20 +30,15 @@ uniform mat4 modelview_projection_matrix;
 ATTRIBUTE vec3 position;
 ATTRIBUTE vec2 texcoord0;
 
-void calcAtmospherics(vec3 inPositionEye);
-
 VARYING vec2 vary_texcoord0;
 
 void main()
 {
     //transform vertex
-    vec3 offset = vec3(0, 0, 50);
-    vec4 vert = vec4(position.xyz - offset, 1.0);
+    vec4 vert = vec4(position.xyz, 1.0);
     vec4 pos = (modelview_matrix * vert);
 
     gl_Position = modelview_projection_matrix*vert;
     
     vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
-    
-    calcAtmospherics(pos.xyz);
 }
