@@ -139,17 +139,17 @@ void LLFloaterTexturePicker::setImageID(const LLUUID& image_id, bool set_selecti
 
 		if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(mImageAssetID))
 		{
-			if ( mBakeTextureEnabled && mModeSelector->getSelectedIndex() != 2)
+			if ( mBakeTextureEnabled && mModeSelector->getValue().asInteger() != 2)
 			{
-				mModeSelector->setSelectedIndex(2, 0);
+				mModeSelector->selectByValue(2);
 				onModeSelect(0,this);
 			}
 		}
 		else
 		{
-			if (mModeSelector->getSelectedIndex() == 2)
+			if (mModeSelector->getValue().asInteger() == 2)
 			{
-				mModeSelector->setSelectedIndex(0, 0);
+				mModeSelector->selectByValue(0);
 				onModeSelect(0,this);
 			}
 			
@@ -346,7 +346,7 @@ BOOL LLFloaterTexturePicker::postBuild()
 	}
 	mTentativeLabel = getChild<LLTextBox>("Multiple");
 
-	mResolutionLabel = getChild<LLTextBox>("unknown");
+	mResolutionLabel = getChild<LLTextBox>("size_lbl");
 
 
 	childSetAction("Default",LLFloaterTexturePicker::onBtnSetToDefault,this);
@@ -362,9 +362,9 @@ BOOL LLFloaterTexturePicker::postBuild()
 
 	mInventoryPanel = getChild<LLInventoryPanel>("inventory panel");
 
-	mModeSelector = getChild<LLRadioGroup>("mode_selection");
+	mModeSelector = getChild<LLComboBox>("mode_selection");
 	mModeSelector->setCommitCallback(onModeSelect, this);
-	mModeSelector->setSelectedIndex(0, 0);
+	mModeSelector->selectByValue(0);
 
 	if(mInventoryPanel)
 	{
@@ -431,7 +431,7 @@ BOOL LLFloaterTexturePicker::postBuild()
 	getChild<LLComboBox>("l_bake_use_texture_combo_box")->setCommitCallback(onBakeTextureSelect, this);
 	getChild<LLCheckBoxCtrl>("hide_base_mesh_region")->setCommitCallback(onHideBaseMeshRegionCheck, this);
 
-	setBakeTextureEnabled(FALSE);
+	setBakeTextureEnabled(TRUE);
 	return TRUE;
 }
 
@@ -755,7 +755,7 @@ void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem
 void LLFloaterTexturePicker::onModeSelect(LLUICtrl* ctrl, void *userdata)
 {
 	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
-	int index = self->mModeSelector->getSelectedIndex();
+    int index = self->mModeSelector->getValue().asInteger();
 
 	self->getChild<LLButton>("Default")->setVisible(index == 0 ? TRUE : FALSE);
 	self->getChild<LLButton>("Blank")->setVisible(index == 0 ? TRUE : FALSE);
@@ -1082,7 +1082,7 @@ void LLFloaterTexturePicker::onFilterEdit(const std::string& search_string )
 
 void LLFloaterTexturePicker::setLocalTextureEnabled(BOOL enabled)
 {
-	mModeSelector->setIndexEnabled(1,enabled);
+    mModeSelector->setEnabledByValue(1, enabled);
 }
 
 void LLFloaterTexturePicker::setBakeTextureEnabled(BOOL enabled)
@@ -1090,18 +1090,18 @@ void LLFloaterTexturePicker::setBakeTextureEnabled(BOOL enabled)
 	BOOL changed = (enabled != mBakeTextureEnabled);
 
 	mBakeTextureEnabled = enabled;
-	mModeSelector->setIndexEnabled(2, enabled);
+	mModeSelector->setEnabledByValue(2, enabled);
 
-	if (!mBakeTextureEnabled && (mModeSelector->getSelectedIndex() == 2))
+	if (!mBakeTextureEnabled && (mModeSelector->getValue().asInteger() == 2))
 	{
-		mModeSelector->setSelectedIndex(0, 0);
+		mModeSelector->selectByValue(0);
 	}
 	
 	if (changed && mBakeTextureEnabled && LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(mImageAssetID))
 	{
-		if (mModeSelector->getSelectedIndex() != 2)
+		if (mModeSelector->getValue().asInteger() != 2)
 		{
-			mModeSelector->setSelectedIndex(2, 0);
+			mModeSelector->selectByValue(2);
 		}
 	}
 	onModeSelect(0, this);
@@ -1156,8 +1156,7 @@ LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
 	mImageAssetID(p.image_id),
 	mDefaultImageAssetID(p.default_image_id),
 	mDefaultImageName(p.default_image_name),
-	mFallbackImage(p.fallback_image),
-	mBakeTextureEnabled(FALSE)
+	mFallbackImage(p.fallback_image)
 {
 
 	// Default of defaults is white image for diff tex
@@ -1350,7 +1349,7 @@ void LLTextureCtrl::showPicker(BOOL take_focus)
 		}
 		if (texture_floaterp)
 		{
-			texture_floaterp->setBakeTextureEnabled(mBakeTextureEnabled);
+			texture_floaterp->setBakeTextureEnabled(TRUE);
 		}
 
 		LLFloater* root_floater = gFloaterView->getParentFloater(this);
@@ -1529,7 +1528,6 @@ void LLTextureCtrl::setImageAssetID( const LLUUID& asset_id )
 
 void LLTextureCtrl::setBakeTextureEnabled(BOOL enabled)
 {
-	mBakeTextureEnabled = enabled;
 	LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
 	if (floaterp)
 	{

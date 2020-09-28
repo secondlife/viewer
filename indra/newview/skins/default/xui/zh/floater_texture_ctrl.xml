@@ -9,14 +9,10 @@
 	<text name="Multiple">
 		多重材質
 	</text>
-	<radio_group name="mode_selection">
-		<radio_item label="收納區" name="inventory" value="0"/>
-		<radio_item label="本地" name="local" value="1"/>
-		<radio_item label="確定產出" name="bake" value="2"/>
-	</radio_group>
-	<text name="unknown">
-		尺寸：[DIMENSIONS]
-	</text>
+	<combo_box name="mode_selection">
+		<combo_box.item label="收納區" name="inventory" value="0"/>
+		<combo_box.item label="本地" name="local" value="1"/>
+	</combo_box>
 	<button label="預設" label_selected="預設" name="Default"/>
 	<button label="空白" label_selected="空白" name="Blank"/>
 	<button label="無" label_selected="無" name="None"/>

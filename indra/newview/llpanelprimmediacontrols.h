@@ -120,6 +120,8 @@ private:
 	void showVolumeSlider();
 	void hideVolumeSlider();
 	bool shouldVolumeSliderBeVisible();
+
+	bool isZoomDistExceeding();
 	
 	static void onScrollUp(void* user_data);
 	static void onScrollUpHeld(void* user_data);
@@ -184,6 +186,8 @@ private:
 	F32 mZoomMediumPadding;
 	F32 mZoomFarPadding;
 	S32 mTopWorldViewAvoidZone;
+
+	LLVector3d mZoomedCameraPos;
 	
 	LLUICtrl *mMediaPanelScroll;
 	LLButton *mScrollUpCtrl;

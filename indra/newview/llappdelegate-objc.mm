@@ -294,6 +294,7 @@ struct AttachmentInfo
     std::vector<AttachmentInfo> info{
         AttachmentInfo(metadata.logFilePathname,      "text/plain"),
         AttachmentInfo(metadata.userSettingsPathname, "text/xml"),
+        AttachmentInfo(metadata.accountSettingsPathname, "text/xml"),
         AttachmentInfo(metadata.staticDebugPathname,  "text/xml")
     };
 

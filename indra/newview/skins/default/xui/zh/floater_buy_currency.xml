@@ -59,8 +59,7 @@
 	</text>
 	<button label="立即購買" name="buy_btn"/>
 	<button label="取消" name="cancel_btn"/>
-	<text name="info_cannot_buy">
+	<floater.string name="info_cannot_buy">
 		無法購買
-	</text>
-	<button label="繼續到網頁" name="error_web"/>
+	</floater.string>
 </floater>

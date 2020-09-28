@@ -39,6 +39,11 @@
 // Globals
 LLLandmarkList gLandmarkList;
 
+// number is mostly arbitrary, but it should be below DEFAULT_QUEUE_SIZE pool size,
+// which is 4096, to not overfill the pool if user has more than 4K of landmarks,
+// and low number helps with not flooding server with requests
+const S32 MAX_SIMULTANEOUS_REQUESTS = 512;
+
 
 ////////////////////////////////////////////////////////////////////////////
 // LLLandmarkList
@@ -69,6 +74,11 @@ LLLandmark* LLLandmarkList::getAsset(const LLUUID& asset_uuid, loaded_callback_t
 		{
 			return NULL;
 		}
+	    if ( mWaitList.find(asset_uuid) != mWaitList.end() )
+		{
+            // Landmark is sheduled for download, but not requested yet
+			return NULL;
+		}
 		
 		landmark_requested_list_t::iterator iter = mRequestedList.find(asset_uuid);
 		if (iter != mRequestedList.end())
@@ -85,6 +95,13 @@ LLLandmark* LLLandmarkList::getAsset(const LLUUID& asset_uuid, loaded_callback_t
 			loaded_callback_map_t::value_type vt(asset_uuid, cb);
 			mLoadedCallbackMap.insert(vt);
 		}
+
+        if (mRequestedList.size() > MAX_SIMULTANEOUS_REQUESTS)
+        {
+            // Postpone download till queu is emptier
+            mWaitList.insert(asset_uuid);
+            return NULL;
+        }
 
 		gAssetStorage->getAssetData(asset_uuid,
 									LLAssetType::AT_LANDMARK,
@@ -155,8 +172,22 @@ void LLLandmarkList::processGetAssetReply(
 		}
 
 		gLandmarkList.mBadList.insert(uuid);
+        gLandmarkList.mRequestedList.erase(uuid); //mBadList effectively blocks any load, so no point keeping id in requests
+        // todo: this should clean mLoadedCallbackMap!
 	}
 
+    if (!gLandmarkList.mWaitList.empty())
+    {
+        // start new download from wait list
+        landmark_uuid_list_t::iterator iter = gLandmarkList.mWaitList.begin();
+        LLUUID asset_uuid = *iter;
+        gLandmarkList.mWaitList.erase(iter);
+        gAssetStorage->getAssetData(asset_uuid,
+            LLAssetType::AT_LANDMARK,
+            LLLandmarkList::processGetAssetReply,
+            NULL);
+        gLandmarkList.mRequestedList[asset_uuid] = gFrameTimeSeconds;
+    }
 }
 
 BOOL LLLandmarkList::isAssetInLoadedCallbackMap(const LLUUID& asset_uuid)

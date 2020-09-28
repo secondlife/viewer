@@ -62,8 +62,6 @@ public:
 	
 	//static LLDrawPool* createPool(const U32 type, LLViewerTexture *tex0 = NULL);
 
-	// Create an empty new instance of the pool.
-	/*virtual*/ LLDrawPoolWLSky *instancePool();  ///< covariant override
 	/*virtual*/ LLViewerTexture* getTexture();
 	/*virtual*/ BOOL isFacePool() { return FALSE; }
 	/*virtual*/ void resetDrawOrders();

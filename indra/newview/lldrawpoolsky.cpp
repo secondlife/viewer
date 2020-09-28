@@ -48,11 +48,6 @@ LLDrawPoolSky::LLDrawPoolSky()
 {
 }
 
-LLDrawPool *LLDrawPoolSky::instancePool()
-{
-	return new LLDrawPoolSky();
-}
-
 void LLDrawPoolSky::prerender()
 {
 	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT); 
@@ -128,23 +123,12 @@ void LLDrawPoolSky::renderSkyFace(U8 index)
 		return;
 	}
 
-    F32 interp_val = gSky.mVOSkyp ? gSky.mVOSkyp->getInterpVal() : 0.0f;
-
     if (index < 6) // sky tex...interp
     {
         llassert(mSkyTex);
 	    mSkyTex[index].bindTexture(true); // bind the current tex
 
         face->renderIndexed();
-
-        if (interp_val > 0.01f) // iff, we've got enough info to lerp (a to and a from)
-	    {
-		    LLGLEnable blend(GL_BLEND);
-            llassert(mSkyTex);
-	        mSkyTex[index].bindTexture(false); // bind the "other" texture
-		    gGL.diffuseColor4f(1, 1, 1, interp_val); // lighting is disabled
-		    face->renderIndexed();
-	    }
     }
     else // heavenly body faces, no interp...
     {

@@ -57,6 +57,9 @@
 #include "llviewerobjectlist.h"
 #include "boost/foreach.hpp"
 
+
+const S32 EVENTS_PER_IDLE_LOOP = 100;
+
 //
 // LLFloaterIMContainer
 //
@@ -66,7 +69,8 @@ LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed, const Params& param
 	mConversationsRoot(NULL),
 	mConversationsEventStream("ConversationsEvents"),
 	mInitialized(false),
-	mIsFirstLaunch(true)
+	mIsFirstLaunch(true),
+	mConversationEventQueue()
 {
     mEnableCallbackRegistrar.add("IMFloaterContainer.Check", boost::bind(&LLFloaterIMContainer::isActionChecked, this, _2));
 	mCommitCallbackRegistrar.add("IMFloaterContainer.Action", boost::bind(&LLFloaterIMContainer::onCustomAction,  this, _2));
@@ -434,7 +438,9 @@ void LLFloaterIMContainer::idle(void* user_data)
 {
 	LLFloaterIMContainer* self = static_cast<LLFloaterIMContainer*>(user_data);
 
-    if (!self->getVisible() || self->isMinimized())
+	self->idleProcessEvents();
+
+	if (!self->getVisible() || self->isMinimized())
     {
         return;
     }
@@ -465,7 +471,7 @@ void LLFloaterIMContainer::idleUpdate()
             while (current_participant_model != end_participant_model)
             {
                 LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(*current_participant_model);
-                participant_model->setModeratorOptionsVisible(is_moderator && participant_model->getUUID() != gAgentID);
+                participant_model->setModeratorOptionsVisible(is_moderator);
                 participant_model->setGroupBanVisible(can_ban && participant_model->getUUID() != gAgentID);
 
                 current_participant_model++;
@@ -495,13 +501,28 @@ void LLFloaterIMContainer::idleUpdate()
     }
 }
 
+void LLFloaterIMContainer::idleProcessEvents()
+{
+	if (!mConversationEventQueue.empty())
+	{
+		S32 events_to_handle = llmin((S32)mConversationEventQueue.size(), EVENTS_PER_IDLE_LOOP);
+		for (S32 i = 0; i < events_to_handle; i++)
+		{
+			handleConversationModelEvent(mConversationEventQueue.back());
+			mConversationEventQueue.pop_back();
+		}
+	}
+}
+
 bool LLFloaterIMContainer::onConversationModelEvent(const LLSD& event)
 {
-	// For debug only
-	//std::ostringstream llsd_value;
-	//llsd_value << LLSDOStreamer<LLSDNotationFormatter>(event) << std::endl;
-	//LL_INFOS() << "LLFloaterIMContainer::onConversationModelEvent, event = " << llsd_value.str() << LL_ENDL;
-	// end debug
+	mConversationEventQueue.push_front(event);
+	return true;
+}
+
+
+void LLFloaterIMContainer::handleConversationModelEvent(const LLSD& event)
+{
 	
 	// Note: In conversations, the model is not responsible for creating the view, which is a good thing. This means that
 	// the model could change substantially and the view could echo only a portion of this model (though currently the 
@@ -518,7 +539,7 @@ bool LLFloaterIMContainer::onConversationModelEvent(const LLSD& event)
 	if (!session_view)
 	{
 		// We skip events that are not associated with a session
-		return false;
+		return;
 	}
 	LLConversationViewParticipant* participant_view = session_view->findParticipant(participant_id);
     LLFloaterIMSessionTab *conversation_floater = (session_id.isNull() ?
@@ -545,9 +566,9 @@ bool LLFloaterIMContainer::onConversationModelEvent(const LLSD& event)
 	{
 		LLConversationItemSession* session_model = dynamic_cast<LLConversationItemSession*>(mConversationsItems[session_id]);
 		LLConversationItemParticipant* participant_model = (session_model ? session_model->findParticipant(participant_id) : NULL);
+		LLIMModel::LLIMSession * im_sessionp = LLIMModel::getInstance()->findIMSession(session_id);
 		if (!participant_view && session_model && participant_model)
-		{
-			LLIMModel::LLIMSession * im_sessionp = LLIMModel::getInstance()->findIMSession(session_id);
+		{	
 			if (session_id.isNull() || (im_sessionp && !im_sessionp->isP2PSessionType()))
 			{
 				participant_view = createConversationViewParticipant(participant_model);
@@ -558,7 +579,8 @@ bool LLFloaterIMContainer::onConversationModelEvent(const LLSD& event)
 		// Add a participant view to the conversation floater 
 		if (conversation_floater && participant_model)
 		{
-			conversation_floater->addConversationViewParticipant(participant_model);
+			bool skip_updating = im_sessionp && im_sessionp->isGroupChat();
+			conversation_floater->addConversationViewParticipant(participant_model, !skip_updating);
 		}
 	}
 	else if (type == "update_participant")
@@ -581,12 +603,6 @@ bool LLFloaterIMContainer::onConversationModelEvent(const LLSD& event)
 	
 	mConversationViewModel.requestSortAll();
 	mConversationsRoot->arrangeAll();
-	if (conversation_floater)
-	{
-		conversation_floater->refreshConversation();
-	}
-	
-	return false;
 }
 
 void LLFloaterIMContainer::draw()
@@ -1419,12 +1435,21 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
     {
 		return is_single_select;
 	}
-	
-	// Beyond that point, if only the user agent is selected, everything is disabled
-	if (is_single_select && (single_id == gAgentID))
-	{
-		return false;
-	}
+
+    bool is_moderator_option = ("can_moderate_voice" == item) || ("can_allow_text_chat" == item) || ("can_mute" == item) || ("can_unmute" == item);
+
+    // Beyond that point, if only the user agent is selected, everything is disabled
+    if (is_single_select && (single_id == gAgentID))
+    {
+        if (is_moderator_option)
+        {
+            return enableModerateContextMenuItem(item, true);
+        }
+        else
+        {
+            return false;
+        }
+    }
 
 	// If the user agent is selected with others, everything is disabled
 	for (uuid_vec_t::const_iterator id = uuids.begin(); id != uuids.end(); ++id)
@@ -1490,11 +1515,11 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
     {
    		return canBanSelectedMember(single_id);
     }
-	else if (("can_moderate_voice" == item) || ("can_allow_text_chat" == item) || ("can_mute" == item) || ("can_unmute" == item))
-	{
-		// *TODO : get that out of here...
-		return enableModerateContextMenuItem(item);
-	}
+    else if (is_moderator_option)
+    {
+        // *TODO : get that out of here...
+        return enableModerateContextMenuItem(item);
+    }
 
 	// By default, options that not explicitely disabled are enabled
     return true;
@@ -1864,7 +1889,7 @@ LLConversationViewParticipant* LLFloaterIMContainer::createConversationViewParti
 	return LLUICtrlFactory::create<LLConversationViewParticipant>(params);
 }
 
-bool LLFloaterIMContainer::enableModerateContextMenuItem(const std::string& userdata)
+bool LLFloaterIMContainer::enableModerateContextMenuItem(const std::string& userdata, bool is_self)
 {
 	// only group moderators can perform actions related to this "enable callback"
 	if (!isGroupModerator())
@@ -1884,7 +1909,7 @@ bool LLFloaterIMContainer::enableModerateContextMenuItem(const std::string& user
 	{
 		return voice_channel;
 	}
-	else if ("can_mute" == userdata)
+	else if (("can_mute" == userdata) && !is_self)
 	{
 		return voice_channel && !isMuted(getCurSelectedViewModelItem()->getUUID());
 	}
@@ -1894,7 +1919,7 @@ bool LLFloaterIMContainer::enableModerateContextMenuItem(const std::string& user
 	}
 
 	// The last invoke is used to check whether the "can_allow_text_chat" will enabled
-	return LLVoiceClient::getInstance()->isParticipantAvatar(getCurSelectedViewModelItem()->getUUID());
+	return LLVoiceClient::getInstance()->isParticipantAvatar(getCurSelectedViewModelItem()->getUUID()) && !is_self;
 }
 
 bool LLFloaterIMContainer::isGroupModerator()

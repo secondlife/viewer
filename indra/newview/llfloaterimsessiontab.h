@@ -84,7 +84,7 @@ public:
 	/*virtual*/ void setFocus(BOOL focus);
 	
 	// Handle the left hand participant list widgets
-	void addConversationViewParticipant(LLConversationItem* item);
+	void addConversationViewParticipant(LLConversationItem* item, bool update_view = true);
 	void removeConversationViewParticipant(const LLUUID& participant_id);
 	void updateConversationViewParticipant(const LLUUID& participant_id);
 	void refreshConversation();
