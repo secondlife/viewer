@@ -849,26 +849,32 @@ void LLTexUnit::debugTextureUnit(void)
 	}
 }
 
-void LLTexUnit::setTextureColorSpace(eTextureColorSpace space) {
+void LLTexUnit::setTextureColorSpace(eTextureColorSpace space)
+{
     mTexColorSpace = space;
 
 #if USE_SRGB_DECODE
-    if (gGLManager.mHasTexturesRGBDecode) {
-
-        if (space == TCS_SRGB) {
+    if (gGLManager.mHasTexturesRGBDecode)
+    {
+        if (space == TCS_SRGB)
+        {
             glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_SRGB_DECODE_EXT, GL_DECODE_EXT);
         }
-        else {
+        else
+        {
             glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_SRGB_DECODE_EXT, GL_SKIP_DECODE_EXT);
         }
 
-        if (gDebugGL) {
+        if (gDebugGL)
+        {
             assert_glerror();
         }
     }
+    else
 #endif
-    glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_SRGB_DECODE_EXT, GL_SKIP_DECODE_EXT);
-
+    {
+        glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_SRGB_DECODE_EXT, GL_SKIP_DECODE_EXT);
+    }
 }
 
 LLLightState::LLLightState(S32 index)
@@ -1192,46 +1198,46 @@ void LLRender::refreshState(void)
 
 void LLRender::syncLightState()
 {
-	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+    LLGLSLShader *shader = LLGLSLShader::sCurBoundShaderPtr;
 
-	if (!shader)
-	{
-		return;
-	}
+    if (!shader)
+    {
+        return;
+    }
 
-	if (shader->mLightHash != mLightHash)
-	{
-		shader->mLightHash = mLightHash;
+    if (shader->mLightHash != mLightHash)
+    {
+        shader->mLightHash = mLightHash;
 
-		LLVector4 position[8];
-		LLVector3 direction[8];
-		LLVector4 attenuation[8];
-		LLVector3 diffuse[8];
-        LLVector3 diffuse_b[8];
-        bool      sun_primary[8];
+        LLVector4 position[LL_NUM_LIGHT_UNITS];
+        LLVector3 direction[LL_NUM_LIGHT_UNITS];
+        LLVector4 attenuation[LL_NUM_LIGHT_UNITS];
+        LLVector3 diffuse[LL_NUM_LIGHT_UNITS];
+        LLVector3 diffuse_b[LL_NUM_LIGHT_UNITS];
+        bool      sun_primary[LL_NUM_LIGHT_UNITS];
 
-		for (U32 i = 0; i < 8; i++)
-		{
-			LLLightState* light = mLightState[i];
+        for (U32 i = 0; i < LL_NUM_LIGHT_UNITS; i++)
+        {
+            LLLightState *light = mLightState[i];
 
-			position[i] = light->mPosition;
-			direction[i] = light->mSpotDirection;
+            position[i]  = light->mPosition;
+            direction[i] = light->mSpotDirection;
             attenuation[i].set(light->mLinearAtten, light->mQuadraticAtten, light->mSpecular.mV[2], light->mSpecular.mV[3]);
-			diffuse[i].set(light->mDiffuse.mV);
+            diffuse[i].set(light->mDiffuse.mV);
             diffuse_b[i].set(light->mDiffuseB.mV);
             sun_primary[i] = light->mSunIsPrimary;
-		}
+        }
 
-		shader->uniform4fv(LLShaderMgr::LIGHT_POSITION, 8, position[0].mV);
-		shader->uniform3fv(LLShaderMgr::LIGHT_DIRECTION, 8, direction[0].mV);
-		shader->uniform4fv(LLShaderMgr::LIGHT_ATTENUATION, 8, attenuation[0].mV);
-		shader->uniform3fv(LLShaderMgr::LIGHT_DIFFUSE, 8, diffuse[0].mV);
-		shader->uniform4fv(LLShaderMgr::LIGHT_AMBIENT, 1, mAmbientLightColor.mV);
+        shader->uniform4fv(LLShaderMgr::LIGHT_POSITION, LL_NUM_LIGHT_UNITS, position[0].mV);
+        shader->uniform3fv(LLShaderMgr::LIGHT_DIRECTION, LL_NUM_LIGHT_UNITS, direction[0].mV);
+        shader->uniform4fv(LLShaderMgr::LIGHT_ATTENUATION, LL_NUM_LIGHT_UNITS, attenuation[0].mV);
+        shader->uniform3fv(LLShaderMgr::LIGHT_DIFFUSE, LL_NUM_LIGHT_UNITS, diffuse[0].mV);
+        shader->uniform4fv(LLShaderMgr::LIGHT_AMBIENT, 1, mAmbientLightColor.mV);
         shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_primary[0] ? 1 : 0);
         shader->uniform4fv(LLShaderMgr::AMBIENT, 1, mAmbientLightColor.mV);
         shader->uniform4fv(LLShaderMgr::SUNLIGHT_COLOR, 1, diffuse[0].mV);
         shader->uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, diffuse_b[0].mV);
-	}
+    }
 }
 
 void LLRender::syncMatrices()
@@ -1539,11 +1545,17 @@ void LLRender::matrixMode(eMatrixMode mode)
 	{
         U32 tex_index = gGL.getCurrentTexUnitIndex();
         // the shaders don't actually reference anything beyond texture_matrix0/1 outside of terrain rendering
-        llassert_always(tex_index <= 3);
-		mode = eMatrixMode(MM_TEXTURE0 + gGL.getCurrentTexUnitIndex());
+        llassert(tex_index <= 3);
+        mode = eMatrixMode(MM_TEXTURE0 + tex_index);
+        if (mode > MM_TEXTURE3)
+        {
+            // getCurrentTexUnitIndex() can go as high as 32 (LL_NUM_TEXTURE_LAYERS)
+            // Large value will result in a crash at mMatrix
+            LL_WARNS_ONCE() << "Attempted to assign matrix mode out of bounds: " << mode << LL_ENDL;
+            mode = MM_TEXTURE0;
+        }
 	}
 
-	llassert(mode < NUM_MATRIX_MODES);
 	mMatrixMode = mode;
 }
 

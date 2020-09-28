@@ -335,9 +335,13 @@ void main()
 
     float glare = 0.0;
 
-    if (spec.a > 0.0) // specular reflection
+    if (spec.a > 0.0)  // specular reflection
     {
-#if 1 //EEP
+        /*  // Reverting this specular calculation to previous 'dumbshiny' version - DJH 6/17/2020
+            // Preserving the refactored version as a comment for potential reconsideration,
+            // overriding the general rule to avoid pollutiong the source with commented code.
+            //
+            //  If you're reading this in 2021+, feel free to obliterate.
 
         vec3 npos = -normalize(pos.xyz);
 
@@ -360,23 +364,23 @@ void main()
             bloom = dot(sp, sp) / 4.0;
             color += sp * spec.rgb;
         }
-#else // PRODUCTION
-        float sa = dot(refnormpersp, sun_dir.xyz);
-		vec3 dumbshiny = sunlit*shadow*(texture2D(lightFunc, vec2(sa, spec.a)).r);
-							
-		// add the two types of shiny together
-		vec3 spec_contrib = dumbshiny * spec.rgb;
-		bloom = dot(spec_contrib, spec_contrib) / 6;
+        */
 
-		glare = max(spec_contrib.r, spec_contrib.g);
-		glare = max(glare, spec_contrib.b);
+        float sa        = dot(refnormpersp, sun_dir.xyz);
+        vec3  dumbshiny = sunlit * shadow * (texture2D(lightFunc, vec2(sa, spec.a)).r);
 
-		color += spec_contrib;
-#endif
+        // add the two types of shiny together
+        vec3 spec_contrib = dumbshiny * spec.rgb;
+        bloom             = dot(spec_contrib, spec_contrib) / 6;
+
+        glare = max(spec_contrib.r, spec_contrib.g);
+        glare = max(glare, spec_contrib.b);
+
+        color += spec_contrib;
     }
 
     color = mix(color.rgb, diffcol.rgb, diffuse.a);
-    
+
     if (envIntensity > 0.0)
     {
         //add environmentmap
