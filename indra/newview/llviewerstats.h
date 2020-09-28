@@ -144,9 +144,6 @@ extern LLTrace::CountStatHandle<>			FPS,
 extern LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> > TRIANGLES_DRAWN;
 extern LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> > TRIANGLES_DRAWN_PER_FRAME;
 
-extern LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> > TRIANGLES_DRAWN_BY_PASS_TYPE[LLRenderPass::NUM_RENDER_TYPES];
-extern LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> > TRIANGLES_DRAWN_BY_PASS_TYPE_PER_FRAME[LLRenderPass::NUM_RENDER_TYPES];
-
 extern LLTrace::CountStatHandle<F64Kilobytes >	ACTIVE_MESSAGE_DATA_RECEIVED,
 																	LAYERS_NETWORK_DATA_RECEIVED,
 																	OBJECT_NETWORK_DATA_RECEIVED,

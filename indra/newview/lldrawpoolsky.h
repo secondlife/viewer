@@ -49,8 +49,6 @@ public:
 
 	LLDrawPoolSky();
 
-	/*virtual*/ LLDrawPool *instancePool();
-
 	/*virtual*/ S32 getNumPostDeferredPasses() { return getNumPasses(); }
 	/*virtual*/ void beginPostDeferredPass(S32 pass) { beginRenderPass(pass); }
 	/*virtual*/ void endPostDeferredPass(S32 pass) { endRenderPass(pass); }

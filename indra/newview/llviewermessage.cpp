@@ -2220,15 +2220,19 @@ protected:
 	}
 };
 
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_IMPROVED_IM("Process IM");
+
 void process_improved_im(LLMessageSystem *msg, void **user_data)
 {
-	LLUUID from_id;
-	BOOL from_group;
-	LLUUID to_id;
-	U8 offline;
-	U8 d = 0;
-	LLUUID session_id;
-	U32 timestamp;
+    LL_RECORD_BLOCK_TIME(FTM_PROCESS_IMPROVED_IM);
+
+    LLUUID from_id;
+    BOOL from_group;
+    LLUUID to_id;
+    U8 offline;
+    U8 d = 0;
+    LLUUID session_id;
+    U32 timestamp;
     std::string agentName;
 	std::string message;
 	U32 parent_estate_id = 0;

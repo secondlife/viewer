@@ -93,113 +93,6 @@ LLTrace::CountStatHandle<>	FPS("FPS", "Frames rendered"),
 
 LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> > TRIANGLES_DRAWN("trianglesdrawnstat");
 LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> > TRIANGLES_DRAWN_PER_FRAME("trianglesdrawnperframestat");
-LLTrace::CountStatHandle<LLUnit<U32, LLUnits::Triangles> > TRIANGLES_DRAWN_BY_PASS_TYPE[LLRenderPass::NUM_RENDER_TYPES] = 
-{
-   { "trianglesdrawnperframestat_stub" },
-   { "trianglesdrawnperframestat_pool_simple" },
-   { "trianglesdrawnperframestat_pool_ground" },
-   { "trianglesdrawnperframestat_pool_fullbright" },
-   { "trianglesdrawnperframestat_pool_bump" },
-   { "trianglesdrawnperframestat_pool_materials" },
-   { "trianglesdrawnperframestat_pool_terrain" },
-   { "trianglesdrawnperframestat_pool_sky" },
-   { "trianglesdrawnperframestat_pool_wl_sky" },
-   { "trianglesdrawnperframestat_pool_tree" },
-   { "trianglesdrawnperframestat_pool_alpha_mask" },
-   { "trianglesdrawnperframestat_pool_fullbright_alpha_mask" },
-   { "trianglesdrawnperframestat_pool_grass" },
-   { "trianglesdrawnperframestat_pool_invisible" },
-   { "trianglesdrawnperframestat_pool_avatar" },
-   { "trianglesdrawnperframestat_pool_voidwater" },
-   { "trianglesdrawnperframestat_pool_water" },
-   { "trianglesdrawnperframestat_pool_glow" },
-   { "trianglesdrawnperframestat_pool_alpha" },   
-   { "trianglesdrawnperframestat_pass_simple" },
-   { "trianglesdrawnperframestat_pass_grass" },
-   { "trianglesdrawnperframestat_pass_fullbright" },
-   { "trianglesdrawnperframestat_pass_invisible" },
-   { "trianglesdrawnperframestat_pass_invisishiny" },
-   { "trianglesdrawnperframestat_pass_fullbright_shiny" },
-   { "trianglesdrawnperframestat_pass_shiny" },
-   { "trianglesdrawnperframestat_pass_bump" },
-   { "trianglesdrawnperframestat_pass_postbump" },
-   { "trianglesdrawnperframestat_pass_material" },
-   { "trianglesdrawnperframestat_pass_material_alpha" },
-   { "trianglesdrawnperframestat_pass_material_alpha_mask" },
-   { "trianglesdrawnperframestat_pass_material_alpha_emissive" },
-   { "trianglesdrawnperframestat_pass_specmap" },
-   { "trianglesdrawnperframestat_pass_specmap_blend" },
-   { "trianglesdrawnperframestat_pass_specmap_mask" },
-   { "trianglesdrawnperframestat_pass_specmap_emissive" },
-   { "trianglesdrawnperframestat_pass_normmap" },
-   { "trianglesdrawnperframestat_pass_normmap_blend" },
-   { "trianglesdrawnperframestat_pass_normmap_mask" },
-   { "trianglesdrawnperframestat_pass_normmap_emissive" },
-   { "trianglesdrawnperframestat_pass_normspec" },
-   { "trianglesdrawnperframestat_pass_normspec_blend" },
-   { "trianglesdrawnperframestat_pass_normspec_mask" },
-   { "trianglesdrawnperframestat_pass_normspec_emissive" },
-   { "trianglesdrawnperframestat_pass_glow" },
-   { "trianglesdrawnperframestat_pass_alpha" },
-   { "trianglesdrawnperframestat_pass_alpha_mask" },
-   { "trianglesdrawnperframestat_pass_fullbright_alpha_mask" },
-   { "trianglesdrawnperframestat_pass_alpha_invisible" },
-   { "trianglesdrawnperframestat_pass_unknown" }
-};
-
-LLTrace::EventStatHandle<LLUnit<U32, LLUnits::Triangles> > TRIANGLES_DRAWN_BY_PASS_TYPE_PER_FRAME[LLRenderPass::NUM_RENDER_TYPES] = 
-{
-   { "trianglesdrawnperframestat_stub_perframestat" },
-   { "trianglesdrawnperframestat_pool_simple_perframestat" },
-   { "trianglesdrawnperframestat_pool_ground_perframestat" },
-   { "trianglesdrawnperframestat_pool_fullbright_perframestat" },
-   { "trianglesdrawnperframestat_pool_bump_perframestat" },
-   { "trianglesdrawnperframestat_pool_materials_perframestat" },
-   { "trianglesdrawnperframestat_pool_terrain_perframestat" },
-   { "trianglesdrawnperframestat_pool_sky_perframestat" },
-   { "trianglesdrawnperframestat_pool_wl_sky_perframestat" },
-   { "trianglesdrawnperframestat_pool_tree_perframestat" },
-   { "trianglesdrawnperframestat_pool_alpha_mask_perframestat" },
-   { "trianglesdrawnperframestat_pool_fullbright_alpha_mask_perframestat" },
-   { "trianglesdrawnperframestat_pool_grass_perframestat" },
-   { "trianglesdrawnperframestat_pool_invisible_perframestat" },
-   { "trianglesdrawnperframestat_pool_avatar_perframestat" },
-   { "trianglesdrawnperframestat_pool_voidwater_perframestat" },
-   { "trianglesdrawnperframestat_pool_water_perframestat" },
-   { "trianglesdrawnperframestat_pool_glow_perframestat" },
-   { "trianglesdrawnperframestat_pool_alpha_perframestat" },   
-   { "trianglesdrawnperframestat_pass_simple_perframestat" },
-   { "trianglesdrawnperframestat_pass_grass_perframestat" },
-   { "trianglesdrawnperframestat_pass_fullbright_perframestat" },
-   { "trianglesdrawnperframestat_pass_invisible_perframestat" },
-   { "trianglesdrawnperframestat_pass_invisishiny_perframestat" },
-   { "trianglesdrawnperframestat_pass_fullbright_shiny_perframestat" },
-   { "trianglesdrawnperframestat_pass_shiny_perframestat" },
-   { "trianglesdrawnperframestat_pass_bump_perframestat" },
-   { "trianglesdrawnperframestat_pass_postbump_perframestat" },
-   { "trianglesdrawnperframestat_pass_material_perframestat" },
-   { "trianglesdrawnperframestat_pass_material_alpha_perframestat" },
-   { "trianglesdrawnperframestat_pass_material_alpha_mask_perframestat" },
-   { "trianglesdrawnperframestat_pass_material_alpha_emissive_perframestat" },
-   { "trianglesdrawnperframestat_pass_specmap_perframestat" },
-   { "trianglesdrawnperframestat_pass_specmap_blend_perframestat" },
-   { "trianglesdrawnperframestat_pass_specmap_mask_perframestat" },
-   { "trianglesdrawnperframestat_pass_specmap_emissive_perframestat" },
-   { "trianglesdrawnperframestat_pass_normmap_perframestat" },
-   { "trianglesdrawnperframestat_pass_normmap_blend_perframestat" },
-   { "trianglesdrawnperframestat_pass_normmap_mask_perframestat" },
-   { "trianglesdrawnperframestat_pass_normmap_emissive_perframestat" },
-   { "trianglesdrawnperframestat_pass_normspec_perframestat" },
-   { "trianglesdrawnperframestat_pass_normspec_blend_perframestat" },
-   { "trianglesdrawnperframestat_pass_normspec_mask_perframestat" },
-   { "trianglesdrawnperframestat_pass_normspec_emissive_perframestat" },
-   { "trianglesdrawnperframestat_pass_glow_perframestat" },
-   { "trianglesdrawnperframestat_pass_alpha_perframestat" },
-   { "trianglesdrawnperframestat_pass_alpha_mask_perframestat" },
-   { "trianglesdrawnperframestat_pass_fullbright_alpha_mask_perframestat" },
-   { "trianglesdrawnperframestat_pass_alpha_invisible_perframestat" },
-   { "trianglesdrawnperframestat_pass_unknown" }
-};
 
 LLTrace::CountStatHandle<F64Kilobytes >	
 							ACTIVE_MESSAGE_DATA_RECEIVED("activemessagedatareceived", "Message system data received on all active regions"),
@@ -446,13 +339,6 @@ void update_statistics()
     auto sum = last_frame_recording.getSum(LLStatViewer::TRIANGLES_DRAWN);
     U32 val = sum.value();
 	record(LLStatViewer::TRIANGLES_DRAWN_PER_FRAME, val);
-
-    for (U32 i = LLRenderPass::POOL_SIMPLE; i < LLRenderPass::NUM_RENDER_TYPES; i++)
-    {
-        auto sum = last_frame_recording.getSum(LLStatViewer::TRIANGLES_DRAWN_BY_PASS_TYPE[i]);
-        U32 val = sum.value();
-        record(LLStatViewer::TRIANGLES_DRAWN_BY_PASS_TYPE_PER_FRAME[i], val);
-    }
 
 	sample(LLStatViewer::ENABLE_VBO,      (F64)gSavedSettings.getBOOL("RenderVBOEnable"));
 	sample(LLStatViewer::LIGHTING_DETAIL, (F64)gPipeline.getLightingDetail());

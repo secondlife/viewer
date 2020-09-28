@@ -196,7 +196,7 @@ void LLFace::destroy()
 
 	if (mDrawPoolp)
 	{
-		if (this->isState(LLFace::RIGGED) && mDrawPoolp->getType() == LLDrawPool::POOL_AVATAR)
+		if (this->isState(LLFace::RIGGED) && (mDrawPoolp->getType() == LLDrawPool::POOL_CONTROL_AV || mDrawPoolp->getType() == LLDrawPool::POOL_AVATAR))
 		{
 			((LLDrawPoolAvatar*) mDrawPoolp)->removeRiggedFace(this);
 		}

@@ -51,11 +51,6 @@ LLDrawPoolTree::LLDrawPoolTree(LLViewerTexture *texturep) :
 	mTexturep->setAddressMode(LLTexUnit::TAM_WRAP);
 }
 
-LLDrawPool *LLDrawPoolTree::instancePool()
-{
-	return new LLDrawPoolTree(mTexturep);
-}
-
 void LLDrawPoolTree::prerender()
 {
 	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
