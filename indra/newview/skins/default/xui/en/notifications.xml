@@ -3680,6 +3680,17 @@ Could not teleport to [SLURL] as it's on a different grid ([GRID]) than the curr
   </notification>
 
   <notification icon="alertmodal.tga"
+		name="GeneralCertificateErrorShort"
+		type="alertmodal">
+Could not connect to the server.
+[REASON]
+    <tag>fail</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification icon="alertmodal.tga"
 		name="GeneralCertificateError"
 		type="alertmodal">
 Could not connect to the server.

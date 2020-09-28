@@ -142,8 +142,9 @@ BOOL LLToolGrabBase::handleMouseDown(S32 x, S32 y, MASK mask)
 
 	// call the base class to propogate info to sim
 	LLTool::handleMouseDown(x, y, mask);
-	
-	if (!gAgent.leftButtonGrabbed())
+
+	// leftButtonGrabbed() checks if controls are reserved by scripts, but does not take masks into account
+	if (!gAgent.leftButtonGrabbed() || ((mask & DEFAULT_GRAB_MASK) != 0 && !gAgentCamera.cameraMouselook()))
 	{
 		// can grab transparent objects (how touch event propagates, scripters rely on this)
 		gViewerWindow->pickAsync(x, y, mask, pickCallback, /*BOOL pick_transparent*/ TRUE);

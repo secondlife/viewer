@@ -646,6 +646,16 @@ void LLView::onVisibilityChange ( BOOL new_visibility )
 }
 
 // virtual
+void LLView::onUpdateScrollToChild(const LLUICtrl * cntrl)
+{
+    LLView* parent_view = getParent();
+    if (parent_view)
+    {
+        parent_view->onUpdateScrollToChild(cntrl);
+    }
+}
+
+// virtual
 void LLView::translate(S32 x, S32 y)
 {
 	mRect.translate(x, y);

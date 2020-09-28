@@ -1007,11 +1007,20 @@ CURLcode HttpOpRequest::curlSslCtxCallback(CURL *curl, void *sslctx, void *userd
 {
     HttpOpRequest::ptr_t op(HttpOpRequest::fromHandle<HttpOpRequest>(userdata));
 
-	if (op->mCallbackSSLVerify)
-	{
-		SSL_CTX * ctx = (SSL_CTX *)sslctx;
-		// disable any default verification for server certs
-		SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
+    if (op->mCallbackSSLVerify)
+    {
+        SSL_CTX * ctx = (SSL_CTX *)sslctx;
+        if (op->mReqOptions && op->mReqOptions->getSSLVerifyPeer())
+        {
+            // verification for ssl certs
+            SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, NULL);
+        }
+        else
+        {
+            // disable any default verification for server certs
+            // Ex: setting urls (assume non-SL) for parcel media in LLFloaterURLEntry
+            SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
+        }
 		// set the verification callback.
 		SSL_CTX_set_cert_verify_callback(ctx, sslCertVerifyCallback, userdata);
 		// the calls are void

@@ -9,14 +9,10 @@
 	<text name="Multiple">
 		Несколько текстур
 	</text>
-	<radio_group name="mode_selection">
-		<radio_item label="Инвентарь" name="inventory" value="0"/>
-		<radio_item label="Локально" name="local" value="1"/>
-		<radio_item label="Зафиксировать" name="bake" value="2"/>
-	</radio_group>
-	<text name="unknown">
-		Размер: [DIMENSIONS]
-	</text>
+	<combo_box name="mode_selection">
+		<combo_box.item label="Инвентарь" name="inventory" value="0"/>
+		<combo_box.item label="Локально" name="local" value="1"/>
+	</combo_box>
 	<button label="По умолчанию" label_selected="По умолчанию" name="Default"/>
 	<button label="Очистить" label_selected="Очистить" name="Blank"/>
 	<button label="Нет" label_selected="Нет" name="None"/>

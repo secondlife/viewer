@@ -34,6 +34,9 @@ VARYING vec2 vary_texcoord0;
 
 uniform float texture_gamma;
 
+// render_hud_attachments() -> HUD objects set LLShaderMgr::NO_ATMO;
+uniform int no_atmo;
+
 vec3 fullbrightAtmosTransport(vec3 light);
 vec3 fullbrightScaleSoftClip(vec3 light);
 
@@ -43,9 +46,12 @@ void fullbright_lighting()
 	
 	color.rgb = pow(color.rgb, vec3(texture_gamma));
 
-	color.rgb = fullbrightAtmosTransport(color.rgb);
-	
-	color.rgb = fullbrightScaleSoftClip(color.rgb);
+	// SL-9632 HUDs are affected by Atmosphere
+	if (no_atmo == 0)
+	{
+		color.rgb = fullbrightAtmosTransport(color.rgb);
+		color.rgb = fullbrightScaleSoftClip(color.rgb);
+	}
 
 	color.rgb = pow(color.rgb, vec3(1.0/texture_gamma));
 

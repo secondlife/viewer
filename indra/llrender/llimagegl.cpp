@@ -985,38 +985,56 @@ BOOL LLImageGL::preAddToAtlas(S32 discard_level, const LLImageRaw* raw_image)
 		return FALSE;
 	}
 
-	if( !mHasExplicitFormat )
-	{
-		switch (mComponents)
-		{
-			case 1:
-			// Use luminance alpha (for fonts)
-			mFormatInternal = GL_LUMINANCE8;
-			mFormatPrimary = GL_LUMINANCE;
-			mFormatType = GL_UNSIGNED_BYTE;
-			break;
-			case 2:
-			// Use luminance alpha (for fonts)
-			mFormatInternal = GL_LUMINANCE8_ALPHA8;
-			mFormatPrimary = GL_LUMINANCE_ALPHA;
-			mFormatType = GL_UNSIGNED_BYTE;
-			break;
-			case 3:
-			mFormatInternal = GL_RGB8;
-			mFormatPrimary = GL_RGB;
-			mFormatType = GL_UNSIGNED_BYTE;
-			break;
-			case 4:
-			mFormatInternal = GL_RGBA8;
-			mFormatPrimary = GL_RGBA;
-			mFormatType = GL_UNSIGNED_BYTE;
-			break;
-			default:
-			LL_ERRS() << "Bad number of components for texture: " << (U32)getComponents() << LL_ENDL;
-		}
-	}
+    if (!mHasExplicitFormat)
+    {
+        switch (mComponents)
+        {
+            case 1:
+                // Use luminance alpha (for fonts)
+                mFormatInternal = GL_LUMINANCE8;
+                mFormatPrimary  = GL_LUMINANCE;
+                mFormatType     = GL_UNSIGNED_BYTE;
+                break;
+            case 2:
+                // Use luminance alpha (for fonts)
+                mFormatInternal = GL_LUMINANCE8_ALPHA8;
+                mFormatPrimary  = GL_LUMINANCE_ALPHA;
+                mFormatType     = GL_UNSIGNED_BYTE;
+                break;
+            case 3:
+#if USE_SRGB_DECODE
+                if (gGLManager.mHasTexturesRGBDecode)
+                {
+                    mFormatInternal = GL_SRGB8;
+                }
+                else
+#endif
+                {
+                    mFormatInternal = GL_RGB8;
+                }
+                mFormatPrimary = GL_RGB;
+                mFormatType    = GL_UNSIGNED_BYTE;
+                break;
+            case 4:
+#if USE_SRGB_DECODE
+                if (gGLManager.mHasTexturesRGBDecode)
+                {
+                    mFormatInternal = GL_SRGB8_ALPHA8;
+                }
+                else
+#endif
+                {
+                    mFormatInternal = GL_RGBA8;
+                }
+                mFormatPrimary = GL_RGBA;
+                mFormatType    = GL_UNSIGNED_BYTE;
+                break;
+            default:
+                LL_ERRS() << "Bad number of components for texture: " << (U32) getComponents() << LL_ENDL;
+        }
+    }
 
-	mCurrentDiscardLevel = discard_level;	
+    mCurrentDiscardLevel = discard_level;	
 	mDiscardLevelInAtlas = discard_level;
 	mTexelsInAtlas = raw_image->getWidth() * raw_image->getHeight() ;
 	mLastBindTime = sLastFrameTime;

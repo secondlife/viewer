@@ -2219,8 +2219,12 @@ protected:
 	}
 };
 
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_IMPROVED_IM("Process IM");
+
 void process_improved_im(LLMessageSystem *msg, void **user_data)
 {
+    LL_RECORD_BLOCK_TIME(FTM_PROCESS_IMPROVED_IM);
+
     LLUUID from_id;
     BOOL from_group;
     LLUUID to_id;

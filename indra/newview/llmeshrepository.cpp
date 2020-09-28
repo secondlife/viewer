@@ -1553,7 +1553,7 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 
 				if (!zero)
 				{ //attempt to parse
-					if (physicsShapeReceived(mesh_id, buffer, size))
+					if (physicsShapeReceived(mesh_id, buffer, size) == MESH_OK)
 					{
 						delete[] buffer;
 						return true;
@@ -1647,7 +1647,7 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params, bool c
 			LLMeshRepository::sCacheBytesRead += bytes;	
 			++LLMeshRepository::sCacheReads;
 			file.read(buffer, bytes);
-			if (headerReceived(mesh_params, buffer, bytes))
+			if (headerReceived(mesh_params, buffer, bytes) == MESH_OK)
 			{
 				// Found mesh in VFS cache
 				return true;
@@ -1794,7 +1794,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
 	return retval;
 }
 
-bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* data, S32 data_size)
+EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* data, S32 data_size)
 {
 	const LLUUID mesh_id = mesh_params.getSculptID();
 	LLSD header;
@@ -1802,30 +1802,39 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 	U32 header_size = 0;
 	if (data_size > 0)
 	{
-		std::string res_str((char*) data, data_size);
+        std::istringstream stream;
+        try
+        {
+            std::string res_str((char*)data, data_size);
 
-		std::string deprecated_header("<? LLSD/Binary ?>");
+            std::string deprecated_header("<? LLSD/Binary ?>");
 
-		if (res_str.substr(0, deprecated_header.size()) == deprecated_header)
-		{
-			res_str = res_str.substr(deprecated_header.size()+1, data_size);
-			header_size = deprecated_header.size()+1;
-		}
-		data_size = res_str.size();
+            if (res_str.substr(0, deprecated_header.size()) == deprecated_header)
+            {
+                res_str = res_str.substr(deprecated_header.size() + 1, data_size);
+                header_size = deprecated_header.size() + 1;
+            }
+            data_size = res_str.size();
 
-		std::istringstream stream(res_str);
+            stream.str(res_str);
+        }
+        catch (std::bad_alloc&)
+        {
+            // out of memory, we won't be able to process this mesh
+            return MESH_OUT_OF_MEMORY;
+        }
 
 		if (!LLSDSerialize::fromBinary(header, stream, data_size))
 		{
 			LL_WARNS(LOG_MESH) << "Mesh header parse error.  Not a valid mesh asset!  ID:  " << mesh_id
 							   << LL_ENDL;
-			return false;
+			return MESH_PARSE_FAILURE;
 		}
 
 		if (!header.isMap())
 		{
 			LL_WARNS(LOG_MESH) << "Mesh header is invalid for ID: " << mesh_id << LL_ENDL;
-			return false;
+			return MESH_INVALID;
 		}
 
 		if (header.has("version") && header["version"].asInteger() > MAX_MESH_VERSION)
@@ -1871,7 +1880,7 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 		}
 	}
 
-	return true;
+	return MESH_OK;
 }
 
 EMeshProcessingResult LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_params, S32 lod, U8* data, S32 data_size)
@@ -1916,18 +1925,25 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
 
 	if (data_size > 0)
 	{
-		std::string res_str((char*) data, data_size);
+        try
+        {
+            std::string res_str((char*)data, data_size);
+            std::istringstream stream(res_str);
 
-		std::istringstream stream(res_str);
-
-		U32 uzip_result = LLUZipHelper::unzip_llsd(skin, stream, data_size);
-		if (uzip_result != LLUZipHelper::ZR_OK)
-		{
-			LL_WARNS(LOG_MESH) << "Mesh skin info parse error.  Not a valid mesh asset!  ID:  " << mesh_id
-							   << " uzip result" << uzip_result
-							   << LL_ENDL;
-			return false;
-		}
+            U32 uzip_result = LLUZipHelper::unzip_llsd(skin, stream, data_size);
+            if (uzip_result != LLUZipHelper::ZR_OK)
+            {
+                LL_WARNS(LOG_MESH) << "Mesh skin info parse error.  Not a valid mesh asset!  ID:  " << mesh_id
+                    << " uzip result" << uzip_result
+                    << LL_ENDL;
+                return false;
+            }
+        }
+        catch (std::bad_alloc&)
+        {
+            LL_WARNS(LOG_MESH) << "Out of memory for mesh ID " << mesh_id << " of size: " << data_size << LL_ENDL;
+            return false;
+        }
 	}
 	
 	{
@@ -1949,19 +1965,26 @@ bool LLMeshRepoThread::decompositionReceived(const LLUUID& mesh_id, U8* data, S3
 	LLSD decomp;
 
 	if (data_size > 0)
-	{ 
-		std::string res_str((char*) data, data_size);
+    {
+        try
+        {
+            std::string res_str((char*)data, data_size);
+            std::istringstream stream(res_str);
 
-		std::istringstream stream(res_str);
-
-		U32 uzip_result = LLUZipHelper::unzip_llsd(decomp, stream, data_size);
-		if (uzip_result != LLUZipHelper::ZR_OK)
-		{
-			LL_WARNS(LOG_MESH) << "Mesh decomposition parse error.  Not a valid mesh asset!  ID:  " << mesh_id
-							   << " uzip result: " << uzip_result
-							   << LL_ENDL;
-			return false;
-		}
+            U32 uzip_result = LLUZipHelper::unzip_llsd(decomp, stream, data_size);
+            if (uzip_result != LLUZipHelper::ZR_OK)
+            {
+                LL_WARNS(LOG_MESH) << "Mesh decomposition parse error.  Not a valid mesh asset!  ID:  " << mesh_id
+                    << " uzip result: " << uzip_result
+                    << LL_ENDL;
+                return false;
+            }
+        }
+        catch (std::bad_alloc&)
+        {
+            LL_WARNS(LOG_MESH) << "Out of memory for mesh ID " << mesh_id << " of size: " << data_size << LL_ENDL;
+            return false;
+        }
 	}
 	
 	{
@@ -1976,7 +1999,7 @@ bool LLMeshRepoThread::decompositionReceived(const LLUUID& mesh_id, U8* data, S3
 	return true;
 }
 
-bool LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32 data_size)
+EMeshProcessingResult LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32 data_size)
 {
 	LLSD physics_shape;
 
@@ -1993,8 +2016,19 @@ bool LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32
 		volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
 		volume_params.setSculptID(mesh_id, LL_SCULPT_TYPE_MESH);
 		LLPointer<LLVolume> volume = new LLVolume(volume_params,0);
-		std::string mesh_string((char*) data, data_size);
-		std::istringstream stream(mesh_string);
+
+        std::istringstream stream;
+        try
+        {
+            std::string mesh_string((char*)data, data_size);
+            stream.str(mesh_string);
+        }
+        catch (std::bad_alloc&)
+        {
+            // out of memory, we won't be able to process this mesh
+            delete d;
+            return MESH_OUT_OF_MEMORY;
+        }
 
 		if (volume->unpackVolumeFaces(stream, data_size))
 		{
@@ -2033,7 +2067,7 @@ bool LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32
 		LLMutexLock lock(mMutex);
 		mDecompositionQ.push_back(d);
 	}
-	return true;
+	return MESH_OK;
 }
 
 LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, LLVector3& scale, bool upload_textures,
@@ -3142,15 +3176,21 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* b
 									  U8 * data, S32 data_size)
 {
 	LLUUID mesh_id = mMeshParams.getSculptID();
-	bool success = (! MESH_HEADER_PROCESS_FAILED)
-		&& ((data != NULL) == (data_size > 0)) // if we have data but no size or have size but no data, something is wrong
-		&& gMeshRepo.mThread->headerReceived(mMeshParams, data, data_size);
+    bool success = (!MESH_HEADER_PROCESS_FAILED)
+        && ((data != NULL) == (data_size > 0)); // if we have data but no size or have size but no data, something is wrong;
 	llassert(success);
+    EMeshProcessingResult res = MESH_UNKNOWN;
+    if (success)
+    {
+        res = gMeshRepo.mThread->headerReceived(mMeshParams, data, data_size);
+        success = (res == MESH_OK);
+    }
 	if (! success)
 	{
 		// *TODO:  Get real reason for parse failure here.  Might we want to retry?
 		LL_WARNS(LOG_MESH) << "Unable to parse mesh header.  ID:  " << mesh_id
-						   << ", Unknown reason.  Not retrying."
+						   << ", Size: " << data_size
+						   << ", Reason: " << res << " Not retrying."
 						   << LL_ENDL;
 
 		// Can't get the header so none of the LODs will be available
@@ -3430,7 +3470,7 @@ void LLMeshPhysicsShapeHandler::processData(LLCore::BufferArray * /* body */, S3
 {
 	if ((!MESH_PHYS_SHAPE_PROCESS_FAILED)
 		&& ((data != NULL) == (data_size > 0)) // if we have data but no size or have size but no data, something is wrong
-		&& gMeshRepo.mThread->physicsShapeReceived(mMeshID, data, data_size))
+		&& gMeshRepo.mThread->physicsShapeReceived(mMeshID, data, data_size) == MESH_OK)
 	{
 		// good fetch from sim, write to VFS for caching
 		LLVFile file(gVFS, mMeshID, LLAssetType::AT_MESH, LLVFile::WRITE);
