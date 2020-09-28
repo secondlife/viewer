@@ -299,6 +299,11 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
 
         ++mSeedCapAttempts;
 
+        if (LLApp::isExiting())
+        {
+            return;
+        }
+
         regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
         if (!regionp) //region was removed
         {
@@ -413,6 +418,11 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCompleteCoro(U64 regionHandle)
             break;  // no retry
         }
 
+        if (LLApp::isExiting())
+        {
+            break;
+        }
+
         regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
         if (!regionp) //region was removed
         {
@@ -516,6 +526,11 @@ void LLViewerRegionImpl::requestSimulatorFeatureCoro(std::string url, U64 region
             continue;  
         }
 
+        if (LLApp::isExiting())
+        {
+            break;
+        }
+
         // remove the http_result from the llsd
         result.erase("http_result");
 
@@ -610,6 +625,8 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
 	mImpl->mObjectPartition.push_back(new LLGrassPartition(this));		//PARTITION_GRASS
 	mImpl->mObjectPartition.push_back(new LLVolumePartition(this));	//PARTITION_VOLUME
 	mImpl->mObjectPartition.push_back(new LLBridgePartition(this));	//PARTITION_BRIDGE
+	mImpl->mObjectPartition.push_back(new LLAvatarPartition(this));	//PARTITION_AVATAR
+	mImpl->mObjectPartition.push_back(new LLControlAVPartition(this));	//PARTITION_CONTROL_AV
 	mImpl->mObjectPartition.push_back(new LLHUDParticlePartition(this));//PARTITION_HUD_PARTICLE
 	mImpl->mObjectPartition.push_back(new LLVOCachePartition(this)); //PARTITION_VO_CACHE
 	mImpl->mObjectPartition.push_back(NULL);					//PARTITION_NONE
@@ -3166,7 +3183,7 @@ void LLViewerRegion::setCapabilitiesReceived(bool received)
 	{
 		mCapabilitiesReceivedSignal(getRegionID());
 
-		//LLFloaterPermsDefault::sendInitialPerms();
+		LLFloaterPermsDefault::sendInitialPerms();
 
 		// This is a single-shot signal. Forget callbacks to save resources.
 		mCapabilitiesReceivedSignal.disconnect_all_slots();

@@ -737,6 +737,10 @@ U32 render_type_from_string(std::string render_type)
 	{
 		return LLPipeline::RENDER_TYPE_AVATAR;
 	}
+	else if ("controlAV" == render_type) // Animesh
+	{
+		return LLPipeline::RENDER_TYPE_CONTROL_AV;
+	}
 	else if ("surfacePatch" == render_type)
 	{
 		return LLPipeline::RENDER_TYPE_TERRAIN;

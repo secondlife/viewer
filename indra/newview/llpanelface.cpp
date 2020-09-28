@@ -1027,21 +1027,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 					getChildView("maskcutoff")->setEnabled(editable && mIsAlpha);
 					getChildView("label maskcutoff")->setEnabled(editable && mIsAlpha);
 
-					bool allAttachments = true;
-					for (LLObjectSelection::iterator iter = LLSelectMgr::getInstance()->getSelection()->begin();
-						iter != LLSelectMgr::getInstance()->getSelection()->end();iter++)
-					{
-						LLSelectNode* node = *iter;
-						LLViewerObject* object = node->getObject();
-						if (!object->isAttachment())
-						{
-							allAttachments = false;
-							break;
-						}
-					}
-
-					texture_ctrl->setBakeTextureEnabled(allAttachments);
-					
+					texture_ctrl->setBakeTextureEnabled(TRUE);
 				}
 				else if (id.isNull())
 					{
@@ -1066,21 +1052,8 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 					getChildView("label alphamode")->setEnabled(editable && mIsAlpha);
 					getChildView("maskcutoff")->setEnabled(editable && mIsAlpha);
 					getChildView("label maskcutoff")->setEnabled(editable && mIsAlpha);
-
-					bool allAttachments = true;
-					for (LLObjectSelection::iterator iter = LLSelectMgr::getInstance()->getSelection()->begin();
-						iter != LLSelectMgr::getInstance()->getSelection()->end();iter++)
-					{
-						LLSelectNode* node = *iter;
-						LLViewerObject* object = node->getObject();
-						if (!object->isAttachment())
-						{
-							allAttachments = false;
-							break;
-				}
-			}
-
-					texture_ctrl->setBakeTextureEnabled(allAttachments);
+					
+					texture_ctrl->setBakeTextureEnabled(TRUE);
 				}
 				
 			}
@@ -1109,6 +1082,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
 			bool enabled = (editable && isIdenticalPlanarTexgen());
 			childSetValue("checkbox planar align", align_planar && enabled);
+			childSetVisible("checkbox planar align", enabled);
 			childSetEnabled("checkbox planar align", enabled);
 			childSetEnabled("button align textures", enabled && LLSelectMgr::getInstance()->getSelection()->getObjectCount() > 1);
 

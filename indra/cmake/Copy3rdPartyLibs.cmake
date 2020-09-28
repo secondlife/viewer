@@ -82,6 +82,10 @@ if(WINDOWS)
         set(release_files ${release_files} fmod.dll)
     endif (FMODSTUDIO)
 
+    if (OPENAL)
+        list(APPEND release_files openal32.dll alut.dll)
+    endif (OPENAL)
+
     #*******************************
     # Copy MS C runtime dlls, required for packaging.
     if (MSVC80)

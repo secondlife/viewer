@@ -912,6 +912,8 @@ private:
     bool    mIsProcessingChannels;
     bool    mIsCoroutineActive;
 
+    static bool sShuttingDown; // corutines can last longer than vivox so we need a static variable as a shutdown flag
+
     LLEventMailDrop mVivoxPump;
 };
 

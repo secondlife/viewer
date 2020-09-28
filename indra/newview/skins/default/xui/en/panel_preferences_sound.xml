@@ -514,12 +514,12 @@
    follows="left|top"
    height="23"
    is_toggle="true"
-   label="Input/Output devices"
+   label="Voice Input/Output devices"
    layout="topleft"
    left="20"
    top_pad="6"
    name="device_settings_btn"
-   width="190">
+   width="230">
   </button>
     <panel
     layout="topleft"

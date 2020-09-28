@@ -812,17 +812,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>FramePerSecondLimit</key>
-    <map>
-      <key>Comment</key>
-      <string>Controls upper limit of frames per second</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>120</integer>
-    </map>
     <key>BackgroundYieldTime</key>
     <map>
       <key>Comment</key>
@@ -14431,7 +14420,7 @@
     <key>VoiceCallsFriendsOnly</key>
     <map>
       <key>Comment</key>
-      <string>Only accept voice calls from residents on your friends list</string>
+      <string>(Deprecated) Only accept voice calls from residents on your friends list</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

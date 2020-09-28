@@ -522,20 +522,20 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 LLCore::HttpStatus LLAppCoreHttp::sslVerify(const std::string &url, 
 	const LLCore::HttpHandler::ptr_t &handler, void *appdata)
 {
-	X509_STORE_CTX *ctx = static_cast<X509_STORE_CTX *>(appdata);
-	LLCore::HttpStatus result;
-	LLPointer<LLCertificateStore> store = gSecAPIHandler->getCertificateStore("");
-	LLPointer<LLCertificateChain> chain = gSecAPIHandler->getCertificateChain(ctx);
-	LLSD validation_params = LLSD::emptyMap();
-	LLURI uri(url);
+    LLCore::HttpStatus result;
+    try
+    {
+        X509_STORE_CTX *ctx = static_cast<X509_STORE_CTX *>(appdata);
+        LLPointer<LLCertificateStore> store = gSecAPIHandler->getCertificateStore("");
+        LLPointer<LLCertificateChain> chain = gSecAPIHandler->getCertificateChain(ctx);
+        LLSD validation_params = LLSD::emptyMap();
+        LLURI uri(url);
 
-	validation_params[CERT_HOSTNAME] = uri.hostName();
+        validation_params[CERT_HOSTNAME] = uri.hostName();
 
-	// *TODO: In the case of an exception while validating the cert, we need a way
-	// to pass the offending(?) cert back out. *Rider*
+        // *TODO: In the case of an exception while validating the cert, we need a way
+        // to pass the offending(?) cert back out. *Rider*
 
-	try
-	{
 		// don't validate hostname.  Let libcurl do it instead.  That way, it'll handle redirects
 		store->validate(VALIDATION_POLICY_SSL & (~VALIDATION_POLICY_HOSTNAME), chain, validation_params);
 	}

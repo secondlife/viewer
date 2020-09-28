@@ -499,6 +499,12 @@ void LLFloaterIMSessionTab::buildConversationViewParticipant()
 
 void LLFloaterIMSessionTab::addConversationViewParticipant(LLConversationItem* participant_model, bool update_view)
 {
+	if (!participant_model)
+	{
+		// Nothing to do if the model is inexistent
+		return;
+	}
+
 	// Check if the model already has an associated view
 	LLUUID uuid = participant_model->getUUID();
 	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,uuid);
@@ -525,8 +531,8 @@ void LLFloaterIMSessionTab::removeConversationViewParticipant(const LLUUID& part
 	{
 		mConversationsRoot->extractItem(widget);
 		delete widget;
-		mConversationsWidgets.erase(participant_id);
 	}
+	mConversationsWidgets.erase(participant_id);
 }
 
 void LLFloaterIMSessionTab::updateConversationViewParticipant(const LLUUID& participant_id)
