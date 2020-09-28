@@ -86,7 +86,8 @@ LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerTexture *tex0)
 		poolp = new LLDrawPoolAlpha();
 		break;
 	case POOL_AVATAR:
-		poolp = new LLDrawPoolAvatar();
+	case POOL_CONTROL_AV:
+		poolp = new LLDrawPoolAvatar(type);
 		break;
 	case POOL_TREE:
 		poolp = new LLDrawPoolTree(tex0);
@@ -383,16 +384,6 @@ LLRenderPass::~LLRenderPass()
 
 }
 
-LLDrawPool* LLRenderPass::instancePool()
-{
-#if LL_RELEASE_FOR_DOWNLOAD
-	LL_WARNS() << "Attempting to instance a render pass.  Invalid operation." << LL_ENDL;
-#else
-	LL_ERRS() << "Attempting to instance a render pass.  Invalid operation." << LL_ENDL;
-#endif
-	return NULL;
-}
-
 void LLRenderPass::renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture)
 {					
 	LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[type];
@@ -449,7 +440,7 @@ void LLRenderPass::applyModelMatrix(const LLDrawInfo& params)
 	if (params.mModelMatrix != gGLLastMatrix)
 	{
 		gGLLastMatrix = params.mModelMatrix;
-        gGL.matrixMode(LLRender::MM_MODELVIEW);
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		gGL.loadMatrix(gGLModelView);
 		if (params.mModelMatrix)
 		{

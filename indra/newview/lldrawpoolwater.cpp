@@ -104,13 +104,6 @@ void LLDrawPoolWater::restoreGL()
     }*/
 }
 
-LLDrawPool *LLDrawPoolWater::instancePool()
-{
-	LL_ERRS() << "Should never be calling instancePool on a water pool!" << LL_ENDL;
-	return NULL;
-}
-
-
 void LLDrawPoolWater::prerender()
 {
 	mShaderLevel = (gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps) ? LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WATER) : 0;
