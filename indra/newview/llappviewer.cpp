@@ -1026,12 +1026,26 @@ bool LLAppViewer::init()
 	{
 		// can't use an alert here since we're exiting and
 		// all hell breaks lose.
+		LLUIString details = LLNotifications::instance().getGlobalString("UnsupportedGLRequirements");
 		OSMessageBox(
-			LLNotifications::instance().getGlobalString("UnsupportedGLRequirements"),
+			details.getString(),
 			LLStringUtil::null,
 			OSMB_OK);
 		return 0;
 	}
+
+    // If we don't have the right shader requirements.
+    if (!gGLManager.mHasShaderObjects
+        || !gGLManager.mHasVertexShader
+        || !gGLManager.mHasFragmentShader)
+    {
+        LLUIString details = LLNotifications::instance().getGlobalString("UnsupportedShaderRequirements");
+        OSMessageBox(
+            details.getString(),
+            LLStringUtil::null,
+            OSMB_OK);
+        return 0;
+    }
 
 	// Without SSE2 support we will crash almost immediately, warn here.
 	if (!gSysCPU.hasSSE2())

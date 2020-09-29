@@ -9568,6 +9568,12 @@ Do you wish to continue?
      yestext="OK"/>
   </notification>
 
+  <global name="UnsupportedShaderRequirements">
+You do not appear to meet the hardware requirements for [APP_NAME]. [APP_NAME] requires OpenGL 2.0 or later shader support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
+
+If you continue to have problems, please visit the [SUPPORT_SITE].
+  </global>
+
   <global name="UnsupportedGLRequirements">
 You do not appear to have the proper hardware requirements for [APP_NAME]. [APP_NAME] requires an OpenGL graphics card that has multitexture support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
 
