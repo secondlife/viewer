@@ -944,9 +944,13 @@ static void formatDateString(std::string &date_string)
 	}
 }
 
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_GROUP_MEMBERS_REPLY("Process Group Members");
+
 // static
 void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 {
+    LL_RECORD_BLOCK_TIME(FTM_PROCESS_GROUP_MEMBERS_REPLY);
+
 	LL_DEBUGS("GrpMgr") << "LLGroupMgr::processGroupMembersReply" << LL_ENDL;
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
@@ -1050,9 +1054,13 @@ void LLGroupMgr::processGroupMembersReply(LLMessageSystem* msg, void** data)
 	LLGroupMgr::getInstance()->notifyObservers(GC_MEMBER_DATA);
 }
 
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_GROUP_PROPERTIES_REPLY("Process Group Properties");
+
 //static 
 void LLGroupMgr::processGroupPropertiesReply(LLMessageSystem* msg, void** data)
 {
+    LL_RECORD_BLOCK_TIME(FTM_PROCESS_GROUP_PROPERTIES_REPLY);
+
 	LL_DEBUGS("GrpMgr") << "LLGroupMgr::processGroupPropertiesReply" << LL_ENDL;
 	if (!msg)
 	{
@@ -1131,10 +1139,13 @@ void LLGroupMgr::processGroupPropertiesReply(LLMessageSystem* msg, void** data)
 	LLGroupMgr::getInstance()->notifyObservers(GC_PROPERTIES);
 }
 
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_GROUP_ROLE_DATA_REPLY("Process Group Role Data");
 // static
 void LLGroupMgr::processGroupRoleDataReply(LLMessageSystem* msg, void** data)
 {
-    LL_DEBUGS("GrpMgr") << "LLGroupMgr::processGroupRoleDataReply" << LL_ENDL;
+    LL_RECORD_BLOCK_TIME(FTM_PROCESS_GROUP_ROLE_DATA_REPLY);
+
+	LL_DEBUGS("GrpMgr") << "LLGroupMgr::processGroupRoleDataReply" << LL_ENDL;
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
 	if (gAgent.getID() != agent_id)
@@ -1216,9 +1227,12 @@ void LLGroupMgr::processGroupRoleDataReply(LLMessageSystem* msg, void** data)
 	LLGroupMgr::getInstance()->notifyObservers(GC_ROLE_DATA);
 }
 
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_GROUP_ROLE_MEMBERS_REPLY("Process Group Role Members");
 // static
 void LLGroupMgr::processGroupRoleMembersReply(LLMessageSystem* msg, void** data)
 {
+    LL_RECORD_BLOCK_TIME(FTM_PROCESS_GROUP_ROLE_MEMBERS_REPLY);
+
 	LL_DEBUGS("GrpMgr") << "LLGroupMgr::processGroupRoleMembersReply" << LL_ENDL;
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id );
@@ -1600,7 +1614,7 @@ void LLGroupMgr::sendGroupPropertiesRequest(const LLUUID& group_id)
 	LL_DEBUGS("GrpMgr") << "LLGroupMgr::sendGroupPropertiesRequest" << LL_ENDL;
 	// This will happen when we get the reply
 	//LLGroupMgrGroupData* group_datap = createGroupData(group_id);
-
+	
     if (LLGroupMgr::getInstance()->hasPendingPropertyRequest(group_id))
     {
         LL_DEBUGS("GrpMgr") << "LLGroupMgr::sendGroupPropertiesRequest suppressed repeat for " << group_id << LL_ENDL;

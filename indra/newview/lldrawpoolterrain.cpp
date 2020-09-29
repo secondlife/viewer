@@ -87,13 +87,6 @@ LLDrawPoolTerrain::~LLDrawPoolTerrain()
 	llassert( gPipeline.findPool( getType(), getTexture() ) == NULL );
 }
 
-
-LLDrawPool *LLDrawPoolTerrain::instancePool()
-{
-	return new LLDrawPoolTerrain(mTexturep);
-}
-
-
 U32 LLDrawPoolTerrain::getVertexDataMask() 
 { 
 	if (LLPipeline::sShadowRender)
