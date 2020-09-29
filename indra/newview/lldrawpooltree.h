@@ -45,8 +45,6 @@ public:
 
 	LLDrawPoolTree(LLViewerTexture *texturep);
 
-	/*virtual*/ LLDrawPool *instancePool();
-
 	/*virtual*/ void prerender();
 
 	/*virtual*/ S32 getNumDeferredPasses() { return 1; }

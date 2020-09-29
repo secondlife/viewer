@@ -671,7 +671,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 	else
 	{
 		// perform a separate pick that detects transparent objects since they respond to 1-click actions
-		LLPickInfo click_action_pick = gViewerWindow->pickImmediate(x, y, TRUE, pick_rigged);
+		LLPickInfo click_action_pick = gViewerWindow->pickImmediate(x, y, FALSE, pick_rigged);
 
 		LLViewerObject* click_action_object = click_action_pick.getObject();
 
