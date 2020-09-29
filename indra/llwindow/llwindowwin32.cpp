@@ -1251,9 +1251,9 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
 	if (!DescribePixelFormat(mhDC, pixel_format, sizeof(PIXELFORMATDESCRIPTOR),
 		&pfd))
 	{
-		close();
 		OSMessageBox(mCallbacks->translateString("MBPixelFmtDescErr"),
 			mCallbacks->translateString("MBError"), OSMB_OK);
+        close();
 		return FALSE;
 	}
 
@@ -1290,42 +1290,42 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
 
 	if (pfd.cColorBits < 32)
 	{
-		close();
 		OSMessageBox(mCallbacks->translateString("MBTrueColorWindow"),
 			mCallbacks->translateString("MBError"), OSMB_OK);
+        close();
 		return FALSE;
 	}
 
 	if (pfd.cAlphaBits < 8)
 	{
-		close();
 		OSMessageBox(mCallbacks->translateString("MBAlpha"),
 			mCallbacks->translateString("MBError"), OSMB_OK);
+        close();
 		return FALSE;
 	}
 
 	if (!SetPixelFormat(mhDC, pixel_format, &pfd))
 	{
-		close();
 		OSMessageBox(mCallbacks->translateString("MBPixelFmtSetErr"),
 			mCallbacks->translateString("MBError"), OSMB_OK);
+        close();
 		return FALSE;
 	}
 
 
 	if (!(mhRC = SafeCreateContext(mhDC)))
 	{
-		close();
 		OSMessageBox(mCallbacks->translateString("MBGLContextErr"),
 			mCallbacks->translateString("MBError"), OSMB_OK);
+        close();
 		return FALSE;
 	}
 		
 	if (!wglMakeCurrent(mhDC, mhRC))
 	{
-		close();
 		OSMessageBox(mCallbacks->translateString("MBGLContextActErr"),
 			mCallbacks->translateString("MBError"), OSMB_OK);
+        close();
 		return FALSE;
 	}
 
@@ -1532,16 +1532,16 @@ const	S32   max_format  = (S32)num_formats - 1;
 
 		if (!mhDC)
 		{
-			close();
 			OSMessageBox(mCallbacks->translateString("MBDevContextErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+			close();
 			return FALSE;
 		}
 
 		if (!SetPixelFormat(mhDC, pixel_format, &pfd))
 		{
-			close();
 			OSMessageBox(mCallbacks->translateString("MBPixelFmtSetErr"),
 				mCallbacks->translateString("MBError"), OSMB_OK);
+			close();
 			return FALSE;
 		}
 
@@ -1577,8 +1577,8 @@ const	S32   max_format  = (S32)num_formats - 1;
 	if (!DescribePixelFormat(mhDC, pixel_format, sizeof(PIXELFORMATDESCRIPTOR),
 		&pfd))
 	{
-		close();
 		OSMessageBox(mCallbacks->translateString("MBPixelFmtDescErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+		close();
 		return FALSE;
 	}
 
@@ -1590,15 +1590,15 @@ const	S32   max_format  = (S32)num_formats - 1;
 	// make sure we have 32 bits per pixel
 	if (pfd.cColorBits < 32 || GetDeviceCaps(mhDC, BITSPIXEL) < 32)
 	{
-		close();
 		OSMessageBox(mCallbacks->translateString("MBTrueColorWindow"), mCallbacks->translateString("MBError"), OSMB_OK);
+		close();
 		return FALSE;
 	}
 
 	if (pfd.cAlphaBits < 8)
 	{
-		close();
 		OSMessageBox(mCallbacks->translateString("MBAlpha"), mCallbacks->translateString("MBError"), OSMB_OK);
+		close();
 		return FALSE;
 	}
 
@@ -1614,8 +1614,8 @@ const	S32   max_format  = (S32)num_formats - 1;
 
 	if (!wglMakeCurrent(mhDC, mhRC))
 	{
-		close();
 		OSMessageBox(mCallbacks->translateString("MBGLContextActErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+        close();
 		return FALSE;
 	}
 
@@ -1623,8 +1623,8 @@ const	S32   max_format  = (S32)num_formats - 1;
 
 	if (!gGLManager.initGL())
 	{
-		close();
 		OSMessageBox(mCallbacks->translateString("MBVideoDrvErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+        close();
 		return FALSE;
 	}
 	
