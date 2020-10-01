@@ -71,6 +71,7 @@ private:
         const std::string, LLSD, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t) > invokationFn_t;
 
     static void EnqueueAISCommand(const std::string &procName, LLCoprocedureManager::CoProcedure_t proc);
+    static void onIdle(void *userdata); // launches postponed AIS commands
 
     static std::string getInvCap();
     static std::string getLibCap();
@@ -79,6 +80,8 @@ private:
         invokationFn_t invoke, std::string url, LLUUID targetId, LLSD body, 
         completion_t callback, COMMAND_TYPE type);
 
+    typedef std::pair<std::string, LLCoprocedureManager::CoProcedure_t> ais_query_item_t;
+    static std::list<ais_query_item_t> sPostponedQuery;
 };
 
 class AISUpdate
