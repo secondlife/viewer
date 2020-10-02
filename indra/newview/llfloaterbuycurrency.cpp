@@ -307,7 +307,7 @@ void LLFloaterBuyCurrency::buyCurrency(const std::string& name, S32 price)
 }
 
 // static
-void LLFloaterBuyCurrency::handleBuyCurrency(bool has_piof, bool has_target, const std::string& name, S32 price)
+void LLFloaterBuyCurrency::handleBuyCurrency(bool has_piof, bool has_target, const std::string name, S32 price)
 {
 	delete sPropertiesRequest;
 	sPropertiesRequest = NULL;

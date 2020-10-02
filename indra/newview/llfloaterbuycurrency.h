@@ -54,7 +54,7 @@ public:
 	static void buyCurrency();
 	static void buyCurrency(const std::string& name, S32 price);
 
-		static void handleBuyCurrency(bool has_piof, bool has_target, const std::string& name, S32 price);
+		static void handleBuyCurrency(bool has_piof, bool has_target, const std::string name, S32 price);
 		/* name should be a noun phrase of the object or service being bought:
 				"That object costs"
 				"Trying to give"
