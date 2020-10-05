@@ -1322,6 +1322,11 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
     LL_RECORD_BLOCK_TIME(FTM_AVATAR_EXTENT_UPDATE);
 
     S32 box_detail = gSavedSettings.getS32("AvatarBoundingBoxComplexity");
+	if (getOverallAppearance() != AOA_NORMAL)
+	{
+		// Jellydolls ignore attachments, etc, use only system avatar.
+		box_detail = 1;
+	}
 
     // FIXME the update_min_max function used below assumes there is a
     // known starting point, but in general there isn't. Ideally the
