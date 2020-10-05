@@ -260,6 +260,9 @@ class ViewerManifest(LLManifest):
             app_suffix=self.channel_variant()
         return CHANNEL_VENDOR_BASE + ' ' + app_suffix
 
+    def exec_name(self):
+        return "SecondLifeViewer"
+
     def app_name_oneword(self):
         return ''.join(self.app_name().split())
     
@@ -419,10 +422,12 @@ class WindowsManifest(ViewerManifest):
     build_data_json_platform = 'win'
 
     def final_exe(self):
-        return self.app_name_oneword()+".exe"
+        return self.exec_name()+".exe"
+
+    def final_pdb(self):
+        return self.exec_name()+".pdb"
 
     def finish_build_data_dict(self, build_data_dict):
-        #MAINT-7294: Windows exe names depend on channel name, so write that in also
         build_data_dict['Executable'] = self.final_exe()
         build_data_dict['AppName']    = self.app_name()
         return build_data_dict
@@ -487,6 +492,10 @@ class WindowsManifest(ViewerManifest):
         if self.is_packaging_viewer():
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
+            # Bugsplat for some reason requires a match between user's exe and supplied pdb on Windows 10
+            # this feels wrong and doesn't make any sense, since often we are supposed to match a whole
+            # folder of symbol files to a random exe. But Bugsplat says 'it's expected' so just rename files.
+            self.ccopyfile(src='%s/secondlife-bin.pdb' % self.args['configuration'], dst='%s/%s' % (self.args['configuration'], self.final_pdb()))
 
             with self.prefix(src=os.path.join(pkgdir, "VMP")):
                 # include the compiled launcher scripts so that it gets included in the file_list
