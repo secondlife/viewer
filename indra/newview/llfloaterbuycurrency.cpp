@@ -193,6 +193,7 @@ void LLFloaterBuyCurrencyUI::updateUI()
 		args["TITLE"] = getString("info_cannot_buy");
 		args["MESSAGE"] = mManager.errorMessage();
 		LLNotificationsUtil::add("CouldNotBuyCurrency", args);
+		mManager.clearError();
 		closeFloater();
 	}
 	else
