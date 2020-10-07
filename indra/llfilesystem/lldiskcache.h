@@ -40,23 +40,6 @@ class LLDiskCache :
         virtual ~LLDiskCache() = default;
 
     public:
-        ///**
-        // * The location of the cache dir is set in llappviewer at startup via the
-        // * saved settings parameters.  We do not have access to those saved settings
-        // * here in LLCommon so we must provide an accessor for other classes to use
-        // * when they need it - e.g. LLFilesystem needs the path so it can write files
-        // * to it.
-        // */
-        //const std::string getCacheDirName() { return mCacheDir; }
-
-        ///**
-        // * Each cache filename has a prefix inserted (see definition of the
-        // * mCacheFilenamePrefix variable below for why) but the LLFileSystem
-        // * component needs access to it to in order to create the file so we
-        // * expose it by a getter here.
-        // */
-        //const std::string getCacheFilenamePrefix() { return mCacheFilenamePrefix; }
-
         /**
          * Construct a filename and path to it based on the file meta data
          * (id, asset type, additional 'extra' info like discard level perhaps)
@@ -85,6 +68,11 @@ class LLDiskCache :
          * Clear the cache by removing the files in the cache directory individually
          */
         void clearCache(const std::string cache_dir);
+
+        /**
+         * Return some information about the cache for use in About Box etc.
+         */
+        const std::string getCacheInfo();
 
     private:
         /**

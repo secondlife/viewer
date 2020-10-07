@@ -187,8 +187,6 @@ const std::string LLDiskCache::metaDataToFilepath(const std::string id,
     file_path << assetTypeToString(at);
     file_path << ".asset";
 
-    LL_INFOS() << "filepath.str() = " << file_path.str() << LL_ENDL;
-
     return file_path.str();
 }
 
@@ -201,6 +199,24 @@ void LLDiskCache::updateFileAccessTime(const std::string file_path)
 {
     const std::time_t file_time = std::time(nullptr);
     boost::filesystem::last_write_time(file_path, file_time);
+}
+
+/**
+ * 
+ */
+const std::string LLDiskCache::getCacheInfo()
+{
+    std::ostringstream cache_info;
+
+    F32 max_in_mb = (F32)mMaxSizeBytes / (1024.0 * 1024.0);
+    F32 percent_used = ((F32)dirFileSize(mCacheDir) / (F32)mMaxSizeBytes) * 100.0;
+
+    cache_info << std::fixed;
+    cache_info << std::setprecision(1);
+    cache_info << "Max size " << max_in_mb << " MB ";
+    cache_info << "(" << percent_used << "% used)";
+
+    return cache_info.str();
 }
 
 /**

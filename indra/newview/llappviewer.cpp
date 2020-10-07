@@ -3196,6 +3196,9 @@ LLSD LLAppViewer::getViewerInfo() const
 		info["SERVER_RELEASE_NOTES_URL"] = mServerReleaseNotesURL;
 	}
 
+    // populate field for new local disk cache with some details
+    info["DISK_CACHE_INFO"] = LLDiskCache::getInstance()->getCacheInfo();
+
 	return info;
 }
 

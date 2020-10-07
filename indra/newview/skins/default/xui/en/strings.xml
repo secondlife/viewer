@@ -55,8 +55,9 @@ LOD factor: [LOD_FACTOR]
 Render quality: [RENDER_QUALITY]
 Advanced Lighting Model: [GPU_SHADERS]
 Texture memory: [TEXTURE_MEMORY]MB
+Disk cache: [DISK_CACHE_INFO]
 	</string>
-	<string name="AboutOSXHiDPI">
+  <string name="AboutOSXHiDPI">
 HiDPI display mode: [HIDPI]
 	</string>
 	<string name="AboutLibs">
