@@ -48,7 +48,6 @@ include(OPENAL)
 include(OpenGL)
 include(OpenSSL)
 include(PNG)
-include(SQLite)
 include(TemplateCheck)
 include(UI)
 include(UnixInstall)
@@ -71,7 +70,6 @@ include_directories(
     ${DBUSGLIB_INCLUDE_DIRS}
     ${JSONCPP_INCLUDE_DIR}
     ${GLOD_INCLUDE_DIR}
-    ${SQLITE_INCLUDE_DIR}
     ${LLAUDIO_INCLUDE_DIRS}
     ${LLCHARACTER_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}

@@ -4,13 +4,11 @@ project(llfilesystem)
 
 include(00-Common)
 include(LLCommon)
-include(SQLite)
 include(UnixInstall)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
-    ${SQLITE_INCLUDE_DIR}
     )
 
 set(llfilesystem_SOURCE_FILES
@@ -70,7 +68,6 @@ set(cache_BOOST_LIBRARIES
 target_link_libraries(llfilesystem
     ${LLCOMMON_LIBRARIES}
     ${cache_BOOST_LIBRARIES}
-    ${SQLITE_LIBRARIES}
     )
 
 if (DARWIN)
