@@ -32,6 +32,7 @@
 
 #include "lluuid.h"
 #include "llassettype.h"
+#include "lldiskcache.h"
 
 class LLFileSystem
 {
@@ -51,12 +52,8 @@ public:
 
 	S32 getSize();
 	S32 getMaxSize();
-	BOOL setMaxSize(S32 size);
 	BOOL rename(const LLUUID &new_id, const LLAssetType::EType new_type);
 	BOOL remove();
-
-	bool isLocked();
-	void waitForLock();
 
     static bool getExists(const LLUUID &file_id, const LLAssetType::EType file_type);
     static bool removeFile(const LLUUID &file_id, const LLAssetType::EType file_type);
@@ -80,6 +77,11 @@ protected:
 	S32		mPosition;
 	S32		mMode;
 	S32		mBytesRead;
+
+private:
+    static const std::string idToFilepath(const std::string id, LLAssetType::EType at);
+    static std::string mCacheDirName;
+    static LLDiskCache* mDiskCache;
 };
 
 #endif  // LL_FILESYSTEM_H

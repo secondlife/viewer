@@ -42,6 +42,8 @@ const S32 LLFileSystem::READ_WRITE	= 0x00000003;  // LLFileSystem::READ & LLFile
 const S32 LLFileSystem::APPEND		= 0x00000006;  // 0x00000004 & LLFileSystem::WRITE
 
 static LLTrace::BlockTimerStatHandle FTM_VFILE_WAIT("VFile Wait");
+LLDiskCache* LLFileSystem::mDiskCache = 0;
+std::string LLFileSystem::mCacheDirName = "cache";
 
 LLFileSystem::LLFileSystem(const LLUUID &file_id, const LLAssetType::EType file_type, S32 mode)
 {
@@ -104,7 +106,7 @@ const std::string assetTypeToString(LLAssetType::EType at)
     return std::string("UNKNOWN");
 }
 
-const std::string idToFilepath(const std::string id, LLAssetType::EType at)
+const std::string LLFileSystem::idToFilepath(const std::string id, LLAssetType::EType at)
 {
     /**
      * For the moment this is just {UUID}_{ASSET_TYPE}.txt but of
@@ -117,7 +119,7 @@ const std::string idToFilepath(const std::string id, LLAssetType::EType at)
     ss << assetTypeToString(at);
     ss << ".txt";
 
-    const std::string filepath = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ss.str());
+    const std::string filepath = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, mCacheDirName, ss.str());
 
     return filepath;
 }
@@ -289,7 +291,6 @@ BOOL LLFileSystem::write(const U8 *buffer, S32 bytes)
 BOOL LLFileSystem::writeFile(const U8 *buffer, S32 bytes, const LLUUID &uuid, LLAssetType::EType type)
 {
 	LLFileSystem file(uuid, type, LLFileSystem::WRITE);
-	file.setMaxSize(bytes);
 	return file.write(buffer, bytes);
 }
 
@@ -339,13 +340,6 @@ S32 LLFileSystem::getMaxSize()
     return INT_MAX;
 }
 
-BOOL LLFileSystem::setMaxSize(S32 size)
-{
-    // we don't care what the max size is so we do nothing
-    // and return true to indicate all was okay
-    return TRUE;
-}
-
 BOOL LLFileSystem::rename(const LLUUID &new_id, const LLAssetType::EType new_type)
 {
     LLFileSystem::renameFile(mFileID, mFileType, new_id, new_type);
@@ -366,21 +360,15 @@ BOOL LLFileSystem::remove()
 // static
 void LLFileSystem::initClass()
 {
+    const std::string cache_dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, mCacheDirName);
+
+    LLFileSystem::mDiskCache = new LLDiskCache(cache_dir);
+
+    mDiskCache->purge();
 }
 
 // static
 void LLFileSystem::cleanupClass()
 {
-}
-
-bool LLFileSystem::isLocked()
-{
-    // I don't think we care about this test since there is no locking
-    // TODO: remove this function and calling sites?
-    return FALSE;
-}
-
-void LLFileSystem::waitForLock()
-{
-    // TODO: remove this function and calling sites?
+    delete LLFileSystem::mDiskCache;
 }

@@ -1,11 +1,6 @@
 /**
  * @file lldiskcache.h
- * @brief Declaration SQLite meta data / file storage API
- * @brief Declaration of the generic disk cache interface
-          as well the SQLite header/implementation.
- * @Note  Eventually, this component might split into an interface
- *        file and multiple implemtations but for now, this is the
- *        only one so I think it's okay to combine everything. 
+ * @brief The disk cache implementation.
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -32,99 +27,68 @@
 #ifndef _LLDISKCACHE
 #define _LLDISKCACHE
 
-#include <iostream>
-#include <string>
-
-#include "sqlite3.h"
-
-// Enable this line to display each SQL statement when it is executed
-// It can lead to a lot of spam but useful for debugging
-//#define SHOW_STATEMENTS
-
-// I toyed with the idea of a variety of approaches and thought have
-// an abstract base class with which to hang different implementations
-// off was a good idea but I think we settled on a single approach
-// so I will likely remove this level of indirection if not other 
-// interesting implementation ideas present themselves.
-class llDiskCacheBase
+class LLDiskCache
 {
     public:
-        llDiskCacheBase() {};
-        virtual ~llDiskCacheBase() {};
-        virtual bool open(const std::string db_folder,
-                          const std::string db_filename) = 0;
-        virtual bool exists(const std::string id, bool& exists) = 0;
-        virtual bool put(const std::string id,
-                         char* binary_data,
-                         int binary_data_size) = 0;
-        virtual const bool get(const std::string id,
-                               char** mem_buffer,
-                               int& mem_buffer_size) = 0;
-        virtual bool purge(int num_entries) = 0;
-        virtual void close() = 0;
-        virtual const std::string dbVersion() = 0;
-        virtual const std::string getFilenameById(const std::string id) = 0;
-        virtual const int getAccessCountById(const std::string id) = 0;
-        virtual void getNumEntries(int& num_entries, int& max_entries) = 0;
-};
+        LLDiskCache(const std::string cache_dir);
+        ~LLDiskCache();
 
-// implementation for the SQLite/disk blended case
-// see source file for detailed comments
-class llDiskCache :
-    public llDiskCacheBase
-{
-    public:
-        llDiskCache();
-        virtual ~llDiskCache();
-        virtual bool open(const std::string db_folder,
-                          const std::string db_filename) override;
-        virtual bool exists(const std::string id, bool& exists) override;
-        virtual bool put(const std::string id,
-                         char* binary_data,
-                         int binary_data_size) override;
-        virtual const bool get(const std::string id,
-                               char** mem_buffer,
-                               int& mem_buffer_size) override;
-        virtual bool purge(int num_entries) override;
-        virtual void close() override;
-        virtual const std::string dbVersion() override;
-        virtual const std::string getFilenameById(const std::string id) override;
-        virtual const int getAccessCountById(const std::string id) override;
-        virtual void getNumEntries(int& num_entries, int& max_entries) override;
+        /**
+         * Update the "last write time" of a file to "now". This must be called whenever a 
+         * file in the cache is read (not written) so that the last time the file was 
+         * accessed which is used in the mechanism for purging the cache, is up to date.
+         */
+        void updateFileAccessTime(const std::string file_path);
+
+        /**
+         * Purge the oldest items in the cache so that the combined size of all files
+         * is no bigger than mMaxSizeBytes.
+         */
+        void purge();
+
+        /**
+         * Clear the cache by removing the files in the cache directory individually
+         */
+        void clearCache(const std::string cache_dir);
+
+        /**
+         * Manage max size in bytes of cache - use a discrete setter/getter so the value can
+         * be changed in the preferences and cache cleared/purged without restarting viewer
+         * to instantiate this class again.
+         */
+        void setMaxSizeBytes(const uintmax_t size_bytes) { mMaxSizeBytes = size_bytes; }
+        uintmax_t getMaxSizeBytes() const { return mMaxSizeBytes; }
 
     private:
-        sqlite3* mDb;
-        std::string mDataStorePath;
-        const std::string mTableName = "lldiskcache";
-        const std::string mIdFieldName = "id";
-        const std::string mFilenameFieldName = "filename";
-        const std::string mFilesizeFieldName = "filesize";
-        const std::string mInsertionDateTimeFieldName = "insert_datetime";
-        const std::string mLastAccessDateTimeFieldName = "last_access_datetime";
-        const std::string mAccessCountFieldName = "access_count";
+        /**
+         * Utility function to gather the total size the files in a given
+         * directory. Primarily used here to determine the directory size 
+         * before and after the cache purge
+         */
+        uintmax_t dirFileSize(const std::string dir);
 
     private:
-        void printError(const std::string funcname,
-                        const std::string desc,
-                        bool is_sqlite_err);
-        bool beginTransaction();
-        bool endTransaction();
-        std::string makeUniqueFilename();
-        const std::string systemSeparator();
-        const std::string makeFullPath(const std::string filename);
-        bool sqliteExec(const std::string stmt,
-                        const std::string funcname);
-        sqlite3_stmt* sqlitePrepareStep(const std::string funcname,
-                                        const std::string stmt,
-                                        int sqlite_success_condition);
-        const std::string sqlComposeCreateTable();
-        const std::string sqlComposeExists(const std::string id);
-        const std::string sqlComposePut(const std::string id,
-                                        const std::string filename,
-                                        int binary_data_size);
-        const std::string sqlComposeGetSelect(const std::string id);
-        const std::string sqlComposeGetUpdate(const std::string id);
-        const std::string sqlComposePurge(int num_entries);
+        /**
+         * Default of 20MB seems reasonable - it will likely be reset
+         * immediately anyway using a value from the Viewer settings
+         */
+        const uintmax_t mDefaultSizeBytes = 20 * 1024 * 1024;
+        uintmax_t mMaxSizeBytes;
+
+        /**
+         * The folder that holds the cached files. The consumer of this
+         * class must avoid letting the user set this location as a malicious
+         * setting could potentially point it at a non-cache directory (for example,
+         * the Windows System dir) with disastrous results.
+         */
+        std::string mCacheDir;
+
+        /**
+         * This is set from the CacheDebugInfo global setting and
+         * when enabled, displays additional debugging information in
+         * various parts of the code
+         */
+        bool mCacheDebugInfo;
 };
 
 #endif // _LLDISKCACHE

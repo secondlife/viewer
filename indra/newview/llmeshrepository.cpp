@@ -3241,7 +3241,7 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* b
 			data_size = llmin(data_size, bytes);
 
 			LLFileSystem file(mesh_id, LLAssetType::AT_MESH, LLFileSystem::WRITE);
-			if (file.getMaxSize() >= bytes || file.setMaxSize(bytes))
+			if (file.getMaxSize() >= bytes)
 			{
 				LLMeshRepository::sCacheBytesWritten += data_size;
 				++LLMeshRepository::sCacheWrites;

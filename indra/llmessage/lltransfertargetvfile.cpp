@@ -141,7 +141,6 @@ LLTSCode LLTransferTargetVFile::dataCallback(const S32 packet_id, U8 *in_datap, 
 	LLFileSystem vf(mTempID, mParams.getAssetType(), LLFileSystem::APPEND);
 	if (mNeedsCreate)
 	{
-		vf.setMaxSize(mSize);
 		mNeedsCreate = FALSE;
 	}
 

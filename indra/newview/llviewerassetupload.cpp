@@ -474,8 +474,6 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
     {
         LLFileSystem file(getAssetId(), assetType, LLFileSystem::WRITE);
 
-        file.setMaxSize(file_size);
-
         const S32 buf_size = 65536;
         U8 copy_buf[buf_size];
         while ((file_size = infile.read(copy_buf, buf_size)))
@@ -568,7 +566,6 @@ LLSD LLBufferedAssetUploadInfo::prepareUpload()
     LLFileSystem file(getAssetId(), getAssetType(), LLFileSystem::APPEND);
 
     S32 size = mContents.length() + 1;
-    file.setMaxSize(size);
     file.write((U8*)mContents.c_str(), size);
 
     mStoredToCache = true;

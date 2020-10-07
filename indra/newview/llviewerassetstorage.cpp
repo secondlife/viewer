@@ -293,8 +293,6 @@ void LLViewerAssetStorage::storeAssetData(
 
         LLFileSystem file(asset_id, asset_type, LLFileSystem::WRITE);
 
-        file.setMaxSize(size);
-
         const S32 buf_size = 65536;
         U8 copy_buf[buf_size];
         while ((size = (S32)fread(copy_buf, 1, buf_size, fp)))
@@ -528,7 +526,6 @@ void LLViewerAssetStorage::assetRequestCoro(
             LLUUID temp_id;
             temp_id.generate();
             LLFileSystem vf(temp_id, atype, LLFileSystem::WRITE);
-            vf.setMaxSize(size);
             req->mBytesFetched = size;
             if (!vf.write(raw.data(),size))
             {

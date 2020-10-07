@@ -1140,7 +1140,6 @@ void LLPreviewGesture::saveIfNeeded()
             LLFileSystem file(assetId, LLAssetType::AT_GESTURE, LLFileSystem::APPEND);
 
             S32 size = dp.getCurrentSize();
-            file.setMaxSize(size);
             file.write((U8*)buffer, size);
 
             LLLineEditor* descEditor = getChild<LLLineEditor>("desc");

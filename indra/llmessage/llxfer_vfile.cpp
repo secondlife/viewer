@@ -261,7 +261,6 @@ void LLXfer_VFile::setXferSize (S32 xfer_size)
 	if (! mVFile)
 	{
 		LLFileSystem file(mTempID, mType, LLFileSystem::APPEND);
-		file.setMaxSize(xfer_size);
 	}
 }
 

@@ -1351,6 +1351,17 @@
       <key>Value</key>
       <integer>23</integer>
     </map>
+    <key>CacheDebugInfo</key>
+    <map>
+      <key>Comment</key>
+      <string>When enabled, display additional cache debugging information</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>CacheLocation</key>
     <map>
       <key>Comment</key>
