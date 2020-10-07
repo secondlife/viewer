@@ -605,7 +605,7 @@ bool LLCurrencyUIManager::bought()
 
 void LLCurrencyUIManager::clearError()
 {
-	return impl.clearError();
+	impl.clearError();
 }
 
 bool LLCurrencyUIManager::hasError()
