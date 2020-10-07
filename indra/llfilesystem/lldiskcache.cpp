@@ -2,6 +2,12 @@
  * @file lldiskcache.cpp
  * @brief The disk cache implementation.
  *
+ * Note: Rather than keep the top level function comments up
+ * to date in both the source and header files, I elected to
+ * only have explicit comments about each function and variable
+ * in the header - look there for details. The same is true for
+ * description of how this code is supposed to work.
+ *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2020, Linden Research, Inc.
@@ -40,10 +46,8 @@ LLDiskCache::LLDiskCache(const std::string cache_dir,
     mMaxSizeBytes(max_size_bytes),
     mEnableCacheDebugInfo(enable_cache_debug_info)
 {
-    // the prefix used for cache filenames to disambiguate them from other files
     mCacheFilenamePrefix = "sl_cache";
 
-    // create cache dir if it does not exist
     boost::filesystem::create_directory(cache_dir);
 }
 
@@ -126,7 +130,7 @@ void LLDiskCache::purge()
 const std::string LLDiskCache::assetTypeToString(LLAssetType::EType at)
 {
     /**
-     * Make use of the C++17 (or is it 14) feature that allows
+     * Make use of the handy C++17  feature that allows
      * for inline initialization of an std::map<>
      */
     typedef std::map<LLAssetType::EType, std::string> asset_type_to_name_t;
@@ -190,20 +194,12 @@ const std::string LLDiskCache::metaDataToFilepath(const std::string id,
     return file_path.str();
 }
 
-/**
- * Update the "last write time" of a file to "now". This must be called whenever a
- * file in the cache is read (not written) so that the last time the file was
- * accessed which is used in the mechanism for purging the cache, is up to date.
- */
 void LLDiskCache::updateFileAccessTime(const std::string file_path)
 {
     const std::time_t file_time = std::time(nullptr);
     boost::filesystem::last_write_time(file_path, file_time);
 }
 
-/**
- * 
- */
 const std::string LLDiskCache::getCacheInfo()
 {
     std::ostringstream cache_info;
@@ -219,14 +215,14 @@ const std::string LLDiskCache::getCacheInfo()
     return cache_info.str();
 }
 
-/**
- * Clear the cache by removing all the files in the cache directory
- * individually. It's important to maintain control of which directory
- * if passed in and not let the user inadvertently (or maliciously) set
- * it to an random location like your project source or OS system directory
- */
 void LLDiskCache::clearCache(const std::string cache_dir)
 {
+    /**
+     * See notes on performance in dirFileSize(..) - there may be
+     * a quicker way to do this by operating on the parent dir vs
+     * the component files but it's called infrequently so it's
+     * likely just fine
+     */
     if (boost::filesystem::is_directory(cache_dir))
     {
         for (auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(cache_dir), {}))
@@ -242,20 +238,19 @@ void LLDiskCache::clearCache(const std::string cache_dir)
     }
 }
 
-/**
- * Utility function to get the total filesize of all files in a directory. It
- * used to test file extensions to only check cache files but that was removed.
- * There may be a better way that works directly on the folder (similar to
- * right clicking on a folder in the OS and asking for size vs right clicking
- * on all files and adding up manually) but this is very fast - less than 100ms
- * in my testing so, so long as it's not called frequently, it should be okay.
- * Note that's it's only currently used for logging/debugging so if performance
- * is ever an issue, optimizing this or removing it altogether, is an easy win.
- */
 uintmax_t LLDiskCache::dirFileSize(const std::string dir)
 {
     uintmax_t total_file_size = 0;
 
+    /**
+     * There may be a better way that works directly on the folder (similar to
+     * right clicking on a folder in the OS and asking for size vs right clicking
+     * on all files and adding up manually) but this is very fast - less than 100ms
+     * for 10,000 files in my testing so, so long as it's not called frequently,
+     * it should be okay. Note that's it's only currently used for logging/debugging
+     * so if performance is ever an issue, optimizing this or removing it altogether,
+     * is an easy win.
+     */
     if (boost::filesystem::is_directory(dir))
     {
         for (auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(dir), {}))
