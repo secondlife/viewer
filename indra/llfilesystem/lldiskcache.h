@@ -27,15 +27,50 @@
 #ifndef _LLDISKCACHE
 #define _LLDISKCACHE
 
-class LLDiskCache
+#include "llsingleton.h"
+
+class LLDiskCache :
+    public LLParamSingleton<LLDiskCache>
 {
     public:
-        LLDiskCache(const std::string cache_dir);
-        ~LLDiskCache();
+        LLSINGLETON(LLDiskCache,
+                    const std::string cache_dir,
+                    const int max_size_bytes,
+                    const bool enable_cache_debug_info);
+        virtual ~LLDiskCache() = default;
+
+    public:
+        ///**
+        // * The location of the cache dir is set in llappviewer at startup via the
+        // * saved settings parameters.  We do not have access to those saved settings
+        // * here in LLCommon so we must provide an accessor for other classes to use
+        // * when they need it - e.g. LLFilesystem needs the path so it can write files
+        // * to it.
+        // */
+        //const std::string getCacheDirName() { return mCacheDir; }
+
+        ///**
+        // * Each cache filename has a prefix inserted (see definition of the
+        // * mCacheFilenamePrefix variable below for why) but the LLFileSystem
+        // * component needs access to it to in order to create the file so we
+        // * expose it by a getter here.
+        // */
+        //const std::string getCacheFilenamePrefix() { return mCacheFilenamePrefix; }
 
         /**
-         * Update the "last write time" of a file to "now". This must be called whenever a 
-         * file in the cache is read (not written) so that the last time the file was 
+         * Construct a filename and path to it based on the file meta data
+         * (id, asset type, additional 'extra' info like discard level perhaps)
+         * Worth pointing out that this function used to be in LLFileSystem but
+         * so many things had to be pushed back there to accomodate it, that I
+         * decided to move it here.  Still not sure that's completely right.
+         */
+        const std::string metaDataToFilepath(const std::string id,
+                                             LLAssetType::EType at,
+                                             const std::string extra_info);
+
+        /**
+         * Update the "last write time" of a file to "now". This must be called whenever a
+         * file in the cache is read (not written) so that the last time the file was
          * accessed which is used in the mechanism for purging the cache, is up to date.
          */
         void updateFileAccessTime(const std::string file_path);
@@ -51,28 +86,26 @@ class LLDiskCache
          */
         void clearCache(const std::string cache_dir);
 
-        /**
-         * Manage max size in bytes of cache - use a discrete setter/getter so the value can
-         * be changed in the preferences and cache cleared/purged without restarting viewer
-         * to instantiate this class again.
-         */
-        void setMaxSizeBytes(const uintmax_t size_bytes) { mMaxSizeBytes = size_bytes; }
-        uintmax_t getMaxSizeBytes() const { return mMaxSizeBytes; }
-
     private:
         /**
          * Utility function to gather the total size the files in a given
-         * directory. Primarily used here to determine the directory size 
+         * directory. Primarily used here to determine the directory size
          * before and after the cache purge
          */
         uintmax_t dirFileSize(const std::string dir);
 
+        /**
+         * Utility function to convert an LLAssetType enum into a
+         * string that we use as part of the cache file filename
+         */
+        const std::string assetTypeToString(LLAssetType::EType at);
+
     private:
         /**
-         * Default of 20MB seems reasonable - it will likely be reset
-         * immediately anyway using a value from the Viewer settings
+         * The maximum size of the cache in bytes. After purge is called, the
+         * total size of the cache files in the cache directory will be
+         * less than this value
          */
-        const uintmax_t mDefaultSizeBytes = 20 * 1024 * 1024;
         uintmax_t mMaxSizeBytes;
 
         /**
@@ -84,11 +117,20 @@ class LLDiskCache
         std::string mCacheDir;
 
         /**
-         * This is set from the CacheDebugInfo global setting and
-         * when enabled, displays additional debugging information in
+         * The prefix inserted at the start of a cache file filename to
+         * help identify it as a cache file. It's probably not required
+         * (just the presence in the cache folder is enough) but I am
+         * paranoid about the cache folder being set to something bad
+         * like the users' OS system dir by mistake or maliciously and
+         * this will help to offset any damage if that happens.
+         */
+        std::string mCacheFilenamePrefix;
+
+        /**
+         * When enabled, displays additional debugging information in
          * various parts of the code
          */
-        bool mCacheDebugInfo;
+        bool mEnableCacheDebugInfo;
 };
 
 #endif // _LLDISKCACHE

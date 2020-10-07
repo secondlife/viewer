@@ -98,6 +98,7 @@
 #include "lllogininstance.h"
 #include "llprogressview.h"
 #include "llvocache.h"
+#include "lldiskcache.h"
 #include "llvopartgroup.h"
 #include "llweb.h"
 #include "llfloatertexturefetchdebugger.h"
@@ -115,7 +116,6 @@
 #include "llprimitive.h"
 #include "llurlaction.h"
 #include "llurlentry.h"
-#include "llfilesystem.h"
 #include "llvolumemgr.h"
 #include "llxfermanager.h"
 #include "llphysicsextensions.h"
@@ -1854,9 +1854,6 @@ bool LLAppViewer::cleanup()
 	LLPrimitive::cleanupVolumeManager();
 	SUBSYSTEM_CLEANUP(LLWorldMapView);
 	SUBSYSTEM_CLEANUP(LLFolderViewItem);
-
-	LL_INFOS() << "Cleaning up disk cache" << LL_ENDL;
-	SUBSYSTEM_CLEANUP(LLFileSystem);
 
 	LL_INFOS() << "Saving Data" << LL_ENDL;
 
@@ -4111,6 +4108,9 @@ bool LLAppViewer::initCache()
 	{
 		LLSplashScreen::update(LLTrans::getString("StartupClearingCache"));
 		purgeCache();
+
+        // purge the new C++ file system based cache
+        LLDiskCache::getInstance()->purge();
 	}
 
 	LLSplashScreen::update(LLTrans::getString("StartupInitializingTextureCache"));
@@ -4131,7 +4131,12 @@ bool LLAppViewer::initCache()
 
 	LLVOCache::getInstance()->initCache(LL_PATH_CACHE, gSavedSettings.getU32("CacheNumberOfRegionsForObjects"), getObjectCacheVersion());
 
-	LLFileSystem::initClass();
+    // initialize the new disk cache using saved settings
+    const std::string cache_dir_name = gSavedSettings.getString("DiskCacheDirName");
+    const unsigned int cache_max_bytes = gSavedSettings.getU32("DiskCacheMaxSizeMB") * 1024 * 1024;
+    const bool enable_cache_debug_info = gSavedSettings.getBOOL("EnableDiskCacheDebugInfo");
+    const std::string cache_dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, cache_dir_name);
+    LLDiskCache::initParamSingleton(cache_dir, cache_max_bytes, enable_cache_debug_info);
 
     return true;
 }

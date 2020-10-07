@@ -25,41 +25,31 @@
  */
 
 #include "linden_common.h"
-#include "lluuid.h"
+#include "llassettype.h"
 #include "lldir.h"
+#include <boost/filesystem.hpp>
+#include <boost/range/iterator_range.hpp>
+#include <chrono>
 
 #include "lldiskcache.h"
 
-#include <boost/filesystem.hpp>
-#include <boost/range/iterator_range.hpp>
-
-#include <chrono>
-#include <thread>
-#include <algorithm>
-
-LLDiskCache::LLDiskCache(const std::string cache_dir) :
+LLDiskCache::LLDiskCache(const std::string cache_dir,
+                         const int max_size_bytes,
+                         const bool enable_cache_debug_info) :
     mCacheDir(cache_dir),
-    mMaxSizeBytes(mDefaultSizeBytes)
+    mMaxSizeBytes(max_size_bytes),
+    mEnableCacheDebugInfo(enable_cache_debug_info)
 {
-    // no access to LLControlGroup / gSavedSettings so use the system environment
-    // to trigger additional debugging on top of the default "we purged the cache"
-    mCacheDebugInfo = true;
-    if (getenv("LL_CACHE_DEBUGGING") != nullptr)
-    {
-        mCacheDebugInfo = true;
-    }
+    // the prefix used for cache filenames to disambiguate them from other files
+    mCacheFilenamePrefix = "sl_cache";
 
     // create cache dir if it does not exist
     boost::filesystem::create_directory(cache_dir);
 }
 
-LLDiskCache::~LLDiskCache()
-{
-}
-
 void LLDiskCache::purge()
 {
-    if (mCacheDebugInfo)
+    if (mEnableCacheDebugInfo)
     {
         LL_INFOS() << "Total dir size before purge is " << dirFileSize(mCacheDir) << LL_ENDL;
     }
@@ -75,11 +65,14 @@ void LLDiskCache::purge()
         {
             if (boost::filesystem::is_regular_file(entry))
             {
-                uintmax_t file_size = boost::filesystem::file_size(entry);
-                const std::string file_path = entry.path().string();
-                const std::time_t file_time = boost::filesystem::last_write_time(entry);
+                if (entry.path().string().find(mCacheFilenamePrefix) != std::string::npos)
+                {
+                    uintmax_t file_size = boost::filesystem::file_size(entry);
+                    const std::string file_path = entry.path().string();
+                    const std::time_t file_time = boost::filesystem::last_write_time(entry);
 
-                file_info.push_back(file_info_t(file_time, { file_size, file_path }));
+                    file_info.push_back(file_info_t(file_time, { file_size, file_path }));
+                }
             }
         }
     }
@@ -107,7 +100,7 @@ void LLDiskCache::purge()
             action = "  KEEP:";
         }
 
-        if (mCacheDebugInfo)
+        if (mEnableCacheDebugInfo)
         {
             // have to do this because of LL_INFO/LL_END weirdness
             std::ostringstream line;
@@ -121,7 +114,7 @@ void LLDiskCache::purge()
         }
     }
 
-    if (mCacheDebugInfo)
+    if (mEnableCacheDebugInfo)
     {
         auto end_time = std::chrono::high_resolution_clock::now();
         auto execute_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
@@ -130,9 +123,78 @@ void LLDiskCache::purge()
     }
 }
 
+const std::string LLDiskCache::assetTypeToString(LLAssetType::EType at)
+{
+    /**
+     * Make use of the C++17 (or is it 14) feature that allows
+     * for inline initialization of an std::map<>
+     */
+    typedef std::map<LLAssetType::EType, std::string> asset_type_to_name_t;
+    asset_type_to_name_t asset_type_to_name =
+    {
+        { LLAssetType::AT_TEXTURE, "TEXTURE" },
+        { LLAssetType::AT_SOUND, "SOUND" },
+        { LLAssetType::AT_CALLINGCARD, "CALLINGCARD" },
+        { LLAssetType::AT_LANDMARK, "LANDMARK" },
+        { LLAssetType::AT_SCRIPT, "SCRIPT" },
+        { LLAssetType::AT_CLOTHING, "CLOTHING" },
+        { LLAssetType::AT_OBJECT, "OBJECT" },
+        { LLAssetType::AT_NOTECARD, "NOTECARD" },
+        { LLAssetType::AT_CATEGORY, "CATEGORY" },
+        { LLAssetType::AT_LSL_TEXT, "LSL_TEXT" },
+        { LLAssetType::AT_LSL_BYTECODE, "LSL_BYTECODE" },
+        { LLAssetType::AT_TEXTURE_TGA, "TEXTURE_TGA" },
+        { LLAssetType::AT_BODYPART, "BODYPART" },
+        { LLAssetType::AT_SOUND_WAV, "SOUND_WAV" },
+        { LLAssetType::AT_IMAGE_TGA, "IMAGE_TGA" },
+        { LLAssetType::AT_IMAGE_JPEG, "IMAGE_JPEG" },
+        { LLAssetType::AT_ANIMATION, "ANIMATION" },
+        { LLAssetType::AT_GESTURE, "GESTURE" },
+        { LLAssetType::AT_SIMSTATE, "SIMSTATE" },
+        { LLAssetType::AT_LINK, "LINK" },
+        { LLAssetType::AT_LINK_FOLDER, "LINK_FOLDER" },
+        { LLAssetType::AT_MARKETPLACE_FOLDER, "MARKETPLACE_FOLDER" },
+        { LLAssetType::AT_WIDGET, "WIDGET" },
+        { LLAssetType::AT_PERSON, "PERSON" },
+        { LLAssetType::AT_MESH, "MESH" },
+        { LLAssetType::AT_SETTINGS, "SETTINGS" },
+        { LLAssetType::AT_UNKNOWN, "UNKNOWN" }
+    };
+
+    asset_type_to_name_t::iterator iter = asset_type_to_name.find(at);
+    if (iter != asset_type_to_name.end())
+    {
+        return iter->second;
+    }
+
+    return std::string("UNKNOWN");
+}
+
+const std::string LLDiskCache::metaDataToFilepath(const std::string id,
+        LLAssetType::EType at,
+        const std::string extra_info)
+{
+    std::ostringstream file_path;
+
+    file_path << mCacheDir;
+    file_path << gDirUtilp->getDirDelimiter();
+    file_path << mCacheFilenamePrefix;
+    file_path << "_";
+    file_path << id;
+    file_path << "_";
+    file_path << (extra_info.empty() ? "0" : extra_info);
+    file_path << "_";
+    file_path << assetTypeToString(at);
+    file_path << ".asset";
+
+    LL_INFOS() << "filepath.str() = " << file_path.str() << LL_ENDL;
+
+    return file_path.str();
+}
+
 /**
- * Update the "last write time" of a file to "now". This must be called whenever a 
- * file in the cache is read (not written) so that the last time the file was 
+ * Update the "last write time" of a file to "now". This must be called whenever a
+ * file in the cache is read (not written) so that the last time the file was
  * accessed which is used in the mechanism for purging the cache, is up to date.
  */
 void LLDiskCache::updateFileAccessTime(const std::string file_path)
@@ -144,8 +206,8 @@ void LLDiskCache::updateFileAccessTime(const std::string file_path)
 /**
  * Clear the cache by removing all the files in the cache directory
  * individually. It's important to maintain control of which directory
- * if passed in and not let the user inadvertently (or maliciously) set 
- * it to an random location like your project source or OS system directory 
+ * if passed in and not let the user inadvertently (or maliciously) set
+ * it to an random location like your project source or OS system directory
  */
 void LLDiskCache::clearCache(const std::string cache_dir)
 {
@@ -155,7 +217,10 @@ void LLDiskCache::clearCache(const std::string cache_dir)
         {
             if (boost::filesystem::is_regular_file(entry))
             {
-                boost::filesystem::remove(entry);
+                if (entry.path().string().find(mCacheFilenamePrefix) != std::string::npos)
+                {
+                    boost::filesystem::remove(entry);
+                }
             }
         }
     }
@@ -181,7 +246,10 @@ uintmax_t LLDiskCache::dirFileSize(const std::string dir)
         {
             if (boost::filesystem::is_regular_file(entry))
             {
-                total_file_size += boost::filesystem::file_size(entry);
+                if (entry.path().string().find(mCacheFilenamePrefix) != std::string::npos)
+                {
+                    total_file_size += boost::filesystem::file_size(entry);
+                }
             }
         }
     }
