@@ -230,6 +230,12 @@ BOOL LLFileSystem::read(U8 *buffer, S32 bytes, BOOL async, F32 priority)
         mReadComplete = TRUE;
     }
 
+    // update the last access time for the file - this is required 
+    // even though we are reading and not writing because this is the
+    // way the cache works - it relies on a valid "last accessed time" for
+    // each file so it knows how to remove the oldest, unused files
+    LLFileSystem::mDiskCache->updateFileAccessTime(filename);
+
     return success;
 }
 
@@ -285,13 +291,6 @@ BOOL LLFileSystem::write(const U8 *buffer, S32 bytes)
     }
 
     return success;
-}
-
-//static
-BOOL LLFileSystem::writeFile(const U8 *buffer, S32 bytes, const LLUUID &uuid, LLAssetType::EType type)
-{
-	LLFileSystem file(uuid, type, LLFileSystem::WRITE);
-	return file.write(buffer, bytes);
 }
 
 BOOL LLFileSystem::seek(S32 offset, S32 origin)

@@ -1005,7 +1005,8 @@ void LLSnapshotLivePreview::saveTexture(BOOL outfit_snapshot, std::string name)
 
 	if (formatted->encode(scaled, 0.0f))
 	{
-		LLFileSystem::writeFile(formatted->getData(), formatted->getDataSize(), new_asset_id, LLAssetType::AT_TEXTURE);
+        LLFileSystem fmt_file(new_asset_id, LLAssetType::AT_TEXTURE, LLFileSystem::WRITE);
+        fmt_file.write(formatted->getData(), formatted->getDataSize());
 		std::string pos_string;
 		LLAgentUI::buildLocationString(pos_string, LLAgentUI::LOCATION_FORMAT_FULL);
 		std::string who_took_it;

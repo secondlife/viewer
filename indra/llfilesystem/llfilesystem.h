@@ -1,4 +1,5 @@
 /** 
+/** 
  * @file filesystem.h
  * @brief Simulate local file system operations.
  * @Note The initial implementation does actually use standard C++
@@ -46,7 +47,6 @@ public:
 	BOOL eof();
 
 	BOOL write(const U8 *buffer, S32 bytes);
-	static BOOL writeFile(const U8 *buffer, S32 bytes, const LLUUID &uuid, LLAssetType::EType type);
 	BOOL seek(S32 offset, S32 origin = -1);
 	S32  tell() const;
 

@@ -899,10 +899,8 @@ void LLFloaterReporter::takeScreenshot(bool use_prev_screenshot)
 	mResourceDatap->mAssetInfo.setDescription("screenshot_descr");
 
 	// store in cache
-	LLFileSystem::writeFile(upload_data->getData(), 
-						upload_data->getDataSize(), 
-						mResourceDatap->mAssetInfo.mUuid, 
-						mResourceDatap->mAssetInfo.mType);
+    LLFileSystem j2c_file(mResourceDatap->mAssetInfo.mUuid, mResourceDatap->mAssetInfo.mType, LLFileSystem::WRITE);
+    j2c_file.write(upload_data->getData(), upload_data->getDataSize());
 
 	// store in the image list so it doesn't try to fetch from the server
 	LLPointer<LLViewerFetchedTexture> image_in_list = 
