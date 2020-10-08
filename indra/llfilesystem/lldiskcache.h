@@ -126,7 +126,7 @@ class LLDiskCache :
          * directory individually. Only the files that contain a prefix defined
          * by mCacheFilenamePrefix will be removed.
          */
-        void clearCache(const std::string cache_dir);
+        void clearCache();
 
         /**
          * Return some information about the cache for use in About Box etc.
