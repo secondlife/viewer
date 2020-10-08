@@ -771,12 +771,7 @@ void LLFeatureManager::applyBaseMasks()
 		maskFeatures("RAM256MB");
 	}
 	
-#if LL_SOLARIS && defined(__sparc) 	//  even low MHz SPARCs are fast
-#error The 800 is hinky. Would something like a LL_MIN_MHZ make more sense here?
-	if (gSysCPU.getMHz() < 800)
-#else
 	if (gSysCPU.getMHz() < 1100)
-#endif
 	{
 		maskFeatures("CPUSlow");
 	}

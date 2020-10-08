@@ -1917,8 +1917,8 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 		ms_sleep(5000) ; //wait for 5 seconds.
 
 		LLSplashScreen::update(LLTrans::getString("ShuttingDown"));
-#if LL_LINUX || LL_SOLARIS
-		LL_WARNS() << "Unable to create window, be sure screen is set at 32-bit color and your graphics driver is configured correctly.  See README-linux.txt or README-solaris.txt for further information."
+#if LL_LINUX
+		LL_WARNS() << "Unable to create window, be sure screen is set at 32-bit color and your graphics driver is configured correctly.  See README-linux.txt for further information."
 				<< LL_ENDL;
 #else
 		LL_WARNS("Window") << "Unable to create window, be sure screen is set at 32-bit color in Control Panels->Display->Settings"
