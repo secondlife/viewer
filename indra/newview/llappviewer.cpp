@@ -4061,6 +4061,13 @@ bool LLAppViewer::initCache()
 	LLAppViewer::getTextureCache()->setReadOnly(read_only) ;
 	LLVOCache::initParamSingleton(read_only);
 
+	// initialize the new disk cache using saved settings
+	const std::string cache_dir_name = gSavedSettings.getString("DiskCacheDirName");
+	const unsigned int cache_max_bytes = gSavedSettings.getU32("DiskCacheMaxSizeMB") * 1024 * 1024;
+	const bool enable_cache_debug_info = gSavedSettings.getBOOL("EnableDiskCacheDebugInfo");
+	const std::string cache_dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, cache_dir_name);
+	LLDiskCache::initParamSingleton(cache_dir, cache_max_bytes, enable_cache_debug_info);
+
 	bool texture_cache_mismatch = false;
 	if (gSavedSettings.getS32("LocalCacheVersion") != LLAppViewer::getTextureCacheVersion())
 	{
@@ -4107,13 +4114,21 @@ bool LLAppViewer::initCache()
 		gSavedSettings.setString("CacheLocationTopFolder", "");
 	}
 
-	if (mPurgeCache && !read_only)
+	if (!read_only)
 	{
-		LLSplashScreen::update(LLTrans::getString("StartupClearingCache"));
-		purgeCache();
+		if (mPurgeCache)
+		{
+			LLSplashScreen::update(LLTrans::getString("StartupClearingCache"));
+			purgeCache();
 
-        // purge the new C++ file system based cache
-        LLDiskCache::getInstance()->purge();
+			// clear the new C++ file system based cache
+			LLDiskCache::getInstance()->clearCache();
+		}
+		else
+		{
+			// purge excessive files from the new file system based cache
+			LLDiskCache::getInstance()->purge();
+		}
 	}
 
 	LLSplashScreen::update(LLTrans::getString("StartupInitializingTextureCache"));
@@ -4133,13 +4148,6 @@ bool LLAppViewer::initCache()
 	texture_cache_size -= extra;
 
 	LLVOCache::getInstance()->initCache(LL_PATH_CACHE, gSavedSettings.getU32("CacheNumberOfRegionsForObjects"), getObjectCacheVersion());
-
-    // initialize the new disk cache using saved settings
-    const std::string cache_dir_name = gSavedSettings.getString("DiskCacheDirName");
-    const unsigned int cache_max_bytes = gSavedSettings.getU32("DiskCacheMaxSizeMB") * 1024 * 1024;
-    const bool enable_cache_debug_info = gSavedSettings.getBOOL("EnableDiskCacheDebugInfo");
-    const std::string cache_dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, cache_dir_name);
-    LLDiskCache::initParamSingleton(cache_dir, cache_max_bytes, enable_cache_debug_info);
 
     return true;
 }

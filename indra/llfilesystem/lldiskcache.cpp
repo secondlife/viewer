@@ -215,7 +215,7 @@ const std::string LLDiskCache::getCacheInfo()
     return cache_info.str();
 }
 
-void LLDiskCache::clearCache(const std::string cache_dir)
+void LLDiskCache::clearCache()
 {
     /**
      * See notes on performance in dirFileSize(..) - there may be
@@ -223,9 +223,9 @@ void LLDiskCache::clearCache(const std::string cache_dir)
      * the component files but it's called infrequently so it's
      * likely just fine
      */
-    if (boost::filesystem::is_directory(cache_dir))
+    if (boost::filesystem::is_directory(mCacheDir))
     {
-        for (auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(cache_dir), {}))
+        for (auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(mCacheDir), {}))
         {
             if (boost::filesystem::is_regular_file(entry))
             {
