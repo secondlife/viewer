@@ -1,5 +1,4 @@
 /**
-/**
  * @file filesystem.h
  * @brief Simulate local file system operations.
  * @Note The initial implementation does actually use standard C++
