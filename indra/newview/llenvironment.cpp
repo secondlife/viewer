@@ -1612,6 +1612,17 @@ void LLEnvironment::updateShaderUniforms(LLGLSLShader *shader)
 
 void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envinfo, LLSettingsBase::Seconds transition)
 {
+    if (!gAgent.getRegion())
+    {
+        return;
+    }
+    // mRegionId id can be null, no specification as to why and if it's valid so check valid ids only
+    if (gAgent.getRegion()->getRegionID() != envinfo->mRegionId && envinfo->mRegionId.notNull())
+    {
+        LL_INFOS("ENVIRONMENT") << "Requested environmend region id: " << envinfo->mRegionId << " agent is on: " << gAgent.getRegion()->getRegionID() << LL_ENDL;
+        return;
+    }
+
     if (envinfo->mParcelId == INVALID_PARCEL_ID)
     {
         // the returned info applies to an entire region.
