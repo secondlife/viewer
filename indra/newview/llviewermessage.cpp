@@ -2877,7 +2877,7 @@ BOOL LLPostTeleportNotifiers::tick()
 // We're going to pretend to be a new agent
 void process_teleport_finish(LLMessageSystem* msg, void**)
 {
-	LL_DEBUGS("Messaging") << "Got teleport location message" << LL_ENDL;
+	LL_DEBUGS("Teleport","Messaging") << "Got teleport location message" << LL_ENDL;
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_Info, _PREHASH_AgentID, agent_id);
 	if (agent_id != gAgent.getID())
@@ -2892,12 +2892,13 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
         {
             // Server either ignored teleport cancel message or did not receive it in time.
             // This message can't be ignored since teleport is complete at server side
+			LL_INFOS("Teleport") << "Restoring canceled teleport request" << LL_ENDL;
             gAgent.restoreCanceledTeleportRequest();
         }
         else
         {
             // Race condition? Make sure all variables are set correctly for teleport to work
-            LL_WARNS("Messaging") << "Teleport 'finish' message without 'start'" << LL_ENDL;
+            LL_WARNS("Teleport","Messaging") << "Teleport 'finish' message without 'start'. Setting state to TELEPORT_REQUESTED" << LL_ENDL;
             gTeleportDisplay = TRUE;
             LLViewerMessage::getInstance()->mTeleportStartedSignal();
             gAgent.setTeleportState(LLAgent::TELEPORT_REQUESTED);
@@ -2989,6 +2990,7 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 	msg->addUUIDFast(_PREHASH_ID, gAgent.getID());
 	msg->sendReliable(sim_host);
 
+	LL_INFOS("Teleport") << "Calling send_complete_agent_movement() and setting state to TELEPORT_MOVING" << LL_ENDL;
 	send_complete_agent_movement(sim_host);
 	gAgent.setTeleportState( LLAgent::TELEPORT_MOVING );
 	gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["contacting"]);
@@ -3108,6 +3110,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		gAgentCamera.slamLookAt(look_at);
 		gAgentCamera.updateCamera();
 
+		LL_INFOS("Teleport") << "Agent movement complete, setting state to TELEPORT_START_ARRIVAL" << LL_ENDL;
 		gAgent.setTeleportState( LLAgent::TELEPORT_START_ARRIVAL );
 
 		if (isAgentAvatarValid())
@@ -3121,6 +3124,8 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	else
 	{
 		// This is initial log-in or a region crossing
+		LL_INFOS("Teleport") << "State is not TELEPORT_MOVING, so this is initial log-in or region crossing. "
+							 << "Setting state to TELEPORT_NONE" << LL_ENDL;
 		gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 
 		if(LLStartUp::getStartupState() < STATE_STARTED)
@@ -6001,6 +6006,7 @@ void process_teleport_failed(LLMessageSystem *msg, void**)
 				{
 					if( gAgent.getTeleportState() != LLAgent::TELEPORT_NONE )
 					{
+						LL_WARNS("Teleport") << "called handle_teleport_access_blocked, setting state to TELEPORT_NONE" << LL_ENDL;
 						gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 					}
 					return;
@@ -6028,6 +6034,8 @@ void process_teleport_failed(LLMessageSystem *msg, void**)
 
 	if( gAgent.getTeleportState() != LLAgent::TELEPORT_NONE )
 	{
+		LL_WARNS("Teleport") << "End of process_teleport_failed(). Reason message arg is " << args["REASON"]
+							 << ". Setting state to TELEPORT_NONE" << LL_ENDL;
 		gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 	}
 }
@@ -6062,6 +6070,8 @@ void process_teleport_local(LLMessageSystem *msg,void**)
 		}
 		else
 		{
+			LL_WARNS("Teleport") << "State is not TELEPORT_LOCAL: " << gAgent.getTeleportStateName()
+								 << ", setting state to TELEPORT_NONE" << LL_ENDL;
 			gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 		}
 	}

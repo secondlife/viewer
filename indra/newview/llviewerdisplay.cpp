@@ -423,6 +423,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		if( (gAgent.getTeleportState() != LLAgent::TELEPORT_START) && (teleport_percent > 100.f) )
 		{
 			// Give up.  Don't keep the UI locked forever.
+			LL_WARNS("Teleport") << "Giving up on teleport, teleport_percent is " << teleport_percent << LL_ENDL;
 			gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 			gAgent.setTeleportMessage(std::string());
 		}
@@ -444,6 +445,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gTeleportDisplayTimer.reset();
 			gViewerWindow->setShowProgress(TRUE);
 			gViewerWindow->setProgressPercent(llmin(teleport_percent, 0.0f));
+			LL_INFOS("Teleport") << "Teleport request of some kind has been sent, setting state to TELEPORT_REQUESTED" << LL_ENDL;
 			gAgent.setTeleportState( LLAgent::TELEPORT_REQUESTED );
 			gAgent.setTeleportMessage(
 				LLAgent::sTeleportProgressMessages["requesting"]);
@@ -468,6 +470,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gTeleportArrivalTimer.reset();
 				gViewerWindow->setProgressCancelButtonVisible(FALSE, LLTrans::getString("Cancel"));
 			gViewerWindow->setProgressPercent(75.f);
+			LL_INFOS("Teleport") << "Changing state to TELEPORT_ARRIVING" << LL_ENDL;
 			gAgent.setTeleportState( LLAgent::TELEPORT_ARRIVING );
 			gAgent.setTeleportMessage(
 				LLAgent::sTeleportProgressMessages["arriving"]);
@@ -484,6 +487,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				{
 					arrival_fraction = 1.f;
 					//LLFirstUse::useTeleport();
+					LL_INFOS("Teleport") << "arrival_fraction is " << arrival_fraction << " changing state to TELEPORT_NONE" << LL_ENDL;
 					gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 				}
 				gViewerWindow->setProgressCancelButtonVisible(FALSE, LLTrans::getString("Cancel"));
@@ -499,6 +503,10 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				if( gTeleportDisplayTimer.getElapsedTimeF32() > teleport_local_delay() )
 				{
 					//LLFirstUse::useTeleport();
+					LL_INFOS("Teleport") << "State is local and gTeleportDisplayTimer " << gTeleportDisplayTimer.getElapsedTimeF32()
+										 << " exceeds teleport_local_delete " << teleport_local_delay
+										 << "; setting state to TELEPORT_NONE"
+										 << LL_ENDL;
 					gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 				}
 			}
