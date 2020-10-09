@@ -62,6 +62,8 @@ public:
 	// cache. Called once per frame.
 	void idle();
 
+    static bool hasWork();
+
 	// If name is in cache, returns true and fills in provided LLAvatarName
 	// otherwise returns false.
 	static bool get(const LLUUID& agent_id, LLAvatarName *av_name);

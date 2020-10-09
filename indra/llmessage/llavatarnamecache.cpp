@@ -549,6 +549,12 @@ void LLAvatarNameCache::idle()
     eraseUnrefreshed();
 }
 
+//static
+bool LLAvatarNameCache::hasWork()
+{
+    return sRequestTimer.hasExpired();
+}
+
 bool LLAvatarNameCache::isRequestPending(const LLUUID& agent_id)
 {
 	bool isPending = false;
