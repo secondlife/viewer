@@ -205,7 +205,9 @@ public:
 
 	// llcorehttp init/shutdown/config information.
 	LLAppCoreHttp & getAppCoreHttp()			{ return mAppCoreHttp; }
-	
+
+    void updateNameLookupUrl();
+
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.
 	virtual void initLoggingAndGetLastDuration(); // Initialize log files, logging system
