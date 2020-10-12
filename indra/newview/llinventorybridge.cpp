@@ -7644,11 +7644,11 @@ void LLFolderViewGroupedItemBridge::groupFilterContextMenu(folder_view_item_dequ
 	disable_context_entries_if_present(menu, disabled_items);
 }
 
-bool LLFolderViewGroupedItemBridge::canWearSelected(uuid_vec_t item_ids)
+bool LLFolderViewGroupedItemBridge::canWearSelected(const uuid_vec_t item_ids) const
 {
 	for (uuid_vec_t::const_iterator it = item_ids.begin(); it != item_ids.end(); ++it)
 	{
-		LLViewerInventoryItem* item = gInventory.getItem(*it);
+		const LLViewerInventoryItem* item = gInventory.getItem(*it);
 		if (!item || (item->getType() >= LLAssetType::AT_COUNT) || (item->getType() <= LLAssetType::AT_NONE))
 		{
 			return false;
