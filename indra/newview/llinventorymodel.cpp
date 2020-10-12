@@ -2816,6 +2816,7 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
 	fileXML << LLSDOStreamer<LLSDNotationFormatter>(cache_ver) << std::endl;
 
 	S32 count = categories.size();
+	S32 cat_count = 0;
 	S32 i;
 	for(i = 0; i < count; ++i)
 	{
@@ -2823,16 +2824,19 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
 		if(cat->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN)
 		{
 			fileXML << LLSDOStreamer<LLSDNotationFormatter>(cat->exportLLSD()) << std::endl;
+			cat_count++;
 		}
 	}
 
-	count = items.size();
-	for(i = 0; i < count; ++i)
+	S32 it_count = items.size();
+	for(i = 0; i < it_count; ++i)
 	{
 		fileXML << LLSDOStreamer<LLSDNotationFormatter>(items[i]->asLLSD()) << std::endl;
 	}
 
 	fileXML.close();
+
+	LL_INFOS(LOG_INV) << "Inventory saved: " << cat_count << " categories, " << it_count << " items." << LL_ENDL;
 
 	return true;
 }
