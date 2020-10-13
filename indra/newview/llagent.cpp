@@ -157,32 +157,6 @@ std::map<S32, std::string> LLTeleportRequest::sTeleportStatusName = { { kPending
 																	  { kFailed, "kFailed" },
 																	  { kRestartPending, "kRestartPending"} };
 
-// TODO this enum -> name idiom should be in a common class rather than repeated various places.
-const std::string& LLTeleportRequest::statusName(EStatus status)
-{
-	static std::string invalid_status_str("INVALID");
-	auto iter = LLTeleportRequest::sTeleportStatusName.find(status);
-	if (iter != LLTeleportRequest::sTeleportStatusName.end())
-	{
-		return iter->second;
-	}
-	else
-	{
-		return invalid_status_str;
-	}
-}
-
-std::ostream& operator<<(std::ostream& os, const LLTeleportRequest& req)
-{
-	req.toOstream(os);
-	return os;
-}
-
-void LLTeleportRequest::toOstream(std::ostream& os) const
-{
-	os << "status " << statusName(mStatus) << "(" << mStatus << ")";
-}
-
 class LLTeleportRequestViaLandmark : public LLTeleportRequest
 {
 public:
@@ -910,7 +884,12 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 	if (mRegionp != regionp)
 	{
 
-		LL_INFOS("AgentLocation") << "Moving agent into region: " << regionp->getName() << LL_ENDL;
+		LL_INFOS("AgentLocation","Teleport") << "Moving agent into region: handle " << regionp->getHandle() 
+											 << " id " << regionp->getRegionID()
+											 << " name " << regionp->getName()
+											 << " previous region "
+											 << (mRegionp ? mRegionp->getRegionID() : LLUUID::null)
+											 << LL_ENDL;
 		if (mRegionp)
 		{
 			// We've changed regions, we're now going to change our agent coordinate frame.
@@ -4003,10 +3982,19 @@ void LLAgent::handleTeleportFinished()
     {
         if (mRegionp->capabilitiesReceived())
         {
+			LL_DEBUGS("Teleport") << "capabilities have been received for region handle "
+								  << mRegionp->getHandle()
+								  << " id " << mRegionp->getRegionID()
+								  << ", calling onCapabilitiesReceivedAfterTeleport()"
+								  << LL_ENDL;
             onCapabilitiesReceivedAfterTeleport();
         }
         else
         {
+			LL_DEBUGS("Teleport") << "Capabilities not yet received for region handle "
+								  << mRegionp->getHandle()
+								  << " id " << mRegionp->getRegionID()
+								  << LL_ENDL;
             mRegionp->setCapabilitiesReceivedCallback(boost::bind(&LLAgent::onCapabilitiesReceivedAfterTeleport));
         }
     }
@@ -4044,6 +4032,18 @@ void LLAgent::handleTeleportFailed()
 /*static*/
 void LLAgent::onCapabilitiesReceivedAfterTeleport()
 {
+	if (gAgent.getRegion())
+	{
+		LL_DEBUGS("Teleport") << "running after capabilities received callback has been triggered, agent region "
+							  << gAgent.getRegion()->getHandle()
+							  << " id " << gAgent.getRegion()->getRegionID()
+							  << " name " << gAgent.getRegion()->getName()
+							  << LL_ENDL;
+	}
+	else
+	{
+		LL_WARNS("Teleport") << "called when agent region is null!" << LL_ENDL;
+	}
 
     check_merchant_status();
 }
@@ -4770,6 +4770,32 @@ bool LLTeleportRequest::canRestartTeleport()
 void LLTeleportRequest::restartTeleport()
 {
 	llassert(0);
+}
+
+// TODO this enum -> name idiom should be in a common class rather than repeated various places.
+const std::string& LLTeleportRequest::statusName(EStatus status)
+{
+	static std::string invalid_status_str("INVALID");
+	auto iter = LLTeleportRequest::sTeleportStatusName.find(status);
+	if (iter != LLTeleportRequest::sTeleportStatusName.end())
+	{
+		return iter->second;
+	}
+	else
+	{
+		return invalid_status_str;
+	}
+}
+
+std::ostream& operator<<(std::ostream& os, const LLTeleportRequest& req)
+{
+	req.toOstream(os);
+	return os;
+}
+
+void LLTeleportRequest::toOstream(std::ostream& os) const
+{
+	os << "status " << statusName(mStatus) << "(" << mStatus << ")";
 }
 
 //-----------------------------------------------------------------------------

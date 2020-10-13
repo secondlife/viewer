@@ -445,7 +445,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gTeleportDisplayTimer.reset();
 			gViewerWindow->setShowProgress(TRUE);
 			gViewerWindow->setProgressPercent(llmin(teleport_percent, 0.0f));
-			LL_INFOS("Teleport") << "Teleport request of some kind has been sent, setting state to TELEPORT_REQUESTED" << LL_ENDL;
+			LL_INFOS("Teleport") << "A teleport request has been sent, setting state to TELEPORT_REQUESTED" << LL_ENDL;
 			gAgent.setTeleportState( LLAgent::TELEPORT_REQUESTED );
 			gAgent.setTeleportMessage(
 				LLAgent::sTeleportProgressMessages["requesting"]);
