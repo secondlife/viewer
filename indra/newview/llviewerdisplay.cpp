@@ -423,7 +423,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		if( (gAgent.getTeleportState() != LLAgent::TELEPORT_START) && (teleport_percent > 100.f) )
 		{
 			// Give up.  Don't keep the UI locked forever.
-			LL_WARNS("Teleport") << "Giving up on teleport, teleport_percent is " << teleport_percent << LL_ENDL;
+			LL_WARNS("Teleport") << "Giving up on teleport. elapsed time " << teleport_elapsed << " exceeds max time " << teleport_save_time << LL_ENDL;
 			gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 			gAgent.setTeleportMessage(std::string());
 		}
