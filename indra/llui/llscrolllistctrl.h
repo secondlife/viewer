@@ -97,6 +97,7 @@ public:
 		// behavioral flags
 		Optional<bool>	multi_select,
 						commit_on_keyboard_movement,
+						commit_on_selection_change,
 						mouse_wheel_opaque;
 
 		// display flags

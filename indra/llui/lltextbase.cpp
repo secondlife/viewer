@@ -2259,6 +2259,18 @@ void LLTextBase::needsReflow(S32 index)
 	mReflowIndex = llmin(mReflowIndex, index);
 }
 
+S32	LLTextBase::removeFirstLine()
+{
+    if (!mLineInfoList.empty())
+    {
+        S32 length = getLineEnd(0);
+        deselect();
+        removeStringNoUndo(0, length);
+        return length;
+    }
+    return 0;
+}
+
 void LLTextBase::appendLineBreakSegment(const LLStyle::Params& style_params)
 {
 	segment_vec_t segments;
