@@ -53,6 +53,8 @@ const U32 LL_FACE_JOINT_NUM = (LL_CHARACTER_MAX_ANIMATED_JOINTS-2);
 const S32 LL_CHARACTER_MAX_PRIORITY = 7;
 const F32 LL_MAX_PELVIS_OFFSET = 5.f;
 
+const F32 LL_JOINT_TRESHOLD_POS_OFFSET = 0.0001f; //0.1 mm
+
 class LLVector3OverrideMap
 {
 public:
@@ -287,9 +289,9 @@ public:
     void showAttachmentScaleOverrides(const std::string& av_info) const;
 
     void getAllAttachmentPosOverrides(S32& num_pos_overrides,
-                                      std::set<LLVector3>& distinct_pos_overrides);
+                                      std::set<LLVector3>& distinct_pos_overrides) const;
     void getAllAttachmentScaleOverrides(S32& num_scale_overrides,
-                                        std::set<LLVector3>& distinct_scale_overrides);
+                                        std::set<LLVector3>& distinct_scale_overrides) const;
     
     // These are used in checks of whether a pos/scale override is considered significant.
     bool aboveJointPosThreshold(const LLVector3& pos) const;
