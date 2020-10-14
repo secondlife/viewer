@@ -552,7 +552,7 @@ class LLFileUploadModel : public view_listener_t
 		LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) LLFloaterReg::getInstance("upload_model");
 		if (fmp && !fmp->isModelLoading())
 		{
-			fmp->loadModel(3);
+			fmp->loadHighLodModel();
 		}
 		
 		return TRUE;
