@@ -93,6 +93,5 @@ void main()
 	col.rgb += light_diffuse[1].rgb * calcDirectionalLight(norm, light_position[1].xyz);
 	col.rgb += light_diffuse[2].rgb*calcLocalLight(pos.xyz, norm, light_position[2], light_direction[2], light_attenuation[2].x, light_attenuation[2].z);
 	col.rgb += light_diffuse[3].rgb*calcLocalLight(pos.xyz, norm, light_position[3], light_direction[3], light_attenuation[3].x, light_attenuation[3].z);
-		
 	vertex_color = col*color;
 }
