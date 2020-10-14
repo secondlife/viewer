@@ -3036,7 +3036,7 @@ void process_avatar_init_complete(LLMessageSystem* msg, void**)
 
 void process_agent_movement_complete(LLMessageSystem* msg, void**)
 {
-	LL_DEBUGS("Teleport","Messaging") << "Received ProcessAgentMovementComplete" << LL_ENDL;
+	LL_INFOS("Teleport","Messaging") << "Received ProcessAgentMovementComplete" << LL_ENDL;
 
 	gShiftFrame = true;
 	gAgentMovementCompleted = true;
