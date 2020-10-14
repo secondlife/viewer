@@ -42,6 +42,10 @@ typedef std::deque<std::string>						JointNameSet;
 const S32 SLM_SUPPORTED_VERSION	= 3;
 const S32 NUM_LOD						= 4;
 
+const U32 LEGACY_RIG_OK = 0;
+const U32 LEGACY_RIG_FLAG_TOO_MANY_JOINTS = 1;
+const U32 LEGACY_RIG_FLAG_UNKNOWN_JOINT = 2;
+
 class LLModelLoader : public LLThread
 {
 public:
@@ -166,7 +170,7 @@ public:
 	void critiqueRigForUploadApplicability( const std::vector<std::string> &jointListFromAsset );
 
 	//Determines if a rig is a legacy from the joint list
-	bool isRigLegacy( const std::vector<std::string> &jointListFromAsset );
+	U32 determineRigLegacyFlags( const std::vector<std::string> &jointListFromAsset );
 
 	//Determines if a rig is suitable for upload
 	bool isRigSuitableForJointPositionUpload( const std::vector<std::string> &jointListFromAsset );
@@ -174,8 +178,9 @@ public:
 	const bool isRigValidForJointPositionUpload( void ) const { return mRigValidJointUpload; }
 	void setRigValidForJointPositionUpload( bool rigValid ) { mRigValidJointUpload = rigValid; }
 
-	const bool isLegacyRigValid( void ) const { return mLegacyRigValid; }
-	void setLegacyRigValid( bool rigValid ) { mLegacyRigValid = rigValid; }		
+	const bool isLegacyRigValid(void) const { return mLegacyRigFlags == 0; }
+	U32 getLegacyRigFlags() const { return mLegacyRigFlags; }
+	void setLegacyRigFlags( U32 rigFlags ) { mLegacyRigFlags = rigFlags; }
 
 	//-----------------------------------------------------------------------------
 	// isNodeAJoint()
@@ -184,6 +189,9 @@ public:
 	{
 		return name != NULL && mJointMap.find(name) != mJointMap.end();
 	}
+
+	const LLSD logOut() const { return mWarningsArray; }
+	void clearLog() { mWarningsArray.clear(); }
 
 protected:
 
@@ -194,12 +202,14 @@ protected:
 	void*								mOpaqueData;
 
 	bool		mRigValidJointUpload;
-	bool		mLegacyRigValid;
+	U32			mLegacyRigFlags;
 
 	bool		mNoNormalize;
 	bool		mNoOptimize;
 
 	JointTransformMap	mJointTransformMap;
+
+	LLSD mWarningsArray; // preview floater will pull logs from here
 
 	static std::list<LLModelLoader*> sActiveLoaderList;
 	static bool isAlive(LLModelLoader* loader) ;

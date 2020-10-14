@@ -343,7 +343,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 	return LLModel::NO_ERRORS ;
 }
 
-LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& face_list, std::vector<std::string>& materials, domPolylistRef& poly)
+LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& face_list, std::vector<std::string>& materials, domPolylistRef& poly, LLSD& log_msg)
 {
 	domPRef p = poly->getP();
 	domListOfUInts& idx = p->getValue();
@@ -403,6 +403,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 	LLVolumeFace::VertexMapData::PointMap point_map;
 
 	U32 cur_idx = 0;
+	bool log_tc_msg = true;
 	for (U32 i = 0; i < vcount.getCount(); ++i)
 	{ //for each polygon
 		U32 first_index = 0;
@@ -426,8 +427,21 @@ LLModel::EModelStatus load_face_from_dom_polylist(std::vector<LLVolumeFace>& fac
 
 			if (tc_source)
 			{
-				cv.mTexCoord.setVec(tc[idx[cur_idx+tc_offset]*2+0],
-									tc[idx[cur_idx+tc_offset]*2+1]);
+				U64 idx_x = idx[cur_idx + tc_offset] * 2 + 0;
+				U64 idx_y = idx[cur_idx + tc_offset] * 2 + 1;
+
+				if (idx_y < tc.getCount())
+				{
+					cv.mTexCoord.setVec(tc[idx_x], tc[idx_y]);
+				}			
+				else if (log_tc_msg)
+				{
+					log_tc_msg = false;
+					LL_WARNS() << "Texture coordinates data is not complete." << LL_ENDL;
+					LLSD args;
+					args["Message"] = "IncompleteTC";
+					log_msg.append(args);
+				}
 			}
 			
 			if (norm_source)
@@ -1215,7 +1229,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 				for (S32 i = 0; i < childCount; ++i)
 				{
 					domNode* pNode = daeSafeCast<domNode>(children[i]);
-					if ( isNodeAJoint( pNode ) )
+					if (pNode)
 					{
 						processJointNode( pNode, mJointList );
 					}
@@ -1469,6 +1483,12 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
                 LL_DEBUGS("Mesh")<<"Possibly misnamed/missing joint [" <<lookingForJoint.c_str()<<"] "<<LL_ENDL;
 			}
 		}
+
+        U32 bind_count = model->mSkinInfo.mAlternateBindMatrix.size();
+        if (bind_count > 0 && bind_count != jointCnt)
+        {
+            LL_WARNS("Mesh") << "Model " << model->mLabel << " has invalid joint bind matrix list." << LL_ENDL;
+        }
 
 		//grab raw position array
 
@@ -1834,59 +1854,61 @@ void LLDAELoader::processJointNode( domNode* pNode, JointTransformMap& jointTran
 	//LL_WARNS()<<"ProcessJointNode# Node:" <<pNode->getName()<<LL_ENDL;
 
 	//1. handle the incoming node - extract out translation via SID or element
+    if (isNodeAJoint(pNode))
+    {
+        LLMatrix4 workingTransform;
 
-	LLMatrix4 workingTransform;
+        //Pull out the translate id and store it in the jointTranslations map
+        daeSIDResolver jointResolverA(pNode, "./translate");
+        domTranslate* pTranslateA = daeSafeCast<domTranslate>(jointResolverA.getElement());
+        daeSIDResolver jointResolverB(pNode, "./location");
+        domTranslate* pTranslateB = daeSafeCast<domTranslate>(jointResolverB.getElement());
 
-	//Pull out the translate id and store it in the jointTranslations map
-	daeSIDResolver jointResolverA( pNode, "./translate" );
-	domTranslate* pTranslateA = daeSafeCast<domTranslate>( jointResolverA.getElement() );
-	daeSIDResolver jointResolverB( pNode, "./location" );
-	domTranslate* pTranslateB = daeSafeCast<domTranslate>( jointResolverB.getElement() );
+        //Translation via SID was successful
+        if (pTranslateA)
+        {
+            extractTranslation(pTranslateA, workingTransform);
+        }
+        else
+            if (pTranslateB)
+            {
+                extractTranslation(pTranslateB, workingTransform);
+            }
+            else
+            {
+                //Translation via child from element
+                daeElement* pTranslateElement = getChildFromElement(pNode, "translate");
+                if (!pTranslateElement || pTranslateElement->typeID() != domTranslate::ID())
+                {
+                    //LL_WARNS()<< "The found element is not a translate node" <<LL_ENDL;
+                    daeSIDResolver jointResolver(pNode, "./matrix");
+                    domMatrix* pMatrix = daeSafeCast<domMatrix>(jointResolver.getElement());
+                    if (pMatrix)
+                    {
+                        //LL_INFOS()<<"A matrix SID was however found!"<<LL_ENDL;
+                        domFloat4x4 domArray = pMatrix->getValue();
+                        for (int i = 0; i < 4; i++)
+                        {
+                            for (int j = 0; j < 4; j++)
+                            {
+                                workingTransform.mMatrix[i][j] = domArray[i + j * 4];
+                            }
+                        }
+                    }
+                    else
+                    {
+                        LL_WARNS() << "The found element is not translate or matrix node - most likely a corrupt export!" << LL_ENDL;
+                    }
+                }
+                else
+                {
+                    extractTranslationViaElement(pTranslateElement, workingTransform);
+                }
+            }
 
-	//Translation via SID was successful
-	if ( pTranslateA )
-	{
-		extractTranslation( pTranslateA, workingTransform );
-	}
-	else
-	if ( pTranslateB )
-	{
-		extractTranslation( pTranslateB, workingTransform );
-	}
-	else
-	{
-		//Translation via child from element
-		daeElement* pTranslateElement = getChildFromElement( pNode, "translate" );
-		if ( !pTranslateElement || pTranslateElement->typeID() != domTranslate::ID() )
-		{
-			//LL_WARNS()<< "The found element is not a translate node" <<LL_ENDL;
-			daeSIDResolver jointResolver( pNode, "./matrix" );
-			domMatrix* pMatrix = daeSafeCast<domMatrix>( jointResolver.getElement() );
-			if ( pMatrix )
-			{
-				//LL_INFOS()<<"A matrix SID was however found!"<<LL_ENDL;
-				domFloat4x4 domArray = pMatrix->getValue();									
-				for ( int i = 0; i < 4; i++ )
-				{
-					for( int j = 0; j < 4; j++ )
-					{
-						workingTransform.mMatrix[i][j] = domArray[i + j*4];
-					}
-				}
-			}
-			else
-			{
-				LL_WARNS()<< "The found element is not translate or matrix node - most likely a corrupt export!" <<LL_ENDL;
-			}
-		}
-		else
-		{
-			extractTranslationViaElement( pTranslateElement, workingTransform );
-		}
-	}
-
-	//Store the working transform relative to the nodes name.
-	jointTransforms[ pNode->getName() ] = workingTransform;
+        //Store the working transform relative to the nodes name.
+        jointTransforms[pNode->getName()] = workingTransform;
+    }
 
 	//2. handle the nodes children
 
@@ -2356,7 +2378,7 @@ LLColor4 LLDAELoader::getDaeColor(daeElement* element)
 	return value;
 }
 
-bool LLDAELoader::addVolumeFacesFromDomMesh(LLModel* pModel,domMesh* mesh)
+bool LLDAELoader::addVolumeFacesFromDomMesh(LLModel* pModel,domMesh* mesh, LLSD& log_msg)
 {
 	LLModel::EModelStatus status = LLModel::NO_ERRORS;
 	domTriangles_Array& tris = mesh->getTriangles_array();
@@ -2378,7 +2400,7 @@ bool LLDAELoader::addVolumeFacesFromDomMesh(LLModel* pModel,domMesh* mesh)
 	for (U32 i = 0; i < polys.getCount(); ++i)
 	{
 		domPolylistRef& poly = polys.get(i);
-		status = load_face_from_dom_polylist(pModel->getVolumeFaces(), pModel->getMaterialList(), poly);
+		status = load_face_from_dom_polylist(pModel->getVolumeFaces(), pModel->getMaterialList(), poly, log_msg);
 
 		if(status != LLModel::NO_ERRORS)
 		{
@@ -2442,7 +2464,7 @@ bool LLDAELoader::loadModelsFromDomMesh(domMesh* mesh, std::vector<LLModel*>& mo
 
 	// Get the whole set of volume faces
 	//
-	addVolumeFacesFromDomMesh(ret, mesh);
+	addVolumeFacesFromDomMesh(ret, mesh, mWarningsArray);
 
 	U32 volume_faces = ret->getNumVolumeFaces();
 
@@ -2515,7 +2537,8 @@ bool LLDAELoader::createVolumeFacesFromDomMesh(LLModel* pModel, domMesh* mesh)
 	{
 		pModel->ClearFacesAndMaterials();
 
-		addVolumeFacesFromDomMesh(pModel, mesh);
+		LLSD placeholder;
+		addVolumeFacesFromDomMesh(pModel, mesh, placeholder);
 
 		if (pModel->getNumVolumeFaces() > 0)
 		{
