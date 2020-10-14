@@ -1620,61 +1620,6 @@ void LLFloaterModelPreview::refresh()
 	sInstance->mModelPreview->mDirty = true;
 }
 
-//static
-void LLModelPreview::textureLoadedCallback(
-    BOOL success,
-    LLViewerFetchedTexture *src_vi,
-    LLImageRaw* src,
-    LLImageRaw* src_aux,
-    S32 discard_level,
-    BOOL final,
-    void* userdata )
-{
-	LLModelPreview* preview = (LLModelPreview*) userdata;
-	preview->refresh();
-
-	if(final && preview->mModelLoader)
-	{
-		// for areTexturesReady()
-		if(preview->mModelLoader->mNumOfFetchingTextures > 0)
-		{
-			preview->mModelLoader->mNumOfFetchingTextures-- ;
-		}
-	}
-}
-
-// static
-bool LLModelPreview::lodQueryCallback()
-{
-    // not the best solution, but model preview belongs to floater
-    // so it is an easy way to check that preview still exists.
-    LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
-    if (fmp && fmp->mModelPreview)
-    {
-        LLModelPreview* preview = fmp->mModelPreview;
-        if (preview->mLodsQuery.size() > 0)
-        {
-            S32 lod = preview->mLodsQuery.back();
-            preview->mLodsQuery.pop_back();
-            preview->genLODs(lod);
-
-            // return false to continue cycle
-            return false;
-        }
-    }
-    // nothing to process
-    return true;
-}
-
-void LLModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
-{
-	if (!mLODFrozen)
-	{
-		genLODs(lod, 3, enforce_tri_limit);
-		refresh();
-	}
-}
-
 LLFloaterModelPreview::DecompRequest::DecompRequest(const std::string& stage, LLModel* mdl)
 {
 	mStage = stage;
