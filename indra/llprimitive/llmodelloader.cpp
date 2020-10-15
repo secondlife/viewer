@@ -127,7 +127,7 @@ LLModelLoader::LLModelLoader(
 , mStateCallback(state_cb)
 , mOpaqueData(opaque_userdata)
 , mRigValidJointUpload(true)
-, mLegacyRigValid(true)
+, mLegacyRigFlags(0)
 , mNoNormalize(false)
 , mNoOptimize(false)
 , mCacheOnlyHitIfRigged(false)
@@ -136,6 +136,7 @@ LLModelLoader::LLModelLoader(
 {    
 	assert_main_thread();
 	sActiveLoaderList.push_back(this) ;
+	mWarningsArray = LLSD::emptyArray();
 }
 
 LLModelLoader::~LLModelLoader()
@@ -146,6 +147,7 @@ LLModelLoader::~LLModelLoader()
 
 void LLModelLoader::run()
 {
+	mWarningsArray.clear();
 	doLoadModel();
 	doOnIdleOneTime(boost::bind(&LLModelLoader::loadModelCallback,this));
 }
@@ -387,7 +389,7 @@ void LLModelLoader::critiqueRigForUploadApplicability( const std::vector<std::st
 	//2. It is suitable for upload as standard av with just skin weights
 	
 	bool isJointPositionUploadOK = isRigSuitableForJointPositionUpload( jointListFromAsset );
-	bool isRigLegacyOK			 = isRigLegacy( jointListFromAsset );
+	U32 legacy_rig_flags		 = determineRigLegacyFlags( jointListFromAsset );
 
 	// It's OK that both could end up being true.
 
@@ -401,19 +403,16 @@ void LLModelLoader::critiqueRigForUploadApplicability( const std::vector<std::st
 		setRigValidForJointPositionUpload( false );
 	}
 
-	if ( !isRigLegacyOK) 
-	{	
-        // This starts out true, becomes false if false for any loaded
-        // mesh. 
-		setLegacyRigValid( false );
-	}
+	legacy_rig_flags |= getLegacyRigFlags();
+	// This starts as 0, changes if any loaded mesh has issues
+	setLegacyRigFlags(legacy_rig_flags);
 
 }
 
 //-----------------------------------------------------------------------------
-// isRigLegacy()
+// determineRigLegacyFlags()
 //-----------------------------------------------------------------------------
-bool LLModelLoader::isRigLegacy( const std::vector<std::string> &jointListFromAsset )
+U32 LLModelLoader::determineRigLegacyFlags( const std::vector<std::string> &jointListFromAsset )
 {
 	//No joints in asset
 	if ( jointListFromAsset.size() == 0 )
@@ -426,7 +425,12 @@ bool LLModelLoader::isRigLegacy( const std::vector<std::string> &jointListFromAs
     {
         LL_WARNS() << "Rigged to " << jointListFromAsset.size() << " joints, max is " << mMaxJointsPerMesh << LL_ENDL;
         LL_WARNS() << "Skinning disabled due to too many joints" << LL_ENDL;
-        return false;
+        LLSD args;
+        args["Message"] = "TooManyJoint";
+        args["[JOINTS]"] = LLSD::Integer(jointListFromAsset.size());
+        args["[MAX]"] = LLSD::Integer(mMaxJointsPerMesh);
+        mWarningsArray.append(args);
+        return LEGACY_RIG_FLAG_TOO_MANY_JOINTS;
     }
 
     // Unknown joints in asset
@@ -437,16 +441,24 @@ bool LLModelLoader::isRigLegacy( const std::vector<std::string> &jointListFromAs
         if (mJointMap.find(*it)==mJointMap.end())
         {
             LL_WARNS() << "Rigged to unrecognized joint name " << *it << LL_ENDL;
+            LLSD args;
+            args["Message"] = "UnrecognizedJoint";
+            args["[NAME]"] = *it;
+            mWarningsArray.append(args);
             unknown_joint_count++;
         }
     }
     if (unknown_joint_count>0)
     {
         LL_WARNS() << "Skinning disabled due to unknown joints" << LL_ENDL;
-        return false;
+        LLSD args;
+        args["Message"] = "UnknownJoints";
+        args["[COUNT]"] = LLSD::Integer(unknown_joint_count);
+        mWarningsArray.append(args);
+        return LEGACY_RIG_FLAG_UNKNOWN_JOINT;
     }
 
-	return true;
+    return LEGACY_RIG_OK;
 }
 //-----------------------------------------------------------------------------
 // isRigSuitableForJointPositionUpload()
