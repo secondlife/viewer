@@ -2763,6 +2763,9 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 	BOOL visible = isVisible() || mNeedsAnimUpdate;
 
 	// update attachments positions
+	// FIXME what does sUseImpostors do
+	// here? Shouldn't behavior be based on state of this avatar,
+	// rather than some piece of global state?
 	if (detailed_update || !sUseImpostors)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_ATTACHMENT_UPDATE);
@@ -3995,7 +3998,7 @@ void LLVOAvatar::computeUpdatePeriod()
         && isVisible() 
         && (!isSelf() || visually_muted)
         && !isUIAvatar()
-        && sUseImpostors
+        && sUseImpostors // FIXME
         && !mNeedsAnimUpdate 
         && !sFreezeCounter)
 	{
@@ -10240,6 +10243,7 @@ void LLVOAvatar::updateImpostors()
 	for (std::vector<LLCharacter*>::iterator iter = instances_copy.begin();
 		iter != instances_copy.end(); ++iter)
 	{
+		// FIXME state spaghetti! Can we just use shouldImpostor() here?
 		LLVOAvatar* avatar = (LLVOAvatar*) *iter;
 		if (!avatar->isDead()
 			&& avatar->isVisible()
@@ -10257,11 +10261,14 @@ void LLVOAvatar::updateImpostors()
 // virtual
 BOOL LLVOAvatar::isImpostor()
 {
-	return sUseImpostors && (isVisuallyMuted() || (mUpdatePeriod >= IMPOSTOR_PERIOD)) ? TRUE : FALSE;
+	// FIXME this doesn't seem to actually mean that the avatar is currently shown as an impostor, or should be.
+	// un-impostored avs have mUpdatePeriod 1. IMPOSTOR_PERIOD is 2.
+	return sUseImpostors && (isVisuallyMuted() || (mUpdatePeriod >= IMPOSTOR_PERIOD));
 }
 
 BOOL LLVOAvatar::shouldImpostor(const U32 rank_factor) const
 {
+	// FIXME sUseImpostors question
 	return (!isSelf() && sUseImpostors && mVisibilityRank > (sMaxNonImpostors * rank_factor));
 }
 

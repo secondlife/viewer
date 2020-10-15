@@ -10920,6 +10920,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_IMPOSTOR_MARK_VISIBLE);
 		markVisible(avatar->mDrawable, *viewer_camera);
+		// FIXME temporarily hacked during impostor generation??
 		LLVOAvatar::sUseImpostors = false; // @TODO ???
 
 		LLVOAvatar::attachment_map_t::iterator iter;
@@ -11160,6 +11161,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	avatar->setImpostorDim(tdim);
 
+	// FIXME restored here. Where is this temp hack used??
 	LLVOAvatar::sUseImpostors = (0 != LLVOAvatar::sMaxNonImpostors);
 	sUseOcclusion = occlusion;
 	sReflectionRender = false;
