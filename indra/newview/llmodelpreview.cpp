@@ -340,7 +340,7 @@ U32 LLModelPreview::calcResourceCost()
             F32 radius = scale.length()*0.5f*debug_scale;
 
             LLMeshCostData costs;
-            if (gMeshRepo.getCostData(ret, costs))
+            if (gMeshRepo.getMeshCostData(ret, costs))
             {
                 streaming_cost += costs.getRadiusBasedStreamingCost(radius);
             }
