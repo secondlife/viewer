@@ -621,6 +621,10 @@ public:
 		TELEPORT_PENDING = 7
 	};
 
+	static std::map<S32, std::string> sTeleportStateName;
+	static const std::string& teleportStateName(S32);
+	const std::string& getTeleportStateName() const;
+
 public:
 	static void 	parseTeleportMessages(const std::string& xml_filename);
 	const void getTeleportSourceSLURL(LLSLURL& slurl) const;
