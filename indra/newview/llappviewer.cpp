@@ -1291,10 +1291,7 @@ void LLAppViewer::checkMemory()
 	//const static F32 MAX_QUIT_WAIT_TIME = 30.0f ; //seconds
 	//static F32 force_quit_timer = MAX_QUIT_WAIT_TIME + MEMORY_CHECK_INTERVAL ;
 
-	if(!gGLManager.mDebugGPU)
-	{
-		return ;
-	}
+	return ;
 
 	if(MEMORY_CHECK_INTERVAL > mMemCheckTimer.getElapsedTimeF32())
 	{
