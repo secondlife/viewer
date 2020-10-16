@@ -320,7 +320,7 @@ public:
 	static U32		sMaxNonImpostors; //(affected by control "RenderAvatarMaxNonImpostors")
 	static F32		sRenderDistance; //distance at which avatars will render.
 	static BOOL		sShowAnimationDebug; // show animation debug info
-	static bool		sUseImpostors; //use impostors for far away avatars
+	static bool		sUseImpostors; //use impostors for far away avatars, impostors are always on for 'mute' list
 	static BOOL		sShowFootPlane;	// show foot collision plane reported by server
 	static BOOL		sShowCollisionVolumes;	// show skeletal collision volumes
 	static BOOL		sVisibleInFirstPerson;
@@ -554,7 +554,7 @@ private:
 	//--------------------------------------------------------------------
 public:
 	virtual BOOL isImpostor();
-	BOOL 		shouldImpostor(const U32 rank_factor = 1) const;
+	BOOL 		shouldImpostor(const U32 rank_factor = 1);
 	BOOL 	    needsImpostorUpdate() const;
 	const LLVector3& getImpostorOffset() const;
 	const LLVector2& getImpostorDim() const;
