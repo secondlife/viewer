@@ -574,7 +574,7 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 		return;
 	}
 	LLVOAvatar::AvatarOverallAppearance oa = avatarp->getOverallAppearance();
-	BOOL impostor = avatarp->isImpostor();
+	BOOL impostor = !LLPipeline::sImpostorRenderAVVO && avatarp->isImpostor();
 	if (oa == LLVOAvatar::AOA_INVISIBLE ||
 		(impostor && oa == LLVOAvatar::AOA_JELLYDOLL))
 	{
@@ -1511,7 +1511,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 		return;
 	}
 
-	BOOL impostor = avatarp->isImpostor() && !single_avatar;
+	BOOL impostor = !LLPipeline::sImpostorRenderAVVO && avatarp->isImpostor() && !single_avatar;
 
 	if (( avatarp->isInMuteList() 
 		  || impostor 

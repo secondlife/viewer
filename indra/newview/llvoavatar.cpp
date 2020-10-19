@@ -2776,10 +2776,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 	BOOL visible = isVisible() || mNeedsAnimUpdate;
 
 	// update attachments positions
-	// FIXME what does sUseImpostors do
-	// here? Shouldn't behavior be based on state of this avatar,
-	// rather than some piece of global state?
-	if (detailed_update || !sUseImpostors)
+	if (detailed_update)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_ATTACHMENT_UPDATE);
 		for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
@@ -3624,7 +3621,7 @@ bool LLVOAvatar::isVisuallyMuted()
         {
             muted = true;
         }
-		else
+		else if (sUseImpostors)
 		{
 			muted = isTooComplex();
 		}
@@ -4011,7 +4008,7 @@ void LLVOAvatar::computeUpdatePeriod()
         && isVisible() 
         && (!isSelf() || visually_muted)
         && !isUIAvatar()
-        && sUseImpostors // FIXME
+        && (sUseImpostors || visually_muted) // FIXME??
         && !mNeedsAnimUpdate 
         && !sFreezeCounter)
 	{
@@ -10066,7 +10063,7 @@ BOOL LLVOAvatar::updateLOD()
         return FALSE;
     }
     
-	if (isImpostor() && 0 != mDrawable->getNumFaces() && mDrawable->getFace(0)->hasGeometry())
+	if (!LLPipeline::sImpostorRenderAVVO && isImpostor() && 0 != mDrawable->getNumFaces() && mDrawable->getFace(0)->hasGeometry())
 	{
 		return TRUE;
 	}
@@ -10276,13 +10273,15 @@ BOOL LLVOAvatar::isImpostor()
 {
 	// FIXME this doesn't seem to actually mean that the avatar is currently shown as an impostor, or should be.
 	// un-impostored avs have mUpdatePeriod 1. IMPOSTOR_PERIOD is 2.
-	return sUseImpostors && (isVisuallyMuted() || (mUpdatePeriod >= IMPOSTOR_PERIOD));
+	//return sUseImpostors && (isVisuallyMuted() || (mUpdatePeriod >= IMPOSTOR_PERIOD));
+	return (isVisuallyMuted() || (sUseImpostors && (mUpdatePeriod >= IMPOSTOR_PERIOD))) ? TRUE : FALSE;
 }
 
-BOOL LLVOAvatar::shouldImpostor(const U32 rank_factor) const
+BOOL LLVOAvatar::shouldImpostor(const U32 rank_factor)
 {
 	// FIXME sUseImpostors question
-	return (!isSelf() && sUseImpostors && mVisibilityRank > (sMaxNonImpostors * rank_factor));
+	//return (!isSelf() && sUseImpostors && mVisibilityRank > (sMaxNonImpostors * rank_factor));
+	return (!isSelf() && (sUseImpostors || isVisuallyMuted()) && mVisibilityRank > (sMaxNonImpostors * rank_factor));
 }
 
 BOOL LLVOAvatar::needsImpostorUpdate() const
