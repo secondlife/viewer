@@ -173,6 +173,71 @@ BOOL LLDataPacker::unpackFixed(F32 &value, const char *name,
 	return ok;
 }
 
+BOOL LLDataPacker::unpackU16s(U16 *values, S32 count, const char *name)
+{
+    for (S32 idx = 0; idx < count; ++idx)
+    {
+        if (!unpackU16(values[idx], name))
+        {
+            LL_WARNS("DATAPACKER") << "Buffer overflow reading Unsigned 16s \"" << name << "\" at index " << idx << "!" << LL_ENDL;
+            return FALSE;
+        }
+    }
+    return TRUE;
+}
+
+BOOL LLDataPacker::unpackS16s(S16 *values, S32 count, const char *name)
+{
+    for (S32 idx = 0; idx < count; ++idx)
+    {
+        if (!unpackS16(values[idx], name))
+        {
+            LL_WARNS("DATAPACKER") << "Buffer overflow reading Signed 16s \"" << name << "\" at index " << idx << "!" << LL_ENDL;
+            return FALSE;
+        }
+    }
+    return TRUE;
+}
+
+BOOL LLDataPacker::unpackF32s(F32 *values, S32 count, const char *name)
+{
+    for (S32 idx = 0; idx < count; ++idx)
+    {
+        if (!unpackF32(values[idx], name))
+        {
+            LL_WARNS("DATAPACKER") << "Buffer overflow reading Float 32s \"" << name << "\" at index " << idx << "!" << LL_ENDL;
+            return FALSE;
+        }
+    }
+    return TRUE;
+}
+
+BOOL LLDataPacker::unpackColor4Us(LLColor4U *values, S32 count, const char *name)
+{
+    for (S32 idx = 0; idx < count; ++idx)
+    {
+        if (!unpackColor4U(values[idx], name))
+        {
+            LL_WARNS("DATAPACKER") << "Buffer overflow reading Float 32s \"" << name << "\" at index " << idx << "!" << LL_ENDL;
+            return FALSE;
+        }
+    }
+    return TRUE;
+}
+
+BOOL LLDataPacker::unpackUUIDs(LLUUID *values, S32 count, const char *name)
+{
+    for (S32 idx = 0; idx < count; ++idx)
+    {
+        if (!unpackUUID(values[idx], name))
+        {
+            LL_WARNS("DATAPACKER") << "Buffer overflow reading UUIDs \"" << name << "\" at index " << idx << "!" << LL_ENDL;
+            return FALSE;
+        }
+    }
+    return TRUE;
+}
+
 //---------------------------------------------------------------------------
 // LLDataPackerBinaryBuffer implementation
 //---------------------------------------------------------------------------
@@ -319,6 +384,29 @@ BOOL LLDataPackerBinaryBuffer::unpackU16(U16 &value, const char *name)
 	return success;
 }
 
+BOOL LLDataPackerBinaryBuffer::packS16(const S16 value, const char *name)
+{
+    BOOL success = verifyLength(sizeof(S16), name);
+
+    if (mWriteEnabled && success)
+    {
+        htolememcpy(mCurBufferp, &value, MVT_S16, 2);
+    }
+    mCurBufferp += 2;
+    return success;
+}
+
+BOOL LLDataPackerBinaryBuffer::unpackS16(S16 &value, const char *name)
+{
+    BOOL success = verifyLength(sizeof(S16), name);
+
+    if (success)
+    {
+        htolememcpy(&value, mCurBufferp, MVT_S16, 2);
+    }
+    mCurBufferp += 2;
+    return success;
+}
 
 BOOL LLDataPackerBinaryBuffer::packU32(const U32 value, const char *name)
 {
@@ -884,6 +972,52 @@ BOOL LLDataPackerAsciiBuffer::unpackU16(U16 &value, const char *name)
 	return success;
 }
 
+BOOL LLDataPackerAsciiBuffer::packS16(const S16 value, const char *name)
+{
+    BOOL success = TRUE;
+    writeIndentedName(name);
+    int numCopied = 0;
+    if (mWriteEnabled)
+    {
+        numCopied = snprintf(mCurBufferp, getBufferSize() - getCurrentSize(), "%d\n", value); /* Flawfinder: ignore */
+    }
+    else
+    {
+        numCopied = snprintf(DUMMY_BUFFER, sizeof(DUMMY_BUFFER), "%d\n", value); /* Flawfinder: ignore */
+    }
+
+    // snprintf returns number of bytes that would have been written
+    // had the output not being truncated. In that case, it will
+    // return either -1 or value >= passed in size value . So a check needs to be added
+    // to detect truncation, and if there is any, only account for the
+    // actual number of bytes written..and not what could have been
+    // written.
+    if(numCopied < 0 || numCopied > getBufferSize() - getCurrentSize())
+    {
+        numCopied = getBufferSize() - getCurrentSize();
+        LL_WARNS() << "LLDataPackerAsciiBuffer::packS16: val truncated: " << LL_ENDL;
+    }
+
+    mCurBufferp += numCopied;
+
+    return success;
+}
+
+
+BOOL LLDataPackerAsciiBuffer::unpackS16(S16 &value, const char *name)
+{
+    BOOL success = TRUE;
+    char valuestr[DP_BUFSIZE]; /* Flawfinder: ignore */
+    if (!getValueStr(name, valuestr, DP_BUFSIZE))
+    {
+        return FALSE;
+    }
+
+    S32 in_val;
+    sscanf(valuestr, "%d", &in_val);
+    value = in_val;
+    return success;
+}
 
 BOOL LLDataPackerAsciiBuffer::packU32(const U32 value, const char *name)
 {
@@ -1587,6 +1721,36 @@ BOOL LLDataPackerAsciiFile::unpackU16(U16 &value, const char *name)
 	return success;
 }
 
+BOOL LLDataPackerAsciiFile::packS16(const S16 value, const char *name)
+{
+    BOOL success = TRUE;
+    writeIndentedName(name);
+    if (mFP)
+    {
+        fprintf(mFP, "%d\n", value);	
+    }
+    else if (mOutputStream)
+    {
+        *mOutputStream << "" << value << "\n";
+    }
+    return success;
+}
+
+
+BOOL LLDataPackerAsciiFile::unpackS16(S16 &value, const char *name)
+{
+    BOOL success = TRUE;
+    char valuestr[DP_BUFSIZE]; /*Flawfinder: ignore */
+    if (!getValueStr(name, valuestr, DP_BUFSIZE))
+    {
+        return FALSE;
+    }
+
+    S32 in_val;
+    sscanf(valuestr, "%d", &in_val);
+    value = in_val;
+    return success;
+}
 
 BOOL LLDataPackerAsciiFile::packU32(const U32 value, const char *name)
 {

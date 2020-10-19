@@ -1079,48 +1079,83 @@ S32 LLPrimitive::packTEField(U8 *cur_ptr, U8 *data_ptr, U8 data_size, U8 last_fa
 	return (S32)(cur_ptr - start_loc);
 }
 
-S32 LLPrimitive::unpackTEField(U8 *cur_ptr, U8 *buffer_end, U8 *data_ptr, U8 data_size, U8 face_count, EMsgVariableType type)
+namespace
 {
-	U8 *start_loc = cur_ptr;
-	U64 i;
-	htolememcpy(data_ptr,cur_ptr, type,data_size);
-	cur_ptr += data_size;
+    template< typename T >
+    bool unpack_TEField(T dest[], U8 dest_count, U8 * &source, U8 *source_end, EMsgVariableType type)
+    {
+        const size_t size(sizeof(T));
 
-	for (i = 1; i < face_count; i++)
-	{
-		// Already unswizzled, don't need to unswizzle it again!
-		memcpy(data_ptr+(i*data_size),data_ptr,data_size);	/* Flawfinder: ignore */ 
-	}
-	
-	while ((cur_ptr < buffer_end) && (*cur_ptr != 0))
-	{
-		LL_DEBUGS("TEFieldDecode") << "TE exception" << LL_ENDL;
-		i = 0;
-		while (*cur_ptr & 0x80)
-		{
-			i |= ((*cur_ptr++) & 0x7F);
-			i = i << 7;
-		}
+        LL_DEBUGS("TEXTUREENTRY") << "Request to read items of size " << size << " with swizzle " << type << " froum buffer sized " << (source_end - source) << LL_ENDL;
 
-		i |= *cur_ptr++;
+        if ((source + size + 1) > source_end)
+        {
+            // we add 1 above to take into account the byte that we know must follow the value.
+            LL_WARNS("TEXTUREENTRY") << "Buffer exhausted! Requires " << size << " + 1 bytes for default, " << (source_end - source) << " bytes remaning." << LL_ENDL;
+            source = source_end;
+            return false;
+        }
 
-		for (S32 j = 0; j < face_count; j++)
-		{
-			if (i & 0x01)
-			{
-				htolememcpy(data_ptr+(j*data_size),cur_ptr,type,data_size);
-				LL_DEBUGS("TEFieldDecode") << "Assigning " ;
-				char foo[64];
-				sprintf(foo,"%x %x",*(data_ptr+(j*data_size)), *(data_ptr+(j*data_size)+1));
-				LL_CONT << foo << " to face " << j << LL_ENDL;
-			}
-			i = i >> 1;
-		}
-		cur_ptr += data_size;		
-	}
-	llassert(cur_ptr <= buffer_end); // buffer underrun
-	return (S32)(cur_ptr - start_loc);
+        // Extract the default value and fill the array. 
+        htolememcpy(dest, source, type, size);
+        source += size;
+        for (S32 idx = 1; idx < dest_count; ++idx)
+        {
+            dest[idx] = dest[0];
+        }
+
+        while (source < source_end)
+        {
+            U64 index_flags(0);
+            U8  sbit(0);
+
+            // Unpack the variable length bitfield. Each bit represents whether the following 
+            // value will be placed at the corresponding array index.
+            do
+            {
+                if (source >= source_end)
+                {
+                    LL_WARNS("TEXTUREENTRY") << "Buffer exhausted! Reading index flags." << LL_ENDL;
+                    source = source_end;
+                    return false;
+                }
+
+                sbit = *source++;
+                index_flags <<= 7;    // original code had this after?
+                index_flags |= (sbit & 0x7F);
+            } while (sbit & 0x80);
+
+            if (!index_flags)
+            {   // We've hit the terminating 0 byte.
+                break;
+            }
+
+            if ((source + size + 1) > source_end)
+            {
+                // we add 1 above to take into account the byte that we know must follow the value.
+                LL_WARNS("TEXTUREENTRY") << "Buffer exhausted! Requires " << size << " + 1 bytes for default, " << (source_end - source) << " bytes remaning." << LL_ENDL;
+                source = source_end;
+                return false;
+            }
+
+            // get the value for the indexs.
+            T value;
+            htolememcpy(&value, source, type, size);
+            source += size;
+
+            for (S32 idx = 0; idx < dest_count; idx++)
+            {
+                if (index_flags & 1ULL << idx)
+                {
+                    dest[idx] = value;
+                }
+            }
+
+        }
+        return true;
+    }
 }
+
 
 
 // Pack information about all texture entries into container:
@@ -1316,47 +1351,42 @@ S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name
 		tec.face_count = 0;
 		return retval;
 	}
+    else if (tec.size >= LLTEContents::MAX_TE_BUFFER)
+    {
+        LL_WARNS("TEXTUREENTRY") << "Excessive buffer size detected in Texture Entry! Truncating." << LL_ENDL;
+        tec.size = LLTEContents::MAX_TE_BUFFER - 1;
+    }
 
-	if (block_num < 0)
-	{
-		mesgsys->getBinaryDataFast(block_name, _PREHASH_TextureEntry, tec.packed_buffer, 0, 0, LLTEContents::MAX_TE_BUFFER);
-	}
-	else
-	{
-		mesgsys->getBinaryDataFast(block_name, _PREHASH_TextureEntry, tec.packed_buffer, 0, block_num, LLTEContents::MAX_TE_BUFFER);
-	}
+    // if block_num < 0 ask for block 0
+    mesgsys->getBinaryDataFast(block_name, _PREHASH_TextureEntry, tec.packed_buffer, 0, std::max(block_num, 0), LLTEContents::MAX_TE_BUFFER - 1);
 
-	
+    // The last field is not zero terminated.  
+    // Rather than special case the upack functions.  Just make it 0x00 terminated.
+    tec.packed_buffer[tec.size] = 0x00;
+    ++tec.size;
 
 	tec.face_count = llmin((U32)getNumTEs(),(U32)LLTEContents::MAX_TES);
 
 	U8 *cur_ptr = tec.packed_buffer;
-	cur_ptr += unpackTEField(cur_ptr, tec.packed_buffer+tec.size, (U8 *)tec.image_data, 16, tec.face_count, MVT_LLUUID);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, tec.packed_buffer+tec.size, (U8 *)tec.colors, 4, tec.face_count, MVT_U8);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, tec.packed_buffer+tec.size, (U8 *)tec.scale_s, 4, tec.face_count, MVT_F32);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, tec.packed_buffer+tec.size, (U8 *)tec.scale_t, 4, tec.face_count, MVT_F32);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, tec.packed_buffer+tec.size, (U8 *)tec.offset_s, 2, tec.face_count, MVT_S16Array);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, tec.packed_buffer+tec.size, (U8 *)tec.offset_t, 2, tec.face_count, MVT_S16Array);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, tec.packed_buffer+tec.size, (U8 *)tec.image_rot, 2, tec.face_count, MVT_S16Array);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, tec.packed_buffer+tec.size, (U8 *)tec.bump, 1, tec.face_count, MVT_U8);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, tec.packed_buffer+tec.size, (U8 *)tec.media_flags, 1, tec.face_count, MVT_U8);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, tec.packed_buffer+tec.size, (U8 *)tec.glow, 1, tec.face_count, MVT_U8);
+    LL_DEBUGS("TEXTUREENTRY") << "Texture Entry with buffere sized: " << tec.size << LL_ENDL;
+    U8 *buffer_end = tec.packed_buffer + tec.size;
 
-	if (cur_ptr < tec.packed_buffer + tec.size)
-	{
-		cur_ptr++;
-		cur_ptr += unpackTEField(cur_ptr, tec.packed_buffer+tec.size, (U8 *)material_data, 16, tec.face_count, MVT_LLUUID);
-	}
-	else
+    if (!(  unpack_TEField<LLUUID>(tec.image_data, tec.face_count, cur_ptr, buffer_end, MVT_LLUUID) &&
+            unpack_TEField<LLColor4U>(tec.colors, tec.face_count, cur_ptr, buffer_end, MVT_U8) &&
+            unpack_TEField<F32>(tec.scale_s, tec.face_count, cur_ptr, buffer_end, MVT_F32) &&
+            unpack_TEField<F32>(tec.scale_t, tec.face_count, cur_ptr, buffer_end, MVT_F32) &&
+            unpack_TEField<S16>(tec.offset_s, tec.face_count, cur_ptr, buffer_end, MVT_S16) &&
+            unpack_TEField<S16>(tec.offset_t, tec.face_count, cur_ptr, buffer_end, MVT_S16) &&
+            unpack_TEField<S16>(tec.image_rot, tec.face_count, cur_ptr, buffer_end, MVT_S16) &&
+            unpack_TEField<U8>(tec.bump, tec.face_count, cur_ptr, buffer_end, MVT_U8) &&
+            unpack_TEField<U8>(tec.media_flags, tec.face_count, cur_ptr, buffer_end, MVT_U8) &&
+            unpack_TEField<U8>(tec.glow, tec.face_count, cur_ptr, buffer_end, MVT_U8)))
+    {
+        LL_WARNS("TEXTUREENTRY") << "Failure parsing Texture Entry Message due to malformed TE Field! Dropping changes on the floor. " << LL_ENDL;
+        return 0;
+    }
+
+	if (!unpack_TEField<U8>((U8 *)material_data, tec.face_count, cur_ptr, buffer_end, MVT_LLUUID))
 	{
 		memset(material_data, 0, sizeof(material_data));
 	}
@@ -1375,7 +1405,6 @@ S32 LLPrimitive::applyParsedTEMessage(LLTEContents& tec)
 	S32 retval = 0;
 	
 	LLColor4 color;
-	LLColor4U coloru;
 	for (U32 i = 0; i < tec.face_count; i++)
 	{
 		LLUUID& req_id = ((LLUUID*)tec.image_data)[i];
@@ -1388,20 +1417,15 @@ S32 LLPrimitive::applyParsedTEMessage(LLTEContents& tec)
 		retval |= setTEGlow(i, (F32)tec.glow[i] / (F32)0xFF);
 		retval |= setTEMaterialID(i, tec.material_ids[i]);
 
-		coloru = LLColor4U(tec.colors + 4*i);
-
 		// Note:  This is an optimization to send common colors (1.f, 1.f, 1.f, 1.f)
 		// as all zeros.  However, the subtraction and addition must be done in unsigned
 		// byte space, not in float space, otherwise off-by-one errors occur. JC
-		color.mV[VRED]		= F32(255 - coloru.mV[VRED])   / 255.f;
-		color.mV[VGREEN]	= F32(255 - coloru.mV[VGREEN]) / 255.f;
-		color.mV[VBLUE]		= F32(255 - coloru.mV[VBLUE])  / 255.f;
-		color.mV[VALPHA]	= F32(255 - coloru.mV[VALPHA]) / 255.f;
+		color.mV[VRED]		= F32(255 - tec.colors[i].mV[VRED])   / 255.f;
+		color.mV[VGREEN]	= F32(255 - tec.colors[i].mV[VGREEN]) / 255.f;
+		color.mV[VBLUE]		= F32(255 - tec.colors[i].mV[VBLUE])  / 255.f;
+		color.mV[VALPHA]	= F32(255 - tec.colors[i].mV[VALPHA]) / 255.f;
 
 		retval |= setTEColor(i, color);
-
-		
-
 	}
 
 	return retval;
@@ -1423,24 +1447,32 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 	const U32 MAX_TES = 45;
 
 	// Avoid construction of 32 UUIDs per call
-	static LLUUID image_ids[MAX_TES];
 	static LLMaterialID material_ids[MAX_TES];
 
-	U8     image_data[MAX_TES*16];
-	U8	   colors[MAX_TES*4];
-	F32    scale_s[MAX_TES];
-	F32    scale_t[MAX_TES];
-	S16    offset_s[MAX_TES];
-	S16    offset_t[MAX_TES];
-	S16    image_rot[MAX_TES];
-	U8	   bump[MAX_TES];
-	U8	   media_flags[MAX_TES];
-    U8     glow[MAX_TES];
-	U8     material_data[MAX_TES*16];
+    const U32 MAX_TE_BUFFER = 4096;
+    U8 packed_buffer[MAX_TE_BUFFER];
+    memset(packed_buffer, 0, MAX_TE_BUFFER);
 
-	const U32 MAX_TE_BUFFER = 4096;
-	U8 packed_buffer[MAX_TE_BUFFER];
-	U8 *cur_ptr = packed_buffer;
+    LLUUID      image_data[MAX_TES];
+    LLColor4U   colors[MAX_TES];
+    F32         scale_s[MAX_TES];
+    F32         scale_t[MAX_TES];
+    S16         offset_s[MAX_TES];
+    S16         offset_t[MAX_TES];
+    S16         image_rot[MAX_TES];
+    U8          bump[MAX_TES];
+    U8          media_flags[MAX_TES];
+    U8          glow[MAX_TES];
+    U8     material_data[MAX_TES * 16];
+    
+    memset(scale_s, 0, sizeof(scale_s));
+    memset(scale_t, 0, sizeof(scale_t));
+    memset(offset_s, 0, sizeof(offset_s));
+    memset(offset_t, 0, sizeof(offset_t));
+    memset(image_rot, 0, sizeof(image_rot));
+    memset(bump, 0, sizeof(bump));
+    memset(media_flags, 0, sizeof(media_flags));
+    memset(glow, 0, sizeof(glow));
 
 	S32 size;
 	U32 face_count = 0;
@@ -1456,50 +1488,52 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 	{
 		return retval;
 	}
+    else if (size >= MAX_TE_BUFFER)
+    {
+        LL_WARNS("TEXTUREENTRY") << "Excessive buffer size detected in Texture Entry! Truncating." << LL_ENDL;
+        size = MAX_TE_BUFFER - 1;
+    }
 
+    // The last field is not zero terminated.  
+    // Rather than special case the upack functions.  Just make it 0x00 terminated.
+    packed_buffer[size] = 0x00;
+    ++size;
 	face_count = llmin((U32) getNumTEs(), MAX_TES);
 	U32 i;
 
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)image_data, 16, face_count, MVT_LLUUID);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)colors, 4, face_count, MVT_U8);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)scale_s, 4, face_count, MVT_F32);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)scale_t, 4, face_count, MVT_F32);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)offset_s, 2, face_count, MVT_S16Array);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)offset_t, 2, face_count, MVT_S16Array);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)image_rot, 2, face_count, MVT_S16Array);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)bump, 1, face_count, MVT_U8);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)media_flags, 1, face_count, MVT_U8);
-	cur_ptr++;
-	cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)glow, 1, face_count, MVT_U8);
-	if (cur_ptr < packed_buffer + size)
-	{
-		cur_ptr++;
-		cur_ptr += unpackTEField(cur_ptr, packed_buffer+size, (U8 *)material_data, 16, face_count, MVT_LLUUID);
-	}
-	else
+    U8 *cur_ptr = packed_buffer;
+    LL_DEBUGS("TEXTUREENTRY") << "Texture Entry with buffer sized: " << size << LL_ENDL;
+    U8 *buffer_end = packed_buffer + size;
+
+    if (!(  unpack_TEField<LLUUID>(image_data, face_count, cur_ptr, buffer_end, MVT_LLUUID) &&
+            unpack_TEField<LLColor4U>(colors, face_count, cur_ptr, buffer_end, MVT_U8) &&
+            unpack_TEField<F32>(scale_s, face_count, cur_ptr, buffer_end, MVT_F32) &&
+            unpack_TEField<F32>(scale_t, face_count, cur_ptr, buffer_end, MVT_F32) &&
+            unpack_TEField<S16>(offset_s, face_count, cur_ptr, buffer_end, MVT_S16) &&
+            unpack_TEField<S16>(offset_t, face_count, cur_ptr, buffer_end, MVT_S16) &&
+            unpack_TEField<S16>(image_rot, face_count, cur_ptr, buffer_end, MVT_S16) &&
+            unpack_TEField<U8>(bump, face_count, cur_ptr, buffer_end, MVT_U8) &&
+            unpack_TEField<U8>(media_flags, face_count, cur_ptr, buffer_end, MVT_U8) &&
+            unpack_TEField<U8>(glow, face_count, cur_ptr, buffer_end, MVT_U8)))
+    {
+        LL_WARNS("TEXTUREENTRY") << "Failure parsing Texture Entry Message due to malformed TE Field! Dropping changes on the floor. " << LL_ENDL;
+        return 0;
+    }
+
+	if (!unpack_TEField<U8>((U8 *)material_data, face_count, cur_ptr, buffer_end, MVT_LLUUID))
 	{
 		memset(material_data, 0, sizeof(material_data));
 	}
 
 	for (i = 0; i < face_count; i++)
 	{
-		memcpy(image_ids[i].mData,&image_data[i*16],16);	/* Flawfinder: ignore */ 	
 		material_ids[i].set(&material_data[i * 16]);
 	}
 	
 	LLColor4 color;
-	LLColor4U coloru;
 	for (i = 0; i < face_count; i++)
 	{
-		retval |= setTETexture(i, image_ids[i]);
+        retval |= setTETexture(i, ((LLUUID*)image_data)[i]);
 		retval |= setTEScale(i, scale_s[i], scale_t[i]);
 		retval |= setTEOffset(i, (F32)offset_s[i] / (F32)0x7FFF, (F32) offset_t[i] / (F32) 0x7FFF);
 		retval |= setTERotation(i, ((F32)image_rot[i] / TEXTURE_ROTATION_PACK_FACTOR) * F_TWO_PI);
@@ -1507,15 +1541,14 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 		retval |= setTEMediaTexGen(i, media_flags[i]);
 		retval |= setTEGlow(i, (F32)glow[i] / (F32)0xFF);
 		retval |= setTEMaterialID(i, material_ids[i]);
-		coloru = LLColor4U(colors + 4*i);
 
 		// Note:  This is an optimization to send common colors (1.f, 1.f, 1.f, 1.f)
 		// as all zeros.  However, the subtraction and addition must be done in unsigned
 		// byte space, not in float space, otherwise off-by-one errors occur. JC
-		color.mV[VRED]		= F32(255 - coloru.mV[VRED])   / 255.f;
-		color.mV[VGREEN]	= F32(255 - coloru.mV[VGREEN]) / 255.f;
-		color.mV[VBLUE]		= F32(255 - coloru.mV[VBLUE])  / 255.f;
-		color.mV[VALPHA]	= F32(255 - coloru.mV[VALPHA]) / 255.f;
+		color.mV[VRED]		= F32(255 - colors[i].mV[VRED])   / 255.f;
+ 		color.mV[VGREEN]	= F32(255 - colors[i].mV[VGREEN]) / 255.f;
+ 		color.mV[VBLUE]		= F32(255 - colors[i].mV[VBLUE])  / 255.f;
+ 		color.mV[VALPHA]	= F32(255 - colors[i].mV[VALPHA]) / 255.f;
 
 		retval |= setTEColor(i, color);
 	}

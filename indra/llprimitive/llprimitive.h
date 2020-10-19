@@ -330,8 +330,8 @@ struct LLTEContents
 {
 	static const U32 MAX_TES = 45;
 
-	U8     image_data[MAX_TES*16];
-	U8	  colors[MAX_TES*4];
+    LLUUID      image_data[MAX_TES];
+    LLColor4U   colors[MAX_TES];
 	F32    scale_s[MAX_TES];
 	F32    scale_t[MAX_TES];
 	S16    offset_s[MAX_TES];
@@ -423,7 +423,6 @@ public:
 
 	void copyTEs(const LLPrimitive *primitive);
 	S32 packTEField(U8 *cur_ptr, U8 *data_ptr, U8 data_size, U8 last_face_index, EMsgVariableType type) const;
-	S32 unpackTEField(U8 *cur_ptr, U8 *buffer_end, U8 *data_ptr, U8 data_size, U8 face_count, EMsgVariableType type);
 	BOOL packTEMessage(LLMessageSystem *mesgsys) const;
 	BOOL packTEMessage(LLDataPacker &dp) const;
 	S32 unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num); // Variable num of blocks
