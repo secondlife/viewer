@@ -204,7 +204,7 @@ void LLViewerDynamicTexture::postRender(BOOL success)
 BOOL LLViewerDynamicTexture::updateAllInstances()
 {
 	sNumRenders = 0;
-	if (gGLManager.mIsDisabled || LLPipeline::sMemAllocationThrottled)
+	if (gGLManager.mIsDisabled)
 	{
 		return TRUE;
 	}

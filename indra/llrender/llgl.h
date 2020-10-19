@@ -173,7 +173,6 @@ private:
 	void initExtensions();
 	void initGLStates();
 	void initGLImages();
-	void setToDebugGPU();
 };
 
 extern LLGLManager gGLManager;

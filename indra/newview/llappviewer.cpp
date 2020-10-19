@@ -1280,36 +1280,8 @@ void LLAppViewer::initMaxHeapSize()
 
 	//F32 max_heap_size_gb = llmin(1.6f, (F32)gSavedSettings.getF32("MaxHeapSize")) ;
 	F32Gigabytes max_heap_size_gb = (F32Gigabytes)gSavedSettings.getF32("MaxHeapSize") ;
-	BOOL enable_mem_failure_prevention = (BOOL)gSavedSettings.getBOOL("MemoryFailurePreventionEnabled") ;
 
-	LLMemory::initMaxHeapSizeGB(max_heap_size_gb, enable_mem_failure_prevention) ;
-}
-
-void LLAppViewer::checkMemory()
-{
-	const static F32 MEMORY_CHECK_INTERVAL = 1.0f ; //second
-	//const static F32 MAX_QUIT_WAIT_TIME = 30.0f ; //seconds
-	//static F32 force_quit_timer = MAX_QUIT_WAIT_TIME + MEMORY_CHECK_INTERVAL ;
-
-	return ;
-
-	if(MEMORY_CHECK_INTERVAL > mMemCheckTimer.getElapsedTimeF32())
-	{
-		return ;
-	}
-	mMemCheckTimer.reset() ;
-
-		//update the availability of memory
-		LLMemory::updateMemoryInfo() ;
-
-	bool is_low = LLMemory::isMemoryPoolLow() ;
-
-	LLPipeline::throttleNewMemoryAllocation(is_low) ;
-
-	if(is_low)
-	{
-		LLMemory::logMemoryInfo() ;
-	}
+	LLMemory::initMaxHeapSizeGB(max_heap_size_gb);
 }
 
 static LLTrace::BlockTimerStatHandle FTM_MESSAGES("System Messages");
@@ -1387,9 +1359,6 @@ bool LLAppViewer::doFrame()
 
 	//clear call stack records
 	LL_CLEAR_CALLSTACKS();
-
-	//check memory availability information
-	checkMemory() ;
 
 	{
 		pingMainloopTimeout("Main:MiscNativeWindowEvents");

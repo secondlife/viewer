@@ -852,18 +852,12 @@ bool LLGLManager::initGL()
 
 	stop_glerror();
 	
-	setToDebugGPU();
-
-	stop_glerror();
-
 	initGLStates();
 
 	stop_glerror();
 
 	return true;
 }
-
-//void LLGLManager::setToDebugGPU()
 
 void LLGLManager::getGLInfo(LLSD& info)
 {

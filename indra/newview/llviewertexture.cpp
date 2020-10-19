@@ -3289,13 +3289,6 @@ void LLViewerLODTexture::processTextureStats()
 	{
 		mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, (S8)mDesiredSavedRawDiscardLevel);
 	}
-	else if(LLPipeline::sMemAllocationThrottled)//release memory of large textures by decrease their resolutions.
-	{
-		if(scaleDown())
-		{
-			mDesiredDiscardLevel = mCachedRawDiscardLevel;
-		}
-	}
 }
 
 bool LLViewerLODTexture::scaleDown()
