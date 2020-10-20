@@ -677,8 +677,12 @@ void LLFavoritesBarCtrl::changed(U32 mask)
 //virtual
 void LLFavoritesBarCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
+    S32 delta_width = width - getRect().getWidth();
+    S32 delta_height = height - getRect().getHeight();
+
+    bool force_update = delta_width || delta_height || sForceReshape;
 	LLUICtrl::reshape(width, height, called_from_parent);
-	updateButtons();
+	updateButtons(force_update);
 }
 
 void LLFavoritesBarCtrl::draw()
@@ -741,8 +745,13 @@ const LLButton::Params& LLFavoritesBarCtrl::getButtonParams()
 	return button_params;
 }
 
-void LLFavoritesBarCtrl::updateButtons()
+void LLFavoritesBarCtrl::updateButtons(bool force_update)
 {
+    if (LLApp::isExiting())
+    {
+        return;
+    }
+
 	mItems.clear();
 
 	if (!collectFavoriteItems(mItems))
@@ -773,28 +782,29 @@ void LLFavoritesBarCtrl::updateButtons()
 	const child_list_t* childs = getChildList();
 	child_list_const_iter_t child_it = childs->begin();
 	int first_changed_item_index = 0;
-	int rightest_point = getRect().mRight - mMoreTextBox->getRect().getWidth();
-	//lets find first changed button
-	while (child_it != childs->end() && first_changed_item_index < mItems.size())
-	{
-		LLFavoriteLandmarkButton* button = dynamic_cast<LLFavoriteLandmarkButton*> (*child_it);
-		if (button)
-		{
-			const LLViewerInventoryItem *item = mItems[first_changed_item_index].get();
-			if (item)
-			{
-			    // an child's order  and mItems  should be same
-				if (button->getLandmarkId() != item->getUUID() // sort order has been changed
-					|| button->getLabelSelected() != item->getName() // favorite's name has been changed
-					|| button->getRect().mRight < rightest_point) // favbar's width has been changed
-				{
-					break;
-				}
-			}
-			first_changed_item_index++;
-		}
-		child_it++;
-	}
+    if (!force_update)
+    {
+        //lets find first changed button
+        while (child_it != childs->end() && first_changed_item_index < mItems.size())
+        {
+            LLFavoriteLandmarkButton* button = dynamic_cast<LLFavoriteLandmarkButton*> (*child_it);
+            if (button)
+            {
+                const LLViewerInventoryItem *item = mItems[first_changed_item_index].get();
+                if (item)
+                {
+                    // an child's order  and mItems  should be same
+                    if (button->getLandmarkId() != item->getUUID() // sort order has been changed
+                        || button->getLabelSelected() != item->getName()) // favorite's name has been changed
+                    {
+                        break;
+                    }
+                }
+                first_changed_item_index++;
+            }
+            child_it++;
+        }
+    }
 	// now first_changed_item_index should contains a number of button that need to change
 
 	if (first_changed_item_index <= mItems.size())
